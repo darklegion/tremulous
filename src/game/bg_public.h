@@ -576,8 +576,8 @@ typedef enum {
   EV_TAUNT_GUARDBASE,
   EV_TAUNT_PATROL,
 
-  EV_MENU             //TA: menu event
-
+  EV_MENU,            //TA: menu event
+  EV_BUILD_DELAY      //TA: can't build yet
 } entity_event_t;
 
 typedef enum

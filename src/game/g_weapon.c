@@ -411,12 +411,19 @@ void cancelBuildFire( gentity_t *ent )
   ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
 }
 
-void buildFire( gentity_t *ent, dynMenu_t menu )
+void buildFire( gentity_t *ent, dynMenu_t menu, int delay )
 {
   if( ( ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
   {
+    if( ent->client->ps.stats[ STAT_MISC ] > 0 )
+    {
+      G_AddPredictableEvent( ent, EV_BUILD_DELAY, 0 );
+      return;
+    }
+    
     G_ValidateBuild( ent, ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT );
     ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
+    ent->client->ps.stats[ STAT_MISC ] += delay;
     return;
   }
 
@@ -528,43 +535,13 @@ void gClawFire( gentity_t *ent )
     G_Damage( traceEnt, ent, ent, forward, tr.endpos, 5, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
 }
 
-void grabFire( gentity_t *ent )
+void lockBlobFire( gentity_t *ent )
 {
-  trace_t   tr;
-  vec3_t    end;
-  gentity_t *tent;
-  gentity_t *traceEnt;
-  int     damage;
+  gentity_t *m;
 
-  // set aiming directions
-  AngleVectors (ent->client->ps.viewangles, forward, right, up);
+  m = fire_paraLockBlob( ent, muzzle, forward );
 
-  CalcMuzzlePoint( ent, forward, right, up, muzzle );
-
-  VectorMA( muzzle, 32, forward, end );
-
-  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
-  if ( tr.surfaceFlags & SURF_NOIMPACT )
-    return;
-
-  traceEnt = &g_entities[ tr.entityNum ];
-
-  if( !traceEnt->takedamage )
-    return;
-  if( !traceEnt->client )
-    return;
-  if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-    return;
-    
-  if( traceEnt->client )
-  {
-    //lock client
-    traceEnt->client->ps.stats[ STAT_STATE ] |= SS_GRABBED;
-    traceEnt->client->lastGrabTime = level.time;
-
-    if( !( traceEnt->client->ps.stats[ STAT_STATE ] & SS_GRABBED ) )
-      VectorCopy( traceEnt->client->ps.viewangles, traceEnt->client->ps.grapplePoint );
-  }
+//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
 
 /*
@@ -918,7 +895,7 @@ void FireWeapon2( gentity_t *ent )
     case WP_LOCKBLOB_LAUNCHER:
       break;
     case WP_GRAB_CLAW:
-      grabFire( ent );
+      lockBlobFire( ent );
       break;
     case WP_AREA_ZAP:
     case WP_DIRECT_ZAP:
@@ -1016,16 +993,16 @@ void FireWeapon( gentity_t *ent )
       painSawFire( ent );
       break;
     case WP_ABUILD:
-      buildFire( ent, MN_A_BUILD );
+      buildFire( ent, MN_A_BUILD, 10000 );
       break;
     case WP_ABUILD2:
-      buildFire( ent, MN_A_BUILD );
+      buildFire( ent, MN_A_BUILD, 5000 );
       break;
     case WP_HBUILD:
-      buildFire( ent, MN_H_BUILD );
+      buildFire( ent, MN_H_BUILD, 10000 );
       break;
     case WP_HBUILD2:
-      buildFire( ent, MN_H_BUILD );
+      buildFire( ent, MN_H_BUILD, 5000 );
       break;
     default:
   // FIXME    G_Error( "Bad ent->s.weapon" );

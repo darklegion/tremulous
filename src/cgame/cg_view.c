@@ -1107,7 +1107,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
   // if we are only updating the screen as a loading
   // pacifier, don't even try to read snapshots
   if ( cg.infoScreenText[0] != 0 ) {
-    CG_DrawInformation();
+    CG_DrawLoadingScreen( );
     return;
   }
 
@@ -1124,7 +1124,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
   // if we haven't received any snapshots yet, all
   // we can draw is the information screen
   if ( !cg.snap || ( cg.snap->snapFlags & SNAPFLAG_NOT_ACTIVE ) ) {
-    CG_DrawInformation();
+    CG_DrawLoadingScreen( );
     return;
   }
 

@@ -161,6 +161,7 @@ typedef struct columnInfo_s {
 	int pos;
 	int width;
 	int maxChars;
+  int align;
 } columnInfo_t;
 
 typedef struct listBoxDef_s {

@@ -3754,7 +3754,32 @@ void Item_ListBox_Paint(itemDef_t *item) {
             if (optionalImage >= 0) {
               DC->drawHandlePic(x + 4 + listPtr->columnInfo[j].pos, y - 1 + listPtr->elementHeight / 2, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
             } else if (text) {
-              DC->drawText(x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight, item->textscale, item->window.foreColor, text, 0, listPtr->columnInfo[j].maxChars, item->textStyle);
+              //TA:
+              int alignOffset, tw;
+
+              tw = DC->textWidth( text, item->textscale, 0 );
+
+              switch( listPtr->columnInfo[ j ].align )
+              {
+                case ITEM_ALIGN_LEFT:
+                  alignOffset = 0.0f;
+                  break;
+
+                case ITEM_ALIGN_RIGHT:
+                  alignOffset = listPtr->columnInfo[ j ].width - tw;
+                  break;
+
+                case ITEM_ALIGN_CENTER:
+                  alignOffset = ( listPtr->columnInfo[ j ].width / 2.0f ) - ( tw / 2.0f );
+                  break;
+
+                default:
+                  alignOffset = 0.0f;
+              }
+
+              DC->drawText( x + 4 + listPtr->columnInfo[j].pos + alignOffset, y + listPtr->elementHeight,
+                            item->textscale, item->window.foreColor, text, 0,
+                            listPtr->columnInfo[j].maxChars, item->textStyle );
             }
           }
         } else {
@@ -4600,12 +4625,17 @@ qboolean ItemParse_columns( itemDef_t *item, int handle ) {
     }
     listPtr->numColumns = num;
     for (i = 0; i < num; i++) {
-      int pos, width, maxChars;
+      int pos, width, maxChars, align;
 
-      if (PC_Int_Parse(handle, &pos) && PC_Int_Parse(handle, &width) && PC_Int_Parse(handle, &maxChars)) {
+      if( PC_Int_Parse( handle, &pos ) &&
+          PC_Int_Parse( handle, &width ) &&
+          PC_Int_Parse( handle, &maxChars ) &&
+          PC_Int_Parse( handle, &align ) )
+      {
         listPtr->columnInfo[i].pos = pos;
         listPtr->columnInfo[i].width = width;
         listPtr->columnInfo[i].maxChars = maxChars;
+        listPtr->columnInfo[i].align = align;
       } else {
         return qfalse;
       }

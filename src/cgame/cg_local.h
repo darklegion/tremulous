@@ -306,16 +306,6 @@ typedef struct {
   int       score;
   int       ping;
   int       time;
-  int       scoreFlags;
-  int       powerUps;
-  int       accuracy;
-  int       impressiveCount;
-  int       excellentCount;
-  int       guantletCount;
-  int       defendCount;
-  int       assistCount;
-  int       captures;
-  qboolean  perfect;
   int       team;
 } score_t;
 
@@ -722,7 +712,13 @@ typedef struct {
   int       rightMoveTime;
   int       upMoveTime;
 
+  float     charModelFraction; //TA: loading percentages
+  float     mediaFraction;
+  float     buildablesFraction;
+
   entityPos_t ep;
+
+  int       lastBuildAttempt;
 } cg_t;
 
 
@@ -1384,6 +1380,8 @@ const char *CG_GameTypeString();
 qboolean CG_YourTeamHasFlag();
 qboolean CG_OtherTeamHasFlag();
 qhandle_t CG_StatusHandle(int task);
+void CG_DrawLoadingScreen( void );
+void CG_UpdateMediaFraction( float newFract );
 
 //
 // cg_player.c
@@ -1570,14 +1568,6 @@ void CG_ClearTrails( void );
 // cg_snapshot.c
 //
 void CG_ProcessSnapshots( void );
-
-//
-// cg_info.c
-//
-void CG_LoadingString( const char *s );
-void CG_LoadingItem( int itemNum );
-void CG_LoadingClient( int clientNum );
-void CG_DrawInformation( void );
 
 //
 // cg_scoreboard.c

@@ -54,7 +54,6 @@ CGOBJ = \
 	$(CGDIRNAME)/cg_effects.o \
 	$(CGDIRNAME)/cg_ents.o \
 	$(CGDIRNAME)/cg_event.o \
-	$(CGDIRNAME)/cg_info.o \
 	$(CGDIRNAME)/cg_localents.o \
 	$(CGDIRNAME)/cg_marks.o \
 	$(CGDIRNAME)/cg_players.o \

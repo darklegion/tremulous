@@ -406,6 +406,63 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
           trap_R_SetColor( newColor );
           colorBlack[3] = 1.0;
         }
+        else if( style == ITEM_TEXTSTYLE_NEON )
+        {
+          vec4_t glow, outer, inner, white;
+
+          glow[ 0 ] = newColor[ 0 ] * 0.5;
+          glow[ 1 ] = newColor[ 1 ] * 0.5;
+          glow[ 2 ] = newColor[ 2 ] * 0.5;
+          glow[ 3 ] = newColor[ 3 ] * 0.2;
+          
+          outer[ 0 ] = newColor[ 0 ];
+          outer[ 1 ] = newColor[ 1 ];
+          outer[ 2 ] = newColor[ 2 ];
+          outer[ 3 ] = newColor[ 3 ];
+          
+          inner[ 0 ] = newColor[ 0 ] * 1.5 > 1.0f ? 1.0f : newColor[ 0 ] * 1.5;
+          inner[ 1 ] = newColor[ 1 ] * 1.5 > 1.0f ? 1.0f : newColor[ 1 ] * 1.5;
+          inner[ 2 ] = newColor[ 2 ] * 1.5 > 1.0f ? 1.0f : newColor[ 2 ] * 1.5;
+          inner[ 3 ] = newColor[ 3 ];
+
+          white[ 0 ] = white[ 1 ] = white[ 2 ] = white[ 3 ] = 1.0f;
+          
+          trap_R_SetColor( glow );
+          Text_PaintChar( x - 1.5, y - yadj - 1.5,
+                          glyph->imageWidth + 3,
+                          glyph->imageHeight + 3,
+                          useScale,
+                          glyph->s,
+                          glyph->t,
+                          glyph->s2,
+                          glyph->t2,
+                          glyph->glyph );
+          
+          trap_R_SetColor( outer );
+          Text_PaintChar( x - 1, y - yadj - 1,
+                          glyph->imageWidth + 2,
+                          glyph->imageHeight + 2,
+                          useScale,
+                          glyph->s,
+                          glyph->t,
+                          glyph->s2,
+                          glyph->t2,
+                          glyph->glyph );
+          
+          trap_R_SetColor( inner );
+          Text_PaintChar( x - 0.5, y - yadj - 0.5,
+                          glyph->imageWidth + 1,
+                          glyph->imageHeight + 1,
+                          useScale,
+                          glyph->s,
+                          glyph->t,
+                          glyph->s2,
+                          glyph->t2,
+                          glyph->glyph );
+          
+          trap_R_SetColor( white );
+        }
+        
         Text_PaintChar(x, y - yadj, 
                           glyph->imageWidth,
                           glyph->imageHeight,
@@ -478,6 +535,63 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
           colorBlack[3] = 1.0;
           trap_R_SetColor( newColor );
         }
+        else if( style == ITEM_TEXTSTYLE_NEON )
+        {
+          vec4_t glow, outer, inner, white;
+
+          glow[ 0 ] = newColor[ 0 ] * 0.5;
+          glow[ 1 ] = newColor[ 1 ] * 0.5;
+          glow[ 2 ] = newColor[ 2 ] * 0.5;
+          glow[ 3 ] = newColor[ 3 ] * 0.2;
+          
+          outer[ 0 ] = newColor[ 0 ];
+          outer[ 1 ] = newColor[ 1 ];
+          outer[ 2 ] = newColor[ 2 ];
+          outer[ 3 ] = newColor[ 3 ];
+          
+          inner[ 0 ] = newColor[ 0 ] * 1.5 > 1.0f ? 1.0f : newColor[ 0 ] * 1.5;
+          inner[ 1 ] = newColor[ 1 ] * 1.5 > 1.0f ? 1.0f : newColor[ 1 ] * 1.5;
+          inner[ 2 ] = newColor[ 2 ] * 1.5 > 1.0f ? 1.0f : newColor[ 2 ] * 1.5;
+          inner[ 3 ] = newColor[ 3 ];
+
+          white[ 0 ] = white[ 1 ] = white[ 2 ] = white[ 3 ] = 1.0f;
+          
+          trap_R_SetColor( glow );
+          Text_PaintChar( x - 1.5, y - yadj - 1.5,
+                          glyph->imageWidth + 3,
+                          glyph->imageHeight + 3,
+                          useScale,
+                          glyph->s,
+                          glyph->t,
+                          glyph->s2,
+                          glyph->t2,
+                          glyph->glyph );
+          
+          trap_R_SetColor( outer );
+          Text_PaintChar( x - 1, y - yadj - 1,
+                          glyph->imageWidth + 2,
+                          glyph->imageHeight + 2,
+                          useScale,
+                          glyph->s,
+                          glyph->t,
+                          glyph->s2,
+                          glyph->t2,
+                          glyph->glyph );
+          
+          trap_R_SetColor( inner );
+          Text_PaintChar( x - 0.5, y - yadj - 0.5,
+                          glyph->imageWidth + 1,
+                          glyph->imageHeight + 1,
+                          useScale,
+                          glyph->s,
+                          glyph->t,
+                          glyph->s2,
+                          glyph->t2,
+                          glyph->glyph );
+          
+          trap_R_SetColor( white );
+        }
+        
         Text_PaintChar(x, y - yadj, 
                           glyph->imageWidth,
                           glyph->imageHeight,
@@ -1200,12 +1314,8 @@ void UI_Load() {
 
   String_Init();
 
-#ifdef PRE_RELEASE_TADEMO
-  UI_ParseGameInfo("demogameinfo.txt");
-#else
-  UI_ParseGameInfo("gameinfo.txt");
-  UI_LoadArenas();
-#endif
+/*  UI_ParseGameInfo("gameinfo.txt");
+  UI_LoadArenas();*/
 
   UI_LoadMenus(menuSet, qtrue);
   Menus_CloseAll();
@@ -3974,12 +4084,8 @@ static void UI_RunMenuScript(char **args) {
     } else if (Q_stricmp(name, "clearError") == 0) {
       trap_Cvar_Set("com_errorMessage", "");
     } else if (Q_stricmp(name, "loadGameInfo") == 0) {
-#ifdef PRE_RELEASE_TADEMO
-      UI_ParseGameInfo("demogameinfo.txt");
-#else
-      UI_ParseGameInfo("gameinfo.txt");
-#endif
-      UI_LoadBestScores(uiInfo.mapList[ui_currentMap.integer].mapLoadName, uiInfo.gameTypes[ui_gameType.integer].gtEnum);
+/*      UI_ParseGameInfo("gameinfo.txt");
+      UI_LoadBestScores(uiInfo.mapList[ui_currentMap.integer].mapLoadName, uiInfo.gameTypes[ui_gameType.integer].gtEnum);*/
     } else if (Q_stricmp(name, "resetScores") == 0) {
       UI_ClearScores();
     } else if (Q_stricmp(name, "RefreshServers") == 0) {
@@ -5958,14 +6064,9 @@ void _UI_Init( qboolean inGameLoad ) {
   uiInfo.characterCount = 0;
   uiInfo.aliasCount = 0;
 
-#ifdef PRE_RELEASE_TADEMO
-  UI_ParseTeamInfo("demoteaminfo.txt");
-  UI_ParseGameInfo("demogameinfo.txt");
-#else
-  UI_ParseTeamInfo("teaminfo.txt");
+/*  UI_ParseTeamInfo("teaminfo.txt");
   UI_LoadTeams();
-  UI_ParseGameInfo("gameinfo.txt");
-#endif
+  UI_ParseGameInfo("gameinfo.txt");*/
 
   menuSet = UI_Cvar_VariableString("ui_menuFiles");
   if (menuSet == NULL || menuSet[0] == '\0') {

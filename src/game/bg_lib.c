@@ -256,6 +256,22 @@ int strcmp( const char *string1, const char *string2 ) {
 	return *string1 - *string2;
 }
 
+//TA:
+char *strrchr( const char *string, int c )
+{
+  int   i, length = strlen( string );
+  char  *p;
+  
+	for( i = length - 1; i >= 0; i-- )
+  {
+    p = (char *)&string[ i ];
+    
+		if( *p == c )
+			return (char *)p;
+	}
+  
+	return (char *)0;
+}
 
 char *strchr( const char *string, int c ) {
 	while ( *string ) {

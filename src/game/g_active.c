@@ -509,8 +509,6 @@ void ClientTimerActions( gentity_t *ent, int msec )
         client->ps.stats[ STAT_MISC ] = ammo * LC_TOTAL_CHARGE / 10;
     }
     
-#define LAUNCH_TIME 2000
-
     switch( client->ps.weapon )
     {
       case WP_ABUILD:
@@ -529,6 +527,13 @@ void ClientTimerActions( gentity_t *ent, int msec )
           else
             client->ps.stats[ STAT_BUILDABLE ] &= ~SB_VALID_TOGGLEBIT;
         }
+
+        //update build timer
+        if( client->ps.stats[ STAT_MISC ] > 0 )
+          client->ps.stats[ STAT_MISC ] -= 100;
+        
+        if( client->ps.stats[ STAT_MISC ] < 0 )
+          client->ps.stats[ STAT_MISC ] = 0;
         break;
         
       default:
@@ -969,10 +974,6 @@ void ClientThink_real( gentity_t *ent ) {
       case WP_VENOM:
         if( client->ps.weaponTime <= 0 )
           pm.autoWeaponHit[ WP_VENOM ] = CheckVenomAttack( ent );
-        break;
-
-      case WP_GRAB_CLAW:
-        pm.autoWeaponHit[ WP_GRAB_CLAW ] = CheckGrabAttack( ent );
         break;
 
       case WP_POUNCE:

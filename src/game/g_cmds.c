@@ -31,12 +31,10 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
   int     i, j;
   gclient_t *cl;
   int     numSorted;
-  int     scoreFlags;
 
   // send the latest information on all clients
   string[0] = 0;
   stringlength = 0;
-  scoreFlags = 0;
 
   numSorted = level.numConnectedClients;
 
@@ -51,9 +49,8 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
       ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
     }
     Com_sprintf (entry, sizeof(entry),
-      " %i %i %i %i %i %i", level.sortedClients[i],
-      cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
-      scoreFlags, g_entities[level.sortedClients[i]].s.powerups);
+      " %i %i %i %i", level.sortedClients[i],
+      cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000 );
     j = strlen(entry);
     if (stringlength + j > 1024)
       break;
@@ -634,6 +631,9 @@ void Cmd_Team_f( gentity_t *ent )
     ClientSpawn( ent, NULL );
   }
 
+  //update ClientInfo
+  ClientUserinfoChanged( ent->client->ps.clientNum );
+  
   //FIXME: put some team change broadcast code here.
 }
 

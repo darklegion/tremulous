@@ -25,6 +25,7 @@
 #define ITEM_TEXTSTYLE_OUTLINED 4         // drop shadow ( need a color for this )
 #define ITEM_TEXTSTYLE_OUTLINESHADOWED 5  // drop shadow ( need a color for this )
 #define ITEM_TEXTSTYLE_SHADOWEDMORE 6         // drop shadow ( need a color for this )
+#define ITEM_TEXTSTYLE_NEON     7         // drop shadow ( need a color for this )
                           
 #define WINDOW_BORDER_NONE 0              // no border
 #define WINDOW_BORDER_FULL 1              // full border based on border color ( single pixel )
@@ -55,8 +56,8 @@
 #define FEEDER_SERVERS            0x02      // servers
 #define FEEDER_CLANS              0x03      // clan names
 #define FEEDER_ALLMAPS            0x04      // all maps available, in graphic format
-#define FEEDER_REDTEAM_LIST       0x05      // red team members
-#define FEEDER_BLUETEAM_LIST      0x06      // blue team members
+#define FEEDER_ALIENTEAM_LIST     0x05      // red team members
+#define FEEDER_HUMANTEAM_LIST     0x06      // blue team members
 #define FEEDER_PLAYER_LIST        0x07      // players
 #define FEEDER_TEAM_LIST          0x08      // team members for team voting
 #define FEEDER_MODS               0x09      // team members for team voting
@@ -150,33 +151,33 @@
 #define CG_FLAGCARRIER_WEAPON       17
 #define CG_FLAGCARRIER_POWERUP      18
 
-#define CG_PLAYER_ITEM 19
-#define CG_PLAYER_SCORE 20
+#define CG_PLAYER_ITEM              19
+#define CG_PLAYER_SCORE             20
 
-#define CG_BLUE_FLAGHEAD 21
-#define CG_BLUE_FLAGSTATUS 22
-#define CG_BLUE_FLAGNAME 23
-#define CG_RED_FLAGHEAD 24
-#define CG_RED_FLAGSTATUS 25
-#define CG_RED_FLAGNAME 26
+#define CG_BLUE_FLAGHEAD            21
+#define CG_BLUE_FLAGSTATUS          22
+#define CG_BLUE_FLAGNAME            23
+#define CG_RED_FLAGHEAD             24
+#define CG_RED_FLAGSTATUS           25
+#define CG_RED_FLAGNAME             26
 
-#define CG_BLUE_SCORE 27
-#define CG_RED_SCORE 28
-#define CG_RED_NAME 29
-#define CG_BLUE_NAME 30
-#define CG_HARVESTER_SKULLS 31          // only shows in harvester
-#define CG_ONEFLAG_STATUS 32            // only shows in one flag
-#define CG_PLAYER_LOCATION 33
-#define CG_TEAM_COLOR 34
-#define CG_CTF_POWERUP 35
+#define CG_BLUE_SCORE               27
+#define CG_RED_SCORE                28
+#define CG_RED_NAME                 29
+#define CG_BLUE_NAME                30
+#define CG_HARVESTER_SKULLS         31  // only shows in harvester
+#define CG_ONEFLAG_STATUS           32  // only shows in one flag
+#define CG_PLAYER_LOCATION          33
+#define CG_TEAM_COLOR               34
+#define CG_CTF_POWERUP              35
                                         
-#define CG_AREA_POWERUP 36
-#define CG_AREA_LAGOMETER 37            // painted with old system
-#define CG_PLAYER_HASFLAG 38            
-#define CG_GAME_TYPE 39                 // not done
+#define CG_AREA_POWERUP             36
+#define CG_AREA_LAGOMETER           37  // painted with old system
+#define CG_PLAYER_HASFLAG           38            
+#define CG_GAME_TYPE                39  // not done
 
-#define CG_SELECTEDPLAYER_ARMOR 40      
-#define CG_SELECTEDPLAYER_HEALTH 41
+#define CG_SELECTEDPLAYER_ARMOR     40      
+#define CG_SELECTEDPLAYER_HEALTH    41
 #define CG_PLAYER_STATUS 42
 #define CG_FRAGGED_MSG 43               // painted with old system
 #define CG_PROXMINED_MSG 44             // painted with old system
@@ -205,6 +206,19 @@
 #define CG_1STPLACE 67
 #define CG_2NDPLACE 68
 #define CG_CAPTURES 69
+
+//TA: loading screen
+#define CG_LOAD_LEVELSHOT         76
+#define CG_LOAD_MEDIA             77
+#define CG_LOAD_MEDIA_LABEL       78
+#define CG_LOAD_BUILDABLES        79
+#define CG_LOAD_BUILDABLES_LABEL  80
+#define CG_LOAD_CHARMODEL         81
+#define CG_LOAD_CHARMODEL_LABEL   82
+#define CG_LOAD_OVERALL           83
+#define CG_LOAD_LEVELNAME         84
+#define CG_LOAD_MOTD              85
+#define CG_LOAD_HOSTNAME          86
 
 
 #define UI_OWNERDRAW_BASE 200

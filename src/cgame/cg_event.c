@@ -671,7 +671,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
 	case EV_STEPDN_4:
 	case EV_STEPDN_8:
 	case EV_STEPDN_12:
-	case EV_STEPDN_16:		// smooth out step up transitions
+	case EV_STEPDN_16:		// smooth out step down transitions
 		DEBUGNAME("EV_STEP");
 	{
 		float	oldStep;
@@ -1122,6 +1122,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     DEBUGNAME("EV_MENU");
     if( es->number == cg.clientNum )
       CG_Menu( es->eventParm );
+    break;
+
+  case EV_BUILD_DELAY:
+    DEBUGNAME("EV_BUILD_DELAY");
+    //FIXME: change to "negative" sound
+    trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
+    cg.lastBuildAttempt = cg.time;
     break;
 
   case EV_PLAYER_RESPAWN:

@@ -1100,12 +1100,12 @@ void ClientUserinfoChanged( int clientNum ) {
   // print scoreboards, display models, and play custom sounds
   if ( ent->r.svFlags & SVF_BOT ) {
     s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
-      client->pers.netname, client->sess.sessionTeam, model, model, c1, c2,
+      client->pers.netname, client->ps.stats[ STAT_PTEAM ], model, model, c1, c2,
       client->pers.maxHealth, client->sess.wins, client->sess.losses,
       Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader );
   } else {
     s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-      client->pers.netname, client->sess.sessionTeam, model, model, redTeam, blueTeam, c1, c2,
+      client->pers.netname, client->ps.stats[ STAT_PTEAM ], model, model, redTeam, blueTeam, c1, c2,
       client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
   }
 

@@ -220,6 +220,8 @@ void CG_InitBuildables( )
     defaultHumanSounds[ j ] = trap_S_RegisterSound( filename, qfalse );
   }
   
+  cg.buildablesFraction = 0.0f;
+  
   for( i = BA_NONE + 1; i < BA_NUM_BUILDABLES; i++ )
   {
     buildableName = BG_FindNameForBuildable( i );
@@ -266,6 +268,9 @@ void CG_InitBuildables( )
         }
       }
     }
+
+    cg.buildablesFraction = (float)i / (float)( BA_NUM_BUILDABLES - 1 );
+    trap_UpdateScreen( );
   }
 }
 

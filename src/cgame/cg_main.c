@@ -55,8 +55,8 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
     CG_KeyEvent(arg0, arg1);
     return 0;
   case CG_MOUSE_EVENT:
-		cgDC.cursorx = cgs.cursorX;
-		cgDC.cursory = cgs.cursorY;
+    cgDC.cursorx = cgs.cursorX;
+    cgDC.cursory = cgs.cursorY;
     CG_MouseEvent(arg0, arg1);
     return 0;
   case CG_EVENT_HANDLING:
@@ -184,7 +184,7 @@ vmCvar_t  cg_wwSmoothTime;
 vmCvar_t  cg_wwFollow;
 vmCvar_t  cg_zsortLEs;
 
-//TA: hack to get class an carriage through to UI module
+//TA: hack to get class and carriage through to UI module
 vmCvar_t  ui_currentClass;
 vmCvar_t  ui_carriage;
 vmCvar_t  ui_stages;
@@ -682,13 +682,9 @@ static void CG_RegisterGraphics( void ) {
   memset( &cg.refdef, 0, sizeof( cg.refdef ) );
   trap_R_ClearScene();
 
-  CG_LoadingString( cgs.mapname );
-
   trap_R_LoadWorldMap( cgs.mapname );
-
-  // precache status bar pics
-  CG_LoadingString( "game media" );
-
+  CG_UpdateMediaFraction( 0.66f );
+    
   for ( i=0 ; i<11 ; i++) {
     cgs.media.numberShaders[i] = trap_R_RegisterShader( sb_nums[i] );
   }
@@ -716,7 +712,6 @@ static void CG_RegisterGraphics( void ) {
   cgs.media.lagometerShader = trap_R_RegisterShader("lagometer" );
   cgs.media.connectionShader = trap_R_RegisterShader( "disconnected" );
 
-
   //TA: extra stuff
   cgs.media.explosionShader = trap_R_RegisterShader( "grenadeExplosion" );
   cgs.media.greenBloodTrailShader = trap_R_RegisterShader( "greenBloodTrail" );
@@ -726,7 +721,7 @@ static void CG_RegisterGraphics( void ) {
   
   for( i = 0; i < 32; i++ )
     cgs.media.flameShader[ i ] = trap_R_RegisterShader( va( "fireball%d", i + 1 ) );
-    
+  
   /*cgs.media.creepShader = trap_R_RegisterShader( "creep" );*/
   
   cgs.media.scannerBlipShader = trap_R_RegisterShader( "gfx/2d/droidhealth" );
@@ -757,30 +752,6 @@ static void CG_RegisterGraphics( void ) {
   cgs.media.invisShader = trap_R_RegisterShader("powerups/invisibility" );
   cgs.media.regenShader = trap_R_RegisterShader("powerups/regen" );
   cgs.media.hastePuffShader = trap_R_RegisterShader("hasteSmokePuff" );
-
-  if ( cgs.gametype == GT_CTF || cg_buildScript.integer ) {
-    cgs.media.redCubeModel = trap_R_RegisterModel( "models/powerups/orb/r_orb.md3" );
-    cgs.media.blueCubeModel = trap_R_RegisterModel( "models/powerups/orb/b_orb.md3" );
-    cgs.media.redCubeIcon = trap_R_RegisterShader( "icons/skull_red" );
-    cgs.media.blueCubeIcon = trap_R_RegisterShader( "icons/skull_blue" );
-  }
-
-  if ( cgs.gametype == GT_CTF || cg_buildScript.integer ) {
-    cgs.media.redFlagModel = trap_R_RegisterModel( "models/flags/r_flag.md3" );
-    cgs.media.blueFlagModel = trap_R_RegisterModel( "models/flags/b_flag.md3" );
-    cgs.media.redFlagShader[0] = trap_R_RegisterShaderNoMip( "icons/iconf_red1" );
-    cgs.media.redFlagShader[1] = trap_R_RegisterShaderNoMip( "icons/iconf_red2" );
-    cgs.media.redFlagShader[2] = trap_R_RegisterShaderNoMip( "icons/iconf_red3" );
-    cgs.media.blueFlagShader[0] = trap_R_RegisterShaderNoMip( "icons/iconf_blu1" );
-    cgs.media.blueFlagShader[1] = trap_R_RegisterShaderNoMip( "icons/iconf_blu2" );
-    cgs.media.blueFlagShader[2] = trap_R_RegisterShaderNoMip( "icons/iconf_blu3" );
-  }
-
-  if ( cgs.gametype >= GT_TEAM || cg_buildScript.integer ) {
-    cgs.media.friendShader = trap_R_RegisterShader( "sprites/foe" );
-    cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag" );
-    cgs.media.teamStatusBar = trap_R_RegisterShader( "gfx/2d/colorbar.tga" );
-  }
 
   //TA: screenfades
   cgs.media.humanNV = trap_R_RegisterShader( "humanNV" );
@@ -842,6 +813,7 @@ static void CG_RegisterGraphics( void ) {
   cgs.media.medalAssist = trap_R_RegisterShaderNoMip( "medal_assist" );
   cgs.media.medalCapture = trap_R_RegisterShaderNoMip( "medal_capture" );
 
+  CG_UpdateMediaFraction( 0.7f );
 
   memset( cg_items, 0, sizeof( cg_items ) );
   memset( cg_weapons, 0, sizeof( cg_weapons ) );
@@ -885,6 +857,8 @@ static void CG_RegisterGraphics( void ) {
     cgs.gameModels[i] = trap_R_RegisterModel( modelName );
   }
 
+  CG_UpdateMediaFraction( 0.8f );
+
   // register all the server specified shaders
   for (i=1 ; i<MAX_SHADERS ; i++) {
     const char    *shaderName;
@@ -908,7 +882,7 @@ void CG_BuildSpectatorString() {
   int i;
   cg.spectatorList[0] = 0;
   for (i = 0; i < MAX_CLIENTS; i++) {
-    if (cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == TEAM_SPECTATOR ) {
+    if (cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == PTE_NONE ) {
       Q_strcat(cg.spectatorList, sizeof(cg.spectatorList), va("%s     ", cgs.clientinfo[i].name));
     }
   }
@@ -927,19 +901,25 @@ CG_RegisterClients
 
 ===================
 */
-static void CG_RegisterClients( void ) {
+static void CG_RegisterClients( void )
+{
   int   i;
 
+  cg.charModelFraction = 0.0f;
+  
   //precache all the models/sounds/etc
-  for ( i = PCL_NONE + 1; i < PCL_NUM_CLASSES;  i++ ) {
+  for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES;  i++ )
+  {
     const char  *clientInfo;
 
     clientInfo = CG_ConfigString( CS_PRECACHES + i );
     if ( !clientInfo[0] )
       continue;
     
-    CG_LoadingClient( i );
     CG_PrecacheClientInfo( i );
+
+    cg.charModelFraction = (float)i / (float)( PCL_NUM_CLASSES - 1 );
+    trap_UpdateScreen( );
   }
 
   //load all the clientinfos of clients already connected to the server
@@ -998,535 +978,511 @@ void CG_StartMusic( void ) {
 // ==============================
 //
 char *CG_GetMenuBuffer(const char *filename) {
-	int	len;
-	fileHandle_t	f;
-	static char buf[MAX_MENUFILE];
+  int len;
+  fileHandle_t  f;
+  static char buf[MAX_MENUFILE];
 
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
-	if ( !f ) {
-		trap_Print( va( S_COLOR_RED "menu file not found: %s, using default\n", filename ) );
-		return NULL;
-	}
-	if ( len >= MAX_MENUFILE ) {
-		trap_Print( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", filename, len, MAX_MENUFILE ) );
-		trap_FS_FCloseFile( f );
-		return NULL;
-	}
+  len = trap_FS_FOpenFile( filename, &f, FS_READ );
+  if ( !f ) {
+    trap_Print( va( S_COLOR_RED "menu file not found: %s, using default\n", filename ) );
+    return NULL;
+  }
+  if ( len >= MAX_MENUFILE ) {
+    trap_Print( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", filename, len, MAX_MENUFILE ) );
+    trap_FS_FCloseFile( f );
+    return NULL;
+  }
 
-	trap_FS_Read( buf, len, f );
-	buf[len] = 0;
-	trap_FS_FCloseFile( f );
+  trap_FS_Read( buf, len, f );
+  buf[len] = 0;
+  trap_FS_FCloseFile( f );
 
-	return buf;
+  return buf;
 }
 
 qboolean CG_Asset_Parse(int handle) {
-	pc_token_t token;
-	const char *tempStr;
+  pc_token_t token;
+  const char *tempStr;
 
-	if (!trap_PC_ReadToken(handle, &token))
-		return qfalse;
-	if (Q_stricmp(token.string, "{") != 0) {
-		return qfalse;
-	}
+  if (!trap_PC_ReadToken(handle, &token))
+    return qfalse;
+  if (Q_stricmp(token.string, "{") != 0) {
+    return qfalse;
+  }
     
-	while ( 1 ) {
-		if (!trap_PC_ReadToken(handle, &token))
-			return qfalse;
+  while ( 1 ) {
+    if (!trap_PC_ReadToken(handle, &token))
+      return qfalse;
 
-		if (Q_stricmp(token.string, "}") == 0) {
-			return qtrue;
-		}
+    if (Q_stricmp(token.string, "}") == 0) {
+      return qtrue;
+    }
 
-		// font
-		if (Q_stricmp(token.string, "font") == 0) {
-			int pointSize;
-			if (!PC_String_Parse(handle, &tempStr) || !PC_Int_Parse(handle, &pointSize)) {
-				return qfalse;
-			}
-			cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.textFont);
-			continue;
-		}
+    // font
+    if (Q_stricmp(token.string, "font") == 0) {
+      int pointSize;
+      if (!PC_String_Parse(handle, &tempStr) || !PC_Int_Parse(handle, &pointSize)) {
+        return qfalse;
+      }
+      cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.textFont);
+      continue;
+    }
 
-		// smallFont
-		if (Q_stricmp(token.string, "smallFont") == 0) {
-			int pointSize;
-			if (!PC_String_Parse(handle, &tempStr) || !PC_Int_Parse(handle, &pointSize)) {
-				return qfalse;
-			}
-			cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.smallFont);
-			continue;
-		}
+    // smallFont
+    if (Q_stricmp(token.string, "smallFont") == 0) {
+      int pointSize;
+      if (!PC_String_Parse(handle, &tempStr) || !PC_Int_Parse(handle, &pointSize)) {
+        return qfalse;
+      }
+      cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.smallFont);
+      continue;
+    }
 
-		// font
-		if (Q_stricmp(token.string, "bigfont") == 0) {
-			int pointSize;
-			if (!PC_String_Parse(handle, &tempStr) || !PC_Int_Parse(handle, &pointSize)) {
-				return qfalse;
-			}
-			cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.bigFont);
-			continue;
-		}
+    // font
+    if (Q_stricmp(token.string, "bigfont") == 0) {
+      int pointSize;
+      if (!PC_String_Parse(handle, &tempStr) || !PC_Int_Parse(handle, &pointSize)) {
+        return qfalse;
+      }
+      cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.bigFont);
+      continue;
+    }
 
-		// gradientbar
-		if (Q_stricmp(token.string, "gradientbar") == 0) {
-			if (!PC_String_Parse(handle, &tempStr)) {
-				return qfalse;
-			}
-			cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip(tempStr);
-			continue;
-		}
+    // gradientbar
+    if (Q_stricmp(token.string, "gradientbar") == 0) {
+      if (!PC_String_Parse(handle, &tempStr)) {
+        return qfalse;
+      }
+      cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip(tempStr);
+      continue;
+    }
 
-		// enterMenuSound
-		if (Q_stricmp(token.string, "menuEnterSound") == 0) {
-			if (!PC_String_Parse(handle, &tempStr)) {
-				return qfalse;
-			}
-			cgDC.Assets.menuEnterSound = trap_S_RegisterSound( tempStr, qfalse );
-			continue;
-		}
+    // enterMenuSound
+    if (Q_stricmp(token.string, "menuEnterSound") == 0) {
+      if (!PC_String_Parse(handle, &tempStr)) {
+        return qfalse;
+      }
+      cgDC.Assets.menuEnterSound = trap_S_RegisterSound( tempStr, qfalse );
+      continue;
+    }
 
-		// exitMenuSound
-		if (Q_stricmp(token.string, "menuExitSound") == 0) {
-			if (!PC_String_Parse(handle, &tempStr)) {
-				return qfalse;
-			}
-			cgDC.Assets.menuExitSound = trap_S_RegisterSound( tempStr, qfalse );
-			continue;
-		}
+    // exitMenuSound
+    if (Q_stricmp(token.string, "menuExitSound") == 0) {
+      if (!PC_String_Parse(handle, &tempStr)) {
+        return qfalse;
+      }
+      cgDC.Assets.menuExitSound = trap_S_RegisterSound( tempStr, qfalse );
+      continue;
+    }
 
-		// itemFocusSound
-		if (Q_stricmp(token.string, "itemFocusSound") == 0) {
-			if (!PC_String_Parse(handle, &tempStr)) {
-				return qfalse;
-			}
-			cgDC.Assets.itemFocusSound = trap_S_RegisterSound( tempStr, qfalse );
-			continue;
-		}
+    // itemFocusSound
+    if (Q_stricmp(token.string, "itemFocusSound") == 0) {
+      if (!PC_String_Parse(handle, &tempStr)) {
+        return qfalse;
+      }
+      cgDC.Assets.itemFocusSound = trap_S_RegisterSound( tempStr, qfalse );
+      continue;
+    }
 
-		// menuBuzzSound
-		if (Q_stricmp(token.string, "menuBuzzSound") == 0) {
-			if (!PC_String_Parse(handle, &tempStr)) {
-				return qfalse;
-			}
-			cgDC.Assets.menuBuzzSound = trap_S_RegisterSound( tempStr, qfalse );
-			continue;
-		}
+    // menuBuzzSound
+    if (Q_stricmp(token.string, "menuBuzzSound") == 0) {
+      if (!PC_String_Parse(handle, &tempStr)) {
+        return qfalse;
+      }
+      cgDC.Assets.menuBuzzSound = trap_S_RegisterSound( tempStr, qfalse );
+      continue;
+    }
 
-		if (Q_stricmp(token.string, "cursor") == 0) {
-			if (!PC_String_Parse(handle, &cgDC.Assets.cursorStr)) {
-				return qfalse;
-			}
-			cgDC.Assets.cursor = trap_R_RegisterShaderNoMip( cgDC.Assets.cursorStr);
-			continue;
-		}
+    if (Q_stricmp(token.string, "cursor") == 0) {
+      if (!PC_String_Parse(handle, &cgDC.Assets.cursorStr)) {
+        return qfalse;
+      }
+      cgDC.Assets.cursor = trap_R_RegisterShaderNoMip( cgDC.Assets.cursorStr);
+      continue;
+    }
 
-		if (Q_stricmp(token.string, "fadeClamp") == 0) {
-			if (!PC_Float_Parse(handle, &cgDC.Assets.fadeClamp)) {
-				return qfalse;
-			}
-			continue;
-		}
+    if (Q_stricmp(token.string, "fadeClamp") == 0) {
+      if (!PC_Float_Parse(handle, &cgDC.Assets.fadeClamp)) {
+        return qfalse;
+      }
+      continue;
+    }
 
-		if (Q_stricmp(token.string, "fadeCycle") == 0) {
-			if (!PC_Int_Parse(handle, &cgDC.Assets.fadeCycle)) {
-				return qfalse;
-			}
-			continue;
-		}
+    if (Q_stricmp(token.string, "fadeCycle") == 0) {
+      if (!PC_Int_Parse(handle, &cgDC.Assets.fadeCycle)) {
+        return qfalse;
+      }
+      continue;
+    }
 
-		if (Q_stricmp(token.string, "fadeAmount") == 0) {
-			if (!PC_Float_Parse(handle, &cgDC.Assets.fadeAmount)) {
-				return qfalse;
-			}
-			continue;
-		}
+    if (Q_stricmp(token.string, "fadeAmount") == 0) {
+      if (!PC_Float_Parse(handle, &cgDC.Assets.fadeAmount)) {
+        return qfalse;
+      }
+      continue;
+    }
 
-		if (Q_stricmp(token.string, "shadowX") == 0) {
-			if (!PC_Float_Parse(handle, &cgDC.Assets.shadowX)) {
-				return qfalse;
-			}
-			continue;
-		}
+    if (Q_stricmp(token.string, "shadowX") == 0) {
+      if (!PC_Float_Parse(handle, &cgDC.Assets.shadowX)) {
+        return qfalse;
+      }
+      continue;
+    }
 
-		if (Q_stricmp(token.string, "shadowY") == 0) {
-			if (!PC_Float_Parse(handle, &cgDC.Assets.shadowY)) {
-				return qfalse;
-			}
-			continue;
-		}
+    if (Q_stricmp(token.string, "shadowY") == 0) {
+      if (!PC_Float_Parse(handle, &cgDC.Assets.shadowY)) {
+        return qfalse;
+      }
+      continue;
+    }
 
-		if (Q_stricmp(token.string, "shadowColor") == 0) {
-			if (!PC_Color_Parse(handle, &cgDC.Assets.shadowColor)) {
-				return qfalse;
-			}
-			cgDC.Assets.shadowFadeClamp = cgDC.Assets.shadowColor[3];
-			continue;
-		}
-	}
-	return qfalse; // bk001204 - why not?
+    if (Q_stricmp(token.string, "shadowColor") == 0) {
+      if (!PC_Color_Parse(handle, &cgDC.Assets.shadowColor)) {
+        return qfalse;
+      }
+      cgDC.Assets.shadowFadeClamp = cgDC.Assets.shadowColor[3];
+      continue;
+    }
+  }
+  return qfalse; // bk001204 - why not?
 }
 
 void CG_ParseMenu(const char *menuFile) {
-	pc_token_t token;
-	int handle;
+  pc_token_t token;
+  int handle;
 
-	handle = trap_PC_LoadSource(menuFile);
-	if (!handle)
-		handle = trap_PC_LoadSource("ui/testhud.menu");
-	if (!handle)
-		return;
+  handle = trap_PC_LoadSource(menuFile);
+  if (!handle)
+    handle = trap_PC_LoadSource("ui/testhud.menu");
+  if (!handle)
+    return;
 
-	while ( 1 ) {
-		if (!trap_PC_ReadToken( handle, &token )) {
-			break;
-		}
+  while ( 1 ) {
+    if (!trap_PC_ReadToken( handle, &token )) {
+      break;
+    }
 
-		//if ( Q_stricmp( token, "{" ) ) {
-		//	Com_Printf( "Missing { in menu file\n" );
-		//	break;
-		//}
+    //if ( Q_stricmp( token, "{" ) ) {
+    //  Com_Printf( "Missing { in menu file\n" );
+    //  break;
+    //}
 
-		//if ( menuCount == MAX_MENUS ) {
-		//	Com_Printf( "Too many menus!\n" );
-		//	break;
-		//}
+    //if ( menuCount == MAX_MENUS ) {
+    //  Com_Printf( "Too many menus!\n" );
+    //  break;
+    //}
 
-		if ( token.string[0] == '}' ) {
-			break;
-		}
+    if ( token.string[0] == '}' ) {
+      break;
+    }
 
-		if (Q_stricmp(token.string, "assetGlobalDef") == 0) {
-			if (CG_Asset_Parse(handle)) {
-				continue;
-			} else {
-				break;
-			}
-		}
+    if (Q_stricmp(token.string, "assetGlobalDef") == 0) {
+      if (CG_Asset_Parse(handle)) {
+        continue;
+      } else {
+        break;
+      }
+    }
 
 
-		if (Q_stricmp(token.string, "menudef") == 0) {
-			// start a new menu
-			Menu_New(handle);
-		}
-	}
-	trap_PC_FreeSource(handle);
+    if (Q_stricmp(token.string, "menudef") == 0) {
+      // start a new menu
+      Menu_New(handle);
+    }
+  }
+  trap_PC_FreeSource(handle);
 }
 
 qboolean CG_Load_Menu(char **p) {
-	char *token;
+  char *token;
 
-	token = COM_ParseExt(p, qtrue);
+  token = COM_ParseExt(p, qtrue);
 
-	if (token[0] != '{') {
-		return qfalse;
-	}
+  if (token[0] != '{') {
+    return qfalse;
+  }
 
-	while ( 1 ) {
+  while ( 1 ) {
 
-		token = COM_ParseExt(p, qtrue);
+    token = COM_ParseExt(p, qtrue);
     
-		if (Q_stricmp(token, "}") == 0) {
-			return qtrue;
-		}
+    if (Q_stricmp(token, "}") == 0) {
+      return qtrue;
+    }
 
-		if ( !token || token[0] == 0 ) {
-			return qfalse;
-		}
+    if ( !token || token[0] == 0 ) {
+      return qfalse;
+    }
 
-		CG_ParseMenu(token); 
-	}
-	return qfalse;
+    CG_ParseMenu(token); 
+  }
+  return qfalse;
 }
 
 
 
 void CG_LoadMenus(const char *menuFile) {
-	char	*token;
-	char *p;
-	int	len, start;
-	fileHandle_t	f;
-	static char buf[MAX_MENUDEFFILE];
+  char  *token;
+  char *p;
+  int len, start;
+  fileHandle_t  f;
+  static char buf[MAX_MENUDEFFILE];
 
-	start = trap_Milliseconds();
+  start = trap_Milliseconds();
 
-	len = trap_FS_FOpenFile( menuFile, &f, FS_READ );
-	if ( !f ) {
-		trap_Error( va( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile ) );
-		len = trap_FS_FOpenFile( "ui/hud.txt", &f, FS_READ );
-		if (!f) {
-			trap_Error( va( S_COLOR_RED "default menu file not found: ui/hud.txt, unable to continue!\n", menuFile ) );
-		}
-	}
+  len = trap_FS_FOpenFile( menuFile, &f, FS_READ );
+  if ( !f ) {
+    trap_Error( va( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile ) );
+    len = trap_FS_FOpenFile( "ui/hud.txt", &f, FS_READ );
+    if (!f) {
+      trap_Error( va( S_COLOR_RED "default menu file not found: ui/hud.txt, unable to continue!\n", menuFile ) );
+    }
+  }
 
-	if ( len >= MAX_MENUDEFFILE ) {
-		trap_Error( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", menuFile, len, MAX_MENUDEFFILE ) );
-		trap_FS_FCloseFile( f );
-		return;
-	}
+  if ( len >= MAX_MENUDEFFILE ) {
+    trap_Error( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", menuFile, len, MAX_MENUDEFFILE ) );
+    trap_FS_FCloseFile( f );
+    return;
+  }
 
-	trap_FS_Read( buf, len, f );
-	buf[len] = 0;
-	trap_FS_FCloseFile( f );
-	
-	COM_Compress(buf);
+  trap_FS_Read( buf, len, f );
+  buf[len] = 0;
+  trap_FS_FCloseFile( f );
+  
+  COM_Compress(buf);
 
-	Menu_Reset();
+  Menu_Reset();
 
-	p = buf;
+  p = buf;
 
-	while ( 1 ) {
-		token = COM_ParseExt( &p, qtrue );
-		if( !token || token[0] == 0 || token[0] == '}') {
-			break;
-		}
+  while ( 1 ) {
+    token = COM_ParseExt( &p, qtrue );
+    if( !token || token[0] == 0 || token[0] == '}') {
+      break;
+    }
 
-		//if ( Q_stricmp( token, "{" ) ) {
-		//	Com_Printf( "Missing { in menu file\n" );
-		//	break;
-		//}
+    //if ( Q_stricmp( token, "{" ) ) {
+    //  Com_Printf( "Missing { in menu file\n" );
+    //  break;
+    //}
 
-		//if ( menuCount == MAX_MENUS ) {
-		//	Com_Printf( "Too many menus!\n" );
-		//	break;
-		//}
+    //if ( menuCount == MAX_MENUS ) {
+    //  Com_Printf( "Too many menus!\n" );
+    //  break;
+    //}
 
-		if ( Q_stricmp( token, "}" ) == 0 ) {
-			break;
-		}
+    if ( Q_stricmp( token, "}" ) == 0 ) {
+      break;
+    }
 
-		if (Q_stricmp(token, "loadmenu") == 0) {
-			if (CG_Load_Menu(&p)) {
-				continue;
-			} else {
-				break;
-			}
-		}
-	}
+    if (Q_stricmp(token, "loadmenu") == 0) {
+      if (CG_Load_Menu(&p)) {
+        continue;
+      } else {
+        break;
+      }
+    }
+  }
 
-	Com_Printf("UI menu load time = %d milli seconds\n", trap_Milliseconds() - start);
+  Com_Printf("UI menu load time = %d milli seconds\n", trap_Milliseconds() - start);
 
 }
 
 
 
 static qboolean CG_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int key) {
-	return qfalse;
+  return qfalse;
 }
 
 
-static int CG_FeederCount(float feederID) {
-	int i, count;
-	count = 0;
-/*	if (feederID == FEEDER_REDTEAM_LIST) {
-		for (i = 0; i < cg.numScores; i++) {
-			if (cg.scores[i].team == TEAM_RED) {
-				count++;
-			}
-		}
-	} else if (feederID == FEEDER_BLUETEAM_LIST) {
-		for (i = 0; i < cg.numScores; i++) {
-			if (cg.scores[i].team == TEAM_BLUE) {
-				count++;
-			}
-		}
-	} else if (feederID == FEEDER_SCOREBOARD) {
-		return cg.numScores;
-	}*/
-	return count;
+static int CG_FeederCount( float feederID )
+{
+  int i, count = 0;
+  
+  if( feederID == FEEDER_ALIENTEAM_LIST )
+  {
+    for( i = 0; i < cg.numScores; i++ )
+    {
+      if( cg.scores[ i ].team == PTE_ALIENS )
+        count++;
+    }
+  }
+  else if( feederID == FEEDER_HUMANTEAM_LIST )
+  {
+    for( i = 0; i < cg.numScores; i++ )
+    {
+      if( cg.scores[ i ].team == PTE_HUMANS )
+        count++;
+    }
+  }
+  
+  return count;
 }
 
 
-void CG_SetScoreSelection(void *p) {
-	menuDef_t *menu = (menuDef_t*)p;
-	playerState_t *ps = &cg.snap->ps;
-	int i, red, blue;
-	red = blue = 0;
-/*	for (i = 0; i < cg.numScores; i++) {
-		if (cg.scores[i].team == TEAM_RED) {
-			red++;
-		} else if (cg.scores[i].team == TEAM_BLUE) {
-			blue++;
-		}
-		if (ps->clientNum == cg.scores[i].client) {
-			cg.selectedScore = i;
-		}
-	}*/
+void CG_SetScoreSelection( void *p )
+{
+  menuDef_t     *menu = (menuDef_t*)p;
+  playerState_t *ps = &cg.snap->ps;
+  int           i, alien, human;
+  int           feeder;
+  
+  alien = human = 0;
+  
+  for( i = 0; i < cg.numScores; i++ )
+  {
+    if( cg.scores[ i ].team == PTE_ALIENS )
+      alien++;
+    else if( cg.scores[ i ].team == PTE_HUMANS )
+      human++;
+    
+    if( ps->clientNum == cg.scores[ i ].client )
+      cg.selectedScore = i;
+  }
 
-	if (menu == NULL) {
-		// just interested in setting the selected score
-		return;
-	}
+  if( menu == NULL )
+    // just interested in setting the selected score
+    return;
 
-	if ( cgs.gametype >= GT_TEAM ) {
-		int feeder = FEEDER_REDTEAM_LIST;
-		i = red;
-/*		if (cg.scores[cg.selectedScore].team == TEAM_BLUE) {
-			feeder = FEEDER_BLUETEAM_LIST;
-			i = blue;
-		}*/
-		Menu_SetFeederSelection(menu, feeder, i, NULL);
-	} else {
-		Menu_SetFeederSelection(menu, FEEDER_SCOREBOARD, cg.selectedScore, NULL);
-	}
+  feeder = FEEDER_ALIENTEAM_LIST;
+  i = alien;
+  
+  if( cg.scores[ cg.selectedScore ].team == PTE_HUMANS )
+  {
+    feeder = FEEDER_HUMANTEAM_LIST;
+    i = human;
+  }
+  
+  Menu_SetFeederSelection(menu, feeder, i, NULL);
 }
 
 // FIXME: might need to cache this info
-static clientInfo_t * CG_InfoFromScoreIndex(int index, int team, int *scoreIndex) {
-	int i, count;
-	if ( cgs.gametype >= GT_TEAM ) {
-		count = 0;
-		for (i = 0; i < cg.numScores; i++) {
-			if (cg.scores[i].team == team) {
-				if (count == index) {
-					*scoreIndex = i;
-					return &cgs.clientinfo[cg.scores[i].client];
-				}
-				count++;
-			}
-		}
-	}
-	*scoreIndex = index;
-	return &cgs.clientinfo[ cg.scores[index].client ];
+static clientInfo_t * CG_InfoFromScoreIndex( int index, int team, int *scoreIndex )
+{
+  int i, count;
+  count = 0;
+  
+  for( i = 0; i < cg.numScores; i++ )
+  {
+    if( cg.scores[ i ].team == team )
+    {
+      if( count == index )
+      {
+        *scoreIndex = i;
+        return &cgs.clientinfo[ cg.scores[ i ].client ];
+      }
+      count++;
+    }
+  }
+  
+  *scoreIndex = index;
+  return &cgs.clientinfo[ cg.scores[ index ].client ];
 }
 
-static const char *CG_FeederItemText(float feederID, int index, int column, qhandle_t *handle) {
-	gitem_t *item;
-	int scoreIndex = 0;
-	clientInfo_t *info = NULL;
-	int team = -1;
-	score_t *sp = NULL;
+static const char *CG_FeederItemText( float feederID, int index, int column, qhandle_t *handle )
+{
+  gitem_t *item;
+  int scoreIndex = 0;
+  clientInfo_t *info = NULL;
+  int team = -1;
+  score_t *sp = NULL;
 
-	*handle = -1;
+  *handle = -1;
 
-	if (feederID == FEEDER_REDTEAM_LIST) {
-		/*team = TEAM_RED;*/
-	} else if (feederID == FEEDER_BLUETEAM_LIST) {
-		/*team = TEAM_BLUE;*/
-	}
+  if( feederID == FEEDER_ALIENTEAM_LIST )
+    team = PTE_ALIENS;
+  else if( feederID == FEEDER_HUMANTEAM_LIST )
+    team = PTE_HUMANS;
 
-	info = CG_InfoFromScoreIndex(index, team, &scoreIndex);
-	sp = &cg.scores[scoreIndex];
+  info = CG_InfoFromScoreIndex( index, team, &scoreIndex );
+  sp = &cg.scores[ scoreIndex ];
 
-	if (info && info->infoValid) {
-		switch (column) {
-			case 0:
-/*				if ( info->powerups & ( 1 << PW_NEUTRALFLAG ) ) {
-					item = BG_FindItemForPowerup( PW_NEUTRALFLAG );
-					*handle = cg_items[ ITEM_INDEX(item) ].icon;
-				} else if ( info->powerups & ( 1 << PW_REDFLAG ) ) {
-					item = BG_FindItemForPowerup( PW_REDFLAG );
-					*handle = cg_items[ ITEM_INDEX(item) ].icon;
-				} else if ( info->powerups & ( 1 << PW_BLUEFLAG ) ) {
-					item = BG_FindItemForPowerup( PW_BLUEFLAG );
-					*handle = cg_items[ ITEM_INDEX(item) ].icon;
-				} else {
-					if ( info->botSkill > 0 && info->botSkill <= 5 ) {
-						*handle = cgs.media.botSkillShaders[ info->botSkill - 1 ];
-					} else if ( info->handicap < 100 ) {
-					return va("%i", info->handicap );
-					}
-				}*/
-			break;
-			case 1:
-				if (team == -1) {
-					return "";
-				} else {
-					/**handle = CG_StatusHandle(info->teamTask);*/
-				}
-		  break;
-			case 2:
-/*				if ( cg.snap->ps.stats[ STAT_CLIENTS_READY ] & ( 1 << sp->client ) ) {
-					return "Ready";
-				}
-				if (team == -1) {
-					if (cgs.gametype == GT_TOURNAMENT) {
-						return va("%i/%i", info->wins, info->losses);
-					} else if (info->infoValid && info->team == TEAM_SPECTATOR ) {
-						return "Spectator";
-					} else {
-						return "";
-					}
-				} else {
-					if (info->teamLeader) {
-						return "Leader";
-					}
-				}*/
-			break;
-			case 3:
-				return info->name;
-			break;
-			case 4:
-				return va("%i", info->score);
-			break;
-			case 5:
-				return va("%4i", sp->time);
-			break;
-			case 6:
-				if ( sp->ping == -1 ) {
-					return "connecting";
-				} 
-				return va("%4i", sp->ping);
-			break;
-		}
-	}
+  if( info && info->infoValid )
+  {
+    switch( column )
+    {
+      case 0:
+        if( atoi( CG_ConfigString( CS_CLIENTS_READY ) ) & ( 1 << sp->client ) )
+          return "Ready";
+        break;
+        
+      case 1:
+        return info->name;
+        break;
+      
+      case 2:
+        return va( "%d", info->score );
+        break;
+        
+      case 3:
+        return va( "%4d", sp->time );
+        break;
+        
+      case 4:
+        if( sp->ping == -1 )
+          return "connecting";
+        
+        return va( "%4d", sp->ping );
+        break;
+    }
+  }
 
-	return "";
+  return "";
 }
 
 static qhandle_t CG_FeederItemImage(float feederID, int index) {
-	return 0;
+  return 0;
 }
 
-static void CG_FeederSelection(float feederID, int index) {
-/*	if ( cgs.gametype >= GT_TEAM ) {
-		int i, count;
-		int team = (feederID == FEEDER_REDTEAM_LIST) ? TEAM_RED : TEAM_BLUE;
-		count = 0;
-		for (i = 0; i < cg.numScores; i++) {
-			if (cg.scores[i].team == team) {
-				if (index == count) {
-					cg.selectedScore = i;
-				}
-				count++;
-			}
-		}
-	} else {
-		cg.selectedScore = index;
-	}*/
+static void CG_FeederSelection( float feederID, int index )
+{
+  int i, count;
+  int team = ( feederID == FEEDER_ALIENTEAM_LIST ) ? PTE_ALIENS : PTE_HUMANS;
+  count = 0;
+  
+  for( i = 0; i < cg.numScores; i++ )
+  {
+    if( cg.scores[ i ].team == team )
+    {
+      if( index == count )
+        cg.selectedScore = i;
+
+      count++;
+    }
+  }
 }
 
 static float CG_Cvar_Get(const char *cvar) {
-	char buff[128];
-	memset(buff, 0, sizeof(buff));
-	trap_Cvar_VariableStringBuffer(cvar, buff, sizeof(buff));
-	return atof(buff);
+  char buff[128];
+  memset(buff, 0, sizeof(buff));
+  trap_Cvar_VariableStringBuffer(cvar, buff, sizeof(buff));
+  return atof(buff);
 }
 
 void CG_Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style) {
-	CG_Text_Paint(x, y, scale, color, text, 0, limit, style);
+  CG_Text_Paint(x, y, scale, color, text, 0, limit, style);
 }
 
 static int CG_OwnerDrawWidth(int ownerDraw, float scale) {
-	switch (ownerDraw) {
-/*	  case CG_GAME_TYPE:
-			return CG_Text_Width(CG_GameTypeString(), scale, 0);*/
-/*	  case CG_GAME_STATUS:
-			return CG_Text_Width(CG_GetGameStatusText(), scale, 0);
-			break;*/
-	  case CG_KILLER:
-			return CG_Text_Width(CG_GetKillerText(), scale, 0);
-			break;
-/*	  case CG_RED_NAME:
-			return CG_Text_Width(cg_redTeamName.string, scale, 0);
-			break;
-	  case CG_BLUE_NAME:
-			return CG_Text_Width(cg_blueTeamName.string, scale, 0);
-			break;*/
+  switch (ownerDraw) {
+/*    case CG_GAME_TYPE:
+      return CG_Text_Width(CG_GameTypeString(), scale, 0);*/
+/*    case CG_GAME_STATUS:
+      return CG_Text_Width(CG_GetGameStatusText(), scale, 0);
+      break;*/
+    case CG_KILLER:
+      return CG_Text_Width(CG_GetKillerText(), scale, 0);
+      break;
+/*    case CG_RED_NAME:
+      return CG_Text_Width(cg_redTeamName.string, scale, 0);
+      break;
+    case CG_BLUE_NAME:
+      return CG_Text_Width(cg_blueTeamName.string, scale, 0);
+      break;*/
 
 
-	}
-	return 0;
+  }
+  return 0;
 }
 
 static int CG_PlayCinematic(const char *name, float x, float y, float w, float h) {
@@ -1553,95 +1509,95 @@ CG_LoadHudMenu();
 =================
 */
 void CG_LoadHudMenu() {
-	char buff[1024];
-	const char *hudSet;
+  char buff[1024];
+  const char *hudSet;
 
-	cgDC.registerShaderNoMip = &trap_R_RegisterShaderNoMip;
-	cgDC.setColor = &trap_R_SetColor;
-	cgDC.drawHandlePic = &CG_DrawPic;
-	cgDC.drawStretchPic = &trap_R_DrawStretchPic;
-	cgDC.drawText = &CG_Text_Paint;
-	cgDC.textWidth = &CG_Text_Width;
-	cgDC.textHeight = &CG_Text_Height;
-	cgDC.registerModel = &trap_R_RegisterModel;
-	cgDC.modelBounds = &trap_R_ModelBounds;
-	cgDC.fillRect = &CG_FillRect;
-	cgDC.drawRect = &CG_DrawRect;   
-	cgDC.drawSides = &CG_DrawSides;
-	cgDC.drawTopBottom = &CG_DrawTopBottom;
-	cgDC.clearScene = &trap_R_ClearScene;
-	cgDC.addRefEntityToScene = &trap_R_AddRefEntityToScene;
-	cgDC.renderScene = &trap_R_RenderScene;
-	cgDC.registerFont = &trap_R_RegisterFont;
-	cgDC.ownerDrawItem = &CG_OwnerDraw;
-	cgDC.getValue = &CG_GetValue;
-	cgDC.ownerDrawVisible = NULL; //&CG_OwnerDrawVisible;
-	cgDC.runScript = &CG_RunMenuScript;
-	cgDC.getTeamColor = &CG_GetTeamColor;
-	cgDC.setCVar = trap_Cvar_Set;
-	cgDC.getCVarString = trap_Cvar_VariableStringBuffer;
-	cgDC.getCVarValue = CG_Cvar_Get;
-	cgDC.drawTextWithCursor = &CG_Text_PaintWithCursor;
-	//cgDC.setOverstrikeMode = &trap_Key_SetOverstrikeMode;
-	//cgDC.getOverstrikeMode = &trap_Key_GetOverstrikeMode;
-	cgDC.startLocalSound = &trap_S_StartLocalSound;
-	cgDC.ownerDrawHandleKey = &CG_OwnerDrawHandleKey;
-	cgDC.feederCount = &CG_FeederCount;
-	cgDC.feederItemImage = &CG_FeederItemImage;
-	cgDC.feederItemText = &CG_FeederItemText;
-	cgDC.feederSelection = &CG_FeederSelection;
-	//cgDC.setBinding = &trap_Key_SetBinding;
-	//cgDC.getBindingBuf = &trap_Key_GetBindingBuf;
-	//cgDC.keynumToStringBuf = &trap_Key_KeynumToStringBuf;
-	//cgDC.executeText = &trap_Cmd_ExecuteText;
-	cgDC.Error = &Com_Error; 
-	cgDC.Print = &Com_Printf; 
-	cgDC.ownerDrawWidth = &CG_OwnerDrawWidth;
-	//cgDC.Pause = &CG_Pause;
-	cgDC.registerSound = &trap_S_RegisterSound;
-	cgDC.startBackgroundTrack = &trap_S_StartBackgroundTrack;
-	cgDC.stopBackgroundTrack = &trap_S_StopBackgroundTrack;
-	cgDC.playCinematic = &CG_PlayCinematic;
-	cgDC.stopCinematic = &CG_StopCinematic;
-	cgDC.drawCinematic = &CG_DrawCinematic;
-	cgDC.runCinematicFrame = &CG_RunCinematicFrame;
-	
-	Init_Display(&cgDC);
+  cgDC.registerShaderNoMip = &trap_R_RegisterShaderNoMip;
+  cgDC.setColor = &trap_R_SetColor;
+  cgDC.drawHandlePic = &CG_DrawPic;
+  cgDC.drawStretchPic = &trap_R_DrawStretchPic;
+  cgDC.drawText = &CG_Text_Paint;
+  cgDC.textWidth = &CG_Text_Width;
+  cgDC.textHeight = &CG_Text_Height;
+  cgDC.registerModel = &trap_R_RegisterModel;
+  cgDC.modelBounds = &trap_R_ModelBounds;
+  cgDC.fillRect = &CG_FillRect;
+  cgDC.drawRect = &CG_DrawRect;   
+  cgDC.drawSides = &CG_DrawSides;
+  cgDC.drawTopBottom = &CG_DrawTopBottom;
+  cgDC.clearScene = &trap_R_ClearScene;
+  cgDC.addRefEntityToScene = &trap_R_AddRefEntityToScene;
+  cgDC.renderScene = &trap_R_RenderScene;
+  cgDC.registerFont = &trap_R_RegisterFont;
+  cgDC.ownerDrawItem = &CG_OwnerDraw;
+  cgDC.getValue = &CG_GetValue;
+  cgDC.ownerDrawVisible = NULL; //&CG_OwnerDrawVisible;
+  cgDC.runScript = &CG_RunMenuScript;
+  cgDC.getTeamColor = &CG_GetTeamColor;
+  cgDC.setCVar = trap_Cvar_Set;
+  cgDC.getCVarString = trap_Cvar_VariableStringBuffer;
+  cgDC.getCVarValue = CG_Cvar_Get;
+  cgDC.drawTextWithCursor = &CG_Text_PaintWithCursor;
+  //cgDC.setOverstrikeMode = &trap_Key_SetOverstrikeMode;
+  //cgDC.getOverstrikeMode = &trap_Key_GetOverstrikeMode;
+  cgDC.startLocalSound = &trap_S_StartLocalSound;
+  cgDC.ownerDrawHandleKey = &CG_OwnerDrawHandleKey;
+  cgDC.feederCount = &CG_FeederCount;
+  cgDC.feederItemImage = &CG_FeederItemImage;
+  cgDC.feederItemText = &CG_FeederItemText;
+  cgDC.feederSelection = &CG_FeederSelection;
+  //cgDC.setBinding = &trap_Key_SetBinding;
+  //cgDC.getBindingBuf = &trap_Key_GetBindingBuf;
+  //cgDC.keynumToStringBuf = &trap_Key_KeynumToStringBuf;
+  //cgDC.executeText = &trap_Cmd_ExecuteText;
+  cgDC.Error = &Com_Error; 
+  cgDC.Print = &Com_Printf; 
+  cgDC.ownerDrawWidth = &CG_OwnerDrawWidth;
+  //cgDC.Pause = &CG_Pause;
+  cgDC.registerSound = &trap_S_RegisterSound;
+  cgDC.startBackgroundTrack = &trap_S_StartBackgroundTrack;
+  cgDC.stopBackgroundTrack = &trap_S_StopBackgroundTrack;
+  cgDC.playCinematic = &CG_PlayCinematic;
+  cgDC.stopCinematic = &CG_StopCinematic;
+  cgDC.drawCinematic = &CG_DrawCinematic;
+  cgDC.runCinematicFrame = &CG_RunCinematicFrame;
+  
+  Init_Display(&cgDC);
 
-	Menu_Reset();
-	
-	trap_Cvar_VariableStringBuffer("cg_hudFiles", buff, sizeof(buff));
-	hudSet = buff;
-	if (hudSet[0] == '\0') {
-		hudSet = "ui/hud.txt";
-	}
+  Menu_Reset();
+  
+  trap_Cvar_VariableStringBuffer("cg_hudFiles", buff, sizeof(buff));
+  hudSet = buff;
+  if (hudSet[0] == '\0') {
+    hudSet = "ui/hud.txt";
+  }
 
-	CG_LoadMenus(hudSet);
+  CG_LoadMenus(hudSet);
 }
 
 void CG_AssetCache() {
-	//if (Assets.textFont == NULL) {
-	//  trap_R_RegisterFont("fonts/arial.ttf", 72, &Assets.textFont);
-	//}
-	//Assets.background = trap_R_RegisterShaderNoMip( ASSET_BACKGROUND );
-	//Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
-	cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip( ASSET_GRADIENTBAR );
-	cgDC.Assets.fxBasePic = trap_R_RegisterShaderNoMip( ART_FX_BASE );
-	cgDC.Assets.fxPic[0] = trap_R_RegisterShaderNoMip( ART_FX_RED );
-	cgDC.Assets.fxPic[1] = trap_R_RegisterShaderNoMip( ART_FX_YELLOW );
-	cgDC.Assets.fxPic[2] = trap_R_RegisterShaderNoMip( ART_FX_GREEN );
-	cgDC.Assets.fxPic[3] = trap_R_RegisterShaderNoMip( ART_FX_TEAL );
-	cgDC.Assets.fxPic[4] = trap_R_RegisterShaderNoMip( ART_FX_BLUE );
-	cgDC.Assets.fxPic[5] = trap_R_RegisterShaderNoMip( ART_FX_CYAN );
-	cgDC.Assets.fxPic[6] = trap_R_RegisterShaderNoMip( ART_FX_WHITE );
-	cgDC.Assets.scrollBar = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR );
-	cgDC.Assets.scrollBarArrowDown = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
-	cgDC.Assets.scrollBarArrowUp = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWUP );
-	cgDC.Assets.scrollBarArrowLeft = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWLEFT );
-	cgDC.Assets.scrollBarArrowRight = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWRIGHT );
-	cgDC.Assets.scrollBarThumb = trap_R_RegisterShaderNoMip( ASSET_SCROLL_THUMB );
-	cgDC.Assets.sliderBar = trap_R_RegisterShaderNoMip( ASSET_SLIDER_BAR );
-	cgDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
+  //if (Assets.textFont == NULL) {
+  //  trap_R_RegisterFont("fonts/arial.ttf", 72, &Assets.textFont);
+  //}
+  //Assets.background = trap_R_RegisterShaderNoMip( ASSET_BACKGROUND );
+  //Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
+  cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip( ASSET_GRADIENTBAR );
+  cgDC.Assets.fxBasePic = trap_R_RegisterShaderNoMip( ART_FX_BASE );
+  cgDC.Assets.fxPic[0] = trap_R_RegisterShaderNoMip( ART_FX_RED );
+  cgDC.Assets.fxPic[1] = trap_R_RegisterShaderNoMip( ART_FX_YELLOW );
+  cgDC.Assets.fxPic[2] = trap_R_RegisterShaderNoMip( ART_FX_GREEN );
+  cgDC.Assets.fxPic[3] = trap_R_RegisterShaderNoMip( ART_FX_TEAL );
+  cgDC.Assets.fxPic[4] = trap_R_RegisterShaderNoMip( ART_FX_BLUE );
+  cgDC.Assets.fxPic[5] = trap_R_RegisterShaderNoMip( ART_FX_CYAN );
+  cgDC.Assets.fxPic[6] = trap_R_RegisterShaderNoMip( ART_FX_WHITE );
+  cgDC.Assets.scrollBar = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR );
+  cgDC.Assets.scrollBarArrowDown = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
+  cgDC.Assets.scrollBarArrowUp = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWUP );
+  cgDC.Assets.scrollBarArrowLeft = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWLEFT );
+  cgDC.Assets.scrollBarArrowRight = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWRIGHT );
+  cgDC.Assets.scrollBarThumb = trap_R_RegisterShaderNoMip( ASSET_SCROLL_THUMB );
+  cgDC.Assets.sliderBar = trap_R_RegisterShaderNoMip( ASSET_SLIDER_BAR );
+  cgDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
 }
 //TA: FIXME: preliminary integration of CG TA UI stuff
 
@@ -1680,6 +1636,13 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
   CG_RegisterCvars();
 
   CG_InitConsoleCommands();
+  
+  //TA: moved up for LoadHudMenu
+  String_Init();
+
+  //TA: FIXME: TA UI
+  CG_AssetCache();
+  CG_LoadHudMenu();      // load new hud stuff
 
   //cg.weaponSelect = WP_MACHINEGUN;
   //TA: if it does weird things, this is why:
@@ -1709,35 +1672,25 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
   CG_ParseServerinfo();
 
   // load the new map
-  CG_LoadingString( "collision map" );
-
   trap_CM_LoadMap( cgs.mapname );
-
-	String_Init();
 
   cg.loading = qtrue;   // force players to load instead of defer
 
-  CG_LoadingString( "sounds" );
+  CG_RegisterSounds( );
+  CG_UpdateMediaFraction( 0.33f );
 
-  CG_RegisterSounds();
-
-  CG_LoadingString( "graphics" );
-
-  CG_RegisterGraphics();
-
+  CG_RegisterGraphics( );
+  CG_UpdateMediaFraction( 0.90f );
+  CG_InitWeapons( );
+  CG_UpdateMediaFraction( 0.95f );
+  CG_InitUpgrades( );
+  CG_UpdateMediaFraction( 1.0f );
+  
   //TA:
   CG_InitBuildables( );
-  CG_InitWeapons( );
-  CG_InitUpgrades( );
-
-  CG_LoadingString( "clients" );
 
   CG_RegisterClients();   // if low on memory, some clients will be deferred
 
-  //TA: FIXME: TA UI
-	CG_AssetCache();
-	CG_LoadHudMenu();      // load new hud stuff
-  
   cg.loading = qfalse;  // future players will be deferred
 
   CG_InitLocalEntities();
@@ -1751,8 +1704,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
   CG_SetConfigValues();
 
   CG_StartMusic();
-
-  CG_LoadingString( "" );
 
   CG_ShaderStateChanged();
 

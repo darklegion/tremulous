@@ -2286,21 +2286,6 @@ static void PM_Weapon( void )
       }
       break;
 
-    case WP_GRAB_CLAW:
-      attack1 = pm->cmd.buttons & BUTTON_ATTACK;
-      
-      //secondary attack is only permitted if target is in range
-      if( pm->autoWeaponHit[ pm->ps->weapon ] )
-        attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
-
-      if( !attack1 && !attack2 )
-      {
-        pm->ps->weaponTime = 0;
-        pm->ps->weaponstate = WEAPON_READY;
-        return;
-      }
-      break;
-      
     case WP_LUCIFER_CANON:
       attack1 = pm->cmd.buttons & BUTTON_ATTACK;
       attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
