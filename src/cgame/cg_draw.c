@@ -544,7 +544,7 @@ static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color )
   if( value > -1 )
   {
     trap_R_SetColor( color );
-    CG_DrawField( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
+    CG_DrawFieldPadded( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
     trap_R_SetColor( NULL );
   }
 }
@@ -560,10 +560,14 @@ static void CG_DrawPlayerBankValue( rectDef_t *rect, vec4_t color )
   if( value > -1 )
   {
     trap_R_SetColor( color );
-    CG_DrawField( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
+    CG_DrawFieldPadded( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
     trap_R_SetColor( NULL );
   }
 }
+
+#define HH_MIN_ALPHA  0.2f
+#define HH_MAX_ALPHA  0.8f
+#define HH_ALPHA_DIFF (HH_MAX_ALPHA-HH_MIN_ALPHA)
 
 /*
 ==============
@@ -585,7 +589,7 @@ static void CG_DrawPlayerStamina1( rectDef_t *rect, vec4_t color, qhandle_t shad
   else if( progress < 0.0f )
     progress = 0.0f;
 
-  color[ 3 ] = 0.25f + ( progress * 0.25f );
+  color[ 3 ] = HH_MIN_ALPHA + ( progress * HH_ALPHA_DIFF );
   
   trap_R_SetColor( color );
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
@@ -612,7 +616,7 @@ static void CG_DrawPlayerStamina2( rectDef_t *rect, vec4_t color, qhandle_t shad
   else if( progress < 0.0f )
     progress = 0.0f;
 
-  color[ 3 ] = 0.25f + ( progress * 0.25f );
+  color[ 3 ] = HH_MIN_ALPHA + ( progress * HH_ALPHA_DIFF );
   
   trap_R_SetColor( color );
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
@@ -638,7 +642,7 @@ static void CG_DrawPlayerStamina3( rectDef_t *rect, vec4_t color, qhandle_t shad
   else if( progress < 0.0f )
     progress = 0.0f;
 
-  color[ 3 ] = 0.25f + ( progress * 0.25f );
+  color[ 3 ] = HH_MIN_ALPHA + ( progress * HH_ALPHA_DIFF );
   
   trap_R_SetColor( color );
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
@@ -664,7 +668,7 @@ static void CG_DrawPlayerStamina4( rectDef_t *rect, vec4_t color, qhandle_t shad
   else if( progress < 0.0f )
     progress = 0.0f;
 
-  color[ 3 ] = 0.25f + ( progress * 0.25f );
+  color[ 3 ] = HH_MIN_ALPHA + ( progress * HH_ALPHA_DIFF );
   
   trap_R_SetColor( color );
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
@@ -682,9 +686,9 @@ static void CG_DrawPlayerStaminaBolt( rectDef_t *rect, vec4_t color, qhandle_t s
   float         stamina = ps->stats[ STAT_STAMINA ];
 
   if( stamina < 0 )
-    color[ 3 ] = 0.25f;
+    color[ 3 ] = HH_MIN_ALPHA;
   else
-    color[ 3 ] = 0.50f;
+    color[ 3 ] = HH_MAX_ALPHA;
   
   trap_R_SetColor( color );
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
@@ -715,10 +719,17 @@ static void CG_DrawPlayerClipsRing( rectDef_t *rect, vec4_t color, qhandle_t sha
       maxDelay = (float)BG_FindBuildDelayForWeapon( cent->currentState.weapon );
       progress = ( maxDelay - buildTime ) / maxDelay;
 
-      color[ 3 ] = 0.25f + ( progress * 0.25f );
+      color[ 3 ] = HH_MIN_ALPHA + ( progress * HH_ALPHA_DIFF );
       break;
 
     default:
+      if( ps->weaponstate == WEAPON_RELOADING )
+      {
+        maxDelay = (float)BG_FindReloadTimeForWeapon( cent->currentState.weapon );
+        progress = ( maxDelay - (float)ps->weaponTime ) / maxDelay;
+
+        color[ 3 ] = HH_MIN_ALPHA + ( progress * HH_ALPHA_DIFF );
+      }
       break;
   }
   

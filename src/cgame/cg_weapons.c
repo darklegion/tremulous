@@ -1149,36 +1149,23 @@ void CG_DrawWeaponSelect( rectDef_t *rect, vec4_t color )
     
     if( ( item >= 0 ) && ( item < numItems ) )
     {
-      switch( cent->currentState.weapon )
+      if( clips == 0 && !BG_FindInfinteAmmoForWeapon( cent->currentState.weapon ) )
       {
-        case WP_ABUILD:
-        case WP_ABUILD2:
-        case WP_HBUILD:
-        case WP_HBUILD2:
-          break;
+        float ammoPercent = (float)ammo / (float)maxAmmo;
 
-        default:
-          if( clips == 0 )
-          {
-            float ammoPercent = (float)ammo / (float)maxAmmo;
-
-            if( ammoPercent < 0.33f )
-            {
-              color[ 0 ] = 1.0f;
-              color[ 1 ] = color[ 2 ] = 0.0f;
-            }
-          }
-          break;
+        if( ammoPercent < 0.33f )
+        {
+          color[ 0 ] = 1.0f;
+          color[ 1 ] = color[ 2 ] = 0.0f;
+        }
       }
       
       trap_R_SetColor( color );
 
       if( items[ item ] <= 32 )
-        CG_DrawPic( x + ICON_BORDER, y + ICON_BORDER, iconsize - 2 * ICON_BORDER, iconsize - 2 * ICON_BORDER,
-                    cg_weapons[ items[ item ] ].weaponIcon );
+        CG_DrawPic( x, y, iconsize, iconsize, cg_weapons[ items[ item ] ].weaponIcon );
       else if( items[ item ] > 32 )
-        CG_DrawPic( x + ICON_BORDER, y + ICON_BORDER, iconsize - 2 * ICON_BORDER, iconsize - 2 * ICON_BORDER,
-                    cg_upgrades[ items[ item ] - 32 ].upgradeIcon );
+        CG_DrawPic( x, y, iconsize, iconsize, cg_upgrades[ items[ item ] - 32 ].upgradeIcon );
       
       trap_R_SetColor( NULL );
 
