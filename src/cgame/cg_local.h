@@ -385,6 +385,7 @@ typedef struct
   qboolean    newAnims;                   // true if using the new mission pack animations
   qboolean    fixedlegs;                  // true if legs yaw is always the same as torso yaw
   qboolean    fixedtorso;                 // true if torso never changes yaw
+  qboolean    nonsegmented;               // true if model is Q2 style nonsegmented
     
   vec3_t      headOffset;                 // move head in icon views
   footstep_t  footsteps;

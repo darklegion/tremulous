@@ -626,6 +626,50 @@ typedef enum
   MAX_PLAYER_TOTALANIMATIONS
 } playerAnimNumber_t;
 
+// nonsegmented animations
+typedef enum
+{
+  NSPA_STAND,
+
+  NSPA_GESTURE,
+
+  NSPA_WALK,
+  NSPA_RUN,
+  NSPA_RUNBACK,
+
+  NSPA_STRAFELEFT,
+  NSPA_STRAFERIGHT,
+
+  NSPA_SWIM,
+
+  NSPA_JUMP,
+  NSPA_LAND,
+  NSPA_JUMPBACK,
+  NSPA_LANDBACK,
+
+  NSPA_TURN,
+
+  NSPA_ATTACK1,
+  NSPA_ATTACK2,
+  NSPA_ATTACK3,
+
+  NSPA_PAIN1,
+  NSPA_PAIN2,
+  
+  NSPA_DEATH1,
+  NSPA_DEAD1,
+  NSPA_DEATH2,
+  NSPA_DEAD2,
+  NSPA_DEATH3,
+  NSPA_DEAD3,
+
+  MAX_NONSEG_PLAYER_ANIMATIONS,
+  
+  NSPA_WALKBACK,
+  
+  MAX_NONSEG_PLAYER_TOTALANIMATIONS
+} nonSegPlayerAnimNumber_t;
+
 //TA: for buildable animations
 typedef enum
 {

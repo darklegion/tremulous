@@ -190,6 +190,11 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
       ci->fixedtorso = qtrue;
       continue;
     }
+    else if( !Q_stricmp( token, "nonsegmented" ) )
+    {
+      ci->nonsegmented = qtrue;
+      continue;
+    }
 
     // if it is a number, start parsing animations
     if( token[ 0 ] >= '0' && token[ 0 ] <= '9' )
@@ -201,104 +206,164 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
     Com_Printf( "unknown token '%s' is %s\n", token, filename );
   }
 
-  // read information for each frame
-  for( i = 0; i < MAX_PLAYER_ANIMATIONS; i++ )
+  if( !ci->nonsegmented )
   {
-    token = COM_Parse( &text_p );
-    
-    if( !*token )
+    // read information for each frame
+    for( i = 0; i < MAX_PLAYER_ANIMATIONS; i++ )
     {
-      if( i >= TORSO_GETFLAG && i <= TORSO_NEGATIVE )
+      token = COM_Parse( &text_p );
+      
+      if( !*token )
       {
-        animations[ i ].firstFrame = animations[ TORSO_GESTURE ].firstFrame;
-        animations[ i ].frameLerp = animations[ TORSO_GESTURE ].frameLerp;
-        animations[ i ].initialLerp = animations[ TORSO_GESTURE ].initialLerp;
-        animations[ i ].loopFrames = animations[ TORSO_GESTURE ].loopFrames;
-        animations[ i ].numFrames = animations[ TORSO_GESTURE ].numFrames;
-        animations[ i ].reversed = qfalse;
-        animations[ i ].flipflop = qfalse;
-        continue;
+        if( i >= TORSO_GETFLAG && i <= TORSO_NEGATIVE )
+        {
+          animations[ i ].firstFrame = animations[ TORSO_GESTURE ].firstFrame;
+          animations[ i ].frameLerp = animations[ TORSO_GESTURE ].frameLerp;
+          animations[ i ].initialLerp = animations[ TORSO_GESTURE ].initialLerp;
+          animations[ i ].loopFrames = animations[ TORSO_GESTURE ].loopFrames;
+          animations[ i ].numFrames = animations[ TORSO_GESTURE ].numFrames;
+          animations[ i ].reversed = qfalse;
+          animations[ i ].flipflop = qfalse;
+          continue;
+        }
+        
+        break;
       }
       
-      break;
+      animations[ i ].firstFrame = atoi( token );
+      
+      // leg only frames are adjusted to not count the upper body only frames
+      if( i == LEGS_WALKCR )
+        skip = animations[ LEGS_WALKCR ].firstFrame - animations[ TORSO_GESTURE ].firstFrame;
+
+      if( i >= LEGS_WALKCR && i<TORSO_GETFLAG )
+        animations[ i ].firstFrame -= skip;
+
+      token = COM_Parse( &text_p );
+      if( !*token )
+        break;
+      
+      animations[ i ].numFrames = atoi( token );
+      animations[ i ].reversed = qfalse;
+      animations[ i ].flipflop = qfalse;
+      
+      // if numFrames is negative the animation is reversed
+      if( animations[ i ].numFrames < 0 )
+      {
+        animations[ i ].numFrames = -animations[ i ].numFrames;
+        animations[ i ].reversed = qtrue;
+      }
+
+      token = COM_Parse( &text_p );
+      
+      if( !*token )
+        break;
+
+      animations[ i ].loopFrames = atoi( token );
+
+      token = COM_Parse( &text_p );
+      
+      if( !*token )
+        break;
+
+      fps = atof( token );
+      if( fps == 0 )
+        fps = 1;
+
+      animations[ i ].frameLerp = 1000 / fps;
+      animations[ i ].initialLerp = 1000 / fps;
     }
-    
-    animations[ i ].firstFrame = atoi( token );
-    
-    // leg only frames are adjusted to not count the upper body only frames
-    if( i == LEGS_WALKCR )
-      skip = animations[ LEGS_WALKCR ].firstFrame - animations[ TORSO_GESTURE ].firstFrame;
 
-    if( i >= LEGS_WALKCR && i<TORSO_GETFLAG )
-      animations[ i ].firstFrame -= skip;
-
-    token = COM_Parse( &text_p );
-    if( !*token )
-      break;
-    
-    animations[ i ].numFrames = atoi( token );
-    animations[ i ].reversed = qfalse;
-    animations[ i ].flipflop = qfalse;
-    
-    // if numFrames is negative the animation is reversed
-    if( animations[ i ].numFrames < 0 )
+    if( i != MAX_PLAYER_ANIMATIONS )
     {
-      animations[ i ].numFrames = -animations[ i ].numFrames;
-      animations[ i ].reversed = qtrue;
+      CG_Printf( "Error parsing animation file: %s", filename );
+      return qfalse;
+    }
+    // crouch backward animation
+    memcpy( &animations[ LEGS_BACKCR ], &animations[ LEGS_WALKCR ], sizeof( animation_t ) );
+    animations[ LEGS_BACKCR ].reversed = qtrue;
+    // walk backward animation
+    memcpy( &animations[ LEGS_BACKWALK ], &animations[ LEGS_WALK ], sizeof( animation_t ) );
+    animations[ LEGS_BACKWALK ].reversed = qtrue;
+    // flag moving fast
+    animations[ FLAG_RUN ].firstFrame = 0;
+    animations[ FLAG_RUN ].numFrames = 16;
+    animations[ FLAG_RUN ].loopFrames = 16;
+    animations[ FLAG_RUN ].frameLerp = 1000 / 15;
+    animations[ FLAG_RUN ].initialLerp = 1000 / 15;
+    animations[ FLAG_RUN ].reversed = qfalse;
+    // flag not moving or moving slowly
+    animations[ FLAG_STAND ].firstFrame = 16;
+    animations[ FLAG_STAND ].numFrames = 5;
+    animations[ FLAG_STAND ].loopFrames = 0;
+    animations[ FLAG_STAND ].frameLerp = 1000 / 20;
+    animations[ FLAG_STAND ].initialLerp = 1000 / 20;
+    animations[ FLAG_STAND ].reversed = qfalse;
+    // flag speeding up
+    animations[ FLAG_STAND2RUN ].firstFrame = 16;
+    animations[ FLAG_STAND2RUN ].numFrames = 5;
+    animations[ FLAG_STAND2RUN ].loopFrames = 1;
+    animations[ FLAG_STAND2RUN ].frameLerp = 1000 / 15;
+    animations[ FLAG_STAND2RUN ].initialLerp = 1000 / 15;
+    animations[ FLAG_STAND2RUN ].reversed = qtrue;
+  }
+  else
+  {
+    // read information for each frame
+    for( i = 0; i < MAX_NONSEG_PLAYER_ANIMATIONS; i++ )
+    {
+      token = COM_Parse( &text_p );
+      
+      if( !*token )
+        break;
+      
+      animations[ i ].firstFrame = atoi( token );
+      
+      token = COM_Parse( &text_p );
+      if( !*token )
+        break;
+      
+      animations[ i ].numFrames = atoi( token );
+      animations[ i ].reversed = qfalse;
+      animations[ i ].flipflop = qfalse;
+      
+      // if numFrames is negative the animation is reversed
+      if( animations[ i ].numFrames < 0 )
+      {
+        animations[ i ].numFrames = -animations[ i ].numFrames;
+        animations[ i ].reversed = qtrue;
+      }
+
+      token = COM_Parse( &text_p );
+      
+      if( !*token )
+        break;
+
+      animations[ i ].loopFrames = atoi( token );
+
+      token = COM_Parse( &text_p );
+      
+      if( !*token )
+        break;
+
+      fps = atof( token );
+      if( fps == 0 )
+        fps = 1;
+
+      animations[ i ].frameLerp = 1000 / fps;
+      animations[ i ].initialLerp = 1000 / fps;
     }
 
-    token = COM_Parse( &text_p );
+    if( i != MAX_NONSEG_PLAYER_ANIMATIONS )
+    {
+      CG_Printf( "Error parsing animation file: %s", filename );
+      return qfalse;
+    }
     
-    if( !*token )
-      break;
-
-    animations[ i ].loopFrames = atoi( token );
-
-    token = COM_Parse( &text_p );
-    
-    if( !*token )
-      break;
-
-    fps = atof( token );
-    if( fps == 0 )
-      fps = 1;
-
-    animations[ i ].frameLerp = 1000 / fps;
-    animations[ i ].initialLerp = 1000 / fps;
+    // walk backward animation
+    memcpy( &animations[ NSPA_WALKBACK ], &animations[ NSPA_WALK ], sizeof( animation_t ) );
+    animations[ NSPA_WALKBACK ].reversed = qtrue;
   }
-
-  if( i != MAX_PLAYER_ANIMATIONS )
-  {
-    CG_Printf( "Error parsing animation file: %s", filename );
-    return qfalse;
-  }
-  // crouch backward animation
-  memcpy( &animations[ LEGS_BACKCR ], &animations[ LEGS_WALKCR ], sizeof( animation_t ) );
-  animations[ LEGS_BACKCR ].reversed = qtrue;
-  // walk backward animation
-  memcpy( &animations[ LEGS_BACKWALK ], &animations[ LEGS_WALK ], sizeof( animation_t ) );
-  animations[ LEGS_BACKWALK ].reversed = qtrue;
-  // flag moving fast
-  animations[ FLAG_RUN ].firstFrame = 0;
-  animations[ FLAG_RUN ].numFrames = 16;
-  animations[ FLAG_RUN ].loopFrames = 16;
-  animations[ FLAG_RUN ].frameLerp = 1000 / 15;
-  animations[ FLAG_RUN ].initialLerp = 1000 / 15;
-  animations[ FLAG_RUN ].reversed = qfalse;
-  // flag not moving or moving slowly
-  animations[ FLAG_STAND ].firstFrame = 16;
-  animations[ FLAG_STAND ].numFrames = 5;
-  animations[ FLAG_STAND ].loopFrames = 0;
-  animations[ FLAG_STAND ].frameLerp = 1000 / 20;
-  animations[ FLAG_STAND ].initialLerp = 1000 / 20;
-  animations[ FLAG_STAND ].reversed = qfalse;
-  // flag speeding up
-  animations[ FLAG_STAND2RUN ].firstFrame = 16;
-  animations[ FLAG_STAND2RUN ].numFrames = 5;
-  animations[ FLAG_STAND2RUN ].loopFrames = 1;
-  animations[ FLAG_STAND2RUN ].frameLerp = 1000 / 15;
-  animations[ FLAG_STAND2RUN ].initialLerp = 1000 / 15;
-  animations[ FLAG_STAND2RUN ].reversed = qtrue;
 
   return qtrue;
 }
