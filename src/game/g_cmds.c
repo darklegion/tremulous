@@ -1839,30 +1839,65 @@ void Cmd_Follow_f( gentity_t *ent )
   {
     if( ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
       G_StopFollowing( ent );
-    
-    return;
+    else
+    {
+      //follow somebody, anybody
+      int clientnum = ent->client->sess.spectatorClient;
+      int original = clientnum;
+      
+      do
+      {
+        clientnum++;
+        
+        if( clientnum >= level.maxclients )
+          clientnum = 0;
+        
+        if( clientnum < 0 )
+          clientnum = level.maxclients - 1;
+
+        // can't follow self
+        if( &level.clients[ clientnum ] == ent->client )
+          continue;
+
+        // can only follow connected clients
+        if( level.clients[ clientnum ].pers.connected != CON_CONNECTED )
+          continue;
+
+        // can't follow another spectator
+        if( level.clients[ clientnum ].sess.sessionTeam == TEAM_SPECTATOR )
+          continue;
+
+        // this is good, we can use it
+        ent->client->sess.spectatorClient = clientnum;
+        ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+        break;
+        
+      } while( clientnum != original );
+    }
   }
+  else
+  {
+    trap_Argv( 1, arg, sizeof( arg ) );
+    i = G_ClientNumberFromString( ent, arg );
+    
+    if( i == -1 )
+      return;
 
-  trap_Argv( 1, arg, sizeof( arg ) );
-  i = G_ClientNumberFromString( ent, arg );
-  
-  if( i == -1 )
-    return;
+    // can't follow self
+    if( &level.clients[ i ] == ent->client )
+      return;
 
-  // can't follow self
-  if( &level.clients[ i ] == ent->client )
-    return;
+    // can't follow another spectator
+    if( level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR )
+      return;
 
-  // can't follow another spectator
-  if( level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR )
-    return;
+    // first set them to spectator
+    if( ent->client->sess.sessionTeam != TEAM_SPECTATOR )
+      G_ChangeTeam( ent, PTE_NONE );
 
-  // first set them to spectator
-  if( ent->client->sess.sessionTeam != TEAM_SPECTATOR )
-    G_ChangeTeam( ent, PTE_NONE );
-
-  ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
-  ent->client->sess.spectatorClient = i;
+    ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+    ent->client->sess.spectatorClient = i;
+  }
 }
 
 /*
@@ -1877,7 +1912,7 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir )
 
   // first set them to spectator
   if( ent->client->sess.spectatorState == SPECTATOR_NOT )
-    G_ChangeTeam( ent, PTE_NONE );
+    return;
 
   if( dir != 1 && dir != -1 )
     G_Error( "Cmd_FollowCycle_f: bad dir %i", dir );

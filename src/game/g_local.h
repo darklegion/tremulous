@@ -565,7 +565,7 @@ char      *G_NewString( const char *string );
 //
 void Cmd_Score_f( gentity_t *ent );
 void G_StopFollowing( gentity_t *ent );
-void Cmd_FollowCycle_f( gentity_t *ent, int dir );
+void Cmd_Follow_f( gentity_t *ent );
 
 //
 // g_physics.c

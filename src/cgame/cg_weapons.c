@@ -1514,7 +1514,10 @@ void CG_NextWeapon_f( void )
     return;
   
   if( cg.snap->ps.pm_flags & PMF_FOLLOW )
+  {
+    trap_SendClientCommand( "followprev" );
     return;
+  }
 
   cg.weaponSelectTime = cg.time;
   original = cg.weaponSelect;
@@ -1555,7 +1558,10 @@ void CG_PrevWeapon_f( void )
     return;
   
   if( cg.snap->ps.pm_flags & PMF_FOLLOW )
+  {
+    trap_SendClientCommand( "follownext" );
     return;
+  }
 
   cg.weaponSelectTime = cg.time;
   original = cg.weaponSelect;

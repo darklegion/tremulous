@@ -360,8 +360,8 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
     }
   }
 
-  if( ( client->buttons & BUTTON_ATTACK2 ) && !( client->oldbuttons & BUTTON_ATTACK2 ) )
-    Cmd_FollowCycle_f( ent, 1 );
+  if( ( client->buttons & BUTTON_USE_HOLDABLE ) && !( client->oldbuttons & BUTTON_USE_HOLDABLE ) )
+    Cmd_Follow_f( ent );
 }
 
 
