@@ -654,9 +654,35 @@ typedef enum {
 //TA: player classes
 typedef enum {
   PCL_NONE,
+  
+  //builder classes
   PCL_D_B_BASE,
+  PCL_D_B_LEV1,
+  PCL_D_B_LEV21,
+  PCL_D_B_LEV22,
+  PCL_D_B_LEV23,
+  
+  //offensive classes
   PCL_D_O_BASE,
+  PCL_D_O_LEV11,
+  PCL_D_O_LEV12,
+  PCL_D_O_LEV21,
+  PCL_D_O_LEV22,
+  PCL_D_O_LEV31,
+  PCL_D_O_LEV32,
+  PCL_D_O_LEV33,
+  
+  //defensive classes
   PCL_D_D_BASE,
+  PCL_D_D_LEV11,
+  PCL_D_D_LEV12,
+  PCL_D_D_LEV21,
+  PCL_D_D_LEV22,
+  PCL_D_D_LEV31,
+  PCL_D_D_LEV32,
+  PCL_D_D_LEV33,
+  
+  //human class
   PCL_H_BASE,
 
   PCL_NUM_CLASSES

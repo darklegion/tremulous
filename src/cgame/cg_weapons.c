@@ -1612,7 +1612,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
     shader = cgs.media.flameExplShader;
     sfx = cgs.media.sfx_lghit2;
     mark = cgs.media.burnMarkShader;
-    radius = 48;
+    radius = 32;
     isSprite = qtrue;
     break;
   case WP_PLASMAGUN:

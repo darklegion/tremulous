@@ -357,7 +357,7 @@ static void CG_DrawLighting( void )
     case PCL_D_B_BASE:
     case PCL_D_O_BASE:
     case PCL_D_D_BASE:
-      if( lum < 10 )
+/*      if( lum < 10 )
         CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav9 );
       else if( lum >= 10 && lum < 16 )
         CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav8 );
@@ -374,7 +374,7 @@ static void CG_DrawLighting( void )
       else if( lum >= 46 && lum < 53 )
         CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav2 );
       else if( lum >= 53 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav1 );
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav1 );*/
 
       break;
 

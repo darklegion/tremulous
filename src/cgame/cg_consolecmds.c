@@ -197,7 +197,7 @@ CG_ClientMenu
 static void CG_ClientMenu( const char *menuname )
 {
   char  menuDef[ MAX_STRING_CHARS ];
-  int   i;
+  int   i, j = 0;
   
   if( !Q_stricmp( menuname, "dinfest" ) )
   {
@@ -205,13 +205,19 @@ static void CG_ClientMenu( const char *menuname )
     for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
     {
       if( BG_ClassCanEvolveFromTo( cg.snap->ps.stats[ STAT_PCLASS ], i ) )
+      {
         strcat( menuDef, va( "%s, class %s|", BG_FindNameForClassNum( i ), BG_FindNameForClassNum( i ) ) );
+        j++;
+      }
     }
     strcat( menuDef, "|Choose a class|to evolve to" );
     
-    trap_SendConsoleCommand( va( "defmenu infest \"%s\"\n", menuDef ) );
-    trap_SendConsoleCommand( "menu infest\n" );
-    trap_SendConsoleCommand( "undefmenu infest\n" );
+    if( j )
+    {
+      trap_SendConsoleCommand( va( "defmenu infest \"%s\"\n", menuDef ) );
+      trap_SendConsoleCommand( "menu infest\n" );
+      trap_SendConsoleCommand( "undefmenu infest\n" );
+    }
   }
   else if( !Q_stricmp( menuname, "hmcusell" ) )
   {

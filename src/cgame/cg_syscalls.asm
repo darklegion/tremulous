@@ -82,6 +82,7 @@ equ trap_CIN_SetExtents					-79
 equ trap_R_RemapShader					-80
 equ	trap_S_AddRealLoopingSound			-81
 equ trap_S_StopLoopingSound				-82
+equ	trap_R_AddAdditiveLightToScene				-86
 
 
 equ	memset						-101

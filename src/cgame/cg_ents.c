@@ -430,7 +430,7 @@ static void CG_Missile( centity_t *cent ) {
   if( cent->currentState.weapon == WP_FLAMER )
   {
     ent.reType = RT_SPRITE;
-    ent.radius = ( ( cg.time - s1->pos.trTime ) * ( cg.time - s1->pos.trTime ) ) / 6000;
+    ent.radius = ( ( cg.time - s1->pos.trTime ) * ( cg.time - s1->pos.trTime ) ) / 9000;
     ent.rotation = 0;
     ent.customShader = cgs.media.flameShader;
     trap_R_AddRefEntityToScene( &ent );
@@ -611,6 +611,9 @@ static void CG_Portal( centity_t *cent ) {
 
 #define MAX_MARK_FRAGMENTS  128
 #define MAX_MARK_POINTS     384
+#define TORCH_R             0.4f
+#define TORCH_G             0.4f
+#define TORCH_B             0.5f
 
 /*
 ===============
@@ -652,9 +655,7 @@ static void CG_TorchLight( centity_t *cent )
   VectorSubtract( tr.endpos, from, length );
   veclength = VectorLength( length );
 
-  trap_R_AddLightToScene( tr.endpos, 200, 1.0, 1.0, 1.0 );
-  
-/*  size = veclength / 2.0f;
+  size = veclength / 2.0f;
   if( size > 255 ) size = 255;
   if( size < 0 ) size = 0;       
 
@@ -663,7 +664,15 @@ static void CG_TorchLight( centity_t *cent )
 
   //slightly above surface 
   VectorMA( origin, 1, normal, origin );
-
+  
+#if 1
+  trap_R_AddAdditiveLightToScene( origin, size * 2, ( ( 512 - size ) / 512 ) * TORCH_R,
+                                                    ( ( 512 - size ) / 512 ) * TORCH_G,
+                                                    ( ( 512 - size ) / 512 ) * TORCH_B );
+  trap_R_AddLightToScene( origin, size * 2, ( ( 512 - size ) / 512 ) * TORCH_R,
+                                            ( ( 512 - size ) / 512 ) * TORCH_G,
+                                            ( ( 512 - size ) / 512 ) * TORCH_B );
+#else
   texCoordScale = 0.5f / size;
 
   //decide where the corners of the poly go
@@ -671,7 +680,8 @@ static void CG_TorchLight( centity_t *cent )
   PerpendicularVector( axis[1], axis[0] );
   CrossProduct( axis[0], axis[1], axis[2] );
 
-  for ( i = 0 ; i < 3 ; i++ ) {
+  for ( i = 0 ; i < 3 ; i++ )
+  {
     square[0][i] = origin[i] - size * axis[1][i] - size * axis[2][i];
     square[1][i] = origin[i] - size * axis[1][i] + size * axis[2][i];
     square[2][i] = origin[i] + size * axis[1][i] + size * axis[2][i];
@@ -743,7 +753,8 @@ static void CG_TorchLight( centity_t *cent )
       else if( lum >= 46 )
         trap_R_AddPolyToScene( cgs.media.humanTorch1, mf->numPoints, verts );
     }
-  }*/
+  }
+#endif
 }
 
 /*

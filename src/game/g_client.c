@@ -1374,16 +1374,34 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
   switch( ent->client->pers.pclass )
   {
     case PCL_D_B_BASE:
+    case PCL_D_B_LEV1:
+    case PCL_D_B_LEV21:
+    case PCL_D_B_LEV22:
+    case PCL_D_B_LEV23:
       BG_packWeapon( WP_ABUILD, client->ps.stats );
       BG_packAmmoArray( WP_ABUILD, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
 
     case PCL_D_O_BASE:
+    case PCL_D_O_LEV11:
+    case PCL_D_O_LEV12:
+    case PCL_D_O_LEV21:
+    case PCL_D_O_LEV22:
+    case PCL_D_O_LEV31:
+    case PCL_D_O_LEV32:
+    case PCL_D_O_LEV33:
       BG_packWeapon( WP_VENOM, client->ps.stats );
       BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
 
     case PCL_D_D_BASE:
+    case PCL_D_D_LEV11:
+    case PCL_D_D_LEV12:
+    case PCL_D_D_LEV21:
+    case PCL_D_D_LEV22:
+    case PCL_D_D_LEV31:
+    case PCL_D_D_LEV32:
+    case PCL_D_D_LEV33:
       BG_packWeapon( WP_VENOM, client->ps.stats );
       BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;

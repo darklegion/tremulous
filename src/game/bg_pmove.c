@@ -2111,9 +2111,8 @@ Generates weapon events and modifes the weapon counter
 ==============
 */
 static void PM_Weapon( void ) {
-  int         addTime;
-  int         ammo, clips, maxclips;
-  static int  chainGunAddTime;
+  int addTime;
+  int ammo, clips, maxclips;
 
   // don't allow attack until all buttons are up
   if ( pm->ps->pm_flags & PMF_RESPAWNED ) {
@@ -2229,7 +2228,6 @@ static void PM_Weapon( void ) {
   if ( ! (pm->cmd.buttons & BUTTON_ATTACK) ) {
     pm->ps->weaponTime = 0;
     pm->ps->weaponstate = WEAPON_READY;
-    chainGunAddTime = 120;
     return;
   }
 
@@ -2317,8 +2315,7 @@ static void PM_Weapon( void ) {
     addTime = 100;
     break;
   case WP_CHAINGUN:
-    if( chainGunAddTime > 30 ) chainGunAddTime -= 2;
-    addTime = chainGunAddTime;
+    addTime = 50;
     break;
   case WP_GRENADE_LAUNCHER:
     addTime = 800;
@@ -2327,7 +2324,7 @@ static void PM_Weapon( void ) {
     addTime = 800;
     break;
   case WP_FLAMER:
-    addTime = 150;
+    addTime = 75;
     break;
   case WP_RAILGUN:
     addTime = 1500;

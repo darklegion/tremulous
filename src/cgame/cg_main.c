@@ -941,9 +941,9 @@ static void CG_RegisterClients( void ) {
   for (i=MAX_CLIENTS+MAX_PRECACHES+1; i>=0;  i--) {
     const char    *clientInfo;
 
-    if (cg.clientNum == i) {
+/*    if (cg.clientNum == i) {
       continue;
-    }
+    }*/
 
     clientInfo = CG_ConfigString( CS_PLAYERS+i );
     if ( !clientInfo[0] ) {
@@ -952,8 +952,8 @@ static void CG_RegisterClients( void ) {
 
     if( i < MAX_CLIENTS )
     {
-      CG_LoadingClient( i );
-      CG_NewClientInfo( i );
+/*      CG_LoadingClient( i );
+      CG_NewClientInfo( i );*/
     }
     else
     {

@@ -33,9 +33,6 @@ static  float s_quadFactor;
 static  vec3_t  forward, right, up;
 static  vec3_t  muzzle;
 
-//TA: for horizontal changes in muzzle point
-static  int     hmuzzle = 10;
-
 #define NUM_NAILSHOTS 10
 
 /*
@@ -82,7 +79,7 @@ qboolean CheckGauntletAttack( gentity_t *ent ) {
   // set aiming directions
   AngleVectors (ent->client->ps.viewangles, forward, right, up);
 
-  CalcMuzzlePoint ( ent, forward, right, up, muzzle );
+  CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
   VectorMA (muzzle, 32, forward, end);
 
@@ -621,7 +618,7 @@ void Weapon_Venom_Fire( gentity_t *ent ) {
   // set aiming directions
   AngleVectors (ent->client->ps.viewangles, forward, right, up);
 
-  CalcMuzzlePoint ( ent, forward, right, up, muzzle );
+  CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
   VectorMA (muzzle, 32, forward, end);
 
@@ -693,33 +690,10 @@ CalcMuzzlePoint
 set muzzle location relative to pivoting eye
 ===============
 */
-void CalcMuzzlePoint ( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) {
+void CalcMuzzlePoint( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) {
   VectorCopy( ent->s.pos.trBase, muzzlePoint );
   muzzlePoint[2] += ent->client->ps.viewheight;
-  VectorMA( muzzlePoint, 8, forward, muzzlePoint );
-
-  //TA: move the muzzle a bit with BFG
-  if( ent->s.weapon == WP_BFG )
-  {
-    VectorMA( muzzlePoint, hmuzzle, right, muzzlePoint );
-    hmuzzle = -hmuzzle;
-  }
-
-  // snap to integer coordinates for more efficient network bandwidth usage
-  SnapVector( muzzlePoint );
-}
-
-/*
-===============
-CalcMuzzlePointOrigin
-
-set muzzle location relative to pivoting eye
-===============
-*/
-void CalcMuzzlePointOrigin ( gentity_t *ent, vec3_t origin, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) {
-  VectorCopy( ent->s.pos.trBase, muzzlePoint );
-  muzzlePoint[2] += ent->client->ps.viewheight;
-  VectorMA( muzzlePoint, 14, forward, muzzlePoint );
+  VectorMA( muzzlePoint, 1, forward, muzzlePoint );
   // snap to integer coordinates for more efficient network bandwidth usage
   SnapVector( muzzlePoint );
 }
@@ -745,7 +719,7 @@ void FireWeapon( gentity_t *ent ) {
   // set aiming directions
   AngleVectors (ent->client->ps.viewangles, forward, right, up);
 
-  CalcMuzzlePointOrigin ( ent, ent->client->oldOrigin, forward, right, up, muzzle );
+  CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
   // fire the specific weapon
   switch( ent->s.weapon ) {

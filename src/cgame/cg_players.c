@@ -501,14 +501,16 @@ static int CG_GetCorpseNum( int pclass ) {
 
   modelName = BG_FindModelNameForClass( pclass );
 
-  for ( i = 0 ; i < cgs.maxclients ; i++ ) {
+  for ( i = 0 ; i < MAX_CLIENTS; i++ )
+  {
     match = &cgs.corpseinfo[ i ];
-    if ( !match->infoValid ) {
+    Com_Printf( "%d: %s %s\n", i, modelName, match->modelName );
+    if ( !match->infoValid )
       continue;
-    }
-    if ( match->deferred ) {
+      
+    if ( match->deferred )
       continue;
-    }
+    
     if ( !Q_stricmp( modelName, match->modelName )
       /*&& !Q_stricmp( modelName, match->skinName )*/ ) {
       // this clientinfo is identical, so use it's handles
@@ -620,7 +622,7 @@ void CG_PrecacheClientInfo( int clientNum ) {
   const char  *v;
   char    *slash;
 
-  ci = &cgs.corpseinfo[ clientNum - MAX_CLIENTS ];
+  ci = &cgs.corpseinfo[ clientNum - MAX_CLIENTS - 1 ];
 
   //CG_Printf( "%d %d\n", clientNum, (clientNum - MAX_CLIENTS ) );
 

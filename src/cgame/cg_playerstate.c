@@ -489,7 +489,7 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 	}
 
 	// check for going low on ammo
-	CG_CheckAmmo();
+	//CG_CheckAmmo(); //TA: don't display ammo warnings
 
 	// run events
 	CG_CheckPlayerstateEvents( ps, ops );

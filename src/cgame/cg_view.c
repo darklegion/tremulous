@@ -980,6 +980,11 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
     }
   }
 
+  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_DROIDS )
+  {
+    trap_R_AddAdditiveLightToScene( cg.predictedPlayerState.origin, 300, 0.4, 0.2, 0.0 );
+  }
+
   // actually issue the rendering calls
   CG_DrawActive( stereoView );
 

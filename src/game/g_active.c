@@ -827,18 +827,18 @@ void ClientThink_real( gentity_t *ent ) {
   if( ( client->ps.stats[ STAT_STATE ] & SS_SPEEDBOOST ) &&  ucmd->upmove >= 0 )
   {
     //subtract stamina
-    client->ps.stats[ STAT_STAMINA ] -= dTime/6.0f;
+    client->ps.stats[ STAT_STAMINA ] -= dTime/9.0f;
   }
                                                           
   if( ( aForward <= 64 && aForward > 5 ) || ( aRight <= 64 && aRight > 5 ) )
   {
     //restore stamina
-    client->ps.stats[ STAT_STAMINA ] += dTime/4.0f;
+    client->ps.stats[ STAT_STAMINA ] += dTime/6.0f;
   }
   else if( aForward <= 5 && aRight <= 5 )
   {
     //restore stamina faster
-    client->ps.stats[ STAT_STAMINA ] += dTime/6.0f;
+    client->ps.stats[ STAT_STAMINA ] += dTime/9.0f;
   }
 
   // set up for pmove
