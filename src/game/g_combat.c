@@ -278,7 +278,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       else if( self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
       {
         //horribly complex nasty alien land
-        float humanValue = BG_GetValueOfHuman( self->client->ps );
+        float humanValue = BG_GetValueOfHuman( &self->client->ps );
         int   frags;
         int   unclaimedFrags = (int)humanValue;
         
