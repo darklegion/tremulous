@@ -234,6 +234,7 @@ typedef enum {
 #define SCA_CANJUMP             8
 #define SCA_NOWEAPONDRIFT       16
 #define SCA_FOVWARPS            32
+#define SCA_ALIENSENSE          64
 
 #define SS_WALLCLIMBING         1
 #define SS_WALLCLIMBINGCEILING  2

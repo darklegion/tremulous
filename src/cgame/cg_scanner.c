@@ -13,16 +13,16 @@
 
 #include "cg_local.h"
 
-#define RANGE 1000.0f
+#define RANGE       1000.0f
 
-#define XPOS  0.0f
-#define YPOS  0.0f
-#define WIDTH 640.0f
-#define HEIGHT 480.0f
+#define XPOS        0.0f
+#define YPOS        0.0f
+#define WIDTH       640.0f
+#define HEIGHT      480.0f
 
 #define STALKWIDTH  2.0f
-#define BLIPX 16.0f
-#define BLIPY 8.0f
+#define BLIPX       16.0f
+#define BLIPY       8.0f
 
 static void CG_DrawBlips( vec3_t origin, vec4_t colour )
 {
@@ -51,36 +51,120 @@ static void CG_DrawBlips( vec3_t origin, vec4_t colour )
   trap_R_SetColor( NULL );
 }
 
+#define RANGE2  1000.0f
+
+#define XPOS2   20.0f
+#define YPOS2   20.0f
+#define WIDTH2  600.0f
+#define HEIGHT2 440.0f
+
+#define BLIPX2  24.0f
+#define BLIPY2  24.0f
+
+static void CG_DrawDir( vec3_t origin, vec4_t colour )
+{
+  vec3_t  drawOrigin;
+  vec3_t  up = { 0.0f, 0.0f, 1.0f };
+
+  RotatePointAroundVector( drawOrigin, up, origin, -cg.refdefViewAngles[ 1 ] - 90 );
+  drawOrigin[ 2 ] = 0.0f;
+  VectorNormalize( drawOrigin );
+
+  trap_R_SetColor( colour );
+  CG_DrawPic( XPOS2 + ( WIDTH2 / 2 ) - ( BLIPX2 / 2 ) - drawOrigin[ 0 ] * ( WIDTH2 / 2 ),
+              YPOS2 + ( HEIGHT2 / 2 ) - ( BLIPY2 / 2 ) + drawOrigin[ 1 ] * ( HEIGHT2 / 2 ),
+              BLIPX2, BLIPY2, cgs.media.scannerBlipShader );
+  trap_R_SetColor( NULL );
+}
+
 /*
-Global Scanner draw
+=============
+CG_AlienSense
+=============
+*/
+void CG_AlienSense( )
+{
+  int     i;
+  vec3_t  origin;
+  vec3_t  relOrigin;
+  vec4_t  buildable = { 1.0f, 0.0f, 1.0f, 1.0f };
+  vec4_t  client    = { 0.0f, 0.0f, 1.0f, 1.0f };
+  
+  VectorCopy( cg.refdef.vieworg, origin );
+  
+  //draw human buildables
+  for( i = 0; i < cg.ep.numHumanBuildables; i++ )
+  {
+    VectorClear( relOrigin );
+    VectorSubtract( cg.ep.humanBuildablePos[ i ], origin, relOrigin );
+
+    if( VectorLength( relOrigin ) < RANGE2 )
+      CG_DrawDir( relOrigin, buildable );
+  }
+  
+  //draw human clients
+  for( i = 0; i < cg.ep.numHumanClients; i++ )
+  {
+    VectorClear( relOrigin );
+    VectorSubtract( cg.ep.humanClientPos[ i ], origin, relOrigin );
+
+    if( VectorLength( relOrigin ) < RANGE2 )
+      CG_DrawDir( relOrigin, client );
+  }
+}
+
+/*
+=============
+CG_Scanner
+=============
 */
 void CG_Scanner( )
 {
   int     i;
   vec3_t  origin;
   vec3_t  relOrigin;
-  vec4_t  hIabove = { 0, 1, 0, 1 };
-  vec4_t  hIbelow = { 0, 0.5, 0, 1 };
-  vec4_t  aIabove = { 1, 0, 0, 1 };
-  vec4_t  aIbelow = { 0.5, 0, 0, 1 };
+  vec4_t  hIabove = { 0.0f, 1.0f, 0.0f, 1.0f };
+  vec4_t  hIbelow = { 0.0f, 0.5f, 0.0f, 1.0f };
+  vec4_t  aIabove = { 1.0f, 0.0f, 0.0f, 1.0f };
+  vec4_t  aIbelow = { 0.5f, 0.0f, 0.0f, 1.0f };
   
   VectorCopy( cg.refdef.vieworg, origin );
   
-  //draw human items below scanner plane
-  for( i = 0; i < cgIP.numHumanItems; i++ )
+  //draw human buildables below scanner plane
+  for( i = 0; i < cg.ep.numHumanBuildables; i++ )
   {
     VectorClear( relOrigin );
-    VectorSubtract( cgIP.humanItemPositions[ i ], origin, relOrigin );
+    VectorSubtract( cg.ep.humanBuildablePos[ i ], origin, relOrigin );
 
     if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] < 0 ) )
       CG_DrawBlips( relOrigin, hIbelow );
   }
   
-  //draw alien items below scanner plane
-  for( i = 0; i < cgIP.numAlienItems; i++ )
+  //draw alien buildables below scanner plane
+  for( i = 0; i < cg.ep.numAlienBuildables; i++ )
   {
     VectorClear( relOrigin );
-    VectorSubtract( cgIP.alienItemPositions[ i ], origin, relOrigin );
+    VectorSubtract( cg.ep.alienBuildablePos[ i ], origin, relOrigin );
+
+    if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] < 0 ) )
+      CG_DrawBlips( relOrigin, aIbelow );
+  }
+  
+  //draw human clients below scanner plane
+  for( i = 0; i < cg.ep.numHumanClients; i++ )
+  {
+    VectorClear( relOrigin );
+    VectorSubtract( cg.ep.humanClientPos[ i ], origin, relOrigin );
+
+    if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] < 0 ) )
+      CG_DrawBlips( relOrigin, hIbelow );
+  }
+  
+  //draw alien buildables below scanner plane
+  for( i = 0; i < cg.ep.numAlienClients; i++ )
+  {
+    VectorClear( relOrigin );
+    VectorSubtract( cg.ep.alienClientPos[ i ], origin, relOrigin );
 
     if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] < 0 ) )
       CG_DrawBlips( relOrigin, aIbelow );
@@ -88,21 +172,41 @@ void CG_Scanner( )
   
   /*CG_DrawPic( XPOS, YPOS, WIDTH, HEIGHT, cgs.media.scannerShader );*/
   
-  //draw human items above scanner plane
-  for( i = 0; i < cgIP.numHumanItems; i++ )
+  //draw human buildables above scanner plane
+  for( i = 0; i < cg.ep.numHumanBuildables; i++ )
   {
     VectorClear( relOrigin );
-    VectorSubtract( cgIP.humanItemPositions[ i ], origin, relOrigin );
+    VectorSubtract( cg.ep.humanBuildablePos[ i ], origin, relOrigin );
 
     if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] > 0 ) )
       CG_DrawBlips( relOrigin, hIabove );
   }
 
-  //draw alien items above scanner plane
-  for( i = 0; i < cgIP.numAlienItems; i++ )
+  //draw alien buildables above scanner plane
+  for( i = 0; i < cg.ep.numAlienBuildables; i++ )
   {
     VectorClear( relOrigin );
-    VectorSubtract( cgIP.alienItemPositions[ i ], origin, relOrigin );
+    VectorSubtract( cg.ep.alienBuildablePos[ i ], origin, relOrigin );
+
+    if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] > 0 ) )
+      CG_DrawBlips( relOrigin, aIabove );
+  }
+  
+  //draw human clients above scanner plane
+  for( i = 0; i < cg.ep.numHumanClients; i++ )
+  {
+    VectorClear( relOrigin );
+    VectorSubtract( cg.ep.humanClientPos[ i ], origin, relOrigin );
+
+    if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] > 0 ) )
+      CG_DrawBlips( relOrigin, hIabove );
+  }
+
+  //draw alien clients above scanner plane
+  for( i = 0; i < cg.ep.numAlienClients; i++ )
+  {
+    VectorClear( relOrigin );
+    VectorSubtract( cg.ep.alienClientPos[ i ], origin, relOrigin );
 
     if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] > 0 ) )
       CG_DrawBlips( relOrigin, aIabove );

@@ -82,10 +82,6 @@ upgradeInfo_t   cg_upgrades[32];
 itemInfo_t      cg_items[MAX_ITEMS];
 buildableInfo_t cg_buildables[ BA_NUM_BUILDABLES ];
 
-//TA:
-cgItemPos_t      cgIP;
-
-
 vmCvar_t  cg_teslaTrailTime;
 vmCvar_t  cg_railTrailTime;
 vmCvar_t  cg_centertime;

@@ -471,6 +471,23 @@ typedef struct
 
 //======================================================================
 
+//TA:
+typedef struct
+{
+  vec3_t    alienBuildablePos[ BA_NUM_BUILDABLES ];
+  int       alienBuildableTimes[ BA_NUM_BUILDABLES ];
+  int       numAlienBuildables;
+  
+  vec3_t    humanBuildablePos[ BA_NUM_BUILDABLES ];
+  int       numHumanBuildables;
+  
+  vec3_t    alienClientPos[ MAX_CLIENTS ];
+  int       numAlienClients;
+  
+  vec3_t    humanClientPos[ MAX_CLIENTS ];
+  int       numHumanClients;
+} entityPos_t;
+
 // all cg.stepTime, cg.duckTime, cg.landTime, etc are set to cg.time when the action
 // occurs, and they will have visible effects for #define STEP_TIME or whatever msec after
 
@@ -680,6 +697,8 @@ typedef struct {
   int       forwardMoveTime; //TA: for struggling
   int       rightMoveTime;
   int       upMoveTime;
+
+  entityPos_t ep;
 } cg_t;
 
 
@@ -1112,29 +1131,6 @@ extern  buildableInfo_t cg_buildables[ BA_NUM_BUILDABLES ];
 
 extern  markPoly_t    cg_markPolys[MAX_MARK_POLYS];
 
-//TA:
-typedef struct
-{
-  vec3_t    alienItemPositions[ MAX_ITEMS ];
-  int       alienItemTimes[ MAX_ITEMS ];
-  int       numAlienItems;
-  
-  vec3_t    humanItemPositions[ MAX_ITEMS ];
-  int       numHumanItems;
-  
-  vec3_t    alienClientPositions[ MAX_CLIENTS ];
-  int       alienClientClass;
-  int       numAlienClients;
-  
-  vec3_t    humanClientPositions[ MAX_CLIENTS ];
-  int       humanClientClass;
-  int       numHumanClients;
-  
-} cgItemPos_t;
-
-extern cgItemPos_t     cgIP;
-
-
 extern  vmCvar_t    cg_centertime;
 extern  vmCvar_t    cg_runpitch;
 extern  vmCvar_t    cg_runroll;
@@ -1459,7 +1455,8 @@ void CG_Creep( centity_t *cent );
 //
 // cg_scanner.c
 //
-void CG_Scanner( void );
+void CG_Scanner( );
+void CG_AlienSense( );
 
 //
 // cg_marks.c

@@ -2045,6 +2045,9 @@ static void CG_Draw2D( void )
       
       if( BG_gotItem( UP_HELMET, cg.snap->ps.stats ) )
         CG_Scanner( );
+
+      if( BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_PCLASS ], SCA_ALIENSENSE ) )
+        CG_AlienSense( );
     }
   }
 

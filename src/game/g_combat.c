@@ -1027,7 +1027,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   if( knockback && targ->client )
   {
     vec3_t  kvel;
-    float mass;
+    float   mass;
 
     mass = 200;
 
@@ -1053,12 +1053,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   }
 
   // check for completely getting out of the damage
-  if( !(dflags & DAMAGE_NO_PROTECTION) )
+  if( !( dflags & DAMAGE_NO_PROTECTION ) )
   {
 
     // if TF_NO_FRIENDLY_FIRE is set, don't do damage to the target
     // if the attacker was on the same team
-    if( targ != attacker && OnSameTeam (targ, attacker)  )
+    if( targ != attacker && OnSameTeam( targ, attacker ) )
     {
       if( !g_friendlyFire.integer )
         return;
@@ -1080,9 +1080,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   }*/
 
   // add to the attacker's hit counter
-  if ( attacker->client && targ != attacker && targ->health > 0
+  if( attacker->client && targ != attacker && targ->health > 0
       && targ->s.eType != ET_MISSILE
-      && targ->s.eType != ET_GENERAL)
+      && targ->s.eType != ET_GENERAL )
   {
     if( OnSameTeam( targ, attacker ) )
       attacker->client->ps.persistant[ PERS_HITS ]--;
@@ -1149,12 +1149,22 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   if( g_gametype.integer == GT_CTF)
     Team_CheckHurtCarrier(targ, attacker);
 
-  if(targ->client)
+  if( targ->client )
   {
     // set the last client who damaged the target
     targ->client->lasthurt_client = attacker->s.number;
     targ->client->lasthurt_mod = mod;
     take = (int)( (float)take * G_CalcDamageModifier( point, targ, attacker, client->ps.stats[ STAT_PCLASS ] ) );
+
+    //if boosted poison every attack
+    if( client && client->ps.stats[ STAT_STATE ] & SS_BOOSTED )
+    {
+      if( !( targ->client->ps.stats[ STAT_STATE ] & SS_POISONED ) )
+      {
+        targ->client->ps.stats[ STAT_STATE ] |= SS_POISONED;
+        targ->client->lastPoisonTime = level.time;
+      }
+    }
   }
 
   // do the damage

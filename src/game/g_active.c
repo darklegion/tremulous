@@ -466,7 +466,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
     //client is poisoned
     if( client->ps.stats[ STAT_STATE ] & SS_POISONED )
     {
-      int damage = ( level.time - client->lastPoisonTime ) / 100;
+      int damage = ( level.time - client->lastPoisonTime ) / 1000;
 
       G_Damage( ent, NULL, NULL, NULL, NULL, damage, 0, MOD_VENOM );
     }

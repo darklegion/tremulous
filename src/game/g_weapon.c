@@ -358,15 +358,15 @@ qboolean CheckVenomAttack( gentity_t *ent )
     tent->s.weapon = ent->s.weapon;
   }
 
-  G_Damage( traceEnt, ent, ent, forward, tr.endpos, 5, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
-  if( traceEnt->client )
+  G_Damage( traceEnt, ent, ent, forward, tr.endpos, 100, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
+/*  if( traceEnt->client )
   {
     if( !( traceEnt->client->ps.stats[ STAT_STATE ] & SS_POISONED ) )
     {
       traceEnt->client->ps.stats[ STAT_STATE ] |= SS_POISONED;
       traceEnt->client->lastPoisonTime = level.time;
     }
-  }
+  }*/
 
   return qtrue;
 }

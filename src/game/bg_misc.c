@@ -1273,7 +1273,7 @@ classAttributes_t bg_classList[ ] =
     0, 0,                                                       //int     viewheight, crouchviewheight;
     25,                                                         //int     health;
     0,                                                          //int     armor;
-    SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS|SCA_ALIENSENSE, //int     abilities;
     0.0f,                                                       //float   buildDist;
     140,                                                        //int     fov;
     0.0f,                                                       //float   bob;

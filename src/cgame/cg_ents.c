@@ -906,10 +906,10 @@ void CG_AddPacketEntities( void ) {
   CG_CalcEntityLerpPositions( &cg_entities[ cg.snap->ps.clientNum ] );
 
   //TA: "empty" item position arrays
-  cgIP.numAlienItems = 0;
-  cgIP.numHumanItems = 0;
-  cgIP.numAlienClients = 0;
-  cgIP.numHumanClients = 0;
+  cg.ep.numAlienBuildables = 0;
+  cg.ep.numHumanBuildables = 0;
+  cg.ep.numAlienClients = 0;
+  cg.ep.numHumanClients = 0;
 
   for( num = 0 ; num < cg.snap->numEntities ; num++ )
   {
@@ -920,33 +920,29 @@ void CG_AddPacketEntities( void ) {
       //TA: add to list of item positions (for creep)
       if( cent->currentState.modelindex2 == BIT_ALIENS )
       {
-        VectorCopy( cent->lerpOrigin, cgIP.alienItemPositions[ cgIP.numAlienItems ] );
-        cgIP.alienItemTimes[ cgIP.numAlienItems ] = cent->miscTime;
-        cgIP.numAlienItems++;
+        VectorCopy( cent->lerpOrigin, cg.ep.alienBuildablePos[ cg.ep.numAlienBuildables ] );
+        cg.ep.alienBuildableTimes[ cg.ep.numAlienBuildables ] = cent->miscTime;
+        cg.ep.numAlienBuildables++;
       }
       else if( cent->currentState.modelindex2 == BIT_HUMANS )
       {
-        VectorCopy( cent->lerpOrigin, cgIP.humanItemPositions[ cgIP.numHumanItems ] );
-        cgIP.numHumanItems++;
+        VectorCopy( cent->lerpOrigin, cg.ep.humanBuildablePos[ cg.ep.numHumanBuildables ] );
+        cg.ep.numHumanBuildables++;
       }
     }
-    
-    if( cent->currentState.eType == ET_PLAYER )
+    else if( cent->currentState.eType == ET_PLAYER )
     {
       int team = cent->currentState.powerups & 0x00FF;
-      int class = ( cent->currentState.powerups & 0xFF00 ) >> 8;
 
       if( team == PTE_ALIENS )
       {
-        VectorCopy( cent->lerpOrigin, cgIP.alienClientPositions[ cgIP.numAlienClients ] );
-        cgIP.alienClientClass = class;
-        cgIP.numAlienClients++;
+        VectorCopy( cent->lerpOrigin, cg.ep.alienClientPos[ cg.ep.numAlienClients ] );
+        cg.ep.numAlienClients++;
       }
       else if( team == PTE_HUMANS )
       {
-        VectorCopy( cent->lerpOrigin, cgIP.humanClientPositions[ cgIP.numHumanClients ] );
-        cgIP.humanClientClass = class;
-        cgIP.numHumanClients++;
+        VectorCopy( cent->lerpOrigin, cg.ep.humanClientPos[ cg.ep.numHumanClients ] );
+        cg.ep.numHumanClients++;
       }
     }
   }
