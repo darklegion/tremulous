@@ -436,7 +436,6 @@ static void G_GenerateParticleFileList( void )
   }
 }
 
-
 /*
 ============
 G_InitGame
@@ -517,6 +516,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   G_FindTeams( );
 
   //TA:
+  BG_InitClassOverrides( );
+  BG_InitBuildableOverrides( );
   G_InitDamageLocations( );
   G_GenerateParticleFileList( );
   G_InitMapRotations( );

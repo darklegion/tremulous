@@ -1564,7 +1564,7 @@ Returns the Z component of the surface being shadowed
 ===============
 */
 #define SHADOW_DISTANCE   128
-static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane )
+static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane, pClass_t class )
 {
   vec3_t    end, mins = { -15, -15, 0 }, maxs = { 15, 15, 2 };
   trace_t   trace;
@@ -1596,7 +1596,8 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane )
   // add the mark as a temporary, so it goes directly to the renderer
   // without taking a spot in the cg_marks array
   CG_ImpactMark( cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal,
-                 cent->pe.legs.yawAngle, alpha,alpha,alpha,1, qfalse, 24, qtrue );
+                 cent->pe.legs.yawAngle, alpha,alpha,alpha,1, qfalse,
+                 24 * BG_FindShadowScaleForClass( class ), qtrue );
 
   return qtrue;
 }
@@ -1836,12 +1837,13 @@ void CG_Player( centity_t *cent )
   qboolean      shadow;
   float         shadowPlane;
   entityState_t *es = &cent->currentState;
-  int           class = ( es->powerups >> 8 ) & 0xFF;
+  pClass_t      class = ( es->powerups >> 8 ) & 0xFF;
   float         scale;
   vec3_t        tempAxis[ 3 ], tempAxis2[ 3 ];
   vec3_t        angles;
   int           held = es->modelindex;
   pTeam_t       team = es->powerups & 0xFF;
+  vec3_t        surfNormal = { 0.0f, 0.0f, 1.0f };
 
   // the client number is stored in clientNum.  It can't be derived
   // from the entity number, because a single client may have
@@ -1911,9 +1913,7 @@ void CG_Player( centity_t *cent )
   CG_PlayerSprites( cent );
 
   // add the shadow
-  //TA: but only for humans FIXME this is dumb
-  /*if( team == PTE_HUMANS )*/
-    shadow = CG_PlayerShadow( cent, &shadowPlane );
+  shadow = CG_PlayerShadow( cent, &shadowPlane, class );
 
   // add a water splash if partially in and out of water
   CG_PlayerSplash( cent );
@@ -1951,7 +1951,7 @@ void CG_Player( centity_t *cent )
   //move the origin closer into the wall with a CapTrace
   if( es->eFlags & EF_WALLCLIMB && !( es->eFlags & EF_DEAD ) && !( cg.intermissionStarted ) )
   {
-    vec3_t  surfNormal, start, end, mins, maxs;
+    vec3_t  start, end, mins, maxs;
     trace_t tr;
 
     if( es->eFlags & EF_WALLCLIMBCEILING )
@@ -1982,6 +1982,11 @@ void CG_Player( centity_t *cent )
     legs.nonNormalizedAxes = qtrue;
   }
 
+  //offset on the Z axis if required
+  VectorMA( legs.origin, BG_FindZOffsetForClass( class ), surfNormal, legs.origin );
+  VectorCopy( legs.origin, legs.lightingOrigin );
+  VectorCopy( legs.origin, legs.oldorigin ); // don't positionally lerp at all
+  
   trap_R_AddRefEntityToScene( &legs );
 
   // if the model failed, allow the default nullmodel to be displayed
@@ -2121,7 +2126,7 @@ void CG_Corpse( centity_t *cent )
   }
 
   // add the shadow
-  shadow = CG_PlayerShadow( cent, &shadowPlane );
+  shadow = CG_PlayerShadow( cent, &shadowPlane, es->clientNum );
 
   // get the player model information
   renderfx = 0;

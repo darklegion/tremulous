@@ -638,7 +638,7 @@ CheckGrabAttack
 void CheckGrabAttack( gentity_t *ent )
 {
   trace_t   tr;
-  vec3_t    end;
+  vec3_t    end, dir;
   gentity_t *traceEnt;
 
   // set aiming directions
@@ -664,7 +664,10 @@ void CheckGrabAttack( gentity_t *ent )
     return;
     
   if( !( traceEnt->client->ps.stats[ STAT_STATE ] & SS_GRABBED ) )
-    VectorCopy( traceEnt->client->ps.viewangles, traceEnt->client->ps.grapplePoint );
+  {
+    AngleVectors( traceEnt->client->ps.viewangles, dir, NULL, NULL );
+    traceEnt->client->ps.stats[ STAT_VIEWLOCK ] = DirToByte( dir );
+  }
   
   traceEnt->client->ps.stats[ STAT_STATE ] |= SS_GRABBED;
   traceEnt->client->lastGrabTime = level.time;

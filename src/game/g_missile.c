@@ -102,6 +102,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
 {
   gentity_t   *other, *attacker;
   qboolean    returnAfterDamage = qfalse;
+  vec3_t      dir;
 
   other = &g_entities[ trace->entityNum ];
   attacker = &g_entities[ ent->r.ownerNum ];
@@ -125,7 +126,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
     {
       other->client->ps.stats[ STAT_STATE ] |= SS_BLOBLOCKED;
       other->client->lastLockTime = level.time;
-      VectorCopy( other->client->ps.viewangles, other->client->ps.grapplePoint );
+      AngleVectors( other->client->ps.viewangles, dir, NULL, NULL );
+      other->client->ps.stats[ STAT_VIEWLOCK ] = DirToByte( dir );
     }
   }
   else if( !strcmp( ent->classname, "slowblob" ) )
@@ -134,7 +136,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
     {
       other->client->ps.stats[ STAT_STATE ] |= SS_SLOWLOCKED;
       other->client->lastSlowTime = level.time;
-      VectorCopy( other->client->ps.viewangles, other->client->ps.grapplePoint );
+      AngleVectors( other->client->ps.viewangles, dir, NULL, NULL );
+      other->client->ps.stats[ STAT_VIEWLOCK ] = DirToByte( dir );
     }
   }
   else if( !strcmp( ent->classname, "hive" ) )
@@ -598,7 +601,7 @@ gentity_t *fire_lockblob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.eType = ET_MISSILE;
   bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_LOCKBLOB_LAUNCHER;
-  bolt->s.generic1 = self->s.generic1; //weaponMode
+  bolt->s.generic1 = WPM_PRIMARY; //weaponMode
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
   bolt->damage = 0;

@@ -28,6 +28,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/bioegg/bioegg.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
+    0.0f,                  //float     zOffset;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     ASPAWN_BP,             //int       buildPoints;
@@ -61,6 +62,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/barricade/barricade.md3", 0, 0, 0 },
     { -35, -35, -15 },     //vec3_t    mins;
     { 35, 35, 60 },        //vec3_t    maxs;
+    0.0f,                  //float     zOffset;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     BARRICADE_BP,          //int       buildPoints;
@@ -94,6 +96,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/booster/booster.md3", 0, 0, 0 },
     { -26, -26, -9 },     //vec3_t     mins;
     { 26, 26, 9 },        //vec3_t     maxs;
+    0.0f,                  //float     zOffset;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     BOOSTER_BP,            //int       buildPoints;
@@ -125,8 +128,9 @@ buildableAttributes_t bg_buildableList[ ] =
     "Acid Tube",           //char      *humanName;
     "team_alien_acid_tube",//char      *entityName;
     { "models/buildables/acid_tube/acid_tube.md3", 0, 0, 0 },
-    { -35, -35, -11 },     //vec3_t    mins;
-    { 35, 35, 40 },        //vec3_t    maxs;
+    { -25, -25, -25 },     //vec3_t    mins;
+    { 25, 25, 25 },        //vec3_t    maxs;
+    -15.0f,                //float     zOffset;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     ACIDTUBE_BP,           //int       buildPoints;
@@ -158,8 +162,9 @@ buildableAttributes_t bg_buildableList[ ] =
     "Hive",                //char      *humanName;
     "team_alien_hive",     //char      *entityName;
     { "models/buildables/acid_tube/acid_tube.md3", 0, 0, 0 },
-    { -35, -35, -11 },     //vec3_t    mins;
-    { 35, 35, 40 },        //vec3_t    maxs;
+    { -35, -35, -25 },     //vec3_t    mins;
+    { 35, 35, 25 },        //vec3_t    maxs;
+    -15.0f,                //float     zOffset;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     HIVE_BP,               //int       buildPoints;
@@ -193,6 +198,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/trapper/trapper.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
+    0.0f,                  //float     zOffset;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     TRAPPER_BP,            //int       buildPoints;
@@ -226,6 +232,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/hivemind/hivemind.md3", 0, 0, 0 },
     { -45, -45, -15 },     //vec3_t    mins;
     { 45, 45, 95 },        //vec3_t    maxs;
+    0.0f,                  //float     zOffset;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     OVERMIND_BP,           //int       buildPoints;
@@ -259,6 +266,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/hovel/hovel.md3", 0, 0, 0 },
     { -50, -50, -20 },     //vec3_t    mins;
     { 50, 50, 20 },        //vec3_t    maxs;
+    0.0f,                  //float     zOffset;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     HOVEL_BP,              //int       buildPoints;
@@ -292,6 +300,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/replicator/replicator.md3", 0, 0, 0 },
     { -40, -40, -4 },      //vec3_t    mins;
     { 40, 40, 4 },         //vec3_t    maxs;
+    0.0f,                  //float     zOffset;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     HSPAWN_BP,             //int       buildPoints;
@@ -325,6 +334,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/medistat/medistat.md3", 0, 0, 0 },
     { -35, -35, -7 },      //vec3_t    mins;
     { 35, 35, 7 },         //vec3_t    maxs;
+    0.0f,                  //float     zOffset;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     MEDISTAT_BP,           //int       buildPoints;
@@ -360,6 +370,7 @@ buildableAttributes_t bg_buildableList[ ] =
       "models/buildables/mgturret/turret_top.md3", 0 },
     { -25, -25, -20 },     //vec3_t    mins;
     { 25, 25, 20 },        //vec3_t    maxs;
+    0.0f,                  //float     zOffset;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     MGTURRET_BP,           //int       buildPoints;
@@ -393,6 +404,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/tesla/tesla.md3", 0, 0, 0 },
     { -22, -22, -40 },     //vec3_t    mins;
     { 22, 22, 40 },        //vec3_t    maxs;
+    0.0f,                  //float     zOffset;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     TESLAGEN_BP,           //int       buildPoints;
@@ -426,6 +438,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/dcc/dcc.md3", 0, 0, 0 },
     { -35, -35, -13 },     //vec3_t    mins;
     { 35, 35, 47 },        //vec3_t    maxs;
+    0.0f,                  //float     zOffset;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     DC_BP,                 //int       buildPoints;
@@ -459,6 +472,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/mcu/mcu.md3", 0, 0, 0 },
     { -40, -40, -13 },     //vec3_t    mins;
     { 40, 40, 50 },        //vec3_t    maxs;
+    0.0f,                  //float     zOffset;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     ARMOURY_BP,            //int       buildPoints;
@@ -492,6 +506,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/reactor/reactor.md3", 0, 0, 0 },
     { -50, -50, -15 },     //vec3_t    mins;
     { 50, 50, 95 },        //vec3_t    maxs;
+    0.0f,                  //float     zOffset;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     REACTOR_BP,            //int       buildPoints;
@@ -525,6 +540,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/repeater/repeater.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 25 },        //vec3_t    maxs;
+    0.0f,                  //float     zOffset;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     REPEATER_BP,           //int       buildPoints;
@@ -553,6 +569,9 @@ buildableAttributes_t bg_buildableList[ ] =
 };
 
 int   bg_numBuildables = sizeof( bg_buildableList ) / sizeof( bg_buildableList[ 0 ] );
+
+//separate from bg_buildableList to work around char struct init bug
+buildableAttributeOverrides_t bg_buildableOverrideList[ BA_NUM_BUILDABLES ];
 
 /*
 ==============
@@ -696,6 +715,26 @@ void BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs )
     
   if( maxs != NULL )
     VectorCopy( bg_buildableList[ 0 ].maxs, maxs );
+}
+
+/*
+==============
+BG_FindZOffsetForBuildable
+==============
+*/
+float BG_FindZOffsetForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].zOffset;
+    }
+  }
+  
+  return 0.0f;
 }
 
 /*
@@ -1181,6 +1220,156 @@ int BG_FindUniqueTestForBuildable( int bclass )
   return qfalse;
 }
 
+/*
+==============
+BG_FindOverrideForBuildable
+==============
+*/
+static buildableAttributeOverrides_t *BG_FindOverrideForBuildable( int bclass )
+{
+  return &bg_buildableOverrideList[ bclass ];
+}
+
+/*
+======================
+BG_ParseBuildableFile
+
+Parses a configuration file describing a builable
+======================
+*/
+static qboolean BG_ParseBuildableFile( const char *filename, buildableAttributeOverrides_t *bao )
+{
+  char          *text_p;
+  int           i;
+  int           len;
+  char          *token;
+  char          text[ 20000 ];
+  fileHandle_t  f;
+  float         scale = 0.0f;
+      
+
+  // load the file
+  len = trap_FS_FOpenFile( filename, &f, FS_READ );
+  if( len <= 0 )
+    return qfalse;
+
+  if( len >= sizeof( text ) - 1 )
+  {
+    Com_Printf( S_COLOR_RED "ERROR: Buildable file %s too long\n", filename );
+    return qfalse;
+  }
+  
+  trap_FS_Read( text, len, f );
+  text[ len ] = 0;
+  trap_FS_FCloseFile( f );
+
+  // parse the text
+  text_p = text;
+
+  // read optional parameters
+  while( 1 )
+  {
+    token = COM_Parse( &text_p );
+    
+    if( !token )
+      break;
+
+    if( !Q_stricmp( token, "" ) )
+      break;
+
+    if( !Q_stricmp( token, "model" ) )
+    {
+      int index = 0;
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      index = atoi( token );
+      
+      if( index < 0 )
+        index = 0;
+      else if( index > 3 )
+        index = 3;
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      Q_strncpyz( bao->models[ index ], token, sizeof( bao->models[ 0 ] ) );
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "mins" ) )
+    {
+      for( i = 0; i <= 2; i++ )
+      {
+        token = COM_Parse( &text_p );
+        if( !token )
+          break;
+        
+        bao->mins[ i ] = atof( token );
+      }
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "maxs" ) )
+    {
+      for( i = 0; i <= 2; i++ )
+      {
+        token = COM_Parse( &text_p );
+        if( !token )
+          break;
+        
+        bao->maxs[ i ] = atof( token );
+      }
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "zOffset" ) )
+    {
+      float offset;
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      offset = atof( token );
+      offset = 0.0f;
+
+      bao->zOffset = offset;
+
+      continue;
+    }
+
+
+    Com_Printf( S_COLOR_RED "ERROR: unknown token '%s'\n", token );
+    return qfalse;
+  }
+
+  return qtrue;
+}
+
+/*
+===============
+BG_InitBuildableOverrides
+
+Set any overrides specfied by file
+===============
+*/
+void BG_InitBuildableOverrides( void )
+{
+  int                           i;
+  buildableAttributeOverrides_t *bao;
+
+  for( i = BA_NONE + 1; i < BA_NUM_BUILDABLES; i++ )
+  {
+    bao = BG_FindOverrideForBuildable( i );
+    
+    BG_ParseBuildableFile( va( "overrides/buildables/%s.cfg", BG_FindNameForBuildable( i ) ), bao );
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 classAttributes_t bg_classList[ ] =
@@ -1192,6 +1381,7 @@ classAttributes_t bg_classList[ ] =
     "",                                             //char    *modelname;
     1.0f,                                           //float   modelScale;
     "",                                             //char    *skinname;
+    1.0f,                                           //float   shadowScale;
     "",                                             //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -15, -15, -15 },                              //vec3_t  mins;
@@ -1199,6 +1389,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 15 },                                 //vec3_t  crouchmaxs;
     { -15, -15, -15 },                              //vec3_t  deadmins;
     { 15, 15, 15 },                                 //vec3_t  deadmaxs;
+    0.0f,                                           //float   zOffset
     0, 0,                                           //int     viewheight, crouchviewheight;
     0,                                              //int     health;
     0.0f,                                           //float   fallDamage;
@@ -1226,6 +1417,7 @@ classAttributes_t bg_classList[ ] =
     "builder",                                      //char    *modelname;
     1.0f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
+    1.0f,                                           //float   shadowScale;
     "alien_builder_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -15, -15, -20 },                              //vec3_t  mins;
@@ -1233,6 +1425,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 20 },                                 //vec3_t  crouchmaxs;
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
+    0.0f,                                           //float   zOffset
     0, 0,                                           //int     viewheight, crouchviewheight;
     ABUILDER_HEALTH,                                //int     health;
     0.2f,                                           //float   fallDamage;
@@ -1261,6 +1454,7 @@ classAttributes_t bg_classList[ ] =
     "builder",                                      //char    *modelname;
     1.0f,                                           //float   modelScale;
     "advanced",                                     //char    *skinname;
+    1.0f,                                           //float   shadowScale;
     "alien_builder_hud",                            //char    *hudname;
     ( 1 << S2 )|( 1 << S3 ),                        //int  stages
     { -20, -20, -20 },                              //vec3_t  mins;
@@ -1268,6 +1462,7 @@ classAttributes_t bg_classList[ ] =
     { 20, 20, 20 },                                 //vec3_t  crouchmaxs;
     { -20, -20, -4 },                               //vec3_t  deadmins;
     { 20, 20, 4 },                                  //vec3_t  deadmaxs;
+    0.0f,                                           //float   zOffset
     0, 0,                                           //int     viewheight, crouchviewheight;
     ABUILDER_UPG_HEALTH,                            //int     health;
     0.0f,                                           //float   fallDamage;
@@ -1296,6 +1491,7 @@ classAttributes_t bg_classList[ ] =
     "jumper",                                       //char    *modelname;
     0.2f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
+    0.3f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -15, -15, -15 },                              //vec3_t  mins;
@@ -1303,6 +1499,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 15 },                                 //vec3_t  crouchmaxs;
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
+    -8.0f,                                          //float   zOffset
     0, 0,                                           //int     viewheight, crouchviewheight;
     SOLDIER_HEALTH,                                 //int     health;
     0.0f,                                           //float   fallDamage;
@@ -1331,6 +1528,7 @@ classAttributes_t bg_classList[ ] =
     "spitter",                                      //char    *modelname;
     0.6f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
+    1.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -18, -18, -18 },                              //vec3_t  mins;
@@ -1338,7 +1536,8 @@ classAttributes_t bg_classList[ ] =
     { 18, 18, 18 },                                 //vec3_t  crouchmaxs;
     { -18, -18, -4 },                               //vec3_t  deadmins;
     { 18, 18, 4 },                                  //vec3_t  deadmaxs;
-    9, 9,                                           //int     viewheight, crouchviewheight;
+    0.0f,                                           //float   zOffset
+    0, 0,                                           //int     viewheight, crouchviewheight;
     HYDRA_HEALTH,                                   //int     health;
     0.0f,                                           //float   fallDamage;
     HYDRA_REGEN,                                    //int     regenRate;
@@ -1367,6 +1566,7 @@ classAttributes_t bg_classList[ ] =
     "spitter",                                      //char    *modelname;
     0.7f,                                           //float   modelScale;
     "blue",                                         //char    *skinname;
+    1.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -20, -20, -20 },                              //vec3_t  mins;
@@ -1374,7 +1574,8 @@ classAttributes_t bg_classList[ ] =
     { 20, 20, 20 },                                 //vec3_t  crouchmaxs;
     { -20, -20, -4 },                               //vec3_t  deadmins;
     { 20, 20, 4 },                                  //vec3_t  deadmaxs;
-    10, 10,                                         //int     viewheight, crouchviewheight;
+    0.0f,                                           //float   zOffset
+    0, 0,                                           //int     viewheight, crouchviewheight;
     HYDRA_UPG_HEALTH,                               //int     health;
     0.0f,                                           //float   fallDamage;
     HYDRA_UPG_REGEN,                                //int     regenRate;
@@ -1403,6 +1604,7 @@ classAttributes_t bg_classList[ ] =
     "tarantula",                                    //char    *modelname;
     0.75f,                                          //float   modelScale;
     "default",                                      //char    *skinname;
+    1.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -22, -22, -22 },                              //vec3_t  mins;
@@ -1410,6 +1612,7 @@ classAttributes_t bg_classList[ ] =
     { 22, 22, 22 },                                 //vec3_t  crouchmaxs;
     { -22, -22, -4 },                               //vec3_t  deadmins;
     { 22, 22, 4 },                                  //vec3_t  deadmaxs;
+    0.0f,                                           //float   zOffset
     10, 10,                                         //int     viewheight, crouchviewheight;
     CHIMERA_HEALTH,                                 //int     health;
     0.0f,                                           //float   fallDamage;
@@ -1438,6 +1641,7 @@ classAttributes_t bg_classList[ ] =
     "tarantula",                                    //char    *modelname;
     0.9f,                                           //float   modelScale;
     "red",                                          //char    *skinname;
+    1.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -24, -24, -24 },                              //vec3_t  mins;
@@ -1445,6 +1649,7 @@ classAttributes_t bg_classList[ ] =
     { 24, 24, 24 },                                 //vec3_t  crouchmaxs;
     { -24, -24, -4 },                               //vec3_t  deadmins;
     { 24, 24, 4 },                                  //vec3_t  deadmaxs;
+    0.0f,                                           //float   zOffset
     12, 12,                                         //int     viewheight, crouchviewheight;
     CHIMERA_UPG_HEALTH,                             //int     health;
     0.0f,                                           //float   fallDamage;
@@ -1473,6 +1678,7 @@ classAttributes_t bg_classList[ ] =
     "prowl",                                        //char    *modelname;
     1.0f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
+    1.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -32, -32, -21 },                              //vec3_t  mins;
@@ -1480,6 +1686,7 @@ classAttributes_t bg_classList[ ] =
     { 32, 32, 21 },                                 //vec3_t  crouchmaxs;
     { -32, -32, -4 },                               //vec3_t  deadmins;
     { 32, 32, 4 },                                  //vec3_t  deadmaxs;
+    0.0f,                                           //float   zOffset
     24, 24,                                         //int     viewheight, crouchviewheight;
     DRAGOON_HEALTH,                                 //int     health;
     0.0f,                                           //float   fallDamage;
@@ -1508,6 +1715,7 @@ classAttributes_t bg_classList[ ] =
     "prowl",                                        //char    *modelname;
     1.0f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
+    1.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -32, -32, -21 },                              //vec3_t  mins;
@@ -1515,6 +1723,7 @@ classAttributes_t bg_classList[ ] =
     { 32, 32, 21 },                                 //vec3_t  crouchmaxs;
     { -32, -32, -4 },                               //vec3_t  deadmins;
     { 32, 32, 4 },                                  //vec3_t  deadmaxs;
+    0.0f,                                           //float   zOffset
     27, 27,                                         //int     viewheight, crouchviewheight;
     DRAGOON_UPG_HEALTH,                             //int     health;
     0.0f,                                           //float   fallDamage;
@@ -1543,6 +1752,7 @@ classAttributes_t bg_classList[ ] =
     "mofo",                                         //char    *modelname;
     1.0f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
+    2.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -30, -30, -20 },                              //vec3_t  mins;
@@ -1550,6 +1760,7 @@ classAttributes_t bg_classList[ ] =
     { 30, 30, 20 },                                 //vec3_t  crouchmaxs;
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
+    0.0f,                                           //float   zOffset
     50, 50,                                         //int     viewheight, crouchviewheight;
     BMOFO_HEALTH,                                   //int     health;
     0.0f,                                           //float   fallDamage;
@@ -1579,6 +1790,7 @@ classAttributes_t bg_classList[ ] =
     "sarge",                                        //char    *modelname;
     1.0f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
+    1.0f,                                           //float   shadowScale;
     "human_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -15, -15, -24 },                              //vec3_t  mins;
@@ -1586,6 +1798,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 16 },                                 //vec3_t  crouchmaxs;
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
+    0.0f,                                           //float   zOffset
     26, 12,                                         //int     viewheight, crouchviewheight;
     100,                                            //int     health;
     1.0f,                                           //float   fallDamage;
@@ -1616,14 +1829,18 @@ classAttributes_t bg_classList[ ] =
     "keel",
     1.0f,                                    
     "default",
+    1.0f,
     
     "bsuit", ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), { 0, 0, 0 }, { 0, 0, 0, },                             
-    { 0, 0, 0, }, { 0, 0, 0, }, { 0, 0, 0, }, 0, 0, 0, 0.0f, 0, 0, WP_NONE, 0.0f, 0,   
+    { 0, 0, 0, }, { 0, 0, 0, }, { 0, 0, 0, }, 0.0f, 0, 0, 0, 0.0f, 0, 0, WP_NONE, 0.0f, 0,   
     0.0f, 1.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 270.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
   }
 };
 
 int   bg_numPclasses = sizeof( bg_classList ) / sizeof( bg_classList[ 0 ] );
+
+//separate from bg_classList to work around char struct init bug
+classAttributeOverrides_t bg_classOverrideList[ PCL_NUM_CLASSES ];
 
 /*
 ==============
@@ -1693,6 +1910,9 @@ char *BG_FindModelNameForClass( int pclass )
 {
   int i;
 
+  if( bg_classOverrideList[ pclass ].modelName[ 0 ] != 0 )
+    return bg_classOverrideList[ pclass ].modelName;
+
   for( i = 0; i < bg_numPclasses; i++ )
   {
     if( bg_classList[ i ].classNum == pclass )
@@ -1712,6 +1932,9 @@ BG_FindModelScaleForClass
 float BG_FindModelScaleForClass( int pclass )
 {
   int i;
+
+  if( bg_classOverrideList[ pclass ].modelScale != 0.0f )
+    return bg_classOverrideList[ pclass ].modelScale;
 
   for( i = 0; i < bg_numPclasses; i++ )
   {
@@ -1734,6 +1957,9 @@ char *BG_FindSkinNameForClass( int pclass )
 {
   int i;
 
+  if( bg_classOverrideList[ pclass ].skinName[ 0 ] != 0 )
+    return bg_classOverrideList[ pclass ].skinName;
+
   for( i = 0; i < bg_numPclasses; i++ )
   {
     if( bg_classList[ i ].classNum == pclass )
@@ -1747,12 +1973,39 @@ char *BG_FindSkinNameForClass( int pclass )
 
 /*
 ==============
+BG_FindShadowScaleForClass
+==============
+*/
+float BG_FindShadowScaleForClass( int pclass )
+{
+  int i;
+
+  if( bg_classOverrideList[ pclass ].shadowScale != 0.0f )
+    return bg_classOverrideList[ pclass ].shadowScale;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].shadowScale;
+    }
+  }
+  
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindShadowScaleForClass( %d )\n", pclass );
+  return 1.0f;
+}
+
+/*
+==============
 BG_FindHudNameForClass
 ==============
 */
 char *BG_FindHudNameForClass( int pclass )
 {
   int i;
+
+  if( bg_classOverrideList[ pclass ].hudName[ 0 ] != 0 )
+    return bg_classOverrideList[ pclass ].hudName;
 
   for( i = 0; i < bg_numPclasses; i++ )
   {
@@ -1803,19 +2056,44 @@ void BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, ve
     if( bg_classList[ i ].classNum == pclass )
     {
       if( mins != NULL )
-        VectorCopy( bg_classList[ i ].mins,        mins );
+      {
+        VectorCopy( bg_classList[ i ].mins, mins );
+
+        if( VectorLength( bg_classOverrideList[ pclass ].mins ) )
+          VectorCopy( bg_classOverrideList[ pclass ].mins, mins );
+      }
         
       if( maxs != NULL )
-        VectorCopy( bg_classList[ i ].maxs,        maxs );
+      {
+        VectorCopy( bg_classList[ i ].maxs, maxs );
+
+        if( VectorLength( bg_classOverrideList[ pclass ].maxs ) )
+          VectorCopy( bg_classOverrideList[ pclass ].maxs, maxs );
+      }
         
       if( cmaxs != NULL )
-        VectorCopy( bg_classList[ i ].crouchMaxs,  cmaxs );
+      {
+        VectorCopy( bg_classList[ i ].crouchMaxs, cmaxs );
+
+        if( VectorLength( bg_classOverrideList[ pclass ].crouchMaxs ) )
+          VectorCopy( bg_classOverrideList[ pclass ].crouchMaxs, cmaxs );
+      }
         
       if( dmins != NULL )
-        VectorCopy( bg_classList[ i ].deadMins,    dmins );
+      {
+        VectorCopy( bg_classList[ i ].deadMins, dmins );
+
+        if( VectorLength( bg_classOverrideList[ pclass ].deadMins ) )
+          VectorCopy( bg_classOverrideList[ pclass ].deadMins, dmins );
+      }
         
       if( dmaxs != NULL )
-        VectorCopy( bg_classList[ i ].deadMaxs,    dmaxs );
+      {
+        VectorCopy( bg_classList[ i ].deadMaxs, dmaxs );
+
+        if( VectorLength( bg_classOverrideList[ pclass ].deadMaxs ) )
+          VectorCopy( bg_classOverrideList[ pclass ].deadMaxs, dmaxs );
+      }
 
       return;
     }
@@ -1835,6 +2113,30 @@ void BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, ve
     
   if( dmaxs != NULL )
     VectorCopy( bg_classList[ 0 ].deadMaxs,    dmaxs );
+}
+
+/*
+==============
+BG_FindZOffsetForClass
+==============
+*/
+float BG_FindZOffsetForClass( int pclass )
+{
+  int i;
+
+  if( bg_classOverrideList[ pclass ].zOffset != 0.0f )
+    return bg_classOverrideList[ pclass ].zOffset;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].zOffset;
+    }
+  }
+  
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindZOffsetForClass\n" );
+  return 0.0f;
 }
 
 /*
@@ -2260,6 +2562,231 @@ int BG_FindValueOfClass( int pclass )
   
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindValueOfClass\n" );
   return 0;
+}
+
+/*
+==============
+BG_FindOverrideForClass
+==============
+*/
+static classAttributeOverrides_t *BG_FindOverrideForClass( int pclass )
+{
+  return &bg_classOverrideList[ pclass ];
+}
+
+/*
+======================
+BG_ParseClassFile
+
+Parses a configuration file describing a class
+======================
+*/
+static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides_t *cao )
+{
+  char          *text_p;
+  int           i;
+  int           len;
+  char          *token;
+  char          text[ 20000 ];
+  fileHandle_t  f;
+  float         scale = 0.0f;
+      
+
+  // load the file
+  len = trap_FS_FOpenFile( filename, &f, FS_READ );
+  if( len <= 0 )
+    return qfalse;
+
+  if( len >= sizeof( text ) - 1 )
+  {
+    Com_Printf( S_COLOR_RED "ERROR: Class file %s too long\n", filename );
+    return qfalse;
+  }
+  
+  trap_FS_Read( text, len, f );
+  text[ len ] = 0;
+  trap_FS_FCloseFile( f );
+
+  // parse the text
+  text_p = text;
+
+  // read optional parameters
+  while( 1 )
+  {
+    token = COM_Parse( &text_p );
+    
+    if( !token )
+      break;
+
+    if( !Q_stricmp( token, "" ) )
+      break;
+
+    if( !Q_stricmp( token, "model" ) )
+    {
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      Q_strncpyz( cao->modelName, token, sizeof( cao->modelName ) );
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "skin" ) )
+    {
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      Q_strncpyz( cao->skinName, token, sizeof( cao->skinName ) );
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "hud" ) )
+    {
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      Q_strncpyz( cao->hudName, token, sizeof( cao->hudName ) );
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "modelScale" ) )
+    {
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      scale = atof( token );
+      
+      if( scale < 0.0f )
+        scale = 0.0f;
+
+      cao->modelScale = scale;
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "shadowScale" ) )
+    {
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      scale = atof( token );
+      
+      if( scale < 0.0f )
+        scale = 0.0f;
+
+      cao->shadowScale = scale;
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "mins" ) )
+    {
+      for( i = 0; i <= 2; i++ )
+      {
+        token = COM_Parse( &text_p );
+        if( !token )
+          break;
+        
+        cao->mins[ i ] = atof( token );
+      }
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "maxs" ) )
+    {
+      for( i = 0; i <= 2; i++ )
+      {
+        token = COM_Parse( &text_p );
+        if( !token )
+          break;
+        
+        cao->maxs[ i ] = atof( token );
+      }
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "deadMins" ) )
+    {
+      for( i = 0; i <= 2; i++ )
+      {
+        token = COM_Parse( &text_p );
+        if( !token )
+          break;
+        
+        cao->deadMins[ i ] = atof( token );
+      }
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "deadMaxs" ) )
+    {
+      for( i = 0; i <= 2; i++ )
+      {
+        token = COM_Parse( &text_p );
+        if( !token )
+          break;
+        
+        cao->deadMaxs[ i ] = atof( token );
+      }
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "crouchMaxs" ) )
+    {
+      for( i = 0; i <= 2; i++ )
+      {
+        token = COM_Parse( &text_p );
+        if( !token )
+          break;
+        
+        cao->crouchMaxs[ i ] = atof( token );
+      }
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "zOffset" ) )
+    {
+      float offset;
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      offset = atof( token );
+
+      cao->zOffset = offset;
+
+      continue;
+    }
+
+
+    Com_Printf( S_COLOR_RED "ERROR: unknown token '%s'\n", token );
+    return qfalse;
+  }
+
+  return qtrue;
+}
+
+/*
+===============
+BG_InitClassOverrides
+
+Set any overrides specfied by file
+===============
+*/
+void BG_InitClassOverrides( void )
+{
+  int                       i;
+  classAttributeOverrides_t *cao;
+
+  for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
+  {
+    cao = BG_FindOverrideForClass( i );
+    
+    BG_ParseClassFile( va( "overrides/classes/%s.cfg", BG_FindNameForClassNum( i ) ), cao );
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

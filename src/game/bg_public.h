@@ -209,7 +209,8 @@ typedef enum
   STAT_MISC,      //TA: for uh...misc stuff
   STAT_BUILDABLE, //TA: which ghost model to display for building
   STAT_BOOSTTIME, //TA: time left for boost (alien only)
-  STAT_FALLDIST   //TA: the distance the player fell
+  STAT_FALLDIST,  //TA: the distance the player fell
+  STAT_VIEWLOCK   //TA: direction to lock the view in
 } statIndex_t;
 
 #define SCA_WALLCLIMBER         0x00000001
@@ -866,6 +867,7 @@ typedef struct
   char      *modelName;
   float     modelScale;
   char      *skinName;
+  float     shadowScale;
   
   char      *hudName;
   
@@ -876,6 +878,7 @@ typedef struct
   vec3_t    crouchMaxs;
   vec3_t    deadMins;
   vec3_t    deadMaxs;
+  float     zOffset;
   
   int       viewheight;
   int       crouchViewheight;
@@ -907,6 +910,22 @@ typedef struct
   int       value;
 } classAttributes_t;
 
+typedef struct
+{
+  char      modelName[ MAX_QPATH ];
+  float     modelScale;
+  char      skinName[ MAX_QPATH ];
+  float     shadowScale;
+  char      hudName[ MAX_QPATH ];
+  
+  vec3_t    mins;
+  vec3_t    maxs;
+  vec3_t    crouchMaxs;
+  vec3_t    deadMins;
+  vec3_t    deadMaxs;
+  float     zOffset;
+} classAttributeOverrides_t;
+
 //stages
 typedef enum
 {
@@ -930,6 +949,7 @@ typedef struct
 
   vec3_t    mins;
   vec3_t    maxs;
+  float     zOffset;
 
   trType_t  traj;
   float     bounce;
@@ -967,6 +987,15 @@ typedef struct
   qboolean  dccTest;
   qboolean  reactorTest;
 } buildableAttributes_t;      
+
+typedef struct
+{
+  char      models[ MAX_QPATH ][ MAX_BUILDABLE_MODELS ];
+
+  vec3_t    mins;
+  vec3_t    maxs;
+  float     zOffset;
+} buildableAttributeOverrides_t;      
 
 //TA: weapon record
 typedef struct
@@ -1047,6 +1076,7 @@ char      *BG_FindHumanNameForBuildable( int bclass );
 char      *BG_FindEntityNameForBuildable( int bclass );
 char      *BG_FindModelsForBuildable( int bclass, int modelNum );
 void      BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs );
+float     BG_FindZOffsetForBuildable( int pclass );
 int       BG_FindHealthForBuildable( int bclass );
 int       BG_FindRegenRateForBuildable( int bclass );
 trType_t  BG_FindTrajectoryForBuildable( int bclass );
@@ -1071,6 +1101,7 @@ int       BG_FindCreepTestForBuildable( int bclass );
 int       BG_FindCreepSizeForBuildable( int bclass );
 int       BG_FindDCCTestForBuildable( int bclass );
 int       BG_FindUniqueTestForBuildable( int bclass );
+void      BG_InitBuildableOverrides( void );
 
 int       BG_FindClassNumForName( char *name );
 char      *BG_FindNameForClassNum( int pclass );
@@ -1078,9 +1109,11 @@ char      *BG_FindHumanNameForClassNum( int pclass );
 char      *BG_FindModelNameForClass( int pclass );
 float     BG_FindModelScaleForClass( int pclass );
 char      *BG_FindSkinNameForClass( int pclass );
+float     BG_FindShadowScaleForClass( int pclass );
 char      *BG_FindHudNameForClass( int pclass );
 qboolean  BG_FindStagesForClass( int pclass, stage_t stage );
 void      BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, vec3_t dmins, vec3_t dmaxs );
+float     BG_FindZOffsetForClass( int pclass );
 void      BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight );
 int       BG_FindHealthForClass( int pclass );
 float     BG_FindFallDamageForClass( int pclass );
@@ -1100,6 +1133,7 @@ weapon_t  BG_FindStartWeaponForClass( int pclass );
 float     BG_FindBuildDistForClass( int pclass );
 int       BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int num );
 int       BG_FindValueOfClass( int pclass );
+void      BG_InitClassOverrides( void );
 
 int       BG_FindPriceForWeapon( int weapon );
 qboolean  BG_FindStagesForWeapon( int weapon, stage_t stage );

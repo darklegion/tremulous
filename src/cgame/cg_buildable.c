@@ -730,6 +730,9 @@ void CG_GhostBuildable( buildable_t buildable )
   CG_CapTrace( &tr, start, mins, maxs, end, ps->clientNum, MASK_PLAYERSOLID );
   VectorMA( entity_origin, tr.fraction * -TRACE_DEPTH, tr.plane.normal, ent.origin );
 
+  //offset on the Z axis if required
+  VectorMA( ent.origin, BG_FindZOffsetForBuildable( buildable ), tr.plane.normal, ent.origin );
+  
   VectorCopy( ent.origin, ent.lightingOrigin );
   VectorCopy( ent.origin, ent.oldorigin ); // don't positionally lerp at all
     
@@ -941,6 +944,9 @@ void CG_Buildable( centity_t *cent )
     CG_CapTrace( &tr, start, mins, maxs, end, es->number, MASK_PLAYERSOLID );
     VectorMA( ent.origin, tr.fraction * -TRACE_DEPTH, surfNormal, ent.origin );
   }
+  
+  //offset on the Z axis if required
+  VectorMA( ent.origin, BG_FindZOffsetForBuildable( es->modelindex ), surfNormal, ent.origin );
   
   VectorCopy( ent.origin, ent.oldorigin ); // don't positionally lerp at all
   VectorCopy( ent.origin, ent.lightingOrigin );

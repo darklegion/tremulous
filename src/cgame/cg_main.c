@@ -1666,6 +1666,10 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   //inform UI to repress cursor whilst loading
   trap_Cvar_Set( "ui_loading", "1" );
   
+  //TA: load overrides
+  BG_InitClassOverrides( );
+  BG_InitBuildableOverrides( );
+  
   //TA: dyn memory
   CG_InitMemory( );
 

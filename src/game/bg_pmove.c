@@ -3089,9 +3089,14 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
   //pull the view into the lock point
   if( ps->pm_type == PM_GRABBED )
   {
+    vec3_t  dir, angles;
+    
+    ByteToDir( ps->stats[ STAT_VIEWLOCK ], dir );
+    vectoangles( dir, angles );
+    
     for( i = 0; i < 3; i++ )
     {
-      float diff = AngleSubtract( ps->viewangles[ i ], ps->grapplePoint[ i ] );
+      float diff = AngleSubtract( ps->viewangles[ i ], angles[ i ] );
 
       while( diff > 180.0f )
         diff -= 360.0f;
