@@ -454,7 +454,58 @@ void ASpawn_Pain( gentity_t *self, gentity_t *attacker, int damage )
 
 
 
+
+
 //==================================================================================
+
+
+
+
+
+/*
+================
+AOvermind_Think
+
+think function for Alien Acid Tube
+================
+*/
+void AOvermind_Think( gentity_t *self )
+{
+  int       entityList[ MAX_GENTITIES ];
+  vec3_t    range = { 200, 200, 200 };
+  vec3_t    mins, maxs;
+  int       i, num;
+  gentity_t *enemy;
+
+  VectorAdd( self->s.origin, range, maxs );
+  VectorSubtract( self->s.origin, range, mins );
+  
+  //do some damage
+  num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+  for( i = 0; i < num; i++ )
+  {
+    enemy = &g_entities[ entityList[ i ] ];
+    
+    if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    {
+      self->timestamp = level.time;
+      G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
+        self->splashRadius, self, MOD_SHOTGUN, PTE_ALIENS );
+      G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
+    }
+  }
+
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
+}
+
+
+
+
+
+
+//==================================================================================
+
+
 
 
 
@@ -1984,6 +2035,7 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       
     case BA_A_HIVEMIND:
       built->die = ASpawn_Die;
+      built->think = AOvermind_Think;
       built->pain = ASpawn_Pain;
       break;
       

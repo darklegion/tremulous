@@ -13,14 +13,32 @@
 
 #include "cg_local.h"
 
-//if it ends up this is needed outwith this file i'll make it a bit more tidy
-animation_t buildAnimations[ BA_NUM_BUILDABLES ][ MAX_BUILDABLE_ANIMATIONS ];
+char *cg_buildableSoundNames[ MAX_BUILDABLE_ANIMATIONS ] =
+{
+  "construct1.wav",
+  "construct2.wav",
+  "idle1.wav",
+  "idle2.wav",
+  "idle3.wav",
+  "attack1.wav",
+  "attack2.wav",
+  "spawn1.wav",
+  "spawn2.wav",
+  "pain1.wav",
+  "pain2.wav",
+  "destroy1.wav",
+  "destroy2.wav",
+  "destroyed.wav"
+};
+
+sfxHandle_t defaultAlienSounds[ MAX_BUILDABLE_ANIMATIONS ];
+sfxHandle_t defaultHumanSounds[ MAX_BUILDABLE_ANIMATIONS ];
 
 /*
 ======================
 CG_ParseBuildableAnimationFile
 
-Read a configuration file containing animation coutns and rates
+Read a configuration file containing animation counts and rates
 models/buildables/hivemind/animation.cfg, etc
 ======================
 */
@@ -31,12 +49,11 @@ static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_
   int     i;
   char    *token;
   float   fps;
-  int     skip;
   char    text[ 20000 ];
   fileHandle_t  f;
   animation_t *animations;
 
-  animations = buildAnimations[ buildable ];
+  animations = cg_buildables[ buildable ].animations;
 
   // load the file
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
@@ -55,10 +72,9 @@ static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_
 
   // parse the text
   text_p = text;
-  skip = 0; // quite the compiler warning
 
   // read information for each frame
-  for ( i = BANIM_NONE + 1; i < MAX_BUILDABLE_ANIMATIONS; i++ )
+  for( i = BANIM_NONE + 1; i < MAX_BUILDABLE_ANIMATIONS; i++ )
   {
 
     token = COM_Parse( &text_p );
@@ -100,7 +116,8 @@ static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_
     animations[ i ].initialLerp = 1000 / fps;
   }
 
-  if ( i != MAX_BUILDABLE_ANIMATIONS ) {
+  if( i != MAX_BUILDABLE_ANIMATIONS )
+  {
     CG_Printf( "Error parsing animation file: %s\n", filename );
     return qfalse;
   }
@@ -108,6 +125,70 @@ static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_
   return qtrue;
 }
 
+/*
+======================
+CG_ParseBuildableSoundFile
+
+Read a configuration file containing sound properties
+sound/buildables/hivemind/sound.cfg, etc
+======================
+*/
+static qboolean CG_ParseBuildableSoundFile( const char *filename, buildable_t buildable )
+{
+  char    *text_p, *prev;
+  int     len;
+  int     i;
+  char    *token;
+  char    text[ 20000 ];
+  fileHandle_t  f;
+  sound_t *sounds;
+
+  sounds = cg_buildables[ buildable ].sounds;
+
+  // load the file
+  len = trap_FS_FOpenFile( filename, &f, FS_READ );
+  if ( len <= 0 )
+    return qfalse;
+    
+  if ( len >= sizeof( text ) - 1 )
+  {
+    CG_Printf( "File %s too long\n", filename );
+    return qfalse;
+  }
+  
+  trap_FS_Read( text, len, f );
+  text[len] = 0;
+  trap_FS_FCloseFile( f );
+
+  // parse the text
+  text_p = text;
+
+  // read information for each frame
+  for( i = BANIM_NONE + 1; i < MAX_BUILDABLE_ANIMATIONS; i++ )
+  {
+
+    token = COM_Parse( &text_p );
+    if ( !*token )
+      break;
+      
+    sounds[ i ].enabled = atoi( token );
+
+    token = COM_Parse( &text_p );
+    if ( !*token )
+      break;
+      
+    sounds[ i ].looped = atoi( token );
+    
+  }
+
+  if( i != MAX_BUILDABLE_ANIMATIONS )
+  {
+    CG_Printf( "Error parsing sound file: %s\n", filename );
+    return qfalse;
+  }
+  
+  return qtrue;
+}
 /*
 ===============
 CG_InitBuildables
@@ -117,26 +198,73 @@ Initialises the animation db
 */
 void CG_InitBuildables( )
 {
-  char  filename[MAX_QPATH];
+  char  filename[ MAX_QPATH ];
+  char  soundfile[ MAX_QPATH ];
   char  *buildableName;
   char  *modelFile;
   int   i;
   int   j;
+  fileHandle_t  f;
 
   memset( cg_buildables, 0, sizeof( cg_buildables ) );
 
+  //default sounds
+  for( j = BANIM_NONE + 1; j < MAX_BUILDABLE_ANIMATIONS; j++ )
+  {
+    strcpy( soundfile, cg_buildableSoundNames[ j - 1 ] );
+    
+    Com_sprintf( filename, sizeof( filename ), "sound/buildables/alien/%s", soundfile );
+    defaultAlienSounds[ j ] = trap_S_RegisterSound( filename, qfalse );
+    
+    Com_sprintf( filename, sizeof( filename ), "sound/buildables/human/%s", soundfile );
+    defaultHumanSounds[ j ] = trap_S_RegisterSound( filename, qfalse );
+  }
+  
   for( i = BA_NONE + 1; i < BA_NUM_BUILDABLES; i++ )
   {
     buildableName = BG_FindNameForBuildable( i );
     
+    //animation.cfg
     Com_sprintf( filename, sizeof( filename ), "models/buildables/%s/animation.cfg", buildableName );
     if ( !CG_ParseBuildableAnimationFile( filename, i ) )
       Com_Printf( "Failed to load animation file %s\n", filename );
 
+    //sound.cfg
+    Com_sprintf( filename, sizeof( filename ), "sound/buildables/%s/sound.cfg", buildableName );
+    if ( !CG_ParseBuildableSoundFile( filename, i ) )
+      Com_Printf( "Failed to load sound file %s\n", filename );
+
+    //models
     for( j = 0; j <= 3; j++ )
     {
       if( modelFile = BG_FindModelsForBuildable( i, j ) )
         cg_buildables[ i ].models[ j ] = trap_R_RegisterModel( modelFile );
+    }
+
+    //sounds
+    for( j = BANIM_NONE + 1; j < MAX_BUILDABLE_ANIMATIONS; j++ )
+    {
+      strcpy( soundfile, cg_buildableSoundNames[ j - 1 ] );
+      Com_sprintf( filename, sizeof( filename ), "sound/buildables/%s/%s", buildableName, soundfile );
+
+      if( cg_buildables[ i ].sounds[ j ].enabled )
+      {
+        if( trap_FS_FOpenFile( filename, &f, FS_READ ) > 0 )
+        {
+          //file exists so close it
+          trap_FS_FCloseFile( f );
+
+          cg_buildables[ i ].sounds[ j ].sound = trap_S_RegisterSound( filename, qfalse );
+        }
+        else
+        {
+          //file doesn't exist - use default
+          if( BG_FindTeamForBuildable( i ) == BIT_ALIENS )
+            cg_buildables[ i ].sounds[ j ].sound = defaultAlienSounds[ j ];
+          else
+            cg_buildables[ i ].sounds[ j ].sound = defaultHumanSounds[ j ];
+        }
+      }
     }
   }
 }
@@ -158,7 +286,7 @@ static void CG_SetBuildableLerpFrameAnimation( buildable_t buildable, lerpFrame_
   if( newAnimation < 0 || newAnimation >= MAX_BUILDABLE_ANIMATIONS )
     CG_Error( "Bad animation number: %i", newAnimation );
 
-  anim = &buildAnimations[ buildable ][ newAnimation ];
+  anim = &cg_buildables[ buildable ].animations[ newAnimation ];
 
   //this item has just spawned so lf->frameTime will be zero
   if( !lf->animation )
@@ -182,9 +310,9 @@ cg.time should be between oldFrameTime and frameTime after exit
 static void CG_RunBuildableLerpFrame( centity_t *cent )
 {
   int                   f, numFrames;
-  animation_t           *anim;
   buildable_t           buildable = cent->currentState.modelindex;
   lerpFrame_t           *lf = &cent->lerpFrame;
+  animation_t           *anim;
   buildableAnimNumber_t newAnimation = cent->buildableAnim;
 
   // debugging tool to get no animations
@@ -196,7 +324,19 @@ static void CG_RunBuildableLerpFrame( centity_t *cent )
 
   // see if the animation sequence is switching
   if( newAnimation != lf->animationNumber || !lf->animation )
+  {
     CG_SetBuildableLerpFrameAnimation( buildable, lf, newAnimation );
+
+    if( !cg_buildables[ buildable ].sounds[ newAnimation ].looped &&
+        cg_buildables[ buildable ].sounds[ newAnimation ].enabled )
+      trap_S_StartSound( cent->lerpOrigin, cent->currentState.number, CHAN_AUTO,
+        cg_buildables[ buildable ].sounds[ newAnimation ].sound );
+  }
+
+  if( cg_buildables[ buildable ].sounds[ lf->animationNumber ].looped &&
+      cg_buildables[ buildable ].sounds[ lf->animationNumber ].enabled )
+    trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
+      cg_buildables[ buildable ].sounds[ lf->animationNumber ].sound );
 
   // if we have passed the current frame, move it to
   // oldFrame and calculate a new frame

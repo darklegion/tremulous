@@ -189,13 +189,13 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
-    20,                    //int       splashDamage;
-    50,                    //int       splashRadius;
+    50,                    //int       splashDamage;
+    300,                   //int       splashRadius;
     MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
-    -1,                    //int       nextthink;
+    1000,                  //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
     WP_NONE,               //weapon_t  turretProjType;

@@ -429,7 +429,19 @@ typedef struct {
 
 typedef struct
 {
-  qhandle_t   models[MAX_ITEM_MODELS];
+  qboolean    looped;
+  qboolean    enabled;
+  
+  sfxHandle_t sound;
+} sound_t;
+
+typedef struct
+{
+  qhandle_t   models[ MAX_ITEM_MODELS ];
+  animation_t animations[ MAX_BUILDABLE_ANIMATIONS ];
+
+  //same number of sounds as animations
+  sound_t     sounds[ MAX_BUILDABLE_ANIMATIONS ];
 } buildableInfo_t;
 
 typedef struct {
