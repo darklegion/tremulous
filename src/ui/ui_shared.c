@@ -3143,8 +3143,9 @@ static bind_t g_bindings[] =
   {"weapon 12",    -1,          -1,   -1, -1},
   {"weapon 13",    -1,          -1,   -1, -1},
   {"+attack",      K_MOUSE1,        -1,   -1, -1},
-  {"+button7",     K_MOUSE2,        -1,   -1, -1}, //TA: secondary attack
-  {"+button5",     'q',       -1,   -1, -1}, //TA: buildable use
+  {"+button5",     K_MOUSE2,        -1,   -1, -1}, //TA: secondary attack
+  {"+button7",     'q',       -1,   -1, -1}, //TA: buildable use
+  {"deconstruct",  'e',       -1,   -1, -1}, //TA: buildable destroy
   {"weapprev",     '[',         -1,   -1, -1},
   {"weapnext",     ']',         -1,   -1, -1},
   {"+button3",     K_MOUSE3,      -1,   -1, -1},
@@ -3160,7 +3161,7 @@ static bind_t g_bindings[] =
   {"taskCamp", 'c',         -1,   -1, -1},
   {"taskFollow", 'f',         -1,   -1, -1},
   {"taskRetrieve", 'v',         -1,   -1, -1},
-  {"taskEscort", 'e',         -1,   -1, -1},
+  {"taskEscort", 'l',         -1,   -1, -1},
   {"taskOwnFlag", 'i',          -1,   -1, -1},
   {"taskSuicide", 'k',          -1,   -1, -1},
   {"tauntKillInsult", K_F1,     -1,   -1, -1},
