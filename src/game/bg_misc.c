@@ -3436,12 +3436,19 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
   s->weapon = ps->weapon;
   s->groundEntityNum = ps->groundEntityNum;
 
-  /*s->powerups = 0;
-  for ( i = 0 ; i < MAX_POWERUPS ; i++ ) {
-    if ( ps->powerups[ i ] ) {
-      s->powerups |= 1 << i;
+  //store items held and active items in otherEntityNum
+  s->modelindex = 0;
+  s->modelindex2 = 0;
+  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
+  {
+    if( BG_gotItem( i, ps->stats ) )
+    {
+      s->modelindex |= 1 << i;
+
+      if( BG_activated( i, ps->stats ) )
+        s->modelindex2 |= 1 << i;
     }
-  }*/
+  }
 
   //TA: use powerups field to store team/class info:
   s->powerups = ps->stats[ STAT_PTEAM ] | ( ps->stats[ STAT_PCLASS ] << 8 );
@@ -3529,12 +3536,19 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   s->weapon = ps->weapon;
   s->groundEntityNum = ps->groundEntityNum;
 
-  /*s->powerups = 0;
-  for ( i = 0 ; i < MAX_POWERUPS ; i++ ) {
-    if ( ps->powerups[ i ] ) {
-      s->powerups |= 1 << i;
+  //store items held and active items in otherEntityNum
+  s->modelindex = 0;
+  s->modelindex2 = 0;
+  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
+  {
+    if( BG_gotItem( i, ps->stats ) )
+    {
+      s->modelindex |= 1 << i;
+
+      if( BG_activated( i, ps->stats ) )
+        s->modelindex2 |= 1 << i;
     }
-  }*/
+  }
 
   //TA: use powerups field to store team/class info:
   s->powerups = ps->stats[ STAT_PTEAM ] | ( ps->stats[ STAT_PCLASS ] << 8 );

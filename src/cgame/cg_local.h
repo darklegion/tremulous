@@ -190,6 +190,7 @@ typedef struct centity_s {
   //TA:
   buildableAnimNumber_t buildableAnim; //persistant anim number
   int         flamerTime; //limit flameball count
+  int         jetTime;    //limit jet count
 } centity_t;
 
 
@@ -967,6 +968,10 @@ typedef struct {
   sfxHandle_t flightSound;
   sfxHandle_t medkitSound;
 
+  sfxHandle_t jetpackDescendSound;
+  sfxHandle_t jetpackIdleSound;
+  sfxHandle_t jetpackAscendSound;
+  
   sfxHandle_t weaponHoverSound;
 
   // teamplay sounds

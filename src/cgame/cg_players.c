@@ -1363,16 +1363,84 @@ static void CG_TrailItem( centity_t *cent, qhandle_t hModel ) {
   trap_R_AddRefEntityToScene( &ent );
 }
 
+#define JET_SPREAD    30.0f
+#define JET_LIFETIME  1500
 
 /*
 ===============
-CG_PlayerPowerups
+CG_PlayerUpgrade
 ===============
 */
-static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
-  int   powerups;
+static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
+{
+  int           held, active;
   clientInfo_t  *ci;
+  vec3_t        acc = { 0.0f, 0.0f, 10.0f };
+  vec3_t        vel = { 0.0f, 0.0f, 0.0f };
+  vec3_t        origin;
+  vec3_t        back;
+  vec3_t        forward = { 1.0f, 0.0f, 0.0f };
+  vec3_t        right = { 0.0f, 1.0f, 0.0f };
+  vec3_t        pvel;
+  int           addTime;
+  float         fspread = tan( DEG2RAD( ( random( ) * JET_SPREAD ) - ( JET_SPREAD / 2 ) ) );
+  float         rspread = tan( DEG2RAD( ( random( ) * JET_SPREAD ) - ( JET_SPREAD / 2 ) ) );
 
+  held = cent->currentState.modelindex;
+  active = cent->currentState.modelindex2;
+
+  if( held & ( 1 << UP_JETPACK ) )
+  {
+    //FIXME: add model to back
+
+    if( active & ( 1 << UP_JETPACK ) )
+    {
+      if( cent->currentState.pos.trDelta[ 2 ] > 10.0f )
+      {
+        trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.jetpackAscendSound );
+        addTime = 80;
+        vel[ 2 ] = -60.0f;
+      }
+      else if( cent->currentState.pos.trDelta[ 2 ] < -10.0f )
+      {
+        trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.jetpackDescendSound );
+        addTime = 110;
+        vel[ 2 ] = -45.0f;
+      }
+      else
+      {
+        trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.jetpackIdleSound );
+        addTime = 100;
+        vel[ 2 ] = -50.0f;
+      }
+      
+      if( cent->jetTime < cg.time )
+      {
+        VectorCopy( cent->lerpOrigin, origin );
+        AngleVectors( cent->lerpAngles, back, NULL, NULL );
+        VectorInverse( back );
+        back[ 2 ] = 0.0f;
+        VectorNormalize( back );
+
+        VectorMA( origin, 10.0f, back, origin );
+        origin[ 2 ] += 10.0f;
+
+        VectorScale( cent->currentState.pos.trDelta, 0.75f, pvel );
+        VectorAdd( vel, pvel, vel );
+  
+        VectorMA( vel, fspread, forward, vel );
+        VectorMA( vel, rspread, right, vel );
+      
+        CG_LaunchSprite( origin, vel, acc,
+                         0.5f, 4.0f, 20.0f, 128.0f, 0.0f,
+                         rand( ) % 360, cg.time, JET_LIFETIME,
+                         cgs.media.smokePuffShader, qfalse, qfalse );
+
+        //set next ball time
+        cent->jetTime = cg.time + addTime;
+      }
+    }
+  }
   /*powerups = cent->currentState.powerups;
   if ( !powerups ) {
     return;
@@ -1962,6 +2030,8 @@ void CG_Player( centity_t *cent )
   // add the gun / barrel / flash
   //
   CG_AddPlayerWeapon( &torso, NULL, cent );
+
+  CG_PlayerUpgrades( cent, &torso );
 
 /*  if( ( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS ) &&
       ( ( cent->currentState.powerups & 0xFF ) == PTE_HUMANS ) )

@@ -680,7 +680,7 @@ static void PM_JetPackMove( void ) {
   if( pm->cmd.upmove > 0.0f )
     wishvel[ 2 ] = 48.0f;
   if( pm->cmd.upmove < 0.0f )
-    wishvel[ 2 ] = -32.0f;
+    wishvel[ 2 ] = -48.0f;
 
   VectorCopy( wishvel, wishdir );
   wishspeed = VectorNormalize( wishdir );
@@ -688,6 +688,8 @@ static void PM_JetPackMove( void ) {
   PM_Accelerate( wishdir, wishspeed, pm_flyaccelerate );
 
   PM_StepSlideMove( qfalse, qfalse );
+
+  PM_ForceLegsAnim( LEGS_LAND );
 }
 
 

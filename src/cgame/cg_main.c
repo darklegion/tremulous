@@ -621,6 +621,11 @@ static void CG_RegisterSounds( void ) {
     cgs.gameSounds[i] = trap_S_RegisterSound( soundName, qfalse );
   }
 
+  //TA:
+  cgs.media.jetpackDescendSound = trap_S_RegisterSound( "sound/upgrades/jetpack/low.wav", qfalse );
+  cgs.media.jetpackIdleSound = trap_S_RegisterSound( "sound/upgrades/jetpack/idle.wav", qfalse );
+  cgs.media.jetpackAscendSound = trap_S_RegisterSound( "sound/upgrades/jetpack/hi.wav", qfalse );
+  
   // FIXME: only needed with item
   cgs.media.flightSound = trap_S_RegisterSound( "sound/items/flight.wav", qfalse );
   cgs.media.medkitSound = trap_S_RegisterSound ("sound/items/use_medkit.wav", qfalse);
