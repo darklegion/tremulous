@@ -623,12 +623,6 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
     if( level.humanBuildPoints - BG_FindBuildPointsForBuildable( buildable ) < 0 )
       reason = IBE_NOPOWER;
 
-/*    tempent->classname = BG_FindEntityNameForBuildable( buildable );
-    VectorCopy( entity_origin, tempent->s.origin );
-    tempent->parentNode = NULL;
-
-    if( !findPower( tempent ) )
-      reason = IBE_NOPOWER;*/
     for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
     {
       if( !Q_stricmp( tempent->classname, "team_human_reactor" ) ||
