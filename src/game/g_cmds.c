@@ -1925,11 +1925,11 @@ void Cmd_Build_f( gentity_t *ent )
           break;
 
         case IBE_NOCREEP:
-          trap_SendServerCommand( ent-g_entities, va("print \"No creep to build on\n\"" ) );
+          G_AddPredictableEvent( ent, EV_MENU, MN_NOCREEP );
           break;
 
         case IBE_NOROOM:
-          trap_SendServerCommand( ent-g_entities, va("print \"Not enough room\n\"" ) );
+          G_AddPredictableEvent( ent, EV_MENU, MN_NOROOM );
           break;
       }
     }
@@ -1951,11 +1951,11 @@ void Cmd_Build_f( gentity_t *ent )
           break;
 
         case IBE_REACTOR:
-          trap_SendServerCommand( ent-g_entities, va("print \"Only one reactor per map\n\"" ) );
+          G_AddPredictableEvent( ent, EV_MENU, MN_REACTOR );
           break;
 
         case IBE_NOROOM:
-          trap_SendServerCommand( ent-g_entities, va("print \"Not enough room\n\"" ) );
+          G_AddPredictableEvent( ent, EV_MENU, MN_NOROOM );
           break;
       }
     }

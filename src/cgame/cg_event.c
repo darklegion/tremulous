@@ -450,6 +450,18 @@ void CG_Menu( int eventParm )
       trap_SendConsoleCommand( "menu hmcumenu\n" );
       break;
 
+    case MN_NOROOM:
+      trap_SendConsoleCommand( "menu hnoroom\n" );
+      break;
+
+    case MN_NOCREEP:
+      trap_SendConsoleCommand( "menu dnocreep\n" );
+      break;
+
+    case MN_REACTOR:
+      trap_SendConsoleCommand( "menu hreactor\n" );
+      break;
+
     case MN_INFEST:
       strcpy( menuDef, "5,5|Infest|0.8,0,0.8,1|0.6,0,0.6,0.8|1,0,1,1|1|16|" );
       for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )

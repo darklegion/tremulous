@@ -518,7 +518,10 @@ typedef enum
   MN_ABUILD,
   MN_HBUILD,
   MN_MCU,
-  MN_INFEST
+  MN_INFEST,
+  MN_NOROOM,
+  MN_NOCREEP,
+  MN_REACTOR
 } dynMenu_t;
 
 // animations
