@@ -269,7 +269,7 @@ static cvarTable_t   cvarTable[] = {
   { &cg_drawSurfNormal, "cg_drawSurfNormal", "0", CVAR_CHEAT },
   { &cg_debugAlloc, "cg_debugAlloc", "0", 0 },
   { &cg_wwSmoothTime, "cg_wwSmoothTime", "300", CVAR_ARCHIVE },
-  { &cg_wwFollow, "cg_wwFollow", "1", CVAR_ARCHIVE },
+  { &cg_wwFollow, "cg_wwFollow", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   
   { &ui_currentClass, "ui_currentClass", "0", 0 },
   { &ui_carriage, "ui_carriage", "", 0 },
