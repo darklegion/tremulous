@@ -23,7 +23,7 @@
   {
     name "ingame"
     style WINDOW_STYLE_FILLED
-    visible 1
+    visible 0
     fullScreen 0
     outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
     rect 0 0 640 48 
@@ -34,12 +34,12 @@
     itemDef
     {
       name splashmodel
-      rect 0 0 640 48
+      rect 0 0 640 56 
       type ITEM_TYPE_MODEL
       style WINDOW_STYLE_EMPTY
       asset_model "models/splash/splash_screen.md3"
       model_fovx 32.0
-      model_fovy 2.4
+      model_fovy 2.8
       model_angle 180
       visible 1
       decoration
@@ -49,28 +49,72 @@
     {
       name about
       text "About"  
-      rect 232 0 53 30
+      rect 35 6 65 40
       type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_FILLED
-      textalign 1
-      textalignx 27
-      textaligny 22
-      textscale .25
+      style WINDOW_STYLE_EMPTY
+      textalign ITEM_ALIGN_CENTER
+      textalignx 32 
+      textaligny 28 
+      textscale .4
       forecolor 1 1 1 1
-      backcolor .0 .17 .0 1 
       visible 1
       action { open ingame_about }
-      mouseEnter { setitemcolor about backcolor .1 .37 .1 1 }
-      mouseExit { setitemcolor about backcolor .0 .17 .0 1 }
     }
 
+    itemDef
+    {
+      name options
+      text "Options"
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_EMPTY
+      rect 100 6 70 40
+      textalign ITEM_ALIGN_CENTER
+      textalignx 35 
+      textaligny 28 
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      action { open ingame_options }
+    }
+
+    itemDef
+    {
+      name vote
+      text "Vote"
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_EMPTY
+      rect 170 6 50 40
+      textalign ITEM_ALIGN_CENTER
+      textalignx 25 
+      textaligny 28 
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      action { open ingame_vote }
+    }
+
+    itemDef
+    {
+      name leave
+      text "Exit"
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_EMPTY
+      rect 220 6 50 40 
+      textalign ITEM_ALIGN_CENTER
+      textalignx 25 
+      textaligny 28 
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      action { open ingame_leave }
+    }
 /*    itemDef
     {
       name player
       text "Player"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_FILLED
-      rect 232 0 58 30
+      rect 232 0 48 20
       textalign 1 
       textalignx 29      
       textaligny 22
@@ -83,13 +127,13 @@
       mouseExit { setitemcolor player backcolor 0 .17 0 1 }
     }*/
 
-    itemDef
+/*    itemDef
     {
       name controls
       text "Controls"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_FILLED
-      rect 290 0 58 30
+      rect 290 0 48 20
       textalign 1 
       textalignx 29      
       textaligny 22
@@ -100,28 +144,9 @@
       action { open ingame_controls }
       mouseEnter { setitemcolor controls backcolor .1 .37 .1 1 }
       mouseExit { setitemcolor controls backcolor 0 .17 0 1 }
-    }
+    }*/
 
-    itemDef
-    {
-      name options
-      text "Options"
-      type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_FILLED
-      rect 348 0 58 30
-      textalign 1 
-      textalignx 29      
-      textaligny 22
-      textscale .25
-      forecolor 1 1 1 1
-      backcolor 0 .17 0 1 
-      visible 1 
-      action { open ingame_options }
-      mouseEnter { setitemcolor options backcolor .1 .37 .1 1 }
-      mouseExit { setitemcolor options backcolor 0 .17 0 1 }
-    }
-
-    itemDef
+/*    itemDef
     {
       name system
       text "System"
@@ -138,31 +163,9 @@
       action { open ingame_system }
       mouseEnter { setitemcolor system backcolor .1 .37 .1 1 }
       mouseExit { setitemcolor system backcolor 0 .17 0 1 }
-    }
+    }*/
 
-    itemDef
-    {
-      name vote
-      text "Vote"
-      type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_FILLED
-      cvarTest "ui_singleplayeractive"
-      disableCvar { "1" }
-
-      rect 464 0 58 30
-      textalign 1 
-      textalignx 29      
-      textaligny 22
-      textscale .25
-      forecolor 1 1 1 1
-      backcolor 0 .17 0 1 
-      visible 1 
-      action { open ingame_vote }
-      mouseEnter { setitemcolor vote backcolor .1 .37 .1 1 }
-      mouseExit { setitemcolor vote backcolor 0 .17 0 1 }
-    }
-
-    itemDef
+/*    itemDef
     {
       name callvote
       text "CallVote"
@@ -182,25 +185,7 @@
       action { open ingame_callvote }
       mouseEnter { setitemcolor callvote backcolor .1 .37 .1 1 }
       mouseExit { setitemcolor callvote backcolor 0 .17 0 1 }
-    }
+    }*/
     
-    itemDef
-    {
-      name leave
-      text "Exit"
-      type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_FILLED
-      rect 580 0 58 30
-      textalign 1 
-      textalignx 29      
-      textaligny 22
-      textscale .25
-      forecolor 1 1 1 1
-      backcolor 0 .17 0 1 
-      visible 1 
-      action { open ingame_leave }
-      mouseEnter { setitemcolor leave backcolor .1 .37 .1 1 }
-      mouseExit { setitemcolor leave backcolor 0 .17 0 1 }
-    }
   }
 }
