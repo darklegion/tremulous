@@ -162,10 +162,6 @@ typedef enum {
 #define BM_SWB        0x0000FFFF
 #define BM_SW2B       0xFFFF0000
 
-//TA: buildable item type
-#define BIT_DROIDS    1
-#define BIT_HUMANS    2
-
 
 // pmove->pm_flags
 #define PMF_DUCKED      1
@@ -381,6 +377,13 @@ typedef enum {
 
   BA_NUM_BUILDABLES
 } buildable_t;
+
+typedef enum
+{
+  BIT_NONE,
+  BIT_DROIDS,
+  BIT_HUMANS
+} buildableTeam_t;
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
 #define PLAYEREVENT_DENIEDREWARD    0x0001
@@ -696,7 +699,7 @@ typedef struct gitem_s {
   char    *sounds;    // string of all sounds this item will use
 } gitem_t;
 
-//TA: player model precaching
+//TA: player class record
 typedef struct
 {
   int     classNum;
@@ -730,6 +733,36 @@ typedef struct
   int     timeToEvolve;
 } classAttributes_t;
 
+//TA: buildable item record
+typedef struct
+{
+  int     buildNum;
+
+  char    *buildName;
+  char    *entityName;
+  char    *precacheName;
+
+  char    *modelPrecache[ 4 ];
+  char    *soundPrecache[ 4 ];
+  char    *icon;
+
+  vec3_t  mins;
+  vec3_t  maxs;
+
+  int     health;
+  
+  int     damage;
+  int     splashDamage;
+  int     splashRadius;
+
+  int     meansOfDeath;
+
+  int     team;
+
+  int     spawnEvent;
+
+  int     nextthink;
+} buildableAttributes_t;      
 
 // included in both the game dll and the client
 extern  gitem_t bg_itemlist[];

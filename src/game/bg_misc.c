@@ -889,6 +889,362 @@ Only in CTF games
 
 int   bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) - 1;
 
+///////////////////////////////////////////////////////////////////////////////////////////
+
+buildableAttributes_t bg_buildableList[ ] =
+{
+  {
+    BA_A_SPAWN,
+    "spawn",
+    "team_droid_spawn",
+    "Droid Spawn",
+    { "models/bitems/aspawn.md3", 0, 0, 0 },
+    { "", 0, 0, 0 },
+    "icons/teleporter",
+    { -15, -15, -15 },
+    { 15, 15, 15 },
+    1000,
+    50,
+    50,
+    200,
+    MOD_ASPAWN,
+    BIT_DROIDS,
+    EV_ITEM_GROW,
+    100
+  }
+};
+
+int   bg_numBuildables = sizeof( bg_buildableList ) / sizeof( bg_buildableList[ 0 ] );
+
+/*
+==============
+BG_FindBuildNumForName
+==============
+*/
+int BG_FindBuildNumForName( char *name )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( !Q_stricmp( bg_buildableList[ i ].buildName, name ) )
+      return bg_buildableList[ i ].buildNum;
+  }
+
+  //wimp out
+  return BA_NONE;
+}
+
+/*
+==============
+BG_FindNameForBuildNum
+==============
+*/
+char *BG_FindNameForBuildNum( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+      return bg_buildableList[ i ].buildName;
+  }
+
+  //wimp out
+  return "";
+}
+
+/*
+==============
+BG_FindEntityNameForBuildNum
+==============
+*/
+char *BG_FindEntityNameForBuildNum( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+      return bg_buildableList[ i ].entityName;
+  }
+
+  //wimp out
+  return "";
+}
+
+/*
+==============
+BG_FindPrecacheNameForBuildNum
+==============
+*/
+char *BG_FindPrecacheNameForBuildNum( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+      return bg_buildableList[ i ].precacheName;
+  }
+
+  //wimp out
+  return "";
+}
+
+/*
+==============
+BG_FindModelsForBuildable
+==============
+*/
+char **BG_FindModelsForBuildable( int bclass )
+{
+  int i;
+  char **dummy;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].modelPrecache;
+    }
+  }
+  
+  return dummy;
+}
+
+/*
+==============
+BG_FindSoundsForBuildable
+==============
+*/
+char **BG_FindSoundsForBuildable( int bclass )
+{
+  int i;
+  char **dummy;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].soundPrecache;
+    }
+  }
+  
+  return dummy;
+}
+
+/*
+==============
+BG_FindIconForBuildNum
+==============
+*/
+char *BG_FindIconForBuildNum( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+      return bg_buildableList[ i ].icon;
+  }
+
+  //wimp out
+  return "";
+}
+
+/*
+==============
+BG_FindBBoxForBuildable
+==============
+*/
+void BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      if( mins != NULL )
+        VectorCopy( bg_buildableList[ i ].mins, mins );
+        
+      if( maxs != NULL )
+        VectorCopy( bg_buildableList[ i ].maxs, maxs );
+        
+      return;
+    }
+  }
+  
+  if( mins != NULL )
+    VectorCopy( bg_buildableList[ 0 ].mins, mins );
+    
+  if( maxs != NULL )
+    VectorCopy( bg_buildableList[ 0 ].maxs, maxs );
+}
+
+/*
+==============
+BG_FindHealthForBuildable
+==============
+*/
+int BG_FindHealthForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].health;
+    }
+  }
+  
+  return 1000;
+}
+
+/*
+==============
+BG_FindDamageForBuildable
+==============
+*/
+int BG_FindDamageForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].damage;
+    }
+  }
+  
+  return 50;
+}
+
+/*
+==============
+BG_FindSplashDamageForBuildable
+==============
+*/
+int BG_FindSplashDamageForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].splashDamage;
+    }
+  }
+  
+  return 50;
+}
+
+/*
+==============
+BG_FindSplashRadiusForBuildable
+==============
+*/
+int BG_FindSplashRadiusForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].splashRadius;
+    }
+  }
+  
+  return 200;
+}
+
+/*
+==============
+BG_FindMODForBuildable
+==============
+*/
+int BG_FindMODBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].meansOfDeath;
+    }
+  }
+  
+  return MOD_UNKNOWN;
+}
+
+/*
+==============
+BG_FindTeamForBuildable
+==============
+*/
+int BG_FindTeamForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].team;
+    }
+  }
+  
+  return BIT_NONE;
+}
+
+/*
+==============
+BG_FindEventForBuildable
+==============
+*/
+int BG_FindEventForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].spawnEvent;
+    }
+  }
+  
+  return EV_NONE;
+}
+
+/*
+==============
+BG_FindNextThinkForBuildable
+==============
+*/
+int BG_FindNextThinkForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].nextthink;
+    }
+  }
+  
+  return 100;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
 classAttributes_t bg_classList[ ] =
 {
   { 
@@ -1328,6 +1684,7 @@ int BG_FindEvolveTimeForClass( int pclass )
   return 5000;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 ==============
