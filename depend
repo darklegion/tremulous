@@ -19,9 +19,6 @@ releasei386-glibc/game/g_buildable.o: ./src/game/g_buildable.c src/game/g_local.
 releasei386-glibc/game/g_client.o: ./src/game/g_client.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
-releasei386-glibc/game/g_cmds.o: ./src/game/g_cmds.c src/game/g_local.h src/game/q_shared.h \
- src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
- src/game/g_team.h src/game/../ta_ui/menudef.h
 releasei386-glibc/game/g_combat.o: ./src/game/g_combat.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
@@ -94,9 +91,6 @@ debugi386-glibc/game/g_buildable.o: ./src/game/g_buildable.c src/game/g_local.h 
 debugi386-glibc/game/g_client.o: ./src/game/g_client.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
-debugi386-glibc/game/g_cmds.o: ./src/game/g_cmds.c src/game/g_local.h src/game/q_shared.h \
- src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
- src/game/g_team.h src/game/../ta_ui/menudef.h
 debugi386-glibc/game/g_combat.o: ./src/game/g_combat.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
@@ -169,9 +163,6 @@ qvm/game/g_buildable.asm: ./src/game/g_buildable.c src/game/g_local.h \
 qvm/game/g_client.asm: ./src/game/g_client.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
-qvm/game/g_cmds.asm: ./src/game/g_cmds.c src/game/g_local.h src/game/q_shared.h \
- src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
- src/game/g_team.h src/game/../ta_ui/menudef.h
 qvm/game/g_combat.asm: ./src/game/g_combat.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
@@ -224,6 +215,10 @@ qvm/game/q_math.asm: ./src/game/q_math.c src/game/q_shared.h \
  src/game/surfaceflags.h
 qvm/game/q_shared.asm: ./src/game/q_shared.c src/game/q_shared.h \
  src/game/surfaceflags.h
+releasei386-glibc/cgame/cg_animmapobj.o: ./src/cgame/cg_animmapobj.c src/cgame/cg_local.h \
+ src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
+ src/cgame/tr_types.h src/cgame/../game/bg_public.h \
+ src/cgame/cg_public.h
 releasei386-glibc/cgame/cg_buildable.o: ./src/cgame/cg_buildable.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -255,7 +250,7 @@ releasei386-glibc/cgame/cg_ents.o: ./src/cgame/cg_ents.c src/cgame/cg_local.h \
 releasei386-glibc/cgame/cg_event.o: ./src/cgame/cg_event.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h src/cgame/../ta_ui/menudef.h
+ src/cgame/cg_public.h src/cgame/../../ui/menudef.h
 releasei386-glibc/cgame/cg_info.o: ./src/cgame/cg_info.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -280,6 +275,10 @@ releasei386-glibc/cgame/cg_mp3decoder.o: ./src/cgame/cg_mp3decoder.c src/cgame/c
  src/cgame/cg_local.h src/cgame/../game/q_shared.h \
  src/cgame/../game/surfaceflags.h src/cgame/tr_types.h \
  src/cgame/../game/bg_public.h src/cgame/cg_public.h
+releasei386-glibc/cgame/cg_particles.o: ./src/cgame/cg_particles.c src/cgame/cg_local.h \
+ src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
+ src/cgame/tr_types.h src/cgame/../game/bg_public.h \
+ src/cgame/cg_public.h
 releasei386-glibc/cgame/cg_players.o: ./src/cgame/cg_players.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -300,11 +299,11 @@ releasei386-glibc/cgame/cg_scoreboard.o: ./src/cgame/cg_scoreboard.c src/cgame/c
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h
-releasei386-glibc/cgame/cg_servercmds.o: ./src/cgame/cg_servercmds.c src/cgame/cg_local.h \
+releasei386-glibc/cgame/cg_snapshot.o: ./src/cgame/cg_snapshot.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h src/cgame/../ta_ui/menudef.h
-releasei386-glibc/cgame/cg_snapshot.o: ./src/cgame/cg_snapshot.c src/cgame/cg_local.h \
+ src/cgame/cg_public.h
+releasei386-glibc/cgame/cg_spriter.o: ./src/cgame/cg_spriter.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h
@@ -317,6 +316,10 @@ releasei386-glibc/cgame/cg_view.o: ./src/cgame/cg_view.c src/cgame/cg_local.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h
 releasei386-glibc/cgame/cg_weapons.o: ./src/cgame/cg_weapons.c src/cgame/cg_local.h \
+ src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
+ src/cgame/tr_types.h src/cgame/../game/bg_public.h \
+ src/cgame/cg_public.h
+debugi386-glibc/cgame/cg_animmapobj.o: ./src/cgame/cg_animmapobj.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h
@@ -351,7 +354,7 @@ debugi386-glibc/cgame/cg_ents.o: ./src/cgame/cg_ents.c src/cgame/cg_local.h \
 debugi386-glibc/cgame/cg_event.o: ./src/cgame/cg_event.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h src/cgame/../ta_ui/menudef.h
+ src/cgame/cg_public.h src/cgame/../../ui/menudef.h
 debugi386-glibc/cgame/cg_info.o: ./src/cgame/cg_info.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -376,6 +379,10 @@ debugi386-glibc/cgame/cg_mp3decoder.o: ./src/cgame/cg_mp3decoder.c src/cgame/cg_
  src/cgame/cg_local.h src/cgame/../game/q_shared.h \
  src/cgame/../game/surfaceflags.h src/cgame/tr_types.h \
  src/cgame/../game/bg_public.h src/cgame/cg_public.h
+debugi386-glibc/cgame/cg_particles.o: ./src/cgame/cg_particles.c src/cgame/cg_local.h \
+ src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
+ src/cgame/tr_types.h src/cgame/../game/bg_public.h \
+ src/cgame/cg_public.h
 debugi386-glibc/cgame/cg_players.o: ./src/cgame/cg_players.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -396,11 +403,11 @@ debugi386-glibc/cgame/cg_scoreboard.o: ./src/cgame/cg_scoreboard.c src/cgame/cg_
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h
-debugi386-glibc/cgame/cg_servercmds.o: ./src/cgame/cg_servercmds.c src/cgame/cg_local.h \
+debugi386-glibc/cgame/cg_snapshot.o: ./src/cgame/cg_snapshot.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h src/cgame/../ta_ui/menudef.h
-debugi386-glibc/cgame/cg_snapshot.o: ./src/cgame/cg_snapshot.c src/cgame/cg_local.h \
+ src/cgame/cg_public.h
+debugi386-glibc/cgame/cg_spriter.o: ./src/cgame/cg_spriter.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h
@@ -413,6 +420,10 @@ debugi386-glibc/cgame/cg_view.o: ./src/cgame/cg_view.c src/cgame/cg_local.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h
 debugi386-glibc/cgame/cg_weapons.o: ./src/cgame/cg_weapons.c src/cgame/cg_local.h \
+ src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
+ src/cgame/tr_types.h src/cgame/../game/bg_public.h \
+ src/cgame/cg_public.h
+qvm/cgame/cg_animmapobj.asm: ./src/cgame/cg_animmapobj.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h
@@ -447,7 +458,7 @@ qvm/cgame/cg_ents.asm: ./src/cgame/cg_ents.c src/cgame/cg_local.h \
 qvm/cgame/cg_event.asm: ./src/cgame/cg_event.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h src/cgame/../ta_ui/menudef.h
+ src/cgame/cg_public.h src/cgame/../../ui/menudef.h
 qvm/cgame/cg_info.asm: ./src/cgame/cg_info.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -472,6 +483,10 @@ qvm/cgame/cg_mp3decoder.asm: ./src/cgame/cg_mp3decoder.c src/cgame/cg_mp3decoder
  src/cgame/cg_local.h src/cgame/../game/q_shared.h \
  src/cgame/../game/surfaceflags.h src/cgame/tr_types.h \
  src/cgame/../game/bg_public.h src/cgame/cg_public.h
+qvm/cgame/cg_particles.asm: ./src/cgame/cg_particles.c src/cgame/cg_local.h \
+ src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
+ src/cgame/tr_types.h src/cgame/../game/bg_public.h \
+ src/cgame/cg_public.h
 qvm/cgame/cg_players.asm: ./src/cgame/cg_players.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -492,11 +507,11 @@ qvm/cgame/cg_scoreboard.asm: ./src/cgame/cg_scoreboard.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h
-qvm/cgame/cg_servercmds.asm: ./src/cgame/cg_servercmds.c src/cgame/cg_local.h \
+qvm/cgame/cg_snapshot.asm: ./src/cgame/cg_snapshot.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h src/cgame/../ta_ui/menudef.h
-qvm/cgame/cg_snapshot.asm: ./src/cgame/cg_snapshot.c src/cgame/cg_local.h \
+ src/cgame/cg_public.h
+qvm/cgame/cg_spriter.asm: ./src/cgame/cg_spriter.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h
@@ -512,525 +527,93 @@ qvm/cgame/cg_weapons.asm: ./src/cgame/cg_weapons.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h
-releasei386-glibc/q3_ui/ui_addbots.o: ./src/q3_ui/ui_addbots.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_atoms.o: ./src/q3_ui/ui_atoms.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_cdkey.o: ./src/q3_ui/ui_cdkey.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_cinematics.o: ./src/q3_ui/ui_cinematics.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_confirm.o: ./src/q3_ui/ui_confirm.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_connect.o: ./src/q3_ui/ui_connect.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_controls2.o: ./src/q3_ui/ui_controls2.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_credits.o: ./src/q3_ui/ui_credits.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_demo2.o: ./src/q3_ui/ui_demo2.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_display.o: ./src/q3_ui/ui_display.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_dynamicmenu.o: ./src/q3_ui/ui_dynamicmenu.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_gameinfo.o: ./src/q3_ui/ui_gameinfo.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_ingame.o: ./src/q3_ui/ui_ingame.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_loadconfig.o: ./src/q3_ui/ui_loadconfig.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_login.o: ./src/q3_ui/ui_login.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_main.o: ./src/q3_ui/ui_main.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_menu.o: ./src/q3_ui/ui_menu.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_mfield.o: ./src/q3_ui/ui_mfield.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_mods.o: ./src/q3_ui/ui_mods.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_network.o: ./src/q3_ui/ui_network.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_options.o: ./src/q3_ui/ui_options.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_playermodel.o: ./src/q3_ui/ui_playermodel.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_players.o: ./src/q3_ui/ui_players.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_playersettings.o: ./src/q3_ui/ui_playersettings.c \
- src/q3_ui/ui_local.h src/q3_ui/../game/q_shared.h \
- src/q3_ui/../game/surfaceflags.h src/q3_ui/../cgame/tr_types.h \
- src/q3_ui/../ui/ui_public.h src/q3_ui/keycodes.h \
- src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_preferences.o: ./src/q3_ui/ui_preferences.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_qmenu.o: ./src/q3_ui/ui_qmenu.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_removebots.o: ./src/q3_ui/ui_removebots.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_saveconfig.o: ./src/q3_ui/ui_saveconfig.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_serverinfo.o: ./src/q3_ui/ui_serverinfo.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_servers2.o: ./src/q3_ui/ui_servers2.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_setup.o: ./src/q3_ui/ui_setup.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_sound.o: ./src/q3_ui/ui_sound.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_sparena.o: ./src/q3_ui/ui_sparena.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_specifyserver.o: ./src/q3_ui/ui_specifyserver.c \
- src/q3_ui/ui_local.h src/q3_ui/../game/q_shared.h \
- src/q3_ui/../game/surfaceflags.h src/q3_ui/../cgame/tr_types.h \
- src/q3_ui/../ui/ui_public.h src/q3_ui/keycodes.h \
- src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_splevel.o: ./src/q3_ui/ui_splevel.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_sppostgame.o: ./src/q3_ui/ui_sppostgame.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_spreset.o: ./src/q3_ui/ui_spreset.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_spskill.o: ./src/q3_ui/ui_spskill.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_startserver.o: ./src/q3_ui/ui_startserver.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_syscalls.o: ./src/q3_ui/ui_syscalls.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_team.o: ./src/q3_ui/ui_team.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_teamorders.o: ./src/q3_ui/ui_teamorders.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-releasei386-glibc/q3_ui/ui_video.o: ./src/q3_ui/ui_video.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_addbots.o: ./src/q3_ui/ui_addbots.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_atoms.o: ./src/q3_ui/ui_atoms.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_cdkey.o: ./src/q3_ui/ui_cdkey.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_cinematics.o: ./src/q3_ui/ui_cinematics.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_confirm.o: ./src/q3_ui/ui_confirm.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_connect.o: ./src/q3_ui/ui_connect.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_controls2.o: ./src/q3_ui/ui_controls2.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_credits.o: ./src/q3_ui/ui_credits.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_demo2.o: ./src/q3_ui/ui_demo2.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_display.o: ./src/q3_ui/ui_display.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_dynamicmenu.o: ./src/q3_ui/ui_dynamicmenu.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_gameinfo.o: ./src/q3_ui/ui_gameinfo.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_ingame.o: ./src/q3_ui/ui_ingame.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_loadconfig.o: ./src/q3_ui/ui_loadconfig.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_login.o: ./src/q3_ui/ui_login.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_main.o: ./src/q3_ui/ui_main.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_menu.o: ./src/q3_ui/ui_menu.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_mfield.o: ./src/q3_ui/ui_mfield.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_mods.o: ./src/q3_ui/ui_mods.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_network.o: ./src/q3_ui/ui_network.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_options.o: ./src/q3_ui/ui_options.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_playermodel.o: ./src/q3_ui/ui_playermodel.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_players.o: ./src/q3_ui/ui_players.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_playersettings.o: ./src/q3_ui/ui_playersettings.c \
- src/q3_ui/ui_local.h src/q3_ui/../game/q_shared.h \
- src/q3_ui/../game/surfaceflags.h src/q3_ui/../cgame/tr_types.h \
- src/q3_ui/../ui/ui_public.h src/q3_ui/keycodes.h \
- src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_preferences.o: ./src/q3_ui/ui_preferences.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_qmenu.o: ./src/q3_ui/ui_qmenu.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_removebots.o: ./src/q3_ui/ui_removebots.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_saveconfig.o: ./src/q3_ui/ui_saveconfig.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_serverinfo.o: ./src/q3_ui/ui_serverinfo.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_servers2.o: ./src/q3_ui/ui_servers2.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_setup.o: ./src/q3_ui/ui_setup.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_sound.o: ./src/q3_ui/ui_sound.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_sparena.o: ./src/q3_ui/ui_sparena.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_specifyserver.o: ./src/q3_ui/ui_specifyserver.c \
- src/q3_ui/ui_local.h src/q3_ui/../game/q_shared.h \
- src/q3_ui/../game/surfaceflags.h src/q3_ui/../cgame/tr_types.h \
- src/q3_ui/../ui/ui_public.h src/q3_ui/keycodes.h \
- src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_splevel.o: ./src/q3_ui/ui_splevel.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_sppostgame.o: ./src/q3_ui/ui_sppostgame.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_spreset.o: ./src/q3_ui/ui_spreset.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_spskill.o: ./src/q3_ui/ui_spskill.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_startserver.o: ./src/q3_ui/ui_startserver.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_syscalls.o: ./src/q3_ui/ui_syscalls.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_team.o: ./src/q3_ui/ui_team.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_teamorders.o: ./src/q3_ui/ui_teamorders.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-debugi386-glibc/q3_ui/ui_video.o: ./src/q3_ui/ui_video.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_addbots.asm: ./src/q3_ui/ui_addbots.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_atoms.asm: ./src/q3_ui/ui_atoms.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_cdkey.asm: ./src/q3_ui/ui_cdkey.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_cinematics.asm: ./src/q3_ui/ui_cinematics.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_confirm.asm: ./src/q3_ui/ui_confirm.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_connect.asm: ./src/q3_ui/ui_connect.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_controls2.asm: ./src/q3_ui/ui_controls2.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_credits.asm: ./src/q3_ui/ui_credits.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_demo2.asm: ./src/q3_ui/ui_demo2.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_display.asm: ./src/q3_ui/ui_display.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_dynamicmenu.asm: ./src/q3_ui/ui_dynamicmenu.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_gameinfo.asm: ./src/q3_ui/ui_gameinfo.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_ingame.asm: ./src/q3_ui/ui_ingame.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_loadconfig.asm: ./src/q3_ui/ui_loadconfig.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_login.asm: ./src/q3_ui/ui_login.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_main.asm: ./src/q3_ui/ui_main.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_menu.asm: ./src/q3_ui/ui_menu.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_mfield.asm: ./src/q3_ui/ui_mfield.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_mods.asm: ./src/q3_ui/ui_mods.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_network.asm: ./src/q3_ui/ui_network.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_options.asm: ./src/q3_ui/ui_options.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_playermodel.asm: ./src/q3_ui/ui_playermodel.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_players.asm: ./src/q3_ui/ui_players.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_playersettings.asm: ./src/q3_ui/ui_playersettings.c \
- src/q3_ui/ui_local.h src/q3_ui/../game/q_shared.h \
- src/q3_ui/../game/surfaceflags.h src/q3_ui/../cgame/tr_types.h \
- src/q3_ui/../ui/ui_public.h src/q3_ui/keycodes.h \
- src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_preferences.asm: ./src/q3_ui/ui_preferences.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_qmenu.asm: ./src/q3_ui/ui_qmenu.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_removebots.asm: ./src/q3_ui/ui_removebots.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_saveconfig.asm: ./src/q3_ui/ui_saveconfig.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_serverinfo.asm: ./src/q3_ui/ui_serverinfo.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_servers2.asm: ./src/q3_ui/ui_servers2.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_setup.asm: ./src/q3_ui/ui_setup.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_sound.asm: ./src/q3_ui/ui_sound.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_sparena.asm: ./src/q3_ui/ui_sparena.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_specifyserver.asm: ./src/q3_ui/ui_specifyserver.c \
- src/q3_ui/ui_local.h src/q3_ui/../game/q_shared.h \
- src/q3_ui/../game/surfaceflags.h src/q3_ui/../cgame/tr_types.h \
- src/q3_ui/../ui/ui_public.h src/q3_ui/keycodes.h \
- src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_splevel.asm: ./src/q3_ui/ui_splevel.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_sppostgame.asm: ./src/q3_ui/ui_sppostgame.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_spreset.asm: ./src/q3_ui/ui_spreset.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_spskill.asm: ./src/q3_ui/ui_spskill.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_startserver.asm: ./src/q3_ui/ui_startserver.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_syscalls.asm: ./src/q3_ui/ui_syscalls.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_team.asm: ./src/q3_ui/ui_team.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_teamorders.asm: ./src/q3_ui/ui_teamorders.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
-qvm/q3_ui/ui_video.asm: ./src/q3_ui/ui_video.c src/q3_ui/ui_local.h \
- src/q3_ui/../game/q_shared.h src/q3_ui/../game/surfaceflags.h \
- src/q3_ui/../cgame/tr_types.h src/q3_ui/../ui/ui_public.h \
- src/q3_ui/keycodes.h src/q3_ui/../game/bg_public.h
+releasei386-glibc/ui/ui_atoms.o: ./src/ui/ui_atoms.c src/ui/ui_local.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
+ src/ui/../game/bg_public.h src/ui/ui_shared.h \
+ src/ui/../../ui/menudef.h
+releasei386-glibc/ui/ui_gameinfo.o: ./src/ui/ui_gameinfo.c src/ui/ui_local.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
+ src/ui/../game/bg_public.h src/ui/ui_shared.h \
+ src/ui/../../ui/menudef.h
+releasei386-glibc/ui/ui_main.o: ./src/ui/ui_main.c src/ui/ui_local.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
+ src/ui/../game/bg_public.h src/ui/ui_shared.h \
+ src/ui/../../ui/menudef.h
+releasei386-glibc/ui/ui_players.o: ./src/ui/ui_players.c src/ui/ui_local.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
+ src/ui/../game/bg_public.h src/ui/ui_shared.h \
+ src/ui/../../ui/menudef.h
+releasei386-glibc/ui/ui_shared.o: ./src/ui/ui_shared.c src/ui/ui_shared.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/keycodes.h \
+ src/ui/../../ui/menudef.h
+releasei386-glibc/ui/ui_syscalls.o: ./src/ui/ui_syscalls.c src/ui/ui_local.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
+ src/ui/../game/bg_public.h src/ui/ui_shared.h \
+ src/ui/../../ui/menudef.h
+releasei386-glibc/ui/ui_util.o: ./src/ui/ui_util.c
+debugi386-glibc/ui/ui_atoms.o: ./src/ui/ui_atoms.c src/ui/ui_local.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
+ src/ui/../game/bg_public.h src/ui/ui_shared.h \
+ src/ui/../../ui/menudef.h
+debugi386-glibc/ui/ui_gameinfo.o: ./src/ui/ui_gameinfo.c src/ui/ui_local.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
+ src/ui/../game/bg_public.h src/ui/ui_shared.h \
+ src/ui/../../ui/menudef.h
+debugi386-glibc/ui/ui_main.o: ./src/ui/ui_main.c src/ui/ui_local.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
+ src/ui/../game/bg_public.h src/ui/ui_shared.h \
+ src/ui/../../ui/menudef.h
+debugi386-glibc/ui/ui_players.o: ./src/ui/ui_players.c src/ui/ui_local.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
+ src/ui/../game/bg_public.h src/ui/ui_shared.h \
+ src/ui/../../ui/menudef.h
+debugi386-glibc/ui/ui_shared.o: ./src/ui/ui_shared.c src/ui/ui_shared.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/keycodes.h \
+ src/ui/../../ui/menudef.h
+debugi386-glibc/ui/ui_syscalls.o: ./src/ui/ui_syscalls.c src/ui/ui_local.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
+ src/ui/../game/bg_public.h src/ui/ui_shared.h \
+ src/ui/../../ui/menudef.h
+debugi386-glibc/ui/ui_util.o: ./src/ui/ui_util.c
+qvm/ui/ui_atoms.asm: ./src/ui/ui_atoms.c src/ui/ui_local.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
+ src/ui/../game/bg_public.h src/ui/ui_shared.h \
+ src/ui/../../ui/menudef.h
+qvm/ui/ui_gameinfo.asm: ./src/ui/ui_gameinfo.c src/ui/ui_local.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
+ src/ui/../game/bg_public.h src/ui/ui_shared.h \
+ src/ui/../../ui/menudef.h
+qvm/ui/ui_main.asm: ./src/ui/ui_main.c src/ui/ui_local.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
+ src/ui/../game/bg_public.h src/ui/ui_shared.h \
+ src/ui/../../ui/menudef.h
+qvm/ui/ui_players.asm: ./src/ui/ui_players.c src/ui/ui_local.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
+ src/ui/../game/bg_public.h src/ui/ui_shared.h \
+ src/ui/../../ui/menudef.h
+qvm/ui/ui_shared.asm: ./src/ui/ui_shared.c src/ui/ui_shared.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/keycodes.h \
+ src/ui/../../ui/menudef.h
+qvm/ui/ui_syscalls.asm: ./src/ui/ui_syscalls.c src/ui/ui_local.h \
+ src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
+ src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
+ src/ui/../game/bg_public.h src/ui/ui_shared.h \
+ src/ui/../../ui/menudef.h
+qvm/ui/ui_util.asm: ./src/ui/ui_util.c

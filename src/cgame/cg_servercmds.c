@@ -30,7 +30,7 @@
                     
 #include "cg_local.h"
 
-#include "../ta_ui/menudef.h"
+#include "../../ui/menudef.h"
 
 typedef struct {
   const char *order;

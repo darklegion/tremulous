@@ -28,10 +28,8 @@
                     
 #include "cg_local.h"
 
-#ifdef MISSIONPACK // bk001205
 // for the voice chats
-#include "../ta_ui/menudef.h"
-#endif
+#include "../../ui/menudef.h"
 
 //==========================================================================
 
@@ -428,8 +426,8 @@ void CG_Menu( int eventParm )
   
   switch( eventParm )
   {
-    case MN_TEAM: trap_SendConsoleCommand( "menu teammenu\n" ); break;
-    case MN_D_CLASS: trap_SendConsoleCommand( "menu dclassmenu\n" ); break;
+    case MN_TEAM: trap_SendConsoleCommand( "menu tremulous_team\n" ); break;
+    case MN_D_CLASS: trap_SendConsoleCommand( "menu tremulous_alienclass\n" ); break;
     case MN_H_SPAWN: trap_SendConsoleCommand( "menu hsitemmenu\n" ); break;
     case MN_D_BUILD: trap_SendConsoleCommand( "menu dbuildmenu\n" ); break;
     case MN_H_BUILD: trap_SendConsoleCommand( "menu hbuildmenu\n" ); break;

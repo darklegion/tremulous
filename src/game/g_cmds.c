@@ -27,7 +27,7 @@
                   
 #include "g_local.h"
 
-#include "../ta_ui/menudef.h"     // for the voice chats
+#include "../../ui/menudef.h"     // for the voice chats
 
 /*
 ==================
@@ -623,11 +623,11 @@ void Cmd_Team_f( gentity_t *ent ) {
     return;
   }
 
-  if(!Q_stricmp(s, "0"))
+  if( !Q_stricmp( s, "0" ) || !Q_stricmp( s, "spectate" ) )
     ent->client->pers.pteam = PTE_NONE;
-  else if(!Q_stricmp(s, "1"))
+  else if( !Q_stricmp( s, "1" ) || !Q_stricmp( s, "aliens" ) )
     ent->client->pers.pteam = PTE_DROIDS;
-  else if(!Q_stricmp(s, "2"))
+  else if( !Q_stricmp( s, "2" ) || !Q_stricmp( s, "humans" ) )
     ent->client->pers.pteam = PTE_HUMANS;
 
   if( oldTeam != ent->client->pers.pteam )

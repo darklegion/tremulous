@@ -69,52 +69,19 @@ CGOBJ = \
 	$(CGDIRNAME)/cg_mem.o \
 	$(CGDIRNAME)/cg_mp3decoder.o \
 	$(CGDIRNAME)/cg_particles.o \
-	$(CGDIRNAME)/cg_scanner.o
+	$(CGDIRNAME)/cg_scanner.o \
+	$(UIDIRNAME)/ui_shared.o
   
 UIOBJ = \
 	$(UIDIRNAME)/ui_main.o \
 	$(GDIRNAME)/bg_misc.o \
 	$(GDIRNAME)/q_math.o \
 	$(GDIRNAME)/q_shared.o \
-	$(UIDIRNAME)/ui_addbots.o \
 	$(UIDIRNAME)/ui_atoms.o \
-	$(UIDIRNAME)/ui_cdkey.o \
-	$(UIDIRNAME)/ui_cinematics.o \
-	$(UIDIRNAME)/ui_confirm.o \
-	$(UIDIRNAME)/ui_connect.o \
-	$(UIDIRNAME)/ui_controls2.o \
-	$(UIDIRNAME)/ui_credits.o \
-	$(UIDIRNAME)/ui_demo2.o \
-	$(UIDIRNAME)/ui_display.o \
-	$(UIDIRNAME)/ui_gameinfo.o \
-	$(UIDIRNAME)/ui_ingame.o \
-	$(UIDIRNAME)/ui_loadconfig.o \
-	$(UIDIRNAME)/ui_menu.o \
-	$(UIDIRNAME)/ui_mfield.o \
-	$(UIDIRNAME)/ui_mods.o \
-	$(UIDIRNAME)/ui_network.o \
-	$(UIDIRNAME)/ui_options.o \
-	$(UIDIRNAME)/ui_playermodel.o \
 	$(UIDIRNAME)/ui_players.o \
-	$(UIDIRNAME)/ui_playersettings.o \
-	$(UIDIRNAME)/ui_preferences.o \
-	$(UIDIRNAME)/ui_qmenu.o \
-	$(UIDIRNAME)/ui_removebots.o \
-	$(UIDIRNAME)/ui_saveconfig.o \
-	$(UIDIRNAME)/ui_serverinfo.o \
-	$(UIDIRNAME)/ui_servers2.o \
-	$(UIDIRNAME)/ui_setup.o \
-	$(UIDIRNAME)/ui_sound.o \
-	$(UIDIRNAME)/ui_sparena.o \
-	$(UIDIRNAME)/ui_specifyserver.o \
-	$(UIDIRNAME)/ui_splevel.o \
-	$(UIDIRNAME)/ui_sppostgame.o \
-	$(UIDIRNAME)/ui_spskill.o \
-	$(UIDIRNAME)/ui_startserver.o \
-	$(UIDIRNAME)/ui_team.o \
-	$(UIDIRNAME)/ui_teamorders.o \
-	$(UIDIRNAME)/ui_video.o \
-	$(UIDIRNAME)/ui_dynamicmenu.o
+	$(UIDIRNAME)/ui_util.o \
+	$(UIDIRNAME)/ui_shared.o \
+	$(UIDIRNAME)/ui_gameinfo.o
   
 
 
@@ -133,7 +100,7 @@ BQ=qvm
 
 GDIRNAME=game
 CGDIRNAME=cgame
-UIDIRNAME=q3_ui
+UIDIRNAME=ui
 GDIR=$(MOUNT_DIR)/$(GDIRNAME)
 CGDIR=$(MOUNT_DIR)/$(CGDIRNAME)
 UIDIR=$(MOUNT_DIR)/$(UIDIRNAME)
