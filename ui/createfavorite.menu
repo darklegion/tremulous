@@ -3,197 +3,127 @@
 {
 \\ CREATE FAVORITE POPUP MENU \\
 
-menuDef {
-    	name "createfavorite_popmenu"
-    	visible 0
-    	fullscreen 0
-	rect 204 122 235 235
-	focusColor 1 .75 0 1
-    	style 1
-    	border 1
-	popup
-	onESC { close createfavorite_popmenu ; open joinserver }
+  menuDef
+  {
+    name "createfavorite_popmenu"
+    visible 0
+    fullscreen 0
+    rect 204 122 235 235
+    focusColor 1 .75 0 1
+    style 1
+    border 1
+    popup
+    onESC
+    {
+      close createfavorite_popmenu;
+      open joinserver
+    }
 
+    itemDef
+    {
+      name window
+      rect 47 47 144 144
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 1
+      visible 1
+      decoration
 
+      border WINDOW_BORDER_FULL
+      borderSize 1.0
+      borderColor 0.5 0.5 0.5 1
+    }
 
-itemDef {
-	name window
-	rect 0 0 235 235
-	style 3
-	background "ui/assets/mainpop.tga"
-	visible 1
-	decoration
-	}
-itemDef {
-	name window
-	rect 47 47 144 144 
-	style 3
-	background "centerconsole2"
-	visible 1
-	decoration
-	}
+    // ENTER NAME AND ADDRESS	//
+    
+    itemDef
+    {
+      name name
+      text "Name"
+      style 0
+      decoration
+      textscale .3
+      rect 0 61 110 20
+      textalign 1
+      textalignx 117
+      textaligny 16
+      forecolor 1 1 1 1
+      visible 1
+    }
+    
+    itemDef
+    {
+      name nameEntry
+      style 1
+      maxchars 15
+      text ""
+      textscale .25
+      TYPE 4
+      cvar "ui_favoriteName"
+      rect 60 81 120 20
+      textalign 0
+      textalignx 10
+      textaligny 16
+      forecolor 1 1 1 1
+      backcolor .2 .2 .2 .5
+      visible 1
+    }
 
+    itemDef
+    {
+      name address
+      text "IP Address"
+      style 0
+      decoration
+      textscale .3
+      rect 0 111 110 20
+      textalign 1
+      textalignx 117
+      textaligny 16
+      forecolor 1 1 1 1
+      visible 1
+    }
+    
+    itemDef
+    {
+      name addressEntry
+      style 1
+      maxchars 20
+      maxPaintChars 12
+      text ""
+      textscale .25
+      TYPE 4
+      maxchars 21
+      cvar "ui_favoriteAddress"
+      rect 60 131 120 20
+      textalign 0
+      textalignx 10
+      textaligny 16
+      forecolor 1 1 1 1
+      backcolor .2 .2 .2 .5
+      visible 1
+    }
 
-
-
-
-	// ENTER NAME AND ADDRESS	//
-
-itemDef {
-	name name
-	text "Name"
-	style 0
-	decoration
-	textscale .3
-	rect 1 62 110 20
-	textalign 1
-	textalignx 117
-	textaligny 16
-	forecolor 0 0 0 1
-	visible 1
-	
-	}
-itemDef {
-	name name
-	text "Name"
-	style 0
-	decoration
-	textscale .3
-	rect 0 61 110 20
-	textalign 1
-	textalignx 117
-	textaligny 16
-	forecolor 1 1 1 1
-	visible 1
-	}
-itemDef {
-	name nameEntry
-	style 1
-	maxchars 15
-	text ":"
-	textscale .25
-	TYPE 4
-	cvar "ui_favoriteName"
-	rect 60 81 120 20
-	textalign 0
-	textalignx 0
-	textaligny 16
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .5
-	visible 1
-	mouseenter { setitemcolor nameentry backcolor 0 0 0 .75 }
-	mouseexit { setitemcolor nameentry backcolor 0 0 0 .5 }
-	}
-
-
-
-
-
-itemDef {
-	name address
-	text "IP Address"
-	style 0
-	decoration
-	textscale .3
-	rect 1 112 110 20
-	textalign 1
-	textalignx 117
-	textaligny 16
-	forecolor 0 0 0 1
-	visible 1
-	
-	}
-itemDef {
-	name address
-	text "IP Address"
-	style 0
-	decoration
-	textscale .3
-	rect 0 111 110 20
-	textalign 1
-	textalignx 117
-	textaligny 16
-	forecolor 1 1 1 1
-	visible 1
-	}
-itemDef {
-	name addressEntry
-	style 1
-	maxchars 20
-	maxPaintChars 12
-	text ":"
-	textscale .25
-	TYPE 4
-	maxchars 21
-	cvar "ui_favoriteAddress"
-	rect 60 131 120 20
-	textalign 0
-	textalignx 0
-	textaligny 16
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
-	visible 1
-	mouseenter { setitemcolor addressEntry backcolor 0 0 0 .75 }
-	mouseexit { setitemcolor addressEntry backcolor 0 0 0 .25 }
-	}
-
-
-
-
-itemDef {
-	name yes
-	text "Ok"
-	type 1
-	textscale .25
-	style WINDOW_STYLE_FILLED
-	background "ui/assets/button_back.tga"
-	rect 103 158 30 26
-	textalign 1
-	textalignx 15
-	textaligny 20
-	forecolor 1 1 1 1
-	backcolor .37 .1 .1 1 
-	visible 1
-	action { play "sound/misc/nomenu.wav" ;
-	uiScript CreateFavorite ; 
-	close createfavorite_popmenu ; 
-	open joinserver }
-	mouseEnter { setitemcolor yes backcolor .1 .37 .1 1 } 
-	mouseExit { setitemcolor yes backcolor .37 .1 .1 1 } 	
-	}
-	
-	itemDef {
-      		name yes
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/framebutton.tga"
- 		rect 103 158 30 26
-      		visible 1 
-		decoration  	  
-    		}
-
-	itemDef {
-      		name yes
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/leftbutton.tga"
-   	   	rect 97 158 7 26
-   	   	visible 1 
-		decoration  	  
-   	 	}
-
-	itemDef {
-	      	name yes
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/rightbutton.tga"
-      		rect 132 158 7 26
-     	 	visible 1 
-		decoration  	  
-    		}
-
-
-
-
-
-
-}
-}
+    itemDef
+    {
+      name yes
+      text "Ok"
+      type 1
+      textscale .25
+      style WINDOW_STYLE_EMPTY
+      rect 103 158 30 26
+      textalign 1
+      textalignx 15
+      textaligny 20
+      forecolor 1 1 1 1
+      backcolor .37 .1 .1 1 
+      visible 1
+      action
+      {
+        play "sound/misc/nomenu.wav";
+        uiScript CreateFavorite;
+        close createfavorite_popmenu;
+        open joinserver
+      }
+    }
+  }
 }
