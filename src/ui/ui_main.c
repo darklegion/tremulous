@@ -2887,7 +2887,7 @@ static void UI_LoadTremHumanMCUBuys( )
   
   for( i = WP_NONE +1; i < WP_NUM_WEAPONS; i++ )
   {
-    if( BG_FindTeamForWeapon( i ) == WUT_HUMANS )
+    if( BG_FindTeamForWeapon( i ) == WUT_HUMANS && BG_FindPurchasableForWeapon( i ) )
     {
       uiInfo.tremHumanMCUBuyList[ j ].text =
         String_Alloc( BG_FindHumanNameForWeapon( i ) );

@@ -425,7 +425,7 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	bolt->s.weapon = WP_GRENADE_LAUNCHER;
+	/*bolt->s.weapon = WP_GRENADE_LAUNCHER;*/
 	bolt->s.eFlags = EF_BOUNCE_HALF;
 	bolt->r.ownerNum = self->s.number;
 	bolt->parent = self;
@@ -467,7 +467,7 @@ gentity_t *fire_bfg (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	bolt->s.weapon = WP_BFG;
+	/*bolt->s.weapon = WP_BFG;*/
 	bolt->r.ownerNum = self->s.number;
 	bolt->parent = self;
 	bolt->damage = 100;
@@ -507,7 +507,7 @@ gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	bolt->s.weapon = WP_ROCKET_LAUNCHER;
+	/*bolt->s.weapon = WP_ROCKET_LAUNCHER;*/
 	bolt->r.ownerNum = self->s.number;
 	bolt->parent = self;
 	bolt->damage = 100;
@@ -582,7 +582,7 @@ gentity_t *fire_grapple (gentity_t *self, vec3_t start, vec3_t dir) {
 	hook->think = Weapon_HookFree;
 	hook->s.eType = ET_MISSILE;
 	hook->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	hook->s.weapon = WP_GRAPPLING_HOOK;
+	/*hook->s.weapon = WP_GRAPPLING_HOOK;*/
 	hook->r.ownerNum = self->s.number;
 	hook->methodOfDeath = MOD_GRAPPLE;
 	hook->clipmask = MASK_SHOT;

@@ -285,20 +285,18 @@ static void CG_TouchItem( centity_t *cent ) {
   if ( !cg_predictItems.integer ) {
     return;
   }
-  if ( !BG_PlayerTouchesItem( &cg.predictedPlayerState, &cent->currentState, cg.time ) ) {
+/*  if ( !BG_PlayerTouchesItem( &cg.predictedPlayerState, &cent->currentState, cg.time ) ) {
     return;
-  }
+  }*/
 
   // never pick an item up twice in a prediction
   if ( cent->miscTime == cg.time ) {
     return;
   }
 
-  if ( !BG_CanItemBeGrabbed( cgs.gametype, &cent->currentState, &cg.predictedPlayerState ) ) {
+/*  if ( !BG_CanItemBeGrabbed( cgs.gametype, &cent->currentState, &cg.predictedPlayerState ) ) {
     return;   // can't hold it
-  }
-
-  item = &bg_itemlist[ cent->currentState.modelindex ];
+  }*/
 
   // grab it
   BG_AddPredictableEventToPlayerstate( EV_ITEM_PICKUP, cent->currentState.modelindex , &cg.predictedPlayerState);
@@ -310,12 +308,12 @@ static void CG_TouchItem( centity_t *cent ) {
   cent->miscTime = cg.time;
 
   // if its a weapon, give them some predicted ammo so the autoswitch will work
-  if ( item->giType == IT_WEAPON ) {
+/*  if ( item->giType == IT_WEAPON ) {
     BG_packWeapon( item->giTag, cg.predictedPlayerState.stats );
     if ( ammo == 0 && clips == 0 ) {
       BG_packAmmoArray( item->giTag, cg.predictedPlayerState.ammo, cg.predictedPlayerState.powerups, 1, 0, 0 );
     }
-  }
+  }*/
 }
 
 

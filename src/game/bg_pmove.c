@@ -2159,7 +2159,7 @@ static void PM_Weapon( void )
   BG_unpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips, &maxclips );
 
   // check for out of ammo
-  if ( !ammo && !clips && !BG_infiniteAmmo( pm->ps->weapon ) )
+  if ( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
   {
     PM_AddEvent( EV_NOAMMO );
     pm->ps->weaponTime += 200;
@@ -2306,74 +2306,15 @@ static void PM_Weapon( void )
   pm->ps->weaponstate = WEAPON_FIRING;
   
   // take an ammo away if not infinite
-  if( !BG_infiniteAmmo( pm->ps->weapon ) )
+  if( !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
   {
     ammo--;
     BG_packAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
   }
   
-  switch( pm->ps->weapon )
-  {
-    default:
-    case WP_GAUNTLET:
-      addTime = 400;
-      break;
-    case WP_TESLAGEN:
-      addTime = 50;
-      break;
-    case WP_SHOTGUN:
-      addTime = 1000;
-      break;
-    case WP_MACHINEGUN:
-      addTime = 100;
-      break;
-    case WP_CHAINGUN:
-      addTime = 50;
-      break;
-    case WP_GRENADE_LAUNCHER:
-      addTime = 800;
-      break;
-    case WP_ROCKET_LAUNCHER:
-      addTime = 800;
-      break;
-    case WP_FLAMER:
-      addTime = 40;
-      break;
-    case WP_RAILGUN:
-      addTime = 1500;
-      break;
-    case WP_LOCKBLOB_LAUNCHER:
-      addTime = 1000;
-      break;
-    case WP_BFG:
-      addTime = 200;
-      break;
-    case WP_GRAPPLING_HOOK:
-      addTime = 400;
-      break;
-    case WP_VENOM:
-      addTime = 500;
-      break;
-    case WP_GRABANDCSAW:
-      addTime = 500;
-      break;
-    case WP_POUNCE:
-      addTime = 750;
-      break;
-    case WP_MASS_DRIVER:
-      addTime = 1000;
-      break;
-    case WP_PULSE_RIFLE:
-      addTime = 50;
-      break;
-    case WP_ABUILD:
-    case WP_ABUILD2:
-    case WP_HBUILD:
-    case WP_HBUILD2:
-      addTime = 1000; //abritutary since doesn't "fire"
-      break;
-  }
+  addTime = BG_FindRepeatRateForWeapon( pm->ps->weapon );
 
+  //FIXME: predicted angles miss a problem??
   if( pm->ps->weapon == WP_CHAINGUN )
   {
     if( pm->ps->pm_flags & PMF_DUCKED )
@@ -2611,7 +2552,7 @@ void PmoveSingle (pmove_t *pmove)
   // set the firing flag for continuous beam weapons
   if ( !(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION
     && ( pm->cmd.buttons & BUTTON_ATTACK )
-    && ( ( ammo > 0 || clips > 0 ) || BG_infiniteAmmo( pm->ps->weapon ) ) )
+    && ( ( ammo > 0 || clips > 0 ) || BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) ) )
     pm->ps->eFlags |= EF_FIRING;
   else
     pm->ps->eFlags &= ~EF_FIRING;
@@ -2619,7 +2560,7 @@ void PmoveSingle (pmove_t *pmove)
   // set the firing flag for continuous beam weapons
   if ( !(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION
     && ( pm->cmd.buttons & BUTTON_ATTACK2 )
-    && ( ( ammo > 0 || clips > 0 ) || BG_infiniteAmmo( pm->ps->weapon ) ) )
+    && ( ( ammo > 0 || clips > 0 ) || BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) ) )
     pm->ps->eFlags |= EF_FIRING2;
   else
     pm->ps->eFlags &= ~EF_FIRING2;

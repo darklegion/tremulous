@@ -327,19 +327,12 @@ typedef enum
 {
   WP_NONE,
 
-  WP_GAUNTLET,
   WP_MACHINEGUN,
   WP_CHAINGUN,
-  WP_SHOTGUN,
-  WP_GRENADE_LAUNCHER,
-  WP_ROCKET_LAUNCHER,
   WP_LOCKBLOB_LAUNCHER,
   WP_TESLAGEN,
-  WP_RAILGUN,
   WP_FLAMER,
   WP_PLASMAGUN,
-  WP_BFG,
-  WP_GRAPPLING_HOOK,
   WP_VENOM,
   WP_GRABANDCSAW,
   WP_POUNCE,
@@ -352,8 +345,6 @@ typedef enum
   WP_HBUILD2,
   WP_HBUILD,
   //ok?
-  
-  WP_GGRENADE,
 
   WP_NUM_WEAPONS
 } weapon_t;
@@ -911,13 +902,21 @@ typedef struct
 
   char      *weaponName;
   char      *weaponHumanName;
+
+  char      *models[ MAX_ITEM_MODELS ];
+  char      *icon;
   
   int       quan;
   int       clips;
   int       maxClips;
+  qboolean  infiniteAmmo;
+
+  int       repeatRate;
   
   qboolean  hasAltMode;
   qboolean  synced;
+
+  qboolean  purchasable;
 
   WUTeam_t  team;
 } weaponAttributes_t;
@@ -933,48 +932,40 @@ typedef struct
 
   char      *upgradeName;
   char      *upgradeHumanName;
+
+  char      *icon;
   
   WUTeam_t  team;
 } upgradeAttributes_t;
 
-// included in both the game dll and the client
-extern  gitem_t bg_itemlist[];
-extern  int   bg_numItems;
-
-gitem_t *BG_FindItem( const char *pickupName );
-gitem_t *BG_FindItemForWeapon( weapon_t weapon );
-gitem_t *BG_FindItemForUpgrade( upgrade_t upgrade );
-gitem_t *BG_FindItemForPowerup( powerup_t pw );
-gitem_t *BG_FindItemForHoldable( holdable_t pw );
-
 //TA:
-int           BG_FindBuildNumForName( char *name );
-int           BG_FindBuildNumForEntityName( char *name );
-char          *BG_FindNameForBuildable( int bclass );
-char          *BG_FindHumanNameForBuildable( int bclass );
-char          *BG_FindEntityNameForBuildable( int bclass );
-char          *BG_FindModelsForBuildable( int bclass, int modelNum );
-void          BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs );
-int           BG_FindHealthForBuildable( int bclass );
-trType_t      BG_FindTrajectoryForBuildable( int bclass );
-float         BG_FindBounceForBuildable( int bclass );
-int           BG_FindBuildPointsForBuildable( int bclass );
-int           BG_FindDamageForBuildable( int bclass );
-int           BG_FindSplashDamageForBuildable( int bclass );
-int           BG_FindSplashRadiusForBuildable( int bclass );
-int           BG_FindMODForBuildable( int bclass );
-int           BG_FindTeamForBuildable( int bclass );
-weapon_t      BG_FindBuildWeaponForBuildable( int bclass );
-int           BG_FindAnimForBuildable( int bclass );
-int           BG_FindNextThinkForBuildable( int bclass );
-int           BG_FindFireSpeedForBuildable( int bclass );
-int           BG_FindRangeForBuildable( int bclass );
-weapon_t      BG_FindProjTypeForBuildable( int bclass );
-float         BG_FindMinNormalForBuildable( int bclass );
-qboolean      BG_FindInvertNormalForBuildable( int bclass );
-int           BG_FindCreepTestForBuildable( int bclass );
-int           BG_FindCreepSizeForBuildable( int bclass );
-int           BG_FindUniqueTestForBuildable( int bclass );
+int       BG_FindBuildNumForName( char *name );
+int       BG_FindBuildNumForEntityName( char *name );
+char      *BG_FindNameForBuildable( int bclass );
+char      *BG_FindHumanNameForBuildable( int bclass );
+char      *BG_FindEntityNameForBuildable( int bclass );
+char      *BG_FindModelsForBuildable( int bclass, int modelNum );
+void      BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs );
+int       BG_FindHealthForBuildable( int bclass );
+trType_t  BG_FindTrajectoryForBuildable( int bclass );
+float     BG_FindBounceForBuildable( int bclass );
+int       BG_FindBuildPointsForBuildable( int bclass );
+int       BG_FindDamageForBuildable( int bclass );
+int       BG_FindSplashDamageForBuildable( int bclass );
+int       BG_FindSplashRadiusForBuildable( int bclass );
+int       BG_FindMODForBuildable( int bclass );
+int       BG_FindTeamForBuildable( int bclass );
+weapon_t  BG_FindBuildWeaponForBuildable( int bclass );
+int       BG_FindAnimForBuildable( int bclass );
+int       BG_FindNextThinkForBuildable( int bclass );
+int       BG_FindFireSpeedForBuildable( int bclass );
+int       BG_FindRangeForBuildable( int bclass );
+weapon_t  BG_FindProjTypeForBuildable( int bclass );
+float     BG_FindMinNormalForBuildable( int bclass );
+qboolean  BG_FindInvertNormalForBuildable( int bclass );
+int       BG_FindCreepTestForBuildable( int bclass );
+int       BG_FindCreepSizeForBuildable( int bclass );
+int       BG_FindUniqueTestForBuildable( int bclass );
 
 int       BG_FindClassNumForName( char *name );
 char      *BG_FindNameForClassNum( int pclass );
@@ -1000,9 +991,14 @@ int       BG_FindSlotsForWeapon( int weapon );
 char      *BG_FindNameForWeapon( int weapon );
 int       BG_FindWeaponNumForName( char *name );
 char      *BG_FindHumanNameForWeapon( int weapon );
+char      *BG_FindModelsForWeapon( int weapon, int modelNum );
+char      *BG_FindIconForWeapon( int weapon );
 void      BG_FindAmmoForWeapon( int weapon, int *quan, int *clips, int *maxClips );
+qboolean  BG_FindInfinteAmmoForWeapon( int weapon );
+int       BG_FindRepeatRateForWeapon( int weapon );
 qboolean  BG_WeaponHasAltMode( int weapon );
 qboolean  BG_WeaponModesAreSynced( int weapon );
+qboolean  BG_FindPurchasableForWeapon( int weapon );
 WUTeam_t  BG_FindTeamForWeapon( int weapon );
 
 int       BG_FindPriceForUpgrade( int upgrade );
@@ -1010,12 +1006,8 @@ int       BG_FindSlotsForUpgrade( int upgrade );
 char      *BG_FindNameForUpgrade( int upgrade );
 int       BG_FindUpgradeNumForName( char *name );
 char      *BG_FindHumanNameForUpgrade( int upgrade );
+char      *BG_FindIconForUpgrade( int upgrade );
 WUTeam_t  BG_FindTeamForUpgrade( int upgrade );
-
-#define ITEM_INDEX(x) ((x)-bg_itemlist)
-
-qboolean  BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps );
-
 
 // g_dmflags->integer flags
 #define DF_NO_FALLING     8
@@ -1077,11 +1069,10 @@ void  BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *
 qboolean  BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
 
 //TA: extra bits: (which I apparently dont need)
-/*void      BG_unpackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int *quan, int *clips, int *maxclips );
+void      BG_unpackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int *quan, int *clips, int *maxclips );
 void      BG_packAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int quan, int clips, int maxclips );
-qboolean  BG_infiniteAmmo( int weapon );
 void      BG_packWeapon( int weapon, int stats[ ] );
-qboolean  BG_gotWeapon( int weapon, int stats[ ] );*/
+qboolean  BG_gotWeapon( int weapon, int stats[ ] );
 
 #define CREEP_BASESIZE      120 
 #define REACTOR_BASESIZE    1000

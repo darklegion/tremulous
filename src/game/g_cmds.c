@@ -235,7 +235,7 @@ void Cmd_Give_f (gentity_t *ent)
 
   if (give_all || Q_stricmp(name, "weapons") == 0)
   {
-    BG_packWeapon( (1 << WP_NUM_WEAPONS) - 1 - ( 1 << WP_GRAPPLING_HOOK ) - ( 1 << WP_NONE ), ent->client->ps.stats );
+    BG_packWeapon( (1 << WP_NUM_WEAPONS) - 1 - ( 1 << WP_NONE ), ent->client->ps.stats );
     if (!give_all)
       return;
   }
@@ -1872,6 +1872,13 @@ void Cmd_Buy_f( gentity_t *ent )
     {
       //shouldn't need a fancy dialog
       trap_SendServerCommand( ent-g_entities, va("print \"You can't buy alien items\n\"" ) );
+      return;
+    }
+    
+    //are we /allowed/ to buy this?
+    if( !BG_FindPurchasableForWeapon( weapon ) )
+    {
+      trap_SendServerCommand( ent-g_entities, va("print \"You can't buy this item\n\"" ) );
       return;
     }
     

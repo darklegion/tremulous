@@ -374,6 +374,7 @@ typedef struct {
 typedef struct weaponInfo_s {
   qboolean    registered;
   gitem_t     *item;
+  char        *humanName;
 
   qhandle_t   handsModel;     // the hands don't actually draw, they just position the weapon
   qhandle_t   weaponModel;
@@ -410,7 +411,7 @@ typedef struct weaponInfo_s {
 
 typedef struct upgradeInfo_s {
   qboolean    registered;
-  gitem_t     *item;
+  char        *humanName;
 
   qhandle_t   upgradeIcon;
 } upgradeInfo_t;
@@ -1411,8 +1412,10 @@ void CG_NextWeapon_f( void );
 void CG_PrevWeapon_f( void );
 void CG_Weapon_f( void );
 
+void CG_InitUpgrades( );
+void CG_RegisterUpgrade( int upgradeNum );
+void CG_InitWeapons( );
 void CG_RegisterWeapon( int weaponNum );
-void CG_RegisterItemVisuals( int itemNum );
 
 void CG_FireWeapon( centity_t *cent );
 void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType );

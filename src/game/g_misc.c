@@ -264,14 +264,14 @@ void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
   VectorNormalize( dir );
 
-  switch ( ent->s.weapon ) {
+/*  switch ( ent->s.weapon ) {
   case WP_GRENADE_LAUNCHER:
     fire_grenade( ent, ent->s.origin, dir );
     break;
   case WP_ROCKET_LAUNCHER:
     fire_rocket( ent, ent->s.origin, dir );
     break;
-  }
+  }*/
 
   G_AddEvent( ent, EV_FIRE_WEAPON, 0 );
 }
@@ -287,7 +287,7 @@ void InitShooter( gentity_t *ent, int weapon ) {
   ent->use = Use_Shooter;
   ent->s.weapon = weapon;
 
-  RegisterItem( BG_FindItemForWeapon( weapon ) );
+  /*RegisterItem( BG_FindItemForWeapon( weapon ) );*/
 
   G_SetMovedir( ent->s.angles, ent->movedir );
 

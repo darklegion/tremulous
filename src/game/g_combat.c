@@ -113,7 +113,7 @@ void TossClientItems( gentity_t *self ) {
   // weapon that isn't the mg or gauntlet.  Without this, a client
   // can pick up a weapon, be killed, and not drop the weapon because
   // their weapon change hasn't completed yet and they are still holding the MG.
-  if ( weapon == WP_MACHINEGUN || weapon == WP_GRAPPLING_HOOK ) {
+  if( weapon == WP_MACHINEGUN ) {
     if ( self->client->ps.weaponstate == WEAPON_DROPPING ) {
       weapon = self->client->pers.cmd.weapon;
     }
@@ -122,10 +122,9 @@ void TossClientItems( gentity_t *self ) {
     }
   }
 
-  if( weapon > WP_MACHINEGUN && weapon != WP_GRAPPLING_HOOK &&
-      ( ammo > 0 || clips > 0 ) ) {
+  if( weapon > WP_MACHINEGUN && ( ammo > 0 || clips > 0 ) ) {
     // find the item type for this weapon
-    item = BG_FindItemForWeapon( weapon );
+    /*item = BG_FindItemForWeapon( weapon );*/
 
     //TA: never drop weapons...
     // spawn the item

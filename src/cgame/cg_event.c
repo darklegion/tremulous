@@ -321,7 +321,7 @@ static void CG_UseItem( centity_t *cent ) {
     if ( !itemNum ) {
       CG_CenterPrint( "No item to use", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
     } else {
-      item = BG_FindItemForHoldable( itemNum );
+      /*item = BG_FindItemForHoldable( itemNum );*/
       CG_CenterPrint( va("Use %s", item->pickup_name), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
     }
   }
@@ -359,13 +359,6 @@ static void CG_ItemPickup( int itemNum ) {
   cg.itemPickupTime = cg.time;
   cg.itemPickupBlendTime = cg.time;
   // see if it should be the grabbed weapon
-  if ( bg_itemlist[itemNum].giType == IT_WEAPON ) {
-    // select it immediately
-    if ( cg_autoswitch.integer && bg_itemlist[itemNum].giTag != WP_MACHINEGUN ) {
-      cg.weaponSelectTime = cg.time;
-      cg.weaponSelect = bg_itemlist[itemNum].giTag;
-    }
-  }
 
 }
 
@@ -667,52 +660,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
   case EV_ITEM_PICKUP:
     DEBUGNAME("EV_ITEM_PICKUP");
     {
-      gitem_t *item;
-      int   index;
-
-      index = es->eventParm;    // player predicted
-
-      if ( index < 1 || index >= bg_numItems ) {
-        break;
-      }
-      item = &bg_itemlist[ index ];
-
-      // powerups and team items will have a separate global sound, this one
-      // will be played at prediction time
-      if ( item->giType == IT_POWERUP || item->giType == IT_TEAM) {
-        trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.n_healthSound );
-      } else {
-        trap_S_StartSound (NULL, es->number, CHAN_AUTO, trap_S_RegisterSound( item->pickup_sound, qfalse ) );
-      }
-
-      // show icon and name on status bar
-      if ( es->number == cg.snap->ps.clientNum ) {
-        CG_ItemPickup( index );
-      }
     }
     break;
 
   case EV_GLOBAL_ITEM_PICKUP:
     DEBUGNAME("EV_GLOBAL_ITEM_PICKUP");
     {
-      gitem_t *item;
-      int   index;
-
-      index = es->eventParm;    // player predicted
-
-      if ( index < 1 || index >= bg_numItems ) {
-        break;
-      }
-      item = &bg_itemlist[ index ];
-      // powerup pickups are global
-      if( item->pickup_sound ) {
-        trap_S_StartSound (NULL, cg.snap->ps.clientNum, CHAN_AUTO, trap_S_RegisterSound( item->pickup_sound, qfalse ) );
-      }
-
-      // show icon and name on status bar
-      if ( es->number == cg.snap->ps.clientNum ) {
-        CG_ItemPickup( index );
-      }
     }
     break;
 
@@ -889,14 +842,14 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     break;
 
   case EV_RAILTRAIL:
-    DEBUGNAME("EV_RAILTRAIL");
+/*    DEBUGNAME("EV_RAILTRAIL");
     cent->currentState.weapon = WP_RAILGUN;
     // if the end was on a nomark surface, don't make an explosion
     CG_RailTrail( es->origin2, es->pos.trBase );
     if ( es->eventParm != 255 ) {
       ByteToDir( es->eventParm, dir );
       CG_MissileHitWall( es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT );
-    }
+    }*/
     break;
 
   case EV_TESLATRAIL:

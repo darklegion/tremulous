@@ -18,940 +18,6 @@
 #include "q_shared.h"
 #include "bg_public.h"
 
-/*QUAKED item_***** ( 0 0 0 ) (-16 -16 -16) (16 16 16) suspended
-DO NOT USE THIS CLASS, IT JUST HOLDS GENERAL INFORMATION.
-The suspended flag will allow items to hang in the air, otherwise they are dropped to the next surface.
-
-If an item is the target of another entity, it will not spawn in until fired.
-
-An item fires all of its targets when it is picked up.  If the toucher can't carry it, the targets won't be fired.
-
-"notfree" if set to 1, don't spawn in free for all games
-"notteam" if set to 1, don't spawn in team games
-"notsingle" if set to 1, don't spawn in single player games
-"wait"  override the default wait before respawning.  -1 = never respawn automatically, which can be used with targeted spawning.
-"random" random number of plus or minus seconds varied from the respawn time
-"count" override quantity or duration on most items.
-*/
-
-gitem_t bg_itemlist[] =
-{
-  {
-    NULL,
-    NULL,
-    { NULL,
-    NULL,
-    0, 0} ,
-/* icon */    NULL,
-/* pickup */  NULL,
-    0,
-    0,
-    0,
-/* precache */ "",
-/* sounds */ ""
-  },  // leave index 0 alone
-
-  //
-  // ARMOR
-  //
-
-/*QUAKED item_armor_shard (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "item_armor_shard",
-    "sound/misc/ar1_pkup.wav",
-    { "models/powerups/armor/shard.md3",
-    "models/powerups/armor/shard_sphere.md3",
-    0, 0} ,
-    "icons/iconr_shard",
-    "Armor Shard",
-    5,
-    IT_ARMOR,
-    0,
-    "",
-    ""
-  },*/
-
-/*QUAKED item_armor_combat (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "item_armor_combat",
-    "sound/misc/ar2_pkup.wav",
-    { "models/powerups/armor/armor_yel.md3",
-    0, 0, 0},
-    "icons/iconr_yellow",
-    "Armor",
-    50,
-    IT_ARMOR,
-    0,
-    "",
-    ""
-  },*/
-
-/*QUAKED item_armor_body (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "item_armor_body",
-    "sound/misc/ar3_pkup.wav",
-    { "models/powerups/armor/armor_red.md3",
-    0, 0, 0},
-    "icons/iconr_red",
-    "Heavy Armor",
-    100,
-    IT_ARMOR,
-    0,
-    "",
-    ""
-  },*/
-
-  //
-  // health
-  //
-/*QUAKED item_health_small (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "item_health_small",
-    "sound/items/s_health.wav",
-    { "models/powerups/health/small_cross.md3",
-    "models/powerups/health/small_sphere.md3",
-    0, 0 },
-    "icons/iconh_green",
-    "5 Health",
-    5,
-    IT_HEALTH,
-    0,
-    "",
-    ""
-  },*/
-
-/*QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "item_health",
-    "sound/items/n_health.wav",
-    { "models/powerups/health/medium_cross.md3",
-    "models/powerups/health/medium_sphere.md3",
-    0, 0 },
-    "icons/iconh_yellow",
-    "25 Health",
-    25,
-    IT_HEALTH,
-    0,
-    "",
-    ""
-  },*/
-
-/*QUAKED item_health_large (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "item_health_large",
-    "sound/items/l_health.wav",
-    { "models/powerups/health/large_cross.md3",
-    "models/powerups/health/large_sphere.md3",
-    0, 0 },
-    "icons/iconh_red",
-    "50 Health",
-    50,
-    IT_HEALTH,
-    0,
-    "",
-    ""
-  },*/
-
-/*QUAKED item_health_mega (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "item_health_mega",
-    "sound/items/m_health.wav",
-    { "models/powerups/health/mega_cross.md3",
-    "models/powerups/health/mega_sphere.md3",
-    0, 0 },
-    "icons/iconh_mega",
-    "Mega Health",
-    100,
-    IT_HEALTH,
-    0,
-    "",
-    ""
-  },*/
-
-
-  //
-  // WEAPONS
-  //
-
-/*QUAKED weapon_gauntlet (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-
-//TA:FIXME: must keep gauntlet and machinegun for now or bots have a fit and prevent game working
-
-  {
-    "weapon_gauntlet",
-    "sound/misc/w_pkup.wav",
-        { "models/weapons2/gauntlet/gauntlet.md3",
-    0, 0, 0},
-    "icons/iconw_gauntlet",
-    "Gauntlet",
-    0,
-    IT_WEAPON,
-    WP_GAUNTLET,
-    "",
-    ""
-  },
-
-/*QUAKED weapon_venom (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_venom",
-    "sound/misc/w_pkup.wav",
-        { "models/weapons2/gauntlet/gauntlet.md3",
-    0, 0, 0},
-    "icons/iconw_gauntlet",
-    "Venom",
-    0,
-    IT_WEAPON,
-    WP_VENOM,
-    "",
-    ""
-  },
-
-/*QUAKED weapon_grabandcsaw (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_grabandcsaw",
-    "sound/misc/w_pkup.wav",
-        { "models/weapons2/gauntlet/gauntlet.md3",
-    0, 0, 0},
-    "icons/iconw_gauntlet",
-    "Circular Saw",
-    0,
-    IT_WEAPON,
-    WP_GRABANDCSAW,
-    "",
-    ""
-  },
-
-/*QUAKED weapon_pounce (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_pounce",
-    "sound/misc/w_pkup.wav",
-        { "models/weapons2/gauntlet/gauntlet.md3",
-    0, 0, 0},
-    "icons/iconw_gauntlet",
-    "Claw and Pounce",
-    0,
-    IT_WEAPON,
-    WP_POUNCE,
-    "",
-    ""
-  },
-
-/*QUAKED weapon_dbuild (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_dbuild",
-    "sound/misc/w_pkup.wav",
-        { "models/weapons2/gauntlet/gauntlet.md3",
-    0, 0, 0},
-    "icons/iconw_gauntlet",
-    "Alien Build",
-    0,
-    IT_WEAPON,
-    WP_ABUILD,
-    "",
-    ""
-  },
-  
-/*QUAKED weapon_dbuild2 (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_dbuild2",
-    "sound/misc/w_pkup.wav",
-        { "models/weapons2/gauntlet/gauntlet.md3",
-    0, 0, 0},
-    "icons/iconw_gauntlet",
-    "Alien Build 2",
-    0,
-    IT_WEAPON,
-    WP_ABUILD2,
-    "",
-    ""
-  },
-  
-/*QUAKED weapon_hbuild (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_hbuild",
-    "sound/misc/w_pkup.wav",
-        { "models/weapons2/gauntlet/gauntlet.md3",
-    0, 0, 0},
-    "icons/iconw_gauntlet",
-    "HBuild",
-    0,
-    IT_WEAPON,
-    WP_HBUILD,
-    "",
-    ""
-  },
-  
-/*QUAKED weapon_hbuild2 (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_hbuild2",
-    "sound/misc/w_pkup.wav",
-        { "models/weapons2/gauntlet/gauntlet.md3",
-    0, 0, 0},
-    "icons/iconw_gauntlet",
-    "Human Build 2",
-    0,
-    IT_WEAPON,
-    WP_HBUILD2,
-    "",
-    ""
-  },
-  
-/*QUAKED weapon_shotgun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "weapon_shotgun",
-    "sound/misc/w_pkup.wav",
-        { "models/weapons2/shotgun/shotgun.md3",
-    0, 0, 0},
-    "icons/iconw_shotgun",
-    "Shotgun",
-    10,
-    IT_WEAPON,
-    WP_SHOTGUN,
-    "",
-    ""
-  },*/
-
-/*QUAKED weapon_machinegun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_machinegun",
-    "sound/misc/w_pkup.wav",
-    { "models/weapons2/machinegun/machinegun.md3",
-    0, 0, 0},
-    "icons/iconw_machinegun",
-    "Machinegun",
-    40,
-    IT_WEAPON,
-    WP_MACHINEGUN,
-    "",
-    ""
-  },
-
-/*QUAKED weapon_chaingun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_chaingun",
-    "sound/misc/w_pkup.wav",
-    { "models/weapons2/machinegun/machinegun.md3",
-    0, 0, 0},
-    "icons/iconw_machinegun",
-    "Chaingun",
-    40,
-    IT_WEAPON,
-    WP_CHAINGUN,
-    "",
-    ""
-  },
-  
-/*QUAKED weapon_massdriver (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_massdriver",
-    "sound/misc/w_pkup.wav",
-    { "models/weapons2/bfg/bfg.md3",
-    0, 0, 0},
-    "icons/iconw_bfg",
-    "Mass Driver",
-    40,
-    IT_WEAPON,
-    WP_MASS_DRIVER,
-    "",
-    ""
-  },
-  
-/*QUAKED weapon_pulserifle (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_pulserifle",
-    "sound/misc/w_pkup.wav",
-    { "models/weapons2/plasma/plasma.md3",
-    0, 0, 0},
-    "icons/iconw_gauntlet",
-    "Pulse Rifle",
-    40,
-    IT_WEAPON,
-    WP_PULSE_RIFLE,
-    "",
-    ""
-  },
-  
-/*QUAKED weapon_ggrenade (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_ggrenade",
-    "sound/misc/w_pkup.wav",
-        { "models/weapons2/gauntlet/gauntlet.md3",
-    0, 0, 0},
-    "icons/iconw_gauntlet",
-    "Gas Grenade",
-    0,
-    IT_WEAPON,
-    WP_GGRENADE,
-    "",
-    ""
-  },
-
-/*QUAKED weapon_grenadelauncher (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "weapon_grenadelauncher",
-    "sound/misc/w_pkup.wav",
-    { "models/weapons2/grenadel/grenadel.md3",
-    0, 0, 0},
-    "icons/iconw_grenade",
-    "Grenade Launcher",
-    10,
-    IT_WEAPON,
-    WP_GRENADE_LAUNCHER,
-    "",
-    "sound/weapons/grenade/hgrenb1a.wav sound/weapons/grenade/hgrenb2a.wav"
-  },*/
-
-/*QUAKED weapon_rocketlauncher (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "weapon_rocketlauncher",
-    "sound/misc/w_pkup.wav",
-    { "models/weapons2/rocketl/rocketl.md3",
-    0, 0, 0},
-    "icons/iconw_rocket",
-    "Rocket Launcher",
-    10,
-    IT_WEAPON,
-    WP_ROCKET_LAUNCHER,
-    "",
-    ""
-  },*/
-
-/*QUAKED weapon_teslagen (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_teslagen",
-    "sound/misc/w_pkup.wav",
-    { 0, 0, 0, 0},
-    "icons/iconw_lightning",
-    "Tesla Generator",
-    100,
-    IT_WEAPON,
-    WP_TESLAGEN,
-    "",
-    ""
-  },
-
-/*QUAKED weapon_railgun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_railgun",
-    "sound/misc/w_pkup.wav",
-    { 0, 0, 0, 0},
-    "icons/iconw_railgun",
-    "Railgun",
-    10,
-    IT_WEAPON,
-    WP_RAILGUN,
-    "",
-    ""
-  },
-
-/*QUAKED weapon_sawbladelauncher (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_lockbloblauncher",
-    "sound/misc/w_pkup.wav",
-    { 0, 0, 0, 0},
-    "icons/iconw_rocket",
-    "Lockblob Launcher",
-    10,
-    IT_WEAPON,
-    WP_LOCKBLOB_LAUNCHER,
-    "",
-    ""
-  },
-
-/*QUAKED weapon_plasmagun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_plasmagun",
-    "sound/misc/w_pkup.wav",
-    { "models/weapons2/plasma/plasma.md3",
-    0, 0, 0},
-    "icons/iconw_plasma",
-    "Plasma Gun",
-    50,
-    IT_WEAPON,
-    WP_PLASMAGUN,
-    "",
-    ""
-  },
-  
-/*QUAKED weapon_flamer (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_flamer",
-    "sound/misc/w_pkup.wav",
-    { "models/weapons2/plasma/plasma.md3",
-    0, 0, 0},
-    "icons/iconw_plasma",
-    "Flame Thrower",
-    50,
-    IT_WEAPON,
-    WP_FLAMER,
-    "",
-    ""
-  },
-
-/*QUAKED weapon_bfg (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_bfg",
-    "sound/misc/w_pkup.wav",
-    { "models/weapons2/bfg/bfg.md3",
-    0, 0, 0},
-    "icons/iconw_bfg",
-    "Dual BFG",
-    0,
-    IT_WEAPON,
-    WP_BFG,
-    "",
-    ""
-  },
-
-/*QUAKED weapon_grapplinghook (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "weapon_grapplinghook",
-    "sound/misc/w_pkup.wav",
-    { "models/weapons2/grapple/grapple.md3",
-    0, 0, 0},
-    "Grappling Hook",
-    0,
-    IT_WEAPON,
-    WP_GRAPPLING_HOOK,
-    "",
-    ""
-  },*/
-
-  //
-  // AMMO ITEMS
-  //
-
-/*QUAKED ammo_shells (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "ammo_shells",
-    "sound/misc/am_pkup.wav",
-    { "models/powerups/ammo/shotgunam.md3",
-    0, 0, 0},
-    "icons/icona_shotgun",
-    "Shells",
-    10,
-    IT_AMMO,
-    WP_SHOTGUN,
-    "",
-    ""
-  },*/
-
-/*QUAKED ammo_bullets (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "ammo_bullets",
-    "sound/misc/am_pkup.wav",
-    { "models/powerups/ammo/machinegunam.md3",
-    0, 0, 0},
-    "icons/icona_machinegun",
-    "Bullets",
-    50,
-    IT_AMMO,
-    WP_MACHINEGUN,
-    "",
-    ""
-  },*/
-
-/*QUAKED ammo_grenades (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "ammo_grenades",
-    "sound/misc/am_pkup.wav",
-    { "models/powerups/ammo/grenadeam.md3",
-    0, 0, 0},
-    "icons/icona_grenade",
-    "Grenades",
-    5,
-    IT_AMMO,
-    WP_GRENADE_LAUNCHER,
-    "",
-    ""
-  },*/
-
-/*QUAKED ammo_cells (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "ammo_cells",
-    "sound/misc/am_pkup.wav",
-    { "models/powerups/ammo/plasmaam.md3",
-    0, 0, 0},
-    "icons/icona_plasma",
-    "Cells",
-    30,
-    IT_AMMO,
-    WP_PLASMAGUN,
-    "",
-    ""
-  },*/
-
-/*QUAKED ammo_lightning (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "ammo_lightning",
-    "sound/misc/am_pkup.wav",
-    { "models/powerups/ammo/lightningam.md3",
-    0, 0, 0},
-    "icons/icona_lightning",
-    "Lightning",
-    60,
-    IT_AMMO,
-    WP_LIGHTNING,
-    "",
-    ""
-  },*/
-
-/*QUAKED ammo_rockets (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "ammo_rockets",
-    "sound/misc/am_pkup.wav",
-    { "models/powerups/ammo/rocketam.md3",
-    0, 0, 0},
-    "icons/icona_rocket",
-    "Rockets",
-    5,
-    IT_AMMO,
-    WP_ROCKET_LAUNCHER,
-    "",
-    ""
-  },*/
-
-/*QUAKED ammo_slugs (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "ammo_slugs",
-    "sound/misc/am_pkup.wav",
-    { "models/powerups/ammo/railgunam.md3",
-    0, 0, 0},
-    "icons/icona_railgun",
-    "Slugs",
-    10,
-    IT_AMMO,
-    WP_RAILGUN,
-    "",
-    ""
-  },*/
-
-/*QUAKED ammo_bfg (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "ammo_bfg",
-    "sound/misc/am_pkup.wav",
-    { "models/powerups/ammo/bfgam.md3",
-    0, 0, 0},
-    "icons/icona_bfg",
-    "Bfg Ammo",
-    15,
-    IT_AMMO,
-    WP_BFG,
-    "",
-    ""
-  },*/
-
-  //
-  // HOLDABLE ITEMS
-  //
-/*QUAKED holdable_teleporter (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "holdable_teleporter",
-    "sound/items/holdable.wav",
-    { "models/powerups/holdable/teleporter.md3",
-    0, 0, 0},
-    "icons/teleporter",
-    "Personal Teleporter",
-    60,
-    IT_HOLDABLE,
-    HI_TELEPORTER,
-    "",
-    ""
-  },*/
-
-/*QUAKED holdable_medkit (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "holdable_medkit",
-    "sound/items/holdable.wav",
-    { "models/powerups/holdable/medkit.md3",
-    "models/powerups/holdable/medkit_sphere.md3",
-    0, 0},
-    "icons/medkit",
-    "Medkit",
-    60,
-    IT_HOLDABLE,
-    HI_MEDKIT,
-    "",
-    "sound/items/use_medkit.wav"
-  },*/
-
-  //
-  // POWERUP ITEMS
-  //
-/*QUAKED item_quad (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "item_quad",
-    "sound/items/quaddamage.wav",
-    { "models/powerups/instant/quad.md3",
-    "models/powerups/instant/quad_ring.md3",
-    0, 0 },
-    "icons/quad",
-    "Quad Damage",
-    30,
-    IT_POWERUP,
-    PW_QUAD,
-    "",
-    "sound/items/damage2.wav sound/items/damage3.wav"
-  },*/
-
-/*QUAKED item_enviro (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "item_enviro",
-    "sound/items/protect.wav",
-    { "models/powerups/instant/enviro.md3",
-    "models/powerups/instant/enviro_ring.md3",
-    0, 0 },
-    "icons/envirosuit",
-    "Battle Suit",
-    30,
-    IT_POWERUP,
-    PW_BATTLESUIT,
-    "",
-    "sound/items/airout.wav sound/items/protect3.wav"
-  },*/
-
-/*QUAKED item_haste (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "item_haste",
-    "sound/items/haste.wav",
-    { "models/powerups/instant/haste.md3",
-    "models/powerups/instant/haste_ring.md3",
-    0, 0 },
-    "icons/haste",
-    "Speed",
-    30,
-    IT_POWERUP,
-    PW_HASTE,
-    "",
-    ""
-  },*/
-
-/*QUAKED item_invis (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "item_invis",
-    "sound/items/invisibility.wav",
-    { "models/powerups/instant/invis.md3",
-    "models/powerups/instant/invis_ring.md3",
-    0, 0 },
-    "icons/invis",
-    "Invisibility",
-    30,
-    IT_POWERUP,
-    PW_INVIS,
-    "",
-    ""
-  },*/
-
-/*QUAKED item_regen (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "item_regen",
-    "sound/items/regeneration.wav",
-    { "models/powerups/instant/regen.md3",
-    "models/powerups/instant/regen_ring.md3",
-    0, 0 },
-    "icons/regen",
-    "Regeneration",
-    30,
-    IT_POWERUP,
-    PW_REGEN,
-    "",
-    "sound/items/regen.wav"
-  },*/
-
-/*QUAKED item_flight (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  /*{
-    "item_flight",
-    "sound/items/flight.wav",
-    { "models/powerups/instant/flight.md3",
-    "models/powerups/instant/flight_ring.md3",
-    0, 0 },
-    "icons/flight",
-    "Flight",
-    60,
-    IT_POWERUP,
-    PW_FLIGHT,
-    "",
-    "sound/items/flight.wav"
-  },*/
-
-/*QUAKED upgrade_torch (0 0 1) (-16 -16 -16) (16 16 16)
-*/
-  {
-    "upgrade_torch",
-    "sound/items/holdable.wav",
-    { 0, 0, 0, 0 },
-    "icons/teleporter", //icon
-    "Torch",      //pickup
-    0,
-    IT_UPGRADE,
-    UP_TORCH,
-    "",                 //precache
-    ""                  //sounds
-  },
-  
-/*QUAKED upgrade_nvg (0 0 1) (-16 -16 -16) (16 16 16)
-*/
-  {
-    "upgrade_nvg",
-    "sound/items/holdable.wav",
-    { 0, 0, 0, 0 },
-    "icons/teleporter", //icon
-    "NVG",      //pickup
-    0,
-    IT_UPGRADE,
-    UP_NVG,
-    "",                 //precache
-    ""                  //sounds
-  },
-  
-/*QUAKED upgrade_carmour (0 0 1) (-16 -16 -16) (16 16 16)
-*/
-  {
-    "upgrade_carmour",
-    "sound/items/holdable.wav",
-    { 0, 0, 0, 0 },
-    "icons/teleporter", //icon
-    "Chest Armour",      //pickup
-    0,
-    IT_UPGRADE,
-    UP_CHESTARMOUR,
-    "",                 //precache
-    ""                  //sounds
-  },
-  
-/*QUAKED upgrade_larmour (0 0 1) (-16 -16 -16) (16 16 16)
-*/
-  {
-    "upgrade_larmour",
-    "sound/items/holdable.wav",
-    { 0, 0, 0, 0 },
-    "icons/teleporter", //icon
-    "Limb Armour",      //pickup
-    0,
-    IT_UPGRADE,
-    UP_LIMBARMOUR,
-    "",                 //precache
-    ""                  //sounds
-  },
-  
-/*QUAKED upgrade_helmet (0 0 1) (-16 -16 -16) (16 16 16)
-*/
-  {
-    "upgrade_helmet",
-    "sound/items/holdable.wav",
-    { 0, 0, 0, 0 },
-    "icons/teleporter", //icon
-    "Helmet",      //pickup
-    0,
-    IT_UPGRADE,
-    UP_HELMET,
-    "",                 //precache
-    ""                  //sounds
-  },
-  
-/*QUAKED upgrade_bsuit (0 0 1) (-16 -16 -16) (16 16 16)
-*/
-  {
-    "upgrade_bsuit",
-    "sound/items/holdable.wav",
-    { 0, 0, 0, 0 },
-    "icons/teleporter", //icon
-    "Battle Suit",      //pickup
-    0,
-    IT_UPGRADE,
-    UP_BATTLESUIT,
-    "",                 //precache
-    ""                  //sounds
-  },
-  
-/*QUAKED team_CTF_redflag (1 0 0) (-16 -16 -16) (16 16 16)
-Only in CTF games
-*/
-  /*{
-    "team_CTF_redflag",
-    "sound/teamplay/flagtk_red.wav",
-    { "models/flags/r_flag.md3",
-    0, 0, 0 },
-    "icons/iconf_red1",
-    "Red Flag",
-    0,
-    IT_TEAM,
-    PW_REDFLAG,
-    "",
-    "sound/teamplay/flagcap_red.wav sound/teamplay/flagtk_red.wav sound/teamplay/flagret_red.wav"
-  },*/
-
-/*QUAKED team_CTF_blueflag (0 0 1) (-16 -16 -16) (16 16 16)
-Only in CTF games
-*/
-  /*{
-    "team_CTF_blueflag",
-    "sound/teamplay/flagtk_blu.wav",
-    { "models/flags/b_flag.md3",
-    0, 0, 0 },
-    "icons/iconf_blu1",
-    "Blue Flag",
-    0,
-    IT_TEAM,
-    PW_BLUEFLAG,
-    "",
-    "sound/teamplay/flagcap_blu.wav sound/teamplay/flagtk_blu.wav sound/teamplay/flagret_blu.wav"
-  },*/
-
-  // end of list marker
-  {NULL}
-};
-
-int   bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) - 1;
-
-////////////////////////////////////////////////////////////////////////////////
-
 buildableAttributes_t bg_buildableList[ ] =
 {
   {
@@ -1536,7 +602,7 @@ char *BG_FindNameForBuildable( int bclass )
   }
 
   //wimp out
-  return "";
+  return 0;
 }
 
 /*
@@ -1555,7 +621,7 @@ char *BG_FindHumanNameForBuildable( int bclass )
   }
 
   //wimp out
-  return "";
+  return 0;
 }
 
 /*
@@ -1574,7 +640,7 @@ char *BG_FindEntityNameForBuildable( int bclass )
   }
 
   //wimp out
-  return "";
+  return 0;
 }
 
 /*
@@ -1593,7 +659,7 @@ char *BG_FindModelsForBuildable( int bclass, int modelNum )
   }
 
   //wimp out
-  return "";
+  return 0;
 }
 
 /*
@@ -2344,7 +1410,7 @@ char *BG_FindNameForClassNum( int pclass )
   }
 
   //wimp out
-  return "";
+  return 0;
 }
 
 /*
@@ -2363,7 +1429,7 @@ char *BG_FindHumanNameForClassNum( int pclass )
   }
 
   //wimp out
-  return "";
+  return 0;
 }
 
 /*
@@ -2723,11 +1789,16 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "rifle",              //char      *weaponName;
     "Rifle",              //char      *weaponHumanName;
+    { "models/weapons2/machinegun/machinegun.md3", 0, 0, 0 },
+    "icons/iconw_machinegun",
     30,                   //int       quan;
     3,                    //int       clips;
     3,                    //int       maxClips;
+    qfalse,               //int       infiniteAmmo;
+    100,                  //int       repeatRate;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
+    qtrue,                //qboolean  purchasable;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -2736,11 +1807,16 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "flamer",             //char      *weaponName;
     "Flame Thrower",      //char      *weaponHumanName;
+    { "models/weapons2/plasma/plasma.md3", 0, 0, 0 },
+    "icons/iconw_plasma",
     400,                  //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
+    qfalse,               //int       infiniteAmmo;
+    40,                   //int       repeatRate;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
+    qtrue,                //qboolean  purchasable;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -2749,11 +1825,16 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "chaingun",           //char      *weaponName;
     "Chaingun",           //char      *weaponHumanName;
+    { "models/weapons2/machinegun/machinegun.md3", 0, 0, 0 },
+    "icons/iconw_machinegun",
     300,                  //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
+    qfalse,               //int       infiniteAmmo;
+    50,                   //int       repeatRate;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
+    qtrue,                //qboolean  purchasable;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -2762,11 +1843,16 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "mdriver",            //char      *weaponName;
     "Mass Driver",        //char      *weaponHumanName;
+    { "models/weapons2/bfg/bfg.md3", 0, 0, 0 },
+    "icons/iconw_bfg",
     5,                    //int       quan;
     2,                    //int       clips;
     3,                    //int       maxClips;
+    qfalse,               //int       infiniteAmmo;
+    1000,                 //int       repeatRate;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
+    qtrue,                //qboolean  purchasable;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -2775,11 +1861,16 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "prifle",             //char      *weaponName;
     "Pulse Rifle",        //char      *weaponHumanName;
+    { "models/weapons2/plasma/plasma.md3", 0, 0, 0 },
+    "icons/iconw_plasma",
     50,                   //int       quan;
     3,                    //int       clips;
     3,                    //int       maxClips;
+    qfalse,               //int       infiniteAmmo;
+    50,                   //int       repeatRate;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
+    qtrue,                //qboolean  purchasable;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -2788,11 +1879,16 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "ckit",               //char      *weaponName;
     "Construction Kit",   //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    1000,                 //int       repeatRate;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
+    qtrue,                //qboolean  purchasable;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -2801,11 +1897,16 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "ackit",              //char      *weaponName;
     "Adv Construction Kit",//char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    1000,                 //int       repeatRate;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
+    qtrue,                //qboolean  purchasable;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -2814,11 +1915,16 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "dbuild",             //char      *weaponName;
     "Alien build weapon", //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    1000,                 //int       repeatRate;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
+    qfalse,               //qboolean  purchasable;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
@@ -2827,11 +1933,16 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "dbuild2",            //char      *weaponName;
     "Alien build weapon2",//char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    1000,                 //int       repeatRate;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
+    qfalse,               //qboolean  purchasable;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
@@ -2840,11 +1951,16 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "venom",              //char      *weaponName;
     "Venom",              //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    500,                  //int       repeatRate;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
+    qfalse,               //qboolean  purchasable;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
@@ -2853,11 +1969,16 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "grabandcsaw",        //char      *weaponName;
     "Circular Saw",       //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    500,                  //int       repeatRate;
     qtrue,                //qboolean  hasAltMode;
     qtrue,                //qboolean  synced;
+    qfalse,               //qboolean  purchasable;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
@@ -2866,12 +1987,71 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "pounce",             //char      *weaponName;
     "Claw and pounce",    //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    750,                  //int       repeatRate;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
+    qfalse,               //qboolean  purchasable;
     WUT_ALIENS            //WUTeam_t  team;
+  },
+  {
+    WP_LOCKBLOB_LAUNCHER, //int       weaponNum;
+    100,                  //int       price;
+    SLOT_WEAPON,          //int       slots;
+    "lockblob",           //char      *weaponName;
+    "Lock Blob",          //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    500,                  //int       repeatRate;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  synced;
+    qfalse,               //qboolean  purchasable;
+    WUT_ALIENS            //WUTeam_t  team;
+  },
+  {
+    WP_TESLAGEN,          //int       weaponNum;
+    100,                  //int       price;
+    SLOT_WEAPON,          //int       slots;
+    "teslagen",           //char      *weaponName;
+    "Tesla Generator",    //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    500,                  //int       repeatRate;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  synced;
+    qfalse,               //qboolean  purchasable;
+    WUT_HUMANS            //WUTeam_t  team;
+  },
+  {
+    WP_PLASMAGUN,         //int       weaponNum;
+    100,                  //int       price;
+    SLOT_WEAPON,          //int       slots;
+    "plasmagun",          //char      *weaponName;
+    "Plasma Gun",         //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    500,                  //int       repeatRate;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  synced;
+    qfalse,               //qboolean  purchasable;
+    WUT_HUMANS            //WUTeam_t  team;
   }
 };
 
@@ -2933,7 +2113,7 @@ char *BG_FindNameForWeapon( int weapon )
   }
 
   //wimp out
-  return "";
+  return 0;
 }
 
 /*
@@ -2971,7 +2151,45 @@ char *BG_FindHumanNameForWeapon( int weapon )
   }
 
   //wimp out
-  return "";
+  return 0;
+}
+
+/*
+==============
+BG_FindModelsForWeapon
+==============
+*/
+char *BG_FindModelsForWeapon( int weapon, int modelNum )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+      return bg_weapons[ i ].models[ modelNum ];
+  }
+
+  //wimp out
+  return 0;
+}
+
+/*
+==============
+BG_FindIconForWeapon
+==============
+*/
+char *BG_FindIconForWeapon( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+      return bg_weapons[ i ].icon;
+  }
+
+  //wimp out
+  return 0;
 }
 
 /*
@@ -2998,6 +2216,46 @@ void BG_FindAmmoForWeapon( int weapon, int *quan, int *clips, int *maxClips )
       break;
     }
   }
+}
+
+/*
+==============
+BG_FindInfinteAmmoForWeapon
+==============
+*/
+qboolean BG_FindInfinteAmmoForWeapon( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+    {
+      return bg_weapons[ i ].infiniteAmmo;
+    }
+  }
+
+  return qfalse;
+}
+
+/*
+==============
+BG_FindRepeatRateForWeapon
+==============
+*/
+int BG_FindRepeatRateForWeapon( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+    {
+      return bg_weapons[ i ].repeatRate;
+    }
+  }
+  
+  return 1000;
 }
 
 /*
@@ -3042,6 +2300,26 @@ qboolean BG_WeaponModesAreSynced( int weapon )
 
 /*
 ==============
+BG_FindPurchasableForWeapon
+==============
+*/
+qboolean BG_FindPurchasableForWeapon( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+    {
+      return bg_weapons[ i ].purchasable;
+    }
+  }
+
+  return qfalse;
+}
+
+/*
+==============
 BG_FindTeamForWeapon
 ==============
 */
@@ -3070,6 +2348,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_NONE,              //int   slots;
     "torch",                //char  *upgradeName;
     "Torch",                //char  *upgradeHumanName;
+    "icons/iconw_gauntlet",
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -3078,6 +2357,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_HEAD,              //int   slots;
     "nvg",                  //char  *upgradeName;
     "NVG",                  //char  *upgradeHumanName;
+    "icons/iconw_gauntlet",
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -3086,6 +2366,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_TORSO,             //int   slots;
     "carmour",              //char  *upgradeName;
     "Chest Armour",         //char  *upgradeHumanName;
+    "icons/iconw_gauntlet",
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -3094,6 +2375,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_ARMS|SLOT_LEGS,    //int   slots;
     "larmour",              //char  *upgradeName;
     "Limb Armour",          //char  *upgradeHumanName;
+    "icons/iconw_gauntlet",
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -3102,6 +2384,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_HEAD,              //int   slots;
     "helmet",               //char  *upgradeName;
     "Helmet",               //char  *upgradeHumanName;
+    "icons/iconw_gauntlet",
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -3110,6 +2393,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_NONE,              //int   slots;
     "atoxin",               //char  *upgradeName;
     "Anti-toxin",           //char  *upgradeHumanName;
+    "icons/iconw_gauntlet",
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -3118,6 +2402,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_BACKPACK,          //int   slots;
     "battpack",             //char  *upgradeName;
     "Battery Pack",         //char  *upgradeHumanName;
+    "icons/iconw_gauntlet",
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -3126,6 +2411,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_BACKPACK,          //int   slots;
     "jetpack",              //char  *upgradeName;
     "Jet Pack",             //char  *upgradeHumanName;
+    "icons/iconw_gauntlet",
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -3134,6 +2420,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS, //int   slots;
     "bsuit",                                  //char  *upgradeName;
     "Battlesuit",                             //char  *upgradeHumanName;
+    "icons/iconw_gauntlet",
     WUT_HUMANS              //WUTeam_t  team;
   }
 };
@@ -3196,7 +2483,7 @@ char *BG_FindNameForUpgrade( int upgrade )
   }
 
   //wimp out
-  return "";
+  return 0;
 }
 
 /*
@@ -3234,7 +2521,26 @@ char *BG_FindHumanNameForUpgrade( int upgrade )
   }
 
   //wimp out
-  return "";
+  return 0;
+}
+
+/*
+==============
+BG_FindIconForUpgrade
+==============
+*/
+char *BG_FindIconForUpgrade( int upgrade )
+{
+  int i;
+
+  for( i = 0; i < bg_numUpgrades; i++ )
+  {
+    if( bg_upgrades[ i ].upgradeNum == upgrade )
+      return bg_upgrades[ i ].icon;
+  }
+
+  //wimp out
+  return 0;
 }
 
 /*
@@ -3258,225 +2564,6 @@ WUTeam_t BG_FindTeamForUpgrade( int upgrade )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-/*
-==============
-BG_FindItemForPowerup
-==============
-*/
-gitem_t *BG_FindItemForPowerup( powerup_t pw ) {
-  int   i;
-
-  for ( i = 0 ; i < bg_numItems ; i++ ) {
-    if ( (bg_itemlist[i].giType == IT_POWERUP /*||
-        bg_itemlist[i].giType == IT_TEAM ||
-        bg_itemlist[i].giType == IT_PERSISTANT_POWERUP*/) &&
-      bg_itemlist[i].giTag == pw ) {
-      return &bg_itemlist[i];
-    }
-  }
-
-  return NULL;
-}
-
-
-/*
-==============
-BG_FindItemForHoldable
-==============
-*/
-gitem_t *BG_FindItemForHoldable( holdable_t pw ) {
-  int   i;
-
-  for ( i = 0 ; i < bg_numItems ; i++ ) {
-    if ( bg_itemlist[i].giType == IT_HOLDABLE && bg_itemlist[i].giTag == pw ) {
-      return &bg_itemlist[i];
-    }
-  }
-
-  Com_Error( ERR_DROP, "HoldableItem not found" );
-
-  return NULL;
-}
-
-
-/*
-===============
-BG_FindItemForWeapon
-
-===============
-*/
-gitem_t *BG_FindItemForWeapon( weapon_t weapon ) {
-  gitem_t *it;
-
-  for ( it = bg_itemlist + 1 ; it->classname ; it++) {
-    if ( it->giType == IT_WEAPON && it->giTag == weapon ) {
-      return it;
-    }
-  }
-
-  Com_Error( ERR_DROP, "Couldn't find item for weapon %i", weapon);
-  return NULL;
-}
-
-
-/*
-===============
-BG_FindItemForUpgrade
-
-TA: new function for finding upgrade items
-===============
-*/
-gitem_t *BG_FindItemForUpgrade( upgrade_t upgrade ) {
-  gitem_t *it;
-
-  for ( it = bg_itemlist + 1 ; it->classname ; it++) {
-    if ( it->giType == IT_UPGRADE && it->giTag == upgrade ) {
-      return it;
-    }
-  }
-
-  Com_Error( ERR_DROP, "Couldn't find item for upgrade %i", upgrade);
-  return NULL;
-}
-
-
-/*
-===============
-BG_FindItem
-
-===============
-*/
-gitem_t *BG_FindItem( const char *pickupName ) {
-  gitem_t *it;
-
-  for ( it = bg_itemlist + 1 ; it->classname ; it++ ) {
-    if ( !Q_stricmp( it->pickup_name, pickupName ) )
-      return it;
-  }
-
-  return NULL;
-}
-
-/*
-============
-BG_PlayerTouchesItem
-
-Items can be picked up without actually touching their physical bounds to make
-grabbing them easier
-============
-*/
-qboolean  BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime ) {
-  vec3_t    origin;
-
-  BG_EvaluateTrajectory( &item->pos, atTime, origin );
-
-  // we are ignoring ducked differences here
-  if ( ps->origin[0] - origin[0] > 44
-    || ps->origin[0] - origin[0] < -50
-    || ps->origin[1] - origin[1] > 36
-    || ps->origin[1] - origin[1] < -36
-    || ps->origin[2] - origin[2] > 36
-    || ps->origin[2] - origin[2] < -36 ) {
-    return qfalse;
-  }
-
-  return qtrue;
-}
-
-/*
-================
-BG_CanItemBeGrabbed
-
-Returns false if the item should not be picked up.
-This needs to be the same for client side prediction and server use.
-================
-*/
-qboolean  BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps ) {
-  gitem_t *item;
-
-  if ( ent->modelindex < 1 || ent->modelindex >= bg_numItems ) {
-    Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: index out of range" );
-  }
-
-  item = &bg_itemlist[ent->modelindex];
-
-  switch( item->giType ) {
-  case IT_WEAPON:
-    return qtrue; // weapons are always picked up
-
-  case IT_AMMO:
-    if ( ps->ammo[ item->giTag ] >= 200 ) {
-      return qfalse;    // can't hold any more
-    }
-    return qtrue;
-
-  case IT_ARMOR:
-    if ( ps->stats[STAT_ARMOR] >= ps->stats[STAT_MAX_HEALTH] * 2 ) {
-      return qfalse;
-    }
-    return qtrue;
-
-  case IT_HEALTH:
-    // small and mega healths will go over the max, otherwise
-    // don't pick up if already at max
-    if ( item->quantity == 5 || item->quantity == 100 ) {
-      if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] * 2 ) {
-        return qfalse;
-      }
-      return qtrue;
-    }
-
-    if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] ) {
-      return qfalse;
-    }
-    return qtrue;
-
-  case IT_POWERUP:
-    return qtrue; // powerups are always picked up
-
-  case IT_TEAM: // team items, such as flags
-    // ent->modelindex2 is non-zero on items if they are dropped
-    // we need to know this because we can pick up our dropped flag (and return it)
-    // but we can't pick up our flag at base
-    if (ps->persistant[PERS_TEAM] == TEAM_HUMANS) {
-      //TA: remove powerups
-      /*if (item->giTag == PW_BLUEFLAG ||
-        (item->giTag == PW_REDFLAG && ent->modelindex2) ||
-        (item->giTag == PW_REDFLAG && ps->powerups[PW_BLUEFLAG]))
-        return qtrue;*/
-    } else if (ps->persistant[PERS_TEAM] == TEAM_ALIENS) {
-      /*if (item->giTag == PW_REDFLAG ||
-        (item->giTag == PW_BLUEFLAG && ent->modelindex2) ||
-        (item->giTag == PW_BLUEFLAG && ps->powerups[PW_REDFLAG]))
-        return qtrue;*/
-    }
-    return qfalse;
-
-  //TA: not using the q3 holdable items code
-  /*case IT_HOLDABLE:
-    // can only hold one item at a time
-    if ( ps->stats[STAT_HOLDABLE_ITEM] ) {
-      return qfalse;
-    }
-    return qtrue;*/
-
-  case IT_BAD:
-    Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: IT_BAD" );
-    
-  default:
-#ifndef Q3_VM
-#ifndef NDEBUG // bk0001204
-    Com_Printf("BG_CanItemBeGrabbed: unknown enum %d\n", item->giType );
-#endif
-#endif
-    break;
-  }
-
-  return qfalse;
-}
-
-//======================================================================
 
 /*
 ================
@@ -3967,28 +3054,6 @@ void BG_packAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int quan, int clip
     ammo[ weapon ] = weaponvalue;
   else if( weapon >= 16 )
     ammo2[ weapon - 16 ] = weaponvalue;
-}
-
-//TA: check whether infinite ammo
-qboolean BG_infiniteAmmo( int weapon )
-{
-  switch( weapon )
-  {
-    case WP_VENOM:
-    case WP_GRABANDCSAW:
-    case WP_POUNCE:
-    case WP_ABUILD:
-    case WP_ABUILD2:
-    case WP_HBUILD:
-    case WP_HBUILD2:
-      return qtrue;
-      break;
-
-    //nothing else has infinite ammo
-    default:
-      return qfalse;
-      break;
-  }
 }
 
 //TA: pack weapons into the array

@@ -1022,27 +1022,27 @@ void FireWeapon2( gentity_t *ent )
   // fire the specific weapon
   switch( ent->s.weapon )
   {
-    case WP_GAUNTLET:
+/*    case WP_GAUNTLET:
       Weapon_Gauntlet( ent );
-      break;
+      break;*/
     case WP_TESLAGEN:
       Weapon_TeslaFire( ent );
       break;
-    case WP_SHOTGUN:
+/*    case WP_SHOTGUN:
       weapon_supershotgun_fire( ent );
-      break;
+      break;*/
     case WP_MACHINEGUN:
       Bullet_Fire( ent, MACHINEGUN_SPREAD, MACHINEGUN_DAMAGE, MOD_MACHINEGUN );
       break;
     case WP_CHAINGUN:
       Bullet_Fire( ent, CHAINGUN_SPREAD, CHAINGUN_DAMAGE, MOD_CHAINGUN );
       break;
-    case WP_GRENADE_LAUNCHER:
+/*    case WP_GRENADE_LAUNCHER:
       weapon_grenadelauncher_fire( ent );
-      break;
-    case WP_ROCKET_LAUNCHER:
+      break;*/
+/*    case WP_ROCKET_LAUNCHER:
       Weapon_RocketLauncher_Fire( ent );
-      break;
+      break;*/
     case WP_FLAMER:
       Weapon_Flamer_Fire( ent );
       break;
@@ -1052,20 +1052,20 @@ void FireWeapon2( gentity_t *ent )
     case WP_PULSE_RIFLE:
       Weapon_PulseRifle_Fire( ent );
       break;
-    case WP_RAILGUN:
+/*    case WP_RAILGUN:
       weapon_railgun_fire( ent );
-      break;
+      break;*/
     case WP_MASS_DRIVER:
       massDriverFire( ent );
       break;
     case WP_LOCKBLOB_LAUNCHER:
       break;
-    case WP_BFG:
+/*    case WP_BFG:
       BFG_Fire( ent );
-      break;
-    case WP_GRAPPLING_HOOK:
+      break;*/
+/*    case WP_GRAPPLING_HOOK:
       Weapon_GrapplingHook_Fire( ent );
-      break;
+      break;*/
     case WP_VENOM:
       Weapon_Venom_Fire( ent );
       break;
@@ -1115,27 +1115,27 @@ void FireWeapon( gentity_t *ent )
   // fire the specific weapon
   switch( ent->s.weapon )
   {
-    case WP_GAUNTLET:
+/*    case WP_GAUNTLET:
       Weapon_Gauntlet( ent );
-      break;
+      break;*/
     case WP_TESLAGEN:
       Weapon_TeslaFire( ent );
       break;
-    case WP_SHOTGUN:
+/*    case WP_SHOTGUN:
       weapon_supershotgun_fire( ent );
-      break;
+      break;*/
     case WP_MACHINEGUN:
       Bullet_Fire( ent, MACHINEGUN_SPREAD, MACHINEGUN_DAMAGE, MOD_MACHINEGUN );
       break;
     case WP_CHAINGUN:
       Bullet_Fire( ent, CHAINGUN_SPREAD, CHAINGUN_DAMAGE, MOD_CHAINGUN );
       break;
-    case WP_GRENADE_LAUNCHER:
+/*    case WP_GRENADE_LAUNCHER:
       weapon_grenadelauncher_fire( ent );
-      break;
-    case WP_ROCKET_LAUNCHER:
+      break;*/
+/*    case WP_ROCKET_LAUNCHER:
       Weapon_RocketLauncher_Fire( ent );
-      break;
+      break;*/
     case WP_FLAMER:
       Weapon_Flamer_Fire( ent );
       break;
@@ -1145,21 +1145,21 @@ void FireWeapon( gentity_t *ent )
     case WP_PULSE_RIFLE:
       Weapon_PulseRifle_Fire( ent );
       break;
-    case WP_RAILGUN:
+/*    case WP_RAILGUN:
       weapon_railgun_fire( ent );
-      break;
+      break;*/
     case WP_MASS_DRIVER:
       massDriverFire( ent );
       break;
     case WP_LOCKBLOB_LAUNCHER:
       Weapon_LockBlobLauncher_Fire( ent );
       break;
-    case WP_BFG:
+/*    case WP_BFG:
       BFG_Fire( ent );
-      break;
-    case WP_GRAPPLING_HOOK:
+      break;*/
+/*    case WP_GRAPPLING_HOOK:
       Weapon_GrapplingHook_Fire( ent );
-      break;
+      break;*/
     case WP_VENOM:
       Weapon_Venom_Fire( ent );
       break;

@@ -474,44 +474,6 @@ The server says this item is used on this level
 =================
 */
 static void CG_RegisterItemSounds( int itemNum ) {
-  gitem_t     *item;
-  char      data[MAX_QPATH];
-  char      *s, *start;
-  int       len;
-
-  item = &bg_itemlist[ itemNum ];
-
-  if( item->pickup_sound ) {
-    trap_S_RegisterSound( item->pickup_sound, qfalse );
-  }
-
-  // parse the space seperated precache string for other media
-  s = item->sounds;
-  if (!s || !s[0])
-    return;
-
-  while (*s) {
-    start = s;
-    while (*s && *s != ' ') {
-      s++;
-    }
-
-    len = s-start;
-    if (len >= MAX_QPATH || len < 5) {
-      CG_Error( "PrecacheItem: %s has bad precache string",
-        item->classname);
-      return;
-    }
-    memcpy (data, start, len);
-    data[len] = 0;
-    if ( *s ) {
-      s++;
-    }
-
-    if ( !strcmp(data+len-3, "wav" )) {
-      trap_S_RegisterSound( data, qfalse );
-    }
-  }
 }
 
 
@@ -637,12 +599,6 @@ static void CG_RegisterSounds( void ) {
 
   // only register the items that the server says we need
   strcpy( items, CG_ConfigString( CS_ITEMS ) );
-
-  for ( i = 1 ; i < bg_numItems ; i++ ) {
-    //if ( items[ i ] == '1' || cg_buildScript.integer ) {
-      CG_RegisterItemSounds( i );
-    //}
-  }
 
   for ( i = 1 ; i < MAX_SOUNDS ; i++ ) {
     soundName = CG_ConfigString( CS_SOUNDS+i );
@@ -873,15 +829,6 @@ static void CG_RegisterGraphics( void ) {
   // only register the items that the server says we need
   strcpy( items, CG_ConfigString( CS_ITEMS) );
 
-  for( i = 1; i < bg_numItems; i++ )
-  {
-    if( items[ i ] == '1' || cg_buildScript.integer )
-    {
-      CG_LoadingItem( i );
-      CG_RegisterItemVisuals( i );
-    }
-  }
-
   // wall marks
   cgs.media.bulletMarkShader = trap_R_RegisterShader( "gfx/damage/bullet_mrk" );
   cgs.media.burnMarkShader = trap_R_RegisterShader( "gfx/damage/burn_med_mrk" );
@@ -1107,6 +1054,8 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 
   //TA:
   CG_InitBuildables( );
+  CG_InitWeapons( );
+  CG_InitUpgrades( );
 
   CG_LoadingString( "clients" );
 

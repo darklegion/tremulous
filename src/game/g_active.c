@@ -278,15 +278,15 @@ void  G_TouchTriggers( gentity_t *ent ) {
 
     // use seperate code for determining if an item is picked up
     // so you don't have to actually contact its bounding box
-    if ( hit->s.eType == ET_ITEM || hit->s.eType == ET_BUILDABLE ) {
+/*    if ( hit->s.eType == ET_ITEM || hit->s.eType == ET_BUILDABLE ) {
       if ( !BG_PlayerTouchesItem( &ent->client->ps, &hit->s, level.time ) ) {
         continue;
       }
-    } else {
+    } else {*/
       if ( !trap_EntityContact( mins, maxs, hit ) ) {
         continue;
       }
-    }
+    /*}*/
 
     memset( &trace, 0, sizeof(trace) );
 
@@ -893,10 +893,10 @@ void ClientThink_real( gentity_t *ent ) {
   }*/
 
   // Let go of the hook if we aren't firing
-  if ( client->ps.weapon == WP_GRAPPLING_HOOK &&
+/*  if ( client->ps.weapon == WP_GRAPPLING_HOOK &&
     client->hook && !( ucmd->buttons & BUTTON_ATTACK ) ) {
     Weapon_HookFree(client->hook);
-  }
+  }*/
 
   //TA: torch stuff
   if( client->torch == NULL &&

@@ -390,8 +390,6 @@ void CG_Buildable( centity_t *cent )
   trace_t         tr;
 
   es = &cent->currentState;
-  if ( es->modelindex >= bg_numItems )
-    CG_Error( "Bad item index %i on entity", es->modelindex );
   
   //add creep
   if( es->modelindex2 == BIT_ALIENS )

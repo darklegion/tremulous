@@ -43,11 +43,11 @@ void CG_CheckAmmo( void ) {
     BG_unpackAmmoArray( i, cg.snap->ps.ammo, cg.snap->ps.powerups, &ammo, &clips, &maxclips );
     
 		switch ( i ) {
-		case WP_ROCKET_LAUNCHER:
+		/*case WP_ROCKET_LAUNCHER:*/
 		case WP_LOCKBLOB_LAUNCHER:
-		case WP_GRENADE_LAUNCHER:
-		case WP_RAILGUN:
-		case WP_SHOTGUN:
+		/*case WP_GRENADE_LAUNCHER:*/
+		/*case WP_RAILGUN:*/
+		/*case WP_SHOTGUN:*/
 			total += ammo * 1000;
 			break;
 		default:
@@ -56,7 +56,7 @@ void CG_CheckAmmo( void ) {
 			total += ammo * 200;
 			break;
 		}
-		if ( total >= 5000 || BG_infiniteAmmo( i ) )
+		if ( total >= 5000 || BG_FindInfinteAmmoForWeapon( i ) )
     {
 			cg.lowAmmoWarning = 0;
 			return;
