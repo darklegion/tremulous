@@ -1,5 +1,19 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
+
+/*
+ *  Portions Copyright (C) 2000-2001 Tim Angus
+ *
+ *  This program is free software; you can redistribute it and/or modify it
+ *  under the terms of the OSML - Open Source Modification License v1.0 as
+ *  described in the file COPYING which is distributed with this source
+ *  code.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ */
+
 /*
 =======================================================================
 

@@ -1,27 +1,16 @@
 /*
  *  Portions Copyright (C) 2000-2001 Tim Angus
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation; either version 2.1, or (at your option)
- *  any later version.
+ *  This program is free software; you can redistribute it and/or modify it
+ *  under the terms of the OSML - Open Source Modification License v1.0 as
+ *  described in the file COPYING which is distributed with this source
+ *  code.
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-/*  To assertain which portions are licensed under the LGPL and which are
- *  licensed by Id Software, Inc. please run a diff between the equivalent
- *  versions of the "Tremulous" modification and the unmodified "Quake3"
- *  game source code.
- */
-                  
 #include "g_local.h"
 
 /*
@@ -1491,8 +1480,7 @@ Checks to see if an item fits in a specific area
 */
 itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin )
 {
-  vec3_t            forward;
-  vec3_t            angles;
+  vec3_t            forward, angles;
   vec3_t            player_origin, entity_origin, target_origin;
   vec3_t            mins, maxs;
   vec3_t            temp_v;
@@ -1532,25 +1520,6 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
   {
     //droid criteria
-    //check there is creep near by for building on
-/*    if( BG_FindCreepTestForBuildable( buildable ) )
-    {
-      for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
-      {
-        if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
-          continue;
-
-        if( tempent->s.modelindex == BA_D_SPAWN || tempent->s.modelindex == BA_D_HIVEMIND )
-        {
-          VectorSubtract( entity_origin, tempent->s.origin, temp_v );
-          if( VectorLength( temp_v ) <= ( CREEP_BASESIZE * 3 ) )
-            break;
-        }
-      }
-
-      if( i >= level.num_entities )
-        reason = IBE_NOCREEP;
-    }*/
     
     //look for a hivemind
     for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
@@ -1834,4 +1803,78 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   trap_LinkEntity( built );
 
   return built;
+}
+
+/*
+=================
+G_ValidateBuild
+=================
+*/
+void G_ValidateBuild( gentity_t *ent, buildable_t buildable )
+{
+  weapon_t      weapon;
+  float         dist, speed, maxspeed;
+  vec3_t        origin;
+
+  speed = 0.0f; //temp hack
+  
+  maxspeed = BG_FindLaunchSpeedForClass( ent->client->ps.stats[ STAT_PCLASS ] );
+
+  if( speed > maxspeed )
+    speed = maxspeed;
+  
+  dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
+    
+  switch( G_itemFits( ent, buildable, dist, origin ) )
+  {
+    case IBE_NONE:
+      G_buildItem( ent, buildable, origin, ent->s.apos.trBase, speed );
+      break;
+
+    case IBE_NOASSERT:
+      G_AddPredictableEvent( ent, EV_MENU, MN_D_NOASSERT );
+      break;
+
+    case IBE_NOHIVEMIND:
+      G_AddPredictableEvent( ent, EV_MENU, MN_D_NOHVMND );
+      break;
+
+    case IBE_HIVEMIND:
+      G_AddPredictableEvent( ent, EV_MENU, MN_D_HIVEMIND );
+      break;
+
+    case IBE_REACTOR:
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_REACTOR );
+      break;
+
+    case IBE_REPEATER:
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_REPEATER );
+      break;
+
+    case IBE_NOROOM:
+      if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+        G_AddPredictableEvent( ent, EV_MENU, MN_H_NOROOM );
+      else
+        G_AddPredictableEvent( ent, EV_MENU, MN_D_NOROOM );
+      break;
+
+    case IBE_NOPOWER:
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_NOPOWER );
+      break;
+      
+    case IBE_SPWNWARN:
+      G_AddPredictableEvent( ent, EV_MENU, MN_D_SPWNWARN );
+      G_buildItem( ent, buildable, origin, ent->s.apos.trBase, speed );
+      break;
+      
+    case IBE_RPLWARN:
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_RPLWARN );
+      G_buildItem( ent, buildable, origin, ent->s.apos.trBase, speed );
+      break;
+      
+    case IBE_RPTWARN:
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_RPTWARN );
+      G_buildItem( ent, buildable, origin, ent->s.apos.trBase, speed );
+      break;
+  }
 }

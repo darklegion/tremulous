@@ -79,7 +79,6 @@ UIOBJ = \
 	$(GDIRNAME)/q_shared.o \
 	$(UIDIRNAME)/ui_atoms.o \
 	$(UIDIRNAME)/ui_players.o \
-	$(UIDIRNAME)/ui_util.o \
 	$(UIDIRNAME)/ui_shared.o \
 	$(UIDIRNAME)/ui_gameinfo.o
   

@@ -4,27 +4,16 @@
 /*
  *  Portions Copyright (C) 2000-2001 Tim Angus
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation; either version 2.1, or (at your option)
- *  any later version.
+ *  This program is free software; you can redistribute it and/or modify it
+ *  under the terms of the OSML - Open Source Modification License v1.0 as
+ *  described in the file COPYING which is distributed with this source
+ *  code.
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-/*  To assertain which portions are licensed under the LGPL and which are
- *  licensed by Id Software, Inc. please run a diff between the equivalent
- *  versions of the "Tremulous" modification and the unmodified "Quake3"
- *  game source code.
- */
-                  
 #include "g_local.h"
 
 /*
@@ -500,6 +489,28 @@ void ClientTimerActions( gentity_t *ent, int msec )
 
       if( client->ps.stats[ STAT_MISC ] > MAX_POUNCE_SPEED )
         client->ps.stats[ STAT_MISC ] = MAX_POUNCE_SPEED;
+    }
+
+    switch( client->ps.weapon )
+    {
+      case WP_DBUILD:
+      case WP_DBUILD2:
+      case WP_HBUILD:
+      case WP_HBUILD2:
+        if( ( client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
+        {
+          int     dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
+          vec3_t  dummy;
+          
+          if( G_itemFits( ent, client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT, dist, dummy ) == IBE_NONE )
+            client->ps.stats[ STAT_BUILDABLE ] |= SB_VALID_TOGGLEBIT;
+          else
+            client->ps.stats[ STAT_BUILDABLE ] &= ~SB_VALID_TOGGLEBIT;
+        }
+        break;
+        
+      default:
+        break;
     }
   }
 

@@ -1,29 +1,19 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
+
 /*
  *  Portions Copyright (C) 2000-2001 Tim Angus
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation; either version 2.1, or (at your option)
- *  any later version.
+ *  This program is free software; you can redistribute it and/or modify it
+ *  under the terms of the OSML - Open Source Modification License v1.0 as
+ *  described in the file COPYING which is distributed with this source
+ *  code.
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
-               
-/*  To assertain which portions are licensed under the LGPL and which are
- *  licensed by Id Software, Inc. please run a diff between the equivalent
- *  versions of the "Tremulous" modification and the unmodified "Quake3"
- *  game source code.
- */
-
+ 
 #include "g_local.h"
 
 // g_client.c -- client functions that don't happen every frame
@@ -1521,6 +1511,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
 
   ent->client->ps.stats[ STAT_PCLASS ] = ent->client->pers.pclass;
   ent->client->ps.stats[ STAT_PTEAM ] = ent->client->pers.pteam;
+  
+  ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
 
   // health will count down towards max_health
   ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH]; //* 1.25;

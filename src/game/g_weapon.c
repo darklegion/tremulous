@@ -6,25 +6,14 @@
 /*
  *  Portions Copyright (C) 2000-2001 Tim Angus
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation; either version 2.1, or (at your option)
- *  any later version.
+ *  This program is free software; you can redistribute it and/or modify it
+ *  under the terms of the OSML - Open Source Modification License v1.0 as
+ *  described in the file COPYING which is distributed with this source
+ *  code.
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- */
-
-/*  To assertain which portions are licensed under the LGPL and which are
- *  licensed by Id Software, Inc. please run a diff between the equivalent
- *  versions of the "Tremulous" modification and the unmodified "Quake3"
- *  game source code.
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 #include "g_local.h"
@@ -628,47 +617,32 @@ BUILD GUN
 */
 
 
-///////build weapons
 /*
 ===============
-Weapon_Dbuild_Fire
+Weapon_Cancel_Build
 ===============
 */
-void Weapon_Dbuild_Fire( gentity_t *ent )
+void Weapon_Cancel_Build( gentity_t *ent )
 {
-  G_AddPredictableEvent( ent, EV_MENU, MN_D_BUILD );
+  ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
 }
 
 /*
 ===============
-Weapon_Dbuild2_Fire
+Weapon_Build_Fire
 ===============
 */
-void Weapon_Dbuild2_Fire( gentity_t *ent )
+void Weapon_Build_Fire( gentity_t *ent, dynMenu_t menu )
 {
-  G_AddPredictableEvent( ent, EV_MENU, MN_D_BUILD );
+  if( ( ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
+  {
+    ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
+    G_ValidateBuild( ent, ent->client->ps.stats[ STAT_BUILDABLE ] );
+  }
+  else
+    G_AddPredictableEvent( ent, EV_MENU, menu );
 }
 
-/*
-===============
-Weapon_Hbuild_Fire
-===============
-*/
-void Weapon_Hbuild_Fire( gentity_t *ent )
-{
-  G_AddPredictableEvent( ent, EV_MENU, MN_H_BUILD );
-}
-
-/*
-===============
-Weapon_Hbuild2_Fire
-===============
-*/
-void Weapon_Hbuild2_Fire( gentity_t *ent )
-{
-  G_AddPredictableEvent( ent, EV_MENU, MN_H_BUILD );
-}
-///////build weapons
 
 /*
 ======================================================================
@@ -1100,16 +1074,16 @@ void FireWeapon2( gentity_t *ent )
     case WP_POUNCE:
       break;
     case WP_DBUILD:
-      Weapon_Dbuild_Fire( ent );
+      Weapon_Cancel_Build( ent );
       break;
     case WP_DBUILD2:
-      Weapon_Dbuild2_Fire( ent );
+      Weapon_Cancel_Build( ent );
       break;
     case WP_HBUILD:
-      Weapon_Hbuild_Fire( ent );
+      Weapon_Cancel_Build( ent );
       break;
     case WP_HBUILD2:
-      Weapon_Hbuild2_Fire( ent );
+      Weapon_Cancel_Build( ent );
       break;
     default:
   // FIXME    G_Error( "Bad ent->s.weapon" );
@@ -1194,16 +1168,16 @@ void FireWeapon( gentity_t *ent )
       Weapon_Claw_Fire( ent );
       break;
     case WP_DBUILD:
-      Weapon_Dbuild_Fire( ent );
+      Weapon_Build_Fire( ent, MN_D_BUILD );
       break;
     case WP_DBUILD2:
-      Weapon_Dbuild2_Fire( ent );
+      Weapon_Build_Fire( ent, MN_D_BUILD );
       break;
     case WP_HBUILD:
-      Weapon_Hbuild_Fire( ent );
+      Weapon_Build_Fire( ent, MN_H_BUILD );
       break;
     case WP_HBUILD2:
-      Weapon_Hbuild2_Fire( ent );
+      Weapon_Build_Fire( ent, MN_H_BUILD );
       break;
     default:
   // FIXME    G_Error( "Bad ent->s.weapon" );

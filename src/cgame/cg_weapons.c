@@ -5,27 +5,16 @@
 /*
  *  Portions Copyright (C) 2000-2001 Tim Angus
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation; either version 2.1, or (at your option)
- *  any later version.
+ *  This program is free software; you can redistribute it and/or modify it
+ *  under the terms of the OSML - Open Source Modification License v1.0 as
+ *  described in the file COPYING which is distributed with this source
+ *  code.
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-/*  To assertain which portions are licensed under the LGPL and which are
- *  licensed by Id Software, Inc. please run a diff between the equivalent
- *  versions of the "Tremulous" modification and the unmodified "Quake3"
- *  game source code.
- */
-                    
 #include "cg_local.h"
 
 /*
@@ -1353,8 +1342,9 @@ void CG_AddViewWeapon( playerState_t *ps ) {
     return;
   }
 
-  /*if( ps->stats[ STAT_BUILDABLE ] & SB_ACTIVE_TOGGLEBIT )*/
-    CG_GhostBuildable( BA_H_SPAWN );
+  //TA: draw a prospective buildable infront of the player
+  if( ( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
+    CG_GhostBuildable( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT );
 
   // no gun if in third person view
   if ( cg.renderingThirdPerson ) {
