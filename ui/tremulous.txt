@@ -14,4 +14,6 @@
 	loadMenu { "ui/tremulous_aliendialogs.menu" }
   
 	loadMenu { "ui/tremulous_alienupgrade.menu" }
+
+  loadMenu { "ui/ptrc.menu" }
 }
