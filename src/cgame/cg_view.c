@@ -1136,11 +1136,8 @@ static int CG_CalcViewValues( void )
   //shut off the poison cloud effect if it's still on the go
   if( cg.snap->ps.stats[ STAT_HEALTH ] <= 0 )
   {
-    if( cg.poisonCloudPS != NULL )
-    {
-      CG_DestroyParticleSystem( cg.poisonCloudPS );
-      cg.poisonCloudPS = NULL;
-    }
+    if( CG_IsParticleSystemValid( &cg.poisonCloudPS ) )
+      CG_DestroyParticleSystem( &cg.poisonCloudPS );
   }
   
   if( cg.renderingThirdPerson )
@@ -1274,13 +1271,18 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
     CG_AddPacketEntities( );     // adter calcViewValues, so predicted player state is correct
     CG_AddMarks( );
     CG_AddLocalEntities( );
+  }
+  
+  CG_AddViewWeapon( &cg.predictedPlayerState );
+
+  //after CG_AddViewWeapon
+  if( !cg.hyperspace )
+  {
     CG_AddParticles( );
 
     //TA: wolf trails stuff
 		CG_AddTrails( );		// this must come last, so the trails dropped this frame get drawn
   }
-  
-  CG_AddViewWeapon( &cg.predictedPlayerState );
 
   // add buffered sounds
   CG_PlayBufferedSounds( );

@@ -795,33 +795,26 @@ static void CG_BuildableParticleEffects( centity_t *cent )
   
   if( team == BIT_HUMANS )
   {
-    if( healthFrac < 0.33f && cent->buildablePS == NULL )
+    if( healthFrac < 0.33f && !CG_IsParticleSystemValid( &cent->buildablePS ) )
     {
       cent->buildablePS = CG_SpawnNewParticleSystem( cgs.media.humanBuildableDamagedPS );
       CG_SetParticleSystemCent( cent->buildablePS, cent );
       CG_AttachParticleSystemToCent( cent->buildablePS );
     }
-    else if( healthFrac >= 0.33f && cent->buildablePS != NULL )
-    {
-      CG_DestroyParticleSystem( cent->buildablePS );
-      cent->buildablePS = NULL;
-    }
+    else if( healthFrac >= 0.33f && CG_IsParticleSystemValid( &cent->buildablePS ) )
+      CG_DestroyParticleSystem( &cent->buildablePS );
   }
   else if( team == BIT_ALIENS )
   {
-    if( healthFrac < 0.33f && cent->buildablePS == NULL )
+    if( healthFrac < 0.33f && !CG_IsParticleSystemValid( &cent->buildablePS ) )
     {
       cent->buildablePS = CG_SpawnNewParticleSystem( cgs.media.alienBuildableDamagedPS );
       CG_SetParticleSystemCent( cent->buildablePS, cent );
       CG_SetParticleSystemNormal( cent->buildablePS, es->origin2 );
       CG_AttachParticleSystemToCent( cent->buildablePS );
     }
-    else if( healthFrac >= 0.33f && cent->buildablePS != NULL )
-    {
-      CG_DestroyParticleSystem( cent->buildablePS );
-      cent->buildablePS = NULL;
-    }
-    
+    else if( healthFrac >= 0.33f && CG_IsParticleSystemValid( &cent->buildablePS ) )
+      CG_DestroyParticleSystem( &cent->buildablePS );
   }
 }
 
@@ -930,11 +923,8 @@ void CG_Buildable( centity_t *cent )
   // if set to invisible, skip
   if( es->eFlags & EF_NODRAW )
   {
-    if( cent->buildablePS != NULL )
-    {
-      CG_DestroyParticleSystem( cent->buildablePS );
-      cent->buildablePS = NULL;
-    }
+    if( CG_IsParticleSystemValid( &cent->buildablePS ) )
+      CG_DestroyParticleSystem( &cent->buildablePS );
 
     return;
   }

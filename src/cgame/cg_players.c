@@ -1457,8 +1457,8 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
       {
         if( cent->jetPackState != JPS_ASCENDING )
         {
-          if( cent->jetPackPS != NULL )
-            CG_DestroyParticleSystem( cent->jetPackPS );
+          if( CG_IsParticleSystemValid( &cent->jetPackPS ) )
+            CG_DestroyParticleSystem( &cent->jetPackPS );
             
           cent->jetPackPS = CG_SpawnNewParticleSystem( cgs.media.jetPackAscendPS );
           cent->jetPackState = JPS_ASCENDING;
@@ -1471,8 +1471,8 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
       {
         if( cent->jetPackState != JPS_DESCENDING )
         {
-          if( cent->jetPackPS != NULL )
-            CG_DestroyParticleSystem( cent->jetPackPS );
+          if( CG_IsParticleSystemValid( &cent->jetPackPS ) )
+            CG_DestroyParticleSystem( &cent->jetPackPS );
             
           cent->jetPackPS = CG_SpawnNewParticleSystem( cgs.media.jetPackDescendPS );
           cent->jetPackState = JPS_DESCENDING;
@@ -1485,8 +1485,8 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
       {
         if( cent->jetPackState != JPS_HOVERING )
         {
-          if( cent->jetPackPS != NULL )
-            CG_DestroyParticleSystem( cent->jetPackPS );
+          if( CG_IsParticleSystemValid( &cent->jetPackPS ) )
+            CG_DestroyParticleSystem( &cent->jetPackPS );
             
           cent->jetPackPS = CG_SpawnNewParticleSystem( cgs.media.jetPackHoverPS );
           cent->jetPackState = JPS_HOVERING;
@@ -1510,25 +1510,23 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
       CG_PositionRotatedEntityOnTag( &flash, &jetpack, jetpack.hModel, "tag_flash" );
       trap_R_AddRefEntityToScene( &flash );
       
-      if( cent->jetPackPS != NULL )
+      if( CG_IsParticleSystemValid( &cent->jetPackPS ) )
       {
         CG_SetParticleSystemTag( cent->jetPackPS, jetpack, jetpack.hModel, "tag_flash" );
         CG_SetParticleSystemCent( cent->jetPackPS, cent );
         CG_AttachParticleSystemToTag( cent->jetPackPS );
       }
     }
-    else if( cent->jetPackPS != NULL )
+    else if( CG_IsParticleSystemValid( &cent->jetPackPS ) )
     {
-      CG_DestroyParticleSystem( cent->jetPackPS );
+      CG_DestroyParticleSystem( &cent->jetPackPS );
       cent->jetPackState = JPS_OFF;
-      cent->jetPackPS = NULL;
     }
   }
-  else if( cent->jetPackPS != NULL )
+  else if( CG_IsParticleSystemValid( &cent->jetPackPS ) )
   {
-    CG_DestroyParticleSystem( cent->jetPackPS );
+    CG_DestroyParticleSystem( &cent->jetPackPS );
     cent->jetPackState = JPS_OFF;
-    cent->jetPackPS = NULL;
   }
 
   if( es->eFlags & EF_BLOBLOCKED )
@@ -2103,11 +2101,11 @@ void CG_Player( centity_t *cent )
   //sanity check that particle systems are stopped when dead
   if( es->eFlags & EF_DEAD )
   {
-    if( cent->muzzlePS != NULL )
-      CG_DestroyParticleSystem( cent->muzzlePS );
+    if( CG_IsParticleSystemValid( &cent->muzzlePS ) )
+      CG_DestroyParticleSystem( &cent->muzzlePS );
     
-    if( cent->jetPackPS != NULL )
-      CG_DestroyParticleSystem( cent->jetPackPS );
+    if( CG_IsParticleSystemValid( &cent->jetPackPS ) )
+      CG_DestroyParticleSystem( &cent->jetPackPS );
   }
 }
 

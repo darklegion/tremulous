@@ -689,6 +689,7 @@ typedef struct weaponInfoMode_s
   qhandle_t   impactMark;
   qhandle_t   impactMarkSize;
   sfxHandle_t impactSound[ 4 ]; //random impact sound
+  sfxHandle_t impactFleshSound[ 4 ]; //random impact sound
   float       impactDlight;
   vec3_t      impactDlightColor;
 } weaponInfoMode_t;
@@ -1747,9 +1748,10 @@ void                CG_LoadParticleSystems( void );
 qhandle_t           CG_RegisterParticleSystem( char *name );
 
 particleSystem_t    *CG_SpawnNewParticleSystem( qhandle_t psHandle );
-void                CG_DestroyParticleSystem( particleSystem_t *ps );
+void                CG_DestroyParticleSystem( particleSystem_t **ps );
 
 qboolean            CG_IsParticleSystemInfinite( particleSystem_t *ps );
+qboolean            CG_IsParticleSystemValid( particleSystem_t **ps );
   
 void                CG_SetParticleSystemCent( particleSystem_t *ps, centity_t *cent );
 void                CG_AttachParticleSystemToCent( particleSystem_t *ps );

@@ -447,6 +447,29 @@ static qboolean CG_ParseWeaponModeSection( weaponInfoMode_t *wim, char **text_p 
       
       continue;
     }
+    else if( !Q_stricmp( token, "impactFleshSound" ) )
+    {
+      int index = 0;
+      
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      index = atoi( token );
+      
+      if( index < 0 )
+        index = 0;
+      else if( index > 3 )
+        index = 3;
+      
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      wim->impactFleshSound[ index ] = trap_S_RegisterSound( token, qfalse );
+      
+      continue;
+    }
     else if( !Q_stricmp( token, "impactDlightColor" ) )
     {
       for( i = 0 ; i < 3 ; i++ )
@@ -1079,7 +1102,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   if( ( nonPredictedCent - cg_entities ) != cent->currentState.clientNum )
     nonPredictedCent = cent;
 
-  if( cent->muzzlePS )
+  if( CG_IsParticleSystemValid( &cent->muzzlePS ) )
   {
     if( ps || cg.renderingThirdPerson ||
         cent->currentState.number != cg.predictedPlayerState.clientNum )
@@ -1095,10 +1118,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
           ( !( cent->currentState.eFlags & EF_FIRING2 ) && weaponMode == WPM_SECONDARY ) ||
           ( !( cent->currentState.eFlags & EF_FIRING3 ) && weaponMode == WPM_TERTIARY ) ) &&
         CG_IsParticleSystemInfinite( cent->muzzlePS ) )
-    {
-      CG_DestroyParticleSystem( cent->muzzlePS );
-      cent->muzzlePS = NULL;
-    }
+      CG_DestroyParticleSystem( &cent->muzzlePS );
   }
     
   // add the flash
@@ -1701,18 +1721,37 @@ void CG_MissileHitWall( weapon_t weaponNum, weaponMode_t weaponMode, int clientN
   VectorCopy( weapon->wim[ weaponMode ].impactDlightColor, lightColor );
   ps = weapon->wim[ weaponMode ].impactParticleSystem;
 
-  // play a sound
-  for( c = 0; c < 4; c++ )
+  if( soundType == IMPACTSOUND_FLESH )
   {
-    if( !weapon->wim[ weaponMode ].impactSound[ c ] )
-      break;
+    //flesh sound
+    for( c = 0; c < 4; c++ )
+    {
+      if( !weapon->wim[ weaponMode ].impactFleshSound[ c ] )
+        break;
+    }
+    
+    if( c > 0 )
+    {
+      c = rand( ) % c;
+      if( weapon->wim[ weaponMode ].impactFleshSound[ c ] )
+        trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, weapon->wim[ weaponMode ].impactFleshSound[ c ] );
+    }
   }
-  
-  if( c > 0 )
+  else
   {
-    c = rand( ) % c;
-    if( weapon->wim[ weaponMode ].impactSound[ c ] )
-      trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, weapon->wim[ weaponMode ].impactSound[ c ] );
+    //normal sound
+    for( c = 0; c < 4; c++ )
+    {
+      if( !weapon->wim[ weaponMode ].impactSound[ c ] )
+        break;
+    }
+    
+    if( c > 0 )
+    {
+      c = rand( ) % c;
+      if( weapon->wim[ weaponMode ].impactSound[ c ] )
+        trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, weapon->wim[ weaponMode ].impactSound[ c ] );
+    }
   }
 
   //create impact particle system

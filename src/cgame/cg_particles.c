@@ -1325,7 +1325,7 @@ Attach a particle system to a centity_t
 */
 void CG_AttachParticleSystemToCent( particleSystem_t *ps )
 {
-  if( ps == NULL )
+  if( ps == NULL || !ps->valid )
   {
     CG_Printf( S_COLOR_YELLOW "WARNING: tried to modify a NULL particle system\n" );
     return;
@@ -1344,7 +1344,7 @@ Set a particle system attachment means
 */
 void CG_SetParticleSystemCent( particleSystem_t *ps, centity_t *cent )
 {
-  if( ps == NULL )
+  if( ps == NULL || !ps->valid )
   {
     CG_Printf( S_COLOR_YELLOW "WARNING: tried to modify a NULL particle system\n" );
     return;
@@ -1363,7 +1363,7 @@ Attach a particle system to a model tag
 */
 void CG_AttachParticleSystemToTag( particleSystem_t *ps )
 {
-  if( ps == NULL )
+  if( ps == NULL || !ps->valid )
   {
     CG_Printf( S_COLOR_YELLOW "WARNING: tried to modify a NULL particle system\n" );
     return;
@@ -1383,7 +1383,7 @@ Set a particle system attachment means
 void CG_SetParticleSystemTag( particleSystem_t *ps, refEntity_t parent,
                               qhandle_t model, char *tagName )
 {
-  if( ps == NULL )
+  if( ps == NULL || !ps->valid )
   {
     CG_Printf( S_COLOR_YELLOW "WARNING: tried to modify a NULL particle system\n" );
     return;
@@ -1404,7 +1404,7 @@ Attach a particle system to a point in space
 */
 void CG_AttachParticleSystemToOrigin( particleSystem_t *ps )
 {
-  if( ps == NULL )
+  if( ps == NULL || !ps->valid )
   {
     CG_Printf( S_COLOR_YELLOW "WARNING: tried to modify a NULL particle system\n" );
     return;
@@ -1423,7 +1423,7 @@ Set a particle system attachment means
 */
 void CG_SetParticleSystemOrigin( particleSystem_t *ps, vec3_t origin )
 {
-  if( ps == NULL )
+  if( ps == NULL || !ps->valid )
   {
     CG_Printf( S_COLOR_YELLOW "WARNING: tried to modify a NULL particle system\n" );
     return;
@@ -1442,7 +1442,7 @@ Set a particle system attachment means
 */
 void CG_SetParticleSystemNormal( particleSystem_t *ps, vec3_t normal )
 {
-  if( ps == NULL )
+  if( ps == NULL || !ps->valid )
   {
     CG_Printf( S_COLOR_YELLOW "WARNING: tried to modify a NULL particle system\n" );
     return;
@@ -1461,15 +1461,17 @@ Destroy a particle system
 
 This doesn't actually invalidate anything, it just stops
 particle ejectors from producing new particles so the 
-garbage collector will eventually remove this system
+garbage collector will eventually remove this system.
+However is does set the pointer to NULL so the user is
+unable to manipulate this particle system any longer.
 ===============
 */
-void CG_DestroyParticleSystem( particleSystem_t *ps )
+void CG_DestroyParticleSystem( particleSystem_t **ps )
 {
   int               i;
   particleEjector_t *pe;
   
-  if( ps == NULL )
+  if( *ps == NULL || !(*ps)->valid )
   {
     CG_Printf( S_COLOR_YELLOW "WARNING: tried to destroy a NULL particle system\n" );
     return;
@@ -1482,9 +1484,11 @@ void CG_DestroyParticleSystem( particleSystem_t *ps )
   {
     pe = &particleEjectors[ i ];
     
-    if( pe->valid && pe->parent == ps )
+    if( pe->valid && pe->parent == *ps )
       pe->totalParticles = pe->count = 0;
   }
+
+  *ps = NULL;
 }
 
 /*
@@ -1499,7 +1503,7 @@ qboolean CG_IsParticleSystemInfinite( particleSystem_t *ps )
   int               i;
   particleEjector_t *pe;
 
-  if( ps == NULL )
+  if( ps == NULL || !ps->valid )
   {
     CG_Printf( S_COLOR_YELLOW "WARNING: tried to test a NULL particle system\n" );
     return qfalse;
@@ -1523,6 +1527,25 @@ qboolean CG_IsParticleSystemInfinite( particleSystem_t *ps )
   return qfalse;
 }
 
+/*
+===============
+CG_IsParticleSystemValid
+
+Test a particle system for validity
+===============
+*/
+qboolean CG_IsParticleSystemValid( particleSystem_t **ps )
+{
+  if( *ps == NULL || ( *ps && !(*ps)->valid ) )
+  {
+    if( *ps && !(*ps)->valid )
+      *ps = NULL;
+
+    return qfalse;
+  }
+
+  return qtrue;
+}
 
 /*
 ===============
@@ -1975,15 +1998,13 @@ void CG_ParticleSystemEntity( centity_t *cent )
   
   if( es->eFlags & EF_NODRAW )
   {
-    if( cent->entityPS != NULL && CG_IsParticleSystemInfinite( cent->entityPS ) )
-      CG_DestroyParticleSystem( cent->entityPS );
-    
-    cent->entityPS = NULL;
+    if( CG_IsParticleSystemValid( &cent->entityPS ) && CG_IsParticleSystemInfinite( cent->entityPS ) )
+      CG_DestroyParticleSystem( &cent->entityPS );
 
     return;
   }
   
-  if( cent->entityPS == NULL )
+  if( !CG_IsParticleSystemValid( &cent->entityPS ) )
   {
     cent->entityPS = CG_SpawnNewParticleSystem( cgs.gameParticleSystems[ es->modelindex ] );
     CG_SetParticleSystemOrigin( cent->entityPS, cent->lerpOrigin );
