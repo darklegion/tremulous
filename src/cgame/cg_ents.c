@@ -549,8 +549,14 @@ static void CG_LightFlare( centity_t *cent )
   float         maxAngle;
   vec3_t        mins, maxs, start, end;
   float         srcRadius, srLocal, ratio = 1.0f;
+  int           entityNum;
 
   es = &cent->currentState;
+  
+  if( cg.renderingThirdPerson )
+    entityNum = MAGIC_TRACE_HACK;
+  else
+    entityNum = cg.predictedPlayerState.clientNum;
   
   //don't draw light flares
   if( cg_lightFlare.integer == FLARE_OFF )
@@ -561,7 +567,7 @@ static void CG_LightFlare( centity_t *cent )
     return;
        
   CG_Trace( &tr, cg.refdef.vieworg, NULL, NULL, es->angles2,
-            cg.predictedPlayerState.clientNum, MASK_SHOT );
+            entityNum, MASK_SHOT );
 
   //if there is no los between the view and the flare source
   //it definately cannot be seen
@@ -636,7 +642,7 @@ static void CG_LightFlare( centity_t *cent )
         srLocal += RADIUSSTEP;
         SETBOUNDS( mins, maxs, srLocal );
         CG_Trace( &tr, start, mins, maxs, end,
-                  cg.predictedPlayerState.clientNum, MASK_SHOT );
+                  entityNum, MASK_SHOT );
 
       } while( ( tr.fraction == 1.0f && !tr.startsolid ) && ( srLocal < srcRadius ) );
       
@@ -647,7 +653,7 @@ static void CG_LightFlare( centity_t *cent )
       {
         SETBOUNDS( mins, maxs, srLocal );
         CG_Trace( &tr, start, mins, maxs, end,
-                  cg.predictedPlayerState.clientNum, MASK_SHOT );
+                  entityNum, MASK_SHOT );
 
         srLocal -= RADIUSSTEP;
       } while( ( tr.fraction < 1.0f || tr.startsolid ) && ( srLocal > 0.0f ) );
@@ -661,7 +667,7 @@ static void CG_LightFlare( centity_t *cent )
       //draw timed flares
       SETBOUNDS( mins, maxs, srcRadius );
       CG_Trace( &tr, start, mins, maxs, end,
-                cg.predictedPlayerState.clientNum, MASK_SHOT );
+                entityNum, MASK_SHOT );
 
       if( ( tr.fraction < 1.0f || tr.startsolid ) && cent->lfs.status )
       {
@@ -698,7 +704,7 @@ static void CG_LightFlare( centity_t *cent )
       //draw nofade flares
       SETBOUNDS( mins, maxs, srcRadius );
       CG_Trace( &tr, start, mins, maxs, end,
-                cg.predictedPlayerState.clientNum, MASK_SHOT );
+                entityNum, MASK_SHOT );
 
       //flare source occluded
       if( ( tr.fraction < 1.0f || tr.startsolid ) )

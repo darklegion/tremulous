@@ -129,6 +129,11 @@ qboolean G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
       check->s.groundEntityNum != pusher->s.number )
     return qfalse;
 
+  //don't try to move buildables unless standing on a mover
+  if( check->s.eType == ET_BUILDABLE &&
+      check->s.groundEntityNum != pusher->s.number )
+    return qfalse;
+
   // save off the old position
   if( pushed_p > &pushed[ MAX_GENTITIES ] )
     G_Error( "pushed_p > &pushed[MAX_GENTITIES]" );

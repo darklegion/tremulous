@@ -445,9 +445,6 @@ static qboolean CG_ParseWeaponModeSection( weaponInfoMode_t *wim, char **text_p 
 
       wim->impactSound[ index ] = trap_S_RegisterSound( token, qfalse );
       
-      if( !wim->impactSound[ index ] )
-        CG_Printf( S_COLOR_RED "ERROR: impact sound %d not found %s\n", index, token );
-
       continue;
     }
     else if( !Q_stricmp( token, "impactDlightColor" ) )
@@ -543,9 +540,6 @@ static qboolean CG_ParseWeaponModeSection( weaponInfoMode_t *wim, char **text_p 
 
       wim->firingSound = trap_S_RegisterSound( token, qfalse );
       
-      if( !wim->firingSound )
-        CG_Printf( S_COLOR_RED "ERROR: firing sound not found %s\n", token );
-
       continue;
     }
     else if( !Q_stricmp( token, "missileSound" ) )
@@ -556,9 +550,6 @@ static qboolean CG_ParseWeaponModeSection( weaponInfoMode_t *wim, char **text_p 
 
       wim->missileSound = trap_S_RegisterSound( token, qfalse );
       
-      if( !wim->missileSound )
-        CG_Printf( S_COLOR_RED "ERROR: missile sound not found %s\n", token );
-
       continue;
     }
     else if( !Q_stricmp( token, "flashSound" ) )
@@ -582,9 +573,6 @@ static qboolean CG_ParseWeaponModeSection( weaponInfoMode_t *wim, char **text_p 
 
       wim->flashSound[ index ] = trap_S_RegisterSound( token, qfalse );
       
-      if( !wim->flashSound[ index ] )
-        CG_Printf( S_COLOR_RED "ERROR: flash sound %d not found %s\n", index, token );
-
       continue;
     }
     else if( !Q_stricmp( token, "}" ) )
@@ -720,9 +708,6 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
 
       wi->readySound = trap_S_RegisterSound( token, qfalse );
       
-      if( !wi->readySound )
-        CG_Printf( S_COLOR_RED "ERROR: weapon idle sound not found %s\n", token );
-
       continue;
     }
     else if( !Q_stricmp( token, "icon" ) )

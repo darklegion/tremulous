@@ -496,7 +496,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
     if( client->ps.weapon == WP_BIGMOFO )
     {
       if( client->ps.stats[ STAT_MISC ] < BMOFO_CHARGE_TIME && ucmd->buttons & BUTTON_ATTACK2 && 
-          ( ucmd->forwardmove > 0 || aRight ) )
+          ( ucmd->forwardmove > 0 ) )
       {
         client->charging = qfalse; //should already be off, just making sure
 
@@ -514,7 +514,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
           client->charging = qtrue;
 
           //if the charger has stopped moving take a chunk of charge away
-          if( VectorLength( client->ps.velocity ) < 64.0f )
+          if( VectorLength( client->ps.velocity ) < 64.0f || aRight )
             client->ps.stats[ STAT_MISC ] = client->ps.stats[ STAT_MISC ] >> 1;
 
           //can't charge backwards

@@ -3110,9 +3110,14 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
       while( diff < -180.0f )
         diff += 360.0f;
 
-      if( diff < 0 )
+      if( diff < -90.0f )
+        ps->delta_angles[ i ] += ANGLE2SHORT( fabs( diff ) - 90.0f );
+      else if( diff > 90.0f )
+        ps->delta_angles[ i ] -= ANGLE2SHORT( fabs( diff ) - 90.0f );
+        
+      if( diff < 0.0f )
         ps->delta_angles[ i ] += ANGLE2SHORT( fabs( diff ) * 0.05f );
-      else if( diff > 0 )
+      else if( diff > 0.0f )
         ps->delta_angles[ i ] -= ANGLE2SHORT( fabs( diff ) * 0.05f );
     }
   }

@@ -81,7 +81,7 @@ CG_ClipMoveToEntities
 static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
                                     int skipNumber, int mask, trace_t *tr, qboolean capsule )
 {
-  int           i, x, zd, zu;
+  int           i, j, x, zd, zu;
   trace_t       trace;
   entityState_t *ent;
   clipHandle_t  cmodel;
@@ -89,9 +89,20 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
   vec3_t        origin, angles;
   centity_t     *cent;
 
-  for( i = 0; i < cg_numSolidEntities; i++ )
+  //SUPAR HACK
+  //this causes a trace to collide with the local player
+  if( skipNumber == MAGIC_TRACE_HACK )
+    j = cg_numSolidEntities + 1;
+  else
+    j = cg_numSolidEntities;
+
+  for( i = 0; i < j; i++ )
   {
-    cent = cg_solidEntities[ i ];
+    if( i < cg_numSolidEntities )
+      cent = cg_solidEntities[ i ];
+    else
+      cent = &cg.predictedPlayerEntity;
+
     ent = &cent->currentState;
 
     if( ent->number == skipNumber )
@@ -116,6 +127,9 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
       bmins[ 2 ] = -zd;
       bmaxs[ 2 ] = zu;
 
+      if( i == cg_numSolidEntities )
+        BG_FindBBoxForClass( ( ent->powerups >> 8 ) & 0xFF, bmins, bmaxs, NULL, NULL, NULL );
+      
       cmodel = trap_CM_TempBoxModel( bmins, bmaxs );
       VectorCopy( vec3_origin, angles );
       VectorCopy( cent->lerpOrigin, origin );
