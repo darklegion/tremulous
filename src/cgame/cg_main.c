@@ -795,7 +795,14 @@ static void CG_RegisterGraphics( void ) {
 
   //TA: screenfades
   cgs.media.humanNV = trap_R_RegisterShader( "humanNV" );
-  cgs.media.humanTorch = trap_R_RegisterShader( "humanTorch" );
+  cgs.media.humanTorch8 = trap_R_RegisterShader( "humanTorch8" );
+  cgs.media.humanTorch7 = trap_R_RegisterShader( "humanTorch7" );
+  cgs.media.humanTorch6 = trap_R_RegisterShader( "humanTorch6" );
+  cgs.media.humanTorch5 = trap_R_RegisterShader( "humanTorch5" );
+  cgs.media.humanTorch4 = trap_R_RegisterShader( "humanTorch4" );
+  cgs.media.humanTorch3 = trap_R_RegisterShader( "humanTorch3" );
+  cgs.media.humanTorch2 = trap_R_RegisterShader( "humanTorch2" );
+  cgs.media.humanTorch1 = trap_R_RegisterShader( "humanTorch1" );
   cgs.media.droidNav9 = trap_R_RegisterShader( "droidNav9" );
   cgs.media.droidNav8 = trap_R_RegisterShader( "droidNav8" );
   cgs.media.droidNav7 = trap_R_RegisterShader( "droidNav7" );
@@ -927,8 +934,8 @@ CG_RegisterClients
 static void CG_RegisterClients( void ) {
   int   i;
 
-  CG_LoadingClient(cg.clientNum);
-  CG_NewClientInfo(cg.clientNum);
+  //CG_LoadingClient(cg.clientNum);
+  //CG_NewClientInfo(cg.clientNum);
 
   for (i=0 ; i<MAX_CLIENTS+MAX_PRECACHES; i++) {
     const char    *clientInfo;
@@ -941,14 +948,15 @@ static void CG_RegisterClients( void ) {
     if ( !clientInfo[0] ) {
       continue;
     }
-    CG_LoadingClient( i );
 
     if( i < MAX_CLIENTS )
     {
-      CG_NewClientInfo( i );
+      //CG_LoadingClient( i );
+      //CG_NewClientInfo( i );
     }
     else
     {
+      CG_LoadingClient( i );
       CG_PrecacheClientInfo( i );
     }
   }

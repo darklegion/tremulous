@@ -1563,25 +1563,11 @@ void Cmd_Class_f( gentity_t *ent )
     }
       
     if( !Q_stricmp(s, "0") )
-      ent->client->pers.pclass = PCL_D_BUILDER;
+      ent->client->pers.pclass = PCL_D_B_BASE;
     else if( !Q_stricmp(s, "1") )
-      ent->client->pers.pclass = PCL_D_BASE;
+      ent->client->pers.pclass = PCL_D_O_BASE;
     else if( !Q_stricmp(s, "2") )
-      ent->client->pers.pclass = PCL_D_OFF1;
-    else if( !Q_stricmp(s, "3") )
-      ent->client->pers.pclass = PCL_D_OFF2;
-    else if( !Q_stricmp(s, "4") )
-      ent->client->pers.pclass = PCL_D_OFF3;
-    else if( !Q_stricmp(s, "5") )
-      ent->client->pers.pclass = PCL_D_OFF4;
-    else if( !Q_stricmp(s, "6") )
-      ent->client->pers.pclass = PCL_D_OFF5;
-    else if( !Q_stricmp(s, "7") )
-      ent->client->pers.pclass = PCL_D_OFF6;
-    else if( !Q_stricmp(s, "8") )
-      ent->client->pers.pclass = PCL_D_OFF7;
-    else if( !Q_stricmp(s, "9") )
-      ent->client->pers.pclass = PCL_D_OFF8;
+      ent->client->pers.pclass = PCL_D_D_BASE;
     else
     {
       trap_SendServerCommand( ent-g_entities, va("print \"Unknown class\n\"" ) );

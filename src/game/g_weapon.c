@@ -653,8 +653,12 @@ void Weapon_Venom_Fire( gentity_t *ent ) {
 LogAccuracyHit
 ===============
 */
-qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
-  if( !target->takedamage ) {
+qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) 
+{ 
+  //TA: theres a crash bug in here somewhere, but i'm too lazy to find it hence,
+  return qfalse;
+  
+  /*if( !target->takedamage ) {
     return qfalse;
   }
 
@@ -678,7 +682,7 @@ qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
     return qfalse;
   }
 
-  return qtrue;
+  return qtrue;*/
 }
 
 

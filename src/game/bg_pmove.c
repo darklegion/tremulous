@@ -300,7 +300,7 @@ static void PM_Friction( void ) {
       // if getting knocked back, no friction
       if ( ! (pm->ps->pm_flags & PMF_TIME_KNOCKBACK) ) {
         if( ( pm->ps->stats[ STAT_PTEAM ] == PTE_DROIDS ) &&
-            ( pm->ps->stats[ STAT_PCLASS ] == PCL_D_BASE ) )
+            ( pm->ps->stats[ STAT_PCLASS ] == PCL_D_O_BASE ) )
         {
           control = speed < pm_stopspeed*5 ? pm_stopspeed*5 : speed;
         }
@@ -1875,7 +1875,7 @@ static void PM_CheckDuck (void)
 
   switch( pm->ps->stats[ STAT_PCLASS ] )
   {
-    case PCL_D_BUILDER:
+    case PCL_D_B_BASE:
       VectorSet( PCmins, -15, -15, -20 );
       VectorSet( PCmaxs, 15, 15, 20 );
       VectorSet( PCcmaxs, 15, 15, 20 );
@@ -1883,7 +1883,7 @@ static void PM_CheckDuck (void)
       PCcvh = 12;
       break;
 
-    case PCL_D_BASE:
+    case PCL_D_O_BASE:
       VectorSet( PCmins, -15, -15, -15 );
       VectorSet( PCmaxs, 15, 15, 15 );
       VectorSet( PCcmaxs, 15, 15, 15 );
@@ -1891,6 +1891,14 @@ static void PM_CheckDuck (void)
       PCcvh = 4;
       break;
 
+    case PCL_D_D_BASE:
+      VectorSet( PCmins, -15, -15, -15 );
+      VectorSet( PCmaxs, 15, 15, 15 );
+      VectorSet( PCcmaxs, 15, 15, 15 );
+      PCvh = 4;
+      PCcvh = 4;
+      break;
+      
     case PCL_H_BASE:
       VectorSet( PCmins, -15, -15, -24 );
       VectorSet( PCmaxs, 15, 15, 32 );

@@ -298,11 +298,11 @@ G_RegisterPlayerModels
 */
 void G_RegisterPlayerModels( void )
 {
-  char  *precacheModels[ MAX_CLIENTS ] = { "klesk", "lucy", "sarge", NULL };
+  char  *precacheModels[ MAX_CLIENTS ] = { "klesk", "orbb", "lucy", "sarge", NULL };
   char  *s;
   int   i;
 
-  for( i = 0; i < 3; i++ )
+  for( i = 0; i < 4; i++ )
   {
     s = va("n\\%s%d\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d", "precache", i, 0, precacheModels[ i ], precacheModels[ i ], 0, 0, "7", 100, 0, 0, 0, 0);
 

@@ -354,8 +354,9 @@ static void CG_DrawLighting( void )
 
   switch( cg.snap->ps.stats[ STAT_PCLASS ] )
   {
-    case PCL_D_BASE:
-    case PCL_D_BUILDER:
+    case PCL_D_B_BASE:
+    case PCL_D_O_BASE:
+    case PCL_D_D_BASE:
       if( lum < 10 )
         CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav9 );
       else if( lum >= 10 && lum < 16 )

@@ -737,13 +737,14 @@ void ClientThink_real( gentity_t *ent ) {
   client->ps.speed = g_speed.value * client->classSpeed;
 
   //TA: slow player if standing in creep
-  /*for ( i = 1, creepNode = g_entities + i; i < level.num_entities; i++, creepNode++ )
+  for ( i = 1, creepNode = g_entities + i; i < level.num_entities; i++, creepNode++ )
   {
-    if( !Q_stricmp( creepNode->classname, "team_droid_creep" ) )
+    if( ( !Q_stricmp( creepNode->classname, "team_droid_spawn" ) ) ||
+        ( !Q_stricmp( creepNode->classname, "team_droid_def1" ) ) )
     {
       VectorSubtract( client->ps.origin, creepNode->s.origin, temp_v );
 
-      if( ( VectorLength( temp_v ) <= creepNode->s.frame ) &&
+      if( ( VectorLength( temp_v ) <= CREEP_BASESIZE ) &&
           ( temp_v[ 2 ] <= 21 ) && //assumes mins of player is (x, x, -24)
           ( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) )
       {
@@ -753,7 +754,7 @@ void ClientThink_real( gentity_t *ent ) {
         break;
       }
     }
-  }*/
+  }
 
   if( !cSlowed )
     client->ps.stats[ STAT_STATE ] &= ~SS_CREEPSLOWED;

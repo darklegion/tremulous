@@ -709,59 +709,42 @@ CG_TorchLight
 */
 static void CG_TorchLight( centity_t *cent )
 {
-  float   r, g, b;
-  int     i, j, k;
-  byte    lum;
+  int             i, j, lum, numFragments;
   polyVert_t      verts[ 4 ];
-  vec3_t          square[ 4 ];
-  vec2_t          tex[ 4 ];
-  float           size;
+  float           size, texCoordScale, veclength;
   trace_t         tr;
+  vec2_t          tex[ 4 ];
   vec3_t          temp, origin, normal, projection, angles;
+  vec3_t          to, from, forward, length;
+  vec3_t          markPoints[ MAX_MARK_POINTS ];
+  vec3_t          square[ 4 ];
   vec4_t          axis[ 3 ], color;
   markFragment_t  markFragments[ MAX_MARK_FRAGMENTS ], *mf;
-  vec3_t          markPoints[ MAX_MARK_POINTS ];
-  int             numFragments;
-  float           texCoordScale;
-  
 
-  if( cent->currentState.frame == cg.predictedPlayerState.clientNum )
+  if( cent->currentState.clientNum == cg.predictedPlayerState.clientNum )
   {
-    vec3_t  to, from, forward, length;
-    float   veclength;
-
     VectorCopy( cg.predictedPlayerState.origin, from );
     VectorCopy( cg.predictedPlayerState.viewangles, angles );
-
-    from[2] += cg.predictedPlayerState.viewheight;
-
-    AngleVectors( angles, forward, NULL, NULL );
-    VectorMA( from, 4096, forward, to );
-
-    CG_Trace( &tr, from, NULL, NULL, to, cg.predictedPlayerState.clientNum, MASK_SOLID );
-    
-    VectorSubtract( tr.endpos, from, length );
-    veclength = VectorLength( length );
-    
-    VectorMA( tr.endpos, -(veclength / 5), forward, origin );
-            
-    //VectorCopy( cent->lerpOrigin, origin );
-    size = veclength / 2.0f;
-    if( size > 255 ) size = 255;
-    if( size < 0 ) size = 0;       
   }
   else
   {
-    VectorCopy( cent->lerpOrigin, origin );
+    VectorCopy( cent->lerpOrigin, from );
     VectorCopy( cent->lerpAngles, angles );
-
-    size = ( cent->currentState.constantLight >> 24 ) & 0xFF; //CREEP_BASESIZE / 2;
   }
 
-  AngleVectors( angles, temp, NULL, NULL );
-  VectorMA( origin, 4096, temp, temp );
+  from[2] += cg.predictedPlayerState.viewheight;
 
-  CG_Trace( &tr, origin, NULL, NULL, temp, cent->currentState.number, MASK_SOLID );
+  AngleVectors( angles, forward, NULL, NULL );
+  VectorMA( from, 4096, forward, to );
+
+  CG_Trace( &tr, from, NULL, NULL, to, -1, MASK_SOLID );
+  
+  VectorSubtract( tr.endpos, from, length );
+  veclength = VectorLength( length );
+  
+  size = veclength / 2.0f;
+  if( size > 255 ) size = 255;
+  if( size < 0 ) size = 0;       
 
   VectorCopy( tr.endpos, origin );
   VectorCopy( tr.plane.normal, normal );
@@ -789,16 +772,21 @@ static void CG_TorchLight( centity_t *cent )
   Vector2Set( tex[ 2 ], 1, 1 );
   Vector2Set( tex[ 3 ], 1, 0 );
 
-  VectorScale( normal, -20, projection );
+  VectorScale( normal, -32, projection );
   numFragments = trap_CM_MarkFragments( 4, (void *)square,
     projection, MAX_MARK_POINTS, markPoints[0],
     MAX_MARK_FRAGMENTS, markFragments );
    
   color[ 0 ] = color[ 1 ] = color[ 2 ] = color[ 3 ] = 255;
   
-  r = g = b = 1;
+  VectorCopy( origin, temp );
+  VectorMA( temp, 48, normal, temp );
+  lum = CG_AmbientLight( temp );
 
-  lum = CG_AmbientLight( origin );
+  lum += (int)( ( size / 255.0f ) * 24 );
+
+  if( lum > 255 )
+    lum = 255;
 
   for ( i = 0, mf = markFragments ; i < numFragments ; i++, mf++ )
   {
@@ -823,13 +811,27 @@ static void CG_TorchLight( centity_t *cent )
       v->st[1] = 0.5 + DotProduct( delta, axis[2] ) * texCoordScale;
       *(int *)v->modulate = *(int *)color;
     }
-
-    trap_R_AddPolyToScene( cgs.media.humanTorch, mf->numPoints, verts );
-                                                                                                                
+    
+    if( lum < 64 )
+    {
+      if( lum < 10 )
+        trap_R_AddPolyToScene( cgs.media.humanTorch8, mf->numPoints, verts );
+      else if( lum >= 10 && lum < 16 )
+        trap_R_AddPolyToScene( cgs.media.humanTorch7, mf->numPoints, verts );
+      else if( lum >= 16 && lum < 22 )
+        trap_R_AddPolyToScene( cgs.media.humanTorch6, mf->numPoints, verts );
+      else if( lum >= 22 && lum < 28 )
+        trap_R_AddPolyToScene( cgs.media.humanTorch5, mf->numPoints, verts );
+      else if( lum >= 28 && lum < 34 )
+        trap_R_AddPolyToScene( cgs.media.humanTorch4, mf->numPoints, verts );
+      else if( lum >= 34 && lum < 40 )
+        trap_R_AddPolyToScene( cgs.media.humanTorch3, mf->numPoints, verts );
+      else if( lum >= 40 && lum < 46 )
+        trap_R_AddPolyToScene( cgs.media.humanTorch2, mf->numPoints, verts );
+      else if( lum >= 46 )
+        trap_R_AddPolyToScene( cgs.media.humanTorch1, mf->numPoints, verts );
+    }
   }
-  
-
-  trap_R_AddLightToScene( origin, (int)size, r, g, b );
 }
 
 /*

@@ -216,9 +216,9 @@ void DDef1_Think( gentity_t *self )
 //   Anthony "inolen" Pesch (www.inolen.com)
 //with modifications by me of course :)
 #define HDEF1_RANGE             500
-#define HDEF1_ANGULARSPEED      10
+#define HDEF1_ANGULARSPEED      15
 #define HDEF1_FIRINGSPEED       200
-#define HDEF1_ACCURACYTOLERANCE 10
+#define HDEF1_ACCURACYTOLERANCE HDEF1_ANGULARSPEED - 5
 #define HDEF1_VERTICALCAP       20
 
 /*
@@ -231,6 +231,7 @@ Used by HDef1_Think to track enemy location
 qboolean hdef1_trackenemy( gentity_t *self )
 {
   vec3_t  dirToTarget, angleToTarget, angularDiff;
+  float   temp;
 
   VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
   VectorNormalize( dirToTarget );
@@ -246,11 +247,14 @@ qboolean hdef1_trackenemy( gentity_t *self )
   else
     self->turloc[ PITCH ] = angleToTarget[ PITCH ];
 
-  if( self->turloc[ PITCH ] < -HDEF1_VERTICALCAP )
+  temp = fabs( self->turloc[ PITCH ] );
+  if( temp > 180 )
+    temp -= 360;
+  
+  if( temp < -HDEF1_VERTICALCAP )
+    self->turloc[ PITCH ] = (-360)+HDEF1_VERTICALCAP;
+  else if( temp > HDEF1_VERTICALCAP )
     self->turloc[ PITCH ] = -HDEF1_VERTICALCAP;
-
-  if( self->turloc[ PITCH ] > HDEF1_VERTICALCAP )
-    self->turloc[ PITCH ] = HDEF1_VERTICALCAP;
     
   if( angularDiff[ YAW ] < -HDEF1_ACCURACYTOLERANCE )
     self->turloc[ YAW ] += HDEF1_ANGULARSPEED;
@@ -284,7 +288,7 @@ void hdef1_fireonenemy( gentity_t *self )
   AngleVectors( self->turloc, aimVector, NULL, NULL );
   //fire_flamer( self, self->s.pos.trBase, aimVector );
   fire_plasma( self, self->s.pos.trBase, aimVector );
-  G_AddEvent( self, EV_FIRE_WEAPON, 0 );
+  //G_AddEvent( self, EV_FIRE_WEAPON, 0 );
   self->count = level.time + HDEF1_FIRINGSPEED;
 }
 
@@ -388,7 +392,6 @@ void HSpawn_Blast( gentity_t *self )
     self->splashRadius, self, self->splashMethodOfDeath );
 
   G_FreeEntity( self );
-  trap_LinkEntity( self );
   
   //update spawn counts
   CalculateRanks( );

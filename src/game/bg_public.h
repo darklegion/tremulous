@@ -603,16 +603,9 @@ typedef enum {
 
 //FIXME: switch to enums at some point
 //TA: player classes
-#define PCL_D_BUILDER     1
-#define PCL_D_BASE        2
-#define PCL_D_OFF1        3
-#define PCL_D_OFF2        4
-#define PCL_D_OFF3        5
-#define PCL_D_OFF4        6
-#define PCL_D_OFF5        7
-#define PCL_D_OFF6        8
-#define PCL_D_OFF7        9
-#define PCL_D_OFF8        10
+#define PCL_D_B_BASE      1
+#define PCL_D_O_BASE      2
+#define PCL_D_D_BASE      3
 
 #define PCL_H_BASE        11
 

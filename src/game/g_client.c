@@ -945,10 +945,13 @@ void ClientUserinfoChanged( int clientNum ) {
   //Q_strncpyz( model, Info_ValueForKey (userinfo, "model"), sizeof( model ) );
   switch( client->pers.pclass )
   {
-    case PCL_D_BASE:
+    case PCL_D_O_BASE:
       Q_strncpyz( model, "klesk", sizeof( model ) );
       break;
-    case PCL_D_BUILDER:
+    case PCL_D_D_BASE:
+      Q_strncpyz( model, "orbb", sizeof( model ) );
+      break;
+    case PCL_D_B_BASE:
       Q_strncpyz( model, "lucy", sizeof( model ) );
       break;
     case PCL_H_BASE:
@@ -1304,7 +1307,7 @@ void ClientSpawn(gentity_t *ent) {
   // clear entity values
   switch( ent->client->pers.pclass )
   {
-    case PCL_D_BUILDER:
+    case PCL_D_B_BASE:
       client->pers.maxHealth = 50;
       client->ps.stats[STAT_MAX_HEALTH] = 50;
       client->ps.stats[STAT_ARMOR] = 50;
@@ -1324,7 +1327,7 @@ void ClientSpawn(gentity_t *ent) {
       client->classSpeed = 0.5;
       break;
 
-    case PCL_D_BASE:
+    case PCL_D_O_BASE:
       client->pers.maxHealth = 25;
       client->ps.stats[STAT_MAX_HEALTH] = 25;
       client->ps.eFlags = flags;
@@ -1344,6 +1347,26 @@ void ClientSpawn(gentity_t *ent) {
       client->classSpeed = 2.0;
       break;
 
+    case PCL_D_D_BASE:
+      client->pers.maxHealth = 50;
+      client->ps.stats[STAT_MAX_HEALTH] = 50;
+      client->ps.eFlags = flags;
+
+      VectorCopy (playerMins, ent->r.mins);
+      VectorCopy (playerMaxs, ent->r.maxs);
+
+      client->ps.clientNum = index;
+
+      BG_packWeapon( WP_VENOM, client->ps.stats );
+      BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
+
+      client->ps.stats[ STAT_ABILITIES ] |= SCA_WALLCLIMBER;
+      client->ps.stats[ STAT_ABILITIES ] |= SCA_CANJUMP;
+      client->ps.stats[ STAT_ABILITIES ] |= SCA_NOWEAPONDRIFT;
+      BG_packAttributes( 160, 0, 25, client->ps.stats );
+      client->classSpeed = 1.5;
+      break;
+      
     case PCL_H_BASE:
       client->pers.maxHealth = 100;
       client->ps.stats[STAT_MAX_HEALTH] = 100;

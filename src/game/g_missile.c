@@ -343,8 +343,8 @@ gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t dir)
   bolt->damage = 20;
   bolt->splashDamage = 15;
   bolt->splashRadius = 20;
-  //bolt->methodOfDeath = MOD_PLASMA;
-  //bolt->splashMethodOfDeath = MOD_PLASMA_SPLASH;
+	//bolt->methodOfDeath = MOD_FLAMER;
+	//bolt->splashMethodOfDeath = MOD_FLAMER_SPLASH;
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = NULL;
 

@@ -70,58 +70,21 @@ void SP_light( gentity_t *self ) {
   G_FreeEntity( self );
 }
 
-#define TORCHR  200
-#define TORCHG  200
-#define TORCHB  255
-
 //TA: position/colour/intensity calculating function
 void ShineTorch( gentity_t *self )
 {
   trace_t tr;
-  vec3_t  from, to, length;
-  vec3_t  angles, forward;
-  int     r, g, b, i;
-  int     veclength;
+  vec3_t  origin, angles;
 
-  VectorCopy( self->parent->s.pos.trBase, from );
+  VectorCopy( self->parent->s.pos.trBase, origin );
   VectorCopy( self->parent->s.apos.trBase, angles );
 
-  from[2] += self->parent->client->ps.viewheight;
-
-  AngleVectors( angles, forward, NULL, NULL );
-  VectorMA( from, 4096, forward, to );
-
-  trap_Trace( &tr, from, NULL, NULL, to, self->parent->s.number, MASK_SOLID );
-
-  VectorSubtract( tr.endpos, from, length );
-  veclength = VectorLength( length );
-
-  //hack to place the light source slightly in front of what the player is pointing at
-  VectorMA( tr.endpos, -(veclength / 5), forward, tr.endpos );
-
-  //adjust brightness and intensity based on how far away subject is
-  r = TORCHR * 450 / veclength;
-  g = TORCHG * 450 / veclength;
-  b = TORCHB * 450 / veclength;
-  if( r > TORCHR ) r = TORCHR;
-  if( g > TORCHG ) g = TORCHG;
-  if( b > TORCHB ) b = TORCHB;
-
-  i = veclength / 2;
-  if( i > 255 ) i = 255;
-  if( i < 0 )  i = 0;
-
-  self->s.constantLight = r | ( g << 8 ) | ( b << 16 ) | ( i << 24 );
-
-  if( tr.fraction < 1.0 )
-    G_SetOrigin( self, tr.endpos );
-  else
-    G_SetOrigin( self, to );
+  G_SetOrigin( self, origin );
 
   VectorCopy( angles, self->s.apos.trBase );
 
   //so we can use the predicted values client side if available
-  self->s.frame = self->parent->s.number;
+  self->s.clientNum = self->parent->s.number;
 
   trap_LinkEntity( self );
 }

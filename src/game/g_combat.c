@@ -90,140 +90,6 @@ int CalculatePoints( gentity_t *victim, gentity_t *attacker )
   if( !victim->client || !attacker->client )
     return 0;
 
-  /*switch( victim->client->ps.stats[STAT_PCLASS] )
-  {
-    case PCL_D_BUILDER:
-      victim_value = 1;
-      break;
-    case PCL_H_BUILDER:
-      victim_value = 1;
-      break;
-    case PCL_D_BASE:
-      victim_value = 2;
-      break;
-    case PCL_H_BASE:
-      victim_value = 2;
-      break;
-    case PCL_D_OFF1:
-      victim_value = 3;
-      break;
-    case PCL_H_OFF1:
-      victim_value = 3;
-      break;
-    case PCL_D_OFF2:
-      victim_value = 4;
-      break;
-    case PCL_H_OFF2:
-      victim_value = 4;
-      break;
-    case PCL_D_OFF3:
-      victim_value = 5;
-      break;
-    case PCL_H_OFF3:
-      victim_value = 5;
-      break;
-    case PCL_D_OFF4:
-      victim_value = 6;
-      break;
-    case PCL_H_OFF4:
-      victim_value = 6;
-      break;
-    case PCL_D_OFF5:
-      victim_value = 7;
-      break;
-    case PCL_H_OFF5:
-      victim_value = 7;
-      break;
-    case PCL_D_OFF6:
-      victim_value = 8;
-      break;
-    case PCL_H_OFF6:
-      victim_value = 8;
-      break;
-    case PCL_D_OFF7:
-      victim_value = 9;
-      break;
-    case PCL_H_OFF7:
-      victim_value = 9;
-      break;
-    case PCL_D_OFF8:
-      victim_value = 10;
-      break;
-    case PCL_H_OFF8:
-      victim_value = 10;
-      break;
-    default:
-      victim_value = 1;
-  }
-
-  switch( attacker->client->ps.stats[STAT_PCLASS] )
-  {
-    case PCL_D_BUILDER:
-      attacker_value = 1;
-      break;
-    case PCL_H_BUILDER:
-      attacker_value = 1;
-      break;
-    case PCL_D_BASE:
-      attacker_value = 2;
-      break;
-    case PCL_H_BASE:
-      attacker_value = 2;
-      break;
-    case PCL_D_OFF1:
-      attacker_value = 3;
-      break;
-    case PCL_H_OFF1:
-      attacker_value = 3;
-      break;
-    case PCL_D_OFF2:
-      attacker_value = 4;
-      break;
-    case PCL_H_OFF2:
-      attacker_value = 4;
-      break;
-    case PCL_D_OFF3:
-      attacker_value = 5;
-      break;
-    case PCL_H_OFF3:
-      attacker_value = 5;
-      break;
-    case PCL_D_OFF4:
-      attacker_value = 6;
-      break;
-    case PCL_H_OFF4:
-      attacker_value = 6;
-      break;
-    case PCL_D_OFF5:
-      attacker_value = 7;
-      break;
-    case PCL_H_OFF5:
-      attacker_value = 7;
-      break;
-    case PCL_D_OFF6:
-      attacker_value = 8;
-      break;
-    case PCL_H_OFF6:
-      attacker_value = 8;
-      break;
-    case PCL_D_OFF7:
-      attacker_value = 9;
-      break;
-    case PCL_H_OFF7:
-      attacker_value = 9;
-      break;
-    case PCL_D_OFF8:
-      attacker_value = 10;
-      break;
-    case PCL_H_OFF8:
-      attacker_value = 10;
-      break;
-    default:
-      attacker_value = 1;
-  }
-
-  return ( victim_value / attacker_value ) * 10;*/
-
   return 1;
 
 }
@@ -325,8 +191,9 @@ void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker ) 
 GibEntity
 ==================
 */
-void GibEntity( gentity_t *self, int killer ) {
-  if( self->client->ps.stats[ STAT_PCLASS ] == PTE_HUMANS )
+void GibEntity( gentity_t *self, int killer )
+{
+  if( self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
     G_AddEvent( self, EV_GIB_PLAYER, killer );
   else
     G_AddEvent( self, EV_GIB_DROID, killer );
