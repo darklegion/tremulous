@@ -541,7 +541,8 @@ qboolean CheckVenomAttack( gentity_t *ent )
 
   VectorMA( muzzle, SOLDIER_BITE_RANGE, forward, end );
 
-  trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
+  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+
   if ( tr.surfaceFlags & SURF_NOIMPACT )
     return qfalse;
 
@@ -565,7 +566,7 @@ qboolean CheckVenomAttack( gentity_t *ent )
     tent->s.weapon = ent->s.weapon;
   }
 
-  G_Damage( traceEnt, ent, ent, forward, tr.endpos, SOLDIER_BITE_DMG, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
+  G_Damage( traceEnt, ent, ent, forward, tr.endpos, SOLDIER_BITE_DMG, DAMAGE_NO_KNOCKBACK, MOD_SOLDIER_BITE );
 
   return qtrue;
 }
@@ -875,67 +876,45 @@ void directZapFire( gentity_t *ent )
 /*
 ======================================================================
 
-GROUND POUND
+CHARGE
 
 ======================================================================
 */
 
 /*
 ===============
-CheckChargeAttack
+ChargeAttack
 ===============
 */
-qboolean CheckChargeAttack( gentity_t *ent )
+void ChargeAttack( gentity_t *ent, gentity_t *victim )
 {
-  //FIXME
-  trace_t   tr;
-  vec3_t    end;
   gentity_t *tent;
-  gentity_t *traceEnt;
-  int     damage;
+  int       damage;
+  vec3_t    forward, normal;
+  
+  if( level.time < victim->chargeRepeat )
+    return;
 
-  if( !ent->client->allowedToCharge )
-    return qfalse;
-
-  // set aiming directions
-  AngleVectors( ent->client->ps.viewangles, forward, right, up );
-
-  CalcMuzzlePoint( ent, forward, right, up, muzzle );
-
-  VectorMA( muzzle, BMOFO_CHARGE_RANGE, forward, end );
-
-  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
-
-  //miss
-  if( tr.fraction >= 1.0 )
-    return qfalse;
-    
-  if( tr.surfaceFlags & SURF_NOIMPACT )
-    return qfalse;
-
-  traceEnt = &g_entities[ tr.entityNum ];
-
-  // send blood impact
-  if( traceEnt->takedamage && traceEnt->client )
+  victim->chargeRepeat = level.time + BMOFO_CHARGE_REPEAT;
+  
+  VectorSubtract( victim->s.origin, ent->s.origin, forward );
+  VectorNormalize( forward );
+  VectorNegate( forward, normal );
+  
+  if( victim->client )
   {
-    tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
-    tent->s.otherEntityNum = traceEnt->s.number;
-    tent->s.eventParm = DirToByte( tr.plane.normal );
+    tent = G_TempEntity( victim->s.origin, EV_MISSILE_HIT );
+    tent->s.otherEntityNum = victim->s.number;
+    tent->s.eventParm = DirToByte( normal );
     tent->s.weapon = ent->s.weapon;
   }
 
-  if( !traceEnt->takedamage )
-    return qfalse;
-
-  damage = (int)( ( (float)ent->client->chargePayload / (float)BMOFO_CHARGE_SPEED ) * BMOFO_CHARGE_DMG );
-
-  G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
-
-  ent->client->allowedToCharge = qfalse;
+  if( !victim->takedamage )
+    return;
   
-  G_Printf( "charge!\n" );
+  damage = (int)( ( (float)ent->client->ps.stats[ STAT_MISC ] / (float)BMOFO_CHARGE_TIME ) * BMOFO_CHARGE_DMG );
 
-  return qtrue;
+  G_Damage( victim, ent, ent, forward, victim->s.origin, damage, 0, MOD_BMOFO_CHARGE );
 }
 
 //======================================================================
@@ -984,9 +963,6 @@ void FireWeapon3( gentity_t *ent )
       break;
     case WP_DIRECT_ZAP:
       areaZapFire( ent );
-      break;
-    case WP_GROUND_POUND:
-      slowBlobFire( ent );
       break;
       
     default:
@@ -1077,7 +1053,7 @@ void FireWeapon( gentity_t *ent )
     case WP_DIRECT_ZAP:
       meleeAttack( ent, CHIMERA_CLAW_RANGE, CHIMERA_CLAW_DMG, MOD_CHIMERA_CLAW );
       break;
-    case WP_GROUND_POUND:
+    case WP_CHARGE:
       meleeAttack( ent, BMOFO_CLAW_RANGE, BMOFO_CLAW_DMG, MOD_BMOFO_CLAW );
       break;
 

@@ -76,17 +76,12 @@
 #define BMOFO_CLAW_DMG              ADM(150)
 #define BMOFO_CLAW_RANGE            128.0f
 #define BMOFO_CLAW_REPEAT           750
-#define BMOFO_KNOCK_RANGE           200.0f
-#define BMOFO_KNOCK_REPEAT          15000
-#define BMOFO_KOVER_TIME            2000
-#define BMOFO_GETUP_TIME            1000
 #define BMOFO_REGEN_RANGE           200.0f
 #define BMOFO_REGEN_MOD             2.0f
-
-#define BMOFO_CHARGE_SPEED          5000
+#define BMOFO_CHARGE_SPEED          2.0f
 #define BMOFO_CHARGE_TIME           2000
-#define BMOFO_CHARGE_RANGE          48.0f
-#define BMOFO_CHARGE_DMG            ADM(300)
+#define BMOFO_CHARGE_REPEAT         500
+#define BMOFO_CHARGE_DMG            ADM(200)
 
 
 

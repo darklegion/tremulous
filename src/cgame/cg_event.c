@@ -220,7 +220,7 @@ static void CG_Obituary( entityState_t *ent )
         message = "should leave";
         message2 = "'s buildings alone";
         break;
-      case MOD_VENOM:
+      case MOD_SOLDIER_BITE:
         message = "was biten by";
         break;
       case MOD_HYDRA_CLAW:
@@ -245,6 +245,10 @@ static void CG_Obituary( entityState_t *ent )
         break;
       case MOD_BMOFO_CLAW:
         message = "was mauled by";
+        message2 = "'s big mofo";
+        break;
+      case MOD_BMOFO_CHARGE:
+        message = "should have gotten out of the way of";
         message2 = "'s big mofo";
         break;
         

@@ -151,6 +151,7 @@ struct gentity_s
   int               splashRadius;
   int               methodOfDeath;
   int               splashMethodOfDeath;
+  int               chargeRepeat;
 
   int               count;
 
@@ -353,15 +354,12 @@ struct gclient_s
   int                 lastLockTime;
   int                 lastSlowTime;
   int                 lastBoostedTime;
-  int                 lastKnockedOverTime;
-  int                 lastGetUpTime;
   int                 lastCreepSlowTime; //TA: time until creep can be removed
 
   int                 pouncePayload;    //TA: amount of damage pounce attack will do
   qboolean            allowedToPounce;
 
-  int                 chargePayload;    //TA: amount of damage charge attack will do
-  qboolean            allowedToCharge;
+  qboolean            charging;
 
   vec3_t              hovelOrigin;      //TA: player origin before entering hovel
 
@@ -662,7 +660,7 @@ void      SnapVectorTowards( vec3_t v, vec3_t to );
 qboolean  CheckVenomAttack( gentity_t *ent );
 void      CheckGrabAttack( gentity_t *ent );
 qboolean  CheckPounceAttack( gentity_t *ent );
-qboolean  CheckChargeAttack( gentity_t *ent );
+void      ChargeAttack( gentity_t *ent, gentity_t *victim );
 
 
 //

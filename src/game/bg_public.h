@@ -110,7 +110,6 @@ typedef enum
   PM_GRABBED,       // like dead, but for when the player is still live
   PM_DEAD,          // no acceleration or turning, but free falling
   PM_FREEZE,        // stuck in place with no control
-  PM_KNOCKED,       // knocked over
   PM_INTERMISSION,  // no movement or status bar
   PM_SPINTERMISSION // no movement or status bar
 } pmtype_t;
@@ -139,7 +138,7 @@ typedef enum
 #define PMF_FOLLOW          4096  // spectate following another player
 #define PMF_SCOREBOARD      8192  // spectate as a scoreboard
 #define PMF_INVULEXPAND     16384 // invulnerability sphere set to full size
-#define PMF_CHARGE_POUNCE   32768 //TA: keep track of pouncing
+#define PMF_CHARGE          32768 //TA: keep track of pouncing
 
 
 #define PMF_ALL_TIMES (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
@@ -231,8 +230,6 @@ typedef enum
 #define SS_BOOSTED              0x00000200
 #define SS_SLOWLOCKED           0x00000400
 #define SS_POISONCLOUDED        0x00000800
-#define SS_KNOCKEDOVER          0x00001000
-#define SS_GETTINGUP            0x00002000
 
 #define SB_VALID_TOGGLEBIT      0x00004000
 
@@ -321,7 +318,7 @@ typedef enum
   WP_POUNCE_UPG,
   WP_AREA_ZAP,
   WP_DIRECT_ZAP,
-  WP_GROUND_POUND,
+  WP_CHARGE,
   
   WP_BLASTER,
   WP_MACHINEGUN,
@@ -801,7 +798,7 @@ typedef enum
   MOD_TRIGGER_HURT,
 
   MOD_ABUILDER_CLAW,
-  MOD_VENOM,
+  MOD_SOLDIER_BITE,
   MOD_HYDRA_CLAW,
   MOD_HYDRA_PCLOUD,
   MOD_DRAGOON_CLAW,
@@ -809,6 +806,7 @@ typedef enum
   MOD_CHIMERA_CLAW,
   MOD_CHIMERA_ZAP,
   MOD_BMOFO_CLAW,
+  MOD_BMOFO_CHARGE,
 
   MOD_SLOWBLOB,
   MOD_POISON,
@@ -898,7 +896,8 @@ typedef struct
   float     bob;
   int       steptime;
   float     speed;
-  float     sticky;
+  float     acceleration;
+  float     friction;
 
   int       children[ 3 ];
   int       timeToEvolve;
@@ -1083,7 +1082,8 @@ int       BG_FindRegenRateForClass( int pclass );
 int       BG_FindFovForClass( int pclass );
 float     BG_FindBobForClass( int pclass );
 float     BG_FindSpeedForClass( int pclass );
-float     BG_FindStickyForClass( int pclass );
+float     BG_FindAcclerationForClass( int pclass );
+float     BG_FindFrictionForClass( int pclass );
 int       BG_FindSteptimeForClass( int pclass );
 qboolean  BG_ClassHasAbility( int pclass, int ability );
 weapon_t  BG_FindStartWeaponForClass( int pclass );

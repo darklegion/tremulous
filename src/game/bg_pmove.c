@@ -251,10 +251,8 @@ static void PM_Friction( void )
       // if getting knocked back, no friction
       if( !( pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) )
       {
-        float sticky = BG_FindStickyForClass( pm->ps->stats[ STAT_PCLASS ] );
-        
-        control = speed < pm_stopspeed * sticky ? pm_stopspeed * sticky : speed;
-        drop += control*pm_friction*pml.frametime;
+        control = speed < pm_stopspeed ? pm_stopspeed : speed;
+        drop += control * BG_FindFrictionForClass( pm->ps->stats[ STAT_PCLASS ] ) * pml.frametime;
       }
     }
   }
@@ -307,7 +305,7 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel )
     accelspeed = addspeed;
 
   for( i = 0; i < 3; i++ )
-    pm->ps->velocity[ i ] += accelspeed*wishdir[ i ];
+    pm->ps->velocity[ i ] += accelspeed * wishdir[ i ];
 #else
   // proper way (avoids strafe jump maxspeed bug), but feels bad
   vec3_t    wishVelocity;
@@ -344,12 +342,7 @@ static float PM_CmdScale( usercmd_t *cmd )
   float       total;
   float       scale;
   float       modifier = 1.0f;
-  static int  time;
-  int         dTime;
   int         aForward, aRight;
-
-  dTime = pm->cmd.serverTime - time;
-  time = pm->cmd.serverTime;
 
   if( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS && pm->ps->pm_type == PM_NORMAL &&
       !( BG_gotItem( UP_JETPACK, pm->ps->stats ) && BG_activated( UP_JETPACK, pm->ps->stats ) ) )
@@ -389,7 +382,10 @@ static float PM_CmdScale( usercmd_t *cmd )
     }
   }
 
-  if( pm->ps->pm_type == PM_GRABBED || pm->ps->pm_type == PM_KNOCKED )
+  if( pm->ps->weapon == WP_CHARGE && pm->ps->pm_flags & PMF_CHARGE )
+    modifier *= ( 1.0f + ( pm->ps->stats[ STAT_MISC ] / (float)BMOFO_CHARGE_TIME ) * ( BMOFO_CHARGE_SPEED - 1.0f ) );
+  
+  if( pm->ps->pm_type == PM_GRABBED )
     modifier = 0.0f;
 
   if( !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_CANJUMP ) )
@@ -463,27 +459,19 @@ PM_CheckCharge
 */
 static void PM_CheckCharge( void )
 {
-  vec3_t forward;
-  
-  if( pm->ps->weapon != WP_GROUND_POUND )
+  if( pm->ps->weapon != WP_CHARGE )
     return;
 
   if( pm->cmd.buttons & BUTTON_ATTACK2 )
   {
-    pm->ps->pm_flags &= ~PMF_CHARGE_POUNCE;
+    pm->ps->pm_flags &= ~PMF_CHARGE;
     return;
   }
-
-  if( pm->ps->pm_flags & PMF_CHARGE_POUNCE )
-    return;
-
-  if( pm->ps->stats[ STAT_MISC ] == 0 )
-    return;
-
-  pm->ps->pm_flags |= PMF_CHARGE_POUNCE;
   
-  AngleVectors( pm->ps->viewangles, forward, NULL, NULL );
-  VectorMA( pm->ps->velocity, pm->ps->stats[ STAT_MISC ], forward, pm->ps->velocity );
+  if( pm->ps->stats[ STAT_MISC ] > 0 )
+    pm->ps->pm_flags |= PMF_CHARGE;
+  else
+    pm->ps->pm_flags &= ~PMF_CHARGE;
 }
 
 /*
@@ -500,11 +488,11 @@ static qboolean PM_CheckPounce( void )
 
   if( pm->cmd.buttons & BUTTON_ATTACK2 )
   {
-    pm->ps->pm_flags &= ~PMF_CHARGE_POUNCE;
+    pm->ps->pm_flags &= ~PMF_CHARGE;
     return qfalse;
   }
 
-  if( pm->ps->pm_flags & PMF_CHARGE_POUNCE )
+  if( pm->ps->pm_flags & PMF_CHARGE )
     return qfalse;
 
   if( pm->ps->stats[ STAT_MISC ] == 0 )
@@ -513,7 +501,7 @@ static qboolean PM_CheckPounce( void )
   pml.groundPlane = qfalse;   // jumping away
   pml.walking = qfalse;
   
-  pm->ps->pm_flags |= PMF_CHARGE_POUNCE;
+  pm->ps->pm_flags |= PMF_CHARGE;
   
   pm->ps->groundEntityNum = ENTITYNUM_NONE;
   
@@ -560,7 +548,7 @@ static qboolean PM_CheckJump( void )
     return qfalse;
 
   //can't jump and charge at the same time
-  if( ( pm->ps->weapon == WP_GROUND_POUND ) && pm->ps->stats[ STAT_MISC ] > 0 )
+  if( ( pm->ps->weapon == WP_CHARGE ) && pm->ps->stats[ STAT_MISC ] > 0 )
     return qfalse;
 
   if( ( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS ) &&
@@ -575,7 +563,7 @@ static qboolean PM_CheckJump( void )
     return qfalse;
 
   //can't jump whilst grabbed
-  if( pm->ps->pm_type == PM_GRABBED && pm->ps->pm_type == PM_KNOCKED )
+  if( pm->ps->pm_type == PM_GRABBED )
   {
     pm->cmd.upmove = 0;
     return qfalse;
@@ -1055,7 +1043,7 @@ static void PM_ClimbMove( void )
   if( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK )
     accelerate = pm_airaccelerate;
   else
-    accelerate = pm_accelerate;
+    accelerate = BG_FindAccelerationForClass( pm->ps->stats[ STAT_PCLASS ] );
 
   PM_Accelerate( wishdir, wishspeed, accelerate );
 
@@ -1175,7 +1163,7 @@ static void PM_WalkMove( void )
   if( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK )
     accelerate = pm_airaccelerate;
   else
-    accelerate = pm_accelerate;
+    accelerate = BG_FindAccelerationForClass( pm->ps->stats[ STAT_PCLASS ] );
 
   PM_Accelerate( wishdir, wishspeed, accelerate );
 
@@ -2438,9 +2426,6 @@ static void PM_Weapon( void )
   if( pm->ps->stats[ STAT_STATE ] & SS_HOVELING )
     return;
 
-  if( pm->ps->stats[ STAT_STATE ] & SS_KNOCKEDOVER )
-    return;
-
   // check for dead player
   if( pm->ps->stats[ STAT_HEALTH ] <= 0 )
   {
@@ -2896,25 +2881,6 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
         ps->delta_angles[ i ] -= ANGLE2SHORT( fabs( diff ) * 0.05f );
     }
   }
-
-  //fix the view to the lock point
-  if( ps->pm_type == PM_KNOCKED )
-  {
-    for( i = 0; i < 3; i++ )
-    {
-      float diff = AngleSubtract( ps->viewangles[ i ], ps->grapplePoint[ i ] );
-
-      while( diff > 180.0f )
-        diff -= 360.0f;
-      while( diff < -180.0f )
-        diff += 360.0f;
-
-      if( diff < 0 )
-        ps->delta_angles[ i ] += ANGLE2SHORT( fabs( diff ) );
-      else if( diff > 0 )
-        ps->delta_angles[ i ] -= ANGLE2SHORT( fabs( diff ) );
-    }
-  }
 }
 
 
@@ -3075,7 +3041,7 @@ void PmoveSingle (pmove_t *pmove)
   // update the viewangles
   PM_UpdateViewAngles( pm->ps, &pm->cmd );
 
-  if ( pm->ps->pm_type == PM_DEAD || pm->ps->pm_type == PM_GRABBED || pm->ps->pm_type == PM_KNOCKED )
+  if ( pm->ps->pm_type == PM_DEAD || pm->ps->pm_type == PM_GRABBED )
     PM_DeadMove( );
 
   PM_DropTimers( );

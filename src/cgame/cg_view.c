@@ -462,6 +462,20 @@ static void CG_OffsetFirstPersonView( void )
   else
     bob2 = BG_FindBobForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
   
+  //give a charging player some feedback
+  if( cg.predictedPlayerState.weapon == WP_CHARGE )
+  {
+    if( cg.predictedPlayerState.stats[ STAT_MISC ] > 0 )
+    {
+      float fraction = (float)( cg.time - cg.weapon2Time ) / (float)BMOFO_CHARGE_TIME;
+
+      if( fraction > 1.0f )
+        fraction = 1.0f;
+
+      bob2 *= ( 1.0f + fraction * 6.0f );
+    }
+  }
+  
   if( bob2 != 0.0f )
   {
     // make sure the bob is visible even at low speeds
@@ -484,8 +498,7 @@ static void CG_OffsetFirstPersonView( void )
 
   //provide some feedback for pouncing
   if( cg.predictedPlayerState.weapon == WP_POUNCE ||
-      cg.predictedPlayerState.weapon == WP_POUNCE_UPG ||
-      cg.predictedPlayerState.weapon == WP_GROUND_POUND )
+      cg.predictedPlayerState.weapon == WP_POUNCE_UPG )
   {
     if( cg.predictedPlayerState.stats[ STAT_MISC ] > 0 )
     {
@@ -495,17 +508,14 @@ static void CG_OffsetFirstPersonView( void )
       AngleVectors( angles, forward, NULL, NULL );
       VectorNormalize( forward );
 
-      if( cg.predictedPlayerState.weapon == WP_GROUND_POUND )
-        fraction1 = (float)( cg.time - cg.weapon2Time ) / (float)BMOFO_CHARGE_TIME;
-      else
-        fraction1 = (float)( cg.time - cg.weapon2Time ) / (float)DRAGOON_POUNCE_TIME;
+      fraction1 = (float)( cg.time - cg.weapon2Time ) / (float)DRAGOON_POUNCE_TIME;
 
       if( fraction1 > 1.0f )
         fraction1 = 1.0f;
 
       fraction2 = -sin( fraction1 * M_PI / 2 );
       
-      VectorMA( origin, 15*fraction2, forward, origin );
+      VectorMA( origin, 15 * fraction2, forward, origin );
     }
   }
 
@@ -597,95 +607,12 @@ static void CG_OffsetFirstPersonView( void )
     }
   }
   
-#define KNOCK_ROLL          70.0f
-#define KNOCK_SHAKE_HEIGHT  10
-#define KNOCK_RUMBLE_TIME   60
-  
-  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_KNOCKEDOVER )
-  {
-    int     deltaTime;
-    float   deltaSecs;
-    trace_t tr;
-    vec3_t  mins, maxs;
-    float   rollFraction;
-
-    BG_FindBBoxForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ], NULL, NULL, NULL, mins, maxs );
-
-    //bit closer to the ground
-    mins[ 2 ] = -1.0f;
-    
-    deltaTime = cg.time - ( cg.firstKnockedTime + (int)( (float)BMOFO_KOVER_TIME / 5.0f ) );
-    
-    if( deltaTime < 0 )
-    {
-      if( cg.time > cg.lastRumbleTime )
-      {
-        cg.rumbleVector[ 0 ] = rand( ) % KNOCK_SHAKE_HEIGHT;
-        cg.rumbleVector[ 1 ] = rand( ) % KNOCK_SHAKE_HEIGHT;
-        cg.rumbleVector[ 2 ] = rand( ) % KNOCK_SHAKE_HEIGHT;
-        
-        cg.lastRumbleTime = cg.time + KNOCK_RUMBLE_TIME;
-      }
-      
-      VectorAdd( origin, cg.rumbleVector, origin );
-    }
-    else
-    {
-      deltaSecs = deltaTime * 0.001;  // milliseconds to seconds
-      origin[ 2 ] -= 0.5 * DEFAULT_GRAVITY * deltaSecs * deltaSecs;   // FIXME: local gravity...
-
-      CG_Trace( &tr, baseOrigin, mins, maxs, origin, cg.predictedPlayerState.clientNum, MASK_SOLID );
-      VectorCopy( tr.endpos, origin );
-
-      rollFraction = (float)deltaTime / ( (float)BMOFO_KOVER_TIME / 6.0f );
-
-      if( rollFraction > 1.0f )
-        rollFraction = 1.0f;
-
-      angles[ ROLL ] -= rollFraction * KNOCK_ROLL;
-      VectorSet( cg.rumbleVector, 0.0f, 0.0f, 0.0f );
-    }
-  }
-  
-  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_GETTINGUP )
-  {
-    int     deltaTime;
-    trace_t tr;
-    vec3_t  mins, maxs, ground, pushUp;
-    float   rollFraction;
-
-    BG_FindBBoxForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ], NULL, NULL, NULL, mins, maxs );
-
-    //bit closer to the ground
-    mins[ 2 ] = -1.0f;
-    
-    VectorCopy( baseOrigin, ground );
-    ground[ 2 ] -= 64.0f;
-    
-    CG_Trace( &tr, baseOrigin, mins, maxs, ground, cg.predictedPlayerState.clientNum, MASK_SOLID );
-    VectorSubtract( baseOrigin, tr.endpos, pushUp );
-    
-    deltaTime = cg.time - cg.firstGetUpTime;
-
-    rollFraction = (float)deltaTime / (float)BMOFO_GETUP_TIME;
-
-    if( rollFraction > 1.0f )
-      rollFraction = 1.0f;
-
-    rollFraction = 1.0f - rollFraction;
-    
-    VectorScale( pushUp, rollFraction, pushUp );
-    VectorSubtract( origin, pushUp, origin );
-
-    angles[ ROLL ] -= rollFraction * KNOCK_ROLL;
-  }
-  
   //TA: this *feels* more realisitic for humans
   if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
     angles[PITCH] += cg.bobfracsin * bob2 * 0.5;
     
-    //TA: heavy breathing effects
+    //TA: heavy breathing effects //FIXME: sound
     if( cg.predictedPlayerState.stats[ STAT_STAMINA ] < 0 )
     {
       float deltaBreath = (float)(

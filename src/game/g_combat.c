@@ -291,7 +291,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->takedamage = qtrue; // can still be gibbed
 
   self->s.weapon = WP_NONE;
-  self->s.powerups = 0;
+  /*self->s.powerups = 0;*/ //TA: class is encoded into powers in trem
   self->r.contents = CONTENTS_BODY;
   //self->r.contents = CONTENTS_CORPSE;
 
@@ -304,7 +304,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   self->s.loopSound = 0;
 
-  self->r.maxs[2] = -8;
+  self->r.maxs[ 2 ] = -8;
 
   // don't allow respawn until the death anim is done
   // g_forcerespawn may force spawning at some later time
@@ -847,7 +847,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   if( !dir )
     dflags |= DAMAGE_NO_KNOCKBACK;
   else
-    VectorNormalize(dir);
+    VectorNormalize( dir );
 
   knockback = damage;
   if( knockback > 200 )

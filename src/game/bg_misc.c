@@ -1244,7 +1244,8 @@ classAttributes_t bg_classList[ ] =
     0.001f,                                         //float   bob;
     350,                                            //int     steptime;
     ABUILDER_SPEED,                                 //float   speed;
-    1.0f,                                           //float   sticky;
+    10.0f,                                          //float   acceleration;
+    6.0f,                                           //float   friction;
     { PCL_A_B_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
     ABUILDER_TTE,                                   //int     timetoevolve;
     ABUILDER_VALUE                                  //int     value;
@@ -1274,7 +1275,8 @@ classAttributes_t bg_classList[ ] =
     0.001f,                                         //float   bob;
     200,                                            //int     steptime;
     ABUILDER_UPG_SPEED,                             //float   speed;
-    1.0f,                                           //float   sticky;
+    10.0f,                                          //float   acceleration;
+    6.0f,                                           //float   friction;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
     0,                                              //int     timetoevolve;
     ABUILDER_UPG_VALUE                              //int     value;
@@ -1304,7 +1306,8 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   bob;
     25,                                             //int     steptime;
     SOLDIER_SPEED,                                  //float   speed;
-    5.0f,                                           //float   sticky;
+    10.0f,                                          //float   acceleration;
+    20.0f,                                          //float   friction;
     { PCL_A_O_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
     SOLDIER_TTE,                                    //int     timetoevolve;
     SOLDIER_VALUE                                   //int     value;
@@ -1335,7 +1338,8 @@ classAttributes_t bg_classList[ ] =
     0.001f,                                         //float   bob;
     25,                                             //int     steptime;
     HYDRA_SPEED,                                    //float   speed;
-    4.0f,                                           //float   sticky;
+    10.0f,                                          //float   acceleration;
+    10.0f,                                          //float   friction;
     { PCL_A_O_LEV2, PCL_A_O_LEV1_UPG, PCL_NONE },   //int     children[ 3 ];
     HYDRA_TTE,                                      //int     timetoevolve;
     HYDRA_VALUE                                     //int     value;
@@ -1366,7 +1370,8 @@ classAttributes_t bg_classList[ ] =
     0.001f,                                         //float   bob;
     25,                                             //int     steptime;
     HYDRA_UPG_SPEED,                                //float   speed;
-    4.0f,                                           //float   sticky;
+    10.0f,                                          //float   acceleration;
+    6.0f,                                           //float   friction;
     { PCL_A_O_LEV2, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
     HYDRA_UPG_TTE,                                  //int     timetoevolve;
     HYDRA_UPG_VALUE                                 //int     value;
@@ -1396,7 +1401,8 @@ classAttributes_t bg_classList[ ] =
     0.0005f,                                        //float   bob;
     25,                                             //int     steptime;
     DRAGOON_SPEED,                                  //float   speed;
-    3.0f,                                           //float   sticky;
+    10.0f,                                          //float   acceleration;
+    6.0f,                                           //float   friction;
     { PCL_A_O_LEV3, PCL_A_O_LEV2_UPG, PCL_NONE },   //int     children[ 3 ];
     DRAGOON_TTE,                                    //int     timetoevolve;
     DRAGOON_VALUE                                   //int     value;
@@ -1426,7 +1432,8 @@ classAttributes_t bg_classList[ ] =
     0.0005f,                                        //float   bob;
     25,                                             //int     steptime;
     DRAGOON_UPG_SPEED,                              //float   speed;
-    3.0f,                                           //float   sticky;
+    10.0f,                                          //float   acceleration;
+    6.0f,                                           //float   friction;
     { PCL_A_O_LEV3, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
     DRAGOON_UPG_TTE,                                //int     timetoevolve;
     DRAGOON_UPG_VALUE                               //int     value;
@@ -1456,7 +1463,8 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   bob;
     60,                                             //int     steptime;
     CHIMERA_SPEED,                                  //float   speed;
-    5.0f,                                           //float   sticky;
+    10.0f,                                          //float   acceleration;
+    6.0f,                                           //float   friction;
     { PCL_A_O_LEV4, PCL_A_O_LEV3_UPG, PCL_NONE },   //int     children[ 3 ];
     CHIMERA_TTE,                                    //int     timetoevolve;
     CHIMERA_VALUE                                   //int     value;
@@ -1486,7 +1494,8 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   bob;
     60,                                             //int     steptime;
     CHIMERA_UPG_SPEED,                              //float   speed;
-    5.0f,                                           //float   sticky;
+    10.0f,                                          //float   acceleration;
+    6.0f,                                           //float   friction;
     { PCL_A_O_LEV4, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
     CHIMERA_UPG_TTE,                                //int     timetoevolve;
     CHIMERA_UPG_VALUE                               //int     value;
@@ -1495,7 +1504,7 @@ classAttributes_t bg_classList[ ] =
     PCL_A_O_LEV4,                                   //int     classnum;
     "bigmofo",                                      //char    *classname;
     "Big Mofo",                                     //char    *humanname;
-    "bigmofo",                                      //char    *modelname;
+    "bug",                                          //char    *modelname;
     1.2f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
     "alien_general_hud",                            //char    *hudname;
@@ -1510,13 +1519,14 @@ classAttributes_t bg_classList[ ] =
     BMOFO_REGEN,                                    //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
-    WP_GROUND_POUND,                                //weapon_t  startWeapon
+    WP_CHARGE,                                //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     90,                                             //int     fov;
-    0.0f,                                           //float   bob;
+    0.001f,                                         //float   bob;
     60,                                             //int     steptime;
     BMOFO_SPEED,                                    //float   speed;
-    5.0f,                                           //float   sticky;
+    5.0f,                                           //float   acceleration;
+    6.0f,                                           //float   friction;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
     0,                                              //int     timetoevolve;
     BMOFO_VALUE                                     //int     value;
@@ -1545,7 +1555,8 @@ classAttributes_t bg_classList[ ] =
     0.002f,                                         //float   bob;
     200,                                            //int     steptime;
     1.0f,                                           //float   speed;
-    1.0f,                                           //float   sticky;
+    10.0f,                                          //float   acceleration;
+    6.0f,                                           //float   friction;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
     0,                                              //int     timetoevolve;
     0                                               //int     value;
@@ -1561,7 +1572,7 @@ classAttributes_t bg_classList[ ] =
     
     "bsuit", ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), { 0, 0, 0 }, { 0, 0, 0, },                             
     { 0, 0, 0, }, { 0, 0, 0, }, { 0, 0, 0, }, 0, 0, 0, 0, 0, WP_NONE, 0.0f, 0,   
-    0.0f, 0, 1.0f, 1.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
+    0.0f, 0, 1.0f, 1.0f, 1.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
   }
 };
 
@@ -1663,7 +1674,7 @@ float BG_FindModelScaleForClass( int pclass )
     }
   }
   
-  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindModelScaleForClass\n" );
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindModelScaleForClass( %d )\n", pclass );
   return 1.0f;
 }
 
@@ -1916,10 +1927,10 @@ float BG_FindSpeedForClass( int pclass )
 
 /*
 ==============
-BG_FindStickyForClass
+BG_FindAccelerationForClass
 ==============
 */
-float BG_FindStickyForClass( int pclass )
+float BG_FindAccelerationForClass( int pclass )
 {
   int i;
 
@@ -1927,12 +1938,33 @@ float BG_FindStickyForClass( int pclass )
   {
     if( bg_classList[ i ].classNum == pclass )
     {
-      return bg_classList[ i ].sticky;
+      return bg_classList[ i ].acceleration;
     }
   }
   
-  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindStickyForClass\n" );
-  return 1.0f;
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindAccelerationForClass\n" );
+  return 10.0f;
+}
+
+/*
+==============
+BG_FindFrictionForClass
+==============
+*/
+float BG_FindFrictionForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].friction;
+    }
+  }
+  
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindFrictionForClass\n" );
+  return 6.0f;
 }
 
 /*
@@ -2548,7 +2580,7 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_GROUND_POUND,      //int       weaponNum;
+    WP_CHARGE,            //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
@@ -2560,11 +2592,11 @@ weaponAttributes_t bg_weapons[ ] =
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
     BMOFO_CLAW_REPEAT,    //int       repeatRate1;
-    BMOFO_KNOCK_REPEAT,   //int       repeatRate2;
-    BMOFO_CLAW_REPEAT,    //int       repeatRate3;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
-    qtrue,                //qboolean  hasThirdMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;

@@ -1120,17 +1120,6 @@ void CG_AddViewWeapon( playerState_t *ps )
     VectorMA( hand.origin, random( ) * fraction, cg.refdef.viewaxis[ 1 ], hand.origin );
   }
   
-  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_KNOCKEDOVER )
-  {
-    vec3_t  weaponRumble;
-
-    VectorCopy( cg.rumbleVector, weaponRumble );
-    VectorInverse( weaponRumble );
-    VectorScale( weaponRumble, 0.1f, weaponRumble );
-      
-    VectorAdd( hand.origin, weaponRumble, hand.origin );
-  }
-  
   AnglesToAxis( angles, hand.axis );
 
   // map torso animations to weapon animations

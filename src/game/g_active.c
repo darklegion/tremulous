@@ -213,6 +213,12 @@ void ClientImpacts( gentity_t *ent, pmove_t *pm )
     if( ( ent->r.svFlags & SVF_BOT ) && ( ent->touch ) )
       ent->touch( ent, other, &trace );
 
+    //charge attack
+    if( ent->client->ps.weapon == WP_CHARGE &&
+        ent->client->ps.stats[ STAT_MISC ] > 0 && 
+        ent->client->charging )
+      ChargeAttack( ent, other );
+    
     if( !other->touch )
       continue;
 
@@ -484,25 +490,37 @@ void ClientTimerActions( gentity_t *ent, int msec )
         client->ps.stats[ STAT_MISC ] = DRAGOON_POUNCE_SPEED;
     }
 
-    //client is charging up for a charge
-    if( client->ps.weapon == WP_GROUND_POUND )
+    //client is charging up for a... charge
+    if( client->ps.weapon == WP_CHARGE )
     {
-      if( client->ps.stats[ STAT_MISC ] < BMOFO_CHARGE_SPEED && ucmd->buttons & BUTTON_ATTACK2 )
+      if( client->ps.stats[ STAT_MISC ] < BMOFO_CHARGE_TIME && ucmd->buttons & BUTTON_ATTACK2 )
       {
-        client->ps.stats[ STAT_MISC ] += ( 100.0f / (float)BMOFO_CHARGE_TIME ) * BMOFO_CHARGE_SPEED;
-        client->allowedToCharge = qtrue;
+        client->charging = qfalse; //should already be off, just making sure
+
+        client->ps.stats[ STAT_MISC ] += 100;
+        
+        if( client->ps.stats[ STAT_MISC ] > BMOFO_CHARGE_TIME )
+          client->ps.stats[ STAT_MISC ] = BMOFO_CHARGE_TIME;
       }
 
       if( !( ucmd->buttons & BUTTON_ATTACK2 ) )
       {
         if( client->ps.stats[ STAT_MISC ] > 0 )
-          client->chargePayload = client->ps.stats[ STAT_MISC ];
+        {
+          client->ps.stats[ STAT_MISC ] -= 100;
+          client->charging = qtrue;
 
-        client->ps.stats[ STAT_MISC ] = 0;
+          //if the charger has stopped moving take a chunk of charge away
+          if( VectorLength( client->ps.velocity ) < 64.0f )
+            client->ps.stats[ STAT_MISC ] = client->ps.stats[ STAT_MISC ] >> 1;
+        }
+        
+        if( client->ps.stats[ STAT_MISC ] <= 0 )
+        {
+          client->ps.stats[ STAT_MISC ] = 0;
+          client->charging = qfalse;
+        }
       }
-
-      if( client->ps.stats[ STAT_MISC ] > BMOFO_CHARGE_SPEED )
-        client->ps.stats[ STAT_MISC ] = BMOFO_CHARGE_SPEED;
     }
 
     //client is charging up an lcannon
@@ -866,9 +884,6 @@ void ClientThink_real( gentity_t *ent )
   else if( client->ps.stats[ STAT_STATE ] & SS_BLOBLOCKED ||
            client->ps.stats[ STAT_STATE ] & SS_GRABBED )
     client->ps.pm_type = PM_GRABBED;
-  else if( client->ps.stats[ STAT_STATE ] & SS_GETTINGUP ||
-           client->ps.stats[ STAT_STATE ] & SS_KNOCKEDOVER )
-    client->ps.pm_type = PM_KNOCKED;
   else
     client->ps.pm_type = PM_NORMAL;
 
@@ -893,29 +908,6 @@ void ClientThink_real( gentity_t *ent )
   if( client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED &&
       client->lastPoisonCloudedTime + HYDRA_PCLOUD_TIME < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_POISONCLOUDED;
-
-  if( client->ps.stats[ STAT_STATE ] & SS_KNOCKEDOVER &&
-      client->lastKnockedOverTime + BMOFO_KOVER_TIME < level.time &&
-      ucmd->upmove > 0 )
-  {
-    client->lastGetUpTime = level.time;
-    G_AddPredictableEvent( ent, EV_GETUP, 0 );
-    client->ps.stats[ STAT_STATE ] &= ~SS_KNOCKEDOVER;
-    client->ps.stats[ STAT_STATE ] |= SS_GETTINGUP;
-
-    //FIXME: getup animation
-    client->ps.legsAnim =
-      ( ( client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | BOTH_DEATH2;
-    client->ps.torsoAnim =
-      ( ( client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | BOTH_DEATH2;
-  }
-
-  if( client->ps.stats[ STAT_STATE ] & SS_GETTINGUP &&
-      client->lastGetUpTime + BMOFO_GETUP_TIME < level.time )
-  {
-    client->ps.stats[ STAT_STATE ] &= ~SS_GETTINGUP;
-    VectorCopy( ent->client->ps.grapplePoint, ent->client->ps.viewangles );
-  }
   
   client->ps.gravity = g_gravity.value;
 
@@ -949,7 +941,7 @@ void ClientThink_real( gentity_t *ent )
   // set up for pmove
   oldEventSequence = client->ps.eventSequence;
 
-  memset (&pm, 0, sizeof(pm));
+  memset( &pm, 0, sizeof( pm ) );
 
   if( !( ucmd->buttons & BUTTON_TALK ) ) //&& client->ps.weaponTime <= 0 ) //TA: erk more server load
   {
@@ -969,11 +961,6 @@ void ClientThink_real( gentity_t *ent )
       case WP_POUNCE_UPG:
         if( client->ps.weaponTime <= 0 )
           pm.autoWeaponHit[ client->ps.weapon ] = CheckPounceAttack( ent );
-        break;
-
-      case WP_GROUND_POUND:
-        if( client->ps.weaponTime <= 0 )
-          pm.autoWeaponHit[ client->ps.weapon ] = CheckChargeAttack( ent );
         break;
 
       default:
