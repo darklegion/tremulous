@@ -185,9 +185,11 @@ struct gentity_s {
   gentity_t *parentNode;  //TA: for creep and defence/spawn dependencies
   qboolean  active;       //TA: for power repeater, but could be useful elsewhere
   qboolean  powered;      //TA: for human buildables
+  int       builtBy;      //TA: clientNum of person that built this
 
   int       credits[ MAX_CLIENTS ]; //TA: human credits for each client
   qboolean  creditsHash[ MAX_CLIENTS ]; //TA: track who has claimed credit
+  int       killedBy;                   //TA: clientNum of killer
 };
 
 typedef enum {

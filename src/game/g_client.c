@@ -549,7 +549,12 @@ void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
   if( activator->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
   {
     //can't pick teammates bodies to bits
-    if( !Q_stricmp( self->classname, "droidCorpse" ) ) return;
+    if( !Q_stricmp( self->classname, "droidCorpse" ) )
+      return;
+
+    //can't use bodies that are not owned
+    if( self->killedBy > 0 && self->killedBy != activator->client->ps.clientNum )
+      return;
 
     G_AddPredictableEvent( activator, EV_MENU, MN_D_INFEST );
   }
@@ -560,10 +565,12 @@ void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
     class = self->s.clientNum;
     
     //can't pick teammates bodies to bits
-    if( !Q_stricmp( self->classname, "humanCorpse" ) ) return;
+    if( !Q_stricmp( self->classname, "humanCorpse" ) )
+      return;
 
     //client has already raided this corpse
-    if( self->creditsHash[ clientNum ] ) return;
+    if( self->creditsHash[ clientNum ] )
+      return;
     
     //total up all the damage done by every client
     for( i = 0; i < MAX_CLIENTS; i++ )
@@ -603,7 +610,8 @@ A player is respawning, so make an entity that looks
 just like the existing corpse to leave behind.
 =============
 */
-void SpawnCorpse( gentity_t *ent ) {
+void SpawnCorpse( gentity_t *ent )
+{
   gentity_t   *body;
   int         contents;
   vec3_t      origin, dest;
@@ -624,7 +632,22 @@ void SpawnCorpse( gentity_t *ent ) {
 
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
+    gentity_t *buildable = &g_entities[ ent->client->lasthurt_client ];
+
     body->classname = "humanCorpse";
+    
+    if( ent->client->lasthurt_client < MAX_CLIENTS )
+    {
+      //client suicide - body is freebie
+      if( ent->client->ps.clientNum == ent->client->lasthurt_client )
+        body->killedBy = -1;
+      else //owned by killer
+        body->killedBy = ent->client->lasthurt_client;
+    }
+    else if( buildable && buildable->s.eType == ET_BUILDABLE ) //owned by builder
+      body->killedBy = buildable->builtBy;
+    else // *shrugs* probably killed by some map entity - freebie
+      body->killedBy = -1;
   }
   else
   {

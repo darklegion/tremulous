@@ -1492,7 +1492,7 @@ static void PM_GroundClimbTrace( void )
 
     //if we hit something
     if( trace.fraction < 1.0 && !( trace.surfaceFlags & ( SURF_SKY | SURF_NOIMPACT ) ) &&
-        !( trace.entityNum != 1022 && i != 3 ) )
+        !( trace.entityNum != ENTITYNUM_WORLD && i != 3 ) )
     {
       if( i == 2 )
         VectorCopy( trace.endpos, pm->ps->origin );
