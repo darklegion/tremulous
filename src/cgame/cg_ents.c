@@ -542,7 +542,7 @@ static void CG_LightFlare( centity_t *cent )
   float         len;
   trace_t       tr;
   float         maxAngle;
-  vec3_t        mins, maxs, dir, start, end;
+  vec3_t        mins, maxs, start, end;
   float         srcRadius, srLocal, ratio = 1.0f;
 
   es = &cent->currentState;
@@ -565,13 +565,6 @@ static void CG_LightFlare( centity_t *cent )
   
   memset( &flare, 0, sizeof( flare ) );
   
-  //bunch of geometry
-  AngleVectors( es->angles, forward, NULL, NULL );
-  VectorCopy( cent->lerpOrigin, flare.origin );
-  VectorSubtract( flare.origin, cg.refdef.vieworg, delta );
-  len = VectorLength( delta );
-  VectorNormalize( delta );
-
   flare.reType = RT_SPRITE;
   flare.customShader = cgs.gameShaders[ es->modelindex ];
   flare.shaderRGBA[ 0 ] = 0xFF;
@@ -582,115 +575,136 @@ static void CG_LightFlare( centity_t *cent )
   //flares always drawn before the rest of the scene
   flare.renderfx |= RF_DEPTHHACK;
 
-  //can only see the flare when in front of it
-  flare.radius = len / es->origin2[ 0 ];
+  //bunch of geometry
+  AngleVectors( es->angles, forward, NULL, NULL );
+  VectorCopy( cent->lerpOrigin, flare.origin );
+  VectorSubtract( flare.origin, cg.refdef.vieworg, delta );
+  len = VectorLength( delta );
+  VectorNormalize( delta );
 
-  if( es->origin2[ 2 ] == 0 )
-    srcRadius = srLocal = flare.radius / 2.0f;
-  else
-    srcRadius = srLocal = len / es->origin2[ 2 ];
-  
-  maxAngle = es->origin2[ 1 ];
+  //don't bother for flares behind the view plane
+  if( DotProduct( delta, cg.refdef.viewaxis[ 0 ] ) < 0.0 )
+    return;
 
-  if( maxAngle > 0.0f )
+  //only recalculate radius and ratio every three frames
+  if( !( cg.clientFrame % 3 ) )
   {
-    float radiusMod = 1.0f - ( 180.0f - RAD2DEG(
-          acos( DotProduct( delta, forward ) ) ) ) / maxAngle;
+    //can only see the flare when in front of it
+    flare.radius = len / es->origin2[ 0 ];
+
+    if( es->origin2[ 2 ] == 0 )
+      srcRadius = srLocal = flare.radius / 2.0f;
+    else
+      srcRadius = srLocal = len / es->origin2[ 2 ];
     
-    if( es->eFlags & EF_NODRAW )
-      flare.radius *= radiusMod;
-    else if( radiusMod < 0.0f )
+    maxAngle = es->origin2[ 1 ];
+
+    if( maxAngle > 0.0f )
+    {
+      float radiusMod = 1.0f - ( 180.0f - RAD2DEG(
+            acos( DotProduct( delta, forward ) ) ) ) / maxAngle;
+      
+      if( es->eFlags & EF_NODRAW )
+        flare.radius *= radiusMod;
+      else if( radiusMod < 0.0f )
+        flare.radius = 0.0f;
+    }   
+
+    if( flare.radius < 0.0f )
       flare.radius = 0.0f;
-  }   
-
-  if( flare.radius < 0.0f )
-    flare.radius = 0.0f;
-  
-  VectorSubtract( cg.refdef.vieworg, flare.origin, dir );
-  VectorNormalize( dir );
-  VectorMA( flare.origin, flare.radius, dir, end );
-  VectorMA( cg.refdef.vieworg, -flare.radius, dir, start );
-  
-  if( cg_lightFlare.integer == FLARE_REALFADE )
-  {
-    //draw "correct" albeit inefficient flares
-    srLocal = cent->lastFlareRadius;
     
-    //flare radius is likely to be the same as last frame so start with it
-    do
-    {
-      srLocal += RADIUSSTEP;
-      SETBOUNDS( mins, maxs, srLocal );
-      CG_Trace( &tr, start, mins, maxs, end,
-                cg.predictedPlayerState.clientNum, MASK_SHOT );
-
-    } while( ( tr.fraction == 1.0f && !tr.startsolid ) && ( srLocal < srcRadius ) );
+    VectorMA( flare.origin, -flare.radius, delta, end );
+    VectorMA( cg.refdef.vieworg, flare.radius, delta, start );
     
-    srLocal -= RADIUSSTEP;
-    
-    //shink the flare until there is a los
-    do
+    if( cg_lightFlare.integer == FLARE_REALFADE )
     {
-      SETBOUNDS( mins, maxs, srLocal );
-      CG_Trace( &tr, start, mins, maxs, end,
-                cg.predictedPlayerState.clientNum, MASK_SHOT );
-
-      srLocal -= RADIUSSTEP;
-    } while( ( tr.fraction < 1.0f || tr.startsolid ) && ( srLocal > 0.0f ) );
-    
-    ratio = srLocal / srcRadius;
-
-    cent->lastFlareRadius = srLocal;
-  }
-  else if( cg_lightFlare.integer == FLARE_TIMEFADE )
-  {
-    //draw timed flares
-    SETBOUNDS( mins, maxs, srcRadius );
-    CG_Trace( &tr, start, mins, maxs, end,
-              cg.predictedPlayerState.clientNum, MASK_SHOT );
-
-    if( ( tr.fraction < 1.0f || tr.startsolid ) && cent->flareStatus )
-    {
-      cent->flareStatus = qfalse;
-      cent->lastFlareTime = cg.time;
-    }
-    else if( ( tr.fraction == 1.0f && !tr.startsolid ) && !cent->flareStatus )
-    {
-      cent->flareStatus = qtrue;
-      cent->lastFlareTime = cg.time;
-    }
-
-    //fade flare up
-    if( cent->flareStatus )
-    {
-      if( cent->lastFlareTime + es->time > cg.time )
-        ratio = (float)( cg.time - cent->lastFlareTime ) / es->time;
-    }
-    
-    //fade flare down
-    if( !cent->flareStatus )
-    {
-      if( cent->lastFlareTime + es->time > cg.time )
+      //draw "correct" albeit inefficient flares
+      srLocal = cent->lastFlareSrcRadius;
+      
+      //flare radius is likely to be the same as last frame so start with it
+      do
       {
-        ratio = (float)( cg.time - cent->lastFlareTime ) / es->time;
-        ratio = 1.0f - ratio;
+        srLocal += RADIUSSTEP;
+        SETBOUNDS( mins, maxs, srLocal );
+        CG_Trace( &tr, start, mins, maxs, end,
+                  cg.predictedPlayerState.clientNum, MASK_SHOT );
+
+      } while( ( tr.fraction == 1.0f && !tr.startsolid ) && ( srLocal < srcRadius ) );
+      
+      srLocal -= RADIUSSTEP;
+      
+      //shink the flare until there is a los
+      do
+      {
+        SETBOUNDS( mins, maxs, srLocal );
+        CG_Trace( &tr, start, mins, maxs, end,
+                  cg.predictedPlayerState.clientNum, MASK_SHOT );
+
+        srLocal -= RADIUSSTEP;
+      } while( ( tr.fraction < 1.0f || tr.startsolid ) && ( srLocal > 0.0f ) );
+      
+      ratio = srLocal / srcRadius;
+
+      cent->lastFlareSrcRadius = srLocal;
+    }
+    else if( cg_lightFlare.integer == FLARE_TIMEFADE )
+    {
+      //draw timed flares
+      SETBOUNDS( mins, maxs, srcRadius );
+      CG_Trace( &tr, start, mins, maxs, end,
+                cg.predictedPlayerState.clientNum, MASK_SHOT );
+
+      if( ( tr.fraction < 1.0f || tr.startsolid ) && cent->flareStatus )
+      {
+        cent->flareStatus = qfalse;
+        cent->lastFlareTime = cg.time;
       }
-      else
-        return;
+      else if( ( tr.fraction == 1.0f && !tr.startsolid ) && !cent->flareStatus )
+      {
+        cent->flareStatus = qtrue;
+        cent->lastFlareTime = cg.time;
+      }
+
+      //fade flare up
+      if( cent->flareStatus )
+      {
+        if( cent->lastFlareTime + es->time > cg.time )
+          ratio = (float)( cg.time - cent->lastFlareTime ) / es->time;
+      }
+      
+      //fade flare down
+      if( !cent->flareStatus )
+      {
+        if( cent->lastFlareTime + es->time > cg.time )
+        {
+          ratio = (float)( cg.time - cent->lastFlareTime ) / es->time;
+          ratio = 1.0f - ratio;
+        }
+        else
+          ratio = 0.0f;
+      }
+    }
+    else if( cg_lightFlare.integer == FLARE_NOFADE )
+    {
+      //draw nofade flares
+      SETBOUNDS( mins, maxs, srcRadius );
+      CG_Trace( &tr, start, mins, maxs, end,
+                cg.predictedPlayerState.clientNum, MASK_SHOT );
+
+      //flare source occluded
+      if( ( tr.fraction < 1.0f || tr.startsolid ) )
+        ratio = 0.0f;
     }
   }
-  else if( cg_lightFlare.integer == FLARE_NOFADE )
+  else
   {
-    //draw nofade flares
-    SETBOUNDS( mins, maxs, srcRadius );
-    CG_Trace( &tr, start, mins, maxs, end,
-              cg.predictedPlayerState.clientNum, MASK_SHOT );
-
-    //flare source occluded
-    if( ( tr.fraction < 1.0f || tr.startsolid ) )
-      return;
+    ratio        = cent->lastFlareRatio;
+    flare.radius = cent->lastFlareRadius;
   }
-  
+
+  cent->lastFlareRatio  = ratio;
+  cent->lastFlareRadius = flare.radius;
+    
   if( ratio < 1.0f )
   {
     flare.radius *= ratio;

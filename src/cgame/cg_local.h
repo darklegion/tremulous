@@ -217,9 +217,11 @@ typedef struct centity_s
   int                   buildableSparkTime;
   int                   buildableBleedTime;
 
-  float                 lastFlareRadius;  //caching of likely flare radius
-  int                   lastFlareTime;    //last time flare was visible/occluded
-  qboolean              flareStatus;      //flare is visble?
+  float                 lastFlareSrcRadius; //caching of likely flare source radius
+  float                 lastFlareRadius;    //caching of likely flare radius
+  float                 lastFlareRatio;     //caching of likely flare ratio
+  int                   lastFlareTime;      //last time flare was visible/occluded
+  qboolean              flareStatus;        //flare is visble?
 } centity_t;
 
 
