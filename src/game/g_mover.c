@@ -805,6 +805,114 @@ static void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_
   TeleportPlayer( other, origin, angles );
 }
 
+
+/*
+================
+manualTriggerSpectator
+
+This effectively creates a temporary door auto trigger so manually
+triggers doors can be skipped by spectators
+================
+*/
+static void manualDoorTriggerSpectator( gentity_t *door, gentity_t *player )
+{
+  gentity_t *other;
+  gentity_t triggerHull;
+  int       best, i;
+  vec3_t    mins, maxs;
+  
+  //don't skip a door that is already open
+  if( door->moverState == MOVER_1TO2 ||
+      door->moverState == MOVER_POS2 )
+    return;
+  
+  // find the bounds of everything on the team
+  VectorCopy( door->r.absmin, mins );
+  VectorCopy( door->r.absmax, maxs );
+
+  for( other = door->teamchain; other; other = other->teamchain )
+  {
+    AddPointToBounds( other->r.absmin, mins, maxs );
+    AddPointToBounds( other->r.absmax, mins, maxs );
+  }
+
+  // find the thinnest axis, which will be the one we expand
+  best = 0;
+  for( i = 1; i < 3; i++ )
+  {
+    if( maxs[ i ] - mins[ i ] < maxs[ best ] - mins[ best ] )
+      best = i;
+  }
+  
+  maxs[ best ] += 120;
+  mins[ best ] -= 120;
+
+  VectorCopy( mins, triggerHull.r.absmin );
+  VectorCopy( maxs, triggerHull.r.absmax );
+  triggerHull.count = best;
+
+  Touch_DoorTriggerSpectator( &triggerHull, player, NULL );
+}
+
+/*
+================
+manualTriggerSpectator
+
+Trip to skip the closest door targetted by trigger
+================
+*/
+void manualTriggerSpectator( gentity_t *trigger, gentity_t *player )
+{
+  gentity_t *t = NULL;
+  gentity_t *targets[ MAX_GENTITIES ];
+  int       i = 0, j;
+  float     minDistance = (float)INFINITE;
+  
+  //restrict this hack to trigger_multiple only for now
+  if( strcmp( trigger->classname, "trigger_multiple" ) )
+    return;
+  
+  if( !trigger->target )
+    return;
+
+  //create a list of door entities this trigger targets
+  while( ( t = G_Find( t, FOFS( targetname ), trigger->target ) ) != NULL )
+  {
+    if( !strcmp( t->classname, "func_door" ) )
+      targets[ i++ ] = t;
+    else if( t == trigger )
+      G_Printf( "WARNING: Entity used itself.\n" );
+    
+    if( !trigger->inuse )
+    {
+      G_Printf( "triggerity was removed while using targets\n" );
+      return;
+    }
+  }
+
+  //if more than 0 targets
+  if( i > 0 )
+  {
+    gentity_t *closest = NULL;
+    
+    //pick the closest door
+    for( j = 0; j < i; j++ )
+    {
+      float d = Distance( player->r.currentOrigin, targets[ j ]->r.currentOrigin );
+      
+      if( d < minDistance )
+      {
+        minDistance = d;
+        closest = targets[ j ];
+      }
+    }
+
+    //try and skip the door
+    manualDoorTriggerSpectator( closest, player );
+  }
+}
+
+
 /*
 ================
 Touch_DoorTrigger

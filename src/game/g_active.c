@@ -272,7 +272,11 @@ void  G_TouchTriggers( gentity_t *ent )
           // this is ugly but adding a new ET_? type will
           // most likely cause network incompatibilities
           hit->touch != Touch_DoorTrigger )
+      {
+        //check for manually triggered doors
+        manualTriggerSpectator( hit, ent );
         continue;
+      }
     }
 
     if( !trap_EntityContact( mins, maxs, hit ) )
