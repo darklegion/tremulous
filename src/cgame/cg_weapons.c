@@ -727,6 +727,12 @@ void CG_RegisterWeapon( int weaponNum )
       cgs.media.railRingsShader = trap_R_RegisterShader( "railDisc" );
       break;
 
+    case WP_LAS_GUN:
+      MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
+      weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/plasma/hyprbf1a.wav", qfalse );
+      cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
+      break;
+      
     case WP_LUCIFER_CANON:
       weaponInfo->readySound = trap_S_RegisterSound( "sound/weapons/bfg/bfg_hum.wav", qfalse );
       MAKERGB( weaponInfo->flashDlightColor, 1, 0.7f, 1 );
@@ -737,6 +743,11 @@ void CG_RegisterWeapon( int weaponNum )
       break;
 
     case WP_VENOM:
+      MAKERGB( weaponInfo->flashDlightColor, 0, 0, 0 );
+      weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav", qfalse );
+      break;
+
+    case WP_PAIN_SAW:
       MAKERGB( weaponInfo->flashDlightColor, 0, 0, 0 );
       weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav", qfalse );
       break;
@@ -1911,6 +1922,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
     break;
   case WP_MACHINEGUN:
   case WP_CHAINGUN:
+  case WP_LAS_GUN:
     mod = cgs.media.bulletFlashModel;
     shader = cgs.media.bulletExplosionShader;
     mark = cgs.media.bulletMarkShader;
@@ -2270,6 +2282,37 @@ static qboolean CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
 
 /*
 ======================
+CG_LasGunHit
+
+Renders las gun effects.
+======================
+*/
+void CG_LasGunHit( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum )
+{
+  trace_t trace;
+  vec3_t    start;
+
+  // if the shooter is currently valid, calc a source point and possibly
+  // do trail effects
+  if( sourceEntityNum >= 0 && cg_tracerChance.value > 0 )
+  {
+    if( CG_CalcMuzzlePoint( sourceEntityNum, start ) )
+    {
+      // draw a tracer
+      if( random() < cg_tracerChance.value )
+        CG_Tracer( start, end );
+    }
+  }
+
+  // impact splash and mark
+  if( flesh )
+    CG_Bleed( end, fleshEntityNum );
+  else
+    CG_MissileHitWall( WP_LAS_GUN, 0, end, normal, IMPACTSOUND_DEFAULT, 0 );
+}
+
+/*
+======================
 CG_Bullet
 
 Renders bullet effects.
@@ -2315,5 +2358,4 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
   } else {
     CG_MissileHitWall( WP_MACHINEGUN, 0, end, normal, IMPACTSOUND_DEFAULT, 0 );
   }
-
 }

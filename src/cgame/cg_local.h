@@ -1453,6 +1453,7 @@ void CG_Explosion( int clientNum, vec3_t origin, vec3_t dir );
 void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum, int damage );
 void CG_ShotgunFire( entityState_t *es );
 void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
+void CG_LasGunHit( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 
 void CG_RailTrail( vec3_t start, vec3_t end );
 void CG_TeslaTrail( vec3_t start, vec3_t end );

@@ -230,6 +230,95 @@ void flamerFire( gentity_t *ent )
 /*
 ======================================================================
 
+LAS GUN
+
+======================================================================
+*/
+
+/*
+===============
+lasGunFire
+===============
+*/
+void lasGunFire( gentity_t *ent )
+{
+  trace_t   tr;
+  vec3_t    end;
+  gentity_t *tent;
+  gentity_t *traceEnt;
+
+  VectorMA( muzzle, 8192 * 16, forward, end );
+
+  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+  if( tr.surfaceFlags & SURF_NOIMPACT )
+    return;
+
+  traceEnt = &g_entities[ tr.entityNum ];
+
+  // snap the endpos to integers, but nudged towards the line
+  SnapVectorTowards( tr.endpos, muzzle );
+
+  // send bullet impact
+  if( traceEnt->takedamage && traceEnt->client )
+  {
+    tent = G_TempEntity( tr.endpos, EV_LAS_HIT_FLESH );
+    tent->s.eventParm = traceEnt->s.number;
+  }
+  else
+  {
+    tent = G_TempEntity( tr.endpos, EV_LAS_HIT_WALL );
+    tent->s.eventParm = DirToByte( tr.plane.normal );
+  }
+  tent->s.otherEntityNum = ent->s.number;
+
+  if( traceEnt->takedamage )
+    G_Damage( traceEnt, ent, ent, forward, tr.endpos, 10, 0, MOD_MACHINEGUN );
+}
+
+/*
+======================================================================
+
+PAIN SAW
+
+======================================================================
+*/
+
+void painSawFire( gentity_t *ent )
+{
+  trace_t   tr;
+  vec3_t    end;
+  gentity_t *tent;
+  gentity_t *traceEnt;
+
+  // set aiming directions
+  AngleVectors( ent->client->ps.viewangles, forward, right, up );
+
+  CalcMuzzlePoint( ent, forward, right, up, muzzle );
+
+  VectorMA( muzzle, 32, forward, end );
+
+  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+  if ( tr.surfaceFlags & SURF_NOIMPACT )
+    return;
+
+  traceEnt = &g_entities[ tr.entityNum ];
+
+  // send blood impact
+  if ( traceEnt->takedamage && traceEnt->client )
+  {
+    tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
+    tent->s.otherEntityNum = traceEnt->s.number;
+    tent->s.eventParm = DirToByte( tr.plane.normal );
+    tent->s.weapon = ent->s.weapon;
+  }
+
+  if ( traceEnt->takedamage )
+    G_Damage( traceEnt, ent, ent, forward, tr.endpos, 5, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
+}
+
+/*
+======================================================================
+
 LUCIFER CANON
 
 ======================================================================
@@ -883,10 +972,10 @@ void FireWeapon( gentity_t *ent )
       LCChargeFire( ent, qfalse );
       break;
     case WP_LAS_GUN:
-      massDriverFire( ent );
+      lasGunFire( ent );
       break;
     case WP_PAIN_SAW:
-      gClawFire( ent );
+      painSawFire( ent );
       break;
     case WP_ABUILD:
       buildFire( ent, MN_A_BUILD );

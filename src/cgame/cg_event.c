@@ -978,6 +978,17 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qtrue, es->eventParm );
     break;
 
+  case EV_LAS_HIT_WALL:
+    DEBUGNAME("EV_LAS_HIT_WALL");
+    ByteToDir( es->eventParm, dir );
+    CG_LasGunHit( es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD );
+    break;
+
+  case EV_LAS_HIT_FLESH:
+    DEBUGNAME("EV_LAS_HIT_FLESH");
+    CG_LasGunHit( es->pos.trBase, es->otherEntityNum, dir, qtrue, es->eventParm );
+    break;
+    
 #define MASS_EJECTION_VEL 300
   case EV_MASS_DRIVER_HIT:
     DEBUGNAME("EV_MASS_DRIVER_HIT");

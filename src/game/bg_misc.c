@@ -2181,7 +2181,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    100,                  //int       repeatRate;
+    75,                   //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
@@ -3322,6 +3322,9 @@ char *eventnames[] = {
 
   "EV_BULLET_HIT_FLESH",
   "EV_BULLET_HIT_WALL",
+  "EV_LAS_HIT_FLESH",
+  "EV_LAS_HIT_WALL",
+  "EV_MASS_DRIVER_HIT",
 
   "EV_MISSILE_HIT",
   "EV_MISSILE_MISS",
