@@ -173,10 +173,18 @@ debug: $(BD)/cgame$(ARCH).$(SHLIBEXT) $(BD)/qagame$(ARCH).$(SHLIBEXT) $(BD)/ui$(
 qvm: $(BQ)/cgame.qvm $(BQ)/qagame.qvm $(BQ)/ui.qvm
 
 makedirs:
-	@if [ ! -d $(B) ];then mkdir $(B);fi
-	@if [ ! -d $(B)/$(GDIRNAME) ];then mkdir $(B)/$(GDIRNAME);fi
-	@if [ ! -d $(B)/$(CGDIRNAME) ];then mkdir $(B)/$(CGDIRNAME);fi
-	@if [ ! -d $(B)/$(UIDIRNAME) ];then mkdir $(B)/$(UIDIRNAME);fi
+	@if [ ! -d $(BR) ];then mkdir $(BR);fi
+	@if [ ! -d $(BR)/$(GDIRNAME) ];then mkdir $(BR)/$(GDIRNAME);fi
+	@if [ ! -d $(BR)/$(CGDIRNAME) ];then mkdir $(BR)/$(CGDIRNAME);fi
+	@if [ ! -d $(BR)/$(UIDIRNAME) ];then mkdir $(BR)/$(UIDIRNAME);fi
+	@if [ ! -d $(BD) ];then mkdir $(BD);fi
+	@if [ ! -d $(BD)/$(GDIRNAME) ];then mkdir $(BD)/$(GDIRNAME);fi
+	@if [ ! -d $(BD)/$(CGDIRNAME) ];then mkdir $(BD)/$(CGDIRNAME);fi
+	@if [ ! -d $(BD)/$(UIDIRNAME) ];then mkdir $(BD)/$(UIDIRNAME);fi
+	@if [ ! -d $(BQ) ];then mkdir $(BQ);fi
+	@if [ ! -d $(BQ)/$(GDIRNAME) ];then mkdir $(BQ)/$(GDIRNAME);fi
+	@if [ ! -d $(BQ)/$(CGDIRNAME) ];then mkdir $(BQ)/$(CGDIRNAME);fi
+	@if [ ! -d $(BQ)/$(UIDIRNAME) ];then mkdir $(BQ)/$(UIDIRNAME);fi
 
 
 
@@ -296,14 +304,18 @@ clean-qvm:
 
 # --installing rules--
 install-release:release
+	mkdir -p $(Q3A_DIR)
 	mkdir -p $(Q3A_DIR)/$(MOD_DIR)
 	cp $(BR)/*.so $(Q3A_DIR)/$(MOD_DIR)
 
 install-debug:debug
+	mkdir -p $(Q3A_DIR)
 	mkdir -p $(Q3A_DIR)/$(MOD_DIR)
 	cp $(BD)/*.so $(Q3A_DIR)/$(MOD_DIR)
 
 install-qvm:qvm
+	mkdir -p $(Q3A_DIR)
+	mkdir -p $(Q3A_DIR)/$(MOD_DIR)
 	mkdir -p $(Q3A_DIR)/$(MOD_DIR)/vm
 	cp $(BQ)/*.qvm $(Q3A_DIR)/$(MOD_DIR)/vm
 
