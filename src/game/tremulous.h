@@ -464,3 +464,9 @@
 #define HUMAN_JOG_MODIFIER          0.8f
 #define HUMAN_BACK_MODIFIER         0.5f
 #define HUMAN_SIDE_MODIFIER         0.75f
+
+#define STAMINA_STOP_RESTORE        10
+#define STAMINA_WALK_RESTORE        5
+#define STAMINA_SPRINT_TAKE         10
+#define STAMINA_LARMOUR_TAKE        5
+

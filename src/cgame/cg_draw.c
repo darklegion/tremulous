@@ -352,14 +352,20 @@ static void CG_DrawField( int x, int y, int width, int cw, int ch, int value )
   }
 }
 
-static void CG_DrawProgressBar( rectDef_t *rect, vec4_t color,
-                                float scale, int align, int textStyle, float progress )
+static void CG_DrawProgressBar( rectDef_t *rect, vec4_t color, float scale,
+                                int align, int textStyle, int special, float progress )
 {
-  float   rimWidth = rect->h / 10.0f;
+  float   rimWidth = rect->h / 20.0f;
   float   doneWidth, leftWidth;
   float   tx, ty, tw, th;
   char    textBuffer[ 8 ];
   
+  if( rimWidth < 0.6f )
+    rimWidth = 0.6f;
+
+  if( special >= 0.0f )
+    rimWidth = special;
+
   if( progress < 0.0f )
     progress = 0.0f;
   else if( progress > 1.0f )
@@ -371,12 +377,25 @@ static void CG_DrawProgressBar( rectDef_t *rect, vec4_t color,
   trap_R_SetColor( color );
   
   //draw rim and bar
-  CG_DrawPic( rect->x, rect->y, rimWidth + doneWidth, rect->h, cgs.media.whiteShader );
-  CG_DrawPic( rimWidth + rect->x + doneWidth, rect->y,
-    leftWidth, rimWidth, cgs.media.whiteShader );
-  CG_DrawPic( rimWidth + rect->x + doneWidth, rect->y + rect->h - rimWidth,
-    leftWidth, rimWidth, cgs.media.whiteShader );
-  CG_DrawPic( rect->x + rect->w - rimWidth, rect->y, rimWidth, rect->h, cgs.media.whiteShader );
+  if( align == ITEM_ALIGN_RIGHT )
+  {
+    CG_DrawPic( rect->x, rect->y, rimWidth, rect->h, cgs.media.whiteShader );
+    CG_DrawPic( rect->x + rimWidth, rect->y,
+      leftWidth, rimWidth, cgs.media.whiteShader );
+    CG_DrawPic( rect->x + rimWidth, rect->y + rect->h - rimWidth,
+      leftWidth, rimWidth, cgs.media.whiteShader );
+    CG_DrawPic( rect->x + rimWidth + leftWidth, rect->y,
+      rimWidth + doneWidth, rect->h, cgs.media.whiteShader );
+  }
+  else
+  {
+    CG_DrawPic( rect->x, rect->y, rimWidth + doneWidth, rect->h, cgs.media.whiteShader );
+    CG_DrawPic( rimWidth + rect->x + doneWidth, rect->y,
+      leftWidth, rimWidth, cgs.media.whiteShader );
+    CG_DrawPic( rimWidth + rect->x + doneWidth, rect->y + rect->h - rimWidth,
+      leftWidth, rimWidth, cgs.media.whiteShader );
+    CG_DrawPic( rect->x + rect->w - rimWidth, rect->y, rimWidth, rect->h, cgs.media.whiteShader );
+  }
 
   trap_R_SetColor( NULL );
   
@@ -466,13 +485,14 @@ static void CG_DrawPlayerBankValue( rectDef_t *rect, vec4_t color )
   }
 }
 
-static void CG_DrawPlayerStamina( rectDef_t *rect, vec4_t color, float scale, int align, int textStyle )
+static void CG_DrawPlayerStamina( rectDef_t *rect, vec4_t color, float scale,
+                                  int align, int textStyle, int special )
 {
   playerState_t *ps = &cg.snap->ps;
   int           stamina = ps->stats[ STAT_STAMINA ];
   float         progress = ( (float)stamina + (float)MAX_STAMINA ) / ( (float)MAX_STAMINA * 2.0f );
   
-  CG_DrawProgressBar( rect, color, scale, align, textStyle, progress );
+  CG_DrawProgressBar( rect, color, scale, align, textStyle, special, progress );
 }
 
 static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
@@ -571,7 +591,8 @@ static void CG_DrawPlayerHealthValue( rectDef_t *rect, vec4_t color )
   trap_R_SetColor( NULL );
 }
 
-static void CG_DrawPlayerHealthBar( rectDef_t *rect, vec4_t color, float scale, int align, int textStyle )
+static void CG_DrawPlayerHealthBar( rectDef_t *rect, vec4_t color, float scale,
+                                    int align, int textStyle, int special )
 {
   playerState_t *ps;
   float total;
@@ -579,7 +600,7 @@ static void CG_DrawPlayerHealthBar( rectDef_t *rect, vec4_t color, float scale, 
   ps = &cg.snap->ps;
 
   total = ( (float)ps->stats[ STAT_HEALTH ] / (float)ps->stats[ STAT_MAX_HEALTH ] );
-  CG_DrawProgressBar( rect, color, scale, align, textStyle, total );
+  CG_DrawProgressBar( rect, color, scale, align, textStyle, special, total );
 }
 
 static void CG_DrawProgressLabel( rectDef_t *rect, float text_x, float text_y, vec4_t color,
@@ -614,9 +635,10 @@ static void CG_DrawProgressLabel( rectDef_t *rect, float text_x, float text_y, v
       s, 0, 0, ITEM_TEXTSTYLE_NEON );
 }
 
-static void CG_DrawMediaProgress( rectDef_t *rect, vec4_t color, float scale, int align, int textStyle )
+static void CG_DrawMediaProgress( rectDef_t *rect, vec4_t color, float scale,
+                                  int align, int textStyle, int special )
 {
-  CG_DrawProgressBar( rect, color, scale, align, textStyle, cg.mediaFraction );
+  CG_DrawProgressBar( rect, color, scale, align, textStyle, special, cg.mediaFraction );
 }
 
 static void CG_DrawMediaProgressLabel( rectDef_t *rect, float text_x, float text_y,
@@ -625,9 +647,10 @@ static void CG_DrawMediaProgressLabel( rectDef_t *rect, float text_x, float text
   CG_DrawProgressLabel( rect, text_x, text_y, color, scale, align, "Map and Textures", cg.mediaFraction );
 }
 
-static void CG_DrawBuildablesProgress( rectDef_t *rect, vec4_t color, float scale, int align, int textStyle )
+static void CG_DrawBuildablesProgress( rectDef_t *rect, vec4_t color, float scale,
+                                       int align, int textStyle, int special )
 {
-  CG_DrawProgressBar( rect, color, scale, align, textStyle, cg.buildablesFraction );
+  CG_DrawProgressBar( rect, color, scale, align, textStyle, special, cg.buildablesFraction );
 }
 
 static void CG_DrawBuildablesProgressLabel( rectDef_t *rect, float text_x, float text_y,
@@ -636,9 +659,10 @@ static void CG_DrawBuildablesProgressLabel( rectDef_t *rect, float text_x, float
   CG_DrawProgressLabel( rect, text_x, text_y, color, scale, align, "Buildable Models", cg.buildablesFraction );
 }
 
-static void CG_DrawCharModelProgress( rectDef_t *rect, vec4_t color, float scale, int align, int textStyle )
+static void CG_DrawCharModelProgress( rectDef_t *rect, vec4_t color, float scale,
+                                      int align, int textStyle, int special )
 {
-  CG_DrawProgressBar( rect, color, scale, align, textStyle, cg.charModelFraction );
+  CG_DrawProgressBar( rect, color, scale, align, textStyle, special, cg.charModelFraction );
 }
 
 static void CG_DrawCharModelProgressLabel( rectDef_t *rect, float text_x, float text_y,
@@ -647,12 +671,13 @@ static void CG_DrawCharModelProgressLabel( rectDef_t *rect, float text_x, float 
   CG_DrawProgressLabel( rect, text_x, text_y, color, scale, align, "Character Models", cg.charModelFraction );
 }
 
-static void CG_DrawOverallProgress( rectDef_t *rect, vec4_t color, float scale, int align, int textStyle )
+static void CG_DrawOverallProgress( rectDef_t *rect, vec4_t color, float scale,
+                                    int align, int textStyle, int special )
 {
   float total;
 
   total = ( cg.charModelFraction + cg.buildablesFraction + cg.mediaFraction ) / 3.0f;
-  CG_DrawProgressBar( rect, color, scale, align, textStyle, total );
+  CG_DrawProgressBar( rect, color, scale, align, textStyle, special, total );
 }
 
 static void CG_DrawLevelShot( rectDef_t *rect )
@@ -1530,7 +1555,7 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawPlayerBankValue( &rect, color );
       break;
     case CG_PLAYER_STAMINA:
-      CG_DrawPlayerStamina( &rect, color, scale, align, textStyle );
+      CG_DrawPlayerStamina( &rect, color, scale, align, textStyle, special );
       break;
     case CG_PLAYER_AMMO_VALUE:
       CG_DrawPlayerAmmoValue( &rect, color );
@@ -1542,7 +1567,7 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawPlayerHealthValue( &rect, color );
       break;
     case CG_PLAYER_HEALTH_BAR:
-      CG_DrawPlayerHealthBar( &rect, color, scale, align, textStyle );
+      CG_DrawPlayerHealthBar( &rect, color, scale, align, textStyle, special );
       break;
     case CG_AREA_SYSTEMCHAT:
       CG_DrawAreaSystemChat( &rect, scale, color, shader );
@@ -1571,25 +1596,25 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawLevelShot( &rect );
       break;
     case CG_LOAD_MEDIA:
-      CG_DrawMediaProgress( &rect, color, scale, align, textStyle );
+      CG_DrawMediaProgress( &rect, color, scale, align, textStyle, special );
       break;
     case CG_LOAD_MEDIA_LABEL:
       CG_DrawMediaProgressLabel( &rect, text_x, text_y, color, scale, align );
       break;
     case CG_LOAD_BUILDABLES:
-      CG_DrawBuildablesProgress( &rect, color, scale, align, textStyle );
+      CG_DrawBuildablesProgress( &rect, color, scale, align, textStyle, special );
       break;
     case CG_LOAD_BUILDABLES_LABEL:
       CG_DrawBuildablesProgressLabel( &rect, text_x, text_y, color, scale, align );
       break;
     case CG_LOAD_CHARMODEL:
-      CG_DrawCharModelProgress( &rect, color, scale, align, textStyle );
+      CG_DrawCharModelProgress( &rect, color, scale, align, textStyle, special );
       break;
     case CG_LOAD_CHARMODEL_LABEL:
       CG_DrawCharModelProgressLabel( &rect, text_x, text_y, color, scale, align );
       break;
     case CG_LOAD_OVERALL:
-      CG_DrawOverallProgress( &rect, color, scale, align, textStyle );
+      CG_DrawOverallProgress( &rect, color, scale, align, textStyle, special );
       break;
     case CG_LOAD_LEVELNAME:
       CG_DrawLevelName( &rect, text_x, text_y, color, scale, align, textStyle );

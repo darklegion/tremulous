@@ -399,11 +399,6 @@ qboolean ClientInactivityTimer( gclient_t *client )
   return qtrue;
 }
 
-#define STAMINA_STOP_RESTORE  10
-#define STAMINA_WALK_RESTORE  5
-#define STAMINA_SPRINT_TAKE   10
-#define STAMINA_LARMOUR_TAKE  5
-
 /*
 ==================
 ClientTimerActions
