@@ -2605,10 +2605,6 @@ void PmoveSingle (pmove_t *pmove)
 
   pml.frametime = pml.msec * 0.001;
 
-  //TA: temporary fix to prediction errors until the view smoothing
-  //    is moved to the client side
-  PM_UpdateViewAngles( pm->ps, &pm->cmd );
-  
   AngleVectors( pm->ps->viewangles, pml.forward, pml.right, pml.up );
 
   if ( pm->cmd.upmove < 10 ) {
