@@ -747,8 +747,6 @@ typedef struct
   consoleLine_t consoleLines[ MAX_CONSOLE_LINES ];
   int           numConsoleLines;
   qboolean      consoleValid;
-
-  qboolean      nearbyCorpse;
 } cg_t;
 
 

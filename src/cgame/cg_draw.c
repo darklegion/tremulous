@@ -982,9 +982,14 @@ static void CG_DrawUsableBuildable( rectDef_t *rect, qhandle_t shader, vec4_t co
 
   es = &cg_entities[ trace.entityNum ].currentState;
 
-  if( ( es->eType == ET_BUILDABLE && BG_FindUsableForBuildable( es->modelindex ) ) ||
-      cg.nearbyCorpse )
+  if( es->eType == ET_BUILDABLE && BG_FindUsableForBuildable( es->modelindex ) )
   {
+    //hack to prevent showing the usable buildable when you aren't carrying an energy weapon
+    if( ( es->modelindex == BA_H_REACTOR || es->modelindex == BA_H_REPEATER ) &&
+        ( !BG_FindUsesEnergyForWeapon( cg.snap->ps.weapon ) ||
+          BG_FindInfinteAmmoForWeapon( cg.snap->ps.weapon ) ) )
+      return;
+    
     trap_R_SetColor( color );
     CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
     trap_R_SetColor( NULL );

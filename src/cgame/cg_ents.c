@@ -990,7 +990,6 @@ void CG_AddPacketEntities( void )
   cg.ep.numHumanBuildables = 0;
   cg.ep.numAlienClients = 0;
   cg.ep.numHumanClients = 0;
-  cg.nearbyCorpse = qfalse;
 
   for( num = 0 ; num < cg.snap->numEntities ; num++ )
   {
@@ -1024,19 +1023,6 @@ void CG_AddPacketEntities( void )
       {
         VectorCopy( cent->lerpOrigin, cg.ep.humanClientPos[ cg.ep.numHumanClients ] );
         cg.ep.numHumanClients++;
-      }
-    }
-    else if( cent->currentState.eType == ET_CORPSE )
-    {
-#define INFEST_RADIUS 64.0f
-      
-      if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS &&
-          Distance( cg.refdef.vieworg, cent->lerpOrigin ) < INFEST_RADIUS )
-      {
-        if( cent->currentState.eType == ET_CORPSE &&
-            ( cent->currentState.powerups == cg.predictedPlayerState.clientNum ||
-              cent->currentState.powerups == 65535 ) )
-          cg.nearbyCorpse = qtrue;
       }
     }
   }

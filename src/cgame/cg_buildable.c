@@ -785,14 +785,14 @@ void CG_Buildable( centity_t *cent )
   vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
   float           rotAngle;
   trace_t         tr;
-  buildableTeam_t team = BG_FindTeamForBuildable( es->modelindex2 );
+  buildableTeam_t team = BG_FindTeamForBuildable( es->modelindex );
   
   //must be before EF_NODRAW check
   if( team == BIT_ALIENS )
     CG_Creep( cent );
   
   // if set to invisible, skip
-  if( !es->modelindex || ( es->eFlags & EF_NODRAW ) )
+  if( es->eFlags & EF_NODRAW )
     return;
 
   memset ( &ent, 0, sizeof( ent ) );

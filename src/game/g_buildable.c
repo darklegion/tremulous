@@ -416,7 +416,7 @@ void ASpawn_Blast( gentity_t *self )
     self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
 
   //pretty events and item cleanup
-  self->s.modelindex = 0; //don't draw the model once its destroyed
+  self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
   G_AddEvent( self, EV_GIB_ALIEN, DirToByte( dir ) );
   self->timestamp = level.time;
   self->think = ASpawn_Melt;
@@ -632,7 +632,7 @@ void ABarricade_Blast( gentity_t *self )
     self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
 
   //pretty events and item cleanup
-  self->s.modelindex = 0; //don't draw the model once its destroyed
+  self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
   G_AddEvent( self, EV_GIB_ALIEN, DirToByte( dir ) );
   self->timestamp = level.time;
   self->think = A_CreepRecede;
@@ -925,7 +925,7 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
 
   //pretty events and item cleanup
-  self->s.modelindex = 0; //don't draw the model once its destroyed
+  self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
   G_AddEvent( self, EV_GIB_ALIEN, DirToByte( dir ) );
   self->timestamp = level.time;
   self->think = ASpawn_Melt;
@@ -1733,7 +1733,7 @@ void HSpawn_Blast( gentity_t *self )
   dir[ 0 ] = dir[ 1 ] = 0;
   dir[ 2 ] = 1;
 
-  self->s.modelindex = 0; //don't draw the model once its destroyed
+  self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
   G_AddEvent( self, EV_BUILDABLE_EXPLOSION, DirToByte( dir ) );
   self->timestamp = level.time;
 
