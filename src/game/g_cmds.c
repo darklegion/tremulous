@@ -1434,7 +1434,10 @@ void Cmd_Buy_f( gentity_t *ent )
   
   //if the buyer previously had no items at all, force a new selection
   if( numItems == 0 )
-    G_AddEvent( ent, EV_NEXT_WEAPON, 0 );
+    G_AddPredictableEvent( ent, EV_NEXT_WEAPON, 0 );
+  
+  //retrigger the armoury menu
+  G_AddPredictableEvent( ent, EV_MENU, MN_H_ARMOURY );
   
   //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum );
@@ -1517,6 +1520,9 @@ void Cmd_Sell_f( gentity_t *ent )
   }
   else
     trap_SendServerCommand( ent-g_entities, va( "print \"Unknown item\n\"" ) );
+  
+  //retrigger the armoury menu
+  G_AddPredictableEvent( ent, EV_MENU, MN_H_ARMOURY );
   
   //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum );

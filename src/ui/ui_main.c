@@ -3415,7 +3415,8 @@ static void UI_LoadTremHumanArmouryBuys( )
     if( BG_FindTeamForWeapon( i ) == WUT_HUMANS &&
         BG_FindPurchasableForWeapon( i ) &&
         BG_FindStagesForWeapon( i, stage ) &&
-        !( BG_FindSlotsForWeapon( i ) & slots ) )
+        !( BG_FindSlotsForWeapon( i ) & slots ) &&
+        !( weapons & ( 1 << i ) ) )
     {
       uiInfo.tremHumanArmouryBuyList[ j ].text =
         String_Alloc( BG_FindHumanNameForWeapon( i ) );
@@ -3434,7 +3435,8 @@ static void UI_LoadTremHumanArmouryBuys( )
   {
     if( BG_FindTeamForUpgrade( i ) == WUT_HUMANS &&
         BG_FindStagesForUpgrade( i, stage ) &&
-        !( BG_FindSlotsForUpgrade( i ) & slots ) )
+        !( BG_FindSlotsForUpgrade( i ) & slots ) &&
+        !( upgrades & ( 1 << i ) ) )
     {
       uiInfo.tremHumanArmouryBuyList[ j ].text =
         String_Alloc( BG_FindHumanNameForUpgrade( i ) );

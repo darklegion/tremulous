@@ -336,14 +336,14 @@ void CG_Menu( int eventParm )
 
   switch( eventParm )
   {
-    case MN_TEAM:       trap_SendConsoleCommand( "menu tremulous_teamselect\n" );                 break;
-    case MN_A_CLASS:    trap_SendConsoleCommand( "menu tremulous_alienclass\n" );                 break;
-    case MN_H_SPAWN:    trap_SendConsoleCommand( "menu tremulous_humanitem\n" );                  break;
-    case MN_A_BUILD:    trap_SendConsoleCommand( "menu tremulous_alienbuild\n" );                 break;
-    case MN_H_BUILD:    trap_SendConsoleCommand( "menu tremulous_humanbuild\n" );                 break;
-    case MN_H_ARMOURY:  trap_SendConsoleCommand( "menu tremulous_humanarmoury\n" );               break;
-    case MN_H_BANK:     trap_SendConsoleCommand( "menu tremulous_humanbank\n" );                  break;
-    case MN_A_OBANK:    trap_SendConsoleCommand( "menu tremulous_alienbank\n" );                  break;
+    case MN_TEAM:       trap_SendConsoleCommand( "menu tremulous_teamselect\n" );   break;
+    case MN_A_CLASS:    trap_SendConsoleCommand( "menu tremulous_alienclass\n" );   break;
+    case MN_H_SPAWN:    trap_SendConsoleCommand( "menu tremulous_humanitem\n" );    break;
+    case MN_A_BUILD:    trap_SendConsoleCommand( "menu tremulous_alienbuild\n" );   break;
+    case MN_H_BUILD:    trap_SendConsoleCommand( "menu tremulous_humanbuild\n" );   break;
+    case MN_H_ARMOURY:  trap_SendConsoleCommand( "menu tremulous_humanarmoury\n" ); break;
+    case MN_H_BANK:     trap_SendConsoleCommand( "menu tremulous_humanbank\n" );    break;
+    case MN_A_OBANK:    trap_SendConsoleCommand( "menu tremulous_alienbank\n" );    break;
                         
     case MN_H_NOROOM:
       trap_Cvar_Set( "ui_dialog", "There is no room to build here. Move until the buildable turns "
