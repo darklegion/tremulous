@@ -512,6 +512,8 @@ void SP_misc_light_flare( gentity_t *self )
   
   G_SpawnFloat( "speed", "200", &self->speed );
   self->s.time = self->speed;
+
+  G_SpawnInt( "mindist", "0", &self->s.generic1 );
   
   if( self->spawnflags & 1 )
     self->s.eFlags |= EF_NODRAW;

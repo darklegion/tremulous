@@ -582,6 +582,10 @@ static void CG_LightFlare( centity_t *cent )
   len = VectorLength( delta );
   VectorNormalize( delta );
 
+  //flare is too close to camera to be drawn
+  if( len < es->generic1 )
+    return;
+  
   //don't bother for flares behind the view plane
   if( DotProduct( delta, cg.refdef.viewaxis[ 0 ] ) < 0.0 )
     return;
