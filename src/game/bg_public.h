@@ -391,8 +391,8 @@ typedef enum {
   BA_NONE,
 
   BA_D_SPAWN,
-  BA_D_DEF1,
-  BA_D_DEF2,
+  BA_D_BARRICADE,
+  BA_D_ACIDTUBE,
   BA_D_HIVEMIND,
   
   BA_H_SPAWN,
@@ -652,6 +652,7 @@ typedef enum
   
   BANIM_DESTROY1,
   BANIM_DESTROY2,
+  BANIM_DESTROYED,
   
   MAX_BUILDABLE_ANIMATIONS
 } buildableAnimNumber_t;
@@ -696,29 +697,16 @@ typedef enum {
   //builder classes
   PCL_D_B_BASE,
   PCL_D_B_LEV1,
-  PCL_D_B_LEV21,
-  PCL_D_B_LEV22,
-  PCL_D_B_LEV23,
   
   //offensive classes
   PCL_D_O_BASE,
-  PCL_D_O_LEV11,
-  PCL_D_O_LEV12,
-  PCL_D_O_LEV21,
-  PCL_D_O_LEV22,
-  PCL_D_O_LEV31,
-  PCL_D_O_LEV32,
-  PCL_D_O_LEV33,
-  
-  //defensive classes
-  PCL_D_D_BASE,
-  PCL_D_D_LEV11,
-  PCL_D_D_LEV12,
-  PCL_D_D_LEV21,
-  PCL_D_D_LEV22,
-  PCL_D_D_LEV31,
-  PCL_D_D_LEV32,
-  PCL_D_D_LEV33,
+  PCL_D_O_LEV1,
+  PCL_D_O_LEV1_UPG,
+  PCL_D_O_LEV2,
+  PCL_D_O_LEV2_UPG,
+  PCL_D_O_LEV3,
+  PCL_D_O_LEV3_UPG,
+  PCL_D_O_LEV4,
   
   //human class
   PCL_H_BASE,

@@ -209,8 +209,11 @@ Called when an droid spawn dies
 void D_CreepRecede( gentity_t *self )
 {
   //if the creep just died begin the recession
-  if( ( self->timestamp + 100 ) == level.time )
+  if( !( self->s.eFlags & EF_DEAD ) )
+  {
+    self->s.eFlags |= EF_DEAD;
     G_AddEvent( self, EV_BUILD_DESTROY, 0 );
+  }
   
   //creep is still receeding
   if( ( self->timestamp + 10000 ) > level.time )
@@ -244,8 +247,11 @@ void DSpawn_Melt( gentity_t *self )
     self->splashRadius, self, MOD_SHOTGUN, PTE_DROIDS );
 
   //start creep recession
-  if( ( self->timestamp + 500 ) == level.time )
+  if( !( self->s.eFlags & EF_DEAD ) )
+  {
+    self->s.eFlags |= EF_DEAD;
     G_AddEvent( self, EV_BUILD_DESTROY, 0 );
+  }
   
   //not dead yet
   if( ( self->timestamp + 10000 ) > level.time )
@@ -319,12 +325,12 @@ void DSpawn_Pain( gentity_t *self, gentity_t *attacker, int damage )
 
 /*
 ================
-DDef1_Die
+DBarricade_Die
 
 Called when an droid spawn dies
 ================
 */
-void DDef1_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
+void DBarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
 {
   vec3_t  dir;
   
@@ -350,12 +356,12 @@ void DDef1_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 
 /*
 ================
-DDef1_Think
+DBarricade_Think
 
-think function for Droid Spawn
+think function for Droid Barricade
 ================
 */
-void DDef1_Think( gentity_t *self )
+void DBarricade_Think( gentity_t *self )
 {
   //if there is no creep nearby die
   if( !findCreep( self ) )
@@ -364,9 +370,88 @@ void DDef1_Think( gentity_t *self )
     return;
   }
   
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
+}
+
+
+
+
+//==================================================================================
+
+
+
+
+void DAcidTube_Think( gentity_t *self );
+
+/*
+================
+DAcidTube_Damage
+
+damage function for Droid Acid Tube
+================
+*/
+void DAcidTube_Damage( gentity_t *self )
+{
+  if( !( self->s.eFlags & EF_FIRING ) )
+  {
+    self->s.eFlags |= EF_FIRING;
+    G_AddEvent( self, EV_GIB_DROID, DirToByte( self->s.origin2 ) );
+  }
+    
+  if( ( self->timestamp + 10000 ) > level.time )
+    self->think = DAcidTube_Damage;
+  else
+  {
+    self->think = DAcidTube_Think;
+    self->s.eFlags &= ~EF_FIRING;
+  }
+
   //do some damage
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
     self->splashRadius, self, self->splashMethodOfDeath, PTE_DROIDS );
+
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
+}
+
+/*
+================
+DAcidTube_Think
+
+think function for Droid Acid Tube
+================
+*/
+void DAcidTube_Think( gentity_t *self )
+{
+  int       entityList[ MAX_GENTITIES ];
+  vec3_t    range = { 200, 200, 200 };
+  vec3_t    mins, maxs;
+  int       i, num;
+  gentity_t *enemy;
+
+  VectorAdd( self->s.origin, range, maxs );
+  VectorSubtract( self->s.origin, range, mins );
+  
+  //if there is no creep nearby die
+  if( !findCreep( self ) )
+  {
+    G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+    return;
+  }
+  
+  //do some damage
+  num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+  for( i = 0; i < num; i++ )
+  {
+    enemy = &g_entities[ entityList[ i ] ];
+    
+    if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    {
+      self->timestamp = level.time;
+      self->think = DAcidTube_Damage;
+      self->nextthink = level.time + 100;
+      G_setBuildableAnim( self, BANIM_ATTACK1 );
+    }
+  }
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
 }
@@ -496,17 +581,8 @@ void DDef2_Think( gentity_t *self )
     return;
   
   //if we are pointing at our target and we can fire shoot it
-  switch( self->s.clientNum )
-  {
-    case BA_D_DEF2:
-      if( self->count < level.time )
-        ddef_fireonenemy( self, firespeed );
-      break;
-
-    default:
-      Com_Printf( S_COLOR_YELLOW "WARNING: Unknown turret type in think\n" );
-      break;
-  }
+  if( self->count < level.time )
+    ddef_fireonenemy( self, firespeed );
 }
 
 
@@ -1051,11 +1127,23 @@ think function
 */
 void HSpawn_Blast( gentity_t *self )
 {
+  vec3_t  dir;
+
+  // we don't have a valid direction, so just point straight up
+  dir[0] = dir[1] = 0;
+  dir[2] = 1;
+
+  self->s.modelindex = 0; //don't draw the model once its destroyed
+  G_AddEvent( self, EV_ITEM_EXPLOSION, DirToByte( dir ) );
+  self->r.contents = CONTENTS_TRIGGER;
+  self->timestamp = level.time;
+
   //do some radius damage
   G_RadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
     self->splashRadius, self, self->splashMethodOfDeath );
 
-  G_FreeEntity( self );
+  self->think = freeBuildable;
+  self->nextthink = level.time + 100;
 }
 
 
@@ -1068,17 +1156,10 @@ Called when a human spawn dies
 */
 void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
 {
-  vec3_t  dir;
-
-  // we don't have a valid direction, so just point straight up
-  dir[0] = dir[1] = 0;
-  dir[2] = 1;
-
   //pretty events and cleanup
-  self->s.modelindex = 0; //don't draw the model once its destroyed
-  G_AddEvent( self, EV_ITEM_EXPLOSION, DirToByte( dir ) );
-  self->r.contents = CONTENTS_TRIGGER;
-  self->timestamp = level.time;
+  G_setBuildableAnim( self, BANIM_DESTROY1 );
+  G_setIdleBuildableAnim( self, BANIM_DESTROYED );
+  
   self->die = nullDieFunction;
   self->think = HSpawn_Blast;
   self->nextthink = level.time + 1500; //wait 1.5 seconds before damaging others
@@ -1336,19 +1417,25 @@ gentity_t *G_buildItem( gentity_t *ent, buildable_t buildable, int distance, flo
       built->pain = DSpawn_Pain;
       break;
       
-    case BA_D_DEF1:
-      built->die = DDef1_Die;
-      built->think = DDef1_Think;
+    case BA_D_BARRICADE:
+      built->die = DBarricade_Die;
+      built->think = DBarricade_Think;
       built->pain = DSpawn_Pain;
       break;
       
-    case BA_D_DEF2:
+    case BA_D_ACIDTUBE:
+      built->die = DBarricade_Die;
+      built->think = DAcidTube_Think;
+      built->pain = DSpawn_Pain;
+      break;
+      
+/*    case BA_D_DEF2:
       built->die = DDef1_Die;
       built->think = DDef2_Think;
       built->pain = DSpawn_Pain;
       built->enemy = NULL;
       built->s.weapon = BG_FindProjTypeForBuildable( buildable );
-      break;
+      break;*/
       
     case BA_D_HIVEMIND:
       built->die = DSpawn_Die;

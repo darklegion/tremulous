@@ -640,6 +640,7 @@ void G_SetOrigin( gentity_t *ent, vec3_t origin ) {
 	VectorClear( ent->s.pos.trDelta );
 
 	VectorCopy( origin, ent->r.currentOrigin );
+	VectorCopy( origin, ent->s.origin ); //TA: it shit breaks - blame this line
 }
 
 //TA: from quakestyle.telefragged.com

@@ -1277,7 +1277,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
   else
   {
     //this is an infest spawn
-    if( spawn != NULL )
+    if( spawn )
     {
       //spawn as new droid
       VectorCopy( spawn->s.pos.trBase, spawn_origin );
@@ -1390,41 +1390,46 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
       break;
       
     case PCL_D_B_LEV1:
-    case PCL_D_B_LEV21:
-    case PCL_D_B_LEV22:
-    case PCL_D_B_LEV23:
       BG_packWeapon( WP_DBUILD2, client->ps.stats );
       BG_packAmmoArray( WP_DBUILD2, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
 
     case PCL_D_O_BASE:
-    case PCL_D_O_LEV21:
-    case PCL_D_O_LEV22:
-    case PCL_D_O_LEV31:
-    case PCL_D_O_LEV32:
-    case PCL_D_O_LEV33:
       BG_packWeapon( WP_VENOM, client->ps.stats );
       BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
       
-    case PCL_D_O_LEV11:
+    case PCL_D_O_LEV1:
       BG_packWeapon( WP_GRABANDCSAW, client->ps.stats );
       BG_packAmmoArray( WP_GRABANDCSAW, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
       
-    case PCL_D_O_LEV12:
+    case PCL_D_O_LEV1_UPG:
+      BG_packWeapon( WP_GRABANDCSAW, client->ps.stats );
+      BG_packAmmoArray( WP_GRABANDCSAW, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
+      break;
+      
+    case PCL_D_O_LEV2:
       BG_packWeapon( WP_POUNCE, client->ps.stats );
       BG_packAmmoArray( WP_POUNCE, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
 
-    case PCL_D_D_BASE:
-    case PCL_D_D_LEV11:
-    case PCL_D_D_LEV12:
-    case PCL_D_D_LEV21:
-    case PCL_D_D_LEV22:
-    case PCL_D_D_LEV31:
-    case PCL_D_D_LEV32:
-    case PCL_D_D_LEV33:
+    case PCL_D_O_LEV2_UPG:
+      BG_packWeapon( WP_POUNCE, client->ps.stats );
+      BG_packAmmoArray( WP_POUNCE, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
+      break;
+
+    case PCL_D_O_LEV3:
+      BG_packWeapon( WP_VENOM, client->ps.stats );
+      BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
+      break;
+      
+    case PCL_D_O_LEV3_UPG:
+      BG_packWeapon( WP_VENOM, client->ps.stats );
+      BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
+      break;
+      
+    case PCL_D_O_LEV4:
       BG_packWeapon( WP_VENOM, client->ps.stats );
       BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
@@ -1498,7 +1503,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
     MoveClientToIntermission( ent );
   } else {
     // fire the targets of the spawn point
-    G_UseTargets( spawnPoint, ent );
+    if( !spawn )
+      G_UseTargets( spawnPoint, ent );
 
     // select the highest weapon number available, after any
     // spawn given items have fired
