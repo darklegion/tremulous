@@ -1230,6 +1230,7 @@ extern  vmCvar_t    cg_drawSurfNormal;
 extern  vmCvar_t    cg_debugAlloc;
 extern  vmCvar_t    cg_wwSmoothTime;
 extern  vmCvar_t    cg_wwFollow;
+extern  vmCvar_t    cg_zsortLEs;
 
 //TA: hack to get class an carriage through to UI module
 extern  vmCvar_t    ui_currentClass;

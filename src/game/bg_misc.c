@@ -2055,7 +2055,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    40,                   //int       repeatRate;
+    150,                  //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;

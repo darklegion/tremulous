@@ -986,8 +986,9 @@ CG_FlameTrail
 */
 static void CG_FlameTrail( centity_t *cent, vec3_t origin )
 {
-  vec3_t  forward;
+  vec3_t  forward, right, up;
   vec3_t  muzzlePoint;
+  vec3_t  velocity;
 
   if( cent->currentState.weapon != WP_FLAMER )
     return;
@@ -998,23 +999,27 @@ static void CG_FlameTrail( centity_t *cent, vec3_t origin )
   
   if( cent->currentState.clientNum == cg.predictedPlayerState.clientNum && !cg.renderingThirdPerson )
   {
-    AngleVectors( cg.refdefViewAngles, forward, NULL, NULL );
-    VectorCopy( cg.predictedPlayerState.origin, muzzlePoint );
+    AngleVectors( cg.refdefViewAngles, forward, right, up );
+    VectorCopy( cg.refdef.vieworg, muzzlePoint );
+    VectorMA( cg.predictedPlayerState.velocity, FIREBALL_SPEED, forward, velocity );
   }
   else
   {
-    AngleVectors( cent->lerpAngles, forward, NULL, NULL );
+    AngleVectors( cent->lerpAngles, forward, right, up );
     VectorCopy( cent->lerpOrigin, muzzlePoint );
+
+    //FIXME: this is gonna look weird when crouching
+    muzzlePoint[ 2 ] += DEFAULT_VIEWHEIGHT;
+    VectorMA( cent->currentState.pos.trDelta, FIREBALL_SPEED, forward, velocity );
   }
 
-  // FIXME: crouch
-  muzzlePoint[ 2 ] += DEFAULT_VIEWHEIGHT;
-
-  VectorMA( muzzlePoint, 14.0f, forward, muzzlePoint );
-  VectorScale( forward, FIREBALL_SPEED, forward );
-
-  CG_LaunchSprite( muzzlePoint, forward, vec3_origin,
-                   0.1f, 0.0f, 40.0f, 255.0f, 192.0f,
+  //FIXME: tweak these numbers when (if?) the flamer model is done
+  VectorMA( muzzlePoint, 24.0f, forward, muzzlePoint );
+  VectorMA( muzzlePoint, 6.0f, right, muzzlePoint );
+  VectorMA( muzzlePoint, -6.0f, up, muzzlePoint );
+  
+  CG_LaunchSprite( muzzlePoint, velocity, vec3_origin,
+                   0.1f, 4.0f, 40.0f, 255.0f, 192.0f,
                    rand( ) % 360, cg.time, FIREBALL_LIFETIME,
                    cgs.media.flameShader[ 0 ], qfalse, qfalse );
 
@@ -1217,7 +1222,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   }
 
   // add the flash
-  if ( ( weaponNum == WP_TESLAGEN ) && ( nonPredictedCent->currentState.eFlags & EF_FIRING ) )
+  if ( ( weaponNum == WP_TESLAGEN || weaponNum == WP_FLAMER ) &&
+       ( nonPredictedCent->currentState.eFlags & EF_FIRING ) )
   {
     // continuous flash
   } else {

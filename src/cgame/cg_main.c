@@ -181,6 +181,7 @@ vmCvar_t  cg_drawSurfNormal;
 vmCvar_t  cg_debugAlloc;
 vmCvar_t  cg_wwSmoothTime;
 vmCvar_t  cg_wwFollow;
+vmCvar_t  cg_zsortLEs;
 
 //TA: hack to get class an carriage through to UI module
 vmCvar_t  ui_currentClass;
@@ -270,6 +271,7 @@ static cvarTable_t   cvarTable[] = {
   { &cg_debugAlloc, "cg_debugAlloc", "0", 0 },
   { &cg_wwSmoothTime, "cg_wwSmoothTime", "300", CVAR_ARCHIVE },
   { &cg_wwFollow, "cg_wwFollow", "1", CVAR_ARCHIVE|CVAR_USERINFO },
+  { &cg_zsortLEs, "cg_zsortLEs", "1", CVAR_ARCHIVE },
   
   { &ui_currentClass, "ui_currentClass", "0", 0 },
   { &ui_carriage, "ui_carriage", "", 0 },
