@@ -1396,11 +1396,13 @@ static void PM_CrashLand( void )
   // want to take damage or play a crunch sound
   if( !( pml.groundTrace.surfaceFlags & SURF_NODAMAGE ) )
   {
-    if( delta > 60 )
+    pm->ps->stats[ STAT_FALLDIST ] = delta;
+
+    if( delta > AVG_FALL_DISTANCE )
     {
       PM_AddEvent( EV_FALL_FAR );
     }
-    else if( delta > 40 )
+    else if( delta > MIN_FALL_DISTANCE )
     {
       // this is a pain grunt, so don't play it if dead
       if( pm->ps->stats[STAT_HEALTH] > 0 )

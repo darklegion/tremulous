@@ -620,7 +620,7 @@ void G_ParseDmgScript( char *buf, int class )
 G_CalcDamageModifier
 ============
 */
-float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, int class )
+static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, int class, int dflags )
 {
   vec3_t  bulletPath;
   vec3_t  bulletAngle;
@@ -628,7 +628,7 @@ float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, 
 
   float   clientHeight, hitRelative, hitRatio;
   int     bulletRotation, clientRotation, hitRotation;
-  float   modifier = 1.0;
+  float   modifier = 1.0f;
   int     i, j;
 
   clientHeight = targ->r.maxs[ 2 ] - targ->r.mins[ 2 ];  
@@ -643,8 +643,11 @@ float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, 
   
   hitRelative = DotProduct( normal, pMINUSfloor ) / VectorLength( normal );
 
-  if( hitRelative < 0.0 ) hitRelative = 0.0;
-  if( hitRelative > clientHeight ) hitRelative = clientHeight;
+  if( hitRelative < 0.0f )
+    hitRelative = 0.0f;
+  
+  if( hitRelative > clientHeight )
+    hitRelative = clientHeight;
 
   hitRatio = hitRelative / clientHeight;
                                 
@@ -658,29 +661,32 @@ float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, 
   
   hitRotation = hitRotation % 360; // Keep it in the 0-359 range
 
-  for( i = 0; i < g_numDamageRegions[ class ]; i++ )
+  if( !( dflags & DAMAGE_NO_LOCDAMAGE ) )
   {
-    qboolean rotationBound;
-    
-    if( g_damageRegions[ class ][ i ].minAngle >
-        g_damageRegions[ class ][ i ].maxAngle )
+    for( i = 0; i < g_numDamageRegions[ class ]; i++ )
     {
-      rotationBound = ( hitRotation >= g_damageRegions[ class ][ i ].minAngle &&
-                        hitRotation <= 360 ) || ( hitRotation >= 0 &&
-                        hitRotation <= g_damageRegions[ class ][ i ].maxAngle );
+      qboolean rotationBound;
+      
+      if( g_damageRegions[ class ][ i ].minAngle >
+          g_damageRegions[ class ][ i ].maxAngle )
+      {
+        rotationBound = ( hitRotation >= g_damageRegions[ class ][ i ].minAngle &&
+                          hitRotation <= 360 ) || ( hitRotation >= 0 &&
+                          hitRotation <= g_damageRegions[ class ][ i ].maxAngle );
+      }
+      else
+      {
+        rotationBound = ( hitRotation >= g_damageRegions[ class ][ i ].minAngle &&
+                          hitRotation <= g_damageRegions[ class ][ i ].maxAngle );
+      }
+      
+      if( rotationBound &&
+          hitRatio >= g_damageRegions[ class ][ i ].minHeight &&
+          hitRatio <= g_damageRegions[ class ][ i ].maxHeight &&
+          ( g_damageRegions[ class ][ i ].crouch ==
+            ( targ->client->ps.pm_flags & PMF_DUCKED ) ) )
+        modifier *= g_damageRegions[ class ][ i ].modifier;
     }
-    else
-    {
-      rotationBound = ( hitRotation >= g_damageRegions[ class ][ i ].minAngle &&
-                        hitRotation <= g_damageRegions[ class ][ i ].maxAngle );
-    }
-    
-    if( rotationBound &&
-        hitRatio >= g_damageRegions[ class ][ i ].minHeight &&
-        hitRatio <= g_damageRegions[ class ][ i ].maxHeight &&
-        ( g_damageRegions[ class ][ i ].crouch ==
-          ( targ->client->ps.pm_flags & PMF_DUCKED ) ) )
-      modifier *= g_damageRegions[ class ][ i ].modifier;
   }
 
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
@@ -977,7 +983,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     // set the last client who damaged the target
     targ->client->lasthurt_client = attacker->s.number;
     targ->client->lasthurt_mod = mod;
-    take = (int)( (float)take * G_CalcDamageModifier( point, targ, attacker, client->ps.stats[ STAT_PCLASS ] ) );
+    take = (int)( (float)take * G_CalcDamageModifier( point, targ, attacker,
+                                                      client->ps.stats[ STAT_PCLASS ], dflags ) );
 
     //if boosted poison every attack
     if( attacker->client && attacker->client->ps.stats[ STAT_STATE ] & SS_BOOSTED )

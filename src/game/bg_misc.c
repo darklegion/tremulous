@@ -1235,6 +1235,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     0, 0,                                           //int     viewheight, crouchviewheight;
     ABUILDER_HEALTH,                                //int     health;
+    0.2f,                                           //float   fallDamage;
     ABUILDER_REGEN,                                 //int     regenRate;
     SCA_TAKESFALLDAMAGE|SCA_FOVWARPS|
       SCA_NOFOOTSTEPS,                              //int     abilities;
@@ -1267,6 +1268,7 @@ classAttributes_t bg_classList[ ] =
     { 20, 20, 4 },                                  //vec3_t  deadmaxs;
     0, 0,                                           //int     viewheight, crouchviewheight;
     ABUILDER_UPG_HEALTH,                            //int     health;
+    0.0f,                                           //float   fallDamage;
     ABUILDER_UPG_REGEN,                             //int     regenRate;
     SCA_CANJUMP|SCA_FOVWARPS|SCA_WALLCLIMBER|
       SCA_NOFOOTSTEPS,                              //int     abilities;
@@ -1299,6 +1301,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     0, 0,                                           //int     viewheight, crouchviewheight;
     SOLDIER_HEALTH,                                 //int     health;
+    0.0f,                                           //float   fallDamage;
     SOLDIER_REGEN,                                  //int     regenRate;
     SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
@@ -1331,6 +1334,7 @@ classAttributes_t bg_classList[ ] =
     { 18, 18, 4 },                                  //vec3_t  deadmaxs;
     9, 9,                                           //int     viewheight, crouchviewheight;
     HYDRA_HEALTH,                                   //int     health;
+    0.0f,                                           //float   fallDamage;
     HYDRA_REGEN,                                    //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_WALLCLIMBER|SCA_ALIENSENSE|
@@ -1364,6 +1368,7 @@ classAttributes_t bg_classList[ ] =
     { 20, 20, 4 },                                  //vec3_t  deadmaxs;
     10, 10,                                         //int     viewheight, crouchviewheight;
     HYDRA_UPG_HEALTH,                               //int     health;
+    0.0f,                                           //float   fallDamage;
     HYDRA_UPG_REGEN,                                //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS|
       SCA_WALLCLIMBER|SCA_ALIENSENSE|
@@ -1397,6 +1402,7 @@ classAttributes_t bg_classList[ ] =
     { 32, 32, 4 },                                  //vec3_t  deadmaxs;
     24, 24,                                         //int     viewheight, crouchviewheight;
     DRAGOON_HEALTH,                                 //int     health;
+    0.0f,                                           //float   fallDamage;
     DRAGOON_REGEN,                                  //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
@@ -1429,6 +1435,7 @@ classAttributes_t bg_classList[ ] =
     { 32, 32, 4 },                                  //vec3_t  deadmaxs;
     27, 27,                                         //int     viewheight, crouchviewheight;
     DRAGOON_UPG_HEALTH,                             //int     health;
+    0.0f,                                           //float   fallDamage;
     DRAGOON_UPG_REGEN,                              //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
@@ -1461,6 +1468,7 @@ classAttributes_t bg_classList[ ] =
     { 22, 22, 4 },                                  //vec3_t  deadmaxs;
     30, 30,                                         //int     viewheight, crouchviewheight;
     CHIMERA_HEALTH,                                 //int     health;
+    0.0f,                                           //float   fallDamage;
     CHIMERA_REGEN,                                  //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
@@ -1493,6 +1501,7 @@ classAttributes_t bg_classList[ ] =
     { 24, 24, 4 },                                  //vec3_t  deadmaxs;
     32, 32,                                         //int     viewheight, crouchviewheight;
     CHIMERA_UPG_HEALTH,                             //int     health;
+    0.0f,                                           //float   fallDamage;
     CHIMERA_UPG_REGEN,                              //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
@@ -1525,6 +1534,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     50, 50,                                         //int     viewheight, crouchviewheight;
     BMOFO_HEALTH,                                   //int     health;
+    0.0f,                                           //float   fallDamage;
     BMOFO_REGEN,                                    //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
@@ -1557,6 +1567,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     26, 12,                                         //int     viewheight, crouchviewheight;
     100,                                            //int     health;
+    1.0f,                                           //float   fallDamage;
     0,                                              //int     regenRate;
     SCA_TAKESFALLDAMAGE|SCA_CANJUMP,                //int     abilities;
     WP_NONE, //special-cased in g_client.c          //weapon_t  startWeapon
@@ -1582,7 +1593,7 @@ classAttributes_t bg_classList[ ] =
     "default",
     
     "bsuit", ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), { 0, 0, 0 }, { 0, 0, 0, },                             
-    { 0, 0, 0, }, { 0, 0, 0, }, { 0, 0, 0, }, 0, 0, 0, 0, 0, WP_NONE, 0.0f, 0,   
+    { 0, 0, 0, }, { 0, 0, 0, }, { 0, 0, 0, }, 0, 0, 0, 0.0f, 0, 0, WP_NONE, 0.0f, 0,   
     0.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
   }
 };
@@ -1854,6 +1865,27 @@ int BG_FindHealthForClass( int pclass )
 
 /*
 ==============
+BG_FindFallDamageForClass
+==============
+*/
+float BG_FindFallDamageForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].fallDamage;
+    }
+  }
+  
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindFallDamageForClass\n" );
+  return 100;
+}
+
+/*
+==============
 BG_FindRegenRateForClass
 ==============
 */
@@ -1995,7 +2027,7 @@ float BG_FindStopSpeedForClass( int pclass )
     }
   }
   
-  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindFrictionForClass\n" );
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindStopSpeedForClass\n" );
   return 100.0f;
 }
 

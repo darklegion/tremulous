@@ -484,3 +484,10 @@
 #define STAMINA_SPRINT_TAKE         10
 #define STAMINA_LARMOUR_TAKE        5
 
+/*
+ * Misc
+ */
+
+#define MIN_FALL_DISTANCE           30.0f //the fall distance at which fall damage kicks in
+#define MAX_FALL_DISTANCE           120.0f //the fall distance at which maximum damage is dealt
+#define AVG_FALL_DISTANCE           ((MIN_FALL_DISTANCE+MAX_FALL_DISTANCE)/2.0f)

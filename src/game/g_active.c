@@ -652,12 +652,15 @@ void ClientEvents( gentity_t *ent, int oldEventSequence )
   gclient_t *client;
   int       damage;
   vec3_t    dir;
-  vec3_t    origin, angles;
+  vec3_t    point, mins;
 //  qboolean  fired;
   gitem_t   *item;
   gentity_t *drop;
+  float     fallDistance;
+  pClass_t  class;
 
   client = ent->client;
+  class = client->ps.stats[ STAT_PCLASS ];
 
   if( oldEventSequence < client->ps.eventSequence - MAX_PS_EVENTS )
     oldEventSequence = client->ps.eventSequence - MAX_PS_EVENTS;
@@ -673,14 +676,24 @@ void ClientEvents( gentity_t *ent, int oldEventSequence )
         if( ent->s.eType != ET_PLAYER )
           break;    // not in the player model
 
-        if( event == EV_FALL_FAR )
-          damage = 10;
-        else
-          damage = 5;
+        fallDistance = ( (float)client->ps.stats[ STAT_FALLDIST ] - MIN_FALL_DISTANCE ) /
+                         ( MAX_FALL_DISTANCE - MIN_FALL_DISTANCE );
 
+        if( fallDistance < 0.0f )
+          fallDistance = 0.0f;
+        else if( fallDistance > 1.0f )
+          fallDistance = 1.0f;
+
+        damage = (int)( (float)BG_FindHealthForClass( class ) *
+                 BG_FindFallDamageForClass( class ) * fallDistance );
+        
         VectorSet( dir, 0, 0, 1 );
+        BG_FindBBoxForClass( class, mins, NULL, NULL, NULL, NULL );
+        mins[ 0 ] = mins[ 1 ] = 0.0f;
+        VectorAdd( client->ps.origin, mins, point );
+        
         ent->pain_debounce_time = level.time + 200; // no normal pain sound
-        G_Damage( ent, NULL, NULL, NULL, NULL, damage, 0, MOD_FALLING );
+        G_Damage( ent, NULL, NULL, dir, point, damage, DAMAGE_NO_LOCDAMAGE, MOD_FALLING );
         break;
 
       case EV_FIRE_WEAPON:

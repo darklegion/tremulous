@@ -631,6 +631,7 @@ void      G_InitDamageLocations( void );
 #define DAMAGE_NO_ARMOR       0x00000002  // armour does not protect from this damage
 #define DAMAGE_NO_KNOCKBACK   0x00000004  // do not affect velocity, just view angles
 #define DAMAGE_NO_PROTECTION  0x00000008  // armor, shields, invulnerability, and godmode have no effect
+#define DAMAGE_NO_LOCDAMAGE   0x00000010  // so not apply locational damage
 
 //
 // g_missile.c

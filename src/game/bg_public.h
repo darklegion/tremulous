@@ -206,7 +206,8 @@ typedef enum
   STAT_STATE,     //TA: client states e.g. wall climbing
   STAT_MISC,      //TA: for uh...misc stuff
   STAT_BUILDABLE, //TA: which ghost model to display for building
-  STAT_BOOSTTIME  //TA: time left for boost (alien only)
+  STAT_BOOSTTIME, //TA: time left for boost (alien only)
+  STAT_FALLDIST   //TA: the distance the player fell
 } statIndex_t;
 
 #define SCA_WALLCLIMBER         0x00000001
@@ -895,6 +896,7 @@ typedef struct
   int       crouchViewheight;
   
   int       health;
+  float     fallDamage;
   int       regenRate;
   
   int       abilities;
@@ -1091,6 +1093,7 @@ qboolean  BG_FindStagesForClass( int pclass, stage_t stage );
 void      BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, vec3_t dmins, vec3_t dmaxs );
 void      BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight );
 int       BG_FindHealthForClass( int pclass );
+float     BG_FindFallDamageForClass( int pclass );
 int       BG_FindRegenRateForClass( int pclass );
 int       BG_FindFovForClass( int pclass );
 float     BG_FindBobForClass( int pclass );
