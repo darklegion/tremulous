@@ -404,6 +404,7 @@ typedef enum {
   BA_H_MCU,
   BA_H_DCC,
   BA_H_MEDISTAT,
+  BA_H_BANK,
   
   BA_H_REACTOR,
   BA_H_REPEATER,

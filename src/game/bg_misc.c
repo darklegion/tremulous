@@ -994,6 +994,22 @@ TA: human defense item
     ""                  //sounds
   },
   
+/*QUAKED team_human_bank (0 0 1) (-16 -16 -16) (16 16 16)
+TA: human defense item
+*/
+  {
+    "team_human_bank",
+    "sound/items/holdable.wav",
+    { "models/buildables/bank/bank.md3", 0, 0, 0 },
+    "icons/teleporter", //icon
+    "Human Bank",      //pickup
+    0,
+    IT_BUILDABLE,
+    BA_H_BANK,
+    "",                 //precache
+    ""                  //sounds
+  },
+  
 /*QUAKED team_human_reactor (0 0 1) (-16 -16 -16) (16 16 16)
 TA: human power item
 */
@@ -1414,6 +1430,32 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_DCC,              //int       buildNum;
     "dcc",                 //char      *buildName;
     "team_human_dcc",      //char      *entityName;
+    { -15, -15, -15 },     //vec3_t    mins;
+    { 15, 15, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
+    200,                   //int       buildPoints;
+    1000,                  //int       health;
+    50,                    //int       damage;
+    50,                    //int       splashDamage;
+    150,                   //int       splashRadius;
+    MOD_HSPAWN,            //int       meansOfDeath;
+    BIT_HUMANS,            //int       team;
+    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       idleAnim;
+    100,                   //int       nextthink;
+    0,                     //int       turretFireSpeed;
+    0,                     //int       turretRange;
+    WP_NONE,               //weapon_t  turretProjType;
+    0.707f,                //float     minNormal;
+    qfalse,                //qboolean  invertNormal;
+    qfalse,                //qboolean  creepTest;
+    qfalse                 //qboolean  reactorTest;
+  },
+  {
+    BA_H_BANK,             //int       buildNum;
+    "bank",                //char      *buildName;
+    "team_human_bank",     //char      *entityName;
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;

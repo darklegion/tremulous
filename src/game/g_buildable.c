@@ -82,7 +82,7 @@ qboolean findPower( gentity_t *self )
   //iterate through entities
   for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
-    if( !ent->classname )
+    if( !ent->classname || ent->s.eType != ET_BUILDABLE )
       continue;
 
     //if entity is a power item calculate the distance to it
@@ -146,7 +146,7 @@ qboolean findDCC( gentity_t *self )
   //iterate through entities
   for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
-    if( !ent->classname )
+    if( !ent->classname || ent->s.eType != ET_BUILDABLE )
       continue;
 
     //if entity is a power item calculate the distance to it
@@ -193,6 +193,9 @@ qboolean findCreep( gentity_t *self )
   {
     for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
     {
+      if( !ent->classname || ent->s.eType != ET_BUILDABLE )
+        continue;
+
       if( ent->s.clientNum == BA_D_SPAWN || ent->s.clientNum == BA_D_HIVEMIND )
       {
         VectorSubtract( self->s.origin, ent->s.origin, temp_v );
@@ -704,6 +707,9 @@ void HRpt_Think( gentity_t *self )
   //iterate through entities
   for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
+    if( !ent->classname || ent->s.eType != ET_BUILDABLE )
+      continue;
+
     if( ent->s.clientNum == BA_H_SPAWN && ent->parentNode == self )
       count++;
       
@@ -770,6 +776,47 @@ void HMCU_Think( gentity_t *self )
 
 
 
+/*
+================
+HBank_Activate
+
+Called when a human activates a Bank 
+================
+*/
+void HBank_Activate( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  //only humans can activate this
+  if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS ) return;
+  
+  //if this is powered then call the mcu menu
+  if( self->powered )
+    G_AddPredictableEvent( activator, EV_MENU, MN_H_MCU );
+  else
+    G_AddPredictableEvent( activator, EV_MENU, MN_H_MCUPOWER );
+}
+
+/*
+================
+HBank_Think
+
+Think for bank
+================
+*/
+void HBank_Think( gentity_t *self )
+{
+  //make sure we have power
+  self->nextthink = level.time + REFRESH_TIME;
+  
+  self->powered = findPower( self );
+}
+
+
+
+
+//==================================================================================
+
+
+
 
 /*
 ================
@@ -784,6 +831,55 @@ void HDCC_Think( gentity_t *self )
   self->nextthink = level.time + REFRESH_TIME;
   
   self->powered = findPower( self );
+}
+
+
+
+
+//==================================================================================
+
+
+
+
+/*
+================
+HMedistat_Think
+
+think function for Droid Acid Tube
+================
+*/
+void HMedistat_Think( gentity_t *self )
+{
+  int       entityList[ MAX_GENTITIES ];
+  vec3_t    mins, maxs;
+  int       i, num;
+  gentity_t *player;
+
+  VectorAdd( self->s.origin, self->r.maxs, maxs );
+  VectorAdd( self->s.origin, self->r.mins, mins );
+
+  mins[ 2 ] += fabs( self->r.mins[ 2 ] ) + self->r.maxs[ 2 ];
+  maxs[ 2 ] += 60; //player height
+  
+  //make sure we have power
+  self->nextthink = level.time + REFRESH_TIME;
+  
+  self->powered = findPower( self );
+
+  //do some damage
+  num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+  for( i = 0; i < num; i++ )
+  {
+    player = &g_entities[ entityList[ i ] ];
+    
+    if( player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    {
+      if( player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] )
+        player->health++;
+    }
+  }
+
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
 }
 
 
@@ -1367,6 +1463,9 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
       {
+        if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
+          continue;
+
         if( tempent->s.clientNum == BA_D_SPAWN || tempent->s.clientNum == BA_D_HIVEMIND )
         {
           VectorSubtract( entity_origin, tempent->s.origin, temp_v );
@@ -1382,6 +1481,8 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     //look for a hivemind
     for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
     {
+      if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
+        continue;
       if( tempent->s.clientNum == BA_D_HIVEMIND )
         break;
     }
@@ -1400,6 +1501,9 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
       {
+        if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
+          continue;
+
         if( tempent->s.clientNum == BA_D_HIVEMIND )
         {
           reason = IBE_HIVEMIND;
@@ -1420,6 +1524,9 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     //find the nearest power entity
     for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
     {
+      if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
+        continue;
+        
       if( tempent->s.clientNum == BA_H_REACTOR || tempent->s.clientNum == BA_H_REPEATER )
       {
         VectorSubtract( entity_origin, tempent->s.origin, temp_v );
@@ -1459,6 +1566,9 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
       {
+        if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
+          continue;
+
         if( tempent->s.clientNum == BA_H_REACTOR ) 
           break;
       }
@@ -1472,6 +1582,9 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
       {
+        if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
+          continue;
+
         if( tempent->s.clientNum == BA_H_REACTOR ) 
         {
           reason = IBE_REACTOR;
@@ -1587,13 +1700,19 @@ gentity_t *G_buildItem( gentity_t *ent, buildable_t buildable, int distance, flo
       built->use = HMCU_Activate;
       break;
       
+    case BA_H_BANK:
+      built->think = HBank_Think;
+      built->die = HSpawn_Die;
+      built->use = HBank_Activate;
+      break;
+      
     case BA_H_DCC:
       built->think = HDCC_Think;
       built->die = HSpawn_Die;
       break;
       
     case BA_H_MEDISTAT:
-      built->think = HDCC_Think;
+      built->think = HMedistat_Think;
       built->die = HSpawn_Die;
       break;
       

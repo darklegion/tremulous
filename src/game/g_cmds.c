@@ -1722,26 +1722,18 @@ Activate an item
 void Cmd_ActivateItem_f( gentity_t *ent )
 {
   char  s[ MAX_TOKEN_CHARS ];
+  int   upgrade;
 
   trap_Argv( 1, s, sizeof( s ) );
+  upgrade = BG_FindUpgradeNumForName( s );
 
   if( ent->client->pers.pteam != PTE_HUMANS )
     return;
     
-  if( !Q_stricmp( s, "nvg" ) )
-  {
-    if( BG_gotItem( UP_NVG, ent->client->ps.stats ) )
-      BG_activateItem( UP_NVG, ent->client->ps.stats );
-    else
-      trap_SendServerCommand( ent-g_entities, va("print \"You don't have the NVG\n\"" ) );
-  }
-  else if( !Q_stricmp( s, "torch" ) )
-  {
-    if( BG_gotItem( UP_TORCH, ent->client->ps.stats ) )
-      BG_activateItem( UP_TORCH, ent->client->ps.stats );
-    else
-      trap_SendServerCommand( ent-g_entities, va("print \"You don't have the torch\n\"" ) );
-  }
+  if( BG_gotItem( upgrade, ent->client->ps.stats ) )
+    BG_activateItem( upgrade, ent->client->ps.stats );
+  else
+    trap_SendServerCommand( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
 }
 
 
@@ -1755,26 +1747,18 @@ Deactivate an item
 void Cmd_DeActivateItem_f( gentity_t *ent )
 {
   char  s[ MAX_TOKEN_CHARS ];
+  int   upgrade;
 
   trap_Argv( 1, s, sizeof( s ) );
+  upgrade = BG_FindUpgradeNumForName( s );
 
   if( ent->client->pers.pteam != PTE_HUMANS )
     return;
     
-  if( !Q_stricmp( s, "nvg" ) )
-  {
-    if( BG_gotItem( UP_NVG, ent->client->ps.stats ) )
-      BG_deactivateItem( UP_NVG, ent->client->ps.stats );
-    else
-      trap_SendServerCommand( ent-g_entities, va("print \"You don't have the NVG\n\"" ) );
-  }
-  else if( !Q_stricmp( s, "torch" ) )
-  {
-    if( BG_gotItem( UP_TORCH, ent->client->ps.stats ) )
-      BG_deactivateItem( UP_TORCH, ent->client->ps.stats );
-    else
-      trap_SendServerCommand( ent-g_entities, va("print \"You don't have the torch\n\"" ) );
-  }
+  if( BG_gotItem( upgrade, ent->client->ps.stats ) )
+    BG_deactivateItem( upgrade, ent->client->ps.stats );
+  else
+    trap_SendServerCommand( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
 }
 
 
@@ -1786,36 +1770,23 @@ Cmd_ToggleItem_f
 void Cmd_ToggleItem_f( gentity_t *ent )
 {
   char  s[ MAX_TOKEN_CHARS ];
+  int   upgrade;
 
   trap_Argv( 1, s, sizeof( s ) );
+  upgrade = BG_FindUpgradeNumForName( s );
 
   if( ent->client->pers.pteam != PTE_HUMANS )
     return;
     
-  if( !Q_stricmp( s, "nvg" ) )
+  if( BG_gotItem( upgrade, ent->client->ps.stats ) )
   {
-    if( BG_gotItem( UP_NVG, ent->client->ps.stats ) )
-    {
-      if( BG_activated( UP_NVG, ent->client->ps.stats ) )
-        BG_deactivateItem( UP_NVG, ent->client->ps.stats );
-      else
-        BG_activateItem( UP_NVG, ent->client->ps.stats );
-    }
+    if( BG_activated( upgrade, ent->client->ps.stats ) )
+      BG_deactivateItem( upgrade, ent->client->ps.stats );
     else
-      trap_SendServerCommand( ent-g_entities, va("print \"You don't have the NVG\n\"" ) );
+      BG_activateItem( upgrade, ent->client->ps.stats );
   }
-  else if( !Q_stricmp( s, "torch" ) )
-  {
-    if( BG_gotItem( UP_TORCH, ent->client->ps.stats ) )
-    {
-      if( BG_activated( UP_TORCH, ent->client->ps.stats ) )
-        BG_deactivateItem( UP_TORCH, ent->client->ps.stats );
-      else
-        BG_activateItem( UP_TORCH, ent->client->ps.stats );
-    }
-    else
-      trap_SendServerCommand( ent-g_entities, va("print \"You don't have the torch\n\"" ) );
-  }
+  else
+    trap_SendServerCommand( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
 }
 
 
@@ -1842,7 +1813,10 @@ void Cmd_Buy_f( gentity_t *ent )
 
   for ( i = 1, mcuEntity = g_entities + i; i < level.num_entities; i++, mcuEntity++ )
   {
-    if( !Q_stricmp( mcuEntity->classname, "team_human_mcu" ) )
+    if( mcuEntity->s.eType != ET_BUILDABLE )
+      continue;
+      
+    if( mcuEntity->s.clientNum == BA_H_MCU )
     {
       VectorSubtract( ent->s.pos.trBase, mcuEntity->s.origin, distance );
       if( VectorLength( distance ) <= 100 )
@@ -1953,7 +1927,10 @@ void Cmd_Sell_f( gentity_t *ent )
     
   for ( i = 1, mcuEntity = g_entities + i; i < level.num_entities; i++, mcuEntity++ )
   {
-    if( !Q_stricmp( mcuEntity->classname, "team_human_mcu" ) )
+    if( mcuEntity->s.eType != ET_BUILDABLE )
+      continue;
+      
+    if( mcuEntity->s.clientNum == BA_H_MCU )
     {
       VectorSubtract( ent->s.pos.trBase, mcuEntity->s.origin, distance );
       if( VectorLength( distance ) <= 100 )
@@ -1975,24 +1952,130 @@ void Cmd_Sell_f( gentity_t *ent )
   {
     //remove weapon if carried
     if( BG_gotWeapon( weapon, ent->client->ps.stats ) )
+    {
       BG_removeWeapon( weapon, ent->client->ps.stats );
 
-    //add to funds
-    ent->client->ps.stats[ STAT_CREDIT ] += BG_FindPriceForWeapon( weapon );
+      //add to funds
+      ent->client->ps.stats[ STAT_CREDIT ] += BG_FindPriceForWeapon( weapon );
+    }
   }
   else if( upgrade != UP_NONE )
   {
     //remove upgrade if carried
     if( BG_gotItem( upgrade, ent->client->ps.stats ) )
+    {
       BG_removeItem( upgrade, ent->client->ps.stats );
 
-    //add to funds
-    ent->client->ps.stats[ STAT_CREDIT ] += BG_FindPriceForUpgrade( upgrade );
+      //add to funds
+      ent->client->ps.stats[ STAT_CREDIT ] += BG_FindPriceForUpgrade( upgrade );
+    }
   }
   else
   {
     trap_SendServerCommand( ent-g_entities, va("print \"Unknown item\n\"" ) );
   }
+}
+
+
+/*
+=================
+Cmd_Deposit_f
+=================
+*/
+void Cmd_Deposit_f( gentity_t *ent )
+{
+  char      s[ MAX_TOKEN_CHARS ];
+  int       amount;
+  vec3_t    distance;
+  int       i;
+  gentity_t *bankEntity;
+  qboolean  nearBank = qfalse;
+
+  trap_Argv( 1, s, sizeof( s ) );
+  amount = atoi( s );
+
+  //droids don't sell stuff
+  if( ent->client->pers.pteam != PTE_HUMANS )
+    return;
+    
+  for ( i = 1, bankEntity = g_entities + i; i < level.num_entities; i++, bankEntity++ )
+  {
+    if( bankEntity->s.eType != ET_BUILDABLE )
+      continue;
+      
+    if( bankEntity->s.clientNum == BA_H_BANK )
+    {
+      VectorSubtract( ent->s.pos.trBase, bankEntity->s.origin, distance );
+      if( VectorLength( distance ) <= 100 )
+        nearBank = qtrue;
+    }
+  }
+
+  //no Bank nearby
+  if( !nearBank )
+  {
+    trap_SendServerCommand( ent-g_entities, va("print \"You must be near an Bank\n\"" ) );
+    return;
+  }
+
+  if( amount <= ent->client->ps.stats[ STAT_CREDIT ] )
+  {
+    ent->client->ps.stats[ STAT_CREDIT ] -= amount;
+    bankEntity->credits[ ent->client->ps.clientNum ] += amount;
+  }
+  else
+    trap_SendServerCommand( ent-g_entities, va("print \"You do not have that amount\n\"" ) );
+}
+
+
+/*
+=================
+Cmd_Withdraw_f
+=================
+*/
+void Cmd_Withdraw_f( gentity_t *ent )
+{
+  char      s[ MAX_TOKEN_CHARS ];
+  int       amount;
+  vec3_t    distance;
+  int       i;
+  gentity_t *bankEntity;
+  qboolean  nearBank = qfalse;
+
+  trap_Argv( 1, s, sizeof( s ) );
+  amount = atoi( s );
+
+  //droids don't sell stuff
+  if( ent->client->pers.pteam != PTE_HUMANS )
+    return;
+    
+  for ( i = 1, bankEntity = g_entities + i; i < level.num_entities; i++, bankEntity++ )
+  {
+    if( bankEntity->s.eType != ET_BUILDABLE )
+      continue;
+      
+    if( bankEntity->s.clientNum == BA_H_BANK )
+    {
+      VectorSubtract( ent->s.pos.trBase, bankEntity->s.origin, distance );
+      if( VectorLength( distance ) <= 100 )
+        nearBank = qtrue;
+    }
+  }
+
+  //no Bank nearby
+  if( !nearBank )
+  {
+    trap_SendServerCommand( ent-g_entities, va("print \"You must be near an Bank\n\"" ) );
+    return;
+  }
+
+  if( amount <= bankEntity->credits[ ent->client->ps.clientNum ] )
+  {
+    ent->client->ps.stats[ STAT_CREDIT ] += amount;
+    bankEntity->credits[ ent->client->ps.clientNum ] -= amount;
+  }
+  else
+    trap_SendServerCommand( ent-g_entities, va("print \"You do not have that amount\n\"" ) );
 }
 
 
@@ -2211,6 +2294,10 @@ void ClientCommand( int clientNum ) {
     Cmd_Buy_f( ent );
   else if (Q_stricmp (cmd, "sell") == 0)
     Cmd_Sell_f( ent );
+  else if (Q_stricmp (cmd, "deposit") == 0)
+    Cmd_Deposit_f( ent );
+  else if (Q_stricmp (cmd, "withdraw") == 0)
+    Cmd_Withdraw_f( ent );
   else if (Q_stricmp (cmd, "itemact") == 0)
     Cmd_ActivateItem_f( ent );
   else if (Q_stricmp (cmd, "itemdeact") == 0)
