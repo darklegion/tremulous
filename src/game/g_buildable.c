@@ -387,6 +387,7 @@ void ddef_fireonenemy( gentity_t *self, int firespeed )
 
   //fire at target
   FireWeapon( self );
+  G_setBuildableAnim( self, BANIM_ATTACK1 );
   self->count = level.time + firespeed;
 }
 
@@ -820,6 +821,7 @@ void hdef_fireonenemy( gentity_t *self, int firespeed )
 {
   //fire at target
   FireWeapon( self );
+  G_setBuildableAnim( self, BANIM_ATTACK1 );
   self->count = level.time + firespeed;
 }
 
@@ -1061,7 +1063,7 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
 
   //this item does not fit here
   if( tr1.fraction < 1.0 || tr2.fraction < 1.0 )
-    reason = IBE_NOROOM;
+    return IBE_NOROOM; //NO other reason is allowed to override this
     
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
   {
