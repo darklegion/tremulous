@@ -275,7 +275,7 @@ static void CG_SpawnNewParticles( void )
 
           //calculate next ejection time
           lerpFrac = 1.0 - ( (float)pe->count / (float)pe->totalParticles );
-          pe->nextEjectionTime = cg.time + CG_RandomiseValue( 
+          pe->nextEjectionTime = cg.time + (int)CG_RandomiseValue( 
               CG_LerpValues( pe->ejectPeriod.initial,
                              pe->ejectPeriod.final,
                              lerpFrac ),

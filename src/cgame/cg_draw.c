@@ -1495,8 +1495,14 @@ static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, vec4_t color, q
       {
         if( cg.spectatorOffset < cg.spectatorLen )
         {
-          cg.spectatorPaintX += CG_Text_Width( &cg.spectatorList[ cg.spectatorOffset ], scale, 1 ) - 1;
-          cg.spectatorOffset++;
+          //TA: skip colour directives
+          if( Q_IsColorString( &cg.spectatorList[ cg.spectatorOffset ] ) )
+            cg.spectatorOffset += 2;
+          else
+          {
+            cg.spectatorPaintX += CG_Text_Width( &cg.spectatorList[ cg.spectatorOffset ], scale, 1 ) - 1;
+            cg.spectatorOffset++;
+          }
         }
         else
         {

@@ -551,6 +551,10 @@ static void CG_RunBuildableLerpFrame( centity_t *cent )
   // see if the animation sequence is switching
   if( newAnimation != lf->animationNumber || !lf->animation )
   {
+    if( cg_debugRandom.integer )
+      CG_Printf( "newAnimation: %d lf->animationNumber: %d lf->animation: %d\n",
+                 newAnimation, lf->animationNumber, !!lf->animation );
+
     CG_SetBuildableLerpFrameAnimation( buildable, lf, newAnimation );
 
     if( !cg_buildables[ buildable ].sounds[ newAnimation ].looped &&

@@ -588,7 +588,8 @@ void ASpawn_Think( gentity_t *self )
     {
       if( ( ent = G_CheckSpawnPoint( self->s.origin, self->s.origin2, BA_A_SPAWN, NULL ) ) != NULL )
       {
-        if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
+        if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD ||
+            ent->s.eType == ET_MOVER )
         {
           G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
           return;
@@ -2090,7 +2091,8 @@ void HSpawn_Think( gentity_t *self )
     {
       if( ( ent = G_CheckSpawnPoint( self->s.origin, self->s.origin2, BA_H_SPAWN, NULL ) ) != NULL )
       {
-        if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
+        if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD ||
+            ent->s.eType == ET_MOVER )
         {
           G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
           return;
