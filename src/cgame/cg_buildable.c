@@ -382,7 +382,6 @@ CG_Buildable
 void CG_Buildable( centity_t *cent )
 {
   refEntity_t     ent;
-  refEntity_t     ent2;
   entityState_t   *es;
   vec3_t          angles;
   vec3_t          forward, surfNormal, end, start, mins, maxs;
@@ -442,29 +441,65 @@ void CG_Buildable( centity_t *cent )
   CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
   
   //turret barrel bit
-  if( cg_buildables[ es->modelindex ].models[ 1 ] != 0 )
+  if( cg_buildables[ es->modelindex ].models[ 1 ] )
   {
-    vec3_t turretOrigin;
+    refEntity_t turretBarrel;
     
-    memset( &ent2, 0, sizeof( ent2 ) );
+    memset( &turretBarrel, 0, sizeof( turretBarrel ) );
 
-    AnglesToAxis( es->angles2, ent2.axis );
-
-    ent2.hModel = cg_buildables[ es->modelindex ].models[ 1 ];
-
-    VectorCopy( cent->lerpOrigin, turretOrigin );
-    turretOrigin[ 2 ] += 5;
+    AnglesToAxis( es->angles2, turretBarrel.axis );
     
-    VectorCopy( turretOrigin, ent2.origin );
-    VectorCopy( turretOrigin, ent2.oldorigin );
+    turretBarrel.hModel = cg_buildables[ es->modelindex ].models[ 1 ];
+    VectorCopy( cent->lerpOrigin, turretBarrel.lightingOrigin );
 
-    ent2.nonNormalizedAxes = qfalse;
+    CG_PositionRotatedEntityOnTag( &turretBarrel, &ent, ent.hModel, "tag_turret" );
 
-    ent2.oldframe = ent.oldframe;
-    ent2.frame    = ent.frame;
-    ent2.backlerp = ent.backlerp;
+/*    AngleVectors( es->angles2, forward, NULL, NULL );
+    VectorCopy( surfNormal, turretBarrel.axis[ 2 ] );
+    ProjectPointOnPlane( turretBarrel.axis[ 0 ], forward, turretBarrel.axis[ 2 ] );
+    
+    if( !VectorNormalize( turretBarrel.axis[ 0 ] ) )
+    {
+      AngleVectors( es->angles2, NULL, NULL, forward );
+      ProjectPointOnPlane( turretBarrel.axis[ 0 ], forward, turretBarrel.axis[ 2 ] );
+      VectorNormalize( turretBarrel.axis[ 0 ] );
+    }
+    
+    CrossProduct( turretBarrel.axis[ 0 ], turretBarrel.axis[ 2 ], turretBarrel.axis[ 1 ] );
+    turretBarrel.axis[ 1 ][ 0 ] = -turretBarrel.axis[ 1 ][ 0 ];
+    turretBarrel.axis[ 1 ][ 1 ] = -turretBarrel.axis[ 1 ][ 1 ];
+    turretBarrel.axis[ 1 ][ 2 ] = -turretBarrel.axis[ 1 ][ 2 ];*/
+    
+    turretBarrel.oldframe = ent.oldframe;
+    turretBarrel.frame    = ent.frame;
+    turretBarrel.backlerp = ent.backlerp;
 
-    trap_R_AddRefEntityToScene( &ent2 );
+    trap_R_AddRefEntityToScene( &turretBarrel );
+  }
+
+  //turret barrel bit
+  if( cg_buildables[ es->modelindex ].models[ 2 ] )
+  {
+    refEntity_t turretBarrel;
+    vec3_t      swivelAngles;
+    
+    memset( &turretBarrel, 0, sizeof( turretBarrel ) );
+
+    VectorCopy( es->angles2, swivelAngles );
+    swivelAngles[ PITCH ] = 0.0f;
+    
+    AnglesToAxis( swivelAngles, turretBarrel.axis );
+
+    turretBarrel.hModel = cg_buildables[ es->modelindex ].models[ 1 ];
+    VectorCopy( cent->lerpOrigin, turretBarrel.lightingOrigin );
+
+    CG_PositionRotatedEntityOnTag( &turretBarrel, &ent, ent.hModel, "tag_turret" );
+
+    turretBarrel.oldframe = ent.oldframe;
+    turretBarrel.frame    = ent.frame;
+    turretBarrel.backlerp = ent.backlerp;
+
+    trap_R_AddRefEntityToScene( &turretBarrel );
   }
 
   // add to refresh list
