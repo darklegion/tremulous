@@ -2636,11 +2636,6 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
     else
       rotAngle = RAD2DEG( acos( DotProduct( surfNormal, refNormal ) ) );
 
-    //FIXME: rotAngle is always +ve??
-    //-abs( rotAngle ).. sorta
-/*    if( rotAngle > 0 )
-      rotAngle = -rotAngle;*/
-      
     //hmmm could get away with only one rotation and some clever stuff later... but i'm lazy
     RotatePointAroundVector( rotaxis[0], xNormal, axis[0], -rotAngle );
     RotatePointAroundVector( rotaxis[1], xNormal, axis[1], -rotAngle );
