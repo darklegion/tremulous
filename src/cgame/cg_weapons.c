@@ -267,8 +267,6 @@ void CG_RegisterWeapon( int weaponNum )
   switch( weaponNum )
   {
     case WP_TESLAGEN:
-    case WP_AREA_ZAP:
-    case WP_DIRECT_ZAP:
       MAKERGB( weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f );
       weaponInfo->readySound = trap_S_RegisterSound( "sound/weapons/melee/fsthum.wav", qfalse );
       weaponInfo->firingSound = trap_S_RegisterSound( "sound/weapons/lightning/lg_hum.wav", qfalse );
@@ -276,6 +274,15 @@ void CG_RegisterWeapon( int weaponNum )
       weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/lightning/lg_fire.wav", qfalse );
       cgs.media.lightningShader = trap_R_RegisterShader( "models/ammo/tesla/tesla_bolt");
       cgs.media.lightningExplosionModel = trap_R_RegisterModel( "models/weaphits/crackle.md3" );
+      cgs.media.sfx_lghit = trap_S_RegisterSound( "sound/weapons/lightning/lg_fire.wav", qfalse );
+      break;
+
+    case WP_AREA_ZAP:
+    case WP_DIRECT_ZAP:
+      MAKERGB( weaponInfo->flashDlightColor, 0.0f, 0.0f, 0.0f );
+
+      weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/lightning/lg_fire.wav", qfalse );
+      cgs.media.lightningShader = trap_R_RegisterShader( "models/ammo/tesla/tesla_bolt");
       cgs.media.sfx_lghit = trap_S_RegisterSound( "sound/weapons/lightning/lg_fire.wav", qfalse );
       break;
 

@@ -276,7 +276,7 @@
 #define RIFLE_MAXCLIPS              3
 #define RIFLE_REPEAT                100
 #define RIFLE_RELOAD                2000
-#define RIFLE_PRICE                 100
+#define RIFLE_PRICE                 0
 #define RIFLE_SPREAD                200
 #define RIFLE_DMG                   HDM(7)
 
@@ -333,7 +333,7 @@
 #define PAINSAW_DAMAGE              HDM(5)
 #define PAINSAW_RANGE               32
 
-#define HBUILD_PRICE                100
+#define HBUILD_PRICE                0
 #define HBUILD_REPEAT               1000
 #define HBUILD_DELAY                9000
 
