@@ -660,7 +660,15 @@ void G_ParseDmgScript( char *buf, int class )
 			break;
 		}
 
-		while( 1 )
+    //default
+    g_damageRegions[ class ][ count ].minHeight = 0.0;
+    g_damageRegions[ class ][ count ].maxHeight = 1.0;
+    g_damageRegions[ class ][ count ].minAngle = 0;
+    g_damageRegions[ class ][ count ].maxAngle = 360;
+    g_damageRegions[ class ][ count ].modifier = 1.0;
+    g_damageRegions[ class ][ count ].crouch = qfalse;
+    
+    while( 1 )
     {
 			token = COM_ParseExt( &buf, qtrue );
       
@@ -719,6 +727,10 @@ void G_ParseDmgScript( char *buf, int class )
 
         g_damageRegions[ class ][ count ].modifier = atof( token );
       }
+      else if( !strcmp( token, "crouch" ) )
+      {
+        g_damageRegions[ class ][ count ].crouch = qtrue;
+      }
 		}
 
     g_numDamageRegions[ class ]++;
@@ -736,6 +748,7 @@ float G_CalcModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, int cl
 {
   vec3_t  bulletPath;
   vec3_t  bulletAngle;
+  vec3_t  pMINUSfloor, floor, normal;
 
   float   clientHeight, hitRelative, hitRatio;
   int     bulletRotation, clientRotation, hitRotation;
@@ -744,8 +757,18 @@ float G_CalcModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, int cl
 
   clientHeight = targ->r.maxs[ 2 ] - targ->r.mins[ 2 ];  
 
-  hitRelative = point[ 2 ] - targ->r.currentOrigin[ 2 ] - targ->r.mins[ 2 ];
+  if( targ->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING )
+    VectorCopy( targ->client->ps.grapplePoint, normal );
+  else
+    VectorSet( normal, 0, 0, 1 );
 
+  VectorMA( targ->r.currentOrigin, targ->r.mins[ 2 ], normal, floor );
+  VectorSubtract( point, floor, pMINUSfloor );
+  
+  hitRelative = DotProduct( normal, pMINUSfloor ) / VectorLength( normal );
+
+  G_Printf( "%f\n", hitRelative*100 );
+  
   if( hitRelative < 0.0 ) hitRelative = 0.0;
   if( hitRelative > clientHeight ) hitRelative = clientHeight;
 
@@ -766,7 +789,9 @@ float G_CalcModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, int cl
     if( hitRotation > g_damageRegions[ class ][ i ].minAngle &&
         hitRotation <= g_damageRegions[ class ][ i ].maxAngle &&
         hitRatio > g_damageRegions[ class ][ i ].minHeight &&
-        hitRatio <= g_damageRegions[ class ][ i ].maxHeight )
+        hitRatio <= g_damageRegions[ class ][ i ].maxHeight &&
+        ( g_damageRegions[ class ][ i ].crouch =
+          ( targ->client->ps.pm_flags & PMF_DUCKED ) ) )
       modifier *= g_damageRegions[ class ][ i ].modifier;
   }
 

@@ -335,10 +335,12 @@ struct gclient_s {
 //TA: store locational damage regions
 typedef struct damageRegion_s
 {
-  float   minHeight, maxHeight;
-  int     minAngle, maxAngle;
+  float     minHeight, maxHeight;
+  int       minAngle, maxAngle;
   
-  float   modifier;
+  float     modifier;
+
+  qboolean  crouch;
 } damageRegion_t;
 
 //
