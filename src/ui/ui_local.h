@@ -749,14 +749,36 @@ typedef struct {
 } modInfo_t;
 
 //TA: tremulous menus
-#define MAX_INFOPANE_LINES  16
-#define MAX_INFOPANES       16
+#define MAX_INFOPANE_LINES    16
+#define MAX_INFOPANE_GRAPHICS 16
+#define MAX_INFOPANES         128
+
+typedef enum
+{
+  INFOPANE_TOP,
+  INFOPANE_BOTTOM,
+  INFOPANE_LEFT,
+  INFOPANE_RIGHT
+} tremIPSide_t;
 
 typedef struct
 {
-  const char  *name;
-  const char  *lines[ MAX_INFOPANE_LINES ];
-  int         numLines;
+  qhandle_t     graphic;
+
+  tremIPSide_t  side;
+  int           offset;
+
+  int           width, height;
+} tremIPGraphic_t;
+
+typedef struct
+{
+  const char      *name;
+  const char      *lines[ MAX_INFOPANE_LINES ];
+  int             numLines;
+  
+  tremIPGraphic_t graphics[ MAX_INFOPANE_GRAPHICS ];
+  int             numGraphics;
 } tremInfoPane_t;
 
 typedef struct

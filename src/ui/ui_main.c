@@ -932,7 +932,16 @@ tremInfoPane_t *UI_FindInfoPaneByName( const char *name )
       return &uiInfo.tremInfoPanes[ i ];
   }
 
-  return NULL;
+  //create a dummy infopane demanding the user write the infopane
+  uiInfo.tremInfoPanes[ i ].name = String_Alloc( name );
+  uiInfo.tremInfoPanes[ i ].lines[ 0 ] = String_Alloc( "Not implemented." );
+  uiInfo.tremInfoPanes[ i ].lines[ 1 ] = String_Alloc( "ui/infopanes.def" );
+  uiInfo.tremInfoPanes[ i ].lines[ 2 ] = String_Alloc( name );
+  uiInfo.tremInfoPanes[ i ].numLines = 3;
+  
+  uiInfo.tremInfoPaneCount++;
+
+  return &uiInfo.tremInfoPanes[ i ];
 }
 
 /*
@@ -961,6 +970,66 @@ qboolean UI_LoadInfoPane( int handle )
 
       uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].name = String_Alloc( token.string );
       valid = qtrue;
+    }
+    else if( !Q_stricmp( token.string, "graphic" ) )
+    {
+      int *graphic;
+      
+      memset( &token, 0, sizeof( pc_token_t ) );
+      
+      if( !trap_PC_ReadToken( handle, &token ) )
+        break;
+
+      graphic = &uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].numGraphics;
+      
+      if( !Q_stricmp( token.string, "top" ) )
+        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].side = INFOPANE_TOP;
+      else if( !Q_stricmp( token.string, "bottom" ) )
+        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].side = INFOPANE_BOTTOM;
+      else if( !Q_stricmp( token.string, "left" ) )
+        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].side = INFOPANE_LEFT;
+      else if( !Q_stricmp( token.string, "right" ) )
+        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].side = INFOPANE_RIGHT;
+      else
+        break;
+
+      memset( &token, 0, sizeof( pc_token_t ) );
+      
+      if( !trap_PC_ReadToken( handle, &token ) )
+        break;
+
+      if( !Q_stricmp( token.string, "centre" ) )
+        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].offset = -1;
+      else
+        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].offset = token.intvalue;
+        
+      memset( &token, 0, sizeof( pc_token_t ) );
+      
+      if( !trap_PC_ReadToken( handle, &token ) )
+        break;
+        
+      uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].graphic =
+        trap_R_RegisterShaderNoMip( token.string );
+
+      memset( &token, 0, sizeof( pc_token_t ) );
+      
+      if( !trap_PC_ReadToken( handle, &token ) )
+        break;
+        
+      uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].width = token.intvalue;
+        
+      memset( &token, 0, sizeof( pc_token_t ) );
+      
+      if( !trap_PC_ReadToken( handle, &token ) )
+        break;
+        
+      uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].height = token.intvalue;
+        
+      //increment graphics
+      (*graphic)++;
+      
+      if( *graphic == MAX_INFOPANE_GRAPHICS )
+        break;
     }
     else if( !Q_stricmp( token.string, "line" ) )
     {
@@ -1013,7 +1082,7 @@ void UI_LoadInfoPanes( const char *file )
   int handle;
   int count;
 
-  uiInfo.tremInfoPaneCount = 0;
+  uiInfo.tremInfoPaneCount = count = 0;
 
   handle = trap_PC_LoadSource( file );
   
@@ -1284,24 +1353,76 @@ static void UI_DrawDialogText( rectDef_t *rect, float scale, vec4_t color,
   Text_Paint( rect->x, rect->y, scale, color, text, 0, 0, textStyle );
 }
 
-static void UI_RenderInfoPane( tremInfoPane_t *pane, rectDef_t *rect, float scale, vec4_t color, int textStyle )
+/*
+===============
+UI_DrawInfoPane
+===============
+*/
+static void UI_DrawInfoPane( tremInfoPane_t *pane, rectDef_t *rect, float scale, vec4_t color, int textStyle )
 {
   int i;
+  int maxx = 0, maxy = 0;
+  int x = rect->x, y = rect->y;
+  int xoffset = 0, yoffset = 0;
+  int textWidth = Text_Height( "O", scale, 0 );
+  int textHeight = Text_Height( "O", scale, 0 );
 
-  for( i = 0; i < pane->numLines; i++ )
+  //iterate through graphics
+  for( i = 0; i < pane->numGraphics; i++ )
   {
-    int height = Text_Height( pane->lines[ i ], scale, 0 );
+    int width         = pane->graphics[ i ].width;
+    int height        = pane->graphics[ i ].height;
+    qhandle_t graphic = pane->graphics[ i ].graphic;
     
-    Text_Paint( rect->x, rect->y + i * height * 1.5, scale, color, pane->lines[ i ], 0, 0, textStyle );
+    if( pane->graphics[ i ].side == INFOPANE_TOP || pane->graphics[ i ].side == INFOPANE_BOTTOM )
+    {
+      //set horizontal offset of graphic
+      if( pane->graphics[ i ].offset < 0 )
+        xoffset = ( rect->w / 2 ) - ( pane->graphics[ i ].width / 2 );
+      else
+        xoffset = pane->graphics[ i ].offset;
+    }
+    else if( pane->graphics[ i ].side == INFOPANE_LEFT || pane->graphics[ i ].side == INFOPANE_RIGHT )
+    {
+      //set vertical offset of graphic
+      if( pane->graphics[ i ].offset < 0 )
+        yoffset = ( rect->h / 2 ) - ( pane->graphics[ i ].height / 2 );
+      else
+        yoffset = pane->graphics[ i ].offset;
+    }
+
+    if( pane->graphics[ i ].side == INFOPANE_LEFT )
+    {
+      //set the horizontal offset of the text
+      if( pane->graphics[ i ].width > maxx )
+        maxx = pane->graphics[ i ].width;
+    
+      xoffset = 0;
+    }
+    else if( pane->graphics[ i ].side == INFOPANE_RIGHT )
+      xoffset = rect->w - width;
+    else if( pane->graphics[ i ].side == INFOPANE_TOP )
+    {
+      //set the vertical offset of the text
+      if( pane->graphics[ i ].height > maxy )
+        maxy = pane->graphics[ i ].height;
+      
+      yoffset = 0;
+    }
+    else if( pane->graphics[ i ].side == INFOPANE_BOTTOM )
+      yoffset = rect->h - height;
+
+    //draw the graphic
+    UI_DrawHandlePic( x + xoffset, y + yoffset, width, height, graphic );
   }
-}
+  
+  //offset the text
+  x += maxx + textWidth;
+  y += maxy + textHeight * 2;
 
-static void UI_DrawTeamInfoPane( rectDef_t *rect, float scale, vec4_t color, int textStyle )
-{
-  tremInfoPane_t  *pane = NULL;
-
-  if( pane = uiInfo.tremTeamList[ uiInfo.tremTeamIndex ].infopane )
-    UI_RenderInfoPane( pane, rect, scale, color, textStyle );
+  //iterate through text
+  for( i = 0; i < pane->numLines; i++ )
+    Text_Paint( x, y + i * textHeight * 1.5, scale, color, pane->lines[ i ], 0, 0, textStyle );
 }
 
 
@@ -2144,8 +2265,13 @@ static void UI_DrawGLInfo(rectDef_t *rect, float scale, vec4_t color, int textSt
 
 // FIXME: table drive
 //
-static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle) {
-  rectDef_t rect;
+static void UI_OwnerDraw( float x, float y, float w, float h,
+                          float text_x, float text_y, int ownerDraw,
+                          int ownerDrawFlags, int align, float special,
+                          float scale, vec4_t color, qhandle_t shader, int textStyle )
+{
+  rectDef_t       rect;
+  tremInfoPane_t  *pane = NULL;
 
   rect.x = x + text_x;
   rect.y = y + text_y;
@@ -2159,7 +2285,43 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
       break;
       
     case UI_TEAMINFOPANE:
-      UI_DrawTeamInfoPane( &rect, scale, color, textStyle );
+      if( pane = uiInfo.tremTeamList[ uiInfo.tremTeamIndex ].infopane )
+        UI_DrawInfoPane( pane, &rect, scale, color, textStyle );
+      break;
+      
+    case UI_ACLASSINFOPANE:
+      if( pane = uiInfo.tremAlienClassList[ uiInfo.tremAlienClassIndex ].infopane )
+        UI_DrawInfoPane( pane, &rect, scale, color, textStyle );
+      break;
+      
+    case UI_AUPGRADEINFOPANE:
+      if( pane = uiInfo.tremAlienUpgradeList[ uiInfo.tremAlienUpgradeIndex ].infopane )
+        UI_DrawInfoPane( pane, &rect, scale, color, textStyle );
+      break;
+      
+    case UI_HITEMINFOPANE:
+      if( pane = uiInfo.tremHumanItemList[ uiInfo.tremHumanItemIndex ].infopane )
+        UI_DrawInfoPane( pane, &rect, scale, color, textStyle );
+      break;
+      
+    case UI_HBUYINFOPANE:
+      if( pane = uiInfo.tremHumanMCUBuyList[ uiInfo.tremHumanMCUBuyIndex ].infopane )
+        UI_DrawInfoPane( pane, &rect, scale, color, textStyle );
+      break;
+      
+    case UI_HSELLINFOPANE:
+      if( pane = uiInfo.tremHumanMCUSellList[ uiInfo.tremHumanMCUSellIndex ].infopane )
+        UI_DrawInfoPane( pane, &rect, scale, color, textStyle );
+      break;
+      
+    case UI_ABUILDINFOPANE:
+      if( pane = uiInfo.tremAlienBuildList[ uiInfo.tremAlienBuildIndex ].infopane )
+        UI_DrawInfoPane( pane, &rect, scale, color, textStyle );
+      break;
+      
+    case UI_HBUILDINFOPANE:
+      if( pane = uiInfo.tremHumanBuildList[ uiInfo.tremHumanBuildIndex ].infopane )
+        UI_DrawInfoPane( pane, &rect, scale, color, textStyle );
       break;
       
     case UI_HANDICAP:
@@ -3046,11 +3208,15 @@ static void UI_LoadTremAlienClasses( )
     String_Alloc( BG_FindHumanNameForClassNum( PCL_A_B_BASE ) );
   uiInfo.tremAlienClassList[ 0 ].cmd =
     String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( PCL_A_B_BASE ) ) );
+  uiInfo.tremAlienClassList[ 0 ].infopane =
+    UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( PCL_A_B_BASE ) ) );
   
   uiInfo.tremAlienClassList[ 1 ].text =
     String_Alloc( BG_FindHumanNameForClassNum( PCL_A_O_BASE ) );
   uiInfo.tremAlienClassList[ 1 ].cmd =
     String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( PCL_A_O_BASE ) ) );
+  uiInfo.tremAlienClassList[ 1 ].infopane =
+    UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( PCL_A_O_BASE ) ) );
 }
 
 /*
@@ -3066,11 +3232,15 @@ static void UI_LoadTremHumanItems( )
     String_Alloc( BG_FindHumanNameForWeapon( WP_HBUILD ) );
   uiInfo.tremHumanItemList[ 0 ].cmd =
     String_Alloc( va( "cmd class %s", BG_FindNameForWeapon( WP_HBUILD ) ) );
+  uiInfo.tremHumanItemList[ 0 ].infopane =
+    UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( WP_HBUILD ) ) );
 
   uiInfo.tremHumanItemList[ 1 ].text =
     String_Alloc( BG_FindHumanNameForWeapon( WP_MACHINEGUN ) );
   uiInfo.tremHumanItemList[ 1 ].cmd =
     String_Alloc( va( "cmd class %s", BG_FindNameForWeapon( WP_MACHINEGUN ) ) );
+  uiInfo.tremHumanItemList[ 1 ].infopane =
+    UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( WP_MACHINEGUN ) ) );
 }
 
 /*
@@ -3093,8 +3263,12 @@ static void UI_LoadTremHumanMCUBuys( )
     {
       uiInfo.tremHumanMCUBuyList[ j ].text =
         String_Alloc( BG_FindHumanNameForWeapon( i ) );
-      uiInfo.tremHumanMCUBuyList[ j++ ].cmd =
+      uiInfo.tremHumanMCUBuyList[ j ].cmd =
         String_Alloc( va( "cmd buy %s", BG_FindNameForWeapon( i ) ) );
+      uiInfo.tremHumanMCUBuyList[ j ].infopane =
+        UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( i ) ) );
+      
+      j++;
 
       uiInfo.tremHumanMCUBuyCount++;
     }
@@ -3107,9 +3281,13 @@ static void UI_LoadTremHumanMCUBuys( )
     {
       uiInfo.tremHumanMCUBuyList[ j ].text =
         String_Alloc( BG_FindHumanNameForUpgrade( i ) );
-      uiInfo.tremHumanMCUBuyList[ j++ ].cmd =
+      uiInfo.tremHumanMCUBuyList[ j ].cmd =
         String_Alloc( va( "cmd buy %s", BG_FindNameForUpgrade( i ) ) );
+      uiInfo.tremHumanMCUBuyList[ j ].infopane =
+        UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForUpgrade( i ) ) );
 
+      j++;
+      
       uiInfo.tremHumanMCUBuyCount++;
     }
   }
@@ -3193,9 +3371,13 @@ static void UI_LoadTremHumanMCUSells( )
     if( weapons & ( 1 << i ) )
     {
       uiInfo.tremHumanMCUSellList[ j ].text = String_Alloc( BG_FindHumanNameForWeapon( i ) );
-      uiInfo.tremHumanMCUSellList[ j++ ].cmd =
+      uiInfo.tremHumanMCUSellList[ j ].cmd =
         String_Alloc( va( "cmd sell %s", BG_FindNameForWeapon( i ) ) );
+      uiInfo.tremHumanMCUSellList[ j ].infopane =
+        UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( i ) ) );
 
+      j++;
+      
       uiInfo.tremHumanMCUSellCount++;
     }
   }
@@ -3205,9 +3387,13 @@ static void UI_LoadTremHumanMCUSells( )
     if( upgrades & ( 1 << i ) )
     {
       uiInfo.tremHumanMCUSellList[ j ].text = String_Alloc( BG_FindHumanNameForUpgrade( i ) );
-      uiInfo.tremHumanMCUSellList[ j++ ].cmd =
+      uiInfo.tremHumanMCUSellList[ j ].cmd =
         String_Alloc( va( "cmd sell %s", BG_FindNameForUpgrade( i ) ) );
+      uiInfo.tremHumanMCUSellList[ j ].infopane =
+        UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForUpgrade( i ) ) );
 
+      j++;
+      
       uiInfo.tremHumanMCUSellCount++;
     }
   }
@@ -3236,15 +3422,20 @@ static void UI_LoadTremAlienUpgrades( )
         BG_FindStagesForClass( i, stage ) )
     {
       uiInfo.tremAlienUpgradeList[ j ].text = String_Alloc( BG_FindNameForClassNum( i ) );
-      uiInfo.tremAlienUpgradeList[ j++ ].cmd =
+      uiInfo.tremAlienUpgradeList[ j ].cmd =
         String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( i ) ) );
+      uiInfo.tremAlienUpgradeList[ j ].infopane =
+        UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( i ) ) );
+
+      j++;
 
       uiInfo.tremAlienUpgradeCount++;
     }
   }
 
   uiInfo.tremAlienUpgradeList[ j ].text = String_Alloc( "Store" );
-  uiInfo.tremAlienUpgradeList[ j++ ].cmd = String_Alloc( "cmd class store" );
+  uiInfo.tremAlienUpgradeList[ j ].cmd = String_Alloc( "cmd class store" );
+  uiInfo.tremAlienUpgradeList[ j++ ].infopane = UI_FindInfoPaneByName( "storeclass" );
   uiInfo.tremAlienUpgradeCount++;
 }
 
@@ -3272,9 +3463,13 @@ static void UI_LoadTremAlienBuilds( )
     {
       uiInfo.tremAlienBuildList[ j ].text =
         String_Alloc( BG_FindHumanNameForBuildable( i ) );
-      uiInfo.tremAlienBuildList[ j++ ].cmd =
+      uiInfo.tremAlienBuildList[ j ].cmd =
         String_Alloc( va( "cmd build %s", BG_FindNameForBuildable( i ) ) );
+      uiInfo.tremAlienBuildList[ j ].infopane =
+        UI_FindInfoPaneByName( va( "%sbuild", BG_FindNameForBuildable( i ) ) );
 
+      j++;
+      
       uiInfo.tremAlienBuildCount++;
     }
   }
@@ -3304,9 +3499,13 @@ static void UI_LoadTremHumanBuilds( )
     {
       uiInfo.tremHumanBuildList[ j ].text =
         String_Alloc( BG_FindHumanNameForBuildable( i ) );
-      uiInfo.tremHumanBuildList[ j++ ].cmd =
+      uiInfo.tremHumanBuildList[ j ].cmd =
         String_Alloc( va( "cmd build %s", BG_FindNameForBuildable( i ) ) );
+      uiInfo.tremHumanBuildList[ j ].infopane =
+        UI_FindInfoPaneByName( va( "%sbuild", BG_FindNameForBuildable( i ) ) );
 
+      j++;
+      
       uiInfo.tremHumanBuildCount++;
     }
   }
@@ -5769,6 +5968,12 @@ void _UI_Init( qboolean inGameLoad ) {
 
       for( abc = 0; abc < uiInfo.tremInfoPanes[ ijk ].numLines; abc++ )
         Com_Printf( "line %d: %s\n", abc, uiInfo.tremInfoPanes[ ijk ].lines[ abc ] );
+      
+      for( abc = 0; abc < uiInfo.tremInfoPanes[ ijk ].numGraphics; abc++ )
+        Com_Printf( "graphic %d: %d %d %d %d\n", abc, uiInfo.tremInfoPanes[ ijk ].graphics[ abc ].side,
+                                                      uiInfo.tremInfoPanes[ ijk ].graphics[ abc ].width,
+                                                      uiInfo.tremInfoPanes[ ijk ].graphics[ abc ].height,
+                                                      uiInfo.tremInfoPanes[ ijk ].graphics[ abc ].offset );
     }
   }
 #endif

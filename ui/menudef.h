@@ -267,6 +267,13 @@
 //TA:
 #define UI_DIALOG             257
 #define UI_TEAMINFOPANE       258
+#define UI_ACLASSINFOPANE     259
+#define UI_AUPGRADEINFOPANE   260
+#define UI_HITEMINFOPANE      261
+#define UI_HBUYINFOPANE       262
+#define UI_HSELLINFOPANE      263
+#define UI_ABUILDINFOPANE     264
+#define UI_HBUILDINFOPANE     265
 
 #define VOICECHAT_GETFLAG     "getflag"       // command someone to get the flag
 #define VOICECHAT_OFFENSE     "offense"       // command someone to go on offense
