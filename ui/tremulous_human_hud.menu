@@ -7,7 +7,6 @@
 {
   assetGlobalDef
   {
-    cursor "ui/assets/3_cursor2"      // cursor 
     gradientBar "ui/assets/gradientbar2.tga"  // gradient bar
     fadeClamp 1.0         // sets the fadeup alpha
     fadeCycle 1         // how often fade happens in milliseconds
