@@ -429,13 +429,16 @@ void CG_Buildable( centity_t *cent )
   ent.axis[ 1 ][ 1 ] = -ent.axis[ 1 ][ 1 ];
   ent.axis[ 1 ][ 2 ] = -ent.axis[ 1 ][ 2 ];
 
-  VectorMA( ent.origin, -TRACE_DEPTH, surfNormal, end );
-  VectorMA( ent.origin, 1.0f, surfNormal, start );
-  CG_CapTrace( &tr, start, mins, maxs, end, es->number, MASK_PLAYERSOLID );
-  VectorMA( ent.origin, tr.fraction * -TRACE_DEPTH, surfNormal, ent.origin );
-
-  VectorCopy( ent.origin, ent.lightingOrigin );
+  if( es->pos.trType == TR_STATIONARY )
+  {
+    VectorMA( ent.origin, -TRACE_DEPTH, surfNormal, end );
+    VectorMA( ent.origin, 1.0f, surfNormal, start );
+    CG_CapTrace( &tr, start, mins, maxs, end, es->number, MASK_PLAYERSOLID );
+    VectorMA( ent.origin, tr.fraction * -TRACE_DEPTH, surfNormal, ent.origin );
+  }
+  
   VectorCopy( ent.origin, ent.oldorigin ); // don't positionally lerp at all
+  VectorCopy( ent.origin, ent.lightingOrigin );
 
   ent.hModel = cg_buildables[ es->modelindex ].models[ 0 ];
 

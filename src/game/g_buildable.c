@@ -2027,9 +2027,9 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   built->s.angles[ PITCH ] = 0.0f;
   built->s.angles2[ YAW ] = angles[ YAW ];
   built->s.pos.trType = BG_FindTrajectoryForBuildable( buildable );
+  built->s.pos.trTime = level.time;
   built->physicsBounce = BG_FindBounceForBuildable( buildable );
   built->s.groundEntityNum = -1;
-  built->s.pos.trTime = level.time;
   
   if( builder->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING )
   {
