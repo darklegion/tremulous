@@ -276,7 +276,8 @@ void  G_TouchTriggers( gentity_t *ent ) {
     }
 
     // ignore most entities if a spectator
-    if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
+    if( ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) ||
+        ( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) ) {
       if ( hit->s.eType != ET_TELEPORT_TRIGGER &&
         // this is ugly but adding a new ET_? type will
         // most likely cause network incompatibilities
@@ -652,6 +653,13 @@ void ClientThink_real( gentity_t *ent ) {
   int       i;
   qboolean  cSlowed = qfalse;
 
+  //TA: time
+  static int  lastTime;
+  int         dTime;
+
+  dTime = level.time - lastTime;
+  lastTime = level.time;
+
   //Com_Printf( "%d\n", G_LuminanceAtPoint( ent->s.origin ) );
 
   client = ent->client;
@@ -724,11 +732,20 @@ void ClientThink_real( gentity_t *ent ) {
     client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET );
   }
 
-  if ( client->noclip ) {
+  if( client->noclip )
+  {
     client->ps.pm_type = PM_NOCLIP;
-  } else if ( client->ps.stats[STAT_HEALTH] <= 0 ) {
+  }
+  else if( client->ps.stats[STAT_HEALTH] <= 0 )
+  {
     client->ps.pm_type = PM_DEAD;
-  } else {
+  }
+  else if( client->ps.stats[ STAT_STATE ] & SS_INFESTING )
+  {
+    client->ps.pm_type = PM_FREEZE;
+  }
+  else
+  {
     client->ps.pm_type = PM_NORMAL;
   }
 
@@ -810,18 +827,18 @@ void ClientThink_real( gentity_t *ent ) {
   if( ( client->ps.stats[ STAT_STATE ] & SS_SPEEDBOOST ) &&  ucmd->upmove >= 0 )
   {
     //subtract stamina
-    client->ps.stats[ STAT_STAMINA ] -= 2;
+    client->ps.stats[ STAT_STAMINA ] -= dTime/6.0f;
   }
                                                           
   if( ( aForward <= 64 && aForward > 5 ) || ( aRight <= 64 && aRight > 5 ) )
   {
     //restore stamina
-    client->ps.stats[ STAT_STAMINA ] += 3;
+    client->ps.stats[ STAT_STAMINA ] += dTime/4.0f;
   }
   else if( aForward <= 5 && aRight <= 5 )
   {
     //restore stamina faster
-    client->ps.stats[ STAT_STAMINA ] += 2;
+    client->ps.stats[ STAT_STAMINA ] += dTime/6.0f;
   }
 
   // set up for pmove
@@ -847,6 +864,9 @@ void ClientThink_real( gentity_t *ent ) {
   pm.cmd = *ucmd;
   if ( pm.ps->pm_type == PM_DEAD ) {
     pm.tracemask = MASK_PLAYERSOLID; // & ~CONTENTS_BODY;
+  }
+  if ( pm.ps->stats[ STAT_STATE ] & SS_INFESTING ) {
+    pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
   }
   else if ( ent->r.svFlags & SVF_BOT ) {
     pm.tracemask = MASK_PLAYERSOLID | CONTENTS_BOTCLIP;
@@ -952,6 +972,14 @@ void ClientThink_real( gentity_t *ent ) {
       }
     }
     return;
+  }
+
+  if( ( ( client->lastInfestTime +
+          BG_FindEvolveTimeForClass( client->ps.stats[ STAT_PCLASS ] ) ) < level.time ) &&
+      ( client->ps.stats[ STAT_STATE ] & SS_INFESTING ) )
+  {
+    client->ps.stats[ STAT_STATE ] &= ~SS_INFESTING;
+    ClientSpawn( ent, client->infestBody );
   }
 
   // perform once-a-second actions

@@ -249,12 +249,14 @@ typedef enum {
 #define SCA_CANZOOM             4
 #define SCA_CANJUMP             8
 #define SCA_NOWEAPONDRIFT       16
+#define SCA_FOVWARPS            32
 
 #define SS_WALLCLIMBING         1
 #define SS_GPISROTVEC           2
 #define SS_CREEPSLOWED          4
 #define SS_WALLTRANSIDING       8
 #define SS_SPEEDBOOST           16
+#define SS_INFESTING            32
 
 
 // player_state->persistant[] indexes
@@ -450,6 +452,7 @@ typedef enum {
   EV_USE_ITEM15,
 
   EV_ITEM_RESPAWN,
+  EV_PLAYER_RESPAWN, //TA: for fovwarp effects
   EV_ITEM_GROW, //droid items that grow
   EV_ITEM_POP,
   EV_PLAYER_TELEPORT_IN,
@@ -506,7 +509,8 @@ typedef enum
   MN_HUMAN,
   MN_ABUILD,
   MN_HBUILD,
-  MN_MCU
+  MN_MCU,
+  MN_INFEST
 } dynMenu_t;
 
 // animations
@@ -696,23 +700,34 @@ typedef struct gitem_s {
 typedef struct
 {
   int     classNum;
+
+  char    *className;
+  
   char    *modelName;
   char    *skinName;
+  
   vec3_t  mins;
   vec3_t  maxs;
   vec3_t  crouchMaxs;
   vec3_t  deadMins;
   vec3_t  deadMaxs;
+  
   int     viewheight;
   int     crouchViewheight;
+  
   int     health;
   int     armor;
+  
   int     abilities;
+  
   int     fov;
   float   bob;
   int     steptime;
   float   speed;
   float   sticky;
+
+  int     children[ 3 ];
+  int     timeToEvolve;
 } classAttributes_t;
 
 
@@ -728,6 +743,8 @@ gitem_t *BG_FindItemForPowerup( powerup_t pw );
 gitem_t *BG_FindItemForHoldable( holdable_t pw );
 
 //TA:
+int       BG_FindClassNumForName( char *name );
+char      *BG_FindNameForClassNum( int pclass );
 char      *BG_FindModelNameForClass( int pclass );
 void      BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, vec3_t dmins, vec3_t dmaxs );
 void      BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight );
@@ -739,6 +756,8 @@ float     BG_FindSpeedForClass( int pclass );
 float     BG_FindStickyForClass( int pclass );
 int       BG_FindSteptimeForClass( int pclass );
 qboolean  BG_ClassHasAbility( int pclass, int ability );
+qboolean  BG_ClassCanEvolveFromTo( int fclass, int tclass );
+int       BG_FindEvolveTimeForClass( int pclass );
 #define ITEM_INDEX(x) ((x)-bg_itemlist)
 
 qboolean  BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps );

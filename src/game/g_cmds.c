@@ -419,12 +419,15 @@ Cmd_Kill_f
 =================
 */
 void Cmd_Kill_f( gentity_t *ent ) {
-  if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
+  if( ent->client->sess.sessionTeam == TEAM_SPECTATOR )
     return;
-  }
-  if (ent->health <= 0) {
+  
+  if( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING )
     return;
-  }
+    
+  if (ent->health <= 0)
+    return;
+
   ent->flags &= ~FL_GODMODE;
   ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
   player_die (ent, ent, ent, 100000, MOD_SUICIDE);
@@ -1541,26 +1544,23 @@ Cmd_Class_f
 */
 void Cmd_Class_f( gentity_t *ent )
 {
-  char s[ MAX_TOKEN_CHARS ];
-  qboolean dontSpawn = qfalse;
-  int clientNum;
+  char      s[ MAX_TOKEN_CHARS ];
+  qboolean  dontSpawn = qfalse;
+  int       clientNum;
   gentity_t *body, *victim;
   vec3_t    distance;
   int       length = 4096;
   int       i;
+  trace_t   tr;
+  vec3_t    infestOrigin, infestAngles;
 
   clientNum = ent->client - level.clients;
   trap_Argv( 1, s, sizeof( s ) );
 
-  if( !strlen( s ) && ( ent->client->pers.pteam != PTE_HUMANS ) )
-  {
-    trap_SendServerCommand( ent-g_entities, va("print \"class number: %i\n\"", ent->client->pers.pclass ) );
-    return;
-  }
-
   if( ent->client->pers.pteam == PTE_DROIDS )
   {
-    if( ent->client->pers.pclass )
+    //if we are not currently spectating, we are attempting evolution
+    if( ent->client->pers.pclass != PCL_NONE )
     {
       for ( i = 1, body = g_entities + i; i < level.num_entities; i++, body++ )
       {
@@ -1575,58 +1575,72 @@ void Cmd_Class_f( gentity_t *ent )
         }
       }
       
+      //if a human corpse is nearby...
       if( length <= 200 )
       {
-        if( !Q_stricmp(s, "0") )
-          ent->client->pers.pclass = PCL_D_B_BASE;
-        else if( !Q_stricmp(s, "1") )
-          ent->client->pers.pclass = PCL_D_O_BASE;
-        else if( !Q_stricmp(s, "2") )
-          ent->client->pers.pclass = PCL_D_D_BASE;
+        ent->client->pers.pclass = BG_FindClassNumForName( s );
+
+        //...check we can evolve to that class
+        if( !BG_ClassCanEvolveFromTo( ent->client->ps.stats[ STAT_PCLASS ],
+                                      ent->client->pers.pclass ) )
+        {
+          trap_SendServerCommand( ent-g_entities, va("print \"You cannot evolve from your current class\n\"" ) );
+          return;
+        }
+
+        if( ent->client->pers.pclass != PCL_NONE )
+        {
+          //evolve
+          ent->client->ps.stats[ STAT_PCLASS ] = PCL_NONE;
+          ent->client->sess.sessionTeam = TEAM_FREE;
+          ClientUserinfoChanged( clientNum );
+          ent->client->ps.stats[ STAT_STATE ] |= SS_INFESTING;
+          ent->client->lastInfestTime = level.time;
+          ent->client->infestBody = victim;
+
+          VectorCopy( victim->s.pos.trBase, infestOrigin );
+          infestOrigin[ 2 ] += 128;
+
+          /*trap_Trace( &tr, victim->s.pos.trBase, NULL, NULL, infestOrigin, victim->s.number, MASK_PLAYERSOLID );
+          VectorCopy( tr.endpos, infestOrigin );*/
+          VectorCopy( victim->s.angles, infestAngles );
+
+          infestAngles[ PITCH ] = 90;
+
+          G_SetOrigin( ent, infestOrigin );
+          VectorCopy( infestOrigin, ent->client->ps.origin );
+
+          SetClientViewAngle( ent, infestAngles );
+        }
         else
         {
           trap_SendServerCommand( ent-g_entities, va("print \"Unknown class\n\"" ) );
-          dontSpawn = qtrue;
-        }
-
-        if( !dontSpawn )
-        {
-          ent->client->sess.sessionTeam = TEAM_FREE;
-          ClientUserinfoChanged( clientNum );
-          ClientSpawn( ent, victim );
+          return;
         }
       }
-
-      return;
     }
-    else if( ent->client->pers.pclass != 0 )
-    {
-      trap_SendServerCommand( ent-g_entities, va("print \"You must be dead to spawn from a bioegg\n\"" ) );
-      return;
-    }
-      
-    if( !Q_stricmp(s, "0") )
-      ent->client->pers.pclass = PCL_D_B_BASE;
-    else if( !Q_stricmp(s, "1") )
-      ent->client->pers.pclass = PCL_D_O_BASE;
-    else if( !Q_stricmp(s, "2") )
-      ent->client->pers.pclass = PCL_D_D_BASE;
     else
     {
-      trap_SendServerCommand( ent-g_entities, va("print \"Unknown class\n\"" ) );
-      dontSpawn = qtrue;
-    }
+      //spawing from a bioegg
+      ent->client->pers.pclass = BG_FindClassNumForName( s );
 
-    if( !dontSpawn )
-    {
-      ent->client->sess.sessionTeam = TEAM_FREE;
-      ClientUserinfoChanged( clientNum );
-      ClientSpawn( ent, NULL );
+      if( ent->client->pers.pclass != PCL_NONE )
+      {
+        ent->client->sess.sessionTeam = TEAM_FREE;
+        ClientUserinfoChanged( clientNum );
+        ClientSpawn( ent, NULL );
+      }
+      else
+      {
+        trap_SendServerCommand( ent-g_entities, va("print \"Unknown class\n\"" ) );
+        return;
+      }
     }
   }
   else if( ent->client->pers.pteam == PTE_HUMANS )
   {
-    if( ent->client->pers.pclass != 0 )
+    //humans cannot use this command whilst alive
+    if( ent->client->pers.pclass != PCL_NONE )
     {
       trap_SendServerCommand( ent-g_entities, va("print \"You must be dead to use the class command\n\"" ) );
       return;
@@ -1634,25 +1648,28 @@ void Cmd_Class_f( gentity_t *ent )
 
     ent->client->pers.pclass = PCL_H_BASE;
 
-    if( !Q_stricmp( s, "0" ) )
+    //set the item to spawn with
+    if( !Q_stricmp( s, "rifle" ) )
       ent->client->pers.pitem = WP_MACHINEGUN;
-    else if( !Q_stricmp( s, "1" ) )
+    else if( !Q_stricmp( s, "ckit" ) )
       ent->client->pers.pitem = WP_HBUILD;
-      
+    else
+    {
+      trap_SendServerCommand( ent-g_entities, va("print \"Unknown starting item\n\"" ) );
+      return;
+    }
+
     ent->client->sess.sessionTeam = TEAM_FREE;
     ClientUserinfoChanged( clientNum );
     ClientSpawn( ent, NULL );
   }
   else if( ent->client->pers.pteam == PTE_NONE )
   {
-    ent->client->pers.pclass = 0;
+    //can't use this command unless on a team
+    ent->client->pers.pclass = PCL_NONE;
     ent->client->sess.sessionTeam = TEAM_FREE;
     ClientSpawn( ent, NULL );
     trap_SendServerCommand( ent-g_entities, va("print \"Join a team first\n\"" ) );
-  }
-  else
-  {
-    trap_SendServerCommand( ent-g_entities, va("print \"?\n\"" ) );
   }
 }
 

@@ -1070,7 +1070,8 @@ void CG_AddViewWeapon( playerState_t *ps ) {
   vec3_t    angles;
   weaponInfo_t  *weapon;
 
-  if ( ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+  if( ( ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) ||
+      ( ps->stats[ STAT_STATE ] & SS_INFESTING ) ) {
     return;
   }
 
@@ -1105,7 +1106,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
   //if ( cg_fov.integer > 90 ) {
   //TA: the client side variable isn't used ( shouldn't iD have done this anyway? )
   if( cg.refdef.fov_y > 90 )
-    fovOffset = -0.2 * ( cg.refdef.fov_y - 90 );
+    fovOffset = -0.4 * ( cg.refdef.fov_y - 90 );
   else
     fovOffset = 0;
 

@@ -472,7 +472,7 @@ void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker)
   /*if (targ->client->sess.sessionTeam == TEAM_HUMANS)
     flag_pw = PW_BLUEFLAG;
   else
-    flag_pw = PW_REDFLAG;*/
+    flag_pw = PW_REDFLAG;
 
   if (targ->client->ps.powerups[flag_pw] &&
     targ->client->sess.sessionTeam != attacker->client->sess.sessionTeam)
@@ -481,7 +481,7 @@ void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker)
   // skulls
   if (targ->client->ps.generic1 &&
     targ->client->sess.sessionTeam != attacker->client->sess.sessionTeam)
-    attacker->client->pers.teamState.lasthurtcarrier = level.time;
+    attacker->client->pers.teamState.lasthurtcarrier = level.time;*/
 }
 
 

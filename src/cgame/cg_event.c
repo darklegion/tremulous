@@ -421,6 +421,9 @@ CG_Menu
 */
 void CG_Menu( int eventParm )
 {
+  char  menuDef[ MAX_STRING_CHARS ];
+  int   i;
+  
   switch( eventParm )
   {
     case MN_TEAM:
@@ -445,6 +448,20 @@ void CG_Menu( int eventParm )
 
     case MN_MCU:
       trap_SendConsoleCommand( "menu hmcumenu\n" );
+      break;
+
+    case MN_INFEST:
+      strcpy( menuDef, "5,5|Infest|0.8,0,0.8,1|0.6,0,0.6,0.8|1,0,1,1|1|16|" );
+      for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
+      {
+        if( BG_ClassCanEvolveFromTo( cg.snap->ps.stats[ STAT_PCLASS ], i ) )
+          strcat( menuDef, va( "%s, class %s|", BG_FindNameForClassNum( i ), BG_FindNameForClassNum( i ) ) );
+      }
+      strcat( menuDef, "|Choose a class|to evolve to" );
+      
+      trap_SendConsoleCommand( va( "defmenu infest \"%s\"\n", menuDef ) );
+      trap_SendConsoleCommand( "menu infest\n" );
+      trap_SendConsoleCommand( "undefmenu infest\n" );
       break;
 
     default:
@@ -983,6 +1000,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
     DEBUGNAME("EV_MENU");
     if( es->number == cg.clientNum )
       CG_Menu( es->eventParm );
+    break;
+
+  case EV_PLAYER_RESPAWN:
+    DEBUGNAME("EV_PLAYER_RESPAWN");
+    if( es->number == cg.clientNum )
+      cg.spawnTime = cg.time;
     break;
 
   default:

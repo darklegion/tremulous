@@ -274,55 +274,57 @@ struct gclient_s {
 
   qboolean  noclip;
 
-  int     lastCmdTime;    // level.time of last usercmd_t, for EF_CONNECTION
-                  // we can't just use pers.lastCommand.time, because
-                  // of the g_sycronousclients case
-  int     buttons;
-  int     oldbuttons;
-  int     latched_buttons;
+  int       lastCmdTime;    // level.time of last usercmd_t, for EF_CONNECTION
+                    // we can't just use pers.lastCommand.time, because
+                    // of the g_sycronousclients case
+  int       buttons;
+  int       oldbuttons;
+  int       latched_buttons;
 
   vec3_t    oldOrigin;
   
   // sum up damage over an entire frame, so
   // shotgun blasts give a single big kick
-  int     damage_armor;   // damage absorbed by armor
-  int     damage_blood;   // damage taken out of health
-  int     damage_knockback; // impact damage
+  int       damage_armor;   // damage absorbed by armor
+  int       damage_blood;   // damage taken out of health
+  int       damage_knockback; // impact damage
   vec3_t    damage_from;    // origin for vector calculation
   qboolean  damage_fromWorld; // if true, don't use the damage_from vector
 
-  int     accurateCount;    // for "impressive" reward sound
-  int     accuracy_shots;   // total number of shots
-  int     accuracy_hits;    // total number of hits
+  int       accurateCount;    // for "impressive" reward sound
+  int       accuracy_shots;   // total number of shots
+  int       accuracy_hits;    // total number of hits
   //
-  int     lastkilled_client;  // last client that this client killed
-  int     lasthurt_client;  // last client that damaged this client
-  int     lasthurt_mod;   // type of damage the client did
+  int       lastkilled_client;  // last client that this client killed
+  int       lasthurt_client;  // last client that damaged this client
+  int       lasthurt_mod;   // type of damage the client did
 
   // timers
-  int     respawnTime;    // can respawn when time > this, force after g_forcerespwan
-  int     inactivityTime;   // kick players when time > this
+  int       respawnTime;    // can respawn when time > this, force after g_forcerespwan
+  int       inactivityTime;   // kick players when time > this
   qboolean  inactivityWarning;  // qtrue if the five seoond warning has been given
-  int     rewardTime;     // clear the EF_AWARD_IMPRESSIVE, etc when time > this
+  int       rewardTime;     // clear the EF_AWARD_IMPRESSIVE, etc when time > this
 
-  int     airOutTime;
+  int       airOutTime;
 
-  int     lastKillTime;   // for multiple kill rewards
+  int       lastKillTime;   // for multiple kill rewards
 
   qboolean  fireHeld;     // used for hook
   gentity_t *hook;        // grapple hook if out
 
-  int     switchTeamTime;   // time the player switched teams
+  int       switchTeamTime;   // time the player switched teams
 
   gentity_t *torch;       //TA: torch entity ( NULL if switched off )
 
   // timeResidual is used to handle events that happen every second
   // like health / armor countdowns and regeneration
-  int     timeResidual;
+  int       timeResidual;
 
-  char    *areabits;
+  char      *areabits;
 
   float     classSpeed; //TA: here to save STAT_ space
+  int       lastInfestTime; //TA: to keep track of how long infests take
+  gentity_t *infestBody;  //TA: body that is being infested. must be persistant
 };
 
 //

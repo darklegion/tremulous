@@ -891,46 +891,9 @@ int   bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) - 1;
 
 classAttributes_t bg_classList[ ] =
 {
-  {
-    PCL_D_O_BASE,
-    "klesk",
-    "default",
-    { -15, -15, -15 },
-    { 15, 15, 15 },
-    { 15, 15, 15 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    4, 4,
-    25,
-    0,
-    SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT,
-    140,
-    0.0f,
-    25,
-    2.0f,
-    5.0f
-  },
-  {
-    PCL_D_D_BASE,
-    "orbb",
-    "default",
-    { -15, -15, -15 },
-    { 15, 15 ,15 },
-    { 15, 15 ,15 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    4, 4,
-    50,
-    0,
-    SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT,
-    160,
-    0.0f,
-    25,
-    1.5f,
-    3.0f
-  },
   { 
     PCL_D_B_BASE,
+    "Builder",
     "lucy",
     "default",
     { -15, -15, -20 },
@@ -941,15 +904,62 @@ classAttributes_t bg_classList[ ] =
     12, 12,
     50,
     50,
-    SCA_TAKESFALLDAMAGE,
+    SCA_TAKESFALLDAMAGE|SCA_FOVWARPS,
     80,
     0.015f,
     350,
     0.5f,
-    1.0f
+    1.0f,
+    { PCL_D_D_BASE, PCL_D_O_BASE, PCL_NONE },
+    2000
+  },
+  {
+    PCL_D_O_BASE,
+    "Offensive",
+    "klesk",
+    "default",
+    { -15, -15, -15 },
+    { 15, 15, 15 },
+    { 15, 15, 15 },
+    { -15, -15, -4 },
+    { 15, 15, 4 },
+    4, 4,
+    25,
+    0,
+    SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
+    140,
+    0.0f,
+    25,
+    2.0f,
+    5.0f,
+    { PCL_D_D_BASE, PCL_D_B_BASE, PCL_NONE },
+    3000
+  },
+  {
+    PCL_D_D_BASE,
+    "Defensive",
+    "orbb",
+    "default",
+    { -15, -15, -15 },
+    { 15, 15 ,15 },
+    { 15, 15 ,15 },
+    { -15, -15, -4 },
+    { 15, 15, 4 },
+    4, 4,
+    50,
+    0,
+    SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
+    90,
+    0.0f,
+    25,
+    1.5f,
+    3.0f,
+    { PCL_D_O_BASE, PCL_D_B_BASE, PCL_NONE },
+    1000
   },
   {
     PCL_H_BASE,
+    "Human",
     "sarge",
     "default",
     { -15, -15, -24 },
@@ -965,11 +975,51 @@ classAttributes_t bg_classList[ ] =
     0.002f,
     200,
     1.0f,
-    1.0f
+    1.0f,
+    { PCL_NONE, PCL_NONE, PCL_NONE },
+    0
   }
 };
 
 int   bg_numPclasses = sizeof( bg_classList ) / sizeof( bg_classList[ 0 ] );
+
+/*
+==============
+BG_FindClassNumForName
+==============
+*/
+int BG_FindClassNumForName( char *name )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( !Q_stricmp( bg_classList[ i ].className, name ) )
+      return bg_classList[ i ].classNum;
+  }
+
+  //wimp out
+  return PCL_NONE;
+}
+
+/*
+==============
+BG_FindNameForClassNum
+==============
+*/
+char *BG_FindNameForClassNum( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+      return bg_classList[ i ].className;
+  }
+
+  //wimp out
+  return "";
+}
 
 /*
 ==============
@@ -986,7 +1036,7 @@ char *BG_FindModelNameForClass( int pclass )
       return bg_classList[ i ].modelName;
   }
 
-  //wimp out
+  //note: must return a valid modelName!
   return bg_classList[ 0 ].modelName;
 }
 
@@ -1208,7 +1258,6 @@ int BG_FindSteptimeForClass( int pclass )
   return 200;
 }
 
-
 /*
 ==============
 BG_ClassHasAbility
@@ -1231,6 +1280,52 @@ qboolean BG_ClassHasAbility( int pclass, int ability )
     return qtrue;
   else
     return qfalse;
+}
+
+/*
+==============
+BG_ClassCanEvolveFromTo
+==============
+*/
+qboolean BG_ClassCanEvolveFromTo( int fclass, int tclass )
+{
+  int i, j;
+
+  if( tclass == PCL_NONE )
+    return qfalse;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == fclass )
+    {
+      for( j = 0; j <= 3; j++ )
+        if( bg_classList[ i ].children[ j ] == tclass ) return qtrue;
+
+      return qfalse; //may as well return by this point
+    }
+  }
+
+  return qfalse;
+}
+
+/*
+==============
+BG_FindEvolveTimeForClass
+==============
+*/
+int BG_FindEvolveTimeForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].timeToEvolve;
+    }
+  }
+  
+  return 5000;
 }
 
 
@@ -1605,6 +1700,7 @@ char *eventnames[] = {
   "EV_USE_ITEM15",
 
   "EV_ITEM_RESPAWN",
+  "EV_PLAYER_RESPAWN",
   "EV_ITEM_POP",
   "EV_PLAYER_TELEPORT_IN",
   "EV_PLAYER_TELEPORT_OUT",

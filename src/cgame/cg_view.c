@@ -516,6 +516,7 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 */
 #define WAVE_AMPLITUDE  1
 #define WAVE_FREQUENCY  0.4
+#define FOVWARPTIME     400.0
 
 static int CG_CalcFov( void ) {
   float x;
@@ -545,6 +546,19 @@ static int CG_CalcFov( void ) {
       fov_x = 1;
     else if ( fov_x > 160 )
       fov_x = 160;
+
+    if( cg.spawnTime > ( cg.time - FOVWARPTIME ) &&
+        BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_PCLASS ], SCA_FOVWARPS ) )
+    {
+      float temp, temp2;
+
+      temp = (float)( cg.time - cg.spawnTime ) / FOVWARPTIME;
+      temp2 = ( 180 - fov_x ) * temp;
+
+      //Com_Printf( "%f %f\n", temp*100, temp2*100 );
+
+      fov_x = 180 - temp2;
+    }
   }
 
   // account for zooms

@@ -330,6 +330,8 @@ qboolean hdef1_checktarget(gentity_t *self, gentity_t *target)
     return qfalse;
   if( target->client->sess.sessionTeam == TEAM_SPECTATOR ) // is the target alive?
     return qfalse;
+  if( target->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) // is the target alive?
+    return qfalse;
   if( target->health <= 0 ) // is the target still alive?
     return qfalse;
 

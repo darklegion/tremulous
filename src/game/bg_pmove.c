@@ -2144,6 +2144,9 @@ static void PM_Weapon( void ) {
   if ( pm->ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
     return;
   }
+  if( pm->ps->stats[ STAT_STATE ] & SS_INFESTING ) {
+    return;
+  }
 
   // check for dead player
   if ( pm->ps->stats[STAT_HEALTH] <= 0 ) {

@@ -542,7 +542,7 @@ void InfestBody( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
   if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_DROIDS ) return;
 
-  G_AddPredictableEvent( activator, EV_MENU, MN_DROID );
+  G_AddPredictableEvent( activator, EV_MENU, MN_INFEST );
 }
 
 /*
@@ -935,7 +935,10 @@ void ClientUserinfoChanged( int clientNum ) {
   if ( client->pers.maxHealth < 1 || client->pers.maxHealth > 100 ) {
     client->pers.maxHealth = 100;
   }
-  //client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
+
+  //hack to force a client update if the config string does not change between spawning
+  if( client->pers.pclass == PCL_NONE )
+    client->pers.maxHealth = 0;
 
   // set model
   s = BG_FindModelNameForClass( client->pers.pclass );
@@ -1156,22 +1159,24 @@ Initializes all non-persistant parts of playerState
 ============
 */
 void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
-  int   index;
-  vec3_t  spawn_origin, spawn_angles;
-  gclient_t *client;
-  int   i;
+  int                 index;
+  vec3_t              spawn_origin, spawn_angles;
+  gclient_t           *client;
+  int                 i;
   clientPersistant_t  saved;
-  clientSession_t   savedSess;
-  int   persistant[MAX_PERSISTANT];
-  gentity_t *spawnPoint;
-  int   flags;
-  int   savedPing;
-  int   ammoIndex, ammoSubIndex;
-  int   teamLocal;
-  int   accuracy_hits, accuracy_shots;
-  int   savedEvents[MAX_PS_EVENTS];
-  int   eventSequence;
-  char  userinfo[MAX_INFO_STRING];
+  clientSession_t     savedSess;
+  int                 persistant[MAX_PERSISTANT];
+  gentity_t           *spawnPoint;
+  int                 flags;
+  int                 savedPing;
+  int                 ammoIndex, ammoSubIndex;
+  int                 teamLocal;
+  int                 accuracy_hits, accuracy_shots;
+  int                 savedEvents[MAX_PS_EVENTS];
+  int                 eventSequence;
+  char                userinfo[MAX_INFO_STRING];
+  vec3_t              bodyMaxs, classMins, up = { 0, 0, 1 };
+      
 
   index = ent - g_entities;
   client = ent->client;
@@ -1204,19 +1209,17 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
   }
   else
   {
+    //this is an infest spawn
     if( spawn != NULL )
     {
-      vec3_t bodyMaxs;
-      vec3_t classMins;
-      vec3_t up = { 0, 0, 1 };
-      
-      VectorCopy ( spawn->s.pos.trBase, spawn_origin );
-      VectorCopy ( spawn->s.angles, spawn_angles );
+      //spawn as new droid
+      VectorCopy( spawn->s.pos.trBase, spawn_origin );
+      VectorCopy( spawn->s.angles, spawn_angles );
       
       BG_FindBBoxForClass( spawn->s.clientNum, NULL, NULL, NULL, NULL, bodyMaxs );
       BG_FindBBoxForClass( ent->client->pers.pclass, classMins, NULL, NULL, NULL, NULL );
 
-      spawn_origin[ 2 ] += 64;
+      spawn_origin[ 2 ] += bodyMaxs[ 2 ] + abs( classMins[ 2 ] ) + 1;
       G_AddEvent( spawn, EV_GIB_DROID, DirToByte( up ) );
       spawn->freeAfterEvent = qtrue;
     }
@@ -1272,9 +1275,9 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
   if( client->sess.sessionTeam == TEAM_SPECTATOR )
   {
     if( teamLocal == PTE_DROIDS )
-      G_AddEvent( ent, EV_MENU, MN_DROID );
+      G_AddPredictableEvent( ent, EV_MENU, MN_DROID );
     else if( teamLocal == PTE_HUMANS )
-      G_AddEvent( ent, EV_MENU, MN_HUMAN );
+      G_AddPredictableEvent( ent, EV_MENU, MN_HUMAN );
   }
 
   // increment the spawncount so the client will detect the respawn
@@ -1306,8 +1309,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
   client->ps.eFlags = flags;
   client->ps.clientNum = index;
   
-  VectorCopy (playerMins, ent->r.mins);
-  VectorCopy (playerMaxs, ent->r.maxs);
+  BG_FindBBoxForClass( ent->client->pers.pclass, ent->r.mins, ent->r.maxs, NULL, NULL, NULL );
 
   client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] = BG_FindHealthForClass( ent->client->pers.pclass );
   client->ps.stats[ STAT_ARMOR ] = BG_FindArmorForClass( ent->client->pers.pclass );
@@ -1386,7 +1388,10 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
   client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
   client->ps.pm_time = 100;
 
+  //TA: STAT_SPAWNTIME for droid fov effects
   client->respawnTime = level.time;
+  G_AddPredictableEvent( ent, EV_PLAYER_RESPAWN, 0 );
+
   client->inactivityTime = level.time + g_inactivity.integer * 1000;
   client->latched_buttons = 0;
 

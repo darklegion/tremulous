@@ -1094,7 +1094,8 @@ static float CG_DrawScores( float y ) {
 
     x = 640;
     score = cg.snap->ps.persistant[PERS_SCORE];
-    spectator = ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR );
+    spectator = ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) ||
+                ( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING );
 
     // always show your score in the second box if not in first place
     if ( s1 != score ) {
@@ -1805,7 +1806,8 @@ static void CG_DrawCrosshair(void) {
     return;
   }
 
-  if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+  if( ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) ||
+      ( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) ) {
     return;
   }
 
@@ -2224,7 +2226,8 @@ static void CG_Draw2D( void ) {
     return;
   }
 
-  if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+  if( ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) ||
+      ( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) ) {
     CG_DrawSpectator();
     CG_DrawCrosshair();
     CG_DrawCrosshairNames();

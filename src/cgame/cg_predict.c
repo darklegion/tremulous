@@ -432,6 +432,8 @@ void CG_PredictPlayerState( void ) {
   cg_pmove.ps = &cg.predictedPlayerState;
   cg_pmove.trace = CG_Trace;
   cg_pmove.pointcontents = CG_PointContents;
+
+  //TA: FIXME BIG NEON SIGN..... COULD MAYBE BE A FIX FOR THAT HACK IN bg_pmove.c.. MAYBE \/
   if ( cg_pmove.ps->pm_type == PM_DEAD ) {
     cg_pmove.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
   }

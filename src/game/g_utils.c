@@ -540,10 +540,13 @@ void G_KillBox (gentity_t *ent) {
 
 	for (i=0 ; i<num ; i++) {
 		hit = &g_entities[touch[i]];
-		if ( !hit->client ) {
+		if ( !hit->client )
 			continue;
-		}
 
+    //TA: impossible to telefrag self
+    if( ent == hit )
+      continue;
+    
 		// nail it
 		G_Damage ( hit, ent, ent, NULL, NULL,
 			100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
