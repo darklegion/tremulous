@@ -1334,9 +1334,18 @@ static void PM_GroundClimbTrace( void )
   CrossProduct( surfNormal, right, movedir );
   VectorNormalize( movedir );
 
-  //TA: FIXME: this could be improved to include strafing
   if( pm->cmd.forwardmove < 0 )
     VectorNegate( movedir, movedir );
+
+  //allow strafe transitions
+  if( pm->cmd.rightmove )
+  {
+    VectorCopy( right, movedir );
+    
+    if( pm->cmd.rightmove < 0 )
+      VectorNegate( movedir, movedir );
+  }
+  
 
   for(i = 0; i <= 3; i++)
   {
@@ -1361,8 +1370,8 @@ static void PM_GroundClimbTrace( void )
       //    I would like a better way if one exists...
       if( pml.groundPlane != qfalse )
       {
-        VectorMA( pm->ps->origin, -16, surfNormal, point );
-        VectorMA( point, -16, movedir, point );
+        VectorMA( pm->ps->origin, -16.0f, surfNormal, point );
+        VectorMA( point, -16.0f, movedir, point );
         pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
       }
       break;
