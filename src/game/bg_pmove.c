@@ -1769,8 +1769,9 @@ static void PM_GroundClimbTrace( void )
           if( rTtANGrTsTt > 32768 )
             rTtANGrTsTt -= 32768;
 
-          //set the correction angle
-          if( traceCROSSsurf[ 2 ] <= 0.0f )
+          CrossProduct( refTOtrace, refTOsurfTOtrace, tempVec );
+          VectorNormalize( tempVec );
+          if( DotProduct( trace.plane.normal, tempVec ) > 0.0f )
             rTtANGrTsTt = -rTtANGrTsTt;
 
           //phew! - correct the angle
