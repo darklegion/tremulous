@@ -527,6 +527,10 @@ void ASpawn_Pain( gentity_t *self, gentity_t *attacker, int damage )
 
 
 
+#define OVERMIND_ATTACK_PERIOD 10000
+#define OVERMIND_DYING_PERIOD  5000
+#define OVERMIND_SPAWNS_PERIOD 30000
+
 /*
 ================
 AOvermind_Think
@@ -561,6 +565,29 @@ void AOvermind_Think( gentity_t *self )
         G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
       }
     }
+
+    //low on spawns
+    if( level.numAlienSpawns <= 1 && level.time > self->overmindSpawnsTimer )
+    {
+      self->overmindSpawnsTimer = level.time + OVERMIND_SPAWNS_PERIOD;
+      G_BroadcastEvent( EV_OVERMIND_SPAWNS, 0 );
+    }
+    
+    //overmind dying
+    if( self->health < ( OVERMIND_HEALTH / 10.0f ) && level.time > self->overmindDyingTimer )
+    {
+      self->overmindDyingTimer = level.time + OVERMIND_DYING_PERIOD;
+      G_BroadcastEvent( EV_OVERMIND_DYING, 0 );
+    }
+
+    //overmind under attack
+    if( self->health < self->lastHealth && level.time > self->overmindAttackTimer )
+    {
+      self->overmindAttackTimer = level.time + OVERMIND_ATTACK_PERIOD;
+      G_BroadcastEvent( EV_OVERMIND_ATTACK, 0 );
+    }
+    
+    self->lastHealth = self->health;
   }
 
   creepSlow( self->s.modelindex, self->s.origin );
@@ -2186,7 +2213,7 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   G_AddEvent( built, EV_BUILD_CONSTRUCT, 0 );
 
   if( built->builtBy >= 0 )
-    G_setBuildableAnim( built, BANIM_CONSTRUCT1, qfalse );
+    G_setBuildableAnim( built, BANIM_CONSTRUCT1, qtrue );
 
   trap_LinkEntity( built );
 

@@ -143,6 +143,7 @@ struct gentity_s
   int               last_move_time;
 
   int               health;
+  int               lastHealth; //TA: currently only used for overmind
 
   qboolean          takedamage;
 
@@ -182,6 +183,9 @@ struct gentity_s
   qboolean          spawned;      //TA: whether or not this buildable has finished spawning
   int               buildTime;    //TA: when this buildable was built
   int               time1000;     //TA: timer evaluated every second
+  int               overmindAttackTimer;
+  int               overmindDyingTimer;
+  int               overmindSpawnsTimer;
 
   int               credits[ MAX_CLIENTS ]; //TA: human credits for each client
   qboolean          creditsHash[ MAX_CLIENTS ]; //TA: track who has claimed credit
@@ -590,6 +594,7 @@ float       vectoyaw( const vec3_t vec );
 
 void        G_AddPredictableEvent( gentity_t *ent, int event, int eventParm );
 void        G_AddEvent( gentity_t *ent, int event, int eventParm );
+void        G_BroadcastEvent( int event, int eventParm );
 void        G_SetOrigin( gentity_t *ent, vec3_t origin );
 void        AddRemap(const char *oldShader, const char *newShader, float timeOffset);
 const char  *BuildShaderStateConfig();

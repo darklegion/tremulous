@@ -799,19 +799,46 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       }
       break;
 
+    case EV_BUILD_REPAIR:
+      DEBUGNAME( "EV_BUILD_REPAIR" );
+      trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.buildableRepairSound );
+      break;
+
+    case EV_BUILD_REPAIRED:
+      DEBUGNAME( "EV_BUILD_REPAIRED" );
+      trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.buildableRepairedSound );
+      break;
+
+    case EV_OVERMIND_ATTACK:
+      DEBUGNAME( "EV_OVERMIND_ATTACK" );
+      if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      {
+        trap_S_StartLocalSound( cgs.media.alienOvermindAttack, CHAN_ANNOUNCER );
+        CG_CenterPrint( "The Overmind is under attack!", 200, GIANTCHAR_WIDTH * 4 );
+      }
+      break;
+
+    case EV_OVERMIND_DYING:
+      DEBUGNAME( "EV_OVERMIND_DYING" );
+      if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      {
+        trap_S_StartLocalSound( cgs.media.alienOvermindDying, CHAN_ANNOUNCER );
+        CG_CenterPrint( "The Overmind is dying!", 200, GIANTCHAR_WIDTH * 4 );
+      }
+      break;
+
+    case EV_OVERMIND_SPAWNS:
+      DEBUGNAME( "EV_OVERMIND_SPAWNS" );
+      if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      {
+        trap_S_StartLocalSound( cgs.media.alienOvermindSpawns, CHAN_ANNOUNCER );
+        CG_CenterPrint( "The Overmind needs spawns!", 200, GIANTCHAR_WIDTH * 4 );
+      }
+      break;
+
     case EV_POISONCLOUD:
       DEBUGNAME( "EV_POISONCLOUD" );
       cg.firstPoisonedTime = cg.time;
-      break;
-
-    case EV_KNOCKOVER:
-      DEBUGNAME( "EV_KNOCKOVER" );
-      cg.firstKnockedTime = cg.time;
-      break;
-
-    case EV_GETUP:
-      DEBUGNAME( "EV_GETUP" );
-      cg.firstGetUpTime = cg.time;
       break;
 
     case EV_PLAYER_RESPAWN:

@@ -647,6 +647,23 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm )
 
 
 /*
+===============
+G_BroadcastEvent
+
+Sends an event to every client
+===============
+*/
+void G_BroadcastEvent( int event, int eventParm )
+{
+  gentity_t *ent;
+
+  ent = G_TempEntity( vec3_origin, event );
+  ent->s.eventParm = eventParm;
+  ent->r.svFlags = SVF_BROADCAST; // send to everyone
+}
+
+
+/*
 =============
 G_Sound
 =============

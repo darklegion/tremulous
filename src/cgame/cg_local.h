@@ -737,10 +737,6 @@ typedef struct
 
   int           poisonedTime;                       //TA: poison cloud
   int           firstPoisonedTime;                  //TA: poison cloud
-  int           lastRumbleTime;                     //TA: knocked over time
-  vec3_t        rumbleVector;                       //TA: vertical displacement whilst rumbling
-  int           firstKnockedTime;                   //TA: knocked over time
-  int           firstGetUpTime;                     //TA: getting up time
 
   float         charModelFraction;                  //TA: loading percentages
   float         mediaFraction;
@@ -924,6 +920,10 @@ typedef struct
   sfxHandle_t alienStageTransition;
   sfxHandle_t humanStageTransition;
   
+  sfxHandle_t alienOvermindAttack;
+  sfxHandle_t alienOvermindDying;
+  sfxHandle_t alienOvermindSpawns;
+  
   sfxHandle_t humanBuildableExpl;
   
   qhandle_t   cursor;
@@ -948,6 +948,9 @@ typedef struct
   qhandle_t jetpackFlashModel;
   
   sfxHandle_t repeaterUseSound;
+  
+  sfxHandle_t buildableRepairSound;
+  sfxHandle_t buildableRepairedSound;
 } cgMedia_t;
 
 

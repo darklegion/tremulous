@@ -564,6 +564,10 @@ static void CG_RegisterSounds( void )
   cgs.media.alienStageTransition  = trap_S_RegisterSound( "sound/announcements/overmindevolved.wav", qtrue );
   cgs.media.humanStageTransition  = trap_S_RegisterSound( "sound/announcements/reinforcement.wav", qtrue );
 
+  cgs.media.alienOvermindAttack   = trap_S_RegisterSound( "sound/announcements/overmindattack.wav", qtrue );
+  cgs.media.alienOvermindDying    = trap_S_RegisterSound( "sound/announcements/overminddying.wav", qtrue );
+  cgs.media.alienOvermindSpawns   = trap_S_RegisterSound( "sound/announcements/overmindspawns.wav", qtrue );
+  
   cgs.media.tracerSound           = trap_S_RegisterSound( "sound/weapons/machinegun/buletby1.wav", qfalse );
   cgs.media.selectSound           = trap_S_RegisterSound( "sound/weapons/change.wav", qfalse );
   cgs.media.wearOffSound          = trap_S_RegisterSound( "sound/items/wearoff.wav", qfalse );
@@ -628,23 +632,26 @@ static void CG_RegisterSounds( void )
   }
 
   //TA:
-  cgs.media.jetpackDescendSound = trap_S_RegisterSound( "sound/upgrades/jetpack/low.wav", qfalse );
-  cgs.media.jetpackIdleSound    = trap_S_RegisterSound( "sound/upgrades/jetpack/idle.wav", qfalse );
-  cgs.media.jetpackAscendSound  = trap_S_RegisterSound( "sound/upgrades/jetpack/hi.wav", qfalse );
+  cgs.media.jetpackDescendSound     = trap_S_RegisterSound( "sound/upgrades/jetpack/low.wav", qfalse );
+  cgs.media.jetpackIdleSound        = trap_S_RegisterSound( "sound/upgrades/jetpack/idle.wav", qfalse );
+  cgs.media.jetpackAscendSound      = trap_S_RegisterSound( "sound/upgrades/jetpack/hi.wav", qfalse );
 
-  cgs.media.humanBuildableExpl  = trap_S_RegisterSound( "sound/weapons/rocket/rocklx1a.wav", qfalse );
+  cgs.media.humanBuildableExpl      = trap_S_RegisterSound( "sound/weapons/rocket/rocklx1a.wav", qfalse );
   
   // FIXME: only needed with item
-  cgs.media.sfx_ric1            = trap_S_RegisterSound( "sound/weapons/machinegun/ric1.wav", qfalse );
-  cgs.media.sfx_ric2            = trap_S_RegisterSound( "sound/weapons/machinegun/ric2.wav", qfalse );
-  cgs.media.sfx_ric3            = trap_S_RegisterSound( "sound/weapons/machinegun/ric3.wav", qfalse );
-  cgs.media.sfx_plasmaexp       = trap_S_RegisterSound( "sound/weapons/plasma/plasmx1a.wav", qfalse );
-  cgs.media.sfx_flamerexp       = trap_S_RegisterSound( "sound/weapons/flamer/fireimpc.wav", qfalse );
+  cgs.media.sfx_ric1                = trap_S_RegisterSound( "sound/weapons/machinegun/ric1.wav", qfalse );
+  cgs.media.sfx_ric2                = trap_S_RegisterSound( "sound/weapons/machinegun/ric2.wav", qfalse );
+  cgs.media.sfx_ric3                = trap_S_RegisterSound( "sound/weapons/machinegun/ric3.wav", qfalse );
+  cgs.media.sfx_plasmaexp           = trap_S_RegisterSound( "sound/weapons/plasma/plasmx1a.wav", qfalse );
+  cgs.media.sfx_flamerexp           = trap_S_RegisterSound( "sound/weapons/flamer/fireimpc.wav", qfalse );
 
-  cgs.media.hgrenb1aSound       = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb1a.wav", qfalse );
-  cgs.media.hgrenb2aSound       = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb2a.wav", qfalse );
+  cgs.media.hgrenb1aSound           = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb1a.wav", qfalse );
+  cgs.media.hgrenb2aSound           = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb2a.wav", qfalse );
   
-  cgs.media.repeaterUseSound    = trap_S_RegisterSound( "sound/buildables/repeater/use.wav", qfalse );
+  cgs.media.repeaterUseSound        = trap_S_RegisterSound( "sound/buildables/repeater/use.wav", qfalse );
+  
+  cgs.media.buildableRepairSound    = trap_S_RegisterSound( "sound/buildables/human/repair.wav", qfalse );
+  cgs.media.buildableRepairedSound  = trap_S_RegisterSound( "sound/buildables/human/repaired.wav", qfalse );
 }
 
 

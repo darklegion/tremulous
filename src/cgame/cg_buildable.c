@@ -340,7 +340,6 @@ static void CG_SetBuildableLerpFrameAnimation( buildable_t buildable, lerpFrame_
   animation_t *anim;
 
   lf->animationNumber = newAnimation;
-  newAnimation &= ~( ANIM_TOGGLEBIT|ANIM_FORCEBIT );
 
   if( newAnimation < 0 || newAnimation >= MAX_BUILDABLE_ANIMATIONS )
     CG_Error( "Bad animation number: %i", newAnimation );
@@ -373,6 +372,8 @@ static void CG_RunBuildableLerpFrame( centity_t *cent )
   lerpFrame_t           *lf = &cent->lerpFrame;
   animation_t           *anim;
   buildableAnimNumber_t newAnimation = cent->buildableAnim;
+  
+  newAnimation &= ~( ANIM_TOGGLEBIT|ANIM_FORCEBIT );
 
   // debugging tool to get no animations
   if( cg_animSpeed.integer == 0 )
@@ -385,6 +386,9 @@ static void CG_RunBuildableLerpFrame( centity_t *cent )
   if( newAnimation != lf->animationNumber || !lf->animation )
   {
     CG_SetBuildableLerpFrameAnimation( buildable, lf, newAnimation );
+
+    CG_Printf( "new anim/sound: %d %d\n", !cg_buildables[ buildable ].sounds[ newAnimation ].looped,
+        cg_buildables[ buildable ].sounds[ newAnimation ].enabled );
 
     if( !cg_buildables[ buildable ].sounds[ newAnimation ].looped &&
         cg_buildables[ buildable ].sounds[ newAnimation ].enabled )

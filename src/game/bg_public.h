@@ -532,9 +532,14 @@ typedef enum
   EV_TAUNT,
 
   EV_BUILD_DELAY,     //TA: can't build yet
+  EV_BUILD_REPAIR,    //TA: repairing buildable
+  EV_BUILD_REPAIRED,  //TA: buildable has full health
+  
+  EV_OVERMIND_ATTACK, //TA: overmind under attack
+  EV_OVERMIND_DYING,  //TA: overmind close to death
+  EV_OVERMIND_SPAWNS, //TA: overmind needs spawns
+  
   EV_POISONCLOUD,     //TA: client poisoned
-  EV_KNOCKOVER,       //TA: client knocked over
-  EV_GETUP,           //TA: client getting up
   EV_RPTUSE_SOUND     //TA: trigger a sound
 } entity_event_t;
 

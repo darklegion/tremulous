@@ -478,6 +478,11 @@ void cancelBuildFire( gentity_t *ent )
 
       if( traceEnt->health > bHealth )
         traceEnt->health = bHealth;
+
+      if( traceEnt->health == bHealth )
+        G_AddEvent( ent, EV_BUILD_REPAIRED, 0 );
+      else
+        G_AddEvent( ent, EV_BUILD_REPAIR, 0 );
     }
   }
   else if( ent->client->ps.weapon == WP_ABUILD2 )
