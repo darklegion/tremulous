@@ -1277,6 +1277,21 @@ void ADef_FireOnEnemy( gentity_t *self, int firespeed )
   {
     float time = (float)i / 1000.0f;
 
+    if( i > 250 )
+    {
+      G_Printf( "ADef_FireOnEnemy failed.\n"
+                "  enemy location: %v\n"
+                "  enemy accleration: %v\n"
+                "  enemy jerk: %v\n"
+                "  base location: %v\n",
+                self->enemy->s.pos.trBase,
+                self->enemy->acceleration,
+                self->enemy->jerk,
+                self->s.pos.trBase );
+
+      return;               
+    }
+    
     VectorMA( self->enemy->s.pos.trBase, time, self->enemy->s.pos.trDelta,
               dirToTarget );
     VectorMA( dirToTarget, time * time, halfAcceleration, dirToTarget );

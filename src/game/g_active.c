@@ -1304,6 +1304,21 @@ void ClientThink_real( gentity_t *ent )
     ent->suicideTime = 0;
   }
 
+  // Give clients some credit periodically
+  if( ent->client->lastKillTime + FREEKILL_PERIOD < level.time )
+  {
+    if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    {
+        G_AddCreditToClient( ent->client, FREEKILL_ALIEN );
+    }
+    else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    {
+        G_AddCreditToClient( ent->client, FREEKILL_HUMAN );
+    }
+
+    ent->client->lastKillTime = level.time;
+  }
+
   // perform once-a-second actions
   ClientTimerActions( ent, msec );
 }

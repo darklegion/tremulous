@@ -2280,7 +2280,9 @@ static void PM_CheckDuck (void)
   }
 
   //TA: If the standing and crouching viewheights are the same the class can't crouch
-  if( ( pm->cmd.upmove < 0 ) && ( PCvh != PCcvh ) && pm->ps->pm_type != PM_JETPACK )
+  if( ( pm->cmd.upmove < 0 ) && ( PCvh != PCcvh ) &&
+      pm->ps->pm_type != PM_JETPACK &&
+      !BG_InventoryContainsUpgrade( UP_BATTLESUIT, pm->ps->stats ) )
   {
     // duck
     pm->ps->pm_flags |= PMF_DUCKED;
@@ -3006,7 +3008,8 @@ static void PM_Weapon( void )
   //FIXME: predicted angles miss a problem??
   if( pm->ps->weapon == WP_CHAINGUN )
   {
-    if( pm->ps->pm_flags & PMF_DUCKED )
+    if( pm->ps->pm_flags & PMF_DUCKED ||
+        BG_InventoryContainsUpgrade( UP_BATTLESUIT, pm->ps->stats ) )
     {
       pm->ps->delta_angles[ PITCH ] -= ANGLE2SHORT( ( ( random() * 0.5 ) - 0.125 ) * ( 30 / (float)addTime ) );
       pm->ps->delta_angles[ YAW ] -= ANGLE2SHORT( ( ( random() * 0.5 ) - 0.25 ) * ( 30.0 / (float)addTime ) );

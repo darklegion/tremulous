@@ -545,3 +545,7 @@
 #define HUMAN_MAX_CREDITS           2000
 #define ALIEN_MAX_KILLS             9
 #define ALIEN_MAX_SINGLE_KILLS      3
+
+#define FREEKILL_PERIOD             180000 //msec
+#define FREEKILL_ALIEN              1
+#define FREEKILL_HUMAN              SOLDIER_VALUE

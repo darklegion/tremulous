@@ -1246,7 +1246,7 @@ void Cmd_Class_f( gentity_t *ent )
   else if( ent->client->pers.teamSelection == PTE_HUMANS )
   {
     //humans cannot use this command whilst alive
-    if( ent->client->ps.stats[ STAT_PCLASS ] != PCL_NONE )
+    if( ent->client->pers.classSelection != PCL_NONE )
     {
       trap_SendServerCommand( ent-g_entities, va( "print \"You must be dead to use the class command\n\"" ) );
       return;

@@ -357,9 +357,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     }
   }
       
-  // Add team bonuses
-  //Team_FragBonuses(self, inflictor, attacker);
-
   Cmd_Score_f( self );    // show scores
   
   // send updated scores to any clients that are following this one,
@@ -384,7 +381,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->takedamage = qtrue; // can still be gibbed
 
   self->s.weapon = WP_NONE;
-  /*self->s.powerups = 0;*/ //TA: class is encoded into powerups in trem
   self->r.contents = CONTENTS_CORPSE;
 
   self->s.angles[ PITCH ] = 0;
