@@ -2813,6 +2813,38 @@ static void UI_StartSinglePlayer() {
 
 /*
 ===============
+UI_GetCurrentAlienStage
+===============
+*/
+static stage_t UI_GetCurrentAlienStage( )
+{
+  char    buffer[ MAX_TOKEN_CHARS ];
+  stage_t stage, dummy;
+  
+  trap_Cvar_VariableStringBuffer( "ui_stages", buffer, sizeof( buffer ) );
+  sscanf( buffer, "%d %d", &stage, &dummy );
+
+  return stage;
+}
+
+/*
+===============
+UI_GetCurrentHumanStage
+===============
+*/
+static stage_t UI_GetCurrentHumanStage( )
+{
+  char    buffer[ MAX_TOKEN_CHARS ];
+  stage_t stage, dummy;
+  
+  trap_Cvar_VariableStringBuffer( "ui_stages", buffer, sizeof( buffer ) );
+  sscanf( buffer, "%d %d", &dummy, &stage );
+
+  return stage;
+}
+
+/*
+===============
 UI_LoadTremTeams
 ===============
 */
@@ -2882,12 +2914,15 @@ UI_LoadTremHumanMCUBuys
 static void UI_LoadTremHumanMCUBuys( )
 {
   int i, j = 0;
+  stage_t stage = UI_GetCurrentHumanStage( );
 
   uiInfo.tremHumanMCUBuyCount = 0;
   
   for( i = WP_NONE +1; i < WP_NUM_WEAPONS; i++ )
   {
-    if( BG_FindTeamForWeapon( i ) == WUT_HUMANS && BG_FindPurchasableForWeapon( i ) )
+    if( BG_FindTeamForWeapon( i ) == WUT_HUMANS &&
+        BG_FindPurchasableForWeapon( i ) &&
+        BG_FindStagesForWeapon( i, stage ) )
     {
       uiInfo.tremHumanMCUBuyList[ j ].text =
         String_Alloc( BG_FindHumanNameForWeapon( i ) );
@@ -2900,7 +2935,8 @@ static void UI_LoadTremHumanMCUBuys( )
   
   for( i = UP_NONE +1; i < UP_NUM_UPGRADES; i++ )
   {
-    if( BG_FindTeamForUpgrade( i ) == WUT_HUMANS )
+    if( BG_FindTeamForUpgrade( i ) == WUT_HUMANS &&
+        BG_FindStagesForUpgrade( i, stage ) )
     {
       uiInfo.tremHumanMCUBuyList[ j ].text =
         String_Alloc( BG_FindHumanNameForUpgrade( i ) );
@@ -2914,20 +2950,25 @@ static void UI_LoadTremHumanMCUBuys( )
 
 /*
 ===============
-UI_LoadTremHumanMCUSells
+UI_ParseCarriageList
 ===============
 */
-static void UI_LoadTremHumanMCUSells( )
+static void UI_ParseCarriageList( int *weapons, int *upgrades )
 {
-  int i, j = 0;
+  int  i;
   char carriageCvar[ MAX_TOKEN_CHARS ];
   char *iterator;
   char buffer[ MAX_TOKEN_CHARS ];
   char *bufPointer;
   
-  uiInfo.tremHumanMCUSellCount = 0;
   trap_Cvar_VariableStringBuffer( "ui_carriage", carriageCvar, sizeof( carriageCvar ) );
   iterator = carriageCvar;
+
+  if( weapons )
+    *weapons = 0;
+
+  if( upgrades )
+    *upgrades = 0;
 
   //simple parser to give rise to weapon/upgrade list
   while( iterator && iterator[ 0 ] != '$' )
@@ -2944,11 +2985,9 @@ static void UI_LoadTremHumanMCUSells( )
       *bufPointer++ = '\n';
 
       i = atoi( buffer );
-      uiInfo.tremHumanMCUSellList[ j ].text = String_Alloc( BG_FindHumanNameForWeapon( i ) );
-      uiInfo.tremHumanMCUSellList[ j++ ].cmd =
-        String_Alloc( va( "cmd sell %s", BG_FindNameForWeapon( i ) ) );
 
-      uiInfo.tremHumanMCUSellCount++;
+      if( weapons )
+        *weapons |= ( 1 << i );
     }
     else if( iterator[ 0 ] == 'U' )
     {
@@ -2960,14 +2999,50 @@ static void UI_LoadTremHumanMCUSells( )
       *bufPointer++ = '\n';
 
       i = atoi( buffer );
+      
+      if( upgrades )
+        *upgrades |= ( 1 << i );
+    }
+
+    iterator++;
+  }
+}
+
+/*
+===============
+UI_LoadTremHumanMCUSells
+===============
+*/
+static void UI_LoadTremHumanMCUSells( )
+{
+  int weapons, upgrades;
+  int i, j = 0;
+  
+  uiInfo.tremHumanMCUSellCount = 0;
+  UI_ParseCarriageList( &weapons, &upgrades );
+  
+  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+  {
+    if( weapons & ( 1 << i ) )
+    {
+      uiInfo.tremHumanMCUSellList[ j ].text = String_Alloc( BG_FindHumanNameForWeapon( i ) );
+      uiInfo.tremHumanMCUSellList[ j++ ].cmd =
+        String_Alloc( va( "cmd sell %s", BG_FindNameForWeapon( i ) ) );
+
+      uiInfo.tremHumanMCUSellCount++;
+    }
+  }
+  
+  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
+  {
+    if( upgrades & ( 1 << i ) )
+    {
       uiInfo.tremHumanMCUSellList[ j ].text = String_Alloc( BG_FindHumanNameForUpgrade( i ) );
       uiInfo.tremHumanMCUSellList[ j++ ].cmd =
         String_Alloc( va( "cmd sell %s", BG_FindNameForUpgrade( i ) ) );
 
       uiInfo.tremHumanMCUSellCount++;
     }
-
-    iterator++;
   }
 }
 
@@ -2978,14 +3053,16 @@ UI_LoadTremAlienUpgrades( )
 */
 static void UI_LoadTremAlienUpgrades( )
 {
-  int i, j = 0;
-  int class = trap_Cvar_VariableValue( "ui_currentClass" );
+  int     i, j = 0;
+  int     class = trap_Cvar_VariableValue( "ui_currentClass" );
+  stage_t stage = UI_GetCurrentAlienStage( );
   
   uiInfo.tremAlienUpgradeCount = 0;
   
   for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
   {
-    if( BG_ClassCanEvolveFromTo( class, i ) )
+    if( BG_ClassCanEvolveFromTo( class, i ) &&
+        BG_FindStagesForClass( i, stage ) )
     {
       uiInfo.tremAlienUpgradeList[ j ].text = String_Alloc( BG_FindNameForClassNum( i ) );
       uiInfo.tremAlienUpgradeList[ j++ ].cmd =
@@ -3003,13 +3080,20 @@ UI_LoadTremAlienBuilds
 */
 static void UI_LoadTremAlienBuilds( )
 {
-  int i, j = 0;
-
+  int     weapons;
+  int     i, j = 0;
+  stage_t stage;
+  
+  UI_ParseCarriageList( &weapons, NULL );
+  stage = UI_GetCurrentAlienStage( );
+  
   uiInfo.tremAlienBuildCount = 0;
   
   for( i = BA_NONE +1; i < BA_NUM_BUILDABLES; i++ )
   {
-    if( BG_FindTeamForBuildable( i ) == BIT_ALIENS )
+    if( BG_FindTeamForBuildable( i ) == BIT_ALIENS &&
+        BG_FindBuildWeaponForBuildable( i ) & weapons &&
+        BG_FindStagesForBuildable( i, stage ) )
     {
       uiInfo.tremAlienBuildList[ j ].text =
         String_Alloc( BG_FindHumanNameForBuildable( i ) );
@@ -3028,13 +3112,20 @@ UI_LoadTremHumanBuilds
 */
 static void UI_LoadTremHumanBuilds( )
 {
-  int i, j = 0;
+  int     weapons;
+  int     i, j = 0;
+  stage_t stage;
+  
+  UI_ParseCarriageList( &weapons, NULL );
+  stage = UI_GetCurrentHumanStage( );
 
   uiInfo.tremHumanBuildCount = 0;
   
   for( i = BA_NONE +1; i < BA_NUM_BUILDABLES; i++ )
   {
-    if( BG_FindTeamForBuildable( i ) == BIT_HUMANS )
+    if( BG_FindTeamForBuildable( i ) == BIT_HUMANS &&
+        BG_FindBuildWeaponForBuildable( i ) & weapons &&
+        BG_FindStagesForBuildable( i, stage ) )
     {
       uiInfo.tremHumanBuildList[ j ].text =
         String_Alloc( BG_FindHumanNameForBuildable( i ) );

@@ -78,6 +78,8 @@ vmCvar_t  g_listEntity;
 //TA
 vmCvar_t  g_humanBuildPoints;
 vmCvar_t  g_alienBuildPoints;
+vmCvar_t  g_humanStage;
+vmCvar_t  g_alienStage;
 
 static cvarTable_t   gameCvarTable[] = {
   // don't override the cheat state set by the system
@@ -149,6 +151,8 @@ static cvarTable_t   gameCvarTable[] = {
   
   { &g_humanBuildPoints, "g_humanBuildPoints", "1000", 0, 0, qfalse  },
   { &g_alienBuildPoints, "g_alienBuildPoints", "1000", 0, 0, qfalse  },
+  { &g_humanStage, "g_humanStage", "0", 0, 0, qfalse  },
+  { &g_alienStage, "g_alienStage", "0", 0, 0, qfalse  },
 
   { &g_rankings, "g_rankings", "0", 0, 0, qfalse}
 };
@@ -835,6 +839,10 @@ void calculateBuildPoints( void )
                                               level.humanBuildPoints,
                                               localHTP,
                                               level.humanBuildPointsPowered ) );
+
+  //may as well pump the stages here too
+  trap_SetConfigstring( CS_STAGES, va( "%d %d",
+        g_alienStage.integer, g_humanStage.integer ) );
 }
 
 

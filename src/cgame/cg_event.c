@@ -408,6 +408,23 @@ void CG_Menu( int eventParm )
 
   *carriageCvar = 0;
   
+  //determine what the player is carrying
+  for( i = WP_NONE +1; i < WP_NUM_WEAPONS; i++ )
+  {
+    if( BG_gotWeapon( i, cg.snap->ps.stats ) )
+      strcat( carriageCvar, va( "W%d ", i ) );
+  }
+  for( i = UP_NONE +1; i < UP_NUM_UPGRADES; i++ )
+  {
+    if( BG_gotItem( i, cg.snap->ps.stats ) )
+      strcat( carriageCvar, va( "U%d ", i ) );
+  }
+  strcat( carriageCvar, "$" );
+  
+  trap_Cvar_Set( "ui_carriage", carriageCvar );
+  
+  trap_Cvar_Set( "ui_stages", va( "%d %d", cgs.alienStage, cgs.humanStage ) );
+  
   switch( eventParm )
   {
     case MN_TEAM:       trap_SendConsoleCommand( "menu tremulous_teamselect\n" );                 break;
@@ -415,22 +432,7 @@ void CG_Menu( int eventParm )
     case MN_H_SPAWN:    trap_SendConsoleCommand( "menu tremulous_humanitem\n" );                  break;
     case MN_A_BUILD:    trap_SendConsoleCommand( "menu tremulous_alienbuild\n" );                 break;
     case MN_H_BUILD:    trap_SendConsoleCommand( "menu tremulous_humanbuild\n" );                 break;
-    case MN_H_MCU:
-      for( i = WP_NONE +1; i < WP_NUM_WEAPONS; i++ )
-      {
-        if( BG_gotWeapon( i, cg.snap->ps.stats ) )
-          strcat( carriageCvar, va( "W%d ", i ) );
-      }
-      for( i = UP_NONE +1; i < UP_NUM_UPGRADES; i++ )
-      {
-        if( BG_gotItem( i, cg.snap->ps.stats ) )
-          strcat( carriageCvar, va( "U%d ", i ) );
-      }
-      strcat( carriageCvar, "$" );
-          
-      trap_Cvar_Set( "ui_carriage", carriageCvar );
-      trap_SendConsoleCommand( "menu tremulous_humanmcu\n" );
-      break;
+    case MN_H_MCU:      trap_SendConsoleCommand( "menu tremulous_humanmcu\n" );                   break;
     case MN_H_BANK:     trap_SendConsoleCommand( "menu tremulous_humanbank\n" );                  break;
     case MN_H_NOROOM:   trap_SendConsoleCommand( "menu tremulous_human_no_room\n" );              break;
     case MN_H_NOPOWER:  trap_SendConsoleCommand( "menu tremulous_human_no_power\n" );             break;

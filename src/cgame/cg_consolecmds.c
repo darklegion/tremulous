@@ -186,68 +186,6 @@ static void CG_StartOrbit_f( void ) {
 
 /*
 ==================
-CG_ClientMenu
-==================
-*/
-static void CG_ClientMenu( const char *menuname )
-{
-  char  menuDef[ MAX_STRING_CHARS ];
-  int   i, j = 0;
-  
-  if( !Q_stricmp( menuname, "dinfest" ) )
-  {
-    strcpy( menuDef, "5,5|Infest|0.976,0.957,0.0,1.0|0.933,0.612,0.0,1.0|0.976,0.957,0.0,1.0|1|16|" );
-    for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
-    {
-      if( BG_ClassCanEvolveFromTo( cg.snap->ps.stats[ STAT_PCLASS ], i ) )
-      {
-        strcat( menuDef, va( "%s, class %s|", BG_FindNameForClassNum( i ), BG_FindNameForClassNum( i ) ) );
-        j++;
-      }
-    }
-    strcat( menuDef, "|Choose a class|to evolve to" );
-    
-    if( j )
-    {
-      trap_SendConsoleCommand( va( "defmenu infest \"%s\"\n", menuDef ) );
-      trap_SendConsoleCommand( "menu infest\n" );
-      trap_SendConsoleCommand( "undefmenu infest\n" );
-    }
-  }
-  else if( !Q_stricmp( menuname, "hmcusell" ) )
-  {
-    strcpy( menuDef, "5,5|Sell|1,1,1,1|0.000,0.412,0.702,1|1,1,1,1|2|32|" );
-    for( i = WP_NONE +1; i < WP_NUM_WEAPONS; i++ )
-    {
-      if( BG_gotWeapon( i, cg.snap->ps.stats ) )
-        strcat( menuDef, va( "%s, sell %s|", BG_FindHumanNameForWeapon( i ), BG_FindNameForWeapon( i ) ) );
-    }
-    for( i = UP_NONE +1; i < UP_NUM_UPGRADES; i++ )
-    {
-      if( BG_gotItem( i, cg.snap->ps.stats ) )
-        strcat( menuDef, va( "%s, sell %s|", BG_FindHumanNameForUpgrade( i ), BG_FindNameForUpgrade( i ) ) );
-    }
-    strcat( menuDef, "Previous, menu hmcumenu||Choose an item|to sell" );
-    
-    trap_SendConsoleCommand( va( "defmenu mcusell \"%s\"\n", menuDef ) );
-    trap_SendConsoleCommand( "menu mcusell\n" );
-    trap_SendConsoleCommand( "undefmenu mcusell\n" );
-  }
-  else if( !Q_stricmp( menuname, "hbankstat" ) )
-  {
-    //FIXME: implement this
-    strcpy( menuDef, "5,5|Statement|1,1,1,1|0.000,0.412,0.702,1|1,1,1,1|2|32|You have something in this bank|OK,!" );
-    
-    trap_SendConsoleCommand( va( "defmenu bankstat \"%s\"\n", menuDef ) );
-    trap_SendConsoleCommand( "menu bankstat\n" );
-    trap_SendConsoleCommand( "undefmenu bankstat\n" );
-  }
-  else
-    trap_SendConsoleCommand( va( "%s not defined", menuname ) );
-}
-
-/*
-==================
 CG_DecodeMP3_f
 ==================
 */
@@ -320,7 +258,6 @@ qboolean CG_ConsoleCommand( void ) {
   if( !Q_stricmp( cmd, "ui_menu" ) )
   {
     arg1 = CG_Argv( 1 );
-    /*CG_ClientMenu( arg1 );*/
     trap_SendConsoleCommand( va( "menu %s\n", arg1 ) );
     return qtrue;
   }
@@ -393,8 +330,6 @@ void CG_InitConsoleCommands( void ) {
   trap_AddCommand ("destroy");
   trap_AddCommand ("torch");
   trap_AddCommand ("menu");
-  trap_AddCommand ("defmenu");
-  trap_AddCommand ("undefmenu");
   trap_AddCommand ("ui_menu");
   trap_AddCommand ("loaddefered");  // spelled wrong, but not changing for demo
 }

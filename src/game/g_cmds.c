@@ -1573,7 +1573,7 @@ void Cmd_Class_f( gentity_t *ent )
       !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
   {
     //if we are not currently spectating, we are attempting evolution
-    if( ent->client->pers.pclass != PCL_NONE )
+    if( ent->client->ps.stats[ STAT_PCLASS ] != PCL_NONE )
     {
       for ( i = 1, body = g_entities + i; i < level.num_entities; i++, body++ )
       {
@@ -1593,15 +1593,16 @@ void Cmd_Class_f( gentity_t *ent )
       {
         ent->client->pers.pclass = BG_FindClassNumForName( s );
 
-        //...check we can evolve to that class
-        if( !BG_ClassCanEvolveFromTo( ent->client->ps.stats[ STAT_PCLASS ],
-                                      ent->client->pers.pclass ) )
+        if( ent->client->pers.pclass == PCL_NONE )
         {
-          trap_SendServerCommand( ent-g_entities, va("print \"You cannot evolve from your current class\n\"" ) );
+          trap_SendServerCommand( ent-g_entities, va("print \"Unknown class\n\"" ) );
           return;
         }
-
-        if( ent->client->pers.pclass != PCL_NONE )
+        
+        //...check we can evolve to that class
+        if( BG_ClassCanEvolveFromTo( ent->client->ps.stats[ STAT_PCLASS ],
+                                     ent->client->pers.pclass ) ||
+            BG_FindStagesForClass( ent->client->pers.pclass, g_alienStage.integer ) )
         {
           //prevent lerping
           ent->client->ps.eFlags ^= EF_TELEPORT_BIT;
@@ -1627,7 +1628,8 @@ void Cmd_Class_f( gentity_t *ent )
         }
         else
         {
-          trap_SendServerCommand( ent-g_entities, va("print \"Unknown class\n\"" ) );
+          ent->client->pers.pclass = PCL_NONE;
+          trap_SendServerCommand( ent-g_entities, va("print \"You cannot evolve from your current class\n\"" ) );
           return;
         }
       }
@@ -1641,7 +1643,8 @@ void Cmd_Class_f( gentity_t *ent )
       {
         for( i = 0; i < NUM_AC; i++ )
         {
-          if( allowedClasses[ i ] == ent->client->pers.pclass )
+          if( allowedClasses[ i ] == ent->client->pers.pclass &&
+              BG_FindStagesForClass( ent->client->pers.pclass, g_alienStage.integer ) )
           {
             ent->client->sess.sessionTeam = TEAM_FREE;
             ClientUserinfoChanged( clientNum );
@@ -1663,7 +1666,7 @@ void Cmd_Class_f( gentity_t *ent )
   else if( ent->client->pers.pteam == PTE_HUMANS )
   {
     //humans cannot use this command whilst alive
-    if( ent->client->pers.pclass != PCL_NONE )
+    if( ent->client->ps.stats[ STAT_PCLASS ] != PCL_NONE )
     {
       trap_SendServerCommand( ent-g_entities, va("print \"You must be dead to use the class command\n\"" ) );
       return;
@@ -1678,6 +1681,7 @@ void Cmd_Class_f( gentity_t *ent )
       ent->client->pers.pitem = WP_HBUILD;
     else
     {
+      ent->client->pers.pclass = PCL_NONE;
       trap_SendServerCommand( ent-g_entities, va("print \"Unknown starting item\n\"" ) );
       return;
     }
@@ -1888,6 +1892,13 @@ void Cmd_Buy_f( gentity_t *ent )
       return;
     }
     
+    //are we /allowed/ to buy this?
+    if( !BG_FindStagesForWeapon( weapon, g_humanStage.integer ) )
+    {
+      trap_SendServerCommand( ent-g_entities, va("print \"You can't buy this item\n\"" ) );
+      return;
+    }
+    
     //add to inventory
     BG_packWeapon( weapon, ent->client->ps.stats );
     BG_FindAmmoForWeapon( weapon, &quan, &clips, &maxClips );
@@ -1918,6 +1929,20 @@ void Cmd_Buy_f( gentity_t *ent )
     if( BG_FindSlotsForUpgrade( upgrade ) & ent->client->ps.stats[ STAT_SLOTS ] )
     {
       G_AddPredictableEvent( ent, EV_MENU, MN_H_NOSLOTS );
+      return;
+    }
+    
+    if( BG_FindTeamForUpgrade( upgrade ) != WUT_HUMANS )
+    {
+      //shouldn't need a fancy dialog
+      trap_SendServerCommand( ent-g_entities, va("print \"You can't buy alien items\n\"" ) );
+      return;
+    }
+    
+    //are we /allowed/ to buy this?
+    if( !BG_FindStagesForUpgrade( upgrade, g_humanStage.integer ) )
+    {
+      trap_SendServerCommand( ent-g_entities, va("print \"You can't buy this item\n\"" ) );
       return;
     }
     
@@ -2139,7 +2164,8 @@ void Cmd_Build_f( gentity_t *ent )
   if( buildable != BA_NONE &&
       ( 1 << ent->client->ps.weapon ) & BG_FindBuildWeaponForBuildable( buildable ) &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
-      !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
+      !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) &&
+      BG_FindStagesForBuildable( buildable, g_humanStage.integer ) )
   {
     dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
     

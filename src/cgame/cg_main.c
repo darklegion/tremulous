@@ -182,6 +182,7 @@ vmCvar_t  cg_smoothTime;
 //TA: hack to get class an carriage through to UI module
 vmCvar_t  ui_currentClass;
 vmCvar_t  ui_carriage;
+vmCvar_t  ui_stages;
 
 
 typedef struct {
@@ -267,6 +268,7 @@ static cvarTable_t   cvarTable[] = {
   
   { &ui_currentClass, "ui_currentClass", "0", 0 },
   { &ui_carriage, "ui_carriage", "", 0 },
+  { &ui_stages, "ui_stages", "0 0", 0 },
 
   // the following variables are created in other parts of the system,
   // but we also reference them here

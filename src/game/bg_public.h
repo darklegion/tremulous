@@ -80,6 +80,7 @@
 
 //TA: extra stuff:
 #define CS_BUILDPOINTS      28
+#define CS_STAGES           29
 
 #define CS_MODELS           33
 #define CS_SOUNDS           (CS_MODELS+MAX_MODELS)
@@ -409,6 +410,7 @@ typedef enum
   BA_H_MCU,
   BA_H_DCC,
   BA_H_MEDISTAT,
+  BA_H_ADVMEDISTAT,
   BA_H_BANK,
   
   BA_H_REACTOR,
@@ -822,6 +824,8 @@ typedef struct
   char    *modelName;
   char    *skinName;
   
+  int     stages;
+  
   vec3_t  mins;
   vec3_t  maxs;
   vec3_t  crouchMaxs;
@@ -849,6 +853,14 @@ typedef struct
   int     value;
 } classAttributes_t;
 
+//stages
+typedef enum
+{
+  S1,
+  S2,
+  S3
+} stage_t;
+
 //TA: buildable item record
 typedef struct
 {
@@ -867,6 +879,7 @@ typedef struct
   float     bounce;
   
   int       buildPoints;
+  int       stages;
 
   int       health;
   
@@ -902,6 +915,7 @@ typedef struct
   int       weaponNum;
 
   int       price;
+  int       stages;
 
   int       slots;
 
@@ -932,6 +946,7 @@ typedef struct
   int       upgradeNum;
 
   int       price;
+  int       stages;
 
   int       slots;
 
@@ -955,6 +970,7 @@ int       BG_FindHealthForBuildable( int bclass );
 trType_t  BG_FindTrajectoryForBuildable( int bclass );
 float     BG_FindBounceForBuildable( int bclass );
 int       BG_FindBuildPointsForBuildable( int bclass );
+qboolean  BG_FindStagesForBuildable( int bclass, stage_t stage );
 int       BG_FindDamageForBuildable( int bclass );
 int       BG_FindSplashDamageForBuildable( int bclass );
 int       BG_FindSplashRadiusForBuildable( int bclass );
@@ -976,6 +992,7 @@ int       BG_FindClassNumForName( char *name );
 char      *BG_FindNameForClassNum( int pclass );
 char      *BG_FindHumanNameForClassNum( int pclass );
 char      *BG_FindModelNameForClass( int pclass );
+qboolean  BG_FindStagesForClass( int pclass, stage_t stage );
 void      BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, vec3_t dmins, vec3_t dmaxs );
 void      BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight );
 int       BG_FindHealthForClass( int pclass );
@@ -992,6 +1009,7 @@ int       BG_FindEvolveTimeForClass( int pclass );
 int       BG_FindValueOfClass( int pclass );
 
 int       BG_FindPriceForWeapon( int weapon );
+qboolean  BG_FindStagesForWeapon( int weapon, stage_t stage );
 int       BG_FindSlotsForWeapon( int weapon );
 char      *BG_FindNameForWeapon( int weapon );
 int       BG_FindWeaponNumForName( char *name );
@@ -1007,6 +1025,7 @@ qboolean  BG_FindPurchasableForWeapon( int weapon );
 WUTeam_t  BG_FindTeamForWeapon( int weapon );
 
 int       BG_FindPriceForUpgrade( int upgrade );
+qboolean  BG_FindStagesForUpgrade( int upgrade, stage_t stage );
 int       BG_FindSlotsForUpgrade( int upgrade );
 char      *BG_FindNameForUpgrade( int upgrade );
 int       BG_FindUpgradeNumForName( char *name );

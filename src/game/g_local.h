@@ -543,6 +543,7 @@ typedef enum
   IBE_RPTWARN,
   IBE_NOPOWER,
   IBE_NORMAL,
+  IBE_NOCREEP,
 
   IBE_MAXERRORS
 } itemBuildError_t;
@@ -853,6 +854,8 @@ extern  vmCvar_t  g_singlePlayer;
 
 extern  vmCvar_t  g_humanBuildPoints;
 extern  vmCvar_t  g_alienBuildPoints;
+extern  vmCvar_t  g_humanStage;
+extern  vmCvar_t  g_alienStage;
 
 void  trap_Printf( const char *fmt );
 void  trap_Error( const char *fmt );

@@ -179,11 +179,13 @@ void CG_SetConfigValues( void ) {
 	cgs.scores2 = atoi( CG_ConfigString( CS_SCORES2 ) );
 
   sscanf( CG_ConfigString( CS_BUILDPOINTS ),
-          "%d %d %d %d %d", &cgs.dBuildPoints,
-                            &cgs.dBuildPointsTotal,
-                            &cgs.hBuildPoints,
-                            &cgs.hBuildPointsTotal,
-                            &cgs.hBuildPointsPowered );
+          "%d %d %d %d %d", &cgs.alienBuildPoints,
+                            &cgs.alienBuildPointsTotal,
+                            &cgs.humanBuildPoints,
+                            &cgs.humanBuildPointsTotal,
+                            &cgs.humanBuildPointsPowered );
+
+  sscanf( CG_ConfigString( CS_STAGES ), "%d %d", &cgs.alienStage, &cgs.humanStage );
   
 	cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
   if( cgs.gametype == GT_CTF ) {
@@ -267,11 +269,13 @@ static void CG_ConfigStringModified( void ) {
 	} else if ( num == CS_SCORES2 ) {
 		cgs.scores2 = atoi( str );
   } else if( num == CS_BUILDPOINTS ) {
-    sscanf( str, "%d %d %d %d %d", &cgs.dBuildPoints,
-                                   &cgs.dBuildPointsTotal,
-                                   &cgs.hBuildPoints,
-                                   &cgs.hBuildPointsTotal,
-                                   &cgs.hBuildPointsPowered );
+    sscanf( str, "%d %d %d %d %d", &cgs.alienBuildPoints,
+                                   &cgs.alienBuildPointsTotal,
+                                   &cgs.humanBuildPoints,
+                                   &cgs.humanBuildPointsTotal,
+                                   &cgs.humanBuildPointsPowered );
+  } else if( num == CS_STAGES ) {
+    sscanf( str, "%d %d", &cgs.alienStage, &cgs.humanStage );
 	} else if ( num == CS_LEVEL_START_TIME ) {
 		cgs.levelStartTime = atoi( str );
 	} else if ( num == CS_VOTE_TIME ) {

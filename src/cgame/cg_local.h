@@ -1030,11 +1030,14 @@ typedef struct {
 
   qboolean  newHud;
 
-  int       dBuildPoints;
-  int       dBuildPointsTotal;
-  int       hBuildPoints;
-  int       hBuildPointsTotal;
-  int       hBuildPointsPowered;
+  int       alienBuildPoints;
+  int       alienBuildPointsTotal;
+  int       humanBuildPoints;
+  int       humanBuildPointsTotal;
+  int       humanBuildPointsPowered;
+
+  int       alienStage;
+  int       humanStage;
 
   //
   // locally derived information from gamestate
@@ -1219,6 +1222,7 @@ extern  vmCvar_t    cg_smoothTime;
 //TA: hack to get class an carriage through to UI module
 extern  vmCvar_t    ui_currentClass;
 extern  vmCvar_t    ui_carriage;
+extern  vmCvar_t    ui_stages;
 
 //
 // cg_main.c

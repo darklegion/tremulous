@@ -528,9 +528,9 @@ static void CG_DrawStatusBar( void ) {
   #define PWR_Y      20
   if( ps->stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
-    float total = cgs.hBuildPointsTotal;
-    float allocated = total - cgs.hBuildPoints;
-    float powered = total - cgs.hBuildPointsPowered;
+    float total = cgs.humanBuildPointsTotal;
+    float allocated = total - cgs.humanBuildPoints;
+    float powered = total - cgs.humanBuildPointsPowered;
 
     int awidth = (int)( ( allocated / total ) * PWR_WIDTH );
     int pwidth = (int)( ( powered / total ) * PWR_WIDTH );
@@ -566,8 +566,8 @@ static void CG_DrawStatusBar( void ) {
   #define HV_Y      20
   if( ps->stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
-    float total = cgs.dBuildPointsTotal;
-    float allocated = total - cgs.dBuildPoints;
+    float total = cgs.alienBuildPointsTotal;
+    float allocated = total - cgs.alienBuildPoints;
 
     int awidth = (int)( ( allocated / total ) * HV_WIDTH );
     vec4_t bcolor = { 0.5, 0.5, 0.5, 0.5 };
@@ -1015,9 +1015,9 @@ static float CG_DrawPoints( float y )
   team = cg.snap->ps.stats[ STAT_PTEAM ];
   
   if( team == PTE_ALIENS )
-    buildpoints = cgs.dBuildPoints;
+    buildpoints = cgs.alienBuildPoints;
   else if( team == PTE_HUMANS )
-    buildpoints = cgs.hBuildPoints;
+    buildpoints = cgs.humanBuildPoints;
 
   spectator = ( team == PTE_NONE );
 

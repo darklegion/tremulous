@@ -31,6 +31,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     100,                   //int       buildPoints;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     50,                    //int       splashDamage;
@@ -60,6 +61,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     80,                    //int       buildPoints;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     20,                    //int       splashDamage;
@@ -89,6 +91,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     80,                    //int       buildPoints;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     20,                    //int       splashDamage;
@@ -118,6 +121,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     80,                    //int       buildPoints;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     20,                    //int       splashDamage;
@@ -147,6 +151,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     80,                    //int       buildPoints;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     20,                    //int       splashDamage;
@@ -176,6 +181,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float     bounce;
     0,                     //int       buildPoints;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     20,                    //int       splashDamage;
@@ -205,6 +211,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     80,                    //int       buildPoints;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     20,                    //int       splashDamage;
@@ -234,6 +241,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     100,                   //int       buildPoints;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     50,                    //int       splashDamage;
@@ -263,6 +271,37 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     100,                   //int       buildPoints;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    1000,                  //int       health;
+    50,                    //int       damage;
+    50,                    //int       splashDamage;
+    150,                   //int       splashRadius;
+    MOD_HSPAWN,            //int       meansOfDeath;
+    BIT_HUMANS,            //int       team;
+    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       idleAnim;
+    100,                   //int       nextthink;
+    0,                     //int       turretFireSpeed;
+    0,                     //int       turretRange;
+    WP_NONE,               //weapon_t  turretProjType;
+    0.707f,                //float     minNormal;
+    qfalse,                //qboolean  invertNormal;
+    qfalse,                //qboolean  creepTest;
+    0,                     //int       creepSize;
+    qfalse                 //qboolean  reactorTest;
+  },
+  {
+    BA_H_ADVMEDISTAT,      //int       buildNum;
+    "advmedistat",         //char      *buildName;
+    "Adv Medistation",     //char      *humanName;
+    "team_human_advmedistat",//char      *entityName;
+    { "models/buildables/medistat/medistat.md3", 0, 0, 0 },
+    { -65, -65, -7 },      //vec3_t    mins;
+    { 65, 65, 7 },         //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
+    100,                   //int       buildPoints;
+    ( 1 << S3 ),           //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     50,                    //int       splashDamage;
@@ -292,6 +331,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     80,                    //int       buildPoints;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     20,                    //int       splashDamage;
@@ -323,6 +363,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     80,                    //int       buildPoints;
+    ( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     20,                    //int       splashDamage;
@@ -352,6 +393,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     80,                    //int       buildPoints;
+    ( 1 << S3 ),           //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     20,                    //int       splashDamage;
@@ -381,6 +423,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     200,                   //int       buildPoints;
+    ( 1 << S3 ),           //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     50,                    //int       splashDamage;
@@ -410,6 +453,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     200,                   //int       buildPoints;
+    ( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     50,                    //int       splashDamage;
@@ -439,6 +483,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     200,                   //int       buildPoints;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     50,                    //int       splashDamage;
@@ -468,6 +513,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     0,                     //int       buildPoints;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     50,                    //int       splashDamage;
@@ -497,6 +543,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     10,                    //int       buildPoints;
+    ( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     50,                    //int       splashDamage;
@@ -526,6 +573,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_BUOYANCY,           //trType_t traj;
     0.2,                   //float        bounce;
     10,                    //int       buildPoints;
+    ( 1 << S2 )|( 1 << S3 ), //int  stages
     100,                   //int       health;
     50,                    //int       damage;
     50,                    //int       splashDamage;
@@ -750,6 +798,29 @@ int BG_FindBuildPointsForBuildable( int bclass )
   }
   
   return 1000;
+}
+
+/*
+==============
+BG_FindStagesForBuildable
+==============
+*/
+qboolean BG_FindStagesForBuildable( int bclass, stage_t stage )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      if( bg_buildableList[ i ].stages & ( 1 << stage ) )
+        return qtrue;
+      else
+        return qfalse;
+    }
+  }
+  
+  return qfalse;
 }
 
 /*
@@ -1102,6 +1173,7 @@ classAttributes_t bg_classList[ ] =
     "Builder",                                      //char    *humanName;
     "lucy",                                         //char    *modelname;
     "default",                                      //char    *skinname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -15, -15, -20 },                              //vec3_t  mins;
     { 15, 15, 20 },                                 //vec3_t  maxs;
     { 15, 15, 20 },                                 //vec3_t  crouchmaxs;
@@ -1127,6 +1199,7 @@ classAttributes_t bg_classList[ ] =
     "Advanced Builder",                             //char    *humanname;
     "lucy",                                         //char    *modelname;
     "angel",                                        //char    *skinname;
+    ( 1 << S2 )|( 1 << S3 ), //int  stages
     { -20, -20, -20 },                              //vec3_t  mins;
     { 20, 20, 20 },                                 //vec3_t  maxs;
     { 20, 20, 20 },                                 //vec3_t  crouchmaxs;
@@ -1152,6 +1225,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive",                                                //char    *humanname;
     "klesk",                                                    //char    *modelname;
     "default",                                                  //char    *skinname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -15, -15, -15 },                                          //vec3_t  mins;
     { 15, 15, 15 },                                             //vec3_t  maxs;
     { 15, 15, 15 },                                             //vec3_t  crouchmaxs;
@@ -1177,6 +1251,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive Level 1",                          //char    *humanname;
     "anarki",                                     //char    *modelname;
     "default",                                    //char    *skinname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -24, -24, -24 },                            //vec3_t  mins;
     { 24, 24, 24 },                               //vec3_t  maxs;
     { 24, 24, 24 },                               //vec3_t  crouchmaxs;
@@ -1202,6 +1277,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive Level 1 Upgrade",                  //char    *humanname;
     "anarki",                                     //char    *modelname;
     "default",                                    //char    *skinname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -24, -24, -24 },                            //vec3_t  mins;
     { 24, 24, 24 },                               //vec3_t  maxs;
     { 24, 24, 24 },                               //vec3_t  crouchmaxs;
@@ -1227,6 +1303,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive Level 2",                          //char    *humanname;
     "bones",                                      //char    *modelname;
     "default",                                    //char    *skinname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -24, -24, -24 },                            //vec3_t  mins;
     { 24, 24, 24 },                               //vec3_t  maxs;
     { 24, 24, 24 },                               //vec3_t  crouchmaxs;
@@ -1252,6 +1329,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive Level 2 Upgrade",                  //char    *humanname;
     "bones",                                      //char    *modelname;
     "default",                                    //char    *skinname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -24, -24, -24 },                            //vec3_t  mins;
     { 24, 24, 24 },                               //vec3_t  maxs;
     { 24, 24, 24 },                               //vec3_t  crouchmaxs;
@@ -1277,6 +1355,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive Level 3",                          //char    *humanname;
     "orbb",                                       //char    *modelname;
     "default",                                    //char    *skinname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -15, -15, -15 },                            //vec3_t  mins;
     { 15, 15, 15 },                               //vec3_t  maxs;
     { 15, 15, 15 },                               //vec3_t  crouchmaxs;
@@ -1302,6 +1381,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive Level 3 Upgrade",                  //char    *humanname;
     "orbb",                                       //char    *modelname;
     "default",                                    //char    *skinname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -15, -15, -15 },                            //vec3_t  mins;
     { 15, 15, 15 },                               //vec3_t  maxs;
     { 15, 15, 15 },                               //vec3_t  crouchmaxs;
@@ -1327,6 +1407,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive Level 4",                          //char    *humanname;
     "xaero",                                      //char    *modelname;
     "default",                                    //char    *skinname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -15, -15, -15 },                            //vec3_t  mins;
     { 15, 15, 15 },                               //vec3_t  maxs;
     { 15, 15, 15 },                               //vec3_t  crouchmaxs;
@@ -1352,6 +1433,7 @@ classAttributes_t bg_classList[ ] =
     "Human",                                    //char    *humanname;
     "sarge",                                    //char    *modelname;
     "default",                                  //char    *skinname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -15, -15, -24 },                          //vec3_t  mins;
     { 15, 15, 32 },                             //vec3_t  maxs;
     { 15, 15, 16 },                             //vec3_t  crouchmaxs;
@@ -1361,7 +1443,7 @@ classAttributes_t bg_classList[ ] =
     100,                                        //int     health;
     0,                                          //int     armor;
     SCA_TAKESFALLDAMAGE|SCA_CANJUMP,            //int     abilities;
-    80.0f,                                      //float   buildDist;
+    110.0f,                                     //float   buildDist;
     90,                                         //int     fov;
     0.002f,                                     //float   bob;
     200,                                        //int     steptime;
@@ -1449,6 +1531,29 @@ char *BG_FindModelNameForClass( int pclass )
 
   //note: must return a valid modelName!
   return bg_classList[ 0 ].modelName;
+}
+
+/*
+==============
+BG_FindStagesForClass
+==============
+*/
+qboolean BG_FindStagesForClass( int pclass, stage_t stage )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      if( bg_classList[ i ].stages & ( 1 << stage ) )
+        return qtrue;
+      else
+        return qfalse;
+    }
+  }
+  
+  return qfalse;
 }
 
 /*
@@ -1786,6 +1891,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_MACHINEGUN,        //int       weaponNum;
     100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "rifle",              //char      *weaponName;
     "Rifle",              //char      *weaponHumanName;
@@ -1804,6 +1910,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_FLAMER,            //int       weaponNum;
     100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "flamer",             //char      *weaponName;
     "Flame Thrower",      //char      *weaponHumanName;
@@ -1822,6 +1929,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_CHAINGUN,          //int       weaponNum;
     100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "chaingun",           //char      *weaponName;
     "Chaingun",           //char      *weaponHumanName;
@@ -1840,6 +1948,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_MASS_DRIVER,       //int       weaponNum;
     100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "mdriver",            //char      *weaponName;
     "Mass Driver",        //char      *weaponHumanName;
@@ -1858,6 +1967,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_PULSE_RIFLE,       //int       weaponNum;
     100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "prifle",             //char      *weaponName;
     "Pulse Rifle",        //char      *weaponHumanName;
@@ -1876,6 +1986,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_HBUILD,            //int       weaponNum;
     100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "ckit",               //char      *weaponName;
     "Construction Kit",   //char      *weaponHumanName;
@@ -1894,6 +2005,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_HBUILD2,           //int       weaponNum;
     100,                  //int       price;
+    ( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "ackit",              //char      *weaponName;
     "Adv Construction Kit",//char      *weaponHumanName;
@@ -1912,6 +2024,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_ABUILD,            //int       weaponNum;
     100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "dbuild",             //char      *weaponName;
     "Alien build weapon", //char      *weaponHumanName;
@@ -1930,6 +2043,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_ABUILD2,           //int       weaponNum;
     100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "dbuild2",            //char      *weaponName;
     "Alien build weapon2",//char      *weaponHumanName;
@@ -1948,6 +2062,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_VENOM,             //int       weaponNum;
     100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "venom",              //char      *weaponName;
     "Venom",              //char      *weaponHumanName;
@@ -1966,6 +2081,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_GRABANDCSAW,       //int       weaponNum;
     100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "grabandcsaw",        //char      *weaponName;
     "Circular Saw",       //char      *weaponHumanName;
@@ -1984,6 +2100,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_POUNCE,            //int       weaponNum;
     100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "pounce",             //char      *weaponName;
     "Claw and pounce",    //char      *weaponHumanName;
@@ -2002,6 +2119,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_LOCKBLOB_LAUNCHER, //int       weaponNum;
     100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "lockblob",           //char      *weaponName;
     "Lock Blob",          //char      *weaponHumanName;
@@ -2020,6 +2138,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_TESLAGEN,          //int       weaponNum;
     100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "teslagen",           //char      *weaponName;
     "Tesla Generator",    //char      *weaponHumanName;
@@ -2038,6 +2157,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_PLASMAGUN,         //int       weaponNum;
     100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "plasmagun",          //char      *weaponName;
     "Plasma Gun",         //char      *weaponHumanName;
@@ -2075,6 +2195,29 @@ int BG_FindPriceForWeapon( int weapon )
   }
   
   return 100;
+}
+
+/*
+==============
+BG_FindStagesForWeapon
+==============
+*/
+qboolean BG_FindStagesForWeapon( int weapon, stage_t stage )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+    {
+      if( bg_weapons[ i ].stages & ( 1 << stage ) )
+        return qtrue;
+      else
+        return qfalse;
+    }
+  }
+  
+  return qfalse;
 }
 
 /*
@@ -2345,6 +2488,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   {
     UP_TORCH,               //int   upgradeNum;
     100,                    //int   price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_NONE,              //int   slots;
     "torch",                //char  *upgradeName;
     "Torch",                //char  *upgradeHumanName;
@@ -2354,6 +2498,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   {
     UP_NVG,                 //int   upgradeNum;
     100,                    //int   price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_HEAD,              //int   slots;
     "nvg",                  //char  *upgradeName;
     "NVG",                  //char  *upgradeHumanName;
@@ -2363,6 +2508,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   {
     UP_CHESTARMOUR,         //int   upgradeNum;
     100,                    //int   price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_TORSO,             //int   slots;
     "carmour",              //char  *upgradeName;
     "Chest Armour",         //char  *upgradeHumanName;
@@ -2372,6 +2518,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   {
     UP_LIMBARMOUR,          //int   upgradeNum;        
     100,                    //int   price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_ARMS|SLOT_LEGS,    //int   slots;
     "larmour",              //char  *upgradeName;
     "Limb Armour",          //char  *upgradeHumanName;
@@ -2381,6 +2528,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   {
     UP_HELMET,              //int   upgradeNum;
     100,                    //int   price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_HEAD,              //int   slots;
     "helmet",               //char  *upgradeName;
     "Helmet",               //char  *upgradeHumanName;
@@ -2390,6 +2538,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   {
     UP_ANTITOXIN,           //int   upgradeNum;
     100,                    //int   price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_NONE,              //int   slots;
     "atoxin",               //char  *upgradeName;
     "Anti-toxin",           //char  *upgradeHumanName;
@@ -2399,6 +2548,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   {
     UP_BATTPACK,            //int   upgradeNum;
     100,                    //int   price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_BACKPACK,          //int   slots;
     "battpack",             //char  *upgradeName;
     "Battery Pack",         //char  *upgradeHumanName;
@@ -2408,6 +2558,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   {
     UP_JETPACK,             //int   upgradeNum;
     100,                    //int   price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_BACKPACK,          //int   slots;
     "jetpack",              //char  *upgradeName;
     "Jet Pack",             //char  *upgradeHumanName;
@@ -2417,6 +2568,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   {
     UP_BATTLESUIT,                            //int   upgradeNum;
     100,                                      //int   price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS, //int   slots;
     "bsuit",                                  //char  *upgradeName;
     "Battlesuit",                             //char  *upgradeHumanName;
@@ -2445,6 +2597,29 @@ int BG_FindPriceForUpgrade( int upgrade )
   }
   
   return 100;
+}
+
+/*
+==============
+BG_FindStagesForUpgrade
+==============
+*/
+qboolean BG_FindStagesForUpgrade( int upgrade, stage_t stage )
+{
+  int i;
+
+  for( i = 0; i < bg_numUpgrades; i++ )
+  {
+    if( bg_upgrades[ i ].upgradeNum == upgrade )
+    {
+      if( bg_upgrades[ i ].stages & ( 1 << stage ) )
+        return qtrue;
+      else
+        return qfalse;
+    }
+  }
+  
+  return qfalse;
 }
 
 /*

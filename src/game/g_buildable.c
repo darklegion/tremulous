@@ -51,7 +51,7 @@ findPower
 attempt to find power for self, return qtrue if successful
 ================
 */
-qboolean findPower( gentity_t *self )
+static qboolean findPower( gentity_t *self )
 {
   int       i;
   gentity_t *ent;
@@ -62,7 +62,7 @@ qboolean findPower( gentity_t *self )
   qboolean  foundPower = qfalse;
 
   //if this already has power then stop now
-  if( self->parentNode && self->parentNode->active )
+  if( self->parentNode && self->parentNode->powered )
     return qtrue;
   
   //reset parent
@@ -79,7 +79,7 @@ qboolean findPower( gentity_t *self )
     {
       VectorSubtract( self->s.origin, ent->s.origin, temp_v );
       distance = VectorLength( temp_v );
-      if( distance < minDistance && ( ent->active || self->s.modelindex == BA_H_SPAWN ) )
+      if( distance < minDistance && ent->powered )
       {
         closestPower = ent;
         minDistance = distance;
@@ -94,11 +94,8 @@ qboolean findPower( gentity_t *self )
   
   //bleh
   if( ( closestPower->s.modelindex == BA_H_REACTOR && ( minDistance <= REACTOR_BASESIZE ) ) || 
-      ( closestPower->s.modelindex == BA_H_REPEATER && self->s.modelindex == BA_H_SPAWN &&
-        ( minDistance <= REPEATER_BASESIZE ) && closestPower->powered ) ||
       ( closestPower->s.modelindex == BA_H_REPEATER && ( minDistance <= REPEATER_BASESIZE ) &&
-        closestPower->active && closestPower->powered )
-    )
+        closestPower->powered ) )
   {
     self->parentNode = closestPower;
 
@@ -110,12 +107,29 @@ qboolean findPower( gentity_t *self )
 
 /*
 ================
+isPower
+
+simple wrapper to findPower to check if a location has power
+================
+*/
+static qboolean isPower( vec3_t origin )
+{
+  gentity_t dummy;
+
+  dummy.parentNode = NULL;
+  VectorCopy( origin, dummy.s.origin );
+
+  return findPower( &dummy );
+}
+
+/*
+================
 findDCC
 
 attempt to find a controlling DCC for self, return qtrue if successful
 ================
 */
-qboolean findDCC( gentity_t *self )
+static qboolean findDCC( gentity_t *self )
 {
   int       i;
   gentity_t *ent;
@@ -168,7 +182,7 @@ findCreep
 attempt to find creep for self, return qtrue if successful
 ================
 */
-qboolean findCreep( gentity_t *self )
+static qboolean findCreep( gentity_t *self )
 {
   int       i;
   gentity_t *ent;
@@ -191,7 +205,6 @@ qboolean findCreep( gentity_t *self )
 
       if( ent->s.modelindex == BA_A_SPAWN || ent->s.modelindex == BA_A_HIVEMIND )
       {
-        /*VectorSubtract( self->s.origin, ent->s.origin, temp_v );*/
         VectorSubtract( self->s.origin, ent->s.origin, temp_v );
         distance = VectorLength( temp_v );
         if( distance < minDistance )
@@ -213,6 +226,23 @@ qboolean findCreep( gentity_t *self )
 
   //if we haven't returned by now then we must already have a valid parent
   return qtrue;
+}
+
+/*
+================
+isCreep
+
+simple wrapper to findCreep to check if a location has creep
+================
+*/
+static qboolean isCreep( vec3_t origin )
+{
+  gentity_t dummy;
+
+  dummy.parentNode = NULL;
+  VectorCopy( origin, dummy.s.origin );
+
+  return findCreep( &dummy );
 }
 
 /*
@@ -895,7 +925,6 @@ Think for human power repeater
 void HRpt_Think( gentity_t *self )
 {
   int       i;
-  int       count = 0;
   qboolean  reactor = qfalse;
   gentity_t *ent;
   
@@ -905,19 +934,10 @@ void HRpt_Think( gentity_t *self )
     if( !ent->classname || ent->s.eType != ET_BUILDABLE )
       continue;
 
-    if( ent->s.modelindex == BA_H_SPAWN && ent->parentNode == self )
-      count++;
-      
     if( ent->s.modelindex == BA_H_REACTOR )
       reactor = qtrue;
   }
   
-  //if repeater has children and there is a reactor then this is active
-  if( count && reactor )
-    self->active = qtrue;
-  else
-    self->active = qfalse;
-
   self->powered = reactor;
 
   self->nextthink = level.time + REFRESH_TIME;
@@ -1033,15 +1053,14 @@ void HDCC_Think( gentity_t *self )
 
 //==================================================================================
 
-
-
-#define MAX_HEAL_CLIENTS  1
+#define MAX_MEDISTAT_CLIENTS    1
+#define MAX_ADVMEDISTAT_CLIENTS 3
 
 /*
 ================
 HMedistat_Think
 
-think function for Alien Acid Tube
+think function for Human Medistation
 ================
 */
 void HMedistat_Think( gentity_t *self )
@@ -1051,7 +1070,8 @@ void HMedistat_Think( gentity_t *self )
   int       i, num;
   gentity_t *player;
   int       healCount = 0;
-
+  int       maxclients;
+  
   VectorAdd( self->s.origin, self->r.maxs, maxs );
   VectorAdd( self->s.origin, self->r.mins, mins );
 
@@ -1065,6 +1085,11 @@ void HMedistat_Think( gentity_t *self )
   if( self->active )
     G_setIdleBuildableAnim( self, BANIM_IDLE2 );
 
+  if( self->s.modelindex == BA_H_ADVMEDISTAT )
+    maxclients = MAX_ADVMEDISTAT_CLIENTS;
+  else
+    maxclients = MAX_MEDISTAT_CLIENTS;
+  
   //do some healage
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
@@ -1073,7 +1098,8 @@ void HMedistat_Think( gentity_t *self )
     
     if( player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
     {
-      if( player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] && healCount < MAX_HEAL_CLIENTS )
+      if( player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] &&
+          healCount < maxclients )
       {
         healCount++;
         player->health++;
@@ -1711,6 +1737,14 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     if( !( normal[ 2 ] >= minNormal || ( invert && normal[ 2 ] <= -minNormal ) ) )
       return IBE_NORMAL;
     
+    //check there is creep near by for building on
+    
+    if( BG_FindCreepTestForBuildable( buildable ) )
+    {
+      if( !isCreep( entity_origin ) )
+        reason = IBE_NOCREEP;
+    }
+    
     //look for a hivemind
     for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
     {
@@ -1751,39 +1785,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
     //human criteria
-
-    closestPower = g_entities + 1; //FIXME
-    
-    //find the nearest power entity
-    for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
-    {
-      if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
-        continue;
-        
-      if( tempent->s.modelindex == BA_H_REACTOR || tempent->s.modelindex == BA_H_REPEATER )
-      {
-        VectorSubtract( entity_origin, tempent->s.origin, temp_v );
-        templength = VectorLength( temp_v );
-        if( templength < minDistance && ( tempent->active || buildable == BA_H_SPAWN ) )
-        {
-          closestPower = tempent;
-          minDistance = templength;
-        }
-      }
-    }
-    
-    //if this power entity satisfies expression
-    if( !(
-           ( closestPower->s.modelindex == BA_H_REACTOR && minDistance <= REACTOR_BASESIZE ) || 
-           (
-             closestPower->s.modelindex == BA_H_REPEATER && minDistance <= REPEATER_BASESIZE &&
-             (
-               ( buildable == BA_H_SPAWN && closestPower->powered ) ||
-               ( closestPower->powered && closestPower->active )
-             )
-           )
-         )
-      )
+    if( !isPower( entity_origin ) )
     {
       //tell player to build a repeater to provide power
       if( buildable != BA_H_REACTOR && buildable != BA_H_REPEATER )
@@ -1944,6 +1946,11 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       break;
       
     case BA_H_MEDISTAT:
+      built->think = HMedistat_Think;
+      built->die = HSpawn_Die;
+      break;
+      
+    case BA_H_ADVMEDISTAT:
       built->think = HMedistat_Think;
       built->die = HSpawn_Die;
       break;
