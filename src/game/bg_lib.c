@@ -1709,6 +1709,28 @@ void AddFloat( char **buf_p, float fval, int width, int prec )
   }
 }
 
+void AddVec3_t( char **buf_p, vec3_t v, int width, int prec )
+{
+  char *buf;
+
+  buf = *buf_p;
+
+  *buf++ = '[';
+
+  AddFloat( &buf, v[ 0 ], width, prec );
+  buf += width;
+  *buf++ = ' ';
+
+  AddFloat( &buf, v[ 1 ], width, prec );
+  buf += width;
+  *buf++ = ' ';
+
+  AddFloat( &buf, v[ 2 ], width, prec );
+  buf += width;
+  *buf++ = ']';
+
+  *buf_p = buf;
+}
 
 void AddString( char **buf_p, char *string, int width, int prec )
 {
@@ -1847,6 +1869,11 @@ reswitch:
         
       case 's':
         AddString( &buf_p, (char *)*arg, width, prec );
+        arg++;
+        break;
+        
+      case 'v':
+        AddVec3_t( &buf_p, (vec_t *)*arg, width, prec );
         arg++;
         break;
         

@@ -1862,7 +1862,7 @@ void Cmd_Test_f( gentity_t *ent )
   if( !CheatsOk( ent ) )
     return;
 
-  ent->client->ps.stats[ STAT_STATE ] |= SS_KNOCKEDOVER;
+/*  ent->client->ps.stats[ STAT_STATE ] |= SS_KNOCKEDOVER;
   ent->client->lastKnockedOverTime = level.time;
   G_AddPredictableEvent( ent, EV_KNOCKOVER, 0 );
   VectorCopy( ent->client->ps.viewangles, ent->client->ps.grapplePoint );
@@ -1870,7 +1870,7 @@ void Cmd_Test_f( gentity_t *ent )
   ent->client->ps.legsAnim =
     ( ( ent->client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | BOTH_DEATH1;
   ent->client->ps.torsoAnim =
-    ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | BOTH_DEATH1;
+    ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | BOTH_DEATH1;*/
 }
 
 /*
