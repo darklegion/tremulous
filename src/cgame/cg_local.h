@@ -943,6 +943,8 @@ typedef struct
   
   qhandle_t jetpackModel;
   qhandle_t jetpackFlashModel;
+  
+  sfxHandle_t repeaterUseSound;
 } cgMedia_t;
 
 

@@ -532,7 +532,8 @@ typedef enum
   EV_BUILD_DELAY,     //TA: can't build yet
   EV_POISONCLOUD,     //TA: client poisoned
   EV_KNOCKOVER,       //TA: client knocked over
-  EV_GETUP            //TA: client getting up
+  EV_GETUP,           //TA: client getting up
+  EV_RPTUSE_SOUND     //TA: trigger a sound
 } entity_event_t;
 
 typedef enum

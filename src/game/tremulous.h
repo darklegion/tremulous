@@ -454,7 +454,7 @@
 #define REPEATER_SPLASHDAMAGE       50
 #define REPEATER_SPLASHRADIUS       100
 
-#define ENERGY_REFIL_TIME           500 //1/2 second between every clip refil
+#define ENERGY_REFIL_TIME           1000 //1/2 second between every clip refil
 
 #define FLOATMINE_BP                50
 #define FLOATMINE_HEALTH            HBHM(10)

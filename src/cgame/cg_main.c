@@ -643,6 +643,8 @@ static void CG_RegisterSounds( void )
 
   cgs.media.hgrenb1aSound       = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb1a.wav", qfalse );
   cgs.media.hgrenb2aSound       = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb2a.wav", qfalse );
+  
+  cgs.media.repeaterUseSound    = trap_S_RegisterSound( "sound/buildables/repeater/use.wav", qfalse );
 }
 
 

@@ -1144,6 +1144,7 @@ void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 
   BG_packAmmoArray( ps->weapon, ps->ammo, ps->powerups, ammo, clips, maxClips );
 
+  G_AddEvent( activator, EV_RPTUSE_SOUND, 0 );
   activator->client->lastRefilTime = level.time;
 }
 

@@ -609,6 +609,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
         cent->buildableAnim = es->eventParm;
       break;
       
+    case EV_RPTUSE_SOUND:
+      DEBUGNAME( "EV_RPTUSE_SOUND" );
+      trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.repeaterUseSound );
+      break;
+
     case EV_GRENADE_BOUNCE:
       DEBUGNAME( "EV_GRENADE_BOUNCE" );
       if( rand( ) & 1 )
