@@ -104,6 +104,53 @@ qboolean findPower( gentity_t *self )
 
 /*
 ================
+findCreep
+
+attempt to find creep for self, return qtrue if successful
+================
+*/
+qboolean findCreep( gentity_t *self )
+{
+  int       i;
+  gentity_t *ent;
+  gentity_t *closestSpawn;
+  int       distance = 0;
+  int       minDistance = 10000;
+  vec3_t    temp_v;
+  
+  //if self does not have a parentNode or it's parentNode is invalid find a new one
+  if( ( self->parentNode == NULL ) || !self->parentNode->inuse )
+  {
+    for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+    {
+      if( !Q_stricmp( ent->classname, "team_droid_spawn" ) ||
+          !Q_stricmp( ent->classname, "team_droid_hivemind" ) )
+      {
+        VectorSubtract( self->s.origin, ent->s.origin, temp_v );
+        distance = VectorLength( temp_v );
+        if( distance < minDistance )
+        {
+          closestSpawn = ent;
+          minDistance = distance;
+        }
+      }
+    }
+    
+    if( minDistance <= ( CREEP_BASESIZE * 3 ) )
+    {
+      self->parentNode = closestSpawn;
+      return qtrue;
+    }
+    else
+      return qfalse;
+  }
+
+  //if we haven't returned by now then we must already have a valid parent
+  return qtrue;
+}
+
+/*
+================
 nullDieFunction
 
 hack to prevent compilers complaining about function pointer -> NULL conversion
@@ -195,6 +242,16 @@ void DSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   trap_LinkEntity( self );
 }
 
+/*
+================
+DSpawn_Think
+
+think function for Droid Spawn
+================
+*/
+void DSpawn_Think( gentity_t *self )
+{
+}
 
 /*
 ================
@@ -227,19 +284,6 @@ void DDef1_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
   trap_LinkEntity( self );
 }
 
-
-/*
-================
-DSpawn_Think
-
-think function for Droid Spawn
-================
-*/
-void DSpawn_Think( gentity_t *self )
-{
-}
-
-
 /*
 ================
 DDef1_Think
@@ -249,44 +293,18 @@ think function for Droid Spawn
 */
 void DDef1_Think( gentity_t *self )
 {
-  int       i;
-  gentity_t *ent;
-  gentity_t *closestSpawn;
-  int       distance = 0;
-  int       minDistance = 10000;
-  vec3_t    temp_v;
-  vec3_t    dir = { 0, 0, 1 }; //up
-  
-  if( ( self->parentNode == NULL ) || !self->parentNode->inuse )
+  //if there is no creep nearby die
+  if( !findCreep( self ) )
   {
-    for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
-    {
-      if( !Q_stricmp( ent->classname, "team_droid_spawn" ) ||
-          !Q_stricmp( ent->classname, "team_droid_hivemind" ) )
-      {
-        VectorSubtract( self->s.origin, ent->s.origin, temp_v );
-        distance = VectorLength( temp_v );
-        if( distance < minDistance )
-        {
-          closestSpawn = ent;
-          minDistance = distance;
-        }
-      }
-    }
-    
-    if( minDistance <= ( CREEP_BASESIZE * 3 ) )
-      self->parentNode = closestSpawn;
-    else
-    {
-      G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
-      return;
-    }
+    G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+    return;
   }
   
+  //do some damage
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
     self->splashRadius, self, self->splashMethodOfDeath, PTE_DROIDS );
 
-  self->nextthink = level.time + 100;
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
 }
 
 /*
