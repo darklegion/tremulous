@@ -474,9 +474,11 @@ void buildFire( gentity_t *ent, dynMenu_t menu )
       return;
     }
     
-    G_ValidateBuild( ent, ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT );
-    ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
-    ent->client->ps.stats[ STAT_MISC ] += BG_FindBuildDelayForWeapon( ent->s.weapon );
+    if( G_ValidateBuild( ent, ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) )
+    {
+      ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
+      ent->client->ps.stats[ STAT_MISC ] += BG_FindBuildDelayForWeapon( ent->s.weapon );
+    }
     return;
   }
 

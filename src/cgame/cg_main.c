@@ -116,10 +116,8 @@ vmCvar_t  cg_drawAmmoWarning;
 vmCvar_t  cg_drawCrosshair;
 vmCvar_t  cg_drawCrosshairNames;
 vmCvar_t  cg_drawRewards;
-vmCvar_t  cg_crosshairSize;
 vmCvar_t  cg_crosshairX;
 vmCvar_t  cg_crosshairY;
-vmCvar_t  cg_crosshairHealth;
 vmCvar_t  cg_draw2D;
 vmCvar_t  cg_drawStatus;
 vmCvar_t  cg_animSpeed;
@@ -237,8 +235,6 @@ static cvarTable_t cvarTable[ ] =
   { &cg_drawCrosshair, "cg_drawCrosshair", "4", CVAR_ARCHIVE },
   { &cg_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
   { &cg_drawRewards, "cg_drawRewards", "1", CVAR_ARCHIVE },
-  { &cg_crosshairSize, "cg_crosshairSize", "24", CVAR_ARCHIVE },
-  { &cg_crosshairHealth, "cg_crosshairHealth", "1", CVAR_ARCHIVE },
   { &cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE },
   { &cg_crosshairY, "cg_crosshairY", "0", CVAR_ARCHIVE },
   { &cg_brassTime, "cg_brassTime", "2500", CVAR_ARCHIVE },
@@ -544,18 +540,6 @@ const char *CG_Argv( int arg )
 
 /*
 =================
-CG_RegisterItemSounds
-
-The server says this item is used on this level
-=================
-*/
-static void CG_RegisterItemSounds( int itemNum )
-{
-}
-
-
-/*
-=================
 CG_RegisterSounds
 
 called during a precache command
@@ -639,6 +623,8 @@ static void CG_RegisterSounds( void )
   cgs.media.jetpackDescendSound = trap_S_RegisterSound( "sound/upgrades/jetpack/low.wav", qfalse );
   cgs.media.jetpackIdleSound    = trap_S_RegisterSound( "sound/upgrades/jetpack/idle.wav", qfalse );
   cgs.media.jetpackAscendSound  = trap_S_RegisterSound( "sound/upgrades/jetpack/hi.wav", qfalse );
+
+  cgs.media.humanBuildableExpl  = trap_S_RegisterSound( "sound/weapons/rocket/rocklx1a.wav", qfalse );
   
   // FIXME: only needed with item
   cgs.media.sfx_ric1            = trap_S_RegisterSound( "sound/weapons/machinegun/ric1.wav", qfalse );
@@ -721,8 +707,13 @@ static void CG_RegisterGraphics( void )
   cgs.media.tracerShader              = trap_R_RegisterShader( "gfx/misc/tracer" );
   cgs.media.selectShader              = trap_R_RegisterShader( "gfx/2d/select" );
 
-  for( i = 0 ; i < NUM_CROSSHAIRS ; i++ )
-    cgs.media.crosshairShader[ i ] = trap_R_RegisterShader( va( "gfx/2d/crosshair%c", 'a' + i ) );
+  for( i = WP_NONE + 1 ; i < WP_NUM_WEAPONS ; i++ )
+  {
+    char *crosshair = BG_FindCrosshairForWeapon( i );
+
+    if( crosshair != NULL )
+      cgs.media.crosshairShader[ i ] = trap_R_RegisterShader( crosshair );
+  }
 
   cgs.media.backTileShader            = trap_R_RegisterShader( "gfx/2d/backtile" );
   cgs.media.noammoShader              = trap_R_RegisterShader( "icons/noammo" );

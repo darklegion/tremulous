@@ -911,6 +911,8 @@ typedef struct
 
   char      *models[ MAX_ITEM_MODELS ];
   char      *icon;
+  char      *crosshair;
+  int       crosshairSize;
   
   int       quan;
   int       clips;
@@ -1033,6 +1035,8 @@ int       BG_FindWeaponNumForName( char *name );
 char      *BG_FindHumanNameForWeapon( int weapon );
 char      *BG_FindModelsForWeapon( int weapon, int modelNum );
 char      *BG_FindIconForWeapon( int weapon );
+char      *BG_FindCrosshairForWeapon( int weapon );
+int       BG_FindCrosshairSizeForWeapon( int weapon );
 void      BG_FindAmmoForWeapon( int weapon, int *quan, int *clips, int *maxClips );
 qboolean  BG_FindInfinteAmmoForWeapon( int weapon );
 qboolean  BG_FindUsesEnergyForWeapon( int weapon );

@@ -797,7 +797,7 @@ typedef struct
   qhandle_t   selectShader;
   qhandle_t   viewBloodShader;
   qhandle_t   tracerShader;
-  qhandle_t   crosshairShader[ NUM_CROSSHAIRS ];
+  qhandle_t   crosshairShader[ WP_NUM_WEAPONS ];
   qhandle_t   backTileShader;
   qhandle_t   noammoShader;
 
@@ -908,6 +908,8 @@ typedef struct
   //TA:
   sfxHandle_t alienStageTransition;
   sfxHandle_t humanStageTransition;
+  
+  sfxHandle_t humanBuildableExpl;
   
   qhandle_t   cursor;
   qhandle_t   selectCursor;
@@ -1045,8 +1047,6 @@ extern  vmCvar_t    cg_drawTeamOverlay;
 extern  vmCvar_t    cg_teamOverlayUserinfo;
 extern  vmCvar_t    cg_crosshairX;
 extern  vmCvar_t    cg_crosshairY;
-extern  vmCvar_t    cg_crosshairSize;
-extern  vmCvar_t    cg_crosshairHealth;
 extern  vmCvar_t    cg_drawStatus;
 extern  vmCvar_t    cg_draw2D;
 extern  vmCvar_t    cg_animSpeed;

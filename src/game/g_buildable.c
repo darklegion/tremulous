@@ -2095,7 +2095,7 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
 G_ValidateBuild
 =================
 */
-void G_ValidateBuild( gentity_t *ent, buildable_t buildable )
+qboolean G_ValidateBuild( gentity_t *ent, buildable_t buildable )
 {
   weapon_t      weapon;
   float         dist;
@@ -2107,61 +2107,61 @@ void G_ValidateBuild( gentity_t *ent, buildable_t buildable )
   {
     case IBE_NONE:
       G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
-      break;
+      return qtrue;
 
     case IBE_NOASSERT:
       G_AddPredictableEvent( ent, EV_MENU, MN_A_NOASSERT );
-      break;
+      return qfalse;
 
     case IBE_NOHIVEMIND:
       G_AddPredictableEvent( ent, EV_MENU, MN_A_NOHVMND );
-      break;
+      return qfalse;
 
     case IBE_HIVEMIND:
       G_AddPredictableEvent( ent, EV_MENU, MN_A_HIVEMIND );
-      break;
+      return qfalse;
 
     case IBE_NORMAL:
       G_AddPredictableEvent( ent, EV_MENU, MN_A_NORMAL );
-      break;
+      return qfalse;
 
     case IBE_REACTOR:
       G_AddPredictableEvent( ent, EV_MENU, MN_H_REACTOR );
-      break;
+      return qfalse;
 
     case IBE_REPEATER:
       G_AddPredictableEvent( ent, EV_MENU, MN_H_REPEATER );
-      break;
+      return qfalse;
 
     case IBE_NOROOM:
       if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
         G_AddPredictableEvent( ent, EV_MENU, MN_H_NOROOM );
       else
         G_AddPredictableEvent( ent, EV_MENU, MN_A_NOROOM );
-      break;
+      return qfalse;
 
     case IBE_NOPOWER:
       G_AddPredictableEvent( ent, EV_MENU, MN_H_NOPOWER );
-      break;
+      return qfalse;
       
     case IBE_NODCC:
       G_AddPredictableEvent( ent, EV_MENU, MN_H_NODCC );
-      break;
+      return qfalse;
       
     case IBE_SPWNWARN:
       G_AddPredictableEvent( ent, EV_MENU, MN_A_SPWNWARN );
       G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
-      break;
+      return qtrue;
       
     case IBE_RPLWARN:
       G_AddPredictableEvent( ent, EV_MENU, MN_H_RPLWARN );
       G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
-      break;
+      return qtrue;
       
     case IBE_RPTWARN:
       G_AddPredictableEvent( ent, EV_MENU, MN_H_RPTWARN );
       G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
-      break;
+      return qtrue;
   }
 }
 

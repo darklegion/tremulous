@@ -285,9 +285,9 @@
 #define CHAINGUN_DMG                HDM(14)
 
 #define FLAMER_GAS                  400
-#define FLAMER_REPEAT               150
+#define FLAMER_REPEAT               300
 #define FLAMER_PRICE                300
-#define FLAMER_DMG                  HDM(25)
+#define FLAMER_DMG                  HDM(30)
 #define FLAMER_RADIUS               50
 #define FLAMER_LIFETIME             1000.0f
 #define FLAMER_SPEED                200.0f

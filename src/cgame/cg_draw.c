@@ -1924,12 +1924,11 @@ static void CG_DrawCrosshair( void )
   qhandle_t hShader;
   float     f;
   float     x, y;
-  int       ca;
 
   if( !cg_drawCrosshair.integer )
     return;
 
-  if( ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) ||
+  if( ( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR ) ||
       ( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) ||
       ( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
     return;
@@ -1937,41 +1936,20 @@ static void CG_DrawCrosshair( void )
   if( cg.renderingThirdPerson )
     return;
 
-  // set color based on health
-  if( cg_crosshairHealth.integer )
-  {
-    vec4_t    hcolor;
-
-    CG_ColorForHealth( hcolor );
-    trap_R_SetColor( hcolor );
-  }
-  else
-    trap_R_SetColor( NULL );
-
-  w = h = cg_crosshairSize.value;
-
-  // pulse the size of the crosshair when picking up items
-  f = cg.time - cg.itemPickupBlendTime;
-  if( f > 0 && f < ITEM_BLOB_TIME )
-  {
-    f /= ITEM_BLOB_TIME;
-    w *= ( 1 + f );
-    h *= ( 1 + f );
-  }
+  w = h = BG_FindCrosshairSizeForWeapon( cg.snap->ps.weapon );
 
   x = cg_crosshairX.integer;
   y = cg_crosshairY.integer;
   CG_AdjustFrom640( &x, &y, &w, &h );
-
-  ca = cg_drawCrosshair.integer;
-  if( ca < 0 )
-    ca = 0;
   
-  hShader = cgs.media.crosshairShader[ ca % NUM_CROSSHAIRS ];
+  hShader = cgs.media.crosshairShader[ cg.snap->ps.weapon ];
 
-  trap_R_DrawStretchPic( x + cg.refdef.x + 0.5 * ( cg.refdef.width - w ),
-    y + cg.refdef.y + 0.5 * ( cg.refdef.height - h ),
-    w, h, 0, 0, 1, 1, hShader );
+  if( hShader != 0 )
+  {
+    trap_R_DrawStretchPic( x + cg.refdef.x + 0.5 * ( cg.refdef.width - w ),
+      y + cg.refdef.y + 0.5 * ( cg.refdef.height - h ),
+      w, h, 0, 0, 1, 1, hShader );
+  }
 }
 
 

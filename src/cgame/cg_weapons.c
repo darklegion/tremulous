@@ -322,7 +322,9 @@ void CG_RegisterWeapon( int weaponNum )
 
     case WP_FLAMER:
       weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/flamer/fireloop.wav", qfalse );
-      MAKERGB( weaponInfo->flashDlightColor, 0.25, 0.1, 0 );
+      MAKERGB( weaponInfo->flashDlightColor, 0.25f, 0.1f, 0 );
+      MAKERGB( weaponInfo->missileDlightColor, 0.25f, 0.1f, 0 );
+      weaponInfo->missileDlight = 200;
       //weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/railgun/railgf1a.wav", qfalse );
       /*cgs.media.flameExplShader = trap_R_RegisterShader( "rocketExplosion" );*/
       break;
