@@ -521,7 +521,8 @@ typedef enum
   MN_INFEST,
   MN_NOROOM,
   MN_NOCREEP,
-  MN_REACTOR
+  MN_REACTOR,
+  MN_MCUPOWER
 } dynMenu_t;
 
 // animations

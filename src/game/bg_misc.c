@@ -972,7 +972,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MOD_HSPAWN,
     BIT_HUMANS,
     EV_NONE,
-    -1,
+    100,
     qfalse,
     qfalse
   },
@@ -1006,7 +1006,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MOD_HSPAWN,
     BIT_HUMANS,
     EV_NONE,
-    -1,
+    100,
     qfalse,
     qfalse
   },
@@ -1040,7 +1040,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MOD_HSPAWN,
     BIT_HUMANS,
     EV_NONE,
-    -1,
+    100,
     qfalse,
     qfalse
   }

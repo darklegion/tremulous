@@ -27,6 +27,66 @@
 
 /*
 ================
+findPower
+
+attempt to find power for self, return qtrue if successful
+================
+*/
+qboolean findPower( gentity_t *self )
+{
+  int       i;
+  gentity_t *ent;
+  gentity_t *closestPower;
+  int       distance = 0;
+  int       minDistance = 10000;
+  vec3_t    temp_v;
+  
+  for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  {
+    if( !Q_stricmp( ent->classname, "team_human_reactor" ) ||
+        !Q_stricmp( ent->classname, "team_human_repeater" ) )
+    {
+      VectorSubtract( self->s.origin, ent->s.origin, temp_v );
+      distance = VectorLength( temp_v );
+      if( distance < minDistance )
+      {
+        closestPower = ent;
+        minDistance = distance;
+      }
+    }
+  }
+  
+  if( (
+        !Q_stricmp( closestPower->classname, "team_human_reactor" ) &&
+        ( minDistance <= REACTOR_BASESIZE )
+      )
+      ||
+      (
+        !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
+        ( minDistance <= REPEATER_BASESIZE ) &&
+        closestPower->active
+      )
+      || 
+      (
+        !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
+        !Q_stricmp( self->classname, "team_human_spawn" ) &&
+        ( minDistance <= REPEATER_BASESIZE )
+      )
+    )
+  {
+    self->powered = qtrue;
+    self->parentNode = closestPower;
+    return qtrue;
+  }
+  else
+  {
+    self->powered = qfalse;
+    return qfalse;
+  }
+}
+
+/*
+================
 nullDieFunction
 
 hack to prevent compilers complaining about function pointer -> NULL conversion
@@ -207,6 +267,36 @@ void DDef1_Think( gentity_t *self )
 
 /*
 ================
+HRpt_Think
+
+Think for human power repeater
+================
+*/
+void HRpt_Think( gentity_t *self )
+{
+  int       i;
+  int       count = 0;
+  qboolean  reactor = qfalse;
+  gentity_t *ent;
+  
+  for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  {
+    if( !Q_stricmp( ent->classname, "team_human_spawn" ) && ent->parentNode == self )
+      count++;
+    if( !Q_stricmp( ent->classname, "team_human_reactor" ) )
+      reactor = qtrue;
+  }
+  
+  if( count && reactor )
+    self->active = qtrue;
+  else
+    self->active = qfalse;
+
+  self->nextthink = level.time + 10000;
+}
+
+/*
+================
 HMCU_Activate
 
 Called when a human activates an MCU
@@ -216,12 +306,35 @@ void HMCU_Activate( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
   if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS ) return;
   
-  G_AddPredictableEvent( activator, EV_MENU, MN_MCU );
+  if( self->powered )
+    G_AddPredictableEvent( activator, EV_MENU, MN_MCU );
+  else
+    G_AddPredictableEvent( activator, EV_MENU, MN_MCUPOWER );
+}
+
+/*
+================
+HMCU_Think
+
+Think for mcu
+================
+*/
+void HMCU_Think( gentity_t *self )
+{
+  self->nextthink = level.time + 1000;
+  
+  if( ( self->parentNode == NULL ) ||
+      !self->parentNode->inuse ||
+      !self->parentNode->active )
+  {
+    if( !findPower( self ) )
+      self->nextthink = level.time + 10000;
+  }
 }
 
 //TA: the following defense turret code was written by
-//         "fuzzysteve"     (fuzzysteve@quakefiles.com) and
-//   Anthony "inolen" Pesch (www.inolen.com)
+// "fuzzysteve"           (fuzzysteve@quakefiles.com) and
+// Anthony "inolen" Pesch (www.inolen.com)
 //with modifications by me of course :)
 #define HDEF1_RANGE             500
 #define HDEF1_ANGULARSPEED      15
@@ -294,9 +407,7 @@ void hdef1_fireonenemy( gentity_t *self )
   vec3_t  aimVector;
   
   AngleVectors( self->turloc, aimVector, NULL, NULL );
-  //fire_flamer( self, self->s.pos.trBase, aimVector );
   fire_plasma( self, self->s.pos.trBase, aimVector );
-  //G_AddEvent( self, EV_FIRE_WEAPON, 0 );
   self->count = level.time + HDEF1_FIRINGSPEED;
 }
 
@@ -378,11 +489,15 @@ void HDef1_Think( gentity_t *self )
 {
   self->nextthink = level.time + 50;
   
-  if( ( self->parentNode == NULL ) || !self->parentNode->inuse )
+  if( ( self->parentNode == NULL ) ||
+      !self->parentNode->inuse ||
+      !self->parentNode->active )
   {
     if( !findPower( self ) )
+    {
       self->nextthink = level.time + 10000;
       return;
+    }
   }
   
   if( !hdef1_checktarget( self, self->enemy) )
@@ -441,46 +556,6 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   trap_LinkEntity( self );
 }
 
-qboolean findPower( gentity_t *self )
-{
-  int       i;
-  gentity_t *ent;
-  gentity_t *closestPower;
-  int       distance = 0;
-  int       minDistance = 10000;
-  vec3_t    temp_v;
-  
-  for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
-  {
-    if( !Q_stricmp( ent->classname, "team_human_reactor" ) ||
-        !Q_stricmp( ent->classname, "team_human_repeater" ) )
-    {
-      VectorSubtract( self->s.origin, ent->s.origin, temp_v );
-      distance = VectorLength( temp_v );
-      if( distance < minDistance )
-      {
-        closestPower = ent;
-        minDistance = distance;
-      }
-    }
-  }
-  
-  if( ( !Q_stricmp( closestPower->classname, "team_human_reactor" ) &&
-      ( minDistance <= REACTOR_BASESIZE ) ) ||
-      ( !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
-      ( minDistance <= REPEATER_BASESIZE ) ) )
-  {
-    self->powered = qtrue;
-    self->parentNode = closestPower;
-    return qtrue;
-  }
-  else
-  {
-    self->powered = qfalse;
-    return qfalse;
-  }
-}
-
 /*
 ================
 HSpawn_Think
@@ -490,16 +565,11 @@ Think for human spawn
 */
 void HSpawn_Think( gentity_t *self )
 {
-  int       i;
-  gentity_t *ent;
-  gentity_t *closestPower;
-  int       distance = 0;
-  int       minDistance = 10000;
-  vec3_t    temp_v;
+  self->nextthink = level.time + 1000;
   
-  self->nextthink = level.time + 100;
-  
-  if( ( self->parentNode == NULL ) || !self->parentNode->inuse )
+  if( ( self->parentNode == NULL ) ||
+      !self->parentNode->inuse ||
+      !self->parentNode->active )
   {
     if( !findPower( self ) )
       self->nextthink = level.time + 10000;
@@ -639,6 +709,7 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
   }
   else if( buildable == BA_H_MCU )
   {
+    built->think = HMCU_Think;
     built->die = HSpawn_Die;
     built->use = HMCU_Activate;
   }
@@ -648,6 +719,7 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
   }
   else if( buildable == BA_H_REPEATER )
   {
+    built->think = HRpt_Think;
     built->die = HSpawn_Die;
   }
 
