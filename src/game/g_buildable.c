@@ -606,7 +606,7 @@ Used by HDef_Think to fire at enemy
 void hdef_fireonenemy( gentity_t *self, int firespeed )
 {
   //fire at target
-  G_AddEvent( self, EV_FIRE_WEAPON, 0 );
+  FireWeapon( self );
   self->count = level.time + firespeed;
 }
 

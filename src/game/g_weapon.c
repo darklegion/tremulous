@@ -866,7 +866,7 @@ qboolean CheckPounceAttack( gentity_t *ent )
 
   CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
-  VectorMA (muzzle, 32, forward, end);
+  VectorMA (muzzle, 48, forward, end);
 
   trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
 

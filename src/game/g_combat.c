@@ -562,7 +562,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 CheckArmor
 ================
 */
-int CheckArmor (gentity_t *ent, int damage, int dflags)
+int CheckArmor( gentity_t *ent, int damage, int dflags )
 {
   gclient_t *client;
   int     save;
@@ -1059,7 +1059,8 @@ void G_SelectiveDamage( gentity_t *targ, gentity_t *inflictor, gentity_t *attack
 }
 
 void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
-         vec3_t dir, vec3_t point, int damage, int dflags, int mod ) {
+         vec3_t dir, vec3_t point, int damage, int dflags, int mod )
+{
   gclient_t *client;
   int     take;
   int     save;
@@ -1067,28 +1068,26 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   int     knockback;
   int     max;
 
-  if (!targ->takedamage) {
+  if(!targ->takedamage)
     return;
-  }
 
   // the intermission has allready been qualified for, so don't
   // allow any extra scoring
-  if ( level.intermissionQueued ) {
+  if ( level.intermissionQueued )
     return;
-  }
 
-  if ( !inflictor ) {
+  if( !inflictor )
     inflictor = &g_entities[ENTITYNUM_WORLD];
-  }
-  if ( !attacker ) {
+    
+  if( !attacker )
     attacker = &g_entities[ENTITYNUM_WORLD];
-  }
 
   // shootable doors / buttons don't actually have any health
-  if ( targ->s.eType == ET_MOVER ) {
-    if ( targ->use && targ->moverState == MOVER_POS1 ) {
+  if( targ->s.eType == ET_MOVER )
+  {
+    if( targ->use && targ->moverState == MOVER_POS1 )
       targ->use( targ, inflictor, attacker );
-    }
+      
     return;
   }
 
@@ -1101,71 +1100,71 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
   client = targ->client;
 
-  if ( client ) {
-    if ( client->noclip ) {
+  if( client ) 
+  {
+    if( client->noclip )
       return;
-    }
   }
 
-  if ( !dir ) {
+  if( !dir )
     dflags |= DAMAGE_NO_KNOCKBACK;
-  } else {
+  else
     VectorNormalize(dir);
-  }
 
   knockback = damage;
-  if ( knockback > 200 ) {
+  if( knockback > 200 )
     knockback = 200;
-  }
-  if ( targ->flags & FL_NO_KNOCKBACK ) {
+    
+  if( targ->flags & FL_NO_KNOCKBACK )
     knockback = 0;
-  }
-  if ( dflags & DAMAGE_NO_KNOCKBACK ) {
+
+  if( dflags & DAMAGE_NO_KNOCKBACK )
     knockback = 0;
-  }
 
   // figure momentum add, even if the damage won't be taken
-  if ( knockback && targ->client ) {
+  if( knockback && targ->client )
+  {
     vec3_t  kvel;
     float mass;
 
     mass = 200;
 
-    VectorScale (dir, g_knockback.value * (float)knockback / mass, kvel);
-    VectorAdd (targ->client->ps.velocity, kvel, targ->client->ps.velocity);
+    VectorScale( dir, g_knockback.value * (float)knockback / mass, kvel );
+    VectorAdd( targ->client->ps.velocity, kvel, targ->client->ps.velocity );
 
     // set the timer so that the other client can't cancel
     // out the movement immediately
-    if ( !targ->client->ps.pm_time ) {
+    if( !targ->client->ps.pm_time )
+    {
       int   t;
 
       t = knockback * 2;
-      if ( t < 50 ) {
+      if( t < 50 )
         t = 50;
-      }
-      if ( t > 200 ) {
+        
+      if( t > 200 )
         t = 200;
-      }
+        
       targ->client->ps.pm_time = t;
       targ->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
     }
   }
 
   // check for completely getting out of the damage
-  if ( !(dflags & DAMAGE_NO_PROTECTION) ) {
+  if( !(dflags & DAMAGE_NO_PROTECTION) )
+  {
 
     // if TF_NO_FRIENDLY_FIRE is set, don't do damage to the target
     // if the attacker was on the same team
-    if ( targ != attacker && OnSameTeam (targ, attacker)  ) {
-      if ( !g_friendlyFire.integer ) {
+    if( targ != attacker && OnSameTeam (targ, attacker)  )
+    {
+      if( !g_friendlyFire.integer )
         return;
-      }
     }
 
     // check for godmode
-    if ( targ->flags & FL_GODMODE ) {
+    if ( targ->flags & FL_GODMODE )
       return;
-    }
   }
 
   // battlesuit protects from all radius damage (but takes knockback)
@@ -1181,31 +1180,40 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   // add to the attacker's hit counter
   if ( attacker->client && targ != attacker && targ->health > 0
       && targ->s.eType != ET_MISSILE
-      && targ->s.eType != ET_GENERAL) {
-    if ( OnSameTeam( targ, attacker ) ) {
-      attacker->client->ps.persistant[PERS_HITS] --;
-    } else {
-      attacker->client->ps.persistant[PERS_HITS] ++;
-    }
+      && targ->s.eType != ET_GENERAL)
+  {
+    if( OnSameTeam( targ, attacker ) )
+      attacker->client->ps.persistant[ PERS_HITS ]--;
+    else
+      attacker->client->ps.persistant[ PERS_HITS ]++;
   }
 
   // always give half damage if hurting self
   // calculated after knockback, so rocket jumping works
-  if ( targ == attacker) {
+  if( targ == attacker)
     damage *= 0.5;
-  }
 
-  if ( damage < 1 ) {
+  if( damage < 1 )
     damage = 1;
-  }
+    
   take = damage;
   save = 0;
 
   // save some from armor
-  asave = CheckArmor (targ, take, dflags);
-  take -= asave;
+/*  asave = CheckArmor (targ, take, dflags);
+  take -= asave;*/
+  //TA: armour is the chance of deflecting an attack (out of 100)
+  if( targ->client && targ->client->ps.stats[ STAT_ARMOR ] > 0 )
+  {
+    //TA: this whole thing is probably a bad idea. Worth a try I guess.
+    float chance = (float)targ->client->ps.stats[ STAT_ARMOR ] / 100.0f;
 
-  if ( g_debugDamage.integer ) {
+    if( crandom( ) > chance )
+      take /= ( 1.0f / chance );
+  }
+
+  if( g_debugDamage.integer )
+  {
     G_Printf( "%i: client:%i health:%i damage:%i armor:%i\n", level.time, targ->s.number,
       targ->health, take, asave );
   }
@@ -1213,30 +1221,34 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   // add to the damage inflicted on a player this frame
   // the total will be turned into screen blends and view angle kicks
   // at the end of the frame
-  if ( client ) {
-    if ( attacker ) {
+  if( client )
+  {
+    if( attacker )
       client->ps.persistant[PERS_ATTACKER] = attacker->s.number;
-    } else {
+    else
       client->ps.persistant[PERS_ATTACKER] = ENTITYNUM_WORLD;
-    }
+      
     client->damage_armor += asave;
     client->damage_blood += take;
     client->damage_knockback += knockback;
-    if ( dir ) {
+    if( dir )
+    {
       VectorCopy ( dir, client->damage_from );
       client->damage_fromWorld = qfalse;
-    } else {
+    }
+    else
+    {
       VectorCopy ( targ->r.currentOrigin, client->damage_from );
       client->damage_fromWorld = qtrue;
     }
   }
 
   // See if it's the player hurting the emeny flag carrier
-  if( g_gametype.integer == GT_CTF) {
+  if( g_gametype.integer == GT_CTF)
     Team_CheckHurtCarrier(targ, attacker);
-  }
 
-  if (targ->client) {
+  if(targ->client)
+  {
     // set the last client who damaged the target
     targ->client->lasthurt_client = attacker->s.number;
     targ->client->lasthurt_mod = mod;
@@ -1244,11 +1256,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   }
 
   // do the damage
-  if (take) {
+  if(take)
+  {
     targ->health = targ->health - take;
-    if ( targ->client ) {
+    if( targ->client )
       targ->client->ps.stats[STAT_HEALTH] = targ->health;
-    }
 
     //TA: add to the attackers "account" on the target
     if( targ->client && attacker->client &&
@@ -1256,8 +1268,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
         attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
       targ->credits[ attacker->client->ps.clientNum ] += take;
 
-    if ( targ->health <= 0 ) {
-      if ( client )
+    if( targ->health <= 0 )
+    {
+      if( client )
         targ->flags |= FL_NO_KNOCKBACK;
 
       if (targ->health < -999)
@@ -1266,11 +1279,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       targ->enemy = attacker;
       targ->die (targ, inflictor, attacker, take, mod);
       return;
-    } else if ( targ->pain ) {
-      targ->pain (targ, attacker, take);
     }
+    else if( targ->pain )
+      targ->pain (targ, attacker, take);
   }
-
 }
 
 

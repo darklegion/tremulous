@@ -489,7 +489,6 @@ gitem_t bg_itemlist[] =
     "sound/misc/w_pkup.wav",
     { "models/weapons2/grapple/grapple.md3",
     0, 0, 0},
-    "icons/iconw_grapple",
     "Grappling Hook",
     0,
     IT_WEAPON,
@@ -1670,510 +1669,510 @@ int BG_FindUniqueTestForBuildable( int bclass )
 classAttributes_t bg_classList[ ] =
 {
   { 
-    PCL_D_B_BASE,
-    "Builder",
-    "lucy",
-    "default",
-    { -15, -15, -20 },
-    { 15, 15, 20 },
-    { 15, 15, 20 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    12, 12,
-    50,
-    50,
-    SCA_TAKESFALLDAMAGE|SCA_FOVWARPS,
-    80,
-    0.015f,
-    350,
-    0.5f,
-    1.0f,
-    { PCL_D_B_LEV1, PCL_NONE, PCL_NONE },
-    2000,
-    100
+    PCL_D_B_BASE,                                   //int     classnum;
+    "Builder",                                      //char    *classname;
+    "lucy",                                         //char    *modelname;
+    "default",                                      //char    *skinname;
+    { -15, -15, -20 },                              //vec3_t  mins;
+    { 15, 15, 20 },                                 //vec3_t  maxs;
+    { 15, 15, 20 },                                 //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                               //vec3_t  deadmins;
+    { 15, 15, 4 },                                  //vec3_t  deadmaxs;
+    12, 12,                                         //int     viewheight, crouchviewheight;
+    50,                                             //int     health;
+    0,                                               //int     armor;
+    SCA_TAKESFALLDAMAGE|SCA_FOVWARPS,               //int     abilities;
+    80,                                             //int     fov;
+    0.015f,                                         //float   bob;
+    350,                                            //int     steptime;
+    0.5f,                                           //float   speed;
+    1.0f,                                           //float   sticky;
+    { PCL_D_B_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    2000,                                           //int     timetoevolve;
+    100                                             //int     value;
   },
   { 
-    PCL_D_B_LEV1,
-    "BuilderLevel1",
-    "lucy",
-    "default",
-    { -15, -15, -20 },
-    { 15, 15, 20 },
-    { 15, 15, 20 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    12, 12,
-    75,
-    75,
-    SCA_CANJUMP|SCA_FOVWARPS,
-    110,
-    0.005f,
-    200,
-    1.0f,
-    1.0f,
-    { PCL_D_B_LEV21, PCL_D_B_LEV22, PCL_D_B_LEV23 },
-    2000,
-    100
+    PCL_D_B_LEV1,                                   //int     classnum;
+    "BuilderLevel1",                                //char    *classname;
+    "lucy",                                         //char    *modelname;
+    "default",                                      //char    *skinname;
+    { -15, -15, -20 },                              //vec3_t  mins;
+    { 15, 15, 20 },                                 //vec3_t  maxs;
+    { 15, 15, 20 },                                 //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                               //vec3_t  deadmins;
+    { 15, 15, 4 },                                  //vec3_t  deadmaxs;
+    12, 12,                                         //int     viewheight, crouchviewheight;
+    75,                                             //int     health;
+    10,                                             //int     armor;
+    SCA_CANJUMP|SCA_FOVWARPS,                       //int     abilities;
+    110,                                            //int     fov;
+    0.005f,                                         //float   bob;
+    200,                                            //int     steptime;
+    1.0f,                                           //float   speed;
+    1.0f,                                           //float   sticky;
+    { PCL_D_B_LEV21, PCL_D_B_LEV22, PCL_D_B_LEV23 },//int     children[ 3 ];
+    2000,                                           //int     timetoevolve;
+    100                                             //int     value;
   },
   { 
-    PCL_D_B_LEV21,
-    "BuilderLevel2-1",
-    "lucy",
-    "default",
-    { -15, -15, -20 },
-    { 15, 15, 20 },
-    { 15, 15, 20 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    12, 12,
-    100,
-    200,
-    SCA_TAKESFALLDAMAGE|SCA_FOVWARPS,
-    90,
-    0.015f,
-    350,
-    1.2f,
-    1.0f,
-    { PCL_NONE, PCL_NONE, PCL_NONE },
-    2000,
-    100
+    PCL_D_B_LEV21,                                  //int     classnum;
+    "BuilderLevel2-1",                              //char    *classname;
+    "lucy",                                         //char    *modelname;
+    "default",                                      //char    *skinname;
+    { -15, -15, -20 },                              //vec3_t  mins;
+    { 15, 15, 20 },                                 //vec3_t  maxs;
+    { 15, 15, 20 },                                 //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                               //vec3_t  deadmins;
+    { 15, 15, 4 },                                  //vec3_t  deadmaxs;
+    12, 12,                                         //int     viewheight, crouchviewheight;
+    100,                                            //int     health;
+    40,                                             //int     armor;
+    SCA_TAKESFALLDAMAGE|SCA_FOVWARPS,               //int     abilities;
+    90,                                             //int     fov;
+    0.015f,                                         //float   bob;
+    350,                                            //int     steptime;
+    1.2f,                                           //float   speed;
+    1.0f,                                           //float   sticky;
+    { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
+    2000,                                           //int     timetoevolve;
+    100                                             //int     value;
   },
   { 
-    PCL_D_B_LEV22,
-    "BuilderLevel2-2",
-    "lucy",
-    "default",
-    { -15, -15, -20 },
-    { 15, 15, 20 },
-    { 15, 15, 20 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    12, 12,
-    120,
-    100,
-    SCA_CANJUMP|SCA_FOVWARPS,
-    120,
-    0.002f,
-    350,
-    1.5f,
-    1.0f,
-    { PCL_NONE, PCL_NONE, PCL_NONE },
-    2000,
-    100
+    PCL_D_B_LEV22,                                  //int     classnum;
+    "BuilderLevel2-2",                              //char    *classname;
+    "lucy",                                         //char    *modelname;
+    "default",                                      //char    *skinname;
+    { -15, -15, -20 },                              //vec3_t  mins;
+    { 15, 15, 20 },                                 //vec3_t  maxs;
+    { 15, 15, 20 },                                 //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                               //vec3_t  deadmins;
+    { 15, 15, 4 },                                  //vec3_t  deadmaxs;
+    12, 12,                                         //int     viewheight, crouchviewheight;
+    120,                                            //int     health;
+    40,                                             //int     armor;
+    SCA_CANJUMP|SCA_FOVWARPS,                       //int     abilities;
+    120,                                            //int     fov;
+    0.002f,                                         //float   bob;
+    350,                                            //int     steptime;
+    1.5f,                                           //float   speed;
+    1.0f,                                           //float   sticky;
+    { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
+    2000,                                           //int     timetoevolve;
+    100                                             //int     value;
   },
   { 
-    PCL_D_B_LEV23,
-    "BuilderLevel2-3",
-    "lucy",
-    "default",
-    { -15, -15, -20 },
-    { 15, 15, 20 },
-    { 15, 15, 20 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    12, 12,
-    100,
-    100,
-    SCA_CANJUMP|SCA_FOVWARPS,
-    100,
-    0.015f,
-    350,
-    1.7f,
-    1.0f,
-    { PCL_NONE, PCL_NONE, PCL_NONE },
-    2000,
-    100
+    PCL_D_B_LEV23,                                  //int     classnum;
+    "BuilderLevel2-3",                              //char    *classname;
+    "lucy",                                         //char    *modelname;
+    "default",                                      //char    *skinname;
+    { -15, -15, -20 },                              //vec3_t  mins;
+    { 15, 15, 20 },                                 //vec3_t  maxs;
+    { 15, 15, 20 },                                 //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                               //vec3_t  deadmins;
+    { 15, 15, 4 },                                  //vec3_t  deadmaxs;
+    12, 12,                                         //int     viewheight, crouchviewheight;
+    100,                                            //int     health;
+    40,                                             //int     armor;
+    SCA_CANJUMP|SCA_FOVWARPS,                       //int     abilities;
+    100,                                            //int     fov;
+    0.015f,                                         //float   bob;
+    350,                                            //int     steptime;
+    1.7f,                                           //float   speed;
+    1.0f,                                           //float   sticky;
+    { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
+    2000,                                           //int     timetoevolve;
+    100                                             //int     value;
   },
   {
-    PCL_D_O_BASE,
-    "Offensive",
-    "klesk",
-    "default",
-    { -15, -15, -15 },
-    { 15, 15, 15 },
-    { 15, 15, 15 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    4, 4,
-    25,
-    0,
-    SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
-    140,
-    0.0f,
-    25,
-    1.8f,
-    5.0f,
-    { PCL_D_O_LEV11, PCL_D_O_LEV12, PCL_NONE },
-    3000,
-    100
+    PCL_D_O_BASE,                                               //int     classnum;
+    "Offensive",                                                //char    *classname;
+    "klesk",                                                    //char    *modelname;
+    "default",                                                  //char    *skinname;
+    { -15, -15, -15 },                                          //vec3_t  mins;
+    { 15, 15, 15 },                                             //vec3_t  maxs;
+    { 15, 15, 15 },                                             //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                                           //vec3_t  deadmins;
+    { 15, 15, 4 },                                              //vec3_t  deadmaxs;
+    4, 4,                                                       //int     viewheight, crouchviewheight;
+    25,                                                         //int     health;
+    0,                                                          //int     armor;
+    SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    140,                                                        //int     fov;
+    0.0f,                                                       //float   bob;
+    25,                                                         //int     steptime;
+    1.8f,                                                       //float   speed;
+    5.0f,                                                       //float   sticky;
+    { PCL_D_O_LEV11, PCL_D_O_LEV12, PCL_NONE },                 //int     children[ 3 ];
+    3000,                                                       //int     timetoevolve;
+    100                                                         //int     value;
   },
   {
-    PCL_D_O_LEV11,
-    "OffensiveLevel1-1",
-    "klesk",
-    "default",
-    { -24, -24, -24 },
-    { 24, 24, 24 },
-    { 24, 24, 24 },
-    { -24, -24, -4 },
-    { 24, 24, 4 },
-    12, 12,
-    50,
-    50,
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
-    120,
-    0.001f,
-    25,
-    1.6f,
-    4.0f,
-    { PCL_D_O_LEV21, PCL_D_O_LEV22, PCL_NONE },
-    3000,
-    100
+    PCL_D_O_LEV11,                                //int     classnum;
+    "OffensiveLevel1-1",                          //char    *classname;
+    "klesk",                                      //char    *modelname;
+    "default",                                    //char    *skinname;
+    { -24, -24, -24 },                            //vec3_t  mins;
+    { 24, 24, 24 },                               //vec3_t  maxs;
+    { 24, 24, 24 },                               //vec3_t  crouchmaxs;
+    { -24, -24, -4 },                             //vec3_t  deadmins;
+    { 24, 24, 4 },                                //vec3_t  deadmaxs;
+    6, 6,                                         //int     viewheight, crouchviewheight;
+    50,                                           //int     health;
+    5,                                            //int     armor;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    120,                                          //int     fov;
+    0.001f,                                       //float   bob;
+    25,                                           //int     steptime;
+    1.6f,                                         //float   speed;
+    4.0f,                                         //float   sticky;
+    { PCL_D_O_LEV21, PCL_D_O_LEV22, PCL_NONE },   //int     children[ 3 ];
+    3000,                                         //int     timetoevolve;
+    100                                           //int     value;
   },
   {
-    PCL_D_O_LEV12,
-    "OffensiveLevel1-2",
-    "klesk",
-    "default",
-    { -24, -24, -24 },
-    { 24, 24, 24 },
-    { 24, 24, 24 },
-    { -24, -24, -4 },
-    { 24, 24, 4 },
-    12, 12,
-    50,
-    50,
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
-    120,
-    0.002f,
-    25,
-    1.5f,
-    3.0f,
-    { PCL_D_O_LEV21, PCL_D_O_LEV22, PCL_NONE },
-    3000,
-    100
+    PCL_D_O_LEV12,                                //int     classnum;
+    "OffensiveLevel1-2",                          //char    *classname;
+    "klesk",                                      //char    *modelname;
+    "default",                                    //char    *skinname;
+    { -24, -24, -24 },                            //vec3_t  mins;
+    { 24, 24, 24 },                               //vec3_t  maxs;
+    { 24, 24, 24 },                               //vec3_t  crouchmaxs;
+    { -24, -24, -4 },                             //vec3_t  deadmins;
+    { 24, 24, 4 },                                //vec3_t  deadmaxs;
+    6, 6,                                         //int     viewheight, crouchviewheight;
+    50,                                           //int     health;
+    10,                                           //int     armor;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    120,                                          //int     fov;
+    0.0005f,                                      //float   bob;
+    25,                                           //int     steptime;
+    1.5f,                                         //float   speed;
+    3.0f,                                         //float   sticky;
+    { PCL_D_O_LEV21, PCL_D_O_LEV22, PCL_NONE },   //int     children[ 3 ];
+    3000,                                         //int     timetoevolve;
+    100                                           //int     value;
   },
   {
-    PCL_D_O_LEV21,
-    "OffensiveLevel2-1",
-    "klesk",
-    "default",
-    { -15, -15, -15 },
-    { 15, 15, 15 },
-    { 15, 15, 15 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    4, 4,
-    100,
-    100,
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
-    130,
-    0.0f,
-    60,
-    1.3f,
-    5.0f,
-    { PCL_D_O_LEV31, PCL_D_O_LEV32, PCL_NONE },
-    3000,
-    100
+    PCL_D_O_LEV21,                                //int     classnum;
+    "OffensiveLevel2-1",                          //char    *classname;
+    "klesk",                                      //char    *modelname;
+    "default",                                    //char    *skinname;
+    { -15, -15, -15 },                            //vec3_t  mins;
+    { 15, 15, 15 },                               //vec3_t  maxs;
+    { 15, 15, 15 },                               //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                             //vec3_t  deadmins;
+    { 15, 15, 4 },                                //vec3_t  deadmaxs;
+    4, 4,                                         //int     viewheight, crouchviewheight;
+    100,                                          //int     health;
+    20,                                           //int     armor;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    130,                                          //int     fov;
+    0.0f,                                         //float   bob;
+    60,                                           //int     steptime;
+    1.3f,                                         //float   speed;
+    5.0f,                                         //float   sticky;
+    { PCL_D_O_LEV31, PCL_D_O_LEV32, PCL_NONE },   //int     children[ 3 ];
+    3000,                                         //int     timetoevolve;
+    100                                           //int     value;
   },
   {
-    PCL_D_O_LEV22,
-    "OffensiveLevel2-2",
-    "klesk",
-    "default",
-    { -15, -15, -15 },
-    { 15, 15, 15 },
-    { 15, 15, 15 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    4, 4,
-    100,
-    100,
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
-    130,
-    0.0f,
-    60,
-    1.3f,
-    5.0f,
-    { PCL_D_O_LEV32, PCL_D_O_LEV33, PCL_NONE },
-    3000,
-    100
+    PCL_D_O_LEV22,                                //int     classnum;
+    "OffensiveLevel2-2",                          //char    *classname;
+    "klesk",                                      //char    *modelname;
+    "default",                                    //char    *skinname;
+    { -15, -15, -15 },                            //vec3_t  mins;
+    { 15, 15, 15 },                               //vec3_t  maxs;
+    { 15, 15, 15 },                               //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                             //vec3_t  deadmins;
+    { 15, 15, 4 },                                //vec3_t  deadmaxs;
+    4, 4,                                         //int     viewheight, crouchviewheight;
+    100,                                          //int     health;
+    30,                                           //int     armor;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    130,                                          //int     fov;
+    0.0f,                                         //float   bob;
+    60,                                           //int     steptime;
+    1.3f,                                         //float   speed;
+    5.0f,                                         //float   sticky;
+    { PCL_D_O_LEV32, PCL_D_O_LEV33, PCL_NONE },   //int     children[ 3 ];
+    3000,                                         //int     timetoevolve;
+    100                                           //int     value;
   },
   {
-    PCL_D_O_LEV31,
-    "OffensiveLevel3-1",
-    "klesk",
-    "default",
-    { -15, -15, -15 },
-    { 15, 15, 15 },
-    { 15, 15, 15 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    4, 4,
-    200,
-    200,
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
-    120,
-    0.0f,
-    200,
-    1.0f,
-    5.0f,
-    { PCL_NONE, PCL_NONE, PCL_NONE },
-    3000,
-    100
+    PCL_D_O_LEV31,                                //int     classnum;
+    "OffensiveLevel3-1",                          //char    *classname;
+    "klesk",                                      //char    *modelname;
+    "default",                                    //char    *skinname;
+    { -15, -15, -15 },                            //vec3_t  mins;
+    { 15, 15, 15 },                               //vec3_t  maxs;
+    { 15, 15, 15 },                               //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                             //vec3_t  deadmins;
+    { 15, 15, 4 },                                //vec3_t  deadmaxs;
+    4, 4,                                         //int     viewheight, crouchviewheight;
+    200,                                          //int     health;
+    40,                                           //int     armor;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    120,                                          //int     fov;
+    0.0f,                                         //float   bob;
+    200,                                          //int     steptime;
+    1.0f,                                         //float   speed;
+    5.0f,                                         //float   sticky;
+    { PCL_NONE, PCL_NONE, PCL_NONE },             //int     children[ 3 ];
+    3000,                                         //int     timetoevolve;
+    100                                           //int     value;
   },
   {
-    PCL_D_O_LEV32,
-    "OffensiveLevel3-2",
-    "klesk",
-    "default",
-    { -15, -15, -15 },
-    { 15, 15, 15 },
-    { 15, 15, 15 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    4, 4,
-    200,
-    200,
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
-    120,
-    0.0f,
-    200,
-    1.0f,
-    5.0f,
-    { PCL_NONE, PCL_NONE, PCL_NONE },
-    3000,
-    100
+    PCL_D_O_LEV32,                                //int     classnum;
+    "OffensiveLevel3-2",                          //char    *classname;
+    "klesk",                                      //char    *modelname;
+    "default",                                    //char    *skinname;
+    { -15, -15, -15 },                            //vec3_t  mins;
+    { 15, 15, 15 },                               //vec3_t  maxs;
+    { 15, 15, 15 },                               //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                             //vec3_t  deadmins;
+    { 15, 15, 4 },                                //vec3_t  deadmaxs;
+    4, 4,                                         //int     viewheight, crouchviewheight;
+    200,                                          //int     health;
+    50,                                           //int     armor;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    120,                                          //int     fov;
+    0.0f,                                         //float   bob;
+    200,                                          //int     steptime;
+    1.0f,                                         //float   speed;
+    5.0f,                                         //float   sticky;
+    { PCL_NONE, PCL_NONE, PCL_NONE },             //int     children[ 3 ];
+    3000,                                         //int     timetoevolve;
+    100                                           //int     value;
   },
   {
-    PCL_D_O_LEV33,
-    "OffensiveLevel3-3",
-    "klesk",
-    "default",
-    { -15, -15, -15 },
-    { 15, 15, 15 },
-    { 15, 15, 15 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    4, 4,
-    200,
-    200,
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
-    120,
-    0.0f,
-    200,
-    1.0f,
-    5.0f,
-    { PCL_NONE, PCL_NONE, PCL_NONE },
-    3000,
-    100
+    PCL_D_O_LEV33,                                //int     classnum;
+    "OffensiveLevel3-3",                          //char    *classname;
+    "klesk",                                      //char    *modelname;
+    "default",                                    //char    *skinname;
+    { -15, -15, -15 },                            //vec3_t  mins;
+    { 15, 15, 15 },                               //vec3_t  maxs;
+    { 15, 15, 15 },                               //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                             //vec3_t  deadmins;
+    { 15, 15, 4 },                                //vec3_t  deadmaxs;
+    4, 4,                                         //int     viewheight, crouchviewheight;
+    200,                                          //int     health;
+    60,                                           //int     armor;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    120,                                          //int     fov;
+    0.0f,                                         //float   bob;
+    200,                                          //int     steptime;
+    1.0f,                                         //float   speed;
+    5.0f,                                         //float   sticky;
+    { PCL_NONE, PCL_NONE, PCL_NONE },             //int     children[ 3 ];
+    3000,                                         //int     timetoevolve;
+    100                                           //int     value;
   },
   {
-    PCL_D_D_BASE,
-    "Defensive",
-    "orbb",
-    "default",
-    { -15, -15, -15 },
-    { 15, 15 ,15 },
-    { 15, 15 ,15 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    4, 4,
-    50,
-    0,
-    SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
-    90,
-    0.0f,
-    25,
-    1.5f,
-    3.0f,
-    { PCL_D_D_LEV11, PCL_D_D_LEV12, PCL_NONE },
-    1000,
-    100
+    PCL_D_D_BASE,                                               //int     classnum;
+    "Defensive",                                                //char    *classname;
+    "orbb",                                                     //char    *modelname;
+    "default",                                                  //char    *skinname;
+    { -15, -15, -15 },                                          //vec3_t  mins;
+    { 15, 15 ,15 },                                             //vec3_t  maxs;
+    { 15, 15 ,15 },                                             //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                                           //vec3_t  deadmins;
+    { 15, 15, 4 },                                              //vec3_t  deadmaxs;
+    4, 4,                                                       //int     viewheight, crouchviewheight;
+    50,                                                         //int     health;
+    0,                                                          //int     armor;
+    SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    90,                                                         //int     fov;
+    0.0f,                                                       //float   bob;
+    25,                                                         //int     steptime;
+    1.5f,                                                       //float   speed;
+    3.0f,                                                       //float   sticky;
+    { PCL_D_D_LEV11, PCL_D_D_LEV12, PCL_NONE },                 //int     children[ 3 ];
+    1000,                                                       //int     timetoevolve;
+    100                                                         //int     value;
   },
   {
-    PCL_D_D_LEV11,
-    "DefensiveLevel1-1",
-    "orbb",
-    "default",
-    { -15, -15, -15 },
-    { 15, 15 ,15 },
-    { 15, 15 ,15 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    4, 4,
-    50,
-    50,
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
-    100,
-    0.0f,
-    25,
-    1.4f,
-    3.0f,
-    { PCL_D_D_LEV21, PCL_D_D_LEV22, PCL_NONE },
-    1000,
-    100
+    PCL_D_D_LEV11,                              //int     classnum;
+    "DefensiveLevel1-1",                        //char    *classname;
+    "orbb",                                     //char    *modelname;
+    "default",                                  //char    *skinname;
+    { -15, -15, -15 },                          //vec3_t  mins;
+    { 15, 15 ,15 },                             //vec3_t  maxs;
+    { 15, 15 ,15 },                             //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                           //vec3_t  deadmins;
+    { 15, 15, 4 },                              //vec3_t  deadmaxs;
+    4, 4,                                       //int     viewheight, crouchviewheight;
+    50,                                         //int     health;
+    50,                                         //int     armor;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    100,                                        //int     fov;
+    0.0f,                                       //float   bob;
+    25,                                         //int     steptime;
+    1.4f,                                       //float   speed;
+    3.0f,                                       //float   sticky;
+    { PCL_D_D_LEV21, PCL_D_D_LEV22, PCL_NONE }, //int     children[ 3 ];
+    1000,                                       //int     timetoevolve;
+    100                                         //int     value;
   },
   {
-    PCL_D_D_LEV12,
-    "DefensiveLevel1-2",
-    "orbb",
-    "default",
-    { -15, -15, -15 },
-    { 15, 15 ,15 },
-    { 15, 15 ,15 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    4, 4,
-    50,
-    50,
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
-    100,
-    0.0f,
-    25,
-    1.4f,
-    3.0f,
-    { PCL_D_D_LEV21, PCL_D_D_LEV22, PCL_NONE },
-    1000,
-    100
+    PCL_D_D_LEV12,                              //int     classnum;
+    "DefensiveLevel1-2",                        //char    *classname;
+    "orbb",                                     //char    *modelname;
+    "default",                                  //char    *skinname;
+    { -15, -15, -15 },                          //vec3_t  mins;
+    { 15, 15 ,15 },                             //vec3_t  maxs;
+    { 15, 15 ,15 },                             //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                           //vec3_t  deadmins;
+    { 15, 15, 4 },                              //vec3_t  deadmaxs;
+    4, 4,                                       //int     viewheight, crouchviewheight;
+    50,                                         //int     health;
+    50,                                         //int     armor;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    100,                                        //int     fov;
+    0.0f,                                       //float   bob;
+    25,                                         //int     steptime;
+    1.4f,                                       //float   speed;
+    3.0f,                                       //float   sticky;
+    { PCL_D_D_LEV21, PCL_D_D_LEV22, PCL_NONE }, //int     children[ 3 ];
+    1000,                                       //int     timetoevolve;
+    100                                         //int     value;
   },
   {
-    PCL_D_D_LEV21,
-    "DefensiveLevel2-1",
-    "orbb",
-    "default",
-    { -15, -15, -15 },
-    { 15, 15 ,15 },
-    { 15, 15 ,15 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    4, 4,
-    150,
-    150,
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
-    110,
-    0.0f,
-    25,
-    1.3f,
-    3.0f,
-    { PCL_D_D_LEV31, PCL_D_D_LEV32, PCL_NONE },
-    1000,
-    100
+    PCL_D_D_LEV21,                              //int     classnum;
+    "DefensiveLevel2-1",                        //char    *classname;
+    "orbb",                                     //char    *modelname;
+    "default",                                  //char    *skinname;
+    { -15, -15, -15 },                          //vec3_t  mins;
+    { 15, 15 ,15 },                             //vec3_t  maxs;
+    { 15, 15 ,15 },                             //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                           //vec3_t  deadmins;
+    { 15, 15, 4 },                              //vec3_t  deadmaxs;
+    4, 4,                                       //int     viewheight, crouchviewheight;
+    150,                                        //int     health;
+    50,                                         //int     armor;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    110,                                        //int     fov;
+    0.0f,                                       //float   bob;
+    25,                                         //int     steptime;
+    1.3f,                                       //float   speed;
+    3.0f,                                       //float   sticky;
+    { PCL_D_D_LEV31, PCL_D_D_LEV32, PCL_NONE }, //int     children[ 3 ];
+    1000,                                       //int     timetoevolve;
+    100                                         //int     value;
   },
   {
-    PCL_D_D_LEV22,
-    "DefensiveLevel2-2",
-    "orbb",
-    "default",
-    { -15, -15, -15 },
-    { 15, 15 ,15 },
-    { 15, 15 ,15 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    4, 4,
-    150,
-    150,
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
-    110,
-    0.0f,
-    25,
-    1.3f,
-    3.0f,
-    { PCL_D_D_LEV32, PCL_D_D_LEV33, PCL_NONE },
-    1000,
-    100
+    PCL_D_D_LEV22,                              //int     classnum;
+    "DefensiveLevel2-2",                        //char    *classname;
+    "orbb",                                     //char    *modelname;
+    "default",                                  //char    *skinname;
+    { -15, -15, -15 },                          //vec3_t  mins;
+    { 15, 15 ,15 },                             //vec3_t  maxs;
+    { 15, 15 ,15 },                             //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                           //vec3_t  deadmins;
+    { 15, 15, 4 },                              //vec3_t  deadmaxs;
+    4, 4,                                       //int     viewheight, crouchviewheight;
+    150,                                        //int     health;
+    50,                                         //int     armor;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    110,                                        //int     fov;
+    0.0f,                                       //float   bob;
+    25,                                         //int     steptime;
+    1.3f,                                       //float   speed;
+    3.0f,                                       //float   sticky;
+    { PCL_D_D_LEV32, PCL_D_D_LEV33, PCL_NONE }, //int     children[ 3 ];
+    1000,                                       //int     timetoevolve;
+    100                                         //int     value;
   },
   {
-    PCL_D_D_LEV31,
-    "DefensiveLevel3-1",
-    "orbb",
-    "default",
-    { -15, -15, -15 },
-    { 15, 15 ,15 },
-    { 15, 15 ,15 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    4, 4,
-    250,
-    250,
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
-    130,
-    0.0f,
-    25,
-    1.2f,
-    3.0f,
-    { PCL_NONE, PCL_NONE, PCL_NONE },
-    1000,
-    100
+    PCL_D_D_LEV31,                              //int     classnum;
+    "DefensiveLevel3-1",                        //char    *classname;
+    "orbb",                                     //char    *modelname;
+    "default",                                  //char    *skinname;
+    { -15, -15, -15 },                          //vec3_t  mins;
+    { 15, 15 ,15 },                             //vec3_t  maxs;
+    { 15, 15 ,15 },                             //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                           //vec3_t  deadmins;
+    { 15, 15, 4 },                              //vec3_t  deadmaxs;
+    4, 4,                                       //int     viewheight, crouchviewheight;
+    250,                                        //int     health;
+    50,                                         //int     armor;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    130,                                        //int     fov;
+    0.0f,                                       //float   bob;
+    25,                                         //int     steptime;
+    1.2f,                                       //float   speed;
+    3.0f,                                       //float   sticky;
+    { PCL_NONE, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    1000,                                       //int     timetoevolve;
+    100                                         //int     value;
   },
   {
-    PCL_D_D_LEV32,
-    "DefensiveLevel3-2",
-    "orbb",
-    "default",
-    { -15, -15, -15 },
-    { 15, 15 ,15 },
-    { 15, 15 ,15 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    4, 4,
-    250,
-    250,
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
-    130,
-    0.0f,
-    25,
-    1.2f,
-    3.0f,
-    { PCL_NONE, PCL_NONE, PCL_NONE },
-    1000,
-    100
+    PCL_D_D_LEV32,                              //int     classnum;
+    "DefensiveLevel3-2",                        //char    *classname;
+    "orbb",                                     //char    *modelname;
+    "default",                                  //char    *skinname;
+    { -15, -15, -15 },                          //vec3_t  mins;
+    { 15, 15 ,15 },                             //vec3_t  maxs;
+    { 15, 15 ,15 },                             //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                           //vec3_t  deadmins;
+    { 15, 15, 4 },                              //vec3_t  deadmaxs;
+    4, 4,                                       //int     viewheight, crouchviewheight;
+    250,                                        //int     health;
+    50,                                         //int     armor;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    130,                                        //int     fov;
+    0.0f,                                       //float   bob;
+    25,                                         //int     steptime;
+    1.2f,                                       //float   speed;
+    3.0f,                                       //float   sticky;
+    { PCL_NONE, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    1000,                                       //int     timetoevolve;
+    100                                         //int     value;
   },
   {
-    PCL_D_D_LEV33,
-    "DefensiveLevel3-3",
-    "orbb",
-    "default",
-    { -15, -15, -15 },
-    { 15, 15 ,15 },
-    { 15, 15 ,15 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    4, 4,
-    250,
-    250,
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,
-    130,
-    0.0f,
-    25,
-    1.2f,
-    3.0f,
-    { PCL_NONE, PCL_NONE, PCL_NONE },
-    1000,
-    100
+    PCL_D_D_LEV33,                              //int     classnum;
+    "DefensiveLevel3-3",                        //char    *classname;
+    "orbb",                                     //char    *modelname;
+    "default",                                  //char    *skinname;
+    { -15, -15, -15 },                          //vec3_t  mins;
+    { 15, 15 ,15 },                             //vec3_t  maxs;
+    { 15, 15 ,15 },                             //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                           //vec3_t  deadmins;
+    { 15, 15, 4 },                              //vec3_t  deadmaxs;
+    4, 4,                                       //int     viewheight, crouchviewheight;
+    250,                                        //int     health;
+    50,                                         //int     armor;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    130,                                        //int     fov;
+    0.0f,                                       //float   bob;
+    25,                                         //int     steptime;
+    1.2f,                                       //float   speed;
+    3.0f,                                       //float   sticky;
+    { PCL_NONE, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    1000,                                       //int     timetoevolve;
+    100                                         //int     value;
   },
   {
-    PCL_H_BASE,
-    "Human",
-    "sarge",
-    "default",
-    { -15, -15, -24 },
-    { 15, 15, 32 },
-    { 15, 15, 16 },
-    { -15, -15, -4 },
-    { 15, 15, 4 },
-    26, 12,
-    100,
-    0,
-    SCA_TAKESFALLDAMAGE|SCA_CANJUMP,
-    90,
-    0.002f,
-    200,
-    1.0f,
-    1.0f,
-    { PCL_NONE, PCL_NONE, PCL_NONE },
-    0,
-    0
+    PCL_H_BASE,                                 //int     classnum;
+    "Human",                                    //char    *classname;
+    "sarge",                                    //char    *modelname;
+    "default",                                  //char    *skinname;
+    { -15, -15, -24 },                          //vec3_t  mins;
+    { 15, 15, 32 },                             //vec3_t  maxs;
+    { 15, 15, 16 },                             //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                           //vec3_t  deadmins;
+    { 15, 15, 4 },                              //vec3_t  deadmaxs;
+    26, 12,                                     //int     viewheight, crouchviewheight;
+    100,                                        //int     health;
+    0,                                          //int     armor;
+    SCA_TAKESFALLDAMAGE|SCA_CANJUMP,            //int     abilities;
+    90,                                         //int     fov;
+    0.002f,                                     //float   bob;
+    200,                                        //int     steptime;
+    1.0f,                                       //float   speed;
+    1.0f,                                       //float   sticky;
+    { PCL_NONE, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    0,                                          //int     timetoevolve;
+    0                                           //int     value;
   }
 };
 
@@ -2549,112 +2548,112 @@ int BG_FindValueOfClass( int pclass )
 weaponAttributes_t bg_weapons[ ] =
 {
   {
-    WP_MACHINEGUN,
-    100,
-    SLOT_WEAPON,
-    "rifle",
-    "Rifle",
-    30,
-    3,
-    3,
-    qfalse,
-    qfalse
+    WP_MACHINEGUN,        //int       weaponNum;
+    100,                  //int       price;
+    SLOT_WEAPON,          //int       slots;
+    "rifle",              //char      *weaponName;
+    "Rifle",              //char      *weaponHumanName;
+    30,                   //int       quan;
+    3,                    //int       clips;
+    3,                    //int       maxClips;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse                //qboolean  synced;
   },
   {
-    WP_FLAMER,
-    100,
-    SLOT_WEAPON,
-    "flamer",
-    "Flame Thrower",
-    400,
-    0,
-    0,
-    qfalse,
-    qfalse
+    WP_FLAMER,            //int       weaponNum;
+    100,                  //int       price;
+    SLOT_WEAPON,          //int       slots;
+    "flamer",             //char      *weaponName;
+    "Flame Thrower",      //char      *weaponHumanName;
+    400,                  //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse                //qboolean  synced;
   },
   {
-    WP_CHAINGUN,
-    100,
-    SLOT_WEAPON,
-    "chaingun",
-    "Chaingun",
-    300,
-    0,
-    0,
-    qfalse,
-    qfalse
+    WP_CHAINGUN,          //int       weaponNum;
+    100,                  //int       price;
+    SLOT_WEAPON,          //int       slots;
+    "chaingun",           //char      *weaponName;
+    "Chaingun",           //char      *weaponHumanName;
+    300,                  //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse                //qboolean  synced;
   },
   {
-    WP_HBUILD,
-    100,
-    SLOT_WEAPON,
-    "ckit",
-    "Construction Kit",
-    0,
-    0,
-    0,
-    qfalse,
-    qfalse
+    WP_HBUILD,            //int       weaponNum;
+    100,                  //int       price;
+    SLOT_WEAPON,          //int       slots;
+    "ckit",               //char      *weaponName;
+    "Construction Kit",   //char      *weaponHumanName;
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse                //qboolean  synced;
   },
   {
-    WP_DBUILD,
-    100,
-    SLOT_WEAPON,
-    "dbuild",
-    "Droid build weapon",
-    0,
-    0,
-    0,
-    qfalse,
-    qfalse
+    WP_DBUILD,            //int       weaponNum;
+    100,                  //int       price;
+    SLOT_WEAPON,          //int       slots;
+    "dbuild",             //char      *weaponName;
+    "Droid build weapon", //char      *weaponHumanName;
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse                //qboolean  synced;
   },
   {
-    WP_VENOM,
-    100,
-    SLOT_WEAPON,
-    "venom",
-    "Venom",
-    0,
-    0,
-    0,
-    qfalse,
-    qfalse
+    WP_VENOM,             //int       weaponNum;
+    100,                  //int       price;
+    SLOT_WEAPON,          //int       slots;
+    "venom",              //char      *weaponName;
+    "Venom",              //char      *weaponHumanName;
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse                //qboolean  synced;
   },
   {
-    WP_GRABANDCSAW,
-    100,
-    SLOT_WEAPON,
-    "grabandcsaw",
-    "Circular Saw",
-    0,
-    0,
-    0,
-    qtrue,
-    qtrue
+    WP_GRABANDCSAW,       //int       weaponNum;
+    100,                  //int       price;
+    SLOT_WEAPON,          //int       slots;
+    "grabandcsaw",        //char      *weaponName;
+    "Circular Saw",       //char      *weaponHumanName;
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qtrue,                //qboolean  hasAltMode;
+    qtrue                 //qboolean  synced;
   },
   {
-    WP_POUNCE,
-    100,
-    SLOT_WEAPON,
-    "pounce",
-    "Claw and pounce",
-    0,
-    0,
-    0,
-    qfalse,
-    qfalse
+    WP_POUNCE,            //int       weaponNum;
+    100,                  //int       price;
+    SLOT_WEAPON,          //int       slots;
+    "pounce",             //char      *weaponName;
+    "Claw and pounce",    //char      *weaponHumanName;
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse                //qboolean  synced;
   },
   {
-    WP_SCANNER,
-    100,
-    SLOT_WEAPON,
-    "scanner",
-    "Scanner",
-    0,
-    0,
-    0,
-    qfalse,
-    qfalse
+    WP_SCANNER,           //int       weaponNum;
+    100,                  //int       price;
+    SLOT_WEAPON,          //int       slots;
+    "scanner",            //char      *weaponName;
+    "Scanner",            //char      *weaponHumanName;
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse                //qboolean  synced;
   }
 };
 
@@ -2828,81 +2827,81 @@ qboolean BG_WeaponModesAreSynced( int weapon )
 upgradeAttributes_t bg_upgrades[ ] =
 {
   {
-    UP_TORCH,
-    100,
-    SLOT_NONE,
-    "torch",
-    "Torch"
+    UP_TORCH,               //int   upgradeNum;
+    100,                    //int   price;
+    SLOT_NONE,              //int   slots;
+    "torch",                //char  *upgradeName;
+    "Torch"                 //char  *upgradeHumanName;
   },
   {
-    UP_NVG,
-    100,
-    SLOT_HEAD,
-    "nvg",
-    "NVG"
+    UP_NVG,                 //int   upgradeNum;
+    100,                    //int   price;
+    SLOT_HEAD,              //int   slots;
+    "nvg",                  //char  *upgradeName;
+    "NVG"                   //char  *upgradeHumanName;
   },
   {
-    UP_CHESTARMOUR,
-    100,
-    SLOT_TORSO,
-    "carmour",
-    "Chest Armour"
+    UP_CHESTARMOUR,         //int   upgradeNum;
+    100,                    //int   price;
+    SLOT_TORSO,             //int   slots;
+    "carmour",              //char  *upgradeName;
+    "Chest Armour"          //char  *upgradeHumanName;
   },
   {
-    UP_LIMBARMOUR,
-    100,
-    SLOT_ARMS|SLOT_LEGS,
-    "larmour",
-    "Limb Armour"
+    UP_LIMBARMOUR,          //int   upgradeNum;        
+    100,                    //int   price;
+    SLOT_ARMS|SLOT_LEGS,    //int   slots;
+    "larmour",              //char  *upgradeName;
+    "Limb Armour"           //char  *upgradeHumanName;
   },
   {
-    UP_HELMET,
-    100,
-    SLOT_HEAD,
-    "helmet",
-    "Helmet"
+    UP_HELMET,              //int   upgradeNum;
+    100,                    //int   price;
+    SLOT_HEAD,              //int   slots;
+    "helmet",               //char  *upgradeName;
+    "Helmet"                //char  *upgradeHumanName;
   },
   {
-    UP_ANTITOXIN,
-    100,
-    SLOT_NONE,
-    "atoxin",
-    "Anti-toxin"
+    UP_ANTITOXIN,           //int   upgradeNum;
+    100,                    //int   price;
+    SLOT_NONE,              //int   slots;
+    "atoxin",               //char  *upgradeName;
+    "Anti-toxin"            //char  *upgradeHumanName;
   },
   {
-    UP_BATTPACK,
-    100,
-    SLOT_BACKPACK,
-    "battpack",
-    "Battery Pack"
+    UP_BATTPACK,            //int   upgradeNum;
+    100,                    //int   price;
+    SLOT_BACKPACK,          //int   slots;
+    "battpack",             //char  *upgradeName;
+    "Battery Pack"          //char  *upgradeHumanName;
   },
   {
-    UP_JETPACK,
-    100,
-    SLOT_BACKPACK,
-    "jetpack",
-    "Jet Pack"
+    UP_JETPACK,             //int   upgradeNum;
+    100,                    //int   price;
+    SLOT_BACKPACK,          //int   slots;
+    "jetpack",              //char  *upgradeName;
+    "Jet Pack"              //char  *upgradeHumanName;
   },
   {
-    UP_THREATHELMET,
-    100,
-    SLOT_HEAD,
-    "thelmet",
-    "Threat Helmet"
+    UP_THREATHELMET,        //int   upgradeNum;
+    100,                    //int   price;
+    SLOT_HEAD,              //int   slots;
+    "thelmet",              //char  *upgradeName;
+    "Threat Helmet"         //char  *upgradeHumanName;
   },
   {
-    UP_BATTLESUIT,
-    100,
-    SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS,
-    "bsuit",
-    "Battlesuit"
+    UP_BATTLESUIT,                            //int   upgradeNum;
+    100,                                      //int   price;
+    SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS, //int   slots;
+    "bsuit",                                  //char  *upgradeName;
+    "Battlesuit"                              //char  *upgradeHumanName;
   },
   {
-    UP_IMPANTKIT,
-    100,
-    SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS,
-    "ikit",
-    "Implant Kit"
+    UP_IMPANTKIT,                             //int   upgradeNum;
+    100,                                      //int   price;
+    SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS, //int   slots;
+    "ikit",                                   //char  *upgradeName;
+    "Implant Kit"                             //char  *upgradeHumanName;
   }
 };
 

@@ -604,10 +604,10 @@ static void CG_DrawStatusBar( void ) {
 
     CG_DrawFadePic( 20, 0, 30, 440, fcolor, tcolor, value, cgs.media.droidHealth );
 
-    value = (int)( (float)( (float)ps->stats[STAT_ARMOR] / ps->stats[STAT_MAX_HEALTH] ) * 100 );
+/*    value = (int)( (float)( (float)ps->stats[STAT_ARMOR] / ps->stats[STAT_MAX_HEALTH] ) * 100 );
 
     if( value > 0 )
-      CG_DrawFadePic( 580, 0, 30, 440, fcolor, tcolor, value, cgs.media.droidHealth );
+      CG_DrawFadePic( 580, 0, 30, 440, fcolor, tcolor, value, cgs.media.droidHealth );*/
   }
   else
   {
@@ -628,17 +628,17 @@ static void CG_DrawStatusBar( void ) {
     CG_ColorForHealth( hcolor );
     trap_R_SetColor( hcolor );
 
-    value = ps->stats[STAT_ARMOR];
+/*    value = ps->stats[STAT_ARMOR];
     if (value > 0 )
     {
       trap_R_SetColor( colors[0] );
       CG_DrawField (541, 432, 3, value);
       trap_R_SetColor( NULL );
       // if we didn't draw a 3D icon, draw a 2D icon for armor
-      /*if ( !cg_draw3dIcons.integer && cg_drawIcons.integer ) {
+      if ( !cg_draw3dIcons.integer && cg_drawIcons.integer ) {
         CG_DrawPic( 370 + CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, cgs.media.armorIcon );
-      }*/
-    }
+      }
+    }*/
   }
   
 }
