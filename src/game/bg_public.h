@@ -1093,7 +1093,7 @@ int       BG_FindRegenRateForClass( int pclass );
 int       BG_FindFovForClass( int pclass );
 float     BG_FindBobForClass( int pclass );
 float     BG_FindSpeedForClass( int pclass );
-float     BG_FindAcclerationForClass( int pclass );
+float     BG_FindAccelerationForClass( int pclass );
 float     BG_FindFrictionForClass( int pclass );
 int       BG_FindSteptimeForClass( int pclass );
 qboolean  BG_ClassHasAbility( int pclass, int ability );

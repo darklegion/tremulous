@@ -1260,7 +1260,7 @@ void        CG_Corpse( centity_t *cent );
 void        CG_ResetPlayerEntity( centity_t *cent );
 void        CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, int team );
 void        CG_NewClientInfo( int clientNum );
-void        CG_PrecacheClientInfo( pClass_t class, char *model, char *skin, char *headModel, char *headSkin );
+void        CG_PrecacheClientInfo( pClass_t class, char *model, char *skin );
 sfxHandle_t CG_CustomSound( int clientNum, const char *soundName );
 
 //

@@ -667,7 +667,7 @@ static qboolean CG_ScanForExistingClientInfo( clientInfo_t *ci )
 CG_PrecacheClientInfo
 ======================
 */
-void CG_PrecacheClientInfo( pClass_t class, char *model, char *skin, char *headModel, char *headSkin )
+void CG_PrecacheClientInfo( pClass_t class, char *model, char *skin )
 {
   clientInfo_t  *ci;
   clientInfo_t  newInfo;
@@ -681,23 +681,19 @@ void CG_PrecacheClientInfo( pClass_t class, char *model, char *skin, char *headM
 
   // model
   Q_strncpyz( newInfo.modelName, model, sizeof( newInfo.modelName ) );
+  Q_strncpyz( newInfo.headModelName, model, sizeof( newInfo.headModelName ) );
 
   // modelName didn not include a skin name
   if( !skin )
+  {
     Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
-  else
-    Q_strncpyz( newInfo.skinName, skin, sizeof( newInfo.skinName ) );
-
-  //CG_Printf( "PCI: %s\n", v );
-
-  // head model
-  Q_strncpyz( newInfo.headModelName, headModel, sizeof( newInfo.headModelName ) );
-
-  // modelName didn not include a skin name
-  if( !headSkin )
     Q_strncpyz( newInfo.headSkinName, "default", sizeof( newInfo.headSkinName ) );
+  }
   else
-    Q_strncpyz( newInfo.headSkinName, headSkin, sizeof( newInfo.headSkinName ) );
+  {
+    Q_strncpyz( newInfo.skinName, skin, sizeof( newInfo.skinName ) );
+    Q_strncpyz( newInfo.headSkinName, skin, sizeof( newInfo.headSkinName ) );
+  }
 
   newInfo.infoValid = qtrue;
 

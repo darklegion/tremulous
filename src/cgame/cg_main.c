@@ -883,8 +883,6 @@ static void CG_RegisterClients( void )
   for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES;  i++ )
   {
     CG_PrecacheClientInfo( i, BG_FindModelNameForClass( i ),
-                              BG_FindSkinNameForClass( i ),
-                              BG_FindModelNameForClass( i ),
                               BG_FindSkinNameForClass( i ) );
     
     cg.charModelFraction = (float)i / (float)PCL_NUM_CLASSES;
