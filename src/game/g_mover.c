@@ -1979,9 +1979,8 @@ TRAIN
 */
 
 
-#define TRAIN_START_ON    1
-#define TRAIN_TOGGLE    2
-#define TRAIN_BLOCK_STOPS 4
+#define TRAIN_START_OFF   1
+#define TRAIN_BLOCK_STOPS 2
 
 /*
 ===============
@@ -2035,6 +2034,8 @@ void Reached_Train( gentity_t *ent )
   if( speed < 1 )
     speed = 1;
 
+  ent->lastSpeed = speed;
+
   // calculate duration
   VectorSubtract( ent->pos2, ent->pos1, move );
   length = VectorLength( move );
@@ -2047,6 +2048,12 @@ void Reached_Train( gentity_t *ent )
   // start it going
   SetMoverState( ent, MOVER_1TO2, level.time );
 
+  if( ent->spawnflags & TRAIN_START_OFF )
+  {
+    ent->s.pos.trType = TR_STATIONARY;
+    return;
+  }
+  
   // if there is a "wait" value on the target, don't start moving yet
   if( next->wait )
   {
@@ -2056,6 +2063,59 @@ void Reached_Train( gentity_t *ent )
   }
 }
 
+/*
+================
+Start_Train
+================
+*/
+void Start_Train( gentity_t *ent, gentity_t *other, gentity_t *activator )
+{
+  vec3_t  move;
+  
+  //recalculate duration as the mover is highly
+  //unlikely to be right on a path_corner
+  VectorSubtract( ent->pos2, ent->pos1, move );
+  ent->s.pos.trDuration = VectorLength( move ) * 1000 / ent->lastSpeed;
+  SetMoverState( ent, MOVER_1TO2, level.time );
+
+  ent->spawnflags &= ~TRAIN_START_OFF;
+}
+
+/*
+================
+Stop_Train
+================
+*/
+void Stop_Train( gentity_t *ent, gentity_t *other, gentity_t *activator )
+{
+  vec3_t  origin;
+  
+  //get current origin
+  BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
+  VectorCopy( origin, ent->pos1 );
+  SetMoverState( ent, MOVER_POS1, level.time );
+  
+  ent->spawnflags |= TRAIN_START_OFF;
+}
+
+/*
+================
+Use_Train
+================
+*/
+void Use_Train( gentity_t *ent, gentity_t *other, gentity_t *activator )
+{
+  if( ent->spawnflags & TRAIN_START_OFF )
+  {
+    //train is currently not moving so start it
+    Start_Train( ent, other, activator );
+  }
+  else
+  {
+    //train is moving so stop it
+    Stop_Train( ent, other, activator );
+  }
+}
 
 /*
 ===============
@@ -2132,6 +2192,55 @@ void SP_path_corner( gentity_t *self )
   // path corners don't need to be linked in
 }
 
+/*
+================
+Blocked_Train
+================
+*/
+void Blocked_Train( gentity_t *self, gentity_t *other )
+{
+  if( self->spawnflags & TRAIN_BLOCK_STOPS )
+    Stop_Train( self, other, other );
+  else
+  {
+	  if( !other->client )
+	  {
+      //whatever is blocking the train isn't a client
+		  
+      //KILL!!1!!!
+      G_Damage( other, self, self, NULL, NULL, 10000, 0, MOD_CRUSH );
+
+      //buildables need to be handled differently since even when
+      //dealth fatal amounts of damage they won't instantly become non-solid
+      if( other->s.eType == ET_BUILDABLE && other->spawned )
+      {
+        vec3_t    dir;
+        gentity_t *tent;
+        
+        if( other->biteam == BIT_ALIENS )
+        {
+          VectorCopy( other->s.origin2, dir );
+          tent = G_TempEntity( other->s.origin, EV_ALIEN_BUILDABLE_EXPLOSION );
+          tent->s.eventParm = DirToByte( dir );
+        }
+        else if( other->biteam == BIT_HUMANS )
+        {
+          VectorSet( dir, 0.0f, 0.0f, 1.0f );
+          tent = G_TempEntity( other->s.origin, EV_HUMAN_BUILDABLE_EXPLOSION );
+          tent->s.eventParm = DirToByte( dir );
+        }
+      }
+      
+      //if it's still around free it
+      if( other )
+        G_FreeEntity( other );
+        
+      return;
+	  }
+
+    G_Damage( other, self, self, NULL, NULL, 10000, 0, MOD_CRUSH );
+  }
+}
 
 
 /*QUAKED func_train (0 .5 .8) ? START_ON TOGGLE BLOCK_STOPS
@@ -2151,9 +2260,7 @@ void SP_func_train( gentity_t *self )
   VectorClear( self->s.angles );
 
   if( self->spawnflags & TRAIN_BLOCK_STOPS )
-  {
     self->damage = 0;
-  }
   else if( !self->damage )
     self->damage = 2;
 
@@ -2171,6 +2278,8 @@ void SP_func_train( gentity_t *self )
   InitMover( self );
 
   self->reached = Reached_Train;
+  self->use = Use_Train;
+  self->blocked = Blocked_Train;
 
   // start trains on the second frame, to make sure their targets have had
   // a chance to spawn

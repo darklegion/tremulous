@@ -132,6 +132,7 @@ struct gentity_s
   gentity_t         *target_ent;
 
   float             speed;
+  float             lastSpeed;  //TA: used by trains that have been restarted
   vec3_t            movedir;
 
   //TA: acceleration evaluation

@@ -1373,15 +1373,46 @@ Cmd_ToggleItem_f
 void Cmd_ToggleItem_f( gentity_t *ent )
 {
   char  s[ MAX_TOKEN_CHARS ];
-  int   upgrade;
+  int   upgrade, weapon, i;
 
   trap_Argv( 1, s, sizeof( s ) );
   upgrade = BG_FindUpgradeNumForName( s );
+  weapon = BG_FindWeaponNumForName( s );
 
   if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
-    
-  if( BG_gotItem( upgrade, ent->client->ps.stats ) )
+
+  if( weapon == WP_NONE )
+  {
+    //special case to allow switching between
+    //the blaster and the primary weapon
+
+    if( ent->client->ps.weapon != WP_BLASTER )
+      weapon = WP_BLASTER;
+    else
+    {
+      //find a held weapon which isn't the blaster
+      for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+      {
+        if( i == WP_BLASTER )
+          continue;
+
+        if( BG_gotWeapon( i, ent->client->ps.stats ) )
+        {
+          weapon = i;
+          break;
+        }
+      }
+
+      if( i == WP_NUM_WEAPONS )
+        weapon = WP_BLASTER;
+    }
+      
+    //force a weapon change
+    ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
+    trap_SendServerCommand( ent-g_entities, va( "weaponswitch %d", weapon ) );
+  }
+  else if( BG_gotItem( upgrade, ent->client->ps.stats ) )
   {
     if( BG_activated( upgrade, ent->client->ps.stats ) )
       BG_deactivateItem( upgrade, ent->client->ps.stats );

@@ -687,8 +687,8 @@ When the random key is set, its value is used to calculate a minimum and a maxim
 
 //=============================================================================
 
-/*QUAKED func_train (0 .5 .8) ?
-Trains are moving solids that follow a string of path_corner entities. Trains in Q3A are very basic, they also require an origin brush (see Notes).
+/*QUAKED func_train (0 .5 .8) ? START_OFF BLOCK_STOPS
+Trains are moving solids that follow a string of path_corner entities. Trains in Tremulous are less basic than in Q3A, they also require an origin brush (see Notes).
 
 -------- KEYS --------
 speed: speed of displacement of train (default 100 or overridden by speed value of path).
@@ -709,6 +709,11 @@ notteam: when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.
 
 notsingle: when set to 1, entity will not spawn in Single Player mode (bot play mode).
 
+-------- SPAWNFLAGS --------
+START_OFF: the train will spawn in the off state
+
+BLOCK_STOPS: with this set a train simply stops if blocked, instead of killing.
+
 -------- Q3MAP2 KEYS --------
 _targetname: Used to attach a misc_model entity to this entity.
 
@@ -728,11 +733,9 @@ _layers OR layers: Integer value is the number unique root shaders that will be 
 _shader OR shader: Path to the metashader used to assign textures to the terrain entity. Note: Omit the "textures/" prefix.
 
 -------- NOTES --------
-1. Trains always start on in the game.
-2. Trains do not damage the player when blocked.
-3. Trains cannot emit sound.
-4. Trains are not triggerable or toggle-able.
-5. Trains cannot be block-stopped just by getting in their way, the player must be wedged between the train and another obstacle to block it.
+1. Trains instakill anything in their path by default.
+2. Trains cannot emit sound.
+3. When BLOCK_STOPS is set, trains cannot be stopped just by getting in their way, the player must be wedged between the train and another obstacle to block it.
 
 Setting the origin key is simply an alternate method to using an origin brush. When using the model2 key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.
 
