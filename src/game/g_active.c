@@ -777,7 +777,6 @@ void ClientThink_real( gentity_t *ent ) {
       !( client->ps.pm_type == PM_DEAD )
     )
   {
-    Com_Printf( "spawn torch\n" );
     light = G_Spawn( );
     light->s.eType = ET_TORCH;
     light->r.ownerNum = ent->s.number;
@@ -792,7 +791,6 @@ void ClientThink_real( gentity_t *ent ) {
       )
     )
   {
-    Com_Printf( "destroy torch\n" );
     G_FreeEntity( client->torch );
     trap_LinkEntity( client->torch );
     client->torch = NULL;
@@ -927,17 +925,16 @@ void ClientThink_real( gentity_t *ent ) {
     {
       trace_t   mcu;
       vec3_t    view, point;
-      gentity_t *mcuEntity;
+      gentity_t *traceEnt;
 
       AngleVectors( client->ps.viewangles, view, NULL, NULL );
       VectorMA( client->ps.origin, 200, view, point );
       trap_Trace( &mcu, client->ps.origin, NULL, NULL, point, ent->s.number, MASK_SHOT );
 
-      mcuEntity = &g_entities[ mcu.entityNum ];
+      traceEnt = &g_entities[ mcu.entityNum ];
 
-      //bring up a menu if its there
-      if( !Q_stricmp( mcuEntity->classname, "team_human_mcu" ) )
-        G_AddPredictableEvent( ent, EV_MENU, MN_MCU );
+      if( traceEnt->use )
+        traceEnt->use( traceEnt, ent, ent ); //other and activator are the same in this context
     }
   }
   

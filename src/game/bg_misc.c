@@ -1421,7 +1421,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
   int   i;
   vec3_t  ceilingNormal = { 0, 0, -1 };
 
-  if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR ) {
+  if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR || ps->pm_type == PM_FREEZE ) {
     s->eType = ET_INVISIBLE;
   } else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
     s->eType = ET_INVISIBLE;
@@ -1516,7 +1516,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   int   i;
   vec3_t  ceilingNormal = { 0, 0, -1 };
 
-  if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR ) {
+  if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR || ps->pm_type == PM_FREEZE ) {
     s->eType = ET_INVISIBLE;
   } else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
     s->eType = ET_INVISIBLE;

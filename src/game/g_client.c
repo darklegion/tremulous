@@ -559,7 +559,8 @@ just like the existing corpse to leave behind.
 void CopyToBodyQue( gentity_t *ent ) {
   gentity_t   *body;
   int         contents;
-  vec3_t      origin;
+  vec3_t      origin, dest;
+  trace_t     tr;
 
   VectorCopy( ent->r.currentOrigin, origin );
 
@@ -621,6 +622,11 @@ void CopyToBodyQue( gentity_t *ent ) {
   //FIXME: change body dimensions
   VectorSet( body->r.mins, -15, -15, -15 );
   VectorSet( body->r.maxs, 15, 15, 15 );
+
+  //drop to floor
+  VectorSet( dest, origin[0], origin[1], origin[2] - 4096 );
+  trap_Trace( &tr, origin, body->r.mins, body->r.maxs, dest, body->s.number, body->clipmask );
+  VectorCopy( tr.endpos, origin );
 
   G_SetOrigin( body, origin );
   VectorCopy( origin, body->s.origin );

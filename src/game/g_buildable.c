@@ -211,6 +211,18 @@ void DDef1_Think( gentity_t *self )
   self->nextthink = level.time + 100;
 }
 
+/*
+================
+HMCU_Activate
+
+Called when a human activates an MCU
+================
+*/
+void HMCU_Activate( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  G_AddPredictableEvent( activator, EV_MENU, MN_MCU );
+}
+
 //TA: the following defense turret code was written by
 //         "fuzzysteve"     (fuzzysteve@quakefiles.com) and
 //   Anthony "inolen" Pesch (www.inolen.com)
@@ -635,6 +647,7 @@ gentity_t *Build_Item( gentity_t *ent, gitem_t *item, int distance ) {
     //built->think = HSpawn_Think;
     //built->nextthink = level.time + 1000;
     built->die = HSpawn_Die;
+    built->use = HMCU_Activate;
     //built->pain = HSpawn_Pain;
   }
 
