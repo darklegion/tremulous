@@ -1,163 +1,99 @@
 #include "ui/menudef.h"
 
 {
-\\ QUIT POPUP MENU \\
+  \\ QUIT POPUP MENU \\
 
-menuDef {
-	name "quit_popmenu"
-    	visible 0
-    	fullscreen 0
-    	//rect 217 200 210 85
-	rect 204 122 235 235
-	focusColor 1 .75 0 1
-    	style 1
-    	border 1
-	popup
-	onESC { close quit_popmenu ; open main }
+  menuDef
+  {
+    name "quit_popmenu"
+    visible 0
+    fullscreen 0
+    rect 204 122 235 235
+    focusColor 1 .75 0 1
+    style 1
+    border 1
+    popup
+    onESC
+    {
+      close quit_popmenu;
+      open main
+    }
 
+    
+    itemDef
+    {
+      name window
+      rect 47 47 144 144
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 1
+      visible 1
+      decoration
 
-
-itemDef {
-	name window
-	rect 0 0 235 235
-	style 3
-	background "ui/assets/mainpop.tga"
-	visible 1
-	decoration
-	}
-itemDef {
-	name window
-	rect 47 47 144 144 
-	style 3
-	background "centerconsole2"
-	visible 1
-	decoration
-	}
-
-
+      border WINDOW_BORDER_FULL
+      borderSize 1.0
+      borderColor 0.5 0.5 0.5 1
+    }
 
 
+    // QUIT //
 
-	// QUIT	//
-
-itemDef {
-	name confirm
-	text "Quit Team Arena?"
-	style 0
-	textscale .3 
-	textstyle 3
-	rect 0 90 110 20
-	textalign 1
-	textalignx 117
-	textaligny 16
-	decoration
-	forecolor 1 1 1 1
-	visible 1
-	}
-
-
-itemDef {
-	name yes
-	text "YES"
-	type 1
-	textscale .25
-	style WINDOW_STYLE_FILLED
-	background "ui/assets/button_back.tga"
-	rect 75 120 30 26
-	textalign 1
-	textalignx 15
-	textaligny 20
-	forecolor 1 1 1 1
-	backcolor .37 .1 .1 1 
-	visible 1
-	action { play "sound/misc/nomenu.wav"; 
-	close main ;
-	close quit_popmenu ; 
-	open quitCredit  }
-	mouseEnter { setitemcolor yes backcolor .1 .37 .1 1 } 
-	mouseExit { setitemcolor yes backcolor .37 .1 .1 1 } 	
-	}
-	
-	itemDef {
-      		name yes
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/framebutton.tga"
- 		rect 75 120 30 26
-      		visible 1 
-		decoration  	  
-    		}
-
-	itemDef {
-      		name yes
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/leftbutton.tga"
-   	   	rect 69 120 7 26
-   	   	visible 1 
-		decoration  	  
-   	 	}
-
-	itemDef {
-	      	name yes
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/rightbutton.tga"
-      		rect 104 120 7 26
-     	 	visible 1 
-		decoration  	  
-    		}
+    itemDef
+    {
+      name confirm
+      text "Quit Tremulous?"
+      style 0
+      textscale .3 
+      textstyle 3
+      rect 0 90 110 20
+      textalign 1
+      textalignx 117
+      textaligny 16
+      decoration
+      forecolor 1 1 1 1
+      visible 1
+    }
 
 
+    itemDef
+    {
+      name yes
+      text "YES"
+      type 1
+      textscale .25
+      rect 75 120 30 26
+      textalign 1
+      textalignx 15
+      textaligny 20
+      forecolor 1 1 1 1
+      visible 1
+      action
+      { 
+        close main;
+        close quit_popmenu; 
+        open quitCredit
+      }
+    }
+    
 
-
-
-itemDef {
-	name no
-	text "NO"
-	type 1
-	textscale .25
-	style WINDOW_STYLE_FILLED
-	background "ui/assets/button_back.tga"
-	rect 128 120 30 26
-	textalign 1
-	textalignx 15
-	textaligny 20
-	forecolor 1 1 1 1
-	backcolor .37 .1 .1 1 
-	visible 1
-	action { play "sound/misc/nomenu.wav" ; 
-	close quit_popmenu ; open main }
-	mouseEnter { setitemcolor no backcolor .1 .37 .1 1 } 
-	mouseExit { setitemcolor no backcolor .37 .1 .1 1 } 		
-	}
-	itemDef {
-      		name no
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/framebutton.tga"
- 		rect 128 120 30 26
-      		visible 1 
-		decoration  	  
-    		}
-
-	itemDef {
-      		name no
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/leftbutton.tga"
-   	   	rect 122 120 7 26
-   	   	visible 1 
-		decoration  	  
-   	 	}
-
-	itemDef {
-	      	name no
-		style WINDOW_STYLE_SHADER
-		background "ui/assets/rightbutton.tga"
-      		rect 157 120 7 26
-     	 	visible 1 
-		decoration  	  
-    		}
-
-}
-
-
+    itemDef
+    {
+      name no
+      text "NO"
+      type 1
+      textscale .25
+      rect 128 120 30 26
+      textalign 1
+      textalignx 15
+      textaligny 20
+      forecolor 1 1 1 1
+      visible 1
+      action
+      {
+        close quit_popmenu;
+        open main
+      }
+    }
+  }
 }
 
 
