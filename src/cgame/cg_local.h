@@ -1197,6 +1197,7 @@ extern  vmCvar_t    cg_debugAnim;
 extern  vmCvar_t    cg_debugPosition;
 extern  vmCvar_t    cg_debugEvents;
 extern  vmCvar_t    cg_teslaTrailTime;
+extern  vmCvar_t    cg_alienZapTime;
 extern  vmCvar_t    cg_railTrailTime;
 extern  vmCvar_t    cg_errorDecay;
 extern  vmCvar_t    cg_nopredict;
@@ -1478,6 +1479,7 @@ void CG_LasGunHit( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean f
 
 void CG_RailTrail( vec3_t start, vec3_t end );
 void CG_TeslaTrail( vec3_t start, vec3_t end, int srcENum, int destENum );
+void CG_AlienZap( vec3_t start, vec3_t end, int srcENum, int destENum );
 void CG_GrappleTrail( centity_t *ent, const weaponInfo_t *wi );
 void CG_AddViewWeapon (playerState_t *ps);
 void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent );

@@ -83,6 +83,7 @@ itemInfo_t      cg_items[MAX_ITEMS];
 buildableInfo_t cg_buildables[ BA_NUM_BUILDABLES ];
 
 vmCvar_t  cg_teslaTrailTime;
+vmCvar_t  cg_alienZapTime;
 vmCvar_t  cg_railTrailTime;
 vmCvar_t  cg_centertime;
 vmCvar_t  cg_runpitch;
@@ -228,6 +229,7 @@ static cvarTable_t   cvarTable[] = {
   { &cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE },
   { &cg_lagometer, "cg_lagometer", "1", CVAR_ARCHIVE },
   { &cg_teslaTrailTime, "cg_teslaTrailTime", "600", CVAR_ARCHIVE  },
+  { &cg_alienZapTime, "cg_alienZapTime", "500", CVAR_ARCHIVE  },
   { &cg_railTrailTime, "cg_railTrailTime", "400", CVAR_ARCHIVE  },
   { &cg_gun_x, "cg_gunX", "0", CVAR_CHEAT },
   { &cg_gun_y, "cg_gunY", "0", CVAR_CHEAT },

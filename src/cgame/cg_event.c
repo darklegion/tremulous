@@ -962,6 +962,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     CG_TeslaTrail( es->origin2, es->pos.trBase, es->generic1, es->clientNum );
     break;
 
+  case EV_ALIENZAP:
+    DEBUGNAME("EV_ALIENZAP");
+    CG_AlienZap( es->origin2, es->pos.trBase, es->generic1, es->clientNum );
+    break;
+
   case EV_BULLET_HIT_WALL:
     DEBUGNAME("EV_BULLET_HIT_WALL");
     ByteToDir( es->eventParm, dir );

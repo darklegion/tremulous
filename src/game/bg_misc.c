@@ -3332,6 +3332,7 @@ char *eventnames[] = {
   "EV_ITEM_EXPLOSION", //TA: human item explosions
   "EV_RAILTRAIL",
   "EV_TESLATRAIL",
+  "EV_ALIENZAP",
   "EV_SHOTGUN",
   "EV_BULLET",        // otherEntity is the shooter
 

@@ -309,6 +309,35 @@ void CG_TeslaTrail( vec3_t start, vec3_t end, int srcENum, int destENum )
 
 /*
 ==========================
+CG_AlienZap
+==========================
+*/
+void CG_AlienZap( vec3_t start, vec3_t end, int srcENum, int destENum )
+{
+  localEntity_t *le;
+  refEntity_t   *re;
+  
+  //add a bunch of bolt segments
+  le = CG_AllocLocalEntity();
+  re = &le->refEntity;
+
+  le->leType = LE_LIGHTNING_BOLT;
+  le->startTime = cg.time;
+  le->endTime = cg.time + cg_alienZapTime.value;
+  le->lifeRate = 1.0 / ( le->endTime - le->startTime );
+  re->customShader = cgs.media.lightningShader;
+
+  le->srcENum = srcENum;
+  le->destENum = destENum;
+  le->vOffset = -4;
+  le->maxRange = BG_FindRangeForBuildable( BA_H_DEF3 );
+
+  VectorCopy( start, re->origin );
+  VectorCopy( end, re->oldorigin );
+}
+
+/*
+==========================
 CG_RocketTrail
 ==========================
 */

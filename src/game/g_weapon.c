@@ -772,7 +772,7 @@ void areaZapFire( gentity_t *ent )
     SnapVectorTowards( tr.endpos, muzzle );
 
     // send railgun beam effect
-    tent = G_TempEntity( enemy->s.pos.trBase, EV_TESLATRAIL );
+    tent = G_TempEntity( enemy->s.pos.trBase, EV_ALIENZAP );
 
     VectorCopy( muzzle, tent->s.origin2 );
 
@@ -844,7 +844,7 @@ void directZapFire( gentity_t *ent )
     SnapVectorTowards( tr.endpos, muzzle );
 
     // send railgun beam effect
-    tent = G_TempEntity( target->s.pos.trBase, EV_TESLATRAIL );
+    tent = G_TempEntity( target->s.pos.trBase, EV_ALIENZAP );
 
     VectorCopy( muzzle, tent->s.origin2 );
 
