@@ -32,7 +32,7 @@
 #define ABUILDER_BASE_DELAY         10000
 #define ABUILDER_ADV_DELAY          5000
 
-#define SOLDIER_BITE_DMG            ADM(100)
+#define SOLDIER_BITE_DMG            ADM(75)
 #define SOLDIER_BITE_RANGE          32.0f
 #define SOLDIER_BITE_REPEAT         500
 
@@ -413,12 +413,12 @@
 #define MGTURRET_BP                 80
 #define MGTURRET_HEALTH             HBHM(100)
 #define MGTURRET_SPLASHDAMAGE       50
-#define MGTURRET_SPLASHRADIUS       100
+#define MGTURRET_SPLASHRADIUS       1000
 #define MGTURRET_ANGULARSPEED       20  //degrees/think ~= 200deg/sec
 #define MGTURRET_ACCURACYTOLERANCE  MGTURRET_ANGULARSPEED / 2 //angular difference for turret to fire
 #define MGTURRET_VERTICALCAP        30  // +/- maximum pitch
 #define MGTURRET_REPEAT             50
-#define MGTURRET_RANGE              300
+#define MGTURRET_RANGE              200
 
 #define TESLAGEN_BP                 100
 #define TESLAGEN_HEALTH             HBHM(200)

@@ -41,8 +41,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.5f,                  //float     minNormal;
     qtrue,                 //qboolean  invertNormal;
@@ -72,8 +72,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
@@ -103,8 +103,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
@@ -134,8 +134,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     500,                   //int       nextthink;
-    0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qtrue,                 //qboolean  invertNormal;
@@ -165,8 +165,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    TRAPPER_REPEAT,        //int       turretFireSpeed;
     TRAPPER_RANGE,         //int       turretRange;
+    TRAPPER_REPEAT,        //int       turretFireSpeed;
     WP_LOCKBLOB_LAUNCHER,  //weapon_t  turretProjType;
     0.0f,                  //float     minNormal;
     qtrue,                 //qboolean  invertNormal;
@@ -196,8 +196,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     OVERMIND_ATTACK_REPEAT,//int       nextthink;
-    0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
@@ -227,8 +227,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     150,                   //int       nextthink;
-    0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qtrue,                 //qboolean  invertNormal;
@@ -258,8 +258,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     -1,                    //int       nextthink;
-    0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.5f,                  //float     minNormal;
     qtrue,                 //qboolean  invertNormal;
@@ -289,8 +289,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
@@ -320,8 +320,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
@@ -351,8 +351,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
@@ -384,8 +384,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     50,                    //int       nextthink;
-    MGTURRET_REPEAT,       //int       turretFireSpeed;
     MGTURRET_RANGE,        //int       turretRange;
+    MGTURRET_REPEAT,       //int       turretFireSpeed;
     WP_MACHINEGUN,         //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
@@ -415,8 +415,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     150,                   //int       nextthink;
-    TESLAGEN_REPEAT,       //int       turretFireSpeed;
     TESLAGEN_RANGE,        //int       turretRange;
+    TESLAGEN_REPEAT,       //int       turretFireSpeed;
     WP_TESLAGEN,           //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
@@ -446,8 +446,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
@@ -477,8 +477,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
@@ -508,8 +508,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
@@ -539,8 +539,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     -1,                    //int       nextthink;
-    0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
@@ -570,8 +570,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
@@ -601,8 +601,8 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;

@@ -2163,6 +2163,8 @@ qboolean G_ValidateBuild( gentity_t *ent, buildable_t buildable )
       G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
       return qtrue;
   }
+
+  return qfalse;
 }
 
 /*
