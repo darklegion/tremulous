@@ -5,23 +5,6 @@
 // defines from ui_shared.h
 
 {
-  assetGlobalDef
-  {
-    cursor "ui/assets/3_cursor2"      // cursor 
-    gradientBar "ui/assets/gradientbar2.tga"  // gradient bar
-    fadeClamp 1.0         // sets the fadeup alpha
-    fadeCycle 1         // how often fade happens in milliseconds
-    fadeAmount 0.1          // amount to adjust alpha per cycle
-
-    shadowX  5          // x amount for shadow offset
-    shadowY  5          // y amount for shadow offset
-    shadowColor 0.1 0.1 0.1 0.25      // shadow color
-
-    font "fonts/font" 16        // font
-    smallFont "fonts/smallfont" 12      // font
-    bigFont "fonts/bigfont" 20      // font
-  }
-
   menuDef
   {
     name "alien_general_hud"
