@@ -1199,8 +1199,6 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
 
     if( level.droidBuildPoints - BG_FindBuildPointsForBuildable( buildable ) < 0 )
       reason = IBE_NOASSERT;
-      
-    G_Printf( "%d %d\n", level.droidBuildPoints );
   }
   else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
