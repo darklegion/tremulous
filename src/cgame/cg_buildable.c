@@ -111,10 +111,10 @@ static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_
     animations[ i ].initialLerp = 1000 / fps;
   }
 
-/*  if ( i != MAX_BUILDABLE_ANIMATIONS ) {
+  if ( i != MAX_BUILDABLE_ANIMATIONS ) {
     CG_Printf( "Error parsing animation file: %s", filename );
     return qfalse;
-  }*/
+  }
   
   return qtrue;
 }
@@ -297,10 +297,6 @@ void CG_Buildable( centity_t *cent )
   refEntity_t     ent;
   refEntity_t     ent2;
   entityState_t   *es;
-  gitem_t       *item;
-  int         msec;
-  float       frac;
-  float       scale;
 
   es = &cent->currentState;
   if ( es->modelindex >= bg_numItems )
@@ -314,8 +310,6 @@ void CG_Buildable( centity_t *cent )
   if ( !es->modelindex || ( es->eFlags & EF_NODRAW ) )
     return;
 
-  item = &bg_itemlist[ es->modelindex ];
-
   memset ( &ent, 0, sizeof( ent ) );
 
   VectorCopy( es->angles, cent->lerpAngles );
@@ -328,18 +322,7 @@ void CG_Buildable( centity_t *cent )
 
   ent.nonNormalizedAxes = qfalse;
 
-  // if just respawned, slowly scale up
-/*  msec = cg.time - cent->miscTime;
-  if ( msec >= 0 && msec < ITEM_SCALEUP_TIME ) {
-    frac = (float)msec / ITEM_SCALEUP_TIME;
-    VectorScale( ent.axis[0], frac, ent.axis[0] );
-    VectorScale( ent.axis[1], frac, ent.axis[1] );
-    VectorScale( ent.axis[2], frac, ent.axis[2] );
-    ent.nonNormalizedAxes = qtrue;
-  } else {
-    frac = 1.0;
-  }*/
-
+  //run animations
   CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
   
   //turret barrel bit
