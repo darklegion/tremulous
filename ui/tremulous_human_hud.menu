@@ -7,6 +7,7 @@
 {
   assetGlobalDef
   {
+    cursor "ui/assets/3_cursor2"      // cursor 
     gradientBar "ui/assets/gradientbar2.tga"  // gradient bar
     fadeClamp 1.0         // sets the fadeup alpha
     fadeCycle 1         // how often fade happens in milliseconds
@@ -21,6 +22,8 @@
     bigFont "fonts/bigfont" 20      // font
   }
 
+  //  STAMINA  //
+
   menuDef
   {
     name "human_hud"
@@ -28,67 +31,280 @@
     visible MENU_TRUE
     rect 0 0 640 480
     
-    //AMMO WINDOW
+    // HUE
     itemDef
     {
-      name ammowindow
-      rect 446 390 189 86
-      visible 1
+      name hue
+      rect 0 0 640 480
+      visible 0
       decoration
-      forecolor 1 1 1 1
+      forecolor 0.0 0.8 1.0 .1
       style WINDOW_STYLE_SHADER
-      background "ui/assets/hud_ammowindow.tga"
-    }
+      background "ui/assets/hue.tga"
+    }   
 
-    //CONSOLE WINDOW
+    // HUD
     itemDef
     {
-      name creditswindow
-      rect 3 3 368 117
-      visible 1
+      name hud
+      rect 0 0 640 480
+      visible 0
+      decoration
+      forecolor 1.0 1.0 1.0 1.0
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/hud.tga"
+    }   
+
+    // FPS
+    itemDef
+    {
+      name "fps"
+      rect 397 48 56 22
+      style WINDOW_STYLE_EMPTY
+      visible 0
       decoration
       forecolor 1 1 1 1
+      align ITEM_ALIGN_RIGHT
+      textalignx 0
+      textaligny 18
+      textscale 0.4
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_FPS
+    }   
+    // TIMER
+    itemDef
+    {
+      name "timer"
+      rect 417 72 56 22
+      style WINDOW_STYLE_EMPTY
+      visible 0
+      decoration
+      forecolor 1 1 1 1
+      align ITEM_ALIGN_RIGHT
+      textalignx 0
+      textaligny 18
+      textscale 0.4
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_TIMER
+    }   
+
+    // SNAPSHOT
+    itemDef
+    {
+      name "snapshot"
+      rect 300 96 200 22
+      style WINDOW_STYLE_EMPTY
+      visible 0
+      decoration
+      forecolor 1 1 1 1
+      align ITEM_ALIGN_RIGHT
+      textalignx 0
+      textaligny 18
+      textscale 0.4
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_SNAPSHOT
+    }   
+
+    // LAGOMETER
+    itemDef
+    {
+      name "lagometer"
+      rect 502 358 132 28
+      visible 0
+      decoration
+      background "lagometer"
+      ownerdraw CG_LAGOMETER
+    }   
+
+    // CREDIT LABEL
+    itemDef
+    {
+      name credits
+      rect 489 30 57 10
+      visible 1
+      decoration
+      forecolor 1.0 1.0 1.0 1.0
       style WINDOW_STYLE_SHADER
-      background "ui/assets/hud_consolewindow.tga"
+      background "ui/assets/credits.tga"
+    }   
+
+    // CREDIT
+    itemDef
+    {
+      name "c"
+      rect 547 25 64 16
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 1.0
+      ownerdraw CG_PLAYER_CREDITS_VALUE
+    }   
+
+    // BANK LABEL
+    itemDef
+    {
+      name credits
+      rect 526 46 38 10
+      visible 1
+      decoration
+      forecolor 1.0 1.0 1.0 1.0
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/bank.tga"
+    }   
+
+    // BANK
+    itemDef
+    {
+      name "b"
+      rect 569 46 40 10
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 1.0
+      ownerdraw CG_PLAYER_BANK_VALUE
     }
     
-    //CREDITS WINDOW
+    // AMMO
     itemDef
     {
-      name creditswindow
-      rect 382 3 254 117
+      name "a"
+      rect 13 25 64 16
       visible 1
       decoration
-      forecolor 1 1 1 1
+      forecolor 0.0 0.8 1.0 1.0
+      ownerdraw CG_PLAYER_AMMO_VALUE
+    }
+
+    // SLASH
+    itemDef
+    {
+      name credits
+      rect 80 29 8 10
+      visible 1
+      decoration
+      forecolor 1.0 1.0 1.0 1.0
       style WINDOW_STYLE_SHADER
-      background "ui/assets/hud_creditswindow.tga"
+      background "ui/assets/slash.tga"
+    }   
+
+    // CLIPS
+    itemDef
+    {
+      name "c"
+      rect 70 29 40 10
+      visible 1
+      decoration
+      forecolor 1.0 1.0 1.0 1.0
+      ownerdraw CG_PLAYER_CLIPS_VALUE
+    }
+  
+    // HEALTH
+    itemDef
+    {
+      name "healthok"
+      rect 13 430 64 16
+      visible 0
+      decoration
+      forecolor 0.0 0.8 1.0 1.0
+      ownerdraw CG_PLAYER_HEALTH
+    }
+
+    // HEALTH BAR
+    itemDef
+    {
+      name "health"
+      rect 513 448 97 5
+      visible 1
+      decoration
+      align ITEM_ALIGN_RIGHT
+      special 0.0
+      textScale 0.0
+      forecolor 0.0 0.8 1.0 1.0
+      ownerdraw CG_PLAYER_HEALTH_BAR
+    }
+
+    // HEALTH BORDER
+    itemDef
+    {
+      name healthborder
+      rect 511 446 101 9
+      visible 1
+      decoration
+      forecolor 1.0 1.0 1.0 1.0
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/healthborder.tga"
+    }   
+
+    // CROSS
+    itemDef
+    {
+      name cross
+      rect 500 446 9 9
+      visible 1
+      decoration
+      forecolor 1.0 1.0 1.0 1.0
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/cross.tga"
+    }   
+
+    // CROSS BORDER
+    itemDef
+    {
+      name crossborder
+      rect 490 445 12 12
+      visible 0
+      decoration
+      forecolor 1.0 1.0 1.0 1.0
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/crossborder.tga"
+    }   
+
+    // STAMINA BAR
+    itemDef
+    {
+      name "s"
+      rect 548 435 62 5
+      visible 1
+      decoration
+      align ITEM_ALIGN_RIGHT
+      special 0.0
+      textScale 0.0
+      forecolor 0.0 0.8 1.0 1.0
+      ownerdraw CG_PLAYER_STAMINA
+    }
+
+    // STAMINA BORDER
+    itemDef
+    {
+      name staminaborder
+      rect 546 433 66 9
+      visible 1
+      decoration
+      forecolor 1.0 1.0 1.0 1.0
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/staminaborder.tga"
+    }   
+
+    // SELECT
+    itemDef
+    {
+      name "select"
+      rect 240 435 160 32
+      visible 0
+      decoration
+      ownerdraw CG_PLAYER_SELECT
     }
     
-    //HEALTH WINDOW
+    // SELECT TEXT
     itemDef
     {
-      name healthwindow
-      rect 3 390 189 86
+      name "selecttext"
+      rect 200 25 240 40
       visible 1
       decoration
-      forecolor 1 1 1 1
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/hud_healthwindow.tga"
+      textScale .5
+      ownerdraw CG_PLAYER_SELECTTEXT
     }
-
-    //WEAPON WINDOW
-    itemDef
-    {
-      name weaponwindow
-      rect 205 424 230 52
-      visible 1
-      decoration
-      forecolor 1 1 1 1
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/hud_weaponwindow.tga"
-    }
-
-    //BANK LABEL
+   
+    // BANK LABEL
     itemDef
     {
       name banklabel
@@ -102,11 +318,11 @@
       textstyle ITEM_TEXTSTYLE_NORMAL
       forecolor 0.219608 0.933333 0 1
       backcolor 0 0 0 0
-      visible 1
+      visible 0
       decoration
     }
 
-    //CREDITS LABEL
+    // CREDITS LABEL
     itemDef
     {
       name creditslabel
@@ -120,175 +336,8 @@
       textstyle ITEM_TEXTSTYLE_NORMAL
       forecolor 0.219608 0.933333 0 1
       backcolor 0 0 0 0
-      visible 1
+      visible 0
       decoration
-    }
-    
-    //STAMINA
-    itemDef
-    {
-      name "s"
-      rect 121 348 50 5
-      visible 1
-      decoration
-      forecolor 0 0.8 1 1
-      textScale 0.0
-      special 0.0
-      align ITEM_ALIGN_RIGHT
-      ownerdraw CG_PLAYER_STAMINA
-    }
-    
-    //CONSOLE
-    itemDef
-    {
-      name "console"
-      rect 10 10 320 102
-      style WINDOW_STYLE_EMPTY
-      visible 1
-      decoration
-      forecolor 1 1 1 1
-      align ITEM_ALIGN_LEFT
-      textalignx 0
-      textaligny 16
-      textscale 0.33
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      ownerdraw CG_CONSOLE
-    }   
-    //FPS
-    itemDef
-    {
-      name "fps"
-      rect 397 48 56 22
-      style WINDOW_STYLE_EMPTY
-      visible 1
-      decoration
-      forecolor 1 1 1 1
-      align ITEM_ALIGN_RIGHT
-      textalignx 0
-      textaligny 18
-      textscale 0.4
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      ownerdraw CG_FPS
-    }   
-    //TIMER
-    itemDef
-    {
-      name "timer"
-      rect 417 72 56 22
-      style WINDOW_STYLE_EMPTY
-      visible 1
-      decoration
-      forecolor 1 1 1 1
-      align ITEM_ALIGN_RIGHT
-      textalignx 0
-      textaligny 18
-      textscale 0.4
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      ownerdraw CG_TIMER
-    }   
-    //SNAPSHOT
-    itemDef
-    {
-      name "snapshot"
-      rect 300 96 200 22
-      style WINDOW_STYLE_EMPTY
-      visible 1
-      decoration
-      forecolor 1 1 1 1
-      align ITEM_ALIGN_RIGHT
-      textalignx 0
-      textaligny 18
-      textscale 0.4
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      ownerdraw CG_SNAPSHOT
-    }   
-    //LAGOMETER
-    itemDef
-    {
-      name "lagometer"
-      rect 502 358 132 28
-      visible 1
-      decoration
-      background "ui/assets/hud_lagometer.tga"
-      ownerdraw CG_LAGOMETER
-    }   
-
-    //CREDIT
-    itemDef
-    {
-      name "c"
-      rect 502 27 108 44
-      visible 1
-      decoration
-      forecolor 1 1 0 1
-      ownerdraw CG_PLAYER_CREDITS_VALUE
-    }   
-
-    //BANK
-    itemDef
-    {
-      name "b"
-      rect 577 95 50 20
-      visible 1
-      decoration
-      forecolor 1 1 0 1
-      ownerdraw CG_PLAYER_BANK_VALUE
-    }
-    
-    //AMMO
-    itemDef
-    {
-      name "a"
-      rect 505 414 108 44
-      visible 1
-      decoration
-      forecolor 1 1 0 1
-      ownerdraw CG_PLAYER_AMMO_VALUE
-    }
-
-    //CLIPS
-    itemDef
-    {
-      name "c"
-      rect 445 443 50 20
-      visible 1
-      decoration
-      forecolor 1 1 0 1
-      ownerdraw CG_PLAYER_CLIPS_VALUE
-    }
-  
-    // HEALTH
-    itemDef
-    {
-      name "healthok"
-      rect 10 410 108 10
-      visible 1
-      decoration
-      forecolor 0 0.8 1 1
-      textScale 0.0
-      special 0.0
-      ownerdraw CG_PLAYER_HEALTH_BAR
-    }
-
-    // SELECT
-    itemDef
-    {
-      name "select"
-      rect 240 435 160 32
-      visible 1
-      decoration
-      ownerdraw CG_PLAYER_SELECT
-    }
-    
-    // SELECT TEXT
-    itemDef
-    {
-      name "selecttext"
-      rect 200 170 240 40
-      visible 1
-      decoration
-      textScale .5
-      ownerdraw CG_PLAYER_SELECTTEXT
     }
   }
 }
