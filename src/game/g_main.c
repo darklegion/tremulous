@@ -186,8 +186,8 @@ void G_RunFrame( int levelTime );
 void G_ShutdownGame( int restart );
 void CheckExitRules( void );
 
-void countSpawns( void );
-void calculateBuildPoints( void );
+void G_CountSpawns( void );
+void G_CalculateBuildPoints( void );
 
 /*
 ================
@@ -527,6 +527,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   G_InitDamageLocations( );
   G_GenerateParticleFileList( );
   G_InitMapRotations( );
+  G_InitSpawnQueue( &level.alienSpawnQueue );
+  G_InitSpawnQueue( &level.humanSpawnQueue );
   
   if( g_debugMapRotation.integer )
     G_PrintRotations( );
@@ -542,7 +544,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   G_RemapTeamShaders( );
 
   //TA: so the server counts the spawns without a client attached
-  countSpawns( );
+  G_CountSpawns( );
 }
 
 
@@ -667,12 +669,180 @@ int QDECL SortRanks( const void *a, const void *b )
 
 /*
 ============
-countSpawns
+G_InitSpawnQueue
+
+Initialise a spawn queue
+============
+*/
+int G_InitSpawnQueue( spawnQueue_t *sq )
+{
+  sq->back = sq->front = 0;
+  sq->back = QUEUE_MINUS1( sq->back );
+}
+
+/*
+============
+G_GetSpawnQueueLength
+
+Return tha length of a spawn queue
+============
+*/
+int G_GetSpawnQueueLength( spawnQueue_t *sq )
+{
+/*  if( sq->back < sq->front )
+    return ( sq->back + MAX_CLIENTS - sq->front + 1 ) % MAX_CLIENTS;
+  else*/
+    return ( sq->back - sq->front + 1 ) % MAX_CLIENTS;
+}
+
+/*
+============
+G_PopSpawnQueue
+
+Remove from front element from a spawn queue
+============
+*/
+int G_PopSpawnQueue( spawnQueue_t *sq )
+{
+  int popee = sq->front;
+  
+  if( G_GetSpawnQueueLength( sq ) > 0 )
+  {
+    sq->front = QUEUE_PLUS1( sq->front );
+    return sq->clients[ popee ];
+  }
+  else
+    return -1;
+}
+
+/*
+============
+G_PushSpawnQueue
+
+Add an element to the back of the spawn queue
+============
+*/
+void G_PushSpawnQueue( spawnQueue_t *sq, int clientNum )
+{
+  sq->back = QUEUE_PLUS1( sq->back );
+  sq->clients[ sq->back ] = clientNum;
+}
+
+/*
+============
+G_RemoveFromSpawnQueue
+
+remove a specific client from a spawn queue
+============
+*/
+qboolean G_RemoveFromSpawnQueue( spawnQueue_t *sq, int clientNum )
+{
+  int i = sq->front;
+
+  do
+  {
+    if( sq->clients[ i ] == clientNum )
+    {
+      //and this kids, is why it would have
+      //been better to use an LL for internal
+      //representation
+      do
+      {
+        sq->clients[ i ] = sq->clients[ QUEUE_PLUS1( i ) ];
+        
+        i = QUEUE_PLUS1( 1 );
+      } while( i != sq->back );
+
+      sq->back = QUEUE_MINUS1( sq->back );
+      
+      return qtrue;
+    }
+
+    i = QUEUE_PLUS1( 1 );
+  } while( i != QUEUE_PLUS1( sq->back ) );
+
+  return qfalse;
+}
+
+/*
+============
+G_GetPosInSpawnQueue
+
+Get the position of a client in a spawn queue
+============
+*/
+int G_GetPosInSpawnQueue( spawnQueue_t *sq, int clientNum )
+{
+  int i = sq->front;
+
+  do
+  {
+    if( sq->clients[ i ] == clientNum )
+    {
+      if( i < sq->front )
+        return i + MAX_CLIENTS - sq->front + 1;
+      else
+        return i - sq->front + 1;
+    }
+
+    i = QUEUE_PLUS1( 1 );
+  } while( i != QUEUE_PLUS1( sq->back ) );
+
+  return -1;
+}
+
+/*
+============
+G_SpawnClients
+
+Spawn queued clients
+============
+*/
+void G_SpawnClients( pTeam_t team )
+{
+  int           clientNum;
+  gentity_t     *ent, *spawn;
+  vec3_t        spawn_origin, spawn_angles;
+  spawnQueue_t  *sq;
+  int           numSpawns;
+
+  if( team == PTE_ALIENS )
+  {
+    sq = &level.alienSpawnQueue;
+    numSpawns = level.numAlienSpawns;
+  }
+  else if( team == PTE_HUMANS )
+  {
+    sq = &level.humanSpawnQueue;
+    numSpawns = level.numHumanSpawns;
+  }
+
+  if( G_GetSpawnQueueLength( sq ) > 0 && numSpawns > 0 )
+  {
+    if( ( spawn = SelectTremulousSpawnPoint( team, spawn_origin, spawn_angles ) ) )
+    {
+      clientNum = G_PopSpawnQueue( sq );
+
+      if( clientNum < 0 )
+        return;
+      
+      ent = &g_entities[ clientNum ];
+
+      ent->client->sess.sessionTeam = TEAM_FREE;
+      ClientUserinfoChanged( clientNum );
+      ClientSpawn( ent, spawn, spawn_origin, spawn_angles );
+    }
+  }
+}
+
+/*
+============
+G_CountSpawns
 
 Counts the number of spawns for each team
 ============
 */
-void countSpawns( void )
+void G_CountSpawns( void )
 {
   int i;
   gentity_t *ent;
@@ -696,12 +866,12 @@ void countSpawns( void )
 
 /*
 ============
-calculateBuildPoints
+G_CalculateBuildPoints
 
 Recalculate the quantity of building points available to the teams
 ============
 */
-void calculateBuildPoints( void )
+void G_CalculateBuildPoints( void )
 {
   int         i;
   int         bclass;
@@ -777,10 +947,10 @@ void calculateBuildPoints( void )
 
 /*
 ============
-CalculateStages
+G_CalculateStages
 ============
 */
-void CalculateStages( void )
+void G_CalculateStages( void )
 {
   float alienPlayerCountMod = (float)level.numAlienClients / PLAYER_COUNT_MOD;
   float humanPlayerCountMod = (float)level.numAlienClients / PLAYER_COUNT_MOD;
@@ -1665,9 +1835,11 @@ void G_RunFrame( int levelTime )
   end = trap_Milliseconds();
 
   //TA:
-  countSpawns( );
-  calculateBuildPoints( );
-  CalculateStages( );
+  G_CountSpawns( );
+  G_CalculateBuildPoints( );
+  G_CalculateStages( );
+  G_SpawnClients( PTE_ALIENS );
+  G_SpawnClients( PTE_HUMANS );
 
   // see if it is time to end the level
   CheckExitRules( );

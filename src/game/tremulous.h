@@ -207,9 +207,9 @@
 #define ASPAWN_CREEPSIZE            120
 #define ASPAWN_VALUE                150
 
-#define BARRICADE_BP                8
+#define BARRICADE_BP                10
 #define BARRICADE_BT                20000
-#define BARRICADE_HEALTH            ABHM(350)
+#define BARRICADE_HEALTH            ABHM(400)
 #define BARRICADE_REGEN             12
 #define BARRICADE_SPLASHDAMAGE      50
 #define BARRICADE_SPLASHRADIUS      50
@@ -224,7 +224,7 @@
 #define BOOSTER_CREEPSIZE           120
 #define BOOSTER_INTERVAL            30000 //time in msec between uses (per player)
 
-#define ACIDTUBE_BP                 5
+#define ACIDTUBE_BP                 8
 #define ACIDTUBE_BT                 15000
 #define ACIDTUBE_HEALTH             ABHM(200)
 #define ACIDTUBE_REGEN              8
@@ -292,6 +292,8 @@
 #define ALIEN_POISON_TIME           10000
 #define ALIEN_POISON_DMG            30
 #define ALIEN_POISON_DIVIDER        (1.0f/1.32f) //about 1.0/(time`th root of damage)
+
+#define ALIEN_SPAWN_REPEAT_TIME     10000
 
 
 /*
@@ -526,6 +528,8 @@
 #define STAMINA_WALK_RESTORE        15
 #define STAMINA_SPRINT_TAKE         8
 #define STAMINA_LARMOUR_TAKE        4
+
+#define HUMAN_SPAWN_REPEAT_TIME     10000
 
 /*
  * Misc

@@ -349,12 +349,15 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
 
   if( ( client->buttons & BUTTON_ATTACK ) && !( client->oldbuttons & BUTTON_ATTACK ) )
   {
-    if( client->pers.teamSelection == PTE_NONE )
-      G_TriggerMenu( client->ps.clientNum, MN_TEAM );
-    else if( client->pers.teamSelection == PTE_ALIENS )
-      G_TriggerMenu( client->ps.clientNum, MN_A_CLASS );
-    else if( client->pers.teamSelection == PTE_HUMANS )
-      G_TriggerMenu( client->ps.clientNum, MN_H_SPAWN );
+    if( client->pers.classSelection == PCL_NONE )
+    {
+      if( client->pers.teamSelection == PTE_NONE )
+        G_TriggerMenu( client->ps.clientNum, MN_TEAM );
+      else if( client->pers.teamSelection == PTE_ALIENS )
+        G_TriggerMenu( client->ps.clientNum, MN_A_CLASS );
+      else if( client->pers.teamSelection == PTE_HUMANS )
+        G_TriggerMenu( client->ps.clientNum, MN_H_SPAWN );
+    }
   }
 }
 

@@ -311,6 +311,9 @@ Cmd_Kill_f
 */
 void Cmd_Kill_f( gentity_t *ent )
 {
+  if( ent->client->sess.sessionTeam == TEAM_SPECTATOR )
+    return;
+
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
     return;
   
@@ -364,7 +367,7 @@ void Cmd_Team_f( gentity_t *ent )
   {
     level.bankCredits[ ent->client->ps.clientNum ] = 0;
     ent->client->ps.persistant[ PERS_CREDIT ] = 0;
-    ent->client->pers.classSelection = 0;
+    ent->client->pers.classSelection = PCL_NONE;
     ClientSpawn( ent, NULL, NULL, NULL );
   }
 
@@ -1039,7 +1042,8 @@ void Cmd_Class_f( gentity_t *ent )
     else
     {
       //spawning from an egg
-      ent->client->pers.classSelection = BG_FindClassNumForName( s );
+      ent->client->pers.classSelection =
+        ent->client->ps.stats[ STAT_PCLASS ] = BG_FindClassNumForName( s );
 
       if( ent->client->pers.classSelection != PCL_NONE )
       {
@@ -1048,20 +1052,8 @@ void Cmd_Class_f( gentity_t *ent )
           if( allowedClasses[ i ] == ent->client->pers.classSelection &&
               BG_FindStagesForClass( ent->client->pers.classSelection, g_alienStage.integer ) )
           {
-            if( ( spawn = SelectTremulousSpawnPoint( ent->client->pers.teamSelection,
-                                                     spawn_origin, spawn_angles ) ) &&
-                level.numAlienSpawns > 0 ) //sanity check
-            {
-              ent->client->sess.sessionTeam = TEAM_FREE;
-              ClientUserinfoChanged( clientNum );
-              ClientSpawn( ent, spawn, spawn_origin, spawn_angles );
-              return;
-            }
-            else
-            {
-              trap_SendServerCommand( ent-g_entities, va( "print \"No suitable spawns available\n\"" ) );
-              return;
-            }
+            G_PushSpawnQueue( &level.alienSpawnQueue, clientNum );
+            return;
           }
         }
 
@@ -1084,7 +1076,8 @@ void Cmd_Class_f( gentity_t *ent )
       return;
     }
 
-    ent->client->pers.classSelection = PCL_H_BASE;
+    ent->client->pers.classSelection =
+      ent->client->ps.stats[ STAT_PCLASS ] = PCL_H_BASE;
 
     //set the item to spawn with
     if( !Q_stricmp( s, BG_FindNameForWeapon( WP_MACHINEGUN ) ) )
@@ -1098,19 +1091,7 @@ void Cmd_Class_f( gentity_t *ent )
       return;
     }
 
-    if( ( spawn = SelectTremulousSpawnPoint( ent->client->pers.teamSelection,
-                                             spawn_origin, spawn_angles ) ) &&
-        level.numHumanSpawns > 0 ) //sanity check
-    {
-      ent->client->sess.sessionTeam = TEAM_FREE;
-      ClientUserinfoChanged( clientNum );
-      ClientSpawn( ent, spawn, spawn_origin, spawn_angles );
-    }
-    else
-    {
-      trap_SendServerCommand( ent-g_entities, va( "print \"No suitable spawns available\n\"" ) );
-      return;
-    }
+    G_PushSpawnQueue( &level.humanSpawnQueue, clientNum );
   }
   else if( ent->client->pers.teamSelection == PTE_NONE )
   {
@@ -1145,7 +1126,7 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
     trap_Trace( &tr, ent->client->ps.origin, NULL, NULL, end, ent->s.number, MASK_PLAYERSOLID );
     traceEnt = &g_entities[ tr.entityNum ];
 
-    if( tr.fraction < 1.0 &&
+    if( tr.fraction < 1.0f &&
         ( traceEnt->s.eType == ET_BUILDABLE ) &&
         ( traceEnt->biteam == ent->client->pers.teamSelection ) &&
         ( ( ent->client->ps.weapon >= WP_ABUILD ) &&

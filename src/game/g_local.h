@@ -199,6 +199,7 @@ struct gentity_s
   int               overmindSpawnsTimer;
   int               nextPhysicsTime; //TA: buildables don't need to check what they're sitting on
                                      //    every single frame.. so only do it periodically
+  int               clientSpawnTime; //TA: the time until this spawn can spawn a client
 
   int               credits[ MAX_CLIENTS ]; //TA: human credits for each client
   qboolean          creditsHash[ MAX_CLIENTS ]; //TA: track who has claimed credit
@@ -389,6 +390,25 @@ struct gclient_s
   int                 retriggerArmouryMenu; //TA: frame number to retrigger the armoury menu
 };
 
+
+typedef struct spawnQueue_s
+{
+  int clients[ MAX_CLIENTS ];
+  
+  int front, back;
+} spawnQueue_t;
+
+#define QUEUE_PLUS1(x)  (((x)+1)%MAX_CLIENTS)
+#define QUEUE_MINUS1(x) (((x)-1)%MAX_CLIENTS)
+
+int       G_InitSpawnQueue( spawnQueue_t *sq );
+int       G_GetSpawnQueueLength( spawnQueue_t *sq );
+int       G_PopSpawnQueue( spawnQueue_t *sq );
+void      G_PushSpawnQueue( spawnQueue_t *sq, int clientNum );
+qboolean  G_RemoveFromSpawnQueue( spawnQueue_t *sq, int clientNum );
+int       G_GetPosInSpawnQueue( spawnQueue_t *sq, int clientNum );
+
+
 #define MAX_LOCDAMAGE_TEXT    8192
 #define MAX_LOCDAMAGE_REGIONS 16
 
@@ -524,6 +544,9 @@ typedef struct
   qboolean          overmindPresent;
 
   pTeam_t           lastWin;
+
+  spawnQueue_t      alienSpawnQueue;
+  spawnQueue_t      humanSpawnQueue;
 } level_locals_t;
 
 //

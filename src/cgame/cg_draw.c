@@ -929,6 +929,9 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
         BG_unpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, &value, NULL, NULL );
         break;
     }
+
+    if( value > 999 )
+      value = 999;
     
     if( value > -1 )
     {

@@ -297,7 +297,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       Cmd_Score_f( g_entities + i );
   }
 
-  self->client->pers.classSelection = 0; //TA: reset the classtype
+  self->client->pers.classSelection = PCL_NONE; //TA: reset the classtype
 
   self->takedamage = qtrue; // can still be gibbed
 

@@ -1968,6 +1968,33 @@ void HTeslaGen_Think( gentity_t *self )
 
 /*
 ================
+HSpawn_Disappear
+
+Called when a human spawn is destroyed before it is spawned
+think function
+================
+*/
+void HSpawn_Disappear( gentity_t *self )
+{
+  vec3_t  dir;
+
+  // we don't have a valid direction, so just point straight up
+  dir[ 0 ] = dir[ 1 ] = 0;
+  dir[ 2 ] = 1;
+
+  self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
+  self->timestamp = level.time;
+
+  self->think = freeBuildable;
+  self->nextthink = level.time + 100;
+  
+  self->r.contents = 0;    //stop collisions...
+  trap_LinkEntity( self ); //...requires a relink
+}
+
+
+/*
+================
 HSpawn_blast
 
 Called when a human spawn explodes
@@ -2012,14 +2039,19 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   G_setIdleBuildableAnim( self, BANIM_DESTROYED );
   
   self->die = nullDieFunction;
-  self->think = HSpawn_Blast;
   self->powered = qfalse; //free up power
   self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
   
   if( self->spawned )
+  {
+    self->think = HSpawn_Blast;
     self->nextthink = level.time + HUMAN_DETONATION_DELAY;
+  }
   else
+  {
+    self->think = HSpawn_Disappear;
     self->nextthink = level.time; //blast immediately
+  }
 
   if( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
@@ -2123,6 +2155,12 @@ void G_BuildableThink( gentity_t *ent, int msec )
     if( ent->health > bHealth )
       ent->health = bHealth;
   }
+
+  if( ent->clientSpawnTime > 0 )
+    ent->clientSpawnTime -= msec;
+  
+  if( ent->clientSpawnTime < 0 )
+    ent->clientSpawnTime = 0;
 
   //fall back on normal physics routines
   G_Physics( ent, msec );

@@ -294,6 +294,9 @@ gentity_t *SelectAlienSpawnPoint( void )
 
     if( !spot->s.groundEntityNum )
       continue;
+
+    if( spot->clientSpawnTime > 0 )
+      continue;
     
     if( G_CheckSpawnPoint( spot->s.origin, spot->s.origin2, BA_A_SPAWN, NULL ) != NULL )
       continue;
@@ -342,6 +345,9 @@ gentity_t *SelectHumanSpawnPoint( void )
     if( !spot->s.groundEntityNum )
       continue;
 
+    if( spot->clientSpawnTime > 0 )
+      continue;
+    
     if( G_CheckSpawnPoint( spot->s.origin, spot->s.origin2, BA_H_SPAWN, NULL ) != NULL )
       continue;
     
@@ -1250,6 +1256,11 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     {
       //start spawn animation on spawnPoint
       G_setBuildableAnim( spawnPoint, BANIM_SPAWN1, qtrue );
+
+      if( spawnPoint->biteam == PTE_ALIENS )
+        spawnPoint->clientSpawnTime = ALIEN_SPAWN_REPEAT_TIME;
+      else if( spawnPoint->biteam == PTE_HUMANS )
+        spawnPoint->clientSpawnTime = HUMAN_SPAWN_REPEAT_TIME;
     }
   }
   client->pers.teamState.state = TEAM_ACTIVE;
