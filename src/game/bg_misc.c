@@ -2370,7 +2370,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
-    "dbuild",             //char      *weaponName;
+    "abuild",             //char      *weaponName;
     "Alien build weapon", //char      *weaponHumanName;
     { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
     "icons/iconw_gauntlet",
@@ -2395,7 +2395,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
-    "dbuild2",            //char      *weaponName;
+    "abuild2",            //char      *weaponName;
     "Alien build weapon2",//char      *weaponHumanName;
     { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
     "icons/iconw_gauntlet",
