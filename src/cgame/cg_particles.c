@@ -1,3 +1,18 @@
+// cg_particles.c -- the particle system
+
+/*
+ *  Portions Copyright (C) 2000-2001 Tim Angus
+ *
+ *  This program is free software; you can redistribute it and/or modify it
+ *  under the terms of the OSML - Open Source Modification License v1.0 as
+ *  described in the file COPYING which is distributed with this source
+ *  code.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ */
+
 #include "cg_local.h"
 
 static baseParticleSystem_t   baseParticleSystems[ MAX_BASEPARTICLE_SYSTEMS ];
@@ -76,6 +91,7 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
   particleEjector_t       *pe = parent;
   particleSystem_t        *ps = parent->parent;
   vec3_t                  forward;
+  centity_t               *cent = &cg_entities[ ps->attachment.centNum ];
 
   for( i = 0; i < MAX_PARTICLES; i++ )
   {
@@ -124,7 +140,7 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
           if( !ps->attachment.centValid )
             return NULL;
           
-          VectorCopy( ps->attachment.cent->lerpOrigin, p->origin );
+          VectorCopy( cent->lerpOrigin, p->origin );
           break;
       }
         
@@ -161,14 +177,23 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
             return NULL;
           
           if( bp->velMoveValues.dirType == PMD_POINT )
-            VectorSubtract( ps->attachment.cent->lerpOrigin, p->origin, p->velocity );
+            VectorSubtract( cent->lerpOrigin, p->origin, p->velocity );
           else if( bp->velMoveValues.dirType == PMD_LINEAR )
           {
-            AngleVectors( ps->attachment.cent->lerpAngles, forward, NULL, NULL );
+            AngleVectors( cent->lerpAngles, forward, NULL, NULL );
             VectorCopy( forward, p->velocity );
           }
           
           break;
+          
+      case PMT_NORMAL:
+        
+        if( !ps->attachment.normalValid )
+          return NULL;
+        
+        VectorCopy( ps->attachment.normal, p->velocity );
+        
+        break;
       }
             
       VectorNormalize( p->velocity );
@@ -181,7 +206,7 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
       {
         VectorMA( p->velocity,
                   CG_RandomiseValue( bp->velMoveValues.parentVelFrac, bp->velMoveValues.parentVelFracRandFrac ),
-                  ps->attachment.cent->currentState.pos.trDelta, p->velocity );
+                  cent->currentState.pos.trDelta, p->velocity );
       }
           
       p->lastEvalTime = cg.time;
@@ -305,7 +330,7 @@ particleSystem_t *CG_SpawnNewParticleSystem( qhandle_t psHandle )
 {
   int                   i, j, start;
   particleSystem_t      *ps = NULL;
-  baseParticleSystem_t  *bps = &baseParticleSystems[ psHandle ];
+  baseParticleSystem_t  *bps = &baseParticleSystems[ psHandle - 1 ];
 
   if( !bps->registered )
   {
@@ -327,6 +352,10 @@ particleSystem_t *CG_SpawnNewParticleSystem( qhandle_t psHandle )
         CG_SpawnNewParticleEjector( bps->ejectors[ j ], ps );
 
       ps->valid = qtrue;
+      
+      if( cg_debugParticles.integer >= 1 )
+        CG_Printf( "PS %s created\n", bps->name );
+
       break;
     }
   }
@@ -369,7 +398,8 @@ qhandle_t CG_RegisterParticleSystem( char *name )
 
       bps->registered = qtrue;
 
-      return i;
+      //avoid returning 0
+      return i + 1;
     }
   }
 
@@ -552,6 +582,8 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         bp->velMoveType = PMT_TAG;
       else if( !Q_stricmp( token, "cent" ) )
         bp->velMoveType = PMT_CENT_ANGLES;
+      else if( !Q_stricmp( token, "normal" ) )
+        bp->velMoveType = PMT_NORMAL;
 
       continue;
     }
@@ -667,6 +699,8 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         bp->accMoveType = PMT_TAG;
       else if( !Q_stricmp( token, "cent" ) )
         bp->accMoveType = PMT_CENT_ANGLES;
+      else if( !Q_stricmp( token, "normal" ) )
+        bp->accMoveType = PMT_NORMAL;
 
       continue;
     }
@@ -1280,7 +1314,7 @@ Set a particle system attachment means
 void CG_SetParticleSystemCent( particleSystem_t *ps, centity_t *cent )
 {
   ps->attachment.centValid = qtrue;
-  ps->attachment.cent = cent;
+  ps->attachment.centNum = cent->currentState.number;
 }
 
 /*
@@ -1338,6 +1372,19 @@ void CG_SetParticleSystemOrigin( particleSystem_t *ps, vec3_t origin )
   VectorCopy( origin, ps->attachment.origin );
 }
 
+/*
+===============
+CG_SetParticleSystemNormal
+
+Set a particle system attachment means
+===============
+*/
+void CG_SetParticleSystemNormal( particleSystem_t *ps, vec3_t normal )
+{
+  ps->attachment.normalValid = qtrue;
+  VectorCopy( normal, ps->attachment.normal );
+}
+
 
 /*
 ===============
@@ -1348,8 +1395,42 @@ Destroy a particle system
 */
 void CG_DestroyParticleSystem( particleSystem_t *ps )
 {
+  if( cg_debugParticles.integer >= 1 )
+    CG_Printf( "PS destroyed\n" );
+
   ps->valid = qfalse;
 }
+
+/*
+===============
+CG_IsParticleSystemInfinite
+
+Test a particle system for 'count infinite' ejectors
+===============
+*/
+qboolean CG_IsParticleSystemInfinite( particleSystem_t *ps )
+{
+  int               i;
+  particleEjector_t *pe;
+
+  //don't bother checking already invalid systems
+  if( !ps->valid )
+    return qfalse;
+  
+  for( i = 0; i < MAX_PARTICLE_EJECTORS; i++ )
+  {
+    pe = &particleEjectors[ i ];
+    
+    if( pe->valid && pe->parent == ps )
+    {
+      if( pe->totalParticles == PARTICLES_INFINITE )
+        return qtrue;
+    }
+  }
+
+  return qfalse;
+}
+
 
 /*
 ===============
@@ -1360,7 +1441,6 @@ Destroy inactive particle systems
 */
 static void CG_GarbageCollectParticleSystems( void )
 {
-  //FIXME: test this and make sure it's efficient
   int               i, j, count;
   particleSystem_t  *ps;
   particleEjector_t *pe;
@@ -1369,6 +1449,10 @@ static void CG_GarbageCollectParticleSystems( void )
   {
     ps = &particleSystems[ i ];
     count = 0;
+    
+    //don't bother checking already invalid systems
+    if( !ps->valid )
+      continue;
     
     for( j = 0; j < MAX_PARTICLE_EJECTORS; j++ )
     {
@@ -1380,6 +1464,16 @@ static void CG_GarbageCollectParticleSystems( void )
 
     if( !count )
       ps->valid = qfalse;
+
+    //check systems where the parent cent has left te PVS
+    if( ps->attachType == PSA_CENT_ORIGIN )
+    {
+      if( !cg_entities[ ps->attachment.centNum ].valid )
+        ps->valid = qfalse;
+    }
+
+    if( cg_debugParticles.integer >= 1 && !ps->valid )
+      CG_Printf( "PS garbage collected\n" );
   }
 }
 
@@ -1420,6 +1514,7 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
   vec3_t            mins, maxs;
   float             deltaTime, bounce, radius, dot;
   trace_t           trace;
+  centity_t         *cent;
   
   switch( bp->accMoveType )
   {
@@ -1449,13 +1544,24 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
       if( !ps->attachment.centValid )
         return;
       
+      cent = &cg_entities[ ps->attachment.centNum ];
+      
       if( bp->accMoveValues.dirType == PMD_POINT )
-        VectorSubtract( ps->attachment.cent->lerpOrigin, p->origin, acceleration );
+        VectorSubtract( cent->lerpOrigin, p->origin, acceleration );
       else if( bp->accMoveValues.dirType == PMD_LINEAR )
       {
-        AngleVectors( ps->attachment.cent->lerpAngles, forward, NULL, NULL );
+        AngleVectors( cent->lerpAngles, forward, NULL, NULL );
         VectorCopy( forward, acceleration );
       }
+      
+      break;
+    
+    case PMT_NORMAL:
+      
+      if( !ps->attachment.normalValid )
+        return;
+      
+      VectorCopy( ps->attachment.normal, acceleration );
       
       break;
   }
@@ -1616,8 +1722,9 @@ void CG_AddParticles( void )
 {
   int           i;
   particle_t    *p;
+  int           numPS = 0, numPE = 0, numP = 0;
   
-  /*CG_GarbageCollectParticleSystems( );*/
+  CG_GarbageCollectParticleSystems( );
   
   //check each ejector and introduce any new particles
   CG_SpawnNewParticles( );
@@ -1637,5 +1744,22 @@ void CG_AddParticles( void )
       else
         p->valid = qfalse;
     }
+  }
+
+  if( cg_debugParticles.integer >= 2 )
+  {
+    for( i = 0; i < MAX_PARTICLE_SYSTEMS; i++ )
+      if( particleSystems[ i ].valid )
+        numPS++;
+    
+    for( i = 0; i < MAX_PARTICLE_EJECTORS; i++ )
+      if( particleEjectors[ i ].valid )
+        numPE++;
+    
+    for( i = 0; i < MAX_PARTICLES; i++ )
+      if( particles[ i ].valid )
+        numP++;
+
+    CG_Printf( "PS: %d  PE: %d  P: %d\n", numPS, numPE, numP );
   }
 }

@@ -290,6 +290,186 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
 
       continue;
     }
+    else if( !Q_stricmp( token, "missileSprite" ) )
+    {
+      int size = 0;
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      size = atoi( token );
+      
+      if( size < 0 )
+        size = 0;
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->missileSprite = trap_R_RegisterShader( token );
+      wi->missileSpriteSize = size;
+      wi->usesSpriteMissle = qtrue;
+      
+      if( !wi->missileSprite )
+        CG_Printf( "Missile sprite not found %s: %s\n", filename, token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "missileRotates" ) )
+    {
+      wi->missileRotates = qtrue;
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "missileParticleSystem" ) )
+    {
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->missileParticleSystem = CG_RegisterParticleSystem( token );
+      
+      if( !wi->missileParticleSystem )
+        CG_Printf( "Missile particle system not found %s: %s\n", filename, token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "muzzleParticleSystem" ) )
+    {
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->muzzleParticleSystem = CG_RegisterParticleSystem( token );
+      
+      if( !wi->muzzleParticleSystem )
+        CG_Printf( "Muzzle particle system not found %s: %s\n", filename, token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "impactParticleSystem" ) )
+    {
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->impactParticleSystem = CG_RegisterParticleSystem( token );
+      
+      if( !wi->impactParticleSystem )
+        CG_Printf( "Impact particle system not found %s: %s\n", filename, token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "impactDish" ) )
+    {
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->impactDish = trap_R_RegisterModel( token );
+      
+      if( !wi->impactDish )
+        CG_Printf( "Impact dish model not found %s: %s\n", filename, token );
+
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->impactDishShader = trap_R_RegisterShader( token );
+      
+      if( !wi->impactDishShader )
+        CG_Printf( "Impact dish shader not found %s: %s\n", filename, token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "impactMark" ) )
+    {
+      int size = 0;
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      size = atoi( token );
+      
+      if( size < 0 )
+        size = 0;
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->impactMark = trap_R_RegisterShader( token );
+      wi->impactMarkSize = size;
+      
+      if( !wi->impactMark )
+        CG_Printf( "Impact mark shader not found %s: %s\n", filename, token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "impactSound" ) )
+    {
+      int index = 0;
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      index = atoi( token );
+      
+      if( index < 0 )
+        index = 0;
+      else if( index > 3 )
+        index = 3;
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->impactSound[ index ] = trap_S_RegisterSound( token, qfalse );
+      
+      if( !wi->impactSound[ index ] )
+        CG_Printf( "Weapon impact sound %d not found %s: %s\n", index, filename, token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "impactDlightColor" ) )
+    {
+      for( i = 0 ; i < 3 ; i++ )
+      {
+        token = COM_Parse( &text_p );
+        if( !token )
+          break;
+
+        wi->impactDlightColor[ i ] = atof( token );
+      }
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "impactDlight" ) )
+    {
+      int size = 0;
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      size = atoi( token );
+      
+      if( size < 0 )
+        size = 0;
+      
+      wi->impactDlight = size;
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "alwaysImpact" ) )
+    {
+      wi->alwaysImpact = qtrue;
+
+      continue;
+    }
     else if( !Q_stricmp( token, "flashDLightColor" ) )
     {
       for( i = 0 ; i < 3 ; i++ )
@@ -301,6 +481,12 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
         wi->flashDlightColor[ i ] = atof( token );
       }
       
+      continue;
+    }
+    else if( !Q_stricmp( token, "continuousFlash" ) )
+    {
+      wi->continuousFlash = qtrue;
+
       continue;
     }
     else if( !Q_stricmp( token, "missileDlightColor" ) )
@@ -511,12 +697,6 @@ void CG_InitWeapons( void )
   
   cgs.media.lightningShader         = trap_R_RegisterShader( "models/ammo/tesla/tesla_bolt");
   cgs.media.lightningExplosionModel = trap_R_RegisterModel( "models/weaphits/crackle.md3" );
-  cgs.media.sfx_lghit               = trap_S_RegisterSound( "sound/weapons/lightning/lg_fire.wav", qfalse );
-  cgs.media.lightningShader         = trap_R_RegisterShader( "models/ammo/tesla/tesla_bolt");
-  cgs.media.bulletExplosionShader   = trap_R_RegisterShader( "bulletExplosion" );
-  cgs.media.plasmaExplosionShader   = trap_R_RegisterShader( "plasmaExplosion" );
-  cgs.media.bulletExplosionShader   = trap_R_RegisterShader( "bulletExplosion" );
-  cgs.media.bfgExplosionShader      = trap_R_RegisterShader( "bfgExplosion" );
 }
 
 
@@ -987,13 +1167,23 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
   CG_PoisonCloud( nonPredictedCent, cent->firstPoisonTime );
 
-  // add the flash
-  if( ( weaponNum == WP_TESLAGEN || weaponNum == WP_FLAMER ) &&
-      ( nonPredictedCent->currentState.eFlags & EF_FIRING ) )
+  if( cent->muzzlePS )
   {
-    // continuous flash
+    if( ps || cg.renderingThirdPerson ||
+        cent->currentState.number != cg.predictedPlayerState.clientNum )
+      CG_SetParticleSystemTag( cent->muzzlePS, gun, weapon->weaponModel, "tag_flash" );
+
+    //if the PS is infinite disable it when not firing
+    if( !( cent->currentState.eFlags & EF_FIRING ) && CG_IsParticleSystemInfinite( cent->muzzlePS ) )
+    {
+      CG_DestroyParticleSystem( cent->muzzlePS );
+      cent->muzzlePS = NULL;
+    }
   }
-  else
+    
+  // add the flash
+  if( !( weapon->continuousFlash &&
+         ( nonPredictedCent->currentState.eFlags & EF_FIRING ) ) )
   {
     // impulse flash
     if( cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && !cent->pe.railgunFlash )
@@ -1020,10 +1210,19 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   if( ps || cg.renderingThirdPerson ||
       cent->currentState.number != cg.predictedPlayerState.clientNum )
   {
+    if( weapon->muzzleParticleSystem && cent->muzzlePsTrigger )
+    {
+      cent->muzzlePS = CG_SpawnNewParticleSystem( weapon->muzzleParticleSystem );
+      CG_SetParticleSystemTag( cent->muzzlePS, gun, weapon->weaponModel, "tag_flash" );
+      CG_SetParticleSystemCent( cent->muzzlePS, cent );
+      CG_AttachParticleSystemToTag( cent->muzzlePS );
+      cent->muzzlePsTrigger = qfalse;
+    }
+  
     // add lightning bolt
     CG_LightningBolt( nonPredictedCent, flash.origin );
     
-    CG_FlameTrail( nonPredictedCent, flash.origin );
+    /*CG_FlameTrail( nonPredictedCent, flash.origin );*/
 
     // make a dlight for the flash
     if( weapon->flashDlightColor[ 0 ] || weapon->flashDlightColor[ 1 ] || weapon->flashDlightColor[ 2 ] )
@@ -1473,9 +1672,9 @@ Caused by an EV_FIRE_WEAPON event
 */
 void CG_FireWeapon( centity_t *cent, int mode )
 {
-  entityState_t *ent;
-  int       c;
-  weaponInfo_t  *weap;
+  entityState_t     *ent;
+  int               c;
+  weaponInfo_t      *weap;
 
   ent = &cent->currentState;
   if( ent->weapon == WP_NONE )
@@ -1496,6 +1695,12 @@ void CG_FireWeapon( centity_t *cent, int mode )
   if( ent->weapon == WP_GRAB_CLAW_UPG && mode == 1 )
     cent->firstPoisonTime = cg.time;
 
+  if( weap->muzzleParticleSystem )
+  {
+    if( !( cent->muzzlePS && CG_IsParticleSystemInfinite( cent->muzzlePS ) ) )
+      cent->muzzlePsTrigger = qtrue;
+  }
+  
   // lightning gun only does this this on initial press
   if( ent->weapon == WP_TESLAGEN )
   {
@@ -1543,158 +1748,65 @@ CG_MissileHitWall
 Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 =================
 */
-void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, int damage )
+void CG_MissileHitWall( int weaponNum, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, int damage )
 {
-  qhandle_t     mod;
-  qhandle_t     mark;
-  qhandle_t     shader;
-  sfxHandle_t   sfx;
-  float         radius;
-  float         light;
-  vec3_t        lightColor;
-  localEntity_t *le;
-  int           r, i;
-  qboolean      alphaFade;
-  qboolean      isSprite;
-  int           duration;
-  vec3_t        sprOrg;
-  vec3_t        sprVel;
-  qboolean      switchBugWorkaround = qfalse;
+  qhandle_t           mod = 0;
+  qhandle_t           mark = 0;
+  qhandle_t           shader = 0;
+  qhandle_t           ps = 0;
+  int                 c;
+  float               radius = 1.0f;
+  float               light = 0.0f;
+  vec3_t              lightColor = { 0.0f, 0.0f, 0.0f };
+  localEntity_t       *le;
+  weaponInfo_t        *weapon;
+  
+  weapon = &cg_weapons[ weaponNum ];
 
-  mark = 0;
-  radius = 32;
-  sfx = 0;
-  mod = 0;
-  shader = 0;
-  light = 0;
-  lightColor[ 0 ] = 1;
-  lightColor[ 1 ] = 1;
-  lightColor[ 2 ] = 0;
+  mark = weapon->impactMark;
+  radius = weapon->impactMarkSize;
+  mod = weapon->impactDish;
+  shader = weapon->impactDishShader;
+  light = weapon->impactDlight;
+  VectorCopy( weapon->impactDlightColor, lightColor );
+  ps = weapon->impactParticleSystem;
 
-  // set defaults
-  isSprite = qfalse;
-  duration = 600;
-
-  switch( weapon )
+  // play a sound
+  for( c = 0; c < 4; c++ )
   {
-    case WP_TESLAGEN:
-    case WP_AREA_ZAP:
-    case WP_DIRECT_ZAP:
-      mod = cgs.media.lightningExplosionModel;
-      shader = cgs.media.lightningShader;
-      sfx = cgs.media.sfx_lghit;
-      mark = cgs.media.energyMarkShader;
-      radius = 24;
-      break;
-      
-    case WP_LOCKBLOB_LAUNCHER:
-    case WP_POUNCE_UPG:
-      sfx = cgs.media.gibBounce1Sound;
-      mark = cgs.media.greenBloodMarkShader;
-      radius = 64;
-      isSprite = qtrue;
-      break;
-      
-    case WP_BLASTER:
-      mark = cgs.media.burnMarkShader;
-      radius = 4;
-      break;
-      
-    case WP_FLAMER:
-      sfx = cgs.media.sfx_flamerexp;
-      mark = cgs.media.burnMarkShader;
-      radius = 32;
-      break;
-      
-    case WP_PULSE_RIFLE:
-      mod = cgs.media.ringFlashModel;
-      shader = cgs.media.plasmaExplosionShader;
-      sfx = cgs.media.sfx_plasmaexp;
-      mark = cgs.media.energyMarkShader;
-      radius = 16;
-      break;
-      
-    case WP_MASS_DRIVER:
-      shader = cgs.media.bulletExplosionShader;
-      mark = cgs.media.bulletMarkShader;
-      radius = 8;
-      break;
-      
-    case WP_MACHINEGUN:
-    case WP_MGTURRET:
-    case WP_CHAINGUN:
-    case WP_LAS_GUN:
-      mod = cgs.media.bulletFlashModel;
-      shader = cgs.media.bulletExplosionShader;
-      mark = cgs.media.bulletMarkShader;
-      
-      r = rand( ) & 3;
-      if( r == 0 )
-        sfx = cgs.media.sfx_ric1;
-      else if( r == 1 )
-        sfx = cgs.media.sfx_ric2;
-      else
-        sfx = cgs.media.sfx_ric3;
-
-      radius = 8;
-      break;
-      
-   #define LCANNON_EJECTION_VEL 300
-      
-    case WP_LUCIFER_CANNON:
-      mod = cgs.media.dishFlashModel;
-      shader = cgs.media.bfgExplosionShader;
-      mark = cgs.media.bulletMarkShader;
-      radius = 8;
-      sfx = cgs.media.sfx_plasmaexp;
-      isSprite = qtrue;
-      
-      for( i = 0; i <= damage / 20; i++ )
-      {
-        qhandle_t spark;
-        vec3_t    velocity;
-        vec3_t    accel = { 0.0f, 0.0f, -DEFAULT_GRAVITY };
-
-        VectorMA( origin, 1.0f, dir, origin );
-
-        if( random( ) > 0.5f )
-          spark = cgs.media.gibSpark1;
-        else
-          spark = cgs.media.scannerBlipShader;
-
-        velocity[ 0 ] = ( 2 * random( ) - 1.0f ) * LCANNON_EJECTION_VEL;
-        velocity[ 1 ] = ( 2 * random( ) - 1.0f ) * LCANNON_EJECTION_VEL;
-        velocity[ 2 ] = ( 2 * random( ) - 1.0f ) * LCANNON_EJECTION_VEL;
-        
-        CG_LaunchSprite( origin, velocity, accel, 0.0f,
-                         0.9f, 1.0f, 40.0f, 255, 0, rand( ) % 360,
-                         cg.time, cg.time, 2000 + ( crandom( ) * 1000 ),
-                         spark, qfalse, qfalse );
-      }
-      break;
-
-    case WP_HIVE:
-      switchBugWorkaround = qtrue;
-      break;
-
-    default:
+    if( !weapon->impactSound[ c ] )
       break;
   }
+  
+  if( c > 0 )
+  {
+    c = rand( ) % c;
+    if( weapon->impactSound[ c ] )
+      trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, weapon->impactSound[ c ] );
+  }
 
-  if( switchBugWorkaround )
-    return;
+  //create impact particle system
+  if( ps )
+  {
+    vec3_t origin2;
+    
+    particleSystem_t *partSystem = CG_SpawnNewParticleSystem( ps );
 
-  if( sfx )
-    trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, sfx );
-
+    //move the origin out from the wall a bit
+    //so particles don't collide with it immediately
+    VectorMA( origin, 10.0f, dir, origin2 );
+    CG_SetParticleSystemOrigin( partSystem, origin2 );
+    
+    CG_SetParticleSystemNormal( partSystem, dir );
+    CG_AttachParticleSystemToOrigin( partSystem );
+  }
+  
   //
   // create the explosion
   //
   if( mod )
   {
-    le = CG_MakeExplosion( origin, dir,
-                           mod, shader,
-                           duration, isSprite );
+    le = CG_MakeExplosion( origin, dir, mod, shader, 600, qfalse );
     le->light = light;
     VectorCopy( lightColor, le->lightColor );
   }
@@ -1702,11 +1814,8 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
   //
   // impact mark
   //
-  // plasma fades alpha, all others fade color
-  alphaFade = ( mark == cgs.media.energyMarkShader ||
-                mark == cgs.media.greenBloodMarkShader );
-  
-  CG_ImpactMark( mark, origin, dir, random( ) * 360, 1, 1, 1, 1, alphaFade, radius, qfalse );
+  if( radius > 0.0f )
+    CG_ImpactMark( mark, origin, dir, random( ) * 360, 1, 1, 1, 1, qfalse, radius, qfalse );
 }
 
 
@@ -1715,21 +1824,14 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 CG_MissileHitPlayer
 =================
 */
-void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum, int damage )
+void CG_MissileHitPlayer( int weaponNum, vec3_t origin, vec3_t dir, int entityNum, int damage )
 {
+  weaponInfo_t  *weapon = &cg_weapons[ weaponNum ];
+  
   CG_Bleed( origin, entityNum );
 
-  // some weapons will make an explosion with the blood, while
-  // others will just make the blood
-  switch( weapon )
-  {
-  /*  case WP_GRENADE_LAUNCHER:
-    case WP_ROCKET_LAUNCHER:
-      CG_MissileHitWall( weapon, 0, origin, dir, IMPACTSOUND_FLESH );
-      break;*/
-    default:
-      break;
-  }
+  if( weapon->alwaysImpact )
+    CG_MissileHitWall( weaponNum, 0, origin, dir, IMPACTSOUND_FLESH, damage );
 }
 
 
@@ -1863,36 +1965,6 @@ static qboolean CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle )
 
 }
 
-/*
-======================
-CG_LasGunHit
-
-Renders las gun effects.
-======================
-*/
-void CG_LasGunHit( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum )
-{
-  trace_t trace;
-  vec3_t    start;
-
-  // if the shooter is currently valid, calc a source point and possibly
-  // do trail effects
-  if( sourceEntityNum >= 0 && cg_tracerChance.value > 0 )
-  {
-    if( CG_CalcMuzzlePoint( sourceEntityNum, start ) )
-    {
-      // draw a tracer
-      if( random() < cg_tracerChance.value )
-        CG_Tracer( start, end );
-    }
-  }
-
-  // impact splash and mark
-  if( flesh )
-    CG_Bleed( end, fleshEntityNum );
-  else
-    CG_MissileHitWall( WP_LAS_GUN, 0, end, normal, IMPACTSOUND_DEFAULT, 0 );
-}
 
 /*
 ======================

@@ -182,8 +182,18 @@ void massDriverFire( gentity_t *ent )
   SnapVectorTowards( tr.endpos, muzzle );
 
   // send impact
-  tent = G_TempEntity( tr.endpos, EV_MASS_DRIVER_HIT );
-  tent->s.eventParm = DirToByte( tr.plane.normal );
+  if( traceEnt->takedamage && traceEnt->client )
+  {
+    tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
+    tent->s.otherEntityNum = traceEnt->s.number;
+    tent->s.eventParm = DirToByte( tr.plane.normal );
+    tent->s.weapon = ent->s.weapon;
+  }
+  else
+  {
+    tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
+    tent->s.eventParm = DirToByte( tr.plane.normal );
+  }
 
   if( traceEnt->takedamage )
   {
@@ -309,12 +319,14 @@ void lasGunFire( gentity_t *ent )
   // send bullet impact
   if( traceEnt->takedamage && traceEnt->client )
   {
-    tent = G_TempEntity( tr.endpos, EV_LAS_HIT_FLESH );
-    tent->s.eventParm = traceEnt->s.number;
+    tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
+    tent->s.otherEntityNum = traceEnt->s.number;
+    tent->s.eventParm = DirToByte( tr.plane.normal );
+    tent->s.weapon = ent->s.weapon;
   }
   else
   {
-    tent = G_TempEntity( tr.endpos, EV_LAS_HIT_WALL );
+    tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
     tent->s.eventParm = DirToByte( tr.plane.normal );
   }
   tent->s.otherEntityNum = ent->s.number;

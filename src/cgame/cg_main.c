@@ -196,6 +196,8 @@ vmCvar_t  cg_wwFollow;
 vmCvar_t  cg_zsortLEs;
 vmCvar_t  cg_consoleLatency;
 vmCvar_t  cg_lightFlare;
+vmCvar_t  cg_debugParticles;
+vmCvar_t  cg_debugPVS;
 
 //TA: hack to get class and carriage through to UI module
 vmCvar_t  ui_currentClass;
@@ -290,6 +292,8 @@ static cvarTable_t cvarTable[ ] =
   { &cg_zsortLEs, "cg_zsortLEs", "1", CVAR_ARCHIVE },
   { &cg_consoleLatency, "cg_consoleLatency", "3000", CVAR_ARCHIVE },
   { &cg_lightFlare, "cg_lightFlare", "3", CVAR_ARCHIVE },
+  { &cg_debugParticles, "cg_debugParticles", "0", CVAR_CHEAT },
+  { &cg_debugPVS, "cg_debugPVS", "0", CVAR_CHEAT },
   
   { &ui_currentClass, "ui_currentClass", "0", 0 },
   { &ui_carriage, "ui_carriage", "", 0 },

@@ -312,6 +312,31 @@ static void CG_Speaker( centity_t *cent )
 
 /*
 ===============
+CG_LaunchMissile
+===============
+*/
+static void CG_LaunchMissile( centity_t *cent )
+{
+  entityState_t       *es;
+  const weaponInfo_t  *weapon;
+  particleSystem_t    *ps;
+
+  es = &cent->currentState;
+  if( es->weapon > WP_NUM_WEAPONS )
+    es->weapon = 0;
+  
+  weapon = &cg_weapons[ es->weapon ];
+
+  if( weapon->missileParticleSystem )
+  {
+    ps = CG_SpawnNewParticleSystem( weapon->missileParticleSystem );
+    CG_SetParticleSystemCent( ps, cent );
+    CG_AttachParticleSystemToCent( ps );
+  }
+}
+
+/*
+===============
 CG_Missile
 ===============
 */
@@ -360,90 +385,35 @@ static void CG_Missile( centity_t *cent )
   VectorCopy( cent->lerpOrigin, ent.origin );
   VectorCopy( cent->lerpOrigin, ent.oldorigin );
 
-  switch( cent->currentState.weapon )
+  if( weapon->usesSpriteMissle )
   {
-    case WP_BLASTER:
-      ent.reType = RT_SPRITE;
-      ent.radius = 4;
-      ent.rotation = 0;
-      ent.customShader = cgs.media.blasterShader;
-      trap_R_AddRefEntityToScene( &ent );
-      switchBugWorkaround = qtrue;
-      break;
+    ent.reType = RT_SPRITE;
+    ent.radius = weapon->missileSpriteSize;
+    ent.rotation = 0;
+    ent.customShader = weapon->missileSprite;
+  }
+  else
+  {
+    ent.hModel = weapon->missileModel;
+    ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
 
-    case WP_PULSE_RIFLE:
-      ent.reType = RT_SPRITE;
-      ent.radius = 4;
-      ent.rotation = 0;
-      ent.customShader = cgs.media.plasmaBallShader;
-      trap_R_AddRefEntityToScene( &ent );
-      switchBugWorkaround = qtrue;
-      break;
+    // convert direction of travel into axis
+    if( VectorNormalize2( s1->pos.trDelta, ent.axis[ 0 ] ) == 0 )
+      ent.axis[ 0 ][ 2 ] = 1;
 
-    case WP_LUCIFER_CANNON:
-      ent.skinNum = cg.clientFrame & 1;
-      ent.hModel = weapon->missileModel;
-      ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
-
-      // convert direction of travel into axis
-      if( VectorNormalize2( s1->pos.trDelta, ent.axis[ 0 ] ) == 0 )
-        ent.axis[ 0 ][ 2 ] = 1;
-
-      RotateAroundDirection( ent.axis, cg.time / 4 );
-
-      fraction = (float)s1->generic1 / (float)LCANNON_TOTAL_CHARGE;
-      VectorScale( ent.axis[ 0 ], fraction, ent.axis[ 0 ] );
-      VectorScale( ent.axis[ 1 ], fraction, ent.axis[ 1 ] );
-      VectorScale( ent.axis[ 2 ], fraction, ent.axis[ 2 ] );
-      ent.nonNormalizedAxes = qtrue;
-      
-      break;
-
-    case WP_HIVE:
-      //FIXME:
-      ent.reType = RT_SPRITE;
-      ent.radius = 4;
-      ent.rotation = 0;
-      ent.customShader = cgs.media.blasterShader;
-      trap_R_AddRefEntityToScene( &ent );
-      switchBugWorkaround = qtrue;
-      break;
-      
-/*    case WP_LOCKBLOB_LAUNCHER:
-      //FIXME:
-      break;*/
-      
-/*    case WP_POUNCE_UPG:
-      //FIXME:
-      break;*/
-      
-    case WP_FLAMER:
-      //TA: don't actually display the missile (use the particle engine)
-      switchBugWorkaround = qtrue;
-      break;
-
-    default:
-      // flicker between two skins
-      ent.skinNum = cg.clientFrame & 1;
-      ent.hModel = weapon->missileModel;
-      ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
-
-      // convert direction of travel into axis
-      if( VectorNormalize2( s1->pos.trDelta, ent.axis[ 0 ] ) == 0 )
-        ent.axis[ 0 ][ 2 ] = 1;
-
+    if( weapon->missileRotates )
+    {
       // spin as it moves
       if( s1->pos.trType != TR_STATIONARY )
         RotateAroundDirection( ent.axis, cg.time / 4 );
       else
         RotateAroundDirection( ent.axis, s1->time );
+    }
   }
   
-  if( switchBugWorkaround )
-    return;
-  
-  // add to refresh list, possibly with quad glow
-  CG_AddRefEntityWithPowerups( &ent, s1->powerups, TEAM_FREE );
+  //only refresh if there is something to display
+  if( weapon->missileSprite || weapon->missileModel )
+    trap_R_AddRefEntityToScene( &ent );
 }
 
 /*
@@ -877,6 +847,44 @@ static void CG_CalcEntityLerpPositions( centity_t *cent )
 }
 
 
+/*
+===============
+CG_CEntityPVSEnter
+
+===============
+*/
+static void CG_CEntityPVSEnter( centity_t *cent )
+{
+  int i;
+  
+  if( cg_debugPVS.integer )
+    CG_Printf( "Entity %d entered PVS\n", cent->currentState.number );
+  
+  switch( cent->currentState.eType )
+  {
+    case ET_MISSILE:
+      CG_LaunchMissile( cent );
+      break;
+  }
+
+  //clear any particle systems from previous uses of this centity_t
+  cent->muzzlePS = NULL;
+  cent->muzzlePsTrigger = qfalse;
+}
+
+
+/*
+===============
+CG_CEntityPVSLeave
+
+===============
+*/
+static void CG_CEntityPVSLeave( centity_t *cent )
+{
+  if( cg_debugPVS.integer )
+    CG_Printf( "Entity %d left PVS\n", cent->currentState.number );
+}
+
 
 /*
 ===============
@@ -1017,7 +1025,7 @@ void CG_AddPacketEntities( void )
   cg.ep.numAlienClients = 0;
   cg.ep.numHumanClients = 0;
 
-  for( num = 0 ; num < cg.snap->numEntities ; num++ )
+  for( num = 0; num < cg.snap->numEntities; num++ )
   {
     cent = &cg_entities[ cg.snap->entities[ num ].number ];
     
@@ -1055,11 +1063,28 @@ void CG_AddPacketEntities( void )
 
   //Com_Printf( "%d %d\n", cgIP.numAlienClients, cgIP.numHumanClients );
 
+  for( num = 0; num < MAX_GENTITIES; num++ )
+    cg_entities[ num ].valid = qfalse;
+
   // add each entity sent over by the server
   for( num = 0; num < cg.snap->numEntities; num++ )
   {
     cent = &cg_entities[ cg.snap->entities[ num ].number ];
+    cent->valid = qtrue;
     CG_AddCEntity( cent );
   }
+  
+  for( num = 0; num < MAX_GENTITIES; num++ )
+  {
+    cent = &cg_entities[ num ];
+
+    if( cent->valid && !cent->oldValid )
+      CG_CEntityPVSEnter( cent );
+    else if( !cent->valid && cent->oldValid )
+      CG_CEntityPVSLeave( cent );
+
+    cent->oldValid = cent->valid;
+  }
+
 }
 

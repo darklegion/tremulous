@@ -1682,21 +1682,6 @@ static void CG_PlayerSplash( centity_t *cent )
 }
 
 
-
-/*
-===============
-CG_AddRefEntityWithPowerups
-
-Adds a piece with modifications or duplications for powerups
-Also called by CG_Missile for quad rockets, but nobody can tell...
-===============
-*/
-void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, int team )
-{
-  trap_R_AddRefEntityToScene( ent );
-}
-
-
 /*
 =================
 CG_LightVerts
@@ -1850,15 +1835,7 @@ void CG_Player( centity_t *cent )
   vec3_t        angles;
   int           held = es->modelindex;
   pTeam_t       team = es->powerups & 0xFF;
-  static particleSystem_t *partSystem = NULL;
 
-  if( partSystem == NULL )
-  {
-    CG_Printf( S_COLOR_GREEN "particle system created\n" );
-    partSystem = CG_SpawnNewParticleSystem( cgs.media.testParticleSystem );
-    CG_SetParticleSystemCent( partSystem, cent );
-    CG_AttachParticleSystemToCent( partSystem );
-  }
   // the client number is stored in clientNum.  It can't be derived
   // from the entity number, because a single client may have
   // multiple corpses on the level using the same clientinfo

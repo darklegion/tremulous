@@ -115,6 +115,228 @@ typedef enum
 } impactSound_t;
 
 
+//particle system stuff
+#define MAX_SHADER_FRAMES         64
+#define MAX_EJECTORS_PER_SYSTEM   4
+#define MAX_PARTICLES_PER_EJECTOR 4
+
+#define MAX_BASEPARTICLE_SYSTEMS  512
+#define MAX_BASEPARTICLE_EJECTORS MAX_BASEPARTICLE_SYSTEMS*MAX_EJECTORS_PER_SYSTEM
+#define MAX_BASEPARTICLES         MAX_BASEPARTICLE_EJECTORS*MAX_PARTICLES_PER_EJECTOR
+
+#define MAX_PARTICLE_SYSTEMS      64
+#define MAX_PARTICLE_EJECTORS     MAX_PARTICLE_SYSTEMS*MAX_EJECTORS_PER_SYSTEM
+#define MAX_PARTICLES             MAX_PARTICLE_EJECTORS*8
+
+#define PARTICLES_INFINITE        -1
+#define PARTICLES_SAME_AS_INITIAL -2
+
+/*
+===============
+
+COMPILE TIME STRUCTURES
+
+===============
+*/
+
+typedef enum
+{
+  PMT_STATIC,
+  PMT_TAG,
+  PMT_CENT_ANGLES,
+  PMT_NORMAL
+} pMoveType_t;
+
+typedef enum
+{
+  PMD_LINEAR,
+  PMD_POINT
+} pDirType_t;
+
+typedef struct pMoveValues_u
+{
+  pDirType_t  dirType;
+  
+  //PMD_LINEAR
+  vec3_t      dir; 
+  float       dirRandAngle;
+  
+  //PMD_POINT
+  vec3_t      point;
+  float       pointRandAngle;
+  
+  float       mag;
+  float       magRandFrac;
+  
+  float       parentVelFrac;
+  float       parentVelFracRandFrac;
+} pMoveValues_t;
+
+typedef struct pLerpValues_s
+{
+  int   delay;
+  float delayRandFrac;
+  
+  float initial;
+  float initialRandFrac;
+  
+  float final;
+  float finalRandFrac;
+
+  float randFrac;
+} pLerpValues_t;
+
+//particle template
+typedef struct baseParticle_s
+{
+  float           randDisplacement;
+  
+  pMoveType_t     velMoveType;
+  pMoveValues_t   velMoveValues;
+  
+  pMoveType_t     accMoveType;
+  pMoveValues_t   accMoveValues;
+
+  int             lifeTime;
+  float           lifeTimeRandFrac;
+
+  float           bounceFrac;
+  float           bounceFracRandFrac;
+
+  pLerpValues_t   radius;
+  pLerpValues_t   alpha;
+  pLerpValues_t   rotation;
+
+  //particle invariant stuff
+  char            shaderNames[ MAX_QPATH ][ MAX_SHADER_FRAMES ];
+  qhandle_t       shaders[ MAX_SHADER_FRAMES ];
+  int             numFrames;
+  float           framerate;
+
+  qboolean        overdrawProtection;
+  qboolean        realLight;
+} baseParticle_t;
+
+
+//ejector template
+typedef struct baseParticleEjector_s
+{
+  baseParticle_t  *particles[ MAX_PARTICLES_PER_EJECTOR ];
+  int             numParticles;
+  
+  pLerpValues_t   eject;          //zero period indicates creation of all particles at once
+
+  int             totalParticles;         //can be infinite
+  float           totalParticlesRandFrac;
+} baseParticleEjector_t;
+
+
+//particle system template
+typedef struct baseParticleSystem_s
+{
+  char                  name[ MAX_QPATH ];
+  baseParticleEjector_t *ejectors[ MAX_EJECTORS_PER_SYSTEM ];
+  int                   numEjectors;
+
+  qboolean              registered; //whether or not the assets for this particle have been loaded
+} baseParticleSystem_t;
+
+
+/*
+===============
+
+RUN TIME STRUCTURES
+
+===============
+*/
+
+typedef enum
+{
+  PSA_STATIC,
+  PSA_TAG,
+  PSA_CENT_ORIGIN
+} psAttachmentType_t;
+
+
+typedef struct psAttachment_s
+{
+  qboolean staticValid;
+  qboolean tagValid;
+  qboolean centValid;
+  qboolean normalValid;
+
+  //PMT_STATIC
+  vec3_t      origin;
+  
+  //PMT_TAG
+  refEntity_t re;     //FIXME: should be pointers?
+  refEntity_t parent; //
+  qhandle_t   model;
+  char        tagName[ MAX_STRING_CHARS ];
+  
+  //PMT_CENT_ANGLES
+  int         centNum;
+
+  //PMT_NORMAL
+  vec3_t      normal;
+} psAttachment_t;
+
+
+typedef struct particleSystem_s
+{
+  baseParticleSystem_t  *class;
+  
+  psAttachmentType_t    attachType;
+  psAttachment_t        attachment;
+  qboolean              attached;   //is the particle system attached to anything
+
+  qboolean              enabled; //necessary?
+  
+  qboolean              valid;
+} particleSystem_t;
+
+
+typedef struct particleEjector_s
+{
+  baseParticleEjector_t *class;
+  particleSystem_t      *parent;
+
+  pLerpValues_t         ejectPeriod;
+
+  int                   count;
+  int                   totalParticles;
+  
+  int                   nextEjectionTime;
+  
+  qboolean              valid;
+} particleEjector_t;
+
+
+//used for actual particle evaluation
+typedef struct particle_s
+{
+  baseParticle_t    *class;
+  particleEjector_t *parent;
+  
+  int               birthTime;
+  int               lifeTime;
+  
+  vec3_t            origin;
+  vec3_t            velocity;
+  
+  pMoveType_t       accMoveType;
+  pMoveValues_t     accMoveValues;
+
+  int               lastEvalTime;
+
+  pLerpValues_t     radius;
+  pLerpValues_t     alpha;
+  pLerpValues_t     rotation;
+  
+  qboolean          valid;
+} particle_t;
+
+
 //=================================================
 
 // player entities need to track more information
@@ -166,7 +388,7 @@ typedef struct
 
 //=================================================
 
-
+#define MAX_CENTITY_PARTICLE_SYSTEMS  8
 
 // centity_t have a direct corespondence with gentity_t in the game, but
 // only the entityState_t is directly communicated to the cgame
@@ -225,6 +447,12 @@ typedef struct centity_s
   qboolean              flareStatus;        //flare is visble?
 
   qboolean              doorState;
+
+  particleSystem_t      *muzzlePS;
+  qboolean              muzzlePsTrigger;
+
+  qboolean              valid;
+  qboolean              oldValid;
 } centity_t;
 
 
@@ -432,6 +660,7 @@ typedef struct weaponInfo_s
   float       flashDlight;
   vec3_t      flashDlightColor;
   sfxHandle_t flashSound[ 4 ];  // fast firing weapons randomly choose
+  qboolean    continuousFlash;
 
   qhandle_t   weaponIcon;
   qhandle_t   ammoIcon;
@@ -445,6 +674,11 @@ typedef struct weaponInfo_s
   float       missileDlight;
   vec3_t      missileDlightColor;
   int         missileRenderfx;
+  qboolean    usesSpriteMissle;
+  qhandle_t   missileSprite;
+  int         missileSpriteSize;
+  qhandle_t   missileParticleSystem;
+  qboolean    missileRotates;
 
   void        (*ejectBrassFunc)( centity_t * );
 
@@ -454,6 +688,18 @@ typedef struct weaponInfo_s
   sfxHandle_t readySound;
   sfxHandle_t firingSound;
   qboolean    loopFireSound;
+
+  qhandle_t   muzzleParticleSystem;
+
+  qboolean    alwaysImpact;
+  qhandle_t   impactDish;
+  qhandle_t   impactDishShader;
+  qhandle_t   impactParticleSystem;
+  qhandle_t   impactMark;
+  qhandle_t   impactMarkSize;
+  sfxHandle_t impactSound[ 4 ]; //random impact sound
+  float       impactDlight;
+  vec3_t      impactDlightColor;
 } weaponInfo_t;
 
 typedef struct upgradeInfo_s
@@ -857,12 +1103,6 @@ typedef struct
   qhandle_t   lightningExplosionModel;
 
   // weapon effect shaders
-  qhandle_t   railExplosionShader;
-  qhandle_t   plasmaExplosionShader;
-  qhandle_t   bulletExplosionShader;
-  qhandle_t   rocketExplosionShader;
-  qhandle_t   grenadeExplosionShader;
-  qhandle_t   bfgExplosionShader;
   qhandle_t   bloodExplosionShader;
 
   // special effects models
@@ -875,7 +1115,6 @@ typedef struct
   sfxHandle_t useNothingSound;
   sfxHandle_t wearOffSound;
   sfxHandle_t footsteps[ FOOTSTEP_TOTAL ][ 4 ];
-  sfxHandle_t sfx_lghit;
   sfxHandle_t sfx_ric1;
   sfxHandle_t sfx_ric2;
   sfxHandle_t sfx_ric3;
@@ -1154,6 +1393,8 @@ extern  vmCvar_t    cg_wwFollow;
 extern  vmCvar_t    cg_zsortLEs;
 extern  vmCvar_t    cg_consoleLatency;
 extern  vmCvar_t    cg_lightFlare;
+extern  vmCvar_t    cg_debugParticles;
+extern  vmCvar_t    cg_debugPVS;
 
 //TA: hack to get class an carriage through to UI module
 extern  vmCvar_t    ui_currentClass;
@@ -1343,7 +1584,6 @@ void        CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t 
 void        CG_Explosion( int clientNum, vec3_t origin, vec3_t dir );
 void        CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum, int damage );
 void        CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
-void        CG_LasGunHit( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 
 void        CG_TeslaTrail( vec3_t start, vec3_t end, int srcENum, int destENum );
 void        CG_AlienZap( vec3_t start, vec3_t end, int srcENum, int destENum );
@@ -1467,234 +1707,21 @@ qboolean      S_decodeMP3( char *mp3File, char *wavFile );
 //
 // cg_particles.c
 //
-
-#define MAX_SHADER_FRAMES         64
-#define MAX_EJECTORS_PER_SYSTEM   4
-#define MAX_PARTICLES_PER_EJECTOR 4
-
-#define MAX_BASEPARTICLE_SYSTEMS  512
-#define MAX_BASEPARTICLE_EJECTORS MAX_BASEPARTICLE_SYSTEMS*MAX_EJECTORS_PER_SYSTEM
-#define MAX_BASEPARTICLES         MAX_BASEPARTICLE_EJECTORS*MAX_PARTICLES_PER_EJECTOR
-
-#define MAX_PARTICLE_SYSTEMS      16
-#define MAX_PARTICLE_EJECTORS     MAX_PARTICLE_SYSTEMS*MAX_EJECTORS_PER_SYSTEM
-#define MAX_PARTICLES             MAX_PARTICLE_EJECTORS*8
-
-#define PARTICLES_INFINITE        -1
-#define PARTICLES_SAME_AS_INITIAL -2
-
-/*
-===============
-
-COMPILE TIME STRUCTURES
-
-===============
-*/
-
-typedef enum
-{
-  PMT_STATIC,
-  PMT_TAG,
-  PMT_CENT_ANGLES
-} pMoveType_t;
-
-typedef enum
-{
-  PMD_LINEAR,
-  PMD_POINT
-} pDirType_t;
-
-typedef struct pMoveValues_u
-{
-  pDirType_t  dirType;
-  
-  //PMD_LINEAR
-  vec3_t      dir; 
-  float       dirRandAngle;
-  
-  //PMD_POINT
-  vec3_t      point;
-  float       pointRandAngle;
-  
-  float       mag;
-  float       magRandFrac;
-  
-  float       parentVelFrac;
-  float       parentVelFracRandFrac;
-} pMoveValues_t;
-
-typedef struct pLerpValues_s
-{
-  int   delay;
-  float delayRandFrac;
-  
-  float initial;
-  float initialRandFrac;
-  
-  float final;
-  float finalRandFrac;
-
-  float randFrac;
-} pLerpValues_t;
-
-//particle template
-typedef struct baseParticle_s
-{
-  float           randDisplacement;
-  
-  pMoveType_t     velMoveType;
-  pMoveValues_t   velMoveValues;
-  
-  pMoveType_t     accMoveType;
-  pMoveValues_t   accMoveValues;
-
-  int             lifeTime;
-  float           lifeTimeRandFrac;
-
-  float           bounceFrac;
-  float           bounceFracRandFrac;
-
-  pLerpValues_t   radius;
-  pLerpValues_t   alpha;
-  pLerpValues_t   rotation;
-
-  //particle invariant stuff
-  char            shaderNames[ MAX_QPATH ][ MAX_SHADER_FRAMES ];
-  qhandle_t       shaders[ MAX_SHADER_FRAMES ];
-  int             numFrames;
-  float           framerate;
-
-  qboolean        overdrawProtection;
-  qboolean        realLight;
-} baseParticle_t;
-
-
-//ejector template
-typedef struct baseParticleEjector_s
-{
-  baseParticle_t  *particles[ MAX_PARTICLES_PER_EJECTOR ];
-  int             numParticles;
-  
-  pLerpValues_t   eject;          //zero period indicates creation of all particles at once
-
-  int             totalParticles;         //can be infinite
-  float           totalParticlesRandFrac;
-} baseParticleEjector_t;
-
-
-//particle system template
-typedef struct baseParticleSystem_s
-{
-  char                  name[ MAX_QPATH ];
-  baseParticleEjector_t *ejectors[ MAX_EJECTORS_PER_SYSTEM ];
-  int                   numEjectors;
-
-  qboolean              registered; //whether or not the assets for this particle have been loaded
-} baseParticleSystem_t;
-
-
-/*
-===============
-
-RUN TIME STRUCTURES
-
-===============
-*/
-
-typedef enum
-{
-  PSA_STATIC,
-  PSA_TAG,
-  PSA_CENT_ORIGIN
-} psAttachmentType_t;
-
-
-typedef struct psAttachment_s
-{
-  qboolean staticValid;
-  qboolean tagValid;
-  qboolean centValid;
-
-  //PMT_STATIC
-  vec3_t origin;
-  
-  //PMT_TAG
-  refEntity_t re;
-  refEntity_t parent;
-  qhandle_t   model;
-  char        tagName[ MAX_STRING_CHARS ];
-  
-  //PMT_CENT_ANGLES
-  centity_t *cent;
-} psAttachment_t;
-
-
-typedef struct particleSystem_s
-{
-  baseParticleSystem_t  *class;
-  
-  psAttachmentType_t    attachType;
-  psAttachment_t        attachment;
-  qboolean              attached;   //is the particle system attached to anything
-
-  qboolean              enabled; //necessary?
-  
-  qboolean              valid;
-} particleSystem_t;
-
-
-typedef struct particleEjector_s
-{
-  baseParticleEjector_t *class;
-  particleSystem_t      *parent;
-
-  pLerpValues_t         ejectPeriod;
-
-  int                   count;
-  int                   totalParticles;
-  
-  int                   nextEjectionTime;
-  
-  qboolean              valid;
-} particleEjector_t;
-
-
-//used for actual particle evaluation
-typedef struct particle_s
-{
-  baseParticle_t    *class;
-  particleEjector_t *parent;
-  
-  int               birthTime;
-  int               lifeTime;
-  
-  vec3_t            origin;
-  vec3_t            velocity;
-  
-  pMoveType_t       accMoveType;
-  pMoveValues_t     accMoveValues;
-
-  int               lastEvalTime;
-
-  pLerpValues_t     radius;
-  pLerpValues_t     alpha;
-  pLerpValues_t     rotation;
-  
-  qboolean          valid;
-} particle_t;
-
 void                CG_LoadParticleSystems( void );
 qhandle_t           CG_RegisterParticleSystem( char *name );
 
 particleSystem_t    *CG_SpawnNewParticleSystem( qhandle_t psHandle );
 void                CG_DestroyParticleSystem( particleSystem_t *ps );
 
+qboolean            CG_IsParticleSystemInfinite( particleSystem_t *ps );
+  
 void                CG_SetParticleSystemCent( particleSystem_t *ps, centity_t *cent );
 void                CG_AttachParticleSystemToCent( particleSystem_t *ps );
 void                CG_SetParticleSystemTag( particleSystem_t *ps, refEntity_t parent, qhandle_t model, char *tagName );
 void                CG_AttachParticleSystemToTag( particleSystem_t *ps );
 void                CG_SetParticleSystemOrigin( particleSystem_t *ps, vec3_t origin );
 void                CG_AttachParticleSystemOrigin( particleSystem_t *ps );
+void                CG_SetParticleSystemNormal( particleSystem_t *ps, vec3_t normal );
 
 void                CG_AddParticles( void );
 
