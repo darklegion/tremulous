@@ -822,14 +822,18 @@ void ClientThink_real( gentity_t *ent ) {
 
   memset (&pm, 0, sizeof(pm));
 
-  //TA: gauntlet is a NULL weapon to be given to builder classes
-  // check for the hit-scan gauntlet, don't let the action
-  // go through as an attack unless it actually hits something
-  /*if ( client->ps.weapon == WP_GAUNTLET && !( ucmd->buttons & BUTTON_TALK ) &&
-    ( ucmd->buttons & BUTTON_ATTACK ) && client->ps.weaponTime <= 0 ) {
-    pm.gauntletHit = CheckGauntletAttack( ent );
-  }*/
-  pm.gauntletHit = qfalse;
+  if( !( ucmd->buttons & BUTTON_TALK ) && client->ps.weaponTime <= 0 )
+  {
+    switch( client->ps.weapon )
+    {
+      case WP_VENOM:
+        pm.autoWeaponHit[ WP_VENOM ] = CheckVenomAttack( ent );
+        break;
+
+      default:
+        break;
+    }
+  }
 
   if ( ent->flags & FL_FORCE_GESTURE ) {
     ent->flags &= ~FL_FORCE_GESTURE;

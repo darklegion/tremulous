@@ -399,7 +399,7 @@ to ease the jerk.
 =================
 */
 void CG_PredictPlayerState( void ) {
-  int     cmdNum, current;
+  int     cmdNum, current, i;
   playerState_t oldPlayerState;
   qboolean  moved;
   usercmd_t oldestCmd;
@@ -564,7 +564,8 @@ void CG_PredictPlayerState( void ) {
 
     // don't predict gauntlet firing, which is only supposed to happen
     // when it actually inflicts damage
-    cg_pmove.gauntletHit = qfalse;
+    for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+      cg_pmove.autoWeaponHit[ i ] = qfalse;
 
     if ( cg_pmove.pmove_fixed ) {
       cg_pmove.cmd.serverTime = ((cg_pmove.cmd.serverTime + pmove_msec.integer-1) / pmove_msec.integer) * pmove_msec.integer;

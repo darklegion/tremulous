@@ -1200,7 +1200,7 @@ void CG_DrawWeaponSelect( void ) {
   x = 10;
   y = 10;
 
-  for ( i = WP_GAUNTLET; i < WP_NUM_WEAPONS; i++ ) {
+  for ( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ ) {
     if( !BG_gotWeapon( i, cg.snap->ps.stats ) )
       continue;
 

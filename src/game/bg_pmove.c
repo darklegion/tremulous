@@ -71,7 +71,7 @@ static void PM_AddSmoothOp( vec3_t rotAxis, float rotAngle )
   //this happens often because groundtrace is called twice a frame
   for( i = 0; i < MAXSMOOTHS; i++ )
   {
-    if( wcl[ pm->ps->clientNum ].sList[ i ].time >= pm->cmd.serverTime - 10 )
+    if( wcl[ pm->ps->clientNum ].sList[ i ].time >= pm->cmd.serverTime - 50 )
       return;
 
     /*if( VectorCompare( sList[ i ].rotAxis, rotAxis ) )
@@ -2121,15 +2121,10 @@ PM_TorsoAnimation
 
 ==============
 */
-static void PM_TorsoAnimation( void ) {
-  if ( pm->ps->weaponstate == WEAPON_READY ) {
-    if ( pm->ps->weapon == WP_GAUNTLET ) {
-      PM_ContinueTorsoAnim( TORSO_STAND2 );
-    } else {
-      PM_ContinueTorsoAnim( TORSO_STAND );
-    }
-    return;
-  }
+static void PM_TorsoAnimation( void )
+{
+  if ( pm->ps->weaponstate == WEAPON_READY )
+    PM_ContinueTorsoAnim( TORSO_STAND );
 }
 
 
@@ -2241,38 +2236,41 @@ static void PM_Weapon( void ) {
     return;
   }
 
-  if ( pm->ps->weaponstate == WEAPON_RAISING ) {
+  if ( pm->ps->weaponstate == WEAPON_RAISING )
+  {
     pm->ps->weaponstate = WEAPON_READY;
-    if ( pm->ps->weapon == WP_GAUNTLET ) {
-      PM_StartTorsoAnim( TORSO_STAND2 );
-    } else {
-      PM_StartTorsoAnim( TORSO_STAND );
-    }
+    PM_StartTorsoAnim( TORSO_STAND );
     return;
   }
 
   if( pm->ps->weapon == WP_SCANNER )
     return; //doesn't actually do anything
 
-  // check for fire
-  if ( ! (pm->cmd.buttons & BUTTON_ATTACK) ) {
-    pm->ps->weaponTime = 0;
-    pm->ps->weaponstate = WEAPON_READY;
-    return;
-  }
-
   // start the animation even if out of ammo
-  if ( pm->ps->weapon == WP_GAUNTLET ) {
-    // the guantlet only "fires" when it actually hits something
-    if ( !pm->gauntletHit ) {
-      pm->ps->weaponTime = 0;
-      pm->ps->weaponstate = WEAPON_READY;
-      return;
-    }
-    PM_StartTorsoAnim( TORSO_ATTACK2 );
-  } else {
-    PM_StartTorsoAnim( TORSO_ATTACK );
+
+  switch( pm->ps->weapon )
+  {
+    case WP_VENOM:
+      if( !pm->autoWeaponHit[ WP_VENOM ] )
+      {
+        pm->ps->weaponTime = 0;
+        pm->ps->weaponstate = WEAPON_READY;
+        return;
+      }
+      break;
+      
+    default:
+      // check for fire
+      if ( !( pm->cmd.buttons & BUTTON_ATTACK ) )
+      {
+        pm->ps->weaponTime = 0;
+        pm->ps->weaponstate = WEAPON_READY;
+        return;
+      }
+      break;
   }
+  
+  PM_StartTorsoAnim( TORSO_ATTACK );
 
   BG_unpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips, &maxclips );
 
