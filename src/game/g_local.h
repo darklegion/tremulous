@@ -776,6 +776,45 @@ void G_ReadSessionData( gclient_t *client );
 void G_InitSessionData( gclient_t *client, char *userinfo );
 void G_WriteSessionData( void );
 
+//
+// g_maprotation.c
+//
+#define MAX_MAP_ROTATIONS     16
+#define MAX_MAP_ROTATION_MAPS 256
+#define MAX_MAP_COMMANDS      16
+
+#define NOT_ROTATING          -1
+
+typedef struct mapRotationEntry_s
+{
+  char  name[ MAX_QPATH ];
+  
+  char  postCmds[ MAX_TOKEN_CHARS ][ MAX_MAP_COMMANDS ];
+  int   numCmds;
+} mapRotationEntry_t;
+
+typedef struct mapRotation_s
+{
+  char                name[ MAX_QPATH ];
+  
+  mapRotationEntry_t  maps[ MAX_MAP_ROTATION_MAPS ];
+  int                 numMaps;
+  int                 currentMap;
+} mapRotation_t;
+
+typedef struct mapRotations_s
+{
+  mapRotation_t   rotations[ MAX_MAP_ROTATIONS ];
+  int             numRotations;
+} mapRotations_t;
+
+void      G_PrintRotations( void );
+qboolean  G_AdvanceMapRotation( void );
+qboolean  G_StartMapRotation( char *name );
+void      G_StopMapRotation( void );
+qboolean  G_MapRotationActive( void );
+void      G_InitMapRotations( void );
+  
 //some maxs
 #define MAX_FILEPATH      144
 
@@ -833,6 +872,10 @@ extern  vmCvar_t  g_alienStage;
 extern  vmCvar_t  g_alienMaxStage;
 extern  vmCvar_t  g_alienStage2Threshold;
 extern  vmCvar_t  g_alienStage3Threshold;
+
+extern  vmCvar_t  g_debugMapRotation;
+extern  vmCvar_t  g_currentMapRotation;
+extern  vmCvar_t  g_currentMap;
 
 void      trap_Printf( const char *fmt );
 void      trap_Error( const char *fmt );

@@ -1912,7 +1912,7 @@ void CG_Player( centity_t *cent )
 
   // add the shadow
   //TA: but only for humans FIXME this is dumb
-  if( team == PTE_HUMANS )
+  /*if( team == PTE_HUMANS )*/
     shadow = CG_PlayerShadow( cent, &shadowPlane );
 
   // add a water splash if partially in and out of water

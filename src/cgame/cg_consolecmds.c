@@ -289,4 +289,6 @@ void CG_InitConsoleCommands( void )
   trap_AddCommand( "deconstruct" );
   trap_AddCommand( "menu" );
   trap_AddCommand( "ui_menu" );
+  trap_AddCommand( "mapRotation" );
+  trap_AddCommand( "stopMapRotation" );
 }

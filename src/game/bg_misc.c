@@ -1540,14 +1540,14 @@ classAttributes_t bg_classList[ ] =
     PCL_A_O_LEV4,                                   //int     classnum;
     "bigmofo",                                      //char    *classname;
     "Big Mofo",                                     //char    *humanname;
-    "bug",                                          //char    *modelname;
-    1.2f,                                           //float   modelScale;
+    "mofo",                                         //char    *modelname;
+    1.0f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -30, -30, -29 },                              //vec3_t  mins;
-    { 30, 30, 29 },                                 //vec3_t  maxs;
-    { 30, 30, 29 },                                 //vec3_t  crouchmaxs;
+    { -30, -30, -20 },                              //vec3_t  mins;
+    { 30, 30, 20 },                                 //vec3_t  maxs;
+    { 30, 30, 20 },                                 //vec3_t  crouchmaxs;
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     50, 50,                                         //int     viewheight, crouchviewheight;

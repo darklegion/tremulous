@@ -518,6 +518,23 @@ qboolean  ConsoleCommand( void )
     return qtrue;
   }
 
+  if( Q_stricmp( cmd, "mapRotation" ) == 0 )
+  {
+    char *rotationName = ConcatArgs( 1 );
+    
+    if( !G_StartMapRotation( rotationName ) )
+      G_Printf( "Can't find map rotation %s\n", rotationName );
+
+    return qtrue;
+  }
+
+  if( Q_stricmp( cmd, "stopMapRotation" ) == 0 )
+  {
+    G_StopMapRotation( );
+
+    return qtrue;
+  }
+
   if( g_dedicated.integer )
   {
     if( Q_stricmp( cmd, "say" ) == 0 )

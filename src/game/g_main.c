@@ -86,6 +86,10 @@ vmCvar_t  g_alienMaxStage;
 vmCvar_t  g_alienStage2Threshold;
 vmCvar_t  g_alienStage3Threshold;
 
+vmCvar_t  g_debugMapRotation;
+vmCvar_t  g_currentMapRotation;
+vmCvar_t  g_currentMap;
+
 static cvarTable_t   gameCvarTable[ ] =
 {
   // don't override the cheat state set by the system
@@ -161,6 +165,10 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_alienStage2Threshold, "g_alienStage2Threshold", "50", 0, 0, qfalse  },
   { &g_alienStage3Threshold, "g_alienStage3Threshold", "100", 0, 0, qfalse  },
 
+  { &g_debugMapRotation, "g_debugMapRotation", "0", 0, 0, qfalse  },
+  { &g_currentMapRotation, "g_currentMapRotation", "-1", 0, 0, qfalse  }, // -1 = NOT_ROTATING
+  { &g_currentMap, "g_currentMap", "0", 0, 0, qfalse  },
+  
   { &g_rankings, "g_rankings", "0", 0, 0, qfalse}
 };
 
@@ -511,6 +519,10 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   //TA:
   G_InitDamageLocations( );
   G_GenerateParticleFileList( );
+  G_InitMapRotations( );
+  
+  if( g_debugMapRotation.integer )
+    G_PrintRotations( );
 
   //reset stages
   trap_Cvar_Set( "g_alienStage", va( "%d", S1 ) );
@@ -1040,7 +1052,11 @@ void ExitLevel( void )
   int       i;
   gclient_t *cl;
 
-  trap_SendConsoleCommand( EXEC_APPEND, "vstr nextmap\n" );
+  if( G_MapRotationActive( ) )
+    G_AdvanceMapRotation( );
+  else
+    trap_SendConsoleCommand( EXEC_APPEND, "vstr nextmap\n" );
+
   level.changemap = NULL;
   level.intermissiontime = 0;
 
