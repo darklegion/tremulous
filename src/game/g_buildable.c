@@ -1500,6 +1500,9 @@ void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
   activator->client->lastRefilTime = level.time;
 }
 
+
+#define DCC_ATTACK_PERIOD 10000
+
 /*
 ================
 HReactor_Think
@@ -1540,6 +1543,16 @@ void HReactor_Think( gentity_t *self )
         tent->s.clientNum = enemy->s.number; //dest
       }
     }
+    
+    //reactor under attack
+    if( self->health < self->lastHealth &&
+        level.time > self->dccAttackTimer && G_isDCC( ) )
+    {
+      self->dccAttackTimer = level.time + DCC_ATTACK_PERIOD;
+      G_BroadcastEvent( EV_DCC_ATTACK, 0 );
+    }
+    
+    self->lastHealth = self->health;
   }
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );

@@ -851,6 +851,15 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       }
       break;
 
+    case EV_DCC_ATTACK:
+      DEBUGNAME( "EV_DCC_ATTACK" );
+      if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS )
+      {
+        //trap_S_StartLocalSound( cgs.media.humanDCCAttack, CHAN_ANNOUNCER );
+        CG_CenterPrint( "Our base is under attack!", 200, GIANTCHAR_WIDTH * 4 );
+      }
+      break;
+
     case EV_OVERMIND_SPAWNS:
       DEBUGNAME( "EV_OVERMIND_SPAWNS" );
       if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS )

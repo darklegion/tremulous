@@ -3957,12 +3957,12 @@ upgradeAttributes_t bg_upgrades[ ] =
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
-    UP_BATTLESUIT,                            //int   upgradeNum;
-    BSUIT_PRICE,                              //int   price;
-    ( 1 << S2 )|( 1 << S3 ),      //int  stages
+    UP_BATTLESUIT,          //int   upgradeNum;
+    BSUIT_PRICE,            //int   price;
+    ( 1 << S3 ),            //int  stages
     SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS|SLOT_BACKPACK, //int   slots;
-    "bsuit",                                  //char  *upgradeName;
-    "Battlesuit",                             //char  *upgradeHumanName;
+    "bsuit",                //char  *upgradeName;
+    "Battlesuit",           //char  *upgradeHumanName;
     "icons/iconu_bsuit",
     WUT_HUMANS              //WUTeam_t  team;
   },
@@ -4346,6 +4346,8 @@ char *eventnames[ ] =
   "EV_OVERMIND_ATTACK", //TA: overmind under attack
   "EV_OVERMIND_DYING",  //TA: overmind close to death
   "EV_OVERMIND_SPAWNS", //TA: overmind needs spawns
+  
+  "EV_DCC_ATTACK",      //TA: dcc under attack
   
   "EV_RPTUSE_SOUND"     //TA: trigger a sound
 };
@@ -4851,4 +4853,38 @@ void BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
   VectorCopy( tr->endpos, entityOrigin );
   VectorMA( entityOrigin, 0.1f, playerNormal, outOrigin );
   vectoangles( forward, outAngles );
+}
+
+/*
+===============
+BG_GetValueOfHuman
+
+Returns the kills value of some human player
+===============
+*/
+int BG_GetValueOfHuman( playerState_t *ps )
+{
+  int     i, worth = 0;
+  float   portion;
+
+  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
+  {
+    if( BG_gotItem( i, ps->stats ) )
+      worth += BG_FindPriceForUpgrade( i );
+  }
+  
+  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+  {
+    if( BG_gotWeapon( i, ps->stats ) )
+      worth += BG_FindPriceForWeapon( i );
+  }
+
+  portion = worth / (float)HUMAN_MAXED;
+
+  if( portion < 0.01f )
+    portion = 0.01f;
+  else if( portion > 1.0f )
+    portion = 1.0f;
+
+  return ceil( ALIEN_MAX_SINGLE_KILLS * portion );
 }

@@ -201,6 +201,7 @@ struct gentity_s
   int               overmindAttackTimer;
   int               overmindDyingTimer;
   int               overmindSpawnsTimer;
+  int               dccAttackTimer;
   int               nextPhysicsTime; //TA: buildables don't need to check what they're sitting on
                                      //    every single frame.. so only do it periodically
   int               clientSpawnTime; //TA: the time until this spawn can spawn a client
@@ -224,6 +225,8 @@ struct gentity_s
   upgrade_t         uTriggers[ UP_NUM_UPGRADES ];   //TA: which upgrades are triggers
 
   int               triggerGravity;                 //TA: gravity for this trigger
+
+  int               suicideTime;  //TA: when the client will suicide
 };
 
 typedef enum

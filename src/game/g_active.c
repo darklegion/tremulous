@@ -1272,6 +1272,15 @@ void ClientThink_real( gentity_t *ent )
     client->retriggerArmouryMenu = 0;
   }
 
+  if( ent->suicideTime > 0 && ent->suicideTime < level.time )
+  {
+    ent->flags &= ~FL_GODMODE;
+    ent->client->ps.stats[ STAT_HEALTH ] = ent->health = 0;
+    player_die( ent, ent, ent, 100000, MOD_SUICIDE );
+
+    ent->suicideTime = 0;
+  }
+
   // perform once-a-second actions
   ClientTimerActions( ent, msec );
 }

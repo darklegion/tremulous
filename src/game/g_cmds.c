@@ -413,9 +413,17 @@ void Cmd_Kill_f( gentity_t *ent )
   if( ent->health <= 0 )
     return;
 
-  ent->flags &= ~FL_GODMODE;
-  ent->client->ps.stats[ STAT_HEALTH ] = ent->health = 0;
-  player_die( ent, ent, ent, 100000, MOD_SUICIDE );
+  if( g_cheats.integer )
+  {
+    ent->flags &= ~FL_GODMODE;
+    ent->client->ps.stats[ STAT_HEALTH ] = ent->health = 0;
+    player_die( ent, ent, ent, 100000, MOD_SUICIDE );
+  }
+  else
+  {
+    trap_SendServerCommand( ent-g_entities, "print \"You will suicide in 10 seconds.\n\"" );
+    ent->suicideTime = level.time + 10000;
+  }
 }
 
 /*
@@ -1302,7 +1310,7 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
         G_FreeEntity( traceEnt );
     
       ent->client->ps.stats[ STAT_MISC ] +=
-        BG_FindBuildDelayForWeapon( ent->s.weapon ) >> 1;
+        BG_FindBuildDelayForWeapon( ent->s.weapon ) >> 2;
     }
   }
 }

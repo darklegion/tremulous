@@ -307,7 +307,7 @@
  * 
  */
 
-#define HUMAN_WDMG_MODIFIER         1.09f
+#define HUMAN_WDMG_MODIFIER         1.12f
 #define HDM(d)                      ((int)((float)d*HUMAN_WDMG_MODIFIER))
 
 #define BLASTER_REPEAT              600
@@ -386,7 +386,7 @@
 #define LCANNON_RADIUS              150
 #define LCANNON_SECONDARY_DAMAGE    HDM(30)
 #define LCANNON_SECONDARY_RADIUS    75
-#define LCANNON_SPEED               250
+#define LCANNON_SPEED               350
 #define LCANNON_CHARGE_TIME         2000
 #define LCANNON_TOTAL_CHARGE        255
 
@@ -420,7 +420,7 @@
 #define JETPACK_DISABLE_TIME        1000 //time to disable the jetpack when player damaged
 #define JETPACK_DISABLE_CHANCE      0.3f
 
-#define BSUIT_PRICE                 200
+#define BSUIT_PRICE                 400
 
 #define MGCLIP_PRICE                0
 
@@ -542,5 +542,7 @@
 #define MAX_FALL_DISTANCE           120.0f //the fall distance at which maximum damage is dealt
 #define AVG_FALL_DISTANCE           ((MIN_FALL_DISTANCE+MAX_FALL_DISTANCE)/2.0f)
 
+#define HUMAN_MAXED                 900   //a human with a strong selection of weapons/upgrades
 #define HUMAN_MAX_CREDITS           2000
 #define ALIEN_MAX_KILLS             9
+#define ALIEN_MAX_SINGLE_KILLS      3

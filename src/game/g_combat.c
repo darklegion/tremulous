@@ -243,13 +243,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   else if( attacker->s.eType != ET_BUILDABLE )
     AddScore( self, -1 );
 
-  if( attacker && attacker->client &&
-      attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
-      self->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  if( attacker && attacker->client )
   {
     int       clientNum = attacker->client->ps.clientNum;
     float     denominator, numerator = self->credits[ clientNum ];
-    int       classValue = BG_FindValueOfClass( self->client->ps.stats[ STAT_PCLASS ] );
     int       total = 0;
     gentity_t *player;
     
@@ -263,26 +260,33 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     {
       player = g_entities + i;
 
-      if( player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+      if( self->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
+          player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
       {
+        int classValue = BG_FindValueOfClass( self->client->ps.stats[ STAT_PCLASS ] );
         numerator = self->credits[ i ];
         
         //add credit
-        player->client->ps.persistant[ PERS_CREDIT ] += (int)( (float)classValue * ( numerator / denominator ) );
+        player->client->ps.persistant[ PERS_CREDIT ] +=
+          (int)( (float)classValue * ( numerator / denominator ) );
 
         if( player->client->ps.persistant[ PERS_CREDIT ] > HUMAN_MAX_CREDITS )
           player->client->ps.persistant[ PERS_CREDIT ] = HUMAN_MAX_CREDITS;
       }
+      else if( self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+          player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      {
+        int classValue = BG_GetValueOfHuman( self->client->ps );
+        numerator = self->credits[ i ];
+        
+        //add kills
+        player->client->ps.persistant[ PERS_CREDIT ] +=
+          (int)round( (float)classValue * ( numerator / denominator ) );
+
+        if( player->client->ps.persistant[ PERS_CREDIT ] > ALIEN_MAX_KILLS )
+          player->client->ps.persistant[ PERS_CREDIT ] = ALIEN_MAX_KILLS;
+      }
     }
-  }
-  else if( attacker && attacker->client &&
-           attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
-           self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-  {
-    attacker->client->ps.persistant[ PERS_CREDIT ]++;
-    
-    if( attacker->client->ps.persistant[ PERS_CREDIT ] > ALIEN_MAX_KILLS )
-      attacker->client->ps.persistant[ PERS_CREDIT ] = ALIEN_MAX_KILLS;
   }
       
   // Add team bonuses
@@ -1030,9 +1034,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     }
 
     //TA: add to the attackers "account" on the target
-    if( targ->client && attacker->client &&
-        targ->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
-        attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    if( targ->client && attacker->client )
       targ->credits[ attacker->client->ps.clientNum ] += take;
 
     if( targ->health <= 0 )
