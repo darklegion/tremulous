@@ -3953,13 +3953,13 @@ void Item_ListBox_Paint(itemDef_t *item) {
           DC->drawRect(x, y, listPtr->elementWidth-1, listPtr->elementHeight-1, item->window.borderSize, item->window.borderColor);
         }
 
+        listPtr->endPos++;
         size -= listPtr->elementWidth;
         if (size < listPtr->elementWidth) {
           listPtr->drawPadding = size; //listPtr->elementWidth - size;
           break;
         }
         x += listPtr->elementWidth;
-        listPtr->endPos++;
         // fit++;
       }
     } else {
@@ -4067,19 +4067,19 @@ void Item_ListBox_Paint(itemDef_t *item) {
           DC->fillRect(x + 2, y + 2, item->window.rect.w - SCROLLBAR_SIZE - 4, listPtr->elementHeight, item->window.outlineColor);
         }
 
+        listPtr->endPos++;
         size -= listPtr->elementHeight;
         if (size < listPtr->elementHeight) {
           listPtr->drawPadding = listPtr->elementHeight - size;
           break;
         }
-        listPtr->endPos++;
         y += listPtr->elementHeight;
         // fit++;
       }
     }
   }
 
-  //TA: fix to off-by-one bug
+  //TA: FIXME: hacky fix to off-by-one bug
   listPtr->endPos--;
 }
 
