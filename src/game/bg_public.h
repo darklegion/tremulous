@@ -623,8 +623,22 @@ typedef enum {
 //TA: for buildable animations
 typedef enum
 {
-  BUILD_CONSTRUCT,
-  BUILD_DESTROY,
+  CONSTRUCT1,
+  CONSTRUCT2,
+
+  IDLE1,
+  IDLE2,
+  IDLE3,
+
+  ATTACK1,
+  ATTACK2,
+
+  PAIN1,
+  PAIN2,
+  
+  DESTROY1,
+  DESTROY2,
+  
   MAX_BUILDABLE_ANIMATIONS
 } buildableAnimNumber_t;
 
