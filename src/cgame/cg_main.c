@@ -34,52 +34,65 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
-int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
-  switch ( command ) {
-  case CG_INIT:
-    CG_Init( arg0, arg1, arg2 );
-    return 0;
-  case CG_SHUTDOWN:
-    CG_Shutdown();
-    return 0;
-  case CG_CONSOLE_COMMAND:
-    return CG_ConsoleCommand();
-  case CG_DRAW_ACTIVE_FRAME:
-    CG_DrawActiveFrame( arg0, arg1, arg2 );
-    return 0;
-  case CG_CROSSHAIR_PLAYER:
-    return CG_CrosshairPlayer();
-  case CG_LAST_ATTACKER:
-    return CG_LastAttacker();
-  case CG_KEY_EVENT:
-    CG_KeyEvent(arg0, arg1);
-    return 0;
-  case CG_MOUSE_EVENT:
-    cgDC.cursorx = cgs.cursorX;
-    cgDC.cursory = cgs.cursorY;
-    CG_MouseEvent(arg0, arg1);
-    return 0;
-  case CG_EVENT_HANDLING:
-    CG_EventHandling(arg0);
-    return 0;
-  default:
-    CG_Error( "vmMain: unknown command %i", command );
-    break;
+int vmMain( int command, int arg0, int arg1, int arg2, int arg3,
+                         int arg4, int arg5, int arg6, int arg7,
+                         int arg8, int arg9, int arg10, int arg11 )
+{
+  switch( command )
+  {
+    case CG_INIT:
+      CG_Init( arg0, arg1, arg2 );
+      return 0;
+      
+    case CG_SHUTDOWN:
+      CG_Shutdown( );
+      return 0;
+      
+    case CG_CONSOLE_COMMAND:
+      return CG_ConsoleCommand( );
+      
+    case CG_DRAW_ACTIVE_FRAME:
+      CG_DrawActiveFrame( arg0, arg1, arg2 );
+      return 0;
+      
+    case CG_CROSSHAIR_PLAYER:
+      return CG_CrosshairPlayer( );
+      
+    case CG_LAST_ATTACKER:
+      return CG_LastAttacker( );
+      
+    case CG_KEY_EVENT:
+      CG_KeyEvent( arg0, arg1 );
+      return 0;
+      
+    case CG_MOUSE_EVENT:
+      cgDC.cursorx = cgs.cursorX;
+      cgDC.cursory = cgs.cursorY;
+      CG_MouseEvent( arg0, arg1 );
+      return 0;
+      
+    case CG_EVENT_HANDLING:
+      CG_EventHandling( arg0 );
+      return 0;
+      
+    default:
+      CG_Error( "vmMain: unknown command %i", command );
+      break;
   }
+  
   return -1;
 }
 
 
 cg_t        cg;
 cgs_t       cgs;
-centity_t     cg_entities[MAX_GENTITIES];
+centity_t   cg_entities[ MAX_GENTITIES ];
 
 //TA: weapons limit expanded:
 //weaponInfo_t    cg_weapons[MAX_WEAPONS];
-weaponInfo_t    cg_weapons[32];
-upgradeInfo_t   cg_upgrades[32];
+weaponInfo_t    cg_weapons[ 32 ];
+upgradeInfo_t   cg_upgrades[ 32 ];
 
-itemInfo_t      cg_items[MAX_ITEMS];
 buildableInfo_t cg_buildables[ BA_NUM_BUILDABLES ];
 
 vmCvar_t  cg_teslaTrailTime;
@@ -190,16 +203,19 @@ vmCvar_t  ui_currentClass;
 vmCvar_t  ui_carriage;
 vmCvar_t  ui_stages;
 vmCvar_t  ui_dialog;
+vmCvar_t  ui_loading;
 
 
-typedef struct {
+typedef struct
+{
   vmCvar_t  *vmCvar;
-  char    *cvarName;
-  char    *defaultString;
-  int     cvarFlags;
+  char      *cvarName;
+  char      *defaultString;
+  int       cvarFlags;
 } cvarTable_t;
 
-static cvarTable_t   cvarTable[] = {
+static cvarTable_t cvarTable[ ] =
+{
   { &cg_ignore, "cg_ignore", "0", 0 },  // used for debugging
   { &cg_autoswitch, "cg_autoswitch", "1", CVAR_ARCHIVE },
   { &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
@@ -281,6 +297,7 @@ static cvarTable_t   cvarTable[] = {
   { &ui_carriage, "ui_carriage", "", 0 },
   { &ui_stages, "ui_stages", "0 0", 0 },
   { &ui_dialog, "ui_dialog", "Text not set", 0 },
+  { &ui_loading, "ui_loading", "0", 0 },
 
   // the following variables are created in other parts of the system,
   // but we also reference them here
@@ -318,25 +335,30 @@ static int   cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
 CG_RegisterCvars
 =================
 */
-void CG_RegisterCvars( void ) {
-  int     i;
+void CG_RegisterCvars( void )
+{
+  int         i;
   cvarTable_t *cv;
-  char    var[MAX_TOKEN_CHARS];
+  char        var[ MAX_TOKEN_CHARS ];
 
-  for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
+  for( i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++ )
+  {
     trap_Cvar_Register( cv->vmCvar, cv->cvarName,
       cv->defaultString, cv->cvarFlags );
   }
 
+  //repress standard Q3 console
+  trap_Cvar_Set( "con_notifytime", "-2" );
+  
   // see if we are also running the server on this machine
   trap_Cvar_VariableStringBuffer( "sv_running", var, sizeof( var ) );
   cgs.localServer = atoi( var );
   forceModelModificationCount = cg_forceModel.modificationCount;
 
-  trap_Cvar_Register(NULL, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
-  trap_Cvar_Register(NULL, "headmodel", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
-  trap_Cvar_Register(NULL, "team_model", DEFAULT_TEAM_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
-  trap_Cvar_Register(NULL, "team_headmodel", DEFAULT_TEAM_HEAD, CVAR_USERINFO | CVAR_ARCHIVE );
+  trap_Cvar_Register( NULL, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
+  trap_Cvar_Register( NULL, "headmodel", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
+  trap_Cvar_Register( NULL, "team_model", DEFAULT_TEAM_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
+  trap_Cvar_Register( NULL, "team_headmodel", DEFAULT_TEAM_HEAD, CVAR_USERINFO | CVAR_ARCHIVE );
 }
 
 
@@ -345,16 +367,19 @@ void CG_RegisterCvars( void ) {
 CG_ForceModelChange
 ===================
 */
-static void CG_ForceModelChange( void ) {
+static void CG_ForceModelChange( void )
+{
   int   i;
 
-  for (i=0 ; i<MAX_CLIENTS ; i++) {
+  for( i = 0; i < MAX_CLIENTS; i++ )
+  {
     const char    *clientInfo;
 
-    clientInfo = CG_ConfigString( CS_PLAYERS+i );
-    if ( !clientInfo[0] ) {
+    clientInfo = CG_ConfigString( CS_PLAYERS + i );
+    
+    if( !clientInfo[ 0 ] )
       continue;
-    }
+
     CG_NewClientInfo( i );
   }
 }
@@ -365,51 +390,52 @@ static void CG_ForceModelChange( void ) {
 CG_UpdateCvars
 =================
 */
-void CG_UpdateCvars( void ) {
-  int     i;
+void CG_UpdateCvars( void )
+{
+  int         i;
   cvarTable_t *cv;
 
-  for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
+  for( i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++ )
     trap_Cvar_Update( cv->vmCvar );
-  }
 
   // check for modications here
 
   // If team overlay is on, ask for updates from the server.  If its off,
   // let the server know so we don't receive it
-  if ( drawTeamOverlayModificationCount != cg_drawTeamOverlay.modificationCount ) {
+  if( drawTeamOverlayModificationCount != cg_drawTeamOverlay.modificationCount )
+  {
     drawTeamOverlayModificationCount = cg_drawTeamOverlay.modificationCount;
 
-    if ( cg_drawTeamOverlay.integer > 0 ) {
+    if( cg_drawTeamOverlay.integer > 0 )
       trap_Cvar_Set( "teamoverlay", "1" );
-    } else {
+    else
       trap_Cvar_Set( "teamoverlay", "0" );
-    }
-    // FIXME E3 HACK
-    trap_Cvar_Set( "teamoverlay", "1" );
   }
 
   // if force model changed
-  if ( forceModelModificationCount != cg_forceModel.modificationCount ) {
+  if( forceModelModificationCount != cg_forceModel.modificationCount )
+  {
     forceModelModificationCount = cg_forceModel.modificationCount;
-    CG_ForceModelChange();
+    CG_ForceModelChange( );
   }
 }
 
 
-int CG_CrosshairPlayer( void ) {
-  if ( cg.time > ( cg.crosshairClientTime + 1000 ) ) {
+int CG_CrosshairPlayer( void )
+{
+  if( cg.time > ( cg.crosshairClientTime + 1000 ) )
     return -1;
-  }
+
   return cg.crosshairClientNum;
 }
 
 
-int CG_LastAttacker( void ) {
-  if ( !cg.attackerTime ) {
+int CG_LastAttacker( void )
+{
+  if( !cg.attackerTime )
     return -1;
-  }
-  return cg.snap->ps.persistant[PERS_ATTACKER];
+
+  return cg.snap->ps.persistant[ PERS_ATTACKER ];
 }
 
 void CG_RemoveConsoleLine( void )
@@ -433,13 +459,14 @@ void CG_RemoveConsoleLine( void )
   cg.numConsoleLines--;
 }
 
-void QDECL CG_Printf( const char *msg, ... ) {
-  va_list   argptr;
-  char    text[1024];
+void QDECL CG_Printf( const char *msg, ... )
+{
+  va_list argptr;
+  char    text[ 1024 ];
 
-  va_start (argptr, msg);
-  vsprintf (text, msg, argptr);
-  va_end (argptr);
+  va_start( argptr, msg );
+  vsprintf( text, msg, argptr );
+  va_end( argptr );
 
   //TA: team arena UI based console
   if( cg.numConsoleLines == MAX_CONSOLE_LINES )
@@ -456,13 +483,14 @@ void QDECL CG_Printf( const char *msg, ... ) {
   trap_Print( text );
 }
 
-void QDECL CG_Error( const char *msg, ... ) {
-  va_list   argptr;
-  char    text[1024];
+void QDECL CG_Error( const char *msg, ... )
+{
+  va_list argptr;
+  char    text[ 1024 ];
 
-  va_start (argptr, msg);
-  vsprintf (text, msg, argptr);
-  va_end (argptr);
+  va_start( argptr, msg );
+  vsprintf( text, msg, argptr );
+  va_end( argptr );
 
   trap_Error( text );
 }
@@ -470,15 +498,16 @@ void QDECL CG_Error( const char *msg, ... ) {
 #ifndef CGAME_HARD_LINKED
 // this is only here so the functions in q_shared.c and bg_*.c can link (FIXME)
 
-void QDECL Com_Error( int level, const char *error, ... ) {
-  va_list   argptr;
+void QDECL Com_Error( int level, const char *error, ... )
+{
+  va_list argptr;
   char    text[1024];
 
-  va_start (argptr, error);
-  vsprintf (text, error, argptr);
-  va_end (argptr);
+  va_start( argptr, error );
+  vsprintf( text, error, argptr );
+  va_end( argptr );
 
-  CG_Error( "%s", text);
+  CG_Error( "%s", text );
 }
 
 void QDECL Com_Printf( const char *msg, ... ) {
@@ -513,8 +542,9 @@ void QDECL Com_Printf( const char *msg, ... ) {
 CG_Argv
 ================
 */
-const char *CG_Argv( int arg ) {
-  static char buffer[MAX_STRING_CHARS];
+const char *CG_Argv( int arg )
+{
+  static char buffer[ MAX_STRING_CHARS ];
 
   trap_Argv( arg, buffer, sizeof( buffer ) );
 
@@ -531,7 +561,8 @@ CG_RegisterItemSounds
 The server says this item is used on this level
 =================
 */
-static void CG_RegisterItemSounds( int itemNum ) {
+static void CG_RegisterItemSounds( int itemNum )
+{
 }
 
 
@@ -542,125 +573,98 @@ CG_RegisterSounds
 called during a precache command
 =================
 */
-static void CG_RegisterSounds( void ) {
-  int   i;
-  char  items[MAX_ITEMS+1];
-  char  name[MAX_QPATH];
+static void CG_RegisterSounds( void )
+{
+  int         i;
+  char        items[ MAX_ITEMS + 1 ];
+  char        name[ MAX_QPATH ];
   const char  *soundName;
 
   // voice commands
 
-  cgs.media.oneMinuteSound = trap_S_RegisterSound( "sound/feedback/1_minute.wav", qtrue );
-  cgs.media.fiveMinuteSound = trap_S_RegisterSound( "sound/feedback/5_minute.wav", qtrue );
-  cgs.media.suddenDeathSound = trap_S_RegisterSound( "sound/feedback/sudden_death.wav", qtrue );
-  cgs.media.oneFragSound = trap_S_RegisterSound( "sound/feedback/1_frag.wav", qtrue );
-  cgs.media.twoFragSound = trap_S_RegisterSound( "sound/feedback/2_frags.wav", qtrue );
-  cgs.media.threeFragSound = trap_S_RegisterSound( "sound/feedback/3_frags.wav", qtrue );
-  cgs.media.count3Sound = trap_S_RegisterSound( "sound/feedback/three.wav", qtrue );
-  cgs.media.count2Sound = trap_S_RegisterSound( "sound/feedback/two.wav", qtrue );
-  cgs.media.count1Sound = trap_S_RegisterSound( "sound/feedback/one.wav", qtrue );
-  cgs.media.countFightSound = trap_S_RegisterSound( "sound/feedback/fight.wav", qtrue );
-  cgs.media.countPrepareSound = trap_S_RegisterSound( "sound/feedback/prepare.wav", qtrue );
-  
-  cgs.media.alienStageTransition = trap_S_RegisterSound( "sound/announcements/overmindevolved.wav", qtrue );
-  cgs.media.humanStageTransition = trap_S_RegisterSound( "sound/announcements/reinforcement.wav", qtrue );
+  cgs.media.alienStageTransition  = trap_S_RegisterSound( "sound/announcements/overmindevolved.wav", qtrue );
+  cgs.media.humanStageTransition  = trap_S_RegisterSound( "sound/announcements/reinforcement.wav", qtrue );
 
-  cgs.media.tracerSound = trap_S_RegisterSound( "sound/weapons/machinegun/buletby1.wav", qfalse );
-  cgs.media.selectSound = trap_S_RegisterSound( "sound/weapons/change.wav", qfalse );
-  cgs.media.wearOffSound = trap_S_RegisterSound( "sound/items/wearoff.wav", qfalse );
-  cgs.media.useNothingSound = trap_S_RegisterSound( "sound/items/use_nothing.wav", qfalse );
-  cgs.media.gibSound = trap_S_RegisterSound( "sound/player/gibsplt1.wav", qfalse );
-  cgs.media.gibBounce1Sound = trap_S_RegisterSound( "sound/player/gibimp1.wav", qfalse );
-  cgs.media.gibBounce2Sound = trap_S_RegisterSound( "sound/player/gibimp2.wav", qfalse );
-  cgs.media.gibBounce3Sound = trap_S_RegisterSound( "sound/player/gibimp3.wav", qfalse );
+  cgs.media.tracerSound           = trap_S_RegisterSound( "sound/weapons/machinegun/buletby1.wav", qfalse );
+  cgs.media.selectSound           = trap_S_RegisterSound( "sound/weapons/change.wav", qfalse );
+  cgs.media.wearOffSound          = trap_S_RegisterSound( "sound/items/wearoff.wav", qfalse );
+  cgs.media.useNothingSound       = trap_S_RegisterSound( "sound/items/use_nothing.wav", qfalse );
+  cgs.media.gibSound              = trap_S_RegisterSound( "sound/player/gibsplt1.wav", qfalse );
+  cgs.media.gibBounce1Sound       = trap_S_RegisterSound( "sound/player/gibimp1.wav", qfalse );
+  cgs.media.gibBounce2Sound       = trap_S_RegisterSound( "sound/player/gibimp2.wav", qfalse );
+  cgs.media.gibBounce3Sound       = trap_S_RegisterSound( "sound/player/gibimp3.wav", qfalse );
 
-  cgs.media.teleInSound = trap_S_RegisterSound( "sound/world/telein.wav", qfalse );
-  cgs.media.teleOutSound = trap_S_RegisterSound( "sound/world/teleout.wav", qfalse );
-  cgs.media.respawnSound = trap_S_RegisterSound( "sound/items/respawn1.wav", qfalse );
+  cgs.media.teleInSound           = trap_S_RegisterSound( "sound/world/telein.wav", qfalse );
+  cgs.media.teleOutSound          = trap_S_RegisterSound( "sound/world/teleout.wav", qfalse );
+  cgs.media.respawnSound          = trap_S_RegisterSound( "sound/items/respawn1.wav", qfalse );
 
-  cgs.media.noAmmoSound = trap_S_RegisterSound( "sound/weapons/noammo.wav", qfalse );
+  cgs.media.noAmmoSound           = trap_S_RegisterSound( "sound/weapons/noammo.wav", qfalse );
 
-  cgs.media.talkSound = trap_S_RegisterSound( "sound/player/talk.wav", qfalse );
-  cgs.media.landSound = trap_S_RegisterSound( "sound/player/land1.wav", qfalse);
+  cgs.media.talkSound             = trap_S_RegisterSound( "sound/player/talk.wav", qfalse );
+  cgs.media.landSound             = trap_S_RegisterSound( "sound/player/land1.wav", qfalse );
 
-  cgs.media.hitSound = trap_S_RegisterSound( "sound/feedback/hit.wav", qfalse );
+  cgs.media.hitSound              = trap_S_RegisterSound( "sound/feedback/hit.wav", qfalse );
 
-  cgs.media.impressiveSound = trap_S_RegisterSound( "sound/feedback/impressive.wav", qtrue );
-  cgs.media.excellentSound = trap_S_RegisterSound( "sound/feedback/excellent.wav", qtrue );
-  cgs.media.deniedSound = trap_S_RegisterSound( "sound/feedback/denied.wav", qtrue );
-  cgs.media.humiliationSound = trap_S_RegisterSound( "sound/feedback/humiliation.wav", qtrue );
-  cgs.media.assistSound = trap_S_RegisterSound( "sound/feedback/assist.wav", qtrue );
-  cgs.media.defendSound = trap_S_RegisterSound( "sound/feedback/defense.wav", qtrue );
+  cgs.media.watrInSound           = trap_S_RegisterSound( "sound/player/watr_in.wav", qfalse );
+  cgs.media.watrOutSound          = trap_S_RegisterSound( "sound/player/watr_out.wav", qfalse );
+  cgs.media.watrUnSound           = trap_S_RegisterSound( "sound/player/watr_un.wav", qfalse );
 
-  cgs.media.takenLeadSound = trap_S_RegisterSound( "sound/feedback/takenlead.wav", qtrue);
-  cgs.media.tiedLeadSound = trap_S_RegisterSound( "sound/feedback/tiedlead.wav", qtrue);
-  cgs.media.lostLeadSound = trap_S_RegisterSound( "sound/feedback/lostlead.wav", qtrue);
+  cgs.media.jumpPadSound          = trap_S_RegisterSound( "sound/world/jumppad.wav", qfalse );
 
-  cgs.media.watrInSound = trap_S_RegisterSound( "sound/player/watr_in.wav", qfalse);
-  cgs.media.watrOutSound = trap_S_RegisterSound( "sound/player/watr_out.wav", qfalse);
-  cgs.media.watrUnSound = trap_S_RegisterSound( "sound/player/watr_un.wav", qfalse);
+  for( i = 0; i < 4; i++ )
+  {
+    Com_sprintf( name, sizeof( name ), "sound/player/footsteps/step%i.wav", i + 1 );
+    cgs.media.footsteps[ FOOTSTEP_NORMAL ][ i ] = trap_S_RegisterSound( name, qfalse );
 
-  cgs.media.jumpPadSound = trap_S_RegisterSound ("sound/world/jumppad.wav", qfalse );
+    Com_sprintf( name, sizeof( name ), "sound/player/footsteps/boot%i.wav", i + 1 );
+    cgs.media.footsteps[ FOOTSTEP_BOOT ][ i ] = trap_S_RegisterSound( name, qfalse );
 
-  for (i=0 ; i<4 ; i++) {
-    Com_sprintf (name, sizeof(name), "sound/player/footsteps/step%i.wav", i+1);
-    cgs.media.footsteps[FOOTSTEP_NORMAL][i] = trap_S_RegisterSound (name, qfalse);
+    Com_sprintf( name, sizeof( name ), "sound/player/footsteps/flesh%i.wav", i + 1 );
+    cgs.media.footsteps[ FOOTSTEP_FLESH ][ i ] = trap_S_RegisterSound( name, qfalse );
 
-    Com_sprintf (name, sizeof(name), "sound/player/footsteps/boot%i.wav", i+1);
-    cgs.media.footsteps[FOOTSTEP_BOOT][i] = trap_S_RegisterSound (name, qfalse);
+    Com_sprintf( name, sizeof( name ), "sound/player/footsteps/mech%i.wav", i + 1 );
+    cgs.media.footsteps[ FOOTSTEP_MECH ][ i ] = trap_S_RegisterSound( name, qfalse );
 
-    Com_sprintf (name, sizeof(name), "sound/player/footsteps/flesh%i.wav", i+1);
-    cgs.media.footsteps[FOOTSTEP_FLESH][i] = trap_S_RegisterSound (name, qfalse);
+    Com_sprintf( name, sizeof( name ), "sound/player/footsteps/energy%i.wav", i + 1 );
+    cgs.media.footsteps[ FOOTSTEP_ENERGY ][ i ] = trap_S_RegisterSound( name, qfalse );
 
-    Com_sprintf (name, sizeof(name), "sound/player/footsteps/mech%i.wav", i+1);
-    cgs.media.footsteps[FOOTSTEP_MECH][i] = trap_S_RegisterSound (name, qfalse);
+    Com_sprintf( name, sizeof( name ), "sound/player/footsteps/splash%i.wav", i + 1 );
+    cgs.media.footsteps[ FOOTSTEP_SPLASH ][ i ] = trap_S_RegisterSound( name, qfalse );
 
-    Com_sprintf (name, sizeof(name), "sound/player/footsteps/energy%i.wav", i+1);
-    cgs.media.footsteps[FOOTSTEP_ENERGY][i] = trap_S_RegisterSound (name, qfalse);
-
-    Com_sprintf (name, sizeof(name), "sound/player/footsteps/splash%i.wav", i+1);
-    cgs.media.footsteps[FOOTSTEP_SPLASH][i] = trap_S_RegisterSound (name, qfalse);
-
-    Com_sprintf (name, sizeof(name), "sound/player/footsteps/clank%i.wav", i+1);
-    cgs.media.footsteps[FOOTSTEP_METAL][i] = trap_S_RegisterSound (name, qfalse);
+    Com_sprintf( name, sizeof( name ), "sound/player/footsteps/clank%i.wav", i + 1 );
+    cgs.media.footsteps[ FOOTSTEP_METAL ][ i ] = trap_S_RegisterSound( name, qfalse );
   }
 
   // only register the items that the server says we need
   strcpy( items, CG_ConfigString( CS_ITEMS ) );
 
-  for ( i = 1 ; i < MAX_SOUNDS ; i++ ) {
-    soundName = CG_ConfigString( CS_SOUNDS+i );
-    if ( !soundName[0] ) {
+  for( i = 1 ; i < MAX_SOUNDS ; i++ )
+  {
+    soundName = CG_ConfigString( CS_SOUNDS + i );
+    
+    if( !soundName[ 0 ] )
       break;
-    }
-    if ( soundName[0] == '*' ) {
+    
+    if( soundName[ 0 ] == '*' )
       continue; // custom sound
-    }
-    cgs.gameSounds[i] = trap_S_RegisterSound( soundName, qfalse );
+
+    cgs.gameSounds[ i ] = trap_S_RegisterSound( soundName, qfalse );
   }
 
   //TA:
   cgs.media.jetpackDescendSound = trap_S_RegisterSound( "sound/upgrades/jetpack/low.wav", qfalse );
-  cgs.media.jetpackIdleSound = trap_S_RegisterSound( "sound/upgrades/jetpack/idle.wav", qfalse );
-  cgs.media.jetpackAscendSound = trap_S_RegisterSound( "sound/upgrades/jetpack/hi.wav", qfalse );
+  cgs.media.jetpackIdleSound    = trap_S_RegisterSound( "sound/upgrades/jetpack/idle.wav", qfalse );
+  cgs.media.jetpackAscendSound  = trap_S_RegisterSound( "sound/upgrades/jetpack/hi.wav", qfalse );
   
   // FIXME: only needed with item
-  cgs.media.flightSound = trap_S_RegisterSound( "sound/items/flight.wav", qfalse );
-  cgs.media.medkitSound = trap_S_RegisterSound ("sound/items/use_medkit.wav", qfalse);
-  cgs.media.quadSound = trap_S_RegisterSound("sound/items/damage3.wav", qfalse);
-  cgs.media.sfx_ric1 = trap_S_RegisterSound ("sound/weapons/machinegun/ric1.wav", qfalse);
-  cgs.media.sfx_ric2 = trap_S_RegisterSound ("sound/weapons/machinegun/ric2.wav", qfalse);
-  cgs.media.sfx_ric3 = trap_S_RegisterSound ("sound/weapons/machinegun/ric3.wav", qfalse);
-  cgs.media.sfx_railg = trap_S_RegisterSound ("sound/weapons/railgun/railgf1a.wav", qfalse);
-  cgs.media.sfx_rockexp = trap_S_RegisterSound ("sound/weapons/rocket/rocklx1a.wav", qfalse);
-  cgs.media.sfx_plasmaexp = trap_S_RegisterSound ("sound/weapons/plasma/plasmx1a.wav", qfalse);
-  cgs.media.sfx_flamerexp = trap_S_RegisterSound ("sound/weapons/flamer/fireimpc.wav", qfalse);
+  cgs.media.sfx_ric1            = trap_S_RegisterSound( "sound/weapons/machinegun/ric1.wav", qfalse );
+  cgs.media.sfx_ric2            = trap_S_RegisterSound( "sound/weapons/machinegun/ric2.wav", qfalse );
+  cgs.media.sfx_ric3            = trap_S_RegisterSound( "sound/weapons/machinegun/ric3.wav", qfalse );
+  cgs.media.sfx_plasmaexp       = trap_S_RegisterSound( "sound/weapons/plasma/plasmx1a.wav", qfalse );
+  cgs.media.sfx_flamerexp       = trap_S_RegisterSound( "sound/weapons/flamer/fireimpc.wav", qfalse );
 
-  cgs.media.regenSound = trap_S_RegisterSound("sound/items/regen.wav", qfalse);
-  cgs.media.protectSound = trap_S_RegisterSound("sound/items/protect3.wav", qfalse);
-  cgs.media.n_healthSound = trap_S_RegisterSound("sound/items/n_health.wav", qfalse );
-  cgs.media.hgrenb1aSound = trap_S_RegisterSound("sound/weapons/grenade/hgrenb1a.wav", qfalse);
-  cgs.media.hgrenb2aSound = trap_S_RegisterSound("sound/weapons/grenade/hgrenb2a.wav", qfalse);
+  cgs.media.hgrenb1aSound       = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb1a.wav", qfalse );
+  cgs.media.hgrenb2aSound       = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb2a.wav", qfalse );
 }
 
 
@@ -674,10 +678,12 @@ CG_RegisterGraphics
 This function may execute for a couple of minutes with a slow disk.
 =================
 */
-static void CG_RegisterGraphics( void ) {
-  int     i;
-  char    items[MAX_ITEMS+1];
-  static char   *sb_nums[11] = {
+static void CG_RegisterGraphics( void )
+{
+  int         i;
+  char        items[ MAX_ITEMS + 1 ];
+  static char *sb_nums[ 11 ] =
+  {
     "gfx/2d/numbers/zero_32b",
     "gfx/2d/numbers/one_32b",
     "gfx/2d/numbers/two_32b",
@@ -693,144 +699,98 @@ static void CG_RegisterGraphics( void ) {
 
   // clear any references to old media
   memset( &cg.refdef, 0, sizeof( cg.refdef ) );
-  trap_R_ClearScene();
+  trap_R_ClearScene( );
 
   trap_R_LoadWorldMap( cgs.mapname );
   CG_UpdateMediaFraction( 0.66f );
     
-  for ( i=0 ; i<11 ; i++) {
-    cgs.media.numberShaders[i] = trap_R_RegisterShader( sb_nums[i] );
-  }
+  for( i = 0; i < 11; i++ )
+    cgs.media.numberShaders[ i ] = trap_R_RegisterShader( sb_nums[ i ] );
 
-  cgs.media.botSkillShaders[0] = trap_R_RegisterShader( "menu/art/skill1.tga" );
-  cgs.media.botSkillShaders[1] = trap_R_RegisterShader( "menu/art/skill2.tga" );
-  cgs.media.botSkillShaders[2] = trap_R_RegisterShader( "menu/art/skill3.tga" );
-  cgs.media.botSkillShaders[3] = trap_R_RegisterShader( "menu/art/skill4.tga" );
-  cgs.media.botSkillShaders[4] = trap_R_RegisterShader( "menu/art/skill5.tga" );
+  cgs.media.viewBloodShader           = trap_R_RegisterShader( "viewBloodBlend" );
 
-  cgs.media.viewBloodShader = trap_R_RegisterShader( "viewBloodBlend" );
+  cgs.media.deferShader               = trap_R_RegisterShaderNoMip( "gfx/2d/defer.tga" );
 
-  cgs.media.deferShader = trap_R_RegisterShaderNoMip( "gfx/2d/defer.tga" );
-
-  cgs.media.scoreboardName = trap_R_RegisterShaderNoMip( "menu/tab/name.tga" );
-  cgs.media.scoreboardPing = trap_R_RegisterShaderNoMip( "menu/tab/ping.tga" );
-  cgs.media.scoreboardScore = trap_R_RegisterShaderNoMip( "menu/tab/score.tga" );
-  cgs.media.scoreboardTime = trap_R_RegisterShaderNoMip( "menu/tab/time.tga" );
-
-  cgs.media.smokePuffShader = trap_R_RegisterShader( "smokePuff" );
-  cgs.media.smokePuffRageProShader = trap_R_RegisterShader( "smokePuffRagePro" );
-  cgs.media.shotgunSmokePuffShader = trap_R_RegisterShader( "shotgunSmokePuff" );
-  cgs.media.plasmaBallShader = trap_R_RegisterShader( "sprites/plasma1" );
-  cgs.media.bloodTrailShader = trap_R_RegisterShader( "bloodTrail" );
-  cgs.media.lagometerShader = trap_R_RegisterShader("lagometer" );
-  cgs.media.connectionShader = trap_R_RegisterShader( "disconnected" );
+  cgs.media.smokePuffShader           = trap_R_RegisterShader( "smokePuff" );
+  cgs.media.smokePuffRageProShader    = trap_R_RegisterShader( "smokePuffRagePro" );
+  cgs.media.shotgunSmokePuffShader    = trap_R_RegisterShader( "shotgunSmokePuff" );
+  cgs.media.plasmaBallShader          = trap_R_RegisterShader( "sprites/plasma1" );
+  cgs.media.bloodTrailShader          = trap_R_RegisterShader( "bloodTrail" );
+  cgs.media.connectionShader          = trap_R_RegisterShader( "disconnected" );
 
   //TA: extra stuff
-  cgs.media.explosionShader = trap_R_RegisterShader( "grenadeExplosion" );
-  cgs.media.greenBloodTrailShader = trap_R_RegisterShader( "greenBloodTrail" );
+  cgs.media.explosionShader           = trap_R_RegisterShader( "grenadeExplosion" );
+  cgs.media.greenBloodTrailShader     = trap_R_RegisterShader( "greenBloodTrail" );
   cgs.media.greenBloodExplosionShader = trap_R_RegisterShader( "greenBloodExplosion" );
-  cgs.media.greenBloodMarkShader = trap_R_RegisterShader( "greenBloodMark" );
-  cgs.media.explosionTrailShader = trap_R_RegisterShader( "explosionTrail" );
-  cgs.media.poisonCloudShader = trap_R_RegisterShader( "poisonCloud" );
+  cgs.media.greenBloodMarkShader      = trap_R_RegisterShader( "greenBloodMark" );
+  cgs.media.explosionTrailShader      = trap_R_RegisterShader( "explosionTrail" );
+  cgs.media.poisonCloudShader         = trap_R_RegisterShader( "poisonCloud" );
   
   for( i = 0; i < 32; i++ )
     cgs.media.flameShader[ i ] = trap_R_RegisterShader( va( "fireball%d", i + 1 ) );
   
-  /*cgs.media.creepShader = trap_R_RegisterShader( "creep" );*/
-  
-  cgs.media.scannerBlipShader = trap_R_RegisterShader( "gfx/2d/droidhealth" );
-  cgs.media.scannerLineShader = trap_R_RegisterShader( "white" );
+  cgs.media.scannerBlipShader         = trap_R_RegisterShader( "gfx/2d/blip" );
+  cgs.media.scannerLineShader         = trap_R_RegisterShader( "white" );
   /*cgs.media.scannerShader = trap_R_RegisterShader( "gfx/2d/scanner" );*/
   
-  cgs.media.waterBubbleShader = trap_R_RegisterShader( "waterBubble" );
+  cgs.media.waterBubbleShader         = trap_R_RegisterShader( "waterBubble" );
 
-  cgs.media.tracerShader = trap_R_RegisterShader( "gfx/misc/tracer" );
-  cgs.media.selectShader = trap_R_RegisterShader( "gfx/2d/select" );
+  cgs.media.tracerShader              = trap_R_RegisterShader( "gfx/misc/tracer" );
+  cgs.media.selectShader              = trap_R_RegisterShader( "gfx/2d/select" );
 
-  for ( i = 0 ; i < NUM_CROSSHAIRS ; i++ ) {
-    cgs.media.crosshairShader[i] = trap_R_RegisterShader( va("gfx/2d/crosshair%c", 'a'+i) );
-  }
+  for( i = 0 ; i < NUM_CROSSHAIRS ; i++ )
+    cgs.media.crosshairShader[ i ] = trap_R_RegisterShader( va( "gfx/2d/crosshair%c", 'a' + i ) );
 
-  cgs.media.backTileShader = trap_R_RegisterShader( "gfx/2d/backtile" );
-  cgs.media.noammoShader = trap_R_RegisterShader( "icons/noammo" );
+  cgs.media.backTileShader            = trap_R_RegisterShader( "gfx/2d/backtile" );
+  cgs.media.noammoShader              = trap_R_RegisterShader( "icons/noammo" );
+  cgs.media.friendShader              = trap_R_RegisterShader( "sprites/foe" );
+   
 
   //TA: building shaders
-  cgs.media.greenBuildShader = trap_R_RegisterShader("gfx/2d/greenbuild" );
-  cgs.media.redBuildShader = trap_R_RegisterShader("gfx/2d/redbuild" );
-  cgs.media.noPowerShader = trap_R_RegisterShader("gfx/2d/nopower" );
+  cgs.media.greenBuildShader          = trap_R_RegisterShader("gfx/2d/greenbuild" );
+  cgs.media.redBuildShader            = trap_R_RegisterShader("gfx/2d/redbuild" );
+  cgs.media.noPowerShader             = trap_R_RegisterShader("gfx/2d/nopower" );
 
-  // powerup shaders
-  cgs.media.quadShader = trap_R_RegisterShader("powerups/quad" );
-  cgs.media.quadWeaponShader = trap_R_RegisterShader("powerups/quadWeapon" );
-  cgs.media.battleSuitShader = trap_R_RegisterShader("powerups/battleSuit" );
-  cgs.media.battleWeaponShader = trap_R_RegisterShader("powerups/battleWeapon" );
-  cgs.media.invisShader = trap_R_RegisterShader("powerups/invisibility" );
-  cgs.media.regenShader = trap_R_RegisterShader("powerups/regen" );
-  cgs.media.hastePuffShader = trap_R_RegisterShader("hasteSmokePuff" );
+  cgs.media.machinegunBrassModel      = trap_R_RegisterModel( "models/weapons2/shells/m_shell.md3" );
+  cgs.media.shotgunBrassModel         = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
 
-  //TA: screenfades
-  cgs.media.humanNV = trap_R_RegisterShader( "humanNV" );
-  cgs.media.humanTorch8 = trap_R_RegisterShader( "humanTorch8" );
-  cgs.media.humanTorch7 = trap_R_RegisterShader( "humanTorch7" );
-  cgs.media.humanTorch6 = trap_R_RegisterShader( "humanTorch6" );
-  cgs.media.humanTorch5 = trap_R_RegisterShader( "humanTorch5" );
-  cgs.media.humanTorch4 = trap_R_RegisterShader( "humanTorch4" );
-  cgs.media.humanTorch3 = trap_R_RegisterShader( "humanTorch3" );
-  cgs.media.humanTorch2 = trap_R_RegisterShader( "humanTorch2" );
-  cgs.media.humanTorch1 = trap_R_RegisterShader( "humanTorch1" );
-  cgs.media.alienHealth = trap_R_RegisterShader( "gfx/2d/droidhealth.tga" );
+  cgs.media.gibAbdomen                = trap_R_RegisterModel( "models/gibs/abdomen.md3" );
+  cgs.media.gibArm                    = trap_R_RegisterModel( "models/gibs/arm.md3" );
+  cgs.media.gibChest                  = trap_R_RegisterModel( "models/gibs/chest.md3" );
+  cgs.media.gibFist                   = trap_R_RegisterModel( "models/gibs/fist.md3" );
+  cgs.media.gibFoot                   = trap_R_RegisterModel( "models/gibs/foot.md3" );
+  cgs.media.gibForearm                = trap_R_RegisterModel( "models/gibs/forearm.md3" );
+  cgs.media.gibIntestine              = trap_R_RegisterModel( "models/gibs/intestine.md3" );
+  cgs.media.gibLeg                    = trap_R_RegisterModel( "models/gibs/leg.md3" );
+  cgs.media.gibSkull                  = trap_R_RegisterModel( "models/gibs/skull.md3" );
+  cgs.media.gibBrain                  = trap_R_RegisterModel( "models/gibs/brain.md3" );
 
-  cgs.media.armorModel = trap_R_RegisterModel( "models/powerups/armor/armor_yel.md3" );
-  cgs.media.armorIcon  = trap_R_RegisterShaderNoMip( "icons/iconr_yellow" );
-
-  cgs.media.machinegunBrassModel = trap_R_RegisterModel( "models/weapons2/shells/m_shell.md3" );
-  cgs.media.shotgunBrassModel = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
-
-  cgs.media.gibAbdomen = trap_R_RegisterModel( "models/gibs/abdomen.md3" );
-  cgs.media.gibArm = trap_R_RegisterModel( "models/gibs/arm.md3" );
-  cgs.media.gibChest = trap_R_RegisterModel( "models/gibs/chest.md3" );
-  cgs.media.gibFist = trap_R_RegisterModel( "models/gibs/fist.md3" );
-  cgs.media.gibFoot = trap_R_RegisterModel( "models/gibs/foot.md3" );
-  cgs.media.gibForearm = trap_R_RegisterModel( "models/gibs/forearm.md3" );
-  cgs.media.gibIntestine = trap_R_RegisterModel( "models/gibs/intestine.md3" );
-  cgs.media.gibLeg = trap_R_RegisterModel( "models/gibs/leg.md3" );
-  cgs.media.gibSkull = trap_R_RegisterModel( "models/gibs/skull.md3" );
-  cgs.media.gibBrain = trap_R_RegisterModel( "models/gibs/brain.md3" );
-
-  cgs.media.metalGib1 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib1.md3" );
-  cgs.media.metalGib2 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib2.md3" );
-  cgs.media.metalGib3 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib3.md3" );
-  cgs.media.metalGib4 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib4.md3" );
-  cgs.media.metalGib5 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib5.md3" );
-  cgs.media.metalGib6 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib6.md3" );
-  cgs.media.metalGib7 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib7.md3" );
-  cgs.media.metalGib8 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib8.md3" );
+  cgs.media.metalGib1                 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib1.md3" );
+  cgs.media.metalGib2                 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib2.md3" );
+  cgs.media.metalGib3                 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib3.md3" );
+  cgs.media.metalGib4                 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib4.md3" );
+  cgs.media.metalGib5                 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib5.md3" );
+  cgs.media.metalGib6                 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib6.md3" );
+  cgs.media.metalGib7                 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib7.md3" );
+  cgs.media.metalGib8                 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib8.md3" );
   
-  cgs.media.gibSpark1 = trap_R_RegisterShader( "models/fx/metal_gibs/spark.jpg" );
-  cgs.media.gibSpark2 = trap_R_RegisterShader( "models/fx/metal_gibs/spark2.jpg" );
+  cgs.media.gibSpark1                 = trap_R_RegisterShader( "models/fx/metal_gibs/spark.jpg" );
+  cgs.media.gibSpark2                 = trap_R_RegisterShader( "models/fx/metal_gibs/spark2.jpg" );
   
-  cgs.media.smoke2 = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
+  cgs.media.smoke2                    = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
 
-  cgs.media.balloonShader = trap_R_RegisterShader( "sprites/balloon3" );
+  cgs.media.balloonShader             = trap_R_RegisterShader( "sprites/balloon3" );
 
-  cgs.media.bloodExplosionShader = trap_R_RegisterShader( "bloodExplosion" );
+  cgs.media.bloodExplosionShader      = trap_R_RegisterShader( "bloodExplosion" );
 
-  cgs.media.bulletFlashModel = trap_R_RegisterModel("models/weaphits/bullet.md3");
-  cgs.media.ringFlashModel = trap_R_RegisterModel("models/weaphits/ring02.md3");
-  cgs.media.dishFlashModel = trap_R_RegisterModel("models/weaphits/boom01.md3");
-  cgs.media.teleportEffectModel = trap_R_RegisterModel( "models/misc/telep.md3" );
-  cgs.media.teleportEffectShader = trap_R_RegisterShader( "teleportEffect" );
-
-  cgs.media.medalImpressive = trap_R_RegisterShaderNoMip( "medal_impressive" );
-  cgs.media.medalExcellent = trap_R_RegisterShaderNoMip( "medal_excellent" );
-  cgs.media.medalGauntlet = trap_R_RegisterShaderNoMip( "medal_gauntlet" );
-  cgs.media.medalDefend = trap_R_RegisterShaderNoMip( "medal_defend" );
-  cgs.media.medalAssist = trap_R_RegisterShaderNoMip( "medal_assist" );
-  cgs.media.medalCapture = trap_R_RegisterShaderNoMip( "medal_capture" );
+  cgs.media.bulletFlashModel          = trap_R_RegisterModel( "models/weaphits/bullet.md3" );
+  cgs.media.ringFlashModel            = trap_R_RegisterModel( "models/weaphits/ring02.md3" );
+  cgs.media.dishFlashModel            = trap_R_RegisterModel( "models/weaphits/boom01.md3" );
+  cgs.media.teleportEffectModel       = trap_R_RegisterModel( "models/misc/telep.md3" );
+  cgs.media.teleportEffectShader      = trap_R_RegisterShader( "teleportEffect" );
 
   CG_UpdateMediaFraction( 0.7f );
 
-  memset( cg_items, 0, sizeof( cg_items ) );
   memset( cg_weapons, 0, sizeof( cg_weapons ) );
   memset( cg_upgrades, 0, sizeof( cg_upgrades ) );
 
@@ -838,51 +798,58 @@ static void CG_RegisterGraphics( void ) {
   strcpy( items, CG_ConfigString( CS_ITEMS) );
 
   // wall marks
-  cgs.media.bulletMarkShader = trap_R_RegisterShader( "gfx/damage/bullet_mrk" );
-  cgs.media.burnMarkShader = trap_R_RegisterShader( "gfx/damage/burn_med_mrk" );
-  cgs.media.holeMarkShader = trap_R_RegisterShader( "gfx/damage/hole_lg_mrk" );
-  cgs.media.energyMarkShader = trap_R_RegisterShader( "gfx/damage/plasma_mrk" );
-  cgs.media.shadowMarkShader = trap_R_RegisterShader( "markShadow" );
-  cgs.media.wakeMarkShader = trap_R_RegisterShader( "wake" );
-  cgs.media.bloodMarkShader = trap_R_RegisterShader( "bloodMark" );
+  cgs.media.bulletMarkShader          = trap_R_RegisterShader( "gfx/damage/bullet_mrk" );
+  cgs.media.burnMarkShader            = trap_R_RegisterShader( "gfx/damage/burn_med_mrk" );
+  cgs.media.holeMarkShader            = trap_R_RegisterShader( "gfx/damage/hole_lg_mrk" );
+  cgs.media.energyMarkShader          = trap_R_RegisterShader( "gfx/damage/plasma_mrk" );
+  cgs.media.shadowMarkShader          = trap_R_RegisterShader( "markShadow" );
+  cgs.media.wakeMarkShader            = trap_R_RegisterShader( "wake" );
+  cgs.media.bloodMarkShader           = trap_R_RegisterShader( "bloodMark" );
 
   // register the inline models
-  cgs.numInlineModels = trap_CM_NumInlineModels();
-  for ( i = 1 ; i < cgs.numInlineModels ; i++ ) {
-    char  name[10];
-    vec3_t      mins, maxs;
-    int       j;
+  cgs.numInlineModels = trap_CM_NumInlineModels( );
+  
+  for( i = 1; i < cgs.numInlineModels; i++ )
+  {
+    char    name[ 10 ];
+    vec3_t  mins, maxs;
+    int     j;
 
-    Com_sprintf( name, sizeof(name), "*%i", i );
-    cgs.inlineDrawModel[i] = trap_R_RegisterModel( name );
-    trap_R_ModelBounds( cgs.inlineDrawModel[i], mins, maxs );
-    for ( j = 0 ; j < 3 ; j++ ) {
-      cgs.inlineModelMidpoints[i][j] = mins[j] + 0.5 * ( maxs[j] - mins[j] );
-    }
+    Com_sprintf( name, sizeof( name ), "*%i", i );
+    
+    cgs.inlineDrawModel[ i ] = trap_R_RegisterModel( name );
+    trap_R_ModelBounds( cgs.inlineDrawModel[ i ], mins, maxs );
+    
+    for( j = 0 ; j < 3 ; j++ )
+      cgs.inlineModelMidpoints[ i ][ j ] = mins[ j ] + 0.5 * ( maxs[ j ] - mins[ j ] );
   }
 
   // register all the server specified models
-  for (i=1 ; i<MAX_MODELS ; i++) {
-    const char    *modelName;
+  for( i = 1; i < MAX_MODELS; i++ )
+  {
+    const char *modelName;
 
     modelName = CG_ConfigString( CS_MODELS+i );
-    if ( !modelName[0] ) {
+    
+    if( !modelName[ 0 ] )
       break;
-    }
-    cgs.gameModels[i] = trap_R_RegisterModel( modelName );
+
+    cgs.gameModels[ i ] = trap_R_RegisterModel( modelName );
   }
 
   CG_UpdateMediaFraction( 0.8f );
 
   // register all the server specified shaders
-  for (i=1 ; i<MAX_SHADERS ; i++) {
-    const char    *shaderName;
+  for( i = 1; i < MAX_SHADERS; i++ )
+  {
+    const char *shaderName;
 
     shaderName = CG_ConfigString( CS_SHADERS+i );
-    if ( !shaderName[0] ) {
+    
+    if( !shaderName[ 0 ] )
       break;
-    }
-    cgs.gameShaders[i] = trap_R_RegisterShader( shaderName );
+
+    cgs.gameShaders[ i ] = trap_R_RegisterShader( shaderName );
   }
 }
 
@@ -893,16 +860,22 @@ CG_BuildSpectatorString
 
 =======================
 */
-void CG_BuildSpectatorString() {
+void CG_BuildSpectatorString( void )
+{
   int i;
-  cg.spectatorList[0] = 0;
-  for (i = 0; i < MAX_CLIENTS; i++) {
-    if (cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == PTE_NONE ) {
-      Q_strcat(cg.spectatorList, sizeof(cg.spectatorList), va("%s     ", cgs.clientinfo[i].name));
-    }
+  
+  cg.spectatorList[ 0 ] = 0;
+  
+  for( i = 0; i < MAX_CLIENTS; i++ )
+  {
+    if( cgs.clientinfo[ i ].infoValid && cgs.clientinfo[ i ].team == PTE_NONE )
+      Q_strcat( cg.spectatorList, sizeof( cg.spectatorList ), va( "%s     ", cgs.clientinfo[ i ].name ) );
   }
-  i = strlen(cg.spectatorList);
-  if (i != cg.spectatorLen) {
+  
+  i = strlen( cg.spectatorList );
+  
+  if( i != cg.spectatorLen )
+  {
     cg.spectatorLen = i;
     cg.spectatorWidth = -1;
   }
@@ -928,7 +901,7 @@ static void CG_RegisterClients( void )
     const char  *clientInfo;
 
     clientInfo = CG_ConfigString( CS_PRECACHES + i );
-    if ( !clientInfo[0] )
+    if( !clientInfo[0] )
       continue;
     
     CG_PrecacheClientInfo( i );
@@ -949,7 +922,7 @@ static void CG_RegisterClients( void )
     CG_NewClientInfo( i );
   }
 
-  CG_BuildSpectatorString();
+  CG_BuildSpectatorString( );
 }
 
 //===========================================================================
@@ -959,10 +932,11 @@ static void CG_RegisterClients( void )
 CG_ConfigString
 =================
 */
-const char *CG_ConfigString( int index ) {
-  if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
+const char *CG_ConfigString( int index )
+{
+  if( index < 0 || index >= MAX_CONFIGSTRINGS )
     CG_Error( "CG_ConfigString: bad index: %i", index );
-  }
+
   return cgs.gameState.stringData + cgs.gameState.stringOffsets[ index ];
 }
 
@@ -974,9 +948,10 @@ CG_StartMusic
 
 ======================
 */
-void CG_StartMusic( void ) {
+void CG_StartMusic( void )
+{
   char  *s;
-  char  parm1[MAX_QPATH], parm2[MAX_QPATH];
+  char  parm1[ MAX_QPATH ], parm2[ MAX_QPATH ];
 
   // start the background music
   s = (char *)CG_ConfigString( CS_MUSIC );
@@ -992,18 +967,24 @@ void CG_StartMusic( void ) {
 // new hud stuff ( mission pack )
 // ==============================
 //
-char *CG_GetMenuBuffer(const char *filename) {
-  int len;
+char *CG_GetMenuBuffer( const char *filename )
+{
+  int           len;
   fileHandle_t  f;
-  static char buf[MAX_MENUFILE];
+  static char   buf[ MAX_MENUFILE ];
 
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
-  if ( !f ) {
+  
+  if( !f )
+  {
     trap_Print( va( S_COLOR_RED "menu file not found: %s, using default\n", filename ) );
     return NULL;
   }
-  if ( len >= MAX_MENUFILE ) {
-    trap_Print( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", filename, len, MAX_MENUFILE ) );
+  
+  if( len >= MAX_MENUFILE )
+  {
+    trap_Print( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i",
+                    filename, len, MAX_MENUFILE ) );
     trap_FS_FCloseFile( f );
     return NULL;
   }
@@ -1015,167 +996,190 @@ char *CG_GetMenuBuffer(const char *filename) {
   return buf;
 }
 
-qboolean CG_Asset_Parse(int handle) {
+qboolean CG_Asset_Parse( int handle )
+{
   pc_token_t token;
   const char *tempStr;
 
-  if (!trap_PC_ReadToken(handle, &token))
+  if( !trap_PC_ReadToken( handle, &token ) )
     return qfalse;
-  if (Q_stricmp(token.string, "{") != 0) {
+  
+  if( Q_stricmp( token.string, "{" ) != 0 )
     return qfalse;
-  }
     
-  while ( 1 ) {
-    if (!trap_PC_ReadToken(handle, &token))
+  while( 1 )
+  {
+    if( !trap_PC_ReadToken( handle, &token ) )
       return qfalse;
 
-    if (Q_stricmp(token.string, "}") == 0) {
+    if( Q_stricmp( token.string, "}" ) == 0 )
       return qtrue;
-    }
 
     // font
-    if (Q_stricmp(token.string, "font") == 0) {
+    if( Q_stricmp( token.string, "font" ) == 0 )
+    {
       int pointSize;
-      if (!PC_String_Parse(handle, &tempStr) || !PC_Int_Parse(handle, &pointSize)) {
+      
+      if( !PC_String_Parse( handle, &tempStr ) || !PC_Int_Parse( handle, &pointSize ) )
         return qfalse;
-      }
-      cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.textFont);
+      
+      cgDC.registerFont( tempStr, pointSize, &cgDC.Assets.textFont );
       continue;
     }
 
     // smallFont
-    if (Q_stricmp(token.string, "smallFont") == 0) {
+    if( Q_stricmp( token.string, "smallFont" ) == 0 )
+    {
       int pointSize;
-      if (!PC_String_Parse(handle, &tempStr) || !PC_Int_Parse(handle, &pointSize)) {
+      
+      if( !PC_String_Parse( handle, &tempStr ) || !PC_Int_Parse( handle, &pointSize ) )
         return qfalse;
-      }
-      cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.smallFont);
+      
+      cgDC.registerFont( tempStr, pointSize, &cgDC.Assets.smallFont );
       continue;
     }
 
     // font
-    if (Q_stricmp(token.string, "bigfont") == 0) {
+    if( Q_stricmp( token.string, "bigfont" ) == 0 )
+    {
       int pointSize;
-      if (!PC_String_Parse(handle, &tempStr) || !PC_Int_Parse(handle, &pointSize)) {
+      
+      if( !PC_String_Parse( handle, &tempStr ) || !PC_Int_Parse( handle, &pointSize ) )
         return qfalse;
-      }
-      cgDC.registerFont(tempStr, pointSize, &cgDC.Assets.bigFont);
+
+      cgDC.registerFont( tempStr, pointSize, &cgDC.Assets.bigFont );
       continue;
     }
 
     // gradientbar
-    if (Q_stricmp(token.string, "gradientbar") == 0) {
-      if (!PC_String_Parse(handle, &tempStr)) {
+    if( Q_stricmp( token.string, "gradientbar" ) == 0 )
+    {
+      if( !PC_String_Parse( handle, &tempStr ) )
         return qfalse;
-      }
-      cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip(tempStr);
+
+      cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip( tempStr );
       continue;
     }
 
     // enterMenuSound
-    if (Q_stricmp(token.string, "menuEnterSound") == 0) {
-      if (!PC_String_Parse(handle, &tempStr)) {
+    if( Q_stricmp( token.string, "menuEnterSound" ) == 0 )
+    {
+      if( !PC_String_Parse( handle, &tempStr ) )
         return qfalse;
-      }
+
       cgDC.Assets.menuEnterSound = trap_S_RegisterSound( tempStr, qfalse );
       continue;
     }
 
     // exitMenuSound
-    if (Q_stricmp(token.string, "menuExitSound") == 0) {
-      if (!PC_String_Parse(handle, &tempStr)) {
+    if( Q_stricmp( token.string, "menuExitSound" ) == 0 )
+    {
+      if( !PC_String_Parse( handle, &tempStr ) )
         return qfalse;
-      }
+
       cgDC.Assets.menuExitSound = trap_S_RegisterSound( tempStr, qfalse );
       continue;
     }
 
     // itemFocusSound
-    if (Q_stricmp(token.string, "itemFocusSound") == 0) {
-      if (!PC_String_Parse(handle, &tempStr)) {
+    if( Q_stricmp( token.string, "itemFocusSound" ) == 0 )
+    {
+      if( !PC_String_Parse( handle, &tempStr ) )
         return qfalse;
-      }
+      
       cgDC.Assets.itemFocusSound = trap_S_RegisterSound( tempStr, qfalse );
       continue;
     }
 
     // menuBuzzSound
-    if (Q_stricmp(token.string, "menuBuzzSound") == 0) {
-      if (!PC_String_Parse(handle, &tempStr)) {
+    if( Q_stricmp( token.string, "menuBuzzSound" ) == 0 )
+    {
+      if( !PC_String_Parse( handle, &tempStr ) )
         return qfalse;
-      }
+
       cgDC.Assets.menuBuzzSound = trap_S_RegisterSound( tempStr, qfalse );
       continue;
     }
 
-    if (Q_stricmp(token.string, "cursor") == 0) {
-      if (!PC_String_Parse(handle, &cgDC.Assets.cursorStr)) {
+    if( Q_stricmp( token.string, "cursor" ) == 0 )
+    {
+      if( !PC_String_Parse( handle, &cgDC.Assets.cursorStr ) )
         return qfalse;
-      }
-      cgDC.Assets.cursor = trap_R_RegisterShaderNoMip( cgDC.Assets.cursorStr);
+
+      cgDC.Assets.cursor = trap_R_RegisterShaderNoMip( cgDC.Assets.cursorStr );
       continue;
     }
 
-    if (Q_stricmp(token.string, "fadeClamp") == 0) {
-      if (!PC_Float_Parse(handle, &cgDC.Assets.fadeClamp)) {
+    if( Q_stricmp( token.string, "fadeClamp" ) == 0 )
+    {
+      if( !PC_Float_Parse( handle, &cgDC.Assets.fadeClamp ) )
         return qfalse;
-      }
+
       continue;
     }
 
-    if (Q_stricmp(token.string, "fadeCycle") == 0) {
-      if (!PC_Int_Parse(handle, &cgDC.Assets.fadeCycle)) {
+    if( Q_stricmp( token.string, "fadeCycle" ) == 0 )
+    {
+      if( !PC_Int_Parse( handle, &cgDC.Assets.fadeCycle ) )
         return qfalse;
-      }
+
       continue;
     }
 
-    if (Q_stricmp(token.string, "fadeAmount") == 0) {
-      if (!PC_Float_Parse(handle, &cgDC.Assets.fadeAmount)) {
+    if( Q_stricmp( token.string, "fadeAmount" ) == 0 )
+    {
+      if( !PC_Float_Parse( handle, &cgDC.Assets.fadeAmount ) )
         return qfalse;
-      }
+
       continue;
     }
 
-    if (Q_stricmp(token.string, "shadowX") == 0) {
-      if (!PC_Float_Parse(handle, &cgDC.Assets.shadowX)) {
+    if( Q_stricmp( token.string, "shadowX" ) == 0 )
+    {
+      if( !PC_Float_Parse( handle, &cgDC.Assets.shadowX ) )
         return qfalse;
-      }
+      
       continue;
     }
 
-    if (Q_stricmp(token.string, "shadowY") == 0) {
-      if (!PC_Float_Parse(handle, &cgDC.Assets.shadowY)) {
+    if( Q_stricmp( token.string, "shadowY" ) == 0 )
+    {
+      if( !PC_Float_Parse( handle, &cgDC.Assets.shadowY ) )
         return qfalse;
-      }
+
       continue;
     }
 
-    if (Q_stricmp(token.string, "shadowColor") == 0) {
-      if (!PC_Color_Parse(handle, &cgDC.Assets.shadowColor)) {
+    if( Q_stricmp( token.string, "shadowColor" ) == 0 )
+    {
+      if( !PC_Color_Parse( handle, &cgDC.Assets.shadowColor ) )
         return qfalse;
-      }
-      cgDC.Assets.shadowFadeClamp = cgDC.Assets.shadowColor[3];
+
+      cgDC.Assets.shadowFadeClamp = cgDC.Assets.shadowColor[ 3 ];
       continue;
     }
   }
+  
   return qfalse; // bk001204 - why not?
 }
 
-void CG_ParseMenu(const char *menuFile) {
-  pc_token_t token;
-  int handle;
+void CG_ParseMenu( const char *menuFile )
+{
+  pc_token_t  token;
+  int         handle;
 
-  handle = trap_PC_LoadSource(menuFile);
-  if (!handle)
-    handle = trap_PC_LoadSource("ui/testhud.menu");
-  if (!handle)
+  handle = trap_PC_LoadSource( menuFile );
+  
+  if( !handle )
+    handle = trap_PC_LoadSource( "ui/testhud.menu" );
+  
+  if( !handle )
     return;
 
-  while ( 1 ) {
-    if (!trap_PC_ReadToken( handle, &token )) {
+  while( 1 )
+  {
+    if( !trap_PC_ReadToken( handle, &token ) )
       break;
-    }
 
     //if ( Q_stricmp( token, "{" ) ) {
     //  Com_Printf( "Missing { in menu file\n" );
@@ -1187,125 +1191,119 @@ void CG_ParseMenu(const char *menuFile) {
     //  break;
     //}
 
-    if ( token.string[0] == '}' ) {
+    if( token.string[ 0 ] == '}' )
       break;
-    }
 
-    if (Q_stricmp(token.string, "assetGlobalDef") == 0) {
-      if (CG_Asset_Parse(handle)) {
+    if( Q_stricmp( token.string, "assetGlobalDef" ) == 0 )
+    {
+      if( CG_Asset_Parse( handle ) )
         continue;
-      } else {
-        break;
-      }
+      else
+        break; 
     }
 
 
-    if (Q_stricmp(token.string, "menudef") == 0) {
+    if( Q_stricmp( token.string, "menudef" ) == 0 )
+    {
       // start a new menu
-      Menu_New(handle);
+      Menu_New( handle );
     }
   }
-  trap_PC_FreeSource(handle);
+  
+  trap_PC_FreeSource( handle );
 }
 
-qboolean CG_Load_Menu(char **p) {
+qboolean CG_Load_Menu( char **p )
+{
   char *token;
 
-  token = COM_ParseExt(p, qtrue);
+  token = COM_ParseExt( p, qtrue );
 
-  if (token[0] != '{') {
+  if( token[ 0 ] != '{' )
     return qfalse;
-  }
 
-  while ( 1 ) {
-
-    token = COM_ParseExt(p, qtrue);
+  while( 1 )
+  {
+    token = COM_ParseExt( p, qtrue );
     
-    if (Q_stricmp(token, "}") == 0) {
+    if( Q_stricmp( token, "}" ) == 0 )
       return qtrue;
-    }
 
-    if ( !token || token[0] == 0 ) {
+    if( !token || token[ 0 ] == 0 )
       return qfalse;
-    }
 
-    CG_ParseMenu(token); 
+    CG_ParseMenu( token ); 
   }
   return qfalse;
 }
 
 
 
-void CG_LoadMenus(const char *menuFile) {
-  char  *token;
-  char *p;
-  int len, start;
+void CG_LoadMenus( const char *menuFile )
+{
+  char          *token;
+  char          *p;
+  int           len, start;
   fileHandle_t  f;
-  static char buf[MAX_MENUDEFFILE];
+  static char   buf[ MAX_MENUDEFFILE ];
 
-  start = trap_Milliseconds();
+  start = trap_Milliseconds( );
 
   len = trap_FS_FOpenFile( menuFile, &f, FS_READ );
-  if ( !f ) {
+  
+  if( !f )
+  {
     trap_Error( va( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile ) );
     len = trap_FS_FOpenFile( "ui/hud.txt", &f, FS_READ );
-    if (!f) {
+    
+    if( !f )
       trap_Error( va( S_COLOR_RED "default menu file not found: ui/hud.txt, unable to continue!\n", menuFile ) );
-    }
   }
 
-  if ( len >= MAX_MENUDEFFILE ) {
-    trap_Error( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", menuFile, len, MAX_MENUDEFFILE ) );
+  if( len >= MAX_MENUDEFFILE )
+  {
+    trap_Error( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i",
+                menuFile, len, MAX_MENUDEFFILE ) );
     trap_FS_FCloseFile( f );
     return;
   }
 
   trap_FS_Read( buf, len, f );
-  buf[len] = 0;
+  buf[ len ] = 0;
   trap_FS_FCloseFile( f );
   
-  COM_Compress(buf);
+  COM_Compress( buf );
 
-  Menu_Reset();
+  Menu_Reset( );
 
   p = buf;
 
-  while ( 1 ) {
+  while( 1 )
+  {
     token = COM_ParseExt( &p, qtrue );
-    if( !token || token[0] == 0 || token[0] == '}') {
+    
+    if( !token || token[ 0 ] == 0 || token[ 0 ] == '}' )
       break;
-    }
 
-    //if ( Q_stricmp( token, "{" ) ) {
-    //  Com_Printf( "Missing { in menu file\n" );
-    //  break;
-    //}
-
-    //if ( menuCount == MAX_MENUS ) {
-    //  Com_Printf( "Too many menus!\n" );
-    //  break;
-    //}
-
-    if ( Q_stricmp( token, "}" ) == 0 ) {
+    if( Q_stricmp( token, "}" ) == 0 )
       break;
-    }
 
-    if (Q_stricmp(token, "loadmenu") == 0) {
-      if (CG_Load_Menu(&p)) {
+    if( Q_stricmp( token, "loadmenu" ) == 0 )
+    {
+      if( CG_Load_Menu( &p ) )
         continue;
-      } else {
+      else
         break;
-      }
     }
   }
 
-  Com_Printf("UI menu load time = %d milli seconds\n", trap_Milliseconds() - start);
-
+  Com_Printf( "UI menu load time = %d milli seconds\n", trap_Milliseconds( ) - start );
 }
 
 
 
-static qboolean CG_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int key) {
+static qboolean CG_OwnerDrawHandleKey( int ownerDraw, int flags, float *special, int key )
+{
   return qfalse;
 }
 
@@ -1445,7 +1443,8 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
   return "";
 }
 
-static qhandle_t CG_FeederItemImage(float feederID, int index) {
+static qhandle_t CG_FeederItemImage( float feederID, int index )
+{
   return 0;
 }
 
@@ -1467,152 +1466,146 @@ static void CG_FeederSelection( float feederID, int index )
   }
 }
 
-static float CG_Cvar_Get(const char *cvar) {
-  char buff[128];
-  memset(buff, 0, sizeof(buff));
-  trap_Cvar_VariableStringBuffer(cvar, buff, sizeof(buff));
-  return atof(buff);
+static float CG_Cvar_Get( const char *cvar )
+{
+  char buff[ 128 ];
+  
+  memset( buff, 0, sizeof( buff ) );
+  trap_Cvar_VariableStringBuffer( cvar, buff, sizeof( buff ) );
+  return atof( buff );
 }
 
-void CG_Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style) {
-  CG_Text_Paint(x, y, scale, color, text, 0, limit, style);
+void CG_Text_PaintWithCursor( float x, float y, float scale, vec4_t color, const char *text,
+                              int cursorPos, char cursor, int limit, int style )
+{
+  CG_Text_Paint( x, y, scale, color, text, 0, limit, style );
 }
 
-static int CG_OwnerDrawWidth(int ownerDraw, float scale) {
-  switch (ownerDraw) {
-/*    case CG_GAME_TYPE:
-      return CG_Text_Width(CG_GameTypeString(), scale, 0);*/
-/*    case CG_GAME_STATUS:
-      return CG_Text_Width(CG_GetGameStatusText(), scale, 0);
-      break;*/
+static int CG_OwnerDrawWidth( int ownerDraw, float scale ) 
+{
+  switch( ownerDraw )
+  {
     case CG_KILLER:
-      return CG_Text_Width(CG_GetKillerText(), scale, 0);
+      return CG_Text_Width( CG_GetKillerText( ), scale, 0 );
       break;
-/*    case CG_RED_NAME:
-      return CG_Text_Width(cg_redTeamName.string, scale, 0);
-      break;
-    case CG_BLUE_NAME:
-      return CG_Text_Width(cg_blueTeamName.string, scale, 0);
-      break;*/
-
-
   }
+  
   return 0;
 }
 
-static int CG_PlayCinematic(const char *name, float x, float y, float w, float h) {
-  return trap_CIN_PlayCinematic(name, x, y, w, h, CIN_loop);
+static int CG_PlayCinematic( const char *name, float x, float y, float w, float h )
+{
+  return trap_CIN_PlayCinematic( name, x, y, w, h, CIN_loop );
 }
 
-static void CG_StopCinematic(int handle) {
-  trap_CIN_StopCinematic(handle);
+static void CG_StopCinematic( int handle )
+{
+  trap_CIN_StopCinematic( handle );
 }
 
-static void CG_DrawCinematic(int handle, float x, float y, float w, float h) {
-  trap_CIN_SetExtents(handle, x, y, w, h);
-  trap_CIN_DrawCinematic(handle);
+static void CG_DrawCinematic( int handle, float x, float y, float w, float h )
+{
+  trap_CIN_SetExtents( handle, x, y, w, h );
+  trap_CIN_DrawCinematic( handle );
 }
 
-static void CG_RunCinematicFrame(int handle) {
-  trap_CIN_RunCinematic(handle);
+static void CG_RunCinematicFrame( int handle )
+{
+  trap_CIN_RunCinematic( handle );
 }
 
 /*
 =================
-CG_LoadHudMenu();
-
+CG_LoadHudMenu
 =================
 */
-void CG_LoadHudMenu() {
-  char buff[1024];
-  const char *hudSet;
+void CG_LoadHudMenu( )
+{
+  char        buff[ 1024 ];
+  const char  *hudSet;
 
-  cgDC.registerShaderNoMip = &trap_R_RegisterShaderNoMip;
-  cgDC.setColor = &trap_R_SetColor;
-  cgDC.drawHandlePic = &CG_DrawPic;
-  cgDC.drawStretchPic = &trap_R_DrawStretchPic;
-  cgDC.drawText = &CG_Text_Paint;
-  cgDC.textWidth = &CG_Text_Width;
-  cgDC.textHeight = &CG_Text_Height;
-  cgDC.registerModel = &trap_R_RegisterModel;
-  cgDC.modelBounds = &trap_R_ModelBounds;
-  cgDC.fillRect = &CG_FillRect;
-  cgDC.drawRect = &CG_DrawRect;   
-  cgDC.drawSides = &CG_DrawSides;
-  cgDC.drawTopBottom = &CG_DrawTopBottom;
-  cgDC.clearScene = &trap_R_ClearScene;
-  cgDC.addRefEntityToScene = &trap_R_AddRefEntityToScene;
-  cgDC.renderScene = &trap_R_RenderScene;
-  cgDC.registerFont = &trap_R_RegisterFont;
-  cgDC.ownerDrawItem = &CG_OwnerDraw;
-  cgDC.getValue = &CG_GetValue;
-  cgDC.ownerDrawVisible = NULL; //&CG_OwnerDrawVisible;
-  cgDC.runScript = &CG_RunMenuScript;
-  cgDC.getTeamColor = &CG_GetTeamColor;
-  cgDC.setCVar = trap_Cvar_Set;
-  cgDC.getCVarString = trap_Cvar_VariableStringBuffer;
-  cgDC.getCVarValue = CG_Cvar_Get;
-  cgDC.drawTextWithCursor = &CG_Text_PaintWithCursor;
-  //cgDC.setOverstrikeMode = &trap_Key_SetOverstrikeMode;
-  //cgDC.getOverstrikeMode = &trap_Key_GetOverstrikeMode;
-  cgDC.startLocalSound = &trap_S_StartLocalSound;
-  cgDC.ownerDrawHandleKey = &CG_OwnerDrawHandleKey;
-  cgDC.feederCount = &CG_FeederCount;
-  cgDC.feederItemImage = &CG_FeederItemImage;
-  cgDC.feederItemText = &CG_FeederItemText;
-  cgDC.feederSelection = &CG_FeederSelection;
-  //cgDC.setBinding = &trap_Key_SetBinding;
-  //cgDC.getBindingBuf = &trap_Key_GetBindingBuf;
-  //cgDC.keynumToStringBuf = &trap_Key_KeynumToStringBuf;
-  //cgDC.executeText = &trap_Cmd_ExecuteText;
-  cgDC.Error = &Com_Error; 
-  cgDC.Print = &Com_Printf; 
-  cgDC.ownerDrawWidth = &CG_OwnerDrawWidth;
-  //cgDC.Pause = &CG_Pause;
-  cgDC.registerSound = &trap_S_RegisterSound;
+  cgDC.registerShaderNoMip  = &trap_R_RegisterShaderNoMip;
+  cgDC.setColor             = &trap_R_SetColor;
+  cgDC.drawHandlePic        = &CG_DrawPic;
+  cgDC.drawStretchPic       = &trap_R_DrawStretchPic;
+  cgDC.drawText             = &CG_Text_Paint;
+  cgDC.textWidth            = &CG_Text_Width;
+  cgDC.textHeight           = &CG_Text_Height;
+  cgDC.registerModel        = &trap_R_RegisterModel;
+  cgDC.modelBounds          = &trap_R_ModelBounds;
+  cgDC.fillRect             = &CG_FillRect;
+  cgDC.drawRect             = &CG_DrawRect;   
+  cgDC.drawSides            = &CG_DrawSides;
+  cgDC.drawTopBottom        = &CG_DrawTopBottom;
+  cgDC.clearScene           = &trap_R_ClearScene;
+  cgDC.addRefEntityToScene  = &trap_R_AddRefEntityToScene;
+  cgDC.renderScene          = &trap_R_RenderScene;
+  cgDC.registerFont         = &trap_R_RegisterFont;
+  cgDC.ownerDrawItem        = &CG_OwnerDraw;
+  cgDC.getValue             = &CG_GetValue;
+  cgDC.ownerDrawVisible     = NULL; //&CG_OwnerDrawVisible;
+  cgDC.runScript            = &CG_RunMenuScript;
+  cgDC.getTeamColor         = &CG_GetTeamColor;
+  cgDC.setCVar              = trap_Cvar_Set;
+  cgDC.getCVarString        = trap_Cvar_VariableStringBuffer;
+  cgDC.getCVarValue         = CG_Cvar_Get;
+  cgDC.drawTextWithCursor   = &CG_Text_PaintWithCursor;
+  //cgDC.setOverstrikeMode    = &trap_Key_SetOverstrikeMode;
+  //cgDC.getOverstrikeMode    = &trap_Key_GetOverstrikeMode;
+  cgDC.startLocalSound      = &trap_S_StartLocalSound;
+  cgDC.ownerDrawHandleKey   = &CG_OwnerDrawHandleKey;
+  cgDC.feederCount          = &CG_FeederCount;
+  cgDC.feederItemImage      = &CG_FeederItemImage;
+  cgDC.feederItemText       = &CG_FeederItemText;
+  cgDC.feederSelection      = &CG_FeederSelection;
+  //cgDC.setBinding           = &trap_Key_SetBinding;
+  //cgDC.getBindingBuf        = &trap_Key_GetBindingBuf;
+  //cgDC.keynumToStringBuf    = &trap_Key_KeynumToStringBuf;
+  //cgDC.executeText          = &trap_Cmd_ExecuteText;
+  cgDC.Error                = &Com_Error; 
+  cgDC.Print                = &Com_Printf; 
+  cgDC.ownerDrawWidth       = &CG_OwnerDrawWidth;
+  //cgDC.Pause                = &CG_Pause;
+  cgDC.registerSound        = &trap_S_RegisterSound;
   cgDC.startBackgroundTrack = &trap_S_StartBackgroundTrack;
-  cgDC.stopBackgroundTrack = &trap_S_StopBackgroundTrack;
-  cgDC.playCinematic = &CG_PlayCinematic;
-  cgDC.stopCinematic = &CG_StopCinematic;
-  cgDC.drawCinematic = &CG_DrawCinematic;
-  cgDC.runCinematicFrame = &CG_RunCinematicFrame;
+  cgDC.stopBackgroundTrack  = &trap_S_StopBackgroundTrack;
+  cgDC.playCinematic        = &CG_PlayCinematic;
+  cgDC.stopCinematic        = &CG_StopCinematic;
+  cgDC.drawCinematic        = &CG_DrawCinematic;
+  cgDC.runCinematicFrame    = &CG_RunCinematicFrame;
   
-  Init_Display(&cgDC);
+  Init_Display( &cgDC );
 
-  Menu_Reset();
+  Menu_Reset( );
   
-  trap_Cvar_VariableStringBuffer("cg_hudFiles", buff, sizeof(buff));
+  trap_Cvar_VariableStringBuffer( "cg_hudFiles", buff, sizeof( buff ) );
   hudSet = buff;
-  if (hudSet[0] == '\0') {
+  
+  if( hudSet[ 0 ] == '\0' )
     hudSet = "ui/hud.txt";
-  }
 
-  CG_LoadMenus(hudSet);
+  CG_LoadMenus( hudSet );
 }
 
-void CG_AssetCache() {
-  //if (Assets.textFont == NULL) {
-  //  trap_R_RegisterFont("fonts/arial.ttf", 72, &Assets.textFont);
-  //}
-  //Assets.background = trap_R_RegisterShaderNoMip( ASSET_BACKGROUND );
-  //Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
-  cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip( ASSET_GRADIENTBAR );
-  cgDC.Assets.fxBasePic = trap_R_RegisterShaderNoMip( ART_FX_BASE );
-  cgDC.Assets.fxPic[0] = trap_R_RegisterShaderNoMip( ART_FX_RED );
-  cgDC.Assets.fxPic[1] = trap_R_RegisterShaderNoMip( ART_FX_YELLOW );
-  cgDC.Assets.fxPic[2] = trap_R_RegisterShaderNoMip( ART_FX_GREEN );
-  cgDC.Assets.fxPic[3] = trap_R_RegisterShaderNoMip( ART_FX_TEAL );
-  cgDC.Assets.fxPic[4] = trap_R_RegisterShaderNoMip( ART_FX_BLUE );
-  cgDC.Assets.fxPic[5] = trap_R_RegisterShaderNoMip( ART_FX_CYAN );
-  cgDC.Assets.fxPic[6] = trap_R_RegisterShaderNoMip( ART_FX_WHITE );
-  cgDC.Assets.scrollBar = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR );
-  cgDC.Assets.scrollBarArrowDown = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
-  cgDC.Assets.scrollBarArrowUp = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWUP );
-  cgDC.Assets.scrollBarArrowLeft = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWLEFT );
+void CG_AssetCache( void )
+{
+  cgDC.Assets.gradientBar         = trap_R_RegisterShaderNoMip( ASSET_GRADIENTBAR );
+  cgDC.Assets.fxBasePic           = trap_R_RegisterShaderNoMip( ART_FX_BASE );
+  cgDC.Assets.fxPic[ 0 ]          = trap_R_RegisterShaderNoMip( ART_FX_RED );
+  cgDC.Assets.fxPic[ 1 ]          = trap_R_RegisterShaderNoMip( ART_FX_YELLOW );
+  cgDC.Assets.fxPic[ 2 ]          = trap_R_RegisterShaderNoMip( ART_FX_GREEN );
+  cgDC.Assets.fxPic[ 3 ]          = trap_R_RegisterShaderNoMip( ART_FX_TEAL );
+  cgDC.Assets.fxPic[ 4 ]          = trap_R_RegisterShaderNoMip( ART_FX_BLUE );
+  cgDC.Assets.fxPic[ 5 ]          = trap_R_RegisterShaderNoMip( ART_FX_CYAN );
+  cgDC.Assets.fxPic[ 6 ]          = trap_R_RegisterShaderNoMip( ART_FX_WHITE );
+  cgDC.Assets.scrollBar           = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR );
+  cgDC.Assets.scrollBarArrowDown  = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
+  cgDC.Assets.scrollBarArrowUp    = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWUP );
+  cgDC.Assets.scrollBarArrowLeft  = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWLEFT );
   cgDC.Assets.scrollBarArrowRight = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWRIGHT );
-  cgDC.Assets.scrollBarThumb = trap_R_RegisterShaderNoMip( ASSET_SCROLL_THUMB );
-  cgDC.Assets.sliderBar = trap_R_RegisterShaderNoMip( ASSET_SLIDER_BAR );
-  cgDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
+  cgDC.Assets.scrollBarThumb      = trap_R_RegisterShaderNoMip( ASSET_SCROLL_THUMB );
+  cgDC.Assets.sliderBar           = trap_R_RegisterShaderNoMip( ASSET_SLIDER_BAR );
+  cgDC.Assets.sliderThumb         = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
 }
 //TA: FIXME: preliminary integration of CG TA UI stuff
 
@@ -1624,14 +1617,14 @@ Called after every level change or subsystem restart
 Will perform callbacks to make the loading info screen update.
 =================
 */
-void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
+void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
+{
   const char  *s;
 
   // clear everything
   memset( &cgs, 0, sizeof( cgs ) );
   memset( &cg, 0, sizeof( cg ) );
-  memset( cg_entities, 0, sizeof(cg_entities) );
-  memset( cg_items, 0, sizeof(cg_items) );
+  memset( cg_entities, 0, sizeof( cg_entities ) );
 
   cg.clientNum = clientNum;
 
@@ -1639,31 +1632,26 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
   cgs.serverCommandSequence = serverCommandSequence;
 
   // load a few needed things before we do any screen updates
+  cgs.media.whiteShader     = trap_R_RegisterShader( "white" );
   cgs.media.charsetShader   = trap_R_RegisterShader( "gfx/2d/bigchars" );
-  cgs.media.whiteShader   = trap_R_RegisterShader( "white" );
-  cgs.media.charsetProp   = trap_R_RegisterShaderNoMip( "menu/art/font1_prop.tga" );
-  cgs.media.charsetPropGlow = trap_R_RegisterShaderNoMip( "menu/art/font1_prop_glo.tga" );
-  cgs.media.charsetPropB    = trap_R_RegisterShaderNoMip( "menu/art/font2_prop.tga" );
 
+  //inform UI to repress cursor whilst loading
+  trap_Cvar_Set( "ui_loading", "1" );
+  
   //TA: dyn memory
   CG_InitMemory( );
 
-  CG_RegisterCvars();
+  CG_RegisterCvars( );
 
-  CG_InitConsoleCommands();
+  CG_InitConsoleCommands( );
 
-  //repress standard Q3 console
-  trap_Cvar_Set( "con_notifytime", "-2" );
-  
   //TA: moved up for LoadHudMenu
-  String_Init();
+  String_Init( );
 
   //TA: FIXME: TA UI
-  CG_AssetCache();
-  CG_LoadHudMenu();      // load new hud stuff
+  CG_AssetCache( );
+  CG_LoadHudMenu( );      // load new hud stuff
 
-  //cg.weaponSelect = WP_MACHINEGUN;
-  //TA: if it does weird things, this is why:
   cg.weaponSelect = WP_NONE;
 
   cgs.redflag = cgs.blueflag = -1; // For compatibily, default to unset for
@@ -1680,14 +1668,14 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 
   // check version
   s = CG_ConfigString( CS_GAME_VERSION );
-  if ( strcmp( s, GAME_VERSION ) ) {
+  
+  if( strcmp( s, GAME_VERSION ) )
     CG_Error( "Client/Server game mismatch: %s/%s", GAME_VERSION, s );
-  }
 
   s = CG_ConfigString( CS_LEVEL_START_TIME );
   cgs.levelStartTime = atoi( s );
 
-  CG_ParseServerinfo();
+  CG_ParseServerinfo( );
 
   // load the new map
   trap_CM_LoadMap( cgs.mapname );
@@ -1707,27 +1695,29 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
   //TA:
   CG_InitBuildables( );
 
-  CG_RegisterClients();   // if low on memory, some clients will be deferred
+  CG_RegisterClients( );   // if low on memory, some clients will be deferred
 
   cg.loading = qfalse;  // future players will be deferred
 
-  CG_InitLocalEntities();
+  CG_InitLocalEntities( );
 
-  CG_InitMarkPolys();
+  CG_InitMarkPolys( );
 
   // remove the last loading update
-  cg.infoScreenText[0] = 0;
+  cg.infoScreenText[ 0 ] = 0;
 
   // Make sure we have update values (scores)
-  CG_SetConfigValues();
+  CG_SetConfigValues( );
 
-  CG_StartMusic();
+  CG_StartMusic( );
 
-  CG_ShaderStateChanged();
+  CG_ShaderStateChanged( );
 
   trap_S_ClearLoopingSounds( qtrue );
 
   cg.consoleValid = qtrue;
+  
+  trap_Cvar_Set( "ui_loading", "0" );
 }
 
 /*
@@ -1737,28 +1727,8 @@ CG_Shutdown
 Called before every level change or subsystem restart
 =================
 */
-void CG_Shutdown( void ) {
+void CG_Shutdown( void )
+{
   // some mods may need to do cleanup work here,
   // like closing files or archiving session data
 }
-
-/*
-==================
-CG_EventHandling
-==================
- type 0 - no event handling
-      1 - team menu
-      2 - hud editor
-
-*/
-/*void CG_EventHandling(int type) {
-}
-
-
-
-void CG_KeyEvent(int key, qboolean down) {
-}
-
-void CG_MouseEvent(int x, int y) {
-}
-*/

@@ -156,8 +156,9 @@ int VectorCompare( const vec3_t v1, const vec3_t v2 ) {
 	return 1;
 }
 
-vec_t VectorLength( const vec3_t v ) {
-	return (vec_t)sqrt (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+vec_t VectorLength( const vec3_t v )
+{
+	return (vec_t)sqrt( v[ 0 ] * v[ 0 ] + v[ 1 ] * v[ 1 ] + v[ 2 ] * v[ 2 ] );
 }
 
 vec_t VectorLengthSquared( const vec3_t v ) {
@@ -228,20 +229,22 @@ signed short ClampShort( int i ) {
 
 
 // this isn't a real cheap function to call!
-int DirToByte( vec3_t dir ) {
+int DirToByte( vec3_t dir )
+{
   int   i, best;
   float d, bestd;
 
-  if ( !dir ) {
+  if( !dir )
     return 0;
-  }
 
   bestd = 0;
   best = 0;
-  for (i=0 ; i<NUMVERTEXNORMALS ; i++)
+  
+  for( i = 0; i < NUMVERTEXNORMALS; i++ )
   {
-    d = DotProduct (dir, bytedirs[i]);
-    if (d > bestd)
+    d = DotProduct( dir, bytedirs[ i ] );
+    
+    if( d > bestd )
     {
       bestd = d;
       best = i;
@@ -251,12 +254,15 @@ int DirToByte( vec3_t dir ) {
   return best;
 }
 
-void ByteToDir( int b, vec3_t dir ) {
-  if ( b < 0 || b >= NUMVERTEXNORMALS ) {
+void ByteToDir( int b, vec3_t dir )
+{
+  if( b < 0 || b >= NUMVERTEXNORMALS )
+  {
     VectorCopy( vec3_origin, dir );
     return;
   }
-  VectorCopy (bytedirs[b], dir);
+  
+  VectorCopy( bytedirs[ b ], dir);
 }
 
 
@@ -389,67 +395,64 @@ void RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, f
 RotateAroundDirection
 ===============
 */
-void RotateAroundDirection(vec3_t axis[3], vec_t angle)
+void RotateAroundDirection( vec3_t axis[ 3 ], vec_t angle )
 {
   vec_t scale;
 
-  angle = DEG2RAD(angle);
+  angle = DEG2RAD( angle );
 
   // create an arbitrary axis[1] 
-  PerpendicularVector(axis[1], axis[0]);
+  PerpendicularVector( axis[ 1 ], axis[ 0 ] );
 
   // cross to get axis[2]
-  CrossProduct(axis[0], axis[1], axis[2]);
+  CrossProduct( axis[ 0 ], axis[ 1 ], axis[ 2 ] );
 
   // rotate
-  scale = cos(angle);
-  VectorScale(axis[1], scale, axis[1]);
+  scale = cos( angle );
+  VectorScale( axis[ 1 ], scale, axis[ 1 ] );
 
-  scale = sin(angle);
-  VectorMA(axis[1], scale, axis[2], axis[1]);
+  scale = sin( angle );
+  VectorMA( axis[ 1 ], scale, axis[ 2 ], axis[ 1 ] );
 
   // recalculate axis[2]
-  CrossProduct(axis[0], axis[1], axis[2]);
+  CrossProduct( axis[ 0 ], axis[ 1 ], axis[ 2 ] );
 }
 
 
-void vectoangles( const vec3_t value1, vec3_t angles ) {
+void vectoangles( const vec3_t value1, vec3_t angles )
+{
   float forward;
   float yaw, pitch;
 
-  if ( value1[1] == 0 && value1[0] == 0 ) {
+  if( value1[ 1 ] == 0 && value1[ 0 ] == 0 )
+  {
     yaw = 0;
-    if ( value1[2] > 0 ) {
+    if( value1[ 2 ] > 0 )
       pitch = 90;
-    }
-    else {
+    else
       pitch = 270;
-    }
   }
-  else {
-    if ( value1[0] ) {
-      yaw = ( atan2 ( value1[1], value1[0] ) * 180 / M_PI );
-    }
-    else if ( value1[1] > 0 ) {
+  else
+  {
+    if( value1[ 0 ] )
+      yaw = ( atan2 ( value1[ 1 ], value1[ 0 ] ) * 180 / M_PI );
+    else if( value1[ 1 ] > 0 )
       yaw = 90;
-    }
-    else {
+    else
       yaw = 270;
-    }
-    if ( yaw < 0 ) {
-      yaw += 360;
-    }
 
-    forward = sqrt ( value1[0]*value1[0] + value1[1]*value1[1] );
-    pitch = ( atan2(value1[2], forward) * 180 / M_PI );
-    if ( pitch < 0 ) {
+    if( yaw < 0 )
+      yaw += 360;
+
+    forward = sqrt( value1[ 0 ] * value1[ 0 ] + value1[ 1 ] * value1[ 1 ] );
+    pitch = ( atan2( value1[ 2 ], forward ) * 180 / M_PI );
+    if( pitch < 0 )
       pitch += 360;
-    }
   }
 
-  angles[PITCH] = -pitch;
-  angles[YAW] = yaw;
-  angles[ROLL] = 0;
+  angles[ PITCH ] = -pitch;
+  angles[ YAW ] = yaw;
+  angles[ ROLL ] = 0;
 }
 
 
@@ -517,16 +520,17 @@ void AnglesToAxis( const vec3_t angles, vec3_t axis[3] ) {
   VectorSubtract( vec3_origin, right, axis[1] );
 }
 
-void AxisClear( vec3_t axis[3] ) {
-  axis[0][0] = 1;
-  axis[0][1] = 0;
-  axis[0][2] = 0;
-  axis[1][0] = 0;
-  axis[1][1] = 1;
-  axis[1][2] = 0;
-  axis[2][0] = 0;
-  axis[2][1] = 0;
-  axis[2][2] = 1;
+void AxisClear( vec3_t axis[ 3 ] )
+{
+  axis[ 0 ][ 0 ] = 1;
+  axis[ 0 ][ 1 ] = 0;
+  axis[ 0 ][ 2 ] = 0;
+  axis[ 1 ][ 0 ] = 0;
+  axis[ 1 ][ 1 ] = 1;
+  axis[ 1 ][ 2 ] = 0;
+  axis[ 2 ][ 0 ] = 0;
+  axis[ 2 ][ 1 ] = 0;
+  axis[ 2 ][ 2 ] = 1;
 }
 
 void AxisCopy( vec3_t in[3], vec3_t out[3] ) {
@@ -677,8 +681,9 @@ void AnglesSubtract( vec3_t v1, vec3_t v2, vec3_t v3 ) {
 }
 
 
-float AngleMod(float a) {
-  a = (360.0/65536) * ((int)(a*(65536/360.0)) & 65535);
+float AngleMod( float a )
+{
+  a = ( 360.0 / 65536 ) * ( (int)( a * ( 65536 / 360.0 ) ) & 65535 );
   return a;
 }
 
@@ -1252,60 +1257,64 @@ int PlaneTypeForNormal (vec3_t normal) {
 MatrixMultiply
 ================
 */
-void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3]) {
-  out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] +
-        in1[0][2] * in2[2][0];
-  out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] +
-        in1[0][2] * in2[2][1];
-  out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] +
-        in1[0][2] * in2[2][2];
-  out[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] +
-        in1[1][2] * in2[2][0];
-  out[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] +
-        in1[1][2] * in2[2][1];
-  out[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] +
-        in1[1][2] * in2[2][2];
-  out[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] +
-        in1[2][2] * in2[2][0];
-  out[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] +
-        in1[2][2] * in2[2][1];
-  out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] +
-        in1[2][2] * in2[2][2];
+void MatrixMultiply( float in1[ 3 ][ 3 ], float in2[ 3 ][ 3 ], float out[ 3 ][ 3 ] )
+{
+  out[ 0 ][ 0 ] = in1[ 0 ][ 0 ] * in2[ 0 ][ 0 ] + in1[ 0 ][ 1 ] * in2[ 1 ][ 0 ] +
+                  in1[ 0 ][ 2 ] * in2[ 2 ][ 0 ];
+  out[ 0 ][ 1 ] = in1[ 0 ][ 0 ] * in2[ 0 ][ 1 ] + in1[ 0 ][ 1 ] * in2[ 1 ][ 1 ] +
+                  in1[ 0 ][ 2 ] * in2[ 2 ][ 1 ];
+  out[ 0 ][ 2 ] = in1[ 0 ][ 0 ] * in2[ 0 ][ 2 ] + in1[ 0 ][ 1 ] * in2[ 1 ][ 2 ] +
+                  in1[ 0 ][ 2 ] * in2[ 2 ][ 2 ];
+  out[ 1 ][ 0 ] = in1[ 1 ][ 0 ] * in2[ 0 ][ 0 ] + in1[ 1 ][ 1 ] * in2[ 1 ][ 0 ] +
+                  in1[ 1 ][ 2 ] * in2[ 2 ][ 0 ];
+  out[ 1 ][ 1 ] = in1[ 1 ][ 0 ] * in2[ 0 ][ 1 ] + in1[ 1 ][ 1 ] * in2[ 1 ][ 1 ] +
+                  in1[ 1 ][ 2 ] * in2[ 2 ][ 1 ];
+  out[ 1 ][ 2 ] = in1[ 1 ][ 0 ] * in2[ 0 ][ 2 ] + in1[ 1 ][ 1 ] * in2[ 1 ][ 2 ] +
+                  in1[ 1 ][ 2 ] * in2[ 2 ][ 2 ];
+  out[ 2 ][ 0 ] = in1[ 2 ][ 0 ] * in2[ 0 ][ 0 ] + in1[ 2 ][ 1 ] * in2[ 1 ][ 0 ] +
+                  in1[ 2 ][ 2 ] * in2[ 2 ][ 0 ];
+  out[ 2 ][ 1 ] = in1[ 2 ][ 0 ] * in2[ 0 ][ 1 ] + in1[ 2 ][ 1 ] * in2[ 1 ][ 1 ] +
+                  in1[ 2 ][ 2 ] * in2[ 2 ][ 1 ];
+  out[ 2 ][ 2 ] = in1[ 2 ][ 0 ] * in2[ 0 ][ 2 ] + in1[ 2 ][ 1 ] * in2[ 1 ][ 2 ] +
+                  in1[ 2 ][ 2 ] * in2[ 2 ][ 2 ];
 }
 
 
-void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up) {
-  float   angle;
-  static float    sr, sp, sy, cr, cp, cy;
+void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
+{
+  float         angle;
+  static float  sr, sp, sy, cr, cp, cy;
   // static to help MS compiler fp bugs
 
-  angle = angles[YAW] * (M_PI*2 / 360);
-  sy = sin(angle);
-  cy = cos(angle);
-  angle = angles[PITCH] * (M_PI*2 / 360);
-  sp = sin(angle);
-  cp = cos(angle);
-  angle = angles[ROLL] * (M_PI*2 / 360);
-  sr = sin(angle);
-  cr = cos(angle);
+  angle = angles[ YAW ] * ( M_PI * 2 / 360 );
+  sy = sin( angle );
+  cy = cos( angle );
+  angle = angles[ PITCH ] * ( M_PI * 2 / 360 );
+  sp = sin( angle );
+  cp = cos( angle );
+  angle = angles[ ROLL ] * ( M_PI * 2 / 360 );
+  sr = sin( angle );
+  cr = cos( angle );
 
-  if (forward)
+  if( forward )
   {
-    forward[0] = cp*cy;
-    forward[1] = cp*sy;
-    forward[2] = -sp;
+    forward[ 0 ] = cp * cy;
+    forward[ 1 ] = cp * sy;
+    forward[ 2 ] = -sp;
   }
-  if (right)
+  
+  if( right )
   {
-    right[0] = (-1*sr*sp*cy+-1*cr*-sy);
-    right[1] = (-1*sr*sp*sy+-1*cr*cy);
-    right[2] = -1*sr*cp;
+    right[ 0 ] = ( -1 * sr * sp * cy + -1 * cr * -sy );
+    right[ 1 ] = ( -1 * sr * sp * sy + -1 * cr * cy );
+    right[ 2 ] = -1 * sr * cp;
   }
-  if (up)
+  
+  if( up )
   {
-    up[0] = (cr*sp*cy+-sr*-sy);
-    up[1] = (cr*sp*sy+-sr*cy);
-    up[2] = cr*cp;
+    up[ 0 ] = ( cr * sp * cy + -sr * -sy );
+    up[ 1 ] = ( cr * sp * sy + -sr * cy );
+    up[ 2 ] = cr * cp;
   }
 }
 

@@ -113,7 +113,7 @@ static void CG_DrawDir( vec3_t origin, vec4_t colour )
 CG_AlienSense
 =============
 */
-void CG_AlienSense( )
+void CG_AlienSense( void )
 {
   int     i;
   vec3_t  origin;
@@ -149,7 +149,7 @@ void CG_AlienSense( )
 CG_Scanner
 =============
 */
-void CG_Scanner( )
+void CG_Scanner( void )
 {
   int     i;
   vec3_t  origin;

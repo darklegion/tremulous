@@ -307,72 +307,98 @@ static char *SkipWhitespace( char *data, qboolean *hasNewLines ) {
 }
 
 
-int COM_Compress( char *data_p ) {
-	char *in, *out;
-	int c;
-	qboolean newline = qfalse, whitespace = qfalse;
+int COM_Compress( char *data_p )
+{
+  char      *in, *out;
+  int       c;
+  qboolean  newline = qfalse, whitespace = qfalse;
 
-	in = out = data_p;
-	if (in) {
-		while ((c = *in) != 0) {
-			// skip double slash comments
-			if ( c == '/' && in[1] == '/' ) {
-				while (*in && *in != '\n') {
-					in++;
-				}
-			// skip /* */ comments
-			} else if ( c == '/' && in[1] == '*' ) {
-				while ( *in && ( *in != '*' || in[1] != '/' ) ) 
-					in++;
-				if ( *in ) 
-					in += 2;
-                        // record when we hit a newline
-                        } else if ( c == '\n' || c == '\r' ) {
-                            newline = qtrue;
-                            in++;
-                        // record when we hit whitespace
-                        } else if ( c == ' ' || c == '\t') {
-                            whitespace = qtrue;
-                            in++;
-                        // an actual token
-			} else {
-                            // if we have a pending newline, emit it (and it counts as whitespace)
-                            if (newline) {
-                                *out++ = '\n';
-                                newline = qfalse;
-                                whitespace = qfalse;
-                            } if (whitespace) {
-                                *out++ = ' ';
-                                whitespace = qfalse;
-                            }
-                            
-                            // copy quoted strings unmolested
-                            if (c == '"') {
-                                    *out++ = c;
-                                    in++;
-                                    while (1) {
-                                        c = *in;
-                                        if (c && c != '"') {
-                                            *out++ = c;
-                                            in++;
-                                        } else {
-                                            break;
-                                        }
-                                    }
-                                    if (c == '"') {
-                                        *out++ = c;
-                                        in++;
-                                    }
-                            } else {
-                                *out = c;
-                                out++;
-                                in++;
-                            }
-			}
-		}
-	}
-	*out = 0;
-	return out - data_p;
+  in = out = data_p;
+  if( in )
+  {
+    while( ( c = *in ) != 0 )
+    {
+      // skip double slash comments
+      if( c == '/' && in[ 1 ] == '/' )
+      {
+        while( *in && *in != '\n' )
+          in++;
+      // skip /* */ comments
+      }
+      else if( c == '/' && in[ 1 ] == '*' )
+      {
+        while( *in && ( *in != '*' || in[ 1 ] != '/' ) ) 
+          in++;
+        
+        if( *in ) 
+          in += 2;
+      // record when we hit a newline
+      }
+      else if( c == '\n' || c == '\r' )
+      {
+        newline = qtrue;
+        in++;
+      // record when we hit whitespace
+      }
+      else if( c == ' ' || c == '\t')
+      {
+        whitespace = qtrue;
+        in++;
+      // an actual token
+      }
+      else
+      {
+        // if we have a pending newline, emit it (and it counts as whitespace)
+        if( newline )
+        {
+          *out++ = '\n';
+          newline = qfalse;
+          whitespace = qfalse;
+        }
+        
+        if( whitespace )
+        {
+          *out++ = ' ';
+          whitespace = qfalse;
+        }
+        
+        // copy quoted strings unmolested
+        if( c == '"' )
+        {
+          *out++ = c;
+          in++;
+          
+          while( 1 )
+          {
+            c = *in;
+            
+            if( c && c != '"' )
+            {
+              *out++ = c;
+              in++;
+            }
+            else
+              break;
+          }
+          
+          if( c == '"' )
+          {
+            *out++ = c;
+            in++;
+          }
+        }
+        else
+        {
+          *out = c;
+          out++;
+          in++;
+        }
+      }
+    }
+  }
+
+  *out = 0;
+  return out - data_p;
 }
 
 char *COM_ParseExt( char **data_p, qboolean allowLineBreaks )
@@ -703,55 +729,57 @@ Q_strncpyz
 Safe strncpy that ensures a trailing zero
 =============
 */
-void Q_strncpyz( char *dest, const char *src, int destsize ) {
+void Q_strncpyz( char *dest, const char *src, int destsize )
+{
   // bk001129 - also NULL dest
-  if ( !dest ) {
+  if( !dest )
     Com_Error( ERR_FATAL, "Q_strncpyz: NULL dest" );
-  }
-  if ( !src ) {
-    Com_Error( ERR_FATAL, "Q_strncpyz: NULL src" );
-  }
-  if ( destsize < 1 ) {
-    Com_Error(ERR_FATAL,"Q_strncpyz: destsize < 1" );
-  }
 
-  strncpy( dest, src, destsize-1 );
-    dest[destsize-1] = 0;
+  if( !src )
+    Com_Error( ERR_FATAL, "Q_strncpyz: NULL src" );
+
+  if( destsize < 1 )
+    Com_Error( ERR_FATAL, "Q_strncpyz: destsize < 1" );
+
+  strncpy( dest, src, destsize - 1 );
+  dest[ destsize - 1 ] = 0;
 }
 
-int Q_stricmpn (const char *s1, const char *s2, int n) {
+int Q_stricmpn( const char *s1, const char *s2, int n )
+{
   int   c1, c2;
 
   // bk001129 - moved in 1.17 fix not in id codebase
-  if ( s1 == NULL ) {
-    if ( s2 == NULL )
+  if( s1 == NULL )
+  {
+    if( s2 == NULL )
       return 0;
     else
       return -1;
   }
-  else if ( s2==NULL )
+  else if( s2==NULL )
     return 1;
 
-  do {
+  do
+  {
     c1 = *s1++;
     c2 = *s2++;
 
-    if (!n--) {
+    if( !n-- )
       return 0;   // strings are equal until end point
-    }
 
-    if (c1 != c2) {
-      if (c1 >= 'a' && c1 <= 'z') {
-        c1 -= ('a' - 'A');
-      }
-      if (c2 >= 'a' && c2 <= 'z') {
-        c2 -= ('a' - 'A');
-      }
-      if (c1 != c2) {
+    if( c1 != c2 )
+    {
+      if( c1 >= 'a' && c1 <= 'z' )
+        c1 -= ( 'a' - 'A' );
+
+      if( c2 >= 'a' && c2 <= 'z' )
+        c2 -= ( 'a' - 'A' );
+
+      if( c1 != c2 )
         return c1 < c2 ? -1 : 1;
-      }
     }
-  } while (c1);
+  } while( c1 );
 
   return 0;   // strings are equal
 }
@@ -775,8 +803,9 @@ int Q_strncmp (const char *s1, const char *s2, int n) {
   return 0;   // strings are equal
 }
 
-int Q_stricmp (const char *s1, const char *s2) {
-  return (s1 && s2) ? Q_stricmpn (s1, s2, 99999) : -1;
+int Q_stricmp( const char *s1, const char *s2 )
+{
+  return ( s1 && s2 ) ? Q_stricmpn( s1, s2, 99999 ) : -1;
 }
 
 
@@ -804,13 +833,14 @@ char *Q_strupr( char *s1 ) {
 
 
 // never goes past bounds or leaves without a terminating 0
-void Q_strcat( char *dest, int size, const char *src ) {
+void Q_strcat( char *dest, int size, const char *src )
+{
   int   l1;
 
   l1 = strlen( dest );
-  if ( l1 >= size ) {
+  if( l1 >= size )
     Com_Error( ERR_FATAL, "Q_strcat: already overflowed" );
-  }
+
   Q_strncpyz( dest + l1, src, size - l1 );
 }
 
@@ -860,26 +890,28 @@ char *Q_CleanStr( char *string ) {
 }
 
 
-void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
-  int   len;
-  va_list   argptr;
-  char  bigbuffer[32000]; // big, but small enough to fit in PPC stack
+void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...)
+{
+  int     len;
+  va_list argptr;
+  char    bigbuffer[ 32000 ]; // big, but small enough to fit in PPC stack
 
-  va_start (argptr,fmt);
-  len = vsprintf (bigbuffer,fmt,argptr);
-  va_end (argptr);
-  if ( len >= sizeof( bigbuffer ) ) {
+  va_start( argptr, fmt );
+  len = vsprintf( bigbuffer, fmt, argptr );
+  va_end( argptr );
+  
+  if( len >= sizeof( bigbuffer ) )
     Com_Error( ERR_FATAL, "Com_sprintf: overflowed bigbuffer" );
-  }
-  if (len >= size) {
-    Com_Printf ("Com_sprintf: overflow of %i in %i\n", len, size);
-  }
+  
+  if( len >= size )
+    Com_Printf( "Com_sprintf: overflow of %i in %i\n", len, size );
+
 #ifdef  _DEBUG
   __asm {
     int 3;
   }
 #endif
-  Q_strncpyz (dest, bigbuffer, size );
+  Q_strncpyz( dest, bigbuffer, size );
 }
 
 
@@ -926,49 +958,52 @@ key and returns the associated value, or an empty string.
 FIXME: overflow check?
 ===============
 */
-char *Info_ValueForKey( const char *s, const char *key ) {
-  char  pkey[BIG_INFO_KEY];
-  static  char value[2][BIG_INFO_VALUE];  // use two buffers so compares
+char *Info_ValueForKey( const char *s, const char *key )
+{
+  char        pkey[ BIG_INFO_KEY ];
+  static char value[ 2 ][ BIG_INFO_VALUE ];  // use two buffers so compares
                       // work without stomping on each other
-  static  int valueindex = 0;
-  char  *o;
+  static int  valueindex = 0;
+  char        *o;
 
-  if ( !s || !key ) {
+  if( !s || !key )
     return "";
-  }
 
-  if ( strlen( s ) >= BIG_INFO_STRING ) {
+  if( strlen( s ) >= BIG_INFO_STRING )
     Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring" );
-  }
 
   valueindex ^= 1;
-  if (*s == '\\')
+  
+  if( *s == '\\' )
     s++;
-  while (1)
+  
+  while( 1 )
   {
     o = pkey;
-    while (*s != '\\')
+    while( *s != '\\' )
     {
-      if (!*s)
+      if( !*s )
         return "";
+      
       *o++ = *s++;
     }
+    
     *o = 0;
     s++;
 
-    o = value[valueindex];
+    o = value[ valueindex ];
 
-    while (*s != '\\' && *s)
-    {
+    while( *s != '\\' && *s )
       *o++ = *s++;
-    }
+    
     *o = 0;
 
-    if (!Q_stricmp (key, pkey) )
-      return value[valueindex];
+    if( !Q_stricmp( key, pkey ) )
+      return value[ valueindex ];
 
-    if (!*s)
+    if( !*s )
       break;
+
     s++;
   }
 
@@ -1137,13 +1172,14 @@ Some characters are illegal in info strings because they
 can mess up the server's parsing
 ==================
 */
-qboolean Info_Validate( const char *s ) {
-  if ( strchr( s, '\"' ) ) {
+qboolean Info_Validate( const char *s )
+{
+  if( strchr( s, '\"' ) )
     return qfalse;
-  }
-  if ( strchr( s, ';' ) ) {
+  
+  if( strchr( s, ';' ) )
     return qfalse;
-  }
+
   return qtrue;
 }
 

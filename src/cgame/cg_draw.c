@@ -27,9 +27,9 @@ int drawTeamOverlayModificationCount = -1;
 int sortedTeamPlayers[TEAM_MAXOVERLAY];
 int numSortedTeamPlayers;
 
-char systemChat[256];
-char teamChat1[256];
-char teamChat2[256];
+char systemChat[ 256 ];
+char teamChat1[ 256 ];
+char teamChat2[ 256 ];
 
 //TA UI
 int CG_Text_Width( const char *text, float scale, int limit )
@@ -881,8 +881,8 @@ static void CG_DrawKiller( rectDef_t *rect, float scale, vec4_t color,
 static void CG_Text_Paint_Limit( float *maxX, float x, float y, float scale,
                                  vec4_t color, const char* text, float adjust, int limit )
 {
-  int len, count;
-  vec4_t newColor;
+  int         len, count;
+  vec4_t      newColor;
   glyphInfo_t *glyph;
 
   if( text )
@@ -1219,11 +1219,11 @@ LAGOMETER
 
 typedef struct
 {
-  int   frameSamples[ LAG_SAMPLES ];
-  int   frameCount;
-  int   snapshotFlags[ LAG_SAMPLES ];
-  int   snapshotSamples[ LAG_SAMPLES ];
-  int   snapshotCount;
+  int frameSamples[ LAG_SAMPLES ];
+  int frameCount;
+  int snapshotFlags[ LAG_SAMPLES ];
+  int snapshotSamples[ LAG_SAMPLES ];
+  int snapshotCount;
 } lagometer_t;
 
 lagometer_t   lagometer;
@@ -1319,11 +1319,12 @@ CG_DrawLagometer
 */
 static void CG_DrawLagometer( rectDef_t *rect, qhandle_t shader )
 {
-  int   a, x, y, i;
-  float v;
-  float ax, ay, aw, ah, mid, range;
-  int   color;
-  float vscale;
+  int     a, x, y, i;
+  float   v;
+  float   ax, ay, aw, ah, mid, range;
+  int     color;
+  float   vscale;
+  vec4_t  white = { 1.0f, 1.0f, 1.0f, 1.0f };
 
   if( !cg_lagometer.integer )
   {
@@ -1437,9 +1438,9 @@ static void CG_DrawLagometer( rectDef_t *rect, qhandle_t shader )
   trap_R_SetColor( NULL );
 
   if( cg_nopredict.integer || cg_synchronousClients.integer )
-    CG_DrawBigString( ax, ay, "snc", 1.0 );
+    CG_Text_Paint( ax, ay, 0.5, white, "snc", 0, 0, ITEM_TEXTSTYLE_NORMAL );
 
-  CG_DrawDisconnect();
+  CG_DrawDisconnect( );
 }
 
 /*
@@ -1678,7 +1679,7 @@ CG_ShowTeamMenus
 */
 void CG_ShowTeamMenu( )
 {
-  Menus_OpenByName("teamMenu");
+  Menus_OpenByName( "teamMenu" );
 }
 
 /*
@@ -1695,24 +1696,14 @@ void CG_EventHandling( int type )
   cgs.eventHandling = type;
   
   if( type == CGAME_EVENT_NONE )
-  {
     CG_HideTeamMenu( );
-  }
-  else if( type == CGAME_EVENT_TEAMMENU )
-  {
-    //CG_ShowTeamMenu();
-  }
-  else if( type == CGAME_EVENT_SCOREBOARD )
-  {
-    
-  }
 }
 
 
 
 void CG_KeyEvent( int key, qboolean down )
 {
-  if( !down)
+  if( !down )
     return;
 
   if( cg.predictedPlayerState.pm_type == PM_NORMAL ||
@@ -1727,9 +1718,7 @@ void CG_KeyEvent( int key, qboolean down )
   Display_HandleKey( key, down, cgs.cursorX, cgs.cursorY );
 
   if( cgs.capturedItem )
-  {
     cgs.capturedItem = NULL;
-  }
   else
   {
     if( key == K_MOUSE2 && down )
@@ -1763,11 +1752,11 @@ void CG_RunMenuScript( char **args )
 }
 
 
-void CG_GetTeamColor(vec4_t *color)
+void CG_GetTeamColor( vec4_t *color )
 {
-  (*color)[0] = (*color)[2] = 0.0f;
-  (*color)[1] = 0.17f;
-  (*color)[3] = 0.25f;
+  (*color)[ 0 ] = (*color)[ 2 ] = 0.0f;
+  (*color)[ 1 ] = 0.17f;
+  (*color)[ 3 ] = 0.25f;
 }
 //END TA UI
 
@@ -1782,7 +1771,7 @@ static void CG_DrawLighting( void )
 {
   centity_t   *cent;
   
-  cent = &cg_entities[cg.snap->ps.clientNum];
+  cent = &cg_entities[ cg.snap->ps.clientNum ];
 
   //fade to black if stamina is low
   if( ( cg.snap->ps.stats[ STAT_STAMINA ] < -800 ) &&
@@ -1795,16 +1784,6 @@ static void CG_DrawLighting( void )
     trap_R_SetColor( NULL );
   }
 }
-
-/*
-===========================================================================================
-
-  LOWER RIGHT CORNER
-
-===========================================================================================
-*/
-
-
 
 /*
 ===============================================================================
@@ -2059,8 +2038,9 @@ CG_DrawVote
 */
 static void CG_DrawVote( void )
 {
-  char  *s;
-  int   sec;
+  char    *s;
+  int     sec;
+  vec4_t  white = { 1.0f, 1.0f, 1.0f, 1.0f };
 
   if( !cgs.voteTime )
     return;
@@ -2078,9 +2058,9 @@ static void CG_DrawVote( void )
     sec = 0;
   
   s = va( "VOTE(%i):%s yes:%i no:%i", sec, cgs.voteString, cgs.voteYes, cgs.voteNo );
-  CG_DrawSmallString( 0, 58, s, 1.0F );
+  CG_Text_Paint( 0, 58, 0.3f, white, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
   s = "or press ESC then click Vote";
-  CG_DrawSmallString( 0, 58 + SMALLCHAR_HEIGHT + 2, s, 1.0F );
+  CG_Text_Paint( 0, 78, 0.3f, white, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
 }
 
 /*
@@ -2090,8 +2070,9 @@ CG_DrawTeamVote
 */
 static void CG_DrawTeamVote( void )
 {
-  char  *s;
-  int   sec, cs_offset;
+  char    *s;
+  int     sec, cs_offset;
+  vec4_t  white = { 1.0f, 1.0f, 1.0f, 1.0f };
 
   if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS )
     cs_offset = 0;
@@ -2118,7 +2099,7 @@ static void CG_DrawTeamVote( void )
   s = va( "TEAMVOTE(%i):%s yes:%i no:%i", sec, cgs.teamVoteString[ cs_offset ],
               cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[ cs_offset ] );
   
-  CG_DrawSmallString( 0, 90, s, 1.0F );
+  CG_Text_Paint( 0, 90, 0.3f, white, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
 }
 
 
@@ -2180,67 +2161,6 @@ static void CG_DrawIntermission( void )
   cg.scoreBoardShowing = CG_DrawScoreboard( );
 }
 
-/*
-=================
-CG_DrawFollow
-=================
-*/
-static qboolean CG_DrawFollow( void )
-{
-  float       x;
-  vec4_t      color;
-  const char  *name;
-
-  if( !( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
-    return qfalse;
-  
-  color[ 0 ] = 1;
-  color[ 1 ] = 1;
-  color[ 2 ] = 1;
-  color[ 3 ] = 1;
-
-
-  CG_DrawBigString( 320 - 9 * 8, 24, "following", 1.0F );
-
-  name = cgs.clientinfo[ cg.snap->ps.clientNum ].name;
-
-  x = 0.5 * ( 640 - GIANT_WIDTH * CG_DrawStrlen( name ) );
-
-  CG_DrawStringExt( x, 40, name, color, qtrue, qtrue, GIANT_WIDTH, GIANT_HEIGHT, 0 );
-
-  return qtrue;
-}
-
-
-
-/*
-=================
-CG_DrawAmmoWarning
-=================
-*/
-static void CG_DrawAmmoWarning( void )
-{
-  const char  *s;
-  int     w;
-
-  if( cg.snap->ps.weapon == WP_NONE )
-    return;
-    
-  if ( cg_drawAmmoWarning.integer == 0 )
-    return;
-
-  if ( !cg.lowAmmoWarning )
-    return;
-
-  if ( cg.lowAmmoWarning == 2 )
-    s = "OUT OF AMMO";
-  else
-    s = "LOW AMMO WARNING";
-
-  w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
-  CG_DrawBigString( 320 - w / 2, 64, s, 1.0F );
-}
-
 //==================================================================================
 
 #define SPECTATOR_STRING "SPECTATOR"
@@ -2291,7 +2211,6 @@ static void CG_Draw2D( void )
       if( cg_drawStatus.integer )
         Menu_Paint( menu, qtrue );
       
-      CG_DrawAmmoWarning( );
       CG_DrawCrosshair( );
       
       if( BG_gotItem( UP_HELMET, cg.snap->ps.stats ) )

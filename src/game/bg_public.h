@@ -103,7 +103,12 @@
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
 #endif
 
-typedef enum { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER } gender_t;
+typedef enum
+{
+  GENDER_MALE,
+  GENDER_FEMALE,
+  GENDER_NEUTER
+} gender_t;
 
 /*
 ===================================================================================
@@ -116,7 +121,8 @@ movement on the server game.
 ===================================================================================
 */
 
-typedef enum {
+typedef enum
+{
   PM_NORMAL,        // can accelerate and turn
   PM_NOCLIP,        // noclip movement
   PM_SPECTATOR,     // still run into walls
@@ -128,7 +134,8 @@ typedef enum {
   PM_SPINTERMISSION // no movement or status bar
 } pmtype_t;
 
-typedef enum {
+typedef enum
+{
   WEAPON_READY,
   WEAPON_RAISING,
   WEAPON_DROPPING,
@@ -157,52 +164,55 @@ typedef enum {
 #define PMF_ALL_TIMES (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
 
 #define MAXTOUCH  32
-typedef struct {
+typedef struct
+{
   // state (in / out)
   playerState_t *ps;
 
   // command (in)
-  usercmd_t cmd;
-  int     tracemask;      // collide against these types of surfaces
-  int     debugLevel;     // if set, diagnostic output will be printed
-  qboolean  noFootsteps;    // if the game is setup for no footsteps by the server
-  qboolean  autoWeaponHit[ 32 ]; //FIXME: TA: remind myself later this might be a problem
+  usercmd_t     cmd;
+  int           tracemask;      // collide against these types of surfaces
+  int           debugLevel;     // if set, diagnostic output will be printed
+  qboolean      noFootsteps;    // if the game is setup for no footsteps by the server
+  qboolean      autoWeaponHit[ 32 ]; //FIXME: TA: remind myself later this might be a problem
 
-  int       framecount;
+  int           framecount;
   
   // results (out)
-  int     numtouch;
-  int     touchents[MAXTOUCH];
+  int           numtouch;
+  int           touchents[ MAXTOUCH ];
 
-  vec3_t    mins, maxs;     // bounding box size
+  vec3_t        mins, maxs;     // bounding box size
 
-  int     watertype;
-  int     waterlevel;
+  int           watertype;
+  int           waterlevel;
 
-  float   xyspeed;
+  float         xyspeed;
   
   // for fixed msec Pmove
-  int     pmove_fixed;
-  int     pmove_msec;
+  int           pmove_fixed;
+  int           pmove_msec;
       
   // callbacks to test the world
   // these will be different functions during game and cgame
   /*void    (*trace)( trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );*/
-  void    (*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );
+  void          (*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs,
+                          const vec3_t end, int passEntityNum, int contentMask );
   
   
-  int     (*pointcontents)( const vec3_t point, int passEntityNum );
+  int           (*pointcontents)( const vec3_t point, int passEntityNum );
 } pmove_t;
 
 // if a full pmove isn't done on the client, you can just update the angles
 void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd );
-void Pmove (pmove_t *pmove);
+void Pmove( pmove_t *pmove );
 
 //===================================================================================
 
 
 // player_state->stats[] indexes
-typedef enum {
+typedef enum
+{
   STAT_HEALTH,
   STAT_ITEMS,
   STAT_SLOTS,           //TA: tracks the amount of stuff human players are carrying
@@ -248,14 +258,13 @@ typedef enum {
 // player_state->persistant[] indexes
 // these fields are the only part of player_state that isn't
 // cleared on respawn
-typedef enum {
+typedef enum
+{
   PERS_SCORE,           // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
   PERS_HITS,            // total points damage inflicted so damage beeps can sound on change
   PERS_RANK,
   PERS_TEAM,
   PERS_SPAWN_COUNT,     // incremented every respawn
-  PERS_PLAYEREVENTS,    // 16 bits that can be flipped for events
-  PERS_REWARD,          // a reward_t
   PERS_ATTACKER,        // clientnum of last damage inflicter
   PERS_KILLED,          // count of the number of times you died
 
@@ -286,7 +295,8 @@ typedef enum {
 #define EF_OVERDRAW_OFF     0x00008000    // TA: disable overdraw protection on sprites
 #define EF_REAL_LIGHT       0x00010000    // TA: light sprites according to ambient light
 
-typedef enum {
+typedef enum
+{
   PW_NONE,
 
   PW_QUAD,
@@ -303,7 +313,8 @@ typedef enum {
   PW_NUM_POWERUPS
 } powerup_t;
 
-typedef enum {
+typedef enum
+{
   HI_NONE,
 
   HI_TELEPORTER,
@@ -334,7 +345,6 @@ typedef enum
   WP_MACHINEGUN,
   WP_CHAINGUN,
   WP_FLAMER,
-  WP_PLASMAGUN,
   WP_MASS_DRIVER,
   WP_PULSE_RIFLE,
   WP_LUCIFER_CANON,
@@ -384,14 +394,14 @@ typedef enum
 } WUTeam_t;
 
 //TA: bitmasks for upgrade slots
-#define SLOT_NONE       0
-#define SLOT_HEAD       1
-#define SLOT_TORSO      2
-#define SLOT_ARMS       4
-#define SLOT_LEGS       8
-#define SLOT_BACKPACK   16
-#define SLOT_WEAPON     32
-#define SLOT_SIDEARM    64
+#define SLOT_NONE       0x00000000
+#define SLOT_HEAD       0x00000001
+#define SLOT_TORSO      0x00000002
+#define SLOT_ARMS       0x00000004
+#define SLOT_LEGS       0x00000008
+#define SLOT_BACKPACK   0x00000010
+#define SLOT_WEAPON     0x00000020
+#define SLOT_SIDEARM    0x00000040
 
 typedef enum
 {
@@ -410,9 +420,8 @@ typedef enum
   
   BA_H_SPAWN,
   
-  BA_H_DEF1,
-  BA_H_DEF2,
-  BA_H_DEF3,
+  BA_H_MGTURRET,
+  BA_H_TESLAGEN,
   
   BA_H_MCU,
   BA_H_DCC,
@@ -443,9 +452,9 @@ typedef enum
 
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
-#define PLAYEREVENT_DENIEDREWARD    0x0001
+#define PLAYEREVENT_DENIEDREWARD      0x0001
 #define PLAYEREVENT_GAUNTLETREWARD    0x0002
-#define PLAYEREVENT_HOLYSHIT      0x0004
+#define PLAYEREVENT_HOLYSHIT          0x0004
 
 // entityState_t->event values
 // entity events are for effects that take place reletive
@@ -462,7 +471,8 @@ typedef enum
 
 #define EVENT_VALID_MSEC  300
 
-typedef enum {
+typedef enum
+{
   EV_NONE,
 
   EV_FOOTSTEP,
@@ -541,7 +551,7 @@ typedef enum {
   EV_MISSILE_HIT,
   EV_MISSILE_MISS,
   EV_MISSILE_MISS_METAL,
-  EV_ITEM_EXPLOSION, //TA: human item explosions
+  EV_BUILDABLE_EXPLOSION, //TA: human item explosions
   EV_RAILTRAIL,
   EV_TESLATRAIL,
   EV_ALIENZAP,
@@ -614,12 +624,12 @@ typedef enum
   MN_H_NOSLOTS,
   MN_H_NOFUNDS,
   MN_H_NODCC,
-  MN_H_ITEMHELD
-    
+  MN_H_ITEMHELD  
 } dynMenu_t;
 
 // animations
-typedef enum {
+typedef enum
+{
   BOTH_DEATH1,
   BOTH_DEAD1,
   BOTH_DEATH2,
@@ -701,7 +711,8 @@ typedef enum
   MAX_BUILDABLE_ANIMATIONS
 } buildableAnimNumber_t;
 
-typedef struct animation_s {
+typedef struct animation_s
+{
   int   firstFrame;
   int   numFrames;
   int   loopFrames;     // 0 to numFrames
@@ -717,7 +728,8 @@ typedef struct animation_s {
 #define ANIM_TOGGLEBIT    128
 
 
-typedef enum {
+typedef enum
+{
   TEAM_FREE,
   TEAM_SPECTATOR,
 
@@ -757,7 +769,8 @@ typedef enum
 
 
 //TA: player teams
-typedef enum {
+typedef enum
+{
   PTE_NONE,
   PTE_ALIENS,
   PTE_HUMANS,
@@ -767,7 +780,8 @@ typedef enum {
 
 
 // means of death
-typedef enum {
+typedef enum
+{
   MOD_UNKNOWN,
   MOD_SHOTGUN,
   MOD_GAUNTLET,
@@ -802,7 +816,8 @@ typedef enum {
 //---------------------------------------------------------
 
 // gitem_t->type
-typedef enum {
+typedef enum
+{
   IT_BAD,
   IT_WEAPON,        // EFX: rotate + upscale + minlight
   IT_BUILDABLE,  //TA: gitem_t->type for buildable items (spawns etc.)
@@ -819,7 +834,8 @@ typedef enum {
 
 #define MAX_ITEM_MODELS 4
 
-typedef struct gitem_s {
+typedef struct gitem_s
+{
   char    *classname; // spawning name
   char    *pickup_sound;
   char    *world_model[MAX_ITEM_MODELS];
@@ -1115,7 +1131,8 @@ WUTeam_t  BG_FindTeamForUpgrade( int upgrade );
 //
 // entityState_t->eType
 //
-typedef enum {
+typedef enum
+{
   ET_GENERAL,
   ET_PLAYER,
   ET_ITEM,

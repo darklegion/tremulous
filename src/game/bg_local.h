@@ -29,21 +29,22 @@
 // all of the locals will be zeroed before each
 // pmove, just to make damn sure we don't have
 // any differences when running on client or server
-typedef struct {
+typedef struct
+{
   vec3_t    forward, right, up;
-  float   frametime;
+  float     frametime;
 
-  int     msec;
+  int       msec;
 
   qboolean  walking;
   qboolean  groundPlane;
   trace_t   groundTrace;
 
-  float   impactSpeed;
+  float     impactSpeed;
 
   vec3_t    previous_origin;
   vec3_t    previous_velocity;
-  int     previous_waterlevel;
+  int       previous_waterlevel;
 } pml_t;
 
 extern  pmove_t       *pm;
@@ -73,4 +74,4 @@ void PM_AddEvent( int newEvent );
 qboolean  PM_SlideMove( qboolean gravity );
 void      PM_StepEvent( vec3_t from, vec3_t to, vec3_t normal );
 qboolean  PM_StepSlideMove( qboolean gravity, qboolean predictive );
-qboolean  PM_PredictStepMove( );
+qboolean  PM_PredictStepMove( void );

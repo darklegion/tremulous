@@ -34,11 +34,12 @@ G_WriteClientSessionData
 Called on game shutdown
 ================
 */
-void G_WriteClientSessionData( gclient_t *client ) {
+void G_WriteClientSessionData( gclient_t *client )
+{
 	const char	*s;
 	const char	*var;
 
-	s = va("%i %i %i %i %i %i %i", 
+	s = va( "%i %i %i %i %i %i %i", 
 		client->sess.sessionTeam,
 		client->sess.spectatorTime,
 		client->sess.spectatorState,
@@ -60,8 +61,9 @@ G_ReadSessionData
 Called on a reconnect
 ================
 */
-void G_ReadSessionData( gclient_t *client ) {
-	char	s[MAX_STRING_CHARS];
+void G_ReadSessionData( gclient_t *client )
+{
+	char	s[ MAX_STRING_CHARS ];
 	const char	*var;
 
   // bk001205 - format
@@ -96,9 +98,10 @@ G_InitSessionData
 Called on a first-time connect
 ================
 */
-void G_InitSessionData( gclient_t *client, char *userinfo ) {
+void G_InitSessionData( gclient_t *client, char *userinfo )
+{
 	clientSession_t	*sess;
-	const char		*value;
+	const char		  *value;
 
 	sess = &client->sess;
 
@@ -131,7 +134,8 @@ G_WriteSessionData
 
 ==================
 */
-void G_WriteSessionData( void ) {
+void G_WriteSessionData( void )
+{
 	int		i;
 
   //TA: ?

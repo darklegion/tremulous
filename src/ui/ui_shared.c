@@ -85,19 +85,21 @@ static int    allocPoint, outOfMemory;
 UI_Alloc
 ===============
 */          
-void *UI_Alloc( int size ) {
+void *UI_Alloc( int size )
+{
   char  *p; 
 
-  if ( allocPoint + size > MEM_POOL_SIZE ) {
+  if( allocPoint + size > MEM_POOL_SIZE )
+  {
     outOfMemory = qtrue;
-    if (DC->Print) {
-      DC->Print("UI_Alloc: Failure. Out of memory!\n");
-    }
+    
+    if( DC->Print )
+      DC->Print( "UI_Alloc: Failure. Out of memory!\n" );
     //DC->trap_Print(S_COLOR_YELLOW"WARNING: UI Out of Memory!\n");
     return NULL;
   }
 
-  p = &UI_memoryPool[allocPoint];
+  p = &UI_memoryPool[ allocPoint ];
 
   allocPoint += ( size + 15 ) & ~15;
 
@@ -109,12 +111,14 @@ void *UI_Alloc( int size ) {
 UI_InitMemory
 ===============
 */
-void UI_InitMemory( void ) {
+void UI_InitMemory( void )
+{
   allocPoint = 0;
   outOfMemory = qfalse;
 }
 
-qboolean UI_OutOfMemory() {
+qboolean UI_OutOfMemory( )
+{
   return outOfMemory;
 }
 
@@ -225,21 +229,22 @@ void String_Report() {
 String_Init
 =================
 */
-void String_Init() {
+void String_Init( )
+{
   int i;
-  for (i = 0; i < HASH_TABLE_SIZE; i++) {
-    strHandle[i] = 0;
-  }
+  for( i = 0; i < HASH_TABLE_SIZE; i++ )
+    strHandle[ i ] = 0;
+
   strHandleCount = 0;
   strPoolIndex = 0;
   menuCount = 0;
   openMenuCount = 0;
-  UI_InitMemory();
-  Item_SetupKeywordHash();
-  Menu_SetupKeywordHash();
-  if (DC && DC->getBindingBuf) {
-    Controls_GetConfig();
-  }
+  UI_InitMemory( );
+  Item_SetupKeywordHash( );
+  Menu_SetupKeywordHash( );
+  
+  if( DC && DC->getBindingBuf )
+    Controls_GetConfig( );
 }
 
 /*
@@ -541,9 +546,10 @@ qboolean PC_Script_Parse(int handle, const char **out) {
 Init_Display
 
 Initializes the display with a structure to all the drawing routines
- ==================
+==================
 */
-void Init_Display(displayContextDef_t *dc) {
+void Init_Display( displayContextDef_t *dc )
+{
   DC = dc;
 }
 
@@ -551,10 +557,11 @@ void Init_Display(displayContextDef_t *dc) {
 
 // type and style painting 
 
-void GradientBar_Paint(rectDef_t *rect, vec4_t color) {
+void GradientBar_Paint( rectDef_t *rect, vec4_t color )
+{
   // gradient bar takes two paints
   DC->setColor( color );
-  DC->drawHandlePic(rect->x, rect->y, rect->w, rect->h, DC->Assets.gradientBar);
+  DC->drawHandlePic( rect->x, rect->y, rect->w, rect->h, DC->Assets.gradientBar );
   DC->setColor( NULL );
 }
 
@@ -2897,7 +2904,7 @@ void Item_Text_AutoWrapped_Paint( itemDef_t *item )
   char        lastCMod[ 2 ] = { 0, 0 };
   qboolean    forwardColor;
   int         width, height, len, textWidth, newLine, newLineWidth, skipLines, totalLines;
-  float       y, totalY;
+  float       y, totalY, diffY;
   vec4_t      color;
 
   textWidth = 0;
@@ -2932,12 +2939,13 @@ void Item_Text_AutoWrapped_Paint( itemDef_t *item )
   totalLines = Item_Text_AutoWrapped_Lines( item );
   
   totalY = totalLines * ( height + 5 );
+  diffY = totalY - item->window.rect.h;
 
-  if( totalY - item->window.rect.h > 0.0f )
-    skipLines = (int)( totalY / ( (float)height + 5.0f ) );
+  if( diffY > 0.0f )
+    skipLines = (int)( diffY / ( (float)height + 5.0f ) );
   else
     skipLines = 0;
-  
+
   while( p )
   {
     textWidth = DC->textWidth( buff, item->textscale, 0 );
@@ -3378,16 +3386,15 @@ Controls_GetConfig
 void Controls_GetConfig( void )
 {
   int   i;
-  int   twokeys[2];
+  int   twokeys[ 2 ];
 
   // iterate each command, get its numeric binding
-  for (i=0; i < g_bindCount; i++)
+  for( i = 0; i < g_bindCount; i++ )
   {
+    Controls_GetKeyAssignment( g_bindings[ i ].command, twokeys );
 
-    Controls_GetKeyAssignment(g_bindings[i].command, twokeys);
-
-    g_bindings[i].bind1 = twokeys[0];
-    g_bindings[i].bind2 = twokeys[1];
+    g_bindings[ i ].bind1 = twokeys[ 0 ];
+    g_bindings[ i ].bind2 = twokeys[ 1 ];
   }
 
   //s_controls.invertmouse.curvalue  = DC->getCVarValue( "m_pitch" ) < 0;
@@ -5309,13 +5316,14 @@ keywordHash_t *itemParseKeywordHash[KEYWORDHASH_SIZE];
 Item_SetupKeywordHash
 ===============
 */
-void Item_SetupKeywordHash(void) {
+void Item_SetupKeywordHash( void )
+{
   int i;
 
-  memset(itemParseKeywordHash, 0, sizeof(itemParseKeywordHash));
-  for (i = 0; itemParseKeywords[i].keyword; i++) {
-    KeywordHash_Add(itemParseKeywordHash, &itemParseKeywords[i]);
-  }
+  memset( itemParseKeywordHash, 0, sizeof( itemParseKeywordHash ) );
+  
+  for( i = 0; itemParseKeywords[ i ].keyword; i++ )
+    KeywordHash_Add( itemParseKeywordHash, &itemParseKeywords[ i ] );
 }
 
 /*
@@ -5710,13 +5718,14 @@ keywordHash_t *menuParseKeywordHash[KEYWORDHASH_SIZE];
 Menu_SetupKeywordHash
 ===============
 */
-void Menu_SetupKeywordHash(void) {
+void Menu_SetupKeywordHash( void )
+{
   int i;
 
-  memset(menuParseKeywordHash, 0, sizeof(menuParseKeywordHash));
-  for (i = 0; menuParseKeywords[i].keyword; i++) {
-    KeywordHash_Add(menuParseKeywordHash, &menuParseKeywords[i]);
-  }
+  memset( menuParseKeywordHash, 0, sizeof( menuParseKeywordHash ) );
+  
+  for(i = 0; menuParseKeywords[ i ].keyword; i++ )
+    KeywordHash_Add( menuParseKeywordHash, &menuParseKeywords[ i ] );
 }
 
 /*
@@ -5796,7 +5805,8 @@ void Menu_PaintAll() {
   }
 }
 
-void Menu_Reset() {
+void Menu_Reset( void )
+{
   menuCount = 0;
 }
 

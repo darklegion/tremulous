@@ -136,12 +136,12 @@ void G_InitMemory( void )
 {
 	// Set up the initial node
 
-	freehead = (struct freememnode *) memoryPool;
+	freehead = (struct freememnode *)memoryPool;
 	freehead->cookie = FREEMEMCOOKIE;
 	freehead->size = POOLSIZE;
 	freehead->next = NULL;
 	freehead->prev = NULL;
-	freemem = sizeof(memoryPool);
+	freemem = sizeof( memoryPool );
 }
 
 void G_DefragmentMemory( void )
@@ -199,34 +199,3 @@ void Svcmd_GameMem_f( void )
 	G_Printf( "Status complete.\n" );
 }
 
-/* Golliwog: All rewritten
-static int		allocPoint;
-
-void *G_Alloc( int size ) {
-	char	*p;
-
-	if ( g_debugAlloc.integer ) {
-		G_Printf( "G_Alloc of %i bytes (%i left)\n", size, POOLSIZE - allocPoint - ( ( size + 31 ) & ~31 ) );
-	}
-
-	if ( allocPoint + size > POOLSIZE ) {
-		G_Error( "G_Alloc: failed on allocation of %i bytes\n", size );
-		return NULL;
-	}
-
-	p = &memoryPool[allocPoint];
-
-	allocPoint += ( size + 31 ) & ~31;
-
-	return p;
-}
-
-void G_InitMemory( void ) {
-	allocPoint = 0;
-}
-
-void Svcmd_GameMem_f( void ) {
-	G_Printf( "Game memory status: %i out of %i bytes allocated\n", allocPoint, POOLSIZE );
-}
-// Golliwog.
-*/

@@ -16,17 +16,21 @@
 
 #include "g_local.h"
 
-qboolean  G_SpawnString( const char *key, const char *defaultString, char **out ) {
+qboolean G_SpawnString( const char *key, const char *defaultString, char **out )
+{
   int   i;
 
-  if ( !level.spawning ) {
+  if( !level.spawning )
+  {
     *out = (char *)defaultString;
 //    G_Error( "G_SpawnString() called while not spawning" );
   }
 
-  for ( i = 0 ; i < level.numSpawnVars ; i++ ) {
-    if ( !Q_stricmp( key, level.spawnVars[i][0] ) ) {
-      *out = level.spawnVars[i][1];
+  for( i = 0; i < level.numSpawnVars; i++ )
+  {
+    if( !Q_stricmp( key, level.spawnVars[ i ][ 0 ] ) )
+    {
+      *out = level.spawnVars[ i ][ 1 ];
       return qtrue;
     }
   }
@@ -35,7 +39,8 @@ qboolean  G_SpawnString( const char *key, const char *defaultString, char **out 
   return qfalse;
 }
 
-qboolean  G_SpawnFloat( const char *key, const char *defaultString, float *out ) {
+qboolean  G_SpawnFloat( const char *key, const char *defaultString, float *out )
+{
   char    *s;
   qboolean  present;
 
@@ -44,8 +49,9 @@ qboolean  G_SpawnFloat( const char *key, const char *defaultString, float *out )
   return present;
 }
 
-qboolean  G_SpawnInt( const char *key, const char *defaultString, int *out ) {
-  char    *s;
+qboolean G_SpawnInt( const char *key, const char *defaultString, int *out )
+{
+  char      *s;
   qboolean  present;
 
   present = G_SpawnString( key, defaultString, &s );
@@ -53,21 +59,23 @@ qboolean  G_SpawnInt( const char *key, const char *defaultString, int *out ) {
   return present;
 }
 
-qboolean  G_SpawnVector( const char *key, const char *defaultString, float *out ) {
+qboolean  G_SpawnVector( const char *key, const char *defaultString, float *out )
+{
   char    *s;
   qboolean  present;
 
   present = G_SpawnString( key, defaultString, &s );
-  sscanf( s, "%f %f %f", &out[0], &out[1], &out[2] );
+  sscanf( s, "%f %f %f", &out[ 0 ], &out[ 1 ], &out[ 2 ] );
   return present;
 }
 
-qboolean  G_SpawnVector4( const char *key, const char *defaultString, float *out ) {
+qboolean  G_SpawnVector4( const char *key, const char *defaultString, float *out )
+{
   char    *s;
   qboolean  present;
 
   present = G_SpawnString( key, defaultString, &s );
-  sscanf( s, "%f %f %f %f", &out[0], &out[1], &out[2], &out[3] );
+  sscanf( s, "%f %f %f %f", &out[ 0 ], &out[ 1 ], &out[ 2 ], &out[ 3 ] );
   return present;
 }
 
@@ -76,7 +84,8 @@ qboolean  G_SpawnVector4( const char *key, const char *defaultString, float *out
 //
 // fields are needed for spawning from the entity string
 //
-typedef enum {
+typedef enum
+{
   F_INT,
   F_FLOAT,
   F_LSTRING,      // string on disk, pointer in memory, TAG_LEVEL
@@ -98,7 +107,8 @@ typedef struct
   int   flags;
 } field_t;
 
-field_t fields[] = {
+field_t fields[ ] =
+{
   {"classname", FOFS(classname), F_LSTRING},
   {"origin", FOFS(s.origin), F_VECTOR},
   {"model", FOFS(model), F_LSTRING},
@@ -131,65 +141,66 @@ field_t fields[] = {
 };
 
 
-typedef struct {
+typedef struct
+{
   char  *name;
   void  (*spawn)(gentity_t *ent);
 } spawn_t;
 
-void SP_info_player_start (gentity_t *ent);
-void SP_info_player_deathmatch (gentity_t *ent);
-void SP_info_player_intermission (gentity_t *ent);
+void SP_info_player_start( gentity_t *ent );
+void SP_info_player_deathmatch( gentity_t *ent );
+void SP_info_player_intermission( gentity_t *ent );
 
 //TA: extra bits
 void SP_info_alien_intermission( gentity_t *ent );
 void SP_info_human_intermission( gentity_t *ent );
 
-void SP_info_firstplace(gentity_t *ent);
-void SP_info_secondplace(gentity_t *ent);
-void SP_info_thirdplace(gentity_t *ent);
-void SP_info_podium(gentity_t *ent);
+void SP_info_firstplace( gentity_t *ent );
+void SP_info_secondplace( gentity_t *ent );
+void SP_info_thirdplace( gentity_t *ent );
+void SP_info_podium( gentity_t *ent );
 
-void SP_func_plat (gentity_t *ent);
-void SP_func_static (gentity_t *ent);
-void SP_func_rotating (gentity_t *ent);
-void SP_func_bobbing (gentity_t *ent);
+void SP_func_plat( gentity_t *ent );
+void SP_func_static( gentity_t *ent );
+void SP_func_rotating( gentity_t *ent );
+void SP_func_bobbing( gentity_t *ent );
 void SP_func_pendulum( gentity_t *ent );
-void SP_func_button (gentity_t *ent);
-void SP_func_door (gentity_t *ent);
-void SP_func_train (gentity_t *ent);
-void SP_func_timer (gentity_t *self);
+void SP_func_button( gentity_t *ent );
+void SP_func_door( gentity_t *ent );
+void SP_func_train( gentity_t *ent );
+void SP_func_timer( gentity_t *self);
 
-void SP_trigger_always (gentity_t *ent);
-void SP_trigger_multiple (gentity_t *ent);
-void SP_trigger_push (gentity_t *ent);
-void SP_trigger_teleport (gentity_t *ent);
-void SP_trigger_hurt (gentity_t *ent);
+void SP_trigger_always( gentity_t *ent );
+void SP_trigger_multiple( gentity_t *ent );
+void SP_trigger_push( gentity_t *ent );
+void SP_trigger_teleport( gentity_t *ent );
+void SP_trigger_hurt( gentity_t *ent );
 
 void SP_target_remove_powerups( gentity_t *ent );
-void SP_target_give (gentity_t *ent);
-void SP_target_delay (gentity_t *ent);
-void SP_target_speaker (gentity_t *ent);
-void SP_target_print (gentity_t *ent);
-void SP_target_laser (gentity_t *self);
-void SP_target_character (gentity_t *ent);
+void SP_target_give( gentity_t *ent );
+void SP_target_delay( gentity_t *ent );
+void SP_target_speaker( gentity_t *ent );
+void SP_target_print( gentity_t *ent );
+void SP_target_laser( gentity_t *self);
+void SP_target_character( gentity_t *ent );
 void SP_target_score( gentity_t *ent );
 void SP_target_teleporter( gentity_t *ent );
-void SP_target_relay (gentity_t *ent);
-void SP_target_kill (gentity_t *ent);
-void SP_target_position (gentity_t *ent);
-void SP_target_location (gentity_t *ent);
-void SP_target_push (gentity_t *ent);
+void SP_target_relay( gentity_t *ent );
+void SP_target_kill( gentity_t *ent );
+void SP_target_position( gentity_t *ent );
+void SP_target_location( gentity_t *ent );
+void SP_target_push( gentity_t *ent );
 
-void SP_light (gentity_t *self);
-void SP_info_null (gentity_t *self);
-void SP_info_notnull (gentity_t *self);
-void SP_info_camp (gentity_t *self);
-void SP_path_corner (gentity_t *self);
+void SP_light( gentity_t *self );
+void SP_info_null( gentity_t *self );
+void SP_info_notnull( gentity_t *self );
+void SP_info_camp( gentity_t *self );
+void SP_path_corner( gentity_t *self );
 
-void SP_misc_teleporter_dest (gentity_t *self);
-void SP_misc_model(gentity_t *ent);
-void SP_misc_portal_camera(gentity_t *ent);
-void SP_misc_portal_surface(gentity_t *ent);
+void SP_misc_teleporter_dest( gentity_t *self );
+void SP_misc_model( gentity_t *ent );
+void SP_misc_portal_camera( gentity_t *ent );
+void SP_misc_portal_surface( gentity_t *ent );
 
 void SP_shooter_rocket( gentity_t *ent );
 void SP_shooter_plasma( gentity_t *ent );
@@ -200,7 +211,8 @@ void SP_misc_spriter( gentity_t *ent );
 void SP_misc_anim_model( gentity_t *ent );
 void SP_misc_light_flare( gentity_t *ent );
 
-spawn_t spawns[] = {
+spawn_t spawns[ ] =
+{
   // info entities don't do anything at all, but provide positional
   // information for things controlled by other processes
   {"info_player_start", SP_info_player_start},
@@ -286,8 +298,9 @@ qboolean G_CallSpawn( gentity_t *ent )
   gitem_t     *item;
   buildable_t buildable;
 
-  if ( !ent->classname ) {
-    G_Printf ("G_CallSpawn: NULL classname\n");
+  if( !ent->classname )
+  {
+    G_Printf( "G_CallSpawn: NULL classname\n" );
     return qfalse;
   }
 
@@ -321,28 +334,30 @@ Builds a copy of the string, translating \n to real linefeeds
 so message texts can be multi-line
 =============
 */
-char *G_NewString( const char *string ) {
+char *G_NewString( const char *string )
+{
   char  *newb, *new_p;
   int   i,l;
 
-  l = strlen(string) + 1;
+  l = strlen( string ) + 1;
 
   newb = G_Alloc( l );
 
   new_p = newb;
 
   // turn \n into a real linefeed
-  for ( i=0 ; i< l ; i++ ) {
-    if (string[i] == '\\' && i < l-1) {
+  for( i = 0 ; i < l ; i++ )
+  {
+    if( string[ i ] == '\\' && i < l - 1 )
+    {
       i++;
-      if (string[i] == 'n') {
+      if( string[ i ] == 'n' )
         *new_p++ = '\n';
-      } else {
+      else
         *new_p++ = '\\';
-      }
-    } else {
-      *new_p++ = string[i];
     }
+    else
+      *new_p++ = string[ i ];
   }
 
   return newb;
@@ -359,51 +374,62 @@ Takes a key/value pair and sets the binary values
 in a gentity
 ===============
 */
-void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
+void G_ParseField( const char *key, const char *value, gentity_t *ent )
+{
   field_t *f;
   byte  *b;
   float v;
   vec3_t  vec;
   vec4_t  vec4;
 
-  for ( f=fields ; f->name ; f++ ) {
-    if ( !Q_stricmp(f->name, key) ) {
+  for( f = fields; f->name; f++ )
+  {
+    if( !Q_stricmp( f->name, key ) )
+    {
       // found it
       b = (byte *)ent;
 
-      switch( f->type ) {
-      case F_LSTRING:
-        *(char **)(b+f->ofs) = G_NewString (value);
-        break;
-      case F_VECTOR:
-        sscanf (value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
-        ((float *)(b+f->ofs))[0] = vec[0];
-        ((float *)(b+f->ofs))[1] = vec[1];
-        ((float *)(b+f->ofs))[2] = vec[2];
-        break;
-      case F_VECTOR4:
-        sscanf (value, "%f %f %f %f", &vec4[0], &vec4[1], &vec4[2], &vec4[3]);
-        ((float *)(b+f->ofs))[0] = vec4[0];
-        ((float *)(b+f->ofs))[1] = vec4[1];
-        ((float *)(b+f->ofs))[2] = vec4[2];
-        ((float *)(b+f->ofs))[3] = vec4[3];
-        break;
-      case F_INT:
-        *(int *)(b+f->ofs) = atoi(value);
-        break;
-      case F_FLOAT:
-        *(float *)(b+f->ofs) = atof(value);
-        break;
-      case F_ANGLEHACK:
-        v = atof(value);
-        ((float *)(b+f->ofs))[0] = 0;
-        ((float *)(b+f->ofs))[1] = v;
-        ((float *)(b+f->ofs))[2] = 0;
-        break;
-      default:
-      case F_IGNORE:
-        break;
+      switch( f->type )
+      {
+        case F_LSTRING:
+          *(char **)( b + f->ofs ) = G_NewString( value );
+          break;
+          
+        case F_VECTOR:
+          sscanf( value, "%f %f %f", &vec[ 0 ], &vec[ 1 ], &vec[ 2 ] );
+          ( (float *)( b + f->ofs ) )[ 0 ] = vec[ 0 ];
+          ( (float *)( b + f->ofs ) )[ 1 ] = vec[ 1 ];
+          ( (float *)( b + f->ofs ) )[ 2 ] = vec[ 2 ];
+          break;
+          
+        case F_VECTOR4:
+          sscanf( value, "%f %f %f %f", &vec4[ 0 ], &vec4[ 1 ], &vec4[ 2 ], &vec4[ 3 ] );
+          ( (float *)( b + f->ofs ) )[ 0 ] = vec4[ 0 ];
+          ( (float *)( b + f->ofs ) )[ 1 ] = vec4[ 1 ];
+          ( (float *)( b + f->ofs ) )[ 2 ] = vec4[ 2 ];
+          ( (float *)( b + f->ofs ) )[ 3 ] = vec4[ 3 ];
+          break;
+          
+        case F_INT:
+          *(int *)( b + f->ofs ) = atoi( value );
+          break;
+          
+        case F_FLOAT:
+          *(float *)( b + f->ofs ) = atof( value );
+          break;
+          
+        case F_ANGLEHACK:
+          v = atof( value );
+          ( (float *)( b + f->ofs ) )[ 0 ] = 0;
+          ( (float *)( b + f->ofs ) )[ 1 ] = v;
+          ( (float *)( b + f->ofs ) )[ 2 ] = 0;
+          break;
+          
+        default:
+        case F_IGNORE:
+          break;
       }
+
       return;
     }
   }
@@ -420,22 +446,25 @@ Spawn an entity and fill in all of the level fields from
 level.spawnVars[], then call the class specfic spawn function
 ===================
 */
-void G_SpawnGEntityFromSpawnVars( void ) {
-  int     i;
-  gentity_t *ent;
-  char    *s, *value, *gametypeName;
-  static char *gametypeNames[] = {"ffa", "tournament", "single", "team", "ctf", "oneflag", "obelisk", "harvester", "teamtournament"};
+void G_SpawnGEntityFromSpawnVars( void )
+{
+  int         i;
+  gentity_t   *ent;
+  char        *s, *value, *gametypeName;
+  static char *gametypeNames[ ] = { "ffa", "tournament", "single",
+                                    "team", "ctf", "oneflag",
+                                    "obelisk", "harvester", "teamtournament" };
     
-
   // get the next free entity
-  ent = G_Spawn();
+  ent = G_Spawn( );
 
-  for ( i = 0 ; i < level.numSpawnVars ; i++ ) {
-    G_ParseField( level.spawnVars[i][0], level.spawnVars[i][1], ent );
-  }
+  for( i = 0 ; i < level.numSpawnVars ; i++ )
+    G_ParseField( level.spawnVars[ i ][ 0 ], level.spawnVars[ i ][ 1 ], ent );
 
   G_SpawnInt( "notq3a", "0", &i );
-  if ( i ) {
+  
+  if( i )
+  {
     G_FreeEntity( ent );
     return;
   }
@@ -445,9 +474,8 @@ void G_SpawnGEntityFromSpawnVars( void ) {
   VectorCopy( ent->s.origin, ent->r.currentOrigin );
 
   // if we didn't get a classname, don't bother spawning anything
-  if ( !G_CallSpawn( ent ) ) {
+  if ( !G_CallSpawn( ent ) )
     G_FreeEntity( ent );
-  }
 }
 
 
@@ -457,18 +485,17 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 G_AddSpawnVarToken
 ====================
 */
-char *G_AddSpawnVarToken( const char *string ) {
+char *G_AddSpawnVarToken( const char *string )
+{
   int   l;
   char  *dest;
 
   l = strlen( string );
-  if ( level.numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS ) {
+  if( level.numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS )
     G_Error( "G_AddSpawnVarToken: MAX_SPAWN_CHARS" );
-    
-  }
 
   dest = level.spawnVarChars + level.numSpawnVarChars;
-  memcpy( dest, string, l+1 );
+  memcpy( dest, string, l + 1 );
 
   level.numSpawnVarChars += l + 1;
 
@@ -485,46 +512,46 @@ level's entity strings into level.spawnVars[]
 This does not actually spawn an entity.
 ====================
 */
-qboolean G_ParseSpawnVars( void ) {
-  char    keyname[MAX_TOKEN_CHARS];
-  char    com_token[MAX_TOKEN_CHARS];
+qboolean G_ParseSpawnVars( void )
+{
+  char keyname[ MAX_TOKEN_CHARS ];
+  char com_token[ MAX_TOKEN_CHARS ];
 
   level.numSpawnVars = 0;
   level.numSpawnVarChars = 0;
 
   // parse the opening brace
-  if ( !trap_GetEntityToken( com_token, sizeof( com_token ) ) ) {
+  if( !trap_GetEntityToken( com_token, sizeof( com_token ) ) )
+  {
     // end of spawn string
     return qfalse;
   }
-  if ( com_token[0] != '{' ) {
-    G_Error( "G_ParseSpawnVars: found %s when expecting {",com_token );
-  }
+  
+  if( com_token[ 0 ] != '{' )
+    G_Error( "G_ParseSpawnVars: found %s when expecting {", com_token );
 
   // go through all the key / value pairs
-  while ( 1 ) {
+  while( 1 )
+  {
     // parse key
-    if ( !trap_GetEntityToken( keyname, sizeof( keyname ) ) ) {
+    if( !trap_GetEntityToken( keyname, sizeof( keyname ) ) )
       G_Error( "G_ParseSpawnVars: EOF without closing brace" );
-    }
 
-    if ( keyname[0] == '}' ) {
+    if( keyname[0] == '}' )
       break;
-    }
 
     // parse value
-    if ( !trap_GetEntityToken( com_token, sizeof( com_token ) ) ) {
+    if( !trap_GetEntityToken( com_token, sizeof( com_token ) ) )
       G_Error( "G_ParseSpawnVars: EOF without closing brace" );
-    }
 
-    if ( com_token[0] == '}' ) {
+    if( com_token[0] == '}' )
       G_Error( "G_ParseSpawnVars: closing brace without data" );
-    }
-    if ( level.numSpawnVars == MAX_SPAWN_VARS ) {
+
+    if( level.numSpawnVars == MAX_SPAWN_VARS )
       G_Error( "G_ParseSpawnVars: MAX_SPAWN_VARS" );
-    }
-    level.spawnVars[ level.numSpawnVars ][0] = G_AddSpawnVarToken( keyname );
-    level.spawnVars[ level.numSpawnVars ][1] = G_AddSpawnVarToken( com_token );
+
+    level.spawnVars[ level.numSpawnVars ][ 0 ] = G_AddSpawnVarToken( keyname );
+    level.spawnVars[ level.numSpawnVars ][ 1 ] = G_AddSpawnVarToken( com_token );
     level.numSpawnVars++;
   }
 
@@ -540,18 +567,19 @@ Every map should have exactly one worldspawn.
 "gravity" 800 is default gravity
 "message" Text to print during connection process
 */
-void SP_worldspawn( void ) {
-  char  *s;
+void SP_worldspawn( void )
+{
+  char *s;
 
   G_SpawnString( "classname", "", &s );
-  if ( Q_stricmp( s, "worldspawn" ) ) {
+  
+  if( Q_stricmp( s, "worldspawn" ) )
     G_Error( "SP_worldspawn: The first entity isn't 'worldspawn'" );
-  }
 
   // make some data visible to connecting client
   trap_SetConfigstring( CS_GAME_VERSION, GAME_VERSION );
 
-  trap_SetConfigstring( CS_LEVEL_START_TIME, va("%i", level.startTime ) );
+  trap_SetConfigstring( CS_LEVEL_START_TIME, va( "%i", level.startTime ) );
 
   G_SpawnString( "music", "", &s );
   trap_SetConfigstring( CS_MUSIC, s );
@@ -594,17 +622,21 @@ void SP_worldspawn( void ) {
   G_SpawnString( "enableBreath", "0", &s );
   trap_Cvar_Set( "g_enableBreath", s );
 
-  g_entities[ENTITYNUM_WORLD].s.number = ENTITYNUM_WORLD;
-  g_entities[ENTITYNUM_WORLD].classname = "worldspawn";
+  g_entities[ ENTITYNUM_WORLD ].s.number = ENTITYNUM_WORLD;
+  g_entities[ ENTITYNUM_WORLD ].classname = "worldspawn";
 
   // see if we want a warmup time
   trap_SetConfigstring( CS_WARMUP, "" );
-  if ( g_restarted.integer ) {
+  if( g_restarted.integer )
+  {
     trap_Cvar_Set( "g_restarted", "0" );
     level.warmupTime = 0;
-  } else if ( g_doWarmup.integer ) { // Turn it on
+  }
+  else if( g_doWarmup.integer )
+  {
+    // Turn it on
     level.warmupTime = -1;
-    trap_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
+    trap_SetConfigstring( CS_WARMUP, va( "%i", level.warmupTime ) );
     G_LogPrintf( "Warmup:\n" );
   }
 
@@ -618,7 +650,8 @@ G_SpawnEntitiesFromString
 Parses textual entity definitions out of an entstring and spawns gentities.
 ==============
 */
-void G_SpawnEntitiesFromString( void ) {
+void G_SpawnEntitiesFromString( void )
+{
   // allow calls to G_Spawn*()
   level.spawning = qtrue;
   level.numSpawnVars = 0;
@@ -626,15 +659,14 @@ void G_SpawnEntitiesFromString( void ) {
   // the worldspawn is not an actual entity, but it still
   // has a "spawn" function to perform any global setup
   // needed by a level (setting configstrings or cvars, etc)
-  if ( !G_ParseSpawnVars() ) {
+  if( !G_ParseSpawnVars( ) )
     G_Error( "SpawnEntities: no entities" );
-  }
-  SP_worldspawn();
+
+  SP_worldspawn( );
 
   // parse ents
-  while( G_ParseSpawnVars() ) {
-    G_SpawnGEntityFromSpawnVars();
-  }
+  while( G_ParseSpawnVars( ) )
+    G_SpawnGEntityFromSpawnVars( );
 
   level.spawning = qfalse;      // any future calls to G_Spawn*() will be errors
 }

@@ -373,39 +373,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_H_DEF1,             //int       buildNum;
-    "plasmaturret",        //char      *buildName;
-    "Plasma Turret",       //char      *humanName;
-    "team_human_def1",     //char      *entityName;
-    { "base.md3", "barrel.md3", "top.md3", 0 },
-    { -24, -24, -11 },     //vec3_t    mins;
-    { 24, 24, 11 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
-    80,                    //int       buildPoints;
-    ( 1 << S2 )|( 1 << S3 ), //int  stages
-    1000,                  //int       health;
-    0,                     //int       regenRate;
-    50,                    //int       damage;
-    20,                    //int       splashDamage;
-    50,                    //int       splashRadius;
-    MOD_HSPAWN,            //int       meansOfDeath;
-    BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       idleAnim;
-    50,                    //int       nextthink;
-    500,                   //int       turretFireSpeed;
-    500,                   //int       turretRange;
-    WP_PLASMAGUN,          //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qfalse,                //qboolean  creepTest;
-    0,                     //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qfalse                 //qboolean  reactorTest;
-  },
-  {
-    BA_H_DEF2,             //int       buildNum;
+    BA_H_MGTURRET,         //int       buildNum;
     "mgturret",            //char      *buildName;
     "Machinegun Turret",   //char      *humanName;
     "team_human_def2",     //char      *entityName;
@@ -439,7 +407,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_H_DEF3,             //int       buildNum;
+    BA_H_TESLAGEN,         //int       buildNum;
     "tesla",               //char      *buildName;
     "Tesla Generator",     //char      *humanName;
     "team_human_tesla",    //char      *entityName;
@@ -2608,28 +2576,6 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
-  },
-  {
-    WP_PLASMAGUN,         //int       weaponNum;
-    100,                  //int       price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    SLOT_WEAPON,          //int       slots;
-    "plasmagun",          //char      *weaponName;
-    "Plasma Gun",         //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    0,                    //int       quan;
-    0,                    //int       clips;
-    0,                    //int       maxClips;
-    qtrue,                //int       infiniteAmmo;
-    qtrue,                //int       usesEnergy;
-    500,                  //int       repeatRate;
-    0,                    //int       reloadTime;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  purchasable;
-    0,                    //int       buildDelay;
-    WUT_HUMANS            //WUTeam_t  team;
   }
 };
 
@@ -3344,47 +3290,55 @@ BG_EvaluateTrajectory
 
 ================
 */
-void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) {
+void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result )
+{
   float   deltaTime;
   float   phase;
 
-  switch( tr->trType ) {
-  case TR_STATIONARY:
-  case TR_INTERPOLATE:
-    VectorCopy( tr->trBase, result );
-    break;
-  case TR_LINEAR:
-    deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
-    VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
-    break;
-  case TR_SINE:
-    deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
-    phase = sin( deltaTime * M_PI * 2 );
-    VectorMA( tr->trBase, phase, tr->trDelta, result );
-    break;
-  case TR_LINEAR_STOP:
-    if ( atTime > tr->trTime + tr->trDuration ) {
-      atTime = tr->trTime + tr->trDuration;
-    }
-    deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
-    if ( deltaTime < 0 ) {
-      deltaTime = 0;
-    }
-    VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
-    break;
-  case TR_GRAVITY:
-    deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
-    VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
-    result[2] -= 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;   // FIXME: local gravity...
-    break;
-  case TR_BUOYANCY:
-    deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
-    VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
-    result[2] += 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;   // FIXME: local gravity...
-    break;
-  default:
-    Com_Error( ERR_DROP, "BG_EvaluateTrajectory: unknown trType: %i", tr->trTime );
-    break;
+  switch( tr->trType )
+  {
+    case TR_STATIONARY:
+    case TR_INTERPOLATE:
+      VectorCopy( tr->trBase, result );
+      break;
+      
+    case TR_LINEAR:
+      deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
+      VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
+      break;
+      
+    case TR_SINE:
+      deltaTime = ( atTime - tr->trTime ) / (float)tr->trDuration;
+      phase = sin( deltaTime * M_PI * 2 );
+      VectorMA( tr->trBase, phase, tr->trDelta, result );
+      break;
+      
+    case TR_LINEAR_STOP:
+      if( atTime > tr->trTime + tr->trDuration )
+        atTime = tr->trTime + tr->trDuration;
+
+      deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
+      if( deltaTime < 0 )
+        deltaTime = 0;
+      
+      VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
+      break;
+      
+    case TR_GRAVITY:
+      deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
+      VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
+      result[ 2 ] -= 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;   // FIXME: local gravity...
+      break;
+      
+    case TR_BUOYANCY:
+      deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
+      VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
+      result[ 2 ] += 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;   // FIXME: local gravity...
+      break;
+      
+    default:
+      Com_Error( ERR_DROP, "BG_EvaluateTrajectory: unknown trType: %i", tr->trTime );
+      break;
   }
 }
 
@@ -3395,48 +3349,58 @@ BG_EvaluateTrajectoryDelta
 For determining velocity at a given time
 ================
 */
-void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result ) {
+void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result )
+{
   float deltaTime;
   float phase;
 
-  switch( tr->trType ) {
-  case TR_STATIONARY:
-  case TR_INTERPOLATE:
-    VectorClear( result );
-    break;
-  case TR_LINEAR:
-    VectorCopy( tr->trDelta, result );
-    break;
-  case TR_SINE:
-    deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
-    phase = cos( deltaTime * M_PI * 2 );  // derivative of sin = cos
-    phase *= 0.5;
-    VectorScale( tr->trDelta, phase, result );
-    break;
-  case TR_LINEAR_STOP:
-    if ( atTime > tr->trTime + tr->trDuration ) {
+  switch( tr->trType )
+  {
+    case TR_STATIONARY:
+    case TR_INTERPOLATE:
       VectorClear( result );
-      return;
-    }
-    VectorCopy( tr->trDelta, result );
-    break;
-  case TR_GRAVITY:
-    deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
-    VectorCopy( tr->trDelta, result );
-    result[2] -= DEFAULT_GRAVITY * deltaTime;   // FIXME: local gravity...
-    break;
-  case TR_BUOYANCY:
-    deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
-    VectorCopy( tr->trDelta, result );
-    result[2] += DEFAULT_GRAVITY * deltaTime;   // FIXME: local gravity...
-    break;
-  default:
-    Com_Error( ERR_DROP, "BG_EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime );
-    break;
+      break;
+      
+    case TR_LINEAR:
+      VectorCopy( tr->trDelta, result );
+      break;
+      
+    case TR_SINE:
+      deltaTime = ( atTime - tr->trTime ) / (float)tr->trDuration;
+      phase = cos( deltaTime * M_PI * 2 );  // derivative of sin = cos
+      phase *= 0.5;
+      VectorScale( tr->trDelta, phase, result );
+      break;
+      
+    case TR_LINEAR_STOP:
+      if( atTime > tr->trTime + tr->trDuration )
+      {
+        VectorClear( result );
+        return;
+      }
+      VectorCopy( tr->trDelta, result );
+      break;
+      
+    case TR_GRAVITY:
+      deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
+      VectorCopy( tr->trDelta, result );
+      result[ 2 ] -= DEFAULT_GRAVITY * deltaTime;   // FIXME: local gravity...
+      break;
+      
+    case TR_BUOYANCY:
+      deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
+      VectorCopy( tr->trDelta, result );
+      result[ 2 ] += DEFAULT_GRAVITY * deltaTime;   // FIXME: local gravity...
+      break;
+      
+    default:
+      Com_Error( ERR_DROP, "BG_EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime );
+      break;
   }
 }
 
-char *eventnames[] = {
+char *eventnames[ ] =
+{
   "EV_NONE",
 
   "EV_FOOTSTEP",
@@ -3515,7 +3479,7 @@ char *eventnames[] = {
   "EV_MISSILE_HIT",
   "EV_MISSILE_MISS",
   "EV_MISSILE_MISS_METAL",
-  "EV_ITEM_EXPLOSION", //TA: human item explosions
+  "EV_BUILDABLE_EXPLOSION", //TA: human item explosions
   "EV_RAILTRAIL",
   "EV_TESLATRAIL",
   "EV_ALIENZAP",
@@ -3565,22 +3529,27 @@ Handles the sequence numbers
 
 void  trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
 
-void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps ) {
+void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps )
+{
 #ifdef _DEBUG
   {
-    char buf[256];
-    trap_Cvar_VariableStringBuffer("showevents", buf, sizeof(buf));
-    if ( atof(buf) != 0 ) {
+    char buf[ 256 ];
+    trap_Cvar_VariableStringBuffer( "showevents", buf, sizeof( buf ) );
+    
+    if( atof( buf ) != 0 )
+    {
 #ifdef QAGAME
-      Com_Printf(" game event svt %5d -> %5d: num = %20s parm %d\n", ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, eventnames[newEvent], eventParm);
+      Com_Printf( " game event svt %5d -> %5d: num = %20s parm %d\n",
+                  ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, eventnames[ newEvent ], eventParm);
 #else
-      Com_Printf("Cgame event svt %5d -> %5d: num = %20s parm %d\n", ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, eventnames[newEvent], eventParm);
+      Com_Printf( "Cgame event svt %5d -> %5d: num = %20s parm %d\n",
+                  ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, eventnames[ newEvent ], eventParm);
 #endif
     }
   }
 #endif
-  ps->events[ps->eventSequence & (MAX_PS_EVENTS-1)] = newEvent;
-  ps->eventParms[ps->eventSequence & (MAX_PS_EVENTS-1)] = eventParm;
+  ps->events[ ps->eventSequence & ( MAX_PS_EVENTS - 1 ) ] = newEvent;
+  ps->eventParms[ ps->eventSequence & ( MAX_PS_EVENTS - 1 ) ] = eventParm;
   ps->eventSequence++;
 }
 
@@ -3590,34 +3559,32 @@ void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerSta
 BG_TouchJumpPad
 ========================
 */
-void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
+void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad )
+{
   vec3_t  angles;
-  float p;
-  int effectNum;
+  float   p;
+  int     effectNum;
 
   // spectators don't use jump pads
-  if ( ps->pm_type != PM_NORMAL ) {
+  if( ps->pm_type != PM_NORMAL )
     return;
-  }
-
-  // flying characters don't hit bounce pads
-  if ( ps->powerups[PW_FLIGHT] ) {
-    return;
-  }
 
   // if we didn't hit this same jumppad the previous frame
   // then don't play the event sound again if we are in a fat trigger
-  if ( ps->jumppad_ent != jumppad->number ) {
-
+  if( ps->jumppad_ent != jumppad->number )
+  {
     vectoangles( jumppad->origin2, angles);
-    p = fabs( AngleNormalize180( angles[PITCH] ) );
-    if( p < 45 ) {
+    
+    p = fabs( AngleNormalize180( angles[ PITCH ] ) );
+    
+    if( p < 45 )
       effectNum = 0;
-    } else {
+    else
       effectNum = 1;
-    }
+    
     BG_AddPredictableEventToPlayerstate( EV_JUMP_PAD, effectNum, ps );
   }
+  
   // remember hitting this jumppad this frame
   ps->jumppad_ent = jumppad->number;
   ps->jumppad_frame = ps->pmove_framecount;
@@ -3634,33 +3601,34 @@ This is done after each set of usercmd_t on the server,
 and after local prediction on the client
 ========================
 */
-void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean snap ) {
-  int   i;
+void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean snap )
+{
+  int     i;
   vec3_t  ceilingNormal = { 0, 0, -1 };
 
-  if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR || ps->pm_type == PM_FREEZE ) {
+  if( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR || ps->pm_type == PM_FREEZE )
     s->eType = ET_INVISIBLE;
-  } else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
+  else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH )
     s->eType = ET_INVISIBLE;
-  } else {
+  else
     s->eType = ET_PLAYER;
-  }
 
   s->number = ps->clientNum;
 
   s->pos.trType = TR_INTERPOLATE;
   VectorCopy( ps->origin, s->pos.trBase );
-  if ( snap ) {
+  
+  if( snap )
     SnapVector( s->pos.trBase );
-  }
+  
   //set the trDelta for flag direction
   VectorCopy( ps->velocity, s->pos.trDelta );
 
   s->apos.trType = TR_INTERPOLATE;
   VectorCopy( ps->viewangles, s->apos.trBase );
-  if ( snap ) {
+  
+  if( snap )
     SnapVector( s->apos.trBase );
-  }
 
   //TA: i need for other things :)
   //s->angles2[YAW] = ps->movementDir;
@@ -3670,22 +3638,24 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
   s->clientNum = ps->clientNum;   // ET_PLAYER looks here instead of at number
                     // so corpses can also reference the proper config
   s->eFlags = ps->eFlags;
-  if ( ps->stats[STAT_HEALTH] <= 0 ) {
+  if( ps->stats[STAT_HEALTH] <= 0 )
     s->eFlags |= EF_DEAD;
-  } else {
+  else
     s->eFlags &= ~EF_DEAD;
-  }
 
-  if ( ps->externalEvent ) {
+  if( ps->externalEvent )
+  {
     s->event = ps->externalEvent;
     s->eventParm = ps->externalEventParm;
-  } else if ( ps->entityEventSequence < ps->eventSequence ) {
+  }
+  else if( ps->entityEventSequence < ps->eventSequence )
+  {
     int   seq;
 
-    if ( ps->entityEventSequence < ps->eventSequence - MAX_PS_EVENTS) {
+    if( ps->entityEventSequence < ps->eventSequence - MAX_PS_EVENTS )
       ps->entityEventSequence = ps->eventSequence - MAX_PS_EVENTS;
-    }
-    seq = ps->entityEventSequence & (MAX_PS_EVENTS-1);
+
+    seq = ps->entityEventSequence & ( MAX_PS_EVENTS - 1 );
     s->event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
     s->eventParm = ps->eventParms[ seq ];
     ps->entityEventSequence++;
@@ -3729,25 +3699,26 @@ This is done after each set of usercmd_t on the server,
 and after local prediction on the client
 ========================
 */
-void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap ) {
-  int   i;
+void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap )
+{
+  int     i;
   vec3_t  ceilingNormal = { 0, 0, -1 };
 
-  if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR || ps->pm_type == PM_FREEZE ) {
+  if( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR || ps->pm_type == PM_FREEZE )
     s->eType = ET_INVISIBLE;
-  } else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
+  else if( ps->stats[STAT_HEALTH] <= GIB_HEALTH )
     s->eType = ET_INVISIBLE;
-  } else {
+  else
     s->eType = ET_PLAYER;
-  }
 
   s->number = ps->clientNum;
 
   s->pos.trType = TR_LINEAR_STOP;
   VectorCopy( ps->origin, s->pos.trBase );
-  if ( snap ) {
+
+  if( snap )
     SnapVector( s->pos.trBase );
-  }
+
   // set the trDelta for flag direction and linear prediction
   VectorCopy( ps->velocity, s->pos.trDelta );
   // set the time for linear prediction
@@ -3757,9 +3728,8 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 
   s->apos.trType = TR_INTERPOLATE;
   VectorCopy( ps->viewangles, s->apos.trBase );
-  if ( snap ) {
+  if( snap )
     SnapVector( s->apos.trBase );
-  }
 
   //TA: i need for other things :)
   //s->angles2[YAW] = ps->movementDir;
@@ -3769,22 +3739,25 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   s->clientNum = ps->clientNum;   // ET_PLAYER looks here instead of at number
                     // so corpses can also reference the proper config
   s->eFlags = ps->eFlags;
-  if ( ps->stats[STAT_HEALTH] <= 0 ) {
+  
+  if( ps->stats[STAT_HEALTH] <= 0 )
     s->eFlags |= EF_DEAD;
-  } else {
+  else
     s->eFlags &= ~EF_DEAD;
-  }
 
-  if ( ps->externalEvent ) {
+  if( ps->externalEvent )
+  {
     s->event = ps->externalEvent;
     s->eventParm = ps->externalEventParm;
-  } else if ( ps->entityEventSequence < ps->eventSequence ) {
+  }
+  else if( ps->entityEventSequence < ps->eventSequence )
+  {
     int   seq;
 
-    if ( ps->entityEventSequence < ps->eventSequence - MAX_PS_EVENTS) {
+    if( ps->entityEventSequence < ps->eventSequence - MAX_PS_EVENTS )
       ps->entityEventSequence = ps->eventSequence - MAX_PS_EVENTS;
-    }
-    seq = ps->entityEventSequence & (MAX_PS_EVENTS-1);
+
+    seq = ps->entityEventSequence & ( MAX_PS_EVENTS - 1 );
     s->event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
     s->eventParm = ps->eventParms[ seq ];
     ps->entityEventSequence++;
@@ -3796,6 +3769,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   //store items held and active items in otherEntityNum
   s->modelindex = 0;
   s->modelindex2 = 0;
+  
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
     if( BG_gotItem( i, ps->stats ) )

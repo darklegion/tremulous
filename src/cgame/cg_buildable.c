@@ -44,14 +44,14 @@ models/buildables/hivemind/animation.cfg, etc
 */
 static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_t buildable )
 {
-  char    *text_p, *prev;
-  int     len;
-  int     i;
-  char    *token;
-  float   fps;
-  char    text[ 20000 ];
+  char          *text_p, *prev;
+  int           len;
+  int           i;
+  char          *token;
+  float         fps;
+  char          text[ 20000 ];
   fileHandle_t  f;
-  animation_t *animations;
+  animation_t   *animations;
 
   animations = cg_buildables[ buildable ].animations;
 
@@ -135,13 +135,13 @@ sound/buildables/hivemind/sound.cfg, etc
 */
 static qboolean CG_ParseBuildableSoundFile( const char *filename, buildable_t buildable )
 {
-  char    *text_p, *prev;
-  int     len;
-  int     i;
-  char    *token;
-  char    text[ 20000 ];
+  char          *text_p, *prev;
+  int           len;
+  int           i;
+  char          *token;
+  char          text[ 20000 ];
   fileHandle_t  f;
-  sound_t *sounds;
+  sound_t       *sounds;
 
   sounds = cg_buildables[ buildable ].sounds;
 
@@ -198,12 +198,12 @@ Initialises the animation db
 */
 void CG_InitBuildables( )
 {
-  char  filename[ MAX_QPATH ];
-  char  soundfile[ MAX_QPATH ];
-  char  *buildableName;
-  char  *modelFile;
-  int   i;
-  int   j;
+  char          filename[ MAX_QPATH ];
+  char          soundfile[ MAX_QPATH ];
+  char          *buildableName;
+  char          *modelFile;
+  int           i;
+  int           j;
   fileHandle_t  f;
 
   memset( cg_buildables, 0, sizeof( cg_buildables ) );

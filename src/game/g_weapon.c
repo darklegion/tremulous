@@ -219,23 +219,6 @@ void lockBlobLauncherFire( gentity_t *ent )
 /*
 ======================================================================
 
-PLASMAGUN
-
-======================================================================
-*/
-
-void plasmaFire( gentity_t *ent )
-{
-  gentity_t *m;
-
-  m = fire_plasma (ent, muzzle, forward);
-
-//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
-}
-
-/*
-======================================================================
-
 PULSE RIFLE
 
 ======================================================================
@@ -1068,9 +1051,6 @@ void FireWeapon( gentity_t *ent )
       break;
     case WP_FLAMER:
       flamerFire( ent );
-      break;
-    case WP_PLASMAGUN:
-      plasmaFire( ent );
       break;
     case WP_PULSE_RIFLE:
       pulseRifleFire( ent );

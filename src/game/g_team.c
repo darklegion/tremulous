@@ -16,39 +16,25 @@
 
 #include "g_local.h"
 
-typedef struct teamgame_s {
-  float     last_flag_capture;
-  int       last_capture_team;
-  flagStatus_t  redStatus;  // CTF
-  flagStatus_t  blueStatus; // CTF
-  flagStatus_t  flagStatus; // One Flag CTF
-  int       redTakenTime;
-  int       blueTakenTime;
-  int       redObeliskAttackedTime;
-  int       blueObeliskAttackedTime;
-} teamgame_t;
-
-teamgame_t teamgame;
-
-void Team_SetFlagStatus( int team, flagStatus_t status );
-
 // NULL for everyone
-void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... ) {
-  char    msg[1024];
-  va_list   argptr;
+void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... )
+{
+  char    msg[ 1024 ];
+  va_list argptr;
   char    *p;
 
-  va_start (argptr,fmt);
-  if (vsprintf (msg, fmt, argptr) > sizeof(msg)) {
+  va_start( argptr,fmt );
+  
+  if( vsprintf( msg, fmt, argptr ) > sizeof( msg ) )
     G_Error ( "PrintMsg overrun" );
-  }
-  va_end (argptr);
+
+  va_end( argptr );
 
   // double quotes are bad
-  while ((p = strchr(msg, '"')) != NULL)
+  while( ( p = strchr( msg, '"' ) ) != NULL )
     *p = '\'';
 
-  trap_SendServerCommand ( ( (ent == NULL) ? -1 : ent-g_entities ), va("print \"%s\"", msg ));
+  trap_SendServerCommand( ( ( ent == NULL ) ? -1 : ent-g_entities ), va( "print \"%s\"", msg ) );
 }
 
 
@@ -156,60 +142,69 @@ Format:
 
 ==================
 */
-void TeamplayInfoMessage( gentity_t *ent ) {
-  char    entry[1024];
-  char    string[8192];
-  int     stringlength;
-  int     i, j;
+void TeamplayInfoMessage( gentity_t *ent )
+{
+  char      entry[ 1024 ];
+  char      string[ 8192 ];
+  int       stringlength;
+  int       i, j;
   gentity_t *player;
-  int     cnt;
-  int     h, a = 0;
-  int     clients[TEAM_MAXOVERLAY];
+  int       cnt;
+  int       h, a = 0;
+  int       clients[ TEAM_MAXOVERLAY ];
 
-  if ( ! ent->client->pers.teamInfo )
+  if( ! ent->client->pers.teamInfo )
     return;
 
   // figure out what client should be on the display
   // we are limited to 8, but we want to use the top eight players
   // but in client order (so they don't keep changing position on the overlay)
-  for (i = 0, cnt = 0; i < g_maxclients.integer && cnt < TEAM_MAXOVERLAY; i++) {
-    player = g_entities + level.sortedClients[i];
-    if (player->inuse && player->client->sess.sessionTeam ==
-      ent->client->sess.sessionTeam ) {
-      clients[cnt++] = level.sortedClients[i];
-    }
+  for( i = 0, cnt = 0; i < g_maxclients.integer && cnt < TEAM_MAXOVERLAY; i++ )
+  {
+    player = g_entities + level.sortedClients[ i ];
+    
+    if( player->inuse && player->client->sess.sessionTeam ==
+        ent->client->sess.sessionTeam )
+      clients[ cnt++ ] = level.sortedClients[ i ];
   }
 
   // We have the top eight players, sort them by clientNum
-  qsort( clients, cnt, sizeof( clients[0] ), SortClients );
+  qsort( clients, cnt, sizeof( clients[ 0 ] ), SortClients );
 
   // send the latest information on all clients
-  string[0] = 0;
+  string[ 0 ] = 0;
   stringlength = 0;
 
-  for (i = 0, cnt = 0; i < g_maxclients.integer && cnt < TEAM_MAXOVERLAY; i++) {
+  for( i = 0, cnt = 0; i < g_maxclients.integer && cnt < TEAM_MAXOVERLAY; i++)
+  {
     player = g_entities + i;
-    if (player->inuse && player->client->sess.sessionTeam ==
-      ent->client->sess.sessionTeam ) {
+    
+    if( player->inuse && player->client->sess.sessionTeam ==
+        ent->client->sess.sessionTeam )
+    {
+      h = player->client->ps.stats[ STAT_HEALTH ];
+      
+      if( h < 0 )
+        h = 0;
 
-      h = player->client->ps.stats[STAT_HEALTH];
-      if (h < 0) h = 0;
-
-      Com_sprintf (entry, sizeof(entry),
+      Com_sprintf( entry, sizeof( entry ),
         " %i %i %i %i %i %i",
 //        level.sortedClients[i], player->client->pers.teamState.location, h, a,
         i, player->client->pers.teamState.location, h, a,
-        player->client->ps.weapon, player->s.powerups);
-      j = strlen(entry);
-      if (stringlength + j > sizeof(string))
+        player->client->ps.weapon, player->s.powerups );
+      
+      j = strlen( entry );
+      
+      if( stringlength + j > sizeof( string ) )
         break;
-      strcpy (string + stringlength, entry);
+      
+      strcpy( string + stringlength, entry );
       stringlength += j;
       cnt++;
     }
   }
 
-  trap_SendServerCommand( ent-g_entities, va("tinfo %i %s", cnt, string) );
+  trap_SendServerCommand( ent - g_entities, va( "tinfo %i %s", cnt, string ) );
 }
 
 void CheckTeamStatus( void )

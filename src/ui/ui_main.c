@@ -235,7 +235,7 @@ void AssetCache() {
     uiInfo.uiDC.Assets.crosshairShader[n] = trap_R_RegisterShaderNoMip( va("gfx/2d/crosshair%c", 'a' + n ) );
   }
 
-  uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/voc_newhighscore.wav", qfalse);
+  /*uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/voc_newhighscore.wav", qfalse);*/
 }
 
 void _UI_DrawSides(float x, float y, float w, float h, float size) {
@@ -768,9 +768,10 @@ void _UI_Refresh( int realtime )
   
   // draw cursor
   UI_SetColor( NULL );
-  if (Menu_Count() > 0) {
+
+  //TA: don't draw the cursor whilst loading
+  if( Menu_Count( ) > 0 && !trap_Cvar_VariableValue( "ui_loading" ) )
     UI_DrawHandlePic( uiInfo.uiDC.cursorx-16, uiInfo.uiDC.cursory-16, 32, 32, uiInfo.uiDC.Assets.cursor);
-  }
 
 #ifndef NDEBUG
   if (uiInfo.uiDC.debug)
@@ -988,7 +989,7 @@ void UI_ParseMenu(const char *menuFile) {
   int handle;
   pc_token_t token;
 
-  Com_Printf("Parsing menu file:%s\n", menuFile);
+  /*Com_Printf("Parsing menu file:%s\n", menuFile);*/
 
   handle = trap_PC_LoadSource(menuFile);
   if (!handle) {
@@ -6058,7 +6059,7 @@ void _UI_Init( qboolean inGameLoad ) {
   UI_LoadBestScores(uiInfo.mapList[ui_currentMap.integer].mapLoadName, uiInfo.gameTypes[ui_gameType.integer].gtEnum);
 
   UI_BuildQ3Model_List();
-  UI_LoadBots();
+  /*UI_LoadBots();*/
 
   // sets defaults for ui temp cvars
   uiInfo.effectsColor = gamecodetoui[(int)trap_Cvar_VariableValue("color1")-1];

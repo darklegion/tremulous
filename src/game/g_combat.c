@@ -44,64 +44,30 @@ void AddScore( gentity_t *ent, int score )
 }
 
 /*
-=================
-TossClientItems
-
-Toss the weapon and powerups for the killed player
-=================
-*/
-void TossClientItems( gentity_t *self ) {
-  gitem_t   *item;
-  int     weapon;
-  float   angle;
-  int     i;
-  gentity_t *drop;
-  int     ammo, clips, maxclips;
-
-  // drop the weapon if not a gauntlet or machinegun
-  weapon = self->s.weapon;
-
-  BG_unpackAmmoArray( weapon, self->client->ps.ammo, self->client->ps.powerups, &ammo, &clips, &maxclips );
-
-  // make a special check to see if they are changing to a new
-  // weapon that isn't the mg or gauntlet.  Without this, a client
-  // can pick up a weapon, be killed, and not drop the weapon because
-  // their weapon change hasn't completed yet and they are still holding the MG.
-  if( weapon == WP_MACHINEGUN ) {
-    if ( self->client->ps.weaponstate == WEAPON_DROPPING ) {
-      weapon = self->client->pers.cmd.weapon;
-    }
-    if ( !BG_gotWeapon( weapon, self->client->ps.stats ) ) {
-      weapon = WP_NONE;
-    }
-  }
-}
-
-
-/*
 ==================
 LookAtKiller
 ==================
 */
-void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker ) {
+void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker )
+{
   vec3_t    dir;
   vec3_t    angles;
 
   if ( attacker && attacker != self )
-    VectorSubtract (attacker->s.pos.trBase, self->s.pos.trBase, dir);
-  else if ( inflictor && inflictor != self )
-    VectorSubtract (inflictor->s.pos.trBase, self->s.pos.trBase, dir);
+    VectorSubtract( attacker->s.pos.trBase, self->s.pos.trBase, dir );
+  else if( inflictor && inflictor != self )
+    VectorSubtract( inflictor->s.pos.trBase, self->s.pos.trBase, dir );
   else
   {
-    self->client->ps.generic1 = self->s.angles[YAW];
+    self->client->ps.generic1 = self->s.angles[ YAW ];
     return;
   }
 
-  self->client->ps.generic1 = vectoyaw ( dir );
+  self->client->ps.generic1 = vectoyaw( dir );
 
-  angles[YAW] = vectoyaw ( dir );
-  angles[PITCH] = 0;
-  angles[ROLL] = 0;
+  angles[ YAW ] = vectoyaw( dir );
+  angles[ PITCH ] = 0;
+  angles[ ROLL ] = 0;
 }
 
 /*
@@ -126,12 +92,14 @@ void GibEntity( gentity_t *self, int killer )
 body_die
 ==================
 */
-void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
-  if ( self->health > GIB_HEALTH ) {
+void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
+{
+  if( self->health > GIB_HEALTH )
     return;
-  }
-  if ( !g_blood.integer ) {
-    self->health = GIB_HEALTH+1;
+  
+  if( !g_blood.integer )
+  {
+    self->health = GIB_HEALTH + 1;
     return;
   }
 
@@ -141,7 +109,8 @@ void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 
 
 // these are just for logging, the client prints its own messages
-char  *modNames[] = {
+char *modNames[ ] =
+{
   "MOD_UNKNOWN",
   "MOD_SHOTGUN",
   "MOD_GAUNTLET",
@@ -377,44 +346,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   }
 
   trap_LinkEntity( self );
-}
-
-
-/*
-================
-RaySphereIntersections
-================
-*/
-int RaySphereIntersections( vec3_t origin, float radius, vec3_t point, vec3_t dir, vec3_t intersections[2] ) {
-  float b, c, d, t;
-
-  //  | origin - (point + t * dir) | = radius
-  //  a = dir[0]^2 + dir[1]^2 + dir[2]^2;
-  //  b = 2 * (dir[0] * (point[0] - origin[0]) + dir[1] * (point[1] - origin[1]) + dir[2] * (point[2] - origin[2]));
-  //  c = (point[0] - origin[0])^2 + (point[1] - origin[1])^2 + (point[2] - origin[2])^2 - radius^2;
-
-  // normalize dir so a = 1
-  VectorNormalize(dir);
-  b = 2 * (dir[0] * (point[0] - origin[0]) + dir[1] * (point[1] - origin[1]) + dir[2] * (point[2] - origin[2]));
-  c = (point[0] - origin[0]) * (point[0] - origin[0]) +
-    (point[1] - origin[1]) * (point[1] - origin[1]) +
-    (point[2] - origin[2]) * (point[2] - origin[2]) -
-    radius * radius;
-
-  d = b * b - 4 * c;
-  if (d > 0) {
-    t = (- b + sqrt(d)) / 2;
-    VectorMA(point, t, dir, intersections[0]);
-    t = (- b - sqrt(d)) / 2;
-    VectorMA(point, t, dir, intersections[1]);
-    return 2;
-  }
-  else if (d == 0) {
-    t = (- b ) / 2;
-    VectorMA(point, t, dir, intersections[0]);
-    return 1;
-  }
-  return 0;
 }
 
 
@@ -748,7 +679,7 @@ float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, 
 G_InitDamageLocations
 ============
 */
-void G_InitDamageLocations( )
+void G_InitDamageLocations( void )
 {
   char          *modelName;
   char          filename[ MAX_QPATH ];
@@ -854,19 +785,19 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   int     knockback;
   int     max;
 
-  if(!targ->takedamage)
+  if( !targ->takedamage )
     return;
 
   // the intermission has allready been qualified for, so don't
   // allow any extra scoring
-  if ( level.intermissionQueued )
+  if( level.intermissionQueued )
     return;
 
   if( !inflictor )
-    inflictor = &g_entities[ENTITYNUM_WORLD];
+    inflictor = &g_entities[ ENTITYNUM_WORLD ];
     
   if( !attacker )
-    attacker = &g_entities[ENTITYNUM_WORLD];
+    attacker = &g_entities[ ENTITYNUM_WORLD ];
 
   // shootable doors / buttons don't actually have any health
   if( targ->s.eType == ET_MOVER )
@@ -990,13 +921,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   if( client )
   {
     if( attacker )
-      client->ps.persistant[PERS_ATTACKER] = attacker->s.number;
+      client->ps.persistant[ PERS_ATTACKER ] = attacker->s.number;
     else
-      client->ps.persistant[PERS_ATTACKER] = ENTITYNUM_WORLD;
+      client->ps.persistant[ PERS_ATTACKER ] = ENTITYNUM_WORLD;
       
     client->damage_armor += asave;
     client->damage_blood += take;
     client->damage_knockback += knockback;
+    
     if( dir )
     {
       VectorCopy ( dir, client->damage_from );
@@ -1046,11 +978,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
         targ->health = -999;
 
       targ->enemy = attacker;
-      targ->die (targ, inflictor, attacker, take, mod);
+      targ->die( targ, inflictor, attacker, take, mod );
       return;
     }
     else if( targ->pain )
-      targ->pain (targ, attacker, take);
+      targ->pain( targ, attacker, take );
   }
 }
 
@@ -1063,51 +995,51 @@ Returns qtrue if the inflictor can directly damage the target.  Used for
 explosions and melee attacks.
 ============
 */
-qboolean CanDamage (gentity_t *targ, vec3_t origin) {
+qboolean CanDamage( gentity_t *targ, vec3_t origin )
+{
   vec3_t  dest;
   trace_t tr;
   vec3_t  midpoint;
 
   // use the midpoint of the bounds instead of the origin, because
   // bmodels may have their origin is 0,0,0
-  VectorAdd (targ->r.absmin, targ->r.absmax, midpoint);
-  VectorScale (midpoint, 0.5, midpoint);
+  VectorAdd( targ->r.absmin, targ->r.absmax, midpoint );
+  VectorScale( midpoint, 0.5, midpoint );
 
-  VectorCopy (midpoint, dest);
-  trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
-  if (tr.fraction == 1.0  || tr.entityNum == targ->s.number)
+  VectorCopy( midpoint, dest );
+  trap_Trace( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID );
+  if( tr.fraction == 1.0  || tr.entityNum == targ->s.number )
     return qtrue;
 
   // this should probably check in the plane of projection,
   // rather than in world coordinate, and also include Z
-  VectorCopy (midpoint, dest);
-  dest[0] += 15.0;
-  dest[1] += 15.0;
-  trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
-  if (tr.fraction == 1.0)
+  VectorCopy( midpoint, dest );
+  dest[ 0 ] += 15.0;
+  dest[ 1 ] += 15.0;
+  trap_Trace( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID );
+  if( tr.fraction == 1.0 )
     return qtrue;
 
-  VectorCopy (midpoint, dest);
-  dest[0] += 15.0;
-  dest[1] -= 15.0;
-  trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
-  if (tr.fraction == 1.0)
+  VectorCopy( midpoint, dest );
+  dest[ 0 ] += 15.0;
+  dest[ 1 ] -= 15.0;
+  trap_Trace( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID );
+  if( tr.fraction == 1.0 )
     return qtrue;
 
-  VectorCopy (midpoint, dest);
-  dest[0] -= 15.0;
-  dest[1] += 15.0;
-  trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
-  if (tr.fraction == 1.0)
+  VectorCopy( midpoint, dest );
+  dest[ 0 ] -= 15.0;
+  dest[ 1 ] += 15.0;
+  trap_Trace( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID );
+  if( tr.fraction == 1.0 )
     return qtrue;
 
-  VectorCopy (midpoint, dest);
-  dest[0] -= 15.0;
-  dest[1] -= 15.0;
-  trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
-  if (tr.fraction == 1.0)
+  VectorCopy( midpoint, dest );
+  dest[ 0 ] -= 15.0;
+  dest[ 1 ] -= 15.0;
+  trap_Trace( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID );
+  if( tr.fraction == 1.0 )
     return qtrue;
-
 
   return qfalse;
 }
@@ -1116,64 +1048,67 @@ qboolean CanDamage (gentity_t *targ, vec3_t origin) {
 //TA:
 /*
 ============
-G_RadiusDamage
+G_SelectiveRadiusDamage
 ============
 */
-qboolean G_SelectiveRadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, float radius,
-           gentity_t *ignore, int mod, int team ) {
-  float   points, dist;
+qboolean G_SelectiveRadiusDamage( vec3_t origin, gentity_t *attacker, float damage,
+                                  float radius, gentity_t *ignore, int mod, int team )
+{
+  float     points, dist;
   gentity_t *ent;
-  int     entityList[MAX_GENTITIES];
-  int     numListedEntities;
+  int       entityList[ MAX_GENTITIES ];
+  int       numListedEntities;
   vec3_t    mins, maxs;
   vec3_t    v;
   vec3_t    dir;
-  int     i, e;
+  int       i, e;
   qboolean  hitClient = qfalse;
 
-  if ( radius < 1 ) {
+  if( radius < 1 )
     radius = 1;
-  }
 
-  for ( i = 0 ; i < 3 ; i++ ) {
-    mins[i] = origin[i] - radius;
-    maxs[i] = origin[i] + radius;
+  for( i = 0; i < 3; i++ )
+  {
+    mins[ i ] = origin[ i ] - radius;
+    maxs[ i ] = origin[ i ] + radius;
   }
 
   numListedEntities = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
 
-  for ( e = 0 ; e < numListedEntities ; e++ ) {
-    ent = &g_entities[entityList[ e ]];
+  for( e = 0; e < numListedEntities; e++ )
+  {
+    ent = &g_entities[ entityList[ e ] ];
 
-    if (ent == ignore)
+    if( ent == ignore )
       continue;
-    if (!ent->takedamage)
+    
+    if( !ent->takedamage )
       continue;
 
     // find the distance from the edge of the bounding box
-    for ( i = 0 ; i < 3 ; i++ ) {
-      if ( origin[i] < ent->r.absmin[i] ) {
-        v[i] = ent->r.absmin[i] - origin[i];
-      } else if ( origin[i] > ent->r.absmax[i] ) {
-        v[i] = origin[i] - ent->r.absmax[i];
-      } else {
-        v[i] = 0;
-      }
+    for( i = 0 ; i < 3 ; i++ )
+    {
+      if( origin[ i ] < ent->r.absmin[ i ] )
+        v[ i ] = ent->r.absmin[ i ] - origin[ i ];
+      else if( origin[ i ] > ent->r.absmax[ i ] )
+        v[ i ] = origin[ i ] - ent->r.absmax[ i ];
+      else
+        v[ i ] = 0;
     }
 
     dist = VectorLength( v );
-    if ( dist >= radius ) {
+    if( dist >= radius )
       continue;
-    }
 
     points = damage * ( 1.0 - dist / radius );
 
-    if( CanDamage (ent, origin) ) {
-      VectorSubtract (ent->r.currentOrigin, origin, dir);
+    if( CanDamage( ent, origin ) )
+    {
+      VectorSubtract( ent->r.currentOrigin, origin, dir );
       // push the center of mass higher than the origin so players
       // get knocked into the air more
-      dir[2] += 24;
-      G_SelectiveDamage (ent, NULL, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod, team );
+      dir[ 2 ] += 24;
+      G_SelectiveDamage( ent, NULL, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod, team );
     }
   }
 
@@ -1186,61 +1121,64 @@ qboolean G_SelectiveRadiusDamage ( vec3_t origin, gentity_t *attacker, float dam
 G_RadiusDamage
 ============
 */
-qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, float radius,
-           gentity_t *ignore, int mod) {
-  float   points, dist;
+qboolean G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage,
+                         float radius, gentity_t *ignore, int mod )
+{
+  float     points, dist;
   gentity_t *ent;
-  int     entityList[MAX_GENTITIES];
-  int     numListedEntities;
+  int       entityList[ MAX_GENTITIES ];
+  int       numListedEntities;
   vec3_t    mins, maxs;
   vec3_t    v;
   vec3_t    dir;
-  int     i, e;
+  int       i, e;
   qboolean  hitClient = qfalse;
 
-  if ( radius < 1 ) {
+  if( radius < 1 )
     radius = 1;
-  }
 
-  for ( i = 0 ; i < 3 ; i++ ) {
-    mins[i] = origin[i] - radius;
-    maxs[i] = origin[i] + radius;
+  for( i = 0; i < 3; i++ )
+  {
+    mins[ i ] = origin[ i ] - radius;
+    maxs[ i ] = origin[ i ] + radius;
   }
 
   numListedEntities = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
 
-  for ( e = 0 ; e < numListedEntities ; e++ ) {
-    ent = &g_entities[entityList[ e ]];
+  for( e = 0; e < numListedEntities; e++ )
+  {
+    ent = &g_entities[ entityList[ e ] ];
 
-    if (ent == ignore)
+    if( ent == ignore )
       continue;
-    if (!ent->takedamage)
+    
+    if( !ent->takedamage )
       continue;
 
     // find the distance from the edge of the bounding box
-    for ( i = 0 ; i < 3 ; i++ ) {
-      if ( origin[i] < ent->r.absmin[i] ) {
-        v[i] = ent->r.absmin[i] - origin[i];
-      } else if ( origin[i] > ent->r.absmax[i] ) {
-        v[i] = origin[i] - ent->r.absmax[i];
-      } else {
-        v[i] = 0;
-      }
+    for( i = 0; i < 3; i++ )
+    {
+      if( origin[ i ] < ent->r.absmin[ i ] )
+        v[ i ] = ent->r.absmin[ i ] - origin[ i ];
+      else if( origin[ i ] > ent->r.absmax[ i ] )
+        v[ i ] = origin[ i ] - ent->r.absmax[ i ];
+      else
+        v[ i ] = 0;
     }
 
     dist = VectorLength( v );
-    if ( dist >= radius ) {
+    if( dist >= radius )
       continue;
-    }
 
     points = damage * ( 1.0 - dist / radius );
 
-    if( CanDamage (ent, origin) ) {
-      VectorSubtract (ent->r.currentOrigin, origin, dir);
+    if( CanDamage( ent, origin ) )
+    {
+      VectorSubtract( ent->r.currentOrigin, origin, dir );
       // push the center of mass higher than the origin so players
       // get knocked into the air more
-      dir[2] += 24;
-      G_Damage (ent, NULL, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod);
+      dir[ 2 ] += 24;
+      G_Damage( ent, NULL, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod );
     }
   }
 

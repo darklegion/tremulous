@@ -1334,7 +1334,7 @@ void HFM_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int da
 
   //pretty events and item cleanup
   self->s.modelindex = 0; //don't draw the model once its destroyed
-  G_AddEvent( self, EV_ITEM_EXPLOSION, DirToByte( dir ) );
+  G_AddEvent( self, EV_BUILDABLE_EXPLOSION, DirToByte( dir ) );
   self->r.contents = CONTENTS_TRIGGER;
   self->timestamp = level.time;
 
@@ -1366,130 +1366,18 @@ void HFM_Think( gentity_t *self )
 
 //==================================================================================
 
-
-
-
-//TA: the following defense turret code was written by
-// "fuzzysteve"           (fuzzysteve@quakefiles.com) and
-// Anthony "inolen" Pesch (www.inolen.com)
-//with (heavy) modifications by me of course :)
-  
-#define HDEF1_ANGULARSPEED      10  //degrees/think ~= 200deg/sec
-#define HDEF1_ACCURACYTOLERANCE HDEF1_ANGULARSPEED / 2 //angular difference for turret to fire
-#define HDEF1_VERTICALCAP       90 //+/- maximum pitch
-#define HDEF1_PROJSPEED         2000.0f //speed of projectile (used in prediction)
+#define HMGTURRET_ANGULARSPEED      20  //degrees/think ~= 200deg/sec
+#define HMGTURRET_ACCURACYTOLERANCE HMGTURRET_ANGULARSPEED / 2 //angular difference for turret to fire
+#define HMGTURRET_VERTICALCAP       30  //- maximum pitch
 
 /*
 ================
-hdef1_trackenemy
+HMGTurret_TrackEnemy
 
-Used by HDef1_Think to track enemy location
+Used by HDef_Think to track enemy location
 ================
 */
-qboolean hdef1_trackenemy( gentity_t *self )
-{
-  vec3_t  dirToTarget, dttAdjusted, angleToTarget, angularDiff, xNormal;
-  vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
-  float   temp, rotAngle;
-  float   distanceToTarget = BG_FindRangeForBuildable( self->s.modelindex );
-  float   timeTilImpact;
-  vec3_t  halfAcceleration;
-  vec3_t  thirdJerk;
-  int     i;
-
-  VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
-
-//lead targets
-#if 0
-  distanceToTarget = VectorLength( dirToTarget );
-  timeTilImpact = distanceToTarget / 2000.0f;
-  VectorMA( self->enemy->s.pos.trBase, timeTilImpact, self->enemy->s.pos.trDelta, dirToTarget );
-  VectorSubtract( dirToTarget, self->s.pos.trBase, dirToTarget );
-#endif
-
-  //better, but more expensive method
-  if( self->dcced )
-  {
-    VectorScale( self->enemy->acceleration, 1.0f / 2.0f, halfAcceleration );
-    VectorScale( self->enemy->jerk, 1.0f / 3.0f, thirdJerk );
-
-    //O( time ) - worst case O( time ) = 250 iterations
-    for( i = 0; ( i * HDEF1_PROJSPEED ) / 1000.0f < distanceToTarget; i++ )
-    {
-      float time = (float)i / 1000.0f;
-
-      VectorMA( self->enemy->s.pos.trBase, time, self->enemy->s.pos.trDelta, dirToTarget );
-      VectorMA( dirToTarget, time * time, halfAcceleration, dirToTarget );
-      VectorMA( dirToTarget, time * time * time, thirdJerk, dirToTarget );
-      VectorSubtract( dirToTarget, self->s.pos.trBase, dirToTarget );
-      distanceToTarget = VectorLength( dirToTarget );
-
-      distanceToTarget -= self->enemy->r.maxs[ 0 ];
-    }
-  }
-  
-  VectorNormalize( dirToTarget );
-  
-  CrossProduct( self->s.origin2, refNormal, xNormal );
-  VectorNormalize( xNormal );
-  rotAngle = RAD2DEG( acos( DotProduct( self->s.origin2, refNormal ) ) );
-  RotatePointAroundVector( dttAdjusted, xNormal, dirToTarget, rotAngle );
-  
-  vectoangles( dttAdjusted, angleToTarget );
-
-  angularDiff[ PITCH ] = AngleSubtract( self->s.angles2[ PITCH ], angleToTarget[ PITCH ] );
-  angularDiff[ YAW ] = AngleSubtract( self->s.angles2[ YAW ], angleToTarget[ YAW ] );
-
-  //if not pointing at our target then move accordingly
-  if( angularDiff[ PITCH ] < -HDEF1_ACCURACYTOLERANCE )
-    self->s.angles2[ PITCH ] += HDEF1_ANGULARSPEED;
-  else if( angularDiff[ PITCH ] > HDEF1_ACCURACYTOLERANCE )
-    self->s.angles2[ PITCH ] -= HDEF1_ANGULARSPEED;
-  else
-    self->s.angles2[ PITCH ] = angleToTarget[ PITCH ];
-
-  //disallow vertical movement past a certain limit
-  temp = fabs( self->s.angles2[ PITCH ] );
-  if( temp > 180 )
-    temp -= 360;
-  
-  if( temp < -HDEF1_VERTICALCAP )
-    self->s.angles2[ PITCH ] = (-360)+HDEF1_VERTICALCAP;
-  else if( temp > HDEF1_VERTICALCAP )
-    self->s.angles2[ PITCH ] = -HDEF1_VERTICALCAP;
-    
-  //if not pointing at our target then move accordingly
-  if( angularDiff[ YAW ] < -HDEF1_ACCURACYTOLERANCE )
-    self->s.angles2[ YAW ] += HDEF1_ANGULARSPEED;
-  else if( angularDiff[ YAW ] > HDEF1_ACCURACYTOLERANCE )
-    self->s.angles2[ YAW ] -= HDEF1_ANGULARSPEED;
-  else
-    self->s.angles2[ YAW ] = angleToTarget[ YAW ];
-    
-  AngleVectors( self->s.angles2, dttAdjusted, NULL, NULL );
-  RotatePointAroundVector( dirToTarget, xNormal, dttAdjusted, -rotAngle );
-  vectoangles( dirToTarget, self->turretAim );
-
-  //if pointing at our target return true
-  if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= HDEF1_ACCURACYTOLERANCE &&
-      abs( angleToTarget[ PITCH ] - self->s.angles2[ PITCH ] ) <= HDEF1_ACCURACYTOLERANCE )
-    return qtrue;
-    
-  return qfalse;
-}
-
-#define HDEF2_ANGULARSPEED      20  //degrees/think ~= 200deg/sec
-#define HDEF2_ACCURACYTOLERANCE HDEF2_ANGULARSPEED / 2 //angular difference for turret to fire
-#define HDEF2_VERTICALCAP       30  //- maximum pitch
-
-/*
-================
-hdef2_trackenemy
-
-Used by HDef1_Think to track enemy location
-================
-*/
-qboolean hdef2_trackenemy( gentity_t *self )
+qboolean HMGTurret_TrackEnemy( gentity_t *self )
 {
   vec3_t  dirToTarget, dttAdjusted, angleToTarget, angularDiff, xNormal;
   vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
@@ -1510,10 +1398,10 @@ qboolean hdef2_trackenemy( gentity_t *self )
   angularDiff[ YAW ] = AngleSubtract( self->s.angles2[ YAW ], angleToTarget[ YAW ] );
 
   //if not pointing at our target then move accordingly
-  if( angularDiff[ PITCH ] < -HDEF2_ACCURACYTOLERANCE )
-    self->s.angles2[ PITCH ] += HDEF2_ANGULARSPEED;
-  else if( angularDiff[ PITCH ] > HDEF2_ACCURACYTOLERANCE )
-    self->s.angles2[ PITCH ] -= HDEF2_ANGULARSPEED;
+  if( angularDiff[ PITCH ] < -HMGTURRET_ACCURACYTOLERANCE )
+    self->s.angles2[ PITCH ] += HMGTURRET_ANGULARSPEED;
+  else if( angularDiff[ PITCH ] > HMGTURRET_ACCURACYTOLERANCE )
+    self->s.angles2[ PITCH ] -= HMGTURRET_ANGULARSPEED;
   else
     self->s.angles2[ PITCH ] = angleToTarget[ PITCH ];
 
@@ -1522,14 +1410,14 @@ qboolean hdef2_trackenemy( gentity_t *self )
   if( temp > 180 )
     temp -= 360;
   
-  if( temp < -HDEF2_VERTICALCAP )
-    self->s.angles2[ PITCH ] = (-360)+HDEF2_VERTICALCAP;
+  if( temp < -HMGTURRET_VERTICALCAP )
+    self->s.angles2[ PITCH ] = (-360)+HMGTURRET_VERTICALCAP;
     
   //if not pointing at our target then move accordingly
-  if( angularDiff[ YAW ] < -HDEF2_ACCURACYTOLERANCE )
-    self->s.angles2[ YAW ] += HDEF2_ANGULARSPEED;
-  else if( angularDiff[ YAW ] > HDEF2_ACCURACYTOLERANCE )
-    self->s.angles2[ YAW ] -= HDEF2_ANGULARSPEED;
+  if( angularDiff[ YAW ] < -HMGTURRET_ACCURACYTOLERANCE )
+    self->s.angles2[ YAW ] += HMGTURRET_ANGULARSPEED;
+  else if( angularDiff[ YAW ] > HMGTURRET_ACCURACYTOLERANCE )
+    self->s.angles2[ YAW ] -= HMGTURRET_ANGULARSPEED;
   else
     self->s.angles2[ YAW ] = angleToTarget[ YAW ];
     
@@ -1538,8 +1426,8 @@ qboolean hdef2_trackenemy( gentity_t *self )
   vectoangles( dirToTarget, self->turretAim );
 
   //if pointing at our target return true
-  if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= HDEF2_ACCURACYTOLERANCE &&
-      abs( angleToTarget[ PITCH ] - self->s.angles2[ PITCH ] ) <= HDEF2_ACCURACYTOLERANCE )
+  if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= HMGTURRET_ACCURACYTOLERANCE &&
+      abs( angleToTarget[ PITCH ] - self->s.angles2[ PITCH ] ) <= HMGTURRET_ACCURACYTOLERANCE )
     return qtrue;
     
   return qfalse;
@@ -1547,12 +1435,12 @@ qboolean hdef2_trackenemy( gentity_t *self )
 
 /*
 ================
-hdef3_fireonemeny
+HTeslaGen_FireOnEnemy
 
 Used by HDef_Think to fire at enemy
 ================
 */
-void hdef3_fireonenemy( gentity_t *self, int firespeed )
+void HTeslaGen_FireOnEnemy( gentity_t *self, int firespeed )
 {
   vec3_t  dirToTarget;
  
@@ -1572,12 +1460,12 @@ void hdef3_fireonenemy( gentity_t *self, int firespeed )
 
 /*
 ================
-hdef_fireonemeny
+HMGTurret_FireOnEnemy
 
 Used by HDef_Think to fire at enemy
 ================
 */
-void hdef_fireonenemy( gentity_t *self, int firespeed )
+void HMGTurret_FireOnEnemy( gentity_t *self, int firespeed )
 {
   //fire at target
   FireWeapon( self );
@@ -1587,12 +1475,12 @@ void hdef_fireonenemy( gentity_t *self, int firespeed )
 
 /*
 ================
-hdef_checktarget
+HDef_CheckTarget
 
 Used by HDef_Think to check enemies for validity
 ================
 */
-qboolean hdef_checktarget( gentity_t *self, gentity_t *target, int range )
+qboolean HDef_CheckTarget( gentity_t *self, gentity_t *target, int range )
 {
   vec3_t    distance;
   trace_t   trace;
@@ -1632,12 +1520,12 @@ qboolean hdef_checktarget( gentity_t *self, gentity_t *target, int range )
 
 /*
 ================
-hdef_findenemy
+HDef_FindEnemy
 
 Used by HDef_Think to locate enemy gentities
 ================
 */
-void hdef_findenemy( gentity_t *ent, int range )
+void HDef_FindEnemy( gentity_t *ent, int range )
 {
   gentity_t *target;
 
@@ -1645,7 +1533,7 @@ void hdef_findenemy( gentity_t *ent, int range )
   for( target = g_entities; target < &g_entities[ level.num_entities ]; target++ )
   {
     //if target is not valid keep searching
-    if( !hdef_checktarget( ent, target, range ) )
+    if( !HDef_CheckTarget( ent, target, range ) )
       continue;
       
     //we found a target
@@ -1683,12 +1571,12 @@ void HDef_Think( gentity_t *self )
   self->dcced = findDCC( self );
   
   //if the current target is not valid find a new one
-  if( !hdef_checktarget( self, self->enemy, range ) )
+  if( !HDef_CheckTarget( self, self->enemy, range ) )
   {
     if( self->enemy )
       self->enemy->targeted = NULL;
 
-    hdef_findenemy( self, range );
+    HDef_FindEnemy( self, range );
   }
 
   //if a new target cannot be found don't do anything
@@ -1700,19 +1588,14 @@ void HDef_Think( gentity_t *self )
   //if we are pointing at our target and we can fire shoot it
   switch( self->s.modelindex )
   {
-    case BA_H_DEF1:
-      if( hdef1_trackenemy( self ) && ( self->count < level.time ) )
-        hdef_fireonenemy( self, firespeed );
+    case BA_H_MGTURRET:
+      if( HMGTurret_TrackEnemy( self ) && ( self->count < level.time ) )
+        HMGTurret_FireOnEnemy( self, firespeed );
       break;
       
-    case BA_H_DEF2:
-      if( hdef2_trackenemy( self ) && ( self->count < level.time ) )
-        hdef_fireonenemy( self, firespeed );
-      break;
-      
-    case BA_H_DEF3:
+    case BA_H_TESLAGEN:
       if( self->count < level.time )
-        hdef3_fireonenemy( self, firespeed );
+        HTeslaGen_FireOnEnemy( self, firespeed );
       break;
 
     default:
@@ -1746,7 +1629,7 @@ void HSpawn_Blast( gentity_t *self )
   dir[2] = 1;
 
   self->s.modelindex = 0; //don't draw the model once its destroyed
-  G_AddEvent( self, EV_ITEM_EXPLOSION, DirToByte( dir ) );
+  G_AddEvent( self, EV_BUILDABLE_EXPLOSION, DirToByte( dir ) );
   self->r.contents = CONTENTS_TRIGGER;
   self->timestamp = level.time;
 
@@ -2096,9 +1979,8 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       built->think = HSpawn_Think;
       break;
       
-    case BA_H_DEF1:
-    case BA_H_DEF2:
-    case BA_H_DEF3:
+    case BA_H_MGTURRET:
+    case BA_H_TESLAGEN:
       built->die = HSpawn_Die;
       built->think = HDef_Think;
       break;

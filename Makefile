@@ -20,7 +20,6 @@ GOBJ = \
 	$(GDIRNAME)/q_math.o \
 	$(GDIRNAME)/q_shared.o \
 	$(GDIRNAME)/g_active.o \
-	$(GDIRNAME)/g_arenas.o \
 	$(GDIRNAME)/g_client.o \
 	$(GDIRNAME)/g_cmds.o \
 	$(GDIRNAME)/g_combat.o \

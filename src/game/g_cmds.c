@@ -87,15 +87,20 @@ void Cmd_Score_f( gentity_t *ent )
 CheatsOk
 ==================
 */
-qboolean  CheatsOk( gentity_t *ent ) {
-  if ( !g_cheats.integer ) {
-    trap_SendServerCommand( ent-g_entities, va("print \"Cheats are not enabled on this server.\n\""));
+qboolean CheatsOk( gentity_t *ent )
+{
+  if( !g_cheats.integer )
+  {
+    trap_SendServerCommand( ent-g_entities, va( "print \"Cheats are not enabled on this server.\n\"" ) );
     return qfalse;
   }
-  if ( ent->health <= 0 ) {
-    trap_SendServerCommand( ent-g_entities, va("print \"You must be alive to use this command.\n\""));
-    return qfalse;
+  
+  if( ent->health <= 0 )
+  {
+    trap_SendServerCommand( ent-g_entities, va( "print \"You must be alive to use this command.\n\"" ) );
+    return qfalse; 
   }
+
   return qtrue;
 }
 
@@ -138,74 +143,6 @@ char *ConcatArgs( int start )
   return line;
 }
 
-/*
-==================
-SanitizeString
-
-Remove case and control characters
-==================
-*/
-void SanitizeString( char *in, char *out ) {
-  while ( *in ) {
-    if ( *in == 27 ) {
-      in += 2;    // skip color code
-      continue;
-    }
-    if ( *in < 32 ) {
-      in++;
-      continue;
-    }
-    *out++ = tolower( *in++ );
-  }
-
-  *out = 0;
-}
-
-/*
-==================
-ClientNumberFromString
-
-Returns a player number for either a number or name string
-Returns -1 if invalid
-==================
-*/
-int ClientNumberFromString( gentity_t *to, char *s ) {
-  gclient_t *cl;
-  int     idnum;
-  char    s2[MAX_STRING_CHARS];
-  char    n2[MAX_STRING_CHARS];
-
-  // numeric values are just slot numbers
-  if (s[0] >= '0' && s[0] <= '9') {
-    idnum = atoi( s );
-    if ( idnum < 0 || idnum >= level.maxclients ) {
-      trap_SendServerCommand( to-g_entities, va("print \"Bad client slot: %i\n\"", idnum));
-      return -1;
-    }
-
-    cl = &level.clients[idnum];
-    if ( cl->pers.connected != CON_CONNECTED ) {
-      trap_SendServerCommand( to-g_entities, va("print \"Client %i is not active\n\"", idnum));
-      return -1;
-    }
-    return idnum;
-  }
-
-  // check for a name match
-  SanitizeString( s, s2 );
-  for ( idnum=0,cl=level.clients ; idnum < level.maxclients ; idnum++,cl++ ) {
-    if ( cl->pers.connected != CON_CONNECTED ) {
-      continue;
-    }
-    SanitizeString( cl->pers.netname, n2 );
-    if ( !strcmp( n2, s2 ) ) {
-      return idnum;
-    }
-  }
-
-  trap_SendServerCommand( to-g_entities, va("print \"User %s is not on the server\n\"", s));
-  return -1;
-}
 
 /*
 ==================
@@ -214,46 +151,46 @@ Cmd_Give_f
 Give items to a client
 ==================
 */
-void Cmd_Give_f (gentity_t *ent)
+void Cmd_Give_f( gentity_t *ent )
 {
-  char    *name;
+  char      *name;
   gitem_t   *it;
-  int     i;
+  int       i;
   qboolean  give_all;
-  gentity_t   *it_ent;
+  gentity_t *it_ent;
   trace_t   trace;
 
-  if ( !CheatsOk( ent ) ) {
+  if( !CheatsOk( ent ) )
     return;
-  }
 
   name = ConcatArgs( 1 );
 
-  if (Q_stricmp(name, "all") == 0)
+  if( Q_stricmp( name, "all" ) == 0 )
     give_all = qtrue;
   else
     give_all = qfalse;
 
-  if (give_all || Q_stricmp( name, "health") == 0)
+  if( give_all || Q_stricmp( name, "health" ) == 0 )
   {
-    ent->health = ent->client->ps.stats[STAT_MAX_HEALTH];
-    if (!give_all)
+    ent->health = ent->client->ps.stats[ STAT_MAX_HEALTH ];
+    if( !give_all )
       return;
   }
 
-  if (give_all || Q_stricmp(name, "weapons") == 0)
+  if( give_all || Q_stricmp( name, "weapons" ) == 0 )
   {
-    BG_packWeapon( (1 << WP_NUM_WEAPONS) - 1 - ( 1 << WP_NONE ), ent->client->ps.stats );
-    if (!give_all)
+    BG_packWeapon( ( 1 << WP_NUM_WEAPONS ) - 1 - ( 1 << WP_NONE ), ent->client->ps.stats );
+    
+    if( !give_all )
       return;
   }
 
-  if (give_all || Q_stricmp(name, "ammo") == 0)
+  if( give_all || Q_stricmp( name, "ammo" ) == 0 )
   {
-    for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
+    for( i = 0; i < MAX_WEAPONS; i++ )
       BG_packAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups, 999, 0, 0 );
-    }
-    if (!give_all)
+
+    if( !give_all )
       return;
   }
 
@@ -264,25 +201,6 @@ void Cmd_Give_f (gentity_t *ent)
     if( !give_all )
       return;
   }
-
-  // spawn a specific item right on the player
-/*  if ( !give_all ) {
-    it = BG_FindItem (name);
-    if (!it) {
-      return;
-    }
-
-    it_ent = G_Spawn();
-    VectorCopy( ent->r.currentOrigin, it_ent->s.origin );
-    it_ent->classname = it->classname;
-    G_SpawnItem (it_ent, it);
-    FinishSpawningItem(it_ent );
-    memset( &trace, 0, sizeof( trace ) );
-    Touch_Item (it_ent, ent, &trace);
-    if (it_ent->inuse) {
-      G_FreeEntity( it_ent );
-    }
-  }*/
 }
 
 
@@ -295,21 +213,21 @@ Sets client to godmode
 argv(0) god
 ==================
 */
-void Cmd_God_f (gentity_t *ent)
+void Cmd_God_f( gentity_t *ent )
 {
   char  *msg;
 
-  if ( !CheatsOk( ent ) ) {
+  if( !CheatsOk( ent ) )
     return;
-  }
 
   ent->flags ^= FL_GODMODE;
-  if (!(ent->flags & FL_GODMODE) )
+  
+  if( !( ent->flags & FL_GODMODE ) )
     msg = "godmode OFF\n";
   else
     msg = "godmode ON\n";
 
-  trap_SendServerCommand( ent-g_entities, va("print \"%s\"", msg));
+  trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
 
 
@@ -322,20 +240,21 @@ Sets client to notarget
 argv(0) notarget
 ==================
 */
-void Cmd_Notarget_f( gentity_t *ent ) {
+void Cmd_Notarget_f( gentity_t *ent )
+{
   char  *msg;
 
-  if ( !CheatsOk( ent ) ) {
+  if( !CheatsOk( ent ) )
     return;
-  }
 
   ent->flags ^= FL_NOTARGET;
-  if (!(ent->flags & FL_NOTARGET) )
+  
+  if( !( ent->flags & FL_NOTARGET ) )
     msg = "notarget OFF\n";
   else
     msg = "notarget ON\n";
 
-  trap_SendServerCommand( ent-g_entities, va("print \"%s\"", msg));
+  trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
 
 
@@ -346,21 +265,21 @@ Cmd_Noclip_f
 argv(0) noclip
 ==================
 */
-void Cmd_Noclip_f( gentity_t *ent ) {
+void Cmd_Noclip_f( gentity_t *ent )
+{
   char  *msg;
 
-  if ( !CheatsOk( ent ) ) {
+  if( !CheatsOk( ent ) )
     return;
-  }
 
-  if ( ent->client->noclip ) {
+  if( ent->client->noclip )
     msg = "noclip OFF\n";
-  } else {
+  else
     msg = "noclip ON\n";
-  }
+
   ent->client->noclip = !ent->client->noclip;
 
-  trap_SendServerCommand( ent-g_entities, va("print \"%s\"", msg));
+  trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
 
 
@@ -380,28 +299,8 @@ void Cmd_LevelShot_f( gentity_t *ent )
     return;
 
   BeginIntermission( );
-  trap_SendServerCommand( ent-g_entities, "clientLevelShot" );
+  trap_SendServerCommand( ent - g_entities, "clientLevelShot" );
 }
-
-
-void Cmd_TeamTask_f( gentity_t *ent ) {
-  char userinfo[MAX_INFO_STRING];
-  char    arg[MAX_TOKEN_CHARS];
-  int task;
-  int client = ent->client - level.clients;
-
-  if ( trap_Argc() != 2 ) {
-    return;
-  }
-  trap_Argv( 1, arg, sizeof( arg ) );
-  task = atoi( arg );
-
-  trap_GetUserinfo(client, userinfo, sizeof(userinfo));
-  Info_SetValueForKey(userinfo, "teamtask", va("%d", task));
-  trap_SetUserinfo(client, userinfo);
-  ClientUserinfoChanged(client);
-}
-
 
 /*
 =================
@@ -628,20 +527,10 @@ static void Cmd_Tell_f( gentity_t *ent )
 Cmd_Where_f
 ==================
 */
-void Cmd_Where_f( gentity_t *ent ) {
-  trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos( ent->s.origin ) ) );
+void Cmd_Where_f( gentity_t *ent )
+{
+  trap_SendServerCommand( ent-g_entities, va( "print \"%s\n\"", vtos( ent->s.origin ) ) );
 }
-
-static const char *gameNames[] = {
-  "Free For All",
-  "Tournament",
-  "Single Player",
-  "Team Deathmatch",
-  "Capture the Flag",
-  "One Flag CTF",
-  "Overload",
-  "Harvester"
-};
 
 /*
 ==================
@@ -1021,28 +910,34 @@ void Cmd_TeamVote_f( gentity_t *ent )
 Cmd_SetViewpos_f
 =================
 */
-void Cmd_SetViewpos_f( gentity_t *ent ) {
-  vec3_t    origin, angles;
-  char    buffer[MAX_TOKEN_CHARS];
+void Cmd_SetViewpos_f( gentity_t *ent )
+{
+  vec3_t  origin, angles;
+  char    buffer[ MAX_TOKEN_CHARS ];
   int     i;
 
-  if ( !g_cheats.integer ) {
-    trap_SendServerCommand( ent-g_entities, va("print \"Cheats are not enabled on this server.\n\""));
+  if( !g_cheats.integer )
+  {
+    trap_SendServerCommand( ent-g_entities, va( "print \"Cheats are not enabled on this server.\n\"" ) );
     return;
   }
-  if ( trap_Argc() != 5 ) {
-    trap_SendServerCommand( ent-g_entities, va("print \"usage: setviewpos x y z yaw\n\""));
+  
+  if( trap_Argc( ) != 5 )
+  {
+    trap_SendServerCommand( ent-g_entities, va( "print \"usage: setviewpos x y z yaw\n\"" ) );
     return;
   }
 
   VectorClear( angles );
-  for ( i = 0 ; i < 3 ; i++ ) {
+  
+  for( i = 0 ; i < 3 ; i++ )
+  {
     trap_Argv( i + 1, buffer, sizeof( buffer ) );
-    origin[i] = atof( buffer );
+    origin[ i ] = atof( buffer );
   }
 
   trap_Argv( 4, buffer, sizeof( buffer ) );
-  angles[YAW] = atof( buffer );
+  angles[ YAW ] = atof( buffer );
 
   TeleportPlayer( ent, origin, angles );
 }
@@ -1640,17 +1535,6 @@ void Cmd_Sell_f( gentity_t *ent )
 
 /*
 =================
-Cmd_Statement_f
-=================
-*/
-void Cmd_Statement_f( gentity_t *ent )
-{
-  trap_SendServerCommand( ent-g_entities, va("print \"Credits: %d\n\"",
-    ent->client->ps.persistant[ PERS_CREDIT ] ) );
-}
-
-/*
-=================
 Cmd_Deposit_f
 =================
 */
@@ -1951,8 +1835,11 @@ void Cmd_Spawnbody_f( gentity_t *ent )
     return;
 
   AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
+  forward[ 2 ] = 0.0f;
+  
   VectorMA( ent->client->ps.origin, 128.0f, forward, dummy->r.currentOrigin );
-
+  dummy->r.currentOrigin[ 2 ] += 64.0f;
+  
   dummy->client->ps.stats[ STAT_PTEAM ] = PTE_HUMANS;
   dummy->client->ps.stats[ STAT_PCLASS ] = PCL_H_BASE;
   
@@ -1963,8 +1850,16 @@ void Cmd_Spawnbody_f( gentity_t *ent )
   G_FreeEntity( dummy );
 }
 
+/*
+=================
+Cmd_Test_f
+=================
+*/
 void Cmd_Test_f( gentity_t *ent )
 {
+  if( !CheatsOk( ent ) )
+    return;
+
   ent->client->ps.stats[ STAT_STATE ] |= SS_KNOCKEDOVER;
   ent->client->lastKnockedOverTime = level.time;
   G_AddPredictableEvent( ent, EV_KNOCKOVER, 0 );
@@ -1981,100 +1876,104 @@ void Cmd_Test_f( gentity_t *ent )
 ClientCommand
 =================
 */
-void ClientCommand( int clientNum ) {
+void ClientCommand( int clientNum )
+{
   gentity_t *ent;
-  char  cmd[MAX_TOKEN_CHARS];
+  char      cmd[ MAX_TOKEN_CHARS ];
 
   ent = g_entities + clientNum;
-  if ( !ent->client ) {
+  if( !ent->client )
     return;   // not fully in game yet
-  }
 
   trap_Argv( 0, cmd, sizeof( cmd ) );
 
-  if (Q_stricmp (cmd, "say") == 0) {
-    Cmd_Say_f (ent, SAY_ALL, qfalse);
+  if( Q_stricmp( cmd, "say" ) == 0 )
+  {
+    Cmd_Say_f( ent, SAY_ALL, qfalse );
     return;
   }
-  if (Q_stricmp (cmd, "say_team") == 0) {
-    Cmd_Say_f (ent, SAY_TEAM, qfalse);
+  
+  if( Q_stricmp( cmd, "say_team" ) == 0 )
+  {
+    Cmd_Say_f( ent, SAY_TEAM, qfalse );
     return;
   }
-  if (Q_stricmp (cmd, "tell") == 0) {
-    Cmd_Tell_f ( ent );
+  
+  if( Q_stricmp( cmd, "tell" ) == 0 )
+  {
+    Cmd_Tell_f( ent );
     return;
   }
-  if (Q_stricmp (cmd, "score") == 0) {
-    Cmd_Score_f (ent);
+  
+  if( Q_stricmp( cmd, "score" ) == 0 )
+  {
+    Cmd_Score_f( ent );
     return;
   }
 
   // ignore all other commands when at intermission
-  if (level.intermissiontime) {
-    Cmd_Say_f (ent, qfalse, qtrue);
+  if( level.intermissiontime )
+  {
+    Cmd_Say_f( ent, qfalse, qtrue );
     return;
   }
 
-  if (Q_stricmp (cmd, "give") == 0)
-    Cmd_Give_f (ent);
-  else if (Q_stricmp (cmd, "god") == 0)
-    Cmd_God_f (ent);
-  else if (Q_stricmp (cmd, "notarget") == 0)
-    Cmd_Notarget_f (ent);
-  else if (Q_stricmp (cmd, "noclip") == 0)
-    Cmd_Noclip_f (ent);
-  else if (Q_stricmp (cmd, "kill") == 0)
-    Cmd_Kill_f (ent);
-  else if (Q_stricmp (cmd, "teamtask") == 0)
-    Cmd_TeamTask_f (ent);
-  else if (Q_stricmp (cmd, "levelshot") == 0)
-    Cmd_LevelShot_f (ent);
-  else if (Q_stricmp (cmd, "team") == 0)
-    Cmd_Team_f (ent);
-  else if (Q_stricmp (cmd, "class") == 0)
+  if( Q_stricmp( cmd, "give" ) == 0 )
+    Cmd_Give_f( ent );
+  else if( Q_stricmp( cmd, "god" ) == 0 )
+    Cmd_God_f( ent );
+  else if( Q_stricmp( cmd, "notarget" ) == 0 )
+    Cmd_Notarget_f( ent );
+  else if( Q_stricmp( cmd, "noclip" ) == 0 )
+    Cmd_Noclip_f( ent );
+  else if( Q_stricmp( cmd, "kill" ) == 0 )
+    Cmd_Kill_f( ent );
+  else if( Q_stricmp( cmd, "levelshot" ) == 0 )
+    Cmd_LevelShot_f( ent );
+  else if( Q_stricmp( cmd, "team" ) == 0 )
+    Cmd_Team_f( ent );
+  else if( Q_stricmp( cmd, "class" ) == 0 )
     Cmd_Class_f( ent );
-  else if (Q_stricmp (cmd, "build") == 0)
+  else if( Q_stricmp( cmd, "build" ) == 0 )
     Cmd_Build_f( ent );
-  else if (Q_stricmp (cmd, "buy") == 0)
+  else if( Q_stricmp( cmd, "buy" ) == 0 )
     Cmd_Buy_f( ent );
-  else if (Q_stricmp (cmd, "sell") == 0)
+  else if( Q_stricmp( cmd, "sell" ) == 0 )
     Cmd_Sell_f( ent );
-  else if (Q_stricmp (cmd, "statement") == 0)
-    Cmd_Statement_f( ent );
-  else if (Q_stricmp (cmd, "deposit") == 0)
+  else if( Q_stricmp( cmd, "deposit" ) == 0 )
     Cmd_Deposit_f( ent );
-  else if (Q_stricmp (cmd, "withdraw") == 0)
+  else if( Q_stricmp( cmd, "withdraw" ) == 0 )
     Cmd_Withdraw_f( ent );
-  else if (Q_stricmp (cmd, "itemact") == 0)
+  else if( Q_stricmp( cmd, "itemact" ) == 0 )
     Cmd_ActivateItem_f( ent );
-  else if (Q_stricmp (cmd, "itemdeact") == 0)
+  else if( Q_stricmp( cmd, "itemdeact" ) == 0 )
     Cmd_DeActivateItem_f( ent );
-  else if (Q_stricmp (cmd, "itemtoggle") == 0)
+  else if( Q_stricmp( cmd, "itemtoggle" ) == 0 )
     Cmd_ToggleItem_f( ent );
-  else if (Q_stricmp (cmd, "destroy") == 0)
+  else if( Q_stricmp( cmd, "destroy" ) == 0 )
     Cmd_Destroy_f( ent, qfalse );
-  else if (Q_stricmp (cmd, "deconstruct") == 0)
+  else if( Q_stricmp( cmd, "deconstruct" ) == 0 )
     Cmd_Destroy_f( ent, qtrue );
-  else if (Q_stricmp (cmd, "echo") == 0)
+  else if( Q_stricmp( cmd, "echo" ) == 0 )
     Cmd_Echo_f( ent );
-  else if (Q_stricmp (cmd, "boost") == 0)
+  else if( Q_stricmp( cmd, "boost" ) == 0 )
     Cmd_Boost_f( ent );
-  else if (Q_stricmp (cmd, "where") == 0)
-    Cmd_Where_f (ent);
-  else if (Q_stricmp (cmd, "callvote") == 0)
-    Cmd_CallVote_f (ent);
-  else if (Q_stricmp (cmd, "vote") == 0)
-    Cmd_Vote_f (ent);
-  else if (Q_stricmp (cmd, "callteamvote") == 0)
-    Cmd_CallTeamVote_f (ent);
-  else if (Q_stricmp (cmd, "teamvote") == 0)
-    Cmd_TeamVote_f (ent);
-  else if (Q_stricmp (cmd, "setviewpos") == 0)
+  else if( Q_stricmp( cmd, "where" ) == 0 )
+    Cmd_Where_f( ent );
+  else if( Q_stricmp( cmd, "callvote" ) == 0 )
+    Cmd_CallVote_f( ent );
+  else if( Q_stricmp( cmd, "vote" ) == 0 )
+    Cmd_Vote_f( ent );
+  else if( Q_stricmp( cmd, "callteamvote" ) == 0 )
+    Cmd_CallTeamVote_f( ent );
+  else if( Q_stricmp( cmd, "teamvote" ) == 0 )
+    Cmd_TeamVote_f( ent );
+  else if( Q_stricmp( cmd, "setviewpos" ) == 0 )
     Cmd_SetViewpos_f( ent );
-  else if (Q_stricmp (cmd, "spawnbody") == 0)
+  else if( Q_stricmp( cmd, "spawnbody" ) == 0 )
     Cmd_Spawnbody_f( ent );
-  else if (Q_stricmp (cmd, "test") == 0)
+  else if( Q_stricmp( cmd, "test" ) == 0 )
     Cmd_Test_f( ent );
   else
-    trap_SendServerCommand( clientNum, va("print \"unknown cmd %s\n\"", cmd ) );
+    trap_SendServerCommand( clientNum, va( "print \"unknown cmd %s\n\"", cmd ) );
 }

@@ -62,32 +62,36 @@ Creates an entity in front of the current position, which
 can then be moved around
 =================
 */
-void CG_TestModel_f (void) {
+void CG_TestModel_f( void )
+{
   vec3_t    angles;
 
-  memset( &cg.testModelEntity, 0, sizeof(cg.testModelEntity) );
-  if ( trap_Argc() < 2 ) {
+  memset( &cg.testModelEntity, 0, sizeof( cg.testModelEntity ) );
+  
+  if( trap_Argc( ) < 2 )
     return;
-  }
 
-  Q_strncpyz (cg.testModelName, CG_Argv( 1 ), MAX_QPATH );
+  Q_strncpyz( cg.testModelName, CG_Argv( 1 ), MAX_QPATH );
   cg.testModelEntity.hModel = trap_R_RegisterModel( cg.testModelName );
 
-  if ( trap_Argc() == 3 ) {
+  if( trap_Argc( ) == 3 )
+  {
     cg.testModelEntity.backlerp = atof( CG_Argv( 2 ) );
     cg.testModelEntity.frame = 1;
     cg.testModelEntity.oldframe = 0;
   }
-  if (! cg.testModelEntity.hModel ) {
+  
+  if( !cg.testModelEntity.hModel )
+  {
     CG_Printf( "Can't register model\n" );
     return;
   }
 
-  VectorMA( cg.refdef.vieworg, 100, cg.refdef.viewaxis[0], cg.testModelEntity.origin );
+  VectorMA( cg.refdef.vieworg, 100, cg.refdef.viewaxis[ 0 ], cg.testModelEntity.origin );
 
-  angles[PITCH] = 0;
-  angles[YAW] = 180 + cg.refdefViewAngles[1];
-  angles[ROLL] = 0;
+  angles[ PITCH ] = 0;
+  angles[ YAW ] = 180 + cg.refdefViewAngles[ 1 ];
+  angles[ ROLL ] = 0;
 
   AnglesToAxis( angles, cg.testModelEntity.axis );
   cg.testGun = qfalse;
@@ -100,61 +104,73 @@ CG_TestGun_f
 Replaces the current view weapon with the given model
 =================
 */
-void CG_TestGun_f (void) {
-  CG_TestModel_f();
+void CG_TestGun_f( void )
+{
+  CG_TestModel_f( );
   cg.testGun = qtrue;
   cg.testModelEntity.renderfx = RF_MINLIGHT | RF_DEPTHHACK | RF_FIRST_PERSON;
 }
 
 
-void CG_TestModelNextFrame_f (void) {
+void CG_TestModelNextFrame_f( void )
+{
   cg.testModelEntity.frame++;
   CG_Printf( "frame %i\n", cg.testModelEntity.frame );
 }
 
-void CG_TestModelPrevFrame_f (void) {
+void CG_TestModelPrevFrame_f( void )
+{
   cg.testModelEntity.frame--;
-  if ( cg.testModelEntity.frame < 0 ) {
+  
+  if( cg.testModelEntity.frame < 0 )
     cg.testModelEntity.frame = 0;
-  }
+  
   CG_Printf( "frame %i\n", cg.testModelEntity.frame );
 }
 
-void CG_TestModelNextSkin_f (void) {
+void CG_TestModelNextSkin_f( void )
+{
   cg.testModelEntity.skinNum++;
   CG_Printf( "skin %i\n", cg.testModelEntity.skinNum );
 }
 
-void CG_TestModelPrevSkin_f (void) {
+void CG_TestModelPrevSkin_f( void )
+{
   cg.testModelEntity.skinNum--;
-  if ( cg.testModelEntity.skinNum < 0 ) {
+  
+  if( cg.testModelEntity.skinNum < 0 )
     cg.testModelEntity.skinNum = 0;
-  }
+
   CG_Printf( "skin %i\n", cg.testModelEntity.skinNum );
 }
 
-static void CG_AddTestModel (void) {
+static void CG_AddTestModel( void )
+{
   int   i;
 
   // re-register the model, because the level may have changed
   cg.testModelEntity.hModel = trap_R_RegisterModel( cg.testModelName );
-  if (! cg.testModelEntity.hModel ) {
+  
+  if( ! cg.testModelEntity.hModel )
+  {
     CG_Printf ("Can't register model\n");
     return;
   }
 
   // if testing a gun, set the origin reletive to the view origin
-  if ( cg.testGun ) {
+  if( cg.testGun )
+  {
     VectorCopy( cg.refdef.vieworg, cg.testModelEntity.origin );
-    VectorCopy( cg.refdef.viewaxis[0], cg.testModelEntity.axis[0] );
-    VectorCopy( cg.refdef.viewaxis[1], cg.testModelEntity.axis[1] );
-    VectorCopy( cg.refdef.viewaxis[2], cg.testModelEntity.axis[2] );
+    VectorCopy( cg.refdef.viewaxis[ 0 ], cg.testModelEntity.axis[ 0 ] );
+    VectorCopy( cg.refdef.viewaxis[ 1 ], cg.testModelEntity.axis[ 1 ] );
+    VectorCopy( cg.refdef.viewaxis[ 2 ], cg.testModelEntity.axis[ 2 ] );
 
     // allow the position to be adjusted
-    for (i=0 ; i<3 ; i++) {
-      cg.testModelEntity.origin[i] += cg.refdef.viewaxis[0][i] * cg_gun_x.value;
-      cg.testModelEntity.origin[i] += cg.refdef.viewaxis[1][i] * cg_gun_y.value;
-      cg.testModelEntity.origin[i] += cg.refdef.viewaxis[2][i] * cg_gun_z.value;
+    for( i = 0; i < 3; i++ )
+    {
+      cg.testModelEntity.origin[ i ] += cg.refdef.viewaxis[ 0 ][ i ] * cg_gun_x.value;
+      cg.testModelEntity.origin[ i ] += cg.refdef.viewaxis[ 1 ][ i ] * cg_gun_y.value;
+      cg.testModelEntity.origin[ i ] += cg.refdef.viewaxis[ 2 ][ i ] * cg_gun_z.value;
     }
   }
 
@@ -173,33 +189,38 @@ CG_CalcVrect
 Sets the coordinates of the rendered window
 =================
 */
-static void CG_CalcVrect (void) {
+static void CG_CalcVrect( void )
+{
   int   size;
 
   // the intermission should allways be full screen
-  if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
+  if( cg.snap->ps.pm_type == PM_INTERMISSION )
     size = 100;
-  } else {
+  else
+  {
     // bound normal viewsize
-    if (cg_viewsize.integer < 30) {
-      trap_Cvar_Set ("cg_viewsize","30");
+    if( cg_viewsize.integer < 30 )
+    {
+      trap_Cvar_Set( "cg_viewsize", "30" );
       size = 30;
-    } else if (cg_viewsize.integer > 100) {
-      trap_Cvar_Set ("cg_viewsize","100");
-      size = 100;
-    } else {
-      size = cg_viewsize.integer;
     }
-
+    else if( cg_viewsize.integer > 100 )
+    {
+      trap_Cvar_Set( "cg_viewsize","100" );
+      size = 100;
+    }
+    else
+      size = cg_viewsize.integer;
   }
-  cg.refdef.width = cgs.glconfig.vidWidth*size/100;
+  
+  cg.refdef.width = cgs.glconfig.vidWidth * size / 100;
   cg.refdef.width &= ~1;
 
-  cg.refdef.height = cgs.glconfig.vidHeight*size/100;
+  cg.refdef.height = cgs.glconfig.vidHeight * size / 100;
   cg.refdef.height &= ~1;
 
-  cg.refdef.x = (cgs.glconfig.vidWidth - cg.refdef.width)/2;
-  cg.refdef.y = (cgs.glconfig.vidHeight - cg.refdef.height)/2;
+  cg.refdef.x = ( cgs.glconfig.vidWidth - cg.refdef.width ) / 2;
+  cg.refdef.y = ( cgs.glconfig.vidHeight - cg.refdef.height ) / 2;
 }
 
 //==============================================================================
@@ -328,7 +349,7 @@ static void CG_StepOffset( void )
     if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
       VectorMA( cg.refdef.vieworg, -stepChange, normal, cg.refdef.vieworg );
     else
-		  cg.refdef.vieworg[2] -= stepChange;
+		  cg.refdef.vieworg[ 2 ] -= stepChange;
 	}
 }
 
@@ -345,17 +366,18 @@ CG_OffsetFirstPersonView
 
 ===============
 */
-static void CG_OffsetFirstPersonView( void ) {
-  float     *origin;
-  float     *angles;
-  float     bob;
-  float     ratio;
-  float     delta;
-  float     speed;
-  float     f;
-  vec3_t    predictedVelocity;
-  int       timeDelta;
-  float     bob2;
+static void CG_OffsetFirstPersonView( void )
+{
+  float         *origin;
+  float         *angles;
+  float         bob;
+  float         ratio;
+  float         delta;
+  float         speed;
+  float         f;
+  vec3_t        predictedVelocity;
+  int           timeDelta;
+  float         bob2;
   vec3_t        normal, baseOrigin;
   playerState_t *ps = &cg.predictedPlayerState;
 	
@@ -370,9 +392,8 @@ static void CG_OffsetFirstPersonView( void ) {
     VectorSet( normal, 0.0f, 0.0f, 1.0f );
   
 
-  if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
+  if( cg.snap->ps.pm_type == PM_INTERMISSION )
     return;
-  }
 
   origin = cg.refdef.vieworg;
   angles = cg.refdefViewAngles;
@@ -380,29 +401,35 @@ static void CG_OffsetFirstPersonView( void ) {
   VectorCopy( origin, baseOrigin );
 
   // if dead, fix the angle and don't add any kick
-  if ( cg.snap->ps.stats[STAT_HEALTH] <= 0 ) {
-    angles[ROLL] = 40;
-    angles[PITCH] = -15;
-    angles[YAW] = cg.snap->ps.generic1;
-    origin[2] += cg.predictedPlayerState.viewheight;
+  if( cg.snap->ps.stats[ STAT_HEALTH ] <= 0 )
+  {
+    angles[ ROLL ] = 40;
+    angles[ PITCH ] = -15;
+    angles[ YAW ] = cg.snap->ps.generic1;
+    origin[ 2 ] += cg.predictedPlayerState.viewheight;
     return;
   }
 
   // add angles based on weapon kick
-  VectorAdd (angles, cg.kick_angles, angles);
+  VectorAdd( angles, cg.kick_angles, angles );
 
   // add angles based on damage kick
-  if ( cg.damageTime ) {
+  if( cg.damageTime )
+  {
     ratio = cg.time - cg.damageTime;
-    if ( ratio < DAMAGE_DEFLECT_TIME ) {
+    if( ratio < DAMAGE_DEFLECT_TIME )
+    {
       ratio /= DAMAGE_DEFLECT_TIME;
-      angles[PITCH] += ratio * cg.v_dmg_pitch;
-      angles[ROLL] += ratio * cg.v_dmg_roll;
-    } else {
+      angles[ PITCH ] += ratio * cg.v_dmg_pitch;
+      angles[ ROLL ] += ratio * cg.v_dmg_roll;
+    }
+    else
+    {
       ratio = 1.0 - ( ratio - DAMAGE_DEFLECT_TIME ) / DAMAGE_RETURN_TIME;
-      if ( ratio > 0 ) {
-        angles[PITCH] += ratio * cg.v_dmg_pitch;
-        angles[ROLL] += ratio * cg.v_dmg_roll;
+      if( ratio > 0 )
+      {
+        angles[ PITCH ] += ratio * cg.v_dmg_pitch;
+        angles[ ROLL ] += ratio * cg.v_dmg_roll;
       }
     }
   }
@@ -418,11 +445,11 @@ static void CG_OffsetFirstPersonView( void ) {
   // add angles based on velocity
   VectorCopy( cg.predictedPlayerState.velocity, predictedVelocity );
 
-  delta = DotProduct ( predictedVelocity, cg.refdef.viewaxis[0]);
-  angles[PITCH] += delta * cg_runpitch.value;
+  delta = DotProduct( predictedVelocity, cg.refdef.viewaxis[ 0 ] );
+  angles[ PITCH ] += delta * cg_runpitch.value;
 
-  delta = DotProduct ( predictedVelocity, cg.refdef.viewaxis[1]);
-  angles[ROLL] -= delta * cg_runroll.value;
+  delta = DotProduct( predictedVelocity, cg.refdef.viewaxis[ 1 ] );
+  angles[ ROLL ] -= delta * cg_runroll.value;
 
   // add angles based on bob
   //TA: bob amount is class dependant
@@ -433,15 +460,18 @@ static void CG_OffsetFirstPersonView( void ) {
     speed = cg.xyspeed > 200 ? cg.xyspeed : 200;
 
     delta = cg.bobfracsin * ( bob2 ) * speed;
-    if (cg.predictedPlayerState.pm_flags & PMF_DUCKED)
+    if( cg.predictedPlayerState.pm_flags & PMF_DUCKED )
       delta *= 3;   // crouching
-    angles[PITCH] += delta;
+    
+    angles[ PITCH ] += delta;
     delta = cg.bobfracsin * ( bob2 ) * speed;
-    if (cg.predictedPlayerState.pm_flags & PMF_DUCKED)
+    if( cg.predictedPlayerState.pm_flags & PMF_DUCKED )
       delta *= 3;   // crouching accentuates roll
-    if (cg.bobcycle & 1)
+    
+    if( cg.bobcycle & 1 )
       delta = -delta;
-    angles[ROLL] += delta;
+    
+    angles[ ROLL ] += delta;
   }
 
   //provide some feedback for pouncing
@@ -665,77 +695,68 @@ static void CG_OffsetFirstPersonView( void ) {
   if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBING )
     VectorMA( origin, ps->viewheight, normal, origin );
   else
-    origin[2] += cg.predictedPlayerState.viewheight;
+    origin[ 2 ] += cg.predictedPlayerState.viewheight;
   
   // smooth out duck height changes
   timeDelta = cg.time - cg.duckTime;
-  if ( timeDelta < DUCK_TIME) {
-    cg.refdef.vieworg[2] -= cg.duckChange
-      * (DUCK_TIME - timeDelta) / DUCK_TIME;
+  if( timeDelta < DUCK_TIME)
+  {
+    cg.refdef.vieworg[ 2 ] -= cg.duckChange
+      * ( DUCK_TIME - timeDelta ) / DUCK_TIME;
   }
 
   // add bob height
   bob = cg.bobfracsin * cg.xyspeed * cg_bobup.value;
-  if (bob > 6) {
+  
+  if( bob > 6 )
     bob = 6;
-  }
 
   //TA: likewise for bob
   if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBING )
     VectorMA( origin, bob, normal, origin );
   else
-    origin[2] += bob;
+    origin[ 2 ] += bob;
 
 
   // add fall height
   delta = cg.time - cg.landTime;
+  
   if( delta < LAND_DEFLECT_TIME )
   {
     f = delta / LAND_DEFLECT_TIME;
-    cg.refdef.vieworg[2] += cg.landChange * f;
+    cg.refdef.vieworg[ 2 ] += cg.landChange * f;
   }
   else if( delta < LAND_DEFLECT_TIME + LAND_RETURN_TIME )
   {
     delta -= LAND_DEFLECT_TIME;
     f = 1.0 - ( delta / LAND_RETURN_TIME );
-    cg.refdef.vieworg[2] += cg.landChange * f;
+    cg.refdef.vieworg[ 2 ] += cg.landChange * f;
   }
 
   // add step offset
-  CG_StepOffset();
+  CG_StepOffset( );
 
   // add kick offset
 
   VectorAdd (origin, cg.kick_origin, origin);
-
-  // pivot the eye based on a neck length
-#if 0
-  {
-#define NECK_LENGTH   8
-  vec3_t      forward, up;
-
-  cg.refdef.vieworg[2] -= NECK_LENGTH;
-  AngleVectors( cg.refdefViewAngles, forward, NULL, up );
-  VectorMA( cg.refdef.vieworg, 3, forward, cg.refdef.vieworg );
-  VectorMA( cg.refdef.vieworg, NECK_LENGTH, up, cg.refdef.vieworg );
-  }
-#endif
 }
 
 //======================================================================
 
-void CG_ZoomDown_f( void ) {
-  if ( cg.zoomed ) {
+void CG_ZoomDown_f( void )
+{
+  if( cg.zoomed )
     return;
-  }
+
   cg.zoomed = qtrue;
   cg.zoomTime = cg.time;
 }
 
-void CG_ZoomUp_f( void ) {
-  if ( !cg.zoomed ) {
+void CG_ZoomUp_f( void )
+{
+  if( !cg.zoomed )
     return;
-  }
+
   cg.zoomed = qfalse;
   cg.zoomTime = cg.time;
 }
@@ -753,7 +774,8 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 
 #define FOVWARPTIME     400.0
 
-static int CG_CalcFov( void ) {
+static int CG_CalcFov( void )
+{
   float x;
   float phase;
   float v;
@@ -768,7 +790,8 @@ static int CG_CalcFov( void ) {
 
   attribFov = BG_FindFovForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
 
-  if ( cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
+  if( cg.predictedPlayerState.pm_type == PM_INTERMISSION )
+  {
     // if in intermission, use a fixed value
     fov_x = 90;
   }
@@ -832,16 +855,17 @@ static int CG_CalcFov( void ) {
 
   // warp if underwater
   contents = CG_PointContents( cg.refdef.vieworg, -1 );
-  if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ){
+  
+  if( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) )
+  {
     phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
     v = WAVE_AMPLITUDE * sin( phase );
     fov_x += v;
     fov_y -= v;
     inwater = qtrue;
   }
-  else {
+  else
     inwater = qfalse;
-  }
 
   if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_POISONCLOUDED &&
       cg.predictedPlayerState.stats[ STAT_HEALTH ] > 0 )
@@ -858,11 +882,10 @@ static int CG_CalcFov( void ) {
   cg.refdef.fov_x = fov_x;
   cg.refdef.fov_y = fov_y;
 
-  if ( !cg.zoomed ) {
+  if( !cg.zoomed )
     cg.zoomSensitivity = 1;
-  } else {
+  else
     cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
-  }
 
   return inwater;
 }
@@ -875,41 +898,40 @@ CG_DamageBlendBlob
 
 ===============
 */
-static void CG_DamageBlendBlob( void ) {
-  int     t;
-  int     maxTime;
-  refEntity_t   ent;
+static void CG_DamageBlendBlob( void )
+{
+  int         t;
+  int         maxTime;
+  refEntity_t ent;
 
-  if ( !cg.damageValue ) {
+  if( !cg.damageValue )
     return;
-  }
 
   // ragePro systems can't fade blends, so don't obscure the screen
-  if ( cgs.glconfig.hardwareType == GLHW_RAGEPRO ) {
+  if( cgs.glconfig.hardwareType == GLHW_RAGEPRO )
     return;
-  }
 
   maxTime = DAMAGE_TIME;
   t = cg.time - cg.damageTime;
-  if ( t <= 0 || t >= maxTime ) {
+  
+  if( t <= 0 || t >= maxTime )
     return;
-  }
 
 
   memset( &ent, 0, sizeof( ent ) );
   ent.reType = RT_SPRITE;
   ent.renderfx = RF_FIRST_PERSON;
 
-  VectorMA( cg.refdef.vieworg, 8, cg.refdef.viewaxis[0], ent.origin );
-  VectorMA( ent.origin, cg.damageX * -8, cg.refdef.viewaxis[1], ent.origin );
-  VectorMA( ent.origin, cg.damageY * 8, cg.refdef.viewaxis[2], ent.origin );
+  VectorMA( cg.refdef.vieworg, 8, cg.refdef.viewaxis[ 0 ], ent.origin );
+  VectorMA( ent.origin, cg.damageX * -8, cg.refdef.viewaxis[ 1 ], ent.origin );
+  VectorMA( ent.origin, cg.damageY * 8, cg.refdef.viewaxis[ 2 ], ent.origin );
 
   ent.radius = cg.damageValue * 3;
   ent.customShader = cgs.media.viewBloodShader;
-  ent.shaderRGBA[0] = 255;
-  ent.shaderRGBA[1] = 255;
-  ent.shaderRGBA[2] = 255;
-  ent.shaderRGBA[3] = 200 * ( 1.0 - ((float)t / maxTime) );
+  ent.shaderRGBA[ 0 ] = 255;
+  ent.shaderRGBA[ 1 ] = 255;
+  ent.shaderRGBA[ 2 ] = 255;
+  ent.shaderRGBA[ 3 ] = 200 * ( 1.0 - ( (float)t / maxTime) );
   trap_R_AddRefEntityToScene( &ent );
 }
 
@@ -934,41 +956,41 @@ static void CG_DrawSurfNormal( void )
   CG_Trace( &tr, cg.refdef.vieworg, NULL, NULL, end, cg.predictedPlayerState.clientNum, MASK_SOLID );
   //CG_Printf( "%f %f %f\n", tr.plane.normal[ 0 ], tr.plane.normal[ 1 ], tr.plane.normal[ 2 ] );
 
-  VectorCopy( tr.endpos, normal[0].xyz );
-  normal[0].st[0] = 0;
-  normal[0].st[1] = 0;
-  normal[0].modulate[0] = 255;
-  normal[0].modulate[1] = 255;
-  normal[0].modulate[2] = 255;
-  normal[0].modulate[3] = 255;
+  VectorCopy( tr.endpos, normal[ 0 ].xyz );
+  normal[ 0 ].st[ 0 ] = 0;
+  normal[ 0 ].st[ 1 ] = 0;
+  normal[ 0 ].modulate[ 0 ] = 255;
+  normal[ 0 ].modulate[ 1 ] = 255;
+  normal[ 0 ].modulate[ 2 ] = 255;
+  normal[ 0 ].modulate[ 3 ] = 255;
 
   VectorAdd( up, tr.endpos, temp );
-  VectorCopy( temp, normal[1].xyz);
-  normal[1].st[0] = 0;
-  normal[1].st[1] = 1;
-  normal[1].modulate[0] = 255;
-  normal[1].modulate[1] = 255;
-  normal[1].modulate[2] = 255;
-  normal[1].modulate[3] = 255;
+  VectorCopy( temp, normal[ 1 ].xyz);
+  normal[ 1 ].st[ 0 ] = 0;
+  normal[ 1 ].st[ 1 ] = 1;
+  normal[ 1 ].modulate[ 0 ] = 255;
+  normal[ 1 ].modulate[ 1 ] = 255;
+  normal[ 1 ].modulate[ 2 ] = 255;
+  normal[ 1 ].modulate[ 3 ] = 255;
 
   VectorMA( tr.endpos, 64, tr.plane.normal, temp );
   VectorAdd( temp, up, temp );
-  VectorCopy( temp, normal[2].xyz );
-  normal[2].st[0] = 1;
-  normal[2].st[1] = 1;
-  normal[2].modulate[0] = 255;
-  normal[2].modulate[1] = 255;
-  normal[2].modulate[2] = 255;
-  normal[2].modulate[3] = 255;
+  VectorCopy( temp, normal[ 2 ].xyz );
+  normal[ 2 ].st[ 0 ] = 1;
+  normal[ 2 ].st[ 1 ] = 1;
+  normal[ 2 ].modulate[ 0 ] = 255;
+  normal[ 2 ].modulate[ 1 ] = 255;
+  normal[ 2 ].modulate[ 2 ] = 255;
+  normal[ 2 ].modulate[ 3 ] = 255;
 
   VectorMA( tr.endpos, 64, tr.plane.normal, temp );
-  VectorCopy( temp, normal[3].xyz );
-  normal[3].st[0] = 1;
-  normal[3].st[1] = 0;
-  normal[3].modulate[0] = 255;
-  normal[3].modulate[1] = 255;
-  normal[3].modulate[2] = 255;
-  normal[3].modulate[3] = 255;
+  VectorCopy( temp, normal[ 3 ].xyz );
+  normal[ 3 ].st[ 0 ] = 1;
+  normal[ 3 ].st[ 1 ] = 0;
+  normal[ 3 ].modulate[ 0 ] = 255;
+  normal[ 3 ].modulate[ 1 ] = 255;
+  normal[ 3 ].modulate[ 2 ] = 255;
+  normal[ 3 ].modulate[ 3 ] = 255;
 
   trap_R_AddPolyToScene( cgs.media.whiteShader, 4, normal );
 }
@@ -1096,7 +1118,8 @@ CG_CalcViewValues
 Sets cg.refdef view values
 ===============
 */
-static int CG_CalcViewValues( void ) {
+static int CG_CalcViewValues( void )
+{
   playerState_t *ps;
 
   memset( &cg.refdef, 0, sizeof( cg.refdef ) );
@@ -1106,22 +1129,24 @@ static int CG_CalcViewValues( void ) {
   // Q_strncpyz( cg.refdef.text[1], "19", sizeof(cg.refdef.text[1]) );
 
   // calculate size of 3D view
-  CG_CalcVrect();
+  CG_CalcVrect( );
 
   ps = &cg.predictedPlayerState;
 
   // intermission view
-  if ( ps->pm_type == PM_INTERMISSION ) {
+  if( ps->pm_type == PM_INTERMISSION )
+  {
     VectorCopy( ps->origin, cg.refdef.vieworg );
     VectorCopy( ps->viewangles, cg.refdefViewAngles );
     AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );
-    return CG_CalcFov();
+    
+    return CG_CalcFov( );
   }
 
   cg.bobcycle = ( ps->bobCycle & 128 ) >> 7;
   cg.bobfracsin = fabs( sin( ( ps->bobCycle & 127 ) / 127.0 * M_PI ) );
-  cg.xyspeed = sqrt( ps->velocity[0] * ps->velocity[0] +
-    ps->velocity[1] * ps->velocity[1] );
+  cg.xyspeed = sqrt( ps->velocity[ 0 ] * ps->velocity[ 0 ] +
+    ps->velocity[ 1 ] * ps->velocity[ 1 ] );
 
   VectorCopy( ps->origin, cg.refdef.vieworg );
 
@@ -1133,72 +1158,44 @@ static int CG_CalcViewValues( void ) {
   if( !( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
     VectorSet( cg.lastNormal, 0.0f, 0.0f, 1.0f );
 
-  if (cg_cameraOrbit.integer) {
-    if (cg.time > cg.nextOrbitTime) {
-      cg.nextOrbitTime = cg.time + cg_cameraOrbitDelay.integer;
-      cg_thirdPersonAngle.value += cg_cameraOrbit.value;
-    }
-  }
   // add error decay
-  if ( cg_errorDecay.value > 0 ) {
+  if( cg_errorDecay.value > 0 )
+  {
     int   t;
     float f;
 
     t = cg.time - cg.predictedErrorTime;
     f = ( cg_errorDecay.value - t ) / cg_errorDecay.value;
-    if ( f > 0 && f < 1 ) {
+    
+    if( f > 0 && f < 1 )
       VectorMA( cg.refdef.vieworg, f, cg.predictedError, cg.refdef.vieworg );
-    } else {
+    else
       cg.predictedErrorTime = 0;
-    }
   }
 
-  if ( cg.renderingThirdPerson ) {
+  if( cg.renderingThirdPerson )
+  {
     // back away from character
-    CG_OffsetThirdPersonView();
-  } else {
+    CG_OffsetThirdPersonView( );
+  }
+  else
+  {
     // offset for local bobbing and kicks
-    CG_OffsetFirstPersonView();
+    CG_OffsetFirstPersonView( );
   }
 
   // position eye reletive to origin
   AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );
 
-  if ( cg.hyperspace ) {
+  if( cg.hyperspace )
     cg.refdef.rdflags |= RDF_NOWORLDMODEL | RDF_HYPERSPACE;
-  }
 
   //draw the surface normal looking at
   if( cg_drawSurfNormal.integer )
     CG_DrawSurfNormal( );
 
   // field of view
-  return CG_CalcFov();
-}
-
-
-/*
-=====================
-CG_PowerupTimerSounds
-=====================
-*/
-static void CG_PowerupTimerSounds( void ) {
-  int   i;
-  int   t;
-
-  // powerup timers going away
-  for ( i = 0 ; i < MAX_POWERUPS ; i++ ) {
-    t = cg.snap->ps.powerups[i];
-    if ( t <= cg.time ) {
-      continue;
-    }
-    if ( t - cg.time >= POWERUP_BLINKS * POWERUP_BLINK_TIME ) {
-      continue;
-    }
-    if ( ( t - cg.time ) / POWERUP_BLINK_TIME != ( t - cg.oldTime ) / POWERUP_BLINK_TIME ) {
-      trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.wearOffSound );
-    }
-  }
+  return CG_CalcFov( );
 }
 
 /*
@@ -1206,14 +1203,16 @@ static void CG_PowerupTimerSounds( void ) {
 CG_AddBufferedSound
 =====================
 */
-void CG_AddBufferedSound( sfxHandle_t sfx ) {
-  if ( !sfx )
+void CG_AddBufferedSound( sfxHandle_t sfx )
+{
+  if( !sfx )
     return;
-  cg.soundBuffer[cg.soundBufferIn] = sfx;
-  cg.soundBufferIn = (cg.soundBufferIn + 1) % MAX_SOUNDBUFFER;
-  if (cg.soundBufferIn == cg.soundBufferOut) {
+  
+  cg.soundBuffer[ cg.soundBufferIn ] = sfx;
+  cg.soundBufferIn = ( cg.soundBufferIn + 1 ) % MAX_SOUNDBUFFER;
+  
+  if( cg.soundBufferIn == cg.soundBufferOut )
     cg.soundBufferOut++;
-  }
 }
 
 /*
@@ -1221,12 +1220,15 @@ void CG_AddBufferedSound( sfxHandle_t sfx ) {
 CG_PlayBufferedSounds
 =====================
 */
-static void CG_PlayBufferedSounds( void ) {
-  if ( cg.soundTime < cg.time ) {
-    if (cg.soundBufferOut != cg.soundBufferIn && cg.soundBuffer[cg.soundBufferOut]) {
-      trap_S_StartLocalSound(cg.soundBuffer[cg.soundBufferOut], CHAN_ANNOUNCER);
-      cg.soundBuffer[cg.soundBufferOut] = 0;
-      cg.soundBufferOut = (cg.soundBufferOut + 1) % MAX_SOUNDBUFFER;
+static void CG_PlayBufferedSounds( void )
+{
+  if( cg.soundTime < cg.time )
+  {
+    if( cg.soundBufferOut != cg.soundBufferIn && cg.soundBuffer[ cg.soundBufferOut ] )
+    {
+      trap_S_StartLocalSound( cg.soundBuffer[ cg.soundBufferOut ], CHAN_ANNOUNCER );
+      cg.soundBuffer[ cg.soundBufferOut ] = 0;
+      cg.soundBufferOut = ( cg.soundBufferOut + 1 ) % MAX_SOUNDBUFFER;
       cg.soundTime = cg.time + 750;
     }
   }
@@ -1241,35 +1243,38 @@ CG_DrawActiveFrame
 Generates and draws a game scene and status information at the given time.
 =================
 */
-void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback ) {
+void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback )
+{
   int   inwater;
 
   cg.time = serverTime;
   cg.demoPlayback = demoPlayback;
 
   // update cvars
-  CG_UpdateCvars();
+  CG_UpdateCvars( );
 
   // if we are only updating the screen as a loading
   // pacifier, don't even try to read snapshots
-  if ( cg.infoScreenText[0] != 0 ) {
+  if( cg.infoScreenText[ 0 ] != 0 )
+  {
     CG_DrawLoadingScreen( );
     return;
   }
 
   // any looped sounds will be respecified as entities
   // are added to the render list
-  trap_S_ClearLoopingSounds(qfalse);
+  trap_S_ClearLoopingSounds( qfalse );
 
   // clear all the render lists
-  trap_R_ClearScene();
+  trap_R_ClearScene( );
 
   // set up cg.snap and possibly cg.nextSnap
-  CG_ProcessSnapshots();
+  CG_ProcessSnapshots( );
 
   // if we haven't received any snapshots yet, all
   // we can draw is the information screen
-  if ( !cg.snap || ( cg.snap->snapFlags & SNAPFLAG_NOT_ACTIVE ) ) {
+  if( !cg.snap || ( cg.snap->snapFlags & SNAPFLAG_NOT_ACTIVE ) )
+  {
     CG_DrawLoadingScreen( );
     return;
   }
@@ -1281,45 +1286,40 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
   cg.clientFrame++;
 
   // update cg.predictedPlayerState
-  CG_PredictPlayerState();
+  CG_PredictPlayerState( );
 
   // decide on third person view
-  cg.renderingThirdPerson = cg_thirdPerson.integer || (cg.snap->ps.stats[STAT_HEALTH] <= 0);
+  cg.renderingThirdPerson = cg_thirdPerson.integer || ( cg.snap->ps.stats[ STAT_HEALTH ] <= 0 );
 
   // build cg.refdef
-  inwater = CG_CalcViewValues();
+  inwater = CG_CalcViewValues( );
 
   // first person blend blobs, done after AnglesToAxis
-  if ( !cg.renderingThirdPerson ) {
-    CG_DamageBlendBlob();
-  }
+  if( !cg.renderingThirdPerson )
+    CG_DamageBlendBlob( );
 
   // build the render lists
-  if ( !cg.hyperspace ) {
-    CG_AddPacketEntities();     // adter calcViewValues, so predicted player state is correct
-    CG_AddMarks();
-    CG_AddLocalEntities();
+  if( !cg.hyperspace )
+  {
+    CG_AddPacketEntities( );     // adter calcViewValues, so predicted player state is correct
+    CG_AddMarks( );
+    CG_AddLocalEntities( );
 
     //TA: wolf trails stuff
 		CG_AddTrails( );		// this must come last, so the trails dropped this frame get drawn
   }
+  
   CG_AddViewWeapon( &cg.predictedPlayerState );
 
   // add buffered sounds
-  CG_PlayBufferedSounds();
-
-  // play buffered voice chats
-  CG_PlayBufferedVoiceChats();
+  CG_PlayBufferedSounds( );
 
   // finish up the rest of the refdef
-  if ( cg.testModelEntity.hModel ) {
-    CG_AddTestModel();
-  }
+  if( cg.testModelEntity.hModel )
+    CG_AddTestModel( );
+  
   cg.refdef.time = cg.time;
   memcpy( cg.refdef.areamask, cg.snap->areamask, sizeof( cg.refdef.areamask ) );
-
-  // warning sounds when powerup is wearing off
-  /*CG_PowerupTimerSounds();*/
 
   //remove expired console lines
   if( cg.consoleLines[ 0 ].time + cg_consoleLatency.integer < cg.time && cg_consoleLatency.integer > 0 )
@@ -1329,35 +1329,40 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
   trap_S_Respatialize( cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater );
 
   // make sure the lagometerSample and frame timing isn't done twice when in stereo
-  if ( stereoView != STEREO_RIGHT ) {
+  if( stereoView != STEREO_RIGHT )
+  {
     cg.frametime = cg.time - cg.oldTime;
-    if ( cg.frametime < 0 ) {
+    
+    if( cg.frametime < 0 )
       cg.frametime = 0;
-    }
+    
     cg.oldTime = cg.time;
-    CG_AddLagometerFrameInfo();
+    CG_AddLagometerFrameInfo( );
   }
-  if (cg_timescale.value != cg_timescaleFadeEnd.value) {
-    if (cg_timescale.value < cg_timescaleFadeEnd.value) {
-      cg_timescale.value += cg_timescaleFadeSpeed.value * ((float)cg.frametime) / 1000;
-      if (cg_timescale.value > cg_timescaleFadeEnd.value)
+  
+  if( cg_timescale.value != cg_timescaleFadeEnd.value )
+  {
+    if( cg_timescale.value < cg_timescaleFadeEnd.value )
+    {
+      cg_timescale.value += cg_timescaleFadeSpeed.value * ( (float)cg.frametime ) / 1000;
+      if( cg_timescale.value > cg_timescaleFadeEnd.value )
         cg_timescale.value = cg_timescaleFadeEnd.value;
     }
-    else {
-      cg_timescale.value -= cg_timescaleFadeSpeed.value * ((float)cg.frametime) / 1000;
-      if (cg_timescale.value < cg_timescaleFadeEnd.value)
+    else
+    {
+      cg_timescale.value -= cg_timescaleFadeSpeed.value * ( (float)cg.frametime ) / 1000;
+      if( cg_timescale.value < cg_timescaleFadeEnd.value )
         cg_timescale.value = cg_timescaleFadeEnd.value;
     }
-    if (cg_timescaleFadeSpeed.value) {
-      trap_Cvar_Set("timescale", va("%f", cg_timescale.value));
-    }
+    
+    if( cg_timescaleFadeSpeed.value )
+      trap_Cvar_Set( "timescale", va( "%f", cg_timescale.value ) );
   }
 
   // actually issue the rendering calls
   CG_DrawActive( stereoView );
 
-  if ( cg_stats.integer ) {
+  if( cg_stats.integer )
     CG_Printf( "cg.clientFrame:%i\n", cg.clientFrame );
-  }
 }
 
