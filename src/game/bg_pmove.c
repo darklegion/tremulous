@@ -1390,29 +1390,9 @@ static void PM_GroundClimbTrace( void )
   CrossProduct( surfNormal, right, movedir );
   VectorNormalize( movedir );
 
-  //rotate this direction vector based upon what direction the player is /trying/ to move to
-  /*if( pm->cmd.forwardmove || pm->cmd.rightmove )
-  {
-    if( ( pm->cmd.rightmove < 0 ) && ( pm->cmd.forwardmove > 0 ) )
-      RotatePointAroundVector( movedir, surfNormal, movedir, 45 );
-    else if( ( pm->cmd.rightmove < 0 ) && ( pm->cmd.forwardmove == 0 ) )
-      RotatePointAroundVector( movedir, surfNormal, movedir, 90 );
-    else if( ( pm->cmd.rightmove < 0 ) && ( pm->cmd.forwardmove < 0 ) )
-      RotatePointAroundVector( movedir, surfNormal, movedir, 135 );
-    else if( ( pm->cmd.rightmove == 0 ) && ( pm->cmd.forwardmove < 0 ) )
-      RotatePointAroundVector( movedir, surfNormal, movedir, 180 );
-    else if( ( pm->cmd.rightmove > 0 ) && ( pm->cmd.forwardmove < 0 ) )
-      RotatePointAroundVector( movedir, surfNormal, movedir, -135 );
-    else if( ( pm->cmd.rightmove > 0 ) && ( pm->cmd.forwardmove == 0 ) )
-      RotatePointAroundVector( movedir, surfNormal, movedir, -90 );
-    else if( ( pm->cmd.rightmove > 0 ) && ( pm->cmd.forwardmove > 0 ) )
-      RotatePointAroundVector( movedir, surfNormal, movedir, -45 );
-  }*/
-
-  //TA: 3am, code make no sense, but code work... leave it be...
+  //TA: FIXME: this could be improved to include strafing
   if( pm->cmd.forwardmove < 0 )
-    VectorInverse( movedir );
-    //RotatePointAroundVector( movedir, surfNormal, movedir, 180 );
+    VectorNegate( movedir, movedir );
 
   for(i = 0; i <= 3; i++)
   {
