@@ -2325,7 +2325,17 @@ static void PM_Weapon( void )
   if( attack3 )
   {
     if( BG_WeaponHasThirdMode( pm->ps->weapon ) )
+    {
+      //hacky special case for slowblob
+      if( pm->ps->weapon == WP_POUNCE_UPG && !ammo )
+      {
+        PM_AddEvent( EV_NOAMMO );
+        pm->ps->weaponTime += 200;
+        return;
+      }
+
       PM_AddEvent( EV_FIRE_WEAPON3 );
+    }
     else
     {
       pm->ps->weaponTime = 0;
@@ -2390,6 +2400,12 @@ static void PM_Weapon( void )
     else
       ammo--;
     
+    BG_packAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
+  }
+  else if( pm->ps->weapon == WP_POUNCE_UPG && attack3 )
+  {
+    //special case for slowblob
+    ammo--;
     BG_packAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
   }
   

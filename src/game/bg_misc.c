@@ -1294,6 +1294,7 @@ classAttributes_t bg_classList[ ] =
     50,                                             //int     health;
     5,                                              //int     regenRate;
     SCA_TAKESFALLDAMAGE|SCA_FOVWARPS,               //int     abilities;
+    WP_ABUILD,                                      //weapon_t  startWeapon
     95.0f,                                          //float   buildDist;
     80,                                             //int     fov;
     0.001f,                                         //float   bob;
@@ -1321,6 +1322,7 @@ classAttributes_t bg_classList[ ] =
     75,                                             //int     health;
     5,                                              //int     regenRate;
     SCA_CANJUMP|SCA_FOVWARPS|SCA_WALLCLIMBER,       //int     abilities;
+    WP_ABUILD2,                                     //weapon_t  startWeapon
     95.0f,                                          //float   buildDist;
     110,                                            //int     fov;
     0.001f,                                         //float   bob;
@@ -1348,6 +1350,7 @@ classAttributes_t bg_classList[ ] =
     25,                                                         //int     health;
     5,                                                          //int     regenRate;
     SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS|SCA_ALIENSENSE, //int     abilities;
+    WP_VENOM,                                                   //weapon_t  startWeapon
     0.0f,                                                       //float   buildDist;
     140,                                                        //int     fov;
     0.0f,                                                       //float   bob;
@@ -1375,6 +1378,7 @@ classAttributes_t bg_classList[ ] =
     50,                                           //int     health;
     5,                                            //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    WP_GRAB_CLAW,                                 //weapon_t  startWeapon
     0.0f,                                         //float   buildDist;
     120,                                          //int     fov;
     0.001f,                                       //float   bob;
@@ -1402,6 +1406,7 @@ classAttributes_t bg_classList[ ] =
     50,                                           //int     health;
     5,                                            //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    WP_GRAB_CLAW,                                 //weapon_t  startWeapon
     0.0f,                                         //float   buildDist;
     120,                                          //int     fov;
     0.001f,                                       //float   bob;
@@ -1429,6 +1434,7 @@ classAttributes_t bg_classList[ ] =
     50,                                           //int     health;
     5,                                            //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    WP_POUNCE,                                    //weapon_t  startWeapon
     0.0f,                                         //float   buildDist;
     120,                                          //int     fov;
     0.0005f,                                      //float   bob;
@@ -1456,6 +1462,7 @@ classAttributes_t bg_classList[ ] =
     50,                                           //int     health;
     5,                                            //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    WP_POUNCE_UPG,                                //weapon_t  startWeapon
     0.0f,                                         //float   buildDist;
     120,                                          //int     fov;
     0.0005f,                                      //float   bob;
@@ -1483,6 +1490,7 @@ classAttributes_t bg_classList[ ] =
     100,                                          //int     health;
     5,                                            //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    WP_AREA_ZAP,                                  //weapon_t  startWeapon
     0.0f,                                         //float   buildDist;
     130,                                          //int     fov;
     0.0f,                                         //float   bob;
@@ -1510,6 +1518,7 @@ classAttributes_t bg_classList[ ] =
     100,                                          //int     health;
     5,                                            //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    WP_DIRECT_ZAP,                                //weapon_t  startWeapon
     0.0f,                                         //float   buildDist;
     130,                                          //int     fov;
     0.0f,                                         //float   bob;
@@ -1537,6 +1546,7 @@ classAttributes_t bg_classList[ ] =
     100,                                          //int     health;
     5,                                            //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    WP_VENOM,                                     //weapon_t  startWeapon
     0.0f,                                         //float   buildDist;
     130,                                          //int     fov;
     0.0f,                                         //float   bob;
@@ -1564,6 +1574,7 @@ classAttributes_t bg_classList[ ] =
     100,                                        //int     health;
     0,                                          //int     regenRate;
     SCA_TAKESFALLDAMAGE|SCA_CANJUMP,            //int     abilities;
+    WP_NONE, //special-cased in g_client.c      //weapon_t  startWeapon
     110.0f,                                     //float   buildDist;
     90,                                         //int     fov;
     0.002f,                                     //float   bob;
@@ -1955,6 +1966,26 @@ qboolean BG_ClassHasAbility( int pclass, int ability )
     return qtrue;
   else
     return qfalse;
+}
+
+/*
+==============
+BG_FindStartWeaponForClass
+==============
+*/
+weapon_t BG_FindStartWeaponForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].startWeapon;
+    }
+  }
+  
+  return WP_NONE;
 }
 
 /*
@@ -2460,7 +2491,7 @@ weaponAttributes_t bg_weapons[ ] =
     "Claw and pounce (upgrade)", //char      *weaponHumanName;
     { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
     "icons/iconw_gauntlet",
-    0,                    //int       quan;
+    3,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;

@@ -847,43 +847,45 @@ typedef struct gitem_s {
 //TA: player class record
 typedef struct
 {
-  int     classNum;
+  int       classNum;
 
-  char    *className;
-  char    *humanName;
+  char      *className;
+  char      *humanName;
   
-  char    *modelName;
-  char    *skinName;
+  char      *modelName;
+  char      *skinName;
   
-  char    *hudName;
+  char      *hudName;
   
-  int     stages;
+  int       stages;
   
-  vec3_t  mins;
-  vec3_t  maxs;
-  vec3_t  crouchMaxs;
-  vec3_t  deadMins;
-  vec3_t  deadMaxs;
+  vec3_t    mins;
+  vec3_t    maxs;
+  vec3_t    crouchMaxs;
+  vec3_t    deadMins;
+  vec3_t    deadMaxs;
   
-  int     viewheight;
-  int     crouchViewheight;
+  int       viewheight;
+  int       crouchViewheight;
   
-  int     health;
-  int     regenRate;
+  int       health;
+  int       regenRate;
   
-  int     abilities;
+  int       abilities;
   
-  float   buildDist;
+  weapon_t  startWeapon;
   
-  int     fov;
-  float   bob;
-  int     steptime;
-  float   speed;
-  float   sticky;
+  float     buildDist;
+  
+  int       fov;
+  float     bob;
+  int       steptime;
+  float     speed;
+  float     sticky;
 
-  int     children[ 3 ];
-  int     timeToEvolve;
-  int     value;
+  int       children[ 3 ];
+  int       timeToEvolve;
+  int       value;
 } classAttributes_t;
 
 //stages
@@ -1064,6 +1066,7 @@ float     BG_FindSpeedForClass( int pclass );
 float     BG_FindStickyForClass( int pclass );
 int       BG_FindSteptimeForClass( int pclass );
 qboolean  BG_ClassHasAbility( int pclass, int ability );
+weapon_t  BG_FindStartWeaponForClass( int pclass );
 float     BG_FindBuildDistForClass( int pclass );
 int       BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int num );
 int       BG_FindEvolveTimeForClass( int pclass );

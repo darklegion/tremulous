@@ -1294,6 +1294,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   int                 eventSequence;
   char                userinfo[MAX_INFO_STRING];
   vec3_t              bodyMaxs, classMins, up = { 0, 0, 1 };
+  int                 ammo, clips, maxClips;
+  weapon_t            weapon;
       
 
   index = ent - g_entities;
@@ -1436,80 +1438,14 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] = BG_FindHealthForClass( ent->client->pers.pclass );
 
   // clear entity values
-  switch( ent->client->pers.pclass )
-  {
-    case PCL_A_B_BASE:
-      BG_packWeapon( WP_ABUILD, client->ps.stats );
-      BG_packAmmoArray( WP_ABUILD, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
-      break;
-      
-    case PCL_A_B_LEV1:
-      BG_packWeapon( WP_ABUILD2, client->ps.stats );
-      BG_packAmmoArray( WP_ABUILD2, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
-      break;
-
-    case PCL_A_O_BASE:
-      BG_packWeapon( WP_VENOM, client->ps.stats );
-      BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
-      break;
-      
-    case PCL_A_O_LEV1:
-      BG_packWeapon( WP_GRAB_CLAW, client->ps.stats );
-      BG_packAmmoArray( WP_GRAB_CLAW, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
-      break;
-      
-    case PCL_A_O_LEV1_UPG:
-      BG_packWeapon( WP_GRAB_CLAW, client->ps.stats );
-      BG_packAmmoArray( WP_GRAB_CLAW, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
-      break;
-      
-    case PCL_A_O_LEV2:
-      BG_packWeapon( WP_POUNCE, client->ps.stats );
-      BG_packAmmoArray( WP_POUNCE, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
-      break;
-
-    case PCL_A_O_LEV2_UPG:
-      BG_packWeapon( WP_POUNCE_UPG, client->ps.stats );
-      BG_packAmmoArray( WP_POUNCE_UPG, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
-      break;
-
-    case PCL_A_O_LEV3:
-      BG_packWeapon( WP_AREA_ZAP, client->ps.stats );
-      BG_packAmmoArray( WP_AREA_ZAP, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
-      break;
-      
-    case PCL_A_O_LEV3_UPG:
-      BG_packWeapon( WP_DIRECT_ZAP, client->ps.stats );
-      BG_packAmmoArray( WP_DIRECT_ZAP, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
-      break;
-      
-    case PCL_A_O_LEV4:
-      BG_packWeapon( WP_VENOM, client->ps.stats );
-      BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
-      break;
-      
-    case PCL_H_BASE:
-      if( client->pers.pitem == WP_MACHINEGUN )
-      {
-        int ammo, clips, maxClips;
-
-        BG_FindAmmoForWeapon( WP_MACHINEGUN, &ammo, &clips, &maxClips );
-
-        BG_packWeapon( WP_MACHINEGUN, client->ps.stats );
-        BG_packAmmoArray( WP_MACHINEGUN, client->ps.ammo, client->ps.powerups, ammo, clips, maxClips );
-      }
-      else if( client->pers.pitem == WP_HBUILD )
-      {
-        BG_packWeapon( WP_HBUILD, client->ps.stats );
-        BG_packAmmoArray( WP_HBUILD, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
-      }
-      break;
-      
-    //eventually remove this case (or report an error) when all classes implemented
-    default:
-      BG_packWeapon( WP_MACHINEGUN, client->ps.stats );
-      BG_packAmmoArray( WP_MACHINEGUN, client->ps.ammo, client->ps.powerups, 100, 0, 0 );
-  }
+  if( ent->client->pers.pclass == PCL_H_BASE )
+    weapon = client->pers.pitem;
+  else
+    weapon = BG_FindStartWeaponForClass( ent->client->pers.pclass );
+  
+  BG_FindAmmoForWeapon( weapon, &ammo, &clips, &maxClips );
+  BG_packWeapon( weapon, client->ps.stats );
+  BG_packAmmoArray( weapon, client->ps.ammo, client->ps.powerups, ammo, clips, maxClips );
 
   ent->client->ps.stats[ STAT_PCLASS ] = ent->client->pers.pclass;
   ent->client->ps.stats[ STAT_PTEAM ] = ent->client->pers.pteam;

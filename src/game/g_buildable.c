@@ -839,10 +839,21 @@ Called when an alien touches a booster
 */
 void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 {
-  if( !( other->client->ps.stats[ STAT_STATE ] & SS_BOOSTED ) )
+  int       ammo, clips, maxClips;
+  gclient_t *client = other->client;
+  
+  //only allow boostage once every 30 seconds
+  if( client->lastBoostedTime + 30000 > level.time )
+    return;
+  
+  //restore ammo, if any
+  BG_FindAmmoForWeapon( client->ps.weapon, &ammo, &clips, &maxClips );
+  BG_packAmmoArray( client->ps.weapon, client->ps.ammo, client->ps.powerups, ammo, clips, maxClips );
+  
+  if( !( client->ps.stats[ STAT_STATE ] & SS_BOOSTED ) )
   {
-    other->client->ps.stats[ STAT_STATE ] |= SS_BOOSTED;
-    other->client->lastBoostedTime = level.time;
+    client->ps.stats[ STAT_STATE ] |= SS_BOOSTED;
+    client->lastBoostedTime = level.time;
   }
 }
 
