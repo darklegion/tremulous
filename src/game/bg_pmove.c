@@ -2299,7 +2299,7 @@ static void PM_Weapon( void )
   switch( pm->ps->weapon )
   {
     case WP_VENOM:
-      if( !pm->autoWeaponHit[ WP_VENOM ] )
+      if( !pm->autoWeaponHit[ pm->ps->weapon ] )
       {
         pm->ps->weaponTime = 0;
         pm->ps->weaponstate = WEAPON_READY;
@@ -2319,25 +2319,6 @@ static void PM_Weapon( void )
   }
   
   // fire weapon
-/*  if( BG_WeaponHasAltMode( pm->ps->weapon ) )
-  {
-    if( BG_WeaponModesAreSynced( pm->ps->weapon ) )
-    {
-      if( ( pm->cmd.buttons & BUTTON_ATTACK ) && ( pm->cmd.buttons & BUTTON_ATTACK2 ) )
-        PM_AddEvent( EV_FIRE_WEAPONBOTH );
-      else if( pm->cmd.buttons & BUTTON_ATTACK2 )
-        PM_AddEvent( EV_FIRE_WEAPON2 );
-      else
-        PM_AddEvent( EV_FIRE_WEAPON );
-    }
-    else if( pm->cmd.buttons & BUTTON_ATTACK2 )
-      PM_AddEvent( EV_FIRE_WEAPON2 );
-    else
-      PM_AddEvent( EV_FIRE_WEAPON );
-  }
-  else
-    PM_AddEvent( EV_FIRE_WEAPON );*/
-
   if( pm->cmd.buttons & BUTTON_ATTACK2 )
   {
     if( BG_WeaponHasAltMode( pm->ps->weapon ) )
@@ -2377,7 +2358,7 @@ static void PM_Weapon( void )
       addTime = 1000;
       break;
     case WP_MACHINEGUN:
-      addTime = 200;
+      addTime = 100;
       break;
     case WP_CHAINGUN:
       addTime = 50;
@@ -2403,7 +2384,10 @@ static void PM_Weapon( void )
     case WP_VENOM:
       addTime = 500;
       break;
-    case WP_ABUILD:
+    case WP_GRABANDCSAW:
+      addTime = 50;
+      break;
+    case WP_DBUILD:
       addTime = 1000;
       break;
     case WP_HBUILD:
@@ -2498,13 +2482,16 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
   float   rotAngle; 
   vec3_t  tempang, tempang2;
 
-  if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPINTERMISSION ) {
+  if( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPINTERMISSION )
     return;   // no view changes at all
-  }
 
-  if ( ps->pm_type != PM_SPECTATOR && ps->stats[STAT_HEALTH] <= 0 ) {
+  //TA: FIXME: perhaps do something a little more interesting here later
+  //i.e. allow a little view angle change to reflect struggling/stretching ...?
+  if( ps->pm_type == PM_GRABBED )
+    return;
+    
+  if( ps->pm_type != PM_SPECTATOR && ps->stats[STAT_HEALTH] <= 0 )
     return;   // no view changes at all
-  }
 
   // circularly clamp the angles with deltas
   for (i=0 ; i<3 ; i++) {
@@ -2716,7 +2703,8 @@ void PmoveSingle (pmove_t *pmove)
     pm->ps->pm_flags &= ~PMF_BACKWARDS_RUN;
   }
 
-  if ( pm->ps->pm_type >= PM_DEAD ) {
+  if ( pm->ps->pm_type >= PM_DEAD )
+  {
     pm->cmd.forwardmove = 0;
     pm->cmd.rightmove = 0;
     pm->cmd.upmove = 0;
@@ -2757,56 +2745,53 @@ void PmoveSingle (pmove_t *pmove)
   // update the viewangles
   PM_UpdateViewAngles( pm->ps, &pm->cmd );
 
-  if ( pm->ps->pm_type == PM_DEAD ) {
-    PM_DeadMove ();
-  }
+  if ( pm->ps->pm_type == PM_DEAD || pm->ps->pm_type == PM_GRABBED )
+    PM_DeadMove( );
 
-  PM_DropTimers();
+  PM_DropTimers( );
 
-  /*if ( pm->ps->powerups[PW_FLIGHT] ) {
-    // flight powerup doesn't allow jump and has different friction
-    PM_FlyMove();
-  } else*/ if (pm->ps->pm_flags & PMF_GRAPPLE_PULL) {
-    PM_GrappleMove();
+  if( pm->ps->pm_flags & PMF_GRAPPLE_PULL )
+  {
+    PM_GrappleMove( );
     // We can wiggle a bit
-    PM_AirMove();
-  } else if (pm->ps->pm_flags & PMF_TIME_WATERJUMP) {
-    PM_WaterJumpMove();
-  } else if ( pm->waterlevel > 1 ) {
-    // swimming
-    PM_WaterMove();
-  } else if ( pml.walking ) {
+    PM_AirMove( );
+  }
+  else if( pm->ps->pm_flags & PMF_TIME_WATERJUMP )
+    PM_WaterJumpMove( );
+  else if ( pm->waterlevel > 1 )
+    PM_WaterMove( );
+  else if ( pml.walking )
+  {
     if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) &&
         ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
-      PM_ClimbMove(); //TA: walking on any surface
+      PM_ClimbMove( ); //TA: walking on any surface
     else
-      PM_WalkMove(); // walking on ground
-  } else {
-    // airborne
-    PM_AirMove();
+      PM_WalkMove( ); // walking on ground
   }
+  else
+    PM_AirMove( );
 
-  PM_Animate();
+  PM_Animate( );
 
   // set groundentity, watertype, and waterlevel
-  PM_GroundTrace();
+  PM_GroundTrace( );
   //TA: must update after every GroundTrace() - yet more clock cycles down the drain :( (14 vec rotations/frame)
   // update the viewangles
   PM_UpdateViewAngles( pm->ps, &pm->cmd );
 
-  PM_SetWaterLevel();
+  PM_SetWaterLevel( );
 
   // weapons
-  PM_Weapon();
+  PM_Weapon( );
 
   // torso animation
-  PM_TorsoAnimation();
+  PM_TorsoAnimation( );
 
   // footstep events / legs animations
-  PM_Footsteps();
+  PM_Footsteps( );
 
   // entering / leaving water splashes
-  PM_WaterEvents();
+  PM_WaterEvents( );
 
   // snap some parts of playerstate to save network bandwidth
   trap_SnapVector( pm->ps->velocity );

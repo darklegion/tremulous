@@ -1374,13 +1374,11 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
     case PCL_D_B_LEV21:
     case PCL_D_B_LEV22:
     case PCL_D_B_LEV23:
-      BG_packWeapon( WP_ABUILD, client->ps.stats );
-      BG_packAmmoArray( WP_ABUILD, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
+      BG_packWeapon( WP_DBUILD, client->ps.stats );
+      BG_packAmmoArray( WP_DBUILD, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
 
     case PCL_D_O_BASE:
-    case PCL_D_O_LEV11:
-    case PCL_D_O_LEV12:
     case PCL_D_O_LEV21:
     case PCL_D_O_LEV22:
     case PCL_D_O_LEV31:
@@ -1388,6 +1386,12 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
     case PCL_D_O_LEV33:
       BG_packWeapon( WP_VENOM, client->ps.stats );
       BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
+      break;
+      
+    case PCL_D_O_LEV11:
+    case PCL_D_O_LEV12:
+      BG_packWeapon( WP_GRABANDCSAW, client->ps.stats );
+      BG_packAmmoArray( WP_GRABANDCSAW, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
 
     case PCL_D_D_BASE:

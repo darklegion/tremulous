@@ -614,7 +614,8 @@ VENOM
 CheckVenomAttack
 ===============
 */
-qboolean CheckVenomAttack( gentity_t *ent ) {
+qboolean CheckVenomAttack( gentity_t *ent )
+{
   trace_t   tr;
   vec3_t    end;
   gentity_t *tent;
@@ -629,14 +630,14 @@ qboolean CheckVenomAttack( gentity_t *ent ) {
   VectorMA (muzzle, 32, forward, end);
 
   trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
-  if ( tr.surfaceFlags & SURF_NOIMPACT ) {
+  if ( tr.surfaceFlags & SURF_NOIMPACT )
     return qfalse;
-  }
 
   traceEnt = &g_entities[ tr.entityNum ];
 
   // send blood impact
-  if ( traceEnt->takedamage && traceEnt->client ) {
+  if ( traceEnt->takedamage && traceEnt->client )
+  {
     tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
     tent->s.otherEntityNum = traceEnt->s.number;
     tent->s.eventParm = DirToByte( tr.plane.normal );
@@ -668,8 +669,26 @@ qboolean CheckVenomAttack( gentity_t *ent ) {
 Weapon_Venom_Fire
 ===============
 */
-void Weapon_Venom_Fire( gentity_t *ent ) {
-/*  trace_t   tr;
+void Weapon_Venom_Fire( gentity_t *ent )
+{
+}
+
+/*
+======================================================================
+
+CIRCULAR SAW
+
+======================================================================
+*/
+
+/*
+===============
+Weapon_Csaw_Fire
+===============
+*/
+void Weapon_CSaw_Fire( gentity_t *ent )
+{
+  trace_t   tr;
   vec3_t    end;
   gentity_t *tent;
   gentity_t *traceEnt;
@@ -679,27 +698,100 @@ void Weapon_Venom_Fire( gentity_t *ent ) {
 
   CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
-  VectorMA (muzzle, 32, forward, end);
+  VectorMA( muzzle, 32, forward, end );
 
-  trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
-  if ( tr.surfaceFlags & SURF_NOIMPACT ) {
+  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+  if ( tr.surfaceFlags & SURF_NOIMPACT )
     return;
-  }
 
   traceEnt = &g_entities[ tr.entityNum ];
 
   // send blood impact
-  if ( traceEnt->takedamage && traceEnt->client ) {
+  if ( traceEnt->takedamage && traceEnt->client )
+  {
     tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
     tent->s.otherEntityNum = traceEnt->s.number;
     tent->s.eventParm = DirToByte( tr.plane.normal );
     tent->s.weapon = ent->s.weapon;
   }
 
-  if ( traceEnt->takedamage) {
-    G_Damage( traceEnt, ent, ent, forward, tr.endpos, 50, 0, MOD_VENOM );
-  }
+  if ( traceEnt->takedamage )
+    G_Damage( traceEnt, ent, ent, forward, tr.endpos, 5, 0, MOD_VENOM );
+}
+
+/*
+===============
+Weapon_Grab_Fire
+===============
 */
+void Weapon_Grab_Fire( gentity_t *ent )
+{
+  trace_t   tr;
+  vec3_t    end;
+  gentity_t *tent;
+  gentity_t *traceEnt;
+  int     damage;
+
+  // set aiming directions
+  AngleVectors (ent->client->ps.viewangles, forward, right, up);
+
+  CalcMuzzlePoint( ent, forward, right, up, muzzle );
+
+  VectorMA( muzzle, 32, forward, end );
+
+  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+  if ( tr.surfaceFlags & SURF_NOIMPACT )
+    return;
+
+  traceEnt = &g_entities[ tr.entityNum ];
+
+  if( !traceEnt->takedamage )
+    return;
+  if( !traceEnt->client )
+    return;
+  if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
+    return;
+    
+  if( traceEnt->client )
+  {
+    //lock client
+  }
+}
+
+/*
+===============
+CheckGrabAttack
+===============
+*/
+qboolean CheckGrabAttack( gentity_t *ent )
+{
+  trace_t   tr;
+  vec3_t    end;
+  gentity_t *tent;
+  gentity_t *traceEnt;
+  int     damage;
+
+  // set aiming directions
+  AngleVectors (ent->client->ps.viewangles, forward, right, up);
+
+  CalcMuzzlePoint( ent, forward, right, up, muzzle );
+
+  VectorMA (muzzle, 32, forward, end);
+
+  trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
+  if ( tr.surfaceFlags & SURF_NOIMPACT )
+    return qfalse;
+
+  traceEnt = &g_entities[ tr.entityNum ];
+
+  if( !traceEnt->takedamage)
+    return qfalse;
+  if( !traceEnt->client )
+    return qfalse;
+  if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
+    return qfalse;
+    
+  return qtrue;
 }
 
 //======================================================================
@@ -818,7 +910,9 @@ void FireWeapon2( gentity_t *ent )
     case WP_VENOM:
       Weapon_Venom_Fire( ent );
       break;
-    case WP_ABUILD:
+    case WP_GRABANDCSAW:
+      break;
+    case WP_DBUILD:
       Weapon_Abuild_Fire( ent );
       break;
     case WP_HBUILD:
@@ -892,7 +986,10 @@ void FireWeapon( gentity_t *ent )
     case WP_VENOM:
       Weapon_Venom_Fire( ent );
       break;
-    case WP_ABUILD:
+    case WP_GRABANDCSAW:
+      Weapon_CSaw_Fire( ent );
+      break;
+    case WP_DBUILD:
       Weapon_Abuild_Fire( ent );
       break;
     case WP_HBUILD:

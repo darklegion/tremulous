@@ -596,7 +596,12 @@ void CG_RegisterWeapon( int weaponNum ) {
     weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav", qfalse );
     break;
 
-  case WP_ABUILD:
+  case WP_GRABANDCSAW:
+    MAKERGB( weaponInfo->flashDlightColor, 0, 0, 0 );
+    weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav", qfalse );
+    break;
+
+  case WP_DBUILD:
   case WP_HBUILD:
   case WP_SCANNER:
     //nowt

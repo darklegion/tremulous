@@ -757,6 +757,8 @@ void ClientThink_real( gentity_t *ent ) {
     client->ps.pm_type = PM_DEAD;
   else if( client->ps.stats[ STAT_STATE ] & SS_INFESTING )
     client->ps.pm_type = PM_FREEZE;
+  else if( client->ps.stats[ STAT_STATE ] & SS_GRABBED )
+    client->ps.pm_type = PM_GRABBED;
   else
     client->ps.pm_type = PM_NORMAL;
 
@@ -834,10 +836,23 @@ void ClientThink_real( gentity_t *ent ) {
 
   if( !( ucmd->buttons & BUTTON_TALK ) && client->ps.weaponTime <= 0 )
   {
+    qboolean temp;
+    
     switch( client->ps.weapon )
     {
       case WP_VENOM:
         pm.autoWeaponHit[ WP_VENOM ] = CheckVenomAttack( ent );
+        break;
+
+      case WP_GRABANDCSAW:
+        temp = CheckGrabAttack( ent );
+        if( !pm.autoWeaponHit[ WP_GRABANDCSAW ] && temp )
+        {
+          //enemy has *just* entered grab range
+          //only allow grab if attack2 button is UP
+          if( !( ucmd->buttons & BUTTON_ATTACK2 ) )
+            pm.autoWeaponHit[ WP_GRABANDCSAW ] = qtrue;
+        }
         break;
 
       default:

@@ -134,12 +134,13 @@ movement on the server game.
 */
 
 typedef enum {
-  PM_NORMAL,    // can accelerate and turn
-  PM_NOCLIP,    // noclip movement
-  PM_SPECTATOR, // still run into walls
-  PM_DEAD,    // no acceleration or turning, but free falling
-  PM_FREEZE,    // stuck in place with no control
-  PM_INTERMISSION, // no movement or status bar
+  PM_NORMAL,        // can accelerate and turn
+  PM_NOCLIP,        // noclip movement
+  PM_SPECTATOR,     // still run into walls
+  PM_DEAD,          // no acceleration or turning, but free falling
+  PM_GRABBED,       // like dead, but for when the player is still live
+  PM_FREEZE,        // stuck in place with no control
+  PM_INTERMISSION,  // no movement or status bar
   PM_SPINTERMISSION // no movement or status bar
 } pmtype_t;
 
@@ -243,7 +244,8 @@ typedef enum {
 #define SS_WALLTRANSIDING       8
 #define SS_SPEEDBOOST           16
 #define SS_INFESTING            32
-#define SS_POISONED             64
+#define SS_GRABBED              64
+#define SS_POISONED             128
 
 
 // player_state->persistant[] indexes
@@ -332,8 +334,9 @@ typedef enum {
   WP_BFG,
   WP_GRAPPLING_HOOK,
   WP_VENOM,
+  WP_GRABANDCSAW,
   WP_HBUILD,
-  WP_ABUILD,
+  WP_DBUILD,
   WP_SCANNER,
   WP_GGRENADE,
 

@@ -226,6 +226,22 @@ gitem_t bg_itemlist[] =
     ""
   },
 
+/*QUAKED weapon_grabandcsaw (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+  {
+    "weapon_grabandcsaw",
+    "sound/misc/w_pkup.wav",
+        { "models/weapons2/gauntlet/gauntlet.md3",
+    0, 0, 0},
+    "icons/iconw_gauntlet",
+    "Circular Saw",
+    0,
+    IT_WEAPON,
+    WP_GRABANDCSAW,
+    "",
+    ""
+  },
+
 /*QUAKED weapon_abuild (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
   {
@@ -237,7 +253,7 @@ gitem_t bg_itemlist[] =
     "ABuild",
     0,
     IT_WEAPON,
-    WP_ABUILD,
+    WP_DBUILD,
     "",
     ""
   },
@@ -2565,16 +2581,40 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse
   },
   {
-    WP_ABUILD,
+    WP_DBUILD,
     100,
     SLOT_WEAPON,
     "dbuild",
-    "",
+    "Droid build weapon",
     0,
     0,
     0,
     qfalse,
     qfalse
+  },
+  {
+    WP_VENOM,
+    100,
+    SLOT_WEAPON,
+    "venom",
+    "Venom",
+    0,
+    0,
+    0,
+    qfalse,
+    qfalse
+  },
+  {
+    WP_GRABANDCSAW,
+    100,
+    SLOT_WEAPON,
+    "grabandcsaw",
+    "Circular Saw",
+    0,
+    0,
+    0,
+    qtrue,
+    qtrue
   },
   {
     WP_SCANNER,
@@ -3664,7 +3704,8 @@ qboolean BG_infiniteAmmo( int weapon )
   switch( weapon )
   {
     case WP_VENOM:
-    case WP_ABUILD:
+    case WP_GRABANDCSAW:
+    case WP_DBUILD:
     case WP_HBUILD:
     case WP_SCANNER:
       return qtrue;

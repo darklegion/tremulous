@@ -1702,7 +1702,7 @@ void Cmd_Destroy_f( gentity_t *ent )
   if( tr.fraction < 1.0 &&
       ( traceEnt->s.eType == ET_BUILDABLE ) &&
       ( traceEnt->biteam == ent->client->pers.pteam ) &&
-      ( ( ent->client->ps.weapon == WP_ABUILD ) ||
+      ( ( ent->client->ps.weapon == WP_DBUILD ) ||
         ( ent->client->ps.weapon == WP_HBUILD ) ) )
     G_Damage( traceEnt, ent, ent, forward, tr.endpos, 10000, 0, MOD_SUICIDE );
 
@@ -2006,8 +2006,8 @@ void Cmd_Build_f( gentity_t *ent )
   trap_Argv( 1, s, sizeof( s ) );
 
   if( ( ent->client->pers.pteam == PTE_DROIDS ) &&
-      BG_gotWeapon( WP_ABUILD, ent->client->ps.stats ) &&
-      ( ent->client->ps.weapon == WP_ABUILD ) )
+      BG_gotWeapon( WP_DBUILD, ent->client->ps.stats ) &&
+      ( ent->client->ps.weapon == WP_DBUILD ) )
   {
     buildable = BG_FindBuildNumForName( s );
 
