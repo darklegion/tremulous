@@ -411,7 +411,7 @@ void cancelBuildFire( gentity_t *ent )
   ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
 }
 
-void buildFire( gentity_t *ent, dynMenu_t menu, int delay )
+void buildFire( gentity_t *ent, dynMenu_t menu )
 {
   if( ( ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
   {
@@ -423,7 +423,7 @@ void buildFire( gentity_t *ent, dynMenu_t menu, int delay )
     
     G_ValidateBuild( ent, ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT );
     ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
-    ent->client->ps.stats[ STAT_MISC ] += delay;
+    ent->client->ps.stats[ STAT_MISC ] += BG_FindBuildDelayForWeapon( ent->s.weapon );
     return;
   }
 
@@ -993,16 +993,16 @@ void FireWeapon( gentity_t *ent )
       painSawFire( ent );
       break;
     case WP_ABUILD:
-      buildFire( ent, MN_A_BUILD, 10000 );
+      buildFire( ent, MN_A_BUILD );
       break;
     case WP_ABUILD2:
-      buildFire( ent, MN_A_BUILD, 5000 );
+      buildFire( ent, MN_A_BUILD );
       break;
     case WP_HBUILD:
-      buildFire( ent, MN_H_BUILD, 10000 );
+      buildFire( ent, MN_H_BUILD );
       break;
     case WP_HBUILD2:
-      buildFire( ent, MN_H_BUILD, 5000 );
+      buildFire( ent, MN_H_BUILD );
       break;
     default:
   // FIXME    G_Error( "Bad ent->s.weapon" );

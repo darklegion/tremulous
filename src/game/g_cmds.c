@@ -1729,7 +1729,7 @@ void Cmd_Class_f( gentity_t *ent )
 Cmd_Destroy_f
 =================
 */
-void Cmd_Destroy_f( gentity_t *ent )
+void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
 {
   vec3_t      forward, end;
   trace_t     tr;
@@ -1751,7 +1751,20 @@ void Cmd_Destroy_f( gentity_t *ent )
         ( traceEnt->biteam == ent->client->pers.pteam ) &&
         ( ( ent->client->ps.weapon >= WP_ABUILD ) &&
           ( ent->client->ps.weapon <= WP_HBUILD ) ) )
-      G_Damage( traceEnt, ent, ent, forward, tr.endpos, 10000, 0, MOD_SUICIDE );
+    {
+      if( ent->client->ps.stats[ STAT_MISC ] > 0 )
+      {
+        G_AddPredictableEvent( ent, EV_BUILD_DELAY, 0 );
+        return;
+      }
+
+      if( !deconstruct )
+        G_Damage( traceEnt, ent, ent, forward, tr.endpos, 10000, 0, MOD_SUICIDE );
+      else
+        G_FreeEntity( traceEnt );
+    
+      ent->client->ps.stats[ STAT_MISC ] += BG_FindBuildDelayForWeapon( ent->s.weapon ) >> 1;
+    }
   }
 }
 
@@ -1933,6 +1946,9 @@ void Cmd_Buy_f( gentity_t *ent )
     BG_packAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
                       quan, clips, maxClips );
     ent->client->ps.weapon = weapon;
+
+    //set build delay/pounce etc to 0
+    ent->client->ps.stats[ STAT_MISC ] = 0;
     
     //subtract from funds
     ent->client->ps.persistant[ PERS_CREDIT ] -= BG_FindPriceForWeapon( weapon );
@@ -2541,7 +2557,9 @@ void ClientCommand( int clientNum ) {
   else if (Q_stricmp (cmd, "itemtoggle") == 0)
     Cmd_ToggleItem_f( ent );
   else if (Q_stricmp (cmd, "destroy") == 0)
-    Cmd_Destroy_f( ent );
+    Cmd_Destroy_f( ent, qfalse );
+  else if (Q_stricmp (cmd, "deconstruct") == 0)
+    Cmd_Destroy_f( ent, qtrue );
   else if (Q_stricmp (cmd, "echo") == 0)
     Cmd_Echo_f( ent );
   else if (Q_stricmp (cmd, "boost") == 0)

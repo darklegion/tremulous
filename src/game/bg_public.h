@@ -965,6 +965,8 @@ typedef struct
   qboolean  synced;
 
   qboolean  purchasable;
+  
+  int       buildDelay;
 
   WUTeam_t  team;
 } weaponAttributes_t;
@@ -1073,6 +1075,7 @@ int       BG_FindReloadTimeForWeapon( int weapon );
 qboolean  BG_WeaponHasAltMode( int weapon );
 qboolean  BG_WeaponModesAreSynced( int weapon );
 qboolean  BG_FindPurchasableForWeapon( int weapon );
+int       BG_FindBuildDelayForWeapon( int weapon );
 WUTeam_t  BG_FindTeamForWeapon( int weapon );
 
 int       BG_FindPriceForUpgrade( int upgrade );
