@@ -292,20 +292,38 @@ static void CG_OffsetThirdPersonView( void ) {
 
 
 // this causes a compiler bug on mac MrC compiler
-static void CG_StepOffset( void ) {
-  int   timeDelta;
-  int   steptime;
-
-  steptime = BG_FindSteptimeForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
-
-  // smooth out stair climbing
-  timeDelta = cg.time - cg.stepTime;
-  if ( timeDelta < steptime ) {
-    cg.refdef.vieworg[2] -= cg.stepChange
-      * (steptime - timeDelta) / steptime;
+static void CG_StepOffset( void )
+{
+  float         steptime;
+	int		        timeDelta;
+  vec3_t        normal;
+  playerState_t *ps = &cg.predictedPlayerState;
+	
+  if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
+  {
+    if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
+      VectorSet( normal, 0.0f, 0.0f, -1.0f );
+    else
+      VectorCopy( ps->grapplePoint, normal );
   }
-}
+  else
+    VectorSet( normal, 0.0f, 0.0f, 1.0f );
+ 
+  steptime = BG_FindSteptimeForClass( ps->stats[ STAT_PCLASS ] );
+  
+	// smooth out stair climbing
+	timeDelta = cg.time - cg.stepTime;
+	if( timeDelta < steptime )
+  {
+    float stepChange = cg.stepChange 
+			* (steptime - timeDelta) / steptime;
 
+    if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
+      VectorMA( cg.refdef.vieworg, -stepChange, normal, cg.refdef.vieworg );
+    else
+		  cg.refdef.vieworg[2] -= stepChange;
+	}
+}
 /*
 ===============
 CG_OffsetFirstPersonView
@@ -323,6 +341,19 @@ static void CG_OffsetFirstPersonView( void ) {
   vec3_t    predictedVelocity;
   int       timeDelta;
   float     bob2;
+  vec3_t        normal;
+  playerState_t *ps = &cg.predictedPlayerState;
+	
+  if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
+  {
+    if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
+      VectorSet( normal, 0.0f, 0.0f, -1.0f );
+    else
+      VectorCopy( ps->grapplePoint, normal );
+  }
+  else
+    VectorSet( normal, 0.0f, 0.0f, 1.0f );
+  
 
   if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
     return;
@@ -497,7 +528,7 @@ static void CG_OffsetFirstPersonView( void ) {
   // add view height
   //TA: when wall climbing the viewheight is not straight up
   if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBING )
-    VectorMA( origin, cg.predictedPlayerState.viewheight, cg.predictedPlayerState.grapplePoint, origin );
+    VectorMA( origin, ps->viewheight, normal, origin );
   else
     origin[2] += cg.predictedPlayerState.viewheight;
   
@@ -516,7 +547,7 @@ static void CG_OffsetFirstPersonView( void ) {
 
   //TA: likewise for bob
   if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBING )
-    VectorMA( origin, bob, cg.predictedPlayerState.grapplePoint, origin );
+    VectorMA( origin, bob, normal, origin );
   else
     origin[2] += bob;
 

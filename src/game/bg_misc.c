@@ -369,8 +369,8 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/mgturret/turret_base.md3",
       "models/buildables/mgturret/turret_barrel.md3",
       "models/buildables/mgturret/turret_top.md3", 0 },
-    { -36, -36, -30 },     //vec3_t    mins;
-    { 36, 36, 30 },        //vec3_t    maxs;
+    { -25, -25, -20 },     //vec3_t    mins;
+    { 25, 25, 20 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     80,                    //int       buildPoints;
@@ -3003,6 +3003,11 @@ char *eventnames[] = {
   "EV_STEP_8",
   "EV_STEP_12",
   "EV_STEP_16",
+
+  "EV_STEPDN_4",
+  "EV_STEPDN_8",
+  "EV_STEPDN_12",
+  "EV_STEPDN_16",
 
   "EV_FALL_SHORT",
   "EV_FALL_MEDIUM",

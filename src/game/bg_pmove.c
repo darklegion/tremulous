@@ -568,7 +568,7 @@ Flying out of the water
 static void PM_WaterJumpMove( void ) {
   // waterjump has no control, but falls
 
-  PM_StepSlideMove( qtrue );
+  PM_StepSlideMove( qtrue, qfalse );
 
   pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
   if (pm->ps->velocity[2] < 0) {
@@ -690,7 +690,7 @@ static void PM_FlyMove( void ) {
 
   PM_Accelerate (wishdir, wishspeed, pm_flyaccelerate);
 
-  PM_StepSlideMove( qfalse );
+  PM_StepSlideMove( qfalse, qfalse );
 }
 
 
@@ -756,7 +756,7 @@ static void PM_AirMove( void ) {
     PM_SlideMove ( qtrue );
 #endif
 
-  PM_StepSlideMove ( qtrue );
+  PM_StepSlideMove ( qtrue, qfalse );
 }
 
 /*
@@ -895,7 +895,7 @@ static void PM_ClimbMove( void ) {
     return;
   }
 
-  PM_SlideMove( qfalse );
+  PM_StepSlideMove( qfalse, qfalse );
 }
 
 
@@ -1018,7 +1018,7 @@ static void PM_WalkMove( void ) {
     return;
   }
 
-  PM_StepSlideMove( qfalse );
+  PM_StepSlideMove( qfalse, qfalse );
 
   //Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
 
@@ -1357,50 +1357,68 @@ static void PM_GroundClimbTrace( void )
       VectorNegate( movedir, movedir );
   }
   
-
-  for(i = 0; i <= 3; i++)
+  for(i = 0; i <= 4; i++)
   {
-
     switch ( i )
     {
-    case 0:
-      //trace into direction we are moving
-      VectorMA( pm->ps->origin, 0.25f, movedir, point );
-      pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
-      break;
+      case 0:
+        //we are going to step this frame so skip the transition test
+        if( PM_PredictStepMove( ) )
+          continue;
 
-    case 1:
-      //trace straight down anto "ground" surface
-      VectorMA( pm->ps->origin, -0.25f, surfNormal, point );
-      pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
-      break;
-
-    case 2:
-      //trace "underneath" BBOX so we can traverse angles > 180deg
-      //TA: I can't believe this actually works :0 - its gotta be messing with something
-      //    I would like a better way if one exists...
-      if( pml.groundPlane != qfalse )
-      {
-        VectorMA( pm->ps->origin, -16.0f, surfNormal, point );
-        VectorMA( point, -16.0f, movedir, point );
+        //trace into direction we are moving
+        VectorMA( pm->ps->origin, 0.25f, movedir, point );
         pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
-      }
-      break;
+        break;
 
-    case 3:
-      //fall back so we don't have to modify PM_GroundTrace too much
-      VectorCopy( pm->ps->origin, point );
-      point[2] = pm->ps->origin[2] - 0.25f;
-      pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
-      break;
+      case 1:
+        //trace straight down anto "ground" surface
+        VectorMA( pm->ps->origin, -0.25f, surfNormal, point );
+        pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+        break;
+
+      case 2:
+        if( pml.groundPlane != qfalse && PM_PredictStepMove( ) )
+        {
+          //step down
+          VectorMA( pm->ps->origin, -STEPSIZE, surfNormal, point );
+          pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
+        }
+        else
+          continue;
+        break;
+
+      case 3:
+        //trace "underneath" BBOX so we can traverse angles > 180deg
+        if( pml.groundPlane != qfalse )
+        {
+          VectorMA( pm->ps->origin, -16.0f, surfNormal, point );
+          VectorMA( point, -16.0f, movedir, point );
+          pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+        }
+        else
+          continue;
+        break;
+
+      case 4:
+        //fall back so we don't have to modify PM_GroundTrace too much
+        VectorCopy( pm->ps->origin, point );
+        point[2] = pm->ps->origin[2] - 0.25f;
+        pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+        break;
     }
 
     //if we hit something
     if( trace.fraction < 1.0 && !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) &&
-        !( trace.entityNum != ENTITYNUM_WORLD && i != 3 ) )
+        !( trace.entityNum != ENTITYNUM_WORLD && i != 4 ) )
     {
-      if( i == 2 )
+      if( i == 2 || i == 3 )
+      {
+        if( i == 2 )
+          PM_StepEvent( pm->ps->origin, trace.endpos, surfNormal );
+        
         VectorCopy( trace.endpos, pm->ps->origin );
+      }
 
       //calculate a bunch of stuff...
       CrossProduct( trace.plane.normal, surfNormal, traceCROSSsurf );
