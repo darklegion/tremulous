@@ -428,101 +428,32 @@ void CG_Menu( int eventParm )
   
   switch( eventParm )
   {
-    case MN_TEAM:
-      trap_SendConsoleCommand( "menu teammenu\n" );
-      break;
-
-    case MN_D_CLASS:
-      trap_SendConsoleCommand( "menu dclassmenu\n" );
-      break;
-
-    case MN_H_SPAWN:
-      trap_SendConsoleCommand( "menu hsitemmenu\n" );
-      break;
-
-    case MN_D_BUILD:
-      trap_SendConsoleCommand( "menu dbuildmenu\n" );
-      break;
-
-    case MN_H_BUILD:
-      trap_SendConsoleCommand( "menu hbuildmenu\n" );
-      break;
-
-    case MN_H_MCU:
-      trap_SendConsoleCommand( "menu hmcumenu\n" );
-      break;
-
-    case MN_H_NOROOM:
-      trap_SendConsoleCommand( "menu hnoroom\n" );
-      break;
-
-    case MN_H_NOPOWER:
-      trap_SendConsoleCommand( "menu hnopower\n" );
-      break;
-
-    case MN_D_NOROOM:
-      trap_SendConsoleCommand( "menu dnoroom\n" );
-      break;
-
-    case MN_D_NOCREEP:
-      trap_SendConsoleCommand( "menu dnocreep\n" );
-      break;
-
-    case MN_D_NOHVMND:
-      trap_SendConsoleCommand( "menu dnohvmnd\n" );
-      break;
-
-    case MN_D_HIVEMIND:
-      trap_SendConsoleCommand( "menu dhivemind\n" );
-      break;
-
-    case MN_D_NOASSERT:
-      trap_SendConsoleCommand( "menu dnoassert\n" );
-      break;
-
-    case MN_D_SPWNWARN:
-      trap_SendConsoleCommand( "menu dspwnwarn\n" );
-      break;
-
-    case MN_H_REACTOR:
-      trap_SendConsoleCommand( "menu hreactor\n" );
-      break;
-
-    case MN_H_MCUPOWER:
-      trap_SendConsoleCommand( "menu hmcupower\n" );
-      break;
-
-    case MN_H_REPEATER:
-      trap_SendConsoleCommand( "menu hrepeater\n" );
-      break;
-
-    case MN_H_RPLWARN:
-      trap_SendConsoleCommand( "menu hrplwarn\n" );
-      break;
-
-    case MN_H_RPTWARN:
-      trap_SendConsoleCommand( "menu hrptwarn\n" );
-      break;
-
-    case MN_H_NOSLOTS:
-      trap_SendConsoleCommand( "menu hnoslots\n" );
-      break;
-
-    case MN_H_NOFUNDS:
-      trap_SendConsoleCommand( "menu hnofunds\n" );
-      break;
-
-    case MN_H_ITEMHELD:
-      trap_SendConsoleCommand( "menu hitemheld\n" );
-      break;
-
-    case MN_D_INFEST:
-      trap_SendConsoleCommand( "menu dinfest\n" );
-      break;
+    case MN_TEAM: trap_SendConsoleCommand( "menu teammenu\n" ); break;
+    case MN_D_CLASS: trap_SendConsoleCommand( "menu dclassmenu\n" ); break;
+    case MN_H_SPAWN: trap_SendConsoleCommand( "menu hsitemmenu\n" ); break;
+    case MN_D_BUILD: trap_SendConsoleCommand( "menu dbuildmenu\n" ); break;
+    case MN_H_BUILD: trap_SendConsoleCommand( "menu hbuildmenu\n" ); break;
+    case MN_H_MCU: trap_SendConsoleCommand( "menu hmcumenu\n" ); break;
+    case MN_H_BANK: trap_SendConsoleCommand( "menu hbankmenu\n" ); break;
+    case MN_H_NOROOM: trap_SendConsoleCommand( "menu hnoroom\n" ); break;
+    case MN_H_NOPOWER: trap_SendConsoleCommand( "menu hnopower\n" ); break;
+    case MN_D_NOROOM: trap_SendConsoleCommand( "menu dnoroom\n" ); break;
+    case MN_D_NOCREEP: trap_SendConsoleCommand( "menu dnocreep\n" ); break;
+    case MN_D_NOHVMND: trap_SendConsoleCommand( "menu dnohvmnd\n" ); break;
+    case MN_D_HIVEMIND: trap_SendConsoleCommand( "menu dhivemind\n" ); break;
+    case MN_D_NOASSERT: trap_SendConsoleCommand( "menu dnoassert\n" ); break;
+    case MN_D_SPWNWARN: trap_SendConsoleCommand( "menu dspwnwarn\n" ); break;
+    case MN_H_REACTOR: trap_SendConsoleCommand( "menu hreactor\n" ); break;
+    case MN_H_REPEATER: trap_SendConsoleCommand( "menu hrepeater\n" ); break;
+    case MN_H_RPLWARN: trap_SendConsoleCommand( "menu hrplwarn\n" ); break;
+    case MN_H_RPTWARN: trap_SendConsoleCommand( "menu hrptwarn\n" ); break;
+    case MN_H_NOSLOTS: trap_SendConsoleCommand( "menu hnoslots\n" ); break;
+    case MN_H_NOFUNDS: trap_SendConsoleCommand( "menu hnofunds\n" ); break;
+    case MN_H_ITEMHELD: trap_SendConsoleCommand( "menu hitemheld\n" ); break;
+    case MN_D_INFEST: trap_SendConsoleCommand( "menu dinfest\n" ); break;
 
     default:
       Com_Printf( "cgame: debug: no such menu %d\n", eventParm );
-
   }
 }
 

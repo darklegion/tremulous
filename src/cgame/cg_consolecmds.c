@@ -244,6 +244,15 @@ static void CG_ClientMenu( const char *menuname )
     trap_SendConsoleCommand( "menu mcusell\n" );
     trap_SendConsoleCommand( "undefmenu mcusell\n" );
   }
+  else if( !Q_stricmp( menuname, "hbankstat" ) )
+  {
+    //FIXME: implement this
+    strcpy( menuDef, "5,5|Statement|1,1,1,1|0.000,0.412,0.702,1|1,1,1,1|2|32|You have something in this bank|OK,!" );
+    
+    trap_SendConsoleCommand( va( "defmenu bankstat \"%s\"\n", menuDef ) );
+    trap_SendConsoleCommand( "menu bankstat\n" );
+    trap_SendConsoleCommand( "undefmenu bankstat\n" );
+  }
   else
     trap_SendConsoleCommand( va( "%s not defined", menuname ) );
 }

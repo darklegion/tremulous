@@ -1992,7 +1992,6 @@ void Cmd_Deposit_f( gentity_t *ent )
   qboolean  nearBank = qfalse;
 
   trap_Argv( 1, s, sizeof( s ) );
-  amount = atoi( s );
 
   //droids don't sell stuff
   if( ent->client->pers.pteam != PTE_HUMANS )
@@ -2011,6 +2010,11 @@ void Cmd_Deposit_f( gentity_t *ent )
     }
   }
 
+  if( !Q_stricmp( s, "all" ) )
+    amount = ent->client->ps.stats[ STAT_CREDIT ];
+  else
+    amount = atoi( s );
+
   //no Bank nearby
   if( !nearBank )
   {
@@ -2024,7 +2028,7 @@ void Cmd_Deposit_f( gentity_t *ent )
     bankEntity->credits[ ent->client->ps.clientNum ] += amount;
   }
   else
-    trap_SendServerCommand( ent-g_entities, va("print \"You do not have that amount\n\"" ) );
+    G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
 }
 
 
@@ -2043,8 +2047,7 @@ void Cmd_Withdraw_f( gentity_t *ent )
   qboolean  nearBank = qfalse;
 
   trap_Argv( 1, s, sizeof( s ) );
-  amount = atoi( s );
-
+  
   //droids don't sell stuff
   if( ent->client->pers.pteam != PTE_HUMANS )
     return;
@@ -2062,6 +2065,11 @@ void Cmd_Withdraw_f( gentity_t *ent )
     }
   }
 
+  if( !Q_stricmp( s, "all" ) )
+    amount = bankEntity->credits[ ent->client->ps.clientNum ];
+  else
+    amount = atoi( s );
+
   //no Bank nearby
   if( !nearBank )
   {
@@ -2075,7 +2083,7 @@ void Cmd_Withdraw_f( gentity_t *ent )
     bankEntity->credits[ ent->client->ps.clientNum ] -= amount;
   }
   else
-    trap_SendServerCommand( ent-g_entities, va("print \"You do not have that amount\n\"" ) );
+    G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
 }
 
 

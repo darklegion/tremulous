@@ -838,6 +838,15 @@ static void CG_RegisterGraphics( void ) {
   cgs.media.gibSkull = trap_R_RegisterModel( "models/gibs/skull.md3" );
   cgs.media.gibBrain = trap_R_RegisterModel( "models/gibs/brain.md3" );
 
+  cgs.media.metalGib1 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib1.md3" );
+  cgs.media.metalGib2 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib2.md3" );
+  cgs.media.metalGib3 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib3.md3" );
+  cgs.media.metalGib4 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib4.md3" );
+  cgs.media.metalGib5 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib5.md3" );
+  cgs.media.metalGib6 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib6.md3" );
+  cgs.media.metalGib7 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib7.md3" );
+  cgs.media.metalGib8 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib8.md3" );
+  
   cgs.media.smoke2 = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
 
   cgs.media.balloonShader = trap_R_RegisterShader( "sprites/balloon3" );

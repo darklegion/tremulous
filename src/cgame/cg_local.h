@@ -736,6 +736,15 @@ typedef struct {
   qhandle_t gibSkull;
   qhandle_t gibBrain;
 
+  qhandle_t metalGib1;
+  qhandle_t metalGib2;
+  qhandle_t metalGib3;
+  qhandle_t metalGib4;
+  qhandle_t metalGib5;
+  qhandle_t metalGib6;
+  qhandle_t metalGib7;
+  qhandle_t metalGib8;
+  
   qhandle_t smoke2;
 
   qhandle_t machinegunBrassModel;

@@ -751,7 +751,7 @@ void HMCU_Activate( gentity_t *self, gentity_t *other, gentity_t *activator )
   if( self->powered )
     G_AddPredictableEvent( activator, EV_MENU, MN_H_MCU );
   else
-    G_AddPredictableEvent( activator, EV_MENU, MN_H_MCUPOWER );
+    G_AddPredictableEvent( activator, EV_MENU, MN_H_NOPOWER );
 }
 
 /*
@@ -790,9 +790,9 @@ void HBank_Activate( gentity_t *self, gentity_t *other, gentity_t *activator )
   
   //if this is powered then call the mcu menu
   if( self->powered )
-    G_AddPredictableEvent( activator, EV_MENU, MN_H_MCU );
+    G_AddPredictableEvent( activator, EV_MENU, MN_H_BANK );
   else
-    G_AddPredictableEvent( activator, EV_MENU, MN_H_MCUPOWER );
+    G_AddPredictableEvent( activator, EV_MENU, MN_H_NOPOWER );
 }
 
 /*
