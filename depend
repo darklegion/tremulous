@@ -227,19 +227,31 @@ qvm/game/q_shared.asm: ./src/game/q_shared.c src/game/q_shared.h \
 releasei386-glibc/cgame/cg_animmapobj.o: ./src/cgame/cg_animmapobj.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_buildable.o: ./src/cgame/cg_buildable.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_consolecmds.o: ./src/cgame/cg_consolecmds.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_creep.o: ./src/cgame/cg_creep.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_draw.o: ./src/cgame/cg_draw.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -250,27 +262,38 @@ releasei386-glibc/cgame/cg_draw.o: ./src/cgame/cg_draw.c src/cgame/cg_local.h \
 releasei386-glibc/cgame/cg_drawtools.o: ./src/cgame/cg_drawtools.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_effects.o: ./src/cgame/cg_effects.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_ents.o: ./src/cgame/cg_ents.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_event.o: ./src/cgame/cg_event.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h src/cgame/../../ui/menudef.h
-releasei386-glibc/cgame/cg_info.o: ./src/cgame/cg_info.c src/cgame/cg_local.h \
- src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
- src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h src/cgame/../../ui/menudef.h
 releasei386-glibc/cgame/cg_localents.o: ./src/cgame/cg_localents.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_main.o: ./src/cgame/cg_main.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -281,86 +304,136 @@ releasei386-glibc/cgame/cg_main.o: ./src/cgame/cg_main.c src/cgame/cg_local.h \
 releasei386-glibc/cgame/cg_marks.o: ./src/cgame/cg_marks.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_mem.o: ./src/cgame/cg_mem.c src/cgame/cg_local.h \
- src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
- src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
-releasei386-glibc/cgame/cg_mp3decoder.o: ./src/cgame/cg_mp3decoder.c src/cgame/cg_mp3decoder.h \
- src/cgame/cg_local.h src/cgame/../game/q_shared.h \
- src/cgame/../game/surfaceflags.h src/cgame/tr_types.h \
- src/cgame/../game/bg_public.h src/cgame/cg_public.h
-releasei386-glibc/cgame/cg_newdraw.o: ./src/cgame/cg_newdraw.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
  src/cgame/../ui/../game/q_shared.h \
  src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
  src/cgame/../ui/../../ui/menudef.h
-releasei386-glibc/cgame/cg_particles.o: ./src/cgame/cg_particles.c src/cgame/cg_local.h \
- src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
- src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+releasei386-glibc/cgame/cg_mp3decoder.o: ./src/cgame/cg_mp3decoder.c src/cgame/cg_mp3decoder.h \
+ src/cgame/cg_local.h src/cgame/../game/q_shared.h \
+ src/cgame/../game/surfaceflags.h src/cgame/tr_types.h \
+ src/cgame/../game/bg_public.h src/cgame/cg_public.h \
+ src/cgame/../ui/ui_shared.h src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_players.o: ./src/cgame/cg_players.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_playerstate.o: ./src/cgame/cg_playerstate.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_predict.o: ./src/cgame/cg_predict.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_scanner.o: ./src/cgame/cg_scanner.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_scoreboard.o: ./src/cgame/cg_scoreboard.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_servercmds.o: ./src/cgame/cg_servercmds.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h src/cgame/../../ui/menudef.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h src/cgame/../../ui/menudef.h
 releasei386-glibc/cgame/cg_snapshot.o: ./src/cgame/cg_snapshot.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_spriter.o: ./src/cgame/cg_spriter.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_syscalls.o: ./src/cgame/cg_syscalls.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
+releasei386-glibc/cgame/cg_trails.o: ./src/cgame/cg_trails.c src/cgame/cg_local.h \
+ src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
+ src/cgame/tr_types.h src/cgame/../game/bg_public.h \
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_view.o: ./src/cgame/cg_view.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_weapons.o: ./src/cgame/cg_weapons.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_animmapobj.o: ./src/cgame/cg_animmapobj.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_buildable.o: ./src/cgame/cg_buildable.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_consolecmds.o: ./src/cgame/cg_consolecmds.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_creep.o: ./src/cgame/cg_creep.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_draw.o: ./src/cgame/cg_draw.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -371,27 +444,38 @@ debugi386-glibc/cgame/cg_draw.o: ./src/cgame/cg_draw.c src/cgame/cg_local.h \
 debugi386-glibc/cgame/cg_drawtools.o: ./src/cgame/cg_drawtools.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_effects.o: ./src/cgame/cg_effects.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_ents.o: ./src/cgame/cg_ents.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_event.o: ./src/cgame/cg_event.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h src/cgame/../../ui/menudef.h
-debugi386-glibc/cgame/cg_info.o: ./src/cgame/cg_info.c src/cgame/cg_local.h \
- src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
- src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h src/cgame/../../ui/menudef.h
 debugi386-glibc/cgame/cg_localents.o: ./src/cgame/cg_localents.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_main.o: ./src/cgame/cg_main.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -402,86 +486,136 @@ debugi386-glibc/cgame/cg_main.o: ./src/cgame/cg_main.c src/cgame/cg_local.h \
 debugi386-glibc/cgame/cg_marks.o: ./src/cgame/cg_marks.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_mem.o: ./src/cgame/cg_mem.c src/cgame/cg_local.h \
- src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
- src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
-debugi386-glibc/cgame/cg_mp3decoder.o: ./src/cgame/cg_mp3decoder.c src/cgame/cg_mp3decoder.h \
- src/cgame/cg_local.h src/cgame/../game/q_shared.h \
- src/cgame/../game/surfaceflags.h src/cgame/tr_types.h \
- src/cgame/../game/bg_public.h src/cgame/cg_public.h
-debugi386-glibc/cgame/cg_newdraw.o: ./src/cgame/cg_newdraw.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
  src/cgame/../ui/../game/q_shared.h \
  src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
  src/cgame/../ui/../../ui/menudef.h
-debugi386-glibc/cgame/cg_particles.o: ./src/cgame/cg_particles.c src/cgame/cg_local.h \
- src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
- src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+debugi386-glibc/cgame/cg_mp3decoder.o: ./src/cgame/cg_mp3decoder.c src/cgame/cg_mp3decoder.h \
+ src/cgame/cg_local.h src/cgame/../game/q_shared.h \
+ src/cgame/../game/surfaceflags.h src/cgame/tr_types.h \
+ src/cgame/../game/bg_public.h src/cgame/cg_public.h \
+ src/cgame/../ui/ui_shared.h src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_players.o: ./src/cgame/cg_players.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_playerstate.o: ./src/cgame/cg_playerstate.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_predict.o: ./src/cgame/cg_predict.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_scanner.o: ./src/cgame/cg_scanner.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_scoreboard.o: ./src/cgame/cg_scoreboard.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_servercmds.o: ./src/cgame/cg_servercmds.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h src/cgame/../../ui/menudef.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h src/cgame/../../ui/menudef.h
 debugi386-glibc/cgame/cg_snapshot.o: ./src/cgame/cg_snapshot.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_spriter.o: ./src/cgame/cg_spriter.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_syscalls.o: ./src/cgame/cg_syscalls.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
+debugi386-glibc/cgame/cg_trails.o: ./src/cgame/cg_trails.c src/cgame/cg_local.h \
+ src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
+ src/cgame/tr_types.h src/cgame/../game/bg_public.h \
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_view.o: ./src/cgame/cg_view.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_weapons.o: ./src/cgame/cg_weapons.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_animmapobj.asm: ./src/cgame/cg_animmapobj.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_buildable.asm: ./src/cgame/cg_buildable.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_consolecmds.asm: ./src/cgame/cg_consolecmds.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_creep.asm: ./src/cgame/cg_creep.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_draw.asm: ./src/cgame/cg_draw.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -492,27 +626,38 @@ qvm/cgame/cg_draw.asm: ./src/cgame/cg_draw.c src/cgame/cg_local.h \
 qvm/cgame/cg_drawtools.asm: ./src/cgame/cg_drawtools.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_effects.asm: ./src/cgame/cg_effects.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_ents.asm: ./src/cgame/cg_ents.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_event.asm: ./src/cgame/cg_event.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h src/cgame/../../ui/menudef.h
-qvm/cgame/cg_info.asm: ./src/cgame/cg_info.c src/cgame/cg_local.h \
- src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
- src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h src/cgame/../../ui/menudef.h
 qvm/cgame/cg_localents.asm: ./src/cgame/cg_localents.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_main.asm: ./src/cgame/cg_main.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -523,70 +668,108 @@ qvm/cgame/cg_main.asm: ./src/cgame/cg_main.c src/cgame/cg_local.h \
 qvm/cgame/cg_marks.asm: ./src/cgame/cg_marks.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_mem.asm: ./src/cgame/cg_mem.c src/cgame/cg_local.h \
- src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
- src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
-qvm/cgame/cg_mp3decoder.asm: ./src/cgame/cg_mp3decoder.c src/cgame/cg_mp3decoder.h \
- src/cgame/cg_local.h src/cgame/../game/q_shared.h \
- src/cgame/../game/surfaceflags.h src/cgame/tr_types.h \
- src/cgame/../game/bg_public.h src/cgame/cg_public.h
-qvm/cgame/cg_newdraw.asm: ./src/cgame/cg_newdraw.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
  src/cgame/../ui/../game/q_shared.h \
  src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
  src/cgame/../ui/../../ui/menudef.h
-qvm/cgame/cg_particles.asm: ./src/cgame/cg_particles.c src/cgame/cg_local.h \
- src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
- src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+qvm/cgame/cg_mp3decoder.asm: ./src/cgame/cg_mp3decoder.c src/cgame/cg_mp3decoder.h \
+ src/cgame/cg_local.h src/cgame/../game/q_shared.h \
+ src/cgame/../game/surfaceflags.h src/cgame/tr_types.h \
+ src/cgame/../game/bg_public.h src/cgame/cg_public.h \
+ src/cgame/../ui/ui_shared.h src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_players.asm: ./src/cgame/cg_players.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_playerstate.asm: ./src/cgame/cg_playerstate.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_predict.asm: ./src/cgame/cg_predict.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_scanner.asm: ./src/cgame/cg_scanner.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_scoreboard.asm: ./src/cgame/cg_scoreboard.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_servercmds.asm: ./src/cgame/cg_servercmds.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h src/cgame/../../ui/menudef.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h src/cgame/../../ui/menudef.h
 qvm/cgame/cg_snapshot.asm: ./src/cgame/cg_snapshot.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_spriter.asm: ./src/cgame/cg_spriter.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_syscalls.asm: ./src/cgame/cg_syscalls.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
+qvm/cgame/cg_trails.asm: ./src/cgame/cg_trails.c src/cgame/cg_local.h \
+ src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
+ src/cgame/tr_types.h src/cgame/../game/bg_public.h \
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_view.asm: ./src/cgame/cg_view.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_weapons.asm: ./src/cgame/cg_weapons.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/ui/ui_atoms.o: ./src/ui/ui_atoms.c src/ui/ui_local.h \
  src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
  src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
