@@ -2155,16 +2155,19 @@ void Cmd_Build_f( gentity_t *ent )
   weapon_t      weapon;
   float         dist;
   vec3_t        origin;
+  pTeam_t       team;
 
   trap_Argv( 1, s, sizeof( s ) );
 
   buildable = BG_FindBuildNumForName( s );
+  team = ent->client->ps.stats[ STAT_PTEAM ];
   
   if( buildable != BA_NONE &&
-      ( 1 << ent->client->ps.weapon ) & BG_FindBuildWeaponForBuildable( buildable ) &&
+      ( ( 1 << ent->client->ps.weapon ) & BG_FindBuildWeaponForBuildable( buildable ) ) &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) &&
-      BG_FindStagesForBuildable( buildable, g_humanStage.integer ) )
+      ( ( team == PTE_ALIENS && BG_FindStagesForBuildable( buildable, g_alienStage.integer ) ) ||
+        ( team == PTE_HUMANS && BG_FindStagesForBuildable( buildable, g_humanStage.integer ) ) ) )
   {
     dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
     
