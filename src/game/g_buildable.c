@@ -1576,6 +1576,13 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
   {
     //droid criteria
+
+    float     minNormal = BG_FindMinNormalForBuildable( buildable );
+    qboolean  invert = BG_FindInvertNormalForBuildable( buildable );
+
+    //can we build at this angle?
+    if( !( normal[ 2 ] >= minNormal || ( invert && normal[ 2 ] <= -minNormal ) ) )
+      return IBE_NORMAL;
     
     //look for a hivemind
     for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
@@ -1900,6 +1907,10 @@ void G_ValidateBuild( gentity_t *ent, buildable_t buildable )
 
     case IBE_HIVEMIND:
       G_AddPredictableEvent( ent, EV_MENU, MN_D_HIVEMIND );
+      break;
+
+    case IBE_NORMAL:
+      G_AddPredictableEvent( ent, EV_MENU, MN_D_NORMAL );
       break;
 
     case IBE_REACTOR:

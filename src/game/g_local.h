@@ -537,6 +537,7 @@ typedef enum
   IBE_RPLWARN,
   IBE_RPTWARN,
   IBE_NOPOWER,
+  IBE_NORMAL,
 
   IBE_MAXERRORS
 } itemBuildError_t;

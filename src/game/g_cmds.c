@@ -2120,6 +2120,7 @@ void Cmd_Build_f( gentity_t *ent )
       case IBE_RPTWARN:
       case IBE_SPWNWARN:
       case IBE_NOROOM:
+      case IBE_NORMAL:
         ent->client->ps.stats[ STAT_BUILDABLE ] = ( buildable | SB_VALID_TOGGLEBIT );
         break;
 

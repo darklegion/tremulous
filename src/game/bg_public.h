@@ -566,6 +566,7 @@ typedef enum
   MN_D_HIVEMIND,
   MN_D_NOASSERT,
   MN_D_SPWNWARN,
+  MN_D_NORMAL,
   MN_H_SPAWN,
   MN_H_BUILD,
   MN_H_MCU,
