@@ -54,6 +54,8 @@
       style WINDOW_STYLE_EMPTY	
       rect 152 8 240 204
       textscale .33
+      textalignx 6
+      textaligny 12
       border 1
       bordercolor   0.5 0.5 0.5 0.5
       forecolor     1   1   1   1
