@@ -708,7 +708,6 @@ void CG_RegisterWeapon( int weaponNum )
       break;
       
     case WP_LOCKBLOB_LAUNCHER:
-      weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/trapper/trapper.md3" );
   /*    weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/rocket/rockfly.wav", qfalse );
       weaponInfo->missileTrailFunc = CG_RocketTrail;
       weaponInfo->missileDlight = 200;
@@ -716,6 +715,7 @@ void CG_RegisterWeapon( int weaponNum )
       weaponInfo->trailRadius = 64;
       MAKERGB( weaponInfo->missileDlightColor, 1, 0.75f, 0 );
       MAKERGB( weaponInfo->flashDlightColor, 1, 0.75f, 0 );*/
+      weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/grenade1.md3" );
       weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav", qfalse );
       /*cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion" );*/
       break;
@@ -775,8 +775,10 @@ void CG_RegisterWeapon( int weaponNum )
       break;
 
     case WP_POUNCE:
+    case WP_POUNCE_UPG:
       MAKERGB( weaponInfo->flashDlightColor, 0, 0, 0 );
       weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav", qfalse );
+      weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/grenade1.md3" );
       break;
 
     case WP_ABUILD:
@@ -1902,6 +1904,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
     radius = 24;
     break;
   case WP_LOCKBLOB_LAUNCHER:
+  case WP_POUNCE_UPG:
     sfx = cgs.media.gibBounce1Sound;
     mark = cgs.media.greenBloodMarkShader;
     radius = 64;

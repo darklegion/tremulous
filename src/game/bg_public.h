@@ -247,6 +247,7 @@ typedef enum {
 #define SS_POISONED             0x00000080
 #define SS_HOVELING             0x00000100
 #define SS_BOOSTED              0x00000200
+#define SS_SLOWLOCKED           0x00000400
 
 #define SB_VALID_TOGGLEBIT      0x00004000
 
@@ -339,6 +340,7 @@ typedef enum
   WP_VENOM,
   WP_GRAB_CLAW,
   WP_POUNCE,
+  WP_POUNCE_UPG,
   WP_AREA_ZAP,
   WP_DIRECT_ZAP,
   WP_MASS_DRIVER,
@@ -507,6 +509,7 @@ typedef enum {
   EV_NEXT_WEAPON,
   EV_FIRE_WEAPON,
   EV_FIRE_WEAPON2,
+  EV_FIRE_WEAPON3,
   EV_FIRE_WEAPONBOTH,
 
   EV_USE_ITEM0,

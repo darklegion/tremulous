@@ -723,6 +723,15 @@ qboolean CheckPounceAttack( gentity_t *ent )
   return qtrue;
 }
 
+void slowBlobFire( gentity_t *ent )
+{
+  gentity_t *m;
+
+  m = fire_slowBlob( ent, muzzle, forward );
+
+//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
+}
+
 /*
 ======================================================================
 
@@ -890,6 +899,37 @@ void CalcMuzzlePoint( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, v
 
 /*
 ===============
+FireWeapon3
+===============
+*/
+void FireWeapon3( gentity_t *ent )
+{
+  if( ent->client )
+  {
+    // set aiming directions
+    AngleVectors( ent->client->ps.viewangles, forward, right, up );
+    CalcMuzzlePoint( ent, forward, right, up, muzzle );
+  }
+  else
+  {
+    AngleVectors( ent->s.angles2, forward, right, up );
+    VectorCopy( ent->s.pos.trBase, muzzle );
+  }
+
+  // fire the specific weapon
+  switch( ent->s.weapon )
+  {
+    case WP_POUNCE_UPG:
+      slowBlobFire( ent );
+      break;
+      
+    default:
+      break;
+  }
+}
+
+/*
+===============
 FireWeapon2
 ===============
 */
@@ -942,6 +982,7 @@ void FireWeapon2( gentity_t *ent )
       break;
     case WP_VENOM:
     case WP_POUNCE:
+    case WP_POUNCE_UPG:
       break;
     case WP_LUCIFER_CANON:
       LCChargeFire( ent, qtrue );
@@ -1014,6 +1055,7 @@ void FireWeapon( gentity_t *ent )
       gClawFire( ent );
       break;
     case WP_POUNCE:
+    case WP_POUNCE_UPG:
       clawFire( ent );
       break;
     case WP_AREA_ZAP:

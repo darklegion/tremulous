@@ -134,6 +134,15 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
       VectorCopy( other->client->ps.viewangles, other->client->ps.grapplePoint );
     }
   }
+  else if( !strcmp( ent->classname, "slowblob" ) )
+  {
+    if( other->client && other->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    {
+      other->client->ps.stats[ STAT_STATE ] |= SS_SLOWLOCKED;
+      other->client->lastSlowTime = level.time;
+      VectorCopy( other->client->ps.viewangles, other->client->ps.grapplePoint );
+    }
+  }
   
   // is it cheaper in bandwidth to just remove this ent and create a new
   // one, rather than changing the missile into the explosion?
@@ -437,6 +446,44 @@ gentity_t *fire_lockblob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
   VectorScale( dir, 500, bolt->s.pos.trDelta );
+  SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
+  VectorCopy (start, bolt->r.currentOrigin);
+
+  return bolt;
+}
+
+/*
+=================
+fire_SlowBlob
+=================
+*/
+gentity_t *fire_slowBlob( gentity_t *self, vec3_t start, vec3_t dir )
+{
+  gentity_t *bolt;
+
+  VectorNormalize ( dir );
+
+  bolt = G_Spawn( );
+  bolt->classname = "slowblob";
+  bolt->nextthink = level.time + 15000;
+  bolt->think = G_ExplodeMissile;
+  bolt->s.eType = ET_MISSILE;
+  bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+  bolt->s.weapon = WP_POUNCE_UPG;
+  bolt->r.ownerNum = self->s.number;
+  bolt->parent = self;
+  bolt->damage = 20;
+  bolt->splashDamage = 0;
+  bolt->splashRadius = 0;
+  bolt->methodOfDeath = MOD_ROCKET;
+  bolt->splashMethodOfDeath = MOD_ROCKET_SPLASH;
+  bolt->clipmask = MASK_SHOT;
+  bolt->target_ent = NULL;
+
+  bolt->s.pos.trType = TR_GRAVITY;
+  bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
+  VectorCopy( start, bolt->s.pos.trBase );
+  VectorScale( dir, 800, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
   VectorCopy (start, bolt->r.currentOrigin);
 

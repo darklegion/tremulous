@@ -1469,8 +1469,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
       break;
 
     case PCL_A_O_LEV2_UPG:
-      BG_packWeapon( WP_POUNCE, client->ps.stats );
-      BG_packAmmoArray( WP_POUNCE, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
+      BG_packWeapon( WP_POUNCE_UPG, client->ps.stats );
+      BG_packAmmoArray( WP_POUNCE_UPG, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
 
     case PCL_A_O_LEV3:

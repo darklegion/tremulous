@@ -818,6 +818,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     DEBUGNAME("EV_FIRE_WEAPON2");
     CG_FireWeapon( cent ); //FIXME:??
     break;
+  case EV_FIRE_WEAPON3:
+    DEBUGNAME("EV_FIRE_WEAPON3");
+    CG_FireWeapon( cent ); //FIXME:??
+    break;
   case EV_FIRE_WEAPONBOTH:
     DEBUGNAME("EV_FIRE_WEAPONBOTH");
     CG_FireWeapon( cent ); //FIXME:??

@@ -472,7 +472,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
     }
 
     //client is charging up for a pounce
-    if( client->ps.weapon == WP_POUNCE )
+    if( client->ps.weapon == WP_POUNCE || client->ps.weapon == WP_POUNCE_UPG )
     {
       if( client->ps.stats[ STAT_MISC ] < MAX_POUNCE_SPEED && ucmd->buttons & BUTTON_ATTACK2 )
       {
@@ -630,6 +630,10 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 
     case EV_FIRE_WEAPON2:
       FireWeapon2( ent );
+      break;
+
+    case EV_FIRE_WEAPON3:
+      FireWeapon3( ent );
       break;
 
     case EV_FIRE_WEAPONBOTH:
@@ -896,9 +900,14 @@ void ClientThink_real( gentity_t *ent ) {
   client->ps.speed = g_speed.value * BG_FindSpeedForClass( client->ps.stats[ STAT_PCLASS ] );
 
   //TA: slow player if charging up for a pounce
-  if( client->ps.weapon == WP_POUNCE && ucmd->buttons & BUTTON_ATTACK2 )
+  if( ( client->ps.weapon == WP_POUNCE || client->ps.weapon == WP_POUNCE_UPG ) &&
+      ucmd->buttons & BUTTON_ATTACK2 )
     client->ps.speed *= 0.75;
 
+  //TA: slow the player if slow locked
+  if( client->ps.stats[ STAT_STATE ] & SS_SLOWLOCKED )
+    client->ps.speed *= 0.5;
+  
   //TA: slow player if standing in creep
   for ( i = 1, creepNode = g_entities + i; i < level.num_entities; i++, creepNode++ )
   {
@@ -976,12 +985,13 @@ void ClientThink_real( gentity_t *ent ) {
     {
       case WP_VENOM:
         if( client->ps.weaponTime <= 0 )
-          pm.autoWeaponHit[ WP_VENOM ] = CheckVenomAttack( ent );
+          pm.autoWeaponHit[ client->ps.weapon ] = CheckVenomAttack( ent );
         break;
 
       case WP_POUNCE:
+      case WP_POUNCE_UPG:
         if( client->ps.weaponTime <= 0 )
-          pm.autoWeaponHit[ WP_POUNCE ] = CheckPounceAttack( ent );
+          pm.autoWeaponHit[ client->ps.weapon ] = CheckPounceAttack( ent );
         break;
 
       default:

@@ -428,7 +428,8 @@ static void CG_OffsetFirstPersonView( void ) {
   }
 
   //provide some feedback for pouncing
-  if( cg.predictedPlayerState.weapon == WP_POUNCE )
+  if( cg.predictedPlayerState.weapon == WP_POUNCE ||
+      cg.predictedPlayerState.weapon == WP_POUNCE_UPG )
   {
     if( cg.predictedPlayerState.stats[ STAT_MISC ] > 0 )
     {

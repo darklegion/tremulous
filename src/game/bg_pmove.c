@@ -404,7 +404,7 @@ static qboolean PM_CheckPounce( void )
 {
   vec3_t forward;
   
-  if( pm->ps->weapon != WP_POUNCE )
+  if( pm->ps->weapon != WP_POUNCE && pm->ps->weapon != WP_POUNCE_UPG )
     return qfalse;
 
   if( pm->cmd.buttons & BUTTON_ATTACK2 )
@@ -446,7 +446,7 @@ static qboolean PM_CheckJump( void )
     return qfalse;
 
   //can't jump and pounce charge at the same time
-  if( pm->ps->weapon == WP_POUNCE && pm->ps->stats[ STAT_MISC ] > 0 )
+  if( ( pm->ps->weapon == WP_POUNCE || pm->ps->weapon == WP_POUNCE_UPG ) && pm->ps->stats[ STAT_MISC ] > 0 )
     return qfalse;
 
   if( ( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS ) &&
@@ -2137,6 +2137,7 @@ static void PM_Weapon( void )
   int ammo, clips, maxclips;
   qboolean attack1 = qfalse;
   qboolean attack2 = qfalse;
+  qboolean attack3 = qfalse;
   
   // don't allow attack until all buttons are up
   if ( pm->ps->pm_flags & PMF_RESPAWNED )
@@ -2274,11 +2275,15 @@ static void PM_Weapon( void )
       break;
       
     case WP_POUNCE:
+    case WP_POUNCE_UPG:
       //pouncing has primary secondary AND autohit procedures
       attack1 = pm->cmd.buttons & BUTTON_ATTACK;
       attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
+
+      if( pm->ps->weapon == WP_POUNCE_UPG )
+        attack3 = pm->cmd.buttons & BUTTON_USE_HOLDABLE;
       
-      if( !pm->autoWeaponHit[ pm->ps->weapon ] && !attack1 && !attack2 )
+      if( !pm->autoWeaponHit[ pm->ps->weapon ] && !attack1 && !attack2 && !attack3 )
       {
         pm->ps->weaponTime = 0;
         pm->ps->weaponstate = WEAPON_READY;
@@ -2317,6 +2322,8 @@ static void PM_Weapon( void )
   }
 
   //TA: fire events for non auto weapons
+  if( attack3 )
+    PM_AddEvent( EV_FIRE_WEAPON3 );
   if( attack2 )
   {
     if( BG_WeaponHasAltMode( pm->ps->weapon ) )
@@ -2346,6 +2353,7 @@ static void PM_Weapon( void )
         break;
     
       case WP_POUNCE:
+      case WP_POUNCE_UPG:
         PM_AddEvent( EV_FIRE_WEAPON2 );
         break;
 
