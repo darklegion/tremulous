@@ -4,6 +4,7 @@
 # GNU Make required
 #
 
+
 # --Makefile variables--
 MOUNT_DIR=./src
 Q3A_DIR=/usr/games/quake3
