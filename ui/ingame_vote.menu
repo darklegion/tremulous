@@ -196,7 +196,7 @@
       name kick
       group grpCallVote
       rect 80 70 150 85
-      style WINDOW_STYLE_FILLED
+      style WINDOW_STYLE_EMPTY
       type ITEM_TYPE_LISTBOX
       elementwidth 120
       elementheight 15
@@ -253,7 +253,7 @@
       group grpCallVote
       rect 80 70 150 85
       type ITEM_TYPE_LISTBOX
-      style WINDOW_STYLE_FILLED
+      style WINDOW_STYLE_EMPTY
       elementwidth 120
       elementheight 15
       textscale .25

@@ -99,28 +99,6 @@
         open createserver
       }
     }
-    itemDef
-    {
-      name mainmenu
-      text "Setup"
-      type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_EMPTY
-      textstyle ITEM_TEXTSTYLE_NORMAL 
-      rect 472 80 128 20 
-      textalignx 128 
-      textaligny 20 
-      textscale .416
-      textalign ITEM_ALIGN_RIGHT   
-      forecolor 1 1 1 1
-      visible 1 
-      action
-      {
-        play "sound/misc/kcaction.wav"; 
-        close main; 
-        open setup_menu; 
-        open control_menu
-      }
-    }
 
     itemDef
     {
@@ -130,7 +108,7 @@
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale .416
       style WINDOW_STYLE_EMPTY 
-      rect 472 100 128 20
+      rect 472 80 128 20
       textalignx 128 
       textaligny 20 
       textalign ITEM_ALIGN_RIGHT   
@@ -153,7 +131,7 @@
       style WINDOW_STYLE_EMPTY 
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale .416
-      rect 472 120 128 20 
+      rect 472 100 128 20 
       textalignx 128 
       textaligny 20 
       textalign ITEM_ALIGN_RIGHT   
@@ -163,7 +141,6 @@
       action
       {
         play "sound/misc/kcaction.wav"; 
-        close main; 
         open mod
       }
     }
@@ -174,7 +151,7 @@
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       textstyle ITEM_TEXTSTYLE_NORMAL
-      rect 472 160 128 20
+      rect 472 140 128 20
       textalignx 128 
       textaligny 20 
       textscale .416
@@ -191,7 +168,7 @@
     itemDef
     {
       name copyright
-      text "Q3A (C) 2000 Id Software Inc. Tremulous by Timbo and Veda."
+      text "Q3A (C) 2000 Id Software Inc. Tremulous (C) 2002 Us."
       style WINDOW_STYLE_EMPTY
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale .15
