@@ -7,7 +7,7 @@
 
 # --Makefile variables--
 MOUNT_DIR=./src
-Q3A_DIR=/home/tma/.q3a/
+Q3A_DIR=/home/tma/.q3a
 MOD_DIR=tremulous
 
 # --object list--
@@ -155,7 +155,7 @@ RPMARCH=i386
 VENDOR=unknown
 endif #alpha test
 
-BASE_CFLAGS=-Dstricmp=strcasecmp -I/usr/X11R6/include -I/usr/include/glide -pipe
+BASE_CFLAGS=-pipe
 DEBUG_CFLAGS=$(BASE_CFLAGS) -g -pg
 DEPEND_CFLAGS= -MM
 
@@ -232,7 +232,7 @@ UIDOBJ = $(UIOBJ:%.o=$(BD)/%.o) $(BD)/$(UIDIRNAME)/ui_syscalls.o
 # --rules for the shared objects--
 #release qagamei386.so
 $(BR)/qagame$(ARCH).$(SHLIBEXT) : $(GROBJ)
-	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GROBJ)
+	$(CC) $(RELEASE_CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GROBJ)
   
 #debug qagamei386.so
 $(BD)/qagame$(ARCH).$(SHLIBEXT) : $(GDOBJ)
@@ -245,7 +245,7 @@ $(BQ)/qagame.qvm : $(GQVMOBJ) $(BQ)/$(GDIRNAME)/bg_lib.asm
   
 #release cgamei386.so
 $(BR)/cgame$(ARCH).$(SHLIBEXT) : $(CGROBJ)
-	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(CGROBJ)
+	$(CC) $(RELEASE_CFLAGS) $(SHLIBLDFLAGS) -o $@ $(CGROBJ)
 
 #debug cgamei386.so
 $(BD)/cgame$(ARCH).$(SHLIBEXT) : $(CGDOBJ)
@@ -258,7 +258,7 @@ $(BQ)/cgame.qvm :	$(CGQVMOBJ) $(BQ)/$(GDIRNAME)/bg_lib.asm
   
 #release uii386.so
 $(BR)/ui$(ARCH).$(SHLIBEXT) : $(UIROBJ) 
-	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(UIROBJ)
+	$(CC) $(RELEASE_CFLAGS) $(SHLIBLDFLAGS) -o $@ $(UIROBJ)
 
 #debug cgamei386.so
 $(BD)/ui$(ARCH).$(SHLIBEXT) : $(UIDOBJ) 
@@ -273,7 +273,7 @@ $(BQ)/ui.qvm: $(UIQVMOBJ) $(BQ)/$(GDIRNAME)/bg_lib.asm
 # --rules for the objects--
 #release g_*.o
 $(BR)/$(GDIRNAME)/%.o: $(GDIR)/%.c 
-	$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+	$(CC) $(RELEASE_CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
   
 #debug g_*.o
 $(BD)/$(GDIRNAME)/%.o: $(GDIR)/%.c 
@@ -288,7 +288,7 @@ $(BQ)/$(GDIRNAME)/%.asm: $(GDIR)/%.c
 
 #release cg_*.o
 $(BR)/$(CGDIRNAME)/%.o: $(CGDIR)/%.c 
-	$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+	$(CC) $(RELEASE_CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
   
 #debug cg_*.o
 $(BD)/$(CGDIRNAME)/%.o: $(CGDIR)/%.c 
@@ -303,7 +303,7 @@ $(BQ)/$(CGDIRNAME)/%.asm: $(CGDIR)/%.c
 
 #release ui_*.o
 $(BR)/$(UIDIRNAME)/%.o: $(UIDIR)/%.c 
-	$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+	$(CC) $(RELEASE_CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
   
 #debug ui_*.o
 $(BD)/$(UIDIRNAME)/%.o: $(UIDIR)/%.c 
