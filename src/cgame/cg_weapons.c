@@ -1168,10 +1168,10 @@ WEAPON SELECTION
 
 /*
 ===================
-CG_DrawWeaponSelect
+CG_DrawItemSelect
 ===================
 */
-void CG_DrawWeaponSelect( rectDef_t *rect, vec4_t color )
+void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
 {
   int           i;
   int           x = rect->x;
@@ -1249,17 +1249,6 @@ void CG_DrawWeaponSelect( rectDef_t *rect, vec4_t color )
     
     if( ( item >= 0 ) && ( item < numItems ) )
     {
-      if( clips == 0 && !BG_FindInfinteAmmoForWeapon( cent->currentState.weapon ) )
-      {
-        float ammoPercent = (float)ammo / (float)maxAmmo;
-
-        if( ammoPercent < 0.33f )
-        {
-          color[ 0 ] = 1.0f;
-          color[ 1 ] = color[ 2 ] = 0.0f;
-        }
-      }
-      
       trap_R_SetColor( color );
 
       if( items[ item ] <= 32 )
@@ -1283,10 +1272,10 @@ void CG_DrawWeaponSelect( rectDef_t *rect, vec4_t color )
 
 /*
 ===================
-CG_DrawWeaponSelectText
+CG_DrawItemSelectText
 ===================
 */
-void CG_DrawWeaponSelectText( rectDef_t *rect, float scale, int textStyle )
+void CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
 {
   int x, w;
   char  *name;
@@ -1354,10 +1343,10 @@ static qboolean CG_WeaponSelectable( int i )
 
 /*
 ===============
-CG_ItemSelectable
+CG_UpgradeSelectable
 ===============
 */
-static qboolean CG_ItemSelectable( int i )
+static qboolean CG_UpgradeSelectable( int i )
 {
   if( !BG_gotItem( i, cg.snap->ps.stats ) )
     return qfalse;
@@ -1398,7 +1387,7 @@ void CG_NextWeapon_f( void )
     }
     else if( cg.weaponSelect > 32 )
     {
-      if( CG_ItemSelectable( cg.weaponSelect - 32 ) )
+      if( CG_UpgradeSelectable( cg.weaponSelect - 32 ) )
         break;
     }
   }
@@ -1439,7 +1428,7 @@ void CG_PrevWeapon_f( void )
     }
     else if( cg.weaponSelect > 32 )
     {
-      if( CG_ItemSelectable( cg.weaponSelect - 32 ) )
+      if( CG_UpgradeSelectable( cg.weaponSelect - 32 ) )
         break;
     }
   }

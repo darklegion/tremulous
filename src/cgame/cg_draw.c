@@ -2220,13 +2220,13 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawKiller( &rect, scale, color, shader, textStyle );
       break;
     case CG_PLAYER_SELECT:
-      CG_DrawWeaponSelect( &rect, color );
+      CG_DrawItemSelect( &rect, color );
       break;
     case CG_PLAYER_WEAPONICON:
       CG_DrawWeaponIcon( &rect, color );
       break;
     case CG_PLAYER_SELECTTEXT:
-      CG_DrawWeaponSelectText( &rect, scale, textStyle );
+      CG_DrawItemSelectText( &rect, scale, textStyle );
       break;
     case CG_SPECTATORS:
       CG_DrawTeamSpectators( &rect, scale, color, shader );

@@ -1342,8 +1342,8 @@ void        CG_TeslaTrail( vec3_t start, vec3_t end, int srcENum, int destENum )
 void        CG_AlienZap( vec3_t start, vec3_t end, int srcENum, int destENum );
 void        CG_AddViewWeapon (playerState_t *ps);
 void        CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent );
-void        CG_DrawWeaponSelect( rectDef_t *rect, vec4_t color );
-void        CG_DrawWeaponSelectText( rectDef_t *rect, float scale, int textStyle );
+void        CG_DrawItemSelect( rectDef_t *rect, vec4_t color );
+void        CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle );
 
 
 //
