@@ -73,7 +73,6 @@ void SP_light( gentity_t *self ) {
 //TA: position/colour/intensity calculating function
 void ShineTorch( gentity_t *self )
 {
-  trace_t tr;
   vec3_t  origin, angles;
 
   VectorCopy( self->parent->s.pos.trBase, origin );
