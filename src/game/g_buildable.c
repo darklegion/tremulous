@@ -679,22 +679,12 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
       }
     }
     
-    if( !(
-          !Q_stricmp( closestPower->classname, "team_human_reactor" ) &&
-          ( minDistance <= REACTOR_BASESIZE )
-        ) && 
-        !(
-          !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
-          ( minDistance <= REPEATER_BASESIZE ) &&
-          ( buildable == BA_H_SPAWN ) &&
-          closestPower->powered 
-        ) &&
-        !(
-          !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
-          ( minDistance <= REPEATER_BASESIZE ) &&
-          closestPower->active &&
-          closestPower->powered 
-        )
+    if( !(( !Q_stricmp( closestPower->classname, "team_human_reactor" ) &&
+            minDistance <= REACTOR_BASESIZE ) || 
+          ( !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
+            minDistance <= REPEATER_BASESIZE &&
+            ( ( buildable == BA_H_SPAWN && closestPower->powered ) ||
+              ( closestPower->powered && closestPower->active ) ) ) )
       )
     {
       if( buildable != BA_H_REACTOR && buildable != BA_H_REPEATER )
