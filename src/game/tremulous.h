@@ -67,9 +67,10 @@
 #define DRAGOON_CLAW_U_REPEAT       500
 #define DRAGOON_POUNCE_DMG          ADM(200)
 #define DRAGOON_POUNCE_RANGE        96.0f
-#define DRAGOON_POUNCE_SPEED        600
+#define DRAGOON_POUNCE_SPEED        700
+#define DRAGOON_POUNCE_UPG_SPEED    800
 #define DRAGOON_POUNCE_SPEED_MOD    0.75f
-#define DRAGOON_POUNCE_TIME         1000
+#define DRAGOON_POUNCE_TIME         700
 #define DRAGOON_BOUNCEBALL_DMG      ADM(50)
 #define DRAGOON_BOUNCEBALL_REPEAT   1000
 #define DRAGOON_BOUNCEBALL_SPEED    1000.0f
@@ -291,7 +292,7 @@
 
 #define BLASTER_REPEAT              1000
 #define BLASTER_SPREAD              200
-#define BLASTER_SPEED               500
+#define BLASTER_SPEED               700
 #define BLASTER_DMG                 HDM(10)
 
 #define RIFLE_CLIPSIZE              30

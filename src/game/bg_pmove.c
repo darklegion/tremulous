@@ -2391,26 +2391,15 @@ static void PM_Footsteps( void )
     }
     
     // ducked characters never play footsteps
-  /*
-  } else  if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN ) {
-    if ( !( pm->cmd.buttons & BUTTON_WALKING ) ) {
-      bobmove = 0.4;  // faster speeds bob faster
-      footstep = qtrue;
-    } else {
-      bobmove = 0.3;
-    }
-    PM_ContinueLegsAnim( LEGS_BACK );
-  */
   }
   else
   {
     //TA: switch walking/running anims based on speed
-    //if ( !( pm->cmd.buttons & BUTTON_WALKING ) ) {
     if( pm->xyspeed > 160 )
     {
       bobmove = 0.4f; // faster speeds bob faster
 
-      if( pm->ps->pm_flags & PMF_CHARGE )
+      if( pm->ps->weapon == WP_BIGMOFO && pm->ps->pm_flags & PMF_CHARGE )
         PM_ContinueLegsAnim( NSPA_CHARGE );
       else if( pm->ps->pm_flags & PMF_BACKWARDS_RUN )
       {

@@ -496,6 +496,8 @@ static void CG_OffsetFirstPersonView( void )
     angles[ ROLL ] += delta;
   }
 
+#define DRAGOON_FEEDBACK  20.0f
+  
   //provide some feedback for pouncing
   if( cg.predictedPlayerState.weapon == WP_DRAGOON ||
       cg.predictedPlayerState.weapon == WP_DRAGOON_UPG )
@@ -515,7 +517,7 @@ static void CG_OffsetFirstPersonView( void )
 
       fraction2 = -sin( fraction1 * M_PI / 2 );
       
-      VectorMA( origin, 15 * fraction2, forward, origin );
+      VectorMA( origin, DRAGOON_FEEDBACK * fraction2, forward, origin );
     }
   }
 

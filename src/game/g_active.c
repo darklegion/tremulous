@@ -467,8 +467,15 @@ void ClientTimerActions( gentity_t *ent, int msec )
     //client is charging up for a pounce
     if( client->ps.weapon == WP_DRAGOON || client->ps.weapon == WP_DRAGOON_UPG )
     {
-      if( client->ps.stats[ STAT_MISC ] < DRAGOON_POUNCE_SPEED && ucmd->buttons & BUTTON_ATTACK2 )
-        client->ps.stats[ STAT_MISC ] += ( 100.0f / (float)DRAGOON_POUNCE_TIME ) * DRAGOON_POUNCE_SPEED;
+      int pounceSpeed;
+
+      if( client->ps.weapon == WP_DRAGOON )
+        pounceSpeed = DRAGOON_POUNCE_SPEED;
+      else if( client->ps.weapon == WP_DRAGOON_UPG )
+        pounceSpeed = DRAGOON_POUNCE_UPG_SPEED;
+
+      if( client->ps.stats[ STAT_MISC ] < pounceSpeed && ucmd->buttons & BUTTON_ATTACK2 )
+        client->ps.stats[ STAT_MISC ] += ( 100.0f / (float)DRAGOON_POUNCE_TIME ) * pounceSpeed;
 
       if( !( ucmd->buttons & BUTTON_ATTACK2 ) )
       {
@@ -481,14 +488,15 @@ void ClientTimerActions( gentity_t *ent, int msec )
         client->ps.stats[ STAT_MISC ] = 0;
       }
 
-      if( client->ps.stats[ STAT_MISC ] > DRAGOON_POUNCE_SPEED )
-        client->ps.stats[ STAT_MISC ] = DRAGOON_POUNCE_SPEED;
+      if( client->ps.stats[ STAT_MISC ] > pounceSpeed )
+        client->ps.stats[ STAT_MISC ] = pounceSpeed;
     }
 
     //client is charging up for a... charge
     if( client->ps.weapon == WP_BIGMOFO )
     {
-      if( client->ps.stats[ STAT_MISC ] < BMOFO_CHARGE_TIME && ucmd->buttons & BUTTON_ATTACK2 )
+      if( client->ps.stats[ STAT_MISC ] < BMOFO_CHARGE_TIME && ucmd->buttons & BUTTON_ATTACK2 && 
+          ( ucmd->forwardmove > 0 || aRight ) )
       {
         client->charging = qfalse; //should already be off, just making sure
 
@@ -508,6 +516,10 @@ void ClientTimerActions( gentity_t *ent, int msec )
           //if the charger has stopped moving take a chunk of charge away
           if( VectorLength( client->ps.velocity ) < 64.0f )
             client->ps.stats[ STAT_MISC ] = client->ps.stats[ STAT_MISC ] >> 1;
+
+          //can't charge backwards
+          if( ucmd->forwardmove < 0 )
+            client->ps.stats[ STAT_MISC ] = 0;
         }
         
         if( client->ps.stats[ STAT_MISC ] <= 0 )
