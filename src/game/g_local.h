@@ -183,6 +183,9 @@ struct gentity_s
   float             wait;
   float             random;
 
+  pTeam_t           stageTeam;
+  stage_t           stageStage;
+  
   int               biteam;       //TA: buildable item team
   gentity_t         *parentNode;  //TA: for creep and defence/spawn dependencies
   qboolean          active;       //TA: for power repeater, but could be useful elsewhere
@@ -707,6 +710,7 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace );
 // g_trigger.c
 //
 void trigger_teleporter_touch( gentity_t *self, gentity_t *other, trace_t *trace );
+void G_Checktrigger_stages( pTeam_t team, stage_t stage );
 
 
 //

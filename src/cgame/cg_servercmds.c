@@ -717,15 +717,6 @@ void CG_Menu( int menu )
       }
       break;
       
-    case MN_A_NOEROOM:
-      if( !cg_disableBuildWarnings.integer )
-      {
-        trap_Cvar_Set( "ui_dialog", "There is no room to evolve here. Move away from walls or other "
-                                    "nearby objects and try again." );
-        trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
-      }
-      break;
-      
     case MN_A_OVERMIND:
       if( !cg_disableBuildWarnings.integer )
       {
@@ -760,6 +751,19 @@ void CG_Menu( int menu )
                                     "to build on. Please choose another site for this structure." );
         trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       }
+      break;
+      
+    case MN_A_NOEROOM:
+      trap_Cvar_Set( "ui_dialog", "There is no room to evolve here. Move away from walls or other "
+                                  "nearby objects and try again." );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      break;
+      
+    case MN_A_TOOCLOSE:
+      trap_Cvar_Set( "ui_dialog", "This location is too close to the enemy to evolve. "
+                                  "Move away until you are no longer aware of the enemy's "
+                                  "presence and try again." );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       break;
       
     case MN_A_HOVEL_OCCUPIED:

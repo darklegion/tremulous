@@ -573,6 +573,7 @@ typedef enum
   MN_A_HOVEL_OCCUPIED,
   MN_A_HOVEL_BLOCKED,
   MN_A_NOEROOM,
+  MN_A_TOOCLOSE,
   
   //alien build
   MN_A_SPWNWARN,

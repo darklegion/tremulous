@@ -307,7 +307,7 @@
  * 
  */
 
-#define HUMAN_WDMG_MODIFIER         1.1f
+#define HUMAN_WDMG_MODIFIER         1.07f
 #define HDM(d)                      ((int)((float)d*HUMAN_WDMG_MODIFIER))
 
 #define BLASTER_REPEAT              600
@@ -502,7 +502,7 @@
 
 #define REACTOR_BP                  0
 #define REACTOR_BT                  20000
-#define REACTOR_HEALTH              HBHM(1500)
+#define REACTOR_HEALTH              HBHM(1250)
 #define REACTOR_SPLASHDAMAGE        200
 #define REACTOR_SPLASHRADIUS        300
 #define REACTOR_VALUE               2

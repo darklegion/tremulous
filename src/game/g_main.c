@@ -973,20 +973,34 @@ void G_CalculateStages( void )
   if( g_alienKills.integer >=
       (int)( (float)g_alienStage2Threshold.integer * alienPlayerCountMod ) &&
       g_alienStage.integer == S1 && g_alienMaxStage.integer > S1 )
+  {
+    G_Checktrigger_stages( PTE_ALIENS, S2 );
     trap_Cvar_Set( "g_alienStage", va( "%d", S2 ) );
+  }
+  
   if( g_alienKills.integer >=
       (int)( (float)g_alienStage3Threshold.integer * alienPlayerCountMod ) &&
       g_alienStage.integer == S2 && g_alienMaxStage.integer > S2 )
+  {
+    G_Checktrigger_stages( PTE_ALIENS, S3 );
     trap_Cvar_Set( "g_alienStage", va( "%d", S3 ) );
+  }
 
   if( g_humanKills.integer >=
       (int)( (float)g_humanStage2Threshold.integer * humanPlayerCountMod ) &&
       g_humanStage.integer == S1 && g_humanMaxStage.integer > S1 )
+  {
+    G_Checktrigger_stages( PTE_HUMANS, S2 );
     trap_Cvar_Set( "g_humanStage", va( "%d", S2 ) );
+  }
+
   if( g_humanKills.integer >=
       (int)( (float)g_humanStage3Threshold.integer * humanPlayerCountMod ) &&
       g_humanStage.integer == S2 && g_humanMaxStage.integer > S2 )
+  {
+    G_Checktrigger_stages( PTE_HUMANS, S3 );
     trap_Cvar_Set( "g_humanStage", va( "%d", S3 ) );
+  }
 }
 
 /*

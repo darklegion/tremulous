@@ -1049,6 +1049,7 @@ void Cmd_SetViewpos_f( gentity_t *ent )
 }
 
 #define EVOLVE_TRACE_HEIGHT 128.0f
+#define AS_OVER_RT3         (ALIENSENSE_RANGE/M_ROOT3)
 
 /*
 =================
@@ -1074,6 +1075,12 @@ void Cmd_Class_f( gentity_t *ent )
   vec3_t    fromMins, fromMaxs, toMins, toMaxs;
   vec3_t    temp;
 
+  int       entityList[ MAX_GENTITIES ];
+  vec3_t    range = { AS_OVER_RT3, AS_OVER_RT3, AS_OVER_RT3 };
+  vec3_t    mins, maxs, dir;
+  int       num;
+  gentity_t *other;
+      
   clientNum = ent->client - level.clients;
   trap_Argv( 1, s, sizeof( s ) );
 
@@ -1100,6 +1107,24 @@ void Cmd_Class_f( gentity_t *ent )
     //if we are not currently spectating, we are attempting evolution
     if( ent->client->ps.stats[ STAT_PCLASS ] != PCL_NONE )
     {
+      //check there are no humans nearby
+      VectorAdd( ent->client->ps.origin, range, maxs );
+      VectorSubtract( ent->client->ps.origin, range, mins );
+      
+      num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+      for( i = 0; i < num; i++ )
+      {
+        other = &g_entities[ entityList[ i ] ];
+        
+        if( ( other->client && other->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) ||
+            ( other->s.eType == ET_BUILDABLE && other->biteam == BIT_HUMANS ) )
+        {
+          ent->client->pers.classSelection = PCL_NONE;
+          G_TriggerMenu( clientNum, MN_A_TOOCLOSE );
+          return;
+        }
+      }
+
       //evolve now
       ent->client->pers.classSelection = BG_FindClassNumForName( s );
 

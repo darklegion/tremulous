@@ -477,3 +477,43 @@ void SP_func_timer( gentity_t *self )
 }
 
 
+/*
+===============
+G_Checktrigger_stages
+
+Called when stages change
+===============
+*/
+void G_Checktrigger_stages( pTeam_t team, stage_t stage )
+{
+  int i;
+  gentity_t *ent;
+
+  for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
+  {
+    if( !ent->inuse )
+      continue;
+
+    if( !Q_stricmp( ent->classname, "trigger_stage" ) )
+    {
+      if( team == ent->stageTeam && stage == ent->stageStage )
+        ent->use( ent, ent, ent );
+    }
+  }
+}
+
+
+void trigger_stage_use( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  G_UseTargets( self, self );
+}
+
+void SP_trigger_stage( gentity_t *self )
+{
+  G_SpawnInt( "team", "0", &self->stageTeam );
+  G_SpawnInt( "stage", "0", &self->stageStage );
+
+  self->use = trigger_stage_use;
+
+  self->r.svFlags = SVF_NOCLIENT;
+}
