@@ -1024,6 +1024,9 @@ typedef struct
   qboolean  hasAltMode;
   qboolean  hasThirdMode;
 
+  qboolean  canZoom;
+  float     zoomFov;
+
   qboolean  purchasable;
   
   int       buildDelay;
@@ -1151,6 +1154,8 @@ int       BG_FindRepeatRate3ForWeapon( int weapon );
 int       BG_FindReloadTimeForWeapon( int weapon );
 qboolean  BG_WeaponHasAltMode( int weapon );
 qboolean  BG_WeaponHasThirdMode( int weapon );
+qboolean  BG_WeaponCanZoom( int weapon );
+float     BG_FindZoomFovForWeapon( int weapon );
 qboolean  BG_FindPurchasableForWeapon( int weapon );
 int       BG_FindBuildDelayForWeapon( int weapon );
 WUTeam_t  BG_FindTeamForWeapon( int weapon );

@@ -22,7 +22,7 @@
  * 
  */
 
-#define ALIEN_WDMG_MODIFIER         0.85f
+#define ALIEN_WDMG_MODIFIER         0.80f
 #define ADM(d)                      ((int)((float)d*ALIEN_WDMG_MODIFIER))
 
 #define ABUILDER_BUILD_REPEAT       500
@@ -31,7 +31,7 @@
 #define ABUILDER_CLAW_WIDTH         4.0f
 #define ABUILDER_CLAW_REPEAT        1000
 #define ABUILDER_BASE_DELAY         9000
-#define ABUILDER_ADV_DELAY          4000
+#define ABUILDER_ADV_DELAY          7000
 #define ABUILDER_BLOB_DMG           ADM(5)
 #define ABUILDER_BLOB_REPEAT        1000
 #define ABUILDER_BLOB_SPEED         800.0f
@@ -77,7 +77,7 @@
 #define DRAGOON_POUNCE_UPG_SPEED    800
 #define DRAGOON_POUNCE_SPEED_MOD    0.75f
 #define DRAGOON_POUNCE_TIME         700
-#define DRAGOON_BOUNCEBALL_DMG      ADM(50)
+#define DRAGOON_BOUNCEBALL_DMG      ADM(100)
 #define DRAGOON_BOUNCEBALL_REPEAT   1000
 #define DRAGOON_BOUNCEBALL_SPEED    1000.0f
 
@@ -167,9 +167,9 @@
 #define DRAGOON_UPG_REGEN           6
 #define DRAGOON_UPG_COST            1
 
-#define BMOFO_SPEED                 1.1f
+#define BMOFO_SPEED                 1.15f
 #define BMOFO_VALUE                 AVM(800)
-#define BMOFO_HEALTH                AHM(350)
+#define BMOFO_HEALTH                AHM(400)
 #define BMOFO_REGEN                 7
 #define BMOFO_COST                  2
 
@@ -228,7 +228,7 @@
 #define ACIDTUBE_BT                 15000
 #define ACIDTUBE_HEALTH             ABHM(200)
 #define ACIDTUBE_REGEN              8
-#define ACIDTUBE_SPLASHDAMAGE       40
+#define ACIDTUBE_SPLASHDAMAGE       30
 #define ACIDTUBE_SPLASHRADIUS       300
 #define ACIDTUBE_CREEPSIZE          120
 #define ACIDTUBE_RANGE              300.0f
@@ -243,7 +243,7 @@
 #define HIVE_CREEPSIZE              120
 #define HIVE_RANGE                  400.0f
 #define HIVE_REPEAT                 10000
-#define HIVE_DMG                    40
+#define HIVE_DMG                    30
 #define HIVE_SPEED                  230.0f
 #define HIVE_DIR_CHANGE_PERIOD      500
 
@@ -396,7 +396,7 @@
 
 #define HBUILD2_PRICE               75
 #define HBUILD2_REPEAT              1000
-#define HBUILD2_DELAY               4000
+#define HBUILD2_DELAY               7000
 
 
 
@@ -466,7 +466,7 @@
 
 #define MGTURRET_BP                 8
 #define MGTURRET_BT                 10000
-#define MGTURRET_HEALTH             HBHM(500)
+#define MGTURRET_HEALTH             HBHM(450)
 #define MGTURRET_SPLASHDAMAGE       50
 #define MGTURRET_SPLASHRADIUS       100
 #define MGTURRET_ANGULARSPEED       5  //degrees/think ~= 200deg/sec
@@ -475,8 +475,8 @@
 #define MGTURRET_REPEAT             100
 #define MGTURRET_RANGE              250
 #define MGTURRET_SPREAD             200
-#define MGTURRET_DMG                HDM(6)
-#define MGTURRET_DCC_ANGULARSPEED       7
+#define MGTURRET_DMG                HDM(5)
+#define MGTURRET_DCC_ANGULARSPEED       6
 #define MGTURRET_DCC_ACCURACYTOLERANCE  MGTURRET_DCC_ANGULARSPEED / 1.5f
 
 #define TESLAGEN_BP                 10

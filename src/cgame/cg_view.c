@@ -742,14 +742,14 @@ static int CG_CalcFov( void )
     }
   
     // account for zooms
-    zoomFov = cg_zoomFov.value;
+    zoomFov = BG_FindZoomFovForWeapon( cg.predictedPlayerState.weapon );
     if ( zoomFov < 1 )
       zoomFov = 1;
     else if ( zoomFov > attribFov )
       zoomFov = attribFov;
 
     //TA: only do all the zoom stuff if the client CAN zoom
-    if( BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_PCLASS ], SCA_CANZOOM ) )
+    if( BG_WeaponCanZoom( cg.predictedPlayerState.weapon ) )
     {
       if ( cg.zoomed )
       {

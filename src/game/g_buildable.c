@@ -1441,6 +1441,9 @@ void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
   
   weapon = ps->weapon;
 
+  if( self->health <= 0 )
+    return;
+
   if( !self->spawned )
     return;
   
@@ -1746,6 +1749,9 @@ qboolean HMGTurret_CheckTarget( gentity_t *self, gentity_t *target, qboolean ign
   if( target->health <= 0 )
     return qfalse;
     
+  if( Distance( self->s.origin, target->s.pos.trBase ) > MGTURRET_RANGE )
+    return qfalse;
+
   //some turret has already selected this target
   if( self->dcced && target->targeted && target->targeted->powered && !ignorePainted )
     return qfalse;
@@ -2309,7 +2315,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     {
       if( tempent->s.eType != ET_BUILDABLE )
         continue;
-      if( tempent->s.modelindex == BA_A_OVERMIND )
+      if( tempent->s.modelindex == BA_A_OVERMIND && tempent->spawned )
         break;
     }
 
