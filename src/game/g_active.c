@@ -1112,7 +1112,7 @@ void ClientThink_real( gentity_t *ent )
       
       //TA: look for object infront of player
       AngleVectors( client->ps.viewangles, view, NULL, NULL );
-      VectorMA( client->ps.origin, 200, view, point );
+      VectorMA( client->ps.origin, USE_OBJECT_RANGE, view, point );
       trap_Trace( &trace, client->ps.origin, NULL, NULL, point, ent->s.number, MASK_SHOT );
 
       traceEnt = &g_entities[ trace.entityNum ];

@@ -290,8 +290,8 @@ void SP_misc_spriter( gentity_t *self )
   //add the shader to the client precache list
   self->s.weapon = G_ShaderIndex( self->targetShaderName );
 
-  if( self->spawnflags & 1 )
-    self->s.eFlags |= EF_OVERDRAW_OFF;
+/*  if( self->spawnflags & 1 )
+    self->s.eFlags |= EF_OVERDRAW_OFF;*/
   if( self->spawnflags & ( 1 << 1 ) )
     self->s.eFlags |= EF_REAL_LIGHT;
   if( self->spawnflags & ( 1 << 2 ) )
@@ -332,7 +332,6 @@ void SP_misc_particle_system( gentity_t *self )
 
   G_SpawnString( "psName", "", &s );
   
-  G_Printf( S_COLOR_GREEN "psName: %s\n", s );
   //add the particle system to the client precache list
   self->s.modelindex = G_ParticleSystemIndex( s );
 

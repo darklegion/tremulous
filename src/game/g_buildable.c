@@ -1893,6 +1893,38 @@ void HSpawn_Think( gentity_t *self )
 
 
 /*
+===============
+G_BuildableRange
+
+Check whether a point is within some range of a type of buildable
+===============
+*/
+qboolean G_BuildableRange( vec3_t origin, float r, buildable_t buildable )
+{
+  int       entityList[ MAX_GENTITIES ];
+  vec3_t    range;
+  vec3_t    mins, maxs, dir;
+  int       i, num;
+  gentity_t *ent;
+  
+  VectorSet( range, r, r, r );
+  VectorAdd( origin, range, maxs );
+  VectorSubtract( origin, range, mins );
+  
+  num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+  for( i = 0; i < num; i++ )
+  {
+    ent = &g_entities[ entityList[ i ] ];
+    
+    if( ent->s.eType == ET_BUILDABLE && ent->s.modelindex == buildable && ent->spawned )
+      return qtrue;
+  }
+
+  return qfalse;
+}
+
+
+/*
 ================
 G_itemFits
 

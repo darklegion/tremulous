@@ -245,22 +245,29 @@ void G_PrintRotations( void )
 {
   int i, j, k;
 
+  G_Printf( "Map rotations as parsed:\n\n" );
+  
   for( i = 0; i < mapRotations.numRotations; i++ )
   {
-    G_Printf( S_COLOR_CYAN "rotation: %s\n", mapRotations.rotations[ i ].name );
+    G_Printf( "rotation: %s\n{\n", mapRotations.rotations[ i ].name );
 
     for( j = 0; j < mapRotations.rotations[ i ].numMaps; j++ )
     {
-      G_Printf( S_COLOR_CYAN "  map: %s\n", mapRotations.rotations[ i ].maps[ j ].name );
+      G_Printf( "  map: %s\n  {\n", mapRotations.rotations[ i ].maps[ j ].name );
 
       for( k = 0; k < mapRotations.rotations[ i ].maps[ j ].numCmds; k++ )
       {
-        G_Printf( S_COLOR_CYAN "    command: %s\n",
+        G_Printf( "    command: %s\n",
                   mapRotations.rotations[ i ].maps[ j ].postCmds[ k ] );
       }
+
+      G_Printf( "  }\n" );
     }
+      
+    G_Printf( "}\n" );
   }
   
+  G_Printf( "Total memory used: %d bytes\n", sizeof( mapRotations ) );
 }
 
 /*

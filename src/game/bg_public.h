@@ -282,7 +282,7 @@ typedef enum
 #define EF_CONNECTION       0x00004000    // draw a connection trouble sprite
 #define EF_VOTED            0x00008000    // already cast a vote
 #define EF_TEAMVOTED        0x00010000    // already cast a vote
-#define EF_OVERDRAW_OFF     0x00020000    // TA: disable overdraw protection on sprites
+#define EF_BLOBLOCKED       0x00020000    // TA: caught by a trapper
 #define EF_REAL_LIGHT       0x00040000    // TA: light sprites according to ambient light
 
 typedef enum

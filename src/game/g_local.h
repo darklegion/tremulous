@@ -386,7 +386,7 @@ struct gclient_s
 };
 
 #define MAX_LOCDAMAGE_TEXT    8192
-#define MAX_LOCDAMAGE_REGIONS 32
+#define MAX_LOCDAMAGE_REGIONS 16
 
 //TA: store locational damage regions
 typedef struct damageRegion_s
@@ -400,7 +400,7 @@ typedef struct damageRegion_s
 } damageRegion_t;
 
 #define MAX_ARMOUR_TEXT    8192
-#define MAX_ARMOUR_REGIONS 32
+#define MAX_ARMOUR_REGIONS 16
 
 //TA: store locational armour regions
 typedef struct armourRegion_s
@@ -574,6 +574,7 @@ qboolean          AHovel_Blocked( vec3_t srcAngles, vec3_t srcOrigin, vec3_t nor
                                   vec3_t mins, vec3_t maxs, int entityNum,
                                   vec3_t newOrigin, vec3_t newAngles );
   
+qboolean          G_BuildableRange( vec3_t origin, float r, buildable_t buildable );
 itemBuildError_t  G_itemFits( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin );
 gentity_t         *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin, vec3_t angles );
 qboolean          G_ValidateBuild( gentity_t *ent, buildable_t buildable );
@@ -780,7 +781,7 @@ void G_WriteSessionData( void );
 // g_maprotation.c
 //
 #define MAX_MAP_ROTATIONS     16
-#define MAX_MAP_ROTATION_MAPS 256
+#define MAX_MAP_ROTATION_MAPS 32
 #define MAX_MAP_COMMANDS      16
 
 #define NOT_ROTATING          -1
@@ -789,7 +790,7 @@ typedef struct mapRotationEntry_s
 {
   char  name[ MAX_QPATH ];
   
-  char  postCmds[ MAX_TOKEN_CHARS ][ MAX_MAP_COMMANDS ];
+  char  postCmds[ MAX_QPATH ][ MAX_MAP_COMMANDS ];
   int   numCmds;
 } mapRotationEntry_t;
 

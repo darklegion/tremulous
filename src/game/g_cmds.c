@@ -932,7 +932,6 @@ void Cmd_Class_f( gentity_t *ent )
   int       clientNum;
   gentity_t *spawn;
   vec3_t    spawn_origin, spawn_angles;
-  vec3_t    distance;
   vec3_t    up = { 0.0f, 0.0f, 1.0f };
   int       length = 4096;
   int       i;
@@ -1229,7 +1228,6 @@ void Cmd_ToggleItem_f( gentity_t *ent )
     trap_SendServerCommand( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
 }
 
-
 /*
 =================
 Cmd_Buy_f
@@ -1238,10 +1236,7 @@ Cmd_Buy_f
 void Cmd_Buy_f( gentity_t *ent )
 {
   char      s[ MAX_TOKEN_CHARS ];
-  vec3_t    distance;
   int       i;
-  gentity_t *armouryEntity;
-  qboolean  nearArmoury = qfalse;
   int       weapon, upgrade, numItems = 0;
   int       quan, clips, maxClips;
 
@@ -1263,21 +1258,8 @@ void Cmd_Buy_f( gentity_t *ent )
   if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
 
-  for ( i = 1, armouryEntity = g_entities + i; i < level.num_entities; i++, armouryEntity++ )
-  {
-    if( armouryEntity->s.eType != ET_BUILDABLE )
-      continue;
-      
-    if( armouryEntity->s.modelindex == BA_H_ARMOURY && armouryEntity->spawned )
-    {
-      VectorSubtract( ent->s.pos.trBase, armouryEntity->s.origin, distance );
-      if( VectorLength( distance ) <= 100 )
-        nearArmoury = qtrue;
-    }
-  }
-
   //no armoury nearby
-  if( !nearArmoury )
+  if( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
   {
     trap_SendServerCommand( ent-g_entities, va( "print \"You must be near an armoury\n\"" ) );
     return;
@@ -1464,10 +1446,7 @@ Cmd_Sell_f
 void Cmd_Sell_f( gentity_t *ent )
 {
   char      s[ MAX_TOKEN_CHARS ];
-  vec3_t    distance;
   int       i;
-  gentity_t *armouryEntity;
-  qboolean  nearArmoury = qfalse;
   int       weapon, upgrade;
   int       quan, clips, maxClips;
 
@@ -1476,22 +1455,9 @@ void Cmd_Sell_f( gentity_t *ent )
   //aliens don't sell stuff
   if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
-    
-  for ( i = 1, armouryEntity = g_entities + i; i < level.num_entities; i++, armouryEntity++ )
-  {
-    if( armouryEntity->s.eType != ET_BUILDABLE )
-      continue;
-      
-    if( armouryEntity->s.modelindex == BA_H_ARMOURY && armouryEntity->spawned )
-    {
-      VectorSubtract( ent->s.pos.trBase, armouryEntity->s.origin, distance );
-      if( VectorLength( distance ) <= 100 )
-        nearArmoury = qtrue;
-    }
-  }
 
   //no armoury nearby
-  if( !nearArmoury )
+  if( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
   {
     trap_SendServerCommand( ent-g_entities, va( "print \"You must be near an armoury\n\"" ) );
     return;

@@ -1396,9 +1396,10 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
   int           held, active;
   refEntity_t   jetpack;
   refEntity_t   flash;
+  entityState_t *es = &cent->currentState;
 
-  held = cent->currentState.modelindex;
-  active = cent->currentState.modelindex2;
+  held = es->modelindex;
+  active = es->modelindex2;
 
   if( held & ( 1 << UP_JETPACK ) )
   {
@@ -1419,7 +1420,7 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
     
     if( active & ( 1 << UP_JETPACK ) )
     {
-      if( cent->currentState.pos.trDelta[ 2 ] > 10.0f )
+      if( es->pos.trDelta[ 2 ] > 10.0f )
       {
         if( cent->jetPackState != JPS_ASCENDING )
         {
@@ -1433,7 +1434,7 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
         trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
                                 vec3_origin, cgs.media.jetpackAscendSound );
       }
-      else if( cent->currentState.pos.trDelta[ 2 ] < -10.0f )
+      else if( es->pos.trDelta[ 2 ] < -10.0f )
       {
         if( cent->jetPackState != JPS_DESCENDING )
         {
@@ -1495,6 +1496,25 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
     CG_DestroyParticleSystem( cent->jetPackPS );
     cent->jetPackState = JPS_OFF;
     cent->jetPackPS = NULL;
+  }
+
+  if( es->eFlags & EF_BLOBLOCKED )
+  {
+    vec3_t  temp, origin, up = { 0.0f, 0.0f, 1.0f };
+    trace_t tr;
+    float   size;
+    
+    VectorCopy( es->pos.trBase, temp );
+    temp[ 2 ] -= 4096.0f;
+
+    CG_Trace( &tr, es->pos.trBase, NULL, NULL, temp, es->number, MASK_SOLID );
+    VectorCopy( tr.endpos, origin );
+
+    size = 32.0f;
+
+    if( size > 0.0f )
+      CG_ImpactMark( cgs.media.creepShader, origin, up,
+                     0.0f, 1.0f, 1.0f, 1.0f, 1.0f, qfalse, size, qtrue );
   }
 }
 

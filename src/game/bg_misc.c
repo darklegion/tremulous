@@ -4360,6 +4360,11 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
   else
     s->eFlags &= ~EF_DEAD;
 
+  if( ps->stats[ STAT_STATE ] & SS_BLOBLOCKED )
+    s->eFlags |= EF_BLOBLOCKED;
+  else
+    s->eFlags &= ~EF_BLOBLOCKED;
+  
   if( ps->externalEvent )
   {
     s->event = ps->externalEvent;
@@ -4464,6 +4469,11 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   else
     s->eFlags &= ~EF_DEAD;
 
+  if( ps->stats[ STAT_STATE ] & SS_BLOBLOCKED )
+    s->eFlags |= EF_BLOBLOCKED;
+  else
+    s->eFlags &= ~EF_BLOBLOCKED;
+  
   if( ps->externalEvent )
   {
     s->event = ps->externalEvent;
