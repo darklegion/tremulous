@@ -585,6 +585,8 @@ void              FinishSpawningBuildable( gentity_t *ent );
 //
 // g_utils.c
 //
+int         G_ParticleSystemIndex( char *name );
+int         G_ShaderIndex( char *name );
 int         G_ModelIndex( char *name );
 int         G_SoundIndex( char *name );
 void        G_TeamCommand( pTeam_t team, char *cmd );

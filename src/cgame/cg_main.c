@@ -827,7 +827,7 @@ static void CG_RegisterGraphics( void )
   {
     const char *modelName;
 
-    modelName = CG_ConfigString( CS_MODELS+i );
+    modelName = CG_ConfigString( CS_MODELS + i );
     
     if( !modelName[ 0 ] )
       break;
@@ -842,12 +842,27 @@ static void CG_RegisterGraphics( void )
   {
     const char *shaderName;
 
-    shaderName = CG_ConfigString( CS_SHADERS+i );
+    shaderName = CG_ConfigString( CS_SHADERS + i );
     
     if( !shaderName[ 0 ] )
       break;
 
     cgs.gameShaders[ i ] = trap_R_RegisterShader( shaderName );
+  }
+
+  CG_UpdateMediaFraction( 0.9f );
+
+  // register all the server specified particle systems
+  for( i = 1; i < MAX_GAME_PARTICLE_SYSTEMS; i++ )
+  {
+    const char *psName;
+
+    psName = CG_ConfigString( CS_PARTICLE_SYSTEMS + i );
+    
+    if( !psName[ 0 ] )
+      break;
+
+    cgs.gameParticleSystems[ i ] = CG_RegisterParticleSystem( (char *)psName );
   }
 }
 

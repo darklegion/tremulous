@@ -114,6 +114,12 @@ int G_FindConfigstringIndex( char *name, int start, int max, qboolean create )
   return i;
 }
 
+//TA: added ParticleSystemIndex
+int G_ParticleSystemIndex( char *name )
+{
+  return G_FindConfigstringIndex( name, CS_PARTICLE_SYSTEMS, MAX_GAME_PARTICLE_SYSTEMS, qtrue );
+}
+
 //TA: added ShaderIndex
 int G_ShaderIndex( char *name )
 {

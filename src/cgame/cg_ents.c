@@ -877,6 +877,8 @@ static void CG_CEntityPVSEnter( centity_t *cent )
   cent->jetPackState = JPS_OFF;
   
   cent->buildablePS = NULL;
+  
+  cent->entityPS = NULL;
 }
 
 
@@ -960,6 +962,10 @@ static void CG_AddCEntity( centity_t *cent )
       
     case ET_SPRITER:
       CG_Spriter( cent );
+      break;
+      
+    case ET_PARTICLE_SYSTEM:
+      CG_ParticleSystemEntity( cent );
       break;
       
     case ET_ANIMMAPOBJ:
@@ -1079,7 +1085,6 @@ void CG_AddPacketEntities( void )
   {
     cent = &cg_entities[ cg.snap->entities[ num ].number ];
     cent->valid = qtrue;
-    CG_AddCEntity( cent );
   }
   
   for( num = 0; num < MAX_GENTITIES; num++ )
@@ -1094,5 +1099,12 @@ void CG_AddPacketEntities( void )
     cent->oldValid = cent->valid;
   }
 
+  // add each entity sent over by the server
+  for( num = 0; num < cg.snap->numEntities; num++ )
+  {
+    cent = &cg_entities[ cg.snap->entities[ num ].number ];
+    CG_AddCEntity( cent );
+  }
+  
 }
 

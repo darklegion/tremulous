@@ -349,6 +349,8 @@ static void CG_ConfigStringModified( void )
     cgs.gameModels[ num - CS_MODELS ] = trap_R_RegisterModel( str );
   else if( num >= CS_SHADERS && num < CS_SHADERS+MAX_SHADERS )
     cgs.gameShaders[ num - CS_SHADERS ] = trap_R_RegisterShader( str );
+  else if( num >= CS_PARTICLE_SYSTEMS && num < CS_PARTICLE_SYSTEMS+MAX_GAME_PARTICLE_SYSTEMS )
+    cgs.gameParticleSystems[ num - CS_PARTICLE_SYSTEMS ] = CG_RegisterParticleSystem( (char *)str );
   else if( num >= CS_SOUNDS && num < CS_SOUNDS+MAX_SOUNDS )
   {
     if( str[ 0 ] != '*' )

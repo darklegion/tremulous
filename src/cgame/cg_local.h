@@ -459,6 +459,8 @@ typedef struct centity_s
   particleSystem_t      *jetPackPS;
   jetPackState_t        jetPackState;
 
+  particleSystem_t      *entityPS;
+  
   qboolean              valid;
   qboolean              oldValid;
 } centity_t;
@@ -553,7 +555,7 @@ typedef struct localEntity_s
   float                 initRad, finalRad;
   qboolean              overdraw;
   qboolean              realLight;
-  int                   sortKey;
+  unsigned int          sortKey;
 
   //TA: lightning bolt endpoint entities
   int                   srcENum, destENum;
@@ -1262,6 +1264,7 @@ typedef struct
   //
   qhandle_t     gameModels[ MAX_MODELS ];
   qhandle_t     gameShaders[ MAX_SHADERS ];
+  qhandle_t     gameParticleSystems[ MAX_GAME_PARTICLE_SYSTEMS ];
   sfxHandle_t   gameSounds[ MAX_SOUNDS ];
   
   int           numInlineModels;
@@ -1745,6 +1748,7 @@ void                CG_SetParticleSystemNormal( particleSystem_t *ps, vec3_t nor
 
 void                CG_AddParticles( void );
 
+void                CG_ParticleSystemEntity( centity_t *cent );
 
 //===============================================
 

@@ -905,6 +905,20 @@ Triggering this entity toggles it.
 
 //=============================================================================
 
+/*QUAKED misc_particle_system (1 .5 .25) (-16 -16 -16) (16 16 16) SPAWN_DISABLED
+A particle system entity.
+
+-------- KEYS --------
+psName: The name of the particle system to spawn at this entity.
+
+-------- SPAWNFLAGS --------
+SPAWN_DISABLED: Spawn disabled.
+
+-------- NOTES --------
+Triggering this entity toggles it on and off.
+*/
+
+//=============================================================================
 /*QUAKED misc_light_flare (.65 .65 1) (-8 -8 -8) (8 8 8) SPAWN_DISABLED
 A light flare entity.
 

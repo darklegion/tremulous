@@ -1549,7 +1549,7 @@ static void CG_GarbageCollectParticleSystems( void )
 
     //check systems where the parent cent has left the PVS
     //( centNum 0 - player entity, is always valid )
-    if( ps->attachType == PSA_CENT_ORIGIN && ps->attachment.centNum != 0 )
+    if( ps->attachment.centValid && ps->attachment.centNum != 0 )
     {
       if( !cg_entities[ ps->attachment.centNum ].valid )
         ps->valid = qfalse;
@@ -1800,10 +1800,17 @@ static void CG_CompactAndSortParticles( void )
   for( i = 0; i < numParticles; i++ )
   {
     VectorSubtract( particles[ i ].origin, cg.refdef.vieworg, delta );
-    particles[ i ].sortKey = DotProduct( delta, delta );
+    particles[ i ].sortKey = (int)DotProduct( delta, delta );
   }
   
   CG_RadixSort( particles, sortParticles, numParticles );
+  
+  //reverse order of particles array
+  for( i = 0; i < numParticles; i++ )
+    sortParticles[ i ] = particles[ numParticles - i - 1 ];
+  
+  for( i = 0; i < numParticles; i++ )
+    particles[ i ] = sortParticles[ i ];
 }
 
 /*
@@ -1940,5 +1947,37 @@ void CG_AddParticles( void )
         numP++;
 
     CG_Printf( "PS: %d  PE: %d  P: %d\n", numPS, numPE, numP );
+  }
+}
+
+/*
+===============
+CG_ParticleSystemEntity
+
+Particle system entity client code
+===============
+*/
+void CG_ParticleSystemEntity( centity_t *cent )
+{
+  entityState_t *es;
+
+  es = &cent->currentState;
+  
+  if( es->eFlags & EF_NODRAW )
+  {
+    if( cent->entityPS != NULL && CG_IsParticleSystemInfinite( cent->entityPS ) )
+      CG_DestroyParticleSystem( cent->entityPS );
+    
+    cent->entityPS = NULL;
+
+    return;
+  }
+  
+  if( cent->entityPS == NULL )
+  {
+    cent->entityPS = CG_SpawnNewParticleSystem( cgs.gameParticleSystems[ es->modelindex ] );
+    CG_SetParticleSystemOrigin( cent->entityPS, cent->lerpOrigin );
+    CG_SetParticleSystemCent( cent->entityPS, cent );
+    CG_AttachParticleSystemToOrigin( cent->entityPS );
   }
 }

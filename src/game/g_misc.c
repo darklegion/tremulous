@@ -242,17 +242,26 @@ void SP_misc_portal_camera( gentity_t *ent )
 ======================================================================
 */
 
-//TA: use function for spriter
+/*
+===============
+SP_use_spriter
+
+Use function for spriter
+===============
+*/
 void SP_use_spriter( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
   //toggle EF_NODRAW
-  if( self->s.eFlags & EF_NODRAW )
-    self->s.eFlags &= ~EF_NODRAW;
-  else
-    self->s.eFlags |= EF_NODRAW;
+  self->s.eFlags ^= EF_NODRAW;
 }
 
-//TA: spawn function for spriter
+/*
+===============
+SP_spawn_spriter
+
+Spawn function for spriter
+===============
+*/
 void SP_misc_spriter( gentity_t *self )
 {
   vec3_t  accel;
@@ -295,7 +304,53 @@ void SP_misc_spriter( gentity_t *self )
   trap_LinkEntity( self );
 }
 
-//TA: use function for anim model
+/*
+===============
+SP_use_particle_system
+
+Use function for particle_system
+===============
+*/
+void SP_use_particle_system( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  //toggle EF_NODRAW
+  self->s.eFlags ^= EF_NODRAW;
+}
+
+/*
+===============
+SP_spawn_particle_system
+
+Spawn function for particle system
+===============
+*/
+void SP_misc_particle_system( gentity_t *self )
+{
+  char  *s;
+  
+  G_SetOrigin( self, self->s.origin );
+
+  G_SpawnString( "psName", "", &s );
+  
+  G_Printf( S_COLOR_GREEN "psName: %s\n", s );
+  //add the particle system to the client precache list
+  self->s.modelindex = G_ParticleSystemIndex( s );
+
+  if( self->spawnflags & 1 )
+    self->s.eFlags |= EF_NODRAW;
+  
+  self->use = SP_use_particle_system;
+  self->s.eType = ET_PARTICLE_SYSTEM;
+  trap_LinkEntity( self );
+}
+
+/*
+===============
+SP_use_anim_model
+
+Use function for anim model
+===============
+*/
 void SP_use_anim_model( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
   if( self->spawnflags & 1 )
@@ -318,7 +373,13 @@ void SP_use_anim_model( gentity_t *self, gentity_t *other, gentity_t *activator 
   }
 }
 
-//TA: spawn function for anim model
+/*
+===============
+SP_misc_anim_model
+
+Spawn function for anim model
+===============
+*/
 void SP_misc_anim_model( gentity_t *self )
 {
   self->s.powerups  = (int)self->animation[ 0 ];
@@ -338,13 +399,25 @@ void SP_misc_anim_model( gentity_t *self )
   trap_LinkEntity( self );
 }
 
-//TA: use function for light flares
+/*
+===============
+SP_use_light_flare
+
+Use function for light flare
+===============
+*/
 void SP_use_light_flare( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
   self->s.eFlags ^= EF_NODRAW;
 }
 
-//TA: finds an empty spot radius units from origin
+/*
+===============
+findEmptySpot
+
+Finds an empty spot radius units from origin
+==============
+*/
 static void findEmptySpot( vec3_t origin, float radius, vec3_t spot )
 {
   int     i, j, k;
@@ -383,7 +456,13 @@ static void findEmptySpot( vec3_t origin, float radius, vec3_t spot )
   VectorAdd( origin, total, spot );
 }
 
-//TA: spawn function for light flares
+/*
+===============
+SP_misc_light_flare
+
+Spawn function for light flare
+===============
+*/
 void SP_misc_light_flare( gentity_t *self )
 {
   self->s.eType = ET_LIGHTFLARE;
