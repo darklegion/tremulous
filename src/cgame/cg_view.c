@@ -936,6 +936,9 @@ static void CG_DamageBlendBlob( void )
 }
 
 
+#define NORMAL_HEIGHT 64.0f
+#define NORMAL_WIDTH  6.0f
+
 /*
 ===============
 CG_DrawSurfNormal
@@ -946,53 +949,40 @@ the surface player is looking at
 */
 static void CG_DrawSurfNormal( void )
 {
-  trace_t tr;
-  vec3_t  end, temp;
-  vec3_t  up = { 0, 5, 0 };
-  polyVert_t normal[4];
+  trace_t     tr;
+  vec3_t      end, temp;
+  polyVert_t  normal[ 4 ];
+  vec4_t      color = { 0.0f, 255.0f, 0.0f, 128.0f };
 
   VectorMA( cg.refdef.vieworg, 8192, cg.refdef.viewaxis[ 0 ], end );
 
   CG_Trace( &tr, cg.refdef.vieworg, NULL, NULL, end, cg.predictedPlayerState.clientNum, MASK_SOLID );
-  //CG_Printf( "%f %f %f\n", tr.plane.normal[ 0 ], tr.plane.normal[ 1 ], tr.plane.normal[ 2 ] );
 
   VectorCopy( tr.endpos, normal[ 0 ].xyz );
   normal[ 0 ].st[ 0 ] = 0;
   normal[ 0 ].st[ 1 ] = 0;
-  normal[ 0 ].modulate[ 0 ] = 255;
-  normal[ 0 ].modulate[ 1 ] = 255;
-  normal[ 0 ].modulate[ 2 ] = 255;
-  normal[ 0 ].modulate[ 3 ] = 255;
+  Vector4Copy( color, normal[ 0 ].modulate );
 
-  VectorAdd( up, tr.endpos, temp );
+  VectorMA( tr.endpos, NORMAL_WIDTH, cg.refdef.viewaxis[ 1 ], temp );
   VectorCopy( temp, normal[ 1 ].xyz);
   normal[ 1 ].st[ 0 ] = 0;
   normal[ 1 ].st[ 1 ] = 1;
-  normal[ 1 ].modulate[ 0 ] = 255;
-  normal[ 1 ].modulate[ 1 ] = 255;
-  normal[ 1 ].modulate[ 2 ] = 255;
-  normal[ 1 ].modulate[ 3 ] = 255;
+  Vector4Copy( color, normal[ 1 ].modulate );
 
-  VectorMA( tr.endpos, 64, tr.plane.normal, temp );
-  VectorAdd( temp, up, temp );
+  VectorMA( tr.endpos, NORMAL_HEIGHT, tr.plane.normal, temp );
+  VectorMA( temp, NORMAL_WIDTH, cg.refdef.viewaxis[ 1 ], temp );
   VectorCopy( temp, normal[ 2 ].xyz );
   normal[ 2 ].st[ 0 ] = 1;
   normal[ 2 ].st[ 1 ] = 1;
-  normal[ 2 ].modulate[ 0 ] = 255;
-  normal[ 2 ].modulate[ 1 ] = 255;
-  normal[ 2 ].modulate[ 2 ] = 255;
-  normal[ 2 ].modulate[ 3 ] = 255;
+  Vector4Copy( color, normal[ 2 ].modulate );
 
-  VectorMA( tr.endpos, 64, tr.plane.normal, temp );
+  VectorMA( tr.endpos, NORMAL_HEIGHT, tr.plane.normal, temp );
   VectorCopy( temp, normal[ 3 ].xyz );
   normal[ 3 ].st[ 0 ] = 1;
   normal[ 3 ].st[ 1 ] = 0;
-  normal[ 3 ].modulate[ 0 ] = 255;
-  normal[ 3 ].modulate[ 1 ] = 255;
-  normal[ 3 ].modulate[ 2 ] = 255;
-  normal[ 3 ].modulate[ 3 ] = 255;
+  Vector4Copy( color, normal[ 3 ].modulate );
 
-  trap_R_AddPolyToScene( cgs.media.whiteShader, 4, normal );
+  trap_R_AddPolyToScene( cgs.media.outlineShader, 4, normal );
 }
 
 /*
