@@ -371,7 +371,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         numerator = self->credits[ i ];
         
         //add credit
-        player->client->ps.stats[ STAT_CREDIT ] += (int)( (float)classValue * ( numerator / denominator ) );
+        player->client->ps.persistant[ PERS_CREDIT ] += (int)( (float)classValue * ( numerator / denominator ) );
       }
     }
   }

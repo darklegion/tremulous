@@ -3078,7 +3078,7 @@ static void UI_LoadTremAlienUpgrades( )
   
   for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
   {
-    if( BG_ClassCanEvolveFromTo( class, i, credits ) &&
+    if( BG_ClassCanEvolveFromTo( class, i, credits, 0 ) &&
         BG_FindStagesForClass( i, stage ) )
     {
       uiInfo.tremAlienUpgradeList[ j ].text = String_Alloc( BG_FindNameForClassNum( i ) );

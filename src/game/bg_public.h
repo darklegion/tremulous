@@ -223,8 +223,6 @@ typedef enum {
   STAT_PTEAM,     //TA: player team
   STAT_STAMINA,   //TA: stamina (human only)
   STAT_STATE,     //TA: client states e.g. wall climbing
-  STAT_CREDIT,    //TA: human credit
-  STAT_BANK,      //TA: human credit in the bank
   STAT_MISC,      //TA: for uh...misc stuff
   STAT_BUILDABLE  //TA: which ghost model to display for building
 } statIndex_t;
@@ -267,7 +265,9 @@ typedef enum {
   PERS_KILLED,          // count of the number of times you died
 
   //TA:
-  PERS_STATE
+  PERS_STATE,
+  PERS_CREDIT,    //TA: human credit
+  PERS_BANK       //TA: human credit in the bank
 } persEnum_t;
 
 #define PS_WALLCLIMBINGFOLLOW   0x00000001
@@ -715,9 +715,9 @@ typedef enum {
 // How many players on the overlay
 #define TEAM_MAXOVERLAY   32
 
-//FIXME: switch to enums at some point
 //TA: player classes
-typedef enum {
+typedef enum
+{
   PCL_NONE,
   
   //builder classes
@@ -1016,7 +1016,7 @@ float     BG_FindStickyForClass( int pclass );
 int       BG_FindSteptimeForClass( int pclass );
 qboolean  BG_ClassHasAbility( int pclass, int ability );
 float     BG_FindBuildDistForClass( int pclass );
-qboolean  BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits );
+int       BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int num );
 int       BG_FindEvolveTimeForClass( int pclass );
 int       BG_FindValueOfClass( int pclass );
 

@@ -538,7 +538,7 @@ void CG_Menu( int eventParm )
       
     case MN_A_INFEST:
       trap_Cvar_Set( "ui_currentClass", va( "%d %d",  cg.snap->ps.stats[ STAT_PCLASS ],
-                                                      cg.snap->ps.stats[ STAT_CREDIT ] ) );
+                                                      cg.snap->ps.persistant[ PERS_CREDIT ] ) );
       trap_SendConsoleCommand( "menu tremulous_alienupgrade\n" );
       break;
 

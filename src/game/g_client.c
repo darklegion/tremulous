@@ -634,7 +634,7 @@ void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
     for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
     {
       if( BG_ClassCanEvolveFromTo(  activator->client->ps.stats[ STAT_PCLASS ],
-                                    i, activator->client->ps.stats[ STAT_CREDIT ] ) &&
+                                    i, activator->client->ps.persistant[ PERS_CREDIT ], 0 ) &&
           BG_FindStagesForClass( i, g_alienStage.integer ) )
         break;
     }
@@ -1421,7 +1421,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   client->ps.stats[ STAT_SLOTS ] = 0;
 
   //no credit
-  client->ps.stats[ STAT_CREDIT ] = 0;
+  if( !spawn )
+    client->ps.persistant[ PERS_CREDIT ] = 0;
   
   client->ps.eFlags = flags;
   client->ps.clientNum = index;

@@ -259,7 +259,7 @@ void Cmd_Give_f (gentity_t *ent)
 
   if( give_all || Q_stricmp( name, "funds" ) == 0 )
   {
-    ent->client->ps.stats[ STAT_CREDIT ] += 100;
+    ent->client->ps.persistant[ PERS_CREDIT ] += 123;
 
     if( !give_all )
       return;
@@ -629,7 +629,7 @@ void Cmd_Team_f( gentity_t *ent )
   if( oldTeam != ent->client->pers.pteam )
   {
     level.bankCredits[ ent->client->ps.clientNum ] = 0;
-    ent->client->ps.stats[ STAT_BANK ] = 0;
+    ent->client->ps.persistant[ PERS_BANK ] = 0;
     ent->client->pers.pclass = 0;
     ClientSpawn( ent, NULL );
   }
@@ -1566,6 +1566,7 @@ void Cmd_Class_f( gentity_t *ent )
   vec3_t    infestOrigin, infestAngles;
   int       allowedClasses[ NUM_AC ] = {  PCL_A_B_BASE,
                                           PCL_A_O_BASE };
+  int       numLevels;
 
   clientNum = ent->client - level.clients;
   trap_Argv( 1, s, sizeof( s ) );
@@ -1596,7 +1597,7 @@ void Cmd_Class_f( gentity_t *ent )
         if( !Q_stricmp( s, "store" ) )
         {
           //increment credits
-          ent->client->ps.stats[ STAT_CREDIT ]++;
+          ent->client->ps.persistant[ PERS_CREDIT ]++;
 
           //destroy body
           G_AddEvent( victim, EV_GIB_ALIEN, DirToByte( up ) );
@@ -1613,11 +1614,15 @@ void Cmd_Class_f( gentity_t *ent )
             return;
           }
           
+          numLevels = BG_ClassCanEvolveFromTo( ent->client->ps.stats[ STAT_PCLASS ], ent->client->pers.pclass,
+                                               ent->client->ps.persistant[ PERS_CREDIT ], 0 );
+
           //...check we can evolve to that class
-          if( BG_ClassCanEvolveFromTo( ent->client->ps.stats[ STAT_PCLASS ],
-                                       ent->client->pers.pclass, ent->client->ps.stats[ STAT_CREDIT ] ) ||
-              BG_FindStagesForClass( ent->client->pers.pclass, g_alienStage.integer ) )
+          if( numLevels && BG_FindStagesForClass( ent->client->pers.pclass, g_alienStage.integer ) )
           {
+            //remove credit
+            ent->client->ps.persistant[ PERS_CREDIT ] -= numLevels - 1;
+            
             //prevent lerping
             ent->client->ps.eFlags ^= EF_TELEPORT_BIT;
       
@@ -1883,7 +1888,7 @@ void Cmd_Buy_f( gentity_t *ent )
     }
       
     //can afford this?
-    if( BG_FindPriceForWeapon( weapon ) > ent->client->ps.stats[ STAT_CREDIT ] )
+    if( BG_FindPriceForWeapon( weapon ) > ent->client->ps.persistant[ PERS_CREDIT ] )
     {
       G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
       return;
@@ -1930,7 +1935,7 @@ void Cmd_Buy_f( gentity_t *ent )
     ent->client->ps.weapon = weapon;
     
     //subtract from funds
-    ent->client->ps.stats[ STAT_CREDIT ] -= BG_FindPriceForWeapon( weapon );
+    ent->client->ps.persistant[ PERS_CREDIT ] -= BG_FindPriceForWeapon( weapon );
   }
   else if( upgrade != UP_NONE )
   {
@@ -1942,7 +1947,7 @@ void Cmd_Buy_f( gentity_t *ent )
     }
     
     //can afford this?
-    if( BG_FindPriceForUpgrade( upgrade ) > ent->client->ps.stats[ STAT_CREDIT ] )
+    if( BG_FindPriceForUpgrade( upgrade ) > ent->client->ps.persistant[ PERS_CREDIT ] )
     {
       G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
       return;
@@ -1973,7 +1978,7 @@ void Cmd_Buy_f( gentity_t *ent )
     BG_packItem( upgrade, ent->client->ps.stats );
     
     //subtract from funds
-    ent->client->ps.stats[ STAT_CREDIT ] -= BG_FindPriceForUpgrade( upgrade );
+    ent->client->ps.persistant[ PERS_CREDIT ] -= BG_FindPriceForUpgrade( upgrade );
   }
   else
   {
@@ -2035,7 +2040,7 @@ void Cmd_Sell_f( gentity_t *ent )
       BG_removeWeapon( weapon, ent->client->ps.stats );
 
       //add to funds
-      ent->client->ps.stats[ STAT_CREDIT ] += BG_FindPriceForWeapon( weapon );
+      ent->client->ps.persistant[ PERS_CREDIT ] += BG_FindPriceForWeapon( weapon );
     }
   }
   else if( upgrade != UP_NONE )
@@ -2046,7 +2051,7 @@ void Cmd_Sell_f( gentity_t *ent )
       BG_removeItem( upgrade, ent->client->ps.stats );
 
       //add to funds
-      ent->client->ps.stats[ STAT_CREDIT ] += BG_FindPriceForUpgrade( upgrade );
+      ent->client->ps.persistant[ PERS_CREDIT ] += BG_FindPriceForUpgrade( upgrade );
     }
   }
   else
@@ -2063,7 +2068,7 @@ Cmd_Statement_f
 void Cmd_Statement_f( gentity_t *ent )
 {
   trap_SendServerCommand( ent-g_entities, va("print \"Credits: %d\n\"",
-    ent->client->ps.stats[ STAT_CREDIT ] ) );
+    ent->client->ps.persistant[ PERS_CREDIT ] ) );
 }
 
 /*
@@ -2098,7 +2103,7 @@ void Cmd_Deposit_f( gentity_t *ent )
     }
 
     if( !Q_stricmp( s, "all" ) )
-      amount = ent->client->ps.stats[ STAT_CREDIT ];
+      amount = ent->client->ps.persistant[ PERS_CREDIT ];
     else
       amount = atoi( s );
 
@@ -2109,10 +2114,10 @@ void Cmd_Deposit_f( gentity_t *ent )
       return;
     }
 
-    if( amount <= ent->client->ps.stats[ STAT_CREDIT ] )
+    if( amount <= ent->client->ps.persistant[ PERS_CREDIT ] )
     {
-      ent->client->ps.stats[ STAT_CREDIT ] -= amount;
-      ent->client->ps.stats[ STAT_BANK ] += amount;
+      ent->client->ps.persistant[ PERS_CREDIT ] -= amount;
+      ent->client->ps.persistant[ PERS_BANK ] += amount;
       level.bankCredits[ ent->client->ps.clientNum ] += amount;
     }
     else
@@ -2134,7 +2139,7 @@ void Cmd_Deposit_f( gentity_t *ent )
     }
 
     if( !Q_stricmp( s, "all" ) )
-      amount = ent->client->ps.stats[ STAT_CREDIT ];
+      amount = ent->client->ps.persistant[ PERS_CREDIT ];
     else
       amount = atoi( s );
 
@@ -2145,10 +2150,10 @@ void Cmd_Deposit_f( gentity_t *ent )
       return;
     }
 
-    if( amount <= ent->client->ps.stats[ STAT_CREDIT ] )
+    if( amount <= ent->client->ps.persistant[ PERS_CREDIT ] )
     {
-      ent->client->ps.stats[ STAT_CREDIT ] -= amount;
-      ent->client->ps.stats[ STAT_BANK ] += amount;
+      ent->client->ps.persistant[ PERS_CREDIT ] -= amount;
+      ent->client->ps.persistant[ PERS_BANK ] += amount;
       level.bankCredits[ ent->client->ps.clientNum ] += amount;
     }
     else
@@ -2202,8 +2207,8 @@ void Cmd_Withdraw_f( gentity_t *ent )
 
     if( amount <= level.bankCredits[ ent->client->ps.clientNum ] )
     {
-      ent->client->ps.stats[ STAT_CREDIT ] += amount;
-      ent->client->ps.stats[ STAT_BANK ] -= amount;
+      ent->client->ps.persistant[ PERS_CREDIT ] += amount;
+      ent->client->ps.persistant[ PERS_BANK ] -= amount;
       level.bankCredits[ ent->client->ps.clientNum ] -= amount;
     }
     else
@@ -2238,8 +2243,8 @@ void Cmd_Withdraw_f( gentity_t *ent )
 
     if( amount <= level.bankCredits[ ent->client->ps.clientNum ] )
     {
-      ent->client->ps.stats[ STAT_CREDIT ] += amount;
-      ent->client->ps.stats[ STAT_BANK ] -= amount;
+      ent->client->ps.persistant[ PERS_CREDIT ] += amount;
+      ent->client->ps.persistant[ PERS_BANK ] -= amount;
       level.bankCredits[ ent->client->ps.clientNum ] -= amount;
     }
     else
@@ -2382,10 +2387,15 @@ void Cmd_Spawnbody_f( gentity_t *ent )
 
 /*void Cmd_Test_f( gentity_t *ent )
 {
-  if( level.alienKills < 50 )
-    level.alienKills = 50;
-  else if( level.alienKills < 100 )
-    level.alienKills = 100;
+  char  s[ MAX_TOKEN_CHARS ];
+  int   a, b, c;
+  
+  trap_Argv( 1, s, sizeof( s ) );
+  a = atoi( s );
+  trap_Argv( 2, s, sizeof( s ) );
+  b = atoi( s );
+  
+  G_Printf( "%d\n", BG_ClassCanEvolveFromTo( a, b, 10000, 0 ) );
 }*/
 
 /*

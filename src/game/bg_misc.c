@@ -1893,16 +1893,16 @@ float BG_FindBuildDistForClass( int pclass )
 BG_ClassCanEvolveFromTo
 ==============
 */
-qboolean BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits )
+int BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int num )
 {
   int i, j;
 
   //base case
   if( credits + 1 == 0 )
-    return qfalse;
+    return 0;
 
   if( tclass == PCL_NONE )
-    return qfalse;
+    return 0;
 
   for( i = 0; i < bg_numPclasses; i++ )
   {
@@ -1910,18 +1910,21 @@ qboolean BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits )
     {
       for( j = 0; j <= 3; j++ )
         if( bg_classList[ i ].children[ j ] == tclass )
-          return qtrue;
+          return num + 1;
 
       for( j = 0; j <= 3; j++ )
-        if( BG_ClassCanEvolveFromTo(  bg_classList[ i ].children[ j ],
-                                      tclass, credits - 1 ) == qtrue )
-          return qtrue;
+      {
+        int sub = BG_ClassCanEvolveFromTo(  bg_classList[ i ].children[ j ],
+                                            tclass, credits - 1, num + 1 );
+        if( sub )
+          return sub;
+      }
       
-      return qfalse; //may as well return by this point
+      return 0; //may as well return by this point
     }
   }
 
-  return qfalse;
+  return 0;
 }
 
 /*

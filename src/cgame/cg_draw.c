@@ -327,7 +327,7 @@ static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color )
 
   ps = &cg.snap->ps;
 
-  value = ps->stats[ STAT_CREDIT ];
+  value = ps->persistant[ PERS_CREDIT ];
   if( value > -1 )
   {
     trap_R_SetColor( color );
@@ -343,7 +343,7 @@ static void CG_DrawPlayerBankValue( rectDef_t *rect, vec4_t color )
 
   ps = &cg.snap->ps;
 
-  value = ps->stats[ STAT_BANK ];
+  value = ps->persistant[ PERS_BANK ];
   if( value > -1 )
   {
     trap_R_SetColor( color );
@@ -993,7 +993,7 @@ CG_DrawStatusBar
     }
     
     //display amount of credit
-    s = va( "%dg", ps->stats[ STAT_CREDIT ] );
+    s = va( "%dg", ps->stats[ PERS_CREDIT ] );
     w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
     CG_DrawBigString( 635 - w, 35, s, 1.0F);
   }
