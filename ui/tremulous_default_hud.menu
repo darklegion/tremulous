@@ -24,11 +24,12 @@
       textstyle ITEM_TEXTSTYLE_NORMAL
       ownerdraw CG_CONSOLE
     }   
+
     //FPS
     itemDef
     {
       name "fps"
-      rect 576 8 56 22
+      rect 572 8 56 22
       style WINDOW_STYLE_EMPTY
       visible 1
       decoration
@@ -36,7 +37,7 @@
       align ITEM_ALIGN_RIGHT
       textalignx 0
       textaligny 18
-      textscale 0.4
+      textscale 0.3
       textstyle ITEM_TEXTSTYLE_NORMAL
       ownerdraw CG_FPS
     }   
@@ -44,7 +45,7 @@
     itemDef
     {
       name "timer"
-      rect 576 38 56 22
+      rect 572 38 56 22
       style WINDOW_STYLE_EMPTY
       visible 1
       decoration
@@ -52,10 +53,11 @@
       align ITEM_ALIGN_RIGHT
       textalignx 0
       textaligny 18
-      textscale 0.4
+      textscale 0.3
       textstyle ITEM_TEXTSTYLE_NORMAL
       ownerdraw CG_TIMER
     }   
+   
     //SNAPSHOT
     itemDef
     {

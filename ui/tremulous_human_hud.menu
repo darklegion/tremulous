@@ -29,6 +29,34 @@
     visible MENU_TRUE
     rect 0 0 640 480
 
+    //CONSOLE
+    itemDef
+    {
+      name "console"
+      rect 8 8 560 180
+      style WINDOW_STYLE_EMPTY
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      align ITEM_ALIGN_LEFT
+      textalignx 0
+      textaligny 18
+      textscale 0.4
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_CONSOLE
+    }   
+
+    //LAGOMETER
+    itemDef
+    {
+      name "lagometer"
+      rect 576 68 56 28
+      visible 1
+      decoration
+      background "lagometer"
+      ownerdraw CG_LAGOMETER
+    }
+
     //////////////////
     //STATIC OBJECTS//
     //////////////////
@@ -57,23 +85,11 @@
       background "ui/assets/human/left-arm.tga"
     }   
 
-    //LEFT CAP
-    itemDef
-    {
-      name "left-cap"
-      rect 49 387.75 81 27.5
-      visible 1
-      decoration
-      forecolor 0.0 0.8 1.0 0.25
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/human/left-cap.tga"
-    }   
-
     //CREDITS LABEL
     itemDef
     {
       name "credits-label"
-      rect 70 392.75 7 7.5
+      rect 508 403 7 7.5
       visible 1
       decoration
       forecolor 0.0 0.8 1.0 0.5
@@ -109,36 +125,12 @@
     itemDef
     {
       name "right-cap"
-      rect 510 387.75 81 27.5
+      rect 500 400 80 15
       visible 1
       decoration
       forecolor 0.0 0.8 1.0 0.25
       style WINDOW_STYLE_SHADER
       background "ui/assets/human/right-cap.tga"
-    }   
-
-    //TIMER COLON
-    itemDef
-    {
-      name "colon"
-      rect 538.5 406 1.5 4
-      visible 1
-      decoration
-      forecolor 0.0 0.8 1.0 0.5
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/neutral/colon.tga"
-    }   
-
-    //FPS LABEL
-    itemDef
-    {
-      name "fps-label"
-      rect 555 394 16 5
-      visible 1
-      decoration
-      forecolor 0.0 0.8 1.0 0.5
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/neutral/fps.tga"
     }   
 
     ///////////////////
@@ -234,23 +226,12 @@
     itemDef
     {
       name "credits"
-      rect 77 392 40 10
+      rect 515 402 45 11.25
       visible 1
       decoration
       forecolor 0.0 0.8 1.0 0.5
       ownerdraw CG_PLAYER_CREDITS_VALUE
     }   
-
-    //BANK
-    itemDef
-    {
-      name "bank"
-      rect 80 404 32 8
-      visible 1
-      decoration
-      forecolor 0.0 0.8 1.0 0.5
-      ownerdraw CG_PLAYER_BANK_VALUE
-    }
 
     //HEALTH
     itemDef
@@ -273,17 +254,6 @@
       forecolor 0.0 0.8 1.0 0.5
       ownerdraw CG_PLAYER_SELECT
     }   
-
-    //WEAPON SELECT TEXT  
-    itemDef  
-    {  
-      name "selecttext"  
-      rect 200 25 240 300  
-      visible 1  
-      decoration  
-      textScale .5  
-      ownerdraw CG_PLAYER_SELECTTEXT  
-    }
 
     //AMMO
     itemDef
@@ -311,87 +281,33 @@
     itemDef
     {
       name "fps"
-      rect 525 392 24 8
+      rect 572 8 56 22
       style WINDOW_STYLE_EMPTY
       visible 1
       decoration
-      forecolor 0.0 0.8 1.0 .5
-      ownerdraw CG_FPS_FIXED
-    }   
-
-    //TIMER SECONDS
-    itemDef
-    {
-      name "timer"
-      rect 540 404 16 8
-      style WINDOW_STYLE_EMPTY
-      visible 1
-      decoration
-      forecolor 0.0 0.8 1.0 .5
-      ownerdraw CG_TIMER_SECS
-    }   
-    
-    //TIMER MINUTES
-    itemDef
-    {
-      name "timer"
-      rect 510 404 24 8
-      style WINDOW_STYLE_EMPTY
-      visible 1
-      decoration
-      forecolor 0.0 0.8 1.0 .5
-      ownerdraw CG_TIMER_MINS
-    }   
-
-    //CONSOLE
-    itemDef
-    {
-      name "console"
-      rect 8 8 560 180
-      style WINDOW_STYLE_EMPTY
-      visible 1
-      decoration
-      forecolor 1 1 1 1
-      align ITEM_ALIGN_LEFT
+      forecolor 0.0 0.8 1.0 1
+      align ITEM_ALIGN_RIGHT
       textalignx 0
       textaligny 18
-      textscale 0.4
+      textscale 0.3
       textstyle ITEM_TEXTSTYLE_NORMAL
-      ownerdraw CG_CONSOLE
+      ownerdraw CG_FPS
     }   
-
-    //LAGOMETER  
-    itemDef  
-    {  
-      name "lagometer"  
-      rect 502 358 132 28  
-      visible 1  
-      decoration  
-      background "lagometer"  
-      ownerdraw CG_LAGOMETER  
-    }
-
-    //USABLE
-    itemDef  
-    {  
-      name "usable"
-      rect 304 420 32 32
-      visible 1
-      decoration
-      forecolor 0.0 0.8 1.0 .25
-      background "ui/assets/neutral/use.tga"
-      ownerdraw CG_PLAYER_USABLE_BUILDABLE
-    }
-
-    //SCANNER
+    //TIMER
     itemDef
     {
-      name "scanner"
-      rect 60 300 520 120
+      name "timer"
+      rect 572 38 56 22
+      style WINDOW_STYLE_EMPTY
       visible 1
       decoration
-      background "textures/common/invisible" //FIXME: change to a bunch on concentric circles
-      ownerdraw CG_PLAYER_HUMAN_SCANNER
-    }
+      forecolor 0.0 0.8 1.0 1
+      align ITEM_ALIGN_RIGHT
+      textalignx 0
+      textaligny 18
+      textscale 0.3
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_TIMER
+    }   
   }
 }
