@@ -365,11 +365,11 @@
 
 #define BSUIT_PRICE                 200
 
-#define MGCLIP_PRICE                10
+#define MGCLIP_PRICE                0
 
-#define CGAMMO_PRICE                10
+#define CGAMMO_PRICE                0
 
-#define GAS_PRICE                   10
+#define GAS_PRICE                   0
 
 
 

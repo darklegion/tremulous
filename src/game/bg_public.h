@@ -353,8 +353,8 @@ typedef enum
   UP_BATTLESUIT,
   
   UP_MGCLIP,
-  UP_100CGAMMO,
-  UP_200GAS,
+  UP_CGAMMO,
+  UP_GAS,
 
   UP_NUM_UPGRADES
 } upgrade_t;

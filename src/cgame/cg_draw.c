@@ -2190,8 +2190,6 @@ static void CG_Draw2D( void )
   //TA: draw the lighting effects e.g. nvg
   CG_DrawLighting( );
 
-  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] != PTE_NONE )
-    menu = Menus_FindByName( BG_FindHudNameForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] ) );
   
   defaultMenu = Menus_FindByName( "default_hud" );
   
@@ -2200,6 +2198,8 @@ static void CG_Draw2D( void )
     w = CG_Text_Width( SPECTATOR_STRING, 0.7f, 0 );
     CG_Text_Paint( 320 - w / 2, 440, 0.7f, color, SPECTATOR_STRING, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
   }
+  else
+    menu = Menus_FindByName( BG_FindHudNameForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] ) );
   
   if( !( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
       !( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) && menu )

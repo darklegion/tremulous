@@ -1079,7 +1079,7 @@ static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t o
   }
 
   //iterate through ops
-  for( i = 0; i < MAXSMOOTHS; i++ )
+  for( i = MAXSMOOTHS - 1; i >= 0; i-- )
   {
     //if this op has time remaining, perform it
     if( cg.time < cg.sList[ i ].time + cg_wwSmoothTime.integer )

@@ -1405,6 +1405,10 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   // health will count down towards max_health
   ent->health = client->ps.stats[ STAT_HEALTH ] = client->ps.stats[ STAT_MAX_HEALTH ]; //* 1.25;
 
+  //clear the credits array
+  for( i = 0; i < MAX_CLIENTS; i++ )
+    ent->credits[ i ] = 0;
+  
   G_SetOrigin( ent, spawn_origin );
   VectorCopy( spawn_origin, client->ps.origin );
 
