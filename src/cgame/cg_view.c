@@ -382,6 +382,7 @@ static void CG_OffsetFirstPersonView( void )
   float         bob2;
   vec3_t        normal, baseOrigin;
   playerState_t *ps = &cg.predictedPlayerState;
+  centity_t     *cent = &cg.predictedPlayerEntity;
 	
   if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
   {
@@ -584,7 +585,7 @@ static void CG_OffsetFirstPersonView( void )
     angles[ YAW ] += fraction * PCLOUD_ROLL_AMPLITUDE;
     angles[ PITCH ] += pitchFraction * PCLOUD_ROLL_AMPLITUDE / 2.0f;
   }
-  
+
   //TA: this *feels* more realisitic for humans
   if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
@@ -1127,6 +1128,16 @@ static int CG_CalcViewValues( void )
       cg.predictedErrorTime = 0;
   }
 
+  //shut off the poison cloud effect if it's still on the go
+  if( cg.snap->ps.stats[ STAT_HEALTH ] <= 0 )
+  {
+    if( cg.poisonCloudPS != NULL )
+    {
+      CG_DestroyParticleSystem( cg.poisonCloudPS );
+      cg.poisonCloudPS = NULL;
+    }
+  }
+  
   if( cg.renderingThirdPerson )
   {
     // back away from character

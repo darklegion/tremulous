@@ -852,16 +852,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       }
       break;
 
-    case EV_POISONCLOUD:
-      DEBUGNAME( "EV_POISONCLOUD" );
-      cg.poisonedTime = cg.time;
-      {
-        particleSystem_t *ps = CG_SpawnNewParticleSystem( cgs.media.poisonCloudPS );
-        CG_SetParticleSystemCent( ps, &cg.predictedPlayerEntity );
-        CG_AttachParticleSystemToCent( ps );
-      }
-      break;
-
     case EV_ALIEN_EVOLVE:
       DEBUGNAME( "EV_ALIEN_EVOLVE" );
       trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.alienEvolveSound );

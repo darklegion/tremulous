@@ -847,6 +847,17 @@ static void CG_ServerCommand( void )
     trap_SendConsoleCommand( "closemenus\n" );
     return;
   }
+
+  //poison cloud effect needs to be reliable
+  if( !strcmp( cmd, "poisoncloud" ) )
+  {
+    cg.poisonedTime = cg.time;
+    cg.poisonCloudPS = CG_SpawnNewParticleSystem( cgs.media.poisonCloudPS );
+    CG_SetParticleSystemCent( cg.poisonCloudPS, &cg.predictedPlayerEntity );
+    CG_AttachParticleSystemToCent( cg.poisonCloudPS );
+
+    return;
+  }
   
   CG_Printf( "Unknown client game command: %s\n", cmd );
 }

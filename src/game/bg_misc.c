@@ -4117,6 +4117,7 @@ char *eventnames[ ] =
   "EV_FALL_SHORT",
   "EV_FALL_MEDIUM",
   "EV_FALL_FAR",
+  "EV_FALLING",
 
   "EV_JUMP_PAD",      // boing sound at origin", jump sound on player
 
@@ -4144,14 +4145,12 @@ char *eventnames[ ] =
 
   "EV_BULLET_HIT_FLESH",
   "EV_BULLET_HIT_WALL",
-  "EV_LAS_HIT_FLESH",
-  "EV_LAS_HIT_WALL",
-  "EV_MASS_DRIVER_HIT",
+
+  "EV_SHOTGUN",
 
   "EV_MISSILE_HIT",
   "EV_MISSILE_MISS",
   "EV_MISSILE_MISS_METAL",
-  "EV_BUILDABLE_EXPLOSION", //TA: human item explosions
   "EV_TESLATRAIL",
   "EV_ALIENZAP",
   "EV_BULLET",        // otherEntity is the shooter
@@ -4163,20 +4162,29 @@ char *eventnames[ ] =
   "EV_OBITUARY",
 
   "EV_GIB_PLAYER",      // gib a previously living player
-  "EV_GIB_ALIEN",       //TA: generic green gib for aliens
 
   "EV_BUILD_CONSTRUCT", //TA
   "EV_BUILD_DESTROY",   //TA
-  "EV_BUILD_ANIM",      //TA
+  "EV_BUILD_DELAY",     //TA: can't build yet
+  "EV_BUILD_REPAIR",    //TA: repairing buildable
+  "EV_BUILD_REPAIRED",  //TA: buildable has full health
+  "EV_HUMAN_BUILDABLE_EXPLOSION",
+  "EV_ALIEN_BUILDABLE_EXPLOSION",
+  "EV_ALIEN_ACIDTUBE",
+  "EV_HUMAN_BUILDABLE_DAMAGE",
+  "EV_ALIEN_BUILDABLE_DAMAGE",
+
+  "EV_ALIEN_EVOLVE",
 
   "EV_DEBUG_LINE",
   "EV_STOPLOOPINGSOUND",
   "EV_TAUNT",
 
-  "EV_BUILD_DELAY",     //TA: can't build yet
-  "EV_POISONCLOUD",     //TA: client poisoned
-  "EV_KNOCKOVER",       //TA: client knocked over
-  "EV_GETUP"            //TA: client getting up
+  "EV_OVERMIND_ATTACK", //TA: overmind under attack
+  "EV_OVERMIND_DYING",  //TA: overmind close to death
+  "EV_OVERMIND_SPAWNS", //TA: overmind needs spawns
+  
+  "EV_RPTUSE_SOUND"     //TA: trigger a sound
 };
 
 /*

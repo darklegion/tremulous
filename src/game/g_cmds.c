@@ -1381,13 +1381,19 @@ void Cmd_Buy_f( gentity_t *ent )
       return;
     }
     
-    weaponAmmo = ent->client->ps.weapon;
-      
-    if( upgrade == UP_AMMO && !BG_FindUsesEnergyForWeapon( weaponAmmo ) )
+    if( upgrade == UP_AMMO )
     {
-      BG_FindAmmoForWeapon( weaponAmmo, &quan, &clips, &maxClips );
-      BG_packAmmoArray( weaponAmmo, ent->client->ps.ammo, ent->client->ps.powerups,
-                        quan, clips, maxClips );
+      for( i = WP_NONE; i < WP_NUM_WEAPONS; i++ )
+      {
+        if( BG_gotWeapon( i, ent->client->ps.stats ) &&
+            !BG_FindUsesEnergyForWeapon( i ) &&
+            !BG_FindInfinteAmmoForWeapon( i ) )
+        {
+          BG_FindAmmoForWeapon( i, &quan, &clips, &maxClips );
+          BG_packAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups,
+                            quan, clips, maxClips );
+        }
+      }
     }
     else
     {
@@ -1631,7 +1637,7 @@ void Cmd_Test_f( gentity_t *ent )
   ent->client->ps.stats[ STAT_STATE ] |= SS_POISONCLOUDED;
   ent->client->lastPoisonCloudedTime = level.time;
   ent->client->lastPoisonCloudedClient = ent;
-  G_AddPredictableEvent( ent, EV_POISONCLOUD, 0 );
+  trap_SendServerCommand( ent->client->ps.clientNum, "poisoncloud" );
 }
 
 /*

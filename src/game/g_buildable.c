@@ -754,6 +754,9 @@ void AAcidTube_Think( gentity_t *self )
     {
       enemy = &g_entities[ entityList[ i ] ];
       
+      if( !G_Visible( self, enemy ) )
+        continue;
+
       if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
       {
         self->timestamp = level.time;
@@ -818,6 +821,9 @@ void AHive_Think( gentity_t *self )
       enemy = &g_entities[ entityList[ i ] ];
       
       if( enemy->health <= 0 )
+        continue;
+
+      if( !G_Visible( self, enemy ) )
         continue;
 
       if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )

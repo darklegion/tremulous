@@ -314,7 +314,7 @@ gentity_t *SelectAlienSpawnPoint( void )
       continue;
 
     //spawn is blocked
-    if( tr.fraction < 1.0f )
+    if( tr.fraction < 1.0f || tr.startsolid )
       continue;
     
     spots[ count ] = spot;
@@ -377,7 +377,7 @@ gentity_t *SelectHumanSpawnPoint( void )
       continue;
 
     //spawn is blocked
-    if( tr.fraction < 1.0f )
+    if( tr.fraction < 1.0f || tr.startsolid )
       continue;
     
     spots[ count ] = spot;

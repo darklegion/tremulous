@@ -1013,6 +1013,8 @@ typedef struct
   consoleLine_t consoleLines[ MAX_CONSOLE_LINES ];
   int           numConsoleLines;
   qboolean      consoleValid;
+  
+  particleSystem_t *poisonCloudPS;
 } cg_t;
 
 

@@ -37,7 +37,7 @@
 #define ABUILDER_BLOB_SPEED_MOD     0.5f
 #define ABUILDER_BLOB_TIME          5000
 
-#define SOLDIER_BITE_DMG            ADM(34)
+#define SOLDIER_BITE_DMG            ADM(50)
 #define SOLDIER_BITE_RANGE          32.0f
 #define SOLDIER_BITE_REPEAT         500
 
@@ -126,32 +126,32 @@
 #define HYDRA_UPG_SPEED             1.25f
 #define HYDRA_UPG_VALUE             AVM(120)
 #define HYDRA_UPG_HEALTH            AHM(50)
-#define HYDRA_UPG_REGEN             3
+#define HYDRA_UPG_REGEN             2
 
 #define CHIMERA_SPEED               1.2f
 #define CHIMERA_VALUE               AVM(200)
 #define CHIMERA_HEALTH              AHM(100)
-#define CHIMERA_REGEN               4
+#define CHIMERA_REGEN               3
 
 #define CHIMERA_UPG_SPEED           1.2f
 #define CHIMERA_UPG_VALUE           AVM(340)
 #define CHIMERA_UPG_HEALTH          AHM(120)
-#define CHIMERA_UPG_REGEN           5
+#define CHIMERA_UPG_REGEN           4
 
 #define DRAGOON_SPEED               1.2f
 #define DRAGOON_VALUE               AVM(300)
 #define DRAGOON_HEALTH              AHM(200)
-#define DRAGOON_REGEN               6
+#define DRAGOON_REGEN               5
 
 #define DRAGOON_UPG_SPEED           1.2f
 #define DRAGOON_UPG_VALUE           AVM(360)
 #define DRAGOON_UPG_HEALTH          AHM(250)
-#define DRAGOON_UPG_REGEN           7
+#define DRAGOON_UPG_REGEN           6
 
 #define BMOFO_SPEED                 1.1f
 #define BMOFO_VALUE                 AVM(400)
 #define BMOFO_HEALTH                AHM(400)
-#define BMOFO_REGEN                 9
+#define BMOFO_REGEN                 7
 
 
 
@@ -309,7 +309,7 @@
 
 #define FLAMER_GAS                  80
 #define FLAMER_REPEAT               300
-#define FLAMER_PRICE                300
+#define FLAMER_PRICE                350
 #define FLAMER_DMG                  HDM(30)
 #define FLAMER_RADIUS               50
 #define FLAMER_LIFETIME             1000.0f
@@ -368,7 +368,7 @@
  * HUMAN upgrades
  */
 
-#define LIGHTARMOUR_PRICE           100
+#define LIGHTARMOUR_PRICE           70
 
 #define HELMET_PRICE                90
 #define HELMET_RANGE                1000.0f

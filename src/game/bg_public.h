@@ -557,7 +557,6 @@ typedef enum
   EV_OVERMIND_DYING,  //TA: overmind close to death
   EV_OVERMIND_SPAWNS, //TA: overmind needs spawns
   
-  EV_POISONCLOUD,     //TA: client poisoned
   EV_RPTUSE_SOUND     //TA: trigger a sound
 } entity_event_t;
 

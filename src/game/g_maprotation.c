@@ -466,7 +466,7 @@ static void G_IssueMapChange( int rotation )
   int   map = G_GetCurrentMap( rotation );
   char  cmd[ MAX_TOKEN_CHARS ];
   
-  trap_SendConsoleCommand( EXEC_APPEND, va( "devmap %s\n",
+  trap_SendConsoleCommand( EXEC_APPEND, va( "map %s\n",
     mapRotations.rotations[ rotation ].maps[ map ].name ) );
   
   for( i = 0; i < mapRotations.rotations[ rotation ].maps[ map ].numCmds; i++ )

@@ -120,6 +120,7 @@ char *modNames[ ] =
   "MOD_HYDRA_PCLOUD",
   "MOD_DRAGOON_CLAW",
   "MOD_DRAGOON_POUNCE",
+  "MOD_DRAGOON_BOUNCEBALL",
   "MOD_CHIMERA_CLAW",
   "MOD_CHIMERA_ZAP",
   "MOD_BMOFO_CLAW",
@@ -127,6 +128,7 @@ char *modNames[ ] =
 
   "MOD_SLOWBLOB",
   "MOD_POISON",
+  "MOD_SWARM",
 
   "MOD_HSPAWN",
   "MOD_TESLAGEN",
