@@ -691,10 +691,10 @@ void CG_RegisterWeapon( int weaponNum ) {
     cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion" );
     break;
 
-  case WP_SAWBLADE_LAUNCHER:
+  case WP_LOCKBLOB_LAUNCHER:
     weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/sawblade/sawblade.md3" );
-    weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/rocket/rockfly.wav", qfalse );
-/*    weaponInfo->missileTrailFunc = CG_RocketTrail;
+/*    weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/rocket/rockfly.wav", qfalse );
+    weaponInfo->missileTrailFunc = CG_RocketTrail;
     weaponInfo->missileDlight = 200;
     weaponInfo->wiTrailTime = 2000;
     weaponInfo->trailRadius = 64;
@@ -1825,13 +1825,11 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
       CG_ParticleExplosion( "explode1", sprOrg, sprVel, 1400, 20, 30 );
     }
     break;
-  case WP_SAWBLADE_LAUNCHER:
-    mod = cgs.media.dishFlashModel;
-/*    shader = cgs.media.rocketExplosionShader;
-    sfx = cgs.media.sfx_rockexp;
-    mark = cgs.media.burnMarkShader;
+  case WP_LOCKBLOB_LAUNCHER:
+    sfx = cgs.media.gibBounce1Sound;
+    mark = cgs.media.greenBloodMarkShader;
     radius = 64;
-    isSprite = qtrue;*/
+    isSprite = qtrue;
     break;
   case WP_RAILGUN:
     mod = cgs.media.ringFlashModel;
@@ -1914,14 +1912,20 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
   //
   // impact mark
   //
-  alphaFade = (mark == cgs.media.energyMarkShader); // plasma fades alpha, all others fade color
-  if ( weapon == WP_RAILGUN ) {
+  // plasma fades alpha, all others fade color
+  alphaFade = ( mark == cgs.media.energyMarkShader ||
+                mark == cgs.media.greenBloodMarkShader );
+  
+  if( weapon == WP_RAILGUN )
+  {
     float *color;
 
     // colorize with client color
     color = cgs.clientinfo[clientNum].color2;
     CG_ImpactMark( mark, origin, dir, random()*360, color[0],color[1], color[2],1, alphaFade, radius, qfalse );
-  } else {
+  }
+  else
+  {
     CG_ImpactMark( mark, origin, dir, random()*360, 1,1,1,1, alphaFade, radius, qfalse );
   }
 }

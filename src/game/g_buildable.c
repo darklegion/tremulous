@@ -381,13 +381,20 @@ void DSpawn_Think( gentity_t *self )
   displacement = ( self->r.maxs[ 2 ] + MAX_ALIEN_BBOX ) * M_ROOT3 + 1.0f;
   VectorMA( origin, displacement, self->s.origin2, origin );
   
-  trap_Trace( &tr, origin, mins, maxs, origin, self->s.number, MASK_SHOT );
-  ent = &g_entities[ tr.entityNum ];
-  
-  if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
+  //only suicide if at rest
+  if( self->s.groundEntityNum )
   {
-    G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
-    return;
+    trap_Trace( &tr, origin, mins, maxs, origin, self->s.number, MASK_SHOT );
+    ent = &g_entities[ tr.entityNum ];
+    
+    if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
+    {
+      G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+      return;
+    }
+
+    if( ent->s.eType == ET_CORPSE )
+      G_FreeEntity( ent ); //quietly remove
   }
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
@@ -583,6 +590,7 @@ void DAcidTube_Think( gentity_t *self )
 //==================================================================================
 
 
+#define BLOB_PROJSPEED 500
 
 /*
 ================
@@ -594,8 +602,29 @@ Used by DDef2_Think to fire at enemy
 void ddef_fireonenemy( gentity_t *self, int firespeed )
 {
   vec3_t  dirToTarget;
+  vec3_t  target;
+  vec3_t  halfAcceleration, thirdJerk;
+  float   distanceToTarget = BG_FindRangeForBuildable( self->s.clientNum );
+  int     i;
  
-  VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
+  VectorScale( self->enemy->acceleration, 1.0f / 2.0f, halfAcceleration );
+  VectorScale( self->enemy->jerk, 1.0f / 3.0f, thirdJerk );
+
+  //O( time ) - worst case O( time ) = 250 iterations
+  for( i = 0; ( i * BLOB_PROJSPEED ) / 1000.0f < distanceToTarget; i++ )
+  {
+    float time = (float)i / 1000.0f;
+
+    VectorMA( self->enemy->s.pos.trBase, time, self->enemy->s.pos.trDelta,
+              dirToTarget );
+    VectorMA( dirToTarget, time * time, halfAcceleration, dirToTarget );
+    VectorMA( dirToTarget, time * time * time, thirdJerk, dirToTarget );
+    VectorSubtract( dirToTarget, self->s.pos.trBase, dirToTarget );
+    distanceToTarget = VectorLength( dirToTarget );
+
+    distanceToTarget -= self->enemy->r.maxs[ 0 ];
+  }
+  
   VectorNormalize( dirToTarget );
   vectoangles( dirToTarget, self->s.angles2 );
 
@@ -625,11 +654,13 @@ qboolean ddef_checktarget( gentity_t *self, gentity_t *target, int range )
     return qfalse;
   if( !target->client ) // is the target a bot or player?
     return qfalse;
-  if( target->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS ) // is the target one of us?
+  if( target->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS ) // one of us?
     return qfalse;
   if( target->client->sess.sessionTeam == TEAM_SPECTATOR ) // is the target alive?
     return qfalse;
   if( target->health <= 0 ) // is the target still alive?
+    return qfalse;
+  if( target->client->ps.stats[ STAT_STATE ] & SS_BLOBLOCKED ) // locked?
     return qfalse;
 
   VectorSubtract( target->r.currentOrigin, self->r.currentOrigin, distance );
@@ -654,10 +685,8 @@ void ddef_findenemy( gentity_t *ent, int range )
 {
   gentity_t *target;
 
-  target = g_entities;
-
   //iterate through entities
-  for (; target < &g_entities[ level.num_entities ]; target++)
+  for( target = g_entities; target < &g_entities[ level.num_entities ]; target++ )
   {
     //if target is not valid keep searching
     if( !ddef_checktarget( ent, target, range ) )
@@ -674,12 +703,12 @@ void ddef_findenemy( gentity_t *ent, int range )
 
 /*
 ================
-DDef2_Think
+DTrapper_Think
 
 think function for Droid Defense
 ================
 */
-void DDef2_Think( gentity_t *self )
+void DTrapper_Think( gentity_t *self )
 {
   int range =     BG_FindRangeForBuildable( self->s.clientNum );
   int firespeed = BG_FindFireSpeedForBuildable( self->s.clientNum );
@@ -1426,6 +1455,7 @@ void HSpawn_Think( gentity_t *self )
   vec3_t    mins, maxs, origin;
   gentity_t *ent;
   trace_t   tr;
+  vec3_t    up = { 0, 0, 1 };
 
   BG_FindBBoxForClass( PCL_H_BASE, mins, maxs, NULL, NULL, NULL );
 
@@ -1435,13 +1465,20 @@ void HSpawn_Think( gentity_t *self )
   //make sure we have power
   self->powered = findPower( self );
 
-  trap_Trace( &tr, origin, mins, maxs, origin, self->s.number, MASK_SHOT );
-  ent = &g_entities[ tr.entityNum ];
-  
-  if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
+  //only suicide if at rest
+  if( self->s.groundEntityNum )
   {
-    G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
-    return;
+    trap_Trace( &tr, origin, mins, maxs, origin, self->s.number, MASK_SHOT );
+    ent = &g_entities[ tr.entityNum ];
+    
+    if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
+    {
+      G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+      return;
+    }
+
+    if( ent->s.eType == ET_CORPSE )
+      G_FreeEntity( ent ); //quietly remove
   }
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
@@ -1705,13 +1742,11 @@ gentity_t *G_buildItem( gentity_t *ent, buildable_t buildable, int distance, flo
       built->pain = DSpawn_Pain;
       break;
       
-/*    case BA_D_DEF2:
-      built->die = DDef1_Die;
-      built->think = DDef2_Think;
+    case BA_D_TRAPPER:
+      built->die = DBarricade_Die;
+      built->think = DTrapper_Think;
       built->pain = DSpawn_Pain;
-      built->enemy = NULL;
-      built->s.weapon = BG_FindProjTypeForBuildable( buildable );
-      break;*/
+      break;
       
     case BA_D_HIVEMIND:
       built->die = DSpawn_Die;
@@ -1728,8 +1763,6 @@ gentity_t *G_buildItem( gentity_t *ent, buildable_t buildable, int distance, flo
     case BA_H_DEF3:
       built->die = HSpawn_Die;
       built->think = HDef_Think;
-      built->enemy = NULL;
-      built->s.weapon = BG_FindProjTypeForBuildable( buildable );
       break;
       
     case BA_H_MCU:
@@ -1779,6 +1812,8 @@ gentity_t *G_buildItem( gentity_t *ent, buildable_t buildable, int distance, flo
   built->s.number = built - g_entities;
   built->r.contents = CONTENTS_BODY;
   built->clipmask = MASK_PLAYERSOLID;
+  built->enemy = NULL;
+  built->s.weapon = BG_FindProjTypeForBuildable( buildable );
 
   if( ent->client )
     built->builtBy = ent->client->ps.clientNum;

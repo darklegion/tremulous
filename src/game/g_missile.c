@@ -83,7 +83,7 @@ void G_ExplodeMissile( gentity_t *ent ) {
   ent->s.eType = ET_GENERAL;
 
   //TA: tired... can't be fucked... hack
-  if( ent->s.weapon != WP_SAWBLADE_LAUNCHER )
+  if( ent->s.weapon != WP_LOCKBLOB_LAUNCHER )
     G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
 
   ent->freeAfterEvent = qtrue;
@@ -140,7 +140,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		}
 	}
 
-	if (!strcmp(ent->classname, "hook")) {
+	if( !strcmp( ent->classname, "hook" ) )
+  {
 		gentity_t *nent;
 		vec3_t v;
 
@@ -185,6 +186,16 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		return;
 	}
 
+	if( !strcmp( ent->classname, "lockblob" ) )
+  {
+    if( other->client && other->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    {
+      other->client->ps.stats[ STAT_STATE ] |= SS_BLOBLOCKED;
+      other->client->lastLockTime = level.time;
+      VectorCopy( other->client->ps.viewangles, other->client->ps.grapplePoint );
+    }
+  }
+  
 	// is it cheaper in bandwidth to just remove this ent and create a new
 	// one, rather than changing the missile into the explosion?
 
@@ -490,26 +501,25 @@ gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir) {
 
 /*
 =================
-fire_sawblade
+fire_lockblob
 =================
 */
-gentity_t *fire_sawblade( gentity_t *self, vec3_t start, vec3_t dir )
+gentity_t *fire_lockblob( gentity_t *self, vec3_t start, vec3_t dir )
 {
 	gentity_t	*bolt;
 
 	VectorNormalize ( dir );
 
 	bolt = G_Spawn( );
-	bolt->classname = "sawblade";
-	bolt->nextthink = level.time + 5000;
+	bolt->classname = "lockblob";
+	bolt->nextthink = level.time + 15000;
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	bolt->s.eFlags = EF_BOUNCE;
-	bolt->s.weapon = WP_SAWBLADE_LAUNCHER;
+	bolt->s.weapon = WP_LOCKBLOB_LAUNCHER;
 	bolt->r.ownerNum = self->s.number;
 	bolt->parent = self;
-	bolt->damage = 100;
+	bolt->damage = 0;
 	bolt->splashDamage = 0;
 	bolt->splashRadius = 0;
 	bolt->methodOfDeath = MOD_ROCKET;
@@ -520,7 +530,7 @@ gentity_t *fire_sawblade( gentity_t *self, vec3_t start, vec3_t dir )
 	bolt->s.pos.trType = TR_LINEAR;
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
 	VectorCopy( start, bolt->s.pos.trBase );
-	VectorScale( dir, 1000, bolt->s.pos.trDelta );
+	VectorScale( dir, 500, bolt->s.pos.trDelta );
 	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
 	VectorCopy (start, bolt->r.currentOrigin);
 

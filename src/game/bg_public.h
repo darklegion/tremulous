@@ -250,7 +250,8 @@ typedef enum {
 #define SS_SPEEDBOOST           16
 #define SS_INFESTING            32
 #define SS_GRABBED              64
-#define SS_POISONED             128
+#define SS_BLOBLOCKED           128
+#define SS_POISONED             256
 
 
 // player_state->persistant[] indexes
@@ -326,7 +327,8 @@ typedef enum {
   HI_NUM_HOLDABLE
 } holdable_t;
 
-typedef enum {
+typedef enum
+{
   WP_NONE,
 
   WP_GAUNTLET,
@@ -335,7 +337,7 @@ typedef enum {
   WP_SHOTGUN,
   WP_GRENADE_LAUNCHER,
   WP_ROCKET_LAUNCHER,
-  WP_SAWBLADE_LAUNCHER,
+  WP_LOCKBLOB_LAUNCHER,
   WP_LIGHTNING,
   WP_RAILGUN,
   WP_FLAMER,
@@ -359,7 +361,8 @@ typedef enum {
   WP_NUM_WEAPONS
 } weapon_t;
 
-typedef enum {
+typedef enum
+{
   UP_NONE,
 
   UP_TORCH,
@@ -387,13 +390,16 @@ typedef enum {
 #define SLOT_WEAPON     32
 #define SLOT_SIDEARM    64
 
-typedef enum {
+typedef enum
+{
   BA_NONE,
 
   BA_D_SPAWN,
+  BA_D_HIVEMIND,
+  
   BA_D_BARRICADE,
   BA_D_ACIDTUBE,
-  BA_D_HIVEMIND,
+  BA_D_TRAPPER,
   
   BA_H_SPAWN,
   

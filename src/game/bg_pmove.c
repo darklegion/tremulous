@@ -1612,7 +1612,8 @@ static void PM_GroundTrace( void ) {
   pm->ps->legsAnim &= ~ANIM_WALLCLIMBING;
 
   //make sure that the surfNormal is reset to the ground
-  VectorCopy( refNormal, pm->ps->grapplePoint );
+  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) )
+    VectorCopy( refNormal, pm->ps->grapplePoint );
 
   point[0] = pm->ps->origin[0];
   point[1] = pm->ps->origin[1];
@@ -1626,22 +1627,17 @@ static void PM_GroundTrace( void ) {
   pml.groundTrace = trace;
 
   // do something corrective if the trace starts in a solid...
-  if ( trace.allsolid ) {
-    if ( !PM_CorrectAllSolid(&trace) )
+  if( trace.allsolid )
+    if( !PM_CorrectAllSolid(&trace) )
       return;
-  }
   
   // if the trace didn't hit anything, we are in free fall
-  if ( trace.fraction == 1.0 ) {
+  if( trace.fraction == 1.0 )
+  {
     PM_GroundTraceMissed();
     pml.groundPlane = qfalse;
     pml.walking = qfalse;
 
-    pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
-
-    //we get very bizarre effects if we don't do this :0
-    VectorCopy( refNormal, pm->ps->grapplePoint );
-    
     return;
   }
 
@@ -2342,7 +2338,7 @@ static void PM_Weapon( void )
     case WP_RAILGUN:
       addTime = 1500;
       break;
-    case WP_SAWBLADE_LAUNCHER:
+    case WP_LOCKBLOB_LAUNCHER:
       addTime = 1000;
       break;
     case WP_BFG:
@@ -2443,7 +2439,8 @@ This can be used as another entry point when only the viewangles
 are being updated instead of a full move
 ================
 */
-void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
+void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
+{
   short   temp[3];
   int     i;
   vec3_t  surfNormal, xNormal;
@@ -2456,29 +2453,29 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
   if( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPINTERMISSION )
     return;   // no view changes at all
 
-  //TA: FIXME: perhaps do something a little more interesting here later
-  //i.e. allow a little view angle change to reflect struggling/stretching ...?
-  if( ps->pm_type == PM_GRABBED )
-    return;
-    
   if( ps->pm_type != PM_SPECTATOR && ps->stats[STAT_HEALTH] <= 0 )
     return;   // no view changes at all
 
   // circularly clamp the angles with deltas
-  for (i=0 ; i<3 ; i++) {
-    temp[i] = cmd->angles[i] + ps->delta_angles[i];
+  for( i = 0; i < 3; i++ )
+  {
+    temp[ i ] = cmd->angles[ i ] + ps->delta_angles[ i ];
 
-    if ( i == PITCH ) {
+    if( i == PITCH )
+    {
       // don't let the player look up or down more than 90 degrees
-      if ( temp[i] > 16000 ) {
-        ps->delta_angles[i] = 16000 - cmd->angles[i];
-        temp[i] = 16000;
-      } else if ( temp[i] < -16000 ) {
-        ps->delta_angles[i] = -16000 - cmd->angles[i];
-        temp[i] = -16000;
+      if( temp[ i ] > 16000 )
+      {
+        ps->delta_angles[ i ] = 16000 - cmd->angles[ i ];
+        temp[ i ] = 16000;
+      }
+      else if( temp[ i ] < -16000 )
+      {
+        ps->delta_angles[ i ] = -16000 - cmd->angles[ i ];
+        temp[ i ] = -16000;
       }
     }
-    tempang[i] = SHORT2ANGLE( temp[i] );
+    tempang[ i ] = SHORT2ANGLE( temp[ i ] );
   }
 
   //convert viewangles -> axis
@@ -2536,8 +2533,28 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
   }
 
   //actually set the viewangles
-  for ( i = 0; i < 3; i++ )
+  for( i = 0; i < 3; i++ )
     ps->viewangles[ i ] = tempang[ i ];
+
+  //pull the view into the lock point
+  if( ps->pm_type == PM_GRABBED )
+  {
+    for( i = 0; i < 3; i++ )
+    {
+      float diff = AngleSubtract( ps->viewangles[ i ], ps->grapplePoint[ i ] );
+
+      while( diff > 180.0f )
+        diff -= 360.0f;
+      while( diff < -180.0f )
+        diff += 360.0f;
+
+      if( diff < 0 )
+        ps->delta_angles[ i ] += ANGLE2SHORT( fabs( diff ) * 0.05f );
+      else if( diff > 0 )
+        ps->delta_angles[ i ] -= ANGLE2SHORT( fabs( diff ) * 0.05f );
+    }
+  }
+    
 }
 
 

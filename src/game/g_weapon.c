@@ -346,11 +346,11 @@ SAWBLADE
 ======================================================================
 */
 
-void Weapon_SawbladeLauncher_Fire( gentity_t *ent )
+void Weapon_LockBlobLauncher_Fire( gentity_t *ent )
 {
   gentity_t *m;
 
-  m = fire_sawblade( ent, muzzle, forward );
+  m = fire_lockblob( ent, muzzle, forward );
 
 //  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
@@ -774,6 +774,7 @@ void Weapon_Grab_Fire( gentity_t *ent )
     //lock client
     traceEnt->client->ps.stats[ STAT_STATE ] |= SS_GRABBED;
     traceEnt->client->lastGrabTime = level.time;
+    VectorCopy( traceEnt->client->ps.viewangles, traceEnt->client->ps.grapplePoint );
   }
 }
 
@@ -1024,7 +1025,7 @@ void FireWeapon2( gentity_t *ent )
     case WP_RAILGUN:
       weapon_railgun_fire( ent );
       break;
-    case WP_SAWBLADE_LAUNCHER:
+    case WP_LOCKBLOB_LAUNCHER:
       break;
     case WP_BFG:
       BFG_Fire( ent );
@@ -1111,8 +1112,8 @@ void FireWeapon( gentity_t *ent )
     case WP_RAILGUN:
       weapon_railgun_fire( ent );
       break;
-    case WP_SAWBLADE_LAUNCHER:
-      Weapon_SawbladeLauncher_Fire( ent );
+    case WP_LOCKBLOB_LAUNCHER:
+      Weapon_LockBlobLauncher_Fire( ent );
       break;
     case WP_BFG:
       BFG_Fire( ent );

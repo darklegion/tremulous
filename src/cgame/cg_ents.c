@@ -443,18 +443,6 @@ static void CG_Missile( centity_t *cent )
       return;
       break;
 
-    case WP_SAWBLADE_LAUNCHER:
-      ent.hModel = weapon->missileModel;
-
-      // convert direction of travel into axis
-      AngleVectors( s1->angles, NULL, NULL, up );
-      if( VectorNormalize2( up, ent.axis[ 0 ] ) == 0 )
-        ent.axis[ 0 ][ 2 ] = 1;
-
-      // spin as it moves
-      RotateAroundDirection( ent.axis, cg.time );
-      break;
-      
     default:
       // flicker between two skins
       ent.skinNum = cg.clientFrame & 1;

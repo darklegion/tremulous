@@ -348,6 +348,7 @@ struct gclient_s {
 
   int       lastPoisonTime;
   int       lastGrabTime; //TA: yuck yuck hack urgh
+  int       lastLockTime; //TA: "                 "
 
   int       pouncePayload; //TA: amount of damage pounce attack will do
   qboolean  allowedToPounce;
@@ -616,7 +617,7 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t aimdir );
 gentity_t *fire_plasma( gentity_t *self, vec3_t start, vec3_t aimdir );
 gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t aimdir );
 gentity_t *fire_rocket( gentity_t *self, vec3_t start, vec3_t dir );
-gentity_t *fire_sawblade( gentity_t *self, vec3_t start, vec3_t dir );
+gentity_t *fire_lockblob( gentity_t *self, vec3_t start, vec3_t dir );
 gentity_t *fire_bfg( gentity_t *self, vec3_t start, vec3_t dir );
 gentity_t *fire_grapple( gentity_t *self, vec3_t start, vec3_t dir );
 
