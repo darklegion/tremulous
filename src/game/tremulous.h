@@ -289,7 +289,7 @@
 #define FLAMER_PRICE                300
 #define FLAMER_DMG                  HDM(25)
 #define FLAMER_RADIUS               50
-#define FLAMER_LIFETIME             1000
+#define FLAMER_LIFETIME             1000.0f
 #define FLAMER_SPEED                200.0f
 #define FLAMER_LAG                  0.5f  //the amount of player velocity that is added to the fireball
 
@@ -413,7 +413,7 @@
 #define MGTURRET_SPLASHDAMAGE       50
 #define MGTURRET_SPLASHRADIUS       100
 #define MGTURRET_ANGULARSPEED       20  //degrees/think ~= 200deg/sec
-#define MGTURRET_ACCURACYTOLERANCE   MGTURRET_ANGULARSPEED / 2 //angular difference for turret to fire
+#define MGTURRET_ACCURACYTOLERANCE  MGTURRET_ANGULARSPEED / 2 //angular difference for turret to fire
 #define MGTURRET_VERTICALCAP        30  // +/- maximum pitch
 #define MGTURRET_REPEAT             50
 #define MGTURRET_RANGE              300

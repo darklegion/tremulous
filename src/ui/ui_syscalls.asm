@@ -86,6 +86,7 @@ equ trap_LAN_ServerStatus					-83
 equ trap_LAN_GetServerPing					-84
 equ trap_LAN_ServerIsVisible				-85
 equ trap_LAN_CompareServers					-86
+equ trap_FS_Seek                    -87
 
 
 equ	memset						-101

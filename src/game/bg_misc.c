@@ -28,7 +28,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/bioegg/bioegg.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
+    TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     ASPAWN_BP,             //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
@@ -57,9 +57,9 @@ buildableAttributes_t bg_buildableList[ ] =
     "Barricade",           //char      *humanName;
     "team_alien_barricade",//char      *entityName;
     { "models/buildables/barricade/barricade.md3", 0, 0, 0 },
-    { -15, -15, -15 },     //vec3_t    mins;
-    { 15, 15, 15 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
+    { -35, -35, -15 },     //vec3_t    mins;
+    { 35, 35, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     BARRICADE_BP,          //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
@@ -88,10 +88,10 @@ buildableAttributes_t bg_buildableList[ ] =
     "Booster",             //char      *humanName;
     "team_alien_booster",  //char      *entityName;
     { "models/buildables/booster/booster.md3", 0, 0, 0 },
-    { -26, -26, -9 },     //vec3_t    mins;
-    { 26, 26, 9 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
+    { -26, -26, -9 },     //vec3_t     mins;
+    { 26, 26, 9 },        //vec3_t     maxs;
+    TR_GRAVITY,            //trType_t  traj;
+    0.0,                   //float     bounce;
     BOOSTER_BP,            //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     BOOSTER_HEALTH,        //int       health;
@@ -121,8 +121,8 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/acid_tube/acid_tube.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
+    TR_GRAVITY,            //trType_t  traj;
+    0.0,                   //float     bounce;
     ACIDTUBE_BP,           //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     ACIDTUBE_HEALTH,       //int       health;
@@ -152,8 +152,8 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/trapper/trapper.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
+    TR_GRAVITY,            //trType_t  traj;
+    0.0,                   //float     bounce;
     TRAPPER_BP,            //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     TRAPPER_HEALTH,        //int       health;
@@ -181,9 +181,9 @@ buildableAttributes_t bg_buildableList[ ] =
     "Overmind",            //char      *humanName;
     "team_alien_hivemind", //char      *entityName;
     { "models/buildables/hivemind/hivemind.md3", 0, 0, 0 },
-    { -15, -15, -15 },     //vec3_t    mins;
-    { 15, 15, 15 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
+    { -45, -45, -15 },     //vec3_t    mins;
+    { 45, 45, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     OVERMIND_BP,           //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
@@ -245,7 +245,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/obank/obank.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
+    TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     OBANK_BP,              //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
@@ -276,7 +276,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/replicator/replicator.md3", 0, 0, 0 },
     { -40, -40, -4 },      //vec3_t    mins;
     { 40, 40, 4 },         //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
+    TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     HSPAWN_BP,             //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
@@ -307,7 +307,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/medistat/medistat.md3", 0, 0, 0 },
     { -35, -35, -7 },      //vec3_t    mins;
     { 35, 35, 7 },         //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
+    TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     MEDISTAT_BP,           //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
@@ -338,10 +338,10 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/medistat/medistat2.md3", 0, 0, 0 },
     { -65, -65, -7 },      //vec3_t    mins;
     { 65, 65, 7 },         //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
+    TR_GRAVITY,            //trType_t  traj;
+    0.0,                   //float     bounce;
     ADVMEDISTAT_BP,        //int       buildPoints;
-    ( 1 << S3 ),           //int  stages
+    ( 1 << S3 ),           //int       stages
     ADVMEDISTAT_HEALTH,    //int       health;
     0,                     //int       regenRate;
     ADVMEDISTAT_SPLASHDAMAGE, //int       splashDamage;
@@ -371,8 +371,8 @@ buildableAttributes_t bg_buildableList[ ] =
       "models/buildables/mgturret/turret_top.md3", 0 },
     { -25, -25, -20 },     //vec3_t    mins;
     { 25, 25, 20 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
+    TR_GRAVITY,            //trType_t  traj;
+    0.0,                   //float     bounce;
     MGTURRET_BP,           //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     MGTURRET_HEALTH,       //int       health;
@@ -402,10 +402,10 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/tesla/tesla.md3", 0, 0, 0 },
     { -22, -22, -40 },     //vec3_t    mins;
     { 22, 22, 40 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
+    TR_GRAVITY,            //trType_t  traj;
+    0.0,                   //float     bounce;
     TESLAGEN_BP,           //int       buildPoints;
-    ( 1 << S3 ),           //int  stages
+    ( 1 << S3 ),           //int       stages
     TESLAGEN_HEALTH,       //int       health;
     0,                     //int       regenRate;
     TESLAGEN_SPLASHDAMAGE, //int       splashDamage;
@@ -431,12 +431,12 @@ buildableAttributes_t bg_buildableList[ ] =
     "Defence Computer",    //char      *humanName;
     "team_human_dcc",      //char      *entityName;
     { "models/buildables/dcc/dcc.md3", 0, 0, 0 },
-    { -15, -15, -15 },     //vec3_t    mins;
-    { 15, 15, 15 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
+    { -35, -35, -15 },     //vec3_t    mins;
+    { 35, 35, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t  traj;
+    0.0,                   //float     bounce;
     DC_BP,                 //int       buildPoints;
-    ( 1 << S3 ),           //int  stages
+    ( 1 << S3 ),           //int       stages
     DC_HEALTH,             //int       health;
     0,                     //int       regenRate;
     DC_SPLASHDAMAGE,       //int       splashDamage;
@@ -462,10 +462,10 @@ buildableAttributes_t bg_buildableList[ ] =
     "Bank",                //char      *humanName;
     "team_human_bank",     //char      *entityName;
     { "models/buildables/bank/bank.md3", 0, 0, 0 },
-    { -15, -15, -15 },     //vec3_t    mins;
-    { 15, 15, 15 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
+    { -25, -25, -15 },     //vec3_t    mins;
+    { 25, 25, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t  traj;
+    0.0,                   //float     bounce;
     BANK_BP,               //int       buildPoints;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
     BANK_HEALTH,           //int       health;
@@ -493,10 +493,10 @@ buildableAttributes_t bg_buildableList[ ] =
     "Armoury",             //char      *humanName;
     "team_human_mcu",      //char      *entityName;
     { "models/buildables/mcu/mcu.md3", 0, 0, 0 },
-    { -15, -15, -15 },     //vec3_t    mins;
-    { 15, 15, 15 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
+    { -40, -40, -15 },     //vec3_t    mins;
+    { 40, 40, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t  traj;
+    0.0,                   //float     bounce;
     ARMOURY_BP,            //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     ARMOURY_HEALTH,        //int       health;
@@ -524,10 +524,10 @@ buildableAttributes_t bg_buildableList[ ] =
     "Reactor",             //char      *humanName;
     "team_human_reactor",  //char      *entityName;
     { "models/buildables/reactor/reactor.md3", 0, 0, 0 },
-    { -15, -15, -15 },     //vec3_t    mins;
-    { 15, 15, 15 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
+    { -50, -50, -15 },     //vec3_t    mins;
+    { 50, 50, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t  traj;
+    0.0,                   //float     bounce;
     REACTOR_BP,            //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     REACTOR_HEALTH,        //int       health;
@@ -557,8 +557,8 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/repeater/repeater.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
+    TR_GRAVITY,            //trType_t  traj;
+    0.0,                   //float     bounce;
     REPEATER_BP,           //int       buildPoints;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
     REPEATER_HEALTH,       //int       health;
@@ -588,8 +588,8 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/floatmine/floatmine.md3", 0, 0, 0 },
     { -25, -25, -25 },     //vec3_t    mins;
     { 25, 25, 25 },        //vec3_t    maxs;
-    TR_BUOYANCY,           //trType_t traj;
-    0.2,                   //float        bounce;
+    TR_BUOYANCY,           //trType_t  traj;
+    0.2,                   //float     bounce;
     FLOATMINE_BP,          //int       buildPoints;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
     FLOATMINE_HEALTH,      //int       health;

@@ -208,11 +208,15 @@ typedef struct centity_s
   lerpFrame_t           lerpFrame;
 
   //TA:
-  buildableAnimNumber_t buildableAnim;    //persistant anim number
   int                   flamerTime;       //limit flameball count
   int                   poisonTime;       //limit poison count
   int                   firstPoisonTime;  //when poison cloud starts
   int                   jetTime;          //limit jet count
+  
+  buildableAnimNumber_t buildableAnim;    //persistant anim number
+  int                   buildableSmokeTime;
+  int                   buildableSparkTime;
+  int                   buildableBleedTime;
 } centity_t;
 
 

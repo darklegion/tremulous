@@ -519,6 +519,117 @@ void CG_GhostBuildable( buildable_t buildable )
   trap_R_AddRefEntityToScene( &ent );
 }
 
+#define MAX_SMOKE_TIME  500
+#define MIN_SMOKE_TIME  100
+#define SMOKE_SPREAD    89.0f
+#define SMOKE_LIFETIME  1000
+
+#define MAX_SPARK_TIME  5000
+#define MIN_SPARK_TIME  800
+#define SPARK_SPREAD    80.0f
+#define SPARK_LIFETIME  1500
+
+#define BLEED_TIME      1500
+#define BLEED_SPREAD    80.0f
+#define BLEED_LIFETIME  1000
+#define MAX_BLEED_BLOBS 6
+
+/*
+==================
+CG_BuildableParticleEffects
+==================
+*/
+static void CG_BuildableParticleEffects( centity_t *cent )
+{
+  entityState_t   *es = &cent->currentState;
+  buildableTeam_t team = BG_FindTeamForBuildable( es->modelindex );
+  int             health = es->generic1 & ~( B_POWERED_TOGGLEBIT | B_DCCED_TOGGLEBIT );
+  float           healthFrac = (float)health / 63.0f;
+  int             smokeTime, sparkTime, i, bleedBlobs;
+  vec3_t          origin;
+  vec3_t          acc = { 0.0f, 0.0f, 50.0f };
+  vec3_t          grav = { 0.0f, 0.0f, -DEFAULT_GRAVITY };
+  vec3_t          vel = { 0.0f, 0.0f, 0.0f };
+
+  VectorCopy( cent->lerpOrigin, origin );
+  
+  if( team == BIT_HUMANS )
+  {
+    //hack to move particle origin away from ground
+    origin[ 2 ] += 8.0f;
+    
+    if( healthFrac < 0.33f && cent->buildableSmokeTime < cg.time )
+    {
+      //smoke
+      smokeTime = healthFrac * 3 * MAX_SMOKE_TIME;
+      if( smokeTime < MIN_SMOKE_TIME )
+        smokeTime = MIN_SMOKE_TIME;
+
+      VectorSet( vel, 0.0f, 0.0f, 50.0f );
+
+      CG_LaunchSprite( origin, vel, acc, SMOKE_SPREAD,
+                       0.5f, 10.0f, 50.0f, 128.0f, 0.0f,
+                       rand( ) % 360, cg.time, cg.time,
+                       SMOKE_LIFETIME + ( crandom( ) * ( SMOKE_LIFETIME / 2 ) ),
+                       cgs.media.smokePuffShader, qfalse, qfalse );
+
+      cent->buildableSmokeTime = cg.time + smokeTime;
+    }
+
+    if( healthFrac < 0.2f && cent->buildableSparkTime < cg.time )
+    {
+      //sparks
+      sparkTime = healthFrac * 5 * MAX_SPARK_TIME;
+      if( sparkTime < MIN_SPARK_TIME )
+        sparkTime = MIN_SPARK_TIME;
+
+      for( i = 0; i < 3; i++ )
+      {
+        qhandle_t spark;
+
+        if( rand( ) % 1 )
+          spark = cgs.media.gibSpark1;
+        else
+          spark = cgs.media.gibSpark2;
+
+        VectorSet( vel, 0.0f, 0.0f, 200.0f );
+        VectorSet( grav, 0.0f, 0.0f, DEFAULT_GRAVITY );
+
+        CG_LaunchSprite( origin, vel, grav, SPARK_SPREAD,
+                         0.6f, 4.0f, 2.0f, 255.0f, 0.0f,
+                         rand( ) % 360, cg.time, cg.time,
+                         SPARK_LIFETIME + ( crandom( ) * ( SPARK_LIFETIME / 2 ) ),
+                         spark, qfalse, qfalse );
+      }
+      
+      cent->buildableSparkTime = cg.time + sparkTime;
+    }
+  }
+  else if( team == BIT_ALIENS )
+  {
+    //bleed a bit if damaged
+    if( healthFrac < 0.33f && cent->buildableBleedTime < cg.time )
+    {
+      VectorScale( es->origin2, 100.0f, vel );
+      VectorSet( grav, 0.0f, 0.0f, -DEFAULT_GRAVITY/4 );
+
+      bleedBlobs = ( 1.0f - ( healthFrac * 3 ) ) * MAX_BLEED_BLOBS + 1;
+
+      for( i = 0; i < bleedBlobs; i++ )
+      {
+        CG_LaunchSprite( origin, vel, grav, BLEED_SPREAD,
+                         0.0f, 4.0f, 20.0f, 255.0f, 0.0f,
+                         rand( ) % 360, cg.time, cg.time,
+                         BLEED_LIFETIME + ( crandom( ) * ( BLEED_LIFETIME / 2 ) ),
+                         cgs.media.greenBloodTrailShader, qfalse, qfalse );
+      }
+      
+      cent->buildableBleedTime = cg.time + BLEED_TIME;
+    }
+  }
+}
+
+
 #define HEALTH_BAR_WIDTH  50.0f
 #define HEALTH_BAR_HEIGHT 15.0f
 
@@ -527,7 +638,7 @@ void CG_GhostBuildable( buildable_t buildable )
 CG_BuildableHealthBar
 ==================
 */
-void CG_BuildableHealthBar( centity_t *cent )
+static void CG_BuildableHealthBar( centity_t *cent )
 {
   vec3_t          origin, origin2, down, right, back, downLength, rightLength;
   float           rimWidth = HEALTH_BAR_HEIGHT / 15.0f;
@@ -590,7 +701,7 @@ void CG_BuildableHealthBar( centity_t *cent )
   CG_DrawPlane( origin2, downLength, rightLength, shader );
   
   if( !( es->generic1 & B_POWERED_TOGGLEBIT ) &&
-      BG_FindTeamForBuildable( es->modelindex ) == WUT_HUMANS )
+      BG_FindTeamForBuildable( es->modelindex ) == BIT_HUMANS )
   {
     VectorMA( origin, 15.0f, right, origin2 );
     VectorMA( origin2, HEALTH_BAR_HEIGHT + 5.0f, down, origin2 );
@@ -744,4 +855,7 @@ void CG_Buildable( centity_t *cent )
     default:
       break;
   }
+
+  //smoke etc for damaged buildables
+  CG_BuildableParticleEffects( cent );
 }
