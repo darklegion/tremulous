@@ -789,7 +789,7 @@ static void CG_PoisonCloud( centity_t *cent, int firstPoisonTime )
 CG_FlameTrail
 ===============
 */
-static void CG_FlameTrail( centity_t *cent )
+static void CG_FlameTrail( centity_t *cent, vec3_t origin )
 {
   vec3_t  forward, right, up;
   vec3_t  muzzlePoint;
@@ -803,29 +803,21 @@ static void CG_FlameTrail( centity_t *cent )
   if( cg.time < cent->flamerTime )
     return;
   
+  VectorCopy( origin, muzzlePoint );
+  
   if( cent->currentState.clientNum == cg.predictedPlayerState.clientNum && !cg.renderingThirdPerson )
   {
     AngleVectors( cg.refdefViewAngles, forward, right, up );
-    VectorCopy( cg.refdef.vieworg, muzzlePoint );
     VectorScale( cg.predictedPlayerState.velocity, FLAMER_LAG, pVelocity );
   }
   else
   {
     AngleVectors( cent->lerpAngles, forward, right, up );
-    VectorCopy( cent->lerpOrigin, muzzlePoint );
-
-    //FIXME: this is gonna look weird when crouching
-    muzzlePoint[ 2 ] += DEFAULT_VIEWHEIGHT;
     VectorScale( cent->currentState.pos.trDelta, FLAMER_LAG, pVelocity );
   }
   
   VectorMA( pVelocity, FLAMER_SPEED, forward, velocity );
 
-  //FIXME: tweak these numbers when (if?) the flamer model is done
-  VectorMA( muzzlePoint, 24.0f, forward, muzzlePoint );
-  VectorMA( muzzlePoint, 6.0f, right, muzzlePoint );
-  VectorMA( muzzlePoint, -6.0f, up, muzzlePoint );
-  
   CG_LaunchSprite( muzzlePoint, velocity, vec3_origin, 0.0f,
                    0.1f, 4.0f, 40.0f, 255.0f, 255.0f,
                    rand( ) % 360, cg.time, cg.time, FLAMER_LIFETIME,
@@ -1030,7 +1022,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
     // add lightning bolt
     CG_LightningBolt( nonPredictedCent, flash.origin );
     
-    CG_FlameTrail( nonPredictedCent );
+    CG_FlameTrail( nonPredictedCent, flash.origin );
 
     // make a dlight for the flash
     if( weapon->flashDlightColor[ 0 ] || weapon->flashDlightColor[ 1 ] || weapon->flashDlightColor[ 2 ] )
@@ -1089,7 +1081,7 @@ void CG_AddViewWeapon( playerState_t *ps )
       VectorCopy( cg.refdef.vieworg, origin );
       VectorMA( origin, -8, cg.refdef.viewaxis[ 2 ], origin );
       CG_LightningBolt( &cg_entities[ ps->clientNum ], origin );
-      CG_FlameTrail( &cg_entities[ ps->clientNum ] );
+      CG_FlameTrail( &cg_entities[ ps->clientNum ], cg.refdef.vieworg );
     }
     
     return;

@@ -1501,19 +1501,19 @@ static void CG_PlayerNonSegAngles( centity_t *cent, vec3_t srcAngles, vec3_t non
 CG_PlayerUpgrade
 ===============
 */
-static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *legs,
-                               vec3_t torsoAxis[ 3 ], qhandle_t legsModel )
+static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
 {
   int           held, active;
   vec3_t        acc = { 0.0f, 0.0f, 10.0f };
   vec3_t        vel = { 0.0f, 0.0f, 0.0f };
   vec3_t        origin;
-  vec3_t        back;
   vec3_t        forward = { 1.0f, 0.0f, 0.0f };
   vec3_t        right = { 0.0f, 1.0f, 0.0f };
   vec3_t        pvel;
+  vec3_t        angles;
   int           addTime;
   refEntity_t   jetpack;
+  refEntity_t   flash;
 
   held = cent->currentState.modelindex;
   active = cent->currentState.modelindex2;
@@ -1521,17 +1521,17 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *legs,
   if( held & ( 1 << UP_JETPACK ) )
   {
     memset( &jetpack, 0, sizeof( jetpack ) );
+    VectorCopy( torso->lightingOrigin, jetpack.lightingOrigin );
+    jetpack.shadowPlane = torso->shadowPlane;
+    jetpack.renderfx = torso->renderfx;
     
     jetpack.hModel = cgs.media.jetpackModel;
 
-    AxisCopy( torsoAxis, jetpack.axis );
-    VectorCopy( cent->lerpOrigin, jetpack.lightingOrigin );
+    //identity matrix
+    AxisCopy( axisDefault, jetpack.axis );
 
     //FIXME: change to tag_back when it exists
-    CG_PositionRotatedEntityOnTag( &jetpack, legs, legsModel, "tag_torso" );
-
-    jetpack.shadowPlane = legs->shadowPlane;
-    jetpack.renderfx = legs->renderfx;
+    CG_PositionRotatedEntityOnTag( &jetpack, torso, torso->hModel, "tag_head" );
 
     trap_R_AddRefEntityToScene( &jetpack );
     
@@ -1559,16 +1559,26 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *legs,
         vel[ 2 ] = -50.0f;
       }
       
+      memset( &flash, 0, sizeof( flash ) );
+      VectorCopy( torso->lightingOrigin, flash.lightingOrigin );
+      flash.shadowPlane = torso->shadowPlane;
+      flash.renderfx = torso->renderfx;
+
+      flash.hModel = cgs.media.jetpackFlashModel;
+      if( !flash.hModel )
+        return;
+
+      angles[ YAW ] = 0;
+      angles[ PITCH ] = 0;
+      angles[ ROLL ] = 0;
+      AnglesToAxis( angles, flash.axis );
+
+      CG_PositionRotatedEntityOnTag( &flash, &jetpack, jetpack.hModel, "tag_flash" );
+      trap_R_AddRefEntityToScene( &flash );
+      
       if( cent->jetTime < cg.time )
       {
-        VectorCopy( cent->lerpOrigin, origin );
-        AngleVectors( cent->lerpAngles, back, NULL, NULL );
-        VectorInverse( back );
-        back[ 2 ] = 0.0f;
-        VectorNormalize( back );
-
-        VectorMA( origin, 10.0f, back, origin );
-        origin[ 2 ] += 10.0f;
+        VectorCopy( flash.origin, origin );
 
         VectorScale( cent->currentState.pos.trDelta, 0.75f, pvel );
         VectorAdd( vel, pvel, vel );
@@ -1940,7 +1950,7 @@ void CG_Player( centity_t *cent )
   entityState_t *es = &cent->currentState;
   int           class = ( es->powerups >> 8 ) & 0xFF;
   float         scale;
-  vec3_t        tempAxis[ 3 ], tempAxis2[ 3 ], torsoAxis[ 3 ];
+  vec3_t        tempAxis[ 3 ], tempAxis2[ 3 ];
   vec3_t        angles;
   int           held = es->modelindex;
   pTeam_t       team = es->powerups & 0xFF;
@@ -1993,9 +2003,6 @@ void CG_Player( centity_t *cent )
   else
     CG_PlayerNonSegAngles( cent, angles, legs.axis );
 
-  //for CG_PlayerUpgrades
-  AxisCopy( torso.axis, torsoAxis );
-  
   //rotate the legs axis to back to the wall
   if( es->eFlags & EF_WALLCLIMB &&
       BG_rotateAxis( es->angles2, legs.axis, tempAxis, qfalse, es->eFlags & EF_WALLCLIMBCEILING ) )
@@ -2146,7 +2153,7 @@ void CG_Player( centity_t *cent )
   if( team == PTE_HUMANS )
     CG_AddPlayerWeapon( &torso, NULL, cent );
 
-  CG_PlayerUpgrades( cent, &legs, torsoAxis, ci->legsModel );
+  CG_PlayerUpgrades( cent, &torso );
 }
 
 /*

@@ -887,6 +887,7 @@ static void CG_RegisterClients( void )
   cgs.media.larmourTorsoSkin   = trap_R_RegisterSkin( "models/players/sarge/upper_red.skin" );
   
   cgs.media.jetpackModel       = trap_R_RegisterModel( "models/players/human_base/jetpack.md3" );
+  cgs.media.jetpackFlashModel  = trap_R_RegisterModel( "models/players/human_base/jetpack_flash.md3" );
   
   cg.charModelFraction = 1.0f;
   trap_UpdateScreen( );

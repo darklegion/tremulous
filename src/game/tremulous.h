@@ -296,7 +296,7 @@
 #define FLAMER_RADIUS               50
 #define FLAMER_LIFETIME             1000.0f
 #define FLAMER_SPEED                200.0f
-#define FLAMER_LAG                  0.5f  //the amount of player velocity that is added to the fireball
+#define FLAMER_LAG                  0.65f  //the amount of player velocity that is added to the fireball
 
 #define MDRIVER_CLIPSIZE            5
 #define MDRIVER_SPAWNCLIPS          2

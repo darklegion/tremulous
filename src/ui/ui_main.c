@@ -4119,7 +4119,13 @@ static void UI_RunMenuScript(char **args) {
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
     else if( Q_stricmp( name, "LoadAlienUpgrades" ) == 0 )
+    {
       UI_LoadTremAlienUpgrades( );
+
+      //disallow the menu if it would be empty
+      if( uiInfo.tremAlienUpgradeCount <= 0 )
+        Menus_CloseAll( );
+    }
     else if( Q_stricmp( name, "UpgradeToNewClass" ) == 0 )
     {
       if( cmd = uiInfo.tremAlienUpgradeList[ uiInfo.tremAlienUpgradeIndex ].cmd )

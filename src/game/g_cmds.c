@@ -364,7 +364,7 @@ void Cmd_Team_f( gentity_t *ent )
   if( oldTeam != ent->client->pers.pteam )
   {
     level.bankCredits[ ent->client->ps.clientNum ] = 0;
-    ent->client->ps.persistant[ PERS_BANK ] = 0;
+    ent->client->ps.persistant[ PERS_CREDIT ] = 0;
     ent->client->pers.pclass = 0;
     ClientSpawn( ent, NULL );
   }
