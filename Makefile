@@ -166,11 +166,11 @@ Q3ASM_FLAGS=
 # --main targets--
 all: release debug qvm
 
-release: $(BR)/cgame$(ARCH).$(SHLIBEXT) $(BR)/qagame$(ARCH).$(SHLIBEXT) $(BR)/ui$(ARCH).$(SHLIBEXT)
+release: ctags makedirs $(BR)/cgame$(ARCH).$(SHLIBEXT) $(BR)/qagame$(ARCH).$(SHLIBEXT) $(BR)/ui$(ARCH).$(SHLIBEXT)
 
-debug: $(BD)/cgame$(ARCH).$(SHLIBEXT) $(BD)/qagame$(ARCH).$(SHLIBEXT) $(BD)/ui$(ARCH).$(SHLIBEXT)
+debug: ctags makedirs $(BD)/cgame$(ARCH).$(SHLIBEXT) $(BD)/qagame$(ARCH).$(SHLIBEXT) $(BD)/ui$(ARCH).$(SHLIBEXT)
 
-qvm: $(BQ)/cgame.qvm $(BQ)/qagame.qvm $(BQ)/ui.qvm
+qvm: ctags makedirs $(BQ)/cgame.qvm $(BQ)/qagame.qvm $(BQ)/ui.qvm
 
 makedirs:
 	@if [ ! -d $(BR) ];then mkdir $(BR);fi
@@ -186,7 +186,8 @@ makedirs:
 	@if [ ! -d $(BQ)/$(CGDIRNAME) ];then mkdir $(BQ)/$(CGDIRNAME);fi
 	@if [ ! -d $(BQ)/$(UIDIRNAME) ];then mkdir $(BQ)/$(UIDIRNAME);fi
 
-
+ctags:
+	ctags -f src/tags -R src/*
 
 # --object lists for each build type--
 GQVMOBJ = $(GOBJ:%.o=$(BQ)/%.asm)
@@ -304,19 +305,19 @@ clean-qvm:
 
 # --installing rules--
 install-release:release
-	mkdir -p $(Q3A_DIR)
-	mkdir -p $(Q3A_DIR)/$(MOD_DIR)
+	@if [ ! -d $(Q3A_DIR) ];then mkdir $(Q3A_DIR);fi
+	@if [ ! -d $(Q3A_DIR)/$(MOD_DIR) ];then mkdir $(Q3A_DIR)/$(MOD_DIR);fi
 	cp $(BR)/*.so $(Q3A_DIR)/$(MOD_DIR)
 
 install-debug:debug
-	mkdir -p $(Q3A_DIR)
-	mkdir -p $(Q3A_DIR)/$(MOD_DIR)
+	@if [ ! -d $(Q3A_DIR) ];then mkdir $(Q3A_DIR);fi
+	@if [ ! -d $(Q3A_DIR)/$(MOD_DIR) ];then mkdir $(Q3A_DIR)/$(MOD_DIR);fi
 	cp $(BD)/*.so $(Q3A_DIR)/$(MOD_DIR)
 
 install-qvm:qvm
-	mkdir -p $(Q3A_DIR)
-	mkdir -p $(Q3A_DIR)/$(MOD_DIR)
-	mkdir -p $(Q3A_DIR)/$(MOD_DIR)/vm
+	@if [ ! -d $(Q3A_DIR) ];then mkdir $(Q3A_DIR);fi
+	@if [ ! -d $(Q3A_DIR)/$(MOD_DIR) ];then mkdir $(Q3A_DIR)/$(MOD_DIR);fi
+	@if [ ! -d $(Q3A_DIR)/$(MOD_DIR)/vm ];then mkdir $(Q3A_DIR)/$(MOD_DIR)/vm;fi
 	cp $(BQ)/*.qvm $(Q3A_DIR)/$(MOD_DIR)/vm
 
 
