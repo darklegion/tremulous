@@ -349,8 +349,7 @@ struct gclient_s
 
   char                *areabits;
 
-  int                 lastInfestTime;   //TA: to keep track of how long infests take
-  gentity_t           *infestBody;      //TA: body that is being infested. must be persistant
+  gentity_t           *hovel;      //TA: body that is being infested. must be persistant
 
   int                 lastPoisonTime;
   gentity_t           *lastPoisonClient;
@@ -542,23 +541,30 @@ typedef enum
 {
   IBE_NONE,
   
-  IBE_NOROOM,
   IBE_NOOVERMIND,
   IBE_OVERMIND,
   IBE_NOASSERT,
   IBE_SPWNWARN,
+  IBE_NOCREEP,
+  IBE_HOVELEXIT,
+  
   IBE_REACTOR,
   IBE_REPEATER,
   IBE_RPLWARN,
   IBE_RPTWARN,
   IBE_NOPOWER,
-  IBE_NORMAL,
-  IBE_NOCREEP,
   IBE_NODCC,
+  
+  IBE_NORMAL,
+  IBE_NOROOM,
 
   IBE_MAXERRORS
 } itemBuildError_t;
 
+qboolean          AHovel_Blocked( vec3_t srcAngles, vec3_t srcOrigin, vec3_t normal,
+                                  vec3_t mins, vec3_t maxs, int entityNum,
+                                  vec3_t newOrigin, vec3_t newAngles );
+  
 itemBuildError_t  G_itemFits( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin );
 gentity_t         *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin, vec3_t angles );
 qboolean          G_ValidateBuild( gentity_t *ent, buildable_t buildable );

@@ -792,6 +792,59 @@ void AAcidTube_Think( gentity_t *self )
 
 
 
+
+#define HOVEL_TRACE_DEPTH 16.0f
+
+/*
+================
+AHovel_Blocked
+
+Is this hovel entrace blocked?
+================
+*/
+qboolean AHovel_Blocked( vec3_t srcAngles, vec3_t srcOrigin, vec3_t normal,
+                         vec3_t mins, vec3_t maxs, int entityNum,
+                         vec3_t newOrigin, vec3_t newAngles )
+{
+  vec3_t    forward, origin, start, end, angles, hovelMaxs;
+  float     displacement;
+  trace_t   tr;
+
+  BG_FindBBoxForBuildable( BA_A_HOVEL, NULL, hovelMaxs );
+  
+  AngleVectors( srcAngles, forward, NULL, NULL );
+  VectorInverse( forward );
+
+  displacement = VectorMaxComponent( maxs ) + VectorMaxComponent( hovelMaxs ) + 1.0f;
+
+  VectorMA( srcOrigin, displacement, forward, origin );
+  vectoangles( forward, angles );
+
+  VectorMA( origin, HOVEL_TRACE_DEPTH, normal, start );
+  VectorMA( origin, -HOVEL_TRACE_DEPTH, normal, end );
+  
+  trap_Trace( &tr, start, mins, maxs, end, entityNum, MASK_PLAYERSOLID );
+  
+  if( tr.startsolid )
+    return qfalse;
+
+  VectorCopy( tr.endpos, origin );
+  
+  trap_Trace( &tr, origin, mins, maxs, origin, entityNum, MASK_PLAYERSOLID );
+  
+  if( newOrigin != NULL )
+    VectorCopy( origin, newOrigin );
+  
+  if( newAngles != NULL )
+    VectorCopy( angles, newAngles );
+  
+  if( tr.fraction < 1.0 )
+    return qtrue;
+  else
+    return qfalse;
+}
+
+
 /*
 ================
 AHovel_Use
@@ -818,10 +871,10 @@ void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 
       //prevent lerping
       activator->client->ps.eFlags ^= EF_TELEPORT_BIT;
-      
-      activator->client->sess.sessionTeam = TEAM_FREE;
+      activator->client->ps.eFlags |= EF_NODRAW;
+
       activator->client->ps.stats[ STAT_STATE ] |= SS_HOVELING;
-      activator->client->infestBody = self;
+      activator->client->hovel = self;
       self->builder = activator;
 
       VectorCopy( self->s.pos.trBase, hovelOrigin );
@@ -1962,6 +2015,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   trap_Trace( &tr3, player_origin, NULL, NULL, entity_origin, ent->s.number, MASK_PLAYERSOLID );
 
   VectorCopy( entity_origin, origin );
+  vectoangles( forward, angles );
 
   //this item does not fit here
   if( tr2.fraction < 1.0 || tr3.fraction < 1.0 )
@@ -1985,6 +2039,18 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     {
       if( !isCreep( entity_origin ) )
         reason = IBE_NOCREEP;
+    }
+    
+    if( buildable == BA_A_HOVEL )
+    {
+      vec3_t    builderMins, builderMaxs;
+      
+      //this assumes the adv builder is the biggest thing that'll use the hovel
+      BG_FindBBoxForClass( PCL_A_B_LEV1, builderMins, builderMaxs, NULL, NULL, NULL );
+
+      if( AHovel_Blocked( angles, origin, normal, builderMins, builderMaxs,
+                          ent->client->ps.clientNum, NULL, NULL ) )
+        reason = IBE_HOVELEXIT;
     }
     
     //look for a hivemind
@@ -2314,6 +2380,10 @@ qboolean G_ValidateBuild( gentity_t *ent, buildable_t buildable )
 
     case IBE_OVERMIND:
       G_TriggerMenu( ent->client->ps.clientNum, MN_A_OVERMIND );
+      return qfalse;
+
+    case IBE_HOVELEXIT:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_A_HOVEL_EXIT );
       return qfalse;
 
     case IBE_NORMAL:

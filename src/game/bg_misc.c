@@ -244,8 +244,8 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
-    qtrue,                 //qboolean  invertNormal;
+    0.95f,                 //float     minNormal;
+    qfalse,                //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
     HOVEL_CREEPSIZE,       //int       creepSize;
     qfalse,                //qboolean  dccTest;
@@ -1233,7 +1233,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 20 },                                 //vec3_t  crouchmaxs;
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
-    20, 20,                                         //int     viewheight, crouchviewheight;
+    0, 0,                                           //int     viewheight, crouchviewheight;
     ABUILDER_HEALTH,                                //int     health;
     ABUILDER_REGEN,                                 //int     regenRate;
     SCA_TAKESFALLDAMAGE|SCA_FOVWARPS|
@@ -1264,7 +1264,7 @@ classAttributes_t bg_classList[ ] =
     { 20, 20, 20 },                                 //vec3_t  crouchmaxs;
     { -20, -20, -4 },                               //vec3_t  deadmins;
     { 20, 20, 4 },                                  //vec3_t  deadmaxs;
-    20, 20,                                         //int     viewheight, crouchviewheight;
+    0, 0,                                           //int     viewheight, crouchviewheight;
     ABUILDER_UPG_HEALTH,                            //int     health;
     ABUILDER_UPG_REGEN,                             //int     regenRate;
     SCA_CANJUMP|SCA_FOVWARPS|SCA_WALLCLIMBER|

@@ -333,7 +333,7 @@ qboolean PlaneFromPoints( vec4_t plane, const vec3_t a, const vec3_t b, const ve
 
 
 /// These optimised and much cleaner implementations of the Vector Rotation
-/// functions were provided by Riv of planetquake (riviera@planetquake.com)
+/// functions were provided by Riv (riviera@planetquake.com)
 /// ...Cheers Riv...
 /*
 ===============
@@ -1384,7 +1384,7 @@ float pointToLineDistance( const vec3_t p0, const vec3_t p1, const vec3_t p2 )
 =================
 GetPerpendicularViewVector
 
-  Used to find an "up" vector for drawing a sprite so that it always faces the view as best as possible
+Used to find an "up" vector for drawing a sprite so that it always faces the view as best as possible
 =================
 */
 void GetPerpendicularViewVector( const vec3_t point, const vec3_t p1, const vec3_t p2, vec3_t up )
@@ -1425,3 +1425,43 @@ float VectorDistance(vec3_t v1, vec3_t v2)
 	return VectorLength(dir);
 }
 // done.
+
+/*
+================
+VectorMaxComponent
+
+Return the biggest component of some vector
+================
+*/
+float VectorMaxComponent( vec3_t v )
+{
+  float biggest = v[ 0 ];
+
+  if( v[ 1 ] > biggest )
+    biggest = v[ 1 ];
+
+  if( v[ 2 ] > biggest )
+    biggest = v[ 2 ];
+
+  return biggest;
+}
+
+/*
+================
+VectorMinComponent
+
+Return the smallest component of some vector
+================
+*/
+float VectorMinComponent( vec3_t v )
+{
+  float smallest = v[ 0 ];
+
+  if( v[ 1 ] < smallest )
+    smallest = v[ 1 ];
+
+  if( v[ 2 ] < smallest )
+    smallest = v[ 2 ];
+
+  return smallest;
+}

@@ -1972,6 +1972,10 @@ void CG_Player( centity_t *cent )
   if( !ci->infoValid )
     return;
 
+  //don't draw
+  if( es->eFlags & EF_NODRAW )
+    return;
+
   // get the player model information
   renderfx = 0;
   if( es->number == cg.snap->ps.clientNum )

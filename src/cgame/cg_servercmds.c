@@ -678,6 +678,12 @@ void CG_Menu( int menu )
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       break;
       
+    case MN_A_HOVEL_EXIT:
+      trap_Cvar_Set( "ui_dialog", "The exit to this Hovel will always be blocked. Please choose "
+                                  "a more suitable location." );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      break;
+      
     case MN_A_INFEST:
       trap_Cvar_Set( "ui_currentClass", va( "%d %d",  cg.snap->ps.stats[ STAT_PCLASS ],
                                                       cg.snap->ps.persistant[ PERS_CREDIT ] ) );

@@ -559,6 +559,7 @@ typedef enum
   MN_A_NORMAL,
   MN_A_HOVEL_OCCUPIED,
   MN_A_HOVEL_BLOCKED,
+  MN_A_HOVEL_EXIT,
   MN_A_OBANK,
   MN_A_NOFUNDS,
   MN_A_NOEROOM,
@@ -1201,6 +1202,8 @@ qboolean  BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTi
 void    AxisToAngles( vec3_t axis[3], vec3_t angles );
 #define Vector2Set(v, x, y) ((v)[0]=(x), (v)[1]=(y))
 float   pointToLineDistance( const vec3_t point, const vec3_t p1, const vec3_t p2 );
+#define MAX(x,y) (x)>(y)?(x):(y)
+#define MIN(x,y) (x)<(y)?(x):(y)
 
 
 // Ridah
@@ -1211,3 +1214,5 @@ void ProjectPointOntoVector( vec3_t point, vec3_t vStart,
 float VectorDistance( vec3_t v1, vec3_t v2 );
 // done.
 
+float VectorMinComponent( vec3_t v );
+float VectorMaxComponent( vec3_t v );

@@ -1144,7 +1144,7 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
   gentity_t   *traceEnt;
 
   if( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
-    G_Damage( ent->client->infestBody, ent, ent, forward, ent->s.origin, 10000, 0, MOD_SUICIDE );
+    G_Damage( ent->client->hovel, ent, ent, forward, ent->s.origin, 10000, 0, MOD_SUICIDE );
   
   if( !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) )
   {
@@ -1725,6 +1725,7 @@ void Cmd_Build_f( gentity_t *ent )
   {
     dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
     
+    //these are the errors displayed when the builder first selects something to use
     switch( G_itemFits( ent, buildable, dist, origin ) )
     {
       case IBE_NONE:
@@ -1733,6 +1734,7 @@ void Cmd_Build_f( gentity_t *ent )
       case IBE_SPWNWARN:
       case IBE_NOROOM:
       case IBE_NORMAL:
+      case IBE_HOVELEXIT:
         ent->client->ps.stats[ STAT_BUILDABLE ] = ( buildable | SB_VALID_TOGGLEBIT );
         break;
 
