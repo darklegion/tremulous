@@ -244,8 +244,8 @@ static void CG_OffsetThirdPersonView( void ) {
 
   // if dead, look at killer
   if ( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 ) {
-    focusAngles[YAW] = cg.predictedPlayerState.stats[STAT_DEAD_YAW];
-    cg.refdefViewAngles[YAW] = cg.predictedPlayerState.stats[STAT_DEAD_YAW];
+    focusAngles[YAW] = cg.predictedPlayerState.generic1;
+    cg.refdefViewAngles[YAW] = cg.predictedPlayerState.generic1;
   }
 
   //if ( focusAngles[PITCH] > 45 ) {
@@ -346,7 +346,7 @@ static void CG_OffsetFirstPersonView( void ) {
   if ( cg.snap->ps.stats[STAT_HEALTH] <= 0 ) {
     angles[ROLL] = 40;
     angles[PITCH] = -15;
-    angles[YAW] = cg.snap->ps.stats[STAT_DEAD_YAW];
+    angles[YAW] = cg.snap->ps.generic1;
     origin[2] += cg.predictedPlayerState.viewheight;
     return;
   }
@@ -407,6 +407,28 @@ static void CG_OffsetFirstPersonView( void ) {
     angles[ROLL] += delta;
   }
 
+  //provide some feedback for pouncing
+  if( cg.predictedPlayerState.weapon == WP_POUNCE )
+  {
+    if( cg.predictedPlayerState.stats[ STAT_MISC ] > 0 )
+    {
+      float   fraction1, fraction2;
+      vec3_t  forward;
+
+      AngleVectors( angles, forward, NULL, NULL );
+      VectorNormalize( forward );
+
+      fraction1 = (float)( cg.time - cg.weapon2Time ) / POUNCE_TIME;
+
+      if( fraction1 > 1.0f )
+        fraction1 = 1.0f;
+
+      fraction2 = -sin( fraction1 * M_PI / 2 );
+      
+      VectorMA( origin, 15*fraction2, forward, origin );
+    }
+  }
+
   //TA: this *feels* more realisitic for humans
   if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
@@ -458,10 +480,13 @@ static void CG_OffsetFirstPersonView( void ) {
 
   // add fall height
   delta = cg.time - cg.landTime;
-  if ( delta < LAND_DEFLECT_TIME ) {
+  if( delta < LAND_DEFLECT_TIME )
+  {
     f = delta / LAND_DEFLECT_TIME;
     cg.refdef.vieworg[2] += cg.landChange * f;
-  } else if ( delta < LAND_DEFLECT_TIME + LAND_RETURN_TIME ) {
+  }
+  else if( delta < LAND_DEFLECT_TIME + LAND_RETURN_TIME )
+  {
     delta -= LAND_DEFLECT_TIME;
     f = 1.0 - ( delta / LAND_RETURN_TIME );
     cg.refdef.vieworg[2] += cg.landChange * f;

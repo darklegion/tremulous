@@ -422,12 +422,6 @@ static float PM_CmdScale( usercmd_t *cmd ) {
       modifier *= 0.75;
     }
 
-    //cap stamina
-    if( pm->ps->stats[ STAT_STAMINA ] > 1000 )
-      pm->ps->stats[ STAT_STAMINA ] = 1000;
-    if( pm->ps->stats[ STAT_STAMINA ] < -1000 )
-      pm->ps->stats[ STAT_STAMINA ] = -1000;
-
     //must have +ve stamina to jump
     if( pm->ps->stats[ STAT_STAMINA ] < 0 )
       cmd->upmove = 0;
@@ -509,11 +503,57 @@ static void PM_SetMovementDir( void ) {
 
 /*
 =============
+PM_CheckPounce
+=============
+*/
+static qboolean PM_CheckPounce( void )
+{
+  vec3_t forward;
+  
+  if( pm->ps->weapon != WP_POUNCE )
+    return qfalse;
+
+  if( pm->cmd.buttons & BUTTON_ATTACK2 )
+  {
+    pm->ps->pm_flags &= ~PMF_POUNCE;
+    return qfalse;
+  }
+
+  if( pm->ps->pm_flags & PMF_POUNCE )
+    return qfalse;
+
+  if( pm->ps->stats[ STAT_MISC ] == 0 )
+    return qfalse;
+
+  pml.groundPlane = qfalse;   // jumping away
+  pml.walking = qfalse;
+  
+  pm->ps->pm_flags |= PMF_POUNCE;
+  
+  pm->ps->groundEntityNum = ENTITYNUM_NONE;
+  
+  AngleVectors( pm->ps->viewangles, forward, NULL, NULL );
+  VectorMA( pm->ps->velocity, pm->ps->stats[ STAT_MISC ], forward, pm->ps->velocity );
+  pm->ps->velocity[ 2 ] += JUMP_VELOCITY / 2;
+  
+  PM_AddEvent( EV_JUMP );
+  
+  return qtrue;
+}
+
+/*
+=============
 PM_CheckJump
 =============
 */
-static qboolean PM_CheckJump( void ) {
-  if( !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_CANJUMP ) ) return qfalse;
+static qboolean PM_CheckJump( void )
+{
+  if( !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_CANJUMP ) )
+    return qfalse;
+
+  //can't jump and pounce charge at the same time
+  if( pm->ps->weapon == WP_POUNCE && pm->ps->stats[ STAT_MISC ] > 0 )
+    return qfalse;
 
   if( ( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS ) &&
       ( pm->ps->stats[ STAT_STAMINA ] < 0 ) )
@@ -873,7 +913,7 @@ static void PM_ClimbMove( void ) {
   }
 
 
-  if ( PM_CheckJump () ) {
+  if ( PM_CheckJump( ) || PM_CheckPounce( ) ) {
     // jumped away
     if ( pm->waterlevel > 1 ) {
       PM_WaterMove();
@@ -995,7 +1035,7 @@ static void PM_WalkMove( void ) {
   }
 
 
-  if ( PM_CheckJump () ) {
+  if( PM_CheckJump( ) || PM_CheckPounce( ) ) {
     // jumped away
     if ( pm->waterlevel > 1 ) {
       PM_WaterMove();
@@ -2307,9 +2347,19 @@ static void PM_Weapon( void )
       }
       break;
       
+    case WP_POUNCE:
+      if( !pm->autoWeaponHit[ pm->ps->weapon ] &&
+          !( pm->cmd.buttons & ( BUTTON_ATTACK | BUTTON_ATTACK2 ) ) )
+      {
+        pm->ps->weaponTime = 0;
+        pm->ps->weaponstate = WEAPON_READY;
+        return;
+      }
+      break;
+      
     default:
       // check for fire
-      if ( !( pm->cmd.buttons & ( BUTTON_ATTACK | BUTTON_ATTACK2 ) ) )
+      if( !( pm->cmd.buttons & ( BUTTON_ATTACK | BUTTON_ATTACK2 ) ) )
       {
         pm->ps->weaponTime = 0;
         pm->ps->weaponstate = WEAPON_READY;
@@ -2333,6 +2383,24 @@ static void PM_Weapon( void )
   }
   else if( pm->cmd.buttons & BUTTON_ATTACK )
     PM_AddEvent( EV_FIRE_WEAPON );
+
+  //TA: yuck hack
+  if( pm->autoWeaponHit[ pm->ps->weapon ] )
+  {
+    switch( pm->ps->weapon )
+    {
+      case WP_VENOM:
+        PM_AddEvent( EV_FIRE_WEAPON );
+        break;
+    
+      case WP_POUNCE:
+        PM_AddEvent( EV_FIRE_WEAPON2 );
+        break;
+
+      default:
+        break;
+    }
+  }
     
   PM_StartTorsoAnim( TORSO_ATTACK );
 
@@ -2386,6 +2454,9 @@ static void PM_Weapon( void )
       break;
     case WP_GRABANDCSAW:
       addTime = 50;
+      break;
+    case WP_POUNCE:
+      addTime = 750;
       break;
     case WP_DBUILD:
       addTime = 1000;
@@ -2636,14 +2707,16 @@ void PmoveSingle (pmove_t *pmove)
 
   // set the firing flag for continuous beam weapons
   if ( !(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION
-    && ( pm->cmd.buttons & BUTTON_ATTACK ) && ( ammo > 0 || clips > 0 ) )
+    && ( pm->cmd.buttons & BUTTON_ATTACK )
+    && ( ( ammo > 0 || clips > 0 ) || BG_infiniteAmmo( pm->ps->weapon ) ) )
     pm->ps->eFlags |= EF_FIRING;
   else
     pm->ps->eFlags &= ~EF_FIRING;
  
   // set the firing flag for continuous beam weapons
   if ( !(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION
-    && ( pm->cmd.buttons & BUTTON_ATTACK2 ) && ( ammo > 0 || clips > 0 ) )
+    && ( pm->cmd.buttons & BUTTON_ATTACK2 )
+    && ( ( ammo > 0 || clips > 0 ) || BG_infiniteAmmo( pm->ps->weapon ) ) )
     pm->ps->eFlags |= EF_FIRING2;
   else
     pm->ps->eFlags &= ~EF_FIRING2;
@@ -2687,9 +2760,9 @@ void PmoveSingle (pmove_t *pmove)
 
   if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) &&
       ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
-  { AngleVectors ( wcl[ pm->ps->clientNum ].nonSvangles, pml.forward, pml.right, pml.up); }
+    AngleVectors( wcl[ pm->ps->clientNum ].nonSvangles, pml.forward, pml.right, pml.up );
   else
-  { AngleVectors (pm->ps->viewangles, pml.forward, pml.right, pml.up); }
+    AngleVectors( pm->ps->viewangles, pml.forward, pml.right, pml.up );
 
   if ( pm->cmd.upmove < 10 ) {
     // not holding jump

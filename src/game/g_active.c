@@ -469,11 +469,33 @@ void ClientTimerActions( gentity_t *ent, int msec )
         client->ps.stats[ STAT_STAMINA ] = 1000;
     }
 
+    //client is poisoned
     if( client->ps.stats[ STAT_STATE ] & SS_POISONED )
     {
       int damage = ( level.time - client->lastPoisonTime ) / 100;
 
       G_Damage( ent, NULL, NULL, NULL, NULL, damage, 0, MOD_VENOM );
+    }
+
+    //client is charging up for a pounce
+    if( client->ps.weapon == WP_POUNCE )
+    {
+      if( client->ps.stats[ STAT_MISC ] < MAX_POUNCE_SPEED && ucmd->buttons & BUTTON_ATTACK2 )
+      {
+        client->ps.stats[ STAT_MISC ] += ( 100.0f / POUNCE_TIME ) * MAX_POUNCE_SPEED;
+        client->allowedToPounce = qtrue;
+      }
+
+      if( !( ucmd->buttons & BUTTON_ATTACK2 ) )
+      {
+        if( client->ps.stats[ STAT_MISC ] > 0 )
+          client->pouncePayload = client->ps.stats[ STAT_MISC ];
+
+        client->ps.stats[ STAT_MISC ] = 0;
+      }
+
+      if( client->ps.stats[ STAT_MISC ] > MAX_POUNCE_SPEED )
+        client->ps.stats[ STAT_MISC ] = MAX_POUNCE_SPEED;
     }
   }
 
@@ -770,6 +792,10 @@ void ClientThink_real( gentity_t *ent ) {
   // set speed
   client->ps.speed = g_speed.value * BG_FindSpeedForClass( client->ps.stats[ STAT_PCLASS ] );
 
+  //TA: slow player if charging up for a pounce
+  if( client->ps.weapon == WP_POUNCE && ucmd->buttons & BUTTON_ATTACK2 )
+    client->ps.speed *= 0.75;
+
   //TA: slow player if standing in creep
   for ( i = 1, creepNode = g_entities + i; i < level.num_entities; i++, creepNode++ )
   {
@@ -856,6 +882,10 @@ void ClientThink_real( gentity_t *ent ) {
           if( !( ucmd->buttons & BUTTON_ATTACK2 ) )
             pm.autoWeaponHit[ WP_GRABANDCSAW ] = qtrue;
         }
+        break;
+
+      case WP_POUNCE:
+        pm.autoWeaponHit[ WP_POUNCE ] = CheckPounceAttack( ent );
         break;
 
       default:

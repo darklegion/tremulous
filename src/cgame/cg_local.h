@@ -631,8 +631,11 @@ typedef struct {
   char      testModelName[MAX_QPATH];
   qboolean    testGun;
 
-  int     spawnTime; //TA: fovwarp
-
+  int       spawnTime;    //TA: fovwarp
+  int       weapon1Time;  //TA: time when BUTTON_ATTACK went t->f f->t
+  int       weapon2Time;  //TA: time when BUTTON_ATTACK2 went t->f f->t
+  qboolean  weapon1Firing;
+  qboolean  weapon2Firing;
 } cg_t;
 
 

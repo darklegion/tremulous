@@ -341,6 +341,9 @@ struct gclient_s {
 
   int       lastPoisonTime;
   int       lastGrabTime; //TA: yuck yuck hack urgh
+
+  int       pouncePayload; //TA: amount of damage pounce attack will do
+  qboolean  allowedToPounce;
 };
 
 #define MAX_LOCDAMAGE_TEXT    8192
@@ -632,6 +635,7 @@ void CalcMuzzlePoint( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, v
 void SnapVectorTowards( vec3_t v, vec3_t to );
 qboolean CheckVenomAttack( gentity_t *ent );
 qboolean CheckGrabAttack( gentity_t *ent );
+qboolean CheckPounceAttack( gentity_t *ent );
 void Weapon_HookFree (gentity_t *ent);
 void Weapon_HookThink (gentity_t *ent);
 

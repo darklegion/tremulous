@@ -242,6 +242,22 @@ gitem_t bg_itemlist[] =
     ""
   },
 
+/*QUAKED weapon_pounce (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+  {
+    "weapon_pounce",
+    "sound/misc/w_pkup.wav",
+        { "models/weapons2/gauntlet/gauntlet.md3",
+    0, 0, 0},
+    "icons/iconw_gauntlet",
+    "Claw and Pounce",
+    0,
+    IT_WEAPON,
+    WP_POUNCE,
+    "",
+    ""
+  },
+
 /*QUAKED weapon_abuild (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
   {
@@ -2617,6 +2633,18 @@ weaponAttributes_t bg_weapons[ ] =
     qtrue
   },
   {
+    WP_POUNCE,
+    100,
+    SLOT_WEAPON,
+    "pounce",
+    "Claw and pounce",
+    0,
+    0,
+    0,
+    qfalse,
+    qfalse
+  },
+  {
     WP_SCANNER,
     100,
     SLOT_WEAPON,
@@ -3705,6 +3733,7 @@ qboolean BG_infiniteAmmo( int weapon )
   {
     case WP_VENOM:
     case WP_GRABANDCSAW:
+    case WP_POUNCE:
     case WP_DBUILD:
     case WP_HBUILD:
     case WP_SCANNER:
