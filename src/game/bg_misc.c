@@ -181,10 +181,10 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_A_HIVEMIND,         //int       buildNum;
-    "hivemind",            //char      *buildName;
+    BA_A_OVERMIND,         //int       buildNum;
+    "overmind",            //char      *buildName;
     "Overmind",            //char      *humanName;
-    "team_alien_hivemind", //char      *entityName;
+    "team_alien_overmind", //char      *entityName;
     { "models/buildables/hivemind/hivemind.md3", 0, 0, 0 },
     { -45, -45, -15 },     //vec3_t    mins;
     { 45, 45, 95 },        //vec3_t    maxs;
@@ -205,7 +205,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
+    0.95f,                 //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     OVERMIND_CREEPSIZE,    //int       creepSize;
@@ -269,7 +269,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.907f,                //float     minNormal;
+    0.95f,                 //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -301,7 +301,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.907f,                //float     minNormal;
+    0.95f,                 //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -335,7 +335,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MGTURRET_RANGE,        //int       turretRange;
     MGTURRET_REPEAT,       //int       turretFireSpeed;
     WP_MACHINEGUN,         //weapon_t  turretProjType;
-    0.907f,                //float     minNormal;
+    0.95f,                 //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -367,7 +367,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TESLAGEN_RANGE,        //int       turretRange;
     TESLAGEN_REPEAT,       //int       turretFireSpeed;
     WP_TESLAGEN,           //weapon_t  turretProjType;
-    0.907f,                //float     minNormal;
+    0.95f,                 //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -399,7 +399,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.907f,                //float     minNormal;
+    0.95f,                 //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -432,7 +432,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.907f,                //float     minNormal;
+    0.95f,                 //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -464,7 +464,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.907f,                //float     minNormal;
+    0.95f,                 //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -496,7 +496,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.907f,                //float     minNormal;
+    0.95f,                 //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -528,7 +528,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.907f,                //float     minNormal;
+    0.95f,                 //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -2991,7 +2991,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     UP_BATTLESUIT,                            //int   upgradeNum;
     BSUIT_PRICE,                              //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),      //int  stages
-    SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS, //int   slots;
+    SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS|SLOT_BACKPACK, //int   slots;
     "bsuit",                                  //char  *upgradeName;
     "Battlesuit",                             //char  *upgradeHumanName;
     "icons/iconu_bsuit",

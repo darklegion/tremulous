@@ -231,7 +231,7 @@ static qboolean findCreep( gentity_t *self )
       if( !ent->classname || ent->s.eType != ET_BUILDABLE )
         continue;
 
-      if( ent->s.modelindex == BA_A_SPAWN || ent->s.modelindex == BA_A_HIVEMIND )
+      if( ent->s.modelindex == BA_A_SPAWN || ent->s.modelindex == BA_A_OVERMIND )
       {
         VectorSubtract( self->s.origin, ent->s.origin, temp_v );
         distance = VectorLength( temp_v );
@@ -530,18 +530,21 @@ void AOvermind_Think( gentity_t *self )
   VectorAdd( self->s.origin, range, maxs );
   VectorSubtract( self->s.origin, range, mins );
   
-  //do some damage
-  num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
-  for( i = 0; i < num; i++ )
+  if( self->health > 0 )
   {
-    enemy = &g_entities[ entityList[ i ] ];
-    
-    if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    //do some damage
+    num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+    for( i = 0; i < num; i++ )
     {
-      self->timestamp = level.time;
-      G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
-        self->splashRadius, self, MOD_SHOTGUN, PTE_ALIENS );
-      G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
+      enemy = &g_entities[ entityList[ i ] ];
+      
+      if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+      {
+        self->timestamp = level.time;
+        G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
+          self->splashRadius, self, MOD_SHOTGUN, PTE_ALIENS );
+        G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
+      }
     }
   }
 
@@ -1759,6 +1762,8 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   gentity_t         *tempent, *closestPower;
   int               minDistance = 10000;
   int               templength;
+  float             minNormal;
+  qboolean          invert;
 
   if( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING )
   {
@@ -1801,17 +1806,18 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   if( tr2.fraction < 1.0 || tr3.fraction < 1.0 )
     return IBE_NOROOM; //NO other reason is allowed to override this
     
+  VectorCopy( tr1.plane.normal, normal );
+  minNormal = BG_FindMinNormalForBuildable( buildable );
+  invert = BG_FindInvertNormalForBuildable( buildable );
+
+  //can we build at this angle?
+  if( !( normal[ 2 ] >= minNormal || ( invert && normal[ 2 ] <= -minNormal ) ) )
+    return IBE_NORMAL;
+    
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     //alien criteria
 
-    float     minNormal = BG_FindMinNormalForBuildable( buildable );
-    qboolean  invert = BG_FindInvertNormalForBuildable( buildable );
-
-    //can we build at this angle?
-    if( !( normal[ 2 ] >= minNormal || ( invert && normal[ 2 ] <= -minNormal ) ) )
-      return IBE_NORMAL;
-    
     //check there is creep near by for building on
     
     if( BG_FindCreepTestForBuildable( buildable ) )
@@ -1825,17 +1831,17 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     {
       if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
         continue;
-      if( tempent->s.modelindex == BA_A_HIVEMIND )
+      if( tempent->s.modelindex == BA_A_OVERMIND )
         break;
     }
 
     //if none found...
-    if( i >= level.num_entities && buildable != BA_A_HIVEMIND )
+    if( i >= level.num_entities && buildable != BA_A_OVERMIND )
     {
       if( buildable == BA_A_SPAWN )
         reason = IBE_SPWNWARN;
       else
-        reason = IBE_NOHIVEMIND;
+        reason = IBE_NOOVERMIND;
     }
     
     //can we only have one of these?
@@ -1846,9 +1852,9 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
         if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
           continue;
 
-        if( tempent->s.modelindex == BA_A_HIVEMIND )
+        if( tempent->s.modelindex == BA_A_OVERMIND )
         {
-          reason = IBE_HIVEMIND;
+          reason = IBE_OVERMIND;
           break;
         }
       }
@@ -1982,7 +1988,7 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       built->pain = ASpawn_Pain;
       break;
       
-    case BA_A_HIVEMIND:
+    case BA_A_OVERMIND:
       built->die = ASpawn_Die;
       built->think = AOvermind_Think;
       built->pain = ASpawn_Pain;
@@ -2129,12 +2135,12 @@ qboolean G_ValidateBuild( gentity_t *ent, buildable_t buildable )
       G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOASSERT );
       return qfalse;
 
-    case IBE_NOHIVEMIND:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOHVMND );
+    case IBE_NOOVERMIND:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOOVMND );
       return qfalse;
 
-    case IBE_HIVEMIND:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_A_HIVEMIND );
+    case IBE_OVERMIND:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_A_OVERMIND );
       return qfalse;
 
     case IBE_NORMAL:

@@ -313,9 +313,9 @@
 #define PRIFLE_SPAWNCLIPS           3
 #define PRIFLE_MAXCLIPS             3
 #define PRIFLE_PRICE                250
-#define PRIFLE_REPEAT               50
+#define PRIFLE_REPEAT               100
 #define PRIFLE_RELOAD               2000
-#define PRIFLE_DMG                  HDM(20)
+#define PRIFLE_DMG                  HDM(15)
 #define PRIFLE_SPEED                1500
 
 #define LCANNON_PRICE               400
@@ -364,8 +364,8 @@
 #define BATTPACK_MODIFIER           2.0f //modifier for extra energy storage available
 
 #define JETPACK_PRICE               120
-#define JETPACK_FLOAT_SPEED         256.0f //up movement speed
-#define JETPACK_SINK_SPEED          384.0f //down movement speed
+#define JETPACK_FLOAT_SPEED         128.0f //up movement speed
+#define JETPACK_SINK_SPEED          192.0f //down movement speed
 
 #define BSUIT_PRICE                 200
 

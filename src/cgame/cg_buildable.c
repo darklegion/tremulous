@@ -34,6 +34,60 @@ char *cg_buildableSoundNames[ MAX_BUILDABLE_ANIMATIONS ] =
 sfxHandle_t defaultAlienSounds[ MAX_BUILDABLE_ANIMATIONS ];
 sfxHandle_t defaultHumanSounds[ MAX_BUILDABLE_ANIMATIONS ];
 
+#define CREEP_SCALEUP_TIME    3000
+#define CREEP_SCALEDOWN_TIME  3000
+#define CREEP_SIZE            64.0f
+
+/*
+==================
+CG_Creep
+==================
+*/
+static void CG_Creep( centity_t *cent )
+{
+  polyVert_t    verts[ 4 ];
+  vec3_t        square[ 4 ];
+  vec2_t        tex[ 4 ];
+  int           i, msec, seed;
+  float         size, newsize, frac;
+  float         length;
+  trace_t       tr, tr2;
+  vec3_t        temp, origin, p1, p2;
+  int           creepSize = BG_FindCreepSizeForBuildable( cent->currentState.clientNum );
+
+  //should the creep be growing or receding?
+  if( cent->miscTime >= 0 )
+  {
+    msec = cg.time - cent->miscTime;
+    if( msec >= 0 && msec < CREEP_SCALEUP_TIME )
+      frac = (float)msec / CREEP_SCALEUP_TIME;
+    else
+      frac = 1.0f;
+  }
+  else if( cent->miscTime < 0 )
+  {
+    msec = cg.time + cent->miscTime;
+    if( msec >= 0 && msec < CREEP_SCALEDOWN_TIME )
+      frac = 1.0f - ( (float)msec / CREEP_SCALEDOWN_TIME );
+    else
+      frac = 0.0f;
+  }
+
+  VectorCopy( cent->currentState.origin2, temp );
+  VectorScale( temp, -4096, temp );
+  VectorAdd( temp, cent->lerpOrigin, temp );
+
+  CG_Trace( &tr, cent->lerpOrigin, NULL, NULL, temp, cent->currentState.number, MASK_SOLID );
+
+  VectorCopy( tr.endpos, origin );
+
+  size = CREEP_SIZE * frac;
+
+  if( size > 0.0f )
+    CG_ImpactMark( cgs.media.greenBloodMarkShader, origin, cent->currentState.origin2,
+                   0.0f, 1.0f, 1.0f, 1.0f, 1.0f, qfalse, size, qtrue );
+}
+
 /*
 ======================
 CG_ParseBuildableAnimationFile

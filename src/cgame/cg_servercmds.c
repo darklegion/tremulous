@@ -624,7 +624,7 @@ void CG_Menu( int menu )
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       break;
       
-    case MN_A_NOHVMND:
+    case MN_A_NOOVMND:
       trap_Cvar_Set( "ui_dialog", "There is no Overmind. An Overmind must be built to control "
                                   "the structure you tried to place" );
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
@@ -636,7 +636,7 @@ void CG_Menu( int menu )
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       break;
       
-    case MN_A_HIVEMIND:
+    case MN_A_OVERMIND:
       trap_Cvar_Set( "ui_dialog", "There can only be one Overmind. Destroy the existing one if you "
                                   "wish to move it." );
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );

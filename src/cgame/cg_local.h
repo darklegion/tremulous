@@ -1347,11 +1347,6 @@ void        CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
 
 
 //
-// cg_creep.c
-//
-void        CG_Creep( centity_t *cent );
-
-//
 // cg_scanner.c
 //
 void        CG_Scanner( rectDef_t *rect, qhandle_t shader );

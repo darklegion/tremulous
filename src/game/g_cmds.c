@@ -1728,12 +1728,12 @@ void Cmd_Build_f( gentity_t *ent )
         G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOASSERT );
         break;
 
-      case IBE_NOHIVEMIND:
-        G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOHVMND );
+      case IBE_NOOVERMIND:
+        G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOOVMND );
         break;
 
-      case IBE_HIVEMIND:
-        G_TriggerMenu( ent->client->ps.clientNum, MN_A_HIVEMIND );
+      case IBE_OVERMIND:
+        G_TriggerMenu( ent->client->ps.clientNum, MN_A_OVERMIND );
         break;
 
       case IBE_REACTOR:

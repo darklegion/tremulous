@@ -4417,7 +4417,10 @@ menuDef_t *Menus_ActivateByName(const char *p) {
       for( j = 0; j < m->itemCount; j++ ) //TA: reset selection in listboxes when opened
       {
         if( m->items[ j ]->type == ITEM_TYPE_LISTBOX )
+        {
           m->items[ j ]->cursorPos = 0;
+          DC->feederSelection( m->items[ j ]->special, 0 );
+        }
       }
       
       if (openMenuCount < MAX_OPEN_MENUS && focus != NULL) {
