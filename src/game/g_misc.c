@@ -450,9 +450,9 @@ void SP_misc_anim_model( gentity_t *self )
 }
 
 //TA: spawn function for lens flares
-void SP_misc_lens_flare( gentity_t *self )
+void SP_misc_light_flare( gentity_t *self )
 {
-  self->s.eType = ET_LENSFLARE;
+  self->s.eType = ET_LIGHTFLARE;
   self->s.modelindex = G_ShaderIndex( self->targetShaderName );
   VectorCopy( self->pos2, self->s.origin2 );
 

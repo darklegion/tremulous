@@ -634,23 +634,24 @@ static void CG_TorchLight( centity_t *cent )
 
 /*
 =========================
-CG_LensFlare
+CG_LightFlare
 =========================
 */
-static void CG_LensFlare( centity_t *cent )
+static void CG_LightFlare( centity_t *cent )
 {
   refEntity_t   flare;
   entityState_t *es;
   vec3_t        forward, delta;
   float         len;
   trace_t       tr;
+  float         maxAngle;
 
   es = &cent->currentState;
   
   memset( &flare, 0, sizeof( flare ) );
   
   //bunch of geometry
-  AngleVectors( cent->lerpAngles, forward, NULL, NULL );
+  AngleVectors( es->angles, forward, NULL, NULL );
   VectorCopy( cent->lerpOrigin, flare.origin );
   VectorSubtract( flare.origin, cg.refdef.vieworg, delta );
   len = VectorLength( delta );
@@ -665,8 +666,11 @@ static void CG_LensFlare( centity_t *cent )
 
   //can only see the flare when in front of it
   flare.radius = len / es->origin2[ 0 ];
-  flare.radius *= DotProduct( delta, forward );
+  maxAngle = es->origin2[ 1 ];
 
+  if( maxAngle > 0.0f )
+    flare.radius *= 1.0f - ( 180.0f - RAD2DEG( acos( DotProduct( delta, forward ) ) ) ) / maxAngle;
+  
   //if can't see the centre do not draw
   CG_Trace( &tr, flare.origin, NULL, NULL, cg.refdef.vieworg, 0, MASK_SHOT );
   if( tr.fraction < 1.0f )
@@ -859,8 +863,8 @@ static void CG_AddCEntity( centity_t *cent ) {
   case ET_ANIMMAPOBJ:
     CG_animMapObj( cent );
     break;
-  case ET_LENSFLARE:
-    CG_LensFlare( cent );
+  case ET_LIGHTFLARE:
+    CG_LightFlare( cent );
     break;
   }
 }
