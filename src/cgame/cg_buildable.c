@@ -295,7 +295,7 @@ void CG_GhostBuildable( buildable_t buildable )
 {
   refEntity_t     ent;
   playerState_t   *ps;
-  vec3_t          angles, forward, player_origin, entity_origin, target_origin, normal;
+  vec3_t          angles, forward, player_origin, entity_origin, target_origin, normal, cross;
   vec3_t          mins, maxs, start, end;
   float           distance;
   trace_t         tr;
@@ -304,16 +304,6 @@ void CG_GhostBuildable( buildable_t buildable )
   
   memset ( &ent, 0, sizeof( ent ) );
 
-  VectorCopy( cg.predictedPlayerState.viewangles, angles );
-  angles[ PITCH ] = 0;  // always forward
-  /////FIXME PITCH CAN'T BE ZERO
-
-  AngleVectors( angles, forward, NULL, NULL );
-  VectorCopy( ps->origin, player_origin );
-
-  distance = BG_FindBuildDistForClass( ps->stats[ STAT_PCLASS ] );
-  VectorMA( player_origin, distance, forward, entity_origin );
-  
   if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBING )
   {
     if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
@@ -324,17 +314,27 @@ void CG_GhostBuildable( buildable_t buildable )
   else
     VectorSet( normal, 0.0f, 0.0f, 1.0f );
   
+  VectorCopy( cg.predictedPlayerState.viewangles, angles );
+
+  AngleVectors( angles, forward, NULL, NULL );
+  CrossProduct( forward, normal, cross );
+  VectorNormalize( cross );
+  CrossProduct( normal, cross, forward );
+  VectorNormalize( forward );
+
+  VectorCopy( ps->origin, player_origin );
+
+  distance = BG_FindBuildDistForClass( ps->stats[ STAT_PCLASS ] );
+  VectorMA( player_origin, distance, forward, entity_origin );
+  
   VectorCopy( entity_origin, target_origin );
   VectorMA( entity_origin, 32, normal, entity_origin );
   VectorMA( target_origin, -4096, normal, target_origin );
-/*  entity_origin[ 2 ] += 32;
-  target_origin[ 2 ] -= 4096;*/
 
   BG_FindBBoxForBuildable( buildable, mins, maxs );
   
   CG_Trace( &tr, entity_origin, mins, maxs, target_origin, ps->clientNum, MASK_PLAYERSOLID );
   VectorCopy( tr.endpos, entity_origin );
-  /*entity_origin[ 2 ] += 0.1f;*/
   VectorMA( entity_origin, 0.1f, normal, entity_origin );
 
   AngleVectors( angles, forward, NULL, NULL );
