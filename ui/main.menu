@@ -49,8 +49,8 @@
       type ITEM_TYPE_MODEL
       style WINDOW_STYLE_EMPTY
       asset_model "models/splash/splash_screen.md3"
-      model_fovx 33.0
-      model_fovy 24.75
+      model_fovx 32.0
+      model_fovy 24.0
       model_angle 180
       visible 1
       decoration
