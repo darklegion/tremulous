@@ -869,8 +869,10 @@ void ClientThink_real( gentity_t *ent )
       client->lastLockTime + DRAGOON_SLOWBLOB_TIME < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_SLOWLOCKED;
 
+  client->ps.stats[ STAT_BOOSTTIME ] = level.time - client->lastBoostedTime;
+
   if( client->ps.stats[ STAT_STATE ] & SS_BOOSTED &&
-      client->lastBoostedTime + 20000 < level.time )
+      client->lastBoostedTime + BOOST_TIME < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_BOOSTED;
 
   if( client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED &&

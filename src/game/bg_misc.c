@@ -1188,7 +1188,7 @@ classAttributes_t bg_classList[ ] =
     "lucy",                                         //char    *modelname;
     1.0f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
-    "alien_hud",                                    //char    *hudname;
+    "alien_builder_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -15, -15, -20 },                              //vec3_t  mins;
     { 15, 15, 20 },                                 //vec3_t  maxs;
@@ -1218,7 +1218,7 @@ classAttributes_t bg_classList[ ] =
     "lucy",                                         //char    *modelname;
     1.0f,                                           //float   modelScale;
     "angel",                                        //char    *skinname;
-    "alien_hud",                                    //char    *hudname;
+    "alien_builder_hud",                            //char    *hudname;
     ( 1 << S2 )|( 1 << S3 ),                        //int  stages
     { -20, -20, -20 },                              //vec3_t  mins;
     { 20, 20, 20 },                                 //vec3_t  maxs;
@@ -1248,7 +1248,7 @@ classAttributes_t bg_classList[ ] =
     "jumper",                                       //char    *modelname;
     0.2f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
-    "alien_hud",                                    //char    *hudname;
+    "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -15, -15, -6 },                               //vec3_t  mins;
     { 15, 15, 6 },                                  //vec3_t  maxs;
@@ -1278,7 +1278,7 @@ classAttributes_t bg_classList[ ] =
     "prowl",                                        //char    *modelname;
     0.75f,                                          //float   modelScale;
     "default",                                      //char    *skinname;
-    "alien_hud",                                    //char    *hudname;
+    "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -24, -24, -16 },                              //vec3_t  mins;
     { 24, 24, 16 },                                 //vec3_t  maxs;
@@ -1308,7 +1308,7 @@ classAttributes_t bg_classList[ ] =
     "prowl",                                        //char    *modelname;
     0.75f,                                          //float   modelScale;
     "default",                                      //char    *skinname;
-    "alien_hud",                                    //char    *hudname;
+    "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -24, -24, -16 },                              //vec3_t  mins;
     { 24, 24, 16 },                                 //vec3_t  maxs;
@@ -1338,7 +1338,7 @@ classAttributes_t bg_classList[ ] =
     "spitter",                                      //char    *modelname;
     0.6f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
-    "alien_hud",                                    //char    *hudname;
+    "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -18, -18, -18 },                              //vec3_t  mins;
     { 18, 18, 18 },                                 //vec3_t  maxs;
@@ -1369,7 +1369,7 @@ classAttributes_t bg_classList[ ] =
     "spitter",                                      //char    *modelname;
     0.7f,                                           //float   modelScale;
     "blue",                                         //char    *skinname;
-    "alien_hud",                                    //char    *hudname;
+    "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -20, -20, -20 },                              //vec3_t  mins;
     { 20, 20, 20 },                                 //vec3_t  maxs;
@@ -1400,7 +1400,7 @@ classAttributes_t bg_classList[ ] =
     "tarantula",                                    //char    *modelname;
     0.75f,                                          //float   modelScale;
     "default",                                      //char    *skinname;
-    "alien_hud",                                    //char    *hudname;
+    "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -22, -22, -22 },                              //vec3_t  mins;
     { 22, 22, 22 },                                 //vec3_t  maxs;
@@ -1430,7 +1430,7 @@ classAttributes_t bg_classList[ ] =
     "tarantula",                                    //char    *modelname;
     0.9f,                                           //float   modelScale;
     "red",                                          //char    *skinname;
-    "alien_hud",                                    //char    *hudname;
+    "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -24, -24, -24 },                              //vec3_t  mins;
     { 24, 24, 24 },                                 //vec3_t  maxs;
@@ -1460,7 +1460,7 @@ classAttributes_t bg_classList[ ] =
     "bug",                                          //char    *modelname;
     1.2f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
-    "alien_hud",                                    //char    *hudname;
+    "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -30, -30, -29 },                              //vec3_t  mins;
     { 30, 30, 29 },                                 //vec3_t  maxs;

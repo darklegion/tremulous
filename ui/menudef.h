@@ -144,7 +144,9 @@
 #define CG_PLAYER_STAMINA_3         95
 #define CG_PLAYER_STAMINA_4         96
 #define CG_PLAYER_STAMINA_BOLT      97
+#define CG_PLAYER_BOOST_BOLT        112
 #define CG_PLAYER_CLIPS_RING        98
+#define CG_PLAYER_BUILD_TIMER_RING  113
 #define CG_PLAYER_SELECT            74
 #define CG_PLAYER_SELECTTEXT        75
 #define CG_PLAYER_WEAPONICON        111

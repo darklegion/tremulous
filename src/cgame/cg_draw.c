@@ -754,6 +754,31 @@ static void CG_DrawPlayerClipsRing( rectDef_t *rect, vec4_t color, qhandle_t sha
 
 /*
 ==============
+CG_DrawPlayerBuildTimerRing
+==============
+*/
+static void CG_DrawPlayerBuildTimerRing( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  playerState_t *ps = &cg.snap->ps;
+  centity_t     *cent;
+  float         buildTime = ps->stats[ STAT_MISC ];
+  float         progress;
+  float         maxDelay;
+
+  cent = &cg_entities[ cg.snap->ps.clientNum ];
+  
+  maxDelay = (float)BG_FindBuildDelayForWeapon( cent->currentState.weapon );
+  progress = ( maxDelay - buildTime ) / maxDelay;
+
+  color[ 3 ] = AH_MIN_ALPHA + ( progress * AH_ALPHA_DIFF );
+  
+  trap_R_SetColor( color );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
+}
+
+/*
+==============
 CG_DrawPlayerBoosted
 ==============
 */
@@ -768,6 +793,35 @@ static void CG_DrawPlayerBoosted( rectDef_t *rect, vec4_t color, qhandle_t shade
     color[ 3 ] = AH_MIN_ALPHA;
   
   trap_R_SetColor( color );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
+}
+
+/*
+==============
+CG_DrawPlayerBoosterBolt
+==============
+*/
+static void CG_DrawPlayerBoosterBolt( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  playerState_t *ps = &cg.snap->ps;
+  qboolean      boosted = ps->stats[ STAT_STATE ] & SS_BOOSTED;
+  vec4_t        localColor;
+
+  Vector4Copy( color, localColor );
+
+  if( boosted )
+  {
+    if( ps->stats[ STAT_BOOSTTIME ] > BOOST_TIME - 3000 )
+    {
+      qboolean flash = ( ps->stats[ STAT_BOOSTTIME ] / 500 ) % 2;
+      
+      if( flash )
+        localColor[ 3 ] = 1.0f;
+    }
+  }
+  
+  trap_R_SetColor( localColor );
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
   trap_R_SetColor( NULL );
 }
@@ -2129,11 +2183,17 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
     case CG_PLAYER_CLIPS_RING:
       CG_DrawPlayerClipsRing( &rect, color, shader );
       break;
+    case CG_PLAYER_BUILD_TIMER_RING:
+      CG_DrawPlayerBuildTimerRing( &rect, color, shader );
+      break;
     case CG_PLAYER_WALLCLIMBING:
       CG_DrawPlayerWallclimbing( &rect, color, shader );
       break;
     case CG_PLAYER_BOOSTED:
       CG_DrawPlayerBoosted( &rect, color, shader );
+      break;
+    case CG_PLAYER_BOOST_BOLT:
+      CG_DrawPlayerBoosterBolt( &rect, color, shader );
       break;
     case CG_PLAYER_POISON_BARBS:
       CG_DrawPlayerPoisonBarbs( &rect, color, shader );

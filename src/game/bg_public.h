@@ -206,7 +206,8 @@ typedef enum
   STAT_STAMINA,   //TA: stamina (human only)
   STAT_STATE,     //TA: client states e.g. wall climbing
   STAT_MISC,      //TA: for uh...misc stuff
-  STAT_BUILDABLE  //TA: which ghost model to display for building
+  STAT_BUILDABLE, //TA: which ghost model to display for building
+  STAT_BOOSTTIME  //TA: time left for boost (alien only)
 } statIndex_t;
 
 #define SCA_WALLCLIMBER         0x00000001
@@ -236,6 +237,8 @@ typedef enum
 #define SB_VALID_TOGGLEBIT      0x00004000
 
 #define MAX_STAMINA             1000
+
+#define BOOST_TIME              20000
 
 // player_state->persistant[] indexes
 // these fields are the only part of player_state that isn't
