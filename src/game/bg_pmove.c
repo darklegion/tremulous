@@ -1323,13 +1323,9 @@ static void PM_GroundClimbTrace( void )
   //TA: If we're on the ceiling then grapplePoint is a rotation normal.. otherwise its a surface normal.
   //    would have been nice if Carmack had left a few random variables in the ps struct for mod makers
   if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
-  {
     VectorCopy( ceilingNormal, surfNormal );
-  }
   else
-  {
     VectorCopy( pm->ps->grapplePoint, surfNormal );
-  }
 
   //construct a vector which reflects the direction the player is looking wrt the surface normal
   AngleVectors( pm->ps->viewangles, forward, NULL, NULL );
