@@ -14,7 +14,11 @@
     onopen
     {
       hide optionsGrp;
-      show game
+      show game;
+
+      setitemcolor gameBtn      forecolor 0.2 0.2 0.2 1.0;
+      setitemcolor controlsBtn  forecolor 1.0 1.0 1.0 1.0;
+      setitemcolor systemBtn    forecolor 1.0 1.0 1.0 1.0
     }
 
     itemDef
@@ -34,7 +38,7 @@
     //Section menus
     itemDef
     {
-      name sections
+      name GameBtn
       text "Game"
       group menuGrp
       style WINDOW_STYLE_EMPTY
@@ -49,13 +53,17 @@
       action
       {
         hide optionsGrp;
-        show game
+        show game;
+        
+        setitemcolor gameBtn      forecolor 0.2 0.2 0.2 1.0;
+        setitemcolor controlsBtn  forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor systemBtn    forecolor 1.0 1.0 1.0 1.0
       }
     }
 
     itemDef
     {
-      name sections
+      name controlsBtn
       text "Controls"
       group menuGrp
       style WINDOW_STYLE_EMPTY
@@ -71,13 +79,17 @@
       {
         hide optionsGrp;
         show controls;
-        show look
+        show look;
+        
+        setitemcolor gameBtn      forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor controlsBtn  forecolor 0.2 0.2 0.2 1.0;
+        setitemcolor systemBtn    forecolor 1.0 1.0 1.0 1.0
       }
     }
 
     itemDef
     {
-      name sections
+      name systemBtn
       text "System"
       group menuGrp
       style WINDOW_STYLE_EMPTY
@@ -93,7 +105,11 @@
       {
         hide optionsGrp;
         show system;
-        show ghardware
+        show ghardware;
+        
+        setitemcolor gameBtn      forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor controlsBtn  forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor systemBtn    forecolor 0.2 0.2 0.2 1.0
       }
     }
 

@@ -3,139 +3,273 @@
 {
 \\ SERVER INFO MENU \\
 
-menuDef {
- 	name "ingame_vote"
- 	visible 0
- 	fullscreen 0
-	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
-  	rect 430 30 128 125
-  	focusColor 1 .75 0 1
-  	style 1
-  	border 1
+  menuDef
+  {
+    name "ingame_vote"
+    visible 0
+    fullscreen 0
+    outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+    rect 230 56 256 190
+    focusColor 1 .75 0 1
+    style 1
+    border 1
 
-	itemDef {
-		name window
-		rect 10 15 108 110 
-		style 1
-		backcolor 0 .1 0 1
-		visible 1
-		decoration
-	}
+    itemDef
+    {
+      name window
+      rect 10 5 240 180
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 1
+      visible 1
+      decoration
 
+      border WINDOW_BORDER_KCGRADIENT
+      borderSize 2.0
+      borderColor 0.5 0.5 0.5 1
+    }
 
+    itemDef
+    {
+      name yes
+      text "Yes"
+      type 1
+      textscale .35
+      rect 64 20 32 20
+      textalign ITEM_ALIGN_CENTER
+      textalignx 18
+      textaligny 17
+      forecolor 1 1 1 1
+      style WINDOW_STYLE_FILLED
+      backcolor .1 .1 .1 1
+      visible 1
+      action { exec "vote yes" ; uiScript closeingame }
+    }
 
+    itemDef
+    {
+      name no
+      text "No"
+      type 1
+      textscale .35
+      rect 128 20 32 20
+      textalign ITEM_ALIGN_CENTER
+      textalignx 18 
+      textaligny 17
+      forecolor 1 1 1 1
+      style WINDOW_STYLE_FILLED
+      backcolor .1 .1 .1 1
+      visible 1
+      action { exec "vote no" ; uiScript closeingame }
+    }
 
-// FRAME	//
-
-
-itemDef {
-	name window
-	rect 0 10 64 64
-	style 3
-	background "ui/assets/ingameleftcorner.tga"
-	visible 1
-	decoration
-	}
-itemDef {
-	name window
-	rect 64 10 64 64
-	style 3
-	background "ui/assets/ingamerightcorner.tga"
-	visible 1
-	decoration
-	}
-itemDef {
-	name window
-	rect 30 0 65 16
-	style 3
-	background "ui/assets/ingameconnection.tga"
-	visible 1
-	decoration
-	}
-itemDef {
-	name window
-	rect 0 64 64 64
-	style 3
-	background "ui/assets/ingameleftcornerb.tga"
-	visible 1
-	decoration
-	}
-itemDef {
-	name window
-	rect 64 64 64 64
-	style 3
-	background "ui/assets/ingamerightcornerb.tga"
-	visible 1
-	decoration
-	}
-
-
-
-	itemDef {
-		name yes
-		text "Yes"
-		type 1
-		textscale .25
-		rect 0 30 128 20
-		textalign 1
-		textalignx 64
-		textaligny 10
-		forecolor 1 1 1 1
-		visible 1
-		action { exec "vote yes" ; uiScript closeingame }
-	}
-
-	itemDef {
-		name no
-		text "No"
-		type 1
-		textscale .25
-		rect 0 50 128 20
-		textalign 1
-		textalignx 64
-		textaligny 10
-		forecolor 1 1 1 1
-		visible 1
-		action { exec "vote no" ; uiScript closeingame }
-	}
-itemDef {
-		name yes
-		text "TeamYes"
-		type 1
-		ownerdrawflag UI_SHOW_ANYTEAMGAME
-		textscale .25
-		rect 0 70 128 20
-		textalign 1
-		textalignx 64
-		textaligny 10
-		forecolor 1 1 1 1
-		visible 1
-		action { exec "teamvote yes" ; uiScript closeingame }
-	}
-
-	itemDef {
-		name no
-		text "TeamNo"
-		type 1
-		ownerdrawflag UI_SHOW_ANYTEAMGAME
-		textscale .25
-		rect 0 90 128 20
-		textalign 1
-		textalignx 64
-		textaligny 10
-		forecolor 1 1 1 1
-		visible 1
-		action { exec "teamvote no" ; uiScript closeingame }
-	}
+    itemDef
+    {
+      name miscBtn
+      text "Misc"
+      textscale .25
+      group grpbutton
+      style WINDOW_STYLE_FILLED
+      rect 20 65 45 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_CENTER
+      textalignx 22
+      textaligny 16
+      forecolor 1 1 1 1
+      backcolor .37 .1 .1 1 
+      visible 1
+      action { hide grpCallVote ; show misc }
+    }
+    
+    itemDef
+    {
+      name kickBtn
+      text "Kick"
+      textscale .25
+      group grpbutton
+      style WINDOW_STYLE_FILLED
+      rect 20 90 45 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_CENTER
+      textalignx 22
+      textaligny 16
+      forecolor 1 1 1 1
+      backcolor .37 .1 .1 1 
+      visible 1
+      action { hide grpCallVote ; show kick }
+    }
+    
+    itemDef
+    {
+      name MapBtn
+      text "Map"
+      textscale .25
+      group grpbutton
+      style WINDOW_STYLE_FILLED
+      rect 20 115 45 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_CENTER
+      textalignx 22
+      textaligny 16
+      forecolor 1 1 1 1
+      backcolor .37 .1 .1 1 
+      visible 1
+      action { hide grpCallVote ; show map }
+    }
 
 
-}
+    // 	MISC	//		
+		 
+    itemDef
+    {
+      name misc
+      text "Restart Map"
+      group grpCallVote
+      textscale .25
+      rect 70 70 96 20
+      type 1
+      textalign 1
+      textalignx 50
+      textaligny 16
+      forecolor 1 1 1 1
+      style WINDOW_STYLE_FILLED
+      backcolor .1 .1 .1 1
+      visible 0
+      action { exec "cmd callvote map_restart" ; uiScript closeingame }
+    }
+
+    itemDef
+    {
+      name misc
+      group grpCallVote
+      text "Next Map"
+      textscale .25
+      rect 70 90 96 20
+      type 1
+      textalign 1
+      textalignx 50
+      textaligny 16
+      forecolor 1 1 1 1
+      style WINDOW_STYLE_FILLED
+      backcolor .1 .1 .1 1
+      visible 0
+      action { exec "cmd callvote nextmap" ; uiScript closeingame }
+    }
+    
+    
+    // 	KICK PLAYER	//
+
+    itemDef
+    {
+      name kick
+      group grpCallVote
+      text "Kick Player:"
+      textscale .25
+      rect 80 50 110 20
+      textalign 0
+      textalignx 0
+      textaligny 16
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+      action { }
+    }
+    
+    itemDef
+    {
+      name kick
+      group grpCallVote
+      rect 80 70 150 85
+      style WINDOW_STYLE_FILLED
+      type ITEM_TYPE_LISTBOX
+      elementwidth 120
+      elementheight 15
+      textscale .25
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_PLAYER_LIST
+      border 1
+      bordercolor .5 .5 .5 .5
+      forecolor 1 1 1 1
+      backcolor 0 0 .5 .25
+      outlinecolor .1 .1 .7 .5
+      visible 0
+    }
+
+    itemDef
+    {
+      name kick
+      text "OK"
+      type 1
+      textscale .25
+      group grpCallVote
+      style WINDOW_STYLE_FILLED
+      background "ui/assets/button_back.tga"
+      rect 183 160 50 20
+      textalign 1
+      textalignx 25
+      textaligny 15
+      forecolor 1 1 1 1
+      backcolor .37 .1 .1 1 
+      visible 0
+      action { uiScript voteKick ; uiScript closeingame }
+    }
 
 
+    // 	NEW MAP	//
 
+    itemDef
+    {
+      name map
+      group grpCallVote
+      text "New Map:"
+      ownerdraw UI_ALLMAPS_SELECTION 
+      textscale .25
+      rect 80 50 110 20
+      textalign 0
+      textalignx 0
+      textaligny 16
+      forecolor 1 1 1 1
+      decoration
+      visible 0
+      action { }
+    }
+    
+    itemDef
+    {
+      name map
+      group grpCallVote
+      rect 80 70 150 85
+      type ITEM_TYPE_LISTBOX
+      style WINDOW_STYLE_FILLED
+      elementwidth 120
+      elementheight 15
+      textscale .25
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_ALLMAPS
+      border 1
+      bordercolor .5 .5 .5 .5
+      forecolor 1 1 1 1
+      backcolor 0 0 .5 .25
+      outlinecolor .1 .1 .7 .5
+      visible 0
+    }
 
-
-}
-
-
+    itemDef
+    {
+      name map
+      text "OK"
+      type 1
+      textscale .25
+      group grpCallVote
+      style WINDOW_STYLE_FILLED
+      background "ui/assets/button_back.tga"
+      rect 183 160 50 20
+      textalign 1
+      textalignx 25
+      textaligny 15
+      forecolor 1 1 1 1
+      backcolor .37 .1 .1 1 
+      visible 0
+      action { uiScript voteMap ; uiScript closeingame }
+    }
+  }
 }
