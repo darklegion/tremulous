@@ -196,7 +196,9 @@ typedef struct pLerpValues_s
 //particle template
 typedef struct baseParticle_s
 {
+  vec3_t          displacement;
   float           randDisplacement;
+  float           normalDisplacement;
   
   pMoveType_t     velMoveType;
   pMoveValues_t   velMoveValues;
@@ -433,9 +435,7 @@ typedef struct centity_s
   //TA:
   buildableAnimNumber_t buildableAnim;    //persistant anim number
   buildableAnimNumber_t oldBuildableAnim; //to detect when new anims are set
-  int                   buildableSmokeTime;
-  int                   buildableSparkTime;
-  int                   buildableBleedTime;
+  particleSystem_t      *buildablePS;
 
   float                 lastFlareSrcRadius; //caching of likely flare source radius
   float                 lastFlareRadius;    //caching of likely flare radius
@@ -1192,6 +1192,9 @@ typedef struct
   sfxHandle_t buildableRepairedSound;
 
   qhandle_t   poisonCloudPS;
+
+  qhandle_t   humanBuildableDamagedPS;
+  qhandle_t   alienBuildableDamagedPS;
 } cgMedia_t;
 
 

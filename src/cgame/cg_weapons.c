@@ -1639,15 +1639,8 @@ void CG_MissileHitWall( weapon_t weaponNum, weaponMode_t weaponMode, int clientN
   //create impact particle system
   if( ps )
   {
-    vec3_t origin2;
-    
     particleSystem_t *partSystem = CG_SpawnNewParticleSystem( ps );
-
-    //move the origin out from the wall a bit
-    //so particles don't collide with it immediately
-    VectorMA( origin, 10.0f, dir, origin2 );
-    CG_SetParticleSystemOrigin( partSystem, origin2 );
-    
+    CG_SetParticleSystemOrigin( partSystem, origin );
     CG_SetParticleSystemNormal( partSystem, dir );
     CG_AttachParticleSystemToOrigin( partSystem );
   }

@@ -605,87 +605,36 @@ static void CG_BuildableParticleEffects( centity_t *cent )
   buildableTeam_t team = BG_FindTeamForBuildable( es->modelindex );
   int             health = es->generic1 & ~( B_POWERED_TOGGLEBIT | B_DCCED_TOGGLEBIT | B_SPAWNED_TOGGLEBIT );
   float           healthFrac = (float)health / B_HEALTH_SCALE;
-  int             smokeTime, sparkTime, i, bleedBlobs;
-  vec3_t          origin;
-  vec3_t          acc = { 0.0f, 0.0f, 50.0f };
-  vec3_t          grav = { 0.0f, 0.0f, -DEFAULT_GRAVITY };
-  vec3_t          vel = { 0.0f, 0.0f, 0.0f };
-
-  VectorCopy( cent->lerpOrigin, origin );
   
   if( team == BIT_HUMANS )
   {
-    //hack to move particle origin away from ground
-    origin[ 2 ] += 8.0f;
-    
-    if( healthFrac < 0.33f && cent->buildableSmokeTime < cg.time )
+    if( healthFrac < 0.33f && cent->buildablePS == NULL )
     {
-      //smoke
-      smokeTime = healthFrac * 3 * MAX_SMOKE_TIME;
-      if( smokeTime < MIN_SMOKE_TIME )
-        smokeTime = MIN_SMOKE_TIME;
-
-      VectorSet( vel, 0.0f, 0.0f, 50.0f );
-
-      CG_LaunchSprite( origin, vel, acc, SMOKE_SPREAD,
-                       0.5f, 10.0f, 50.0f, 128.0f, 0.0f,
-                       rand( ) % 360, cg.time, cg.time,
-                       SMOKE_LIFETIME + ( crandom( ) * ( SMOKE_LIFETIME / 2 ) ),
-                       cgs.media.smokePuffShader, qfalse, qfalse );
-
-      cent->buildableSmokeTime = cg.time + smokeTime;
+      cent->buildablePS = CG_SpawnNewParticleSystem( cgs.media.humanBuildableDamagedPS );
+      CG_SetParticleSystemCent( cent->buildablePS, cent );
+      CG_AttachParticleSystemToCent( cent->buildablePS );
     }
-
-    if( healthFrac < 0.2f && cent->buildableSparkTime < cg.time )
+    else if( healthFrac >= 0.33f && cent->buildablePS != NULL )
     {
-      //sparks
-      sparkTime = healthFrac * 5 * MAX_SPARK_TIME;
-      if( sparkTime < MIN_SPARK_TIME )
-        sparkTime = MIN_SPARK_TIME;
-
-      for( i = 0; i < 3; i++ )
-      {
-        qhandle_t spark;
-
-        if( rand( ) % 1 )
-          spark = cgs.media.gibSpark1;
-        else
-          spark = cgs.media.gibSpark2;
-
-        VectorSet( vel, 0.0f, 0.0f, 200.0f );
-        VectorSet( grav, 0.0f, 0.0f, -DEFAULT_GRAVITY );
-
-        CG_LaunchSprite( origin, vel, grav, SPARK_SPREAD,
-                         0.6f, 4.0f, 2.0f, 255.0f, 0.0f,
-                         rand( ) % 360, cg.time, cg.time,
-                         SPARK_LIFETIME + ( crandom( ) * ( SPARK_LIFETIME / 2 ) ),
-                         spark, qfalse, qfalse );
-      }
-      
-      cent->buildableSparkTime = cg.time + sparkTime;
+      CG_DestroyParticleSystem( cent->buildablePS );
+      cent->buildablePS = NULL;
     }
   }
   else if( team == BIT_ALIENS )
   {
-    //bleed a bit if damaged
-    if( healthFrac < 0.33f && cent->buildableBleedTime < cg.time )
+    if( healthFrac < 0.33f && cent->buildablePS == NULL )
     {
-      VectorScale( es->origin2, 100.0f, vel );
-      VectorSet( grav, 0.0f, 0.0f, -DEFAULT_GRAVITY/4 );
-
-      bleedBlobs = ( 1.0f - ( healthFrac * 3 ) ) * MAX_BLEED_BLOBS + 1;
-
-      for( i = 0; i < bleedBlobs; i++ )
-      {
-        CG_LaunchSprite( origin, vel, grav, BLEED_SPREAD,
-                         0.0f, 4.0f, 20.0f, 255.0f, 0.0f,
-                         rand( ) % 360, cg.time, cg.time,
-                         BLEED_LIFETIME + ( crandom( ) * ( BLEED_LIFETIME / 2 ) ),
-                         cgs.media.greenBloodTrailShader, qfalse, qfalse );
-      }
-      
-      cent->buildableBleedTime = cg.time + BLEED_TIME;
+      cent->buildablePS = CG_SpawnNewParticleSystem( cgs.media.alienBuildableDamagedPS );
+      CG_SetParticleSystemCent( cent->buildablePS, cent );
+      CG_SetParticleSystemNormal( cent->buildablePS, es->origin2 );
+      CG_AttachParticleSystemToCent( cent->buildablePS );
     }
+    else if( healthFrac >= 0.33f && cent->buildablePS != NULL )
+    {
+      CG_DestroyParticleSystem( cent->buildablePS );
+      cent->buildablePS = NULL;
+    }
+    
   }
 }
 

@@ -145,6 +145,7 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
           break;
       }
         
+      VectorAdd( p->origin, bp->displacement, p->origin );
       
       for( j = 0; j <= 2; j++ )
         p->origin[ j ] += ( crandom( ) * bp->randDisplacement );
@@ -193,6 +194,10 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
           return NULL;
         
         VectorCopy( ps->attachment.normal, p->velocity );
+
+        //normal displacement
+        VectorNormalize( p->velocity );
+        VectorMA( p->origin, bp->normalDisplacement, p->velocity, p->origin );
         
         break;
       }
@@ -521,7 +526,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
 {
   char  *token;
   float number, randFrac;
-      
+  int   i;
 
   // read optional parameters
   while( 1 )
@@ -630,24 +635,15 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
     }
     else if( !Q_stricmp( token, "velocity" ) )
     {
-      token = COM_Parse( text_p );
-      if( !token )
-        break;
+      for( i = 0; i <= 2; i++ )
+      {
+        token = COM_Parse( text_p );
+        if( !token )
+          break;
+        
+        bp->velMoveValues.dir[ i ] = atof_neg( token, qtrue );
+      }
       
-      bp->velMoveValues.dir[ 0 ] = atof_neg( token, qtrue );
-      
-      token = COM_Parse( text_p );
-      if( !token )
-        break;
-      
-      bp->velMoveValues.dir[ 1 ] = atof_neg( token, qtrue );
-
-      token = COM_Parse( text_p );
-      if( !token )
-        break;
-      
-      bp->velMoveValues.dir[ 2 ] = atof_neg( token, qtrue );
-
       token = COM_Parse( text_p );
       if( !token )
         break;
@@ -660,24 +656,15 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
     }
     else if( !Q_stricmp( token, "velocityPoint" ) )
     {
-      token = COM_Parse( text_p );
-      if( !token )
-        break;
+      for( i = 0; i <= 2; i++ )
+      {
+        token = COM_Parse( text_p );
+        if( !token )
+          break;
+        
+        bp->velMoveValues.point[ i ] = atof_neg( token, qtrue );
+      }
       
-      bp->velMoveValues.point[ 0 ] = atof_neg( token, qtrue );
-      
-      token = COM_Parse( text_p );
-      if( !token )
-        break;
-      
-      bp->velMoveValues.point[ 1 ] = atof_neg( token, qtrue );
-
-      token = COM_Parse( text_p );
-      if( !token )
-        break;
-      
-      bp->velMoveValues.point[ 2 ] = atof_neg( token, qtrue );
-
       token = COM_Parse( text_p );
       if( !token )
         break;
@@ -734,24 +721,15 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
     }
     else if( !Q_stricmp( token, "acceleration" ) )
     {
-      token = COM_Parse( text_p );
-      if( !token )
-        break;
+      for( i = 0; i <= 2; i++ )
+      {
+        token = COM_Parse( text_p );
+        if( !token )
+          break;
+        
+        bp->accMoveValues.dir[ i ] = atof_neg( token, qtrue );
+      }
       
-      bp->accMoveValues.dir[ 0 ] = atof_neg( token, qtrue );
-      
-      token = COM_Parse( text_p );
-      if( !token )
-        break;
-      
-      bp->accMoveValues.dir[ 1 ] = atof_neg( token, qtrue );
-
-      token = COM_Parse( text_p );
-      if( !token )
-        break;
-      
-      bp->accMoveValues.dir[ 2 ] = atof_neg( token, qtrue );
-
       token = COM_Parse( text_p );
       if( !token )
         break;
@@ -764,24 +742,15 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
     }
     else if( !Q_stricmp( token, "accelerationPoint" ) )
     {
-      token = COM_Parse( text_p );
-      if( !token )
-        break;
+      for( i = 0; i <= 2; i++ )
+      {
+        token = COM_Parse( text_p );
+        if( !token )
+          break;
+        
+        bp->accMoveValues.point[ i ] = atof_neg( token, qtrue );
+      }
       
-      bp->accMoveValues.point[ 0 ] = atof_neg( token, qtrue );
-      
-      token = COM_Parse( text_p );
-      if( !token )
-        break;
-      
-      bp->accMoveValues.point[ 1 ] = atof_neg( token, qtrue );
-
-      token = COM_Parse( text_p );
-      if( !token )
-        break;
-      
-      bp->accMoveValues.point[ 2 ] = atof_neg( token, qtrue );
-
       token = COM_Parse( text_p );
       if( !token )
         break;
@@ -793,13 +762,34 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       continue;
     }
     ///
-    else if( !Q_stricmp( token, "randomDisplacement" ) )
+    else if( !Q_stricmp( token, "displacement" ) )
     {
+      for( i = 0; i <= 2; i++ )
+      {
+        token = COM_Parse( text_p );
+        if( !token )
+          break;
+        
+        bp->displacement[ i ] = atof_neg( token, qtrue );
+      }
+      
       token = COM_Parse( text_p );
       if( !token )
         break;
 
-      bp->randDisplacement = atof_neg( token, qtrue );
+      CG_ParseValueAndVariance( token, NULL, &randFrac );
+
+      bp->randDisplacement = randFrac;
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "normalDisplacement" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+      
+      bp->normalDisplacement = atof_neg( token, qtrue );
 
       continue;
     }

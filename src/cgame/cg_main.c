@@ -794,6 +794,9 @@ static void CG_RegisterGraphics( void )
   cgs.media.jetPackHoverPS            = CG_RegisterParticleSystem( "jetPackHoverPS" );
   cgs.media.jetPackAscendPS           = CG_RegisterParticleSystem( "jetPackAscendPS" );
 
+  cgs.media.humanBuildableDamagedPS   = CG_RegisterParticleSystem( "humanBuildableDamagedPS" );
+  cgs.media.alienBuildableDamagedPS   = CG_RegisterParticleSystem( "alienBuildableDamagedPS" );
+
   // register the inline models
   cgs.numInlineModels = trap_CM_NumInlineModels( );
   

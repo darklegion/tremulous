@@ -878,6 +878,8 @@ static void CG_CEntityPVSEnter( centity_t *cent )
 
   cent->jetPackPS = NULL;
   cent->jetPackState = JPS_OFF;
+  
+  cent->buildablePS = NULL;
 }
 
 
