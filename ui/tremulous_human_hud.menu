@@ -29,35 +29,6 @@
     visible MENU_TRUE
     rect 0 0 640 480
 
-    //CONSOLE
-    itemDef
-    {
-      name "console"
-      rect 8 8 560 180
-      style WINDOW_STYLE_EMPTY
-      visible 1
-      decoration
-      forecolor 1 1 1 1
-      align ITEM_ALIGN_LEFT
-      textalignx 0
-      textaligny 18
-      textscale 0.4
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      ownerdraw CG_CONSOLE
-    }   
-
-     //LAGOMETER  
-     itemDef  
-     {  
-       name "lagometer"  
-       rect 502 358 132 28  
-       visible 1  
-       decoration  
-       background "lagometer"  
-       ownerdraw CG_LAGOMETER  
-    }
-
-
     //////////////////
     //STATIC OBJECTS//
     //////////////////
@@ -371,5 +342,56 @@
       forecolor 0.0 0.8 1.0 .5
       ownerdraw CG_TIMER_MINS
     }   
+
+    //CONSOLE
+    itemDef
+    {
+      name "console"
+      rect 8 8 560 180
+      style WINDOW_STYLE_EMPTY
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      align ITEM_ALIGN_LEFT
+      textalignx 0
+      textaligny 18
+      textscale 0.4
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_CONSOLE
+    }   
+
+    //LAGOMETER  
+    itemDef  
+    {  
+      name "lagometer"  
+      rect 502 358 132 28  
+      visible 1  
+      decoration  
+      background "lagometer"  
+      ownerdraw CG_LAGOMETER  
+    }
+
+    //USABLE
+    itemDef  
+    {  
+      name "usable"
+      rect 304 420 32 32
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 .25
+      background "ui/assets/neutral/use.tga"
+      ownerdraw CG_PLAYER_USABLE_BUILDABLE
+    }
+
+    //SCANNER
+    itemDef
+    {
+      name "scanner"
+      rect 60 300 520 120
+      visible 1
+      decoration
+      background "textures/common/invisible" //FIXME: change to a bunch on concentric circles
+      ownerdraw CG_PLAYER_HUMAN_SCANNER
+    }
   }
 }
