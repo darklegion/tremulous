@@ -298,13 +298,14 @@ G_RegisterPlayerModels
 */
 void G_RegisterPlayerModels( void )
 {
-  char  *precacheModels[ MAX_CLIENTS ] = { "klesk", "orbb", "lucy", "sarge", NULL };
-  char  *s;
+  char  *s, *class;
   int   i;
 
-  for( i = 0; i < 4; i++ )
+  for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ ) 
   {
-    s = va("n\\%s%d\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d", "precache", i, 0, precacheModels[ i ], precacheModels[ i ], 0, 0, "7", 100, 0, 0, 0, 0);
+    class = BG_FindModelNameForClass( i );
+    Com_Printf( ":%s: ", class );
+    s = va("n\\%s%d\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d", "precache", i, 0, class, class, 0, 0, "7", 100, 0, 0, 0, 0);
 
     trap_SetConfigstring( CS_PLAYERS + MAX_CLIENTS + i, s );
   }

@@ -374,10 +374,10 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 
   // attack button cycles through spectators
   //TA: messes with the menus
-  if ( ( client->buttons & BUTTON_ATTACK ) && 
+  /*if ( ( client->buttons & BUTTON_ATTACK ) && 
       !( client->oldbuttons & BUTTON_ATTACK ) &&
        ( client->sess.spectatorState == SPECTATOR_FREE ) )
-    Cmd_FollowCycle_f( ent, 1 );
+    Cmd_FollowCycle_f( ent, 1 );*/
 }
 
 
@@ -641,6 +641,7 @@ void ClientThink_real( gentity_t *ent ) {
   int     msec;
   usercmd_t *ucmd;
   float   speed;
+  int     aForward, aRight;
 
   //TA: torch
   gentity_t *light;
@@ -770,8 +771,13 @@ void ClientThink_real( gentity_t *ent ) {
   }
 
   //TA: torch stuff
-  if( client->torch == NULL && BG_activated( UP_TORCH, client->ps.stats ) )
+  if( client->torch == NULL &&
+      BG_activated( UP_TORCH, client->ps.stats ) &&
+      BG_gotItem( UP_TORCH, client->ps.stats ) &&
+      !( client->ps.pm_type == PM_DEAD )
+    )
   {
+    Com_Printf( "spawn torch\n" );
     light = G_Spawn( );
     light->s.eType = ET_TORCH;
     light->r.ownerNum = ent->s.number;
@@ -779,9 +785,14 @@ void ClientThink_real( gentity_t *ent ) {
     client->torch = light;
   }
 
-  if( ( client->torch != NULL && !BG_activated( UP_TORCH, client->ps.stats ) ) ||
-      ( client->torch != NULL && BG_activated( UP_TORCH, client->ps.stats ) && pm.ps->pm_type == PM_DEAD ) )
+  if( client->torch != NULL &&
+      ( !BG_activated( UP_TORCH, client->ps.stats ) ||
+        client->ps.pm_type == PM_DEAD ||
+        !BG_gotItem( UP_TORCH, client->ps.stats )
+      )
+    )
   {
+    Com_Printf( "destroy torch\n" );
     G_FreeEntity( client->torch );
     trap_LinkEntity( client->torch );
     client->torch = NULL;
@@ -790,6 +801,30 @@ void ClientThink_real( gentity_t *ent ) {
                               
   if( client->torch != NULL )
     ShineTorch( client->torch );
+
+  aForward  = abs( ucmd->forwardmove );
+  aRight    = abs( ucmd->rightmove );
+                                                                      
+  //if not trying to run then not trying to sprint
+  if( aForward <= 64 )
+    client->ps.stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
+
+  if( ( client->ps.stats[ STAT_STATE ] & SS_SPEEDBOOST ) &&  ucmd->upmove >= 0 )
+  {
+    //subtract stamina
+    client->ps.stats[ STAT_STAMINA ] -= 2;
+  }
+                                                          
+  if( ( aForward <= 64 && aForward > 5 ) || ( aRight <= 64 && aRight > 5 ) )
+  {
+    //restore stamina
+    client->ps.stats[ STAT_STAMINA ] += 3;
+  }
+  else if( aForward <= 5 && aRight <= 5 )
+  {
+    //restore stamina faster
+    client->ps.stats[ STAT_STAMINA ] += 2;
+  }
 
   // set up for pmove
   oldEventSequence = client->ps.eventSequence;

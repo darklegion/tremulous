@@ -582,6 +582,7 @@ void CopyToBodyQue( gentity_t *ent ) {
   body->s.event = 0;
   body->r.contents = CONTENTS_BODY;
   body->clipmask = MASK_PLAYERSOLID;
+  body->s.clientNum = ent->client->ps.stats[ STAT_PCLASS ];
 
   switch ( body->s.legsAnim & ~ANIM_TOGGLEBIT ) {
   case BOTH_DEATH1:
@@ -928,23 +929,10 @@ void ClientUserinfoChanged( int clientNum ) {
 
   // set model
   //Q_strncpyz( model, Info_ValueForKey (userinfo, "model"), sizeof( model ) );
-  switch( client->pers.pclass )
-  {
-    case PCL_D_O_BASE:
-      Q_strncpyz( model, "klesk", sizeof( model ) );
-      break;
-    case PCL_D_D_BASE:
-      Q_strncpyz( model, "orbb", sizeof( model ) );
-      break;
-    case PCL_D_B_BASE:
-      Q_strncpyz( model, "lucy", sizeof( model ) );
-      break;
-    case PCL_H_BASE:
-      Q_strncpyz( model, "sarge", sizeof( model ) );
-      break;
-    default:
-      Q_strncpyz( model, "grunt", sizeof( model ) );
-  }
+  s = BG_FindModelNameForClass( client->pers.pclass );
+
+  //if( client->pers.pclass > PCL_NONE && client->pers.pclass < PCL_NUM_CLASSES )
+    Q_strncpyz( model, s, sizeof( model ) );
 
   // team
   switch( client->sess.sessionTeam ) {

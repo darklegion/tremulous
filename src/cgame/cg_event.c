@@ -419,7 +419,7 @@ void CG_PainEvent( centity_t *cent, int health ) {
 CG_Menu
 ==============
 */
-void CG_Menu( centity_t *cent, int eventParm )
+void CG_Menu( int eventParm )
 {
   switch( eventParm )
   {
@@ -448,7 +448,7 @@ void CG_Menu( centity_t *cent, int eventParm )
       break;
 
     default:
-      Com_Printf( "cgame: debug: no such menu no %d\n", eventParm );
+      Com_Printf( "cgame: debug: no such menu %d\n", eventParm );
 
   }
 }
@@ -981,7 +981,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
   case EV_MENU:
     DEBUGNAME("EV_MENU");
-    CG_Menu( cent, es->eventParm );
+    if( es->number == cg.clientNum )
+      CG_Menu( es->eventParm );
     break;
 
   default:

@@ -889,6 +889,34 @@ Only in CTF games
 
 int   bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) - 1;
 
+classModelName_t bg_pModelList[ ] =
+{
+  { PCL_D_O_BASE, "klesk" },
+  { PCL_D_D_BASE, "orbb" },
+  { PCL_D_B_BASE, "lucy" },
+  { PCL_H_BASE,   "sarge" },
+};
+
+int   bg_numPModels = sizeof( bg_pModelList ) / sizeof( bg_pModelList[ 0 ] );
+
+/*
+==============
+BG_FindModelNameForClass
+==============
+*/
+char *BG_FindModelNameForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPModels; i++ )
+  {
+    if( bg_pModelList[ i ].classNum == pclass )
+      return bg_pModelList[ i ].className;
+  }
+
+  //wimp out
+  return bg_pModelList[ 0 ].className;
+}
 
 /*
 ==============

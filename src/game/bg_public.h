@@ -603,16 +603,25 @@ typedef enum {
 
 //FIXME: switch to enums at some point
 //TA: player classes
-#define PCL_D_B_BASE      1
-#define PCL_D_O_BASE      2
-#define PCL_D_D_BASE      3
+typedef enum {
+  PCL_NONE,
+  PCL_D_B_BASE,
+  PCL_D_O_BASE,
+  PCL_D_D_BASE,
+  PCL_H_BASE,
 
-#define PCL_H_BASE        11
+  PCL_NUM_CLASSES
+} pClass_t;
+
 
 //TA: player teams
-#define PTE_NONE          0
-#define PTE_DROIDS        1
-#define PTE_HUMANS        2
+typedef enum {
+  PTE_NONE,
+  PTE_DROIDS,
+  PTE_HUMANS,
+
+  PTE_NUM_TEAMS
+} pTeam_t;
 
 
 // means of death
@@ -685,6 +694,14 @@ typedef struct gitem_s {
   char    *sounds;    // string of all sounds this item will use
 } gitem_t;
 
+//TA: player model precaching
+typedef struct
+{
+  int   classNum;
+  char  *className;
+} classModelName_t;
+
+
 // included in both the game dll and the client
 extern  gitem_t bg_itemlist[];
 extern  int   bg_numItems;
@@ -695,6 +712,9 @@ gitem_t *BG_FindItemForBuildable( buildable_t buildable );
 gitem_t *BG_FindItemForUpgrade( upgrade_t upgrade );
 gitem_t *BG_FindItemForPowerup( powerup_t pw );
 gitem_t *BG_FindItemForHoldable( holdable_t pw );
+
+//TA:
+char *BG_FindModelNameForClass( int pclass );
 #define ITEM_INDEX(x) ((x)-bg_itemlist)
 
 qboolean  BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps );

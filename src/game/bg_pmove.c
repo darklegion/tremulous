@@ -398,7 +398,7 @@ static float PM_CmdScale( usercmd_t *cmd ) {
   int   max;
   float total;
   float scale;
-  float modifier = 1.0;
+  float modifier = 1.0f;
   static int time;
   int   dTime;
   int   aForward, aRight;
@@ -406,31 +406,12 @@ static float PM_CmdScale( usercmd_t *cmd ) {
   dTime = pm->cmd.serverTime - time;
   time = pm->cmd.serverTime;
 
-  if( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS )
+  if( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS && pm->ps->pm_type == PM_NORMAL )
   {
     if( !( pm->ps->stats[ STAT_STATE ] & SS_SPEEDBOOST ) )
     {
       //if not sprinting
       modifier *= 0.8;
-    }
-    else if( cmd->upmove >= 0 )
-    {
-      //subtract stamina
-      pm->ps->stats[ STAT_STAMINA ] -= (dTime/8);
-    }
-
-    aForward = abs( cmd->forwardmove );
-    aRight = abs( cmd->rightmove );
-
-    if( ( aForward <= 64 && aForward > 5 ) || ( aRight <= 64 && aRight > 5 ) )
-    {
-      //restore stamina
-      pm->ps->stats[ STAT_STAMINA ] += (dTime/10);
-    }
-    else if( aForward <= 5 && aRight <= 5 )
-    {
-      //restore stamina faster
-      pm->ps->stats[ STAT_STAMINA ] += (dTime/8);
     }
 
     if( cmd->forwardmove < 0 )
@@ -449,10 +430,6 @@ static float PM_CmdScale( usercmd_t *cmd ) {
       pm->ps->stats[ STAT_STAMINA ] = 1000;
     if( pm->ps->stats[ STAT_STAMINA ] < -1000 )
       pm->ps->stats[ STAT_STAMINA ] = -1000;
-
-    //if not trying to run then not trying to sprint
-    if( abs( cmd->forwardmove ) <= 64 )
-      pm->ps->stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
 
     //must have +ve stamina to jump
     if( pm->ps->stats[ STAT_STAMINA ] < 0 )

@@ -494,9 +494,12 @@ static void CG_CopyClientInfoModel( clientInfo_t *from, clientInfo_t *to ) {
 CG_GetCorpseNum
 ======================
 */
-static int CG_GetCorpseNum( clientInfo_t *ci ) {
-  int   i;
+static int CG_GetCorpseNum( int pclass ) {
+  int           i;
   clientInfo_t  *match;
+  char          *modelName;
+
+  modelName = BG_FindModelNameForClass( pclass );
 
   for ( i = 0 ; i < cgs.maxclients ; i++ ) {
     match = &cgs.corpseinfo[ i ];
@@ -506,15 +509,14 @@ static int CG_GetCorpseNum( clientInfo_t *ci ) {
     if ( match->deferred ) {
       continue;
     }
-    if ( !Q_stricmp( ci->modelName, match->modelName )
-      && !Q_stricmp( ci->skinName, match->skinName ) ) {
+    if ( !Q_stricmp( modelName, match->modelName )
+      /*&& !Q_stricmp( modelName, match->skinName )*/ ) {
       // this clientinfo is identical, so use it's handles
-
       return i;
     }
   }
 
-  //something has gone badly wrong
+  //something has gone horribly wrong
   return -1;
 }
 
@@ -1947,17 +1949,13 @@ void CG_Corpse( centity_t *cent )
   float     shadowPlane;
 
   //if this is the first time the function has been run set cent->corpseNum
-  if( cent->corpseNum < 1 )
+  cent->corpseNum = CG_GetCorpseNum( cent->currentState.clientNum );
+  if ( cent->corpseNum < 0 || cent->corpseNum >= MAX_CLIENTS )
   {
-    ci = &cgs.clientinfo[ cent->currentState.clientNum ];
-    cent->corpseNum = CG_GetCorpseNum( ci ) + 1;
-    if ( cent->corpseNum < 1 || cent->corpseNum >= MAX_CLIENTS + 1 )
-    {
-      CG_Error( "Bad corpseNum on corpse entity: %d", cent->corpseNum );
-    }
+    CG_Error( "Bad corpseNum on corpse entity: %d", cent->corpseNum );
   }
 
-  ci = &cgs.corpseinfo[ cent->corpseNum - 1 ];
+  ci = &cgs.corpseinfo[ cent->corpseNum ];
     
   // it is possible to see corpses from disconnected players that may
   // not have valid clientinfo
