@@ -9,17 +9,18 @@
     visible 0
     fullscreen 0
     outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
-    rect 10 56 384 320
+    rect 10 56 384 280
     focusColor 1 .75 0 1
     onopen
     {
-      hide optionsGrp
+      hide optionsGrp;
+      show game
     }
 
     itemDef
     {
       name window
-      rect 10 5 384 310
+      rect 10 5 384 270
       style WINDOW_STYLE_FILLED
       backcolor 0 0 0 1
       visible 1
@@ -47,7 +48,8 @@
       visible 1 
       action
       {
-        hide optionsGrp
+        hide optionsGrp;
+        show game
       }
     }
 
@@ -95,294 +97,114 @@
       }
     }
 
-//////// GFX HARDWARE
-
-    //System menu
-    itemDef
-    {
-      name system
-      text "GFX Hardware"
-      group optionsGrp
-      style WINDOW_STYLE_EMPTY
-      rect 20 60 64 20
-      type ITEM_TYPE_BUTTON
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 16
-      textscale .25
-      forecolor 1 1 1 1
-      visible 0 
-      action
-      {
-        hide optionsGrp;
-        show system;
-        show ghardware
-      }
-    }
+//////// GAME
 
     itemDef
     {
-      name ghardware       
-      group optionsGrp
-      type ITEM_TYPE_MULTI
-      text "Quality:"
-      cvar "ui_glCustom"
-      cvarFloatList { "High Quality" 0 "Normal" 1 "Fast" 2 "Fastest" 3 "Custom" 4 }
-      rect 120 50 256 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 133
-      textaligny 17
-      textscale .25         
-      forecolor 1 1 1 1
-      visible 0 
-      action { uiScript update "ui_glCustom" }
-    }
-
-    itemDef
-    {
-      name ghardware
+      name game
       group optionsGrp
       type ITEM_TYPE_EDITFIELD
-      text "GL Driver:"
-      cvar "r_gldriver"
-      //cvarFloatList {  }
-      rect 120 70 256 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 133
-      textaligny 17
+      style 0
+      text "Name:"
+      cvar "name"
+      maxchars 26
+      rect 278 85 192 20
+      textalign ITEM_ALIGN_LEFT		
+      textalignx 10
+      textaligny 18
       textscale .25        
       forecolor 1 1 1 1
-      visible 0 
-      decoration
+      visible 1 
     }
-
+    
     itemDef
     {
-      name ghardware
+      name game
       group optionsGrp
       type ITEM_TYPE_YESNO
-      text "GL Extensions:"
-      cvar "r_allowExtensions"
-      rect 120 90 256 20
+      text "Auto Download:"
+      cvar "cl_allowDownload"
+      rect 155 120 200 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 133
-      textaligny 17
+      textalignx 143
+      textaligny 12
       textscale .25        
       forecolor 1 1 1 1
-      visible 0 
-      action { uiScript glCustom }
-    }
-  
-    itemDef
-    {
-      name ghardware
-      group optionsGrp
-      type ITEM_TYPE_MULTI
-      text "Video Mode:"
-      cvar "r_mode"
-      cvarFloatList { "320x240" 0 "400x300" 1 "512x384" 2 "640x480" 3
-                      "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7
-                      "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 }
-      rect 120 110 256 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 133
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 0 
-      action { uiScript glCustom }
+      visible 1 
     }
 
     itemDef
     {
-      name ghardware
-      group optionsGrp
-      type ITEM_TYPE_MULTI
-      text "Color Depth:"
-      cvar "r_colorbits"
-      cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
-      rect 120 130 256 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 133
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 0 
-      action { uiScript glCustom ; uiScript update "r_colorbits" }
-    }
-
-    itemDef
-    {
-      name ghardware
+      name game				
       group optionsGrp
       type ITEM_TYPE_YESNO
-      text "Fullscreen:"
-      cvar "r_fullscreen"
-      rect 120 150 256 20
+      text "Taunts Off:"
+      cvar "cg_noTaunt"
+      rect 155 135 200 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 133
-      textaligny 17
+      textalignx 143
+      textaligny 12
       textscale .25        
       forecolor 1 1 1 1
-      visible 0 
-      action { uiScript glCustom }
+      visible 1 
     }
 
     itemDef
     {
-      name ghardware
-      group optionsGrp
-      type ITEM_TYPE_MULTI
-      text "Lighting:"
-      cvar "r_vertexlight"
-      cvarFloatList { "Light Map (high)" 0 "Vertex (low)" 1  }
-      rect 120 170 256 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 133
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 0 
-      action { uiScript glCustom }
-    }
-
-    itemDef
-    {
-      name ghardware
-      group optionsGrp
-      type ITEM_TYPE_MULTI
-      text "Geometric Detail:"
-      cvar "r_lodbias"
-      cvarFloatList { "High" 0 "Medium" 1 "Low" 2 }
-      rect 120 190 256 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 133
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 0 
-      action { uiScript glCustom ; uiScript update "r_lodbias" }
-    }
-
-    itemDef
-    {
-      name ghardware
-      group optionsGrp
-      type ITEM_TYPE_MULTI
-      text "Texture Detail:"
-      cvar "r_picmip"
-      cvarFloatList { "Low" 2 "Normal" 1 "High" 0 }
-      rect 120 210 256 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 133
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 0 
-      action { uiScript glCustom }
-    }
-  
-    itemDef
-    {
-      name ghardware
-      group optionsGrp
-      type ITEM_TYPE_MULTI
-      text "Texture Quality:"
-      cvar "r_texturebits"
-      cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
-      rect 120 230 256 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 133
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 0 
-    }
-
-    itemDef
-    {
-      name ghardware
-      group optionsGrp
-      type ITEM_TYPE_MULTI
-      text "Texture Filter:"
-      cvar "r_texturemode"
-      cvarStrList { "Bilinear", "GL_LINEAR_MIPMAP_NEAREST", "Trilinear", "GL_LINEAR_MIPMAP_LINEAR"  }
-      rect 120 250 256 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 133
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 0 
-      action { uiScript glCustom }
-    }
-
-    itemDef
-    {
-      name ghardware
+      name game				
       group optionsGrp
       type ITEM_TYPE_YESNO
-      text "Compress Textures:"
-      cvar "r_ext_compressed_textures "
-      rect 120 270 256 20
+      text "Team Chats Only:"
+      cvar "cg_teamChatsOnly"
+      rect 155 150 200 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 133
+      textalignx 143
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 1 
+    }
+
+    itemDef
+    {
+      name game				
+      group optionsGrp
+      text "Crosshair:"
+      ownerdraw UI_CROSSHAIR
+      rect 298 168 20 17
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 0 
       textaligny 17
       textscale .25        
       forecolor 1 1 1 1
-      visible 0 
-      action { uiScript glCustom }
+      visible 1 
     }
 
     itemDef
     {
-      name ghardware
+      name game				
       group optionsGrp
-      type ITEM_TYPE_BUTTON
-      text "APPLY"
-      textscale .25
-      style WINDOW_STYLE_EMPTY
-      rect 220 295 75 20
-      textalign ITEM_ALIGN_CENTER
-      textalignx 37
-      textaligny 15
-      forecolor 1 1 1 1
-      visible 0
-      action { exec "vid_restart" }
-    }
-
-//////// GFX SOFTWARE
-
-    itemDef
-    {
-      name system
-      text "GFX Software"
-      group optionsGrp
-      style WINDOW_STYLE_EMPTY
-      rect 20 80 64 20
-      type ITEM_TYPE_BUTTON
+      type ITEM_TYPE_YESNO
+      text "Auto Wallwalk Pitching:"
+      cvar "cg_wwFollow"
+      rect 155 185 200 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 16
-      textscale .25
+      textalignx 143
+      textaligny 17
+      textscale .25        
       forecolor 1 1 1 1
-      visible 0 
-      action
-      {
-        hide optionsGrp;
-        show system;
-        show gsoftware
-      }
+      visible 1 
     }
 
     itemDef
     {
-      name gsoftware
+      name game
       group optionsGrp
-      type ITEM_TYPE_SLIDER
-      text "Brightness:"
-      cvarfloat "r_gamma" 1 .5 2
-      rect 120 45 256 20
+      type ITEM_TYPE_MULTI
+      text "Wallwalking Speed:"
+      cvarfloat "cg_wwSmoothTime" 300 0 1000
+      cvarFloatList { "Medium" 300 "Fast" 150 "Instant" 0 "Slow" 600 }
+      rect 170 200 256 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128 
       textaligny 17
@@ -391,345 +213,6 @@
       visible 0 
     }
 
-    itemDef
-    {
-      name gsoftware
-      group optionsGrp
-      type ITEM_TYPE_SLIDER
-      text "Screen Size:"
-      cvarfloat "cg_viewsize" 100 30 100
-      //cvarFloatList {  }
-      rect 120 65 256 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 128
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 0 
-    }
-
-    itemDef
-    {
-      name gsoftware
-      group optionsGrp
-      type ITEM_TYPE_YESNO
-      text "Simple Items:"
-      cvar "cg_simpleItems"
-      rect 120 85 200 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 143
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 1 
-    }
-
-    itemDef
-    {
-      name gsoftware
-      group optionsGrp
-      type ITEM_TYPE_YESNO
-      text "Marks On Walls:"
-      cvar "cg_marks"
-      rect 120 105 200 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 143
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 1 
-    }
-        
-    itemDef
-    {
-      name gsoftware
-      group optionsGrp
-      type ITEM_TYPE_MULTI  
-      text "Ejecting Brass:"
-      cvar "cg_brassTime"
-      cvarFloatList { "High" 2500 "Med" 1250 "Off" 0 }
-      rect 120 125 200 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 143
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 1 
-    }
-
-    itemDef
-    {
-      name gsoftware
-      group optionsGrp
-      type ITEM_TYPE_YESNO
-      text "Dynamic Lights:"
-      cvar "r_dynamiclight"
-      rect 120 145 200 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 143
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 1 
-    }
-
-    itemDef
-    {
-      name gsoftware
-      group optionsGrp
-      type ITEM_TYPE_YESNO
-      text "Draw Gun:"
-      cvar "cg_drawGun"
-      rect 120 165 200 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 143
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 1 
-    }
-
-    itemDef
-    {
-      name gsoftware
-      group optionsGrp
-      type ITEM_TYPE_YESNO
-      text "Low Quality Sky:"
-      cvar "r_fastsky"
-      rect 120 185 200 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 143
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 1 
-    }
-
-    itemDef
-    {
-      name gsoftware
-      group optionsGrp
-      type ITEM_TYPE_YESNO
-      text "Sync Every Frame:"
-      cvar "weapon 5"
-      rect 120 205 200 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 143
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 1 
-    }
-
-    itemDef
-    {
-      name gsoftware
-      group optionsGrp
-      type ITEM_TYPE_YESNO
-      text "Show Time:"
-      cvar "cg_drawTimer"
-      rect 120 225 200 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 143
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 1 
-    }
-
-    itemDef
-    {
-      name gsoftware        
-      group optionsGrp
-      type ITEM_TYPE_YESNO
-      text "In Game Videos:"
-      cvar "r_inGameVideo"
-      rect 120 245 200 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 143
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 1 
-    }
-
-//////// GL INFO
-
-    itemDef
-    {
-      name system
-      text "GL Info"
-      group optionsGrp
-      style WINDOW_STYLE_EMPTY
-      rect 20 100 64 20
-      type ITEM_TYPE_BUTTON
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 16
-      textscale .25
-      forecolor 1 1 1 1
-      visible 0 
-      action
-      {
-        hide optionsGrp;
-        show system;
-        show glinfo
-      }
-    }
-
-    itemDef
-    {
-      name glinfo
-      group optionsGrp
-      rect 180 55 230 230 
-      ownerdraw UI_GLINFO 
-      textalign 1
-      textscale .15
-      textalignx 0
-      textaligny 17
-      forecolor 1 1 1 1
-      visible 0
-      decoration
-    }
-
-//////// NET & SOUND
-  
-    itemDef
-    {
-      name system
-      text "Net & Sound"
-      group optionsGrp
-      style WINDOW_STYLE_EMPTY
-      rect 20 120 64 20
-      type ITEM_TYPE_BUTTON
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 16
-      textscale .25
-      forecolor 1 1 1 1
-      visible 0 
-      action
-      {
-        hide optionsGrp;
-        show system;
-        show netsound
-      }
-    }
-
-    itemDef
-    {
-      name netsound      
-      group optionsGrp
-      style 1
-      text "Sound"
-      rect 120 65 128 20
-      textalign ITEM_ALIGN_CENTER
-      textalignx 128
-      textaligny 17
-      textscale .25         
-      forecolor 1 1 1 1
-      visible 0 
-      decoration
-    }
-
-    itemDef
-    {
-      name netsound
-      group optionsGrp
-      type ITEM_TYPE_SLIDER
-      text "Effects Volume:"
-      cvarfloat "s_volume" 0.7 0 1
-      rect 120 85 256 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 128
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 0 
-    }
-  
-    itemDef
-    {
-      name netsound
-      group optionsGrp
-      type ITEM_TYPE_SLIDER
-      text "Music Volume:"
-      cvarfloat "s_musicvolume" 0.25 0 1
-      rect 120 105 256 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 128
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 0 
-    }
-
-    itemDef
-    {
-      name netsound
-      group optionsGrp
-      type ITEM_TYPE_MULTI  
-      text "Sound Quality:"
-      cvar "s_khz"
-      cvarFloatList { "22 khz (high)" 22 "11 khz (low)" 11 }
-      rect 120 125 256 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 128
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 0 
-    }
-
-    itemDef
-    {
-      name netsound
-      group optionsGrp
-      type ITEM_TYPE_YESNO  
-      text "Doppler Sound:"
-      cvar "s_doppler"
-      rect 120 145 256 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 128
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 0 
-    }
-
-  
-    itemDef
-    {
-      name netsound      
-      group optionsGrp
-      style 1
-      text "Network"
-      rect 120 205 128 20
-      textalign ITEM_ALIGN_CENTER
-      textalignx 128 
-      textaligny 17
-      textscale .25         
-      forecolor 1 1 1 1
-      visible 0 
-      decoration
-    }
-
-    itemDef
-    {
-      name netsound
-      group optionsGrp
-      type ITEM_TYPE_MULTI
-      text "Net Data Rate:"
-      cvar "rate"
-      cvarFloatList { "<=28.8k" 2500 "33.6k" 3000 "56k" 4000 "ISDN" 5000 "LAN/CABLE/xDSl" 25000  }
-      rect 120 225 256 20
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 128
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 0 
-    }
 
 //////// CONTROLS
 
@@ -765,7 +248,7 @@
       type ITEM_TYPE_BIND
       text "Lookup:"
       cvar "+lookup"
-      rect 80 85 320 15 
+      rect 134 85 192 15 
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -784,7 +267,7 @@
       type ITEM_TYPE_BIND
       text "Look Down:"
       cvar "+lookdown"
-      rect 80 100 320 12 
+      rect 134 100 192 12 
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -803,7 +286,7 @@
       type ITEM_TYPE_BIND
       text "Mouse Look:"
       cvar "+mlook"
-      rect 80 115 320 15
+      rect 134 115 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -822,7 +305,7 @@
       type ITEM_TYPE_BIND
       text "Centerview:"
       cvar "centerview"
-      rect 80 130 320 15
+      rect 134 130 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -841,7 +324,7 @@
       type ITEM_TYPE_BIND
       text "ZoomView:"
       cvar "+zoom"
-      rect 80 145 320 15
+      rect 134 145 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -860,7 +343,7 @@
       type ITEM_TYPE_YESNO
       text "Free Look:"
       cvar "cl_freelook"
-      rect 80 160 320 15
+      rect 134 160 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -877,13 +360,13 @@
       name look
       group optionsGrp
       type ITEM_TYPE_SLIDER
-      text "Sensitivity:"
+      text "Mouse Sensitivity:"
       cvarfloat "sensitivity" 5 1 30
-      rect 80 175 320 15
+      rect 134 175 192 20
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
-      textaligny 12
+      textaligny 15
       textscale .25          
       forecolor 1 1 1 1
       visible 0 
@@ -898,7 +381,7 @@
       type ITEM_TYPE_YESNO
       text "Invert Mouse:"
       cvar "ui_mousePitch"
-      rect 80 190 320 15
+      rect 134 195 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -918,7 +401,7 @@
       type ITEM_TYPE_YESNO
       text "Smooth Mouse:"
       cvar "m_filter"
-      rect 80 205 320 15
+      rect 134 210 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -961,7 +444,7 @@
       type ITEM_TYPE_YESNO
       text "Always Run:"
       cvar "cl_run"
-      rect 80 85 320 15
+      rect 70 70 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -980,7 +463,7 @@
       type ITEM_TYPE_BIND
       text "Run / Walk:"
       cvar "+speed"
-      rect 80 100 320 15
+      rect 70 85 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -997,7 +480,7 @@
       type ITEM_TYPE_BIND
       text "Forward:"
       cvar "+forward"
-      rect 80 115 320 15
+      rect 70 100 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -1016,7 +499,7 @@
       type ITEM_TYPE_BIND
       text "Backpedal:"
       cvar "+back"
-      rect 80 130 320 15
+      rect 70 115 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -1035,7 +518,7 @@
       type ITEM_TYPE_BIND
       text "Move Left:"
       cvar "+moveleft"
-      rect 80 145 320 15
+      rect 70 130 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -1054,7 +537,7 @@
       type ITEM_TYPE_BIND
       text "Move Right:"
       cvar "+moveright"
-      rect 80 160 320 15
+      rect 70 145 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -1073,7 +556,7 @@
       type ITEM_TYPE_BIND
       text "Jump:"
       cvar "+moveup"
-      rect 80 175 320 15
+      rect 70 160 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -1092,7 +575,7 @@
       type ITEM_TYPE_BIND
       text "Crouch:"
       cvar "+movedown"
-      rect 80 190 320 15
+      rect 70 175 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -1111,7 +594,7 @@
       type ITEM_TYPE_BIND
       text "Turn Left:"
       cvar "+left"
-      rect 80 205 320 15
+      rect 70 190 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -1130,7 +613,7 @@
       type ITEM_TYPE_BIND
       text "Turn Right:"
       cvar "+right"
-      rect 80 220 320 15
+      rect 70 205 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -1149,7 +632,7 @@
       type ITEM_TYPE_BIND
       text "Strafe:"
       cvar "+strafe"
-      rect 80 235 320 15
+      rect 70 220 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -1194,7 +677,7 @@
       type ITEM_TYPE_BIND
       text "Primary Attack:"
       cvar "+attack"
-      rect 80 75 320 15
+      rect 80 125 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -1212,8 +695,8 @@
       group optionsGrp
       type ITEM_TYPE_BIND
       text "Secondary Attack:"
-      cvar "+button7"
-      rect 80 90 320 15
+      cvar "+button5"
+      rect 80 140 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -1232,7 +715,7 @@
       type ITEM_TYPE_BIND
       text "Previous Upgrade:"
       cvar "weapprev"
-      rect 80 105 320 15
+      rect 80 155 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -1251,7 +734,7 @@
       type ITEM_TYPE_BIND
       text "Next Upgrade:"
       cvar "weapnext"
-      rect 80 120 320 15
+      rect 80 170 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -1270,7 +753,7 @@
       type ITEM_TYPE_BIND
       text "Activate Upgrade:"
       cvar "+button2"
-      rect 80 135 320 15
+      rect 80 185 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
       maxPaintChars 20
@@ -1369,7 +852,7 @@
       group optionsGrp
       type ITEM_TYPE_BIND
       text "Use Object:"
-      cvar "+button5"
+      cvar "+button7"
       rect 80 120 320 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 187
@@ -1474,14 +957,17 @@
       mouseenter { show keyBindStatus }
       mouseexit { hide keyBindStatus }
     }
-    
-    /*itemDef
+
+//////// SYSTEM
+
+    //System menu
+    itemDef
     {
-      name controls
-      text "Chat"
+      name system
+      text "GFX Hardware"
       group optionsGrp
       style WINDOW_STYLE_EMPTY
-      rect 20 140 64 20
+      rect 20 60 64 20
       type ITEM_TYPE_BUTTON
       textalign ITEM_ALIGN_RIGHT
       textalignx 64
@@ -1492,8 +978,638 @@
       action
       {
         hide optionsGrp;
-        show controls
+        show system;
+        show ghardware
       }
-    }*/
+    }
+
+//////// GFX HARDWARE
+
+    itemDef
+    {
+      name ghardware       
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Quality:"
+      cvar "ui_glCustom"
+      cvarFloatList { "High Quality" 0 "Normal" 1 "Fast" 2 "Fastest" 3 "Custom" 4 }
+      rect 140 55 256 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 133
+      textaligny 12
+      textscale .25         
+      forecolor 1 1 1 1
+      visible 0 
+      action { uiScript update "ui_glCustom" }
+    }
+
+    itemDef
+    {
+      name ghardware
+      group optionsGrp
+      type ITEM_TYPE_EDITFIELD
+      text "GL Driver:"
+      cvar "r_gldriver"
+      //cvarFloatList {  }
+      rect 140 70 256 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 133
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+      decoration
+    }
+
+    itemDef
+    {
+      name ghardware
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "GL Extensions:"
+      cvar "r_allowExtensions"
+      rect 140 85 256 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 133
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+      action { uiScript glCustom }
+    }
+  
+    itemDef
+    {
+      name ghardware
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Video Mode:"
+      cvar "r_mode"
+      cvarFloatList { "320x240" 0 "400x300" 1 "512x384" 2 "640x480" 3
+                      "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7
+                      "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 }
+      rect 140 100 256 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 133
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+      action { uiScript glCustom }
+    }
+
+    itemDef
+    {
+      name ghardware
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Color Depth:"
+      cvar "r_colorbits"
+      cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
+      rect 140 115 256 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 133
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+      action { uiScript glCustom ; uiScript update "r_colorbits" }
+    }
+
+    itemDef
+    {
+      name ghardware
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Fullscreen:"
+      cvar "r_fullscreen"
+      rect 140 130 256 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 133
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+      action { uiScript glCustom }
+    }
+
+    itemDef
+    {
+      name ghardware
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Lighting:"
+      cvar "r_vertexlight"
+      cvarFloatList { "Light Map (high)" 0 "Vertex (low)" 1  }
+      rect 140 145 256 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 133
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+      action { uiScript glCustom }
+    }
+
+    itemDef
+    {
+      name ghardware
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Geometric Detail:"
+      cvar "r_lodbias"
+      cvarFloatList { "High" 0 "Medium" 1 "Low" 2 }
+      rect 140 160 256 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 133
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+      action { uiScript glCustom ; uiScript update "r_lodbias" }
+    }
+
+    itemDef
+    {
+      name ghardware
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Texture Detail:"
+      cvar "r_picmip"
+      cvarFloatList { "Low" 2 "Normal" 1 "High" 0 }
+      rect 140 175 256 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 133
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+      action { uiScript glCustom }
+    }
+  
+    itemDef
+    {
+      name ghardware
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Texture Quality:"
+      cvar "r_texturebits"
+      cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
+      rect 140 190 256 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 133
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+    }
+
+    itemDef
+    {
+      name ghardware
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Texture Filter:"
+      cvar "r_texturemode"
+      cvarStrList { "Bilinear", "GL_LINEAR_MIPMAP_NEAREST", "Trilinear", "GL_LINEAR_MIPMAP_LINEAR"  }
+      rect 140 205 256 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 133
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+      action { uiScript glCustom }
+    }
+
+    itemDef
+    {
+      name ghardware
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Compress Textures:"
+      cvar "r_ext_compressed_textures "
+      rect 140 220 256 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 133
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+      action { uiScript glCustom }
+    }
+
+    itemDef
+    {
+      name ghardware
+      group optionsGrp
+      type ITEM_TYPE_BUTTON
+      text "APPLY"
+      textscale .25
+      style WINDOW_STYLE_EMPTY
+      rect 240 240 75 20
+      textalign ITEM_ALIGN_CENTER
+      textalignx 37
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action { exec "vid_restart" }
+    }
+
+//////// GFX SOFTWARE
+
+    itemDef
+    {
+      name system
+      text "GFX Software"
+      group optionsGrp
+      style WINDOW_STYLE_EMPTY
+      rect 20 80 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        hide optionsGrp;
+        show system;
+        show gsoftware
+      }
+    }
+
+    itemDef
+    {
+      name gsoftware
+      group optionsGrp
+      type ITEM_TYPE_SLIDER
+      text "Brightness:"
+      cvarfloat "r_gamma" 1 .5 2
+      rect 120 60 256 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 128 
+      textaligny 17
+      textscale .25         
+      forecolor 1 1 1 1
+      visible 0 
+    }
+
+    itemDef
+    {
+      name gsoftware
+      group optionsGrp
+      type ITEM_TYPE_SLIDER
+      text "Screen Size:"
+      cvarfloat "cg_viewsize" 100 30 100
+      //cvarFloatList {  }
+      rect 120 80 256 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 128
+      textaligny 17
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+    }
+
+    itemDef
+    {
+      name gsoftware
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Simple Items:"
+      cvar "cg_simpleItems"
+      rect 125 100 200 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 143
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 1 
+    }
+
+    itemDef
+    {
+      name gsoftware
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Marks On Walls:"
+      cvar "cg_marks"
+      rect 125 115 200 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 143
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 1 
+    }
+        
+    itemDef
+    {
+      name gsoftware
+      group optionsGrp
+      type ITEM_TYPE_MULTI  
+      text "Ejecting Brass:"
+      cvar "cg_brassTime"
+      cvarFloatList { "High" 2500 "Med" 1250 "Off" 0 }
+      rect 125 130 200 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 143
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 1 
+    }
+
+    itemDef
+    {
+      name gsoftware
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Dynamic Lights:"
+      cvar "r_dynamiclight"
+      rect 125 145 200 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 143
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 1 
+    }
+
+    itemDef
+    {
+      name gsoftware
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Draw Gun:"
+      cvar "cg_drawGun"
+      rect 125 160 200 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 143
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 1 
+    }
+
+    itemDef
+    {
+      name gsoftware
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Low Quality Sky:"
+      cvar "r_fastsky"
+      rect 125 175 200 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 143
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 1 
+    }
+
+    itemDef
+    {
+      name gsoftware
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Sync Every Frame:"
+      cvar "weapon 5"
+      rect 125 190 200 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 143
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 1 
+    }
+
+    itemDef
+    {
+      name gsoftware
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Show Time:"
+      cvar "cg_drawTimer"
+      rect 125 205 200 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 143
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 1 
+    }
+
+    itemDef
+    {
+      name gsoftware        
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "In Game Videos:"
+      cvar "r_inGameVideo"
+      rect 125 220 200 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 143
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 1 
+    }
+
+    itemDef
+    {
+      name gsoftware        
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Depth Sort Particles:"
+      cvar "cg_zsortLEs"
+      rect 125 235 200 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 143
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 1 
+    }
+
+//////// GL INFO
+
+    itemDef
+    {
+      name system
+      text "GL Info"
+      group optionsGrp
+      style WINDOW_STYLE_EMPTY
+      rect 20 100 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        hide optionsGrp;
+        show system;
+        show glinfo
+      }
+    }
+
+    itemDef
+    {
+      name glinfo
+      group optionsGrp
+      rect 180 35 230 230 
+      ownerdraw UI_GLINFO 
+      textalign 1
+      textscale .15
+      textalignx 0
+      textaligny 17
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+//////// NET & SOUND
+  
+    itemDef
+    {
+      name system
+      text "Net & Sound"
+      group optionsGrp
+      style WINDOW_STYLE_EMPTY
+      rect 20 120 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        hide optionsGrp;
+        show system;
+        show netsound
+      }
+    }
+
+    itemDef
+    {
+      name netsound      
+      group optionsGrp
+      style 1
+      text "Sound"
+      rect 125 60 128 20
+      textalign ITEM_ALIGN_CENTER
+      textalignx 128
+      textaligny 17
+      textscale .25         
+      forecolor 1 1 1 1
+      visible 0 
+      decoration
+    }
+
+    itemDef
+    {
+      name netsound
+      group optionsGrp
+      type ITEM_TYPE_SLIDER
+      text "Effects Volume:"
+      cvarfloat "s_volume" 0.7 0 1
+      rect 125 80 256 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 128
+      textaligny 17
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+    }
+  
+    itemDef
+    {
+      name netsound
+      group optionsGrp
+      type ITEM_TYPE_SLIDER
+      text "Music Volume:"
+      cvarfloat "s_musicvolume" 0.25 0 1
+      rect 125 100 256 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 128
+      textaligny 17
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+    }
+
+    itemDef
+    {
+      name netsound
+      group optionsGrp
+      type ITEM_TYPE_MULTI  
+      text "Sound Quality:"
+      cvar "s_khz"
+      cvarFloatList { "22 khz (high)" 22 "11 khz (low)" 11 }
+      rect 125 120 256 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 128
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+    }
+
+    itemDef
+    {
+      name netsound
+      group optionsGrp
+      type ITEM_TYPE_YESNO  
+      text "Doppler Sound:"
+      cvar "s_doppler"
+      rect 125 135 256 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 128
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+    }
+
+  
+    itemDef
+    {
+      name netsound      
+      group optionsGrp
+      style 1
+      text "Network"
+      rect 125 180 128 20
+      textalign ITEM_ALIGN_CENTER
+      textalignx 128 
+      textaligny 17
+      textscale .25         
+      forecolor 1 1 1 1
+      visible 0 
+      decoration
+    }
+
+    itemDef
+    {
+      name netsound
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Net Data Rate:"
+      cvar "rate"
+      cvarFloatList { "<=28.8k" 2500 "33.6k" 3000 "56k" 4000 "ISDN" 5000 "LAN/CABLE/xDSl" 25000  }
+      rect 125 200 256 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 128
+      textaligny 17
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+    }
   }
 }
