@@ -1314,6 +1314,9 @@ void HFM_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
   if( self->health <= 0 )
     return;
     
+  if( other && other->client && other->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    return;
+
   //go boom
   G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
 }
@@ -1332,6 +1335,8 @@ void HFM_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int da
   // we don't have a valid direction, so just point straight up
   dir[ 0 ] = dir[ 1 ] = 0;
   dir[ 2 ] = -1;
+
+  self->takedamage = qfalse;
 
   //do a bit of radius damage
   G_RadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,

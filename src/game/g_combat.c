@@ -230,7 +230,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     AddScore( self, -1 );
   }
 
-  if( self->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  if( attacker && attacker->client && self->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     int       clientNum = attacker->client->ps.clientNum;
     float     denominator, numerator = self->credits[ clientNum ];
@@ -980,7 +980,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   }
 
   // do the damage
-  if(take)
+  if( take )
   {
     targ->health = targ->health - take;
     if( targ->client )
@@ -997,7 +997,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       if( client )
         targ->flags |= FL_NO_KNOCKBACK;
 
-      if (targ->health < -999)
+      if( targ->health < -999 )
         targ->health = -999;
 
       targ->enemy = attacker;
