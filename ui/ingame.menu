@@ -96,6 +96,7 @@
       text "Vote"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
+      ownerdrawflag UI_SHOW_NOTSPECTATING
       rect 170 6 50 40
       textalign ITEM_ALIGN_CENTER
       textalignx 25 
