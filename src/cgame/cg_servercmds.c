@@ -600,6 +600,16 @@ static void CG_ServerCommand( void )
     return;
   }
 
+  //enable G_Printfs from the server to appear in the TA console
+  if( !strcmp( cmd, "gprintf" ) )
+  {
+    if( trap_Argc( ) == 2 )
+    {
+      TAUIConsole( CG_Argv( 1 ) );
+      return;
+    }
+  }
+
   CG_Printf( "Unknown client game command: %s\n", cmd );
 }
 

@@ -458,12 +458,56 @@ void SP_use_light_flare( gentity_t *self, gentity_t *other, gentity_t *activator
   self->s.eFlags ^= EF_NODRAW;
 }
 
+//TA: finds an empty spot radius units from origin
+static void findEmptySpot( vec3_t origin, float radius, vec3_t spot )
+{
+  int     i, j, k;
+  vec3_t  delta, test, total;
+  trace_t tr;
+
+  VectorClear( total );
+
+  //54(!) traces to test for empty spots
+  for( i = -1; i <= 1; i++ )
+  {
+    for( j = -1; j <= 1; j++ )
+    {
+      for( k = -1; k <= 1; k++ )
+      {
+        VectorSet( delta, ( i * radius ),
+                          ( j * radius ),
+                          ( k * radius ) );
+
+        VectorAdd( origin, delta, test );
+
+        trap_Trace( &tr, test, NULL, NULL, test, -1, MASK_SOLID );
+
+        if( !tr.allsolid )
+        {
+          trap_Trace( &tr, test, NULL, NULL, origin, -1, MASK_SOLID );
+          VectorScale( delta, tr.fraction, delta );
+          VectorAdd( total, delta, total );
+        }
+      }
+    }
+  }
+
+  VectorNormalize( total );
+  VectorScale( total, radius, total );
+  VectorAdd( origin, total, spot );
+}
+
 //TA: spawn function for light flares
 void SP_misc_light_flare( gentity_t *self )
 {
   self->s.eType = ET_LIGHTFLARE;
   self->s.modelindex = G_ShaderIndex( self->targetShaderName );
   VectorCopy( self->pos2, self->s.origin2 );
+  
+  //try to find a spot near to the flare which is empty. This
+  //is used to facilitate visibility testing
+  findEmptySpot( self->s.origin, 8.0f, self->s.angles2 );
+  
   self->use = SP_use_light_flare;
   
   G_SpawnFloat( "speed", "200", &self->speed );

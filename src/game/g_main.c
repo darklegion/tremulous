@@ -241,6 +241,8 @@ void QDECL G_Printf( const char *fmt, ... )
   vsprintf( text, fmt, argptr );
   va_end( argptr );
 
+  trap_SendServerCommand( -1, va( "gprintf \"%s\"", text ) );
+    
   trap_Printf( text );
 }
 

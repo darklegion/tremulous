@@ -758,6 +758,7 @@ typedef struct
 {
   qhandle_t   charsetShader;
   qhandle_t   whiteShader;
+  qhandle_t   outlineShader;
 
   qhandle_t   deferShader;
 
@@ -1141,6 +1142,7 @@ extern  vmCvar_t    ui_loading;
 const char  *CG_ConfigString( int index );
 const char  *CG_Argv( int arg );
 
+void        TAUIConsole( const char *text );
 void QDECL  CG_Printf( const char *msg, ... );
 void QDECL  CG_Error( const char *msg, ... );
 
@@ -1284,6 +1286,7 @@ void        CG_PainEvent( centity_t *cent, int health );
 //
 // cg_ents.c
 //
+void        CG_DrawBoundingBox( vec3_t origin, vec3_t mins, vec3_t maxs );
 void        CG_SetEntitySoundPosition( centity_t *cent );
 void        CG_AddPacketEntities( void );
 void        CG_Beam( centity_t *cent );

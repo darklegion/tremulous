@@ -17,6 +17,95 @@
 
 #include "cg_local.h"
 
+/*
+======================
+CG_DrawBoxFace
+
+Draws a bounding box face
+======================
+*/
+static void CG_DrawBoxFace( vec3_t a, vec3_t b, vec3_t c, vec3_t d )
+{
+  polyVert_t  verts[ 4 ];
+  vec4_t      color = { 255.0f, 0.0f, 0.0f, 128.0f };
+
+  VectorCopy( d, verts[ 0 ].xyz );
+  verts[ 0 ].st[ 0 ] = 1;
+  verts[ 0 ].st[ 1 ] = 1;
+  Vector4Copy( color, verts[ 0 ].modulate );
+
+  VectorCopy( c, verts[ 1 ].xyz );
+  verts[ 1 ].st[ 0 ] = 1;
+  verts[ 1 ].st[ 1 ] = 0;
+  Vector4Copy( color, verts[ 1 ].modulate );
+
+  VectorCopy( b, verts[ 2 ].xyz );
+  verts[ 2 ].st[ 0 ] = 0;
+  verts[ 2 ].st[ 1 ] = 0;
+  Vector4Copy( color, verts[ 2 ].modulate );
+
+  VectorCopy( a, verts[ 3 ].xyz );
+  verts[ 3 ].st[ 0 ] = 0;
+  verts[ 3 ].st[ 1 ] = 1;
+  Vector4Copy( color, verts[ 3 ].modulate );
+
+  trap_R_AddPolyToScene( cgs.media.outlineShader, 4, verts );
+}
+
+/*
+======================
+CG_DrawBoundingBox
+
+Draws a bounding box
+======================
+*/
+void CG_DrawBoundingBox( vec3_t origin, vec3_t mins, vec3_t maxs )
+{
+  vec3_t  ppp, mpp, mmp, pmp;
+  vec3_t  mmm, pmm, ppm, mpm;
+
+  ppp[ 0 ] = origin[ 0 ] + maxs[ 0 ];
+  ppp[ 1 ] = origin[ 1 ] + maxs[ 1 ];
+  ppp[ 2 ] = origin[ 2 ] + maxs[ 2 ];
+
+  mpp[ 0 ] = origin[ 0 ] + mins[ 0 ];
+  mpp[ 1 ] = origin[ 1 ] + maxs[ 1 ];
+  mpp[ 2 ] = origin[ 2 ] + maxs[ 2 ];
+
+  mmp[ 0 ] = origin[ 0 ] + mins[ 0 ];
+  mmp[ 1 ] = origin[ 1 ] + mins[ 1 ];
+  mmp[ 2 ] = origin[ 2 ] + maxs[ 2 ];
+
+  pmp[ 0 ] = origin[ 0 ] + maxs[ 0 ];
+  pmp[ 1 ] = origin[ 1 ] + mins[ 1 ];
+  pmp[ 2 ] = origin[ 2 ] + maxs[ 2 ];
+  
+  ppm[ 0 ] = origin[ 0 ] + maxs[ 0 ];
+  ppm[ 1 ] = origin[ 1 ] + maxs[ 1 ];
+  ppm[ 2 ] = origin[ 2 ] + mins[ 2 ];
+
+  mpm[ 0 ] = origin[ 0 ] + mins[ 0 ];
+  mpm[ 1 ] = origin[ 1 ] + maxs[ 1 ];
+  mpm[ 2 ] = origin[ 2 ] + mins[ 2 ];
+
+  mmm[ 0 ] = origin[ 0 ] + mins[ 0 ];
+  mmm[ 1 ] = origin[ 1 ] + mins[ 1 ];
+  mmm[ 2 ] = origin[ 2 ] + mins[ 2 ];
+
+  pmm[ 0 ] = origin[ 0 ] + maxs[ 0 ];
+  pmm[ 1 ] = origin[ 1 ] + mins[ 1 ];
+  pmm[ 2 ] = origin[ 2 ] + mins[ 2 ];
+
+  //phew!
+
+  CG_DrawBoxFace( ppp, mpp, mmp, pmp );
+  CG_DrawBoxFace( ppp, pmp, pmm, ppm );
+  CG_DrawBoxFace( mpp, ppp, ppm, mpm );
+  CG_DrawBoxFace( mmp, mpp, mpm, mmm );
+  CG_DrawBoxFace( pmp, mmp, mmm, pmm );
+  CG_DrawBoxFace( mmm, mpm, ppm, pmm );
+}
+
 
 /*
 ======================
@@ -465,7 +554,15 @@ static void CG_LightFlare( centity_t *cent )
   //flare is "off"
   if( es->eFlags & EF_NODRAW )
     return;
+       
+  CG_Trace( &tr, cg.refdef.vieworg, NULL, NULL, es->angles2,
+            cg.predictedPlayerState.clientNum, MASK_SHOT );
 
+  //if there is no los between the view and the flare source
+  //it definately cannot be seen
+  if( tr.fraction < 1.0f || tr.allsolid )
+    return;
+  
   memset( &flare, 0, sizeof( flare ) );
   
   //bunch of geometry
@@ -512,7 +609,9 @@ static void CG_LightFlare( centity_t *cent )
   VectorSubtract( cg.refdef.vieworg, flare.origin, dir );
   VectorNormalize( dir );
   VectorMA( flare.origin, flare.radius, dir, end );
-  VectorCopy( cg.refdef.vieworg, start );
+  /*VectorCopy( flare.origin, end );*/
+  VectorMA( cg.refdef.vieworg, -flare.radius, dir, start );
+  /*VectorCopy( cg.refdef.vieworg, start );*/
   
   if( cg_lightFlare.integer == FLARE_REALFADE )
   {
@@ -548,7 +647,7 @@ static void CG_LightFlare( centity_t *cent )
   else if( cg_lightFlare.integer == FLARE_TIMEFADE )
   {
     //draw timed flares
-    SETBOUNDS( mins, maxs, srcRadius / 2.0f );
+    SETBOUNDS( mins, maxs, srcRadius );
     CG_Trace( &tr, start, mins, maxs, end,
               cg.predictedPlayerState.clientNum, MASK_SHOT );
 
@@ -585,7 +684,7 @@ static void CG_LightFlare( centity_t *cent )
   else if( cg_lightFlare.integer == FLARE_NOFADE )
   {
     //draw nofade flares
-    SETBOUNDS( mins, maxs, srcRadius / 2.0f );
+    SETBOUNDS( mins, maxs, srcRadius );
     CG_Trace( &tr, start, mins, maxs, end,
               cg.predictedPlayerState.clientNum, MASK_SHOT );
 

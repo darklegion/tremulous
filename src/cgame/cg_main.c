@@ -445,16 +445,9 @@ void CG_RemoveConsoleLine( void )
   cg.numConsoleLines--;
 }
 
-void QDECL CG_Printf( const char *msg, ... )
+//TA: team arena UI based console
+void TAUIConsole( const char *text )
 {
-  va_list argptr;
-  char    text[ 1024 ];
-
-  va_start( argptr, msg );
-  vsprintf( text, msg, argptr );
-  va_end( argptr );
-
-  //TA: team arena UI based console
   if( cg.numConsoleLines == MAX_CONSOLE_LINES )
     CG_RemoveConsoleLine( );
 
@@ -466,6 +459,19 @@ void QDECL CG_Printf( const char *msg, ... )
     cg.numConsoleLines++;
   }
   
+}
+
+void QDECL CG_Printf( const char *msg, ... )
+{
+  va_list argptr;
+  char    text[ 1024 ];
+
+  va_start( argptr, msg );
+  vsprintf( text, msg, argptr );
+  va_end( argptr );
+
+  TAUIConsole( text );
+
   trap_Print( text );
 }
 
@@ -1613,6 +1619,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   // load a few needed things before we do any screen updates
   cgs.media.whiteShader     = trap_R_RegisterShader( "white" );
   cgs.media.charsetShader   = trap_R_RegisterShader( "gfx/2d/bigchars" );
+  cgs.media.outlineShader   = trap_R_RegisterShader( "outline" );
 
   //inform UI to repress cursor whilst loading
   trap_Cvar_Set( "ui_loading", "1" );
