@@ -234,7 +234,9 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
     check = &g_entities[ entityList[ e ] ];
 
     // only push items and players
-    if ( check->s.eType != ET_ITEM && check->s.eType != ET_BUILDABLE && check->s.eType != ET_PLAYER && !check->physicsObject ) {
+    if (  check->s.eType != ET_ITEM && check->s.eType != ET_BUILDABLE &&
+          check->s.eType != ET_CORPSE && check->s.eType != ET_PLAYER &&
+          !check->physicsObject ) {
       continue;
     }
 

@@ -1700,7 +1700,11 @@ static void PM_GroundTrace( void ) {
   point[1] = pm->ps->origin[1];
   point[2] = pm->ps->origin[2] - 0.25;
 
-  pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+  //FIXME: hack until i find out where CONTENTS_BODY is getting unset for uhm.. bodies.
+  if( pm->ps->pm_type == PM_DEAD )
+    pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, MASK_PLAYERSOLID );
+  else
+    pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
   pml.groundTrace = trace;
 
   // do something corrective if the trace starts in a solid...
@@ -2652,9 +2656,9 @@ void PmoveSingle (pmove_t *pmove)
   pm->watertype = 0;
   pm->waterlevel = 0;
 
-  if ( pm->ps->stats[STAT_HEALTH] <= 0 ) {
+  /*if ( pm->ps->stats[STAT_HEALTH] <= 0 ) {
     pm->tracemask &= ~CONTENTS_BODY;  // corpses can fly through bodies
-  }
+  }*/
 
   // make sure walking button is clear if they are running, to avoid
   // proxy no-footsteps cheats

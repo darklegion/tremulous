@@ -485,7 +485,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   self->s.weapon = WP_NONE;
   self->s.powerups = 0;
-  self->r.contents = CONTENTS_CORPSE;
+  self->r.contents = CONTENTS_BODY;
+  //self->r.contents = CONTENTS_CORPSE;
 
   self->s.angles[0] = 0;
   self->s.angles[2] = 0;
@@ -505,10 +506,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   memset( self->client->ps.powerups, 0, sizeof(self->client->ps.powerups) );
 
   // never gib in a nodrop
-  if ( self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer ) {
+  /*if ( self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer ) {
     // gib death
     GibEntity( self, killer );
-  } else {
+  } else*/ {
     // normal death
     static int i;
 

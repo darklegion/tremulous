@@ -778,7 +778,9 @@ void ClientThink_real( gentity_t *ent ) {
     light->parent = ent;
     client->torch = light;
   }
-  else if( client->torch != NULL && !BG_activated( UP_TORCH, client->ps.stats ) )
+
+  if( ( client->torch != NULL && !BG_activated( UP_TORCH, client->ps.stats ) ) ||
+      ( client->torch != NULL && BG_activated( UP_TORCH, client->ps.stats ) && pm.ps->pm_type == PM_DEAD ) )
   {
     G_FreeEntity( client->torch );
     trap_LinkEntity( client->torch );
@@ -811,7 +813,7 @@ void ClientThink_real( gentity_t *ent ) {
   pm.ps = &client->ps;
   pm.cmd = *ucmd;
   if ( pm.ps->pm_type == PM_DEAD ) {
-    pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
+    pm.tracemask = MASK_PLAYERSOLID; // & ~CONTENTS_BODY;
   }
   else if ( ent->r.svFlags & SVF_BOT ) {
     pm.tracemask = MASK_PLAYERSOLID | CONTENTS_BOTCLIP;
@@ -910,7 +912,7 @@ void ClientThink_real( gentity_t *ent ) {
     if ( level.time > client->respawnTime ) {
       // forcerespawn is to prevent users from waiting out powerups
       if ( g_forcerespawn.integer > 0 &&
-        ( level.time - client->respawnTime ) > g_forcerespawn.integer * 1000 ) {
+        ( level.time - client->respawnTime ) > 0 ) { //g_forcerespawn.integer * 1000 ) {
         respawn( ent );
         return;
       }

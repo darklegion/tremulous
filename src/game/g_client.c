@@ -558,15 +558,10 @@ just like the existing corpse to leave behind.
 */
 void CopyToBodyQue( gentity_t *ent ) {
   gentity_t   *body;
-  int     contents;
+  int         contents;
+  vec3_t      origin;
 
-  //TA: not really the place for this.. but hey..
-  if( ent->client->torch != NULL && BG_activated( UP_TORCH, ent->client->ps.stats ) )
-  {
-    G_FreeEntity( ent->client->torch );
-    trap_UnlinkEntity( ent->client->torch );
-    ent->client->torch = NULL;
-  }
+  VectorCopy( ent->r.currentOrigin, origin );
 
   trap_UnlinkEntity (ent);
 
@@ -584,7 +579,6 @@ void CopyToBodyQue( gentity_t *ent ) {
   body->s.eType = ET_CORPSE;
   body->s.number = body - g_entities;
   body->timestamp = level.time;
-  body->physicsObject = qtrue;
   body->s.event = 0;
   body->r.contents = CONTENTS_BODY;
   body->clipmask = MASK_PLAYERSOLID;
@@ -626,21 +620,12 @@ void CopyToBodyQue( gentity_t *ent ) {
   //FIXME: change body dimensions
   VectorSet( body->r.mins, -15, -15, -15 );
   VectorSet( body->r.maxs, 15, 15, 15 );
-  VectorSet( body->r.absmin, -15, -15, -15 );
-  VectorSet( body->r.absmax, 15, 15, 15 );
 
-  if ( body->s.groundEntityNum == ENTITYNUM_NONE )
-  {
-    body->s.pos.trType = TR_GRAVITY;
-    body->s.pos.trTime = level.time;
-    VectorCopy( ent->client->ps.velocity, body->s.pos.trDelta );
-  }
-  else
-  {
-    body->s.pos.trType = TR_STATIONARY;
-  }
-  
+  G_SetOrigin( body, origin );
+  VectorCopy( origin, body->s.origin );
+  body->s.pos.trType = TR_GRAVITY;
   body->s.pos.trTime = level.time;
+  VectorCopy( ent->client->ps.velocity, body->s.pos.trDelta );
             
   VectorCopy ( body->s.pos.trBase, body->r.currentOrigin );
   trap_LinkEntity( body );
