@@ -2736,7 +2736,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_NONE,              //int   slots;
     "torch",                //char  *upgradeName;
     "Torch",                //char  *upgradeHumanName;
-    "icons/iconw_gauntlet",
+    "icons/iconw_machinegun",
     WP_NONE,                //weapon_t weaponAmmo;
     0,                      //int   ammo;
     0,                      //int   clips;
@@ -2749,7 +2749,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_HEAD,              //int   slots;
     "nvg",                  //char  *upgradeName;
     "NVG",                  //char  *upgradeHumanName;
-    "icons/iconw_gauntlet",
+    "icons/iconw_plasma",
     WP_NONE,                //weapon_t weaponAmmo;
     0,                      //int   ammo;
     0,                      //int   clips;
@@ -2762,7 +2762,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_TORSO,             //int   slots;
     "carmour",              //char  *upgradeName;
     "Chest Armour",         //char  *upgradeHumanName;
-    "icons/iconw_gauntlet",
+    "icons/iconw_bfg",
     WP_NONE,                //weapon_t weaponAmmo;
     0,                      //int   ammo;
     0,                      //int   clips;
@@ -2775,7 +2775,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_ARMS|SLOT_LEGS,    //int   slots;
     "larmour",              //char  *upgradeName;
     "Limb Armour",          //char  *upgradeHumanName;
-    "icons/iconw_gauntlet",
+    "icons/iconw_plasma",
     WP_NONE,                //weapon_t weaponAmmo;
     0,                      //int   ammo;
     0,                      //int   clips;
@@ -2801,7 +2801,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_NONE,              //int   slots;
     "atoxin",               //char  *upgradeName;
     "Anti-toxin",           //char  *upgradeHumanName;
-    "icons/iconw_gauntlet",
+    "icons/iconw_machinegun",
     WP_NONE,                //weapon_t weaponAmmo;
     0,                      //int   ammo;
     0,                      //int   clips;

@@ -1389,107 +1389,162 @@ WEAPON SELECTION
 ==============================================================================
 */
 
+qboolean haveWeapon( int *weapons, int num, int weapon )
+{
+  int i;
+
+  for( i = 0; i < num; i++ )
+  {
+    if( weapons[ i ] == weapon )
+      return qtrue;
+  }
+
+  return qfalse;
+}
+
+qboolean haveUpgrade( int *upgrades, int num, int upgrade )
+{
+  int i;
+
+  for( i = 0; i < num; i++ )
+  {
+    if( upgrades[ i ] == upgrade )
+      return qtrue;
+  }
+
+  return qfalse;
+}
+
+#define ICON_BORDER 4
+
 /*
 ===================
 CG_DrawWeaponSelect
-
 ===================
 */
-void CG_DrawWeaponSelect( void ) {
-  int   i;
-  //int   count;
-  int   x, y, w;
-  char  *name;
-  float *color;
-  int   ammo, clips, maxclips;
+void CG_DrawWeaponSelect( rectDef_t *rect )
+{
+  int i;
+  int x = rect->x;
+  int y = rect->y;
+  int width = rect->w;
+  int height = rect->h;
+  int iconsize;
+  int items[ 64 ];
+  int numItems = 0, selectedItem;
+  int length;
+  int selectWindow;
+  qboolean vertical;
 
   // don't display if dead
-  if ( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 ) {
+  if( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 )
     return;
-  }
-
-  color = CG_FadeColor( cg.weaponSelectTime, WEAPON_SELECT_TIME );
-  if ( !color ) {
-    return;
-  }
-  trap_R_SetColor( color );
 
   // showing weapon select clears pickup item display, but not the blend blob
   cg.itemPickupTime = 0;
 
-  /*// count the number of weapons owned
-  count = 0;
-  for ( i = WP_GAUNTLET; i < WP_NUM_WEAPONS; i++ ) {
-    if ( BG_gotWeapon( i, cg.snap->ps.stats ) ) {
-      count++;
-    }
-  }*/
+  if( height > width )
+  {
+    vertical = qtrue;
+    iconsize = width;
+    length = height / width;
+  }
+  else if( height <= width )
+  {
+    vertical = qfalse;
+    iconsize = height;
+    length = width / height;
+  }
   
-  //x = 320 - count * 20;
-  //y = 380;
-
-  x = 10;
-  y = 10;
-
-  for ( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ ) {
+  selectWindow = length / 2;
+  
+  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+  {
     if( !BG_gotWeapon( i, cg.snap->ps.stats ) )
       continue;
 
+    if( i == cg.weaponSelect )
+      selectedItem = numItems;
+
     CG_RegisterWeapon( i );
-
-    // draw weapon icon
-    CG_DrawPic( x, y, 16, 16, cg_weapons[i].weaponIcon );
-
-    // draw selection marker
-    if ( i == cg.weaponSelect ) {
-      CG_DrawPic( x-2, y-2, 20, 20, cgs.media.selectShader );
-    }
-
-    BG_unpackAmmoArray( i, cg.snap->ps.ammo, cg.snap->ps.powerups, &ammo, &clips, &maxclips );
-
-    // no ammo cross on top
-    if ( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( i ) ) {
-      CG_DrawPic( x, y, 16, 16, cgs.media.noammoShader );
-    }
-
-    y += 20;
+    items[ numItems ] = i;
+    numItems++;
   }
-  
-  for ( i = UP_TORCH; i < UP_NUM_UPGRADES; i++ ) {
+
+  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
+  {
     if( !BG_gotItem( i, cg.snap->ps.stats ) )
       continue;
+    
+    if( i == cg.weaponSelect - 32 )
+      selectedItem = numItems;
 
     CG_RegisterUpgrade( i );
+    items[ numItems ] = i + 32;
+    numItems++;
+  }
 
-    // draw weapon icon
-    CG_DrawPic( x, y, 16, 16, cg_upgrades[i].upgradeIcon );
+  for( i = 0; i < length; i++ )
+  {
+    int displacement = i - selectWindow;
+    int item = displacement + selectedItem;
+    
+    if( ( item >= 0 ) && ( item < numItems ) )
+    {
+      if( items[ item ] <= 32 )
+        CG_DrawPic( x + ICON_BORDER, y + ICON_BORDER, iconsize - 2 * ICON_BORDER, iconsize - 2 * ICON_BORDER,
+                    cg_weapons[ items[ item ] ].weaponIcon );
+      else if( items[ item ] > 32 )
+        CG_DrawPic( x + ICON_BORDER, y + ICON_BORDER, iconsize - 2 * ICON_BORDER, iconsize - 2 * ICON_BORDER,
+                    cg_upgrades[ items[ item ] - 32 ].upgradeIcon );
 
-    // draw selection marker
-    if ( i == ( cg.weaponSelect - 32 ) ) {
-      CG_DrawPic( x-2, y-2, 20, 20, cgs.media.selectShader );
+      if( displacement == 0 )
+        CG_DrawPic( x, y, iconsize, iconsize, cgs.media.selectShader );
     }
 
-    y += 20;
+    if( vertical )
+      y += iconsize;
+    else
+      x += iconsize;
   }
   
-  //TA: yuck! :)
+  /*//TA: yuck! :)
   if( y == 10 )
   {
     trap_R_SetColor( NULL );
     return;
-  }
+  }*/
 
+}
+
+
+/*
+===================
+CG_DrawWeaponSelectText
+===================
+*/
+void CG_DrawWeaponSelectText( rectDef_t *rect, float scale, int textStyle )
+{
+  int x, w;
+  char  *name;
+  float *color;
+  
+  color = CG_FadeColor( cg.weaponSelectTime, WEAPON_SELECT_TIME );
+  if( !color )
+    return;
+  
+  trap_R_SetColor( color );
+  
   // draw the selected name
   if( cg.weaponSelect <= 32 )
   {
     if( cg_weapons[ cg.weaponSelect ].registered )
     {
-      name = cg_weapons[ cg.weaponSelect ].humanName;
-      if ( name )
+      if( name = cg_weapons[ cg.weaponSelect ].humanName )
       {
-        w = CG_DrawStrlen( name ) * BIGCHAR_WIDTH;
-        x = ( SCREEN_WIDTH - w ) / 2;
-        CG_DrawBigStringColor(x, y - 22, name, color);
+        w = CG_Text_Width( name, scale, 0 );
+        x = rect->x + rect->w / 2;
+        CG_Text_Paint( x - w / 2, rect->y + rect->h, scale, color, name, 0, 0, textStyle );
       }
     }
   }
@@ -1497,12 +1552,11 @@ void CG_DrawWeaponSelect( void ) {
   {
     if( cg_upgrades[ cg.weaponSelect - 32 ].registered )
     {
-      name = cg_upgrades[ cg.weaponSelect - 32 ].humanName;
-      if ( name )
+      if( name = cg_upgrades[ cg.weaponSelect - 32 ].humanName )
       {
-        w = CG_DrawStrlen( name ) * BIGCHAR_WIDTH;
-        x = ( SCREEN_WIDTH - w ) / 2;
-        CG_DrawBigStringColor(x, y - 22, name, color);
+        w = CG_Text_Width( name, scale, 0 );
+        x = rect->x + rect->w / 2;
+        CG_Text_Paint( x - w / 2, rect->y + rect->h, scale, color, name, 0, 0, textStyle );
       }
     }
   }

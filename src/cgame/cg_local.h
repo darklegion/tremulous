@@ -18,6 +18,7 @@
 #include "tr_types.h"
 #include "../game/bg_public.h"
 #include "cg_public.h"
+#include "../ui/ui_shared.h"
 
 // The entire cgame module is unloaded and reloaded on each level change,
 // so there is NO persistant data between levels on the client side.
@@ -1449,7 +1450,8 @@ void CG_TeslaTrail( vec3_t start, vec3_t end );
 void CG_GrappleTrail( centity_t *ent, const weaponInfo_t *wi );
 void CG_AddViewWeapon (playerState_t *ps);
 void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent );
-void CG_DrawWeaponSelect( void );
+void CG_DrawWeaponSelect( rectDef_t *rect );
+void CG_DrawWeaponSelectText( rectDef_t *rect, float scale, int textStyle );
 
 void CG_OutOfAmmoChange( void );  // should this be in pmove?
 

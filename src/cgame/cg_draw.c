@@ -18,8 +18,6 @@
 
 #include "cg_local.h"
 
-#include "../ui/ui_shared.h"
-
 // used for scoreboard
 extern    displayContextDef_t cgDC;
 menuDef_t *menuScoreboard = NULL;
@@ -637,6 +635,12 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       break;
     case CG_KILLER:
       CG_DrawKiller( &rect, scale, color, shader, textStyle );
+      break;
+    case CG_PLAYER_SELECT:
+      CG_DrawWeaponSelect( &rect );
+      break;
+    case CG_PLAYER_SELECTTEXT:
+      CG_DrawWeaponSelectText( &rect, scale, textStyle );
       break;
     default:
       break;
@@ -2075,8 +2079,6 @@ static void CG_Draw2D( void )
     {
       if( cg_drawStatus.integer )
       {
-        /*Menu_PaintAll();*/
-        /*CG_DrawTimedMenus();*/
         Menu_Paint(
           Menus_FindByName(
             BG_FindHudNameForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] ) ), qtrue );
@@ -2084,7 +2086,6 @@ static void CG_Draw2D( void )
       
       CG_DrawAmmoWarning();
       CG_DrawCrosshair();
-      CG_DrawWeaponSelect();
       
       if( BG_gotItem( UP_HELMET, cg.snap->ps.stats ) )
         CG_Scanner( );
