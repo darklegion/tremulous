@@ -114,18 +114,6 @@
       background "ui/assets/alien/right-arm.tga"
     }   
 
-    //RIGHT ARM CIRCLE
-    itemDef
-    {
-      name "right-arm-circle"
-      rect 465 417.5 25 25
-      visible 1
-      decoration
-      forecolor 1.0 0.0 0.0 0.25
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/neutral/circle.tga"
-    }
-
     ///////////////////
     //DYNAMIC OBJECTS//
     ///////////////////
@@ -187,7 +175,7 @@
       decoration
       forecolor 1.0 0.0 0.0 0.5
       background "ui/assets/alien/right-ring.tga"
-      ownerdraw CG_PLAYER_CLIPS_RING
+      ownerdraw CG_PLAYER_BOOSTED
     }
 
     //RIGHT SPIKES
@@ -220,19 +208,30 @@
       rect 465 417.5 25 25
       visible 1
       decoration
-      forecolor 1.0 0.0 0.0 0.5
+      forecolor 1.0 0.0 0.0 0.75
       ownerdraw CG_PLAYER_WEAPONICON
+    }
+
+    //ORGANS
+    itemDef
+    {
+      name "organs"
+      rect 570.5 415.95 15 15
+      visible 1
+      decoration
+      forecolor 1.0 0.0 0.0 .5
+      ownerdraw CG_PLAYER_CREDITS_VALUE_NOPAD
     }
 
     //BUILD TIMER
     itemDef
     {
-      name "build-timer"
-      rect 525 415.95 60 15
+      name "buildtimer"
+      rect 567 410 25 25
       visible 1
       decoration
       forecolor 1.0 0.0 0.0 .5
-      ownerdraw CG_PLAYER_CLIPS_VALUE
+      ownerdraw CG_PLAYER_BUILD_TIMER
     }
 
     //BUILD POINTS

@@ -322,6 +322,17 @@
       ownerdraw CG_PLAYER_CLIPS_VALUE
     }
 
+    //BUILD TIMER
+    itemDef
+    {
+      name "buildtimer"
+      rect 580 417.5 25 25
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 .5
+      ownerdraw CG_PLAYER_BUILD_TIMER
+    }
+
     //USABLE
     itemDef  
     {  

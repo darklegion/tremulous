@@ -114,18 +114,6 @@
       background "ui/assets/alien/right-arm.tga"
     }   
 
-    //RIGHT ARM CIRCLE
-    itemDef
-    {
-      name "right-arm-circle"
-      rect 465 417.5 25 25
-      visible 1
-      decoration
-      forecolor 1.0 0.0 0.0 0.25
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/neutral/circle.tga"
-    }
-
     ///////////////////
     //DYNAMIC OBJECTS//
     ///////////////////
@@ -231,7 +219,7 @@
       rect 465 417.5 25 25
       visible 1
       decoration
-      forecolor 1.0 0.0 0.0 0.5
+      forecolor 1.0 0.0 0.0 0.75
       ownerdraw CG_PLAYER_WEAPONICON
     }
 
