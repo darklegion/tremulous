@@ -760,7 +760,7 @@ void calculateBuildPoints( void )
         g_alienStage.integer, g_humanStage.integer ) );
 }
 
-#define PLAYER_COUNT_MOD 10.0f
+#define PLAYER_COUNT_MOD 5.0f
 
 /*
 ============
@@ -769,26 +769,30 @@ CalculateStages
 */
 void CalculateStages( void )
 {
-  float playerCountMod = (float)level.numPlayingClients / PLAYER_COUNT_MOD;
+  float alienPlayerCountMod = (float)level.numAlienClients / PLAYER_COUNT_MOD;
+  float humanPlayerCountMod = (float)level.numAlienClients / PLAYER_COUNT_MOD;
 
-  if( playerCountMod < 0.1f )
-    playerCountMod = 0.1f;
+  if( alienPlayerCountMod < 0.1f )
+    alienPlayerCountMod = 0.1f;
+  
+  if( humanPlayerCountMod < 0.1f )
+    humanPlayerCountMod = 0.1f;
   
   if( g_alienKills.integer >=
-      (int)( (float)g_alienStage2Threshold.integer * playerCountMod ) &&
+      (int)( (float)g_alienStage2Threshold.integer * alienPlayerCountMod ) &&
       g_alienStage.integer == S1 && g_alienMaxStage.integer > S1 )
     trap_Cvar_Set( "g_alienStage", va( "%d", S2 ) );
   if( g_alienKills.integer >=
-      (int)( (float)g_alienStage3Threshold.integer * playerCountMod ) &&
+      (int)( (float)g_alienStage3Threshold.integer * alienPlayerCountMod ) &&
       g_alienStage.integer == S2 && g_alienMaxStage.integer > S2 )
     trap_Cvar_Set( "g_alienStage", va( "%d", S3 ) );
 
   if( g_humanKills.integer >=
-      (int)( (float)g_humanStage2Threshold.integer * playerCountMod ) &&
+      (int)( (float)g_humanStage2Threshold.integer * humanPlayerCountMod ) &&
       g_humanStage.integer == S1 && g_humanMaxStage.integer > S1 )
     trap_Cvar_Set( "g_humanStage", va( "%d", S2 ) );
   if( g_humanKills.integer >=
-      (int)( (float)g_humanStage3Threshold.integer * playerCountMod ) &&
+      (int)( (float)g_humanStage3Threshold.integer * humanPlayerCountMod ) &&
       g_humanStage.integer == S2 && g_humanMaxStage.integer > S2 )
     trap_Cvar_Set( "g_humanStage", va( "%d", S3 ) );
 }
