@@ -1007,6 +1007,10 @@ typedef struct {
   sfxHandle_t countFightSound;
   sfxHandle_t countPrepareSound;
 
+  //TA:
+  sfxHandle_t alienStageTransition;
+  sfxHandle_t humanStageTransition;
+  
   qhandle_t cursor;
   qhandle_t selectCursor;
   qhandle_t sizeCursor;

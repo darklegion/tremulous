@@ -513,6 +513,9 @@ static void CG_RegisterSounds( void ) {
   cgs.media.count1Sound = trap_S_RegisterSound( "sound/feedback/one.wav", qtrue );
   cgs.media.countFightSound = trap_S_RegisterSound( "sound/feedback/fight.wav", qtrue );
   cgs.media.countPrepareSound = trap_S_RegisterSound( "sound/feedback/prepare.wav", qtrue );
+  
+  cgs.media.alienStageTransition = trap_S_RegisterSound( "sound/announcements/overmindevolved.wav", qtrue );
+  cgs.media.humanStageTransition = trap_S_RegisterSound( "sound/announcements/reinforcement.wav", qtrue );
 
   if ( cgs.gametype >= GT_TEAM || cg_buildScript.integer ) {
     cgs.media.captureAwardSound = trap_S_RegisterSound( "sound/teamplay/flagcapture_yourteam.wav", qtrue );

@@ -868,8 +868,6 @@ CalculateStages
 */
 void CalculateStages( void )
 {
-  //FIXME: broadcast stage transitions
-
   if( level.alienKills >= g_alienStage2Threshold.integer &&
       g_alienStage.integer == S1 && g_alienMaxStage.integer > S1 )
     trap_Cvar_Set( "g_alienStage", va( "%d", S2 ) );
