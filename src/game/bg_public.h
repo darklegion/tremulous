@@ -32,7 +32,7 @@
 #define MINS_Z                  -24
 #define DEFAULT_VIEWHEIGHT      26
 #define CROUCH_VIEWHEIGHT       12
-#define DEAD_VIEWHEIGHT         -16
+#define DEAD_VIEWHEIGHT         -14 //TA: watch for mins[ 2 ] less than this causing
 
 //
 // config strings are a general means of communicating variable length strings

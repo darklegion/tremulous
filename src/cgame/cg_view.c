@@ -239,8 +239,8 @@ static void CG_OffsetThirdPersonView( void )
   vec3_t        view;
   vec3_t        focusAngles;
   trace_t       trace;
-  static vec3_t mins = { -4, -4, -4 };
-  static vec3_t maxs = { 4, 4, 4 };
+  static vec3_t mins = { -8, -8, -8 };
+  static vec3_t maxs = { 8, 8, 8 };
   vec3_t        focusPoint;
   float         focusDist;
   float         forwardScale, sideScale;
@@ -276,7 +276,7 @@ static void CG_OffsetThirdPersonView( void )
 
   VectorCopy( cg.refdef.vieworg, view );
 
-  VectorMA( view, 8, surfNormal, view );
+  VectorMA( view, 12, surfNormal, view );
 
   //cg.refdefViewAngles[PITCH] *= 0.5;
 

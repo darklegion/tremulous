@@ -1517,6 +1517,45 @@ void Cmd_Sell_f( gentity_t *ent )
     if( upgrade == ent->client->pers.cmd.weapon - 32 )
       G_AddEvent( ent, EV_NEXT_WEAPON, ent->client->ps.clientNum );
   }
+  else if( !Q_stricmp( s, "weapons" ) )
+  {
+    for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+    {
+      if( BG_gotWeapon( i, ent->client->ps.stats ) && i != WP_BLASTER )
+      {
+        BG_removeWeapon( i, ent->client->ps.stats );
+
+        //add to funds
+        ent->client->ps.persistant[ PERS_CREDIT ] += (short)BG_FindPriceForWeapon( i );
+      }
+      
+      //if we have this weapon selected, force a new selection
+      if( i == ent->client->ps.weapon )
+      {
+        //force a weapon change
+        ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
+        trap_SendServerCommand( ent-g_entities, va( "weaponswitch %d", WP_BLASTER ) );
+      }
+    }
+  }
+  else if( !Q_stricmp( s, "upgrades" ) )
+  {
+    for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
+    {
+      //remove upgrade if carried
+      if( BG_gotItem( i, ent->client->ps.stats ) )
+      {
+        BG_removeItem( i, ent->client->ps.stats );
+
+        //add to funds
+        ent->client->ps.persistant[ PERS_CREDIT ] += (short)BG_FindPriceForUpgrade( i );
+      }
+      
+      //if we have this upgrade selected, force a new selection
+      if( i == ent->client->pers.cmd.weapon - 32 )
+        G_AddEvent( ent, EV_NEXT_WEAPON, ent->client->ps.clientNum );
+    }
+  }
   else
     trap_SendServerCommand( ent-g_entities, va( "print \"Unknown item\n\"" ) );
   

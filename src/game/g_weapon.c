@@ -69,21 +69,25 @@ void SnapVectorTowards( vec3_t v, vec3_t to )
 meleeAttack
 ===============
 */
-void meleeAttack( gentity_t *ent, float range, int damage, meansOfDeath_t mod )
+void meleeAttack( gentity_t *ent, float range, float width, int damage, meansOfDeath_t mod )
 {
   trace_t   tr;
   vec3_t    end;
   gentity_t *tent;
   gentity_t *traceEnt;
+  vec3_t    mins, maxs;
+
+  VectorSet( mins, -width, -width, -width );
+  VectorSet( maxs, width, width, width );
 
   // set aiming directions
-  AngleVectors (ent->client->ps.viewangles, forward, right, up);
+  AngleVectors( ent->client->ps.viewangles, forward, right, up );
 
   CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
   VectorMA( muzzle, range, forward, end );
 
-  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+  trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
   if( tr.surfaceFlags & SURF_NOIMPACT )
     return;
 
@@ -570,7 +574,8 @@ void cancelBuildFire( gentity_t *ent )
         ( traceEnt->s.eType == ET_BUILDABLE ) &&
         ( traceEnt->biteam == ent->client->ps.stats[ STAT_PTEAM ] ) &&
         ( ( ent->client->ps.weapon >= WP_HBUILD2 ) &&
-          ( ent->client->ps.weapon <= WP_HBUILD ) ) )
+          ( ent->client->ps.weapon <= WP_HBUILD ) ) &&
+        traceEnt->spawned )
     {
       if( ent->client->ps.stats[ STAT_MISC ] > 0 )
       {
@@ -592,7 +597,8 @@ void cancelBuildFire( gentity_t *ent )
     }
   }
   else if( ent->client->ps.weapon == WP_ABUILD2 )
-    meleeAttack( ent, ABUILDER_CLAW_RANGE, ABUILDER_CLAW_DMG, MOD_ABUILDER_CLAW ); //melee attack for alien builder
+    meleeAttack( ent, ABUILDER_CLAW_RANGE, ABUILDER_CLAW_WIDTH,
+                 ABUILDER_CLAW_DMG, MOD_ABUILDER_CLAW ); //melee attack for alien builder
 }
 
 /*
@@ -651,7 +657,11 @@ qboolean CheckVenomAttack( gentity_t *ent )
   vec3_t    end;
   gentity_t *tent;
   gentity_t *traceEnt;
-  int     damage;
+  int       damage;
+  vec3_t    mins, maxs;
+
+  VectorSet( mins, -SOLDIER_BITE_WIDTH, -SOLDIER_BITE_WIDTH, -SOLDIER_BITE_WIDTH );
+  VectorSet( maxs, SOLDIER_BITE_WIDTH, SOLDIER_BITE_WIDTH, SOLDIER_BITE_WIDTH );
 
   // set aiming directions
   AngleVectors( ent->client->ps.viewangles, forward, right, up );
@@ -660,7 +670,7 @@ qboolean CheckVenomAttack( gentity_t *ent )
 
   VectorMA( muzzle, SOLDIER_BITE_RANGE, forward, end );
 
-  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+  trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
 
   if ( tr.surfaceFlags & SURF_NOIMPACT )
     return qfalse;
@@ -810,7 +820,11 @@ qboolean CheckPounceAttack( gentity_t *ent )
   vec3_t    end;
   gentity_t *tent;
   gentity_t *traceEnt;
-  int     damage;
+  int       damage;
+  vec3_t    mins, maxs;
+
+  VectorSet( mins, -DRAGOON_POUNCE_WIDTH, -DRAGOON_POUNCE_WIDTH, -DRAGOON_POUNCE_WIDTH );
+  VectorSet( maxs, DRAGOON_POUNCE_WIDTH, DRAGOON_POUNCE_WIDTH, DRAGOON_POUNCE_WIDTH );
 
   if( !ent->client->allowedToPounce )
     return qfalse;
@@ -1110,20 +1124,20 @@ void FireWeapon( gentity_t *ent )
   {
     case WP_HYDRA:
     case WP_HYDRA_UPG:
-      meleeAttack( ent, HYDRA_CLAW_RANGE, HYDRA_CLAW_DMG, MOD_HYDRA_CLAW );
+      meleeAttack( ent, HYDRA_CLAW_RANGE, HYDRA_CLAW_WIDTH, HYDRA_CLAW_DMG, MOD_HYDRA_CLAW );
       break;
     case WP_DRAGOON:
     case WP_DRAGOON_UPG:
-      meleeAttack( ent, DRAGOON_CLAW_RANGE, DRAGOON_CLAW_DMG, MOD_DRAGOON_CLAW );
+      meleeAttack( ent, DRAGOON_CLAW_RANGE, DRAGOON_CLAW_WIDTH, DRAGOON_CLAW_DMG, MOD_DRAGOON_CLAW );
       break;
     case WP_CHIMERA:
-      meleeAttack( ent, CHIMERA_CLAW_RANGE, CHIMERA_CLAW_DMG, MOD_CHIMERA_CLAW );
+      meleeAttack( ent, CHIMERA_CLAW_RANGE, CHIMERA_CLAW_WIDTH, CHIMERA_CLAW_DMG, MOD_CHIMERA_CLAW );
       break;
     case WP_CHIMERA_UPG:
-      meleeAttack( ent, CHIMERA_CLAW_RANGE, CHIMERA_CLAW_DMG, MOD_CHIMERA_CLAW );
+      meleeAttack( ent, CHIMERA_CLAW_RANGE, CHIMERA_CLAW_WIDTH, CHIMERA_CLAW_DMG, MOD_CHIMERA_CLAW );
       break;
     case WP_BIGMOFO:
-      meleeAttack( ent, BMOFO_CLAW_RANGE, BMOFO_CLAW_DMG, MOD_BMOFO_CLAW );
+      meleeAttack( ent, BMOFO_CLAW_RANGE, BMOFO_CLAW_WIDTH, BMOFO_CLAW_DMG, MOD_BMOFO_CLAW );
       break;
 
     case WP_BLASTER:

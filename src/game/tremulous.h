@@ -28,6 +28,7 @@
 #define ABUILDER_BUILD_REPEAT       500
 #define ABUILDER_CLAW_DMG           ADM(25)
 #define ABUILDER_CLAW_RANGE         64.0f
+#define ABUILDER_CLAW_WIDTH         4.0f
 #define ABUILDER_CLAW_REPEAT        1000
 #define ABUILDER_BASE_DELAY         9000
 #define ABUILDER_ADV_DELAY          4000
@@ -39,10 +40,12 @@
 
 #define SOLDIER_BITE_DMG            ADM(60)
 #define SOLDIER_BITE_RANGE          64.0f
+#define SOLDIER_BITE_WIDTH          6.0f
 #define SOLDIER_BITE_REPEAT         500
 
 #define HYDRA_CLAW_DMG              ADM(40)
 #define HYDRA_CLAW_RANGE            96.0f
+#define HYDRA_CLAW_WIDTH            10.0f
 #define HYDRA_CLAW_REPEAT           600
 #define HYDRA_CLAW_U_REPEAT         500
 #define HYDRA_GRAB_RANGE            64.0f
@@ -54,6 +57,7 @@
 
 #define CHIMERA_CLAW_DMG            ADM(50)
 #define CHIMERA_CLAW_RANGE          96.0f
+#define CHIMERA_CLAW_WIDTH          12.0f
 #define CHIMERA_CLAW_REPEAT         500
 #define CHIMERA_CLAW_U_REPEAT       400
 #define CHIMERA_AREAZAP_DMG         ADM(75)
@@ -63,10 +67,12 @@
 
 #define DRAGOON_CLAW_DMG            ADM(100)
 #define DRAGOON_CLAW_RANGE          96.0f
+#define DRAGOON_CLAW_WIDTH          16.0f
 #define DRAGOON_CLAW_REPEAT         700
 #define DRAGOON_CLAW_U_REPEAT       600
 #define DRAGOON_POUNCE_DMG          ADM(200)
 #define DRAGOON_POUNCE_RANGE        96.0f
+#define DRAGOON_POUNCE_WIDTH        16.0f
 #define DRAGOON_POUNCE_SPEED        700
 #define DRAGOON_POUNCE_UPG_SPEED    800
 #define DRAGOON_POUNCE_SPEED_MOD    0.75f
@@ -77,6 +83,7 @@
 
 #define BMOFO_CLAW_DMG              ADM(150)
 #define BMOFO_CLAW_RANGE            128.0f
+#define BMOFO_CLAW_WIDTH            20.0f
 #define BMOFO_CLAW_REPEAT           750
 #define BMOFO_REGEN_RANGE           200.0f
 #define BMOFO_REGEN_MOD             2.0f
@@ -191,7 +198,7 @@
 #define CREEP_ARMOUR_MODIFIER       0.75f
 #define CREEP_SCALEDOWN_TIME        3000
 
-#define ASPAWN_BP                   100
+#define ASPAWN_BP                   10
 #define ASPAWN_BT                   15000
 #define ASPAWN_HEALTH               ABHM(500)
 #define ASPAWN_REGEN                8
@@ -200,7 +207,7 @@
 #define ASPAWN_CREEPSIZE            120
 #define ASPAWN_VALUE                150
 
-#define BARRICADE_BP                80
+#define BARRICADE_BP                8
 #define BARRICADE_BT                20000
 #define BARRICADE_HEALTH            ABHM(350)
 #define BARRICADE_REGEN             12
@@ -208,7 +215,7 @@
 #define BARRICADE_SPLASHRADIUS      50
 #define BARRICADE_CREEPSIZE         120
 
-#define BOOSTER_BP                  120
+#define BOOSTER_BP                  12
 #define BOOSTER_BT                  15000
 #define BOOSTER_HEALTH              ABHM(300)
 #define BOOSTER_REGEN               8
@@ -217,7 +224,7 @@
 #define BOOSTER_CREEPSIZE           120
 #define BOOSTER_INTERVAL            30000 //time in msec between uses (per player)
 
-#define ACIDTUBE_BP                 50
+#define ACIDTUBE_BP                 5
 #define ACIDTUBE_BT                 15000
 #define ACIDTUBE_HEALTH             ABHM(200)
 #define ACIDTUBE_REGEN              8
@@ -227,7 +234,7 @@
 #define ACIDTUBE_RANGE              300.0f
 #define ACIDTUBE_REPEAT             3000
 
-#define HIVE_BP                     50
+#define HIVE_BP                     12
 #define HIVE_BT                     20000
 #define HIVE_HEALTH                 ABHM(200)
 #define HIVE_REGEN                  8
@@ -240,7 +247,7 @@
 #define HIVE_SPEED                  230.0f
 #define HIVE_DIR_CHANGE_PERIOD      500
 
-#define TRAPPER_BP                  150
+#define TRAPPER_BP                  10
 #define TRAPPER_BT                  12000
 #define TRAPPER_HEALTH              ABHM(80)
 #define TRAPPER_REGEN               6
@@ -263,7 +270,7 @@
 #define OVERMIND_ATTACK_REPEAT      1000
 #define OVERMIND_VALUE              300
 
-#define HOVEL_BP                    80
+#define HOVEL_BP                    8
 #define HOVEL_BT                    15000
 #define HOVEL_HEALTH                ABHM(750)
 #define HOVEL_REGEN                 20
@@ -317,7 +324,7 @@
 
 #define PAINSAW_PRICE               100
 #define PAINSAW_REPEAT              75
-#define PAINSAW_DAMAGE              HDM(25)
+#define PAINSAW_DAMAGE              HDM(20)
 #define PAINSAW_RANGE               48.0f
 
 #define SHOTGUN_PRICE               150
@@ -331,7 +338,7 @@
 #define SHOTGUN_DMG                 HDM(12)
 
 #define LASGUN_PRICE                250
-#define LASGUN_AMMO                 80
+#define LASGUN_AMMO                 100
 #define LASGUN_REPEAT               150
 #define LASGUN_RELOAD               2000
 #define LASGUN_DAMAGE               HDM(10)
@@ -356,7 +363,7 @@
 #define PRIFLE_MAXCLIPS             3
 #define PRIFLE_REPEAT               100
 #define PRIFLE_RELOAD               2000
-#define PRIFLE_DMG                  HDM(13)
+#define PRIFLE_DMG                  HDM(10)
 #define PRIFLE_SPEED                1500
 
 #define FLAMER_PRICE                450
@@ -442,21 +449,20 @@
 #define REPEATER_BASESIZE           500
 #define HUMAN_DETONATION_DELAY      5000
 
-#define HSPAWN_BP                   100
+#define HSPAWN_BP                   10
 #define HSPAWN_BT                   10000
 #define HSPAWN_HEALTH               HBHM(500)
 #define HSPAWN_SPLASHDAMAGE         50
 #define HSPAWN_SPLASHRADIUS         100
 #define HSPAWN_VALUE                1
 
-#define MEDISTAT_BP                 80
+#define MEDISTAT_BP                 8
 #define MEDISTAT_BT                 10000
 #define MEDISTAT_HEALTH             HBHM(300)
 #define MEDISTAT_SPLASHDAMAGE       50
 #define MEDISTAT_SPLASHRADIUS       100
-#define MAX_MEDISTAT_CLIENTS        1
 
-#define MGTURRET_BP                 80
+#define MGTURRET_BP                 8
 #define MGTURRET_BT                 10000
 #define MGTURRET_HEALTH             HBHM(500)
 #define MGTURRET_SPLASHDAMAGE       50
@@ -471,7 +477,7 @@
 #define MGTURRET_DCC_ANGULARSPEED       7
 #define MGTURRET_DCC_ACCURACYTOLERANCE  MGTURRET_DCC_ANGULARSPEED / 1.5f
 
-#define TESLAGEN_BP                 100
+#define TESLAGEN_BP                 10
 #define TESLAGEN_BT                 15000
 #define TESLAGEN_HEALTH             HBHM(350)
 #define TESLAGEN_SPLASHDAMAGE       50
@@ -480,13 +486,13 @@
 #define TESLAGEN_RANGE              300
 #define TESLAGEN_DMG                HDM(20)
 
-#define DC_BP                       80
+#define DC_BP                       8
 #define DC_BT                       10000
 #define DC_HEALTH                   HBHM(150)
 #define DC_SPLASHDAMAGE             50
 #define DC_SPLASHRADIUS             100
 
-#define ARMOURY_BP                  100
+#define ARMOURY_BP                  10
 #define ARMOURY_BT                  10000
 #define ARMOURY_HEALTH              HBHM(200)
 #define ARMOURY_SPLASHDAMAGE        50
@@ -499,7 +505,7 @@
 #define REACTOR_SPLASHRADIUS        300
 #define REACTOR_VALUE               2
 
-#define REPEATER_BP                 100
+#define REPEATER_BP                 10
 #define REPEATER_BT                 10000
 #define REPEATER_HEALTH             HBHM(200)
 #define REPEATER_SPLASHDAMAGE       50

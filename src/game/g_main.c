@@ -157,8 +157,8 @@ static cvarTable_t   gameCvarTable[ ] =
   { &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
   { &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
   
-  { &g_humanBuildPoints, "g_humanBuildPoints", "1000", 0, 0, qfalse  },
-  { &g_alienBuildPoints, "g_alienBuildPoints", "1000", 0, 0, qfalse  },
+  { &g_humanBuildPoints, "g_humanBuildPoints", "100", 0, 0, qfalse  },
+  { &g_alienBuildPoints, "g_alienBuildPoints", "100", 0, 0, qfalse  },
   { &g_humanStage, "g_humanStage", "0", 0, 0, qfalse  },
   { &g_humanKills, "g_humanKills", "0", 0, 0, qfalse  },
   { &g_humanMaxStage, "g_humanMaxStage", "2", 0, 0, qfalse  },

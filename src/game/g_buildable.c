@@ -1560,8 +1560,7 @@ void HMedistat_Think( gentity_t *self )
   vec3_t    mins, maxs;
   int       i, num;
   gentity_t *player;
-  int       healCount = 0;
-  int       maxclients;
+  qboolean  occupied = qfalse;
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 
@@ -1574,8 +1573,6 @@ void HMedistat_Think( gentity_t *self )
   
   if( self->spawned )
   {
-    maxclients = MAX_MEDISTAT_CLIENTS;
-    
     VectorAdd( self->s.origin, self->r.maxs, maxs );
     VectorAdd( self->s.origin, self->r.mins, mins );
 
@@ -1586,7 +1583,7 @@ void HMedistat_Think( gentity_t *self )
     if( self->active )
       G_setIdleBuildableAnim( self, BANIM_IDLE2 );
 
-    //do some healage
+    //check if a previous occupier is still here
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
     for( i = 0; i < num; i++ )
     {
@@ -1596,29 +1593,48 @@ void HMedistat_Think( gentity_t *self )
       {
         if( player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] &&
             player->client->ps.pm_type != PM_DEAD &&
-            healCount < maxclients )
+            self->enemy == player )
+          occupied = qtrue;
+      }
+    }
+
+    if( !occupied )
+    {
+      self->enemy = NULL;
+    
+      //look for something to heal
+      for( i = 0; i < num; i++ )
+      {
+        player = &g_entities[ entityList[ i ] ];
+        
+        if( player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
         {
-          healCount++;
-          player->health++;
-          
-          //start the heal anim
-          if( !self->active )
+          if( player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] &&
+              player->client->ps.pm_type != PM_DEAD )
           {
-            G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
-            self->active = qtrue;
+            self->enemy = player;
+            
+            //start the heal anim
+            if( !self->active )
+            {
+              G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
+              self->active = qtrue;
+            }
           }
         }
       }
     }
 
     //nothing left to heal so go back to idling
-    if( healCount == 0 && self->active )
+    if( !self->enemy && self->active )
     {
       G_setBuildableAnim( self, BANIM_CONSTRUCT2, qtrue );
       G_setIdleBuildableAnim( self, BANIM_IDLE1 );
       
       self->active = qfalse;
     }
+    else //heal!
+      self->enemy->health++;
   }
 }
 

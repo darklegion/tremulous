@@ -916,13 +916,13 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
       case WP_ABUILD:
       case WP_ABUILD2:
         //percentage of BP remaining
-        value = (int)( ( (float)cgs.alienBuildPoints / (float)cgs.alienBuildPointsTotal ) * 100.0f );
+        value = cgs.alienBuildPoints;
         break;
 
       case WP_HBUILD:
       case WP_HBUILD2:
         //percentage of BP remaining
-        value = (int)( ( (float)cgs.humanBuildPoints / (float)cgs.humanBuildPointsTotal ) * 100.0f );
+        value = cgs.humanBuildPoints;
         break;
 
       default:
