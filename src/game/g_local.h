@@ -544,6 +544,7 @@ typedef enum
   IBE_NOPOWER,
   IBE_NORMAL,
   IBE_NOCREEP,
+  IBE_NODCC,
 
   IBE_MAXERRORS
 } itemBuildError_t;

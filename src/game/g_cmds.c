@@ -2209,6 +2209,10 @@ void Cmd_Build_f( gentity_t *ent )
       case IBE_NOCREEP:
         G_AddPredictableEvent( ent, EV_MENU, MN_A_NOCREEP );
         break;
+        
+      case IBE_NODCC:
+        G_AddPredictableEvent( ent, EV_MENU, MN_H_NODCC );
+        break;
     }
   }
   else

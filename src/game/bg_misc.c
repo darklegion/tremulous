@@ -48,6 +48,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qtrue,                 //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     120,                   //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -78,6 +79,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
     120,                   //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -108,6 +110,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
     120,                   //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -138,6 +141,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qtrue,                 //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
     120,                   //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -168,6 +172,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qtrue,                 //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
     30,                    //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -198,6 +203,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     120,                   //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qtrue                  //qboolean  reactorTest;
   },
   {
@@ -228,6 +234,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qtrue,                 //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
     120,                   //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -258,6 +265,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -288,6 +296,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -318,6 +327,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
+    qtrue,                 //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -348,6 +358,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -380,6 +391,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -410,6 +422,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
+    qtrue,                 //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -440,6 +453,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -470,6 +484,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -500,6 +515,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -530,6 +546,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qtrue                  //qboolean  reactorTest;
   },
   {
@@ -560,6 +577,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -568,8 +586,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "Floatmine",           //char      *humanName;
     "team_human_floatmine",//char      *entityName;
     { "models/buildables/floatmine/floatmine.md3", 0, 0, 0 },
-    { -15, -15, -15 },     //vec3_t    mins;
-    { 15, 15, 15 },        //vec3_t    maxs;
+    { -25, -25, -25 },     //vec3_t    mins;
+    { 25, 25, 25 },        //vec3_t    maxs;
     TR_BUOYANCY,           //trType_t traj;
     0.2,                   //float        bounce;
     10,                    //int       buildPoints;
@@ -590,6 +608,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
+    qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   }
 };
@@ -1141,6 +1160,26 @@ int BG_FindCreepSizeForBuildable( int bclass )
   }
   
   return CREEP_BASESIZE;
+}
+
+/*
+==============
+BG_FindDCCTestForBuildable
+==============
+*/
+int BG_FindDCCTestForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].dccTest;
+    }
+  }
+  
+  return qfalse;
 }
 
 /*

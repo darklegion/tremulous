@@ -177,6 +177,22 @@ static qboolean findDCC( gentity_t *self )
 
 /*
 ================
+isDCC
+
+simple wrapper to findDCC to check for a dcc
+================
+*/
+static qboolean isDCC( )
+{
+  gentity_t dummy;
+
+  dummy.dccNode = NULL;
+
+  return findDCC( &dummy );
+}
+
+/*
+================
 findCreep
 
 attempt to find creep for self, return qtrue if successful
@@ -1071,6 +1087,27 @@ void HMedistat_Think( gentity_t *self )
   gentity_t *player;
   int       healCount = 0;
   int       maxclients;
+
+  //make sure we have power
+  if( !( self->dcced = findPower( self ) ) )
+  {
+    self->nextthink = level.time + REFRESH_TIME;
+    return;
+  }
+  
+  if( self->s.modelindex == BA_H_ADVMEDISTAT )
+  {
+    maxclients = MAX_ADVMEDISTAT_CLIENTS;
+
+    //the advanced medistat requires a DCC
+    if( !( self->dcced = findDCC( self ) ) )
+    {
+      self->nextthink = level.time + REFRESH_TIME;
+      return;
+    }
+  }
+  else
+    maxclients = MAX_MEDISTAT_CLIENTS;
   
   VectorAdd( self->s.origin, self->r.maxs, maxs );
   VectorAdd( self->s.origin, self->r.mins, mins );
@@ -1078,18 +1115,10 @@ void HMedistat_Think( gentity_t *self )
   mins[ 2 ] += fabs( self->r.mins[ 2 ] ) + self->r.maxs[ 2 ];
   maxs[ 2 ] += 60; //player height
   
-  //make sure we have power
-  self->powered = findPower( self );
-
   //if active use the healing idle
   if( self->active )
     G_setIdleBuildableAnim( self, BANIM_IDLE2 );
 
-  if( self->s.modelindex == BA_H_ADVMEDISTAT )
-    maxclients = MAX_ADVMEDISTAT_CLIENTS;
-  else
-    maxclients = MAX_MEDISTAT_CLIENTS;
-  
   //do some healage
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
@@ -1393,6 +1422,10 @@ void hdef3_fireonenemy( gentity_t *self, int firespeed )
 {
   vec3_t  dirToTarget;
  
+  //this doesn't operate without a dcc
+  if( !self->dcced )
+    return;
+  
   VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
   VectorNormalize( dirToTarget );
   vectoangles( dirToTarget, self->turretAim );
@@ -1505,11 +1538,8 @@ void HDef_Think( gentity_t *self )
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 
-  //find power for self
-  self->powered = findPower( self );
-
   //if not powered don't do anything and check again for power next think
-  if( !self->powered )
+  if( !( self->powered = findPower( self ) ) )
   {
     self->nextthink = level.time + REFRESH_TIME;
     return;
@@ -1796,6 +1826,10 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
         reason = IBE_RPLWARN;
     }
 
+    //this buildable requires a DCC
+    if( BG_FindDCCTestForBuildable( buildable ) && !isDCC( ) )
+      reason = IBE_NODCC;
+    
     //check that there is a parent reactor when building a repeater
     if( buildable == BA_H_REPEATER )
     {

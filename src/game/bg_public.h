@@ -588,6 +588,7 @@ typedef enum
   MN_H_RPTWARN,
   MN_H_NOSLOTS,
   MN_H_NOFUNDS,
+  MN_H_NODCC,
   MN_H_ITEMHELD
     
 } dynMenu_t;
@@ -906,6 +907,7 @@ typedef struct
   qboolean  creepTest;
   int       creepSize;
 
+  qboolean  dccTest;
   qboolean  reactorTest;
 } buildableAttributes_t;      
 
@@ -986,6 +988,7 @@ float     BG_FindMinNormalForBuildable( int bclass );
 qboolean  BG_FindInvertNormalForBuildable( int bclass );
 int       BG_FindCreepTestForBuildable( int bclass );
 int       BG_FindCreepSizeForBuildable( int bclass );
+int       BG_FindDCCTestForBuildable( int bclass );
 int       BG_FindUniqueTestForBuildable( int bclass );
 
 int       BG_FindClassNumForName( char *name );

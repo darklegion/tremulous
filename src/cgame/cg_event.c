@@ -445,6 +445,7 @@ void CG_Menu( int eventParm )
     case MN_A_NORMAL:   trap_SendConsoleCommand( "menu tremulous_alien_surface\n" );              break;
     case MN_H_REACTOR:  trap_SendConsoleCommand( "menu tremulous_human_one_reactor\n" );          break;
     case MN_H_REPEATER: trap_SendConsoleCommand( "menu tremulous_human_repeater\n" );             break;
+    case MN_H_NODCC:    trap_SendConsoleCommand( "menu tremulous_human_dcc\n" );                  break;
     case MN_H_RPLWARN:  trap_SendConsoleCommand( "menu tremulous_human_replicator_warning\n" );   break;
     case MN_H_RPTWARN:  trap_SendConsoleCommand( "menu tremulous_human_repeater_warning\n" );     break;
     case MN_H_NOSLOTS:  trap_SendConsoleCommand( "menu tremulous_human_no_slots\n" );             break;
