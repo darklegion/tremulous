@@ -44,6 +44,66 @@ void G_setIdleBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim )
   ent->s.torsoAnim = anim;
 }
 
+/*
+===============
+G_CheckSpawnPoint
+
+Check if a spawn at a specified point is valid
+===============
+*/
+gentity_t *G_CheckSpawnPoint( vec3_t origin, vec3_t normal, buildable_t spawn, vec3_t spawnOrigin )
+{
+  float   displacement;
+  vec3_t  mins, maxs;
+  vec3_t  cmins, cmaxs;
+  vec3_t  localOrigin;
+  trace_t tr;
+
+  BG_FindBBoxForBuildable( spawn, mins, maxs );
+
+  if( spawn == BA_A_SPAWN )
+  {
+    VectorSet( cmins, -MAX_ALIEN_BBOX, -MAX_ALIEN_BBOX, -MAX_ALIEN_BBOX );
+    VectorSet( cmaxs,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX );
+  
+    displacement = ( maxs[ 2 ] + MAX_ALIEN_BBOX ) * M_ROOT3;
+    VectorMA( origin, displacement, normal, localOrigin );
+    
+    trap_Trace( &tr, localOrigin, cmins, cmaxs, localOrigin, -1, MASK_SHOT );
+
+    if( tr.entityNum == ENTITYNUM_NONE )
+    {
+      if( spawnOrigin != NULL )
+        VectorCopy( localOrigin, spawnOrigin );
+      
+      return NULL;
+    }
+    else
+      return &g_entities[ tr.entityNum ];
+  }
+  else if( spawn == BA_H_SPAWN )
+  {
+    BG_FindBBoxForClass( PCL_H_BASE, cmins, cmaxs, NULL, NULL, NULL );
+
+    VectorCopy( origin, localOrigin );
+    localOrigin[ 2 ] += maxs[ 2 ] + fabs( cmins[ 2 ] ) + 1.0f;
+    
+    trap_Trace( &tr, localOrigin, cmins, cmaxs, localOrigin, -1, MASK_SHOT );
+    
+    if( tr.entityNum == ENTITYNUM_NONE )
+    {
+      if( spawnOrigin != NULL )
+        VectorCopy( localOrigin, spawnOrigin );
+      
+      return NULL;
+    }
+    else
+      return &g_entities[ tr.entityNum ];
+  }
+
+  return NULL;
+}
+
 #define POWER_REFRESH_TIME  2000
 
 /*
@@ -353,6 +413,7 @@ void A_CreepRecede( gentity_t *self )
   {
     self->s.eFlags |= EF_DEAD;
     G_AddEvent( self, EV_BUILD_DESTROY, 0 );
+    self->s.time = -level.time;
   }
   
   //creep is still receeding
@@ -387,6 +448,7 @@ void ASpawn_Melt( gentity_t *self )
   {
     self->s.eFlags |= EF_DEAD;
     G_AddEvent( self, EV_BUILD_DESTROY, 0 );
+    self->s.time = -level.time;
   }
   
   //not dead yet
@@ -459,34 +521,24 @@ think function for Alien Spawn
 */
 void ASpawn_Think( gentity_t *self )
 {
-  vec3_t    mins, maxs, origin;
   gentity_t *ent;
-  trace_t   tr;
-  float     displacement;
 
   if( self->spawned )
   {
-    VectorSet( mins, -MAX_ALIEN_BBOX, -MAX_ALIEN_BBOX, -MAX_ALIEN_BBOX );
-    VectorSet( maxs,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX );
-    
-    VectorCopy( self->s.origin, origin );
-    displacement = ( self->r.maxs[ 2 ] + MAX_ALIEN_BBOX ) * M_ROOT3;
-    VectorMA( origin, displacement, self->s.origin2, origin );
-  
     //only suicide if at rest
     if( self->s.groundEntityNum )
     {
-      trap_Trace( &tr, origin, mins, maxs, origin, self->s.number, MASK_SHOT );
-      ent = &g_entities[ tr.entityNum ];
-      
-      if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
+      if( ( ent = G_CheckSpawnPoint( self->s.origin, self->s.origin2, BA_A_SPAWN, NULL ) ) != NULL )
       {
-        G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
-        return;
-      }
+        if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
+        {
+          G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+          return;
+        }
 
-      if( ent->s.eType == ET_CORPSE )
-        G_FreeEntity( ent ); //quietly remove
+        if( ent->s.eType == ET_CORPSE )
+          G_FreeEntity( ent ); //quietly remove
+      }
     }
   }
 
@@ -1896,33 +1948,28 @@ Think for human spawn
 */
 void HSpawn_Think( gentity_t *self )
 {
-  vec3_t    mins, maxs, origin;
   gentity_t *ent;
-  trace_t   tr;
-  vec3_t    up = { 0.0f, 0.0f, 1.0f };
 
-  BG_FindBBoxForClass( PCL_H_BASE, mins, maxs, NULL, NULL, NULL );
-
-  VectorCopy( self->s.origin, origin );
-  origin[ 2 ] += self->r.maxs[ 2 ] + fabs( mins[ 2 ] ) + 1.0f;
-  
   //make sure we have power
   self->powered = findPower( self );
 
-  //only suicide if at rest
-  if( self->s.groundEntityNum )
+  if( self->spawned )
   {
-    trap_Trace( &tr, origin, mins, maxs, origin, self->s.number, MASK_SHOT );
-    ent = &g_entities[ tr.entityNum ];
-    
-    if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
+    //only suicide if at rest
+    if( self->s.groundEntityNum )
     {
-      G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
-      return;
-    }
+      if( ( ent = G_CheckSpawnPoint( self->s.origin, self->s.origin2, BA_H_SPAWN, NULL ) ) != NULL )
+      {
+        if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
+        {
+          G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+          return;
+        }
 
-    if( ent->s.eType == ET_CORPSE )
-      G_FreeEntity( ent ); //quietly remove
+        if( ent->s.eType == ET_CORPSE )
+          G_FreeEntity( ent ); //quietly remove
+      }
+    }
   }
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
@@ -2041,6 +2088,10 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     return IBE_NORMAL;
     
   if( tr1.entityNum != ENTITYNUM_WORLD )
+    return IBE_NORMAL;
+
+  //check there is enough room to spawn from (presuming this is a spawn)
+  if( G_CheckSpawnPoint( origin, normal, buildable, NULL ) != NULL )
     return IBE_NORMAL;
 
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )

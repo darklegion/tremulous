@@ -1642,6 +1642,9 @@ void Cmd_Boost_f( gentity_t *ent )
       BG_activated( UP_JETPACK, ent->client->ps.stats ) )
     return;
 
+  if( ent->client->pers.cmd.buttons & BUTTON_WALKING )
+    return;
+  
   if( ( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) &&
       ( ent->client->ps.stats[ STAT_STAMINA ] > 0 ) )
     ent->client->ps.stats[ STAT_STATE ] |= SS_SPEEDBOOST;

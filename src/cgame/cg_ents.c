@@ -878,13 +878,14 @@ static void CG_CEntityPVSEnter( centity_t *cent )
   //clear any particle systems from previous uses of this centity_t
   cent->muzzlePS = NULL;
   cent->muzzlePsTrigger = qfalse;
-
   cent->jetPackPS = NULL;
   cent->jetPackState = JPS_OFF;
-  
   cent->buildablePS = NULL;
-  
   cent->entityPS = NULL;
+
+  //make sure that the buildable animations are in a consistent state
+  //when a buildable enters the PVS
+  cent->buildableAnim = BANIM_NONE;
 }
 
 

@@ -654,12 +654,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
 
     case EV_BUILD_CONSTRUCT:
       DEBUGNAME( "EV_BUILD_CONSTRUCT" );
-      cent->miscTime = cg.time; // scale up from this
+      //do something useful here
       break;
       
     case EV_BUILD_DESTROY:
       DEBUGNAME( "EV_BUILD_DESTROY" );
-      cent->miscTime = -cg.time; // scale down from this
+      //do something useful here
       break;
 
     case EV_RPTUSE_SOUND:

@@ -574,6 +574,7 @@ typedef enum
 } itemBuildError_t;
 
 qboolean          AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideExit );
+gentity_t         *G_CheckSpawnPoint( vec3_t origin, vec3_t normal, buildable_t spawn, vec3_t spawnOrigin );
   
 qboolean          G_BuildableRange( vec3_t origin, float r, buildable_t buildable );
 itemBuildError_t  G_itemFits( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin );
@@ -698,7 +699,7 @@ void      ChargeAttack( gentity_t *ent, gentity_t *victim );
 //
 team_t    TeamCount( int ignoreClientNum, int team );
 void      SetClientViewAngle( gentity_t *ent, vec3_t angle );
-gentity_t *SelectTremulousSpawnPoint( int team, vec3_t origin, vec3_t angles );
+gentity_t *SelectTremulousSpawnPoint( pTeam_t team, vec3_t origin, vec3_t angles );
 gentity_t *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
 void      SpawnCorpse( gentity_t *ent );
 void      respawn( gentity_t *ent );

@@ -220,19 +220,22 @@ static void CG_Creep( centity_t *cent )
   trace_t       tr, tr2;
   vec3_t        temp, origin, p1, p2;
   int           scaleUpTime = BG_FindBuildTimeForBuildable( cent->currentState.modelindex );
+  int           time;
+
+  time = cent->currentState.time;
 
   //should the creep be growing or receding?
-  if( cent->miscTime >= 0 )
+  if( time >= 0 )
   {
-    msec = cg.time - cent->miscTime;
+    msec = cg.time - time;
     if( msec >= 0 && msec < scaleUpTime )
       frac = (float)msec / scaleUpTime;
     else
       frac = 1.0f;
   }
-  else if( cent->miscTime < 0 )
+  else if( time < 0 )
   {
-    msec = cg.time + cent->miscTime;
+    msec = cg.time + time;
     if( msec >= 0 && msec < CREEP_SCALEDOWN_TIME )
       frac = 1.0f - ( (float)msec / CREEP_SCALEDOWN_TIME );
     else
@@ -984,8 +987,15 @@ void CG_Buildable( centity_t *cent )
 
   ent.nonNormalizedAxes = qfalse;
 
-  if( team == BIT_HUMANS && !( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
-    ent.customShader = cgs.media.humanSpawningShader;
+  if( !( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
+  {
+    if( team == BIT_HUMANS )
+    {
+      ent.customShader = cgs.media.humanSpawningShader;
+    }
+
+    /*trap_S_AddLoopingSound*/
+  }
       
   CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
 

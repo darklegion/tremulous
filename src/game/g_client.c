@@ -276,17 +276,10 @@ gentity_t *SelectAlienSpawnPoint( void )
   int       count;
   int       selection;
   gentity_t *spots[ MAX_SPAWN_POINTS ];
-  vec3_t    mins, maxs, origin;
-  gentity_t *ent;
-  trace_t   tr;
-  float     displacement;
 
   if( level.numAlienSpawns <= 0 )
     return NULL;
   
-  VectorSet( mins, -MAX_ALIEN_BBOX, -MAX_ALIEN_BBOX, -MAX_ALIEN_BBOX );
-  VectorSet( maxs,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX );
-
   count = 0;
   spot = NULL;
 
@@ -301,20 +294,8 @@ gentity_t *SelectAlienSpawnPoint( void )
 
     if( !spot->s.groundEntityNum )
       continue;
-      
-    VectorCopy( spot->s.origin, origin );
-    displacement = ( spot->r.maxs[ 2 ] + MAX_ALIEN_BBOX ) * M_ROOT3;
-    VectorMA( origin, displacement, spot->s.origin2, origin );
     
-    trap_Trace( &tr, origin, mins, maxs, origin, spot->s.number, MASK_SHOT );
-    ent = &g_entities[ tr.entityNum ];
-    
-    //spawn will suicide itself in the next 100ms
-    if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
-      continue;
-
-    //spawn is blocked
-    if( tr.fraction < 1.0f || tr.startsolid )
+    if( G_CheckSpawnPoint( spot->s.origin, spot->s.origin2, BA_A_SPAWN, NULL ) != NULL )
       continue;
     
     spots[ count ] = spot;
@@ -342,15 +323,10 @@ gentity_t *SelectHumanSpawnPoint( void )
   int       count;
   int       selection;
   gentity_t *spots[ MAX_SPAWN_POINTS ];
-  vec3_t    mins, maxs, origin;
-  gentity_t *ent;
-  trace_t   tr;
 
   if( level.numHumanSpawns <= 0 )
     return NULL;
   
-  BG_FindBBoxForClass( PCL_H_BASE, mins, maxs, NULL, NULL, NULL );
-
   count = 0;
   spot = NULL;
 
@@ -366,18 +342,7 @@ gentity_t *SelectHumanSpawnPoint( void )
     if( !spot->s.groundEntityNum )
       continue;
 
-    VectorCopy( spot->s.origin, origin );
-    origin[ 2 ] += spot->r.maxs[ 2 ] + fabs( mins[ 2 ] ) + 1.0f;
-    
-    trap_Trace( &tr, origin, mins, maxs, origin, spot->s.number, MASK_SHOT );
-    ent = &g_entities[ tr.entityNum ];
-    
-    //spawn will suicide itself in the next 100ms
-    if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
-      continue;
-
-    //spawn is blocked
-    if( tr.fraction < 1.0f || tr.startsolid )
+    if( G_CheckSpawnPoint( spot->s.origin, spot->s.origin2, BA_H_SPAWN, NULL ) != NULL )
       continue;
     
     spots[ count ] = spot;
@@ -402,34 +367,6 @@ Chooses a player start, deathmatch start, etc
 gentity_t *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles )
 {
   return SelectRandomFurthestSpawnPoint( avoidPoint, origin, angles );
-
-  /*
-  gentity_t *spot;
-  gentity_t *nearestSpot;
-
-  nearestSpot = SelectNearestDeathmatchSpawnPoint( avoidPoint );
-
-  spot = SelectRandomDeathmatchSpawnPoint ( );
-  if ( spot == nearestSpot ) {
-    // roll again if it would be real close to point of death
-    spot = SelectRandomDeathmatchSpawnPoint ( );
-    if ( spot == nearestSpot ) {
-      // last try
-      spot = SelectRandomDeathmatchSpawnPoint ( );
-    }
-  }
-
-  // find a single player start spot
-  if (!spot) {
-    G_Error( "Couldn't find a spawn point" );
-  }
-
-  VectorCopy (spot->s.origin, origin);
-  origin[2] += 9;
-  VectorCopy (spot->s.angles, angles);
-
-  return spot;
-  */
 }
 
 
@@ -440,12 +377,9 @@ SelectTremulousSpawnPoint
 Chooses a player start, deathmatch start, etc
 ============
 */
-gentity_t *SelectTremulousSpawnPoint( int team, vec3_t origin, vec3_t angles )
+gentity_t *SelectTremulousSpawnPoint( pTeam_t team, vec3_t origin, vec3_t angles )
 {
   gentity_t *spot;
-  float     displacement;
-  vec3_t    classMins, classMaxs, spawnMins, spawnMaxs;
-  vec3_t    normal = { 0, 0, 1 };
 
   if( team == PTE_ALIENS )
     spot = SelectAlienSpawnPoint( );
@@ -456,27 +390,13 @@ gentity_t *SelectTremulousSpawnPoint( int team, vec3_t origin, vec3_t angles )
   if( !spot )
     return NULL;
 
-  VectorCopy( spot->s.pos.trBase, origin );
-  VectorCopy( spot->s.angles, angles );
-
-  angles[ ROLL ] = 0;
-
   if( team == PTE_ALIENS )
-  {
-    BG_FindBBoxForBuildable( BA_A_SPAWN, spawnMins, spawnMaxs );
-    
-    //TA: really a *safe* extreme upper limit
-    displacement = ( spawnMaxs[ 2 ] + MAX_ALIEN_BBOX ) * M_ROOT3;
-    VectorMA( origin, displacement, spot->s.origin2, origin );
-  }
+    G_CheckSpawnPoint( spot->s.origin, spot->s.origin2, BA_A_SPAWN, origin );
   else if( team == PTE_HUMANS )
-  {
-    BG_FindBBoxForClass( PCL_H_BASE, classMins, classMaxs, NULL, NULL, NULL );
-    BG_FindBBoxForBuildable( BA_H_SPAWN, spawnMins, spawnMaxs );
+    G_CheckSpawnPoint( spot->s.origin, spot->s.origin2, BA_H_SPAWN, origin );
 
-    displacement = spawnMaxs[ 2 ] + fabs( classMins[ 2 ] ) + 1.0f;
-    origin[ 2 ] += displacement;
-  }
+  VectorCopy( spot->s.angles, angles );
+  angles[ ROLL ] = 0;
 
   return spot;
   

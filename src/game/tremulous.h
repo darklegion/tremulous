@@ -516,8 +516,8 @@
 
 #define STAMINA_STOP_RESTORE        20
 #define STAMINA_WALK_RESTORE        10
-#define STAMINA_SPRINT_TAKE         6
-#define STAMINA_LARMOUR_TAKE        3
+#define STAMINA_SPRINT_TAKE         8
+#define STAMINA_LARMOUR_TAKE        4
 
 /*
  * Misc
