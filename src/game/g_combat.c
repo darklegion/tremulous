@@ -28,6 +28,8 @@
                   
 #include "g_local.h"
 
+damageRegion_t  g_damageRegions[ PCL_NUM_CLASSES ][ MAX_LOCDAMAGE_REGIONS ];
+int             g_numDamageRegions[ PCL_NUM_CLASSES ];
 
 /*
 ============
@@ -625,6 +627,197 @@ int RaySphereIntersections( vec3_t origin, float radius, vec3_t point, vec3_t di
 }
 
 
+////////TA: locdamage
+
+/*
+===============
+G_ParseDmgScript
+===============
+*/
+void G_ParseDmgScript( char *buf, int class )
+{
+	char	*token;
+	int		count;
+
+	count = 0;
+
+	while( 1 )
+  {
+		token = COM_Parse( &buf );
+    
+		if( !token[0] )
+			break;
+      
+		if( strcmp( token, "{" ) )
+    {
+			G_Printf( "Missing { in locdamage file\n" );
+			break;
+		}
+
+		if( count == MAX_LOCDAMAGE_REGIONS )
+    {
+			G_Printf( "Max damage regions exceeded in locdamage file\n" );
+			break;
+		}
+
+		while( 1 )
+    {
+			token = COM_ParseExt( &buf, qtrue );
+      
+			if( !token[0] )
+      {
+				G_Printf( "Unexpected end of locdamage file\n" );
+				break;
+			}
+      
+			if( !Q_stricmp( token, "}" ) )
+      {
+				break;
+      }
+      else if( !strcmp( token, "minHeight" ) )
+      {
+			  token = COM_ParseExt( &buf, qfalse );
+
+			  if ( !token[0] )
+				  strcpy( token, "0" );
+
+        g_damageRegions[ class ][ count ].minHeight = atof( token );
+      }
+      else if( !strcmp( token, "maxHeight" ) )
+      {
+			  token = COM_ParseExt( &buf, qfalse );
+
+			  if ( !token[0] )
+				  strcpy( token, "100" );
+
+        g_damageRegions[ class ][ count ].maxHeight = atof( token );
+      }
+      else if( !strcmp( token, "minAngle" ) )
+      {
+			  token = COM_ParseExt( &buf, qfalse );
+
+			  if ( !token[0] )
+				  strcpy( token, "0" );
+
+        g_damageRegions[ class ][ count ].minAngle = atoi( token );
+      }
+      else if( !strcmp( token, "maxAngle" ) )
+      {
+			  token = COM_ParseExt( &buf, qfalse );
+
+			  if ( !token[0] )
+				  strcpy( token, "360" );
+
+        g_damageRegions[ class ][ count ].maxAngle = atoi( token );
+      }
+      else if( !strcmp( token, "modifier" ) )
+      {
+			  token = COM_ParseExt( &buf, qfalse );
+
+			  if ( !token[0] )
+				  strcpy( token, "1.0" );
+
+        g_damageRegions[ class ][ count ].modifier = atof( token );
+      }
+		}
+
+    g_numDamageRegions[ class ]++;
+    count++;
+	}
+}
+
+
+/* 
+============
+G_CalcModifier
+============
+*/
+float G_CalcModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, int class )
+{
+  vec3_t  bulletPath;
+  vec3_t  bulletAngle;
+
+  float   clientHeight, hitRelative, hitRatio;
+  int     bulletRotation, clientRotation, hitRotation;
+  float   modifier = 1.0;
+  int     i;
+
+  clientHeight = targ->r.maxs[ 2 ] - targ->r.mins[ 2 ];  
+
+  hitRelative = point[ 2 ] - targ->r.currentOrigin[ 2 ] - targ->r.mins[ 2 ];
+
+  if( hitRelative < 0.0 ) hitRelative = 0.0;
+  if( hitRelative > clientHeight ) hitRelative = clientHeight;
+
+  hitRatio = hitRelative / clientHeight;
+                                
+  VectorSubtract( targ->r.currentOrigin, point, bulletPath ); 
+  vectoangles( bulletPath, bulletAngle );
+
+  clientRotation = targ->client->ps.viewangles[ YAW ];
+  bulletRotation = bulletAngle[ YAW ];
+
+  hitRotation = abs( clientRotation - bulletRotation );
+  
+  hitRotation = hitRotation % 360; // Keep it in the 0-359 range
+
+  for( i = 0; i < g_numDamageRegions[ class ]; i++ )
+  {
+    if( hitRotation > g_damageRegions[ class ][ i ].minAngle &&
+        hitRotation <= g_damageRegions[ class ][ i ].maxAngle &&
+        hitRatio > g_damageRegions[ class ][ i ].minHeight &&
+        hitRatio <= g_damageRegions[ class ][ i ].maxHeight )
+      modifier *= g_damageRegions[ class ][ i ].modifier;
+  }
+
+  return modifier;
+}
+
+
+/*
+============
+G_InitDamageLocations
+============
+*/
+void G_InitDamageLocations( )
+{
+  char          *modelName;
+  char          filename[ MAX_QPATH ];
+  int           i;
+	int				    len;
+	fileHandle_t	fileHandle;
+	char			    buffer[ MAX_LOCDAMAGE_TEXT ];
+
+  for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
+  {
+    modelName = BG_FindModelNameForClass( i );
+    Com_sprintf( filename, sizeof( filename ), "models/players/%s/locdamage.cfg", modelName );
+
+    len = trap_FS_FOpenFile( filename, &fileHandle, FS_READ );
+    if ( !fileHandle )
+    {
+      G_Printf( va( S_COLOR_RED "file not found: %s\n", filename ) );
+      continue;
+    }
+    
+    if ( len >= MAX_LOCDAMAGE_TEXT )
+    {
+      G_Printf( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_LOCDAMAGE_TEXT ) );
+      trap_FS_FCloseFile( fileHandle );
+      continue;
+    }
+
+    trap_FS_Read( buffer, len, fileHandle );
+    buffer[len] = 0;
+    trap_FS_FCloseFile( fileHandle );
+      
+    G_ParseDmgScript( buffer, i );
+  }
+}
+
+////////TA: locdamage
+
+
 /*
 ============
 T_Damage
@@ -839,6 +1032,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     // set the last client who damaged the target
     targ->client->lasthurt_client = attacker->s.number;
     targ->client->lasthurt_mod = mod;
+    take = (int)( (float)take * G_CalcModifier( point, targ, attacker, client->ps.stats[ STAT_PCLASS ] ) );
   }
 
   // do the damage

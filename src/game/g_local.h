@@ -329,6 +329,18 @@ struct gclient_s {
   gentity_t *infestBody;  //TA: body that is being infested. must be persistant
 };
 
+#define MAX_LOCDAMAGE_TEXT    8192
+#define MAX_LOCDAMAGE_REGIONS 32
+
+//TA: store locational damage regions
+typedef struct damageRegion_s
+{
+  float   minHeight, maxHeight;
+  int     minAngle, maxAngle;
+  
+  float   modifier;
+} damageRegion_t;
+
 //
 // this structure is cleared as each map is entered
 //
@@ -428,7 +440,6 @@ typedef struct {
   int     humanBuildPointsTotal;
   int     humanBuildPointsPowered;
 } level_locals_t;
-
 
 //
 // g_spawn.c
@@ -541,6 +552,9 @@ qboolean G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float
 qboolean G_SelectiveRadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, int mod, int team );
 void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
 void TossClientItems( gentity_t *self );
+
+//TA:
+void G_InitDamageLocations( );
 
 // damage flags
 #define DAMAGE_RADIUS         0x00000001  // damage was indirect

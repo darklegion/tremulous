@@ -592,7 +592,8 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
   int               i;
   itemBuildError_t  reason = IBE_NONE;
   gentity_t         *tempent, *closestPower;
-  int               minDistance, templength;
+  int               minDistance = 10000;
+  int               templength;
 
   VectorCopy( ent->s.apos.trBase, angles );
   angles[PITCH] = 0;  // always forward

@@ -475,7 +475,10 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
   }
 
   SaveRegisteredItems();
+
+  //TA:
   G_RegisterPlayerModels();
+  G_InitDamageLocations();
 
   G_Printf ("-----------------------------------\n");
 
