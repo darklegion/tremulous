@@ -1978,7 +1978,7 @@ int BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int num )
   int i, j;
 
   //base case
-  if( credits + 1 == 0 )
+  if( credits == 0 )
     return 0;
 
   if( tclass == PCL_NONE )

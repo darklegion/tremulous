@@ -192,9 +192,14 @@ void Cmd_Give_f( gentity_t *ent )
       return;
   }
 
-  if( give_all || Q_stricmp( name, "funds" ) == 0 )
+  if( give_all || Q_stricmpn( name, "funds", 5 ) == 0 )
   {
-    ent->client->ps.persistant[ PERS_CREDIT ] += 123;
+    int credits = atoi( name + 6 );
+
+    if( !credits )
+      ent->client->ps.persistant[ PERS_CREDIT ]++;
+    else
+      ent->client->ps.persistant[ PERS_CREDIT ] += credits;
 
     if( !give_all )
       return;
