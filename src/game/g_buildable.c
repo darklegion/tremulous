@@ -325,6 +325,21 @@ void DSpawn_Pain( gentity_t *self, gentity_t *attacker, int damage )
 
 /*
 ================
+DBarricade_Pain
+
+pain function for Droid Spawn
+================
+*/
+void DBarricade_Pain( gentity_t *self, gentity_t *attacker, int damage )
+{
+  if( random() > 0.5f )
+    G_setBuildableAnim( self, BANIM_PAIN1 );
+  else
+    G_setBuildableAnim( self, BANIM_PAIN2 );
+}
+
+/*
+================
 DBarricade_Die
 
 Called when an droid spawn dies
@@ -1420,7 +1435,7 @@ gentity_t *G_buildItem( gentity_t *ent, buildable_t buildable, int distance, flo
     case BA_D_BARRICADE:
       built->die = DBarricade_Die;
       built->think = DBarricade_Think;
-      built->pain = DSpawn_Pain;
+      built->pain = DBarricade_Pain;
       break;
       
     case BA_D_ACIDTUBE:

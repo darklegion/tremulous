@@ -840,7 +840,7 @@ TA: droid defense item
   {
     "team_droid_def1",
     "sound/items/holdable.wav",
-    { "models/buildables/defense1/defense1.md3", 0, 0, 0 },
+    { "models/buildables/barricade/barricade.md3", 0, 0, 0 },
     "icons/teleporter", //icon
     "Barricade",      //pickup
     0,
