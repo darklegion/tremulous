@@ -1339,14 +1339,14 @@ classAttributes_t bg_classList[ ] =
     PCL_A_O_LEV1,                                   //int     classnum;
     "dragoon",                                      //char    *classname;
     "Dragoon",                                      //char    *humanname;
-    "jumper",                                       //char    *modelname;
-    0.3f,                                           //float   modelScale;
-    "red",                                          //char    *skinname;
+    "prowl",                                        //char    *modelname;
+    0.75f,                                          //float   modelScale;
+    "default",                                      //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -24, -24, -9 },                               //vec3_t  mins;
-    { 24, 24, 9 },                                  //vec3_t  maxs;
-    { 24, 24, 9 },                                  //vec3_t  crouchmaxs;
+    { -24, -24, -16 },                              //vec3_t  mins;
+    { 24, 24, 16 },                                 //vec3_t  maxs;
+    { 24, 24, 16 },                                 //vec3_t  crouchmaxs;
     { -24, -24, -4 },                               //vec3_t  deadmins;
     { 24, 24, 4 },                                  //vec3_t  deadmaxs;
     18, 18,                                         //int     viewheight, crouchviewheight;
@@ -1369,14 +1369,14 @@ classAttributes_t bg_classList[ ] =
     PCL_A_O_LEV1_UPG,                               //int     classnum;
     "dragoonupg",                                   //char    *classname;
     "Dragoon Upgrade",                              //char    *humanname;
-    "jumper",                                       //char    *modelname;
-    0.4f,                                           //float   modelScale;
-    "blue",                                         //char    *skinname;
+    "prowl",                                        //char    *modelname;
+    0.75f,                                          //float   modelScale;
+    "default",                                      //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -24, -24, -11 },                              //vec3_t  mins;
-    { 24, 24, 11 },                                 //vec3_t  maxs;
-    { 24, 24, 11 },                                 //vec3_t  crouchmaxs;
+    { -24, -24, -16 },                              //vec3_t  mins;
+    { 24, 24, 16 },                                 //vec3_t  maxs;
+    { 24, 24, 16 },                                 //vec3_t  crouchmaxs;
     { -24, -24, -4 },                               //vec3_t  deadmins;
     { 24, 24, 4 },                                  //vec3_t  deadmaxs;
     20, 20,                                         //int     viewheight, crouchviewheight;
@@ -1461,7 +1461,7 @@ classAttributes_t bg_classList[ ] =
     PCL_A_O_LEV3,                                   //int     classnum;
     "chimera",                                      //char    *classname;
     "Chimera",                                      //char    *humanname;
-    "prowl",                                        //char    *modelname;
+    "tarantula",                                    //char    *modelname;
     0.75f,                                          //float   modelScale;
     "default",                                      //char    *skinname;
     "alien_hud",                                    //char    *hudname;

@@ -484,6 +484,25 @@ static qboolean PM_CheckPounce( void )
   
   PM_AddEvent( EV_JUMP );
   
+  if( pm->cmd.forwardmove >= 0 )
+  {
+    if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+      PM_ForceLegsAnim( LEGS_JUMP );
+    else
+      PM_ForceLegsAnim( NSPA_JUMP );
+      
+    pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+  }
+  else
+  {
+    if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+      PM_ForceLegsAnim( LEGS_JUMPB );
+    else
+      PM_ForceLegsAnim( NSPA_JUMPBACK );
+    
+    pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
+  }
+
   return qtrue;
 }
 

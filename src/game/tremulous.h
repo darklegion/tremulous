@@ -66,10 +66,10 @@
 #define CHIMERA_CLAW_RANGE          96.0f
 #define CHIMERA_CLAW_REPEAT         400
 #define CHIMERA_CLAW_U_REPEAT       300
-#define CHIMERA_AREAZAP_DMG         ADM(125)
+#define CHIMERA_AREAZAP_DMG         ADM(75)
 #define CHIMERA_AREAZAP_RANGE       200.0f
 #define CHIMERA_AREAZAP_REPEAT      1500
-#define CHIMERA_DIRECTZAP_DMG       ADM(125)
+#define CHIMERA_DIRECTZAP_DMG       ADM(75)
 #define CHIMERA_DIRECTZAP_RANGE     200.0f
 #define CHIMERA_DIRECTZAP_REPEAT    1500
 
@@ -99,61 +99,64 @@
 #define ALIEN_HLTH_MODIFIER         1.0f
 #define AHM(h)                      ((int)((float)h*ALIEN_HLTH_MODIFIER))
 
+#define ALIEN_VALUE_MODIFIER        3.0f
+#define AVM(h)                      ((int)((float)h*ALIEN_VALUE_MODIFIER))
+
 #define ABUILDER_SPEED              0.8f
 #define ABUILDER_TTE                2000
-#define ABUILDER_VALUE              50
+#define ABUILDER_VALUE              AVM(50)
 #define ABUILDER_HEALTH             AHM(50)
 #define ABUILDER_REGEN              2
 
 #define ABUILDER_UPG_SPEED          1.0f
-#define ABUILDER_UPG_VALUE          120
+#define ABUILDER_UPG_VALUE          AVM(120)
 #define ABUILDER_UPG_HEALTH         AHM(75)
 #define ABUILDER_UPG_REGEN          3
 
-#define SOLDIER_SPEED               1.5f
+#define SOLDIER_SPEED               1.3f
 #define SOLDIER_TTE                 2000
-#define SOLDIER_VALUE               50
+#define SOLDIER_VALUE               AVM(50)
 #define SOLDIER_HEALTH              AHM(25)
 #define SOLDIER_REGEN               1
 
-#define DRAGOON_SPEED               1.5f
+#define DRAGOON_SPEED               1.3f
 #define DRAGOON_TTE                 3000
-#define DRAGOON_VALUE               100
+#define DRAGOON_VALUE               AVM(100)
 #define DRAGOON_HEALTH              AHM(50)
 #define DRAGOON_REGEN               2
 
-#define DRAGOON_UPG_SPEED           1.5f
+#define DRAGOON_UPG_SPEED           1.3f
 #define DRAGOON_UPG_TTE             3000
-#define DRAGOON_UPG_VALUE           120
+#define DRAGOON_UPG_VALUE           AVM(120)
 #define DRAGOON_UPG_HEALTH          AHM(60)
 #define DRAGOON_UPG_REGEN           3
 
-#define HYDRA_SPEED                 1.5f
+#define HYDRA_SPEED                 1.25f
 #define HYDRA_TTE                   3000
 #define HYDRA_VALUE                 200
 #define HYDRA_HEALTH                AHM(100)
 #define HYDRA_REGEN                 5
 
-#define HYDRA_UPG_SPEED             1.5f
+#define HYDRA_UPG_SPEED             1.25f
 #define HYDRA_UPG_TTE               3000
-#define HYDRA_UPG_VALUE             240
+#define HYDRA_UPG_VALUE             AVM(240)
 #define HYDRA_UPG_HEALTH            AHM(120)
 #define HYDRA_UPG_REGEN             6
 
-#define CHIMERA_SPEED               1.3f
+#define CHIMERA_SPEED               1.2f
 #define CHIMERA_TTE                 3000
-#define CHIMERA_VALUE               300
+#define CHIMERA_VALUE               AVM(300)
 #define CHIMERA_HEALTH              AHM(200)
 #define CHIMERA_REGEN               7
 
-#define CHIMERA_UPG_SPEED           1.3f
+#define CHIMERA_UPG_SPEED           1.2f
 #define CHIMERA_UPG_TTE             3000
-#define CHIMERA_UPG_VALUE           360
+#define CHIMERA_UPG_VALUE           AVM(360)
 #define CHIMERA_UPG_HEALTH          AHM(250)
 #define CHIMERA_UPG_REGEN           10
 
-#define BMOFO_SPEED                 1.2f
-#define BMOFO_VALUE                 400
+#define BMOFO_SPEED                 1.1f
+#define BMOFO_VALUE                 AVM(400)
 #define BMOFO_HEALTH                AHM(400)
 #define BMOFO_REGEN                 15
 
@@ -278,7 +281,7 @@
 #define RIFLE_RELOAD                2000
 #define RIFLE_PRICE                 0
 #define RIFLE_SPREAD                200
-#define RIFLE_DMG                   HDM(7)
+#define RIFLE_DMG                   HDM(9)
 
 #define CHAINGUN_BULLETS            300
 #define CHAINGUN_REPEAT             50
@@ -414,7 +417,7 @@
 #define MGTURRET_HEALTH             HBHM(100)
 #define MGTURRET_SPLASHDAMAGE       50
 #define MGTURRET_SPLASHRADIUS       1000
-#define MGTURRET_ANGULARSPEED       20  //degrees/think ~= 200deg/sec
+#define MGTURRET_ANGULARSPEED       5  //degrees/think ~= 200deg/sec
 #define MGTURRET_ACCURACYTOLERANCE  MGTURRET_ANGULARSPEED / 2 //angular difference for turret to fire
 #define MGTURRET_VERTICALCAP        30  // +/- maximum pitch
 #define MGTURRET_REPEAT             100
@@ -463,9 +466,9 @@
  * HUMAN misc
  */
 
-#define HUMAN_JOG_MODIFIER          0.8f
-#define HUMAN_BACK_MODIFIER         0.5f
-#define HUMAN_SIDE_MODIFIER         0.75f
+#define HUMAN_JOG_MODIFIER          0.9f
+#define HUMAN_BACK_MODIFIER         0.7f
+#define HUMAN_SIDE_MODIFIER         0.8f
 
 #define STAMINA_STOP_RESTORE        10
 #define STAMINA_WALK_RESTORE        5

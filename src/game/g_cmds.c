@@ -1011,13 +1011,13 @@ void Cmd_Class_f( gentity_t *ent )
           }
           
           numLevels = BG_ClassCanEvolveFromTo( ent->client->ps.stats[ STAT_PCLASS ], ent->client->pers.pclass,
-                                               ent->client->ps.persistant[ PERS_CREDIT ], 0 );
+                                               (short)ent->client->ps.persistant[ PERS_CREDIT ], 0 );
 
           //...check we can evolve to that class
           if( numLevels && BG_FindStagesForClass( ent->client->pers.pclass, g_alienStage.integer ) )
           {
             //remove credit
-            ent->client->ps.persistant[ PERS_CREDIT ] -= numLevels - 1;
+            ent->client->ps.persistant[ PERS_CREDIT ] -= (short)( numLevels - 1 );
             
             //prevent lerping
             ent->client->ps.eFlags ^= EF_TELEPORT_BIT;
@@ -1313,8 +1313,14 @@ void Cmd_Buy_f( gentity_t *ent )
     }
       
     //can afford this?
-    if( BG_FindPriceForWeapon( weapon ) > ent->client->ps.persistant[ PERS_CREDIT ] )
+    if( BG_FindPriceForWeapon( weapon ) > (short)ent->client->ps.persistant[ PERS_CREDIT ] )
     {
+      G_LogPrintf( "Client %d buying weapon %d, value %d, credit %d\n",
+                   ent->client->ps.clientNum,
+                   weapon,
+                   BG_FindPriceForWeapon( weapon ),
+                   (short)ent->client->ps.persistant[ PERS_CREDIT ] );
+
       G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
       return;
     }
@@ -1363,7 +1369,7 @@ void Cmd_Buy_f( gentity_t *ent )
     ent->client->ps.stats[ STAT_MISC ] = 0;
     
     //subtract from funds
-    ent->client->ps.persistant[ PERS_CREDIT ] -= BG_FindPriceForWeapon( weapon );
+    ent->client->ps.persistant[ PERS_CREDIT ] -= (short)BG_FindPriceForWeapon( weapon );
   }
   else if( upgrade != UP_NONE )
   {
@@ -1378,9 +1384,15 @@ void Cmd_Buy_f( gentity_t *ent )
     }
     
     //can afford this?
-    if( BG_FindPriceForUpgrade( upgrade ) > ent->client->ps.persistant[ PERS_CREDIT ] )
+    if( BG_FindPriceForUpgrade( upgrade ) > (short)ent->client->ps.persistant[ PERS_CREDIT ] )
     {
       G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
+      G_LogPrintf( "Client %d buying upgrade %d, value %d, credit %d\n",
+                   ent->client->ps.clientNum,
+                   weapon,
+                   BG_FindPriceForWeapon( upgrade ),
+                   (short)ent->client->ps.persistant[ PERS_CREDIT ] );
+
       return;
     }
     
@@ -1442,7 +1454,7 @@ void Cmd_Buy_f( gentity_t *ent )
     }
     
     //subtract from funds
-    ent->client->ps.persistant[ PERS_CREDIT ] -= BG_FindPriceForUpgrade( upgrade );
+    ent->client->ps.persistant[ PERS_CREDIT ] -= (short)BG_FindPriceForUpgrade( upgrade );
   }
   else
   {
@@ -1510,7 +1522,7 @@ void Cmd_Sell_f( gentity_t *ent )
       BG_removeWeapon( weapon, ent->client->ps.stats );
 
       //add to funds
-      ent->client->ps.persistant[ PERS_CREDIT ] += BG_FindPriceForWeapon( weapon );
+      ent->client->ps.persistant[ PERS_CREDIT ] += (short)BG_FindPriceForWeapon( weapon );
     }
 
     //if we have this weapon selected, force a new selection
@@ -1525,7 +1537,7 @@ void Cmd_Sell_f( gentity_t *ent )
       BG_removeItem( upgrade, ent->client->ps.stats );
 
       //add to funds
-      ent->client->ps.persistant[ PERS_CREDIT ] += BG_FindPriceForUpgrade( upgrade );
+      ent->client->ps.persistant[ PERS_CREDIT ] += (short)BG_FindPriceForUpgrade( upgrade );
     }
     
     //if we have this upgrade selected, force a new selection
@@ -1571,7 +1583,7 @@ void Cmd_Deposit_f( gentity_t *ent )
     }
 
     if( !Q_stricmp( s, "all" ) )
-      amount = ent->client->ps.persistant[ PERS_CREDIT ];
+      amount = (short)ent->client->ps.persistant[ PERS_CREDIT ];
     else
       amount = atoi( s );
 
@@ -1582,9 +1594,14 @@ void Cmd_Deposit_f( gentity_t *ent )
       return;
     }
 
-    if( amount <= ent->client->ps.persistant[ PERS_CREDIT ] )
+    G_LogPrintf( "Client %d depositing %d with credit %d\n",
+                 ent->client->ps.clientNum,
+                 amount, 
+                 (short)ent->client->ps.persistant[ PERS_CREDIT ] );
+
+    if( amount <= (short)ent->client->ps.persistant[ PERS_CREDIT ] )
     {
-      ent->client->ps.persistant[ PERS_CREDIT ] -= amount;
+      ent->client->ps.persistant[ PERS_CREDIT ] -= (short)amount;
       ent->client->ps.persistant[ PERS_BANK ] += amount;
       level.bankCredits[ ent->client->ps.clientNum ] += amount;
     }
@@ -1607,7 +1624,7 @@ void Cmd_Deposit_f( gentity_t *ent )
     }
 
     if( !Q_stricmp( s, "all" ) )
-      amount = ent->client->ps.persistant[ PERS_CREDIT ];
+      amount = (short)ent->client->ps.persistant[ PERS_CREDIT ];
     else
       amount = atoi( s );
 
@@ -1618,9 +1635,9 @@ void Cmd_Deposit_f( gentity_t *ent )
       return;
     }
 
-    if( amount <= ent->client->ps.persistant[ PERS_CREDIT ] )
+    if( amount <= (short)ent->client->ps.persistant[ PERS_CREDIT ] )
     {
-      ent->client->ps.persistant[ PERS_CREDIT ] -= amount;
+      ent->client->ps.persistant[ PERS_CREDIT ] -= (short)amount;
       ent->client->ps.persistant[ PERS_BANK ] += amount;
       level.bankCredits[ ent->client->ps.clientNum ] += amount;
     }
@@ -1673,9 +1690,14 @@ void Cmd_Withdraw_f( gentity_t *ent )
       return;
     }
 
+    G_LogPrintf( "Client %d withdrawing %d with credit %d\n",
+                 ent->client->ps.clientNum,
+                 amount, 
+                 (short)level.bankCredits[ ent->client->ps.clientNum ] );
+
     if( amount <= level.bankCredits[ ent->client->ps.clientNum ] )
     {
-      ent->client->ps.persistant[ PERS_CREDIT ] += amount;
+      ent->client->ps.persistant[ PERS_CREDIT ] += (short)amount;
       ent->client->ps.persistant[ PERS_BANK ] -= amount;
       level.bankCredits[ ent->client->ps.clientNum ] -= amount;
     }
@@ -1711,7 +1733,7 @@ void Cmd_Withdraw_f( gentity_t *ent )
 
     if( amount <= level.bankCredits[ ent->client->ps.clientNum ] )
     {
-      ent->client->ps.persistant[ PERS_CREDIT ] += amount;
+      ent->client->ps.persistant[ PERS_CREDIT ] += (short)amount;
       ent->client->ps.persistant[ PERS_BANK ] -= amount;
       level.bankCredits[ ent->client->ps.clientNum ] -= amount;
     }

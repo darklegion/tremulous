@@ -159,8 +159,8 @@ static void CG_Obituary( entityState_t *ent )
   {
     char  *s;
 
-    s = va( "You fragged %s", targetName );
-    CG_CenterPrint( s, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+/*    s = va( "You fragged %s", targetName );
+    CG_CenterPrint( s, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );*/
 
     // print the text message as well
   }
