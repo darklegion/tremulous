@@ -48,6 +48,11 @@
       backcolor     0.2 0.2 0.2 1
       outlinecolor  0.1 0.1 0.1 0.5
       visible 1
+      doubleclick
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript BuyFromArmoury
+      }
     }
     
     itemDef
@@ -67,6 +72,11 @@
       backcolor     0.2 0.2 0.2 1
       outlinecolor  0.1 0.1 0.1 0.5
       visible 1
+      doubleclick
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript SellToArmoury
+      }
     }
     
     itemDef

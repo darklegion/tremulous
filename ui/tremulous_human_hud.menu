@@ -310,7 +310,7 @@
     itemDef  
     {  
       name "selecttext"  
-      rect 200 25 240 300  
+      rect 200 300 240 25
       visible 1  
       decoration  
       textScale .5  
@@ -384,5 +384,16 @@
       style WINDOW_STYLE_SHADER
       background "ui/assets/neutral/selected.tga"
     }   
+    
+    //PLAYER NAME
+    itemDef  
+    {  
+      name "playername"  
+      rect 200 275 240 25
+      visible 1  
+      decoration  
+      textScale .5
+      ownerdraw CG_PLAYER_CROSSHAIRNAMES
+    }
   }
 }

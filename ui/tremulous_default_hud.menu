@@ -84,5 +84,16 @@
       background "white"
       ownerdraw CG_LAGOMETER
     }   
+    
+    //PLAYER NAME
+    itemDef  
+    {  
+      name "playername"  
+      rect 200 275 240 25
+      visible 1  
+      decoration  
+      textScale .5
+      ownerdraw CG_PLAYER_CROSSHAIRNAMES
+    }
   }
 }
