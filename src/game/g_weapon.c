@@ -912,6 +912,8 @@ void FireWeapon2( gentity_t *ent )
   // fire the specific weapon
   switch( ent->s.weapon )
   {
+    case WP_GRAB_CLAW_UPG:
+      break;
     case WP_POUNCE:
     case WP_POUNCE_UPG:
       meleeAttack( ent, 32.0f, 150 );
@@ -981,6 +983,7 @@ void FireWeapon( gentity_t *ent )
       lockBlobLauncherFire( ent );
       break;
     case WP_GRAB_CLAW:
+    case WP_GRAB_CLAW_UPG:
       meleeAttack( ent, 32.0f, 5 );
       break;
     case WP_POUNCE:

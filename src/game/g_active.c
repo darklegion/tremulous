@@ -548,8 +548,31 @@ void ClientTimerActions( gentity_t *ent, int msec )
     //replenish alien health
     if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     {
+      int       entityList[ MAX_GENTITIES ];
+      vec3_t    range = { 200, 200, 200 };
+      vec3_t    mins, maxs, dir;
+      int       i, num;
+      gentity_t *alienPlayer;
+      float     modifier = 1.0f;
+      
+      VectorAdd( client->ps.origin, range, maxs );
+      VectorSubtract( client->ps.origin, range, mins );
+      
+      num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+      for( i = 0; i < num; i++ )
+      {
+        alienPlayer = &g_entities[ entityList[ i ] ];
+        
+        if( alienPlayer->client && alienPlayer->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
+            alienPlayer->client->ps.stats[ STAT_PCLASS ] == PCL_A_O_LEV4 )
+        {
+          modifier = 2.0f;
+          break;
+        }
+      }
+      
       if( ent->health < client->ps.stats[ STAT_MAX_HEALTH ] )
-        BG_FindRegenRateForClass( client->ps.stats[ STAT_PCLASS ] );
+        ent->health += BG_FindRegenRateForClass( client->ps.stats[ STAT_PCLASS ] ) * modifier;
 
       if( ent->health > client->ps.stats[ STAT_MAX_HEALTH ] )
         ent->health = client->ps.stats[ STAT_MAX_HEALTH ];
@@ -984,6 +1007,7 @@ void ClientThink_real( gentity_t *ent ) {
         break;
 
       case WP_GRAB_CLAW:
+      case WP_GRAB_CLAW_UPG:
         /*if( client->ps.weaponTime <= 0 )*/ //FIXME: correct decision?
           CheckGrabAttack( ent );
         break;

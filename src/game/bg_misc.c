@@ -1358,7 +1358,7 @@ classAttributes_t bg_classList[ ] =
     140,                                                        //int     fov;
     0.0f,                                                       //float   bob;
     25,                                                         //int     steptime;
-    1.8f,                                                       //float   speed;
+    1.5f,                                                       //float   speed;
     5.0f,                                                       //float   sticky;
     { PCL_A_O_LEV1, PCL_NONE, PCL_NONE },                       //int     children[ 3 ];
     3000,                                                       //int     timetoevolve;
@@ -1387,7 +1387,7 @@ classAttributes_t bg_classList[ ] =
     120,                                          //int     fov;
     0.001f,                                       //float   bob;
     25,                                           //int     steptime;
-    1.6f,                                         //float   speed;
+    1.5f,                                         //float   speed;
     4.0f,                                         //float   sticky;
     { PCL_A_O_LEV2, PCL_A_O_LEV1_UPG, PCL_NONE }, //int     children[ 3 ];
     3000,                                         //int     timetoevolve;
@@ -1411,12 +1411,12 @@ classAttributes_t bg_classList[ ] =
     50,                                           //int     health;
     5,                                            //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
-    WP_GRAB_CLAW,                                 //weapon_t  startWeapon
+    WP_GRAB_CLAW_UPG,                                 //weapon_t  startWeapon
     0.0f,                                         //float   buildDist;
     120,                                          //int     fov;
     0.001f,                                       //float   bob;
     25,                                           //int     steptime;
-    1.6f,                                         //float   speed;
+    1.5f,                                         //float   speed;
     4.0f,                                         //float   sticky;
     { PCL_A_O_LEV2, PCL_NONE, PCL_NONE },         //int     children[ 3 ];
     3000,                                         //int     timetoevolve;
@@ -2438,6 +2438,29 @@ weaponAttributes_t bg_weapons[ ] =
     500,                  //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
+    qfalse,               //qboolean  synced;
+    qfalse,               //qboolean  purchasable;
+    0,                    //int       buildDelay;
+    WUT_ALIENS            //WUTeam_t  team;
+  },
+  {
+    WP_GRAB_CLAW_UPG,     //int       weaponNum;
+    100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_WEAPON,          //int       slots;
+    "grabandclaw_upgrade",//char      *weaponName;
+    "Claws Upgrade",      //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
+    500,                  //int       repeatRate;
+    0,                    //int       reloadTime;
+    qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
