@@ -42,6 +42,9 @@ qboolean findPower( gentity_t *self )
   int       minDistance = 10000;
   vec3_t    temp_v;
   
+  if( self->parentNode && self->parentNode->active )
+    return qtrue;
+  
   //reset parent
   self->parentNode = NULL;
   
@@ -325,12 +328,7 @@ void HMCU_Think( gentity_t *self )
 {
   self->nextthink = level.time + REFRESH_TIME;
   
-  if( ( self->parentNode == NULL ) ||
-      !self->parentNode->inuse ||
-      !self->parentNode->active )
-  {
-    self->powered = findPower( self );
-  }
+  self->powered = findPower( self );
 }
 
 //TA: the following defense turret code was written by
@@ -490,16 +488,12 @@ void HDef1_Think( gentity_t *self )
 {
   self->nextthink = level.time + 50;
   
-  if( ( self->parentNode == NULL ) ||
-      !self->parentNode->inuse ||
-      !self->parentNode->active )
+  self->powered = findPower( self );
+
+  if( !self->powered )
   {
-    self->powered = findPower( self );
-    if( !self->powered )
-    {
-      self->nextthink = level.time + REFRESH_TIME;
-      return;
-    }
+    self->nextthink = level.time + REFRESH_TIME;
+    return;
   }
   
   if( !hdef1_checktarget( self, self->enemy) )
@@ -566,12 +560,7 @@ void HSpawn_Think( gentity_t *self )
 {
   self->nextthink = level.time + REFRESH_TIME;
 
-  if( ( self->parentNode == NULL ) ||
-      !self->parentNode->inuse ||
-      !self->parentNode->active )
-  {
-    self->powered = findPower( self );
-  }
+  self->powered = findPower( self );
 }
 
 
