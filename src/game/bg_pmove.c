@@ -246,7 +246,7 @@ static void PM_Friction( void )
   // apply ground friction
   if( pm->waterlevel <= 1 )
   {
-    if( pml.walking && !( pml.groundTrace.surfaceFlags & SURF_SLICK ) )
+    if( ( pml.walking || pml.ladder ) && !( pml.groundTrace.surfaceFlags & SURF_SLICK ) )
     {
       // if getting knocked back, no friction
       if( !( pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) )
@@ -916,16 +916,6 @@ static void PM_AirMove( void )
     PM_ClipVelocity( pm->ps->velocity, pml.groundTrace.plane.normal,
       pm->ps->velocity, OVERCLIP );
 
-#if 0
-  //ZOID:  If we are on the grapple, try stair-stepping
-  //this allows a player to use the grapple to pull himself
-  //over a ledge
-  if (pm->ps->pm_flags & PMF_GRAPPLE_PULL)
-    PM_StepSlideMove ( qtrue );
-  else
-    PM_SlideMove ( qtrue );
-#endif
-
   PM_StepSlideMove( qtrue, qfalse );
 }
 
@@ -1201,6 +1191,86 @@ static void PM_WalkMove( void )
 }
 
 
+/*
+===================
+PM_LadderMove
+
+Basically a rip of PM_WaterMove with a few changes
+===================
+*/
+static void PM_LadderMove( void )
+{
+  int     i;
+  vec3_t  wishvel;
+  float   wishspeed;
+  vec3_t  wishdir;
+  float   scale;
+  float   vel;
+
+  PM_Friction( );
+
+  scale = PM_CmdScale( &pm->cmd );
+  
+  for( i = 0; i < 3; i++ )
+    wishvel[ i ] = scale * pml.forward[ i ] * pm->cmd.forwardmove + scale * pml.right[ i ] * pm->cmd.rightmove;
+
+  wishvel[ 2 ] += scale * pm->cmd.upmove;
+
+  VectorCopy( wishvel, wishdir );
+  wishspeed = VectorNormalize( wishdir );
+
+  if( wishspeed > pm->ps->speed * pm_swimScale )
+    wishspeed = pm->ps->speed * pm_swimScale;
+
+  PM_Accelerate( wishdir, wishspeed, pm_accelerate );
+
+  //slanty ladders
+  if( pml.groundPlane && DotProduct( pm->ps->velocity, pml.groundTrace.plane.normal ) < 0.0f )
+  {
+    vel = VectorLength( pm->ps->velocity );
+
+    // slide along the ground plane
+    PM_ClipVelocity( pm->ps->velocity, pml.groundTrace.plane.normal,
+      pm->ps->velocity, OVERCLIP );
+
+    VectorNormalize( pm->ps->velocity );
+    VectorScale( pm->ps->velocity, vel, pm->ps->velocity );
+  }
+
+  PM_SlideMove( qfalse );
+}
+
+
+/*
+=============
+PM_CheckLadder
+
+Check to see if the player is on a ladder or not
+=============
+*/
+static void PM_CheckLadder( void )
+{
+  vec3_t  forward, end;
+  trace_t trace;
+  
+  //test if class can use ladders
+  if( !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_CANUSELADDERS ) )
+    pml.ladder = qfalse;
+  
+  VectorCopy( pml.forward, forward );
+  forward[ 2 ] = 0.0f;
+  
+  VectorMA( pm->ps->origin, 1.0f, forward, end );
+  
+  pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, MASK_PLAYERSOLID );
+  
+  if( ( trace.fraction < 1.0f ) && ( trace.surfaceFlags & SURF_LADDER ) )
+    pml.ladder = qtrue;
+  else
+    pml.ladder = qfalse;
+}
+          
+          
 /*
 ==============
 PM_DeadMove
@@ -3040,8 +3110,11 @@ void PmoveSingle (pmove_t *pmove)
   // set mins, maxs, and viewheight
   PM_CheckDuck( );
 
+  PM_CheckLadder( );
+  
   // set groundentity
   PM_GroundTrace( );
+  
   // update the viewangles
   PM_UpdateViewAngles( pm->ps, &pm->cmd );
 
@@ -3062,6 +3135,8 @@ void PmoveSingle (pmove_t *pmove)
     PM_WaterJumpMove( );
   else if ( pm->waterlevel > 1 )
     PM_WaterMove( );
+  else if ( pml.ladder )
+    PM_LadderMove( );
   else if ( pml.walking )
   {
     if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) &&

@@ -1538,7 +1538,7 @@ classAttributes_t bg_classList[ ] =
     BMOFO_REGEN,                                    //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
-    WP_CHARGE,                                //weapon_t  startWeapon
+    WP_CHARGE,                                      //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     90,                                             //int     fov;
     0.001f,                                         //float   bob;
@@ -1569,7 +1569,8 @@ classAttributes_t bg_classList[ ] =
     100,                                            //int     health;
     1.0f,                                           //float   fallDamage;
     0,                                              //int     regenRate;
-    SCA_TAKESFALLDAMAGE|SCA_CANJUMP,                //int     abilities;
+    SCA_TAKESFALLDAMAGE|SCA_CANJUMP|
+      SCA_CANUSELADDERS,                            //int     abilities;
     WP_NONE, //special-cased in g_client.c          //weapon_t  startWeapon
     110.0f,                                         //float   buildDist;
     90,                                             //int     fov;
