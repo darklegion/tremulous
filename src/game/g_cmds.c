@@ -1817,7 +1817,14 @@ void Cmd_Build_f( gentity_t *ent )
     }
   }
   else
+  {
     trap_SendServerCommand( ent-g_entities, va( "print \"Cannot build this item\n\"" ) );
+
+    G_LogPrintf( "Client %d tried to build %d using weapon %d\n",
+                 ent->client->ps.clientNum,
+                 buildable,
+                 ( 1 << ent->client->ps.weapon ) & BG_FindBuildWeaponForBuildable( buildable ) );
+  }
 }
 
 
