@@ -662,6 +662,14 @@ void CG_RegisterWeapon( int weaponNum ) {
     cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
     break;
 
+  case WP_MASS_DRIVER:
+    MAKERGB( weaponInfo->flashDlightColor, 0, 0, 1 );
+    weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf1b.wav", qfalse );
+    weaponInfo->flashSound[1] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf2b.wav", qfalse );
+    weaponInfo->flashSound[2] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf3b.wav", qfalse );
+    weaponInfo->flashSound[3] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf4b.wav", qfalse );
+    break;
+
   case WP_CHAINGUN:
     MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
     weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf1b.wav", qfalse );
@@ -730,6 +738,14 @@ void CG_RegisterWeapon( int weaponNum ) {
     cgs.media.railRingsShader = trap_R_RegisterShader( "railDisc" );
     break;
 
+  case WP_PULSE_RIFLE:
+    weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/plasma/lasfly.wav", qfalse );
+    MAKERGB( weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f );
+    weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/plasma/hyprbf1a.wav", qfalse );
+    cgs.media.plasmaExplosionShader = trap_R_RegisterShader( "plasmaExplosion" );
+    cgs.media.railRingsShader = trap_R_RegisterShader( "railDisc" );
+    break;
+
   case WP_RAILGUN:
     weaponInfo->readySound = trap_S_RegisterSound( "sound/weapons/railgun/rg_hum.wav", qfalse );
     MAKERGB( weaponInfo->flashDlightColor, 1, 0.5f, 0 );
@@ -767,7 +783,6 @@ void CG_RegisterWeapon( int weaponNum ) {
   case WP_DBUILD2:
   case WP_HBUILD:
   case WP_HBUILD2:
-  case WP_SCANNER:
     //nowt
     break;
 
@@ -1850,6 +1865,13 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
     mark = cgs.media.energyMarkShader;
     radius = 16;
     break;
+  case WP_PULSE_RIFLE:
+    mod = cgs.media.ringFlashModel;
+    shader = cgs.media.plasmaExplosionShader;
+    sfx = cgs.media.sfx_plasmaexp;
+    mark = cgs.media.energyMarkShader;
+    radius = 16;
+    break;
   case WP_BFG:
     mod = cgs.media.dishFlashModel;
     shader = cgs.media.bfgExplosionShader;
@@ -1864,6 +1886,10 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
     mark = cgs.media.bulletMarkShader;
     sfx = 0;
     radius = 4;
+    break;
+  case WP_MASS_DRIVER:
+    shader = cgs.media.bulletExplosionShader;
+    mark = cgs.media.bulletMarkShader;
     break;
   case WP_MACHINEGUN:
     mod = cgs.media.bulletFlashModel;

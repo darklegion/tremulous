@@ -48,11 +48,18 @@ static void CG_DrawBlips( vec3_t origin, vec4_t colour )
   drawOrigin[ 0 ] /= ( 2 * RANGE / WIDTH );
   drawOrigin[ 1 ] /= ( 2 * RANGE / HEIGHT );
   drawOrigin[ 2 ] /= ( 2 * RANGE / WIDTH );
-  
+
   trap_R_SetColor( colour );
-  CG_DrawPic( XPOS + ( WIDTH / 2 ) - ( STALKWIDTH / 2 ) - drawOrigin[ 0 ],
-              YPOS + ( HEIGHT / 2 ) + drawOrigin[ 1 ],
-              STALKWIDTH, -drawOrigin[ 2 ], cgs.media.scannerLineShader );
+
+  if( drawOrigin[ 2 ] > 0 )
+    CG_DrawPic( XPOS + ( WIDTH / 2 ) - ( STALKWIDTH / 2 ) - drawOrigin[ 0 ],
+                YPOS + ( HEIGHT / 2 ) + drawOrigin[ 1 ] - drawOrigin[ 2 ],
+                STALKWIDTH, drawOrigin[ 2 ], cgs.media.scannerLineShader );
+  else
+    CG_DrawPic( XPOS + ( WIDTH / 2 ) - ( STALKWIDTH / 2 ) - drawOrigin[ 0 ],
+                YPOS + ( HEIGHT / 2 ) + drawOrigin[ 1 ],
+                STALKWIDTH, -drawOrigin[ 2 ], cgs.media.scannerLineShader );
+  
   CG_DrawPic( XPOS + ( WIDTH / 2 ) - ( BLIPX / 2 ) - drawOrigin[ 0 ],
               YPOS + ( HEIGHT / 2 ) - ( BLIPY / 2 ) + drawOrigin[ 1 ] - drawOrigin[ 2 ],
               BLIPX, BLIPY, cgs.media.scannerBlipShader );

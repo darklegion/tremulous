@@ -146,14 +146,14 @@ void SnapVectorTowards( vec3_t v, vec3_t to ) {
 #define CHAINGUN_SPREAD 1200
 #define CHAINGUN_DAMAGE 14
 
-void Bullet_Fire (gentity_t *ent, float spread, int damage, int mod ) {
+void Bullet_Fire( gentity_t *ent, float spread, int damage, int mod )
+{
   trace_t   tr;
   vec3_t    end;
   float   r;
   float   u;
   gentity_t *tent;
   gentity_t *traceEnt;
-  int     i, passent;
 
   r = random() * M_PI * 2.0f;
   u = sin(r) * crandom() * spread * 16;
@@ -162,40 +162,73 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int mod ) {
   VectorMA (end, r, right, end);
   VectorMA (end, u, up, end);
 
-  passent = ent->s.number;
-  for (i = 0; i < 10; i++) {
+  trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
+  if( tr.surfaceFlags & SURF_NOIMPACT )
+    return;
 
-    trap_Trace (&tr, muzzle, NULL, NULL, end, passent, MASK_SHOT);
-    if ( tr.surfaceFlags & SURF_NOIMPACT ) {
-      return;
-    }
+  traceEnt = &g_entities[ tr.entityNum ];
 
-    traceEnt = &g_entities[ tr.entityNum ];
+  // snap the endpos to integers, but nudged towards the line
+  SnapVectorTowards( tr.endpos, muzzle );
 
-    // snap the endpos to integers, but nudged towards the line
-    SnapVectorTowards( tr.endpos, muzzle );
+  // send bullet impact
+  if( traceEnt->takedamage && traceEnt->client )
+  {
+    tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
+    tent->s.eventParm = traceEnt->s.number;
+    if( LogAccuracyHit( traceEnt, ent ) )
+      ent->client->accuracy_hits++;
+  }
+  else
+  {
+    tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
+    tent->s.eventParm = DirToByte( tr.plane.normal );
+  }
+  tent->s.otherEntityNum = ent->s.number;
 
-    // send bullet impact
-    if ( traceEnt->takedamage && traceEnt->client ) {
-      tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
-      tent->s.eventParm = traceEnt->s.number;
-      if( LogAccuracyHit( traceEnt, ent ) ) {
-        ent->client->accuracy_hits++;
-      }
-    } else {
-      tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
-      tent->s.eventParm = DirToByte( tr.plane.normal );
-    }
-    tent->s.otherEntityNum = ent->s.number;
-
-    if ( traceEnt->takedamage) {
-        G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-          damage, 0, MOD_MACHINEGUN);
-    }
-    break;
+  if( traceEnt->takedamage )
+  {
+    G_Damage( traceEnt, ent, ent, forward, tr.endpos,
+      damage, 0, MOD_MACHINEGUN);
   }
 }
 
+/*
+======================================================================
+
+MASS DRIVER
+
+======================================================================
+*/
+
+void massDriverFire( gentity_t *ent )
+{
+  trace_t   tr;
+  vec3_t    end;
+  gentity_t *tent;
+  gentity_t *traceEnt;
+
+  VectorMA( muzzle, 8192*16, forward, end );
+
+  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+  if( tr.surfaceFlags & SURF_NOIMPACT )
+    return;
+
+  traceEnt = &g_entities[ tr.entityNum ];
+
+  // snap the endpos to integers, but nudged towards the line
+  SnapVectorTowards( tr.endpos, muzzle );
+
+  // send impact
+  tent = G_TempEntity( tr.endpos, EV_MASS_DRIVER_HIT );
+  tent->s.eventParm = DirToByte( tr.plane.normal );
+
+  if( traceEnt->takedamage )
+  {
+    G_Damage( traceEnt, ent, ent, forward, tr.endpos,
+      50, 0, MOD_MACHINEGUN);
+  }
+}
 
 /*
 ======================================================================
@@ -367,6 +400,23 @@ void Weapon_Plasma_Fire (gentity_t *ent) {
   gentity_t *m;
 
   m = fire_plasma (ent, muzzle, forward);
+
+//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
+}
+
+/*
+======================================================================
+
+PULSE RIFLE
+
+======================================================================
+*/
+
+void Weapon_PulseRifle_Fire (gentity_t *ent)
+{
+  gentity_t *m;
+
+  m = fire_pulseRifle( ent, muzzle, forward );
 
 //  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
@@ -1022,8 +1072,14 @@ void FireWeapon2( gentity_t *ent )
     case WP_PLASMAGUN:
       Weapon_Plasma_Fire( ent );
       break;
+    case WP_PULSE_RIFLE:
+      Weapon_PulseRifle_Fire( ent );
+      break;
     case WP_RAILGUN:
       weapon_railgun_fire( ent );
+      break;
+    case WP_MASS_DRIVER:
+      massDriverFire( ent );
       break;
     case WP_LOCKBLOB_LAUNCHER:
       break;
@@ -1053,7 +1109,6 @@ void FireWeapon2( gentity_t *ent )
     case WP_HBUILD2:
       Weapon_Hbuild2_Fire( ent );
       break;
-    case WP_SCANNER: //scanner doesn't "fire"
     default:
   // FIXME    G_Error( "Bad ent->s.weapon" );
       break;
@@ -1109,8 +1164,14 @@ void FireWeapon( gentity_t *ent )
     case WP_PLASMAGUN:
       Weapon_Plasma_Fire( ent );
       break;
+    case WP_PULSE_RIFLE:
+      Weapon_PulseRifle_Fire( ent );
+      break;
     case WP_RAILGUN:
       weapon_railgun_fire( ent );
+      break;
+    case WP_MASS_DRIVER:
+      massDriverFire( ent );
       break;
     case WP_LOCKBLOB_LAUNCHER:
       Weapon_LockBlobLauncher_Fire( ent );
@@ -1142,7 +1203,6 @@ void FireWeapon( gentity_t *ent )
     case WP_HBUILD2:
       Weapon_Hbuild2_Fire( ent );
       break;
-    case WP_SCANNER: //scanner doesn't "fire"
     default:
   // FIXME    G_Error( "Bad ent->s.weapon" );
       break;

@@ -412,6 +412,7 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
 #define STAMINA_STOP_RESTORE  10
 #define STAMINA_WALK_RESTORE  5
 #define STAMINA_SPRINT_TAKE   10
+#define STAMINA_LARMOUR_TAKE  5
 
 /*
 ==================
@@ -446,7 +447,10 @@ void ClientTimerActions( gentity_t *ent, int msec )
     if( ( client->ps.stats[ STAT_STATE ] & SS_SPEEDBOOST ) &&  ucmd->upmove >= 0 )
     {
       //subtract stamina
-      client->ps.stats[ STAT_STAMINA ] -= STAMINA_SPRINT_TAKE;
+      if( BG_gotItem( UP_LIMBARMOUR, client->ps.stats ) )
+        client->ps.stats[ STAT_STAMINA ] -= STAMINA_LARMOUR_TAKE;
+      else
+        client->ps.stats[ STAT_STAMINA ] -= STAMINA_SPRINT_TAKE;
       
       if( client->ps.stats[ STAT_STAMINA ] < -1000 )
         client->ps.stats[ STAT_STAMINA ] = -1000;
@@ -608,12 +612,12 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
       if ( item ) {
         drop = Drop_Item( ent, item, 0 );
         // decide how many seconds it has left
-        drop->count = ( ent->client->ps.powerups[ j ] - level.time ) / 1000;
+        /*drop->count = ( ent->client->ps.powerups[ j ] - level.time ) / 1000;*/
         if ( drop->count < 1 ) {
           drop->count = 1;
         }
 
-        ent->client->ps.powerups[ j ] = 0;
+        /*ent->client->ps.powerups[ j ] = 0;*/
       }
 
       SelectSpawnPoint( ent->client->ps.origin, origin, angles );
@@ -1164,11 +1168,11 @@ void ClientEndFrame( gentity_t *ent ) {
   pers = &ent->client->pers;
 
   // turn off any expired powerups
-  for ( i = 0 ; i < MAX_POWERUPS ; i++ ) {
+/*  for ( i = 0 ; i < MAX_POWERUPS ; i++ ) {
     if ( ent->client->ps.powerups[ i ] < level.time ) {
       ent->client->ps.powerups[ i ] = 0;
     }
-  }
+  }*/
 
   // save network bandwidth
 #if 0

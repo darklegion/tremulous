@@ -436,6 +436,15 @@ static void CG_Missile( centity_t *cent )
       return;
       break;
 
+    case WP_PULSE_RIFLE:
+      ent.reType = RT_SPRITE;
+      ent.radius = 4;
+      ent.rotation = 0;
+      ent.customShader = cgs.media.plasmaBallShader;
+      trap_R_AddRefEntityToScene( &ent );
+      return;
+      break;
+
     case WP_FLAMER:
       fraction = ( ( cg.time - s1->pos.trTime ) / FIREBALL_LIFETIME );
       

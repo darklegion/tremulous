@@ -2161,9 +2161,6 @@ static void PM_Weapon( void )
     return;
   }
 
-  if( pm->ps->weapon == WP_SCANNER )
-    return; //doesn't actually do anything
-
   // start the animation even if out of ammo
 
   BG_unpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips, &maxclips );
@@ -2182,6 +2179,8 @@ static void PM_Weapon( void )
     switch( pm->ps->weapon )
     {
       case WP_MACHINEGUN:
+      case WP_MASS_DRIVER:
+      case WP_PULSE_RIFLE:
         clips--;
         BG_FindAmmoForWeapon( pm->ps->weapon, &ammo, NULL, NULL );
         break;
@@ -2201,6 +2200,8 @@ static void PM_Weapon( void )
     switch( pm->ps->weapon )
     {
       case WP_MACHINEGUN:
+      case WP_MASS_DRIVER:
+      case WP_PULSE_RIFLE:
         addTime = 2000;
         break;
   
@@ -2366,11 +2367,16 @@ static void PM_Weapon( void )
     case WP_POUNCE:
       addTime = 750;
       break;
+    case WP_MASS_DRIVER:
+      addTime = 1000;
+      break;
+    case WP_PULSE_RIFLE:
+      addTime = 50;
+      break;
     case WP_DBUILD:
     case WP_DBUILD2:
     case WP_HBUILD:
     case WP_HBUILD2:
-    case WP_SCANNER:
       addTime = 1000; //abritutary since doesn't "fire"
       break;
   }

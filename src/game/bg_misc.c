@@ -322,22 +322,6 @@ gitem_t bg_itemlist[] =
     ""
   },
   
-/*QUAKED weapon_scanner (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-  {
-    "weapon_scanner",
-    "sound/misc/w_pkup.wav",
-        { "models/weapons2/shotgun/shotgun.md3",
-    0, 0, 0},
-    "icons/iconw_shotgun",
-    "Scanner",
-    0,
-    IT_WEAPON,
-    WP_SCANNER,
-    "",
-    ""
-  },
-  
 /*QUAKED weapon_shotgun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
   /*{
@@ -382,6 +366,38 @@ gitem_t bg_itemlist[] =
     40,
     IT_WEAPON,
     WP_CHAINGUN,
+    "",
+    ""
+  },
+  
+/*QUAKED weapon_massdriver (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+  {
+    "weapon_massdriver",
+    "sound/misc/w_pkup.wav",
+    { "models/weapons2/bfg/bfg.md3",
+    0, 0, 0},
+    "icons/iconw_bfg",
+    "Mass Driver",
+    40,
+    IT_WEAPON,
+    WP_MASS_DRIVER,
+    "",
+    ""
+  },
+  
+/*QUAKED weapon_pulserifle (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+  {
+    "weapon_pulserifle",
+    "sound/misc/w_pkup.wav",
+    { "models/weapons2/plasma/plasma.md3",
+    0, 0, 0},
+    "icons/iconw_gauntlet",
+    "Pulse Rifle",
+    40,
+    IT_WEAPON,
+    WP_PULSE_RIFLE,
     "",
     ""
   },
@@ -2884,6 +2900,30 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse                //qboolean  synced;
   },
   {
+    WP_MASS_DRIVER,       //int       weaponNum;
+    100,                  //int       price;
+    SLOT_WEAPON,          //int       slots;
+    "mdriver",            //char      *weaponName;
+    "Mass Driver",        //char      *weaponHumanName;
+    5,                    //int       quan;
+    2,                    //int       clips;
+    3,                    //int       maxClips;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse                //qboolean  synced;
+  },
+  {
+    WP_PULSE_RIFLE,       //int       weaponNum;
+    100,                  //int       price;
+    SLOT_WEAPON,          //int       slots;
+    "prifle",             //char      *weaponName;
+    "Pulse Rifle",        //char      *weaponHumanName;
+    50,                   //int       quan;
+    3,                    //int       clips;
+    3,                    //int       maxClips;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse                //qboolean  synced;
+  },
+  {
     WP_HBUILD,            //int       weaponNum;
     100,                  //int       price;
     SLOT_WEAPON,          //int       slots;
@@ -2961,18 +3001,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "pounce",             //char      *weaponName;
     "Claw and pounce",    //char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
-    0,                    //int       maxClips;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse                //qboolean  synced;
-  },
-  {
-    WP_SCANNER,           //int       weaponNum;
-    100,                  //int       price;
-    SLOT_WEAPON,          //int       slots;
-    "scanner",            //char      *weaponName;
-    "Scanner",            //char      *weaponHumanName;
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -4073,7 +4101,6 @@ qboolean BG_infiniteAmmo( int weapon )
     case WP_DBUILD2:
     case WP_HBUILD:
     case WP_HBUILD2:
-    case WP_SCANNER:
       return qtrue;
       break;
 

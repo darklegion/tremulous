@@ -2310,8 +2310,8 @@ static void CG_Draw2D( void ) {
     if ( cgs.gametype >= GT_TEAM ) {
       CG_DrawTeamInfo();
     }
-    if( cg.snap->ps.weapon == WP_SCANNER )
-      CG_Scanner();
+    if( BG_gotItem( UP_HELMET, cg.snap->ps.stats ) )
+      CG_Scanner( );
   }
 
   CG_DrawVote();

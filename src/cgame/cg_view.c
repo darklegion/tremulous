@@ -1148,7 +1148,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
   memcpy( cg.refdef.areamask, cg.snap->areamask, sizeof( cg.refdef.areamask ) );
 
   // warning sounds when powerup is wearing off
-  CG_PowerupTimerSounds();
+  /*CG_PowerupTimerSounds();*/
 
   // update audio positions
   trap_S_Respatialize( cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater );

@@ -464,14 +464,15 @@ also called by CG_CheckPlayerstateEvents
 ==============
 */
 #define DEBUGNAME(x) if(cg_debugEvents.integer){CG_Printf(x"\n");}
-void CG_EntityEvent( centity_t *cent, vec3_t position ) {
+void CG_EntityEvent( centity_t *cent, vec3_t position )
+{
   entityState_t *es;
   int           event;
   vec3_t        dir;
   const char    *s;
   int           clientNum;
   clientInfo_t  *ci;
-  int           steptime;
+  int           steptime, i;
 
   steptime = BG_FindSteptimeForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
 
@@ -897,6 +898,36 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
   case EV_BULLET_HIT_FLESH:
     DEBUGNAME("EV_BULLET_HIT_FLESH");
     CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qtrue, es->eventParm );
+    break;
+
+#define MASS_EJECTION_VEL 300
+  case EV_MASS_DRIVER_HIT:
+    DEBUGNAME("EV_MASS_DRIVER_HIT");
+    for( i = 0; i <= 10; i++ )
+    {
+      qhandle_t spark;
+      vec3_t    velocity;
+      vec3_t    accel = { 0.0f, 0.0f, -DEFAULT_GRAVITY };
+      vec3_t    origin, normal;
+
+      ByteToDir( es->eventParm, normal );
+
+      VectorMA( es->pos.trBase, 10.0f, normal, origin );
+
+      if( crandom( ) > 0.5f )
+        spark = cgs.media.gibSpark1;
+      else
+        spark = cgs.media.gibSpark2;
+
+      velocity[ 0 ] = crandom( ) * MASS_EJECTION_VEL;
+      velocity[ 1 ] = crandom( ) * MASS_EJECTION_VEL;
+      velocity[ 2 ] = MASS_EJECTION_VEL + crandom( ) * MASS_EJECTION_VEL;
+      
+      CG_LaunchSprite( origin, velocity, accel, 0.6, 4.0f, 2.0f, 255, 0, rand( ) % 360,
+                       cg.time, 5000 + ( crandom( ) * 3000 ),
+                       spark, qfalse, qfalse );
+    }
+
     break;
 
   case EV_SHOTGUN:

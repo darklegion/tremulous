@@ -328,7 +328,7 @@ typedef enum {
 } holdable_t;
 
 //TA: needed client side to size sprites
-#define FIREBALL_LIFETIME 1500.0f
+#define FIREBALL_LIFETIME 1000.0f
 
 typedef enum
 {
@@ -350,6 +350,8 @@ typedef enum
   WP_VENOM,
   WP_GRABANDCSAW,
   WP_POUNCE,
+  WP_MASS_DRIVER,
+  WP_PULSE_RIFLE,
 
   //build weapons must remain in a block
   WP_DBUILD,
@@ -358,7 +360,6 @@ typedef enum
   WP_HBUILD,
   //ok?
   
-  WP_SCANNER,
   WP_GGRENADE,
 
   WP_NUM_WEAPONS
@@ -520,6 +521,7 @@ typedef enum {
 
   EV_BULLET_HIT_FLESH,
   EV_BULLET_HIT_WALL,
+  EV_MASS_DRIVER_HIT,
 
   EV_MISSILE_HIT,
   EV_MISSILE_MISS,
