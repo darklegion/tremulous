@@ -281,6 +281,7 @@ typedef enum
 #define EF_TEAMVOTED        0x00008000    // already cast a vote
 #define EF_OVERDRAW_OFF     0x00010000    // TA: disable overdraw protection on sprites
 #define EF_REAL_LIGHT       0x00020000    // TA: light sprites according to ambient light
+#define EF_NO_AUTO_SCALE    0x00040000    // TA: don't auto scale model doors
 
 typedef enum
 {
@@ -1132,7 +1133,6 @@ typedef enum
   ET_ITEM,
   
   ET_BUILDABLE,       //TA: buildable type
-  ET_CREEP,           //TA: creep type
   
   ET_MISSILE,
   ET_MOVER,
@@ -1147,6 +1147,7 @@ typedef enum
   ET_CORPSE,
   ET_SPRITER,
   ET_ANIMMAPOBJ,
+  ET_MODELDOOR,
   ET_LIGHTFLARE,
 
   ET_EVENTS       // any of the EV_* events can be added freestanding

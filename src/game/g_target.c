@@ -18,60 +18,6 @@
 
 //==========================================================
 
-/*QUAKED target_give (1 0 0) (-8 -8 -8) (8 8 8)
-Gives the activator all the items pointed to.
-*/
-void Use_Target_Give( gentity_t *ent, gentity_t *other, gentity_t *activator )
-{
-  //TA: FIXME: well, this is fucked
-  gentity_t *t;
-  trace_t   trace;
-
-  if( !activator->client )
-    return;
-
-  if( !ent->target )
-    return;
-
-  memset( &trace, 0, sizeof( trace ) );
-  t = NULL;
-  
-  while( ( t = G_Find( t, FOFS( targetname ), ent->target ) ) != NULL )
-  {
-    // make sure it isn't going to respawn or show any events
-    t->nextthink = 0;
-    trap_UnlinkEntity( t );
-  }
-}
-
-void SP_target_give( gentity_t *ent )
-{
-  ent->use = Use_Target_Give;
-}
-
-
-//==========================================================
-
-/*QUAKED target_remove_powerups (1 0 0) (-8 -8 -8) (8 8 8)
-takes away all the activators powerups.
-Used to drop flight powerups into death puts.
-*/
-void Use_target_remove_powerups( gentity_t *ent, gentity_t *other, gentity_t *activator )
-{
-  if( !activator->client )
-    return;
-
-  memset( activator->client->ps.powerups, 0, sizeof( activator->client->ps.powerups ) );
-}
-
-void SP_target_remove_powerups( gentity_t *ent )
-{
-  ent->use = Use_target_remove_powerups;
-}
-
-
-//==========================================================
-
 /*QUAKED target_delay (1 0 0) (-8 -8 -8) (8 8 8)
 "wait" seconds to pause before firing targets.
 "random" delay variance, total delay = delay +/- random seconds
@@ -124,7 +70,7 @@ void SP_target_score( gentity_t *ent )
 
 //==========================================================
 
-/*QUAKED target_print (1 0 0) (-8 -8 -8) (8 8 8) redteam blueteam private
+/*QUAKED target_print (1 0 0) (-8 -8 -8) (8 8 8) humanteam alienteam private
 "message" text to print
 If "private", only the activator gets the message.  If no checks, all clients get the message.
 */
@@ -237,108 +183,6 @@ void SP_target_speaker( gentity_t *ent )
   trap_LinkEntity( ent );
 }
 
-
-
-//==========================================================
-
-/*QUAKED target_laser (0 .5 .8) (-8 -8 -8) (8 8 8) START_ON
-When triggered, fires a laser.  You can either set a target or a direction.
-*/
-void target_laser_think( gentity_t *self )
-{
-  vec3_t  end;
-  trace_t tr;
-  vec3_t  point;
-
-  // if pointed at another entity, set movedir to point at it
-  if( self->enemy )
-  {
-    VectorMA( self->enemy->s.origin, 0.5, self->enemy->r.mins, point );
-    VectorMA( point, 0.5, self->enemy->r.maxs, point );
-    VectorSubtract( point, self->s.origin, self->movedir );
-    VectorNormalize( self->movedir );
-  }
-
-  // fire forward and see what we hit
-  VectorMA( self->s.origin, 2048, self->movedir, end );
-
-  trap_Trace( &tr, self->s.origin, NULL, NULL, end, self->s.number,
-              CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE );
-
-  if( tr.entityNum )
-  {
-    // hurt it if we can
-    G_Damage( &g_entities[ tr.entityNum ], self, self->activator, self->movedir,
-      tr.endpos, self->damage, DAMAGE_NO_KNOCKBACK, MOD_TARGET_LASER );
-  }
-
-  VectorCopy( tr.endpos, self->s.origin2 );
-
-  trap_LinkEntity( self );
-  self->nextthink = level.time + FRAMETIME;
-}
-
-void target_laser_on( gentity_t *self )
-{
-  if( !self->activator )
-    self->activator = self;
-  
-  target_laser_think( self );
-}
-
-void target_laser_off( gentity_t *self )
-{
-  trap_UnlinkEntity( self );
-  self->nextthink = 0;
-}
-
-void target_laser_use( gentity_t *self, gentity_t *other, gentity_t *activator )
-{
-  self->activator = activator;
-  if( self->nextthink > 0 )
-    target_laser_off( self );
-  else
-    target_laser_on( self );
-}
-
-void target_laser_start( gentity_t *self )
-{
-  gentity_t *ent;
-
-  self->s.eType = ET_BEAM;
-
-  if( self->target )
-  {
-    ent = G_Find( NULL, FOFS( targetname ), self->target );
-    
-    if( !ent )
-      G_Printf ( "%s at %s: %s is a bad target\n", self->classname, vtos( self->s.origin ), self->target );
- 
-    self->enemy = ent;
-  }
-  else
-    G_SetMovedir( self->s.angles, self->movedir );
-
-  self->use = target_laser_use;
-  self->think = target_laser_think;
-
-  if( !self->damage )
-    self->damage = 1;
-
-  if( self->spawnflags & 1 )
-    target_laser_on( self );
-  else
-    target_laser_off( self );
-}
-
-void SP_target_laser( gentity_t *self )
-{
-  // let everything else get spawned before we start firing
-  self->think = target_laser_start;
-  self->nextthink = level.time + FRAMETIME;
-}
-
-
 //==========================================================
 
 void target_teleporter_use( gentity_t *self, gentity_t *other, gentity_t *activator )
@@ -399,7 +243,7 @@ void target_relay_use( gentity_t *self, gentity_t *other, gentity_t *activator )
     return;
   }
 
-  G_UseTargets (self, activator);
+  G_UseTargets( self, activator );
 }
 
 void SP_target_relay( gentity_t *self )

@@ -74,7 +74,7 @@ static void CG_RunAMOLerpFrame( lerpFrame_t *lf )
     
     if( anim->reversed )
       lf->frame = anim->firstFrame + anim->numFrames - 1 - f;
-    else if( anim->flipflop && f>=anim->numFrames )
+    else if( anim->flipflop && f >= anim->numFrames )
       lf->frame = anim->firstFrame + anim->numFrames - 1 - ( f % anim->numFrames );
     else
       lf->frame = anim->firstFrame + f;
@@ -98,6 +98,125 @@ static void CG_RunAMOLerpFrame( lerpFrame_t *lf )
     lf->backlerp = 0;
   else
     lf->backlerp = 1.0 - (float)( cg.time - lf->oldFrameTime ) / ( lf->frameTime - lf->oldFrameTime );
+}
+
+
+/*
+===============
+CG_DoorAnimation
+===============
+*/
+static void CG_DoorAnimation( centity_t *cent, int *old, int *now, float *backLerp )
+{
+  CG_RunAMOLerpFrame( &cent->lerpFrame );
+
+  *old      = cent->lerpFrame.oldFrame;
+  *now      = cent->lerpFrame.frame;
+  *backLerp = cent->lerpFrame.backlerp;
+}
+
+
+/*
+===============
+CG_ModelDoor
+===============
+*/
+void CG_ModelDoor( centity_t *cent )
+{
+  refEntity_t     ent;
+  entityState_t   *es;
+  vec3_t          mins, maxs, size;
+  vec3_t          cMins, cMaxs, displacement;
+  vec3_t          bMaxs, scale;
+  animation_t     anim;
+  lerpFrame_t     *lf = &cent->lerpFrame;
+    
+
+  es = &cent->currentState;
+
+  if( !es->modelindex )
+    return;
+  
+  //create the render entity
+  memset( &ent, 0, sizeof( ent ) );
+  VectorCopy( cent->lerpOrigin, ent.origin );
+  VectorCopy( cent->lerpOrigin, ent.oldorigin );
+  AnglesToAxis( cent->lerpAngles, ent.axis );
+
+  ent.renderfx = RF_NOSHADOW;
+
+  //add the door model
+  ent.skinNum = 0;
+  ent.hModel = cgs.gameModels[ es->modelindex ];
+
+  if( es->eFlags & EF_NO_AUTO_SCALE )
+  {
+    //this door is being manually scaled
+    VectorScale( ent.axis[ 0 ], es->origin2[ 0 ], ent.axis[ 0 ] );
+    VectorScale( ent.axis[ 1 ], es->origin2[ 1 ], ent.axis[ 1 ] );
+    VectorScale( ent.axis[ 2 ], es->origin2[ 2 ], ent.axis[ 2 ] );
+    ent.nonNormalizedAxes = qtrue;
+  }
+  else
+  {
+    //automatically scale and position the model
+    trap_R_ModelBounds( ent.hModel, mins, maxs );
+
+    //average of mins and maxs
+    VectorSubtract( maxs, mins, size );
+    VectorScale( size, 0.5f, size );
+    
+    //set corrected bbox
+    VectorCopy( size, cMaxs );
+    VectorNegate( size, cMins );
+
+    //calculate the displacement needed to align
+    //the model with the centre of the brush
+    VectorSubtract( cMins, mins, displacement );
+
+    VectorCopy( es->angles2, bMaxs );
+
+    //scale the axis and displacement by the ratio
+    //of the brush to corrected bboxes
+    scale[ 0 ] = bMaxs[ 0 ] / cMaxs[ 0 ];
+    scale[ 1 ] = bMaxs[ 1 ] / cMaxs[ 1 ];
+    scale[ 2 ] = bMaxs[ 2 ] / cMaxs[ 2 ];
+    
+    VectorScale( ent.axis[ 0 ], scale[ 0 ], ent.axis[ 0 ] );
+    VectorScale( ent.axis[ 1 ], scale[ 1 ], ent.axis[ 1 ] );
+    VectorScale( ent.axis[ 2 ], scale[ 2 ], ent.axis[ 2 ] );
+    ent.nonNormalizedAxes = qtrue;
+
+    displacement[ 0 ] = scale[ 0 ] * displacement[ 0 ];
+    displacement[ 1 ] = scale[ 1 ] * displacement[ 1 ];
+    displacement[ 2 ] = scale[ 2 ] * displacement[ 2 ];
+
+    VectorAdd( ent.origin, displacement, ent.origin );
+    VectorAdd( ent.oldorigin, displacement, ent.oldorigin );
+  }
+
+  //setup animation
+  anim.firstFrame   = es->powerups;
+  anim.numFrames    = es->weapon;
+  anim.reversed     = !es->legsAnim;
+  anim.flipflop     = qfalse;
+  anim.loopFrames   = 0;
+  anim.frameLerp    = 1000 / es->torsoAnim;
+  anim.initialLerp  = 1000 / es->torsoAnim;
+
+  //door changed state
+  if( es->legsAnim != cent->doorState )
+  {
+    lf->animationTime = lf->frameTime + anim.initialLerp;
+    cent->doorState = es->legsAnim;
+  }
+  
+  lf->animation = &anim;
+
+  //run animation
+  CG_DoorAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
+
+  trap_R_AddRefEntityToScene( &ent );
 }
 
 
@@ -144,7 +263,7 @@ void CG_animMapObj( centity_t *cent )
   es = &cent->currentState;
 
   // if set to invisible, skip
-  if ( !es->modelindex || ( es->eFlags & EF_NODRAW ) )
+  if( !es->modelindex || ( es->eFlags & EF_NODRAW ) )
     return;
 
   memset( &ent, 0, sizeof( ent ) );

@@ -438,8 +438,8 @@ static void CG_Mover( centity_t *cent )
 
   // create the render entity
   memset( &ent, 0, sizeof( ent ) );
-  VectorCopy( cent->lerpOrigin, ent.origin);
-  VectorCopy( cent->lerpOrigin, ent.oldorigin);
+  VectorCopy( cent->lerpOrigin, ent.origin );
+  VectorCopy( cent->lerpOrigin, ent.oldorigin );
   AnglesToAxis( cent->lerpAngles, ent.axis );
 
   ent.renderfx = RF_NOSHADOW;
@@ -927,6 +927,10 @@ static void CG_AddCEntity( centity_t *cent )
       
     case ET_ANIMMAPOBJ:
       CG_animMapObj( cent );
+      break;
+      
+    case ET_MODELDOOR:
+      CG_ModelDoor( cent );
       break;
       
     case ET_LIGHTFLARE:

@@ -169,6 +169,7 @@ void SP_func_pendulum( gentity_t *ent );
 void SP_func_button( gentity_t *ent );
 void SP_func_door( gentity_t *ent );
 void SP_func_door_rotating( gentity_t *ent ); //TA
+void SP_func_door_model( gentity_t *ent ); //TA
 void SP_func_train( gentity_t *ent );
 void SP_func_timer( gentity_t *self);
 
@@ -178,12 +179,9 @@ void SP_trigger_push( gentity_t *ent );
 void SP_trigger_teleport( gentity_t *ent );
 void SP_trigger_hurt( gentity_t *ent );
 
-void SP_target_remove_powerups( gentity_t *ent );
-void SP_target_give( gentity_t *ent );
 void SP_target_delay( gentity_t *ent );
 void SP_target_speaker( gentity_t *ent );
 void SP_target_print( gentity_t *ent );
-void SP_target_laser( gentity_t *self);
 void SP_target_character( gentity_t *ent );
 void SP_target_score( gentity_t *ent );
 void SP_target_teleporter( gentity_t *ent );
@@ -227,12 +225,12 @@ spawn_t spawns[ ] =
   
   {"info_null", SP_info_null},
   {"info_notnull", SP_info_notnull},    // use target_position instead
-  {"info_camp", SP_info_camp},
 
   {"func_plat", SP_func_plat},
   {"func_button", SP_func_button},
   {"func_door", SP_func_door},
   {"func_door_rotating", SP_func_door_rotating}, //TA
+  {"func_door_model", SP_func_door_model}, //TA
   {"func_static", SP_func_static},
   {"func_rotating", SP_func_rotating},
   {"func_bobbing", SP_func_bobbing},
@@ -254,12 +252,9 @@ spawn_t spawns[ ] =
 
   // targets perform no action by themselves, but must be triggered
   // by another entity
-  {"target_give", SP_target_give},
-  {"target_remove_powerups", SP_target_remove_powerups},
   {"target_delay", SP_target_delay},
   {"target_speaker", SP_target_speaker},
   {"target_print", SP_target_print},
-  {"target_laser", SP_target_laser},
   {"target_score", SP_target_score},
   {"target_teleporter", SP_target_teleporter},
   {"target_relay", SP_target_relay},
@@ -275,10 +270,6 @@ spawn_t spawns[ ] =
   {"misc_model", SP_misc_model},
   {"misc_portal_surface", SP_misc_portal_surface},
   {"misc_portal_camera", SP_misc_portal_camera},
-
-  {"shooter_rocket", SP_shooter_rocket},
-  {"shooter_grenade", SP_shooter_grenade},
-  {"shooter_plasma", SP_shooter_plasma},
 
   {"misc_spriter", SP_misc_spriter},
   {"misc_anim_model", SP_misc_anim_model},
@@ -309,14 +300,16 @@ qboolean G_CallSpawn( gentity_t *ent )
   //check buildable spawn functions
   if( ( buildable = BG_FindBuildNumForEntityName( ent->classname ) ) != BA_NONE )
   {
-    if( BG_FindStagesForBuildable( buildable, 1 ) )
+    /*if( BG_FindStagesForBuildable( buildable, 1 ) )*/
+    if( qtrue )
     {
       G_SpawnBuildable( ent, buildable );
       return qtrue;
     }
     else
     {
-      G_Printf( "G_CallSpawn: buildable disabled\n" );
+      G_Printf( S_COLOR_YELLOW "WARNING: %s not allowed in stage 1\n",
+                BG_FindHumanNameForBuildable( buildable ) );
       return qfalse;
     }
   }

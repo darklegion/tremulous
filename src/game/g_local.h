@@ -54,7 +54,12 @@ typedef enum
   ROTATOR_POS1,
   ROTATOR_POS2,
   ROTATOR_1TO2,
-  ROTATOR_2TO1
+  ROTATOR_2TO1,
+  
+  MODEL_POS1,
+  MODEL_POS2,
+  MODEL_1TO2,
+  MODEL_2TO1
 } moverState_t;
 
 #define SP_PODIUM_MODEL   "models/mapobjects/podium/podium4.md3"
@@ -112,6 +117,7 @@ struct gentity_s
   gentity_t         *prevTrain;
   vec3_t            pos1, pos2;
   float             rotatorAngle;
+  gentity_t         *clipBrush;   //TA: clipping brush for model doors
 
   char              *message;
 

@@ -223,6 +223,8 @@ typedef struct centity_s
   float                 lastFlareRatio;     //caching of likely flare ratio
   int                   lastFlareTime;      //last time flare was visible/occluded
   qboolean              flareStatus;        //flare is visble?
+
+  qboolean              doorState;
 } centity_t;
 
 
@@ -1283,6 +1285,7 @@ void        CG_LaunchSprite( const vec3_t p, const vec3_t vel, const vec3_t acce
 // cg_animmapobj.c
 //
 void        CG_animMapObj( centity_t *cent );
+void        CG_ModelDoor( centity_t *cent );
 
 //
 // cg_predict.c
