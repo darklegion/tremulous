@@ -24,12 +24,11 @@ menuDef_t *menuScoreboard = NULL;
 
 int drawTeamOverlayModificationCount = -1;
 
-int sortedTeamPlayers[TEAM_MAXOVERLAY];
-int numSortedTeamPlayers;
-
-char systemChat[ 256 ];
-char teamChat1[ 256 ];
-char teamChat2[ 256 ];
+int   sortedTeamPlayers[ TEAM_MAXOVERLAY ];
+int   numSortedTeamPlayers;
+char  systemChat[ 256 ];
+char  teamChat1[ 256 ];
+char  teamChat2[ 256 ];
 
 //TA UI
 int CG_Text_Width( const char *text, float scale, int limit )
@@ -1738,13 +1737,6 @@ int CG_ClientNumFromName( const char *p )
   }
   
   return -1;
-}
-
-void CG_ShowResponseHead( )
-{
-  Menus_OpenByName( "voiceMenu" );
-  trap_Cvar_Set( "cl_conXOffset", "72" );
-  cg.voiceTime = cg.time;
 }
 
 void CG_RunMenuScript( char **args )

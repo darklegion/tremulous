@@ -2707,6 +2707,14 @@ void PmoveSingle (pmove_t *pmove)
   else
     pm->ps->eFlags &= ~EF_FIRING2;
  
+  // set the firing flag for continuous beam weapons
+  if( !(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION &&
+      ( pm->cmd.buttons & BUTTON_USE_HOLDABLE ) &&
+      ( ( ammo > 0 || clips > 0 ) || BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) ) )
+    pm->ps->eFlags |= EF_FIRING3;
+  else
+    pm->ps->eFlags &= ~EF_FIRING3;
+ 
 
   // clear the respawned flag if attack and use are cleared
   if( pm->ps->stats[STAT_HEALTH] > 0 &&

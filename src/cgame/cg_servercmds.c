@@ -125,8 +125,6 @@ static void CG_ParseWarmup( void )
   if( warmup == 0 && cg.warmup )
   {
   }
-  else if( warmup > 0 && cg.warmup <= 0 )
-    trap_S_StartLocalSound( cgs.media.countPrepareSound, CHAN_ANNOUNCER );
 
   cg.warmup = warmup;
 }
@@ -475,10 +473,7 @@ static void CG_MapRestart( void )
 
   // play the "fight" sound if this is a restart without warmup
   if( cg.warmup == 0 )
-  {
-    trap_S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
     CG_CenterPrint( "FIGHT!", 120, GIANTCHAR_WIDTH * 2 );
-  }
 
   trap_Cvar_Set( "cg_thirdPerson", "0" );
 }

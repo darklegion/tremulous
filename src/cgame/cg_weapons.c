@@ -333,7 +333,6 @@ void CG_RegisterWeapon( int weaponNum )
       MAKERGB( weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f );
       weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/plasma/hyprbf1a.wav", qfalse );
       cgs.media.plasmaExplosionShader = trap_R_RegisterShader( "plasmaExplosion" );
-      cgs.media.railRingsShader = trap_R_RegisterShader( "railDisc" );
       break;
 
     case WP_LAS_GUN:
@@ -824,6 +823,12 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
     {
       cg.weapon2Time = cg.time;
       cg.weapon2Firing = ( cg.predictedPlayerState.eFlags & EF_FIRING2 );
+    }
+    
+    if( cg.weapon3Firing != ( cg.predictedPlayerState.eFlags & EF_FIRING3 ) )
+    {
+      cg.weapon3Time = cg.time;
+      cg.weapon3Firing = ( cg.predictedPlayerState.eFlags & EF_FIRING3 );
     }
   }
 

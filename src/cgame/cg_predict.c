@@ -187,32 +187,32 @@ void  CG_CapTrace( trace_t *result, const vec3_t start, const vec3_t mins, const
 CG_PointContents
 ================
 */
-int   CG_PointContents( const vec3_t point, int passEntityNum ) {
-  int     i;
+int   CG_PointContents( const vec3_t point, int passEntityNum )
+{
+  int           i;
   entityState_t *ent;
-  centity_t *cent;
-  clipHandle_t cmodel;
-  int     contents;
+  centity_t     *cent;
+  clipHandle_t  cmodel;
+  int           contents;
 
   contents = trap_CM_PointContents (point, 0);
 
-  for ( i = 0 ; i < cg_numSolidEntities ; i++ ) {
+  for( i = 0; i < cg_numSolidEntities; i++ )
+  {
     cent = cg_solidEntities[ i ];
 
     ent = &cent->currentState;
 
-    if ( ent->number == passEntityNum ) {
+    if( ent->number == passEntityNum )
       continue;
-    }
 
-    if (ent->solid != SOLID_BMODEL) { // special value for bmodel
+    if( ent->solid != SOLID_BMODEL ) // special value for bmodel
       continue;
-    }
 
     cmodel = trap_CM_InlineModel( ent->modelindex );
-    if ( !cmodel ) {
+    
+    if( !cmodel )
       continue;
-    }
 
     contents |= trap_CM_TransformedPointContents( point, cmodel, ent->origin, ent->angles );
   }

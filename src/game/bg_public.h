@@ -287,13 +287,14 @@ typedef enum
 #define EF_NODRAW           0x00000080    // may have an event, but no model (unspawned items)
 #define EF_FIRING           0x00000100    // for lightning gun
 #define EF_FIRING2          0x00000200    // alt fire
-#define EF_MOVER_STOP       0x00000400    // will push otherwise
-#define EF_TALK             0x00000800    // draw a talk balloon
-#define EF_CONNECTION       0x00001000    // draw a connection trouble sprite
-#define EF_VOTED            0x00002000    // already cast a vote
-#define EF_TEAMVOTED        0x00004000    // already cast a vote
-#define EF_OVERDRAW_OFF     0x00008000    // TA: disable overdraw protection on sprites
-#define EF_REAL_LIGHT       0x00010000    // TA: light sprites according to ambient light
+#define EF_FIRING3          0x00000400    // third fire
+#define EF_MOVER_STOP       0x00000800    // will push otherwise
+#define EF_TALK             0x00001000    // draw a talk balloon
+#define EF_CONNECTION       0x00002000    // draw a connection trouble sprite
+#define EF_VOTED            0x00004000    // already cast a vote
+#define EF_TEAMVOTED        0x00008000    // already cast a vote
+#define EF_OVERDRAW_OFF     0x00010000    // TA: disable overdraw protection on sprites
+#define EF_REAL_LIGHT       0x00020000    // TA: light sprites according to ambient light
 
 typedef enum
 {

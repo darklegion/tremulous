@@ -400,18 +400,6 @@ void CG_UpdateCvars( void )
 
   // check for modications here
 
-  // If team overlay is on, ask for updates from the server.  If its off,
-  // let the server know so we don't receive it
-  if( drawTeamOverlayModificationCount != cg_drawTeamOverlay.modificationCount )
-  {
-    drawTeamOverlayModificationCount = cg_drawTeamOverlay.modificationCount;
-
-    if( cg_drawTeamOverlay.integer > 0 )
-      trap_Cvar_Set( "teamoverlay", "1" );
-    else
-      trap_Cvar_Set( "teamoverlay", "0" );
-  }
-
   // if force model changed
   if( forceModelModificationCount != cg_forceModel.modificationCount )
   {
@@ -1654,8 +1642,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 
   cg.weaponSelect = WP_NONE;
 
-  cgs.redflag = cgs.blueflag = -1; // For compatibily, default to unset for
-  cgs.flagStatus = -1;
   // old servers
 
   // get the rendering configuration from the client system

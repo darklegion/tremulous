@@ -265,30 +265,6 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops )
 
   // reward sounds
   reward = qfalse;
-
-  // timelimit warnings
-  if( cgs.timelimit > 0 )
-  {
-    int   msec;
-
-    msec = cg.time - cgs.levelStartTime;
-    
-    if( !( cg.timelimitWarnings & 4 ) && msec > ( cgs.timelimit * 60 + 2 ) * 1000 )
-    {
-      cg.timelimitWarnings |= 1 | 2 | 4;
-      trap_S_StartLocalSound( cgs.media.suddenDeathSound, CHAN_ANNOUNCER );
-    }
-    else if( !( cg.timelimitWarnings & 2 ) && msec > ( cgs.timelimit - 1 ) * 60 * 1000 )
-    {
-      cg.timelimitWarnings |= 1 | 2;
-      trap_S_StartLocalSound( cgs.media.oneMinuteSound, CHAN_ANNOUNCER );
-    }
-    else if( cgs.timelimit > 5 && !( cg.timelimitWarnings & 1 ) && msec > ( cgs.timelimit - 5 ) * 60 * 1000 )
-    {
-      cg.timelimitWarnings |= 1;
-      trap_S_StartLocalSound( cgs.media.fiveMinuteSound, CHAN_ANNOUNCER );
-    }
-  }
 }
 
 
