@@ -337,7 +337,10 @@ static void CG_StepOffset( void )
   else
     VectorSet( normal, 0.0f, 0.0f, 1.0f );
  
-  steptime = BG_FindSteptimeForClass( ps->stats[ STAT_PCLASS ] );
+  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
+    steptime = 200;
+  else
+    steptime = BG_FindSteptimeForClass( ps->stats[ STAT_PCLASS ] );
   
 	// smooth out stair climbing
 	timeDelta = cg.time - cg.stepTime;
@@ -453,8 +456,13 @@ static void CG_OffsetFirstPersonView( void )
 
   // add angles based on bob
   //TA: bob amount is class dependant
-  bob2 = BG_FindBobForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
-  if( bob2 != 0 )
+  
+  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
+    bob2 = 0.0f;
+  else
+    bob2 = BG_FindBobForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
+  
+  if( bob2 != 0.0f )
   {
     // make sure the bob is visible even at low speeds
     speed = cg.xyspeed > 200 ? cg.xyspeed : 200;
@@ -788,9 +796,8 @@ static int CG_CalcFov( void )
   int   a;
   float b;
 
-  attribFov = BG_FindFovForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
-
-  if( cg.predictedPlayerState.pm_type == PM_INTERMISSION )
+  if( cg.predictedPlayerState.pm_type == PM_INTERMISSION ||
+      ( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR ) )
   {
     // if in intermission, use a fixed value
     fov_x = 90;
@@ -798,6 +805,7 @@ static int CG_CalcFov( void )
   else
   {
     //TA: don't lock the fov globally - we need to be able to change it
+    attribFov = BG_FindFovForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
     fov_x = attribFov;
 
     if ( fov_x < 1 )
@@ -817,35 +825,35 @@ static int CG_CalcFov( void )
 
       fov_x = 180 - temp2;
     }
-  }
+  
+    // account for zooms
+    zoomFov = cg_zoomFov.value;
+    if ( zoomFov < 1 )
+      zoomFov = 1;
+    else if ( zoomFov > attribFov )
+      zoomFov = attribFov;
 
-  // account for zooms
-  zoomFov = cg_zoomFov.value;
-  if ( zoomFov < 1 )
-    zoomFov = 1;
-  else if ( zoomFov > attribFov )
-    zoomFov = attribFov;
-
-  //TA: only do all the zoom stuff if the client CAN zoom
-  if( BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_PCLASS ], SCA_CANZOOM ) )
-  {
-    if ( cg.zoomed )
+    //TA: only do all the zoom stuff if the client CAN zoom
+    if( BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_PCLASS ], SCA_CANZOOM ) )
     {
-      f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
+      if ( cg.zoomed )
+      {
+        f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
 
-      if ( f > 1.0 )
-        fov_x = zoomFov;
+        if ( f > 1.0 )
+          fov_x = zoomFov;
+        else
+          fov_x = fov_x + f * ( zoomFov - fov_x );
+      }
       else
-        fov_x = fov_x + f * ( zoomFov - fov_x );
-    }
-    else
-    {
-      f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
+      {
+        f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
 
-      if ( f > 1.0 )
-        fov_x = fov_x;
-      else
-        fov_x = zoomFov + f * ( fov_x - zoomFov );
+        if ( f > 1.0 )
+          fov_x = fov_x;
+        else
+          fov_x = zoomFov + f * ( fov_x - zoomFov );
+      }
     }
   }
 

@@ -1041,6 +1041,15 @@ void ClientUserinfoChanged( int clientNum )
     Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( PCL_H_BSUIT ),
                                               BG_FindSkinNameForClass( PCL_H_BSUIT ) );
   }
+  else if( client->pers.pclass == PCL_NONE )
+  {
+    //This looks hacky and frankly it is. The clientInfo string needs to hold different
+    //model details to that of the spawning class or the info change will not be
+    //registered and an axis appears instead of the player model. There is zero chance
+    //the player can spawn with the battlesuit, hence this choice.
+    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( PCL_H_BSUIT ),
+                                              BG_FindSkinNameForClass( PCL_H_BSUIT ) );
+  }
   else
   {
     Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( client->pers.pclass ),
@@ -1048,13 +1057,18 @@ void ClientUserinfoChanged( int clientNum )
   }
   Q_strncpyz( model, buffer, sizeof( model ) );
 
-  //model segmentation
-  Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg",
-               BG_FindModelNameForClass( client->pers.pclass ) );
-  if( G_NonSegModel( filename ) )
-    client->ps.persistant[ PERS_STATE ] |= PS_NONSEGMODEL;
-  else
-    client->ps.persistant[ PERS_STATE ] &= ~PS_NONSEGMODEL;
+  //don't bother setting model type if spectating
+  if( client->pers.pclass != PCL_NONE )
+  {
+    //model segmentation
+    Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg",
+                 BG_FindModelNameForClass( client->pers.pclass ) );
+
+    if( G_NonSegModel( filename ) )
+      client->ps.persistant[ PERS_STATE ] |= PS_NONSEGMODEL;
+    else
+      client->ps.persistant[ PERS_STATE ] &= ~PS_NONSEGMODEL;
+  }
 
   // wallwalk follow
   s = Info_ValueForKey( userinfo, "cg_wwFollow" );
@@ -1402,14 +1416,19 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
       hModifier = ALIENSTAGE3_HLTH_MODIFIER;
   }
   
-  client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] =
-    (int)( (float)BG_FindHealthForClass( ent->client->pers.pclass ) * hModifier );
+  if( client->sess.sessionTeam != TEAM_SPECTATOR )
+    client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] =
+      (int)( (float)BG_FindHealthForClass( ent->client->pers.pclass ) * hModifier );
+  else
+    client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] = 100;
 
   // clear entity values
   if( ent->client->pers.pclass == PCL_H_BASE )
     weapon = client->pers.pitem;
-  else
+  else if( client->sess.sessionTeam != TEAM_SPECTATOR )
     weapon = BG_FindStartWeaponForClass( ent->client->pers.pclass );
+  else
+    weapon = WP_NONE;
   
   BG_FindAmmoForWeapon( weapon, &ammo, &clips, &maxClips );
   BG_packWeapon( weapon, client->ps.stats );

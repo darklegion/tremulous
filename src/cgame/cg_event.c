@@ -311,7 +311,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
   clientInfo_t  *ci;
   int           steptime, i;
 
-  steptime = BG_FindSteptimeForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
+  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
+    steptime = 200;
+  else
+    steptime = BG_FindSteptimeForClass( cg.snap->ps.stats[ STAT_PCLASS ] );
 
   es = &cent->currentState;
   event = es->event & ~EV_EVENT_BITS;
@@ -442,8 +445,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
         float	oldStep;
         int		delta;
         int		step;
-        float steptime;
-        playerState_t *ps = &cg.predictedPlayerState;
 
         if( clientNum != cg.predictedPlayerState.clientNum )
           break;
@@ -455,7 +456,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
         
         // check for stepping up before a previous step is completed
         delta = cg.time - cg.stepTime;
-        steptime = BG_FindSteptimeForClass( ps->stats[ STAT_PCLASS ] );
         
         if( delta < steptime )
           oldStep = cg.stepChange * ( steptime - delta ) / steptime;

@@ -1186,7 +1186,7 @@ classAttributes_t bg_classList[ ] =
     PCL_A_B_BASE,                                   //int     classnum;
     "builder",                                      //char    *className;
     "Builder",                                      //char    *humanName;
-    "lucy",                                         //char    *modelname;
+    "builder",                                      //char    *modelname;
     1.0f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
     "alien_builder_hud",                            //char    *hudname;
@@ -1216,9 +1216,9 @@ classAttributes_t bg_classList[ ] =
     PCL_A_B_LEV1,                                   //int     classnum;
     "builderupg",                                   //char    *classname;
     "Advanced Builder",                             //char    *humanname;
-    "lucy",                                         //char    *modelname;
+    "builder",                                      //char    *modelname;
     1.0f,                                           //float   modelScale;
-    "angel",                                        //char    *skinname;
+    "advanced",                                     //char    *skinname;
     "alien_builder_hud",                            //char    *hudname;
     ( 1 << S2 )|( 1 << S3 ),                        //int  stages
     { -20, -20, -20 },                              //vec3_t  mins;
@@ -1564,6 +1564,7 @@ char *BG_FindNameForClassNum( int pclass )
       return bg_classList[ i ].className;
   }
 
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindNameForClassNum\n" );
   //wimp out
   return 0;
 }
@@ -1583,6 +1584,7 @@ char *BG_FindHumanNameForClassNum( int pclass )
       return bg_classList[ i ].humanName;
   }
 
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindHumanNameForClassNum\n" );
   //wimp out
   return 0;
 }
@@ -1602,6 +1604,7 @@ char *BG_FindModelNameForClass( int pclass )
       return bg_classList[ i ].modelName;
   }
 
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindModelNameForClass\n" );
   //note: must return a valid modelName!
   return bg_classList[ 0 ].modelName;
 }
@@ -1623,6 +1626,7 @@ float BG_FindModelScaleForClass( int pclass )
     }
   }
   
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindModelScaleForClass\n" );
   return 1.0f;
 }
 
@@ -1641,6 +1645,7 @@ char *BG_FindSkinNameForClass( int pclass )
       return bg_classList[ i ].skinName;
   }
 
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindSkinNameForClass\n" );
   //note: must return a valid modelName!
   return bg_classList[ 0 ].skinName;
 }
@@ -1660,6 +1665,7 @@ char *BG_FindHudNameForClass( int pclass )
       return bg_classList[ i ].hudName;
   }
 
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindHudNameForClass\n" );
   //note: must return a valid hudName!
   return bg_classList[ 0 ].hudName;
 }
@@ -1684,6 +1690,7 @@ qboolean BG_FindStagesForClass( int pclass, stage_t stage )
     }
   }
   
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindStagesForClass\n" );
   return qfalse;
 }
 
@@ -1782,6 +1789,7 @@ int BG_FindHealthForClass( int pclass )
     }
   }
   
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindHealthForClass\n" );
   return 100;
 }
 
@@ -1802,6 +1810,7 @@ int BG_FindRegenRateForClass( int pclass )
     }
   }
   
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindRegenRateForClass\n" );
   return 0;
 }
 
@@ -1822,6 +1831,7 @@ int BG_FindFovForClass( int pclass )
     }
   }
   
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindFovForClass\n" );
   return 90;
 }
 
@@ -1842,6 +1852,7 @@ float BG_FindBobForClass( int pclass )
     }
   }
   
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindBobForClass\n" );
   return 0.002;
 }
 
@@ -1862,7 +1873,8 @@ float BG_FindSpeedForClass( int pclass )
     }
   }
   
-  return 1.0;
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindSpeedForClass\n" );
+  return 1.0f;
 }
 
 /*
@@ -1882,7 +1894,8 @@ float BG_FindStickyForClass( int pclass )
     }
   }
   
-  return 1.0;
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindStickyForClass\n" );
+  return 1.0f;
 }
 
 /*
@@ -1902,6 +1915,7 @@ int BG_FindSteptimeForClass( int pclass )
     }
   }
   
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindSteptimeForClass\n" );
   return 200;
 }
 
@@ -1946,6 +1960,7 @@ weapon_t BG_FindStartWeaponForClass( int pclass )
     }
   }
   
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindStartWeaponForClass\n" );
   return WP_NONE;
 }
 
@@ -1966,6 +1981,7 @@ float BG_FindBuildDistForClass( int pclass )
     }
   }
   
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindBuildDistForClass\n" );
   return 0.0f;
 }
 
@@ -2025,6 +2041,7 @@ int BG_FindEvolveTimeForClass( int pclass )
     }
   }
   
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindEvolveTimeForClass\n" );
   return 5000;
 }
 
@@ -2045,6 +2062,7 @@ int BG_FindValueOfClass( int pclass )
     }
   }
   
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindValueOfClass\n" );
   return 0;
 }
 
@@ -3529,7 +3547,9 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
 
   if( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR || ps->pm_type == PM_FREEZE )
     s->eType = ET_INVISIBLE;
-  else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH )
+  else if( ps->stats[STAT_HEALTH] <= GIB_HEALTH )
+    s->eType = ET_INVISIBLE;
+  else if( ps->persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
     s->eType = ET_INVISIBLE;
   else
     s->eType = ET_PLAYER;
@@ -3628,6 +3648,8 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   if( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR || ps->pm_type == PM_FREEZE )
     s->eType = ET_INVISIBLE;
   else if( ps->stats[STAT_HEALTH] <= GIB_HEALTH )
+    s->eType = ET_INVISIBLE;
+  else if( ps->persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
     s->eType = ET_INVISIBLE;
   else
     s->eType = ET_PLAYER;
