@@ -345,6 +345,20 @@ typedef struct damageRegion_s
   qboolean  crouch;
 } damageRegion_t;
 
+#define MAX_ARMOUR_TEXT    8192
+#define MAX_ARMOUR_REGIONS 32
+
+//TA: store locational armour regions
+typedef struct armourRegion_s
+{
+  float     minHeight, maxHeight;
+  int       minAngle, maxAngle;
+  
+  float     modifier;
+
+  qboolean  crouch;
+} armourRegion_t;
+
 //
 // this structure is cleared as each map is entered
 //

@@ -897,6 +897,66 @@ TA: human power item
     ""                  //sounds
   },
   
+/*QUAKED upgrade_carmour (0 0 1) (-16 -16 -16) (16 16 16)
+*/
+  {
+    "upgrade_carmour",
+    "sound/items/holdable.wav",
+    { 0, 0, 0, 0 },
+    "icons/teleporter", //icon
+    "Chest Armour",      //pickup
+    0,
+    IT_UPGRADE,
+    UP_CHESTARMOUR,
+    "",                 //precache
+    ""                  //sounds
+  },
+  
+/*QUAKED upgrade_larmour (0 0 1) (-16 -16 -16) (16 16 16)
+*/
+  {
+    "upgrade_larmour",
+    "sound/items/holdable.wav",
+    { 0, 0, 0, 0 },
+    "icons/teleporter", //icon
+    "Limb Armour",      //pickup
+    0,
+    IT_UPGRADE,
+    UP_LIMBARMOUR,
+    "",                 //precache
+    ""                  //sounds
+  },
+  
+/*QUAKED upgrade_helmet (0 0 1) (-16 -16 -16) (16 16 16)
+*/
+  {
+    "upgrade_helmet",
+    "sound/items/holdable.wav",
+    { 0, 0, 0, 0 },
+    "icons/teleporter", //icon
+    "Helmet",      //pickup
+    0,
+    IT_UPGRADE,
+    UP_HELMET,
+    "",                 //precache
+    ""                  //sounds
+  },
+  
+/*QUAKED upgrade_bsuit (0 0 1) (-16 -16 -16) (16 16 16)
+*/
+  {
+    "upgrade_bsuit",
+    "sound/items/holdable.wav",
+    { 0, 0, 0, 0 },
+    "icons/teleporter", //icon
+    "Battle Suit",      //pickup
+    0,
+    IT_UPGRADE,
+    UP_BATTLESUIT,
+    "",                 //precache
+    ""                  //sounds
+  },
+  
 /*QUAKED team_CTF_redflag (1 0 0) (-16 -16 -16) (16 16 16)
 Only in CTF games
 */
@@ -3408,7 +3468,7 @@ qboolean BG_infiniteAmmo( int weapon )
 //TA: pack weapons into the array
 void BG_packWeapon( int weapon, int stats[ ] )
 {
-  int  weaponList, i;
+  int  weaponList;
 
   weaponList = ( stats[ STAT_WEAPONS ] & 0x0000FFFF ) | ( ( stats[ STAT_WEAPONS2 ] << 16 ) & 0xFFFF0000 );
 
@@ -3426,7 +3486,7 @@ void BG_packWeapon( int weapon, int stats[ ] )
 //TA: remove weapons from the array
 void BG_removeWeapon( int weapon, int stats[ ] )
 {
-  int  weaponList, i;
+  int  weaponList;
 
   weaponList = ( stats[ STAT_WEAPONS ] & 0x0000FFFF ) | ( ( stats[ STAT_WEAPONS2 ] << 16 ) & 0xFFFF0000 );
 
@@ -3441,7 +3501,7 @@ void BG_removeWeapon( int weapon, int stats[ ] )
 //TA: check whether array contains weapon
 qboolean BG_gotWeapon( int weapon, int stats[ ] )
 {
-  int  weaponList, i;
+  int  weaponList;
 
   weaponList = ( stats[ STAT_WEAPONS ] & 0x0000FFFF ) | ( ( stats[ STAT_WEAPONS2 ] << 16 ) & 0xFFFF0000 );
 

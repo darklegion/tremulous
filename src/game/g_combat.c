@@ -31,6 +31,9 @@
 damageRegion_t  g_damageRegions[ PCL_NUM_CLASSES ][ MAX_LOCDAMAGE_REGIONS ];
 int             g_numDamageRegions[ PCL_NUM_CLASSES ];
 
+armourRegion_t  g_armourRegions[ UP_NUM_UPGRADES ][ MAX_ARMOUR_REGIONS ];
+int             g_numArmourRegions[ UP_NUM_UPGRADES ];
+
 /*
 ============
 AddScore
@@ -632,6 +635,116 @@ int RaySphereIntersections( vec3_t origin, float radius, vec3_t point, vec3_t di
 
 /*
 ===============
+G_ParseArmourScript
+===============
+*/
+void G_ParseArmourScript( char *buf, int upgrade )
+{
+	char	*token;
+	int		count;
+
+	count = 0;
+
+	while( 1 )
+  {
+		token = COM_Parse( &buf );
+    
+		if( !token[0] )
+			break;
+      
+		if( strcmp( token, "{" ) )
+    {
+			G_Printf( "Missing { in armour file\n" );
+			break;
+		}
+
+		if( count == MAX_ARMOUR_REGIONS )
+    {
+			G_Printf( "Max armour regions exceeded in locdamage file\n" );
+			break;
+		}
+
+    //default
+    g_armourRegions[ upgrade ][ count ].minHeight = 0.0;
+    g_armourRegions[ upgrade ][ count ].maxHeight = 1.0;
+    g_armourRegions[ upgrade ][ count ].minAngle = 0;
+    g_armourRegions[ upgrade ][ count ].maxAngle = 360;
+    g_armourRegions[ upgrade ][ count ].modifier = 1.0;
+    g_armourRegions[ upgrade ][ count ].crouch = qfalse;
+    
+    while( 1 )
+    {
+			token = COM_ParseExt( &buf, qtrue );
+      
+			if( !token[0] )
+      {
+				G_Printf( "Unexpected end of armour file\n" );
+				break;
+			}
+      
+			if( !Q_stricmp( token, "}" ) )
+      {
+				break;
+      }
+      else if( !strcmp( token, "minHeight" ) )
+      {
+			  token = COM_ParseExt( &buf, qfalse );
+
+			  if ( !token[0] )
+				  strcpy( token, "0" );
+
+        g_armourRegions[ upgrade ][ count ].minHeight = atof( token );
+      }
+      else if( !strcmp( token, "maxHeight" ) )
+      {
+			  token = COM_ParseExt( &buf, qfalse );
+
+			  if ( !token[0] )
+				  strcpy( token, "100" );
+
+        g_armourRegions[ upgrade ][ count ].maxHeight = atof( token );
+      }
+      else if( !strcmp( token, "minAngle" ) )
+      {
+			  token = COM_ParseExt( &buf, qfalse );
+
+			  if ( !token[0] )
+				  strcpy( token, "0" );
+
+        g_armourRegions[ upgrade ][ count ].minAngle = atoi( token );
+      }
+      else if( !strcmp( token, "maxAngle" ) )
+      {
+			  token = COM_ParseExt( &buf, qfalse );
+
+			  if ( !token[0] )
+				  strcpy( token, "360" );
+
+        g_armourRegions[ upgrade ][ count ].maxAngle = atoi( token );
+      }
+      else if( !strcmp( token, "modifier" ) )
+      {
+			  token = COM_ParseExt( &buf, qfalse );
+
+			  if ( !token[0] )
+				  strcpy( token, "1.0" );
+
+        g_armourRegions[ upgrade ][ count ].modifier = atof( token );
+      }
+      else if( !strcmp( token, "crouch" ) )
+      {
+        g_armourRegions[ upgrade ][ count ].crouch = qtrue;
+      }
+		}
+
+    g_numArmourRegions[ upgrade ]++;
+    count++;
+	}
+}
+
+
+/*
+===============
 G_ParseDmgScript
 ===============
 */
@@ -742,10 +855,10 @@ void G_ParseDmgScript( char *buf, int class )
 
 /* 
 ============
-G_CalcModifier
+G_CalcDamageModifier
 ============
 */
-float G_CalcModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, int class )
+float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, int class )
 {
   vec3_t  bulletPath;
   vec3_t  bulletAngle;
@@ -754,7 +867,7 @@ float G_CalcModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, int cl
   float   clientHeight, hitRelative, hitRatio;
   int     bulletRotation, clientRotation, hitRotation;
   float   modifier = 1.0;
-  int     i;
+  int     i, j;
 
   clientHeight = targ->r.maxs[ 2 ] - targ->r.mins[ 2 ];  
 
@@ -785,15 +898,60 @@ float G_CalcModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, int cl
 
   for( i = 0; i < g_numDamageRegions[ class ]; i++ )
   {
-    if( hitRotation > g_damageRegions[ class ][ i ].minAngle &&
-        hitRotation <= g_damageRegions[ class ][ i ].maxAngle &&
+    qboolean rotationBound;
+    
+    if( g_damageRegions[ class ][ i ].minAngle >
+        g_damageRegions[ class ][ i ].maxAngle )
+    {
+      rotationBound = ( hitRotation > g_damageRegions[ class ][ i ].minAngle &&
+                        hitRotation < 360 ) || ( hitRotation >= 0 &&
+                        hitRotation <= g_damageRegions[ class ][ i ].maxAngle );
+    }
+    else
+    {
+      rotationBound = ( hitRotation > g_damageRegions[ class ][ i ].minAngle &&
+                        hitRotation <= g_damageRegions[ class ][ i ].maxAngle );
+    }
+    
+    if( rotationBound &&
         hitRatio > g_damageRegions[ class ][ i ].minHeight &&
         hitRatio <= g_damageRegions[ class ][ i ].maxHeight &&
-        ( g_damageRegions[ class ][ i ].crouch =
+        ( g_damageRegions[ class ][ i ].crouch ==
           ( targ->client->ps.pm_flags & PMF_DUCKED ) ) )
       modifier *= g_damageRegions[ class ][ i ].modifier;
   }
 
+  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
+  {
+    if( BG_gotItem( i, targ->client->ps.stats ) )
+    {
+      for( j = 0; j < g_numArmourRegions[ i ]; j++ )
+      {
+        qboolean rotationBound;
+        
+        if( g_damageRegions[ class ][ i ].minAngle >
+            g_damageRegions[ class ][ i ].maxAngle )
+        {
+          rotationBound = ( hitRotation > g_damageRegions[ class ][ i ].minAngle &&
+                            hitRotation < 360 ) || ( hitRotation >= 0 &&
+                            hitRotation <= g_damageRegions[ class ][ i ].maxAngle );
+        }
+        else
+        {
+          rotationBound = ( hitRotation > g_damageRegions[ class ][ i ].minAngle &&
+                            hitRotation <= g_damageRegions[ class ][ i ].maxAngle );
+        }
+        
+        if( rotationBound &&
+            hitRatio > g_armourRegions[ i ][ j ].minHeight &&
+            hitRatio <= g_armourRegions[ i ][ j ].maxHeight &&
+            ( g_armourRegions[ i ][ j ].crouch ==
+              ( targ->client->ps.pm_flags & PMF_DUCKED ) ) )
+          modifier *= g_armourRegions[ i ][ j ].modifier;
+      }
+    }
+  }
+  
   return modifier;
 }
 
@@ -836,6 +994,31 @@ void G_InitDamageLocations( )
     trap_FS_FCloseFile( fileHandle );
       
     G_ParseDmgScript( buffer, i );
+  }
+  
+  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
+  {
+    modelName = BG_FindNameForUpgrade( i );
+    Com_sprintf( filename, sizeof( filename ), "armour/%s.armour", modelName );
+
+    len = trap_FS_FOpenFile( filename, &fileHandle, FS_READ );
+    
+    //no file - no parsage
+    if ( !fileHandle )
+      continue;
+    
+    if ( len >= MAX_LOCDAMAGE_TEXT )
+    {
+      G_Printf( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_LOCDAMAGE_TEXT ) );
+      trap_FS_FCloseFile( fileHandle );
+      continue;
+    }
+
+    trap_FS_Read( buffer, len, fileHandle );
+    buffer[len] = 0;
+    trap_FS_FCloseFile( fileHandle );
+      
+    G_ParseArmourScript( buffer, i );
   }
 }
 
@@ -1056,7 +1239,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     // set the last client who damaged the target
     targ->client->lasthurt_client = attacker->s.number;
     targ->client->lasthurt_mod = mod;
-    take = (int)( (float)take * G_CalcModifier( point, targ, attacker, client->ps.stats[ STAT_PCLASS ] ) );
+    take = (int)( (float)take * G_CalcDamageModifier( point, targ, attacker, client->ps.stats[ STAT_PCLASS ] ) );
   }
 
   // do the damage
