@@ -244,6 +244,8 @@ void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce ) {
 
   backoff = DotProduct (in, normal);
 
+  //Com_Printf( "%1.0f ", backoff );
+
   if ( backoff < 0 ) {
     backoff *= overbounce;
   } else {
@@ -252,8 +254,11 @@ void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce ) {
 
   for ( i=0 ; i<3 ; i++ ) {
     change = normal[i]*backoff;
+    //Com_Printf( "%1.0f ", change );
     out[i] = in[i] - change;
   }
+
+  //Com_Printf( "   " );
 }
 
 
@@ -294,7 +299,16 @@ static void PM_Friction( void ) {
     if ( pml.walking && !(pml.groundTrace.surfaceFlags & SURF_SLICK) ) {
       // if getting knocked back, no friction
       if ( ! (pm->ps->pm_flags & PMF_TIME_KNOCKBACK) ) {
-        control = speed < pm_stopspeed ? pm_stopspeed : speed;
+        if( ( pm->ps->stats[ STAT_PTEAM ] == PTE_DROIDS ) &&
+            ( pm->ps->stats[ STAT_PCLASS ] == PCL_D_BASE ) )
+        {
+          control = speed < pm_stopspeed*5 ? pm_stopspeed*5 : speed;
+        }
+        else
+        {
+          control = speed < pm_stopspeed ? pm_stopspeed : speed;
+        }
+        
         drop += control*pm_friction*pml.frametime;
       }
     }
@@ -953,7 +967,7 @@ static void PM_ClimbMove( void ) {
   // slide along the ground plane
   PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
     pm->ps->velocity, OVERCLIP );
-
+  
   // don't decrease velocity when going up or down a slope
   VectorNormalize(pm->ps->velocity);
   VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
@@ -1959,11 +1973,13 @@ static void PM_Footsteps( void ) {
   //
   if( ( pm->ps->stats[STAT_ABILITIES] & SCA_WALLCLIMBER ) && ( pml.groundPlane ) )
   {
-    pm->xyspeed = DotProduct(pm->ps->velocity, pml.groundTrace.plane.normal);
+    pm->xyspeed = sqrt( pm->ps->velocity[0] * pm->ps->velocity[0]
+                      + pm->ps->velocity[1] * pm->ps->velocity[1]
+                      + pm->ps->velocity[2] * pm->ps->velocity[2] );
   }
   else
     pm->xyspeed = sqrt( pm->ps->velocity[0] * pm->ps->velocity[0]
-      +  pm->ps->velocity[1] * pm->ps->velocity[1] );
+      + pm->ps->velocity[1] * pm->ps->velocity[1] );
 
   if ( pm->ps->groundEntityNum == ENTITYNUM_NONE ) {
     // airborne leaves position in cycle intact, but doesn't advance
@@ -2687,7 +2703,11 @@ void PmoveSingle (pmove_t *pmove)
 
   pml.frametime = pml.msec * 0.001;
 
-  AngleVectors (pm->ps->viewangles, pml.forward, pml.right, pml.up);
+  if( ( pm->ps->stats[ STAT_ABILITIES ] & SCA_WALLCLIMBER ) &&
+      ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
+  { AngleVectors ( wcl[ pm->ps->clientNum ].nonSvangles, pml.forward, pml.right, pml.up); }
+  else
+  { AngleVectors (pm->ps->viewangles, pml.forward, pml.right, pml.up); }
 
   if ( pm->cmd.upmove < 10 ) {
     // not holding jump

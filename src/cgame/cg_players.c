@@ -1889,6 +1889,11 @@ void CG_Player( centity_t *cent ) {
 
   CG_PositionRotatedEntityOnTag( &torso, &legs, ci->legsModel, "tag_torso");
 
+  if( cent->currentState.legsAnim & ANIM_WALLCLIMBING &&
+      !( cent->currentState.eFlags & EF_DEAD ) &&
+      !( cg.intermissionStarted ) )
+    AnglesToAxis( cent->lerpAngles, torso.axis );
+    
   torso.shadowPlane = shadowPlane;
   torso.renderfx = renderfx;
 
@@ -1907,6 +1912,11 @@ void CG_Player( centity_t *cent ) {
   VectorCopy( cent->lerpOrigin, head.lightingOrigin );
 
   CG_PositionRotatedEntityOnTag( &head, &torso, ci->torsoModel, "tag_head");
+
+  if( cent->currentState.legsAnim & ANIM_WALLCLIMBING &&
+      !( cent->currentState.eFlags & EF_DEAD ) &&
+      !( cg.intermissionStarted ) )
+    AnglesToAxis( cent->lerpAngles, head.axis );
 
   head.shadowPlane = shadowPlane;
   head.renderfx = renderfx;

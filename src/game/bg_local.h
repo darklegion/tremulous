@@ -69,7 +69,7 @@ typedef struct
 
 //TA: make this into a cvar later....
 #define   SMOOTHTIME    300
-#define   MAXSMOOTHS    10
+#define   MAXSMOOTHS    16
 
 //TA: wall climbing local
 typedef struct
