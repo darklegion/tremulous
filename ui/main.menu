@@ -23,14 +23,14 @@
 
   menuDef
   {
-    name "main"
+    name main
     fullScreen MENU_TRUE        
     rect 0 0 640 480        // Size and position of the menu
     visible MENU_TRUE       // Visible on open
     focusColor 1 .75 0 1        // Menu focus color for text and items
 
     onOpen { uiScript stopRefresh ; playlooped "sounds/ui/heartbeat.wav" }	
-    onESC{open quit_popmenu}
+    onESC { open quit_popmenu }
   
     itemDef
     {
@@ -59,7 +59,7 @@
     itemDef
     {
       name mainmenu
-      text "Join Server"
+      text "Play!"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       textstyle ITEM_TEXTSTYLE_NORMAL 
@@ -81,34 +81,12 @@
     itemDef
     {
       name mainmenu
-      text "Start Server"
-      type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_EMPTY 
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      rect 472 40 128 20 
-      textalign ITEM_ALIGN_RIGHT   
-      textalignx 128 
-      textaligny 20 
-      textscale .416
-      forecolor 1 1 1 1  
-      visible 1 
-      action
-      {
-        play "sound/misc/kcaction.wav"; 
-        close main; 
-        open createserver
-      }
-    }
-
-    itemDef
-    {
-      name mainmenu
       text "Credits"
       type ITEM_TYPE_BUTTON
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale .416
       style WINDOW_STYLE_EMPTY 
-      rect 472 80 128 20
+      rect 472 40 128 20
       textalignx 128 
       textaligny 20 
       textalign ITEM_ALIGN_RIGHT   
@@ -131,7 +109,7 @@
       style WINDOW_STYLE_EMPTY 
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale .416
-      rect 472 100 128 20 
+      rect 472 60 128 20 
       textalignx 128 
       textaligny 20 
       textalign ITEM_ALIGN_RIGHT   
@@ -151,7 +129,7 @@
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       textstyle ITEM_TEXTSTYLE_NORMAL
-      rect 472 140 128 20
+      rect 472 80 128 20
       textalignx 128 
       textaligny 20 
       textscale .416
