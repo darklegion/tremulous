@@ -277,17 +277,17 @@ static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_
 
   // load the file
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
-  if ( len <= 0 )
+  if( len <= 0 )
     return qfalse;
     
-  if ( len >= sizeof( text ) - 1 )
+  if( len >= sizeof( text ) - 1 )
   {
     CG_Printf( "File %s too long\n", filename );
     return qfalse;
   }
   
   trap_FS_Read( text, len, f );
-  text[len] = 0;
+  text[ len ] = 0;
   trap_FS_FCloseFile( f );
 
   // parse the text
@@ -298,13 +298,13 @@ static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_
   {
 
     token = COM_Parse( &text_p );
-    if ( !*token )
+    if( !*token )
       break;
       
     animations[ i ].firstFrame = atoi( token );
 
     token = COM_Parse( &text_p );
-    if ( !*token )
+    if( !*token )
       break;
       
     animations[ i ].numFrames = atoi( token );
@@ -312,7 +312,7 @@ static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_
     animations[ i ].flipflop = qfalse;
     
     // if numFrames is negative the animation is reversed
-    if ( animations[ i ].numFrames < 0 )
+    if( animations[ i ].numFrames < 0 )
     {
       animations[ i ].numFrames = -animations[ i ].numFrames;
       animations[ i ].reversed = qtrue;
@@ -325,11 +325,11 @@ static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_
     animations[i].loopFrames = atoi( token );
 
     token = COM_Parse( &text_p );
-    if ( !*token )
+    if( !*token )
       break;
       
     fps = atof( token );
-    if ( fps == 0 )
+    if( fps == 0 )
       fps = 1;
     
     animations[ i ].frameLerp = 1000 / fps;
@@ -604,8 +604,8 @@ static void CG_RunBuildableLerpFrame( centity_t *cent )
     
     if( anim->reversed )
       lf->frame = anim->firstFrame + anim->numFrames - 1 - f;
-    else if(anim->flipflop && f>=anim->numFrames)
-      lf->frame = anim->firstFrame + anim->numFrames - 1 - (f%anim->numFrames);
+    else if( anim->flipflop && f >= anim->numFrames )
+      lf->frame = anim->firstFrame + anim->numFrames - 1 - ( f % anim->numFrames );
     else
       lf->frame = anim->firstFrame + f;
       
@@ -647,6 +647,8 @@ static void CG_BuildableAnimation( centity_t *cent, int *old, int *now, float *b
   {
     if( cent->buildableAnim == es->torsoAnim || es->legsAnim & ANIM_FORCEBIT )
       cent->buildableAnim = cent->oldBuildableAnim = es->legsAnim;
+    else
+      cent->buildableAnim = cent->oldBuildableAnim = es->torsoAnim;
   }
   
   CG_RunBuildableLerpFrame( cent );

@@ -464,7 +464,7 @@
 #define TESLAGEN_SPLASHRADIUS       100
 #define TESLAGEN_REPEAT             500
 #define TESLAGEN_RANGE              750
-#define TESLAGEN_DMG                HDM(50)
+#define TESLAGEN_DMG                HDM(20)
 
 #define DC_BP                       80
 #define DC_BT                       10000

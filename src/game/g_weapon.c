@@ -809,7 +809,10 @@ qboolean CheckPounceAttack( gentity_t *ent )
     return qfalse;
 
   if( ent->client->ps.groundEntityNum != ENTITYNUM_NONE )
+  {
+    ent->client->allowedToPounce = qfalse;
     return qfalse;
+  }
 
   // set aiming directions
   AngleVectors( ent->client->ps.viewangles, forward, right, up );

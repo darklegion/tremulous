@@ -439,6 +439,7 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->die = nullDieFunction;
   self->think = ASpawn_Blast;
   self->nextthink = level.time + 5000; //wait .5 seconds before damaging others
+  self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
     
   if( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
@@ -652,6 +653,7 @@ void ABarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
   
   self->die = nullDieFunction;
   self->think = ABarricade_Blast;
+  self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
   self->nextthink = level.time + 5000;
 }
 
@@ -998,6 +1000,7 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   //pretty events and item cleanup
   self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
   G_AddEvent( self, EV_ALIEN_BUILDABLE_EXPLOSION, DirToByte( dir ) );
+  self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
   self->timestamp = level.time;
   self->think = ASpawn_Melt;
   self->nextthink = level.time + 500; //wait .5 seconds before damaging others
@@ -1839,6 +1842,7 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->think = HSpawn_Blast;
   self->nextthink = level.time + HUMAN_DETONATION_DELAY;
   self->powered = qfalse; //free up power
+  self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
 
   if( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
@@ -2160,8 +2164,6 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   built->splashRadius = BG_FindSplashRadiusForBuildable( buildable );
   built->splashMethodOfDeath = BG_FindMODForBuildable( buildable );
   
-  G_setIdleBuildableAnim( built, BG_FindAnimForBuildable( buildable ) );
-    
   built->nextthink = BG_FindNextThinkForBuildable( buildable );
   
   built->takedamage = qfalse;
@@ -2320,6 +2322,8 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   
   G_AddEvent( built, EV_BUILD_CONSTRUCT, 0 );
 
+  G_setIdleBuildableAnim( built, BG_FindAnimForBuildable( buildable ) );
+    
   if( built->builtBy >= 0 )
     G_setBuildableAnim( built, BANIM_CONSTRUCT1, qtrue );
 
