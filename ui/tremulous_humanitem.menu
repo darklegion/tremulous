@@ -7,17 +7,20 @@
     visible 0
     fullscreen 0
     outOfBoundsClick
-    rect 120 140 400 200
-    focusColor 1 .75 0 1
+    rect 112 111 400 247
+    focusColor 0.6784314 0.74902 0.82549 1
     style WINDOW_STYLE_FILLED
     disableColor .5 .5 .5 0
-    backcolor 0 .5 0 .25
+    backcolor 0.0784314 0.14902 0.32549 .25
+    border WINDOW_BORDER_FULL
+    borderSize 1
+    bordercolor 0.6784314 0.74902 0.82549 .25
     onOpen { uiScript LoadHumanItems }
 
     itemDef
     {
       name "list"
-      rect 10 10 150 180
+      rect 8 8 136 231
       type ITEM_TYPE_LISTBOX
       style WINDOW_STYLE_FILLED
       elementwidth 120
@@ -26,7 +29,7 @@
       elementtype LISTBOX_TEXT
       feeder FEEDER_TREMHUMANITEMS
       forecolor 1 1 1 1
-      backcolor 0 0 .5 .25
+      backcolor 0.0784314 0.14902 0.32549 .25
       outlinecolor .1 .1 .7 .5
       visible 1
     }
@@ -37,10 +40,10 @@
       ownerdraw UI_HITEMINFOPANE
       textstyle ITEM_TEXTSTYLE_NORMAL
       style WINDOW_STYLE_FILLED	
-      rect 170 10 220 155
+      rect 161 8 231 204
       textscale .3
       forecolor 1 1 1 1
-      backcolor .5 0 0 .25
+      backcolor 0.0784314 0.14902 0.32549 .25
       visible 1 
       decoration
     }
@@ -51,10 +54,10 @@
       text "< Back"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_FILLED
-      rect 170 176 40 14
+      rect 161 218 34 21
       textalign ITEM_ALIGN_LEFT
-      textalignx 5
-      textaligny 12
+      textalignx 3
+      textaligny 16
       textscale .25
       forecolor 1 1 1 1
       backcolor .5 0 0 .25
@@ -68,10 +71,10 @@
       text "OK"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_FILLED
-      rect 320 176 20 14
+      rect 319 218 34 21
       textalign ITEM_ALIGN_LEFT
-      textalignx 5
-      textaligny 12
+      textalignx 12.5
+      textaligny 16
       textscale .25
       forecolor 1 1 1 1
       backcolor .5 0 0 .25
@@ -85,10 +88,10 @@
       text "Cancel"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_FILLED
-      rect 350 176 40 14
+      rect 358 218 34 21
       textalign ITEM_ALIGN_LEFT
-      textalignx 6
-      textaligny 12
+      textalignx 3.8
+      textaligny 16
       textscale .25
       forecolor 1 1 1 1
       backcolor .5 0 0 .25

@@ -96,5 +96,26 @@
       forecolor 1 1 1 1
       ownerdraw CG_PLAYER_HEALTH
     }
+    
+    // SELECT
+    itemDef
+    {
+      name "select"
+      rect 200 420 160 32
+      visible 1
+      decoration
+      ownerdraw CG_PLAYER_SELECT
+    }
+    
+    // SELECT TEXT
+    itemDef
+    {
+      name "selecttext"
+      rect 200 20 240 40
+      visible 1
+      decoration
+      textScale .5
+      ownerdraw CG_PLAYER_SELECTTEXT
+    }
   }
 }

@@ -7,17 +7,17 @@
     visible 0
     fullscreen 0
     outOfBoundsClick
-    rect 120 140 400 200
-    focusColor 1 .75 0 1
+    rect 112 111 400 247
+    focusColor .6 .6 1 1
     style WINDOW_STYLE_FILLED
     disableColor .5 .5 .5 0
-    backcolor 0 .5 0 .25
+    backcolor 0 0 .5 .25
     onOpen { uiScript LoadTeams }
 
     itemDef
     {
       name "list"
-      rect 10 10 150 180
+      rect 8 8 136 231
       type ITEM_TYPE_LISTBOX
       style WINDOW_STYLE_FILLED
       elementwidth 120
@@ -26,7 +26,7 @@
       elementtype LISTBOX_TEXT
       feeder FEEDER_TREMTEAMS
       forecolor 1 1 1 1
-      backcolor 0 0 .5 .25
+      backcolor 0 0 .5 .5
       outlinecolor .1 .1 .7 .5
       visible 1
     }
@@ -36,11 +36,12 @@
       name infopane
       ownerdraw UI_TEAMINFOPANE
       textstyle ITEM_TEXTSTYLE_NORMAL
-      style WINDOW_STYLE_FILLED	
-      rect 170 10 220 155
+      style WINDOW_STYLE_FILLED
+      //background "ui/screen1" // textures/base_trim/proto_comp  textures/base_wall/comp3	
+      rect 161 8 231 204
       textscale .3
       forecolor 1 1 1 1
-      backcolor .5 0 0 .25
+      backcolor 0 0 .5 .5
       visible 1 
       decoration
     }
@@ -51,12 +52,12 @@
       text "OK"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_FILLED
-      rect 320 176 20 14
+      rect 319 218 34 21
       textalign ITEM_ALIGN_LEFT
-      textalignx 5
-      textaligny 12
+      textalignx 12.5
+      textaligny 16
       textscale .25
-      forecolor 1 1 1 1
+      forecolor .8 .8 1 1
       backcolor .5 0 0 .25
       visible 1
       action { uiScript JoinTeam; close tremulous_teamselect }
@@ -68,15 +69,39 @@
       text "Cancel"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_FILLED
-      rect 350 176 40 14
+      rect 358 218 34 21
       textalign ITEM_ALIGN_LEFT
-      textalignx 6
-      textaligny 12
+      textalignx 3.8
+      textaligny 16
       textscale .25
-      forecolor 1 1 1 1
+      forecolor .8 .8 1 1
       backcolor .5 0 0 .25
       visible 1 
       action { close tremulous_teamselect }
+    }
+
+    itemDef
+    {
+      name "weaponmodel"
+      type ITEM_TYPE_MODEL
+      asset_model "models/weapons2/plasma/plasma.md3"
+      rect 177 100 200 100
+      style WINDOW_STYLE_FILLED
+      forecolor 1 1 1 1
+      backcolor 0 0 0 .5
+      decoration
+      visible 1
+      model_origin 100 .01 .01
+      model_fovx 90
+      model_fovy 90
+      model_angle 90
+      model_rotation 20
+    }
+  }
+}
+ model_fovy 90
+      model_angle 90
+      model_rotation 20
     }
   }
 }
