@@ -230,6 +230,7 @@ void Pmove (pmove_t *pmove);
 typedef enum {
   STAT_HEALTH,
   STAT_ITEMS,
+  STAT_SLOTS,           //TA: tracks the amount of stuff human players are carrying
   STAT_ACTIVEITEMS,
   STAT_WEAPONS,         // 16 bit fields
   STAT_WEAPONS2,        //TA: another 16 bits to push the max weapon count up
@@ -368,6 +369,16 @@ typedef enum {
 
   UP_NUM_UPGRADES
 } upgrade_t;
+
+//TA: bitmasks for upgrade slots
+#define SLOT_NONE       0
+#define SLOT_HEAD       1
+#define SLOT_TORSO      2
+#define SLOT_ARMS       4
+#define SLOT_LEGS       8
+#define SLOT_BACKPACK   16
+#define SLOT_WEAPON     32
+#define SLOT_SIDEARM    64
 
 typedef enum {
   BA_NONE,
@@ -792,6 +803,22 @@ typedef struct
   qboolean  creepTest;
   qboolean  reactorTest;
 } buildableAttributes_t;      
+
+//TA: weapon record
+typedef struct
+{
+  int       weaponNum;
+
+  int       slots;
+} weaponAttributes_t;
+
+//TA: upgrade record
+typedef struct
+{
+  int       upgradeNum;
+
+  int       slots;
+} upgradeAttributes_t;
 
 // included in both the game dll and the client
 extern  gitem_t bg_itemlist[];

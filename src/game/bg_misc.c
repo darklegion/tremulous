@@ -1858,6 +1858,116 @@ int BG_FindEvolveTimeForClass( int pclass )
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
+weaponAttributes_t bg_weapons[ ] =
+{
+  {
+    WP_MACHINEGUN,
+    SLOT_WEAPON
+  },
+  {
+    WP_FLAMER,
+    SLOT_WEAPON
+  },
+  {
+    WP_CHAINGUN,
+    SLOT_WEAPON
+  },
+  {
+    WP_HBUILD,
+    SLOT_WEAPON
+  },
+  {
+    WP_ABUILD,
+    SLOT_WEAPON
+  },
+  {
+    WP_SCANNER,
+    SLOT_WEAPON
+  }
+};
+
+int BG_FindSlotsForWeapon( int weapon )
+{
+  int i;
+
+  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+    {
+      return bg_weapons[ i ].slots;
+    }
+  }
+  
+  return SLOT_WEAPON;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+upgradeAttributes_t bg_upgrades[ ] =
+{
+  {
+    UP_TORCH,
+    SLOT_NONE
+  },
+  {
+    UP_NVG,
+    SLOT_HEAD
+  },
+  {
+    UP_CHESTARMOUR,
+    SLOT_TORSO
+  },
+  {
+    UP_LIMBARMOUR,
+    SLOT_ARMS|SLOT_LEGS
+  },
+  {
+    UP_HELMET,
+    SLOT_HEAD
+  },
+  {
+    UP_ANTITOXIN,
+    SLOT_NONE
+  },
+  {
+    UP_BATTPACK,
+    SLOT_BACKPACK
+  },
+  {
+    UP_JETPACK,
+    SLOT_BACKPACK
+  },
+  {
+    UP_THREATHELMET,
+    SLOT_HEAD
+  },
+  {
+    UP_BATTLESUIT,
+    SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS
+  },
+  {
+    UP_IMPANTKIT,
+    SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS
+  }
+};
+
+int BG_FindSlotsForUpgrade( int upgrade )
+{
+  int i;
+
+  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
+  {
+    if( bg_upgrades[ i ].upgradeNum == upgrade )
+    {
+      return bg_upgrades[ i ].slots;
+    }
+  }
+  
+  return SLOT_NONE;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
 /*
 ==============
 BG_FindItemForPowerup
