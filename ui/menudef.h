@@ -136,6 +136,8 @@
 #define CG_PLAYER_CLIPS_VALUE       70
 #define CG_PLAYER_CREDITS_VALUE     71
 #define CG_PLAYER_BANK_VALUE        72
+#define CG_PLAYER_CREDITS_VALUE_NOPAD     106
+#define CG_PLAYER_BANK_VALUE_NOPAD        107
 #define CG_PLAYER_STAMINA           73
 #define CG_PLAYER_STAMINA_1         93
 #define CG_PLAYER_STAMINA_2         94

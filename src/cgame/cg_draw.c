@@ -533,7 +533,7 @@ void CG_SetPrintString( int type, const char *p )
   }
 }
 
-static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color )
+static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color, qboolean padding )
 {
   int           value;
   playerState_t *ps;
@@ -544,12 +544,17 @@ static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color )
   if( value > -1 )
   {
     trap_R_SetColor( color );
-    CG_DrawFieldPadded( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
+
+    if( padding )
+      CG_DrawFieldPadded( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
+    else
+      CG_DrawField( rect->x, rect->y, 1, rect->w, rect->h, value );
+    
     trap_R_SetColor( NULL );
   }
 }
 
-static void CG_DrawPlayerBankValue( rectDef_t *rect, vec4_t color )
+static void CG_DrawPlayerBankValue( rectDef_t *rect, vec4_t color, qboolean padding )
 {
   int           value;
   playerState_t *ps;
@@ -560,7 +565,12 @@ static void CG_DrawPlayerBankValue( rectDef_t *rect, vec4_t color )
   if( value > -1 )
   {
     trap_R_SetColor( color );
-    CG_DrawFieldPadded( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
+
+    if( padding )
+      CG_DrawFieldPadded( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
+    else
+      CG_DrawField( rect->x, rect->y, 1, rect->w, rect->h, value );
+    
     trap_R_SetColor( NULL );
   }
 }
@@ -568,6 +578,10 @@ static void CG_DrawPlayerBankValue( rectDef_t *rect, vec4_t color )
 #define HH_MIN_ALPHA  0.2f
 #define HH_MAX_ALPHA  0.8f
 #define HH_ALPHA_DIFF (HH_MAX_ALPHA-HH_MIN_ALPHA)
+
+#define AH_MIN_ALPHA  0.2f
+#define AH_MAX_ALPHA  0.8f
+#define AH_ALPHA_DIFF (AH_MAX_ALPHA-AH_MIN_ALPHA)
 
 /*
 ==============
@@ -747,13 +761,13 @@ static void CG_DrawPlayerBoosted( rectDef_t *rect, vec4_t color, qhandle_t shade
 {
   playerState_t *ps = &cg.snap->ps;
   qboolean      boosted = ps->stats[ STAT_STATE ] & SS_BOOSTED;
-
-  if( !boosted )
-    return;
-
-  if( color[ 3 ] != 0.0 )
-    trap_R_SetColor( color );
   
+  if( boosted )
+    color[ 3 ] = AH_MAX_ALPHA;
+  else
+    color[ 3 ] = AH_MIN_ALPHA;
+  
+  trap_R_SetColor( color );
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
   trap_R_SetColor( NULL );
 }
@@ -812,12 +826,12 @@ static void CG_DrawPlayerWallclimbing( rectDef_t *rect, vec4_t color, qhandle_t 
   playerState_t *ps = &cg.snap->ps;
   qboolean      ww = ps->stats[ STAT_STATE ] & SS_WALLCLIMBING;
 
-  if( !ww )
-    return;
-
-  if( color[ 3 ] != 0.0 )
-    trap_R_SetColor( color );
+  if( ww )
+    color[ 3 ] = AH_MAX_ALPHA;
+  else
+    color[ 3 ] = AH_MIN_ALPHA;
   
+  trap_R_SetColor( color );
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
   trap_R_SetColor( NULL );
 }
@@ -1968,10 +1982,16 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
   switch( ownerDraw )
   {
     case CG_PLAYER_CREDITS_VALUE:
-      CG_DrawPlayerCreditsValue( &rect, color );
+      CG_DrawPlayerCreditsValue( &rect, color, qtrue );
       break;
     case CG_PLAYER_BANK_VALUE:
-      CG_DrawPlayerBankValue( &rect, color );
+      CG_DrawPlayerBankValue( &rect, color, qtrue );
+      break;
+    case CG_PLAYER_CREDITS_VALUE_NOPAD:
+      CG_DrawPlayerCreditsValue( &rect, color, qfalse );
+      break;
+    case CG_PLAYER_BANK_VALUE_NOPAD:
+      CG_DrawPlayerBankValue( &rect, color, qfalse );
       break;
     case CG_PLAYER_STAMINA:
       CG_DrawPlayerStamina( &rect, color, scale, align, textStyle, special );
