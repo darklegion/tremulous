@@ -1246,6 +1246,7 @@ classAttributes_t bg_classList[ ] =
     ABUILDER_SPEED,                                 //float   speed;
     10.0f,                                          //float   acceleration;
     6.0f,                                           //float   friction;
+    100.0f,                                         //float   stopSpeed;
     { PCL_A_B_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
     ABUILDER_TTE,                                   //int     timetoevolve;
     ABUILDER_VALUE                                  //int     value;
@@ -1277,6 +1278,7 @@ classAttributes_t bg_classList[ ] =
     ABUILDER_UPG_SPEED,                             //float   speed;
     10.0f,                                          //float   acceleration;
     6.0f,                                           //float   friction;
+    100.0f,                                         //float   stopSpeed;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
     0,                                              //int     timetoevolve;
     ABUILDER_UPG_VALUE                              //int     value;
@@ -1307,7 +1309,8 @@ classAttributes_t bg_classList[ ] =
     25,                                             //int     steptime;
     SOLDIER_SPEED,                                  //float   speed;
     10.0f,                                          //float   acceleration;
-    20.0f,                                          //float   friction;
+    6.0f,                                           //float   friction;
+    400.0f,                                         //float   stopSpeed;
     { PCL_A_O_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
     SOLDIER_TTE,                                    //int     timetoevolve;
     SOLDIER_VALUE                                   //int     value;
@@ -1339,7 +1342,8 @@ classAttributes_t bg_classList[ ] =
     25,                                             //int     steptime;
     HYDRA_SPEED,                                    //float   speed;
     10.0f,                                          //float   acceleration;
-    10.0f,                                          //float   friction;
+    6.0f,                                           //float   friction;
+    300.0f,                                         //float   stopSpeed;
     { PCL_A_O_LEV2, PCL_A_O_LEV1_UPG, PCL_NONE },   //int     children[ 3 ];
     HYDRA_TTE,                                      //int     timetoevolve;
     HYDRA_VALUE                                     //int     value;
@@ -1372,6 +1376,7 @@ classAttributes_t bg_classList[ ] =
     HYDRA_UPG_SPEED,                                //float   speed;
     10.0f,                                          //float   acceleration;
     6.0f,                                           //float   friction;
+    300.0f,                                         //float   stopSpeed;
     { PCL_A_O_LEV2, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
     HYDRA_UPG_TTE,                                  //int     timetoevolve;
     HYDRA_UPG_VALUE                                 //int     value;
@@ -1403,6 +1408,7 @@ classAttributes_t bg_classList[ ] =
     DRAGOON_SPEED,                                  //float   speed;
     10.0f,                                          //float   acceleration;
     6.0f,                                           //float   friction;
+    200.0f,                                         //float   stopSpeed;
     { PCL_A_O_LEV3, PCL_A_O_LEV2_UPG, PCL_NONE },   //int     children[ 3 ];
     DRAGOON_TTE,                                    //int     timetoevolve;
     DRAGOON_VALUE                                   //int     value;
@@ -1434,6 +1440,7 @@ classAttributes_t bg_classList[ ] =
     DRAGOON_UPG_SPEED,                              //float   speed;
     10.0f,                                          //float   acceleration;
     6.0f,                                           //float   friction;
+    200.0f,                                         //float   stopSpeed;
     { PCL_A_O_LEV3, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
     DRAGOON_UPG_TTE,                                //int     timetoevolve;
     DRAGOON_UPG_VALUE                               //int     value;
@@ -1465,6 +1472,7 @@ classAttributes_t bg_classList[ ] =
     CHIMERA_SPEED,                                  //float   speed;
     10.0f,                                          //float   acceleration;
     6.0f,                                           //float   friction;
+    100.0f,                                         //float   stopSpeed;
     { PCL_A_O_LEV4, PCL_A_O_LEV3_UPG, PCL_NONE },   //int     children[ 3 ];
     CHIMERA_TTE,                                    //int     timetoevolve;
     CHIMERA_VALUE                                   //int     value;
@@ -1496,6 +1504,7 @@ classAttributes_t bg_classList[ ] =
     CHIMERA_UPG_SPEED,                              //float   speed;
     10.0f,                                          //float   acceleration;
     6.0f,                                           //float   friction;
+    100.0f,                                         //float   stopSpeed;
     { PCL_A_O_LEV4, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
     CHIMERA_UPG_TTE,                                //int     timetoevolve;
     CHIMERA_UPG_VALUE                               //int     value;
@@ -1527,6 +1536,7 @@ classAttributes_t bg_classList[ ] =
     BMOFO_SPEED,                                    //float   speed;
     5.0f,                                           //float   acceleration;
     6.0f,                                           //float   friction;
+    100.0f,                                         //float   stopSpeed;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
     0,                                              //int     timetoevolve;
     BMOFO_VALUE                                     //int     value;
@@ -1557,6 +1567,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   speed;
     10.0f,                                          //float   acceleration;
     6.0f,                                           //float   friction;
+    100.0f,                                         //float   stopSpeed;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
     0,                                              //int     timetoevolve;
     0                                               //int     value;
@@ -1572,7 +1583,7 @@ classAttributes_t bg_classList[ ] =
     
     "bsuit", ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), { 0, 0, 0 }, { 0, 0, 0, },                             
     { 0, 0, 0, }, { 0, 0, 0, }, { 0, 0, 0, }, 0, 0, 0, 0, 0, WP_NONE, 0.0f, 0,   
-    0.0f, 0, 1.0f, 1.0f, 1.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
+    0.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
   }
 };
 
@@ -1965,6 +1976,27 @@ float BG_FindFrictionForClass( int pclass )
   
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindFrictionForClass\n" );
   return 6.0f;
+}
+
+/*
+==============
+BG_FindStopSpeedForClass
+==============
+*/
+float BG_FindStopSpeedForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].stopSpeed;
+    }
+  }
+  
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindFrictionForClass\n" );
+  return 100.0f;
 }
 
 /*

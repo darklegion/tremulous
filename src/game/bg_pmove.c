@@ -251,7 +251,9 @@ static void PM_Friction( void )
       // if getting knocked back, no friction
       if( !( pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) )
       {
-        control = speed < pm_stopspeed ? pm_stopspeed : speed;
+        float stopSpeed = BG_FindStopSpeedForClass( pm->ps->stats[ STAT_PCLASS ] );
+        
+        control = speed < stopSpeed ? stopSpeed : speed;
         drop += control * BG_FindFrictionForClass( pm->ps->stats[ STAT_PCLASS ] ) * pml.frametime;
       }
     }

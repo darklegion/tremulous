@@ -906,9 +906,11 @@ typedef struct
   int       fov;
   float     bob;
   int       steptime;
+
   float     speed;
   float     acceleration;
   float     friction;
+  float     stopSpeed;
 
   int       children[ 3 ];
   int       timeToEvolve;
@@ -1095,6 +1097,7 @@ float     BG_FindBobForClass( int pclass );
 float     BG_FindSpeedForClass( int pclass );
 float     BG_FindAccelerationForClass( int pclass );
 float     BG_FindFrictionForClass( int pclass );
+float     BG_FindStopSpeedForClass( int pclass );
 int       BG_FindSteptimeForClass( int pclass );
 qboolean  BG_ClassHasAbility( int pclass, int ability );
 weapon_t  BG_FindStartWeaponForClass( int pclass );
