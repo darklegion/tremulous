@@ -111,12 +111,6 @@ static void CG_Obituary( entityState_t *ent )
     case MOD_SLOWBLOB:
       message = "should have visited a medical station";
       break;
-    case MOD_POISON:
-      message = "should have remembered the antitox";
-      break;
-    case MOD_HYDRA_PCLOUD: //FIXME
-      message = "was gassed by a hydra";
-      break;
     default:
       message = NULL;
       break;
@@ -258,6 +252,16 @@ static void CG_Obituary( entityState_t *ent )
         message2 = "'s big mofo";
         break;
         
+      case MOD_POISON:
+        message = "should have used antitox against";
+        message2 = "'s poison";
+        break;
+      case MOD_HYDRA_PCLOUD:
+        message = "was gassed by";
+        message2 = "'s hydra";
+        break;
+      
+      
       case MOD_TELEFRAG:
         message = "tried to invade";
         message2 = "'s personal space";

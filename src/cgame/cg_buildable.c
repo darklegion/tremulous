@@ -932,15 +932,27 @@ void CG_Buildable( centity_t *cent )
       break;
   }
 
-  if( cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && es->eFlags & EF_FIRING )
+  //weapon effects for turrets
+  if( es->eFlags & EF_FIRING )
   {
     weaponInfo_t *weapon = &cg_weapons[ es->weapon ];
-    
-    if( weapon->flashDlightColor[ 0 ] || weapon->flashDlightColor[ 1 ] || weapon->flashDlightColor[ 2 ] )
+      
+    if( cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME || 
+        BG_FindProjTypeForBuildable( es->modelindex ) == WP_TESLAGEN )
     {
-      trap_R_AddLightToScene( cent->lerpOrigin, 300 + ( rand( ) & 31 ), weapon->flashDlightColor[ 0 ],
-        weapon->flashDlightColor[ 1 ], weapon->flashDlightColor[ 2 ] );
+      if( weapon->flashDlightColor[ 0 ] || weapon->flashDlightColor[ 1 ] || weapon->flashDlightColor[ 2 ] )
+      {
+        trap_R_AddLightToScene( cent->lerpOrigin, 300 + ( rand( ) & 31 ), weapon->flashDlightColor[ 0 ],
+          weapon->flashDlightColor[ 1 ], weapon->flashDlightColor[ 2 ] );
+      }
     }
+      
+    if( weapon->firingSound )
+    {
+      trap_S_AddLoopingSound( es->number, cent->lerpOrigin, vec3_origin, weapon->firingSound );
+    }
+    else if( weapon->readySound )
+      trap_S_AddLoopingSound( es->number, cent->lerpOrigin, vec3_origin, weapon->readySound );
   }
     
   //smoke etc for damaged buildables

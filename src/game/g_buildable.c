@@ -1741,22 +1741,19 @@ void HTeslaGen_Think( gentity_t *self )
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 
-  //used for client side muzzle flashes
-  self->s.eFlags &= ~EF_FIRING;
-  
   //if not powered don't do anything and check again for power next think
-  if( !( self->powered = findPower( self ) ) )
+  if( !( self->powered = findPower( self ) ) || !( self->dcced = findDCC( self ) ) )
   {
+    self->s.eFlags &= ~EF_FIRING;
     self->nextthink = level.time + POWER_REFRESH_TIME;
     return;
   }
   
-  //find DCC
-  if( !( self->dcced = findDCC( self ) ) )
-    return;
-  
   if( self->spawned && self->count < level.time )
   {
+    //used to mark client side effects
+    self->s.eFlags &= ~EF_FIRING;
+    
     VectorSet( range, TESLAGEN_RANGE, TESLAGEN_RANGE, TESLAGEN_RANGE );
     VectorAdd( self->s.origin, range, maxs );
     VectorSubtract( self->s.origin, range, mins );

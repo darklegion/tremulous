@@ -353,7 +353,9 @@ struct gclient_s
   gentity_t           *infestBody;      //TA: body that is being infested. must be persistant
 
   int                 lastPoisonTime;
+  gentity_t           *lastPoisonClient;
   int                 lastPoisonCloudedTime;
+  gentity_t           *lastPoisonCloudedClient;
   int                 lastGrabTime;
   int                 lastLockTime;
   int                 lastSlowTime;
