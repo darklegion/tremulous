@@ -2098,6 +2098,9 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
     case CG_PLAYER_ALIEN_SENSE:
       CG_DrawAlienSense( &rect );
       break;
+    case CG_PLAYER_HUMAN_SCANNER:
+      CG_DrawHumanScanner( &rect, shader );
+      break;
     case CG_PLAYER_USABLE_BUILDABLE:
       CG_DrawUsableBuildable( &rect, shader, color );
       break;

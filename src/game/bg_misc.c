@@ -2222,7 +2222,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "prifle",             //char      *weaponName;
     "Pulse Rifle",        //char      *weaponHumanName;
-    { "models/weapons2/plasma/plasma.md3", 0, 0, 0 },
+    { "models/weapons2/prifle/prifle.md3", 0, 0, 0 },
     "icons/iconw_pulse",
     "gfx/2d/crosshaira", 24,
     PRIFLE_CLIPS,         //int       quan;

@@ -644,18 +644,18 @@ float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, 
     if( g_damageRegions[ class ][ i ].minAngle >
         g_damageRegions[ class ][ i ].maxAngle )
     {
-      rotationBound = ( hitRotation > g_damageRegions[ class ][ i ].minAngle &&
-                        hitRotation < 360 ) || ( hitRotation >= 0 &&
+      rotationBound = ( hitRotation >= g_damageRegions[ class ][ i ].minAngle &&
+                        hitRotation <= 360 ) || ( hitRotation >= 0 &&
                         hitRotation <= g_damageRegions[ class ][ i ].maxAngle );
     }
     else
     {
-      rotationBound = ( hitRotation > g_damageRegions[ class ][ i ].minAngle &&
+      rotationBound = ( hitRotation >= g_damageRegions[ class ][ i ].minAngle &&
                         hitRotation <= g_damageRegions[ class ][ i ].maxAngle );
     }
     
     if( rotationBound &&
-        hitRatio > g_damageRegions[ class ][ i ].minHeight &&
+        hitRatio >= g_damageRegions[ class ][ i ].minHeight &&
         hitRatio <= g_damageRegions[ class ][ i ].maxHeight &&
         ( g_damageRegions[ class ][ i ].crouch ==
           ( targ->client->ps.pm_flags & PMF_DUCKED ) ) )
@@ -670,21 +670,21 @@ float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, 
       {
         qboolean rotationBound;
         
-        if( g_damageRegions[ class ][ i ].minAngle >
-            g_damageRegions[ class ][ i ].maxAngle )
+        if( g_armourRegions[ i ][ j ].minAngle >
+            g_armourRegions[ i ][ j ].maxAngle )
         {
-          rotationBound = ( hitRotation > g_damageRegions[ class ][ i ].minAngle &&
-                            hitRotation < 360 ) || ( hitRotation >= 0 &&
-                            hitRotation <= g_damageRegions[ class ][ i ].maxAngle );
+          rotationBound = ( hitRotation >= g_armourRegions[ i ][ j ].minAngle &&
+                            hitRotation <= 360 ) || ( hitRotation >= 0 &&
+                            hitRotation <= g_armourRegions[ i ][ j ].maxAngle );
         }
         else
         {
-          rotationBound = ( hitRotation > g_damageRegions[ class ][ i ].minAngle &&
-                            hitRotation <= g_damageRegions[ class ][ i ].maxAngle );
+          rotationBound = ( hitRotation >= g_armourRegions[ i ][ j ].minAngle &&
+                            hitRotation <= g_armourRegions[ i ][ j ].maxAngle );
         }
         
         if( rotationBound &&
-            hitRatio > g_armourRegions[ i ][ j ].minHeight &&
+            hitRatio >= g_armourRegions[ i ][ j ].minHeight &&
             hitRatio <= g_armourRegions[ i ][ j ].maxHeight &&
             ( g_armourRegions[ i ][ j ].crouch ==
               ( targ->client->ps.pm_flags & PMF_DUCKED ) ) )
@@ -693,6 +693,7 @@ float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, 
     }
   }
   
+  G_Printf( "%f\n", modifier );
   return modifier;
 }
 
