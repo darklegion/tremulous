@@ -744,6 +744,9 @@ typedef struct {
   qhandle_t metalGib6;
   qhandle_t metalGib7;
   qhandle_t metalGib8;
+
+  qhandle_t gibSpark1;
+  qhandle_t gibSpark2;
   
   qhandle_t smoke2;
 
@@ -1353,6 +1356,12 @@ void CG_InitBuildables( );
 // cg_spriter.c
 //
 void CG_Spriter( centity_t *cent );
+void CG_LaunchSprite( const vec3_t p, const vec3_t vel, const vec3_t accel, float bounce,
+                      float initRad, float finalRad,
+                      float initAlp, float finalAlp,
+                      float rotation,
+                      int startTime, int duration,
+                      qhandle_t hShader, qboolean overdraw, qboolean realLight );
 
 //
 // cg_animmapobj.c
