@@ -535,8 +535,7 @@ static void CG_DrawProgressBar( rectDef_t *rect, vec4_t color,
                                 float scale, int align, int textStyle, float progress )
 {
   int     rimWidth = (int)( rect->h / 20.0f );
-  float   doneWidth = ( rect->w - 2 * rimWidth ) * progress;
-  float   leftWidth = ( rect->w - 2 * rimWidth ) - doneWidth;
+  float   doneWidth, leftWidth;
   float   tx, ty, tw, th;
   char    textBuffer[ 8 ];
   
@@ -544,6 +543,9 @@ static void CG_DrawProgressBar( rectDef_t *rect, vec4_t color,
     progress = 0.0f;
   else if( progress > 1.0f )
     progress = 1.0f;
+  
+  doneWidth = ( rect->w - 2 * rimWidth ) * progress;
+  leftWidth = ( rect->w - 2 * rimWidth ) - doneWidth;
   
   trap_R_SetColor( color );
   

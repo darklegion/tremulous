@@ -519,6 +519,87 @@ void CG_GhostBuildable( buildable_t buildable )
   trap_R_AddRefEntityToScene( &ent );
 }
 
+#define HEALTH_BAR_WIDTH  50.0f
+#define HEALTH_BAR_HEIGHT 15.0f
+
+/*
+==================
+CG_BuildableHealthBar
+==================
+*/
+void CG_BuildableHealthBar( centity_t *cent )
+{
+  vec3_t          origin, origin2, down, right, back, downLength, rightLength;
+  float           rimWidth = HEALTH_BAR_HEIGHT / 15.0f;
+  float           doneWidth, leftWidth, progress;
+  int             health;
+  qhandle_t       shader;
+  entityState_t   *es;
+  vec3_t          mins, maxs;
+
+  es = &cent->currentState;
+
+  health = es->generic1 & ~( B_POWERED_TOGGLEBIT | B_DCCED_TOGGLEBIT );
+  progress = (float)health / 63.0f;
+  
+  if( progress < 0.0f )
+    progress = 0.0f;
+  else if( progress > 1.0f )
+    progress = 1.0f;
+  
+  if( progress < 0.33f )
+    shader = cgs.media.redBuildShader;
+  else
+    shader = cgs.media.greenBuildShader;
+  
+  doneWidth = ( HEALTH_BAR_WIDTH - 2 * rimWidth ) * progress;
+  leftWidth = ( HEALTH_BAR_WIDTH - 2 * rimWidth ) - doneWidth;
+  
+  VectorCopy( cg.refdef.viewaxis[ 2 ], down );
+  VectorInverse( down );
+  VectorCopy( cg.refdef.viewaxis[ 1 ], right );
+  VectorInverse( right );
+  VectorSubtract( cg.refdef.vieworg, cent->lerpOrigin, back );
+  VectorNormalize( back );
+  VectorCopy( cent->lerpOrigin, origin );
+
+  BG_FindBBoxForBuildable( es->modelindex, mins, maxs );
+  VectorMA( origin, 48.0f, es->origin2, origin );
+  VectorMA( origin, -HEALTH_BAR_WIDTH / 2.0f, right, origin );
+  VectorMA( origin, maxs[ 0 ] + 8.0f, back, origin );
+  
+  VectorCopy( origin, origin2 );
+  VectorScale( right, rimWidth + doneWidth, rightLength );
+  VectorScale( down, HEALTH_BAR_HEIGHT, downLength );
+  CG_DrawPlane( origin2, downLength, rightLength, shader );
+  
+  VectorMA( origin, rimWidth + doneWidth, right, origin2 );
+  VectorScale( right, leftWidth, rightLength );
+  VectorScale( down, rimWidth, downLength );
+  CG_DrawPlane( origin2, downLength, rightLength, shader );
+  
+  VectorMA( origin, rimWidth + doneWidth, right, origin2 );
+  VectorMA( origin2, HEALTH_BAR_HEIGHT - rimWidth, down, origin2 );
+  VectorScale( right, leftWidth, rightLength );
+  VectorScale( down, rimWidth, downLength );
+  CG_DrawPlane( origin2, downLength, rightLength, shader );
+  
+  VectorMA( origin, HEALTH_BAR_WIDTH - rimWidth, right, origin2 );
+  VectorScale( right, rimWidth, rightLength );
+  VectorScale( down, HEALTH_BAR_HEIGHT, downLength );
+  CG_DrawPlane( origin2, downLength, rightLength, shader );
+  
+  if( !( es->generic1 & B_POWERED_TOGGLEBIT ) &&
+      BG_FindTeamForBuildable( es->modelindex ) == WUT_HUMANS )
+  {
+    VectorMA( origin, 15.0f, right, origin2 );
+    VectorMA( origin2, HEALTH_BAR_HEIGHT + 5.0f, down, origin2 );
+    VectorScale( right, HEALTH_BAR_WIDTH / 2.0f - 5.0f, rightLength );
+    VectorScale( down,  HEALTH_BAR_WIDTH / 2.0f - 5.0f, downLength );
+    CG_DrawPlane( origin2, downLength, rightLength, cgs.media.noPowerShader );
+  }
+}
+
 /*
 ==================
 CG_Buildable
@@ -647,5 +728,20 @@ void CG_Buildable( centity_t *cent )
     turretTop.backlerp = ent.backlerp;
 
     trap_R_AddRefEntityToScene( &turretTop );
+  }
+
+  switch( cg.predictedPlayerState.weapon )
+  {
+    case WP_ABUILD:
+    case WP_ABUILD2:
+    case WP_HBUILD:
+    case WP_HBUILD2:
+      if( BG_FindTeamForBuildable( es->modelindex ) ==
+          BG_FindTeamForWeapon( cg.predictedPlayerState.weapon ) )
+        CG_BuildableHealthBar( cent );
+      break;
+
+    default:
+      break;
   }
 }

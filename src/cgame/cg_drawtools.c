@@ -18,6 +18,57 @@
 #include "cg_local.h"
 
 /*
+===============
+CG_DrawPlane
+
+Draw a quad in 3 space - basically CG_DrawPic in 3 space
+===============
+*/
+void CG_DrawPlane( vec3_t origin, vec3_t down, vec3_t right, qhandle_t shader )
+{
+  polyVert_t  verts[ 4 ];
+  vec3_t      temp;
+  
+  VectorCopy( origin, verts[ 0 ].xyz );
+  verts[ 0 ].st[ 0 ] = 0;
+  verts[ 0 ].st[ 1 ] = 0;
+  verts[ 0 ].modulate[ 0 ] = 255;
+  verts[ 0 ].modulate[ 1 ] = 255;
+  verts[ 0 ].modulate[ 2 ] = 255;
+  verts[ 0 ].modulate[ 3 ] = 255;
+  
+  VectorAdd( origin, right, temp );
+  VectorCopy( temp, verts[ 1 ].xyz );
+  verts[ 1 ].st[ 0 ] = 1;
+  verts[ 1 ].st[ 1 ] = 0;
+  verts[ 1 ].modulate[ 0 ] = 255;
+  verts[ 1 ].modulate[ 1 ] = 255;
+  verts[ 1 ].modulate[ 2 ] = 255;
+  verts[ 1 ].modulate[ 3 ] = 255;
+  
+  VectorAdd( origin, right, temp );
+  VectorAdd( temp, down, temp );
+  VectorCopy( temp, verts[ 2 ].xyz );
+  verts[ 2 ].st[ 0 ] = 1;
+  verts[ 2 ].st[ 1 ] = 1;
+  verts[ 2 ].modulate[ 0 ] = 255;
+  verts[ 2 ].modulate[ 1 ] = 255;
+  verts[ 2 ].modulate[ 2 ] = 255;
+  verts[ 2 ].modulate[ 3 ] = 255;
+  
+  VectorAdd( origin, down, temp );
+  VectorCopy( temp, verts[ 3 ].xyz );
+  verts[ 3 ].st[ 0 ] = 0;
+  verts[ 3 ].st[ 1 ] = 1;
+  verts[ 3 ].modulate[ 0 ] = 255;
+  verts[ 3 ].modulate[ 1 ] = 255;
+  verts[ 3 ].modulate[ 2 ] = 255;
+  verts[ 3 ].modulate[ 3 ] = 255;
+  
+  trap_R_AddPolyToScene( shader, 4, verts );
+}
+
+/*
 ================
 CG_AdjustFrom640
 

@@ -743,6 +743,7 @@ static void CG_RegisterGraphics( void ) {
   //TA: building shaders
   cgs.media.greenBuildShader = trap_R_RegisterShader("gfx/2d/greenbuild" );
   cgs.media.redBuildShader = trap_R_RegisterShader("gfx/2d/redbuild" );
+  cgs.media.noPowerShader = trap_R_RegisterShader("gfx/2d/nopower" );
 
   // powerup shaders
   cgs.media.quadShader = trap_R_RegisterShader("powerups/quad" );

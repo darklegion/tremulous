@@ -2175,6 +2175,18 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   else
     VectorSet( normal, 0.0f, 0.0f, 1.0f );
 
+  built->s.generic1 = (int)( ( (float)built->health /
+        (float)BG_FindHealthForBuildable( buildable ) ) * 63.0f );
+
+  if( built->s.generic1 < 0 )
+    built->s.generic1 = 0;
+    
+  if( built->powered )
+    built->s.generic1 |= B_POWERED_TOGGLEBIT;
+  
+  if( built->dcced )
+    built->s.generic1 |= B_DCCED_TOGGLEBIT;
+    
   VectorCopy( normal, built->s.origin2 );
   
   G_AddEvent( built, EV_BUILD_CONSTRUCT, BANIM_CONSTRUCT1 );

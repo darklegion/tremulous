@@ -884,6 +884,7 @@ typedef struct {
   //TA: buildable shaders
   qhandle_t greenBuildShader;
   qhandle_t redBuildShader;
+  qhandle_t noPowerShader;
 
   // weapon effect models
   qhandle_t bulletFlashModel;
@@ -1311,6 +1312,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 //
 // cg_drawtools.c
 //
+void CG_DrawPlane( vec3_t origin, vec3_t down, vec3_t right, qhandle_t shader );
 void CG_AdjustFrom640( float *x, float *y, float *w, float *h );
 void CG_FillRect( float x, float y, float width, float height, const float *color );
 void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader );

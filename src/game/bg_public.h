@@ -444,6 +444,10 @@ typedef enum
   BIT_NUM_TEAMS
 } buildableTeam_t;
 
+#define B_POWERED_TOGGLEBIT 0x00000040
+#define B_DCCED_TOGGLEBIT   0x00000080
+
+
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
 #define PLAYEREVENT_DENIEDREWARD    0x0001
 #define PLAYEREVENT_GAUNTLETREWARD    0x0002
