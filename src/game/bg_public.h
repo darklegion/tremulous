@@ -229,27 +229,26 @@ typedef enum {
   STAT_BUILDABLE  //TA: which ghost model to display for building
 } statIndex_t;
 
-#define SCA_WALLCLIMBER         1
-#define SCA_TAKESFALLDAMAGE     2
-#define SCA_CANZOOM             4
-#define SCA_CANJUMP             8
-#define SCA_NOWEAPONDRIFT       16
-#define SCA_FOVWARPS            32
-#define SCA_ALIENSENSE          64
+#define SCA_WALLCLIMBER         0x00000001
+#define SCA_TAKESFALLDAMAGE     0x00000002
+#define SCA_CANZOOM             0x00000004
+#define SCA_CANJUMP             0x00000008
+#define SCA_NOWEAPONDRIFT       0x00000010
+#define SCA_FOVWARPS            0x00000020
+#define SCA_ALIENSENSE          0x00000040
 
-#define SS_WALLCLIMBING         1
-#define SS_WALLCLIMBINGCEILING  2
-#define SS_WALLCLIMBINGFOLLOW   4
-#define SS_CREEPSLOWED          8
-#define SS_SPEEDBOOST           16
-#define SS_INFESTING            32
-#define SS_GRABBED              64
-#define SS_BLOBLOCKED           128
-#define SS_POISONED             256
-#define SS_HOVELING             512
-#define SS_BOOSTED              1024
+#define SS_WALLCLIMBING         0x00000001
+#define SS_WALLCLIMBINGCEILING  0x00000002
+#define SS_CREEPSLOWED          0x00000004
+#define SS_SPEEDBOOST           0x00000008
+#define SS_INFESTING            0x00000010
+#define SS_GRABBED              0x00000020
+#define SS_BLOBLOCKED           0x00000040
+#define SS_POISONED             0x00000080
+#define SS_HOVELING             0x00000100
+#define SS_BOOSTED              0x00000200
 
-#define SB_VALID_TOGGLEBIT      16384
+#define SB_VALID_TOGGLEBIT      0x00004000
 
 #define MAX_STAMINA             1000
 
@@ -261,20 +260,17 @@ typedef enum {
   PERS_HITS,            // total points damage inflicted so damage beeps can sound on change
   PERS_RANK,
   PERS_TEAM,
-  PERS_SPAWN_COUNT,       // incremented every respawn
-  PERS_PLAYEREVENTS,        // 16 bits that can be flipped for events
+  PERS_SPAWN_COUNT,     // incremented every respawn
+  PERS_PLAYEREVENTS,    // 16 bits that can be flipped for events
   PERS_REWARD,          // a reward_t
-  PERS_ATTACKER,          // clientnum of last damage inflicter
+  PERS_ATTACKER,        // clientnum of last damage inflicter
   PERS_KILLED,          // count of the number of times you died
-  // these were added for single player awards tracking
-  PERS_IMPRESSIVE_COUNT,
-  PERS_EXCELLENT_COUNT,
-  PERS_GAUNTLET_FRAG_COUNT,
-  PERS_ACCURACY_SHOTS,
-  PERS_ACCURACY_HITS
-  //TA: FIXME: /\ get rid of award counts to make some room
+
+  //TA:
+  PERS_STATE
 } persEnum_t;
 
+#define PS_WALLCLIMBINGFOLLOW   0x00000001
 
 // entityState_t->eFlags
 #define EF_DEAD             0x00000001    // don't draw a foe marker over players with EF_DEAD

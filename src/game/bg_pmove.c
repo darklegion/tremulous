@@ -1506,7 +1506,7 @@ static void PM_GroundClimbTrace( void )
         //set the correction angle
         traceANGsurf *= 1.0f - ldDOTtCs;
 
-        if( !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGFOLLOW ) )
+        if( !( pm->ps->persistant[ PERS_STATE ] & PS_WALLCLIMBINGFOLLOW ) )
         {
           //correct the angle
           pm->ps->delta_angles[ PITCH ] -= ANGLE2SHORT( traceANGsurf );

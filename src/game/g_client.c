@@ -1069,9 +1069,9 @@ void ClientUserinfoChanged( int clientNum ) {
   // wallwalk follow
   s = Info_ValueForKey( userinfo, "cg_wwFollow" );
   if( atoi( s ) )
-    client->ps.stats[ STAT_STATE ] |= SS_WALLCLIMBINGFOLLOW;
+    client->ps.persistant[ PERS_STATE ] |= PS_WALLCLIMBINGFOLLOW;
   else
-    client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGFOLLOW;
+    client->ps.persistant[ PERS_STATE ] &= ~PS_WALLCLIMBINGFOLLOW;
 
   // teamInfo
   s = Info_ValueForKey( userinfo, "teamoverlay" );
