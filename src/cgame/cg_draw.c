@@ -2170,7 +2170,7 @@ static void CG_Draw2D( void )
 {
   vec4_t    color;
   float     w;
-  menuDef_t *menu, *defaultMenu;
+  menuDef_t *menu = NULL, *defaultMenu;
 
   color[ 0 ] = color[ 1 ] = color[ 2 ] = color[ 3 ] = 1.0f;
   
@@ -2190,7 +2190,9 @@ static void CG_Draw2D( void )
   //TA: draw the lighting effects e.g. nvg
   CG_DrawLighting( );
 
-  menu = Menus_FindByName( BG_FindHudNameForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] ) );
+  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] != PTE_NONE )
+    menu = Menus_FindByName( BG_FindHudNameForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] ) );
+  
   defaultMenu = Menus_FindByName( "default_hud" );
   
   if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
