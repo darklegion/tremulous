@@ -1825,11 +1825,11 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
     break;
   case WP_SAWBLADE_LAUNCHER:
     mod = cgs.media.dishFlashModel;
-    shader = cgs.media.rocketExplosionShader;
+/*    shader = cgs.media.rocketExplosionShader;
     sfx = cgs.media.sfx_rockexp;
     mark = cgs.media.burnMarkShader;
     radius = 64;
-    isSprite = qtrue;
+    isSprite = qtrue;*/
     break;
   case WP_RAILGUN:
     mod = cgs.media.ringFlashModel;

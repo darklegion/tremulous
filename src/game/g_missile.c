@@ -501,7 +501,7 @@ gentity_t *fire_sawblade( gentity_t *self, vec3_t start, vec3_t dir )
 
 	bolt = G_Spawn( );
 	bolt->classname = "sawblade";
-	bolt->nextthink = level.time + 20000;
+	bolt->nextthink = level.time + 5000;
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
