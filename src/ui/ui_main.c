@@ -1048,7 +1048,7 @@ tremInfoPane_t *UI_FindInfoPaneByName( const char *name )
 
   //create a dummy infopane demanding the user write the infopane
   uiInfo.tremInfoPanes[ i ].name = String_Alloc( name );
-  strncpy( uiInfo.tremInfoPanes[ i ].text, "Not implemented.\n\nui/infopanes.def", MAX_INFOPANE_TEXT );
+  strncpy( uiInfo.tremInfoPanes[ i ].text, "Not implemented.\n\nui/infopanes.def\n", MAX_INFOPANE_TEXT );
   Q_strcat( uiInfo.tremInfoPanes[ i ].text, MAX_INFOPANE_TEXT, String_Alloc( name ) );
   
   uiInfo.tremInfoPaneCount++;
