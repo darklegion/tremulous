@@ -669,15 +669,22 @@ static void CG_LightFlare( centity_t *cent )
   maxAngle = es->origin2[ 1 ];
 
   if( maxAngle > 0.0f )
-    flare.radius *= 1.0f - ( 180.0f - RAD2DEG( acos( DotProduct( delta, forward ) ) ) ) / maxAngle;
+  {
+    float radiusMod = 1.0f - ( 180.0f - RAD2DEG( acos( DotProduct( delta, forward ) ) ) ) / maxAngle;
+    
+    if( es->eFlags & EF_NODRAW )
+      flare.radius *= radiusMod;
+    else if( radiusMod < 0.0f )
+      flare.radius = 0.0f;
+  }   
+
+  if( flare.radius < 0.0f )
+    flare.radius = 0.0f;
   
   //if can't see the centre do not draw
   CG_Trace( &tr, flare.origin, NULL, NULL, cg.refdef.vieworg, 0, MASK_SHOT );
   if( tr.fraction < 1.0f )
     return;
-
-  if( flare.radius < 0 )
-    flare.radius = 0;
 
   trap_R_AddRefEntityToScene( &flare );
 }

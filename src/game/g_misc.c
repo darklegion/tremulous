@@ -455,6 +455,9 @@ void SP_misc_light_flare( gentity_t *self )
   self->s.eType = ET_LIGHTFLARE;
   self->s.modelindex = G_ShaderIndex( self->targetShaderName );
   VectorCopy( self->pos2, self->s.origin2 );
+  
+  if( self->spawnflags & 1 )
+    self->s.eFlags |= EF_NODRAW;
 
   trap_LinkEntity( self );
 }
