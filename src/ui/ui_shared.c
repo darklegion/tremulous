@@ -2896,6 +2896,50 @@ int Item_Text_AutoWrapped_Lines( itemDef_t *item )
   return lines;
 }
 
+#define MAX_AUTOWRAP_CACHE  16
+#define MAX_AUTOWRAP_LINES  128
+#define MAX_AUTOWRAP_TEXT   8192
+
+typedef struct
+{
+  char      text[ MAX_AUTOWRAP_TEXT ];
+  rectDef_t rect;
+  int       textWidth, textHeight;
+  int       skipLines;
+  int       lineOffsets[ MAX_AUTOWRAP_LINES ];
+  int       lineLengths[ MAX_AUTOWRAP_LINES ];
+  char      lineColors[ MAX_AUTOWRAP_LINES ][ 2 ];
+} autoWrapCache_t;
+
+static int              cacheIndex = 0;
+static autoWrapCache_t  awc[ MAX_AUTOWRAP_CACHE ];
+
+static int checkCache( const char *text, rectDef_t *rect, int width, int height )
+{
+  int i;
+
+  for( i = 0; i < MAX_AUTOWRAP_CACHE; i++ )
+  {
+    if( Q_stricmp( text, awc[ i ].text ) )
+      continue;
+
+    if( rect->x != awc[ i ].rect.x ||
+        rect->y != awc[ i ].rect.y ||
+        rect->w != awc[ i ].rect.w ||
+        rect->h != awc[ i ].rect.h )
+      continue;
+
+    if( awc[ i ].textWidth != width || awc[ i ].textHeight != height )
+      continue;
+    
+    //this is a match
+    return i;
+  }
+
+  //no match - autowrap isn't cached
+  return -1;
+}
+
 void Item_Text_AutoWrapped_Paint( itemDef_t *item )
 {
   char        text[ 1024 ];
@@ -2903,9 +2947,11 @@ void Item_Text_AutoWrapped_Paint( itemDef_t *item )
   char        buff[ 1024 ];
   char        lastCMod[ 2 ] = { 0, 0 };
   qboolean    forwardColor;
-  int         width, height, len, textWidth, newLine, newLineWidth, skipLines, totalLines;
+  int         width, height, len, offset, textWidth, newLine, newLineWidth;
+  int         skipLines, totalLines, lineNum = 0;
   float       y, totalY, diffY;
   vec4_t      color;
+  int         cache, i = 0;
 
   textWidth = 0;
   newLinePtr = NULL;
@@ -2925,63 +2971,39 @@ void Item_Text_AutoWrapped_Paint( itemDef_t *item )
 
   if( *textPtr == '\0' )
     return;
-
+    
   Item_TextColor( item, &color );
   Item_SetTextExtents( item, &width, &height, textPtr );
 
-  y = item->textaligny;
-  len = 0;
-  buff[ 0 ] = '\0';
-  newLine = 0;
-  newLineWidth = 0;
-  p = textPtr;
-  
-  totalLines = Item_Text_AutoWrapped_Lines( item );
-  
-  totalY = totalLines * ( height + 5 );
-  diffY = totalY - item->window.rect.h;
-
-  if( diffY > 0.0f )
-    skipLines = (int)( diffY / ( (float)height + 5.0f ) );
-  else
-    skipLines = 0;
-
-  while( p )
+  //check if this block is cached
+  cache = checkCache( textPtr, &item->window.rect, width, height );
+  if( cache >= 0 )
   {
-    textWidth = DC->textWidth( buff, item->textscale, 0 );
-    
-    if( *p == '^' )
-    {
-      lastCMod[ 0 ] = p[ 0 ];
-      lastCMod[ 1 ] = p[ 1 ];
-    }
-    
-    if( *p == ' ' || *p == '\t' || *p == '\n' || *p == '\0' )
-    {
-      newLine = len;
-      newLinePtr = p+1;
-      newLineWidth = textWidth;
-      
-      if( *p == '\n' ) //don't forward colours past deilberate \n's
-        lastCMod[ 0 ] = lastCMod[ 1 ] = 0;
-      else
-        forwardColor = qtrue;
-    }
+    y = item->textaligny;
+    i = awc[ cache ].skipLines;
 
-    //TA: forceably split lines that are too long (where normal splitage has failed)
-    if( textWidth > item->window.rect.w && newLine == 0 )
-    {
-      newLine = len;
-      newLinePtr = p;
-      newLineWidth = textWidth;
-      
-      forwardColor = qtrue;
-    }
+    len = awc[ cache ].lineLengths[ i ];
+    offset = awc[ cache ].lineOffsets[ i ];
 
-    if( ( newLine && textWidth > item->window.rect.w ) || *p == '\n' || *p == '\0' )
+    p = textPtr + offset;
+    
+    while( len >= 0 )
     {
-      if( len )
+      if( len >= 1 )
       {
+        if( awc[ cache ].lineColors[ i ][ 0 ] != 0 )
+        {
+          buff[ 0 ] = awc[ cache ].lineColors[ i ][ 0 ];
+          buff[ 1 ] = awc[ cache ].lineColors[ i ][ 1 ];
+          
+          len--;
+          Q_strncpyz( &buff[ 2 ], &p[ 2 ], len );
+        }
+        else
+          Q_strncpyz( buff, p, len );
+        
+        newLineWidth = DC->textWidth( buff, item->textscale, 0 );
+        
         if( item->textalignment == ITEM_ALIGN_LEFT )
           item->textRect.x = item->textalignx;
         else if( item->textalignment == ITEM_ALIGN_RIGHT )
@@ -2991,42 +3013,143 @@ void Item_Text_AutoWrapped_Paint( itemDef_t *item )
 
         item->textRect.y = y;
         ToWindowCoords( &item->textRect.x, &item->textRect.y, &item->window );
-        //
-        buff[ newLine ] = '\0';
-
-        if( !skipLines )
-          DC->drawText( item->textRect.x, item->textRect.y, item->textscale, color, buff, 0, 0, item->textStyle );
-      }
-      
-      if( *p == '\0' )
-        break;
-
-      //
-      if( !skipLines )
-        y += height + 5;
-      
-      if( skipLines )
-        skipLines--;
-
-      p = newLinePtr;
-      len = 0;
-      newLine = 0;
-      newLineWidth = 0;
-
-      if( forwardColor && lastCMod[ 0 ] != 0 )
-      {
-        buff[ len++ ] = lastCMod[ 0 ];
-        buff[ len++ ] = lastCMod[ 1 ];
+        
         buff[ len ] = '\0';
+        
+        DC->drawText( item->textRect.x, item->textRect.y, item->textscale, color, buff, 0, 0, item->textStyle );
+      }
+        
+      y += height + 5;
+    
+      i++;
+      len = awc[ cache ].lineLengths[ i ];
+      offset = awc[ cache ].lineOffsets[ i ];
+      p = textPtr + offset;
+    }
+  }
+  else
+  {
+    y = item->textaligny;
+    len = 0;
+    buff[ 0 ] = '\0';
+    newLine = 0;
+    newLineWidth = 0;
+    p = textPtr;
+    
+    totalLines = Item_Text_AutoWrapped_Lines( item );
+    
+    totalY = totalLines * ( height + 5 );
+    diffY = totalY - item->window.rect.h;
 
-        forwardColor = qfalse;
+    if( diffY > 0.0f )
+      skipLines = (int)( diffY / ( (float)height + 5.0f ) );
+    else
+      skipLines = 0;
+
+    //set up a cache entry
+    strcpy( awc[ cacheIndex ].text, textPtr );
+    awc[ cacheIndex ].rect.x = item->window.rect.x;
+    awc[ cacheIndex ].rect.y = item->window.rect.y;
+    awc[ cacheIndex ].rect.w = item->window.rect.w;
+    awc[ cacheIndex ].rect.h = item->window.rect.h;
+    awc[ cacheIndex ].textWidth = width;
+    awc[ cacheIndex ].textHeight = height;
+    awc[ cacheIndex ].skipLines = skipLines;
+    
+    while( p )
+    {
+      textWidth = DC->textWidth( buff, item->textscale, 0 );
+      
+      if( *p == '^' )
+      {
+        lastCMod[ 0 ] = p[ 0 ];
+        lastCMod[ 1 ] = p[ 1 ];
       }
       
-      continue;
+      if( *p == ' ' || *p == '\t' || *p == '\n' || *p == '\0' )
+      {
+        newLine = len;
+        newLinePtr = p+1;
+        newLineWidth = textWidth;
+        
+        if( *p == '\n' ) //don't forward colours past deilberate \n's
+          lastCMod[ 0 ] = lastCMod[ 1 ] = 0;
+        else
+          forwardColor = qtrue;
+      }
+
+      //TA: forceably split lines that are too long (where normal splitage has failed)
+      if( textWidth > item->window.rect.w && newLine == 0 )
+      {
+        newLine = len;
+        newLinePtr = p;
+        newLineWidth = textWidth;
+        
+        forwardColor = qtrue;
+      }
+
+      if( ( newLine && textWidth > item->window.rect.w ) || *p == '\n' || *p == '\0' )
+      {
+        if( len )
+        {
+          if( item->textalignment == ITEM_ALIGN_LEFT )
+            item->textRect.x = item->textalignx;
+          else if( item->textalignment == ITEM_ALIGN_RIGHT )
+            item->textRect.x = item->textalignx - newLineWidth;
+          else if( item->textalignment == ITEM_ALIGN_CENTER )
+            item->textRect.x = item->textalignx - newLineWidth / 2;
+
+          item->textRect.y = y;
+          ToWindowCoords( &item->textRect.x, &item->textRect.y, &item->window );
+          //
+          buff[ newLine ] = '\0';
+
+          if( !skipLines )
+            DC->drawText( item->textRect.x, item->textRect.y, item->textscale, color, buff, 0, 0, item->textStyle );
+        }
+        
+        awc[ cacheIndex ].lineOffsets[ lineNum ] = ( p - len ) - textPtr;
+        awc[ cacheIndex ].lineLengths[ lineNum++ ] = newLine + 1;
+        
+        if( *p == '\0' )
+          break;
+
+        //
+        if( !skipLines )
+          y += height + 5;
+        
+        if( skipLines )
+          skipLines--;
+
+        p = newLinePtr;
+        len = 0;
+        newLine = 0;
+        newLineWidth = 0;
+
+        if( forwardColor && lastCMod[ 0 ] != 0 )
+        {
+          buff[ len++ ] = lastCMod[ 0 ];
+          buff[ len++ ] = lastCMod[ 1 ];
+          buff[ len ] = '\0';
+
+          awc[ cacheIndex ].lineColors[ lineNum ][ 0 ] = lastCMod[ 0 ];
+          awc[ cacheIndex ].lineColors[ lineNum ][ 1 ] = lastCMod[ 1 ];
+
+          forwardColor = qfalse;
+        }
+        
+        continue;
+      }
+      
+      buff[ len++ ] = *p++;
+      buff[ len ] = '\0';
     }
-    
-    buff[ len++ ] = *p++;
-    buff[ len ] = '\0';
+
+    //terminate the line length list
+    awc[ cacheIndex ].lineLengths[ lineNum ] = -1;
+
+    //increment cacheIndex
+    cacheIndex = ( cacheIndex + 1 ) % MAX_AUTOWRAP_CACHE;
   }
 }
 
