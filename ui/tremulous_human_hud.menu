@@ -46,17 +46,6 @@
       ownerdraw CG_CONSOLE
     }   
 
-    //LAGOMETER
-    itemDef
-    {
-      name "lagometer"
-      rect 502 358 132 28
-      visible 1
-      decoration
-      background "lagometer"
-      ownerdraw CG_LAGOMETER
-    }   
-
     //////////////////
     //STATIC OBJECTS//
     //////////////////
@@ -299,19 +288,17 @@
       visible 1
       decoration
       forecolor 0.0 0.8 1.0 0.5
+//      background "icons/iconw_rifle.tga"
+//      background "icons/iconw_construct.tga"
+//      background "icons/iconw_chaingun.tga"
+//      background "icons/iconw_flamer.tga"
+//      background "icons/iconw_lucifer.tga"
+//      background "icons/iconw_saw.tga"
+//      background "icons/iconw_pulse.tga"
+//      background "icons/iconw_lasgun.tga"
+//      background "icons/iconw_driver.tga"
       ownerdraw CG_PLAYER_SELECT
     }   
-    
-    //WEAPON SELECT TEXT
-    itemDef
-    {
-      name "selecttext"
-      rect 200 25 240 300
-      visible 1
-      decoration
-      textScale .5
-      ownerdraw CG_PLAYER_SELECTTEXT
-    }
 
     //AMMO
     itemDef
