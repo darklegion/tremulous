@@ -175,7 +175,7 @@
 #define ALIEN_BHLTH_MODIFIER        1.0f
 #define ABHM(h)                     ((int)((float)h*ALIEN_BHLTH_MODIFIER))
 
-#define CREEP_BASESIZE              360 
+#define CREEP_BASESIZE              700 
 
 #define ASPAWN_BP                   100
 #define ASPAWN_HEALTH               ABHM(500)
@@ -424,7 +424,7 @@
 #define TESLAGEN_HEALTH             HBHM(200)
 #define TESLAGEN_SPLASHDAMAGE       50
 #define TESLAGEN_SPLASHRADIUS       100
-#define TESLAGEN_REPEAT             150
+#define TESLAGEN_REPEAT             1500
 #define TESLAGEN_RANGE              1500
 
 #define DC_BP                       80

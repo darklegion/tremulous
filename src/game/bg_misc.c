@@ -58,7 +58,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_alien_barricade",//char      *entityName;
     { "models/buildables/barricade/barricade.md3", 0, 0, 0 },
     { -35, -35, -15 },     //vec3_t    mins;
-    { 35, 35, 15 },        //vec3_t    maxs;
+    { 35, 35, 60 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     BARRICADE_BP,          //int       buildPoints;
@@ -119,8 +119,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "Acid Tube",           //char      *humanName;
     "team_alien_acid_tube",//char      *entityName;
     { "models/buildables/acid_tube/acid_tube.md3", 0, 0, 0 },
-    { -15, -15, -15 },     //vec3_t    mins;
-    { 15, 15, 15 },        //vec3_t    maxs;
+    { -35, -35, -11 },     //vec3_t    mins;
+    { 35, 35, 40 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     ACIDTUBE_BP,           //int       buildPoints;
@@ -182,7 +182,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_alien_hivemind", //char      *entityName;
     { "models/buildables/hivemind/hivemind.md3", 0, 0, 0 },
     { -45, -45, -15 },     //vec3_t    mins;
-    { 45, 45, 15 },        //vec3_t    maxs;
+    { 45, 45, 95 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     OVERMIND_BP,           //int       buildPoints;
@@ -431,8 +431,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "Defence Computer",    //char      *humanName;
     "team_human_dcc",      //char      *entityName;
     { "models/buildables/dcc/dcc.md3", 0, 0, 0 },
-    { -35, -35, -15 },     //vec3_t    mins;
-    { 35, 35, 15 },        //vec3_t    maxs;
+    { -35, -35, -13 },     //vec3_t    mins;
+    { 35, 35, 47 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     DC_BP,                 //int       buildPoints;
@@ -462,8 +462,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "Bank",                //char      *humanName;
     "team_human_bank",     //char      *entityName;
     { "models/buildables/bank/bank.md3", 0, 0, 0 },
-    { -25, -25, -15 },     //vec3_t    mins;
-    { 25, 25, 15 },        //vec3_t    maxs;
+    { -25, -25, 0 },       //vec3_t    mins;
+    { 25, 25, 45 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     BANK_BP,               //int       buildPoints;
@@ -493,8 +493,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "Armoury",             //char      *humanName;
     "team_human_armoury",  //char      *entityName;
     { "models/buildables/mcu/mcu.md3", 0, 0, 0 },
-    { -40, -40, -15 },     //vec3_t    mins;
-    { 40, 40, 15 },        //vec3_t    maxs;
+    { -40, -40, -13 },     //vec3_t    mins;
+    { 40, 40, 50 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     ARMOURY_BP,            //int       buildPoints;
@@ -525,7 +525,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_human_reactor",  //char      *entityName;
     { "models/buildables/reactor/reactor.md3", 0, 0, 0 },
     { -50, -50, -15 },     //vec3_t    mins;
-    { 50, 50, 15 },        //vec3_t    maxs;
+    { 50, 50, 95 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     REACTOR_BP,            //int       buildPoints;
@@ -556,7 +556,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_human_repeater", //char      *entityName;
     { "models/buildables/repeater/repeater.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
-    { 15, 15, 15 },        //vec3_t    maxs;
+    { 15, 15, 25 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     REPEATER_BP,           //int       buildPoints;
