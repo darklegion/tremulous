@@ -629,9 +629,9 @@ static void CG_Portal( centity_t *cent ) {
 
 #define MAX_MARK_FRAGMENTS  128
 #define MAX_MARK_POINTS     384
-#define TORCH_R             0.4f
-#define TORCH_G             0.4f
-#define TORCH_B             0.5f
+#define TORCH_R             0.2f
+#define TORCH_G             0.25f
+#define TORCH_B             0.3f
 
 /*
 ===============
@@ -650,6 +650,8 @@ static void CG_TorchLight( centity_t *cent )
   vec3_t          markPoints[ MAX_MARK_POINTS ];
   vec3_t          square[ 4 ];
   vec4_t          axis[ 3 ], color;
+  vec3_t          mins = { -15, -15, -15 };
+  vec3_t          maxs = {  15,  15,  15 };
   markFragment_t  markFragments[ MAX_MARK_FRAGMENTS ], *mf;
 
   if( cent->currentState.clientNum == cg.predictedPlayerState.clientNum )
@@ -668,7 +670,7 @@ static void CG_TorchLight( centity_t *cent )
   AngleVectors( angles, forward, NULL, NULL );
   VectorMA( from, 4096, forward, to );
 
-  CG_Trace( &tr, from, NULL, NULL, to, -1, MASK_SOLID );
+  CG_Trace( &tr, from, mins, maxs, to, -1, MASK_SOLID );
   
   VectorSubtract( tr.endpos, from, length );
   veclength = VectorLength( length );
@@ -684,12 +686,10 @@ static void CG_TorchLight( centity_t *cent )
   VectorMA( origin, 1, normal, origin );
   
 #if 1
+  trap_R_AddLightToScene( origin, size * 2, 1, 1, 1 );
   trap_R_AddAdditiveLightToScene( origin, size * 2, ( ( 512 - size ) / 512 ) * TORCH_R,
                                                     ( ( 512 - size ) / 512 ) * TORCH_G,
                                                     ( ( 512 - size ) / 512 ) * TORCH_B );
-  trap_R_AddLightToScene( origin, size * 2, ( ( 512 - size ) / 512 ) * TORCH_R,
-                                            ( ( 512 - size ) / 512 ) * TORCH_G,
-                                            ( ( 512 - size ) / 512 ) * TORCH_B );
 #else
   texCoordScale = 0.5f / size;
 
