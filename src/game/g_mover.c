@@ -906,9 +906,17 @@ void SP_func_door( gentity_t *ent )
   float   distance;
   vec3_t  size;
   float   lip;
+  char    *s;
 
-  ent->sound1to2 = ent->sound2to1 = G_SoundIndex( "sound/movers/doors/dr1_strt.wav" );
-  ent->soundPos1 = ent->soundPos2 = G_SoundIndex( "sound/movers/doors/dr1_end.wav" );
+  G_SpawnString( "sound2to1", "sound/movers/doors/dr1_strt.wav", &s );
+  ent->sound2to1 = G_SoundIndex( s );
+  G_SpawnString( "sound1to2", "sound/movers/doors/dr1_strt.wav", &s );
+  ent->sound1to2 = G_SoundIndex( s );
+  
+  G_SpawnString( "soundPos2", "sound/movers/doors/dr1_end.wav", &s );
+  ent->soundPos2 = G_SoundIndex( s );
+  G_SpawnString( "soundPos1", "sound/movers/doors/dr1_end.wav", &s );
+  ent->soundPos1 = G_SoundIndex( s );
 
   ent->blocked = Blocked_Door;
 
@@ -1078,9 +1086,17 @@ Plats are always drawn in the extended position so they will light correctly.
 void SP_func_plat( gentity_t *ent )
 {
   float lip, height;
+  char  *s;
 
-  ent->sound1to2 = ent->sound2to1 = G_SoundIndex( "sound/movers/plats/pt1_strt.wav" );
-  ent->soundPos1 = ent->soundPos2 = G_SoundIndex( "sound/movers/plats/pt1_end.wav" );
+  G_SpawnString( "sound2to1", "sound/movers/plats/pt1_strt.wav", &s );
+  ent->sound2to1 = G_SoundIndex( s );
+  G_SpawnString( "sound1to2", "sound/movers/plats/pt1_strt.wav", &s );
+  ent->sound1to2 = G_SoundIndex( s );
+  
+  G_SpawnString( "soundPos2", "sound/movers/plats/pt1_end.wav", &s );
+  ent->soundPos2 = G_SoundIndex( s );
+  G_SpawnString( "soundPos1", "sound/movers/plats/pt1_end.wav", &s );
+  ent->soundPos1 = G_SoundIndex( s );
 
   VectorClear( ent->s.angles );
 
@@ -1161,8 +1177,10 @@ void SP_func_button( gentity_t *ent )
   float   distance;
   vec3_t  size;
   float   lip;
+  char    *s;
 
-  ent->sound1to2 = G_SoundIndex( "sound/movers/switches/butn2.wav" );
+  G_SpawnString( "sound1to2", "sound/movers/switches/butn2.wav", &s );
+  ent->sound1to2 = G_SoundIndex( s );
 
   if( !ent->speed )
     ent->speed = 40;
