@@ -1,210 +1,367 @@
-# -- Makefile for building Q3A qvms on Linux
-# -- 
-# -- Copyleft under the GPL by Yumpee
-# -- yumpee@freeshell.org
-# -- http://freeshell.org/~yumpee
-# -- with additions/modifications by Timbo
-# -- tma@dcs.ed.ac.uk
+#
+# Quake3 Unix Makefile
+#
+# GNU Make required
+#
+
+# --Makefile variables--
+MOUNT_DIR=./src
+Q3A_DIR=/usr/games/quake3
+MOD_DIR=tremulous
+
+# --object list--
+GOBJ = \
+	$(GDIRNAME)/g_main.o \
+	$(GDIRNAME)/bg_misc.o \
+	$(GDIRNAME)/bg_pmove.o \
+	$(GDIRNAME)/bg_slidemove.o \
+	$(GDIRNAME)/q_math.o \
+	$(GDIRNAME)/q_shared.o \
+	$(GDIRNAME)/g_active.o \
+	$(GDIRNAME)/g_arenas.o \
+	$(GDIRNAME)/g_client.o \
+	$(GDIRNAME)/g_cmds.o \
+	$(GDIRNAME)/g_combat.o \
+	$(GDIRNAME)/g_items.o \
+	$(GDIRNAME)/g_buildable.o \
+	$(GDIRNAME)/g_creep.o \
+	$(GDIRNAME)/g_mem.o \
+	$(GDIRNAME)/g_misc.o \
+	$(GDIRNAME)/g_missile.o \
+	$(GDIRNAME)/g_mover.o \
+	$(GDIRNAME)/g_session.o \
+	$(GDIRNAME)/g_spawn.o \
+	$(GDIRNAME)/g_svcmds.o \
+	$(GDIRNAME)/g_target.o \
+	$(GDIRNAME)/g_team.o \
+	$(GDIRNAME)/g_trigger.o \
+	$(GDIRNAME)/g_utils.o \
+	$(GDIRNAME)/g_weapon.o
+
+CGOBJ = \
+	$(CGDIRNAME)/cg_main.o \
+	$(GDIRNAME)/bg_misc.o \
+	$(GDIRNAME)/bg_pmove.o \
+	$(GDIRNAME)/bg_slidemove.o \
+	$(GDIRNAME)/q_math.o \
+	$(GDIRNAME)/q_shared.o \
+	$(CGDIRNAME)/cg_consolecmds.o \
+	$(CGDIRNAME)/cg_draw.o \
+	$(CGDIRNAME)/cg_drawtools.o \
+	$(CGDIRNAME)/cg_effects.o \
+	$(CGDIRNAME)/cg_ents.o \
+	$(CGDIRNAME)/cg_event.o \
+	$(CGDIRNAME)/cg_info.o \
+	$(CGDIRNAME)/cg_localents.o \
+	$(CGDIRNAME)/cg_marks.o \
+	$(CGDIRNAME)/cg_players.o \
+	$(CGDIRNAME)/cg_playerstate.o \
+	$(CGDIRNAME)/cg_predict.o \
+	$(CGDIRNAME)/cg_scoreboard.o \
+	$(CGDIRNAME)/cg_servercmds.o \
+	$(CGDIRNAME)/cg_snapshot.o \
+	$(CGDIRNAME)/cg_view.o \
+	$(CGDIRNAME)/cg_weapons.o \
+	$(CGDIRNAME)/cg_creep.o  \
+	$(CGDIRNAME)/cg_scanner.o \
+	$(CGDIRNAME)/cg_mem.o
+  
+UIOBJ = \
+	$(UIDIRNAME)/ui_main.o \
+	$(GDIRNAME)/bg_misc.o \
+	$(GDIRNAME)/q_math.o \
+	$(GDIRNAME)/q_shared.o \
+	$(UIDIRNAME)/ui_addbots.o \
+	$(UIDIRNAME)/ui_atoms.o \
+	$(UIDIRNAME)/ui_cdkey.o \
+	$(UIDIRNAME)/ui_cinematics.o \
+	$(UIDIRNAME)/ui_confirm.o \
+	$(UIDIRNAME)/ui_connect.o \
+	$(UIDIRNAME)/ui_controls2.o \
+	$(UIDIRNAME)/ui_credits.o \
+	$(UIDIRNAME)/ui_demo2.o \
+	$(UIDIRNAME)/ui_display.o \
+	$(UIDIRNAME)/ui_gameinfo.o \
+	$(UIDIRNAME)/ui_ingame.o \
+	$(UIDIRNAME)/ui_loadconfig.o \
+	$(UIDIRNAME)/ui_menu.o \
+	$(UIDIRNAME)/ui_mfield.o \
+	$(UIDIRNAME)/ui_mods.o \
+	$(UIDIRNAME)/ui_network.o \
+	$(UIDIRNAME)/ui_options.o \
+	$(UIDIRNAME)/ui_playermodel.o \
+	$(UIDIRNAME)/ui_players.o \
+	$(UIDIRNAME)/ui_playersettings.o \
+	$(UIDIRNAME)/ui_preferences.o \
+	$(UIDIRNAME)/ui_qmenu.o \
+	$(UIDIRNAME)/ui_removebots.o \
+	$(UIDIRNAME)/ui_saveconfig.o \
+	$(UIDIRNAME)/ui_serverinfo.o \
+	$(UIDIRNAME)/ui_servers2.o \
+	$(UIDIRNAME)/ui_setup.o \
+	$(UIDIRNAME)/ui_sound.o \
+	$(UIDIRNAME)/ui_sparena.o \
+	$(UIDIRNAME)/ui_specifyserver.o \
+	$(UIDIRNAME)/ui_splevel.o \
+	$(UIDIRNAME)/ui_sppostgame.o \
+	$(UIDIRNAME)/ui_spskill.o \
+	$(UIDIRNAME)/ui_startserver.o \
+	$(UIDIRNAME)/ui_team.o \
+	$(UIDIRNAME)/ui_teamorders.o \
+	$(UIDIRNAME)/ui_video.o \
+	$(UIDIRNAME)/ui_dynamicmenu.o
+  
 
 
-# -- Default definitions, can be over-ridden by commandline options
-CPP=/usr/games/quake3/tools/q3cpp
-CPP_FLAGS=-DQ3_VM
-INCLUDES=-Icgame -Igame -Iui
 
-RCC=/usr/games/quake3/tools/q3rcc
-RCC_FLAGS=-target=bytecode -g
 
-Q3ASM=/usr/games/quake3/tools/q3asm
-Q3ASM_FLAGS=
+  
+# --You shouldn't have to touch anything below here--
 
-CC=gcc
-CC_DEPEND_FLAGS=-MM
+# --general variables--
+PLATFORM=$(shell uname|tr A-Z a-z)
+PLATFORM_RELEASE=$(shell uname -r)
+
+BD=debug$(ARCH)$(GLIBC)
+BR=release$(ARCH)$(GLIBC)
+BQ=qvm
+
+GDIRNAME=game
+CGDIRNAME=cgame
+UIDIRNAME=q3_ui
+GDIR=$(MOUNT_DIR)/$(GDIRNAME)
+CGDIR=$(MOUNT_DIR)/$(CGDIRNAME)
+UIDIR=$(MOUNT_DIR)/$(UIDIRNAME)
+
+
+# --gcc config--
+ifneq (,$(findstring libc6,$(shell if [ -e /lib/libc.so.6* ];then echo libc6;fi)))
+GLIBC=-glibc
+else
+GLIBC=
+endif #libc6 test
+
+
+ifneq (,$(findstring alpha,$(shell uname -m)))
+ARCH=axp
+RPMARCH=alpha
+VENDOR=dec
+else #default to i386
+ARCH=i386
+RPMARCH=i386
+VENDOR=unknown
+endif #alpha test
+
+BASE_CFLAGS=-Dstricmp=strcasecmp -I/usr/X11R6/include -I/usr/include/glide -pipe
+DEBUG_CFLAGS=$(BASE_CFLAGS) -g -pg
+DEPEND_CFLAGS= -MM
+
+ifeq ($(ARCH),axp)
+CC=pgcc
+RELEASE_CFLAGS=$(BASE_CFLAGS) -DNDEBUG -O6 -ffast-math -funroll-loops -fomit-frame-pointer -fexpensive-optimizations
+else
+NEWPGCC=/usr/local/gcc-2.95.2/bin/gcc
+CC=$(shell if [ -f $(NEWPGCC) ]; then echo $(NEWPGCC); else echo gcc; fi )
+RELEASE_CFLAGS=$(BASE_CFLAGS) -DNDEBUG -O6 -mcpu=pentiumpro -march=pentium -fomit-frame-pointer -pipe -ffast-math -malign-loops=2 -malign-jumps=2 -malign-functions=2 -fno-strict-aliasing -fstrength-reduce 
+endif
+
+LIBEXT=a
+
+SHLIBEXT=so
+SHLIBCFLAGS=-fPIC
+SHLIBLDFLAGS=-shared
+
+ARFLAGS=ar rv
+RANLIB=ranlib
+
+THREAD_LDFLAGS=-lpthread
+LDFLAGS=-ldl -lm
 
 SED=sed
 
-Q3ADIR=/usr/games/quake3
-MOD=tremulous
 
 
-# -- Object files of each QVM
-VM_CGAME_OBJ=    cgame/vm/cg_main.asm		\
-                 cgame/vm/cg_mem.asm	\
-                 cgame/vm/cg_consolecmds.asm	\
-                 cgame/vm/cg_draw.asm		\
-                 cgame/vm/cg_drawtools.asm	\
-                 cgame/vm/cg_effects.asm	\
-                 cgame/vm/cg_ents.asm		\
-                 cgame/vm/cg_event.asm		\
-                 cgame/vm/cg_info.asm		\
-                 cgame/vm/cg_localents.asm	\
-	               cgame/vm/cg_marks.asm		\
-                 cgame/vm/cg_players.asm	\
-                 cgame/vm/cg_playerstate.asm	\
-                 cgame/vm/cg_predict.asm	\
-                 cgame/vm/cg_scoreboard.asm	\
-                 cgame/vm/cg_servercmds.asm	\
-                 cgame/vm/cg_snapshot.asm	\
-                 cgame/vm/cg_view.asm		\
-                 cgame/vm/cg_weapons.asm	\
-                 cgame/vm/cg_creep.asm	\
-                 cgame/vm/cg_lightmap.asm \
-                 cgame/vm/cg_scanner.asm \
-                 game/vm/bg_misc.asm		\
-                 game/vm/bg_pmove.asm		\
-                 game/vm/bg_slidemove.asm	\
-                 game/vm/bg_lib.asm		\
-                 game/vm/q_math.asm		\
-                 game/vm/q_shared.asm
+# --qvm building config--
+LCC_CPP=q3cpp
+LCC_CPP_FLAGS=-DQ3_VM
+LCC_INCLUDES=-I$(CGDIR) -I$(GDIR) -I$(UIDIR)
+
+LCC_RCC=q3rcc
+LCC_RCC_FLAGS=-target=bytecode -g
+
+Q3ASM=q3asm
+Q3ASM_FLAGS=
 
 
-VM_GAME_OBJ=    game/vm/g_main.asm		\
-                game/vm/bg_misc.asm		\
-                game/vm/bg_lib.asm		\
-                game/vm/bg_pmove.asm		\
-                game/vm/bg_slidemove.asm	\
-                game/vm/q_math.asm		\
-                game/vm/q_shared.asm		\
-                game/vm/g_active.asm		\
-                game/vm/g_arenas.asm		\
-                game/vm/g_client.asm		\
-                game/vm/g_cmds.asm		\
-                game/vm/g_combat.asm		\
-                game/vm/g_items.asm		\
-                game/vm/g_buildable.asm		\
-                game/vm/g_creep.asm		\
-                game/vm/g_mem.asm		\
-                game/vm/g_misc.asm		\
-                game/vm/g_missile.asm		\
-                game/vm/g_mover.asm		\
-                game/vm/g_session.asm		\
-                game/vm/g_spawn.asm		\
-                game/vm/g_svcmds.asm		\
-                game/vm/g_target.asm		\
-                game/vm/g_team.asm		\
-                game/vm/g_trigger.asm		\
-                game/vm/g_utils.asm		\
-                game/vm/g_weapon.asm
 
-VM_UI_OBJ=	ui/vm/ui_main.asm		\
-            ui/vm/ui_mods.asm		\
-            ui/vm/ui_gameinfo.asm		\
-            ui/vm/ui_atoms.asm		\
-            ui/vm/ui_cinematics.asm		\
-            ui/vm/ui_connect.asm		\
-            ui/vm/ui_controls2.asm		\
-            ui/vm/ui_demo2.asm		\
-            ui/vm/ui_mfield.asm		\
-            ui/vm/ui_credits.asm		\
-            ui/vm/ui_menu.asm		\
-            ui/vm/ui_ingame.asm		\
-            ui/vm/ui_confirm.asm		\
-            ui/vm/ui_setup.asm		\
-            ui/vm/ui_options.asm		\
-            ui/vm/ui_display.asm		\
-            ui/vm/ui_sound.asm		\
-            ui/vm/ui_network.asm		\
-            ui/vm/ui_playermodel.asm	\
-            ui/vm/ui_players.asm		\
-            ui/vm/ui_playersettings.asm	\
-            ui/vm/ui_preferences.asm	\
-            ui/vm/ui_qmenu.asm		\
-            ui/vm/ui_serverinfo.asm		\
-            ui/vm/ui_servers2.asm		\
-            ui/vm/ui_sparena.asm		\
-            ui/vm/ui_specifyserver.asm	\
-            ui/vm/ui_sppostgame.asm		\
-            ui/vm/ui_splevel.asm		\
-            ui/vm/ui_spskill.asm		\
-            ui/vm/ui_startserver.asm	\
-            ui/vm/ui_team.asm		\
-            ui/vm/ui_video.asm		\
-            ui/vm/ui_addbots.asm		\
-            ui/vm/ui_removebots.asm		\
-            ui/vm/ui_teamorders.asm		\
-            ui/vm/ui_dynamicmenu.asm		\
-            ui/vm/ui_loadconfig.asm		\
-            ui/vm/ui_saveconfig.asm		\
-            ui/vm/ui_cdkey.asm		\
-            game/vm/bg_misc.asm		\
-            game/vm/bg_lib.asm		\
-            game/vm/q_math.asm		\
-            game/vm/q_shared.asm
+# --main targets--
+all: release debug qvm
+
+release: $(BR)/cgame$(ARCH).$(SHLIBEXT) $(BR)/qagame$(ARCH).$(SHLIBEXT) $(BR)/ui$(ARCH).$(SHLIBEXT)
+
+debug: $(BD)/cgame$(ARCH).$(SHLIBEXT) $(BD)/qagame$(ARCH).$(SHLIBEXT) $(BD)/ui$(ARCH).$(SHLIBEXT)
+
+qvm: $(BQ)/cgame.qvm $(BQ)/qagame.qvm $(BQ)/ui.qvm
+
+makedirs:
+	@if [ ! -d $(B) ];then mkdir $(B);fi
+	@if [ ! -d $(B)/$(GDIRNAME) ];then mkdir $(B)/$(GDIRNAME);fi
+	@if [ ! -d $(B)/$(CGDIRNAME) ];then mkdir $(B)/$(CGDIRNAME);fi
+	@if [ ! -d $(B)/$(UIDIRNAME) ];then mkdir $(B)/$(UIDIRNAME);fi
 
 
-# -- Makefile's main targets
-all: cgame game ui
 
-install: cgame game ui
-	-mkdir -p $(Q3ADIR)/$(MOD)/vm
-	-cp cgame/vm/cgame.qvm $(Q3ADIR)/$(MOD)/vm 
-	-cp game/vm/qagame.qvm $(Q3ADIR)/$(MOD)/vm 
-	-cp ui/vm/ui.qvm $(Q3ADIR)/$(MOD)/vm 
+# --object lists for each build type--
+GQVMOBJ = $(GOBJ:%.o=$(BQ)/%.asm)
+GROBJ = $(GOBJ:%.o=$(BR)/%.o) $(BR)/$(GDIRNAME)/g_syscalls.o
+GDOBJ = $(GOBJ:%.o=$(BD)/%.o) $(BD)/$(GDIRNAME)/g_syscalls.o
 
-cgame: cgame/vm/cgame.qvm
+CGQVMOBJ = $(CGOBJ:%.o=$(BQ)/%.asm)
+CGROBJ = $(CGOBJ:%.o=$(BR)/%.o) $(BR)/$(CGDIRNAME)/cg_syscalls.o
+CGDOBJ = $(CGOBJ:%.o=$(BD)/%.o) $(BD)/$(CGDIRNAME)/cg_syscalls.o
 
-game: game/vm/qagame.qvm
-
-ui: ui/vm/ui.qvm
-
-
-# -- Rules for compiling each QVM
-cgame/vm/cgame.qvm: $(VM_CGAME_OBJ)
-	 $(Q3ASM) $(Q3ASM_FLAGS) $^ cgame/cg_syscalls.asm
-	-mv q3asm.qvm cgame/vm/cgame.qvm
-	-mv q3asm.map cgame/vm/cgame.map
-
-game/vm/qagame.qvm: $(VM_GAME_OBJ)
-	 $(Q3ASM) $(Q3ASM_FLAGS) $^ game/g_syscalls.asm
-	-mv q3asm.qvm game/vm/qagame.qvm
-	-mv q3asm.map game/vm/qagame.map
-
-ui/vm/ui.qvm: $(VM_UI_OBJ)
-	 $(Q3ASM) $(Q3ASM_FLAGS) $^ ui/ui_syscalls.asm
-	-mv q3asm.qvm ui/vm/ui.qvm
-	-mv q3asm.map ui/vm/ui.map
+UIQVMOBJ = $(UIOBJ:%.o=$(BQ)/%.asm)
+UIROBJ = $(UIOBJ:%.o=$(BR)/%.o) $(BR)/$(UIDIRNAME)/ui_syscalls.o
+UIDOBJ = $(UIOBJ:%.o=$(BD)/%.o) $(BD)/$(UIDIRNAME)/ui_syscalls.o
 
 
-# -- Rules for compiling single files
-cgame/vm/%.asm: cgame/%.c
-	$(CPP) $(CPP_FLAGS) $(INCLUDES) $< cgame/vm/$*.i
-	$(RCC) $(RCC_FLAGS) cgame/vm/$*.i $@
-	-rm cgame/vm/$*.i
 
-game/vm/%.asm: game/%.c
-	$(CPP) $(CPP_FLAGS) $(INCLUDES) $< game/vm/$*.i
-	$(RCC) $(RCC_FLAGS) game/vm/$*.i $@
-	-rm game/vm/$*.i
+# --rules for the shared objects--
+#release qagamei386.so
+$(BR)/qagame$(ARCH).$(SHLIBEXT) : $(GROBJ)
+	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GROBJ)
+  
+#debug qagamei386.so
+$(BD)/qagame$(ARCH).$(SHLIBEXT) : $(GDOBJ)
+	$(CC) $(DEBUG_CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GDOBJ)
+  
+#qvm qagame.qvm
+$(BQ)/qagame.qvm : $(GQVMOBJ) $(BQ)/$(GDIRNAME)/bg_lib.asm
+	$(Q3ASM) $(Q3ASM_FLAGS) -o $@ $(GQVMOBJ) $(GDIR)/g_syscalls.asm $(BQ)/$(GDIRNAME)/bg_lib.asm
+  
+  
+#release cgamei386.so
+$(BR)/cgame$(ARCH).$(SHLIBEXT) : $(CGROBJ)
+	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(CGROBJ)
 
-ui/vm/%.asm: ui/%.c
-	$(CPP) $(CPP_FLAGS) $(INCLUDES) $< ui/vm/$*.i
-	$(RCC) $(RCC_FLAGS) ui/vm/$*.i $@
-	-rm ui/vm/$*.i
+#debug cgamei386.so
+$(BD)/cgame$(ARCH).$(SHLIBEXT) : $(CGDOBJ)
+	$(CC) $(DEBUG_CFLAGS) $(SHLIBLDFLAGS) -o $@ $(CGDOBJ)
+
+#qvm cgame.qvm
+$(BQ)/cgame.qvm :	$(CGQVMOBJ) $(BQ)/$(GDIRNAME)/bg_lib.asm
+	$(Q3ASM) $(Q3ASM_FLAGS) -o $@ $(CGQVMOBJ) $(CGDIR)/cg_syscalls.asm $(BQ)/$(GDIRNAME)/bg_lib.asm
+
+  
+#release uii386.so
+$(BR)/ui$(ARCH).$(SHLIBEXT) : $(UIROBJ) 
+	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(UIROBJ)
+
+#debug cgamei386.so
+$(BD)/ui$(ARCH).$(SHLIBEXT) : $(UIDOBJ) 
+	$(CC) $(DEBUG_CFLAGS) $(SHLIBLDFLAGS) -o $@ $(UIDOBJ)
+  
+#qvm ui.qvm
+$(BQ)/ui.qvm: $(UIQVMOBJ) $(BQ)/$(GDIRNAME)/bg_lib.asm
+	$(Q3ASM) $(Q3ASM_FLAGS) -o $@ $(UIQVMOBJ) $(UIDIR)/ui_syscalls.asm $(BQ)/$(GDIRNAME)/bg_lib.asm
 
 
-# -- Dependency rules (made automatically in file Q3A.depend)
+
+# --rules for the objects--
+#release g_*.o
+$(BR)/$(GDIRNAME)/%.o: $(GDIR)/%.c 
+	$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+  
+#debug g_*.o
+$(BD)/$(GDIRNAME)/%.o: $(GDIR)/%.c 
+	$(CC) $(DEBUG_CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+  
+#qvm g_*.asm
+$(BQ)/$(GDIRNAME)/%.asm: $(GDIR)/%.c 
+	$(LCC_CPP) $(LCC_CPP_FLAGS) $(LCC_INCLUDES) $< $(BQ)/$(GDIRNAME)/$*.i
+	$(LCC_RCC) $(LCC_RCC_FLAGS) $(BQ)/$(GDIRNAME)/$*.i $@
+	rm $(BQ)/$(GDIRNAME)/$*.i
+
+
+#release cg_*.o
+$(BR)/$(CGDIRNAME)/%.o: $(CGDIR)/%.c 
+	$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+  
+#debug cg_*.o
+$(BD)/$(CGDIRNAME)/%.o: $(CGDIR)/%.c 
+	$(CC) $(DEBUG_CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+
+#qvm cg_*.asm
+$(BQ)/$(CGDIRNAME)/%.asm: $(CGDIR)/%.c 
+	$(LCC_CPP) $(LCC_CPP_FLAGS) $(LCC_INCLUDES) $< $(BQ)/$(CGDIRNAME)/$*.i
+	$(LCC_RCC) $(LCC_RCC_FLAGS) $(BQ)/$(CGDIRNAME)/$*.i $@
+	rm $(BQ)/$(CGDIRNAME)/$*.i
+
+
+#release ui_*.o
+$(BR)/$(UIDIRNAME)/%.o: $(UIDIR)/%.c 
+	$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+  
+#debug ui_*.o
+$(BD)/$(UIDIRNAME)/%.o: $(UIDIR)/%.c 
+	$(CC) $(DEBUG_CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+  
+#qvm ui_*.asm
+$(BQ)/$(UIDIRNAME)/%.asm: $(UIDIR)/%.c 
+	$(LCC_CPP) $(LCC_CPP_FLAGS) $(LCC_INCLUDES) $< $(BQ)/$(UIDIRNAME)/$*.i
+	$(LCC_RCC) $(LCC_RCC_FLAGS) $(BQ)/$(UIDIRNAME)/$*.i $@
+	rm $(BQ)/$(UIDIRNAME)/$*.i
+
+
+
+# --cleaning rules--
+clean:clean-debug clean-release clean-qvm
+
+clean-debug:
+	rm -f $(BD)/$(GDIRNAME)/*.o
+	rm -f $(BD)/$(CGDIRNAME)/*.o
+	rm -f $(BD)/$(UIDIRNAME)/*.o
+
+clean-release:
+	rm -f $(BR)/$(GDIRNAME)/*.o
+	rm -f $(BR)/$(CGDIRNAME)/*.o
+	rm -f $(BR)/$(UIDIRNAME)/*.o
+
+clean-qvm:
+	rm -f $(BQ)/$(GDIRNAME)/*.asm
+	rm -f $(BQ)/$(CGDIRNAME)/*.asm
+	rm -f $(BQ)/$(UIDIRNAME)/*.asm
+
+
+
+# --installing rules--
+install-release:release
+	mkdir -p $(Q3A_DIR)/$(MOD_DIR)
+	cp $(BR)/*.so $(Q3A_DIR)/$(MOD_DIR)
+
+install-debug:debug
+	mkdir -p $(Q3A_DIR)/$(MOD_DIR)
+	cp $(BD)/*.so $(Q3A_DIR)/$(MOD_DIR)
+
+install-qvm:qvm
+	mkdir -p $(Q3A_DIR)/$(MOD_DIR)/vm
+	cp $(BQ)/*.qvm $(Q3A_DIR)/$(MOD_DIR)/vm
+
+
+# --dependency rules--
+DEPEND_FILE=depend
+
 depend:
-	-echo > Q3A.depend
-	-$(CC) $(CC_DEPEND_FLAGS) -Igame -Icgame -Iui cgame/*.c | $(SED) -e 's/\.o/.asm/g' -e 's/^\(.*asm\)/cgame\/vm\/\1/g' >> Q3A.depend
-	-$(CC) $(CC_DEPEND_FLAGS) -Igame -Icgame -Iui game/*.c | $(SED) -e 's/\.o/.asm/g' -e 's/^\(.*asm\)/game\/vm\/\1/g' >> Q3A.depend
-	-$(CC) $(CC_DEPEND_FLAGS) -Igame -Icgame -Iui ui/*.c | $(SED) -e 's/\.o/.asm/g' -e 's/^\(.*asm\)/ui\/vm\/\1/g' >> Q3A.depend
+	echo > $(DEPEND_FILE)
+	$(CC) $(DEPEND_CFLAGS) $(LCC_INCLUDES) $(GDIR)/*.c | $(SED) -e 's/^\(.*\.o\)/$(BR)\/$(GDIRNAME)\/\1/g' >> $(DEPEND_FILE)
+	$(CC) $(DEPEND_CFLAGS) $(LCC_INCLUDES) $(GDIR)/*.c | $(SED) -e 's/^\(.*\.o\)/$(BD)\/$(GDIRNAME)\/\1/g' >> $(DEPEND_FILE)
+	$(CC) $(DEPEND_CFLAGS) $(LCC_INCLUDES) $(GDIR)/*.c | $(SED) -e 's/\.o/.asm/g' -e 's/^\(.*\.asm\)/$(BQ)\/$(GDIRNAME)\/\1/g' >> $(DEPEND_FILE)
+	$(CC) $(DEPEND_CFLAGS) $(LCC_INCLUDES) $(CGDIR)/*.c | $(SED) -e 's/^\(.*\.o\)/$(BR)\/$(CGDIRNAME)\/\1/g' >> $(DEPEND_FILE)
+	$(CC) $(DEPEND_CFLAGS) $(LCC_INCLUDES) $(CGDIR)/*.c | $(SED) -e 's/^\(.*\.o\)/$(BD)\/$(CGDIRNAME)\/\1/g' >> $(DEPEND_FILE)
+	$(CC) $(DEPEND_CFLAGS) $(LCC_INCLUDES) $(CGDIR)/*.c | $(SED) -e 's/\.o/.asm/g' -e 's/^\(.*\.asm\)/$(BQ)\/$(CGDIRNAME)\/\1/g' >> $(DEPEND_FILE)
+	$(CC) $(DEPEND_CFLAGS) $(LCC_INCLUDES) $(UIDIR)/*.c | $(SED) -e 's/^\(.*\.o\)/$(BR)\/$(UIDIRNAME)\/\1/g' >> $(DEPEND_FILE)
+	$(CC) $(DEPEND_CFLAGS) $(LCC_INCLUDES) $(UIDIR)/*.c | $(SED) -e 's/^\(.*\.o\)/$(BD)\/$(UIDIRNAME)\/\1/g' >> $(DEPEND_FILE)
+	$(CC) $(DEPEND_CFLAGS) $(LCC_INCLUDES) $(UIDIR)/*.c | $(SED) -e 's/\.o/.asm/g' -e 's/^\(.*\.asm\)/$(BQ)\/$(UIDIRNAME)\/\1/g' >> $(DEPEND_FILE)
+        
+include $(DEPEND_FILE) 
 
-include Q3A.depend
-
-
-# -- Clean up object files
-clean: clean_cgame clean_game clean_ui
-
-clean_cgame:
-	-rm $(VM_CGAME_OBJ)
-	-rm cgame/cm/cgame.qvm
-
-clean_game:
-	-rm $(VM_GAME_OBJ)
-	-rm game/vm/qagame.qvm
-
-clean_ui:
-	-rm $(VM_UI_OBJ)
-	-rm ui/vm/ui.qvm
-
-# -- EOF
