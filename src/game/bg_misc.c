@@ -881,6 +881,22 @@ TA: droid defense item
     ""                  //sounds
   },
 
+/*QUAKED team_droid_trapper (0 0 1) (-16 -16 -16) (16 16 16)
+TA: droid defense item
+*/
+  {
+    "team_droid_booster",
+    "sound/items/holdable.wav",
+    { "models/buildables/booster/booster.md3", 0, 0, 0 },
+    "icons/teleporter", //icon
+    "Booster",      //pickup
+    0,
+    IT_BUILDABLE,
+    BA_D_BOOSTER,
+    "",                 //precache
+    ""                  //sounds
+  },
+
 /*QUAKED team_droid_hivemind (0 0 1) (-16 -16 -16) (16 16 16)
 TA: droid build limitation item
 */
@@ -1237,6 +1253,32 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_D_BARRICADE,        //int       buildNum;
     "barricade",           //char      *buildName;
     "team_droid_barricade",//char      *entityName;
+    { -15, -15, -15 },     //vec3_t    mins;
+    { 15, 15, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
+    80,                    //int       buildPoints;
+    1000,                  //int       health;
+    50,                    //int       damage;
+    20,                    //int       splashDamage;
+    50,                    //int       splashRadius;
+    MOD_DSPAWN,            //int       meansOfDeath;
+    BIT_DROIDS,            //int       team;
+    ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       idleAnim;
+    100,                   //int       nextthink;
+    0,                     //int       turretFireSpeed;
+    0,                     //int       turretRange;
+    WP_NONE,               //weapon_t  turretProjType;
+    0.707f,                //float     minNormal;
+    qfalse,                //qboolean  invertNormal;
+    qtrue,                 //qboolean  creepTest;
+    qfalse                 //qboolean  reactorTest;
+  },
+  {
+    BA_D_BOOSTER,          //int       buildNum;
+    "booster",             //char      *buildName;
+    "team_droid_booster",  //char      *entityName;
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;

@@ -590,6 +590,25 @@ void DAcidTube_Think( gentity_t *self )
 //==================================================================================
 
 
+
+/*
+================
+DBooster_Touch
+
+Called when an alien touches a booster
+================
+*/
+void DBooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
+{
+  G_Printf( "%d is touching me\n", other->s.number );
+}
+
+
+
+
+//==================================================================================
+
+
 #define BLOB_PROJSPEED 500
 
 /*
@@ -1734,6 +1753,13 @@ gentity_t *G_buildItem( gentity_t *ent, buildable_t buildable, int distance, flo
       built->die = DBarricade_Die;
       built->think = DBarricade_Think;
       built->pain = DBarricade_Pain;
+      break;
+      
+    case BA_D_BOOSTER:
+      built->die = DBarricade_Die;
+      built->think = DBarricade_Think;
+      built->pain = DBarricade_Pain;
+      built->touch = DBooster_Touch;
       break;
       
     case BA_D_ACIDTUBE:

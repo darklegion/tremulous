@@ -403,6 +403,7 @@ typedef enum
   BA_D_BARRICADE,
   BA_D_ACIDTUBE,
   BA_D_TRAPPER,
+  BA_D_BOOSTER,
   
   BA_H_SPAWN,
   

@@ -848,7 +848,11 @@ void ClientThink_real( gentity_t *ent ) {
           ( temp_v[ 2 ] <= 21 ) && //assumes mins of player is (x, x, -24)
           ( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) )
       {
-        client->ps.speed *= 0.5;
+        if( BG_gotItem( UP_LIMBARMOUR, client->ps.stats ) )
+          client->ps.speed *= 0.75;
+        else
+          client->ps.speed *= 0.5;
+          
         client->ps.stats[ STAT_STATE ] |= SS_CREEPSLOWED;
         cSlowed = qtrue;
         break;
