@@ -548,17 +548,22 @@ void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
   
   if( activator->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
   {
+    //can't pick teammates bodies to bits
+    if( !Q_stricmp( self->classname, "droidCorpse" ) ) return;
+
     G_AddPredictableEvent( activator, EV_MENU, MN_D_INFEST );
   }
   else
   {
     clientNum = activator->client->ps.clientNum;
-    
-    //client has already raided this corpse
-    if( self->creditsHash[ clientNum ] ) return;
-    
     numerator = self->credits[ clientNum ];
     class = self->s.clientNum;
+    
+    //can't pick teammates bodies to bits
+    if( !Q_stricmp( self->classname, "humanCorpse" ) ) return;
+
+    //client has already raided this corpse
+    if( self->creditsHash[ clientNum ] ) return;
     
     //total up all the damage done by every client
     for( i = 0; i < MAX_CLIENTS; i++ )

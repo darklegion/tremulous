@@ -219,7 +219,8 @@ void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
     return;
   }
 
-  GibEntity( self, 0 );
+  //TA: no gibbing
+  //GibEntity( self, 0 );
 }
 
 
