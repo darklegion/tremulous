@@ -125,7 +125,7 @@
       cvar "sv_hostname"
       maxChars 32
       maxPaintChars 20
-      rect 420 30 128 20
+      rect 420 20 128 20
       textalign ITEM_ALIGN_RIGHT
       textalignx 65
       textaligny 12
@@ -141,7 +141,7 @@
       type ITEM_TYPE_NUMERICFIELD
       text "Time Limit:"
       cvar "timelimit"
-      rect 420 50 128 20
+      rect 420 40 128 20
       textalign ITEM_ALIGN_RIGHT
       textalignx 65
       maxchars 4
@@ -158,7 +158,7 @@
       type ITEM_TYPE_NUMERICFIELD
       text "Maximum Players:"
       cvar "sv_maxclients"
-      rect 420 70 128 20
+      rect 420 60 128 20
       textalign ITEM_ALIGN_RIGHT
       textalignx 65
       maxchars 4
@@ -175,7 +175,7 @@
       type ITEM_TYPE_YESNO
       text "Require Password:"
       cvar "g_needpassword"
-      rect 420 90 128 20
+      rect 420 80 128 20
       textalign ITEM_ALIGN_RIGHT
       textalignx 65
       textaligny 12
@@ -191,7 +191,7 @@
       type 4
       text "Password:"
       cvar "g_password"
-      rect 420 110 128 20
+      rect 420 100 128 20
       maxchars 10
       maxPaintChars 10
       textalign ITEM_ALIGN_RIGHT
@@ -212,10 +212,27 @@
     {
       name normal
       group grpsettings
+      type ITEM_TYPE_MULTI
+      text "Punkbuster:"
+      cvar "sv_punkbuster"
+      cvarFloatList { "No" 0 "Yes" 1 }
+      rect 420 150 128 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      textscale .36
+      forecolor 1 1 1 1
+      visible 1
+    }
+                                                          
+    itemDef
+    {
+      name normal
+      group grpsettings
       type ITEM_TYPE_YESNO
       text "Pure Server:"
       cvar "sv_pure"
-      rect 420 160 128 20
+      rect 420 170 128 20
       textalign ITEM_ALIGN_RIGHT
       textalignx 65
       textaligny 12
@@ -234,7 +251,7 @@
       // the game goes to console only so the ui catches this one specifically
       cvar "ui_dedicated"
       cvarFloatList { "No" 0 "LAN" 1 "Internet" 2 }
-      rect 420 180 128 20 
+      rect 420 190 128 20 
       textalign ITEM_ALIGN_RIGHT
       textalignx 65
       textaligny 12
@@ -250,7 +267,7 @@
       type ITEM_TYPE_YESNO
       text "Auto Download:"
       cvar "sv_allowdownload"
-      rect 420 200 128 20
+      rect 420 210 128 20
       textalign ITEM_ALIGN_RIGHT
       textalignx 65
       textaligny 12
@@ -266,7 +283,7 @@
       type ITEM_TYPE_YESNO
       text "Enable Voting:"
       cvar "g_allowvote"
-      rect 420 220 128 20
+      rect 420 230 128 20
       textalign ITEM_ALIGN_RIGHT
       textalignx 65
       textaligny 12
@@ -288,7 +305,7 @@
       type ITEM_TYPE_NUMERICFIELD
       text "Minimum Ping:"
       cvar "sv_minping"
-      rect 420 270 128 20
+      rect 420 280 128 20
       textalign ITEM_ALIGN_RIGHT
       textalignx 65
       maxchars 4
@@ -305,7 +322,7 @@
       type ITEM_TYPE_NUMERICFIELD
       text "Maximum Ping:"
       cvar "sv_maxping"
-      rect 420 290 128 20
+      rect 420 300 128 20
       textalign ITEM_ALIGN_RIGHT
       textalignx 65
       textaligny 12
@@ -322,7 +339,7 @@
       type ITEM_TYPE_YESNO
       text "Synchronous Client:"
       cvar "g_synchronousclients"
-      rect 420 310 128 20
+      rect 420 320 128 20
       textalign ITEM_ALIGN_RIGHT
       textalignx 65
       textaligny 12
@@ -338,7 +355,7 @@
       type ITEM_TYPE_NUMERICFIELD
       text "Max Rate:"
       cvar "sv_maxrate"
-      rect 420 330 128 20 
+      rect 420 340 128 20 
       textalign ITEM_ALIGN_RIGHT
       textalignx 65
       maxchars 4
@@ -355,7 +372,7 @@
       type ITEM_TYPE_NUMERICFIELD
       text "Zombie Time:"
       cvar "sv_zombietime"
-      rect 420 350 128 20
+      rect 420 360 128 20
       maxchars 4
       textalign ITEM_ALIGN_RIGHT
       textalignx 65
@@ -373,7 +390,7 @@
       text "Reconnect Limit:"
       cvar "sv_reconnectlimit"
       maxchars 4
-      rect 420 370 128 20
+      rect 420 380 128 20
       textalign ITEM_ALIGN_RIGHT
       textalignx 65
       textaligny 12
@@ -386,86 +403,7 @@
 
 
 
-/*  itemDef
-    {
-      name expert
-      group grpsettings
-      type ITEM_TYPE_YESNO
-      text "Force Join:"
-      cvar "g_teamautojoin"
-      rect 420 250 128 12 
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 65
-      textaligny 12
-      textscale .36        
-      forecolor 1 1 1 1
-      visible 1  
-    }
 
-    itemDef
-    {
-      name expert
-      group grpsettings
-      type ITEM_TYPE_YESNO
-      text "Even Teams:"
-      cvar "g_teamforcebalance"
-      rect 420 265 128 12 
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 65
-      textaligny 12
-      textscale .36        
-      forecolor 1 1 1 1
-      visible 1  
-    }*/
-
-/*  itemDef
-    {
-      name expert
-      group grpsettings
-      type ITEM_TYPE_YESNO
-      text "Do Warmup:"
-      cvar "g_dowarmup"
-      rect 420 280 128 12 
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 65
-      textaligny 12
-      textscale .36        
-      forecolor 1 1 1 1
-      visible 1  
-    }
-
-    itemDef
-    {
-      name expert
-      group grpsettings
-      type ITEM_TYPE_NUMERICFIELD
-      text "Warmup time:"
-      cvar "g_warmup"
-      rect 420 295 128 12 
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 65
-      textaligny 12
-      textscale .36  
-      maxchars 4
-      forecolor 1 1 1 1
-      visible 1  
-    }*/
-
-/*    itemDef
-    {
-      name normal
-      group grpsettings
-      type ITEM_TYPE_YESNO
-      text "Friendly Fire:"
-      cvar "g_friendlyfire"
-      rect 420 94 128 12 
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 65
-      textaligny 12
-      textscale .36        
-      forecolor 1 1 1 1
-      visible 1  
-    }*/
     // BACK BAR //
 
     itemDef
