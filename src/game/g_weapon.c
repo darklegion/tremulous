@@ -425,13 +425,13 @@ void painSawFire( gentity_t *ent )
   VectorMA( muzzle, PAINSAW_RANGE, forward, end );
 
   trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
-  if ( tr.surfaceFlags & SURF_NOIMPACT )
+  if( tr.surfaceFlags & SURF_NOIMPACT )
     return;
 
   traceEnt = &g_entities[ tr.entityNum ];
 
   // send blood impact
-  if ( traceEnt->takedamage && traceEnt->client )
+  if( traceEnt->takedamage && traceEnt->client )
   {
     tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
     tent->s.otherEntityNum = traceEnt->s.number;
@@ -440,7 +440,7 @@ void painSawFire( gentity_t *ent )
     tent->s.generic1 = ent->s.generic1; //weaponMode
   }
 
-  if ( traceEnt->takedamage )
+  if( traceEnt->takedamage )
     G_Damage( traceEnt, ent, ent, forward, tr.endpos, PAINSAW_DAMAGE, DAMAGE_NO_KNOCKBACK, MOD_PAINSAW );
 }
 

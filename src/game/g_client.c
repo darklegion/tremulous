@@ -649,12 +649,6 @@ void SpawnCorpse( gentity_t *ent )
 
   body->takedamage = qfalse;
 
-  //make the make player entity disappear
-  ent->takedamage = qfalse;
-  ent->s.eType = ET_INVISIBLE;
-  ent->r.contents = 0;
-  ent->s.solid = 0;
-  ent->r.s.solid = 0;
   body->health = ent->health = ent->client->ps.stats[ STAT_HEALTH ];
   ent->health = ent->client->ps.stats[ STAT_HEALTH ] = GIB_HEALTH - 1;
   

@@ -81,52 +81,6 @@ void G_Physics( gentity_t *ent, int msec )
   trace_t   tr;
   int     contents;
   int     mask;
-  int     bHealth = BG_FindHealthForBuildable( ent->s.modelindex );
-  int     bRegen = BG_FindRegenRateForBuildable( ent->s.modelindex );
-
-  //pack health, power and dcc
-  if( ent->s.eType == ET_BUILDABLE )
-  {
-    //toggle spawned flag for buildables
-    if( !ent->spawned )
-    {
-      if( ent->buildTime + BG_FindBuildTimeForBuildable( ent->s.modelindex ) < level.time )
-      {
-        ent->takedamage = qtrue;
-        ent->spawned = qtrue;
-      }
-    }
-    
-    ent->s.generic1 = (int)( ( (float)ent->health / (float)bHealth ) * B_HEALTH_SCALE );
-
-    if( ent->s.generic1 < 0 )
-      ent->s.generic1 = 0;
-    
-    if( ent->powered )
-      ent->s.generic1 |= B_POWERED_TOGGLEBIT;
-    
-    if( ent->dcced )
-      ent->s.generic1 |= B_DCCED_TOGGLEBIT;
-
-    if( ent->spawned )
-      ent->s.generic1 |= B_SPAWNED_TOGGLEBIT;
-
-    ent->time1000 += msec;
-
-    if( ent->time1000 >= 1000 )
-    {
-      ent->time1000 -= 1000;
-      
-      //regenerate health
-      if( ent->health < bHealth && bRegen )
-      {
-        ent->health += bRegen;
-
-        if( ent->health > bHealth )
-          ent->health = bHealth;
-      }
-    }
-  }
   
   // if groundentity has been set to -1, it may have been pushed off an edge
   if( ent->s.groundEntityNum == -1 )

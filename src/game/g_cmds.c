@@ -1346,8 +1346,7 @@ void Cmd_Buy_f( gentity_t *ent )
 
     //force a weapon change
     ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
-    ent->client->ps.weapon = weapon;
-    trap_SendServerCommand( ent->client->ps.clientNum, va( "weaponswitch %d", weapon ) );
+    trap_SendServerCommand( ent-g_entities, va( "weaponswitch %d", weapon ) );
 
     //set build delay/pounce etc to 0
     ent->client->ps.stats[ STAT_MISC ] = 0;
@@ -1494,7 +1493,11 @@ void Cmd_Sell_f( gentity_t *ent )
 
     //if we have this weapon selected, force a new selection
     if( weapon == ent->client->ps.weapon )
-      G_AddEvent( ent, EV_NEXT_WEAPON, ent->client->ps.clientNum );
+    {
+      //force a weapon change
+      ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
+      trap_SendServerCommand( ent-g_entities, va( "weaponswitch %d", WP_BLASTER ) );
+    }
   }
   else if( upgrade != UP_NONE )
   {

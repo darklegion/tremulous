@@ -22,7 +22,7 @@
  * 
  */
 
-#define ALIEN_WDMG_MODIFIER         1.0f
+#define ALIEN_WDMG_MODIFIER         0.8f
 #define ADM(d)                      ((int)((float)d*ALIEN_WDMG_MODIFIER))
 
 #define ABUILDER_BUILD_REPEAT       500
@@ -31,14 +31,14 @@
 #define ABUILDER_CLAW_REPEAT        1000
 #define ABUILDER_BASE_DELAY         9000
 #define ABUILDER_ADV_DELAY          4000
-#define ABUILDER_BLOB_DMG           ADM(20)
+#define ABUILDER_BLOB_DMG           ADM(5)
 #define ABUILDER_BLOB_REPEAT        1000
 #define ABUILDER_BLOB_SPEED         800.0f
 #define ABUILDER_BLOB_SPEED_MOD     0.5f
 #define ABUILDER_BLOB_TIME          5000
 
 #define SOLDIER_BITE_DMG            ADM(60)
-#define SOLDIER_BITE_RANGE          96.0f
+#define SOLDIER_BITE_RANGE          64.0f
 #define SOLDIER_BITE_REPEAT         500
 
 #define HYDRA_CLAW_DMG              ADM(40)
@@ -103,7 +103,7 @@
 #define ALIEN_HLTH_MODIFIER         1.0f
 #define AHM(h)                      ((int)((float)h*ALIEN_HLTH_MODIFIER))
 
-#define ALIEN_VALUE_MODIFIER        3.0f
+#define ALIEN_VALUE_MODIFIER        4.0f
 #define AVM(h)                      ((int)((float)h*ALIEN_VALUE_MODIFIER))
 
 #define ABUILDER_SPEED              0.8f
@@ -201,7 +201,7 @@
 
 #define BARRICADE_BP                80
 #define BARRICADE_BT                10000
-#define BARRICADE_HEALTH            ABHM(500)
+#define BARRICADE_HEALTH            ABHM(350)
 #define BARRICADE_REGEN             15
 #define BARRICADE_SPLASHDAMAGE      50
 #define BARRICADE_SPLASHRADIUS      50
@@ -363,10 +363,10 @@
 #define LCANNON_REPEAT              500
 #define LCANNON_CHARGEREPEAT        1000
 #define LCANNON_RELOAD              2000
-#define LCANNON_DAMAGE              HDM(200)
-#define LCANNON_SECONDARY_DAMAGE    HDM(20)
+#define LCANNON_DAMAGE              HDM(500)
+#define LCANNON_SECONDARY_DAMAGE    HDM(50)
 #define LCANNON_SPEED               250
-#define LCANNON_CHARGE_TIME         2000
+#define LCANNON_CHARGE_TIME         1000
 
 #define LASGUN_PRICE                200
 #define LASGUN_AMMO                 300
@@ -377,7 +377,7 @@
 #define PAINSAW_PRICE               100
 #define PAINSAW_REPEAT              75
 #define PAINSAW_DAMAGE              HDM(5)
-#define PAINSAW_RANGE               32
+#define PAINSAW_RANGE               48.0f
 
 #define HBUILD_PRICE                0
 #define HBUILD_REPEAT               1000
@@ -514,8 +514,8 @@
 #define HUMAN_BACK_MODIFIER         0.7f
 #define HUMAN_SIDE_MODIFIER         0.8f
 
-#define STAMINA_STOP_RESTORE        20
-#define STAMINA_WALK_RESTORE        10
+#define STAMINA_STOP_RESTORE        25
+#define STAMINA_WALK_RESTORE        15
 #define STAMINA_SPRINT_TAKE         8
 #define STAMINA_LARMOUR_TAKE        4
 

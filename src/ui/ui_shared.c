@@ -4418,7 +4418,9 @@ menuDef_t *Menus_ActivateByName(const char *p) {
       {
         if( m->items[ j ]->type == ITEM_TYPE_LISTBOX )
         {
+          listBoxDef_t *listPtr = (listBoxDef_t*)m->items[ j ]->typeData;
           m->items[ j ]->cursorPos = 0;
+          listPtr->startPos = 0;
           DC->feederSelection( m->items[ j ]->special, 0 );
         }
       }

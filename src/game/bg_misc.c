@@ -1776,14 +1776,14 @@ classAttributes_t bg_classList[ ] =
     "default",                                      //char    *skinname;
     2.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    ( 1 << S3 ),                                    //int  stages
     { -30, -30, -20 },                              //vec3_t  mins;
     { 30, 30, 20 },                                 //vec3_t  maxs;
     { 30, 30, 20 },                                 //vec3_t  crouchmaxs;
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     0.0f,                                           //float   zOffset
-    50, 50,                                         //int     viewheight, crouchviewheight;
+    35, 35,                                         //int     viewheight, crouchviewheight;
     BMOFO_HEALTH,                                   //int     health;
     0.0f,                                           //float   fallDamage;
     BMOFO_REGEN,                                    //int     regenRate;
@@ -3794,7 +3794,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   {
     UP_HELMET,              //int   upgradeNum;
     HELMET_PRICE,           //int   price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_HEAD,              //int   slots;
     "helmet",               //char  *upgradeName;
     "Helmet",               //char  *upgradeHumanName;

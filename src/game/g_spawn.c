@@ -605,10 +605,10 @@ void SP_worldspawn( void )
   G_SpawnString( "humanMaxStage", "2", &s );
   trap_Cvar_Set( "g_humanMaxStage", s );
 
-  G_SpawnString( "humanStage2Threshold", "50", &s );
+  G_SpawnString( "humanStage2Threshold", "15", &s );
   trap_Cvar_Set( "g_humanStage2Threshold", s );
 
-  G_SpawnString( "humanStage3Threshold", "100", &s );
+  G_SpawnString( "humanStage3Threshold", "30", &s );
   trap_Cvar_Set( "g_humanStage3Threshold", s );
 
   G_SpawnString( "alienBuildPoints", "1000", &s );
@@ -617,10 +617,10 @@ void SP_worldspawn( void )
   G_SpawnString( "alienMaxStage", "2", &s );
   trap_Cvar_Set( "g_alienMaxStage", s );
 
-  G_SpawnString( "alienStage2Threshold", "50", &s );
+  G_SpawnString( "alienStage2Threshold", "15", &s );
   trap_Cvar_Set( "g_alienStage2Threshold", s );
 
-  G_SpawnString( "alienStage3Threshold", "100", &s );
+  G_SpawnString( "alienStage3Threshold", "30", &s );
   trap_Cvar_Set( "g_alienStage3Threshold", s );
 
   G_SpawnString( "enableDust", "0", &s );

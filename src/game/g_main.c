@@ -1606,7 +1606,13 @@ void G_RunFrame( int levelTime )
       continue;
     }
 
-    if( ent->s.eType == ET_BUILDABLE || ent->s.eType == ET_CORPSE || ent->physicsObject )
+    if( ent->s.eType == ET_BUILDABLE )
+    {
+      G_BuildableThink( ent, msec );
+      continue;
+    }
+
+    if( ent->s.eType == ET_CORPSE || ent->physicsObject )
     {
       G_Physics( ent, msec );
       continue;

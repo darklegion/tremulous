@@ -1058,12 +1058,16 @@ void CG_AddPacketEntities( void )
       {
         VectorCopy( cent->lerpOrigin, cg.ep.alienBuildablePos[ cg.ep.numAlienBuildables ] );
         cg.ep.alienBuildableTimes[ cg.ep.numAlienBuildables ] = cent->miscTime;
-        cg.ep.numAlienBuildables++;
+        
+        if( cg.ep.numAlienBuildables < MAX_GENTITIES )
+          cg.ep.numAlienBuildables++;
       }
       else if( cent->currentState.modelindex2 == BIT_HUMANS )
       {
         VectorCopy( cent->lerpOrigin, cg.ep.humanBuildablePos[ cg.ep.numHumanBuildables ] );
-        cg.ep.numHumanBuildables++;
+
+        if( cg.ep.numHumanBuildables < MAX_GENTITIES )
+          cg.ep.numHumanBuildables++;
       }
     }
     else if( cent->currentState.eType == ET_PLAYER )
@@ -1073,12 +1077,16 @@ void CG_AddPacketEntities( void )
       if( team == PTE_ALIENS )
       {
         VectorCopy( cent->lerpOrigin, cg.ep.alienClientPos[ cg.ep.numAlienClients ] );
-        cg.ep.numAlienClients++;
+
+        if( cg.ep.numAlienClients < MAX_CLIENTS )
+          cg.ep.numAlienClients++;
       }
       else if( team == PTE_HUMANS )
       {
         VectorCopy( cent->lerpOrigin, cg.ep.humanClientPos[ cg.ep.numHumanClients ] );
-        cg.ep.numHumanClients++;
+        
+        if( cg.ep.numHumanClients < MAX_CLIENTS )
+          cg.ep.numHumanClients++;
       }
     }
   }

@@ -180,7 +180,7 @@ void CG_TeslaTrail( vec3_t start, vec3_t end, int srcENum, int destENum )
   le->srcENum = srcENum;
   le->destENum = destENum;
   le->vOffset = 28;
-  le->maxRange = BG_FindRangeForBuildable( BA_H_TESLAGEN );
+  le->maxRange = BG_FindRangeForBuildable( BA_H_TESLAGEN ) * M_SQRT2;
 
   VectorCopy( start, re->origin );
   VectorCopy( end, re->oldorigin );
@@ -1654,7 +1654,8 @@ void CG_FireWeapon( centity_t *cent, weaponMode_t weaponMode )
 
   if( wi->wim[ weaponMode ].muzzleParticleSystem )
   {
-    if( !( cent->muzzlePS && CG_IsParticleSystemInfinite( cent->muzzlePS ) ) )
+    if( !( CG_IsParticleSystemValid( &cent->muzzlePS ) &&
+           CG_IsParticleSystemInfinite( cent->muzzlePS ) ) )
       cent->muzzlePsTrigger = qtrue;
   }
   

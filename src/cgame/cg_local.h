@@ -303,9 +303,9 @@ typedef struct particleSystem_s
   psAttachment_t        attachment;
   qboolean              attached;   //is the particle system attached to anything
 
-  qboolean              enabled; //necessary?
-  
   qboolean              valid;
+  qboolean              lazyRemove; //mark this system for later removal
+  
 } particleSystem_t;
 
 
@@ -769,11 +769,11 @@ typedef struct
 //TA:
 typedef struct
 {
-  vec3_t    alienBuildablePos[ BA_NUM_BUILDABLES ];
-  int       alienBuildableTimes[ BA_NUM_BUILDABLES ];
+  vec3_t    alienBuildablePos[ MAX_GENTITIES ];
+  int       alienBuildableTimes[ MAX_GENTITIES ];
   int       numAlienBuildables;
   
-  vec3_t    humanBuildablePos[ BA_NUM_BUILDABLES ];
+  vec3_t    humanBuildablePos[ MAX_GENTITIES ];
   int       numHumanBuildables;
   
   vec3_t    alienClientPos[ MAX_CLIENTS ];

@@ -100,6 +100,8 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
     
     if( !p->valid )
     {
+      memset( p, 0, sizeof( particle_t ) );
+
       //found a free slot
       p->class = bp;
       p->parent = pe;
@@ -219,6 +221,7 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
       p->lastEvalTime = cg.time;
 
       p->valid = qtrue;
+      
       break;
     }
   }
@@ -258,28 +261,29 @@ static void CG_SpawnNewParticles( void )
 
       bpe = particleEjectors[ i ].class;
 
-      while( pe->nextEjectionTime <= cg.time &&
-             ( pe->count > 0 || pe->totalParticles == PARTICLES_INFINITE ) )
+      //if this system is scheduled for removal don't make any new particles
+      if( !ps->lazyRemove )
       {
-        for( j = 0; j < bpe->numParticles; j++ )
-          CG_SpawnNewParticle( bpe->particles[ j ], pe );
-        
-        if( pe->count > 0 )
-          pe->count--;
+        while( pe->nextEjectionTime <= cg.time &&
+               ( pe->count > 0 || pe->totalParticles == PARTICLES_INFINITE ) )
+        {
+          for( j = 0; j < bpe->numParticles; j++ )
+            CG_SpawnNewParticle( bpe->particles[ j ], pe );
+          
+          if( pe->count > 0 )
+            pe->count--;
 
-        //calculate next ejection time
-        lerpFrac = 1.0 - ( (float)pe->count / (float)pe->totalParticles );
-        pe->nextEjectionTime = cg.time + CG_RandomiseValue( 
-            CG_LerpValues( pe->ejectPeriod.initial,
-                           pe->ejectPeriod.final,
-                           lerpFrac ),
-            pe->ejectPeriod.randFrac );
+          //calculate next ejection time
+          lerpFrac = 1.0 - ( (float)pe->count / (float)pe->totalParticles );
+          pe->nextEjectionTime = cg.time + CG_RandomiseValue( 
+              CG_LerpValues( pe->ejectPeriod.initial,
+                             pe->ejectPeriod.final,
+                             lerpFrac ),
+              pe->ejectPeriod.randFrac );
+        }
       }
 
-      if( !pe->parent->valid )
-        pe->valid = qfalse;
-      
-      if( pe->count == 0 )
+      if( pe->count == 0 || ps->lazyRemove )
       {
         count = 0;
 
@@ -320,6 +324,8 @@ static particleEjector_t *CG_SpawnNewParticleEjector( baseParticleEjector_t *bpe
     
     if( !pe->valid )
     {
+      memset( pe, 0, sizeof( particleEjector_t ) );
+
       //found a free slot
       pe->class = bpe;
       pe->parent = ps;
@@ -334,6 +340,10 @@ static particleEjector_t *CG_SpawnNewParticleEjector( baseParticleEjector_t *bpe
         (int)CG_RandomiseValue( (float)bpe->totalParticles, bpe->totalParticlesRandFrac );
 
       pe->valid = qtrue;
+      
+      if( cg_debugParticles.integer >= 1 )
+        CG_Printf( "PE %s created\n", ps->class->name );
+      
       break;
     }
   }
@@ -367,14 +377,17 @@ particleSystem_t *CG_SpawnNewParticleSystem( qhandle_t psHandle )
     
     if( !ps->valid )
     {
+      memset( ps, 0, sizeof( particleSystem_t ) );
+
       //found a free slot
       ps->class = bps;
 
+      ps->valid = qtrue;
+      ps->lazyRemove = qfalse;
+      
       for( j = 0; j < bps->numEjectors; j++ )
         CG_SpawnNewParticleEjector( bps->ejectors[ j ], ps );
 
-      ps->valid = qtrue;
-      
       if( cg_debugParticles.integer >= 1 )
         CG_Printf( "PS %s created\n", bps->name );
 
@@ -1502,9 +1515,15 @@ qboolean CG_IsParticleSystemInfinite( particleSystem_t *ps )
   int               i;
   particleEjector_t *pe;
 
-  if( ps == NULL || !ps->valid )
+  if( ps == NULL )
   {
     CG_Printf( S_COLOR_YELLOW "WARNING: tried to test a NULL particle system\n" );
+    return qfalse;
+  }
+  
+  if( !ps->valid )
+  {
+    CG_Printf( S_COLOR_YELLOW "WARNING: tried to test an invalid particle system\n" );
     return qfalse;
   }
   
@@ -1584,11 +1603,11 @@ static void CG_GarbageCollectParticleSystems( void )
     if( ps->attachment.centValid && ps->attachment.centNum != cg.clientNum )
     {
       if( !cg_entities[ ps->attachment.centNum ].valid )
-        ps->valid = qfalse;
+        ps->lazyRemove = qtrue;
     }
 
     if( cg_debugParticles.integer >= 1 && !ps->valid )
-      CG_Printf( "PS garbage collected\n" );
+      CG_Printf( "PS %s garbage collected\n", ps->class->name );
   }
 }
 
@@ -1738,9 +1757,6 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
   if( ( trap_CM_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) ||
       ( bp->cullOnStartSolid && trace.startsolid ) || bp->bounceCull )
   {
-    if( cg_debugParticles.integer >= 1 )
-      CG_Printf( "Particle in CONTENTS_NODROP or trace.startsolid\n" );
-
     p->valid = qfalse;
     return;
   }

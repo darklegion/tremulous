@@ -1955,10 +1955,10 @@ static void PM_GroundClimbTrace( void )
     }
   }
 
-  if ( trace.fraction >= 1.0f )
+  if( trace.fraction >= 1.0f )
   {
     // if the trace didn't hit anything, we are in free fall
-    PM_GroundTraceMissed();
+    PM_GroundTraceMissed( );
     pml.groundPlane = qfalse;
     pml.walking = qfalse;
     pm->ps->eFlags &= ~EF_WALLCLIMB;
@@ -1974,7 +1974,7 @@ static void PM_GroundClimbTrace( void )
   pml.walking = qtrue;
 
   // hitting solid ground will end a waterjump
-  if (pm->ps->pm_flags & PMF_TIME_WATERJUMP)
+  if( pm->ps->pm_flags & PMF_TIME_WATERJUMP )
   {
     pm->ps->pm_flags &= ~(PMF_TIME_WATERJUMP | PMF_TIME_LAND);
     pm->ps->pm_time = 0;
@@ -2033,7 +2033,7 @@ static void PM_GroundTrace( void )
 
   point[ 0 ] = pm->ps->origin[ 0 ];
   point[ 1 ] = pm->ps->origin[ 1 ];
-  point[ 2 ] = pm->ps->origin[ 2 ] - 0.25;
+  point[ 2 ] = pm->ps->origin[ 2 ] - 0.25f;
 
   pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
   
@@ -2048,7 +2048,7 @@ static void PM_GroundTrace( void )
   VectorCopy( refNormal, pm->ps->grapplePoint );
 
   // if the trace didn't hit anything, we are in free fall
-  if( trace.fraction == 1.0 )
+  if( trace.fraction == 1.0f )
   {
     PM_GroundTraceMissed( );
     pml.groundPlane = qfalse;
@@ -2090,7 +2090,7 @@ static void PM_GroundTrace( void )
   }
 
   // check if getting thrown off the ground
-  if( pm->ps->velocity[ 2 ] > 0 && DotProduct( pm->ps->velocity, trace.plane.normal ) > 10 )
+  if( pm->ps->velocity[ 2 ] > 0.0f && DotProduct( pm->ps->velocity, trace.plane.normal ) > 10.0f )
   {
     if( pm->debugLevel )
       Com_Printf( "%i:kickoff\n", c_pmove );
@@ -2646,10 +2646,6 @@ static void PM_Weapon( void )
   if( pm->ps->weaponTime > 0 )
     pm->ps->weaponTime -= pml.msec;
 
-  //TA: if we haven't got the weapon
-  if( !BG_gotWeapon( pm->ps->weapon, pm->ps->stats ) && pm->ps->weapon != WP_NONE )
-    PM_BeginWeaponChange( WP_NONE );
-      
   // check for weapon change
   // can't change if weapon is firing, but can change
   // again if lowering or raising
@@ -2683,6 +2679,7 @@ static void PM_Weapon( void )
     else
       pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
     
+    //something external thinks a weapon change is necessary
     if( pm->ps->weapon != pm->cmd.weapon && pm->ps->pm_flags & PMF_WEAPON_SWITCH )
     {
       pm->ps->pm_flags &= ~PMF_WEAPON_SWITCH;
@@ -3141,7 +3138,7 @@ PmoveSingle
 */
 void trap_SnapVector( float *v );
 
-void PmoveSingle (pmove_t *pmove)
+void PmoveSingle( pmove_t *pmove )
 {
   int       ammo, clips, maxclips;
   
@@ -3158,9 +3155,8 @@ void PmoveSingle (pmove_t *pmove)
   pm->watertype = 0;
   pm->waterlevel = 0;
 
-  /*if ( pm->ps->stats[STAT_HEALTH] <= 0 ) {
+  if( pm->ps->stats[ STAT_HEALTH ] <= 0 )
     pm->tracemask &= ~CONTENTS_BODY;  // corpses can fly through bodies
-  }*/
 
   // make sure walking button is clear if they are running, to avoid
   // proxy no-footsteps cheats

@@ -1653,6 +1653,12 @@ qboolean HMGTurret_CheckTarget( gentity_t *self, gentity_t *target, qboolean ign
   trace_t   trace;
   gentity_t *traceEnt;
    
+  if( !target )
+    return qfalse;
+
+  if( !target->client )
+    return qfalse;
+
   if( target->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
     return qfalse;
    
@@ -1981,6 +1987,64 @@ void HSpawn_Think( gentity_t *self )
 //==================================================================================
 
 
+
+/*
+===============
+G_BuildableThink
+
+General think function for buildables
+===============
+*/
+void G_BuildableThink( gentity_t *ent, int msec )
+{
+  int bHealth = BG_FindHealthForBuildable( ent->s.modelindex );
+  int bRegen = BG_FindRegenRateForBuildable( ent->s.modelindex );
+
+  //pack health, power and dcc
+
+  //toggle spawned flag for buildables
+  if( !ent->spawned )
+  {
+    if( ent->buildTime + BG_FindBuildTimeForBuildable( ent->s.modelindex ) < level.time )
+    {
+      ent->takedamage = qtrue;
+      ent->spawned = qtrue;
+    }
+  }
+  
+  ent->s.generic1 = (int)( ( (float)ent->health / (float)bHealth ) * B_HEALTH_SCALE );
+
+  if( ent->s.generic1 < 0 )
+    ent->s.generic1 = 0;
+  
+  if( ent->powered )
+    ent->s.generic1 |= B_POWERED_TOGGLEBIT;
+  
+  if( ent->dcced )
+    ent->s.generic1 |= B_DCCED_TOGGLEBIT;
+
+  if( ent->spawned )
+    ent->s.generic1 |= B_SPAWNED_TOGGLEBIT;
+
+  ent->time1000 += msec;
+
+  if( ent->time1000 >= 1000 )
+  {
+    ent->time1000 -= 1000;
+    
+    //regenerate health
+    if( ent->health > 0 && ent->health < bHealth && bRegen )
+    {
+      ent->health += bRegen;
+
+      if( ent->health > bHealth )
+        ent->health = bHealth;
+    }
+  }
+
+  //fall back on normal physics routines
+  G_Physics( ent, msec );
+}
 
 
 /*

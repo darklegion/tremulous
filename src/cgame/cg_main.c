@@ -721,7 +721,6 @@ static void CG_RegisterGraphics( void )
   //TA: extra stuff
   cgs.media.explosionShader           = trap_R_RegisterShader( "grenadeExplosion" );
   cgs.media.greenBloodTrailShader     = trap_R_RegisterShader( "greenBloodTrail" );
-  cgs.media.greenBloodExplosionShader = trap_R_RegisterShader( "greenBloodExplosion" );
   cgs.media.greenBloodMarkShader      = trap_R_RegisterShader( "greenBloodMark" );
   cgs.media.explosionTrailShader      = trap_R_RegisterShader( "explosionTrail" );
   
@@ -778,6 +777,7 @@ static void CG_RegisterGraphics( void )
   cgs.media.balloonShader             = trap_R_RegisterShader( "sprites/balloon3" );
 
   cgs.media.bloodExplosionShader      = trap_R_RegisterShader( "bloodExplosion" );
+  cgs.media.greenBloodExplosionShader = trap_R_RegisterShader( "greenBloodExplosion" );
 
   cgs.media.bulletFlashModel          = trap_R_RegisterModel( "models/weaphits/bullet.md3" );
   cgs.media.ringFlashModel            = trap_R_RegisterModel( "models/weaphits/ring02.md3" );

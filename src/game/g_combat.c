@@ -297,8 +297,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   self->s.weapon = WP_NONE;
   /*self->s.powerups = 0;*/ //TA: class is encoded into powerups in trem
-  self->r.contents = CONTENTS_BODY;
-  //self->r.contents = CONTENTS_CORPSE;
+  self->r.contents = CONTENTS_CORPSE;
 
   self->s.angles[ PITCH ] = 0;
   self->s.angles[ ROLL ] = 0;
