@@ -750,7 +750,7 @@ TA: droid spawn item
     "Droid Spawn",      //pickup
     0,
     IT_BUILDABLE,
-    BA_A_SPAWN,
+    BA_D_SPAWN,
     "",                 //precache
     ""                  //sounds
   },
@@ -766,7 +766,7 @@ TA: droid defense item
     "Droid Defense",      //pickup
     0,
     IT_BUILDABLE,
-    BA_A_DEF1,
+    BA_D_DEF1,
     "",                 //precache
     ""                  //sounds
   },
@@ -894,13 +894,9 @@ int   bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) - 1;
 buildableAttributes_t bg_buildableList[ ] =
 {
   {
-    BA_A_SPAWN,
-    "spawn",
+    BA_D_SPAWN,
+    "bioegg",
     "team_droid_spawn",
-    "Droid Spawn",
-    { "models/bitems/aspawn.md3", 0, 0, 0 },
-    { "", 0, 0, 0 },
-    "icons/teleporter",
     { -15, -15, -15 },
     { 15, 15, 15 },
     1000,
@@ -910,7 +906,72 @@ buildableAttributes_t bg_buildableList[ ] =
     MOD_ASPAWN,
     BIT_DROIDS,
     EV_ITEM_GROW,
-    100
+    100,
+    qfalse
+  },
+  {
+    BA_D_DEF1,
+    "defense1",
+    "team_droid_def1",
+    { -15, -15, -15 },
+    { 15, 15, 15 },
+    1000,
+    50,
+    20,
+    50,
+    MOD_ASPAWN,
+    BIT_DROIDS,
+    EV_ITEM_GROW,
+    100,
+    qtrue
+  },
+  {
+    BA_H_SPAWN,
+    "replicator",
+    "team_human_spawn",
+    { -40, -40, -4 },
+    { 40, 40, 4 },
+    1000,
+    50,
+    50,
+    150,
+    MOD_HSPAWN,
+    BIT_HUMANS,
+    EV_NONE,
+    -1,
+    qfalse
+  },
+  {
+    BA_H_DEF1,
+    "plasmaturret",
+    "team_human_def1",
+    { -24, -24, -11 },
+    { 24, 24, 11 },
+    1000,
+    50,
+    20,
+    50,
+    MOD_ASPAWN,
+    BIT_HUMANS,
+    EV_NONE,
+    50,
+    qfalse
+  },
+  {
+    BA_H_MCU,
+    "mcu",
+    "team_human_mcu",
+    { -15, -15, -15 },
+    { 15, 15, 15 },
+    1000,
+    50,
+    50,
+    150,
+    MOD_HSPAWN,
+    BIT_HUMANS,
+    EV_NONE,
+    -1,
+    qfalse
   }
 };
 
@@ -940,7 +1001,7 @@ int BG_FindBuildNumForName( char *name )
 BG_FindNameForBuildNum
 ==============
 */
-char *BG_FindNameForBuildNum( int bclass )
+char *BG_FindNameForBuildable( int bclass )
 {
   int i;
 
@@ -959,7 +1020,7 @@ char *BG_FindNameForBuildNum( int bclass )
 BG_FindEntityNameForBuildNum
 ==============
 */
-char *BG_FindEntityNameForBuildNum( int bclass )
+char *BG_FindEntityNameForBuildable( int bclass )
 {
   int i;
 
@@ -967,86 +1028,6 @@ char *BG_FindEntityNameForBuildNum( int bclass )
   {
     if( bg_buildableList[ i ].buildNum == bclass )
       return bg_buildableList[ i ].entityName;
-  }
-
-  //wimp out
-  return "";
-}
-
-/*
-==============
-BG_FindPrecacheNameForBuildNum
-==============
-*/
-char *BG_FindPrecacheNameForBuildNum( int bclass )
-{
-  int i;
-
-  for( i = 0; i < bg_numBuildables; i++ )
-  {
-    if( bg_buildableList[ i ].buildNum == bclass )
-      return bg_buildableList[ i ].precacheName;
-  }
-
-  //wimp out
-  return "";
-}
-
-/*
-==============
-BG_FindModelsForBuildable
-==============
-*/
-char **BG_FindModelsForBuildable( int bclass )
-{
-  int i;
-  char **dummy;
-
-  for( i = 0; i < bg_numBuildables; i++ )
-  {
-    if( bg_buildableList[ i ].buildNum == bclass )
-    {
-      return bg_buildableList[ i ].modelPrecache;
-    }
-  }
-  
-  return dummy;
-}
-
-/*
-==============
-BG_FindSoundsForBuildable
-==============
-*/
-char **BG_FindSoundsForBuildable( int bclass )
-{
-  int i;
-  char **dummy;
-
-  for( i = 0; i < bg_numBuildables; i++ )
-  {
-    if( bg_buildableList[ i ].buildNum == bclass )
-    {
-      return bg_buildableList[ i ].soundPrecache;
-    }
-  }
-  
-  return dummy;
-}
-
-/*
-==============
-BG_FindIconForBuildNum
-==============
-*/
-char *BG_FindIconForBuildNum( int bclass )
-{
-  int i;
-
-  for( i = 0; i < bg_numBuildables; i++ )
-  {
-    if( bg_buildableList[ i ].buildNum == bclass )
-      return bg_buildableList[ i ].icon;
   }
 
   //wimp out
@@ -1168,7 +1149,7 @@ int BG_FindSplashRadiusForBuildable( int bclass )
 BG_FindMODForBuildable
 ==============
 */
-int BG_FindMODBuildable( int bclass )
+int BG_FindMODForBuildable( int bclass )
 {
   int i;
 
@@ -1241,6 +1222,26 @@ int BG_FindNextThinkForBuildable( int bclass )
   }
   
   return 100;
+}
+
+/*
+==============
+BG_FindCreepTestForBuildable
+==============
+*/
+int BG_FindCreepTestForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].creepTest;
+    }
+  }
+  
+  return qfalse;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

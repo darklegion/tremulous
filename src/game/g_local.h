@@ -468,8 +468,8 @@ void SaveRegisteredItems( void );
 //
 // g_buildable.c
 //
-qboolean itemFits( gentity_t *ent, gitem_t *item, int distance );
-gentity_t *Build_Item( gentity_t *ent, gitem_t *item, int distance );
+qboolean itemFits( gentity_t *ent, buildable_t buildable, int distance );
+gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance );
 
 //
 // g_utils.c

@@ -369,8 +369,8 @@ typedef enum {
 typedef enum {
   BA_NONE,
 
-  BA_A_SPAWN,
-  BA_A_DEF1,
+  BA_D_SPAWN,
+  BA_D_DEF1,
   BA_H_SPAWN,
   BA_H_DEF1,
   BA_H_MCU,
@@ -381,8 +381,11 @@ typedef enum {
 typedef enum
 {
   BIT_NONE,
+  
   BIT_DROIDS,
-  BIT_HUMANS
+  BIT_HUMANS,
+
+  BIT_NUM_TEAMS
 } buildableTeam_t;
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
@@ -736,32 +739,29 @@ typedef struct
 //TA: buildable item record
 typedef struct
 {
-  int     buildNum;
+  int       buildNum;
 
-  char    *buildName;
-  char    *entityName;
-  char    *precacheName;
+  char      *buildName;
+  char      *entityName;
 
-  char    *modelPrecache[ 4 ];
-  char    *soundPrecache[ 4 ];
-  char    *icon;
+  vec3_t    mins;
+  vec3_t    maxs;
 
-  vec3_t  mins;
-  vec3_t  maxs;
-
-  int     health;
+  int       health;
   
-  int     damage;
-  int     splashDamage;
-  int     splashRadius;
+  int       damage;
+  int       splashDamage;
+  int       splashRadius;
 
-  int     meansOfDeath;
+  int       meansOfDeath;
 
-  int     team;
+  int       team;
 
-  int     spawnEvent;
+  int       spawnEvent;
 
-  int     nextthink;
+  int       nextthink;
+
+  qboolean  creepTest;
 } buildableAttributes_t;      
 
 // included in both the game dll and the client
@@ -776,6 +776,20 @@ gitem_t *BG_FindItemForPowerup( powerup_t pw );
 gitem_t *BG_FindItemForHoldable( holdable_t pw );
 
 //TA:
+int       BG_FindBuildNumForName( char *name );
+char      *BG_FindNameForBuildable( int bclass );
+char      *BG_FindEntityNameForBuildable( int bclass );
+void      BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs );
+int       BG_FindHealthForBuildable( int bclass );
+int       BG_FindDamageForBuildable( int bclass );
+int       BG_FindSplashDamageForBuildable( int bclass );
+int       BG_FindSplashRadiusForBuildable( int bclass );
+int       BG_FindMODForBuildable( int bclass );
+int       BG_FindTeamForBuildable( int bclass );
+int       BG_FindEventForBuildable( int bclass );
+int       BG_FindNextThinkForBuildable( int bclass );
+int       BG_FindCreepTestForBuildable( int bclass );
+
 int       BG_FindClassNumForName( char *name );
 char      *BG_FindNameForClassNum( int pclass );
 char      *BG_FindModelNameForClass( int pclass );

@@ -448,7 +448,7 @@ itemFits
 Checks to see if an item fits in a specific area
 ================
 */
-qboolean itemFits( gentity_t *ent, gitem_t *item, int distance )
+qboolean itemFits( gentity_t *ent, buildable_t buildable, int distance )
 {
   vec3_t    forward;
   vec3_t    angles;
@@ -468,41 +468,12 @@ qboolean itemFits( gentity_t *ent, gitem_t *item, int distance )
   VectorCopy( ent->s.pos.trBase, player_origin );
   VectorMA( player_origin, distance, forward, entity_origin );
 
-  if( !Q_stricmp( item->classname, "team_droid_spawn" ) )
-  {
-    creeptest = qfalse;
-    VectorSet( mins, -15, -15, -15 );
-    VectorSet( maxs, 15, 15, 15 );
-  }
-  else if( !Q_stricmp( item->classname, "team_droid_def1" ) )
-  {
-    creeptest = qtrue;
-    VectorSet( mins, -15, -15, -15 );
-    VectorSet( maxs, 15, 15, 15 );
-  }
-  else if( !Q_stricmp( item->classname, "team_human_spawn" ) )
-  {
-    creeptest = qfalse;
-    VectorSet( mins, -40, -40, -4 );
-    VectorSet( maxs, 40, 40, 4 );
-  }
-  else if( !Q_stricmp( item->classname, "team_human_def1" ) )
-  {
-    creeptest = qfalse;
-    VectorSet( mins, -24, -24, -11 );
-    VectorSet( maxs, 24, 24, 11 );
-  }
-  else if( !Q_stricmp( item->classname, "team_human_mcu" ) )
-  {
-    creeptest = qfalse;
-    VectorSet( mins, -15, -15, -15 );
-    VectorSet( maxs, 15, 15, 15 );
-  }
-
+  BG_FindBBoxForBuildable( buildable, mins, maxs );
+  
   trap_Trace( &tr1, entity_origin, mins, maxs, entity_origin, ent->s.number, MASK_PLAYERSOLID );
   trap_Trace( &tr2, player_origin, NULL, NULL, entity_origin, ent->s.number, MASK_PLAYERSOLID );
 
-  if( creeptest )
+  if( BG_FindCreepTestForBuildable( buildable ) )
   {
     for ( i = 1, creepent = g_entities + i; i < level.num_entities; i++, creepent++ )
     {
@@ -534,7 +505,7 @@ Build_Item
 Spawns an item and tosses it forward
 ================
 */
-gentity_t *Build_Item( gentity_t *ent, gitem_t *item, int distance ) {
+gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
   vec3_t  forward;
   vec3_t  angles;
   vec3_t  origin;
@@ -550,109 +521,50 @@ gentity_t *Build_Item( gentity_t *ent, gitem_t *item, int distance ) {
   built = G_Spawn();
 
   built->s.eType = ET_BUILDABLE;
-  built->s.modelindex = item - bg_itemlist; // store item number in modelindex
 
-  built->classname = item->classname;
-  built->item = item;
+  built->classname = BG_FindEntityNameForBuildable( buildable );
+  built->item = BG_FindItemForBuildable( buildable );
+  
+  built->s.modelindex = built->item - bg_itemlist; // store item number in modelindex
 
-  if( !Q_stricmp( item->classname, "team_droid_spawn" ) )
+  BG_FindBBoxForBuildable( buildable, built->r.mins, built->r.maxs );
+  built->biteam = built->s.modelindex2 = BG_FindTeamForBuildable( buildable );
+  built->health = BG_FindHealthForBuildable( buildable );
+  
+  built->damage = BG_FindDamageForBuildable( buildable );
+  built->splashDamage = BG_FindSplashDamageForBuildable( buildable );
+  built->splashRadius = BG_FindSplashRadiusForBuildable( buildable );
+  built->splashMethodOfDeath = BG_FindMODForBuildable( buildable );
+  
+  if( BG_FindEventForBuildable( buildable ) != EV_NONE )
+    G_AddEvent( built, BG_FindEventForBuildable( buildable ), 0 );
+    
+  built->nextthink = BG_FindNextThinkForBuildable( buildable );
+
+  if( buildable == BA_D_SPAWN )
   {
-    VectorSet( built->r.mins, -15, -15, -15 );
-    VectorSet( built->r.maxs, 15, 15, 15 );
-
-    built->biteam = BIT_DROIDS;
-    built->takedamage = qtrue;
-    built->health = 1000;
-    built->damage = 50;
-    built->splashDamage = 50;
-    built->splashRadius = 200;
-    built->splashMethodOfDeath = MOD_ASPAWN;
-    built->s.modelindex2 = BIT_DROIDS;
-    G_AddEvent( built, EV_ITEM_GROW, 0 );
-    //built->touch = ASpawn_Touch;
     built->die = DSpawn_Die;
-    //built->pain = ASpawn_Pain;
     built->think = DSpawn_Think;
-    built->nextthink = level.time + 100;
   }
-  else if( !Q_stricmp( item->classname, "team_droid_def1" ) )
+  else if( buildable == BA_D_DEF1 )
   {
-    VectorSet( built->r.mins, -15, -15, -15 );
-    VectorSet( built->r.maxs, 15, 15, 15 );
-
-    built->biteam = BIT_DROIDS;
-    built->takedamage = qtrue;
-    built->health = 1000;
-    built->damage = 50;
-    built->splashDamage = 20;
-    built->splashRadius = 50;
-    built->splashMethodOfDeath = MOD_ASPAWN;
-    built->s.modelindex2 = BIT_DROIDS;
-    G_AddEvent( built, EV_ITEM_GROW, 0 );
-    //built->touch = ASpawn_Touch;
     built->die = DDef1_Die;
-    //built->pain = ASpawn_Pain;
     built->think = DDef1_Think;
-    built->nextthink = level.time + 100;
   }
-  else if( !Q_stricmp( item->classname, "team_human_spawn" ) )
+  else if( buildable == BA_H_SPAWN )
   {
-    VectorSet( built->r.mins, -40, -40, -4 );
-    VectorSet( built->r.maxs, 40, 40, 4 );
-
-    built->biteam = BIT_HUMANS;
-    built->takedamage = qtrue;
-    built->health = 1000;
-    built->damage = 50;
-    built->splashDamage = 50;
-    built->splashRadius = 150;
-    built->splashMethodOfDeath = MOD_HSPAWN;
-    built->s.modelindex2 = BIT_HUMANS;
-    //built->touch = HSpawn_Touch;
-    //built->think = HSpawn_Think;
-    //built->nextthink = level.time + 1000;
     built->die = HSpawn_Die;
-    //built->pain = HSpawn_Pain;
   }
-  else if( !Q_stricmp( item->classname, "team_human_def1" ) )
+  else if( buildable == BA_H_DEF1 )
   {
-    VectorSet( built->r.mins, -24, -24, -11 );
-    VectorSet( built->r.maxs, 24, 24, 11 );
-
-    built->biteam = BIT_HUMANS;
-    built->takedamage = qtrue;
-    built->health = 1000;
-    built->damage = 50;
-    built->splashDamage = 20;
-    built->splashRadius = 50;
-    built->splashMethodOfDeath = MOD_HSPAWN;
-    built->s.modelindex2 = BIT_HUMANS;
-    //built->touch = ASpawn_Touch;
     built->die = HSpawn_Die;
-    //built->pain = ASpawn_Pain;
     built->think = HDef1_Think;
     built->enemy = NULL;
-    built->nextthink = level.time + 50;
   }
-  else if( !Q_stricmp( item->classname, "team_human_mcu" ) )
+  else if( buildable == BA_H_MCU )
   {
-    VectorSet( built->r.mins, -15, -15, -15 );
-    VectorSet( built->r.maxs, 15, 15, 15 );
-
-    built->biteam = BIT_HUMANS;
-    built->takedamage = qtrue;
-    built->health = 1000;
-    built->damage = 50;
-    built->splashDamage = 50;
-    built->splashRadius = 150;
-    built->splashMethodOfDeath = MOD_HSPAWN;
-    built->s.modelindex2 = BIT_HUMANS;
-    //built->touch = HSpawn_Touch;
-    //built->think = HSpawn_Think;
-    //built->nextthink = level.time + 1000;
     built->die = HSpawn_Die;
     built->use = HMCU_Activate;
-    //built->pain = HSpawn_Pain;
   }
 
   built->s.number = built - g_entities;

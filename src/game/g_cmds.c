@@ -1903,11 +1903,8 @@ Cmd_Build_f
 */
 void Cmd_Build_f( gentity_t *ent )
 {
-  gitem_t       *item;
   char          s[ MAX_TOKEN_CHARS ];
   int           buildable;
-  qboolean      dontBuild = qfalse;
-        
 
   trap_Argv( 1, s, sizeof( s ) );
 
@@ -1915,23 +1912,14 @@ void Cmd_Build_f( gentity_t *ent )
       BG_gotWeapon( WP_ABUILD, ent->client->ps.stats ) &&
       ( ent->client->ps.weapon == WP_ABUILD ) )
   {
-    if( !Q_stricmp(s, "0") || !Q_stricmp(s, "spawn") )
-      buildable = BA_A_SPAWN;
-    else if( !Q_stricmp(s, "1") || !Q_stricmp(s, "defense1") )
-      buildable = BA_A_DEF1;
+    buildable = BG_FindBuildNumForName( s );
+
+    if( buildable == BA_NONE )
+      trap_SendServerCommand( ent-g_entities, va("print \"Unknown item\n\"" ) );
     else
     {
-      trap_SendServerCommand( ent-g_entities, va("print \"Unknown item\n\"" ) );
-      dontBuild = qtrue;
-    }
-
-    if( !dontBuild )
-    {
-      item = BG_FindItemForBuildable( buildable );
-      if( itemFits( ent, item, -50 ) )
-      {
-        Build_Item( ent, item, -50 );
-      }
+      if( itemFits( ent, buildable, -50 ) )
+        Build_Item( ent, buildable, -50 );
       else
         trap_SendServerCommand( ent-g_entities, va("print \"Location is not suitable\n\"" ) );
     }
@@ -1940,25 +1928,14 @@ void Cmd_Build_f( gentity_t *ent )
            BG_gotWeapon( WP_HBUILD, ent->client->ps.stats ) &&
            ( ent->client->ps.weapon == WP_HBUILD ) )
   {
-    if( !Q_stricmp(s, "0") || !Q_stricmp(s, "spawn") )
-      buildable = BA_H_SPAWN;
-    else if( !Q_stricmp(s, "1") || !Q_stricmp(s, "defense1") )
-      buildable = BA_H_DEF1;
-    else if( !Q_stricmp(s, "2") || !Q_stricmp(s, "mcu") )
-      buildable = BA_H_MCU;
+    buildable = BG_FindBuildNumForName( s );
+
+    if( buildable == BA_NONE )
+      trap_SendServerCommand( ent-g_entities, va("print \"Unknown item\n\"" ) );
     else
     {
-      trap_SendServerCommand( ent-g_entities, va("print \"Unknown item\n\"" ) );
-      dontBuild = qtrue;
-    }
-
-    if( !dontBuild )
-    {
-      item = BG_FindItemForBuildable( buildable );
-      if( itemFits( ent, item, 80 ) )
-      {
-        Build_Item( ent, item, 80 );
-      }
+      if( itemFits( ent, buildable, 80 ) )
+        Build_Item( ent, buildable, 80 );
       else
         trap_SendServerCommand( ent-g_entities, va("print \"Location is not suitable\n\"" ) );
     }
