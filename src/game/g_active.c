@@ -266,7 +266,8 @@ void  G_TouchTriggers( gentity_t *ent ) {
 
     // ignore most entities if a spectator
     if( ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) ||
-        ( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) ) {
+        ( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) ||
+        ( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) ) {
       if ( hit->s.eType != ET_TELEPORT_TRIGGER &&
         // this is ugly but adding a new ET_? type will
         // most likely cause network incompatibilities
@@ -831,7 +832,8 @@ void ClientThink_real( gentity_t *ent ) {
     client->ps.pm_type = PM_NOCLIP;
   else if( client->ps.stats[STAT_HEALTH] <= 0 )
     client->ps.pm_type = PM_DEAD;
-  else if( client->ps.stats[ STAT_STATE ] & SS_INFESTING )
+  else if( client->ps.stats[ STAT_STATE ] & SS_INFESTING ||
+           client->ps.stats[ STAT_STATE ] & SS_HOVELING )
     client->ps.pm_type = PM_FREEZE;
   else if( client->ps.stats[ STAT_STATE ] & SS_BLOBLOCKED ||
            client->ps.stats[ STAT_STATE ] & SS_GRABBED )
@@ -960,9 +962,10 @@ void ClientThink_real( gentity_t *ent ) {
   if ( pm.ps->pm_type == PM_DEAD ) {
     pm.tracemask = MASK_PLAYERSOLID; // & ~CONTENTS_BODY;
   }
-  if ( pm.ps->stats[ STAT_STATE ] & SS_INFESTING ) {
+  if( pm.ps->stats[ STAT_STATE ] & SS_INFESTING ||
+      pm.ps->stats[ STAT_STATE ] & SS_HOVELING )
     pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
-  }
+    
   else if ( ent->r.svFlags & SVF_BOT ) {
     pm.tracemask = MASK_PLAYERSOLID | CONTENTS_BOTCLIP;
   }
@@ -1043,29 +1046,73 @@ void ClientThink_real( gentity_t *ent ) {
     vec3_t    view, point;
     gentity_t *traceEnt;
 
-    AngleVectors( client->ps.viewangles, view, NULL, NULL );
-    VectorMA( client->ps.origin, 200, view, point );
-    trap_Trace( &trace, client->ps.origin, NULL, NULL, point, ent->s.number, MASK_SHOT );
+    if( client->ps.stats[ STAT_STATE ] & SS_HOVELING )
+    {
+      gentity_t *hovel = client->infestBody;
+      vec3_t    forward, newOrigin, newAngles;
+      trace_t   tr;
+      vec3_t    mins, maxs;
+      
+      BG_FindBBoxForClass( client->ps.stats[ STAT_PCLASS ], mins, maxs, NULL, NULL, NULL );
+      
+      AngleVectors( hovel->s.angles, forward, NULL, NULL );
+      VectorInverse( forward );
 
-    traceEnt = &g_entities[ trace.entityNum ];
+      VectorMA( hovel->s.origin, 95.0f, forward, newOrigin );
+      vectoangles( forward, newAngles );
 
-    if( traceEnt->use )
-      traceEnt->use( traceEnt, ent, ent ); //other and activator are the same in this context
+      VectorMA( newOrigin, 1.0f, hovel->s.origin2, newOrigin );
+      
+      trap_Trace( &tr, newOrigin, mins, maxs, newOrigin, 0, MASK_PLAYERSOLID );
+      
+      //only let the player out if there is room
+      if( tr.fraction == 1.0 )
+      {
+        //prevent lerping
+        ent->client->ps.eFlags ^= EF_TELEPORT_BIT;
+        
+        G_SetOrigin( ent, newOrigin );
+        VectorCopy( newOrigin, ent->client->ps.origin );
+        SetClientViewAngle( ent, newAngles );
+        
+        //client leaves hovel
+        client->ps.stats[ STAT_STATE ] &= ~SS_HOVELING;
+        
+        //hovel is empty
+        G_setBuildableAnim( hovel, BANIM_ATTACK1, qfalse );
+        hovel->active = qfalse;
+      }
+    }
+    else
+    {
+      AngleVectors( client->ps.viewangles, view, NULL, NULL );
+      VectorMA( client->ps.origin, 200, view, point );
+      trap_Trace( &trace, client->ps.origin, NULL, NULL, point, ent->s.number, MASK_SHOT );
+
+      traceEnt = &g_entities[ trace.entityNum ];
+
+      if( traceEnt->use )
+        traceEnt->use( traceEnt, ent, ent ); //other and activator are the same in this context
+    }
   }
   
   // check for respawning
-  if ( client->ps.stats[STAT_HEALTH] <= 0 ) {
+  if( client->ps.stats[STAT_HEALTH] <= 0 )
+  {
     // wait for the attack button to be pressed
-    if ( level.time > client->respawnTime ) {
+    if( level.time > client->respawnTime )
+    {
       // forcerespawn is to prevent users from waiting out powerups
-      if ( g_forcerespawn.integer > 0 &&
-        ( level.time - client->respawnTime ) > 0 ) { //g_forcerespawn.integer * 1000 ) {
+      if( g_forcerespawn.integer > 0 &&
+        ( level.time - client->respawnTime ) > 0 )
+      { //g_forcerespawn.integer * 1000 ) {
         respawn( ent );
         return;
       }
 
       // pressing attack or use is the normal respawn method
-      if ( ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) ) {
+      if( ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) )
+      {
         respawn( ent );
       }
     }

@@ -1331,9 +1331,9 @@ void CG_AddViewWeapon( playerState_t *ps ) {
   weaponInfo_t  *weapon;
 
   if( ( ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) ||
-      ( ps->stats[ STAT_STATE ] & SS_INFESTING ) ) {
+      ( ps->stats[ STAT_STATE ] & SS_INFESTING ) ||
+      ( ps->stats[ STAT_STATE ] & SS_HOVELING ) )
     return;
-  }
 
   //TA: no weapon carried - can't draw it
   if( ps->weapon == WP_NONE )

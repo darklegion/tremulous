@@ -587,6 +587,72 @@ void AAcidTube_Think( gentity_t *self )
 
 /*
 ================
+AHovel_Use
+
+Called when an alien uses a hovel
+================
+*/
+void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  vec3_t  hovelOrigin, hovelAngles, inverseNormal;
+  
+  if( self->active )
+  {
+    //this hovel is in use
+  }
+  else if( ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_A_B_BASE ) ||
+           ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_A_B_LEV1 ) )
+  {
+    self->active = qtrue;
+    G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
+
+    //prevent lerping
+    activator->client->ps.eFlags ^= EF_TELEPORT_BIT;
+    
+    activator->client->sess.sessionTeam = TEAM_FREE;
+    activator->client->ps.stats[ STAT_STATE ] |= SS_HOVELING;
+    activator->client->infestBody = self;
+
+    VectorCopy( self->s.pos.trBase, hovelOrigin );
+    VectorMA( hovelOrigin, 128.0f, self->s.origin2, hovelOrigin );
+
+    VectorCopy( self->s.origin2, inverseNormal );
+    VectorInverse( inverseNormal );
+    vectoangles( inverseNormal, hovelAngles );
+
+    VectorCopy( activator->s.pos.trBase, activator->hovelOrigin );
+
+    G_SetOrigin( activator, hovelOrigin );
+    VectorCopy( hovelOrigin, activator->client->ps.origin );
+    SetClientViewAngle( activator, hovelAngles );
+  }
+}
+
+
+/*
+================
+AHovel_Think
+
+Think for alien hovel
+================
+*/
+void AHovel_Think( gentity_t *self )
+{
+  if( self->active )
+    G_setIdleBuildableAnim( self, BANIM_IDLE2 );
+  else
+    G_setIdleBuildableAnim( self, BANIM_IDLE1 );
+    
+  self->nextthink = level.time + 200;
+}
+
+
+//==================================================================================
+
+
+
+/*
+================
 ABooster_Touch
 
 Called when an alien touches a booster
@@ -1293,6 +1359,8 @@ qboolean hdef_checktarget( gentity_t *self, gentity_t *target, int range )
     return qfalse;
   if( target->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) // is the target alive?
     return qfalse;
+  if( target->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) // is the target alive?
+    return qfalse;
   if( target->health <= 0 ) // is the target still alive?
     return qfalse;
   if( self->dcced && target->targeted && target->targeted->powered ) //some turret has already selected this target
@@ -1782,6 +1850,8 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       
     case BA_A_HOVEL:
       built->die = ASpawn_Die;
+      built->use = AHovel_Use;
+      built->think = AHovel_Think;
       built->pain = ASpawn_Pain;
       break;
       
@@ -1867,12 +1937,13 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       VectorSet( normal, 0.0f, 0.0f, -1.0f );
     else
       VectorCopy( builder->client->ps.grapplePoint, normal );
+  
+    //gently nudge the buildable onto the surface :)
+    VectorScale( normal, -50.0f, built->s.pos.trDelta );
   }
   else
     VectorSet( normal, 0.0f, 0.0f, 1.0f );
 
-  VectorMA( origin, -50.0f, normal, built->s.pos.trDelta );
-  
   VectorCopy( normal, built->s.origin2 );
   
   G_AddEvent( built, EV_BUILD_CONSTRUCT, BANIM_CONSTRUCT1 );

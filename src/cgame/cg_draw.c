@@ -1142,7 +1142,8 @@ static float CG_DrawScores( float y ) {
     x = 640;
     score = cg.snap->ps.persistant[PERS_SCORE];
     spectator = ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) ||
-                ( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING );
+                ( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) ||
+                ( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING );
 
     // always show your score in the second box if not in first place
     if ( s1 != score ) {
@@ -1856,9 +1857,9 @@ static void CG_DrawCrosshair(void) {
   }
 
   if( ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) ||
-      ( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) ) {
+      ( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) ||
+      ( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
     return;
-  }
 
   if ( cg.renderingThirdPerson ) {
     return;
@@ -2281,11 +2282,15 @@ static void CG_Draw2D( void ) {
   CG_DrawLighting();
 
   if( ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) ||
-      ( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) ) {
+      ( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) ||
+      ( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
+  {
     CG_DrawSpectator();
     CG_DrawCrosshair();
     CG_DrawCrosshairNames();
-  } else {
+  }
+  else
+  {
     // don't draw any status if dead or the scoreboard is being explicitly shown
     if ( !cg.showScores && cg.snap->ps.stats[STAT_HEALTH] > 0 ) {
       CG_DrawStatusBar();

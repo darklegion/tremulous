@@ -422,6 +422,9 @@ void Cmd_Kill_f( gentity_t *ent ) {
   if( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING )
     return;
     
+  if( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
+    return;
+    
   if (ent->health <= 0)
     return;
 
@@ -1594,6 +1597,9 @@ void Cmd_Class_f( gentity_t *ent )
 
         if( ent->client->pers.pclass != PCL_NONE )
         {
+          //prevent lerping
+          ent->client->ps.eFlags ^= EF_TELEPORT_BIT;
+    
           //evolve
           ent->client->ps.stats[ STAT_PCLASS ] = PCL_NONE;
           ent->client->sess.sessionTeam = TEAM_FREE;
@@ -1605,15 +1611,12 @@ void Cmd_Class_f( gentity_t *ent )
           VectorCopy( victim->s.pos.trBase, infestOrigin );
           infestOrigin[ 2 ] += 128;
 
-          /*trap_Trace( &tr, victim->s.pos.trBase, NULL, NULL, infestOrigin, victim->s.number, MASK_PLAYERSOLID );
-          VectorCopy( tr.endpos, infestOrigin );*/
           VectorCopy( victim->s.angles, infestAngles );
 
           infestAngles[ PITCH ] = 90;
 
           G_SetOrigin( ent, infestOrigin );
           VectorCopy( infestOrigin, ent->client->ps.origin );
-
           SetClientViewAngle( ent, infestAngles );
         }
         else

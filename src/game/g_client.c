@@ -265,7 +265,8 @@ gentity_t *SelectAlienSpawnPoint( void )
   count = 0;
   spot = NULL;
 
-  while( ( spot = G_Find( spot, FOFS( classname ), "team_alien_spawn" ) ) != NULL )
+  while( ( spot = G_Find( spot, FOFS( classname ),
+    BG_FindEntityNameForBuildable( BA_A_SPAWN ) ) ) != NULL )
   {
     if( SpotWouldTelefrag( spot ) || ( spot->health <= 0 ) )
       continue;
@@ -291,7 +292,8 @@ gentity_t *SelectAlienSpawnPoint( void )
   if( !count )
   {
     // no spots that won't telefrag
-    spot = G_Find( NULL, FOFS( classname ), "team_alien_spawn" );
+    spot = G_Find( NULL, FOFS( classname ),
+      BG_FindEntityNameForBuildable( BA_A_SPAWN ) );
     
     if( spot->health > 0 )
       return spot;
@@ -325,7 +327,8 @@ gentity_t *SelectHumanSpawnPoint( void ) {
   count = 0;
   spot = NULL;
 
-  while( ( spot = G_Find( spot, FOFS( classname ), "team_human_spawn" ) ) != NULL )
+  while( ( spot = G_Find( spot, FOFS( classname ),
+    BG_FindEntityNameForBuildable( BA_H_SPAWN ) ) ) != NULL )
   {
     if( SpotWouldTelefrag( spot ) || ( spot->health <= 0 ) )
       continue;
@@ -350,7 +353,8 @@ gentity_t *SelectHumanSpawnPoint( void ) {
   if( !count )
   {
     // no spots that won't telefrag
-    spot = G_Find( NULL, FOFS( classname ), "team_human_spawn" );
+    spot = G_Find( NULL, FOFS( classname ),
+      BG_FindEntityNameForBuildable( BA_H_SPAWN ) );
     
     if( spot->health > 0 )
       return spot;

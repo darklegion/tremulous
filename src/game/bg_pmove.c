@@ -2084,6 +2084,9 @@ static void PM_Weapon( void )
   if( pm->ps->stats[ STAT_STATE ] & SS_INFESTING )
     return;
 
+  if( pm->ps->stats[ STAT_STATE ] & SS_HOVELING )
+    return;
+
   // check for dead player
   if ( pm->ps->stats[STAT_HEALTH] <= 0 )
   {

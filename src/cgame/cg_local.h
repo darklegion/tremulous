@@ -791,15 +791,6 @@ typedef struct {
   qhandle_t humanTorch3;
   qhandle_t humanTorch2;
   qhandle_t humanTorch1;
-  qhandle_t alienNav9;
-  qhandle_t alienNav8;
-  qhandle_t alienNav7;
-  qhandle_t alienNav6;
-  qhandle_t alienNav5;
-  qhandle_t alienNav4;
-  qhandle_t alienNav3;
-  qhandle_t alienNav2;
-  qhandle_t alienNav1;
   qhandle_t alienHealth;
 
   qhandle_t flameShader[ 32 ];

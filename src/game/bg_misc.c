@@ -1147,7 +1147,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BIT_ALIENS,            //int       team;
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
-    -1,                    //int       nextthink;
+    150,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
     WP_NONE,               //weapon_t  turretProjType;
@@ -2045,9 +2045,9 @@ classAttributes_t bg_classList[ ] =
     50,                                             //int     health;
     0,                                              //int     armor;
     SCA_TAKESFALLDAMAGE|SCA_FOVWARPS,               //int     abilities;
-    50.0f,                                          //float   buildDist;
+    95.0f,                                          //float   buildDist;
     80,                                             //int     fov;
-    0.005f,                                         //float   bob;
+    0.001f,                                         //float   bob;
     350,                                            //int     steptime;
     0.8f,                                           //float   speed;
     1.0f,                                           //float   sticky;
@@ -2070,9 +2070,9 @@ classAttributes_t bg_classList[ ] =
     75,                                             //int     health;
     10,                                             //int     armor;
     SCA_CANJUMP|SCA_FOVWARPS|SCA_WALLCLIMBER,       //int     abilities;
-    50.0f,                                          //float   buildDist;
+    95.0f,                                          //float   buildDist;
     110,                                            //int     fov;
-    0.005f,                                         //float   bob;
+    0.001f,                                         //float   bob;
     200,                                            //int     steptime;
     1.0f,                                           //float   speed;
     1.0f,                                           //float   sticky;
