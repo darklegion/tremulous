@@ -68,9 +68,9 @@
 
 #ifdef Q3_VM
 
-#ifdef __linux__
-#undef __linux__
-#endif
+//#ifdef __linux__
+//#undef __linux__
+//#endif
 
 #include "bg_lib.h"
 

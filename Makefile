@@ -187,7 +187,7 @@ makedirs:
 
 ctags:
 	cd src
-	ctags -f tags -R *
+	ctags -f src/tags -R *
 	cd ..
 
 # --object lists for each build type--
