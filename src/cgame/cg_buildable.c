@@ -384,7 +384,9 @@ void CG_Buildable( centity_t *cent )
   refEntity_t     ent;
   entityState_t   *es;
   vec3_t          angles;
-  vec3_t          forward, surfNormal, end, start, mins, maxs;
+  vec3_t          forward, surfNormal, xNormal, end, start, mins, maxs;
+  vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
+  float           rotAngle;
   trace_t         tr;
 
   es = &cent->currentState;
@@ -406,6 +408,10 @@ void CG_Buildable( centity_t *cent )
   VectorCopy( cent->lerpOrigin, ent.lightingOrigin );
 
   VectorCopy( es->origin2, surfNormal );
+  CrossProduct( surfNormal, refNormal, xNormal );
+  VectorNormalize( xNormal );
+  rotAngle = RAD2DEG( acos( DotProduct( surfNormal, refNormal ) ) );
+  
   VectorCopy( es->angles, angles );
   BG_FindBBoxForBuildable( es->modelindex, mins, maxs );
 
@@ -444,31 +450,19 @@ void CG_Buildable( centity_t *cent )
   if( cg_buildables[ es->modelindex ].models[ 1 ] )
   {
     refEntity_t turretBarrel;
+    vec3_t      flatAxis[ 3 ];
     
     memset( &turretBarrel, 0, sizeof( turretBarrel ) );
 
-    AnglesToAxis( es->angles2, turretBarrel.axis );
-    
     turretBarrel.hModel = cg_buildables[ es->modelindex ].models[ 1 ];
     VectorCopy( cent->lerpOrigin, turretBarrel.lightingOrigin );
 
-    CG_PositionRotatedEntityOnTag( &turretBarrel, &ent, ent.hModel, "tag_turret" );
+    CG_PositionEntityOnTag( &turretBarrel, &ent, ent.hModel, "tag_turret" );
+    AnglesToAxis( es->angles2, flatAxis );
 
-/*    AngleVectors( es->angles2, forward, NULL, NULL );
-    VectorCopy( surfNormal, turretBarrel.axis[ 2 ] );
-    ProjectPointOnPlane( turretBarrel.axis[ 0 ], forward, turretBarrel.axis[ 2 ] );
-    
-    if( !VectorNormalize( turretBarrel.axis[ 0 ] ) )
-    {
-      AngleVectors( es->angles2, NULL, NULL, forward );
-      ProjectPointOnPlane( turretBarrel.axis[ 0 ], forward, turretBarrel.axis[ 2 ] );
-      VectorNormalize( turretBarrel.axis[ 0 ] );
-    }
-    
-    CrossProduct( turretBarrel.axis[ 0 ], turretBarrel.axis[ 2 ], turretBarrel.axis[ 1 ] );
-    turretBarrel.axis[ 1 ][ 0 ] = -turretBarrel.axis[ 1 ][ 0 ];
-    turretBarrel.axis[ 1 ][ 1 ] = -turretBarrel.axis[ 1 ][ 1 ];
-    turretBarrel.axis[ 1 ][ 2 ] = -turretBarrel.axis[ 1 ][ 2 ];*/
+    RotatePointAroundVector( turretBarrel.axis[ 0 ], xNormal, flatAxis[ 0 ], -rotAngle );
+    RotatePointAroundVector( turretBarrel.axis[ 1 ], xNormal, flatAxis[ 1 ], -rotAngle );
+    RotatePointAroundVector( turretBarrel.axis[ 2 ], xNormal, flatAxis[ 2 ], -rotAngle );
     
     turretBarrel.oldframe = ent.oldframe;
     turretBarrel.frame    = ent.frame;
@@ -480,26 +474,30 @@ void CG_Buildable( centity_t *cent )
   //turret barrel bit
   if( cg_buildables[ es->modelindex ].models[ 2 ] )
   {
-    refEntity_t turretBarrel;
+    refEntity_t turretTop;
+    vec3_t      flatAxis[ 3 ];
     vec3_t      swivelAngles;
     
-    memset( &turretBarrel, 0, sizeof( turretBarrel ) );
+    memset( &turretTop, 0, sizeof( turretTop ) );
 
     VectorCopy( es->angles2, swivelAngles );
     swivelAngles[ PITCH ] = 0.0f;
     
-    AnglesToAxis( swivelAngles, turretBarrel.axis );
+    turretTop.hModel = cg_buildables[ es->modelindex ].models[ 2 ];
+    VectorCopy( cent->lerpOrigin, turretTop.lightingOrigin );
 
-    turretBarrel.hModel = cg_buildables[ es->modelindex ].models[ 1 ];
-    VectorCopy( cent->lerpOrigin, turretBarrel.lightingOrigin );
+    CG_PositionEntityOnTag( &turretTop, &ent, ent.hModel, "tag_turret" );
+    AnglesToAxis( swivelAngles, flatAxis );
 
-    CG_PositionRotatedEntityOnTag( &turretBarrel, &ent, ent.hModel, "tag_turret" );
+    RotatePointAroundVector( turretTop.axis[ 0 ], xNormal, flatAxis[ 0 ], -rotAngle );
+    RotatePointAroundVector( turretTop.axis[ 1 ], xNormal, flatAxis[ 1 ], -rotAngle );
+    RotatePointAroundVector( turretTop.axis[ 2 ], xNormal, flatAxis[ 2 ], -rotAngle );
+    
+    turretTop.oldframe = ent.oldframe;
+    turretTop.frame    = ent.frame;
+    turretTop.backlerp = ent.backlerp;
 
-    turretBarrel.oldframe = ent.oldframe;
-    turretBarrel.frame    = ent.frame;
-    turretBarrel.backlerp = ent.backlerp;
-
-    trap_R_AddRefEntityToScene( &turretBarrel );
+    trap_R_AddRefEntityToScene( &turretTop );
   }
 
   // add to refresh list

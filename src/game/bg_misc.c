@@ -1483,7 +1483,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_DEF2,             //int       buildNum;
     "mgturret",            //char      *buildName;
     "team_human_def2",     //char      *entityName;
-    { "models/buildables/plasmaturret/pturret_base.md3", "models/weapons2/machinegun/machinegun.md3", 0, 0 },
+    { "models/buildables/mgturret/turret_base.md3", "models/buildables/mgturret/turret_barrel.md3", "models/buildables/mgturret/turret_top.md3", 0 },
     { -24, -24, -11 },     //vec3_t    mins;
     { 24, 24, 11 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
