@@ -347,8 +347,8 @@ typedef enum {
   WP_POUNCE,
 
   //build weapons must remain in a block
-  WP_HBUILD,
   WP_DBUILD,
+  WP_HBUILD,
   //ok?
   
   WP_SCANNER,
