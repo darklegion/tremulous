@@ -762,6 +762,9 @@ void ClientThink_real( gentity_t *ent ) {
   else
     client->ps.pm_type = PM_NORMAL;
 
+  if( client->ps.stats[ STAT_STATE ] & SS_GRABBED && client->lastGrabTime + 500 < level.time )
+    client->ps.stats[ STAT_STATE ] &= ~SS_GRABBED;
+
   client->ps.gravity = g_gravity.value;
 
   // set speed

@@ -651,7 +651,7 @@ qboolean CheckVenomAttack( gentity_t *ent )
   if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
     return qfalse;
 
-  G_Damage( traceEnt, ent, ent, forward, tr.endpos, 5, 0, MOD_VENOM );
+  G_Damage( traceEnt, ent, ent, forward, tr.endpos, 5, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
   if( traceEnt->client )
   {
     if( !( traceEnt->client->ps.stats[ STAT_STATE ] & SS_POISONED ) )
@@ -716,7 +716,7 @@ void Weapon_CSaw_Fire( gentity_t *ent )
   }
 
   if ( traceEnt->takedamage )
-    G_Damage( traceEnt, ent, ent, forward, tr.endpos, 5, 0, MOD_VENOM );
+    G_Damage( traceEnt, ent, ent, forward, tr.endpos, 5, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
 }
 
 /*
@@ -755,6 +755,8 @@ void Weapon_Grab_Fire( gentity_t *ent )
   if( traceEnt->client )
   {
     //lock client
+    traceEnt->client->ps.stats[ STAT_STATE ] |= SS_GRABBED;
+    traceEnt->client->lastGrabTime = level.time;
   }
 }
 
@@ -911,6 +913,7 @@ void FireWeapon2( gentity_t *ent )
       Weapon_Venom_Fire( ent );
       break;
     case WP_GRABANDCSAW:
+      Weapon_Grab_Fire( ent );
       break;
     case WP_DBUILD:
       Weapon_Abuild_Fire( ent );
