@@ -541,7 +541,20 @@ static qboolean PM_CheckJump( void ) {
     pm->ps->stats[ STAT_STAMINA ] -= 500;
 
   pm->ps->groundEntityNum = ENTITYNUM_NONE;
-  pm->ps->velocity[2] = JUMP_VELOCITY;
+  
+  //TA: jump away from wall
+  if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
+  {
+    vec3_t normal = { 0, 0, -1 };
+    
+    if( !( pm->ps->stats[ STAT_STATE ] & SS_GPISROTVEC ) )
+      VectorCopy( pm->ps->grapplePoint, normal );
+      
+    VectorMA( pm->ps->velocity, JUMP_VELOCITY, normal, pm->ps->velocity );
+  }
+  else
+    pm->ps->velocity[2] = JUMP_VELOCITY;
+    
   PM_AddEvent( EV_JUMP );
 
   if ( pm->cmd.forwardmove >= 0 ) {
@@ -1374,7 +1387,7 @@ static void PM_GroundClimbTrace( void )
   float     toAngles[3], surfAngles[3], srotAngle;
   trace_t   trace;
   int       i;
-  qboolean  smoothed = qtrue;
+  //qboolean  smoothed = qtrue; //TA: what the hell is this for?
 
   //TA: If we're on the ceiling then grapplePoint is a rotation normal.. otherwise its a surface normal.
   //    would have been nice if Carmack had left a few random variables in the ps struct for mod makers
@@ -1435,7 +1448,8 @@ static void PM_GroundClimbTrace( void )
     pm->ps->stats[ STAT_STATE ] &= ~SS_WALLTRANSIDING;
 
     //if we hit something
-    if( trace.fraction < 1.0 && !( trace.surfaceFlags & ( SURF_SKY | SURF_NOIMPACT ) ) && !( trace.entityNum != 1022 && i != 3 ) )
+    if( trace.fraction < 1.0 && !( trace.surfaceFlags & ( SURF_SKY | SURF_NOIMPACT ) ) &&
+        !( trace.entityNum != 1022 && i != 3 ) )
     {
       if( i == 2 )
         VectorCopy( trace.endpos, pm->ps->origin );
@@ -1446,7 +1460,7 @@ static void PM_GroundClimbTrace( void )
       {
         //experimental: slow down speed around transitions
         pm->ps->stats[ STAT_STATE ] |= SS_WALLTRANSIDING;
-        
+       
         //if the trace result or the old vector is not the floor or ceiling correct the YAW angle
         if( !VectorCompare( trace.plane.normal, refNormal ) && !VectorCompare( surfNormal, refNormal ) &&
             !VectorCompare( trace.plane.normal, ceilingNormal ) && !VectorCompare( surfNormal, ceilingNormal ) )
@@ -1533,13 +1547,12 @@ static void PM_GroundClimbTrace( void )
         srotAngle = abs( RAD2DEG( arccos( DotProduct( surfNormal, trace.plane.normal ) ) ) );
 
         PM_AddSmoothOp( srotAxis, srotAngle );
-        smoothed = qfalse;
+        //smoothed = qfalse;
       }
 
       pml.groundTrace = trace;
 
-      //so everything knows where we're wallclimbing
-      pm->ps->stats[ STAT_STATE ] |= SS_WALLCLIMBING;
+      //so everything knows where we're wallclimbing (ie client side)
       pm->ps->legsAnim |= ANIM_WALLCLIMBING;
 
       //if we're not stuck to the ceiling then set grapplePoint to be a surface normal
@@ -1569,14 +1582,13 @@ static void PM_GroundClimbTrace( void )
   if ( trace.fraction >= 1.0 )
   {
     // if the trace didn't hit anything, we are in free fall
-    //Com_Printf("trace missed\n");
+    //Com_Printf( "trace missed justFallen:%d\n", wcl[ pm->ps->clientNum ].justFallen );
     PM_GroundTraceMissed();
     pml.groundPlane = qfalse;
     pml.walking = qfalse;
-    pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
     pm->ps->legsAnim &= ~ANIM_WALLCLIMBING;
 
-    if( wcl[ pm->ps->clientNum ].justFallen && !smoothed )
+    if( wcl[ pm->ps->clientNum ].justFallen ) //&& !smoothed )
     {
       if( pm->ps->stats[ STAT_STATE ] & SS_GPISROTVEC )
       {
@@ -1629,13 +1641,25 @@ PM_GroundTrace
 =============
 */
 static void PM_GroundTrace( void ) {
-  vec3_t    point, forward, srotAxis;
-  vec3_t    refNormal = { 0, 0, 1 };
-  vec3_t    ceilingNormal = { 0, 0, -1 };
-  trace_t   trace;
-  float     srotAngle;
+  vec3_t      point, forward, srotAxis;
+  vec3_t      refNormal = { 0, 0, 1 };
+  vec3_t      ceilingNormal = { 0, 0, -1 };
+  trace_t     trace;
+  float       srotAngle;
+  static int  old; //TA: is it bad to use statics too often?
 
-  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) && ( pm->cmd.upmove < 0 ) )
+  if( pm->cmd.upmove < 0 && old >= 0 )
+  {
+    if( !pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING && pm->cmd.upmove < 0 )
+      pm->ps->stats[ STAT_STATE ] |= SS_WALLCLIMBING;
+    else if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING && pm->cmd.upmove < 0 )
+      pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
+  }
+
+  old = pm->cmd.upmove;
+
+  //if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) && ( pm->cmd.upmove < 0 ) )
+  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) && ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
   {
     PM_GroundClimbTrace( );
     return;

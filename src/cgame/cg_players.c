@@ -504,7 +504,6 @@ static int CG_GetCorpseNum( int pclass ) {
   for ( i = 0 ; i < MAX_CLIENTS; i++ )
   {
     match = &cgs.corpseinfo[ i ];
-    Com_Printf( "%d: %s %s\n", i, modelName, match->modelName );
     if ( !match->infoValid )
       continue;
       
