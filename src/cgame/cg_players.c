@@ -125,6 +125,8 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
   ci->footsteps = FOOTSTEP_NORMAL;
   VectorClear( ci->headOffset );
   ci->gender = GENDER_MALE;
+  ci->fixedlegs = qfalse;
+  ci->fixedtorso = qfalse;
 
   // read optional parameters
   while ( 1 ) {
@@ -174,6 +176,12 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
         ci->gender = GENDER_MALE;
       }
       continue;
+    } else if ( !Q_stricmp( token, "fixedlegs" ) ) {
+      ci->fixedlegs = qtrue;
+      continue;
+    } else if ( !Q_stricmp( token, "fixedtorso" ) ) {
+      ci->fixedtorso = qtrue;
+      continue;
     }
 
     // if it is a number, start parsing animations
@@ -189,7 +197,6 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 
     token = COM_Parse( &text_p );
     if ( !*token ) {
-#ifdef NEW_ANIMS
       if( i >= TORSO_GETFLAG && i <= TORSO_NEGATIVE ) {
         animations[i].firstFrame = animations[TORSO_GESTURE].firstFrame;
         animations[i].frameLerp = animations[TORSO_GESTURE].frameLerp;
@@ -200,7 +207,6 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
         animations[i].flipflop = qfalse;
         continue;
       }
-#endif
       break;
     }
     animations[i].firstFrame = atoi( token );
@@ -325,7 +331,7 @@ CG_RegisterClientModelname
 ==========================
 */
 static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName, const char *skinName ) {
-  char    filename[MAX_QPATH];
+  char    filename[MAX_QPATH*2];
 
   // load cmodels before models so filecache works
 
@@ -423,11 +429,16 @@ static void CG_LoadClientInfo( clientInfo_t *ci ) {
 
     // fall back
     if ( cgs.gametype >= GT_TEAM ) {
-      // keep skin name
+/*      // keep skin name
+      if( ci->team == TEAM_BLUE ) {
+        Q_strncpyz(teamname, DEFAULT_BLUETEAM_NAME, sizeof(teamname) );
+      } else {
+        Q_strncpyz(teamname, DEFAULT_REDTEAM_NAME, sizeof(teamname) );
+      }
       if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, ci->skinName ) ) {
         CG_Error( "DEFAULT_MODEL / skin (%s/%s) failed to register",
           DEFAULT_MODEL, ci->skinName );
-      }
+      }*/
     } else {
       if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, "default" ) ) {
         CG_Error( "DEFAULT_MODEL (%s) failed to register", DEFAULT_MODEL );
@@ -640,7 +651,10 @@ void CG_PrecacheClientInfo( int clientNum ) {
 
   // colors
   v = Info_ValueForKey( configstring, "c1" );
-  CG_ColorFromString( v, newInfo.color );
+  CG_ColorFromString( v, newInfo.color1 );
+
+  v = Info_ValueForKey( configstring, "c2" );
+  CG_ColorFromString( v, newInfo.color2 );
 
   // bot skill
   v = Info_ValueForKey( configstring, "skill" );
@@ -743,7 +757,10 @@ void CG_NewClientInfo( int clientNum ) {
 
   // colors
   v = Info_ValueForKey( configstring, "c1" );
-  CG_ColorFromString( v, newInfo.color );
+  CG_ColorFromString( v, newInfo.color1 );
+
+  v = Info_ValueForKey( configstring, "c2" );
+  CG_ColorFromString( v, newInfo.color2 );
 
   // bot skill
   v = Info_ValueForKey( configstring, "skill" );
@@ -1176,7 +1193,8 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
   static  int movementOffsets[8] = { 0, 22, 45, -22, 0, 22, -45, -22 };
   vec3_t    velocity;
   float   speed;
-  int     dir;
+  int     dir, clientNum;
+  clientInfo_t  *ci;
 
   VectorCopy( cent->lerpAngles, headAngles );
   headAngles[YAW] = AngleMod( headAngles[YAW] );
@@ -1226,6 +1244,15 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
   CG_SwingAngles( dest, 15, 30, 0.1f, &cent->pe.torso.pitchAngle, &cent->pe.torso.pitching );
   torsoAngles[PITCH] = cent->pe.torso.pitchAngle;
 
+  //
+  clientNum = cent->currentState.clientNum;
+  if ( clientNum >= 0 && clientNum < MAX_CLIENTS ) {
+    ci = &cgs.clientinfo[ clientNum ];
+    if ( ci->fixedtorso ) {
+      torsoAngles[PITCH] = 0.0f;
+    }
+  }
+
   // --------- roll -------------
 
 
@@ -1244,6 +1271,17 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
 
     side = speed * DotProduct( velocity, axis[0] );
     legsAngles[PITCH] += side;
+  }
+
+  //
+  clientNum = cent->currentState.clientNum;
+  if ( clientNum >= 0 && clientNum < MAX_CLIENTS ) {
+    ci = &cgs.clientinfo[ clientNum ];
+    if ( ci->fixedlegs ) {
+      legsAngles[YAW] = torsoAngles[YAW];
+      legsAngles[PITCH] = 0.0f;
+      legsAngles[ROLL] = 0.0f;
+    }
   }
 
   // pain twitch
@@ -1330,11 +1368,7 @@ static void CG_TrailItem( centity_t *cent, qhandle_t hModel ) {
 CG_PlayerPowerups
 ===============
 */
-#ifdef NEW_ANIMS
 static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
-#else
-static void CG_PlayerPowerups( centity_t *cent ) {
-#endif
   int   powerups;
   clientInfo_t  *ci;
 
@@ -1484,7 +1518,7 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
   trap_CM_BoxTrace( &trace, cent->lerpOrigin, end, mins, maxs, 0, MASK_PLAYERSOLID );
 
   // no shadow if too high
-  if ( trace.fraction == 1.0 ) {
+  if ( trace.fraction == 1.0 || trace.startsolid || trace.allsolid ) {
     return qfalse;
   }
 
@@ -1801,11 +1835,6 @@ void CG_Player( centity_t *cent )
   // get the animation state (after rotation, to allow feet shuffle)
   CG_PlayerAnimation( cent, &legs.oldframe, &legs.frame, &legs.backlerp,
      &torso.oldframe, &torso.frame, &torso.backlerp );
-
-#ifndef NEW_ANIMS
-  // add powerups floating behind the player
-  //CG_PlayerPowerups( cent );
-#endif
 
   // add the talk baloon or disconnect icon
   CG_PlayerSprites( cent );

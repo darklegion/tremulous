@@ -75,6 +75,43 @@ gentity_t *G_TestEntityPosition( gentity_t *ent ) {
   return NULL;
 }
 
+/*
+================
+G_CreateRotationMatrix
+================
+*/
+void G_CreateRotationMatrix(vec3_t angles, vec3_t matrix[3]) {
+	AngleVectors(angles, matrix[0], matrix[1], matrix[2]);
+	VectorInverse(matrix[1]);
+}
+
+/*
+================
+G_TransposeMatrix
+================
+*/
+void G_TransposeMatrix(vec3_t matrix[3], vec3_t transpose[3]) {
+	int i, j;
+	for (i = 0; i < 3; i++) {
+		for (j = 0; j < 3; j++) {
+			transpose[i][j] = matrix[j][i];
+		}
+	}
+}
+
+/*
+================
+G_RotatePoint
+================
+*/
+void G_RotatePoint(vec3_t point, vec3_t matrix[3]) {
+	vec3_t tvec;
+
+	VectorCopy(point, tvec);
+	point[0] = DotProduct(matrix[0], tvec);
+	point[1] = DotProduct(matrix[1], tvec);
+	point[2] = DotProduct(matrix[2], tvec);
+}
 
 /*
 ==================
@@ -84,7 +121,7 @@ Returns qfalse if the move is blocked
 ==================
 */
 qboolean  G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, vec3_t amove ) {
-  vec3_t    forward, right, up;
+  vec3_t    matrix[3], transpose[3];
   vec3_t    org, org2, move2;
   gentity_t *block;
 
@@ -108,28 +145,28 @@ qboolean  G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, 
   }
   pushed_p++;
 
-  // we need this for pushing things later
-  VectorSubtract (vec3_origin, amove, org);
-  AngleVectors (org, forward, right, up);
-
-  // try moving the contacted entity
-  VectorAdd (check->s.pos.trBase, move, check->s.pos.trBase);
-  if (check->client) {
-    // make sure the client's view rotates when on a rotating mover
-    check->client->ps.delta_angles[YAW] += ANGLE2SHORT(amove[YAW]);
-  }
-
-  // figure movement due to the pusher's amove
-  VectorSubtract (check->s.pos.trBase, pusher->r.currentOrigin, org);
-  org2[0] = DotProduct (org, forward);
-  org2[1] = -DotProduct (org, right);
-  org2[2] = DotProduct (org, up);
-  VectorSubtract (org2, org, move2);
-  VectorAdd (check->s.pos.trBase, move2, check->s.pos.trBase);
-  if ( check->client ) {
-    VectorAdd (check->client->ps.origin, move, check->client->ps.origin);
-    VectorAdd (check->client->ps.origin, move2, check->client->ps.origin);
-  }
+	// try moving the contacted entity 
+	// figure movement due to the pusher's amove
+	G_CreateRotationMatrix( amove, transpose );
+	G_TransposeMatrix( transpose, matrix );
+	if ( check->client ) {
+		VectorSubtract (check->client->ps.origin, pusher->r.currentOrigin, org);
+	}
+	else {
+		VectorSubtract (check->s.pos.trBase, pusher->r.currentOrigin, org);
+	}
+	VectorCopy( org, org2 );
+	G_RotatePoint( org2, matrix );
+	VectorSubtract (org2, org, move2);
+	// add movement
+	VectorAdd (check->s.pos.trBase, move, check->s.pos.trBase);
+	VectorAdd (check->s.pos.trBase, move2, check->s.pos.trBase);
+	if ( check->client ) {
+		VectorAdd (check->client->ps.origin, move, check->client->ps.origin);
+		VectorAdd (check->client->ps.origin, move2, check->client->ps.origin);
+		// make sure the client's view rotates when on a rotating mover
+		check->client->ps.delta_angles[YAW] += ANGLE2SHORT(amove[YAW]);
+	}
 
   // may have pushed them off an edge
   if ( check->s.groundEntityNum != pusher->s.number ) {

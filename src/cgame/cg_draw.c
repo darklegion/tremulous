@@ -313,13 +313,13 @@ void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
 
   hcolor[3] = alpha;
   if ( team == TEAM_HUMANS ) {
-    hcolor[0] = 1;
-    hcolor[1] = 0;
-    hcolor[2] = 0;
+    hcolor[0] = 1.0f;
+    hcolor[1] = 0.0f;
+    hcolor[2] = 0.0f;
   } else if ( team == TEAM_DROIDS ) {
-    hcolor[0] = 0;
-    hcolor[1] = 0;
-    hcolor[2] = 1;
+    hcolor[0] = 0.0f;
+    hcolor[1] = 0.0f;
+    hcolor[2] = 1.0f;
   } else {
     return; 
   }
@@ -1086,9 +1086,9 @@ static float CG_DrawScores( float y ) {
   if ( cgs.gametype >= GT_TEAM ) {
     x = 640;
 
-    color[0] = 0;
-    color[1] = 0;
-    color[2] = 1;
+    color[0] = 0.0f;
+    color[1] = 0.0f;
+    color[2] = 1.0f;
     color[3] = 0.33f;
     s = va( "%2i", s2 );
     w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
@@ -1111,9 +1111,9 @@ static float CG_DrawScores( float y ) {
       }
     }
 
-    color[0] = 1;
-    color[1] = 0;
-    color[2] = 0;
+    color[0] = 1.0f;
+    color[1] = 0.0f;
+    color[2] = 0.0f;
     color[3] = 0.33f;
     s = va( "%2i", s1 );
     w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
@@ -1166,9 +1166,9 @@ static float CG_DrawScores( float y ) {
       w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
       x -= w;
       if ( !spectator && score == s2 && score != s1 ) {
-        color[0] = 1;
-        color[1] = 0;
-        color[2] = 0;
+        color[0] = 1.0f;
+        color[1] = 0.0f;
+        color[2] = 0.0f;
         color[3] = 0.33f;
         CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
         CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
@@ -1188,9 +1188,9 @@ static float CG_DrawScores( float y ) {
       w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
       x -= w;
       if ( !spectator && score == s1 ) {
-        color[0] = 0;
-        color[1] = 0;
-        color[2] = 1;
+        color[0] = 0.0f;
+        color[1] = 0.0f;
+        color[2] = 1.0f;
         color[3] = 0.33f;
         CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
         CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
@@ -1234,7 +1234,9 @@ static float CG_DrawPowerups( float y ) {
   float size;
   float f;
   static float colors[2][4] = {
-    { 0.2f, 1.0f, 0.2f, 1.0f } , { 1.0f, 0.2f, 0.2f, 1.0f } };
+    { 0.2f, 1.0f, 0.2f, 1.0f },
+    { 1.0f, 0.2f, 0.2f, 1.0f }
+  };
 
   ps = &cg.snap->ps;
 
@@ -1426,19 +1428,19 @@ static void CG_DrawTeamInfo( void ) {
     w += TINYCHAR_WIDTH * 2;
 
     if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_HUMANS ) {
-      hcolor[0] = 1;
-      hcolor[1] = 0;
-      hcolor[2] = 0;
+      hcolor[0] = 1.0f;
+      hcolor[1] = 0.0f;
+      hcolor[2] = 0.0f;
       hcolor[3] = 0.33f;
     } else if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_DROIDS ) {
-      hcolor[0] = 0;
-      hcolor[1] = 0;
-      hcolor[2] = 1;
+      hcolor[0] = 0.0f;
+      hcolor[1] = 0.0f;
+      hcolor[2] = 1.0f;
       hcolor[3] = 0.33f;
     } else {
-      hcolor[0] = 0;
-      hcolor[1] = 1;
-      hcolor[2] = 0;
+      hcolor[0] = 0.0f;
+      hcolor[1] = 1.0f;
+      hcolor[2] = 0.0f;
       hcolor[3] = 0.33f;
     }
 
@@ -1446,8 +1448,8 @@ static void CG_DrawTeamInfo( void ) {
     CG_DrawPic( CHATLOC_X, CHATLOC_Y - h, 640, h, cgs.media.teamStatusBar );
     trap_R_SetColor( NULL );
 
-    hcolor[0] = hcolor[1] = hcolor[2] = 1.0;
-    hcolor[3] = 1.0;
+    hcolor[0] = hcolor[1] = hcolor[2] = 1.0f;
+    hcolor[3] = 1.0f;
 
     for (i = cgs.teamChatPos - 1; i >= cgs.teamLastChatPos; i--) {
       CG_DrawStringExt( CHATLOC_X + TINYCHAR_WIDTH,

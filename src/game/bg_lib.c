@@ -72,7 +72,11 @@ static const char rcsid[] =
   "$Id$";
 #endif /* LIBC_SCCS and not lint */
 
-//typedef int		 cmp_t(const void *, const void *);
+// bk001127 - needed for DLL's
+#if !defined( Q3_VM )
+typedef int    cmp_t(const void *, const void *);
+#endif
+
 static char* med3(char *, char *, char *, cmp_t *);
 static void	 swapfunc(char *, char *, int, int);
 
@@ -215,6 +219,9 @@ loop:	SWAPINIT(a, es);
 
 // this file is excluded from release builds because of intrinsics
 
+// bk001211 - gcc errors on compiling strcpy:  parse error before `__extension__'
+#if defined ( Q3_VM )
+
 size_t strlen( const char *string ) {
 	const char	*s;
 
@@ -288,7 +295,12 @@ char *strstr( const char *string, const char *strCharSet ) {
 	return (char *)0;
 }
 
-#if !defined ( _MSC_VER ) && !defined ( __linux__ )
+#endif // bk001211
+
+// bk001120 - presumably needed for Mac
+//#if !defined(_MSC_VER) && !defined(__linux__)
+// bk001127 - undid undo
+#if defined ( Q3_VM )
 
 int tolower( int c ) {
 	if ( c >= 'A' && c <= 'Z' ) {
@@ -777,9 +789,14 @@ double atan2( double y, double x ) {
 
 #endif
 
+#ifdef Q3_VM
+// bk001127 - guarded this tan replacement 
+// ld: undefined versioned symbol name tan@@GLIBC_2.0
 double tan( double x ) {
 	return sin(x) / cos(x);
 }
+#endif
+
 
 
 static int randSeed = 0;
@@ -864,7 +881,7 @@ double _atof( const char **stringPtr ) {
 	const char	*string;
 	float sign;
 	float value;
-	int		c;
+  int   c = '0'; // bk001211 - uninitialized use possible
 
 	string = *stringPtr;
 
@@ -929,7 +946,11 @@ double _atof( const char **stringPtr ) {
 }
 
 
-#if !defined( _MSC_VER ) && !defined( __linux__ )
+// bk001120 - presumably needed for Mac
+//#if !defined ( _MSC_VER ) && ! defined ( __linux__ )
+
+// bk001127 - undid undo
+#if defined ( Q3_VM )
 
 int atoi( const char *string ) {
 	int		sign;

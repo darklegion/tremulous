@@ -195,8 +195,6 @@ void SP_team_CTF_blueplayer( gentity_t *ent );
 void SP_team_CTF_redspawn( gentity_t *ent );
 void SP_team_CTF_bluespawn( gentity_t *ent );
 
-void SP_item_botroam( gentity_t *ent ) {};
-
 spawn_t spawns[] = {
   // info entities don't do anything at all, but provide positional
   // information for things controlled by other processes
@@ -267,8 +265,6 @@ spawn_t spawns[] = {
 
   {"team_CTF_redspawn", SP_team_CTF_redspawn},
   {"team_CTF_bluespawn", SP_team_CTF_bluespawn},
-
-  {"item_botroam", SP_item_botroam},
 
   {0, 0}
 };
@@ -449,6 +445,12 @@ void G_SpawnGEntityFromSpawnVars( void ) {
     }
   }
 
+  G_SpawnInt( "notq3a", "0", &i );
+  if ( i ) {
+    G_FreeEntity( ent );
+    return;
+  }
+
   if( G_SpawnString( "gametype", NULL, &value ) ) {
     if( g_gametype.integer >= GT_FFA && g_gametype.integer < GT_MAX_GAME_TYPE ) {
       gametypeName = gametypeNames[g_gametype.integer];
@@ -484,7 +486,8 @@ char *G_AddSpawnVarToken( const char *string ) {
 
   l = strlen( string );
   if ( level.numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS ) {
-    G_Error( "G_AddSpawnVarToken: MAX_SPAWN_VARS" );
+    G_Error( "G_AddSpawnVarToken: MAX_SPAWN_CHARS" );
+    
   }
 
   dest = level.spawnVarChars + level.numSpawnVarChars;

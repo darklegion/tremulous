@@ -703,7 +703,7 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
         AddScore (player, CTF_RETURN_FLAG_ASSIST_BONUS);
         other->client->pers.teamState.assists++;
       }
-      if (player->client->pers.teamState.lastfraggedcarrier +
+      else if (player->client->pers.teamState.lastfraggedcarrier +
         CTF_FRAG_CARRIER_ASSIST_TIMEOUT > level.time) {
         AddScore(player, CTF_FRAG_CARRIER_ASSIST_BONUS);
         other->client->pers.teamState.assists++;

@@ -38,7 +38,6 @@
 #define INFINITE      1000000
 
 #define FRAMETIME     100         // msec
-#define EVENT_VALID_MSEC  300
 #define CARNAGE_REWARD_TIME 3000
 #define REWARD_SPRITE_TIME  2000
 
@@ -380,7 +379,7 @@ typedef struct armourRegion_s
 // this structure is cleared as each map is entered
 //
 #define MAX_SPAWN_VARS      64
-#define MAX_SPAWN_VARS_CHARS  2048
+#define MAX_SPAWN_VARS_CHARS  4096
 
 typedef struct {
   struct gclient_s  *clients;   // [maxclients]

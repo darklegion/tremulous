@@ -756,6 +756,9 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
   if (!other->client) {
     return;
   }
+  if ( other->client->pers.connected != CON_CONNECTED ) {
+    return;
+  }
   if ( mode == SAY_TEAM  && !OnSameTeam(ent, other) ) {
     return;
   }

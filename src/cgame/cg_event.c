@@ -28,8 +28,10 @@
                     
 #include "cg_local.h"
 
+#ifdef MISSIONPACK // bk001205
 // for the voice chats
 #include "../ta_ui/menudef.h"
+#endif
 
 //==========================================================================
 
@@ -940,11 +942,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
     DEBUGNAME("EV_RAILTRAIL");
     cent->currentState.weapon = WP_RAILGUN;
     // if the end was on a nomark surface, don't make an explosion
+    CG_RailTrail( es->origin2, es->pos.trBase );
     if ( es->eventParm != 255 ) {
       ByteToDir( es->eventParm, dir );
       CG_MissileHitWall( es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT );
     }
-    CG_RailTrail( es->origin2, es->pos.trBase );
     break;
 
   case EV_BULLET_HIT_WALL:

@@ -43,6 +43,8 @@ equ trap_DebugPolygonCreate	-40
 equ trap_DebugPolygonDelete	-41
 equ trap_RealTime			-42
 equ trap_SnapVector			-43
+equ trap_TraceCapsule   -44
+equ trap_EntityContactCapsule -45
 
 
 equ	memset					-101
@@ -214,4 +216,9 @@ equ trap_BotAddAvoidSpot				-575
 equ trap_AAS_AlternativeRouteGoals		-576
 equ trap_AAS_PredictRoute				-577
 equ trap_AAS_PointReachabilityAreaIndex	-578
+
+equ trap_BotLibLoadSource       -579
+equ trap_BotLibFreeSource       -580
+equ trap_BotLibReadToken        -581
+equ trap_BotLibSourceFileAndLine    -582
 

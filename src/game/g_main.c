@@ -87,7 +87,7 @@ vmCvar_t  g_rankings;
 vmCvar_t  g_listEntity;
 
 
-cvarTable_t   gameCvarTable[] = {
+static cvarTable_t   gameCvarTable[] = {
   // don't override the cheat state set by the system
   { &g_cheats, "sv_cheats", "", 0, 0, qfalse },
 
@@ -98,7 +98,8 @@ cvarTable_t   gameCvarTable[] = {
   { NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
 
   // latched vars
-  { &g_gametype, "g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse  },
+  { &g_gametype, "g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qfalse  },
+  
 
   { &g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
   { &g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
@@ -157,7 +158,7 @@ cvarTable_t   gameCvarTable[] = {
   { &g_rankings, "g_rankings", "0", 0, 0, qfalse}
 };
 
-int   gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[0] );
+static int   gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[0] );
 
 
 void G_InitGame( int levelTime, int randomSeed, int restart );
@@ -1212,7 +1213,9 @@ Append information about this game to the log file
 void LogExit( const char *string ) {
   int       i, numSorted;
   gclient_t   *cl;
+#ifdef MISSIONPACK // bk001205
   qboolean won = qtrue;
+#endif
 
   G_LogPrintf( "Exit: %s\n", string );
 

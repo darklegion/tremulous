@@ -37,9 +37,11 @@ CG_ResetEntity
 ==================
 */
 static void CG_ResetEntity( centity_t *cent ) {
-	// if an event is set, assume it is new enough to use
-	// if the event had timed out, it would have been cleared
-	cent->previousEvent = 0;
+  // if the previous snapshot this entity was updated in is at least
+  // an event window back in time then we can reset the previous event
+  if ( cent->snapShotTime < cg.time - EVENT_VALID_MSEC ) {
+	  cent->previousEvent = 0;
+  }
 
 	cent->trailTime = cg.snap->serverTime;
 
@@ -162,6 +164,9 @@ static void CG_TransitionSnapshot( void ) {
 	for ( i = 0 ; i < cg.snap->numEntities ; i++ ) {
 		cent = &cg_entities[ cg.snap->entities[ i ].number ];
 		CG_TransitionEntity( cent );
+    
+    // remember time of snapshot this entity was last updated in
+    cent->snapShotTime = cg.snap->serverTime;
 	}
 
 	cg.nextSnap = NULL;

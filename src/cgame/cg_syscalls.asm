@@ -82,8 +82,13 @@ equ trap_CIN_SetExtents					-79
 equ trap_R_RemapShader					-80
 equ	trap_S_AddRealLoopingSound			-81
 equ trap_S_StopLoopingSound				-82
-equ	trap_R_AddAdditiveLightToScene				-86
-
+equ trap_CM_TempCapsuleModel      -83
+equ trap_CM_CapsuleTrace        -84
+equ trap_CM_TransformedCapsuleTrace   -85
+equ trap_R_AddAdditiveLightToScene    -86
+equ trap_GetEntityToken         -87
+equ trap_R_AddPolysToScene        -88
+equ trap_R_inPVS            -89
 
 equ	memset						-101
 equ	memcpy						-102

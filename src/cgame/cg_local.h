@@ -176,6 +176,7 @@ typedef struct centity_s {
   int       trailTime;    // so missile trails can handle dropped initial packets
   int       dustTrailTime;
   int       miscTime;
+  int       snapShotTime; // last time this entity was found in a snapshot
 
   playerEntity_t  pe;
 
@@ -308,7 +309,8 @@ typedef struct {
 
   int       botSkill;   // 0 = not bot, 1-5 = bot
 
-  vec3_t      color;
+  vec3_t      color1;
+  vec3_t      color2;
 
   int       score;      // updated by score servercmds
   int       location;   // location index for team mode
@@ -343,7 +345,9 @@ typedef struct {
   qboolean    deferred;
 
   qboolean    newAnims;   // true if using the new mission pack animations
-
+  qboolean    fixedlegs;    // true if legs yaw is always the same as torso yaw
+  qboolean    fixedtorso;   // true if torso never changes yaw
+    
   vec3_t      headOffset;   // move head in icon views
   footstep_t    footsteps;
   gender_t    gender;     // from model
@@ -585,6 +589,11 @@ typedef struct {
   int     soundTime;
   qhandle_t soundBuffer[MAX_SOUNDBUFFER];
 
+  // for voice chat buffer
+  int     voiceChatTime;
+  int     voiceChatBufferIn;
+  int     voiceChatBufferOut;
+        
   // warmup countdown
   int     warmup;
   int     warmupCount;
@@ -661,7 +670,6 @@ typedef struct {
   qhandle_t redFlagShader[3];
   qhandle_t blueFlagShader[3];
   qhandle_t flagShader[4];
-#ifdef NEW_ANIMS
   qhandle_t flagPoleModel;
   qhandle_t flagFlapModel;
 
@@ -673,6 +681,7 @@ typedef struct {
   qhandle_t blueFlagBaseModel;
   qhandle_t neutralFlagBaseModel;
 
+#ifdef MISSIONPACK
   qhandle_t overloadBaseModel;
   qhandle_t overloadTargetModel;
   qhandle_t overloadLightsModel;
@@ -1166,6 +1175,11 @@ extern  vmCvar_t    cg_cameraMode;
 extern  vmCvar_t    cg_smallFont;
 extern  vmCvar_t    cg_bigFont;
 extern  vmCvar_t    cg_noTaunt;
+extern  vmCvar_t    cg_noProjectileTrail;
+extern  vmCvar_t    cg_oldRail;
+extern  vmCvar_t    cg_oldRocket;
+extern  vmCvar_t    cg_oldPlasma;
+extern  vmCvar_t    cg_trueLightning;
 extern  vmCvar_t    cg_creepRes;
 extern  vmCvar_t    cg_drawSurfNormal;
 extern  vmCvar_t    cg_debugAlloc;
@@ -1305,7 +1319,7 @@ void CG_InitBuildables( );
 //
 void CG_BuildSolidList( void );
 int CG_PointContents( const vec3_t point, int passEntityNum );
-void CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
+void CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, 
            int skipNumber, int mask );
 void CG_PredictPlayerState( void );
 void CG_LoadDeferredPlayers( void );
@@ -1580,6 +1594,7 @@ void    trap_R_AddRefEntityToScene( const refEntity_t *re );
 // polys are intended for simple wall marks, not really for doing
 // significant construction
 void    trap_R_AddPolyToScene( qhandle_t hShader , int numVerts, const polyVert_t *verts );
+void    trap_R_AddPolysToScene( qhandle_t hShader , int numVerts, const polyVert_t *verts, int numPolys );
 void    trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b );
 void    trap_R_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, float g, float b );
 int     trap_R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
@@ -1654,3 +1669,22 @@ void trap_CIN_SetExtents (int handle, int x, int y, int w, int h);
 
 void trap_SnapVector( float *v );
 
+qboolean  trap_loadCamera(const char *name);
+void    trap_startCamera(int time);
+qboolean  trap_getCameraInfo(int time, vec3_t *origin, vec3_t *angles);
+
+qboolean  trap_GetEntityToken( char *buffer, int bufferSize );
+
+void  CG_ClearParticles (void);
+void  CG_AddParticles (void);
+void  CG_ParticleSnow (qhandle_t pshader, vec3_t origin, vec3_t origin2, int turb, float range, int snum);
+void  CG_ParticleSmoke (qhandle_t pshader, centity_t *cent);
+void  CG_AddParticleShrapnel (localEntity_t *le);
+void  CG_ParticleSnowFlurry (qhandle_t pshader, centity_t *cent);
+void  CG_ParticleBulletDebris (vec3_t org, vec3_t vel, int duration);
+void  CG_ParticleSparks (vec3_t org, vec3_t vel, int duration, float x, float y, float speed);
+void  CG_ParticleDust (centity_t *cent, vec3_t origin, vec3_t dir);
+void  CG_ParticleMisc (qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
+void  CG_ParticleExplosion (char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd);
+extern qboolean   initparticles;
+int CG_NewParticleArea ( int num );

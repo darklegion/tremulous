@@ -428,6 +428,7 @@ static void CG_MapRestart( void ) {
 
 	CG_InitLocalEntities();
 	CG_InitMarkPolys();
+  CG_ClearParticles ();
 
 	// make sure the "3 frags left" warnings play again
 	cg.fraglimitWarnings = 0;
@@ -451,6 +452,7 @@ static void CG_MapRestart( void ) {
 		trap_S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
 		CG_CenterPrint( "FIGHT!", 120, GIANTCHAR_WIDTH*2 );
 	}
+  trap_Cvar_Set("cg_thirdPerson", "0");
 }
 
 #define MAX_VOICEFILESIZE 16384
@@ -506,7 +508,7 @@ int CG_ParseVoiceChats( const char *filename, voiceChatList_t *voiceChatList, in
 
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
   if ( !f ) {
-    trap_Print( va( S_COLOR_RED "voice chat file not found: %s\n", filename ) );
+    //trap_Print( va( S_COLOR_RED "voice chat file not found: %s\n", filename ) );
     return qfalse;
   }
   if ( len >= MAX_VOICEFILESIZE ) {
@@ -677,36 +679,51 @@ CG_VoiceChatListForClient
 voiceChatList_t *CG_VoiceChatListForClient( int clientNum ) {
   clientInfo_t *ci;
   int voiceChatNum, i, j, k, gender;
-  char filename[128], *headModelName;
+  char filename[MAX_QPATH], headModelName[MAX_QPATH];
 
   if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
     clientNum = 0;
   }
   ci = &cgs.clientinfo[ clientNum ];
 
-  headModelName = ci->headModelName;
-  if (headModelName[0] == '*')
-    headModelName++;
-  // find the voice file for the head model the client uses
-  for ( i = 0; i < MAX_HEADMODELS; i++ ) {
-    if (!Q_stricmp(headModelVoiceChat[i].headmodel, headModelName)) {
-      break;
+  for ( k = 0; k < 2; k++ ) {
+    if ( k == 0 ) {
+      if (ci->headModelName[0] == '*') {
+        Com_sprintf( headModelName, sizeof(headModelName), "%s/%s", ci->headModelName+1, ci->headSkinName );
+      }
+      else {
+        Com_sprintf( headModelName, sizeof(headModelName), "%s/%s", ci->headModelName, ci->headSkinName );
+      }
     }
-  }
-  if (i < MAX_HEADMODELS) {
-    return &voiceChatLists[headModelVoiceChat[i].voiceChatNum];
-  }
-  // find a <headmodelname>.vc file
-  for ( i = 0; i < MAX_HEADMODELS; i++ ) {
-    if (!strlen(headModelVoiceChat[i].headmodel)) {
-      Com_sprintf(filename, sizeof(filename), "scripts/%s.vc", headModelName);
-      voiceChatNum = CG_HeadModelVoiceChats(filename);
-      if (voiceChatNum == -1)
+    else {
+      if (ci->headModelName[0] == '*') {
+        Com_sprintf( headModelName, sizeof(headModelName), "%s", ci->headModelName+1 );
+      }
+      else {
+        Com_sprintf( headModelName, sizeof(headModelName), "%s", ci->headModelName );
+      }
+    }
+    // find the voice file for the head model the client uses
+    for ( i = 0; i < MAX_HEADMODELS; i++ ) {
+      if (!Q_stricmp(headModelVoiceChat[i].headmodel, headModelName)) {
         break;
-      Com_sprintf(headModelVoiceChat[i].headmodel, sizeof ( headModelVoiceChat[i].headmodel ),
-            "%s", headModelName);
-      headModelVoiceChat[i].voiceChatNum = voiceChatNum;
+      }
+    }
+    if (i < MAX_HEADMODELS) {
       return &voiceChatLists[headModelVoiceChat[i].voiceChatNum];
+    }
+    // find a <headmodelname>.vc file
+    for ( i = 0; i < MAX_HEADMODELS; i++ ) {
+      if (!strlen(headModelVoiceChat[i].headmodel)) {
+        Com_sprintf(filename, sizeof(filename), "scripts/%s.vc", headModelName);
+        voiceChatNum = CG_HeadModelVoiceChats(filename);
+        if (voiceChatNum == -1)
+          break;
+        Com_sprintf(headModelVoiceChat[i].headmodel, sizeof ( headModelVoiceChat[i].headmodel ),
+              "%s", headModelName);
+        headModelVoiceChat[i].voiceChatNum = voiceChatNum;
+        return &voiceChatLists[headModelVoiceChat[i].voiceChatNum];
+      }
     }
   }
   gender = ci->gender;
@@ -758,8 +775,6 @@ typedef struct bufferedVoiceChat_s
 } bufferedVoiceChat_t;
 
 bufferedVoiceChat_t voiceChatBuffer[MAX_VOICECHATBUFFER];
-int voiceChatBufferIn, voiceChatBufferOut;
-int voiceChatTime;
 
 /*
 =================
@@ -767,6 +782,7 @@ CG_PlayVoiceChat
 =================
 */
 void CG_PlayVoiceChat( bufferedVoiceChat_t *vchat ) {
+#ifdef MISSIONPACK
   // if we are going into the intermission, don't start any voices
   if ( cg.intermissionStarted ) {
     return;
@@ -779,15 +795,17 @@ void CG_PlayVoiceChat( bufferedVoiceChat_t *vchat ) {
     CG_AddToTeamChat( vchat->message );
     CG_Printf( "%s\n", vchat->message );
   }
-  voiceChatBuffer[voiceChatBufferOut].snd = 0;
+  voiceChatBuffer[cg.voiceChatBufferOut].snd = 0;
+#endif
 }
 
 /*
 =====================
-CG_PlayBufferedVoieChats
+CG_PlayBufferedVoiceChats
 =====================
 */
 void CG_PlayBufferedVoiceChats( void ) {
+#ifdef MISSIONPACK
   if ( voiceChatTime < cg.time ) {
     if (voiceChatBufferOut != voiceChatBufferIn && voiceChatBuffer[voiceChatBufferOut].snd) {
       //
@@ -797,6 +815,7 @@ void CG_PlayBufferedVoiceChats( void ) {
       voiceChatTime = cg.time + 1000;
     }
   }
+#endif
 }
 
 /*
@@ -805,17 +824,19 @@ CG_AddBufferedVoiceChat
 =====================
 */
 void CG_AddBufferedVoiceChat( bufferedVoiceChat_t *vchat ) {
+#ifdef MISSIONPACK
   // if we are going into the intermission, don't start any voices
   if ( cg.intermissionStarted ) {
     return;
   }
 
-  memcpy(&voiceChatBuffer[voiceChatBufferIn], vchat, sizeof(bufferedVoiceChat_t));
-  voiceChatBufferIn = (voiceChatBufferIn + 1) % MAX_VOICECHATBUFFER;
-  if (voiceChatBufferIn == voiceChatBufferOut) {
-    CG_PlayVoiceChat( &voiceChatBuffer[voiceChatBufferOut] );
-    voiceChatBufferOut++;
+  memcpy(&voiceChatBuffer[cg.voiceChatBufferIn], vchat, sizeof(bufferedVoiceChat_t));
+  cg.voiceChatBufferIn = (cg.voiceChatBufferIn + 1) % MAX_VOICECHATBUFFER;
+  if (cg.voiceChatBufferIn == cg.voiceChatBufferOut) {
+    CG_PlayVoiceChat( &voiceChatBuffer[cg.voiceChatBufferOut] );
+    cg.voiceChatBufferOut++;
   }
+#endif
 }
 
 /*
@@ -824,6 +845,7 @@ CG_VoiceChatLocal
 =================
 */
 void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, const char *cmd ) {
+#ifdef MISSIONPACK
   char *chat;
   voiceChatList_t *voiceChatList;
   clientInfo_t *ci;
@@ -863,6 +885,7 @@ void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, 
       CG_AddBufferedVoiceChat(&vchat);
     }
   }
+#endif
 }
 
 /*
@@ -871,6 +894,7 @@ CG_VoiceChat
 =================
 */
 void CG_VoiceChat( int mode ) {
+#ifdef MISSIONPACK
   const char *cmd;
   int clientNum, color;
   qboolean voiceOnly;
@@ -889,6 +913,7 @@ void CG_VoiceChat( int mode ) {
   }
 
   CG_VoiceChatLocal( mode, voiceOnly, clientNum, color, cmd );
+#endif
 }
 
 /*

@@ -197,8 +197,14 @@ void locateCamera( gentity_t *ent ) {
     ent->s.frame = 75;
   }
 
-  // set to 0 for no rotation at all
-  ent->s.powerups = 1;
+  // swing camera ?
+  if ( owner->spawnflags & 4 ) {
+    // set to 0 for no rotation at all
+    ent->s.powerups = 0;
+  }
+  else {
+    ent->s.powerups = 1;
+  }
 
   // clientNum holds the rotate offset
   ent->s.clientNum = owner->s.clientNum;
@@ -237,7 +243,8 @@ void SP_misc_portal_surface(gentity_t *ent) {
   }
 }
 
-/*QUAKED misc_portal_camera (0 0 1) (-8 -8 -8) (8 8 8) slowrotate fastrotate
+/*QUAKED misc_portal_camera (0 0 1) (-8 -8 -8) (8 8 8) slowrotate fastrotate noswing
+
 The target for a misc_portal_director.  You can set either angles or target another entity to determine the direction of view.
 "roll" an angle modifier to orient the camera around the target vector;
 */

@@ -148,6 +148,10 @@ void trap_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const 
 	syscall( G_TRACE, results, start, mins, maxs, end, passEntityNum, contentmask );
 }
 
+void trap_TraceCapsule( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask ) {
+  syscall( G_TRACECAPSULE, results, start, mins, maxs, end, passEntityNum, contentmask );
+}
+
 int trap_PointContents( const vec3_t point, int passEntityNum ) {
 	return syscall( G_POINT_CONTENTS, point, passEntityNum );
 }
@@ -186,6 +190,9 @@ qboolean trap_EntityContact( const vec3_t mins, const vec3_t maxs, const gentity
 	return syscall( G_ENTITY_CONTACT, mins, maxs, ent );
 }
 
+qboolean trap_EntityContactCapsule( const vec3_t mins, const vec3_t maxs, const gentity_t *ent ) {
+  return syscall( G_ENTITY_CONTACTCAPSULE, mins, maxs, ent );
+}
 int trap_BotAllocateClient( void ) {
 	return syscall( G_BOT_ALLOCATE_CLIENT );
 }
@@ -762,4 +769,20 @@ void trap_BotResetWeaponState(int weaponstate) {
 
 int trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *parent1, int *parent2, int *child) {
 	return syscall( BOTLIB_AI_GENETIC_PARENTS_AND_CHILD_SELECTION, numranks, ranks, parent1, parent2, child );
+}
+
+int trap_PC_LoadSource( const char *filename ) {
+  return syscall( BOTLIB_PC_LOAD_SOURCE, filename );
+}
+
+int trap_PC_FreeSource( int handle ) {
+  return syscall( BOTLIB_PC_FREE_SOURCE, handle );
+}
+
+int trap_PC_ReadToken( int handle, pc_token_t *pc_token ) {
+  return syscall( BOTLIB_PC_READ_TOKEN, handle, pc_token );
+}
+
+int trap_PC_SourceFileAndLine( int handle, char *filename, int *line ) {
+  return syscall( BOTLIB_PC_SOURCE_FILE_AND_LINE, handle, filename, line );
 }

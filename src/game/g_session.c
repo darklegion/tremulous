@@ -75,18 +75,28 @@ void G_ReadSessionData( gclient_t *client ) {
 	char	s[MAX_STRING_CHARS];
 	const char	*var;
 
+  // bk001205 - format
+  int teamLeader;
+  int spectatorState;
+  int sessionTeam;
+
 	var = va( "session%i", client - level.clients );
 	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
 	sscanf( s, "%i %i %i %i %i %i %i", 
-		&client->sess.sessionTeam,
+		&sessionTeam,
 		&client->sess.spectatorTime,
-		&client->sess.spectatorState,
+		&spectatorState,
 		&client->sess.spectatorClient,
 		&client->sess.wins,
 		&client->sess.losses,
-    &client->sess.teamLeader
+    &teamLeader
 		);
+
+  // bk001205 - format issues
+  client->sess.sessionTeam = (team_t)sessionTeam;
+  client->sess.spectatorState = (spectatorState_t)spectatorState;
+  client->sess.teamLeader = (qboolean)teamLeader;
 }
 
 

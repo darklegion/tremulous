@@ -840,6 +840,7 @@ ForceClientSkin
 Forces a client's skin (for teamplay)
 ===========
 */
+/*
 static void ForceClientSkin( gclient_t *client, char *model, const char *skin ) {
   char *p;
 
@@ -850,7 +851,7 @@ static void ForceClientSkin( gclient_t *client, char *model, const char *skin ) 
   Q_strcat(model, MAX_QPATH, "/");
   Q_strcat(model, MAX_QPATH, skin);
 }
-
+*/
 
 /*
 ===========
@@ -954,6 +955,7 @@ void ClientUserinfoChanged( int clientNum ) {
   char  oldname[MAX_STRING_CHARS];
   gclient_t *client;
   char  c1[MAX_INFO_STRING];
+  char  c2[MAX_INFO_STRING];
   char  redTeam[MAX_INFO_STRING];
   char  blueTeam[MAX_INFO_STRING];
   char  userinfo[MAX_INFO_STRING];
@@ -1015,20 +1017,21 @@ void ClientUserinfoChanged( int clientNum ) {
   s = BG_FindModelNameForClass( client->pers.pclass );
   Q_strncpyz( model, s, sizeof( model ) );
 
+/*
   // team
   switch( client->sess.sessionTeam ) {
   case TEAM_HUMANS:
-    ForceClientSkin(client, model, "red");
+    //ForceClientSkin(client, model, "red");
     break;
   case TEAM_DROIDS:
-    ForceClientSkin(client, model, "blue");
+    //ForceClientSkin(client, model, "blue");
     break;
   }
   if ( g_gametype.integer >= GT_TEAM && client->sess.sessionTeam == TEAM_SPECTATOR ) {
     // don't ever use a default skin in teamplay, it would just waste memory
-    ForceClientSkin(client, model, "red");
+    //ForceClientSkin(client, model, "red");
   }
-
+*/
 
 
   // teamInfo
@@ -1045,20 +1048,21 @@ void ClientUserinfoChanged( int clientNum ) {
   teamLeader = client->sess.teamLeader;
 
   // colors
-  strcpy(c1, Info_ValueForKey( userinfo, "color" ));
+  strcpy(c1, Info_ValueForKey( userinfo, "color1" ));
+  strcpy(c2, Info_ValueForKey( userinfo, "color2" ));
   strcpy(redTeam, "humans");
   strcpy(blueTeam, "droids");
                 
   // send over a subset of the userinfo keys so other clients can
   // print scoreboards, display models, and play custom sounds
   if ( ent->r.svFlags & SVF_BOT ) {
-    s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
-      client->pers.netname, client->sess.sessionTeam, model, model, c1,
+    s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
+      client->pers.netname, client->sess.sessionTeam, model, model, c1, c2,
       client->pers.maxHealth, client->sess.wins, client->sess.losses,
       Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader );
   } else {
-    s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-      client->pers.netname, client->sess.sessionTeam, model, model, redTeam, blueTeam, c1,
+    s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
+      client->pers.netname, client->sess.sessionTeam, model, model, redTeam, blueTeam, c1, c2,
       client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
   }
 
@@ -1243,7 +1247,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
   int                 ammoIndex, ammoSubIndex;
   int                 teamLocal;
   int                 accuracy_hits, accuracy_shots;
-  int                 savedEvents[MAX_PS_EVENTS];
   int                 eventSequence;
   char                userinfo[MAX_INFO_STRING];
   vec3_t              bodyMaxs, classMins, up = { 0, 0, 1 };
@@ -1322,10 +1325,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
   for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
     persistant[i] = client->ps.persistant[i];
   }
-  // also save the predictable events otherwise we might get double or dropped events
-  for (i = 0; i < MAX_PS_EVENTS; i++) {
-    savedEvents[i] = client->ps.events[i];
-  }
   eventSequence = client->ps.eventSequence;
   memset (client, 0, sizeof(*client));
   
@@ -1337,9 +1336,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
   client->lastkilled_client = -1;
   for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
     client->ps.persistant[i] = persistant[i];
-  }
-  for (i = 0; i < MAX_PS_EVENTS; i++) {
-    client->ps.events[i] = savedEvents[i];
   }
   client->ps.eventSequence = eventSequence;
 

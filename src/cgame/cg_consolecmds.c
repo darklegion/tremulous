@@ -178,6 +178,12 @@ CG_StartOrbit_f
 */
 
 static void CG_StartOrbit_f( void ) {
+  char var[MAX_TOKEN_CHARS];
+
+  trap_Cvar_VariableStringBuffer( "developer", var, sizeof( var ) );
+  if ( !atoi(var) ) {
+    return;
+  }
   if (cg_cameraOrbit.value != 0) {
     trap_Cvar_Set("cg_cameraOrbit", "0");
     trap_Cvar_Set("cg_thirdPerson", "0");

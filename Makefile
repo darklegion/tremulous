@@ -66,6 +66,7 @@ CGOBJ = \
 	$(CGDIRNAME)/cg_creep.o  \
 	$(CGDIRNAME)/cg_mem.o \
 	$(CGDIRNAME)/cg_mp3decoder.o \
+	$(CGDIRNAME)/cg_particles.o \
 	$(CGDIRNAME)/cg_scanner.o
   
 UIOBJ = \
