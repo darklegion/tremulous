@@ -86,6 +86,9 @@ vmCvar_t  pmove_msec;
 vmCvar_t  g_rankings;
 vmCvar_t  g_listEntity;
 
+//TA
+vmCvar_t  g_humanBuildPoints;
+vmCvar_t  g_droidBuildPoints;
 
 static cvarTable_t   gameCvarTable[] = {
   // don't override the cheat state set by the system
@@ -154,6 +157,9 @@ static cvarTable_t   gameCvarTable[] = {
   { &g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
   { &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
   { &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
+  
+  { &g_humanBuildPoints, "g_humanBuildPoints", "1000", 0, 0, qtrue  },
+  { &g_droidBuildPoints, "g_droidBuildPoints", "1000", 0, 0, qtrue  },
 
   { &g_rankings, "g_rankings", "0", 0, 0, qfalse}
 };
@@ -500,10 +506,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
   //TA: so the server counts the spawns without a client attached
   countSpawns( );
-
-  //TA: FIXME: grab these values from a worldspawn variable
-  level.humanBuildPoints = level.humanBuildPointsTotal = 1000;
-  level.droidBuildPoints = level.droidBuildPointsTotal = 1000;
 }
 
 
@@ -793,12 +795,14 @@ Recalculate the quantity of building points available to the teams
 */
 void calculateBuildPoints( void )
 {
-  int i;
-  int bclass;
+  int       i;
+  int       bclass;
   gentity_t *ent;
+  int       localHTP = g_humanBuildPoints.integer,
+            localDTP = g_droidBuildPoints.integer;
 
-  level.humanBuildPoints = level.humanBuildPointsPowered = level.humanBuildPointsTotal;
-  level.droidBuildPoints = level.droidBuildPointsTotal;
+  level.humanBuildPoints = level.humanBuildPointsPowered = localHTP;
+  level.droidBuildPoints = localDTP;
 
   for ( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
   {
@@ -822,12 +826,26 @@ void calculateBuildPoints( void )
       }
     }
   }
+
+  if( level.humanBuildPoints < 0 )
+  {
+    localHTP -= level.humanBuildPoints;
+    level.humanBuildPointsPowered -= level.humanBuildPoints;
+    level.humanBuildPoints = 0;
+  }
   
-  trap_SetConfigstring( CS_DBPOINTS, va("%i", level.droidBuildPoints ) );
-  trap_SetConfigstring( CS_DTBPOINTS, va("%i", level.droidBuildPointsTotal ) );
-  trap_SetConfigstring( CS_HBPOINTS, va("%i", level.humanBuildPoints ) );
-  trap_SetConfigstring( CS_HTBPOINTS, va("%i", level.humanBuildPointsTotal ) );
-  trap_SetConfigstring( CS_HPBPOINTS, va("%i", level.humanBuildPointsPowered ) );
+  if( level.humanBuildPoints < 0 )
+  {
+    localDTP -= level.droidBuildPoints;
+    level.droidBuildPoints = 0;
+  }
+  
+  trap_SetConfigstring( CS_BUILDPOINTS,
+                        va( "%d %d %d %d %d", level.droidBuildPoints,
+                                              localDTP,
+                                              level.humanBuildPoints,
+                                              localHTP,
+                                              level.humanBuildPointsPowered ) );
 }
 
 

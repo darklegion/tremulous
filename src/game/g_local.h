@@ -471,9 +471,7 @@ typedef struct {
   int     numLiveHumanClients;
   
   int     droidBuildPoints;
-  int     droidBuildPointsTotal;
   int     humanBuildPoints;
-  int     humanBuildPointsTotal;
   int     humanBuildPointsPowered;
 } level_locals_t;
 
@@ -843,6 +841,9 @@ extern  vmCvar_t  g_rankings;
 extern  vmCvar_t  g_enableDust;
 extern  vmCvar_t  g_enableBreath;
 extern  vmCvar_t  g_singlePlayer;
+
+extern  vmCvar_t  g_humanBuildPoints;
+extern  vmCvar_t  g_droidBuildPoints;
 
 void  trap_Printf( const char *fmt );
 void  trap_Error( const char *fmt );

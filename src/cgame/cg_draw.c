@@ -541,12 +541,12 @@ static void CG_DrawStatusBar( void ) {
   #define PWR_Y      20
   if( ps->stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
-    int total = cgs.hBuildPointsTotal;
-    int allocated = total - cgs.hBuildPoints;
-    int powered = total - cgs.hBuildPointsPowered;
+    float total = cgs.hBuildPointsTotal;
+    float allocated = total - cgs.hBuildPoints;
+    float powered = total - cgs.hBuildPointsPowered;
 
-    int awidth = (int)( (float)allocated / ( total / PWR_WIDTH ) );
-    int pwidth = (int)( (float)powered / ( total / PWR_WIDTH ) );
+    int awidth = (int)( ( allocated / total ) * PWR_WIDTH );
+    int pwidth = (int)( ( powered / total ) * PWR_WIDTH );
     vec4_t bcolor = { 0.5, 0.5, 0.5, 0.5 };
 
     char  *s;
@@ -579,10 +579,10 @@ static void CG_DrawStatusBar( void ) {
   #define HV_Y      20
   if( ps->stats[ STAT_PTEAM ] == PTE_DROIDS )
   {
-    int total = cgs.dBuildPointsTotal;
-    int allocated = total - cgs.dBuildPoints;
+    float total = cgs.dBuildPointsTotal;
+    float allocated = total - cgs.dBuildPoints;
 
-    int awidth = (int)( (float)allocated / ( total / HV_WIDTH ) );
+    int awidth = (int)( ( allocated / total ) * HV_WIDTH );
     vec4_t bcolor = { 0.5, 0.5, 0.5, 0.5 };
 
     trap_R_SetColor( bcolor );   // white

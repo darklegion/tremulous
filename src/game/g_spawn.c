@@ -619,6 +619,12 @@ void SP_worldspawn( void ) {
   G_SpawnString( "gravity", "800", &s );
   trap_Cvar_Set( "g_gravity", s );
 
+  G_SpawnString( "humanBuildPoints", "1000", &s );
+  trap_Cvar_Set( "g_humanBuildPoints", s );
+
+  G_SpawnString( "droidBuildPoints", "1000", &s );
+  trap_Cvar_Set( "g_droidBuildPoints", s );
+
   G_SpawnString( "enableDust", "0", &s );
   trap_Cvar_Set( "g_enableDust", s );
 

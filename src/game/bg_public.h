@@ -90,11 +90,7 @@
 #define CS_ITEMS            27    // string of 0's and 1's that tell which items are present
 
 //TA: extra stuff:
-#define CS_DBPOINTS         28
-#define CS_DTBPOINTS        29
-#define CS_HBPOINTS         30
-#define CS_HTBPOINTS        31
-#define CS_HPBPOINTS        32
+#define CS_BUILDPOINTS      28
 
 #define CS_MODELS           33
 #define CS_SOUNDS           (CS_MODELS+MAX_MODELS)
