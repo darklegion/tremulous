@@ -11,8 +11,6 @@
     outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
     rect 10 56 256 160
     focusColor 1 .75 0 1
-    style 1
-    border 1
 
     itemDef
     {
@@ -24,7 +22,7 @@
       decoration
 
       border WINDOW_BORDER_KCGRADIENT
-      borderSize 4.0
+      borderSize 2.0
       borderColor 0.5 0.5 0.5 1
     }
 

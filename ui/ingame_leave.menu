@@ -23,7 +23,7 @@
       decoration
 
       border WINDOW_BORDER_KCGRADIENT
-      borderSize 4.0
+      borderSize 2.0
       borderColor 0.5 0.5 0.5 1
     }
 
