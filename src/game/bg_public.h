@@ -1081,6 +1081,7 @@ void      BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
                                                 void (*trace)( trace_t *, const vec3_t, const vec3_t,
                                                                const vec3_t, const vec3_t, int, int ), 
                                                 vec3_t outOrigin, vec3_t outAngles, trace_t *tr );
+int       BG_GetValueOfHuman( playerState_t *ps );
   
 int       BG_FindBuildNumForName( char *name );
 int       BG_FindBuildNumForEntityName( char *name );
