@@ -389,6 +389,7 @@ typedef struct
 typedef struct
 {
   float     time;
+  float     timeMod;
   
   vec3_t    rotAxis;
   float     rotAngle;
@@ -1468,7 +1469,7 @@ void        CG_BuildSpectatorString( );
 //
 // cg_view.c
 //
-void        CG_addSmoothOp( vec3_t rotAxis, float rotAngle ); //TA
+void        CG_addSmoothOp( vec3_t rotAxis, float rotAngle, float timeMod ); //TA
 void        CG_TestModel_f( void );
 void        CG_TestGun_f( void );
 void        CG_TestModelNextFrame_f( void );

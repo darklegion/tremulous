@@ -4656,14 +4656,10 @@ qboolean BG_rotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
     VectorNormalize( xNormal );
   }
 
-  //if we're a wall climber.. and we're climbing rotate the axis
+  //can't rotate with no rotation vector
   if( VectorLength( xNormal ) != 0.0f )
   {
-    //if the normal pointing straight down then the rotAngle will always be 180deg
-    if( surfNormal[ 2 ] == -1.0f )
-      rotAngle = 180.0f;
-    else
-      rotAngle = RAD2DEG( acos( DotProduct( localNormal, refNormal ) ) );
+    rotAngle = RAD2DEG( acos( DotProduct( localNormal, refNormal ) ) );
 
     if( inverse )
       rotAngle = -rotAngle;

@@ -1962,6 +1962,19 @@ static void PM_GroundClimbTrace( void )
     pml.walking = qfalse;
     pm->ps->eFlags &= ~EF_WALLCLIMB;
 
+    //just transided from ceiling to floor... apply delta correction
+    if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
+    {
+      vec3_t  forward, rotated, angles;
+
+      AngleVectors( pm->ps->viewangles, forward, NULL, NULL );
+      
+      RotatePointAroundVector( rotated, pm->ps->grapplePoint, forward, 180.0f );
+      vectoangles( rotated, angles );
+
+      pm->ps->delta_angles[ YAW ] -= ANGLE2SHORT( angles[ YAW ] - pm->ps->viewangles[ YAW ] );
+    }
+
     pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
 
     //we get very bizarre effects if we don't do this :0
@@ -2024,8 +2037,21 @@ static void PM_GroundTrace( void )
       PM_GroundClimbTrace( );
       return;
     }
-  }
 
+    //just transided from ceiling to floor... apply delta correction
+    if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
+    {
+      vec3_t  forward, rotated, angles;
+
+      AngleVectors( pm->ps->viewangles, forward, NULL, NULL );
+      
+      RotatePointAroundVector( rotated, pm->ps->grapplePoint, forward, 180.0f );
+      vectoangles( rotated, angles );
+
+      pm->ps->delta_angles[ YAW ] -= ANGLE2SHORT( angles[ YAW ] - pm->ps->viewangles[ YAW ] );
+    }
+  }
+  
   pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
   pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
   pm->ps->eFlags &= ~EF_WALLCLIMB;
@@ -2035,12 +2061,6 @@ static void PM_GroundTrace( void )
   point[ 2 ] = pm->ps->origin[ 2 ] - 0.25f;
 
   pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
-/*  if( trace.fraction < 1.0f && VectorCompare( trace.plane.normal, vec3_origin ) )
-  {
-    Com_Printf( "\n%v %d\n", trace.plane.normal, trace.entityNum );
-    Com_Printf( "%v %v\n", pm->ps->origin, point );
-    Com_Printf( "%d %d\n", trace.allsolid, trace.startsolid );
-  }*/
   
   pml.groundTrace = trace;
 

@@ -913,7 +913,7 @@ static void CG_DrawSurfNormal( void )
 CG_addSmoothOp
 ===============
 */
-void CG_addSmoothOp( vec3_t rotAxis, float rotAngle )
+void CG_addSmoothOp( vec3_t rotAxis, float rotAngle, float timeMod )
 {
   int i;
 
@@ -927,6 +927,7 @@ void CG_addSmoothOp( vec3_t rotAxis, float rotAngle )
       VectorCopy( rotAxis, cg.sList[ i ].rotAxis );
       cg.sList[ i ].rotAngle = rotAngle;
       cg.sList[ i ].time = cg.time;
+      cg.sList[ i ].timeMod = timeMod;
       return;
     }
   }
@@ -946,6 +947,7 @@ static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t o
   vec3_t    ceilingNormal = { 0.0f, 0.0f, -1.0f };
   int       i;
   float     stLocal, sFraction, rotAngle;
+  float     smoothTime, timeMod;
   qboolean  performed = qfalse;
   vec3_t    inAxis[ 3 ], lastAxis[ 3 ], outAxis[ 3 ];
 
@@ -965,8 +967,11 @@ static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t o
     if( VectorCompare( ceilingNormal, cg.lastNormal ) &&
         VectorCompare( refNormal,     surfNormal ) )
     {
-      AngleVectors( in, NULL, rotAxis, NULL );
+      AngleVectors( in, temp, NULL, NULL );
+      ProjectPointOnPlane( rotAxis, temp, refNormal );
+      VectorNormalize( rotAxis );
       rotAngle = 180.0f;
+      timeMod = 1.5f;
     }
     else
     {
@@ -985,19 +990,23 @@ static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t o
       VectorAdd( rotAxis, temp, rotAxis );
 
       VectorNormalize( rotAxis );
+
+      timeMod = 1.0f;
     }
           
     //add the op
-    CG_addSmoothOp( rotAxis, rotAngle );
+    CG_addSmoothOp( rotAxis, rotAngle, timeMod );
   }
 
   //iterate through ops
   for( i = MAXSMOOTHS - 1; i >= 0; i-- )
   {
+    smoothTime = (int)( cg_wwSmoothTime.integer * cg.sList[ i ].timeMod );
+    
     //if this op has time remaining, perform it
-    if( cg.time < cg.sList[ i ].time + cg_wwSmoothTime.integer )
+    if( cg.time < cg.sList[ i ].time + smoothTime )
     {
-      stLocal = 1.0f - ( ( ( cg.sList[ i ].time + cg_wwSmoothTime.integer ) - cg.time ) / cg_wwSmoothTime.integer );
+      stLocal = 1.0f - ( ( ( cg.sList[ i ].time + smoothTime ) - cg.time ) / smoothTime );
       sFraction = -( cos( stLocal * M_PI ) + 1.0f ) / 2.0f;
 
       RotatePointAroundVector( outAxis[ 0 ], cg.sList[ i ].rotAxis,

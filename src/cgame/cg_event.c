@@ -568,7 +568,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
           VectorNormalize( rotAxis );
           
           //add the op
-          CG_addSmoothOp( rotAxis, 15.0f );
+          CG_addSmoothOp( rotAxis, 15.0f, 1.0f );
         }
 
         //copy the current normal to the lastNormal
