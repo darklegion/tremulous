@@ -133,6 +133,7 @@ field_t fields[ ] =
   {"radius", FOFS(pos2), F_VECTOR},
   {"acceleration", FOFS(acceleration), F_VECTOR},
   {"animation", FOFS(animation), F_VECTOR4},
+  {"rotatorAngle", FOFS(rotatorAngle), F_FLOAT},
   //TA
   {"targetShaderName", FOFS(targetShaderName), F_LSTRING},
   {"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
@@ -167,6 +168,7 @@ void SP_func_bobbing( gentity_t *ent );
 void SP_func_pendulum( gentity_t *ent );
 void SP_func_button( gentity_t *ent );
 void SP_func_door( gentity_t *ent );
+void SP_func_door_rotating( gentity_t *ent ); //TA
 void SP_func_train( gentity_t *ent );
 void SP_func_timer( gentity_t *self);
 
@@ -230,6 +232,7 @@ spawn_t spawns[ ] =
   {"func_plat", SP_func_plat},
   {"func_button", SP_func_button},
   {"func_door", SP_func_door},
+  {"func_door_rotating", SP_func_door_rotating}, //TA
   {"func_static", SP_func_static},
   {"func_rotating", SP_func_rotating},
   {"func_bobbing", SP_func_bobbing},
