@@ -1459,7 +1459,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   if( client->sess.sessionTeam != TEAM_SPECTATOR &&
       client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
-    if( !spawn && spawnPoint->s.origin2[ 2 ] > 0.0f )
+    if( ent != spawn && spawnPoint->s.origin2[ 2 ] > 0.0f )
     {
       vec3_t  forward, dir;
       

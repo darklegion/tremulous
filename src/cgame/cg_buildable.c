@@ -53,14 +53,14 @@ static void CG_Creep( centity_t *cent )
   float         length;
   trace_t       tr, tr2;
   vec3_t        temp, origin, p1, p2;
-  int           creepSize = BG_FindCreepSizeForBuildable( cent->currentState.clientNum );
+  int           scaleUpTime = BG_FindBuildTimeForBuildable( cent->currentState.modelindex );
 
   //should the creep be growing or receding?
   if( cent->miscTime >= 0 )
   {
     msec = cg.time - cent->miscTime;
-    if( msec >= 0 && msec < CREEP_SCALEUP_TIME )
-      frac = (float)msec / CREEP_SCALEUP_TIME;
+    if( msec >= 0 && msec < scaleUpTime )
+      frac = (float)msec / scaleUpTime;
     else
       frac = 1.0f;
   }
@@ -834,9 +834,12 @@ void CG_Buildable( centity_t *cent )
   if( team == BIT_ALIENS )
   {
     CG_Creep( cent );
-  
-    //run animations
-    CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
+    
+    if( es->generic1 & B_SPAWNED_TOGGLEBIT )
+    {
+      //run animations
+      CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
+    }
   }
   else if( team == BIT_HUMANS )
   {
