@@ -186,8 +186,6 @@ struct gentity_s {
   vec4_t    animation;    //TA: animated map objects
 
   vec3_t    turretAim;    //TA: aim vector for turrets
-
-  vec3_t    hovelOrigin;  //TA: player origin before entering hovel
 };
 
 typedef enum {
@@ -342,9 +340,12 @@ struct gclient_s {
   int       lastPoisonTime;
   int       lastGrabTime; //TA: yuck yuck hack urgh
   int       lastLockTime; //TA: "                 "
+  int       lastBoostedTime;
 
   int       pouncePayload; //TA: amount of damage pounce attack will do
   qboolean  allowedToPounce;
+
+  vec3_t    hovelOrigin;  //TA: player origin before entering hovel
 };
 
 #define MAX_LOCDAMAGE_TEXT    8192

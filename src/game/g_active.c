@@ -849,6 +849,10 @@ void ClientThink_real( gentity_t *ent ) {
       client->lastLockTime + 5000 < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_BLOBLOCKED;
 
+  if( client->ps.stats[ STAT_STATE ] & SS_BOOSTED &&
+      client->lastBoostedTime + 20000 < level.time )
+    client->ps.stats[ STAT_STATE ] &= ~SS_BOOSTED;
+
   client->ps.gravity = g_gravity.value;
 
   // set speed

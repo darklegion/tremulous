@@ -243,6 +243,7 @@ typedef enum {
 #define SS_BLOBLOCKED           128
 #define SS_POISONED             256
 #define SS_HOVELING             512
+#define SS_BOOSTED              1024
 
 #define SB_VALID_TOGGLEBIT      16384
 

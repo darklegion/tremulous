@@ -1564,7 +1564,9 @@ void Cmd_Class_f( gentity_t *ent )
   clientNum = ent->client - level.clients;
   trap_Argv( 1, s, sizeof( s ) );
 
-  if( ent->client->pers.pteam == PTE_ALIENS )
+  if( ent->client->pers.pteam == PTE_ALIENS &&
+      !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
+      !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
   {
     //if we are not currently spectating, we are attempting evolution
     if( ent->client->pers.pclass != PCL_NONE )
@@ -1702,19 +1704,22 @@ void Cmd_Destroy_f( gentity_t *ent )
   trace_t     tr;
   gentity_t   *traceEnt;
 
-  AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
-  VectorMA( ent->client->ps.origin, 50, forward, end );
+  if( !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
+      !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
+  {
+    AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
+    VectorMA( ent->client->ps.origin, 50, forward, end );
 
-  trap_Trace( &tr, ent->client->ps.origin, NULL, NULL, end, ent->s.number, MASK_PLAYERSOLID );
-  traceEnt = &g_entities[ tr.entityNum ];
+    trap_Trace( &tr, ent->client->ps.origin, NULL, NULL, end, ent->s.number, MASK_PLAYERSOLID );
+    traceEnt = &g_entities[ tr.entityNum ];
 
-  if( tr.fraction < 1.0 &&
-      ( traceEnt->s.eType == ET_BUILDABLE ) &&
-      ( traceEnt->biteam == ent->client->pers.pteam ) &&
-      ( ( ent->client->ps.weapon >= WP_ABUILD ) &&
-        ( ent->client->ps.weapon <= WP_HBUILD ) ) )
-    G_Damage( traceEnt, ent, ent, forward, tr.endpos, 10000, 0, MOD_SUICIDE );
-
+    if( tr.fraction < 1.0 &&
+        ( traceEnt->s.eType == ET_BUILDABLE ) &&
+        ( traceEnt->biteam == ent->client->pers.pteam ) &&
+        ( ( ent->client->ps.weapon >= WP_ABUILD ) &&
+          ( ent->client->ps.weapon <= WP_HBUILD ) ) )
+      G_Damage( traceEnt, ent, ent, forward, tr.endpos, 10000, 0, MOD_SUICIDE );
+  }
 }
 
 
@@ -2119,7 +2124,9 @@ void Cmd_Build_f( gentity_t *ent )
   buildable = BG_FindBuildNumForName( s );
   
   if( buildable != BA_NONE &&
-      ( 1 << ent->client->ps.weapon ) & BG_FindBuildWeaponForBuildable( buildable ) )
+      ( 1 << ent->client->ps.weapon ) & BG_FindBuildWeaponForBuildable( buildable ) &&
+      !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
+      !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
   {
     dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
     

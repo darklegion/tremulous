@@ -620,7 +620,7 @@ void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
     VectorInverse( inverseNormal );
     vectoangles( inverseNormal, hovelAngles );
 
-    VectorCopy( activator->s.pos.trBase, activator->hovelOrigin );
+    VectorCopy( activator->s.pos.trBase, activator->client->hovelOrigin );
 
     G_SetOrigin( activator, hovelOrigin );
     VectorCopy( hovelOrigin, activator->client->ps.origin );
@@ -660,7 +660,11 @@ Called when an alien touches a booster
 */
 void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 {
-  G_Printf( "%d is touching me\n", other->s.number );
+  if( !( other->client->ps.stats[ STAT_STATE ] & SS_BOOSTED ) )
+  {
+    other->client->ps.stats[ STAT_STATE ] |= SS_BOOSTED;
+    other->client->lastBoostedTime = level.time;
+  }
 }
 
 
