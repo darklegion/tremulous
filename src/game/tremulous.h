@@ -315,15 +315,15 @@
 #define PRIFLE_DMG                  HDM(20)
 #define PRIFLE_SPEED                1500
 
-#define LCANON_PRICE                400
-#define LCANON_AMMO                 30
-#define LCANON_REPEAT               500
-#define LCANON_CHARGEREPEAT         1000
-#define LCANON_RELOAD               2000
-#define LCANON_DAMAGE               HDM(200)
-#define LCANON_SECONDARY_DAMAGE     20
-#define LCANON_SPEED                250
-#define LCANON_CHARGE_TIME          2000
+#define LCANNON_PRICE               400
+#define LCANNON_AMMO                30
+#define LCANNON_REPEAT              500
+#define LCANNON_CHARGEREPEAT        1000
+#define LCANNON_RELOAD              2000
+#define LCANNON_DAMAGE              HDM(200)
+#define LCANNON_SECONDARY_DAMAGE    20
+#define LCANNON_SPEED               250
+#define LCANNON_CHARGE_TIME         2000
 
 #define LASGUN_PRICE                200
 #define LASGUN_AMMO                 300

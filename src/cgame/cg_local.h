@@ -942,6 +942,8 @@ typedef struct
   qhandle_t carmourTorsoSkin;
   qhandle_t clarmourTorsoSkin;
   qhandle_t larmourTorsoSkin;
+  
+  qhandle_t jetpackModel;
 } cgMedia_t;
 
 

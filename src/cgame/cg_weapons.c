@@ -1120,9 +1120,9 @@ void CG_AddViewWeapon( playerState_t *ps )
   VectorMA( hand.origin, cg_gun_y.value, cg.refdef.viewaxis[ 1 ], hand.origin );
   VectorMA( hand.origin, ( cg_gun_z.value + fovOffset ), cg.refdef.viewaxis[ 2 ], hand.origin );
 
-  if( ps->weapon == WP_LUCIFER_CANON && ps->stats[ STAT_MISC ] > 0 )
+  if( ps->weapon == WP_LUCIFER_CANNON && ps->stats[ STAT_MISC ] > 0 )
   {
-    float fraction = (float)ps->stats[ STAT_MISC ] / (float)LCANON_TOTAL_CHARGE;
+    float fraction = (float)ps->stats[ STAT_MISC ] / (float)LCANNON_TOTAL_CHARGE;
 
     VectorMA( hand.origin, random( ) * fraction, cg.refdef.viewaxis[ 0 ], hand.origin );
     VectorMA( hand.origin, random( ) * fraction, cg.refdef.viewaxis[ 1 ], hand.origin );
@@ -1648,9 +1648,9 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
       radius = 8;
       break;
       
-   #define LCANON_EJECTION_VEL 300
+   #define LCANNON_EJECTION_VEL 300
       
-    case WP_LUCIFER_CANON:
+    case WP_LUCIFER_CANNON:
       mod = cgs.media.dishFlashModel;
       shader = cgs.media.bfgExplosionShader;
       mark = cgs.media.bulletMarkShader;
@@ -1671,9 +1671,9 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
         else
           spark = cgs.media.scannerBlipShader;
 
-        velocity[ 0 ] = ( 2 * random( ) - 1.0f ) * LCANON_EJECTION_VEL;
-        velocity[ 1 ] = ( 2 * random( ) - 1.0f ) * LCANON_EJECTION_VEL;
-        velocity[ 2 ] = ( 2 * random( ) - 1.0f ) * LCANON_EJECTION_VEL;
+        velocity[ 0 ] = ( 2 * random( ) - 1.0f ) * LCANNON_EJECTION_VEL;
+        velocity[ 1 ] = ( 2 * random( ) - 1.0f ) * LCANNON_EJECTION_VEL;
+        velocity[ 2 ] = ( 2 * random( ) - 1.0f ) * LCANNON_EJECTION_VEL;
         
         CG_LaunchSprite( origin, velocity, accel, 0.0f,
                          0.9f, 1.0f, 40.0f, 255, 0, rand( ) % 360,

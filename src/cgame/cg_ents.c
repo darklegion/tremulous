@@ -370,7 +370,7 @@ static void CG_Missile( centity_t *cent )
       return;
       break;
 
-    case WP_LUCIFER_CANON:
+    case WP_LUCIFER_CANNON:
       ent.skinNum = cg.clientFrame & 1;
       ent.hModel = weapon->missileModel;
       ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
@@ -381,7 +381,7 @@ static void CG_Missile( centity_t *cent )
 
       RotateAroundDirection( ent.axis, cg.time / 4 );
 
-      fraction = (float)s1->generic1 / (float)LCANON_TOTAL_CHARGE;
+      fraction = (float)s1->generic1 / (float)LCANNON_TOTAL_CHARGE;
       VectorScale( ent.axis[ 0 ], fraction, ent.axis[ 0 ] );
       VectorScale( ent.axis[ 1 ], fraction, ent.axis[ 1 ] );
       VectorScale( ent.axis[ 2 ], fraction, ent.axis[ 2 ] );
@@ -522,7 +522,7 @@ static void CG_Portal( centity_t *cent )
 
 #define SETBOUNDS(v1,v2,r)  ((v1)[0]=(-r/2),(v1)[1]=(-r/2),(v1)[2]=(-r/2),\
                              (v2)[0]=(r/2),(v2)[1]=(r/2),(v2)[2]=(r/2))
-#define RADIUSSTEP          1.0f
+#define RADIUSSTEP          0.5f
   
 #define FLARE_OFF       0
 #define FLARE_NOFADE    1
@@ -591,7 +591,7 @@ static void CG_LightFlare( centity_t *cent )
     return;
 
   //only recalculate radius and ratio every three frames
-  if( !( cg.clientFrame % 3 ) )
+  if( !( cg.clientFrame % 2 ) )
   {
     //can only see the flare when in front of it
     flare.radius = len / es->origin2[ 0 ];

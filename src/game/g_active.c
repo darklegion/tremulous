@@ -485,20 +485,20 @@ void ClientTimerActions( gentity_t *ent, int msec )
     }
 
     //client is charging up an lcanon
-    if( client->ps.weapon == WP_LUCIFER_CANON )
+    if( client->ps.weapon == WP_LUCIFER_CANNON )
     {
       int ammo;
       
-      BG_unpackAmmoArray( WP_LUCIFER_CANON, client->ps.ammo, client->ps.powerups, &ammo, NULL, NULL );
+      BG_unpackAmmoArray( WP_LUCIFER_CANNON, client->ps.ammo, client->ps.powerups, &ammo, NULL, NULL );
       
-      if( client->ps.stats[ STAT_MISC ] < LCANON_TOTAL_CHARGE && ucmd->buttons & BUTTON_ATTACK )
-        client->ps.stats[ STAT_MISC ] += ( 100.0f / LCANON_CHARGE_TIME ) * LCANON_TOTAL_CHARGE;
+      if( client->ps.stats[ STAT_MISC ] < LCANNON_TOTAL_CHARGE && ucmd->buttons & BUTTON_ATTACK )
+        client->ps.stats[ STAT_MISC ] += ( 100.0f / LCANNON_CHARGE_TIME ) * LCANNON_TOTAL_CHARGE;
       
-      if( client->ps.stats[ STAT_MISC ] > LCANON_TOTAL_CHARGE )
-        client->ps.stats[ STAT_MISC ] = LCANON_TOTAL_CHARGE;
+      if( client->ps.stats[ STAT_MISC ] > LCANNON_TOTAL_CHARGE )
+        client->ps.stats[ STAT_MISC ] = LCANNON_TOTAL_CHARGE;
 
-      if( client->ps.stats[ STAT_MISC ] > ( ammo * LCANON_TOTAL_CHARGE ) / 10 )
-        client->ps.stats[ STAT_MISC ] = ammo * LCANON_TOTAL_CHARGE / 10;
+      if( client->ps.stats[ STAT_MISC ] > ( ammo * LCANNON_TOTAL_CHARGE ) / 10 )
+        client->ps.stats[ STAT_MISC ] = ammo * LCANNON_TOTAL_CHARGE / 10;
     }
     
     switch( client->ps.weapon )

@@ -1501,10 +1501,10 @@ static void CG_PlayerNonSegAngles( centity_t *cent, vec3_t srcAngles, vec3_t non
 CG_PlayerUpgrade
 ===============
 */
-static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
+static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *legs,
+                               vec3_t torsoAxis[ 3 ], qhandle_t legsModel )
 {
   int           held, active;
-  clientInfo_t  *ci;
   vec3_t        acc = { 0.0f, 0.0f, 10.0f };
   vec3_t        vel = { 0.0f, 0.0f, 0.0f };
   vec3_t        origin;
@@ -1513,15 +1513,28 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
   vec3_t        right = { 0.0f, 1.0f, 0.0f };
   vec3_t        pvel;
   int           addTime;
+  refEntity_t   jetpack;
 
   held = cent->currentState.modelindex;
   active = cent->currentState.modelindex2;
 
   if( held & ( 1 << UP_JETPACK ) )
   {
-    //FIXME: add model to back
-    //CG_PositionRotatedEntityOnTag( &head, &torso, ci->torsoModel, "tag_back" );
+    memset( &jetpack, 0, sizeof( jetpack ) );
+    
+    jetpack.hModel = cgs.media.jetpackModel;
 
+    AxisCopy( torsoAxis, jetpack.axis );
+    VectorCopy( cent->lerpOrigin, jetpack.lightingOrigin );
+
+    //FIXME: change to tag_back when it exists
+    CG_PositionRotatedEntityOnTag( &jetpack, legs, legsModel, "tag_torso" );
+
+    jetpack.shadowPlane = legs->shadowPlane;
+    jetpack.renderfx = legs->renderfx;
+
+    trap_R_AddRefEntityToScene( &jetpack );
+    
     if( active & ( 1 << UP_JETPACK ) )
     {
       if( cent->currentState.pos.trDelta[ 2 ] > 10.0f )
@@ -1927,7 +1940,7 @@ void CG_Player( centity_t *cent )
   entityState_t *es = &cent->currentState;
   int           class = ( es->powerups >> 8 ) & 0xFF;
   float         scale;
-  vec3_t        tempAxis[ 3 ], tempAxis2[ 3 ];
+  vec3_t        tempAxis[ 3 ], tempAxis2[ 3 ], torsoAxis[ 3 ];
   vec3_t        angles;
   int           held = es->modelindex;
   pTeam_t       team = es->powerups & 0xFF;
@@ -1980,6 +1993,9 @@ void CG_Player( centity_t *cent )
   else
     CG_PlayerNonSegAngles( cent, angles, legs.axis );
 
+  //for CG_PlayerUpgrades
+  AxisCopy( torso.axis, torsoAxis );
+  
   //rotate the legs axis to back to the wall
   if( es->eFlags & EF_WALLCLIMB &&
       BG_rotateAxis( es->angles2, legs.axis, tempAxis, qfalse, es->eFlags & EF_WALLCLIMBCEILING ) )
@@ -2134,7 +2150,7 @@ void CG_Player( centity_t *cent )
   if( team == PTE_HUMANS )
     CG_AddPlayerWeapon( &torso, NULL, cent );
 
-  CG_PlayerUpgrades( cent, &torso );
+  CG_PlayerUpgrades( cent, &legs, torsoAxis, ci->legsModel );
 }
 
 /*

@@ -34,7 +34,7 @@
 #define CROUCH_VIEWHEIGHT       12
 #define DEAD_VIEWHEIGHT         -16
 
-#define LCANON_TOTAL_CHARGE     255
+#define LCANNON_TOTAL_CHARGE    255
 
 //
 // config strings are a general means of communicating variable length strings
@@ -328,7 +328,7 @@ typedef enum
   WP_FLAMER,
   WP_MASS_DRIVER,
   WP_PULSE_RIFLE,
-  WP_LUCIFER_CANON,
+  WP_LUCIFER_CANNON,
   WP_LAS_GUN,
   WP_PAIN_SAW,
 

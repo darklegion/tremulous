@@ -333,7 +333,7 @@ void painSawFire( gentity_t *ent )
 /*
 ======================================================================
 
-LUCIFER CANON
+LUCIFER CANNON
 
 ======================================================================
 */
@@ -348,7 +348,7 @@ void LCChargeFire( gentity_t *ent, qboolean secondary )
   gentity_t *m;
 
   if( secondary )
-    ent->client->ps.stats[ STAT_MISC ] = LCANON_SECONDARY_DAMAGE;
+    ent->client->ps.stats[ STAT_MISC ] = LCANNON_SECONDARY_DAMAGE;
 
   m = fire_luciferCanon( ent, muzzle, forward, ent->client->ps.stats[ STAT_MISC ] );
   
@@ -985,7 +985,7 @@ void FireWeapon2( gentity_t *ent )
       groundPound( ent );
       break;
       
-    case WP_LUCIFER_CANON:
+    case WP_LUCIFER_CANNON:
       LCChargeFire( ent, qtrue );
       break;
       
@@ -1055,7 +1055,7 @@ void FireWeapon( gentity_t *ent )
     case WP_MASS_DRIVER:
       massDriverFire( ent );
       break;
-    case WP_LUCIFER_CANON:
+    case WP_LUCIFER_CANNON:
       LCChargeFire( ent, qfalse );
       break;
     case WP_LAS_GUN:

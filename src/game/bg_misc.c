@@ -1251,12 +1251,12 @@ classAttributes_t bg_classList[ ] =
     "default",                                      //char    *skinname;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -15, -15, -6 },                               //vec3_t  mins;
-    { 15, 15, 6 },                                  //vec3_t  maxs;
-    { 15, 15, 6 },                                  //vec3_t  crouchmaxs;
+    { -15, -15, -15 },                              //vec3_t  mins;
+    { 15, 15, 15 },                                 //vec3_t  maxs;
+    { 15, 15, 15 },                                 //vec3_t  crouchmaxs;
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
-    7, 7,                                           //int     viewheight, crouchviewheight;
+    0, 0,                                           //int     viewheight, crouchviewheight;
     SOLDIER_HEALTH,                                 //int     health;
     SOLDIER_REGEN,                                  //int     regenRate;
     SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|
@@ -2181,21 +2181,21 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
-    WP_LUCIFER_CANON,     //int       weaponNum;
-    LCANON_PRICE,         //int       price;
+    WP_LUCIFER_CANNON,    //int       weaponNum;
+    LCANNON_PRICE,        //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
-    "lcanon",             //char      *weaponName;
-    "Lucifer Canon",      //char      *weaponHumanName;
-    LCANON_AMMO,          //int       quan;
+    "lcannon",            //char      *weaponName;
+    "Lucifer Cannon",     //char      *weaponHumanName;
+    LCANNON_AMMO,         //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qtrue,                //int       usesEnergy;
-    LCANON_REPEAT,        //int       repeatRate1;
-    LCANON_CHARGEREPEAT,  //int       repeatRate2;
+    LCANNON_REPEAT,       //int       repeatRate1;
+    LCANNON_CHARGEREPEAT, //int       repeatRate2;
     0,                    //int       repeatRate3;
-    LCANON_RELOAD,        //int       reloadTime;
+    LCANNON_RELOAD,       //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qtrue,                //qboolean  purchasable;

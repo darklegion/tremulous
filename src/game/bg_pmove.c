@@ -2530,7 +2530,7 @@ static void PM_Weapon( void )
       }
       break;
 
-    case WP_LUCIFER_CANON:
+    case WP_LUCIFER_CANNON:
       attack1 = pm->cmd.buttons & BUTTON_ATTACK;
       attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
       attack3 = pm->cmd.buttons & BUTTON_USE_HOLDABLE;
@@ -2646,9 +2646,9 @@ static void PM_Weapon( void )
   if( !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
   {
     //special case for lCanon
-    if( pm->ps->weapon == WP_LUCIFER_CANON && attack1 )
+    if( pm->ps->weapon == WP_LUCIFER_CANNON && attack1 )
     {
-      ammo -= (int)( ceil( ( (float)pm->ps->stats[ STAT_MISC ] / (float)LCANON_TOTAL_CHARGE ) * 10.0f ) );
+      ammo -= (int)( ceil( ( (float)pm->ps->stats[ STAT_MISC ] / (float)LCANNON_TOTAL_CHARGE ) * 10.0f ) );
 
       //stay on the safe side
       if( ammo < 0 )
