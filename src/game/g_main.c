@@ -1854,26 +1854,34 @@ int start, end;
   //
 start = trap_Milliseconds();
   ent = &g_entities[0];
-  for (i=0 ; i<level.num_entities ; i++, ent++) {
-    if ( !ent->inuse ) {
+  
+  for ( i = 0; i < level.num_entities; i++, ent++ )
+  {
+    if( !ent->inuse )
       continue;
-    }
 
     // clear events that are too old
-    if ( level.time - ent->eventTime > EVENT_VALID_MSEC ) {
-      if ( ent->s.event ) {
+    if( level.time - ent->eventTime > EVENT_VALID_MSEC )
+    {
+      if( ent->s.event )
+      {
         ent->s.event = 0; // &= EV_EVENT_BITS;
-        if ( ent->client ) {
+        if ( ent->client )
+        {
           ent->client->ps.externalEvent = 0;
           //ent->client->ps.events[0] = 0;
           //ent->client->ps.events[1] = 0;
         }
       }
-      if ( ent->freeAfterEvent ) {
+      
+      if( ent->freeAfterEvent )
+      {
         // tempEntities or dropped items completely go away after their event
         G_FreeEntity( ent );
         continue;
-      } else if ( ent->unlinkAfterEvent ) {
+      }
+      else if( ent->unlinkAfterEvent )
+      {
         // items that will respawn will hide themselves after their pickup event
         ent->unlinkAfterEvent = qfalse;
         trap_UnlinkEntity( ent );
@@ -1881,9 +1889,8 @@ start = trap_Milliseconds();
     }
 
     // temporary entities don't think
-    if ( ent->freeAfterEvent ) {
+    if ( ent->freeAfterEvent )
       continue;
-    }
 
     //TA: calculate the acceleration of this entity
     if( ent->evaluateAcceleration )
@@ -1893,7 +1900,8 @@ start = trap_Milliseconds();
       continue;
     }
 
-    if ( ent->s.eType == ET_MISSILE ) {
+    if ( ent->s.eType == ET_MISSILE )
+    {
       G_RunMissile( ent );
       continue;
     }

@@ -434,6 +434,22 @@ gitem_t bg_itemlist[] =
     ""
   },
 
+/*QUAKED weapon_sawbladelauncher (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+  {
+    "weapon_sawbladelauncher",
+    "sound/misc/w_pkup.wav",
+    { "models/weapons2/rocketl/rocketl.md3",
+    0, 0, 0},
+    "icons/iconw_rocket",
+    "Sawblade Launcher",
+    10,
+    IT_WEAPON,
+    WP_SAWBLADE_LAUNCHER,
+    "",
+    ""
+  },
+
 /*QUAKED weapon_plasmagun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
   {
@@ -802,6 +818,22 @@ TA: droid defense item
     ""                  //sounds
   },
 
+/*QUAKED team_droid_def2 (0 0 1) (-16 -16 -16) (16 16 16)
+TA: droid defense item
+*/
+  {
+    "team_droid_def2",
+    "sound/items/holdable.wav",
+    { "models/bitems/adef1.md3", 0, 0, 0 },
+    "icons/teleporter", //icon
+    "Droid Sawblade Launcher",      //pickup
+    0,
+    IT_BUILDABLE,
+    BA_D_DEF2,
+    "",                 //precache
+    ""                  //sounds
+  },
+
 /*QUAKED team_droid_hivemind (0 0 1) (-16 -16 -16) (16 16 16)
 TA: droid build limitation item
 */
@@ -1103,6 +1135,27 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
     WP_NONE,               //weapon_t  turretProjType;
+    qtrue,                 //qboolean  creepTest;
+    qfalse                 //qboolean  reactorTest;
+  },
+  {
+    BA_D_DEF2,             //int       buildNum;
+    "sawbladel",           //char      *buildName;
+    "team_droid_def2",     //char      *entityName;
+    { -15, -15, -15 },     //vec3_t    mins;
+    { 15, 15, 15 },        //vec3_t    maxs;
+    80,                    //int       buildPoints;
+    1000,                  //int       health;
+    50,                    //int       damage;
+    20,                    //int       splashDamage;
+    50,                    //int       splashRadius;
+    MOD_DSPAWN,            //int       meansOfDeath;
+    BIT_DROIDS,            //int       team;
+    EV_ITEM_GROW,          //int       spawnEvent;
+    100,                   //int       nextthink;
+    1500,                  //int       turretFireSpeed;
+    500,                   //int       turretRange;
+    WP_SAWBLADE_LAUNCHER,  //weapon_t  turretProjType;
     qtrue,                 //qboolean  creepTest;
     qfalse                 //qboolean  reactorTest;
   },

@@ -160,6 +160,13 @@ void nullDieFunction( gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 {
 }
 
+
+
+
+//==================================================================================
+
+
+
 /*
 ================
 D_CreepRecede
@@ -182,6 +189,13 @@ void D_CreepRecede( gentity_t *self )
   else //creep has died
     G_FreeEntity( self );
 }
+
+
+
+
+//==================================================================================
+
+
 
 
 /*
@@ -253,6 +267,13 @@ void DSpawn_Think( gentity_t *self )
 {
 }
 
+
+
+
+//==================================================================================
+
+
+
 /*
 ================
 DDef1_Die
@@ -307,6 +328,149 @@ void DDef1_Think( gentity_t *self )
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
 }
 
+
+
+
+//==================================================================================
+
+
+
+/*
+================
+ddef_fireonemeny
+
+Used by DDef2_Think to fire at enemy
+================
+*/
+void ddef_fireonenemy( gentity_t *self, int firespeed )
+{
+  vec3_t  dirToTarget;
+ 
+  VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
+  VectorNormalize( dirToTarget );
+  vectoangles( dirToTarget, self->s.angles2 );
+
+  //fire at target
+  FireWeapon( self );
+  self->count = level.time + firespeed;
+}
+
+/*
+================
+ddef_checktarget
+
+Used by DDef2_Think to check enemies for validity
+================
+*/
+qboolean ddef_checktarget( gentity_t *self, gentity_t *target, int range )
+{
+  vec3_t    distance;
+  trace_t   trace;
+
+  if( !target ) // Do we have a target?
+    return qfalse;
+  if( !target->inuse ) // Does the target still exist?
+    return qfalse;
+  if( target == self ) // is the target us?
+    return qfalse;
+  if( !target->client ) // is the target a bot or player?
+    return qfalse;
+  if( target->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS ) // is the target one of us?
+    return qfalse;
+  if( target->client->sess.sessionTeam == TEAM_SPECTATOR ) // is the target alive?
+    return qfalse;
+  if( target->health <= 0 ) // is the target still alive?
+    return qfalse;
+
+  VectorSubtract( target->r.currentOrigin, self->r.currentOrigin, distance );
+  if( VectorLength( distance ) > range ) // is the target within range?
+    return qfalse;
+
+  trap_Trace( &trace, self->s.pos.trBase, NULL, NULL, target->s.pos.trBase, self->s.number, MASK_SHOT );
+  if ( trace.contents & CONTENTS_SOLID ) // can we see the target?
+    return qfalse;
+
+  return qtrue;
+}
+
+/*
+================
+ddef_findenemy
+
+Used by DDef2_Think to locate enemy gentities
+================
+*/
+void ddef_findenemy( gentity_t *ent, int range )
+{
+  gentity_t *target;
+
+  target = g_entities;
+
+  //iterate through entities
+  for (; target < &g_entities[ level.num_entities ]; target++)
+  {
+    //if target is not valid keep searching
+    if( !ddef_checktarget( ent, target, range ) )
+      continue;
+      
+    //we found a target
+    ent->enemy = target;
+    return;
+  }
+
+  //couldn't find a target
+  ent->enemy = NULL;
+}
+
+/*
+================
+DDef2_Think
+
+think function for Droid Defense
+================
+*/
+void DDef2_Think( gentity_t *self )
+{
+  int range =     BG_FindRangeForBuildable( self->s.clientNum );
+  int firespeed = BG_FindFireSpeedForBuildable( self->s.clientNum );
+
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
+
+  //if there is no creep nearby die
+  if( !findCreep( self ) )
+  {
+    G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+    return;
+  }
+
+  //if the current target is not valid find a new one
+  if( !ddef_checktarget( self, self->enemy, range ) )
+    ddef_findenemy( self, range );
+
+  //if a new target cannot be found don't do anything
+  if( !self->enemy )
+    return;
+  
+  //if we are pointing at our target and we can fire shoot it
+  switch( self->s.clientNum )
+  {
+    case BA_D_DEF2:
+      if( self->count < level.time )
+        ddef_fireonenemy( self, firespeed );
+      break;
+
+    default:
+      Com_Printf( S_COLOR_YELLOW "WARNING: Unknown turret type in think\n" );
+      break;
+  }
+}
+
+
+
+//==================================================================================
+
+
+
 /*
 ================
 HRpt_Think
@@ -342,6 +506,13 @@ void HRpt_Think( gentity_t *self )
   self->nextthink = level.time + REFRESH_TIME;
 }
 
+
+
+
+//==================================================================================
+
+
+
 /*
 ================
 HMCU_Activate
@@ -375,6 +546,13 @@ void HMCU_Think( gentity_t *self )
   
   self->powered = findPower( self );
 }
+
+
+
+
+//==================================================================================
+
+
 
 //TA: the following defense turret code was written by
 // "fuzzysteve"           (fuzzysteve@quakefiles.com) and
@@ -738,6 +916,13 @@ void HDef_Think( gentity_t *self )
 }
 
 
+
+
+//==================================================================================
+
+
+
+
 /*
 ================
 HSpawn_blast
@@ -797,6 +982,13 @@ void HSpawn_Think( gentity_t *self )
 
   self->powered = findPower( self );
 }
+
+
+
+
+//==================================================================================
+
+
 
 
 /*
@@ -1027,6 +1219,13 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
     case BA_D_DEF1:
       built->die = DDef1_Die;
       built->think = DDef1_Think;
+      break;
+      
+    case BA_D_DEF2:
+      built->die = DDef1_Die;
+      built->think = DDef2_Think;
+      built->enemy = NULL;
+      built->s.weapon = BG_FindProjTypeForBuildable( buildable );
       break;
       
     case BA_D_HIVEMIND:

@@ -55,6 +55,7 @@ void CG_CheckAmmo( void ) {
     
 		switch ( i ) {
 		case WP_ROCKET_LAUNCHER:
+		case WP_SAWBLADE_LAUNCHER:
 		case WP_GRENADE_LAUNCHER:
 		case WP_RAILGUN:
 		case WP_SHOTGUN:

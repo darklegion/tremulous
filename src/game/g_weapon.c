@@ -29,7 +29,6 @@
 
 #include "g_local.h"
 
-static  float s_quadFactor;
 static  vec3_t  forward, right, up;
 static  vec3_t  muzzle;
 
@@ -102,14 +101,7 @@ qboolean CheckGauntletAttack( gentity_t *ent ) {
     return qfalse;
   }
 
-  /*if (ent->client->ps.powerups[PW_QUAD] ) {
-    G_AddEvent( ent, EV_POWERUP_QUAD, 0 );
-    s_quadFactor = g_quadfactor.value;
-  } else*/ {
-    s_quadFactor = 1;
-  }
-
-  damage = 50 * s_quadFactor;
+  damage = 50;
   G_Damage( traceEnt, ent, ent, forward, tr.endpos,
     damage, 0, MOD_GAUNTLET );
 
@@ -162,8 +154,6 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int mod ) {
   gentity_t *tent;
   gentity_t *traceEnt;
   int     i, passent;
-
-  damage *= s_quadFactor;
 
   r = random() * M_PI * 2.0f;
   u = sin(r) * crandom() * spread * 16;
@@ -219,8 +209,6 @@ void BFG_Fire ( gentity_t *ent ) {
   gentity_t *m;
 
   m = fire_bfg (ent, muzzle, forward);
-  m->damage *= s_quadFactor;
-  m->splashDamage *= s_quadFactor;
 
 //  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
@@ -257,7 +245,7 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
     }
 
     if ( traceEnt->takedamage) {
-      damage = DEFAULT_SHOTGUN_DAMAGE * s_quadFactor;
+      damage = DEFAULT_SHOTGUN_DAMAGE;
       G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_SHOTGUN);
         if( LogAccuracyHit( traceEnt, ent ) ) {
           return qtrue;
@@ -330,8 +318,6 @@ void weapon_grenadelauncher_fire (gentity_t *ent) {
   VectorNormalize( forward );
 
   m = fire_grenade (ent, muzzle, forward);
-  m->damage *= s_quadFactor;
-  m->splashDamage *= s_quadFactor;
 
 //  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
@@ -348,8 +334,23 @@ void Weapon_RocketLauncher_Fire (gentity_t *ent) {
   gentity_t *m;
 
   m = fire_rocket (ent, muzzle, forward);
-  m->damage *= s_quadFactor;
-  m->splashDamage *= s_quadFactor;
+
+//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
+}
+
+/*
+======================================================================
+
+SAWBLADE
+
+======================================================================
+*/
+
+void Weapon_SawbladeLauncher_Fire( gentity_t *ent )
+{
+  gentity_t *m;
+
+  m = fire_sawblade( ent, muzzle, forward );
 
 //  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
@@ -366,8 +367,6 @@ void Weapon_Plasma_Fire (gentity_t *ent) {
   gentity_t *m;
 
   m = fire_plasma (ent, muzzle, forward);
-  m->damage *= s_quadFactor;
-  m->splashDamage *= s_quadFactor;
 
 //  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
@@ -384,8 +383,6 @@ void Weapon_Flamer_Fire (gentity_t *ent) {
   gentity_t *m;
 
   m = fire_flamer (ent, muzzle, forward);
-  m->damage *= s_quadFactor;
-  m->splashDamage *= s_quadFactor;
 
 //  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
@@ -418,7 +415,7 @@ void weapon_railgun_fire( gentity_t *ent )
   int     passent;
   gentity_t *unlinkedEntities[MAX_RAIL_HITS];
 
-  damage = 100 * s_quadFactor;
+  damage = 100;
 
   VectorMA (muzzle, 8192, forward, end);
 
@@ -531,7 +528,7 @@ void Weapon_LightningFire( gentity_t *ent ) {
   gentity_t *traceEnt, *tent;
   int     damage, i, passent;
 
-  damage = 8 * s_quadFactor;
+  damage = 8;
 
   passent = ent->s.number;
   for (i = 0; i < 10; i++) {
@@ -1007,6 +1004,8 @@ void FireWeapon2( gentity_t *ent )
     case WP_RAILGUN:
       weapon_railgun_fire( ent );
       break;
+    case WP_SAWBLADE_LAUNCHER:
+      break;
     case WP_BFG:
       BFG_Fire( ent );
       break;
@@ -1020,7 +1019,6 @@ void FireWeapon2( gentity_t *ent )
       Weapon_Grab_Fire( ent );
       break;
     case WP_POUNCE:
-      //Weapon_Claw_Fire( ent );
       break;
     case WP_DBUILD:
       Weapon_Abuild_Fire( ent );
@@ -1086,6 +1084,9 @@ void FireWeapon( gentity_t *ent )
       break;
     case WP_RAILGUN:
       weapon_railgun_fire( ent );
+      break;
+    case WP_SAWBLADE_LAUNCHER:
+      Weapon_SawbladeLauncher_Fire( ent );
       break;
     case WP_BFG:
       BFG_Fire( ent );

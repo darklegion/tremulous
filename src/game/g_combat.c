@@ -1203,14 +1203,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 /*  asave = CheckArmor (targ, take, dflags);
   take -= asave;*/
   //TA: armour is the chance of deflecting an attack (out of 100)
-  if( targ->client && targ->client->ps.stats[ STAT_ARMOR ] > 0 )
+/*  if( targ->client && targ->client->ps.stats[ STAT_ARMOR ] > 0 )
   {
     //TA: this whole thing is probably a bad idea. Worth a try I guess.
     float chance = (float)targ->client->ps.stats[ STAT_ARMOR ] / 100.0f;
 
     if( crandom( ) > chance )
-      take /= ( 1.0f / chance );
-  }
+      take *= chance;
+  }*/
 
   if( g_debugDamage.integer )
   {

@@ -2474,6 +2474,9 @@ static void PM_Weapon( void )
     case WP_RAILGUN:
       addTime = 1500;
       break;
+    case WP_SAWBLADE_LAUNCHER:
+      addTime = 1000;
+      break;
     case WP_BFG:
       addTime = 200;
       break;

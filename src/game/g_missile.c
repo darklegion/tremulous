@@ -81,7 +81,10 @@ void G_ExplodeMissile( gentity_t *ent ) {
   dir[2] = 1;
 
   ent->s.eType = ET_GENERAL;
-  G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
+
+  //TA: tired... can't be fucked... hack
+  if( ent->s.weapon != WP_SAWBLADE_LAUNCHER )
+    G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
 
   ent->freeAfterEvent = qtrue;
 
@@ -223,7 +226,8 @@ G_RunMissile
 
 ================
 */
-void G_RunMissile( gentity_t *ent ) {
+void G_RunMissile( gentity_t *ent )
+{
 	vec3_t		origin;
 	trace_t		tr;
   int     passent;
@@ -286,7 +290,8 @@ fire_flamer
 
 =================
 */
-gentity_t *fire_flamer (gentity_t *self, vec3_t start, vec3_t dir) {
+gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
+{
 	gentity_t	*bolt;
 
 	VectorNormalize (dir);
@@ -328,7 +333,7 @@ fire_plasma
 
 =================
 */
-gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t dir)
+gentity_t *fire_plasma( gentity_t *self, vec3_t start, vec3_t dir )
 {
   gentity_t *bolt;
 
@@ -358,6 +363,7 @@ gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t dir)
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
 
   VectorCopy (start, bolt->r.currentOrigin);
+
   return bolt;
 }
 
@@ -476,6 +482,45 @@ gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
 	VectorCopy( start, bolt->s.pos.trBase );
 	VectorScale( dir, 900, bolt->s.pos.trDelta );
+	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
+	VectorCopy (start, bolt->r.currentOrigin);
+
+	return bolt;
+}
+
+/*
+=================
+fire_sawblade
+=================
+*/
+gentity_t *fire_sawblade( gentity_t *self, vec3_t start, vec3_t dir )
+{
+	gentity_t	*bolt;
+
+	VectorNormalize ( dir );
+
+	bolt = G_Spawn( );
+	bolt->classname = "sawblade";
+	bolt->nextthink = level.time + 20000;
+	bolt->think = G_ExplodeMissile;
+	bolt->s.eType = ET_MISSILE;
+	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	bolt->s.eFlags = EF_BOUNCE;
+	bolt->s.weapon = WP_SAWBLADE_LAUNCHER;
+	bolt->r.ownerNum = self->s.number;
+	bolt->parent = self;
+	bolt->damage = 100;
+	bolt->splashDamage = 0;
+	bolt->splashRadius = 0;
+	bolt->methodOfDeath = MOD_ROCKET;
+	bolt->splashMethodOfDeath = MOD_ROCKET_SPLASH;
+	bolt->clipmask = MASK_SHOT;
+  bolt->target_ent = NULL;
+
+	bolt->s.pos.trType = TR_LINEAR;
+	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
+	VectorCopy( start, bolt->s.pos.trBase );
+	VectorScale( dir, 1000, bolt->s.pos.trDelta );
 	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
 	VectorCopy (start, bolt->r.currentOrigin);
 

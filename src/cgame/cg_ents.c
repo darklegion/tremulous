@@ -377,10 +377,12 @@ static void CG_Item( centity_t *cent ) {
 CG_Missile
 ===============
 */
-static void CG_Missile( centity_t *cent ) {
-  refEntity_t     ent;
-  entityState_t   *s1;
-  const weaponInfo_t    *weapon;
+static void CG_Missile( centity_t *cent )
+{
+  refEntity_t         ent;
+  entityState_t       *s1;
+  const weaponInfo_t  *weapon;
+  vec3_t              up;
 
   s1 = &cent->currentState;
   if ( s1->weapon > WP_NUM_WEAPONS ) {
@@ -421,43 +423,55 @@ static void CG_Missile( centity_t *cent ) {
   VectorCopy( cent->lerpOrigin, ent.origin);
   VectorCopy( cent->lerpOrigin, ent.oldorigin);
 
-  if( cent->currentState.weapon == WP_PLASMAGUN )
+  switch( cent->currentState.weapon )
   {
-    ent.reType = RT_SPRITE;
-    ent.radius = 16;
-    ent.rotation = 0;
-    ent.customShader = cgs.media.plasmaBallShader;
-    trap_R_AddRefEntityToScene( &ent );
-    return;
+    case WP_PLASMAGUN:
+      ent.reType = RT_SPRITE;
+      ent.radius = 16;
+      ent.rotation = 0;
+      ent.customShader = cgs.media.plasmaBallShader;
+      trap_R_AddRefEntityToScene( &ent );
+      return;
+      break;
+
+    case WP_FLAMER:
+      ent.reType = RT_SPRITE;
+      ent.radius = ( ( cg.time - s1->pos.trTime ) * ( cg.time - s1->pos.trTime ) ) / 9000;
+      ent.rotation = 0;
+      ent.customShader = cgs.media.flameShader;
+      trap_R_AddRefEntityToScene( &ent );
+      return;
+      break;
+
+    case WP_SAWBLADE_LAUNCHER:
+      ent.hModel = weapon->missileModel;
+
+      // convert direction of travel into axis
+      AngleVectors( s1->angles, NULL, NULL, up );
+      if( VectorNormalize2( up, ent.axis[ 0 ] ) == 0 )
+        ent.axis[ 0 ][ 2 ] = 1;
+
+      // spin as it moves
+      RotateAroundDirection( ent.axis, cg.time );
+      break;
+      
+    default:
+      // flicker between two skins
+      ent.skinNum = cg.clientFrame & 1;
+      ent.hModel = weapon->missileModel;
+      ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
+
+      // convert direction of travel into axis
+      if ( VectorNormalize2( s1->pos.trDelta, ent.axis[ 0 ] ) == 0 )
+        ent.axis[ 0 ][ 2 ] = 1;
+
+      // spin as it moves
+      if( s1->pos.trType != TR_STATIONARY )
+        RotateAroundDirection( ent.axis, cg.time / 4 );
+      else
+        RotateAroundDirection( ent.axis, s1->time );
   }
-
-  if( cent->currentState.weapon == WP_FLAMER )
-  {
-    ent.reType = RT_SPRITE;
-    ent.radius = ( ( cg.time - s1->pos.trTime ) * ( cg.time - s1->pos.trTime ) ) / 9000;
-    ent.rotation = 0;
-    ent.customShader = cgs.media.flameShader;
-    trap_R_AddRefEntityToScene( &ent );
-    return;
-  }
-
-  // flicker between two skins
-  ent.skinNum = cg.clientFrame & 1;
-  ent.hModel = weapon->missileModel;
-  ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
-
-  // convert direction of travel into axis
-  if ( VectorNormalize2( s1->pos.trDelta, ent.axis[0] ) == 0 ) {
-    ent.axis[0][2] = 1;
-  }
-
-  // spin as it moves
-  if ( s1->pos.trType != TR_STATIONARY ) {
-    RotateAroundDirection( ent.axis, cg.time / 4 );
-  } else {
-    RotateAroundDirection( ent.axis, s1->time );
-  }
-
+  
   // add to refresh list, possibly with quad glow
   CG_AddRefEntityWithPowerups( &ent, s1->powerups, TEAM_FREE );
 }
