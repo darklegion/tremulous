@@ -1486,10 +1486,19 @@ static void PM_GroundClimbTrace( void )
         if( !VectorCompare( trace.plane.normal, refNormal ) && !VectorCompare( surfNormal, refNormal ) &&
             !VectorCompare( trace.plane.normal, ceilingNormal ) && !VectorCompare( surfNormal, ceilingNormal ) )
         {
+          int dAngle;
           vectoangles( trace.plane.normal, toAngles );
           vectoangles( surfNormal, surfAngles );
 
-          pm->ps->delta_angles[1] -= ANGLE2SHORT( surfAngles[1] - toAngles[1] );
+          //pm->ps->delta_angles[ YAW ] -= ANGLE2SHORT( surfAngles[ YAW ] - toAngles[ YAW ] );
+          dAngle = ANGLE2SHORT( RAD2DEG( arccos( DotProduct( trace.plane.normal, surfNormal ) ) ) );
+          if( dAngle < 0 )
+            dAngle = -dAngle;
+
+          pm->ps->delta_angles[ YAW ] += dAngle;
+          
+          Com_Printf( "%1.0f ", surfAngles[ YAW ] - toAngles[ YAW ] );
+          Com_Printf( "%1.0f\n", RAD2DEG( arccos( DotProduct( trace.plane.normal, surfNormal ) ) ) );
         }
 
         //transition from wall to ceiling
@@ -2501,8 +2510,8 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
 
     //-abs( rotAngle ).. sorta
     if( rotAngle > 0 )
-      rotAngle -= rotAngle*2;
-
+      rotAngle = -rotAngle;
+      
     //hmmm could get away with only one rotation and some clever stuff later... but i'm lazy
     RotatePointAroundVector( rotaxis[0], xNormal, axis[0], rotAngle );
     RotatePointAroundVector( rotaxis[1], xNormal, axis[1], rotAngle );
