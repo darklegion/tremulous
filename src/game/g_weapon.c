@@ -435,10 +435,22 @@ void painSawFire( gentity_t *ent )
   traceEnt = &g_entities[ tr.entityNum ];
 
   // send blood impact
-  if( traceEnt->takedamage && traceEnt->client )
+  if( traceEnt->takedamage )
   {
-    tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
-    tent->s.otherEntityNum = traceEnt->s.number;
+    vec3_t  temp;
+    
+    //hack to get the particle system to line up with the weapon
+    VectorCopy( tr.endpos, temp );
+    temp[ 2 ] -= 10.0f;
+    
+    if( traceEnt->client )
+    {
+      tent = G_TempEntity( temp, EV_MISSILE_HIT );
+      tent->s.otherEntityNum = traceEnt->s.number;
+    }
+    else
+      tent = G_TempEntity( temp, EV_MISSILE_MISS );
+      
     tent->s.eventParm = DirToByte( tr.plane.normal );
     tent->s.weapon = ent->s.weapon;
     tent->s.generic1 = ent->s.generic1; //weaponMode

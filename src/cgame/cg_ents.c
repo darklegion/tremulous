@@ -398,6 +398,10 @@ static void CG_Missile( centity_t *cent )
     ent.radius = wi->wim[ weaponMode ].missileSpriteSize;
     ent.rotation = 0;
     ent.customShader = wi->wim[ weaponMode ].missileSprite;
+    ent.shaderRGBA[ 0 ] = 0xFF;
+    ent.shaderRGBA[ 1 ] = 0xFF;
+    ent.shaderRGBA[ 2 ] = 0xFF;
+    ent.shaderRGBA[ 3 ] = 0xFF;
   }
   else
   {

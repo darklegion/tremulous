@@ -2767,7 +2767,7 @@ static void PM_Weapon( void )
   }
   
   // check for end of clip 
-  if( ( !ammo && clips ) || pm->ps->pm_flags & PMF_WEAPON_RELOAD )
+  if( ( !ammo || pm->ps->pm_flags & PMF_WEAPON_RELOAD ) && clips )
   {
     pm->ps->pm_flags &= ~PMF_WEAPON_RELOAD;
 

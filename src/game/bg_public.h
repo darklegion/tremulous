@@ -904,6 +904,7 @@ typedef struct
   float     friction;
   float     stopSpeed;
   float     jumpMagnitude;
+  float     knockbackScale;
 
   int       children[ 3 ];
   int       cost;
@@ -1131,6 +1132,7 @@ float     BG_FindAirAccelerationForClass( int pclass );
 float     BG_FindFrictionForClass( int pclass );
 float     BG_FindStopSpeedForClass( int pclass );
 float     BG_FindJumpMagnitudeForClass( int pclass );
+float     BG_FindKnockbackScaleForClass( int pclass );
 int       BG_FindSteptimeForClass( int pclass );
 qboolean  BG_ClassHasAbility( int pclass, int ability );
 weapon_t  BG_FindStartWeaponForClass( int pclass );
@@ -1254,3 +1256,4 @@ float VectorDistance( vec3_t v1, vec3_t v2 );
 
 float VectorMinComponent( vec3_t v );
 float VectorMaxComponent( vec3_t v );
+float round( float v );

@@ -466,7 +466,7 @@ void Cmd_Team_f( gentity_t *ent )
     if( g_teamForceBalance.integer && level.numAlienClients > level.numHumanClients )
     {
       //FIXME: pleasant dialog
-      trap_SendServerCommand( ent-g_entities, "The alien team has too many players\n" );
+      trap_SendServerCommand( ent-g_entities, "print \"The alien team has too many players\n\"" );
       return;
     }
     
@@ -477,7 +477,7 @@ void Cmd_Team_f( gentity_t *ent )
     if( g_teamForceBalance.integer && level.numHumanClients > level.numAlienClients )
     {
       //FIXME: pleasant dialog
-      trap_SendServerCommand( ent-g_entities, "The human team has too many players\n" );
+      trap_SendServerCommand( ent-g_entities, "print \"The human team has too many players\n\"" );
       return;
     }
     
@@ -1821,6 +1821,12 @@ void G_StopFollowing( gentity_t *ent )
   ent->client->sess.sessionTeam = TEAM_SPECTATOR; 
   ent->client->sess.spectatorState = SPECTATOR_FREE;
   ent->client->ps.pm_flags &= ~PMF_FOLLOW;
+
+  ent->client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
+  ent->client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
+  ent->client->ps.eFlags &= ~EF_WALLCLIMB;
+  ent->client->ps.viewangles[ PITCH ] = 0.0f;
+
   ent->r.svFlags &= ~SVF_BOT;
   ent->client->ps.clientNum = ent - g_entities;
 }

@@ -337,7 +337,7 @@ static particleEjector_t *CG_SpawnNewParticleEjector( baseParticleEjector_t *bpe
       pe->nextEjectionTime = cg.time +
         (int)CG_RandomiseValue( (float)bpe->eject.delay, bpe->eject.delayRandFrac );
       pe->count = pe->totalParticles =
-        (int)CG_RandomiseValue( (float)bpe->totalParticles, bpe->totalParticlesRandFrac );
+        (int)round( CG_RandomiseValue( (float)bpe->totalParticles, bpe->totalParticlesRandFrac ) );
 
       pe->valid = qtrue;
       
@@ -1744,7 +1744,10 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
   VectorMA( p->origin, deltaTime, p->velocity, newOrigin );
   p->lastEvalTime = cg.time;
   
-  CG_Trace( &trace, p->origin, mins, maxs, newOrigin, -1, CONTENTS_SOLID );
+  if( !ps->attachment.centValid )
+    CG_Trace( &trace, p->origin, mins, maxs, newOrigin, -1, CONTENTS_SOLID );
+  else
+    CG_Trace( &trace, p->origin, mins, maxs, newOrigin, ps->attachment.centNum, CONTENTS_SOLID );
   
   //not hit anything or not a collider
   if( trace.fraction == 1.0f || bounce == 0.0f )

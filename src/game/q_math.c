@@ -1465,3 +1465,16 @@ float VectorMinComponent( vec3_t v )
 
   return smallest;
 }
+
+/*
+===============
+round
+===============
+*/
+float round( float v )
+{
+  if( v >= 0.5f )
+    return ceil( v );
+  else
+    return floor( v );
+}

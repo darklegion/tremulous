@@ -52,7 +52,7 @@
 #define HYDRA_GRAB_TIME             1000
 #define HYDRA_PCLOUD_DMG            ADM(5)
 #define HYDRA_PCLOUD_RANGE          200.0f
-#define HYDRA_PCLOUD_REPEAT         1000
+#define HYDRA_PCLOUD_REPEAT         2000
 #define HYDRA_PCLOUD_TIME           10000
 
 #define CHIMERA_CLAW_DMG            ADM(50)
@@ -243,7 +243,7 @@
 #define HIVE_CREEPSIZE              120
 #define HIVE_RANGE                  400.0f
 #define HIVE_REPEAT                 10000
-#define HIVE_DMG                    30
+#define HIVE_DMG                    20
 #define HIVE_SPEED                  230.0f
 #define HIVE_DIR_CHANGE_PERIOD      500
 
@@ -263,7 +263,7 @@
 #define OVERMIND_BT                 30000
 #define OVERMIND_HEALTH             ABHM(1000)
 #define OVERMIND_REGEN              10
-#define OVERMIND_SPLASHDAMAGE       100
+#define OVERMIND_SPLASHDAMAGE       15
 #define OVERMIND_SPLASHRADIUS       300
 #define OVERMIND_CREEPSIZE          120
 #define OVERMIND_ATTACK_RANGE       150.0f
@@ -307,7 +307,7 @@
  * 
  */
 
-#define HUMAN_WDMG_MODIFIER         1.05f
+#define HUMAN_WDMG_MODIFIER         1.1f
 #define HDM(d)                      ((int)((float)d*HUMAN_WDMG_MODIFIER))
 
 #define BLASTER_REPEAT              600
@@ -361,12 +361,12 @@
 
 #define PRIFLE_PRICE                400
 #define PRIFLE_CLIPS                50
-#define PRIFLE_SPAWNCLIPS           3
-#define PRIFLE_MAXCLIPS             3
+#define PRIFLE_SPAWNCLIPS           2
+#define PRIFLE_MAXCLIPS             2
 #define PRIFLE_REPEAT               100
 #define PRIFLE_RELOAD               2000
 #define PRIFLE_DMG                  HDM(10)
-#define PRIFLE_SPEED                1500
+#define PRIFLE_SPEED                1000
 
 #define FLAMER_PRICE                450
 #define FLAMER_GAS                  80

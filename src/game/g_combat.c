@@ -216,6 +216,15 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     if( attacker == self || OnSameTeam( self, attacker ) )
     {
       AddScore( attacker, -1 );
+           
+      //punish team kills and suicides
+      if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+        attacker->client->ps.persistant[ PERS_CREDIT ]--;
+      else if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+        attacker->client->ps.persistant[ PERS_CREDIT ] -= ASPAWN_VALUE;
+
+      if( attacker->client->ps.persistant[ PERS_CREDIT ] < 0 )
+        attacker->client->ps.persistant[ PERS_CREDIT ] = 0;
     }
     else
     {
@@ -271,8 +280,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   {
     attacker->client->ps.persistant[ PERS_CREDIT ]++;
     
-    if( attacker->client->ps.persistant[ PERS_CREDIT ] > HUMAN_MAX_CREDITS )
-      attacker->client->ps.persistant[ PERS_CREDIT ] = HUMAN_MAX_CREDITS;
+    if( attacker->client->ps.persistant[ PERS_CREDIT ] > ALIEN_MAX_KILLS )
+      attacker->client->ps.persistant[ PERS_CREDIT ] = ALIEN_MAX_KILLS;
   }
       
   // Add team bonuses
@@ -870,6 +879,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     VectorNormalize( dir );
 
   knockback = damage;
+
+  if( targ->client )
+  {
+    knockback = (int)( (float)knockback *
+      BG_FindKnockbackScaleForClass( targ->client->ps.stats[ STAT_PCLASS ] ) );
+  }
+  
   if( knockback > 200 )
     knockback = 200;
     

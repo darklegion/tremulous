@@ -2225,7 +2225,10 @@ void CG_Player( centity_t *cent )
   //
   // add the gun / barrel / flash
   //
-  CG_AddPlayerWeapon( &torso, NULL, cent );
+  if( !ci->nonsegmented )
+    CG_AddPlayerWeapon( &torso, NULL, cent );
+  else
+    CG_AddPlayerWeapon( &legs, NULL, cent );
 
   CG_PlayerUpgrades( cent, &torso );
 
