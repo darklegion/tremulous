@@ -1220,7 +1220,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 20 },                                 //vec3_t  crouchmaxs;
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
-    12, 12,                                         //int     viewheight, crouchviewheight;
+    20, 20,                                         //int     viewheight, crouchviewheight;
     ABUILDER_HEALTH,                                //int     health;
     ABUILDER_REGEN,                                 //int     regenRate;
     SCA_TAKESFALLDAMAGE|SCA_FOVWARPS|
@@ -1250,7 +1250,7 @@ classAttributes_t bg_classList[ ] =
     { 20, 20, 20 },                                 //vec3_t  crouchmaxs;
     { -20, -20, -4 },                               //vec3_t  deadmins;
     { 20, 20, 4 },                                  //vec3_t  deadmaxs;
-    0, 0,                                           //int     viewheight, crouchviewheight;
+    20, 20,                                         //int     viewheight, crouchviewheight;
     ABUILDER_UPG_HEALTH,                            //int     health;
     ABUILDER_UPG_REGEN,                             //int     regenRate;
     SCA_CANJUMP|SCA_FOVWARPS|SCA_WALLCLIMBER|
@@ -1310,14 +1310,14 @@ classAttributes_t bg_classList[ ] =
     { 24, 24, 9 },                                  //vec3_t  crouchmaxs;
     { -24, -24, -4 },                               //vec3_t  deadmins;
     { 24, 24, 4 },                                  //vec3_t  deadmaxs;
-    6, 6,                                           //int     viewheight, crouchviewheight;
+    18, 18,                                         //int     viewheight, crouchviewheight;
     DRAGOON_HEALTH,                                 //int     health;
     DRAGOON_REGEN,                                  //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
     WP_POUNCE,                                      //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
-    120,                                            //int     fov;
+    110,                                            //int     fov;
     0.0005f,                                        //float   bob;
     25,                                             //int     steptime;
     DRAGOON_SPEED,                                  //float   speed;
@@ -1340,14 +1340,14 @@ classAttributes_t bg_classList[ ] =
     { 24, 24, 11 },                                 //vec3_t  crouchmaxs;
     { -24, -24, -4 },                               //vec3_t  deadmins;
     { 24, 24, 4 },                                  //vec3_t  deadmaxs;
-    6, 6,                                           //int     viewheight, crouchviewheight;
+    20, 20,                                         //int     viewheight, crouchviewheight;
     DRAGOON_UPG_HEALTH,                             //int     health;
     DRAGOON_UPG_REGEN,                              //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
     WP_POUNCE_UPG,                                  //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
-    120,                                            //int     fov;
+    110,                                            //int     fov;
     0.0005f,                                        //float   bob;
     25,                                             //int     steptime;
     DRAGOON_UPG_SPEED,                              //float   speed;
@@ -1361,16 +1361,16 @@ classAttributes_t bg_classList[ ] =
     "hydra",                                        //char    *classname;
     "Hydra",                                        //char    *humanname;
     "spitter",                                      //char    *modelname;
-    0.4f,                                           //float   modelScale;
+    0.6f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -24, -24, -12 },                              //vec3_t  mins;
-    { 24, 24, 12 },                                 //vec3_t  maxs;
-    { 24, 24, 12 },                                 //vec3_t  crouchmaxs;
-    { -24, -24, -4 },                               //vec3_t  deadmins;
-    { 24, 24, 4 },                                  //vec3_t  deadmaxs;
-    6, 6,                                           //int     viewheight, crouchviewheight;
+    { -18, -18, -18 },                              //vec3_t  mins;
+    { 18, 18, 18 },                                 //vec3_t  maxs;
+    { 18, 18, 18 },                                 //vec3_t  crouchmaxs;
+    { -18, -18, -4 },                               //vec3_t  deadmins;
+    { 18, 18, 4 },                                  //vec3_t  deadmaxs;
+    18, 18,                                         //int     viewheight, crouchviewheight;
     HYDRA_HEALTH,                                   //int     health;
     HYDRA_REGEN,                                    //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
@@ -1378,7 +1378,7 @@ classAttributes_t bg_classList[ ] =
       SCA_NOFOOTSTEPS,                              //int     abilities;
     WP_GRAB_CLAW,                                   //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
-    120,                                            //int     fov;
+    100,                                            //int     fov;
     0.001f,                                         //float   bob;
     25,                                             //int     steptime;
     HYDRA_SPEED,                                    //float   speed;
@@ -1392,16 +1392,16 @@ classAttributes_t bg_classList[ ] =
     "hydraupg",                                     //char    *classname;
     "Hydra Upgrade",                                //char    *humanname;
     "spitter",                                      //char    *modelname;
-    0.5f,                                           //float   modelScale;
+    0.7f,                                           //float   modelScale;
     "blue",                                         //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -24, -24, -14 },                              //vec3_t  mins;
-    { 24, 24, 14 },                                 //vec3_t  maxs;
-    { 24, 24, 14 },                                 //vec3_t  crouchmaxs;
-    { -24, -24, -4 },                               //vec3_t  deadmins;
-    { 24, 24, 4 },                                  //vec3_t  deadmaxs;
-    6, 6,                                           //int     viewheight, crouchviewheight;
+    { -20, -20, -20 },                              //vec3_t  mins;
+    { 20, 20, 20 },                                 //vec3_t  maxs;
+    { 20, 20, 20 },                                 //vec3_t  crouchmaxs;
+    { -20, -20, -4 },                               //vec3_t  deadmins;
+    { 20, 20, 4 },                                  //vec3_t  deadmaxs;
+    20, 20,                                         //int     viewheight, crouchviewheight;
     HYDRA_UPG_HEALTH,                               //int     health;
     HYDRA_UPG_REGEN,                                //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS|
@@ -1409,7 +1409,7 @@ classAttributes_t bg_classList[ ] =
       SCA_NOFOOTSTEPS,                              //int     abilities;
     WP_GRAB_CLAW_UPG,                               //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
-    120,                                            //int     fov;
+    100,                                            //int     fov;
     0.001f,                                         //float   bob;
     25,                                             //int     steptime;
     HYDRA_UPG_SPEED,                                //float   speed;
@@ -1423,23 +1423,23 @@ classAttributes_t bg_classList[ ] =
     "chimera",                                      //char    *classname;
     "Chimera",                                      //char    *humanname;
     "tarantula",                                    //char    *modelname;
-    0.5f,                                           //float   modelScale;
+    0.75f,                                          //float   modelScale;
     "default",                                      //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -15, -15, -15 },                              //vec3_t  mins;
-    { 15, 15, 15 },                                 //vec3_t  maxs;
-    { 15, 15, 15 },                                 //vec3_t  crouchmaxs;
-    { -15, -15, -4 },                               //vec3_t  deadmins;
-    { 15, 15, 4 },                                  //vec3_t  deadmaxs;
-    4, 4,                                           //int     viewheight, crouchviewheight;
+    { -22, -22, -22 },                              //vec3_t  mins;
+    { 22, 22, 22 },                                 //vec3_t  maxs;
+    { 22, 22, 22 },                                 //vec3_t  crouchmaxs;
+    { -22, -22, -4 },                               //vec3_t  deadmins;
+    { 22, 22, 4 },                                  //vec3_t  deadmaxs;
+    30, 30,                                         //int     viewheight, crouchviewheight;
     CHIMERA_HEALTH,                                 //int     health;
     CHIMERA_REGEN,                                  //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
     WP_AREA_ZAP,                                    //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
-    130,                                            //int     fov;
+    90,                                             //int     fov;
     0.0f,                                           //float   bob;
     60,                                             //int     steptime;
     CHIMERA_SPEED,                                  //float   speed;
@@ -1453,23 +1453,23 @@ classAttributes_t bg_classList[ ] =
     "chimeraupg",                                   //char    *classname;
     "Chimera Upgrade",                              //char    *humanname;
     "tarantula",                                    //char    *modelname;
-    0.6f,                                           //float   modelScale;
+    0.9f,                                           //float   modelScale;
     "red",                                          //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -15, -15, -16 },                              //vec3_t  mins;
-    { 15, 15, 16 },                                 //vec3_t  maxs;
-    { 15, 15, 16 },                                 //vec3_t  crouchmaxs;
-    { -15, -15, -4 },                               //vec3_t  deadmins;
-    { 15, 15, 4 },                                  //vec3_t  deadmaxs;
-    4, 4,                                           //int     viewheight, crouchviewheight;
+    { -24, -24, -24 },                              //vec3_t  mins;
+    { 24, 24, 24 },                                 //vec3_t  maxs;
+    { 24, 24, 24 },                                 //vec3_t  crouchmaxs;
+    { -24, -24, -4 },                               //vec3_t  deadmins;
+    { 24, 24, 4 },                                  //vec3_t  deadmaxs;
+    32, 32,                                         //int     viewheight, crouchviewheight;
     CHIMERA_UPG_HEALTH,                             //int     health;
     CHIMERA_UPG_REGEN,                              //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
     WP_DIRECT_ZAP,                                  //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
-    130,                                            //int     fov;
+    90,                                             //int     fov;
     0.0f,                                           //float   bob;
     60,                                             //int     steptime;
     CHIMERA_UPG_SPEED,                              //float   speed;
@@ -1483,23 +1483,23 @@ classAttributes_t bg_classList[ ] =
     "bigmofo",                                      //char    *classname;
     "Big Mofo",                                     //char    *humanname;
     "bug",                                          //char    *modelname;
-    1.5f,                                           //float   modelScale;
+    1.2f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -30, -30, -36 },                              //vec3_t  mins;
-    { 30, 30, 36 },                                 //vec3_t  maxs;
-    { 30, 30, 36 },                                 //vec3_t  crouchmaxs;
+    { -30, -30, -29 },                              //vec3_t  mins;
+    { 30, 30, 29 },                                 //vec3_t  maxs;
+    { 30, 30, 29 },                                 //vec3_t  crouchmaxs;
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
-    4, 4,                                           //int     viewheight, crouchviewheight;
+    50, 50,                                         //int     viewheight, crouchviewheight;
     BMOFO_HEALTH,                                   //int     health;
     BMOFO_REGEN,                                    //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
     WP_GROUND_POUND,                                //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
-    130,                                            //int     fov;
+    90,                                             //int     fov;
     0.0f,                                           //float   bob;
     60,                                             //int     steptime;
     BMOFO_SPEED,                                    //float   speed;

@@ -1031,7 +1031,11 @@ void Cmd_Class_f( gentity_t *ent )
             ent->client->infestBody = victim;
 
             VectorCopy( victim->s.pos.trBase, infestOrigin );
-            infestOrigin[ 2 ] += 128;
+            infestOrigin[ 2 ] += 128.0f;
+            trap_Trace( &tr, victim->s.pos.trBase, ent->r.mins, ent->r.maxs,
+                        infestOrigin, ent->s.number, MASK_SHOT );
+            VectorCopy( tr.endpos, infestOrigin );
+            infestOrigin[ 2 ] -= 16.0f;
 
             VectorCopy( victim->s.angles, infestAngles );
 

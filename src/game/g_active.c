@@ -1153,7 +1153,7 @@ void ClientThink_real( gentity_t *ent )
   }
   
   // check for respawning
-  if( client->ps.stats[STAT_HEALTH] <= 0 )
+  if( client->ps.stats[ STAT_HEALTH ] <= 0 )
   {
     // wait for the attack button to be pressed
     if( level.time > client->respawnTime )

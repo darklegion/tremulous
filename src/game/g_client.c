@@ -1231,10 +1231,12 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   int                 teamLocal;
   int                 eventSequence;
   char                userinfo[MAX_INFO_STRING];
-  vec3_t              bodyMaxs, classMins, up = { 0, 0, 1 };
+  vec3_t              classMins, classMaxs, up = { 0, 0, 1 };
   int                 ammo, clips, maxClips;
   weapon_t            weapon;
   float               hModifier;
+  trace_t             tr;
+  vec3_t              avgNormal, nudgeOrigin;
       
 
   index = ent - g_entities;
@@ -1275,10 +1277,47 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
       VectorCopy( spawn->s.pos.trBase, spawn_origin );
       VectorCopy( spawn->s.angles, spawn_angles );
       
-      BG_FindBBoxForClass( spawn->s.clientNum, NULL, NULL, NULL, NULL, bodyMaxs );
-      BG_FindBBoxForClass( ent->client->pers.pclass, classMins, NULL, NULL, NULL, NULL );
+      BG_FindBBoxForClass( ent->client->pers.pclass, classMins, classMaxs, NULL, NULL, NULL );
 
-      spawn_origin[ 2 ] += bodyMaxs[ 2 ] + fabs( classMins[ 2 ] ) + 1;
+      spawn_origin[ 2 ] += fabs( classMins[ 2 ] ) + 1;
+
+      trap_Trace( &tr, spawn_origin, classMins, classMaxs, spawn_origin, ent->s.number, MASK_SHOT );
+      
+#define MAX_NUDGES  20
+#define NUDGE_SIZE  10.f
+
+      VectorClear( avgNormal );
+      VectorCopy( spawn_origin, nudgeOrigin );
+      
+      //if the spawn is blocked nudge it away from whatever is blocking it
+      for( i = 0; i < MAX_NUDGES && tr.fraction < 1.0f; i++ )
+      {
+        VectorMA( nudgeOrigin, NUDGE_SIZE, tr.plane.normal, nudgeOrigin );
+        VectorAdd( avgNormal, tr.plane.normal, avgNormal );
+        
+        trap_Trace( &tr, nudgeOrigin, classMins, classMaxs, nudgeOrigin, ent->s.number, MASK_SHOT );
+      }
+
+      if( i = MAX_NUDGES )
+      {
+        VectorNormalize( avgNormal );
+        VectorCopy( spawn_origin, nudgeOrigin );
+
+        for( i = 0; i < MAX_NUDGES && tr.fraction < 1.0f; i++ )
+        {
+          VectorMA( nudgeOrigin, NUDGE_SIZE, avgNormal, nudgeOrigin );
+          
+          trap_Trace( &tr, nudgeOrigin, classMins, classMaxs, nudgeOrigin, ent->s.number, MASK_SHOT );
+        }
+
+        if( i != MAX_NUDGES )
+          VectorCopy( nudgeOrigin, spawn_origin );
+        //else
+        //use original position and hope PM sorts it out
+      }
+      else
+        VectorCopy( nudgeOrigin, spawn_origin );
+      
       G_AddEvent( spawn, EV_GIB_ALIEN, DirToByte( up ) );
       spawn->freeAfterEvent = qtrue;
       

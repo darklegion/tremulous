@@ -27,7 +27,7 @@
 
 #define ABUILDER_BUILD_REPEAT       500
 #define ABUILDER_CLAW_DMG           ADM(25)
-#define ABUILDER_CLAW_RANGE         32.0f
+#define ABUILDER_CLAW_RANGE         48.0f
 #define ABUILDER_CLAW_REPEAT        1000
 #define ABUILDER_BASE_DELAY         9000
 #define ABUILDER_ADV_DELAY          4000
@@ -37,7 +37,7 @@
 #define SOLDIER_BITE_REPEAT         500
 
 #define DRAGOON_CLAW_DMG            ADM(75)
-#define DRAGOON_CLAW_RANGE          32.0f
+#define DRAGOON_CLAW_RANGE          48.0f
 #define DRAGOON_CLAW_REPEAT         750
 #define DRAGOON_CLAW_U_REPEAT       750
 #define DRAGOON_POUNCE_DMG          ADM(100)
@@ -52,10 +52,10 @@
 #define DRAGOON_SLOWBLOB_TIME       5000
 
 #define HYDRA_CLAW_DMG              ADM(50)
-#define HYDRA_CLAW_RANGE            32.0f
+#define HYDRA_CLAW_RANGE            96.0f
 #define HYDRA_CLAW_REPEAT           500
 #define HYDRA_CLAW_U_REPEAT         500
-#define HYDRA_GRAB_RANGE            32.0f
+#define HYDRA_GRAB_RANGE            64.0f
 #define HYDRA_GRAB_TIME             1000
 #define HYDRA_PCLOUD_DMG            ADM(5)
 #define HYDRA_PCLOUD_RANGE          200.0f
@@ -63,7 +63,7 @@
 #define HYDRA_PCLOUD_TIME           10000
 
 #define CHIMERA_CLAW_DMG            ADM(75)
-#define CHIMERA_CLAW_RANGE          32.0f
+#define CHIMERA_CLAW_RANGE          96.0f
 #define CHIMERA_CLAW_REPEAT         400
 #define CHIMERA_CLAW_U_REPEAT       300
 #define CHIMERA_AREAZAP_DMG         ADM(125)
@@ -74,7 +74,7 @@
 #define CHIMERA_DIRECTZAP_REPEAT    1500
 
 #define BMOFO_CLAW_DMG              ADM(150)
-#define BMOFO_CLAW_RANGE            64.0f
+#define BMOFO_CLAW_RANGE            128.0f
 #define BMOFO_CLAW_REPEAT           750
 #define BMOFO_KNOCK_RANGE           200.0f
 #define BMOFO_KNOCK_REPEAT          15000
