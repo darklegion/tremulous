@@ -1279,7 +1279,7 @@ classAttributes_t bg_classList[ ] =
 {
   { 
     PCL_A_B_BASE,                                   //int     classnum;
-    "Builder",                                      //char    *className;
+    "builder",                                      //char    *className;
     "Builder",                                      //char    *humanName;
     "lucy",                                         //char    *modelname;
     1.0f,                                           //float   modelScale;
@@ -1308,7 +1308,7 @@ classAttributes_t bg_classList[ ] =
   },
   { 
     PCL_A_B_LEV1,                                   //int     classnum;
-    "BuilderLevel1",                                //char    *classname;
+    "builderupg",                                   //char    *classname;
     "Advanced Builder",                             //char    *humanname;
     "lucy",                                         //char    *modelname;
     1.0f,                                           //float   modelScale;
@@ -1336,265 +1336,268 @@ classAttributes_t bg_classList[ ] =
     100                                             //int     value;
   },
   {
-    PCL_A_O_BASE,                                               //int     classnum;
-    "Offensive",                                                //char    *classname;
-    "Offensive",                                                //char    *humanname;
-    "klesk",                                                    //char    *modelname;
-    0.5f,                                                       //float   modelScale;
-    "default",                                                  //char    *skinname;
-    "alien_hud",                                                //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),                        //int  stages
-    { -15, -15, -15 },                                          //vec3_t  mins;
-    { 15, 15, 15 },                                             //vec3_t  maxs;
-    { 15, 15, 15 },                                             //vec3_t  crouchmaxs;
-    { -15, -15, -4 },                                           //vec3_t  deadmins;
-    { 15, 15, 4 },                                              //vec3_t  deadmaxs;
-    0, 0,                                                       //int     viewheight, crouchviewheight;
-    25,                                                         //int     health;
-    5,                                                          //int     regenRate;
-    SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS|SCA_ALIENSENSE, //int     abilities;
-    WP_VENOM,                                                   //weapon_t  startWeapon
-    0.0f,                                                       //float   buildDist;
-    140,                                                        //int     fov;
-    0.0f,                                                       //float   bob;
-    25,                                                         //int     steptime;
-    1.5f,                                                       //float   speed;
-    5.0f,                                                       //float   sticky;
-    { PCL_A_O_LEV1, PCL_NONE, PCL_NONE },                       //int     children[ 3 ];
-    3000,                                                       //int     timetoevolve;
-    100                                                         //int     value;
+    PCL_A_O_BASE,                                   //int     classnum;
+    "soldier",                                      //char    *classname;
+    "Soldier",                                      //char    *humanname;
+    "klesk",                                        //char    *modelname;
+    0.5f,                                           //float   modelScale;
+    "default",                                      //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    { -15, -15, -15 },                              //vec3_t  mins;
+    { 15, 15, 15 },                                 //vec3_t  maxs;
+    { 15, 15, 15 },                                 //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                               //vec3_t  deadmins;
+    { 15, 15, 4 },                                  //vec3_t  deadmaxs;
+    0, 0,                                           //int     viewheight, crouchviewheight;
+    25,                                             //int     health;
+    5,                                              //int     regenRate;
+    SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|
+      SCA_FOVWARPS|SCA_ALIENSENSE,                  //int     abilities;
+    WP_VENOM,                                       //weapon_t  startWeapon
+    0.0f,                                           //float   buildDist;
+    140,                                            //int     fov;
+    0.0f,                                           //float   bob;
+    25,                                             //int     steptime;
+    1.5f,                                           //float   speed;
+    5.0f,                                           //float   sticky;
+    { PCL_A_O_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    3000,                                           //int     timetoevolve;
+    100                                             //int     value;
   },
   {
-    PCL_A_O_LEV1,                                 //int     classnum;
-    "OffensiveLevel1",                            //char    *classname;
-    "Offensive Level 1",                          //char    *humanname;
-    "anarki",                                     //char    *modelname;
-    1.0f,                                         //float   modelScale;
-    "default",                                    //char    *skinname;
-    "alien_hud",                                  //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),          //int  stages
-    { -24, -24, -24 },                            //vec3_t  mins;
-    { 24, 24, 24 },                               //vec3_t  maxs;
-    { 24, 24, 24 },                               //vec3_t  crouchmaxs;
-    { -24, -24, -4 },                             //vec3_t  deadmins;
-    { 24, 24, 4 },                                //vec3_t  deadmaxs;
-    6, 6,                                         //int     viewheight, crouchviewheight;
-    50,                                           //int     health;
-    5,                                            //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
-    WP_GRAB_CLAW,                                 //weapon_t  startWeapon
-    0.0f,                                         //float   buildDist;
-    120,                                          //int     fov;
-    0.001f,                                       //float   bob;
-    25,                                           //int     steptime;
-    1.5f,                                         //float   speed;
-    4.0f,                                         //float   sticky;
-    { PCL_A_O_LEV2, PCL_A_O_LEV1_UPG, PCL_NONE }, //int     children[ 3 ];
-    3000,                                         //int     timetoevolve;
-    100                                           //int     value;
+    PCL_A_O_LEV1,                                   //int     classnum;
+    "dragoon",                                      //char    *classname;
+    "Dragoon",                                      //char    *humanname;
+    "bones",                                        //char    *modelname;
+    1.0f,                                           //float   modelScale;
+    "default",                                      //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    { -24, -24, -24 },                              //vec3_t  mins;
+    { 24, 24, 24 },                                 //vec3_t  maxs;
+    { 24, 24, 24 },                                 //vec3_t  crouchmaxs;
+    { -24, -24, -4 },                               //vec3_t  deadmins;
+    { 24, 24, 4 },                                  //vec3_t  deadmaxs;
+    6, 6,                                           //int     viewheight, crouchviewheight;
+    50,                                             //int     health;
+    5,                                              //int     regenRate;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,     //int     abilities;
+    WP_POUNCE,                                      //weapon_t  startWeapon
+    0.0f,                                           //float   buildDist;
+    120,                                            //int     fov;
+    0.0005f,                                        //float   bob;
+    25,                                             //int     steptime;
+    1.5f,                                           //float   speed;
+    3.0f,                                           //float   sticky;
+    { PCL_A_O_LEV2, PCL_A_O_LEV1_UPG, PCL_NONE },   //int     children[ 3 ];
+    3000,                                           //int     timetoevolve;
+    100                                             //int     value;
   },
   {
-    PCL_A_O_LEV1_UPG,                             //int     classnum;
-    "OffensiveLevel1-Upgrade",                    //char    *classname;
-    "Offensive Level 1 Upgrade",                  //char    *humanname;
-    "anarki",                                     //char    *modelname;
-    1.0f,                                         //float   modelScale;
-    "default",                                    //char    *skinname;
-    "alien_hud",                                  //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),          //int  stages
-    { -24, -24, -24 },                            //vec3_t  mins;
-    { 24, 24, 24 },                               //vec3_t  maxs;
-    { 24, 24, 24 },                               //vec3_t  crouchmaxs;
-    { -24, -24, -4 },                             //vec3_t  deadmins;
-    { 24, 24, 4 },                                //vec3_t  deadmaxs;
-    6, 6,                                         //int     viewheight, crouchviewheight;
-    50,                                           //int     health;
-    5,                                            //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
-    WP_GRAB_CLAW_UPG,                                 //weapon_t  startWeapon
-    0.0f,                                         //float   buildDist;
-    120,                                          //int     fov;
-    0.001f,                                       //float   bob;
-    25,                                           //int     steptime;
-    1.5f,                                         //float   speed;
-    4.0f,                                         //float   sticky;
-    { PCL_A_O_LEV2, PCL_NONE, PCL_NONE },         //int     children[ 3 ];
-    3000,                                         //int     timetoevolve;
-    100                                           //int     value;
+    PCL_A_O_LEV1_UPG,                               //int     classnum;
+    "dragoonupg",                                  //char    *classname;
+    "Dragoon Upgrade",                             //char    *humanname;
+    "bones",                                        //char    *modelname;
+    1.0f,                                           //float   modelScale;
+    "default",                                      //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    { -24, -24, -24 },                              //vec3_t  mins;
+    { 24, 24, 24 },                                 //vec3_t  maxs;
+    { 24, 24, 24 },                                 //vec3_t  crouchmaxs;
+    { -24, -24, -4 },                               //vec3_t  deadmins;
+    { 24, 24, 4 },                                  //vec3_t  deadmaxs;
+    6, 6,                                           //int     viewheight, crouchviewheight;
+    50,                                             //int     health;
+    5,                                              //int     regenRate;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,     //int     abilities;
+    WP_POUNCE_UPG,                                  //weapon_t  startWeapon
+    0.0f,                                           //float   buildDist;
+    120,                                            //int     fov;
+    0.0005f,                                        //float   bob;
+    25,                                             //int     steptime;
+    1.5f,                                           //float   speed;
+    3.0f,                                           //float   sticky;
+    { PCL_A_O_LEV2, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    3000,                                           //int     timetoevolve;
+    100                                             //int     value;
   },
   {
-    PCL_A_O_LEV2,                                 //int     classnum;
-    "OffensiveLevel2",                            //char    *classname;
-    "Offensive Level 2",                          //char    *humanname;
-    "bones",                                      //char    *modelname;
-    1.0f,                                         //float   modelScale;
-    "default",                                    //char    *skinname;
-    "alien_hud",                                  //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),          //int  stages
-    { -24, -24, -24 },                            //vec3_t  mins;
-    { 24, 24, 24 },                               //vec3_t  maxs;
-    { 24, 24, 24 },                               //vec3_t  crouchmaxs;
-    { -24, -24, -4 },                             //vec3_t  deadmins;
-    { 24, 24, 4 },                                //vec3_t  deadmaxs;
-    6, 6,                                         //int     viewheight, crouchviewheight;
-    50,                                           //int     health;
-    5,                                            //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
-    WP_POUNCE,                                    //weapon_t  startWeapon
-    0.0f,                                         //float   buildDist;
-    120,                                          //int     fov;
-    0.0005f,                                      //float   bob;
-    25,                                           //int     steptime;
-    1.5f,                                         //float   speed;
-    3.0f,                                         //float   sticky;
-    { PCL_A_O_LEV3, PCL_A_O_LEV2_UPG, PCL_NONE }, //int     children[ 3 ];
-    3000,                                         //int     timetoevolve;
-    100                                           //int     value;
+    PCL_A_O_LEV2,                                   //int     classnum;
+    "hydra",                                        //char    *classname;
+    "Hydra",                                        //char    *humanname;
+    "anarki",                                       //char    *modelname;
+    1.0f,                                           //float   modelScale;
+    "default",                                      //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    { -24, -24, -24 },                              //vec3_t  mins;
+    { 24, 24, 24 },                                 //vec3_t  maxs;
+    { 24, 24, 24 },                                 //vec3_t  crouchmaxs;
+    { -24, -24, -4 },                               //vec3_t  deadmins;
+    { 24, 24, 4 },                                  //vec3_t  deadmaxs;
+    6, 6,                                           //int     viewheight, crouchviewheight;
+    50,                                             //int     health;
+    5,                                              //int     regenRate;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
+      SCA_FOVWARPS|SCA_WALLCLIMBER,                 //int     abilities;
+    WP_GRAB_CLAW,                                   //weapon_t  startWeapon
+    0.0f,                                           //float   buildDist;
+    120,                                            //int     fov;
+    0.001f,                                         //float   bob;
+    25,                                             //int     steptime;
+    1.5f,                                           //float   speed;
+    4.0f,                                           //float   sticky;
+    { PCL_A_O_LEV3, PCL_A_O_LEV2_UPG, PCL_NONE },   //int     children[ 3 ];
+    3000,                                           //int     timetoevolve;
+    100                                             //int     value;
   },
   {
-    PCL_A_O_LEV2_UPG,                             //int     classnum;
-    "OffensiveLevel2-Upgrade",                    //char    *classname;
-    "Offensive Level 2 Upgrade",                  //char    *humanname;
-    "bones",                                      //char    *modelname;
-    1.0f,                                         //float   modelScale;
-    "default",                                    //char    *skinname;
-    "alien_hud",                                  //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),          //int  stages
-    { -24, -24, -24 },                            //vec3_t  mins;
-    { 24, 24, 24 },                               //vec3_t  maxs;
-    { 24, 24, 24 },                               //vec3_t  crouchmaxs;
-    { -24, -24, -4 },                             //vec3_t  deadmins;
-    { 24, 24, 4 },                                //vec3_t  deadmaxs;
-    6, 6,                                         //int     viewheight, crouchviewheight;
-    50,                                           //int     health;
-    5,                                            //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
-    WP_POUNCE_UPG,                                //weapon_t  startWeapon
-    0.0f,                                         //float   buildDist;
-    120,                                          //int     fov;
-    0.0005f,                                      //float   bob;
-    25,                                           //int     steptime;
-    1.5f,                                         //float   speed;
-    3.0f,                                         //float   sticky;
-    { PCL_A_O_LEV3, PCL_NONE, PCL_NONE },         //int     children[ 3 ];
-    3000,                                         //int     timetoevolve;
-    100                                           //int     value;
+    PCL_A_O_LEV2_UPG,                               //int     classnum;
+    "hydraupg",                                     //char    *classname;
+    "Hydra Upgrade",                                //char    *humanname;
+    "anarki",                                       //char    *modelname;
+    1.0f,                                           //float   modelScale;
+    "default",                                      //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    { -24, -24, -24 },                              //vec3_t  mins;
+    { 24, 24, 24 },                                 //vec3_t  maxs;
+    { 24, 24, 24 },                                 //vec3_t  crouchmaxs;
+    { -24, -24, -4 },                               //vec3_t  deadmins;
+    { 24, 24, 4 },                                  //vec3_t  deadmaxs;
+    6, 6,                                           //int     viewheight, crouchviewheight;
+    50,                                             //int     health;
+    5,                                              //int     regenRate;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
+      SCA_FOVWARPS|SCA_WALLCLIMBER,                 //int     abilities;
+    WP_GRAB_CLAW_UPG,                               //weapon_t  startWeapon
+    0.0f,                                           //float   buildDist;
+    120,                                            //int     fov;
+    0.001f,                                         //float   bob;
+    25,                                             //int     steptime;
+    1.5f,                                           //float   speed;
+    4.0f,                                           //float   sticky;
+    { PCL_A_O_LEV3, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    3000,                                           //int     timetoevolve;
+    100                                             //int     value;
   },
   {
-    PCL_A_O_LEV3,                                 //int     classnum;
-    "OffensiveLevel3",                            //char    *classname;
-    "Offensive Level 3",                          //char    *humanname;
-    "orbb",                                       //char    *modelname;
-    1.0f,                                         //float   modelScale;
-    "default",                                    //char    *skinname;
-    "alien_hud",                                  //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),          //int  stages
-    { -15, -15, -15 },                            //vec3_t  mins;
-    { 15, 15, 15 },                               //vec3_t  maxs;
-    { 15, 15, 15 },                               //vec3_t  crouchmaxs;
-    { -15, -15, -4 },                             //vec3_t  deadmins;
-    { 15, 15, 4 },                                //vec3_t  deadmaxs;
-    4, 4,                                         //int     viewheight, crouchviewheight;
-    100,                                          //int     health;
-    5,                                            //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
-    WP_AREA_ZAP,                                  //weapon_t  startWeapon
-    0.0f,                                         //float   buildDist;
-    130,                                          //int     fov;
-    0.0f,                                         //float   bob;
-    60,                                           //int     steptime;
-    1.3f,                                         //float   speed;
-    5.0f,                                         //float   sticky;
-    { PCL_A_O_LEV4, PCL_A_O_LEV3_UPG, PCL_NONE }, //int     children[ 3 ];
-    3000,                                         //int     timetoevolve;
-    100                                           //int     value;
+    PCL_A_O_LEV3,                                   //int     classnum;
+    "chimera",                                      //char    *classname;
+    "Chimera",                                      //char    *humanname;
+    "orbb",                                         //char    *modelname;
+    1.0f,                                           //float   modelScale;
+    "default",                                      //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    { -15, -15, -15 },                              //vec3_t  mins;
+    { 15, 15, 15 },                                 //vec3_t  maxs;
+    { 15, 15, 15 },                                 //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                               //vec3_t  deadmins;
+    { 15, 15, 4 },                                  //vec3_t  deadmaxs;
+    4, 4,                                           //int     viewheight, crouchviewheight;
+    100,                                            //int     health;
+    5,                                              //int     regenRate;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,     //int     abilities;
+    WP_AREA_ZAP,                                    //weapon_t  startWeapon
+    0.0f,                                           //float   buildDist;
+    130,                                            //int     fov;
+    0.0f,                                           //float   bob;
+    60,                                             //int     steptime;
+    1.3f,                                           //float   speed;
+    5.0f,                                           //float   sticky;
+    { PCL_A_O_LEV4, PCL_A_O_LEV3_UPG, PCL_NONE },   //int     children[ 3 ];
+    3000,                                           //int     timetoevolve;
+    100                                             //int     value;
   },
   {
-    PCL_A_O_LEV3_UPG,                             //int     classnum;
-    "OffensiveLevel3-Upgrade",                    //char    *classname;
-    "Offensive Level 3 Upgrade",                  //char    *humanname;
-    "orbb",                                       //char    *modelname;
-    1.0f,                                         //float   modelScale;
-    "default",                                    //char    *skinname;
-    "alien_hud",                                  //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),          //int  stages
-    { -15, -15, -15 },                            //vec3_t  mins;
-    { 15, 15, 15 },                               //vec3_t  maxs;
-    { 15, 15, 15 },                               //vec3_t  crouchmaxs;
-    { -15, -15, -4 },                             //vec3_t  deadmins;
-    { 15, 15, 4 },                                //vec3_t  deadmaxs;
-    4, 4,                                         //int     viewheight, crouchviewheight;
-    100,                                          //int     health;
-    5,                                            //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
-    WP_DIRECT_ZAP,                                //weapon_t  startWeapon
-    0.0f,                                         //float   buildDist;
-    130,                                          //int     fov;
-    0.0f,                                         //float   bob;
-    60,                                           //int     steptime;
-    1.3f,                                         //float   speed;
-    5.0f,                                         //float   sticky;
-    { PCL_A_O_LEV4, PCL_NONE, PCL_NONE },         //int     children[ 3 ];
-    3000,                                         //int     timetoevolve;
-    100                                           //int     value;
+    PCL_A_O_LEV3_UPG,                               //int     classnum;
+    "chimeraupg",                                   //char    *classname;
+    "Chimera Upgrade",                              //char    *humanname;
+    "orbb",                                         //char    *modelname;
+    1.0f,                                           //float   modelScale;
+    "default",                                      //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    { -15, -15, -15 },                              //vec3_t  mins;
+    { 15, 15, 15 },                                 //vec3_t  maxs;
+    { 15, 15, 15 },                                 //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                               //vec3_t  deadmins;
+    { 15, 15, 4 },                                  //vec3_t  deadmaxs;
+    4, 4,                                           //int     viewheight, crouchviewheight;
+    100,                                            //int     health;
+    5,                                              //int     regenRate;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,     //int     abilities;
+    WP_DIRECT_ZAP,                                  //weapon_t  startWeapon
+    0.0f,                                           //float   buildDist;
+    130,                                            //int     fov;
+    0.0f,                                           //float   bob;
+    60,                                             //int     steptime;
+    1.3f,                                           //float   speed;
+    5.0f,                                           //float   sticky;
+    { PCL_A_O_LEV4, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    3000,                                           //int     timetoevolve;
+    100                                             //int     value;
   },
   {
-    PCL_A_O_LEV4,                                 //int     classnum;
-    "OffensiveLevel4",                            //char    *classname;
-    "Offensive Level 4",                          //char    *humanname;
-    "xaero",                                      //char    *modelname;
-    1.0f,                                         //float   modelScale;
-    "default",                                    //char    *skinname;
-    "alien_hud",                                  //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),          //int  stages
-    { -15, -15, -15 },                            //vec3_t  mins;
-    { 15, 15, 15 },                               //vec3_t  maxs;
-    { 15, 15, 15 },                               //vec3_t  crouchmaxs;
-    { -15, -15, -4 },                             //vec3_t  deadmins;
-    { 15, 15, 4 },                                //vec3_t  deadmaxs;
-    4, 4,                                         //int     viewheight, crouchviewheight;
-    100,                                          //int     health;
-    5,                                            //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
-    WP_GROUND_POUND,                              //weapon_t  startWeapon
-    0.0f,                                         //float   buildDist;
-    130,                                          //int     fov;
-    0.0f,                                         //float   bob;
-    60,                                           //int     steptime;
-    1.3f,                                         //float   speed;
-    5.0f,                                         //float   sticky;
-    { PCL_NONE, PCL_NONE, PCL_NONE },             //int     children[ 3 ];
-    3000,                                         //int     timetoevolve;
-    100                                           //int     value;
+    PCL_A_O_LEV4,                                   //int     classnum;
+    "bigmofo",                                      //char    *classname;
+    "Big Mofo",                                     //char    *humanname;
+    "xaero",                                        //char    *modelname;
+    1.0f,                                           //float   modelScale;
+    "default",                                      //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    { -15, -15, -15 },                              //vec3_t  mins;
+    { 15, 15, 15 },                                 //vec3_t  maxs;
+    { 15, 15, 15 },                                 //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                               //vec3_t  deadmins;
+    { 15, 15, 4 },                                  //vec3_t  deadmaxs;
+    4, 4,                                           //int     viewheight, crouchviewheight;
+    100,                                            //int     health;
+    5,                                              //int     regenRate;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,     //int     abilities;
+    WP_GROUND_POUND,                                //weapon_t  startWeapon
+    0.0f,                                           //float   buildDist;
+    130,                                            //int     fov;
+    0.0f,                                           //float   bob;
+    60,                                             //int     steptime;
+    1.3f,                                           //float   speed;
+    5.0f,                                           //float   sticky;
+    { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
+    3000,                                           //int     timetoevolve;
+    100                                             //int     value;
   },
   {
-    PCL_H_BASE,                                 //int     classnum;
-    "Human",                                    //char    *classname;
-    "Human",                                    //char    *humanname;
-    "sarge",                                    //char    *modelname;
-    1.0f,                                       //float   modelScale;
-    "default",                                  //char    *skinname;
-    "human_hud",                                //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),        //int  stages
-    { -15, -15, -24 },                          //vec3_t  mins;
-    { 15, 15, 32 },                             //vec3_t  maxs;
-    { 15, 15, 16 },                             //vec3_t  crouchmaxs;
-    { -15, -15, -4 },                           //vec3_t  deadmins;
-    { 15, 15, 4 },                              //vec3_t  deadmaxs;
-    26, 12,                                     //int     viewheight, crouchviewheight;
-    100,                                        //int     health;
-    0,                                          //int     regenRate;
-    SCA_TAKESFALLDAMAGE|SCA_CANJUMP,            //int     abilities;
-    WP_NONE, //special-cased in g_client.c      //weapon_t  startWeapon
-    110.0f,                                     //float   buildDist;
-    90,                                         //int     fov;
-    0.002f,                                     //float   bob;
-    200,                                        //int     steptime;
-    1.0f,                                       //float   speed;
-    1.0f,                                       //float   sticky;
-    { PCL_NONE, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
-    0,                                          //int     timetoevolve;
-    0                                           //int     value;
+    PCL_H_BASE,                                     //int     classnum;
+    "human",                                        //char    *classname;
+    "Human",                                        //char    *humanname;
+    "sarge",                                        //char    *modelname;
+    1.0f,                                           //float   modelScale;
+    "default",                                      //char    *skinname;
+    "human_hud",                                    //char    *hudname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    { -15, -15, -24 },                              //vec3_t  mins;
+    { 15, 15, 32 },                                 //vec3_t  maxs;
+    { 15, 15, 16 },                                 //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                               //vec3_t  deadmins;
+    { 15, 15, 4 },                                  //vec3_t  deadmaxs;
+    26, 12,                                         //int     viewheight, crouchviewheight;
+    100,                                            //int     health;
+    0,                                              //int     regenRate;
+    SCA_TAKESFALLDAMAGE|SCA_CANJUMP,                //int     abilities;
+    WP_NONE, //special-cased in g_client.c          //weapon_t  startWeapon
+    110.0f,                                         //float   buildDist;
+    90,                                             //int     fov;
+    0.002f,                                         //float   bob;
+    200,                                            //int     steptime;
+    1.0f,                                           //float   speed;
+    1.0f,                                           //float   sticky;
+    { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
+    0,                                              //int     timetoevolve;
+    0                                               //int     value;
   }
 };
 

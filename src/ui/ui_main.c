@@ -3502,7 +3502,7 @@ static void UI_LoadTremAlienUpgrades( )
     if( BG_ClassCanEvolveFromTo( class, i, credits, 0 ) &&
         BG_FindStagesForClass( i, stage ) )
     {
-      uiInfo.tremAlienUpgradeList[ j ].text = String_Alloc( BG_FindNameForClassNum( i ) );
+      uiInfo.tremAlienUpgradeList[ j ].text = String_Alloc( BG_FindHumanNameForClassNum( i ) );
       uiInfo.tremAlienUpgradeList[ j ].cmd =
         String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( i ) ) );
       uiInfo.tremAlienUpgradeList[ j ].infopane =

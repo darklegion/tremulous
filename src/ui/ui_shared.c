@@ -2818,7 +2818,7 @@ int Item_Text_AutoWrapped_Lines( itemDef_t *item )
   char        text[ 1024 ];
   const char  *p, *textPtr, *newLinePtr;
   char        buff[ 1024 ];
-  int         len, textWidth, newLine, newLineWidth;
+  int         len, textWidth, newLine;
   vec4_t      color;
   int         lines = 0;
 
@@ -2844,7 +2844,6 @@ int Item_Text_AutoWrapped_Lines( itemDef_t *item )
   len = 0;
   buff[ 0 ] = '\0';
   newLine = 0;
-  newLineWidth = 0;
   p = textPtr;
   
   while( p )
@@ -2855,7 +2854,6 @@ int Item_Text_AutoWrapped_Lines( itemDef_t *item )
     {
       newLine = len;
       newLinePtr = p + 1;
-      newLineWidth = textWidth;
     }
 
     //TA: forceably split lines that are too long (where normal splitage has failed)
@@ -2863,7 +2861,6 @@ int Item_Text_AutoWrapped_Lines( itemDef_t *item )
     {
       newLine = len;
       newLinePtr = p;
-      newLineWidth = textWidth;
     }
 
     if( ( newLine && textWidth > item->window.rect.w ) || *p == '\n' || *p == '\0' )
@@ -2881,7 +2878,6 @@ int Item_Text_AutoWrapped_Lines( itemDef_t *item )
       p = newLinePtr;
       len = 0;
       newLine = 0;
-      newLineWidth = 0;
       
       continue;
     }
@@ -2933,14 +2929,14 @@ void Item_Text_AutoWrapped_Paint( itemDef_t *item )
   newLineWidth = 0;
   p = textPtr;
   
-  skipLines = -1;
   totalLines = Item_Text_AutoWrapped_Lines( item );
   
-  do
-  {
-    skipLines++;
-    totalY = ( totalLines - skipLines ) * ( height + 5 );
-  } while( totalY > item->window.rect.h );
+  totalY = totalLines * ( height + 5 );
+
+  if( totalY - item->window.rect.h > 0.0f )
+    skipLines = (int)( totalY / ( (float)height + 5.0f ) );
+  else
+    skipLines = 0;
   
   while( p )
   {
