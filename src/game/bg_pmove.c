@@ -2627,7 +2627,12 @@ static void PM_TorsoAnimation( void )
     return;
 
   if( pm->ps->weaponstate == WEAPON_READY )
-    PM_ContinueTorsoAnim( TORSO_STAND );
+  {
+    if( pm->ps->weapon == WP_BLASTER )
+      PM_ContinueTorsoAnim( TORSO_STAND2 );
+    else
+      PM_ContinueTorsoAnim( TORSO_STAND );
+  }
 }
 
 
@@ -2727,7 +2732,12 @@ static void PM_Weapon( void )
     pm->ps->weaponstate = WEAPON_READY;
 
     if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
-      PM_StartTorsoAnim( TORSO_STAND );
+    {
+      if( pm->ps->weapon == WP_BLASTER )
+        PM_ContinueTorsoAnim( TORSO_STAND2 );
+      else
+        PM_ContinueTorsoAnim( TORSO_STAND );
+    }
       
     return;
   }
@@ -2930,6 +2940,10 @@ static void PM_Weapon( void )
         }
         break;
 
+      case WP_BLASTER:
+        PM_StartTorsoAnim( TORSO_ATTACK2 );
+        break;
+        
       default:
         PM_StartTorsoAnim( TORSO_ATTACK );
         break;
