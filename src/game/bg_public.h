@@ -257,6 +257,7 @@ typedef enum
 } persEnum_t;
 
 #define PS_WALLCLIMBINGFOLLOW   0x00000001
+#define PS_NONSEGMODEL          0x00000002
 
 // entityState_t->eFlags
 #define EF_DEAD             0x00000001    // don't draw a foe marker over players with EF_DEAD

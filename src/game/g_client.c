@@ -949,6 +949,61 @@ static void ClientCleanName( const char *in, char *out, int outSize )
 
 
 /*
+======================
+G_NonSegModel
+
+Reads an animation.cfg to check for nonsegmentation
+======================
+*/
+static qboolean G_NonSegModel( const char *filename )
+{
+  char          *text_p;
+  int           len;
+  char          *token;
+  char          text[ 20000 ];
+  fileHandle_t  f;
+
+  // load the file
+  len = trap_FS_FOpenFile( filename, &f, FS_READ );
+  if( !f )
+  {
+    G_Printf( "File not found: %s\n", filename );
+    return qfalse;
+  }
+  
+  if( len <= 0 )
+    return qfalse;
+
+  if( len >= sizeof( text ) - 1 )
+  {
+    G_Printf( "File %s too long\n", filename );
+    return qfalse;
+  }
+  
+  trap_FS_Read( text, len, f );
+  text[ len ] = 0;
+  trap_FS_FCloseFile( f );
+
+  // parse the text
+  text_p = text;
+
+  // read optional parameters
+  while( 1 )
+  {
+    token = COM_Parse( &text_p );
+    
+    //EOF
+    if( !token[ 0 ] )
+      break;
+
+    if( !Q_stricmp( token, "nonsegmented" ) )
+      return qtrue;
+  }
+
+  return qfalse;
+}
+
+/*
 ===========
 ClientUserInfoChanged
 
@@ -966,6 +1021,7 @@ void ClientUserinfoChanged( int clientNum )
   char      *s;
   char      model[ MAX_QPATH ];
   char      buffer[ MAX_QPATH ];
+  char      filename[ MAX_QPATH ];
   char      oldname[ MAX_STRING_CHARS ];
   gclient_t *client;
   char      c1[ MAX_INFO_STRING ];
@@ -1032,6 +1088,14 @@ void ClientUserinfoChanged( int clientNum )
   Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( client->pers.pclass ),
                                             BG_FindSkinNameForClass( client->pers.pclass ) );
   Q_strncpyz( model, buffer, sizeof( model ) );
+
+  //model segmentation
+  Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg",
+               BG_FindModelNameForClass( client->pers.pclass ) );
+  if( G_NonSegModel( filename ) )
+    client->ps.persistant[ PERS_STATE ] |= PS_NONSEGMODEL;
+  else
+    client->ps.persistant[ PERS_STATE ] &= ~PS_NONSEGMODEL;
 
   // wallwalk follow
   s = Info_ValueForKey( userinfo, "cg_wwFollow" );

@@ -511,12 +511,20 @@ static qboolean PM_CheckJump( void )
 
   if( pm->cmd.forwardmove >= 0 )
   {
-    PM_ForceLegsAnim( LEGS_JUMP );
+    if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+      PM_ForceLegsAnim( LEGS_JUMP );
+    else
+      PM_ForceLegsAnim( NSPA_JUMP );
+      
     pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
   }
   else
   {
-    PM_ForceLegsAnim( LEGS_JUMPB );
+    if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+      PM_ForceLegsAnim( LEGS_JUMPB );
+    else
+      PM_ForceLegsAnim( NSPA_JUMPBACK );
+    
     pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
   }
 
@@ -707,7 +715,10 @@ static void PM_JetPackMove( void )
 
   PM_StepSlideMove( qfalse, qfalse );
 
-  PM_ForceLegsAnim( LEGS_LAND );
+  if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+    PM_ForceLegsAnim( LEGS_LAND );
+  else
+    PM_ForceLegsAnim( NSPA_LAND );
 }
 
 
@@ -1226,9 +1237,19 @@ static void PM_CrashLand( void )
 
   // decide which landing animation to use
   if( pm->ps->pm_flags & PMF_BACKWARDS_JUMP )
-    PM_ForceLegsAnim( LEGS_LANDB );
+  {
+    if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+      PM_ForceLegsAnim( LEGS_LANDB );
+    else
+      PM_ForceLegsAnim( NSPA_LANDBACK );
+  }
   else
-    PM_ForceLegsAnim( LEGS_LAND );
+  {
+    if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+      PM_ForceLegsAnim( LEGS_LAND );
+    else
+      PM_ForceLegsAnim( NSPA_LAND );
+  }
 
   pm->ps->legsTimer = TIMER_LAND;
 
@@ -1374,12 +1395,20 @@ static void PM_GroundTraceMissed( void )
     {
       if( pm->cmd.forwardmove >= 0 )
       {
-        PM_ForceLegsAnim( LEGS_JUMP );
+        if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+          PM_ForceLegsAnim( LEGS_JUMP );
+        else
+          PM_ForceLegsAnim( NSPA_JUMP );
+          
         pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
       }
       else
       {
-        PM_ForceLegsAnim( LEGS_JUMPB );
+        if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+          PM_ForceLegsAnim( LEGS_JUMPB );
+        else
+          PM_ForceLegsAnim( NSPA_JUMPBACK );
+
         pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
       }
     }
@@ -1758,12 +1787,20 @@ static void PM_GroundTrace( void )
     // go into jump animation
     if( pm->cmd.forwardmove >= 0 )
     {
-      PM_ForceLegsAnim( LEGS_JUMP );
+      if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+        PM_ForceLegsAnim( LEGS_JUMP );
+      else
+        PM_ForceLegsAnim( NSPA_JUMP );
+
       pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
     }
     else
     {
-      PM_ForceLegsAnim( LEGS_JUMPB );
+      if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+        PM_ForceLegsAnim( LEGS_JUMPB );
+      else
+        PM_ForceLegsAnim( NSPA_JUMPBACK );
+        
       pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
     }
 
@@ -1971,7 +2008,12 @@ static void PM_Footsteps( void )
   {
     // airborne leaves position in cycle intact, but doesn't advance
     if( pm->waterlevel > 1 )
-      PM_ContinueLegsAnim( LEGS_SWIM );
+    {
+      if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+        PM_ContinueLegsAnim( LEGS_SWIM );
+      else
+        PM_ContinueLegsAnim( NSPA_SWIM );
+    }
 
     return;
   }
@@ -1983,9 +2025,19 @@ static void PM_Footsteps( void )
     {
       pm->ps->bobCycle = 0; // start at beginning of cycle again
       if( pm->ps->pm_flags & PMF_DUCKED )
-        PM_ContinueLegsAnim( LEGS_IDLECR );
+      {
+        if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+          PM_ContinueLegsAnim( LEGS_IDLECR );
+        else
+          PM_ContinueLegsAnim( NSPA_STAND );
+      }
       else
-        PM_ContinueLegsAnim( LEGS_IDLE );
+      {
+        if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+          PM_ContinueLegsAnim( LEGS_IDLE );
+        else
+          PM_ContinueLegsAnim( NSPA_STAND );
+      }
     }
     return;
   }
@@ -1998,9 +2050,19 @@ static void PM_Footsteps( void )
     bobmove = 0.5;  // ducked characters bob much faster
     
     if( pm->ps->pm_flags & PMF_BACKWARDS_RUN )
-      PM_ContinueLegsAnim( LEGS_BACKCR );
+    {
+      if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+        PM_ContinueLegsAnim( LEGS_BACKCR );
+      else
+        PM_ContinueLegsAnim( NSPA_WALKBACK );
+    }
     else
-      PM_ContinueLegsAnim( LEGS_WALKCR );
+    {
+      if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+        PM_ContinueLegsAnim( LEGS_WALKCR );
+      else
+        PM_ContinueLegsAnim( NSPA_WALK );
+    }
     
     // ducked characters never play footsteps
   /*
@@ -2022,9 +2084,19 @@ static void PM_Footsteps( void )
     {
       bobmove = 0.4f; // faster speeds bob faster
       if( pm->ps->pm_flags & PMF_BACKWARDS_RUN )
-        PM_ContinueLegsAnim( LEGS_BACK );
+      {
+        if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+          PM_ContinueLegsAnim( LEGS_BACK );
+        else
+          PM_ContinueLegsAnim( NSPA_RUNBACK );
+      }
       else
-        PM_ContinueLegsAnim( LEGS_RUN );
+      {
+        if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+          PM_ContinueLegsAnim( LEGS_RUN );
+        else
+          PM_ContinueLegsAnim( NSPA_RUN );
+      }
 
       footstep = qtrue;
     }
@@ -2032,9 +2104,19 @@ static void PM_Footsteps( void )
     {
       bobmove = 0.3f; // walking bobs slow
       if( pm->ps->pm_flags & PMF_BACKWARDS_RUN )
-        PM_ContinueLegsAnim( LEGS_BACKWALK );
+      {
+        if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+          PM_ContinueLegsAnim( LEGS_BACKWALK );
+        else
+          PM_ContinueLegsAnim( NSPA_WALKBACK );
+      }
       else
-        PM_ContinueLegsAnim( LEGS_WALK );
+      {
+        if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+          PM_ContinueLegsAnim( LEGS_WALK );
+        else
+          PM_ContinueLegsAnim( NSPA_WALK );
+      }
     }
   }
 
@@ -2124,7 +2206,9 @@ static void PM_BeginWeaponChange( int weapon )
   PM_AddEvent( EV_CHANGE_WEAPON );
   pm->ps->weaponstate = WEAPON_DROPPING;
   pm->ps->weaponTime += 200;
-  PM_StartTorsoAnim( TORSO_DROP );
+  
+  if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+    PM_StartTorsoAnim( TORSO_DROP );
 }
 
 
@@ -2147,7 +2231,9 @@ static void PM_FinishWeaponChange( void )
   pm->ps->weapon = weapon;
   pm->ps->weaponstate = WEAPON_RAISING;
   pm->ps->weaponTime += 250;
-  PM_StartTorsoAnim( TORSO_RAISE );
+  
+  if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+    PM_StartTorsoAnim( TORSO_RAISE );
 }
 
 
@@ -2159,6 +2245,9 @@ PM_TorsoAnimation
 */
 static void PM_TorsoAnimation( void )
 {
+  if( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL )
+    return;
+
   if( pm->ps->weaponstate == WEAPON_READY )
     PM_ContinueTorsoAnim( TORSO_STAND );
 }
@@ -2258,7 +2347,10 @@ static void PM_Weapon( void )
   if ( pm->ps->weaponstate == WEAPON_RAISING )
   {
     pm->ps->weaponstate = WEAPON_READY;
-    PM_StartTorsoAnim( TORSO_STAND );
+
+    if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+      PM_StartTorsoAnim( TORSO_STAND );
+      
     return;
   }
 
@@ -2427,7 +2519,10 @@ static void PM_Weapon( void )
     }
   }
     
-  PM_StartTorsoAnim( TORSO_ATTACK );
+  if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+    PM_StartTorsoAnim( TORSO_ATTACK );
+  else
+    PM_StartLegsAnim( NSPA_ATTACK1 );
 
   pm->ps->weaponstate = WEAPON_FIRING;
   
@@ -2485,8 +2580,19 @@ static void PM_Animate( void )
     if( pm->ps->torsoTimer == 0 )
     {
       PM_StartTorsoAnim( TORSO_GESTURE );
+
       pm->ps->torsoTimer = TIMER_GESTURE;
       PM_AddEvent( EV_TAUNT );
+    }
+    else if( pm->ps->legsTimer == 0 )
+    {
+      if( ( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+      {
+        PM_StartLegsAnim( NSPA_GESTURE );
+        pm->ps->legsTimer = TIMER_GESTURE;
+        
+        PM_AddEvent( EV_TAUNT );
+      }
     }
   }
 }

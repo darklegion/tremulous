@@ -1211,7 +1211,7 @@ static void CG_PlayerNonSegAnimation( centity_t *cent, int *nonSegOld,
   if( cent->pe.nonseg.yawing && ( cent->currentState.legsAnim & ~ANIM_TOGGLEBIT ) == NSPA_STAND )
     CG_RunLerpFrame( ci, &cent->pe.nonseg, NSPA_TURN, speedScale );
   else
-    CG_RunLerpFrame( ci, &cent->pe.legs, cent->currentState.legsAnim, speedScale );
+    CG_RunLerpFrame( ci, &cent->pe.nonseg, cent->currentState.legsAnim, speedScale );
 
   *nonSegOld = cent->pe.nonseg.oldFrame;
   *nonSeg = cent->pe.nonseg.frame;
