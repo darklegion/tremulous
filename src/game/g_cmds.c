@@ -280,9 +280,9 @@ void Cmd_Give_f( gentity_t *ent )
     int credits = atoi( name + 6 );
 
     if( !credits )
-      ent->client->ps.persistant[ PERS_CREDIT ]++;
+      G_AddCreditToClient( ent->client, 1 );
     else
-      ent->client->ps.persistant[ PERS_CREDIT ] += credits;
+      G_AddCreditToClient( ent->client, credits );
 
     if( !give_all )
       return;
@@ -1191,7 +1191,7 @@ void Cmd_Class_f( gentity_t *ent )
         if( numLevels >= 0 && BG_FindStagesForClass( ent->client->pers.classSelection, g_alienStage.integer ) )
         {
           //remove credit
-          ent->client->ps.persistant[ PERS_CREDIT ] -= (short)numLevels;
+          G_AddCreditToClient( ent->client, -(short)numLevels );
        
           ClientUserinfoChanged( clientNum );
           VectorCopy( infestOrigin, ent->s.pos.trBase );
@@ -1560,7 +1560,7 @@ void Cmd_Buy_f( gentity_t *ent )
     ent->client->ps.stats[ STAT_MISC ] = 0;
     
     //subtract from funds
-    ent->client->ps.persistant[ PERS_CREDIT ] -= (short)BG_FindPriceForWeapon( weapon );
+    G_AddCreditToClient( ent->client, -(short)BG_FindPriceForWeapon( weapon ) );
   }
   else if( upgrade != UP_NONE )
   {
@@ -1645,7 +1645,7 @@ void Cmd_Buy_f( gentity_t *ent )
     }
     
     //subtract from funds
-    ent->client->ps.persistant[ PERS_CREDIT ] -= (short)BG_FindPriceForUpgrade( upgrade );
+    G_AddCreditToClient( ent->client, -(short)BG_FindPriceForUpgrade( upgrade ) );
   }
   else
   {
@@ -1721,7 +1721,7 @@ void Cmd_Sell_f( gentity_t *ent )
       BG_removeWeapon( weapon, ent->client->ps.stats );
 
       //add to funds
-      ent->client->ps.persistant[ PERS_CREDIT ] += (short)BG_FindPriceForWeapon( weapon );
+      G_AddCreditToClient( ent->client, (short)BG_FindPriceForWeapon( weapon ) );
     }
 
     //if we have this weapon selected, force a new selection
@@ -1756,7 +1756,7 @@ void Cmd_Sell_f( gentity_t *ent )
       }
         
       //add to funds
-      ent->client->ps.persistant[ PERS_CREDIT ] += (short)BG_FindPriceForUpgrade( upgrade );
+      G_AddCreditToClient( ent->client, (short)BG_FindPriceForUpgrade( upgrade ) );
     }
     
     //if we have this upgrade selected, force a new selection
@@ -1772,7 +1772,7 @@ void Cmd_Sell_f( gentity_t *ent )
         BG_removeWeapon( i, ent->client->ps.stats );
 
         //add to funds
-        ent->client->ps.persistant[ PERS_CREDIT ] += (short)BG_FindPriceForWeapon( i );
+        G_AddCreditToClient( ent->client, (short)BG_FindPriceForWeapon( i ) );
       }
       
       //if we have this weapon selected, force a new selection
@@ -1810,7 +1810,7 @@ void Cmd_Sell_f( gentity_t *ent )
         }
         
         //add to funds
-        ent->client->ps.persistant[ PERS_CREDIT ] += (short)BG_FindPriceForUpgrade( i );
+        G_AddCreditToClient( ent->client, (short)BG_FindPriceForUpgrade( i ) );
       }
       
       //if we have this upgrade selected, force a new selection
@@ -2141,6 +2141,90 @@ void Cmd_Test_f( gentity_t *ent )
 
 /*
 =================
+Cmd_Evolve_Debug_f
+=================
+*/
+void Cmd_Evolve_Debug_f( gentity_t *ent )
+{
+#define USE_OBJECT_RANGE 64
+  
+  int       entityList[ MAX_GENTITIES ];
+  vec3_t    range = { USE_OBJECT_RANGE, USE_OBJECT_RANGE, USE_OBJECT_RANGE };
+  vec3_t    mins, maxs, dir;
+  int       i, num;
+  int       j;
+  qboolean  upgrade = qfalse;
+  gclient_t *client = ent->client;
+  trace_t   trace;
+  gentity_t *traceEnt;
+  vec3_t    point, view;
+  
+  //TA: look for object infront of player
+  AngleVectors( client->ps.viewangles, view, NULL, NULL );
+  VectorMA( client->ps.origin, USE_OBJECT_RANGE, view, point );
+  trap_Trace( &trace, client->ps.origin, NULL, NULL, point, ent->s.number, MASK_SHOT );
+
+  traceEnt = &g_entities[ trace.entityNum ];
+
+  if( traceEnt && traceEnt->biteam == client->ps.stats[ STAT_PTEAM ] && traceEnt->use )
+    trap_SendServerCommand( ent - g_entities,
+      va( "print \"Trying to use entity \"%s\"\n\"", traceEnt->classname ) );
+  else
+  {
+    //no entity in front of player - do a small area search
+
+    VectorAdd( client->ps.origin, range, maxs );
+    VectorSubtract( client->ps.origin, range, mins );
+    
+    num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+    for( i = 0; i < num; i++ )
+    {
+      traceEnt = &g_entities[ entityList[ i ] ];
+      
+      if( traceEnt && traceEnt->biteam == client->ps.stats[ STAT_PTEAM ] && traceEnt->use )
+      {
+        trap_SendServerCommand( ent - g_entities,
+          va( "print \"Trying to use entity \"%s\"\n\"", traceEnt->classname ) );
+        break;
+      }
+    }
+  
+    trap_SendServerCommand( ent - g_entities,
+      va( "print \"i:%d == num:%d\n\"", i, num ) );
+
+    if( i == num && client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    {
+      for( j = PCL_NONE + 1; j < PCL_NUM_CLASSES; j++ )
+      {
+        trap_SendServerCommand( ent - g_entities,
+          va( "print \"BG_ClassCanEvolveFromTo( %d, %d, %d, 0 ) = %d\n\"",
+            client->ps.stats[ STAT_PCLASS ], j, client->ps.persistant[ PERS_CREDIT ],
+            BG_ClassCanEvolveFromTo( client->ps.stats[ STAT_PCLASS ], j,
+                                     client->ps.persistant[ PERS_CREDIT ], 0 ) ) );
+        
+        trap_SendServerCommand( ent - g_entities,
+          va( "print \"BG_FindStagesForClass( %d, %d ) = %d\n\"",
+            j, g_alienStage.integer,
+            BG_FindStagesForClass( j, g_alienStage.integer ) ) );
+        
+        if( BG_ClassCanEvolveFromTo( client->ps.stats[ STAT_PCLASS ], j,
+                                     client->ps.persistant[ PERS_CREDIT ], 0 ) >= 0 &&
+            BG_FindStagesForClass( j, g_alienStage.integer ) )
+        {
+          upgrade = qtrue;
+          break;
+        }
+      }
+      
+      trap_SendServerCommand( ent - g_entities,
+        va( "print \"upgrade = %d\n\"", upgrade ) );
+    }
+  }
+}
+
+
+/*
+=================
 ClientCommand
 =================
 */
@@ -2245,6 +2329,8 @@ void ClientCommand( int clientNum )
     Cmd_SetViewpos_f( ent );
   else if( Q_stricmp( cmd, "test" ) == 0 )
     Cmd_Test_f( ent );
+  else if( Q_stricmp( cmd, "evolvebug" ) == 0 )
+    Cmd_Evolve_Debug_f( ent );
   else
     trap_SendServerCommand( clientNum, va( "print \"unknown cmd %s\n\"", cmd ) );
 }

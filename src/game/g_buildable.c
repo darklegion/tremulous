@@ -581,12 +581,9 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   if( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
     if( self->s.modelindex == BA_A_OVERMIND )
-      attacker->client->ps.persistant[ PERS_CREDIT ] += OVERMIND_VALUE;
+      G_AddCreditToClient( attacker->client, OVERMIND_VALUE );
     else if( self->s.modelindex == BA_A_SPAWN )
-      attacker->client->ps.persistant[ PERS_CREDIT ] += ASPAWN_VALUE;
-
-    if( attacker->client->ps.persistant[ PERS_CREDIT ] > HUMAN_MAX_CREDITS )
-      attacker->client->ps.persistant[ PERS_CREDIT ] = HUMAN_MAX_CREDITS;
+      G_AddCreditToClient( attacker->client, ASPAWN_VALUE );
   }
 }
 
@@ -2132,12 +2129,9 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   if( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     if( self->s.modelindex == BA_H_REACTOR )
-      attacker->client->ps.persistant[ PERS_CREDIT ] += REACTOR_VALUE;
+      G_AddCreditToClient( attacker->client, REACTOR_VALUE );
     else if( self->s.modelindex == BA_H_SPAWN )
-      attacker->client->ps.persistant[ PERS_CREDIT ] += HSPAWN_VALUE;
-    
-    if( attacker->client->ps.persistant[ PERS_CREDIT ] > ALIEN_MAX_KILLS )
-      attacker->client->ps.persistant[ PERS_CREDIT ] = ALIEN_MAX_KILLS;
+      G_AddCreditToClient( attacker->client, HSPAWN_VALUE );
   }
 }
 

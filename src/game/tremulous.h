@@ -306,7 +306,7 @@
  * 
  */
 
-#define HUMAN_WDMG_MODIFIER         1.12f
+#define HUMAN_WDMG_MODIFIER         1.13f
 #define HDM(d)                      ((int)((float)d*HUMAN_WDMG_MODIFIER))
 
 #define BLASTER_REPEAT              600

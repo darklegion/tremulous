@@ -1219,7 +1219,7 @@ void ClientThink_real( gentity_t *ent )
 
       traceEnt = &g_entities[ trace.entityNum ];
 
-      if( traceEnt->use )
+      if( traceEnt && traceEnt->biteam == client->ps.stats[ STAT_PTEAM ] && traceEnt->use )
         traceEnt->use( traceEnt, ent, ent ); //other and activator are the same in this context
       else
       {
@@ -1233,7 +1233,7 @@ void ClientThink_real( gentity_t *ent )
         {
           traceEnt = &g_entities[ entityList[ i ] ];
           
-          if( traceEnt->use )
+          if( traceEnt && traceEnt->biteam == client->ps.stats[ STAT_PTEAM ] && traceEnt->use )
           {
             traceEnt->use( traceEnt, ent, ent ); //other and activator are the same in this context
             break;

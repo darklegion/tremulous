@@ -754,6 +754,7 @@ void      ChargeAttack( gentity_t *ent, gentity_t *victim );
 //
 // g_client.c
 //
+void      G_AddCreditToClient( gclient_t *client, short credit );
 team_t    TeamCount( int ignoreClientNum, int team );
 void      SetClientViewAngle( gentity_t *ent, vec3_t angle );
 gentity_t *SelectTremulousSpawnPoint( pTeam_t team, vec3_t origin, vec3_t angles );

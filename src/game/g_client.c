@@ -72,6 +72,32 @@ void SP_info_human_intermission( gentity_t *ent )
 {
 }
 
+/*
+===============
+G_AddCreditToClient
+===============
+*/
+void G_AddCreditToClient( gclient_t *client, short credit )
+{
+  if( !client )
+    return;
+
+  client->ps.persistant[ PERS_CREDIT ] += credit;
+  
+  if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  {
+    if( client->ps.persistant[ PERS_CREDIT ] > ALIEN_MAX_KILLS )
+      client->ps.persistant[ PERS_CREDIT ] = ALIEN_MAX_KILLS;
+  }
+  else if( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  {
+    if( client->ps.persistant[ PERS_CREDIT ] > HUMAN_MAX_CREDITS )
+      client->ps.persistant[ PERS_CREDIT ] = HUMAN_MAX_CREDITS;
+  }
+    
+  if( client->ps.persistant[ PERS_CREDIT ] < 0 )
+    client->ps.persistant[ PERS_CREDIT ] = 0;
+}
 
 
 /*
@@ -1167,9 +1193,9 @@ void ClientBegin( int clientNum )
     // send event
     tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
     tent->s.clientNum = ent->s.clientNum;
-
-    trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
   }
+  
+  trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
   
   G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
