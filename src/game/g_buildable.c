@@ -44,7 +44,7 @@ void G_setIdleBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim )
   ent->s.torsoAnim = anim;
 }
 
-#define REFRESH_TIME  2000
+#define POWER_REFRESH_TIME  2000
 
 /*
 ================
@@ -970,12 +970,12 @@ void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 /*
 ================
-adef_fireonemeny
+ADef_fireonemeny
 
 Used by ADef2_Think to fire at enemy
 ================
 */
-void adef_fireonenemy( gentity_t *self, int firespeed )
+void ADef_FireOnEnemy( gentity_t *self, int firespeed )
 {
   vec3_t  dirToTarget;
   vec3_t  target;
@@ -1012,12 +1012,12 @@ void adef_fireonenemy( gentity_t *self, int firespeed )
 
 /*
 ================
-adef_checktarget
+ADef_checktarget
 
-Used by DDef2_Think to check enemies for validity
+Used by ADef2_Think to check enemies for validity
 ================
 */
-qboolean adef_checktarget( gentity_t *self, gentity_t *target, int range )
+qboolean ADef_CheckTarget( gentity_t *self, gentity_t *target, int range )
 {
   vec3_t    distance;
   trace_t   trace;
@@ -1062,7 +1062,7 @@ adef_findenemy
 Used by DDef2_Think to locate enemy gentities
 ================
 */
-void adef_findenemy( gentity_t *ent, int range )
+void ADef_FindEnemy( gentity_t *ent, int range )
 {
   gentity_t *target;
 
@@ -1070,7 +1070,7 @@ void adef_findenemy( gentity_t *ent, int range )
   for( target = g_entities; target < &g_entities[ level.num_entities ]; target++ )
   {
     //if target is not valid keep searching
-    if( !adef_checktarget( ent, target, range ) )
+    if( !ADef_CheckTarget( ent, target, range ) )
       continue;
       
     //we found a target
@@ -1108,8 +1108,8 @@ void ATrapper_Think( gentity_t *self )
   if( self->spawned )
   {
     //if the current target is not valid find a new one
-    if( !adef_checktarget( self, self->enemy, range ) )
-      adef_findenemy( self, range );
+    if( !ADef_CheckTarget( self, self->enemy, range ) )
+      ADef_FindEnemy( self, range );
 
     //if a new target cannot be found don't do anything
     if( !self->enemy )
@@ -1117,7 +1117,7 @@ void ATrapper_Think( gentity_t *self )
     
     //if we are pointing at our target and we can fire shoot it
     if( self->count < level.time )
-      adef_fireonenemy( self, firespeed );
+      ADef_FireOnEnemy( self, firespeed );
   }
 }
 
@@ -1155,7 +1155,7 @@ void HRpt_Think( gentity_t *self )
   
   self->powered = reactor;
 
-  self->nextthink = level.time + REFRESH_TIME;
+  self->nextthink = level.time + POWER_REFRESH_TIME;
 }
 
 /*
@@ -1244,7 +1244,7 @@ Think for armoury
 void HArmoury_Think( gentity_t *self )
 {
   //make sure we have power
-  self->nextthink = level.time + REFRESH_TIME;
+  self->nextthink = level.time + POWER_REFRESH_TIME;
   
   self->powered = findPower( self );
 }
@@ -1289,7 +1289,7 @@ Think for bank
 void HBank_Think( gentity_t *self )
 {
   //make sure we have power
-  self->nextthink = level.time + REFRESH_TIME;
+  self->nextthink = level.time + POWER_REFRESH_TIME;
   
   self->powered = findPower( self );
 }
@@ -1312,7 +1312,7 @@ Think for dcc
 void HDCC_Think( gentity_t *self )
 {
   //make sure we have power
-  self->nextthink = level.time + REFRESH_TIME;
+  self->nextthink = level.time + POWER_REFRESH_TIME;
   
   self->powered = findPower( self );
 }
@@ -1343,7 +1343,7 @@ void HMedistat_Think( gentity_t *self )
   //make sure we have power
   if( !( self->powered = findPower( self ) ) )
   {
-    self->nextthink = level.time + REFRESH_TIME;
+    self->nextthink = level.time + POWER_REFRESH_TIME;
     return;
   }
   
@@ -1468,7 +1468,7 @@ Think for floatmine
 void HFM_Think( gentity_t *self )
 {
   //make sure we have power
-  self->nextthink = level.time + REFRESH_TIME;
+  self->nextthink = level.time + POWER_REFRESH_TIME;
   
   if( !( self->powered = findPower( self ) ) )
     G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
@@ -1479,11 +1479,14 @@ void HFM_Think( gentity_t *self )
 
 //==================================================================================
 
+
+
+
 /*
 ================
 HMGTurret_TrackEnemy
 
-Used by HDef_Think to track enemy location
+Used by HMGTurret_Think to track enemy location
 ================
 */
 qboolean HMGTurret_TrackEnemy( gentity_t *self )
@@ -1491,6 +1494,18 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
   vec3_t  dirToTarget, dttAdjusted, angleToTarget, angularDiff, xNormal;
   vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
   float   temp, rotAngle;
+  float   accuracyTolerance, angularSpeed;
+
+  if( self->dcced )
+  {
+    accuracyTolerance = MGTURRET_ACCURACYTOLERANCE;
+    angularSpeed = MGTURRET_ANGULARSPEED;
+  }
+  else
+  {
+    accuracyTolerance = MGTURRET_DCC_ACCURACYTOLERANCE;
+    angularSpeed = MGTURRET_DCC_ANGULARSPEED;
+  }
 
   VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
 
@@ -1507,10 +1522,10 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
   angularDiff[ YAW ] = AngleSubtract( self->s.angles2[ YAW ], angleToTarget[ YAW ] );
 
   //if not pointing at our target then move accordingly
-  if( angularDiff[ PITCH ] < -MGTURRET_ACCURACYTOLERANCE )
-    self->s.angles2[ PITCH ] += MGTURRET_ANGULARSPEED;
-  else if( angularDiff[ PITCH ] > MGTURRET_ACCURACYTOLERANCE )
-    self->s.angles2[ PITCH ] -= MGTURRET_ANGULARSPEED;
+  if( angularDiff[ PITCH ] < (-accuracyTolerance) )
+    self->s.angles2[ PITCH ] += angularSpeed;
+  else if( angularDiff[ PITCH ] > accuracyTolerance )
+    self->s.angles2[ PITCH ] -= angularSpeed;
   else
     self->s.angles2[ PITCH ] = angleToTarget[ PITCH ];
 
@@ -1523,10 +1538,10 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
     self->s.angles2[ PITCH ] = (-360) + MGTURRET_VERTICALCAP;
     
   //if not pointing at our target then move accordingly
-  if( angularDiff[ YAW ] < -MGTURRET_ACCURACYTOLERANCE )
-    self->s.angles2[ YAW ] += MGTURRET_ANGULARSPEED;
-  else if( angularDiff[ YAW ] > MGTURRET_ACCURACYTOLERANCE )
-    self->s.angles2[ YAW ] -= MGTURRET_ANGULARSPEED;
+  if( angularDiff[ YAW ] < (-accuracyTolerance) )
+    self->s.angles2[ YAW ] += angularSpeed;
+  else if( angularDiff[ YAW ] > accuracyTolerance )
+    self->s.angles2[ YAW ] -= angularSpeed;
   else
     self->s.angles2[ YAW ] = angleToTarget[ YAW ];
     
@@ -1535,100 +1550,44 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
   vectoangles( dirToTarget, self->turretAim );
 
   //if pointing at our target return true
-  if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= MGTURRET_ACCURACYTOLERANCE &&
-      abs( angleToTarget[ PITCH ] - self->s.angles2[ PITCH ] ) <= MGTURRET_ACCURACYTOLERANCE )
+  if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= accuracyTolerance &&
+      abs( angleToTarget[ PITCH ] - self->s.angles2[ PITCH ] ) <= accuracyTolerance )
     return qtrue;
     
   return qfalse;
 }
 
-/*
-================
-HTeslaGen_FireOnEnemy
-
-Used by HDef_Think to fire at enemy
-================
-*/
-void HTeslaGen_FireOnEnemy( gentity_t *self, int firespeed )
-{
-  vec3_t  dirToTarget;
- 
-  //this doesn't operate without a dcc
-  if( !self->dcced )
-    return;
-  
-  VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
-  VectorNormalize( dirToTarget );
-  vectoangles( dirToTarget, self->turretAim );
-
-  //fire at target
-  FireWeapon( self );
-  
-  self->s.eFlags |= EF_FIRING;
-  G_AddEvent( self, EV_FIRE_WEAPON, 0 );
-  G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
-
-  self->count = level.time + firespeed;
-}
 
 /*
 ================
-HMGTurret_FireOnEnemy
+HMGTurret_CheckTarget
 
-Used by HDef_Think to fire at enemy
+Used by HMGTurret_Think to check enemies for validity
 ================
 */
-void HMGTurret_FireOnEnemy( gentity_t *self, int firespeed )
+qboolean HMGTurret_CheckTarget( gentity_t *self, gentity_t *target, qboolean ignorePainted )
 {
-  //fire at target
-  FireWeapon( self );
-  
-  self->s.eFlags |= EF_FIRING;
-  G_AddEvent( self, EV_FIRE_WEAPON, 0 );
-  G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
-
-  self->count = level.time + firespeed;
-}
-
-/*
-================
-HDef_CheckTarget
-
-Used by HDef_Think to check enemies for validity
-================
-*/
-qboolean HDef_CheckTarget( gentity_t *self, gentity_t *target, int range )
-{
-  vec3_t    distance;
   trace_t   trace;
-
-  if( !target ) // Do we have a target?
+  gentity_t *traceEnt;
+   
+  if( target->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
     return qfalse;
-  if( !target->inuse ) // Does the target still exist?
+   
+  if( target->health <= 0 )
     return qfalse;
-  if( target == self ) // is the target us?
-    return qfalse;
-  if( !target->client ) // is the target a bot or player?
-    return qfalse;
-  if( target->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) // is the target one of us?
-    return qfalse;
-  if( target->client->sess.sessionTeam == TEAM_SPECTATOR ) // is the target alive?
-    return qfalse;
-  if( target->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) // is the target alive?
-    return qfalse;
-  if( target->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) // is the target alive?
-    return qfalse;
-  if( target->health <= 0 ) // is the target still alive?
-    return qfalse;
-  if( self->dcced && target->targeted && target->targeted->powered ) //some turret has already selected this target
+    
+  //some turret has already selected this target
+  if( self->dcced && target->targeted && target->targeted->powered && !ignorePainted )
     return qfalse;
 
-  VectorSubtract( target->r.currentOrigin, self->r.currentOrigin, distance );
-  if( VectorLength( distance ) > range ) // is the target within range?
+  trap_Trace( &trace, self->s.pos.trBase, NULL, NULL, target->s.pos.trBase, self->s.number, MASK_SHOT );
+  
+  traceEnt = &g_entities[ trace.entityNum ];
+
+  if( !traceEnt->client )
     return qfalse;
 
-  trap_Trace( &trace, self->s.pos.trBase, NULL, NULL, target->s.pos.trBase, self->s.number, MASK_OPAQUE );
-  if( trace.fraction < 1.0 ) // can we see the target?
+  if( traceEnt->client && traceEnt->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
     return qfalse;
 
   return qtrue;
@@ -1637,42 +1596,76 @@ qboolean HDef_CheckTarget( gentity_t *self, gentity_t *target, int range )
 
 /*
 ================
-HDef_FindEnemy
+HMGTurret_FindEnemy
 
-Used by HDef_Think to locate enemy gentities
+Used by HMGTurret_Think to locate enemy gentities
 ================
 */
-void HDef_FindEnemy( gentity_t *ent, int range )
+void HMGTurret_FindEnemy( gentity_t *self )
 {
+  int       entityList[ MAX_GENTITIES ];
+  vec3_t    range;
+  vec3_t    mins, maxs;
+  vec3_t    dir;
+  int       i, num;
   gentity_t *target;
 
-  //iterate through entities
-  for( target = g_entities; target < &g_entities[ level.num_entities ]; target++ )
+  VectorSet( range, MGTURRET_RANGE, MGTURRET_RANGE, MGTURRET_RANGE );
+  VectorAdd( self->s.origin, range, maxs );
+  VectorSubtract( self->s.origin, range, mins );
+  
+  //find aliens
+  num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+  for( i = 0; i < num; i++ )
   {
-    //if target is not valid keep searching
-    if( !HDef_CheckTarget( ent, target, range ) )
-      continue;
-      
-    //we found a target
-    ent->enemy = target;
-    return;
+    target = &g_entities[ entityList[ i ] ];
+    
+    if( target->client && target->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    {
+      //if target is not valid keep searching
+      if( !HMGTurret_CheckTarget( self, target, qfalse ) )
+        continue;
+        
+      //we found a target
+      self->enemy = target;
+      return;
+    }
   }
 
+  if( self->dcced )
+  {
+    //check again, this time ignoring painted targets
+    for( i = 0; i < num; i++ )
+    {
+      target = &g_entities[ entityList[ i ] ];
+      
+      if( target->client && target->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      {
+        //if target is not valid keep searching
+        if( !HMGTurret_CheckTarget( self, target, qtrue ) )
+          continue;
+          
+        //we found a target
+        self->enemy = target;
+        return;
+      }
+    }
+  }
+  
   //couldn't find a target
-  ent->enemy = NULL;
+  self->enemy = NULL;
 }
 
 
 /*
 ================
-HDef_Think
+HMGTurret_Think
 
-think function for Human Defense
+Think function for MG turret
 ================
 */
-void HDef_Think( gentity_t *self )
+void HMGTurret_Think( gentity_t *self )
 {
-  int range =     BG_FindRangeForBuildable( self->s.modelindex );
   int firespeed = BG_FindFireSpeedForBuildable( self->s.modelindex );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
@@ -1683,7 +1676,7 @@ void HDef_Think( gentity_t *self )
   //if not powered don't do anything and check again for power next think
   if( !( self->powered = findPower( self ) ) )
   {
-    self->nextthink = level.time + REFRESH_TIME;
+    self->nextthink = level.time + POWER_REFRESH_TIME;
     return;
   }
   
@@ -1693,12 +1686,12 @@ void HDef_Think( gentity_t *self )
     self->dcced = findDCC( self );
     
     //if the current target is not valid find a new one
-    if( !HDef_CheckTarget( self, self->enemy, range ) )
+    if( !HMGTurret_CheckTarget( self, self->enemy, qfalse ) )
     {
       if( self->enemy )
         self->enemy->targeted = NULL;
 
-      HDef_FindEnemy( self, range );
+      HMGTurret_FindEnemy( self );
     }
 
     //if a new target cannot be found don't do anything
@@ -1708,21 +1701,92 @@ void HDef_Think( gentity_t *self )
     self->enemy->targeted = self;
 
     //if we are pointing at our target and we can fire shoot it
-    switch( self->s.modelindex )
+    if( HMGTurret_TrackEnemy( self ) && ( self->count < level.time ) )
     {
-      case BA_H_MGTURRET:
-        if( HMGTurret_TrackEnemy( self ) && ( self->count < level.time ) )
-          HMGTurret_FireOnEnemy( self, firespeed );
-        break;
-        
-      case BA_H_TESLAGEN:
-        if( self->count < level.time )
-          HTeslaGen_FireOnEnemy( self, firespeed );
-        break;
+      //fire at target
+      FireWeapon( self );
+      
+      self->s.eFlags |= EF_FIRING;
+      G_AddEvent( self, EV_FIRE_WEAPON, 0 );
+      G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
 
-      default:
-        Com_Printf( S_COLOR_YELLOW "WARNING: Unknown turret type in think\n" );
-        break;
+      self->count = level.time + firespeed;
+    }
+  }
+}
+
+
+
+
+//==================================================================================
+
+
+
+
+/*
+================
+HTeslaGen_Think
+
+Think function for Tesla Generator
+================
+*/
+void HTeslaGen_Think( gentity_t *self )
+{
+  int       entityList[ MAX_GENTITIES ];
+  vec3_t    range;
+  vec3_t    mins, maxs;
+  vec3_t    dir;
+  int       i, num;
+  gentity_t *enemy;
+
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
+
+  //used for client side muzzle flashes
+  self->s.eFlags &= ~EF_FIRING;
+  
+  //if not powered don't do anything and check again for power next think
+  if( !( self->powered = findPower( self ) ) )
+  {
+    self->nextthink = level.time + POWER_REFRESH_TIME;
+    return;
+  }
+  
+  //find DCC
+  if( !( self->dcced = findDCC( self ) ) )
+    return;
+  
+  if( self->spawned && self->count < level.time )
+  {
+    VectorSet( range, TESLAGEN_RANGE, TESLAGEN_RANGE, TESLAGEN_RANGE );
+    VectorAdd( self->s.origin, range, maxs );
+    VectorSubtract( self->s.origin, range, mins );
+    
+    //find aliens
+    num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+    for( i = 0; i < num; i++ )
+    {
+      enemy = &g_entities[ entityList[ i ] ];
+      
+      if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
+          enemy->health > 0 )
+      {
+        VectorSubtract( enemy->s.pos.trBase, self->s.pos.trBase, dir );
+        VectorNormalize( dir );
+        vectoangles( dir, self->turretAim );
+
+        //fire at target
+        FireWeapon( self );
+      }
+    }
+
+    if( self->s.eFlags & EF_FIRING )
+    {
+      G_AddEvent( self, EV_FIRE_WEAPON, 0 );
+
+      //doesn't really need an anim
+      //G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
+
+      self->count = level.time + TESLAGEN_REPEAT;
     }
   }
 }
@@ -2111,9 +2175,13 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       break;
       
     case BA_H_MGTURRET:
+      built->die = HSpawn_Die;
+      built->think = HMGTurret_Think;
+      break;
+      
     case BA_H_TESLAGEN:
       built->die = HSpawn_Die;
-      built->think = HDef_Think;
+      built->think = HTeslaGen_Think;
       break;
       
     case BA_H_ARMOURY:

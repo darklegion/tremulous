@@ -397,7 +397,16 @@ void teslaFire( gentity_t *ent )
 
   traceEnt = &g_entities[ tr.entityNum ];
 
-  if( traceEnt->takedamage)
+  if( !traceEnt->client )
+    return;
+
+  if( traceEnt->client && traceEnt->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
+    return;
+
+  //so the client side knows
+  ent->s.eFlags |= EF_FIRING;
+  
+  if( traceEnt->takedamage )
   {
     G_Damage( traceEnt, ent, ent, forward, tr.endpos,
       TESLAGEN_DMG, 0, MOD_TESLAGEN );

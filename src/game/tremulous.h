@@ -427,6 +427,8 @@
 #define MGTURRET_RANGE              250
 #define MGTURRET_SPREAD             200
 #define MGTURRET_DMG                HDM(5)
+#define MGTURRET_DCC_ANGULARSPEED       7
+#define MGTURRET_DCC_ACCURACYTOLERANCE  MGTURRET_DCC_ANGULARSPEED / 1.5f
 
 #define TESLAGEN_BP                 100
 #define TESLAGEN_HEALTH             HBHM(200)
