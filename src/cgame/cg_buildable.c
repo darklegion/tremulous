@@ -609,7 +609,7 @@ static void CG_RunBuildableLerpFrame( centity_t *cent )
     else
       lf->frame = anim->firstFrame + f;
       
-    if ( cg.time > lf->frameTime )
+    if( cg.time > lf->frameTime )
     {
       lf->frameTime = cg.time;
       if( cg_debugAnim.integer )
@@ -624,7 +624,7 @@ static void CG_RunBuildableLerpFrame( centity_t *cent )
     lf->oldFrameTime = cg.time;
     
   // calculate current lerp value
-  if ( lf->frameTime == lf->oldFrameTime )
+  if( lf->frameTime == lf->oldFrameTime )
     lf->backlerp = 0;
   else
     lf->backlerp = 1.0 - (float)( cg.time - lf->oldFrameTime ) / ( lf->frameTime - lf->oldFrameTime );
@@ -642,20 +642,47 @@ static void CG_BuildableAnimation( centity_t *cent, int *old, int *now, float *b
   //if no animation is set default to idle anim
   if( cent->buildableAnim == BANIM_NONE )
     cent->buildableAnim = es->torsoAnim;
-
-  if( ( cent->oldBuildableAnim ^ es->legsAnim ) & ANIM_TOGGLEBIT )
-  {
-    if( cent->buildableAnim == es->torsoAnim || es->legsAnim & ANIM_FORCEBIT )
-      cent->buildableAnim = cent->oldBuildableAnim = es->legsAnim;
-    else
-      cent->buildableAnim = cent->oldBuildableAnim = es->torsoAnim;
-  }
   
-  CG_RunBuildableLerpFrame( cent );
+  //display the first frame of the construction anim if not yet spawned
+  if( !( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
+  {
+    animation_t *anim = &cg_buildables[ es->modelindex ].animations[ BANIM_CONSTRUCT1 ];
+    
+    //so that when animation starts for real it has sensible numbers
+    cent->lerpFrame.oldFrameTime =
+      cent->lerpFrame.frameTime =
+      cent->lerpFrame.animationTime =
+      cg.time;
 
-  *old      = cent->lerpFrame.oldFrame;
-  *now      = cent->lerpFrame.frame;
-  *backLerp = cent->lerpFrame.backlerp;
+    *old      = cent->lerpFrame.oldFrame = anim->firstFrame;
+    *now      = cent->lerpFrame.frame    = anim->firstFrame;
+    *backLerp = cent->lerpFrame.backlerp = 0.0f;
+
+    //ensure that an animation is triggered once the buildable has spawned
+    cent->oldBuildableAnim = BANIM_NONE;
+  }
+  else
+  {
+    if( ( cent->oldBuildableAnim ^ es->legsAnim ) & ANIM_TOGGLEBIT )
+    {
+      if( cg_debugAnim.integer )
+        CG_Printf( "%d->%d l:%d t:%d %s(%d)\n",
+                   cent->oldBuildableAnim, cent->buildableAnim,
+                   es->legsAnim, es->torsoAnim,
+                   BG_FindHumanNameForBuildable( es->modelindex ), es->number );
+
+      if( cent->buildableAnim == es->torsoAnim || es->legsAnim & ANIM_FORCEBIT )
+        cent->buildableAnim = cent->oldBuildableAnim = es->legsAnim;
+      else
+        cent->buildableAnim = cent->oldBuildableAnim = es->torsoAnim;
+    }
+    
+    CG_RunBuildableLerpFrame( cent );
+
+    *old      = cent->lerpFrame.oldFrame;
+    *now      = cent->lerpFrame.frame;
+    *backLerp = cent->lerpFrame.backlerp;
+  }
 }
 
 #define TRACE_DEPTH 128.0f
@@ -957,21 +984,10 @@ void CG_Buildable( centity_t *cent )
 
   ent.nonNormalizedAxes = qfalse;
 
-  if( team == BIT_ALIENS )
-  {
-    if( es->generic1 & B_SPAWNED_TOGGLEBIT )
-    {
-      //run animations
-      CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
-    }
-  }
-  else if( team == BIT_HUMANS )
-  {
-    if( !( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
-      ent.customShader = cgs.media.humanSpawningShader;
-    else
-      CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
-  }
+  if( team == BIT_HUMANS && !( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
+    ent.customShader = cgs.media.humanSpawningShader;
+      
+  CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
 
   // add to refresh list
   trap_R_AddRefEntityToScene( &ent );

@@ -500,7 +500,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
       {
         client->charging = qfalse; //should already be off, just making sure
 
-        client->ps.stats[ STAT_MISC ] += 100;
+        client->ps.stats[ STAT_MISC ] += (int)( 100 * (float)BMOFO_CHARGE_CHARGE_RATIO );
         
         if( client->ps.stats[ STAT_MISC ] > BMOFO_CHARGE_TIME )
           client->ps.stats[ STAT_MISC ] = BMOFO_CHARGE_TIME;

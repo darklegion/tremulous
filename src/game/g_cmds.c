@@ -919,6 +919,7 @@ void Cmd_SetViewpos_f( gentity_t *ent )
   TeleportPlayer( ent, origin, angles );
 }
 
+#define EVOLVE_TRACE_HEIGHT 128.0f
 
 /*
 =================
@@ -942,6 +943,7 @@ void Cmd_Class_f( gentity_t *ent )
   
   int       numLevels;
   vec3_t    fromMins, fromMaxs, toMins, toMaxs;
+  vec3_t    temp;
 
   clientNum = ent->client - level.clients;
   trap_Argv( 1, s, sizeof( s ) );
@@ -978,7 +980,8 @@ void Cmd_Class_f( gentity_t *ent )
         return;
       }
       
-      numLevels = BG_ClassCanEvolveFromTo( ent->client->ps.stats[ STAT_PCLASS ], ent->client->pers.classSelection,
+      numLevels = BG_ClassCanEvolveFromTo( ent->client->ps.stats[ STAT_PCLASS ],
+                                           ent->client->pers.classSelection,
                                            (short)ent->client->ps.persistant[ PERS_CREDIT ], 0 );
 
       BG_FindBBoxForClass( ent->client->ps.stats[ STAT_PCLASS ],
@@ -989,11 +992,20 @@ void Cmd_Class_f( gentity_t *ent )
       VectorCopy( ent->s.pos.trBase, infestOrigin );
       
       infestOrigin[ 2 ] += ( fabs( toMins[ 2 ] ) - fabs( fromMins[ 2 ] ) ) + 1;
+      VectorCopy( infestOrigin, temp );
+      temp[ 2 ] += EVOLVE_TRACE_HEIGHT;
 
-      trap_Trace( &tr, infestOrigin, toMins, toMaxs, infestOrigin, ent->s.number, MASK_SHOT );
+      //compute a place up in the air to start the real trace
+      trap_Trace( &tr, infestOrigin, toMins, toMaxs, temp, ent->s.number, MASK_SHOT );
+      VectorCopy( infestOrigin, temp );
+      temp[ 2 ] += ( EVOLVE_TRACE_HEIGHT * tr.fraction ) - 1.0f;
+      
+      //trace down to the ground so that we can evolve on slopes
+      trap_Trace( &tr, temp, toMins, toMaxs, infestOrigin, ent->s.number, MASK_SHOT );
+      VectorCopy( tr.endpos, infestOrigin );
       
       //check there is room to evolve
-      if( tr.fraction == 1.0f )
+      if( !tr.startsolid )
       {
         //...check we can evolve to that class
         if( numLevels && BG_FindStagesForClass( ent->client->pers.classSelection, g_alienStage.integer ) )
@@ -1009,7 +1021,8 @@ void Cmd_Class_f( gentity_t *ent )
         else
         {
           ent->client->pers.classSelection = PCL_NONE;
-          trap_SendServerCommand( ent-g_entities, va( "print \"You cannot evolve from your current class\n\"" ) );
+          trap_SendServerCommand( ent-g_entities,
+               va( "print \"You cannot evolve from your current class\n\"" ) );
           return;
         }
       }
@@ -1032,7 +1045,8 @@ void Cmd_Class_f( gentity_t *ent )
           if( allowedClasses[ i ] == ent->client->pers.classSelection &&
               BG_FindStagesForClass( ent->client->pers.classSelection, g_alienStage.integer ) )
           {
-            if( ( spawn = SelectTremulousSpawnPoint( ent->client->pers.teamSelection, spawn_origin, spawn_angles ) ) &&
+            if( ( spawn = SelectTremulousSpawnPoint( ent->client->pers.teamSelection,
+                                                     spawn_origin, spawn_angles ) ) &&
                 level.numAlienSpawns > 0 ) //sanity check
             {
               ent->client->sess.sessionTeam = TEAM_FREE;
@@ -1081,7 +1095,8 @@ void Cmd_Class_f( gentity_t *ent )
       return;
     }
 
-    if( ( spawn = SelectTremulousSpawnPoint( ent->client->pers.teamSelection, spawn_origin, spawn_angles ) ) &&
+    if( ( spawn = SelectTremulousSpawnPoint( ent->client->pers.teamSelection,
+                                             spawn_origin, spawn_angles ) ) &&
         level.numHumanSpawns > 0 ) //sanity check
     {
       ent->client->sess.sessionTeam = TEAM_FREE;

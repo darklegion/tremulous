@@ -546,7 +546,7 @@ void G_Physics( gentity_t *ent, int msec );
 //
 
 #define M_ROOT3 1.732050808f
-#define MAX_ALIEN_BBOX  20
+#define MAX_ALIEN_BBOX  25
 
 typedef enum
 {

@@ -879,9 +879,6 @@ static void CG_CEntityPVSEnter( centity_t *cent )
   cent->buildablePS = NULL;
   
   cent->entityPS = NULL;
-
-  //make sure entities entering the PVS don't get stale animation data
-  memset( &cent->lerpFrame, 0, sizeof( lerpFrame_t ) );
 }
 
 

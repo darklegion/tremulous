@@ -81,7 +81,9 @@
 #define BMOFO_REGEN_RANGE           200.0f
 #define BMOFO_REGEN_MOD             2.0f
 #define BMOFO_CHARGE_SPEED          2.0f
-#define BMOFO_CHARGE_TIME           2000
+#define BMOFO_CHARGE_TIME           3000
+#define BMOFO_CHARGE_CHARGE_TIME    1000
+#define BMOFO_CHARGE_CHARGE_RATIO   (BMOFO_CHARGE_TIME/BMOFO_CHARGE_CHARGE_TIME)
 #define BMOFO_CHARGE_REPEAT         500
 #define BMOFO_CHARGE_DMG            ADM(200)
 

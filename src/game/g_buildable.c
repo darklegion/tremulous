@@ -470,7 +470,7 @@ void ASpawn_Think( gentity_t *self )
     VectorSet( maxs,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX );
     
     VectorCopy( self->s.origin, origin );
-    displacement = ( self->r.maxs[ 2 ] + MAX_ALIEN_BBOX ) * M_ROOT3 + 1.0f;
+    displacement = ( self->r.maxs[ 2 ] + MAX_ALIEN_BBOX ) * M_ROOT3;
     VectorMA( origin, displacement, self->s.origin2, origin );
   
     //only suicide if at rest

@@ -303,7 +303,7 @@ gentity_t *SelectAlienSpawnPoint( void )
       continue;
       
     VectorCopy( spot->s.origin, origin );
-    displacement = ( spot->r.maxs[ 2 ] + MAX_ALIEN_BBOX ) * M_ROOT3 + 1.0f;
+    displacement = ( spot->r.maxs[ 2 ] + MAX_ALIEN_BBOX ) * M_ROOT3;
     VectorMA( origin, displacement, spot->s.origin2, origin );
     
     trap_Trace( &tr, origin, mins, maxs, origin, spot->s.number, MASK_SHOT );
@@ -466,7 +466,7 @@ gentity_t *SelectTremulousSpawnPoint( int team, vec3_t origin, vec3_t angles )
     BG_FindBBoxForBuildable( BA_A_SPAWN, spawnMins, spawnMaxs );
     
     //TA: really a *safe* extreme upper limit
-    displacement = ( spawnMaxs[ 2 ] + MAX_ALIEN_BBOX + 1.0f ) * M_ROOT3;
+    displacement = ( spawnMaxs[ 2 ] + MAX_ALIEN_BBOX ) * M_ROOT3;
     VectorMA( origin, displacement, spot->s.origin2, origin );
   }
   else if( team == PTE_HUMANS )

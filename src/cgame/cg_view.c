@@ -462,17 +462,20 @@ static void CG_OffsetFirstPersonView( void )
   else
     bob2 = BG_FindBobForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
   
+
+#define BMOFO_FEEDBACK  10.0f
+  
   //give a charging player some feedback
-  if( cg.predictedPlayerState.weapon == WP_BIGMOFO )
+  if( ps->weapon == WP_BIGMOFO )
   {
-    if( cg.predictedPlayerState.stats[ STAT_MISC ] > 0 )
+    if( ps->stats[ STAT_MISC ] > 0 )
     {
-      float fraction = (float)( cg.time - cg.weapon2Time ) / (float)BMOFO_CHARGE_TIME;
+      float fraction = (float)ps->stats[ STAT_MISC ] / (float)BMOFO_CHARGE_TIME;
 
       if( fraction > 1.0f )
         fraction = 1.0f;
 
-      bob2 *= ( 1.0f + fraction * 6.0f );
+      bob2 *= ( 1.0f + fraction * BMOFO_FEEDBACK );
     }
   }
   
