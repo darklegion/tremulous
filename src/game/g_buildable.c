@@ -910,6 +910,7 @@ void HDCC_Think( gentity_t *self )
 
 
 
+#define MAX_HEAL_CLIENTS  1
 
 /*
 ================
@@ -924,6 +925,7 @@ void HMedistat_Think( gentity_t *self )
   vec3_t    mins, maxs;
   int       i, num;
   gentity_t *player;
+  int       healCount = 0;
 
   VectorAdd( self->s.origin, self->r.maxs, maxs );
   VectorAdd( self->s.origin, self->r.mins, mins );
@@ -934,6 +936,10 @@ void HMedistat_Think( gentity_t *self )
   //make sure we have power
   self->powered = findPower( self );
 
+  //if active use the healing idle
+  if( self->active )
+    G_setIdleBuildableAnim( self, BANIM_IDLE2 );
+
   //do some healage
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
@@ -942,11 +948,30 @@ void HMedistat_Think( gentity_t *self )
     
     if( player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
     {
-      if( player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] )
+      if( player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] && healCount < MAX_HEAL_CLIENTS )
+      {
+        healCount++;
         player->health++;
+        
+        //start the heal anim
+        if( !self->active )
+        {
+          G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
+          self->active = qtrue;
+        }
+      }
     }
   }
 
+  //nothing left to heal so go back to idling
+  if( healCount == 0 && self->active )
+  {
+    G_setBuildableAnim( self, BANIM_CONSTRUCT2, qtrue );
+    G_setIdleBuildableAnim( self, BANIM_IDLE1 );
+    
+    self->active = qfalse;
+  }
+    
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
 

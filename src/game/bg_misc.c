@@ -1428,8 +1428,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "medistat",            //char      *buildName;
     "team_human_medistat", //char      *entityName;
     { "models/buildables/medistat/medistat.md3", 0, 0, 0 },
-    { -40, -40, -4 },      //vec3_t    mins;
-    { 40, 40, 4 },         //vec3_t    maxs;
+    { -35, -35, -7 },      //vec3_t    mins;
+    { 35, 35, 7 },         //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     100,                   //int       buildPoints;
