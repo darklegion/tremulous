@@ -185,12 +185,9 @@ SED=sed
 
 
 # --qvm building config--
-LCC_CPP=q3cpp
-LCC_CPP_FLAGS=-DQ3_VM -D__LCC__
+LCC=q3lcc
+LCC_FLAGS=-DQ3_VM -S -Wf-target=bytecode -Wf-g
 LCC_INCLUDES=-I$(CGDIR) -I$(GDIR) -I$(UIDIR)
-
-LCC_RCC=q3rcc
-LCC_RCC_FLAGS=-target=bytecode -g
 
 Q3ASM=q3asm
 Q3ASM_FLAGS=
@@ -281,10 +278,7 @@ $(BD)/$(GDIRNAME)/%.o: $(GDIR)/%.c
   
 #qvm g_*.asm
 $(BQ)/$(GDIRNAME)/%.asm: $(GDIR)/%.c 
-	$(LCC_CPP) $(LCC_CPP_FLAGS) $(LCC_INCLUDES) $< $(BQ)/$(GDIRNAME)/$*.i
-	$(LCC_RCC) $(LCC_RCC_FLAGS) $(BQ)/$(GDIRNAME)/$*.i $@
-	rm $(BQ)/$(GDIRNAME)/$*.i
-
+	$(LCC) $(LCC_FLAGS) $(LCC_INCLUDES) -o $@ $<
 
 #release cg_*.o
 $(BR)/$(CGDIRNAME)/%.o: $(CGDIR)/%.c 
@@ -296,10 +290,7 @@ $(BD)/$(CGDIRNAME)/%.o: $(CGDIR)/%.c
 
 #qvm cg_*.asm
 $(BQ)/$(CGDIRNAME)/%.asm: $(CGDIR)/%.c 
-	$(LCC_CPP) $(LCC_CPP_FLAGS) $(LCC_INCLUDES) $< $(BQ)/$(CGDIRNAME)/$*.i
-	$(LCC_RCC) $(LCC_RCC_FLAGS) $(BQ)/$(CGDIRNAME)/$*.i $@
-	rm $(BQ)/$(CGDIRNAME)/$*.i
-
+	$(LCC) $(LCC_FLAGS) $(LCC_INCLUDES) -o $@ $<
 
 #release ui_*.o
 $(BR)/$(UIDIRNAME)/%.o: $(UIDIR)/%.c 
@@ -311,10 +302,7 @@ $(BD)/$(UIDIRNAME)/%.o: $(UIDIR)/%.c
   
 #qvm ui_*.asm
 $(BQ)/$(UIDIRNAME)/%.asm: $(UIDIR)/%.c 
-	$(LCC_CPP) $(LCC_CPP_FLAGS) $(LCC_INCLUDES) $< $(BQ)/$(UIDIRNAME)/$*.i
-	$(LCC_RCC) $(LCC_RCC_FLAGS) $(BQ)/$(UIDIRNAME)/$*.i $@
-	rm $(BQ)/$(UIDIRNAME)/$*.i
-
+	$(LCC) $(LCC_FLAGS) $(LCC_INCLUDES) -o $@ $<
 
 
 # --cleaning rules--

@@ -1691,9 +1691,9 @@ static void PM_GroundTrace( void ) {
     //toggle wall climbing if holding crouch
     if( pm->cmd.upmove < 0 && wcl[ pm->ps->clientNum ].lastUpmove >= 0 )
     {
-      if( !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) && pm->cmd.upmove < 0 )
+      if( !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
         pm->ps->stats[ STAT_STATE ] |= SS_WALLCLIMBING;
-      else if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING && pm->cmd.upmove < 0 )
+      else if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
         pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
     }
 
