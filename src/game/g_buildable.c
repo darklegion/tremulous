@@ -2180,6 +2180,64 @@ void HSpawn_Think( gentity_t *self )
 //==================================================================================
 
 
+/*
+============
+G_BuildableTouchTriggers
+
+Find all trigger entities that a buildable touches.
+============
+*/
+void G_BuildableTouchTriggers( gentity_t *ent )
+{
+  int       i, num;
+  int       touch[ MAX_GENTITIES ];
+  gentity_t *hit;
+  trace_t   trace;
+  vec3_t    mins, maxs;
+  vec3_t    bmins, bmaxs;
+  static    vec3_t range = { 10, 10, 10 };
+
+  // dead buildables don't activate triggers!
+  if( ent->health <= 0 )
+    return;
+
+  BG_FindBBoxForBuildable( ent->s.modelindex, bmins, bmaxs );
+  
+  VectorAdd( ent->s.origin, bmins, mins );
+  VectorAdd( ent->s.origin, bmaxs, maxs );
+  
+  VectorSubtract( mins, range, mins );
+  VectorAdd( maxs, range, maxs );
+
+  num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
+
+  VectorAdd( ent->s.origin, bmins, mins );
+  VectorAdd( ent->s.origin, bmaxs, maxs );
+
+  for( i = 0; i < num; i++ ) 
+  {
+    hit = &g_entities[ touch[ i ] ];
+
+    if( !hit->touch )
+      continue;
+
+    if( !( hit->r.contents & CONTENTS_TRIGGER ) )
+      continue;
+
+    //ignore buildables not yet spawned
+    if( !ent->spawned )
+      continue;
+    
+    if( !trap_EntityContact( mins, maxs, hit ) )
+      continue;
+
+    memset( &trace, 0, sizeof( trace ) );
+
+    if( hit->touch )
+      hit->touch( hit, ent, &trace );
+  }
+}
+
 
 /*
 ===============
@@ -2238,6 +2296,9 @@ void G_BuildableThink( gentity_t *ent, int msec )
   if( ent->clientSpawnTime < 0 )
     ent->clientSpawnTime = 0;
 
+  //check if this buildable is touching any triggers
+  G_BuildableTouchTriggers( ent );
+  
   //fall back on normal physics routines
   G_Physics( ent, msec );
 }
@@ -2295,6 +2356,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   int               templength;
   float             minNormal;
   qboolean          invert;
+  int               contents;
   playerState_t     *ps = &ent->client->ps;
 
   BG_FindBBoxForBuildable( buildable, mins, maxs );
@@ -2325,6 +2387,8 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   if( G_CheckSpawnPoint( origin, normal, buildable, NULL ) != NULL )
     return IBE_NORMAL;
 
+  contents = trap_PointContents( entity_origin, -1 );
+
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     //alien criteria
@@ -2348,7 +2412,8 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     }
     
     //check permission to build here
-    if( tr1.surfaceFlags & SURF_NOALIENBUILD )
+    if( tr1.surfaceFlags & SURF_NOALIENBUILD || tr1.surfaceFlags & SURF_NOBUILD ||
+        contents & CONTENTS_NOALIENBUILD || contents & CONTENTS_NOBUILD )
       reason = IBE_PERMISSION;
 
     //look for a hivemind
@@ -2423,7 +2488,8 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     }
       
     //check permission to build here
-    if( tr1.surfaceFlags & SURF_NOHUMANBUILD )
+    if( tr1.surfaceFlags & SURF_NOHUMANBUILD || tr1.surfaceFlags & SURF_NOBUILD ||
+        contents & CONTENTS_NOHUMANBUILD || contents & CONTENTS_NOBUILD )
       reason = IBE_PERMISSION;
 
     //can we only build one of these?

@@ -1285,6 +1285,10 @@ Touch_DoorTrigger
 */
 void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace )
 {
+  //buildables don't trigger movers
+  if( other->s.eType == ET_BUILDABLE )
+    return;
+  
   if( other->client && other->client->sess.sessionTeam == TEAM_SPECTATOR )
   {
     // if the door is not open and not opening

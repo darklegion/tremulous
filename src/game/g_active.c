@@ -241,7 +241,8 @@ void  G_TouchTriggers( gentity_t *ent )
   gentity_t *hit;
   trace_t   trace;
   vec3_t    mins, maxs;
-  static    vec3_t range = { 40, 40, 52 };
+  vec3_t    pmins, pmaxs;
+  static    vec3_t range = { 10, 10, 10 };
 
   if( !ent->client )
     return;
@@ -250,8 +251,14 @@ void  G_TouchTriggers( gentity_t *ent )
   if( ent->client->ps.stats[ STAT_HEALTH ] <= 0 )
     return;
 
-  VectorSubtract( ent->client->ps.origin, range, mins );
-  VectorAdd( ent->client->ps.origin, range, maxs );
+  BG_FindBBoxForClass( ent->client->ps.stats[ STAT_PCLASS ],
+                       pmins, pmaxs, NULL, NULL, NULL );
+  
+  VectorAdd( ent->client->ps.origin, pmins, mins );
+  VectorAdd( ent->client->ps.origin, pmaxs, maxs );
+  
+  VectorSubtract( mins, range, mins );
+  VectorAdd( maxs, range, maxs );
 
   num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
 

@@ -79,7 +79,7 @@ void Use_Multi( gentity_t *ent, gentity_t *other, gentity_t *activator )
 
 void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 {
-  if( !other->client )
+  if( !other->client && other->s.eType != ET_BUILDABLE )
     return;
 
   multi_trigger( self, other );

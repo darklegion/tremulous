@@ -52,6 +52,11 @@
 #define CONTENTS_TRIGGER        0x40000000
 #define CONTENTS_NODROP         0x80000000  // don't leave bodies or items (death fog, lava)
 
+//TA: custominfoparms below
+#define CONTENTS_NOALIENBUILD   0x1000 // disallow alien building
+#define CONTENTS_NOHUMANBUILD   0x2000 // disallow alien building
+#define CONTENTS_NOBUILD        0x4000 // disallow alien building
+
 #define SURF_NODAMAGE           0x1   // never give falling damage
 #define SURF_SLICK              0x2   // effects game physics
 #define SURF_SKY                0x4   // lighting from environment map
@@ -75,4 +80,5 @@
 //TA: custominfoparms below
 #define SURF_NOALIENBUILD       0x80000 // disallow alien building
 #define SURF_NOHUMANBUILD       0x100000 // disallow alien building
+#define SURF_NOBUILD            0x200000 // disallow alien building
 
