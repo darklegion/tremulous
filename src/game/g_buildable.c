@@ -24,6 +24,7 @@
                   
 #include "g_local.h"
 
+#define REFRESH_TIME  2000
 
 /*
 ================
@@ -40,6 +41,9 @@ qboolean findPower( gentity_t *self )
   int       distance = 0;
   int       minDistance = 10000;
   vec3_t    temp_v;
+  
+  //reset parent
+  self->parentNode = NULL;
   
   for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
@@ -60,29 +64,27 @@ qboolean findPower( gentity_t *self )
         !Q_stricmp( closestPower->classname, "team_human_reactor" ) &&
         ( minDistance <= REACTOR_BASESIZE )
       )
-      ||
-      (
-        !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
-        ( minDistance <= REPEATER_BASESIZE ) &&
-        closestPower->active
-      )
       || 
       (
         !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
         !Q_stricmp( self->classname, "team_human_spawn" ) &&
-        ( minDistance <= REPEATER_BASESIZE )
+        ( minDistance <= REPEATER_BASESIZE ) &&
+        closestPower->powered 
+      )
+      ||
+      (
+        !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
+        ( minDistance <= REPEATER_BASESIZE ) &&
+        closestPower->active &&
+        closestPower->powered 
       )
     )
   {
-    self->powered = qtrue;
     self->parentNode = closestPower;
     return qtrue;
   }
   else
-  {
-    self->powered = qfalse;
     return qfalse;
-  }
 }
 
 /*
@@ -280,16 +282,19 @@ void HRpt_Think( gentity_t *self )
   {
     if( !Q_stricmp( ent->classname, "team_human_spawn" ) && ent->parentNode == self )
       count++;
+      
     if( !Q_stricmp( ent->classname, "team_human_reactor" ) )
       reactor = qtrue;
   }
   
   if( count && reactor )
-    self->active = self->powered = qtrue;
+    self->active = qtrue;
   else
-    self->active = self->powered = qfalse;
+    self->active = qfalse;
 
-  self->nextthink = level.time + 10000;
+  self->powered = reactor;
+
+  self->nextthink = level.time + REFRESH_TIME;
 }
 
 /*
@@ -318,14 +323,13 @@ Think for mcu
 */
 void HMCU_Think( gentity_t *self )
 {
-  self->nextthink = level.time + 1000;
+  self->nextthink = level.time + REFRESH_TIME;
   
   if( ( self->parentNode == NULL ) ||
       !self->parentNode->inuse ||
       !self->parentNode->active )
   {
-    if( !findPower( self ) )
-      self->nextthink = level.time + 10000;
+    self->powered = !findPower( self );
   }
 }
 
@@ -490,9 +494,10 @@ void HDef1_Think( gentity_t *self )
       !self->parentNode->inuse ||
       !self->parentNode->active )
   {
-    if( !findPower( self ) )
+    self->powered = findPower( self );
+    if( !self->powered )
     {
-      self->nextthink = level.time + 10000;
+      self->nextthink = level.time + REFRESH_TIME;
       return;
     }
   }
@@ -559,14 +564,13 @@ Think for human spawn
 */
 void HSpawn_Think( gentity_t *self )
 {
-  self->nextthink = level.time + 1000;
-  
+  self->nextthink = level.time + REFRESH_TIME;
+
   if( ( self->parentNode == NULL ) ||
       !self->parentNode->inuse ||
       !self->parentNode->active )
   {
-    if( !findPower( self ) )
-      self->nextthink = level.time + 10000;
+    self->powered = findPower( self );
   }
 }
 

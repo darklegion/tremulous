@@ -818,6 +818,12 @@ void calculateBuildPoints( void )
       }
     }
   }
+  
+  trap_SetConfigstring( CS_DBPOINTS, va("%i", level.droidBuildPoints ) );
+  trap_SetConfigstring( CS_DTBPOINTS, va("%i", level.droidBuildPointsTotal ) );
+  trap_SetConfigstring( CS_HBPOINTS, va("%i", level.humanBuildPoints ) );
+  trap_SetConfigstring( CS_HTBPOINTS, va("%i", level.humanBuildPointsTotal ) );
+  trap_SetConfigstring( CS_HPBPOINTS, va("%i", level.humanBuildPointsPowered ) );
 }
 
 
@@ -937,12 +943,6 @@ void CalculateRanks( void ) {
       }
     }
   }
-
-  trap_SetConfigstring( CS_DBPOINTS, va("%i", level.droidBuildPoints ) );
-  trap_SetConfigstring( CS_DTBPOINTS, va("%i", level.droidBuildPointsTotal ) );
-  trap_SetConfigstring( CS_HBPOINTS, va("%i", level.humanBuildPoints ) );
-  trap_SetConfigstring( CS_HTBPOINTS, va("%i", level.humanBuildPointsTotal ) );
-  trap_SetConfigstring( CS_HPBPOINTS, va("%i", level.humanBuildPointsPowered ) );
 
   // set the CS_SCORES1/2 configstrings, which will be visible to everyone
   if ( g_gametype.integer >= GT_TEAM ) {
@@ -1904,7 +1904,6 @@ end = trap_Milliseconds();
   //TA:
   countSpawns();
   calculateBuildPoints();
-  Com_Printf( "%d %d %d\n", level.humanBuildPointsTotal, level.humanBuildPoints, level.humanBuildPointsPowered );
 
   // see if it is time to end the level
   CheckExitRules();

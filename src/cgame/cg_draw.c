@@ -533,6 +533,38 @@ static void CG_DrawStatusBar( void ) {
   }
 
   //
+  // power
+  //
+  #define PWR_HEIGHT 10
+  #define PWR_WIDTH  80
+  #define PWR_X      555
+  #define PWR_Y      20
+  if( ps->stats[ STAT_PTEAM ] == PTE_HUMANS )
+  {
+    int total = cgs.hBuildPointsTotal;
+    int allocated = total - cgs.hBuildPoints;
+    int powered = total - cgs.hBuildPointsPowered;
+
+    int awidth = (int)( (float)allocated / ( total / PWR_WIDTH ) );
+    int pwidth = (int)( (float)powered / ( total / PWR_WIDTH ) );
+    vec4_t bcolor = { 0.5, 0.5, 0.5, 0.5 };
+
+    //Com_Printf( "%d %d %d\n", allocated, powered, total );
+    
+    trap_R_SetColor( bcolor );   // white
+    CG_DrawPic( PWR_X, PWR_Y, PWR_WIDTH, PWR_HEIGHT, cgs.media.whiteShader );
+
+    trap_R_SetColor( colors[0] ); // green
+    CG_DrawPic( PWR_X, PWR_Y, awidth, PWR_HEIGHT, cgs.media.whiteShader );
+    
+    if( allocated > powered )
+    {
+      trap_R_SetColor( colors[1] ); // red
+      CG_DrawPic( PWR_X + pwidth, PWR_Y, awidth - pwidth, PWR_HEIGHT, cgs.media.whiteShader );
+    }
+  }
+
+  //
   // health+armor
   //
   if( ps->stats[ STAT_PTEAM ] == PTE_DROIDS )

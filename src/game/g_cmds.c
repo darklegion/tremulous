@@ -1929,7 +1929,7 @@ void Cmd_Build_f( gentity_t *ent )
           break;
 
         case IBE_NOROOM:
-          G_AddPredictableEvent( ent, EV_MENU, MN_NOROOM );
+          G_AddPredictableEvent( ent, EV_MENU, MN_DNOROOM );
           break;
       }
     }
@@ -1955,7 +1955,11 @@ void Cmd_Build_f( gentity_t *ent )
           break;
 
         case IBE_NOROOM:
-          G_AddPredictableEvent( ent, EV_MENU, MN_NOROOM );
+          G_AddPredictableEvent( ent, EV_MENU, MN_HNOROOM );
+          break;
+
+        case IBE_NOPOWER:
+          G_AddPredictableEvent( ent, EV_MENU, MN_HNOPOWER );
           break;
       }
     }
