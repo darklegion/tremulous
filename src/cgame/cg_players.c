@@ -2196,6 +2196,7 @@ void CG_Corpse( centity_t *cent )
   VectorCopy( origin, legs.lightingOrigin );
   legs.shadowPlane = shadowPlane;
   legs.renderfx = renderfx;
+  legs.origin[ 2 ] += BG_FindZOffsetForClass( es->clientNum );
   VectorCopy( legs.origin, legs.oldorigin ); // don't positionally lerp at all
 
   //rescale the model

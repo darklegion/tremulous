@@ -860,6 +860,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
         CG_SetParticleSystemCent( ps, cent );
         CG_AttachParticleSystemToCent( ps );
       }
+      
+      if( es->number == cg.clientNum )
+        cg.spawnTime = cg.time;
       break;
 
     case EV_ALIEN_ACIDTUBE:

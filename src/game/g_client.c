@@ -1471,6 +1471,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
       VectorNormalize( dir );
 
       VectorScale( dir, UP_VEL, client->ps.velocity );
+      
+      G_AddPredictableEvent( ent, EV_PLAYER_RESPAWN, 0 );
     }
     else
     {
@@ -1500,9 +1502,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
   client->ps.pm_time = 100;
 
-  //TA: STAT_SPAWNTIME for alien fov effects
   client->respawnTime = level.time;
-  G_AddPredictableEvent( ent, EV_PLAYER_RESPAWN, 0 );
 
   client->inactivityTime = level.time + g_inactivity.integer * 1000;
   client->latched_buttons = 0;

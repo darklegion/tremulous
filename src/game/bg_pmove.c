@@ -1667,10 +1667,10 @@ static void PM_GroundTraceMissed( void )
     // if they aren't in a jumping animation and the ground is a ways away, force into it
     // if we didn't do the trace, the player would be backflipping down staircases
     VectorCopy( pm->ps->origin, point );
-    point[ 2 ] -= 64;
+    point[ 2 ] -= 64.0f;
 
-    pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
-    if( trace.fraction == 1.0 )
+    pm->trace( &trace, pm->ps->origin, NULL, NULL, point, pm->ps->clientNum, pm->tracemask );
+    if( trace.fraction == 1.0f )
     {
       if( pm->cmd.forwardmove >= 0 )
       {
