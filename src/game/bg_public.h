@@ -887,6 +887,8 @@ typedef struct
   qboolean  invertNormal;
 
   qboolean  creepTest;
+  int       creepSize;
+
   qboolean  reactorTest;
 } buildableAttributes_t;      
 
@@ -958,6 +960,7 @@ weapon_t      BG_FindProjTypeForBuildable( int bclass );
 float         BG_FindMinNormalForBuildable( int bclass );
 qboolean      BG_FindInvertNormalForBuildable( int bclass );
 int           BG_FindCreepTestForBuildable( int bclass );
+int           BG_FindCreepSizeForBuildable( int bclass );
 int           BG_FindUniqueTestForBuildable( int bclass );
 
 int       BG_FindClassNumForName( char *name );
@@ -1077,5 +1080,5 @@ qboolean  BG_gotWeapon( int weapon, int stats[ ] );*/
 #define MAX_BOTS_TEXT   8192
 
 //TA: conceptually should live in q_shared.h
-void    AxisToAngles( vec3_t axis[3], vec3_t angles);
+void    AxisToAngles( vec3_t axis[3], vec3_t angles );
 #define Vector2Set(v, x, y) ((v)[0]=(x), (v)[1]=(y))

@@ -1263,6 +1263,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.5f,                  //float     minNormal;
     qtrue,                 //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
+    120,                   //int       creepSize;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -1289,6 +1290,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
+    120,                   //int       creepSize;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -1315,6 +1317,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
+    120,                   //int       creepSize;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -1341,6 +1344,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qtrue,                 //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
+    120,                   //int       creepSize;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -1364,9 +1368,10 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretFireSpeed;
     400,                   //int       turretRange;
     WP_LOCKBLOB_LAUNCHER,  //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
+    0.0f,                  //float     minNormal;
+    qtrue,                 //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
+    30,                    //int       creepSize;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -1393,6 +1398,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
+    120,                   //int       creepSize;
     qtrue                  //qboolean  reactorTest;
   },
   {
@@ -1419,6 +1425,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
+    0,                     //int       creepSize;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -1445,6 +1452,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
+    0,                     //int       creepSize;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -1471,6 +1479,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
+    0,                     //int       creepSize;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -1497,6 +1506,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
+    0,                     //int       creepSize;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -1523,6 +1533,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
+    0,                     //int       creepSize;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -1549,6 +1560,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
+    0,                     //int       creepSize;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -1575,6 +1587,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
+    0,                     //int       creepSize;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -1601,6 +1614,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
+    0,                     //int       creepSize;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -1627,6 +1641,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
+    0,                     //int       creepSize;
     qtrue                  //qboolean  reactorTest;
   },
   {
@@ -1653,6 +1668,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
+    0,                     //int       creepSize;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -1679,6 +1695,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
+    0,                     //int       creepSize;
     qfalse                 //qboolean  reactorTest;
   }
 };
@@ -2149,6 +2166,26 @@ int BG_FindCreepTestForBuildable( int bclass )
   }
   
   return qfalse;
+}
+
+/*
+==============
+BG_FindCreepSizeForBuildable
+==============
+*/
+int BG_FindCreepSizeForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].creepSize;
+    }
+  }
+  
+  return CREEP_BASESIZE;
 }
 
 /*

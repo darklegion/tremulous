@@ -355,7 +355,7 @@ void DSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   self->die = nullDieFunction;
   self->think = DSpawn_Blast;
-  self->nextthink = level.time + 15000; //wait .5 seconds before damaging others
+  self->nextthink = level.time + 5000; //wait .5 seconds before damaging others
     
   trap_LinkEntity( self );
 }
@@ -477,7 +477,7 @@ void DBarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
   
   self->die = nullDieFunction;
   self->think = DBarricade_Blast;
-  self->nextthink = level.time + 15000;
+  self->nextthink = level.time + 5000;
 
   trap_LinkEntity( self );
 }
@@ -609,7 +609,8 @@ void DBooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 //==================================================================================
 
 
-#define BLOB_PROJSPEED 500
+#define BLOB_PROJSPEED  500
+#define MIN_DOT         0.85f // max angle = acos( MIN_DOT )
 
 /*
 ================
@@ -684,6 +685,11 @@ qboolean ddef_checktarget( gentity_t *self, gentity_t *target, int range )
 
   VectorSubtract( target->r.currentOrigin, self->r.currentOrigin, distance );
   if( VectorLength( distance ) > range ) // is the target within range?
+    return qfalse;
+
+  //only allow a narrow field of "vision"
+  VectorNormalize( distance ); //is now direction of target
+  if( DotProduct( distance, self->s.origin2 ) < MIN_DOT )
     return qfalse;
 
   trap_Trace( &trace, self->s.pos.trBase, NULL, NULL, target->s.pos.trBase, self->s.number, MASK_SHOT );
@@ -1456,7 +1462,7 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   
   self->die = nullDieFunction;
   self->think = HSpawn_Blast;
-  self->nextthink = level.time + 15000; //wait 1.5 seconds before damaging others
+  self->nextthink = level.time + 5000; //wait 1.5 seconds before damaging others
   self->powered = qfalse; //free up power
 
   trap_LinkEntity( self );
