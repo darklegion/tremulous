@@ -2471,11 +2471,6 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
     tempang[i] = SHORT2ANGLE( temp[i] );
   }
 
-  /*Com_Printf( "%1.2f ", ps->grapplePoint[ 0 ] );
-  Com_Printf( "%1.2f ", ps->grapplePoint[ 1 ] );
-  Com_Printf( "%1.2f ", ps->grapplePoint[ 2 ] );
-  Com_Printf( "\n" );*/
-  
   //convert viewangles -> axis
   AnglesToAxis( tempang, axis );
 
@@ -2489,15 +2484,7 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
   {
     //cross the reference normal and the surface normal to get the rotation axis
     VectorCopy( ps->grapplePoint, surfNormal );
-    if( surfNormal[2] <= 0 )
-    {
-      CrossProduct( refNormal, surfNormal, xNormal );
-    }
-    else
-    {
-      CrossProduct( surfNormal, refNormal, xNormal );
-    }
-
+    CrossProduct( surfNormal, refNormal, xNormal );
     VectorNormalize( xNormal );
   }
 
@@ -2509,15 +2496,12 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
     //if the normal pointing straight down then the rotAngle will always be 180deg
     if( surfNormal[2] == -1 )
       rotAngle = 180;
-    /*else if( abs( RAD2DEG( arccos( DotProduct( ps->grapplePoint, surfNormal ) ) ) ) <= 90 )
-    {
-      //WEIRD-BUG_WORKAROUND:
-      //for some reason surface normals on curves in a specfic quadrant are inverted.. dunno why
-      VectorInverse( surfNormal );
-      rotAngle = -RAD2DEG( arccos( DotProduct( surfNormal, refNormal ) ) );
-    }*/
     else
-      rotAngle = -RAD2DEG( arccos( DotProduct( surfNormal, refNormal ) ) );
+      rotAngle = RAD2DEG( arccos( DotProduct( surfNormal, refNormal ) ) );
+
+    //-abs( rotAngle ).. sorta
+    if( rotAngle > 0 )
+      rotAngle -= rotAngle*2;
 
     //hmmm could get away with only one rotation and some clever stuff later... but i'm lazy
     RotatePointAroundVector( rotaxis[0], xNormal, axis[0], rotAngle );
