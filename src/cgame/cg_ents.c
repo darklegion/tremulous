@@ -323,6 +323,7 @@ static void CG_Missile( centity_t *cent )
   vec3_t              up;
   float               fraction;
   int                 index;
+  qboolean            switchBugWorkaround = qfalse;
 
   s1 = &cent->currentState;
   if( s1->weapon > WP_NUM_WEAPONS )
@@ -367,7 +368,7 @@ static void CG_Missile( centity_t *cent )
       ent.rotation = 0;
       ent.customShader = cgs.media.blasterShader;
       trap_R_AddRefEntityToScene( &ent );
-      return;
+      switchBugWorkaround = qtrue;
       break;
 
     case WP_PULSE_RIFLE:
@@ -376,7 +377,7 @@ static void CG_Missile( centity_t *cent )
       ent.rotation = 0;
       ent.customShader = cgs.media.plasmaBallShader;
       trap_R_AddRefEntityToScene( &ent );
-      return;
+      switchBugWorkaround = qtrue;
       break;
 
     case WP_LUCIFER_CANNON:
@@ -398,9 +399,27 @@ static void CG_Missile( centity_t *cent )
       
       break;
 
+    case WP_HIVE:
+      //FIXME:
+      ent.reType = RT_SPRITE;
+      ent.radius = 4;
+      ent.rotation = 0;
+      ent.customShader = cgs.media.blasterShader;
+      trap_R_AddRefEntityToScene( &ent );
+      switchBugWorkaround = qtrue;
+      break;
+      
+/*    case WP_LOCKBLOB_LAUNCHER:
+      //FIXME:
+      break;*/
+      
+/*    case WP_POUNCE_UPG:
+      //FIXME:
+      break;*/
+      
     case WP_FLAMER:
       //TA: don't actually display the missile (use the particle engine)
-      return;
+      switchBugWorkaround = qtrue;
       break;
 
     default:
@@ -410,7 +429,7 @@ static void CG_Missile( centity_t *cent )
       ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
 
       // convert direction of travel into axis
-      if ( VectorNormalize2( s1->pos.trDelta, ent.axis[ 0 ] ) == 0 )
+      if( VectorNormalize2( s1->pos.trDelta, ent.axis[ 0 ] ) == 0 )
         ent.axis[ 0 ][ 2 ] = 1;
 
       // spin as it moves
@@ -419,6 +438,9 @@ static void CG_Missile( centity_t *cent )
       else
         RotateAroundDirection( ent.axis, s1->time );
   }
+  
+  if( switchBugWorkaround )
+    return;
   
   // add to refresh list, possibly with quad glow
   CG_AddRefEntityWithPowerups( &ent, s1->powerups, TEAM_FREE );

@@ -153,6 +153,39 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse                 //qboolean  reactorTest;
   },
   {
+    BA_A_HIVE,             //int       buildNum;
+    "hive",                //char      *buildName;
+    "Hive",                //char      *humanName;
+    "team_alien_hive",     //char      *entityName;
+    { "models/buildables/acid_tube/acid_tube.md3", 0, 0, 0 },
+    { -35, -35, -11 },     //vec3_t    mins;
+    { 35, 35, 40 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t  traj;
+    0.0,                   //float     bounce;
+    HIVE_BP,               //int       buildPoints;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    HIVE_HEALTH,           //int       health;
+    HIVE_REGEN,            //int       regenRate;
+    HIVE_SPLASHDAMAGE,     //int       splashDamage;
+    HIVE_SPLASHRADIUS,     //int       splashRadius;
+    MOD_ASPAWN,            //int       meansOfDeath;
+    BIT_ALIENS,            //int       team;
+    ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       idleAnim;
+    500,                   //int       nextthink;
+    10000,                 //int       buildTime;
+    qfalse,                //qboolean  usable;
+    0,                     //int       turretRange;
+    0,                     //int       turretFireSpeed;
+    WP_HIVE,               //weapon_t  turretProjType;
+    0.707f,                //float     minNormal;
+    qtrue,                 //qboolean  invertNormal;
+    qtrue,                 //qboolean  creepTest;
+    HIVE_CREEPSIZE,        //int       creepSize;
+    qfalse,                //qboolean  dccTest;
+    qfalse                 //qboolean  reactorTest;
+  },
+  {
     BA_A_TRAPPER,          //int       buildNum;
     "trapper",             //char      *buildName;
     "Trapper",             //char      *humanName;
@@ -2606,6 +2639,28 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "lockblob",           //char      *weaponName;
     "Lock Blob",          //char      *weaponHumanName;
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
+    500,                  //int       repeatRate1;
+    500,                  //int       repeatRate2;
+    500,                  //int       repeatRate3;
+    0,                    //int       reloadTime;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
+    qfalse,               //qboolean  purchasable;
+    0,                    //int       buildDelay;
+    WUT_ALIENS            //WUTeam_t  team;
+  },
+  {
+    WP_HIVE,              //int       weaponNum;
+    0,                    //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_WEAPON,          //int       slots;
+    "hive",               //char      *weaponName;
+    "Hive",               //char      *weaponHumanName;
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;

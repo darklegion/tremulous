@@ -89,6 +89,7 @@ void G_ExplodeMissile( gentity_t *ent )
   trap_LinkEntity( ent );
 }
 
+void AHive_ReturnToHive( gentity_t *self );
 
 /*
 ================
@@ -98,38 +99,25 @@ G_MissileImpact
 */
 void G_MissileImpact( gentity_t *ent, trace_t *trace )
 {
-  gentity_t   *other;
-  qboolean    hitClient = qfalse;
+  gentity_t   *other, *attacker;
+  qboolean    returnAfterDamage = qfalse;
 
   other = &g_entities[ trace->entityNum ];
+  attacker = &g_entities[ ent->r.ownerNum ];
 
   // check for bounce
   if( !other->takedamage &&
       ( ent->s.eFlags & ( EF_BOUNCE | EF_BOUNCE_HALF ) ) )
   {
     G_BounceMissile( ent, trace );
-    G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
+    
+    //only play a sound if requested
+    if( !( ent->s.eFlags & EF_NO_BOUNCE_SOUND ) )
+      G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
+
     return;
   }
-
-  // impact damage
-  if( other->takedamage )
-  {
-    // FIXME: wrong damage direction?
-    if( ent->damage )
-    {
-      vec3_t  velocity;
-
-      BG_EvaluateTrajectoryDelta( &ent->s.pos, level.time, velocity );
-      if( VectorLength( velocity ) == 0 )
-        velocity[ 2 ] = 1;  // stepped on a grenade
-      
-      G_Damage( other, ent, &g_entities[ ent->r.ownerNum ], velocity,
-        ent->s.origin, ent->damage, 
-        0, ent->methodOfDeath );
-    }
-  }
-
+  
   if( !strcmp( ent->classname, "lockblob" ) )
   {
     if( other->client && other->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
@@ -148,7 +136,54 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
       VectorCopy( other->client->ps.viewangles, other->client->ps.grapplePoint );
     }
   }
+  else if( !strcmp( ent->classname, "hive" ) )
+  {
+    if( other->s.eType == ET_BUILDABLE && other->s.modelindex == BA_A_HIVE )
+    {
+      if( !ent->parent )
+        G_Printf( S_COLOR_YELLOW "WARNING: hive entity has no parent in G_MissileImpact\n" );
+      else
+        ent->parent->active = qfalse;
+      
+      G_FreeEntity( ent );
+      return;
+    }
+    else
+    {
+      //prevent collision with the client when returning
+      ent->r.ownerNum = other->s.number;
+
+      ent->think = AHive_ReturnToHive;
+      ent->nextthink = level.time + FRAMETIME;
+      
+      //only damage humans
+      if( other->client && other->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+        returnAfterDamage = qtrue;
+      else
+        return;
+    }
+  }
   
+  // impact damage
+  if( other->takedamage )
+  {
+    // FIXME: wrong damage direction?
+    if( ent->damage )
+    {
+      vec3_t  velocity;
+
+      BG_EvaluateTrajectoryDelta( &ent->s.pos, level.time, velocity );
+      if( VectorLength( velocity ) == 0 )
+        velocity[ 2 ] = 1;  // stepped on a grenade
+      
+      G_Damage( other, ent, attacker, velocity, ent->s.origin, ent->damage, 
+        0, ent->methodOfDeath );
+    }
+  }
+
+  if( returnAfterDamage )
+    return;
+
   // is it cheaper in bandwidth to just remove this ent and create a new
   // one, rather than changing the missile into the explosion?
 
@@ -195,16 +230,9 @@ void G_RunMissile( gentity_t *ent )
   // get current position
   BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
 
-  // if this missile bounced off an invulnerability sphere
-  if ( ent->target_ent )
-  {
-    passent = ent->target_ent->s.number;
-  }
-  else
-  {
-    // ignore interactions with the missile owner
-    passent = ent->r.ownerNum;
-  }
+  // ignore interactions with the missile owner
+  passent = ent->r.ownerNum;
+  
   // trace a line from the previous position to the current position
   trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, passent, ent->clipmask );
 
@@ -233,7 +261,7 @@ void G_RunMissile( gentity_t *ent )
     }
 
     G_MissileImpact( ent, &tr );
-    if ( ent->s.eType != ET_MISSILE )
+    if( ent->s.eType != ET_MISSILE )
       return;   // exploded
   }
 
@@ -418,6 +446,136 @@ gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int da
 //=============================================================================
 
 /*
+================
+AHive_ReturnToHive
+
+Adjust the trajectory to point towards the hive
+================
+*/
+void AHive_ReturnToHive( gentity_t *self )
+{
+  vec3_t  dir;
+  trace_t tr;
+
+  if( !self->parent )
+  {
+    G_Printf( S_COLOR_YELLOW "WARNING: AHive_ReturnToHive called with no self->parent\n" );
+    return;
+  }
+  
+  trap_UnlinkEntity( self->parent );
+  trap_Trace( &tr, self->r.currentOrigin, self->r.mins, self->r.maxs,
+              self->parent->r.currentOrigin, self->r.ownerNum, self->clipmask );
+  trap_LinkEntity( self->parent );
+
+  if( tr.fraction < 1.0f )
+  {
+    //if can't see hive then disperse
+    VectorCopy( self->r.currentOrigin, self->s.pos.trBase );
+    self->s.pos.trType = TR_STATIONARY;
+    self->s.pos.trTime = level.time;
+
+    self->think = G_ExplodeMissile;
+    self->nextthink = level.time + 2000;
+    self->parent->active = qfalse; //allow the parent to start again
+  }
+  else
+  {
+    VectorSubtract( self->parent->r.currentOrigin, self->r.currentOrigin, dir );
+    VectorNormalize( dir );
+    
+    //change direction towards the hive
+    VectorScale( dir, HIVE_SPEED, self->s.pos.trDelta );
+    SnapVector( self->s.pos.trDelta );      // save net bandwidth
+    VectorCopy( self->r.currentOrigin, self->s.pos.trBase );
+    self->s.pos.trTime = level.time;
+
+    self->think = G_ExplodeMissile;
+    self->nextthink = level.time + 15000;
+  }
+}
+
+/*
+================
+AHive_SearchAndDestroy
+
+Adjust the trajectory to point towards the target
+================
+*/
+void AHive_SearchAndDestroy( gentity_t *self )
+{
+  vec3_t dir;
+  trace_t tr;
+  
+  trap_Trace( &tr, self->r.currentOrigin, self->r.mins, self->r.maxs,
+              self->target_ent->r.currentOrigin, self->r.ownerNum, self->clipmask );
+
+  //if there is no LOS or the parent hive is too far away or the target is dead, return
+  if( tr.entityNum == ENTITYNUM_WORLD ||
+      Distance( self->r.currentOrigin, self->parent->r.currentOrigin ) > ( HIVE_RANGE * 5 ) ||
+      self->target_ent->health <= 0 )
+  {
+    self->r.ownerNum = ENTITYNUM_WORLD;
+
+    self->think = AHive_ReturnToHive;
+    self->nextthink = level.time + FRAMETIME;
+  }
+  else
+  {
+    VectorSubtract( self->target_ent->r.currentOrigin, self->r.currentOrigin, dir );
+    VectorNormalize( dir );
+    
+    //change direction towards the player
+    VectorScale( dir, HIVE_SPEED, self->s.pos.trDelta );
+    SnapVector( self->s.pos.trDelta );      // save net bandwidth
+    VectorCopy( self->r.currentOrigin, self->s.pos.trBase );
+    self->s.pos.trTime = level.time;
+
+    self->nextthink = level.time + HIVE_DIR_CHANGE_PERIOD;
+  }
+}
+
+/*
+=================
+fire_hive
+=================
+*/
+gentity_t *fire_hive( gentity_t *self, vec3_t start, vec3_t dir )
+{
+  gentity_t *bolt;
+
+  VectorNormalize ( dir );
+
+  bolt = G_Spawn( );
+  bolt->classname = "hive";
+  bolt->nextthink = level.time + HIVE_DIR_CHANGE_PERIOD;
+  bolt->think = AHive_SearchAndDestroy;
+  bolt->s.eType = ET_MISSILE;
+  bolt->s.eFlags |= EF_BOUNCE|EF_NO_BOUNCE_SOUND;
+  bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+  bolt->s.weapon = WP_HIVE;
+  bolt->r.ownerNum = self->s.number;
+  bolt->parent = self;
+  bolt->damage = HIVE_DMG;
+  bolt->splashDamage = 0;
+  bolt->splashRadius = 0;
+  bolt->methodOfDeath = MOD_SWARM;
+  bolt->clipmask = MASK_SHOT;
+  bolt->target_ent = self->target_ent;
+
+  bolt->s.pos.trType = TR_LINEAR;
+  bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
+  VectorCopy( start, bolt->s.pos.trBase );
+  VectorScale( dir, HIVE_SPEED, bolt->s.pos.trDelta );
+  SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
+  VectorCopy( start, bolt->r.currentOrigin );
+
+  return bolt;
+}
+
+//=============================================================================
+
+/*
 =================
 fire_lockblob
 =================
@@ -440,6 +598,7 @@ gentity_t *fire_lockblob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->damage = 0;
   bolt->splashDamage = 0;
   bolt->splashRadius = 0;
+  bolt->methodOfDeath = MOD_UNKNOWN; //doesn't do damage so will never kill
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = NULL;
 

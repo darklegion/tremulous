@@ -268,20 +268,20 @@ typedef enum
 #define EF_PLAYER_EVENT     0x00000004
 #define EF_BOUNCE           0x00000008    // for missiles
 #define EF_BOUNCE_HALF      0x00000010    // for missiles
-#define EF_WALLCLIMB        0x00000020    // TA: wall walking
-#define EF_WALLCLIMBCEILING 0x00000040    // TA: wall walking ceiling hack
-#define EF_NODRAW           0x00000080    // may have an event, but no model (unspawned items)
-#define EF_FIRING           0x00000100    // for lightning gun
-#define EF_FIRING2          0x00000200    // alt fire
-#define EF_FIRING3          0x00000400    // third fire
-#define EF_MOVER_STOP       0x00000800    // will push otherwise
-#define EF_TALK             0x00001000    // draw a talk balloon
-#define EF_CONNECTION       0x00002000    // draw a connection trouble sprite
-#define EF_VOTED            0x00004000    // already cast a vote
-#define EF_TEAMVOTED        0x00008000    // already cast a vote
-#define EF_OVERDRAW_OFF     0x00010000    // TA: disable overdraw protection on sprites
-#define EF_REAL_LIGHT       0x00020000    // TA: light sprites according to ambient light
-#define EF_NO_AUTO_SCALE    0x00040000    // TA: don't auto scale model doors
+#define EF_NO_BOUNCE_SOUND  0x00000020    // for missiles
+#define EF_WALLCLIMB        0x00000040    // TA: wall walking
+#define EF_WALLCLIMBCEILING 0x00000080    // TA: wall walking ceiling hack
+#define EF_NODRAW           0x00000100    // may have an event, but no model (unspawned items)
+#define EF_FIRING           0x00000200    // for lightning gun
+#define EF_FIRING2          0x00000400    // alt fire
+#define EF_FIRING3          0x00000800    // third fire
+#define EF_MOVER_STOP       0x00001000    // will push otherwise
+#define EF_TALK             0x00002000    // draw a talk balloon
+#define EF_CONNECTION       0x00004000    // draw a connection trouble sprite
+#define EF_VOTED            0x00008000    // already cast a vote
+#define EF_TEAMVOTED        0x00010000    // already cast a vote
+#define EF_OVERDRAW_OFF     0x00020000    // TA: disable overdraw protection on sprites
+#define EF_REAL_LIGHT       0x00040000    // TA: light sprites according to ambient light
 
 typedef enum
 {
@@ -335,6 +335,7 @@ typedef enum
   WP_PAIN_SAW,
 
   WP_LOCKBLOB_LAUNCHER,
+  WP_HIVE,
   WP_TESLAGEN,
   WP_MGTURRET,
   
@@ -397,6 +398,7 @@ typedef enum
   BA_A_ACIDTUBE,
   BA_A_TRAPPER,
   BA_A_BOOSTER,
+  BA_A_HIVE,
   
   BA_A_HOVEL,
   
@@ -825,6 +827,7 @@ typedef enum
 
   MOD_SLOWBLOB,
   MOD_POISON,
+  MOD_SWARM,
   
   MOD_HSPAWN,
   MOD_TESLAGEN,

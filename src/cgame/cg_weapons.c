@@ -1559,6 +1559,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
   int           duration;
   vec3_t        sprOrg;
   vec3_t        sprVel;
+  qboolean      switchBugWorkaround = qfalse;
 
   mark = 0;
   radius = 32;
@@ -1576,7 +1577,6 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 
   switch( weapon )
   {
-    default:
     case WP_TESLAGEN:
     case WP_AREA_ZAP:
     case WP_DIRECT_ZAP:
@@ -1672,7 +1672,17 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
                          spark, qfalse, qfalse );
       }
       break;
+
+    case WP_HIVE:
+      switchBugWorkaround = qtrue;
+      break;
+
+    default:
+      break;
   }
+
+  if( switchBugWorkaround )
+    return;
 
   if( sfx )
     trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, sfx );

@@ -212,6 +212,23 @@ void lockBlobLauncherFire( gentity_t *ent )
 /*
 ======================================================================
 
+HIVE
+
+======================================================================
+*/
+
+void hiveFire( gentity_t *ent )
+{
+  gentity_t *m;
+
+  m = fire_hive( ent, muzzle, forward );
+
+//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
+}
+
+/*
+======================================================================
+
 BLASTER PISTOL
 
 ======================================================================
@@ -1100,6 +1117,9 @@ void FireWeapon( gentity_t *ent )
       
     case WP_LOCKBLOB_LAUNCHER:
       lockBlobLauncherFire( ent );
+      break;
+    case WP_HIVE:
+      hiveFire( ent );
       break;
     case WP_TESLAGEN:
       teslaFire( ent );

@@ -125,11 +125,12 @@ void CG_ModelDoor( centity_t *cent )
 {
   refEntity_t     ent;
   entityState_t   *es;
-  vec3_t          mins, maxs, size;
+  vec3_t          mins, maxs, size, rotSize;
   vec3_t          cMins, cMaxs, displacement;
   vec3_t          bMaxs, scale;
   animation_t     anim;
   lerpFrame_t     *lf = &cent->lerpFrame;
+  float           temp;
     
 
   es = &cent->currentState;
@@ -149,51 +150,11 @@ void CG_ModelDoor( centity_t *cent )
   ent.skinNum = 0;
   ent.hModel = cgs.gameModels[ es->modelindex ];
 
-  if( es->eFlags & EF_NO_AUTO_SCALE )
-  {
-    //this door is being manually scaled
-    VectorScale( ent.axis[ 0 ], es->origin2[ 0 ], ent.axis[ 0 ] );
-    VectorScale( ent.axis[ 1 ], es->origin2[ 1 ], ent.axis[ 1 ] );
-    VectorScale( ent.axis[ 2 ], es->origin2[ 2 ], ent.axis[ 2 ] );
-    ent.nonNormalizedAxes = qtrue;
-  }
-  else
-  {
-    //automatically scale and position the model
-    trap_R_ModelBounds( ent.hModel, mins, maxs );
-
-    //average of mins and maxs
-    VectorSubtract( maxs, mins, size );
-    VectorScale( size, 0.5f, size );
-    
-    //set corrected bbox
-    VectorCopy( size, cMaxs );
-    VectorNegate( size, cMins );
-
-    //calculate the displacement needed to align
-    //the model with the centre of the brush
-    VectorSubtract( cMins, mins, displacement );
-
-    VectorCopy( es->angles2, bMaxs );
-
-    //scale the axis and displacement by the ratio
-    //of the brush to corrected bboxes
-    scale[ 0 ] = bMaxs[ 0 ] / cMaxs[ 0 ];
-    scale[ 1 ] = bMaxs[ 1 ] / cMaxs[ 1 ];
-    scale[ 2 ] = bMaxs[ 2 ] / cMaxs[ 2 ];
-    
-    VectorScale( ent.axis[ 0 ], scale[ 0 ], ent.axis[ 0 ] );
-    VectorScale( ent.axis[ 1 ], scale[ 1 ], ent.axis[ 1 ] );
-    VectorScale( ent.axis[ 2 ], scale[ 2 ], ent.axis[ 2 ] );
-    ent.nonNormalizedAxes = qtrue;
-
-    displacement[ 0 ] = scale[ 0 ] * displacement[ 0 ];
-    displacement[ 1 ] = scale[ 1 ] * displacement[ 1 ];
-    displacement[ 2 ] = scale[ 2 ] * displacement[ 2 ];
-
-    VectorAdd( ent.origin, displacement, ent.origin );
-    VectorAdd( ent.oldorigin, displacement, ent.oldorigin );
-  }
+  //scale the door
+  VectorScale( ent.axis[ 0 ], es->origin2[ 0 ], ent.axis[ 0 ] );
+  VectorScale( ent.axis[ 1 ], es->origin2[ 1 ], ent.axis[ 1 ] );
+  VectorScale( ent.axis[ 2 ], es->origin2[ 2 ], ent.axis[ 2 ] );
+  ent.nonNormalizedAxes = qtrue;
 
   //setup animation
   anim.firstFrame   = es->powerups;

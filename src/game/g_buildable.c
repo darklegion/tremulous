@@ -663,7 +663,7 @@ void ABarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
 ================
 ABarricade_Think
 
-think function for Alien Barricade
+Think function for Alien Barricade
 ================
 */
 void ABarricade_Think( gentity_t *self )
@@ -694,7 +694,7 @@ void AAcidTube_Think( gentity_t *self );
 ================
 AAcidTube_Damage
 
-damage function for Alien Acid Tube
+Damage function for Alien Acid Tube
 ================
 */
 void AAcidTube_Damage( gentity_t *self )
@@ -729,7 +729,7 @@ void AAcidTube_Damage( gentity_t *self )
 ================
 AAcidTube_Think
 
-think function for Alien Acid Tube
+Think function for Alien Acid Tube
 ================
 */
 void AAcidTube_Think( gentity_t *self )
@@ -772,6 +772,77 @@ void AAcidTube_Think( gentity_t *self )
   creepSlow( self->s.modelindex, self->s.origin );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
+}
+
+
+
+
+//==================================================================================
+
+
+
+
+/*
+================
+AHive_Think
+
+Think function for Alien Hive
+================
+*/
+void AHive_Think( gentity_t *self )
+{
+  int       entityList[ MAX_GENTITIES ];
+  vec3_t    range = { ACIDTUBE_RANGE, ACIDTUBE_RANGE, ACIDTUBE_RANGE };
+  vec3_t    mins, maxs;
+  int       i, num;
+  gentity_t *enemy;
+  vec3_t    dirToTarget;
+
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
+  
+  VectorAdd( self->s.origin, range, maxs );
+  VectorSubtract( self->s.origin, range, mins );
+  
+  //if there is no creep nearby die
+  if( !findCreep( self ) )
+  {
+    G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+    return;
+  }
+
+  if( self->timestamp < level.time )
+    self->active = qfalse; //nothing has returned in HIVE_REPEAT seconds, forget about it
+  
+  if( self->spawned && !self->active )
+  {
+    //do some damage
+    num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+    for( i = 0; i < num; i++ )
+    {
+      enemy = &g_entities[ entityList[ i ] ];
+      
+      if( enemy->health <= 0 )
+        continue;
+
+      if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+      {
+        self->active = qtrue;
+        self->target_ent = enemy;
+        self->timestamp = level.time + HIVE_REPEAT;
+        
+        VectorSubtract( enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
+        VectorNormalize( dirToTarget );
+        vectoangles( dirToTarget, self->turretAim );
+          
+        //fire at target
+        FireWeapon( self );
+        G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
+        return;
+      }
+    }
+  }
+
+  creepSlow( self->s.modelindex, self->s.origin );
 }
 
 
@@ -2088,6 +2159,12 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
     case BA_A_ACIDTUBE:
       built->die = ABarricade_Die;
       built->think = AAcidTube_Think;
+      built->pain = ASpawn_Pain;
+      break;
+      
+    case BA_A_HIVE:
+      built->die = ABarricade_Die;
+      built->think = AHive_Think;
       built->pain = ASpawn_Pain;
       break;
       

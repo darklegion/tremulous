@@ -1601,8 +1601,6 @@ void SP_func_door_model( gentity_t *ent )
   char      *sound;
   gentity_t *door;
   gentity_t *clipBrush;
-  vec3_t    scale;
-  qboolean  dontAutoScale = qfalse;
 
   G_SpawnString( "sound2to1", "sound/movers/doors/dr1_strt.wav", &s );
   ent->sound2to1 = G_SoundIndex( s );
@@ -1638,27 +1636,9 @@ void SP_func_door_model( gentity_t *ent )
   VectorCopy( clipBrush->r.mins, ent->r.mins );
   VectorCopy( clipBrush->r.maxs, ent->r.maxs );
   
-  if( !VectorLength( ent->s.origin ) )
-  {
-    //calculate the centre of the brush
-    VectorSubtract( ent->r.maxs, ent->r.mins, size );
-    VectorScale( size, 0.5f, size );
-    VectorAdd( size, ent->r.mins, ent->s.origin );
-  }
-  else
-    dontAutoScale = qtrue;
+  G_SpawnVector( "modelOrigin", "0 0 0", ent->s.origin );
 
-  if( G_SpawnVector( "scale", "1 1 1", scale ) )
-    dontAutoScale = qtrue;
-  
-  //let the client know the scaling of the model
-  VectorCopy( scale, ent->s.origin2 );
-  
-  //let the client know the bounds of the brush
-  VectorCopy( size, ent->s.angles2 );
-
-  if( dontAutoScale )
-    ent->s.eFlags |= EF_NO_AUTO_SCALE;
+  G_SpawnVector( "scale", "1 1 1", ent->s.origin2 );
   
   // if the "model2" key is set, use a seperate model
   // for drawing, but clip against the brushes
@@ -1703,10 +1683,12 @@ void SP_func_door_model( gentity_t *ent )
   ent->moverState = MODEL_POS1;
   ent->s.eType = ET_MODELDOOR;
   VectorCopy( ent->s.origin, ent->s.pos.trBase );
+  ent->s.pos.trType = TR_STATIONARY;
   ent->s.pos.trTime = 0;
   ent->s.pos.trDuration = 0;
   VectorClear( ent->s.pos.trDelta );
   VectorCopy( ent->s.angles, ent->s.apos.trBase );
+  ent->s.apos.trType = TR_STATIONARY;
   ent->s.apos.trTime = 0;
   ent->s.apos.trDuration = 0;
   VectorClear( ent->s.apos.trDelta );
@@ -1721,8 +1703,6 @@ void SP_func_door_model( gentity_t *ent )
   ent->s.torsoAnim = ent->s.weapon * ( 1000.0f / ent->speed );  //framerate
   
   trap_LinkEntity( ent );
-
-  ent->s.pos.trType = TR_STATIONARY;
 
   if( !( ent->flags & FL_TEAMSLAVE ) )
   {

@@ -285,7 +285,7 @@ color: constantLight color of .md3 model included with entity. Has no effect on 
 
 model2: path/name of the door model (eg: models/mapobjects/pipe/pipe02.md3).
 
-origin: alternate method of setting XYZ origin of .md3 model included with entity (See Notes).
+modelOrigin: means of setting the origin of the model.
 
 scale: scale the model in each of the major axes (e.g. 1.0 1.0 2.0 -- twice as high as normal).
 
@@ -325,7 +325,7 @@ _layers OR layers: Integer value is the number unique root shaders that will be 
 _shader OR shader: Path to the metashader used to assign textures to the terrain entity. Note: Omit the "textures/" prefix.
 
 -------- NOTES --------
-The func_door_model provides two means of positioning and scaling the model representing the door. Firstly if neither the origin nor scale keys are set the client will attempt to scale and position the model so that it fills the associated brush (which incidentally is only used for clipping). This will only work with axially aligned brushes however, so the second method allows the setting of origin and scale manually, providing complete control over the model. In both cases the angle/angles keys are used to affect the orientation of the model.
+Every func_door_model needs its model to be positioned, scaled and orientated using the modelOrigin, scale and angle/angles keys repsectively.
 */
 
 //=============================================================================

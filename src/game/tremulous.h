@@ -215,6 +215,18 @@
 #define ACIDTUBE_RANGE              200.0f
 #define ACIDTUBE_REPEAT             10000
 
+#define HIVE_BP                     50
+#define HIVE_HEALTH                 ABHM(100)
+#define HIVE_REGEN                  10
+#define HIVE_SPLASHDAMAGE           30
+#define HIVE_SPLASHRADIUS           200
+#define HIVE_CREEPSIZE              120
+#define HIVE_RANGE                  400.0f
+#define HIVE_REPEAT                 10000
+#define HIVE_DMG                    40
+#define HIVE_SPEED                  230.0f
+#define HIVE_DIR_CHANGE_PERIOD      500
+
 #define TRAPPER_BP                  150
 #define TRAPPER_HEALTH              ABHM(80)
 #define TRAPPER_REGEN               8
@@ -467,10 +479,10 @@
 #define HUMAN_BACK_MODIFIER         0.7f
 #define HUMAN_SIDE_MODIFIER         0.8f
 
-#define STAMINA_STOP_RESTORE        10
-#define STAMINA_WALK_RESTORE        5
-#define STAMINA_SPRINT_TAKE         10
-#define STAMINA_LARMOUR_TAKE        5
+#define STAMINA_STOP_RESTORE        20
+#define STAMINA_WALK_RESTORE        10
+#define STAMINA_SPRINT_TAKE         6
+#define STAMINA_LARMOUR_TAKE        3
 
 /*
  * Misc
