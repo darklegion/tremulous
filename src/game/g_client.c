@@ -769,7 +769,6 @@ void SpawnCorpse( gentity_t *ent )
   }
   else
   {
-    G_Printf( "nonsegmented death\n" );
     switch( body->s.legsAnim & ~ANIM_TOGGLEBIT )
     {
       case NSPA_DEATH1:
