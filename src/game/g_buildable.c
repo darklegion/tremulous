@@ -389,7 +389,7 @@ qboolean hdef1_trackenemy( gentity_t *self )
 
     VectorMA( self->enemy->s.pos.trBase, time, self->enemy->s.pos.trDelta, dirToTarget );
     VectorMA( dirToTarget, time * time, halfAcceleration, dirToTarget );
-    VectorMA( dirToTarget, time * time * time, thirdJounce, dirToTarget );
+    VectorMA( dirToTarget, time * time * time, thirdJerk, dirToTarget );
     VectorSubtract( dirToTarget, self->s.pos.trBase, dirToTarget );
     distanceToTarget = VectorLength( dirToTarget );
 
