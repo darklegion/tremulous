@@ -946,9 +946,10 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent )
   vec3_t    mins, maxs;
   int       i, best;
 
+  //TA: disable shootable doors
   // set all of the slaves as shootable
-  for( other = ent; other; other = other->teamchain )
-    other->takedamage = qtrue;
+  //for( other = ent; other; other = other->teamchain )
+  //  other->takedamage = qtrue;
 
   // find the bounds of everything on the team
   VectorCopy( ent->r.absmin, mins );
