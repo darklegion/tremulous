@@ -767,8 +767,6 @@ float G_CalcModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, int cl
   
   hitRelative = DotProduct( normal, pMINUSfloor ) / VectorLength( normal );
 
-  G_Printf( "%f\n", hitRelative*100 );
-  
   if( hitRelative < 0.0 ) hitRelative = 0.0;
   if( hitRelative > clientHeight ) hitRelative = clientHeight;
 
