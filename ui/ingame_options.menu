@@ -783,7 +783,7 @@
       type ITEM_TYPE_BIND
       text "Primary Attack:"
       cvar "+attack"
-      rect 96 115 192 15
+      rect 96 100 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -804,7 +804,7 @@
       type ITEM_TYPE_BIND
       text "Secondary Attack:"
       cvar "+button5"
-      rect 96 130 192 15
+      rect 96 115 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -825,7 +825,7 @@
       type ITEM_TYPE_BIND
       text "Previous Upgrade:"
       cvar "weapprev"
-      rect 96 145 192 15
+      rect 96 130 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -846,7 +846,7 @@
       type ITEM_TYPE_BIND
       text "Next Upgrade:"
       cvar "weapnext"
-      rect 96 160 192 15
+      rect 96 145 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -867,7 +867,7 @@
       type ITEM_TYPE_BIND
       text "Activate Upgrade:"
       cvar "+button2"
-      rect 96 175 192 15
+      rect 96 160 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -888,6 +888,27 @@
       type ITEM_TYPE_BIND
       text "Reload:"
       cvar "reload"
+      rect 96 175 192 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 90
+      maxPaintChars 20
+      textaligny 12
+      textscale .25       
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
+    }
+    
+    itemDef
+    {
+      name upgrades
+      group optionsGrp
+      type ITEM_TYPE_BIND
+      text "Buy Ammo:"
+      cvar "buy ammo"
       rect 96 190 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
@@ -1100,7 +1121,7 @@
       name misc
       group optionsGrp
       type ITEM_TYPE_BIND
-      text "Target Chat (FIXME):"
+      text "Target Chat:"
       cvar "messagemode3"
       rect 96 200 192 15
       textalign ITEM_ALIGN_RIGHT
@@ -1121,7 +1142,7 @@
       name misc
       group optionsGrp
       type ITEM_TYPE_BIND
-      text "Attack Chat (FIXME):"
+      text "Attack Chat:"
       cvar "messagemode4"
       rect 96 215 192 15
       textalign ITEM_ALIGN_RIGHT

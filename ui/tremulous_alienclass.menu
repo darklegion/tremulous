@@ -11,7 +11,7 @@
     focusColor 1 .75 0 1
     style 1
     popup
-    onOpen { uiScript LoadAlienClasses }
+    onOpen { uiScript LoadAlienClasses; setFocus list }
 
     itemDef
     {

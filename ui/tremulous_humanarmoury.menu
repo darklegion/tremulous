@@ -14,7 +14,8 @@
     onOpen
     {
       uiScript LoadHumanArmouryBuys;
-      uiScript LoadHumanArmourySells
+      uiScript LoadHumanArmourySells;
+      setFocus list
     }
 
     itemDef
