@@ -939,6 +939,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BIT_DROIDS,
     EV_ITEM_GROW,
     100,
+    qfalse,
     qfalse
   },
   {
@@ -955,7 +956,8 @@ buildableAttributes_t bg_buildableList[ ] =
     BIT_DROIDS,
     EV_ITEM_GROW,
     100,
-    qtrue
+    qtrue,
+    qfalse
   },
   {
     BA_H_SPAWN,
@@ -971,6 +973,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BIT_HUMANS,
     EV_NONE,
     -1,
+    qfalse,
     qfalse
   },
   {
@@ -987,6 +990,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BIT_HUMANS,
     EV_NONE,
     50,
+    qfalse,
     qfalse
   },
   {
@@ -1003,6 +1007,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BIT_HUMANS,
     EV_NONE,
     -1,
+    qfalse,
     qfalse
   },
   {
@@ -1019,7 +1024,8 @@ buildableAttributes_t bg_buildableList[ ] =
     BIT_HUMANS,
     EV_NONE,
     -1,
-    qfalse
+    qfalse,
+    qtrue
   },
   {
     BA_H_REPEATER,
@@ -1035,6 +1041,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BIT_HUMANS,
     EV_NONE,
     -1,
+    qfalse,
     qfalse
   }
 };
@@ -1302,6 +1309,26 @@ int BG_FindCreepTestForBuildable( int bclass )
     if( bg_buildableList[ i ].buildNum == bclass )
     {
       return bg_buildableList[ i ].creepTest;
+    }
+  }
+  
+  return qfalse;
+}
+
+/*
+==============
+BG_FindReactorTestForBuildable
+==============
+*/
+int BG_FindReactorTestForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].reactorTest;
     }
   }
   

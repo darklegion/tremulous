@@ -448,18 +448,17 @@ itemFits
 Checks to see if an item fits in a specific area
 ================
 */
-qboolean itemFits( gentity_t *ent, buildable_t buildable, int distance )
+itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
 {
-  vec3_t    forward;
-  vec3_t    angles;
-  vec3_t    player_origin, entity_origin;
-  vec3_t    mins, maxs;
-  vec3_t    temp_v;
-  trace_t   tr1, tr2;
-  int       i;
-  gentity_t *creepent;
-  qboolean  creeptest;
-  qboolean  nearcreep = qfalse;
+  vec3_t            forward;
+  vec3_t            angles;
+  vec3_t            player_origin, entity_origin;
+  vec3_t            mins, maxs;
+  vec3_t            temp_v;
+  trace_t           tr1, tr2;
+  int               i;
+  itemBuildError_t  reason = IBE_NONE;
+  gentity_t         *tempent;
 
   VectorCopy( ent->s.apos.trBase, angles );
   angles[PITCH] = 0;  // always forward
@@ -473,28 +472,38 @@ qboolean itemFits( gentity_t *ent, buildable_t buildable, int distance )
   trap_Trace( &tr1, entity_origin, mins, maxs, entity_origin, ent->s.number, MASK_PLAYERSOLID );
   trap_Trace( &tr2, player_origin, NULL, NULL, entity_origin, ent->s.number, MASK_PLAYERSOLID );
 
+  if( tr1.fraction < 1.0 || tr2.fraction < 1.0 )
+    reason = IBE_NOROOM;
+    
   if( BG_FindCreepTestForBuildable( buildable ) )
   {
-    for ( i = 1, creepent = g_entities + i; i < level.num_entities; i++, creepent++ )
+    for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
     {
-      if( !Q_stricmp( creepent->classname, "team_droid_spawn" ) )
+      if( !Q_stricmp( tempent->classname, "team_droid_spawn" ) )
       {
-        VectorSubtract( entity_origin, creepent->s.origin, temp_v );
+        VectorSubtract( entity_origin, tempent->s.origin, temp_v );
         if( VectorLength( temp_v ) <= ( CREEP_BASESIZE * 3 ) )
-        {
-          nearcreep = qtrue;
           break;
-        }
+      }
+    }
+
+    if( i >= level.num_entities )
+      reason = IBE_NOCREEP;
+  }
+  
+  if( BG_FindReactorTestForBuildable( buildable ) )
+  {
+    for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
+    {
+      if( !Q_stricmp( tempent->classname, "team_human_reactor" ) )
+      {
+        reason = IBE_REACTOR;
+        break;
       }
     }
   }
-  else
-    nearcreep = qtrue;
 
-  if( tr1.fraction >= 1.0 && tr2.fraction >= 1.0 && nearcreep )
-    return qtrue;
-  else
-    return qfalse;
+  return reason;
 }
 
 

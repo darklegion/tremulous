@@ -764,6 +764,7 @@ typedef struct
   int       nextthink;
 
   qboolean  creepTest;
+  qboolean  reactorTest;
 } buildableAttributes_t;      
 
 // included in both the game dll and the client

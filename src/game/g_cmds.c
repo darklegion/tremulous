@@ -1918,10 +1918,20 @@ void Cmd_Build_f( gentity_t *ent )
       trap_SendServerCommand( ent-g_entities, va("print \"Unknown item\n\"" ) );
     else
     {
-      if( itemFits( ent, buildable, -50 ) )
-        Build_Item( ent, buildable, -50 );
-      else
-        trap_SendServerCommand( ent-g_entities, va("print \"Location is not suitable\n\"" ) );
+      switch( itemFits( ent, buildable, -50 ) )
+      {
+        case IBE_NONE:
+          Build_Item( ent, buildable, -50 );
+          break;
+
+        case IBE_NOCREEP:
+          trap_SendServerCommand( ent-g_entities, va("print \"No creep to build on\n\"" ) );
+          break;
+
+        case IBE_NOROOM:
+          trap_SendServerCommand( ent-g_entities, va("print \"Not enough room\n\"" ) );
+          break;
+      }
     }
   }
   else if( ( ent->client->pers.pteam == PTE_HUMANS ) &&
@@ -1934,10 +1944,20 @@ void Cmd_Build_f( gentity_t *ent )
       trap_SendServerCommand( ent-g_entities, va("print \"Unknown item\n\"" ) );
     else
     {
-      if( itemFits( ent, buildable, 80 ) )
-        Build_Item( ent, buildable, 80 );
-      else
-        trap_SendServerCommand( ent-g_entities, va("print \"Location is not suitable\n\"" ) );
+      switch( itemFits( ent, buildable, 80 ) )
+      {
+        case IBE_NONE:
+          Build_Item( ent, buildable, 80 );
+          break;
+
+        case IBE_REACTOR:
+          trap_SendServerCommand( ent-g_entities, va("print \"Only one reactor per map\n\"" ) );
+          break;
+
+        case IBE_NOROOM:
+          trap_SendServerCommand( ent-g_entities, va("print \"Not enough room\n\"" ) );
+          break;
+      }
     }
   }
   else if( ent->client->pers.pteam == PTE_NONE )

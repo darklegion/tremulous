@@ -468,7 +468,18 @@ void SaveRegisteredItems( void );
 //
 // g_buildable.c
 //
-qboolean itemFits( gentity_t *ent, buildable_t buildable, int distance );
+typedef enum
+{
+  IBE_NONE,
+  
+  IBE_NOROOM,
+  IBE_NOCREEP,
+  IBE_REACTOR,
+
+  IBE_MAXERRORS
+} itemBuildError_t;
+
+itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance );
 gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance );
 
 //
