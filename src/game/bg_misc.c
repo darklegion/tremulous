@@ -238,6 +238,37 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse                 //qboolean  reactorTest;
   },
   {
+    BA_A_OBANK,            //int       buildNum;     
+    "obank",               //char      *buildName;
+    "Organ Bank",          //char      *humanName;
+    "team_alien_obank",    //char      *entityName;
+    { "models/buildables/obank/obank.md3", 0, 0, 0 },
+    { -15, -15, -15 },     //vec3_t    mins;
+    { 15, 15, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
+    100,                   //int       buildPoints;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    1000,                  //int       health;
+    50,                    //int       damage;
+    50,                    //int       splashDamage;
+    200,                   //int       splashRadius;
+    MOD_ASPAWN,            //int       meansOfDeath;
+    BIT_ALIENS,            //int       team;
+    ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       idleAnim;
+    -1,                    //int       nextthink;
+    0,                     //int       turretFireSpeed;
+    0,                     //int       turretRange;
+    WP_NONE,               //weapon_t  turretProjType;
+    0.5f,                  //float     minNormal;
+    qtrue,                 //qboolean  invertNormal;
+    qtrue,                 //qboolean  creepTest;
+    120,                   //int       creepSize;
+    qfalse,                //qboolean  dccTest;
+    qfalse                 //qboolean  reactorTest;
+  },
+  {
     BA_H_SPAWN,            //int       buildNum;
     "replicator",          //char      *buildName;
     "Replicator",          //char      *humanName;
@@ -1862,9 +1893,13 @@ float BG_FindBuildDistForClass( int pclass )
 BG_ClassCanEvolveFromTo
 ==============
 */
-qboolean BG_ClassCanEvolveFromTo( int fclass, int tclass )
+qboolean BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits )
 {
   int i, j;
+
+  //base case
+  if( credits + 1 == 0 )
+    return qfalse;
 
   if( tclass == PCL_NONE )
     return qfalse;
@@ -1874,8 +1909,14 @@ qboolean BG_ClassCanEvolveFromTo( int fclass, int tclass )
     if( bg_classList[ i ].classNum == fclass )
     {
       for( j = 0; j <= 3; j++ )
-        if( bg_classList[ i ].children[ j ] == tclass ) return qtrue;
+        if( bg_classList[ i ].children[ j ] == tclass )
+          return qtrue;
 
+      for( j = 0; j <= 3; j++ )
+        if( BG_ClassCanEvolveFromTo(  bg_classList[ i ].children[ j ],
+                                      tclass, credits - 1 ) == qtrue )
+          return qtrue;
+      
       return qfalse; //may as well return by this point
     }
   }

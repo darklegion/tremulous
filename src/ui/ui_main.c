@@ -2889,16 +2889,16 @@ UI_LoadTremHumanItems
 static void UI_LoadTremHumanItems( )
 {
   uiInfo.tremHumanItemCount = 2;
-
-  uiInfo.tremHumanItemList[ 0 ].text =
-    String_Alloc( BG_FindHumanNameForWeapon( WP_MACHINEGUN ) );
-  uiInfo.tremHumanItemList[ 0 ].cmd =
-    String_Alloc( va( "cmd class %s", BG_FindNameForWeapon( WP_MACHINEGUN ) ) );
   
-  uiInfo.tremHumanItemList[ 1 ].text =
+  uiInfo.tremHumanItemList[ 0 ].text =
     String_Alloc( BG_FindHumanNameForWeapon( WP_HBUILD ) );
-  uiInfo.tremHumanItemList[ 1 ].cmd =
+  uiInfo.tremHumanItemList[ 0 ].cmd =
     String_Alloc( va( "cmd class %s", BG_FindNameForWeapon( WP_HBUILD ) ) );
+
+  uiInfo.tremHumanItemList[ 1 ].text =
+    String_Alloc( BG_FindHumanNameForWeapon( WP_MACHINEGUN ) );
+  uiInfo.tremHumanItemList[ 1 ].cmd =
+    String_Alloc( va( "cmd class %s", BG_FindNameForWeapon( WP_MACHINEGUN ) ) );
 }
 
 /*
@@ -3043,20 +3043,24 @@ static void UI_LoadTremHumanMCUSells( )
 
 /*
 ===============
-UI_LoadTremAlienUpgrades( )
+UI_LoadTremAlienUpgrades
 ===============
 */
 static void UI_LoadTremAlienUpgrades( )
 {
   int     i, j = 0;
-  int     class = trap_Cvar_VariableValue( "ui_currentClass" );
+  int     class, credits;
+  char    ui_currentClass[ MAX_STRING_CHARS ];
   stage_t stage = UI_GetCurrentAlienStage( );
   
+  trap_Cvar_VariableStringBuffer( "ui_currentClass", ui_currentClass, MAX_STRING_CHARS );
+  sscanf( ui_currentClass, "%d %d", &class, &credits );
+
   uiInfo.tremAlienUpgradeCount = 0;
   
   for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
   {
-    if( BG_ClassCanEvolveFromTo( class, i ) &&
+    if( BG_ClassCanEvolveFromTo( class, i, credits ) &&
         BG_FindStagesForClass( i, stage ) )
     {
       uiInfo.tremAlienUpgradeList[ j ].text = String_Alloc( BG_FindNameForClassNum( i ) );
@@ -3066,6 +3070,10 @@ static void UI_LoadTremAlienUpgrades( )
       uiInfo.tremAlienUpgradeCount++;
     }
   }
+
+  uiInfo.tremAlienUpgradeList[ j ].text = String_Alloc( "Store" );
+  uiInfo.tremAlienUpgradeList[ j++ ].cmd = String_Alloc( "cmd class store" );
+  uiInfo.tremAlienUpgradeCount++;
 }
 
 /*

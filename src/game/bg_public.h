@@ -403,6 +403,7 @@ typedef enum
   BA_A_BOOSTER,
   
   BA_A_HOVEL,
+  BA_A_OBANK,
   
   BA_H_SPAWN,
   
@@ -583,6 +584,8 @@ typedef enum
   MN_A_NORMAL,
   MN_A_HOVEL_OCCUPIED,
   MN_A_HOVEL_BLOCKED,
+  MN_A_OBANK,
+  MN_A_NOFUNDS,
   
   MN_H_SPAWN,
   MN_H_BUILD,
@@ -1017,7 +1020,7 @@ float     BG_FindStickyForClass( int pclass );
 int       BG_FindSteptimeForClass( int pclass );
 qboolean  BG_ClassHasAbility( int pclass, int ability );
 float     BG_FindBuildDistForClass( int pclass );
-qboolean  BG_ClassCanEvolveFromTo( int fclass, int tclass );
+qboolean  BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits );
 int       BG_FindEvolveTimeForClass( int pclass );
 int       BG_FindValueOfClass( int pclass );
 

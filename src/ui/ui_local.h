@@ -836,7 +836,7 @@ typedef struct {
 	int             tremHumanMCUSellCount;
 	int             tremHumanMCUSellIndex;
 
-	tremMenuItem_t  tremAlienUpgradeList[ 3 ];
+	tremMenuItem_t  tremAlienUpgradeList[ 16 ];
 	int             tremAlienUpgradeCount;
 	int             tremAlienUpgradeIndex;
 

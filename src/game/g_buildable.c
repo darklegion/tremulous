@@ -799,7 +799,34 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   trap_LinkEntity( self );
 }
 
+
+
+
 //==================================================================================
+
+
+
+
+/*
+================
+ABank_Activate
+
+Called when an alien activates an organ bank 
+================
+*/
+void ABank_Activate( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  //only aliens can activate this
+  if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS ) return;
+  
+  G_AddPredictableEvent( activator, EV_MENU, MN_A_OBANK );
+}
+
+
+
+
+//==================================================================================
+
 
 
 
@@ -2046,6 +2073,12 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       built->pain = ASpawn_Pain;
       break;
       
+    case BA_A_OBANK:
+      built->think = ABarricade_Think;
+      built->die = ASpawn_Die;
+      built->use = ABank_Activate;
+      break;
+      
     case BA_H_SPAWN:
       built->die = HSpawn_Die;
       built->think = HSpawn_Think;
@@ -2203,6 +2236,10 @@ void G_ValidateBuild( gentity_t *ent, buildable_t buildable )
 
     case IBE_NOPOWER:
       G_AddPredictableEvent( ent, EV_MENU, MN_H_NOPOWER );
+      break;
+      
+    case IBE_NODCC:
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_NODCC );
       break;
       
     case IBE_SPWNWARN:

@@ -628,6 +628,8 @@ void Cmd_Team_f( gentity_t *ent )
 
   if( oldTeam != ent->client->pers.pteam )
   {
+    level.bankCredits[ ent->client->ps.clientNum ] = 0;
+    ent->client->ps.stats[ STAT_BANK ] = 0;
     ent->client->pers.pclass = 0;
     ClientSpawn( ent, NULL );
   }
@@ -1557,6 +1559,7 @@ void Cmd_Class_f( gentity_t *ent )
   int       clientNum;
   gentity_t *body, *victim;
   vec3_t    distance;
+  vec3_t    up = { 0.0f, 0.0f, 1.0f };
   int       length = 4096;
   int       i;
   trace_t   tr;
@@ -1590,49 +1593,62 @@ void Cmd_Class_f( gentity_t *ent )
       //if a human corpse is nearby...
       if( length <= 200 )
       {
-        ent->client->pers.pclass = BG_FindClassNumForName( s );
-
-        if( ent->client->pers.pclass == PCL_NONE )
+        if( !Q_stricmp( s, "store" ) )
         {
-          trap_SendServerCommand( ent-g_entities, va("print \"Unknown class\n\"" ) );
-          return;
-        }
-        
-        //...check we can evolve to that class
-        if( BG_ClassCanEvolveFromTo( ent->client->ps.stats[ STAT_PCLASS ],
-                                     ent->client->pers.pclass ) ||
-            BG_FindStagesForClass( ent->client->pers.pclass, g_alienStage.integer ) )
-        {
-          //prevent lerping
-          ent->client->ps.eFlags ^= EF_TELEPORT_BIT;
-    
-          //evolve
-          ent->client->ps.stats[ STAT_PCLASS ] = PCL_NONE;
-          ent->client->sess.sessionTeam = TEAM_FREE;
-          ClientUserinfoChanged( clientNum );
-          ent->client->ps.stats[ STAT_STATE ] |= SS_INFESTING;
-          ent->client->lastInfestTime = level.time;
-          ent->client->infestBody = victim;
+          //increment credits
+          ent->client->ps.stats[ STAT_CREDIT ]++;
 
-          VectorCopy( victim->s.pos.trBase, infestOrigin );
-          infestOrigin[ 2 ] += 128;
-
-          VectorCopy( victim->s.angles, infestAngles );
-
-          infestAngles[ PITCH ] = 90;
-
-          G_SetOrigin( ent, infestOrigin );
-          VectorCopy( infestOrigin, ent->client->ps.origin );
-          SetClientViewAngle( ent, infestAngles );
-
-          //so no one can claim this body as of now
-          victim->killedBy = victim->s.powerups = MAX_CLIENTS;
+          //destroy body
+          G_AddEvent( victim, EV_GIB_ALIEN, DirToByte( up ) );
+          victim->freeAfterEvent = qtrue;
         }
         else
         {
-          ent->client->pers.pclass = PCL_NONE;
-          trap_SendServerCommand( ent-g_entities, va("print \"You cannot evolve from your current class\n\"" ) );
-          return;
+          //evolve now
+          ent->client->pers.pclass = BG_FindClassNumForName( s );
+
+          if( ent->client->pers.pclass == PCL_NONE )
+          {
+            trap_SendServerCommand( ent-g_entities, va("print \"Unknown class\n\"" ) );
+            return;
+          }
+          
+          //...check we can evolve to that class
+          if( BG_ClassCanEvolveFromTo( ent->client->ps.stats[ STAT_PCLASS ],
+                                       ent->client->pers.pclass, ent->client->ps.stats[ STAT_CREDIT ] ) ||
+              BG_FindStagesForClass( ent->client->pers.pclass, g_alienStage.integer ) )
+          {
+            //prevent lerping
+            ent->client->ps.eFlags ^= EF_TELEPORT_BIT;
+      
+            //evolve
+            ent->client->ps.stats[ STAT_PCLASS ] = PCL_NONE;
+            ent->client->sess.sessionTeam = TEAM_FREE;
+            ClientUserinfoChanged( clientNum );
+            ent->client->ps.stats[ STAT_STATE ] |= SS_INFESTING;
+            ent->client->lastInfestTime = level.time;
+            ent->client->infestBody = victim;
+
+            VectorCopy( victim->s.pos.trBase, infestOrigin );
+            infestOrigin[ 2 ] += 128;
+
+            VectorCopy( victim->s.angles, infestAngles );
+
+            infestAngles[ PITCH ] = 90;
+
+            G_SetOrigin( ent, infestOrigin );
+            VectorCopy( infestOrigin, ent->client->ps.origin );
+            SetClientViewAngle( ent, infestAngles );
+
+            //so no one can claim this body as of now
+            victim->killedBy = victim->s.powerups = MAX_CLIENTS;
+          }
+          else
+          {
+            ent->client->pers.pclass = PCL_NONE;
+            trap_SendServerCommand( ent-g_entities, va("print \"You cannot evolve from your current class\n\"" ) );
+            return;
+          }
         }
       }
     }
@@ -2066,43 +2082,78 @@ void Cmd_Deposit_f( gentity_t *ent )
 
   trap_Argv( 1, s, sizeof( s ) );
 
-  //aliens don't sell stuff
-  if( ent->client->pers.pteam != PTE_HUMANS )
-    return;
-    
-  for ( i = 1, bankEntity = g_entities + i; i < level.num_entities; i++, bankEntity++ )
+  if( ent->client->pers.pteam == PTE_HUMANS )
   {
-    if( bankEntity->s.eType != ET_BUILDABLE )
-      continue;
-      
-    if( bankEntity->s.modelindex == BA_H_BANK )
+    for ( i = 1, bankEntity = g_entities + i; i < level.num_entities; i++, bankEntity++ )
     {
-      VectorSubtract( ent->s.pos.trBase, bankEntity->s.origin, distance );
-      if( VectorLength( distance ) <= 100 )
-        nearBank = qtrue;
+      if( bankEntity->s.eType != ET_BUILDABLE )
+        continue;
+        
+      if( bankEntity->s.modelindex == BA_H_BANK )
+      {
+        VectorSubtract( ent->s.pos.trBase, bankEntity->s.origin, distance );
+        if( VectorLength( distance ) <= 100 )
+          nearBank = qtrue;
+      }
     }
+
+    if( !Q_stricmp( s, "all" ) )
+      amount = ent->client->ps.stats[ STAT_CREDIT ];
+    else
+      amount = atoi( s );
+
+    //no Bank nearby
+    if( !nearBank )
+    {
+      trap_SendServerCommand( ent-g_entities, va("print \"You must be near an Bank\n\"" ) );
+      return;
+    }
+
+    if( amount <= ent->client->ps.stats[ STAT_CREDIT ] )
+    {
+      ent->client->ps.stats[ STAT_CREDIT ] -= amount;
+      ent->client->ps.stats[ STAT_BANK ] += amount;
+      level.bankCredits[ ent->client->ps.clientNum ] += amount;
+    }
+    else
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
   }
-
-  if( !Q_stricmp( s, "all" ) )
-    amount = ent->client->ps.stats[ STAT_CREDIT ];
-  else
-    amount = atoi( s );
-
-  //no Bank nearby
-  if( !nearBank )
+  else if( ent->client->pers.pteam == PTE_ALIENS )
   {
-    trap_SendServerCommand( ent-g_entities, va("print \"You must be near an Bank\n\"" ) );
-    return;
-  }
+    for ( i = 1, bankEntity = g_entities + i; i < level.num_entities; i++, bankEntity++ )
+    {
+      if( bankEntity->s.eType != ET_BUILDABLE )
+        continue;
+        
+      if( bankEntity->s.modelindex == BA_A_OBANK )
+      {
+        VectorSubtract( ent->s.pos.trBase, bankEntity->s.origin, distance );
+        if( VectorLength( distance ) <= 100 )
+          nearBank = qtrue;
+      }
+    }
 
-  if( amount <= ent->client->ps.stats[ STAT_CREDIT ] )
-  {
-    ent->client->ps.stats[ STAT_CREDIT ] -= amount;
-    ent->client->ps.stats[ STAT_BANK ] += amount;
-    level.bankCredits[ ent->client->ps.clientNum ] += amount;
+    if( !Q_stricmp( s, "all" ) )
+      amount = ent->client->ps.stats[ STAT_CREDIT ];
+    else
+      amount = atoi( s );
+
+    //no Bank nearby
+    if( !nearBank )
+    {
+      trap_SendServerCommand( ent-g_entities, va("print \"You must be near an Bank\n\"" ) );
+      return;
+    }
+
+    if( amount <= ent->client->ps.stats[ STAT_CREDIT ] )
+    {
+      ent->client->ps.stats[ STAT_CREDIT ] -= amount;
+      ent->client->ps.stats[ STAT_BANK ] += amount;
+      level.bankCredits[ ent->client->ps.clientNum ] += amount;
+    }
+    else
+      G_AddPredictableEvent( ent, EV_MENU, MN_A_NOFUNDS );
   }
-  else
-    G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
 }
 
 
@@ -2121,44 +2172,79 @@ void Cmd_Withdraw_f( gentity_t *ent )
   qboolean  nearBank = qfalse;
 
   trap_Argv( 1, s, sizeof( s ) );
-  
-  //aliens don't sell stuff
-  if( ent->client->pers.pteam != PTE_HUMANS )
-    return;
     
-  for ( i = 1, bankEntity = g_entities + i; i < level.num_entities; i++, bankEntity++ )
+  if( ent->client->pers.pteam == PTE_HUMANS )
   {
-    if( bankEntity->s.eType != ET_BUILDABLE )
-      continue;
-      
-    if( bankEntity->s.modelindex == BA_H_BANK )
+    for ( i = 1, bankEntity = g_entities + i; i < level.num_entities; i++, bankEntity++ )
     {
-      VectorSubtract( ent->s.pos.trBase, bankEntity->s.origin, distance );
-      if( VectorLength( distance ) <= 100 )
-        nearBank = qtrue;
+      if( bankEntity->s.eType != ET_BUILDABLE )
+        continue;
+        
+      if( bankEntity->s.modelindex == BA_H_BANK )
+      {
+        VectorSubtract( ent->s.pos.trBase, bankEntity->s.origin, distance );
+        if( VectorLength( distance ) <= 100 )
+          nearBank = qtrue;
+      }
     }
+
+    if( !Q_stricmp( s, "all" ) )
+      amount = level.bankCredits[ ent->client->ps.clientNum ];
+    else
+      amount = atoi( s );
+
+    //no Bank nearby
+    if( !nearBank )
+    {
+      trap_SendServerCommand( ent-g_entities, va("print \"You must be near an Bank\n\"" ) );
+      return;
+    }
+
+    if( amount <= level.bankCredits[ ent->client->ps.clientNum ] )
+    {
+      ent->client->ps.stats[ STAT_CREDIT ] += amount;
+      ent->client->ps.stats[ STAT_BANK ] -= amount;
+      level.bankCredits[ ent->client->ps.clientNum ] -= amount;
+    }
+    else
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
   }
-
-  if( !Q_stricmp( s, "all" ) )
-    amount = level.bankCredits[ ent->client->ps.clientNum ];
-  else
-    amount = atoi( s );
-
-  //no Bank nearby
-  if( !nearBank )
+  else if( ent->client->pers.pteam == PTE_ALIENS )
   {
-    trap_SendServerCommand( ent-g_entities, va("print \"You must be near an Bank\n\"" ) );
-    return;
-  }
+    for ( i = 1, bankEntity = g_entities + i; i < level.num_entities; i++, bankEntity++ )
+    {
+      if( bankEntity->s.eType != ET_BUILDABLE )
+        continue;
+        
+      if( bankEntity->s.modelindex == BA_A_OBANK )
+      {
+        VectorSubtract( ent->s.pos.trBase, bankEntity->s.origin, distance );
+        if( VectorLength( distance ) <= 100 )
+          nearBank = qtrue;
+      }
+    }
 
-  if( amount <= level.bankCredits[ ent->client->ps.clientNum ] )
-  {
-    ent->client->ps.stats[ STAT_CREDIT ] += amount;
-    ent->client->ps.stats[ STAT_BANK ] -= amount;
-    level.bankCredits[ ent->client->ps.clientNum ] -= amount;
+    if( !Q_stricmp( s, "all" ) )
+      amount = level.bankCredits[ ent->client->ps.clientNum ];
+    else
+      amount = atoi( s );
+
+    //no Bank nearby
+    if( !nearBank )
+    {
+      trap_SendServerCommand( ent-g_entities, va("print \"You must be near an Bank\n\"" ) );
+      return;
+    }
+
+    if( amount <= level.bankCredits[ ent->client->ps.clientNum ] )
+    {
+      ent->client->ps.stats[ STAT_CREDIT ] += amount;
+      ent->client->ps.stats[ STAT_BANK ] -= amount;
+      level.bankCredits[ ent->client->ps.clientNum ] -= amount;
+    }
+    else
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
   }
-  else
-    G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
 }
 
 

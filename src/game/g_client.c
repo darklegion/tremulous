@@ -633,7 +633,8 @@ void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
     //check the client /can/ upgrade to another class
     for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
     {
-      if( BG_ClassCanEvolveFromTo( activator->client->ps.stats[ STAT_PCLASS ], i ) &&
+      if( BG_ClassCanEvolveFromTo(  activator->client->ps.stats[ STAT_PCLASS ],
+                                    i, activator->client->ps.stats[ STAT_CREDIT ] ) &&
           BG_FindStagesForClass( i, g_alienStage.integer ) )
         break;
     }
@@ -1419,6 +1420,9 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   client->ps.stats[ STAT_WEAPONS2 ] = 0;
   client->ps.stats[ STAT_SLOTS ] = 0;
 
+  //no credit
+  client->ps.stats[ STAT_CREDIT ] = 0;
+  
   client->ps.eFlags = flags;
   client->ps.clientNum = index;
   

@@ -434,6 +434,7 @@ void CG_Menu( int eventParm )
     case MN_H_BUILD:    trap_SendConsoleCommand( "menu tremulous_humanbuild\n" );                 break;
     case MN_H_MCU:      trap_SendConsoleCommand( "menu tremulous_humanmcu\n" );                   break;
     case MN_H_BANK:     trap_SendConsoleCommand( "menu tremulous_humanbank\n" );                  break;
+    case MN_A_OBANK:    trap_SendConsoleCommand( "menu tremulous_alienbank\n" );                  break;
     case MN_H_NOROOM:   trap_SendConsoleCommand( "menu tremulous_human_no_room\n" );              break;
     case MN_H_NOPOWER:  trap_SendConsoleCommand( "menu tremulous_human_no_power\n" );             break;
     case MN_A_NOROOM:   trap_SendConsoleCommand( "menu tremulous_alien_no_room\n" );              break;
@@ -450,9 +451,11 @@ void CG_Menu( int eventParm )
     case MN_H_RPTWARN:  trap_SendConsoleCommand( "menu tremulous_human_repeater_warning\n" );     break;
     case MN_H_NOSLOTS:  trap_SendConsoleCommand( "menu tremulous_human_no_slots\n" );             break;
     case MN_H_NOFUNDS:  trap_SendConsoleCommand( "menu tremulous_human_no_funds\n" );             break;
+    case MN_A_NOFUNDS:  trap_SendConsoleCommand( "menu tremulous_alien_no_funds\n" );             break;
     case MN_H_ITEMHELD: trap_SendConsoleCommand( "menu tremulous_human_item_held\n" );            break;
     case MN_A_INFEST:
-      trap_Cvar_Set( "ui_currentClass", va( "%d", cg.snap->ps.stats[ STAT_PCLASS ] ) );
+      trap_Cvar_Set( "ui_currentClass", va( "%d %d",  cg.snap->ps.stats[ STAT_PCLASS ],
+                                                      cg.snap->ps.stats[ STAT_CREDIT ] ) );
       trap_SendConsoleCommand( "menu tremulous_alienupgrade\n" );
       break;
 
