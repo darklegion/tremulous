@@ -93,29 +93,62 @@ static void PM_StartTorsoAnim( int anim )
     | anim;
 }
 
+/*
+===================
+PM_StartLegsAnim
+===================
+*/
 static void PM_StartLegsAnim( int anim )
 {
   if( pm->ps->pm_type >= PM_DEAD )
     return;
   
-  if( pm->ps->legsTimer > 0 )
-    return;   // a high priority animation is running
+  //legsTimer is clamped too tightly for nonsegmented models
+  if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+  {
+    if( pm->ps->legsTimer > 0 )
+      return;   // a high priority animation is running
+  }
+  else
+  {
+    if( pm->ps->torsoTimer > 0 )
+      return;   // a high priority animation is running
+  }
 
   pm->ps->legsAnim = ( ( pm->ps->legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
     | anim;
 }
 
+/*
+===================
+PM_ContinueLegsAnim
+===================
+*/
 static void PM_ContinueLegsAnim( int anim )
 {
   if( ( pm->ps->legsAnim & ~ANIM_TOGGLEBIT ) == anim )
     return;
 
-  if( pm->ps->legsTimer > 0 )
-    return;   // a high priority animation is running
+  //legsTimer is clamped too tightly for nonsegmented models
+  if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+  {
+    if( pm->ps->legsTimer > 0 )
+      return;   // a high priority animation is running
+  }
+  else
+  {
+    if( pm->ps->torsoTimer > 0 )
+      return;   // a high priority animation is running
+  }
 
   PM_StartLegsAnim( anim );
 }
 
+/*
+===================
+PM_ContinueTorsoAnim
+===================
+*/
 static void PM_ContinueTorsoAnim( int anim )
 {
   if( ( pm->ps->torsoAnim & ~ANIM_TOGGLEBIT ) == anim )
@@ -127,9 +160,19 @@ static void PM_ContinueTorsoAnim( int anim )
   PM_StartTorsoAnim( anim );
 }
 
+/*
+===================
+PM_ForceLegsAnim
+===================
+*/
 static void PM_ForceLegsAnim( int anim )
 {
-  pm->ps->legsTimer = 0;
+  //legsTimer is clamped too tightly for nonsegmented models
+  if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+    pm->ps->legsTimer = 0;
+  else
+    pm->ps->torsoTimer = 0;
+  
   PM_StartLegsAnim( anim );
 }
 
@@ -1251,7 +1294,10 @@ static void PM_CrashLand( void )
       PM_ForceLegsAnim( NSPA_LAND );
   }
 
-  pm->ps->legsTimer = TIMER_LAND;
+  if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+    pm->ps->legsTimer = TIMER_LAND;
+  else
+    pm->ps->torsoTimer = TIMER_LAND;
 
   // calculate the exact velocity on landing
   dist = pm->ps->origin[ 2 ] - pml.previous_origin[ 2 ];
@@ -2054,14 +2100,28 @@ static void PM_Footsteps( void )
       if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
         PM_ContinueLegsAnim( LEGS_BACKCR );
       else
-        PM_ContinueLegsAnim( NSPA_WALKBACK );
+      {
+        if( pm->cmd.rightmove > 0 && !pm->cmd.forwardmove )
+          PM_ContinueLegsAnim( NSPA_WALKRIGHT );
+        else if( pm->cmd.rightmove < 0 && !pm->cmd.forwardmove )
+          PM_ContinueLegsAnim( NSPA_WALKLEFT );
+        else
+          PM_ContinueLegsAnim( NSPA_WALKBACK );
+      }
     }
     else
     {
       if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
         PM_ContinueLegsAnim( LEGS_WALKCR );
       else
-        PM_ContinueLegsAnim( NSPA_WALK );
+      {
+        if( pm->cmd.rightmove > 0 && !pm->cmd.forwardmove )
+          PM_ContinueLegsAnim( NSPA_WALKRIGHT );
+        else if( pm->cmd.rightmove < 0 && !pm->cmd.forwardmove )
+          PM_ContinueLegsAnim( NSPA_WALKLEFT );
+        else
+          PM_ContinueLegsAnim( NSPA_WALK );
+      }
     }
     
     // ducked characters never play footsteps
@@ -2088,14 +2148,28 @@ static void PM_Footsteps( void )
         if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
           PM_ContinueLegsAnim( LEGS_BACK );
         else
-          PM_ContinueLegsAnim( NSPA_RUNBACK );
+        {
+          if( pm->cmd.rightmove > 0 && !pm->cmd.forwardmove )
+            PM_ContinueLegsAnim( NSPA_RUNRIGHT );
+          else if( pm->cmd.rightmove < 0 && !pm->cmd.forwardmove )
+            PM_ContinueLegsAnim( NSPA_RUNLEFT );
+          else
+            PM_ContinueLegsAnim( NSPA_RUNBACK );
+        }
       }
       else
       {
         if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
           PM_ContinueLegsAnim( LEGS_RUN );
         else
-          PM_ContinueLegsAnim( NSPA_RUN );
+        {
+          if( pm->cmd.rightmove > 0 && !pm->cmd.forwardmove )
+            PM_ContinueLegsAnim( NSPA_RUNRIGHT );
+          else if( pm->cmd.rightmove < 0 && !pm->cmd.forwardmove )
+            PM_ContinueLegsAnim( NSPA_RUNLEFT );
+          else
+            PM_ContinueLegsAnim( NSPA_RUN );
+        }
       }
 
       footstep = qtrue;
@@ -2108,14 +2182,28 @@ static void PM_Footsteps( void )
         if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
           PM_ContinueLegsAnim( LEGS_BACKWALK );
         else
-          PM_ContinueLegsAnim( NSPA_WALKBACK );
+        {
+          if( pm->cmd.rightmove > 0 && !pm->cmd.forwardmove )
+            PM_ContinueLegsAnim( NSPA_WALKRIGHT );
+          else if( pm->cmd.rightmove < 0 && !pm->cmd.forwardmove )
+            PM_ContinueLegsAnim( NSPA_WALKLEFT );
+          else
+            PM_ContinueLegsAnim( NSPA_WALKBACK );
+        }
       }
       else
       {
         if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
           PM_ContinueLegsAnim( LEGS_WALK );
         else
-          PM_ContinueLegsAnim( NSPA_WALK );
+        {
+          if( pm->cmd.rightmove > 0 && !pm->cmd.forwardmove )
+            PM_ContinueLegsAnim( NSPA_WALKRIGHT );
+          else if( pm->cmd.rightmove < 0 && !pm->cmd.forwardmove )
+            PM_ContinueLegsAnim( NSPA_WALKLEFT );
+          else
+            PM_ContinueLegsAnim( NSPA_WALK );
+        }
       }
     }
   }
@@ -2522,7 +2610,10 @@ static void PM_Weapon( void )
   if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
     PM_StartTorsoAnim( TORSO_ATTACK );
   else
-    PM_ForceLegsAnim( NSPA_ATTACK1 );
+  {
+    PM_ForceLegsAnim( NSPA_ATTACK3 );
+    pm->ps->torsoTimer = TIMER_ATTACK;
+  }
 
   pm->ps->weaponstate = WEAPON_FIRING;
   
@@ -2577,22 +2668,22 @@ static void PM_Animate( void )
 {
   if( pm->cmd.buttons & BUTTON_GESTURE )
   {
-    if( pm->ps->torsoTimer == 0 )
+    if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
     {
-      PM_StartTorsoAnim( TORSO_GESTURE );
-
-      pm->ps->torsoTimer = TIMER_GESTURE;
-      PM_AddEvent( EV_TAUNT );
-    }
-    else if( pm->ps->legsTimer == 0 )
-    {
-      if( ( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+      if( pm->ps->torsoTimer == 0 )
       {
-        PM_ForceLegsAnim( NSPA_GESTURE );
-        pm->ps->legsTimer = TIMER_GESTURE;
-        
+        PM_StartTorsoAnim( TORSO_GESTURE );
+        pm->ps->torsoTimer = TIMER_GESTURE;
+
         PM_AddEvent( EV_TAUNT );
       }
+    }
+    else
+    {
+      PM_ForceLegsAnim( NSPA_GESTURE );
+      pm->ps->torsoTimer = TIMER_GESTURE;
+      
+      PM_AddEvent( EV_TAUNT );
     }
   }
 }

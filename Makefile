@@ -158,6 +158,12 @@ Q3ASM=q3asm
 Q3ASM_FLAGS=
 
 
+# --source level flags--
+
+SLF_GAME_FLAGS=-D__GAME__
+SLF_CGAME_FLAGS=-D__CGAME__
+SLF_UI_FLAGS=-D__UI__
+
 
 # --main targets--
 all: release debug qvm
@@ -244,39 +250,39 @@ $(BQ)/ui.qvm: $(UIQVMOBJ) $(BQ)/$(GDIRNAME)/bg_lib.asm
 # --rules for the objects--
 #release g_*.o
 $(BR)/$(GDIRNAME)/%.o: $(GDIR)/%.c 
-	$(CC) $(RELEASE_CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+	$(CC) $(RELEASE_CFLAGS) $(SLF_GAME_FLAGS) $(SHLIBCFLAGS) -o $@ -c $<
   
 #debug g_*.o
 $(BD)/$(GDIRNAME)/%.o: $(GDIR)/%.c 
-	$(CC) $(DEBUG_CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+	$(CC) $(DEBUG_CFLAGS) $(SLF_GAME_FLAGS) $(SHLIBCFLAGS) -o $@ -c $<
   
 #qvm g_*.asm
 $(BQ)/$(GDIRNAME)/%.asm: $(GDIR)/%.c 
-	$(LCC) $(LCC_FLAGS) $(LCC_INCLUDES) -o $@ $<
+	$(LCC) $(LCC_FLAGS) $(SLF_GAME_FLAGS) $(LCC_INCLUDES) -o $@ $<
 
 #release cg_*.o
 $(BR)/$(CGDIRNAME)/%.o: $(CGDIR)/%.c 
-	$(CC) $(RELEASE_CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+	$(CC) $(RELEASE_CFLAGS) $(SLF_CGAME_FLAGS) $(SHLIBCFLAGS) -o $@ -c $<
   
 #debug cg_*.o
 $(BD)/$(CGDIRNAME)/%.o: $(CGDIR)/%.c 
-	$(CC) $(DEBUG_CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+	$(CC) $(DEBUG_CFLAGS) $(SLF_CGAME_FLAGS) $(SHLIBCFLAGS) -o $@ -c $<
 
 #qvm cg_*.asm
 $(BQ)/$(CGDIRNAME)/%.asm: $(CGDIR)/%.c 
-	$(LCC) $(LCC_FLAGS) $(LCC_INCLUDES) -o $@ $<
+	$(LCC) $(LCC_FLAGS) $(SLF_CGAME_FLAGS) $(LCC_INCLUDES) -o $@ $<
 
 #release ui_*.o
 $(BR)/$(UIDIRNAME)/%.o: $(UIDIR)/%.c 
-	$(CC) $(RELEASE_CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+	$(CC) $(RELEASE_CFLAGS) $(SLF_UI_FLAGS) $(SHLIBCFLAGS) -o $@ -c $<
   
 #debug ui_*.o
 $(BD)/$(UIDIRNAME)/%.o: $(UIDIR)/%.c 
-	$(CC) $(DEBUG_CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+	$(CC) $(DEBUG_CFLAGS) $(SLF_UI_FLAGS) $(SHLIBCFLAGS) -o $@ -c $<
   
 #qvm ui_*.asm
 $(BQ)/$(UIDIRNAME)/%.asm: $(UIDIR)/%.c 
-	$(LCC) $(LCC_FLAGS) $(LCC_INCLUDES) -o $@ $<
+	$(LCC) $(LCC_FLAGS) $(SLF_UI_FLAGS) $(LCC_INCLUDES) -o $@ $<
 
 
 # --cleaning rules--
