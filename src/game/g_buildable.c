@@ -1810,19 +1810,12 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
 G_ValidateBuild
 =================
 */
-void G_ValidateBuild( gentity_t *ent, buildable_t buildable )
+void G_ValidateBuild( gentity_t *ent, buildable_t buildable, float speed )
 {
   weapon_t      weapon;
-  float         dist, speed, maxspeed;
+  float         dist;
   vec3_t        origin;
 
-  speed = 0.0f; //temp hack
-  
-  maxspeed = BG_FindLaunchSpeedForClass( ent->client->ps.stats[ STAT_PCLASS ] );
-
-  if( speed > maxspeed )
-    speed = maxspeed;
-  
   dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
     
   switch( G_itemFits( ent, buildable, dist, origin ) )

@@ -341,6 +341,9 @@ struct gclient_s {
 
   int       pouncePayload; //TA: amount of damage pounce attack will do
   qboolean  allowedToPounce;
+  
+  int       launchSpeed; //TA: speed at which to launch buildable
+  qboolean  allowedToLaunch;
 };
 
 #define MAX_LOCDAMAGE_TEXT    8192
@@ -541,7 +544,7 @@ typedef enum
 
 itemBuildError_t  G_itemFits( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin );
 gentity_t         *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin, vec3_t angles, float speed );
-void              G_ValidateBuild( gentity_t *ent, buildable_t buildable );
+void              G_ValidateBuild( gentity_t *ent, buildable_t buildable, float speed );
 void              G_setBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim, qboolean force );
 void              G_setIdleBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim );
 

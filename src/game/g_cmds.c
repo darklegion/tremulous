@@ -1805,7 +1805,7 @@ void Cmd_Buy_f( gentity_t *ent )
     if( mcuEntity->s.eType != ET_BUILDABLE )
       continue;
       
-    if( mcuEntity->s.clientNum == BA_H_MCU )
+    if( mcuEntity->s.modelindex == BA_H_MCU )
     {
       VectorSubtract( ent->s.pos.trBase, mcuEntity->s.origin, distance );
       if( VectorLength( distance ) <= 100 )
@@ -1919,7 +1919,7 @@ void Cmd_Sell_f( gentity_t *ent )
     if( mcuEntity->s.eType != ET_BUILDABLE )
       continue;
       
-    if( mcuEntity->s.clientNum == BA_H_MCU )
+    if( mcuEntity->s.modelindex == BA_H_MCU )
     {
       VectorSubtract( ent->s.pos.trBase, mcuEntity->s.origin, distance );
       if( VectorLength( distance ) <= 100 )
@@ -1991,7 +1991,7 @@ void Cmd_Deposit_f( gentity_t *ent )
     if( bankEntity->s.eType != ET_BUILDABLE )
       continue;
       
-    if( bankEntity->s.clientNum == BA_H_BANK )
+    if( bankEntity->s.modelindex == BA_H_BANK )
     {
       VectorSubtract( ent->s.pos.trBase, bankEntity->s.origin, distance );
       if( VectorLength( distance ) <= 100 )
@@ -2046,7 +2046,7 @@ void Cmd_Withdraw_f( gentity_t *ent )
     if( bankEntity->s.eType != ET_BUILDABLE )
       continue;
       
-    if( bankEntity->s.clientNum == BA_H_BANK )
+    if( bankEntity->s.modelindex == BA_H_BANK )
     {
       VectorSubtract( ent->s.pos.trBase, bankEntity->s.origin, distance );
       if( VectorLength( distance ) <= 100 )
@@ -2112,7 +2112,7 @@ void Cmd_Build_f( gentity_t *ent )
       case IBE_RPTWARN:
       case IBE_SPWNWARN:
       case IBE_NOROOM:
-        ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
+        ent->client->ps.stats[ STAT_BUILDABLE ] = ( buildable | SB_VALID_TOGGLEBIT );
         break;
 
       case IBE_NOASSERT:

@@ -1092,6 +1092,7 @@ TA: human defense item
     ""                  //sounds
   },
   
+
 /*QUAKED upgrade_torch (0 0 1) (-16 -16 -16) (16 16 16)
 */
   {

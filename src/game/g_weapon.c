@@ -636,11 +636,11 @@ void Weapon_Build_Fire( gentity_t *ent, dynMenu_t menu )
 {
   if( ( ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
   {
-    ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
-    G_ValidateBuild( ent, ent->client->ps.stats[ STAT_BUILDABLE ] );
+    ent->client->allowedToLaunch = qtrue;
+    return;
   }
-  else
-    G_AddPredictableEvent( ent, EV_MENU, menu );
+
+  G_AddPredictableEvent( ent, EV_MENU, menu );
 }
 
 
