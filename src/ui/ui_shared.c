@@ -4166,6 +4166,7 @@ menuDef_t *Menus_ActivateByName(const char *p) {
     if (Q_stricmp(Menus[i].window.name, p) == 0) {
       m = &Menus[i];
       Menus_Activate(m);
+      Menu_HandleMouseMove( m, DC->cursorx, DC->cursory ); //TA: force the item under the cursor to focus
       if (openMenuCount < MAX_OPEN_MENUS && focus != NULL) {
         menuStack[openMenuCount++] = focus;
       }

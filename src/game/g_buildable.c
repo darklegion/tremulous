@@ -1222,7 +1222,7 @@ void HMedistat_Think( gentity_t *self )
   int       maxclients;
 
   //make sure we have power
-  if( !( self->dcced = findPower( self ) ) )
+  if( !( self->powered = findPower( self ) ) )
   {
     self->nextthink = level.time + REFRESH_TIME;
     return;
@@ -1261,6 +1261,7 @@ void HMedistat_Think( gentity_t *self )
     if( player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
     {
       if( player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] &&
+          player->client->ps.pm_type != PM_DEAD &&
           healCount < maxclients )
       {
         healCount++;
