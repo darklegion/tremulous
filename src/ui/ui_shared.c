@@ -2788,11 +2788,13 @@ void Item_TextColor(itemDef_t *item, vec4_t *newColor) {
   Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, qtrue, parent->fadeAmount);
 
   if (item->window.flags & WINDOW_HASFOCUS) {
-    lowLight[0] = 0.8 * parent->focusColor[0]; 
+/*    lowLight[0] = 0.8 * parent->focusColor[0]; 
     lowLight[1] = 0.8 * parent->focusColor[1]; 
     lowLight[2] = 0.8 * parent->focusColor[2]; 
     lowLight[3] = 0.8 * parent->focusColor[3]; 
-    LerpColor(parent->focusColor,lowLight,*newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
+    LerpColor(parent->focusColor,lowLight,*newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));*/
+    //TA:
+    memcpy(newColor, &parent->focusColor, sizeof(vec4_t));
   } else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime/BLINK_DIVISOR) & 1)) {
     lowLight[0] = 0.8 * item->window.foreColor[0]; 
     lowLight[1] = 0.8 * item->window.foreColor[1]; 
@@ -3022,11 +3024,13 @@ void Item_TextField_Paint(itemDef_t *item) {
   parent = (menuDef_t*)item->parent;
 
   if (item->window.flags & WINDOW_HASFOCUS) {
-    lowLight[0] = 0.8 * parent->focusColor[0]; 
+/*    lowLight[0] = 0.8 * parent->focusColor[0]; 
     lowLight[1] = 0.8 * parent->focusColor[1]; 
     lowLight[2] = 0.8 * parent->focusColor[2]; 
     lowLight[3] = 0.8 * parent->focusColor[3]; 
-    LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
+    LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));*/
+    //TA:
+    memcpy(newColor, &parent->focusColor, sizeof(vec4_t));
   } else {
     memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
   }
@@ -3049,11 +3053,13 @@ void Item_YesNo_Paint(itemDef_t *item) {
   value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
   if (item->window.flags & WINDOW_HASFOCUS) {
-    lowLight[0] = 0.8 * parent->focusColor[0]; 
+/*    lowLight[0] = 0.8 * parent->focusColor[0]; 
     lowLight[1] = 0.8 * parent->focusColor[1]; 
     lowLight[2] = 0.8 * parent->focusColor[2]; 
     lowLight[3] = 0.8 * parent->focusColor[3]; 
-    LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
+    LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));*/
+    //TA:
+    memcpy(newColor, &parent->focusColor, sizeof(vec4_t));
   } else {
     memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
   }
@@ -3072,11 +3078,13 @@ void Item_Multi_Paint(itemDef_t *item) {
   menuDef_t *parent = (menuDef_t*)item->parent;
 
   if (item->window.flags & WINDOW_HASFOCUS) {
-    lowLight[0] = 0.8 * parent->focusColor[0]; 
+/*    lowLight[0] = 0.8 * parent->focusColor[0]; 
     lowLight[1] = 0.8 * parent->focusColor[1]; 
     lowLight[2] = 0.8 * parent->focusColor[2]; 
     lowLight[3] = 0.8 * parent->focusColor[3]; 
-    LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
+    LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));*/
+    //TA:
+    memcpy(newColor, &parent->focusColor, sizeof(vec4_t));
   } else {
     memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
   }
@@ -3370,11 +3378,13 @@ void Item_Slider_Paint(itemDef_t *item) {
   value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
   if (item->window.flags & WINDOW_HASFOCUS) {
-    lowLight[0] = 0.8 * parent->focusColor[0]; 
+/*    lowLight[0] = 0.8 * parent->focusColor[0]; 
     lowLight[1] = 0.8 * parent->focusColor[1]; 
     lowLight[2] = 0.8 * parent->focusColor[2]; 
     lowLight[3] = 0.8 * parent->focusColor[3]; 
-    LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
+    LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));*/
+    //TA:
+    memcpy(newColor, &parent->focusColor, sizeof(vec4_t));
   } else {
     memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
   }
@@ -3418,7 +3428,9 @@ void Item_Bind_Paint(itemDef_t *item) {
       lowLight[2] = 0.8f * parent->focusColor[2]; 
       lowLight[3] = 0.8f * parent->focusColor[3]; 
     }
-    LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
+    /*LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));*/
+    //TA:
+    memcpy(newColor, &parent->focusColor, sizeof(vec4_t));
   } else {
     memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
   }
@@ -3836,11 +3848,13 @@ void Item_OwnerDraw_Paint(itemDef_t *item) {
     }
 
     if (item->window.flags & WINDOW_HASFOCUS) {
-      lowLight[0] = 0.8 * parent->focusColor[0]; 
+/*      lowLight[0] = 0.8 * parent->focusColor[0]; 
       lowLight[1] = 0.8 * parent->focusColor[1]; 
       lowLight[2] = 0.8 * parent->focusColor[2]; 
       lowLight[3] = 0.8 * parent->focusColor[3]; 
-      LerpColor(parent->focusColor,lowLight,color,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
+      LerpColor(parent->focusColor,lowLight,color,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));*/
+      //TA:
+      memcpy(color, &parent->focusColor, sizeof(vec4_t));
     } else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime/BLINK_DIVISOR) & 1)) {
       lowLight[0] = 0.8 * item->window.foreColor[0]; 
       lowLight[1] = 0.8 * item->window.foreColor[1]; 
