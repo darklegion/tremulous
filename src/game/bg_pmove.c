@@ -1385,7 +1385,7 @@ static void PM_GroundClimbTrace( void )
     }
 
     //if we hit something
-    if( trace.fraction < 1.0 && !( trace.surfaceFlags & ( SURF_SKY | SURF_NOIMPACT ) ) &&
+    if( trace.fraction < 1.0 && !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) &&
         !( trace.entityNum != ENTITYNUM_WORLD && i != 3 ) )
     {
       if( i == 2 )
