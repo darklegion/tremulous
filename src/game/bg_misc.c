@@ -1109,7 +1109,7 @@ buildableAttributes_t bg_buildableList[ ] =
     200,                   //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
     BIT_DROIDS,            //int       team;
-    EV_ITEM_GROW,          //int       spawnEvent;
+    BANIM_IDLE1,                 //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1130,7 +1130,7 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
     BIT_DROIDS,            //int       team;
-    EV_ITEM_GROW,          //int       spawnEvent;
+    BANIM_IDLE1,                 //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1151,7 +1151,7 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
     BIT_DROIDS,            //int       team;
-    EV_ITEM_GROW,          //int       spawnEvent;
+    BANIM_IDLE1,                 //int       constructAnim;
     100,                   //int       nextthink;
     1500,                  //int       turretFireSpeed;
     500,                   //int       turretRange;
@@ -1172,7 +1172,7 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
     BIT_DROIDS,            //int       team;
-    EV_ITEM_GROW,          //int       spawnEvent;
+    BANIM_IDLE1,                 //int       constructAnim;
     -1,                    //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1193,7 +1193,7 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    EV_NONE,               //int       spawnEvent;
+    BANIM_IDLE1,                 //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1214,7 +1214,7 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    EV_NONE,               //int       spawnEvent;
+    BANIM_IDLE1,                 //int       constructAnim;
     50,                    //int       nextthink;
     500,                   //int       turretFireSpeed;
     500,                   //int       turretRange;
@@ -1235,7 +1235,7 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    EV_NONE,               //int       spawnEvent;
+    BANIM_IDLE1,                 //int       constructAnim;
     50,                    //int       nextthink;
     50,                    //int       turretFireSpeed;
     300,                   //int       turretRange;
@@ -1256,7 +1256,7 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    EV_NONE,               //int       spawnEvent;
+    BANIM_IDLE1,                 //int       constructAnim;
     150,                   //int       nextthink;
     4000,                  //int       turretFireSpeed;
     1500,                  //int       turretRange;
@@ -1277,7 +1277,7 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    EV_NONE,               //int       spawnEvent;
+    BANIM_IDLE1,                 //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1298,7 +1298,7 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    EV_NONE,               //int       spawnEvent;
+    BANIM_IDLE1,                 //int       constructAnim;
     -1,                    //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1319,7 +1319,7 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    EV_NONE,               //int       spawnEvent;
+    BANIM_IDLE1,                 //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1579,10 +1579,10 @@ int BG_FindTeamForBuildable( int bclass )
 
 /*
 ==============
-BG_FindEventForBuildable
+BG_FindAnimForBuildable
 ==============
 */
-int BG_FindEventForBuildable( int bclass )
+int BG_FindAnimForBuildable( int bclass )
 {
   int i;
 
@@ -1590,11 +1590,11 @@ int BG_FindEventForBuildable( int bclass )
   {
     if( bg_buildableList[ i ].buildNum == bclass )
     {
-      return bg_buildableList[ i ].spawnEvent;
+      return bg_buildableList[ i ].constructAnim;
     }
   }
   
-  return EV_NONE;
+  return BANIM_IDLE1;
 }
 
 /*
@@ -3392,6 +3392,7 @@ char *eventnames[] = {
 
   "EV_FOOTSTEP",
   "EV_FOOTSTEP_METAL",
+  "EV_FOOTSTEP_SQUELCH",
   "EV_FOOTSPLASH",
   "EV_FOOTWADE",
   "EV_SWIM",
@@ -3405,7 +3406,7 @@ char *eventnames[] = {
   "EV_FALL_MEDIUM",
   "EV_FALL_FAR",
 
-  "EV_JUMP_PAD",      // boing sound at origin", jump sound on player
+  "EV_JUMP_PAD",      // boing sound at origin, jump sound on player
 
   "EV_JUMP",
   "EV_WATER_TOUCH", // foot touches
@@ -3440,7 +3441,7 @@ char *eventnames[] = {
   "EV_USE_ITEM15",
 
   "EV_ITEM_RESPAWN",
-  "EV_PLAYER_RESPAWN",
+  "EV_PLAYER_RESPAWN", //TA: for fovwarp effects
   "EV_ITEM_POP",
   "EV_PLAYER_TELEPORT_IN",
   "EV_PLAYER_TELEPORT_OUT",
@@ -3449,7 +3450,6 @@ char *eventnames[] = {
 
   "EV_GENERAL_SOUND",
   "EV_GLOBAL_SOUND",    // no attenuation
-  "EV_GLOBAL_TEAM_SOUND",
 
   "EV_BULLET_HIT_FLESH",
   "EV_BULLET_HIT_WALL",
@@ -3457,6 +3457,7 @@ char *eventnames[] = {
   "EV_MISSILE_HIT",
   "EV_MISSILE_MISS",
   "EV_MISSILE_MISS_METAL",
+  "EV_ITEM_EXPLOSION", //TA: human item explosions
   "EV_RAILTRAIL",
   "EV_SHOTGUN",
   "EV_BULLET",        // otherEntity is the shooter
@@ -3472,22 +3473,23 @@ char *eventnames[] = {
   "EV_POWERUP_REGEN",
 
   "EV_GIB_PLAYER",      // gib a previously living player
-  "EV_SCOREPLUM",     // score plum
+  "EV_GIB_DROID",       //TA: generic green gib for droids
 
-//#ifdef MISSIONPACK
-  "EV_PROXIMITY_MINE_STICK",
-  "EV_PROXIMITY_MINE_TRIGGER",
-  "EV_KAMIKAZE",      // kamikaze explodes
-  "EV_OBELISKEXPLODE",    // obelisk explodes
-  "EV_INVUL_IMPACT",    // invulnerability sphere impact
-  "EV_JUICED",        // invulnerability juiced effect
-  "EV_LIGHTNINGBOLT",   // lightning bolt bounced of invulnerability sphere
-//#endif
+  "EV_BUILD_CONSTRUCT", //TA
+  "EV_BUILD_DESTROY",   //TA
+  "EV_BUILD_ANIM",      //TA
 
   "EV_DEBUG_LINE",
   "EV_STOPLOOPINGSOUND",
-  "EV_TAUNT"
+  "EV_TAUNT",
+  "EV_TAUNT_YES",
+  "EV_TAUNT_NO",
+  "EV_TAUNT_FOLLOWME",
+  "EV_TAUNT_GETFLAG",
+  "EV_TAUNT_GUARDBASE",
+  "EV_TAUNT_PATROL",
 
+  "EV_MENU"             //TA: menu event
 };
 
 /*

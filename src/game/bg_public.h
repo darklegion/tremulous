@@ -492,7 +492,6 @@ typedef enum {
 
   EV_ITEM_RESPAWN,
   EV_PLAYER_RESPAWN, //TA: for fovwarp effects
-  EV_ITEM_GROW, //droid items that grow
   EV_ITEM_POP,
   EV_PLAYER_TELEPORT_IN,
   EV_PLAYER_TELEPORT_OUT,
@@ -525,7 +524,10 @@ typedef enum {
 
   EV_GIB_PLAYER,      // gib a previously living player
   EV_GIB_DROID,       //TA: generic green gib for droids
-  EV_ITEM_RECEDE,     //TA: sent when creep should recede
+
+  EV_BUILD_CONSTRUCT, //TA
+  EV_BUILD_DESTROY,   //TA
+  EV_BUILD_ANIM,      //TA
 
   EV_DEBUG_LINE,
   EV_STOPLOOPINGSOUND,
@@ -626,24 +628,26 @@ typedef enum {
 //TA: for buildable animations
 typedef enum
 {
-  CONSTRUCT1,
-  CONSTRUCT2,
+  BANIM_NONE,
 
-  IDLE1,
-  IDLE2,
-  IDLE3,
+  BANIM_CONSTRUCT1,
+  BANIM_CONSTRUCT2,
 
-  ATTACK1,
-  ATTACK2,
+  BANIM_IDLE1,
+  BANIM_IDLE2,
+  BANIM_IDLE3,
 
-  SPAWN1,
-  SPAWN2,
+  BANIM_ATTACK1,
+  BANIM_ATTACK2,
 
-  PAIN1,
-  PAIN2,
+  BANIM_SPAWN1,
+  BANIM_SPAWN2,
+
+  BANIM_PAIN1,
+  BANIM_PAIN2,
   
-  DESTROY1,
-  DESTROY2,
+  BANIM_DESTROY1,
+  BANIM_DESTROY2,
   
   MAX_BUILDABLE_ANIMATIONS
 } buildableAnimNumber_t;
@@ -857,7 +861,7 @@ typedef struct
 
   int       team;
 
-  int       spawnEvent;
+  int       constructAnim;
 
   int       nextthink;
 
@@ -926,7 +930,7 @@ int       BG_FindSplashDamageForBuildable( int bclass );
 int       BG_FindSplashRadiusForBuildable( int bclass );
 int       BG_FindMODForBuildable( int bclass );
 int       BG_FindTeamForBuildable( int bclass );
-int       BG_FindEventForBuildable( int bclass );
+int       BG_FindAnimForBuildable( int bclass );
 int       BG_FindNextThinkForBuildable( int bclass );
 int       BG_FindFireSpeedForBuildable( int bclass );
 int       BG_FindRangeForBuildable( int bclass );

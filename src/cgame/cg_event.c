@@ -891,17 +891,26 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
     break;
 
   //TA: make droid items "grow"
-  case EV_ITEM_GROW:
-      DEBUGNAME("EV_ITEM_GROW");
-      cent->miscTime = cg.time; // scale up from this
+  case EV_BUILD_CONSTRUCT:
+    DEBUGNAME("EV_BUILD_CONSTRUCT");
+    cent->miscTime = cg.time; // scale up from this
+    //probably a better place for this, but for the time being it lives here
+    memset( &cent->lerpFrame, 0, sizeof( lerpFrame_t ) );
+    cent->buildableAnim = es->eventParm;
     break;
     
   //TA: make droid creep "recede"
-  case EV_ITEM_RECEDE:
-      DEBUGNAME("EV_ITEM_RECEDE");
-      cent->miscTime = -cg.time; // scale down from this
+  case EV_BUILD_DESTROY:
+    DEBUGNAME("EV_BUILD_DESTROY");
+    cent->miscTime = -cg.time; // scale down from this
     break;
 
+  //TA: trigger an anim on a buildable item
+  case EV_BUILD_ANIM:
+    DEBUGNAME("EV_BUILD_ANIM");
+    cent->buildableAnim = es->eventParm;
+    break;
+    
   case EV_GRENADE_BOUNCE:
     DEBUGNAME("EV_GRENADE_BOUNCE");
     if ( rand() & 1 ) {

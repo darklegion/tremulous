@@ -69,7 +69,7 @@ static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_
   skip = 0; // quite the compiler warning
 
   // read information for each frame
-  for ( i = 0; i < MAX_BUILDABLE_ANIMATIONS; i++ )
+  for ( i = BANIM_NONE + 1; i < MAX_BUILDABLE_ANIMATIONS; i++ )
   {
 
     token = COM_Parse( &text_p );
@@ -159,7 +159,11 @@ static void CG_SetBuildableLerpFrameAnimation( buildable_t buildable, lerpFrame_
     CG_Error( "Bad animation number: %i", newAnimation );
   }
 
-  anim = buildAnimations[ buildable ];
+  anim = &buildAnimations[ buildable ][ newAnimation ];
+
+  //this item has just spawned so lf->frameTime will be zero
+  if( !lf->animation )
+    lf->frameTime = cg.time + 1000; //1 sec delay before starting the spawn anim
 
   lf->animation = anim;
   lf->animationTime = lf->frameTime + anim->initialLerp;
@@ -177,96 +181,105 @@ Sets cg.snap, cg.oldFrame, and cg.backlerp
 cg.time should be between oldFrameTime and frameTime after exit
 ===============
 */
-static void CG_RunBuildableLerpFrame( buildable_t buildable, lerpFrame_t *lf, int newAnimation ) {
-  int     f, numFrames;
-  animation_t *anim;
+static void CG_RunBuildableLerpFrame( centity_t *cent )
+{
+  int                   f, numFrames;
+  animation_t           *anim;
+  buildable_t           buildable = cent->currentState.clientNum;
+  lerpFrame_t           *lf = &cent->lerpFrame;
+  buildableAnimNumber_t newAnimation = cent->buildableAnim;
 
   // debugging tool to get no animations
-  if ( cg_animSpeed.integer == 0 ) {
+  if( cg_animSpeed.integer == 0 )
+  {
     lf->oldFrame = lf->frame = lf->backlerp = 0;
     return;
   }
 
   // see if the animation sequence is switching
-  if ( newAnimation != lf->animationNumber || !lf->animation ) {
+  if( newAnimation != lf->animationNumber || !lf->animation )
     CG_SetBuildableLerpFrameAnimation( buildable, lf, newAnimation );
-  }
 
   // if we have passed the current frame, move it to
   // oldFrame and calculate a new frame
-  if ( cg.time >= lf->frameTime ) {
+  if( cg.time >= lf->frameTime )
+  {
     lf->oldFrame = lf->frame;
     lf->oldFrameTime = lf->frameTime;
 
     // get the next frame based on the animation
     anim = lf->animation;
-    if ( !anim->frameLerp ) {
+    if( !anim->frameLerp )
       return;   // shouldn't happen
-    }
-    if ( cg.time < lf->animationTime ) {
+      
+    if ( cg.time < lf->animationTime )
       lf->frameTime = lf->animationTime;    // initial lerp
-    } else {
+    else
       lf->frameTime = lf->oldFrameTime + anim->frameLerp;
-    }
+      
     f = ( lf->frameTime - lf->animationTime ) / anim->frameLerp;
     numFrames = anim->numFrames;
-    if (anim->flipflop) {
+    if(anim->flipflop)
       numFrames *= 2;
-    }
-    if ( f >= numFrames ) {
+
+    if( f >= numFrames )
+    {
       f -= numFrames;
-      if ( anim->loopFrames ) {
+      if( anim->loopFrames )
+      {
         f %= anim->loopFrames;
         f += anim->numFrames - anim->loopFrames;
-      } else {
+      }
+      else
+      {
         f = numFrames - 1;
         // the animation is stuck at the end, so it
         // can immediately transition to another sequence
         lf->frameTime = cg.time;
+        cent->buildableAnim = cent->currentState.torsoAnim;
       }
     }
-    if ( anim->reversed ) {
+    
+    if( anim->reversed )
       lf->frame = anim->firstFrame + anim->numFrames - 1 - f;
-    }
-    else if (anim->flipflop && f>=anim->numFrames) {
+    else if(anim->flipflop && f>=anim->numFrames)
       lf->frame = anim->firstFrame + anim->numFrames - 1 - (f%anim->numFrames);
-    }
-    else {
+    else
       lf->frame = anim->firstFrame + f;
-    }
-    if ( cg.time > lf->frameTime ) {
+      
+    if ( cg.time > lf->frameTime )
+    {
       lf->frameTime = cg.time;
-      if ( cg_debugAnim.integer ) {
+      if( cg_debugAnim.integer )
         CG_Printf( "Clamp lf->frameTime\n");
-      }
     }
   }
 
-  if ( lf->frameTime > cg.time + 200 ) {
+  if( lf->frameTime > cg.time + 200 )
     lf->frameTime = cg.time;
-  }
 
-  if ( lf->oldFrameTime > cg.time ) {
+  if( lf->oldFrameTime > cg.time )
     lf->oldFrameTime = cg.time;
-  }
+    
   // calculate current lerp value
-  if ( lf->frameTime == lf->oldFrameTime ) {
+  if ( lf->frameTime == lf->oldFrameTime )
     lf->backlerp = 0;
-  } else {
+  else
     lf->backlerp = 1.0 - (float)( cg.time - lf->oldFrameTime ) / ( lf->frameTime - lf->oldFrameTime );
-  }
 }
-
 
 /*
 ===============
 CG_BuildableAnimation
 ===============
 */
-static void CG_BuildableAnimation( centity_t *cent, int *old, int *now, float *backLerp ) {
+static void CG_BuildableAnimation( centity_t *cent, int *old, int *now, float *backLerp )
+{
+  //if no animation is set default to idle anim
+  if( cent->buildableAnim == BANIM_NONE )
+    cent->buildableAnim = cent->currentState.torsoAnim;
 
-  CG_RunBuildableLerpFrame( cent->currentState.clientNum,
-                            &cent->lerpFrame, cent->currentState.torsoAnim );
+  CG_RunBuildableLerpFrame( cent );
 
   *old      = cent->lerpFrame.oldFrame;
   *now      = cent->lerpFrame.frame;
@@ -279,7 +292,8 @@ static void CG_BuildableAnimation( centity_t *cent, int *old, int *now, float *b
 CG_Buildable
 ==================
 */
-void CG_Buildable( centity_t *cent ) {
+void CG_Buildable( centity_t *cent )
+{
   refEntity_t     ent;
   refEntity_t     ent2;
   entityState_t   *es;
@@ -289,22 +303,20 @@ void CG_Buildable( centity_t *cent ) {
   float       scale;
 
   es = &cent->currentState;
-  if ( es->modelindex >= bg_numItems ) {
+  if ( es->modelindex >= bg_numItems )
     CG_Error( "Bad item index %i on entity", es->modelindex );
-  }
   
   //add creep
   if( es->modelindex2 == BIT_DROIDS )
     CG_Creep( cent );  
 
   // if set to invisible, skip
-  if ( !es->modelindex || ( es->eFlags & EF_NODRAW ) ) {
+  if ( !es->modelindex || ( es->eFlags & EF_NODRAW ) )
     return;
-  }
 
   item = &bg_itemlist[ es->modelindex ];
 
-  memset (&ent, 0, sizeof(ent));
+  memset ( &ent, 0, sizeof( ent ) );
 
   VectorCopy( es->angles, cent->lerpAngles );
   AnglesToAxis( cent->lerpAngles, ent.axis );
@@ -317,7 +329,7 @@ void CG_Buildable( centity_t *cent ) {
   ent.nonNormalizedAxes = qfalse;
 
   // if just respawned, slowly scale up
-  msec = cg.time - cent->miscTime;
+/*  msec = cg.time - cent->miscTime;
   if ( msec >= 0 && msec < ITEM_SCALEUP_TIME ) {
     frac = (float)msec / ITEM_SCALEUP_TIME;
     VectorScale( ent.axis[0], frac, ent.axis[0] );
@@ -326,8 +338,10 @@ void CG_Buildable( centity_t *cent ) {
     ent.nonNormalizedAxes = qtrue;
   } else {
     frac = 1.0;
-  }
+  }*/
 
+  CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
+  
   //turret barrel bit
   if( cg_items[ es->modelindex ].models[ 1 ] != 0 )
   {
@@ -347,12 +361,12 @@ void CG_Buildable( centity_t *cent ) {
 
     ent2.nonNormalizedAxes = qfalse;
 
-    CG_BuildableAnimation( cent, &ent2.oldframe, &ent2.frame, &ent2.backlerp );
-    
+    ent2.oldframe = ent.oldframe;
+    ent2.frame    = ent.frame;
+    ent2.backlerp = ent.backlerp;
+
     trap_R_AddRefEntityToScene( &ent2 );
   }
-
-  CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
 
   // add to refresh list
   trap_R_AddRefEntityToScene(&ent);

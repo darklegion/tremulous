@@ -1307,6 +1307,9 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
         trap_SendServerCommand( ent-g_entities, va("print \"No suitable spawns available\n\"" ) );
         return;
       }
+      
+      //start spawn animation on egg
+      G_setBuildableAnim( spawnPoint, BANIM_SPAWN1 );
     }
   }
   client->pers.teamState.state = TEAM_ACTIVE;

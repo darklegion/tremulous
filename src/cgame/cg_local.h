@@ -195,6 +195,8 @@ typedef struct centity_s {
   vec3_t      lerpAngles;
 
   lerpFrame_t lerpFrame;
+
+  buildableAnimNumber_t buildableAnim; //TA: persistant anim number
 } centity_t;
 
 

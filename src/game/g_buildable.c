@@ -35,6 +35,18 @@ Triggers an animation client side
 */
 void G_setBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim )
 {
+  G_AddEvent( ent, EV_BUILD_ANIM, anim );
+}
+
+/*
+================
+G_setIdleBuildableAnim
+
+Set the animation to use whilst no other animations are running
+================
+*/
+void G_setIdleBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim )
+{
   ent->s.torsoAnim = anim;
 }
 
@@ -190,7 +202,7 @@ void D_CreepRecede( gentity_t *self )
 {
   //if the creep just died begin the recession
   if( ( self->timestamp + 100 ) == level.time )
-    G_AddEvent( self, EV_ITEM_RECEDE, 0 );
+    G_AddEvent( self, EV_BUILD_DESTROY, 0 );
   
   //creep is still receeding
   if( ( self->timestamp + 10000 ) > level.time )
@@ -225,7 +237,7 @@ void DSpawn_Melt( gentity_t *self )
 
   //start creep recession
   if( ( self->timestamp + 500 ) == level.time )
-    G_AddEvent( self, EV_ITEM_RECEDE, 0 );
+    G_AddEvent( self, EV_BUILD_DESTROY, 0 );
   
   //not dead yet
   if( ( self->timestamp + 10000 ) > level.time )
@@ -279,6 +291,17 @@ void DSpawn_Think( gentity_t *self )
 {
 }
 
+/*
+================
+DSpawn_Pain
+
+pain function for Droid Spawn
+================
+*/
+void DSpawn_Pain( gentity_t *self, gentity_t *attacker, int damage )
+{
+  G_setBuildableAnim( self, BANIM_PAIN1 );
+}
 
 
 
@@ -1214,9 +1237,7 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
   built->splashRadius = BG_FindSplashRadiusForBuildable( buildable );
   built->splashMethodOfDeath = BG_FindMODForBuildable( buildable );
   
-  //add a spawn event
-  if( BG_FindEventForBuildable( buildable ) != EV_NONE )
-    G_AddEvent( built, BG_FindEventForBuildable( buildable ), 0 );
+  G_setIdleBuildableAnim( built, BG_FindAnimForBuildable( buildable ) );
     
   built->nextthink = BG_FindNextThinkForBuildable( buildable );
 
@@ -1226,22 +1247,26 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
     case BA_D_SPAWN:
       built->die = DSpawn_Die;
       built->think = DSpawn_Think;
+      built->pain = DSpawn_Pain;
       break;
       
     case BA_D_DEF1:
       built->die = DDef1_Die;
       built->think = DDef1_Think;
+      built->pain = DSpawn_Pain;
       break;
       
     case BA_D_DEF2:
       built->die = DDef1_Die;
       built->think = DDef2_Think;
+      built->pain = DSpawn_Pain;
       built->enemy = NULL;
       built->s.weapon = BG_FindProjTypeForBuildable( buildable );
       break;
       
     case BA_D_HIVEMIND:
       built->die = DSpawn_Die;
+      built->pain = DSpawn_Pain;
       break;
       
     case BA_H_SPAWN:
@@ -1296,7 +1321,7 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
   built->s.pos.trType = TR_GRAVITY;
   built->s.pos.trTime = level.time;
   
-  G_setBuildableAnim( built, CONSTRUCT1 );
+  G_AddEvent( built, EV_BUILD_CONSTRUCT, BANIM_CONSTRUCT1 );
 
   trap_LinkEntity( built );
 
