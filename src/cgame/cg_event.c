@@ -908,7 +908,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
   //TA: trigger an anim on a buildable item
   case EV_BUILD_ANIM:
     DEBUGNAME("EV_BUILD_ANIM");
-    if( cent->buildableAnim == es->torsoAnim )
+    if( cent->buildableAnim == es->torsoAnim || es->eventParm & ANIM_TOGGLEBIT )
       cent->buildableAnim = es->eventParm;
     break;
     

@@ -33,9 +33,14 @@ G_setBuildableAnim
 Triggers an animation client side
 ================
 */
-void G_setBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim )
+void G_setBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim, qboolean force )
 {
-  G_AddEvent( ent, EV_BUILD_ANIM, anim );
+  int localAnim = anim;
+
+  if( force )
+    localAnim |= ANIM_TOGGLEBIT;
+    
+  G_AddEvent( ent, EV_BUILD_ANIM, localAnim );
 }
 
 /*
@@ -265,12 +270,12 @@ void DSpawn_Melt( gentity_t *self )
 
 /*
 ================
-DSpawn_Die
+DSpawn_Blast
 
 Called when an droid spawn dies
 ================
 */
-void DSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
+void DSpawn_Blast( gentity_t *self )
 {
   vec3_t  dir;
 
@@ -287,9 +292,27 @@ void DSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   G_AddEvent( self, EV_GIB_DROID, DirToByte( dir ) );
   self->r.contents = CONTENTS_TRIGGER;
   self->timestamp = level.time;
-  self->die = nullDieFunction;
   self->think = DSpawn_Melt;
   self->nextthink = level.time + 500; //wait .5 seconds before damaging others
+    
+  trap_LinkEntity( self );
+}
+
+/*
+================
+DSpawn_Die
+
+Called when an droid spawn dies
+================
+*/
+void DSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
+{
+  G_setBuildableAnim( self, BANIM_DESTROY1, qtrue );
+  G_setIdleBuildableAnim( self, BANIM_DESTROYED );
+
+  self->die = nullDieFunction;
+  self->think = DSpawn_Blast;
+  self->nextthink = level.time + 1500; //wait .5 seconds before damaging others
     
   trap_LinkEntity( self );
 }
@@ -314,7 +337,7 @@ pain function for Droid Spawn
 */
 void DSpawn_Pain( gentity_t *self, gentity_t *attacker, int damage )
 {
-  G_setBuildableAnim( self, BANIM_PAIN1 );
+  G_setBuildableAnim( self, BANIM_PAIN1, qfalse );
 }
 
 
@@ -333,22 +356,22 @@ pain function for Droid Spawn
 void DBarricade_Pain( gentity_t *self, gentity_t *attacker, int damage )
 {
   if( random() > 0.5f )
-    G_setBuildableAnim( self, BANIM_PAIN1 );
+    G_setBuildableAnim( self, BANIM_PAIN1, qfalse );
   else
-    G_setBuildableAnim( self, BANIM_PAIN2 );
+    G_setBuildableAnim( self, BANIM_PAIN2, qfalse );
 }
 
 /*
 ================
-DBarricade_Die
+DBarricade_Blast
 
 Called when an droid spawn dies
 ================
 */
-void DBarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
+void DBarricade_Blast( gentity_t *self )
 {
   vec3_t  dir;
-  
+
   // we don't have a valid direction, so just point straight up
   dir[0] = dir[1] = 0;
   dir[2] = 1;
@@ -362,9 +385,27 @@ void DBarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
   G_AddEvent( self, EV_GIB_DROID, DirToByte( dir ) );
   self->r.contents = CONTENTS_TRIGGER;
   self->timestamp = level.time;
-  self->die = nullDieFunction;
   self->think = D_CreepRecede;
-  self->nextthink = level.time + 100;
+  self->nextthink = level.time + 500; //wait .5 seconds before damaging others
+    
+  trap_LinkEntity( self );
+}
+
+/*
+================
+DBarricade_Die
+
+Called when an droid spawn dies
+================
+*/
+void DBarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
+{
+  G_setBuildableAnim( self, BANIM_DESTROY1, qtrue );
+  G_setIdleBuildableAnim( self, BANIM_DESTROYED );
+  
+  self->die = nullDieFunction;
+  self->think = DBarricade_Blast;
+  self->nextthink = level.time + 1500;
 
   trap_LinkEntity( self );
 }
@@ -464,7 +505,7 @@ void DAcidTube_Think( gentity_t *self )
       self->timestamp = level.time;
       self->think = DAcidTube_Damage;
       self->nextthink = level.time + 100;
-      G_setBuildableAnim( self, BANIM_ATTACK1 );
+      G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
     }
   }
 
@@ -495,7 +536,7 @@ void ddef_fireonenemy( gentity_t *self, int firespeed )
 
   //fire at target
   FireWeapon( self );
-  G_setBuildableAnim( self, BANIM_ATTACK1 );
+  G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
   self->count = level.time + firespeed;
 }
 
@@ -993,7 +1034,7 @@ void hdef_fireonenemy( gentity_t *self, int firespeed )
 {
   //fire at target
   FireWeapon( self );
-  G_setBuildableAnim( self, BANIM_ATTACK1 );
+  G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
   self->count = level.time + firespeed;
 }
 
@@ -1172,7 +1213,7 @@ Called when a human spawn dies
 void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
 {
   //pretty events and cleanup
-  G_setBuildableAnim( self, BANIM_DESTROY1 );
+  G_setBuildableAnim( self, BANIM_DESTROY1, qtrue );
   G_setIdleBuildableAnim( self, BANIM_DESTROYED );
   
   self->die = nullDieFunction;

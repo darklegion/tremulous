@@ -1302,7 +1302,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
       }
       
       //start spawn animation on egg
-      G_setBuildableAnim( spawnPoint, BANIM_SPAWN1 );
+      G_setBuildableAnim( spawnPoint, BANIM_SPAWN1, qtrue );
     }
   }
   client->pers.teamState.state = TEAM_ACTIVE;

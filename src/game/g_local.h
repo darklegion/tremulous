@@ -542,7 +542,7 @@ typedef enum
 
 itemBuildError_t  G_itemFits( gentity_t *ent, buildable_t buildable, int distance );
 gentity_t         *G_buildItem( gentity_t *ent, buildable_t buildable, int distance, float speed );
-void              G_setBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim );
+void              G_setBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim, qboolean force );
 void              G_setIdleBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim );
 
 //
