@@ -180,11 +180,19 @@ nullDieFunction
 hack to prevent compilers complaining about function pointer -> NULL conversion
 ================
 */
-void nullDieFunction( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
+static void nullDieFunction( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
 {
 }
 
-
+/*
+================
+freeBuildable
+================
+*/
+static void freeBuildable( gentity_t *self )
+{
+  G_FreeEntity( self );
+}
 
 
 //==================================================================================
@@ -587,6 +595,79 @@ void HMCU_Think( gentity_t *self )
 
 
 //==================================================================================
+
+
+
+/*
+================
+HFM_Touch
+
+Called when a floatmine is triggered
+================
+*/
+void HFM_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
+{
+  //can't blow up twice
+  if( self->health > 0 )
+    return;
+    
+  //go boom
+  G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+}
+
+/*
+================
+HFM_Die
+
+Called when a floatmine dies
+================
+*/
+void HFM_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
+{
+  vec3_t  dir;
+  
+  // we don't have a valid direction, so just point straight up
+  dir[0] = dir[1] = 0;
+  dir[2] = -1;
+
+  //do a bit of radius damage
+  G_RadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
+    self->splashRadius, self, self->splashMethodOfDeath );
+
+  //pretty events and item cleanup
+  self->s.modelindex = 0; //don't draw the model once its destroyed
+  G_AddEvent( self, EV_ITEM_EXPLOSION, DirToByte( dir ) );
+  self->r.contents = CONTENTS_TRIGGER;
+  self->timestamp = level.time;
+
+  self->think = freeBuildable;
+  self->die = nullDieFunction;
+  self->nextthink = level.time + 100;
+  
+  trap_LinkEntity( self );
+}
+
+/*
+================
+HFM_Think
+
+Think for floatmine
+================
+*/
+void HFM_Think( gentity_t *self )
+{
+  //make sure we have power
+  self->nextthink = level.time + REFRESH_TIME;
+  
+  if( !( self->powered = findPower( self ) ) )
+    G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+}
+
+
+
+
+//==================================================================================
+
 
 
 
@@ -1301,6 +1382,12 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
       built->die = HSpawn_Die;
       break;
       
+    case BA_H_FLOATMINE:
+      built->think = HFM_Think;
+      built->die = HFM_Die;
+      built->touch = HFM_Touch;
+      break;
+      
     default:
       //erk
       break;
@@ -1320,7 +1407,8 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
   VectorCopy( angles, built->s.angles );
   built->s.angles2[ YAW ] = angles[ YAW ];
   VectorCopy( origin, built->s.origin );
-  built->s.pos.trType = TR_GRAVITY;
+  built->s.pos.trType = BG_FindTrajectoryForBuildable( buildable );
+  built->physicsBounce = BG_FindBounceForBuildable( buildable );
   built->s.pos.trTime = level.time;
   
   G_AddEvent( built, EV_BUILD_CONSTRUCT, BANIM_CONSTRUCT1 );

@@ -1264,7 +1264,8 @@ typedef enum {
 	TR_LINEAR,
 	TR_LINEAR_STOP,
 	TR_SINE,					// value = base + sin( time / duration ) * delta
-	TR_GRAVITY
+	TR_GRAVITY,
+	TR_BUOYANCY //TA: what the hell is this doing in here anyway?
 } trType_t;
 
 typedef struct {
@@ -1364,7 +1365,6 @@ typedef struct {
 
 typedef struct {
   glyphInfo_t glyphs [GLYPHS_PER_FONT];
-	float glyphScale;
 	char name[MAX_QPATH];
 } fontInfo_t;
 

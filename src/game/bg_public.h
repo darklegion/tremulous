@@ -400,6 +400,8 @@ typedef enum {
   BA_H_REACTOR,
   BA_H_REPEATER,
 
+  BA_H_FLOATMINE,
+
   BA_NUM_BUILDABLES
 } buildable_t;
 
@@ -844,6 +846,9 @@ typedef struct
 
   vec3_t    mins;
   vec3_t    maxs;
+
+  trType_t  traj;
+  float     bounce;
   
   int       buildPoints;
 
@@ -914,25 +919,27 @@ gitem_t *BG_FindItemForPowerup( powerup_t pw );
 gitem_t *BG_FindItemForHoldable( holdable_t pw );
 
 //TA:
-int       BG_FindBuildNumForName( char *name );
-int       BG_FindBuildNumForEntityName( char *name );
-char      *BG_FindNameForBuildable( int bclass );
-char      *BG_FindEntityNameForBuildable( int bclass );
-void      BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs );
-int       BG_FindHealthForBuildable( int bclass );
-int       BG_FindBuildPointsForBuildable( int bclass );
-int       BG_FindDamageForBuildable( int bclass );
-int       BG_FindSplashDamageForBuildable( int bclass );
-int       BG_FindSplashRadiusForBuildable( int bclass );
-int       BG_FindMODForBuildable( int bclass );
-int       BG_FindTeamForBuildable( int bclass );
-int       BG_FindAnimForBuildable( int bclass );
-int       BG_FindNextThinkForBuildable( int bclass );
-int       BG_FindFireSpeedForBuildable( int bclass );
-int       BG_FindRangeForBuildable( int bclass );
-weapon_t  BG_FindProjTypeForBuildable( int bclass );
-int       BG_FindCreepTestForBuildable( int bclass );
-int       BG_FindUniqueTestForBuildable( int bclass );
+int           BG_FindBuildNumForName( char *name );
+int           BG_FindBuildNumForEntityName( char *name );
+char          *BG_FindNameForBuildable( int bclass );
+char          *BG_FindEntityNameForBuildable( int bclass );
+void          BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs );
+int           BG_FindHealthForBuildable( int bclass );
+trType_t      BG_FindTrajectoryForBuildable( int bclass );
+float         BG_FindBounceForBuildable( int bclass );
+int           BG_FindBuildPointsForBuildable( int bclass );
+int           BG_FindDamageForBuildable( int bclass );
+int           BG_FindSplashDamageForBuildable( int bclass );
+int           BG_FindSplashRadiusForBuildable( int bclass );
+int           BG_FindMODForBuildable( int bclass );
+int           BG_FindTeamForBuildable( int bclass );
+int           BG_FindAnimForBuildable( int bclass );
+int           BG_FindNextThinkForBuildable( int bclass );
+int           BG_FindFireSpeedForBuildable( int bclass );
+int           BG_FindRangeForBuildable( int bclass );
+weapon_t      BG_FindProjTypeForBuildable( int bclass );
+int           BG_FindCreepTestForBuildable( int bclass );
+int           BG_FindUniqueTestForBuildable( int bclass );
 
 int       BG_FindClassNumForName( char *name );
 char      *BG_FindNameForClassNum( int pclass );

@@ -962,6 +962,22 @@ TA: human power item
     ""                  //sounds
   },
   
+/*QUAKED team_human_floatmine (0 0 1) (-16 -16 -16) (16 16 16)
+TA: human defense item
+*/
+  {
+    "team_human_floatmine",
+    "sound/items/holdable.wav",
+    { "models/buildables/floatmine/floatmine.md3", 0, 0, 0 },
+    "icons/teleporter", //icon
+    "Human Floatmine",      //pickup
+    0,
+    IT_BUILDABLE,
+    BA_H_FLOATMINE,
+    "",                 //precache
+    ""                  //sounds
+  },
+  
 /*QUAKED upgrade_torch (0 0 1) (-16 -16 -16) (16 16 16)
 */
   {
@@ -1102,6 +1118,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_droid_spawn",    //char      *entityName;
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
     100,                   //int       buildPoints;
     1000,                  //int       health;
     50,                    //int       damage;
@@ -1123,6 +1141,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_droid_def1",     //char      *entityName;
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
     80,                    //int       buildPoints;
     1000,                  //int       health;
     50,                    //int       damage;
@@ -1144,6 +1164,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_droid_def2",     //char      *entityName;
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
     80,                    //int       buildPoints;
     1000,                  //int       health;
     50,                    //int       damage;
@@ -1165,6 +1187,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_droid_hivemind", //char      *entityName;
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
     0,                     //int       buildPoints;
     1000,                  //int       health;
     50,                    //int       damage;
@@ -1186,6 +1210,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_human_spawn",    //char      *entityName;
     { -40, -40, -4 },      //vec3_t    mins;
     { 40, 40, 4 },         //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
     100,                   //int       buildPoints;
     1000,                  //int       health;
     50,                    //int       damage;
@@ -1207,6 +1233,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_human_def1",     //char      *entityName;
     { -24, -24, -11 },     //vec3_t    mins;
     { 24, 24, 11 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
     80,                    //int       buildPoints;
     1000,                  //int       health;
     50,                    //int       damage;
@@ -1228,6 +1256,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_human_def2",     //char      *entityName;
     { -24, -24, -11 },     //vec3_t    mins;
     { 24, 24, 11 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
     80,                    //int       buildPoints;
     1000,                  //int       health;
     50,                    //int       damage;
@@ -1249,6 +1279,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_human_def3",     //char      *entityName;
     { -24, -24, -11 },     //vec3_t    mins;
     { 24, 24, 11 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
     80,                    //int       buildPoints;
     1000,                  //int       health;
     50,                    //int       damage;
@@ -1270,6 +1302,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_human_mcu",      //char      *entityName;
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
     200,                   //int       buildPoints;
     1000,                  //int       health;
     50,                    //int       damage;
@@ -1291,6 +1325,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_human_reactor",  //char      *entityName;
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
     0,                     //int       buildPoints;
     1000,                  //int       health;
     50,                    //int       damage;
@@ -1312,6 +1348,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_human_repeater", //char      *entityName;
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
     10,                    //int       buildPoints;
     1000,                  //int       health;
     50,                    //int       damage;
@@ -1319,7 +1357,30 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    BANIM_IDLE1,                 //int       constructAnim;
+    BANIM_IDLE1,           //int       constructAnim;
+    100,                   //int       nextthink;
+    0,                     //int       turretFireSpeed;
+    0,                     //int       turretRange;
+    WP_NONE,               //weapon_t  turretProjType;
+    qfalse,                //qboolean  creepTest;
+    qfalse                 //qboolean  reactorTest;
+  },
+  {
+    BA_H_FLOATMINE,        //int       buildNum;
+    "floatmine",           //char      *buildName;
+    "team_human_floatmine",//char      *entityName;
+    { -15, -15, -15 },     //vec3_t    mins;
+    { 15, 15, 15 },        //vec3_t    maxs;
+    TR_BUOYANCY,           //trType_t traj;
+    0.2,                   //float        bounce;
+    10,                    //int       buildPoints;
+    100,                   //int       health;
+    50,                    //int       damage;
+    50,                    //int       splashDamage;
+    150,                   //int       splashRadius;
+    MOD_HSPAWN,            //int       meansOfDeath;
+    BIT_HUMANS,            //int       team;
+    BANIM_IDLE1,           //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1435,6 +1496,46 @@ void BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs )
     
   if( maxs != NULL )
     VectorCopy( bg_buildableList[ 0 ].maxs, maxs );
+}
+
+/*
+==============
+BG_FindTrajectoryForBuildable
+==============
+*/
+trType_t BG_FindTrajectoryForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].traj;
+    }
+  }
+  
+  return TR_GRAVITY;
+}
+
+/*
+==============
+BG_FindBounceForBuildable
+==============
+*/
+float BG_FindBounceForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].bounce;
+    }
+  }
+  
+  return 0.0;
 }
 
 /*
@@ -3338,6 +3439,11 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) 
     VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
     result[2] -= 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;   // FIXME: local gravity...
     break;
+  case TR_BUOYANCY:
+    deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
+    VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
+    result[2] += 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;   // FIXME: local gravity...
+    break;
   default:
     Com_Error( ERR_DROP, "BG_EvaluateTrajectory: unknown trType: %i", tr->trTime );
     break;
@@ -3380,6 +3486,11 @@ void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
     deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
     VectorCopy( tr->trDelta, result );
     result[2] -= DEFAULT_GRAVITY * deltaTime;   // FIXME: local gravity...
+    break;
+  case TR_BUOYANCY:
+    deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
+    VectorCopy( tr->trDelta, result );
+    result[2] += DEFAULT_GRAVITY * deltaTime;   // FIXME: local gravity...
     break;
   default:
     Com_Error( ERR_DROP, "BG_EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime );
