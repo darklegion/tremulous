@@ -479,6 +479,10 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   //TA:
   G_InitDamageLocations( );
 
+  //reset stages
+  trap_Cvar_Set( "g_alienStage", va( "%d", S1 ) );
+  trap_Cvar_Set( "g_humanStage", va( "%d", S1 ) );
+
   G_Printf( "-----------------------------------\n" );
 
   G_RemapTeamShaders( );
