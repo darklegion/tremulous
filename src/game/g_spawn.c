@@ -381,7 +381,6 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
   float   v;
   vec3_t  vec;
   vec4_t  vec4;
-  int     i, count;
 
   for( f = fields; f->name; f++ )
   {
@@ -397,10 +396,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
           break;
           
         case F_VECTOR:
-          count = sscanf( value, "%f %f %f", &vec[ 0 ], &vec[ 1 ], &vec[ 2 ] );
-
-          for( i = 2; i >= count; i-- )
-            vec[ i ] = 0.0f;
+          sscanf( value, "%f %f %f", &vec[ 0 ], &vec[ 1 ], &vec[ 2 ] );
           
           ( (float *)( b + f->ofs ) )[ 0 ] = vec[ 0 ];
           ( (float *)( b + f->ofs ) )[ 1 ] = vec[ 1 ];
@@ -408,10 +404,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
           break;
           
         case F_VECTOR4:
-          count = sscanf( value, "%f %f %f %f", &vec4[ 0 ], &vec4[ 1 ], &vec4[ 2 ], &vec4[ 3 ] );
-
-          for( i = 3; i >= count; i-- )
-            vec[ i ] = 0.0f;
+          sscanf( value, "%f %f %f %f", &vec4[ 0 ], &vec4[ 1 ], &vec4[ 2 ], &vec4[ 3 ] );
           
           ( (float *)( b + f->ofs ) )[ 0 ] = vec4[ 0 ];
           ( (float *)( b + f->ofs ) )[ 1 ] = vec4[ 1 ];

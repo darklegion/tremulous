@@ -1894,15 +1894,9 @@ int sscanf( const char *buffer, const char *fmt, ... )
       case 'd':
       case 'u':
         **arg = _atoi( &buffer );
-
-        if( **arg != 0 )
-          count++;
         break;
       case 'f':
         *(float *)*arg = _atof( &buffer );
-
-        if( **arg != 0 )
-          count++;
         break;
     }
 
