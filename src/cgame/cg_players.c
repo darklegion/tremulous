@@ -185,7 +185,7 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
   }
 
   // read information for each frame
-  for ( i = 0 ; i < MAX_ANIMATIONS ; i++ ) {
+  for ( i = 0 ; i < MAX_PLAYER_ANIMATIONS ; i++ ) {
 
     token = COM_Parse( &text_p );
     if ( !*token ) {
@@ -243,7 +243,7 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
     animations[i].initialLerp = 1000 / fps;
   }
 
-  if ( i != MAX_ANIMATIONS ) {
+  if ( i != MAX_PLAYER_ANIMATIONS ) {
     CG_Printf( "Error parsing animation file: %s", filename );
     return qfalse;
   }
@@ -902,7 +902,7 @@ static void CG_SetLerpFrameAnimation( clientInfo_t *ci, lerpFrame_t *lf, int new
   lf->animationNumber = newAnimation;
   newAnimation &= ~( ANIM_TOGGLEBIT | ANIM_WALLCLIMBING );
 
-  if ( newAnimation < 0 || newAnimation >= MAX_TOTALANIMATIONS ) {
+  if ( newAnimation < 0 || newAnimation >= MAX_PLAYER_TOTALANIMATIONS ) {
     CG_Error( "Bad animation number: %i", newAnimation );
   }
 

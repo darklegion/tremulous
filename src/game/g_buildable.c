@@ -752,6 +752,7 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
   built->item = BG_FindItemForBuildable( buildable );
   
   built->s.modelindex = built->item - bg_itemlist; // store item number in modelindex
+  built->s.clientNum = buildable; //so we can tell what this is on the client side
 
   BG_FindBBoxForBuildable( buildable, built->r.mins, built->r.maxs );
   built->biteam = built->s.modelindex2 = BG_FindTeamForBuildable( buildable );

@@ -195,6 +195,7 @@ typedef struct centity_s {
 
   //TA: value to store corpse number
   int         corpseNum;
+  lerpFrame_t lerpFrame;
 } centity_t;
 
 
@@ -360,7 +361,7 @@ typedef struct {
 
   qhandle_t   modelIcon;
 
-  animation_t   animations[MAX_TOTALANIMATIONS];
+  animation_t   animations[MAX_PLAYER_TOTALANIMATIONS];
 
   sfxHandle_t   sounds[MAX_CUSTOM_SOUNDS];
 } clientInfo_t;
@@ -1290,6 +1291,12 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, int team );
 void CG_NewClientInfo( int clientNum );
 void CG_PrecacheClientInfo( int clientNum );
 sfxHandle_t CG_CustomSound( int clientNum, const char *soundName );
+
+//
+// cg_buildable.c
+//
+void CG_Buildable( centity_t *cent );
+void CG_InitBuildables( );
 
 //
 // cg_predict.c

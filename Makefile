@@ -46,6 +46,7 @@ CGOBJ = \
 	$(GDIRNAME)/q_math.o \
 	$(GDIRNAME)/q_shared.o \
 	$(CGDIRNAME)/cg_consolecmds.o \
+	$(CGDIRNAME)/cg_buildable.o \
 	$(CGDIRNAME)/cg_draw.o \
 	$(CGDIRNAME)/cg_drawtools.o \
 	$(CGDIRNAME)/cg_effects.o \

@@ -1079,6 +1079,9 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 
   CG_RegisterGraphics();
 
+  //TA:
+  CG_InitBuildables( );
+
   CG_LoadingString( "clients" );
 
   CG_RegisterClients();   // if low on memory, some clients will be deferred

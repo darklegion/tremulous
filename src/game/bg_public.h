@@ -584,7 +584,7 @@ typedef enum {
   TORSO_NEGATIVE,
 #endif
 
-  MAX_ANIMATIONS,
+  MAX_PLAYER_ANIMATIONS,
 
   LEGS_BACKCR,
   LEGS_BACKWALK,
@@ -592,9 +592,16 @@ typedef enum {
   FLAG_STAND,
   FLAG_STAND2RUN,
 
-  MAX_TOTALANIMATIONS
-} animNumber_t;
+  MAX_PLAYER_TOTALANIMATIONS
+} playerAnimNumber_t;
 
+//TA: for buildable animations
+typedef enum
+{
+  BUILD_CONSTRUCT,
+  BUILD_DESTROY,
+  MAX_BUILDABLE_ANIMATIONS
+} buildableAnimNumber_t;
 
 typedef struct animation_s {
   int   firstFrame;
