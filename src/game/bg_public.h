@@ -1158,3 +1158,12 @@ qboolean  BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTi
 //TA: conceptually should live in q_shared.h
 void    AxisToAngles( vec3_t axis[3], vec3_t angles );
 #define Vector2Set(v, x, y) ((v)[0]=(x), (v)[1]=(y))
+
+// Ridah
+void GetPerpendicularViewVector( const vec3_t point, const vec3_t p1,
+                                 const vec3_t p2, vec3_t up );
+void ProjectPointOntoVector( vec3_t point, vec3_t vStart,
+                             vec3_t vEnd, vec3_t vProj );
+float VectorDistance( vec3_t v1, vec3_t v2 );
+// done.
+

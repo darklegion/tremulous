@@ -893,8 +893,6 @@ static void CG_RegisterGraphics( void ) {
     }
     cgs.gameShaders[i] = trap_R_RegisterShader( shaderName );
   }
-
-  CG_ClearParticles ();
 }
 
 

@@ -1343,3 +1343,51 @@ void PerpendicularVector( vec3_t dst, const vec3_t src )
   */
   VectorNormalize( dst );
 }
+
+//TA: wolf trail stuff
+// Ridah
+/*
+=================
+GetPerpendicularViewVector
+
+  Used to find an "up" vector for drawing a sprite so that it always faces the view as best as possible
+=================
+*/
+void GetPerpendicularViewVector( const vec3_t point, const vec3_t p1, const vec3_t p2, vec3_t up )
+{
+	vec3_t	v1, v2;
+
+	VectorSubtract( point, p1, v1 );
+	VectorNormalize( v1 );
+
+	VectorSubtract( point, p2, v2 );
+	VectorNormalize( v2 );
+
+	CrossProduct( v1, v2, up );
+	VectorNormalize( up );
+}
+
+/*
+================
+ProjectPointOntoVector
+================
+*/
+void ProjectPointOntoVector( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj )
+{
+	vec3_t pVec, vec;
+
+	VectorSubtract( point, vStart, pVec );
+	VectorSubtract( vEnd, vStart, vec );
+	VectorNormalize( vec );
+	// project onto the directional vector for this segment
+	VectorMA( vStart, DotProduct( pVec, vec ), vec, vProj );
+}
+
+float VectorDistance(vec3_t v1, vec3_t v2)
+{
+	vec3_t dir;
+
+	VectorSubtract(v2, v1, dir);
+	return VectorLength(dir);
+}
+// done.

@@ -1152,8 +1152,10 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
   if ( !cg.hyperspace ) {
     CG_AddPacketEntities();     // adter calcViewValues, so predicted player state is correct
     CG_AddMarks();
-    CG_AddParticles ();
     CG_AddLocalEntities();
+
+    //TA: wolf trails stuff
+		CG_AddTrails( );		// this must come last, so the trails dropped this frame get drawn
   }
   CG_AddViewWeapon( &cg.predictedPlayerState );
 

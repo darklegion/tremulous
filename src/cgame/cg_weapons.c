@@ -288,7 +288,7 @@ void CG_TeslaTrail( vec3_t start, vec3_t end )
   localEntity_t *le;
   refEntity_t   *re;
 
-  start[ 2 ] += 12; //nudge up a bit so the bolt comes from the sphere
+/*  start[ 2 ] += 12; //nudge up a bit so the bolt comes from the sphere
 
   //add a bunch of bolt segments
   le = CG_AllocLocalEntity();
@@ -316,7 +316,21 @@ void CG_TeslaTrail( vec3_t start, vec3_t end )
   le->color[2] = 1.0f;
   le->color[3] = 1.0f;
 
-  AxisClear( re->axis );
+  AxisClear( re->axis );*/
+  
+  start[ 2 ] += 12; //nudge up a bit so the bolt comes from the sphere
+
+  //add a bunch of bolt segments
+  le = CG_AllocLocalEntity();
+  re = &le->refEntity;
+
+  le->leType = LE_LIGHTNING_BOLT;
+  le->startTime = cg.time;
+  le->endTime = cg.time + cg_teslaTrailTime.value;
+  le->lifeRate = 1.0 / ( le->endTime - le->startTime );
+
+  VectorCopy( start, re->origin );
+  VectorCopy( end, re->oldorigin );
 }
 
 /*

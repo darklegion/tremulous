@@ -459,7 +459,10 @@ static void CG_MapRestart( void ) {
 
   CG_InitLocalEntities();
   CG_InitMarkPolys();
-  CG_ClearParticles ();
+
+	// Ridah, trails
+	CG_ClearTrails ();
+	// done.
 
   // make sure the "3 frags left" warnings play again
   cg.fraglimitWarnings = 0;

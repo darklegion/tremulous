@@ -72,6 +72,19 @@
 
 #define NUM_CROSSHAIRS      10
 
+//TA: ripped from wolf source
+// Ridah, trails
+#define	STYPE_STRETCH	0
+#define	STYPE_REPEAT	1
+
+#define	TJFL_FADEIN		(1<<0)
+#define	TJFL_CROSSOVER	(1<<1)
+#define	TJFL_NOCULL		(1<<2)
+#define	TJFL_FIXDISTORT	(1<<3)
+#define TJFL_SPARKHEADFLARE (1<<4)
+#define	TJFL_NOPOLYMERGE	(1<<5)
+// done.
+
 #define TEAM_OVERLAY_MAXNAME_WIDTH  12
 #define TEAM_OVERLAY_MAXLOCATION_WIDTH  16
 
@@ -213,6 +226,7 @@ typedef struct markPoly_s {
 typedef enum {
   LE_MARK,
   LE_EXPLOSION,
+  LE_LIGHTNING_BOLT, //wolf trail
   LE_SPRITE_EXPLOSION,
   LE_FRAGMENT,
   LE_MOVE_SCALE_FADE,
@@ -1025,6 +1039,8 @@ typedef struct {
   sfxHandle_t wstbimpdSound;
   sfxHandle_t wstbactvSound;
                         
+  //TA: for wolf trail effects
+	qhandle_t	sparkFlareShader;
 } cgMedia_t;
 
 
@@ -1518,6 +1534,30 @@ void CG_Bleed( vec3_t origin, int entityNum );
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
                 qhandle_t hModel, qhandle_t shader, int msec,
                 qboolean isSprite );
+
+//TA: wolf tesla effect
+void CG_DynamicLightningBolt( qhandle_t shader, vec3_t start, vec3_t pend,
+                              int numBolts, float maxWidth, qboolean fade,
+                              float startAlpha, int recursion, int randseed );
+
+// Ridah, trails
+//
+// cg_trails.c
+//
+int CG_AddTrailJunc( int headJuncIndex, qhandle_t shader, int spawnTime,
+                     int sType, vec3_t pos, int trailLife, float alphaStart,
+                     float alphaEnd, float startWidth, float endWidth, int flags,
+                     vec3_t colorStart, vec3_t colorEnd, float sRatio, float animSpeed );
+int CG_AddSparkJunc( int headJuncIndex, qhandle_t shader, vec3_t pos, int trailLife,
+                     float alphaStart, float alphaEnd, float startWidth, float endWidth );
+int CG_AddSmokeJunc( int headJuncIndex, qhandle_t shader, vec3_t pos, int trailLife,
+                     float alpha, float startWidth, float endWidth ); 
+int CG_AddFireJunc( int headJuncIndex, qhandle_t shader, vec3_t pos, int trailLife,
+                    float alpha, float startWidth, float endWidth );
+void CG_AddTrails( void );
+void CG_ClearTrails( void );
+// done.
+
 
 //
 // cg_snapshot.c
