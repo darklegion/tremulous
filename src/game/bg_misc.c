@@ -1309,8 +1309,8 @@ classAttributes_t bg_classList[ ] =
     PCL_A_O_BASE,                                   //int     classnum;
     "soldier",                                      //char    *classname;
     "Soldier",                                      //char    *humanname;
-    "prowl",                                       //char    *modelname;
-    1.0f,                                           //float   modelScale;
+    "jumper",                                       //char    *modelname;
+    0.2f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
@@ -1461,8 +1461,8 @@ classAttributes_t bg_classList[ ] =
     PCL_A_O_LEV3,                                   //int     classnum;
     "chimera",                                      //char    *classname;
     "Chimera",                                      //char    *humanname;
-    "tarantula",                                    //char    *modelname;
-    0.75f,                                          //float   modelScale;
+    "prowl",                                        //char    *modelname;
+    1.0f,                                          //float   modelScale;
     "default",                                      //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages

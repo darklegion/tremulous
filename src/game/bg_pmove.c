@@ -2522,7 +2522,7 @@ static void PM_Weapon( void )
   if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
     PM_StartTorsoAnim( TORSO_ATTACK );
   else
-    PM_StartLegsAnim( NSPA_ATTACK1 );
+    PM_ForceLegsAnim( NSPA_ATTACK1 );
 
   pm->ps->weaponstate = WEAPON_FIRING;
   
@@ -2588,7 +2588,7 @@ static void PM_Animate( void )
     {
       if( ( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
       {
-        PM_StartLegsAnim( NSPA_GESTURE );
+        PM_ForceLegsAnim( NSPA_GESTURE );
         pm->ps->legsTimer = TIMER_GESTURE;
         
         PM_AddEvent( EV_TAUNT );
