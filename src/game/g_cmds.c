@@ -1329,7 +1329,7 @@ void Cmd_ActivateItem_f( gentity_t *ent )
     
   if( upgrade != UP_NONE && BG_gotItem( upgrade, ent->client->ps.stats ) )
     BG_activateItem( upgrade, ent->client->ps.stats );
-  else if( weapon != WP_NONE )
+  else if( weapon != WP_NONE && BG_gotWeapon( weapon, ent->client->ps.stats ) )
   {
     //force a weapon change
     ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
