@@ -2,6 +2,7 @@
 // 
 {
 	loadMenu { "ui/tremulous_human_hud.menu" }
+	loadMenu { "ui/tremulous_alien_hud.menu" }
 	loadMenu { "ui/tremulous_default_hud.menu" }
   
 	loadMenu { "ui/teamscore.menu" }
