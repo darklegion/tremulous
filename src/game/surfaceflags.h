@@ -72,3 +72,7 @@
 #define SURF_NODLIGHT           0x20000 // don't dlight even if solid (solid lava, skies)
 #define SURF_DUST               0x40000 // leave a dust trail when walking on this surface
 
+//TA: custominfoparms below
+#define SURF_NOALIENBUILD       0x80000 // disallow alien building
+#define SURF_NOHUMANBUILD       0x100000 // disallow alien building
+

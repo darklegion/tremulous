@@ -565,6 +565,12 @@ void CG_Menu( int menu )
       trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       break;
       
+    case MN_H_NORMAL:
+      trap_Cvar_Set( "ui_dialog", "Cannot build on this surface. The surface is too steep or unsuitable "
+                                  "to build on. Please choose another site for this structure." );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      break;
+      
     case MN_H_REACTOR:
       trap_Cvar_Set( "ui_dialog", "There can only be one reactor. Destroy the existing one if you "
                                   "wish to move it." );
@@ -612,6 +618,10 @@ void CG_Menu( int menu )
                                   "of the same type." );
       trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       break;
+      
+    
+    //===============================
+
       
     case MN_A_NOROOM:
       trap_Cvar_Set( "ui_dialog", "There is no room to build here. Move until the structure turns "

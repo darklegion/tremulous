@@ -554,6 +554,7 @@ typedef enum
   
   IBE_NORMAL,
   IBE_NOROOM,
+  IBE_PERMISSION,
 
   IBE_MAXERRORS
 } itemBuildError_t;

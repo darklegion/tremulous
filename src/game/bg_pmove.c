@@ -1255,7 +1255,10 @@ static void PM_CheckLadder( void )
   
   //test if class can use ladders
   if( !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_CANUSELADDERS ) )
+  {
     pml.ladder = qfalse;
+    return;
+  }
   
   VectorCopy( pml.forward, forward );
   forward[ 2 ] = 0.0f;
@@ -2887,7 +2890,7 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
   if( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPINTERMISSION )
     return;   // no view changes at all
 
-  if( ps->pm_type != PM_SPECTATOR && ps->stats[STAT_HEALTH] <= 0 )
+  if( ps->pm_type != PM_SPECTATOR && ps->stats[ STAT_HEALTH ] <= 0 )
     return;   // no view changes at all
 
   // circularly clamp the angles with deltas

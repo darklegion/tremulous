@@ -549,37 +549,44 @@ typedef enum
 {
   MN_TEAM,
   
+  //alien stuff
   MN_A_CLASS,
   MN_A_BUILD,
   MN_A_INFEST,
-  MN_A_NOROOM,
-  MN_A_NOCREEP,
-  MN_A_NOOVMND,
-  MN_A_OVERMIND,
-  MN_A_NOASSERT,
-  MN_A_SPWNWARN,
-  MN_A_NORMAL,
   MN_A_HOVEL_OCCUPIED,
   MN_A_HOVEL_BLOCKED,
-  MN_A_HOVEL_EXIT,
   MN_A_OBANK,
   MN_A_NOFUNDS,
   MN_A_NOEROOM,
   
+  //alien build denial menus
+  MN_A_SPWNWARN,
+  MN_A_OVERMIND,
+  MN_A_NOASSERT,
+  MN_A_NOCREEP,
+  MN_A_NOOVMND,
+  MN_A_NOROOM,
+  MN_A_NORMAL,
+  MN_A_HOVEL_EXIT,
+  
+  //human stuff
   MN_H_SPAWN,
   MN_H_BUILD,
   MN_H_ARMOURY,
   MN_H_BANK,
-  MN_H_NOROOM,
-  MN_H_NOPOWER,
-  MN_H_REACTOR,
-  MN_H_REPEATER,
-  MN_H_RPLWARN,
-  MN_H_RPTWARN,
   MN_H_NOSLOTS,
   MN_H_NOFUNDS,
+  MN_H_ITEMHELD,
+  
+  //human build
+  MN_H_REPEATER,
+  MN_H_NOPOWER,
   MN_H_NODCC,
-  MN_H_ITEMHELD  
+  MN_H_REACTOR,
+  MN_H_NOROOM,
+  MN_H_NORMAL,
+  MN_H_RPLWARN,
+  MN_H_RPTWARN
 } dynMenu_t;
 
 // animations

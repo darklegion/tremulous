@@ -2033,14 +2033,6 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   {
     //alien criteria
 
-    //check there is creep near by for building on
-    
-    if( BG_FindCreepTestForBuildable( buildable ) )
-    {
-      if( !isCreep( entity_origin ) )
-        reason = IBE_NOCREEP;
-    }
-    
     if( buildable == BA_A_HOVEL )
     {
       vec3_t    builderMins, builderMaxs;
@@ -2053,6 +2045,17 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
         reason = IBE_HOVELEXIT;
     }
     
+    //check there is creep near by for building on
+    if( BG_FindCreepTestForBuildable( buildable ) )
+    {
+      if( !isCreep( entity_origin ) )
+        reason = IBE_NOCREEP;
+    }
+    
+    //check permission to build here
+    if( tr1.surfaceFlags & SURF_NOALIENBUILD )
+      reason = IBE_PERMISSION;
+
     //look for a hivemind
     for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
     {
@@ -2124,6 +2127,10 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
         reason = IBE_RPTWARN;
     }
       
+    //check permission to build here
+    if( tr1.surfaceFlags & SURF_NOHUMANBUILD )
+      reason = IBE_PERMISSION;
+
     //can we only build one of these?
     if( BG_FindUniqueTestForBuildable( buildable ) )
     {
@@ -2387,7 +2394,17 @@ qboolean G_ValidateBuild( gentity_t *ent, buildable_t buildable )
       return qfalse;
 
     case IBE_NORMAL:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_A_NORMAL );
+      if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+        G_TriggerMenu( ent->client->ps.clientNum, MN_H_NORMAL );
+      else
+        G_TriggerMenu( ent->client->ps.clientNum, MN_A_NORMAL );
+      return qfalse;
+
+    case IBE_PERMISSION:
+      if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+        G_TriggerMenu( ent->client->ps.clientNum, MN_H_NORMAL );
+      else
+        G_TriggerMenu( ent->client->ps.clientNum, MN_A_NORMAL );
       return qfalse;
 
     case IBE_REACTOR:
