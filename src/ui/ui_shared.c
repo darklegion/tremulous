@@ -2813,7 +2813,7 @@ void Item_TextColor(itemDef_t *item, vec4_t *newColor) {
     // items can be enabled and disabled based on cvars
   }
 
-  if (item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest) {
+  if (item->enableCvar != NULL && *item->enableCvar && item->cvarTest != NULL && *item->cvarTest) {
     if (item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(item, CVAR_ENABLE)) {
       memcpy(newColor, &parent->disableColor, sizeof(vec4_t));
     }

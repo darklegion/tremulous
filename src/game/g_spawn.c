@@ -377,10 +377,11 @@ in a gentity
 void G_ParseField( const char *key, const char *value, gentity_t *ent )
 {
   field_t *f;
-  byte  *b;
-  float v;
+  byte    *b;
+  float   v;
   vec3_t  vec;
   vec4_t  vec4;
+  int     i, count;
 
   for( f = fields; f->name; f++ )
   {
@@ -396,14 +397,22 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
           break;
           
         case F_VECTOR:
-          sscanf( value, "%f %f %f", &vec[ 0 ], &vec[ 1 ], &vec[ 2 ] );
+          count = sscanf( value, "%f %f %f", &vec[ 0 ], &vec[ 1 ], &vec[ 2 ] );
+
+          for( i = 2; i >= count; i-- )
+            vec[ i ] = 0.0f;
+          
           ( (float *)( b + f->ofs ) )[ 0 ] = vec[ 0 ];
           ( (float *)( b + f->ofs ) )[ 1 ] = vec[ 1 ];
           ( (float *)( b + f->ofs ) )[ 2 ] = vec[ 2 ];
           break;
           
         case F_VECTOR4:
-          sscanf( value, "%f %f %f %f", &vec4[ 0 ], &vec4[ 1 ], &vec4[ 2 ], &vec4[ 3 ] );
+          count = sscanf( value, "%f %f %f %f", &vec4[ 0 ], &vec4[ 1 ], &vec4[ 2 ], &vec4[ 3 ] );
+
+          for( i = 3; i >= count; i-- )
+            vec[ i ] = 0.0f;
+          
           ( (float *)( b + f->ofs ) )[ 0 ] = vec4[ 0 ];
           ( (float *)( b + f->ofs ) )[ 1 ] = vec4[ 1 ];
           ( (float *)( b + f->ofs ) )[ 2 ] = vec4[ 2 ];
@@ -474,7 +483,7 @@ void G_SpawnGEntityFromSpawnVars( void )
   VectorCopy( ent->s.origin, ent->r.currentOrigin );
 
   // if we didn't get a classname, don't bother spawning anything
-  if ( !G_CallSpawn( ent ) )
+  if( !G_CallSpawn( ent ) )
     G_FreeEntity( ent );
 }
 

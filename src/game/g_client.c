@@ -1231,6 +1231,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   vec3_t              bodyMaxs, classMins, up = { 0, 0, 1 };
   int                 ammo, clips, maxClips;
   weapon_t            weapon;
+  float               hModifier;
       
 
   index = ent - g_entities;
@@ -1253,7 +1254,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   // find a spawn point
   // do it before setting health back up, so farthest
   // ranging doesn't count this client
-  if ( client->sess.sessionTeam == TEAM_SPECTATOR )
+  if( client->sess.sessionTeam == TEAM_SPECTATOR )
   {
     if( teamLocal == PTE_NONE )
       spawnPoint = SelectSpectatorSpawnPoint ( spawn_origin, spawn_angles );
@@ -1368,7 +1369,18 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   
   BG_FindBBoxForClass( ent->client->pers.pclass, ent->r.mins, ent->r.maxs, NULL, NULL, NULL );
 
-  client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] = BG_FindHealthForClass( ent->client->pers.pclass );
+  hModifier = 1.0f;
+  
+  if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  {
+    if( g_humanStage.integer == S2 )
+      hModifier = ALIENSTAGE2_HLTH_MODIFIER;
+    else if( g_humanStage.integer == S2 )
+      hModifier = ALIENSTAGE3_HLTH_MODIFIER;
+  }
+  
+  client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] =
+    (int)( (float)BG_FindHealthForClass( ent->client->pers.pclass ) * hModifier );
 
   // clear entity values
   if( ent->client->pers.pclass == PCL_H_BASE )
@@ -1397,7 +1409,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
 #define F_VEL   50.0f
 
   //give aliens some spawn velocity
-  if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  if( client->sess.sessionTeam != TEAM_SPECTATOR &&
+      client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     if( spawnPoint->s.origin2[ 2 ] > 0.0f )
     {

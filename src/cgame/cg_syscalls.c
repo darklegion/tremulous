@@ -104,6 +104,11 @@ void  trap_FS_FCloseFile( fileHandle_t f )
   syscall( CG_FS_FCLOSEFILE, f );
 }
 
+void trap_FS_Seek( fileHandle_t f, int offset, fsOrigin_t origin )
+{
+  syscall( CG_FS_SEEK, f, offset, origin );
+}
+
 void  trap_SendConsoleCommand( const char *text )
 {
   syscall( CG_SENDCONSOLECOMMAND, text );

@@ -475,10 +475,10 @@ static void CG_LightFlare( centity_t *cent )
   //can only see the flare when in front of it
   flare.radius = len / es->origin2[ 0 ];
 
-  if( es->origin2[ 1 ] == 0 )
+  if( es->origin2[ 2 ] == 0 )
     srcRadius = srLocal = flare.radius / 2.0f;
   else
-    srcRadius = srLocal = len / es->origin2[ 1 ];
+    srcRadius = srLocal = len / es->origin2[ 2 ];
   
   maxAngle = es->origin2[ 1 ];
 

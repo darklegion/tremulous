@@ -1575,6 +1575,9 @@ static void UI_DrawInfoPane( tremInfoPane_t *pane, rectDef_t *rect, float text_x
   textItem.textscale = scale;
   textItem.textStyle = textStyle;
 
+  textItem.enableCvar = NULL;
+  textItem.cvarTest = NULL;
+
   //hack to utilise existing autowrap code
   Item_Text_AutoWrapped_Paint( &textItem );
 }

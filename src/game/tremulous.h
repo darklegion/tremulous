@@ -252,6 +252,8 @@
  */
 
 #define ALIENSENSE_RANGE            1000.0f
+#define ALIENSTAGE2_HLTH_MODIFIER   1.2f
+#define ALIENSTAGE3_HLTH_MODIFIER   1.5f
 
 
 
