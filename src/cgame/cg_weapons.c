@@ -561,7 +561,7 @@ void CG_RegisterWeapon( int weaponNum ) {
   case WP_FLAMER:
     weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/plasma/lasfly.wav", qfalse );
     MAKERGB( weaponInfo->flashDlightColor, 0.25, 0.1, 0 );
-    weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/plasma/rg_hum.wav", qfalse );
+    weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/railgun/railgf1a.wav", qfalse );
     cgs.media.flameExplShader = trap_R_RegisterShader( "rocketExplosion" );
     break;
     

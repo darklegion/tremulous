@@ -413,10 +413,10 @@ static float PM_CmdScale( usercmd_t *cmd ) {
       //if not sprinting
       modifier *= 0.8;
     }
-    else
+    else if( cmd->upmove >= 0 )
     {
       //subtract stamina
-      pm->ps->stats[ STAT_STAMINA ] -= (dTime/4);
+      pm->ps->stats[ STAT_STAMINA ] -= (dTime/8);
     }
 
     aForward = abs( cmd->forwardmove );
@@ -425,12 +425,12 @@ static float PM_CmdScale( usercmd_t *cmd ) {
     if( ( aForward <= 64 && aForward > 5 ) || ( aRight <= 64 && aRight > 5 ) )
     {
       //restore stamina
-      pm->ps->stats[ STAT_STAMINA ] += (dTime/5);
+      pm->ps->stats[ STAT_STAMINA ] += (dTime/10);
     }
     else if( aForward <= 5 && aRight <= 5 )
     {
       //restore stamina faster
-      pm->ps->stats[ STAT_STAMINA ] += (dTime/4);
+      pm->ps->stats[ STAT_STAMINA ] += (dTime/8);
     }
 
     if( cmd->forwardmove < 0 )

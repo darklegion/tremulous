@@ -428,7 +428,7 @@ void CG_Menu( centity_t *cent, int eventParm )
       break;
 
     case MN_DROID:
-      trap_SendConsoleCommand( "menu aclassmenu\n" );
+      trap_SendConsoleCommand( "menu dclassmenu\n" );
       break;
 
     case MN_HUMAN:
@@ -436,7 +436,7 @@ void CG_Menu( centity_t *cent, int eventParm )
       break;
 
     case MN_ABUILD:
-      trap_SendConsoleCommand( "menu abuildmenu\n" );
+      trap_SendConsoleCommand( "menu dbuildmenu\n" );
       break;
 
     case MN_HBUILD:
