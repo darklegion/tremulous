@@ -1836,6 +1836,8 @@ void Cmd_Spawnbody_f( gentity_t *ent )
   VectorMA( ent->client->ps.origin, 128.0f, forward, dummy->r.currentOrigin );
   dummy->r.currentOrigin[ 2 ] += 64.0f;
   
+  dummy->client = level.clients + MAX_CLIENTS;
+
   dummy->client->ps.stats[ STAT_PTEAM ] = PTE_HUMANS;
   dummy->client->ps.stats[ STAT_PCLASS ] = PCL_H_BASE;
   

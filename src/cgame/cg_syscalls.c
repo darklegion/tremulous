@@ -104,7 +104,7 @@ void  trap_FS_FCloseFile( fileHandle_t f )
   syscall( CG_FS_FCLOSEFILE, f );
 }
 
-void trap_FS_Seek( fileHandle_t f, int offset, fsOrigin_t origin )
+void trap_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin )
 {
   syscall( CG_FS_SEEK, f, offset, origin );
 }

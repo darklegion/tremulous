@@ -1114,6 +1114,13 @@ void ClientThink_real( gentity_t *ent )
     }
     else
     {
+#define USE_OBJECT_RANGE 64
+      
+      int       entityList[ MAX_GENTITIES ];
+      vec3_t    range = { USE_OBJECT_RANGE, USE_OBJECT_RANGE, USE_OBJECT_RANGE };
+      vec3_t    mins, maxs, dir;
+      int       i, num;
+      
       //TA: look for object infront of player
       AngleVectors( client->ps.viewangles, view, NULL, NULL );
       VectorMA( client->ps.origin, 200, view, point );
@@ -1123,6 +1130,25 @@ void ClientThink_real( gentity_t *ent )
 
       if( traceEnt->use )
         traceEnt->use( traceEnt, ent, ent ); //other and activator are the same in this context
+      else
+      {
+        //no entity in front of player - do a small area search
+
+        VectorAdd( client->ps.origin, range, maxs );
+        VectorSubtract( client->ps.origin, range, mins );
+        
+        num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+        for( i = 0; i < num; i++ )
+        {
+          traceEnt = &g_entities[ entityList[ i ] ];
+          
+          if( traceEnt->use )
+          {
+            traceEnt->use( traceEnt, ent, ent ); //other and activator are the same in this context
+            break;
+          }
+        }
+      }
     }
   }
   

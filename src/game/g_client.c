@@ -1281,6 +1281,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
       spawn_origin[ 2 ] += bodyMaxs[ 2 ] + fabs( classMins[ 2 ] ) + 1;
       G_AddEvent( spawn, EV_GIB_ALIEN, DirToByte( up ) );
       spawn->freeAfterEvent = qtrue;
+      
+      spawnPoint = spawn;
     }
     else
     {

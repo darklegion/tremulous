@@ -1273,12 +1273,12 @@ classAttributes_t bg_classList[ ] =
     "default",                                      //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -15, -15, -15 },                              //vec3_t  mins;
-    { 15, 15, 15 },                                 //vec3_t  maxs;
-    { 15, 15, 15 },                                 //vec3_t  crouchmaxs;
+    { -15, -15, -6 },                               //vec3_t  mins;
+    { 15, 15, 6 },                                  //vec3_t  maxs;
+    { 15, 15, 6 },                                  //vec3_t  crouchmaxs;
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
-    0, 0,                                           //int     viewheight, crouchviewheight;
+    6, 6,                                           //int     viewheight, crouchviewheight;
     SOLDIER_HEALTH,                                 //int     health;
     SOLDIER_REGEN,                                  //int     regenRate;
     SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|
@@ -1303,9 +1303,9 @@ classAttributes_t bg_classList[ ] =
     "red",                                          //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -24, -24, -24 },                              //vec3_t  mins;
-    { 24, 24, 24 },                                 //vec3_t  maxs;
-    { 24, 24, 24 },                                 //vec3_t  crouchmaxs;
+    { -24, -24, -9 },                               //vec3_t  mins;
+    { 24, 24, 9 },                                  //vec3_t  maxs;
+    { 24, 24, 9 },                                  //vec3_t  crouchmaxs;
     { -24, -24, -4 },                               //vec3_t  deadmins;
     { 24, 24, 4 },                                  //vec3_t  deadmaxs;
     6, 6,                                           //int     viewheight, crouchviewheight;
@@ -1332,9 +1332,9 @@ classAttributes_t bg_classList[ ] =
     "blue",                                         //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -24, -24, -24 },                              //vec3_t  mins;
-    { 24, 24, 24 },                                 //vec3_t  maxs;
-    { 24, 24, 24 },                                 //vec3_t  crouchmaxs;
+    { -24, -24, -11 },                              //vec3_t  mins;
+    { 24, 24, 11 },                                 //vec3_t  maxs;
+    { 24, 24, 11 },                                 //vec3_t  crouchmaxs;
     { -24, -24, -4 },                               //vec3_t  deadmins;
     { 24, 24, 4 },                                  //vec3_t  deadmaxs;
     6, 6,                                           //int     viewheight, crouchviewheight;
@@ -1361,9 +1361,9 @@ classAttributes_t bg_classList[ ] =
     "default",                                      //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -24, -24, -24 },                              //vec3_t  mins;
-    { 24, 24, 24 },                                 //vec3_t  maxs;
-    { 24, 24, 24 },                                 //vec3_t  crouchmaxs;
+    { -24, -24, -12 },                              //vec3_t  mins;
+    { 24, 24, 12 },                                 //vec3_t  maxs;
+    { 24, 24, 12 },                                 //vec3_t  crouchmaxs;
     { -24, -24, -4 },                               //vec3_t  deadmins;
     { 24, 24, 4 },                                  //vec3_t  deadmaxs;
     6, 6,                                           //int     viewheight, crouchviewheight;
@@ -1391,9 +1391,9 @@ classAttributes_t bg_classList[ ] =
     "blue",                                         //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -24, -24, -24 },                              //vec3_t  mins;
-    { 24, 24, 24 },                                 //vec3_t  maxs;
-    { 24, 24, 24 },                                 //vec3_t  crouchmaxs;
+    { -24, -24, -14 },                              //vec3_t  mins;
+    { 24, 24, 14 },                                 //vec3_t  maxs;
+    { 24, 24, 14 },                                 //vec3_t  crouchmaxs;
     { -24, -24, -4 },                               //vec3_t  deadmins;
     { 24, 24, 4 },                                  //vec3_t  deadmaxs;
     6, 6,                                           //int     viewheight, crouchviewheight;
@@ -1450,9 +1450,9 @@ classAttributes_t bg_classList[ ] =
     "red",                                          //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -15, -15, -15 },                              //vec3_t  mins;
-    { 15, 15, 15 },                                 //vec3_t  maxs;
-    { 15, 15, 15 },                                 //vec3_t  crouchmaxs;
+    { -15, -15, -16 },                              //vec3_t  mins;
+    { 15, 15, 16 },                                 //vec3_t  maxs;
+    { 15, 15, 16 },                                 //vec3_t  crouchmaxs;
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     4, 4,                                           //int     viewheight, crouchviewheight;
@@ -1479,9 +1479,9 @@ classAttributes_t bg_classList[ ] =
     "default",                                      //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -30, -30, -35 },                              //vec3_t  mins;
-    { 30, 30, 15 },                                 //vec3_t  maxs;
-    { 30, 30, 15 },                                 //vec3_t  crouchmaxs;
+    { -30, -30, -36 },                              //vec3_t  mins;
+    { 30, 30, 36 },                                 //vec3_t  maxs;
+    { 30, 30, 36 },                                 //vec3_t  crouchmaxs;
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     4, 4,                                           //int     viewheight, crouchviewheight;
