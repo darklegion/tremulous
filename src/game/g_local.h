@@ -179,6 +179,9 @@ struct gentity_s {
   vec3_t    turloc;       //TA: direction human defense turrets are pointing
   qboolean  active;       //TA: for power repeater, but could be useful elsewhere
   qboolean  powered;      //TA: for human buildables
+
+  int       credits[ MAX_CLIENTS ]; //TA: human credits for each client
+  qboolean  creditsHash[ MAX_CLIENTS ]; //TA: track who has claimed credit
 };
 
 typedef enum {

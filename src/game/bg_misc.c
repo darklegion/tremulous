@@ -1439,7 +1439,8 @@ classAttributes_t bg_classList[ ] =
     0.5f,
     1.0f,
     { PCL_D_D_BASE, PCL_D_O_BASE, PCL_NONE },
-    2000
+    2000,
+    100
   },
   {
     PCL_D_O_BASE,
@@ -1461,7 +1462,8 @@ classAttributes_t bg_classList[ ] =
     2.0f,
     5.0f,
     { PCL_D_D_BASE, PCL_D_B_BASE, PCL_NONE },
-    3000
+    3000,
+    100
   },
   {
     PCL_D_D_BASE,
@@ -1483,7 +1485,8 @@ classAttributes_t bg_classList[ ] =
     1.5f,
     3.0f,
     { PCL_D_O_BASE, PCL_D_B_BASE, PCL_NONE },
-    1000
+    1000,
+    100
   },
   {
     PCL_H_BASE,
@@ -1505,6 +1508,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,
     1.0f,
     { PCL_NONE, PCL_NONE, PCL_NONE },
+    0,
     0
   }
 };
@@ -1854,6 +1858,26 @@ int BG_FindEvolveTimeForClass( int pclass )
   }
   
   return 5000;
+}
+
+/*
+==============
+BG_FindValueOfClass
+==============
+*/
+int BG_FindValueOfClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].value;
+    }
+  }
+  
+  return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -533,16 +533,46 @@ void BodySink( gentity_t *ent ) {
 
 /*
 ================
-InfestBody
+useBody
 
-Called when a droid infests a body
+Called when a body is used
 ================
 */
-void InfestBody( gentity_t *self, gentity_t *other, gentity_t *activator )
+void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-  if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_DROIDS ) return;
+  int   i,  class;
+  int   total = 0;
+  float numerator, denominator;
+  
+  if( activator->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
+  {
+    G_AddPredictableEvent( activator, EV_MENU, MN_D_INFEST );
+  }
+  else
+  {
+    //client has already raided this corpse
+    if( self->creditsHash[ activator->client->ps.clientNum ] ) return;
+    
+    numerator = self->credits[ activator->client->ps.clientNum ];
+    class = self->s.clientNum;
+    
+    //total up all the damage done by every client
+    for( i = 0; i < MAX_CLIENTS; i++ )
+      total += self->credits[ i ];
+    
+    denominator = total;
 
-  G_AddPredictableEvent( activator, EV_MENU, MN_D_INFEST );
+    //if no one did any damage client must have been killed by defense or suicide
+    //body is a "free for all"
+    if( total == 0.0f ) numerator = denominator = 1.0f;
+    
+    //add credit
+    activator->client->ps.stats[ STAT_CREDIT ] += (int)( (float)BG_FindValueOfClass( class ) *
+                                                         ( numerator / denominator ) );
+
+    //prevent clients claiming credit twice
+    self->creditsHash[ activator->client->ps.clientNum ] = qtrue;
+  }
 }
 
 /*
@@ -587,8 +617,7 @@ void SpawnCorpse( gentity_t *ent ) {
   body->clipmask = MASK_PLAYERSOLID;
   body->s.clientNum = ent->client->ps.stats[ STAT_PCLASS ];
   
-  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-    body->use = InfestBody;
+  body->use = useBody;
 
   switch ( body->s.legsAnim & ~ANIM_TOGGLEBIT ) {
   case BOTH_DEATH1:

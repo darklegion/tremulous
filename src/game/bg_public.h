@@ -241,7 +241,8 @@ typedef enum {
   STAT_PCLASS,    //TA: player class (for droids AND humans)
   STAT_PTEAM,     //TA: player team
   STAT_STAMINA,   //TA: stamina (human only)
-  STAT_STATE      //TA: client states e.g. wall climbing
+  STAT_STATE,     //TA: client states e.g. wall climbing
+  STAT_CREDIT     //TA: human credit
 } statIndex_t;
 
 #define SCA_WALLCLIMBER         1
@@ -772,6 +773,7 @@ typedef struct
 
   int     children[ 3 ];
   int     timeToEvolve;
+  int     value;
 } classAttributes_t;
 
 //TA: buildable item record
@@ -879,6 +881,7 @@ int       BG_FindSteptimeForClass( int pclass );
 qboolean  BG_ClassHasAbility( int pclass, int ability );
 qboolean  BG_ClassCanEvolveFromTo( int fclass, int tclass );
 int       BG_FindEvolveTimeForClass( int pclass );
+int       BG_FindValueOfClass( int pclass );
 
 int       BG_FindPriceForWeapon( int weapon );
 int       BG_FindSlotsForWeapon( int weapon );

@@ -651,8 +651,10 @@ static void CG_TorchLight( centity_t *cent )
   
   VectorSubtract( tr.endpos, from, length );
   veclength = VectorLength( length );
+
+  trap_R_AddLightToScene( tr.endpos, 200, 0.0, 0.0, 1.0 );
   
-  size = veclength / 2.0f;
+/*  size = veclength / 2.0f;
   if( size > 255 ) size = 255;
   if( size < 0 ) size = 0;       
 
@@ -741,7 +743,7 @@ static void CG_TorchLight( centity_t *cent )
       else if( lum >= 46 )
         trap_R_AddPolyToScene( cgs.media.humanTorch1, mf->numPoints, verts );
     }
-  }
+  }*/
 }
 
 /*

@@ -2072,6 +2072,10 @@ void Cmd_Boost_f( gentity_t *ent )
     ent->client->ps.stats[ STAT_STATE ] |= SS_SPEEDBOOST;
 }
 
+void Cmd_Credit_f( gentity_t *ent )
+{
+  trap_SendServerCommand( ent-g_entities, va("print \"%d\n\"", ent->client->ps.stats[ STAT_CREDIT ] ) );
+}
 
 /*
 =================
@@ -2198,6 +2202,8 @@ void ClientCommand( int clientNum ) {
     Cmd_SetViewpos_f( ent );
   else if (Q_stricmp (cmd, "stats") == 0)
     Cmd_Stats_f( ent );
+  else if (Q_stricmp (cmd, "credit") == 0)
+    Cmd_Credit_f( ent );
   else
     trap_SendServerCommand( clientNum, va("print \"unknown cmd %s\n\"", cmd ) );
 }
