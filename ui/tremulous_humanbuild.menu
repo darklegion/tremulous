@@ -34,8 +34,8 @@
       type ITEM_TYPE_LISTBOX
       style WINDOW_STYLE_EMPTY
       elementwidth 120
-      elementheight 15
-      textscale .25
+      elementheight 20
+      textscale .33
       elementtype LISTBOX_TEXT
       feeder FEEDER_TREMHUMANBUILD
       border 1
@@ -52,8 +52,8 @@
       ownerdraw UI_HBUILDINFOPANE
       textstyle ITEM_TEXTSTYLE_NORMAL
       style WINDOW_STYLE_EMPTY
-      rect 161 8 231 204
-      textscale .3
+      rect 152 8 240 204
+      textscale .33
       border 1
       bordercolor   0.5 0.5 0.5 0.5
       forecolor     1   1   1   1
@@ -68,11 +68,11 @@
       text "OK"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
-      rect 319 218 34 21
+      rect 305 218 34 21
       textalign ITEM_ALIGN_LEFT
       textalignx 12.5
-      textaligny 16
-      textscale .25
+      textaligny 18
+      textscale .4
       forecolor 1 1 1 1
       backcolor .5 0 0 .25
       visible 1
@@ -85,11 +85,11 @@
       text "Cancel"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
-      rect 358 218 34 21
+      rect 344 218 34 21
       textalign ITEM_ALIGN_LEFT
       textalignx 3.8
-      textaligny 16
-      textscale .25
+      textaligny 18
+      textscale .4
       forecolor 1 1 1 1
       backcolor .5 0 0 .25
       visible 1 
