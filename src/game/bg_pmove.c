@@ -1608,6 +1608,7 @@ static void PM_GroundTrace( void ) {
   }
 
   pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
+  pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
   pm->ps->legsAnim &= ~ANIM_WALLCLIMBING;
 
   //make sure that the surfNormal is reset to the ground
