@@ -609,9 +609,7 @@ static void CG_LightFlare( centity_t *cent )
   VectorSubtract( cg.refdef.vieworg, flare.origin, dir );
   VectorNormalize( dir );
   VectorMA( flare.origin, flare.radius, dir, end );
-  /*VectorCopy( flare.origin, end );*/
   VectorMA( cg.refdef.vieworg, -flare.radius, dir, start );
-  /*VectorCopy( cg.refdef.vieworg, start );*/
   
   if( cg_lightFlare.integer == FLARE_REALFADE )
   {
