@@ -767,7 +767,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator )
   if( ent->moverState == ROTATOR_2TO1 )
   {
     total = ent->s.apos.trDuration;
-    partial = level.time - ent->s.time;
+    partial = level.time - ent->s.apos.trTime;
     
     if( partial > total )
       partial = total;
@@ -784,7 +784,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator )
   if( ent->moverState == ROTATOR_1TO2 )
   {
     total = ent->s.apos.trDuration;
-    partial = level.time - ent->s.time;
+    partial = level.time - ent->s.apos.trTime;
     
     if( partial > total )
       partial = total;
@@ -954,7 +954,7 @@ void InitRotator( gentity_t *ent )
   VectorSubtract( ent->pos2, ent->pos1, move );
   angle = VectorLength( move );
   
-  if( ! ent->speed )
+  if( !ent->speed )
     ent->speed = 120;
   
   VectorScale( move, ent->speed, ent->s.apos.trDelta );
@@ -983,7 +983,7 @@ Blocked_Door
 */
 void Blocked_Door( gentity_t *ent, gentity_t *other )
 {
-  // remove anything other than a client
+  // remove anything other than a client or buildable
   if( !other->client && other->s.eType != ET_BUILDABLE )
   {
     G_FreeEntity( other );
@@ -1162,8 +1162,11 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace )
       Touch_DoorTriggerSpectator( ent, other, trace );
   }
   else if( ent->parent->moverState != MOVER_1TO2 &&
-           ent->parent->moverState != ROTATOR_1TO2 )
+           ent->parent->moverState != ROTATOR_1TO2 &&
+           ent->parent->moverState != ROTATOR_2TO1 )
+  {
     Use_BinaryMover( ent->parent, ent, other );
+  }
 }
 
 
