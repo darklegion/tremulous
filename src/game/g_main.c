@@ -32,7 +32,6 @@ typedef struct
 gentity_t   g_entities[ MAX_GENTITIES ];
 gclient_t   g_clients[ MAX_CLIENTS ];
 
-vmCvar_t  g_dmflags;
 vmCvar_t  g_fraglimit;
 vmCvar_t  g_timelimit;
 vmCvar_t  g_capturelimit;
@@ -104,10 +103,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
 
   // change anytime vars
-  { &g_dmflags, "dmflags", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
-  { &g_fraglimit, "fraglimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
   { &g_timelimit, "timelimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
-  { &g_capturelimit, "capturelimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
   { &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
 
@@ -851,8 +847,8 @@ void CalculateRanks( void )
     else
     {
       // we are tied with the previous client
-      level.clients[ level.sortedClients[ i - 1 ] ].ps.persistant[ PERS_RANK ] = rank | RANK_TIED_FLAG;
-      level.clients[ level.sortedClients[ i ] ].ps.persistant[ PERS_RANK ] = rank | RANK_TIED_FLAG;
+      level.clients[ level.sortedClients[ i - 1 ] ].ps.persistant[ PERS_RANK ] = rank;
+      level.clients[ level.sortedClients[ i ] ].ps.persistant[ PERS_RANK ] = rank;
     }
     
     score = newScore;

@@ -1351,7 +1351,7 @@ void Cmd_Buy_f( gentity_t *ent )
     
     if( BG_FindUsesEnergyForWeapon( weapon ) &&
         BG_gotItem( UP_BATTPACK, ent->client->ps.stats ) )
-      quan *= 2;
+      quan = (int)( (float)quan * BATTPACK_MODIFIER );
     
     BG_packAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
                       quan, clips, maxClips );

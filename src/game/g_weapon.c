@@ -110,13 +110,6 @@ MACHINEGUN
 ======================================================================
 */
 
-#define MACHINEGUN_SPREAD 200
-#define MACHINEGUN_DAMAGE 7
-#define MACHINEGUN_TEAM_DAMAGE  5   // wimpier MG in teamplay
-
-#define CHAINGUN_SPREAD 1200
-#define CHAINGUN_DAMAGE 14
-
 void bulletFire( gentity_t *ent, float spread, int damage, int mod )
 {
   trace_t   tr;
@@ -126,14 +119,14 @@ void bulletFire( gentity_t *ent, float spread, int damage, int mod )
   gentity_t *tent;
   gentity_t *traceEnt;
 
-  r = random() * M_PI * 2.0f;
-  u = sin(r) * crandom() * spread * 16;
-  r = cos(r) * crandom() * spread * 16;
-  VectorMA (muzzle, 8192*16, forward, end);
-  VectorMA (end, r, right, end);
-  VectorMA (end, u, up, end);
+  r = random( ) * M_PI * 2.0f;
+  u = sin( r ) * crandom( ) * spread * 16;
+  r = cos( r ) * crandom( ) * spread * 16;
+  VectorMA( muzzle, 8192 * 16, forward, end );
+  VectorMA( end, r, right, end );
+  VectorMA( end, u, up, end );
 
-  trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
+  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
   if( tr.surfaceFlags & SURF_NOIMPACT )
     return;
 
@@ -158,7 +151,7 @@ void bulletFire( gentity_t *ent, float spread, int damage, int mod )
   if( traceEnt->takedamage )
   {
     G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-      damage, 0, MOD_MACHINEGUN);
+      damage, 0, MOD_MACHINEGUN );
   }
 }
 
@@ -195,7 +188,7 @@ void massDriverFire( gentity_t *ent )
   if( traceEnt->takedamage )
   {
     G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-      50, 0, MOD_MACHINEGUN);
+      MDRIVER_DMG, 0, MOD_MACHINEGUN );
   }
 }
 
@@ -293,7 +286,7 @@ void lasGunFire( gentity_t *ent )
   tent->s.otherEntityNum = ent->s.number;
 
   if( traceEnt->takedamage )
-    G_Damage( traceEnt, ent, ent, forward, tr.endpos, 10, 0, MOD_MACHINEGUN );
+    G_Damage( traceEnt, ent, ent, forward, tr.endpos, LASGUN_DAMAGE, 0, MOD_MACHINEGUN );
 }
 
 /*
@@ -316,7 +309,7 @@ void painSawFire( gentity_t *ent )
 
   CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
-  VectorMA( muzzle, 32, forward, end );
+  VectorMA( muzzle, PAINSAW_RANGE, forward, end );
 
   trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
   if ( tr.surfaceFlags & SURF_NOIMPACT )
@@ -334,7 +327,7 @@ void painSawFire( gentity_t *ent )
   }
 
   if ( traceEnt->takedamage )
-    G_Damage( traceEnt, ent, ent, forward, tr.endpos, 5, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
+    G_Damage( traceEnt, ent, ent, forward, tr.endpos, PAINSAW_DAMAGE, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
 }
 
 /*
@@ -355,7 +348,7 @@ void LCChargeFire( gentity_t *ent, qboolean secondary )
   gentity_t *m;
 
   if( secondary )
-    ent->client->ps.stats[ STAT_MISC ] = LC_TOTAL_CHARGE / 10;
+    ent->client->ps.stats[ STAT_MISC ] = LCANON_SECONDARY_DAMAGE;
 
   m = fire_luciferCanon( ent, muzzle, forward, ent->client->ps.stats[ STAT_MISC ] );
   
@@ -380,7 +373,7 @@ void teslaFire( gentity_t *ent )
 
   damage = 8;
 
-  VectorMA( muzzle, LIGHTNING_RANGE, forward, end );
+  VectorMA( muzzle, TESLAGEN_RANGE, forward, end );
 
   trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
 
@@ -468,7 +461,7 @@ void cancelBuildFire( gentity_t *ent )
     }
   }
   else if( ent->client->ps.weapon == WP_ABUILD2 )
-    meleeAttack( ent, 32.0f, 25 ); //melee attack for alien builder
+    meleeAttack( ent, ABUILDER_CLAW_RANGE, ABUILDER_CLAW_DMG ); //melee attack for alien builder
 }
 
 void buildFire( gentity_t *ent, dynMenu_t menu )
@@ -517,7 +510,7 @@ qboolean CheckVenomAttack( gentity_t *ent )
 
   CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
-  VectorMA (muzzle, 32, forward, end);
+  VectorMA( muzzle, SOLDIER_BITE_RANGE, forward, end );
 
   trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
   if ( tr.surfaceFlags & SURF_NOIMPACT )
@@ -541,7 +534,7 @@ qboolean CheckVenomAttack( gentity_t *ent )
     tent->s.weapon = ent->s.weapon;
   }
 
-  G_Damage( traceEnt, ent, ent, forward, tr.endpos, 100, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
+  G_Damage( traceEnt, ent, ent, forward, tr.endpos, SOLDIER_BITE_DMG, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
 
   return qtrue;
 }
@@ -570,7 +563,7 @@ void CheckGrabAttack( gentity_t *ent )
 
   CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
-  VectorMA( muzzle, 32, forward, end );
+  VectorMA( muzzle, HYDRA_GRAB_RANGE, forward, end );
 
   trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
   if( tr.surfaceFlags & SURF_NOIMPACT )
@@ -602,7 +595,7 @@ poisonCloud
 void poisonCloud( gentity_t *ent )
 {
   int       entityList[ MAX_GENTITIES ];
-  vec3_t    range = { 200, 200, 200 };
+  vec3_t    range = { HYDRA_PCLOUD_RANGE, HYDRA_PCLOUD_RANGE, HYDRA_PCLOUD_RANGE };
   vec3_t    mins, maxs, dir;
   int       i, num;
   gentity_t *humanPlayer;
@@ -659,7 +652,7 @@ qboolean CheckPounceAttack( gentity_t *ent )
 
   CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
-  VectorMA( muzzle, 48, forward, end );
+  VectorMA( muzzle, DRAGOON_POUNCE_RANGE, forward, end );
 
   trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
 
@@ -681,10 +674,10 @@ qboolean CheckPounceAttack( gentity_t *ent )
     tent->s.weapon = ent->s.weapon;
   }
 
-  if( !traceEnt->takedamage)
+  if( !traceEnt->takedamage )
     return qfalse;
 
-  damage = (int)( (float)ent->client->pouncePayload / ( MAX_POUNCE_SPEED / 100.0f ) );
+  damage = (int)( ( (float)ent->client->pouncePayload / (float)DRAGOON_POUNCE_SPEED ) * DRAGOON_POUNCE_DMG );
 
   G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
 
@@ -710,9 +703,6 @@ ZAP
 ======================================================================
 */
 
-#define AREAZAP_DAMAGE    100.0f
-#define DIRECTZAP_DAMAGE  100.0f
-
 /*
 ===============
 areaZapFire
@@ -722,7 +712,7 @@ void areaZapFire( gentity_t *ent )
 {
   int       entityList[ MAX_GENTITIES ];
   int       targetList[ MAX_GENTITIES ];
-  vec3_t    range = { 200, 200, 200 };
+  vec3_t    range = { CHIMERA_AREAZAP_RANGE, CHIMERA_AREAZAP_RANGE, CHIMERA_AREAZAP_RANGE };
   vec3_t    mins, maxs, dir;
   int       i, num, numTargets = 0;
   gentity_t *enemy;
@@ -751,7 +741,7 @@ void areaZapFire( gentity_t *ent )
     }
   }
 
-  damage = (int)( AREAZAP_DAMAGE / (float)numTargets );
+  damage = (int)( (float)CHIMERA_AREAZAP_DMG / (float)numTargets );
   for( i = 0; i < numTargets; i++ )
   {
     enemy = &g_entities[ targetList[ i ] ];
@@ -785,7 +775,7 @@ void directZapFire( gentity_t *ent )
 {
   int       entityList[ MAX_GENTITIES ];
   int       targetList[ MAX_GENTITIES ];
-  vec3_t    range = { 200, 200, 200 };
+  vec3_t    range = { CHIMERA_DIRECTZAP_RANGE, CHIMERA_DIRECTZAP_RANGE, CHIMERA_DIRECTZAP_RANGE };
   vec3_t    mins, maxs, dir;
   int       i, num, numTargets = 0;
   gentity_t *enemy;
@@ -833,7 +823,7 @@ void directZapFire( gentity_t *ent )
   {
     //do some damage
     G_Damage( target, ent, ent, dir, tr.endpos,
-              DIRECTZAP_DAMAGE, DAMAGE_NO_KNOCKBACK, MOD_LIGHTNING );
+              CHIMERA_DIRECTZAP_DMG, DAMAGE_NO_KNOCKBACK, MOD_LIGHTNING );
     
     // snap the endpos to integers to save net bandwidth, but nudged towards the line
     SnapVectorTowards( tr.endpos, muzzle );
@@ -865,7 +855,7 @@ groundPound
 void groundPound( gentity_t *ent )
 {
   int       entityList[ MAX_GENTITIES ];
-  vec3_t    range = { 200, 200, 200 };
+  vec3_t    range = { BMOFO_KNOCK_RANGE, BMOFO_KNOCK_RANGE, BMOFO_KNOCK_RANGE };
   vec3_t    mins, maxs, dir;
   int       i, num;
   gentity_t *humanPlayer;
@@ -942,6 +932,9 @@ void FireWeapon3( gentity_t *ent )
     case WP_POUNCE_UPG:
       slowBlobFire( ent );
       break;
+    case WP_DIRECT_ZAP:
+      areaZapFire( ent );
+      break;
     case WP_GROUND_POUND:
       slowBlobFire( ent );
       break;
@@ -976,13 +969,11 @@ void FireWeapon2( gentity_t *ent )
     case WP_GRAB_CLAW_UPG:
       poisonCloud( ent );
       break;
-    case WP_POUNCE:
-    case WP_POUNCE_UPG:
-      meleeAttack( ent, 32.0f, 150 );
-      break;
     case WP_AREA_ZAP:
-    case WP_DIRECT_ZAP:
       areaZapFire( ent );
+      break;
+    case WP_DIRECT_ZAP:
+      directZapFire( ent );
       break;
     case WP_GROUND_POUND:
       groundPound( ent );
@@ -1027,27 +1018,27 @@ void FireWeapon( gentity_t *ent )
   {
     case WP_GRAB_CLAW:
     case WP_GRAB_CLAW_UPG:
-      meleeAttack( ent, 32.0f, 5 );
+      meleeAttack( ent, HYDRA_CLAW_RANGE, HYDRA_CLAW_DMG );
       break;
     case WP_POUNCE:
     case WP_POUNCE_UPG:
-      meleeAttack( ent, 32.0f, 50 );
+      meleeAttack( ent, DRAGOON_CLAW_RANGE, DRAGOON_CLAW_DMG );
       break;
     case WP_AREA_ZAP:
-      areaZapFire( ent );
+      meleeAttack( ent, CHIMERA_CLAW_RANGE, CHIMERA_CLAW_DMG );
       break;
     case WP_DIRECT_ZAP:
-      directZapFire( ent );
+      meleeAttack( ent, CHIMERA_CLAW_RANGE, CHIMERA_CLAW_DMG );
       break;
     case WP_GROUND_POUND:
-      meleeAttack( ent, 32.0f, 150 );
+      meleeAttack( ent, BMOFO_CLAW_RANGE, BMOFO_CLAW_DMG );
       break;
 
     case WP_MACHINEGUN:
-      bulletFire( ent, MACHINEGUN_SPREAD, MACHINEGUN_DAMAGE, MOD_MACHINEGUN );
+      bulletFire( ent, RIFLE_SPREAD, RIFLE_DMG, MOD_MACHINEGUN );
       break;
     case WP_CHAINGUN:
-      bulletFire( ent, CHAINGUN_SPREAD, CHAINGUN_DAMAGE, MOD_CHAINGUN );
+      bulletFire( ent, CHAINGUN_SPREAD, CHAINGUN_DMG, MOD_CHAINGUN );
       break;
     case WP_FLAMER:
       flamerFire( ent );

@@ -13,8 +13,6 @@
 
 #include "cg_local.h"
 
-#define RANGE       1000.0f
-
 #define XPOS        0.0f
 #define YPOS        0.0f
 #define WIDTH       640.0f
@@ -30,9 +28,9 @@ static void CG_DrawBlips( vec3_t origin, vec4_t colour )
   vec3_t  up = { 0, 0, 1 };
 
   RotatePointAroundVector( drawOrigin, up, origin, -cg.refdefViewAngles[ 1 ] - 90 );
-  drawOrigin[ 0 ] /= ( 2 * RANGE / WIDTH );
-  drawOrigin[ 1 ] /= ( 2 * RANGE / HEIGHT );
-  drawOrigin[ 2 ] /= ( 2 * RANGE / WIDTH );
+  drawOrigin[ 0 ] /= ( 2 * HELMET_RANGE / WIDTH );
+  drawOrigin[ 1 ] /= ( 2 * HELMET_RANGE / HEIGHT );
+  drawOrigin[ 2 ] /= ( 2 * HELMET_RANGE / WIDTH );
 
   trap_R_SetColor( colour );
 
@@ -51,7 +49,7 @@ static void CG_DrawBlips( vec3_t origin, vec4_t colour )
   trap_R_SetColor( NULL );
 }
 
-#define RANGE2  1000.0f
+#define ALIENSENSE_RANGE  1000.0f
 
 #define XPOS2   20.0f
 #define YPOS2   20.0f
@@ -129,7 +127,7 @@ void CG_AlienSense( void )
     VectorClear( relOrigin );
     VectorSubtract( cg.ep.humanBuildablePos[ i ], origin, relOrigin );
 
-    if( VectorLength( relOrigin ) < RANGE2 )
+    if( VectorLength( relOrigin ) < ALIENSENSE_RANGE )
       CG_DrawDir( relOrigin, buildable );
   }
   
@@ -139,7 +137,7 @@ void CG_AlienSense( void )
     VectorClear( relOrigin );
     VectorSubtract( cg.ep.humanClientPos[ i ], origin, relOrigin );
 
-    if( VectorLength( relOrigin ) < RANGE2 )
+    if( VectorLength( relOrigin ) < ALIENSENSE_RANGE )
       CG_DrawDir( relOrigin, client );
   }
 }
@@ -167,7 +165,7 @@ void CG_Scanner( void )
     VectorClear( relOrigin );
     VectorSubtract( cg.ep.humanBuildablePos[ i ], origin, relOrigin );
 
-    if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] < 0 ) )
+    if( VectorLength( relOrigin ) < HELMET_RANGE && ( relOrigin[ 2 ] < 0 ) )
       CG_DrawBlips( relOrigin, hIbelow );
   }
   
@@ -177,7 +175,7 @@ void CG_Scanner( void )
     VectorClear( relOrigin );
     VectorSubtract( cg.ep.alienBuildablePos[ i ], origin, relOrigin );
 
-    if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] < 0 ) )
+    if( VectorLength( relOrigin ) < HELMET_RANGE && ( relOrigin[ 2 ] < 0 ) )
       CG_DrawBlips( relOrigin, aIbelow );
   }
   
@@ -187,7 +185,7 @@ void CG_Scanner( void )
     VectorClear( relOrigin );
     VectorSubtract( cg.ep.humanClientPos[ i ], origin, relOrigin );
 
-    if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] < 0 ) )
+    if( VectorLength( relOrigin ) < HELMET_RANGE && ( relOrigin[ 2 ] < 0 ) )
       CG_DrawBlips( relOrigin, hIbelow );
   }
   
@@ -197,7 +195,7 @@ void CG_Scanner( void )
     VectorClear( relOrigin );
     VectorSubtract( cg.ep.alienClientPos[ i ], origin, relOrigin );
 
-    if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] < 0 ) )
+    if( VectorLength( relOrigin ) < HELMET_RANGE && ( relOrigin[ 2 ] < 0 ) )
       CG_DrawBlips( relOrigin, aIbelow );
   }
   
@@ -209,7 +207,7 @@ void CG_Scanner( void )
     VectorClear( relOrigin );
     VectorSubtract( cg.ep.humanBuildablePos[ i ], origin, relOrigin );
 
-    if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] > 0 ) )
+    if( VectorLength( relOrigin ) < HELMET_RANGE && ( relOrigin[ 2 ] > 0 ) )
       CG_DrawBlips( relOrigin, hIabove );
   }
 
@@ -219,7 +217,7 @@ void CG_Scanner( void )
     VectorClear( relOrigin );
     VectorSubtract( cg.ep.alienBuildablePos[ i ], origin, relOrigin );
 
-    if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] > 0 ) )
+    if( VectorLength( relOrigin ) < HELMET_RANGE && ( relOrigin[ 2 ] > 0 ) )
       CG_DrawBlips( relOrigin, aIabove );
   }
   
@@ -229,7 +227,7 @@ void CG_Scanner( void )
     VectorClear( relOrigin );
     VectorSubtract( cg.ep.humanClientPos[ i ], origin, relOrigin );
 
-    if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] > 0 ) )
+    if( VectorLength( relOrigin ) < HELMET_RANGE && ( relOrigin[ 2 ] > 0 ) )
       CG_DrawBlips( relOrigin, hIabove );
   }
 
@@ -239,7 +237,7 @@ void CG_Scanner( void )
     VectorClear( relOrigin );
     VectorSubtract( cg.ep.alienClientPos[ i ], origin, relOrigin );
 
-    if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] > 0 ) )
+    if( VectorLength( relOrigin ) < HELMET_RANGE && ( relOrigin[ 2 ] > 0 ) )
       CG_DrawBlips( relOrigin, aIabove );
   }
 }

@@ -29,14 +29,13 @@ buildableAttributes_t bg_buildableList[ ] =
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
-    100,                   //int       buildPoints;
+    0.0,                   //float     bounce;
+    ASPAWN_BP,             //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    1000,                  //int       health;
-    50,                    //int       regenRate;
-    50,                    //int       damage;
-    50,                    //int       splashDamage;
-    200,                   //int       splashRadius;
+    ASPAWN_HEALTH,         //int       health;
+    ASPAWN_REGEN,          //int       regenRate;
+    ASPAWN_SPLASHDAMAGE,   //int       splashDamage;
+    ASPAWN_SPLASHRADIUS,   //int       splashRadius;
     MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
@@ -48,7 +47,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.5f,                  //float     minNormal;
     qtrue,                 //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
-    120,                   //int       creepSize;
+    ASPAWN_CREEPSIZE,      //int       creepSize;
     qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
@@ -61,14 +60,13 @@ buildableAttributes_t bg_buildableList[ ] =
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
-    80,                    //int       buildPoints;
+    0.0,                   //float     bounce;
+    BARRICADE_BP,          //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    1000,                  //int       health;
-    50,                    //int       regenRate;
-    50,                    //int       damage;
-    20,                    //int       splashDamage;
-    50,                    //int       splashRadius;
+    BARRICADE_HEALTH,      //int       health;
+    BARRICADE_REGEN,       //int       regenRate;
+    BARRICADE_SPLASHDAMAGE,//int       splashDamage;
+    BARRICADE_SPLASHRADIUS,//int       splashRadius;
     MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
@@ -80,7 +78,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
-    120,                   //int       creepSize;
+    BARRICADE_CREEPSIZE,   //int       creepSize;
     qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
@@ -94,13 +92,12 @@ buildableAttributes_t bg_buildableList[ ] =
     { 26, 26, 9 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
-    80,                    //int       buildPoints;
+    BOOSTER_BP,            //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    1000,                  //int       health;
-    50,                    //int       regenRate;
-    50,                    //int       damage;
-    20,                    //int       splashDamage;
-    50,                    //int       splashRadius;
+    BOOSTER_HEALTH,        //int       health;
+    BOOSTER_REGEN,         //int       regenRate;
+    BOOSTER_SPLASHDAMAGE,  //int       splashDamage;
+    BOOSTER_SPLASHRADIUS,  //int       splashRadius;
     MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
@@ -112,7 +109,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
-    120,                   //int       creepSize;
+    BOOSTER_CREEPSIZE,     //int       creepSize;
     qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
@@ -126,13 +123,12 @@ buildableAttributes_t bg_buildableList[ ] =
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
-    80,                    //int       buildPoints;
+    ACIDTUBE_BP,           //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    1000,                  //int       health;
-    50,                    //int       regenRate;
-    50,                    //int       damage;
-    20,                    //int       splashDamage;
-    400,                   //int       splashRadius;
+    ACIDTUBE_HEALTH,       //int       health;
+    ACIDTUBE_REGEN,        //int       regenRate;
+    ACIDTUBE_SPLASHDAMAGE, //int       splashDamage;
+    ACIDTUBE_SPLASHRADIUS, //int       splashRadius;
     MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
@@ -144,7 +140,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qtrue,                 //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
-    120,                   //int       creepSize;
+    ACIDTUBE_CREEPSIZE,    //int       creepSize;
     qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
@@ -158,57 +154,55 @@ buildableAttributes_t bg_buildableList[ ] =
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
-    80,                    //int       buildPoints;
+    TRAPPER_BP,            //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    1000,                  //int       health;
-    50,                    //int       regenRate;
-    50,                    //int       damage;
-    20,                    //int       splashDamage;
-    50,                    //int       splashRadius;
+    TRAPPER_HEALTH,        //int       health;
+    TRAPPER_REGEN,         //int       regenRate;
+    TRAPPER_SPLASHDAMAGE,  //int       splashDamage;
+    TRAPPER_SPLASHRADIUS,  //int       splashRadius;
     MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
-    1000,                  //int       nextthink;
-    0,                     //int       turretFireSpeed;
-    400,                   //int       turretRange;
+    100,                   //int       nextthink;
+    TRAPPER_REPEAT,        //int       turretFireSpeed;
+    TRAPPER_RANGE,         //int       turretRange;
     WP_LOCKBLOB_LAUNCHER,  //weapon_t  turretProjType;
     0.0f,                  //float     minNormal;
     qtrue,                 //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
-    30,                    //int       creepSize;
+    TRAPPER_CREEPSIZE,     //int       creepSize;
     qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
     BA_A_HIVEMIND,         //int       buildNum;
     "hivemind",            //char      *buildName;
-    "Hivemind",            //char      *humanName;
+    "Overmind",            //char      *humanName;
     "team_alien_hivemind", //char      *entityName;
     { "models/buildables/hivemind/hivemind.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float     bounce;
-    0,                     //int       buildPoints;
+    OVERMIND_BP,           //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    1000,                  //int       health;
-    50,                    //int       regenRate;
-    50,                    //int       damage;
-    50,                    //int       splashDamage;
-    300,                   //int       splashRadius;
+    OVERMIND_HEALTH,       //int       health;
+    OVERMIND_REGEN,        //int       regenRate;
+    OVERMIND_SPLASHDAMAGE, //int       splashDamage;
+    OVERMIND_SPLASHRADIUS, //int       splashRadius;
     MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
-    1000,                  //int       nextthink;
+    OVERMIND_ATTACK_REPEAT,//int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
     WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
-    120,                   //int       creepSize;
+    OVERMIND_CREEPSIZE,    //int       creepSize;
     qfalse,                //qboolean  dccTest;
     qtrue                  //qboolean  reactorTest;
   },
@@ -222,13 +216,12 @@ buildableAttributes_t bg_buildableList[ ] =
     { 50, 50, 20 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
-    80,                    //int       buildPoints;
+    HOVEL_BP,              //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    1000,                  //int       health;
-    50,                    //int       regenRate;
-    50,                    //int       damage;
-    20,                    //int       splashDamage;
-    50,                    //int       splashRadius;
+    HOVEL_HEALTH,          //int       health;
+    HOVEL_REGEN,           //int       regenRate;
+    HOVEL_SPLASHDAMAGE,    //int       splashDamage;
+    HOVEL_SPLASHRADIUS,    //int       splashRadius;
     MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
@@ -240,7 +233,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.707f,                //float     minNormal;
     qtrue,                 //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
-    120,                   //int       creepSize;
+    HOVEL_CREEPSIZE,       //int       creepSize;
     qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
@@ -253,14 +246,13 @@ buildableAttributes_t bg_buildableList[ ] =
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
-    100,                   //int       buildPoints;
+    0.0,                   //float     bounce;
+    OBANK_BP,              //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    1000,                  //int       health;
-    50,                    //int       regenRate;
-    50,                    //int       damage;
-    50,                    //int       splashDamage;
-    200,                   //int       splashRadius;
+    OBANK_HEALTH,          //int       health;
+    OBANK_REGEN,           //int       regenRate;
+    OBANK_SPLASHDAMAGE,    //int       splashDamage;
+    OBANK_SPLASHRADIUS,    //int       splashRadius;
     MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
@@ -272,7 +264,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0.5f,                  //float     minNormal;
     qtrue,                 //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
-    120,                   //int       creepSize;
+    OBANK_CREEPSIZE,       //int       creepSize;
     qfalse,                //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
@@ -285,14 +277,13 @@ buildableAttributes_t bg_buildableList[ ] =
     { -40, -40, -4 },      //vec3_t    mins;
     { 40, 40, 4 },         //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
-    100,                   //int       buildPoints;
+    0.0,                   //float     bounce;
+    HSPAWN_BP,             //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    1000,                  //int       health;
+    HSPAWN_HEALTH,         //int       health;
     0,                     //int       regenRate;
-    50,                    //int       damage;
-    50,                    //int       splashDamage;
-    150,                   //int       splashRadius;
+    HSPAWN_SPLASHDAMAGE,   //int       splashDamage;
+    HSPAWN_SPLASHRADIUS,   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
@@ -317,14 +308,13 @@ buildableAttributes_t bg_buildableList[ ] =
     { -35, -35, -7 },      //vec3_t    mins;
     { 35, 35, 7 },         //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
-    100,                   //int       buildPoints;
+    0.0,                   //float     bounce;
+    MEDISTAT_BP,           //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    1000,                  //int       health;
+    MEDISTAT_HEALTH,       //int       health;
     0,                     //int       regenRate;
-    50,                    //int       damage;
-    50,                    //int       splashDamage;
-    150,                   //int       splashRadius;
+    MEDISTAT_SPLASHDAMAGE, //int       splashDamage;
+    MEDISTAT_SPLASHRADIUS, //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
@@ -350,13 +340,12 @@ buildableAttributes_t bg_buildableList[ ] =
     { 65, 65, 7 },         //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
-    100,                   //int       buildPoints;
+    ADVMEDISTAT_BP,        //int       buildPoints;
     ( 1 << S3 ),           //int  stages
-    1000,                  //int       health;
+    ADVMEDISTAT_HEALTH,    //int       health;
     0,                     //int       regenRate;
-    50,                    //int       damage;
-    50,                    //int       splashDamage;
-    150,                   //int       splashRadius;
+    ADVMEDISTAT_SPLASHDAMAGE, //int       splashDamage;
+    ADVMEDISTAT_SPLASHRADIUS, //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
@@ -384,20 +373,19 @@ buildableAttributes_t bg_buildableList[ ] =
     { 25, 25, 20 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
-    80,                    //int       buildPoints;
+    MGTURRET_BP,           //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    1000,                  //int       health;
+    MGTURRET_HEALTH,       //int       health;
     0,                     //int       regenRate;
-    50,                    //int       damage;
-    20,                    //int       splashDamage;
-    50,                    //int       splashRadius;
+    MGTURRET_SPLASHDAMAGE, //int       splashDamage;
+    MGTURRET_SPLASHRADIUS, //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     50,                    //int       nextthink;
-    50,                    //int       turretFireSpeed;
-    300,                   //int       turretRange;
+    MGTURRET_REPEAT,       //int       turretFireSpeed;
+    MGTURRET_RANGE,        //int       turretRange;
     WP_MACHINEGUN,         //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
@@ -416,20 +404,19 @@ buildableAttributes_t bg_buildableList[ ] =
     { 22, 22, 40 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
-    80,                    //int       buildPoints;
+    TESLAGEN_BP,           //int       buildPoints;
     ( 1 << S3 ),           //int  stages
-    1000,                  //int       health;
+    TESLAGEN_HEALTH,       //int       health;
     0,                     //int       regenRate;
-    50,                    //int       damage;
-    20,                    //int       splashDamage;
-    50,                    //int       splashRadius;
+    TESLAGEN_SPLASHDAMAGE, //int       splashDamage;
+    TESLAGEN_SPLASHRADIUS, //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     150,                   //int       nextthink;
-    4000,                  //int       turretFireSpeed;
-    1500,                  //int       turretRange;
+    TESLAGEN_REPEAT,       //int       turretFireSpeed;
+    TESLAGEN_RANGE,        //int       turretRange;
     WP_TESLAGEN,           //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
@@ -441,20 +428,19 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_H_DCC,              //int       buildNum;
     "dcc",                 //char      *buildName;
-    "D.C.C.",              //char      *humanName;
+    "Defence Computer",    //char      *humanName;
     "team_human_dcc",      //char      *entityName;
     { "models/buildables/dcc/dcc.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
-    200,                   //int       buildPoints;
+    DC_BP,                 //int       buildPoints;
     ( 1 << S3 ),           //int  stages
-    1000,                  //int       health;
+    DC_HEALTH,             //int       health;
     0,                     //int       regenRate;
-    50,                    //int       damage;
-    50,                    //int       splashDamage;
-    150,                   //int       splashRadius;
+    DC_SPLASHDAMAGE,       //int       splashDamage;
+    DC_SPLASHRADIUS,       //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
@@ -480,13 +466,12 @@ buildableAttributes_t bg_buildableList[ ] =
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
-    200,                   //int       buildPoints;
+    BANK_BP,               //int       buildPoints;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
-    1000,                  //int       health;
+    BANK_HEALTH,           //int       health;
     0,                     //int       regenRate;
-    50,                    //int       damage;
-    50,                    //int       splashDamage;
-    150,                   //int       splashRadius;
+    BANK_SPLASHDAMAGE,     //int       splashDamage;
+    BANK_SPLASHRADIUS,     //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
@@ -505,20 +490,19 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_H_MCU,              //int       buildNum;
     "mcu",                 //char      *buildName;
-    "M.C.U.",              //char      *humanName;
+    "Armoury",             //char      *humanName;
     "team_human_mcu",      //char      *entityName;
     { "models/buildables/mcu/mcu.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
-    200,                   //int       buildPoints;
+    ARMOURY_BP,            //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    1000,                  //int       health;
+    ARMOURY_HEALTH,        //int       health;
     0,                     //int       regenRate;
-    50,                    //int       damage;
-    50,                    //int       splashDamage;
-    150,                   //int       splashRadius;
+    ARMOURY_SPLASHDAMAGE,  //int       splashDamage;
+    ARMOURY_SPLASHRADIUS,  //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
@@ -544,13 +528,12 @@ buildableAttributes_t bg_buildableList[ ] =
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
-    0,                     //int       buildPoints;
+    REACTOR_BP,            //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    1000,                  //int       health;
+    REACTOR_HEALTH,        //int       health;
     0,                     //int       regenRate;
-    50,                    //int       damage;
-    50,                    //int       splashDamage;
-    150,                   //int       splashRadius;
+    REACTOR_SPLASHDAMAGE,  //int       splashDamage;
+    REACTOR_SPLASHRADIUS,  //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
@@ -576,13 +559,12 @@ buildableAttributes_t bg_buildableList[ ] =
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
-    10,                    //int       buildPoints;
+    REPEATER_BP,           //int       buildPoints;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
-    1000,                  //int       health;
+    REPEATER_HEALTH,       //int       health;
     0,                     //int       regenRate;
-    50,                    //int       damage;
-    50,                    //int       splashDamage;
-    150,                   //int       splashRadius;
+    REPEATER_SPLASHDAMAGE, //int       splashDamage;
+    REPEATER_SPLASHRADIUS, //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
@@ -608,13 +590,12 @@ buildableAttributes_t bg_buildableList[ ] =
     { 25, 25, 25 },        //vec3_t    maxs;
     TR_BUOYANCY,           //trType_t traj;
     0.2,                   //float        bounce;
-    10,                    //int       buildPoints;
+    FLOATMINE_BP,          //int       buildPoints;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
-    100,                   //int       health;
+    FLOATMINE_HEALTH,      //int       health;
     0,                     //int       regenRate;
-    50,                    //int       damage;
-    50,                    //int       splashDamage;
-    150,                   //int       splashRadius;
+    FLOATMINE_SPLASHDAMAGE,//int       splashDamage;
+    FLOATMINE_SPLASHRADIUS,//int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
@@ -899,26 +880,6 @@ int BG_FindRegenRateForBuildable( int bclass )
   }
   
   return 0;
-}
-
-/*
-==============
-BG_FindDamageForBuildable
-==============
-*/
-int BG_FindDamageForBuildable( int bclass )
-{
-  int i;
-
-  for( i = 0; i < bg_numBuildables; i++ )
-  {
-    if( bg_buildableList[ i ].buildNum == bclass )
-    {
-      return bg_buildableList[ i ].damage;
-    }
-  }
-  
-  return 50;
 }
 
 /*
@@ -1260,19 +1221,19 @@ classAttributes_t bg_classList[ ] =
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     12, 12,                                         //int     viewheight, crouchviewheight;
-    50,                                             //int     health;
-    5,                                              //int     regenRate;
+    ABUILDER_HEALTH,                                //int     health;
+    ABUILDER_REGEN,                                 //int     regenRate;
     SCA_TAKESFALLDAMAGE|SCA_FOVWARPS,               //int     abilities;
     WP_ABUILD,                                      //weapon_t  startWeapon
     95.0f,                                          //float   buildDist;
     80,                                             //int     fov;
     0.001f,                                         //float   bob;
     350,                                            //int     steptime;
-    0.8f,                                           //float   speed;
+    ABUILDER_SPEED,                                 //float   speed;
     1.0f,                                           //float   sticky;
     { PCL_A_B_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
-    2000,                                           //int     timetoevolve;
-    100                                             //int     value;
+    ABUILDER_TTE,                                   //int     timetoevolve;
+    ABUILDER_VALUE                                  //int     value;
   },
   { 
     PCL_A_B_LEV1,                                   //int     classnum;
@@ -1289,19 +1250,19 @@ classAttributes_t bg_classList[ ] =
     { -20, -20, -4 },                               //vec3_t  deadmins;
     { 20, 20, 4 },                                  //vec3_t  deadmaxs;
     0, 0,                                           //int     viewheight, crouchviewheight;
-    75,                                             //int     health;
-    5,                                              //int     regenRate;
+    ABUILDER_UPG_HEALTH,                            //int     health;
+    ABUILDER_UPG_REGEN,                             //int     regenRate;
     SCA_CANJUMP|SCA_FOVWARPS|SCA_WALLCLIMBER,       //int     abilities;
     WP_ABUILD2,                                     //weapon_t  startWeapon
     95.0f,                                          //float   buildDist;
     110,                                            //int     fov;
     0.001f,                                         //float   bob;
     200,                                            //int     steptime;
-    1.0f,                                           //float   speed;
+    ABUILDER_UPG_SPEED,                             //float   speed;
     1.0f,                                           //float   sticky;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
-    2000,                                           //int     timetoevolve;
-    100                                             //int     value;
+    0,                                              //int     timetoevolve;
+    ABUILDER_UPG_VALUE                              //int     value;
   },
   {
     PCL_A_O_BASE,                                   //int     classnum;
@@ -1318,8 +1279,8 @@ classAttributes_t bg_classList[ ] =
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     0, 0,                                           //int     viewheight, crouchviewheight;
-    25,                                             //int     health;
-    5,                                              //int     regenRate;
+    SOLDIER_HEALTH,                                 //int     health;
+    SOLDIER_REGEN,                                  //int     regenRate;
     SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE,                  //int     abilities;
     WP_VENOM,                                       //weapon_t  startWeapon
@@ -1327,11 +1288,11 @@ classAttributes_t bg_classList[ ] =
     140,                                            //int     fov;
     0.0f,                                           //float   bob;
     25,                                             //int     steptime;
-    1.5f,                                           //float   speed;
+    SOLDIER_SPEED,                                  //float   speed;
     5.0f,                                           //float   sticky;
     { PCL_A_O_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
-    3000,                                           //int     timetoevolve;
-    100                                             //int     value;
+    SOLDIER_TTE,                                    //int     timetoevolve;
+    SOLDIER_VALUE                                   //int     value;
   },
   {
     PCL_A_O_LEV1,                                   //int     classnum;
@@ -1348,19 +1309,19 @@ classAttributes_t bg_classList[ ] =
     { -24, -24, -4 },                               //vec3_t  deadmins;
     { 24, 24, 4 },                                  //vec3_t  deadmaxs;
     6, 6,                                           //int     viewheight, crouchviewheight;
-    50,                                             //int     health;
-    5,                                              //int     regenRate;
+    DRAGOON_HEALTH,                                 //int     health;
+    DRAGOON_REGEN,                                  //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,     //int     abilities;
     WP_POUNCE,                                      //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     120,                                            //int     fov;
     0.0005f,                                        //float   bob;
     25,                                             //int     steptime;
-    1.5f,                                           //float   speed;
+    DRAGOON_SPEED,                                  //float   speed;
     3.0f,                                           //float   sticky;
     { PCL_A_O_LEV2, PCL_A_O_LEV1_UPG, PCL_NONE },   //int     children[ 3 ];
-    3000,                                           //int     timetoevolve;
-    100                                             //int     value;
+    DRAGOON_TTE,                                    //int     timetoevolve;
+    DRAGOON_VALUE                                   //int     value;
   },
   {
     PCL_A_O_LEV1_UPG,                               //int     classnum;
@@ -1377,19 +1338,19 @@ classAttributes_t bg_classList[ ] =
     { -24, -24, -4 },                               //vec3_t  deadmins;
     { 24, 24, 4 },                                  //vec3_t  deadmaxs;
     6, 6,                                           //int     viewheight, crouchviewheight;
-    50,                                             //int     health;
-    5,                                              //int     regenRate;
+    DRAGOON_UPG_HEALTH,                             //int     health;
+    DRAGOON_UPG_REGEN,                              //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,     //int     abilities;
     WP_POUNCE_UPG,                                  //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     120,                                            //int     fov;
     0.0005f,                                        //float   bob;
     25,                                             //int     steptime;
-    1.5f,                                           //float   speed;
+    DRAGOON_UPG_SPEED,                              //float   speed;
     3.0f,                                           //float   sticky;
     { PCL_A_O_LEV2, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
-    3000,                                           //int     timetoevolve;
-    100                                             //int     value;
+    DRAGOON_UPG_TTE,                                //int     timetoevolve;
+    DRAGOON_UPG_VALUE                               //int     value;
   },
   {
     PCL_A_O_LEV2,                                   //int     classnum;
@@ -1406,8 +1367,8 @@ classAttributes_t bg_classList[ ] =
     { -24, -24, -4 },                               //vec3_t  deadmins;
     { 24, 24, 4 },                                  //vec3_t  deadmaxs;
     6, 6,                                           //int     viewheight, crouchviewheight;
-    50,                                             //int     health;
-    5,                                              //int     regenRate;
+    HYDRA_HEALTH,                                   //int     health;
+    HYDRA_REGEN,                                    //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_WALLCLIMBER,                 //int     abilities;
     WP_GRAB_CLAW,                                   //weapon_t  startWeapon
@@ -1415,11 +1376,11 @@ classAttributes_t bg_classList[ ] =
     120,                                            //int     fov;
     0.001f,                                         //float   bob;
     25,                                             //int     steptime;
-    1.5f,                                           //float   speed;
+    HYDRA_SPEED,                                    //float   speed;
     4.0f,                                           //float   sticky;
     { PCL_A_O_LEV3, PCL_A_O_LEV2_UPG, PCL_NONE },   //int     children[ 3 ];
-    3000,                                           //int     timetoevolve;
-    100                                             //int     value;
+    HYDRA_TTE,                                      //int     timetoevolve;
+    HYDRA_VALUE                                     //int     value;
   },
   {
     PCL_A_O_LEV2_UPG,                               //int     classnum;
@@ -1436,8 +1397,8 @@ classAttributes_t bg_classList[ ] =
     { -24, -24, -4 },                               //vec3_t  deadmins;
     { 24, 24, 4 },                                  //vec3_t  deadmaxs;
     6, 6,                                           //int     viewheight, crouchviewheight;
-    50,                                             //int     health;
-    5,                                              //int     regenRate;
+    HYDRA_UPG_HEALTH,                               //int     health;
+    HYDRA_UPG_REGEN,                                //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_WALLCLIMBER,                 //int     abilities;
     WP_GRAB_CLAW_UPG,                               //weapon_t  startWeapon
@@ -1445,11 +1406,11 @@ classAttributes_t bg_classList[ ] =
     120,                                            //int     fov;
     0.001f,                                         //float   bob;
     25,                                             //int     steptime;
-    1.5f,                                           //float   speed;
+    HYDRA_UPG_SPEED,                                //float   speed;
     4.0f,                                           //float   sticky;
     { PCL_A_O_LEV3, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
-    3000,                                           //int     timetoevolve;
-    100                                             //int     value;
+    HYDRA_UPG_TTE,                                  //int     timetoevolve;
+    HYDRA_UPG_VALUE                                 //int     value;
   },
   {
     PCL_A_O_LEV3,                                   //int     classnum;
@@ -1466,19 +1427,19 @@ classAttributes_t bg_classList[ ] =
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     4, 4,                                           //int     viewheight, crouchviewheight;
-    100,                                            //int     health;
-    5,                                              //int     regenRate;
+    CHIMERA_HEALTH,                                 //int     health;
+    CHIMERA_REGEN,                                  //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,     //int     abilities;
     WP_AREA_ZAP,                                    //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     130,                                            //int     fov;
     0.0f,                                           //float   bob;
     60,                                             //int     steptime;
-    1.3f,                                           //float   speed;
+    CHIMERA_SPEED,                                  //float   speed;
     5.0f,                                           //float   sticky;
     { PCL_A_O_LEV4, PCL_A_O_LEV3_UPG, PCL_NONE },   //int     children[ 3 ];
-    3000,                                           //int     timetoevolve;
-    100                                             //int     value;
+    CHIMERA_TTE,                                    //int     timetoevolve;
+    CHIMERA_VALUE                                   //int     value;
   },
   {
     PCL_A_O_LEV3_UPG,                               //int     classnum;
@@ -1495,19 +1456,19 @@ classAttributes_t bg_classList[ ] =
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     4, 4,                                           //int     viewheight, crouchviewheight;
-    100,                                            //int     health;
-    5,                                              //int     regenRate;
+    CHIMERA_UPG_HEALTH,                             //int     health;
+    CHIMERA_UPG_REGEN,                              //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,     //int     abilities;
     WP_DIRECT_ZAP,                                  //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     130,                                            //int     fov;
     0.0f,                                           //float   bob;
     60,                                             //int     steptime;
-    1.3f,                                           //float   speed;
+    CHIMERA_UPG_SPEED,                              //float   speed;
     5.0f,                                           //float   sticky;
     { PCL_A_O_LEV4, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
-    3000,                                           //int     timetoevolve;
-    100                                             //int     value;
+    CHIMERA_UPG_TTE,                                //int     timetoevolve;
+    CHIMERA_UPG_VALUE                               //int     value;
   },
   {
     PCL_A_O_LEV4,                                   //int     classnum;
@@ -1524,19 +1485,19 @@ classAttributes_t bg_classList[ ] =
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     4, 4,                                           //int     viewheight, crouchviewheight;
-    100,                                            //int     health;
-    5,                                              //int     regenRate;
+    BMOFO_HEALTH,                                   //int     health;
+    BMOFO_REGEN,                                    //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,     //int     abilities;
     WP_GROUND_POUND,                                //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     130,                                            //int     fov;
     0.0f,                                           //float   bob;
     60,                                             //int     steptime;
-    1.3f,                                           //float   speed;
+    BMOFO_SPEED,                                    //float   speed;
     5.0f,                                           //float   sticky;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
-    3000,                                           //int     timetoevolve;
-    100                                             //int     value;
+    0,                                              //int     timetoevolve;
+    BMOFO_VALUE                                     //int     value;
   },
   {
     PCL_H_BASE,                                     //int     classnum;
@@ -2095,20 +2056,22 @@ weaponAttributes_t bg_weapons[ ] =
 {
   {
     WP_MACHINEGUN,        //int       weaponNum;
-    100,                  //int       price;
+    RIFLE_PRICE,          //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "rifle",              //char      *weaponName;
     "Rifle",              //char      *weaponHumanName;
     { "models/weapons2/machinegun/machinegun.md3", 0, 0, 0 },
     "icons/iconw_machinegun",
-    30,                   //int       quan;
-    3,                    //int       clips;
-    3,                    //int       maxClips;
+    RIFLE_CLIPSIZE,       //int       quan;
+    RIFLE_SPAWNCLIPS,     //int       clips;
+    RIFLE_MAXCLIPS,       //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    100,                  //int       repeatRate;
-    2000,                 //int       reloadTime;
+    RIFLE_REPEAT,         //int       repeatRate1;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
+    RIFLE_RELOAD,         //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qtrue,                //qboolean  purchasable;
@@ -2117,19 +2080,21 @@ weaponAttributes_t bg_weapons[ ] =
   },
   {
     WP_FLAMER,            //int       weaponNum;
-    100,                  //int       price;
+    FLAMER_PRICE,         //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "flamer",             //char      *weaponName;
     "Flame Thrower",      //char      *weaponHumanName;
     { "models/weapons2/plasma/plasma.md3", 0, 0, 0 },
     "icons/iconw_plasma",
-    400,                  //int       quan;
+    FLAMER_GAS,           //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    150,                  //int       repeatRate;
+    FLAMER_REPEAT,        //int       repeatRate1;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
@@ -2139,19 +2104,21 @@ weaponAttributes_t bg_weapons[ ] =
   },
   {
     WP_CHAINGUN,          //int       weaponNum;
-    100,                  //int       price;
+    CHAINGUN_PRICE,       //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "chaingun",           //char      *weaponName;
     "Chaingun",           //char      *weaponHumanName;
     { "models/weapons2/machinegun/machinegun.md3", 0, 0, 0 },
     "icons/iconw_machinegun",
-    300,                  //int       quan;
+    CHAINGUN_BULLETS,     //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    50,                   //int       repeatRate;
+    CHAINGUN_REPEAT,      //int       repeatRate1;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
@@ -2161,20 +2128,22 @@ weaponAttributes_t bg_weapons[ ] =
   },
   {
     WP_MASS_DRIVER,       //int       weaponNum;
-    100,                  //int       price;
+    MDRIVER_PRICE,        //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "mdriver",            //char      *weaponName;
     "Mass Driver",        //char      *weaponHumanName;
     { "models/weapons2/bfg/bfg.md3", 0, 0, 0 },
     "icons/iconw_bfg",
-    5,                    //int       quan;
-    2,                    //int       clips;
-    3,                    //int       maxClips;
+    MDRIVER_CLIPSIZE,     //int       quan;
+    MDRIVER_SPAWNCLIPS,   //int       clips;
+    MDRIVER_MAXCLIPS,     //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qtrue,                //int       usesEnergy;
-    1000,                 //int       repeatRate;
-    2000,                 //int       reloadTime;
+    MDRIVER_REPEAT,       //int       repeatRate1;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
+    MDRIVER_RELOAD,       //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qtrue,                //qboolean  purchasable;
@@ -2183,20 +2152,22 @@ weaponAttributes_t bg_weapons[ ] =
   },
   {
     WP_PULSE_RIFLE,       //int       weaponNum;
-    100,                  //int       price;
+    PRIFLE_PRICE,         //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "prifle",             //char      *weaponName;
     "Pulse Rifle",        //char      *weaponHumanName;
     { "models/weapons2/plasma/plasma.md3", 0, 0, 0 },
     "icons/iconw_plasma",
-    50,                   //int       quan;
-    3,                    //int       clips;
-    3,                    //int       maxClips;
+    PRIFLE_CLIPS,         //int       quan;
+    PRIFLE_SPAWNCLIPS,    //int       clips;
+    PRIFLE_MAXCLIPS,      //int       maxClips;
     qfalse,               //int       infiniteAmmo;
-    qtrue,               //int       usesEnergy;
-    50,                   //int       repeatRate;
-    2000,                 //int       reloadTime;
+    qtrue,                //int       usesEnergy;
+    PRIFLE_REPEAT,        //int       repeatRate1;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
+    PRIFLE_RELOAD,        //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qtrue,                //qboolean  purchasable;
@@ -2205,20 +2176,22 @@ weaponAttributes_t bg_weapons[ ] =
   },
   {
     WP_LUCIFER_CANON,     //int       weaponNum;
-    100,                  //int       price;
+    LCANON_PRICE,         //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "lcanon",             //char      *weaponName;
     "Lucifer Canon",      //char      *weaponHumanName;
     { "models/weapons2/bfg/bfg.md3", 0, 0, 0 },
     "icons/iconw_bfg",
-    30,                   //int       quan;
+    LCANON_AMMO,          //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qtrue,                //int       usesEnergy;
-    500,                  //int       repeatRate;
-    2000,                 //int       reloadTime;
+    LCANON_REPEAT,        //int       repeatRate1;
+    LCANON_CHARGEREPEAT,  //int       repeatRate2;
+    0,                    //int       repeatRate3;
+    LCANON_RELOAD,        //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qtrue,                //qboolean  purchasable;
@@ -2227,20 +2200,22 @@ weaponAttributes_t bg_weapons[ ] =
   },
   {
     WP_LAS_GUN,           //int       weaponNum;
-    100,                  //int       price;
+    LASGUN_PRICE,         //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "lgun",               //char      *weaponName;
     "Las Gun",            //char      *weaponHumanName;
     { "models/weapons2/grenadel/grenadel.md3", 0, 0, 0 },
     "icons/iconw_plasma",
-    300,                  //int       quan;
+    LASGUN_AMMO,          //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qtrue,                //int       usesEnergy;
-    100,                  //int       repeatRate;
-    2000,                 //int       reloadTime;
+    LASGUN_REPEAT,        //int       repeatRate1;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
+    LASGUN_RELOAD,        //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qtrue,                //qboolean  purchasable;
@@ -2249,7 +2224,7 @@ weaponAttributes_t bg_weapons[ ] =
   },
   {
     WP_PAIN_SAW,          //int       weaponNum;
-    100,                  //int       price;
+    PAINSAW_PRICE,        //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "psaw",               //char      *weaponName;
@@ -2261,7 +2236,9 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    75,                   //int       repeatRate;
+    PAINSAW_REPEAT,       //int       repeatRate1;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
@@ -2271,7 +2248,7 @@ weaponAttributes_t bg_weapons[ ] =
   },
   {
     WP_HBUILD,            //int       weaponNum;
-    100,                  //int       price;
+    HBUILD_PRICE,         //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "ckit",               //char      *weaponName;
@@ -2283,17 +2260,19 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    1000,                 //int       repeatRate;
+    HBUILD_REPEAT,        //int       repeatRate1;
+    HBUILD_REPEAT,        //int       repeatRate2;
+    0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qtrue,                //qboolean  purchasable;
-    10000,                //int       buildDelay;
+    HBUILD_DELAY,         //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
     WP_HBUILD2,           //int       weaponNum;
-    100,                  //int       price;
+    HBUILD2_PRICE,        //int       price;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "ackit",              //char      *weaponName;
@@ -2305,17 +2284,19 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    1000,                 //int       repeatRate;
+    HBUILD2_REPEAT,       //int       repeatRate1;
+    HBUILD2_REPEAT,       //int       repeatRate2;
+    0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qtrue,                //qboolean  purchasable;
-    5000,                 //int       buildDelay;
+    HBUILD2_DELAY,        //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
     WP_ABUILD,            //int       weaponNum;
-    100,                  //int       price;
+    0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "dbuild",             //char      *weaponName;
@@ -2327,17 +2308,19 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    1000,                 //int       repeatRate;
+    ABUILDER_BUILD_REPEAT,//int       repeatRate1;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  purchasable;
-    10000,                //int       buildDelay;
+    ABUILDER_BASE_DELAY,  //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
     WP_ABUILD2,           //int       weaponNum;
-    100,                  //int       price;
+    0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "dbuild2",            //char      *weaponName;
@@ -2349,17 +2332,19 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    1000,                 //int       repeatRate;
+    ABUILDER_BUILD_REPEAT,//int       repeatRate1;
+    ABUILDER_CLAW_REPEAT, //int       repeatRate2;
+    0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  purchasable;
-    5000,                 //int       buildDelay;
+    ABUILDER_ADV_DELAY,   //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
     WP_VENOM,             //int       weaponNum;
-    100,                  //int       price;
+    0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "venom",              //char      *weaponName;
@@ -2371,97 +2356,11 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    500,                  //int       repeatRate;
+    SOLDIER_BITE_REPEAT,  //int       repeatRate1;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  purchasable;
-    0,                    //int       buildDelay;
-    WUT_ALIENS            //WUTeam_t  team;
-  },
-  {
-    WP_GRAB_CLAW,         //int       weaponNum;
-    100,                  //int       price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    SLOT_WEAPON,          //int       slots;
-    "grabandclaw",        //char      *weaponName;
-    "Claws",              //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    0,                    //int       quan;
-    0,                    //int       clips;
-    0,                    //int       maxClips;
-    qtrue,                //int       infiniteAmmo;
-    qfalse,               //int       usesEnergy;
-    500,                  //int       repeatRate;
-    0,                    //int       reloadTime;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  purchasable;
-    0,                    //int       buildDelay;
-    WUT_ALIENS            //WUTeam_t  team;
-  },
-  {
-    WP_GRAB_CLAW_UPG,     //int       weaponNum;
-    100,                  //int       price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    SLOT_WEAPON,          //int       slots;
-    "grabandclaw_upgrade",//char      *weaponName;
-    "Claws Upgrade",      //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    0,                    //int       quan;
-    0,                    //int       clips;
-    0,                    //int       maxClips;
-    qtrue,                //int       infiniteAmmo;
-    qfalse,               //int       usesEnergy;
-    500,                  //int       repeatRate;
-    0,                    //int       reloadTime;
-    qtrue,                //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  purchasable;
-    0,                    //int       buildDelay;
-    WUT_ALIENS            //WUTeam_t  team;
-  },
-  {
-    WP_AREA_ZAP,          //int       weaponNum;
-    100,                  //int       price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    SLOT_WEAPON,          //int       slots;
-    "areazap",            //char      *weaponName;
-    "Area Zap",           //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    0,                    //int       quan;
-    0,                    //int       clips;
-    0,                    //int       maxClips;
-    qtrue,                //int       infiniteAmmo;
-    qfalse,               //int       usesEnergy;
-    1500,                 //int       repeatRate;
-    0,                    //int       reloadTime;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  purchasable;
-    0,                    //int       buildDelay;
-    WUT_ALIENS            //WUTeam_t  team;
-  },
-  {
-    WP_DIRECT_ZAP,          //int       weaponNum;
-    100,                  //int       price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    SLOT_WEAPON,          //int       slots;
-    "directzap",          //char      *weaponName;
-    "Directed Zap",       //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    0,                    //int       quan;
-    0,                    //int       clips;
-    0,                    //int       maxClips;
-    qtrue,                //int       infiniteAmmo;
-    qfalse,               //int       usesEnergy;
-    1500,                 //int       repeatRate;
-    0,                    //int       reloadTime;
-    qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2469,7 +2368,7 @@ weaponAttributes_t bg_weapons[ ] =
   },
   {
     WP_POUNCE,            //int       weaponNum;
-    100,                  //int       price;
+    0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "pounce",             //char      *weaponName;
@@ -2481,7 +2380,9 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    750,                  //int       repeatRate;
+    DRAGOON_CLAW_REPEAT,  //int       repeatRate1;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
@@ -2491,7 +2392,7 @@ weaponAttributes_t bg_weapons[ ] =
   },
   {
     WP_POUNCE_UPG,        //int       weaponNum;
-    100,                  //int       price;
+    0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "pounce_upgrade",     //char      *weaponName;
@@ -2503,7 +2404,9 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    750,                  //int       repeatRate;
+    DRAGOON_CLAW_U_REPEAT,//int       repeatRate1;
+    0,                    //int       repeatRate2;
+    DRAGOON_SLOWBLOB_REPEAT,//int       repeatRate3;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qtrue,                //qboolean  hasThirdMode;
@@ -2512,8 +2415,104 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
+    WP_GRAB_CLAW,         //int       weaponNum;
+    0,                    //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_WEAPON,          //int       slots;
+    "grabandclaw",        //char      *weaponName;
+    "Claws",              //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
+    HYDRA_CLAW_REPEAT,    //int       repeatRate1;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
+    0,                    //int       reloadTime;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
+    qfalse,               //qboolean  purchasable;
+    0,                    //int       buildDelay;
+    WUT_ALIENS            //WUTeam_t  team;
+  },
+  {
+    WP_GRAB_CLAW_UPG,     //int       weaponNum;
+    0,                    //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_WEAPON,          //int       slots;
+    "grabandclaw_upgrade",//char      *weaponName;
+    "Claws Upgrade",      //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
+    HYDRA_CLAW_U_REPEAT,  //int       repeatRate1;
+    HYDRA_PCLOUD_REPEAT,  //int       repeatRate2;
+    0,                    //int       repeatRate3;
+    0,                    //int       reloadTime;
+    qtrue,                //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
+    qfalse,               //qboolean  purchasable;
+    0,                    //int       buildDelay;
+    WUT_ALIENS            //WUTeam_t  team;
+  },
+  {
+    WP_AREA_ZAP,          //int       weaponNum;
+    0,                    //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_WEAPON,          //int       slots;
+    "areazap",            //char      *weaponName;
+    "Area Zap",           //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
+    CHIMERA_CLAW_REPEAT,  //int       repeatRate1;
+    CHIMERA_AREAZAP_REPEAT,//int       repeatRate2;
+    0,                    //int       repeatRate3;
+    0,                    //int       reloadTime;
+    qtrue,                //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
+    qfalse,               //qboolean  purchasable;
+    0,                    //int       buildDelay;
+    WUT_ALIENS            //WUTeam_t  team;
+  },
+  {
+    WP_DIRECT_ZAP,        //int       weaponNum;
+    0,                    //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_WEAPON,          //int       slots;
+    "directzap",          //char      *weaponName;
+    "Directed Zap",       //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
+    CHIMERA_CLAW_U_REPEAT,//int       repeatRate1;
+    CHIMERA_DIRECTZAP_REPEAT,//int       repeatRate2;
+    CHIMERA_AREAZAP_REPEAT,//int       repeatRate3;
+    0,                    //int       reloadTime;
+    qtrue,                //qboolean  hasAltMode;
+    qtrue,                //qboolean  hasThirdMode;
+    qfalse,               //qboolean  purchasable;
+    0,                    //int       buildDelay;
+    WUT_ALIENS            //WUTeam_t  team;
+  },
+  {
     WP_GROUND_POUND,      //int       weaponNum;
-    100,                  //int       price;
+    0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "groundpound",        //char      *weaponName;
@@ -2525,7 +2524,9 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    750,                  //int       repeatRate;
+    BMOFO_CLAW_REPEAT,    //int       repeatRate1;
+    BMOFO_KNOCK_REPEAT,   //int       repeatRate2;
+    BMOFO_CLAW_REPEAT,    //int       repeatRate3;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qtrue,                //qboolean  hasThirdMode;
@@ -2535,7 +2536,7 @@ weaponAttributes_t bg_weapons[ ] =
   },
   {
     WP_LOCKBLOB_LAUNCHER, //int       weaponNum;
-    100,                  //int       price;
+    0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "lockblob",           //char      *weaponName;
@@ -2547,7 +2548,9 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    500,                  //int       repeatRate;
+    500,                  //int       repeatRate1;
+    500,                  //int       repeatRate2;
+    500,                  //int       repeatRate3;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
@@ -2557,7 +2560,7 @@ weaponAttributes_t bg_weapons[ ] =
   },
   {
     WP_TESLAGEN,          //int       weaponNum;
-    100,                  //int       price;
+    0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "teslagen",           //char      *weaponName;
@@ -2569,7 +2572,9 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qtrue,                //int       usesEnergy;
-    500,                  //int       repeatRate;
+    500,                  //int       repeatRate1;
+    500,                  //int       repeatRate2;
+    500,                  //int       repeatRate3;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
@@ -2807,19 +2812,53 @@ qboolean BG_FindUsesEnergyForWeapon( int weapon )
 
 /*
 ==============
-BG_FindRepeatRateForWeapon
+BG_FindRepeatRate1ForWeapon
 ==============
 */
-int BG_FindRepeatRateForWeapon( int weapon )
+int BG_FindRepeatRate1ForWeapon( int weapon )
 {
   int i;
 
   for( i = 0; i < bg_numWeapons; i++ )
   {
     if( bg_weapons[ i ].weaponNum == weapon )
-    {
-      return bg_weapons[ i ].repeatRate;
-    }
+      return bg_weapons[ i ].repeatRate1;
+  }
+  
+  return 1000;
+}
+
+/*
+==============
+BG_FindRepeatRate2ForWeapon
+==============
+*/
+int BG_FindRepeatRate2ForWeapon( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+      return bg_weapons[ i ].repeatRate2;
+  }
+  
+  return 1000;
+}
+
+/*
+==============
+BG_FindRepeatRate3ForWeapon
+==============
+*/
+int BG_FindRepeatRate3ForWeapon( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+      return bg_weapons[ i ].repeatRate3;
   }
   
   return 1000;
@@ -2951,7 +2990,7 @@ upgradeAttributes_t bg_upgrades[ ] =
 {
   {
     UP_CHESTARMOUR,         //int   upgradeNum;
-    100,                    //int   price;
+    CHESTARMOUR_PRICE,      //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_TORSO,             //int   slots;
     "carmour",              //char  *upgradeName;
@@ -2964,7 +3003,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   },
   {
     UP_LIMBARMOUR,          //int   upgradeNum;        
-    100,                    //int   price;
+    LIMBARMOUR_PRICE,       //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_ARMS|SLOT_LEGS,    //int   slots;
     "larmour",              //char  *upgradeName;
@@ -2977,7 +3016,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   },
   {
     UP_HELMET,              //int   upgradeNum;
-    100,                    //int   price;
+    HELMET_PRICE,           //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_HEAD,              //int   slots;
     "helmet",               //char  *upgradeName;
@@ -2990,7 +3029,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   },
   {
     UP_ANTITOXIN,           //int   upgradeNum;
-    100,                    //int   price;
+    ANTITOXIN_PRICE,        //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_NONE,              //int   slots;
     "atoxin",               //char  *upgradeName;
@@ -3003,7 +3042,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   },
   {
     UP_BATTPACK,            //int   upgradeNum;
-    100,                    //int   price;
+    BATTPACK_PRICE,         //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_BACKPACK,          //int   slots;
     "battpack",             //char  *upgradeName;
@@ -3016,7 +3055,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   },
   {
     UP_JETPACK,             //int   upgradeNum;
-    100,                    //int   price;
+    JETPACK_PRICE,          //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_BACKPACK,          //int   slots;
     "jetpack",              //char  *upgradeName;
@@ -3029,8 +3068,8 @@ upgradeAttributes_t bg_upgrades[ ] =
   },
   {
     UP_BATTLESUIT,                            //int   upgradeNum;
-    100,                                      //int   price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    BSUIT_PRICE,                              //int   price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),      //int  stages
     SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS, //int   slots;
     "bsuit",                                  //char  *upgradeName;
     "Battlesuit",                             //char  *upgradeHumanName;
@@ -3042,7 +3081,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   },
   {
     UP_MGCLIP,              //int   upgradeNum;
-    10,                     //int   price;
+    MGCLIP_PRICE,           //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_NONE,              //int   slots;
     "mgclip",               //char  *upgradeName;
@@ -3055,7 +3094,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   },
   {
     UP_100CGAMMO,           //int   upgradeNum;
-    10,                     //int   price;
+    CGAMMO_PRICE,           //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_NONE,              //int   slots;
     "100cgammo",            //char  *upgradeName;
@@ -3068,7 +3107,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   },
   {
     UP_200GAS,              //int   upgradeNum;
-    10,                     //int   price;
+    GAS_PRICE,              //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_NONE,              //int   slots;
     "200gas",               //char  *upgradeName;

@@ -14,25 +14,16 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
-                  
+
+//tremulous balance header
+#include "tremulous.h"
+
 // because games can change separately from the main system version, we need a
 // second version that must match between game and cgame
 #define GAME_VERSION            "baseq3-1"
 
 #define DEFAULT_GRAVITY         800
 #define GIB_HEALTH              -40
-#define ARMOR_PROTECTION        0.66
-
-#define MAX_ITEMS               256
-
-#define RANK_TIED_FLAG          0x4000
-
-#define DEFAULT_SHOTGUN_SPREAD  700
-#define DEFAULT_SHOTGUN_COUNT   11
-
-#define ITEM_RADIUS             15    // item sizes are needed for client side pickup detection
-
-#define LIGHTNING_RANGE         1024
 
 #define SCORE_NOT_PRESENT       -9999 // for the CS_SCORES[12] when only one player is present
 
@@ -43,15 +34,7 @@
 #define CROUCH_VIEWHEIGHT       12
 #define DEAD_VIEWHEIGHT         -16
 
-#define MAX_POUNCE_SPEED        750
-#define POUNCE_TIME             1000.0f
-
-#define LC_TOTAL_CHARGE         255
-#define LC_CHARGE_TIME          2000.0f
-
-#define PCLOUD_TIME             10000
-#define KOVER_TIME              2000
-#define GETUP_TIME              1000
+#define LCANON_TOTAL_CHARGE     255
 
 //
 // config strings are a general means of communicating variable length strings
@@ -82,8 +65,6 @@
 #define CS_SHADERSTATE      24
 #define CS_BOTINFO          25
 #define CS_CLIENTS_READY    26    //TA: following suggestion in STAT_ enum STAT_CLIENTS_READY becomes a configstring
-
-#define CS_ITEMS            27    // string of 0's and 1's that tell which items are present
 
 //TA: extra stuff:
 #define CS_BUILDPOINTS      28
@@ -323,12 +304,6 @@ typedef enum
 
   HI_NUM_HOLDABLE
 } holdable_t;
-
-//TA: needed client side to size sprites
-#define FIREBALL_LIFETIME 1000.0f
-#define FIREBALL_SPEED    200.0f
-#define FIREBALL_GAP      15    //basically as fast as possible yet regular
-#define FIREBALL_LAG      0.5f  //the amount of player velocity that is added to the fireball
 
 typedef enum
 {
@@ -929,7 +904,6 @@ typedef struct
   int       health;
   int       regenRate;
   
-  int       damage;
   int       splashDamage;
   int       splashRadius;
 
@@ -942,8 +916,8 @@ typedef struct
 
   int       nextthink;
 
-  int       turretFireSpeed;
   int       turretRange;
+  int       turretFireSpeed;
   weapon_t  turretProjType;
 
   float     minNormal;
@@ -978,7 +952,9 @@ typedef struct
   qboolean  infiniteAmmo;
   qboolean  usesEnergy;
 
-  int       repeatRate;
+  int       repeatRate1;
+  int       repeatRate2;
+  int       repeatRate3;
   int       reloadTime;
   
   qboolean  hasAltMode;
@@ -1042,7 +1018,6 @@ trType_t  BG_FindTrajectoryForBuildable( int bclass );
 float     BG_FindBounceForBuildable( int bclass );
 int       BG_FindBuildPointsForBuildable( int bclass );
 qboolean  BG_FindStagesForBuildable( int bclass, stage_t stage );
-int       BG_FindDamageForBuildable( int bclass );
 int       BG_FindSplashDamageForBuildable( int bclass );
 int       BG_FindSplashRadiusForBuildable( int bclass );
 int       BG_FindMODForBuildable( int bclass );
@@ -1050,8 +1025,8 @@ int       BG_FindTeamForBuildable( int bclass );
 weapon_t  BG_FindBuildWeaponForBuildable( int bclass );
 int       BG_FindAnimForBuildable( int bclass );
 int       BG_FindNextThinkForBuildable( int bclass );
-int       BG_FindFireSpeedForBuildable( int bclass );
 int       BG_FindRangeForBuildable( int bclass );
+int       BG_FindFireSpeedForBuildable( int bclass );
 weapon_t  BG_FindProjTypeForBuildable( int bclass );
 float     BG_FindMinNormalForBuildable( int bclass );
 qboolean  BG_FindInvertNormalForBuildable( int bclass );
@@ -1095,7 +1070,9 @@ char      *BG_FindIconForWeapon( int weapon );
 void      BG_FindAmmoForWeapon( int weapon, int *quan, int *clips, int *maxClips );
 qboolean  BG_FindInfinteAmmoForWeapon( int weapon );
 qboolean  BG_FindUsesEnergyForWeapon( int weapon );
-int       BG_FindRepeatRateForWeapon( int weapon );
+int       BG_FindRepeatRate1ForWeapon( int weapon );
+int       BG_FindRepeatRate2ForWeapon( int weapon );
+int       BG_FindRepeatRate3ForWeapon( int weapon );
 int       BG_FindReloadTimeForWeapon( int weapon );
 qboolean  BG_WeaponHasAltMode( int weapon );
 qboolean  BG_WeaponHasThirdMode( int weapon );
@@ -1114,19 +1091,14 @@ weapon_t  BG_FindWeaponAmmoForBuildable( int upgrade );
 void      BG_FindAmmoForUpgrade( int upgrade, int *ammo, int *clips );
 WUTeam_t  BG_FindTeamForUpgrade( int upgrade );
 
-// g_dmflags->integer flags
-#define DF_NO_FALLING     8
-#define DF_FIXED_FOV      16
-#define DF_NO_FOOTSTEPS     32
-
 // content masks
-#define MASK_ALL        (-1)
+#define MASK_ALL          (-1)
 #define MASK_SOLID        (CONTENTS_SOLID)
-#define MASK_PLAYERSOLID    (CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BODY)
-#define MASK_DEADSOLID      (CONTENTS_SOLID|CONTENTS_PLAYERCLIP)
+#define MASK_PLAYERSOLID  (CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BODY)
+#define MASK_DEADSOLID    (CONTENTS_SOLID|CONTENTS_PLAYERCLIP)
 #define MASK_WATER        (CONTENTS_WATER|CONTENTS_LAVA|CONTENTS_SLIME)
 #define MASK_OPAQUE       (CONTENTS_SOLID|CONTENTS_SLIME|CONTENTS_LAVA)
-#define MASK_SHOT       (CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE)
+#define MASK_SHOT         (CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE)
 
 
 //
@@ -1172,10 +1144,6 @@ void  BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean
 void  BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap );
 
 qboolean  BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
-
-#define CREEP_BASESIZE      120 
-#define REACTOR_BASESIZE    1000
-#define REPEATER_BASESIZE   500
 
 #define ARENAS_PER_TIER   4
 #define MAX_ARENAS      1024

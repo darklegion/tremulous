@@ -82,12 +82,9 @@ void G_ExplodeMissile( gentity_t *ent )
   ent->freeAfterEvent = qtrue;
 
   // splash damage
-  if ( ent->splashDamage ) {
-    if( G_RadiusDamage( ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent
-      , ent->splashMethodOfDeath ) ) {
-      g_entities[ent->r.ownerNum].client->accuracy_hits++;
-    }
-  }
+  if( ent->splashDamage )
+    G_RadiusDamage( ent->r.currentOrigin, ent->parent, ent->splashDamage,
+                    ent->splashRadius, ent, ent->splashMethodOfDeath );
 
   trap_LinkEntity( ent );
 }
@@ -176,14 +173,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
 
   // splash damage (doesn't apply to person directly hit)
   if( ent->splashDamage )
-  {
-    if( G_RadiusDamage( trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius, 
-      other, ent->splashMethodOfDeath ) )
-    {
-      if( !hitClient )
-        g_entities[ ent->r.ownerNum ].client->accuracy_hits++;
-    }
-  }
+    G_RadiusDamage( trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius, 
+                    other, ent->splashMethodOfDeath );
 
   trap_LinkEntity( ent );
 }
@@ -268,16 +259,16 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
 
   bolt = G_Spawn();
   bolt->classname = "flame";
-  bolt->nextthink = level.time + FIREBALL_LIFETIME;
+  bolt->nextthink = level.time + FLAMER_LIFETIME;
   bolt->think = G_ExplodeMissile;
   bolt->s.eType = ET_MISSILE;
   bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_FLAMER;
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
-  bolt->damage = 5;
-  bolt->splashDamage = 5;
-  bolt->splashRadius = 45;
+  bolt->damage = FLAMER_DMG;
+  bolt->splashDamage = FLAMER_DMG;
+  bolt->splashRadius = FLAMER_RADIUS;
   bolt->methodOfDeath = MOD_FLAMER;
   bolt->splashMethodOfDeath = MOD_FLAMER_SPLASH;
   bolt->clipmask = MASK_SHOT;
@@ -286,11 +277,11 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.pos.trType = TR_LINEAR;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
-  VectorScale( self->client->ps.velocity, FIREBALL_LAG, pvel );
-  VectorMA( pvel, FIREBALL_SPEED, dir, bolt->s.pos.trDelta );
+  VectorScale( self->client->ps.velocity, FLAMER_LAG, pvel );
+  VectorMA( pvel, FLAMER_SPEED, dir, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
 
-  VectorCopy (start, bolt->r.currentOrigin);
+  VectorCopy( start, bolt->r.currentOrigin );
 
   return bolt;
 } 
@@ -318,7 +309,7 @@ gentity_t *fire_pulseRifle( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.weapon = WP_PULSE_RIFLE;
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
-  bolt->damage = 20;
+  bolt->damage = PRIFLE_DMG;
   bolt->splashDamage = 0;
   bolt->splashRadius = 0;
   //bolt->methodOfDeath = MOD_FLAMER;
@@ -329,10 +320,10 @@ gentity_t *fire_pulseRifle( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.pos.trType = TR_LINEAR;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
-  VectorScale( dir, 1500, bolt->s.pos.trDelta );
+  VectorScale( dir, PRIFLE_SPEED, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
 
-  VectorCopy (start, bolt->r.currentOrigin);
+  VectorCopy( start, bolt->r.currentOrigin );
 
   return bolt;
 }
@@ -349,7 +340,7 @@ gentity_t *fire_luciferCanon( gentity_t *self, vec3_t start, vec3_t dir, int dam
 {
   gentity_t *bolt;
   int localDamage = (int)( ceil( ( (float)damage /
-                                   (float)LC_TOTAL_CHARGE ) * 100.0f ) );
+                                   (float)LCANON_TOTAL_CHARGE ) * (float)LCANON_DAMAGE ) );
 
   VectorNormalize( dir );
 
@@ -374,10 +365,10 @@ gentity_t *fire_luciferCanon( gentity_t *self, vec3_t start, vec3_t dir, int dam
   bolt->s.pos.trType = TR_LINEAR;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
-  VectorScale( dir, 250, bolt->s.pos.trDelta );
+  VectorScale( dir, LCANON_SPEED, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
 
-  VectorCopy (start, bolt->r.currentOrigin);
+  VectorCopy( start, bolt->r.currentOrigin );
 
   return bolt;
 }
@@ -417,7 +408,7 @@ gentity_t *fire_lockblob( gentity_t *self, vec3_t start, vec3_t dir )
   VectorCopy( start, bolt->s.pos.trBase );
   VectorScale( dir, 500, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
-  VectorCopy (start, bolt->r.currentOrigin);
+  VectorCopy( start, bolt->r.currentOrigin );
 
   return bolt;
 }
@@ -442,7 +433,7 @@ gentity_t *fire_slowBlob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.weapon = WP_POUNCE_UPG;
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
-  bolt->damage = 20;
+  bolt->damage = DRAGOON_SLOWBLOB_DMG;
   bolt->splashDamage = 0;
   bolt->splashRadius = 0;
   bolt->methodOfDeath = MOD_ROCKET;
@@ -453,9 +444,9 @@ gentity_t *fire_slowBlob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.pos.trType = TR_GRAVITY;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
-  VectorScale( dir, 800, bolt->s.pos.trDelta );
+  VectorScale( dir, DRAGOON_SLOWBLOB_SPEED, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
-  VectorCopy (start, bolt->r.currentOrigin);
+  VectorCopy( start, bolt->r.currentOrigin );
 
   return bolt;
 }
@@ -491,9 +482,9 @@ gentity_t *fire_paraLockBlob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.pos.trType = TR_GRAVITY;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
-  VectorScale( dir, 800, bolt->s.pos.trDelta );
+  VectorScale( dir, LOCKBLOB_SPEED, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
-  VectorCopy (start, bolt->r.currentOrigin);
+  VectorCopy( start, bolt->r.currentOrigin );
 
   return bolt;
 }

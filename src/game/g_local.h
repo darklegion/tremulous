@@ -312,9 +312,6 @@ struct gclient_s
   vec3_t              damage_from;      // origin for vector calculation
   qboolean            damage_fromWorld; // if true, don't use the damage_from vector
 
-  int                 accurateCount;    // for "impressive" reward sound
-  int                 accuracy_shots;   // total number of shots
-  int                 accuracy_hits;    // total number of hits
   //
   int                 lastkilled_client;// last client that this client killed
   int                 lasthurt_client;  // last client that damaged this client
@@ -754,7 +751,6 @@ extern  vmCvar_t  g_maxclients;     // allow this many total, including spectato
 extern  vmCvar_t  g_maxGameClients;   // allow this many active
 extern  vmCvar_t  g_restarted;
 
-extern  vmCvar_t  g_dmflags;
 extern  vmCvar_t  g_timelimit;
 extern  vmCvar_t  g_friendlyFire;
 extern  vmCvar_t  g_password;

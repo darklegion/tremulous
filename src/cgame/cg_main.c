@@ -564,7 +564,6 @@ called during a precache command
 static void CG_RegisterSounds( void )
 {
   int         i;
-  char        items[ MAX_ITEMS + 1 ];
   char        name[ MAX_QPATH ];
   const char  *soundName;
 
@@ -623,9 +622,6 @@ static void CG_RegisterSounds( void )
     cgs.media.footsteps[ FOOTSTEP_METAL ][ i ] = trap_S_RegisterSound( name, qfalse );
   }
 
-  // only register the items that the server says we need
-  strcpy( items, CG_ConfigString( CS_ITEMS ) );
-
   for( i = 1 ; i < MAX_SOUNDS ; i++ )
   {
     soundName = CG_ConfigString( CS_SOUNDS + i );
@@ -669,7 +665,6 @@ This function may execute for a couple of minutes with a slow disk.
 static void CG_RegisterGraphics( void )
 {
   int         i;
-  char        items[ MAX_ITEMS + 1 ];
   static char *sb_nums[ 11 ] =
   {
     "gfx/2d/numbers/zero_32b",
@@ -781,9 +776,6 @@ static void CG_RegisterGraphics( void )
 
   memset( cg_weapons, 0, sizeof( cg_weapons ) );
   memset( cg_upgrades, 0, sizeof( cg_upgrades ) );
-
-  // only register the items that the server says we need
-  strcpy( items, CG_ConfigString( CS_ITEMS) );
 
   // wall marks
   cgs.media.bulletMarkShader          = trap_R_RegisterShader( "gfx/damage/bullet_mrk" );
@@ -1502,6 +1494,12 @@ static void CG_RunCinematicFrame( int handle )
   trap_CIN_RunCinematic( handle );
 }
 
+//TA: hack to prevent warning
+static qboolean CG_OwnerDrawVisible( int parameter )
+{
+  return qfalse;
+}
+
 /*
 =================
 CG_LoadHudMenu
@@ -1531,7 +1529,7 @@ void CG_LoadHudMenu( )
   cgDC.registerFont         = &trap_R_RegisterFont;
   cgDC.ownerDrawItem        = &CG_OwnerDraw;
   cgDC.getValue             = &CG_GetValue;
-  cgDC.ownerDrawVisible     = NULL; //&CG_OwnerDrawVisible;
+  cgDC.ownerDrawVisible     = &CG_OwnerDrawVisible;
   cgDC.runScript            = &CG_RunMenuScript;
   cgDC.getTeamColor         = &CG_GetTeamColor;
   cgDC.setCVar              = trap_Cvar_Set;

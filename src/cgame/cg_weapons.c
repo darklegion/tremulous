@@ -99,7 +99,7 @@ void CG_TeslaTrail( vec3_t start, vec3_t end, int srcENum, int destENum )
   refEntity_t   *re;
   
   //add a bunch of bolt segments
-  le = CG_AllocLocalEntity();
+  le = CG_AllocLocalEntity( );
   re = &le->refEntity;
 
   le->leType = LE_LIGHTNING_BOLT;
@@ -141,8 +141,7 @@ void CG_AlienZap( vec3_t start, vec3_t end, int srcENum, int destENum )
   le->destENum = destENum;
   le->vOffset = -4;
 
-  //FIXME: share with server
-  le->maxRange = 200;
+  le->maxRange = CHIMERA_AREAZAP_RANGE;
 
   VectorCopy( start, re->origin );
   VectorCopy( end, re->oldorigin );
@@ -563,7 +562,7 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin )
   VectorMA( muzzlePoint, 14, forward, muzzlePoint );
 
   // project forward by the lightning range
-  VectorMA( muzzlePoint, LIGHTNING_RANGE, forward, endPoint );
+  VectorMA( muzzlePoint, TESLAGEN_RANGE, forward, endPoint );
 
   // see if it hit a wall
   CG_Trace( &trace, muzzlePoint, vec3_origin, vec3_origin, endPoint,
@@ -673,6 +672,7 @@ static void CG_PoisonCloud( centity_t *cent, int firstPoisonTime )
   cent->poisonTime = cg.time + POISONCLOUD_GAP;
 }
 
+#define FIREBALL_GAP              15    //basically as fast as possible yet regular
 
 /*
 ===============
@@ -697,7 +697,7 @@ static void CG_FlameTrail( centity_t *cent )
   {
     AngleVectors( cg.refdefViewAngles, forward, right, up );
     VectorCopy( cg.refdef.vieworg, muzzlePoint );
-    VectorScale( cg.predictedPlayerState.velocity, FIREBALL_LAG, pVelocity );
+    VectorScale( cg.predictedPlayerState.velocity, FLAMER_LAG, pVelocity );
   }
   else
   {
@@ -706,10 +706,10 @@ static void CG_FlameTrail( centity_t *cent )
 
     //FIXME: this is gonna look weird when crouching
     muzzlePoint[ 2 ] += DEFAULT_VIEWHEIGHT;
-    VectorScale( cent->currentState.pos.trDelta, FIREBALL_LAG, pVelocity );
+    VectorScale( cent->currentState.pos.trDelta, FLAMER_LAG, pVelocity );
   }
   
-  VectorMA( pVelocity, FIREBALL_SPEED, forward, velocity );
+  VectorMA( pVelocity, FLAMER_SPEED, forward, velocity );
 
   //FIXME: tweak these numbers when (if?) the flamer model is done
   VectorMA( muzzlePoint, 24.0f, forward, muzzlePoint );
@@ -718,7 +718,7 @@ static void CG_FlameTrail( centity_t *cent )
   
   CG_LaunchSprite( muzzlePoint, velocity, vec3_origin, 0.0f,
                    0.1f, 4.0f, 40.0f, 255.0f, 255.0f,
-                   rand( ) % 360, cg.time, cg.time, FIREBALL_LIFETIME,
+                   rand( ) % 360, cg.time, cg.time, FLAMER_LIFETIME,
                    cgs.media.flameShader[ 0 ], qfalse, qfalse );
 
   //set next ball time
@@ -1012,7 +1012,7 @@ void CG_AddViewWeapon( playerState_t *ps )
 
   if( ps->weapon == WP_LUCIFER_CANON && ps->stats[ STAT_MISC ] > 0 )
   {
-    float fraction = (float)ps->stats[ STAT_MISC ] / (float)LC_TOTAL_CHARGE;
+    float fraction = (float)ps->stats[ STAT_MISC ] / (float)LCANON_TOTAL_CHARGE;
 
     VectorMA( hand.origin, random( ) * fraction, cg.refdef.viewaxis[ 0 ], hand.origin );
     VectorMA( hand.origin, random( ) * fraction, cg.refdef.viewaxis[ 1 ], hand.origin );

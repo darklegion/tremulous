@@ -486,7 +486,7 @@ static void CG_OffsetFirstPersonView( void )
       AngleVectors( angles, forward, NULL, NULL );
       VectorNormalize( forward );
 
-      fraction1 = (float)( cg.time - cg.weapon2Time ) / POUNCE_TIME;
+      fraction1 = (float)( cg.time - cg.weapon2Time ) / (float)DRAGOON_POUNCE_TIME;
 
       if( fraction1 > 1.0f )
         fraction1 = 1.0f;
@@ -556,8 +556,8 @@ static void CG_OffsetFirstPersonView( void )
     float fraction = sin( ( (float)cg.time / 1000.0f ) * M_PI * 2 * PCLOUD_ROLL_FREQUENCY );
     float pitchFraction = sin( ( (float)cg.time / 1000.0f ) * M_PI * 5 * PCLOUD_ROLL_FREQUENCY );
 
-    fraction *= 1.0f - ( ( cg.time - cg.firstPoisonedTime ) / (float)PCLOUD_TIME );
-    pitchFraction *= 1.0f - ( ( cg.time - cg.firstPoisonedTime ) / (float)PCLOUD_TIME );
+    fraction *= 1.0f - ( ( cg.time - cg.firstPoisonedTime ) / (float)HYDRA_PCLOUD_TIME );
+    pitchFraction *= 1.0f - ( ( cg.time - cg.firstPoisonedTime ) / (float)HYDRA_PCLOUD_TIME );
 
     angles[ ROLL ] += fraction * PCLOUD_ROLL_AMPLITUDE;
     angles[ YAW ] += fraction * PCLOUD_ROLL_AMPLITUDE;
@@ -602,7 +602,7 @@ static void CG_OffsetFirstPersonView( void )
     //bit closer to the ground
     mins[ 2 ] = -1.0f;
     
-    deltaTime = cg.time - ( cg.firstKnockedTime + (int)( (float)KOVER_TIME / 5.0f ) );
+    deltaTime = cg.time - ( cg.firstKnockedTime + (int)( (float)BMOFO_KOVER_TIME / 5.0f ) );
     
     if( deltaTime < 0 )
     {
@@ -625,7 +625,7 @@ static void CG_OffsetFirstPersonView( void )
       CG_Trace( &tr, baseOrigin, mins, maxs, origin, cg.predictedPlayerState.clientNum, MASK_SOLID );
       VectorCopy( tr.endpos, origin );
 
-      rollFraction = (float)deltaTime / ( (float)KOVER_TIME / 6.0f );
+      rollFraction = (float)deltaTime / ( (float)BMOFO_KOVER_TIME / 6.0f );
 
       if( rollFraction > 1.0f )
         rollFraction = 1.0f;
@@ -655,7 +655,7 @@ static void CG_OffsetFirstPersonView( void )
     
     deltaTime = cg.time - cg.firstGetUpTime;
 
-    rollFraction = (float)deltaTime / (float)GETUP_TIME;
+    rollFraction = (float)deltaTime / (float)BMOFO_GETUP_TIME;
 
     if( rollFraction > 1.0f )
       rollFraction = 1.0f;
@@ -872,7 +872,7 @@ static int CG_CalcFov( void )
   {
     phase = cg.time / 1000.0 * PCLOUD_ZOOM_FREQUENCY * M_PI * 2;
     v = PCLOUD_ZOOM_AMPLITUDE * sin( phase );
-    v *= 1.0f - ( ( cg.time - cg.firstPoisonedTime ) / (float)PCLOUD_TIME );
+    v *= 1.0f - ( ( cg.time - cg.firstPoisonedTime ) / (float)HYDRA_PCLOUD_TIME );
     fov_x += v;
     fov_y += v;
   }

@@ -328,7 +328,7 @@ void CG_GetColorForHealth( int health, int armor, vec4_t hcolor )
   }
   
   count = armor;
-  max = health * ARMOR_PROTECTION / ( 1.0 - ARMOR_PROTECTION );
+  max = health;
   
   if( max < count )
     count = max;

@@ -185,9 +185,8 @@ static void PM_Friction( void )
 
   //TA: make sure vertical velocity is NOT set to zero when wall climbing
   VectorCopy( vel, vec );
-  if( pml.walking &&
-      !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
-    vec[2] = 0; // ignore slope movement
+  if( pml.walking && !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
+    vec[ 2 ] = 0; // ignore slope movement
 
   speed = VectorLength( vec );
   
@@ -315,18 +314,18 @@ static float PM_CmdScale( usercmd_t *cmd )
     if( !( pm->ps->stats[ STAT_STATE ] & SS_SPEEDBOOST ) )
     {
       //if not sprinting
-      modifier *= 0.8;
+      modifier *= HUMAN_JOG_MODIFIER;
     }
 
     if( cmd->forwardmove < 0 )
     {
       //can't run backwards
-      modifier *= 0.5;
+      modifier *= HUMAN_BACK_MODIFIER;
     }
     else if( cmd->rightmove )
     {
       //can't move that fast sideways
-      modifier *= 0.75;
+      modifier *= HUMAN_SIDE_MODIFIER;
     }
 
     //must have +ve stamina to jump
@@ -697,9 +696,9 @@ static void PM_JetPackMove( void )
     wishvel[ i ] = scale * pml.forward[ i ] * pm->cmd.forwardmove + scale * pml.right[ i ] * pm->cmd.rightmove;
 
   if( pm->cmd.upmove > 0.0f )
-    wishvel[ 2 ] = 48.0f;
+    wishvel[ 2 ] = JETPACK_FLOAT_SPEED;
   if( pm->cmd.upmove < 0.0f )
-    wishvel[ 2 ] = -96.0f;
+    wishvel[ 2 ] = -JETPACK_SINK_SPEED;
 
   VectorCopy( wishvel, wishdir );
   wishspeed = VectorNormalize( wishdir );
@@ -1197,13 +1196,13 @@ Returns an event number apropriate for the groundsurface
 static int PM_FootstepForSurface( void )
 {
   //TA:
-  if ( pm->ps->stats[ STAT_STATE ] & SS_CREEPSLOWED )
+  if( pm->ps->stats[ STAT_STATE ] & SS_CREEPSLOWED )
     return EV_FOOTSTEP_SQUELCH;
     
-  if ( pml.groundTrace.surfaceFlags & SURF_NOSTEPS ) 
+  if( pml.groundTrace.surfaceFlags & SURF_NOSTEPS ) 
     return 0;
     
-  if ( pml.groundTrace.surfaceFlags & SURF_METALSTEPS )
+  if( pml.groundTrace.surfaceFlags & SURF_METALSTEPS )
     return EV_FOOTSTEP_METAL;
     
   return EV_FOOTSTEP;
@@ -1441,7 +1440,7 @@ static void PM_GroundClimbTrace( void )
       VectorNegate( movedir, movedir );
   }
   
-  for(i = 0; i <= 4; i++)
+  for( i = 0; i <= 4; i++ )
   {
     switch ( i )
     {
@@ -1612,7 +1611,7 @@ static void PM_GroundClimbTrace( void )
           vectoangles( trace.plane.normal, toAngles );
           vectoangles( pm->ps->grapplePoint, surfAngles );
 
-          pm->ps->delta_angles[1] -= ANGLE2SHORT( ( ( surfAngles[1] - toAngles[1] ) * 2 ) - 180 );
+          pm->ps->delta_angles[ 1 ] -= ANGLE2SHORT( ( ( surfAngles[ 1 ] - toAngles[ 1 ] ) * 2 ) - 180 );
         }
       }
 
@@ -2160,27 +2159,6 @@ static void PM_TorsoAnimation( void )
     PM_ContinueTorsoAnim( TORSO_STAND );
 }
 
-//synced alt weapons look like the way to go - simpler anyway...
-#if 0
-static void PM_packWeaponTime( int *psWeaponTime, int weaponTime1, int weaponTime2 )
-{
-  if( weaponTime1 < 0 && weaponTime2 >= 0 )
-    *psWeaponTime = ( *psWeaponTime & 0x00FF ) | ( ( ( weaponTime2 / 10 ) << 8 ) & 0xFF00 );
-  if( weaponTime2 < 0 && weaponTime1 >= 0 )
-    *psWeaponTime = ( ( weaponTime1 / 10 ) & 0x00FF ) | ( *psWeaponTime & 0xFF00 );
-  else if( weaponTime1 >= 0 && weaponTime2 >= 0 )
-    *psWeaponTime = ( ( weaponTime1 / 10 ) & 0x00FF ) | ( ( ( weaponTime2 / 10 ) << 8 ) & 0xFF00 );
-}
-
-static void PM_unpackWeaponTime( int psWeaponTime, int *weaponTime1, int *weaponTime2 )
-{
-  if( weaponTime1 != NULL )
-    *weaponTime1 = ( psWeaponTime & 0x00FF ) * 10;
-
-  if( weaponTime2 != NULL )
-    *weaponTime2 = ( ( psWeaponTime & 0x00FF ) >> 8 ) * 10;
-}
-#endif
 
 /*
 ==============
@@ -2191,11 +2169,11 @@ Generates weapon events and modifes the weapon counter
 */
 static void PM_Weapon( void )
 {
-  int addTime;
-  int ammo, clips, maxclips;
-  qboolean attack1 = qfalse;
-  qboolean attack2 = qfalse;
-  qboolean attack3 = qfalse;
+  int       addTime = 200; //default addTime - should never be used
+  int       ammo, clips, maxclips;
+  qboolean  attack1 = qfalse;
+  qboolean  attack2 = qfalse;
+  qboolean  attack3 = qfalse;
   
   // don't allow attack until all buttons are up
   if( pm->ps->pm_flags & PMF_RESPAWNED )
@@ -2263,13 +2241,13 @@ static void PM_Weapon( void )
       pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
   }
   
-  if ( pm->ps->weaponTime > 0 )
+  if( pm->ps->weaponTime > 0 )
     return;
 
   // change weapon if time
-  if ( pm->ps->weaponstate == WEAPON_DROPPING )
+  if( pm->ps->weaponstate == WEAPON_DROPPING )
   {
-    PM_FinishWeaponChange();
+    PM_FinishWeaponChange( );
     return;
   }
 
@@ -2303,7 +2281,7 @@ static void PM_Weapon( void )
 
     if( BG_FindUsesEnergyForWeapon( pm->ps->weapon ) &&
         BG_gotItem( UP_BATTPACK, pm->ps->stats ) )
-      ammo *= 2;
+      ammo = (int)( (float)ammo * BATTPACK_MODIFIER );
     
     BG_packAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
   }
@@ -2395,6 +2373,7 @@ static void PM_Weapon( void )
       }
 
       PM_AddEvent( EV_FIRE_WEAPON3 );
+      addTime = BG_FindRepeatRate3ForWeapon( pm->ps->weapon );
     }
     else
     {
@@ -2408,6 +2387,7 @@ static void PM_Weapon( void )
     if( BG_WeaponHasAltMode( pm->ps->weapon ) )
     {
       PM_AddEvent( EV_FIRE_WEAPON2 );
+      addTime = BG_FindRepeatRate2ForWeapon( pm->ps->weapon );
     }
     else
     {
@@ -2417,7 +2397,10 @@ static void PM_Weapon( void )
     }
   }
   else if( attack1 )
+  {
     PM_AddEvent( EV_FIRE_WEAPON );
+    addTime = BG_FindRepeatRate1ForWeapon( pm->ps->weapon );
+  }
 
   //TA: fire events for autohit weapons
   if( pm->autoWeaponHit[ pm->ps->weapon ] )
@@ -2426,11 +2409,13 @@ static void PM_Weapon( void )
     {
       case WP_VENOM:
         PM_AddEvent( EV_FIRE_WEAPON );
+        addTime = BG_FindRepeatRate1ForWeapon( pm->ps->weapon );
         break;
     
       case WP_POUNCE:
       case WP_POUNCE_UPG:
         PM_AddEvent( EV_FIRE_WEAPON2 );
+        addTime = BG_FindRepeatRate2ForWeapon( pm->ps->weapon );
         break;
 
       default:
@@ -2448,7 +2433,7 @@ static void PM_Weapon( void )
     //special case for lCanon
     if( pm->ps->weapon == WP_LUCIFER_CANON && attack1 )
     {
-      ammo -= (int)( ceil( ( (float)pm->ps->stats[ STAT_MISC ] / (float)LC_TOTAL_CHARGE ) * 10.0f ) );
+      ammo -= (int)( ceil( ( (float)pm->ps->stats[ STAT_MISC ] / (float)LCANON_TOTAL_CHARGE ) * 10.0f ) );
 
       //stay on the safe side
       if( ammo < 0 )
@@ -2466,8 +2451,6 @@ static void PM_Weapon( void )
     BG_packAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
   }
   
-  addTime = BG_FindRepeatRateForWeapon( pm->ps->weapon );
-
   //FIXME: predicted angles miss a problem??
   if( pm->ps->weapon == WP_CHAINGUN )
   {
@@ -2598,7 +2581,6 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
   AxisToAngles( rotaxis, tempang );
 
   //force angles to -180 <= x <= 180
-  //AnglesSubtract( tempang2, 0, tempang2 );
   for( i = 0; i < 3; i++ )
   {
     while( tempang[ i ] > 180 )
@@ -2631,7 +2613,7 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
     }
   }
 
-  //fiz the view to the lock point
+  //fix the view to the lock point
   if( ps->pm_type == PM_KNOCKED )
   {
     for( i = 0; i < 3; i++ )

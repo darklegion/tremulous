@@ -231,7 +231,7 @@ static qboolean findCreep( gentity_t *self )
       }
     }
     
-    if( minDistance <= ( CREEP_BASESIZE * 3 ) )
+    if( minDistance <= CREEP_BASESIZE )
     {
       self->parentNode = closestSpawn;
       return qtrue;
@@ -363,8 +363,8 @@ void ASpawn_Blast( gentity_t *self )
   vec3_t  dir;
 
   // we don't have a valid direction, so just point straight up
-  dir[0] = dir[1] = 0;
-  dir[2] = 1;
+  dir[ 0 ] = dir[ 1 ] = 0;
+  dir[ 2 ] = 1;
 
   //do a bit of radius damage
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
@@ -472,7 +472,7 @@ think function for Alien Acid Tube
 void AOvermind_Think( gentity_t *self )
 {
   int       entityList[ MAX_GENTITIES ];
-  vec3_t    range = { 200, 200, 200 };
+  vec3_t    range = { OVERMIND_ATTACK_RANGE, OVERMIND_ATTACK_RANGE, OVERMIND_ATTACK_RANGE };
   vec3_t    mins, maxs;
   int       i, num;
   gentity_t *enemy;
@@ -518,7 +518,7 @@ pain function for Alien Spawn
 */
 void ABarricade_Pain( gentity_t *self, gentity_t *attacker, int damage )
 {
-  if( random() > 0.5f )
+  if( rand( ) % 1 )
     G_setBuildableAnim( self, BANIM_PAIN1, qfalse );
   else
     G_setBuildableAnim( self, BANIM_PAIN2, qfalse );
@@ -536,8 +536,8 @@ void ABarricade_Blast( gentity_t *self )
   vec3_t  dir;
 
   // we don't have a valid direction, so just point straight up
-  dir[0] = dir[1] = 0;
-  dir[2] = 1;
+  dir[ 0 ] = dir[ 1 ] = 0;
+  dir[ 2 ] = 1;
 
   //do a bit of radius damage
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
@@ -617,7 +617,7 @@ void AAcidTube_Damage( gentity_t *self )
     G_AddEvent( self, EV_GIB_ALIEN, DirToByte( self->s.origin2 ) );
   }
     
-  if( ( self->timestamp + 10000 ) > level.time )
+  if( ( self->timestamp + ACIDTUBE_REPEAT ) > level.time )
     self->think = AAcidTube_Damage;
   else
   {
@@ -642,7 +642,7 @@ think function for Alien Acid Tube
 void AAcidTube_Think( gentity_t *self )
 {
   int       entityList[ MAX_GENTITIES ];
-  vec3_t    range = { 200, 200, 200 };
+  vec3_t    range = { ACIDTUBE_RANGE, ACIDTUBE_RANGE, ACIDTUBE_RANGE };
   vec3_t    mins, maxs;
   int       i, num;
   gentity_t *enemy;
@@ -669,6 +669,7 @@ void AAcidTube_Think( gentity_t *self )
       self->think = AAcidTube_Damage;
       self->nextthink = level.time + 100;
       G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
+      return;
     }
   }
 
@@ -757,8 +758,8 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   vec3_t  dir;
 
   // we don't have a valid direction, so just point straight up
-  dir[0] = dir[1] = 0;
-  dir[2] = 1;
+  dir[ 0 ] = dir[ 1 ] = 0;
+  dir[ 2 ] = 1;
 
   //do a bit of radius damage
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
@@ -843,7 +844,7 @@ void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
   gclient_t *client = other->client;
   
   //only allow boostage once every 30 seconds
-  if( client->lastBoostedTime + 30000 > level.time )
+  if( client->lastBoostedTime + BOOSTER_INTERVAL > level.time )
     return;
   
   //restore ammo, if any
@@ -862,9 +863,6 @@ void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 //==================================================================================
 
-
-#define BLOB_PROJSPEED  500
-#define MIN_DOT         0.85f // max angle = acos( MIN_DOT )
 
 /*
 ================
@@ -885,7 +883,7 @@ void adef_fireonenemy( gentity_t *self, int firespeed )
   VectorScale( self->enemy->jerk, 1.0f / 3.0f, thirdJerk );
 
   //O( time ) - worst case O( time ) = 250 iterations
-  for( i = 0; ( i * BLOB_PROJSPEED ) / 1000.0f < distanceToTarget; i++ )
+  for( i = 0; ( i * LOCKBLOB_SPEED ) / 1000.0f < distanceToTarget; i++ )
   {
     float time = (float)i / 1000.0f;
 
@@ -943,7 +941,7 @@ qboolean adef_checktarget( gentity_t *self, gentity_t *target, int range )
 
   //only allow a narrow field of "vision"
   VectorNormalize( distance ); //is now direction of target
-  if( DotProduct( distance, self->s.origin2 ) < MIN_DOT )
+  if( DotProduct( distance, self->s.origin2 ) < LOCKBLOB_DOT )
     return qfalse;
 
   trap_Trace( &trace, self->s.pos.trBase, NULL, NULL, target->s.pos.trBase, self->s.number, MASK_SHOT );
@@ -1048,8 +1046,6 @@ void HRpt_Think( gentity_t *self )
   self->nextthink = level.time + REFRESH_TIME;
 }
 
-#define REFIL_TIME 500 //1/2 second between every clip refil
-
 /*
 ================
 HRpt_Use
@@ -1064,7 +1060,7 @@ void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 
   playerState_t *ps = &activator->client->ps;
 
-  if( activator->client->lastRefilTime + REFIL_TIME > level.time )
+  if( activator->client->lastRefilTime + ENERGY_REFIL_TIME > level.time )
     return;
   
   if( !BG_FindUsesEnergyForWeapon( ps->weapon ) )
@@ -1073,7 +1069,7 @@ void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
   BG_FindAmmoForWeapon( ps->weapon, &maxAmmo, NULL, &maxClips );
   
   if( BG_gotItem( UP_BATTPACK, ps->stats ) )
-    maxAmmo *= 2;
+    maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
   
   BG_unpackAmmoArray( ps->weapon, ps->ammo, ps->powerups, &ammo, &clips, NULL );
 
@@ -1202,9 +1198,6 @@ void HDCC_Think( gentity_t *self )
 
 //==================================================================================
 
-#define MAX_MEDISTAT_CLIENTS    1
-#define MAX_ADVMEDISTAT_CLIENTS 3
-
 /*
 ================
 HMedistat_Think
@@ -1325,8 +1318,8 @@ void HFM_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int da
   vec3_t  dir;
   
   // we don't have a valid direction, so just point straight up
-  dir[0] = dir[1] = 0;
-  dir[2] = -1;
+  dir[ 0 ] = dir[ 1 ] = 0;
+  dir[ 2 ] = -1;
 
   //do a bit of radius damage
   G_RadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
@@ -1366,10 +1359,6 @@ void HFM_Think( gentity_t *self )
 
 //==================================================================================
 
-#define HMGTURRET_ANGULARSPEED      20  //degrees/think ~= 200deg/sec
-#define HMGTURRET_ACCURACYTOLERANCE HMGTURRET_ANGULARSPEED / 2 //angular difference for turret to fire
-#define HMGTURRET_VERTICALCAP       30  //- maximum pitch
-
 /*
 ================
 HMGTurret_TrackEnemy
@@ -1398,10 +1387,10 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
   angularDiff[ YAW ] = AngleSubtract( self->s.angles2[ YAW ], angleToTarget[ YAW ] );
 
   //if not pointing at our target then move accordingly
-  if( angularDiff[ PITCH ] < -HMGTURRET_ACCURACYTOLERANCE )
-    self->s.angles2[ PITCH ] += HMGTURRET_ANGULARSPEED;
-  else if( angularDiff[ PITCH ] > HMGTURRET_ACCURACYTOLERANCE )
-    self->s.angles2[ PITCH ] -= HMGTURRET_ANGULARSPEED;
+  if( angularDiff[ PITCH ] < -MGTURRET_ACCURACYTOLERANCE )
+    self->s.angles2[ PITCH ] += MGTURRET_ANGULARSPEED;
+  else if( angularDiff[ PITCH ] > MGTURRET_ACCURACYTOLERANCE )
+    self->s.angles2[ PITCH ] -= MGTURRET_ANGULARSPEED;
   else
     self->s.angles2[ PITCH ] = angleToTarget[ PITCH ];
 
@@ -1410,14 +1399,14 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
   if( temp > 180 )
     temp -= 360;
   
-  if( temp < -HMGTURRET_VERTICALCAP )
-    self->s.angles2[ PITCH ] = (-360)+HMGTURRET_VERTICALCAP;
+  if( temp < -MGTURRET_VERTICALCAP )
+    self->s.angles2[ PITCH ] = (-360) + MGTURRET_VERTICALCAP;
     
   //if not pointing at our target then move accordingly
-  if( angularDiff[ YAW ] < -HMGTURRET_ACCURACYTOLERANCE )
-    self->s.angles2[ YAW ] += HMGTURRET_ANGULARSPEED;
-  else if( angularDiff[ YAW ] > HMGTURRET_ACCURACYTOLERANCE )
-    self->s.angles2[ YAW ] -= HMGTURRET_ANGULARSPEED;
+  if( angularDiff[ YAW ] < -MGTURRET_ACCURACYTOLERANCE )
+    self->s.angles2[ YAW ] += MGTURRET_ANGULARSPEED;
+  else if( angularDiff[ YAW ] > MGTURRET_ACCURACYTOLERANCE )
+    self->s.angles2[ YAW ] -= MGTURRET_ANGULARSPEED;
   else
     self->s.angles2[ YAW ] = angleToTarget[ YAW ];
     
@@ -1426,8 +1415,8 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
   vectoangles( dirToTarget, self->turretAim );
 
   //if pointing at our target return true
-  if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= HMGTURRET_ACCURACYTOLERANCE &&
-      abs( angleToTarget[ PITCH ] - self->s.angles2[ PITCH ] ) <= HMGTURRET_ACCURACYTOLERANCE )
+  if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= MGTURRET_ACCURACYTOLERANCE &&
+      abs( angleToTarget[ PITCH ] - self->s.angles2[ PITCH ] ) <= MGTURRET_ACCURACYTOLERANCE )
     return qtrue;
     
   return qfalse;
@@ -1625,8 +1614,8 @@ void HSpawn_Blast( gentity_t *self )
   vec3_t  dir;
 
   // we don't have a valid direction, so just point straight up
-  dir[0] = dir[1] = 0;
-  dir[2] = 1;
+  dir[ 0 ] = dir[ 1 ] = 0;
+  dir[ 2 ] = 1;
 
   self->s.modelindex = 0; //don't draw the model once its destroyed
   G_AddEvent( self, EV_BUILDABLE_EXPLOSION, DirToByte( dir ) );
@@ -1657,7 +1646,7 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   
   self->die = nullDieFunction;
   self->think = HSpawn_Blast;
-  self->nextthink = level.time + 5000; //wait 1.5 seconds before damaging others
+  self->nextthink = level.time + HUMAN_DETONATION_DELAY;
   self->powered = qfalse; //free up power
 
   trap_LinkEntity( self );
@@ -1675,7 +1664,7 @@ void HSpawn_Think( gentity_t *self )
   vec3_t    mins, maxs, origin;
   gentity_t *ent;
   trace_t   tr;
-  vec3_t    up = { 0, 0, 1 };
+  vec3_t    up = { 0.0f, 0.0f, 1.0f };
 
   BG_FindBBoxForClass( PCL_H_BASE, mins, maxs, NULL, NULL, NULL );
 
@@ -1912,7 +1901,6 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   BG_FindBBoxForBuildable( buildable, built->r.mins, built->r.maxs );
   built->health = BG_FindHealthForBuildable( buildable );
   
-  built->damage = BG_FindDamageForBuildable( buildable );
   built->splashDamage = BG_FindSplashDamageForBuildable( buildable );
   built->splashRadius = BG_FindSplashRadiusForBuildable( buildable );
   built->splashMethodOfDeath = BG_FindMODForBuildable( buildable );
@@ -2207,9 +2195,6 @@ void FinishSpawningBuildable( gentity_t *ent )
 
   trap_LinkEntity( built );
 }
-
-
-qboolean  itemRegistered[MAX_ITEMS];
 
 /*
 ============

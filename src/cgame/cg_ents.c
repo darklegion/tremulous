@@ -292,7 +292,7 @@ static void CG_Missile( centity_t *cent )
 
       RotateAroundDirection( ent.axis, cg.time / 4 );
 
-      fraction = (float)s1->generic1 / (float)LC_TOTAL_CHARGE;
+      fraction = (float)s1->generic1 / (float)LCANON_TOTAL_CHARGE;
       VectorScale( ent.axis[ 0 ], fraction, ent.axis[ 0 ] );
       VectorScale( ent.axis[ 1 ], fraction, ent.axis[ 1 ] );
       VectorScale( ent.axis[ 2 ], fraction, ent.axis[ 2 ] );

@@ -474,9 +474,9 @@ void ClientTimerActions( gentity_t *ent, int msec )
     //client is charging up for a pounce
     if( client->ps.weapon == WP_POUNCE || client->ps.weapon == WP_POUNCE_UPG )
     {
-      if( client->ps.stats[ STAT_MISC ] < MAX_POUNCE_SPEED && ucmd->buttons & BUTTON_ATTACK2 )
+      if( client->ps.stats[ STAT_MISC ] < DRAGOON_POUNCE_SPEED && ucmd->buttons & BUTTON_ATTACK2 )
       {
-        client->ps.stats[ STAT_MISC ] += ( 100.0f / POUNCE_TIME ) * MAX_POUNCE_SPEED;
+        client->ps.stats[ STAT_MISC ] += ( 100.0f / (float)DRAGOON_POUNCE_TIME ) * DRAGOON_POUNCE_SPEED;
         client->allowedToPounce = qtrue;
       }
 
@@ -488,8 +488,8 @@ void ClientTimerActions( gentity_t *ent, int msec )
         client->ps.stats[ STAT_MISC ] = 0;
       }
 
-      if( client->ps.stats[ STAT_MISC ] > MAX_POUNCE_SPEED )
-        client->ps.stats[ STAT_MISC ] = MAX_POUNCE_SPEED;
+      if( client->ps.stats[ STAT_MISC ] > DRAGOON_POUNCE_SPEED )
+        client->ps.stats[ STAT_MISC ] = DRAGOON_POUNCE_SPEED;
     }
 
     //client is charging up an lcanon
@@ -499,14 +499,14 @@ void ClientTimerActions( gentity_t *ent, int msec )
       
       BG_unpackAmmoArray( WP_LUCIFER_CANON, client->ps.ammo, client->ps.powerups, &ammo, NULL, NULL );
       
-      if( client->ps.stats[ STAT_MISC ] < LC_TOTAL_CHARGE && ucmd->buttons & BUTTON_ATTACK )
-        client->ps.stats[ STAT_MISC ] += ( 100.0f / LC_CHARGE_TIME ) * LC_TOTAL_CHARGE;
+      if( client->ps.stats[ STAT_MISC ] < LCANON_TOTAL_CHARGE && ucmd->buttons & BUTTON_ATTACK )
+        client->ps.stats[ STAT_MISC ] += ( 100.0f / LCANON_CHARGE_TIME ) * LCANON_TOTAL_CHARGE;
       
-      if( client->ps.stats[ STAT_MISC ] > LC_TOTAL_CHARGE )
-        client->ps.stats[ STAT_MISC ] = LC_TOTAL_CHARGE;
+      if( client->ps.stats[ STAT_MISC ] > LCANON_TOTAL_CHARGE )
+        client->ps.stats[ STAT_MISC ] = LCANON_TOTAL_CHARGE;
 
-      if( client->ps.stats[ STAT_MISC ] > ( ammo * LC_TOTAL_CHARGE ) / 10 )
-        client->ps.stats[ STAT_MISC ] = ammo * LC_TOTAL_CHARGE / 10;
+      if( client->ps.stats[ STAT_MISC ] > ( ammo * LCANON_TOTAL_CHARGE ) / 10 )
+        client->ps.stats[ STAT_MISC ] = ammo * LCANON_TOTAL_CHARGE / 10;
     }
     
     switch( client->ps.weapon )
@@ -547,13 +547,13 @@ void ClientTimerActions( gentity_t *ent, int msec )
 
     //client is poisoned
     if( client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED )
-      G_Damage( ent, NULL, NULL, NULL, NULL, 5, 0, MOD_VENOM );
+      G_Damage( ent, NULL, NULL, NULL, NULL, HYDRA_PCLOUD_DMG, 0, MOD_VENOM );
     
     //replenish alien health
     if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     {
       int       entityList[ MAX_GENTITIES ];
-      vec3_t    range = { 200, 200, 200 };
+      vec3_t    range = { BMOFO_REGEN_RANGE, BMOFO_REGEN_RANGE, BMOFO_REGEN_RANGE };
       vec3_t    mins, maxs, dir;
       int       i, num;
       gentity_t *alienPlayer;
@@ -570,7 +570,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
         if( alienPlayer->client && alienPlayer->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
             alienPlayer->client->ps.stats[ STAT_PCLASS ] == PCL_A_O_LEV4 )
         {
-          modifier = 2.0f;
+          modifier = BMOFO_REGEN_MOD;
           break;
         }
       }
@@ -640,9 +640,6 @@ void ClientEvents( gentity_t *ent, int oldEventSequence )
       case EV_FALL_FAR:
         if( ent->s.eType != ET_PLAYER )
           break;    // not in the player model
-
-        if( g_dmflags.integer & DF_NO_FALLING )
-          break;
 
         if( event == EV_FALL_FAR )
           damage = 10;
@@ -869,23 +866,27 @@ void ClientThink_real( gentity_t *ent )
     client->ps.pm_type = PM_NORMAL;
 
   if( client->ps.stats[ STAT_STATE ] & SS_GRABBED &&
-      client->lastGrabTime + 1000 < level.time )
+      client->lastGrabTime + HYDRA_GRAB_TIME < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_GRABBED;
 
   if( client->ps.stats[ STAT_STATE ] & SS_BLOBLOCKED &&
       client->lastLockTime + 5000 < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_BLOBLOCKED;
 
+  if( client->ps.stats[ STAT_STATE ] & SS_SLOWLOCKED &&
+      client->lastLockTime + DRAGOON_SLOWBLOB_TIME < level.time )
+    client->ps.stats[ STAT_STATE ] &= ~SS_SLOWLOCKED;
+
   if( client->ps.stats[ STAT_STATE ] & SS_BOOSTED &&
       client->lastBoostedTime + 20000 < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_BOOSTED;
 
   if( client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED &&
-      client->lastPoisonCloudedTime + PCLOUD_TIME < level.time )
+      client->lastPoisonCloudedTime + HYDRA_PCLOUD_TIME < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_POISONCLOUDED;
 
   if( client->ps.stats[ STAT_STATE ] & SS_KNOCKEDOVER &&
-      client->lastKnockedOverTime + KOVER_TIME < level.time &&
+      client->lastKnockedOverTime + BMOFO_KOVER_TIME < level.time &&
       ucmd->upmove > 0 )
   {
     client->lastGetUpTime = level.time;
@@ -901,7 +902,7 @@ void ClientThink_real( gentity_t *ent )
   }
 
   if( client->ps.stats[ STAT_STATE ] & SS_GETTINGUP &&
-      client->lastGetUpTime + GETUP_TIME < level.time )
+      client->lastGetUpTime + BMOFO_GETUP_TIME < level.time )
   {
     client->ps.stats[ STAT_STATE ] &= ~SS_GETTINGUP;
     VectorCopy( ent->client->ps.grapplePoint, ent->client->ps.viewangles );
@@ -927,20 +928,20 @@ void ClientThink_real( gentity_t *ent )
   //TA: slow player if charging up for a pounce
   if( ( client->ps.weapon == WP_POUNCE || client->ps.weapon == WP_POUNCE_UPG ) &&
       ucmd->buttons & BUTTON_ATTACK2 )
-    client->ps.speed *= 0.75;
+    client->ps.speed *= DRAGOON_POUNCE_SPEED_MOD;
 
   //TA: slow the player if slow locked
   if( client->ps.stats[ STAT_STATE ] & SS_SLOWLOCKED )
-    client->ps.speed *= 0.5;
+    client->ps.speed *= DRAGOON_SLOWBLOB_SPEED_MOD;
   
   //TA: slow player if standing in creep
-  for ( i = 1, creepNode = g_entities + i; i < level.num_entities; i++, creepNode++ )
+  for( i = 1, creepNode = g_entities + i; i < level.num_entities; i++, creepNode++ )
   {
     if( creepNode->biteam == PTE_ALIENS ) 
     {
       VectorSubtract( client->ps.origin, creepNode->s.origin, temp_v );
 
-      if( ( VectorLength( temp_v ) <= CREEP_BASESIZE ) &&
+      if( ( VectorLength( temp_v ) <= BG_FindCreepSizeForBuildable( creepNode->s.modelindex ) ) &&
           ( temp_v[ 2 ] <= 21 ) && //assumes mins of player is (x, x, -24)
           ( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) )
       {
@@ -1010,7 +1011,7 @@ void ClientThink_real( gentity_t *ent )
   pm.trace = trap_Trace;
   pm.pointcontents = trap_PointContents;
   pm.debugLevel = g_debugMove.integer;
-  pm.noFootsteps = ( g_dmflags.integer & DF_NO_FOOTSTEPS ) > 0;
+  pm.noFootsteps = 0;
 
   pm.pmove_fixed = pmove_fixed.integer | client->pers.pmoveFixed;
   pm.pmove_msec = pmove_msec.integer;

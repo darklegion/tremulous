@@ -1226,7 +1226,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   int                 savedPing;
   int                 ammoIndex, ammoSubIndex;
   int                 teamLocal;
-  int                 accuracy_hits, accuracy_shots;
   int                 eventSequence;
   char                userinfo[MAX_INFO_STRING];
   vec3_t              bodyMaxs, classMins, up = { 0, 0, 1 };
@@ -1305,8 +1304,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   saved = client->pers;
   savedSess = client->sess;
   savedPing = client->ps.ping;
-  accuracy_hits = client->accuracy_hits;
-  accuracy_shots = client->accuracy_shots;
   
   for( i = 0; i < MAX_PERSISTANT; i++ )
     persistant[ i ] = client->ps.persistant[ i ];
@@ -1317,8 +1314,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   client->pers = saved;
   client->sess = savedSess;
   client->ps.ping = savedPing;
-  client->accuracy_hits = accuracy_hits;
-  client->accuracy_shots = accuracy_shots;
   client->lastkilled_client = -1;
   
   for( i = 0; i < MAX_PERSISTANT; i++ )
