@@ -608,7 +608,8 @@ void CG_RegisterWeapon( int weaponNum ) {
   CG_RegisterItemVisuals( item - bg_itemlist );
 
   // load cmodel before model so filecache works
-  weaponInfo->weaponModel = trap_R_RegisterModel( item->world_model[0] );
+  if( item->world_model[ 0 ] )
+    weaponInfo->weaponModel = trap_R_RegisterModel( item->world_model[0] );
 
   // calc midpoint for rotation
   trap_R_ModelBounds( weaponInfo->weaponModel, mins, maxs );

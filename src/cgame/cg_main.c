@@ -743,11 +743,11 @@ static void CG_RegisterGraphics( void ) {
   for( i = 0; i < 32; i++ )
     cgs.media.flameShader[ i ] = trap_R_RegisterShader( va( "fireball%d", i + 1 ) );
     
-  cgs.media.creepShader = trap_R_RegisterShader( "creep" );
+  /*cgs.media.creepShader = trap_R_RegisterShader( "creep" );*/
   
   cgs.media.scannerBlipShader = trap_R_RegisterShader( "gfx/2d/droidhealth" );
   cgs.media.scannerLineShader = trap_R_RegisterShader( "gfx/2d/func/mult2" );
-  cgs.media.scannerShader = trap_R_RegisterShader( "gfx/2d/scanner" );
+  /*cgs.media.scannerShader = trap_R_RegisterShader( "gfx/2d/scanner" );*/
   
   cgs.media.waterBubbleShader = trap_R_RegisterShader( "waterBubble" );
 
@@ -875,8 +875,10 @@ static void CG_RegisterGraphics( void ) {
   // only register the items that the server says we need
   strcpy( items, CG_ConfigString( CS_ITEMS) );
 
-  for ( i = 1 ; i < bg_numItems ; i++ ) {
-    if ( items[ i ] == '1' || cg_buildScript.integer ) {
+  for( i = 1; i < bg_numItems; i++ )
+  {
+    if( items[ i ] == '1' || cg_buildScript.integer )
+    {
       CG_LoadingItem( i );
       CG_RegisterItemVisuals( i );
     }
