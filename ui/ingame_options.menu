@@ -272,8 +272,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
 
     itemDef
@@ -291,8 +289,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
 
     itemDef
@@ -310,8 +306,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
   
     itemDef
@@ -329,8 +323,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
 
     itemDef
@@ -348,8 +340,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus } 
     }
 
     itemDef
@@ -521,8 +511,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
 
     itemDef
@@ -540,8 +528,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
   
     itemDef
@@ -559,8 +545,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
 
     itemDef
@@ -578,8 +562,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
 
     itemDef
@@ -597,8 +579,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
 
     itemDef
@@ -616,8 +596,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus } 
     }
 
     itemDef
@@ -635,8 +613,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
 
     itemDef
@@ -654,8 +630,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
   
     itemDef
@@ -673,8 +647,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
 
 
@@ -718,8 +690,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
 
     itemDef
@@ -737,8 +707,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
 
     itemDef
@@ -756,8 +724,6 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
 
     itemDef
@@ -775,8 +741,6 @@
       textscale .25       
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
     
     itemDef
@@ -794,8 +758,6 @@
       textscale .25       
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
     
 //////// MISC
@@ -829,7 +791,7 @@
       type ITEM_TYPE_BIND
       text "Show Scores:"
       cvar "+scores"
-      rect 96 85 192 15
+      rect 96 80 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -837,8 +799,6 @@
       textscale .25                  
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
   
     itemDef
@@ -848,7 +808,7 @@
       type ITEM_TYPE_BIND
       text "Scroll Scores Up:"
       cvar "scoresUp"
-      rect 96 100 192 15
+      rect 96 95 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -856,8 +816,6 @@
       textscale .25               
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
     
     itemDef
@@ -867,7 +825,7 @@
       type ITEM_TYPE_BIND
       text "Scroll Scores Down:"
       cvar "scoresDown"
-      rect 96 115 192 15
+      rect 96 110 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -875,8 +833,6 @@
       textscale .25               
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
 
     itemDef
@@ -886,7 +842,7 @@
       type ITEM_TYPE_BIND
       text "Use Object:"
       cvar "+button7"
-      rect 96 130 192 15
+      rect 96 125 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -894,8 +850,23 @@
       textscale .25             
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
+    }
+        
+    itemDef
+    {
+      name misc
+      group optionsGrp
+      type ITEM_TYPE_BIND
+      text "Deconstruct Object:"
+      cvar "deconstruct"
+      rect 96 140 192 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 90
+      maxPaintChars 20
+      textaligny 12
+      textscale .25             
+      forecolor 1 1 1 1
+      visible 0 
     }
         
     itemDef
@@ -905,7 +876,7 @@
       type ITEM_TYPE_BIND
       text "Gesture:"
       cvar "+button3"
-      rect 96 145 192 15
+      rect 96 155 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -913,8 +884,6 @@
       textscale .25           
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
   
     itemDef
@@ -924,7 +893,7 @@
       type ITEM_TYPE_BIND
       text "Chat:"
       cvar "messagemode"
-      rect 96 160 192 15
+      rect 96 170 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -932,8 +901,6 @@
       textscale .25             
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
 
     itemDef
@@ -943,7 +910,7 @@
       type ITEM_TYPE_BIND
       text "Team Chat:"
       cvar "messagemode2"
-      rect 96 175 192 15
+      rect 96 185 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -951,8 +918,6 @@
       textscale .25            
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
 
     itemDef
@@ -962,7 +927,7 @@
       type ITEM_TYPE_BIND
       text "Target Chat (FIXME):"
       cvar "messagemode3"
-      rect 96 190 192 15
+      rect 96 200 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -979,7 +944,7 @@
       type ITEM_TYPE_BIND
       text "Attack Chat (FIXME):"
       cvar "messagemode4"
-      rect 96 205 192 15
+      rect 96 215 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -987,8 +952,6 @@
       textscale .25             
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show keyBindStatus }
-      mouseexit { hide keyBindStatus }
     }
 
 //////// SYSTEM

@@ -71,7 +71,7 @@
       text "< Back"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
-      rect 152 218 34 21
+      rect 152 218 50 21
       textalign ITEM_ALIGN_LEFT
       textalignx 3
       textaligny 18
@@ -105,7 +105,7 @@
       text "Cancel"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
-      rect 344 218 34 21
+      rect 344 218 50 21
       textalign ITEM_ALIGN_LEFT
       textalignx 3.8
       textaligny 18
