@@ -150,18 +150,7 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
       else if( !Q_stricmp( token, "none" ) )
         ci->footsteps = FOOTSTEP_NONE;
       else if( !Q_stricmp( token, "custom" ) )
-      {
         ci->footsteps = FOOTSTEP_CUSTOM;
-        
-        for( i = 0; i < 4; i++ )
-        {
-          token = COM_Parse( &text_p );
-          if( !token )
-            break;
-
-          ci->customFootsteps[ i ] = trap_S_RegisterSound( token, qfalse );
-        }
-      }
       else
         CG_Printf( "Bad footsteps parm in %s: %s\n", filename, token );
 
@@ -572,6 +561,20 @@ static void CG_LoadClientInfo( clientInfo_t *ci )
       ci->sounds[ i ] = trap_S_RegisterSound( va( "sound/player/%s/%s", fallback, s + 1 ), qfalse );
   }
 
+  if( ci->footsteps == FOOTSTEP_CUSTOM )
+  {
+    for( i = 0; i < 4; i++ )
+    {
+      ci->customFootsteps[ i ] = trap_S_RegisterSound( va( "sound/player/%s/step%d.wav", dir, i + 1 ), qfalse );
+      if( !ci->customFootsteps[ i ] )
+        ci->customFootsteps[ i ] = trap_S_RegisterSound( va( "sound/player/footsteps/step%d.wav", i + 1 ), qfalse );
+
+      ci->customMetalFootsteps[ i ] = trap_S_RegisterSound( va( "sound/player/%s/clank%d.wav", dir, i + 1 ), qfalse );
+      if( !ci->customMetalFootsteps[ i ] )
+        ci->customMetalFootsteps[ i ] = trap_S_RegisterSound( va( "sound/player/footsteps/clank%d.wav", i + 1 ), qfalse );
+    }
+  }
+
   // reset any existing players and bodies, because they might be in bad
   // frames for this new model
   clientNum = ci - cgs.clientinfo;
@@ -607,6 +610,8 @@ static void CG_CopyClientInfoModel( clientInfo_t *from, clientInfo_t *to )
 
   memcpy( to->animations, from->animations, sizeof( to->animations ) );
   memcpy( to->sounds, from->sounds, sizeof( to->sounds ) );
+  memcpy( to->customFootsteps, from->customFootsteps, sizeof( to->customFootsteps ) );
+  memcpy( to->customMetalFootsteps, from->customMetalFootsteps, sizeof( to->customMetalFootsteps ) );
 }
 
 

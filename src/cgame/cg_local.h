@@ -670,6 +670,7 @@ typedef struct
   sfxHandle_t sounds[ MAX_CUSTOM_SOUNDS ];
 
   sfxHandle_t customFootsteps[ 4 ];
+  sfxHandle_t customMetalFootsteps[ 4 ];
 } clientInfo_t;
 
 

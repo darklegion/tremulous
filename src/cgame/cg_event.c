@@ -384,8 +384,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       DEBUGNAME( "EV_FOOTSTEP_METAL" );
       if( cg_footsteps.integer && ci->footsteps != FOOTSTEP_NONE )
       {
-        trap_S_StartSound( NULL, es->number, CHAN_BODY,
-          cgs.media.footsteps[ FOOTSTEP_METAL ][ rand( ) & 3 ] );
+        if( ci->footsteps == FOOTSTEP_CUSTOM )
+          trap_S_StartSound( NULL, es->number, CHAN_BODY,
+            ci->customMetalFootsteps[ rand( ) & 3 ] );
+        else
+          trap_S_StartSound( NULL, es->number, CHAN_BODY,
+            cgs.media.footsteps[ FOOTSTEP_METAL ][ rand( ) & 3 ] );
       }
       break;
       

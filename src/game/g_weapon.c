@@ -725,11 +725,18 @@ void CheckGrabAttack( gentity_t *ent )
 
   if( !traceEnt->takedamage )
     return;
+  
   if( !traceEnt->client )
     return;
+  
   if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     return;
+  
   if( traceEnt->client->ps.stats[ STAT_HEALTH ] <= 0 )
+    return;
+
+  //can't grab a player with the battlesuit
+  if( BG_gotItem( UP_BATTLESUIT, traceEnt->client->ps.stats ) )
     return;
     
   if( !( traceEnt->client->ps.stats[ STAT_STATE ] & SS_GRABBED ) )
