@@ -2858,6 +2858,32 @@ upgradeAttributes_t bg_upgrades[ ] =
     0,                      //int   ammo;
     1,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
+  },
+  {
+    UP_100CGAMMO,           //int   upgradeNum;
+    10,                     //int   price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_NONE,              //int   slots;
+    "100cgammo",            //char  *upgradeName;
+    "100 Chaingun bullets", //char  *upgradeHumanName;
+    "icons/iconw_gauntlet",
+    WP_CHAINGUN,            //weapon_t weaponAmmo;
+    100,                    //int   ammo;
+    0,                      //int   clips;
+    WUT_HUMANS              //WUTeam_t  team;
+  },
+  {
+    UP_200GAS,              //int   upgradeNum;
+    10,                     //int   price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_NONE,              //int   slots;
+    "200gas",               //char  *upgradeName;
+    "200 Flamer gas",       //char  *upgradeHumanName;
+    "icons/iconw_gauntlet",
+    WP_FLAMER,              //weapon_t weaponAmmo;
+    200,                    //int   ammo;
+    0,                      //int   clips;
+    WUT_HUMANS              //WUTeam_t  team;
   }
 };
 

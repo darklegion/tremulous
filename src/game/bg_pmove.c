@@ -32,11 +32,11 @@ float pm_wadeScale = 0.70f;
 float pm_accelerate = 10.0f;
 float pm_airaccelerate = 1.0f;
 float pm_wateraccelerate = 4.0f;
-float pm_flyaccelerate = 8.0f;
+float pm_flyaccelerate = 4.0f;
 
 float pm_friction = 6.0f;
 float pm_waterfriction = 1.0f;
-float pm_flightfriction = 3.0f;
+float pm_flightfriction = 6.0f;
 float pm_spectatorfriction = 5.0f;
 
 int   c_pmove = 0;
@@ -211,6 +211,9 @@ static void PM_Friction( void ) {
   }
 
   // apply flying friction
+  if( BG_gotItem( UP_JETPACK, pm->ps->stats ) && BG_activated( UP_JETPACK, pm->ps->stats ) )
+    drop += speed * pm_flightfriction * pml.frametime;
+
   if ( pm->ps->pm_type == PM_SPECTATOR ) {
     drop += speed*pm_spectatorfriction*pml.frametime;
   }
@@ -297,7 +300,8 @@ static float PM_CmdScale( usercmd_t *cmd ) {
   dTime = pm->cmd.serverTime - time;
   time = pm->cmd.serverTime;
 
-  if( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS && pm->ps->pm_type == PM_NORMAL )
+  if( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS && pm->ps->pm_type == PM_NORMAL &&
+      !( BG_gotItem( UP_JETPACK, pm->ps->stats ) && BG_activated( UP_JETPACK, pm->ps->stats ) ) )
   {
     if( !( pm->ps->stats[ STAT_STATE ] & SS_SPEEDBOOST ) )
     {
@@ -649,6 +653,43 @@ static void PM_WaterMove( void ) {
 
   PM_SlideMove( qfalse );
 }
+
+/*
+===================
+PM_JetPackMove
+
+Only with the jetpack
+===================
+*/
+static void PM_JetPackMove( void ) {
+  int     i;
+  vec3_t  wishvel;
+  float   wishspeed;
+  vec3_t  wishdir;
+  float   scale;
+
+  //normal slowdown
+  PM_Friction( );
+
+  scale = PM_CmdScale( &pm->cmd );
+  
+  // user intentions
+  for( i = 0; i < 2; i++ )
+    wishvel[ i ] = scale * pml.forward[ i ] * pm->cmd.forwardmove + scale * pml.right[ i ] * pm->cmd.rightmove;
+
+  if( pm->cmd.upmove > 0.0f )
+    wishvel[ 2 ] = 48.0f;
+  if( pm->cmd.upmove < 0.0f )
+    wishvel[ 2 ] = -32.0f;
+
+  VectorCopy( wishvel, wishdir );
+  wishspeed = VectorNormalize( wishdir );
+
+  PM_Accelerate( wishdir, wishspeed, pm_flyaccelerate );
+
+  PM_StepSlideMove( qfalse, qfalse );
+}
+
 
 
 
@@ -1811,7 +1852,8 @@ static void PM_CheckDuck (void)
   }
 
   //TA: If the standing and crouching viewheights are the same the class can't crouch
-  if ( ( pm->cmd.upmove < 0 ) && ( PCvh != PCcvh ) )
+  if( ( pm->cmd.upmove < 0 ) && ( PCvh != PCcvh ) &&
+      !( BG_gotItem( UP_JETPACK, pm->ps->stats ) && BG_activated( UP_JETPACK, pm->ps->stats ) ) )
   { // duck
     pm->ps->pm_flags |= PMF_DUCKED;
   }
@@ -2670,7 +2712,9 @@ void PmoveSingle (pmove_t *pmove)
 
   PM_DropTimers( );
 
-  if( pm->ps->pm_flags & PMF_GRAPPLE_PULL )
+  if( BG_gotItem( UP_JETPACK, pm->ps->stats ) && BG_activated( UP_JETPACK, pm->ps->stats ) )
+    PM_JetPackMove( );
+  else if( pm->ps->pm_flags & PMF_GRAPPLE_PULL )
   {
     PM_GrappleMove( );
     // We can wiggle a bit
