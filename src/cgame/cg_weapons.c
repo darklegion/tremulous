@@ -1019,7 +1019,7 @@ static void CG_FlameTrail( centity_t *cent, vec3_t origin )
   VectorMA( muzzlePoint, -6.0f, up, muzzlePoint );
   
   CG_LaunchSprite( muzzlePoint, velocity, vec3_origin,
-                   0.1f, 4.0f, 40.0f, 255.0f, 192.0f,
+                   0.1f, 4.0f, 40.0f, 255.0f, 255.0f,
                    rand( ) % 360, cg.time, FIREBALL_LIFETIME,
                    cgs.media.flameShader[ 0 ], qfalse, qfalse );
 
