@@ -1866,6 +1866,16 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
       }
       return qtrue;
     }
+
+    //TA: invoke the doubleClick handler when enter is pressed
+    if( key == K_ENTER )
+    {
+      if( listPtr->doubleClick )
+        Item_RunScript( item, listPtr->doubleClick );
+
+      return qtrue;
+    }
+    
     if ( key == K_HOME || key == K_KP_HOME) {
       // home
       listPtr->startPos = 0;
@@ -3400,6 +3410,7 @@ static bind_t g_bindings[] =
   { "+attack",      K_MOUSE1,      -1, -1, -1 },
   { "+button5",     K_MOUSE2,      -1, -1, -1 }, //TA: secondary attack
   { "reload",       'r',           -1, -1, -1 }, //TA: reload
+  { "buy ammo",     'b',           -1, -1, -1 }, //TA: buy ammo
   { "+button7",     'q',           -1, -1, -1 }, //TA: buildable use
   { "deconstruct",  'e',           -1, -1, -1 }, //TA: buildable destroy
   { "weapprev",     '[',           -1, -1, -1 },
@@ -3892,7 +3903,8 @@ void Item_Image_Paint(itemDef_t *item) {
 }
 
 void Item_ListBox_Paint(itemDef_t *item) {
-  float x, y, size, count, i, thumb;
+  float x, y, size, thumb;
+  int i, count;
   qhandle_t image;
   qhandle_t optionalImage;
   listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
@@ -4066,6 +4078,9 @@ void Item_ListBox_Paint(itemDef_t *item) {
       }
     }
   }
+
+  //TA: fix to off-by-one bug
+  listPtr->endPos--;
 }
 
 

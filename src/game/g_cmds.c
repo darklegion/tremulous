@@ -499,8 +499,10 @@ void Cmd_Team_f( gentity_t *ent )
 
   G_ChangeTeam( ent, team );
   
-  if( team == PTE_ALIENS || team == PTE_HUMANS )
-    trap_SendServerCommand( -1, va( "print \"%s joined the %s.\n\"", ent->client->pers.netname, s ) );
+  if( team == PTE_ALIENS )
+    trap_SendServerCommand( -1, va( "print \"%s joined the aliens.\n\"", ent->client->pers.netname ) );
+  else if( team == PTE_HUMANS )
+    trap_SendServerCommand( -1, va( "print \"%s joined the humans.\n\"", ent->client->pers.netname ) );
 }
 
 

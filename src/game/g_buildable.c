@@ -1068,8 +1068,9 @@ void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
       //this hovel is in use
       G_TriggerMenu( activator->client->ps.clientNum, MN_A_HOVEL_OCCUPIED );
     }
-    else if( ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_A_B_BASE ) ||
-             ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_A_B_LEV1 ) )
+    else if( ( ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_A_B_BASE ) ||
+               ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_A_B_LEV1 ) ) &&
+             activator->health > 0 )
     {
       if( AHovel_Blocked( self, activator, qfalse ) )
       {
