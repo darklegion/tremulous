@@ -485,7 +485,7 @@ CG_ParseValueAndVariance
 Parse a value and its random variance
 ===============
 */
-static void CG_ParseValueAndVariance( char *token, float *value, float *variance )
+static void CG_ParseValueAndVariance( char *token, float *value, float *variance, qboolean allowNegative )
 {
   char  valueBuffer[ 16 ];
   char  varianceBuffer[ 16 ];
@@ -504,7 +504,7 @@ static void CG_ParseValueAndVariance( char *token, float *value, float *variance
     variancePtr[ 0 ] = '\0';
     variancePtr++;
 
-    localValue = atof_neg( valueBuffer, qfalse );
+    localValue = atof_neg( valueBuffer, allowNegative );
     
     varEndPointer = strchr( variancePtr, '%' );
 
@@ -522,7 +522,7 @@ static void CG_ParseValueAndVariance( char *token, float *value, float *variance
     }
   }
   else
-    localValue = atof_neg( valueBuffer, qfalse );
+    localValue = atof_neg( valueBuffer, allowNegative );
 
   if( value != NULL )
     *value = localValue;
@@ -571,7 +571,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       }
       else
       {
-        CG_ParseValueAndVariance( token, &number, &randFrac );
+        CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
 
         bp->bounceFrac = number;
         bp->bounceFracRandFrac = randFrac;
@@ -640,7 +640,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !token )
         break;
       
-      CG_ParseValueAndVariance( token, &number, &randFrac );
+      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
 
       bp->velMoveValues.mag = number;
       bp->velMoveValues.magRandFrac = randFrac;
@@ -653,7 +653,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !token )
         break;
       
-      CG_ParseValueAndVariance( token, &number, &randFrac );
+      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
 
       bp->velMoveValues.parentVelFrac = number;
       bp->velMoveValues.parentVelFracRandFrac = randFrac;
@@ -675,7 +675,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !token )
         break;
       
-      CG_ParseValueAndVariance( token, NULL, &randFrac );
+      CG_ParseValueAndVariance( token, NULL, &randFrac, qfalse );
 
       bp->velMoveValues.dirRandAngle = randFrac;
       
@@ -696,7 +696,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !token )
         break;
       
-      CG_ParseValueAndVariance( token, NULL, &randFrac );
+      CG_ParseValueAndVariance( token, NULL, &randFrac, qfalse );
 
       bp->velMoveValues.pointRandAngle = randFrac;
       
@@ -739,7 +739,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !token )
         break;
       
-      CG_ParseValueAndVariance( token, &number, &randFrac );
+      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
 
       bp->accMoveValues.mag = number;
       bp->accMoveValues.magRandFrac = randFrac;
@@ -761,7 +761,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !token )
         break;
       
-      CG_ParseValueAndVariance( token, NULL, &randFrac );
+      CG_ParseValueAndVariance( token, NULL, &randFrac, qfalse );
 
       bp->accMoveValues.dirRandAngle = randFrac;
       
@@ -782,7 +782,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !token )
         break;
       
-      CG_ParseValueAndVariance( token, NULL, &randFrac );
+      CG_ParseValueAndVariance( token, NULL, &randFrac, qfalse );
 
       bp->accMoveValues.pointRandAngle = randFrac;
       
@@ -804,7 +804,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !token )
         break;
 
-      CG_ParseValueAndVariance( token, NULL, &randFrac );
+      CG_ParseValueAndVariance( token, NULL, &randFrac, qfalse );
 
       bp->randDisplacement = randFrac;
 
@@ -844,7 +844,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac );
+      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
 
       bp->radius.delay = (int)number;
       bp->radius.delayRandFrac = randFrac;
@@ -853,7 +853,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac );
+      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
 
       bp->radius.initial = number;
       bp->radius.initialRandFrac = randFrac;
@@ -869,7 +869,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       }
       else
       {
-        CG_ParseValueAndVariance( token, &number, &randFrac );
+        CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
 
         bp->radius.final = number;
         bp->radius.finalRandFrac = randFrac;
@@ -883,7 +883,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac );
+      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
 
       bp->alpha.delay = (int)number;
       bp->alpha.delayRandFrac = randFrac;
@@ -892,7 +892,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac );
+      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
 
       bp->alpha.initial = number;
       bp->alpha.initialRandFrac = randFrac;
@@ -908,7 +908,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       }
       else
       {
-        CG_ParseValueAndVariance( token, &number, &randFrac );
+        CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
 
         bp->alpha.final = number;
         bp->alpha.finalRandFrac = randFrac;
@@ -922,7 +922,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac );
+      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
 
       bp->rotation.delay = (int)number;
       bp->rotation.delayRandFrac = randFrac;
@@ -931,7 +931,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac );
+      CG_ParseValueAndVariance( token, &number, &randFrac, qtrue );
 
       bp->rotation.initial = number;
       bp->rotation.initialRandFrac = randFrac;
@@ -947,7 +947,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       }
       else
       {
-        CG_ParseValueAndVariance( token, &number, &randFrac );
+        CG_ParseValueAndVariance( token, &number, &randFrac, qtrue );
 
         bp->rotation.final = number;
         bp->rotation.finalRandFrac = randFrac;
@@ -961,7 +961,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac );
+      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
 
       bp->lifeTime = (int)number;
       bp->lifeTimeRandFrac = randFrac;
@@ -1037,7 +1037,7 @@ static qboolean CG_ParseParticleEjector( baseParticleEjector_t *bpe, char **text
       if( !token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac );
+      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
 
       bpe->eject.delay = (int)number;
       bpe->eject.delayRandFrac = randFrac;
@@ -1065,7 +1065,7 @@ static qboolean CG_ParseParticleEjector( baseParticleEjector_t *bpe, char **text
       if( !token )
         break;
 
-      CG_ParseValueAndVariance( token, NULL, &bpe->eject.randFrac );
+      CG_ParseValueAndVariance( token, NULL, &bpe->eject.randFrac, qfalse );
 
       continue;
     }
@@ -1082,7 +1082,7 @@ static qboolean CG_ParseParticleEjector( baseParticleEjector_t *bpe, char **text
       }
       else
       {
-        CG_ParseValueAndVariance( token, &number, &randFrac );
+        CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
 
         bpe->totalParticles = (int)number;
         bpe->totalParticlesRandFrac = randFrac;
