@@ -8,29 +8,41 @@
     fullscreen 0
     outOfBoundsClick
     rect 112 111 400 247
-    focusColor 0.6784314 0.74902 0.82549 1
-    style WINDOW_STYLE_FILLED
-    disableColor .5 .5 .5 0
-    backcolor 0.0784314 0.14902 0.32549 .25
-    border WINDOW_BORDER_FULL
-    borderSize 1
-    bordercolor 0.6784314 0.74902 0.82549 .25
+    focusColor 1 .75 0 1
+    style 1
+    popup
     onOpen { uiScript LoadHumanBuilds }
 
+    itemDef
+    {
+      name window
+      rect 0 0 400 247
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 1
+      visible 1
+      decoration
+
+      border WINDOW_BORDER_FULL
+      borderSize 1.0
+      borderColor 0.5 0.5 0.5 1
+    }
+    
     itemDef
     {
       name "list"
       rect 8 8 136 231
       type ITEM_TYPE_LISTBOX
-      style WINDOW_STYLE_FILLED
+      style WINDOW_STYLE_EMPTY
       elementwidth 120
       elementheight 15
       textscale .25
       elementtype LISTBOX_TEXT
       feeder FEEDER_TREMHUMANBUILD
-      forecolor 1 1 1 1
-      backcolor 0.0784314 0.14902 0.32549 .25
-      outlinecolor .1 .1 .7 .5
+      border 1
+      bordercolor   0.5 0.5 0.5 0.5
+      forecolor     1   1   1   1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
       visible 1
     }
     
@@ -39,11 +51,13 @@
       name infopane
       ownerdraw UI_HBUILDINFOPANE
       textstyle ITEM_TEXTSTYLE_NORMAL
-      style WINDOW_STYLE_FILLED	
+      style WINDOW_STYLE_EMPTY
       rect 161 8 231 204
       textscale .3
-      forecolor 1 1 1 1
-      backcolor 0.0784314 0.14902 0.32549 .25
+      border 1
+      bordercolor   0.5 0.5 0.5 0.5
+      forecolor     1   1   1   1
+      backcolor     0.2 0.2 0.2 1
       visible 1 
       decoration
     }
@@ -53,7 +67,7 @@
       name "OKCancel"
       text "OK"
       type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_FILLED
+      style WINDOW_STYLE_EMPTY
       rect 319 218 34 21
       textalign ITEM_ALIGN_LEFT
       textalignx 12.5
@@ -70,7 +84,7 @@
       name "OKCancel"
       text "Cancel"
       type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_FILLED
+      style WINDOW_STYLE_EMPTY
       rect 358 218 34 21
       textalign ITEM_ALIGN_LEFT
       textalignx 3.8

@@ -32,7 +32,7 @@
       name leave
       text "Main Menu"
       group grpMenu
-      style 2 
+      style WINDOW_STYLE_EMPTY 
       rect 0 20 128 20 
       type 1  
       textalign 1 
@@ -49,7 +49,7 @@
       name leave
       group grpMenu
       text "Restart"
-      style 2 
+      style WINDOW_STYLE_EMPTY 
       type 1
       rect 0 40 128 20   
       textalign 1 
@@ -67,7 +67,7 @@
       group grpMenu
       type 1
       text "Quit"
-      style 2 
+      style WINDOW_STYLE_EMPTY 
       rect 0 60 128 20   
       textalign 1 
       textalignx 64 
@@ -87,7 +87,7 @@
       name leaveConfirm
       text "Exit to"
       group grpConfirm
-      style 2 
+      style WINDOW_STYLE_EMPTY 
       rect 0 23 128 20   
       textalign 1 
       textalignx 64
@@ -103,7 +103,7 @@
       name leaveConfirm
       text "Main Menu?"
       group grpConfirm
-      style 2 
+      style WINDOW_STYLE_EMPTY 
       rect 0 40 128 20   
       textalign 1 
       textalignx 64
@@ -153,7 +153,7 @@
       name restartConfirm
       text "Want to"
       group grpConfirm
-      style 2 
+      style WINDOW_STYLE_EMPTY 
       rect 0 23 128 20   
       textalign 1 
       textalignx 64
@@ -169,7 +169,7 @@
       name restartConfirm
       text "Restart Map?"
       group grpConfirm
-      style 2 
+      style WINDOW_STYLE_EMPTY 
       rect 0 40 128 20   
       textalign 1 
       textalignx 64
@@ -219,7 +219,7 @@
       name quitConfirm
       text "Want to"
       group grpConfirm
-      style 2 
+      style WINDOW_STYLE_EMPTY 
       rect 0 23 128 20   
       textalign 1 
       textalignx 64
@@ -235,7 +235,7 @@
       name quitConfirm
       text "Quit Game?"
       group grpConfirm
-      style 2 
+      style WINDOW_STYLE_EMPTY 
       rect 0 40 128 20   
       textalign 1 
       textalignx 64

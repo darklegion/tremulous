@@ -31,6 +31,11 @@
     disableColor .5 .5 .5 1
     backColor 0 0 0 1
 
+    onEsc
+    {
+      close ingame;
+    }
+    
     itemDef
     {
       name splashmodel
