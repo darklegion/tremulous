@@ -1607,6 +1607,7 @@ void        CG_MissileHitWall( weapon_t weapon, weaponMode_t weaponMode, int cli
                                vec3_t origin, vec3_t dir, impactSound_t soundType );
 void        CG_MissileHitPlayer( weapon_t weapon, weaponMode_t weaponMode, vec3_t origin, vec3_t dir, int entityNum );
 void        CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
+void        CG_ShotgunFire( entityState_t *es );
 
 void        CG_TeslaTrail( vec3_t start, vec3_t end, int srcENum, int destENum );
 void        CG_AlienZap( vec3_t start, vec3_t end, int srcENum, int destENum );

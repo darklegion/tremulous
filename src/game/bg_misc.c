@@ -2852,6 +2852,28 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
+    WP_SHOTGUN,           //int       weaponNum;
+    SHOTGUN_PRICE,        //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_WEAPON,          //int       slots;
+    "shotgun",            //char      *weaponName;
+    "Shotgun",            //char      *weaponHumanName;
+    SHOTGUN_SHELLS,       //int       quan;
+    SHOTGUN_SPAWNCLIPS,   //int       clips;
+    SHOTGUN_MAXCLIPS,     //int       maxClips;
+    qfalse,               //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
+    SHOTGUN_REPEAT,       //int       repeatRate1;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
+    SHOTGUN_RELOAD,       //int       reloadTime;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
+    qtrue,                //qboolean  purchasable;
+    0,                    //int       buildDelay;
+    WUT_HUMANS            //WUTeam_t  team;
+  },
+  {
     WP_FLAMER,            //int       weaponNum;
     FLAMER_PRICE,         //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
@@ -3733,9 +3755,6 @@ upgradeAttributes_t bg_upgrades[ ] =
     "larmour",              //char  *upgradeName;
     "Light Armour",         //char  *upgradeHumanName;
     "icons/iconu_larmour",
-    WP_NONE,                //weapon_t weaponAmmo;
-    0,                      //int   ammo;
-    0,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -3746,9 +3765,6 @@ upgradeAttributes_t bg_upgrades[ ] =
     "helmet",               //char  *upgradeName;
     "Helmet",               //char  *upgradeHumanName;
     "icons/iconu_helmet",
-    WP_NONE,                //weapon_t weaponAmmo;
-    0,                      //int   ammo;
-    0,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -3759,9 +3775,6 @@ upgradeAttributes_t bg_upgrades[ ] =
     "atoxin",               //char  *upgradeName;
     "Anti-toxin",           //char  *upgradeHumanName;
     "icons/iconu_atoxin",
-    WP_NONE,                //weapon_t weaponAmmo;
-    0,                      //int   ammo;
-    0,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -3772,9 +3785,6 @@ upgradeAttributes_t bg_upgrades[ ] =
     "battpack",             //char  *upgradeName;
     "Battery Pack",         //char  *upgradeHumanName;
     "icons/iconu_battpack",
-    WP_NONE,                //weapon_t weaponAmmo;
-    0,                      //int   ammo;
-    0,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -3785,9 +3795,6 @@ upgradeAttributes_t bg_upgrades[ ] =
     "jetpack",              //char  *upgradeName;
     "Jet Pack",             //char  *upgradeHumanName;
     "icons/iconu_jetpack",
-    WP_NONE,                //weapon_t weaponAmmo;
-    0,                      //int   ammo;
-    0,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -3798,48 +3805,16 @@ upgradeAttributes_t bg_upgrades[ ] =
     "bsuit",                                  //char  *upgradeName;
     "Battlesuit",                             //char  *upgradeHumanName;
     "icons/iconu_bsuit",
-    WP_NONE,                //weapon_t weaponAmmo;
-    0,                      //int   ammo;
-    0,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
-    UP_MGCLIP,              //int   upgradeNum;
-    MGCLIP_PRICE,           //int   price;
+    UP_AMMO,                //int   upgradeNum;
+    0,                      //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_NONE,              //int   slots;
-    "mgclip",               //char  *upgradeName;
-    "1 Rifle Clip",         //char  *upgradeHumanName;
+    "ammo",                 //char  *upgradeName;
+    "Ammunition",           //char  *upgradeHumanName;
     0,
-    WP_MACHINEGUN,          //weapon_t weaponAmmo;
-    0,                      //int   ammo;
-    1,                      //int   clips;
-    WUT_HUMANS              //WUTeam_t  team;
-  },
-  {
-    UP_CGAMMO,              //int   upgradeNum;
-    CGAMMO_PRICE,           //int   price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    SLOT_NONE,              //int   slots;
-    "cgammo",               //char  *upgradeName;
-    "Chaingun bullets",     //char  *upgradeHumanName;
-    0,
-    WP_CHAINGUN,            //weapon_t weaponAmmo;
-    100,                    //int   ammo;
-    0,                      //int   clips;
-    WUT_HUMANS              //WUTeam_t  team;
-  },
-  {
-    UP_GAS,                 //int   upgradeNum;
-    GAS_PRICE,              //int   price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    SLOT_NONE,              //int   slots;
-    "gas",                  //char  *upgradeName;
-    "Flamer gas",           //char  *upgradeHumanName;
-    0,
-    WP_FLAMER,              //weapon_t weaponAmmo;
-    200,                    //int   ammo;
-    0,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
   }
 };
@@ -3983,46 +3958,6 @@ char *BG_FindIconForUpgrade( int upgrade )
 
   //wimp out
   return 0;
-}
-
-/*
-==============
-BG_FindWeaponAmmoForUpgrade
-==============
-*/
-weapon_t BG_FindWeaponAmmoForUpgrade( int upgrade )
-{
-  int i;
-
-  for( i = 0; i < bg_numUpgrades; i++ )
-  {
-    if( bg_upgrades[ i ].upgradeNum == upgrade )
-      return bg_upgrades[ i ].weaponAmmo;
-  }
-
-  return WP_NONE;
-}
-
-/*
-==============
-BG_FindAmmoForUpgrade
-==============
-*/
-void BG_FindAmmoForUpgrade( int upgrade, int *ammo, int *clips )
-{
-  int i;
-
-  for( i = 0; i < bg_numUpgrades; i++ )
-  {
-    if( bg_upgrades[ i ].upgradeNum == upgrade )
-    {
-      if( ammo != NULL )
-        *ammo = bg_upgrades[ i ].ammo;
-
-      if( clips != NULL )
-        *clips = bg_upgrades[ i ].clips;
-    }
-  }
 }
 
 /*

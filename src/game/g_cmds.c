@@ -1338,7 +1338,6 @@ void Cmd_Buy_f( gentity_t *ent )
   }
   else if( upgrade != UP_NONE )
   {
-    int       maxAmmo, newAmmo, newClips;
     weapon_t  weaponAmmo;
     
     //already got this?
@@ -1382,33 +1381,11 @@ void Cmd_Buy_f( gentity_t *ent )
       return;
     }
     
-    BG_FindAmmoForUpgrade( upgrade, &newAmmo, &newClips );
-
-    if( newAmmo || newClips )
-    {
-      //get current ammo for the weapon in question
-      weaponAmmo = BG_FindWeaponAmmoForUpgrade( upgrade );
-      BG_unpackAmmoArray( weaponAmmo, ent->client->ps.ammo, ent->client->ps.powerups,
-                          &quan, &clips, &maxClips );
+    weaponAmmo = ent->client->ps.weapon;
       
-      BG_FindAmmoForWeapon( weaponAmmo, &maxAmmo, NULL, NULL );
-
-      //this ammo package would exceed max ammo
-      if( clips + newClips > maxClips )
-      {
-        //FIXME: different dialog?
-        G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOSLOTS );
-        return;
-      }
-      else
-        clips += newClips;
-
-      if( quan + newAmmo > maxAmmo )
-        quan = maxAmmo;
-      else
-        quan += newAmmo;
-
-      //updata ammo count
+    if( upgrade == UP_AMMO && !BG_FindUsesEnergyForWeapon( weaponAmmo ) )
+    {
+      BG_FindAmmoForWeapon( weaponAmmo, &quan, &clips, &maxClips );
       BG_packAmmoArray( weaponAmmo, ent->client->ps.ammo, ent->client->ps.powerups,
                         quan, clips, maxClips );
     }
@@ -1430,8 +1407,14 @@ void Cmd_Buy_f( gentity_t *ent )
   if( numItems == 0 )
     G_AddEvent( ent, EV_NEXT_WEAPON, ent->client->ps.clientNum );
   
-  //retrigger the armoury menu
-  ent->client->retriggerArmouryMenu = level.framenum + RAM_FRAMES;
+  if( trap_Argc( ) >= 2 )
+  {
+    trap_Argv( 2, s, sizeof( s ) );
+    
+    //retrigger the armoury menu
+    if( !Q_stricmp( s, "retrigger" ) )
+      ent->client->retriggerArmouryMenu = level.framenum + RAM_FRAMES;
+  }
   
   //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum );
@@ -1506,8 +1489,14 @@ void Cmd_Sell_f( gentity_t *ent )
   else
     trap_SendServerCommand( ent-g_entities, va( "print \"Unknown item\n\"" ) );
   
-  //retrigger the armoury menu
-  ent->client->retriggerArmouryMenu = level.framenum + RAM_FRAMES;
+  if( trap_Argc( ) >= 2 )
+  {
+    trap_Argv( 2, s, sizeof( s ) );
+    
+    //retrigger the armoury menu
+    if( !Q_stricmp( s, "retrigger" ) )
+      ent->client->retriggerArmouryMenu = level.framenum + RAM_FRAMES;
+  }
   
   //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum );

@@ -3486,7 +3486,7 @@ static void UI_LoadTremHumanArmouryBuys( )
       uiInfo.tremHumanArmouryBuyList[ j ].text =
         String_Alloc( BG_FindHumanNameForWeapon( i ) );
       uiInfo.tremHumanArmouryBuyList[ j ].cmd =
-        String_Alloc( va( "cmd buy %s", BG_FindNameForWeapon( i ) ) );
+        String_Alloc( va( "cmd buy %s retrigger", BG_FindNameForWeapon( i ) ) );
       uiInfo.tremHumanArmouryBuyList[ j ].infopane =
         UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( i ) ) );
       
@@ -3506,7 +3506,7 @@ static void UI_LoadTremHumanArmouryBuys( )
       uiInfo.tremHumanArmouryBuyList[ j ].text =
         String_Alloc( BG_FindHumanNameForUpgrade( i ) );
       uiInfo.tremHumanArmouryBuyList[ j ].cmd =
-        String_Alloc( va( "cmd buy %s", BG_FindNameForUpgrade( i ) ) );
+        String_Alloc( va( "cmd buy %s retrigger", BG_FindNameForUpgrade( i ) ) );
       uiInfo.tremHumanArmouryBuyList[ j ].infopane =
         UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForUpgrade( i ) ) );
 
@@ -3536,7 +3536,7 @@ static void UI_LoadTremHumanArmourySells( )
     {
       uiInfo.tremHumanArmourySellList[ j ].text = String_Alloc( BG_FindHumanNameForWeapon( i ) );
       uiInfo.tremHumanArmourySellList[ j ].cmd =
-        String_Alloc( va( "cmd sell %s", BG_FindNameForWeapon( i ) ) );
+        String_Alloc( va( "cmd sell %s retrigger", BG_FindNameForWeapon( i ) ) );
       uiInfo.tremHumanArmourySellList[ j ].infopane =
         UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( i ) ) );
 
@@ -3552,7 +3552,7 @@ static void UI_LoadTremHumanArmourySells( )
     {
       uiInfo.tremHumanArmourySellList[ j ].text = String_Alloc( BG_FindHumanNameForUpgrade( i ) );
       uiInfo.tremHumanArmourySellList[ j ].cmd =
-        String_Alloc( va( "cmd sell %s", BG_FindNameForUpgrade( i ) ) );
+        String_Alloc( va( "cmd sell %s retrigger", BG_FindNameForUpgrade( i ) ) );
       uiInfo.tremHumanArmourySellList[ j ].infopane =
         UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForUpgrade( i ) ) );
 

@@ -291,6 +291,16 @@
 #define RIFLE_SPREAD                200
 #define RIFLE_DMG                   HDM(5)
 
+#define SHOTGUN_SHELLS              8
+#define SHOTGUN_PELLETS             8 //used to sync server and client side
+#define SHOTGUN_SPAWNCLIPS          3
+#define SHOTGUN_MAXCLIPS            3
+#define SHOTGUN_REPEAT              1200
+#define SHOTGUN_RELOAD              2000
+#define SHOTGUN_PRICE               150
+#define SHOTGUN_SPREAD              900
+#define SHOTGUN_DMG                 HDM(5)
+
 #define CHAINGUN_BULLETS            300
 #define CHAINGUN_REPEAT             50
 #define CHAINGUN_PRICE              200

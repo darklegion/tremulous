@@ -90,6 +90,75 @@ static void CG_MachineGunEjectBrass( centity_t *cent )
 
 /*
 ==========================
+CG_ShotgunEjectBrass
+==========================
+*/
+static void CG_ShotgunEjectBrass( centity_t *cent )
+{
+  localEntity_t *le;
+  refEntity_t   *re;
+  vec3_t        velocity, xvelocity;
+  vec3_t        offset, xoffset;
+  vec3_t        v[ 3 ];
+  float         waterScale = 1.0f;
+
+  if( cg_brassTime.integer <= 0 )
+    return;
+
+  le = CG_AllocLocalEntity( );
+  re = &le->refEntity;
+
+  velocity[ 0 ] = 60 + 60 * crandom( );
+  velocity[ 1 ] = 40 + 10 * crandom( );
+  velocity[ 2 ] = 100 + 50 * crandom( );
+
+  le->leType = LE_FRAGMENT;
+  le->startTime = cg.time;
+  le->endTime = le->startTime + cg_brassTime.integer * 3 + cg_brassTime.integer * random( );
+
+  le->pos.trType = TR_GRAVITY;
+  le->pos.trTime = cg.time;
+
+  AnglesToAxis( cent->lerpAngles, v );
+
+  offset[ 0 ] = 8;
+  offset[ 1 ] = 0;
+  offset[ 2 ] = 24;
+
+  xoffset[ 0 ] = offset[ 0 ] * v[ 0 ][ 0 ] + offset[ 1 ] * v[ 1 ][ 0 ] + offset[ 2 ] * v[ 2 ][ 0 ];
+  xoffset[ 1 ] = offset[ 0 ] * v[ 0 ][ 1 ] + offset[ 1 ] * v[ 1 ][ 1 ] + offset[ 2 ] * v[ 2 ][ 1 ];
+  xoffset[ 2 ] = offset[ 0 ] * v[ 0 ][ 2 ] + offset[ 1 ] * v[ 1 ][ 2 ] + offset[ 2 ] * v[ 2 ][ 2 ];
+  VectorAdd( cent->lerpOrigin, xoffset, re->origin );
+  VectorCopy( re->origin, le->pos.trBase );
+  
+  if( CG_PointContents( re->origin, -1 ) & CONTENTS_WATER )
+    waterScale = 0.10f;
+
+  xvelocity[ 0 ] = velocity[ 0 ] * v[ 0 ][ 0 ] + velocity[ 1 ] * v[ 1 ][ 0 ] + velocity[ 2 ] * v[ 2 ][ 0 ];
+  xvelocity[ 1 ] = velocity[ 0 ] * v[ 0 ][ 1 ] + velocity[ 1 ] * v[ 1 ][ 1 ] + velocity[ 2 ] * v[ 2 ][ 1 ];
+  xvelocity[ 2 ] = velocity[ 0 ] * v[ 0 ][ 2 ] + velocity[ 1 ] * v[ 1 ][ 2 ] + velocity[ 2 ] * v[ 2 ][ 2 ];
+  VectorScale( xvelocity, waterScale, le->pos.trDelta );
+
+  AxisCopy( axisDefault, re->axis );
+  re->hModel = cgs.media.shotgunBrassModel;
+  le->bounceFactor = 0.3f;
+
+  le->angles.trType = TR_LINEAR;
+  le->angles.trTime = cg.time;
+  le->angles.trBase[ 0 ] = rand( )&31;
+  le->angles.trBase[ 1 ] = rand( )&31;
+  le->angles.trBase[ 2 ] = rand( )&31;
+  le->angles.trDelta[ 0 ] = 1;
+  le->angles.trDelta[ 1 ] = 0.5;
+  le->angles.trDelta[ 2 ] = 0;
+
+  le->leFlags = LEF_TUMBLE;
+  le->leBounceSoundType = LEBS_BRASS;
+  le->leMarkType = LEMT_NONE;
+}
+
+/*
+==========================
 CG_TeslaTrail
 ==========================
 */
@@ -758,6 +827,10 @@ void CG_RegisterWeapon( int weaponNum )
     case WP_CHAINGUN:
       weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
       break;
+
+    case WP_SHOTGUN:
+      weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
+      break;
   }
 }
 
@@ -1032,13 +1105,10 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
         CG_SetParticleSystemTag( cent->muzzlePS, gun, weapon->weaponModel, "tag_flash" );
     }
 
-    //FIXME: this leaves open the possibility for keep a persistent muzzle system going
-    //       by hopping between firing buttons -- currently nothing with a persistent
-    //       muzzle system has multiple fire modes however
     //if the PS is infinite disable it when not firing
-    if( !( cent->currentState.eFlags & EF_FIRING ) &&
-        !( cent->currentState.eFlags & EF_FIRING2 ) &&
-        !( cent->currentState.eFlags & EF_FIRING3 ) &&
+    if( ( ( !( cent->currentState.eFlags & EF_FIRING ) && weaponMode == WPM_PRIMARY ) ||
+          ( !( cent->currentState.eFlags & EF_FIRING2 ) && weaponMode == WPM_SECONDARY ) ||
+          ( !( cent->currentState.eFlags & EF_FIRING3 ) && weaponMode == WPM_TERTIARY ) ) &&
         CG_IsParticleSystemInfinite( cent->muzzlePS ) )
     {
       CG_DestroyParticleSystem( cent->muzzlePS );
@@ -1845,7 +1915,6 @@ Renders bullet effects.
 void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum )
 {
   trace_t trace;
-  int     sourceContentType, destContentType;
   vec3_t  start;
 
   // if the shooter is currently valid, calc a source point and possibly
@@ -1854,26 +1923,8 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
   {
     if( CG_CalcMuzzlePoint( sourceEntityNum, start ) )
     {
-      sourceContentType = trap_CM_PointContents( start, 0 );
-      destContentType = trap_CM_PointContents( end, 0 );
-
-      // do a complete bubble trail if necessary
-      if( ( sourceContentType == destContentType ) && ( sourceContentType & CONTENTS_WATER ) )
-        CG_BubbleTrail( start, end, 32 );
+      CG_BubbleTrail( start, end, 32 );
       
-      // bubble trail from water into air
-      else if( ( sourceContentType & CONTENTS_WATER ) )
-      {
-        trap_CM_BoxTrace( &trace, end, start, NULL, NULL, 0, CONTENTS_WATER );
-        CG_BubbleTrail( start, trace.endpos, 32 );
-      }
-      // bubble trail from air into water
-      else if( ( destContentType & CONTENTS_WATER ) )
-      {
-        trap_CM_BoxTrace( &trace, start, end, NULL, NULL, 0, CONTENTS_WATER );
-        CG_BubbleTrail( trace.endpos, end, 32 );
-      }
-
       // draw a tracer
       if( random( ) < cg_tracerChance.value )
         CG_Tracer( start, end );
@@ -1886,3 +1937,77 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
   else
     CG_MissileHitWall( WP_MACHINEGUN, WPM_PRIMARY, 0, end, normal, IMPACTSOUND_DEFAULT );
 }
+
+/*
+============================================================================
+
+SHOTGUN TRACING
+
+============================================================================
+*/
+
+/*
+================
+CG_ShotgunPattern
+
+Perform the same traces the server did to locate the
+hit splashes
+================
+*/
+static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, int otherEntNum )
+{
+  int       i;
+  float     r, u;
+  vec3_t    end;
+  vec3_t    forward, right, up;
+  trace_t   tr;
+
+  // derive the right and up vectors from the forward vector, because
+  // the client won't have any other information
+  VectorNormalize2( origin2, forward );
+  PerpendicularVector( right, forward );
+  CrossProduct( forward, right, up );
+
+  // generate the "random" spread pattern
+  for( i = 0; i < SHOTGUN_PELLETS; i++ )
+  {
+    r = Q_crandom( &seed ) * SHOTGUN_SPREAD * 16;
+    u = Q_crandom( &seed ) * SHOTGUN_SPREAD * 16;
+    VectorMA( origin, 8192 * 16, forward, end );
+    VectorMA( end, r, right, end );
+    VectorMA( end, u, up, end );
+
+    CG_Trace( &tr, origin, NULL, NULL, end, otherEntNum, MASK_SHOT );
+    CG_BubbleTrail( origin, end, 32 );
+
+    if( !( tr.surfaceFlags & SURF_NOIMPACT ) )
+    {
+      if( cg_entities[ tr.entityNum ].currentState.eType == ET_PLAYER )
+        CG_MissileHitPlayer( WP_SHOTGUN, WPM_PRIMARY, tr.endpos, tr.plane.normal, tr.entityNum );
+      else if( tr.surfaceFlags & SURF_METALSTEPS )
+        CG_MissileHitWall( WP_SHOTGUN, WPM_PRIMARY, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL );
+      else
+        CG_MissileHitWall( WP_SHOTGUN, WPM_PRIMARY, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT );
+    }
+  }
+}
+
+/*
+==============
+CG_ShotgunFire
+==============
+*/
+void CG_ShotgunFire( entityState_t *es )
+{
+  vec3_t  up;
+  vec3_t  v;
+  int     contents;
+
+  VectorSubtract( es->origin2, es->pos.trBase, v );
+  VectorNormalize( v );
+  VectorScale( v, 32, v );
+  VectorAdd( es->pos.trBase, v, v );
+  
+  CG_ShotgunPattern( es->pos.trBase, es->origin2, es->eventParm, es->otherEntityNum );
+}
+

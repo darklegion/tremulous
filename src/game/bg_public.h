@@ -339,6 +339,7 @@ typedef enum
   
   WP_BLASTER,
   WP_MACHINEGUN,
+  WP_SHOTGUN,
   WP_CHAINGUN,
   WP_FLAMER,
   WP_MASS_DRIVER,
@@ -373,9 +374,7 @@ typedef enum
   UP_JETPACK,
   UP_BATTLESUIT,
   
-  UP_MGCLIP,
-  UP_CGAMMO,
-  UP_GAS,
+  UP_AMMO,
 
   UP_NUM_UPGRADES
 } upgrade_t;
@@ -520,6 +519,8 @@ typedef enum
 
   EV_BULLET_HIT_FLESH,
   EV_BULLET_HIT_WALL,
+
+  EV_SHOTGUN,
 
   EV_MISSILE_HIT,
   EV_MISSILE_MISS,
@@ -1045,10 +1046,6 @@ typedef struct
 
   char      *icon;
   
-  weapon_t  weaponAmmo;
-  int       ammo;
-  int       clips;
-  
   WUTeam_t  team;
 } upgradeAttributes_t;
 
@@ -1164,8 +1161,6 @@ char      *BG_FindNameForUpgrade( int upgrade );
 int       BG_FindUpgradeNumForName( char *name );
 char      *BG_FindHumanNameForUpgrade( int upgrade );
 char      *BG_FindIconForUpgrade( int upgrade );
-weapon_t  BG_FindWeaponAmmoForBuildable( int upgrade );
-void      BG_FindAmmoForUpgrade( int upgrade, int *ammo, int *clips );
 WUTeam_t  BG_FindTeamForUpgrade( int upgrade );
 
 // content masks
