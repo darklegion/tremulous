@@ -566,7 +566,16 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
     built->die = HSpawn_Die;
     built->use = HMCU_Activate;
   }
+  else if( buildable == BA_H_REACTOR )
+  {
+    built->die = HSpawn_Die;
+  }
+  else if( buildable == BA_H_REPEATER )
+  {
+    built->die = HSpawn_Die;
+  }
 
+  built->takedamage = qtrue;
   built->s.number = built - g_entities;
   built->r.contents = CONTENTS_BODY;
   built->clipmask = MASK_PLAYERSOLID;

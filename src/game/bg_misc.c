@@ -809,12 +809,44 @@ TA: human defense item
   {
     "team_human_mcu",
     "sound/items/holdable.wav",
-    { "models/bitems/adef1.md3", 0, 0, 0 },
+    { "models/powerups/ammo/plasmaam.md3", 0, 0, 0 },
     "icons/teleporter", //icon
     "Human MCU",      //pickup
     0,
     IT_BUILDABLE,
     BA_H_MCU,
+    "",                 //precache
+    ""                  //sounds
+  },
+  
+/*QUAKED team_human_reactor (0 0 1) (-16 -16 -16) (16 16 16)
+TA: human power item
+*/
+  {
+    "team_human_reactor",
+    "sound/items/holdable.wav",
+    { "models/powerups/ammo/bfgam.md3", 0, 0, 0 },
+    "icons/teleporter", //icon
+    "Human Reactor",      //pickup
+    0,
+    IT_BUILDABLE,
+    BA_H_REACTOR,
+    "",                 //precache
+    ""                  //sounds
+  },
+  
+/*QUAKED team_human_repeater (0 0 1) (-16 -16 -16) (16 16 16)
+TA: human power item
+*/
+  {
+    "team_human_repeater",
+    "sound/items/holdable.wav",
+    { "models/powerups/ammo/railgunam.md3", 0, 0, 0 },
+    "icons/teleporter", //icon
+    "Human Repeater",      //pickup
+    0,
+    IT_BUILDABLE,
+    BA_H_REPEATER,
     "",                 //precache
     ""                  //sounds
   },
@@ -961,6 +993,38 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_MCU,
     "mcu",
     "team_human_mcu",
+    { -15, -15, -15 },
+    { 15, 15, 15 },
+    1000,
+    50,
+    50,
+    150,
+    MOD_HSPAWN,
+    BIT_HUMANS,
+    EV_NONE,
+    -1,
+    qfalse
+  },
+  {
+    BA_H_REACTOR,
+    "reactor",
+    "team_human_reactor",
+    { -15, -15, -15 },
+    { 15, 15, 15 },
+    1000,
+    50,
+    50,
+    150,
+    MOD_HSPAWN,
+    BIT_HUMANS,
+    EV_NONE,
+    -1,
+    qfalse
+  },
+  {
+    BA_H_REPEATER,
+    "repeater",
+    "team_human_repeater",
     { -15, -15, -15 },
     { 15, 15, 15 },
     1000,

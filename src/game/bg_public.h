@@ -374,6 +374,8 @@ typedef enum {
   BA_H_SPAWN,
   BA_H_DEF1,
   BA_H_MCU,
+  BA_H_REACTOR,
+  BA_H_REPEATER,
 
   BA_NUM_BUILDABLES
 } buildable_t;
