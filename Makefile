@@ -7,7 +7,7 @@
 
 # --Makefile variables--
 MOUNT_DIR=./src
-Q3A_DIR=/usr/games/quake3
+Q3A_DIR=/home/tma/.q3a/
 MOD_DIR=tremulous
 
 # --object list--
