@@ -154,7 +154,7 @@ SED=sed
 
 # --qvm building config--
 LCC=q3lcc
-LCC_FLAGS=-DQ3_VM -S -Wf-target=bytecode -Wf-g
+LCC_FLAGS=-DQ3_VM -S -Wf-target=bytecode
 LCC_INCLUDES=-I$(CGDIR) -I$(GDIR) -I$(UIDIR)
 
 Q3ASM=q3asm
