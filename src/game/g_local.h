@@ -806,6 +806,7 @@ void      trap_FS_Read( void *buffer, int len, fileHandle_t f );
 void      trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 void      trap_FS_FCloseFile( fileHandle_t f );
 int       trap_FS_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize );
+int       trap_FS_Seek( fileHandle_t f, long offset, int origin ); // fsOrigin_t
 void      trap_SendConsoleCommand( int exec_when, const char *text );
 void      trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags );
 void      trap_Cvar_Update( vmCvar_t *cvar );

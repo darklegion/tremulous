@@ -30,7 +30,8 @@ You can add or remove addresses from the filter list with:
 addip <ip>
 removeip <ip>
 
-The ip address is specified in dot format, and any unspecified digits will match any value, so you can specify an entire class C network with "addip 192.246.40".
+The ip address is specified in dot format, and you can use '*' to match any value
+so you can specify an entire class C network with "addip 192.246.40.*"
 
 Removeip will only remove an address specified exactly the same way.  You cannot addip a subnet, then removeip a single host.
 
@@ -43,6 +44,10 @@ If 1 (the default), then ip addresses matching the current list will be prohibit
 
 If 0, then only addresses matching the list will be allowed.  This lets you easily set up a private game, or a game that only allows players from your local network.
 
+TTimo NOTE: for persistence, bans are stored in g_banIPs cvar MAX_CVAR_VALUE_STRING
+The size of the cvar string buffer is limiting the banning to around 20 masks
+this could be improved by putting some g_banIPs2 g_banIps3 etc. maybe
+still, you should rely on PB for banning instead
 
 ==============================================================================
 */
@@ -84,6 +89,17 @@ static qboolean StringToFilter( char *s, ipFilter_t *f )
   {
     if( *s < '0' || *s > '9' )
     {
+      if( *s == '*' ) // 'match any'
+      {
+        //b[ i ] and m[ i ] to 0
+        s++;
+        if ( !*s )
+          break;
+        
+        s++;
+        continue;
+      }
+      
       G_Printf( "Bad filter address: %s\n", s );
       return qfalse;
     }
@@ -95,8 +111,7 @@ static qboolean StringToFilter( char *s, ipFilter_t *f )
     num[ j ] = 0;
     b[ i ] = atoi( num );
     
-    if( b[ i ] != 0 )
-      m[ i ] = 255;
+    m[ i ] = 255;
 
     if( !*s )
       break;
@@ -117,23 +132,43 @@ UpdateIPBans
 */
 static void UpdateIPBans( void )
 {
-  byte  b[ 4 ];
-  int   i;
-  char  iplist[ MAX_INFO_STRING ];
+	byte	b[ 4 ];
+	byte	m[ 4 ];
+	int		i, j;
+	char	iplist_final[ MAX_CVAR_VALUE_STRING ];
+	char	ip[ 64 ];
 
-  *iplist = 0;
+	*iplist_final = 0;
   
-  for( i = 0 ; i < numIPFilters ; i++ )
-  {
-    if( ipFilters[ i ].compare == 0xffffffff )
-      continue;
+	for( i = 0 ; i < numIPFilters ; i++ )
+	{
+		if( ipFilters[ i ].compare == 0xffffffff )
+			continue;
 
-    *(unsigned *)b = ipFilters[ i ].compare;
-    Com_sprintf( iplist + strlen( iplist ), sizeof( iplist ) - strlen( iplist ),
-      "%i.%i.%i.%i ", b[ 0 ], b[ 1 ], b[ 2 ], b[ 3 ] );
-  }
+		*(unsigned *)b = ipFilters[ i ].compare;
+		*(unsigned *)m = ipFilters[ i ].mask;
+		*ip = 0;
+    
+		for( j = 0 ; j < 4 ; j++ )
+		{
+			if( m[ j ] != 255 )
+				Q_strcat( ip, sizeof( ip ), "*" );
+			else
+				Q_strcat( ip, sizeof( ip ), va( "%i", b[ j ] ) );
+      
+			Q_strcat( ip, sizeof( ip ), ( j < 3 ) ? "." : " " );
+		}
+    
+		if( strlen( iplist_final ) + strlen( ip ) < MAX_CVAR_VALUE_STRING )
+			Q_strcat( iplist_final, sizeof( iplist_final ), ip );
+		else
+		{
+			Com_Printf( "g_banIPs overflowed at MAX_CVAR_VALUE_STRING\n" );
+			break;
+		}
+	}
 
-  trap_Cvar_Set( "g_banIPs", iplist );
+	trap_Cvar_Set( "g_banIPs", iplist_final );
 }
 
 /*
@@ -212,7 +247,7 @@ G_ProcessIPBans
 void G_ProcessIPBans( void )
 {
   char *s, *t;
-  char str[ MAX_TOKEN_CHARS ];
+  char str[ MAX_CVAR_VALUE_STRING ];
 
   Q_strncpyz( str, g_banIPs.string, sizeof( str ) );
 

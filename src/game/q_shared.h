@@ -20,7 +20,7 @@
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define	Q3_VERSION		"Q3 1.29h"
+#define	Q3_VERSION		"Q3 1.32"
 
 
 #define MAX_TEAMNAME 32
@@ -67,10 +67,6 @@
  **********************************************************************/
 
 #ifdef Q3_VM
-
-//#ifdef __linux__
-//#undef __linux__
-//#endif
 
 #include "bg_lib.h"
 
@@ -442,6 +438,14 @@ typedef enum {
 void *Hunk_AllocDebug( int size, ha_pref preference, char *label, char *file, int line );
 #else
 void *Hunk_Alloc( int size, ha_pref preference );
+#endif
+
+#ifdef __linux__
+// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=371
+// custom Snd_Memset implementation for glibc memset bug workaround
+void Snd_Memset (void* dest, const int val, const size_t count);
+#else
+#define Snd_Memset Com_Memset
 #endif
 
 #if !( defined __VECTORC )
@@ -1378,6 +1382,7 @@ typedef struct qtime_s {
 
 
 // server browser sources
+// TTimo: AS_MPLAYER is no longer used
 #define AS_LOCAL			0
 #define AS_MPLAYER		1
 #define AS_GLOBAL			2
@@ -1405,7 +1410,7 @@ typedef enum _flag_status {
 
 
 
-#define	MAX_GLOBAL_SERVERS			2048
+#define	MAX_GLOBAL_SERVERS			4096
 #define	MAX_OTHER_SERVERS			128
 #define MAX_PINGREQUESTS			32
 #define MAX_SERVERSTATUSREQUESTS	16

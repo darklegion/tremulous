@@ -1081,6 +1081,22 @@ void Script_Open(itemDef_t *item, char **args) {
   }
 }
 
+void Script_ConditionalOpen(itemDef_t *item, char **args) {
+	const char *cvar;
+	const char *name1;
+	const char *name2;
+	float           val;
+
+	if ( String_Parse(args, &cvar) && String_Parse(args, &name1) && String_Parse(args, &name2) ) {
+		val = DC->getCVarValue( cvar );
+		if ( val == 0.f ) {
+			Menus_OpenByName(name2);
+		} else {
+			Menus_OpenByName(name1);
+		}
+	}
+}
+
 void Script_Close(itemDef_t *item, char **args) {
   const char *name;
   if (String_Parse(args, &name)) {
@@ -1227,7 +1243,8 @@ commandDef_t commandList[] =
   {"show", &Script_Show},                       // group/name
   {"hide", &Script_Hide},                       // group/name
   {"setcolor", &Script_SetColor},               // works on this
-  {"open", &Script_Open},                       // nenu
+  {"open", &Script_Open},                       // menu
+  {"conditionalopen", &Script_ConditionalOpen}, // menu
   {"close", &Script_Close},                     // menu
   {"setasset", &Script_SetAsset},               // works on this
   {"setbackground", &Script_SetBackground},     // works on this

@@ -23,6 +23,11 @@
 // in entityStates (level eType), so the game must explicitly flag
 // special server behaviors
 #define SVF_NOCLIENT            0x00000001  // don't send entity to clients, even if it has effects
+
+// TTimo
+// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=551
+#define SVF_CLIENTMASK 0x00000002
+
 #define SVF_BOT                 0x00000008
 #define SVF_BROADCAST           0x00000020  // send to all connected clients
 #define SVF_PORTAL              0x00000040  // merge a second pvs at origin2 into snapshots
@@ -208,6 +213,9 @@ typedef enum {
 
   G_TRACECAPSULE, // ( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
   G_ENTITY_CONTACTCAPSULE,  // ( const vec3_t mins, const vec3_t maxs, const gentity_t *ent );
+
+  // 1.32
+  G_FS_SEEK,
 
   BOTLIB_SETUP = 200,       // ( void );
   BOTLIB_SHUTDOWN,        // ( void );

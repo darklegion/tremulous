@@ -250,7 +250,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_centertime, "cg_centertime", "3", CVAR_CHEAT },
   { &cg_runpitch, "cg_runpitch", "0.002", CVAR_ARCHIVE},
   { &cg_runroll, "cg_runroll", "0.005", CVAR_ARCHIVE },
-  { &cg_bobup , "cg_bobup", "0.005", CVAR_ARCHIVE },
+  { &cg_bobup , "cg_bobup", "0.005", CVAR_CHEAT },
   { &cg_bobpitch, "cg_bobpitch", "0.002", CVAR_ARCHIVE },
   { &cg_bobroll, "cg_bobroll", "0.002", CVAR_ARCHIVE },
   { &cg_swingSpeed, "cg_swingSpeed", "0.3", CVAR_CHEAT },

@@ -113,6 +113,10 @@ int trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf
 	return syscall( UI_FS_GETFILELIST, path, extension, listbuf, bufsize );
 }
 
+int trap_FS_Seek( fileHandle_t f, long offset, int origin ) {
+    return syscall( UI_FS_SEEK, f, offset, origin );
+}
+
 qhandle_t trap_R_RegisterModel( const char *name ) {
 	return syscall( UI_R_REGISTERMODEL, name );
 }
@@ -383,4 +387,6 @@ qboolean trap_VerifyCDKey( const char *key, const char *chksum) {
 	return syscall( UI_VERIFY_CDKEY, key, chksum);
 }
 
- 
+void trap_SetPbClStatus( int status ) {
+    syscall( UI_SET_PBCLSTATUS, status );
+}

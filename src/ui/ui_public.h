@@ -115,6 +115,9 @@ typedef enum {
   UI_LAN_GETSERVERPING,
   UI_LAN_SERVERISVISIBLE,
   UI_LAN_COMPARESERVERS,
+  // 1.32
+  UI_FS_SEEK,
+  UI_SET_PBCLSTATUS,
 
   UI_MEMSET = 100,
   UI_MEMCPY,
@@ -137,10 +140,11 @@ typedef enum {
   UIMENU_POSTGAME
 } uiMenuCommand_t;
 
-#define SORT_HOST     0
-#define SORT_MAP      1
-#define SORT_CLIENTS  2
-#define SORT_PING     3
+#define SORT_HOST         0
+#define SORT_MAP          1
+#define SORT_CLIENTS      2
+#define SORT_PING         3
+#define SORT_PUNKBUSTER   4
 
 typedef enum {
   UI_GETAPIVERSION = 0, // system reserved

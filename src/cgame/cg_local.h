@@ -1470,6 +1470,7 @@ int           trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mo
 void          trap_FS_Read( void *buffer, int len, fileHandle_t f );
 void          trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 void          trap_FS_FCloseFile( fileHandle_t f );
+int           trap_FS_Seek( fileHandle_t f, long offset, int origin ); // fsOrigin_t
 
 // add commands to the local console as if they were typed in
 // for map changing, etc.  The command is not executed immediately,
@@ -1520,7 +1521,7 @@ void          trap_S_AddLoopingSound( int entityNum, const vec3_t origin, const 
 void          trap_S_AddRealLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
 void          trap_S_UpdateEntityPosition( int entityNum, const vec3_t origin );
 
-// repatialize recalculates the volumes of sound as they should be heard by the
+// respatialize recalculates the volumes of sound as they should be heard by the
 // given entityNum and position
 void          trap_S_Respatialize( int entityNum, const vec3_t origin, vec3_t axis[3], int inwater );
 sfxHandle_t   trap_S_RegisterSound( const char *sample, qboolean compressed );    // returns buzz if not found
