@@ -24,8 +24,6 @@
                   
 #include "g_local.h"
 
-#define REFRESH_TIME  2000
-
 /*
 ================
 G_setBuildableAnim
@@ -54,6 +52,8 @@ void G_setIdleBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim )
 {
   ent->s.torsoAnim = anim;
 }
+
+#define REFRESH_TIME  2000
 
 /*
 ================
