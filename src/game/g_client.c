@@ -570,9 +570,11 @@ After sitting around for five seconds, fall into the ground and dissapear
 */
 void BodySink( gentity_t *ent )
 {
-  //arbituary number > 100 and < time since nextthink was set 
-  if( level.time - ent->nextthink > 1000 )
+  //run on first BodySink call
+  if( !ent->active )
   {
+    ent->active = qtrue;
+    
     //sinking bodies can't be infested
     ent->killedBy = ent->s.powerups = MAX_CLIENTS;
     ent->timestamp = level.time;
