@@ -1284,10 +1284,13 @@ static void PM_CrashLand( void )
       if( pm->ps->stats[STAT_HEALTH] > 0 )
         PM_AddEvent( EV_FALL_MEDIUM );
     }
-    else if( delta > 7 )
-      PM_AddEvent( EV_FALL_SHORT );
-    else
-      PM_AddEvent( PM_FootstepForSurface( ) );
+    else if( !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_NOFOOTSTEPS ) )
+    {
+      if( delta > 7 )
+        PM_AddEvent( EV_FALL_SHORT );
+      else
+        PM_AddEvent( PM_FootstepForSurface( ) );
+    }
   }
 
   // start footstep cycle over
