@@ -123,26 +123,27 @@
 // ideally these should be done outside of this file but
 // this makes it much easier for the macro expansion to 
 // convert them for the designers ( from the .menu files )
-#define CG_OWNERDRAW_BASE 1
-#define CG_PLAYER_ARMOR_ICON 1              
-#define CG_PLAYER_ARMOR_VALUE 2
-#define CG_PLAYER_HEAD 3
-#define CG_PLAYER_HEALTH 4
-#define CG_PLAYER_AMMO_ICON 5
-#define CG_PLAYER_AMMO_VALUE 6
-#define CG_SELECTEDPLAYER_HEAD 7
-#define CG_SELECTEDPLAYER_NAME 8
-#define CG_SELECTEDPLAYER_LOCATION 9
-#define CG_SELECTEDPLAYER_STATUS 10
-#define CG_SELECTEDPLAYER_WEAPON 11
-#define CG_SELECTEDPLAYER_POWERUP 12
+#define CG_OWNERDRAW_BASE           1
+#define CG_PLAYER_ARMOR_ICON        1              
+#define CG_PLAYER_ARMOR_VALUE       2
+#define CG_PLAYER_HEAD              3
+#define CG_PLAYER_HEALTH            4
+#define CG_PLAYER_AMMO_ICON         5
+#define CG_PLAYER_AMMO_VALUE        6
+#define CG_PLAYER_CLIPS_VALUE       70
+#define CG_SELECTEDPLAYER_HEAD      7
+#define CG_SELECTEDPLAYER_NAME      8
+#define CG_SELECTEDPLAYER_LOCATION  9
+#define CG_SELECTEDPLAYER_STATUS    10
+#define CG_SELECTEDPLAYER_WEAPON    11
+#define CG_SELECTEDPLAYER_POWERUP   12
 
-#define CG_FLAGCARRIER_HEAD 13
-#define CG_FLAGCARRIER_NAME 14
-#define CG_FLAGCARRIER_LOCATION 15
-#define CG_FLAGCARRIER_STATUS 16
-#define CG_FLAGCARRIER_WEAPON 17
-#define CG_FLAGCARRIER_POWERUP 18
+#define CG_FLAGCARRIER_HEAD         13
+#define CG_FLAGCARRIER_NAME         14
+#define CG_FLAGCARRIER_LOCATION     15
+#define CG_FLAGCARRIER_STATUS       16
+#define CG_FLAGCARRIER_WEAPON       17
+#define CG_FLAGCARRIER_POWERUP      18
 
 #define CG_PLAYER_ITEM 19
 #define CG_PLAYER_SCORE 20

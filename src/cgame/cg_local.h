@@ -24,6 +24,7 @@
 // If you absolutely need something stored, it can either be kept
 // by the server in the server stored userinfos, or stashed in a cvar.
 
+#define CG_FONT_THRESHOLD 0.1
 
 #define POWERUP_BLINKS      5
 
@@ -1715,12 +1716,11 @@ int     trap_Key_GetCatcher( void );
 void    trap_Key_SetCatcher( int catcher );
 int     trap_Key_GetKey( const char *binding );
 
-//TA: um...
-//typedef enum {
-//  SYSTEM_PRINT,
-//  CHAT_PRINT,
-//  TEAMCHAT_PRINT
-//};
+typedef enum {
+  SYSTEM_PRINT,
+  CHAT_PRINT,
+  TEAMCHAT_PRINT
+} q3print_t;
 
 
 int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits);

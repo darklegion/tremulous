@@ -243,7 +243,10 @@ releasei386-glibc/cgame/cg_creep.o: ./src/cgame/cg_creep.c src/cgame/cg_local.h 
 releasei386-glibc/cgame/cg_draw.o: ./src/cgame/cg_draw.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_drawtools.o: ./src/cgame/cg_drawtools.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -271,7 +274,10 @@ releasei386-glibc/cgame/cg_localents.o: ./src/cgame/cg_localents.c src/cgame/cg_
 releasei386-glibc/cgame/cg_main.o: ./src/cgame/cg_main.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_marks.o: ./src/cgame/cg_marks.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -284,6 +290,13 @@ releasei386-glibc/cgame/cg_mp3decoder.o: ./src/cgame/cg_mp3decoder.c src/cgame/c
  src/cgame/cg_local.h src/cgame/../game/q_shared.h \
  src/cgame/../game/surfaceflags.h src/cgame/tr_types.h \
  src/cgame/../game/bg_public.h src/cgame/cg_public.h
+releasei386-glibc/cgame/cg_newdraw.o: ./src/cgame/cg_newdraw.c src/cgame/cg_local.h \
+ src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
+ src/cgame/tr_types.h src/cgame/../game/bg_public.h \
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 releasei386-glibc/cgame/cg_particles.o: ./src/cgame/cg_particles.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -351,7 +364,10 @@ debugi386-glibc/cgame/cg_creep.o: ./src/cgame/cg_creep.c src/cgame/cg_local.h \
 debugi386-glibc/cgame/cg_draw.o: ./src/cgame/cg_draw.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_drawtools.o: ./src/cgame/cg_drawtools.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -379,7 +395,10 @@ debugi386-glibc/cgame/cg_localents.o: ./src/cgame/cg_localents.c src/cgame/cg_lo
 debugi386-glibc/cgame/cg_main.o: ./src/cgame/cg_main.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_marks.o: ./src/cgame/cg_marks.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -392,6 +411,13 @@ debugi386-glibc/cgame/cg_mp3decoder.o: ./src/cgame/cg_mp3decoder.c src/cgame/cg_
  src/cgame/cg_local.h src/cgame/../game/q_shared.h \
  src/cgame/../game/surfaceflags.h src/cgame/tr_types.h \
  src/cgame/../game/bg_public.h src/cgame/cg_public.h
+debugi386-glibc/cgame/cg_newdraw.o: ./src/cgame/cg_newdraw.c src/cgame/cg_local.h \
+ src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
+ src/cgame/tr_types.h src/cgame/../game/bg_public.h \
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 debugi386-glibc/cgame/cg_particles.o: ./src/cgame/cg_particles.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -459,7 +485,10 @@ qvm/cgame/cg_creep.asm: ./src/cgame/cg_creep.c src/cgame/cg_local.h \
 qvm/cgame/cg_draw.asm: ./src/cgame/cg_draw.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_drawtools.asm: ./src/cgame/cg_drawtools.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -487,7 +516,10 @@ qvm/cgame/cg_localents.asm: ./src/cgame/cg_localents.c src/cgame/cg_local.h \
 qvm/cgame/cg_main.asm: ./src/cgame/cg_main.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
- src/cgame/cg_public.h
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_marks.asm: ./src/cgame/cg_marks.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -500,6 +532,13 @@ qvm/cgame/cg_mp3decoder.asm: ./src/cgame/cg_mp3decoder.c src/cgame/cg_mp3decoder
  src/cgame/cg_local.h src/cgame/../game/q_shared.h \
  src/cgame/../game/surfaceflags.h src/cgame/tr_types.h \
  src/cgame/../game/bg_public.h src/cgame/cg_public.h
+qvm/cgame/cg_newdraw.asm: ./src/cgame/cg_newdraw.c src/cgame/cg_local.h \
+ src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
+ src/cgame/tr_types.h src/cgame/../game/bg_public.h \
+ src/cgame/cg_public.h src/cgame/../ui/ui_shared.h \
+ src/cgame/../ui/../game/q_shared.h \
+ src/cgame/../ui/../cgame/tr_types.h src/cgame/../ui/keycodes.h \
+ src/cgame/../ui/../../ui/menudef.h
 qvm/cgame/cg_particles.asm: ./src/cgame/cg_particles.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -577,7 +616,6 @@ releasei386-glibc/ui/ui_syscalls.o: ./src/ui/ui_syscalls.c src/ui/ui_local.h \
  src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
  src/ui/../game/bg_public.h src/ui/ui_shared.h \
  src/ui/../../ui/menudef.h
-releasei386-glibc/ui/ui_util.o: ./src/ui/ui_util.c
 debugi386-glibc/ui/ui_atoms.o: ./src/ui/ui_atoms.c src/ui/ui_local.h \
  src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
  src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
@@ -607,7 +645,6 @@ debugi386-glibc/ui/ui_syscalls.o: ./src/ui/ui_syscalls.c src/ui/ui_local.h \
  src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
  src/ui/../game/bg_public.h src/ui/ui_shared.h \
  src/ui/../../ui/menudef.h
-debugi386-glibc/ui/ui_util.o: ./src/ui/ui_util.c
 qvm/ui/ui_atoms.asm: ./src/ui/ui_atoms.c src/ui/ui_local.h \
  src/ui/../game/q_shared.h src/ui/../game/surfaceflags.h \
  src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
@@ -637,4 +674,3 @@ qvm/ui/ui_syscalls.asm: ./src/ui/ui_syscalls.c src/ui/ui_local.h \
  src/ui/../cgame/tr_types.h src/ui/ui_public.h src/ui/keycodes.h \
  src/ui/../game/bg_public.h src/ui/ui_shared.h \
  src/ui/../../ui/menudef.h
-qvm/ui/ui_util.asm: ./src/ui/ui_util.c
