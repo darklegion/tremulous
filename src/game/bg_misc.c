@@ -931,6 +931,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_droid_spawn",
     { -15, -15, -15 },
     { 15, 15, 15 },
+    0,
     1000,
     50,
     50,
@@ -948,6 +949,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_droid_def1",
     { -15, -15, -15 },
     { 15, 15, 15 },
+    0,
     1000,
     50,
     20,
@@ -965,6 +967,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_human_spawn",
     { -40, -40, -4 },
     { 40, 40, 4 },
+    100,
     1000,
     50,
     50,
@@ -982,6 +985,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_human_def1",
     { -24, -24, -11 },
     { 24, 24, 11 },
+    80,
     1000,
     50,
     20,
@@ -999,6 +1003,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_human_mcu",
     { -15, -15, -15 },
     { 15, 15, 15 },
+    200,
     1000,
     50,
     50,
@@ -1016,6 +1021,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_human_reactor",
     { -15, -15, -15 },
     { 15, 15, 15 },
+    0,
     1000,
     50,
     50,
@@ -1033,6 +1039,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_human_repeater",
     { -15, -15, -15 },
     { 15, 15, 15 },
+    10,
     1000,
     50,
     50,
@@ -1060,6 +1067,25 @@ int BG_FindBuildNumForName( char *name )
   for( i = 0; i < bg_numBuildables; i++ )
   {
     if( !Q_stricmp( bg_buildableList[ i ].buildName, name ) )
+      return bg_buildableList[ i ].buildNum;
+  }
+
+  //wimp out
+  return BA_NONE;
+}
+
+/*
+==============
+BG_FindBuildNumForEntityName
+==============
+*/
+int BG_FindBuildNumForEntityName( char *name )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( !Q_stricmp( bg_buildableList[ i ].entityName, name ) )
       return bg_buildableList[ i ].buildNum;
   }
 
@@ -1133,6 +1159,26 @@ void BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs )
     
   if( maxs != NULL )
     VectorCopy( bg_buildableList[ 0 ].maxs, maxs );
+}
+
+/*
+==============
+BG_FindBuildPointsForBuildable
+==============
+*/
+int BG_FindBuildPointsForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].buildPoints;
+    }
+  }
+  
+  return 1000;
 }
 
 /*

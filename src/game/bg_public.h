@@ -86,10 +86,13 @@
 #define CS_ITEMS            27    // string of 0's and 1's that tell which items are present
 
 //TA: extra stuff:
-#define CS_ABPOINTS         28
-#define CS_HBPOINTS         29
+#define CS_DBPOINTS         28
+#define CS_DTBPOINTS        29
+#define CS_HBPOINTS         30
+#define CS_HTBPOINTS        31
+#define CS_HPBPOINTS        32
 
-#define CS_MODELS           32
+#define CS_MODELS           33
 #define CS_SOUNDS           (CS_MODELS+MAX_MODELS)
 #define CS_PLAYERS          (CS_SOUNDS+MAX_SOUNDS)
 #define MAX_PRECACHES       32
@@ -752,6 +755,8 @@ typedef struct
 
   vec3_t    mins;
   vec3_t    maxs;
+  
+  int       buildPoints;
 
   int       health;
   
@@ -784,10 +789,12 @@ gitem_t *BG_FindItemForHoldable( holdable_t pw );
 
 //TA:
 int       BG_FindBuildNumForName( char *name );
+int       BG_FindBuildNumForEntityName( char *name );
 char      *BG_FindNameForBuildable( int bclass );
 char      *BG_FindEntityNameForBuildable( int bclass );
 void      BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs );
 int       BG_FindHealthForBuildable( int bclass );
+int       BG_FindBuildPointsForBuildable( int bclass );
 int       BG_FindDamageForBuildable( int bclass );
 int       BG_FindSplashDamageForBuildable( int bclass );
 int       BG_FindSplashRadiusForBuildable( int bclass );
@@ -796,6 +803,7 @@ int       BG_FindTeamForBuildable( int bclass );
 int       BG_FindEventForBuildable( int bclass );
 int       BG_FindNextThinkForBuildable( int bclass );
 int       BG_FindCreepTestForBuildable( int bclass );
+int       BG_FindReactorTestForBuildable( int bclass );
 
 int       BG_FindClassNumForName( char *name );
 char      *BG_FindNameForClassNum( int pclass );

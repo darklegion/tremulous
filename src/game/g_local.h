@@ -415,12 +415,18 @@ typedef struct {
   //TA: extra stuff:
   int     numDroidSpawns;
   int     numHumanSpawns;
+  
   int     numDroidClients;
   int     numHumanClients;
+  
   int     numLiveDroidClients;
   int     numLiveHumanClients;
+  
   int     droidBuildPoints;
+  int     droidBuildPointsTotal;
   int     humanBuildPoints;
+  int     humanBuildPointsTotal;
+  int     humanBuildPointsPowered;
 } level_locals_t;
 
 
@@ -477,6 +483,7 @@ typedef enum
   IBE_NOROOM,
   IBE_NOCREEP,
   IBE_REACTOR,
+  IBE_NOPOWER,
 
   IBE_MAXERRORS
 } itemBuildError_t;

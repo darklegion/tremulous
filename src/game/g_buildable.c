@@ -140,9 +140,6 @@ void DSpawn_Melt( gentity_t *self )
   }
   else
     G_FreeEntity( self );
-  
-  //update spawn counts
-  CalculateRanks( );
 }
 
 /*
@@ -288,9 +285,9 @@ void HRpt_Think( gentity_t *self )
   }
   
   if( count && reactor )
-    self->active = qtrue;
+    self->active = self->powered = qtrue;
   else
-    self->active = qfalse;
+    self->active = self->powered = qfalse;
 
   self->nextthink = level.time + 10000;
 }
@@ -524,9 +521,6 @@ void HSpawn_Blast( gentity_t *self )
     self->splashRadius, self, self->splashMethodOfDeath );
 
   G_FreeEntity( self );
-  
-  //update spawn counts
-  CalculateRanks( );
 }
 
 
@@ -611,30 +605,40 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
   if( tr1.fraction < 1.0 || tr2.fraction < 1.0 )
     reason = IBE_NOROOM;
     
-  if( BG_FindCreepTestForBuildable( buildable ) )
+  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
   {
-    for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
+    //droid criteria
+    if( BG_FindCreepTestForBuildable( buildable ) )
     {
-      if( !Q_stricmp( tempent->classname, "team_droid_spawn" ) )
+      for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
       {
-        VectorSubtract( entity_origin, tempent->s.origin, temp_v );
-        if( VectorLength( temp_v ) <= ( CREEP_BASESIZE * 3 ) )
-          break;
+        if( !Q_stricmp( tempent->classname, "team_droid_spawn" ) )
+        {
+          VectorSubtract( entity_origin, tempent->s.origin, temp_v );
+          if( VectorLength( temp_v ) <= ( CREEP_BASESIZE * 3 ) )
+            break;
+        }
       }
-    }
 
-    if( i >= level.num_entities )
-      reason = IBE_NOCREEP;
+      if( i >= level.num_entities )
+        reason = IBE_NOCREEP;
+    }
   }
-  
-  if( BG_FindReactorTestForBuildable( buildable ) )
+  else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
-    for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
+    //human criteria
+    if( level.humanBuildPoints - BG_FindBuildPointsForBuildable( buildable ) < 0 )
+      reason = IBE_NOPOWER;
+
+    if( BG_FindReactorTestForBuildable( buildable ) )
     {
-      if( !Q_stricmp( tempent->classname, "team_human_reactor" ) )
+      for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
       {
-        reason = IBE_REACTOR;
-        break;
+        if( !Q_stricmp( tempent->classname, "team_human_reactor" ) )
+        {
+          reason = IBE_REACTOR;
+          break;
+        }
       }
     }
   }
@@ -716,6 +720,7 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
   else if( buildable == BA_H_REACTOR )
   {
     built->die = HSpawn_Die;
+    built->powered = qtrue;
   }
   else if( buildable == BA_H_REPEATER )
   {
@@ -734,9 +739,6 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
   VectorCopy( origin, built->s.origin );
   built->s.pos.trType = TR_GRAVITY;
   built->s.pos.trTime = level.time;
-
-  //update spawn counts
-  CalculateRanks( );
   
   trap_LinkEntity (built);
 

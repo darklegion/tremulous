@@ -968,7 +968,7 @@ static float CG_DrawPoints( float y )
   team = cg.snap->ps.stats[ STAT_PTEAM ];
   
   if( team == PTE_DROIDS )
-    buildpoints = cgs.aBuildPoints;
+    buildpoints = cgs.dBuildPoints;
   else if( team == PTE_HUMANS )
     buildpoints = cgs.hBuildPoints;
 

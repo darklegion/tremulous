@@ -165,6 +165,8 @@ void G_RunFrame( int levelTime );
 void G_ShutdownGame( int restart );
 void CheckExitRules( void );
 
+void countSpawns( void );
+void calculateBuildPoints( void );
 
 /*
 ================
@@ -493,7 +495,11 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
   G_RemapTeamShaders();
 
   //TA: so the server counts the spawns without a client attached
-  CalculateRanks( );
+  countSpawns( );
+
+  //TA: FIXME: grab these values from a worldspawn variable
+  level.humanBuildPoints = level.humanBuildPointsTotal = 1000;
+  level.droidBuildPoints = level.droidBuildPointsTotal = 1000;
 }
 
 
@@ -776,6 +782,47 @@ void countSpawns( void )
 
 /*
 ============
+calculateBuildPoints
+
+Recalculate the quantity of building points available to the teams
+============
+*/
+void calculateBuildPoints( void )
+{
+  int i;
+  int bclass;
+  gentity_t *ent;
+
+  level.humanBuildPoints = level.humanBuildPointsPowered = level.humanBuildPointsTotal;
+  level.droidBuildPoints = level.droidBuildPointsTotal;
+
+  for ( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
+  {
+    if (!ent->inuse)
+      continue;
+
+    bclass = BG_FindBuildNumForEntityName( ent->classname );
+    
+    if( bclass != BA_NONE )
+    {
+      if( BG_FindTeamForBuildable( bclass ) == BIT_HUMANS )
+      {
+        level.humanBuildPoints -= BG_FindBuildPointsForBuildable( bclass );
+
+        if( ent->powered )
+          level.humanBuildPointsPowered -= BG_FindBuildPointsForBuildable( bclass );
+      }
+      else
+      {
+        level.droidBuildPoints -= BG_FindBuildPointsForBuildable( bclass );
+      }
+    }
+  }
+}
+
+
+/*
+============
 CalculateRanks
 
 Recalculates the score ranks of all players
@@ -804,8 +851,6 @@ void CalculateRanks( void ) {
   for ( i = 0; i < TEAM_NUM_TEAMS; i++ ) {
     level.numteamVotingClients[i] = 0;
   }
-
-  countSpawns( );
 
   for ( i = 0 ; i < level.maxclients ; i++ )
   {
@@ -893,8 +938,11 @@ void CalculateRanks( void ) {
     }
   }
 
-  trap_SetConfigstring( CS_ABPOINTS, va("%i", level.droidBuildPoints ) );
+  trap_SetConfigstring( CS_DBPOINTS, va("%i", level.droidBuildPoints ) );
+  trap_SetConfigstring( CS_DTBPOINTS, va("%i", level.droidBuildPointsTotal ) );
   trap_SetConfigstring( CS_HBPOINTS, va("%i", level.humanBuildPoints ) );
+  trap_SetConfigstring( CS_HTBPOINTS, va("%i", level.humanBuildPointsTotal ) );
+  trap_SetConfigstring( CS_HPBPOINTS, va("%i", level.humanBuildPointsPowered ) );
 
   // set the CS_SCORES1/2 configstrings, which will be visible to everyone
   if ( g_gametype.integer >= GT_TEAM ) {
@@ -1852,6 +1900,11 @@ end = trap_Milliseconds();
 
   // see if it is time to do a tournement restart
   CheckTournament();
+  
+  //TA:
+  countSpawns();
+  calculateBuildPoints();
+  Com_Printf( "%d %d %d\n", level.humanBuildPointsTotal, level.humanBuildPoints, level.humanBuildPointsPowered );
 
   // see if it is time to end the level
   CheckExitRules();

@@ -189,8 +189,11 @@ void CG_SetConfigValues( void ) {
 	cgs.scores1 = atoi( CG_ConfigString( CS_SCORES1 ) );
 	cgs.scores2 = atoi( CG_ConfigString( CS_SCORES2 ) );
 
-  cgs.aBuildPoints = atoi( CG_ConfigString( CS_ABPOINTS ) );
+  cgs.dBuildPoints = atoi( CG_ConfigString( CS_DBPOINTS ) );
+  cgs.dBuildPointsTotal = atoi( CG_ConfigString( CS_DTBPOINTS ) );
   cgs.hBuildPoints = atoi( CG_ConfigString( CS_HBPOINTS ) );
+  cgs.hBuildPointsTotal = atoi( CG_ConfigString( CS_HTBPOINTS ) );
+  cgs.hBuildPointsPowered = atoi( CG_ConfigString( CS_HPBPOINTS ) );
   
 	cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
   if( cgs.gametype == GT_CTF ) {
@@ -273,10 +276,16 @@ static void CG_ConfigStringModified( void ) {
 		cgs.scores1 = atoi( str );
 	} else if ( num == CS_SCORES2 ) {
 		cgs.scores2 = atoi( str );
-  } else if ( num == CS_ABPOINTS ) {
-    cgs.aBuildPoints = atoi( str );
+  } else if ( num == CS_DBPOINTS ) {
+    cgs.dBuildPoints = atoi( str );
+  } else if ( num == CS_DTBPOINTS ) {
+    cgs.dBuildPointsTotal = atoi( str );
   } else if ( num == CS_HBPOINTS ) {
     cgs.hBuildPoints = atoi( str );
+  } else if ( num == CS_HTBPOINTS ) {
+    cgs.hBuildPointsTotal = atoi( str );
+  } else if ( num == CS_HPBPOINTS ) {
+    cgs.hBuildPointsPowered = atoi( str );
 	} else if ( num == CS_LEVEL_START_TIME ) {
 		cgs.levelStartTime = atoi( str );
 	} else if ( num == CS_VOTE_TIME ) {

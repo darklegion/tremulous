@@ -992,7 +992,11 @@ typedef struct {
 
   qboolean  newHud;
 
-  int       hBuildPoints, aBuildPoints;
+  int       dBuildPoints;
+  int       dBuildPointsTotal;
+  int       hBuildPoints;
+  int       hBuildPointsTotal;
+  int       hBuildPointsPowered;
 
   //
   // locally derived information from gamestate
