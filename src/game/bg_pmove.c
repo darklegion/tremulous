@@ -2322,6 +2322,9 @@ static void PM_BeginWeaponChange( int weapon )
   PM_AddEvent( EV_CHANGE_WEAPON );
   pm->ps->weaponstate = WEAPON_DROPPING;
   pm->ps->weaponTime += 200;
+
+  //reset build weapon
+  pm->ps->stats[ STAT_BUILDABLE ] = BA_NONE;
   
   if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
     PM_StartTorsoAnim( TORSO_DROP );

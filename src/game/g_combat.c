@@ -202,7 +202,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   self->enemy = attacker;
 
-  self->client->ps.persistant[PERS_KILLED]++;
+  self->client->ps.persistant[ PERS_KILLED ]++;
 
   if( attacker && attacker->client )
   {
@@ -225,10 +225,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       
     }
   }
-  else
-  {
+  else if( attacker->s.eType != ET_BUILDABLE )
     AddScore( self, -1 );
-  }
 
   if( attacker && attacker->client &&
       attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&

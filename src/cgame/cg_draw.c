@@ -2768,7 +2768,7 @@ static qboolean CG_DrawScoreboard( )
     return qfalse;
   }
 
-  if( cg.showScores || cg.predictedPlayerState.pm_type == PM_DEAD ||
+  if( cg.showScores ||
       cg.predictedPlayerState.pm_type == PM_INTERMISSION )
   {
     fade = 1.0;

@@ -111,6 +111,12 @@ static void CG_Obituary( entityState_t *ent )
     case MOD_SLOWBLOB:
       message = "should have visited a medical station";
       break;
+    case MOD_POISON:
+      message = "should have remembered the antitox";
+      break;
+    case MOD_HYDRA_PCLOUD: //FIXME
+      message = "was gassed by a hydra";
+      break;
     default:
       message = NULL;
       break;
@@ -128,6 +134,15 @@ static void CG_Obituary( entityState_t *ent )
           message = "toasted itself";
         else
           message = "toasted himself";
+        break;
+        
+      case MOD_LCANNON_SPLASH:
+        if( gender == GENDER_FEMALE )
+          message = "irradiated herself";
+        else if( gender == GENDER_NEUTER )
+          message = "irradiated itself";
+        else
+          message = "irradiated himself";
         break;
         
       default:
@@ -166,6 +181,9 @@ static void CG_Obituary( entityState_t *ent )
   {
     switch( mod )
     {
+      case MOD_PAINSAW:
+        message = "was sawn by";
+        break;
       case MOD_BLASTER:
         message = "was blasted by";
         break;
@@ -197,9 +215,39 @@ static void CG_Obituary( entityState_t *ent )
         message = "was caught in the fallout of";
         message2 = "'s lucifer cannon";
         break;
-      case MOD_VENOM:
-            message = "was biten by";
+        
+      case MOD_ABUILDER_CLAW:
+        message = "should leave";
+        message2 = "'s buildings alone";
         break;
+      case MOD_VENOM:
+        message = "was biten by";
+        break;
+      case MOD_HYDRA_CLAW:
+        message = "was swiped by";
+        message2 = "'s hydra";
+        break;
+      case MOD_DRAGOON_CLAW:
+        message = "was clawed by";
+        message2 = "'s dragoon";
+        break;
+      case MOD_DRAGOON_POUNCE:
+        message = "was pounced upon by";
+        message2 = "'s dragoon";
+        break;
+      case MOD_CHIMERA_CLAW:
+        message = "was clawed by";
+        message2 = "'s chimera";
+        break;
+      case MOD_CHIMERA_ZAP:
+        message = "was zapped by";
+        message2 = "'s chimera";
+        break;
+      case MOD_BMOFO_CLAW:
+        message = "was mauled by";
+        message2 = "'s big mofo";
+        break;
+        
       case MOD_TELEFRAG:
         message = "tried to invade";
         message2 = "'s personal space";

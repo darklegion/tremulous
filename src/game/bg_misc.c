@@ -1495,7 +1495,7 @@ classAttributes_t bg_classList[ ] =
     PCL_A_O_LEV4,                                   //int     classnum;
     "bigmofo",                                      //char    *classname;
     "Big Mofo",                                     //char    *humanname;
-    "bug",                                          //char    *modelname;
+    "bigmofo",                                      //char    *modelname;
     1.2f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
     "alien_general_hud",                            //char    *hudname;

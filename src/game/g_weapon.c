@@ -69,7 +69,7 @@ void SnapVectorTowards( vec3_t v, vec3_t to )
 meleeAttack
 ===============
 */
-void meleeAttack( gentity_t *ent, float range, int damage )
+void meleeAttack( gentity_t *ent, float range, int damage, meansOfDeath_t mod )
 {
   trace_t   tr;
   vec3_t    end;
@@ -99,7 +99,7 @@ void meleeAttack( gentity_t *ent, float range, int damage )
   }
 
   if ( traceEnt->takedamage )
-    G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
+    G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, mod );
 }
 
 /*
@@ -344,7 +344,7 @@ void painSawFire( gentity_t *ent )
   }
 
   if ( traceEnt->takedamage )
-    G_Damage( traceEnt, ent, ent, forward, tr.endpos, PAINSAW_DAMAGE, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
+    G_Damage( traceEnt, ent, ent, forward, tr.endpos, PAINSAW_DAMAGE, DAMAGE_NO_KNOCKBACK, MOD_PAINSAW );
 }
 
 /*
@@ -435,6 +435,11 @@ BUILD GUN
 ======================================================================
 */
 
+/*
+===============
+cancelBuildFire
+===============
+*/
 void cancelBuildFire( gentity_t *ent )
 {
   vec3_t      forward, end;
@@ -478,9 +483,14 @@ void cancelBuildFire( gentity_t *ent )
     }
   }
   else if( ent->client->ps.weapon == WP_ABUILD2 )
-    meleeAttack( ent, ABUILDER_CLAW_RANGE, ABUILDER_CLAW_DMG ); //melee attack for alien builder
+    meleeAttack( ent, ABUILDER_CLAW_RANGE, ABUILDER_CLAW_DMG, MOD_ABUILDER_CLAW ); //melee attack for alien builder
 }
 
+/*
+===============
+buildFire
+===============
+*/
 void buildFire( gentity_t *ent, dynMenu_t menu )
 {
   if( ( ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
@@ -702,7 +712,7 @@ qboolean CheckPounceAttack( gentity_t *ent )
 
   damage = (int)( ( (float)ent->client->pouncePayload / (float)DRAGOON_POUNCE_SPEED ) * DRAGOON_POUNCE_DMG );
 
-  G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
+  G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_DRAGOON_POUNCE );
 
   ent->client->allowedToPounce = qfalse;
   
@@ -774,7 +784,7 @@ void areaZapFire( gentity_t *ent )
     
     //do some damage
     G_Damage( enemy, ent, ent, dir, tr.endpos,
-              damage, DAMAGE_NO_KNOCKBACK, MOD_TESLAGEN );
+              damage, DAMAGE_NO_KNOCKBACK, MOD_CHIMERA_ZAP );
     
     // snap the endpos to integers to save net bandwidth, but nudged towards the line
     SnapVectorTowards( tr.endpos, muzzle );
@@ -846,7 +856,7 @@ void directZapFire( gentity_t *ent )
   {
     //do some damage
     G_Damage( target, ent, ent, dir, tr.endpos,
-              CHIMERA_DIRECTZAP_DMG, DAMAGE_NO_KNOCKBACK, MOD_TESLAGEN );
+              CHIMERA_DIRECTZAP_DMG, DAMAGE_NO_KNOCKBACK, MOD_CHIMERA_ZAP );
     
     // snap the endpos to integers to save net bandwidth, but nudged towards the line
     SnapVectorTowards( tr.endpos, muzzle );
@@ -1041,20 +1051,20 @@ void FireWeapon( gentity_t *ent )
   {
     case WP_GRAB_CLAW:
     case WP_GRAB_CLAW_UPG:
-      meleeAttack( ent, HYDRA_CLAW_RANGE, HYDRA_CLAW_DMG );
+      meleeAttack( ent, HYDRA_CLAW_RANGE, HYDRA_CLAW_DMG, MOD_HYDRA_CLAW );
       break;
     case WP_POUNCE:
     case WP_POUNCE_UPG:
-      meleeAttack( ent, DRAGOON_CLAW_RANGE, DRAGOON_CLAW_DMG );
+      meleeAttack( ent, DRAGOON_CLAW_RANGE, DRAGOON_CLAW_DMG, MOD_DRAGOON_CLAW );
       break;
     case WP_AREA_ZAP:
-      meleeAttack( ent, CHIMERA_CLAW_RANGE, CHIMERA_CLAW_DMG );
+      meleeAttack( ent, CHIMERA_CLAW_RANGE, CHIMERA_CLAW_DMG, MOD_CHIMERA_CLAW );
       break;
     case WP_DIRECT_ZAP:
-      meleeAttack( ent, CHIMERA_CLAW_RANGE, CHIMERA_CLAW_DMG );
+      meleeAttack( ent, CHIMERA_CLAW_RANGE, CHIMERA_CLAW_DMG, MOD_CHIMERA_CLAW );
       break;
     case WP_GROUND_POUND:
-      meleeAttack( ent, BMOFO_CLAW_RANGE, BMOFO_CLAW_DMG );
+      meleeAttack( ent, BMOFO_CLAW_RANGE, BMOFO_CLAW_DMG, MOD_BMOFO_CLAW );
       break;
 
     case WP_BLASTER:

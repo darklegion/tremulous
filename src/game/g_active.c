@@ -455,12 +455,12 @@ void ClientTimerActions( gentity_t *ent, int msec )
         client->ps.stats[ STAT_STAMINA ] = MAX_STAMINA;
     }
 
-    //client is poisoned
+    //client is poisoned FIXME: set attacker parameter
     if( client->ps.stats[ STAT_STATE ] & SS_POISONED )
     {
       int damage = ( level.time - client->lastPoisonTime ) / 1000;
 
-      G_Damage( ent, NULL, NULL, NULL, NULL, damage, 0, MOD_VENOM );
+      G_Damage( ent, NULL, NULL, NULL, NULL, damage, 0, MOD_POISON );
     }
 
     //client is charging up for a pounce
@@ -537,9 +537,9 @@ void ClientTimerActions( gentity_t *ent, int msec )
   {
     client->time1000 -= 1000;
 
-    //client is poisoned
+    //client is poisoned FIXME: set attacker parameter
     if( client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED )
-      G_Damage( ent, NULL, NULL, NULL, NULL, HYDRA_PCLOUD_DMG, 0, MOD_VENOM );
+      G_Damage( ent, NULL, NULL, NULL, NULL, HYDRA_PCLOUD_DMG, 0, MOD_HYDRA_PCLOUD );
     
     //replenish alien health
     if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
