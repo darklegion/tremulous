@@ -9,7 +9,7 @@
     visible 0
     fullscreen 0
     outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
-    rect 10 56 384 280
+    rect 10 56 292 280
     focusColor 1 .75 0 1
     onopen
     {
@@ -20,7 +20,7 @@
     itemDef
     {
       name window
-      rect 10 5 384 270
+      rect 10 5 292 270
       style WINDOW_STYLE_FILLED
       backcolor 0 0 0 1
       visible 1
@@ -38,7 +38,7 @@
       text "Game"
       group menuGrp
       style WINDOW_STYLE_EMPTY
-      rect 160 20 64 20
+      rect 90 20 64 20
       type ITEM_TYPE_BUTTON
       textalign ITEM_ALIGN_CENTER 
       textalignx 34
@@ -59,7 +59,7 @@
       text "Controls"
       group menuGrp
       style WINDOW_STYLE_EMPTY
-      rect 230 20 64 20
+      rect 160 20 64 20
       type ITEM_TYPE_BUTTON
       textalign ITEM_ALIGN_CENTER 
       textalignx 34
@@ -81,7 +81,7 @@
       text "System"
       group menuGrp
       style WINDOW_STYLE_EMPTY
-      rect 300 20 64 20
+      rect 230 20 64 20
       type ITEM_TYPE_BUTTON
       textalign ITEM_ALIGN_CENTER 
       textalignx 34
@@ -108,13 +108,13 @@
       text "Name:"
       cvar "name"
       maxchars 26
-      rect 278 85 192 20
+      rect 90 85 192 15
       textalign ITEM_ALIGN_LEFT		
-      textalignx 10
-      textaligny 18
+      textalignx 64 
+      textaligny 12
       textscale .25        
       forecolor 1 1 1 1
-      visible 1 
+      visible 0 
     }
     
     itemDef
@@ -124,13 +124,13 @@
       type ITEM_TYPE_YESNO
       text "Auto Download:"
       cvar "cl_allowDownload"
-      rect 155 120 200 15
+      rect 90 120 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 143
+      textalignx 128
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
-      visible 1 
+      visible 0 
     }
 
     itemDef
@@ -140,13 +140,13 @@
       type ITEM_TYPE_YESNO
       text "Taunts Off:"
       cvar "cg_noTaunt"
-      rect 155 135 200 15
+      rect 90 135 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 143
+      textalignx 128
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
-      visible 1 
+      visible 0 
     }
 
     itemDef
@@ -156,13 +156,13 @@
       type ITEM_TYPE_YESNO
       text "Team Chats Only:"
       cvar "cg_teamChatsOnly"
-      rect 155 150 200 15
+      rect 90 150 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 143
+      textalignx 128
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
-      visible 1 
+      visible 0 
     }
 
     itemDef
@@ -171,13 +171,13 @@
       group optionsGrp
       text "Crosshair:"
       ownerdraw UI_CROSSHAIR
-      rect 298 168 20 17
+      rect 218 167 20 17
       textalign ITEM_ALIGN_RIGHT
       textalignx 0 
       textaligny 17
       textscale .25        
       forecolor 1 1 1 1
-      visible 1 
+      visible 0 
     }
 
     itemDef
@@ -187,13 +187,13 @@
       type ITEM_TYPE_YESNO
       text "Auto Wallwalk Pitching:"
       cvar "cg_wwFollow"
-      rect 155 185 200 15
+      rect 90 185 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 143
-      textaligny 17
+      textalignx 128
+      textaligny 12
       textscale .25        
       forecolor 1 1 1 1
-      visible 1 
+      visible 0 
     }
 
     itemDef
@@ -204,10 +204,10 @@
       text "Wallwalking Speed:"
       cvarfloat "cg_wwSmoothTime" 300 0 1000
       cvarFloatList { "Medium" 300 "Fast" 150 "Instant" 0 "Slow" 600 }
-      rect 170 200 256 15
+      rect 90 200 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128 
-      textaligny 17
+      textaligny 12
       textscale .25         
       forecolor 1 1 1 1
       visible 0 
@@ -248,9 +248,9 @@
       type ITEM_TYPE_BIND
       text "Lookup:"
       cvar "+lookup"
-      rect 134 85 192 15 
+      rect 96 85 192 15 
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12   
       textscale .25        
@@ -267,9 +267,9 @@
       type ITEM_TYPE_BIND
       text "Look Down:"
       cvar "+lookdown"
-      rect 134 100 192 12 
+      rect 96 100 192 15 
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -286,9 +286,9 @@
       type ITEM_TYPE_BIND
       text "Mouse Look:"
       cvar "+mlook"
-      rect 134 115 192 15
+      rect 96 115 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -305,9 +305,9 @@
       type ITEM_TYPE_BIND
       text "Centerview:"
       cvar "centerview"
-      rect 134 130 192 15
+      rect 96 130 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -324,9 +324,9 @@
       type ITEM_TYPE_BIND
       text "ZoomView:"
       cvar "+zoom"
-      rect 134 145 192 15
+      rect 96 145 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -343,9 +343,9 @@
       type ITEM_TYPE_YESNO
       text "Free Look:"
       cvar "cl_freelook"
-      rect 134 160 192 15
+      rect 96 160 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -362,9 +362,9 @@
       type ITEM_TYPE_SLIDER
       text "Mouse Sensitivity:"
       cvarfloat "sensitivity" 5 1 30
-      rect 134 175 192 20
+      rect 96 175 192 20
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 15
       textscale .25          
@@ -381,9 +381,9 @@
       type ITEM_TYPE_YESNO
       text "Invert Mouse:"
       cvar "ui_mousePitch"
-      rect 134 195 192 15
+      rect 96 195 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25               
@@ -401,9 +401,9 @@
       type ITEM_TYPE_YESNO
       text "Smooth Mouse:"
       cvar "m_filter"
-      rect 134 210 192 15
+      rect 96 210 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25             
@@ -444,9 +444,9 @@
       type ITEM_TYPE_YESNO
       text "Always Run:"
       cvar "cl_run"
-      rect 70 70 320 15
+      rect 96 70 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -463,9 +463,9 @@
       type ITEM_TYPE_BIND
       text "Run / Walk:"
       cvar "+speed"
-      rect 70 85 320 15
+      rect 96 85 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -480,9 +480,9 @@
       type ITEM_TYPE_BIND
       text "Forward:"
       cvar "+forward"
-      rect 70 100 320 15
+      rect 96 100 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -499,9 +499,9 @@
       type ITEM_TYPE_BIND
       text "Backpedal:"
       cvar "+back"
-      rect 70 115 320 15
+      rect 96 115 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -518,9 +518,9 @@
       type ITEM_TYPE_BIND
       text "Move Left:"
       cvar "+moveleft"
-      rect 70 130 320 15
+      rect 96 130 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -537,9 +537,9 @@
       type ITEM_TYPE_BIND
       text "Move Right:"
       cvar "+moveright"
-      rect 70 145 320 15
+      rect 96 145 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -556,9 +556,9 @@
       type ITEM_TYPE_BIND
       text "Jump:"
       cvar "+moveup"
-      rect 70 160 320 15
+      rect 96 160 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -575,9 +575,9 @@
       type ITEM_TYPE_BIND
       text "Crouch:"
       cvar "+movedown"
-      rect 70 175 320 15
+      rect 96 175 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -594,9 +594,9 @@
       type ITEM_TYPE_BIND
       text "Turn Left:"
       cvar "+left"
-      rect 70 190 320 15
+      rect 96 190 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -613,9 +613,9 @@
       type ITEM_TYPE_BIND
       text "Turn Right:"
       cvar "+right"
-      rect 70 205 320 15
+      rect 96 205 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -632,9 +632,9 @@
       type ITEM_TYPE_BIND
       text "Strafe:"
       cvar "+strafe"
-      rect 70 220 320 15
+      rect 96 220 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -677,9 +677,9 @@
       type ITEM_TYPE_BIND
       text "Primary Attack:"
       cvar "+attack"
-      rect 80 125 320 15
+      rect 96 115 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -696,9 +696,9 @@
       type ITEM_TYPE_BIND
       text "Secondary Attack:"
       cvar "+button5"
-      rect 80 140 320 15
+      rect 96 130 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -715,9 +715,9 @@
       type ITEM_TYPE_BIND
       text "Previous Upgrade:"
       cvar "weapprev"
-      rect 80 155 320 15
+      rect 96 145 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25        
@@ -734,9 +734,9 @@
       type ITEM_TYPE_BIND
       text "Next Upgrade:"
       cvar "weapnext"
-      rect 80 170 320 15
+      rect 96 160 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25       
@@ -753,9 +753,9 @@
       type ITEM_TYPE_BIND
       text "Activate Upgrade:"
       cvar "+button2"
-      rect 80 185 320 15
+      rect 96 175 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25       
@@ -796,9 +796,9 @@
       type ITEM_TYPE_BIND
       text "Show Scores:"
       cvar "+scores"
-      rect 80 75 320 15
+      rect 96 85 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25                  
@@ -815,9 +815,9 @@
       type ITEM_TYPE_BIND
       text "Scroll Scores Up:"
       cvar "scoresUp"
-      rect 80 90 320 15
+      rect 96 100 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25               
@@ -834,9 +834,9 @@
       type ITEM_TYPE_BIND
       text "Scroll Scores Down:"
       cvar "scoresDown"
-      rect 80 105 320 15
+      rect 96 115 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25               
@@ -853,9 +853,9 @@
       type ITEM_TYPE_BIND
       text "Use Object:"
       cvar "+button7"
-      rect 80 120 320 15
+      rect 96 130 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25             
@@ -872,9 +872,9 @@
       type ITEM_TYPE_BIND
       text "Gesture:"
       cvar "+button3"
-      rect 80 135 320 15
+      rect 96 145 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25           
@@ -891,9 +891,9 @@
       type ITEM_TYPE_BIND
       text "Chat:"
       cvar "messagemode"
-      rect 80 150 320 15
+      rect 96 160 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25             
@@ -910,9 +910,9 @@
       type ITEM_TYPE_BIND
       text "Team Chat:"
       cvar "messagemode2"
-      rect 80 165 320 15
+      rect 96 175 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25            
@@ -929,9 +929,9 @@
       type ITEM_TYPE_BIND
       text "Target Chat (FIXME):"
       cvar "messagemode3"
-      rect 80 180 320 15
+      rect 96 190 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25              
@@ -946,9 +946,9 @@
       type ITEM_TYPE_BIND
       text "Attack Chat (FIXME):"
       cvar "messagemode4"
-      rect 80 195 320 15
+      rect 96 205 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 187
+      textalignx 90
       maxPaintChars 20
       textaligny 12
       textscale .25             
@@ -993,9 +993,9 @@
       text "Quality:"
       cvar "ui_glCustom"
       cvarFloatList { "High Quality" 0 "Normal" 1 "Fast" 2 "Fastest" 3 "Custom" 4 }
-      rect 140 55 256 15
+      rect 96 55 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 133
+      textalignx 100
       textaligny 12
       textscale .25         
       forecolor 1 1 1 1
@@ -1011,9 +1011,9 @@
       text "GL Driver:"
       cvar "r_gldriver"
       //cvarFloatList {  }
-      rect 140 70 256 15
+      rect 96 70 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 133
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1028,9 +1028,9 @@
       type ITEM_TYPE_YESNO
       text "GL Extensions:"
       cvar "r_allowExtensions"
-      rect 140 85 256 15
+      rect 96 85 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 133
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1048,9 +1048,9 @@
       cvarFloatList { "320x240" 0 "400x300" 1 "512x384" 2 "640x480" 3
                       "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7
                       "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 }
-      rect 140 100 256 15
+      rect 96 100 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 133
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1066,9 +1066,9 @@
       text "Color Depth:"
       cvar "r_colorbits"
       cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
-      rect 140 115 256 15
+      rect 96 115 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 133
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1083,9 +1083,9 @@
       type ITEM_TYPE_YESNO
       text "Fullscreen:"
       cvar "r_fullscreen"
-      rect 140 130 256 15
+      rect 96 130 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 133
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1101,9 +1101,9 @@
       text "Lighting:"
       cvar "r_vertexlight"
       cvarFloatList { "Light Map (high)" 0 "Vertex (low)" 1  }
-      rect 140 145 256 15
+      rect 96 145 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 133
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1119,9 +1119,9 @@
       text "Geometric Detail:"
       cvar "r_lodbias"
       cvarFloatList { "High" 0 "Medium" 1 "Low" 2 }
-      rect 140 160 256 15
+      rect 96 160 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 133
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1137,9 +1137,9 @@
       text "Texture Detail:"
       cvar "r_picmip"
       cvarFloatList { "Low" 2 "Normal" 1 "High" 0 }
-      rect 140 175 256 15
+      rect 96 175 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 133
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1155,9 +1155,9 @@
       text "Texture Quality:"
       cvar "r_texturebits"
       cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
-      rect 140 190 256 15
+      rect 96 190 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 133
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1172,9 +1172,9 @@
       text "Texture Filter:"
       cvar "r_texturemode"
       cvarStrList { "Bilinear", "GL_LINEAR_MIPMAP_NEAREST", "Trilinear", "GL_LINEAR_MIPMAP_LINEAR"  }
-      rect 140 205 256 15
+      rect 96 205 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 133
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1189,9 +1189,9 @@
       type ITEM_TYPE_YESNO
       text "Compress Textures:"
       cvar "r_ext_compressed_textures "
-      rect 140 220 256 15
+      rect 96 220 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 133
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1207,7 +1207,7 @@
       text "APPLY"
       textscale .25
       style WINDOW_STYLE_EMPTY
-      rect 240 240 75 20
+      rect 144 240 75 20
       textalign ITEM_ALIGN_CENTER
       textalignx 37
       textaligny 15
@@ -1247,9 +1247,9 @@
       type ITEM_TYPE_SLIDER
       text "Brightness:"
       cvarfloat "r_gamma" 1 .5 2
-      rect 120 60 256 20
+      rect 96 60 192 20
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128 
+      textalignx 80
       textaligny 17
       textscale .25         
       forecolor 1 1 1 1
@@ -1264,9 +1264,9 @@
       text "Screen Size:"
       cvarfloat "cg_viewsize" 100 30 100
       //cvarFloatList {  }
-      rect 120 80 256 20
+      rect 96 80 192 20
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128
+      textalignx 80
       textaligny 17
       textscale .25        
       forecolor 1 1 1 1
@@ -1280,9 +1280,9 @@
       type ITEM_TYPE_YESNO
       text "Simple Items:"
       cvar "cg_simpleItems"
-      rect 125 100 200 15
+      rect 96 100 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 143
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1296,9 +1296,9 @@
       type ITEM_TYPE_YESNO
       text "Marks On Walls:"
       cvar "cg_marks"
-      rect 125 115 200 15
+      rect 96 115 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 143
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1313,9 +1313,9 @@
       text "Ejecting Brass:"
       cvar "cg_brassTime"
       cvarFloatList { "High" 2500 "Med" 1250 "Off" 0 }
-      rect 125 130 200 15
+      rect 96 130 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 143
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1329,9 +1329,9 @@
       type ITEM_TYPE_YESNO
       text "Dynamic Lights:"
       cvar "r_dynamiclight"
-      rect 125 145 200 15
+      rect 96 145 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 143
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1345,9 +1345,9 @@
       type ITEM_TYPE_YESNO
       text "Draw Gun:"
       cvar "cg_drawGun"
-      rect 125 160 200 15
+      rect 96 160 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 143
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1361,9 +1361,9 @@
       type ITEM_TYPE_YESNO
       text "Low Quality Sky:"
       cvar "r_fastsky"
-      rect 125 175 200 15
+      rect 96 175 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 143
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1377,9 +1377,9 @@
       type ITEM_TYPE_YESNO
       text "Sync Every Frame:"
       cvar "weapon 5"
-      rect 125 190 200 15
+      rect 96 190 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 143
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1393,9 +1393,9 @@
       type ITEM_TYPE_YESNO
       text "Show Time:"
       cvar "cg_drawTimer"
-      rect 125 205 200 15
+      rect 96 205 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 143
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1409,9 +1409,9 @@
       type ITEM_TYPE_YESNO
       text "In Game Videos:"
       cvar "r_inGameVideo"
-      rect 125 220 200 15
+      rect 96 220 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 143
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1425,9 +1425,9 @@
       type ITEM_TYPE_YESNO
       text "Depth Sort Particles:"
       cvar "cg_zsortLEs"
-      rect 125 235 200 15
+      rect 96 235 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 143
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1462,7 +1462,7 @@
     {
       name glinfo
       group optionsGrp
-      rect 180 35 230 230 
+      rect 104 35 230 230 
       ownerdraw UI_GLINFO 
       textalign 1
       textscale .15
@@ -1503,9 +1503,9 @@
       group optionsGrp
       style 1
       text "Sound"
-      rect 125 60 128 20
+      rect 96 70 192 20
       textalign ITEM_ALIGN_CENTER
-      textalignx 128
+      textalignx 80
       textaligny 17
       textscale .25         
       forecolor 1 1 1 1
@@ -1520,9 +1520,9 @@
       type ITEM_TYPE_SLIDER
       text "Effects Volume:"
       cvarfloat "s_volume" 0.7 0 1
-      rect 125 80 256 20
+      rect 96 90 192 20
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128
+      textalignx 90
       textaligny 17
       textscale .25        
       forecolor 1 1 1 1
@@ -1536,9 +1536,9 @@
       type ITEM_TYPE_SLIDER
       text "Music Volume:"
       cvarfloat "s_musicvolume" 0.25 0 1
-      rect 125 100 256 20
+      rect 96 110 192 20
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128
+      textalignx 90
       textaligny 17
       textscale .25        
       forecolor 1 1 1 1
@@ -1553,9 +1553,9 @@
       text "Sound Quality:"
       cvar "s_khz"
       cvarFloatList { "22 khz (high)" 22 "11 khz (low)" 11 }
-      rect 125 120 256 15
+      rect 96 130 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1569,9 +1569,9 @@
       type ITEM_TYPE_YESNO  
       text "Doppler Sound:"
       cvar "s_doppler"
-      rect 125 135 256 15
+      rect 96 145 192 15
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128
+      textalignx 100
       textaligny 12
       textscale .25        
       forecolor 1 1 1 1
@@ -1585,9 +1585,9 @@
       group optionsGrp
       style 1
       text "Network"
-      rect 125 180 128 20
+      rect 96 190 192 20
       textalign ITEM_ALIGN_CENTER
-      textalignx 128 
+      textalignx 80
       textaligny 17
       textscale .25         
       forecolor 1 1 1 1
@@ -1603,9 +1603,9 @@
       text "Net Data Rate:"
       cvar "rate"
       cvarFloatList { "<=28.8k" 2500 "33.6k" 3000 "56k" 4000 "ISDN" 5000 "LAN/CABLE/xDSl" 25000  }
-      rect 125 200 256 20
+      rect 96 210 192 20
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128
+      textalignx 100
       textaligny 17
       textscale .25        
       forecolor 1 1 1 1
