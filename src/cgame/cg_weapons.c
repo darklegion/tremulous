@@ -296,62 +296,38 @@ CG_TeslaTrail
 */
 void CG_TeslaTrail( vec3_t start, vec3_t end )
 {
-	int     i;
-  vec3_t  seg_start, seg_end, delta, dir, perpen, tangent;
-  float   distance;
- 
   localEntity_t *le;
   refEntity_t   *re;
 
   start[ 2 ] += 12; //nudge up a bit so the bolt comes from the sphere
 
-  VectorCopy( start, seg_start );
-  VectorSubtract( end, start, delta );
-  distance = VectorLength( delta );
-  VectorNormalize2( delta, dir );
-  PerpendicularVector( perpen, dir );
-  
   //add a bunch of bolt segments
-  for( i = 1; i <= cg_teslaSegments.integer; i++ )
-  {
-    le = CG_AllocLocalEntity();
-    re = &le->refEntity;
+  le = CG_AllocLocalEntity();
+  re = &le->refEntity;
 
-    le->leType = LE_FADE_RGB;
-    le->startTime = cg.time;
-    le->endTime = cg.time + cg_teslaTrailTime.value;
-    le->lifeRate = 1.0 / ( le->endTime - le->startTime );
+  le->leType = LE_FADE_RGB;
+  le->startTime = cg.time;
+  le->endTime = cg.time + cg_teslaTrailTime.value;
+  le->lifeRate = 1.0 / ( le->endTime - le->startTime );
 
-    re->shaderTime = cg.time / 1000.0f;
-    re->reType = RT_RAIL_CORE;
-    re->customShader = cgs.media.lightningShader;
+  re->shaderTime = cg.time / 1000.0f;
+  re->reType = RT_RAIL_CORE;
+  re->customShader = cgs.media.lightningShader;
 
-    VectorCopy( seg_start, re->origin );
+  VectorCopy( start, re->origin );
+  VectorCopy( end, re->oldorigin );
 
-    if( i != cg_teslaSegments.integer )
-    {
-      VectorMA( start, i * ( distance / cg_teslaSegments.integer ), dir, seg_end );
-      RotatePointAroundVector( tangent, dir, perpen, rand( ) % 360 );
-      VectorMA( seg_end, cg_teslaDeviation.value * random( ), tangent, seg_end );
-    }
-    else
-      VectorCopy( end, seg_end );
-      
-    VectorCopy( seg_end, re->oldorigin );
-    VectorCopy( seg_end, seg_start );
+  re->shaderRGBA[0] = 255;
+  re->shaderRGBA[1] = 255;
+  re->shaderRGBA[2] = 255;
+  re->shaderRGBA[3] = 255;
 
-    re->shaderRGBA[0] = 255;
-    re->shaderRGBA[1] = 255;
-    re->shaderRGBA[2] = 255;
-    re->shaderRGBA[3] = 255;
+  le->color[0] = 1.0f;
+  le->color[1] = 1.0f;
+  le->color[2] = 1.0f;
+  le->color[3] = 1.0f;
 
-    le->color[0] = 1.0f;
-    le->color[1] = 1.0f;
-    le->color[2] = 1.0f;
-    le->color[3] = 1.0f;
-
-    AxisClear( re->axis );
-  }
+  AxisClear( re->axis );
 }
 
 /*
@@ -699,10 +675,7 @@ void CG_RegisterWeapon( int weaponNum ) {
     weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/lightning/lg_fire.wav", qfalse );
     cgs.media.lightningShader = trap_R_RegisterShader( "models/ammo/tesla/tesla_bolt");
     cgs.media.lightningExplosionModel = trap_R_RegisterModel( "models/weaphits/crackle.md3" );
-    cgs.media.sfx_lghit1 = trap_S_RegisterSound( "sound/weapons/lightning/lg_hit.wav", qfalse );
-    cgs.media.sfx_lghit2 = trap_S_RegisterSound( "sound/weapons/lightning/lg_hit2.wav", qfalse );
-    cgs.media.sfx_lghit3 = trap_S_RegisterSound( "sound/weapons/lightning/lg_hit3.wav", qfalse );
-
+    cgs.media.sfx_lghit = trap_S_RegisterSound( "sound/weapons/lightning/lg_fire.wav", qfalse );
     break;
 
   case WP_GRAPPLING_HOOK:
@@ -1861,20 +1834,15 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
   isSprite = qfalse;
   duration = 600;
 
-  switch ( weapon ) {
+  switch( weapon )
+  {
   default:
   case WP_TESLAGEN:
-    // no explosion at LG impact, it is added with the beam
-    r = rand() & 3;
-    if ( r < 2 ) {
-      sfx = cgs.media.sfx_lghit2;
-    } else if ( r == 2 ) {
-      sfx = cgs.media.sfx_lghit1;
-    } else {
-      sfx = cgs.media.sfx_lghit3;
-    }
-    mark = cgs.media.holeMarkShader;
-    radius = 12;
+    mod = cgs.media.lightningExplosionModel;
+    shader = cgs.media.lightningShader;
+    sfx = cgs.media.sfx_lghit;
+    mark = cgs.media.energyMarkShader;
+    radius = 24;
     break;
   case WP_GRENADE_LAUNCHER:
     mod = cgs.media.dishFlashModel;
@@ -1919,7 +1887,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
     radius = 24;
     break;
   case WP_FLAMER:
-    sfx = cgs.media.sfx_lghit2;
+    sfx = cgs.media.sfx_lghit;
     mark = cgs.media.burnMarkShader;
     radius = 32;
     break;
