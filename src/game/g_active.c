@@ -462,6 +462,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
   client = ent->client;
   client->time100 += msec;
   client->time1000 += msec;
+  client->time10000 += msec;
 
   while ( client->time100 >= 100 )
   {
@@ -679,6 +680,25 @@ void ClientTimerActions( gentity_t *ent, int msec )
 
       if( ent->health > client->ps.stats[ STAT_MAX_HEALTH ] )
         ent->health = client->ps.stats[ STAT_MAX_HEALTH ];
+    }
+  }
+  
+  while( client->time10000 >= 10000 )
+  {
+    client->time10000 -= 10000;
+    
+    if( client->ps.weapon == WP_DRAGOON_UPG )
+    {
+      int ammo, maxAmmo;
+      
+      BG_FindAmmoForWeapon( WP_DRAGOON_UPG, &maxAmmo, NULL, NULL );
+      BG_unpackAmmoArray( WP_DRAGOON_UPG, client->ps.ammo, client->ps.powerups, &ammo, NULL, NULL );
+      
+      if( ammo < maxAmmo )
+      {
+        ammo++;
+        BG_packAmmoArray( WP_DRAGOON_UPG, client->ps.ammo, client->ps.powerups, ammo, 0, 0 );
+      }
     }
   }
 }
@@ -1136,6 +1156,7 @@ void ClientThink_real( gentity_t *ent )
   
   // NOTE: now copy the exact origin over otherwise clients can be snapped into solid
   VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
+  VectorCopy( ent->client->ps.origin, ent->s.origin );
 
   // touch other objects
   ClientImpacts( ent, &pm );

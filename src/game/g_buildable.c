@@ -1479,20 +1479,6 @@ void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
   
   if( BG_gotItem( UP_BATTPACK, ps->stats ) )
     maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
-  
-/*  BG_unpackAmmoArray( weapon, ps->ammo, ps->powerups, &ammo, &clips, NULL );
-
-  if( ammo == maxAmmo && clips < maxClips )
-  {
-    clips++;
-    ammo = 0;
-  }
-  
-  //add half max ammo
-  ammo += maxAmmo >> 1;
-  
-  if( ammo > maxAmmo )
-    ammo = maxAmmo;*/
 
   BG_packAmmoArray( weapon, ps->ammo, ps->powerups, maxAmmo, maxClips, maxClips );
 
@@ -1546,9 +1532,9 @@ void HReactor_Think( gentity_t *self )
     
     //reactor under attack
     if( self->health < self->lastHealth &&
-        level.time > self->dccAttackTimer && G_isDCC( ) )
+        level.time > level.humanBaseAttackTimer && G_isDCC( ) )
     {
-      self->dccAttackTimer = level.time + DCC_ATTACK_PERIOD;
+      level.humanBaseAttackTimer = level.time + DCC_ATTACK_PERIOD;
       G_BroadcastEvent( EV_DCC_ATTACK, 0 );
     }
     
@@ -2182,6 +2168,16 @@ void HSpawn_Think( gentity_t *self )
           G_FreeEntity( ent ); //quietly remove
       }
     }
+    
+    //spawn under attack
+    if( self->health < self->lastHealth &&
+        level.time > level.humanBaseAttackTimer && G_isDCC( ) )
+    {
+      level.humanBaseAttackTimer = level.time + DCC_ATTACK_PERIOD;
+      G_BroadcastEvent( EV_DCC_ATTACK, 0 );
+    }
+    
+    self->lastHealth = self->health;
   }
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );

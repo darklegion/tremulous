@@ -933,6 +933,7 @@ void areaZapFire( gentity_t *ent )
   VectorSubtract( ent->client->ps.origin, range, mins );
   
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+
   for( i = 0; i < num; i++ )
   {
     enemy = &g_entities[ entityList[ i ] ];

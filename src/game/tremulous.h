@@ -60,8 +60,8 @@
 #define CHIMERA_CLAW_WIDTH          12.0f
 #define CHIMERA_CLAW_REPEAT         500
 #define CHIMERA_CLAW_U_REPEAT       400
-#define CHIMERA_AREAZAP_DMG         ADM(75)
-#define CHIMERA_AREAZAP_RANGE       200.0f
+#define CHIMERA_AREAZAP_DMG         ADM(200)
+#define CHIMERA_AREAZAP_RANGE       300.0f
 #define CHIMERA_AREAZAP_REPEAT      1500
 #define CHIMERA_WALLJUMP_MAXSPEED   1000.0f
 
@@ -77,7 +77,7 @@
 #define DRAGOON_POUNCE_UPG_SPEED    800
 #define DRAGOON_POUNCE_SPEED_MOD    0.75f
 #define DRAGOON_POUNCE_TIME         700
-#define DRAGOON_BOUNCEBALL_DMG      ADM(100)
+#define DRAGOON_BOUNCEBALL_DMG      ADM(150)
 #define DRAGOON_BOUNCEBALL_REPEAT   1000
 #define DRAGOON_BOUNCEBALL_SPEED    1000.0f
 
@@ -100,7 +100,6 @@
  * ALIEN classes
  *
  * _SPEED   - fraction of Q3A run speed the class can move
- * _TTE     - time in msec for the class to evolve to another
  * _REGEN   - health per second regained
  *
  * ALIEN_HLTH_MODIFIER - overall health modifier for coarse tuning
@@ -155,19 +154,19 @@
 #define CHIMERA_UPG_REGEN           4
 #define CHIMERA_UPG_COST            1
 
-#define DRAGOON_SPEED               1.2f
+#define DRAGOON_SPEED               1.1f
 #define DRAGOON_VALUE               AVM(500)
-#define DRAGOON_HEALTH              AHM(250)
+#define DRAGOON_HEALTH              AHM(200)
 #define DRAGOON_REGEN               5
 #define DRAGOON_COST                1
 
-#define DRAGOON_UPG_SPEED           1.2f
+#define DRAGOON_UPG_SPEED           1.1f
 #define DRAGOON_UPG_VALUE           AVM(600)
-#define DRAGOON_UPG_HEALTH          AHM(300)
+#define DRAGOON_UPG_HEALTH          AHM(250)
 #define DRAGOON_UPG_REGEN           6
 #define DRAGOON_UPG_COST            1
 
-#define BMOFO_SPEED                 1.15f
+#define BMOFO_SPEED                 1.2f
 #define BMOFO_VALUE                 AVM(800)
 #define BMOFO_HEALTH                AHM(400)
 #define BMOFO_REGEN                 7
@@ -341,7 +340,7 @@
 
 #define LASGUN_PRICE                250
 #define LASGUN_AMMO                 150
-#define LASGUN_REPEAT               150
+#define LASGUN_REPEAT               200
 #define LASGUN_RELOAD               2000
 #define LASGUN_DAMAGE               HDM(10)
 
@@ -466,9 +465,9 @@
 
 #define MGTURRET_BP                 8
 #define MGTURRET_BT                 10000
-#define MGTURRET_HEALTH             HBHM(450)
-#define MGTURRET_SPLASHDAMAGE       50
-#define MGTURRET_SPLASHRADIUS       100
+#define MGTURRET_HEALTH             HBHM(400)
+#define MGTURRET_SPLASHDAMAGE       200
+#define MGTURRET_SPLASHRADIUS       150
 #define MGTURRET_ANGULARSPEED       6  //degrees/think ~= 200deg/sec
 #define MGTURRET_ACCURACYTOLERANCE  MGTURRET_ANGULARSPEED / 1.5f //angular difference for turret to fire
 #define MGTURRET_VERTICALCAP        30  // +/- maximum pitch
@@ -502,7 +501,7 @@
 
 #define REACTOR_BP                  0
 #define REACTOR_BT                  20000
-#define REACTOR_HEALTH              HBHM(1250)
+#define REACTOR_HEALTH              HBHM(1500)
 #define REACTOR_SPLASHDAMAGE        200
 #define REACTOR_SPLASHRADIUS        300
 #define REACTOR_ATTACK_RANGE        100.0f
@@ -523,9 +522,9 @@
  */
 
 #define HUMAN_SPRINT_MODIFIER       1.2f
-#define HUMAN_JOG_MODIFIER          0.9f
-#define HUMAN_BACK_MODIFIER         0.7f
-#define HUMAN_SIDE_MODIFIER         0.8f
+#define HUMAN_JOG_MODIFIER          1.0f
+#define HUMAN_BACK_MODIFIER         0.8f
+#define HUMAN_SIDE_MODIFIER         0.9f
 
 #define STAMINA_STOP_RESTORE        25
 #define STAMINA_WALK_RESTORE        15

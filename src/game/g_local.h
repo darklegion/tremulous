@@ -201,7 +201,6 @@ struct gentity_s
   int               overmindAttackTimer;
   int               overmindDyingTimer;
   int               overmindSpawnsTimer;
-  int               dccAttackTimer;
   int               nextPhysicsTime; //TA: buildables don't need to check what they're sitting on
                                      //    every single frame.. so only do it periodically
   int               clientSpawnTime; //TA: the time until this spawn can spawn a client
@@ -373,6 +372,7 @@ struct gclient_s
   //TA: two timers, one every 100 msecs, another every sec
   int                 time100;
   int                 time1000;
+  int                 time10000;
 
   char                *areabits;
 
@@ -561,6 +561,8 @@ typedef struct
 
   qboolean          reactorPresent;
   qboolean          overmindPresent;
+
+  int               humanBaseAttackTimer;
 
   pTeam_t           lastWin;
 

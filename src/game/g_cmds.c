@@ -421,8 +421,16 @@ void Cmd_Kill_f( gentity_t *ent )
   }
   else
   {
-    trap_SendServerCommand( ent-g_entities, "print \"You will suicide in 10 seconds.\n\"" );
-    ent->suicideTime = level.time + 10000;
+    if( ent->suicideTime == 0 )
+    {
+      trap_SendServerCommand( ent-g_entities, "print \"You will suicide in 10 seconds.\n\"" );
+      ent->suicideTime = level.time + 10000;
+    }
+    else if( ent->suicideTime > level.time )
+    {
+      trap_SendServerCommand( ent-g_entities, "print \"Suicide cancelled.\n\"" );
+      ent->suicideTime = 0;
+    }
   }
 }
 
@@ -1442,6 +1450,7 @@ void Cmd_Buy_f( gentity_t *ent )
   int       i;
   int       weapon, upgrade, numItems = 0;
   int       quan, clips, maxClips;
+  qboolean  buyingEnergyAmmo = qfalse;
 
   for( i = UP_NONE; i < UP_NUM_UPGRADES; i++ )
   {
@@ -1461,16 +1470,27 @@ void Cmd_Buy_f( gentity_t *ent )
   if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
 
+  weapon = BG_FindWeaponNumForName( s );
+  upgrade = BG_FindUpgradeNumForName( s );
+  
+  //special case to keep norf happy
+  if( weapon == WP_NONE && upgrade == UP_AMMO )
+  {
+    //if we're buying ammo, there is a reactor/repeater in range and
+    //our current weapon uses energy
+    if( ( G_BuildableRange( ent->client->ps.origin, 100, BA_H_REACTOR ) ||
+        G_BuildableRange( ent->client->ps.origin, 100, BA_H_REPEATER ) ) &&
+        BG_FindUsesEnergyForWeapon( ent->client->ps.weapon ) )
+      buyingEnergyAmmo = qtrue;
+  }
+
   //no armoury nearby
-  if( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
+  if( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) && !buyingEnergyAmmo )
   {
     trap_SendServerCommand( ent-g_entities, va( "print \"You must be near an armoury\n\"" ) );
     return;
   }
 
-  weapon = BG_FindWeaponNumForName( s );
-  upgrade = BG_FindUpgradeNumForName( s );
-    
   if( weapon != WP_NONE )
   {
     //already got this?
@@ -1589,10 +1609,17 @@ void Cmd_Buy_f( gentity_t *ent )
     
     if( upgrade == UP_AMMO )
     {
+      qboolean weaponType;
+
       for( i = WP_NONE; i < WP_NUM_WEAPONS; i++ )
       {
+        if( buyingEnergyAmmo )
+          weaponType = BG_FindUsesEnergyForWeapon( i );
+        else
+          weaponType = !BG_FindUsesEnergyForWeapon( i );
+        
         if( BG_gotWeapon( i, ent->client->ps.stats ) &&
-            !BG_FindUsesEnergyForWeapon( i ) &&
+            weaponType &&
             !BG_FindInfinteAmmoForWeapon( i ) )
         {
           BG_FindAmmoForWeapon( i, &quan, &clips, &maxClips );
