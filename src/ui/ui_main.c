@@ -4216,7 +4216,7 @@ static void UI_RunMenuScript(char **args) {
       char          command[ 32 ];
 
       // load the file
-      len = trap_FS_FOpenFile( "ptrc.txt", &f, FS_READ );
+      len = trap_FS_FOpenFile( "ptrc.cfg", &f, FS_READ );
       
       if( len > 0 && ( len < sizeof( text ) - 1 ) )
       {

@@ -893,7 +893,7 @@ static int CG_MapTorsoToWeaponFrame( clientInfo_t *ci, int frame )
   // stand attack 2
   if( frame >= ci->animations[ TORSO_ATTACK2 ].firstFrame &&
       frame < ci->animations[ TORSO_ATTACK2 ].firstFrame + 6 )
-    return 1 + frame - ci->animations[ TORSO_ATTACK ].firstFrame;
+    return 1 + frame - ci->animations[ TORSO_ATTACK2 ].firstFrame;
 
   return 0;
 }
