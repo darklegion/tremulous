@@ -999,7 +999,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     if( attacker->client && attacker->client->ps.stats[ STAT_STATE ] & SS_BOOSTED )
     {
       if( !( targ->client->ps.stats[ STAT_STATE ] & SS_POISONED ) &&
-          !BG_gotItem( UP_BATTLESUIT, targ->client->ps.stats ) )
+          !BG_gotItem( UP_BATTLESUIT, targ->client->ps.stats ) &&
+          mod != MOD_CHIMERA_ZAP )
       {
         targ->client->ps.stats[ STAT_STATE ] |= SS_POISONED;
         targ->client->lastPoisonTime = level.time;

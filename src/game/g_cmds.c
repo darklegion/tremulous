@@ -500,9 +500,9 @@ void Cmd_Team_f( gentity_t *ent )
   G_ChangeTeam( ent, team );
   
   if( team == PTE_ALIENS )
-    trap_SendServerCommand( -1, va( "print \"%s joined the aliens.\n\"", ent->client->pers.netname ) );
+    trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " joined the aliens.\n\"", ent->client->pers.netname ) );
   else if( team == PTE_HUMANS )
-    trap_SendServerCommand( -1, va( "print \"%s joined the humans.\n\"", ent->client->pers.netname ) );
+    trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " joined the humans.\n\"", ent->client->pers.netname ) );
 }
 
 
@@ -1615,7 +1615,7 @@ void Cmd_Sell_f( gentity_t *ent )
     //are we /allowed/ to sell this?
     if( !BG_FindPurchasableForWeapon( weapon ) )
     {
-      trap_SendServerCommand( ent-g_entities, va( "print \"You can't sell this item\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You can't sell this weapon.\n\"" ) );
       return;
     }
     
@@ -1628,6 +1628,14 @@ void Cmd_Sell_f( gentity_t *ent )
       ent->client->ps.persistant[ PERS_CREDIT ] += (short)BG_FindPriceForWeapon( weapon );
     }
 
+    //guard against selling the HBUILD weapons exploit
+    if( weapon == WP_HBUILD || weapon == WP_HBUILD2 &&
+        ent->client->ps.stats[ STAT_MISC ] != 0 )
+    {
+      trap_SendServerCommand( ent-g_entities, va( "print \"Cannot sell until build timer expires.\n\"" ) );
+      return;
+    }
+    
     //if we have this weapon selected, force a new selection
     if( weapon == ent->client->ps.weapon )
     {

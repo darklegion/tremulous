@@ -30,8 +30,8 @@
 #define ABUILDER_CLAW_RANGE         64.0f
 #define ABUILDER_CLAW_WIDTH         4.0f
 #define ABUILDER_CLAW_REPEAT        1000
-#define ABUILDER_BASE_DELAY         9000
-#define ABUILDER_ADV_DELAY          7000
+#define ABUILDER_BASE_DELAY         15000
+#define ABUILDER_ADV_DELAY          10000
 #define ABUILDER_BLOB_DMG           ADM(5)
 #define ABUILDER_BLOB_REPEAT        1000
 #define ABUILDER_BLOB_SPEED         800.0f
@@ -318,11 +318,11 @@
 #define RIFLE_CLIPSIZE              30
 #define RIFLE_SPAWNCLIPS            3
 #define RIFLE_MAXCLIPS              3
-#define RIFLE_REPEAT                100
+#define RIFLE_REPEAT                90
 #define RIFLE_RELOAD                2000
 #define RIFLE_PRICE                 0
 #define RIFLE_SPREAD                200
-#define RIFLE_DMG                   HDM(5)
+#define RIFLE_DMG                   HDM(6)
 
 #define PAINSAW_PRICE               100
 #define PAINSAW_REPEAT              75
@@ -337,7 +337,7 @@
 #define SHOTGUN_REPEAT              1200
 #define SHOTGUN_RELOAD              2000
 #define SHOTGUN_SPREAD              900
-#define SHOTGUN_DMG                 HDM(12)
+#define SHOTGUN_DMG                 HDM(9)
 
 #define LASGUN_PRICE                250
 #define LASGUN_AMMO                 100
@@ -392,11 +392,11 @@
 
 #define HBUILD_PRICE                0
 #define HBUILD_REPEAT               1000
-#define HBUILD_DELAY                9000
+#define HBUILD_DELAY                15000
 
 #define HBUILD2_PRICE               75
 #define HBUILD2_REPEAT              1000
-#define HBUILD2_DELAY               7000
+#define HBUILD2_DELAY               10000
 
 
 
@@ -485,8 +485,8 @@
 #define TESLAGEN_SPLASHDAMAGE       50
 #define TESLAGEN_SPLASHRADIUS       100
 #define TESLAGEN_REPEAT             500
-#define TESLAGEN_RANGE              300
-#define TESLAGEN_DMG                HDM(20)
+#define TESLAGEN_RANGE              250
+#define TESLAGEN_DMG                HDM(15)
 
 #define DC_BP                       8
 #define DC_BT                       10000
