@@ -148,11 +148,14 @@ player_die
 void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
 {
   gentity_t *ent;
-  int     anim;
-  int     contents;
-  int     killer;
-  int     i, j;
-  char    *killerName, *obit;
+  int       anim;
+  int       contents;
+  int       killer;
+  int       i, j;
+  char      *killerName, *obit;
+  float     totalDamage = 0.0f;
+  gentity_t *player;
+    
 
   if( self->client->ps.pm_type == PM_DEAD )
     return;
@@ -240,117 +243,110 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   else if( attacker->s.eType != ET_BUILDABLE )
     AddScore( self, -1 );
 
-  if( attacker && attacker->client )
+  //total up all the damage done by every client
+  for( i = 0; i < MAX_CLIENTS; i++ )
+    totalDamage += (float)self->credits[ i ];
+  
+  if( totalDamage > 0.0f )
   {
-    int       clientNum = attacker->client->ps.clientNum;
-    float     totalDamage = 0.0f;
-    gentity_t *player;
-    
-    //total up all the damage done by every client
-    for( i = 0; i < MAX_CLIENTS; i++ )
-      totalDamage += (float)self->credits[ i ];
-    
-    if( totalDamage > 0.0f )
+    if( self->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     {
-      if( self->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      //nice simple happy bouncy human land
+      float classValue = BG_FindValueOfClass( self->client->ps.stats[ STAT_PCLASS ] );
+      
+      for( i = 0; i < MAX_CLIENTS; i++ )
       {
-        //nice simple happy bouncy human land
-        float classValue = BG_FindValueOfClass( self->client->ps.stats[ STAT_PCLASS ] );
+        player = g_entities + i;
+
+        if( !player->client )
+          continue;
         
-        for( i = 0; i < MAX_CLIENTS; i++ )
+        if( player->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
+          continue;
+
+        if( !self->credits[ i ] )
+          continue;
+        
+        //add credit
+        G_AddCreditToClient( player->client,
+            (int)( classValue * ( (float)self->credits[ i ] / totalDamage ) ) );
+      }
+    }
+    else if( self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    {
+      //horribly complex nasty alien land
+      float humanValue = BG_GetValueOfHuman( &self->client->ps );
+      int   frags;
+      int   unclaimedFrags = (int)humanValue;
+      
+      for( i = 0; i < MAX_CLIENTS; i++ )
+      {
+        player = g_entities + i;
+
+        if( !player->client )
+          continue;
+        
+        if( player->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
+          continue;
+          
+        //this client did no damage
+        if( !self->credits[ i ] )
+          continue;
+        
+        //nothing left to claim
+        if( !unclaimedFrags )
+          break;
+        
+        frags = (int)floor( humanValue * ( (float)self->credits[ i ] / totalDamage ) );
+        
+        if( frags > 0 )
         {
-          player = g_entities + i;
+          //add kills
+          G_AddCreditToClient( player->client, frags );
 
-          if( !player->client )
-            continue;
-          
-          if( player->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
-            continue;
+          //can't revist this account later
+          self->credits[ i ] = 0;
 
-          if( !self->credits[ i ] )
-            continue;
-          
-          //add credit
-          G_AddCreditToClient( player->client,
-              (int)( classValue * ( (float)self->credits[ i ] / totalDamage ) ) );
+          //reduce frags left to be claimed
+          unclaimedFrags -= frags;
         }
       }
-      else if( self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+
+      //there are frags still to be claimed
+      if( unclaimedFrags )
       {
-        //horribly complex nasty alien land
-        float humanValue = BG_GetValueOfHuman( &self->client->ps );
-        int   frags;
-        int   unclaimedFrags = (int)humanValue;
+        //the clients remaining at this point do not
+        //have enough credit to claim even one frag
+        //so simply give the top <unclaimedFrags> clients
+        //a frag each
         
-        for( i = 0; i < MAX_CLIENTS; i++ )
+        for( i = 0; i < unclaimedFrags; i++ )
         {
-          player = g_entities + i;
-
-          if( !player->client )
-            continue;
+          int maximum = 0;
+          int topClient;
           
-          if( player->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
-            continue;
-            
-          //this client did no damage
-          if( !self->credits[ i ] )
-            continue;
-          
-          //nothing left to claim
-          if( !unclaimedFrags )
-            break;
-          
-          frags = (int)floor( humanValue * ( (float)self->credits[ i ] / totalDamage ) );
-          
-          if( frags > 0 )
+          for( j = 0; j < MAX_CLIENTS; j++ )
           {
-            //add kills
-            G_AddCreditToClient( player->client, frags );
+            //this client did no damage
+            if( !self->credits[ j ] )
+              continue;
 
-            //can't revist this account later
-            self->credits[ i ] = 0;
-
-            //reduce frags left to be claimed
-            unclaimedFrags -= frags;
+            if( self->credits[ j ] > maximum )
+            {
+              maximum = self->credits[ j ];
+              topClient = j;
+            }
           }
-        }
 
-        //there are frags still to be claimed
-        if( unclaimedFrags )
-        {
-          //the clients remaining at this point do not
-          //have enough credit to claim even one frag
-          //so simply give the top <unclaimedFrags> clients
-          //a frag each
-          
-          for( i = 0; i < unclaimedFrags; i++ )
+          if( maximum > 0 )
           {
-            int maximum = 0;
-            int topClient;
+            player = g_entities + topClient;
             
-            for( j = 0; j < MAX_CLIENTS; j++ )
-            {
-              //this client did no damage
-              if( !self->credits[ j ] )
-                continue;
+            //add kills
+            G_AddCreditToClient( player->client, 1 );
 
-              if( self->credits[ j ] > maximum )
-              {
-                maximum = self->credits[ j ];
-                topClient = j;
-              }
-            }
-
-            if( maximum > 0 )
-            {
-              player = g_entities + topClient;
-              
-              //add kills
-              G_AddCreditToClient( player->client, 1 );
-
-              //can't revist this account again
-              self->credits[ topClient ] = 0;
-            }
+            //can't revist this account again
+            self->credits[ topClient ] = 0;
           }
         }
       }
