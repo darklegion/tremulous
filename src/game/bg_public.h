@@ -925,7 +925,6 @@ extern  int   bg_numItems;
 
 gitem_t *BG_FindItem( const char *pickupName );
 gitem_t *BG_FindItemForWeapon( weapon_t weapon );
-gitem_t *BG_FindItemForBuildable( buildable_t buildable );
 gitem_t *BG_FindItemForUpgrade( upgrade_t upgrade );
 gitem_t *BG_FindItemForPowerup( powerup_t pw );
 gitem_t *BG_FindItemForHoldable( holdable_t pw );

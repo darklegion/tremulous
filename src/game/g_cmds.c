@@ -266,7 +266,7 @@ void Cmd_Give_f (gentity_t *ent)
   }
 
   // spawn a specific item right on the player
-  if ( !give_all ) {
+/*  if ( !give_all ) {
     it = BG_FindItem (name);
     if (!it) {
       return;
@@ -282,7 +282,7 @@ void Cmd_Give_f (gentity_t *ent)
     if (it_ent->inuse) {
       G_FreeEntity( it_ent );
     }
-  }
+  }*/
 }
 
 

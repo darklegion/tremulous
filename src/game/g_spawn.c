@@ -292,36 +292,39 @@ Finds the spawn function for the entity and calls it,
 returning qfalse if not found
 ===============
 */
-qboolean G_CallSpawn( gentity_t *ent ) {
-  spawn_t *s;
-  gitem_t *item;
+qboolean G_CallSpawn( gentity_t *ent )
+{
+  spawn_t     *s;
+  gitem_t     *item;
+  buildable_t buildable;
 
   if ( !ent->classname ) {
     G_Printf ("G_CallSpawn: NULL classname\n");
     return qfalse;
   }
 
-  // check item spawn functions
-  for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
-    if ( !strcmp(item->classname, ent->classname) ) {
-      //TA: don't allow items to spawn (atleast for the time being - might need to later?)
-      G_SpawnItem( ent, item );
-      return qtrue;
-      //return qfalse;
-    }
+  //check buildable spawn functions
+  if( ( buildable = BG_FindBuildNumForEntityName( ent->classname ) ) != BA_NONE )
+  {
+    G_SpawnBuildable( ent, buildable );
+    return qtrue;
   }
 
   // check normal spawn functions
-  for ( s=spawns ; s->name ; s++ ) {
-    if ( !strcmp(s->name, ent->classname) ) {
-      if( G_ItemDisabled(item) )
+  for( s = spawns; s->name; s++ )
+  {
+    if( !strcmp( s->name, ent->classname ) )
+    {
+      if( G_ItemDisabled( item ) )
         return qfalse;
+        
       // found it
-      s->spawn(ent);
+      s->spawn( ent );
       return qtrue;
     }
   }
-  G_Printf ("%s doesn't have a spawn function\n", ent->classname);
+  
+  G_Printf( "%s doesn't have a spawn function\n", ent->classname );
   return qfalse;
 }
 

@@ -1725,7 +1725,6 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   built->s.eType = ET_BUILDABLE;
 
   built->classname = BG_FindEntityNameForBuildable( buildable );
-  built->item = BG_FindItemForBuildable( buildable );
   
   built->s.modelindex = buildable; //so we can tell what this is on the client side
   built->biteam = built->s.modelindex2 = BG_FindTeamForBuildable( buildable );
