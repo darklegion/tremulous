@@ -226,7 +226,7 @@ void flamerFire( gentity_t *ent )
 
   m = fire_flamer( ent, muzzle, forward );
 
-  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
+  //VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
 
 /*
