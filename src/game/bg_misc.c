@@ -1288,8 +1288,8 @@ buildableAttributes_t bg_buildableList[ ] =
     "booster",             //char      *buildName;
     "team_droid_booster",  //char      *entityName;
     { "models/buildables/booster/booster.md3", 0, 0, 0 },
-    { -15, -15, -15 },     //vec3_t    mins;
-    { 15, 15, 15 },        //vec3_t    maxs;
+    { -26, -26, -9 },     //vec3_t    mins;
+    { 26, 26, 9 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     80,                    //int       buildPoints;
@@ -1483,9 +1483,11 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_DEF2,             //int       buildNum;
     "mgturret",            //char      *buildName;
     "team_human_def2",     //char      *entityName;
-    { "models/buildables/mgturret/turret_base.md3", "models/buildables/mgturret/turret_barrel.md3", "models/buildables/mgturret/turret_top.md3", 0 },
-    { -24, -24, -11 },     //vec3_t    mins;
-    { 24, 24, 11 },        //vec3_t    maxs;
+    { "models/buildables/mgturret/turret_base.md3",
+      "models/buildables/mgturret/turret_barrel.md3",
+      "models/buildables/mgturret/turret_top.md3", 0 },
+    { -36, -36, -30 },     //vec3_t    mins;
+    { 36, 36, 30 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     80,                    //int       buildPoints;
