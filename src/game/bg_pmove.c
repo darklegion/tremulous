@@ -809,9 +809,9 @@ static void PM_JetPackMove( void )
   PM_StepSlideMove( qfalse, qfalse );
 
   if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
-    PM_ForceLegsAnim( LEGS_LAND );
+    PM_ContinueLegsAnim( LEGS_LAND );
   else
-    PM_ForceLegsAnim( NSPA_LAND );
+    PM_ContinueLegsAnim( NSPA_LAND );
 }
 
 

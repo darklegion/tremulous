@@ -1493,7 +1493,6 @@ static void CG_PlayerNonSegAngles( centity_t *cent, vec3_t srcAngles, vec3_t non
 
 //==========================================================================
 
-#define JET_SPREAD    30.0f
 #define JET_LIFETIME  1500
 
 /*
@@ -1512,6 +1511,7 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
   vec3_t        pvel;
   vec3_t        angles;
   int           addTime;
+  float         spread;
   refEntity_t   jetpack;
   refEntity_t   flash;
 
@@ -1541,22 +1541,25 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
       {
         trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
                                 vec3_origin, cgs.media.jetpackAscendSound );
-        addTime = 80;
+        addTime = 70;
         vel[ 2 ] = -60.0f;
+        spread = 30.0f;
       }
       else if( cent->currentState.pos.trDelta[ 2 ] < -10.0f )
       {
         trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
                                 vec3_origin, cgs.media.jetpackDescendSound );
-        addTime = 110;
-        vel[ 2 ] = -45.0f;
+        addTime = 90;
+        vel[ 2 ] = -100.0f;
+        spread = 5.0f;
       }
       else
       {
         trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
                                 vec3_origin, cgs.media.jetpackIdleSound );
-        addTime = 100;
-        vel[ 2 ] = -50.0f;
+        addTime = 80;
+        vel[ 2 ] = -80.0f;
+        spread = 15.0f;
       }
       
       memset( &flash, 0, sizeof( flash ) );
@@ -1583,7 +1586,7 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
         VectorScale( cent->currentState.pos.trDelta, 0.75f, pvel );
         VectorAdd( vel, pvel, vel );
       
-        CG_LaunchSprite( origin, vel, acc, JET_SPREAD,
+        CG_LaunchSprite( origin, vel, acc, spread,
                          0.5f, 4.0f, 20.0f, 128.0f, 0.0f,
                          rand( ) % 360, cg.time, cg.time, JET_LIFETIME,
                          cgs.media.smokePuffShader, qfalse, qfalse );
