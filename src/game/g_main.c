@@ -1129,6 +1129,17 @@ void CalculateRanks( void )
     }
   }
 
+  //calculate average number of clients for stats
+  level.averageNumAlienClients =
+    ( ( level.averageNumAlienClients * level.numAlienSamples )
+      + level.numAlienClients ) /
+    (float)( ++level.numAlienSamples );
+
+  level.averageNumHumanClients =
+    ( ( level.averageNumHumanClients * level.numHumanSamples )
+      + level.numHumanClients ) /
+    (float)( ++level.numHumanSamples );
+  
   qsort( level.sortedClients, level.numConnectedClients,
     sizeof( level.sortedClients[ 0 ] ), SortRanks );
 
@@ -1549,8 +1560,11 @@ can see the last frag.
 */
 void CheckExitRules( void )
 {
-  int     i;
+  int       i;
   gclient_t *cl;
+  char      s[ MAX_STRING_CHARS ];
+
+  trap_Cvar_VariableStringBuffer( "mapname", s, sizeof( s ) );
 
   // if at the intermission, wait for all non-bots to
   // signal ready, then go to next level
@@ -1589,6 +1603,10 @@ void CheckExitRules( void )
     //humans win
     level.lastWin = PTE_HUMANS;
     trap_SendServerCommand( -1, "print \"Humans win.\n\"");
+    G_LogPrintf( "STATS T:H A:%f H:%f M:%s D:%d\n", level.averageNumAlienClients,
+                                                    level.averageNumHumanClients,
+                                                    s, level.time - level.startTime );
+
     LogExit( "Humans win." );
     return;
   }
@@ -1599,6 +1617,10 @@ void CheckExitRules( void )
     //aliens win
     level.lastWin = PTE_ALIENS;
     trap_SendServerCommand( -1, "print \"Aliens win.\n\"");
+    G_LogPrintf( "STATS T:A A:%f H:%f M:%s D:%d\n", level.averageNumAlienClients,
+                                                    level.averageNumHumanClients,
+                                                    s, level.time - level.startTime );
+
     LogExit( "Aliens win." );
     return;
   }

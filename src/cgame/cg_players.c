@@ -1697,8 +1697,9 @@ static void CG_PlayerSprites( centity_t *cent )
 
   if( cent->currentState.eFlags & EF_TALK )
   {
-    CG_PlayerFloatSprite( cent, cgs.media.balloonShader );
-    return;
+    //TA: the masses have decreed this to be wrong
+/*    CG_PlayerFloatSprite( cent, cgs.media.balloonShader );
+    return;*/
   }
 }
 

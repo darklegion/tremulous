@@ -531,6 +531,11 @@ typedef struct
   int               numAlienClients;
   int               numHumanClients;
   
+  float             averageNumAlienClients;
+  int               numAlienSamples;
+  float             averageNumHumanClients;
+  int               numHumanSamples;
+  
   int               numLiveAlienClients;
   int               numLiveHumanClients;
   

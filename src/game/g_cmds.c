@@ -1313,16 +1313,23 @@ Activate an item
 void Cmd_ActivateItem_f( gentity_t *ent )
 {
   char  s[ MAX_TOKEN_CHARS ];
-  int   upgrade;
+  int   upgrade, weapon;
 
   trap_Argv( 1, s, sizeof( s ) );
   upgrade = BG_FindUpgradeNumForName( s );
+  weapon = BG_FindWeaponNumForName( s );
 
   if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
     
-  if( BG_gotItem( upgrade, ent->client->ps.stats ) )
+  if( upgrade != UP_NONE && BG_gotItem( upgrade, ent->client->ps.stats ) )
     BG_activateItem( upgrade, ent->client->ps.stats );
+  else if( weapon != WP_NONE )
+  {
+    //force a weapon change
+    ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
+    trap_SendServerCommand( ent-g_entities, va( "weaponswitch %d", weapon ) );
+  }
   else
     trap_SendServerCommand( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
 }
