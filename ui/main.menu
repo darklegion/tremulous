@@ -81,35 +81,12 @@
     itemDef
     {
       name mainmenu
-      text "Credits"
-      type ITEM_TYPE_BUTTON
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      textscale .416
-      style WINDOW_STYLE_EMPTY 
-      rect 472 40 128 20
-      textalignx 128 
-      textaligny 20 
-      textalign ITEM_ALIGN_RIGHT   
-      backcolor 0 0 0 0
-      forecolor 1 1 1 1
-      visible 1
-      action
-      {
-        play "sound/misc/kcaction.wav"; 
-        close main; 
-        open credit
-      } 
-    }
-
-    itemDef
-    {
-      name mainmenu
       text "Mods"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY 
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale .416
-      rect 472 60 128 20 
+      rect 472 40 128 20 
       textalignx 128 
       textaligny 20 
       textalign ITEM_ALIGN_RIGHT   
@@ -122,6 +99,7 @@
         open mod
       }
     }
+
     itemDef
     {
       name mainmenu
@@ -129,7 +107,7 @@
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       textstyle ITEM_TEXTSTYLE_NORMAL
-      rect 472 80 128 20
+      rect 472 60 128 20
       textalignx 128 
       textaligny 20 
       textscale .416

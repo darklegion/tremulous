@@ -90,7 +90,7 @@
       textalignx 5
       textaligny 21 
       textscale .3        
-      outlinecolor 1 .5 .5 .5
+      outlinecolor .2 .2 .2 .5
       backcolor 0 0 0 0
       forecolor 1 1 1 1
       border 0
@@ -110,7 +110,7 @@
       elementheight 16
       textscale .225
       backcolor 0 0 0 1
-      outlinecolor .1 .1 .7 .5
+      outlinecolor .2 .2 .2 .5
       border 1
       bordersize 1
       bordercolor .5 .5 .5 1

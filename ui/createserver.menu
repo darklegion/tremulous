@@ -1,1316 +1,577 @@
 #include "ui/menudef.h"
 
 {
-\\ Server Creation \\
+  \\ Server Creation \\
 
-  menuDef {
-    	name "createserver"
-    	visible 0
-    	fullscreen 1
-    	rect 0 0 640 480
-	background "menuback_a"
-	outOfBoundsClick	
-	focusColor 1 .75 0 1
-    	style 1
-    	border 1
-	onEsc { close createserver ; open main }
-	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
-	playlooped "music/fla_mp03.wav" ;
-	fadeout fadebox ; 
-	transition mappreview 7 127 190 1 7 57 190 141 20 10 ; 
-	uiScript loadArenas ;
-	hide lightning ; 
-	hide accept_alt ; 
-	show accept ;
-	hide back_alt ;
-	show back ;
-	hide grpmessage }
-	
+  menuDef
+  {
+    name "createserver"
+    visible 0
+    fullscreen 1
+    rect 0 0 640 480
+    focusColor 1 .75 0 1
+    outOfBoundsClick  
+    style 0
+    
+    onOpen
+    {
+      uiScript loadArenas;
+      hide accept_alt;
+      show accept;
+      hide back_alt;
+      show back;
+      hide grpmessage
+    }
+    
+    onEsc
+    {
+      close createserver;
+      open joinserver
+    }
+    
+    itemDef
+    {
+      name background
+      rect 0 0 640 480
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 1
+      visible 1
+      decoration
+    }
 
-itemDef {
-	name window
-      	rect 2 50 200 370	
-	style WINDOW_STYLE_FILLED
-	border 1
-	bordercolor 1 1 1 .25
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
-	visible 1
-	decoration
-}
+    itemDef
+    {
+      name window
+      rect 2 2 330 418
+      style WINDOW_STYLE_FILLED
+      border 1
+      bordercolor 1 1 1 .25
+      forecolor 1 1 1 1
+      backcolor 0 0 0 .25
+      visible 1
+      decoration
+    }
 
-itemDef {
-	name window
-      	rect 204 50 227 98	
-	style WINDOW_STYLE_FILLED
-	border 1
-	bordercolor 1 1 1 .25
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
-	visible 1
-	decoration
-}
+    itemDef
+    {
+      name window
+      rect 334 2 302 418
+      style WINDOW_STYLE_FILLED
+      border 1
+      bordercolor 1 1 1 .25
+      forecolor 1 1 1 1
+      backcolor 0 0 0 .25
+      visible 1
+      decoration
+    }
 
+    // map selection
 
-itemDef {
-	name window
-      	rect 204 150 227 270	
-	style WINDOW_STYLE_FILLED
-	border 1
-	bordercolor 1 1 1 .25
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
-	visible 1
-	decoration
-}
+    itemDef
+    {
+      name mappreview
+      style 0 
+      ownerdraw UI_STARTMAPCINEMATIC
+      rect 7 7 320 240
+      border 1
+      bordercolor .5 .5 .5 .5
+      visible 1 
+    }
 
-itemDef {
-	name window
-      	rect 433 50 200 183	
-	style WINDOW_STYLE_FILLED
-	border 1
-	bordercolor 1 1 1 .25
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
-	visible 1
-	 cvarTest "ui_actualNetGameType"
-	  hideCvar { "0" ; "1" ; "2" }
-	decoration
-}
+    itemDef
+    {
+      name mappreview
+      style WINDOW_STYLE_FILLED
+      rect 6 6 322 242
+      border 1
+      bordercolor .5 .5 .5 .5
+      visible 1
+    }
 
-itemDef {
-	name window
-      	rect 433 235 200 185	
-	style WINDOW_STYLE_FILLED
-	border 1
-	bordercolor 1 1 1 .25
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
-	visible 1
-	 cvarTest "ui_actualNetGameType"
-	  hideCvar { "0" ; "1" ; "2" }
-	decoration
-}
-itemDef {
-	name window
-      	rect 433 50 200 370	
-	style WINDOW_STYLE_FILLED
-	border 1
-	bordercolor 1 1 1 .25
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
-	visible 1
-	 cvarTest "ui_actualNetGameType"
-	  showCvar { "0" ; "1" ; "2" }
-	decoration
-}
-
-
-
-//	top bar	//
-  itemDef {
-      	name topbar
-      	style 2
-      	rect 0 5 640 40 
-      	style 2
-      	border 4
-      	bordercolor 0.5 0.5 0.5 0.5
-      	bordersize 2
-	backcolor 0 0 .75 .5
-      	visible 1 
-      	decoration 
-	mouseEnter { setcolor backcolor .75 0 0 .5 }
-      	mouseExit { setcolor backcolor 0 0 .75 .5 }
+    itemDef
+    {
+      name maplist
+      rect 6 252 322 164
+      type ITEM_TYPE_LISTBOX
+      style WINDOW_STYLE_EMPTY
+      elementwidth 120
+      elementheight 20
+      textscale .33
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_ALLMAPS
+      textalign 3
+      textaligny 14
+      border 1
+      bordercolor   0.5 0.5 0.5 1
+      forecolor     1   1   1   1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      visible 1
+      columns 1
+        2 190 25 ITEM_ALIGN_LEFT
     }
 
 
-// GLOBAL SETTINGS
+    //  SETTINGS  //
 
+    //  NORMAL  //  
 
-
-itemDef {
-      	name gametypefield
-      	style 0	
-	ownerdraw UI_NETGAMETYPE
-	text "Type:"
-	textstyle 6
-      	rect 0 10 320 31 
-      	textalign ITEM_ALIGN_LEFT		
-      	textalignx 20     
-      	textaligny 26    
-	textscale .416     
-      	forecolor 1 1 1 1
-      	visible 1
-	action { play "sound/misc/kcaction.wav" }
-	mouseEnter { fadein message_gametype } 
-	mouseExit { fadeout message_gametype } 
+    itemDef
+    {
+      name expert
+      group grpsettings
+      type ITEM_TYPE_EDITFIELD
+      text "Host Name:"
+      cvar "sv_hostname"
+      maxChars 32
+      maxPaintChars 20
+      rect 420 30 128 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      textscale .36        
+      forecolor 1 1 1 1
+      visible 1  
+    }
+    
+    itemDef
+    {
+      name normal
+      group grpsettings
+      type ITEM_TYPE_NUMERICFIELD
+      text "Time Limit:"
+      cvar "timelimit"
+      rect 420 50 128 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      maxchars 4
+      textaligny 12
+      textscale .36        
+      forecolor 1 1 1 1
+      visible 1  
     }
 
-itemDef {
-      	name gametypefield
-      	style 0	
-	ownerdraw UI_SKILL
-	textstyle 6
-	text "Skill:"
-      	rect 320 10 320 31 
-      	textalign ITEM_ALIGN_LEFT		
-      	textalignx 90     
-      	textaligny 26    
-	textscale .416    
-      	forecolor 1 1 1 1
-      	visible 1
-	action { play "sound/misc/kcaction.wav" }
-	mouseEnter { fadein message_skill } 
-	mouseExit { fadeout message_skill }  
+    itemDef
+    {
+      name expert
+      group grpsettings
+      type ITEM_TYPE_NUMERICFIELD
+      text "Maximum Players:"
+      cvar "sv_maxclients"
+      rect 420 70 128 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      maxchars 4
+      textaligny 12
+      textscale .36        
+      forecolor 1 1 1 1
+      visible 1  
     }
 
-
-// map selection
-
-itemDef {
-      	name mappreview
-      	style 0	
- 	ownerdraw UI_STARTMAPCINEMATIC
-      	rect 7 57 190 141
-      	border 1
-      	bordercolor .5 .5 .5 .5
-      	visible 1 
-    	}
-
-itemDef {
-      	name mappreview
-     	style WINDOW_STYLE_FILLED
-      	rect 6 56 192 143
-      	border 1
-      	bordercolor .5 .5 .5 .5
-      	visible 1
+    itemDef
+    {
+      name expert
+      group grpsettings
+      type ITEM_TYPE_YESNO
+      text "Require Password:"
+      cvar "g_needpassword"
+      rect 420 90 128 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      textscale .36        
+      forecolor 1 1 1 1
+      visible 1  
     }
 
- itemDef {
-	name maplist
-      	rect 6 205 192 211
-	type ITEM_TYPE_LISTBOX
-	style WINDOW_STYLE_FILLED
-	elementwidth 120
-	elementheight 20
-	textscale .25
-	elementtype LISTBOX_TEXT
-	feeder FEEDER_ALLMAPS
-	textstyle 6
-	textalign 3
-	textaligny 14
-	border 1
-	bordercolor .5 .5 .5 .5
-	forecolor 1 1 1 1
-	backcolor 0 0 .5 .25
-	outlinecolor .1 .1 .7 .5
-	visible 1
-	columns 1
-    2 190 25 ITEM_ALIGN_LEFT
-	mouseEnter { fadein message_arena ; setitemcolor maplist bordercolor .7 0 0 1 } 
-	mouseExit { fadeout message_arena ; setitemcolor maplist bordercolor .5 .5 .5 .5 } 
-  	}
-
-//	SETTINGS	//
-
-
-
-// 	NORMAL	//	
-
-    itemDef {
-      	name normal
-	group grpsettings
-        type ITEM_TYPE_NUMERICFIELD
-	text "Capture Limit:"
-	cvar "capturelimit" 
-	ownerdrawflag UI_SHOW_NETANYTEAMGAME  
- 	rect 260 60 128 12 
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 65
-	textaligny 12
-	maxchars 4
-	textscale .25        
-	forecolor 1 1 1 1
-	visible 1 
-    	}
-    itemDef {
-      	name normal
-	group grpsettings
-	type ITEM_TYPE_NUMERICFIELD
-	text "Frag Limit:"
-	cvar "fraglimit"
-	ownerdrawflag UI_SHOW_NETANYNONTEAMGAME 
-      	rect 260 60 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-	maxchars 4
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    }
-
-    itemDef {
-      	name normal
-	group grpsettings
-      	type ITEM_TYPE_NUMERICFIELD
-	text "Time Limit:"
-	cvar "timelimit"
-      	rect 260 77 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-	maxchars 4
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    }
-
-
-    itemDef {
-      	name normal
-	group grpsettings
-      	type ITEM_TYPE_YESNO
-	text "Friendly Fire:"
-	cvar "g_friendlyfire"
-      	rect 260 94 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    }
-
-    itemDef {
-  	name normal
-	group grpsettings
-      	type ITEM_TYPE_YESNO
-	text "Pure Server:"
-	cvar "sv_pure"
-      	rect 260 111 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    	}
-
-    itemDef {
-      	name normal
-	group grpsettings
-      	type ITEM_TYPE_MULTI
-	text "Dedicated:"
-	// syntax for this is cvar name followed by a semicolan separated list of choices first choice equals 0
-	// dedicated is a special cvar in that as soon as it is set, the game goes to console only so the ui catches this one specifically
-	cvar "ui_dedicated"
-	cvarFloatList { "No" 0 "LAN" 1 "Internet" 2 }
-	rect 260 128 128 12 
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 65
-	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-     	visible 1 
-    	}
-
-
-// 	EXPERT	//	
-
-    itemDef {
-      	name expert
-	group grpsettings
-      	type ITEM_TYPE_EDITFIELD
-	text "Host Name:"
-	cvar "sv_hostname"
-	maxChars 32
-	maxPaintChars 10
-      	rect 260 160 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
+    itemDef
+    {
+      name expert
+      group grpsettings
+      type 4
+      text "Password:"
+      cvar "g_password"
+      rect 420 110 128 20
+      maxchars 10
+      maxPaintChars 10
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      textscale .36        
+      forecolor 1 1 1 1
+      visible 1  
     }
 
 
 
-    itemDef {
-      	name expert
-	group grpsettings
-      	type ITEM_TYPE_YESNO
-	text "Auto Download:"
-	cvar "sv_allowdownload"
-	rect 260 175 128 12 
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 65
-	textaligny 12
-	textscale .25        
-	forecolor 1 1 1 1
-	visible 1  
+
+
+
+
+    itemDef
+    {
+      name normal
+      group grpsettings
+      type ITEM_TYPE_YESNO
+      text "Pure Server:"
+      cvar "sv_pure"
+      rect 420 160 128 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      textscale .36        
+      forecolor 1 1 1 1
+      visible 1  
     }
 
-    itemDef {
-      	name expert
-	group grpsettings
-      	type ITEM_TYPE_YESNO
-	text "Enable Voting:"
-	cvar "g_allowvote"
-      	rect 260 190 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    	}
+    itemDef
+    {
+      name normal
+      group grpsettings
+      type ITEM_TYPE_MULTI
+      text "Dedicated:"
+      // dedicated is a special cvar in that as soon as it is set,
+      // the game goes to console only so the ui catches this one specifically
+      cvar "ui_dedicated"
+      cvarFloatList { "No" 0 "LAN" 1 "Internet" 2 }
+      rect 420 180 128 20 
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      textscale .36        
+      forecolor 1 1 1 1
+      visible 1 
+    }
 
+    itemDef
+    {
+      name expert
+      group grpsettings
+      type ITEM_TYPE_YESNO
+      text "Auto Download:"
+      cvar "sv_allowdownload"
+      rect 420 200 128 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      textscale .36        
+      forecolor 1 1 1 1
+      visible 1  
+    }
+
+    itemDef
+    {
+      name expert
+      group grpsettings
+      type ITEM_TYPE_YESNO
+      text "Enable Voting:"
+      cvar "g_allowvote"
+      rect 420 220 128 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      textscale .36        
+      forecolor 1 1 1 1
+      visible 1  
+    }
+
+
+
+
+
+
+
+    itemDef
+    {
+      name expert
+      group grpsettings
+      type ITEM_TYPE_NUMERICFIELD
+      text "Minimum Ping:"
+      cvar "sv_minping"
+      rect 420 270 128 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      maxchars 4
+      textaligny 12
+      textscale .36        
+      forecolor 1 1 1 1
+      visible 1  
+    }
+
+    itemDef
+    {
+      name expert
+      group grpsettings
+      type ITEM_TYPE_NUMERICFIELD
+      text "Maximum Ping:"
+      cvar "sv_maxping"
+      rect 420 290 128 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      maxchars 4
+      textscale .36        
+      forecolor 1 1 1 1
+      visible 1  
+    }
+
+    itemDef
+    {
+      name expert
+      group grpsettings
+      type ITEM_TYPE_YESNO
+      text "Synchronous Client:"
+      cvar "g_synchronousclients"
+      rect 420 310 128 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      textscale .36        
+      forecolor 1 1 1 1
+      visible 1  
+    }
+
+    itemDef
+    {
+      name expert
+      group grpsettings
+      type ITEM_TYPE_NUMERICFIELD
+      text "Max Rate:"
+      cvar "sv_maxrate"
+      rect 420 330 128 20 
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      maxchars 4
+      textaligny 12
+      textscale .36        
+      forecolor 1 1 1 1
+      visible 1  
+    }
+
+    itemDef
+    {
+      name expert
+      group grpsettings
+      type ITEM_TYPE_NUMERICFIELD
+      text "Zombie Time:"
+      cvar "sv_zombietime"
+      rect 420 350 128 20
+      maxchars 4
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      textscale .36        
+      forecolor 1 1 1 1
+      visible 1  
+    }
+
+    itemDef
+    {
+      name expert
+      group grpsettings
+      type ITEM_TYPE_NUMERICFIELD
+      text "Reconnect Limit:"
+      cvar "sv_reconnectlimit"
+      maxchars 4
+      rect 420 370 128 20
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      textscale .36        
+      forecolor 1 1 1 1
+      visible 1  
+    }
     
 
-    itemDef {
-      	name expert
-	group grpsettings
-      	type ITEM_TYPE_NUMERICFIELD
-	text "Maximum Players:"
-	cvar "sv_maxclients"
-      	rect 260 205 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-	maxchars 4
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    	}
 
 
 
-    itemDef {
-      	name expert
-	group grpsettings
-      	type ITEM_TYPE_NUMERICFIELD
-	text "Minimum Ping:"
-	cvar "sv_minping"
-      	rect 260 220 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-	maxchars 4
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    }
-
-    itemDef {
-	name expert
-	group grpsettings
-      	type ITEM_TYPE_NUMERICFIELD
-	text "Maximum Ping:"
-	cvar "sv_maxping"
-      	rect 260 235 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	maxchars 4
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    }
-
-    itemDef {
-	name expert
-	group grpsettings
-      	type ITEM_TYPE_YESNO
-	text "Force Join:"
-	cvar "g_teamautojoin"
-      	rect 260 250 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    	}
-
-    itemDef {
-      	name expert
-	group grpsettings
-      	type ITEM_TYPE_YESNO
-	text "Even Teams:"
-	cvar "g_teamforcebalance"
-      	rect 260 265 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    	}
-
-    itemDef {
-      	name expert
-	group grpsettings
-      	type ITEM_TYPE_YESNO
-	text "Do Warmup:"
-	cvar "g_dowarmup"
-      	rect 260 280 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    	}
-
-    itemDef {
-	name expert
-	group grpsettings
-      	type ITEM_TYPE_NUMERICFIELD
-	text "Warmup time:"
-	cvar "g_warmup"
-      	rect 260 295 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25  
-	maxchars 4
-      	forecolor 1 1 1 1
-      	visible 1  
-    	}
-
-    itemDef {
-      	name expert
-	group grpsettings
-      	type ITEM_TYPE_YESNO
-	text "Synchronous Client:"
-	cvar "g_synchronousclients"
-      	rect 260 310 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    	}
-
-    itemDef {
-      	name expert
-	group grpsettings
-      	type ITEM_TYPE_NUMERICFIELD
-	text "Max Rate:"
-	cvar "sv_maxrate"
-      	rect 260 325 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-	maxchars 4
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    	}
-
-    itemDef {
-      	name expert
-	group grpsettings
-      	type ITEM_TYPE_NUMERICFIELD
-	text "Zombie Time:"
-	cvar "sv_zombietime"
-      	rect 260 340 128 12 
-	maxchars 4
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    	}
-
-    itemDef {
-      	name expert
-	group grpsettings
-      	type ITEM_TYPE_NUMERICFIELD
-	text "Reconnect Limit:"
-	cvar "sv_reconnectlimit"
-	maxchars 4
-      	rect 260 355 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    	}
-    itemDef {
-      	name expert
-	group grpsettings
- 	type ITEM_TYPE_YESNO
-	text "Require Password:"
-	cvar "g_needpassword"
-      	rect 260 370 128 12 
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    	}
-
-    itemDef {
-      	name expert
-	group grpsettings
-      	type 4
-	text "Password:"
-	cvar "g_password"
-      	rect 260 385 128 12 
-	maxchars 10
-	maxPaintChars 10
-      	textalign ITEM_ALIGN_RIGHT
-      	textalignx 65
-      	textaligny 12
-	textscale .25        
-      	forecolor 1 1 1 1
-      	visible 1  
-    	}
-
-
-
-// BOT LIST FOR TEAM GAMES
-
-itemDef {
-      name gametypefield
-      style 0	
- 	  ownerdraw UI_BLUETEAMNAME
-      rect 450 70 128 28 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 0     
-      textaligny 26    
-	 textscale .333     
-      forecolor 0 0 1 1
-      border 0
-      bordercolor 0 0 0 0
+/*  itemDef
+    {
+      name expert
+      group grpsettings
+      type ITEM_TYPE_YESNO
+      text "Force Join:"
+      cvar "g_teamautojoin"
+      rect 420 250 128 12 
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      textscale .36        
+      forecolor 1 1 1 1
       visible 1  
-	  cvarTest "ui_actualNetGameType"
-	  hideCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_clan } 
-	mouseExit { fadeout message_clan } 
     }
 
-
-
-itemDef {
-      name gametypefield
-      style 0	
- 	  ownerdraw UI_BLUETEAM1
-      rect 450 100 128 20 
-	text "1."
-     textalign ITEM_ALIGN_LEFT	
-      textalignx 0     
-      textaligny 18    
-	  textscale .333
+    itemDef
+    {
+      name expert
+      group grpsettings
+      type ITEM_TYPE_YESNO
+      text "Even Teams:"
+      cvar "g_teamforcebalance"
+      rect 420 265 128 12 
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      textscale .36        
       forecolor 1 1 1 1
-      border 0
-      bordercolor 0 0 0 0
-       visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  hideCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
+      visible 1  
+    }*/
+
+/*  itemDef
+    {
+      name expert
+      group grpsettings
+      type ITEM_TYPE_YESNO
+      text "Do Warmup:"
+      cvar "g_dowarmup"
+      rect 420 280 128 12 
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      textscale .36        
+      forecolor 1 1 1 1
+      visible 1  
     }
 
-itemDef {
-      name gametypefield
-      style 0	
- 	  ownerdraw UI_BLUETEAM2
-      rect 450 122 128 20 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 0     
-      textaligny 18 
-	text "2."   
-	  textscale .333
+    itemDef
+    {
+      name expert
+      group grpsettings
+      type ITEM_TYPE_NUMERICFIELD
+      text "Warmup time:"
+      cvar "g_warmup"
+      rect 420 295 128 12 
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      textscale .36  
+      maxchars 4
       forecolor 1 1 1 1
-      border 0
-      bordercolor 0 0 0 0
-       visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  hideCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
-    }
+      visible 1  
+    }*/
 
-itemDef {
-      name gametypefield
-      style 0	
-	text "3."
- 	  ownerdraw UI_BLUETEAM3
-      rect 450 144 128 20 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 0     
-      textaligny 18    
-	  textscale .333
+/*    itemDef
+    {
+      name normal
+      group grpsettings
+      type ITEM_TYPE_YESNO
+      text "Friendly Fire:"
+      cvar "g_friendlyfire"
+      rect 420 94 128 12 
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 65
+      textaligny 12
+      textscale .36        
       forecolor 1 1 1 1
-      border 0
-      bordercolor 0 0 0 0
-       visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  hideCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
-    }
+      visible 1  
+    }*/
+    // BACK BAR //
 
-itemDef {
-      name gametypefield
-      style 0	
-	text "4."
- 	  ownerdraw UI_BLUETEAM4
-      rect 450 166 128 20 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 0     
-      textaligny 18    
-	  textscale .333
-      forecolor 1 1 1 1
-      border 0
-      bordercolor 0 0 0 0
-       visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  hideCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
-    }
-
-itemDef {
-      name gametypefield
-      style 0	
-	text "5."
- 	  ownerdraw UI_BLUETEAM5
-      rect 450 188 128 20 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 0     
-      textaligny 18    
-	  textscale .333
-      forecolor 1 1 1 1
-      border 0
-      bordercolor 0 0 0 0
+    itemDef
+    {
+      name back
+      style 3
+      background "ui/assets/backarrow.tga"
+      rect 16 424 50 50 
       visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  hideCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
+      action
+      {
+        close createserver;
+        open joinserver
+      }
+      
+      mouseEnter
+      {
+        hide back;
+        show back_alt
+      }
     }
 
-
-
-
-itemDef {
-      name gametypefield
-      style 0	
- 	  ownerdraw UI_REDTEAMNAME
-      rect 450 250 128 28 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 0     
-      textaligny 26    
-	  textscale .333
-      forecolor 1 0 0 1
-      border 0
-      bordercolor 0 0 0 0
-       visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  hideCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_clan } 
-	mouseExit { fadeout message_clan } 
-    }
-
-
-itemDef {
-      name gametypefield
-      style 0	
- 	  ownerdraw UI_REDTEAM1
-	text "1."
-      rect 450 280 128 20 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 0     
-      textaligny 18    
-	  textscale .333
+    itemDef
+    {
+      name back_alt
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/backarrow_alt.tga"
+      rect 16 424 50 50
+      backcolor 0 0 0 0
       forecolor 1 1 1 1
-      border 0
-      bordercolor 0 0 0 0
+      visible 0
+      type ITEM_TYPE_BUTTON
+      
+      text "Back"
+      textalign ITEM_ALIGN_LEFT
+      textaligny 36
+      textalignx 60
+      textscale .6
+      
+      mouseExit
+      {
+        hide back_alt;
+        show back
+      }
+      
+      action
+      {
+        close createserver;
+        open joinserver
+      }   
+    }
+
+
+
+
+    itemDef
+    {
+      name accept
+      style 3 
+      rect 574 424 50 50 
+      background "ui/assets/forwardarrow.tga"
+      backcolor 0 0 0 0
+      forecolor 1 1 1 1
       visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  hideCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
+      mouseEnter
+      {
+        hide accept;
+        show accept_alt
+      }
+      
+      action
+      {
+        close fight; //TA: no i don't know
+        uiScript StartServer
+      }
     }
 
-itemDef {
-      name gametypefield
-      style 0	
-	text "2."
- 	  ownerdraw UI_REDTEAM2
-      rect 450 302 128 20 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 0     
-      textaligny 18    
-	  textscale .333
+    itemDef
+    {
+      name accept_alt
+      style WINDOW_STYLE_SHADER
+      rect 574 424 50 50
+      background "ui/assets/forwardarrow_alt.tga"
+      backcolor 0 0 0 0
+      type ITEM_TYPE_BUTTON
       forecolor 1 1 1 1
-      border 0
-      bordercolor 0 0 0 0
-       visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  hideCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
+      visible 0  
+      type ITEM_TYPE_BUTTON 
+      
+      text "Create"
+      textalign ITEM_ALIGN_LEFT
+      textaligny 36
+      textalignx -70
+      textscale .6
+      
+      mouseExit
+      {
+        hide accept_alt;
+        show accept
+      }
+      
+      action
+      {
+        close fight; //TA: no i don't know
+        uiScript StartServer
+      }
     }
-
-itemDef {
-      name gametypefield
-      style 0	
-	text "3."
- 	  ownerdraw UI_REDTEAM3
-      rect 450 324 128 20 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 0     
-      textaligny 18    
-	  textscale .333
-      forecolor 1 1 1 1
-      border 0
-      bordercolor 0 0 0 0
-       visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  hideCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
-    }
-
-itemDef {
-      name gametypefield
-      style 0	
-	text "4."
- 	  ownerdraw UI_REDTEAM4
-      rect 450 346 128 20 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 0     
-      textaligny 18    
-	  textscale .333
-      forecolor 1 1 1 1
-      border 0
-      bordercolor 0 0 0 0
-      visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  hideCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
-    	}
-
-itemDef {
-      	name gametypefield
-      	style 0	
-	text "5."
-	ownerdraw UI_REDTEAM5
-      	rect 450 368 128 20 
-     	textalign ITEM_ALIGN_LEFT		
-      	textalignx 0     
-      	textaligny 18    
-	textscale .333
-      	forecolor 1 1 1 1
-      	border 0
-      	bordercolor 0 0 0 0
-      	 visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  hideCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" } 
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
-    	}
-
-// BOT LIST FOR NONTEAMGAMES
-
-
-itemDef {
-      name gametypefield
-      style 0	
-	text "1."
- 	  ownerdraw UI_BLUETEAM1
-      rect 450 100 128 20 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 0     
-      textaligny 18    
-	  textscale .333
-      forecolor 1 1 1 1
-      border 0
-      bordercolor 0 0 0 0
-        visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  showCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
-    }
-
-itemDef {
-      name gametypefield
-      style 0	
-	text "2."
- 	  ownerdraw UI_REDTEAM1
-      rect 450 125 128 20 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 0     
-      textaligny 18    
-	  textscale .333
-      forecolor 1 1 1 1
-      border 0
-      bordercolor 0 0 0 0
-        visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  showCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
-    }
-
-itemDef {
-      name gametypefield
-      style 0
-	text "3."	
- 	  ownerdraw UI_BLUETEAM2
-      rect 450 150 128 20 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 0     
-      textaligny 18    
-	  textscale .333
-      forecolor 1 1 1 1
-      border 0
-      bordercolor 0 0 0 0
-        visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  showCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
-    }
-
-itemDef {
-      name gametypefield
-      style 0
-	text "4."	
- 	  ownerdraw UI_REDTEAM2
-      rect 450 175 128 20 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 0     
-      textaligny 18    
-	  textscale .333
-      forecolor 1 1 1 1
-      border 0
-      bordercolor 0 0 0 0
-       visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  showCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
-    }
-
-itemDef {
-      name gametypefield
-      style 0	
-	text "5."
- 	  ownerdraw UI_BLUETEAM3
-      rect 450 200 128 20 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 0     
-      textaligny 18    
-	  textscale .333
-      forecolor 1 1 1 1
-      border 0
-      bordercolor 0 0 0 0
-       visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  showCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
-    }
-
-
-
-
-
-
-
-itemDef {
-      	name gametypefield
-      	style 0	
-	text "6."
-	ownerdraw UI_REDTEAM3
-      	rect 450 225 128 20 
-      	textalign ITEM_ALIGN_LEFT		
-      	textalignx 0     
-      	textaligny 18    
-	textscale .333
-      	forecolor 1 1 1 1
-      	border 0
-      	bordercolor 0 0 0 0
-      	 visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  showCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
-    }
-
-itemDef {
-      	name gametypefield
-      	style 0	
-	text "7."
- 	ownerdraw UI_BLUETEAM4
-      	rect 450 250 128 20 
-      	textalign ITEM_ALIGN_LEFT		
-      	textalignx 0     
-      	textaligny 18    
-	textscale .333
-      	forecolor 1 1 1 1
-      	border 0
-      	bordercolor 0 0 0 0
-       	 visible 1 
-	  cvarTest "ui_actualNetGameType"
-	 showCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
-    	}
-
-itemDef {
-      	name gametypefield
-      	style 0	
-	text "8."
- 	ownerdraw UI_REDTEAM4
-      	rect 450 275 128 20 
-      	textalign ITEM_ALIGN_LEFT		
-      	textalignx 0     
-      	textaligny 18    
-	textscale .333
-      	forecolor 1 1 1 1
- 	border 0
-      	bordercolor 0 0 0 0
-       	 visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  showCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
-    }
-
-itemDef {
-      name gametypefield
-      style 0
-	text "9."	
- 	  ownerdraw UI_BLUETEAM5
-      rect 450 300 128 20 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 0     
-      textaligny 18    
-	  textscale .333
-      forecolor 1 1 1 1
-      border 0
-      bordercolor 0 0 0 0
-      visible 1 
-	  cvarTest "ui_actualNetGameType"
-	showCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" }
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
-    	}
-
-itemDef {
-      	name gametypefield
-      	style 0	
-	text "10."
-	ownerdraw UI_REDTEAM5
-      	rect 443 325 128 20 
-     	textalign ITEM_ALIGN_LEFT		
-      	textalignx 0     
-      	textaligny 18    
-	textscale .333
-      	forecolor 1 1 1 1
-      	border 0
-      	bordercolor 0 0 0 0
-       visible 1 
-	  cvarTest "ui_actualNetGameType"
-	  showCvar { "0" ; "1" ; "2" }
-	action { play "sound/misc/nomenu.wav" } 
-	mouseEnter { fadein message_slot } 
-	mouseExit { fadeout message_slot } 
-    	}
-
-
-
-// BACK BAR	//
-
-
-  itemDef {
-      	name gotobar
-      	style 2
-      	rect 0 430 640 30 
-      	textscale 0.4
-      	textalign 0		        // center
-      	textalignx 60        // x alignment point for text
-                            // use it to offset left/right text from the edge 
-                            // or to center the text on a different point
-      	textaligny 21        
-      	style 2
-      	border 4
-      	bordercolor 0.5 0.5 0.5 0.75
-      	bordersize 2
-      	backcolor 0 0 .75 0.5
-      	visible 1 
-      	mouseEnter { setcolor backcolor .75 0 0 .5 }
-      	mouseExit { setcolor backcolor 0 0 .75 .5 }
-      	decoration 
-    	}
-
-    itemDef {
-      	name back
-	style 3
-      	background "ui/assets/backarrow.tga"
-	rect 16 424 50 50 
-      	visible 1 
-      	action {  close createserver ; open main }
-	mouseEnter { hide back ; show back_alt ; fadein message_back }
-    	}
-
-itemDef {
-      	name back_alt
-      	style WINDOW_STYLE_SHADER
-	background "ui/assets/backarrow_alt.tga"
-	rect 14 422 54 54 
-      	backcolor 0 0 0 0
-      	forecolor 1 1 1 1
-      	visible 0
-	type ITEM_TYPE_BUTTON
-      	mouseExit { hide back_alt ; show back ; fadeout message_back }	  
-      	action { close createserver ; open main }	  
-    	}
-
-
-
-    itemDef {
-      	name accept
-      	style 3	
-     	rect 574 424 50 50 
-     	background "ui/assets/forwardarrow.tga"
-      	backcolor 0 0 0 0
-      	forecolor 1 1 1 1
-      	visible 1 
-	mouseEnter { playlooped "sound/misc/loop_electricity_05.wav" ; show lightning ; hide accept ; show accept_alt ; fadein message_accept }
-      	action { close fight ; uiScript StartServer }
-/*	
-	//	demo_only
-	cvarTest "ui_actualNetGameType"
-	hideCvar { "0" ; "1" }
-*/
-  	}
-
-	itemDef {
-      	name accept_alt
-      	style 3	
-     	rect 572 422 54 54 
-     	background "ui/assets/forwardarrow_alt.tga"
-      	backcolor 0 0 0 0
-      	forecolor 1 1 1 1
-      	visible 0   
-		type ITEM_TYPE_BUTTON
-      	action { close fight ; uiScript StartServer }
-      	mouseExit { hide lightning ; hide accept_alt ; show accept ; fadeout message_accept ; playlooped "music/fla_mp03.wav" }	
-/*	
-	//	demo_only
-	cvarTest "ui_actualNetGameType"
-	hideCvar { "0" ; "1" }
-*/
-  	}
-itemDef {
-      	name lightning
-      	style 3
-	background lightningkc
-      	rect 46 385 236 128     
-      	visible 0 
-      	decoration 
-    	}
-itemDef {
-      	name lightning
-      	style 3
-	background lightningkc
-      	rect 355 385 236 128     
-      	visible 0 
-      	decoration 
-    	}
-
-
-
-//	MESSAGES	//
-
-itemDef {
-	name message_back
-	group grpmessage
-	style 0 
-	rect 320 430 128 30
-	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Exit to Main Menu"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-
-itemDef {
-	name message_accept
-	group grpmessage
-	style 0 
-	rect 320 430 128 30
-	textalign 1
-	textalignx 0
-	textstyle 1
-	textaligny 25
-	textscale .416
-	text "Start Server"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-
-itemDef {
-	name message_gametype
-	group grpmessage
-	style 0 
-	rect 320 430 128 30
-	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Set GameType"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-
-itemDef {
-	name message_skill
-	group grpmessage
-	style 0 
-	rect 320 430 128 30
-	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Set Skill Level"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-itemDef {
-	name message_arena
-	group grpmessage
-	style 0 
-	rect 320 430 128 30
-	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Choose Your Arena"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-itemDef {
-	name message_clan
-	group grpmessage
-	style 0 
-	rect 320 430 128 30
-	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Click to toggle through clan list"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-itemDef {
-	name message_slot
-	group grpmessage
-	style 0 
-	rect 320 430 128 30
-	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Click to toggle botnames, human, or closed slots"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-itemDef {
-	name message_normal
-	group grpmessage
-	style 0 
-	rect 320 430 128 30
-	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Select to Modify Normal Server Settings"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-itemDef {
-	name message_expert
-	group grpmessage
-	style 0 
-	rect 320 430 128 30
-	textalign 1
-	textstyle 1
-	textalignx 0
-	textaligny 25
-	textscale .416
-	text "Select to Modify Expert Server Settings"
-	forecolor 1 1 1 1
-	decoration 
-	visible 0
-	}
-
-itemDef {
-      	name fadebox
-      	style WINDOW_STYLE_FILLED
- 	background "ui/assets/fadebox.tga"
-	forecolor 0 0 0 1
-	backcolor 0 0 0 1
-	rect 0 0 640 480
-      	visible 1 
-	decoration
-    	}
-
-
-}
-}
-
+  }
 }
