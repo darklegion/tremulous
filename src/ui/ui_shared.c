@@ -3755,7 +3755,7 @@ void Item_ListBox_Paint(itemDef_t *item) {
               DC->drawHandlePic(x + 4 + listPtr->columnInfo[j].pos, y - 1 + listPtr->elementHeight / 2, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
             } else if (text) {
               //TA:
-              int alignOffset, tw;
+              int alignOffset = 0.0f, tw;
 
               tw = DC->textWidth( text, item->textscale, 0 );
 

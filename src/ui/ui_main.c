@@ -1707,7 +1707,7 @@ static void UI_DrawPlayerModel(rectDef_t *rect) {
 }
 
 static void UI_DrawNetSource(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
-  if (ui_netSource.integer < 0 || ui_netSource.integer > uiInfo.numGameTypes) {
+  if (ui_netSource.integer < 0 || ui_netSource.integer > numNetSources) {
     ui_netSource.integer = 0;
   }
   Text_Paint(rect->x, rect->y, scale, color, va("Source: %s", netSources[ui_netSource.integer]), 0, 0, textStyle);
@@ -1718,7 +1718,7 @@ static void UI_DrawNetMapPreview(rectDef_t *rect, float scale, vec4_t color) {
   if (uiInfo.serverStatus.currentServerPreview > 0) {
     UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.serverStatus.currentServerPreview);
   } else {
-    UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, trap_R_RegisterShaderNoMip("menu/art/unknownmap"));
+    UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, trap_R_RegisterShaderNoMip("gfx/2d/load_screen"));
   }
 }
 
@@ -2943,11 +2943,15 @@ static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key, qboo
 static qboolean UI_NetSource_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     
+    Com_Printf( "pre1 ui_netSource: %d\n", ui_netSource.integer );
+    
     if (key == K_MOUSE2) {
       ui_netSource.integer--;
     } else {
       ui_netSource.integer++;
     }
+
+    Com_Printf( "pre  ui_netSource: %d\n", ui_netSource.integer );
     
     if (ui_netSource.integer >= numNetSources) {
       ui_netSource.integer = 0;
@@ -2955,6 +2959,8 @@ static qboolean UI_NetSource_HandleKey(int flags, float *special, int key) {
       ui_netSource.integer = numNetSources - 1;
     }
 
+    Com_Printf( "post ui_netSource: %d\n", ui_netSource.integer );
+    
     UI_BuildServerDisplayList(qtrue);
     if (ui_netSource.integer != AS_GLOBAL) {
       UI_StartServerRefresh(qtrue);
@@ -5189,6 +5195,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
         lastColumn = column;
         lastTime = uiInfo.uiDC.realTime;
       }
+      /*return "bah";*/
       ping = atoi(Info_ValueForKey(info, "ping"));
       if (ping == -1) {
         // if we ever see a ping that is out of date, do a server refresh
@@ -5216,17 +5223,11 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
               return hostname;
             }
           }
-        case SORT_MAP : return Info_ValueForKey(info, "mapname");
+        case SORT_MAP :
+          return Info_ValueForKey(info, "mapname");
         case SORT_CLIENTS : 
           Com_sprintf( clientBuff, sizeof(clientBuff), "%s (%s)", Info_ValueForKey(info, "clients"), Info_ValueForKey(info, "sv_maxclients"));
           return clientBuff;
-        case SORT_GAME : 
-          game = atoi(Info_ValueForKey(info, "gametype"));
-          if (game >= 0 && game < numTeamArenaGameTypes) {
-            return teamArenaGameTypes[game];
-          } else {
-            return "Unknown";
-          }
         case SORT_PING : 
           if (ping <= 0) {
             return "...";
