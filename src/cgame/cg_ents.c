@@ -431,6 +431,10 @@ static void CG_Portal( centity_t *cent )
 
 //============================================================================
 
+#define SETBOUNDS(v1,v2,r)  ((v1)[0]=(-r/2),(v1)[1]=(-r/2),(v1)[2]=(-r/2),\
+                             (v2)[0]=(r/2),(v2)[1]=(r/2),(v2)[2]=(r/2))
+#define RADIUSSTEP          1.0f
+  
 /*
 =========================
 CG_LightFlare
@@ -444,6 +448,8 @@ static void CG_LightFlare( centity_t *cent )
   float         len;
   trace_t       tr;
   float         maxAngle;
+  vec3_t        mins, maxs, dir, start, end;
+  float         srcRadius, srLocal, ratio;
 
   es = &cent->currentState;
   
@@ -462,14 +468,24 @@ static void CG_LightFlare( centity_t *cent )
   flare.shaderRGBA[ 1 ] = 0xFF;
   flare.shaderRGBA[ 2 ] = 0xFF;
   flare.shaderRGBA[ 3 ] = 0xFF;
+  
+  //flares always drawn before the rest of the scene
+  flare.renderfx |= RF_DEPTHHACK;
 
   //can only see the flare when in front of it
   flare.radius = len / es->origin2[ 0 ];
+
+  if( es->origin2[ 1 ] == 0 )
+    srcRadius = srLocal = flare.radius / 2.0f;
+  else
+    srcRadius = srLocal = len / es->origin2[ 1 ];
+  
   maxAngle = es->origin2[ 1 ];
 
   if( maxAngle > 0.0f )
   {
-    float radiusMod = 1.0f - ( 180.0f - RAD2DEG( acos( DotProduct( delta, forward ) ) ) ) / maxAngle;
+    float radiusMod = 1.0f - ( 180.0f - RAD2DEG(
+          acos( DotProduct( delta, forward ) ) ) ) / maxAngle;
     
     if( es->eFlags & EF_NODRAW )
       flare.radius *= radiusMod;
@@ -483,6 +499,28 @@ static void CG_LightFlare( centity_t *cent )
   //if can't see the centre do not draw
   CG_Trace( &tr, flare.origin, NULL, NULL, cg.refdef.vieworg, 0, MASK_SHOT );
   if( tr.fraction < 1.0f )
+    return;
+
+  VectorSubtract( cg.refdef.vieworg, flare.origin, dir );
+  VectorNormalize( dir );
+  VectorMA( flare.origin, 1.5f * flare.radius, dir, end );
+  VectorMA( cg.refdef.vieworg, -flare.radius, dir, start );
+  
+  do
+  {
+    SETBOUNDS( mins, maxs, srLocal );
+    CG_Trace( &tr, start, mins, maxs, end,
+              cg.predictedPlayerState.clientNum, MASK_SHOT );
+
+    srLocal -= RADIUSSTEP;
+  } while( ( tr.fraction < 1.0f || tr.startsolid ) && ( srLocal > 0.0f ) );
+
+  ratio = srLocal / srcRadius;
+  
+  flare.radius *= ratio;
+  flare.shaderRGBA[ 3 ] = (byte)( (float)flare.shaderRGBA[ 3 ] * ratio );
+  
+  if( flare.radius <= 0.0f )
     return;
 
   trap_R_AddRefEntityToScene( &flare );

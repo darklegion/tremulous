@@ -1056,7 +1056,7 @@ CG_DrawFPS
 ==================
 */
 //TA: personally i think this should be longer - it should really be a cvar
-#define FPS_FRAMES  40
+#define FPS_FRAMES  20
 #define FPS_STRING  "fps"
 static void CG_DrawFPS( rectDef_t *rect, float text_x, float text_y,
                         float scale, vec4_t color, int align, int textStyle )
