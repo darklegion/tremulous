@@ -184,6 +184,8 @@ struct gentity_s {
   gentity_t *targeted;    //TA: true if the player is currently a valid target of a turret
 
   vec4_t    animation;    //TA: animated map objects
+
+  vec3_t    turretAim;    //TA: aim vector for turrets
 };
 
 typedef enum {

@@ -640,7 +640,7 @@ void ddef_fireonenemy( gentity_t *self, int firespeed )
   }
   
   VectorNormalize( dirToTarget );
-  vectoangles( dirToTarget, self->s.angles2 );
+  vectoangles( dirToTarget, self->turretAim );
 
   //fire at target
   FireWeapon( self );
@@ -1074,8 +1074,9 @@ Used by HDef1_Think to track enemy location
 */
 qboolean hdef1_trackenemy( gentity_t *self )
 {
-  vec3_t  dirToTarget, angleToTarget, angularDiff;
-  float   temp;
+  vec3_t  dirToTarget, angleToTarget, angularDiff, xNormal;
+  vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
+  float   temp, rotAngle;
   float   distanceToTarget = BG_FindRangeForBuildable( self->s.modelindex );
   float   timeTilImpact;
   vec3_t  halfAcceleration;
@@ -1115,10 +1116,17 @@ qboolean hdef1_trackenemy( gentity_t *self )
   
   VectorNormalize( dirToTarget );
   
+  CrossProduct( self->s.origin2, refNormal, xNormal );
+  VectorNormalize( xNormal );
+  rotAngle = RAD2DEG( acos( DotProduct( self->s.origin2, refNormal ) ) );
+  RotatePointAroundVector( dirToTarget, xNormal, dirToTarget, -rotAngle );
+  
   vectoangles( dirToTarget, angleToTarget );
 
   angularDiff[ PITCH ] = AngleSubtract( self->s.angles2[ PITCH ], angleToTarget[ PITCH ] );
   angularDiff[ YAW ] = AngleSubtract( self->s.angles2[ YAW ], angleToTarget[ YAW ] );
+
+  G_Printf( "%f\n", angularDiff[ PITCH ] );
 
   //if not pointing at our target then move accordingly
   if( angularDiff[ PITCH ] < -HDEF1_ACCURACYTOLERANCE )
@@ -1146,7 +1154,9 @@ qboolean hdef1_trackenemy( gentity_t *self )
   else
     self->s.angles2[ YAW ] = angleToTarget[ YAW ];
     
-  trap_LinkEntity( self );
+  AngleVectors( self->s.angles2, dirToTarget, NULL, NULL );
+  RotatePointAroundVector( self->turretAim, xNormal, dirToTarget, rotAngle );
+  vectoangles( self->turretAim, self->turretAim );
 
   //if pointing at our target return true
   if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= HDEF1_ACCURACYTOLERANCE &&
@@ -1205,7 +1215,7 @@ qboolean hdef2_trackenemy( gentity_t *self )
   else
     self->s.angles2[ YAW ] = angleToTarget[ YAW ];
     
-  trap_LinkEntity( self );
+  VectorCopy( self->s.angles2, self->turretAim );
 
   //if pointing at our target return true
   if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= HDEF2_ACCURACYTOLERANCE &&
@@ -1228,7 +1238,7 @@ void hdef3_fireonenemy( gentity_t *self, int firespeed )
  
   VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
   VectorNormalize( dirToTarget );
-  vectoangles( dirToTarget, self->s.angles2 );
+  vectoangles( dirToTarget, self->turretAim );
 
   //fire at target
   FireWeapon( self );

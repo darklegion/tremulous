@@ -1107,7 +1107,8 @@ void FireWeapon( gentity_t *ent )
   }
   else
   {
-    AngleVectors( ent->s.angles2, forward, right, up );
+    AngleVectors( ent->turretAim, forward, right, up );
+    /*AngleVectors( ent->s.angles2, forward, right, up );*/
     VectorCopy( ent->s.pos.trBase, muzzle );
   }
 
