@@ -177,12 +177,12 @@ static qboolean findPower( gentity_t *self )
 
 /*
 ================
-isPower
+G_isPower
 
-simple wrapper to findPower to check if a location has power
+Simple wrapper to findPower to check if a location has power
 ================
 */
-static qboolean isPower( vec3_t origin )
+qboolean G_isPower( vec3_t origin )
 {
   gentity_t dummy;
 
@@ -251,12 +251,12 @@ static qboolean findDCC( gentity_t *self )
 
 /*
 ================
-isDCC
+G_isDCC
 
 simple wrapper to findDCC to check for a dcc
 ================
 */
-static qboolean isDCC( )
+qboolean G_isDCC( void )
 {
   gentity_t dummy;
 
@@ -303,6 +303,23 @@ static qboolean findOvermind( gentity_t *self )
   }
 
   return qfalse;
+}
+
+/*
+================
+G_isOvermind
+
+Simple wrapper to findOvermind to check if a location has an overmind
+================
+*/
+qboolean G_isOvermind( void )
+{
+  gentity_t dummy;
+
+  dummy.overmindNode = NULL;
+  dummy.biteam = BIT_ALIENS;
+
+  return findOvermind( &dummy );
 }
 
 /*
@@ -2374,7 +2391,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
     //human criteria
-    if( !isPower( entity_origin ) )
+    if( !G_isPower( entity_origin ) )
     {
       //tell player to build a repeater to provide power
       if( buildable != BA_H_REACTOR && buildable != BA_H_REPEATER )
@@ -2386,7 +2403,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     }
 
     //this buildable requires a DCC
-    if( BG_FindDCCTestForBuildable( buildable ) && !isDCC( ) )
+    if( BG_FindDCCTestForBuildable( buildable ) && !G_isDCC( ) )
       reason = IBE_NODCC;
     
     //check that there is a parent reactor when building a repeater

@@ -608,6 +608,10 @@ typedef enum
 
 qboolean          AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideExit );
 gentity_t         *G_CheckSpawnPoint( vec3_t origin, vec3_t normal, buildable_t spawn, vec3_t spawnOrigin );
+
+qboolean          G_isPower( vec3_t origin );
+qboolean          G_isDCC( void );
+qboolean          G_isOvermind( void );
   
 void              G_BuildableThink( gentity_t *ent, int msec );
 qboolean          G_BuildableRange( vec3_t origin, float r, buildable_t buildable );

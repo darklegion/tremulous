@@ -369,6 +369,21 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
           G_TriggerMenu( client->ps.clientNum, MN_H_SPAWN );
       }
     }
+  
+    //set the queue position for the client side
+    if( client->ps.pm_flags & PMF_QUEUED )
+    {
+      if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      {
+        client->ps.persistant[ PERS_QUEUEPOS ] =
+          G_GetPosInSpawnQueue( &level.alienSpawnQueue, client->ps.clientNum );
+      }
+      else if( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+      {
+        client->ps.persistant[ PERS_QUEUEPOS ] =
+          G_GetPosInSpawnQueue( &level.humanSpawnQueue, client->ps.clientNum );
+      }
+    }
   }
 
   if( ( client->buttons & BUTTON_USE_HOLDABLE ) && !( client->oldbuttons & BUTTON_USE_HOLDABLE ) )
@@ -983,21 +998,6 @@ void ClientThink_real( gentity_t *ent )
       BG_removeItem( UP_ANTITOXIN, client->ps.stats );
     
       client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
-    }
-  }
-  
-  //set the queue position for the client side
-  if( client->ps.pm_flags & PMF_QUEUED )
-  {
-    if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-    {
-      client->ps.persistant[ PERS_QUEUEPOS ] =
-        G_GetPosInSpawnQueue( &level.alienSpawnQueue, client->ps.clientNum );
-    }
-    else if( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-    {
-      client->ps.persistant[ PERS_QUEUEPOS ] =
-        G_GetPosInSpawnQueue( &level.humanSpawnQueue, client->ps.clientNum );
     }
   }
   

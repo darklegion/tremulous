@@ -731,6 +731,10 @@ static void CG_DrawPlayerClipsRing( rectDef_t *rect, vec4_t color, qhandle_t sha
     case WP_HBUILD:
     case WP_HBUILD2:
       maxDelay = (float)BG_FindBuildDelayForWeapon( cent->currentState.weapon );
+
+      if( buildTime > maxDelay )
+        buildTime = maxDelay;
+
       progress = ( maxDelay - buildTime ) / maxDelay;
 
       color[ 3 ] = HH_MIN_ALPHA + ( progress * HH_ALPHA_DIFF );
@@ -768,6 +772,10 @@ static void CG_DrawPlayerBuildTimerRing( rectDef_t *rect, vec4_t color, qhandle_
   cent = &cg_entities[ cg.snap->ps.clientNum ];
   
   maxDelay = (float)BG_FindBuildDelayForWeapon( cent->currentState.weapon );
+      
+  if( buildTime > maxDelay )
+    buildTime = maxDelay;
+
   progress = ( maxDelay - buildTime ) / maxDelay;
 
   color[ 3 ] = AH_MIN_ALPHA + ( progress * AH_ALPHA_DIFF );

@@ -631,8 +631,20 @@ void buildFire( gentity_t *ent, dynMenu_t menu )
     if( G_ValidateBuild( ent, ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) )
     {
       ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
-      ent->client->ps.stats[ STAT_MISC ] +=
-        BG_FindBuildDelayForWeapon( ent->s.weapon );
+
+      if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS && !G_isOvermind( ) )
+      {
+        ent->client->ps.stats[ STAT_MISC ] +=
+          BG_FindBuildDelayForWeapon( ent->s.weapon ) * 2;
+      }
+      else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS && !G_isPower( muzzle ) )
+      {
+        ent->client->ps.stats[ STAT_MISC ] +=
+          BG_FindBuildDelayForWeapon( ent->s.weapon ) * 2;
+      }
+      else
+        ent->client->ps.stats[ STAT_MISC ] +=
+          BG_FindBuildDelayForWeapon( ent->s.weapon );
     }
     return;
   }

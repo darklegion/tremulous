@@ -717,13 +717,15 @@ Remove from front element from a spawn queue
 */
 int G_PopSpawnQueue( spawnQueue_t *sq )
 {
-  int popee = sq->front;
+  int clientNum = sq->clients[ sq->front ];
   
   if( G_GetSpawnQueueLength( sq ) > 0 )
   {
+    sq->clients[ sq->front ] = -1;
     sq->front = QUEUE_PLUS1( sq->front );
-    g_entities[ sq->clients[ popee ] ].client->ps.pm_flags &= ~PMF_QUEUED;
-    return sq->clients[ popee ];
+    g_entities[ clientNum ].client->ps.pm_flags &= ~PMF_QUEUED;
+  
+    return clientNum;
   }
   else
     return -1;
@@ -769,7 +771,7 @@ qboolean G_RemoveFromSpawnQueue( spawnQueue_t *sq, int clientNum )
           sq->clients[ i ] = sq->clients[ QUEUE_PLUS1( i ) ];
           
           i = QUEUE_PLUS1( i );
-        } while( i != sq->back );
+        } while( i != QUEUE_PLUS1( sq->back ) );
 
         sq->back = QUEUE_MINUS1( sq->back );
         g_entities[ clientNum ].client->ps.pm_flags &= ~PMF_QUEUED;
@@ -802,9 +804,9 @@ int G_GetPosInSpawnQueue( spawnQueue_t *sq, int clientNum )
       if( sq->clients[ i ] == clientNum )
       {
         if( i < sq->front )
-          return i + MAX_CLIENTS - sq->front + 1;
+          return i + MAX_CLIENTS - sq->front;
         else
-          return i - sq->front + 1;
+          return i - sq->front;
       }
 
       i = QUEUE_PLUS1( i );
@@ -826,13 +828,16 @@ void G_PrintSpawnQueue( spawnQueue_t *sq )
   int i = sq->front;
   int length = G_GetSpawnQueueLength( sq );
 
-  G_Printf( "l: %d f: %d b: %d c: ", length, sq->front, sq->back );
+  G_Printf( "l:%d f:%d b:%d    :", length, sq->front, sq->back );
   
   if( length > 0 )
   {
     do
     {
-      G_Printf( "%d ", sq->clients[ i ] );
+      if( sq->clients[ i ] == -1 )
+        G_Printf( "*:" );
+      else
+        G_Printf( "%d:", sq->clients[ i ] );
 
       i = QUEUE_PLUS1( i );
     } while( i != QUEUE_PLUS1( sq->back ) );
