@@ -135,30 +135,30 @@
 #define HYDRA_TTE                   3000
 #define HYDRA_VALUE                 200
 #define HYDRA_HEALTH                AHM(100)
-#define HYDRA_REGEN                 5
+#define HYDRA_REGEN                 4
 
 #define HYDRA_UPG_SPEED             1.25f
 #define HYDRA_UPG_TTE               3000
 #define HYDRA_UPG_VALUE             AVM(240)
 #define HYDRA_UPG_HEALTH            AHM(120)
-#define HYDRA_UPG_REGEN             6
+#define HYDRA_UPG_REGEN             5
 
 #define CHIMERA_SPEED               1.2f
 #define CHIMERA_TTE                 3000
 #define CHIMERA_VALUE               AVM(300)
 #define CHIMERA_HEALTH              AHM(200)
-#define CHIMERA_REGEN               7
+#define CHIMERA_REGEN               6
 
 #define CHIMERA_UPG_SPEED           1.2f
 #define CHIMERA_UPG_TTE             3000
 #define CHIMERA_UPG_VALUE           AVM(360)
 #define CHIMERA_UPG_HEALTH          AHM(250)
-#define CHIMERA_UPG_REGEN           10
+#define CHIMERA_UPG_REGEN           7
 
 #define BMOFO_SPEED                 1.1f
 #define BMOFO_VALUE                 AVM(400)
 #define BMOFO_HEALTH                AHM(400)
-#define BMOFO_REGEN                 15
+#define BMOFO_REGEN                 9
 
 
 
@@ -175,21 +175,21 @@
  * 
  */
 
-#define ALIEN_BHLTH_MODIFIER        1.0f
+#define ALIEN_BHLTH_MODIFIER        1.5f
 #define ABHM(h)                     ((int)((float)h*ALIEN_BHLTH_MODIFIER))
 
 #define CREEP_BASESIZE              700 
 
 #define ASPAWN_BP                   100
 #define ASPAWN_HEALTH               ABHM(500)
-#define ASPAWN_REGEN                25
+#define ASPAWN_REGEN                10
 #define ASPAWN_SPLASHDAMAGE         50
 #define ASPAWN_SPLASHRADIUS         50
 #define ASPAWN_CREEPSIZE            120
 
 #define BARRICADE_BP                80
 #define BARRICADE_HEALTH            ABHM(250)
-#define BARRICADE_REGEN             50
+#define BARRICADE_REGEN             15
 #define BARRICADE_SPLASHDAMAGE      50
 #define BARRICADE_SPLASHRADIUS      50
 #define BARRICADE_CREEPSIZE         120
@@ -205,7 +205,7 @@
 #define ACIDTUBE_BP                 50
 #define ACIDTUBE_HEALTH             ABHM(100)
 #define ACIDTUBE_REGEN              10
-#define ACIDTUBE_SPLASHDAMAGE       50
+#define ACIDTUBE_SPLASHDAMAGE       30
 #define ACIDTUBE_SPLASHRADIUS       200
 #define ACIDTUBE_CREEPSIZE          120
 #define ACIDTUBE_RANGE              200.0f
@@ -214,7 +214,7 @@
 #define TRAPPER_BP                  150
 #define TRAPPER_HEALTH              ABHM(80)
 #define TRAPPER_REGEN               8
-#define TRAPPER_SPLASHDAMAGE        20
+#define TRAPPER_SPLASHDAMAGE        15
 #define TRAPPER_SPLASHRADIUS        100
 #define TRAPPER_CREEPSIZE           30
 #define TRAPPER_RANGE               400
@@ -224,7 +224,7 @@
 
 #define OVERMIND_BP                 0
 #define OVERMIND_HEALTH             ABHM(1000)
-#define OVERMIND_REGEN              50
+#define OVERMIND_REGEN              15
 #define OVERMIND_SPLASHDAMAGE       100
 #define OVERMIND_SPLASHRADIUS       300
 #define OVERMIND_CREEPSIZE          120
@@ -233,7 +233,7 @@
 
 #define HOVEL_BP                    80
 #define HOVEL_HEALTH                ABHM(750)
-#define HOVEL_REGEN                 150
+#define HOVEL_REGEN                 20
 #define HOVEL_SPLASHDAMAGE          20
 #define HOVEL_SPLASHRADIUS          200
 #define HOVEL_CREEPSIZE             120
@@ -271,7 +271,7 @@
  * 
  */
 
-#define HUMAN_WDMG_MODIFIER         1.0f
+#define HUMAN_WDMG_MODIFIER         2.0f
 #define HDM(d)                      ((int)((float)d*HUMAN_WDMG_MODIFIER))
 
 #define RIFLE_CLIPSIZE              30
@@ -406,12 +406,6 @@
 #define MEDISTAT_SPLASHDAMAGE       50
 #define MEDISTAT_SPLASHRADIUS       100
 #define MAX_MEDISTAT_CLIENTS        1
-
-#define ADVMEDISTAT_BP              120
-#define ADVMEDISTAT_HEALTH          HBHM(300)
-#define ADVMEDISTAT_SPLASHDAMAGE    75
-#define ADVMEDISTAT_SPLASHRADIUS    100
-#define MAX_ADVMEDISTAT_CLIENTS     3
 
 #define MGTURRET_BP                 80
 #define MGTURRET_HEALTH             HBHM(100)

@@ -245,38 +245,6 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_A_OBANK,            //int       buildNum;     
-    "obank",               //char      *buildName;
-    "Organ Bank",          //char      *humanName;
-    "team_alien_obank",    //char      *entityName;
-    { "models/buildables/obank/obank.md3", 0, 0, 0 },
-    { -15, -15, -15 },     //vec3_t    mins;
-    { 15, 15, 15 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t  traj;
-    0.0,                   //float     bounce;
-    OBANK_BP,              //int       buildPoints;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    OBANK_HEALTH,          //int       health;
-    OBANK_REGEN,           //int       regenRate;
-    OBANK_SPLASHDAMAGE,    //int       splashDamage;
-    OBANK_SPLASHRADIUS,    //int       splashRadius;
-    MOD_ASPAWN,            //int       meansOfDeath;
-    BIT_ALIENS,            //int       team;
-    ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       idleAnim;
-    -1,                    //int       nextthink;
-    qtrue,                 //qboolean  usable;
-    0,                     //int       turretRange;
-    0,                     //int       turretFireSpeed;
-    WP_NONE,               //weapon_t  turretProjType;
-    0.5f,                  //float     minNormal;
-    qtrue,                 //qboolean  invertNormal;
-    qtrue,                 //qboolean  creepTest;
-    OBANK_CREEPSIZE,       //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qfalse                 //qboolean  reactorTest;
-  },
-  {
     BA_H_SPAWN,            //int       buildNum;
     "replicator",          //char      *buildName;
     "Replicator",          //char      *humanName;
@@ -338,38 +306,6 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
     qfalse,                //qboolean  dccTest;
-    qfalse                 //qboolean  reactorTest;
-  },
-  {
-    BA_H_ADVMEDISTAT,      //int       buildNum;
-    "advmedistat",         //char      *buildName;
-    "Adv Medistation",     //char      *humanName;
-    "team_human_advmedistat",//char      *entityName;
-    { "models/buildables/medistat/medistat2.md3", 0, 0, 0 },
-    { -65, -65, -7 },      //vec3_t    mins;
-    { 65, 65, 7 },         //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t  traj;
-    0.0,                   //float     bounce;
-    ADVMEDISTAT_BP,        //int       buildPoints;
-    ( 1 << S3 ),           //int       stages
-    ADVMEDISTAT_HEALTH,    //int       health;
-    0,                     //int       regenRate;
-    ADVMEDISTAT_SPLASHDAMAGE, //int       splashDamage;
-    ADVMEDISTAT_SPLASHRADIUS, //int       splashRadius;
-    MOD_HSPAWN,            //int       meansOfDeath;
-    BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       idleAnim;
-    100,                   //int       nextthink;
-    qfalse,                //qboolean  usable;
-    0,                     //int       turretRange;
-    0,                     //int       turretFireSpeed;
-    WP_NONE,               //weapon_t  turretProjType;
-    0.907f,                //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qfalse,                //qboolean  creepTest;
-    0,                     //int       creepSize;
-    qtrue,                 //qboolean  dccTest;
     qfalse                 //qboolean  reactorTest;
   },
   {

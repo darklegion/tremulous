@@ -292,13 +292,14 @@ void CG_PainEvent( centity_t *cent, int health )
   cent->pe.painDirection ^= 1;
 }
 
-
 /*
-==============
-CG_Menu
-==============
+===============
+CG_SetUIVars
+
+Set some cvars used by the UI
+===============
 */
-void CG_Menu( int eventParm )
+void CG_SetUIVars( void )
 {
   int   i;
   char  carriageCvar[ MAX_TOKEN_CHARS ];
@@ -321,7 +322,18 @@ void CG_Menu( int eventParm )
   trap_Cvar_Set( "ui_carriage", carriageCvar );
   
   trap_Cvar_Set( "ui_stages", va( "%d %d", cgs.alienStage, cgs.humanStage ) );
+}
   
+
+/*
+==============
+CG_Menu
+==============
+*/
+void CG_Menu( int eventParm )
+{
+  CG_SetUIVars( );
+
   switch( eventParm )
   {
     case MN_TEAM:       trap_SendConsoleCommand( "menu tremulous_teamselect\n" );                 break;
@@ -408,6 +420,12 @@ void CG_Menu( int eventParm )
     case MN_A_NOHVMND:
       trap_Cvar_Set( "ui_dialog", "There is no Overmind. An Overmind must be built to control "
                                   "the structure you tried to place" );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      break;
+      
+    case MN_A_NOEROOM:
+      trap_Cvar_Set( "ui_dialog", "There is no room to evolve here. Move away from walls or other "
+                                  "nearby objects and try again." );
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       break;
       

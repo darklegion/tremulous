@@ -626,44 +626,6 @@ void BodyFree( gentity_t *ent )
 
 
 /*
-================
-useBody
-
-Called when a body is used
-================
-*/
-void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
-{
-  int     i,  class, clientNum;
-  int     total = 0;
-  float   numerator, denominator;
-  vec3_t  up = { 0.0, 0.0, 1.0 };
-
-  if( activator->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-  {
-    //can't pick teammates bodies to bits
-    if( !Q_stricmp( self->classname, "alienCorpse" ) )
-      return;
-
-    //can't use bodies that are not owned
-    if( self->killedBy > 0 && self->killedBy != activator->client->ps.clientNum )
-      return;
-
-    //check the client /can/ upgrade to another class
-    for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
-    {
-      if( BG_ClassCanEvolveFromTo(  activator->client->ps.stats[ STAT_PCLASS ],
-                                    i, activator->client->ps.persistant[ PERS_CREDIT ], 0 ) &&
-          BG_FindStagesForClass( i, g_alienStage.integer ) )
-        break;
-    }
-    
-    if( i < PCL_NUM_CLASSES )
-      G_AddPredictableEvent( activator, EV_MENU, MN_A_INFEST );
-  }
-}
-
-/*
 =============
 SpawnCorpse
 
@@ -702,39 +664,14 @@ void SpawnCorpse( gentity_t *ent )
   body->nonSegModel = ent->client->ps.persistant[ PERS_STATE ] & PS_NONSEGMODEL;
   
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-  {
-    gentity_t *buildable = &g_entities[ ent->client->lasthurt_client ];
-
     body->classname = "humanCorpse";
-    
-    if( ent->client->lasthurt_client < MAX_CLIENTS )
-    {
-      //client suicide - body is freebie
-      if( ent->client->ps.clientNum == ent->client->lasthurt_client )
-        body->killedBy = -1;
-      else //owned by killer
-        body->killedBy = ent->client->lasthurt_client;
-    }
-    else if( buildable && buildable->s.eType == ET_BUILDABLE ) //owned by builder
-      body->killedBy = buildable->builtBy;
-    else // *shrugs* probably killed by some map entity - freebie
-      body->killedBy = -1;
-
-    body->s.powerups = body->killedBy;
-    
-    //the body becomes free in a minute
-    body->think = BodyFree;
-    body->use = useBody;
-    body->nextthink = level.time + 60000;
-  }
   else
-  {
     body->classname = "alienCorpse";
-    body->s.powerups = MAX_CLIENTS;
 
-    body->think = BodySink;
-    body->nextthink = level.time + 60000;
-  }
+  body->s.powerups = MAX_CLIENTS;
+
+  body->think = BodySink;
+  body->nextthink = level.time + 60000;
     
   body->s.legsAnim = ent->s.legsAnim;
 
@@ -1321,8 +1258,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   int                 ammo, clips, maxClips;
   weapon_t            weapon;
   float               hModifier;
-  trace_t             tr;
-  vec3_t              avgNormal, nudgeOrigin;
       
 
   index = ent - g_entities;
@@ -1359,53 +1294,11 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
     //this is an infest spawn
     if( spawn )
     {
+      vec3_t prevMins, prevMaxs;
+      
       //spawn as new alien
       VectorCopy( spawn->s.pos.trBase, spawn_origin );
-      VectorCopy( spawn->s.angles, spawn_angles );
-      
-      BG_FindBBoxForClass( ent->client->pers.pclass, classMins, classMaxs, NULL, NULL, NULL );
-
-      spawn_origin[ 2 ] += fabs( classMins[ 2 ] ) + 1;
-
-      trap_Trace( &tr, spawn_origin, classMins, classMaxs, spawn_origin, ent->s.number, MASK_SHOT );
-      
-#define MAX_NUDGES  20
-#define NUDGE_SIZE  10.f
-
-      VectorClear( avgNormal );
-      VectorCopy( spawn_origin, nudgeOrigin );
-      
-      //if the spawn is blocked nudge it away from whatever is blocking it
-      for( i = 0; i < MAX_NUDGES && tr.fraction < 1.0f; i++ )
-      {
-        VectorMA( nudgeOrigin, NUDGE_SIZE, tr.plane.normal, nudgeOrigin );
-        VectorAdd( avgNormal, tr.plane.normal, avgNormal );
-        
-        trap_Trace( &tr, nudgeOrigin, classMins, classMaxs, nudgeOrigin, ent->s.number, MASK_SHOT );
-      }
-
-      if( i = MAX_NUDGES )
-      {
-        VectorNormalize( avgNormal );
-        VectorCopy( spawn_origin, nudgeOrigin );
-
-        for( i = 0; i < MAX_NUDGES && tr.fraction < 1.0f; i++ )
-        {
-          VectorMA( nudgeOrigin, NUDGE_SIZE, avgNormal, nudgeOrigin );
-          
-          trap_Trace( &tr, nudgeOrigin, classMins, classMaxs, nudgeOrigin, ent->s.number, MASK_SHOT );
-        }
-
-        if( i != MAX_NUDGES )
-          VectorCopy( nudgeOrigin, spawn_origin );
-        //else
-        //use original position and hope PM sorts it out
-      }
-      else
-        VectorCopy( nudgeOrigin, spawn_origin );
-      
-      G_AddEvent( spawn, EV_GIB_ALIEN, DirToByte( up ) );
-      spawn->freeAfterEvent = qtrue;
+      VectorCopy( spawn->s.apos.trBase, spawn_angles );
       
       spawnPoint = spawn;
     }
@@ -1546,7 +1439,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   if( client->sess.sessionTeam != TEAM_SPECTATOR &&
       client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
-    if( spawnPoint->s.origin2[ 2 ] > 0.0f )
+    if( !spawn && spawnPoint->s.origin2[ 2 ] > 0.0f )
     {
       vec3_t  forward, dir;
       
@@ -1557,6 +1450,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
 
       VectorScale( dir, UP_VEL, client->ps.velocity );
     }
+    else
+      G_AddPredictableEvent( ent, EV_GIB_ALIEN, DirToByte( up ) );
   }
 
   // the respawned flag will be cleared after the attack and jump keys come up

@@ -394,7 +394,6 @@ typedef enum
   BA_A_BOOSTER,
   
   BA_A_HOVEL,
-  BA_A_OBANK,
   
   BA_H_SPAWN,
   
@@ -404,7 +403,6 @@ typedef enum
   BA_H_ARMOURY,
   BA_H_DCC,
   BA_H_MEDISTAT,
-  BA_H_ADVMEDISTAT,
   BA_H_BANK,
   
   BA_H_REACTOR,
@@ -554,6 +552,7 @@ typedef enum
   MN_A_HOVEL_BLOCKED,
   MN_A_OBANK,
   MN_A_NOFUNDS,
+  MN_A_NOEROOM,
   
   MN_H_SPAWN,
   MN_H_BUILD,

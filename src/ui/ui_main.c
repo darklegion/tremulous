@@ -3324,56 +3324,6 @@ static void UI_LoadTremHumanItems( )
 
 /*
 ===============
-UI_LoadTremHumanArmouryBuys
-===============
-*/
-static void UI_LoadTremHumanArmouryBuys( )
-{
-  int i, j = 0;
-  stage_t stage = UI_GetCurrentHumanStage( );
-
-  uiInfo.tremHumanArmouryBuyCount = 0;
-  
-  for( i = WP_NONE +1; i < WP_NUM_WEAPONS; i++ )
-  {
-    if( BG_FindTeamForWeapon( i ) == WUT_HUMANS &&
-        BG_FindPurchasableForWeapon( i ) &&
-        BG_FindStagesForWeapon( i, stage ) )
-    {
-      uiInfo.tremHumanArmouryBuyList[ j ].text =
-        String_Alloc( BG_FindHumanNameForWeapon( i ) );
-      uiInfo.tremHumanArmouryBuyList[ j ].cmd =
-        String_Alloc( va( "cmd buy %s", BG_FindNameForWeapon( i ) ) );
-      uiInfo.tremHumanArmouryBuyList[ j ].infopane =
-        UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( i ) ) );
-      
-      j++;
-
-      uiInfo.tremHumanArmouryBuyCount++;
-    }
-  }
-  
-  for( i = UP_NONE +1; i < UP_NUM_UPGRADES; i++ )
-  {
-    if( BG_FindTeamForUpgrade( i ) == WUT_HUMANS &&
-        BG_FindStagesForUpgrade( i, stage ) )
-    {
-      uiInfo.tremHumanArmouryBuyList[ j ].text =
-        String_Alloc( BG_FindHumanNameForUpgrade( i ) );
-      uiInfo.tremHumanArmouryBuyList[ j ].cmd =
-        String_Alloc( va( "cmd buy %s", BG_FindNameForUpgrade( i ) ) );
-      uiInfo.tremHumanArmouryBuyList[ j ].infopane =
-        UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForUpgrade( i ) ) );
-
-      j++;
-      
-      uiInfo.tremHumanArmouryBuyCount++;
-    }
-  }
-}
-
-/*
-===============
 UI_ParseCarriageList
 ===============
 */
@@ -3429,6 +3379,74 @@ static void UI_ParseCarriageList( int *weapons, int *upgrades )
     }
 
     iterator++;
+  }
+}
+
+/*
+===============
+UI_LoadTremHumanArmouryBuys
+===============
+*/
+static void UI_LoadTremHumanArmouryBuys( )
+{
+  int i, j = 0;
+  stage_t stage = UI_GetCurrentHumanStage( );
+  int weapons, upgrades;
+  int slots = 0;
+  
+  UI_ParseCarriageList( &weapons, &upgrades );
+
+  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+  {
+    if( weapons & ( 1 << i ) )
+      slots |= BG_FindSlotsForWeapon( i );
+  }
+  
+  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
+  {
+    if( upgrades & ( 1 << i ) )
+      slots |= BG_FindSlotsForUpgrade( i );
+  }
+  
+  uiInfo.tremHumanArmouryBuyCount = 0;
+  
+  for( i = WP_NONE +1; i < WP_NUM_WEAPONS; i++ )
+  {
+    if( BG_FindTeamForWeapon( i ) == WUT_HUMANS &&
+        BG_FindPurchasableForWeapon( i ) &&
+        BG_FindStagesForWeapon( i, stage ) &&
+        !( BG_FindSlotsForWeapon( i ) & slots ) )
+    {
+      uiInfo.tremHumanArmouryBuyList[ j ].text =
+        String_Alloc( BG_FindHumanNameForWeapon( i ) );
+      uiInfo.tremHumanArmouryBuyList[ j ].cmd =
+        String_Alloc( va( "cmd buy %s", BG_FindNameForWeapon( i ) ) );
+      uiInfo.tremHumanArmouryBuyList[ j ].infopane =
+        UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( i ) ) );
+      
+      j++;
+
+      uiInfo.tremHumanArmouryBuyCount++;
+    }
+  }
+  
+  for( i = UP_NONE +1; i < UP_NUM_UPGRADES; i++ )
+  {
+    if( BG_FindTeamForUpgrade( i ) == WUT_HUMANS &&
+        BG_FindStagesForUpgrade( i, stage ) &&
+        !( BG_FindSlotsForUpgrade( i ) & slots ) )
+    {
+      uiInfo.tremHumanArmouryBuyList[ j ].text =
+        String_Alloc( BG_FindHumanNameForUpgrade( i ) );
+      uiInfo.tremHumanArmouryBuyList[ j ].cmd =
+        String_Alloc( va( "cmd buy %s", BG_FindNameForUpgrade( i ) ) );
+      uiInfo.tremHumanArmouryBuyList[ j ].infopane =
+        UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForUpgrade( i ) ) );
+
+      j++;
+      
+      uiInfo.tremHumanArmouryBuyCount++;
+    }
   }
 }
 
@@ -3511,11 +3529,6 @@ static void UI_LoadTremAlienUpgrades( )
       uiInfo.tremAlienUpgradeCount++;
     }
   }
-
-  uiInfo.tremAlienUpgradeList[ j ].text = String_Alloc( "Store" );
-  uiInfo.tremAlienUpgradeList[ j ].cmd = String_Alloc( "cmd class store" );
-  uiInfo.tremAlienUpgradeList[ j++ ].infopane = UI_FindInfoPaneByName( "storeclass" );
-  uiInfo.tremAlienUpgradeCount++;
 }
 
 /*

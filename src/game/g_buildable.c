@@ -815,28 +815,6 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 
 
-//==================================================================================
-
-
-
-
-/*
-================
-ABank_Activate
-
-Called when an alien activates an organ bank 
-================
-*/
-void ABank_Activate( gentity_t *self, gentity_t *other, gentity_t *activator )
-{
-  //only aliens can activate this
-  if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS ) return;
-  
-  G_AddPredictableEvent( activator, EV_MENU, MN_A_OBANK );
-}
-
-
-
 
 //==================================================================================
 
@@ -1233,19 +1211,7 @@ void HMedistat_Think( gentity_t *self )
     return;
   }
   
-  if( self->s.modelindex == BA_H_ADVMEDISTAT )
-  {
-    maxclients = MAX_ADVMEDISTAT_CLIENTS;
-
-    //the advanced medistat requires a DCC
-    if( !( self->dcced = findDCC( self ) ) )
-    {
-      self->nextthink = level.time + REFRESH_TIME;
-      return;
-    }
-  }
-  else
-    maxclients = MAX_MEDISTAT_CLIENTS;
+  maxclients = MAX_MEDISTAT_CLIENTS;
   
   VectorAdd( self->s.origin, self->r.maxs, maxs );
   VectorAdd( self->s.origin, self->r.mins, mins );
@@ -1973,12 +1939,6 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       built->pain = ASpawn_Pain;
       break;
       
-    case BA_A_OBANK:
-      built->think = ABarricade_Think;
-      built->die = ASpawn_Die;
-      built->use = ABank_Activate;
-      break;
-      
     case BA_H_SPAWN:
       built->die = HSpawn_Die;
       built->think = HSpawn_Think;
@@ -2008,11 +1968,6 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       break;
       
     case BA_H_MEDISTAT:
-      built->think = HMedistat_Think;
-      built->die = HSpawn_Die;
-      break;
-      
-    case BA_H_ADVMEDISTAT:
       built->think = HMedistat_Think;
       built->die = HSpawn_Die;
       break;

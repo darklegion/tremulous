@@ -1152,6 +1152,15 @@ void ClientThink_real( gentity_t *ent )
             break;
           }
         }
+      
+        if( i == num && client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+        {
+          if( client->ps.persistant[ PERS_CREDIT ] > 0 )
+          {
+            //no nearby objects and alien - show class menu
+            G_AddPredictableEvent( ent, EV_MENU, MN_A_INFEST );
+          }
+        }
       }
     }
   }

@@ -230,7 +230,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     AddScore( self, -1 );
   }
 
-  if( attacker && attacker->client && self->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  if( attacker && attacker->client &&
+      attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+      self->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     int       clientNum = attacker->client->ps.clientNum;
     float     denominator, numerator = self->credits[ clientNum ];
@@ -244,7 +246,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     
     denominator = total;
     
-    //if this corpse has been 100% claimed destroy it
     for( i = 0; i < MAX_CLIENTS; i++ )
     {
       player = g_entities + i;
@@ -257,6 +258,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         player->client->ps.persistant[ PERS_CREDIT ] += (int)( (float)classValue * ( numerator / denominator ) );
       }
     }
+  }
+  else if( attacker && attacker->client &&
+           attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
+           self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  {
+    attacker->client->ps.persistant[ PERS_CREDIT ]++;
   }
       
   // Add team bonuses

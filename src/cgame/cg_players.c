@@ -2301,16 +2301,6 @@ void CG_Corpse( centity_t *cent )
     //CG_AddRefEntityWithPowerups( &head, es->powerups, ci->team );
     trap_R_AddRefEntityToScene( &head );
   }
-
-  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS )
-  {
-    if( es->powerups == cg.predictedPlayerState.clientNum ||
-        es->powerups == 65535 ) //65535 = 16bit signed -1
-    {
-      //draw indicator
-      CG_PlayerFloatSprite( cent, cgs.media.friendShader );
-    }
-  }
 }
 
 

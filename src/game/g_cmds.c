@@ -963,98 +963,69 @@ void Cmd_Class_f( gentity_t *ent )
   int       allowedClasses[ NUM_AC ] = {  PCL_A_B_BASE,
                                           PCL_A_O_BASE };
   int       numLevels;
+  vec3_t    fromMins, fromMaxs, toMins, toMaxs;
 
   clientNum = ent->client - level.clients;
   trap_Argv( 1, s, sizeof( s ) );
 
   if( ent->client->pers.pteam == PTE_ALIENS &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
-      !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
+      !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) &&
+      !( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING ) &&
+      !( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )
   {
     //if we are not currently spectating, we are attempting evolution
     if( ent->client->ps.stats[ STAT_PCLASS ] != PCL_NONE )
     {
-      for ( i = 1, body = g_entities + i; i < level.num_entities; i++, body++ )
+      //evolve now
+      ent->client->pers.pclass = BG_FindClassNumForName( s );
+
+      if( ent->client->pers.pclass == PCL_NONE )
       {
-        if( !Q_stricmp( body->classname, "humanCorpse" ) )
-        {
-          VectorSubtract( ent->s.pos.trBase, body->s.origin, distance );
-          if( VectorLength( distance ) <= length )
-          {
-            length = VectorLength( distance );
-            victim = body;
-          }
-        }
+        trap_SendServerCommand( ent-g_entities, va( "print \"Unknown class\n\"" ) );
+        return;
       }
       
-      //if a human corpse is nearby...
-      if( length <= 200 )
-      {
-        if( !Q_stricmp( s, "store" ) )
-        {
-          //increment credits
-          ent->client->ps.persistant[ PERS_CREDIT ]++;
+      numLevels = BG_ClassCanEvolveFromTo( ent->client->ps.stats[ STAT_PCLASS ], ent->client->pers.pclass,
+                                           (short)ent->client->ps.persistant[ PERS_CREDIT ], 0 );
 
-          //destroy body
-          G_AddEvent( victim, EV_GIB_ALIEN, DirToByte( up ) );
-          victim->freeAfterEvent = qtrue;
+      BG_FindBBoxForClass( ent->client->ps.stats[ STAT_PCLASS ],
+                           fromMins, fromMaxs, NULL, NULL, NULL );
+      BG_FindBBoxForClass( ent->client->pers.pclass,
+                           toMins, toMaxs, NULL, NULL, NULL );
+
+      VectorCopy( ent->s.pos.trBase, infestOrigin );
+      
+      infestOrigin[ 2 ] += ( fabs( toMins[ 2 ] ) - fabs( fromMins[ 2 ] ) ) + 1;
+
+      trap_Trace( &tr, infestOrigin, toMins, toMaxs, infestOrigin, ent->s.number, MASK_SHOT );
+      
+      //check there is room to evolve
+      if( tr.fraction == 1.0f )
+      {
+        //...check we can evolve to that class
+        if( numLevels && BG_FindStagesForClass( ent->client->pers.pclass, g_alienStage.integer ) )
+        {
+          //remove credit
+          ent->client->ps.persistant[ PERS_CREDIT ] -= (short)( numLevels - 1 );
+       
+          ClientUserinfoChanged( clientNum );
+          VectorCopy( infestOrigin, ent->s.pos.trBase );
+          ClientSpawn( ent, ent );
+          return;
         }
         else
         {
-          //evolve now
-          ent->client->pers.pclass = BG_FindClassNumForName( s );
-
-          if( ent->client->pers.pclass == PCL_NONE )
-          {
-            trap_SendServerCommand( ent-g_entities, va( "print \"Unknown class\n\"" ) );
-            return;
-          }
-          
-          numLevels = BG_ClassCanEvolveFromTo( ent->client->ps.stats[ STAT_PCLASS ], ent->client->pers.pclass,
-                                               (short)ent->client->ps.persistant[ PERS_CREDIT ], 0 );
-
-          //...check we can evolve to that class
-          if( numLevels && BG_FindStagesForClass( ent->client->pers.pclass, g_alienStage.integer ) )
-          {
-            //remove credit
-            ent->client->ps.persistant[ PERS_CREDIT ] -= (short)( numLevels - 1 );
-            
-            //prevent lerping
-            ent->client->ps.eFlags ^= EF_TELEPORT_BIT;
-      
-            //evolve
-            ent->client->ps.stats[ STAT_PCLASS ] = PCL_NONE;
-            ent->client->sess.sessionTeam = TEAM_FREE;
-            ClientUserinfoChanged( clientNum );
-            ent->client->ps.stats[ STAT_STATE ] |= SS_INFESTING;
-            ent->client->lastInfestTime = level.time;
-            ent->client->infestBody = victim;
-
-            VectorCopy( victim->s.pos.trBase, infestOrigin );
-            infestOrigin[ 2 ] += 128.0f;
-            trap_Trace( &tr, victim->s.pos.trBase, ent->r.mins, ent->r.maxs,
-                        infestOrigin, ent->s.number, MASK_SHOT );
-            VectorCopy( tr.endpos, infestOrigin );
-            infestOrigin[ 2 ] -= 16.0f;
-
-            VectorCopy( victim->s.angles, infestAngles );
-
-            infestAngles[ PITCH ] = 90;
-
-            G_SetOrigin( ent, infestOrigin );
-            VectorCopy( infestOrigin, ent->client->ps.origin );
-            SetClientViewAngle( ent, infestAngles );
-
-            //so no one can claim this body as of now
-            victim->killedBy = victim->s.powerups = MAX_CLIENTS;
-          }
-          else
-          {
-            ent->client->pers.pclass = PCL_NONE;
-            trap_SendServerCommand( ent-g_entities, va( "print \"You cannot evolve from your current class\n\"" ) );
-            return;
-          }
+          ent->client->pers.pclass = PCL_NONE;
+          trap_SendServerCommand( ent-g_entities, va( "print \"You cannot evolve from your current class\n\"" ) );
+          return;
         }
+      }
+      else
+      {
+        ent->client->pers.pclass = PCL_NONE;
+        G_AddPredictableEvent( ent, EV_MENU, MN_A_NOEROOM );
+        return;
       }
     }
     else
@@ -1608,42 +1579,8 @@ void Cmd_Deposit_f( gentity_t *ent )
     else
       G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
   }
-  else if( ent->client->pers.pteam == PTE_ALIENS )
-  {
-    for ( i = 1, bankEntity = g_entities + i; i < level.num_entities; i++, bankEntity++ )
-    {
-      if( bankEntity->s.eType != ET_BUILDABLE )
-        continue;
-        
-      if( bankEntity->s.modelindex == BA_A_OBANK )
-      {
-        VectorSubtract( ent->s.pos.trBase, bankEntity->s.origin, distance );
-        if( VectorLength( distance ) <= 100 )
-          nearBank = qtrue;
-      }
-    }
-
-    if( !Q_stricmp( s, "all" ) )
-      amount = (short)ent->client->ps.persistant[ PERS_CREDIT ];
-    else
-      amount = atoi( s );
-
-    //no Bank nearby
-    if( !nearBank )
-    {
-      trap_SendServerCommand( ent-g_entities, va( "print \"You must be near an Bank\n\"" ) );
-      return;
-    }
-
-    if( amount <= (short)ent->client->ps.persistant[ PERS_CREDIT ] )
-    {
-      ent->client->ps.persistant[ PERS_CREDIT ] -= (short)amount;
-      ent->client->ps.persistant[ PERS_BANK ] += amount;
-      level.bankCredits[ ent->client->ps.clientNum ] += amount;
-    }
-    else
-      G_AddPredictableEvent( ent, EV_MENU, MN_A_NOFUNDS );
-  }
+  else
+    trap_SendServerCommand( ent-g_entities, va( "print \"Aliens have no bank\n\"" ) );
 }
 
 
@@ -1704,42 +1641,8 @@ void Cmd_Withdraw_f( gentity_t *ent )
     else
       G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
   }
-  else if( ent->client->pers.pteam == PTE_ALIENS )
-  {
-    for ( i = 1, bankEntity = g_entities + i; i < level.num_entities; i++, bankEntity++ )
-    {
-      if( bankEntity->s.eType != ET_BUILDABLE )
-        continue;
-        
-      if( bankEntity->s.modelindex == BA_A_OBANK )
-      {
-        VectorSubtract( ent->s.pos.trBase, bankEntity->s.origin, distance );
-        if( VectorLength( distance ) <= 100 )
-          nearBank = qtrue;
-      }
-    }
-
-    if( !Q_stricmp( s, "all" ) )
-      amount = level.bankCredits[ ent->client->ps.clientNum ];
-    else
-      amount = atoi( s );
-
-    //no Bank nearby
-    if( !nearBank )
-    {
-      trap_SendServerCommand( ent-g_entities, va( "print \"You must be near an Bank\n\"" ) );
-      return;
-    }
-
-    if( amount <= level.bankCredits[ ent->client->ps.clientNum ] )
-    {
-      ent->client->ps.persistant[ PERS_CREDIT ] += (short)amount;
-      ent->client->ps.persistant[ PERS_BANK ] -= amount;
-      level.bankCredits[ ent->client->ps.clientNum ] -= amount;
-    }
-    else
-      G_AddPredictableEvent( ent, EV_MENU, MN_A_NOFUNDS );
-  }
+  else
+    trap_SendServerCommand( ent-g_entities, va( "print \"Aliens have no bank\n\"" ) );
 }
 
 
