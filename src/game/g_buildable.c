@@ -329,7 +329,7 @@ void HMCU_Think( gentity_t *self )
       !self->parentNode->inuse ||
       !self->parentNode->active )
   {
-    self->powered = !findPower( self );
+    self->powered = findPower( self );
   }
 }
 
