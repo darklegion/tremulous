@@ -307,8 +307,16 @@ qboolean G_CallSpawn( gentity_t *ent )
   //check buildable spawn functions
   if( ( buildable = BG_FindBuildNumForEntityName( ent->classname ) ) != BA_NONE )
   {
-    G_SpawnBuildable( ent, buildable );
-    return qtrue;
+    if( BG_FindStagesForBuildable( buildable, 1 ) )
+    {
+      G_SpawnBuildable( ent, buildable );
+      return qtrue;
+    }
+    else
+    {
+      G_Printf( "G_CallSpawn: buildable disabled\n" );
+      return qfalse;
+    }
   }
 
   // check normal spawn functions

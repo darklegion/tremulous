@@ -36,6 +36,17 @@
 #define SOLDIER_BITE_RANGE          32.0f
 #define SOLDIER_BITE_REPEAT         500
 
+#define HYDRA_CLAW_DMG              ADM(50)
+#define HYDRA_CLAW_RANGE            96.0f
+#define HYDRA_CLAW_REPEAT           500
+#define HYDRA_CLAW_U_REPEAT         500
+#define HYDRA_GRAB_RANGE            64.0f
+#define HYDRA_GRAB_TIME             1000
+#define HYDRA_PCLOUD_DMG            ADM(5)
+#define HYDRA_PCLOUD_RANGE          200.0f
+#define HYDRA_PCLOUD_REPEAT         1000
+#define HYDRA_PCLOUD_TIME           10000
+
 #define DRAGOON_CLAW_DMG            ADM(75)
 #define DRAGOON_CLAW_RANGE          48.0f
 #define DRAGOON_CLAW_REPEAT         750
@@ -50,17 +61,6 @@
 #define DRAGOON_SLOWBLOB_SPEED      800.0f
 #define DRAGOON_SLOWBLOB_SPEED_MOD  0.5f
 #define DRAGOON_SLOWBLOB_TIME       5000
-
-#define HYDRA_CLAW_DMG              ADM(50)
-#define HYDRA_CLAW_RANGE            96.0f
-#define HYDRA_CLAW_REPEAT           500
-#define HYDRA_CLAW_U_REPEAT         500
-#define HYDRA_GRAB_RANGE            64.0f
-#define HYDRA_GRAB_TIME             1000
-#define HYDRA_PCLOUD_DMG            ADM(5)
-#define HYDRA_PCLOUD_RANGE          200.0f
-#define HYDRA_PCLOUD_REPEAT         1000
-#define HYDRA_PCLOUD_TIME           10000
 
 #define CHIMERA_CLAW_DMG            ADM(75)
 #define CHIMERA_CLAW_RANGE          96.0f
@@ -119,29 +119,29 @@
 #define SOLDIER_HEALTH              AHM(25)
 #define SOLDIER_REGEN               1
 
-#define DRAGOON_SPEED               1.3f
-#define DRAGOON_TTE                 3000
-#define DRAGOON_VALUE               AVM(100)
-#define DRAGOON_HEALTH              AHM(50)
-#define DRAGOON_REGEN               2
-
-#define DRAGOON_UPG_SPEED           1.3f
-#define DRAGOON_UPG_TTE             3000
-#define DRAGOON_UPG_VALUE           AVM(120)
-#define DRAGOON_UPG_HEALTH          AHM(60)
-#define DRAGOON_UPG_REGEN           3
-
 #define HYDRA_SPEED                 1.25f
 #define HYDRA_TTE                   3000
-#define HYDRA_VALUE                 200
-#define HYDRA_HEALTH                AHM(100)
-#define HYDRA_REGEN                 4
+#define HYDRA_VALUE                 AVM(100)
+#define HYDRA_HEALTH                AHM(50)
+#define HYDRA_REGEN                 2
 
 #define HYDRA_UPG_SPEED             1.25f
 #define HYDRA_UPG_TTE               3000
-#define HYDRA_UPG_VALUE             AVM(240)
-#define HYDRA_UPG_HEALTH            AHM(120)
-#define HYDRA_UPG_REGEN             5
+#define HYDRA_UPG_VALUE             AVM(120)
+#define HYDRA_UPG_HEALTH            AHM(50)
+#define HYDRA_UPG_REGEN             3
+
+#define DRAGOON_SPEED               1.2f
+#define DRAGOON_TTE                 3000
+#define DRAGOON_VALUE               AVM(200)
+#define DRAGOON_HEALTH              AHM(100)
+#define DRAGOON_REGEN               4
+
+#define DRAGOON_UPG_SPEED           1.2f
+#define DRAGOON_UPG_TTE             3000
+#define DRAGOON_UPG_VALUE           AVM(240)
+#define DRAGOON_UPG_HEALTH          AHM(120)
+#define DRAGOON_UPG_REGEN           5
 
 #define CHIMERA_SPEED               1.2f
 #define CHIMERA_TTE                 3000

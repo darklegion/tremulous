@@ -417,7 +417,8 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     BANK_BP,               //int       buildPoints;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    //( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    0, //DISABLE BANK //int  stages
     BANK_HEALTH,           //int       health;
     0,                     //int       regenRate;
     BANK_SPLASHDAMAGE,     //int       splashDamage;
@@ -1255,7 +1256,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 6 },                                  //vec3_t  crouchmaxs;
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
-    6, 6,                                           //int     viewheight, crouchviewheight;
+    7, 7,                                           //int     viewheight, crouchviewheight;
     SOLDIER_HEALTH,                                 //int     health;
     SOLDIER_REGEN,                                  //int     regenRate;
     SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|
@@ -1273,66 +1274,6 @@ classAttributes_t bg_classList[ ] =
   },
   {
     PCL_A_O_LEV1,                                   //int     classnum;
-    "dragoon",                                      //char    *classname;
-    "Dragoon",                                      //char    *humanname;
-    "prowl",                                        //char    *modelname;
-    0.75f,                                          //float   modelScale;
-    "default",                                      //char    *skinname;
-    "alien_general_hud",                            //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -24, -24, -16 },                              //vec3_t  mins;
-    { 24, 24, 16 },                                 //vec3_t  maxs;
-    { 24, 24, 16 },                                 //vec3_t  crouchmaxs;
-    { -24, -24, -4 },                               //vec3_t  deadmins;
-    { 24, 24, 4 },                                  //vec3_t  deadmaxs;
-    18, 18,                                         //int     viewheight, crouchviewheight;
-    DRAGOON_HEALTH,                                 //int     health;
-    DRAGOON_REGEN,                                  //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
-      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
-    WP_POUNCE,                                      //weapon_t  startWeapon
-    0.0f,                                           //float   buildDist;
-    110,                                            //int     fov;
-    0.0005f,                                        //float   bob;
-    25,                                             //int     steptime;
-    DRAGOON_SPEED,                                  //float   speed;
-    3.0f,                                           //float   sticky;
-    { PCL_A_O_LEV2, PCL_A_O_LEV1_UPG, PCL_NONE },   //int     children[ 3 ];
-    DRAGOON_TTE,                                    //int     timetoevolve;
-    DRAGOON_VALUE                                   //int     value;
-  },
-  {
-    PCL_A_O_LEV1_UPG,                               //int     classnum;
-    "dragoonupg",                                   //char    *classname;
-    "Dragoon Upgrade",                              //char    *humanname;
-    "prowl",                                        //char    *modelname;
-    0.75f,                                          //float   modelScale;
-    "default",                                      //char    *skinname;
-    "alien_general_hud",                            //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -24, -24, -16 },                              //vec3_t  mins;
-    { 24, 24, 16 },                                 //vec3_t  maxs;
-    { 24, 24, 16 },                                 //vec3_t  crouchmaxs;
-    { -24, -24, -4 },                               //vec3_t  deadmins;
-    { 24, 24, 4 },                                  //vec3_t  deadmaxs;
-    20, 20,                                         //int     viewheight, crouchviewheight;
-    DRAGOON_UPG_HEALTH,                             //int     health;
-    DRAGOON_UPG_REGEN,                              //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
-      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
-    WP_POUNCE_UPG,                                  //weapon_t  startWeapon
-    0.0f,                                           //float   buildDist;
-    110,                                            //int     fov;
-    0.0005f,                                        //float   bob;
-    25,                                             //int     steptime;
-    DRAGOON_UPG_SPEED,                              //float   speed;
-    3.0f,                                           //float   sticky;
-    { PCL_A_O_LEV2, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
-    DRAGOON_UPG_TTE,                                //int     timetoevolve;
-    DRAGOON_UPG_VALUE                               //int     value;
-  },
-  {
-    PCL_A_O_LEV2,                                   //int     classnum;
     "hydra",                                        //char    *classname;
     "Hydra",                                        //char    *humanname;
     "spitter",                                      //char    *modelname;
@@ -1345,7 +1286,7 @@ classAttributes_t bg_classList[ ] =
     { 18, 18, 18 },                                 //vec3_t  crouchmaxs;
     { -18, -18, -4 },                               //vec3_t  deadmins;
     { 18, 18, 4 },                                  //vec3_t  deadmaxs;
-    18, 18,                                         //int     viewheight, crouchviewheight;
+    9, 9,                                           //int     viewheight, crouchviewheight;
     HYDRA_HEALTH,                                   //int     health;
     HYDRA_REGEN,                                    //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
@@ -1353,17 +1294,17 @@ classAttributes_t bg_classList[ ] =
       SCA_NOFOOTSTEPS,                              //int     abilities;
     WP_GRAB_CLAW,                                   //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
-    100,                                            //int     fov;
+    120,                                            //int     fov;
     0.001f,                                         //float   bob;
     25,                                             //int     steptime;
     HYDRA_SPEED,                                    //float   speed;
     4.0f,                                           //float   sticky;
-    { PCL_A_O_LEV3, PCL_A_O_LEV2_UPG, PCL_NONE },   //int     children[ 3 ];
+    { PCL_A_O_LEV2, PCL_A_O_LEV1_UPG, PCL_NONE },   //int     children[ 3 ];
     HYDRA_TTE,                                      //int     timetoevolve;
     HYDRA_VALUE                                     //int     value;
   },
   {
-    PCL_A_O_LEV2_UPG,                               //int     classnum;
+    PCL_A_O_LEV1_UPG,                               //int     classnum;
     "hydraupg",                                     //char    *classname;
     "Hydra Upgrade",                                //char    *humanname;
     "spitter",                                      //char    *modelname;
@@ -1376,7 +1317,7 @@ classAttributes_t bg_classList[ ] =
     { 20, 20, 20 },                                 //vec3_t  crouchmaxs;
     { -20, -20, -4 },                               //vec3_t  deadmins;
     { 20, 20, 4 },                                  //vec3_t  deadmaxs;
-    20, 20,                                         //int     viewheight, crouchviewheight;
+    10, 10,                                         //int     viewheight, crouchviewheight;
     HYDRA_UPG_HEALTH,                               //int     health;
     HYDRA_UPG_REGEN,                                //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS|
@@ -1384,14 +1325,74 @@ classAttributes_t bg_classList[ ] =
       SCA_NOFOOTSTEPS,                              //int     abilities;
     WP_GRAB_CLAW_UPG,                               //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
-    100,                                            //int     fov;
+    120,                                            //int     fov;
     0.001f,                                         //float   bob;
     25,                                             //int     steptime;
     HYDRA_UPG_SPEED,                                //float   speed;
     4.0f,                                           //float   sticky;
-    { PCL_A_O_LEV3, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    { PCL_A_O_LEV2, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
     HYDRA_UPG_TTE,                                  //int     timetoevolve;
     HYDRA_UPG_VALUE                                 //int     value;
+  },
+  {
+    PCL_A_O_LEV2,                                   //int     classnum;
+    "dragoon",                                      //char    *classname;
+    "Dragoon",                                      //char    *humanname;
+    "prowl",                                        //char    *modelname;
+    1.0f,                                           //float   modelScale;
+    "default",                                      //char    *skinname;
+    "alien_general_hud",                            //char    *hudname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    { -32, -32, -21 },                              //vec3_t  mins;
+    { 32, 32, 21 },                                 //vec3_t  maxs;
+    { 32, 32, 21 },                                 //vec3_t  crouchmaxs;
+    { -32, -32, -4 },                               //vec3_t  deadmins;
+    { 32, 32, 4 },                                  //vec3_t  deadmaxs;
+    24, 24,                                         //int     viewheight, crouchviewheight;
+    DRAGOON_HEALTH,                                 //int     health;
+    DRAGOON_REGEN,                                  //int     regenRate;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
+      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
+    WP_POUNCE,                                      //weapon_t  startWeapon
+    0.0f,                                           //float   buildDist;
+    110,                                            //int     fov;
+    0.0005f,                                        //float   bob;
+    25,                                             //int     steptime;
+    DRAGOON_SPEED,                                  //float   speed;
+    3.0f,                                           //float   sticky;
+    { PCL_A_O_LEV3, PCL_A_O_LEV2_UPG, PCL_NONE },   //int     children[ 3 ];
+    DRAGOON_TTE,                                    //int     timetoevolve;
+    DRAGOON_VALUE                                   //int     value;
+  },
+  {
+    PCL_A_O_LEV2_UPG,                               //int     classnum;
+    "dragoonupg",                                   //char    *classname;
+    "Dragoon Upgrade",                              //char    *humanname;
+    "prowl",                                        //char    *modelname;
+    1.0f,                                           //float   modelScale;
+    "default",                                      //char    *skinname;
+    "alien_general_hud",                            //char    *hudname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    { -32, -32, -21 },                              //vec3_t  mins;
+    { 32, 32, 21 },                                 //vec3_t  maxs;
+    { 32, 32, 21 },                                 //vec3_t  crouchmaxs;
+    { -32, -32, -4 },                               //vec3_t  deadmins;
+    { 32, 32, 4 },                                  //vec3_t  deadmaxs;
+    27, 27,                                         //int     viewheight, crouchviewheight;
+    DRAGOON_UPG_HEALTH,                             //int     health;
+    DRAGOON_UPG_REGEN,                              //int     regenRate;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
+      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
+    WP_POUNCE_UPG,                                  //weapon_t  startWeapon
+    0.0f,                                           //float   buildDist;
+    110,                                            //int     fov;
+    0.0005f,                                        //float   bob;
+    25,                                             //int     steptime;
+    DRAGOON_UPG_SPEED,                              //float   speed;
+    3.0f,                                           //float   sticky;
+    { PCL_A_O_LEV3, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    DRAGOON_UPG_TTE,                                //int     timetoevolve;
+    DRAGOON_UPG_VALUE                               //int     value;
   },
   {
     PCL_A_O_LEV3,                                   //int     classnum;

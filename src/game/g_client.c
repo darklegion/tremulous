@@ -1383,9 +1383,9 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   client->ps.stats[ STAT_WEAPONS2 ] = 0;
   client->ps.stats[ STAT_SLOTS ] = 0;
 
-  //no credit
-  if( !spawn )
-    client->ps.persistant[ PERS_CREDIT ] = 0;
+  //NON-VOLATILE CREDIT //no credit
+/*  if( !spawn )
+    client->ps.persistant[ PERS_CREDIT ] = 0;*/
   
   client->ps.eFlags = flags;
   client->ps.clientNum = index;

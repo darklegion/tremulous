@@ -3226,7 +3226,7 @@ static void UI_StartSinglePlayer() {
 UI_GetCurrentAlienStage
 ===============
 */
-static stage_t UI_GetCurrentAlienStage( )
+static stage_t UI_GetCurrentAlienStage( void )
 {
   char    buffer[ MAX_TOKEN_CHARS ];
   stage_t stage, dummy;
@@ -3242,7 +3242,7 @@ static stage_t UI_GetCurrentAlienStage( )
 UI_GetCurrentHumanStage
 ===============
 */
-static stage_t UI_GetCurrentHumanStage( )
+static stage_t UI_GetCurrentHumanStage( void )
 {
   char    buffer[ MAX_TOKEN_CHARS ];
   stage_t stage, dummy;
@@ -3258,7 +3258,7 @@ static stage_t UI_GetCurrentHumanStage( )
 UI_LoadTremTeams
 ===============
 */
-static void UI_LoadTremTeams( )
+static void UI_LoadTremTeams( void )
 {
   uiInfo.tremTeamCount = 3;
   uiInfo.tremTeamList[ 0 ].text = String_Alloc( "Aliens" );
@@ -3279,16 +3279,23 @@ static void UI_LoadTremTeams( )
 UI_LoadTremAlienClasses
 ===============
 */
-static void UI_LoadTremAlienClasses( )
+static void UI_LoadTremAlienClasses( void )
 {
+  pClass_t bClass;
+  
   uiInfo.tremAlienClassCount = 2;
   
+  if( BG_FindStagesForClass( PCL_A_B_LEV1, UI_GetCurrentAlienStage( ) ) )
+    bClass = PCL_A_B_LEV1;
+  else
+    bClass = PCL_A_B_BASE;
+    
   uiInfo.tremAlienClassList[ 0 ].text =
-    String_Alloc( BG_FindHumanNameForClassNum( PCL_A_B_BASE ) );
+    String_Alloc( BG_FindHumanNameForClassNum( bClass ) );
   uiInfo.tremAlienClassList[ 0 ].cmd =
-    String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( PCL_A_B_BASE ) ) );
+    String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( bClass ) ) );
   uiInfo.tremAlienClassList[ 0 ].infopane =
-    UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( PCL_A_B_BASE ) ) );
+    UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( bClass ) ) );
   
   uiInfo.tremAlienClassList[ 1 ].text =
     String_Alloc( BG_FindHumanNameForClassNum( PCL_A_O_BASE ) );
@@ -3303,7 +3310,7 @@ static void UI_LoadTremAlienClasses( )
 UI_LoadTremHumanItems
 ===============
 */
-static void UI_LoadTremHumanItems( )
+static void UI_LoadTremHumanItems( void )
 {
   uiInfo.tremHumanItemCount = 2;
   

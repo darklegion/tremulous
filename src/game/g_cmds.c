@@ -946,8 +946,6 @@ void Cmd_SetViewpos_f( gentity_t *ent )
 }
 
 
-#define NUM_AC  3
-
 /*
 =================
 Cmd_Class_f
@@ -965,14 +963,29 @@ void Cmd_Class_f( gentity_t *ent )
   int       i;
   trace_t   tr;
   vec3_t    infestOrigin, infestAngles;
-  int       allowedClasses[ NUM_AC ] = {  PCL_A_B_BASE,
-                                          PCL_A_O_BASE };
+  int       allowedClasses[ PCL_NUM_CLASSES ];
+  int       numClasses = 0;
+  
   int       numLevels;
   vec3_t    fromMins, fromMaxs, toMins, toMaxs;
 
   clientNum = ent->client - level.clients;
   trap_Argv( 1, s, sizeof( s ) );
 
+  if( BG_FindStagesForClass( PCL_A_B_LEV1, g_alienStage.integer ) )
+  {
+    allowedClasses[ 0 ] = PCL_A_B_BASE;
+    allowedClasses[ 1 ] = PCL_A_B_LEV1;
+    allowedClasses[ 2 ] = PCL_A_O_BASE;
+    numClasses = 3;
+  }
+  else
+  {
+    allowedClasses[ 0 ] = PCL_A_B_BASE;
+    allowedClasses[ 1 ] = PCL_A_O_BASE;
+    numClasses = 2;
+  }
+  
   if( ent->client->pers.pteam == PTE_ALIENS &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) &&
@@ -1012,7 +1025,7 @@ void Cmd_Class_f( gentity_t *ent )
         if( numLevels && BG_FindStagesForClass( ent->client->pers.pclass, g_alienStage.integer ) )
         {
           //remove credit
-          ent->client->ps.persistant[ PERS_CREDIT ] -= (short)( numLevels - 1 );
+          ent->client->ps.persistant[ PERS_CREDIT ] -= (short)numLevels;
        
           ClientUserinfoChanged( clientNum );
           VectorCopy( infestOrigin, ent->s.pos.trBase );
@@ -1040,7 +1053,7 @@ void Cmd_Class_f( gentity_t *ent )
 
       if( ent->client->pers.pclass != PCL_NONE )
       {
-        for( i = 0; i < NUM_AC; i++ )
+        for( i = 0; i < numClasses; i++ )
         {
           if( allowedClasses[ i ] == ent->client->pers.pclass &&
               BG_FindStagesForClass( ent->client->pers.pclass, g_alienStage.integer ) )
