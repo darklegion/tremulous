@@ -256,16 +256,17 @@
 #define UI_SERVERREFRESHDATE 247
 #define UI_SERVERMOTD 248
 #define UI_GLINFO  249
-#define UI_KEYBINDSTATUS 250
-#define UI_CLANCINEMATIC 251
-#define UI_MAP_TIMETOBEAT 252
-#define UI_JOINGAMETYPE 253
-#define UI_PREVIEWCINEMATIC 254
-#define UI_STARTMAPCINEMATIC 255
-#define UI_MAPS_SELECTION 256
+#define UI_KEYBINDSTATUS      250
+#define UI_CLANCINEMATIC      251
+#define UI_MAP_TIMETOBEAT     252
+#define UI_JOINGAMETYPE       253
+#define UI_PREVIEWCINEMATIC   254
+#define UI_STARTMAPCINEMATIC  255
+#define UI_MAPS_SELECTION     256
 
 //TA:
-#define UI_DIALOG 257
+#define UI_DIALOG             257
+#define UI_TEAMINFOPANE       258
 
 #define VOICECHAT_GETFLAG     "getflag"       // command someone to get the flag
 #define VOICECHAT_OFFENSE     "offense"       // command someone to go on offense

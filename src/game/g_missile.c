@@ -243,6 +243,7 @@ fire_flamer
 gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
 {
   gentity_t *bolt;
+  vec3_t    pvel;
 
   VectorNormalize (dir);
 
@@ -266,7 +267,8 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.pos.trType = TR_LINEAR;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
-  VectorMA( self->client->ps.velocity, FIREBALL_SPEED, dir, bolt->s.pos.trDelta );
+  VectorScale( self->client->ps.velocity, FIREBALL_LAG, pvel );
+  VectorMA( pvel, FIREBALL_SPEED, dir, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
 
   VectorCopy (start, bolt->r.currentOrigin);

@@ -917,6 +917,133 @@ void UI_ParseMenu(const char *menuFile) {
   trap_PC_FreeSource(handle);
 }
 
+/*
+===============
+UI_FindInfoPaneByName
+===============
+*/
+tremInfoPane_t *UI_FindInfoPaneByName( const char *name )
+{
+  int i;
+
+  for( i = 0; i < uiInfo.tremInfoPaneCount; i++ )
+  {
+    if( !Q_stricmp( uiInfo.tremInfoPanes[ i ].name, name ) )
+      return &uiInfo.tremInfoPanes[ i ];
+  }
+
+  return NULL;
+}
+
+/*
+===============
+UI_LoadInfoPane
+===============
+*/
+qboolean UI_LoadInfoPane( int handle )
+{
+  pc_token_t  token;
+  qboolean    valid = qfalse;
+  
+  while( 1 )
+  {
+    memset( &token, 0, sizeof( pc_token_t ) );
+    
+    if( !trap_PC_ReadToken( handle, &token ) )
+      break;
+
+    if( !Q_stricmp( token.string, "name" ) )
+    {
+      memset( &token, 0, sizeof( pc_token_t ) );
+      
+      if( !trap_PC_ReadToken( handle, &token ) )
+        break;
+
+      uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].name = String_Alloc( token.string );
+      valid = qtrue;
+    }
+    else if( !Q_stricmp( token.string, "line" ) )
+    {
+      int *line;
+      
+      memset( &token, 0, sizeof( pc_token_t ) );
+      
+      if( !trap_PC_ReadToken( handle, &token ) )
+        break;
+
+      line = &uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].numLines;
+
+      uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].lines[ *line ] = String_Alloc( token.string );
+
+      //increment lines
+      (*line)++;
+
+      if( *line == MAX_INFOPANE_LINES )
+        break;
+    }
+    else if( token.string[ 0 ] == '}' )
+    {
+      //reached the end, break
+      break;
+    }
+    else
+      break;
+  }
+
+  if( valid )
+  {
+    uiInfo.tremInfoPaneCount++;
+    return qtrue;
+  }
+  else
+  {
+    uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].numLines = 0;
+    return qfalse;
+  }
+}
+
+/*
+===============
+UI_LoadInfoPanes
+===============
+*/
+void UI_LoadInfoPanes( const char *file )
+{
+  pc_token_t token;
+  int handle;
+  int count;
+
+  uiInfo.tremInfoPaneCount = 0;
+
+  handle = trap_PC_LoadSource( file );
+  
+  if( !handle )
+  {
+    trap_Error( va( S_COLOR_YELLOW "infopane file not found: %s\n", file ) );
+    return;
+  }
+  
+  while( 1 )
+  {
+    if( !trap_PC_ReadToken( handle, &token ) )
+      break;
+    
+    if( token.string[ 0 ] == 0 )
+      break;
+    
+    if( token.string[ 0 ] == '{' )
+    {
+      if( UI_LoadInfoPane( handle ) )
+        count++;
+
+      if( count == MAX_INFOPANES )
+        break;
+    }
+  }
+
+  trap_PC_FreeSource( handle );
+}
+
 qboolean Load_Menu(int handle) {
   pc_token_t token;
 
@@ -1155,6 +1282,26 @@ static void UI_DrawDialogText( rectDef_t *rect, float scale, vec4_t color,
   const char *text = UI_Cvar_VariableString( "ui_dialog" );
   
   Text_Paint( rect->x, rect->y, scale, color, text, 0, 0, textStyle );
+}
+
+static void UI_RenderInfoPane( tremInfoPane_t *pane, rectDef_t *rect, float scale, vec4_t color, int textStyle )
+{
+  int i;
+
+  for( i = 0; i < pane->numLines; i++ )
+  {
+    int height = Text_Height( pane->lines[ i ], scale, 0 );
+    
+    Text_Paint( rect->x, rect->y + i * height * 1.5, scale, color, pane->lines[ i ], 0, 0, textStyle );
+  }
+}
+
+static void UI_DrawTeamInfoPane( rectDef_t *rect, float scale, vec4_t color, int textStyle )
+{
+  tremInfoPane_t  *pane = NULL;
+
+  if( pane = uiInfo.tremTeamList[ uiInfo.tremTeamIndex ].infopane )
+    UI_RenderInfoPane( pane, rect, scale, color, textStyle );
 }
 
 
@@ -2009,6 +2156,10 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
   {
     case UI_DIALOG:
       UI_DrawDialogText( &rect, scale, color, textStyle );
+      break;
+      
+    case UI_TEAMINFOPANE:
+      UI_DrawTeamInfoPane( &rect, scale, color, textStyle );
       break;
       
     case UI_HANDICAP:
@@ -2871,12 +3022,15 @@ static void UI_LoadTremTeams( )
   uiInfo.tremTeamCount = 3;
   uiInfo.tremTeamList[ 0 ].text = String_Alloc( "Aliens" );
   uiInfo.tremTeamList[ 0 ].cmd = String_Alloc( "cmd team aliens" );
+  uiInfo.tremTeamList[ 0 ].infopane = UI_FindInfoPaneByName( "alienteam" );
   
   uiInfo.tremTeamList[ 1 ].text = String_Alloc( "Humans" );
   uiInfo.tremTeamList[ 1 ].cmd = String_Alloc( "cmd team humans" );
+  uiInfo.tremTeamList[ 1 ].infopane = UI_FindInfoPaneByName( "humanteam" );
   
   uiInfo.tremTeamList[ 2 ].text = String_Alloc( "Spectate" );
   uiInfo.tremTeamList[ 2 ].cmd = String_Alloc( "cmd team spectate" );
+  uiInfo.tremTeamList[ 2 ].infopane = UI_FindInfoPaneByName( "spectateteam" );
 }
 
 /*
@@ -5603,6 +5757,20 @@ void _UI_Init( qboolean inGameLoad ) {
   UI_LoadMenus(menuSet, qtrue);
   UI_LoadMenus("ui/ingame.txt", qfalse);
   UI_LoadMenus("ui/tremulous.txt", qfalse);
+
+  UI_LoadInfoPanes( "ui/infopanes.def" );
+
+  {
+    int ijk, abc;
+
+    for( ijk = 0; ijk < uiInfo.tremInfoPaneCount; ijk++ )
+    {
+      Com_Printf( "name: %s\n", uiInfo.tremInfoPanes[ ijk ].name );
+
+      for( abc = 0; abc < uiInfo.tremInfoPanes[ ijk ].numLines; abc++ )
+        Com_Printf( "line %d: %s\n", abc, uiInfo.tremInfoPanes[ ijk ].lines[ abc ] );
+    }
+  }
 #endif
   
   Menus_CloseAll();

@@ -321,7 +321,8 @@ typedef enum {
 //TA: needed client side to size sprites
 #define FIREBALL_LIFETIME 1000.0f
 #define FIREBALL_SPEED    200.0f
-#define FIREBALL_GAP      15 //basically as fast as possible yet regular
+#define FIREBALL_GAP      15    //basically as fast as possible yet regular
+#define FIREBALL_LAG      0.5f  //the amount of player velocity that is added to the fireball
 
 typedef enum
 {

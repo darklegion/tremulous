@@ -749,10 +749,21 @@ typedef struct {
 } modInfo_t;
 
 //TA: tremulous menus
+#define MAX_INFOPANE_LINES  16
+#define MAX_INFOPANES       16
+
 typedef struct
 {
-	const char *text;
-	const char *cmd;
+  const char  *name;
+  const char  *lines[ MAX_INFOPANE_LINES ];
+  int         numLines;
+} tremInfoPane_t;
+
+typedef struct
+{
+	const char      *text;
+	const char      *cmd;
+	tremInfoPane_t  *infopane;
 } tremMenuItem_t;
 //TA: tremulous menus
 
@@ -814,6 +825,9 @@ typedef struct {
 	int movieCount;
 	int movieIndex;
 	int previewMovie;
+
+  tremInfoPane_t  tremInfoPanes[ MAX_INFOPANES ];
+  int             tremInfoPaneCount;
 
 //TA: tremulous menus
 	tremMenuItem_t  tremTeamList[ 3 ];

@@ -989,6 +989,7 @@ static void CG_FlameTrail( centity_t *cent, vec3_t origin )
   vec3_t  forward, right, up;
   vec3_t  muzzlePoint;
   vec3_t  velocity;
+  vec3_t  pVelocity;
 
   if( cent->currentState.weapon != WP_FLAMER )
     return;
@@ -1001,7 +1002,7 @@ static void CG_FlameTrail( centity_t *cent, vec3_t origin )
   {
     AngleVectors( cg.refdefViewAngles, forward, right, up );
     VectorCopy( cg.refdef.vieworg, muzzlePoint );
-    VectorMA( cg.predictedPlayerState.velocity, FIREBALL_SPEED, forward, velocity );
+    VectorScale( cg.predictedPlayerState.velocity, FIREBALL_LAG, pVelocity );
   }
   else
   {
@@ -1010,8 +1011,10 @@ static void CG_FlameTrail( centity_t *cent, vec3_t origin )
 
     //FIXME: this is gonna look weird when crouching
     muzzlePoint[ 2 ] += DEFAULT_VIEWHEIGHT;
-    VectorMA( cent->currentState.pos.trDelta, FIREBALL_SPEED, forward, velocity );
+    VectorScale( cent->currentState.pos.trDelta, FIREBALL_LAG, pVelocity );
   }
+  
+  VectorMA( pVelocity, FIREBALL_SPEED, forward, velocity );
 
   //FIXME: tweak these numbers when (if?) the flamer model is done
   VectorMA( muzzlePoint, 24.0f, forward, muzzlePoint );
