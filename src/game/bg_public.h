@@ -239,6 +239,7 @@ typedef enum {
 
 #define SS_WALLCLIMBING         1
 #define SS_WALLCLIMBINGCEILING  2
+#define SS_WALLCLIMBINGFOLLOW   4
 #define SS_CREEPSLOWED          8
 #define SS_SPEEDBOOST           16
 #define SS_INFESTING            32

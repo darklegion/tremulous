@@ -1065,22 +1065,12 @@ void ClientUserinfoChanged( int clientNum ) {
   s = BG_FindModelNameForClass( client->pers.pclass );
   Q_strncpyz( model, s, sizeof( model ) );
 
-/*
-  // team
-  switch( client->sess.sessionTeam ) {
-  case TEAM_HUMANS:
-    //ForceClientSkin(client, model, "red");
-    break;
-  case TEAM_ALIENS:
-    //ForceClientSkin(client, model, "blue");
-    break;
-  }
-  if ( g_gametype.integer >= GT_TEAM && client->sess.sessionTeam == TEAM_SPECTATOR ) {
-    // don't ever use a default skin in teamplay, it would just waste memory
-    //ForceClientSkin(client, model, "red");
-  }
-*/
-
+  // wallwalk follow
+  s = Info_ValueForKey( userinfo, "cg_wwFollow" );
+  if( atoi( s ) )
+    client->ps.stats[ STAT_STATE ] |= SS_WALLCLIMBINGFOLLOW;
+  else
+    client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGFOLLOW;
 
   // teamInfo
   s = Info_ValueForKey( userinfo, "teamoverlay" );

@@ -840,7 +840,7 @@ static void CG_addSmoothOp( vec3_t rotAxis, float rotAngle )
   for( i = 0; i < MAXSMOOTHS; i++ )
   {
     //found an unused index in the smooth array
-    if( cg.sList[ i ].time + cg_smoothTime.integer < cg.time )
+    if( cg.sList[ i ].time + cg_wwSmoothTime.integer < cg.time )
     {
       //copy to array and stop
       VectorCopy( rotAxis, cg.sList[ i ].rotAxis );
@@ -914,14 +914,17 @@ static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t o
   for( i = 0; i < MAXSMOOTHS; i++ )
   {
     //if this op has time remaining, perform it
-    if( cg.time < cg.sList[ i ].time + cg_smoothTime.integer )
+    if( cg.time < cg.sList[ i ].time + cg_wwSmoothTime.integer )
     {
-      stLocal = 1.0 - ( ( ( cg.sList[ i ].time + cg_smoothTime.integer ) - cg.time ) / cg_smoothTime.integer );
+      stLocal = 1.0 - ( ( ( cg.sList[ i ].time + cg_wwSmoothTime.integer ) - cg.time ) / cg_wwSmoothTime.integer );
       sFraction = -( cos( stLocal * M_PI ) + 1 ) / 2;
 
-      RotatePointAroundVector( outAxis[ 0 ], cg.sList[ i ].rotAxis, inAxis[ 0 ], sFraction * cg.sList[ i ].rotAngle );
-      RotatePointAroundVector( outAxis[ 1 ], cg.sList[ i ].rotAxis, inAxis[ 1 ], sFraction * cg.sList[ i ].rotAngle );
-      RotatePointAroundVector( outAxis[ 2 ], cg.sList[ i ].rotAxis, inAxis[ 2 ], sFraction * cg.sList[ i ].rotAngle );
+      RotatePointAroundVector( outAxis[ 0 ], cg.sList[ i ].rotAxis,
+        inAxis[ 0 ], sFraction * cg.sList[ i ].rotAngle );
+      RotatePointAroundVector( outAxis[ 1 ], cg.sList[ i ].rotAxis,
+        inAxis[ 1 ], sFraction * cg.sList[ i ].rotAngle );
+      RotatePointAroundVector( outAxis[ 2 ], cg.sList[ i ].rotAxis,
+        inAxis[ 2 ], sFraction * cg.sList[ i ].rotAngle );
 
       AxisCopy( outAxis, inAxis );
       performed = qtrue;

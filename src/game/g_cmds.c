@@ -2277,6 +2277,9 @@ void Cmd_Spawnbody_f( gentity_t *ent )
 {
   gentity_t *dummy = G_Spawn( );
   vec3_t    forward;
+  
+  if( !CheatsOk( ent ) )
+    return;
 
   AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
   VectorMA( ent->client->ps.origin, 128.0f, forward, dummy->r.currentOrigin );

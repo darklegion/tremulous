@@ -177,7 +177,7 @@ static void PM_Friction( void ) {
   //TA: make sure vertical velocity is NOT set to zero when wall climbing
   VectorCopy( vel, vec );
   if ( pml.walking &&
-       pm->ps->stats[ STAT_STATE ] & ~SS_WALLCLIMBING ) {
+       !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) ) {
     vec[2] = 0; // ignore slope movement
   }
 
@@ -1506,8 +1506,11 @@ static void PM_GroundClimbTrace( void )
         //set the correction angle
         traceANGsurf *= 1.0f - ldDOTtCs;
 
-        //correct the angle
-        pm->ps->delta_angles[ PITCH ] -= ANGLE2SHORT( traceANGsurf );
+        if( !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGFOLLOW ) )
+        {
+          //correct the angle
+          pm->ps->delta_angles[ PITCH ] -= ANGLE2SHORT( traceANGsurf );
+        }
 
         //transition from wall to ceiling
         //normal for subsequent viewangle rotations

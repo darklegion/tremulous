@@ -179,7 +179,8 @@ vmCvar_t  cg_trueLightning;
 vmCvar_t  cg_creepRes;
 vmCvar_t  cg_drawSurfNormal;
 vmCvar_t  cg_debugAlloc;
-vmCvar_t  cg_smoothTime;
+vmCvar_t  cg_wwSmoothTime;
+vmCvar_t  cg_wwFollow;
 
 //TA: hack to get class an carriage through to UI module
 vmCvar_t  ui_currentClass;
@@ -266,7 +267,8 @@ static cvarTable_t   cvarTable[] = {
   { &cg_creepRes, "cg_creepRes", "16", CVAR_ARCHIVE },
   { &cg_drawSurfNormal, "cg_drawSurfNormal", "0", CVAR_CHEAT },
   { &cg_debugAlloc, "cg_debugAlloc", "0", 0 },
-  { &cg_smoothTime, "cg_smoothTime", "300", 0 },
+  { &cg_wwSmoothTime, "cg_wwSmoothTime", "300", 0 },
+  { &cg_wwFollow, "cg_wwFollow", "0", CVAR_USERINFO },
   
   { &ui_currentClass, "ui_currentClass", "0", 0 },
   { &ui_carriage, "ui_carriage", "", 0 },
