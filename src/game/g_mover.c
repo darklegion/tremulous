@@ -784,12 +784,12 @@ static void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_
   if( fabs( other->s.origin[ axis ] - ent->r.absmax[ axis ] ) <
       fabs( other->s.origin[ axis ] - ent->r.absmin[ axis ] ) )
   {
-    origin[ axis ] = ent->r.absmin[ axis ] - 10;
+    origin[ axis ] = ent->r.absmin[ axis ] - 20;
     dir[ axis ] = -1;
   }
   else
   {
-    origin[ axis ] = ent->r.absmax[ axis ] + 10;
+    origin[ axis ] = ent->r.absmax[ axis ] + 20;
     dir[ axis ] = 1;
   }
   
@@ -808,7 +808,7 @@ static void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_
 
 /*
 ================
-manualTriggerSpectator
+manualDoorTriggerSpectator
 
 This effectively creates a temporary door auto trigger so manually
 triggers doors can be skipped by spectators
@@ -844,8 +844,8 @@ static void manualDoorTriggerSpectator( gentity_t *door, gentity_t *player )
       best = i;
   }
   
-  maxs[ best ] += 120;
-  mins[ best ] -= 120;
+  maxs[ best ] += 60;
+  mins[ best ] -= 60;
 
   VectorCopy( mins, triggerHull.r.absmin );
   VectorCopy( maxs, triggerHull.r.absmax );
@@ -968,8 +968,8 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent )
       best = i;
   }
   
-  maxs[ best ] += 120;
-  mins[ best ] -= 120;
+  maxs[ best ] += 60;
+  mins[ best ] -= 60;
 
   // create a trigger with this size
   other = G_Spawn( );

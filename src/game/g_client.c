@@ -1348,9 +1348,9 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   if( client->sess.sessionTeam == TEAM_SPECTATOR )
   {
     if( teamLocal == PTE_ALIENS )
-      G_TriggerMenu( ent->client->ps.clientNum, MN_A_CLASS );
+      G_TriggerMenu( index, MN_A_CLASS );
     else if( teamLocal == PTE_HUMANS )
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_SPAWN );
+      G_TriggerMenu( index, MN_H_SPAWN );
   }
 
   // increment the spawncount so the client will detect the respawn

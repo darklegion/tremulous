@@ -344,19 +344,12 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
   if( ( client->buttons & BUTTON_ATTACK ) && !( client->oldbuttons & BUTTON_ATTACK ) )
   {
     if( client->pers.pteam == PTE_NONE )
-      G_TriggerMenu( ent->client->ps.clientNum, MN_TEAM );
+      G_TriggerMenu( client->ps.clientNum, MN_TEAM );
     else if( client->pers.pteam == PTE_ALIENS )
-      G_TriggerMenu( ent->client->ps.clientNum, MN_A_CLASS );
+      G_TriggerMenu( client->ps.clientNum, MN_A_CLASS );
     else if( client->pers.pteam == PTE_HUMANS )
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_SPAWN );
+      G_TriggerMenu( client->ps.clientNum, MN_H_SPAWN );
   }
-
-  // attack button cycles through spectators
-  //TA: messes with the menus
-  /*if ( ( client->buttons & BUTTON_ATTACK ) && 
-      !( client->oldbuttons & BUTTON_ATTACK ) &&
-       ( client->sess.spectatorState == SPECTATOR_FREE ) )
-    Cmd_FollowCycle_f( ent, 1 );*/
 }
 
 
