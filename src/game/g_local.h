@@ -605,6 +605,7 @@ void        AddRemap(const char *oldShader, const char *newShader, float timeOff
 const char  *BuildShaderStateConfig();
 
 void        G_TriggerMenu( int clientNum, dynMenu_t menu );
+void        G_CloseMenus( int clientNum );
 
 //
 // g_combat.c

@@ -209,6 +209,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     killer, self->s.number, meansOfDeath, killerName,
     self->client->pers.netname, obit );
 
+  //TA: close any menus the client has open
+  G_CloseMenus( self->client->ps.clientNum );
+
   // broadcast the death event to everyone
   ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY );
   ent->s.eventParm = meansOfDeath;

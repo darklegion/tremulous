@@ -743,6 +743,7 @@ qboolean G_Visible( gentity_t *ent1, gentity_t *ent2 )
   return qtrue;
 }
 
+
 /*
 ===============
 G_TriggerMenu
@@ -757,6 +758,23 @@ void G_TriggerMenu( int clientNum, dynMenu_t menu )
   Com_sprintf( buffer, 32, "servermenu %d", menu );
   trap_SendServerCommand( clientNum, buffer );
 }
+
+
+/*
+===============
+G_CloseMenus
+
+Close all open menus on some client
+===============
+*/
+void G_CloseMenus( int clientNum )
+{
+  char buffer[ 32 ];
+
+  Com_sprintf( buffer, 32, "serverclosemenus" );
+  trap_SendServerCommand( clientNum, buffer );
+}
+
 
 /*
 ================

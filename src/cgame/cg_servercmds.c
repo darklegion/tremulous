@@ -809,6 +809,13 @@ static void CG_ServerCommand( void )
     }
   }
   
+  //the server thinks this client should close all menus
+  if( !strcmp( cmd, "serverclosemenus" ) )
+  {
+    trap_SendConsoleCommand( "closemenus\n" );
+    return;
+  }
+  
   CG_Printf( "Unknown client game command: %s\n", cmd );
 }
 

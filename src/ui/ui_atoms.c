@@ -368,14 +368,26 @@ qboolean UI_ConsoleCommand( int realTime )
 		return qtrue;
 	}
 
-  if ( Q_stricmp (cmd, "menu") == 0 )
+  if( Q_stricmp ( cmd, "menu" ) == 0 )
   {
     arg1 = UI_Argv( 1 );
 
-    if( Menu_Count() > 0 )
+    if( Menu_Count( ) > 0 )
     {
       trap_Key_SetCatcher( KEYCATCH_UI );
 		  Menus_ActivateByName( arg1 );
+      return qtrue;
+    }
+  }
+  
+  if( Q_stricmp ( cmd, "closemenus" ) == 0 )
+  {
+    if( Menu_Count( ) > 0 )
+    {
+      trap_Key_SetCatcher( trap_Key_GetCatcher( ) & ~KEYCATCH_UI );
+      trap_Key_ClearStates( );
+      trap_Cvar_Set( "cl_paused", "0" );
+      Menus_CloseAll( );
       return qtrue;
     }
   }
