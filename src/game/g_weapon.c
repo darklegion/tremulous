@@ -230,6 +230,31 @@ void flamerFire( gentity_t *ent )
 /*
 ======================================================================
 
+LUCIFER CANON
+
+======================================================================
+*/
+
+/*
+===============
+LCChargeFire
+===============
+*/
+void LCChargeFire( gentity_t *ent, qboolean secondary )
+{
+  gentity_t *m;
+
+  if( secondary )
+    ent->client->ps.stats[ STAT_MISC ] = LC_TOTAL_CHARGE / 10;
+
+  m = fire_luciferCanon( ent, muzzle, forward, ent->client->ps.stats[ STAT_MISC ] );
+  
+  ent->client->ps.stats[ STAT_MISC ] = 0;
+}
+
+/*
+======================================================================
+
 TESLA GENERATOR
 
 ======================================================================
@@ -775,6 +800,13 @@ void FireWeapon2( gentity_t *ent )
     case WP_VENOM:
     case WP_POUNCE:
       break;
+    case WP_LUCIFER_CANON:
+      LCChargeFire( ent, qtrue );
+      break;
+    case WP_LAS_GUN:
+      break;
+    case WP_PAIN_SAW:
+      break;
     case WP_ABUILD:
     case WP_ABUILD2:
     case WP_HBUILD:
@@ -846,6 +878,15 @@ void FireWeapon( gentity_t *ent )
       break;
     case WP_DIRECT_ZAP:
       directZapFire( ent );
+      break;
+    case WP_LUCIFER_CANON:
+      LCChargeFire( ent, qfalse );
+      break;
+    case WP_LAS_GUN:
+      massDriverFire( ent );
+      break;
+    case WP_PAIN_SAW:
+      gClawFire( ent );
       break;
     case WP_ABUILD:
       buildFire( ent, MN_A_BUILD );

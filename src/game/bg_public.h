@@ -46,6 +46,9 @@
 #define MAX_POUNCE_SPEED        750
 #define POUNCE_TIME             1000.0f
 
+#define LC_TOTAL_CHARGE         255
+#define LC_CHARGE_TIME          2000.0f
+
 //
 // config strings are a general means of communicating variable length strings
 // from the server to all connected clients.
@@ -341,6 +344,9 @@ typedef enum
   WP_DIRECT_ZAP,
   WP_MASS_DRIVER,
   WP_PULSE_RIFLE,
+  WP_LUCIFER_CANON,
+  WP_LAS_GUN,
+  WP_PAIN_SAW,
 
   //build weapons must remain in a block
   WP_ABUILD,
@@ -982,7 +988,20 @@ typedef struct
   WUTeam_t  team;
 } upgradeAttributes_t;
 
+
 //TA:
+void      BG_unpackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int *quan, int *clips, int *maxclips );
+void      BG_packAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int quan, int clips, int maxclips );
+void      BG_packWeapon( int weapon, int stats[ ] );
+void      BG_removeWeapon( int weapon, int stats[ ] );
+qboolean  BG_gotWeapon( int weapon, int stats[ ] );
+void      BG_packItem( int item, int stats[ ] );
+void      BG_removeItem( int item, int stats[ ] );
+qboolean  BG_gotItem( int item, int stats[ ] );
+void      BG_activateItem( int item, int stats[ ] );
+void      BG_deactivateItem( int item, int stats[ ] );
+qboolean  BG_activated( int item, int stats[ ] );
+  
 int       BG_FindBuildNumForName( char *name );
 int       BG_FindBuildNumForEntityName( char *name );
 char      *BG_FindNameForBuildable( int bclass );
@@ -1122,12 +1141,6 @@ void  BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean
 void  BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap );
 
 qboolean  BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
-
-//TA: extra bits: (which I apparently dont need)
-void      BG_unpackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int *quan, int *clips, int *maxclips );
-void      BG_packAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int quan, int clips, int maxclips );
-void      BG_packWeapon( int weapon, int stats[ ] );
-qboolean  BG_gotWeapon( int weapon, int stats[ ] );
 
 #define CREEP_BASESIZE      120 
 #define REACTOR_BASESIZE    1000

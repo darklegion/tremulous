@@ -288,6 +288,25 @@ static void CG_Missile( centity_t *cent )
       return;
       break;
 
+    case WP_LUCIFER_CANON:
+      ent.skinNum = cg.clientFrame & 1;
+      ent.hModel = weapon->missileModel;
+      ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
+
+      // convert direction of travel into axis
+      if ( VectorNormalize2( s1->pos.trDelta, ent.axis[ 0 ] ) == 0 )
+        ent.axis[ 0 ][ 2 ] = 1;
+
+      RotateAroundDirection( ent.axis, cg.time / 4 );
+
+      fraction = (float)s1->generic1 / (float)LC_TOTAL_CHARGE;
+      VectorScale( ent.axis[ 0 ], fraction, ent.axis[ 0 ] );
+      VectorScale( ent.axis[ 1 ], fraction, ent.axis[ 1 ] );
+      VectorScale( ent.axis[ 2 ], fraction, ent.axis[ 2 ] );
+      ent.nonNormalizedAxes = qtrue;
+      
+      break;
+
     case WP_FLAMER:
       //TA: don't actually display the missile (use the particle engine)
       return;

@@ -727,6 +727,15 @@ void CG_RegisterWeapon( int weaponNum )
       cgs.media.railRingsShader = trap_R_RegisterShader( "railDisc" );
       break;
 
+    case WP_LUCIFER_CANON:
+      weaponInfo->readySound = trap_S_RegisterSound( "sound/weapons/bfg/bfg_hum.wav", qfalse );
+      MAKERGB( weaponInfo->flashDlightColor, 1, 0.7f, 1 );
+      weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/bfg/bfg_fire.wav", qfalse );
+      cgs.media.bfgExplosionShader = trap_R_RegisterShader( "bfgExplosion" );
+      weaponInfo->missileModel = trap_R_RegisterModel( "models/weaphits/bfg.md3" );
+      weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/rocket/rockfly.wav", qfalse );
+      break;
+
     case WP_VENOM:
       MAKERGB( weaponInfo->flashDlightColor, 0, 0, 0 );
       weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav", qfalse );
@@ -1359,6 +1368,14 @@ void CG_AddViewWeapon( playerState_t *ps ) {
   VectorMA( hand.origin, cg_gun_y.value, cg.refdef.viewaxis[1], hand.origin );
   VectorMA( hand.origin, (cg_gun_z.value+fovOffset), cg.refdef.viewaxis[2], hand.origin );
 
+  if( ps->weapon == WP_LUCIFER_CANON && ps->stats[ STAT_MISC ] > 0 )
+  {
+    float fraction = (float)ps->stats[ STAT_MISC ] / (float)LC_TOTAL_CHARGE;
+
+    VectorMA( hand.origin, random( ) * fraction, cg.refdef.viewaxis[0], hand.origin );
+    VectorMA( hand.origin, random( ) * fraction, cg.refdef.viewaxis[1], hand.origin );
+  }
+  
   AnglesToAxis( angles, hand.axis );
 
   // map torso animations to weapon animations
@@ -1820,7 +1837,7 @@ CG_MissileHitWall
 Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 =================
 */
-void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType ) {
+void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, int damage ) {
   qhandle_t   mod;
   qhandle_t   mark;
   qhandle_t   shader;
@@ -1829,7 +1846,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
   float     light;
   vec3_t      lightColor;
   localEntity_t *le;
-  int       r;
+  int       r, i;
   qboolean    alphaFade;
   qboolean    isSprite;
   int       duration;
@@ -1890,6 +1907,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
   case WP_MASS_DRIVER:
     shader = cgs.media.bulletExplosionShader;
     mark = cgs.media.bulletMarkShader;
+    radius = 8;
     break;
   case WP_MACHINEGUN:
   case WP_CHAINGUN:
@@ -1907,6 +1925,39 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
     }
 
     radius = 8;
+    break;
+    
+ #define LCANON_EJECTION_VEL 300
+    
+  case WP_LUCIFER_CANON:
+		mod = cgs.media.dishFlashModel;
+		shader = cgs.media.bfgExplosionShader;
+    mark = cgs.media.bulletMarkShader;
+    radius = 8;
+    sfx = cgs.media.sfx_plasmaexp;
+    isSprite = qtrue;
+    
+    for( i = 0; i <= damage / 20; i++ )
+    {
+      qhandle_t spark;
+      vec3_t    velocity;
+      vec3_t    accel = { 0.0f, 0.0f, -DEFAULT_GRAVITY };
+
+      VectorMA( origin, 1.0f, dir, origin );
+
+      if( random( ) > 0.5f )
+        spark = cgs.media.gibSpark1;
+      else
+        spark = cgs.media.scannerBlipShader;
+
+      velocity[ 0 ] = ( 2 * random( ) - 1.0f ) * LCANON_EJECTION_VEL;
+      velocity[ 1 ] = ( 2 * random( ) - 1.0f ) * LCANON_EJECTION_VEL;
+      velocity[ 2 ] = ( 2 * random( ) - 1.0f ) * LCANON_EJECTION_VEL;
+      
+      CG_LaunchSprite( origin, velocity, accel, 0.9, 1.0f, 40.0f, 255, 0, rand( ) % 360,
+                       cg.time, 2000 + ( crandom( ) * 1000 ),
+                       spark, qfalse, qfalse );
+    }
     break;
   }
 
@@ -1956,7 +2007,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 CG_MissileHitPlayer
 =================
 */
-void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum ) {
+void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum, int damage ) {
   CG_Bleed( origin, entityNum );
 
   // some weapons will make an explosion with the blood, while
@@ -2262,7 +2313,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
   if ( flesh ) {
     CG_Bleed( end, fleshEntityNum );
   } else {
-    CG_MissileHitWall( WP_MACHINEGUN, 0, end, normal, IMPACTSOUND_DEFAULT );
+    CG_MissileHitWall( WP_MACHINEGUN, 0, end, normal, IMPACTSOUND_DEFAULT, 0 );
   }
 
 }

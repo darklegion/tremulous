@@ -1448,9 +1448,9 @@ void CG_InitWeapons( );
 void CG_RegisterWeapon( int weaponNum );
 
 void CG_FireWeapon( centity_t *cent );
-void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType );
+void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, int damage );
 void CG_Explosion( int clientNum, vec3_t origin, vec3_t dir );
-void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum );
+void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum, int damage );
 void CG_ShotgunFire( entityState_t *es );
 void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 

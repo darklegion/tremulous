@@ -2126,6 +2126,69 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
+    WP_LUCIFER_CANON,     //int       weaponNum;
+    100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_WEAPON,          //int       slots;
+    "lcanon",             //char      *weaponName;
+    "Lucifer Canon",      //char      *weaponHumanName;
+    { "models/weapons2/bfg/bfg.md3", 0, 0, 0 },
+    "icons/iconw_bfg",
+    30,                   //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qfalse,               //int       infiniteAmmo;
+    qtrue,                //int       usesEnergy;
+    500,                  //int       repeatRate;
+    2000,                 //int       reloadTime;
+    qtrue,                //qboolean  hasAltMode;
+    qfalse,               //qboolean  synced;
+    qtrue,                //qboolean  purchasable;
+    WUT_HUMANS            //WUTeam_t  team;
+  },
+  {
+    WP_LAS_GUN,           //int       weaponNum;
+    100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_WEAPON,          //int       slots;
+    "lgun",               //char      *weaponName;
+    "Las Gun",            //char      *weaponHumanName;
+    { "models/weapons2/grenadel/grenadel.md3", 0, 0, 0 },
+    "icons/iconw_plasma",
+    300,                  //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qfalse,               //int       infiniteAmmo;
+    qtrue,                //int       usesEnergy;
+    100,                  //int       repeatRate;
+    2000,                 //int       reloadTime;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  synced;
+    qtrue,                //qboolean  purchasable;
+    WUT_HUMANS            //WUTeam_t  team;
+  },
+  {
+    WP_PAIN_SAW,          //int       weaponNum;
+    100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_WEAPON,          //int       slots;
+    "psaw",               //char      *weaponName;
+    "Pain Saw",           //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
+    100,                  //int       repeatRate;
+    0,                    //int       reloadTime;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  synced;
+    qtrue,                //qboolean  purchasable;
+    WUT_HUMANS            //WUTeam_t  team;
+  },
+  {
     WP_HBUILD,            //int       weaponNum;
     100,                  //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
@@ -3042,6 +3105,8 @@ weapon_t BG_FindWeaponAmmoForUpgrade( int upgrade )
     if( bg_upgrades[ i ].upgradeNum == upgrade )
       return bg_upgrades[ i ].weaponAmmo;
   }
+
+  return WP_NONE;
 }
 
 /*

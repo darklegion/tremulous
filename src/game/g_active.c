@@ -492,6 +492,23 @@ void ClientTimerActions( gentity_t *ent, int msec )
         client->ps.stats[ STAT_MISC ] = MAX_POUNCE_SPEED;
     }
 
+    //client is charging up an lcanon
+    if( client->ps.weapon == WP_LUCIFER_CANON )
+    {
+      int ammo;
+      
+      BG_unpackAmmoArray( WP_LUCIFER_CANON, client->ps.ammo, client->ps.powerups, &ammo, NULL, NULL );
+      
+      if( client->ps.stats[ STAT_MISC ] < LC_TOTAL_CHARGE && ucmd->buttons & BUTTON_ATTACK )
+        client->ps.stats[ STAT_MISC ] += ( 100.0f / LC_CHARGE_TIME ) * LC_TOTAL_CHARGE;
+      
+      if( client->ps.stats[ STAT_MISC ] > LC_TOTAL_CHARGE )
+        client->ps.stats[ STAT_MISC ] = LC_TOTAL_CHARGE;
+
+      if( client->ps.stats[ STAT_MISC ] > ( ammo * LC_TOTAL_CHARGE ) / 10 )
+        client->ps.stats[ STAT_MISC ] = ammo * LC_TOTAL_CHARGE / 10;
+    }
+    
 #define LAUNCH_TIME 2000
 
     switch( client->ps.weapon )

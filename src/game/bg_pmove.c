@@ -680,7 +680,7 @@ static void PM_JetPackMove( void ) {
   if( pm->cmd.upmove > 0.0f )
     wishvel[ 2 ] = 48.0f;
   if( pm->cmd.upmove < 0.0f )
-    wishvel[ 2 ] = -48.0f;
+    wishvel[ 2 ] = -96.0f;
 
   VectorCopy( wishvel, wishdir );
   wishspeed = VectorNormalize( wishdir );
@@ -2301,6 +2301,22 @@ static void PM_Weapon( void )
       }
       break;
       
+    case WP_LUCIFER_CANON:
+      attack1 = pm->cmd.buttons & BUTTON_ATTACK;
+      attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
+      
+      if( ( attack1 || pm->ps->stats[ STAT_MISC ] == 0 ) && !attack2 )
+      {
+        pm->ps->weaponTime = 0;
+        pm->ps->weaponstate = WEAPON_READY;
+        return;
+      }
+
+      //erp this looks confusing
+      if( pm->ps->stats[ STAT_MISC ] > 0 )
+        attack1 = !attack1;
+      break;
+      
     default:
       //by default primary and secondary attacks are allowed
       attack1 = pm->cmd.buttons & BUTTON_ATTACK;
@@ -2360,7 +2376,18 @@ static void PM_Weapon( void )
   // take an ammo away if not infinite
   if( !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
   {
-    ammo--;
+    //special case for lCanon
+    if( pm->ps->weapon == WP_LUCIFER_CANON && attack1 )
+    {
+      ammo -= (int)( ceil( ( (float)pm->ps->stats[ STAT_MISC ] / (float)LC_TOTAL_CHARGE ) * 10.0f ) );
+
+      //stay on the safe side
+      if( ammo < 0 )
+        ammo = 0;
+    }
+    else
+      ammo--;
+    
     BG_packAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
   }
   

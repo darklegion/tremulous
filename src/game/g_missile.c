@@ -362,6 +362,50 @@ gentity_t *fire_pulseRifle( gentity_t *self, vec3_t start, vec3_t dir )
 
 /*
 =================
+fire_luciferCanon
+
+=================
+*/
+gentity_t *fire_luciferCanon( gentity_t *self, vec3_t start, vec3_t dir, int damage )
+{
+  gentity_t *bolt;
+  int localDamage = (int)( ceil( ( (float)damage /
+                                   (float)LC_TOTAL_CHARGE ) * 100.0f ) );
+
+  VectorNormalize( dir );
+
+  bolt = G_Spawn( );
+  bolt->classname = "lcanon";
+  bolt->nextthink = level.time + 10000;
+  bolt->think = G_ExplodeMissile;
+  bolt->s.eType = ET_MISSILE;
+  bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+  bolt->s.weapon = WP_LUCIFER_CANON;
+  bolt->r.ownerNum = self->s.number;
+  bolt->parent = self;
+  bolt->damage = localDamage;
+  bolt->splashDamage = localDamage / 2;
+  bolt->splashRadius = localDamage;
+  bolt->s.generic1 = damage;
+  //bolt->methodOfDeath = MOD_FLAMER;
+  //bolt->splashMethodOfDeath = MOD_FLAMER_SPLASH;
+  bolt->clipmask = MASK_SHOT;
+  bolt->target_ent = NULL;
+
+  bolt->s.pos.trType = TR_LINEAR;
+  bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
+  VectorCopy( start, bolt->s.pos.trBase );
+  VectorScale( dir, 250, bolt->s.pos.trDelta );
+  SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
+
+  VectorCopy (start, bolt->r.currentOrigin);
+
+  return bolt;
+}
+
+//=============================================================================
+/*
+=================
 fire_lockblob
 =================
 */
