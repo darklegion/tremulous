@@ -33,7 +33,7 @@
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
-#define GAMEVERSION "baseq3"
+#define GAMEVERSION "tremulous"
 
 #define INFINITE      1000000
 
