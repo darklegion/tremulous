@@ -186,7 +186,7 @@ SED=sed
 
 # --qvm building config--
 LCC_CPP=q3cpp
-LCC_CPP_FLAGS=-DQ3_VM
+LCC_CPP_FLAGS=-DQ3_VM -D__LCC__
 LCC_INCLUDES=-I$(CGDIR) -I$(GDIR) -I$(UIDIR)
 
 LCC_RCC=q3rcc
