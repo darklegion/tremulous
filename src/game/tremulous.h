@@ -307,7 +307,7 @@
  * 
  */
 
-#define HUMAN_WDMG_MODIFIER         1.07f
+#define HUMAN_WDMG_MODIFIER         1.09f
 #define HDM(d)                      ((int)((float)d*HUMAN_WDMG_MODIFIER))
 
 #define BLASTER_REPEAT              600
@@ -316,8 +316,8 @@
 #define BLASTER_DMG                 HDM(10)
 
 #define RIFLE_CLIPSIZE              30
-#define RIFLE_SPAWNCLIPS            3
-#define RIFLE_MAXCLIPS              3
+#define RIFLE_SPAWNCLIPS            4
+#define RIFLE_MAXCLIPS              4
 #define RIFLE_REPEAT                90
 #define RIFLE_RELOAD                2000
 #define RIFLE_PRICE                 0
@@ -337,10 +337,10 @@
 #define SHOTGUN_REPEAT              1200
 #define SHOTGUN_RELOAD              2000
 #define SHOTGUN_SPREAD              900
-#define SHOTGUN_DMG                 HDM(9)
+#define SHOTGUN_DMG                 HDM(7)
 
 #define LASGUN_PRICE                250
-#define LASGUN_AMMO                 100
+#define LASGUN_AMMO                 150
 #define LASGUN_REPEAT               150
 #define LASGUN_RELOAD               2000
 #define LASGUN_DAMAGE               HDM(10)
@@ -356,8 +356,8 @@
 #define CHAINGUN_PRICE              400
 #define CHAINGUN_BULLETS            200
 #define CHAINGUN_REPEAT             75
-#define CHAINGUN_SPREAD             1200
-#define CHAINGUN_DMG                HDM(6)
+#define CHAINGUN_SPREAD             1000
+#define CHAINGUN_DMG                HDM(9)
 
 #define PRIFLE_PRICE                400
 #define PRIFLE_CLIPS                50
@@ -505,6 +505,9 @@
 #define REACTOR_HEALTH              HBHM(1250)
 #define REACTOR_SPLASHDAMAGE        200
 #define REACTOR_SPLASHRADIUS        300
+#define REACTOR_ATTACK_RANGE        100.0f
+#define REACTOR_ATTACK_REPEAT       1000
+#define REACTOR_ATTACK_DAMAGE       40
 #define REACTOR_VALUE               2
 
 #define REPEATER_BP                 10

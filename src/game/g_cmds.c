@@ -1051,7 +1051,7 @@ void Cmd_SetViewpos_f( gentity_t *ent )
 }
 
 #define EVOLVE_TRACE_HEIGHT 128.0f
-#define AS_OVER_RT3         (ALIENSENSE_RANGE/M_ROOT3)
+#define AS_OVER_RT3         ((ALIENSENSE_RANGE*0.5f)/M_ROOT3)
 
 /*
 =================
@@ -1622,20 +1622,20 @@ void Cmd_Sell_f( gentity_t *ent )
     //remove weapon if carried
     if( BG_gotWeapon( weapon, ent->client->ps.stats ) )
     {
+      //guard against selling the HBUILD weapons exploit
+      if( ( weapon == WP_HBUILD || weapon == WP_HBUILD2 ) &&
+          ent->client->ps.stats[ STAT_MISC ] > 0 )
+      {
+        trap_SendServerCommand( ent-g_entities, va( "print \"Cannot sell until build timer expires.\n\"" ) );
+        return;
+      }
+    
       BG_removeWeapon( weapon, ent->client->ps.stats );
 
       //add to funds
       ent->client->ps.persistant[ PERS_CREDIT ] += (short)BG_FindPriceForWeapon( weapon );
     }
 
-    //guard against selling the HBUILD weapons exploit
-    if( weapon == WP_HBUILD || weapon == WP_HBUILD2 &&
-        ent->client->ps.stats[ STAT_MISC ] != 0 )
-    {
-      trap_SendServerCommand( ent-g_entities, va( "print \"Cannot sell until build timer expires.\n\"" ) );
-      return;
-    }
-    
     //if we have this weapon selected, force a new selection
     if( weapon == ent->client->ps.weapon )
     {

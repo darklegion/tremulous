@@ -281,8 +281,8 @@ static qboolean findOvermind( gentity_t *self )
   if( self->biteam != BIT_ALIENS )
     return qfalse;
   
-  //if this already has dcc then stop now
-  if( self->overmindNode )
+  //if this already has overmind then stop now
+  if( self->overmindNode && self->overmindNode->health > 0 )
     return qtrue;
   
   //reset parent
@@ -294,7 +294,7 @@ static qboolean findOvermind( gentity_t *self )
     if( ent->s.eType != ET_BUILDABLE )
       continue;
 
-    //if entity is a dcc calculate the distance to it
+    //if entity is an overmind calculate the distance to it
     if( ent->s.modelindex == BA_A_OVERMIND && ent->spawned )
     {
       self->overmindNode = ent;
@@ -567,6 +567,9 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       attacker->client->ps.persistant[ PERS_CREDIT ] += OVERMIND_VALUE;
     else if( self->s.modelindex == BA_A_SPAWN )
       attacker->client->ps.persistant[ PERS_CREDIT ] += ASPAWN_VALUE;
+
+    if( attacker->client->ps.persistant[ PERS_CREDIT ] > HUMAN_MAX_CREDITS )
+      attacker->client->ps.persistant[ PERS_CREDIT ] = HUMAN_MAX_CREDITS;
   }
 }
 
@@ -1071,7 +1074,7 @@ void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
     }
     else if( ( ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_A_B_BASE ) ||
                ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_A_B_LEV1 ) ) &&
-             activator->health > 0 )
+             activator->health > 0 && self->health > 0 )
     {
       if( AHovel_Blocked( self, activator, qfalse ) )
       {
@@ -1460,7 +1463,7 @@ void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
   if( BG_gotItem( UP_BATTPACK, ps->stats ) )
     maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
   
-  BG_unpackAmmoArray( weapon, ps->ammo, ps->powerups, &ammo, &clips, NULL );
+/*  BG_unpackAmmoArray( weapon, ps->ammo, ps->powerups, &ammo, &clips, NULL );
 
   if( ammo == maxAmmo && clips < maxClips )
   {
@@ -1472,14 +1475,58 @@ void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
   ammo += maxAmmo >> 1;
   
   if( ammo > maxAmmo )
-    ammo = maxAmmo;
+    ammo = maxAmmo;*/
 
-  BG_packAmmoArray( weapon, ps->ammo, ps->powerups, ammo, clips, maxClips );
+  BG_packAmmoArray( weapon, ps->ammo, ps->powerups, maxAmmo, maxClips, maxClips );
 
   G_AddEvent( activator, EV_RPTUSE_SOUND, 0 );
   activator->client->lastRefilTime = level.time;
 }
 
+/*
+================
+HReactor_Think
+
+Think function for Human Reactor
+================
+*/
+void HReactor_Think( gentity_t *self )
+{
+  int       entityList[ MAX_GENTITIES ];
+  vec3_t    range = { REACTOR_ATTACK_RANGE, REACTOR_ATTACK_RANGE, REACTOR_ATTACK_RANGE };
+  vec3_t    mins, maxs;
+  int       i, num;
+  gentity_t *enemy, *tent;
+
+  VectorAdd( self->s.origin, range, maxs );
+  VectorSubtract( self->s.origin, range, mins );
+  
+  if( self->spawned && ( self->health > 0 ) )
+  {
+    //do some damage
+    num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+    for( i = 0; i < num; i++ )
+    {
+      enemy = &g_entities[ entityList[ i ] ];
+      
+      if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      {
+        self->timestamp = level.time;
+        G_SelectiveRadiusDamage( self->s.pos.trBase, self, REACTOR_ATTACK_DAMAGE,
+          REACTOR_ATTACK_RANGE, self, MOD_REACTOR, PTE_HUMANS );
+        
+        tent = G_TempEntity( enemy->s.pos.trBase, EV_TESLATRAIL );
+
+        VectorCopy( self->s.pos.trBase, tent->s.origin2 );
+        
+        tent->s.generic1 = self->s.number; //src
+        tent->s.clientNum = enemy->s.number; //dest
+      }
+    }
+  }
+
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
+}
 
 //==================================================================================
 
@@ -2067,6 +2114,9 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       attacker->client->ps.persistant[ PERS_CREDIT ] += REACTOR_VALUE;
     else if( self->s.modelindex == BA_H_SPAWN )
       attacker->client->ps.persistant[ PERS_CREDIT ] += HSPAWN_VALUE;
+    
+    if( attacker->client->ps.persistant[ PERS_CREDIT ] > ALIEN_MAX_KILLS )
+      attacker->client->ps.persistant[ PERS_CREDIT ] = ALIEN_MAX_KILLS;
   }
 }
 
@@ -2503,6 +2553,7 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       break;
       
     case BA_H_REACTOR:
+      built->think = HReactor_Think;
       built->die = HSpawn_Die;
       built->use = HRpt_Use;
       built->powered = built->active = qtrue;

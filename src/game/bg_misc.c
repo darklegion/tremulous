@@ -519,7 +519,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
-    -1,                    //int       nextthink;
+    REACTOR_ATTACK_REPEAT, //int       nextthink;
     REACTOR_BT,            //int       buildTime;
     qtrue,                 //qboolean  usable;
     0,                     //int       turretRange;

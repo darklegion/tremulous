@@ -697,7 +697,15 @@ Return tha length of a spawn queue
 */
 int G_GetSpawnQueueLength( spawnQueue_t *sq )
 {
-  return ( sq->back - sq->front + 1 ) % MAX_CLIENTS;
+  int length = sq->back - sq->front + 1;
+
+  while( length < 0 )
+    length += MAX_CLIENTS;
+
+  while( length >= MAX_CLIENTS )
+    length -= MAX_CLIENTS;
+  
+  return length;
 }
 
 /*

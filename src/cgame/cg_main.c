@@ -305,6 +305,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_debugParticles, "cg_debugParticles", "0", CVAR_CHEAT },
   { &cg_debugPVS, "cg_debugPVS", "0", CVAR_CHEAT },
   { &cg_disableBuildWarnings, "cg_disableBuildWarnings", "0", CVAR_ARCHIVE },
+  { &cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
   
   { &ui_currentClass, "ui_currentClass", "0", 0 },
   { &ui_carriage, "ui_carriage", "", 0 },
