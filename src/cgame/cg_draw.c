@@ -727,6 +727,90 @@ static void CG_DrawPlayerClipsRing( rectDef_t *rect, vec4_t color, qhandle_t sha
   trap_R_SetColor( NULL );
 }
 
+/*
+==============
+CG_DrawPlayerBoosted
+==============
+*/
+static void CG_DrawPlayerBoosted( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  playerState_t *ps = &cg.snap->ps;
+  qboolean      boosted = ps->stats[ STAT_STATE ] & SS_BOOSTED;
+
+  if( !boosted )
+    return;
+
+  if( color[ 3 ] != 0.0 )
+    trap_R_SetColor( color );
+  
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
+}
+
+/*
+==============
+CG_DrawPlayerPoisonBarbs
+==============
+*/
+static void CG_DrawPlayerPoisonBarbs( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  playerState_t *ps = &cg.snap->ps;
+  int           x = rect->x;
+  int           y = rect->y;
+  int           width = rect->w;
+  int           height = rect->h;
+  qboolean      vertical;
+  int           iconsize, numBarbs, i;
+
+  BG_unpackAmmoArray( ps->weapon, ps->ammo, ps->powerups, &numBarbs, NULL, NULL );
+  
+  if( height > width )
+  {
+    vertical = qtrue;
+    iconsize = width;
+  }
+  else if( height <= width )
+  {
+    vertical = qfalse;
+    iconsize = height;
+  }
+  
+  if( color[ 3 ] != 0.0 )
+    trap_R_SetColor( color );
+  
+  for( i = 0; i < numBarbs; i ++ )
+  {
+    if( vertical )
+      y += iconsize;
+    else
+      x += iconsize;
+    
+    CG_DrawPic( x, y, iconsize, iconsize, shader );
+  }
+  
+  trap_R_SetColor( NULL );
+}
+
+/*
+==============
+CG_DrawPlayerWallclimbing
+==============
+*/
+static void CG_DrawPlayerWallclimbing( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  playerState_t *ps = &cg.snap->ps;
+  qboolean      ww = ps->stats[ STAT_STATE ] & SS_WALLCLIMBING;
+
+  if( !ww )
+    return;
+
+  if( color[ 3 ] != 0.0 )
+    trap_R_SetColor( color );
+  
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
+}
+
 static void CG_DrawPlayerStamina( rectDef_t *rect, vec4_t color, float scale,
                                   int align, int textStyle, int special )
 {
@@ -1913,6 +1997,15 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       break;
     case CG_PLAYER_CLIPS_RING:
       CG_DrawPlayerClipsRing( &rect, color, shader );
+      break;
+    case CG_PLAYER_WALLCLIMBING:
+      CG_DrawPlayerWallclimbing( &rect, color, shader );
+      break;
+    case CG_PLAYER_BOOSTED:
+      CG_DrawPlayerBoosted( &rect, color, shader );
+      break;
+    case CG_PLAYER_POISON_BARBS:
+      CG_DrawPlayerPoisonBarbs( &rect, color, shader );
       break;
     case CG_AREA_SYSTEMCHAT:
       CG_DrawAreaSystemChat( &rect, scale, color, shader );
