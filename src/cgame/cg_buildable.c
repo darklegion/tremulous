@@ -201,7 +201,6 @@ void CG_HumanBuildableExplosion( vec3_t origin, vec3_t dir )
 }
 
 
-#define CREEP_SCALEDOWN_TIME  3000
 #define CREEP_SIZE            64.0f
 
 /*
@@ -792,6 +791,9 @@ static void CG_BuildableParticleEffects( centity_t *cent )
   buildableTeam_t team = BG_FindTeamForBuildable( es->modelindex );
   int             health = es->generic1 & ~( B_POWERED_TOGGLEBIT | B_DCCED_TOGGLEBIT | B_SPAWNED_TOGGLEBIT );
   float           healthFrac = (float)health / B_HEALTH_SCALE;
+  
+  if( !( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
+    return;
   
   if( team == BIT_HUMANS )
   {

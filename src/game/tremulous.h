@@ -38,7 +38,7 @@
 #define ABUILDER_BLOB_TIME          5000
 
 #define SOLDIER_BITE_DMG            ADM(60)
-#define SOLDIER_BITE_RANGE          80.0f
+#define SOLDIER_BITE_RANGE          64.0f
 #define SOLDIER_BITE_REPEAT         500
 
 #define HYDRA_CLAW_DMG              ADM(40)
@@ -189,37 +189,38 @@
 #define CREEP_TIMEOUT               1000
 #define CREEP_MODIFIER              0.5f
 #define CREEP_ARMOUR_MODIFIER       0.75f
+#define CREEP_SCALEDOWN_TIME        3000
 
 #define ASPAWN_BP                   100
-#define ASPAWN_BT                   10000
+#define ASPAWN_BT                   15000
 #define ASPAWN_HEALTH               ABHM(500)
-#define ASPAWN_REGEN                10
+#define ASPAWN_REGEN                8
 #define ASPAWN_SPLASHDAMAGE         50
 #define ASPAWN_SPLASHRADIUS         50
 #define ASPAWN_CREEPSIZE            120
 #define ASPAWN_VALUE                150
 
 #define BARRICADE_BP                80
-#define BARRICADE_BT                10000
+#define BARRICADE_BT                20000
 #define BARRICADE_HEALTH            ABHM(350)
-#define BARRICADE_REGEN             15
+#define BARRICADE_REGEN             12
 #define BARRICADE_SPLASHDAMAGE      50
 #define BARRICADE_SPLASHRADIUS      50
 #define BARRICADE_CREEPSIZE         120
 
 #define BOOSTER_BP                  120
-#define BOOSTER_BT                  10000
+#define BOOSTER_BT                  15000
 #define BOOSTER_HEALTH              ABHM(300)
-#define BOOSTER_REGEN               10
+#define BOOSTER_REGEN               8
 #define BOOSTER_SPLASHDAMAGE        50
 #define BOOSTER_SPLASHRADIUS        50
 #define BOOSTER_CREEPSIZE           120
 #define BOOSTER_INTERVAL            30000 //time in msec between uses (per player)
 
 #define ACIDTUBE_BP                 50
-#define ACIDTUBE_BT                 10000
+#define ACIDTUBE_BT                 15000
 #define ACIDTUBE_HEALTH             ABHM(200)
-#define ACIDTUBE_REGEN              10
+#define ACIDTUBE_REGEN              8
 #define ACIDTUBE_SPLASHDAMAGE       40
 #define ACIDTUBE_SPLASHRADIUS       300
 #define ACIDTUBE_CREEPSIZE          120
@@ -227,9 +228,9 @@
 #define ACIDTUBE_REPEAT             3000
 
 #define HIVE_BP                     50
-#define HIVE_BT                     10000
+#define HIVE_BT                     20000
 #define HIVE_HEALTH                 ABHM(200)
-#define HIVE_REGEN                  10
+#define HIVE_REGEN                  8
 #define HIVE_SPLASHDAMAGE           30
 #define HIVE_SPLASHRADIUS           200
 #define HIVE_CREEPSIZE              120
@@ -240,9 +241,9 @@
 #define HIVE_DIR_CHANGE_PERIOD      500
 
 #define TRAPPER_BP                  150
-#define TRAPPER_BT                  5000
+#define TRAPPER_BT                  12000
 #define TRAPPER_HEALTH              ABHM(80)
-#define TRAPPER_REGEN               8
+#define TRAPPER_REGEN               6
 #define TRAPPER_SPLASHDAMAGE        15
 #define TRAPPER_SPLASHRADIUS        100
 #define TRAPPER_CREEPSIZE           30
@@ -252,9 +253,9 @@
 #define LOCKBLOB_DOT                0.85f // max angle = acos( LOCKBLOB_DOT )
 
 #define OVERMIND_BP                 0
-#define OVERMIND_BT                 20000
+#define OVERMIND_BT                 30000
 #define OVERMIND_HEALTH             ABHM(1000)
-#define OVERMIND_REGEN              15
+#define OVERMIND_REGEN              10
 #define OVERMIND_SPLASHDAMAGE       100
 #define OVERMIND_SPLASHRADIUS       300
 #define OVERMIND_CREEPSIZE          120
@@ -263,7 +264,7 @@
 #define OVERMIND_VALUE              300
 
 #define HOVEL_BP                    80
-#define HOVEL_BT                    10000
+#define HOVEL_BT                    15000
 #define HOVEL_HEALTH                ABHM(750)
 #define HOVEL_REGEN                 20
 #define HOVEL_SPLASHDAMAGE          20
@@ -372,8 +373,8 @@
 #define LCANNON_REPEAT              500
 #define LCANNON_CHARGEREPEAT        1000
 #define LCANNON_RELOAD              2000
-#define LCANNON_DAMAGE              HDM(400)
-#define LCANNON_RADIUS              200
+#define LCANNON_DAMAGE              HDM(300)
+#define LCANNON_RADIUS              150
 #define LCANNON_SECONDARY_DAMAGE    HDM(30)
 #define LCANNON_SECONDARY_RADIUS    75
 #define LCANNON_SPEED               250
@@ -457,7 +458,7 @@
 
 #define MGTURRET_BP                 80
 #define MGTURRET_BT                 10000
-#define MGTURRET_HEALTH             HBHM(250)
+#define MGTURRET_HEALTH             HBHM(500)
 #define MGTURRET_SPLASHDAMAGE       50
 #define MGTURRET_SPLASHRADIUS       100
 #define MGTURRET_ANGULARSPEED       5  //degrees/think ~= 200deg/sec
@@ -466,7 +467,7 @@
 #define MGTURRET_REPEAT             100
 #define MGTURRET_RANGE              250
 #define MGTURRET_SPREAD             200
-#define MGTURRET_DMG                HDM(5)
+#define MGTURRET_DMG                HDM(6)
 #define MGTURRET_DCC_ANGULARSPEED       7
 #define MGTURRET_DCC_ACCURACYTOLERANCE  MGTURRET_DCC_ANGULARSPEED / 1.5f
 

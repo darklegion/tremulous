@@ -1926,7 +1926,7 @@ static void PM_GroundClimbTrace( void )
           vectoangles( trace.plane.normal, toAngles );
           vectoangles( pm->ps->grapplePoint, surfAngles );
 
-          pm->ps->delta_angles[ 1 ] -= ANGLE2SHORT( ( ( surfAngles[ 1 ] - toAngles[ 1 ] ) * 2 ) - 180 );
+          pm->ps->delta_angles[ 1 ] -= ANGLE2SHORT( ( ( surfAngles[ 1 ] - toAngles[ 1 ] ) * 2 ) - 180.0f );
         }
       }
 
@@ -1949,7 +1949,6 @@ static void PM_GroundClimbTrace( void )
     else if( trace.allsolid )
     {
       // do something corrective if the trace starts in a solid...
-      //TA: fuck knows what this does with all my new stuff :(
       if( !PM_CorrectAllSolid( &trace ) )
         return;
     }

@@ -189,6 +189,7 @@ struct gentity_s
   qboolean          powered;      //TA: for human buildables
   int               builtBy;      //TA: clientNum of person that built this
   gentity_t         *dccNode;     //TA: controlling dcc
+  gentity_t         *overmindNode;//TA: controlling overmind
   qboolean          dcced;        //TA: controlled by a dcc or not?
   qboolean          spawned;      //TA: whether or not this buildable has finished spawning
   int               buildTime;    //TA: when this buildable was built
@@ -196,6 +197,8 @@ struct gentity_s
   int               overmindAttackTimer;
   int               overmindDyingTimer;
   int               overmindSpawnsTimer;
+  int               nextPhysicsTime; //TA: buildables don't need to check what they're sitting on
+                                     //    every single frame.. so only do it periodically
 
   int               credits[ MAX_CLIENTS ]; //TA: human credits for each client
   qboolean          creditsHash[ MAX_CLIENTS ]; //TA: track who has claimed credit

@@ -268,6 +268,62 @@ static qboolean isDCC( )
 
 /*
 ================
+findOvermind
+
+Attempt to find an overmind for self
+================
+*/
+static qboolean findOvermind( gentity_t *self )
+{
+  int       i;
+  gentity_t *ent;
+  gentity_t *closestOvermind;
+  int       distance = 0;
+  int       minDistance = 10000;
+  vec3_t    temp_v;
+  qboolean  foundOvermind = qfalse;
+
+  if( self->biteam != BIT_ALIENS )
+    return qfalse;
+  
+  //if this already has dcc then stop now
+  if( self->overmindNode )
+    return qtrue;
+  
+  //reset parent
+  self->overmindNode = NULL;
+  
+  //iterate through entities
+  for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  {
+    if( !ent->classname || ent->s.eType != ET_BUILDABLE )
+      continue;
+
+    //if entity is a dcc calculate the distance to it
+    if( ent->s.modelindex == BA_A_OVERMIND && ent->spawned )
+    {
+      VectorSubtract( self->s.origin, ent->s.origin, temp_v );
+      distance = VectorLength( temp_v );
+      if( distance < minDistance && ent->powered )
+      {
+        closestOvermind = ent;
+        minDistance = distance;
+        foundOvermind = qtrue;
+      }
+    }
+  }
+
+  //if there were no power items nearby give up
+  if( !foundOvermind )
+    return qfalse;
+  
+  self->overmindNode = closestOvermind;
+
+  return qtrue;
+}
+
+/*
+================
 findCreep
 
 attempt to find creep for self, return qtrue if successful
@@ -413,7 +469,14 @@ void A_CreepRecede( gentity_t *self )
   {
     self->s.eFlags |= EF_DEAD;
     G_AddEvent( self, EV_BUILD_DESTROY, 0 );
-    self->s.time = -level.time;
+
+    if( self->spawned )
+      self->s.time = -level.time;
+    else
+      self->s.time = -( level.time -
+          (int)( (float)CREEP_SCALEDOWN_TIME *
+                 ( 1.0f - ( (float)( level.time - self->buildTime ) /
+                            (float)BG_FindBuildTimeForBuildable( self->s.modelindex ) ) ) ) );
   }
   
   //creep is still receeding
@@ -448,7 +511,14 @@ void ASpawn_Melt( gentity_t *self )
   {
     self->s.eFlags |= EF_DEAD;
     G_AddEvent( self, EV_BUILD_DESTROY, 0 );
-    self->s.time = -level.time;
+    
+    if( self->spawned )
+      self->s.time = -level.time;
+    else
+      self->s.time = -( level.time -
+          (int)( (float)CREEP_SCALEDOWN_TIME *
+                 ( 1.0f - ( (float)( level.time - self->buildTime ) /
+                            (float)BG_FindBuildTimeForBuildable( self->s.modelindex ) ) ) ) );
   }
   
   //not dead yet
@@ -500,7 +570,12 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   self->die = nullDieFunction;
   self->think = ASpawn_Blast;
-  self->nextthink = level.time + 5000; //wait .5 seconds before damaging others
+  
+  if( self->spawned )
+    self->nextthink = level.time + 5000;
+  else
+    self->nextthink = level.time; //blast immediately
+  
   self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
     
   if( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
@@ -523,7 +598,7 @@ void ASpawn_Think( gentity_t *self )
 {
   gentity_t *ent;
 
-  if( self->spawned )
+  if( self->spawned )  
   {
     //only suicide if at rest
     if( self->s.groundEntityNum )
@@ -706,7 +781,11 @@ void ABarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
   self->die = nullDieFunction;
   self->think = ABarricade_Blast;
   self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
-  self->nextthink = level.time + 5000;
+  
+  if( self->spawned )
+    self->nextthink = level.time + 5000;
+  else
+    self->nextthink = level.time; //blast immediately
 }
 
 /*
@@ -800,7 +879,7 @@ void AAcidTube_Think( gentity_t *self )
     return;
   }
   
-  if( self->spawned )
+  if( self->spawned && findOvermind( self ) )  
   {
     //do some damage
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
@@ -866,7 +945,7 @@ void AHive_Think( gentity_t *self )
   if( self->timestamp < level.time )
     self->active = qfalse; //nothing has returned in HIVE_REPEAT seconds, forget about it
   
-  if( self->spawned && !self->active )
+  if( self->spawned && !self->active && findOvermind( self ) )  
   {
     //do some damage
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
@@ -999,7 +1078,7 @@ void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
   vec3_t  hovelOrigin, hovelAngles, inverseNormal;
   
-  if( self->spawned )
+  if( self->spawned && findOvermind( self ) )  
   {
     if( self->active )
     {
@@ -1141,6 +1220,9 @@ void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
   gclient_t *client = other->client;
   
   if( !self->spawned )
+    return;
+  
+  if( !findOvermind( self ) )
     return;
 
   if( !client )
@@ -1307,7 +1389,7 @@ void ATrapper_Think( gentity_t *self )
     return;
   }
 
-  if( self->spawned )
+  if( self->spawned && findOvermind( self ) )
   {
     //if the current target is not valid find a new one
     if( !ADef_CheckTarget( self, self->enemy, range ) )
@@ -1932,9 +2014,13 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   
   self->die = nullDieFunction;
   self->think = HSpawn_Blast;
-  self->nextthink = level.time + HUMAN_DETONATION_DELAY;
   self->powered = qfalse; //free up power
   self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
+  
+  if( self->spawned )
+    self->nextthink = level.time + HUMAN_DETONATION_DELAY;
+  else
+    self->nextthink = level.time; //blast immediately
 
   if( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
@@ -1999,17 +2085,15 @@ void G_BuildableThink( gentity_t *ent, int msec )
 {
   int bHealth = BG_FindHealthForBuildable( ent->s.modelindex );
   int bRegen = BG_FindRegenRateForBuildable( ent->s.modelindex );
+  int bTime = BG_FindBuildTimeForBuildable( ent->s.modelindex );
 
   //pack health, power and dcc
 
   //toggle spawned flag for buildables
   if( !ent->spawned )
   {
-    if( ent->buildTime + BG_FindBuildTimeForBuildable( ent->s.modelindex ) < level.time )
-    {
-      ent->takedamage = qtrue;
+    if( ent->buildTime + bTime < level.time )
       ent->spawned = qtrue;
-    }
   }
   
   ent->s.generic1 = (int)( ( (float)ent->health / (float)bHealth ) * B_HEALTH_SCALE );
@@ -2032,14 +2116,13 @@ void G_BuildableThink( gentity_t *ent, int msec )
   {
     ent->time1000 -= 1000;
     
-    //regenerate health
-    if( ent->health > 0 && ent->health < bHealth && bRegen )
-    {
+    if( !ent->spawned )
+      ent->health += (int)( ceil( (float)bHealth / (float)( bTime * 0.001 ) ) );
+    else if( ent->health > 0 && ent->health < bHealth && bRegen )
       ent->health += bRegen;
-
-      if( ent->health > bHealth )
-        ent->health = bHealth;
-    }
+      
+    if( ent->health > bHealth )
+      ent->health = bHealth;
   }
 
   //fall back on normal physics routines
@@ -2306,7 +2389,7 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   built->biteam = built->s.modelindex2 = BG_FindTeamForBuildable( buildable );
 
   BG_FindBBoxForBuildable( buildable, built->r.mins, built->r.maxs );
-  built->health = BG_FindHealthForBuildable( buildable );
+  built->health = 1;
   
   built->splashDamage = BG_FindSplashDamageForBuildable( buildable );
   built->splashRadius = BG_FindSplashRadiusForBuildable( buildable );
@@ -2314,7 +2397,7 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   
   built->nextthink = BG_FindNextThinkForBuildable( buildable );
   
-  built->takedamage = qfalse;
+  built->takedamage = qtrue;
   built->spawned = qfalse;
   built->buildTime = built->s.time = level.time;
 
@@ -2595,6 +2678,7 @@ void FinishSpawningBuildable( gentity_t *ent )
 
   built->takedamage = qtrue;
   built->spawned = qtrue; //map entities are already spawned
+  built->health = BG_FindHealthForBuildable( buildable );
   built->s.generic1 |= B_SPAWNED_TOGGLEBIT;
   
   // drop to floor

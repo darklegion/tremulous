@@ -680,7 +680,7 @@ void countSpawns( void )
   level.numAlienSpawns = 0;
   level.numHumanSpawns = 0;
   
-  for ( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
+  for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
   {
     if( !ent->inuse )
       continue;
@@ -703,34 +703,38 @@ Recalculate the quantity of building points available to the teams
 */
 void calculateBuildPoints( void )
 {
-  int       i;
-  int       bclass;
-  gentity_t *ent;
-  int       localHTP = g_humanBuildPoints.integer,
-            localATP = g_alienBuildPoints.integer;
+  int         i;
+  int         bclass;
+  buildable_t buildable;
+  gentity_t   *ent;
+  int         localHTP = g_humanBuildPoints.integer,
+              localATP = g_alienBuildPoints.integer;
 
   level.humanBuildPoints = level.humanBuildPointsPowered = localHTP;
   level.alienBuildPoints = localATP;
 
-  for ( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
+  for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
   {
-    if (!ent->inuse)
+    if( !ent->inuse )
       continue;
 
-    bclass = BG_FindBuildNumForEntityName( ent->classname );
+    if( ent->s.eType != ET_BUILDABLE )
+      continue;
+
+    buildable = ent->s.modelindex;
     
-    if( bclass != BA_NONE )
+    if( buildable != BA_NONE )
     {
-      if( BG_FindTeamForBuildable( bclass ) == BIT_HUMANS )
+      if( BG_FindTeamForBuildable( buildable ) == BIT_HUMANS )
       {
-        level.humanBuildPoints -= BG_FindBuildPointsForBuildable( bclass );
+        level.humanBuildPoints -= BG_FindBuildPointsForBuildable( buildable );
 
         if( ent->powered )
-          level.humanBuildPointsPowered -= BG_FindBuildPointsForBuildable( bclass );
+          level.humanBuildPointsPowered -= BG_FindBuildPointsForBuildable( buildable );
       }
       else
       {
-        level.alienBuildPoints -= BG_FindBuildPointsForBuildable( bclass );
+        level.alienBuildPoints -= BG_FindBuildPointsForBuildable( buildable );
       }
     }
   }

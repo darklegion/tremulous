@@ -1475,12 +1475,12 @@ static qboolean CG_WeaponSelectable( int i )
 
   BG_unpackAmmoArray( i, cg.snap->ps.ammo, cg.snap->ps.powerups, &ammo, &clips, &maxclips );
   
-  if ( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( i ) ) {
+  //TA: this is a pain in the ass
+/*  if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( i ) )
+    return qfalse;*/
+  
+  if( !BG_gotWeapon( i, cg.snap->ps.stats ) )
     return qfalse;
-  }
-  if ( !BG_gotWeapon( i, cg.snap->ps.stats ) ) {
-    return qfalse;
-  }
 
   return qtrue;
 }

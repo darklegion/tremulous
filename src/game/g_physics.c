@@ -68,6 +68,7 @@ static void G_Bounce( gentity_t *ent, trace_t *trace )
   ent->s.pos.trTime = level.time;
 }
 
+#define PHYSICS_TIME 200
 
 /*
 ================
@@ -111,14 +112,20 @@ void G_Physics( gentity_t *ent, int msec )
     // check think function
     G_RunThink( ent );
 
-    VectorCopy( ent->r.currentOrigin, origin );
+    //check floor infrequently
+    if( ent->nextPhysicsTime < level.time )
+    {
+      VectorCopy( ent->r.currentOrigin, origin );
 
-    VectorMA( origin, -2.0f, ent->s.origin2, origin );
+      VectorMA( origin, -2.0f, ent->s.origin2, origin );
 
-    trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, ent->s.number, mask );
-    
-    if( tr.fraction == 1.0 )
-      ent->s.groundEntityNum = -1;
+      trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, ent->s.number, mask );
+      
+      if( tr.fraction == 1.0f )
+        ent->s.groundEntityNum = -1;
+
+      ent->nextPhysicsTime = level.time + PHYSICS_TIME;
+    }
 
     return;
   }
@@ -138,7 +145,7 @@ void G_Physics( gentity_t *ent, int msec )
   // check think function
   G_RunThink( ent );
 
-  if( tr.fraction == 1 ) 
+  if( tr.fraction == 1.0f ) 
     return;
 
   // if it is in a nodrop volume, remove it

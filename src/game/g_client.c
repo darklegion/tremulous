@@ -1381,7 +1381,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
         VectorNormalize( dir );
 
         VectorScale( dir, UP_VEL, client->ps.velocity );
-        
       }
       
       G_AddPredictableEvent( ent, EV_PLAYER_RESPAWN, 0 );
@@ -1402,7 +1401,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     // force the base weapon up
     client->ps.weapon = WP_NONE;
     client->ps.weaponstate = WEAPON_READY;
-
   }
 
   // don't allow full run speed for a bit

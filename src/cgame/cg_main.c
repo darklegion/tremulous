@@ -1446,7 +1446,8 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
     switch( column )
     {
       case 0:
-        if( atoi( CG_ConfigString( CS_CLIENTS_READY ) ) & ( 1 << sp->client ) )
+        if( ( atoi( CG_ConfigString( CS_CLIENTS_READY ) ) & ( 1 << sp->client ) ) &&
+            cg.intermissionStarted )
           return "Ready";
         break;
         

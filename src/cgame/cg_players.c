@@ -1342,7 +1342,7 @@ static void CG_PlayerWWSmoothing( centity_t *cent, vec3_t in[ 3 ], vec3_t out[ 3
     if( VectorCompare( ceilingNormal, cent->pe.lastNormal ) &&
         VectorCompare( refNormal,     surfNormal ) )
     {
-      VectorCopy( in, rotAxis );
+      VectorCopy( in[ 1 ], rotAxis );
       rotAngle = 180.0f;
     }
     else
@@ -1714,10 +1714,24 @@ Returns the Z component of the surface being shadowed
 #define SHADOW_DISTANCE   128
 static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane, pClass_t class )
 {
-  vec3_t    end, mins = { -15, -15, 0 }, maxs = { 15, 15, 2 };
-  trace_t   trace;
-  float     alpha;
+  vec3_t        end, mins, maxs;
+  trace_t       trace;
+  float         alpha;
+  entityState_t *es = &cent->currentState;
+  vec3_t        surfNormal = { 0.0f, 0.0f, 1.0f };
 
+  BG_FindBBoxForClass( class, mins, maxs, NULL, NULL, NULL );
+  mins[ 2 ] = 0.0f;
+  maxs[ 2 ] = 2.0f;
+  
+  if( es->eFlags & EF_WALLCLIMB )
+  {
+    if( es->eFlags & EF_WALLCLIMBCEILING )
+      VectorSet( surfNormal, 0.0f, 0.0f, -1.0f );
+    else
+      VectorCopy( es->angles2, surfNormal );
+  }
+      
   *shadowPlane = 0;
 
   if( cg_shadows.integer == 0 )
@@ -1725,7 +1739,7 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane, pClass_t c
 
   // send a trace down from the player to the ground
   VectorCopy( cent->lerpOrigin, end );
-  end[ 2 ] -= SHADOW_DISTANCE;
+  VectorMA( cent->lerpOrigin, -SHADOW_DISTANCE, surfNormal, end );
 
   trap_CM_BoxTrace( &trace, cent->lerpOrigin, end, mins, maxs, 0, MASK_PLAYERSOLID );
 
@@ -1733,7 +1747,14 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane, pClass_t c
   if( trace.fraction == 1.0 || trace.startsolid || trace.allsolid )
     return qfalse;
 
-  *shadowPlane = trace.endpos[ 2 ] + 1;
+  //TA: FIXME: stencil shadows will be broken for walls.
+  //           Unfortunately there isn't much that can be
+  //           done since Q3 references only the Z coord
+  //           of the shadowPlane
+  if( surfNormal[ 2 ] < 0.0f )
+    *shadowPlane = trace.endpos[ 2 ] - 1.0f;
+  else
+    *shadowPlane = trace.endpos[ 2 ] + 1.0f;
 
   if( cg_shadows.integer != 1 )  // no mark for stencil or projection shadows
     return qtrue;
@@ -1744,8 +1765,8 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane, pClass_t c
   // add the mark as a temporary, so it goes directly to the renderer
   // without taking a spot in the cg_marks array
   CG_ImpactMark( cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal,
-                 cent->pe.legs.yawAngle, alpha,alpha,alpha,1, qfalse,
-                 24 * BG_FindShadowScaleForClass( class ), qtrue );
+                 cent->pe.legs.yawAngle, alpha, alpha, alpha, 1, qfalse,
+                 24.0f * BG_FindShadowScaleForClass( class ), qtrue );
 
   return qtrue;
 }
@@ -1964,7 +1985,7 @@ int CG_AmbientLight( vec3_t point )
   return (int)((float)( result[ 0 ] + result[ 1 ] + result[ 2 ] ) / 3.0f );
 }
 
-#define TRACE_DEPTH 128.0f
+#define TRACE_DEPTH 32.0f
 
 /*
 ===============
@@ -1982,7 +2003,7 @@ void CG_Player( centity_t *cent )
   refEntity_t   head;
   int           clientNum;
   int           renderfx;
-  qboolean      shadow;
+  qboolean      shadow = qfalse;
   float         shadowPlane;
   entityState_t *es = &cent->currentState;
   pClass_t      class = ( es->powerups >> 8 ) & 0xFF;
@@ -2068,6 +2089,8 @@ void CG_Player( centity_t *cent )
   CG_PlayerSprites( cent );
 
   // add the shadow
+  if( ( es->number == cg.snap->ps.clientNum && cg.renderingThirdPerson ) ||
+      es->number != cg.snap->ps.clientNum )
   shadow = CG_PlayerShadow( cent, &shadowPlane, class );
 
   // add a water splash if partially in and out of water
@@ -2119,7 +2142,11 @@ void CG_Player( centity_t *cent )
     VectorMA( legs.origin, -TRACE_DEPTH, surfNormal, end );
     VectorMA( legs.origin, 1.0f, surfNormal, start );
     CG_CapTrace( &tr, start, mins, maxs, end, es->number, MASK_PLAYERSOLID );
-    VectorMA( legs.origin, tr.fraction * -TRACE_DEPTH, surfNormal, legs.origin );
+
+    //if the trace misses completely then just use legs.origin
+    //apparently capsule traces are "smaller" than box traces
+    if( tr.fraction != 1.0f )
+      VectorMA( legs.origin, tr.fraction * -TRACE_DEPTH, surfNormal, legs.origin );
 
     VectorCopy( legs.origin, legs.lightingOrigin );
     VectorCopy( legs.origin, legs.oldorigin ); // don't positionally lerp at all
@@ -2229,7 +2256,7 @@ void CG_Corpse( centity_t *cent )
   entityState_t *es = &cent->currentState;
   int           corpseNum;
   int           renderfx;
-  qboolean      shadow;
+  qboolean      shadow = qfalse;
   float         shadowPlane;
   vec3_t        origin, liveZ, deadZ;
   float         scale;
