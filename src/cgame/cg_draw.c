@@ -412,12 +412,8 @@ static void CG_DrawPlayerStamina( rectDef_t *rect )
   playerState_t *ps = &cg.snap->ps;
   int stamina = ps->stats[ STAT_STAMINA ];
   int height = (int)( (float)stamina / ( MAX_STAMINA / ( rect->h / 2 ) ) );
-  vec4_t bcolor = { 0.5f, 0.5f, 0.5f, 0.5f };
-  vec4_t pos =    { 0.0f, 0.5f, 0.0f, 0.5f };
-  vec4_t neg =    { 0.5f, 0.0f, 0.0f, 0.5f };
-
-  trap_R_SetColor( bcolor );   // white
-  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, cgs.media.whiteShader );
+  vec4_t pos =    { 0.0f, 1.0f, 0.0f, 0.5f };
+  vec4_t neg =    { 1.0f, 0.0f, 0.0f, 0.5f };
 
   if( stamina > 0 )
   {
@@ -1446,6 +1442,66 @@ static void CG_DrawLagometer( rectDef_t *rect, qhandle_t shader )
   CG_DrawDisconnect();
 }
 
+/*
+==============
+CG_DrawConsole
+==============
+*/
+static void CG_DrawConsole( rectDef_t *rect, float text_x, float text_y, vec4_t color,
+                            float scale, int align, int textStyle )
+{
+  float     x, y, w, h;
+  menuDef_t dummyParent;
+  itemDef_t textItem;
+
+  //offset the text
+  x = rect->x;
+  y = rect->y;
+  w = rect->w - ( 16 + ( 2 * text_x ) ); //16 to ensure text within frame
+  h = rect->h;
+
+  textItem.text = cg.consoleText;
+    
+  textItem.parent = &dummyParent;
+  memcpy( textItem.window.foreColor, color, sizeof( vec4_t ) );
+  textItem.window.flags = 0;
+
+  switch( align )
+  {
+    case ITEM_ALIGN_LEFT:
+      textItem.window.rect.x = x;
+      break;
+
+    case ITEM_ALIGN_RIGHT:
+      textItem.window.rect.x = x + w;
+      break;
+
+    case ITEM_ALIGN_CENTER:
+      textItem.window.rect.x = x + ( w / 2 );
+      break;
+
+    default:
+      textItem.window.rect.x = x;
+      break;
+  }
+  
+  textItem.window.rect.y = y;
+  textItem.window.rect.w = w;
+  textItem.window.rect.h = h;
+  textItem.window.borderSize = 0;
+  textItem.textRect.x = 0;
+  textItem.textRect.y = 0;
+  textItem.textRect.w = 0;
+  textItem.textRect.h = 0;
+  textItem.textalignment = align;
+  textItem.textalignx = text_x;
+  textItem.textaligny = text_y;
+  textItem.textscale = scale;
+  textItem.textStyle = textStyle;
+
+  //hack to utilise existing autowrap code
+  Item_Text_AutoWrapped_Paint( &textItem );
+}
 
 void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
                    float text_y, int ownerDraw, int ownerDrawFlags,
@@ -1550,6 +1606,10 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       break;
     case CG_LAGOMETER:
       CG_DrawLagometer( &rect, shader );
+      break;
+      
+    case CG_CONSOLE:
+      CG_DrawConsole( &rect, text_x, text_y, color, scale, align, textStyle );
       break;
       
     default:

@@ -2813,76 +2813,216 @@ void Item_TextColor(itemDef_t *item, vec4_t *newColor) {
   }
 }
 
-void Item_Text_AutoWrapped_Paint(itemDef_t *item) {
-  char text[1024];
-  const char *p, *textPtr, *newLinePtr;
-  char buff[1024];
-  int width, height, len, textWidth, newLine, newLineWidth;
-  float y;
-  vec4_t color;
+int Item_Text_AutoWrapped_Lines( itemDef_t *item )
+{
+  char        text[ 1024 ];
+  const char  *p, *textPtr, *newLinePtr;
+  char        buff[ 1024 ];
+  int         len, textWidth, newLine, newLineWidth;
+  vec4_t      color;
+  int         lines = 0;
 
   textWidth = 0;
   newLinePtr = NULL;
 
-  if (item->text == NULL) {
-    if (item->cvar == NULL) {
-      return;
-    }
-    else {
-      DC->getCVarString(item->cvar, text, sizeof(text));
+  if( item->text == NULL )
+  {
+    if( item->cvar == NULL )
+      return 0;
+    else
+    {
+      DC->getCVarString( item->cvar, text, sizeof( text ) );
       textPtr = text;
     }
   }
-  else {
+  else
     textPtr = item->text;
-  }
-  if (*textPtr == '\0') {
-    return;
-  }
-  Item_TextColor(item, &color);
-  Item_SetTextExtents(item, &width, &height, textPtr);
 
-  y = item->textaligny;
+  if( *textPtr == '\0' )
+    return 0;
+
   len = 0;
-  buff[0] = '\0';
+  buff[ 0 ] = '\0';
   newLine = 0;
   newLineWidth = 0;
   p = textPtr;
-  while (p) {
-    if (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\0') {
+  
+  while( p )
+  {
+    textWidth = DC->textWidth( buff, item->textscale, 0 );
+    
+    if( *p == ' ' || *p == '\t' || *p == '\n' || *p == '\0' )
+    {
       newLine = len;
-      newLinePtr = p+1;
+      newLinePtr = p + 1;
       newLineWidth = textWidth;
     }
-    textWidth = DC->textWidth(buff, item->textscale, 0);
-    if ( (newLine && textWidth > item->window.rect.w) || *p == '\n' || *p == '\0') {
-      if (len) {
-        if (item->textalignment == ITEM_ALIGN_LEFT) {
-          item->textRect.x = item->textalignx;
-        } else if (item->textalignment == ITEM_ALIGN_RIGHT) {
-          item->textRect.x = item->textalignx - newLineWidth;
-        } else if (item->textalignment == ITEM_ALIGN_CENTER) {
-          item->textRect.x = item->textalignx - newLineWidth / 2;
-        }
-        item->textRect.y = y;
-        ToWindowCoords(&item->textRect.x, &item->textRect.y, &item->window);
-        //
-        buff[newLine] = '\0';
-        DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, buff, 0, 0, item->textStyle);
-      }
-      if (*p == '\0') {
+
+    //TA: forceably split lines that are too long (where normal splitage has failed)
+    if( textWidth > item->window.rect.w && newLine == 0 )
+    {
+      newLine = len;
+      newLinePtr = p;
+      newLineWidth = textWidth;
+    }
+
+    if( ( newLine && textWidth > item->window.rect.w ) || *p == '\n' || *p == '\0' )
+    {
+      if( len )
+        buff[ newLine ] = '\0';
+      
+      if( !( *p == '\n' && !*( p + 1 ) ) )
+        lines++;
+      
+      if( *p == '\0' )
         break;
-      }
+
       //
-      y += height + 5;
       p = newLinePtr;
       len = 0;
       newLine = 0;
       newLineWidth = 0;
+      
       continue;
     }
-    buff[len++] = *p++;
-    buff[len] = '\0';
+    
+    buff[ len++ ] = *p++;
+    buff[ len ] = '\0';
+  }
+
+  return lines;
+}
+
+void Item_Text_AutoWrapped_Paint( itemDef_t *item )
+{
+  char        text[ 1024 ];
+  const char  *p, *textPtr, *newLinePtr;
+  char        buff[ 1024 ];
+  char        lastCMod[ 2 ] = { 0, 0 };
+  qboolean    forwardColor;
+  int         width, height, len, textWidth, newLine, newLineWidth, skipLines, totalLines;
+  float       y, totalY;
+  vec4_t      color;
+
+  textWidth = 0;
+  newLinePtr = NULL;
+
+  if( item->text == NULL )
+  {
+    if( item->cvar == NULL )
+      return;
+    else
+    {
+      DC->getCVarString( item->cvar, text, sizeof( text ) );
+      textPtr = text;
+    }
+  }
+  else
+    textPtr = item->text;
+
+  if( *textPtr == '\0' )
+    return;
+
+  Item_TextColor( item, &color );
+  Item_SetTextExtents( item, &width, &height, textPtr );
+
+  y = item->textaligny;
+  len = 0;
+  buff[ 0 ] = '\0';
+  newLine = 0;
+  newLineWidth = 0;
+  p = textPtr;
+  
+  skipLines = -1;
+  totalLines = Item_Text_AutoWrapped_Lines( item );
+  
+  do
+  {
+    skipLines++;
+    totalY = ( totalLines - skipLines ) * ( height + 5 );
+  } while( totalY > item->window.rect.h );
+  
+  while( p )
+  {
+    textWidth = DC->textWidth( buff, item->textscale, 0 );
+    
+    if( *p == '^' )
+    {
+      lastCMod[ 0 ] = p[ 0 ];
+      lastCMod[ 1 ] = p[ 1 ];
+    }
+    
+    if( *p == ' ' || *p == '\t' || *p == '\n' || *p == '\0' )
+    {
+      newLine = len;
+      newLinePtr = p+1;
+      newLineWidth = textWidth;
+      
+      if( *p == '\n' ) //don't forward colours past deilberate \n's
+        lastCMod[ 0 ] = lastCMod[ 1 ] = 0;
+      else
+        forwardColor = qtrue;
+    }
+
+    //TA: forceably split lines that are too long (where normal splitage has failed)
+    if( textWidth > item->window.rect.w && newLine == 0 )
+    {
+      newLine = len;
+      newLinePtr = p;
+      newLineWidth = textWidth;
+      
+      forwardColor = qtrue;
+    }
+
+    if( ( newLine && textWidth > item->window.rect.w ) || *p == '\n' || *p == '\0' )
+    {
+      if( len )
+      {
+        if( item->textalignment == ITEM_ALIGN_LEFT )
+          item->textRect.x = item->textalignx;
+        else if( item->textalignment == ITEM_ALIGN_RIGHT )
+          item->textRect.x = item->textalignx - newLineWidth;
+        else if( item->textalignment == ITEM_ALIGN_CENTER )
+          item->textRect.x = item->textalignx - newLineWidth / 2;
+
+        item->textRect.y = y;
+        ToWindowCoords( &item->textRect.x, &item->textRect.y, &item->window );
+        //
+        buff[ newLine ] = '\0';
+
+        if( !skipLines )
+          DC->drawText( item->textRect.x, item->textRect.y, item->textscale, color, buff, 0, 0, item->textStyle );
+      }
+      
+      if( *p == '\0' )
+        break;
+
+      //
+      if( !skipLines )
+        y += height + 5;
+      
+      if( skipLines )
+        skipLines--;
+
+      p = newLinePtr;
+      len = 0;
+      newLine = 0;
+      newLineWidth = 0;
+
+      if( forwardColor && lastCMod[ 0 ] != 0 )
+      {
+        buff[ len++ ] = lastCMod[ 0 ];
+        buff[ len++ ] = lastCMod[ 1 ];
+        buff[ len ] = '\0';
+
+        forwardColor = qfalse;
+      }
+      
+      continue;
+    }
+    
+    buff[ len++ ] = *p++;
+    buff[ len ] = '\0';
   }
 }
 

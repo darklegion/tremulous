@@ -183,6 +183,7 @@ vmCvar_t  cg_debugAlloc;
 vmCvar_t  cg_wwSmoothTime;
 vmCvar_t  cg_wwFollow;
 vmCvar_t  cg_zsortLEs;
+vmCvar_t  cg_consoleLatency;
 
 //TA: hack to get class and carriage through to UI module
 vmCvar_t  ui_currentClass;
@@ -274,6 +275,7 @@ static cvarTable_t   cvarTable[] = {
   { &cg_wwSmoothTime, "cg_wwSmoothTime", "300", CVAR_ARCHIVE },
   { &cg_wwFollow, "cg_wwFollow", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_zsortLEs, "cg_zsortLEs", "1", CVAR_ARCHIVE },
+  { &cg_consoleLatency, "cg_consoleLatency", "3000", CVAR_ARCHIVE },
   
   { &ui_currentClass, "ui_currentClass", "0", 0 },
   { &ui_carriage, "ui_carriage", "", 0 },
@@ -410,6 +412,26 @@ int CG_LastAttacker( void ) {
   return cg.snap->ps.persistant[PERS_ATTACKER];
 }
 
+void CG_RemoveConsoleLine( void )
+{
+  int i, offset, totalLength;
+
+  if( cg.numConsoleLines == 0 )
+    return;
+
+  offset = cg.consoleLines[ 0 ].length;
+  totalLength = strlen( cg.consoleText ) - offset;
+  
+  //slide up consoleText
+  for( i = 0; i <= totalLength; i++ )
+    cg.consoleText[ i ] = cg.consoleText[ i + offset ];
+  
+  //pop up the first consoleLine
+  for( i = 0; i < cg.numConsoleLines; i++ )
+    cg.consoleLines[ i ] = cg.consoleLines[ i + 1 ];
+
+  cg.numConsoleLines--;
+}
 
 void QDECL CG_Printf( const char *msg, ... ) {
   va_list   argptr;
@@ -419,6 +441,15 @@ void QDECL CG_Printf( const char *msg, ... ) {
   vsprintf (text, msg, argptr);
   va_end (argptr);
 
+  //TA: team arena UI based console
+  if( cg.numConsoleLines == MAX_CONSOLE_LINES )
+    CG_RemoveConsoleLine( );
+
+  strcat( cg.consoleText, text );
+  cg.consoleLines[ cg.numConsoleLines ].time = cg.time;
+  cg.consoleLines[ cg.numConsoleLines ].length = strlen( text );
+  cg.numConsoleLines++;
+  
   trap_Print( text );
 }
 
@@ -1638,6 +1669,9 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
   CG_RegisterCvars();
 
   CG_InitConsoleCommands();
+
+  //repress standard Q3 console
+  trap_Cvar_Set( "con_notifytime", "-2" );
   
   //TA: moved up for LoadHudMenu
   String_Init();

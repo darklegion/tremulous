@@ -506,6 +506,15 @@ typedef struct
   int       numHumanClients;
 } entityPos_t;
 
+typedef struct
+{
+  int time;
+  int length;
+} consoleLine_t;
+
+#define MAX_CONSOLE_TEXT  8192
+#define MAX_CONSOLE_LINES 32
+
 // all cg.stepTime, cg.duckTime, cg.landTime, etc are set to cg.time when the action
 // occurs, and they will have visible effects for #define STEP_TIME or whatever msec after
 
@@ -726,6 +735,10 @@ typedef struct {
   entityPos_t ep;
 
   int       lastBuildAttempt;
+
+  char          consoleText[ MAX_CONSOLE_TEXT ];
+  consoleLine_t consoleLines[ MAX_CONSOLE_LINES ];
+  int           numConsoleLines;
 } cg_t;
 
 
@@ -1270,6 +1283,7 @@ extern  vmCvar_t    cg_debugAlloc;
 extern  vmCvar_t    cg_wwSmoothTime;
 extern  vmCvar_t    cg_wwFollow;
 extern  vmCvar_t    cg_zsortLEs;
+extern  vmCvar_t    cg_consoleLatency;
 
 //TA: hack to get class an carriage through to UI module
 extern  vmCvar_t    ui_currentClass;

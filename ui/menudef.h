@@ -225,6 +225,8 @@
 #define CG_SNAPSHOT               89
 #define CG_LAGOMETER              90
 
+#define CG_CONSOLE                91
+
 
 
 #define UI_OWNERDRAW_BASE 200
