@@ -1454,67 +1454,6 @@ static void UI_DrawPreviewCinematic(rectDef_t *rect, float scale, vec4_t color) 
 
 }
 
-
-static void UI_DrawDialogText( rectDef_t *rect, float text_x, float text_y,
-                               vec4_t color, float scale, int align, int textStyle )
-{
-  const char *text = UI_Cvar_VariableString( "ui_dialog" );
-  float tw, th, tx;
-  int   pos, i;
-  char  buffer[ 1024 ];
-  char  *end;
-  
-  if( !text[ 0 ] )
-    return;
-  
-  strcpy( buffer, text );
-  tw = Text_Width( text, scale, 0 );
-  th = scale * 40.0f;
-
-  pos = i = 0;
- 
-  while( pos < strlen( text ) )
-  {
-    strcpy( buffer, &text[ pos ] );
-    tw = Text_Width( buffer, scale, 0 );
-
-    while( tw > rect->w )
-    {
-      end = strrchr( buffer, ' ' );
-      
-      if( end == NULL )
-        break;
-      
-      *end = '\0';
-      tw = Text_Width( buffer, scale, 0 );
-    }
-
-    switch( align )
-    {
-      case ITEM_ALIGN_LEFT:
-        tx = rect->x;
-        break;
-
-      case ITEM_ALIGN_RIGHT:
-        tx = rect->x + rect->w - tw;
-        break;
-
-      case ITEM_ALIGN_CENTER:
-        tx = rect->x + ( rect->w / 2.0f ) - ( tw / 2.0f );
-        break;
-
-      default:
-        tx = 0.0f;
-    }
-    
-    Text_Paint( tx + text_x, rect->y + text_y + i * ( th + 3 ), scale, color,
-      buffer, 0, 0, textStyle );
-    
-    pos += strlen( buffer ) + 1;
-    i++;
-  }
-}
-
 /*
 ===============
 UI_DrawInfoPane
@@ -2084,10 +2023,6 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 
   switch( ownerDraw )
   {
-    case UI_DIALOG:
-      s = UI_Cvar_VariableString( "ui_dialog" );
-      break;
-
     case UI_HANDICAP:
         h = Com_Clamp( 5, 100, trap_Cvar_VariableValue("handicap") );
         i = 20 - h / 5;
@@ -2442,10 +2377,6 @@ static void UI_OwnerDraw( float x, float y, float w, float h,
 
   switch( ownerDraw )
   {
-    case UI_DIALOG:
-      UI_DrawDialogText( &rect, text_x, text_y, color, scale, align, textStyle );
-      break;
-      
     case UI_TEAMINFOPANE:
       if( pane = uiInfo.tremTeamList[ uiInfo.tremTeamIndex ].infopane )
         UI_DrawInfoPane( pane, &rect, scale, color, textStyle );

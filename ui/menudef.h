@@ -281,7 +281,7 @@
 #define UI_MAPS_SELECTION     256
 
 //TA:
-#define UI_DIALOG             257
+//#define UI_DIALOG             257
 #define UI_TEAMINFOPANE       258
 #define UI_ACLASSINFOPANE     259
 #define UI_AUPGRADEINFOPANE   260
