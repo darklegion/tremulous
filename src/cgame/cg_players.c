@@ -1906,17 +1906,15 @@ void CG_Player( centity_t *cent )
   trap_R_AddRefEntityToScene( &legs );
 
   // if the model failed, allow the default nullmodel to be displayed
-  if (!legs.hModel) {
+  if( !legs.hModel )
     return;
-  }
 
   //
   // add the torso
   //
   torso.hModel = ci->torsoModel;
-  if (!torso.hModel) {
+  if( !torso.hModel )
     return;
-  }
 
   torso.customSkin = ci->torsoSkin;
 
@@ -1939,9 +1937,9 @@ void CG_Player( centity_t *cent )
   // add the head
   //
   head.hModel = ci->headModel;
-  if (!head.hModel) {
+  if( !head.hModel )
     return;
-  }
+
   head.customSkin = ci->headSkin;
 
   VectorCopy( cent->lerpOrigin, head.lightingOrigin );
