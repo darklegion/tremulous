@@ -693,7 +693,6 @@ float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, 
     }
   }
   
-  G_Printf( "%f\n", modifier );
   return modifier;
 }
 

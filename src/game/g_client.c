@@ -290,7 +290,7 @@ gentity_t *SelectAlienSpawnPoint( void )
   while( ( spot = G_Find( spot, FOFS( classname ),
     BG_FindEntityNameForBuildable( BA_A_SPAWN ) ) ) != NULL )
   {
-    if( SpotWouldTelefrag( spot ) || ( spot->health <= 0 ) )
+    if( spot->health <= 0 )
       continue;
 
     if( !spot->s.groundEntityNum )
@@ -307,21 +307,16 @@ gentity_t *SelectAlienSpawnPoint( void )
     if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
       continue;
 
+    //spawn is blocked
+    if( tr.fraction < 1.0f )
+      continue;
+    
     spots[ count ] = spot;
     count++;
   }
 
   if( !count )
-  {
-    // no spots that won't telefrag
-    spot = G_Find( NULL, FOFS( classname ),
-      BG_FindEntityNameForBuildable( BA_A_SPAWN ) );
-    
-    if( spot->health > 0 )
-      return spot;
-    else
-      return NULL;
-  }
+    return NULL;
 
   selection = rand() % count;
   return spots[ selection ];
@@ -353,7 +348,7 @@ gentity_t *SelectHumanSpawnPoint( void )
   while( ( spot = G_Find( spot, FOFS( classname ),
     BG_FindEntityNameForBuildable( BA_H_SPAWN ) ) ) != NULL )
   {
-    if( SpotWouldTelefrag( spot ) || ( spot->health <= 0 ) )
+    if( spot->health <= 0 )
       continue;
 
     if( !spot->s.groundEntityNum )
@@ -369,21 +364,16 @@ gentity_t *SelectHumanSpawnPoint( void )
     if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
       continue;
 
+    //spawn is blocked
+    if( tr.fraction < 1.0f )
+      continue;
+    
     spots[ count ] = spot;
     count++;
   }
 
   if( !count )
-  {
-    // no spots that won't telefrag
-    spot = G_Find( NULL, FOFS( classname ),
-      BG_FindEntityNameForBuildable( BA_H_SPAWN ) );
-    
-    if( spot->health > 0 )
-      return spot;
-    else
-      return NULL;
-  }
+    return NULL;
 
   selection = rand() % count;
   return spots[ selection ];
@@ -1358,11 +1348,11 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   if( client->sess.sessionTeam == TEAM_SPECTATOR )
   {
     if( teamLocal == PTE_NONE )
-      spawnPoint = SelectSpectatorSpawnPoint ( spawn_origin, spawn_angles );
+      spawnPoint = SelectSpectatorSpawnPoint( spawn_origin, spawn_angles );
     else if( teamLocal == PTE_ALIENS )
-      spawnPoint = SelectAlienLockSpawnPoint ( spawn_origin, spawn_angles );
+      spawnPoint = SelectAlienLockSpawnPoint( spawn_origin, spawn_angles );
     else if( teamLocal == PTE_HUMANS )
-      spawnPoint = SelectHumanLockSpawnPoint ( spawn_origin, spawn_angles );
+      spawnPoint = SelectHumanLockSpawnPoint( spawn_origin, spawn_angles );
   }
   else
   {

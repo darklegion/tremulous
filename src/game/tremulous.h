@@ -363,8 +363,8 @@
 #define BATTPACK_MODIFIER           2.0f //modifier for extra energy storage available
 
 #define JETPACK_PRICE               120
-#define JETPACK_FLOAT_SPEED         48.0f //up movement speed
-#define JETPACK_SINK_SPEED          96.0f //down movement speed
+#define JETPACK_FLOAT_SPEED         256.0f //up movement speed
+#define JETPACK_SINK_SPEED          384.0f //down movement speed
 
 #define BSUIT_PRICE                 200
 

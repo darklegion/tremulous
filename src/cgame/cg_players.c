@@ -2189,11 +2189,13 @@ void CG_Corpse( centity_t *cent )
     legs.oldframe = legs.frame = torso.oldframe = torso.frame = 0;
   else if( !ci->nonsegmented )
   {
+    memset( &cent->pe.legs, 0, sizeof( lerpFrame_t ) );
     CG_RunLerpFrame( ci, &cent->pe.legs, es->legsAnim, 1 );
     legs.oldframe = cent->pe.legs.oldFrame;
     legs.frame = cent->pe.legs.frame;
     legs.backlerp = cent->pe.legs.backlerp;
 
+    memset( &cent->pe.torso, 0, sizeof( lerpFrame_t ) );
     CG_RunLerpFrame( ci, &cent->pe.torso, es->torsoAnim, 1 );
     torso.oldframe = cent->pe.torso.oldFrame;
     torso.frame = cent->pe.torso.frame;
@@ -2201,6 +2203,7 @@ void CG_Corpse( centity_t *cent )
   }
   else
   {
+    memset( &cent->pe.nonseg, 0, sizeof( lerpFrame_t ) );
     CG_RunLerpFrame( ci, &cent->pe.nonseg, es->legsAnim, 1 );
     legs.oldframe = cent->pe.nonseg.oldFrame;
     legs.frame = cent->pe.nonseg.frame;
