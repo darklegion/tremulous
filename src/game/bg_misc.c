@@ -1778,7 +1778,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
   if ( ps->externalEvent ) {
     s->event = ps->externalEvent;
     s->eventParm = ps->externalEventParm;
-  } else {
+  } else if ( ps->entityEventSequence < ps->eventSequence ) {
     int   seq;
 
     if ( ps->entityEventSequence < ps->eventSequence - MAX_PS_EVENTS) {
@@ -1787,9 +1787,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
     seq = (ps->entityEventSequence-1) & (MAX_PS_EVENTS-1);
     s->event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
     s->eventParm = ps->eventParms[ seq ];
-    if ( ps->entityEventSequence < ps->eventSequence ) {
-      ps->entityEventSequence++;
-    }
+    ps->entityEventSequence++;
   }
 
   s->weapon = ps->weapon;
@@ -1877,7 +1875,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   if ( ps->externalEvent ) {
     s->event = ps->externalEvent;
     s->eventParm = ps->externalEventParm;
-  } else {
+  } else if ( ps->entityEventSequence < ps->eventSequence ) {
     int   seq;
 
     if ( ps->entityEventSequence < ps->eventSequence - MAX_PS_EVENTS) {
@@ -1886,9 +1884,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
     seq = (ps->entityEventSequence-1) & (MAX_PS_EVENTS-1);
     s->event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
     s->eventParm = ps->eventParms[ seq ];
-    if ( ps->entityEventSequence < ps->eventSequence ) {
-      ps->entityEventSequence++;
-    }
+    ps->entityEventSequence++;
   }
 
   s->weapon = ps->weapon;
