@@ -1513,6 +1513,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   ent->client->ps.stats[ STAT_PTEAM ] = ent->client->pers.pteam;
   
   ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
+  ent->client->ps.stats[ STAT_STATE ] = 0;
+  VectorSet( ent->client->ps.grapplePoint, 0.0f, 0.0f, 1.0f );
 
   // health will count down towards max_health
   ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH]; //* 1.25;
