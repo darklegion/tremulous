@@ -295,7 +295,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "advmedistat",         //char      *buildName;
     "Adv Medistation",     //char      *humanName;
     "team_human_advmedistat",//char      *entityName;
-    { "models/buildables/medistat/medistat.md3", 0, 0, 0 },
+    { "models/buildables/medistat/medistat2.md3", 0, 0, 0 },
     { -65, -65, -7 },      //vec3_t    mins;
     { 65, 65, 7 },         //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;

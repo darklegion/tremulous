@@ -711,7 +711,7 @@ static void CG_RegisterGraphics( void ) {
   /*cgs.media.creepShader = trap_R_RegisterShader( "creep" );*/
   
   cgs.media.scannerBlipShader = trap_R_RegisterShader( "gfx/2d/droidhealth" );
-  cgs.media.scannerLineShader = trap_R_RegisterShader( "gfx/2d/func/mult2" );
+  cgs.media.scannerLineShader = trap_R_RegisterShader( "white" );
   /*cgs.media.scannerShader = trap_R_RegisterShader( "gfx/2d/scanner" );*/
   
   cgs.media.waterBubbleShader = trap_R_RegisterShader( "waterBubble" );
