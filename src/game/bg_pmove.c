@@ -1387,7 +1387,7 @@ static void PM_GroundClimbTrace( void )
   float     toAngles[3], surfAngles[3], srotAngle;
   trace_t   trace;
   int       i;
-  //qboolean  smoothed = qtrue; //TA: what the hell is this for?
+  qboolean  smoothed = qtrue;
 
   //TA: If we're on the ceiling then grapplePoint is a rotation normal.. otherwise its a surface normal.
   //    would have been nice if Carmack had left a few random variables in the ps struct for mod makers
@@ -1547,7 +1547,7 @@ static void PM_GroundClimbTrace( void )
         srotAngle = abs( RAD2DEG( arccos( DotProduct( surfNormal, trace.plane.normal ) ) ) );
 
         PM_AddSmoothOp( srotAxis, srotAngle );
-        //smoothed = qfalse;
+        smoothed = qfalse;
       }
 
       pml.groundTrace = trace;
@@ -1581,6 +1581,10 @@ static void PM_GroundClimbTrace( void )
 
   if ( trace.fraction >= 1.0 )
   {
+    //mild hack to get smoothing when jumping off walls
+    if( pm->cmd.upmove > 0 )
+      smoothed = qfalse;
+
     // if the trace didn't hit anything, we are in free fall
     //Com_Printf( "trace missed justFallen:%d\n", wcl[ pm->ps->clientNum ].justFallen );
     PM_GroundTraceMissed();
@@ -1588,7 +1592,7 @@ static void PM_GroundClimbTrace( void )
     pml.walking = qfalse;
     pm->ps->legsAnim &= ~ANIM_WALLCLIMBING;
 
-    if( wcl[ pm->ps->clientNum ].justFallen ) //&& !smoothed )
+    if( wcl[ pm->ps->clientNum ].justFallen && !smoothed )
     {
       if( pm->ps->stats[ STAT_STATE ] & SS_GPISROTVEC )
       {
