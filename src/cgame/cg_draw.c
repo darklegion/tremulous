@@ -21,7 +21,7 @@
 #include "../ui/ui_shared.h"
 
 // used for scoreboard
-extern displayContextDef_t cgDC;
+extern    displayContextDef_t cgDC;
 menuDef_t *menuScoreboard = NULL;
 
 int drawTeamOverlayModificationCount = -1;
@@ -515,25 +515,25 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
   switch( ownerDraw )
   {
     case CG_PLAYER_AMMO_VALUE:
-      CG_DrawPlayerAmmoValue(&rect, scale, color, shader, textStyle);
+      CG_DrawPlayerAmmoValue( &rect, scale, color, shader, textStyle );
       break;
     case CG_PLAYER_CLIPS_VALUE:
-      CG_DrawPlayerClipsValue(&rect, scale, color, shader, textStyle);
+      CG_DrawPlayerClipsValue( &rect, scale, color, shader, textStyle );
       break;
     case CG_PLAYER_HEALTH:
-      CG_DrawPlayerHealth(&rect, scale, color, shader, textStyle);
+      CG_DrawPlayerHealth( &rect, scale, color, shader, textStyle );
       break;
     case CG_AREA_SYSTEMCHAT:
-      CG_DrawAreaSystemChat(&rect, scale, color, shader);
+      CG_DrawAreaSystemChat( &rect, scale, color, shader );
       break;
     case CG_AREA_TEAMCHAT:
-      CG_DrawAreaTeamChat(&rect, scale, color, shader);
+      CG_DrawAreaTeamChat( &rect, scale, color, shader );
       break;
     case CG_AREA_CHAT:
-      CG_DrawAreaChat(&rect, scale, color, shader);
+      CG_DrawAreaChat( &rect, scale, color, shader );
       break;
     case CG_KILLER:
-      CG_DrawKiller(&rect, scale, color, shader, textStyle);
+      CG_DrawKiller( &rect, scale, color, shader, textStyle );
       break;
     default:
       break;
@@ -599,9 +599,6 @@ void CG_ShowTeamMenu( )
 {
   Menus_OpenByName("teamMenu");
 }
-
-
-
 
 /*
 ==================
@@ -1052,7 +1049,7 @@ static float CG_DrawSnapshot( float y )
   char    *s;
   int     w;
 
-  s = va( "time:%i snap:%i cmd:%i", cg.snap->serverTime,
+  s = va( "time:%d snap:%d cmd:%d", cg.snap->serverTime,
     cg.latestSnapshotNum, cgs.serverCommandSequence );
   w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 
@@ -1066,7 +1063,8 @@ static float CG_DrawSnapshot( float y )
 CG_DrawFPS
 ==================
 */
-#define FPS_FRAMES  4
+//TA: personally i think this should be longer - it should really be a cvar
+#define FPS_FRAMES  40
 static float CG_DrawFPS( float y )
 {
   char        *s;
@@ -1100,7 +1098,7 @@ static float CG_DrawFPS( float y )
     
     fps = 1000 * FPS_FRAMES / total;
 
-    s = va( "%ifps", fps );
+    s = va( "%dfps", fps );
     w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 
     CG_DrawBigString( 635 - w, y + 2, s, 1.0F );
@@ -1114,7 +1112,8 @@ static float CG_DrawFPS( float y )
 CG_DrawTimer
 =================
 */
-static float CG_DrawTimer( float y ) {
+static float CG_DrawTimer( float y )
+{
   char    *s;
   int     w;
   int     mins, seconds, tens;
@@ -1128,7 +1127,7 @@ static float CG_DrawTimer( float y ) {
   tens = seconds / 10;
   seconds -= tens * 10;
 
-  s = va( "%i:%i%i", mins, tens, seconds );
+  s = va( "%d:%d%d", mins, tens, seconds );
   w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 
   CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
@@ -1143,20 +1142,20 @@ CG_DrawUpperRight
 
 =====================
 */
-static void CG_DrawUpperRight( void ) {
+static void CG_DrawUpperRight( void )
+{
   float y;
 
   y = 0;
 
-  if ( cg_drawSnapshot.integer ) {
+  if( cg_drawSnapshot.integer )
     y = CG_DrawSnapshot( y );
-  }
-  if ( cg_drawFPS.integer ) {
+  
+  if( cg_drawFPS.integer )
     y = CG_DrawFPS( y );
-  }
-  if ( cg_drawTimer.integer ) {
+  
+  if( cg_drawTimer.integer )
     y = CG_DrawTimer( y );
-  }
 }
 
 /*
@@ -1712,18 +1711,6 @@ static void CG_DrawCrosshairNames( void )
 
 
 //==============================================================================
-
-/*
-=================
-CG_DrawSpectator
-=================
-*/
-static void CG_DrawSpectator( void )
-{
-  if( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ||
-      cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING )
-    CG_DrawBigString(320 - 9 * 8, 440, "SPECTATOR", 1.0F);
-}
 
 /*
 =================
