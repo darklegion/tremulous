@@ -2341,7 +2341,7 @@ static void PM_Weapon( void ) {
     addTime = 400;
     break;
   case WP_VENOM:
-    addTime = 200;
+    addTime = 500;
     break;
   case WP_ABUILD:
     addTime = 1000;

@@ -132,6 +132,13 @@ struct gentity_s {
   float   speed;
   vec3_t    movedir;
 
+  //TA: acceleration evaluation
+  qboolean  evaluateAcceleration;
+  vec3_t    oldVelocity;
+  vec3_t    acceleration;
+  vec3_t    oldAccel;
+  vec3_t    jounce;
+
   int     nextthink;
   void    (*think)(gentity_t *self);
   void    (*reached)(gentity_t *self);  // movers call this when hitting endpoint
@@ -176,7 +183,6 @@ struct gentity_s {
 
   int       biteam;       //TA: buildable item team
   gentity_t *parentNode;  //TA: for creep and defence/spawn dependencies
-  vec3_t    turloc;       //TA: direction human defense turrets are pointing
   qboolean  active;       //TA: for power repeater, but could be useful elsewhere
   qboolean  powered;      //TA: for human buildables
 

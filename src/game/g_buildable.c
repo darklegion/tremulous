@@ -350,6 +350,7 @@ void HMCU_Think( gentity_t *self )
 #define HDEF1_FIRINGSPEED       200
 #define HDEF1_ACCURACYTOLERANCE HDEF1_ANGULARSPEED - 5
 #define HDEF1_VERTICALCAP       20
+#define HDEF1_PROJSPEED         2000.0f
 
 /*
 ================
@@ -362,55 +363,75 @@ qboolean hdef1_trackenemy( gentity_t *self )
 {
   vec3_t  dirToTarget, angleToTarget, angularDiff;
   float   temp;
-  float   distanceToTarget;
+  float   distanceToTarget = HDEF1_RANGE;
   float   timeTilImpact;
+  vec3_t  halfAcceleration;
+  vec3_t  thirdJounce;
+  int     i;
 
   VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
 
 //lead targets
-#if 1
+#if 0
   distanceToTarget = VectorLength( dirToTarget );
   timeTilImpact = distanceToTarget / 2000.0f;
   VectorMA( self->enemy->s.pos.trBase, timeTilImpact, self->enemy->s.pos.trDelta, dirToTarget );
   VectorSubtract( dirToTarget, self->s.pos.trBase, dirToTarget );
 #endif
+
+  VectorScale( self->enemy->acceleration, 0.5f, halfAcceleration );
+  VectorScale( self->enemy->jounce, 0.33333f, thirdJounce );
+
+  //O( time ) - worst case O( time ) = 250 iterations
+  for( i = 0; ( i * HDEF1_PROJSPEED ) / 1000.0f < distanceToTarget; i++ )
+  {
+    float time = (float)i / 1000.0f;
+
+    VectorMA( self->enemy->s.pos.trBase, time, self->enemy->s.pos.trDelta, dirToTarget );
+    VectorMA( dirToTarget, time * time, halfAcceleration, dirToTarget );
+    VectorMA( dirToTarget, time * time * time, thirdJounce, dirToTarget );
+    VectorSubtract( dirToTarget, self->s.pos.trBase, dirToTarget );
+    distanceToTarget = VectorLength( dirToTarget );
+
+    distanceToTarget -= ( self->r.maxs[ 0 ] + self->enemy->r.maxs[ 0 ] );
+  }
   
   VectorNormalize( dirToTarget );
   
   vectoangles( dirToTarget, angleToTarget );
 
-  angularDiff[ PITCH ] = AngleSubtract( self->turloc[ PITCH ], angleToTarget[ PITCH ] );
-  angularDiff[ YAW ] = AngleSubtract( self->turloc[ YAW ], angleToTarget[ YAW ] );
+  angularDiff[ PITCH ] = AngleSubtract( self->s.angles2[ PITCH ], angleToTarget[ PITCH ] );
+  angularDiff[ YAW ] = AngleSubtract( self->s.angles2[ YAW ], angleToTarget[ YAW ] );
 
   if( angularDiff[ PITCH ] < -HDEF1_ACCURACYTOLERANCE )
-    self->turloc[ PITCH ] += HDEF1_ANGULARSPEED;
+    self->s.angles2[ PITCH ] += HDEF1_ANGULARSPEED;
   else if( angularDiff[ PITCH ] > HDEF1_ACCURACYTOLERANCE )
-    self->turloc[ PITCH ] -= HDEF1_ANGULARSPEED;
+    self->s.angles2[ PITCH ] -= HDEF1_ANGULARSPEED;
   else
-    self->turloc[ PITCH ] = angleToTarget[ PITCH ];
+    self->s.angles2[ PITCH ] = angleToTarget[ PITCH ];
 
-  temp = fabs( self->turloc[ PITCH ] );
+  temp = fabs( self->s.angles2[ PITCH ] );
   if( temp > 180 )
     temp -= 360;
   
   if( temp < -HDEF1_VERTICALCAP )
-    self->turloc[ PITCH ] = (-360)+HDEF1_VERTICALCAP;
+    self->s.angles2[ PITCH ] = (-360)+HDEF1_VERTICALCAP;
   else if( temp > HDEF1_VERTICALCAP )
-    self->turloc[ PITCH ] = -HDEF1_VERTICALCAP;
+    self->s.angles2[ PITCH ] = -HDEF1_VERTICALCAP;
     
   if( angularDiff[ YAW ] < -HDEF1_ACCURACYTOLERANCE )
-    self->turloc[ YAW ] += HDEF1_ANGULARSPEED;
+    self->s.angles2[ YAW ] += HDEF1_ANGULARSPEED;
   else if( angularDiff[ YAW ] > HDEF1_ACCURACYTOLERANCE )
-    self->turloc[ YAW ] -= HDEF1_ANGULARSPEED;
+    self->s.angles2[ YAW ] -= HDEF1_ANGULARSPEED;
   else
-    self->turloc[ YAW ] = angleToTarget[ YAW ];
+    self->s.angles2[ YAW ] = angleToTarget[ YAW ];
     
-  VectorCopy( self->turloc, self->s.angles2 );
+  VectorCopy( self->s.angles2, self->s.angles2 );
   
   trap_LinkEntity( self );
 
-  if( abs( angleToTarget[ YAW ] - self->turloc[ YAW ] ) <= HDEF1_ACCURACYTOLERANCE &&
-      abs( angleToTarget[ PITCH ] - self->turloc[ PITCH ] ) <= HDEF1_ACCURACYTOLERANCE )
+  if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= HDEF1_ACCURACYTOLERANCE &&
+      abs( angleToTarget[ PITCH ] - self->s.angles2[ PITCH ] ) <= HDEF1_ACCURACYTOLERANCE )
     return qtrue;
     
   return qfalse;
@@ -427,7 +448,7 @@ void hdef1_fireonenemy( gentity_t *self )
 {
   vec3_t  aimVector;
   
-  AngleVectors( self->turloc, aimVector, NULL, NULL );
+  AngleVectors( self->s.angles2, aimVector, NULL, NULL );
   fire_plasma( self, self->s.pos.trBase, aimVector );
   self->count = level.time + HDEF1_FIRINGSPEED;
 }
@@ -829,7 +850,7 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
 
   G_SetOrigin( built, origin );
   VectorCopy( angles, built->s.angles );
-  built->turloc[ YAW ] = built->s.angles2[ YAW ] = angles[ YAW ];
+  built->s.angles2[ YAW ] = angles[ YAW ];
   VectorCopy( origin, built->s.origin );
   built->s.pos.trType = TR_GRAVITY;
   built->s.pos.trTime = level.time;

@@ -661,14 +661,7 @@ void SpawnCorpse( gentity_t *ent ) {
     break;
   }
 
-  //body->die = body_die;
-
-  // don't take more damage if already gibbed
-  if ( ent->health <= GIB_HEALTH ) {
-    body->takedamage = qfalse;
-  } else {
-    body->takedamage = qtrue;
-  }
+  body->takedamage = qfalse;
 
   //make the make player entity disappear
   ent->takedamage = qfalse;
@@ -1357,6 +1350,9 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
   ent->waterlevel = 0;
   ent->watertype = 0;
   ent->flags = 0;
+
+  //TA: calculate each client's acceleration
+  ent->evaluateAcceleration = qtrue;
 
   client->ps.stats[ STAT_WEAPONS ] = 0;
   client->ps.stats[ STAT_WEAPONS2 ] = 0;

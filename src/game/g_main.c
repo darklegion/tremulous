@@ -1801,6 +1801,28 @@ void G_RunThink (gentity_t *ent) {
 }
 
 /*
+=============
+G_EvaluateAcceleration
+
+Calculates the acceleration for an entity
+=============
+*/
+void G_EvaluateAcceleration( gentity_t *ent, int msec )
+{
+  vec3_t  deltaVelocity;
+  vec3_t  deltaAccel;
+
+  VectorSubtract( ent->s.pos.trDelta, ent->oldVelocity, deltaVelocity );
+  VectorScale( deltaVelocity, 1.0f / (float)msec, ent->acceleration );
+
+  VectorSubtract( ent->acceleration, ent->oldAccel, deltaAccel );
+  VectorScale( deltaAccel, 1.0f / (float)msec, ent->jounce );
+
+  VectorCopy( ent->s.pos.trDelta, ent->oldVelocity );
+  VectorCopy( ent->acceleration, ent->oldAccel );
+}
+
+/*
 ================
 G_RunFrame
 
@@ -1862,6 +1884,10 @@ start = trap_Milliseconds();
       continue;
     }
 
+    //TA: calculate the acceleration of this entity
+    if( ent->evaluateAcceleration )
+      G_EvaluateAcceleration( ent, msec );
+
     if ( !ent->r.linked && ent->neverFree ) {
       continue;
     }
@@ -1881,7 +1907,7 @@ start = trap_Milliseconds();
       G_RunMover( ent );
       continue;
     }
-
+    
     if ( i < MAX_CLIENTS ) {
       G_RunClient( ent );
       continue;
