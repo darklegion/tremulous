@@ -608,7 +608,7 @@ Called when a floatmine is triggered
 void HFM_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 {
   //can't blow up twice
-  if( self->health > 0 )
+  if( self->health <= 0 )
     return;
     
   //go boom
