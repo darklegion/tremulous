@@ -21,13 +21,10 @@ releasei386-glibc/game/g_client.o: ./src/game/g_client.c src/game/g_local.h \
  src/game/g_public.h src/game/g_team.h
 releasei386-glibc/game/g_cmds.o: ./src/game/g_cmds.c src/game/g_local.h src/game/q_shared.h \
  src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
- src/game/g_team.h src/game/../../ui/menudef.h
+ src/game/g_team.h
 releasei386-glibc/game/g_combat.o: ./src/game/g_combat.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
-releasei386-glibc/game/g_items.o: ./src/game/g_items.c src/game/g_local.h src/game/q_shared.h \
- src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
- src/game/g_team.h
 releasei386-glibc/game/g_main.o: ./src/game/g_main.c src/game/g_local.h src/game/q_shared.h \
  src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
  src/game/g_team.h
@@ -43,6 +40,9 @@ releasei386-glibc/game/g_missile.o: ./src/game/g_missile.c src/game/g_local.h \
 releasei386-glibc/game/g_mover.o: ./src/game/g_mover.c src/game/g_local.h src/game/q_shared.h \
  src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
  src/game/g_team.h
+releasei386-glibc/game/g_physics.o: ./src/game/g_physics.c src/game/g_local.h \
+ src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
+ src/game/g_public.h src/game/g_team.h
 releasei386-glibc/game/g_session.o: ./src/game/g_session.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
@@ -96,13 +96,10 @@ debugi386-glibc/game/g_client.o: ./src/game/g_client.c src/game/g_local.h \
  src/game/g_public.h src/game/g_team.h
 debugi386-glibc/game/g_cmds.o: ./src/game/g_cmds.c src/game/g_local.h src/game/q_shared.h \
  src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
- src/game/g_team.h src/game/../../ui/menudef.h
+ src/game/g_team.h
 debugi386-glibc/game/g_combat.o: ./src/game/g_combat.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
-debugi386-glibc/game/g_items.o: ./src/game/g_items.c src/game/g_local.h src/game/q_shared.h \
- src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
- src/game/g_team.h
 debugi386-glibc/game/g_main.o: ./src/game/g_main.c src/game/g_local.h src/game/q_shared.h \
  src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
  src/game/g_team.h
@@ -118,6 +115,9 @@ debugi386-glibc/game/g_missile.o: ./src/game/g_missile.c src/game/g_local.h \
 debugi386-glibc/game/g_mover.o: ./src/game/g_mover.c src/game/g_local.h src/game/q_shared.h \
  src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
  src/game/g_team.h
+debugi386-glibc/game/g_physics.o: ./src/game/g_physics.c src/game/g_local.h \
+ src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
+ src/game/g_public.h src/game/g_team.h
 debugi386-glibc/game/g_session.o: ./src/game/g_session.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
@@ -171,13 +171,10 @@ qvm/game/g_client.asm: ./src/game/g_client.c src/game/g_local.h \
  src/game/g_public.h src/game/g_team.h
 qvm/game/g_cmds.asm: ./src/game/g_cmds.c src/game/g_local.h src/game/q_shared.h \
  src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
- src/game/g_team.h src/game/../../ui/menudef.h
+ src/game/g_team.h
 qvm/game/g_combat.asm: ./src/game/g_combat.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
-qvm/game/g_items.asm: ./src/game/g_items.c src/game/g_local.h src/game/q_shared.h \
- src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
- src/game/g_team.h
 qvm/game/g_main.asm: ./src/game/g_main.c src/game/g_local.h src/game/q_shared.h \
  src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
  src/game/g_team.h
@@ -193,6 +190,9 @@ qvm/game/g_missile.asm: ./src/game/g_missile.c src/game/g_local.h \
 qvm/game/g_mover.asm: ./src/game/g_mover.c src/game/g_local.h src/game/q_shared.h \
  src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
  src/game/g_team.h
+qvm/game/g_physics.asm: ./src/game/g_physics.c src/game/g_local.h \
+ src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
+ src/game/g_public.h src/game/g_team.h
 qvm/game/g_session.asm: ./src/game/g_session.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h

@@ -21,25 +21,24 @@
 /*QUAKED target_give (1 0 0) (-8 -8 -8) (8 8 8)
 Gives the activator all the items pointed to.
 */
-void Use_Target_Give( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void Use_Target_Give( gentity_t *ent, gentity_t *other, gentity_t *activator )
+{
   gentity_t *t;
   trace_t   trace;
 
-  if ( !activator->client ) {
+  if( !activator->client )
     return;
-  }
 
-  if ( !ent->target ) {
+  if( !ent->target )
     return;
-  }
 
   memset( &trace, 0, sizeof( trace ) );
   t = NULL;
-  while ( (t = G_Find (t, FOFS(targetname), ent->target)) != NULL ) {
-    if ( !t->item ) {
+  
+  while( ( t = G_Find( t, FOFS( targetname ), ent->target ) ) != NULL )
+  {
+    if( !t->item )
       continue;
-    }
-    Touch_Item( t, activator, &trace );
 
     // make sure it isn't going to respawn or show any events
     t->nextthink = 0;
@@ -47,7 +46,8 @@ void Use_Target_Give( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
   }
 }
 
-void SP_target_give( gentity_t *ent ) {
+void SP_target_give( gentity_t *ent )
+{
   ent->use = Use_Target_Give;
 }
 
@@ -62,14 +62,6 @@ void Use_target_remove_powerups( gentity_t *ent, gentity_t *other, gentity_t *ac
   if( !activator->client ) {
     return;
   }
-
-  /*if( activator->client->ps.powerups[PW_REDFLAG] ) {
-    Team_ReturnFlag( TEAM_HUMANS );
-  } else if( activator->client->ps.powerups[PW_BLUEFLAG] ) {
-    Team_ReturnFlag( TEAM_ALIENS );
-  } else if( activator->client->ps.powerups[PW_NEUTRALFLAG] ) {
-    Team_ReturnFlag( TEAM_FREE );
-  }*/
 
   memset( activator->client->ps.powerups, 0, sizeof( activator->client->ps.powerups ) );
 }
@@ -133,23 +125,25 @@ void SP_target_score( gentity_t *ent ) {
 "message" text to print
 If "private", only the activator gets the message.  If no checks, all clients get the message.
 */
-void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator) {
-  if ( activator->client && ( ent->spawnflags & 4 ) ) {
-    trap_SendServerCommand( activator-g_entities, va("cp \"%s\"", ent->message ));
+void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator)
+{
+  if( activator->client && ( ent->spawnflags & 4 ) )
+  {
+    trap_SendServerCommand( activator-g_entities, va( "cp \"%s\"", ent->message ) );
     return;
   }
 
-  if ( ent->spawnflags & 3 ) {
-    if ( ent->spawnflags & 1 ) {
-      G_TeamCommand( TEAM_HUMANS, va("cp \"%s\"", ent->message) );
-    }
-    if ( ent->spawnflags & 2 ) {
-      G_TeamCommand( TEAM_ALIENS, va("cp \"%s\"", ent->message) );
-    }
+  if( ent->spawnflags & 3 )
+  {
+    if( ent->spawnflags & 1 )
+      G_TeamCommand( PTE_HUMANS, va( "cp \"%s\"", ent->message ) );
+    if( ent->spawnflags & 2 )
+      G_TeamCommand( PTE_ALIENS, va( "cp \"%s\"", ent->message ) );
+    
     return;
   }
 
-  trap_SendServerCommand( -1, va("cp \"%s\"", ent->message ));
+  trap_SendServerCommand( -1, va("cp \"%s\"", ent->message ) );
 }
 
 void SP_target_print( gentity_t *ent ) {
@@ -368,28 +362,32 @@ This doesn't perform any actions except fire its targets.
 The activator can be forced to be from a certain team.
 if RANDOM is checked, only one of the targets will be fired, not all of them
 */
-void target_relay_use (gentity_t *self, gentity_t *other, gentity_t *activator) {
-  if ( ( self->spawnflags & 1 ) && activator->client
-    && activator->client->sess.sessionTeam != TEAM_HUMANS ) {
+void target_relay_use( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  if( ( self->spawnflags & 1 ) && activator->client &&
+      activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
     return;
-  }
-  if ( ( self->spawnflags & 2 ) && activator->client
-    && activator->client->sess.sessionTeam != TEAM_ALIENS ) {
+
+  if( ( self->spawnflags & 2 ) && activator->client &&
+      activator->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
     return;
-  }
-  if ( self->spawnflags & 4 ) {
+
+  if( self->spawnflags & 4 )
+  {
     gentity_t *ent;
 
     ent = G_PickTarget( self->target );
-    if ( ent && ent->use ) {
+    if( ent && ent->use )
       ent->use( ent, self, activator );
-    }
+    
     return;
   }
+
   G_UseTargets (self, activator);
 }
 
-void SP_target_relay (gentity_t *self) {
+void SP_target_relay( gentity_t *self )
+{
   self->use = target_relay_use;
 }
 

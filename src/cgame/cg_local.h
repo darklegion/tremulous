@@ -1090,7 +1090,6 @@ typedef struct {
   qboolean    localServer;    // detected on startup by checking sv_running
 
   // parsed from serverinfo
-  gametype_t    gametype;
   int       dmflags;
   int       teamflags;
   int       fraglimit;

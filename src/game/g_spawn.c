@@ -195,12 +195,6 @@ void SP_shooter_rocket( gentity_t *ent );
 void SP_shooter_plasma( gentity_t *ent );
 void SP_shooter_grenade( gentity_t *ent );
 
-void SP_team_CTF_redplayer( gentity_t *ent );
-void SP_team_CTF_blueplayer( gentity_t *ent );
-
-void SP_team_CTF_redspawn( gentity_t *ent );
-void SP_team_CTF_bluespawn( gentity_t *ent );
-
 //TA:
 void SP_misc_spriter( gentity_t *ent );
 void SP_misc_anim_model( gentity_t *ent );
@@ -271,12 +265,6 @@ spawn_t spawns[] = {
   {"shooter_grenade", SP_shooter_grenade},
   {"shooter_plasma", SP_shooter_plasma},
 
-  {"team_CTF_redplayer", SP_team_CTF_redplayer},
-  {"team_CTF_blueplayer", SP_team_CTF_blueplayer},
-
-  {"team_CTF_redspawn", SP_team_CTF_redspawn},
-  {"team_CTF_bluespawn", SP_team_CTF_bluespawn},
-
   {"misc_spriter", SP_misc_spriter},
   {"misc_anim_model", SP_misc_anim_model},
   {"misc_light_flare", SP_misc_light_flare},
@@ -315,9 +303,6 @@ qboolean G_CallSpawn( gentity_t *ent )
   {
     if( !strcmp( s->name, ent->classname ) )
     {
-      if( G_ItemDisabled( item ) )
-        return qfalse;
-        
       // found it
       s->spawn( ent );
       return qtrue;
@@ -449,44 +434,10 @@ void G_SpawnGEntityFromSpawnVars( void ) {
     G_ParseField( level.spawnVars[i][0], level.spawnVars[i][1], ent );
   }
 
-  // check for "notteam" / "notfree" flags
-  if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-    G_SpawnInt( "notsingle", "0", &i );
-    if ( i ) {
-      G_FreeEntity( ent );
-      return;
-    }
-  }
-  if ( g_gametype.integer >= GT_TEAM ) {
-    G_SpawnInt( "notteam", "0", &i );
-    if ( i ) {
-      G_FreeEntity( ent );
-      return;
-    }
-  } else {
-    G_SpawnInt( "notfree", "0", &i );
-    if ( i ) {
-      G_FreeEntity( ent );
-      return;
-    }
-  }
-
   G_SpawnInt( "notq3a", "0", &i );
   if ( i ) {
     G_FreeEntity( ent );
     return;
-  }
-
-  if( G_SpawnString( "gametype", NULL, &value ) ) {
-    if( g_gametype.integer >= GT_FFA && g_gametype.integer < GT_MAX_GAME_TYPE ) {
-      gametypeName = gametypeNames[g_gametype.integer];
-
-      s = strstr( value, gametypeName );
-      if( !s ) {
-        G_FreeEntity( ent );
-        return;
-      }
-    }
   }
 
   // move editor origin to pos

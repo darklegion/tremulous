@@ -24,7 +24,7 @@ GOBJ = \
 	$(GDIRNAME)/g_client.o \
 	$(GDIRNAME)/g_cmds.o \
 	$(GDIRNAME)/g_combat.o \
-	$(GDIRNAME)/g_items.o \
+	$(GDIRNAME)/g_physics.o \
 	$(GDIRNAME)/g_buildable.o \
 	$(GDIRNAME)/g_misc.o \
 	$(GDIRNAME)/g_missile.o \
@@ -59,7 +59,6 @@ CGOBJ = \
 	$(CGDIRNAME)/cg_players.o \
 	$(CGDIRNAME)/cg_playerstate.o \
 	$(CGDIRNAME)/cg_predict.o \
-	$(CGDIRNAME)/cg_scoreboard.o \
 	$(CGDIRNAME)/cg_servercmds.o \
 	$(CGDIRNAME)/cg_snapshot.o \
 	$(CGDIRNAME)/cg_view.o \

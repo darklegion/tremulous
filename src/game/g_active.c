@@ -663,38 +663,6 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
       FireWeapon3( ent );
       break;
 
-    case EV_USE_ITEM1:    // teleporter
-      // drop flags in CTF
-      item = NULL;
-      j = 0;
-
-      /*if ( ent->client->ps.powerups[ PW_REDFLAG ] ) {
-        item = BG_FindItemForPowerup( PW_REDFLAG );
-        i = PW_REDFLAG;
-      } else if ( ent->client->ps.powerups[ PW_BLUEFLAG ] ) {
-        item = BG_FindItemForPowerup( PW_BLUEFLAG );
-        i = PW_BLUEFLAG;
-      }*/
-
-      if ( item ) {
-        drop = Drop_Item( ent, item, 0 );
-        // decide how many seconds it has left
-        /*drop->count = ( ent->client->ps.powerups[ j ] - level.time ) / 1000;*/
-        if ( drop->count < 1 ) {
-          drop->count = 1;
-        }
-
-        /*ent->client->ps.powerups[ j ] = 0;*/
-      }
-
-      SelectSpawnPoint( ent->client->ps.origin, origin, angles );
-      TeleportPlayer( ent, origin, angles );
-      break;
-
-    case EV_USE_ITEM2:    // medkit
-      ent->health = ent->client->ps.stats[STAT_MAX_HEALTH];
-      break;
-
     default:
       break;
     }
@@ -742,9 +710,6 @@ static int StuckInOtherClient(gentity_t *ent) {
     }
   return qfalse;
 }
-
-//TA: rip bots
-//void BotTestSolid(vec3_t origin);
 
 /*
 ==============
@@ -1088,10 +1053,6 @@ void ClientThink_real( gentity_t *ent ) {
 
   // NOTE: now copy the exact origin over otherwise clients can be snapped into solid
   VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
-
-  //test for solid areas in the AAS file
-  //TA: rip bots
-  //BotTestSolid(ent->r.currentOrigin);
 
   // touch other objects
   ClientImpacts( ent, &pm );

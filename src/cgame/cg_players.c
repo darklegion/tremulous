@@ -417,22 +417,8 @@ static void CG_LoadClientInfo( clientInfo_t *ci ) {
     }
 
     // fall back
-    if ( cgs.gametype >= GT_TEAM ) {
-/*      // keep skin name
-      if( ci->team == TEAM_BLUE ) {
-        Q_strncpyz(teamname, DEFAULT_BLUETEAM_NAME, sizeof(teamname) );
-      } else {
-        Q_strncpyz(teamname, DEFAULT_REDTEAM_NAME, sizeof(teamname) );
-      }
-      if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, ci->skinName ) ) {
-        CG_Error( "DEFAULT_MODEL / skin (%s/%s) failed to register",
-          DEFAULT_MODEL, ci->skinName );
-      }*/
-    } else {
-      if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, "default" ) ) {
-        CG_Error( "DEFAULT_MODEL (%s) failed to register", DEFAULT_MODEL );
-      }
-    }
+    if( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, "default" ) )
+      CG_Error( "DEFAULT_MODEL (%s) failed to register", DEFAULT_MODEL );
   }
 
   // sounds
@@ -566,29 +552,6 @@ client's info to use until we have some spare time.
 static void CG_SetDeferredClientInfo( clientInfo_t *ci ) {
   int   i;
   clientInfo_t  *match;
-
-  // if we are in teamplay, only grab a model if the skin is correct
-  if ( cgs.gametype >= GT_TEAM ) {
-    for ( i = 0 ; i < cgs.maxclients ; i++ ) {
-      match = &cgs.clientinfo[ i ];
-      if ( !match->infoValid ) {
-        continue;
-      }
-      if ( Q_stricmp( ci->skinName, match->skinName ) ) {
-        continue;
-      }
-      ci->deferred = qtrue;
-      CG_CopyClientInfoModel( match, ci );
-      return;
-    }
-
-    // load the full model, because we don't ever want to show
-    // an improper team skin.  This will cause a hitch for the first
-    // player, when the second enters.  Combat shouldn't be going on
-    // yet, so it shouldn't matter
-    CG_LoadClientInfo( ci );
-    return;
-  }
 
   // find the first valid clientinfo and grab its stuff
   for ( i = 0 ; i < cgs.maxclients ; i++ ) {
@@ -828,7 +791,7 @@ void CG_NewClientInfo( int clientNum ) {
     {
       // keep whatever they had if it won't violate team skins
       if ( ci->infoValid &&
-        ( cgs.gametype < GT_TEAM || !Q_stricmp( newInfo.skinName, ci->skinName ) ) )
+        ( !Q_stricmp( newInfo.skinName, ci->skinName ) ) )
       {
         CG_CopyClientInfoModel( ci, &newInfo );
         newInfo.deferred = qtrue;
@@ -1515,26 +1478,17 @@ CG_PlayerSprites
 Float sprites over the player's head
 ===============
 */
-static void CG_PlayerSprites( centity_t *cent ) {
-  int   team;
-
-  if ( cent->currentState.eFlags & EF_CONNECTION ) {
+static void CG_PlayerSprites( centity_t *cent )
+{
+  if( cent->currentState.eFlags & EF_CONNECTION )
+  {
     CG_PlayerFloatSprite( cent, cgs.media.connectionShader );
     return;
   }
 
-  if ( cent->currentState.eFlags & EF_TALK ) {
+  if( cent->currentState.eFlags & EF_TALK )
+  {
     CG_PlayerFloatSprite( cent, cgs.media.balloonShader );
-    return;
-  }
-
-  team = cgs.clientinfo[ cent->currentState.clientNum ].team;
-  if ( !(cent->currentState.eFlags & EF_DEAD) &&
-    cg.snap->ps.persistant[PERS_TEAM] == team &&
-    cgs.gametype >= GT_TEAM) {
-    if (cg_drawFriend.integer) {
-      CG_PlayerFloatSprite( cent, cgs.media.friendShader );
-    }
     return;
   }
 }

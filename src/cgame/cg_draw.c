@@ -2093,9 +2093,9 @@ static void CG_DrawTeamVote( void )
   char  *s;
   int   sec, cs_offset;
 
-  if( cgs.clientinfo->team == TEAM_HUMANS )
+  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS )
     cs_offset = 0;
-  else if( cgs.clientinfo->team == TEAM_ALIENS )
+  else if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS )
     cs_offset = 1;
   else
     return;
@@ -2176,12 +2176,6 @@ CG_DrawIntermission
 */
 static void CG_DrawIntermission( void )
 {
-  if( cgs.gametype == GT_SINGLE_PLAYER )
-  {
-    CG_DrawCenterString( );
-    return;
-  }
-
   cg.scoreFadeTime = cg.time;
   cg.scoreBoardShowing = CG_DrawScoreboard( );
 }
@@ -2245,140 +2239,6 @@ static void CG_DrawAmmoWarning( void )
 
   w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
   CG_DrawBigString( 320 - w / 2, 64, s, 1.0F );
-}
-
-/*
-=================
-CG_DrawWarmup
-=================
-*/
-static void CG_DrawWarmup( void )
-{
-  int     w;
-  int     sec;
-  int     i;
-  float   scale;
-  clientInfo_t  *ci1, *ci2;
-  int     cw;
-  const char  *s;
-
-  sec = cg.warmup;
-  if( !sec )
-    return;
-
-  if( sec < 0 )
-  {
-    s = "Waiting for players";
-    w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
-    CG_DrawBigString( 320 - w / 2, 24, s, 1.0F );
-    cg.warmupCount = 0;
-    return;
-  }
-
-  if( cgs.gametype == GT_TOURNAMENT )
-  {
-    // find the two active players
-    ci1 = NULL;
-    ci2 = NULL;
-    
-    for( i = 0 ; i < cgs.maxclients ; i++ )
-    {
-      if( cgs.clientinfo[ i ].infoValid && cgs.clientinfo[ i ].team == TEAM_FREE )
-      {
-        if( !ci1 )
-          ci1 = &cgs.clientinfo[ i ];
-        else
-          ci2 = &cgs.clientinfo[ i ];
-      }
-    }
-
-    if( ci1 && ci2 )
-    {
-      s = va( "%s vs %s", ci1->name, ci2->name );
-      w = CG_DrawStrlen( s );
-      if( w > 640 / GIANT_WIDTH )
-        cw = 640 / w;
-      else
-        cw = GIANT_WIDTH;
-      
-      CG_DrawStringExt( 320 - w * cw / 2, 20,s, colorWhite,
-          qfalse, qtrue, cw, (int)( cw * 1.5f ), 0 );
-    }
-  }
-  else
-  {
-    if( cgs.gametype == GT_FFA )
-      s = "Free For All";
-    else if ( cgs.gametype == GT_TEAM )
-      s = "Team Deathmatch";
-    else if ( cgs.gametype == GT_CTF ) 
-      s = "Capture the Flag";
-    else 
-      s = "";
-    
-    w = CG_DrawStrlen( s );
-    if( w > 640 / GIANT_WIDTH ) 
-      cw = 640 / w;
-    else 
-      cw = GIANT_WIDTH;
-    
-    CG_DrawStringExt( 320 - w * cw / 2, 25,s, colorWhite,
-        qfalse, qtrue, cw, (int)( cw * 1.1f ), 0 );
-  }
-
-  sec = ( sec - cg.time ) / 1000;
-  if( sec < 0 )
-  {
-    cg.warmup = 0;
-    sec = 0;
-  }
-  
-  s = va( "Starts in: %i", sec + 1 );
-  
-  if( sec != cg.warmupCount )
-  {
-    cg.warmupCount = sec;
-    switch( sec )
-    {
-      case 0:
-        trap_S_StartLocalSound( cgs.media.count1Sound, CHAN_ANNOUNCER );
-        break;
-      case 1:
-        trap_S_StartLocalSound( cgs.media.count2Sound, CHAN_ANNOUNCER );
-        break;
-      case 2:
-        trap_S_StartLocalSound( cgs.media.count3Sound, CHAN_ANNOUNCER );
-        break;
-      default:
-        break;
-    }
-  }
-  
-  scale = 0.45f;
-  
-  switch( cg.warmupCount )
-  {
-    case 0:
-      cw = 28;
-      scale = 0.54f;
-      break;
-    case 1:
-      cw = 24;
-      scale = 0.51f;
-      break;
-    case 2:
-      cw = 20;
-      scale = 0.48f;
-      break;
-    default:
-      cw = 16;
-      scale = 0.45f;
-      break;
-  }
-
-  w = CG_DrawStrlen( s );
-  CG_DrawStringExt( 320 - w * cw / 2, 70, s, colorWhite,
-      qfalse, qtrue, cw, (int)( cw * 1.5 ), 0 );
 }
 
 //==================================================================================
@@ -2447,20 +2307,11 @@ static void CG_Draw2D( void )
   CG_DrawVote( );
   CG_DrawTeamVote( );
 
-  if( !CG_DrawFollow( ) )
-    CG_DrawWarmup();
-
   // don't draw center string if scoreboard is up
   cg.scoreBoardShowing = CG_DrawScoreboard( );
   
   if( !cg.scoreBoardShowing )
     CG_DrawCenterString( );
-}
-
-
-static void CG_DrawTourneyScoreboard( )
-{
-  CG_DrawOldTourneyScoreboard();
 }
 
 
@@ -2479,14 +2330,6 @@ void CG_DrawActive( stereoFrame_t stereoView )
   // optionally draw the info screen instead
   if( !cg.snap )
     return;
-
-  // optionally draw the tournement scoreboard instead
-  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR &&
-      ( cg.snap->ps.pm_flags & PMF_SCOREBOARD ) )
-  {
-    CG_DrawTourneyScoreboard( );
-    return;
-  }
 
   switch ( stereoView )
   {

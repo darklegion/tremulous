@@ -36,29 +36,32 @@ void multi_wait( gentity_t *ent ) {
 // the trigger was just activated
 // ent->activator should be set to the activator so it can be held through a delay
 // so wait for the delay time before firing
-void multi_trigger( gentity_t *ent, gentity_t *activator ) {
+void multi_trigger( gentity_t *ent, gentity_t *activator )
+{
   ent->activator = activator;
-  if ( ent->nextthink ) {
+  if( ent->nextthink )
     return;   // can't retrigger until the wait is over
+
+  if( activator->client )
+  {
+    if( ( ent->spawnflags & 1 ) &&
+        activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
+      return;
+
+    if( ( ent->spawnflags & 2 ) &&
+        activator->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
+      return;
   }
 
-  if ( activator->client ) {
-    if ( ( ent->spawnflags & 1 ) &&
-      activator->client->sess.sessionTeam != TEAM_HUMANS ) {
-      return;
-    }
-    if ( ( ent->spawnflags & 2 ) &&
-      activator->client->sess.sessionTeam != TEAM_ALIENS ) {
-      return;
-    }
-  }
+  G_UseTargets( ent, ent->activator );
 
-  G_UseTargets (ent, ent->activator);
-
-  if ( ent->wait > 0 ) {
+  if( ent->wait > 0 )
+  {
     ent->think = multi_wait;
-    ent->nextthink = level.time + ( ent->wait + ent->random * crandom() ) * 1000;
-  } else {
+    ent->nextthink = level.time + ( ent->wait + ent->random * crandom( ) ) * 1000;
+  }
+  else
+  {
     // we can't just remove (self) here, because this is a touch function
     // called while looping through area links...
     ent->touch = 0;

@@ -129,14 +129,16 @@ G_TeamCommand
 Broadcasts a command to only a specific team
 ================
 */
-void G_TeamCommand( team_t team, char *cmd ) {
+void G_TeamCommand( pTeam_t team, char *cmd )
+{
 	int		i;
 
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if ( level.clients[i].pers.connected == CON_CONNECTED ) {
-			if ( level.clients[i].sess.sessionTeam == team ) {
-				trap_SendServerCommand( i, va("%s", cmd ));
-			}
+	for( i = 0 ; i < level.maxclients ; i++ )
+  {
+		if( level.clients[ i ].pers.connected == CON_CONNECTED )
+    {
+			if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == team )
+				trap_SendServerCommand( i, va( "%s", cmd ) );
 		}
 	}
 }

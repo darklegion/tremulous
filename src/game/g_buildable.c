@@ -2282,3 +2282,69 @@ void G_ValidateBuild( gentity_t *ent, buildable_t buildable )
       break;
   }
 }
+
+/*
+================
+FinishSpawningBuildable
+
+Traces down to find where an item should rest, instead of letting them
+free fall from their spawn points
+================
+*/
+void FinishSpawningBuildable( gentity_t *ent )
+{
+  trace_t     tr;
+  vec3_t      dest;
+  gentity_t   *built;
+  buildable_t buildable = ent->s.modelindex;
+
+  built = G_buildItem( ent, buildable, ent->s.pos.trBase, ent->s.angles );
+  G_FreeEntity( ent );
+
+  // drop to floor
+  if( buildable != BA_NONE && BG_FindTrajectoryForBuildable( buildable ) == TR_BUOYANCY )
+    VectorSet( dest, built->s.origin[0], built->s.origin[1], built->s.origin[2] + 4096 );
+  else
+    VectorSet( dest, built->s.origin[0], built->s.origin[1], built->s.origin[2] - 4096 );
+
+  trap_Trace( &tr, built->s.origin, built->r.mins, built->r.maxs, dest, built->s.number, built->clipmask );
+  if( tr.startsolid )
+  {
+    G_Printf ("FinishSpawningBuildable: %s startsolid at %s\n", built->classname, vtos(built->s.origin));
+    G_FreeEntity( built );
+    return;
+  }
+
+  //point items in the correct direction
+  VectorCopy( tr.plane.normal, built->s.origin2 );
+
+  // allow to ride movers
+  built->s.groundEntityNum = tr.entityNum;
+
+  G_SetOrigin( built, tr.endpos );
+
+  trap_LinkEntity( built );
+}
+
+
+qboolean  itemRegistered[MAX_ITEMS];
+
+/*
+============
+G_SpawnBuildable
+
+Sets the clipping size and plants the object on the floor.
+
+Items can't be immediately dropped to floor, because they might
+be on an entity that hasn't spawned yet.
+============
+*/
+void G_SpawnBuildable( gentity_t *ent, buildable_t buildable )
+{
+  ent->s.modelindex = buildable;
+
+  // some movers spawn on the second frame, so delay item
+  // spawns until the third frame so they can ride trains
+  ent->nextthink = level.time + FRAMETIME * 2;
+  ent->think = FinishSpawningBuildable;
+}

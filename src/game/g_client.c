@@ -858,52 +858,6 @@ int TeamLeader( int team ) {
   return -1;
 }
 
-
-/*
-================
-PickTeam
-
-================
-*/
-team_t PickTeam( int ignoreClientNum ) {
-  int   counts[TEAM_NUM_TEAMS];
-
-  counts[TEAM_ALIENS] = TeamCount( ignoreClientNum, TEAM_ALIENS );
-  counts[TEAM_HUMANS] = TeamCount( ignoreClientNum, TEAM_HUMANS );
-
-  if ( counts[TEAM_ALIENS] > counts[TEAM_HUMANS] ) {
-    return TEAM_HUMANS;
-  }
-  if ( counts[TEAM_HUMANS] > counts[TEAM_ALIENS] ) {
-    return TEAM_ALIENS;
-  }
-  // equal team count, so join the team with the lowest score
-  if ( level.teamScores[TEAM_ALIENS] > level.teamScores[TEAM_HUMANS] ) {
-    return TEAM_HUMANS;
-  }
-  return TEAM_ALIENS;
-}
-
-/*
-===========
-ForceClientSkin
-
-Forces a client's skin (for teamplay)
-===========
-*/
-/*
-static void ForceClientSkin( gclient_t *client, char *model, const char *skin ) {
-  char *p;
-
-  if ((p = Q_strrchr(model, '/')) != 0) {
-    *p = 0;
-  }
-
-  Q_strcat(model, MAX_QPATH, "/");
-  Q_strcat(model, MAX_QPATH, skin);
-}
-*/
-
 /*
 ===========
 ClientCheckName
@@ -1172,15 +1126,6 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
   }
   G_ReadSessionData( client );
 
-  //TA: rip bots
-  /*if( isBot ) {
-    ent->r.svFlags |= SVF_BOT;
-    ent->inuse = qtrue;
-    if( !G_BotConnect( clientNum, !firstTime ) ) {
-      return "BotConnectfailed";
-    }
-  }*/
-
   // get and distribute relevent paramters
   G_LogPrintf( "ClientConnect: %i\n", clientNum );
   ClientUserinfoChanged( clientNum );
@@ -1188,11 +1133,6 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
   // don't do the "xxx connected" messages if they were caried over from previous level
   if ( firstTime ) {
     trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname) );
-  }
-
-  if ( g_gametype.integer >= GT_TEAM &&
-    client->sess.sessionTeam != TEAM_SPECTATOR ) {
-    BroadcastTeamChange( client, -1 );
   }
 
   // count current clients and rank for scoreboard
@@ -1217,13 +1157,6 @@ void ClientBegin( int clientNum ) {
   int     flags;
 
   ent = g_entities + clientNum;
-
-  //TA: rip bots
-  /*if( ent->botDelayBegin ) {
-    G_QueueBotBegin( clientNum );
-    ent->botDelayBegin = qfalse;
-    return;
-  }*/
 
   client = level.clients + clientNum;
 
@@ -1257,9 +1190,7 @@ void ClientBegin( int clientNum ) {
     tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
     tent->s.clientNum = ent->s.clientNum;
 
-    if ( g_gametype.integer != GT_TOURNAMENT ) {
-      trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
-    }
+    trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
   }
   G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
@@ -1321,11 +1252,11 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   if ( client->sess.sessionTeam == TEAM_SPECTATOR )
   {
     if( teamLocal == PTE_NONE )
-      spawnPoint = SelectSpectatorSpawnPoint ( spawn_origin, spawn_angles);
+      spawnPoint = SelectSpectatorSpawnPoint ( spawn_origin, spawn_angles );
     else if( teamLocal == PTE_ALIENS )
-      spawnPoint = SelectAlienLockSpawnPoint ( spawn_origin, spawn_angles);
+      spawnPoint = SelectAlienLockSpawnPoint ( spawn_origin, spawn_angles );
     else if( teamLocal == PTE_HUMANS )
-      spawnPoint = SelectHumanLockSpawnPoint ( spawn_origin, spawn_angles);
+      spawnPoint = SelectHumanLockSpawnPoint ( spawn_origin, spawn_angles );
   }
   else
   {
@@ -1576,15 +1507,6 @@ void ClientDisconnect( int clientNum ) {
     return;
   }
 
-  // stop any following clients
-  for ( i = 0 ; i < level.maxclients ; i++ ) {
-    if ( level.clients[i].sess.sessionTeam == TEAM_SPECTATOR
-      && level.clients[i].sess.spectatorState == SPECTATOR_FOLLOW
-      && level.clients[i].sess.spectatorClient == clientNum ) {
-      StopFollowing( &g_entities[i] );
-    }
-  }
-
   // send effect if they were completely connected
   if ( ent->client->pers.connected == CON_CONNECTED
     && ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
@@ -1598,14 +1520,6 @@ void ClientDisconnect( int clientNum ) {
 
   G_LogPrintf( "ClientDisconnect: %i\n", clientNum );
 
-  // if we are playing in tourney mode and losing, give a win to the other player
-  if ( ( g_gametype.integer == GT_TOURNAMENT )
-    && !level.intermissiontime
-    && !level.warmupTime && level.sortedClients[1] == clientNum ) {
-    level.clients[ level.sortedClients[0] ].sess.wins++;
-    ClientUserinfoChanged( level.sortedClients[0] );
-  }
-
   trap_UnlinkEntity (ent);
   ent->s.modelindex = 0;
   ent->inuse = qfalse;
@@ -1617,9 +1531,4 @@ void ClientDisconnect( int clientNum ) {
   trap_SetConfigstring( CS_PLAYERS + clientNum, "");
 
   CalculateRanks();
-
-  //TA: rip bots
-  /*if ( ent->r.svFlags & SVF_BOT ) {
-    BotAIShutdownClient( clientNum );
-  }*/
 }

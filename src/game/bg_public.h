@@ -103,22 +103,6 @@
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
 #endif
 
-typedef enum {
-  GT_FFA,       // free for all
-  GT_TOURNAMENT,    // one on one tournament
-  GT_SINGLE_PLAYER, // single player ffa
-
-  //-- team games go after this --
-
-  GT_TEAM,      // team deathmatch
-  GT_CTF,       // capture the flag
-  GT_1FCTF,
-  GT_OBELISK,
-  GT_HARVESTER,
-
-  GT_MAX_GAME_TYPE
-} gametype_t;
-
 typedef enum { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER } gender_t;
 
 /*
@@ -735,8 +719,6 @@ typedef struct animation_s {
 
 typedef enum {
   TEAM_FREE,
-  TEAM_HUMANS,
-  TEAM_ALIENS,
   TEAM_SPECTATOR,
 
   TEAM_NUM_TEAMS

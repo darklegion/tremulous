@@ -1834,7 +1834,7 @@ static void PM_CheckDuck (void)
   BG_FindViewheightForClass( pm->ps->stats[ STAT_PCLASS ], &PCvh, &PCcvh );
 
   //TA: iD bug? you can still crouch when you're a spectator
-  if( pm->ps->persistant[PERS_TEAM] == TEAM_SPECTATOR )
+  if( pm->ps->persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
     PCcvh = PCvh;
 
   pm->mins[0] = PCmins[0];

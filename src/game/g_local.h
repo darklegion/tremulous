@@ -503,34 +503,12 @@ char *G_NewString( const char *string );
 //
 // g_cmds.c
 //
-void Cmd_Score_f (gentity_t *ent);
-void StopFollowing( gentity_t *ent );
-void BroadcastTeamChange( gclient_t *client, int oldTeam );
-void SetTeam( gentity_t *ent, char *s );
-void Cmd_FollowCycle_f( gentity_t *ent, int dir );
+void Cmd_Score_f( gentity_t *ent );
 
 //
-// g_items.c
+// g_physics.c
 //
-void G_CheckTeamItems( void );
-void G_RunItem( gentity_t *ent, int msec );
-void RespawnItem( gentity_t *ent );
-
-void UseHoldableItem( gentity_t *ent );
-void PrecacheItem (gitem_t *it);
-gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle );
-gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity );
-void SetRespawn (gentity_t *ent, float delay);
-void G_SpawnBuildable(gentity_t *ent, buildable_t buildable);
-void FinishSpawningBuildable( gentity_t *ent );
-void Think_Weapon (gentity_t *ent);
-int ArmorIndex (gentity_t *ent);
-void  Add_Ammo (gentity_t *ent, int weapon, int count);
-void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace);
-
-void ClearRegisteredItems( void );
-void RegisterItem( gitem_t *item );
-void SaveRegisteredItems( void );
+void G_Physics( gentity_t *ent, int msec );
 
 //
 // g_buildable.c
@@ -565,13 +543,15 @@ gentity_t         *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_
 void              G_ValidateBuild( gentity_t *ent, buildable_t buildable );
 void              G_setBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim, qboolean force );
 void              G_setIdleBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim );
+void              G_SpawnBuildable(gentity_t *ent, buildable_t buildable);
+void              FinishSpawningBuildable( gentity_t *ent );
 
 //
 // g_utils.c
 //
 int G_ModelIndex( char *name );
 int   G_SoundIndex( char *name );
-void  G_TeamCommand( team_t team, char *cmd );
+void  G_TeamCommand( pTeam_t team, char *cmd );
 void  G_KillBox (gentity_t *ent);
 gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match);
 gentity_t *G_PickTarget (char *targetname);
@@ -674,7 +654,6 @@ void Weapon_HookThink (gentity_t *ent);
 //
 team_t TeamCount( int ignoreClientNum, int team );
 int TeamLeader( int team );
-team_t PickTeam( int ignoreClientNum );
 void SetClientViewAngle( gentity_t *ent, vec3_t angle );
 gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
 void SpawnCorpse( gentity_t *ent );
@@ -713,7 +692,7 @@ void FireWeapon3( gentity_t *ent );
 //
 void MoveClientToIntermission (gentity_t *client);
 void G_SetStats (gentity_t *ent);
-void DeathmatchScoreboardMessage (gentity_t *client);
+void ScoreboardMessage (gentity_t *client);
 
 //
 // g_cmds.c
@@ -825,7 +804,6 @@ extern  gentity_t   g_entities[MAX_GENTITIES];
 
 #define FOFS(x) ((int)&(((gentity_t *)0)->x))
 
-extern  vmCvar_t  g_gametype;
 extern  vmCvar_t  g_dedicated;
 extern  vmCvar_t  g_cheats;
 extern  vmCvar_t  g_maxclients;     // allow this many total, including spectators

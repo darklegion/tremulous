@@ -115,8 +115,6 @@ void CG_ParseServerinfo( void ) {
   char  *mapname;
 
   info = CG_ConfigString( CS_SERVERINFO );
-  cgs.gametype = atoi( Info_ValueForKey( info, "g_gametype" ) );
-  trap_Cvar_Set("g_gametype", va("%i", cgs.gametype));
   cgs.dmflags = atoi( Info_ValueForKey( info, "dmflags" ) );
   cgs.teamflags = atoi( Info_ValueForKey( info, "teamflags" ) );
   cgs.fraglimit = atoi( Info_ValueForKey( info, "fraglimit" ) );
@@ -178,11 +176,6 @@ void CG_SetConfigValues( void )
   sscanf( CG_ConfigString( CS_STAGES ), "%d %d", &cgs.alienStage, &cgs.humanStage );
   
   cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
-  if( cgs.gametype == GT_CTF ) {
-    s = CG_ConfigString( CS_FLAGSTATUS );
-    cgs.redflag = s[0] - '0';
-    cgs.blueflag = s[1] - '0';
-  }
   cg.warmup = atoi( CG_ConfigString( CS_WARMUP ) );
 }
 
@@ -342,11 +335,6 @@ static void CG_ConfigStringModified( void ) {
     CG_NewClientInfo( num - CS_PLAYERS );
     CG_BuildSpectatorString();
   } else if ( num == CS_FLAGSTATUS ) {
-    if( cgs.gametype == GT_CTF ) {
-      // format is rb where its red/blue, 0 is at base, 1 is taken, 2 is dropped
-      cgs.redflag = str[0] - '0';
-      cgs.blueflag = str[1] - '0';
-    }
   }
   else if ( num == CS_SHADERSTATE ) {
     CG_ShaderStateChanged();
@@ -471,7 +459,8 @@ static void CG_MapRestart( void ) {
   // we really should clear more parts of cg here and stop sounds
 
   // play the "fight" sound if this is a restart without warmup
-  if ( cg.warmup == 0 /* && cgs.gametype == GT_TOURNAMENT */) {
+  if( cg.warmup == 0 )
+  {
     trap_S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
     CG_CenterPrint( "FIGHT!", 120, GIANTCHAR_WIDTH*2 );
   }

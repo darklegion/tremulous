@@ -196,13 +196,7 @@ static void CG_Obituary( entityState_t *ent ) {
   if ( attacker == cg.snap->ps.clientNum ) {
     char  *s;
 
-    if ( cgs.gametype < GT_TEAM ) {
-      s = va("You fragged %s\n%s place with %i", targetName,
-        CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
-        cg.snap->ps.persistant[PERS_SCORE] );
-    } else {
-      s = va("You fragged %s", targetName );
-    }
+    s = va("You fragged %s", targetName );
     CG_CenterPrint( s, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 
     // print the text message as well

@@ -168,7 +168,7 @@ void UI_LoadArenas( void ) {
     // if no type specified, it will be treated as "ffa"
     
     if( *type && strstr( type, "tremulous" ) )
-      uiInfo.mapList[ uiInfo.mapCount ].typeBits |= ( 1 << GT_FFA );
+      uiInfo.mapList[ uiInfo.mapCount ].typeBits |= ( 1 << 0 );
     else
       continue; //not a trem map
 

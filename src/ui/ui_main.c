@@ -1348,11 +1348,6 @@ static void UI_DrawClanName(rectDef_t *rect, float scale, vec4_t color, int text
 static void UI_SetCapFragLimits(qboolean uiVars) {
   int cap = 5;
   int frag = 10;
-  if (uiInfo.gameTypes[ui_gameType.integer].gtEnum == GT_OBELISK) {
-    cap = 4;
-  } else if (uiInfo.gameTypes[ui_gameType.integer].gtEnum == GT_HARVESTER) {
-    cap = 15;
-  }
   if (uiVars) {
     trap_Cvar_Set("ui_captureLimit", va("%d", cap));
     trap_Cvar_Set("ui_fragLimit", va("%d", frag));
@@ -1615,17 +1610,10 @@ static void UI_DrawTeamMember(rectDef_t *rect, float scale, vec4_t color, qboole
   } else {
     value -= 2;
 
-    if (ui_actualNetGameType.integer >= GT_TEAM) {
-      if (value >= uiInfo.characterCount) {
-        value = 0;
-      }
-      text = uiInfo.characterList[value].name;
-    } else {
-      if (value >= UI_GetNumBots()) {
-        value = 0;
-      }
-      text = UI_GetBotNameByNumber(value);
-    }
+    if( value >= UI_GetNumBots( ) )
+      value = 0;
+
+    text = UI_GetBotNameByNumber(value);
   }
   Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
 }
@@ -2194,17 +2182,12 @@ static void UI_DrawBotName(rectDef_t *rect, float scale, vec4_t color, int textS
   int value = uiInfo.botIndex;
   int game = trap_Cvar_VariableValue("g_gametype");
   const char *text = "";
-  if (game >= GT_TEAM) {
-    if (value >= uiInfo.characterCount) {
-      value = 0;
-    }
-    text = uiInfo.characterList[value].name;
-  } else {
-    if (value >= UI_GetNumBots()) {
-      value = 0;
-    }
-    text = UI_GetBotNameByNumber(value);
-  }
+  
+  if( value >= UI_GetNumBots( ) )
+    value = 0;
+
+  text = UI_GetBotNameByNumber( value );
+
   Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
 }
 
@@ -2637,20 +2620,6 @@ static qboolean UI_OwnerDrawVisible(int flags) {
 
   while (flags) {
 
-    if (flags & UI_SHOW_FFA) {
-      if (trap_Cvar_VariableValue("g_gametype") != GT_FFA) {
-        vis = qfalse;
-      }
-      flags &= ~UI_SHOW_FFA;
-    }
-
-    if (flags & UI_SHOW_NOTFFA) {
-      if (trap_Cvar_VariableValue("g_gametype") == GT_FFA) {
-        vis = qfalse;
-      }
-      flags &= ~UI_SHOW_NOTFFA;
-    }
-
     if (flags & UI_SHOW_LEADER) {
       // these need to show when this client can give orders to a player or a group
       if (!uiInfo.teamLeader) {
@@ -2687,30 +2656,6 @@ static qboolean UI_OwnerDrawVisible(int flags) {
         vis = qfalse;
       }
       flags &= ~UI_SHOW_NOTFAVORITESERVERS;
-    } 
-    if (flags & UI_SHOW_ANYTEAMGAME) {
-      if (uiInfo.gameTypes[ui_gameType.integer].gtEnum <= GT_TEAM ) {
-        vis = qfalse;
-      }
-      flags &= ~UI_SHOW_ANYTEAMGAME;
-    } 
-    if (flags & UI_SHOW_ANYNONTEAMGAME) {
-      if (uiInfo.gameTypes[ui_gameType.integer].gtEnum > GT_TEAM ) {
-        vis = qfalse;
-      }
-      flags &= ~UI_SHOW_ANYNONTEAMGAME;
-    } 
-    if (flags & UI_SHOW_NETANYTEAMGAME) {
-      if (uiInfo.gameTypes[ui_netGameType.integer].gtEnum <= GT_TEAM ) {
-        vis = qfalse;
-      }
-      flags &= ~UI_SHOW_NETANYTEAMGAME;
-    } 
-    if (flags & UI_SHOW_NETANYNONTEAMGAME) {
-      if (uiInfo.gameTypes[ui_netGameType.integer].gtEnum > GT_TEAM ) {
-        vis = qfalse;
-      }
-      flags &= ~UI_SHOW_NETANYNONTEAMGAME;
     } 
     if (flags & UI_SHOW_NEWHIGHSCORE) {
       if (uiInfo.newHighScoreTime < uiInfo.uiDC.realTime) {
@@ -2833,11 +2778,7 @@ static qboolean UI_GameType_HandleKey(int flags, float *special, int key, qboole
       }
     }
     
-    if (uiInfo.gameTypes[ui_gameType.integer].gtEnum == GT_TOURNAMENT) {
-      trap_Cvar_Set("ui_Q3Model", "1");
-    } else {
-      trap_Cvar_Set("ui_Q3Model", "0");
-    }
+    trap_Cvar_Set("ui_Q3Model", "0");
 
     trap_Cvar_Set("ui_gameType", va("%d", ui_gameType.integer));
     UI_SetCapFragLimits(qtrue);
@@ -2960,19 +2901,10 @@ static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key, qboo
       value++;
     }
 
-    if (ui_actualNetGameType.integer >= GT_TEAM) {
-      if (value >= uiInfo.characterCount + 2) {
-        value = 0;
-      } else if (value < 0) {
-        value = uiInfo.characterCount + 2 - 1;
-      }
-    } else {
-      if (value >= UI_GetNumBots() + 2) {
-        value = 0;
-      } else if (value < 0) {
-        value = UI_GetNumBots() + 2 - 1;
-      }
-    }
+    if( value >= UI_GetNumBots( ) + 2 )
+      value = 0;
+    else if( value < 0 )
+      value = UI_GetNumBots( ) + 2 - 1;
 
     trap_Cvar_Set(cvar, va("%i", value));
     return qtrue;
@@ -3054,19 +2986,12 @@ static qboolean UI_BotName_HandleKey(int flags, float *special, int key) {
       value++;
     }
 
-    if (game >= GT_TEAM) {
-      if (value >= uiInfo.characterCount + 2) {
-        value = 0;
-      } else if (value < 0) {
-        value = uiInfo.characterCount + 2 - 1;
-      }
-    } else {
-      if (value >= UI_GetNumBots() + 2) {
-        value = 0;
-      } else if (value < 0) {
-        value = UI_GetNumBots() + 2 - 1;
-      }
-    }
+
+    if( value >= UI_GetNumBots( ) + 2 )
+      value = 0;
+    else if( value < 0 )
+      value = UI_GetNumBots( ) + 2 - 1;
+      
     uiInfo.botIndex = value;
     return qtrue;
   }
@@ -3868,27 +3793,20 @@ static void UI_StartSkirmish(qboolean next) {
 
   delay = 500;
 
-  if (g == GT_TOURNAMENT) {
-    trap_Cvar_Set("sv_maxClients", "2");
-    Com_sprintf( buff, sizeof(buff), "wait ; addbot %s %f "", %i \n", uiInfo.mapList[ui_currentMap.integer].opponentName, skill, delay);
-    trap_Cmd_ExecuteText( EXEC_APPEND, buff );
-  } else {
+  {
     temp = uiInfo.mapList[ui_currentMap.integer].teamMembers * 2;
     trap_Cvar_Set("sv_maxClients", va("%d", temp));
     for (i =0; i < uiInfo.mapList[ui_currentMap.integer].teamMembers; i++) {
-      Com_sprintf( buff, sizeof(buff), "addbot %s %f %s %i %s\n", UI_AIFromName(uiInfo.teamList[k].teamMembers[i]), skill, (g == GT_FFA) ? "" : "Blue", delay, uiInfo.teamList[k].teamMembers[i]);
+      Com_sprintf( buff, sizeof(buff), "addbot %s %f %s %i %s\n", UI_AIFromName(uiInfo.teamList[k].teamMembers[i]), skill, "", delay, uiInfo.teamList[k].teamMembers[i]);
       trap_Cmd_ExecuteText( EXEC_APPEND, buff );
       delay += 500;
     }
     k = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_teamName"));
     for (i =0; i < uiInfo.mapList[ui_currentMap.integer].teamMembers-1; i++) {
-      Com_sprintf( buff, sizeof(buff), "addbot %s %f %s %i %s\n", UI_AIFromName(uiInfo.teamList[k].teamMembers[i]), skill, (g == GT_FFA) ? "" : "Red", delay, uiInfo.teamList[k].teamMembers[i]);
+      Com_sprintf( buff, sizeof(buff), "addbot %s %f %s %i %s\n", UI_AIFromName(uiInfo.teamList[k].teamMembers[i]), skill, "", delay, uiInfo.teamList[k].teamMembers[i]);
       trap_Cmd_ExecuteText( EXEC_APPEND, buff );
       delay += 500;
     }
-  }
-  if (g >= GT_TEAM ) {
-    trap_Cmd_ExecuteText( EXEC_APPEND, "wait 5; team Red\n" );
   }
 }
 
@@ -4057,20 +3975,12 @@ static void UI_RunMenuScript(char **args) {
       for (i = 0; i < PLAYERS_PER_TEAM; i++) {
         int bot = trap_Cvar_VariableValue( va("ui_blueteam%i", i+1));
         if (bot > 1) {
-          if (ui_actualNetGameType.integer >= GT_TEAM) {
-            Com_sprintf( buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot-2].name, skill, "Blue");
-          } else {
-            Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
-          }
+          Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
           trap_Cmd_ExecuteText( EXEC_APPEND, buff );
         }
         bot = trap_Cvar_VariableValue( va("ui_redteam%i", i+1));
         if (bot > 1) {
-          if (ui_actualNetGameType.integer >= GT_TEAM) {
-            Com_sprintf( buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot-2].name, skill, "Red");
-          } else {
-            Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
-          }
+          Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
           trap_Cmd_ExecuteText( EXEC_APPEND, buff );
         }
       }
@@ -4326,11 +4236,7 @@ static void UI_RunMenuScript(char **args) {
         trap_Cmd_ExecuteText( EXEC_APPEND, va("callteamvote leader %s\n",uiInfo.teamNames[uiInfo.teamIndex]) );
       }
     } else if (Q_stricmp(name, "addBot") == 0) {
-      if (trap_Cvar_VariableValue("g_gametype") >= GT_TEAM) {
-        trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot %s %i %s\n", uiInfo.characterList[uiInfo.botIndex].name, uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
-      } else {
         trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot %s %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
-      }
     } else if (Q_stricmp(name, "addFavorite") == 0) {
       if (ui_netSource.integer != AS_FAVORITES) {
         char name[MAX_NAME_LENGTH];
@@ -4468,18 +4374,12 @@ static int UI_MapCountByGameType(qboolean singlePlayer) {
   int i, c, game;
   c = 0;
   game = singlePlayer ? uiInfo.gameTypes[ui_gameType.integer].gtEnum : uiInfo.gameTypes[ui_netGameType.integer].gtEnum;
-  if (game == GT_SINGLE_PLAYER) {
-    game++;
-  } 
-  if (game == GT_TEAM) {
-    game = GT_FFA;
-  }
 
   for (i = 0; i < uiInfo.mapCount; i++) {
     uiInfo.mapList[i].active = qfalse;
     if ( uiInfo.mapList[i].typeBits & (1 << game)) {
       if (singlePlayer) {
-        if (!(uiInfo.mapList[i].typeBits & (1 << GT_SINGLE_PLAYER))) {
+        if (!(uiInfo.mapList[i].typeBits & (1 << 2))) {
           continue;
         }
       }
