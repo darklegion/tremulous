@@ -2021,6 +2021,49 @@ static void CG_DrawConsole( rectDef_t *rect, float text_x, float text_y, vec4_t 
   Item_Text_AutoWrapped_Paint( &textItem );
 }
 
+/*
+===================
+CG_DrawWeaponIcon
+===================
+*/
+void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
+{
+  int           ammo, clips, maxAmmo, maxClips;
+  centity_t     *cent;
+  playerState_t *ps;
+
+  cent = &cg_entities[ cg.snap->ps.clientNum ];
+  ps = &cg.snap->ps;
+
+  BG_unpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, &ammo, &clips, NULL );
+  BG_FindAmmoForWeapon( cent->currentState.weapon, &maxAmmo, &maxClips, NULL );
+  
+  // don't display if dead
+  if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
+    return;
+
+  if( cent->currentState.weapon == 0 )
+    return;
+  
+  CG_RegisterWeapon( cent->currentState.weapon );
+
+  if( clips == 0 && !BG_FindInfinteAmmoForWeapon( cent->currentState.weapon ) )
+  {
+    float ammoPercent = (float)ammo / (float)maxAmmo;
+
+    if( ammoPercent < 0.33f )
+    {
+      color[ 0 ] = 1.0f;
+      color[ 1 ] = color[ 2 ] = 0.0f;
+    }
+  }
+  
+  trap_R_SetColor( color );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, cg_weapons[ cent->currentState.weapon ].weaponIcon );
+  trap_R_SetColor( NULL );
+}
+
+
 void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
                    float text_y, int ownerDraw, int ownerDrawFlags,
                    int align, float special, float scale, vec4_t color,
@@ -2118,6 +2161,9 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       break;
     case CG_PLAYER_SELECT:
       CG_DrawWeaponSelect( &rect, color );
+      break;
+    case CG_PLAYER_WEAPONICON:
+      CG_DrawWeaponIcon( &rect, color );
       break;
     case CG_PLAYER_SELECTTEXT:
       CG_DrawWeaponSelectText( &rect, scale, textStyle );

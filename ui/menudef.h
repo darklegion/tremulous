@@ -147,6 +147,7 @@
 #define CG_PLAYER_CLIPS_RING        98
 #define CG_PLAYER_SELECT            74
 #define CG_PLAYER_SELECTTEXT        75
+#define CG_PLAYER_WEAPONICON        111
 #define CG_PLAYER_WALLCLIMBING      103
 #define CG_PLAYER_BOOSTED           104
 #define CG_PLAYER_POISON_BARBS      105
