@@ -751,7 +751,7 @@ typedef struct {
 } modInfo_t;
 
 //TA: tremulous menus
-#define MAX_INFOPANE_LINES    16
+#define MAX_INFOPANE_TEXT     4096
 #define MAX_INFOPANE_GRAPHICS 16
 #define MAX_INFOPANES         128
 
@@ -776,8 +776,8 @@ typedef struct
 typedef struct
 {
   const char      *name;
-  const char      *lines[ MAX_INFOPANE_LINES ];
-  int             numLines;
+  char            text[ MAX_INFOPANE_TEXT ];
+  int             align;
   
   tremIPGraphic_t graphics[ MAX_INFOPANE_GRAPHICS ];
   int             numGraphics;

@@ -1048,10 +1048,8 @@ tremInfoPane_t *UI_FindInfoPaneByName( const char *name )
 
   //create a dummy infopane demanding the user write the infopane
   uiInfo.tremInfoPanes[ i ].name = String_Alloc( name );
-  uiInfo.tremInfoPanes[ i ].lines[ 0 ] = String_Alloc( "Not implemented." );
-  uiInfo.tremInfoPanes[ i ].lines[ 1 ] = String_Alloc( "ui/infopanes.def" );
-  uiInfo.tremInfoPanes[ i ].lines[ 2 ] = String_Alloc( name );
-  uiInfo.tremInfoPanes[ i ].numLines = 3;
+  strncpy( uiInfo.tremInfoPanes[ i ].text, "Not implemented.\n\nui/infopanes.def", MAX_INFOPANE_TEXT );
+  Q_strcat( uiInfo.tremInfoPanes[ i ].text, MAX_INFOPANE_TEXT, String_Alloc( name ) );
   
   uiInfo.tremInfoPaneCount++;
 
@@ -1112,7 +1110,7 @@ qboolean UI_LoadInfoPane( int handle )
       if( !trap_PC_ReadToken( handle, &token ) )
         break;
 
-      if( !Q_stricmp( token.string, "centre" ) )
+      if( !Q_stricmp( token.string, "center" ) )
         uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].offset = -1;
       else
         uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].offset = token.intvalue;
@@ -1145,7 +1143,7 @@ qboolean UI_LoadInfoPane( int handle )
       if( *graphic == MAX_INFOPANE_GRAPHICS )
         break;
     }
-    else if( !Q_stricmp( token.string, "line" ) )
+    else if( !Q_stricmp( token.string, "text" ) )
     {
       int *line;
       
@@ -1154,15 +1152,21 @@ qboolean UI_LoadInfoPane( int handle )
       if( !trap_PC_ReadToken( handle, &token ) )
         break;
 
-      line = &uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].numLines;
-
-      uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].lines[ *line ] = String_Alloc( token.string );
-
-      //increment lines
-      (*line)++;
-
-      if( *line == MAX_INFOPANE_LINES )
+      Q_strcat( uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].text, MAX_INFOPANE_TEXT, token.string );
+    }
+    else if( !Q_stricmp( token.string, "align" ) )
+    {
+      memset( &token, 0, sizeof( pc_token_t ) );
+      
+      if( !trap_PC_ReadToken( handle, &token ) )
         break;
+
+      if( !Q_stricmp( token.string, "left" ) )
+        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].align = ITEM_ALIGN_LEFT;
+      else if( !Q_stricmp( token.string, "right" ) )
+        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].align = ITEM_ALIGN_RIGHT;
+      else if( !Q_stricmp( token.string, "center" ) )
+        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].align = ITEM_ALIGN_CENTER;
     }
     else if( token.string[ 0 ] == '}' )
     {
@@ -1180,7 +1184,6 @@ qboolean UI_LoadInfoPane( int handle )
   }
   else
   {
-    uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].numLines = 0;
     return qfalse;
   }
 }
@@ -1454,25 +1457,29 @@ static void UI_DrawPreviewCinematic(rectDef_t *rect, float scale, vec4_t color) 
 
 }
 
+
+#define GRAPHIC_BWIDTH  8.0f
 /*
 ===============
 UI_DrawInfoPane
 ===============
 */
-static void UI_DrawInfoPane( tremInfoPane_t *pane, rectDef_t *rect, float scale, vec4_t color, int textStyle )
+static void UI_DrawInfoPane( tremInfoPane_t *pane, rectDef_t *rect, float text_x, float text_y,
+                             float scale, vec4_t color, int textStyle )
 {
-  int i;
-  int maxx = 0, maxy = 0;
-  int x = rect->x, y = rect->y;
-  int xoffset = 0, yoffset = 0;
-  int textWidth = Text_Height( "O", scale, 0 );
-  int textHeight = Text_Height( "O", scale, 0 );
+  int       i;
+  float     maxLeft = 0, maxTop = 0;
+  float     maxRight = 0, maxBottom = 0;
+  float     x = rect->x - text_x, y = rect->y - text_y, w, h;
+  float     xoffset = 0, yoffset = 0;
+  menuDef_t dummyParent;
+  itemDef_t textItem;
 
   //iterate through graphics
   for( i = 0; i < pane->numGraphics; i++ )
   {
-    int width         = pane->graphics[ i ].width;
-    int height        = pane->graphics[ i ].height;
+    float width         = pane->graphics[ i ].width;
+    float height        = pane->graphics[ i ].height;
     qhandle_t graphic = pane->graphics[ i ].graphic;
     
     if( pane->graphics[ i ].side == INFOPANE_TOP || pane->graphics[ i ].side == INFOPANE_BOTTOM )
@@ -1481,7 +1488,7 @@ static void UI_DrawInfoPane( tremInfoPane_t *pane, rectDef_t *rect, float scale,
       if( pane->graphics[ i ].offset < 0 )
         xoffset = ( rect->w / 2 ) - ( pane->graphics[ i ].width / 2 );
       else
-        xoffset = pane->graphics[ i ].offset;
+        xoffset = pane->graphics[ i ].offset + GRAPHIC_BWIDTH;
     }
     else if( pane->graphics[ i ].side == INFOPANE_LEFT || pane->graphics[ i ].side == INFOPANE_RIGHT )
     {
@@ -1489,41 +1496,91 @@ static void UI_DrawInfoPane( tremInfoPane_t *pane, rectDef_t *rect, float scale,
       if( pane->graphics[ i ].offset < 0 )
         yoffset = ( rect->h / 2 ) - ( pane->graphics[ i ].height / 2 );
       else
-        yoffset = pane->graphics[ i ].offset;
+        yoffset = pane->graphics[ i ].offset + GRAPHIC_BWIDTH;
     }
 
     if( pane->graphics[ i ].side == INFOPANE_LEFT )
     {
       //set the horizontal offset of the text
-      if( pane->graphics[ i ].width > maxx )
-        maxx = pane->graphics[ i ].width;
+      if( pane->graphics[ i ].width > maxLeft )
+        maxLeft = pane->graphics[ i ].width + GRAPHIC_BWIDTH;
     
-      xoffset = 0;
+      xoffset = GRAPHIC_BWIDTH;
     }
     else if( pane->graphics[ i ].side == INFOPANE_RIGHT )
-      xoffset = rect->w - width;
+    {
+      if( pane->graphics[ i ].width > maxRight )
+        maxRight = pane->graphics[ i ].width + GRAPHIC_BWIDTH;
+      
+      xoffset = rect->w - width - GRAPHIC_BWIDTH;
+    }
     else if( pane->graphics[ i ].side == INFOPANE_TOP )
     {
       //set the vertical offset of the text
-      if( pane->graphics[ i ].height > maxy )
-        maxy = pane->graphics[ i ].height;
+      if( pane->graphics[ i ].height > maxTop )
+        maxTop = pane->graphics[ i ].height + GRAPHIC_BWIDTH;
       
-      yoffset = 0;
+      yoffset = GRAPHIC_BWIDTH;
     }
     else if( pane->graphics[ i ].side == INFOPANE_BOTTOM )
-      yoffset = rect->h - height;
+    {
+      if( pane->graphics[ i ].height > maxBottom )
+        maxBottom = pane->graphics[ i ].height + GRAPHIC_BWIDTH;
+      
+      yoffset = rect->h - height - GRAPHIC_BWIDTH;
+    }
 
     //draw the graphic
     UI_DrawHandlePic( x + xoffset, y + yoffset, width, height, graphic );
   }
   
   //offset the text
-  x += maxx + textWidth;
-  y += maxy + textHeight * 2;
+  x = rect->x + maxLeft;
+  y = rect->y + maxTop;
+  w = rect->w - ( maxLeft + maxRight + 16 + ( 2 * text_x ) ); //16 to ensure text within frame
+  h = rect->h - ( maxTop + maxBottom );
 
-  //iterate through text
-  for( i = 0; i < pane->numLines; i++ )
-    Text_Paint( x, y + i * textHeight * 1.5, scale, color, pane->lines[ i ], 0, 0, textStyle );
+  textItem.text = pane->text;
+    
+  textItem.parent = &dummyParent;
+  memcpy( textItem.window.foreColor, color, sizeof( vec4_t ) );
+  textItem.window.flags = 0;
+
+  switch( pane->align )
+  {
+    case ITEM_ALIGN_LEFT:
+      textItem.window.rect.x = x;
+      break;
+
+    case ITEM_ALIGN_RIGHT:
+      textItem.window.rect.x = x + w;
+      break;
+
+    case ITEM_ALIGN_CENTER:
+      textItem.window.rect.x = x + ( w / 2 );
+      break;
+
+    default:
+      textItem.window.rect.x = x;
+      break;
+  }
+  
+  textItem.window.rect.y = y;
+  textItem.window.rect.w = w;
+  textItem.window.rect.h = h;
+  textItem.window.borderSize = 0;
+  textItem.textRect.x = 0;
+  textItem.textRect.y = 0;
+  textItem.textRect.w = 0;
+  textItem.textRect.h = 0;
+  textItem.textalignment = pane->align;
+  textItem.textalignx = text_x;
+  textItem.textaligny = text_y;
+  textItem.textscale = scale;
+  textItem.textStyle = textStyle;
+
+  //hack to utilise existing autowrap code
+  Item_Text_AutoWrapped_Paint( &textItem );
 }
 
 
@@ -2379,42 +2436,42 @@ static void UI_OwnerDraw( float x, float y, float w, float h,
   {
     case UI_TEAMINFOPANE:
       if( pane = uiInfo.tremTeamList[ uiInfo.tremTeamIndex ].infopane )
-        UI_DrawInfoPane( pane, &rect, scale, color, textStyle );
+        UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
       
     case UI_ACLASSINFOPANE:
       if( pane = uiInfo.tremAlienClassList[ uiInfo.tremAlienClassIndex ].infopane )
-        UI_DrawInfoPane( pane, &rect, scale, color, textStyle );
+        UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
       
     case UI_AUPGRADEINFOPANE:
       if( pane = uiInfo.tremAlienUpgradeList[ uiInfo.tremAlienUpgradeIndex ].infopane )
-        UI_DrawInfoPane( pane, &rect, scale, color, textStyle );
+        UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
       
     case UI_HITEMINFOPANE:
       if( pane = uiInfo.tremHumanItemList[ uiInfo.tremHumanItemIndex ].infopane )
-        UI_DrawInfoPane( pane, &rect, scale, color, textStyle );
+        UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
       
     case UI_HBUYINFOPANE:
       if( pane = uiInfo.tremHumanMCUBuyList[ uiInfo.tremHumanMCUBuyIndex ].infopane )
-        UI_DrawInfoPane( pane, &rect, scale, color, textStyle );
+        UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
       
     case UI_HSELLINFOPANE:
       if( pane = uiInfo.tremHumanMCUSellList[ uiInfo.tremHumanMCUSellIndex ].infopane )
-        UI_DrawInfoPane( pane, &rect, scale, color, textStyle );
+        UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
       
     case UI_ABUILDINFOPANE:
       if( pane = uiInfo.tremAlienBuildList[ uiInfo.tremAlienBuildIndex ].infopane )
-        UI_DrawInfoPane( pane, &rect, scale, color, textStyle );
+        UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
       
     case UI_HBUILDINFOPANE:
       if( pane = uiInfo.tremHumanBuildList[ uiInfo.tremHumanBuildIndex ].infopane )
-        UI_DrawInfoPane( pane, &rect, scale, color, textStyle );
+        UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
       
     case UI_HANDICAP:
@@ -6084,8 +6141,7 @@ void _UI_Init( qboolean inGameLoad ) {
     {
       Com_Printf( "name: %s\n", uiInfo.tremInfoPanes[ i ].name );
 
-      for( j = 0; j < uiInfo.tremInfoPanes[ i ].numLines; j++ )
-        Com_Printf( "line %d: %s\n", j, uiInfo.tremInfoPanes[ i ].lines[ j ] );
+      Com_Printf( "text: %s\n", uiInfo.tremInfoPanes[ i ].text );
       
       for( j = 0; j < uiInfo.tremInfoPanes[ i ].numGraphics; j++ )
         Com_Printf( "graphic %d: %d %d %d %d\n", j, uiInfo.tremInfoPanes[ i ].graphics[ j ].side,
