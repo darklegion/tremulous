@@ -866,6 +866,7 @@ typedef struct
   int     crouchViewheight;
   
   int     health;
+  int     regenRate;
   int     armor;
   
   int     abilities;
@@ -912,6 +913,7 @@ typedef struct
   int       stages;
 
   int       health;
+  int       regenRate;
   
   int       damage;
   int       splashDamage;
@@ -1019,6 +1021,7 @@ char      *BG_FindEntityNameForBuildable( int bclass );
 char      *BG_FindModelsForBuildable( int bclass, int modelNum );
 void      BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs );
 int       BG_FindHealthForBuildable( int bclass );
+int       BG_FindRegenRateForBuildable( int bclass );
 trType_t  BG_FindTrajectoryForBuildable( int bclass );
 float     BG_FindBounceForBuildable( int bclass );
 int       BG_FindBuildPointsForBuildable( int bclass );
@@ -1051,6 +1054,7 @@ qboolean  BG_FindStagesForClass( int pclass, stage_t stage );
 void      BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, vec3_t dmins, vec3_t dmaxs );
 void      BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight );
 int       BG_FindHealthForClass( int pclass );
+int       BG_FindRegenRateForClass( int pclass );
 int       BG_FindArmorForClass( int pclass );
 int       BG_FindFovForClass( int pclass );
 float     BG_FindBobForClass( int pclass );

@@ -549,7 +549,10 @@ void ClientTimerActions( gentity_t *ent, int msec )
     if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     {
       if( ent->health < client->ps.stats[ STAT_MAX_HEALTH ] )
-        ent->health++;
+        BG_FindRegenRateForClass( client->ps.stats[ STAT_PCLASS ] );
+
+      if( ent->health > client->ps.stats[ STAT_MAX_HEALTH ] )
+        ent->health = client->ps.stats[ STAT_MAX_HEALTH ];
     }
   }
 }

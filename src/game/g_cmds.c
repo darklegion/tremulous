@@ -1741,7 +1741,7 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
   if( !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) )
   {
     AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
-    VectorMA( ent->client->ps.origin, 50, forward, end );
+    VectorMA( ent->client->ps.origin, 100, forward, end );
 
     trap_Trace( &tr, ent->client->ps.origin, NULL, NULL, end, ent->s.number, MASK_PLAYERSOLID );
     traceEnt = &g_entities[ tr.entityNum ];

@@ -1963,7 +1963,7 @@ start = trap_Milliseconds();
 
     if (  ent->s.eType == ET_ITEM || ent->s.eType == ET_BUILDABLE ||
           ent->s.eType == ET_CORPSE || ent->physicsObject ) {
-      G_RunItem( ent );
+      G_RunItem( ent, msec );
       continue;
     }
 

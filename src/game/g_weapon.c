@@ -408,7 +408,46 @@ BUILD GUN
 
 void cancelBuildFire( gentity_t *ent )
 {
-  ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
+  vec3_t      forward, end;
+  trace_t     tr;
+  gentity_t   *traceEnt;
+  int         bHealth;
+
+  if( ent->client->ps.stats[ STAT_BUILDABLE ] != BA_NONE )
+  {
+    ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
+    return;
+  }
+  
+  //repair buildable
+  if( ent->client->pers.pteam == PTE_HUMANS )
+  {
+    AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
+    VectorMA( ent->client->ps.origin, 100, forward, end );
+
+    trap_Trace( &tr, ent->client->ps.origin, NULL, NULL, end, ent->s.number, MASK_PLAYERSOLID );
+    traceEnt = &g_entities[ tr.entityNum ];
+
+    if( tr.fraction < 1.0 &&
+        ( traceEnt->s.eType == ET_BUILDABLE ) &&
+        ( traceEnt->biteam == ent->client->pers.pteam ) &&
+        ( ( ent->client->ps.weapon >= WP_HBUILD2 ) &&
+          ( ent->client->ps.weapon <= WP_HBUILD ) ) )
+    {
+      if( ent->client->ps.stats[ STAT_MISC ] > 0 )
+      {
+        G_AddPredictableEvent( ent, EV_BUILD_DELAY, 0 );
+        return;
+      }
+
+      bHealth = BG_FindHealthForBuildable( traceEnt->s.modelindex );
+
+      traceEnt->health += ( bHealth / 10.0f );
+
+      if( traceEnt->health > bHealth )
+        traceEnt->health = bHealth;
+    }
+  }
 }
 
 void buildFire( gentity_t *ent, dynMenu_t menu )

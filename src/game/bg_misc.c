@@ -33,6 +33,7 @@ buildableAttributes_t bg_buildableList[ ] =
     100,                   //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
+    50,                    //int       regenRate;
     50,                    //int       damage;
     50,                    //int       splashDamage;
     200,                   //int       splashRadius;
@@ -64,6 +65,7 @@ buildableAttributes_t bg_buildableList[ ] =
     80,                    //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
+    50,                    //int       regenRate;
     50,                    //int       damage;
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
@@ -95,6 +97,7 @@ buildableAttributes_t bg_buildableList[ ] =
     80,                    //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
+    50,                    //int       regenRate;
     50,                    //int       damage;
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
@@ -126,6 +129,7 @@ buildableAttributes_t bg_buildableList[ ] =
     80,                    //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
+    50,                    //int       regenRate;
     50,                    //int       damage;
     20,                    //int       splashDamage;
     400,                   //int       splashRadius;
@@ -157,6 +161,7 @@ buildableAttributes_t bg_buildableList[ ] =
     80,                    //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
+    50,                    //int       regenRate;
     50,                    //int       damage;
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
@@ -188,6 +193,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
+    50,                    //int       regenRate;
     50,                    //int       damage;
     50,                    //int       splashDamage;
     300,                   //int       splashRadius;
@@ -219,6 +225,7 @@ buildableAttributes_t bg_buildableList[ ] =
     80,                    //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
+    50,                    //int       regenRate;
     50,                    //int       damage;
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
@@ -250,6 +257,7 @@ buildableAttributes_t bg_buildableList[ ] =
     100,                   //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
+    50,                    //int       regenRate;
     50,                    //int       damage;
     50,                    //int       splashDamage;
     200,                   //int       splashRadius;
@@ -281,6 +289,7 @@ buildableAttributes_t bg_buildableList[ ] =
     100,                   //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
+    0,                     //int       regenRate;
     50,                    //int       damage;
     50,                    //int       splashDamage;
     150,                   //int       splashRadius;
@@ -312,6 +321,7 @@ buildableAttributes_t bg_buildableList[ ] =
     100,                   //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
+    0,                     //int       regenRate;
     50,                    //int       damage;
     50,                    //int       splashDamage;
     150,                   //int       splashRadius;
@@ -343,6 +353,7 @@ buildableAttributes_t bg_buildableList[ ] =
     100,                   //int       buildPoints;
     ( 1 << S3 ),           //int  stages
     1000,                  //int       health;
+    0,                     //int       regenRate;
     50,                    //int       damage;
     50,                    //int       splashDamage;
     150,                   //int       splashRadius;
@@ -374,6 +385,7 @@ buildableAttributes_t bg_buildableList[ ] =
     80,                    //int       buildPoints;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
+    0,                     //int       regenRate;
     50,                    //int       damage;
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
@@ -407,6 +419,7 @@ buildableAttributes_t bg_buildableList[ ] =
     80,                    //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
+    0,                     //int       regenRate;
     50,                    //int       damage;
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
@@ -438,6 +451,7 @@ buildableAttributes_t bg_buildableList[ ] =
     80,                    //int       buildPoints;
     ( 1 << S3 ),           //int  stages
     1000,                  //int       health;
+    0,                     //int       regenRate;
     50,                    //int       damage;
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
@@ -469,6 +483,7 @@ buildableAttributes_t bg_buildableList[ ] =
     200,                   //int       buildPoints;
     ( 1 << S3 ),           //int  stages
     1000,                  //int       health;
+    0,                     //int       regenRate;
     50,                    //int       damage;
     50,                    //int       splashDamage;
     150,                   //int       splashRadius;
@@ -500,6 +515,7 @@ buildableAttributes_t bg_buildableList[ ] =
     200,                   //int       buildPoints;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
+    0,                     //int       regenRate;
     50,                    //int       damage;
     50,                    //int       splashDamage;
     150,                   //int       splashRadius;
@@ -531,6 +547,7 @@ buildableAttributes_t bg_buildableList[ ] =
     200,                   //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
+    0,                     //int       regenRate;
     50,                    //int       damage;
     50,                    //int       splashDamage;
     150,                   //int       splashRadius;
@@ -562,6 +579,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       buildPoints;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
+    0,                     //int       regenRate;
     50,                    //int       damage;
     50,                    //int       splashDamage;
     150,                   //int       splashRadius;
@@ -593,6 +611,7 @@ buildableAttributes_t bg_buildableList[ ] =
     10,                    //int       buildPoints;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
+    0,                     //int       regenRate;
     50,                    //int       damage;
     50,                    //int       splashDamage;
     150,                   //int       splashRadius;
@@ -624,6 +643,7 @@ buildableAttributes_t bg_buildableList[ ] =
     10,                    //int       buildPoints;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
     100,                   //int       health;
+    0,                     //int       regenRate;
     50,                    //int       damage;
     50,                    //int       splashDamage;
     150,                   //int       splashRadius;
@@ -891,6 +911,26 @@ int BG_FindHealthForBuildable( int bclass )
   }
   
   return 1000;
+}
+
+/*
+==============
+BG_FindRegenRateForBuildable
+==============
+*/
+int BG_FindRegenRateForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].regenRate;
+    }
+  }
+  
+  return 0;
 }
 
 /*
@@ -1252,6 +1292,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     12, 12,                                         //int     viewheight, crouchviewheight;
     50,                                             //int     health;
+    5,                                              //int     regenRate;
     0,                                              //int     armor;
     SCA_TAKESFALLDAMAGE|SCA_FOVWARPS,               //int     abilities;
     95.0f,                                          //float   buildDist;
@@ -1279,6 +1320,7 @@ classAttributes_t bg_classList[ ] =
     { 20, 20, 4 },                                  //vec3_t  deadmaxs;
     0, 0,                                           //int     viewheight, crouchviewheight;
     75,                                             //int     health;
+    5,                                              //int     regenRate;
     10,                                             //int     armor;
     SCA_CANJUMP|SCA_FOVWARPS|SCA_WALLCLIMBER,       //int     abilities;
     95.0f,                                          //float   buildDist;
@@ -1306,6 +1348,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 4 },                                              //vec3_t  deadmaxs;
     0, 0,                                                       //int     viewheight, crouchviewheight;
     25,                                                         //int     health;
+    5,                                                          //int     regenRate;
     0,                                                          //int     armor;
     SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS|SCA_ALIENSENSE, //int     abilities;
     0.0f,                                                       //float   buildDist;
@@ -1333,6 +1376,7 @@ classAttributes_t bg_classList[ ] =
     { 24, 24, 4 },                                //vec3_t  deadmaxs;
     6, 6,                                         //int     viewheight, crouchviewheight;
     50,                                           //int     health;
+    5,                                            //int     regenRate;
     5,                                            //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
@@ -1360,6 +1404,7 @@ classAttributes_t bg_classList[ ] =
     { 24, 24, 4 },                                //vec3_t  deadmaxs;
     6, 6,                                         //int     viewheight, crouchviewheight;
     50,                                           //int     health;
+    5,                                            //int     regenRate;
     5,                                            //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
@@ -1387,6 +1432,7 @@ classAttributes_t bg_classList[ ] =
     { 24, 24, 4 },                                //vec3_t  deadmaxs;
     6, 6,                                         //int     viewheight, crouchviewheight;
     50,                                           //int     health;
+    5,                                            //int     regenRate;
     10,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
@@ -1414,6 +1460,7 @@ classAttributes_t bg_classList[ ] =
     { 24, 24, 4 },                                //vec3_t  deadmaxs;
     6, 6,                                         //int     viewheight, crouchviewheight;
     50,                                           //int     health;
+    5,                                            //int     regenRate;
     10,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
@@ -1441,6 +1488,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 4 },                                //vec3_t  deadmaxs;
     4, 4,                                         //int     viewheight, crouchviewheight;
     100,                                          //int     health;
+    5,                                            //int     regenRate;
     20,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
@@ -1468,6 +1516,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 4 },                                //vec3_t  deadmaxs;
     4, 4,                                         //int     viewheight, crouchviewheight;
     100,                                          //int     health;
+    5,                                            //int     regenRate;
     20,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
@@ -1495,6 +1544,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 4 },                                //vec3_t  deadmaxs;
     4, 4,                                         //int     viewheight, crouchviewheight;
     100,                                          //int     health;
+    5,                                            //int     regenRate;
     30,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
@@ -1522,6 +1572,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 4 },                              //vec3_t  deadmaxs;
     26, 12,                                     //int     viewheight, crouchviewheight;
     100,                                        //int     health;
+    0,                                          //int     regenRate;
     0,                                          //int     armor;
     SCA_TAKESFALLDAMAGE|SCA_CANJUMP,            //int     abilities;
     110.0f,                                     //float   buildDist;
@@ -1771,6 +1822,26 @@ int BG_FindHealthForClass( int pclass )
   }
   
   return 100;
+}
+
+/*
+==============
+BG_FindRegenRateForClass
+==============
+*/
+int BG_FindRegenRateForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].regenRate;
+    }
+  }
+  
+  return 0;
 }
 
 /*

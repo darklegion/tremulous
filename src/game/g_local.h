@@ -176,6 +176,7 @@ struct gentity_s {
   int       builtBy;      //TA: clientNum of person that built this
   gentity_t *dccNode;     //TA: controlling dcc
   qboolean  dcced;        //TA: controlled by a dcc or not?
+  int       time1000;     //TA: timer evaluated every second
 
   int       credits[ MAX_CLIENTS ]; //TA: human credits for each client
   qboolean  creditsHash[ MAX_CLIENTS ]; //TA: track who has claimed credit
@@ -510,7 +511,7 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir );
 // g_items.c
 //
 void G_CheckTeamItems( void );
-void G_RunItem( gentity_t *ent );
+void G_RunItem( gentity_t *ent, int msec );
 void RespawnItem( gentity_t *ent );
 
 void UseHoldableItem( gentity_t *ent );
