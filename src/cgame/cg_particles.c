@@ -562,10 +562,20 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac );
+      if( !Q_stricmp( token, "cull" ) )
+      {
+        bp->bounceCull = qtrue;
+        
+        bp->bounceFrac = -1.0f;
+        bp->bounceFracRandFrac = 0.0f;
+      }
+      else
+      {
+        CG_ParseValueAndVariance( token, &number, &randFrac );
 
-      bp->bounceFrac = number;
-      bp->bounceFracRandFrac = randFrac;
+        bp->bounceFrac = number;
+        bp->bounceFracRandFrac = randFrac;
+      }
 
       continue;
     }
@@ -1183,7 +1193,7 @@ static qboolean CG_ParseParticleFile( const char *fileName )
   int           i;
   int           len;
   char          *token;
-  char          text[ 20000 ];
+  char          text[ 32000 ];
   char          psName[ MAX_QPATH ];
   qboolean      psNameSet = qfalse;
   fileHandle_t  f;
@@ -1704,7 +1714,7 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
   
   //remove particles that get into a CONTENTS_NODROP brush
   if( ( trap_CM_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) ||
-      ( bp->cullOnStartSolid && trace.startsolid ) )
+      ( bp->cullOnStartSolid && trace.startsolid ) || bp->bounceCull )
   {
     if( cg_debugParticles.integer >= 1 )
       CG_Printf( "Particle in CONTENTS_NODROP or trace.startsolid\n" );

@@ -529,6 +529,8 @@ static qboolean CG_ParseWeaponModeSection( weaponInfoMode_t *wim, char **text_p 
 
   return qfalse;
 }
+
+
 /*
 ======================
 CG_ParseWeaponFile

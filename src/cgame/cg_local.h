@@ -211,6 +211,7 @@ typedef struct baseParticle_s
 
   float           bounceFrac;
   float           bounceFracRandFrac;
+  qboolean        bounceCull;
 
   pLerpValues_t   radius;
   pLerpValues_t   alpha;

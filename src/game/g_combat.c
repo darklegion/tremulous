@@ -737,7 +737,7 @@ void G_InitDamageLocations( void )
       continue;
     }
     
-    if ( len >= MAX_LOCDAMAGE_TEXT )
+    if( len >= MAX_LOCDAMAGE_TEXT )
     {
       G_Printf( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_LOCDAMAGE_TEXT ) );
       trap_FS_FCloseFile( fileHandle );
@@ -762,7 +762,7 @@ void G_InitDamageLocations( void )
     if ( !fileHandle )
       continue;
     
-    if ( len >= MAX_LOCDAMAGE_TEXT )
+    if( len >= MAX_LOCDAMAGE_TEXT )
     {
       G_Printf( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_LOCDAMAGE_TEXT ) );
       trap_FS_FCloseFile( fileHandle );
