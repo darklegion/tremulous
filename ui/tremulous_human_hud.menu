@@ -91,6 +91,23 @@
       ownerdraw CG_TIMER
     }   
 
+    //SNAPSHOT
+    itemDef
+    {
+      name "snapshot"
+      rect 8 196 200 22
+      style WINDOW_STYLE_EMPTY
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      align ITEM_ALIGN_RIGHT
+      textalignx 0
+      textaligny 18
+      textscale 0.4
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_SNAPSHOT
+    }
+
     //////////////////
     //STATIC OBJECTS//
     //////////////////
@@ -326,10 +343,10 @@
     itemDef  
     {  
       name "usable"
-      rect 304 420 32 32
+      rect 307.5 380 25 25
       visible 1
       decoration
-      forecolor 0.0 0.8 1.0 .25
+      forecolor 0.0 0.8 1.0 .5
       background "ui/assets/neutral/use.tga"
       ownerdraw CG_PLAYER_USABLE_BUILDABLE
     }
@@ -344,5 +361,28 @@
       background "textures/common/invisible" //FIXME: change to a bunch on concentric circles
       ownerdraw CG_PLAYER_HUMAN_SCANNER
     }
+
+    //INVENTORY
+    itemDef
+    {
+      name "inventory"
+      rect 282.5 425 75 25
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.5
+      ownerdraw CG_PLAYER_SELECT
+    }
+
+    //SELECTED
+    itemDef
+    {
+      name "selected"
+      rect 306 424 27 27
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.25
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/neutral/selected.tga"
+    }   
   }
 }
