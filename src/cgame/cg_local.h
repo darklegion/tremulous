@@ -344,6 +344,8 @@ typedef struct particle_s
   pLerpValues_t     rotation;
   
   qboolean          valid;
+
+  int               sortKey;
 } particle_t;
 
 
@@ -1396,7 +1398,7 @@ extern  vmCvar_t    cg_drawSurfNormal;
 extern  vmCvar_t    cg_debugAlloc;
 extern  vmCvar_t    cg_wwSmoothTime;
 extern  vmCvar_t    cg_wwFollow;
-extern  vmCvar_t    cg_zsortLEs;
+extern  vmCvar_t    cg_depthSortParticles;
 extern  vmCvar_t    cg_consoleLatency;
 extern  vmCvar_t    cg_lightFlare;
 extern  vmCvar_t    cg_debugParticles;

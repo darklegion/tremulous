@@ -25,6 +25,7 @@ static int                    numBaseParticles = 0;
 static particleSystem_t     particleSystems[ MAX_PARTICLE_SYSTEMS ];
 static particleEjector_t    particleEjectors[ MAX_PARTICLE_EJECTORS ];
 static particle_t           particles[ MAX_PARTICLES ];
+static particle_t           sortParticles[ MAX_PARTICLES ];
 
 /*
 ===============
@@ -1650,6 +1651,89 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
 }
 
 
+#define GETKEY(x,y) (((x)>>y)&0xFF)
+
+/*
+===============
+CG_Radix
+===============
+*/
+static void CG_Radix( int bits, int size, particle_t *source, particle_t *dest )
+{
+  int count[ 256 ];
+  int index[ 256 ];
+  int i;
+  
+  memset( count, 0, sizeof( count ) );
+  
+  for( i = 0; i < size; i++ )
+    count[ GETKEY( source[ i ].sortKey, bits ) ]++;
+
+  index[ 0 ] = 0;
+  
+  for( i = 1; i < 256; i++ )
+    index[ i ] = index[ i - 1 ] + count[ i - 1 ];
+  
+  for( i = 0; i < size; i++ )
+    dest[ index[ GETKEY( source[ i ].sortKey, bits ) ]++ ] = source[ i ];
+}
+
+/*
+===============
+CG_RadixSort
+
+Radix sort with 4 byte size buckets
+===============
+*/
+static void CG_RadixSort( particle_t *source, particle_t *temp, int size )
+{
+  CG_Radix( 0,   size, source, temp );
+  CG_Radix( 8,   size, temp, source );
+  CG_Radix( 16,  size, source, temp );
+  CG_Radix( 24,  size, temp, source );
+}
+
+/*
+===============
+CG_CompactAndSortParticles
+
+Depth sort the particles
+===============
+*/
+static void CG_CompactAndSortParticles( void )
+{
+  int     i, j = 0;
+  int     numParticles;
+  vec3_t  delta;
+
+  for( i = MAX_PARTICLES - 1; i >= 0; i-- )
+  {
+    if( particles[ i ].valid )
+    {
+      while( particles[ j ].valid )
+        j++;
+
+      //no more holes
+      if( j >= i )
+        break;
+
+      particles[ j ] = particles[ i ];
+      memset( &particles[ i ], 0, sizeof( particles[ 0 ] ) );
+    }
+  }
+
+  numParticles = i;
+  
+  //set sort keys
+  for( i = 0; i < numParticles; i++ )
+  {
+    VectorSubtract( particles[ i ].origin, cg.refdef.vieworg, delta );
+    particles[ i ].sortKey = DotProduct( delta, delta );
+  }
+  
+  CG_RadixSort( particles, sortParticles, numParticles );
+}
+
 /*
 ===============
 CG_RenderParticle
@@ -1742,10 +1826,15 @@ void CG_AddParticles( void )
   particle_t    *p;
   int           numPS = 0, numPE = 0, numP = 0;
   
+  //remove expired particle systems
   CG_GarbageCollectParticleSystems( );
   
   //check each ejector and introduce any new particles
   CG_SpawnNewParticles( );
+
+  //sorting
+  if( cg_depthSortParticles.integer )
+    CG_CompactAndSortParticles( );
 
   for( i = 0; i < MAX_PARTICLES; i++ )
   {
