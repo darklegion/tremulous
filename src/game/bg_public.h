@@ -95,8 +95,8 @@
 #define CS_MODELS           33
 #define CS_SOUNDS           (CS_MODELS+MAX_MODELS)
 #define CS_PLAYERS          (CS_SOUNDS+MAX_SOUNDS)
-#define MAX_PRECACHES       32
-#define CS_LOCATIONS        (CS_PLAYERS+MAX_CLIENTS+MAX_PRECACHES)
+#define CS_PRECACHES        (CS_PLAYERS+MAX_CLIENTS)
+#define CS_LOCATIONS        (CS_PRECACHES+MAX_CLIENTS)
 
 #define CS_MAX              (CS_LOCATIONS+MAX_LOCATIONS)
 

@@ -501,7 +501,7 @@ static int CG_GetCorpseNum( int pclass ) {
 
   modelName = BG_FindModelNameForClass( pclass );
 
-  for ( i = 0 ; i < MAX_CLIENTS; i++ )
+  for ( i = PCL_NONE + 1 ; i < PCL_NUM_CLASSES; i++ )
   {
     match = &cgs.corpseinfo[ i ];
     if ( !match->infoValid )
@@ -621,11 +621,11 @@ void CG_PrecacheClientInfo( int clientNum ) {
   const char  *v;
   char    *slash;
 
-  ci = &cgs.corpseinfo[ clientNum - MAX_CLIENTS - 1 ];
+  ci = &cgs.corpseinfo[ clientNum ];
 
   //CG_Printf( "%d %d\n", clientNum, (clientNum - MAX_CLIENTS ) );
 
-  configstring = CG_ConfigString( clientNum + CS_PLAYERS );
+  configstring = CG_ConfigString( clientNum + CS_PRECACHES );
   if ( !configstring[0] ) {
     return;   // player just left
   }
@@ -1944,20 +1944,17 @@ void CG_Corpse( centity_t *cent )
   refEntity_t   legs;
   refEntity_t   torso;
   refEntity_t   head;
-  int       clientNum;
+  int       corpseNum;
   int       renderfx;
   qboolean    shadow;
   float     shadowPlane;
   vec3_t    origin, liveZ, deadZ;
 
-  //if this is the first time the function has been run set cent->corpseNum
-  cent->corpseNum = CG_GetCorpseNum( cent->currentState.clientNum );
-  if ( cent->corpseNum < 0 || cent->corpseNum >= MAX_CLIENTS )
-  {
-    CG_Error( "Bad corpseNum on corpse entity: %d", cent->corpseNum );
-  }
+  corpseNum = CG_GetCorpseNum( cent->currentState.clientNum );
+  if ( corpseNum < 0 || corpseNum >= MAX_CLIENTS )
+    CG_Error( "Bad corpseNum on corpse entity: %d", corpseNum );
 
-  ci = &cgs.corpseinfo[ cent->corpseNum ];
+  ci = &cgs.corpseinfo[ corpseNum ];
     
   // it is possible to see corpses from disconnected players that may
   // not have valid clientinfo

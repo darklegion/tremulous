@@ -934,32 +934,28 @@ CG_RegisterClients
 static void CG_RegisterClients( void ) {
   int   i;
 
-  //CG_LoadingClient(cg.clientNum);
-  //CG_NewClientInfo(cg.clientNum);
+  //precache all the models/sounds/etc
+  for ( i = PCL_NONE + 1; i < PCL_NUM_CLASSES;  i++ ) {
+    const char  *clientInfo;
 
-  //yeah ok its silly, but lets precache models before setting client defaults
-  for (i=MAX_CLIENTS+MAX_PRECACHES+1; i>=0;  i--) {
-    const char    *clientInfo;
-
-/*    if (cg.clientNum == i) {
+    clientInfo = CG_ConfigString( CS_PRECACHES + i );
+    if ( !clientInfo[0] )
       continue;
-    }*/
+    
+    CG_LoadingClient( i );
+    CG_PrecacheClientInfo( i );
+  }
 
-    clientInfo = CG_ConfigString( CS_PLAYERS+i );
-    if ( !clientInfo[0] ) {
+  //load all the clientinfos of clients already connected to the server
+  for( i = 0; i < MAX_CLIENTS; i++ )
+  {
+    const char  *clientInfo;
+
+    clientInfo = CG_ConfigString( CS_PLAYERS + i );
+    if( !clientInfo[ 0 ] )
       continue;
-    }
 
-    if( i < MAX_CLIENTS )
-    {
-/*      CG_LoadingClient( i );
-      CG_NewClientInfo( i );*/
-    }
-    else
-    {
-      CG_LoadingClient( i );
-      CG_PrecacheClientInfo( i );
-    }
+    CG_NewClientInfo( i );
   }
 
   CG_BuildSpectatorString();

@@ -308,7 +308,7 @@ void G_RegisterPlayerModels( void )
     class = BG_FindModelNameForClass( i );
     s = va("n\\%s%d\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d", "precache", i, 0, class, class, 0, 0, "7", 100, 0, 0, 0, 0);
 
-    trap_SetConfigstring( CS_PLAYERS + MAX_CLIENTS + i, s );
+    trap_SetConfigstring( CS_PRECACHES + i, s );
   }
         
 }

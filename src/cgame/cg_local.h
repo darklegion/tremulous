@@ -193,8 +193,6 @@ typedef struct centity_s {
   vec3_t      lerpOrigin;
   vec3_t      lerpAngles;
 
-  //TA: value to store corpse number
-  int         corpseNum;
   lerpFrame_t lerpFrame;
 } centity_t;
 
