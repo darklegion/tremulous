@@ -27,7 +27,7 @@ void G_setBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim, qboolean fo
   if( force )
     localAnim |= ANIM_TOGGLEBIT;
     
-  G_AddEvent( ent, EV_BUILD_ANIM, localAnim );
+  ent->s.legsAnim = localAnim;
 }
 
 /*
@@ -2170,7 +2170,10 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
 
   VectorCopy( normal, built->s.origin2 );
   
-  G_AddEvent( built, EV_BUILD_CONSTRUCT, BANIM_CONSTRUCT1 );
+  G_AddEvent( built, EV_BUILD_CONSTRUCT, 0 );
+
+  if( built->builtBy >= 0 )
+    G_setBuildableAnim( built, BANIM_CONSTRUCT1, qfalse );
 
   trap_LinkEntity( built );
 

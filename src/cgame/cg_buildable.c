@@ -472,10 +472,18 @@ CG_BuildableAnimation
 */
 static void CG_BuildableAnimation( centity_t *cent, int *old, int *now, float *backLerp )
 {
+  entityState_t *es = &cent->currentState;
+  
   //if no animation is set default to idle anim
   if( cent->buildableAnim == BANIM_NONE )
-    cent->buildableAnim = cent->currentState.torsoAnim;
+    cent->buildableAnim = es->torsoAnim;
 
+  if( cent->oldBuildableAnim != es->legsAnim )
+  {
+    if( cent->buildableAnim == es->torsoAnim || es->legsAnim & ANIM_TOGGLEBIT )
+      cent->buildableAnim = cent->oldBuildableAnim = es->legsAnim;
+  }
+  
   CG_RunBuildableLerpFrame( cent );
 
   *old      = cent->lerpFrame.oldFrame;

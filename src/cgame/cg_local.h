@@ -213,6 +213,7 @@ typedef struct centity_s
   int                   jetTime;          //limit jet count
   
   buildableAnimNumber_t buildableAnim;    //persistant anim number
+  buildableAnimNumber_t oldBuildableAnim; //to detect when new anims are set
   int                   buildableSmokeTime;
   int                   buildableSparkTime;
   int                   buildableBleedTime;

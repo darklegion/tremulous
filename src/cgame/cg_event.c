@@ -607,9 +607,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     case EV_BUILD_CONSTRUCT:
       DEBUGNAME( "EV_BUILD_CONSTRUCT" );
       cent->miscTime = cg.time; // scale up from this
-      //probably a better place for this, but for the time being it lives here
-      memset( &cent->lerpFrame, 0, sizeof( lerpFrame_t ) );
-      cent->buildableAnim = es->eventParm;
       break;
       
     case EV_BUILD_DESTROY:
@@ -617,13 +614,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       cent->miscTime = -cg.time; // scale down from this
       break;
 
-    //TA: trigger an anim on a buildable item
-    case EV_BUILD_ANIM:
-      DEBUGNAME( "EV_BUILD_ANIM" );
-      if( cent->buildableAnim == es->torsoAnim || es->eventParm & ANIM_TOGGLEBIT )
-        cent->buildableAnim = es->eventParm;
-      break;
-      
     case EV_RPTUSE_SOUND:
       DEBUGNAME( "EV_RPTUSE_SOUND" );
       trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.repeaterUseSound );
