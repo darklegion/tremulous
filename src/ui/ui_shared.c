@@ -4404,7 +4404,7 @@ qboolean Menus_AnyFullScreenVisible() {
 }
 
 menuDef_t *Menus_ActivateByName(const char *p) {
-  int i;
+  int i, j;
   menuDef_t *m = NULL;
   menuDef_t *focus = Menu_GetFocused();
 
@@ -4413,6 +4413,13 @@ menuDef_t *Menus_ActivateByName(const char *p) {
       m = &Menus[i];
       Menus_Activate(m);
       Menu_HandleMouseMove( m, DC->cursorx, DC->cursory ); //TA: force the item under the cursor to focus
+
+      for( j = 0; j < m->itemCount; j++ ) //TA: reset selection in listboxes when opened
+      {
+        if( m->items[ j ]->type == ITEM_TYPE_LISTBOX )
+          m->items[ j ]->cursorPos = 0;
+      }
+      
       if (openMenuCount < MAX_OPEN_MENUS && focus != NULL) {
         menuStack[openMenuCount++] = focus;
       }

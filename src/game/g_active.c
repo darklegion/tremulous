@@ -769,12 +769,6 @@ void ClientThink_real( gentity_t *ent )
   usercmd_t *ucmd;
   float     speed;
 
-  //TA: creep variables
-  gentity_t *creepNode;
-  vec3_t    temp_v;
-  int       i;
-  qboolean  cSlowed = qfalse;
-
   client = ent->client;
 
   // don't think if the client is not yet connected (and thus not yet spawned in)
@@ -928,32 +922,9 @@ void ClientThink_real( gentity_t *ent )
   if( client->ps.stats[ STAT_STATE ] & SS_SLOWLOCKED )
     client->ps.speed *= DRAGOON_SLOWBLOB_SPEED_MOD;
   
-  //TA: slow player if standing in creep
-  for( i = 1, creepNode = g_entities + i; i < level.num_entities; i++, creepNode++ )
-  {
-    if( creepNode->biteam == PTE_ALIENS ) 
-    {
-      VectorSubtract( client->ps.origin, creepNode->s.origin, temp_v );
-
-      if( ( VectorLength( temp_v ) <= BG_FindCreepSizeForBuildable( creepNode->s.modelindex ) ) &&
-          ( temp_v[ 2 ] <= 21 ) && //assumes mins of player is (x, x, -24)
-          ( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) )
-      {
-        if( BG_gotItem( UP_LIGHTARMOUR, client->ps.stats ) )
-          client->ps.speed *= 0.75;
-        else
-          client->ps.speed *= 0.5;
-          
-        client->ps.stats[ STAT_STATE ] |= SS_CREEPSLOWED;
-        cSlowed = qtrue;
-        break;
-      }
-    }
-  }
-
-  if( !cSlowed )
+  if( client->lastCreepSlowTime + CREEP_TIMEOUT < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_CREEPSLOWED;
-
+  
   // set up for pmove
   oldEventSequence = client->ps.eventSequence;
 

@@ -353,6 +353,7 @@ struct gclient_s
   int                 lastBoostedTime;
   int                 lastKnockedOverTime;
   int                 lastGetUpTime;
+  int                 lastCreepSlowTime; //TA: time until creep can be removed
 
   int                 pouncePayload;    //TA: amount of damage pounce attack will do
   qboolean            allowedToPounce;

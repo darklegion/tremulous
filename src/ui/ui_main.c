@@ -3574,6 +3574,8 @@ static void UI_LoadTremAlienBuilds( )
       uiInfo.tremAlienBuildCount++;
     }
   }
+  
+  uiInfo.tremAlienBuildIndex = 0;
 }
 
 /*

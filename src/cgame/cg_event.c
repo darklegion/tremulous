@@ -552,7 +552,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       
     case EV_NEXT_WEAPON:
       DEBUGNAME( "EV_NEXT_WEAPON" );
-      CG_NextWeapon_f( );
+
+      if( clientNum == cg.predictedPlayerState.clientNum )
+        CG_NextWeapon_f( );
       break;
       
     case EV_FIRE_WEAPON:

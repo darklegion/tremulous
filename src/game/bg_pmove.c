@@ -378,6 +378,15 @@ static float PM_CmdScale( usercmd_t *cmd )
     //slow down once stamina depletes
     if( pm->ps->stats[ STAT_STAMINA ] <= -500 )
       modifier *= (float)( pm->ps->stats[ STAT_STAMINA ] + 1000 ) / 500.0f;
+
+    if( pm->ps->stats[ STAT_STATE ] & SS_CREEPSLOWED )
+    {
+      if( BG_gotItem( UP_LIGHTARMOUR, pm->ps->stats ) ||
+          BG_gotItem( UP_BATTLESUIT, pm->ps->stats ) )
+        modifier *= CREEP_ARMOUR_MODIFIER;
+      else
+        modifier *= CREEP_MODIFIER;
+    }
   }
 
   if( pm->ps->pm_type == PM_GRABBED || pm->ps->pm_type == PM_KNOCKED )

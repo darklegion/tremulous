@@ -275,6 +275,42 @@ static qboolean isCreep( vec3_t origin )
 
 /*
 ================
+creepSlow
+
+Set any nearby humans' SS_CREEPSLOWED flag
+================
+*/
+static void creepSlow( buildable_t buildable, vec3_t origin )
+{
+  int       entityList[ MAX_GENTITIES ];
+  vec3_t    range;
+  vec3_t    mins, maxs;
+  int       i, num;
+  gentity_t *enemy;
+  float     creepSize = (float)BG_FindCreepSizeForBuildable( buildable );
+
+  VectorSet( range, creepSize, creepSize, creepSize );
+
+  VectorAdd( origin, range, maxs );
+  VectorSubtract( origin, range, mins );
+  
+  //find humans
+  num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+  for( i = 0; i < num; i++ )
+  {
+    enemy = &g_entities[ entityList[ i ] ];
+    
+    if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+        enemy->client->ps.groundEntityNum != ENTITYNUM_NONE )
+    {
+      enemy->client->ps.stats[ STAT_STATE ] |= SS_CREEPSLOWED;
+      enemy->client->lastCreepSlowTime = level.time;
+    }
+  }
+}
+
+/*
+================
 nullDieFunction
 
 hack to prevent compilers complaining about function pointer -> NULL conversion
@@ -449,6 +485,8 @@ void ASpawn_Think( gentity_t *self )
       G_FreeEntity( ent ); //quietly remove
   }
 
+  creepSlow( self->s.modelindex, self->s.origin );
+
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
 
@@ -506,6 +544,8 @@ void AOvermind_Think( gentity_t *self )
       G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
     }
   }
+
+  creepSlow( self->s.modelindex, self->s.origin );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
@@ -601,6 +641,8 @@ void ABarricade_Think( gentity_t *self )
     return;
   }
   
+  creepSlow( self->s.modelindex, self->s.origin );
+
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
 
@@ -640,6 +682,8 @@ void AAcidTube_Damage( gentity_t *self )
   //do some damage
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
     self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
+
+  creepSlow( self->s.modelindex, self->s.origin );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
@@ -684,6 +728,8 @@ void AAcidTube_Think( gentity_t *self )
       return;
     }
   }
+
+  creepSlow( self->s.modelindex, self->s.origin );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
@@ -755,6 +801,8 @@ void AHovel_Think( gentity_t *self )
   else
     G_setIdleBuildableAnim( self, BANIM_IDLE1 );
     
+  creepSlow( self->s.modelindex, self->s.origin );
+
   self->nextthink = level.time + 200;
 }
 
@@ -985,6 +1033,8 @@ void ATrapper_Think( gentity_t *self )
 {
   int range =     BG_FindRangeForBuildable( self->s.modelindex );
   int firespeed = BG_FindFireSpeedForBuildable( self->s.modelindex );
+
+  creepSlow( self->s.modelindex, self->s.origin );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 
