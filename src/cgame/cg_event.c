@@ -613,6 +613,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
         float	oldStep;
         int		delta;
         int		step;
+        float steptime;
+        playerState_t *ps = &cg.predictedPlayerState;
 
         if( clientNum != cg.predictedPlayerState.clientNum )
           break;
@@ -624,9 +626,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
         
         // check for stepping up before a previous step is completed
         delta = cg.time - cg.stepTime;
+        steptime = BG_FindSteptimeForClass( ps->stats[ STAT_PCLASS ] );
         
-        if( delta < STEP_TIME )
-          oldStep = cg.stepChange * ( STEP_TIME - delta ) / STEP_TIME;
+        if( delta < steptime )
+          oldStep = cg.stepChange * ( steptime - delta ) / steptime;
         else
           oldStep = 0;
 
