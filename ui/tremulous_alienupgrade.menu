@@ -33,18 +33,16 @@
     
     itemDef
     {
-      name "infopane"
-      text "Put some info here based on selection"
-      textalignx 5
-      textaligny 15
+      name infopane
+      ownerdraw UI_AUPGRADEINFOPANE
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      style WINDOW_STYLE_FILLED	
       rect 170 10 220 155
-      type ITEM_TYPE_TEXT
-      style WINDOW_STYLE_FILLED
-      textscale .25
+      textscale .3
       forecolor 1 1 1 1
-      backcolor 0 0 .5 .25
-      outlinecolor .1 .1 .7 .5
-      visible 1
+      backcolor .5 0 0 .25
+      visible 1 
+      decoration
     }
     
     itemDef
