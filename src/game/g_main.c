@@ -1051,6 +1051,29 @@ void G_CalculateStages( void )
 
 /*
 ============
+CalculateAvgPlayers
+
+Calculates the average number of players playing this game
+============
+*/
+void G_CalculateAvgPlayers( void )
+{
+  //calculate average number of clients for stats
+  level.averageNumAlienClients =
+    ( ( level.averageNumAlienClients * level.numAlienSamples )
+      + level.numAlienClients ) /
+    (float)( level.numAlienSamples + 1 );
+  level.numAlienSamples++;
+
+  level.averageNumHumanClients =
+    ( ( level.averageNumHumanClients * level.numHumanSamples )
+      + level.numHumanClients ) /
+    (float)( level.numHumanSamples + 1 );
+  level.numHumanSamples++;
+}
+
+/*
+============
 CalculateRanks
 
 Recalculates the score ranks of all players
@@ -1129,17 +1152,6 @@ void CalculateRanks( void )
     }
   }
 
-  //calculate average number of clients for stats
-  level.averageNumAlienClients =
-    ( ( level.averageNumAlienClients * level.numAlienSamples )
-      + level.numAlienClients ) /
-    (float)( ++level.numAlienSamples );
-
-  level.averageNumHumanClients =
-    ( ( level.averageNumHumanClients * level.numHumanSamples )
-      + level.numHumanClients ) /
-    (float)( ++level.numHumanSamples );
-  
   qsort( level.sortedClients, level.numConnectedClients,
     sizeof( level.sortedClients[ 0 ] ), SortRanks );
 
@@ -1590,6 +1602,9 @@ void CheckExitRules( void )
     if( level.time - level.startTime >= g_timelimit.integer * 60000 )
     {
       trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
+      G_LogPrintf( "STATS T:L A:%f H:%f M:%s D:%d\n", level.averageNumAlienClients,
+                                                      level.averageNumHumanClients,
+                                                      s, level.time - level.startTime );
       LogExit( "Timelimit hit." );
       return;
     }
@@ -1938,6 +1953,7 @@ void G_RunFrame( int levelTime )
   G_CalculateStages( );
   G_SpawnClients( PTE_ALIENS );
   G_SpawnClients( PTE_HUMANS );
+  G_CalculateAvgPlayers( );
 
   // see if it is time to end the level
   CheckExitRules( );

@@ -496,6 +496,11 @@ void Cmd_Team_f( gentity_t *ent )
     else
       team = PTE_ALIENS + ( rand( ) % 2 );
   }
+  else
+  {
+    trap_SendServerCommand( ent-g_entities, va( "print \"Unknown team: %s\n\"", s ) );
+    return;
+  }
 
   G_ChangeTeam( ent, team );
   
