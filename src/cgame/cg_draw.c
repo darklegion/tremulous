@@ -228,6 +228,76 @@ void CG_Text_Paint( float x, float y, float scale, vec4_t color, const char *tex
   }
 }
 
+/*
+==============
+CG_DrawField
+
+Draws large numbers for status bar and powerups
+==============
+*/
+static void CG_DrawField( int x, int y, int width, int cw, int ch, int value )
+{
+  char  num[ 16 ], *ptr;
+  int   l;
+  int   frame;
+  int   charWidth, charHeight;
+
+  if( !( charWidth = cw ) )
+    charWidth = CHAR_WIDTH;
+
+  if( !( charHeight = ch ) )
+    charWidth = CHAR_HEIGHT;
+
+  if( width < 1 )
+    return;
+
+  // draw number string
+  if( width > 4 )
+    width = 4;
+
+  switch( width )
+  {
+    case 1:
+      value = value > 9 ? 9 : value;
+      value = value < 0 ? 0 : value;
+      break;
+    case 2:
+      value = value > 99 ? 99 : value;
+      value = value < -9 ? -9 : value;
+      break;
+    case 3:
+      value = value > 999 ? 999 : value;
+      value = value < -99 ? -99 : value;
+      break;
+    case 4:
+      value = value > 9999 ? 9999 : value;
+      value = value < -999 ? -999 : value;
+      break;
+  }
+
+  Com_sprintf( num, sizeof( num ), "%d", value );
+  l = strlen( num );
+  
+  if( l > width )
+    l = width;
+  
+  x += 2 + charWidth * ( width - l );
+
+  ptr = num;
+  while( *ptr && l )
+  {
+    if( *ptr == '-' )
+      frame = STAT_MINUS;
+    else
+      frame = *ptr -'0';
+
+    CG_DrawPic( x,y, charWidth, charHeight, cgs.media.numberShaders[ frame ] );
+    x += charWidth;
+    ptr++;
+    l--;
+  }
+}
+
 //=============== TA: was cg_newdraw.c
 
 void CG_InitTeamChat( )
@@ -250,43 +320,35 @@ void CG_SetPrintString( int type, const char *p )
   }
 }
 
-static void CG_DrawPlayerCreditsValue( rectDef_t *rect, float scale, vec4_t color, int textStyle )
+static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color )
 {
-  char          num[ 16 ];
   int           value;
-  centity_t     *cent;
   playerState_t *ps;
 
-  cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
 
   value = ps->stats[ STAT_CREDIT ];
   if( value > -1 )
   {
-    Com_sprintf( num, sizeof( num ), "%d", value );
-    value = CG_Text_Width( num, scale, 0 );
-    CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h,
-      scale, color, num, 0, 0, textStyle );
+    trap_R_SetColor( color );
+    CG_DrawField( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
+    trap_R_SetColor( NULL );
   }
 }
 
-static void CG_DrawPlayerBankValue( rectDef_t *rect, float scale, vec4_t color, int textStyle )
+static void CG_DrawPlayerBankValue( rectDef_t *rect, vec4_t color )
 {
-  char          num[ 16 ];
   int           value;
-  centity_t     *cent;
   playerState_t *ps;
 
-  cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
 
   value = ps->stats[ STAT_BANK ];
   if( value > -1 )
   {
-    Com_sprintf( num, sizeof( num ), "%d", value );
-    value = CG_Text_Width( num, scale, 0 );
-    CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h,
-      scale, color, num, 0, 0, textStyle );
+    trap_R_SetColor( color );
+    CG_DrawField( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
+    trap_R_SetColor( NULL );
   }
 }
 
@@ -314,11 +376,12 @@ static void CG_DrawPlayerStamina( rectDef_t *rect )
     trap_R_SetColor( neg ); // red
     CG_DrawPic( rect->x, rect->y + rect->h / 2, rect->w, -height, cgs.media.whiteShader );
   }
+
+  trap_R_SetColor( NULL );
 }
 
-static void CG_DrawPlayerAmmoValue( rectDef_t *rect, float scale, vec4_t color, int textStyle )
+static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
 {
-  char          num[ 16 ];
   int           value;
   centity_t     *cent;
   playerState_t *ps;
@@ -331,17 +394,15 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, float scale, vec4_t color, 
     BG_unpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, &value, NULL, NULL );
     if( value > -1 )
     {
-      Com_sprintf( num, sizeof( num ), "%d", value );
-      value = CG_Text_Width( num, scale, 0 );
-      CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h,
-        scale, color, num, 0, 0, textStyle );
+      trap_R_SetColor( color );
+      CG_DrawField( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
+      trap_R_SetColor( NULL );
     }
   }
 }
 
-static void CG_DrawPlayerClipsValue( rectDef_t *rect, float scale, vec4_t color, int textStyle )
+static void CG_DrawPlayerClipsValue( rectDef_t *rect, vec4_t color )
 {
-  char          num[ 16 ];
   int           value;
   centity_t     *cent;
   playerState_t *ps;
@@ -354,28 +415,25 @@ static void CG_DrawPlayerClipsValue( rectDef_t *rect, float scale, vec4_t color,
     BG_unpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, NULL, &value, NULL );
     if( value > -1 )
     {
-      Com_sprintf( num, sizeof( num ), "%d", value );
-      value = CG_Text_Width( num, scale, 0 );
-      CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h,
-        scale, color, num, 0, 0, textStyle );
+      trap_R_SetColor( color );
+      CG_DrawField( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
+      trap_R_SetColor( NULL );
     }
   }
 }
 
-static void CG_DrawPlayerHealth( rectDef_t *rect, float scale, vec4_t color, int textStyle )
+static void CG_DrawPlayerHealth( rectDef_t *rect, vec4_t color )
 {
   playerState_t *ps;
   int value;
-  char  num[ 16 ];
 
   ps = &cg.snap->ps;
 
   value = ps->stats[ STAT_HEALTH ];
 
-  Com_sprintf( num, sizeof( num ), "%d", value );
-  value = CG_Text_Width( num, scale, 0 );
-  CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h,
-    scale, color, num, 0, 0, textStyle );
+  trap_R_SetColor( color );
+  CG_DrawField( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
+  trap_R_SetColor( NULL );
 }
 
 float CG_GetValue( int ownerDraw )
@@ -551,22 +609,22 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
   switch( ownerDraw )
   {
     case CG_PLAYER_CREDITS_VALUE:
-      CG_DrawPlayerCreditsValue( &rect, scale, color, textStyle );
+      CG_DrawPlayerCreditsValue( &rect, color );
       break;
     case CG_PLAYER_BANK_VALUE:
-      CG_DrawPlayerBankValue( &rect, scale, color, textStyle );
+      CG_DrawPlayerBankValue( &rect, color );
       break;
     case CG_PLAYER_STAMINA:
       CG_DrawPlayerStamina( &rect );
       break;
     case CG_PLAYER_AMMO_VALUE:
-      CG_DrawPlayerAmmoValue( &rect, scale, color, textStyle );
+      CG_DrawPlayerAmmoValue( &rect, color );
       break;
     case CG_PLAYER_CLIPS_VALUE:
-      CG_DrawPlayerClipsValue( &rect, scale, color, textStyle );
+      CG_DrawPlayerClipsValue( &rect, color );
       break;
     case CG_PLAYER_HEALTH:
-      CG_DrawPlayerHealth( &rect, scale, color, textStyle );
+      CG_DrawPlayerHealth( &rect, color );
       break;
     case CG_AREA_SYSTEMCHAT:
       CG_DrawAreaSystemChat( &rect, scale, color, shader );
@@ -735,69 +793,6 @@ void CG_GetTeamColor(vec4_t *color)
 }
 //END TA UI
 
-
-/*
-==============
-CG_DrawField
-
-Draws large numbers for status bar and powerups
-==============
-*/
-static void CG_DrawField( int x, int y, int width, int value )
-{
-  char  num[ 16 ], *ptr;
-  int   l;
-  int   frame;
-
-  if( width < 1 )
-    return;
-
-  // draw number string
-  if( width > 5 )
-    width = 5;
-
-  switch( width )
-  {
-    case 1:
-      value = value > 9 ? 9 : value;
-      value = value < 0 ? 0 : value;
-      break;
-    case 2:
-      value = value > 99 ? 99 : value;
-      value = value < -9 ? -9 : value;
-      break;
-    case 3:
-      value = value > 999 ? 999 : value;
-      value = value < -99 ? -99 : value;
-      break;
-    case 4:
-      value = value > 9999 ? 9999 : value;
-      value = value < -999 ? -999 : value;
-      break;
-  }
-
-  Com_sprintf( num, sizeof( num ), "%d", value );
-  l = strlen( num );
-  
-  if ( l > width )
-    l = width;
-  
-  x += 2 + CHAR_WIDTH * ( width - l );
-
-  ptr = num;
-  while( *ptr && l )
-  {
-    if( *ptr == '-' )
-      frame = STAT_MINUS;
-    else
-      frame = *ptr -'0';
-
-    CG_DrawPic( x,y, CHAR_WIDTH, CHAR_HEIGHT, cgs.media.numberShaders[ frame ] );
-    x += CHAR_WIDTH;
-    ptr++;
-    l--;
-  }
-}
 
 /*
 ================
