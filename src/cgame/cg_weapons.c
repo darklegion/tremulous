@@ -1515,7 +1515,7 @@ void CG_NextWeapon_f( void )
   
   if( cg.snap->ps.pm_flags & PMF_FOLLOW )
   {
-    trap_SendClientCommand( "followprev" );
+    trap_SendClientCommand( "followprev\n" );
     return;
   }
 
@@ -1559,7 +1559,7 @@ void CG_PrevWeapon_f( void )
   
   if( cg.snap->ps.pm_flags & PMF_FOLLOW )
   {
-    trap_SendClientCommand( "follownext" );
+    trap_SendClientCommand( "follownext\n" );
     return;
   }
 

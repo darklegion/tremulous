@@ -1442,6 +1442,8 @@ extern  vmCvar_t    ui_voteActive;
 extern  vmCvar_t    ui_alienTeamVoteActive;
 extern  vmCvar_t    ui_humanTeamVoteActive;
 
+extern  vmCvar_t    cg_debugRandom;
+
 //
 // cg_main.c
 //

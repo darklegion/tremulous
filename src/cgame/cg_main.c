@@ -212,6 +212,8 @@ vmCvar_t  ui_voteActive;
 vmCvar_t  ui_alienTeamVoteActive;
 vmCvar_t  ui_humanTeamVoteActive;
 
+vmCvar_t  cg_debugRandom;
+
 
 typedef struct
 {
@@ -313,6 +315,8 @@ static cvarTable_t cvarTable[ ] =
   { &ui_humanTeamVoteActive, "ui_humanTeamVoteActive", "0", 0 },
   { &ui_alienTeamVoteActive, "ui_alienTeamVoteActive", "0", 0 },
 
+  { &cg_debugRandom, "cg_debugRandom", "0", 0 },
+  
   // the following variables are created in other parts of the system,
   // but we also reference them here
 

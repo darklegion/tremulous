@@ -452,13 +452,15 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 {
   int i;
 
-  G_Printf( "------- Game Initialization -------\n" );
-  G_Printf( "gamename: %s\n", GAMEVERSION );
-  G_Printf( "gamedate: %s\n", __DATE__ );
-
   srand( randomSeed );
 
   G_RegisterCvars( );
+
+  //TA: moved after G_RegisterCvars since G_Printf
+  //    now depends on the value of g_dedicated
+  G_Printf( "------- Game Initialization -------\n" );
+  G_Printf( "gamename: %s\n", GAMEVERSION );
+  G_Printf( "gamedate: %s\n", __DATE__ );
 
   G_ProcessIPBans( );
 
@@ -676,8 +678,14 @@ Initialise a spawn queue
 */
 void G_InitSpawnQueue( spawnQueue_t *sq )
 {
+  int i;
+  
   sq->back = sq->front = 0;
   sq->back = QUEUE_MINUS1( sq->back );
+
+  //0 is a valid clientNum, so use something else
+  for( i = 0; i < MAX_CLIENTS; i++ )
+    sq->clients[ i ] = -1;
 }
 
 /*
@@ -689,10 +697,7 @@ Return tha length of a spawn queue
 */
 int G_GetSpawnQueueLength( spawnQueue_t *sq )
 {
-/*  if( sq->back < sq->front )
-    return ( sq->back + MAX_CLIENTS - sq->front + 1 ) % MAX_CLIENTS;
-  else*/
-    return ( sq->back - sq->front + 1 ) % MAX_CLIENTS;
+  return ( sq->back - sq->front + 1 ) % MAX_CLIENTS;
 }
 
 /*
@@ -709,6 +714,7 @@ int G_PopSpawnQueue( spawnQueue_t *sq )
   if( G_GetSpawnQueueLength( sq ) > 0 )
   {
     sq->front = QUEUE_PLUS1( sq->front );
+    g_entities[ sq->clients[ popee ] ].client->ps.pm_flags &= ~PMF_QUEUED;
     return sq->clients[ popee ];
   }
   else
@@ -726,6 +732,8 @@ void G_PushSpawnQueue( spawnQueue_t *sq, int clientNum )
 {
   sq->back = QUEUE_PLUS1( sq->back );
   sq->clients[ sq->back ] = clientNum;
+
+  g_entities[ clientNum ].client->ps.pm_flags |= PMF_QUEUED;
 }
 
 /*
@@ -743,22 +751,23 @@ qboolean G_RemoveFromSpawnQueue( spawnQueue_t *sq, int clientNum )
   {
     if( sq->clients[ i ] == clientNum )
     {
-      //and this kids, is why it would have
+      //and this kids is why it would have
       //been better to use an LL for internal
       //representation
       do
       {
         sq->clients[ i ] = sq->clients[ QUEUE_PLUS1( i ) ];
         
-        i = QUEUE_PLUS1( 1 );
+        i = QUEUE_PLUS1( i );
       } while( i != sq->back );
 
       sq->back = QUEUE_MINUS1( sq->back );
+      g_entities[ clientNum ].client->ps.pm_flags &= ~PMF_QUEUED;
       
       return qtrue;
     }
 
-    i = QUEUE_PLUS1( 1 );
+    i = QUEUE_PLUS1( i );
   } while( i != QUEUE_PLUS1( sq->back ) );
 
   return qfalse;
@@ -785,7 +794,7 @@ int G_GetPosInSpawnQueue( spawnQueue_t *sq, int clientNum )
         return i - sq->front + 1;
     }
 
-    i = QUEUE_PLUS1( 1 );
+    i = QUEUE_PLUS1( i );
   } while( i != QUEUE_PLUS1( sq->back ) );
 
   return -1;

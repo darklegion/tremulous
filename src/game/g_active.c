@@ -348,7 +348,18 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
   
     if( ( client->buttons & BUTTON_ATTACK ) && !( client->oldbuttons & BUTTON_ATTACK ) )
     {
-      if( client->pers.classSelection == PCL_NONE )
+      //if waiting in a queue remove from the queue
+      if( client->ps.pm_flags & PMF_QUEUED )
+      {
+        if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+          G_RemoveFromSpawnQueue( &level.alienSpawnQueue, client->ps.clientNum );
+        else if( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+          G_RemoveFromSpawnQueue( &level.humanSpawnQueue, client->ps.clientNum );
+      
+        client->pers.classSelection = PCL_NONE;
+        client->ps.stats[ STAT_PCLASS ] = PCL_NONE;
+      }
+      else if( client->pers.classSelection == PCL_NONE )
       {
         if( client->pers.teamSelection == PTE_NONE )
           G_TriggerMenu( client->ps.clientNum, MN_TEAM );
@@ -975,6 +986,21 @@ void ClientThink_real( gentity_t *ent )
     }
   }
   
+  //set the queue position for the client side
+  if( client->ps.pm_flags & PMF_QUEUED )
+  {
+    if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    {
+      client->ps.persistant[ PERS_QUEUEPOS ] =
+        G_GetPosInSpawnQueue( &level.alienSpawnQueue, client->ps.clientNum );
+    }
+    else if( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    {
+      client->ps.persistant[ PERS_QUEUEPOS ] =
+        G_GetPosInSpawnQueue( &level.humanSpawnQueue, client->ps.clientNum );
+    }
+  }
+  
   // set speed
   client->ps.speed = g_speed.value * BG_FindSpeedForClass( client->ps.stats[ STAT_PCLASS ] );
 
@@ -1319,11 +1345,6 @@ void SpectatorClientEndFrame( gentity_t *ent )
       }
     }
   }
-
-  if( ent->client->sess.spectatorState == SPECTATOR_SCOREBOARD )
-    ent->client->ps.pm_flags |= PMF_SCOREBOARD;
-  else
-    ent->client->ps.pm_flags &= ~PMF_SCOREBOARD;
 }
 
 /*

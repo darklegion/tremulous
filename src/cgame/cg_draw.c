@@ -2874,6 +2874,34 @@ static qboolean CG_DrawFollow( void )
   return qtrue;
 }
 
+/*
+=================
+CG_DrawQueue
+=================
+*/
+static qboolean CG_DrawQueue( void )
+{
+  float       w;
+  vec4_t      color;
+  char        buffer[ MAX_STRING_CHARS ];
+
+  if( !( cg.snap->ps.pm_flags & PMF_QUEUED ) )
+    return qfalse;
+
+  color[ 0 ] = 1;
+  color[ 1 ] = 1;
+  color[ 2 ] = 1;
+  color[ 3 ] = 1;
+
+  Com_sprintf( buffer, MAX_STRING_CHARS, "You are in position %d of the spawn queue.",
+               cg.snap->ps.persistant[ PERS_QUEUEPOS ] + 1 );
+
+  w = CG_Text_Width( buffer, 0.7f, 0 );
+  CG_Text_Paint( 320 - w / 2, 400, 0.7f, color, buffer, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
+
+  return qtrue;
+}
+
 //==================================================================================
 
 #define SPECTATOR_STRING "SPECTATOR"
@@ -2932,6 +2960,7 @@ static void CG_Draw2D( void )
   CG_DrawVote( );
   CG_DrawTeamVote( );
   CG_DrawFollow( );
+  CG_DrawQueue( );
 
   // don't draw center string if scoreboard is up
   cg.scoreBoardShowing = CG_DrawScoreboard( );

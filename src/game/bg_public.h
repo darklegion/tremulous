@@ -136,7 +136,7 @@ typedef enum
 #define PMF_USE_ITEM_HELD   1024
 #define PMF_WEAPON_RELOAD   2048    //TA: force a weapon switch
 #define PMF_FOLLOW          4096    // spectate following another player
-#define PMF_SCOREBOARD      8192    // spectate as a scoreboard
+#define PMF_QUEUED          8192    //TA: player is queued
 #define PMF_TIME_WALLJUMP   16384   //TA: for limiting wall jumping
 #define PMF_CHARGE          32768   //TA: keep track of pouncing
 #define PMF_WEAPON_SWITCH   65536   //TA: force a weapon switch
@@ -256,7 +256,8 @@ typedef enum
   //TA:
   PERS_STATE,
   PERS_CREDIT,    //TA: human credit
-  PERS_BANK       //TA: human credit in the bank
+  PERS_BANK,      //TA: human credit in the bank
+  PERS_QUEUEPOS   //TA: position in the spawn queue
 } persEnum_t;
 
 #define PS_WALLCLIMBINGFOLLOW   0x00000001
@@ -562,6 +563,8 @@ typedef enum
 typedef enum
 {
   MN_TEAM,
+  MN_A_TEAMFULL,
+  MN_H_TEAMFULL,
   
   //alien stuff
   MN_A_CLASS,

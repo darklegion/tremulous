@@ -1636,7 +1636,7 @@ void HMedistat_Think( gentity_t *self )
       
       self->active = qfalse;
     }
-    else //heal!
+    else if( self->enemy ) //heal!
       self->enemy->health++;
   }
 }

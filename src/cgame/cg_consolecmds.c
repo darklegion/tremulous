@@ -83,12 +83,16 @@ static void CG_ScoresDown_f( void )
     // the scores are more than two seconds out of data,
     // so request new ones
     cg.scoresRequestTime = cg.time;
-    trap_SendClientCommand( "score" );
+    //TA: added \n SendClientCommand doesn't call flush( )?
+    trap_SendClientCommand( "score\n" );
 
     // leave the current scores up if they were already
     // displayed, but if this is the first hit, clear them out
     if( !cg.showScores )
     {
+      if( cg_debugRandom.integer )
+        CG_Printf( "CG_ScoresDown_f: scores out of date\n" );
+
       cg.showScores = qtrue;
       cg.numScores = 0;
     }

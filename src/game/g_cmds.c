@@ -431,6 +431,12 @@ void G_ChangeTeam( gentity_t *ent, pTeam_t newTeam )
 
   if( oldTeam != newTeam )
   {
+    //if the client is in a queue make sure they are removed from it before changing
+    if( oldTeam == PTE_ALIENS )
+      G_RemoveFromSpawnQueue( &level.alienSpawnQueue, ent->client->ps.clientNum );
+    else if( oldTeam == PTE_HUMANS )
+      G_RemoveFromSpawnQueue( &level.humanSpawnQueue, ent->client->ps.clientNum );
+    
     level.bankCredits[ ent->client->ps.clientNum ] = 0;
     ent->client->ps.persistant[ PERS_CREDIT ] = 0;
     ent->client->pers.classSelection = PCL_NONE;
@@ -465,8 +471,7 @@ void Cmd_Team_f( gentity_t *ent )
   {
     if( g_teamForceBalance.integer && level.numAlienClients > level.numHumanClients )
     {
-      //FIXME: pleasant dialog
-      trap_SendServerCommand( ent-g_entities, "print \"The alien team has too many players\n\"" );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_A_TEAMFULL );
       return;
     }
     
@@ -476,8 +481,7 @@ void Cmd_Team_f( gentity_t *ent )
   {
     if( g_teamForceBalance.integer && level.numHumanClients > level.numAlienClients )
     {
-      //FIXME: pleasant dialog
-      trap_SendServerCommand( ent-g_entities, "print \"The human team has too many players\n\"" );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_TEAMFULL );
       return;
     }
     
@@ -495,7 +499,8 @@ void Cmd_Team_f( gentity_t *ent )
 
   G_ChangeTeam( ent, team );
   
-  //FIXME: put some team change broadcast code here.
+  if( team == PTE_ALIENS || team == PTE_HUMANS )
+    trap_SendServerCommand( -1, va( "print \"%s joined the %s.\n\"", ent->client->pers.netname, s ) );
 }
 
 
@@ -1611,6 +1616,22 @@ void Cmd_Sell_f( gentity_t *ent )
     {
       BG_removeItem( upgrade, ent->client->ps.stats );
 
+      if( upgrade == UP_BATTPACK )
+      {
+        int j;
+        
+        //remove energy
+        for( j = WP_NONE; j < WP_NUM_WEAPONS; j++ )
+        {
+          if( BG_gotWeapon( j, ent->client->ps.stats ) &&
+              BG_FindUsesEnergyForWeapon( j ) &&
+              !BG_FindInfinteAmmoForWeapon( j ) )
+          {
+            BG_packAmmoArray( j, ent->client->ps.ammo, ent->client->ps.powerups, 0, 0, 0 );
+          }
+        }
+      }
+        
       //add to funds
       ent->client->ps.persistant[ PERS_CREDIT ] += (short)BG_FindPriceForUpgrade( upgrade );
     }
@@ -1649,6 +1670,22 @@ void Cmd_Sell_f( gentity_t *ent )
       {
         BG_removeItem( i, ent->client->ps.stats );
 
+        if( i == UP_BATTPACK )
+        {
+          int j;
+          
+          //remove energy
+          for( j = WP_NONE; j < WP_NUM_WEAPONS; j++ )
+          {
+            if( BG_gotWeapon( j, ent->client->ps.stats ) &&
+                BG_FindUsesEnergyForWeapon( j ) &&
+                !BG_FindInfinteAmmoForWeapon( j ) )
+            {
+              BG_packAmmoArray( j, ent->client->ps.ammo, ent->client->ps.powerups, 0, 0, 0 );
+            }
+          }
+        }
+        
         //add to funds
         ent->client->ps.persistant[ PERS_CREDIT ] += (short)BG_FindPriceForUpgrade( i );
       }
@@ -2022,7 +2059,8 @@ void ClientCommand( int clientNum )
   // ignore all other commands when at intermission
   if( level.intermissiontime )
   {
-    Cmd_Say_f( ent, qfalse, qtrue );
+    //TA: prevent menu babble at the end of games
+    /*Cmd_Say_f( ent, qfalse, qtrue );*/
     return;
   }
 

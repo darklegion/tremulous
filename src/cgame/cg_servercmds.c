@@ -39,6 +39,9 @@ static void CG_ParseScores( void )
 
   memset( cg.scores, 0, sizeof( cg.scores ) );
   
+  if( cg_debugRandom.integer )
+    CG_Printf( "cg.numScores: %d\n", cg.numScores );
+
   for( i = 0; i < cg.numScores; i++ )
   {
     //
@@ -575,6 +578,18 @@ void CG_Menu( int menu )
     case MN_H_BUILD:    trap_SendConsoleCommand( "menu tremulous_humanbuild\n" );   break;
     case MN_H_ARMOURY:  trap_SendConsoleCommand( "menu tremulous_humanarmoury\n" ); break;
                         
+    case MN_A_TEAMFULL:
+      trap_Cvar_Set( "ui_dialog", "The alien team has too many players. Please wait until "
+                                  "slots become available or join the human team." );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      break;
+
+    case MN_H_TEAMFULL:
+      trap_Cvar_Set( "ui_dialog", "The human team has too many players. Please wait until "
+                                  "slots become available or join the alien team." );
+      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      break;
+
     case MN_H_NOROOM:
       if( !cg_disableBuildWarnings.integer )
       {
