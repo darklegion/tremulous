@@ -2169,17 +2169,10 @@ static void PM_Weapon( void )
   //done reloading so give em some ammo
   if( pm->ps->weaponstate == WEAPON_RELOADING )
   {
-    switch( pm->ps->weapon )
+    if( maxclips > 0 )
     {
-      case WP_MACHINEGUN:
-      case WP_MASS_DRIVER:
-      case WP_PULSE_RIFLE:
-        clips--;
-        BG_FindAmmoForWeapon( pm->ps->weapon, &ammo, NULL, NULL );
-        break;
-  
-      default:
-        break;
+      clips--;
+      BG_FindAmmoForWeapon( pm->ps->weapon, &ammo, NULL, NULL );
     }
 
     BG_packAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
@@ -2190,17 +2183,7 @@ static void PM_Weapon( void )
   {
     pm->ps->weaponstate = WEAPON_RELOADING;
     
-    switch( pm->ps->weapon )
-    {
-      case WP_MACHINEGUN:
-      case WP_MASS_DRIVER:
-      case WP_PULSE_RIFLE:
-        addTime = 2000;
-        break;
-  
-      default:
-        break;
-    }
+    addTime = BG_FindReloadTimeForWeapon( pm->ps->weapon );
 
     pm->ps->weaponTime += addTime;
     return;
@@ -2234,7 +2217,7 @@ static void PM_Weapon( void )
       }
       break;
 
-    case WP_GRABANDCSAW:
+    case WP_GRAB_CLAW:
       attack1 = pm->cmd.buttons & BUTTON_ATTACK;
       
       //secondary attack is only permitted if target is in range

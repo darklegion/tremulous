@@ -730,7 +730,7 @@ void CG_RegisterWeapon( int weaponNum )
       weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav", qfalse );
       break;
 
-    case WP_GRABANDCSAW:
+    case WP_GRAB_CLAW:
       MAKERGB( weaponInfo->flashDlightColor, 0, 0, 0 );
       weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav", qfalse );
       break;
@@ -1747,48 +1747,12 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
     mark = cgs.media.energyMarkShader;
     radius = 24;
     break;
-/*  case WP_GRENADE_LAUNCHER:
-    mod = cgs.media.dishFlashModel;
-    shader = cgs.media.grenadeExplosionShader;
-    sfx = cgs.media.sfx_rockexp;
-    mark = cgs.media.burnMarkShader;
-    radius = 64;
-    light = 300;
-    isSprite = qtrue;
-    break;*/
-/*  case WP_ROCKET_LAUNCHER:
-    mod = cgs.media.dishFlashModel;
-    shader = cgs.media.rocketExplosionShader;
-    sfx = cgs.media.sfx_rockexp;
-    mark = cgs.media.burnMarkShader;
-    radius = 64;
-    light = 300;
-    isSprite = qtrue;
-    duration = 1000;
-    lightColor[0] = 1;
-    lightColor[1] = 0.75;
-    lightColor[2] = 0.0;
-    if (cg_oldRocket.integer == 0) {
-      // explosion sprite animation
-      VectorMA( origin, 24, dir, sprOrg );
-      VectorScale( dir, 64, sprVel );
-
-      CG_ParticleExplosion( "explode1", sprOrg, sprVel, 1400, 20, 30 );
-    }
-    break;*/
   case WP_LOCKBLOB_LAUNCHER:
     sfx = cgs.media.gibBounce1Sound;
     mark = cgs.media.greenBloodMarkShader;
     radius = 64;
     isSprite = qtrue;
     break;
-/*  case WP_RAILGUN:
-    mod = cgs.media.ringFlashModel;
-    shader = cgs.media.railExplosionShader;
-    sfx = cgs.media.sfx_plasmaexp;
-    mark = cgs.media.energyMarkShader;
-    radius = 24;
-    break;*/
   case WP_FLAMER:
     sfx = cgs.media.sfx_lghit;
     mark = cgs.media.burnMarkShader;
@@ -1808,29 +1772,11 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
     mark = cgs.media.energyMarkShader;
     radius = 16;
     break;
-/*  case WP_BFG:
-    mod = cgs.media.dishFlashModel;
-    shader = cgs.media.bfgExplosionShader;
-    sfx = cgs.media.sfx_rockexp;
-    mark = cgs.media.burnMarkShader;
-    radius = 32;
-    isSprite = qtrue;
-    break;*/
-/*  case WP_SHOTGUN:
-    mod = cgs.media.bulletFlashModel;
-    shader = cgs.media.bulletExplosionShader;
-    mark = cgs.media.bulletMarkShader;
-    sfx = 0;
-    radius = 4;
-    break;*/
   case WP_MASS_DRIVER:
     shader = cgs.media.bulletExplosionShader;
     mark = cgs.media.bulletMarkShader;
     break;
   case WP_MACHINEGUN:
-    mod = cgs.media.bulletFlashModel;
-    shader = cgs.media.bulletExplosionShader;
-    mark = cgs.media.bulletMarkShader;
   case WP_CHAINGUN:
     mod = cgs.media.bulletFlashModel;
     shader = cgs.media.bulletExplosionShader;

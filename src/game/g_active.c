@@ -942,8 +942,8 @@ void ClientThink_real( gentity_t *ent ) {
           pm.autoWeaponHit[ WP_VENOM ] = CheckVenomAttack( ent );
         break;
 
-      case WP_GRABANDCSAW:
-        pm.autoWeaponHit[ WP_GRABANDCSAW ] = CheckGrabAttack( ent );
+      case WP_GRAB_CLAW:
+        pm.autoWeaponHit[ WP_GRAB_CLAW ] = CheckGrabAttack( ent );
         break;
 
       case WP_POUNCE:

@@ -335,8 +335,9 @@ typedef enum
   WP_FLAMER,
   WP_PLASMAGUN,
   WP_VENOM,
-  WP_GRABANDCSAW,
+  WP_GRAB_CLAW,
   WP_POUNCE,
+  WP_AREA_ZAP,
   WP_MASS_DRIVER,
   WP_PULSE_RIFLE,
 
@@ -933,6 +934,7 @@ typedef struct
   qboolean  infiniteAmmo;
 
   int       repeatRate;
+  int       reloadTime;
   
   qboolean  hasAltMode;
   qboolean  synced;
@@ -1022,6 +1024,7 @@ char      *BG_FindIconForWeapon( int weapon );
 void      BG_FindAmmoForWeapon( int weapon, int *quan, int *clips, int *maxClips );
 qboolean  BG_FindInfinteAmmoForWeapon( int weapon );
 int       BG_FindRepeatRateForWeapon( int weapon );
+int       BG_FindReloadTimeForWeapon( int weapon );
 qboolean  BG_WeaponHasAltMode( int weapon );
 qboolean  BG_WeaponModesAreSynced( int weapon );
 qboolean  BG_FindPurchasableForWeapon( int weapon );

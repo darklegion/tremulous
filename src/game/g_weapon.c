@@ -43,64 +43,6 @@ void G_BounceProjectile( vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout 
 /*
 ======================================================================
 
-GAUNTLET
-
-======================================================================
-*/
-
-void Weapon_Gauntlet( gentity_t *ent ) {
-
-}
-
-/*
-===============
-CheckGauntletAttack
-===============
-*/
-qboolean CheckGauntletAttack( gentity_t *ent ) {
-  trace_t   tr;
-  vec3_t    end;
-  gentity_t *tent;
-  gentity_t *traceEnt;
-  int     damage;
-
-  // set aiming directions
-  AngleVectors (ent->client->ps.viewangles, forward, right, up);
-
-  CalcMuzzlePoint( ent, forward, right, up, muzzle );
-
-  VectorMA (muzzle, 32, forward, end);
-
-  trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
-  if ( tr.surfaceFlags & SURF_NOIMPACT ) {
-    return qfalse;
-  }
-
-  traceEnt = &g_entities[ tr.entityNum ];
-
-  // send blood impact
-  if ( traceEnt->takedamage && traceEnt->client ) {
-    tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
-    tent->s.otherEntityNum = traceEnt->s.number;
-    tent->s.eventParm = DirToByte( tr.plane.normal );
-    tent->s.weapon = ent->s.weapon;
-  }
-
-  if ( !traceEnt->takedamage) {
-    return qfalse;
-  }
-
-  damage = 50;
-  G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-    damage, 0, MOD_GAUNTLET );
-
-  return qtrue;
-}
-
-
-/*
-======================================================================
-
 MACHINEGUN
 
 ======================================================================
@@ -222,148 +164,7 @@ void massDriverFire( gentity_t *ent )
 /*
 ======================================================================
 
-BFG
-
-======================================================================
-*/
-
-void BFG_Fire ( gentity_t *ent ) {
-  gentity_t *m;
-
-  m = fire_bfg (ent, muzzle, forward);
-
-//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
-}
-
-
-/*
-======================================================================
-
-SHOTGUN
-
-======================================================================
-*/
-
-// DEFAULT_SHOTGUN_SPREAD and DEFAULT_SHOTGUN_COUNT are in bg_public.h, because
-// client predicts same spreads
-#define DEFAULT_SHOTGUN_DAMAGE  10
-
-qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
-  trace_t   tr;
-  int     damage, i, passent;
-  gentity_t *traceEnt;
-  vec3_t    tr_start, tr_end;
-
-  passent = ent->s.number;
-  VectorCopy( start, tr_start );
-  VectorCopy( end, tr_end );
-  for (i = 0; i < 10; i++) {
-    trap_Trace (&tr, tr_start, NULL, NULL, tr_end, passent, MASK_SHOT);
-    traceEnt = &g_entities[ tr.entityNum ];
-
-    // send bullet impact
-    if (  tr.surfaceFlags & SURF_NOIMPACT ) {
-      return qfalse;
-    }
-
-    if ( traceEnt->takedamage) {
-      damage = DEFAULT_SHOTGUN_DAMAGE;
-      G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_SHOTGUN);
-        if( LogAccuracyHit( traceEnt, ent ) ) {
-          return qtrue;
-        }
-    }
-    return qfalse;
-  }
-  return qfalse;
-}
-
-// this should match CG_ShotgunPattern
-void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
-  int     i;
-  float   r, u;
-  vec3_t    end;
-  vec3_t    forward, right, up;
-  int     oldScore;
-  qboolean  hitClient = qfalse;
-
-  // derive the right and up vectors from the forward vector, because
-  // the client won't have any other information
-  VectorNormalize2( origin2, forward );
-  PerpendicularVector( right, forward );
-  CrossProduct( forward, right, up );
-
-  oldScore = ent->client->ps.persistant[PERS_SCORE];
-
-  // generate the "random" spread pattern
-  for ( i = 0 ; i < DEFAULT_SHOTGUN_COUNT ; i++ ) {
-    r = Q_crandom( &seed ) * DEFAULT_SHOTGUN_SPREAD * 16;
-    u = Q_crandom( &seed ) * DEFAULT_SHOTGUN_SPREAD * 16;
-    VectorMA( origin, 8192 * 16, forward, end);
-    VectorMA (end, r, right, end);
-    VectorMA (end, u, up, end);
-    if( ShotgunPellet( origin, end, ent ) && !hitClient ) {
-      hitClient = qtrue;
-      ent->client->accuracy_hits++;
-    }
-  }
-}
-
-
-void weapon_supershotgun_fire (gentity_t *ent) {
-  gentity_t   *tent;
-
-  // send shotgun blast
-  tent = G_TempEntity( muzzle, EV_SHOTGUN );
-  VectorScale( forward, 4096, tent->s.origin2 );
-  SnapVector( tent->s.origin2 );
-  tent->s.eventParm = rand() & 255;   // seed for spread pattern
-  tent->s.otherEntityNum = ent->s.number;
-
-  ShotgunPattern( tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent );
-}
-
-
-/*
-======================================================================
-
-GRENADE LAUNCHER
-
-======================================================================
-*/
-
-void weapon_grenadelauncher_fire (gentity_t *ent) {
-  gentity_t *m;
-
-  // extra vertical velocity
-  forward[2] += 0.2f;
-  VectorNormalize( forward );
-
-  m = fire_grenade (ent, muzzle, forward);
-
-//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
-}
-
-/*
-======================================================================
-
-ROCKET
-
-======================================================================
-*/
-
-void Weapon_RocketLauncher_Fire (gentity_t *ent) {
-  gentity_t *m;
-
-  m = fire_rocket (ent, muzzle, forward);
-
-//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
-}
-
-/*
-======================================================================
-
-SAWBLADE
+LOCKBLOB
 
 ======================================================================
 */
@@ -424,132 +225,6 @@ void Weapon_Flamer_Fire (gentity_t *ent) {
   m = fire_flamer (ent, muzzle, forward);
 
   VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
-}
-
-/*
-======================================================================
-
-RAILGUN
-
-======================================================================
-*/
-
-
-/*
-=================
-weapon_railgun_fire
-=================
-*/
-#define MAX_RAIL_HITS 4
-void weapon_railgun_fire( gentity_t *ent )
-{
-  vec3_t    end;
-  trace_t   trace;
-  gentity_t *tent;
-  gentity_t *traceEnt;
-  int     damage;
-  int     i;
-  int     hits;
-  int     unlinked;
-  int     passent;
-  gentity_t *unlinkedEntities[MAX_RAIL_HITS];
-
-  damage = 100;
-
-  VectorMA (muzzle, 8192, forward, end);
-
-  // trace only against the solids, so the railgun will go through people
-  unlinked = 0;
-  hits = 0;
-  passent = ent->s.number;
-  
-  do
-  {
-    trap_Trace (&trace, muzzle, NULL, NULL, end, passent, MASK_SHOT );
-    if ( trace.entityNum >= ENTITYNUM_MAX_NORMAL )
-      break;
-
-    traceEnt = &g_entities[ trace.entityNum ];
-    if ( traceEnt->takedamage )
-      G_Damage( traceEnt, ent, ent, forward, trace.endpos, damage, 0, MOD_RAILGUN );
-    
-    if ( trace.contents & CONTENTS_SOLID )
-      break;    // we hit something solid enough to stop the beam
- 
-    // unlink this entity, so the next trace will go past it
-    trap_UnlinkEntity( traceEnt );
-    unlinkedEntities[unlinked] = traceEnt;
-    unlinked++;
-  }
-  while ( unlinked < MAX_RAIL_HITS );
-
-  // link back in any entities we unlinked
-  for ( i = 0 ; i < unlinked ; i++ )
-    trap_LinkEntity( unlinkedEntities[i] );
-
-  // the final trace endpos will be the terminal point of the rail trail
-
-  // snap the endpos to integers to save net bandwidth, but nudged towards the line
-  SnapVectorTowards( trace.endpos, muzzle );
-
-  // send railgun beam effect
-  tent = G_TempEntity( trace.endpos, EV_RAILTRAIL );
-
-  // set player number for custom colors on the railtrail
-  tent->s.clientNum = ent->s.clientNum;
-
-  VectorCopy( muzzle, tent->s.origin2 );
-  // move origin a bit to come closer to the drawn gun muzzle
-  VectorMA( tent->s.origin2, 16, up, tent->s.origin2 );
-
-  // no explosion at end if SURF_NOIMPACT, but still make the trail
-  if ( trace.surfaceFlags & SURF_NOIMPACT )
-    tent->s.eventParm = 255;  // don't make the explosion at the end
-  else
-    tent->s.eventParm = DirToByte( trace.plane.normal );
- 
-  tent->s.clientNum = ent->s.clientNum;
-}
-
-
-/*
-======================================================================
-
-GRAPPLING HOOK
-
-======================================================================
-*/
-
-void Weapon_GrapplingHook_Fire (gentity_t *ent)
-{
-  if (!ent->client->fireHeld && !ent->client->hook)
-    fire_grapple (ent, muzzle, forward);
-
-  ent->client->fireHeld = qtrue;
-}
-
-void Weapon_HookFree (gentity_t *ent)
-{
-  ent->parent->client->hook = NULL;
-  ent->parent->client->ps.pm_flags &= ~PMF_GRAPPLE_PULL;
-  G_FreeEntity( ent );
-}
-
-void Weapon_HookThink (gentity_t *ent)
-{
-  if (ent->enemy) {
-    vec3_t v, oldorigin;
-
-    VectorCopy(ent->r.currentOrigin, oldorigin);
-    v[0] = ent->enemy->r.currentOrigin[0] + (ent->enemy->r.mins[0] + ent->enemy->r.maxs[0]) * 0.5;
-    v[1] = ent->enemy->r.currentOrigin[1] + (ent->enemy->r.mins[1] + ent->enemy->r.maxs[1]) * 0.5;
-    v[2] = ent->enemy->r.currentOrigin[2] + (ent->enemy->r.mins[2] + ent->enemy->r.maxs[2]) * 0.5;
-    SnapVectorTowards( v, oldorigin );  // save net bandwidth
-
-    G_SetOrigin( ent, v );
-  }
-
-  VectorCopy( ent->r.currentOrigin, ent->parent->client->ps.grapplePoint);
 }
 
 /*
@@ -720,17 +395,17 @@ void Weapon_Venom_Fire( gentity_t *ent )
 /*
 ======================================================================
 
-CIRCULAR SAW
+GRAB AND CLAW
 
 ======================================================================
 */
 
 /*
 ===============
-Weapon_Csaw_Fire
+Weapon_GClaw_Fire
 ===============
 */
-void Weapon_CSaw_Fire( gentity_t *ent )
+void Weapon_GClaw_Fire( gentity_t *ent )
 {
   trace_t   tr;
   vec3_t    end;
@@ -1022,27 +697,15 @@ void FireWeapon2( gentity_t *ent )
   // fire the specific weapon
   switch( ent->s.weapon )
   {
-/*    case WP_GAUNTLET:
-      Weapon_Gauntlet( ent );
-      break;*/
     case WP_TESLAGEN:
       Weapon_TeslaFire( ent );
       break;
-/*    case WP_SHOTGUN:
-      weapon_supershotgun_fire( ent );
-      break;*/
     case WP_MACHINEGUN:
       Bullet_Fire( ent, MACHINEGUN_SPREAD, MACHINEGUN_DAMAGE, MOD_MACHINEGUN );
       break;
     case WP_CHAINGUN:
       Bullet_Fire( ent, CHAINGUN_SPREAD, CHAINGUN_DAMAGE, MOD_CHAINGUN );
       break;
-/*    case WP_GRENADE_LAUNCHER:
-      weapon_grenadelauncher_fire( ent );
-      break;*/
-/*    case WP_ROCKET_LAUNCHER:
-      Weapon_RocketLauncher_Fire( ent );
-      break;*/
     case WP_FLAMER:
       Weapon_Flamer_Fire( ent );
       break;
@@ -1052,24 +715,15 @@ void FireWeapon2( gentity_t *ent )
     case WP_PULSE_RIFLE:
       Weapon_PulseRifle_Fire( ent );
       break;
-/*    case WP_RAILGUN:
-      weapon_railgun_fire( ent );
-      break;*/
     case WP_MASS_DRIVER:
       massDriverFire( ent );
       break;
     case WP_LOCKBLOB_LAUNCHER:
       break;
-/*    case WP_BFG:
-      BFG_Fire( ent );
-      break;*/
-/*    case WP_GRAPPLING_HOOK:
-      Weapon_GrapplingHook_Fire( ent );
-      break;*/
     case WP_VENOM:
       Weapon_Venom_Fire( ent );
       break;
-    case WP_GRABANDCSAW:
+    case WP_GRAB_CLAW:
       Weapon_Grab_Fire( ent );
       break;
     case WP_POUNCE:
@@ -1115,27 +769,15 @@ void FireWeapon( gentity_t *ent )
   // fire the specific weapon
   switch( ent->s.weapon )
   {
-/*    case WP_GAUNTLET:
-      Weapon_Gauntlet( ent );
-      break;*/
     case WP_TESLAGEN:
       Weapon_TeslaFire( ent );
       break;
-/*    case WP_SHOTGUN:
-      weapon_supershotgun_fire( ent );
-      break;*/
     case WP_MACHINEGUN:
       Bullet_Fire( ent, MACHINEGUN_SPREAD, MACHINEGUN_DAMAGE, MOD_MACHINEGUN );
       break;
     case WP_CHAINGUN:
       Bullet_Fire( ent, CHAINGUN_SPREAD, CHAINGUN_DAMAGE, MOD_CHAINGUN );
       break;
-/*    case WP_GRENADE_LAUNCHER:
-      weapon_grenadelauncher_fire( ent );
-      break;*/
-/*    case WP_ROCKET_LAUNCHER:
-      Weapon_RocketLauncher_Fire( ent );
-      break;*/
     case WP_FLAMER:
       Weapon_Flamer_Fire( ent );
       break;
@@ -1145,26 +787,17 @@ void FireWeapon( gentity_t *ent )
     case WP_PULSE_RIFLE:
       Weapon_PulseRifle_Fire( ent );
       break;
-/*    case WP_RAILGUN:
-      weapon_railgun_fire( ent );
-      break;*/
     case WP_MASS_DRIVER:
       massDriverFire( ent );
       break;
     case WP_LOCKBLOB_LAUNCHER:
       Weapon_LockBlobLauncher_Fire( ent );
       break;
-/*    case WP_BFG:
-      BFG_Fire( ent );
-      break;*/
-/*    case WP_GRAPPLING_HOOK:
-      Weapon_GrapplingHook_Fire( ent );
-      break;*/
     case WP_VENOM:
       Weapon_Venom_Fire( ent );
       break;
-    case WP_GRABANDCSAW:
-      Weapon_CSaw_Fire( ent );
+    case WP_GRAB_CLAW:
+      Weapon_GClaw_Fire( ent );
       break;
     case WP_POUNCE:
       Weapon_Claw_Fire( ent );

@@ -1941,6 +1941,7 @@ weaponAttributes_t bg_weapons[ ] =
     3,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     100,                  //int       repeatRate;
+    2000,                 //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
@@ -1960,6 +1961,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     40,                   //int       repeatRate;
+    0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
@@ -1979,6 +1981,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     50,                   //int       repeatRate;
+    0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
@@ -1998,6 +2001,7 @@ weaponAttributes_t bg_weapons[ ] =
     3,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     1000,                 //int       repeatRate;
+    2000,                 //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
@@ -2017,6 +2021,7 @@ weaponAttributes_t bg_weapons[ ] =
     3,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     50,                   //int       repeatRate;
+    2000,                 //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
@@ -2036,6 +2041,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     1000,                 //int       repeatRate;
+    0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
@@ -2055,6 +2061,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     1000,                 //int       repeatRate;
+    0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
@@ -2074,6 +2081,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     1000,                 //int       repeatRate;
+    0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
@@ -2093,6 +2101,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     1000,                 //int       repeatRate;
+    0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
@@ -2112,18 +2121,19 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     500,                  //int       repeatRate;
+    0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_GRABANDCSAW,       //int       weaponNum;
+    WP_GRAB_CLAW,         //int       weaponNum;
     100,                  //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
-    "grabandcsaw",        //char      *weaponName;
-    "Circular Saw",       //char      *weaponHumanName;
+    "grabandclaw",        //char      *weaponName;
+    "Claws",              //char      *weaponHumanName;
     { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
     "icons/iconw_gauntlet",
     0,                    //int       quan;
@@ -2131,8 +2141,29 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     500,                  //int       repeatRate;
+    0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qtrue,                //qboolean  synced;
+    qfalse,               //qboolean  purchasable;
+    WUT_ALIENS            //WUTeam_t  team;
+  },
+  {
+    WP_AREA_ZAP,          //int       weaponNum;
+    100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_WEAPON,          //int       slots;
+    "areazap",            //char      *weaponName;
+    "Area Zap",           //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    500,                  //int       repeatRate;
+    0,                    //int       reloadTime;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -2150,6 +2181,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     750,                  //int       repeatRate;
+    0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
@@ -2169,6 +2201,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     500,                  //int       repeatRate;
+    0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
@@ -2188,6 +2221,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     500,                  //int       repeatRate;
+    0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
@@ -2207,6 +2241,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     500,                  //int       repeatRate;
+    0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
@@ -2434,6 +2469,26 @@ int BG_FindRepeatRateForWeapon( int weapon )
     if( bg_weapons[ i ].weaponNum == weapon )
     {
       return bg_weapons[ i ].repeatRate;
+    }
+  }
+  
+  return 1000;
+}
+
+/*
+==============
+BG_FindReloadTimeForWeapon
+==============
+*/
+int BG_FindReloadTimeForWeapon( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+    {
+      return bg_weapons[ i ].reloadTime;
     }
   }
   

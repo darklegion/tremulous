@@ -360,9 +360,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   // check for a player that almost brought in cubes
   //CheckAlmostScored( self, attacker );
 
-  if (self->client && self->client->hook)
-    Weapon_HookFree(self->client->hook);
-
   self->client->ps.pm_type = PM_DEAD;
 
   if ( attacker ) {

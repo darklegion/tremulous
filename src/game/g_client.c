@@ -1467,13 +1467,13 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
       break;
       
     case PCL_A_O_LEV1:
-      BG_packWeapon( WP_GRABANDCSAW, client->ps.stats );
-      BG_packAmmoArray( WP_GRABANDCSAW, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
+      BG_packWeapon( WP_GRAB_CLAW, client->ps.stats );
+      BG_packAmmoArray( WP_GRAB_CLAW, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
       
     case PCL_A_O_LEV1_UPG:
-      BG_packWeapon( WP_GRABANDCSAW, client->ps.stats );
-      BG_packAmmoArray( WP_GRABANDCSAW, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
+      BG_packWeapon( WP_GRAB_CLAW, client->ps.stats );
+      BG_packAmmoArray( WP_GRAB_CLAW, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
       
     case PCL_A_O_LEV2:

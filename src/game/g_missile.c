@@ -129,52 +129,6 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		}
 	}
 
-	if( !strcmp( ent->classname, "hook" ) )
-  {
-		gentity_t *nent;
-		vec3_t v;
-
-		nent = G_Spawn();
-		if ( other->takedamage && other->client ) {
-
-			G_AddEvent( nent, EV_MISSILE_HIT, DirToByte( trace->plane.normal ) );
-			nent->s.otherEntityNum = other->s.number;
-
-			ent->enemy = other;
-
-			v[0] = other->r.currentOrigin[0] + (other->r.mins[0] + other->r.maxs[0]) * 0.5;
-			v[1] = other->r.currentOrigin[1] + (other->r.mins[1] + other->r.maxs[1]) * 0.5;
-			v[2] = other->r.currentOrigin[2] + (other->r.mins[2] + other->r.maxs[2]) * 0.5;
-
-			SnapVectorTowards( v, ent->s.pos.trBase );	// save net bandwidth
-		} else {
-			VectorCopy(trace->endpos, v);
-			G_AddEvent( nent, EV_MISSILE_MISS, DirToByte( trace->plane.normal ) );
-			ent->enemy = NULL;
-		}
-
-		SnapVectorTowards( v, ent->s.pos.trBase );	// save net bandwidth
-
-		nent->freeAfterEvent = qtrue;
-		// change over to a normal entity right at the point of impact
-		nent->s.eType = ET_GENERAL;
-		ent->s.eType = ET_GRAPPLE;
-
-		G_SetOrigin( ent, v );
-		G_SetOrigin( nent, v );
-
-		ent->think = Weapon_HookThink;
-		ent->nextthink = level.time + FRAMETIME;
-
-		ent->parent->client->ps.pm_flags |= PMF_GRAPPLE_PULL;
-		VectorCopy( ent->r.currentOrigin, ent->parent->client->ps.grapplePoint);
-
-		trap_LinkEntity( ent );
-		trap_LinkEntity( nent );
-
-		return;
-	}
-
 	if( !strcmp( ent->classname, "lockblob" ) )
   {
     if( other->client && other->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
@@ -369,7 +323,7 @@ gentity_t *fire_plasma( gentity_t *self, vec3_t start, vec3_t dir )
 
 /*
 =================
-fire_plasma
+fire_pulseRifle
 
 =================
 */
@@ -411,125 +365,6 @@ gentity_t *fire_pulseRifle( gentity_t *self, vec3_t start, vec3_t dir )
 
 /*
 =================
-fire_grenade
-=================
-*/
-gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
-	gentity_t	*bolt;
-
-	VectorNormalize (dir);
-
-	bolt = G_Spawn();
-	bolt->classname = "grenade";
-	bolt->nextthink = level.time + 2500;
-	bolt->think = G_ExplodeMissile;
-	bolt->s.eType = ET_MISSILE;
-	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	/*bolt->s.weapon = WP_GRENADE_LAUNCHER;*/
-	bolt->s.eFlags = EF_BOUNCE_HALF;
-	bolt->r.ownerNum = self->s.number;
-	bolt->parent = self;
-	bolt->damage = 100;
-	bolt->splashDamage = 100;
-	bolt->splashRadius = 150;
-	bolt->methodOfDeath = MOD_GRENADE;
-	bolt->splashMethodOfDeath = MOD_GRENADE_SPLASH;
-	bolt->clipmask = MASK_SHOT;
-  bolt->target_ent = NULL;
-
-	bolt->s.pos.trType = TR_GRAVITY;
-	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
-	VectorCopy( start, bolt->s.pos.trBase );
-	VectorScale( dir, 700, bolt->s.pos.trDelta );
-	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
-
-	VectorCopy (start, bolt->r.currentOrigin);
-
-	return bolt;
-}
-
-//=============================================================================
-
-
-/*
-=================
-fire_bfg
-=================
-*/
-gentity_t *fire_bfg (gentity_t *self, vec3_t start, vec3_t dir) {
-	gentity_t	*bolt;
-
-	VectorNormalize (dir);
-
-	bolt = G_Spawn();
-	bolt->classname = "bfg";
-	bolt->nextthink = level.time + 10000;
-	bolt->think = G_ExplodeMissile;
-	bolt->s.eType = ET_MISSILE;
-	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	/*bolt->s.weapon = WP_BFG;*/
-	bolt->r.ownerNum = self->s.number;
-	bolt->parent = self;
-	bolt->damage = 100;
-	bolt->splashDamage = 100;
-	bolt->splashRadius = 120;
-	bolt->methodOfDeath = MOD_BFG;
-	bolt->splashMethodOfDeath = MOD_BFG_SPLASH;
-	bolt->clipmask = MASK_SHOT;
-  bolt->target_ent = NULL;
-
-	bolt->s.pos.trType = TR_LINEAR;
-	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
-	VectorCopy( start, bolt->s.pos.trBase );
-	VectorScale( dir, 2000, bolt->s.pos.trDelta );
-	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
-	VectorCopy (start, bolt->r.currentOrigin);
-
-	return bolt;
-}
-
-//=============================================================================
-
-
-/*
-=================
-fire_rocket
-=================
-*/
-gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir) {
-	gentity_t	*bolt;
-
-	VectorNormalize (dir);
-
-	bolt = G_Spawn();
-	bolt->classname = "rocket";
-	bolt->nextthink = level.time + 15000;
-	bolt->think = G_ExplodeMissile;
-	bolt->s.eType = ET_MISSILE;
-	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	/*bolt->s.weapon = WP_ROCKET_LAUNCHER;*/
-	bolt->r.ownerNum = self->s.number;
-	bolt->parent = self;
-	bolt->damage = 100;
-	bolt->splashDamage = 100;
-	bolt->splashRadius = 120;
-	bolt->methodOfDeath = MOD_ROCKET;
-	bolt->splashMethodOfDeath = MOD_ROCKET_SPLASH;
-	bolt->clipmask = MASK_SHOT;
-  bolt->target_ent = NULL;
-
-	bolt->s.pos.trType = TR_LINEAR;
-	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
-	VectorCopy( start, bolt->s.pos.trBase );
-	VectorScale( dir, 900, bolt->s.pos.trDelta );
-	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
-	VectorCopy (start, bolt->r.currentOrigin);
-
-	return bolt;
-}
-
-/*
-=================
 fire_lockblob
 =================
 */
@@ -565,42 +400,4 @@ gentity_t *fire_lockblob( gentity_t *self, vec3_t start, vec3_t dir )
 
 	return bolt;
 }
-
-/*
-=================
-fire_grapple
-=================
-*/
-gentity_t *fire_grapple (gentity_t *self, vec3_t start, vec3_t dir) {
-	gentity_t	*hook;
-
-	VectorNormalize (dir);
-
-	hook = G_Spawn();
-	hook->classname = "hook";
-	hook->nextthink = level.time + 10000;
-	hook->think = Weapon_HookFree;
-	hook->s.eType = ET_MISSILE;
-	hook->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	/*hook->s.weapon = WP_GRAPPLING_HOOK;*/
-	hook->r.ownerNum = self->s.number;
-	hook->methodOfDeath = MOD_GRAPPLE;
-	hook->clipmask = MASK_SHOT;
-	hook->parent = self;
-  hook->target_ent = NULL;
-
-	hook->s.pos.trType = TR_LINEAR;
-	hook->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
-	hook->s.otherEntityNum = self->s.number; // use to match beam in client
-	VectorCopy( start, hook->s.pos.trBase );
-	VectorScale( dir, 800, hook->s.pos.trDelta );
-	SnapVector( hook->s.pos.trDelta );			// save net bandwidth
-	VectorCopy (start, hook->r.currentOrigin);
-
-	self->client->hook = hook;
-
-	return hook;
-}
-
-
 
