@@ -838,6 +838,10 @@ typedef struct
 
   int       nextthink;
 
+  int       turretFireSpeed;
+  int       turretRange;
+  weapon_t  turretProjType;
+
   qboolean  creepTest;
   qboolean  reactorTest;
 } buildableAttributes_t;      
@@ -898,6 +902,9 @@ int       BG_FindMODForBuildable( int bclass );
 int       BG_FindTeamForBuildable( int bclass );
 int       BG_FindEventForBuildable( int bclass );
 int       BG_FindNextThinkForBuildable( int bclass );
+int       BG_FindFireSpeedForBuildable( int bclass );
+int       BG_FindRangeForBuildable( int bclass );
+weapon_t  BG_FindProjTypeForBuildable( int bclass );
 int       BG_FindCreepTestForBuildable( int bclass );
 int       BG_FindUniqueTestForBuildable( int bclass );
 

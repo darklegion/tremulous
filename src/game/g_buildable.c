@@ -43,17 +43,20 @@ qboolean findPower( gentity_t *self )
   vec3_t    temp_v;
   qboolean  foundPower = qfalse;
 
+  //if this already has power then stop now
   if( self->parentNode && self->parentNode->active )
     return qtrue;
   
   //reset parent
   self->parentNode = NULL;
   
+  //iterate through entities
   for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
     if( !ent->classname )
       continue;
 
+    //if entity is a power item calculate the distance to it
     if( !Q_stricmp( ent->classname, "team_human_reactor" ) ||
         !Q_stricmp( ent->classname, "team_human_repeater" ) )
     {
@@ -68,9 +71,11 @@ qboolean findPower( gentity_t *self )
     }
   }
 
+  //if there were no power items nearby give up
   if( !foundPower )
     return qfalse;
   
+  //bleh
   if( (
         !Q_stricmp( closestPower->classname, "team_human_reactor" ) &&
         ( minDistance <= REACTOR_BASESIZE )
@@ -117,15 +122,17 @@ Called when an droid spawn dies
 */
 void D_CreepRecede( gentity_t *self )
 {
+  //if the creep just died begin the recession
   if( ( self->timestamp + 100 ) == level.time )
     G_AddEvent( self, EV_ITEM_RECEDE, 0 );
   
+  //creep is still receeding
   if( ( self->timestamp + 10000 ) > level.time )
   {
     self->nextthink = level.time + 500;
     trap_LinkEntity( self );
   }
-  else
+  else //creep has died
     G_FreeEntity( self );
 }
 
@@ -143,16 +150,17 @@ void DSpawn_Melt( gentity_t *self )
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
     self->splashRadius, self, MOD_SHOTGUN, PTE_DROIDS );
 
-  
+  //start creep recession
   if( ( self->timestamp + 500 ) == level.time )
     G_AddEvent( self, EV_ITEM_RECEDE, 0 );
   
+  //not dead yet
   if( ( self->timestamp + 10000 ) > level.time )
   {
     self->nextthink = level.time + 500;
     trap_LinkEntity( self );
   }
-  else
+  else //dead now
     G_FreeEntity( self );
 }
 
@@ -171,9 +179,11 @@ void DSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   dir[0] = dir[1] = 0;
   dir[2] = 1;
 
+  //do a bit of radius damage
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
     self->splashRadius, self, self->splashMethodOfDeath, PTE_DROIDS );
 
+  //pretty events and item cleanup
   self->s.modelindex = 0; //don't draw the model once its destroyed
   G_AddEvent( self, EV_GIB_DROID, DirToByte( dir ) );
   self->r.contents = CONTENTS_TRIGGER;
@@ -201,9 +211,11 @@ void DDef1_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
   dir[0] = dir[1] = 0;
   dir[2] = 1;
 
+  //do a bit of radius damage
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
     self->splashRadius, self, self->splashMethodOfDeath, PTE_DROIDS );
 
+  //pretty events and item cleanup
   self->s.modelindex = 0; //don't draw the model once its destroyed
   G_AddEvent( self, EV_GIB_DROID, DirToByte( dir ) );
   self->r.contents = CONTENTS_TRIGGER;
@@ -291,6 +303,7 @@ void HRpt_Think( gentity_t *self )
   qboolean  reactor = qfalse;
   gentity_t *ent;
   
+  //iterate through entities
   for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
     if( !Q_stricmp( ent->classname, "team_human_spawn" ) && ent->parentNode == self )
@@ -300,6 +313,7 @@ void HRpt_Think( gentity_t *self )
       reactor = qtrue;
   }
   
+  //if repeater has children and there is a reactor then this is active
   if( count && reactor )
     self->active = qtrue;
   else
@@ -319,8 +333,10 @@ Called when a human activates an MCU
 */
 void HMCU_Activate( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
+  //only humans can activate this
   if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS ) return;
   
+  //if this is powered then call the mcu menu
   if( self->powered )
     G_AddPredictableEvent( activator, EV_MENU, MN_H_MCU );
   else
@@ -336,6 +352,7 @@ Think for mcu
 */
 void HMCU_Think( gentity_t *self )
 {
+  //make sure we have power
   self->nextthink = level.time + REFRESH_TIME;
   
   self->powered = findPower( self );
@@ -346,9 +363,7 @@ void HMCU_Think( gentity_t *self )
 // Anthony "inolen" Pesch (www.inolen.com)
 //with (heavy) modifications by me of course :)
   
-#define HDEF1_RANGE             500 //maximum range
 #define HDEF1_ANGULARSPEED      10  //degrees/think ~= 200deg/sec
-#define HDEF1_FIRINGSPEED       500 //time between projectiles
 #define HDEF1_ACCURACYTOLERANCE HDEF1_ANGULARSPEED / 2 //angular difference for turret to fire
 #define HDEF1_VERTICALCAP       20 //+/- maximum pitch
 #define HDEF1_PROJSPEED         2000.0f //speed of projectile (used in prediction)
@@ -364,7 +379,7 @@ qboolean hdef1_trackenemy( gentity_t *self )
 {
   vec3_t  dirToTarget, angleToTarget, angularDiff;
   float   temp;
-  float   distanceToTarget = HDEF1_RANGE;
+  float   distanceToTarget = BG_FindRangeForBuildable( self->s.clientNum );
   float   timeTilImpact;
   vec3_t  halfAcceleration;
   vec3_t  thirdJerk;
@@ -380,6 +395,8 @@ qboolean hdef1_trackenemy( gentity_t *self )
   VectorSubtract( dirToTarget, self->s.pos.trBase, dirToTarget );
 #endif
 
+//better, but more expensive method
+#if 0
   VectorScale( self->enemy->acceleration, 1.0f / 2.0f, halfAcceleration );
   VectorScale( self->enemy->jerk, 1.0f / 3.0f, thirdJerk );
 
@@ -396,6 +413,7 @@ qboolean hdef1_trackenemy( gentity_t *self )
 
     distanceToTarget -= self->enemy->r.maxs[ 0 ];
   }
+#endif
   
   VectorNormalize( dirToTarget );
   
@@ -404,6 +422,7 @@ qboolean hdef1_trackenemy( gentity_t *self )
   angularDiff[ PITCH ] = AngleSubtract( self->s.angles2[ PITCH ], angleToTarget[ PITCH ] );
   angularDiff[ YAW ] = AngleSubtract( self->s.angles2[ YAW ], angleToTarget[ YAW ] );
 
+  //if not pointing at our target then move accordingly
   if( angularDiff[ PITCH ] < -HDEF1_ACCURACYTOLERANCE )
     self->s.angles2[ PITCH ] += HDEF1_ANGULARSPEED;
   else if( angularDiff[ PITCH ] > HDEF1_ACCURACYTOLERANCE )
@@ -411,6 +430,7 @@ qboolean hdef1_trackenemy( gentity_t *self )
   else
     self->s.angles2[ PITCH ] = angleToTarget[ PITCH ];
 
+  //disallow vertical movement past a certain limit
   temp = fabs( self->s.angles2[ PITCH ] );
   if( temp > 180 )
     temp -= 360;
@@ -420,6 +440,7 @@ qboolean hdef1_trackenemy( gentity_t *self )
   else if( temp > HDEF1_VERTICALCAP )
     self->s.angles2[ PITCH ] = -HDEF1_VERTICALCAP;
     
+  //if not pointing at our target then move accordingly
   if( angularDiff[ YAW ] < -HDEF1_ACCURACYTOLERANCE )
     self->s.angles2[ YAW ] += HDEF1_ANGULARSPEED;
   else if( angularDiff[ YAW ] > HDEF1_ACCURACYTOLERANCE )
@@ -429,6 +450,7 @@ qboolean hdef1_trackenemy( gentity_t *self )
     
   trap_LinkEntity( self );
 
+  //if pointing at our target return true
   if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= HDEF1_ACCURACYTOLERANCE &&
       abs( angleToTarget[ PITCH ] - self->s.angles2[ PITCH ] ) <= HDEF1_ACCURACYTOLERANCE )
     return qtrue;
@@ -436,9 +458,7 @@ qboolean hdef1_trackenemy( gentity_t *self )
   return qfalse;
 }
 
-#define HDEF2_RANGE             300 //maximum range
 #define HDEF2_ANGULARSPEED      20  //degrees/think ~= 200deg/sec
-#define HDEF2_FIRINGSPEED       50  //time between projectiles
 #define HDEF2_ACCURACYTOLERANCE HDEF2_ANGULARSPEED / 2 //angular difference for turret to fire
 #define HDEF2_VERTICALCAP       30  //- maximum pitch
 
@@ -463,6 +483,7 @@ qboolean hdef2_trackenemy( gentity_t *self )
   angularDiff[ PITCH ] = AngleSubtract( self->s.angles2[ PITCH ], angleToTarget[ PITCH ] );
   angularDiff[ YAW ] = AngleSubtract( self->s.angles2[ YAW ], angleToTarget[ YAW ] );
 
+  //if not pointing at our target then move accordingly
   if( angularDiff[ PITCH ] < -HDEF2_ACCURACYTOLERANCE )
     self->s.angles2[ PITCH ] += HDEF2_ANGULARSPEED;
   else if( angularDiff[ PITCH ] > HDEF2_ACCURACYTOLERANCE )
@@ -470,6 +491,7 @@ qboolean hdef2_trackenemy( gentity_t *self )
   else
     self->s.angles2[ PITCH ] = angleToTarget[ PITCH ];
 
+  //disallow vertical movement past a certain limit
   temp = fabs( self->s.angles2[ PITCH ] );
   if( temp > 180 )
     temp -= 360;
@@ -477,6 +499,7 @@ qboolean hdef2_trackenemy( gentity_t *self )
   if( temp < -HDEF2_VERTICALCAP )
     self->s.angles2[ PITCH ] = (-360)+HDEF2_VERTICALCAP;
     
+  //if not pointing at our target then move accordingly
   if( angularDiff[ YAW ] < -HDEF2_ACCURACYTOLERANCE )
     self->s.angles2[ YAW ] += HDEF2_ANGULARSPEED;
   else if( angularDiff[ YAW ] > HDEF2_ACCURACYTOLERANCE )
@@ -486,6 +509,7 @@ qboolean hdef2_trackenemy( gentity_t *self )
     
   trap_LinkEntity( self );
 
+  //if pointing at our target return true
   if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= HDEF2_ACCURACYTOLERANCE &&
       abs( angleToTarget[ PITCH ] - self->s.angles2[ PITCH ] ) <= HDEF2_ACCURACYTOLERANCE )
     return qtrue;
@@ -493,9 +517,7 @@ qboolean hdef2_trackenemy( gentity_t *self )
   return qfalse;
 }
 
-#define HDEF3_RANGE             1500  //maximum range
 #define HDEF3_ANGULARSPEED      2     //degrees/think ~= 200deg/sec
-#define HDEF3_FIRINGSPEED       4000  //time between projectiles
 #define HDEF3_ACCURACYTOLERANCE HDEF3_ANGULARSPEED / 2 //angular difference for turret to fire
 #define HDEF3_VERTICALCAP       15    //+/- maximum pitch
 
@@ -520,6 +542,7 @@ qboolean hdef3_trackenemy( gentity_t *self )
   angularDiff[ PITCH ] = AngleSubtract( self->s.angles2[ PITCH ], angleToTarget[ PITCH ] );
   angularDiff[ YAW ] = AngleSubtract( self->s.angles2[ YAW ], angleToTarget[ YAW ] );
 
+  //if not pointing at our target then move accordingly
   if( angularDiff[ PITCH ] < -HDEF3_ACCURACYTOLERANCE )
     self->s.angles2[ PITCH ] += HDEF3_ANGULARSPEED;
   else if( angularDiff[ PITCH ] > HDEF3_ACCURACYTOLERANCE )
@@ -527,6 +550,7 @@ qboolean hdef3_trackenemy( gentity_t *self )
   else
     self->s.angles2[ PITCH ] = angleToTarget[ PITCH ];
 
+  //disallow vertical movement past a certain limit
   temp = fabs( self->s.angles2[ PITCH ] );
   if( temp > 180 )
     temp -= 360;
@@ -536,6 +560,7 @@ qboolean hdef3_trackenemy( gentity_t *self )
   else if( temp > HDEF3_VERTICALCAP )
     self->s.angles2[ PITCH ] = -HDEF3_VERTICALCAP;
     
+  //if not pointing at our target then move accordingly
   if( angularDiff[ YAW ] < -HDEF3_ACCURACYTOLERANCE )
     self->s.angles2[ YAW ] += HDEF3_ANGULARSPEED;
   else if( angularDiff[ YAW ] > HDEF3_ACCURACYTOLERANCE )
@@ -545,6 +570,7 @@ qboolean hdef3_trackenemy( gentity_t *self )
     
   trap_LinkEntity( self );
 
+  //if pointing at our target return true
   if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= HDEF3_ACCURACYTOLERANCE &&
       abs( angleToTarget[ PITCH ] - self->s.angles2[ PITCH ] ) <= HDEF3_ACCURACYTOLERANCE )
     return qtrue;
@@ -561,6 +587,7 @@ Used by HDef_Think to fire at enemy
 */
 void hdef_fireonenemy( gentity_t *self, int firespeed )
 {
+  //fire at target
   FireWeapon( self );
   self->count = level.time + firespeed;
 }
@@ -619,15 +646,19 @@ void hdef_findenemy( gentity_t *ent, int range )
 
   target = g_entities;
 
+  //iterate through entities
   for (; target < &g_entities[ level.num_entities ]; target++)
   {
+    //if target is not valid keep searching
     if( !hdef_checktarget( ent, target, range ) )
       continue;
       
+    //we found a target
     ent->enemy = target;
     return;
   }
 
+  //couldn't find a target
   ent->enemy = NULL;
 }
 
@@ -641,46 +672,30 @@ think function for Human Defense
 */
 void HDef_Think( gentity_t *self )
 {
-  int range, firespeed;
+  int range =     BG_FindRangeForBuildable( self->s.clientNum );
+  int firespeed = BG_FindFireSpeedForBuildable( self->s.clientNum );
 
-  switch( self->s.clientNum )
-  {
-    case BA_H_DEF1:
-      range = HDEF1_RANGE;
-      firespeed = HDEF1_FIRINGSPEED;
-      self->nextthink = level.time + 50;
-      break;
-      
-    case BA_H_DEF2:
-      range = HDEF2_RANGE;
-      firespeed = HDEF2_FIRINGSPEED;
-      self->nextthink = level.time + 50;
-      break;
-      
-    case BA_H_DEF3:
-      range = HDEF3_RANGE;
-      firespeed = HDEF3_FIRINGSPEED;
-      self->nextthink = level.time + 150;
-      break;
-      
-    default:
-      Com_Printf( S_COLOR_YELLOW "WARNING: Unknown turret type in think\n" );
-      break;
-  }
-  
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
+
+  //find power for self
   self->powered = findPower( self );
 
+  //if not powered don't do anything and check again for power next think
   if( !self->powered )
   {
     self->nextthink = level.time + REFRESH_TIME;
     return;
   }
   
+  //if the current target is not valid find a new one
   if( !hdef_checktarget( self, self->enemy, range ) )
     hdef_findenemy( self, range );
+
+  //if a new target cannot be found don't do anything
   if( !self->enemy )
     return;
   
+  //if we are pointing at our target and we can fire shoot it
   switch( self->s.clientNum )
   {
     case BA_H_DEF1:
@@ -715,6 +730,7 @@ think function
 */
 void HSpawn_Blast( gentity_t *self )
 {
+  //do some radius damage
   G_RadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
     self->splashRadius, self, self->splashMethodOfDeath );
 
@@ -737,13 +753,14 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   dir[0] = dir[1] = 0;
   dir[2] = 1;
 
+  //pretty events and cleanup
   self->s.modelindex = 0; //don't draw the model once its destroyed
   G_AddEvent( self, EV_ITEM_EXPLOSION, DirToByte( dir ) );
   self->r.contents = CONTENTS_TRIGGER;
   self->timestamp = level.time;
   self->die = nullDieFunction;
   self->think = HSpawn_Blast;
-  self->nextthink = level.time + 1000; //wait 1.5 seconds before damaging others
+  self->nextthink = level.time + 1500; //wait 1.5 seconds before damaging others
 
   trap_LinkEntity( self );
 }
@@ -757,6 +774,7 @@ Think for human spawn
 */
 void HSpawn_Think( gentity_t *self )
 {
+  //search for power
   self->nextthink = level.time + REFRESH_TIME;
 
   self->powered = findPower( self );
@@ -796,6 +814,7 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
   trap_Trace( &tr1, entity_origin, mins, maxs, entity_origin, ent->s.number, MASK_PLAYERSOLID );
   trap_Trace( &tr2, player_origin, NULL, NULL, entity_origin, ent->s.number, MASK_PLAYERSOLID );
 
+  //this item does not fit here
   if( tr1.fraction < 1.0 || tr2.fraction < 1.0 )
     reason = IBE_NOROOM;
     
@@ -805,6 +824,7 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
     if( level.droidBuildPoints - BG_FindBuildPointsForBuildable( buildable ) < 0 )
       reason = IBE_NOASSERT;
       
+    //check there is creep near by for building on
     if( BG_FindCreepTestForBuildable( buildable ) )
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
@@ -822,12 +842,14 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
         reason = IBE_NOCREEP;
     }
     
+    //look for a hivemind
     for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
     {
       if( !Q_stricmp( tempent->classname, "team_droid_hivemind" ) )
         break;
     }
 
+    //if none found...
     if( i >= level.num_entities && buildable != BA_D_HIVEMIND )
     {
       if( buildable == BA_D_SPAWN )
@@ -835,7 +857,8 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
       else
         reason = IBE_NOHIVEMIND;
     }
-      
+    
+    //can we only have one of these?
     if( BG_FindUniqueTestForBuildable( buildable ) )
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
@@ -856,6 +879,7 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
 
     closestPower = g_entities + 1; //FIXME
     
+    //find the nearest power entity
     for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
     {
       if( !Q_stricmp( tempent->classname, "team_human_reactor" ) ||
@@ -871,21 +895,33 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
       }
     }
     
-    if( !( ( !Q_stricmp( closestPower->classname, "team_human_reactor" ) &&
-             minDistance <= REACTOR_BASESIZE ) || 
-           ( !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
+    //if this power entity satisfies expression
+    if( !(
+           (
+             !Q_stricmp( closestPower->classname, "team_human_reactor" ) &&
+             minDistance <= REACTOR_BASESIZE
+           ) || 
+           (
+             !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
              minDistance <= REPEATER_BASESIZE &&
-             ( ( buildable == BA_H_SPAWN && closestPower->powered ) ||
-               ( closestPower->powered && closestPower->active ) ) ) )
+             (
+               ( buildable == BA_H_SPAWN && closestPower->powered ) ||
+               ( closestPower->powered && closestPower->active )
+             )
+           )
+         )
       )
     {
+      //tell player to build a repeater to provide power
       if( buildable != BA_H_REACTOR && buildable != BA_H_REPEATER )
         reason = IBE_REPEATER;
 
+      //warn that the current spawn will not be externally powered
       if( buildable == BA_H_SPAWN )
         reason = IBE_RPLWARN;
     }
 
+    //check that there is a parent reactor when building a repeater
     if( buildable == BA_H_REPEATER )
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
@@ -898,6 +934,7 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
         reason = IBE_RPTWARN;
     }
       
+    //can we only build one of these?
     if( BG_FindUniqueTestForBuildable( buildable ) )
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
@@ -935,6 +972,7 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
   VectorCopy( ent->s.pos.trBase, origin );
   VectorMA( origin, distance, forward, origin );
 
+  //spawn the buildable
   built = G_Spawn();
 
   built->s.eType = ET_BUILDABLE;
@@ -954,6 +992,7 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
   built->splashRadius = BG_FindSplashRadiusForBuildable( buildable );
   built->splashMethodOfDeath = BG_FindMODForBuildable( buildable );
   
+  //add a spawn event
   if( BG_FindEventForBuildable( buildable ) != EV_NONE )
     G_AddEvent( built, BG_FindEventForBuildable( buildable ), 0 );
     
@@ -982,24 +1021,12 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
       break;
       
     case BA_H_DEF1:
-      built->die = HSpawn_Die;
-      built->think = HDef_Think;
-      built->enemy = NULL;
-      built->s.weapon = WP_PLASMAGUN;
-      break;
-      
     case BA_H_DEF2:
-      built->die = HSpawn_Die;
-      built->think = HDef_Think;
-      built->enemy = NULL;
-      built->s.weapon = WP_MACHINEGUN;
-      break;
-      
     case BA_H_DEF3:
       built->die = HSpawn_Die;
       built->think = HDef_Think;
       built->enemy = NULL;
-      built->s.weapon = WP_RAILGUN;
+      built->s.weapon = BG_FindProjTypeForBuildable( buildable );
       break;
       
     case BA_H_MCU:

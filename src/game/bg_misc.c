@@ -1034,184 +1034,214 @@ int   bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) - 1;
 buildableAttributes_t bg_buildableList[ ] =
 {
   {
-    BA_D_SPAWN,
-    "bioegg",
-    "team_droid_spawn",
-    { -15, -15, -15 },
-    { 15, 15, 15 },
-    100,
-    1000,
-    50,
-    50,
-    200,
-    MOD_DSPAWN,
-    BIT_DROIDS,
-    EV_ITEM_GROW,
-    100,
-    qfalse,
-    qfalse
+    BA_D_SPAWN,            //int       buildNum;     
+    "bioegg",              //char      *buildName;
+    "team_droid_spawn",    //char      *entityName;
+    { -15, -15, -15 },     //vec3_t    mins;
+    { 15, 15, 15 },        //vec3_t    maxs;
+    100,                   //int       buildPoints;
+    1000,                  //int       health;
+    50,                    //int       damage;
+    50,                    //int       splashDamage;
+    200,                   //int       splashRadius;
+    MOD_DSPAWN,            //int       meansOfDeath;
+    BIT_DROIDS,            //int       team;
+    EV_ITEM_GROW,          //int       spawnEvent;
+    100,                   //int       nextthink;
+    0,                     //int       turretFireSpeed;
+    0,                     //int       turretRange;
+    WP_NONE,               //weapon_t  turretProjType;
+    qfalse,                //qboolean  creepTest;
+    qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_D_DEF1,
-    "defense1",
-    "team_droid_def1",
-    { -15, -15, -15 },
-    { 15, 15, 15 },
-    80,
-    1000,
-    50,
-    20,
-    50,
-    MOD_DSPAWN,
-    BIT_DROIDS,
-    EV_ITEM_GROW,
-    100,
-    qtrue,
-    qfalse
+    BA_D_DEF1,             //int       buildNum;
+    "defense1",            //char      *buildName;
+    "team_droid_def1",     //char      *entityName;
+    { -15, -15, -15 },     //vec3_t    mins;
+    { 15, 15, 15 },        //vec3_t    maxs;
+    80,                    //int       buildPoints;
+    1000,                  //int       health;
+    50,                    //int       damage;
+    20,                    //int       splashDamage;
+    50,                    //int       splashRadius;
+    MOD_DSPAWN,            //int       meansOfDeath;
+    BIT_DROIDS,            //int       team;
+    EV_ITEM_GROW,          //int       spawnEvent;
+    100,                   //int       nextthink;
+    0,                     //int       turretFireSpeed;
+    0,                     //int       turretRange;
+    WP_NONE,               //weapon_t  turretProjType;
+    qtrue,                 //qboolean  creepTest;
+    qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_D_HIVEMIND,
-    "hivemind",
-    "team_droid_hivemind",
-    { -15, -15, -15 },
-    { 15, 15, 15 },
-    0,
-    1000,
-    50,
-    20,
-    50,
-    MOD_DSPAWN,
-    BIT_DROIDS,
-    EV_ITEM_GROW,
-    -1,
-    qfalse,
-    qtrue
+    BA_D_HIVEMIND,         //int       buildNum;
+    "hivemind",            //char      *buildName;
+    "team_droid_hivemind", //char      *entityName;
+    { -15, -15, -15 },     //vec3_t    mins;
+    { 15, 15, 15 },        //vec3_t    maxs;
+    0,                     //int       buildPoints;
+    1000,                  //int       health;
+    50,                    //int       damage;
+    20,                    //int       splashDamage;
+    50,                    //int       splashRadius;
+    MOD_DSPAWN,            //int       meansOfDeath;
+    BIT_DROIDS,            //int       team;
+    EV_ITEM_GROW,          //int       spawnEvent;
+    -1,                    //int       nextthink;
+    0,                     //int       turretFireSpeed;
+    0,                     //int       turretRange;
+    WP_NONE,               //weapon_t  turretProjType;
+    qfalse,                //qboolean  creepTest;
+    qtrue                  //qboolean  reactorTest;
   },
   {
-    BA_H_SPAWN,
-    "replicator",
-    "team_human_spawn",
-    { -40, -40, -4 },
-    { 40, 40, 4 },
-    100,
-    1000,
-    50,
-    50,
-    150,
-    MOD_HSPAWN,
-    BIT_HUMANS,
-    EV_NONE,
-    100,
-    qfalse,
-    qfalse
+    BA_H_SPAWN,            //int       buildNum;
+    "replicator",          //char      *buildName;
+    "team_human_spawn",    //char      *entityName;
+    { -40, -40, -4 },      //vec3_t    mins;
+    { 40, 40, 4 },         //vec3_t    maxs;
+    100,                   //int       buildPoints;
+    1000,                  //int       health;
+    50,                    //int       damage;
+    50,                    //int       splashDamage;
+    150,                   //int       splashRadius;
+    MOD_HSPAWN,            //int       meansOfDeath;
+    BIT_HUMANS,            //int       team;
+    EV_NONE,               //int       spawnEvent;
+    100,                   //int       nextthink;
+    0,                     //int       turretFireSpeed;
+    0,                     //int       turretRange;
+    WP_NONE,               //weapon_t  turretProjType;
+    qfalse,                //qboolean  creepTest;
+    qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_H_DEF1,
-    "plasmaturret",
-    "team_human_def1",
-    { -24, -24, -11 },
-    { 24, 24, 11 },
-    80,
-    1000,
-    50,
-    20,
-    50,
-    MOD_HSPAWN,
-    BIT_HUMANS,
-    EV_NONE,
-    50,
-    qfalse,
-    qfalse
+    BA_H_DEF1,             //int       buildNum;
+    "plasmaturret",        //char      *buildName;
+    "team_human_def1",     //char      *entityName;
+    { -24, -24, -11 },     //vec3_t    mins;
+    { 24, 24, 11 },        //vec3_t    maxs;
+    80,                    //int       buildPoints;
+    1000,                  //int       health;
+    50,                    //int       damage;
+    20,                    //int       splashDamage;
+    50,                    //int       splashRadius;
+    MOD_HSPAWN,            //int       meansOfDeath;
+    BIT_HUMANS,            //int       team;
+    EV_NONE,               //int       spawnEvent;
+    50,                    //int       nextthink;
+    500,                   //int       turretFireSpeed;
+    500,                   //int       turretRange;
+    WP_PLASMAGUN,          //weapon_t  turretProjType;
+    qfalse,                //qboolean  creepTest;
+    qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_H_DEF2,
-    "mgturret",
-    "team_human_def2",
-    { -24, -24, -11 },
-    { 24, 24, 11 },
-    80,
-    1000,
-    50,
-    20,
-    50,
-    MOD_HSPAWN,
-    BIT_HUMANS,
-    EV_NONE,
-    50,
-    qfalse,
-    qfalse
+    BA_H_DEF2,             //int       buildNum;
+    "mgturret",            //char      *buildName;
+    "team_human_def2",     //char      *entityName;
+    { -24, -24, -11 },     //vec3_t    mins;
+    { 24, 24, 11 },        //vec3_t    maxs;
+    80,                    //int       buildPoints;
+    1000,                  //int       health;
+    50,                    //int       damage;
+    20,                    //int       splashDamage;
+    50,                    //int       splashRadius;
+    MOD_HSPAWN,            //int       meansOfDeath;
+    BIT_HUMANS,            //int       team;
+    EV_NONE,               //int       spawnEvent;
+    50,                    //int       nextthink;
+    50,                    //int       turretFireSpeed;
+    300,                   //int       turretRange;
+    WP_MACHINEGUN,         //weapon_t  turretProjType;
+    qfalse,                //qboolean  creepTest;
+    qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_H_DEF3,
-    "railturret",
-    "team_human_def3",
-    { -24, -24, -11 },
-    { 24, 24, 11 },
-    80,
-    1000,
-    50,
-    20,
-    50,
-    MOD_HSPAWN,
-    BIT_HUMANS,
-    EV_NONE,
-    50,
-    qfalse,
-    qfalse
+    BA_H_DEF3,             //int       buildNum;
+    "railturret",          //char      *buildName;
+    "team_human_def3",     //char      *entityName;
+    { -24, -24, -11 },     //vec3_t    mins;
+    { 24, 24, 11 },        //vec3_t    maxs;
+    80,                    //int       buildPoints;
+    1000,                  //int       health;
+    50,                    //int       damage;
+    20,                    //int       splashDamage;
+    50,                    //int       splashRadius;
+    MOD_HSPAWN,            //int       meansOfDeath;
+    BIT_HUMANS,            //int       team;
+    EV_NONE,               //int       spawnEvent;
+    150,                   //int       nextthink;
+    4000,                  //int       turretFireSpeed;
+    1500,                  //int       turretRange;
+    WP_RAILGUN,            //weapon_t  turretProjType;
+    qfalse,                //qboolean  creepTest;
+    qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_H_MCU,
-    "mcu",
-    "team_human_mcu",
-    { -15, -15, -15 },
-    { 15, 15, 15 },
-    200,
-    1000,
-    50,
-    50,
-    150,
-    MOD_HSPAWN,
-    BIT_HUMANS,
-    EV_NONE,
-    100,
-    qfalse,
-    qfalse
+    BA_H_MCU,              //int       buildNum;
+    "mcu",                 //char      *buildName;
+    "team_human_mcu",      //char      *entityName;
+    { -15, -15, -15 },     //vec3_t    mins;
+    { 15, 15, 15 },        //vec3_t    maxs;
+    200,                   //int       buildPoints;
+    1000,                  //int       health;
+    50,                    //int       damage;
+    50,                    //int       splashDamage;
+    150,                   //int       splashRadius;
+    MOD_HSPAWN,            //int       meansOfDeath;
+    BIT_HUMANS,            //int       team;
+    EV_NONE,               //int       spawnEvent;
+    100,                   //int       nextthink;
+    0,                     //int       turretFireSpeed;
+    0,                     //int       turretRange;
+    WP_NONE,               //weapon_t  turretProjType;
+    qfalse,                //qboolean  creepTest;
+    qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_H_REACTOR,
-    "reactor",
-    "team_human_reactor",
-    { -15, -15, -15 },
-    { 15, 15, 15 },
-    0,
-    1000,
-    50,
-    50,
-    150,
-    MOD_HSPAWN,
-    BIT_HUMANS,
-    EV_NONE,
-    -1,
-    qfalse,
-    qtrue
+    BA_H_REACTOR,          //int       buildNum;
+    "reactor",             //char      *buildName;
+    "team_human_reactor",  //char      *entityName;
+    { -15, -15, -15 },     //vec3_t    mins;
+    { 15, 15, 15 },        //vec3_t    maxs;
+    0,                     //int       buildPoints;
+    1000,                  //int       health;
+    50,                    //int       damage;
+    50,                    //int       splashDamage;
+    150,                   //int       splashRadius;
+    MOD_HSPAWN,            //int       meansOfDeath;
+    BIT_HUMANS,            //int       team;
+    EV_NONE,               //int       spawnEvent;
+    -1,                    //int       nextthink;
+    0,                     //int       turretFireSpeed;
+    0,                     //int       turretRange;
+    WP_NONE,               //weapon_t  turretProjType;
+    qfalse,                //qboolean  creepTest;
+    qtrue                  //qboolean  reactorTest;
   },
   {
-    BA_H_REPEATER,
-    "repeater",
-    "team_human_repeater",
-    { -15, -15, -15 },
-    { 15, 15, 15 },
-    10,
-    1000,
-    50,
-    50,
-    150,
-    MOD_HSPAWN,
-    BIT_HUMANS,
-    EV_NONE,
-    100,
-    qfalse,
-    qfalse
+    BA_H_REPEATER,         //int       buildNum;
+    "repeater",            //char      *buildName;
+    "team_human_repeater", //char      *entityName;
+    { -15, -15, -15 },     //vec3_t    mins;
+    { 15, 15, 15 },        //vec3_t    maxs;
+    10,                    //int       buildPoints;
+    1000,                  //int       health;
+    50,                    //int       damage;
+    50,                    //int       splashDamage;
+    150,                   //int       splashRadius;
+    MOD_HSPAWN,            //int       meansOfDeath;
+    BIT_HUMANS,            //int       team;
+    EV_NONE,               //int       spawnEvent;
+    100,                   //int       nextthink;
+    0,                     //int       turretFireSpeed;
+    0,                     //int       turretRange;
+    WP_NONE,               //weapon_t  turretProjType;
+    qfalse,                //qboolean  creepTest;
+    qfalse                 //qboolean  reactorTest;
   }
 };
 
@@ -1501,6 +1531,66 @@ int BG_FindNextThinkForBuildable( int bclass )
   }
   
   return 100;
+}
+
+/*
+==============
+BG_FindFireSpeedForBuildable
+==============
+*/
+int BG_FindFireSpeedForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].turretFireSpeed;
+    }
+  }
+  
+  return 1000;
+}
+
+/*
+==============
+BG_FindRangeForBuildable
+==============
+*/
+int BG_FindRangeForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].turretRange;
+    }
+  }
+  
+  return 1000;
+}
+
+/*
+==============
+BG_FindProjTypeForBuildable
+==============
+*/
+weapon_t BG_FindProjTypeForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].turretProjType;
+    }
+  }
+  
+  return WP_NONE;
 }
 
 /*
