@@ -1313,12 +1313,22 @@ PM_GroundClimbTrace
 */
 static void PM_GroundClimbTrace( void )
 {
-  vec3_t    surfNormal, movedir, forward, right, point;
+  vec3_t    surfNormal, movedir, lookdir, forward, right, point;
   vec3_t    refNormal = { 0.0f, 0.0f, 1.0f };
   vec3_t    ceilingNormal = { 0.0f, 0.0f, -1.0f };
   float     toAngles[3], surfAngles[3];
   trace_t   trace;
   int       i;
+
+  //used for delta correction
+  vec3_t    traceCROSSsurf, traceCROSSref, surfCROSSref;
+  float     traceDOTsurf, traceDOTref, surfDOTref, rTtDOTrTsTt;
+  float     traceANGsurf, traceANGref, surfANGref;
+  vec3_t    horizontal = { 1.0f, 0.0f, 0.0f }; //arbituary vector perpendicular to refNormal
+  vec3_t    refTOtrace, refTOsurfTOtrace, tempVec;
+  int       rTtANGrTsTt;
+  float     ldDOTtCs, d;
+  vec3_t    abc;
 
   //TA: If we're on the ceiling then grapplePoint is a rotation normal.. otherwise its a surface normal.
   //    would have been nice if Carmack had left a few random variables in the ps struct for mod makers
@@ -1333,6 +1343,8 @@ static void PM_GroundClimbTrace( void )
   VectorNormalize( right );
   CrossProduct( surfNormal, right, movedir );
   VectorNormalize( movedir );
+
+  VectorCopy( movedir, lookdir );
 
   if( pm->cmd.forwardmove < 0 )
     VectorNegate( movedir, movedir );
@@ -1391,6 +1403,37 @@ static void PM_GroundClimbTrace( void )
       if( i == 2 )
         VectorCopy( trace.endpos, pm->ps->origin );
 
+      //calculate a bunch of stuff...
+      CrossProduct( trace.plane.normal, surfNormal, traceCROSSsurf );
+      VectorNormalize( traceCROSSsurf );
+
+      CrossProduct( trace.plane.normal, refNormal, traceCROSSref );
+      VectorNormalize( traceCROSSref );
+
+      CrossProduct( surfNormal, refNormal, surfCROSSref );
+      VectorNormalize( surfCROSSref );
+
+      //calculate angle between surf and trace
+      traceDOTsurf = DotProduct( trace.plane.normal, surfNormal );
+      traceANGsurf = RAD2DEG( acos( traceDOTsurf ) );
+
+      if( traceANGsurf > 180.0f )
+        traceANGsurf -= 180.0f;
+
+      //calculate angle between trace and ref
+      traceDOTref = DotProduct( trace.plane.normal, refNormal );
+      traceANGref = RAD2DEG( acos( traceDOTref ) );
+
+      if( traceANGref > 180.0f )
+        traceANGref -= 180.0f;
+
+      //calculate angle between surf and ref
+      surfDOTref = DotProduct( surfNormal, refNormal );
+      surfANGref = RAD2DEG( acos( surfDOTref ) );
+
+      if( surfANGref > 180.0f )
+        surfANGref -= 180.0f;
+
       //if the trace result and old surface normal are different then we must have transided to a new
       //surface... do some stuff...
       if( !VectorCompare( trace.plane.normal, surfNormal ) )
@@ -1401,42 +1444,6 @@ static void PM_GroundClimbTrace( void )
         {
           //behold the evil mindfuck from hell
           //it has fucked mind like nothing has fucked mind before
-          vec3_t  traceCROSSsurf, traceCROSSref, surfCROSSref;
-          float   traceDOTsurf, traceDOTref, surfDOTref, rTtDOTrTsTt;
-          float   traceANGsurf, traceANGref, surfANGref;
-          vec3_t  horizontal = { 1.0f, 0.0f, 0.0f }; //arbituary vector perpendicular to refNormal
-          vec3_t  refTOtrace, refTOsurfTOtrace, tempVec;
-          int     rTtANGrTsTt;
-
-          CrossProduct( trace.plane.normal, surfNormal, traceCROSSsurf );
-          VectorNormalize( traceCROSSsurf );
-
-          CrossProduct( trace.plane.normal, refNormal, traceCROSSref );
-          VectorNormalize( traceCROSSref );
-
-          CrossProduct( surfNormal, refNormal, surfCROSSref );
-          VectorNormalize( surfCROSSref );
-
-          //calculate angle between surf and trace
-          traceDOTsurf = DotProduct( trace.plane.normal, surfNormal );
-          traceANGsurf = RAD2DEG( acos( traceDOTsurf ) );
-
-          if( traceANGsurf > 180.0f )
-            traceANGsurf -= 180.0f;
-
-          //calculate angle between trace and ref
-          traceDOTref = DotProduct( trace.plane.normal, refNormal );
-          traceANGref = RAD2DEG( acos( traceDOTref ) );
-
-          if( traceANGref > 180.0f )
-            traceANGref -= 180.0f;
-
-          //calculate angle between surf and ref
-          surfDOTref = DotProduct( surfNormal, refNormal );
-          surfANGref = RAD2DEG( acos( surfDOTref ) );
-
-          if( surfANGref > 180.0f )
-            surfANGref -= 180.0f;
             
           //calculate reference rotated through to trace plane
           RotatePointAroundVector( refTOtrace, traceCROSSref, horizontal, -traceANGref );
@@ -1459,6 +1466,31 @@ static void PM_GroundClimbTrace( void )
           //phew! - correct the angle
           pm->ps->delta_angles[ YAW ] -= rTtANGrTsTt;
         }
+
+        //construct a plane dividing the surf and trace normals
+        CrossProduct( traceCROSSsurf, surfNormal, abc );
+        VectorNormalize( abc );
+        d = DotProduct( abc, pm->ps->origin );
+
+        //construct a point representing where the player is looking
+        VectorAdd( pm->ps->origin, lookdir, point );
+        
+        //check whether point is on one side of the plane, if so invert the correction angle
+        if( ( abc[ 0 ] * point[ 0 ] + abc[ 1 ] * point[ 1 ] + abc[ 2 ] * point[ 2 ] - d ) > 0 )
+          traceANGsurf = -traceANGsurf;
+        
+        //find the . product of the lookdir and traceCROSSsurf
+        if( ( ldDOTtCs = DotProduct( lookdir, traceCROSSsurf ) ) < 0.0f )
+        {
+          VectorInverse( traceCROSSsurf );
+          ldDOTtCs = DotProduct( lookdir, traceCROSSsurf );
+        }
+        
+        //set the correction angle
+        traceANGsurf *= 1.0f - ldDOTtCs;
+
+        //correct the angle
+        pm->ps->delta_angles[ PITCH ] -= ANGLE2SHORT( traceANGsurf );
 
         //transition from wall to ceiling
         //normal for subsequent viewangle rotations

@@ -444,9 +444,7 @@ typedef struct {
 typedef struct
 {
   float     time;
-
-  vec3_t    rotAxis;
-  float     rotAngle;
+  vec3_t    deltaAngles;
 } smooth_t;
 
 #define MAX_REWARDSTACK   10
@@ -657,6 +655,7 @@ typedef struct {
   qboolean  weapon2Firing;
 
   vec3_t    lastNormal;   //TA: view smoothage
+  vec3_t    lastVangles;  //TA: view smoothage
   smooth_t  sList[ MAXSMOOTHS ]; //TA: WW smoothing
 } cg_t;
 

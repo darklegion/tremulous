@@ -758,7 +758,7 @@ static void CG_DrawSurfNormal( void )
 CG_addSmoothOp
 ===============
 */
-static void CG_addSmoothOp( vec3_t rotAxis, float rotAngle )
+static void CG_addSmoothOp( vec3_t deltaAngles )
 {
   int i;
 
@@ -769,8 +769,7 @@ static void CG_addSmoothOp( vec3_t rotAxis, float rotAngle )
     if( cg.sList[ i ].time + cg_smoothTime.integer < cg.time )
     {
       //copy to array and stop
-      VectorCopy( rotAxis, cg.sList[ i ].rotAxis );
-      cg.sList[ i ].rotAngle = rotAngle;
+      VectorCopy( deltaAngles, cg.sList[ i ].deltaAngles );
       cg.sList[ i ].time = cg.time;
       return;
     }
@@ -786,11 +785,8 @@ CG_smoothWWTransitions
 */
 static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t out )
 {
-  vec3_t    rotAxis, surfNormal;
-  vec3_t    refNormal     = { 0.0f, 0.0f,  1.0f };
+  vec3_t    deltaAngles, surfNormal, inLocal;
   vec3_t    ceilingNormal = { 0.0f, 0.0f, -1.0f };
-  float     rotAngle;
-  vec3_t    inAxis[ 3 ], outAxis[ 3 ];
   int       i;
   float     stLocal, sFraction;
   qboolean  performed = qfalse;
@@ -801,56 +797,50 @@ static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t o
   else
     VectorCopy( ceilingNormal, surfNormal );
     
-  AnglesToAxis( in, inAxis );
+  VectorCopy( in, inLocal );
   
   //if we are moving from one surface to another smooth the transition
   if( !VectorCompare( surfNormal, cg.lastNormal ) )
   {
-    //if we moving from the ceiling to the floor special case
-    //( x product of colinear vectors is undefined)
-    if( VectorCompare( ceilingNormal, cg.lastNormal ) &&
-        VectorCompare( refNormal,     surfNormal ) )
+    VectorSubtract( in, cg.lastVangles, deltaAngles );
+
+    //normalise
+    for( i = 0; i < 3; i++ )
     {
-      AngleVectors( in, NULL, rotAxis, NULL );
-      rotAngle = 180.0f;
-    }
-    else
-    {
-      CrossProduct( cg.lastNormal, surfNormal, rotAxis );
-      VectorNormalize( rotAxis );
-      rotAngle = abs( RAD2DEG( acos( DotProduct( cg.lastNormal, surfNormal ) ) ) );
+      while( deltaAngles[ i ] < -180.0f )
+        deltaAngles[ i ] += 360.0f;
+
+      while( deltaAngles[ i ] > 180.0f )
+        deltaAngles[ i ] -= 360.0f;
     }
 
     //add the op
-    CG_addSmoothOp( rotAxis, rotAngle );
+    CG_addSmoothOp( deltaAngles );
   }
 
   //iterate through ops
   for( i = 0; i < MAXSMOOTHS; i++ )
   {
     //if this op has time remaining, perform it
-    if( ( cg.time < cg.sList[ i ].time + cg_smoothTime.integer ) && VectorLength( cg.sList[ i ].rotAxis ) )
+    if( cg.time < cg.sList[ i ].time + cg_smoothTime.integer )
     {
       stLocal = 1.0 - ( ( ( cg.sList[ i ].time + cg_smoothTime.integer ) - cg.time ) / cg_smoothTime.integer );
       sFraction = -( cos( stLocal * M_PI ) + 1 ) / 2;
 
-      RotatePointAroundVector( outAxis[ 0 ], cg.sList[ i ].rotAxis, inAxis[ 0 ], sFraction * cg.sList[ i ].rotAngle );
-      RotatePointAroundVector( outAxis[ 1 ], cg.sList[ i ].rotAxis, inAxis[ 1 ], sFraction * cg.sList[ i ].rotAngle );
-      RotatePointAroundVector( outAxis[ 2 ], cg.sList[ i ].rotAxis, inAxis[ 2 ], sFraction * cg.sList[ i ].rotAngle );
+      VectorMA( inLocal, sFraction, cg.sList[ i ].deltaAngles, out );
 
-      AxisCopy( outAxis, inAxis );
+      VectorCopy( out, inLocal );
       performed = qtrue;
     }
   }
 
   //if we performed any ops then return the smoothed angles
   //otherwise simply return the in angles
-  if( performed )
-    AxisToAngles( outAxis, out );
-  else
+  if( !performed )
     VectorCopy( in, out );
 
   //copy the current normal to the lastNormal
+  VectorCopy( in, cg.lastVangles );
   VectorCopy( surfNormal, cg.lastNormal );
 }
 

@@ -792,7 +792,7 @@ TA: droid spawn item
   {
     "team_droid_spawn",
     "sound/items/holdable.wav",
-    { "models/bitems/aspawn.md3", 0, 0, 0 },
+    { "models/buildables/bioegg/bioegg.md3", 0, 0, 0 },
     "icons/teleporter", //icon
     "Droid Spawn",      //pickup
     0,
@@ -808,7 +808,7 @@ TA: droid defense item
   {
     "team_droid_def1",
     "sound/items/holdable.wav",
-    { "models/bitems/adef1.md3", 0, 0, 0 },
+    { "models/buildables/defense1/defense1.md3", 0, 0, 0 },
     "icons/teleporter", //icon
     "Droid Defense",      //pickup
     0,
@@ -824,7 +824,7 @@ TA: droid defense item
   {
     "team_droid_def2",
     "sound/items/holdable.wav",
-    { "models/bitems/adef1.md3", 0, 0, 0 },
+    { "models/buildables/sawbladel/sawbladel.md3", 0, 0, 0 },
     "icons/teleporter", //icon
     "Droid Sawblade Launcher",      //pickup
     0,
@@ -840,7 +840,7 @@ TA: droid build limitation item
   {
     "team_droid_hivemind",
     "sound/items/holdable.wav",
-    { "models/powerups/instant/invis.md3", 0, 0, 0 },
+    { "models/buildables/hivemind/hivemind.md3", 0, 0, 0 },
     "icons/teleporter", //icon
     "Droid Hivemind",      //pickup
     0,
@@ -856,7 +856,7 @@ TA: human spawn item
   {
     "team_human_spawn",
     "sound/items/holdable.wav",
-    { "models/bitems/hspawn.md3", 0, 0, 0 },
+    { "models/buildables/replicator/replicator.md3", 0, 0, 0 },
     "icons/teleporter", //icon
     "Human Spawn",      //pickup
     0,
@@ -872,7 +872,7 @@ TA: human defense item
   {
     "team_human_def1",
     "sound/items/holdable.wav",
-    { "models/bitems/turret-base.md3", "models/bitems/turret-top.md3", 0, 0 },
+    { "models/buildables/plasmaturret/pturret_base.md3", "models/buildables/plasmaturret/pturret_top.md3", 0, 0 },
     "icons/teleporter", //icon
     "Human Defense",      //pickup
     0,
@@ -888,7 +888,7 @@ TA: human defense item
   {
     "team_human_def2",
     "sound/items/holdable.wav",
-    { "models/bitems/turret-base.md3", "models/weapons2/machinegun/machinegun.md3", 0, 0 },
+    { "models/buildables/plasmaturret/pturret_base.md3", "models/weapons2/machinegun/machinegun.md3", 0, 0 },
     "icons/teleporter", //icon
     "Human Defense2",      //pickup
     0,
@@ -904,7 +904,7 @@ TA: human defense item
   {
     "team_human_def3",
     "sound/items/holdable.wav",
-    { "models/bitems/turret-base.md3", "models/weapons2/railgun/railgun.md3", 0, 0 },
+    { "models/buildables/plasmaturret/pturret_base.md3", "models/weapons2/railgun/railgun.md3", 0, 0 },
     "icons/teleporter", //icon
     "Human Defense3",      //pickup
     0,
