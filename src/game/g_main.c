@@ -959,10 +959,10 @@ void G_CalculateBuildPoints( void )
     
     if( buildable != BA_NONE )
     {
-      if( buildable == BA_H_REACTOR && ent->health > 0 )
+      if( buildable == BA_H_REACTOR && ent->spawned && ent->health > 0 )
         level.reactorPresent = qtrue;
 
-      if( buildable == BA_A_OVERMIND && ent->health > 0 )
+      if( buildable == BA_A_OVERMIND && ent->spawned && ent->health > 0 )
         level.overmindPresent = qtrue;
 
       if( BG_FindTeamForBuildable( buildable ) == BIT_HUMANS )
