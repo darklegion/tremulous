@@ -2330,7 +2330,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  purchasable;
+    qtrue,                //qboolean  purchasable;
     ABUILDER_BASE_DELAY,  //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -2352,7 +2352,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  purchasable;
+    qtrue,                //qboolean  purchasable;
     ABUILDER_ADV_DELAY,   //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
