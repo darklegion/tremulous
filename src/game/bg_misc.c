@@ -900,7 +900,15 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 15 },
     { -15, -15, -4 },
     { 15, 15, 4 },
-    4, 4
+    4, 4,
+    25,
+    0,
+    SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT,
+    140,
+    0.0f,
+    25,
+    2.0f,
+    5.0f
   },
   {
     PCL_D_D_BASE,
@@ -911,7 +919,15 @@ classAttributes_t bg_classList[ ] =
     { 15, 15 ,15 },
     { -15, -15, -4 },
     { 15, 15, 4 },
-    4, 4
+    4, 4,
+    50,
+    0,
+    SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT,
+    160,
+    0.0f,
+    25,
+    1.5f,
+    3.0f
   },
   { 
     PCL_D_B_BASE,
@@ -922,7 +938,15 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 20 },
     { -15, -15, -4 },
     { 15, 15, 4 },
-    12, 12
+    12, 12,
+    50,
+    50,
+    SCA_TAKESFALLDAMAGE,
+    80,
+    0.015f,
+    350,
+    0.5f,
+    1.0f
   },
   {
     PCL_H_BASE,
@@ -933,7 +957,15 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 16 },
     { -15, -15, -4 },
     { 15, 15, 4 },
-    26, 12
+    26, 12,
+    100,
+    50,
+    SCA_TAKESFALLDAMAGE|SCA_CANJUMP,
+    90,
+    0.002f,
+    200,
+    1.0f,
+    1.0f
   }
 };
 
@@ -1034,6 +1066,171 @@ void BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight )
     
   if( cViewheight != NULL )
     *cViewheight = bg_classList[ 0 ].crouchViewheight;
+}
+
+/*
+==============
+BG_FindHealthForClass
+==============
+*/
+int BG_FindHealthForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].health;
+    }
+  }
+  
+  return 100;
+}
+
+/*
+==============
+BG_FindArmorForClass
+==============
+*/
+int BG_FindArmorForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].armor;
+    }
+  }
+  
+  return 0;
+}
+
+/*
+==============
+BG_FindFovForClass
+==============
+*/
+int BG_FindFovForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].fov;
+    }
+  }
+  
+  return 90;
+}
+
+/*
+==============
+BG_FindBobForClass
+==============
+*/
+float BG_FindBobForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].bob;
+    }
+  }
+  
+  return 0.002;
+}
+
+/*
+==============
+BG_FindSpeedForClass
+==============
+*/
+float BG_FindSpeedForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].speed;
+    }
+  }
+  
+  return 1.0;
+}
+
+/*
+==============
+BG_FindStickyForClass
+==============
+*/
+float BG_FindStickyForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].sticky;
+    }
+  }
+  
+  return 1.0;
+}
+
+/*
+==============
+BG_FindSteptimeForClass
+==============
+*/
+int BG_FindSteptimeForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].steptime;
+    }
+  }
+  
+  return 200;
+}
+
+
+/*
+==============
+BG_ClassHasAbility
+==============
+*/
+qboolean BG_ClassHasAbility( int pclass, int ability )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return ( bg_classList[ i ].abilities & ability );
+    }
+  }
+
+  //hack to get CANJUMP when a spectator
+  if( ability == SCA_CANJUMP )
+    return qtrue;
+  else
+    return qfalse;
 }
 
 
@@ -1836,21 +2033,3 @@ qboolean BG_activated( int item, int stats[ ] )
   return( stats[ STAT_ACTIVEITEMS ] & ( 1 << item ) );
 }
 
-//TA: set attributes in array
-void BG_packAttributes( int fov, int bob, int steptime, int stats[ ] )
-{
-  stats[ STAT_ATTRIBS ] = ( ( (int)( (float)fov/10.0 ) & 0x1F ) << 10 ) | ( ( bob & 0x1F ) << 5 ) | (  (int)( (float)steptime/25.0 ) & 0x1F );
-}
-
-//TA: get attributes from array
-void BG_unpackAttributes( int *fov, int *bob, int *steptime, int stats[ ] )
-{
-  if( fov != NULL )
-    *fov = ( ( stats[ STAT_ATTRIBS ] >> 10 ) & 0x1F ) * 10;
-    
-  if( bob != NULL )
-    *bob = ( stats[ STAT_ATTRIBS ] >> 5 ) & 0x1F;
-    
-  if( steptime != NULL )
-    *steptime = ( stats[ STAT_ATTRIBS ] & 0x1F ) * 25;
-}

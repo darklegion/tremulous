@@ -307,7 +307,7 @@ static void CG_StepOffset( void ) {
   int   timeDelta;
   int   steptime;
 
-  BG_unpackAttributes( NULL, NULL, &steptime, cg.predictedPlayerState.stats );
+  steptime = BG_FindSteptimeForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
 
   // smooth out stair climbing
   timeDelta = cg.time - cg.stepTime;
@@ -331,9 +331,9 @@ static void CG_OffsetFirstPersonView( void ) {
   float     delta;
   float     speed;
   float     f;
-  vec3_t      predictedVelocity;
+  vec3_t    predictedVelocity;
   int       timeDelta;
-  int       bob2;
+  float     bob2;
 
   if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
     return;
@@ -389,17 +389,17 @@ static void CG_OffsetFirstPersonView( void ) {
 
   // add angles based on bob
   //TA: bob amount is class dependant
-  BG_unpackAttributes( NULL, &bob2, NULL, cg.predictedPlayerState.stats );
+  bob2 = BG_FindBobForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
   if( bob2 != 0 )
   {
     // make sure the bob is visible even at low speeds
     speed = cg.xyspeed > 200 ? cg.xyspeed : 200;
 
-    delta = cg.bobfracsin * ( bob2 / 1000.0 ) * speed;
+    delta = cg.bobfracsin * ( bob2 ) * speed;
     if (cg.predictedPlayerState.pm_flags & PMF_DUCKED)
       delta *= 3;   // crouching
     angles[PITCH] += delta;
-    delta = cg.bobfracsin * ( bob2 / 1000.0 ) * speed;
+    delta = cg.bobfracsin * ( bob2 ) * speed;
     if (cg.predictedPlayerState.pm_flags & PMF_DUCKED)
       delta *= 3;   // crouching accentuates roll
     if (cg.bobcycle & 1)
@@ -530,7 +530,7 @@ static int CG_CalcFov( void ) {
   int   a;
   float b;
 
-  BG_unpackAttributes( &attribFov, NULL, NULL, cg.predictedPlayerState.stats );
+  attribFov = BG_FindFovForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
 
   if ( cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
     // if in intermission, use a fixed value
@@ -555,7 +555,7 @@ static int CG_CalcFov( void ) {
     zoomFov = attribFov;
 
   //TA: only do all the zoom stuff if the client CAN zoom
-  if( cg.predictedPlayerState.stats[ STAT_ABILITIES ] & SCA_CANZOOM )
+  if( BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_PCLASS ], SCA_CANZOOM ) )
   {
     if ( cg.zoomed )
     {

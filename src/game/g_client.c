@@ -510,25 +510,6 @@ BODYQUE
 =======================================================================
 */
 
-#if BODY_QUEUE_SIZE
-/*
-===============
-InitBodyQue
-===============
-*/
-void InitBodyQue (void) {
-  int   i;
-  gentity_t *ent;
-
-  level.bodyQueIndex = 0;
-  for (i=0; i<BODY_QUEUE_SIZE ; i++) {
-    ent = G_Spawn();
-    ent->classname = "bodyque";
-    ent->neverFree = qtrue;
-    level.bodyQue[i] = ent;
-  }
-}
-#endif
 
 /*
 =============
@@ -548,15 +529,31 @@ void BodySink( gentity_t *ent ) {
   ent->s.pos.trBase[2] -= 1;
 }
 
+
+
+/*
+================
+InfestBody
+
+Called when a droid infests a body
+================
+*/
+void InfestBody( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_DROIDS ) return;
+
+  G_AddPredictableEvent( activator, EV_MENU, MN_DROID );
+}
+
 /*
 =============
-CopyToBodyQue
+SpawnCorpse
 
 A player is respawning, so make an entity that looks
 just like the existing corpse to leave behind.
 =============
 */
-void CopyToBodyQue( gentity_t *ent ) {
+void SpawnCorpse( gentity_t *ent ) {
   gentity_t   *body;
   int         contents;
   vec3_t      origin, dest;
@@ -573,7 +570,12 @@ void CopyToBodyQue( gentity_t *ent ) {
   }
   
   body = G_Spawn( );
-  body->classname = "corpse";
+
+  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    body->classname = "humanCorpse";
+  else
+    body->classname = "droidCorpse";
+    
   body->s = ent->s;
   body->r.s = body->s;
   body->s.eFlags = EF_DEAD;
@@ -584,6 +586,9 @@ void CopyToBodyQue( gentity_t *ent ) {
   body->r.contents = CONTENTS_BODY;
   body->clipmask = MASK_PLAYERSOLID;
   body->s.clientNum = ent->client->ps.stats[ STAT_PCLASS ];
+  
+  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    body->use = InfestBody;
 
   switch ( body->s.legsAnim & ~ANIM_TOGGLEBIT ) {
   case BOTH_DEATH1:
@@ -669,12 +674,12 @@ respawn
 void respawn( gentity_t *ent ) {
   gentity_t *tent;
 
-  CopyToBodyQue (ent);
+  SpawnCorpse( ent );
 
   //TA: Clients can't respawn - they must go thru the class cmd
-  ClientSpawn(ent);
+  ClientSpawn( ent, NULL );
 
-  //FIXME: need different spawn/respawn functions for different teams
+  //FIXME: need different spawn effects for different teams
 
   // add a teleportation effect
   //tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
@@ -1124,7 +1129,7 @@ void ClientBegin( int clientNum ) {
 
   // locate ent at a spawn point
 
-  ClientSpawn( ent );
+  ClientSpawn( ent, NULL );
 
   if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
     // send event
@@ -1150,7 +1155,7 @@ after the first ClientBegin, and after each respawn
 Initializes all non-persistant parts of playerState
 ============
 */
-void ClientSpawn(gentity_t *ent) {
+void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
   int   index;
   vec3_t  spawn_origin, spawn_angles;
   gclient_t *client;
@@ -1199,13 +1204,32 @@ void ClientSpawn(gentity_t *ent) {
   }
   else
   {
-    // don't spawn near existing origin if possible
-    spawnPoint = SelectTremulousSpawnPoint( teamLocal, spawn_origin, spawn_angles );
-
-    if( spawnPoint == NULL )
+    if( spawn != NULL )
     {
-      trap_SendServerCommand( ent-g_entities, va("print \"No suitable spawns available\n\"" ) );
-      return;
+      vec3_t bodyMaxs;
+      vec3_t classMins;
+      vec3_t up = { 0, 0, 1 };
+      
+      VectorCopy ( spawn->s.pos.trBase, spawn_origin );
+      VectorCopy ( spawn->s.angles, spawn_angles );
+      
+      BG_FindBBoxForClass( spawn->s.clientNum, NULL, NULL, NULL, NULL, bodyMaxs );
+      BG_FindBBoxForClass( ent->client->pers.pclass, classMins, NULL, NULL, NULL, NULL );
+
+      spawn_origin[ 2 ] += 64;
+      G_AddEvent( spawn, EV_GIB_DROID, DirToByte( up ) );
+      spawn->freeAfterEvent = qtrue;
+    }
+    else
+    {
+      // don't spawn near existing origin if possible
+      spawnPoint = SelectTremulousSpawnPoint( teamLocal, spawn_origin, spawn_angles );
+
+      if( spawnPoint == NULL )
+      {
+        trap_SendServerCommand( ent-g_entities, va("print \"No suitable spawns available\n\"" ) );
+        return;
+      }
     }
   }
   client->pers.teamState.state = TEAM_ACTIVE;
@@ -1279,81 +1303,35 @@ void ClientSpawn(gentity_t *ent) {
   client->ps.stats[ STAT_WEAPONS ] = 0;
   client->ps.stats[ STAT_WEAPONS2 ] = 0;
 
+  client->ps.eFlags = flags;
+  client->ps.clientNum = index;
+  
+  VectorCopy (playerMins, ent->r.mins);
+  VectorCopy (playerMaxs, ent->r.maxs);
+
+  client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] = BG_FindHealthForClass( ent->client->pers.pclass );
+  client->ps.stats[ STAT_ARMOR ] = BG_FindArmorForClass( ent->client->pers.pclass );
+  client->classSpeed = BG_FindSpeedForClass( ent->client->pers.pclass );
+
   // clear entity values
   switch( ent->client->pers.pclass )
   {
     case PCL_D_B_BASE:
-      client->pers.maxHealth = 50;
-      client->ps.stats[STAT_MAX_HEALTH] = 50;
-      client->ps.stats[STAT_ARMOR] = 50;
-
-      client->ps.eFlags = flags;
-      
-      VectorCopy (playerMins, ent->r.mins);
-      VectorCopy (playerMaxs, ent->r.maxs);
-
-      client->ps.clientNum = index;
-
       BG_packWeapon( WP_ABUILD, client->ps.stats );
       BG_packAmmoArray( WP_ABUILD, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
-      
-      client->ps.stats[ STAT_ABILITIES ] |= SCA_TAKESFALLDAMAGE;
-      BG_packAttributes( 80, 15, 350, client->ps.stats );
-      client->classSpeed = 0.5;
       break;
 
     case PCL_D_O_BASE:
-      client->pers.maxHealth = 25;
-      client->ps.stats[STAT_MAX_HEALTH] = 25;
-      client->ps.eFlags = flags;
-
-      VectorCopy (playerMins, ent->r.mins);
-      VectorCopy (playerMaxs, ent->r.maxs);
-
-      client->ps.clientNum = index;
-
       BG_packWeapon( WP_VENOM, client->ps.stats );
       BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
-
-      client->ps.stats[ STAT_ABILITIES ] |= SCA_WALLCLIMBER;
-      client->ps.stats[ STAT_ABILITIES ] |= SCA_CANJUMP;
-      client->ps.stats[ STAT_ABILITIES ] |= SCA_NOWEAPONDRIFT;
-      BG_packAttributes( 140, 0, 25, client->ps.stats );
-      client->classSpeed = 2.0;
       break;
 
     case PCL_D_D_BASE:
-      client->pers.maxHealth = 50;
-      client->ps.stats[STAT_MAX_HEALTH] = 50;
-      client->ps.eFlags = flags;
-
-      VectorCopy (playerMins, ent->r.mins);
-      VectorCopy (playerMaxs, ent->r.maxs);
-
-      client->ps.clientNum = index;
-
       BG_packWeapon( WP_VENOM, client->ps.stats );
       BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
-
-      client->ps.stats[ STAT_ABILITIES ] |= SCA_WALLCLIMBER;
-      client->ps.stats[ STAT_ABILITIES ] |= SCA_CANJUMP;
-      client->ps.stats[ STAT_ABILITIES ] |= SCA_NOWEAPONDRIFT;
-      BG_packAttributes( 160, 0, 25, client->ps.stats );
-      client->classSpeed = 1.5;
       break;
       
     case PCL_H_BASE:
-      client->pers.maxHealth = 100;
-      client->ps.stats[STAT_MAX_HEALTH] = 100;
-      client->ps.stats[STAT_ARMOR] = 50;
-      
-      client->ps.eFlags = flags;
-
-      VectorCopy (playerMins, ent->r.mins);
-      VectorCopy (playerMaxs, ent->r.maxs);
-
-      client->ps.clientNum = index;
-
       if( client->pers.pitem == WP_MACHINEGUN )
       {
         BG_packWeapon( WP_MACHINEGUN, client->ps.stats );
@@ -1364,23 +1342,10 @@ void ClientSpawn(gentity_t *ent) {
         BG_packWeapon( WP_HBUILD, client->ps.stats );
         BG_packAmmoArray( WP_HBUILD, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       }
-      
-      client->ps.stats[ STAT_ABILITIES ] |= SCA_TAKESFALLDAMAGE;
-      client->ps.stats[ STAT_ABILITIES ] |= SCA_CANJUMP;
-      BG_packAttributes( 90, 2, 200, client->ps.stats );
-      client->classSpeed = 1.0;
       break;
       
     //eventually remove this case (or report an error) when all classes implemented
     default:
-      client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
-      client->ps.eFlags = flags;
-
-      VectorCopy (playerMins, ent->r.mins);
-      VectorCopy (playerMaxs, ent->r.maxs);
-
-      client->ps.clientNum = index;
-
       BG_packWeapon( WP_MACHINEGUN, client->ps.stats );
       BG_packAmmoArray( WP_MACHINEGUN, client->ps.ammo, client->ps.powerups, 100, 0, 0 );
 
@@ -1388,18 +1353,10 @@ void ClientSpawn(gentity_t *ent) {
       BG_packAmmoArray( WP_GAUNTLET, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       
       BG_packAmmoArray( WP_GRAPPLING_HOOK, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
-
-      client->ps.stats[ STAT_ABILITIES ] |= SCA_TAKESFALLDAMAGE;
-      client->ps.stats[ STAT_ABILITIES ] |= SCA_CANZOOM;
-      client->ps.stats[ STAT_ABILITIES ] |= SCA_CANJUMP;
-      BG_packAttributes( 90, 2, 200, client->ps.stats );
-      client->classSpeed = 1.0;
-
   }
 
   ent->client->ps.stats[ STAT_PCLASS ] = ent->client->pers.pclass;
   ent->client->ps.stats[ STAT_PTEAM ] = ent->client->pers.pteam;
-
 
   // health will count down towards max_health
   ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH]; //* 1.25;

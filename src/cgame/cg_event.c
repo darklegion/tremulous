@@ -464,14 +464,14 @@ also called by CG_CheckPlayerstateEvents
 #define DEBUGNAME(x) if(cg_debugEvents.integer){CG_Printf(x"\n");}
 void CG_EntityEvent( centity_t *cent, vec3_t position ) {
   entityState_t *es;
-  int       event;
-  vec3_t      dir;
+  int           event;
+  vec3_t        dir;
   const char    *s;
-  int       clientNum;
+  int           clientNum;
   clientInfo_t  *ci;
-  int   steptime;
+  int           steptime;
 
-  BG_unpackAttributes( NULL, NULL, &steptime, cg.predictedPlayerState.stats );
+  steptime = BG_FindSteptimeForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
 
   es = &cent->currentState;
   event = es->event & ~EV_EVENT_BITS;

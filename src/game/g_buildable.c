@@ -220,6 +220,8 @@ Called when a human activates an MCU
 */
 void HMCU_Activate( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
+  if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS ) return;
+  
   G_AddPredictableEvent( activator, EV_MENU, MN_MCU );
 }
 

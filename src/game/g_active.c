@@ -921,21 +921,18 @@ void ClientThink_real( gentity_t *ent ) {
   //TA: look for MCU infront of player
   if( ( client->buttons & BUTTON_GETFLAG ) && !( client->oldbuttons & BUTTON_GETFLAG ) )
   {
-    if( client->pers.pteam == PTE_HUMANS )
-    {
-      trace_t   mcu;
-      vec3_t    view, point;
-      gentity_t *traceEnt;
+    trace_t   trace;
+    vec3_t    view, point;
+    gentity_t *traceEnt;
 
-      AngleVectors( client->ps.viewangles, view, NULL, NULL );
-      VectorMA( client->ps.origin, 200, view, point );
-      trap_Trace( &mcu, client->ps.origin, NULL, NULL, point, ent->s.number, MASK_SHOT );
+    AngleVectors( client->ps.viewangles, view, NULL, NULL );
+    VectorMA( client->ps.origin, 200, view, point );
+    trap_Trace( &trace, client->ps.origin, NULL, NULL, point, ent->s.number, MASK_SHOT );
 
-      traceEnt = &g_entities[ mcu.entityNum ];
+    traceEnt = &g_entities[ trace.entityNum ];
 
-      if( traceEnt->use )
-        traceEnt->use( traceEnt, ent, ent ); //other and activator are the same in this context
-    }
+    if( traceEnt->use )
+      traceEnt->use( traceEnt, ent, ent ); //other and activator are the same in this context
   }
   
   // check for respawning

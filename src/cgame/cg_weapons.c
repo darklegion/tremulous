@@ -692,7 +692,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
   float scale;
   int   delta;
   float fracsin;
-  int   bob;
+  float bob;
 
   VectorCopy( cg.refdef.vieworg, origin );
   VectorCopy( cg.refdefViewAngles, angles );
@@ -706,7 +706,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 
   // gun angles from bobbing
   //TA: bob amount is class dependant
-  BG_unpackAttributes( NULL, &bob, NULL, cg.predictedPlayerState.stats );
+  bob = BG_FindBobForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
   if( bob != 0 )
   {
     angles[ROLL] += scale * cg.bobfracsin * 0.005;
@@ -715,7 +715,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
   }
 
   // drop the weapon when landing
-  if( !( cg.predictedPlayerState.stats[ STAT_ABILITIES ] & SCA_NOWEAPONDRIFT ) )
+  if( !BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_PCLASS ], SCA_NOWEAPONDRIFT ) )
   {
     delta = cg.time - cg.landTime;
     if ( delta < LAND_DEFLECT_TIME )

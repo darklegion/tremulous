@@ -298,17 +298,11 @@ static void PM_Friction( void ) {
   if ( pm->waterlevel <= 1 ) {
     if ( pml.walking && !(pml.groundTrace.surfaceFlags & SURF_SLICK) ) {
       // if getting knocked back, no friction
-      if ( ! (pm->ps->pm_flags & PMF_TIME_KNOCKBACK) ) {
-        if( ( pm->ps->stats[ STAT_PTEAM ] == PTE_DROIDS ) &&
-            ( pm->ps->stats[ STAT_PCLASS ] == PCL_D_O_BASE ) )
-        {
-          control = speed < pm_stopspeed*5 ? pm_stopspeed*5 : speed;
-        }
-        else
-        {
-          control = speed < pm_stopspeed ? pm_stopspeed : speed;
-        }
+      if ( ! (pm->ps->pm_flags & PMF_TIME_KNOCKBACK) )
+      {
+        float sticky = BG_FindStickyForClass( pm->ps->stats[ STAT_PCLASS ] );
         
+        control = speed < pm_stopspeed*sticky ? pm_stopspeed*sticky : speed;
         drop += control*pm_friction*pml.frametime;
       }
     }
@@ -440,7 +434,7 @@ static float PM_CmdScale( usercmd_t *cmd ) {
       modifier *= (float)( pm->ps->stats[ STAT_STAMINA ] + 1000 ) / 500.0f;
   }
 
-  if( !( pm->ps->stats[ STAT_ABILITIES ] & SCA_CANJUMP ) )
+  if( !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_CANJUMP ) )
     cmd->upmove = 0;
 
   max = abs( cmd->forwardmove );
@@ -454,7 +448,7 @@ static float PM_CmdScale( usercmd_t *cmd ) {
     return 0;
   }
 
-  if( ( pm->ps->stats[ STAT_ABILITIES ] & SCA_WALLCLIMBER ) &&
+  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) &&
       ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
   {
     total = sqrt( cmd->forwardmove * cmd->forwardmove + cmd->rightmove * cmd->rightmove );
@@ -516,7 +510,7 @@ PM_CheckJump
 =============
 */
 static qboolean PM_CheckJump( void ) {
-  if( !( pm->ps->stats[ STAT_ABILITIES ] & SCA_CANJUMP ) ) return qfalse;
+  if( !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_CANJUMP ) ) return qfalse;
 
   if( ( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS ) &&
       ( pm->ps->stats[ STAT_STAMINA ] < 0 ) )
@@ -1661,7 +1655,7 @@ static void PM_GroundTrace( void ) {
   trace_t   trace;
   float     srotAngle;
 
-  if( ( pm->ps->stats[ STAT_ABILITIES ] & SCA_WALLCLIMBER ) && ( pm->cmd.upmove < 0 ) )
+  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) && ( pm->cmd.upmove < 0 ) )
   {
     PM_GroundClimbTrace( );
     return;
@@ -1777,7 +1771,7 @@ static void PM_GroundTrace( void ) {
       Com_Printf("%i:Land\n", c_pmove);
     }
 
-    if( pm->ps->stats[ STAT_ABILITIES ] & SCA_TAKESFALLDAMAGE )
+    if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_TAKESFALLDAMAGE ) )
       PM_CrashLand();
 
     // don't do landing time if we were just going down a slope
@@ -1924,7 +1918,7 @@ static void PM_Footsteps( void ) {
   // calculate speed and cycle to be used for
   // all cyclic walking effects
   //
-  if( ( pm->ps->stats[STAT_ABILITIES] & SCA_WALLCLIMBER ) && ( pml.groundPlane ) )
+  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) && ( pml.groundPlane ) )
   {
     pm->xyspeed = sqrt( pm->ps->velocity[0] * pm->ps->velocity[0]
                       + pm->ps->velocity[1] * pm->ps->velocity[1]
@@ -2505,7 +2499,7 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
   }
 
   //if we're a wall climber.. and we're climbing rotate the axis
-  if( ( pm->ps->stats[ STAT_ABILITIES ] & SCA_WALLCLIMBER ) &&
+  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) &&
       ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) &&
       ( VectorLength( xNormal ) != 0 ) )
   {
@@ -2655,7 +2649,7 @@ void PmoveSingle (pmove_t *pmove)
 
   pml.frametime = pml.msec * 0.001;
 
-  if( ( pm->ps->stats[ STAT_ABILITIES ] & SCA_WALLCLIMBER ) &&
+  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) &&
       ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
   { AngleVectors ( wcl[ pm->ps->clientNum ].nonSvangles, pml.forward, pml.right, pml.up); }
   else
@@ -2733,7 +2727,7 @@ void PmoveSingle (pmove_t *pmove)
     // swimming
     PM_WaterMove();
   } else if ( pml.walking ) {
-    if( ( pm->ps->stats[ STAT_ABILITIES ] & SCA_WALLCLIMBER ) &&
+    if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) &&
         ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
       PM_ClimbMove(); //TA: walking on any surface
     else

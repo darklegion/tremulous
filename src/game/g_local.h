@@ -35,8 +35,6 @@
 // the "gameversion" client command will print this plus compile date
 #define GAMEVERSION "baseq3"
 
-#define BODY_QUEUE_SIZE   8
-
 #define INFINITE      1000000
 
 #define FRAMETIME     100         // msec
@@ -409,8 +407,6 @@ typedef struct {
 
   qboolean  locationLinked;     // target_locations get linked
   gentity_t *locationHead;      // head of the location list
-  int     bodyQueIndex;     // dead bodies
-  gentity_t *bodyQue[BODY_QUEUE_SIZE];
 
   //TA: extra stuff:
   int     numDroidSpawns;
@@ -574,13 +570,13 @@ int TeamLeader( int team );
 team_t PickTeam( int ignoreClientNum );
 void SetClientViewAngle( gentity_t *ent, vec3_t angle );
 gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
-void CopyToBodyQue( gentity_t *ent );
+void SpawnCorpse( gentity_t *ent );
 void respawn (gentity_t *ent);
 void BeginIntermission (void);
 void InitClientPersistant (gclient_t *client);
 void InitClientResp (gclient_t *client);
 void InitBodyQue (void);
-void ClientSpawn( gentity_t *ent );
+void ClientSpawn( gentity_t *ent, gentity_t *spawn );
 void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
 void AddScore( gentity_t *ent, int score );
 

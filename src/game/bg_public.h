@@ -240,8 +240,6 @@ typedef enum {
   STAT_MAX_HEALTH, // health / armor limit, changable by handicap
   STAT_PCLASS,    //TA: player class (for droids AND humans)
   STAT_PTEAM,     //TA: player team
-  STAT_ABILITIES, //TA: client abilities (based on class)
-  STAT_ATTRIBS,
   STAT_STAMINA,   //TA: stamina (human only)
   STAT_STATE      //TA: client states e.g. wall climbing
 } statIndex_t;
@@ -707,6 +705,14 @@ typedef struct
   vec3_t  deadMaxs;
   int     viewheight;
   int     crouchViewheight;
+  int     health;
+  int     armor;
+  int     abilities;
+  int     fov;
+  float   bob;
+  int     steptime;
+  float   speed;
+  float   sticky;
 } classAttributes_t;
 
 
@@ -722,9 +728,17 @@ gitem_t *BG_FindItemForPowerup( powerup_t pw );
 gitem_t *BG_FindItemForHoldable( holdable_t pw );
 
 //TA:
-char *BG_FindModelNameForClass( int pclass );
-void BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, vec3_t dmins, vec3_t dmaxs );
-void BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight );
+char      *BG_FindModelNameForClass( int pclass );
+void      BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, vec3_t dmins, vec3_t dmaxs );
+void      BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight );
+int       BG_FindHealthForClass( int pclass );
+int       BG_FindArmorForClass( int pclass );
+int       BG_FindFovForClass( int pclass );
+float     BG_FindBobForClass( int pclass );
+float     BG_FindSpeedForClass( int pclass );
+float     BG_FindStickyForClass( int pclass );
+int       BG_FindSteptimeForClass( int pclass );
+qboolean  BG_ClassHasAbility( int pclass, int ability );
 #define ITEM_INDEX(x) ((x)-bg_itemlist)
 
 qboolean  BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps );

@@ -622,7 +622,7 @@ void Cmd_Team_f( gentity_t *ent ) {
   if( oldTeam != ent->client->pers.pteam )
   {
     ent->client->pers.pclass = 0;
-    ClientSpawn( ent );
+    ClientSpawn( ent, NULL );
   }
 
   //FIXME: put some team change broadcast code here.
@@ -1544,6 +1544,10 @@ void Cmd_Class_f( gentity_t *ent )
   char s[ MAX_TOKEN_CHARS ];
   qboolean dontSpawn = qfalse;
   int clientNum;
+  gentity_t *body, *victim;
+  vec3_t    distance;
+  int       length = 4096;
+  int       i;
 
   clientNum = ent->client - level.clients;
   trap_Argv( 1, s, sizeof( s ) );
@@ -1556,9 +1560,48 @@ void Cmd_Class_f( gentity_t *ent )
 
   if( ent->client->pers.pteam == PTE_DROIDS )
   {
-    if( ent->client->pers.pclass != 0 )
+    if( ent->client->pers.pclass )
     {
-      trap_SendServerCommand( ent-g_entities, va("print \"You must be dead to use the class command\n\"" ) );
+      for ( i = 1, body = g_entities + i; i < level.num_entities; i++, body++ )
+      {
+        if( !Q_stricmp( body->classname, "humanCorpse" ) )
+        {
+          VectorSubtract( ent->s.pos.trBase, body->s.origin, distance );
+          if( VectorLength( distance ) <= length )
+          {
+            length = VectorLength( distance );
+            victim = body;
+          }
+        }
+      }
+      
+      if( length <= 200 )
+      {
+        if( !Q_stricmp(s, "0") )
+          ent->client->pers.pclass = PCL_D_B_BASE;
+        else if( !Q_stricmp(s, "1") )
+          ent->client->pers.pclass = PCL_D_O_BASE;
+        else if( !Q_stricmp(s, "2") )
+          ent->client->pers.pclass = PCL_D_D_BASE;
+        else
+        {
+          trap_SendServerCommand( ent-g_entities, va("print \"Unknown class\n\"" ) );
+          dontSpawn = qtrue;
+        }
+
+        if( !dontSpawn )
+        {
+          ent->client->sess.sessionTeam = TEAM_FREE;
+          ClientUserinfoChanged( clientNum );
+          ClientSpawn( ent, victim );
+        }
+      }
+
+      return;
+    }
+    else if( ent->client->pers.pclass != 0 )
+    {
+      trap_SendServerCommand( ent-g_entities, va("print \"You must be dead to spawn from a bioegg\n\"" ) );
       return;
     }
       
@@ -1576,12 +1619,9 @@ void Cmd_Class_f( gentity_t *ent )
 
     if( !dontSpawn )
     {
-      if( ent->client->torch != NULL )
-        Cmd_TorchOff_f( ent );
-        
       ent->client->sess.sessionTeam = TEAM_FREE;
       ClientUserinfoChanged( clientNum );
-      ClientSpawn( ent );
+      ClientSpawn( ent, NULL );
     }
   }
   else if( ent->client->pers.pteam == PTE_HUMANS )
@@ -1599,18 +1639,15 @@ void Cmd_Class_f( gentity_t *ent )
     else if( !Q_stricmp( s, "1" ) )
       ent->client->pers.pitem = WP_HBUILD;
       
-    if( ent->client->torch != NULL )
-      Cmd_TorchOff_f( ent );
-
     ent->client->sess.sessionTeam = TEAM_FREE;
     ClientUserinfoChanged( clientNum );
-    ClientSpawn( ent );
+    ClientSpawn( ent, NULL );
   }
   else if( ent->client->pers.pteam == PTE_NONE )
   {
     ent->client->pers.pclass = 0;
     ent->client->sess.sessionTeam = TEAM_FREE;
-    ClientSpawn( ent );
+    ClientSpawn( ent, NULL );
     trap_SendServerCommand( ent-g_entities, va("print \"Join a team first\n\"" ) );
   }
   else
