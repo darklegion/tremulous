@@ -593,7 +593,7 @@ static void CG_BuildableParticleEffects( centity_t *cent )
           spark = cgs.media.gibSpark2;
 
         VectorSet( vel, 0.0f, 0.0f, 200.0f );
-        VectorSet( grav, 0.0f, 0.0f, DEFAULT_GRAVITY );
+        VectorSet( grav, 0.0f, 0.0f, -DEFAULT_GRAVITY );
 
         CG_LaunchSprite( origin, vel, grav, SPARK_SPREAD,
                          0.6f, 4.0f, 2.0f, 255.0f, 0.0f,
@@ -631,7 +631,7 @@ static void CG_BuildableParticleEffects( centity_t *cent )
 
 
 #define HEALTH_BAR_WIDTH  50.0f
-#define HEALTH_BAR_HEIGHT 15.0f
+#define HEALTH_BAR_HEIGHT 5.0f
 
 /*
 ==================
