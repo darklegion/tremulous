@@ -22,8 +22,6 @@
     bigFont "fonts/bigfont" 20      // font
   }
 
-  //  STAMINA  //
-
   menuDef
   {
     name "human_hud"
@@ -31,17 +29,129 @@
     visible MENU_TRUE
     rect 0 0 640 480
     
+    //AMMO WINDOW
+    itemDef
+    {
+      name ammowindow
+      rect 446 390 189 86
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/hud_ammowindow.tga"
+    }
+
+    //CONSOLE WINDOW
+    itemDef
+    {
+      name creditswindow
+      rect 3 3 368 117
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/hud_consolewindow.tga"
+    }
+    
+    //CREDITS WINDOW
+    itemDef
+    {
+      name creditswindow
+      rect 382 3 254 117
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/hud_creditswindow.tga"
+    }
+    
+    //HEALTH WINDOW
+    itemDef
+    {
+      name healthwindow
+      rect 3 390 189 86
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/hud_healthwindow.tga"
+    }
+
+    //WEAPON WINDOW
+    itemDef
+    {
+      name weaponwindow
+      rect 205 424 230 52
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/hud_weaponwindow.tga"
+    }
+
+    //BANK LABEL
+    itemDef
+    {
+      name banklabel
+      text "Bank"	
+      rect 500 92 53 30
+      style WINDOW_STYLE_EMPTY
+      textalign ITEM_ALIGN_LEFT
+      textalignx 27
+      textaligny 22
+      textscale 0.45
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      forecolor 0.219608 0.933333 0 1
+      backcolor 0 0 0 0
+      visible 1
+      decoration
+    }
+
+    //CREDITS LABEL
+    itemDef
+    {
+      name creditslabel
+      text "Credits"	
+      rect 400 14 53 30
+      style WINDOW_STYLE_EMPTY
+      textalign ITEM_ALIGN_LEFT
+      textalignx 27
+      textaligny 22
+      textscale 0.6
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      forecolor 0.219608 0.933333 0 1
+      backcolor 0 0 0 0
+      visible 1
+      decoration
+    }
+    
     //STAMINA
     itemDef
     {
       name "s"
-      rect 121 399 17 68
+      rect 121 398 17 68
       visible 1
       decoration
       forecolor 1 1 0 1
       ownerdraw CG_PLAYER_STAMINA
     }
     
+    //CONSOLE
+    itemDef
+    {
+      name "console"
+      rect 10 10 320 102
+      style WINDOW_STYLE_EMPTY
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      align ITEM_ALIGN_LEFT
+      textalignx 0
+      textaligny 16
+      textscale 0.33
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_CONSOLE
+    }   
     //FPS
     itemDef
     {
@@ -97,7 +207,7 @@
       rect 502 358 132 28
       visible 1
       decoration
-      background "lagometer"
+      background "ui/assets/hud_lagometer.tga"
       ownerdraw CG_LAGOMETER
     }   
 
@@ -170,95 +280,11 @@
     itemDef
     {
       name "selecttext"
-      rect 200 25 240 40
+      rect 200 170 240 40
       visible 1
       decoration
       textScale .5
       ownerdraw CG_PLAYER_SELECTTEXT
-    }
-   
-    //AMMO WINDOW
-    itemDef
-    {
-      name ammowindow
-      rect 446 390 189 86
-      visible 1
-      decoration
-      forecolor 1 1 0 1
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/hud_ammowindow.tga"
-    }
-
-    //CREDITS WINDOW
-    itemDef
-    {
-      name creditswindow
-      rect 382 3 254 117
-      visible 1
-      decoration
-      forecolor 1 1 0 1
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/hud_creditswindow.tga"
-    }
-    
-    //HEALTH WINDOW
-    itemDef
-    {
-      name healthwindow
-      rect 3 390 189 86
-      visible 1
-      decoration
-      forecolor 1 1 0 1
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/hud_healthwindow.tga"
-    }
-
-    //WEAPON WINDOW
-    itemDef
-    {
-      name weaponwindow
-      rect 205 423 230 52
-      visible 1
-      decoration
-      forecolor 1 1 0 1
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/hud_weaponwindow.tga"
-    }
-
-    //BANK LABEL
-    itemDef
-    {
-      name banklabel
-      text "Bank"	
-      rect 500 92 53 30
-      style WINDOW_STYLE_EMPTY
-      textalign ITEM_ALIGN_LEFT
-      textalignx 27
-      textaligny 22
-      textscale 0.45
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      forecolor 0.219608 0.933333 0 1
-      backcolor 0 0 0 0
-      visible 1
-      decoration
-    }
-
-    //CREDITS LABEL
-    itemDef
-    {
-      name creditslabel
-      text "Credits"	
-      rect 400 14 53 30
-      style WINDOW_STYLE_EMPTY
-      textalign ITEM_ALIGN_LEFT
-      textalignx 27
-      textaligny 22
-      textscale 0.6
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      forecolor 0.219608 0.933333 0 1
-      backcolor 0 0 0 0
-      visible 1
-      decoration
     }
   }
 }

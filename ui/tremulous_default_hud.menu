@@ -1,0 +1,86 @@
+#include "ui/menudef.h"
+
+{
+  menuDef
+  {
+    name "default_hud"
+    fullScreen MENU_FALSE
+    visible MENU_TRUE
+    rect 0 0 640 480
+    
+    //CONSOLE
+    itemDef
+    {
+      name "console"
+      rect 8 8 560 180
+      style WINDOW_STYLE_EMPTY
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      align ITEM_ALIGN_LEFT
+      textalignx 0
+      textaligny 18
+      textscale 0.4
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_CONSOLE
+    }   
+    //FPS
+    itemDef
+    {
+      name "fps"
+      rect 576 8 56 22
+      style WINDOW_STYLE_EMPTY
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      align ITEM_ALIGN_RIGHT
+      textalignx 0
+      textaligny 18
+      textscale 0.4
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_FPS
+    }   
+    //TIMER
+    itemDef
+    {
+      name "timer"
+      rect 576 38 56 22
+      style WINDOW_STYLE_EMPTY
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      align ITEM_ALIGN_RIGHT
+      textalignx 0
+      textaligny 18
+      textscale 0.4
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_TIMER
+    }   
+    //SNAPSHOT
+    itemDef
+    {
+      name "snapshot"
+      rect 8 196 200 22
+      style WINDOW_STYLE_EMPTY
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      align ITEM_ALIGN_RIGHT
+      textalignx 0
+      textaligny 18
+      textscale 0.4
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_SNAPSHOT
+    }   
+    //LAGOMETER
+    itemDef
+    {
+      name "lagometer"
+      rect 576 68 56 28
+      visible 1
+      decoration
+      background "white"
+      ownerdraw CG_LAGOMETER
+    }   
+  }
+}
