@@ -331,6 +331,7 @@ struct gclient_s {
 
   int       lastInfestTime; //TA: to keep track of how long infests take
   gentity_t *infestBody;  //TA: body that is being infested. must be persistant
+  int       lastPoisonTime;
 };
 
 #define MAX_LOCDAMAGE_TEXT    8192

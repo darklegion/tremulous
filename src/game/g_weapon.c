@@ -649,7 +649,15 @@ qboolean CheckVenomAttack( gentity_t *ent ) {
   if( traceEnt->client && traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
     return qfalse;
 
-  G_Damage( traceEnt, ent, ent, forward, tr.endpos, 50, 0, MOD_VENOM );
+  G_Damage( traceEnt, ent, ent, forward, tr.endpos, 5, 0, MOD_VENOM );
+  if( traceEnt->client )
+  {
+    if( !( traceEnt->client->ps.stats[ STAT_STATE ] & SS_POISONED ) )
+    {
+      traceEnt->client->ps.stats[ STAT_STATE ] |= SS_POISONED;
+      traceEnt->client->lastPoisonTime = level.time;
+    }
+  }
 
   return qtrue;
 }

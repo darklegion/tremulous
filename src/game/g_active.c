@@ -474,6 +474,13 @@ void ClientTimerActions( gentity_t *ent, int msec )
       if( client->ps.stats[ STAT_STAMINA ] > 1000 )
         client->ps.stats[ STAT_STAMINA ] = 1000;
     }
+
+    if( client->ps.stats[ STAT_STATE ] & SS_POISONED )
+    {
+      int damage = ( level.time - client->lastPoisonTime ) / 100;
+
+      G_Damage( ent, NULL, NULL, NULL, NULL, damage, 0, MOD_VENOM );
+    }
   }
 
   while( client->time1000 >= 1000 )

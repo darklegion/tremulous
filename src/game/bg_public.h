@@ -258,6 +258,7 @@ typedef enum {
 #define SS_WALLTRANSIDING       8
 #define SS_SPEEDBOOST           16
 #define SS_INFESTING            32
+#define SS_POISONED             64
 
 
 // player_state->persistant[] indexes
