@@ -1820,6 +1820,8 @@ void Cmd_Buy_f( gentity_t *ent )
   int       i;
   gentity_t *mcuEntity;
   qboolean  nearMCU = qfalse;
+  int       weapon, upgrade;
+  int       quan, clips, maxClips;
 
   trap_Argv( 1, s, sizeof( s ) );
 
@@ -1842,57 +1844,85 @@ void Cmd_Buy_f( gentity_t *ent )
   if( ent->client->pers.pteam != PTE_HUMANS )
     return;
     
+  weapon = BG_FindWeaponNumForName( s );
+  upgrade = BG_FindUpgradeNumForName( s );
   
-  if( !Q_stricmp( s, "rifle" ) )
+  if( weapon != WP_NONE )
   {
-    BG_packWeapon( WP_MACHINEGUN, ent->client->ps.stats );
-    BG_packAmmoArray( WP_MACHINEGUN, ent->client->ps.ammo, ent->client->ps.powerups, CS_MG, 3, 3 );
-    ent->client->ps.weapon = WP_MACHINEGUN;
+    BG_packWeapon( weapon, ent->client->ps.stats );
+    BG_FindAmmoForWeapon( weapon, &quan, &clips, &maxClips );
+    BG_packAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
+                      quan, clips, maxClips );
+    ent->client->ps.weapon = weapon;
   }
-  else if( !Q_stricmp( s, "chaingun" ) )
+  else if( upgrade != UP_NONE )
   {
-    BG_packWeapon( WP_CHAINGUN, ent->client->ps.stats );
-    BG_packAmmoArray( WP_CHAINGUN, ent->client->ps.ammo, ent->client->ps.powerups, CS_CG, 0, 0 );
-    ent->client->ps.weapon = WP_CHAINGUN;
+    BG_packItem( upgrade, ent->client->ps.stats );
   }
-  else if( !Q_stricmp( s, "scanner" ) )
+  else
   {
-    BG_packWeapon( WP_SCANNER, ent->client->ps.stats );
-    BG_packAmmoArray( WP_SCANNER, ent->client->ps.ammo, ent->client->ps.powerups, 0, 0, 0 );
-    ent->client->ps.weapon = WP_SCANNER;
+    trap_SendServerCommand( ent-g_entities, va("print \"Unknown item\n\"" ) );
   }
-  else if( !Q_stricmp( s, "flamer" ) )
+  
+  //subtract from funds
+}
+
+
+/*
+=================
+Cmd_Sell_f
+=================
+*/
+void Cmd_Sell_f( gentity_t *ent )
+{
+  char      s[ MAX_TOKEN_CHARS ];
+  vec3_t    distance;
+  int       i;
+  gentity_t *mcuEntity;
+  qboolean  nearMCU = qfalse;
+  int       weapon, upgrade;
+  int       quan, clips, maxClips;
+
+  trap_Argv( 1, s, sizeof( s ) );
+
+  for ( i = 1, mcuEntity = g_entities + i; i < level.num_entities; i++, mcuEntity++ )
   {
-    BG_packWeapon( WP_FLAMER, ent->client->ps.stats );
-    BG_packAmmoArray( WP_FLAMER, ent->client->ps.ammo, ent->client->ps.powerups, CS_FLAMER, 0, 0 );
-    ent->client->ps.weapon = WP_FLAMER;
-  }
-  else if( !Q_stricmp( s, "ckit" ) )
-  {
-    BG_packWeapon( WP_HBUILD, ent->client->ps.stats );
-    BG_packAmmoArray( WP_HBUILD, ent->client->ps.ammo, ent->client->ps.powerups, 0, 0, 0 );
-    ent->client->ps.weapon = WP_HBUILD;
-  }
-  else if( !Q_stricmp( s, "ggrenade" ) )
-  {
-    BG_packWeapon( WP_GGRENADE, ent->client->ps.stats );
-    BG_packAmmoArray( WP_GGRENADE, ent->client->ps.ammo, ent->client->ps.powerups, 1, 0, 0 );
-    ent->client->ps.weapon = WP_GGRENADE;
-  }
-  else if( !Q_stricmp( s, "carmour" ) )
-  {
-    BG_packItem( UP_CHESTARMOUR, ent->client->ps.stats );
-  }
-  else if( !Q_stricmp( s, "nvg" ) )
-  {
-    BG_packItem( UP_NVG, ent->client->ps.stats );
-  }
-  else if( !Q_stricmp( s, "torch" ) )
-  {
-    BG_packItem( UP_TORCH, ent->client->ps.stats );
+    if( !Q_stricmp( mcuEntity->classname, "team_human_mcu" ) )
+    {
+      VectorSubtract( ent->s.pos.trBase, mcuEntity->s.origin, distance );
+      if( VectorLength( distance ) <= 100 )
+        nearMCU = qtrue;
+    }
   }
 
-  //subtract from funds
+  if( !nearMCU )
+  {
+    trap_SendServerCommand( ent-g_entities, va("print \"You must be near an MCU\n\"" ) );
+    return;
+  }
+
+  if( ent->client->pers.pteam != PTE_HUMANS )
+    return;
+    
+  weapon = BG_FindWeaponNumForName( s );
+  upgrade = BG_FindUpgradeNumForName( s );
+  
+  if( weapon != WP_NONE )
+  {
+    if( BG_gotWeapon( weapon, ent->client->ps.stats ) )
+      BG_removeWeapon( weapon, ent->client->ps.stats );
+  }
+  else if( upgrade != UP_NONE )
+  {
+    if( BG_gotItem( weapon, ent->client->ps.stats ) )
+      BG_removeItem( upgrade, ent->client->ps.stats );
+  }
+  else
+  {
+    trap_SendServerCommand( ent-g_entities, va("print \"Unknown item\n\"" ) );
+  }
+  
+  //add to funds
 }
 
 
@@ -2126,6 +2156,8 @@ void ClientCommand( int clientNum ) {
     Cmd_Build_f( ent );
   else if (Q_stricmp (cmd, "buy") == 0)
     Cmd_Buy_f( ent );
+  else if (Q_stricmp (cmd, "sell") == 0)
+    Cmd_Sell_f( ent );
   else if (Q_stricmp (cmd, "itemact") == 0)
     Cmd_ActivateItem_f( ent );
   else if (Q_stricmp (cmd, "itemdeact") == 0)

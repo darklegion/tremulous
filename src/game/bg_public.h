@@ -809,7 +809,16 @@ typedef struct
 {
   int       weaponNum;
 
+  int       price;
+
   int       slots;
+
+  char      *weaponName;
+  char      *weaponHumanName;
+  
+  int       quan;
+  int       clips;
+  int       maxClips;
 } weaponAttributes_t;
 
 //TA: upgrade record
@@ -817,7 +826,12 @@ typedef struct
 {
   int       upgradeNum;
 
+  int       price;
+
   int       slots;
+
+  char      *upgradeName;
+  char      *upgradeHumanName;
 } upgradeAttributes_t;
 
 // included in both the game dll and the client
@@ -864,6 +878,20 @@ int       BG_FindSteptimeForClass( int pclass );
 qboolean  BG_ClassHasAbility( int pclass, int ability );
 qboolean  BG_ClassCanEvolveFromTo( int fclass, int tclass );
 int       BG_FindEvolveTimeForClass( int pclass );
+
+int       BG_FindPriceForWeapon( int weapon );
+int       BG_FindSlotsForWeapon( int weapon );
+char      *BG_FindNameForWeapon( int weapon );
+int       BG_FindWeaponNumForName( char *name );
+char      *BG_FindHumanNameForWeapon( int weapon );
+void      BG_FindAmmoForWeapon( int weapon, int *quan, int *clips, int *maxClips );
+
+int       BG_FindPriceForUpgrade( int upgrade );
+int       BG_FindSlotsForUpgrade( int upgrade );
+char      *BG_FindNameForUpgrade( int upgrade );
+int       BG_FindUpgradeNumForName( char *name );
+char      *BG_FindHumanNameForUpgrade( int upgrade );
+
 #define ITEM_INDEX(x) ((x)-bg_itemlist)
 
 qboolean  BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps );

@@ -1305,6 +1305,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
 
   client->ps.stats[ STAT_WEAPONS ] = 0;
   client->ps.stats[ STAT_WEAPONS2 ] = 0;
+  client->ps.stats[ STAT_SLOTS ] = 0;
 
   client->ps.eFlags = flags;
   client->ps.clientNum = index;
@@ -1350,11 +1351,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
     default:
       BG_packWeapon( WP_MACHINEGUN, client->ps.stats );
       BG_packAmmoArray( WP_MACHINEGUN, client->ps.ammo, client->ps.powerups, 100, 0, 0 );
-
-      BG_packWeapon( WP_GAUNTLET, client->ps.stats );
-      BG_packAmmoArray( WP_GAUNTLET, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
-      
-      BG_packAmmoArray( WP_GRAPPLING_HOOK, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
   }
 
   ent->client->ps.stats[ STAT_PCLASS ] = ent->client->pers.pclass;

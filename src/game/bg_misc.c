@@ -937,7 +937,7 @@ Only in CTF games
 
 int   bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) - 1;
 
-///////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 buildableAttributes_t bg_buildableList[ ] =
 {
@@ -1415,7 +1415,7 @@ int BG_FindUniqueTestForBuildable( int bclass )
   return qfalse;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 classAttributes_t bg_classList[ ] =
 {
@@ -1856,41 +1856,104 @@ int BG_FindEvolveTimeForClass( int pclass )
   return 5000;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 weaponAttributes_t bg_weapons[ ] =
 {
   {
     WP_MACHINEGUN,
-    SLOT_WEAPON
+    100,
+    SLOT_WEAPON,
+    "rifle",
+    "Rifle",
+    30,
+    3,
+    3
   },
   {
     WP_FLAMER,
-    SLOT_WEAPON
+    100,
+    SLOT_WEAPON,
+    "flamer",
+    "Flame Thrower",
+    400,
+    0,
+    0
   },
   {
     WP_CHAINGUN,
-    SLOT_WEAPON
+    100,
+    SLOT_WEAPON,
+    "chaingun",
+    "Chaingun",
+    300,
+    0,
+    0
   },
   {
     WP_HBUILD,
-    SLOT_WEAPON
+    100,
+    SLOT_WEAPON,
+    "ckit",
+    "Construction Kit",
+    0,
+    0,
+    0
   },
   {
     WP_ABUILD,
-    SLOT_WEAPON
+    100,
+    SLOT_WEAPON,
+    "dbuild",
+    "",
+    0,
+    0,
+    0
   },
   {
     WP_SCANNER,
-    SLOT_WEAPON
+    100,
+    SLOT_WEAPON,
+    "scanner",
+    "Scanner",
+    0,
+    0,
+    0
   }
 };
 
+int   bg_numWeapons = sizeof( bg_weapons ) / sizeof( bg_weapons[ 0 ] );
+
+/*
+==============
+BG_FindPriceForWeapon
+==============
+*/
+int BG_FindPriceForWeapon( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+    {
+      return bg_weapons[ i ].price;
+    }
+  }
+  
+  return 100;
+}
+
+/*
+==============
+BG_FindSlotsForWeapon
+==============
+*/
 int BG_FindSlotsForWeapon( int weapon )
 {
   int i;
 
-  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+  for( i = 0; i < bg_numWeapons; i++ )
   {
     if( bg_weapons[ i ].weaponNum == weapon )
     {
@@ -1901,61 +1964,204 @@ int BG_FindSlotsForWeapon( int weapon )
   return SLOT_WEAPON;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
+/*
+==============
+BG_FindNameForWeapon
+==============
+*/
+char *BG_FindNameForWeapon( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+      return bg_weapons[ i ].weaponName;
+  }
+
+  //wimp out
+  return "";
+}
+
+/*
+==============
+BG_FindWeaponNumForName
+==============
+*/
+int BG_FindWeaponNumForName( char *name )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( !Q_stricmp( bg_weapons[ i ].weaponName, name ) )
+      return bg_weapons[ i ].weaponNum;
+  }
+
+  //wimp out
+  return WP_NONE;
+}
+
+/*
+==============
+BG_FindHumanNameForWeapon
+==============
+*/
+char *BG_FindHumanNameForWeapon( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+      return bg_weapons[ i ].weaponHumanName;
+  }
+
+  //wimp out
+  return "";
+}
+
+/*
+==============
+BG_FindAmmoForWeapon
+==============
+*/
+void BG_FindAmmoForWeapon( int weapon, int *quan, int *clips, int *maxClips )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+    {
+      if( quan != NULL )
+        *quan = bg_weapons[ i ].quan;
+      if( clips != NULL )
+        *clips = bg_weapons[ i ].clips;
+      if( maxClips != NULL )
+        *maxClips = bg_weapons[ i ].maxClips;
+
+      //no need to keep going
+      break;
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 upgradeAttributes_t bg_upgrades[ ] =
 {
   {
     UP_TORCH,
-    SLOT_NONE
+    100,
+    SLOT_NONE,
+    "torch",
+    "Torch"
   },
   {
     UP_NVG,
-    SLOT_HEAD
+    100,
+    SLOT_HEAD,
+    "nvg",
+    "nvg"
   },
   {
     UP_CHESTARMOUR,
-    SLOT_TORSO
+    100,
+    SLOT_TORSO,
+    "carmour",
+    "Chest Armour"
   },
   {
     UP_LIMBARMOUR,
-    SLOT_ARMS|SLOT_LEGS
+    100,
+    SLOT_ARMS|SLOT_LEGS,
+    "larmour",
+    "Limb Armour"
   },
   {
     UP_HELMET,
-    SLOT_HEAD
+    100,
+    SLOT_HEAD,
+    "helmet",
+    "Helmet"
   },
   {
     UP_ANTITOXIN,
-    SLOT_NONE
+    100,
+    SLOT_NONE,
+    "atoxin",
+    "Anti-toxin"
   },
   {
     UP_BATTPACK,
-    SLOT_BACKPACK
+    100,
+    SLOT_BACKPACK,
+    "battpack",
+    "Battery Pack"
   },
   {
     UP_JETPACK,
-    SLOT_BACKPACK
+    100,
+    SLOT_BACKPACK,
+    "jetpack",
+    "Jet Pack"
   },
   {
     UP_THREATHELMET,
-    SLOT_HEAD
+    100,
+    SLOT_HEAD,
+    "thelmet",
+    "Threat Helmet"
   },
   {
     UP_BATTLESUIT,
-    SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS
+    100,
+    SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS,
+    "bsuit",
+    "Battlesuit"
   },
   {
     UP_IMPANTKIT,
-    SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS
+    100,
+    SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS,
+    "ikit",
+    "Implant Kit"
   }
 };
 
+int   bg_numUpgrades = sizeof( bg_upgrades ) / sizeof( bg_upgrades[ 0 ] );
+
+/*
+==============
+BG_FindPriceForUpgrade
+==============
+*/
+int BG_FindPriceForUpgrade( int upgrade )
+{
+  int i;
+
+  for( i = 0; i < bg_numUpgrades; i++ )
+  {
+    if( bg_upgrades[ i ].upgradeNum == upgrade )
+    {
+      return bg_upgrades[ i ].price;
+    }
+  }
+  
+  return 100;
+}
+
+/*
+==============
+BG_FindSlotsForUpgrade
+==============
+*/
 int BG_FindSlotsForUpgrade( int upgrade )
 {
   int i;
 
-  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
+  for( i = 0; i < bg_numUpgrades; i++ )
   {
     if( bg_upgrades[ i ].upgradeNum == upgrade )
     {
@@ -1966,7 +2172,64 @@ int BG_FindSlotsForUpgrade( int upgrade )
   return SLOT_NONE;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
+/*
+==============
+BG_FindNameForUpgrade
+==============
+*/
+char *BG_FindNameForUpgrade( int upgrade )
+{
+  int i;
+
+  for( i = 0; i < bg_numUpgrades; i++ )
+  {
+    if( bg_upgrades[ i ].upgradeNum == upgrade )
+      return bg_upgrades[ i ].upgradeName;
+  }
+
+  //wimp out
+  return "";
+}
+
+/*
+==============
+BG_FindUpgradeNumForName
+==============
+*/
+int BG_FindUpgradeNumForName( char *name )
+{
+  int i;
+
+  for( i = 0; i < bg_numUpgrades; i++ )
+  {
+    if( !Q_stricmp( bg_upgrades[ i ].upgradeName, name ) )
+      return bg_upgrades[ i ].upgradeNum;
+  }
+
+  //wimp out
+  return UP_NONE;
+}
+
+/*
+==============
+BG_FindHumanNameForUpgrade
+==============
+*/
+char *BG_FindHumanNameForUpgrade( int upgrade )
+{
+  int i;
+
+  for( i = 0; i < bg_numUpgrades; i++ )
+  {
+    if( bg_upgrades[ i ].upgradeNum == upgrade )
+      return bg_upgrades[ i ].upgradeHumanName;
+  }
+
+  //wimp out
+  return "";
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 /*
 ==============
@@ -2715,7 +2978,26 @@ void BG_packWeapon( int weapon, int stats[ ] )
   
   stats[ STAT_WEAPONS ] = weaponList & 0x0000FFFF;
   stats[ STAT_WEAPONS2 ] = ( weaponList & 0xFFFF0000 ) >> 16;
+
+  if( stats[ STAT_SLOTS ] & BG_FindSlotsForWeapon( weapon ) )
+    Com_Printf( S_COLOR_YELLOW "WARNING: Held items conflict with weapon %d\n", weapon );
+
+  stats[ STAT_SLOTS ] |= BG_FindSlotsForWeapon( weapon );
+}
+
+//TA: remove weapons from the array
+void BG_removeWeapon( int weapon, int stats[ ] )
+{
+  int  weaponList, i;
+
+  weaponList = ( stats[ STAT_WEAPONS ] & 0x0000FFFF ) | ( ( stats[ STAT_WEAPONS2 ] << 16 ) & 0xFFFF0000 );
+
+  weaponList &= ~( 1 << weapon );
   
+  stats[ STAT_WEAPONS ] = weaponList & 0x0000FFFF;
+  stats[ STAT_WEAPONS2 ] = ( weaponList & 0xFFFF0000 ) >> 16;
+  
+  stats[ STAT_SLOTS ] &= ~BG_FindSlotsForWeapon( weapon );
 }
 
 //TA: check whether array contains weapon
@@ -2732,12 +3014,19 @@ qboolean BG_gotWeapon( int weapon, int stats[ ] )
 void BG_packItem( int item, int stats[ ] )
 {
   stats[ STAT_ITEMS ] |= ( 1 << item );
+
+  if( stats[ STAT_SLOTS ] & BG_FindSlotsForUpgrade( item ) )
+    Com_Printf( S_COLOR_YELLOW "WARNING: Held items conflict with upgrade %d\n", item );
+    
+  stats[ STAT_SLOTS ] |= BG_FindSlotsForUpgrade( item );
 }
 
 //TA: remove items from array
 void BG_removeItem( int item, int stats[ ] )
 {
   stats[ STAT_ITEMS ] &= ~( 1 << item );
+
+  stats[ STAT_SLOTS ] &= ~BG_FindSlotsForUpgrade( item );
 }
 
 //TA: check if item is in array
