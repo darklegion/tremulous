@@ -1522,7 +1522,7 @@ classAttributes_t bg_classList[ ] =
     SOLDIER_REGEN,                                  //int     regenRate;
     SCA_WALLCLIMBER|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
-    WP_VENOM,                                       //weapon_t  startWeapon
+    WP_SOLDIER,                                       //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     140,                                            //int     fov;
     0.0f,                                           //float   bob;
@@ -1560,7 +1560,7 @@ classAttributes_t bg_classList[ ] =
     SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_WALLCLIMBER|SCA_ALIENSENSE|
       SCA_NOFOOTSTEPS,                              //int     abilities;
-    WP_GRAB_CLAW,                                   //weapon_t  startWeapon
+    WP_HYDRA,                                   //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     120,                                            //int     fov;
     0.001f,                                         //float   bob;
@@ -1598,7 +1598,7 @@ classAttributes_t bg_classList[ ] =
     SCA_NOWEAPONDRIFT|SCA_FOVWARPS|
       SCA_WALLCLIMBER|SCA_ALIENSENSE|
       SCA_NOFOOTSTEPS,                              //int     abilities;
-    WP_GRAB_CLAW_UPG,                               //weapon_t  startWeapon
+    WP_HYDRA_UPG,                               //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     120,                                            //int     fov;
     0.001f,                                         //float   bob;
@@ -1635,7 +1635,7 @@ classAttributes_t bg_classList[ ] =
     CHIMERA_REGEN,                                  //int     regenRate;
     SCA_NOWEAPONDRIFT|SCA_WALLJUMPER|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
-    WP_AREA_ZAP,                                    //weapon_t  startWeapon
+    WP_CHIMERA,                                    //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     90,                                             //int     fov;
     0.0f,                                           //float   bob;
@@ -1672,7 +1672,7 @@ classAttributes_t bg_classList[ ] =
     CHIMERA_UPG_REGEN,                              //int     regenRate;
     SCA_NOWEAPONDRIFT|SCA_WALLJUMPER|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
-    WP_DIRECT_ZAP,                                  //weapon_t  startWeapon
+    WP_CHIMERA_UPG,                                  //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     90,                                             //int     fov;
     0.0f,                                           //float   bob;
@@ -1709,7 +1709,7 @@ classAttributes_t bg_classList[ ] =
     DRAGOON_REGEN,                                  //int     regenRate;
     SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
-    WP_POUNCE,                                      //weapon_t  startWeapon
+    WP_DRAGOON,                                      //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     110,                                            //int     fov;
     0.0005f,                                        //float   bob;
@@ -1746,7 +1746,7 @@ classAttributes_t bg_classList[ ] =
     DRAGOON_UPG_REGEN,                              //int     regenRate;
     SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
-    WP_POUNCE_UPG,                                  //weapon_t  startWeapon
+    WP_DRAGOON_UPG,                                  //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     110,                                            //int     fov;
     0.0005f,                                        //float   bob;
@@ -1783,7 +1783,7 @@ classAttributes_t bg_classList[ ] =
     BMOFO_REGEN,                                    //int     regenRate;
     SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
-    WP_CHARGE,                                      //weapon_t  startWeapon
+    WP_BIGMOFO,                                      //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     90,                                             //int     fov;
     0.001f,                                         //float   bob;
@@ -3084,7 +3084,7 @@ weaponAttributes_t bg_weapons[ ] =
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
     ABUILDER_BUILD_REPEAT,//int       repeatRate1;
-    0,                    //int       repeatRate2;
+    ABUILDER_BUILD_REPEAT,//int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
@@ -3107,16 +3107,16 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //int       usesEnergy;
     ABUILDER_BUILD_REPEAT,//int       repeatRate1;
     ABUILDER_CLAW_REPEAT, //int       repeatRate2;
-    0,                    //int       repeatRate3;
+    ABUILDER_BLOB_REPEAT, //int       repeatRate3;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
+    qtrue,                //qboolean  hasThirdMode;
     qtrue,                //qboolean  purchasable;
     ABUILDER_ADV_DELAY,   //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_VENOM,             //int       weaponNum;
+    WP_SOLDIER,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
@@ -3138,7 +3138,7 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_POUNCE,            //int       weaponNum;
+    WP_DRAGOON,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
@@ -3160,7 +3160,7 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_POUNCE_UPG,        //int       weaponNum;
+    WP_DRAGOON_UPG,       //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
@@ -3173,7 +3173,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //int       usesEnergy;
     DRAGOON_CLAW_U_REPEAT,//int       repeatRate1;
     0,                    //int       repeatRate2;
-    DRAGOON_SLOWBLOB_REPEAT,//int       repeatRate3;
+    DRAGOON_BOUNCEBALL_REPEAT,//int       repeatRate3;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qtrue,                //qboolean  hasThirdMode;
@@ -3182,7 +3182,7 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_GRAB_CLAW,         //int       weaponNum;
+    WP_HYDRA,             //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
@@ -3204,7 +3204,7 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_GRAB_CLAW_UPG,     //int       weaponNum;
+    WP_HYDRA_UPG,         //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
@@ -3226,7 +3226,7 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_AREA_ZAP,          //int       weaponNum;
+    WP_CHIMERA,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
@@ -3238,17 +3238,17 @@ weaponAttributes_t bg_weapons[ ] =
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
     CHIMERA_CLAW_REPEAT,  //int       repeatRate1;
-    CHIMERA_AREAZAP_REPEAT,//int       repeatRate2;
+    0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
-    qtrue,                //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_DIRECT_ZAP,        //int       weaponNum;
+    WP_CHIMERA_UPG,       //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
@@ -3260,17 +3260,17 @@ weaponAttributes_t bg_weapons[ ] =
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
     CHIMERA_CLAW_U_REPEAT,//int       repeatRate1;
-    CHIMERA_DIRECTZAP_REPEAT,//int       repeatRate2;
-    CHIMERA_AREAZAP_REPEAT,//int       repeatRate3;
+    CHIMERA_AREAZAP_REPEAT,//int       repeatRate2;
+    0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
-    qtrue,                //qboolean  hasThirdMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_CHARGE,            //int       weaponNum;
+    WP_BIGMOFO,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;

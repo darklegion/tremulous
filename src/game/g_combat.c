@@ -926,11 +926,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       attacker->client->ps.persistant[ PERS_HITS ]++;
   }
 
-  // always give half damage if hurting self
-  // calculated after knockback, so rocket jumping works
-  if( targ == attacker)
-    damage *= 0.5;
-
   if( damage < 1 )
     damage = 1;
     
@@ -1000,7 +995,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     }
     
     if( targ->client )
+    {
       targ->client->ps.stats[ STAT_HEALTH ] = targ->health;
+      targ->client->lastDamageTime = level.time;
+    }
 
     //TA: add to the attackers "account" on the target
     if( targ->client && attacker->client &&

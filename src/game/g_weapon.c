@@ -622,11 +622,20 @@ void buildFire( gentity_t *ent, dynMenu_t menu )
   G_TriggerMenu( ent->client->ps.clientNum, menu );
 }
 
+void slowBlobFire( gentity_t *ent )
+{
+  gentity_t *m;
+
+  m = fire_slowBlob( ent, muzzle, forward );
+
+//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
+}
+
 
 /*
 ======================================================================
 
-VENOM
+SOLDIER
 
 ======================================================================
 */
@@ -685,7 +694,7 @@ qboolean CheckVenomAttack( gentity_t *ent )
 /*
 ======================================================================
 
-GRAB AND CLAW
+HYDRA
 
 ======================================================================
 */
@@ -772,7 +781,7 @@ void poisonCloud( gentity_t *ent )
 /*
 ======================================================================
 
-CLAW AND POUNCE
+DRAGOON
 
 ======================================================================
 */
@@ -836,11 +845,11 @@ qboolean CheckPounceAttack( gentity_t *ent )
   return qtrue;
 }
 
-void slowBlobFire( gentity_t *ent )
+void bounceBallFire( gentity_t *ent )
 {
   gentity_t *m;
 
-  m = fire_slowBlob( ent, muzzle, forward );
+  m = fire_bounceBall( ent, muzzle, forward );
 
 //  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
@@ -848,7 +857,7 @@ void slowBlobFire( gentity_t *ent )
 /*
 ======================================================================
 
-ZAP
+CHIMERA
 
 ======================================================================
 */
@@ -916,83 +925,12 @@ void areaZapFire( gentity_t *ent )
   }
 }
 
-/*
-===============
-directZapFire
-===============
-*/
-void directZapFire( gentity_t *ent )
-{
-  int       entityList[ MAX_GENTITIES ];
-  int       targetList[ MAX_GENTITIES ];
-  vec3_t    range = { CHIMERA_DIRECTZAP_RANGE, CHIMERA_DIRECTZAP_RANGE, CHIMERA_DIRECTZAP_RANGE };
-  vec3_t    mins, maxs, dir;
-  int       i, num, numTargets = 0;
-  gentity_t *enemy;
-  vec3_t    end;
-  gentity_t *target = NULL, *tent;
-  float     distance, minDist = 10000.0f;
-  trace_t   tr;
-
-  VectorAdd( muzzle, range, maxs );
-  VectorSubtract( muzzle, range, mins );
-  
-  num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
-  for( i = 0; i < num; i++ )
-  {
-    enemy = &g_entities[ entityList[ i ] ];
-    
-    if( ( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) ||
-        ( enemy->s.eType == ET_BUILDABLE && BG_FindTeamForBuildable( enemy->s.modelindex ) == BIT_HUMANS ) )
-    {
-      trap_Trace( &tr, muzzle, NULL, NULL, enemy->s.origin, ent->s.number, MASK_SHOT );
-    
-      //can't see target from here
-      if( tr.entityNum == ENTITYNUM_WORLD )
-        continue;
-
-      targetList[ numTargets++ ] = entityList[ i ];
-    }
-  }
-  
-  VectorAdd( muzzle, forward, end );
-
-  for( i = 0; i < numTargets; i++ )
-  {
-    enemy = &g_entities[ targetList[ i ] ];
-
-    distance = pointToLineDistance( enemy->s.origin, muzzle, end );
-    if( distance < minDist )
-    {
-      target = enemy;
-      minDist = distance;
-    }
-  }
-  
-  if( target != NULL )
-  {
-    //do some damage
-    G_Damage( target, ent, ent, dir, tr.endpos,
-              CHIMERA_DIRECTZAP_DMG, DAMAGE_NO_KNOCKBACK, MOD_CHIMERA_ZAP );
-    
-    // snap the endpos to integers to save net bandwidth, but nudged towards the line
-    SnapVectorTowards( tr.endpos, muzzle );
-
-    // send railgun beam effect
-    tent = G_TempEntity( target->s.pos.trBase, EV_ALIENZAP );
-
-    VectorCopy( muzzle, tent->s.origin2 );
-
-    tent->s.generic1 = ent->s.number; //src
-    tent->s.clientNum = target->s.number; //dest
-  }
-}
 
 
 /*
 ======================================================================
 
-CHARGE
+BIG MOFO
 
 ======================================================================
 */
@@ -1075,11 +1013,12 @@ void FireWeapon3( gentity_t *ent )
   // fire the specific weapon
   switch( ent->s.weapon )
   {
-    case WP_POUNCE_UPG:
-      slowBlobFire( ent );
+    case WP_DRAGOON_UPG:
+      bounceBallFire( ent );
       break;
-    case WP_DIRECT_ZAP:
-      areaZapFire( ent );
+      
+    case WP_ABUILD2:
+      slowBlobFire( ent );
       break;
       
     default:
@@ -1109,14 +1048,11 @@ void FireWeapon2( gentity_t *ent )
   // fire the specific weapon
   switch( ent->s.weapon )
   {
-    case WP_GRAB_CLAW_UPG:
+    case WP_HYDRA_UPG:
       poisonCloud( ent );
       break;
-    case WP_AREA_ZAP:
+    case WP_CHIMERA_UPG:
       areaZapFire( ent );
-      break;
-    case WP_DIRECT_ZAP:
-      directZapFire( ent );
       break;
       
     case WP_LUCIFER_CANNON:
@@ -1156,21 +1092,21 @@ void FireWeapon( gentity_t *ent )
   // fire the specific weapon
   switch( ent->s.weapon )
   {
-    case WP_GRAB_CLAW:
-    case WP_GRAB_CLAW_UPG:
+    case WP_HYDRA:
+    case WP_HYDRA_UPG:
       meleeAttack( ent, HYDRA_CLAW_RANGE, HYDRA_CLAW_DMG, MOD_HYDRA_CLAW );
       break;
-    case WP_POUNCE:
-    case WP_POUNCE_UPG:
+    case WP_DRAGOON:
+    case WP_DRAGOON_UPG:
       meleeAttack( ent, DRAGOON_CLAW_RANGE, DRAGOON_CLAW_DMG, MOD_DRAGOON_CLAW );
       break;
-    case WP_AREA_ZAP:
+    case WP_CHIMERA:
       meleeAttack( ent, CHIMERA_CLAW_RANGE, CHIMERA_CLAW_DMG, MOD_CHIMERA_CLAW );
       break;
-    case WP_DIRECT_ZAP:
+    case WP_CHIMERA_UPG:
       meleeAttack( ent, CHIMERA_CLAW_RANGE, CHIMERA_CLAW_DMG, MOD_CHIMERA_CLAW );
       break;
-    case WP_CHARGE:
+    case WP_BIGMOFO:
       meleeAttack( ent, BMOFO_CLAW_RANGE, BMOFO_CLAW_DMG, MOD_BMOFO_CLAW );
       break;
 
@@ -1219,14 +1155,10 @@ void FireWeapon( gentity_t *ent )
       break;
       
     case WP_ABUILD:
-      buildFire( ent, MN_A_BUILD );
-      break;
     case WP_ABUILD2:
       buildFire( ent, MN_A_BUILD );
       break;
     case WP_HBUILD:
-      buildFire( ent, MN_H_BUILD );
-      break;
     case WP_HBUILD2:
       buildFire( ent, MN_H_BUILD );
       break;

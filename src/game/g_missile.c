@@ -623,7 +623,7 @@ gentity_t *fire_lockblob( gentity_t *self, vec3_t start, vec3_t dir )
 
 /*
 =================
-fire_SlowBlob
+fire_slowBlob
 =================
 */
 gentity_t *fire_slowBlob( gentity_t *self, vec3_t start, vec3_t dir )
@@ -638,11 +638,11 @@ gentity_t *fire_slowBlob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->think = G_ExplodeMissile;
   bolt->s.eType = ET_MISSILE;
   bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-  bolt->s.weapon = WP_POUNCE_UPG;
+  bolt->s.weapon = WP_ABUILD2;
   bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
-  bolt->damage = DRAGOON_SLOWBLOB_DMG;
+  bolt->damage = ABUILDER_BLOB_DMG;
   bolt->splashDamage = 0;
   bolt->splashRadius = 0;
   bolt->methodOfDeath = MOD_SLOWBLOB;
@@ -653,7 +653,7 @@ gentity_t *fire_slowBlob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.pos.trType = TR_GRAVITY;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
-  VectorScale( dir, DRAGOON_SLOWBLOB_SPEED, bolt->s.pos.trDelta );
+  VectorScale( dir, ABUILDER_BLOB_SPEED, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
   VectorCopy( start, bolt->r.currentOrigin );
 
@@ -696,3 +696,44 @@ gentity_t *fire_paraLockBlob( gentity_t *self, vec3_t start, vec3_t dir )
 
   return bolt;
 }
+
+/*
+=================
+fire_bounceBall
+=================
+*/
+gentity_t *fire_bounceBall( gentity_t *self, vec3_t start, vec3_t dir )
+{
+  gentity_t *bolt;
+
+  VectorNormalize ( dir );
+
+  bolt = G_Spawn( );
+  bolt->classname = "bounceball";
+  bolt->nextthink = level.time + 3000;
+  bolt->think = G_ExplodeMissile;
+  bolt->s.eType = ET_MISSILE;
+  bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+  bolt->s.weapon = WP_DRAGOON_UPG;
+  bolt->s.generic1 = self->s.generic1; //weaponMode
+  bolt->r.ownerNum = self->s.number;
+  bolt->parent = self;
+  bolt->damage = DRAGOON_BOUNCEBALL_DMG;
+  bolt->splashDamage = 0;
+  bolt->splashRadius = 0;
+  bolt->methodOfDeath = MOD_DRAGOON_BOUNCEBALL;
+  bolt->splashMethodOfDeath = MOD_DRAGOON_BOUNCEBALL;
+  bolt->clipmask = MASK_SHOT;
+  bolt->target_ent = NULL;
+
+  bolt->s.pos.trType = TR_LINEAR;
+  bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
+  VectorCopy( start, bolt->s.pos.trBase );
+  VectorScale( dir, DRAGOON_BOUNCEBALL_SPEED, bolt->s.pos.trDelta );
+  SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
+  VectorCopy( start, bolt->r.currentOrigin );
+  bolt->s.eFlags |= EF_BOUNCE;
+
+  return bolt;
+}
+

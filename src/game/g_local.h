@@ -369,6 +369,7 @@ struct gclient_s
   int                 lastSlowTime;
   int                 lastBoostedTime;
   int                 lastCreepSlowTime; //TA: time until creep can be removed
+  int                 lastDamageTime;
 
   int                 pouncePayload;    //TA: amount of damage pounce attack will do
   qboolean            allowedToPounce;
@@ -661,6 +662,7 @@ gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int da
 gentity_t *fire_lockblob( gentity_t *self, vec3_t start, vec3_t dir );
 gentity_t *fire_paraLockBlob( gentity_t *self, vec3_t start, vec3_t dir );
 gentity_t *fire_slowBlob( gentity_t *self, vec3_t start, vec3_t dir );
+gentity_t *fire_bounceBall( gentity_t *self, vec3_t start, vec3_t dir );
 gentity_t *fire_hive( gentity_t *self, vec3_t start, vec3_t dir );
 
 

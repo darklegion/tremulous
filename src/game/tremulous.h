@@ -31,6 +31,11 @@
 #define ABUILDER_CLAW_REPEAT        1000
 #define ABUILDER_BASE_DELAY         9000
 #define ABUILDER_ADV_DELAY          4000
+#define ABUILDER_BLOB_DMG           ADM(20)
+#define ABUILDER_BLOB_REPEAT        1000
+#define ABUILDER_BLOB_SPEED         800.0f
+#define ABUILDER_BLOB_SPEED_MOD     0.5f
+#define ABUILDER_BLOB_TIME          5000
 
 #define SOLDIER_BITE_DMG            ADM(34)
 #define SOLDIER_BITE_RANGE          32.0f
@@ -54,9 +59,6 @@
 #define CHIMERA_AREAZAP_DMG         ADM(75)
 #define CHIMERA_AREAZAP_RANGE       200.0f
 #define CHIMERA_AREAZAP_REPEAT      1500
-#define CHIMERA_DIRECTZAP_DMG       ADM(100)
-#define CHIMERA_DIRECTZAP_RANGE     200.0f
-#define CHIMERA_DIRECTZAP_REPEAT    1500
 #define CHIMERA_WALLJUMP_MAXSPEED   1000.0f
 
 #define DRAGOON_CLAW_DMG            ADM(75)
@@ -68,11 +70,9 @@
 #define DRAGOON_POUNCE_SPEED        600
 #define DRAGOON_POUNCE_SPEED_MOD    0.75f
 #define DRAGOON_POUNCE_TIME         1000
-#define DRAGOON_SLOWBLOB_DMG        ADM(20)
-#define DRAGOON_SLOWBLOB_REPEAT     1000
-#define DRAGOON_SLOWBLOB_SPEED      800.0f
-#define DRAGOON_SLOWBLOB_SPEED_MOD  0.5f
-#define DRAGOON_SLOWBLOB_TIME       5000
+#define DRAGOON_BOUNCEBALL_DMG      ADM(50)
+#define DRAGOON_BOUNCEBALL_REPEAT   1000
+#define DRAGOON_BOUNCEBALL_SPEED    1000.0f
 
 #define BMOFO_CLAW_DMG              ADM(150)
 #define BMOFO_CLAW_RANGE            128.0f
@@ -381,6 +381,8 @@
 #define JETPACK_PRICE               120
 #define JETPACK_FLOAT_SPEED         128.0f //up movement speed
 #define JETPACK_SINK_SPEED          192.0f //down movement speed
+#define JETPACK_DISABLE_TIME        1000 //time to disable the jetpack when player damaged
+#define JETPACK_DISABLE_CHANCE      0.3f
 
 #define BSUIT_PRICE                 200
 

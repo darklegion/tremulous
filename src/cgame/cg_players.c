@@ -2066,6 +2066,16 @@ void CG_Player( centity_t *cent )
   CG_AddPlayerWeapon( &torso, NULL, cent );
 
   CG_PlayerUpgrades( cent, &torso );
+
+  //sanity check that particle systems are stopped when dead
+  if( es->eFlags & EF_DEAD )
+  {
+    if( cent->muzzlePS != NULL )
+      CG_DestroyParticleSystem( cent->muzzlePS );
+    
+    if( cent->jetPackPS != NULL )
+      CG_DestroyParticleSystem( cent->jetPackPS );
+  }
 }
 
 /*

@@ -214,7 +214,7 @@ void ClientImpacts( gentity_t *ent, pmove_t *pm )
       ent->touch( ent, other, &trace );
 
     //charge attack
-    if( ent->client->ps.weapon == WP_CHARGE &&
+    if( ent->client->ps.weapon == WP_BIGMOFO &&
         ent->client->ps.stats[ STAT_MISC ] > 0 && 
         ent->client->charging )
       ChargeAttack( ent, other );
@@ -470,18 +470,18 @@ void ClientTimerActions( gentity_t *ent, int msec )
     }
 
     //client is charging up for a pounce
-    if( client->ps.weapon == WP_POUNCE || client->ps.weapon == WP_POUNCE_UPG )
+    if( client->ps.weapon == WP_DRAGOON || client->ps.weapon == WP_DRAGOON_UPG )
     {
       if( client->ps.stats[ STAT_MISC ] < DRAGOON_POUNCE_SPEED && ucmd->buttons & BUTTON_ATTACK2 )
-      {
         client->ps.stats[ STAT_MISC ] += ( 100.0f / (float)DRAGOON_POUNCE_TIME ) * DRAGOON_POUNCE_SPEED;
-        client->allowedToPounce = qtrue;
-      }
 
       if( !( ucmd->buttons & BUTTON_ATTACK2 ) )
       {
         if( client->ps.stats[ STAT_MISC ] > 0 )
+        {
+          client->allowedToPounce = qtrue;
           client->pouncePayload = client->ps.stats[ STAT_MISC ];
+        }
 
         client->ps.stats[ STAT_MISC ] = 0;
       }
@@ -491,7 +491,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
     }
 
     //client is charging up for a... charge
-    if( client->ps.weapon == WP_CHARGE )
+    if( client->ps.weapon == WP_BIGMOFO )
     {
       if( client->ps.stats[ STAT_MISC ] < BMOFO_CHARGE_TIME && ucmd->buttons & BUTTON_ATTACK2 )
       {
@@ -910,7 +910,7 @@ void ClientThink_real( gentity_t *ent )
     client->ps.stats[ STAT_STATE ] &= ~SS_BLOBLOCKED;
 
   if( client->ps.stats[ STAT_STATE ] & SS_SLOWLOCKED &&
-      client->lastLockTime + DRAGOON_SLOWBLOB_TIME < level.time )
+      client->lastLockTime + ABUILDER_BLOB_TIME < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_SLOWLOCKED;
 
   client->ps.stats[ STAT_BOOSTTIME ] = level.time - client->lastBoostedTime;
@@ -941,16 +941,25 @@ void ClientThink_real( gentity_t *ent )
   client->ps.speed = g_speed.value * BG_FindSpeedForClass( client->ps.stats[ STAT_PCLASS ] );
 
   //TA: slow player if charging up for a pounce
-  if( ( client->ps.weapon == WP_POUNCE || client->ps.weapon == WP_POUNCE_UPG ) &&
+  if( ( client->ps.weapon == WP_DRAGOON || client->ps.weapon == WP_DRAGOON_UPG ) &&
       ucmd->buttons & BUTTON_ATTACK2 )
     client->ps.speed *= DRAGOON_POUNCE_SPEED_MOD;
 
   //TA: slow the player if slow locked
   if( client->ps.stats[ STAT_STATE ] & SS_SLOWLOCKED )
-    client->ps.speed *= DRAGOON_SLOWBLOB_SPEED_MOD;
+    client->ps.speed *= ABUILDER_BLOB_SPEED_MOD;
   
   if( client->lastCreepSlowTime + CREEP_TIMEOUT < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_CREEPSLOWED;
+  
+  //randomly disable the jet pack if damaged
+  if( BG_gotItem( UP_JETPACK, client->ps.stats ) &&
+      BG_activated( UP_JETPACK, client->ps.stats ) &&
+      ( client->lastDamageTime + JETPACK_DISABLE_TIME > level.time ) )
+  {
+    if( random( ) > JETPACK_DISABLE_CHANCE )
+      client->ps.pm_type = PM_NORMAL;
+  }
   
   // set up for pmove
   oldEventSequence = client->ps.eventSequence;
@@ -961,18 +970,18 @@ void ClientThink_real( gentity_t *ent )
   {
     switch( client->ps.weapon )
     {
-      case WP_VENOM:
+      case WP_SOLDIER:
         if( client->ps.weaponTime <= 0 )
           pm.autoWeaponHit[ client->ps.weapon ] = CheckVenomAttack( ent );
         break;
 
-      case WP_GRAB_CLAW:
-      case WP_GRAB_CLAW_UPG:
+      case WP_HYDRA:
+      case WP_HYDRA_UPG:
         CheckGrabAttack( ent );
         break;
 
-      case WP_POUNCE:
-      case WP_POUNCE_UPG:
+      case WP_DRAGOON:
+      case WP_DRAGOON_UPG:
         if( client->ps.weaponTime <= 0 )
           pm.autoWeaponHit[ client->ps.weapon ] = CheckPounceAttack( ent );
         break;

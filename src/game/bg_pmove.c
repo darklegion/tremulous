@@ -382,7 +382,7 @@ static float PM_CmdScale( usercmd_t *cmd )
     }
   }
 
-  if( pm->ps->weapon == WP_CHARGE && pm->ps->pm_flags & PMF_CHARGE )
+  if( pm->ps->weapon == WP_BIGMOFO && pm->ps->pm_flags & PMF_CHARGE )
     modifier *= ( 1.0f + ( pm->ps->stats[ STAT_MISC ] / (float)BMOFO_CHARGE_TIME ) * ( BMOFO_CHARGE_SPEED - 1.0f ) );
   
   if( pm->ps->pm_type == PM_GRABBED )
@@ -466,7 +466,7 @@ PM_CheckCharge
 */
 static void PM_CheckCharge( void )
 {
-  if( pm->ps->weapon != WP_CHARGE )
+  if( pm->ps->weapon != WP_BIGMOFO )
     return;
 
   if( pm->cmd.buttons & BUTTON_ATTACK2 )
@@ -488,8 +488,8 @@ PM_CheckPounce
 */
 static qboolean PM_CheckPounce( void )
 {
-  if( pm->ps->weapon != WP_POUNCE &&
-      pm->ps->weapon != WP_POUNCE_UPG )
+  if( pm->ps->weapon != WP_DRAGOON &&
+      pm->ps->weapon != WP_DRAGOON_UPG )
     return qfalse;
 
   if( pm->cmd.buttons & BUTTON_ATTACK2 )
@@ -644,13 +644,13 @@ static qboolean PM_CheckJump( void )
     return PM_CheckWallJump( );
 
   //can't jump and pounce charge at the same time
-  if( ( pm->ps->weapon == WP_POUNCE ||
-        pm->ps->weapon == WP_POUNCE_UPG ) &&
+  if( ( pm->ps->weapon == WP_DRAGOON ||
+        pm->ps->weapon == WP_DRAGOON_UPG ) &&
       pm->ps->stats[ STAT_MISC ] > 0 )
     return qfalse;
 
   //can't jump and charge at the same time
-  if( ( pm->ps->weapon == WP_CHARGE ) &&
+  if( ( pm->ps->weapon == WP_BIGMOFO ) &&
       pm->ps->stats[ STAT_MISC ] > 0 )
     return qfalse;
 
@@ -2764,7 +2764,7 @@ static void PM_Weapon( void )
   //check if non-auto primary/secondary attacks are permited
   switch( pm->ps->weapon )
   {
-    case WP_VENOM:
+    case WP_SOLDIER:
       //venom is only autohit
       attack1 = attack2 = attack3 = qfalse;
 
@@ -2776,8 +2776,8 @@ static void PM_Weapon( void )
       }
       break;
       
-    case WP_POUNCE:
-    case WP_POUNCE_UPG:
+    case WP_DRAGOON:
+    case WP_DRAGOON_UPG:
       //pouncing has primary secondary AND autohit procedures
       attack1 = pm->cmd.buttons & BUTTON_ATTACK;
       attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
@@ -2829,7 +2829,7 @@ static void PM_Weapon( void )
     if( BG_WeaponHasThirdMode( pm->ps->weapon ) )
     {
       //hacky special case for slowblob
-      if( pm->ps->weapon == WP_POUNCE_UPG && !ammo )
+      if( pm->ps->weapon == WP_DRAGOON_UPG && !ammo )
       {
         PM_AddEvent( EV_NOAMMO );
         pm->ps->weaponTime += 200;
@@ -2874,14 +2874,14 @@ static void PM_Weapon( void )
   {
     switch( pm->ps->weapon )
     {
-      case WP_VENOM:
+      case WP_SOLDIER:
         pm->ps->generic1 = WPM_PRIMARY;
         PM_AddEvent( EV_FIRE_WEAPON );
         addTime = BG_FindRepeatRate1ForWeapon( pm->ps->weapon );
         break;
     
-      case WP_POUNCE:
-      case WP_POUNCE_UPG:
+      case WP_DRAGOON:
+      case WP_DRAGOON_UPG:
         pm->ps->generic1 = WPM_SECONDARY;
         PM_AddEvent( EV_FIRE_WEAPON2 );
         addTime = BG_FindRepeatRate2ForWeapon( pm->ps->weapon );
@@ -2925,7 +2925,7 @@ static void PM_Weapon( void )
     
     BG_packAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
   }
-  else if( pm->ps->weapon == WP_POUNCE_UPG && attack3 )
+  else if( pm->ps->weapon == WP_DRAGOON_UPG && attack3 )
   {
     //special case for slowblob
     ammo--;
