@@ -2029,6 +2029,9 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   if( !( normal[ 2 ] >= minNormal || ( invert && normal[ 2 ] <= -minNormal ) ) )
     return IBE_NORMAL;
     
+  if( tr1.entityNum != ENTITYNUM_WORLD )
+    return IBE_NORMAL;
+
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     //alien criteria
