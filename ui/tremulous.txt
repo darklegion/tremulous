@@ -8,9 +8,9 @@
   loadMenu { "ui/tremulous_alienbuild.menu" }
 	loadMenu { "ui/tremulous_humanbuild.menu" }
   
-	loadMenu { "ui/tremulous_humanmcu.menu" }
-	loadMenu { "ui/tremulous_humanmcubuy.menu" }
-	loadMenu { "ui/tremulous_humanmcusell.menu" }
+	loadMenu { "ui/tremulous_humanarmoury.menu" }
+	loadMenu { "ui/tremulous_humanarmourybuy.menu" }
+	loadMenu { "ui/tremulous_humanarmourysell.menu" }
 	
   loadMenu { "ui/tremulous_alienbank.menu" }
   loadMenu { "ui/tremulous_humanbank.menu" }

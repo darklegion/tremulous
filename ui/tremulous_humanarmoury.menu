@@ -1,0 +1,63 @@
+#include "ui/menudef.h"
+
+{
+  menuDef
+  {
+    name "tremulous_humanarmoury"
+    visible 0
+    fullscreen 0
+    outOfBoundsClick
+    rect 256 208 128 64
+    focusColor 1 .75 0 1
+    style 1
+    popup
+
+    itemDef
+    {
+      name window
+      rect 0 0 128 64
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 1
+      visible 1
+      decoration
+
+      border WINDOW_BORDER_FULL
+      borderSize 1.0
+      borderColor 0.5 0.5 0.5 1
+    }
+    
+    itemDef
+    {
+      name humanarmoury
+      text "Buy..."
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_EMPTY
+      rect 8 8 56 56
+      textalign ITEM_ALIGN_LEFT
+      textalignx 12
+      textaligny 32
+      textscale .4
+      forecolor 1 1 1 1
+      backcolor 0.0784314 0.14902 0.32549 .25
+      visible 1
+      action { close tremulous_humanarmoury; open tremulous_humanarmourybuy }
+    }
+
+    itemDef
+    {
+      name humanarmoury
+      text "Sell..."
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_EMPTY
+      rect 64 8 56 56
+      textalign ITEM_ALIGN_LEFT
+      textalignx 12
+      textaligny 32
+      textscale .4
+      forecolor 1 1 1 1
+      backcolor 0.0784314 0.14902 0.32549 .25
+      visible 1
+      action { close tremulous_humanarmoury; open tremulous_humanarmourysell }
+    }
+  }
+}
