@@ -35,6 +35,7 @@ GOBJ = \
 	$(GDIRNAME)/g_team.o \
 	$(GDIRNAME)/g_trigger.o \
 	$(GDIRNAME)/g_utils.o \
+	$(GDIRNAME)/g_maprotation.o \
 	$(GDIRNAME)/g_weapon.o
 
 CGOBJ = \

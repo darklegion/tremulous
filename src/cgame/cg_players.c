@@ -1490,6 +1490,12 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
       cent->jetPackPS = NULL;
     }
   }
+  else if( cent->jetPackPS != NULL )
+  {
+    CG_DestroyParticleSystem( cent->jetPackPS );
+    cent->jetPackState = JPS_OFF;
+    cent->jetPackPS = NULL;
+  }
 }
 
 

@@ -393,7 +393,8 @@ static float PM_CmdScale( usercmd_t *cmd )
     if( BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ) == 0.0f )
       cmd->upmove = 0;
 
-    if( !( pm->ps->pm_flags & PMF_DUCKED ) && cmd->upmove < 0 )
+    //prevent speed distortions for non ducking classes
+    if( !( pm->ps->pm_flags & PMF_DUCKED ) && pm->ps->pm_type != PM_JETPACK && cmd->upmove < 0 )
       cmd->upmove = 0;
   }
 
@@ -3222,7 +3223,7 @@ void PmoveSingle (pmove_t *pmove)
   else if( pm->cmd.forwardmove > 0 || ( pm->cmd.forwardmove == 0 && pm->cmd.rightmove ) )
     pm->ps->pm_flags &= ~PMF_BACKWARDS_RUN;
 
-  if ( pm->ps->pm_type >= PM_DEAD )
+  if( pm->ps->pm_type >= PM_DEAD )
   {
     pm->cmd.forwardmove = 0;
     pm->cmd.rightmove = 0;
