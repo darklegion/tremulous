@@ -636,6 +636,9 @@ typedef enum
   ATTACK1,
   ATTACK2,
 
+  SPAWN1,
+  SPAWN2,
+
   PAIN1,
   PAIN2,
   
@@ -1007,6 +1010,7 @@ typedef enum {
   ET_TORCH,         //TA: torch type
   ET_CORPSE,
   ET_SPRITER,
+  ET_ANIMMAPOBJ,
 
   ET_EVENTS       // any of the EV_* events can be added freestanding
               // by setting eType to ET_EVENTS + eventNum

@@ -1342,6 +1342,11 @@ void CG_InitBuildables( );
 void CG_Spriter( centity_t *cent );
 
 //
+// cg_animmapobj.c
+//
+void CG_animMapObj( centity_t *cent );
+
+//
 // cg_predict.c
 //
 void CG_BuildSolidList( void );

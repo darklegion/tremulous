@@ -73,6 +73,15 @@ qboolean  G_SpawnVector( const char *key, const char *defaultString, float *out 
   return present;
 }
 
+qboolean  G_SpawnVector4( const char *key, const char *defaultString, float *out ) {
+  char    *s;
+  qboolean  present;
+
+  present = G_SpawnString( key, defaultString, &s );
+  sscanf( s, "%f %f %f %f", &out[0], &out[1], &out[2], &out[3] );
+  return present;
+}
+
 
 
 //
@@ -84,6 +93,7 @@ typedef enum {
   F_LSTRING,      // string on disk, pointer in memory, TAG_LEVEL
   F_GSTRING,      // string on disk, pointer in memory, TAG_GAME
   F_VECTOR,
+  F_VECTOR4,    //TA
   F_ANGLEHACK,
   F_ENTITY,     // index on disk, pointer in memory
   F_ITEM,       // index on disk, pointer in memory
@@ -123,6 +133,7 @@ field_t fields[] = {
   {"alpha", FOFS(pos1), F_VECTOR},
   {"radius", FOFS(pos2), F_VECTOR},
   {"acceleration", FOFS(acceleration), F_VECTOR},
+  {"animation", FOFS(animation), F_VECTOR4},
   //TA
   {"targetShaderName", FOFS(targetShaderName), F_LSTRING},
   {"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
@@ -202,7 +213,8 @@ void SP_team_CTF_redspawn( gentity_t *ent );
 void SP_team_CTF_bluespawn( gentity_t *ent );
 
 //TA:
-void SP_spriter( gentity_t *ent );
+void SP_misc_spriter( gentity_t *ent );
+void SP_misc_anim_model( gentity_t *ent );
 
 spawn_t spawns[] = {
   // info entities don't do anything at all, but provide positional
@@ -275,7 +287,8 @@ spawn_t spawns[] = {
   {"team_CTF_redspawn", SP_team_CTF_redspawn},
   {"team_CTF_bluespawn", SP_team_CTF_bluespawn},
 
-  {"spriter", SP_spriter},
+  {"misc_spriter", SP_misc_spriter},
+  {"misc_anim_model", SP_misc_anim_model},
   
   {0, 0}
 };
@@ -372,6 +385,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
   byte  *b;
   float v;
   vec3_t  vec;
+  vec4_t  vec4;
 
   for ( f=fields ; f->name ; f++ ) {
     if ( !Q_stricmp(f->name, key) ) {
@@ -387,6 +401,13 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
         ((float *)(b+f->ofs))[0] = vec[0];
         ((float *)(b+f->ofs))[1] = vec[1];
         ((float *)(b+f->ofs))[2] = vec[2];
+        break;
+      case F_VECTOR4:
+        sscanf (value, "%f %f %f %f", &vec4[0], &vec4[1], &vec4[2], &vec4[3]);
+        ((float *)(b+f->ofs))[0] = vec4[0];
+        ((float *)(b+f->ofs))[1] = vec4[1];
+        ((float *)(b+f->ofs))[2] = vec4[2];
+        ((float *)(b+f->ofs))[3] = vec4[3];
         break;
       case F_INT:
         *(int *)(b+f->ofs) = atoi(value);

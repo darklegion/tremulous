@@ -32,7 +32,7 @@ animation_t buildAnimations[ BA_NUM_BUILDABLES ][ MAX_BUILDABLE_ANIMATIONS ];
 CG_ParseBuildableAnimationFile
 
 Read a configuration file containing animation coutns and rates
-models/players/visor/animation.cfg, etc
+models/buildables/hivemind/animation.cfg, etc
 ======================
 */
 static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_t buildable )
@@ -347,8 +347,12 @@ void CG_Buildable( centity_t *cent ) {
 
     ent2.nonNormalizedAxes = qfalse;
 
+    CG_BuildableAnimation( cent, &ent2.oldframe, &ent2.frame, &ent2.backlerp );
+    
     trap_R_AddRefEntityToScene( &ent2 );
   }
+
+  CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
 
   // add to refresh list
   trap_R_AddRefEntityToScene(&ent);

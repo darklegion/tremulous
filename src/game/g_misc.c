@@ -375,7 +375,7 @@ void SP_use_spriter( gentity_t *self, gentity_t *other, gentity_t *activator )
 }
 
 //TA: spawn function for spriter
-void SP_spriter( gentity_t *self )
+void SP_misc_spriter( gentity_t *self )
 {
   vec3_t  accel;
   
@@ -413,6 +413,49 @@ void SP_spriter( gentity_t *self )
   self->use = SP_use_spriter;
 
   self->s.eType = ET_SPRITER;
+  
+  trap_LinkEntity( self );
+}
+
+//TA: use function for anim model
+void SP_use_anim_model( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  if( self->spawnflags & 1 )
+  {
+    //if spawnflag 1 is set
+    //toggle EF_NODRAW
+    if( self->s.eFlags & EF_NODRAW )
+      self->s.eFlags &= ~EF_NODRAW;
+    else
+      self->s.eFlags |= EF_NODRAW;
+  }
+  else
+  {
+    //if the animation loops then toggle the animation
+    //toggle EF_MOVER_STOP
+    if( self->s.eFlags & EF_MOVER_STOP )
+      self->s.eFlags &= ~EF_MOVER_STOP;
+    else
+      self->s.eFlags |= EF_MOVER_STOP;
+  }
+}
+
+//TA: spawn function for anim model
+void SP_misc_anim_model( gentity_t *self )
+{
+  self->s.powerups  = (int)self->animation[ 0 ];
+  self->s.weapon    = (int)self->animation[ 1 ];
+  self->s.torsoAnim = (int)self->animation[ 2 ];
+  self->s.legsAnim  = (int)self->animation[ 3 ];
+  
+  self->s.angles2[ 0 ] = self->pos2[ 0 ];
+  
+  //add the model to the client precache list
+  self->s.modelindex = G_ModelIndex( self->model );
+
+  self->use = SP_use_anim_model;
+
+  self->s.eType = ET_ANIMMAPOBJ;
   
   trap_LinkEntity( self );
 }

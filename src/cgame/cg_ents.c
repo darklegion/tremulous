@@ -956,6 +956,9 @@ static void CG_AddCEntity( centity_t *cent ) {
   case ET_SPRITER:
     CG_Spriter( cent );
     break;
+  case ET_ANIMMAPOBJ:
+    CG_animMapObj( cent );
+    break;
   }
 }
 

@@ -189,6 +189,8 @@ struct gentity_s {
   int       credits[ MAX_CLIENTS ]; //TA: human credits for each client
   qboolean  creditsHash[ MAX_CLIENTS ]; //TA: track who has claimed credit
   int       killedBy;                   //TA: clientNum of killer
+
+  vec4_t    animation;    //TA: animated map objects
 };
 
 typedef enum {
@@ -540,8 +542,9 @@ typedef enum
   IBE_MAXERRORS
 } itemBuildError_t;
 
-itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance );
-gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance );
+itemBuildError_t  itemFits( gentity_t *ent, buildable_t buildable, int distance );
+gentity_t         *Build_Item( gentity_t *ent, buildable_t buildable, int distance );
+void              G_setBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim );
 
 //
 // g_utils.c

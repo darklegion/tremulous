@@ -28,6 +28,18 @@
 
 /*
 ================
+G_setBuildableAnim
+
+Triggers an animation client side
+================
+*/
+void G_setBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim )
+{
+  ent->s.torsoAnim = anim;
+}
+
+/*
+================
 findPower
 
 attempt to find power for self, return qtrue if successful
@@ -1284,7 +1296,9 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
   built->s.pos.trType = TR_GRAVITY;
   built->s.pos.trTime = level.time;
   
-  trap_LinkEntity (built);
+  G_setBuildableAnim( built, CONSTRUCT1 );
+
+  trap_LinkEntity( built );
 
   return built;
 }
