@@ -737,21 +737,15 @@ typedef struct {
   qhandle_t explosionTrailShader;
 
   qhandle_t humanNV;
-  qhandle_t droidNav10;
-  qhandle_t droidNav15;
-  qhandle_t droidNav20;
-  qhandle_t droidNav25;
-  qhandle_t droidNav30;
-  qhandle_t droidNav35;
-  qhandle_t droidNav40;
-  qhandle_t droidNav45;
-  qhandle_t droidNav50;
-  qhandle_t droidNav55;
-  qhandle_t droidNav60;
-  qhandle_t droidNav65;
-  qhandle_t droidNav70;
-  qhandle_t droidNav75;
-  qhandle_t droidNav80;
+  qhandle_t droidNav9;
+  qhandle_t droidNav8;
+  qhandle_t droidNav7;
+  qhandle_t droidNav6;
+  qhandle_t droidNav5;
+  qhandle_t droidNav4;
+  qhandle_t droidNav3;
+  qhandle_t droidNav2;
+  qhandle_t droidNav1;
   qhandle_t droidHealth;
 
   qhandle_t flameShader;

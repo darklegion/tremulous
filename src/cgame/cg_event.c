@@ -443,6 +443,10 @@ void CG_Menu( centity_t *cent, int eventParm )
       trap_SendConsoleCommand( "menu hbuildmenu\n" );
       break;
 
+    case MN_MCU:
+      trap_SendConsoleCommand( "menu hmcumenu\n" );
+      break;
+
     default:
       Com_Printf( "cgame: debug: no such menu no %d\n", eventParm );
 

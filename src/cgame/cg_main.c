@@ -793,21 +793,15 @@ static void CG_RegisterGraphics( void ) {
 
   //TA: screenfades
   cgs.media.humanNV = trap_R_RegisterShader( "humanNV" );
-  cgs.media.droidNav10 = trap_R_RegisterShader( "droidNav10" );
-  cgs.media.droidNav15 = trap_R_RegisterShader( "droidNav15" );
-  cgs.media.droidNav20 = trap_R_RegisterShader( "droidNav20" );
-  cgs.media.droidNav25 = trap_R_RegisterShader( "droidNav25" );
-  cgs.media.droidNav30 = trap_R_RegisterShader( "droidNav30" );
-  cgs.media.droidNav35 = trap_R_RegisterShader( "droidNav35" );
-  cgs.media.droidNav40 = trap_R_RegisterShader( "droidNav40" );
-  cgs.media.droidNav45 = trap_R_RegisterShader( "droidNav45" );
-  cgs.media.droidNav50 = trap_R_RegisterShader( "droidNav50" );
-  cgs.media.droidNav55 = trap_R_RegisterShader( "droidNav55" );
-  cgs.media.droidNav60 = trap_R_RegisterShader( "droidNav60" );
-  cgs.media.droidNav65 = trap_R_RegisterShader( "droidNav65" );
-  cgs.media.droidNav70 = trap_R_RegisterShader( "droidNav70" );
-  cgs.media.droidNav75 = trap_R_RegisterShader( "droidNav75" );
-  cgs.media.droidNav80 = trap_R_RegisterShader( "droidNav80" );
+  cgs.media.droidNav9 = trap_R_RegisterShader( "droidNav9" );
+  cgs.media.droidNav8 = trap_R_RegisterShader( "droidNav8" );
+  cgs.media.droidNav7 = trap_R_RegisterShader( "droidNav7" );
+  cgs.media.droidNav6 = trap_R_RegisterShader( "droidNav6" );
+  cgs.media.droidNav5 = trap_R_RegisterShader( "droidNav5" );
+  cgs.media.droidNav4 = trap_R_RegisterShader( "droidNav4" );
+  cgs.media.droidNav3 = trap_R_RegisterShader( "droidNav3" );
+  cgs.media.droidNav2 = trap_R_RegisterShader( "droidNav2" );
+  cgs.media.droidNav1 = trap_R_RegisterShader( "droidNav1" );
   cgs.media.droidHealth = trap_R_RegisterShader( "gfx/2d/droidhealth.tga" );
 
   cgs.media.armorModel = trap_R_RegisterModel( "models/powerups/armor/armor_yel.md3" );

@@ -506,7 +506,8 @@ typedef enum
   MN_DROID,
   MN_HUMAN,
   MN_ABUILD,
-  MN_HBUILD
+  MN_HBUILD,
+  MN_MCU
 } dynMenu_t;
 
 // animations

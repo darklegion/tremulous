@@ -1356,8 +1356,16 @@ void ClientSpawn(gentity_t *ent) {
 
       client->ps.clientNum = index;
 
-      /*BG_packWeapon( WP_MACHINEGUN, client->ps.stats );
-      BG_packAmmoArray( WP_MACHINEGUN, client->ps.ammo, client->ps.powerups, CS_MG, 4, 4 );*/
+      if( client->pers.pitem == WP_MACHINEGUN )
+      {
+        BG_packWeapon( WP_MACHINEGUN, client->ps.stats );
+        BG_packAmmoArray( WP_MACHINEGUN, client->ps.ammo, client->ps.powerups, CS_MG, 4, 4 );
+      }
+      else if( client->pers.pitem == WP_HBUILD )
+      {
+        BG_packWeapon( WP_HBUILD, client->ps.stats );
+        BG_packAmmoArray( WP_HBUILD, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
+      }
       
       client->ps.stats[ STAT_ABILITIES ] |= SCA_TAKESFALLDAMAGE;
       client->ps.stats[ STAT_ABILITIES ] |= SCA_CANJUMP;

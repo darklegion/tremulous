@@ -422,7 +422,7 @@ static float PM_CmdScale( usercmd_t *cmd ) {
     aForward = abs( cmd->forwardmove );
     aRight = abs( cmd->rightmove );
 
-    if( ( aForward <= 64 && aForward > 5 ) && ( aRight <= 64 && aRight > 5 ) )
+    if( ( aForward <= 64 && aForward > 5 ) || ( aRight <= 64 && aRight > 5 ) )
     {
       //restore stamina
       pm->ps->stats[ STAT_STAMINA ] += (dTime/5);
@@ -1550,6 +1550,9 @@ static void PM_GroundClimbTrace( void )
           if( abc[ 2 ] == 0 )
             correction = 0;
           
+          if( correction > 32768 )
+            correction -= 32768;
+          
           //phew! - correct the angle
           pm->ps->delta_angles[ YAW ] -= correction;
         }
@@ -2229,7 +2232,6 @@ static void PM_Weapon( void ) {
     pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
   }*/
 
-
   // make weapon function
   if ( pm->ps->weaponTime > 0 ) {
     pm->ps->weaponTime -= pml.msec;
@@ -2397,7 +2399,7 @@ static void PM_Weapon( void ) {
     addTime = 800;
     break;
   case WP_FLAMER:
-    addTime = 80;
+    addTime = 150;
     break;
   case WP_RAILGUN:
     addTime = 1500;

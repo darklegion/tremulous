@@ -356,7 +356,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
   client->oldbuttons = client->buttons;
   client->buttons = ucmd->buttons;
 
-  if ( ( client->buttons & BUTTON_ATTACK ) && !( client->oldbuttons & BUTTON_ATTACK ) )
+  if( ( client->buttons & BUTTON_ATTACK ) && !( client->oldbuttons & BUTTON_ATTACK ) )
   {
     if( client->pers.pteam == PTE_NONE )
     {
@@ -371,13 +371,13 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
       G_AddPredictableEvent( ent, EV_MENU, MN_HUMAN );
     }
   }
-  
+
   // attack button cycles through spectators
   //TA: messes with the menus
-  /*if ( ( client->buttons & BUTTON_ATTACK ) && 
+  if ( ( client->buttons & BUTTON_ATTACK ) && 
       !( client->oldbuttons & BUTTON_ATTACK ) &&
-       ( client->sess.spectatorState != SPECTATOR_LOCKED ) )
-    Cmd_FollowCycle_f( ent, 1 );*/
+       ( client->sess.spectatorState == SPECTATOR_FREE ) )
+    Cmd_FollowCycle_f( ent, 1 );
 }
 
 
@@ -882,6 +882,27 @@ void ClientThink_real( gentity_t *ent ) {
   client->buttons = ucmd->buttons;
   client->latched_buttons |= client->buttons & ~client->oldbuttons;
 
+  //TA: look for MCU infront of player
+  if( ( client->buttons & BUTTON_GETFLAG ) && !( client->oldbuttons & BUTTON_GETFLAG ) )
+  {
+    if( client->pers.pteam == PTE_HUMANS )
+    {
+      trace_t   mcu;
+      vec3_t    view, point;
+      gentity_t *mcuEntity;
+
+      AngleVectors( client->ps.viewangles, view, NULL, NULL );
+      VectorMA( client->ps.origin, 200, view, point );
+      trap_Trace( &mcu, client->ps.origin, NULL, NULL, point, ent->s.number, MASK_SHOT );
+
+      mcuEntity = &g_entities[ mcu.entityNum ];
+
+      //bring up a menu if its there
+      if( !Q_stricmp( mcuEntity->classname, "team_human_mcu" ) )
+        G_AddPredictableEvent( ent, EV_MENU, MN_MCU );
+    }
+  }
+  
   // check for respawning
   if ( client->ps.stats[STAT_HEALTH] <= 0 ) {
     // wait for the attack button to be pressed

@@ -1556,6 +1556,12 @@ void Cmd_Class_f( gentity_t *ent )
 
   if( ent->client->pers.pteam == PTE_DROIDS )
   {
+    if( ent->client->pers.pclass != 0 )
+    {
+      trap_SendServerCommand( ent-g_entities, va("print \"You must be dead to use the class command\n\"" ) );
+      return;
+    }
+      
     if( !Q_stricmp(s, "0") )
       ent->client->pers.pclass = PCL_D_BUILDER;
     else if( !Q_stricmp(s, "1") )
@@ -1594,8 +1600,19 @@ void Cmd_Class_f( gentity_t *ent )
   }
   else if( ent->client->pers.pteam == PTE_HUMANS )
   {
+    if( ent->client->pers.pclass != 0 )
+    {
+      trap_SendServerCommand( ent-g_entities, va("print \"You must be dead to use the class command\n\"" ) );
+      return;
+    }
+
     ent->client->pers.pclass = PCL_H_BASE;
 
+    if( !Q_stricmp( s, "0" ) )
+      ent->client->pers.pitem = WP_MACHINEGUN;
+    else if( !Q_stricmp( s, "1" ) )
+      ent->client->pers.pitem = WP_HBUILD;
+      
     if( ent->client->torch != NULL )
       Cmd_TorchOff_f( ent );
 
@@ -1758,9 +1775,29 @@ Cmd_Buy_f
 */
 void Cmd_Buy_f( gentity_t *ent )
 {
-  char  s[ MAX_TOKEN_CHARS ];
+  char      s[ MAX_TOKEN_CHARS ];
+  vec3_t    distance;
+  int       i;
+  gentity_t *mcuEntity;
+  qboolean  nearMCU = qfalse;
 
   trap_Argv( 1, s, sizeof( s ) );
+
+  for ( i = 1, mcuEntity = g_entities + i; i < level.num_entities; i++, mcuEntity++ )
+  {
+    if( !Q_stricmp( mcuEntity->classname, "team_human_mcu" ) )
+    {
+      VectorSubtract( ent->s.pos.trBase, mcuEntity->s.origin, distance );
+      if( VectorLength( distance ) <= 100 )
+        nearMCU = qtrue;
+    }
+  }
+
+  if( !nearMCU )
+  {
+    trap_SendServerCommand( ent-g_entities, va("print \"You must be near an MCU\n\"" ) );
+    return;
+  }
 
   if( ent->client->pers.pteam != PTE_HUMANS )
     return;

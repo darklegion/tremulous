@@ -337,63 +337,49 @@ CG_DrawLighting
 static void CG_DrawLighting( void )
 {
   centity_t   *cent;
-  byte        lum;
-  static byte lastLum;
+  int         currentLum;
+  static int  lum;
   vec3_t      point, direction;
   
   cent = &cg_entities[cg.snap->ps.clientNum];
 
   VectorCopy( cent->lerpOrigin, point );
-  //TA: when wall climbing the viewheight is not straight up
-  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBING )
-    VectorMA( point, 32, cg.predictedPlayerState.grapplePoint, point );
-  else
-    point[ 2 ] += 32;
 
   AngleVectors( cg.predictedPlayerState.viewangles, direction, NULL, NULL );
 
-  lum = CG_LightFromDirection( point, direction );
+  currentLum = CG_LightFromDirection( point, direction );
   //CG_Printf( "%d\n", lum );
-  if( abs( lastLum - lum ) > 4 )
-    lastLum = lum;
-
-  if( BG_activated( UP_NVG, cg.snap->ps.stats ) )
-    CG_DrawPic( 0, 0, 640, 480, cgs.media.humanNV );
+  if( abs( lum - currentLum ) > 4 )
+    lum = currentLum;
 
   switch( cg.snap->ps.stats[ STAT_PCLASS ] )
   {
     case PCL_D_BASE:
     case PCL_D_BUILDER:
-      if( lastLum < 10 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav80 );
-      else if( lastLum >= 10 && lastLum < 16 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav75 );
-      else if( lastLum >= 16 && lastLum < 22 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav70 );
-      else if( lastLum >= 22 && lastLum < 28 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav65 );
-      else if( lastLum >= 28 && lastLum < 34 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav60 );
-      else if( lastLum >= 34 && lastLum < 40 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav55 );
-      else if( lastLum >= 40 && lastLum < 46 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav50 );
-      else if( lastLum >= 46 && lastLum < 53 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav45 );
-      else if( lastLum >= 53 && lastLum < 61 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav40 );
-      else if( lastLum >= 61 && lastLum < 70 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav35 );
-      else if( lastLum >= 70 && lastLum < 80 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav30 );
-      else if( lastLum >= 80 && lastLum < 100 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav25 );
-      else if( lastLum >= 100 && lastLum < 130 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav20 );
-      else if( lastLum >= 130 && lastLum < 180 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav15 );
-      else if( lastLum >= 180 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav10 );
+      if( lum < 10 )
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav9 );
+      else if( lum >= 10 && lum < 16 )
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav8 );
+      else if( lum >= 16 && lum < 22 )
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav7 );
+      else if( lum >= 22 && lum < 28 )
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav6 );
+      else if( lum >= 28 && lum < 34 )
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav5 );
+      else if( lum >= 34 && lum < 40 )
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav4 );
+      else if( lum >= 40 && lum < 46 )
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav3 );
+      else if( lum >= 46 && lum < 53 )
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav2 );
+      else if( lum >= 53 )
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav1 );
+
+      break;
+
+    case PCL_H_BASE:
+      if( BG_activated( UP_NVG, cg.snap->ps.stats ) )
+        CG_DrawPic( 0, 0, 640, 480, cgs.media.humanNV );
       break;
   }
 
@@ -424,8 +410,6 @@ static void CG_DrawStatusBar( void ) {
   vec4_t    hcolor;
   vec3_t    angles;
   vec3_t    origin;
-  byte      lum;
-  static byte lastLum;
   static float colors[4][4] = {
 //    { 0.2, 1.0, 0.2, 1.0 } , { 1.0, 0.2, 0.2, 1.0 }, {0.5, 0.5, 0.5, 1} };
     { 0.3f, 0.4f, 0.3f, 1.0f } ,   // normal
@@ -1284,7 +1268,7 @@ static void CG_DrawLowerRight( void ) {
   }
 
   //y = CG_DrawScores( y );
-  y = CG_DrawPoints( y );
+  //y = CG_DrawPoints( y );
   y = CG_DrawPowerups( y );
 }
 
@@ -2243,6 +2227,7 @@ static void CG_Draw2D( void ) {
     CG_DrawSpectator();
     CG_DrawCrosshair();
     CG_DrawCrosshairNames();
+    CG_DrawLighting();
   } else {
     // don't draw any status if dead or the scoreboard is being explicitly shown
     if ( !cg.showScores && cg.snap->ps.stats[STAT_HEALTH] > 0 ) {

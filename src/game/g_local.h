@@ -258,7 +258,8 @@ typedef struct {
 
   int     pclass;   //TA: player class (copied to ent->client->ps.stats[ STAT_PCLASS ] once spawned)
                     //not really persistant.. this is just a nice place to stick it :)
-  int     pteam;    //TA: player team (team deathmatch is too complex to alter) (copied to ps.stats[ STAT_PTEAM ])
+  int     pitem;    //TA: humans have a starting item
+  int     pteam;    //TA: player team (copied to ps.stats[ STAT_PTEAM ])
 } clientPersistant_t;
 
 // this structure is cleared on each ClientSpawn(),
