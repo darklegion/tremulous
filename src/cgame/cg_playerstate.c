@@ -241,16 +241,6 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops )
   if( ps->persistant[ PERS_TEAM ] != ops->persistant[ PERS_TEAM ] )
     return;
 
-  // hit changes
-  if( ps->persistant[ PERS_HITS ] > ops->persistant[ PERS_HITS ] )
-  {
-    /*armor  = ps->persistant[PERS_ATTACKEE_ARMOR] & 0xff;
-    health = ps->persistant[PERS_ATTACKEE_ARMOR] >> 8;*/
-    trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
-  }
-  else if( ps->persistant[ PERS_HITS ] < ops->persistant[ PERS_HITS ] )
-    trap_S_StartLocalSound( cgs.media.hitTeamSound, CHAN_LOCAL_SOUND );
-
   // health changes of more than -1 should make pain sounds
   if( ps->stats[ STAT_HEALTH ] < ops->stats[ STAT_HEALTH ] - 1 )
   {

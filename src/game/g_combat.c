@@ -72,23 +72,6 @@ void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker )
 
 /*
 ==================
-GibEntity
-==================
-*/
-void GibEntity( gentity_t *self, int killer )
-{
-  if( self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-    G_AddEvent( self, EV_GIB_PLAYER, killer );
-  else
-    G_AddEvent( self, EV_GIB_ALIEN, killer );
-    
-  self->takedamage = qfalse;
-  self->s.eType = ET_INVISIBLE;
-  self->r.contents = 0;
-}
-
-/*
-==================
 body_die
 ==================
 */
@@ -102,9 +85,6 @@ void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
     self->health = GIB_HEALTH + 1;
     return;
   }
-
-  //TA: no gibbing
-  //GibEntity( self, 0 );
 }
 
 

@@ -521,7 +521,6 @@ typedef enum
   EV_MISSILE_HIT,
   EV_MISSILE_MISS,
   EV_MISSILE_MISS_METAL,
-  EV_BUILDABLE_EXPLOSION, //TA: human item explosions
   EV_TESLATRAIL,
   EV_ALIENZAP,
   EV_BULLET,        // otherEntity is the shooter
@@ -533,19 +532,22 @@ typedef enum
   EV_OBITUARY,
 
   EV_GIB_PLAYER,      // gib a previously living player
-  EV_GIB_ALIEN,       //TA: generic green gib for aliens
 
   EV_BUILD_CONSTRUCT, //TA
   EV_BUILD_DESTROY,   //TA
+  EV_BUILD_DELAY,     //TA: can't build yet
+  EV_BUILD_REPAIR,    //TA: repairing buildable
+  EV_BUILD_REPAIRED,  //TA: buildable has full health
+  EV_HUMAN_BUILDABLE_EXPLOSION,
+  EV_ALIEN_BUILDABLE_EXPLOSION,
+  EV_ALIEN_ACIDTUBE,
+
+  EV_ALIEN_EVOLVE,
 
   EV_DEBUG_LINE,
   EV_STOPLOOPINGSOUND,
   EV_TAUNT,
 
-  EV_BUILD_DELAY,     //TA: can't build yet
-  EV_BUILD_REPAIR,    //TA: repairing buildable
-  EV_BUILD_REPAIRED,  //TA: buildable has full health
-  
   EV_OVERMIND_ATTACK, //TA: overmind under attack
   EV_OVERMIND_DYING,  //TA: overmind close to death
   EV_OVERMIND_SPAWNS, //TA: overmind needs spawns

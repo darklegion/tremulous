@@ -34,6 +34,171 @@ char *cg_buildableSoundNames[ MAX_BUILDABLE_ANIMATIONS ] =
 sfxHandle_t defaultAlienSounds[ MAX_BUILDABLE_ANIMATIONS ];
 sfxHandle_t defaultHumanSounds[ MAX_BUILDABLE_ANIMATIONS ];
 
+
+/*
+==================
+CG_AlienBuildableExplosionFragment
+==================
+*/
+void CG_AlienBuildableExplosionFragment( vec3_t origin, vec3_t velocity, qhandle_t hModel )
+{
+  localEntity_t *le;
+  refEntity_t   *re;
+
+  le = CG_AllocLocalEntity( );
+  re = &le->refEntity;
+
+  le->leType = LE_FRAGMENT;
+  le->startTime = cg.time;
+  le->endTime = le->startTime + 5000 + random( ) * 3000;
+
+  VectorCopy( origin, re->origin );
+  AxisCopy( axisDefault, re->axis );
+  re->hModel = hModel;
+
+  le->pos.trType = TR_GRAVITY;
+  VectorCopy( origin, le->pos.trBase );
+  VectorCopy( velocity, le->pos.trDelta );
+  le->pos.trTime = cg.time;
+
+  le->bounceFactor = 0.3;
+
+  le->leBounceSoundType = LEBS_BLOOD;
+  le->leMarkType = LEMT_GREENBLOOD;
+}
+
+/*
+===================
+CG_AlienBuildableExplosion
+
+Generated a bunch of gibs launching out from a location
+===================
+*/
+#define GGIB_VELOCITY   250
+#define GGIB_JUMP       250
+void CG_AlienBuildableExplosion( vec3_t origin, vec3_t dir )
+{
+  vec3_t            velocity;
+  int               count;
+  particleSystem_t  *ps;
+
+  // allow gibs to be turned off for speed
+  if( cg_gibs.integer )
+  {
+    for( count = 0; count <= 9; count++ )
+    {
+      velocity[ 0 ] = crandom( ) * GGIB_VELOCITY;
+      velocity[ 1 ] = crandom( ) * GGIB_VELOCITY;
+      velocity[ 2 ] = GGIB_JUMP + crandom( ) * GGIB_VELOCITY;
+      CG_AlienBuildableExplosionFragment( origin, velocity, cgs.media.gibAbdomen );
+    }
+  }
+  
+  //particle system
+  ps = CG_SpawnNewParticleSystem( cgs.media.alienBuildableDestroyedPS );
+  CG_SetParticleSystemOrigin( ps, origin );
+  CG_SetParticleSystemNormal( ps, dir );
+  CG_AttachParticleSystemToOrigin( ps );
+}
+
+
+/*
+==================
+CG_HumanBuildableExplosionFragment
+==================
+*/
+static void CG_HumanBuildableExplosionFragment( vec3_t origin, vec3_t velocity, qhandle_t hModel )
+{
+  localEntity_t *le;
+  refEntity_t   *re;
+
+  le = CG_AllocLocalEntity( );
+  re = &le->refEntity;
+
+  le->leType = LE_FRAGMENT;
+  le->startTime = cg.time;
+  le->endTime = le->startTime + 10000 + ( crandom( ) * 3000 );
+
+  VectorCopy( origin, re->origin );
+  AxisCopy( axisDefault, re->axis );
+  re->hModel = hModel;
+  re->shaderTime = cg.time / 1000.0f;
+
+  le->pos.trType = TR_GRAVITY;
+  VectorCopy( origin, le->pos.trBase );
+  VectorCopy( velocity, le->pos.trDelta );
+  le->pos.trTime = cg.time;
+
+  le->bounceFactor = 0.3;
+
+  le->leBounceSoundType = LEBS_BANG;
+  le->leMarkType = LEMT_BANG;
+}
+
+
+/*
+=================
+CG_HumanBuildableExplosion
+
+Called for human buildables as they are destroyed
+=================
+*/
+#define EXF_VELOCITY  250
+#define EXF_JUMP      250
+void CG_HumanBuildableExplosion( vec3_t origin, vec3_t dir )
+{
+  vec3_t            lightColor, fragOrigin, velocity;
+  localEntity_t     *le;
+  int               i;
+  qhandle_t         gibModel;
+  particleSystem_t  *ps;
+
+  lightColor[ 0 ] = 1;
+  lightColor[ 1 ] = 0.75;
+  lightColor[ 2 ] = 0.0;
+
+  trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.humanBuildableExpl );
+
+  //
+  // create the explosion -- only the light is important really
+  //
+  le = CG_MakeExplosion( origin, dir, cgs.media.dishFlashModel,
+                                      cgs.media.explosionShader,
+                                      1000, qtrue );
+  le->light = 300;
+  VectorCopy( lightColor, le->lightColor );
+
+  //fragments
+  for( i = 1; i <= 8; i++ )
+  {
+    VectorCopy( origin, fragOrigin );
+    velocity[ 0 ] = crandom( ) * EXF_VELOCITY;
+    velocity[ 1 ] = crandom( ) * EXF_VELOCITY;
+    velocity[ 2 ] = EXF_JUMP + crandom( ) * EXF_VELOCITY;
+    
+    switch( i )
+    {
+      case 1: gibModel = cgs.media.metalGib1; break;
+      case 2: gibModel = cgs.media.metalGib2; break;
+      case 3: gibModel = cgs.media.metalGib3; break;
+      case 4: gibModel = cgs.media.metalGib4; break;
+      case 5: gibModel = cgs.media.metalGib5; break;
+      case 6: gibModel = cgs.media.metalGib6; break;
+      case 7: gibModel = cgs.media.metalGib7; break;
+      case 8: gibModel = cgs.media.metalGib8; break;
+    }
+    
+    CG_HumanBuildableExplosionFragment( fragOrigin, velocity, gibModel );
+  }
+  
+  //particle system
+  ps = CG_SpawnNewParticleSystem( cgs.media.humanBuildableDestroyedPS );
+  CG_SetParticleSystemOrigin( ps, origin );
+  CG_SetParticleSystemNormal( ps, dir );
+  CG_AttachParticleSystemToOrigin( ps );
+}
+
+
 #define CREEP_SCALEDOWN_TIME  3000
 #define CREEP_SIZE            64.0f
 
@@ -83,7 +248,7 @@ static void CG_Creep( centity_t *cent )
   size = CREEP_SIZE * frac;
 
   if( size > 0.0f )
-    CG_ImpactMark( cgs.media.greenBloodMarkShader, origin, cent->currentState.origin2,
+    CG_ImpactMark( cgs.media.creepShader, origin, cent->currentState.origin2,
                    0.0f, 1.0f, 1.0f, 1.0f, 1.0f, qfalse, size, qtrue );
 }
 
@@ -579,21 +744,6 @@ void CG_GhostBuildable( buildable_t buildable )
   trap_R_AddRefEntityToScene( &ent );
 }
 
-#define MAX_SMOKE_TIME  500
-#define MIN_SMOKE_TIME  100
-#define SMOKE_SPREAD    89.0f
-#define SMOKE_LIFETIME  1000
-
-#define MAX_SPARK_TIME  5000
-#define MIN_SPARK_TIME  800
-#define SPARK_SPREAD    80.0f
-#define SPARK_LIFETIME  1500
-
-#define BLEED_TIME      1500
-#define BLEED_SPREAD    80.0f
-#define BLEED_LIFETIME  1000
-#define MAX_BLEED_BLOBS 6
-
 /*
 ==================
 CG_BuildableParticleEffects
@@ -742,7 +892,15 @@ void CG_Buildable( centity_t *cent )
   
   // if set to invisible, skip
   if( es->eFlags & EF_NODRAW )
+  {
+    if( cent->buildablePS != NULL )
+    {
+      CG_DestroyParticleSystem( cent->buildablePS );
+      cent->buildablePS = NULL;
+    }
+
     return;
+  }
 
   memset ( &ent, 0, sizeof( ent ) );
 

@@ -631,7 +631,7 @@ static void CG_LightFlare( centity_t *cent )
     if( cg_lightFlare.integer == FLARE_REALFADE )
     {
       //draw "correct" albeit inefficient flares
-      srLocal = cent->lastFlareSrcRadius;
+      srLocal = cent->lfs.lastSrcRadius;
       
       //flare radius is likely to be the same as last frame so start with it
       do
@@ -657,7 +657,7 @@ static void CG_LightFlare( centity_t *cent )
       
       ratio = srLocal / srcRadius;
 
-      cent->lastFlareSrcRadius = srLocal;
+      cent->lfs.lastSrcRadius = srLocal;
     }
     else if( cg_lightFlare.integer == FLARE_TIMEFADE )
     {
@@ -666,30 +666,30 @@ static void CG_LightFlare( centity_t *cent )
       CG_Trace( &tr, start, mins, maxs, end,
                 cg.predictedPlayerState.clientNum, MASK_SHOT );
 
-      if( ( tr.fraction < 1.0f || tr.startsolid ) && cent->flareStatus )
+      if( ( tr.fraction < 1.0f || tr.startsolid ) && cent->lfs.status )
       {
-        cent->flareStatus = qfalse;
-        cent->lastFlareTime = cg.time;
+        cent->lfs.status = qfalse;
+        cent->lfs.lastTime = cg.time;
       }
-      else if( ( tr.fraction == 1.0f && !tr.startsolid ) && !cent->flareStatus )
+      else if( ( tr.fraction == 1.0f && !tr.startsolid ) && !cent->lfs.status )
       {
-        cent->flareStatus = qtrue;
-        cent->lastFlareTime = cg.time;
+        cent->lfs.status = qtrue;
+        cent->lfs.lastTime = cg.time;
       }
 
       //fade flare up
-      if( cent->flareStatus )
+      if( cent->lfs.status )
       {
-        if( cent->lastFlareTime + es->time > cg.time )
-          ratio = (float)( cg.time - cent->lastFlareTime ) / es->time;
+        if( cent->lfs.lastTime + es->time > cg.time )
+          ratio = (float)( cg.time - cent->lfs.lastTime ) / es->time;
       }
       
       //fade flare down
-      if( !cent->flareStatus )
+      if( !cent->lfs.status )
       {
-        if( cent->lastFlareTime + es->time > cg.time )
+        if( cent->lfs.lastTime + es->time > cg.time )
         {
-          ratio = (float)( cg.time - cent->lastFlareTime ) / es->time;
+          ratio = (float)( cg.time - cent->lfs.lastTime ) / es->time;
           ratio = 1.0f - ratio;
         }
         else
@@ -710,12 +710,12 @@ static void CG_LightFlare( centity_t *cent )
   }
   else
   {
-    ratio        = cent->lastFlareRatio;
-    flare.radius = cent->lastFlareRadius;
+    ratio        = cent->lfs.lastRatio;
+    flare.radius = cent->lfs.lastRadius;
   }
 
-  cent->lastFlareRatio  = ratio;
-  cent->lastFlareRadius = flare.radius;
+  cent->lfs.lastRatio  = ratio;
+  cent->lfs.lastRadius = flare.radius;
     
   if( ratio < 1.0f )
   {

@@ -407,17 +407,15 @@ void ASpawn_Blast( gentity_t *self )
 {
   vec3_t  dir;
 
-  // we don't have a valid direction, so just point straight up
-  dir[ 0 ] = dir[ 1 ] = 0;
-  dir[ 2 ] = 1;
+  VectorCopy( self->s.origin2, dir );
 
   //do a bit of radius damage
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
     self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
 
   //pretty events and item cleanup
-  self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
-  G_AddEvent( self, EV_GIB_ALIEN, DirToByte( dir ) );
+  self->s.eFlags |= EF_NODRAW; //don't draw the model once it's destroyed
+  G_AddEvent( self, EV_ALIEN_BUILDABLE_EXPLOSION, DirToByte( dir ) );
   self->timestamp = level.time;
   self->think = ASpawn_Melt;
   self->nextthink = level.time + 500; //wait .5 seconds before damaging others
@@ -623,9 +621,7 @@ void ABarricade_Blast( gentity_t *self )
 {
   vec3_t  dir;
 
-  // we don't have a valid direction, so just point straight up
-  dir[ 0 ] = dir[ 1 ] = 0;
-  dir[ 2 ] = 1;
+  VectorCopy( self->s.origin2, dir );
 
   //do a bit of radius damage
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
@@ -633,7 +629,7 @@ void ABarricade_Blast( gentity_t *self )
 
   //pretty events and item cleanup
   self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
-  G_AddEvent( self, EV_GIB_ALIEN, DirToByte( dir ) );
+  G_AddEvent( self, EV_ALIEN_BUILDABLE_EXPLOSION, DirToByte( dir ) );
   self->timestamp = level.time;
   self->think = A_CreepRecede;
   self->nextthink = level.time + 500; //wait .5 seconds before damaging others
@@ -704,7 +700,7 @@ void AAcidTube_Damage( gentity_t *self )
     if( !( self->s.eFlags & EF_FIRING ) )
     {
       self->s.eFlags |= EF_FIRING;
-      G_AddEvent( self, EV_GIB_ALIEN, DirToByte( self->s.origin2 ) );
+      G_AddEvent( self, EV_ALIEN_ACIDTUBE, DirToByte( self->s.origin2 ) );
     }
       
     if( ( self->timestamp + ACIDTUBE_REPEAT ) > level.time )
@@ -987,9 +983,7 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 {
   vec3_t  dir;
 
-  // we don't have a valid direction, so just point straight up
-  dir[ 0 ] = dir[ 1 ] = 0;
-  dir[ 2 ] = 1;
+  VectorCopy( self->s.origin2, dir );
 
   //do a bit of radius damage
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
@@ -997,7 +991,7 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   //pretty events and item cleanup
   self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
-  G_AddEvent( self, EV_GIB_ALIEN, DirToByte( dir ) );
+  G_AddEvent( self, EV_ALIEN_BUILDABLE_EXPLOSION, DirToByte( dir ) );
   self->timestamp = level.time;
   self->think = ASpawn_Melt;
   self->nextthink = level.time + 500; //wait .5 seconds before damaging others
@@ -1492,13 +1486,13 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
 
   if( self->dcced )
   {
-    accuracyTolerance = MGTURRET_ACCURACYTOLERANCE;
-    angularSpeed = MGTURRET_ANGULARSPEED;
+    accuracyTolerance = MGTURRET_DCC_ACCURACYTOLERANCE;
+    angularSpeed = MGTURRET_DCC_ANGULARSPEED;
   }
   else
   {
-    accuracyTolerance = MGTURRET_DCC_ACCURACYTOLERANCE;
-    angularSpeed = MGTURRET_DCC_ANGULARSPEED;
+    accuracyTolerance = MGTURRET_ACCURACYTOLERANCE;
+    angularSpeed = MGTURRET_ANGULARSPEED;
   }
 
   VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
@@ -1807,7 +1801,7 @@ void HSpawn_Blast( gentity_t *self )
   dir[ 2 ] = 1;
 
   self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
-  G_AddEvent( self, EV_BUILDABLE_EXPLOSION, DirToByte( dir ) );
+  G_AddEvent( self, EV_HUMAN_BUILDABLE_EXPLOSION, DirToByte( dir ) );
   self->timestamp = level.time;
 
   //do some radius damage

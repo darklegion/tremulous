@@ -213,7 +213,7 @@
 #define ACIDTUBE_SPLASHRADIUS       200
 #define ACIDTUBE_CREEPSIZE          120
 #define ACIDTUBE_RANGE              200.0f
-#define ACIDTUBE_REPEAT             10000
+#define ACIDTUBE_REPEAT             3000
 
 #define HIVE_BP                     50
 #define HIVE_HEALTH                 ABHM(100)

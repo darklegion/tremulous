@@ -805,6 +805,12 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
 
       continue;
     }
+    else if( !Q_stricmp( token, "cullOnStartSolid" ) )
+    {
+      bp->cullOnStartSolid = qtrue;
+
+      continue;
+    }
     else if( !Q_stricmp( token, "radius" ) )
     {
       token = COM_Parse( text_p );
@@ -1624,8 +1630,12 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
   }
   
   //remove particles that get into a CONTENTS_NODROP brush
-  if( ( trap_CM_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) || trace.startsolid )
+  if( ( trap_CM_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) ||
+      ( bp->cullOnStartSolid && trace.startsolid ) )
   {
+    if( cg_debugParticles.integer >= 1 )
+      CG_Printf( "Particle in CONTENTS_NODROP or trace.startsolid\n" );
+
     p->valid = qfalse;
     return;
   }

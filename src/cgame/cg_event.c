@@ -94,7 +94,7 @@ static void CG_Obituary( entityState_t *ent )
       message = "should have run further";
       break;
     case MOD_ASPAWN:
-      message = "was melted by the acid blood";
+      message = "shouldn't have trod in the acid";
       break;
     case MOD_MGTURRET:
       message = "was gunned down by a turret";
@@ -661,10 +661,16 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       CG_MissileHitWall( es->weapon, es->generic1, 0, position, dir, IMPACTSOUND_METAL );
       break;
 
-    case EV_BUILDABLE_EXPLOSION:
-      DEBUGNAME( "EV_BUILDABLE_EXPLOSION" );
+    case EV_HUMAN_BUILDABLE_EXPLOSION:
+      DEBUGNAME( "EV_HUMAN_BUILDABLE_EXPLOSION" );
       ByteToDir( es->eventParm, dir );
-      CG_Explosion( 0, position, dir );
+      CG_HumanBuildableExplosion( position, dir );
+      break;
+
+    case EV_ALIEN_BUILDABLE_EXPLOSION:
+      DEBUGNAME( "EV_ALIEN_BUILDABLE_EXPLOSION" );
+      ByteToDir( es->eventParm, dir );
+      CG_AlienBuildableExplosion( position, dir );
       break;
 
     case EV_TESLATRAIL:
@@ -738,12 +744,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       CG_GibPlayer( cent->lerpOrigin );
       break;
 
-    case EV_GIB_ALIEN:
-      DEBUGNAME( "EV_GIB_ALIEN" );
-      trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.gibSound );
-      CG_GenericGib( cent->lerpOrigin );
-      break;
-
     case EV_STOPLOOPINGSOUND:
       DEBUGNAME( "EV_STOPLOOPINGSOUND" );
       trap_S_StopLoopingSound( es->number );
@@ -760,7 +760,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       if( clientNum == cg.predictedPlayerState.clientNum )
       {
         //FIXME: change to "negative" sound
-        trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
+        trap_S_StartLocalSound( cgs.media.buildableRepairedSound, CHAN_LOCAL_SOUND );
         cg.lastBuildAttempt = cg.time;
       }
       break;
@@ -808,6 +808,27 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       {
         particleSystem_t *ps = CG_SpawnNewParticleSystem( cgs.media.poisonCloudPS );
         CG_SetParticleSystemCent( ps, &cg.predictedPlayerEntity );
+        CG_AttachParticleSystemToCent( ps );
+      }
+      break;
+
+    case EV_ALIEN_EVOLVE:
+      DEBUGNAME( "EV_ALIEN_EVOLVE" );
+      trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.alienEvolveSound );
+      {
+        particleSystem_t *ps = CG_SpawnNewParticleSystem( cgs.media.alienEvolvePS );
+        CG_SetParticleSystemCent( ps, cent );
+        CG_AttachParticleSystemToCent( ps );
+      }
+      break;
+
+    case EV_ALIEN_ACIDTUBE:
+      DEBUGNAME( "EV_ALIEN_ACIDTUBE" );
+      {
+        particleSystem_t *ps = CG_SpawnNewParticleSystem( cgs.media.alienAcidTubePS );
+        CG_SetParticleSystemCent( ps, cent );
+        ByteToDir( es->eventParm, dir );
+        CG_SetParticleSystemNormal( ps, dir );
         CG_AttachParticleSystemToCent( ps );
       }
       break;

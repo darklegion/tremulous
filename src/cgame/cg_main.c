@@ -590,8 +590,6 @@ static void CG_RegisterSounds( void )
   cgs.media.talkSound             = trap_S_RegisterSound( "sound/player/talk.wav", qfalse );
   cgs.media.landSound             = trap_S_RegisterSound( "sound/player/land1.wav", qfalse );
 
-  cgs.media.hitSound              = trap_S_RegisterSound( "sound/feedback/hit.wav", qfalse );
-
   cgs.media.watrInSound           = trap_S_RegisterSound( "sound/player/watr_in.wav", qfalse );
   cgs.media.watrOutSound          = trap_S_RegisterSound( "sound/player/watr_out.wav", qfalse );
   cgs.media.watrUnSound           = trap_S_RegisterSound( "sound/player/watr_un.wav", qfalse );
@@ -640,14 +638,9 @@ static void CG_RegisterSounds( void )
   cgs.media.jetpackIdleSound        = trap_S_RegisterSound( "sound/upgrades/jetpack/idle.wav", qfalse );
   cgs.media.jetpackAscendSound      = trap_S_RegisterSound( "sound/upgrades/jetpack/hi.wav", qfalse );
 
-  cgs.media.humanBuildableExpl      = trap_S_RegisterSound( "sound/weapons/rocket/rocklx1a.wav", qfalse );
+  cgs.media.alienEvolveSound        = trap_S_RegisterSound( "sound/player/alienevolve.wav", qfalse );
   
-  // FIXME: only needed with item
-  cgs.media.sfx_ric1                = trap_S_RegisterSound( "sound/weapons/machinegun/ric1.wav", qfalse );
-  cgs.media.sfx_ric2                = trap_S_RegisterSound( "sound/weapons/machinegun/ric2.wav", qfalse );
-  cgs.media.sfx_ric3                = trap_S_RegisterSound( "sound/weapons/machinegun/ric3.wav", qfalse );
-  cgs.media.sfx_plasmaexp           = trap_S_RegisterSound( "sound/weapons/plasma/plasmx1a.wav", qfalse );
-  cgs.media.sfx_flamerexp           = trap_S_RegisterSound( "sound/weapons/flamer/fireimpc.wav", qfalse );
+  cgs.media.humanBuildableExpl      = trap_S_RegisterSound( "sound/weapons/rocket/rocklx1a.wav", qfalse );
 
   cgs.media.hgrenb1aSound           = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb1a.wav", qfalse );
   cgs.media.hgrenb2aSound           = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb2a.wav", qfalse );
@@ -715,6 +708,8 @@ static void CG_RegisterGraphics( void )
   cgs.media.greenBloodExplosionShader = trap_R_RegisterShader( "greenBloodExplosion" );
   cgs.media.greenBloodMarkShader      = trap_R_RegisterShader( "greenBloodMark" );
   cgs.media.explosionTrailShader      = trap_R_RegisterShader( "explosionTrail" );
+  
+  cgs.media.creepShader               = trap_R_RegisterShader( "creep" );
   
   cgs.media.scannerBlipShader         = trap_R_RegisterShader( "gfx/2d/blip" );
   cgs.media.scannerLineShader         = trap_R_RegisterShader( "white" );
@@ -788,7 +783,8 @@ static void CG_RegisterGraphics( void )
   cgs.media.wakeMarkShader            = trap_R_RegisterShader( "wake" );
   cgs.media.bloodMarkShader           = trap_R_RegisterShader( "bloodMark" );
 
-  cgs.media.poisonCloudPS             = CG_RegisterParticleSystem( "poisonCloud" );
+  cgs.media.poisonCloudPS             = CG_RegisterParticleSystem( "poisonCloudPS" );
+  cgs.media.alienAcidTubePS           = CG_RegisterParticleSystem( "alienAcidTubePS" );
 
   cgs.media.jetPackDescendPS          = CG_RegisterParticleSystem( "jetPackDescendPS" );
   cgs.media.jetPackHoverPS            = CG_RegisterParticleSystem( "jetPackHoverPS" );
@@ -796,6 +792,8 @@ static void CG_RegisterGraphics( void )
 
   cgs.media.humanBuildableDamagedPS   = CG_RegisterParticleSystem( "humanBuildableDamagedPS" );
   cgs.media.alienBuildableDamagedPS   = CG_RegisterParticleSystem( "alienBuildableDamagedPS" );
+  cgs.media.humanBuildableDestroyedPS = CG_RegisterParticleSystem( "humanBuildableDestroyedPS" );
+  cgs.media.alienBuildableDestroyedPS = CG_RegisterParticleSystem( "alienBuildableDestroyedPS" );
 
   // register the inline models
   cgs.numInlineModels = trap_CM_NumInlineModels( );

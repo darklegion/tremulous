@@ -224,6 +224,7 @@ typedef struct baseParticle_s
 
   qboolean        overdrawProtection;
   qboolean        realLight;
+  qboolean        cullOnStartSolid;
 } baseParticle_t;
 
 
@@ -390,6 +391,15 @@ typedef struct
   qboolean    barrelSpinning;
 } playerEntity_t;
 
+typedef struct lightFlareStatus_s
+{
+  float     lastSrcRadius; //caching of likely flare source radius
+  float     lastRadius;    //caching of likely flare radius
+  float     lastRatio;     //caching of likely flare ratio
+  int       lastTime;      //last time flare was visible/occluded
+  qboolean  status;        //flare is visble?
+} lightFlareStatus_t;
+
 //=================================================
 
 #define MAX_CENTITY_PARTICLE_SYSTEMS  8
@@ -437,11 +447,7 @@ typedef struct centity_s
   buildableAnimNumber_t oldBuildableAnim; //to detect when new anims are set
   particleSystem_t      *buildablePS;
 
-  float                 lastFlareSrcRadius; //caching of likely flare source radius
-  float                 lastFlareRadius;    //caching of likely flare radius
-  float                 lastFlareRatio;     //caching of likely flare ratio
-  int                   lastFlareTime;      //last time flare was visible/occluded
-  qboolean              flareStatus;        //flare is visble?
+  lightFlareStatus_t    lfs;
 
   qboolean              doorState;
 
@@ -1114,13 +1120,6 @@ typedef struct
   sfxHandle_t useNothingSound;
   sfxHandle_t wearOffSound;
   sfxHandle_t footsteps[ FOOTSTEP_TOTAL ][ 4 ];
-  sfxHandle_t sfx_ric1;
-  sfxHandle_t sfx_ric2;
-  sfxHandle_t sfx_ric3;
-  sfxHandle_t sfx_railg;
-  sfxHandle_t sfx_rockexp;
-  sfxHandle_t sfx_plasmaexp;
-  sfxHandle_t sfx_flamerexp;
   sfxHandle_t gibSound;
   sfxHandle_t gibBounce1Sound;
   sfxHandle_t gibBounce2Sound;
@@ -1134,10 +1133,8 @@ typedef struct
   sfxHandle_t fallSound;
   sfxHandle_t jumpPadSound;
 
-  sfxHandle_t hitSound;
-  sfxHandle_t hitSoundHighArmor;
-  sfxHandle_t hitSoundLowArmor;
-  sfxHandle_t hitTeamSound;
+  sfxHandle_t hgrenb1aSound;
+  sfxHandle_t hgrenb2aSound;
 
   sfxHandle_t voteNow;
   sfxHandle_t votePassed;
@@ -1169,9 +1166,6 @@ typedef struct
   qhandle_t   selectCursor;
   qhandle_t   sizeCursor;
 
-  sfxHandle_t hgrenb1aSound;
-  sfxHandle_t hgrenb2aSound;
-                        
   //TA: for wolf trail effects
   qhandle_t   sparkFlareShader;
 
@@ -1192,9 +1186,15 @@ typedef struct
   sfxHandle_t buildableRepairedSound;
 
   qhandle_t   poisonCloudPS;
+  qhandle_t   alienEvolvePS;
+  qhandle_t   alienAcidTubePS;
 
+  sfxHandle_t alienEvolveSound;
+  
   qhandle_t   humanBuildableDamagedPS;
+  qhandle_t   humanBuildableDestroyedPS;
   qhandle_t   alienBuildableDamagedPS;
+  qhandle_t   alienBuildableDestroyedPS;
 } cgMedia_t;
 
 
@@ -1517,6 +1517,8 @@ sfxHandle_t CG_CustomSound( int clientNum, const char *soundName );
 void        CG_GhostBuildable( buildable_t buildable );
 void        CG_Buildable( centity_t *cent );
 void        CG_InitBuildables( );
+void        CG_HumanBuildableExplosion( vec3_t origin, vec3_t dir );
+void        CG_AlienBuildableExplosion( vec3_t origin, vec3_t dir );
 
 //
 // cg_spriter.c
@@ -1588,7 +1590,6 @@ void        CG_RegisterWeapon( int weaponNum );
 void        CG_FireWeapon( centity_t *cent, weaponMode_t weaponMode );
 void        CG_MissileHitWall( weapon_t weapon, weaponMode_t weaponMode, int clientNum,
                                vec3_t origin, vec3_t dir, impactSound_t soundType );
-void        CG_Explosion( int clientNum, vec3_t origin, vec3_t dir );
 void        CG_MissileHitPlayer( weapon_t weapon, weaponMode_t weaponMode, vec3_t origin, vec3_t dir, int entityNum );
 void        CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 
