@@ -2253,9 +2253,9 @@ classAttributes_t bg_classList[ ] =
     50.0f,                                          //float   buildDist;
     1000.0f,                                        //float   launchSpeed;
     80,                                             //int     fov;
-    0.015f,                                         //float   bob;
+    0.005f,                                         //float   bob;
     350,                                            //int     steptime;
-    0.5f,                                           //float   speed;
+    0.8f,                                           //float   speed;
     1.0f,                                           //float   sticky;
     { PCL_D_B_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
     2000,                                           //int     timetoevolve;
