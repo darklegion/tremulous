@@ -737,7 +737,7 @@ void ClientThink_real( gentity_t *ent ) {
   client->ps.speed = g_speed.value * client->classSpeed;
 
   //TA: slow player if standing in creep
-  for ( i = 1, creepNode = g_entities + i; i < level.num_entities; i++, creepNode++ )
+  /*for ( i = 1, creepNode = g_entities + i; i < level.num_entities; i++, creepNode++ )
   {
     if( !Q_stricmp( creepNode->classname, "team_droid_creep" ) )
     {
@@ -753,7 +753,7 @@ void ClientThink_real( gentity_t *ent ) {
         break;
       }
     }
-  }
+  }*/
 
   if( !cSlowed )
     client->ps.stats[ STAT_STATE ] &= ~SS_CREEPSLOWED;

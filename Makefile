@@ -25,7 +25,6 @@ GOBJ = \
 	$(GDIRNAME)/g_combat.o \
 	$(GDIRNAME)/g_items.o \
 	$(GDIRNAME)/g_buildable.o \
-	$(GDIRNAME)/g_creep.o \
 	$(GDIRNAME)/g_mem.o \
 	$(GDIRNAME)/g_misc.o \
 	$(GDIRNAME)/g_missile.o \
@@ -38,6 +37,7 @@ GOBJ = \
 	$(GDIRNAME)/g_trigger.o \
 	$(GDIRNAME)/g_utils.o \
 	$(GDIRNAME)/g_weapon.o
+	#(GDIRNAME)/g_creep.o \
 
 CGOBJ = \
 	$(CGDIRNAME)/cg_main.o \

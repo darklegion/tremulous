@@ -484,7 +484,8 @@ typedef enum {
   EV_POWERUP_REGEN,
 
   EV_GIB_PLAYER,      // gib a previously living player
-  EV_GIB_GENERIC,     //TA: generic green gib for droids
+  EV_GIB_DROID,       //TA: generic green gib for droids
+  EV_ITEM_RECEDE,     //TA: sent when creep should recede
 
   EV_DEBUG_LINE,
   EV_STOPLOOPINGSOUND,
@@ -781,4 +782,5 @@ qboolean  BG_gotWeapon( int weapon, int stats[ ] );*/
 //TA: conceptually should live in q_shared.h
 void    AxisToAngles( vec3_t axis[3], vec3_t angles);
 float   arccos( float x );
+#define Vector2Set(v, x, y) ((v)[0]=(x), (v)[1]=(y))
 

@@ -474,11 +474,6 @@ qboolean itemFits( gentity_t *ent, gitem_t *item, int distance );
 gentity_t *Build_Item( gentity_t *ent, gitem_t *item, int distance );
 
 //
-// g_creep.c
-//
-gentity_t *createCreepNode( vec3_t origin );
-
-//
 // g_utils.c
 //
 int G_ModelIndex( char *name );

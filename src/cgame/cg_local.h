@@ -737,6 +737,7 @@ typedef struct {
   qhandle_t explosionTrailShader;
 
   qhandle_t humanNV;
+  qhandle_t humanTorch;
   qhandle_t droidNav9;
   qhandle_t droidNav8;
   qhandle_t droidNav7;

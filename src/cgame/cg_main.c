@@ -795,6 +795,7 @@ static void CG_RegisterGraphics( void ) {
 
   //TA: screenfades
   cgs.media.humanNV = trap_R_RegisterShader( "humanNV" );
+  cgs.media.humanTorch = trap_R_RegisterShader( "humanTorch" );
   cgs.media.droidNav9 = trap_R_RegisterShader( "droidNav9" );
   cgs.media.droidNav8 = trap_R_RegisterShader( "droidNav8" );
   cgs.media.droidNav7 = trap_R_RegisterShader( "droidNav7" );

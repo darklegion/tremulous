@@ -118,6 +118,11 @@ void ShineTorch( gentity_t *self )
   else
     G_SetOrigin( self, to );
 
+  VectorCopy( angles, self->s.apos.trBase );
+
+  //so we can use the predicted values client side if available
+  self->s.frame = self->parent->s.number;
+
   trap_LinkEntity( self );
 }
 

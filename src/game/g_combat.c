@@ -326,7 +326,11 @@ GibEntity
 ==================
 */
 void GibEntity( gentity_t *self, int killer ) {
-  G_AddEvent( self, EV_GIB_PLAYER, killer );
+  if( self->client->ps.stats[ STAT_PCLASS ] == PTE_HUMANS )
+    G_AddEvent( self, EV_GIB_PLAYER, killer );
+  else
+    G_AddEvent( self, EV_GIB_DROID, killer );
+    
   self->takedamage = qfalse;
   self->s.eType = ET_INVISIBLE;
   self->r.contents = 0;

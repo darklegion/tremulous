@@ -36,6 +36,27 @@ void nullDieFunction( gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 {
 }
 
+/*
+================
+D_CreepRecede
+
+Called when an droid spawn dies
+================
+*/
+void D_CreepRecede( gentity_t *self )
+{
+  if( ( self->timestamp + 100 ) == level.time )
+    G_AddEvent( self, EV_ITEM_RECEDE, 0 );
+  
+  if( ( self->timestamp + 10000 ) > level.time )
+  {
+    self->nextthink = level.time + 500;
+    trap_LinkEntity( self );
+  }
+  else
+    G_FreeEntity( self );
+}
+
 
 /*
 ================
@@ -49,6 +70,9 @@ void DSpawn_Melt( gentity_t *self )
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, 2,
     self->splashRadius, self, self->splashMethodOfDeath, PTE_DROIDS );
 
+  if( ( self->timestamp + 500 ) == level.time )
+    G_AddEvent( self, EV_ITEM_RECEDE, 0 );
+  
   if( ( self->timestamp + 10000 ) > level.time )
   {
     self->nextthink = level.time + 500;
@@ -80,7 +104,7 @@ void DSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     self->splashRadius, self, self->splashMethodOfDeath, PTE_DROIDS );
 
   self->s.modelindex = 0; //don't draw the model once its destroyed
-  G_AddEvent( self, EV_GIB_GENERIC, DirToByte( dir ) );
+  G_AddEvent( self, EV_GIB_DROID, DirToByte( dir ) );
   self->r.contents = CONTENTS_TRIGGER;
   self->timestamp = level.time;
   self->die = nullDieFunction;
@@ -110,11 +134,14 @@ void DDef1_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
     self->splashRadius, self, self->splashMethodOfDeath, PTE_DROIDS );
 
   self->s.modelindex = 0; //don't draw the model once its destroyed
-  G_AddEvent( self, EV_GIB_GENERIC, DirToByte( dir ) );
+  G_AddEvent( self, EV_GIB_DROID, DirToByte( dir ) );
   self->r.contents = CONTENTS_TRIGGER;
   self->timestamp = level.time;
-  self->freeAfterEvent = qtrue;
   self->die = nullDieFunction;
+  self->think = D_CreepRecede;
+  self->nextthink = level.time + 100;
+
+  trap_LinkEntity( self );
 }
 
 
@@ -127,8 +154,10 @@ think function for Droid Spawn
 */
 void DSpawn_Think( gentity_t *self )
 {
-  if( self->parentNode == NULL )
-    self->parentNode = createCreepNode( self->s.origin );
+  /*if( self->parentNode == NULL )
+    self->parentNode = createCreepNode( self );
+
+  VectorCopy( self->s.origin, self->parentNode->s.origin );*/
   
   self->nextthink = level.time + 100;
 }
@@ -167,7 +196,7 @@ void DDef1_Think( gentity_t *self )
       }
     }
     
-    if( minDistance <= CREEP_BASESIZE )
+    if( minDistance <= ( CREEP_BASESIZE * 3 ) )
       self->parentNode = closestSpawn;
     else
     {
@@ -187,7 +216,7 @@ void DDef1_Think( gentity_t *self )
 //   Anthony "inolen" Pesch (www.inolen.com)
 //with modifications by me of course :)
 #define HDEF1_RANGE             500
-#define HDEF1_ANGULARSPEED      15
+#define HDEF1_ANGULARSPEED      10
 #define HDEF1_FIRINGSPEED       200
 #define HDEF1_ACCURACYTOLERANCE 10
 #define HDEF1_VERTICALCAP       20
@@ -461,7 +490,7 @@ qboolean itemFits( gentity_t *ent, gitem_t *item, int distance )
       if( !Q_stricmp( creepent->classname, "team_droid_spawn" ) )
       {
         VectorSubtract( entity_origin, creepent->s.origin, temp_v );
-        if( VectorLength( temp_v ) <= CREEP_BASESIZE )
+        if( VectorLength( temp_v ) <= ( CREEP_BASESIZE * 3 ) )
         {
           nearcreep = qtrue;
           break;

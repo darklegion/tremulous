@@ -388,6 +388,10 @@ static void CG_Buildable( centity_t *cent ) {
   if ( es->modelindex >= bg_numItems ) {
     CG_Error( "Bad item index %i on entity", es->modelindex );
   }
+  
+  //add creep
+  if( es->modelindex2 == BIT_DROIDS )
+    CG_Creep( cent );  
 
   // if set to invisible, skip
   if ( !es->modelindex || ( es->eFlags & EF_NODRAW ) ) {
@@ -695,6 +699,9 @@ static void CG_Portal( centity_t *cent ) {
 
 //============================================================================
 
+#define MAX_MARK_FRAGMENTS  128
+#define MAX_MARK_POINTS     384
+
 /*
 ===============
 CG_TorchLight
@@ -705,7 +712,122 @@ static void CG_TorchLight( centity_t *cent )
   float   r, g, b;
   int     i, j, k;
   byte    lum;
+  polyVert_t      verts[ 4 ];
+  vec3_t          square[ 4 ];
+  vec2_t          tex[ 4 ];
+  float           size;
+  trace_t         tr;
+  vec3_t          temp, origin, normal, projection, angles;
+  vec4_t          axis[ 3 ], color;
+  markFragment_t  markFragments[ MAX_MARK_FRAGMENTS ], *mf;
+  vec3_t          markPoints[ MAX_MARK_POINTS ];
+  int             numFragments;
+  float           texCoordScale;
+  
 
+  if( cent->currentState.frame == cg.predictedPlayerState.clientNum )
+  {
+    vec3_t  to, from, forward, length;
+    float   veclength;
+
+    VectorCopy( cg.predictedPlayerState.origin, from );
+    VectorCopy( cg.predictedPlayerState.viewangles, angles );
+
+    from[2] += cg.predictedPlayerState.viewheight;
+
+    AngleVectors( angles, forward, NULL, NULL );
+    VectorMA( from, 4096, forward, to );
+
+    CG_Trace( &tr, from, NULL, NULL, to, cg.predictedPlayerState.clientNum, MASK_SOLID );
+    
+    VectorSubtract( tr.endpos, from, length );
+    veclength = VectorLength( length );
+    
+    VectorMA( tr.endpos, -(veclength / 5), forward, origin );
+            
+    //VectorCopy( cent->lerpOrigin, origin );
+    size = veclength / 2.0f;
+    if( size > 255 ) size = 255;
+    if( size < 0 ) size = 0;       
+  }
+  else
+  {
+    VectorCopy( cent->lerpOrigin, origin );
+    VectorCopy( cent->lerpAngles, angles );
+
+    size = ( cent->currentState.constantLight >> 24 ) & 0xFF; //CREEP_BASESIZE / 2;
+  }
+
+  AngleVectors( angles, temp, NULL, NULL );
+  VectorMA( origin, 4096, temp, temp );
+
+  CG_Trace( &tr, origin, NULL, NULL, temp, cent->currentState.number, MASK_SOLID );
+
+  VectorCopy( tr.endpos, origin );
+  VectorCopy( tr.plane.normal, normal );
+
+  //slightly above surface 
+  VectorMA( origin, 1, normal, origin );
+
+  texCoordScale = 0.5f / size;
+
+  //decide where the corners of the poly go
+  VectorNormalize2( normal, axis[0] );
+  PerpendicularVector( axis[1], axis[0] );
+  CrossProduct( axis[0], axis[1], axis[2] );
+
+  for ( i = 0 ; i < 3 ; i++ ) {
+    square[0][i] = origin[i] - size * axis[1][i] - size * axis[2][i];
+    square[1][i] = origin[i] - size * axis[1][i] + size * axis[2][i];
+    square[2][i] = origin[i] + size * axis[1][i] + size * axis[2][i];
+    square[3][i] = origin[i] + size * axis[1][i] - size * axis[2][i];
+  }
+  
+  //set texture coordinates
+  Vector2Set( tex[ 0 ], 0, 0 );
+  Vector2Set( tex[ 1 ], 0, 1 );
+  Vector2Set( tex[ 2 ], 1, 1 );
+  Vector2Set( tex[ 3 ], 1, 0 );
+
+  VectorScale( normal, -20, projection );
+  numFragments = trap_CM_MarkFragments( 4, (void *)square,
+    projection, MAX_MARK_POINTS, markPoints[0],
+    MAX_MARK_FRAGMENTS, markFragments );
+   
+  color[ 0 ] = 255;
+  color[ 1 ] = 255;
+  color[ 2 ] = 255;
+  color[ 3 ] = 255;
+  
+  for ( i = 0, mf = markFragments ; i < numFragments ; i++, mf++ )
+  {
+    polyVert_t  *v;
+    polyVert_t  verts[MAX_VERTS_ON_POLY];
+    markPoly_t  *mark;
+
+    // we have an upper limit on the complexity of polygons
+    // that we store persistantly
+    if ( mf->numPoints > MAX_VERTS_ON_POLY )
+      mf->numPoints = MAX_VERTS_ON_POLY;
+      
+    for ( j = 0, v = verts ; j < mf->numPoints ; j++, v++ )
+    {
+      vec3_t    delta;
+
+      VectorCopy( markPoints[ mf->firstPoint + j ], v->xyz );
+      VectorMA( v->xyz, 1, normal, v->xyz );
+
+      VectorSubtract( v->xyz, origin, delta );
+      v->st[0] = 0.5 + DotProduct( delta, axis[1] ) * texCoordScale;
+      v->st[1] = 0.5 + DotProduct( delta, axis[2] ) * texCoordScale;
+      *(int *)v->modulate = *(int *)color;
+    }
+
+    //trap_R_AddPolyToScene( cgs.media.humanTorch, mf->numPoints, verts );
+    trap_R_AddPolyToScene( cgs.media.humanTorch, mf->numPoints, verts );
+                                                                                                                
+  }
+  
   r = ( (float)( cent->currentState.constantLight & 0xFF ) ) / 255.0;
   g = ( (float)( ( cent->currentState.constantLight >> 8 ) & 0xFF ) ) / 255.0;
   b = ( (float)( ( cent->currentState.constantLight >> 16 ) & 0xFF ) ) / 255.0;
@@ -725,8 +847,9 @@ static void CG_TorchLight( centity_t *cent )
     b *= 1.0f - ( (float)lum / 64.0f );
   }
 
-  for( j = 0; j <= k; j++ )
-    trap_R_AddLightToScene(cent->lerpOrigin, i*2, r, g, b );
+  /*for( j = 0; j <= k; j++ )
+    trap_R_AddLightToScene(cent->lerpOrigin, i*2, r, g, b );*/
+    //trap_R_AddLightToScene( origin, (int)size, r, g, b );
 }
 
 /*
@@ -885,9 +1008,6 @@ static void CG_AddCEntity( centity_t *cent ) {
     break;
   case ET_BUILDABLE:
     CG_Buildable( cent );
-    break;
-  case ET_CREEP:
-    CG_Creep( cent );
     break;
   case ET_MISSILE:
     CG_Missile( cent );

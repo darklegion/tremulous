@@ -815,6 +815,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
       DEBUGNAME("EV_ITEM_GROW");
       cent->miscTime = cg.time; // scale up from this
     break;
+    
+  //TA: make droid creep "recede"
+  case EV_ITEM_RECEDE:
+      DEBUGNAME("EV_ITEM_RECEDE");
+      cent->miscTime = -cg.time; // scale down from this
+    break;
 
   case EV_GRENADE_BOUNCE:
     DEBUGNAME("EV_GRENADE_BOUNCE");
@@ -956,8 +962,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
     CG_GibPlayer( cent->lerpOrigin );
     break;
 
-  case EV_GIB_GENERIC:
-    DEBUGNAME("EV_GIB_GENERIC");
+  case EV_GIB_DROID:
+    DEBUGNAME("EV_GIB_DROID");
     trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.gibSound );
     CG_GenericGib( cent->lerpOrigin );
     break;
