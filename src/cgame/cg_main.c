@@ -186,6 +186,7 @@ vmCvar_t  cg_wwFollow;
 vmCvar_t  ui_currentClass;
 vmCvar_t  ui_carriage;
 vmCvar_t  ui_stages;
+vmCvar_t  ui_dialog;
 
 
 typedef struct {
@@ -267,12 +268,13 @@ static cvarTable_t   cvarTable[] = {
   { &cg_creepRes, "cg_creepRes", "16", CVAR_ARCHIVE },
   { &cg_drawSurfNormal, "cg_drawSurfNormal", "0", CVAR_CHEAT },
   { &cg_debugAlloc, "cg_debugAlloc", "0", 0 },
-  { &cg_wwSmoothTime, "cg_wwSmoothTime", "300", 0 },
-  { &cg_wwFollow, "cg_wwFollow", "0", CVAR_USERINFO },
+  { &cg_wwSmoothTime, "cg_wwSmoothTime", "300", CVAR_ARCHIVE },
+  { &cg_wwFollow, "cg_wwFollow", "1", CVAR_ARCHIVE },
   
   { &ui_currentClass, "ui_currentClass", "0", 0 },
   { &ui_carriage, "ui_carriage", "", 0 },
   { &ui_stages, "ui_stages", "0 0", 0 },
+  { &ui_dialog, "ui_dialog", "Text not set", 0 },
 
   // the following variables are created in other parts of the system,
   // but we also reference them here

@@ -1233,6 +1233,7 @@ extern  vmCvar_t    cg_wwFollow;
 extern  vmCvar_t    ui_currentClass;
 extern  vmCvar_t    ui_carriage;
 extern  vmCvar_t    ui_stages;
+extern  vmCvar_t    ui_dialog;
 
 //
 // cg_main.c

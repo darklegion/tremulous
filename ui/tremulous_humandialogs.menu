@@ -3,550 +3,63 @@
 {
   menuDef
   {
-    name "tremulous_human_no_room"
+    name "tremulous_human_dialog"
     visible 0
     fullscreen 0
-    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
-    rect 250 90 300 300
+    outOfBoundsClick
+    rect 180 180 280 120
     focusColor 1 .75 0 1
-    style 1
-    border 1
+    style WINDOW_STYLE_FILLED
     disableColor .5 .5 .5 0
+    backcolor 0 .5 0 .25
 
     itemDef
     {
-      name human_no_room
+      name human_dialog
       text "Error"
       type ITEM_TYPE_TEXT
       textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 20 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
+      style WINDOW_STYLE_FILLED
+      rect 220 10 50 20   
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 18
       textscale .4
       forecolor 1 1 1 1
+      backcolor .5 0 0 .25
       visible 1 
       decoration
     }
     itemDef
     {
-      name human_no_room
-      text "There is no room here"
-      type ITEM_TYPE_TEXT
+      name human_dialog
+      ownerdraw UI_DIALOG
       textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 40 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
+      style WINDOW_STYLE_FILLED	
+      rect 10 50 260 20   
+      textalignx 5
+      textaligny 18
       textscale .4
       forecolor 1 1 1 1
+      backcolor .5 0 0 .25
       visible 1 
       decoration
     }
     itemDef
     {
-      name human_no_room
+      name human_dialog
       text "OK"
       type ITEM_TYPE_BUTTON
-      style 2	
-      rect 0 80 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
+      style WINDOW_STYLE_FILLED	
+      rect 242 90 28 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 18
       textscale .4
       forecolor 1 1 1 1
+      backcolor .5 0 0 .25
       visible 1 
-      action { close tremulous_human_no_room }
-    }
-  }
-  
-  menuDef
-  {
-    name "tremulous_human_no_power"
-    visible 0
-    fullscreen 0
-    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
-    rect 250 90 300 300
-    focusColor 1 .75 0 1
-    style 1
-    border 1
-    disableColor .5 .5 .5 0
-
-    itemDef
-    {
-      name human_no_power
-      text "Error"
-      type ITEM_TYPE_TEXT
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 20 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      decoration
-    }
-    itemDef
-    {
-      name human_no_power
-      text "There is no power remaining"
-      type ITEM_TYPE_TEXT
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 40 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      decoration
-    }
-    itemDef
-    {
-      name human_no_power
-      text "OK"
-      type ITEM_TYPE_BUTTON
-      style 2	
-      rect 0 80 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      action { close tremulous_human_no_power }
-    }
-  }
-
-  menuDef
-  {
-    name "tremulous_human_one_reactor"
-    visible 0
-    fullscreen 0
-    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
-    rect 250 90 300 300
-    focusColor 1 .75 0 1
-    style 1
-    border 1
-    disableColor .5 .5 .5 0
-
-    itemDef
-    {
-      name human_one_reactor
-      text "Error"
-      type ITEM_TYPE_TEXT
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 20 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      decoration
-    }
-    itemDef
-    {
-      name human_one_reactor
-      text "There can be only one reactor"
-      type ITEM_TYPE_TEXT
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 40 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      decoration
-    }
-    itemDef
-    {
-      name human_one_reactor
-      text "OK"
-      type ITEM_TYPE_BUTTON
-      style 2	
-      rect 0 80 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      action { close tremulous_human_one_reactor }
-    }
-  }
-  
-  menuDef
-  {
-    name "tremulous_human_repeater"
-    visible 0
-    fullscreen 0
-    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
-    rect 250 90 300 300
-    focusColor 1 .75 0 1
-    style 1
-    border 1
-    disableColor .5 .5 .5 0
-
-    itemDef
-    {
-      name human_repeater
-      text "Error"
-      type ITEM_TYPE_TEXT
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 20 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      decoration
-    }
-    itemDef
-    {
-      name human_repeater
-      text "There is no power here, build a repeater"
-      type ITEM_TYPE_TEXT
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 40 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      decoration
-    }
-    itemDef
-    {
-      name human_repeater
-      text "OK"
-      type ITEM_TYPE_BUTTON
-      style 2	
-      rect 0 80 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      action { close tremulous_human_repeater }
-    }
-  }
-  
-  menuDef
-  {
-    name "tremulous_human_replicator_warning"
-    visible 0
-    fullscreen 0
-    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
-    rect 250 90 300 300
-    focusColor 1 .75 0 1
-    style 1
-    border 1
-    disableColor .5 .5 .5 0
-
-    itemDef
-    {
-      name human_replicator_warning
-      text "Error"
-      type ITEM_TYPE_TEXT
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 20 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      decoration
-    }
-    itemDef
-    {
-      name human_replicator_warning
-      text "This replicator will not be powered"
-      type ITEM_TYPE_TEXT
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 40 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      decoration
-    }
-    itemDef
-    {
-      name human_replicator_warning
-      text "OK"
-      type ITEM_TYPE_BUTTON
-      style 2	
-      rect 0 80 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      action { close tremulous_human_replicator_warning }
-    }
-  }
-  
-  menuDef
-  {
-    name "tremulous_human_repeater_warning"
-    visible 0
-    fullscreen 0
-    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
-    rect 250 90 300 300
-    focusColor 1 .75 0 1
-    style 1
-    border 1
-    disableColor .5 .5 .5 0
-
-    itemDef
-    {
-      name human_repeater_warning
-      text "Error"
-      type ITEM_TYPE_TEXT
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 20 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      decoration
-    }
-    itemDef
-    {
-      name human_repeater_warning
-      text "This repeater will not be powered"
-      type ITEM_TYPE_TEXT
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 40 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      decoration
-    }
-    itemDef
-    {
-      name human_repeater_warning
-      text "OK"
-      type ITEM_TYPE_BUTTON
-      style 2	
-      rect 0 80 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      action { close tremulous_human_repeater_warning }
-    }
-  }
-  
-  menuDef
-  {
-    name "tremulous_human_no_slots"
-    visible 0
-    fullscreen 0
-    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
-    rect 250 90 300 300
-    focusColor 1 .75 0 1
-    style 1
-    border 1
-    disableColor .5 .5 .5 0
-
-    itemDef
-    {
-      name human_no_slots
-      text "Error"
-      type ITEM_TYPE_TEXT
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 20 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      decoration
-    }
-    itemDef
-    {
-      name human_no_slots
-      text "You have no room to carry this item"
-      type ITEM_TYPE_TEXT
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 40 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      decoration
-    }
-    itemDef
-    {
-      name human_no_slots
-      text "OK"
-      type ITEM_TYPE_BUTTON
-      style 2	
-      rect 0 80 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      action { close tremulous_human_no_slots }
-    }
-  }
-  
-  menuDef
-  {
-    name "tremulous_human_no_funds"
-    visible 0
-    fullscreen 0
-    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
-    rect 250 90 300 300
-    focusColor 1 .75 0 1
-    style 1
-    border 1
-    disableColor .5 .5 .5 0
-
-    itemDef
-    {
-      name human_no_funds
-      text "Error"
-      type ITEM_TYPE_TEXT
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 20 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      decoration
-    }
-    itemDef
-    {
-      name human_no_funds
-      text "You don't have enough funds"
-      type ITEM_TYPE_TEXT
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 40 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      decoration
-    }
-    itemDef
-    {
-      name human_no_funds
-      text "OK"
-      type ITEM_TYPE_BUTTON
-      style 2	
-      rect 0 80 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      action { close tremulous_human_no_funds }
-    }
-  }
-  
-  menuDef
-  {
-    name "tremulous_human_item_held"
-    visible 0
-    fullscreen 0
-    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
-    rect 250 90 300 300
-    focusColor 1 .75 0 1
-    style 1
-    border 1
-    disableColor .5 .5 .5 0
-
-    itemDef
-    {
-      name human_item_held
-      text "Error"
-      type ITEM_TYPE_TEXT
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 20 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      decoration
-    }
-    itemDef
-    {
-      name human_item_held
-      text "You already have this item"
-      type ITEM_TYPE_TEXT
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      style 0	
-      rect 0 40 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      decoration
-    }
-    itemDef
-    {
-      name human_item_held
-      text "OK"
-      type ITEM_TYPE_BUTTON
-      style 2	
-      rect 0 80 300 20   
-      textalign ITEM_ALIGN_CENTER
-      textalignx 64
-      textaligny 18        
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      action { close tremulous_human_item_held }
+      action { close tremulous_human_dialog }
     }
   }
 }

@@ -435,33 +435,113 @@ void CG_Menu( int eventParm )
     case MN_H_MCU:      trap_SendConsoleCommand( "menu tremulous_humanmcu\n" );                   break;
     case MN_H_BANK:     trap_SendConsoleCommand( "menu tremulous_humanbank\n" );                  break;
     case MN_A_OBANK:    trap_SendConsoleCommand( "menu tremulous_alienbank\n" );                  break;
-    case MN_H_NOROOM:   trap_SendConsoleCommand( "menu tremulous_human_no_room\n" );              break;
-    case MN_H_NOPOWER:  trap_SendConsoleCommand( "menu tremulous_human_no_power\n" );             break;
-    case MN_A_NOROOM:   trap_SendConsoleCommand( "menu tremulous_alien_no_room\n" );              break;
-    case MN_A_NOCREEP:  trap_SendConsoleCommand( "menu tremulous_alien_no_creep\n" );             break;
-    case MN_A_NOHVMND:  trap_SendConsoleCommand( "menu tremulous_alien_no_hivemind\n" );          break;
-    case MN_A_HIVEMIND: trap_SendConsoleCommand( "menu tremulous_alien_one_hivemind\n" );         break;
-    case MN_A_NOASSERT: trap_SendConsoleCommand( "menu tremulous_alien_no_assertion\n" );         break;
-    case MN_A_SPWNWARN: trap_SendConsoleCommand( "menu tremulous_alien_egg_warning\n" );          break;
-    case MN_A_NORMAL:   trap_SendConsoleCommand( "menu tremulous_alien_surface\n" );              break;
-    case MN_H_REACTOR:  trap_SendConsoleCommand( "menu tremulous_human_one_reactor\n" );          break;
-    case MN_H_REPEATER: trap_SendConsoleCommand( "menu tremulous_human_repeater\n" );             break;
-    case MN_H_NODCC:    trap_SendConsoleCommand( "menu tremulous_human_dcc\n" );                  break;
-    case MN_H_RPLWARN:  trap_SendConsoleCommand( "menu tremulous_human_replicator_warning\n" );   break;
-    case MN_H_RPTWARN:  trap_SendConsoleCommand( "menu tremulous_human_repeater_warning\n" );     break;
-    case MN_H_NOSLOTS:  trap_SendConsoleCommand( "menu tremulous_human_no_slots\n" );             break;
-    case MN_H_NOFUNDS:  trap_SendConsoleCommand( "menu tremulous_human_no_funds\n" );             break;
-    case MN_A_NOFUNDS:  trap_SendConsoleCommand( "menu tremulous_alien_no_funds\n" );             break;
-    case MN_H_ITEMHELD: trap_SendConsoleCommand( "menu tremulous_human_item_held\n" );            break;
+                        
+    case MN_H_NOROOM:
+      trap_Cvar_Set( "ui_dialog", "There is no room here" );
+      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      break;
+      
+    case MN_H_NOPOWER:
+      trap_Cvar_Set( "ui_dialog", "There is no power remaining" );
+      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      break;
+      
+    case MN_H_REACTOR:
+      trap_Cvar_Set( "ui_dialog", "There can only be one reactor" );
+      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      break;
+      
+    case MN_H_REPEATER:
+      trap_Cvar_Set( "ui_dialog", "There is no power here" );
+      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      break;
+      
+    case MN_H_NODCC:
+      trap_Cvar_Set( "ui_dialog", "There is no dcc" );
+      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      break;
+      
+    case MN_H_RPLWARN:
+      trap_Cvar_Set( "ui_dialog", "This replicator will not be powered" );
+      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      break;
+      
+    case MN_H_RPTWARN:
+      trap_Cvar_Set( "ui_dialog", "This repeater will not be powered" );
+      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      break;
+      
+    case MN_H_NOSLOTS:
+      trap_Cvar_Set( "ui_dialog", "You have no room to carry this" );
+      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      break;
+      
+    case MN_H_NOFUNDS:
+      trap_Cvar_Set( "ui_dialog", "Insufficient funds" );
+      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      break;
+      
+    case MN_H_ITEMHELD:
+      trap_Cvar_Set( "ui_dialog", "You already hold this item" );
+      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      break;
+      
+    case MN_A_NOROOM:
+      trap_Cvar_Set( "ui_dialog", "There is no room here" );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      break;
+      
+    case MN_A_NOCREEP:
+      trap_Cvar_Set( "ui_dialog", "There is no creep here" );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      break;
+      
+    case MN_A_NOHVMND:
+      trap_Cvar_Set( "ui_dialog", "There is no overmind" );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      break;
+      
+    case MN_A_HIVEMIND:
+      trap_Cvar_Set( "ui_dialog", "There can only be one overmind" );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      break;
+      
+    case MN_A_NOASSERT:
+      trap_Cvar_Set( "ui_dialog", "No assertion left" );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      break;
+      
+    case MN_A_SPWNWARN:
+      trap_Cvar_Set( "ui_dialog", "This spawn will not be controlled" );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      break;
+      
+    case MN_A_NORMAL:
+      trap_Cvar_Set( "ui_dialog", "Cannot build on this surface" );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      break;
+      
+    case MN_A_NOFUNDS:
+      trap_Cvar_Set( "ui_dialog", "Insufficient organs" );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      break;
+      
+    case MN_A_HOVEL_OCCUPIED:
+      trap_Cvar_Set( "ui_dialog", "This hovel is occupied" );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      break;
+      
+    case MN_A_HOVEL_BLOCKED:
+      trap_Cvar_Set( "ui_dialog", "This hovel is blocked" );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      break;
+      
     case MN_A_INFEST:
       trap_Cvar_Set( "ui_currentClass", va( "%d %d",  cg.snap->ps.stats[ STAT_PCLASS ],
                                                       cg.snap->ps.stats[ STAT_CREDIT ] ) );
       trap_SendConsoleCommand( "menu tremulous_alienupgrade\n" );
       break;
 
-    case MN_A_HOVEL_OCCUPIED: trap_SendConsoleCommand( "menu tremulous_alien_hovel_occupied\n" ); break;
-    case MN_A_HOVEL_BLOCKED:  trap_SendConsoleCommand( "menu tremulous_alien_hovel_blocked\n" );  break;
-      
     default:
       Com_Printf( "cgame: debug: no such menu %d\n", eventParm );
   }

@@ -12,6 +12,7 @@
 	loadMenu { "ui/tremulous_humanmcubuy.menu" }
 	loadMenu { "ui/tremulous_humanmcusell.menu" }
 	
+  loadMenu { "ui/tremulous_alienbank.menu" }
   loadMenu { "ui/tremulous_humanbank.menu" }
 	
   loadMenu { "ui/tremulous_humandialogs.menu" }
