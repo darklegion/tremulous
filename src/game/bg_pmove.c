@@ -2767,8 +2767,10 @@ static void PM_Weapon( void )
   }
   
   // check for end of clip 
-  if( !ammo && clips )
+  if( ( !ammo && clips ) || pm->ps->pm_flags & PMF_WEAPON_RELOAD )
   {
+    pm->ps->pm_flags &= ~PMF_WEAPON_RELOAD;
+
     pm->ps->weaponstate = WEAPON_RELOADING;
 
     //drop the weapon
@@ -3323,12 +3325,6 @@ void PmoveSingle( pmove_t *pmove )
 
   if( pm->ps->pm_type == PM_JETPACK )
     PM_JetPackMove( );
-  else if( pm->ps->pm_flags & PMF_GRAPPLE_PULL )
-  {
-    PM_GrappleMove( );
-    // We can wiggle a bit
-    PM_AirMove( );
-  }
   else if( pm->ps->pm_flags & PMF_TIME_WATERJUMP )
     PM_WaterJumpMove( );
   else if( pm->waterlevel > 1 )

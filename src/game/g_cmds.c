@@ -356,12 +356,39 @@ void Cmd_Team_f( gentity_t *ent )
     return;
   }
 
-  if( !Q_stricmp( s, "0" ) || !Q_stricmp( s, "spectate" ) )
+  if( !Q_stricmp( s, "spectate" ) )
     ent->client->pers.teamSelection = PTE_NONE;
-  else if( !Q_stricmp( s, "1" ) || !Q_stricmp( s, "aliens" ) )
+  else if( !Q_stricmp( s, "aliens" ) )
+  {
+    if( g_teamForceBalance.integer && level.numAlienClients > level.numHumanClients )
+    {
+      //FIXME: pleasant dialog
+      trap_SendServerCommand( ent-g_entities, "The alien team has too many players\n" );
+      return;
+    }
+    
     ent->client->pers.teamSelection = PTE_ALIENS;
-  else if( !Q_stricmp( s, "2" ) || !Q_stricmp( s, "humans" ) )
+  }
+  else if( !Q_stricmp( s, "humans" ) )
+  {
+    if( g_teamForceBalance.integer && level.numHumanClients > level.numAlienClients )
+    {
+      //FIXME: pleasant dialog
+      trap_SendServerCommand( ent-g_entities, "The human team has too many players\n" );
+      return;
+    }
+    
     ent->client->pers.teamSelection = PTE_HUMANS;
+  }
+  else if( !Q_stricmp( s, "auto" ) )
+  {
+    if( level.numHumanClients > level.numAlienClients )
+      ent->client->pers.teamSelection = PTE_ALIENS;
+    else if( level.numHumanClients < level.numAlienClients )
+      ent->client->pers.teamSelection = PTE_HUMANS;
+    else
+      ent->client->pers.teamSelection = PTE_ALIENS + ( rand( ) % 2 );
+  }
 
   if( oldTeam != ent->client->pers.teamSelection )
   {
@@ -1678,6 +1705,16 @@ void Cmd_Boost_f( gentity_t *ent )
 
 /*
 =================
+Cmd_Reload_f
+=================
+*/
+void Cmd_Reload_f( gentity_t *ent )
+{
+  ent->client->ps.pm_flags |= PMF_WEAPON_RELOAD;
+}
+
+/*
+=================
 Cmd_Test_f
 =================
 */
@@ -1775,6 +1812,8 @@ void ClientCommand( int clientNum )
     Cmd_Destroy_f( ent, qfalse );
   else if( Q_stricmp( cmd, "deconstruct" ) == 0 )
     Cmd_Destroy_f( ent, qtrue );
+  else if( Q_stricmp( cmd, "reload" ) == 0 )
+    Cmd_Reload_f( ent );
   else if( Q_stricmp( cmd, "echo" ) == 0 )
     Cmd_Echo_f( ent );
   else if( Q_stricmp( cmd, "boost" ) == 0 )

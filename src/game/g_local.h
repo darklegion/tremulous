@@ -401,7 +401,7 @@ typedef struct spawnQueue_s
 #define QUEUE_PLUS1(x)  (((x)+1)%MAX_CLIENTS)
 #define QUEUE_MINUS1(x) (((x)-1)%MAX_CLIENTS)
 
-int       G_InitSpawnQueue( spawnQueue_t *sq );
+void      G_InitSpawnQueue( spawnQueue_t *sq );
 int       G_GetSpawnQueueLength( spawnQueue_t *sq );
 int       G_PopSpawnQueue( spawnQueue_t *sq );
 void      G_PushSpawnQueue( spawnQueue_t *sq, int clientNum );

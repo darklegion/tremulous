@@ -3318,7 +3318,8 @@ UI_LoadTremTeams
 */
 static void UI_LoadTremTeams( void )
 {
-  uiInfo.tremTeamCount = 3;
+  uiInfo.tremTeamCount = 4;
+  
   uiInfo.tremTeamList[ 0 ].text = String_Alloc( "Aliens" );
   uiInfo.tremTeamList[ 0 ].cmd = String_Alloc( "cmd team aliens\n" );
   uiInfo.tremTeamList[ 0 ].infopane = UI_FindInfoPaneByName( "alienteam" );
@@ -3330,6 +3331,10 @@ static void UI_LoadTremTeams( void )
   uiInfo.tremTeamList[ 2 ].text = String_Alloc( "Spectate" );
   uiInfo.tremTeamList[ 2 ].cmd = String_Alloc( "cmd team spectate\n" );
   uiInfo.tremTeamList[ 2 ].infopane = UI_FindInfoPaneByName( "spectateteam" );
+  
+  uiInfo.tremTeamList[ 3 ].text = String_Alloc( "Auto select" );
+  uiInfo.tremTeamList[ 3 ].cmd = String_Alloc( "cmd team auto\n" );
+  uiInfo.tremTeamList[ 3 ].infopane = UI_FindInfoPaneByName( "autoteam" );
 }
 
 /*
@@ -3475,7 +3480,7 @@ static void UI_LoadTremHumanArmouryBuys( )
   
   uiInfo.tremHumanArmouryBuyCount = 0;
   
-  for( i = WP_NONE +1; i < WP_NUM_WEAPONS; i++ )
+  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
     if( BG_FindTeamForWeapon( i ) == WUT_HUMANS &&
         BG_FindPurchasableForWeapon( i ) &&
@@ -3496,7 +3501,7 @@ static void UI_LoadTremHumanArmouryBuys( )
     }
   }
   
-  for( i = UP_NONE +1; i < UP_NUM_UPGRADES; i++ )
+  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
     if( BG_FindTeamForUpgrade( i ) == WUT_HUMANS &&
         BG_FindStagesForUpgrade( i, stage ) &&

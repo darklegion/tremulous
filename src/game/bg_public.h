@@ -127,19 +127,19 @@ typedef enum
 #define PMF_DUCKED          1
 #define PMF_JUMP_HELD       2
 #define PMF_CROUCH_HELD     4
-#define PMF_BACKWARDS_JUMP  8   // go into backwards land
-#define PMF_BACKWARDS_RUN   16    // coast down to backwards run
-#define PMF_TIME_LAND       32    // pm_time is time before rejump
-#define PMF_TIME_KNOCKBACK  64    // pm_time is an air-accelerate only time
-#define PMF_TIME_WATERJUMP  256   // pm_time is waterjump
-#define PMF_RESPAWNED       512   // clear after attack and jump buttons come up
+#define PMF_BACKWARDS_JUMP  8       // go into backwards land
+#define PMF_BACKWARDS_RUN   16      // coast down to backwards run
+#define PMF_TIME_LAND       32      // pm_time is time before rejump
+#define PMF_TIME_KNOCKBACK  64      // pm_time is an air-accelerate only time
+#define PMF_TIME_WATERJUMP  256     // pm_time is waterjump
+#define PMF_RESPAWNED       512     // clear after attack and jump buttons come up
 #define PMF_USE_ITEM_HELD   1024
-#define PMF_GRAPPLE_PULL    2048  // pull towards grapple location
-#define PMF_FOLLOW          4096  // spectate following another player
-#define PMF_SCOREBOARD      8192  // spectate as a scoreboard
-#define PMF_TIME_WALLJUMP   16384 //TA: for limiting wall jumping
-#define PMF_CHARGE          32768 //TA: keep track of pouncing
-#define PMF_WEAPON_SWITCH   65536 //TA: force a weapon switch
+#define PMF_WEAPON_RELOAD   2048    //TA: force a weapon switch
+#define PMF_FOLLOW          4096    // spectate following another player
+#define PMF_SCOREBOARD      8192    // spectate as a scoreboard
+#define PMF_TIME_WALLJUMP   16384   //TA: for limiting wall jumping
+#define PMF_CHARGE          32768   //TA: keep track of pouncing
+#define PMF_WEAPON_SWITCH   65536   //TA: force a weapon switch
 
 
 #define PMF_ALL_TIMES (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK|PMF_TIME_WALLJUMP)

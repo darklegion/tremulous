@@ -674,7 +674,7 @@ G_InitSpawnQueue
 Initialise a spawn queue
 ============
 */
-int G_InitSpawnQueue( spawnQueue_t *sq )
+void G_InitSpawnQueue( spawnQueue_t *sq )
 {
   sq->back = sq->front = 0;
   sq->back = QUEUE_MINUS1( sq->back );
@@ -1733,6 +1733,9 @@ void G_RunFrame( int levelTime )
   level.previousTime = level.time;
   level.time = levelTime;
   msec = level.time - level.previousTime;
+
+  //TA: seed the rng
+  srand( level.framenum );
 
   // get any cvar changes
   G_UpdateCvars( );

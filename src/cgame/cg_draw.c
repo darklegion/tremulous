@@ -1905,6 +1905,9 @@ static void CG_DrawLagometer( rectDef_t *rect, qhandle_t shader )
   if( cg.snap->ps.pm_type == PM_INTERMISSION )
     return;
 
+  if( !cg_lagometer.integer )
+    return;
+
   //
   // draw the graph
   //
