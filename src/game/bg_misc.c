@@ -1424,6 +1424,7 @@ classAttributes_t bg_classList[ ] =
     100.0f,                                         //float   stopSpeed;
     270.0f,                                         //float   jumpMagnitude;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
+    0,                                              //int     cost;
     0                                               //int     value;
   },
   { 
@@ -1459,7 +1460,8 @@ classAttributes_t bg_classList[ ] =
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
     130.0f,                                         //float   jumpMagnitude;
-    { PCL_A_B_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    { PCL_A_B_LEV1, PCL_A_O_BASE, PCL_NONE },       //int     children[ 3 ];
+    ABUILDER_COST,                                  //int     cost;
     ABUILDER_VALUE                                  //int     value;
   },
   { 
@@ -1495,7 +1497,8 @@ classAttributes_t bg_classList[ ] =
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
     270.0f,                                         //float   jumpMagnitude;
-    { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
+    { PCL_A_O_BASE, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    ABUILDER_UPG_COST,                              //int     cost;
     ABUILDER_UPG_VALUE                              //int     value;
   },
   {
@@ -1533,6 +1536,7 @@ classAttributes_t bg_classList[ ] =
     400.0f,                                         //float   stopSpeed;
     250.0f,                                         //float   jumpMagnitude;
     { PCL_A_O_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    SOLDIER_COST,                                   //int     cost;
     SOLDIER_VALUE                                   //int     value;
   },
   {
@@ -1570,6 +1574,7 @@ classAttributes_t bg_classList[ ] =
     300.0f,                                         //float   stopSpeed;
     270.0f,                                         //float   jumpMagnitude;
     { PCL_A_O_LEV2, PCL_A_O_LEV1_UPG, PCL_NONE },   //int     children[ 3 ];
+    HYDRA_COST,                                     //int     cost;
     HYDRA_VALUE                                     //int     value;
   },
   {
@@ -1607,6 +1612,7 @@ classAttributes_t bg_classList[ ] =
     300.0f,                                         //float   stopSpeed;
     270.0f,                                         //float   jumpMagnitude;
     { PCL_A_O_LEV2, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    HYDRA_UPG_COST,                                 //int     cost;
     HYDRA_UPG_VALUE                                 //int     value;
   },
   {
@@ -1644,6 +1650,7 @@ classAttributes_t bg_classList[ ] =
     100.0f,                                         //float   stopSpeed;
     400.0f,                                         //float   jumpMagnitude;
     { PCL_A_O_LEV3, PCL_A_O_LEV2_UPG, PCL_NONE },   //int     children[ 3 ];
+    CHIMERA_COST,                                   //int     cost;
     CHIMERA_VALUE                                   //int     value;
   },
   {
@@ -1681,6 +1688,7 @@ classAttributes_t bg_classList[ ] =
     100.0f,                                         //float   stopSpeed;
     400.0f,                                         //float   jumpMagnitude;
     { PCL_A_O_LEV3, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    CHIMERA_UPG_COST,                               //int     cost;
     CHIMERA_UPG_VALUE                               //int     value;
   },
   {
@@ -1718,6 +1726,7 @@ classAttributes_t bg_classList[ ] =
     200.0f,                                         //float   stopSpeed;
     270.0f,                                         //float   jumpMagnitude;
     { PCL_A_O_LEV4, PCL_A_O_LEV3_UPG, PCL_NONE },   //int     children[ 3 ];
+    DRAGOON_COST,                                   //int     cost;
     DRAGOON_VALUE                                   //int     value;
   },
   {
@@ -1755,6 +1764,7 @@ classAttributes_t bg_classList[ ] =
     200.0f,                                         //float   stopSpeed;
     270.0f,                                         //float   jumpMagnitude;
     { PCL_A_O_LEV4, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    DRAGOON_UPG_COST,                               //int     cost;
     DRAGOON_UPG_VALUE                               //int     value;
   },
   {
@@ -1792,6 +1802,7 @@ classAttributes_t bg_classList[ ] =
     100.0f,                                         //float   stopSpeed;
     170.0f,                                         //float   jumpMagnitude;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
+    BMOFO_COST,                                     //int     cost;
     BMOFO_VALUE                                     //int     value;
   },
   {
@@ -1829,6 +1840,7 @@ classAttributes_t bg_classList[ ] =
     100.0f,                                         //float   stopSpeed;
     220.0f,                                         //float   jumpMagnitude;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
+    0,                                              //int     cost;
     0                                               //int     value;
   },
   {
@@ -1843,7 +1855,7 @@ classAttributes_t bg_classList[ ] =
     
     "bsuit", ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), { 0, 0, 0 }, { 0, 0, 0, },                             
     { 0, 0, 0, }, { 0, 0, 0, }, { 0, 0, 0, }, 0.0f, 0, 0, 0, 0.0f, 0, 0, WP_NONE, 0.0f, 0,   
-    0.0f, 1.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 270.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0
+    0.0f, 1.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 270.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
   }
 };
 
@@ -2521,36 +2533,41 @@ BG_ClassCanEvolveFromTo
 */
 int BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int num )
 {
-  int i, j;
+  int i, j, cost;
 
+  cost = BG_FindCostOfClass( tclass );
+  
   //base case
-  if( credits == 0 )
-    return 0;
+  if( credits < cost )
+    return -1;
 
   if( fclass == PCL_NONE || tclass == PCL_NONE )
-    return 0;
+    return -1;
 
   for( i = 0; i < bg_numPclasses; i++ )
   {
     if( bg_classList[ i ].classNum == fclass )
     {
-      for( j = 0; j <= 3; j++ )
+      for( j = 0; j < 3; j++ )
         if( bg_classList[ i ].children[ j ] == tclass )
-          return num + 1;
+          return num + cost;
 
-      for( j = 0; j <= 3; j++ )
+      for( j = 0; j < 3; j++ )
       {
-        int sub = BG_ClassCanEvolveFromTo(  bg_classList[ i ].children[ j ],
-                                            tclass, credits - 1, num + 1 );
-        if( sub )
+        int sub;
+        
+        cost = BG_FindCostOfClass( bg_classList[ i ].children[ j ] );
+        sub = BG_ClassCanEvolveFromTo( bg_classList[ i ].children[ j ],
+                                       tclass, credits - cost, num + cost );
+        if( sub >= 0 )
           return sub;
       }
       
-      return 0; //may as well return by this point
+      return -1; //may as well return by this point
     }
   }
 
-  return 0;
+  return -1;
 }
 
 /*
@@ -2571,6 +2588,27 @@ int BG_FindValueOfClass( int pclass )
   }
   
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindValueOfClass\n" );
+  return 0;
+}
+
+/*
+==============
+BG_FindCostOfClass
+==============
+*/
+int BG_FindCostOfClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].cost;
+    }
+  }
+  
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindCostOfClass\n" );
   return 0;
 }
 

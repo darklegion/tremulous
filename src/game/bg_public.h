@@ -141,6 +141,7 @@ typedef enum
 #define PMF_SCOREBOARD      8192  // spectate as a scoreboard
 #define PMF_TIME_WALLJUMP   16384 //TA: for limiting wall jumping
 #define PMF_CHARGE          32768 //TA: keep track of pouncing
+#define PMF_WEAPON_SWITCH   65536 //TA: force a weapon switch
 
 
 #define PMF_ALL_TIMES (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK|PMF_TIME_WALLJUMP)
@@ -907,6 +908,7 @@ typedef struct
   float     jumpMagnitude;
 
   int       children[ 3 ];
+  int       cost;
   int       value;
 } classAttributes_t;
 
@@ -1128,6 +1130,7 @@ qboolean  BG_ClassHasAbility( int pclass, int ability );
 weapon_t  BG_FindStartWeaponForClass( int pclass );
 float     BG_FindBuildDistForClass( int pclass );
 int       BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int num );
+int       BG_FindCostOfClass( int pclass );
 int       BG_FindValueOfClass( int pclass );
 void      BG_InitClassOverrides( void );
 

@@ -2682,6 +2682,12 @@ static void PM_Weapon( void )
     }
     else
       pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
+    
+    if( pm->ps->weapon != pm->cmd.weapon && pm->ps->pm_flags & PMF_WEAPON_SWITCH )
+    {
+      pm->ps->pm_flags &= ~PMF_WEAPON_SWITCH;
+			PM_BeginWeaponChange( pm->cmd.weapon );
+    }
   }
   
   if( pm->ps->weaponTime > 0 )

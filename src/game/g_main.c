@@ -78,10 +78,12 @@ vmCvar_t  g_listEntity;
 vmCvar_t  g_humanBuildPoints;
 vmCvar_t  g_alienBuildPoints;
 vmCvar_t  g_humanStage;
+vmCvar_t  g_humanKills;
 vmCvar_t  g_humanMaxStage;
 vmCvar_t  g_humanStage2Threshold;
 vmCvar_t  g_humanStage3Threshold;
 vmCvar_t  g_alienStage;
+vmCvar_t  g_alienKills;
 vmCvar_t  g_alienMaxStage;
 vmCvar_t  g_alienStage2Threshold;
 vmCvar_t  g_alienStage3Threshold;
@@ -158,13 +160,15 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_humanBuildPoints, "g_humanBuildPoints", "1000", 0, 0, qfalse  },
   { &g_alienBuildPoints, "g_alienBuildPoints", "1000", 0, 0, qfalse  },
   { &g_humanStage, "g_humanStage", "0", 0, 0, qfalse  },
+  { &g_humanKills, "g_humanKills", "0", 0, 0, qfalse  },
   { &g_humanMaxStage, "g_humanMaxStage", "2", 0, 0, qfalse  },
-  { &g_humanStage2Threshold, "g_humanStage2Threshold", "25", 0, 0, qfalse  },
-  { &g_humanStage3Threshold, "g_humanStage3Threshold", "50", 0, 0, qfalse  },
+  { &g_humanStage2Threshold, "g_humanStage2Threshold", "15", 0, 0, qfalse  },
+  { &g_humanStage3Threshold, "g_humanStage3Threshold", "30", 0, 0, qfalse  },
   { &g_alienStage, "g_alienStage", "0", 0, 0, qfalse  },
+  { &g_alienKills, "g_alienKills", "0", 0, 0, qfalse  },
   { &g_alienMaxStage, "g_alienMaxStage", "2", 0, 0, qfalse  },
-  { &g_alienStage2Threshold, "g_alienStage2Threshold", "25", 0, 0, qfalse  },
-  { &g_alienStage3Threshold, "g_alienStage3Threshold", "50", 0, 0, qfalse  },
+  { &g_alienStage2Threshold, "g_alienStage2Threshold", "15", 0, 0, qfalse  },
+  { &g_alienStage3Threshold, "g_alienStage3Threshold", "30", 0, 0, qfalse  },
 
   { &g_debugMapRotation, "g_debugMapRotation", "0", 0, 0, qfalse  },
   { &g_currentMapRotation, "g_currentMapRotation", "-1", 0, 0, qfalse  }, // -1 = NOT_ROTATING
@@ -530,6 +534,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   //reset stages
   trap_Cvar_Set( "g_alienStage", va( "%d", S1 ) );
   trap_Cvar_Set( "g_humanStage", va( "%d", S1 ) );
+  trap_Cvar_Set( "g_alienKills", 0 );
+  trap_Cvar_Set( "g_humanKills", 0 );
 
   G_Printf( "-----------------------------------\n" );
 
@@ -754,6 +760,8 @@ void calculateBuildPoints( void )
         g_alienStage.integer, g_humanStage.integer ) );
 }
 
+#define PLAYER_COUNT_MOD 10.0f
+
 /*
 ============
 CalculateStages
@@ -761,17 +769,26 @@ CalculateStages
 */
 void CalculateStages( void )
 {
-  if( level.alienKills >= g_alienStage2Threshold.integer &&
+  float playerCountMod = (float)level.numPlayingClients / PLAYER_COUNT_MOD;
+
+  if( playerCountMod < 0.1f )
+    playerCountMod = 0.1f;
+  
+  if( g_alienKills.integer >=
+      (int)( (float)g_alienStage2Threshold.integer * playerCountMod ) &&
       g_alienStage.integer == S1 && g_alienMaxStage.integer > S1 )
     trap_Cvar_Set( "g_alienStage", va( "%d", S2 ) );
-  if( level.alienKills >= g_alienStage3Threshold.integer && 
+  if( g_alienKills.integer >=
+      (int)( (float)g_alienStage3Threshold.integer * playerCountMod ) &&
       g_alienStage.integer == S2 && g_alienMaxStage.integer > S2 )
     trap_Cvar_Set( "g_alienStage", va( "%d", S3 ) );
 
-  if( level.humanKills >= g_humanStage2Threshold.integer &&
+  if( g_humanKills.integer >=
+      (int)( (float)g_humanStage2Threshold.integer * playerCountMod ) &&
       g_humanStage.integer == S1 && g_humanMaxStage.integer > S1 )
     trap_Cvar_Set( "g_humanStage", va( "%d", S2 ) );
-  if( level.humanKills >= g_humanStage3Threshold.integer &&
+  if( g_humanKills.integer >=
+      (int)( (float)g_humanStage3Threshold.integer * playerCountMod ) &&
       g_humanStage.integer == S2 && g_humanMaxStage.integer > S2 )
     trap_Cvar_Set( "g_humanStage", va( "%d", S3 ) );
 }

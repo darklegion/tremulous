@@ -858,6 +858,17 @@ static void CG_ServerCommand( void )
 
     return;
   }
+
+  if( !strcmp( cmd, "weaponswitch" ) )
+  {
+    if( trap_Argc( ) == 2 )
+    {
+      cg.weaponSelect = atoi( CG_Argv( 1 ) );
+      cg.weaponSelectTime = cg.time;
+    }
+
+    return;
+  }
   
   CG_Printf( "Unknown client game command: %s\n", cmd );
 }

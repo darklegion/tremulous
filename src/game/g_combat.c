@@ -224,9 +224,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       attacker->client->lastKillTime = level.time;
       
       if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-        level.alienKills++;
+        trap_Cvar_Set( "g_alienKills", va( "%d", g_alienKills.integer + 1 ) );
       else if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-        level.humanKills++;
+        trap_Cvar_Set( "g_humanKills", va( "%d", g_humanKills.integer + 1 ) );
       
     }
   }

@@ -37,8 +37,8 @@
 #define ABUILDER_BLOB_SPEED_MOD     0.5f
 #define ABUILDER_BLOB_TIME          5000
 
-#define SOLDIER_BITE_DMG            ADM(50)
-#define SOLDIER_BITE_RANGE          32.0f
+#define SOLDIER_BITE_DMG            ADM(60)
+#define SOLDIER_BITE_RANGE          96.0f
 #define SOLDIER_BITE_REPEAT         500
 
 #define HYDRA_CLAW_DMG              ADM(40)
@@ -110,51 +110,61 @@
 #define ABUILDER_VALUE              AVM(50)
 #define ABUILDER_HEALTH             AHM(50)
 #define ABUILDER_REGEN              2
+#define ABUILDER_COST               0
 
 #define ABUILDER_UPG_SPEED          1.0f
 #define ABUILDER_UPG_VALUE          AVM(120)
 #define ABUILDER_UPG_HEALTH         AHM(75)
 #define ABUILDER_UPG_REGEN          3
+#define ABUILDER_UPG_COST           0
 
 #define SOLDIER_SPEED               1.3f
 #define SOLDIER_VALUE               AVM(50)
 #define SOLDIER_HEALTH              AHM(25)
 #define SOLDIER_REGEN               1
+#define SOLDIER_COST                0
 
 #define HYDRA_SPEED                 1.25f
 #define HYDRA_VALUE                 AVM(100)
 #define HYDRA_HEALTH                AHM(50)
 #define HYDRA_REGEN                 2
+#define HYDRA_COST                  1
 
 #define HYDRA_UPG_SPEED             1.25f
 #define HYDRA_UPG_VALUE             AVM(120)
 #define HYDRA_UPG_HEALTH            AHM(50)
 #define HYDRA_UPG_REGEN             2
+#define HYDRA_UPG_COST              1
 
 #define CHIMERA_SPEED               1.2f
 #define CHIMERA_VALUE               AVM(200)
 #define CHIMERA_HEALTH              AHM(100)
 #define CHIMERA_REGEN               3
+#define CHIMERA_COST                1
 
 #define CHIMERA_UPG_SPEED           1.2f
 #define CHIMERA_UPG_VALUE           AVM(340)
 #define CHIMERA_UPG_HEALTH          AHM(120)
 #define CHIMERA_UPG_REGEN           4
+#define CHIMERA_UPG_COST            1
 
 #define DRAGOON_SPEED               1.2f
 #define DRAGOON_VALUE               AVM(300)
 #define DRAGOON_HEALTH              AHM(200)
 #define DRAGOON_REGEN               5
+#define DRAGOON_COST                1
 
 #define DRAGOON_UPG_SPEED           1.2f
 #define DRAGOON_UPG_VALUE           AVM(360)
 #define DRAGOON_UPG_HEALTH          AHM(250)
 #define DRAGOON_UPG_REGEN           6
+#define DRAGOON_UPG_COST            1
 
 #define BMOFO_SPEED                 1.1f
 #define BMOFO_VALUE                 AVM(400)
 #define BMOFO_HEALTH                AHM(400)
 #define BMOFO_REGEN                 7
+#define BMOFO_COST                  2
 
 
 
@@ -172,7 +182,7 @@
  * 
  */
 
-#define ALIEN_BHLTH_MODIFIER        1.5f
+#define ALIEN_BHLTH_MODIFIER        0.5f
 #define ABHM(h)                     ((int)((float)h*ALIEN_BHLTH_MODIFIER))
 
 #define CREEP_BASESIZE              700 
@@ -191,7 +201,7 @@
 
 #define BARRICADE_BP                80
 #define BARRICADE_BT                10000
-#define BARRICADE_HEALTH            ABHM(250)
+#define BARRICADE_HEALTH            ABHM(500)
 #define BARRICADE_REGEN             15
 #define BARRICADE_SPLASHDAMAGE      50
 #define BARRICADE_SPLASHRADIUS      50
@@ -199,7 +209,7 @@
 
 #define BOOSTER_BP                  120
 #define BOOSTER_BT                  10000
-#define BOOSTER_HEALTH              ABHM(200)
+#define BOOSTER_HEALTH              ABHM(300)
 #define BOOSTER_REGEN               10
 #define BOOSTER_SPLASHDAMAGE        50
 #define BOOSTER_SPLASHRADIUS        50
@@ -208,7 +218,7 @@
 
 #define ACIDTUBE_BP                 50
 #define ACIDTUBE_BT                 10000
-#define ACIDTUBE_HEALTH             ABHM(100)
+#define ACIDTUBE_HEALTH             ABHM(200)
 #define ACIDTUBE_REGEN              10
 #define ACIDTUBE_SPLASHDAMAGE       40
 #define ACIDTUBE_SPLASHRADIUS       300
@@ -218,7 +228,7 @@
 
 #define HIVE_BP                     50
 #define HIVE_BT                     10000
-#define HIVE_HEALTH                 ABHM(100)
+#define HIVE_HEALTH                 ABHM(200)
 #define HIVE_REGEN                  10
 #define HIVE_SPLASHDAMAGE           30
 #define HIVE_SPLASHRADIUS           200
@@ -289,7 +299,7 @@
  * 
  */
 
-#define HUMAN_WDMG_MODIFIER         1.5f
+#define HUMAN_WDMG_MODIFIER         1.0f
 #define HDM(d)                      ((int)((float)d*HUMAN_WDMG_MODIFIER))
 
 #define BLASTER_REPEAT              1000
@@ -314,13 +324,13 @@
 #define SHOTGUN_RELOAD              2000
 #define SHOTGUN_PRICE               150
 #define SHOTGUN_SPREAD              900
-#define SHOTGUN_DMG                 HDM(5)
+#define SHOTGUN_DMG                 HDM(12)
 
-#define CHAINGUN_BULLETS            300
-#define CHAINGUN_REPEAT             50
-#define CHAINGUN_PRICE              200
+#define CHAINGUN_BULLETS            200
+#define CHAINGUN_REPEAT             75
+#define CHAINGUN_PRICE              300
 #define CHAINGUN_SPREAD             1200
-#define CHAINGUN_DMG                HDM(10)
+#define CHAINGUN_DMG                HDM(6)
 
 #define FLAMER_GAS                  80
 #define FLAMER_REPEAT               300
@@ -334,7 +344,7 @@
 #define MDRIVER_CLIPSIZE            5
 #define MDRIVER_SPAWNCLIPS          2
 #define MDRIVER_MAXCLIPS            3
-#define MDRIVER_PRICE               300
+#define MDRIVER_PRICE               250
 #define MDRIVER_DMG                 HDM(100)
 #define MDRIVER_REPEAT              1000
 #define MDRIVER_RELOAD              2000
@@ -349,7 +359,7 @@
 #define PRIFLE_SPEED                1500
 
 #define LCANNON_PRICE               400
-#define LCANNON_AMMO                30
+#define LCANNON_AMMO                60
 #define LCANNON_REPEAT              500
 #define LCANNON_CHARGEREPEAT        1000
 #define LCANNON_RELOAD              2000
@@ -423,7 +433,7 @@
  * 
  */
 
-#define HUMAN_BHLTH_MODIFIER        1.0f
+#define HUMAN_BHLTH_MODIFIER        0.5f
 #define HBHM(h)                     ((int)((float)h*HUMAN_BHLTH_MODIFIER))
 
 #define REACTOR_BASESIZE            1000
@@ -465,7 +475,7 @@
 #define TESLAGEN_SPLASHDAMAGE       50
 #define TESLAGEN_SPLASHRADIUS       100
 #define TESLAGEN_REPEAT             500
-#define TESLAGEN_RANGE              750
+#define TESLAGEN_RANGE              300
 #define TESLAGEN_DMG                HDM(20)
 
 #define DC_BP                       80

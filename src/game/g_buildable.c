@@ -933,7 +933,7 @@ static qboolean APropHovel_Blocked( vec3_t origin, vec3_t angles, vec3_t normal,
   VectorCopy( angles, hovel.s.angles );
   VectorCopy( normal, hovel.s.origin2 );
 
-  return AHovel_Use( &hovel, player, qfalse );
+  return AHovel_Blocked( &hovel, player, qfalse );
 }
 
 /*
@@ -2201,7 +2201,7 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   
   built->takedamage = qfalse;
   built->spawned = qfalse;
-  built->buildTime = level.time;
+  built->buildTime = built->s.time = level.time;
 
   //things that vary for each buildable that aren't in the dbase
   switch( buildable )

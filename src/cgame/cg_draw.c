@@ -1899,13 +1899,8 @@ static void CG_DrawLagometer( rectDef_t *rect, qhandle_t shader )
   float   vscale;
   vec4_t  white = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-  if( !cg_lagometer.integer )
-  {
-    if( cg.snap->ps.pm_type != PM_INTERMISSION )
-      CG_DrawDisconnect( );
-
+  if( cg.snap->ps.pm_type == PM_INTERMISSION )
     return;
-  }
 
   //
   // draw the graph

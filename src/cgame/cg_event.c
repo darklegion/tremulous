@@ -224,7 +224,7 @@ static void CG_Obituary( entityState_t *ent )
         message2 = "'s buildings alone";
         break;
       case MOD_SOLDIER_BITE:
-        message = "was biten by";
+        message = "was bitten by";
         break;
       case MOD_HYDRA_CLAW:
         message = "was swiped by";

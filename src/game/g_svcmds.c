@@ -535,6 +535,34 @@ qboolean  ConsoleCommand( void )
     return qtrue;
   }
 
+  if( Q_stricmp( cmd, "alienWin" ) == 0 )
+  {
+    int       i;
+    gentity_t *e;
+    
+    for( i = 1, e = g_entities + i; i < level.num_entities; i++, e++ )
+    {
+      if( e->s.modelindex == BA_H_SPAWN )
+        G_Damage( e, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+    }
+
+    return qtrue;
+  }
+  
+  if( Q_stricmp( cmd, "humanWin" ) == 0 )
+  {
+    int       i;
+    gentity_t *e;
+    
+    for( i = 1, e = g_entities + i; i < level.num_entities; i++, e++ )
+    {
+      if( e->s.modelindex == BA_A_SPAWN )
+        G_Damage( e, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+    }
+
+    return qtrue;
+  }
+  
   if( g_dedicated.integer )
   {
     if( Q_stricmp( cmd, "say" ) == 0 )
