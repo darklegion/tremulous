@@ -79,7 +79,12 @@
       forecolor 1 1 1 1
       backcolor 0 0 0 1
       visible 1
-      action { uiScript BuildAlienBuildable; close tremulous_alienbuild }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript BuildAlienBuildable;
+        close tremulous_alienbuild
+      }
     }
     
     itemDef
@@ -96,7 +101,11 @@
       forecolor 1 1 1 1
       backcolor 0 0 0 1
       visible 1 
-      action { close tremulous_alienbuild }
+      action
+      {
+        play "sound/misc/menu3.wav"; 
+        close tremulous_alienbuild
+      }
     }
   }
 }

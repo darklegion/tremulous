@@ -72,7 +72,7 @@
       visible 1 
       action
       {
-        play "sound/misc/kcaction.wav"; 
+        play "sound/misc/menu1.wav"; 
         close main; 
         open joinserver
       }
@@ -95,7 +95,7 @@
       visible 1 
       action
       {
-        play "sound/misc/kcaction.wav"; 
+        play "sound/misc/menu1.wav"; 
         open mod
       }
     }
@@ -116,7 +116,7 @@
       visible 1 
       action
       {
-        play "sound/misc/kcaction.wav";
+        play "sound/misc/menu1.wav";
         open quit_popmenu
       }
     }
@@ -124,7 +124,7 @@
     itemDef
     {
       name copyright
-      text "Q3A (C) 2000 Id Software Inc. Tremulous (C) 2002 Us."
+      text "Q3A (C) 2000 Id Software Inc. Tremulous (C) 2003 Us."
       style WINDOW_STYLE_EMPTY
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale .15

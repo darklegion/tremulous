@@ -192,7 +192,7 @@
       visible 1
       action
       {
-        play "sound/misc/nomenu.wav";
+        play "sound/misc/menu1.wav";
         close findplayer_popmenu;
         open joinserver
       }
@@ -216,7 +216,7 @@
       visible 1
       action
       {
-        play "sound/misc/nomenu.wav";
+        play "sound/misc/menu1.wav";
         ui_script FindPlayer
       }
     }

@@ -78,7 +78,12 @@
       forecolor 1 1 1 1
       backcolor .5 0 0 .25
       visible 1
-      action { uiScript BuildHumanBuildable; close tremulous_humanbuild }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript BuildHumanBuildable;
+        close tremulous_humanbuild
+      }
     }
     
     itemDef
@@ -95,7 +100,11 @@
       forecolor 1 1 1 1
       backcolor .5 0 0 .25
       visible 1 
-      action { close tremulous_humanbuild }
+      action
+      {
+        play "sound/misc/menu3.wav"; 
+        close tremulous_humanbuild
+      }
     }
   }
 }

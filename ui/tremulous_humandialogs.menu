@@ -75,7 +75,11 @@
       forecolor 1 1 1 1
       backcolor .5 0 0 .25
       visible 1 
-      action { close tremulous_human_dialog }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        close tremulous_human_dialog
+      }
     }
   }
 }

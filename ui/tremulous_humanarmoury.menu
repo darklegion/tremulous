@@ -40,7 +40,12 @@
       forecolor 1 1 1 1
       backcolor 0.0784314 0.14902 0.32549 .25
       visible 1
-      action { close tremulous_humanarmoury; open tremulous_humanarmourybuy }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        close tremulous_humanarmoury;
+        open tremulous_humanarmourybuy
+      }
     }
 
     itemDef
@@ -57,7 +62,12 @@
       forecolor 1 1 1 1
       backcolor 0.0784314 0.14902 0.32549 .25
       visible 1
-      action { close tremulous_humanarmoury; open tremulous_humanarmourysell }
+      action
+      {
+        play "sound/misc/menu3.wav"; 
+        close tremulous_humanarmoury;
+        open tremulous_humanarmourysell
+      }
     }
   }
 }

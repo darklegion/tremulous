@@ -182,6 +182,10 @@
       textscale .36        
       forecolor 1 1 1 1
       visible 1  
+      action
+      {
+        play "sound/misc/menu1.wav"
+      }
     }
 
     itemDef
@@ -223,6 +227,10 @@
       textscale .36
       forecolor 1 1 1 1
       visible 1
+      action
+      {
+        play "sound/misc/menu1.wav"
+      }
     }
                                                           
     itemDef
@@ -239,6 +247,10 @@
       textscale .36        
       forecolor 1 1 1 1
       visible 1  
+      action
+      {
+        play "sound/misc/menu1.wav"
+      }
     }
 
     itemDef
@@ -258,6 +270,10 @@
       textscale .36        
       forecolor 1 1 1 1
       visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"
+      }
     }
 
     itemDef
@@ -274,6 +290,10 @@
       textscale .36        
       forecolor 1 1 1 1
       visible 1  
+      action
+      {
+        play "sound/misc/menu1.wav"
+      }
     }
 
     itemDef
@@ -290,6 +310,10 @@
       textscale .36        
       forecolor 1 1 1 1
       visible 1  
+      action
+      {
+        play "sound/misc/menu1.wav"
+      }
     }
 
 
@@ -346,6 +370,10 @@
       textscale .36        
       forecolor 1 1 1 1
       visible 1  
+      action
+      {
+        play "sound/misc/menu1.wav"
+      }
     }
 
     itemDef
@@ -415,6 +443,7 @@
       visible 1 
       action
       {
+        play "sound/misc/menu4.wav"; 
         close createserver;
         open joinserver
       }
@@ -451,6 +480,7 @@
       
       action
       {
+        play "sound/misc/menu4.wav"; 
         close createserver;
         open joinserver
       }   
@@ -476,6 +506,7 @@
       
       action
       {
+        play "sound/misc/menu1.wav"; 
         close fight; //TA: no i don't know
         uiScript StartServer
       }
@@ -507,6 +538,7 @@
       
       action
       {
+        play "sound/misc/menu1.wav"; 
         close fight; //TA: no i don't know
         uiScript StartServer
       }

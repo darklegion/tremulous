@@ -47,7 +47,12 @@
       textaligny 17
       forecolor 1 1 1 1
       visible 1
-      action { exec "vote yes" ; uiScript closeingame }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        exec "vote yes";
+        uiScript closeingame
+      }
     }
 
     itemDef
@@ -62,7 +67,12 @@
       textaligny 17
       forecolor 1 1 1 1
       visible 1
-      action { exec "vote no" ; uiScript closeingame }
+      action
+      {
+        play "sound/misc/menu4.wav"; 
+        exec "vote no";
+        uiScript closeingame
+      }
     }
 
     itemDef
@@ -80,6 +90,7 @@
       visible 1
       action
       {
+        play "sound/misc/menu1.wav"; 
         hide grpCallVote;
         show misc;
 
@@ -104,6 +115,7 @@
       visible 1
       action
       {
+        play "sound/misc/menu1.wav"; 
         hide grpCallVote;
         show kick;
 
@@ -128,6 +140,7 @@
       visible 1
       action
       {
+        play "sound/misc/menu1.wav"; 
         hide grpCallVote;
         show map;
 
@@ -153,7 +166,12 @@
       textaligny 16
       forecolor 1 1 1 1
       visible 0
-      action { exec "cmd callvote map_restart" ; uiScript closeingame }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        exec "cmd callvote map_restart";
+        uiScript closeingame
+      }
     }
 
     itemDef
@@ -169,7 +187,12 @@
       textaligny 16
       forecolor 1 1 1 1
       visible 0
-      action { exec "cmd callvote nextmap" ; uiScript closeingame }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        exec "cmd callvote nextmap";
+        uiScript closeingame
+      }
     }
     
     
@@ -188,7 +211,6 @@
       forecolor 1 1 1 1
       visible 0
       decoration
-      action { }
     }
     
     itemDef
@@ -224,7 +246,12 @@
       textaligny 15
       forecolor 1 1 1 1
       visible 0
-      action { uiScript voteKick ; uiScript closeingame }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript voteKick;
+        uiScript closeingame
+      }
     }
 
 
@@ -244,7 +271,6 @@
       forecolor 1 1 1 1
       decoration
       visible 0
-      action { }
     }
     
     itemDef
@@ -280,7 +306,12 @@
       textaligny 15
       forecolor 1 1 1 1
       visible 0
-      action { uiScript voteMap ; uiScript closeingame }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript voteMap;
+        uiScript closeingame
+      }
     }
   }
 }

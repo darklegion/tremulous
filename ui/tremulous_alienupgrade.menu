@@ -79,7 +79,12 @@
       forecolor 1 1 1 1
       backcolor .5 0 0 .25
       visible 1
-      action { uiScript UpgradeToNewClass; close tremulous_alienupgrade }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript UpgradeToNewClass;
+        close tremulous_alienupgrade
+      }
     }
     
     itemDef
@@ -96,7 +101,11 @@
       forecolor 1 1 1 1
       backcolor .5 0 0 .25
       visible 1 
-      action { close tremulous_alienupgrade }
+      action
+      {
+        play "sound/misc/menu3.wav"; 
+        close tremulous_alienupgrade
+      }
     }
   }
 }

@@ -52,6 +52,7 @@
       visible 1 
       action
       {
+        play "sound/misc/menu1.wav"; 
         hide optionsGrp;
         show game;
         
@@ -77,6 +78,7 @@
       visible 1 
       action
       {
+        play "sound/misc/menu1.wav"; 
         hide optionsGrp;
         show controls;
         show look;
@@ -103,6 +105,7 @@
       visible 1 
       action
       {
+        play "sound/misc/menu1.wav"; 
         hide optionsGrp;
         show system;
         show ghardware;
@@ -147,6 +150,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -163,6 +170,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -179,6 +190,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -195,6 +210,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -212,6 +231,10 @@
       textscale .25         
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
 
@@ -234,6 +257,7 @@
       visible 0 
       action
       {
+        play "sound/misc/menu1.wav"; 
         hide optionsGrp;
         show controls;
         show look
@@ -257,6 +281,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -274,6 +302,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -291,6 +323,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
   
     itemDef
@@ -308,6 +344,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -325,6 +365,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -342,8 +386,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show yesno_message }
-      mouseexit { hide yesno_message }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -361,8 +407,6 @@
       textscale .25          
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show slider_message }
-      mouseexit { hide slider_message }
     }
 
     itemDef
@@ -380,9 +424,11 @@
       textscale .25               
       forecolor 1 1 1 1
       visible 0 
-      action { uiScript update ui_mousePitch }
-      mouseenter { show yesno_message }
-      mouseexit { hide yesno_message }
+      action 
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript update ui_mousePitch
+      }
     }
 
     itemDef
@@ -400,8 +446,10 @@
       textscale .25             
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show yesno_message }
-      mouseexit { hide yesno_message }
+      action 
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
         
 //////// MOVE
@@ -422,6 +470,7 @@
       visible 0 
       action
       {
+        play "sound/misc/menu1.wav"; 
         hide optionsGrp;
         show controls;
         show move
@@ -443,8 +492,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      mouseenter { show yesno_message }
-      mouseexit { hide yesno_message }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
     
     itemDef
@@ -462,6 +513,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -479,6 +534,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -496,6 +555,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -513,6 +576,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
   
     itemDef
@@ -530,6 +597,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -547,6 +618,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -564,6 +639,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -581,6 +660,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -598,6 +681,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -615,6 +702,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
   
     itemDef
@@ -632,6 +723,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
 
@@ -654,6 +749,7 @@
       visible 0 
       action
       {
+        play "sound/misc/menu1.wav"; 
         hide optionsGrp;
         show controls;
         show upgrades
@@ -675,6 +771,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -692,6 +792,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -709,6 +813,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -726,6 +834,10 @@
       textscale .25       
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
     
     itemDef
@@ -743,6 +855,10 @@
       textscale .25       
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
     
 //////// MISC
@@ -763,6 +879,7 @@
       visible 0 
       action
       {
+        play "sound/misc/menu1.wav"; 
         hide optionsGrp;
         show controls;
         show misc
@@ -784,6 +901,10 @@
       textscale .25                  
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
   
     itemDef
@@ -801,6 +922,10 @@
       textscale .25               
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
     
     itemDef
@@ -818,6 +943,10 @@
       textscale .25               
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -835,6 +964,10 @@
       textscale .25             
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
         
     itemDef
@@ -852,6 +985,10 @@
       textscale .25             
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
         
     itemDef
@@ -869,6 +1006,10 @@
       textscale .25           
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
   
     itemDef
@@ -886,6 +1027,10 @@
       textscale .25             
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -903,6 +1048,10 @@
       textscale .25            
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -920,6 +1069,10 @@
       textscale .25              
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -937,6 +1090,10 @@
       textscale .25             
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
 //////// SYSTEM
@@ -958,6 +1115,7 @@
       visible 0 
       action
       {
+        play "sound/misc/menu1.wav"; 
         hide optionsGrp;
         show system;
         show ghardware
@@ -981,7 +1139,11 @@
       textscale .25         
       forecolor 1 1 1 1
       visible 0 
-      action { uiScript update "ui_glCustom" }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript update "ui_glCustom"
+      }
     }
 
     itemDef
@@ -1016,7 +1178,11 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      action { uiScript glCustom }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript glCuston
+      }
     }
   
     itemDef
@@ -1036,7 +1202,11 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      action { uiScript glCustom }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript glCustom
+      }
     }
 
     itemDef
@@ -1054,7 +1224,12 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      action { uiScript glCustom ; uiScript update "r_colorbits" }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript glCustom;
+        uiScript update "r_colorbits"
+      }
     }
 
     itemDef
@@ -1071,7 +1246,11 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      action { uiScript glCustom }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript glCustom
+      }
     }
 
     itemDef
@@ -1089,7 +1268,11 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      action { uiScript glCustom }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript glCustom
+      }
     }
 
     itemDef
@@ -1107,7 +1290,12 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      action { uiScript glCustom ; uiScript update "r_lodbias" }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript glCustom;
+        uiScript update "r_lodbias"
+      }
     }
 
     itemDef
@@ -1125,7 +1313,11 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      action { uiScript glCustom }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript glCustom
+      }
     }
   
     itemDef
@@ -1143,6 +1335,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -1160,7 +1356,11 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      action { uiScript glCustom }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript glCustom
+      }
     }
 
     itemDef
@@ -1177,7 +1377,11 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
-      action { uiScript glCustom }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript glCustom
+      }
     }
 
     itemDef
@@ -1194,7 +1398,11 @@
       textaligny 15
       forecolor 1 1 1 1
       visible 0
-      action { exec "vid_restart" }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        exec "vid_restart"
+      }
     }
 
 //////// GFX SOFTWARE
@@ -1215,6 +1423,7 @@
       visible 0 
       action
       {
+        play "sound/misc/menu1.wav"; 
         hide optionsGrp;
         show system;
         show gsoftware
@@ -1268,6 +1477,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -1284,6 +1497,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
         
     itemDef
@@ -1301,6 +1518,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -1317,6 +1538,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -1333,6 +1558,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -1349,6 +1578,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -1365,6 +1598,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -1381,6 +1618,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -1397,6 +1638,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -1413,6 +1658,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -1430,6 +1679,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
 //////// GL INFO
@@ -1450,6 +1703,7 @@
       visible 0 
       action
       {
+        play "sound/misc/menu1.wav"; 
         hide optionsGrp;
         show system;
         show glinfo
@@ -1489,6 +1743,7 @@
       visible 0 
       action
       {
+        play "sound/misc/menu1.wav"; 
         hide optionsGrp;
         show system;
         show netsound
@@ -1509,6 +1764,10 @@
       forecolor 1 1 1 1
       visible 0 
       decoration
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -1558,6 +1817,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -1574,6 +1837,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
   
@@ -1591,6 +1858,10 @@
       forecolor 1 1 1 1
       visible 0 
       decoration
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
 
     itemDef
@@ -1608,6 +1879,10 @@
       textscale .25        
       forecolor 1 1 1 1
       visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
     }
   }
 }

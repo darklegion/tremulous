@@ -119,7 +119,7 @@
       visible 1
       action
       {
-        play "sound/misc/nomenu.wav";
+        play "sound/misc/menu1.wav";
         uiScript CreateFavorite;
         close createfavorite_popmenu;
         open joinserver

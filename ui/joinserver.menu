@@ -100,7 +100,10 @@
       forecolor 1 1 1 1
       backcolor .5 .5 .5 .5
       visible 1 
-      action { play "sound/misc/kcaction.wav" }
+      action
+      {
+        play "sound/misc/menu1.wav"
+      }
     }
 
     //  BUTTONS   //
@@ -121,7 +124,7 @@
       visible 1 
       action
       {
-        play "sound/misc/nomenu.wav";
+        play "sound/misc/menu1.wav";
         uiScript RefreshServers
       }       
     }
@@ -142,7 +145,7 @@
       visible 1 
       action
       {
-        play "sound/misc/nomenu.wav";
+        play "sound/misc/menu1.wav";
         uiScript RefreshFilter
       }        
     }
@@ -164,7 +167,7 @@
       visible 1 
       action
       {
-        play "sound/misc/nomenu.wav";
+        play "sound/misc/menu1.wav";
         uiScript RefreshFilter
       }
     }
@@ -186,8 +189,8 @@
       visible 1 
       action
       {
-        uiScript RefreshFilter;
-        play "sound/misc/nomenu.wav"
+        play "sound/misc/menu1.wav";
+        uiScript RefreshFilter
       }
     }
 
@@ -209,6 +212,7 @@
       visible     1
       action 
       {
+        play "sound/misc/menu1.wav";
         conditionalopen cl_punkbuster pbdisable_popmenu pbenable_popmenu
       }
     }
@@ -379,7 +383,7 @@
       visible 1 
       action
       {
-        play "sound/misc/nomenu.wav"; 
+        play "sound/misc/menu1.wav"; 
         uiScript ServerSort 0; 
       
         setitemcolor grpColumn backcolor 0 0 0 0; 
@@ -407,7 +411,7 @@
       visible 1 
       action
       {
-        play "sound/misc/nomenu.wav"; 
+        play "sound/misc/menu1.wav"; 
         uiScript ServerSort 1; 
       
         setitemcolor grpColumn backcolor 0 0 0 0; 
@@ -435,7 +439,7 @@
       visible 1 
       action
       {
-        play "sound/misc/nomenu.wav"; 
+        play "sound/misc/menu1.wav"; 
         uiScript ServerSort 2; 
       
         setitemcolor grpColumn backcolor 0 0 0 0; 
@@ -463,7 +467,7 @@
       visible 1 
       action
       {
-        play "sound/misc/nomenu.wav"; 
+        play "sound/misc/menu1.wav"; 
         uiScript ServerSort 5;
       
         setitemcolor grpColumn backcolor 0 0 0 0; 
@@ -492,7 +496,7 @@
       visible 1 
       action
       {
-        play "sound/misc/nomenu.wav"; 
+        play "sound/misc/menu1.wav"; 
         uiScript ServerSort 4; 
       
         setitemcolor grpColumn backcolor 0 0 0 0; 
@@ -515,8 +519,11 @@
       backcolor 0 0 0 1
       forecolor 1 1 1 1
       visible 1 
-      action { play "sound/misc/kcaction.wav" ; 
-      open password_popmenu }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        open password_popmenu
+      }
     }
 
     itemDef
@@ -533,8 +540,11 @@
       backcolor 0 0 0 1
       forecolor 1 1 1 1
       visible 1 
-      action { play "sound/misc/kcaction.wav" ; 
-      open createfavorite_popmenu }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        open createfavorite_popmenu
+      }
     }
     
     itemDef
@@ -552,8 +562,11 @@
       backcolor 0 0 0 1
       forecolor 1 1 1 1
       visible 1 
-      action { play "sound/misc/nomenu.wav" ; 
-      uiScript addFavorite }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript addFavorite 
+      }
     }
 
     itemDef
@@ -571,8 +584,12 @@
       backcolor 0 0 0 1
       forecolor 1 1 1 1
       visible 1 
-      action { play "sound/misc/nomenu.wav" ; 
-      uiScript DeleteFavorite ; uiScript UpdateFilter }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript DeleteFavorite;
+        uiScript UpdateFilter
+      }
     }
     
     itemDef
@@ -589,8 +606,11 @@
       backcolor 0 0 0 1
       forecolor 1 1 1 1
       visible 1 
-      action { play "sound/misc/kcaction.wav" ; 
-      open serverinfo_popmenu }
+      action
+      {
+        play "sound/misc/menu1.wav";
+        open serverinfo_popmenu
+      }
     }
     
     itemDef
@@ -607,8 +627,11 @@
       backcolor 0 0 0 1
       forecolor 1 1 1 1
       visible 1 
-      action { play "sound/misc/kcaction.wav" ; 
-      open findplayer_popmenu }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        open findplayer_popmenu
+      }
     }
     
 
@@ -629,6 +652,7 @@
       visible 1 
       action
       {
+        play "sound/misc/menu1.wav"; 
         close joinserver;
         open createserver
       }        
@@ -646,6 +670,7 @@
       visible 1 
       action
       {
+        play "sound/misc/menu4.wav"; 
         close joinserver;
         open main
       }
@@ -682,6 +707,7 @@
       
       action
       {
+        play "sound/misc/menu4.wav"; 
         close joinserver;
         open main
       }   
@@ -705,7 +731,11 @@
         show accept_alt
       }
       
-      action { uiScript JoinServer }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript JoinServer
+      }
     }
 
     itemDef
@@ -732,7 +762,11 @@
         show accept
       }
       
-      action { uiScript JoinServer }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript JoinServer
+      }
     }
   }
 }

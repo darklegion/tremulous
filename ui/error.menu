@@ -17,6 +17,7 @@
     onOpen { }
     onESC
     {
+      play "sound/misc/menu1.wav"; 
       close error_popmenu;
       open main
     }
@@ -91,7 +92,7 @@
       visible 1
       action
       {
-        play "sound/misc/nomenu.wav";
+        play "sound/misc/menu1.wav"; 
         close error_popmenu;
         open main
       }

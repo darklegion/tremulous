@@ -66,6 +66,7 @@
       visible 1
       action
       {
+        play "sound/misc/menu1.wav"; 
         uiScript setPbClStatus 1;
         close pbenable_popmenu; 
         open joinserver
@@ -86,6 +87,7 @@
       visible 1
       action
       {
+        play "sound/misc/menu4.wav"; 
         close pbenable_popmenu;
         open joinserver
       }
@@ -156,6 +158,7 @@
       visible 1
       action
       {
+        play "sound/misc/menu1.wav"; 
         close pbdisable_popmenu; 
         open pbmsg_popmenu
       }
@@ -175,6 +178,7 @@
       visible 1
       action
       {
+        play "sound/misc/menu4.wav"; 
         close pbdisable_popmenu;
         open joinserver
       }
@@ -195,6 +199,7 @@
     popup
     onESC
     {
+      play "sound/misc/menu4.wav"; 
       close pbmsg_popmenu;
       open joinserver
     }
@@ -277,6 +282,7 @@
       visible 1
       action
       {
+        play "sound/misc/menu1.wav"; 
         uiScript setPbClStatus 0;
         close pbmsg_popmenu; 
         open joinserver

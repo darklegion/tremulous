@@ -109,7 +109,7 @@
       visible 1
       action
       {
-        play "sound/misc/nomenu.wav"; 
+        play "sound/misc/menu1.wav"; 
         close serverinfo_popmenu; 
         open joinserver
       }
@@ -131,7 +131,11 @@
       forecolor 1 1 1 1
       backcolor .37 .1 .1 1
       visible 1
-      action { uiScript ServerStatus }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript ServerStatus
+      }
     }
   }
 }

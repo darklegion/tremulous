@@ -63,7 +63,11 @@
       textscale .4
       forecolor 1 1 1 1
       visible 1
-      action { open ingame_about }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        open ingame_about
+      }
     }
 
     itemDef
@@ -79,7 +83,11 @@
       textscale .4
       forecolor 1 1 1 1
       visible 1 
-      action { open ingame_options }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        open ingame_options
+      }
     }
 
     itemDef
@@ -95,7 +103,11 @@
       textscale .4
       forecolor 1 1 1 1
       visible 1 
-      action { open ingame_vote }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        open ingame_vote
+      }
     }
 
     itemDef
@@ -111,86 +123,11 @@
       textscale .4
       forecolor 1 1 1 1
       visible 1 
-      action { open ingame_leave }
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        open ingame_leave
+      }
     }
-/*    itemDef
-    {
-      name player
-      text "Player"
-      type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_FILLED
-      rect 232 0 48 20
-      textalign 1 
-      textalignx 29      
-      textaligny 22
-      textscale .25
-      forecolor 1 1 1 1
-      backcolor 0 .17 0 1 
-      visible 1
-      action { open ingame_player } 
-      mouseEnter { setitemcolor player backcolor .1 .37 .1 1 }
-      mouseExit { setitemcolor player backcolor 0 .17 0 1 }
-    }*/
-
-/*    itemDef
-    {
-      name controls
-      text "Controls"
-      type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_FILLED
-      rect 290 0 48 20
-      textalign 1 
-      textalignx 29      
-      textaligny 22
-      textscale .25
-      forecolor 1 1 1 1
-      backcolor 0 .17 0 1 
-      visible 1 
-      action { open ingame_controls }
-      mouseEnter { setitemcolor controls backcolor .1 .37 .1 1 }
-      mouseExit { setitemcolor controls backcolor 0 .17 0 1 }
-    }*/
-
-/*    itemDef
-    {
-      name system
-      text "System"
-      type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_FILLED
-      rect 406 0 58 30
-      textalign 1 
-      textalignx 29      
-      textaligny 22
-      textscale .25
-      forecolor 1 1 1 1
-      backcolor 0 .17 0 1 
-      visible 1 
-      action { open ingame_system }
-      mouseEnter { setitemcolor system backcolor .1 .37 .1 1 }
-      mouseExit { setitemcolor system backcolor 0 .17 0 1 }
-    }*/
-
-/*    itemDef
-    {
-      name callvote
-      text "CallVote"
-      type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_FILLED
-      cvarTest "ui_singleplayeractive"
-      disableCvar { "1" }
-
-      rect 522 0 58 30
-      textalign 1 
-      textalignx 29      
-      textaligny 22
-      textscale .25
-      forecolor 1 1 1 1
-      backcolor 0 .17 0 1 
-      visible 1 
-      action { open ingame_callvote }
-      mouseEnter { setitemcolor callvote backcolor .1 .37 .1 1 }
-      mouseExit { setitemcolor callvote backcolor 0 .17 0 1 }
-    }*/
-    
   }
 }

@@ -58,6 +58,7 @@
       visible 1
       doubleClick
       {
+        play "sound/misc/menu1.wav"; 
         uiScript RunMod
       }
     }
@@ -76,6 +77,7 @@
       visible 1
       action
       { 
+        play "sound/misc/menu1.wav";
         close mod;
         uiScript RunMod
       }
@@ -95,7 +97,9 @@
       visible 1
       action
       { 
-        close mod
+        play "sound/misc/menu3.wav";
+        close mod;
+        open main
       }
     }
   }
