@@ -1123,7 +1123,7 @@ void ClientThink_real( gentity_t *ent )
         client->ps.stats[ STAT_STATE ] &= ~SS_HOVELING;
         
         //hovel is empty
-        G_setBuildableAnim( hovel, BANIM_ATTACK1, qfalse );
+        G_setBuildableAnim( hovel, BANIM_ATTACK2, qfalse );
         hovel->active = qfalse;
       }
       else

@@ -43,7 +43,7 @@
 
 #define HYDRA_CLAW_DMG              ADM(40)
 #define HYDRA_CLAW_RANGE            96.0f
-#define HYDRA_CLAW_REPEAT           500
+#define HYDRA_CLAW_REPEAT           600
 #define HYDRA_CLAW_U_REPEAT         500
 #define HYDRA_GRAB_RANGE            64.0f
 #define HYDRA_GRAB_TIME             1000
@@ -54,17 +54,17 @@
 
 #define CHIMERA_CLAW_DMG            ADM(50)
 #define CHIMERA_CLAW_RANGE          96.0f
-#define CHIMERA_CLAW_REPEAT         400
-#define CHIMERA_CLAW_U_REPEAT       300
+#define CHIMERA_CLAW_REPEAT         500
+#define CHIMERA_CLAW_U_REPEAT       400
 #define CHIMERA_AREAZAP_DMG         ADM(75)
 #define CHIMERA_AREAZAP_RANGE       200.0f
 #define CHIMERA_AREAZAP_REPEAT      1500
 #define CHIMERA_WALLJUMP_MAXSPEED   1000.0f
 
-#define DRAGOON_CLAW_DMG            ADM(75)
+#define DRAGOON_CLAW_DMG            ADM(100)
 #define DRAGOON_CLAW_RANGE          96.0f
-#define DRAGOON_CLAW_REPEAT         750
-#define DRAGOON_CLAW_U_REPEAT       500
+#define DRAGOON_CLAW_REPEAT         700
+#define DRAGOON_CLAW_U_REPEAT       600
 #define DRAGOON_POUNCE_DMG          ADM(200)
 #define DRAGOON_POUNCE_RANGE        96.0f
 #define DRAGOON_POUNCE_SPEED        700
