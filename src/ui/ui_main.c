@@ -2909,8 +2909,6 @@ static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key, qboo
 static qboolean UI_NetSource_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     
-    Com_Printf( "pre1 ui_netSource: %d\n", ui_netSource.integer );
-    
     if (key == K_MOUSE2) {
       ui_netSource.integer--;
       if (ui_netSource.integer == AS_MPLAYER)
@@ -2921,16 +2919,12 @@ static qboolean UI_NetSource_HandleKey(int flags, float *special, int key) {
         ui_netSource.integer++;
     }
 
-    Com_Printf( "pre  ui_netSource: %d\n", ui_netSource.integer );
-    
     if (ui_netSource.integer >= numNetSources) {
       ui_netSource.integer = 0;
     } else if (ui_netSource.integer < 0) {
       ui_netSource.integer = numNetSources - 1;
     }
 
-    Com_Printf( "post ui_netSource: %d\n", ui_netSource.integer );
-    
     UI_BuildServerDisplayList(qtrue);
     if (ui_netSource.integer != AS_GLOBAL) {
       UI_StartServerRefresh(qtrue);

@@ -382,7 +382,7 @@ void ASpawn_Melt( gentity_t *self )
 {
   //FIXME: this line crashes the QVM (but not binary when MOD is set to MOD_[H/D]SPAWN
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
-    self->splashRadius, self, MOD_SHOTGUN, PTE_ALIENS );
+    self->splashRadius, self, MOD_ASPAWN, PTE_ALIENS );
 
   //start creep recession
   if( !( self->s.eFlags & EF_DEAD ) )
@@ -555,7 +555,7 @@ void AOvermind_Think( gentity_t *self )
       {
         self->timestamp = level.time;
         G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
-          self->splashRadius, self, MOD_SHOTGUN, PTE_ALIENS );
+          self->splashRadius, self, MOD_OVERMIND, PTE_ALIENS );
         G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
       }
     }

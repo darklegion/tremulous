@@ -140,11 +140,14 @@ typedef enum {
   UIMENU_POSTGAME
 } uiMenuCommand_t;
 
-#define SORT_HOST         0
-#define SORT_MAP          1
-#define SORT_CLIENTS      2
-#define SORT_PING         3
-#define SORT_PUNKBUSTER   4
+typedef enum
+{
+  SORT_HOST,
+  SORT_MAP,
+  SORT_CLIENTS,
+  SORT_PUNKBUSTER,
+  SORT_PING
+} serverSortField_t;
 
 typedef enum {
   UI_GETAPIVERSION = 0, // system reserved
