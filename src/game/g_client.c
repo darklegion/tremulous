@@ -1287,7 +1287,8 @@ after the first ClientBegin, and after each respawn
 Initializes all non-persistant parts of playerState
 ============
 */
-void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
+void ClientSpawn( gentity_t *ent, gentity_t *spawn )
+{
   int                 index;
   vec3_t              spawn_origin, spawn_angles;
   gclient_t           *client;
@@ -1526,6 +1527,25 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
 
   G_SetOrigin( ent, spawn_origin );
   VectorCopy( spawn_origin, client->ps.origin );
+
+#define UP_VEL  150.0f
+#define F_VEL   50.0f
+
+  //give aliens some spawn velocity
+  if( client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
+  {
+    if( spawnPoint->s.origin2[ 2 ] > 0.0f )
+    {
+      vec3_t  forward, dir;
+      
+      AngleVectors( spawn_angles, forward, NULL, NULL );
+      VectorScale( forward, F_VEL, forward );
+      VectorAdd( spawn->s.origin2, forward, dir );
+      VectorNormalize( dir );
+
+      VectorScale( dir, UP_VEL, client->ps.velocity );
+    }
+  }
 
   // the respawned flag will be cleared after the attack and jump keys come up
   client->ps.pm_flags |= PMF_RESPAWNED;

@@ -692,7 +692,7 @@ void CG_RegisterWeapon( int weaponNum ) {
     break;
 
   case WP_LOCKBLOB_LAUNCHER:
-    weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/sawblade/sawblade.md3" );
+    weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/trapper/trapper.md3" );
 /*    weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/rocket/rockfly.wav", qfalse );
     weaponInfo->missileTrailFunc = CG_RocketTrail;
     weaponInfo->missileDlight = 200;

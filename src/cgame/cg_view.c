@@ -429,6 +429,60 @@ static void CG_OffsetFirstPersonView( void ) {
     }
   }
 
+#define STRUGGLE_DIST 5.0f
+#define STRUGGLE_TIME 250
+
+  //allow the player to struggle a little whilst grabbed
+  if( cg.predictedPlayerState.pm_type == PM_GRABBED )
+  {
+    vec3_t    forward, right, up;
+    usercmd_t cmd;
+    int       cmdNum;
+    float     fFraction, rFraction, uFraction;
+    float     fFraction2, rFraction2, uFraction2;
+
+    cmdNum = trap_GetCurrentCmdNumber();
+    trap_GetUserCmd( cmdNum, &cmd );
+
+    AngleVectors( angles, forward, right, up );
+
+    fFraction = (float)( cg.time - cg.forwardMoveTime ) / STRUGGLE_TIME;
+    rFraction = (float)( cg.time - cg.rightMoveTime ) / STRUGGLE_TIME;
+    uFraction = (float)( cg.time - cg.upMoveTime ) / STRUGGLE_TIME;
+
+    if( fFraction > 1.0f )
+      fFraction = 1.0f;
+    if( rFraction > 1.0f )
+      rFraction = 1.0f;
+    if( uFraction > 1.0f )
+      uFraction = 1.0f;
+    
+    fFraction2 = -sin( fFraction * M_PI / 2 );
+    rFraction2 = -sin( rFraction * M_PI / 2 );
+    uFraction2 = -sin( uFraction * M_PI / 2 );
+      
+    if( cmd.forwardmove > 0 )
+      VectorMA( origin, STRUGGLE_DIST * fFraction, forward, origin );
+    else if( cmd.forwardmove < 0 )
+      VectorMA( origin, -STRUGGLE_DIST * fFraction, forward, origin );
+    else
+      cg.forwardMoveTime = cg.time;
+      
+    if( cmd.rightmove > 0 )
+      VectorMA( origin, STRUGGLE_DIST * rFraction, right, origin );
+    else if( cmd.rightmove < 0 )
+      VectorMA( origin, -STRUGGLE_DIST * rFraction, right, origin );
+    else
+      cg.rightMoveTime = cg.time;
+      
+    if( cmd.upmove > 0 )
+      VectorMA( origin, STRUGGLE_DIST * uFraction, up, origin );
+    else if( cmd.upmove < 0 )
+      VectorMA( origin, -STRUGGLE_DIST * uFraction, up, origin );
+    else
+      cg.upMoveTime = cg.time;
+  }
+
   //TA: this *feels* more realisitic for humans
   if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {

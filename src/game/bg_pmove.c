@@ -336,6 +336,9 @@ static float PM_CmdScale( usercmd_t *cmd ) {
       modifier *= (float)( pm->ps->stats[ STAT_STAMINA ] + 1000 ) / 500.0f;
   }
 
+  if( pm->ps->pm_type == PM_GRABBED )
+    modifier = 0.0f;
+
   if( !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_CANJUMP ) )
     cmd->upmove = 0;
 
@@ -463,6 +466,13 @@ static qboolean PM_CheckJump( void )
 
   if ( pm->cmd.upmove < 10 ) {
     // not holding jump
+    return qfalse;
+  }
+
+  //can't jump whilst grabbed
+  if( pm->ps->pm_type == PM_GRABBED )
+  {
+    pm->cmd.upmove = 0;
     return qfalse;
   }
 

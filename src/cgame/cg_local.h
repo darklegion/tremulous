@@ -669,6 +669,10 @@ typedef struct {
   vec3_t    lastNormal;   //TA: view smoothage
   vec3_t    lastVangles;  //TA: view smoothage
   smooth_t  sList[ MAXSMOOTHS ]; //TA: WW smoothing
+
+  int       forwardMoveTime; //TA: for struggling
+  int       rightMoveTime;
+  int       upMoveTime;
 } cg_t;
 
 
