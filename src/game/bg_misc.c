@@ -1282,6 +1282,7 @@ classAttributes_t bg_classList[ ] =
     "Builder",                                      //char    *className;
     "Builder",                                      //char    *humanName;
     "lucy",                                         //char    *modelname;
+    1.0f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
@@ -1310,6 +1311,7 @@ classAttributes_t bg_classList[ ] =
     "BuilderLevel1",                                //char    *classname;
     "Advanced Builder",                             //char    *humanname;
     "lucy",                                         //char    *modelname;
+    1.0f,                                           //float   modelScale;
     "angel",                                        //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S2 )|( 1 << S3 ),                        //int  stages
@@ -1338,6 +1340,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive",                                                //char    *classname;
     "Offensive",                                                //char    *humanname;
     "klesk",                                                    //char    *modelname;
+    0.5f,                                                       //float   modelScale;
     "default",                                                  //char    *skinname;
     "alien_hud",                                                //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),                        //int  stages
@@ -1366,6 +1369,7 @@ classAttributes_t bg_classList[ ] =
     "OffensiveLevel1",                            //char    *classname;
     "Offensive Level 1",                          //char    *humanname;
     "anarki",                                     //char    *modelname;
+    1.0f,                                         //float   modelScale;
     "default",                                    //char    *skinname;
     "alien_hud",                                  //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),          //int  stages
@@ -1394,6 +1398,7 @@ classAttributes_t bg_classList[ ] =
     "OffensiveLevel1-Upgrade",                    //char    *classname;
     "Offensive Level 1 Upgrade",                  //char    *humanname;
     "anarki",                                     //char    *modelname;
+    1.0f,                                         //float   modelScale;
     "default",                                    //char    *skinname;
     "alien_hud",                                  //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),          //int  stages
@@ -1422,6 +1427,7 @@ classAttributes_t bg_classList[ ] =
     "OffensiveLevel2",                            //char    *classname;
     "Offensive Level 2",                          //char    *humanname;
     "bones",                                      //char    *modelname;
+    1.0f,                                         //float   modelScale;
     "default",                                    //char    *skinname;
     "alien_hud",                                  //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),          //int  stages
@@ -1450,6 +1456,7 @@ classAttributes_t bg_classList[ ] =
     "OffensiveLevel2-Upgrade",                    //char    *classname;
     "Offensive Level 2 Upgrade",                  //char    *humanname;
     "bones",                                      //char    *modelname;
+    1.0f,                                         //float   modelScale;
     "default",                                    //char    *skinname;
     "alien_hud",                                  //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),          //int  stages
@@ -1478,6 +1485,7 @@ classAttributes_t bg_classList[ ] =
     "OffensiveLevel3",                            //char    *classname;
     "Offensive Level 3",                          //char    *humanname;
     "orbb",                                       //char    *modelname;
+    1.0f,                                         //float   modelScale;
     "default",                                    //char    *skinname;
     "alien_hud",                                  //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),          //int  stages
@@ -1506,6 +1514,7 @@ classAttributes_t bg_classList[ ] =
     "OffensiveLevel3-Upgrade",                    //char    *classname;
     "Offensive Level 3 Upgrade",                  //char    *humanname;
     "orbb",                                       //char    *modelname;
+    1.0f,                                         //float   modelScale;
     "default",                                    //char    *skinname;
     "alien_hud",                                  //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),          //int  stages
@@ -1534,6 +1543,7 @@ classAttributes_t bg_classList[ ] =
     "OffensiveLevel4",                            //char    *classname;
     "Offensive Level 4",                          //char    *humanname;
     "xaero",                                      //char    *modelname;
+    1.0f,                                         //float   modelScale;
     "default",                                    //char    *skinname;
     "alien_hud",                                  //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),          //int  stages
@@ -1562,6 +1572,7 @@ classAttributes_t bg_classList[ ] =
     "Human",                                    //char    *classname;
     "Human",                                    //char    *humanname;
     "sarge",                                    //char    *modelname;
+    1.0f,                                       //float   modelScale;
     "default",                                  //char    *skinname;
     "human_hud",                                //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),        //int  stages
@@ -1663,6 +1674,26 @@ char *BG_FindModelNameForClass( int pclass )
 
   //note: must return a valid modelName!
   return bg_classList[ 0 ].modelName;
+}
+
+/*
+==============
+BG_FindModelScaleForClass
+==============
+*/
+float BG_FindModelScaleForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].modelScale;
+    }
+  }
+  
+  return 1.0f;
 }
 
 /*
@@ -3699,10 +3730,9 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
   s->powerups = ps->stats[ STAT_PTEAM ] | ( ps->stats[ STAT_PCLASS ] << 8 );
 
   //TA: have to get the surfNormal thru somehow...
+  VectorCopy( ps->grapplePoint, s->angles2 );
   if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
-    VectorCopy( ceilingNormal, s->angles2 );
-  else
-    VectorCopy( ps->grapplePoint, s->angles2 );
+    s->eFlags |= EF_WALLCLIMBCEILING;
 
   s->loopSound = ps->loopSound;
   s->generic1 = ps->generic1;
@@ -3799,10 +3829,9 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   s->powerups = ps->stats[ STAT_PTEAM ] | ( ps->stats[ STAT_PCLASS ] << 8 );
 
   //TA: have to get the surfNormal thru somehow...
+  VectorCopy( ps->grapplePoint, s->angles2 );
   if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
-    VectorCopy( ceilingNormal, s->angles2 );
-  else
-    VectorCopy( ps->grapplePoint, s->angles2 );
+    s->eFlags |= EF_WALLCLIMBCEILING;
 
   s->loopSound = ps->loopSound;
   s->generic1 = ps->generic1;
@@ -3929,3 +3958,49 @@ qboolean BG_activated( int item, int stats[ ] )
   return( stats[ STAT_ACTIVEITEMS ] & ( 1 << item ) );
 }
 
+qboolean BG_rotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
+                        vec3_t outAxis[ 3 ], qboolean inverse, qboolean ceiling )
+{
+  vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
+  vec3_t  ceilingNormal = { 0.0f, 0.0f, -1.0f };
+  vec3_t  localNormal, xNormal;
+  float   rotAngle;
+  
+  //the grapplePoint being a surfNormal rotation Normal hack... see above :)
+  if( ceiling )
+  {
+    VectorCopy( ceilingNormal, localNormal );
+    VectorCopy( surfNormal, xNormal );
+  }
+  else
+  {
+    //cross the reference normal and the surface normal to get the rotation axis
+    VectorCopy( surfNormal, localNormal );
+    CrossProduct( localNormal, refNormal, xNormal );
+    VectorNormalize( xNormal );
+  }
+
+  //if we're a wall climber.. and we're climbing rotate the axis
+  if( VectorLength( xNormal ) != 0.0f )
+  {
+    //if the normal pointing straight down then the rotAngle will always be 180deg
+    if( surfNormal[ 2 ] == -1.0f )
+      rotAngle = 180.0f;
+    else
+      rotAngle = RAD2DEG( acos( DotProduct( localNormal, refNormal ) ) );
+
+    if( inverse )
+      rotAngle = -rotAngle;
+
+    AngleNormalize180( rotAngle );
+
+    //hmmm could get away with only one rotation and some clever stuff later... but i'm lazy
+    RotatePointAroundVector( outAxis[ 0 ], xNormal, inAxis[ 0 ], -rotAngle );
+    RotatePointAroundVector( outAxis[ 1 ], xNormal, inAxis[ 1 ], -rotAngle );
+    RotatePointAroundVector( outAxis[ 2 ], xNormal, inAxis[ 2 ], -rotAngle );
+  }
+  else
+    return qfalse;
+
+  return qtrue;
+}

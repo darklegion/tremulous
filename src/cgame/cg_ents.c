@@ -805,7 +805,7 @@ static void CG_AddCEntity( centity_t *cent ) {
   if ( cent->currentState.eType >= ET_EVENTS ) {
     return;
   }
-
+  
   // calculate the current origin
   CG_CalcEntityLerpPositions( cent );
 

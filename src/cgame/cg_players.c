@@ -907,7 +907,7 @@ static void CG_SetLerpFrameAnimation( clientInfo_t *ci, lerpFrame_t *lf, int new
   animation_t *anim;
 
   lf->animationNumber = newAnimation;
-  newAnimation &= ~( ANIM_TOGGLEBIT | ANIM_WALLCLIMBING );
+  newAnimation &= ~ANIM_TOGGLEBIT;
 
   if ( newAnimation < 0 || newAnimation >= MAX_PLAYER_TOTALANIMATIONS ) {
     CG_Error( "Bad animation number: %i", newAnimation );
@@ -1052,7 +1052,7 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
   ci = &cgs.clientinfo[ clientNum ];
 
   // do the shuffle turn frames locally
-  if ( cent->pe.legs.yawing && ( cent->currentState.legsAnim & ~( ANIM_TOGGLEBIT | ANIM_WALLCLIMBING ) ) == LEGS_IDLE ) {
+  if ( cent->pe.legs.yawing && ( cent->currentState.legsAnim & ~ANIM_TOGGLEBIT ) == LEGS_IDLE ) {
     CG_RunLerpFrame( ci, &cent->pe.legs, LEGS_TURN, speedScale );
   } else {
     CG_RunLerpFrame( ci, &cent->pe.legs, cent->currentState.legsAnim, speedScale );
@@ -1176,7 +1176,8 @@ Handles seperate torso motion
   if < 45 degrees, also show in torso
 ===============
 */
-static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], vec3_t head[3] ) {
+static void CG_PlayerAngles( centity_t *cent, vec3_t srcAngles, vec3_t legs[3], vec3_t torso[3], vec3_t head[3] )
+{
   vec3_t    legsAngles, torsoAngles, headAngles;
   float   dest;
   static  int movementOffsets[8] = { 0, 22, 45, -22, 0, 22, -45, -22 };
@@ -1185,7 +1186,7 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
   int     dir, clientNum;
   clientInfo_t  *ci;
 
-  VectorCopy( cent->lerpAngles, headAngles );
+  VectorCopy( srcAngles, headAngles );
   headAngles[YAW] = AngleMod( headAngles[YAW] );
   VectorClear( legsAngles );
   VectorClear( torsoAngles );
@@ -1193,8 +1194,8 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
   // --------- yaw -------------
 
   // allow yaw to drift a bit
-  if ( ( cent->currentState.legsAnim & ~( ANIM_TOGGLEBIT | ANIM_WALLCLIMBING ) ) != LEGS_IDLE
-    || ( cent->currentState.torsoAnim & ~(ANIM_TOGGLEBIT | ANIM_WALLCLIMBING ) ) != TORSO_STAND  ) {
+  if ( ( cent->currentState.legsAnim & ~ANIM_TOGGLEBIT ) != LEGS_IDLE
+    || ( cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_STAND  ) {
     // if not standing still, always point all in the same direction
     cent->pe.torso.yawing = qtrue;  // always center
     cent->pe.torso.pitching = qtrue;  // always center
@@ -1312,7 +1313,7 @@ static void CG_HasteTrail( centity_t *cent ) {
   if ( cent->trailTime > cg.time ) {
     return;
   }
-  anim = cent->pe.legs.animationNumber & ~( ANIM_TOGGLEBIT | ANIM_WALLCLIMBING );
+  anim = cent->pe.legs.animationNumber & ~ANIM_TOGGLEBIT;
   if ( anim != LEGS_RUN && anim != LEGS_BACK ) {
     return;
   }
@@ -1392,24 +1393,28 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
   if( held & ( 1 << UP_JETPACK ) )
   {
     //FIXME: add model to back
+    //CG_PositionRotatedEntityOnTag( &head, &torso, ci->torsoModel, "tag_back" );
 
     if( active & ( 1 << UP_JETPACK ) )
     {
       if( cent->currentState.pos.trDelta[ 2 ] > 10.0f )
       {
-        trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.jetpackAscendSound );
+        trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
+                                vec3_origin, cgs.media.jetpackAscendSound );
         addTime = 80;
         vel[ 2 ] = -60.0f;
       }
       else if( cent->currentState.pos.trDelta[ 2 ] < -10.0f )
       {
-        trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.jetpackDescendSound );
+        trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
+                                vec3_origin, cgs.media.jetpackDescendSound );
         addTime = 110;
         vel[ 2 ] = -45.0f;
       }
       else
       {
-        trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.jetpackIdleSound );
+        trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
+                                vec3_origin, cgs.media.jetpackIdleSound );
         addTime = 100;
         vel[ 2 ] = -50.0f;
       }
@@ -1525,21 +1530,6 @@ static void CG_PlayerSprites( centity_t *cent ) {
 
   if ( cent->currentState.eFlags & EF_TALK ) {
     CG_PlayerFloatSprite( cent, cgs.media.balloonShader );
-    return;
-  }
-
-  if ( cent->currentState.eFlags & EF_AWARD_IMPRESSIVE ) {
-    CG_PlayerFloatSprite( cent, cgs.media.medalImpressive );
-    return;
-  }
-
-  if ( cent->currentState.eFlags & EF_AWARD_EXCELLENT ) {
-    CG_PlayerFloatSprite( cent, cgs.media.medalExcellent );
-    return;
-  }
-
-  if ( cent->currentState.eFlags & EF_AWARD_GAUNTLET ) {
-    CG_PlayerFloatSprite( cent, cgs.media.medalGauntlet );
     return;
   }
 
@@ -1868,40 +1858,58 @@ void CG_Player( centity_t *cent )
   qboolean      shadow;
   float         shadowPlane;
   entityState_t *es = &cent->currentState;
+  int           class = ( es->powerups >> 8 ) & 0xFF;
+  float         scale;
+  vec3_t        tempAxis[ 3 ], tempAxis2[ 3 ];
+  vec3_t        angles;
 
   // the client number is stored in clientNum.  It can't be derived
   // from the entity number, because a single client may have
   // multiple corpses on the level using the same clientinfo
   clientNum = cent->currentState.clientNum;
-  if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
-    CG_Error( "Bad clientNum on player entity");
-  }
+  if( clientNum < 0 || clientNum >= MAX_CLIENTS )
+    CG_Error( "Bad clientNum on player entity" );
+
   ci = &cgs.clientinfo[ clientNum ];
 
   // it is possible to see corpses from disconnected players that may
   // not have valid clientinfo
-  if ( !ci->infoValid ) {
+  if( !ci->infoValid )
     return;
-  }
 
   // get the player model information
   renderfx = 0;
-  if ( cent->currentState.number == cg.snap->ps.clientNum) {
-    if (!cg.renderingThirdPerson) {
+  if( cent->currentState.number == cg.snap->ps.clientNum )
+  {
+    if( !cg.renderingThirdPerson )
       renderfx = RF_THIRD_PERSON;     // only draw in mirrors
-    } else {
-      if (cg_cameraMode.integer) {
-        return;
-      }
-    }
+    else if( cg_cameraMode.integer )
+      return;
   }
 
-  memset( &legs, 0, sizeof(legs) );
-  memset( &torso, 0, sizeof(torso) );
-  memset( &head, 0, sizeof(head) );
+  memset( &legs,  0, sizeof( legs ) );
+  memset( &torso, 0, sizeof( torso ) );
+  memset( &head,  0, sizeof( head ) );
+
+  VectorCopy( cent->lerpAngles, angles );
+  AnglesToAxis( cent->lerpAngles, tempAxis );
+
+  //rotate lerpAngles to floor
+  if( BG_rotateAxis( es->angles2, tempAxis, tempAxis2, qtrue, es->eFlags & EF_WALLCLIMBCEILING ) )
+    AxisToAngles( tempAxis2, angles );
+  else
+    VectorCopy( cent->lerpAngles, angles );
+  
+  //normalise the pitch
+  if( angles[ PITCH ] < -180.0f )
+    angles[ PITCH ] += 360.0f;
 
   // get the rotation information
-  CG_PlayerAngles( cent, legs.axis, torso.axis, head.axis );
+  CG_PlayerAngles( cent, angles, legs.axis, torso.axis, head.axis );
+
+  //rotate the legs axis to back to the wall
+  if( BG_rotateAxis( es->angles2, legs.axis, tempAxis, qfalse, es->eFlags & EF_WALLCLIMBCEILING ) )
+    AxisCopy( tempAxis, legs.axis );
 
   // get the animation state (after rotation, to allow feet shuffle)
   CG_PlayerAnimation( cent, &legs.oldframe, &legs.frame, &legs.backlerp,
@@ -1918,9 +1926,9 @@ void CG_Player( centity_t *cent )
   // add a water splash if partially in and out of water
   CG_PlayerSplash( cent );
 
-  if ( cg_shadows.integer == 3 && shadow ) {
+  if( cg_shadows.integer == 3 && shadow )
     renderfx |= RF_SHADOW_PLANE;
-  }
+
   renderfx |= RF_LIGHTING_ORIGIN;     // use the same origin for all
 
   //
@@ -1934,32 +1942,20 @@ void CG_Player( centity_t *cent )
   VectorCopy( cent->lerpOrigin, legs.lightingOrigin );
   legs.shadowPlane = shadowPlane;
   legs.renderfx = renderfx;
-  VectorCopy (legs.origin, legs.oldorigin); // don't positionally lerp at all
+  VectorCopy( legs.origin, legs.oldorigin ); // don't positionally lerp at all
 
-  //TA: rotate the model so it sits on a wall
-  if( cent->currentState.legsAnim & ANIM_WALLCLIMBING &&
-     !( cent->currentState.eFlags & EF_DEAD ) &&
-     !( cg.intermissionStarted ) )
+  //move the origin closer into the wall with a CapTrace
+  if( es->eFlags & EF_WALLCLIMB && !( es->eFlags & EF_DEAD ) && !( cg.intermissionStarted ) )
   {
-    vec3_t  forward, surfNormal, start, end, mins, maxs;
+    vec3_t  surfNormal, start, end, mins, maxs;
     trace_t tr;
 
-    VectorCopy( cent->currentState.angles2, surfNormal );
-    BG_FindBBoxForClass( ( es->powerups >> 8 ) & 0xFF, mins, maxs, NULL, NULL, NULL );
-
-    AngleVectors( cent->lerpAngles, forward, NULL, NULL );
-    VectorCopy( surfNormal, legs.axis[2] );
-    ProjectPointOnPlane( legs.axis[0], forward, legs.axis[2] );
-    if( !VectorNormalize( legs.axis[0] ) )
-    {
-      AngleVectors( cent->lerpAngles, NULL, NULL, forward );
-      ProjectPointOnPlane( legs.axis[0], forward, legs.axis[2] );
-      VectorNormalize( legs.axis[0] );
-    }
-    CrossProduct( legs.axis[0], legs.axis[2], legs.axis[1] );
-    legs.axis[1][0] = -legs.axis[1][0];
-    legs.axis[1][1] = -legs.axis[1][1];
-    legs.axis[1][2] = -legs.axis[1][2];
+    if( es->eFlags & EF_WALLCLIMBCEILING )
+      VectorSet( surfNormal, 0.0f, 0.0f, -1.0f );
+    else
+      VectorCopy( cent->currentState.angles2, surfNormal );
+      
+    BG_FindBBoxForClass( class, mins, maxs, NULL, NULL, NULL );
 
     VectorMA( legs.origin, -TRACE_DEPTH, surfNormal, end );
     VectorMA( legs.origin, 1.0f, surfNormal, start );
@@ -1970,8 +1966,18 @@ void CG_Player( centity_t *cent )
     VectorCopy( legs.origin, legs.oldorigin ); // don't positionally lerp at all
   }
 
+  //rescale the model
+  scale = BG_FindModelScaleForClass( class );
 
-  //CG_AddRefEntityWithPowerups( &legs, cent->currentState.powerups, ci->team );
+  if( scale != 1.0f )
+  {
+    VectorScale( legs.axis[ 0 ], scale, legs.axis[ 0 ] );
+    VectorScale( legs.axis[ 1 ], scale, legs.axis[ 1 ] );
+    VectorScale( legs.axis[ 2 ], scale, legs.axis[ 2 ] );
+    
+    legs.nonNormalizedAxes = qtrue;
+  }
+
   trap_R_AddRefEntityToScene( &legs );
 
   // if the model failed, allow the default nullmodel to be displayed
@@ -1989,17 +1995,11 @@ void CG_Player( centity_t *cent )
 
   VectorCopy( cent->lerpOrigin, torso.lightingOrigin );
 
-  CG_PositionRotatedEntityOnTag( &torso, &legs, ci->legsModel, "tag_torso");
+  CG_PositionRotatedEntityOnTag( &torso, &legs, ci->legsModel, "tag_torso" );
 
-  if( cent->currentState.legsAnim & ANIM_WALLCLIMBING &&
-      !( cent->currentState.eFlags & EF_DEAD ) &&
-      !( cg.intermissionStarted ) )
-    AnglesToAxis( cent->lerpAngles, torso.axis );
-    
   torso.shadowPlane = shadowPlane;
   torso.renderfx = renderfx;
 
-  //CG_AddRefEntityWithPowerups( &torso, cent->currentState.powerups, ci->team );
   trap_R_AddRefEntityToScene( &torso );
 
   //
@@ -2013,17 +2013,11 @@ void CG_Player( centity_t *cent )
 
   VectorCopy( cent->lerpOrigin, head.lightingOrigin );
 
-  CG_PositionRotatedEntityOnTag( &head, &torso, ci->torsoModel, "tag_head");
-
-  if( cent->currentState.legsAnim & ANIM_WALLCLIMBING &&
-      !( cent->currentState.eFlags & EF_DEAD ) &&
-      !( cg.intermissionStarted ) )
-    AnglesToAxis( cent->lerpAngles, head.axis );
+  CG_PositionRotatedEntityOnTag( &head, &torso, ci->torsoModel, "tag_head" );
 
   head.shadowPlane = shadowPlane;
   head.renderfx = renderfx;
 
-  //CG_AddRefEntityWithPowerups( &head, cent->currentState.powerups, ci->team );
   trap_R_AddRefEntityToScene( &head );
 
   //
@@ -2032,10 +2026,6 @@ void CG_Player( centity_t *cent )
   CG_AddPlayerWeapon( &torso, NULL, cent );
 
   CG_PlayerUpgrades( cent, &torso );
-
-/*  if( ( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS ) &&
-      ( ( cent->currentState.powerups & 0xFF ) == PTE_HUMANS ) )
-    trap_R_AddAdditiveLightToScene( cent->lerpOrigin, 64, 0.1, 0.1, 0.4 );*/
 }
 
 /*
@@ -2076,7 +2066,7 @@ void CG_Corpse( centity_t *cent )
 
   VectorCopy( cent->currentState.angles, cent->lerpAngles );
   // get the rotation information
-  CG_PlayerAngles( cent, legs.axis, torso.axis, head.axis );
+  CG_PlayerAngles( cent, cent->lerpAngles, legs.axis, torso.axis, head.axis );
 
   //set the correct frame (should always be dead)
   if ( cg_noPlayerAnims.integer )

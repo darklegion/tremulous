@@ -212,29 +212,33 @@ CG_OffsetThirdPersonView
 ===============
 */
 #define FOCUS_DISTANCE  512
-static void CG_OffsetThirdPersonView( void ) {
-  vec3_t    forward, right, up;
-  vec3_t    view;
-  vec3_t    focusAngles;
-  trace_t   trace;
+static void CG_OffsetThirdPersonView( void )
+{
+  vec3_t        forward, right, up;
+  vec3_t        view;
+  vec3_t        focusAngles;
+  trace_t       trace;
   static vec3_t mins = { -4, -4, -4 };
   static vec3_t maxs = { 4, 4, 4 };
-  vec3_t    focusPoint;
-  float   focusDist;
-  float   forwardScale, sideScale;
+  vec3_t        focusPoint;
+  float         focusDist;
+  float         forwardScale, sideScale;
+  vec3_t        surfNormal;
   
-  //TA: when wall climbing the viewheight is not straight up
-  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBING )
-    VectorMA( cg.refdef.vieworg, cg.predictedPlayerState.viewheight, cg.predictedPlayerState.grapplePoint, cg.refdef.vieworg );
+  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
+    VectorSet( surfNormal, 0.0f, 0.0f, -1.0f );
   else
-    cg.refdef.vieworg[2] += cg.predictedPlayerState.viewheight;
+    VectorCopy( cg.predictedPlayerState.grapplePoint, surfNormal );
+  
+  VectorMA( cg.refdef.vieworg, cg.predictedPlayerState.viewheight, surfNormal, cg.refdef.vieworg );
 
   VectorCopy( cg.refdefViewAngles, focusAngles );
 
   // if dead, look at killer
-  if ( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 ) {
-    focusAngles[YAW] = cg.predictedPlayerState.generic1;
-    cg.refdefViewAngles[YAW] = cg.predictedPlayerState.generic1;
+  if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
+  {
+    focusAngles[ YAW ] = cg.predictedPlayerState.generic1;
+    cg.refdefViewAngles[ YAW ] = cg.predictedPlayerState.generic1;
   }
 
   //if ( focusAngles[PITCH] > 45 ) {
@@ -246,11 +250,7 @@ static void CG_OffsetThirdPersonView( void ) {
 
   VectorCopy( cg.refdef.vieworg, view );
 
-  //TA: when wall climbing the viewheight is not straight up
-  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBING )
-    VectorMA( view, 8, cg.predictedPlayerState.grapplePoint, view );
-  else
-    view[2] += 8;
+  VectorMA( view, 8, surfNormal, view );
 
   //cg.refdefViewAngles[PITCH] *= 0.5;
 
@@ -264,12 +264,14 @@ static void CG_OffsetThirdPersonView( void ) {
   // trace a ray from the origin to the viewpoint to make sure the view isn't
   // in a solid block.  Use an 8 by 8 block to prevent the view from near clipping anything
 
-  if (!cg_cameraMode.integer) {
+  if( !cg_cameraMode.integer )
+  {
     CG_Trace( &trace, cg.refdef.vieworg, mins, maxs, view, cg.predictedPlayerState.clientNum, MASK_SOLID );
 
-    if ( trace.fraction != 1.0 ) {
+    if( trace.fraction != 1.0 )
+    {
       VectorCopy( trace.endpos, view );
-      view[2] += (1.0 - trace.fraction) * 32;
+      view[ 2 ] += ( 1.0 - trace.fraction ) * 32;
       // try another trace to this position, because a tunnel may have the ceiling
       // close enogh that this is poking out
 
@@ -282,12 +284,12 @@ static void CG_OffsetThirdPersonView( void ) {
 
   // select pitch to look at focus point from vieword
   VectorSubtract( focusPoint, cg.refdef.vieworg, focusPoint );
-  focusDist = sqrt( focusPoint[0] * focusPoint[0] + focusPoint[1] * focusPoint[1] );
+  focusDist = sqrt( focusPoint[ 0 ] * focusPoint[ 0 ] + focusPoint[ 1 ] * focusPoint[ 1 ] );
   if ( focusDist < 1 ) {
     focusDist = 1;  // should never happen
   }
-  cg.refdefViewAngles[PITCH] = -180 / M_PI * atan2( focusPoint[2], focusDist );
-  cg.refdefViewAngles[YAW] -= cg_thirdPersonAngle.value;
+  cg.refdefViewAngles[ PITCH ] = -180 / M_PI * atan2( focusPoint[ 2 ], focusDist );
+  cg.refdefViewAngles[ YAW ] -= cg_thirdPersonAngle.value;
 }
 
 
@@ -1203,10 +1205,6 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
       trap_Cvar_Set("timescale", va("%f", cg_timescale.value));
     }
   }
-
-  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS &&
-      cg.predictedPlayerState.persistant[PERS_TEAM] != TEAM_SPECTATOR )
-    trap_R_AddAdditiveLightToScene( cg.predictedPlayerState.origin, 2000, 0.02f, 0.00f, 0.00f );
 
   // actually issue the rendering calls
   CG_DrawActive( stereoView );

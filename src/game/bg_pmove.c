@@ -97,12 +97,12 @@ static void PM_StartLegsAnim( int anim ) {
   if ( pm->ps->legsTimer > 0 ) {
     return;   // a high priority animation is running
   }
-  pm->ps->legsAnim = ( ( pm->ps->legsAnim & ( ANIM_TOGGLEBIT | ANIM_WALLCLIMBING ) ) ^ ANIM_TOGGLEBIT )
+  pm->ps->legsAnim = ( ( pm->ps->legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
     | anim;
 }
 
 static void PM_ContinueLegsAnim( int anim ) {
-  if ( ( pm->ps->legsAnim & ~( ANIM_TOGGLEBIT | ANIM_WALLCLIMBING ) ) == anim ) {
+  if ( ( pm->ps->legsAnim & ~ANIM_TOGGLEBIT ) == anim ) {
     return;
   }
   if ( pm->ps->legsTimer > 0 ) {
@@ -112,7 +112,7 @@ static void PM_ContinueLegsAnim( int anim ) {
 }
 
 static void PM_ContinueTorsoAnim( int anim ) {
-  if ( ( pm->ps->torsoAnim & ~( ANIM_TOGGLEBIT | ANIM_WALLCLIMBING ) ) == anim ) {
+  if ( ( pm->ps->torsoAnim & ~ANIM_TOGGLEBIT ) == anim ) {
     return;
   }
   if ( pm->ps->torsoTimer > 0 ) {
@@ -1358,7 +1358,7 @@ static void PM_GroundClimbTrace( void )
   vec3_t    surfNormal, movedir, lookdir, forward, right, point;
   vec3_t    refNormal = { 0.0f, 0.0f, 1.0f };
   vec3_t    ceilingNormal = { 0.0f, 0.0f, -1.0f };
-  float     toAngles[3], surfAngles[3];
+  vec3_t    toAngles, surfAngles;
   trace_t   trace;
   int       i;
 
@@ -1578,7 +1578,7 @@ static void PM_GroundClimbTrace( void )
       pml.groundTrace = trace;
 
       //so everything knows where we're wallclimbing (ie client side)
-      pm->ps->legsAnim |= ANIM_WALLCLIMBING;
+      pm->ps->eFlags |= EF_WALLCLIMB;
 
       //if we're not stuck to the ceiling then set grapplePoint to be a surface normal
       if( !VectorCompare( trace.plane.normal, ceilingNormal ) )
@@ -1606,7 +1606,7 @@ static void PM_GroundClimbTrace( void )
     PM_GroundTraceMissed();
     pml.groundPlane = qfalse;
     pml.walking = qfalse;
-    pm->ps->legsAnim &= ~ANIM_WALLCLIMBING;
+    pm->ps->eFlags &= ~EF_WALLCLIMB;
 
     pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
 
@@ -1642,7 +1642,6 @@ PM_GroundTrace
 static void PM_GroundTrace( void ) {
   vec3_t      point, forward, srotAxis;
   vec3_t      refNormal = { 0.0f, 0.0f, 1.0f };
-  vec3_t      ceilingNormal = { 0.0f, 0.0f, -1.0f };
   trace_t     trace;
   float       srotAngle;
 
@@ -1673,7 +1672,7 @@ static void PM_GroundTrace( void ) {
 
   pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
   pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
-  pm->ps->legsAnim &= ~ANIM_WALLCLIMBING;
+  pm->ps->eFlags &= ~EF_WALLCLIMB;
 
   //make sure that the surfNormal is reset to the ground
   if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) )
@@ -2488,13 +2487,9 @@ are being updated instead of a full move
 */
 void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
 {
-  short   temp[3];
+  short   temp[ 3 ];
   int     i;
-  vec3_t  surfNormal, xNormal;
-  vec3_t  axis[3], rotaxis[3];
-  vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
-  vec3_t  ceilingNormal = { 0.0f, 0.0f, -1.0f };
-  float   rotAngle; 
+  vec3_t  axis[ 3 ], rotaxis[ 3 ];
   vec3_t  tempang;
 
   if( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPINTERMISSION )
@@ -2528,42 +2523,9 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
   //convert viewangles -> axis
   AnglesToAxis( tempang, axis );
 
-  //the grapplePoint being a surfNormal rotation Normal hack... see above :)
-  if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
-  {
-    VectorCopy( ceilingNormal, surfNormal );
-    VectorCopy( ps->grapplePoint, xNormal );
-  }
-  else
-  {
-    //cross the reference normal and the surface normal to get the rotation axis
-    VectorCopy( ps->grapplePoint, surfNormal );
-    CrossProduct( surfNormal, refNormal, xNormal );
-    VectorNormalize( xNormal );
-  }
-
-  //if we're a wall climber.. and we're climbing rotate the axis
-  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) &&
-      ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) &&
-      ( VectorLength( xNormal ) != 0 ) )
-  {
-    //if the normal pointing straight down then the rotAngle will always be 180deg
-    if( surfNormal[2] == -1 )
-      rotAngle = 180;
-    else
-      rotAngle = RAD2DEG( acos( DotProduct( surfNormal, refNormal ) ) );
-
-    //hmmm could get away with only one rotation and some clever stuff later... but i'm lazy
-    RotatePointAroundVector( rotaxis[0], xNormal, axis[0], -rotAngle );
-    RotatePointAroundVector( rotaxis[1], xNormal, axis[1], -rotAngle );
-    RotatePointAroundVector( rotaxis[2], xNormal, axis[2], -rotAngle );
-  }
-  else
-  {
-    //we can't wall climb/aren't wall climbing
-    rotAngle = 0;
+  if( !BG_rotateAxis( ps->grapplePoint, axis, rotaxis, qfalse,
+                      ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )   
     AxisCopy( axis, rotaxis );
-  }
 
   //convert the new axis back to angles
   AxisToAngles( rotaxis, tempang );

@@ -278,11 +278,11 @@ typedef enum {
 // entityState_t->eFlags
 #define EF_DEAD             0x00000001    // don't draw a foe marker over players with EF_DEAD
 #define EF_TELEPORT_BIT     0x00000002    // toggled every time the origin abruptly changes
-#define EF_AWARD_EXCELLENT  0x00000004    // draw an excellent sprite
-#define EF_PLAYER_EVENT     0x00000008
-#define EF_BOUNCE           0x00000010    // for missiles
-#define EF_BOUNCE_HALF      0x00000020    // for missiles
-#define EF_AWARD_GAUNTLET   0x00000040    // draw a gauntlet sprite
+#define EF_PLAYER_EVENT     0x00000004
+#define EF_BOUNCE           0x00000008    // for missiles
+#define EF_BOUNCE_HALF      0x00000010    // for missiles
+#define EF_WALLCLIMB        0x00000020    // TA: wall walking
+#define EF_WALLCLIMBCEILING 0x00000040    // TA: wall walking ceiling hack
 #define EF_NODRAW           0x00000080    // may have an event, but no model (unspawned items)
 #define EF_FIRING           0x00000100    // for lightning gun
 #define EF_FIRING2          0x00000200    // alt fire
@@ -291,9 +291,8 @@ typedef enum {
 #define EF_CONNECTION       0x00001000    // draw a connection trouble sprite
 #define EF_VOTED            0x00002000    // already cast a vote
 #define EF_TEAMVOTED        0x00004000    // already cast a vote
-#define EF_AWARD_IMPRESSIVE 0x00008000    // draw an impressive sprite
-#define EF_OVERDRAW_OFF     0x00010000    // TA: disable overdraw protection on sprites
-#define EF_REAL_LIGHT       0x00020000    // TA: light sprites according to ambient light
+#define EF_OVERDRAW_OFF     0x00008000    // TA: disable overdraw protection on sprites
+#define EF_REAL_LIGHT       0x00010000    // TA: light sprites according to ambient light
 
 typedef enum {
   PW_NONE,
@@ -720,7 +719,6 @@ typedef struct animation_s {
 // flip the togglebit every time an animation
 // changes so a restart of the same anim can be detected
 #define ANIM_TOGGLEBIT    128
-#define ANIM_WALLCLIMBING 64
 
 
 typedef enum {
@@ -853,6 +851,7 @@ typedef struct
   char      *humanName;
   
   char      *modelName;
+  float     modelScale;
   char      *skinName;
   
   char      *hudName;
@@ -1017,6 +1016,8 @@ qboolean  BG_gotItem( int item, int stats[ ] );
 void      BG_activateItem( int item, int stats[ ] );
 void      BG_deactivateItem( int item, int stats[ ] );
 qboolean  BG_activated( int item, int stats[ ] );
+qboolean  BG_rotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
+                         vec3_t outAxis[ 3 ], qboolean inverse, qboolean ceiling );
   
 int       BG_FindBuildNumForName( char *name );
 int       BG_FindBuildNumForEntityName( char *name );
@@ -1053,6 +1054,7 @@ int       BG_FindClassNumForName( char *name );
 char      *BG_FindNameForClassNum( int pclass );
 char      *BG_FindHumanNameForClassNum( int pclass );
 char      *BG_FindModelNameForClass( int pclass );
+float     BG_FindModelScaleForClass( int pclass );
 char      *BG_FindSkinNameForClass( int pclass );
 char      *BG_FindHudNameForClass( int pclass );
 qboolean  BG_FindStagesForClass( int pclass, stage_t stage );
