@@ -438,6 +438,16 @@ typedef struct {
   int numpositions;
 } skulltrail_t;
 
+//TA: smoothing of view for WW transitions
+#define   MAXSMOOTHS          32
+
+typedef struct
+{
+  float     time;
+
+  vec3_t    rotAxis;
+  float     rotAngle;
+} smooth_t;
 
 #define MAX_REWARDSTACK   10
 #define MAX_SOUNDBUFFER   20
@@ -645,6 +655,9 @@ typedef struct {
   int       weapon2Time;  //TA: time when BUTTON_ATTACK2 went t->f f->t
   qboolean  weapon1Firing;
   qboolean  weapon2Firing;
+
+  vec3_t    lastNormal;   //TA: view smoothage
+  smooth_t  sList[ MAXSMOOTHS ]; //TA: WW smoothing
 } cg_t;
 
 
@@ -1183,6 +1196,7 @@ extern  vmCvar_t    cg_trueLightning;
 extern  vmCvar_t    cg_creepRes;
 extern  vmCvar_t    cg_drawSurfNormal;
 extern  vmCvar_t    cg_debugAlloc;
+extern  vmCvar_t    cg_smoothTime;
 
 //
 // cg_main.c

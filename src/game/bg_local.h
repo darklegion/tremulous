@@ -57,31 +57,6 @@ typedef struct {
   int     previous_waterlevel;
 } pml_t;
 
-//TA: struct that stores smooth ops
-//    there is an array of these in bg_pmove.c
-typedef struct
-{
-  float     time;
-  
-  vec3_t    rotAxis;
-  float     rotAngle;
-} smooth_t;
-
-//TA: make this into a cvar later....
-#define   SMOOTHTIME          300
-#define   MAXSMOOTHS          16
-
-//TA: wall climbing local
-typedef struct
-{
-  smooth_t  sList[ MAXSMOOTHS ];
-
-  qboolean  justFallen;
-  vec3_t    lastNormal;
-  vec3_t    nonSvangles;
-  int       lastUpmove; //for toggleable walling
-} wcl_t;
-
 extern  pmove_t       *pm;
 extern  pml_t         pml;
 

@@ -34,10 +34,6 @@
 pmove_t     *pm;
 pml_t       pml;
 
-//TA: wall climbing struct for EVERY client. Not c/s communicated so
-//    size isn't that important
-wcl_t       wcl[ MAX_CLIENTS ];
-
 // movement parameters
 float pm_stopspeed = 100.0f;
 float pm_duckScale = 0.25f;
@@ -55,97 +51,6 @@ float pm_flightfriction = 3.0f;
 float pm_spectatorfriction = 5.0f;
 
 int   c_pmove = 0;
-
-/*
-================
-PM_AddSmoothOp
-
-Add a smoothing operation to the smoothing queue
-================
-*/
-static void PM_AddSmoothOp( vec3_t rotAxis, float rotAngle )
-{
-  int i;
-
-  //hack to prevent multiple identical rotations being added to the queue
-  //this happens often because groundtrace is called twice a frame
-  for( i = 0; i < MAXSMOOTHS; i++ )
-  {
-    if( wcl[ pm->ps->clientNum ].sList[ i ].time >= pm->cmd.serverTime - 50 )
-      return;
-
-    /*if( VectorCompare( sList[ i ].rotAxis, rotAxis ) )
-      return;*/
-      
-  }
-
-  //iterate through smoothing array
-  for( i = 0; i < MAXSMOOTHS; i++ )
-  {
-    //if a smooth has been performed it can be overwritten
-    if( wcl[ pm->ps->clientNum ].sList[ i ].time + SMOOTHTIME < pm->cmd.serverTime )
-    {
-      //copy the new smooth into the array and stop
-      VectorCopy( rotAxis, wcl[ pm->ps->clientNum ].sList[ i ].rotAxis );
-      wcl[ pm->ps->clientNum ].sList[ i ].rotAngle = rotAngle;
-      wcl[ pm->ps->clientNum ].sList[ i ].time = pm->cmd.serverTime;
-      return;
-    }
-  }
-
-  //there are no free smooth slots
-}
-
-
-/*
-================
-PM_PerformSmoothOps
-
-Perform all the smoothing operations in the smoothing queue
-================
-*/
-static qboolean PM_PerformSmoothOps( vec3_t in[3], vec3_t out[3] )
-{
-  int       i;
-  float     stLocal, sFraction;
-  vec3_t    localIn[3], localOut[3];
-  qboolean  performed = qfalse;
-
-  AxisCopy( in, localIn );
-
-  //iterate through smoothing array
-  for( i = 0; i < MAXSMOOTHS; i++ )
-  {
-    //perform smooth
-    if( ( pm->cmd.serverTime < wcl[ pm->ps->clientNum ].sList[ i ].time + SMOOTHTIME ) &&
-        ( VectorLength( wcl[ pm->ps->clientNum ].sList[ i ].rotAxis ) != 0 ) )
-    {
-      //the rotAxis /should/ never be of zero length but q3 *will* crash if it is...
-      //better to be safe than sorry :)
-
-      stLocal = 1.0 - ( ( ( wcl[ pm->ps->clientNum ].sList[ i ].time + SMOOTHTIME ) - pm->cmd.serverTime ) / SMOOTHTIME );
-
-      //some ppl might prefer this smoothing function:
-      //sFraction = -( 1.0 - sin( stLocal * M_PI / 2 ) );
-      sFraction = -( cos( stLocal * M_PI ) + 1 ) / 2;
-
-      RotatePointAroundVector(  localOut[0], wcl[ pm->ps->clientNum ].sList[ i ].rotAxis,
-                                localIn[0], sFraction * wcl[ pm->ps->clientNum ].sList[ i ].rotAngle );
-      RotatePointAroundVector(  localOut[1], wcl[ pm->ps->clientNum ].sList[ i ].rotAxis,
-                                localIn[1], sFraction * wcl[ pm->ps->clientNum ].sList[ i ].rotAngle );
-      RotatePointAroundVector(  localOut[2], wcl[ pm->ps->clientNum ].sList[ i ].rotAxis,
-                                localIn[2], sFraction * wcl[ pm->ps->clientNum ].sList[ i ].rotAngle );
-
-      AxisCopy( localOut, localIn );
-      performed = qtrue;
-    }
-  }
-
-  AxisCopy( localOut, out );
-
-  return performed;
-}
-
 
 /*
 ===============
@@ -583,7 +488,7 @@ static qboolean PM_CheckJump( void )
   {
     vec3_t normal = { 0, 0, -1 };
     
-    if( !( pm->ps->stats[ STAT_STATE ] & SS_GPISROTVEC ) )
+    if( !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )
       VectorCopy( pm->ps->grapplePoint, normal );
       
     VectorMA( pm->ps->velocity, JUMP_VELOCITY, normal, pm->ps->velocity );
@@ -1408,17 +1313,16 @@ PM_GroundClimbTrace
 */
 static void PM_GroundClimbTrace( void )
 {
-  vec3_t    surfNormal, movedir, forward, right, point, srotAxis;
+  vec3_t    surfNormal, movedir, forward, right, point;
   vec3_t    refNormal = { 0.0f, 0.0f, 1.0f };
   vec3_t    ceilingNormal = { 0.0f, 0.0f, -1.0f };
-  float     toAngles[3], surfAngles[3], srotAngle;
+  float     toAngles[3], surfAngles[3];
   trace_t   trace;
   int       i;
-  qboolean  smoothed = qtrue;
 
   //TA: If we're on the ceiling then grapplePoint is a rotation normal.. otherwise its a surface normal.
   //    would have been nice if Carmack had left a few random variables in the ps struct for mod makers
-  if( pm->ps->stats[ STAT_STATE ] & SS_GPISROTVEC )
+  if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
   {
     VectorCopy( ceilingNormal, surfNormal );
   }
@@ -1428,7 +1332,7 @@ static void PM_GroundClimbTrace( void )
   }
 
   //construct a vector which reflects the direction the player is looking wrt the surface normal
-  AngleVectors( wcl[ pm->ps->clientNum ].nonSvangles, forward, NULL, NULL );
+  AngleVectors( pm->ps->viewangles, forward, NULL, NULL );
   CrossProduct( forward, surfNormal, right );
   VectorNormalize( right );
   CrossProduct( surfNormal, right, movedir );
@@ -1475,9 +1379,6 @@ static void PM_GroundClimbTrace( void )
       break;
     }
 
-    //experimental: slow down speed around transitions
-    pm->ps->stats[ STAT_STATE ] &= ~SS_WALLTRANSIDING;
-
     //if we hit something
     if( trace.fraction < 1.0 && !( trace.surfaceFlags & ( SURF_SKY | SURF_NOIMPACT ) ) &&
         !( trace.entityNum != ENTITYNUM_WORLD && i != 3 ) )
@@ -1489,9 +1390,6 @@ static void PM_GroundClimbTrace( void )
       //surface... do some stuff...
       if( !VectorCompare( trace.plane.normal, surfNormal ) )
       {
-        //experimental: slow down speed around transitions
-        pm->ps->stats[ STAT_STATE ] |= SS_WALLTRANSIDING;
-       
         //if the trace result or the old vector is not the floor or ceiling correct the YAW angle
         if( !VectorCompare( trace.plane.normal, refNormal ) && !VectorCompare( surfNormal, refNormal ) &&
             !VectorCompare( trace.plane.normal, ceilingNormal ) && !VectorCompare( surfNormal, ceilingNormal ) )
@@ -1563,7 +1461,7 @@ static void PM_GroundClimbTrace( void )
         {
           CrossProduct( surfNormal, trace.plane.normal, pm->ps->grapplePoint );
           VectorNormalize( pm->ps->grapplePoint );
-          pm->ps->stats[ STAT_STATE ] |= SS_GPISROTVEC;
+          pm->ps->stats[ STAT_STATE ] |= SS_WALLCLIMBINGCEILING;
         }
 
         //transition from ceiling to wall
@@ -1575,14 +1473,6 @@ static void PM_GroundClimbTrace( void )
 
           pm->ps->delta_angles[1] -= ANGLE2SHORT( ( ( surfAngles[1] - toAngles[1] ) * 2 ) - 180 );
         }
-
-        //smooth transitions
-        CrossProduct( surfNormal, trace.plane.normal, srotAxis );
-        VectorNormalize( srotAxis );
-        srotAngle = abs( RAD2DEG( acos( DotProduct( surfNormal, trace.plane.normal ) ) ) );
-
-        PM_AddSmoothOp( srotAxis, srotAngle );
-        smoothed = qfalse;
       }
 
       pml.groundTrace = trace;
@@ -1595,12 +1485,8 @@ static void PM_GroundClimbTrace( void )
       {
         //so we know what surface we're stuck to
         VectorCopy( trace.plane.normal, pm->ps->grapplePoint );
-        pm->ps->stats[ STAT_STATE ] &= ~SS_GPISROTVEC;
+        pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
       }
-
-      //so that surf -> empty space is smoothed
-      wcl[ pm->ps->clientNum ].justFallen = qtrue;
-      VectorCopy( pm->ps->grapplePoint, wcl[ pm->ps->clientNum ].lastNormal );
 
       //IMPORTANT: break out of the for loop if we've hit something
       break;
@@ -1616,42 +1502,16 @@ static void PM_GroundClimbTrace( void )
 
   if ( trace.fraction >= 1.0 )
   {
-    //mild hack to get smoothing when jumping off walls
-    if( pm->cmd.upmove > 0 )
-      smoothed = qfalse;
-
     // if the trace didn't hit anything, we are in free fall
-    //Com_Printf( "trace missed justFallen:%d\n", wcl[ pm->ps->clientNum ].justFallen );
     PM_GroundTraceMissed();
     pml.groundPlane = qfalse;
     pml.walking = qfalse;
     pm->ps->legsAnim &= ~ANIM_WALLCLIMBING;
 
-    if( wcl[ pm->ps->clientNum ].justFallen && !smoothed )
-    {
-      if( pm->ps->stats[ STAT_STATE ] & SS_GPISROTVEC )
-      {
-        //FIXME: need some delta-correction here
-        //pm->ps->delta_angles[1] -= ANGLE2SHORT( ( ( nonSvangles[1] - pm->ps->grapplePoint[1] ) * 2) );
-        AngleVectors( pm->ps->viewangles, NULL, srotAxis, NULL );
-
-        srotAngle = 180;
-      }
-      else
-      {
-        CrossProduct( wcl[ pm->ps->clientNum ].lastNormal, refNormal, srotAxis );
-        VectorNormalize( srotAxis );
-        srotAngle = abs( RAD2DEG( acos( DotProduct( refNormal, wcl[ pm->ps->clientNum ].lastNormal ) ) ) );
-      }
-      
-      PM_AddSmoothOp( srotAxis, srotAngle );
-    }
-
-    pm->ps->stats[ STAT_STATE ] &= ~SS_GPISROTVEC;
+    pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
 
     //we get very bizarre effects if we don't do this :0
     VectorCopy( refNormal, pm->ps->grapplePoint );
-    wcl[ pm->ps->clientNum ].justFallen = qfalse;
     return;
   }
 
@@ -1689,18 +1549,20 @@ static void PM_GroundTrace( void ) {
   if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) )
   {
     //toggle wall climbing if holding crouch
-    if( pm->cmd.upmove < 0 && wcl[ pm->ps->clientNum ].lastUpmove >= 0 )
+    if( pm->cmd.upmove < 0 && !( pm->ps->pm_flags & PMF_CROUCH_HELD ) )
     {
       if( !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
         pm->ps->stats[ STAT_STATE ] |= SS_WALLCLIMBING;
       else if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
         pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
+
+      pm->ps->pm_flags |= PMF_CROUCH_HELD;
     }
+    else if( pm->cmd.upmove >= 0 )
+      pm->ps->pm_flags &= ~PMF_CROUCH_HELD;
 
     if( pm->ps->pm_type == PM_DEAD )
       pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
-
-    wcl[ pm->ps->clientNum ].lastUpmove = pm->cmd.upmove;
 
     if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
     {
@@ -1732,37 +1594,13 @@ static void PM_GroundTrace( void ) {
       return;
   }
   
-  if( wcl[ pm->ps->clientNum ].justFallen )
-  {
-    if( pm->ps->stats[ STAT_STATE ] & SS_GPISROTVEC )
-    {
-      //FIXME: need some delta-correction here
-    	//pm->ps->delta_angles[1] -= ANGLE2SHORT( ( ( nonSvangles[1] - pm->ps->grapplePoint[1] ) * 2) );
-      AngleVectors( wcl[ pm->ps->clientNum ].nonSvangles, NULL, srotAxis, NULL );
-
-      srotAngle = 180;
-    }
-    else
-    {
-      CrossProduct( wcl[ pm->ps->clientNum ].lastNormal, refNormal, srotAxis );
-      VectorNormalize( srotAxis );
-
-      srotAngle = abs( RAD2DEG( acos( DotProduct( refNormal, wcl[ pm->ps->clientNum ].lastNormal ) ) ) );
-    }
-      
-    PM_AddSmoothOp( srotAxis, srotAngle );
-  }
-
-  //things have already been smoothed..
-  wcl[ pm->ps->clientNum ].justFallen = qfalse;
-  
   // if the trace didn't hit anything, we are in free fall
   if ( trace.fraction == 1.0 ) {
     PM_GroundTraceMissed();
     pml.groundPlane = qfalse;
     pml.walking = qfalse;
 
-    pm->ps->stats[ STAT_STATE ] &= ~SS_GPISROTVEC;
+    pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
 
     //we get very bizarre effects if we don't do this :0
     VectorCopy( refNormal, pm->ps->grapplePoint );
@@ -2574,11 +2412,11 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
   short   temp[3];
   int     i;
   vec3_t  surfNormal, xNormal;
-  vec3_t  axis[3], rotaxis[3], smoothaxis[3];
+  vec3_t  axis[3], rotaxis[3];
   vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
   vec3_t  ceilingNormal = { 0.0f, 0.0f, -1.0f };
   float   rotAngle; 
-  vec3_t  tempang, tempang2;
+  vec3_t  tempang;
 
   if( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPINTERMISSION )
     return;   // no view changes at all
@@ -2612,7 +2450,7 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
   AnglesToAxis( tempang, axis );
 
   //the grapplePoint being a surfNormal rotation Normal hack... see above :)
-  if( ps->stats[ STAT_STATE ] & SS_GPISROTVEC )
+  if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
   {
     VectorCopy( ceilingNormal, surfNormal );
     VectorCopy( ps->grapplePoint, xNormal );
@@ -2648,40 +2486,23 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
     AxisCopy( axis, rotaxis );
   }
 
-  AxisToAngles( rotaxis, wcl[ pm->ps->clientNum ].nonSvangles );
-
-  //force angles to -180 <= x <= 180
-  for( i = 0; i < 3; i++ )
-  {
-    while( wcl[ pm->ps->clientNum ].nonSvangles[ i ] > 180 )
-      wcl[ pm->ps->clientNum ].nonSvangles[ i ] -= 360;
-      
-    while( wcl[ pm->ps->clientNum ].nonSvangles[ i ] < 180 )
-      wcl[ pm->ps->clientNum ].nonSvangles[ i ] += 360;
-  }
-
-  //smooth transitions
-  if( !PM_PerformSmoothOps( rotaxis, smoothaxis ) )
-    AxisCopy( rotaxis, smoothaxis );
-
   //convert the new axis back to angles
-  AxisToAngles( smoothaxis, tempang2 );
+  AxisToAngles( rotaxis, tempang );
 
   //force angles to -180 <= x <= 180
   //AnglesSubtract( tempang2, 0, tempang2 );
   for( i = 0; i < 3; i++ )
   {
-    while( tempang2[ i ] > 180 )
-      tempang2[ i ] -= 360;
+    while( tempang[ i ] > 180 )
+      tempang[ i ] -= 360;
       
-    while( tempang2[ i ] < 180 )
-      tempang2[ i ] += 360;
+    while( tempang[ i ] < 180 )
+      tempang[ i ] += 360;
   }
 
   //actually set the viewangles
-  for (i=0 ; i<3 ; i++) {
-    ps->viewangles[i] = tempang2[i];
-  }
+  for ( i = 0; i < 3; i++ )
+    ps->viewangles[ i ] = tempang[ i ];
 }
 
 
@@ -2783,11 +2604,7 @@ void PmoveSingle (pmove_t *pmove)
   //    is moved to the client side
   PM_UpdateViewAngles( pm->ps, &pm->cmd );
   
-  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) &&
-      ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
-    AngleVectors( wcl[ pm->ps->clientNum ].nonSvangles, pml.forward, pml.right, pml.up );
-  else
-    AngleVectors( pm->ps->viewangles, pml.forward, pml.right, pml.up );
+  AngleVectors( pm->ps->viewangles, pml.forward, pml.right, pml.up );
 
   if ( pm->cmd.upmove < 10 ) {
     // not holding jump

@@ -160,6 +160,7 @@ typedef enum {
 // pmove->pm_flags
 #define PMF_DUCKED          1
 #define PMF_JUMP_HELD       2
+#define PMF_CROUCH_HELD     4
 #define PMF_BACKWARDS_JUMP  8   // go into backwards land
 #define PMF_BACKWARDS_RUN   16    // coast down to backwards run
 #define PMF_TIME_LAND       32    // pm_time is time before rejump
@@ -247,9 +248,8 @@ typedef enum {
 #define SCA_FOVWARPS            32
 
 #define SS_WALLCLIMBING         1
-#define SS_GPISROTVEC           2
-#define SS_CREEPSLOWED          4
-#define SS_WALLTRANSIDING       8
+#define SS_WALLCLIMBINGCEILING  2
+#define SS_CREEPSLOWED          8
 #define SS_SPEEDBOOST           16
 #define SS_INFESTING            32
 #define SS_GRABBED              64

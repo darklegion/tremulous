@@ -136,7 +136,10 @@ void CG_ClearParticles (void)
 	oldtime = cg.time;
 
 	// Ridah, init the shaderAnims
-	for (i=0; shaderAnimNames[i]; i++) {
+	//for (i=0; shaderAnimNames[i]; i++) {
+  //TA: figure out this thing works...
+  i = 0;
+	{
 		int j;
 
 		for (j=0; j<shaderAnimCounts[i]; j++) {

@@ -753,6 +753,106 @@ static void CG_DrawSurfNormal( void )
   trap_R_AddPolyToScene( cgs.media.whiteShader, 4, normal );
 }
 
+/*
+===============
+CG_addSmoothOp
+===============
+*/
+static void CG_addSmoothOp( vec3_t rotAxis, float rotAngle )
+{
+  int i;
+
+  //iterate through smooth array
+  for( i = 0; i < MAXSMOOTHS; i++ )
+  {
+    //found an unused index in the smooth array
+    if( cg.sList[ i ].time + cg_smoothTime.integer < cg.time )
+    {
+      //copy to array and stop
+      VectorCopy( rotAxis, cg.sList[ i ].rotAxis );
+      cg.sList[ i ].rotAngle = rotAngle;
+      cg.sList[ i ].time = cg.time;
+      return;
+    }
+  }
+
+  //no free indices in the smooth array
+}
+
+/*
+===============
+CG_smoothWWTransitions
+===============
+*/
+static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t out )
+{
+  vec3_t    rotAxis, surfNormal;
+  vec3_t    refNormal     = { 0.0f, 0.0f,  1.0f };
+  vec3_t    ceilingNormal = { 0.0f, 0.0f, -1.0f };
+  float     rotAngle;
+  vec3_t    inAxis[ 3 ], outAxis[ 3 ];
+  int       i;
+  float     stLocal, sFraction;
+  qboolean  performed = qfalse;
+
+  //set surfNormal
+  if( !( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )
+    VectorCopy( ps->grapplePoint, surfNormal );
+  else
+    VectorCopy( ceilingNormal, surfNormal );
+    
+  AnglesToAxis( in, inAxis );
+  
+  //if we are moving from one surface to another smooth the transition
+  if( !VectorCompare( surfNormal, cg.lastNormal ) )
+  {
+    //if we moving from the ceiling to the floor special case
+    //( x product of colinear vectors is undefined)
+    if( VectorCompare( ceilingNormal, cg.lastNormal ) &&
+        VectorCompare( refNormal,     surfNormal ) )
+    {
+      AngleVectors( in, NULL, rotAxis, NULL );
+      rotAngle = 180.0f;
+    }
+    else
+    {
+      CrossProduct( cg.lastNormal, surfNormal, rotAxis );
+      VectorNormalize( rotAxis );
+      rotAngle = abs( RAD2DEG( acos( DotProduct( cg.lastNormal, surfNormal ) ) ) );
+    }
+
+    //add the op
+    CG_addSmoothOp( rotAxis, rotAngle );
+  }
+
+  //iterate through ops
+  for( i = 0; i < MAXSMOOTHS; i++ )
+  {
+    //if this op has time remaining, perform it
+    if( ( cg.time < cg.sList[ i ].time + cg_smoothTime.integer ) && VectorLength( cg.sList[ i ].rotAxis ) )
+    {
+      stLocal = 1.0 - ( ( ( cg.sList[ i ].time + cg_smoothTime.integer ) - cg.time ) / cg_smoothTime.integer );
+      sFraction = -( cos( stLocal * M_PI ) + 1 ) / 2;
+
+      RotatePointAroundVector( outAxis[ 0 ], cg.sList[ i ].rotAxis, inAxis[ 0 ], sFraction * cg.sList[ i ].rotAngle );
+      RotatePointAroundVector( outAxis[ 1 ], cg.sList[ i ].rotAxis, inAxis[ 1 ], sFraction * cg.sList[ i ].rotAngle );
+      RotatePointAroundVector( outAxis[ 2 ], cg.sList[ i ].rotAxis, inAxis[ 2 ], sFraction * cg.sList[ i ].rotAngle );
+
+      AxisCopy( outAxis, inAxis );
+      performed = qtrue;
+    }
+  }
+
+  //if we performed any ops then return the smoothed angles
+  //otherwise simply return the in angles
+  if( performed )
+    AxisToAngles( outAxis, out );
+  else
+    VectorCopy( in, out );
+
+  //copy the current normal to the lastNormal
+  VectorCopy( surfNormal, cg.lastNormal );
+}
 
 /*
 ===============
@@ -788,9 +888,15 @@ static int CG_CalcViewValues( void ) {
   cg.xyspeed = sqrt( ps->velocity[0] * ps->velocity[0] +
     ps->velocity[1] * ps->velocity[1] );
 
-
   VectorCopy( ps->origin, cg.refdef.vieworg );
-  VectorCopy( ps->viewangles, cg.refdefViewAngles );
+
+  if( BG_ClassHasAbility( ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) )
+    CG_smoothWWTransitions( ps, ps->viewangles, cg.refdefViewAngles );
+  else
+    VectorCopy( ps->viewangles, cg.refdefViewAngles );
+
+  if( !( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
+    VectorSet( cg.lastNormal, 0.0f, 0.0f, 1.0f );
 
   if (cg_cameraOrbit.integer) {
     if (cg.time > cg.nextOrbitTime) {

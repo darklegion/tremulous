@@ -3640,7 +3640,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
   s->powerups = ps->stats[ STAT_PTEAM ] | ( ps->stats[ STAT_PCLASS ] << 8 );
 
   //TA: have to get the surfNormal thru somehow...
-  if( ps->stats[ STAT_STATE ] & SS_GPISROTVEC )
+  if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
   {
     VectorCopy( ceilingNormal, s->angles2 );
   }
@@ -3737,7 +3737,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   s->powerups = ps->stats[ STAT_PTEAM ] | ( ps->stats[ STAT_PCLASS ] << 8 );
 
   //TA: have to get the surfNormal thru somehow...
-  if( ps->stats[ STAT_STATE ] & SS_GPISROTVEC )
+  if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
   {
     VectorCopy( ceilingNormal, s->angles2 );
   }

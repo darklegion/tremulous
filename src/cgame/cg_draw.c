@@ -345,7 +345,7 @@ static void CG_DrawLighting( void )
 
   VectorCopy( cent->lerpOrigin, point );
 
-  AngleVectors( cg.predictedPlayerState.viewangles, direction, NULL, NULL );
+  AngleVectors( cg.refdefViewAngles, direction, NULL, NULL );
 
   currentLum = CG_LightFromDirection( point, direction );
   //CG_Printf( "%d\n", lum );

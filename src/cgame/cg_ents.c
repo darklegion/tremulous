@@ -655,7 +655,7 @@ static void CG_TorchLight( centity_t *cent )
   if( cent->currentState.clientNum == cg.predictedPlayerState.clientNum )
   {
     VectorCopy( cg.predictedPlayerState.origin, from );
-    VectorCopy( cg.predictedPlayerState.viewangles, angles );
+    VectorCopy( cg.refdefViewAngles, angles );
   }
   else
   {

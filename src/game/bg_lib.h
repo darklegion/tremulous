@@ -91,4 +91,5 @@ double tan( double x );
 int abs( int n );
 double fabs( double x );
 double acos( double x );
+float pow( float x, float y );
 

@@ -630,7 +630,7 @@ void ByteToDir( int b, vec3_t dir );
 typedef struct {
 	float	v[3];
 } vec3struct_t;
-#define VectorCopy(a,b)	*(vec3struct_t *)b=*(vec3struct_t *)a;
+#define VectorCopy(a,b)	*(vec3struct_t *)b=*(vec3struct_t *)a
 #define ID_INLINE static
 #endif
 #endif

@@ -186,6 +186,7 @@ vmCvar_t  cg_trueLightning;
 vmCvar_t  cg_creepRes;
 vmCvar_t  cg_drawSurfNormal;
 vmCvar_t  cg_debugAlloc;
+vmCvar_t  cg_smoothTime;
 
 
 typedef struct {
@@ -266,6 +267,7 @@ static cvarTable_t   cvarTable[] = {
   { &cg_creepRes, "cg_creepRes", "16", CVAR_ARCHIVE },
   { &cg_drawSurfNormal, "cg_drawSurfNormal", "0", CVAR_CHEAT },
   { &cg_debugAlloc, "cg_debugAlloc", "0", 0 },
+  { &cg_smoothTime, "cg_smoothTime", "300", 0 },
 
   // the following variables are created in other parts of the system,
   // but we also reference them here
