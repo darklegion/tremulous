@@ -445,6 +445,14 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->think = ASpawn_Blast;
   self->nextthink = level.time + 5000; //wait .5 seconds before damaging others
     
+  if( attacker && attacker->client )
+  {
+    if( self->s.modelindex == BA_A_OVERMIND )
+      attacker->client->ps.persistant[ PERS_CREDIT ] += OVERMIND_VALUE;
+    else if( self->s.modelindex == BA_A_SPAWN )
+      attacker->client->ps.persistant[ PERS_CREDIT ] += ASPAWN_VALUE;
+  }
+  
   trap_LinkEntity( self );
 }
 
@@ -1691,6 +1699,14 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->nextthink = level.time + HUMAN_DETONATION_DELAY;
   self->powered = qfalse; //free up power
 
+  if( attacker && attacker->client )
+  {
+    if( self->s.modelindex == BA_H_REACTOR )
+      attacker->client->ps.persistant[ PERS_CREDIT ] += REACTOR_VALUE;
+    else if( self->s.modelindex == BA_H_SPAWN )
+      attacker->client->ps.persistant[ PERS_CREDIT ] += HSPAWN_VALUE;
+  }
+  
   trap_LinkEntity( self );
 }
 

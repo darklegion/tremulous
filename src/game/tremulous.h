@@ -189,6 +189,7 @@
 #define ASPAWN_SPLASHDAMAGE         50
 #define ASPAWN_SPLASHRADIUS         50
 #define ASPAWN_CREEPSIZE            120
+#define ASPAWN_VALUE                150
 
 #define BARRICADE_BP                80
 #define BARRICADE_HEALTH            ABHM(250)
@@ -233,6 +234,7 @@
 #define OVERMIND_CREEPSIZE          120
 #define OVERMIND_ATTACK_RANGE       150.0f
 #define OVERMIND_ATTACK_REPEAT      1000
+#define OVERMIND_VALUE              300
 
 #define HOVEL_BP                    80
 #define HOVEL_HEALTH                ABHM(750)
@@ -292,7 +294,7 @@
 #define CHAINGUN_SPREAD             1200
 #define CHAINGUN_DMG                HDM(14)
 
-#define FLAMER_GAS                  40
+#define FLAMER_GAS                  80
 #define FLAMER_REPEAT               300
 #define FLAMER_PRICE                300
 #define FLAMER_DMG                  HDM(30)
@@ -401,6 +403,7 @@
 #define HSPAWN_HEALTH               HBHM(500)
 #define HSPAWN_SPLASHDAMAGE         50
 #define HSPAWN_SPLASHRADIUS         100
+#define HSPAWN_VALUE                1
 
 #define MEDISTAT_BP                 80
 #define MEDISTAT_HEALTH             HBHM(200)
@@ -444,6 +447,7 @@
 #define REACTOR_HEALTH              HBHM(1000)
 #define REACTOR_SPLASHDAMAGE        200
 #define REACTOR_SPLASHRADIUS        300
+#define REACTOR_VALUE               2
 
 #define REPEATER_BP                 100
 #define REPEATER_HEALTH             HBHM(200)
