@@ -937,7 +937,8 @@ static void CG_RegisterClients( void ) {
   //CG_LoadingClient(cg.clientNum);
   //CG_NewClientInfo(cg.clientNum);
 
-  for (i=0 ; i<MAX_CLIENTS+MAX_PRECACHES; i++) {
+  //yeah ok its silly, but lets precache models before setting client defaults
+  for (i=MAX_CLIENTS+MAX_PRECACHES+1; i>=0;  i--) {
     const char    *clientInfo;
 
     if (cg.clientNum == i) {
@@ -951,8 +952,8 @@ static void CG_RegisterClients( void ) {
 
     if( i < MAX_CLIENTS )
     {
-      //CG_LoadingClient( i );
-      //CG_NewClientInfo( i );
+      CG_LoadingClient( i );
+      CG_NewClientInfo( i );
     }
     else
     {

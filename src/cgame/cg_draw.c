@@ -2226,16 +2226,17 @@ static void CG_Draw2D( void ) {
     return;
   }
 
+  //TA: draw the lighting effects e.g. nvg
+  CG_DrawLighting();
+
   if( ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) ||
       ( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) ) {
     CG_DrawSpectator();
     CG_DrawCrosshair();
     CG_DrawCrosshairNames();
-    CG_DrawLighting();
   } else {
     // don't draw any status if dead or the scoreboard is being explicitly shown
     if ( !cg.showScores && cg.snap->ps.stats[STAT_HEALTH] > 0 ) {
-      CG_DrawLighting();
       CG_DrawStatusBar();
       CG_DrawAmmoWarning();
       CG_DrawCrosshair();
