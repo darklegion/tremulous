@@ -2133,6 +2133,27 @@ static void PM_TorsoAnimation( void )
     PM_ContinueTorsoAnim( TORSO_STAND );
 }
 
+//synced alt weapons look like the way to go - simpler anyway...
+#if 0
+static void PM_packWeaponTime( int *psWeaponTime, int weaponTime1, int weaponTime2 )
+{
+  if( weaponTime1 < 0 && weaponTime2 >= 0 )
+    *psWeaponTime = ( *psWeaponTime & 0x00FF ) | ( ( ( weaponTime2 / 10 ) << 8 ) & 0xFF00 );
+  if( weaponTime2 < 0 && weaponTime1 >= 0 )
+    *psWeaponTime = ( ( weaponTime1 / 10 ) & 0x00FF ) | ( *psWeaponTime & 0xFF00 );
+  else if( weaponTime1 >= 0 && weaponTime2 >= 0 )
+    *psWeaponTime = ( ( weaponTime1 / 10 ) & 0x00FF ) | ( ( ( weaponTime2 / 10 ) << 8 ) & 0xFF00 );
+}
+
+static void PM_unpackWeaponTime( int psWeaponTime, int *weaponTime1, int *weaponTime2 )
+{
+  if( weaponTime1 != NULL )
+    *weaponTime1 = ( psWeaponTime & 0x00FF ) * 10;
+
+  if( weaponTime2 != NULL )
+    *weaponTime2 = ( ( psWeaponTime & 0x00FF ) >> 8 ) * 10;
+}
+#endif
 
 /*
 ==============
@@ -2141,25 +2162,25 @@ PM_Weapon
 Generates weapon events and modifes the weapon counter
 ==============
 */
-static void PM_Weapon( void ) {
+static void PM_Weapon( void )
+{
   int addTime;
   int ammo, clips, maxclips;
-
+  
   // don't allow attack until all buttons are up
-  if ( pm->ps->pm_flags & PMF_RESPAWNED ) {
+  if ( pm->ps->pm_flags & PMF_RESPAWNED )
     return;
-  }
 
   // ignore if spectator
-  if ( pm->ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+  if ( pm->ps->persistant[PERS_TEAM] == TEAM_SPECTATOR )
     return;
-  }
-  if( pm->ps->stats[ STAT_STATE ] & SS_INFESTING ) {
+    
+  if( pm->ps->stats[ STAT_STATE ] & SS_INFESTING )
     return;
-  }
 
   // check for dead player
-  if ( pm->ps->stats[STAT_HEALTH] <= 0 ) {
+  if ( pm->ps->stats[STAT_HEALTH] <= 0 )
+  {
     pm->ps->weapon = WP_NONE;
     return;
   }
@@ -2176,7 +2197,7 @@ static void PM_Weapon( void ) {
   // check for weapon change
   // can't change if weapon is firing, but can change
   // again if lowering or raising
-  if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING )
+  if( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING )
   {
     //TA: must press use to switch weapons
     if( pm->cmd.buttons & BUTTON_USE_HOLDABLE )
@@ -2207,12 +2228,12 @@ static void PM_Weapon( void ) {
       pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
   }
   
-  if ( pm->ps->weaponTime > 0 ) {
+  if ( pm->ps->weaponTime > 0 )
     return;
-  }
 
   // change weapon if time
-  if ( pm->ps->weaponstate == WEAPON_DROPPING ) {
+  if ( pm->ps->weaponstate == WEAPON_DROPPING )
+  {
     PM_FinishWeaponChange();
     return;
   }
@@ -2232,7 +2253,8 @@ static void PM_Weapon( void ) {
   BG_unpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips, &maxclips );
 
   // check for out of ammo
-  if ( !ammo && !clips && !BG_infiniteAmmo( pm->ps->weapon ) ) {
+  if ( !ammo && !clips && !BG_infiniteAmmo( pm->ps->weapon ) )
+  {
     PM_AddEvent( EV_NOAMMO );
     pm->ps->weaponTime += 200;
     return;
@@ -2296,6 +2318,41 @@ static void PM_Weapon( void ) {
       break;
   }
   
+  // fire weapon
+/*  if( BG_WeaponHasAltMode( pm->ps->weapon ) )
+  {
+    if( BG_WeaponModesAreSynced( pm->ps->weapon ) )
+    {
+      if( ( pm->cmd.buttons & BUTTON_ATTACK ) && ( pm->cmd.buttons & BUTTON_ATTACK2 ) )
+        PM_AddEvent( EV_FIRE_WEAPONBOTH );
+      else if( pm->cmd.buttons & BUTTON_ATTACK2 )
+        PM_AddEvent( EV_FIRE_WEAPON2 );
+      else
+        PM_AddEvent( EV_FIRE_WEAPON );
+    }
+    else if( pm->cmd.buttons & BUTTON_ATTACK2 )
+      PM_AddEvent( EV_FIRE_WEAPON2 );
+    else
+      PM_AddEvent( EV_FIRE_WEAPON );
+  }
+  else
+    PM_AddEvent( EV_FIRE_WEAPON );*/
+
+  if( pm->cmd.buttons & BUTTON_ATTACK2 )
+  {
+    if( BG_WeaponHasAltMode( pm->ps->weapon ) )
+    {
+      if( BG_WeaponModesAreSynced( pm->ps->weapon ) && ( pm->cmd.buttons & BUTTON_ATTACK ) )
+        PM_AddEvent( EV_FIRE_WEAPONBOTH );
+      else
+        PM_AddEvent( EV_FIRE_WEAPON2 );
+    }
+    else
+      return;
+  }
+  else if( pm->cmd.buttons & BUTTON_ATTACK )
+    PM_AddEvent( EV_FIRE_WEAPON );
+    
   PM_StartTorsoAnim( TORSO_ATTACK );
 
   pm->ps->weaponstate = WEAPON_FIRING;
@@ -2306,63 +2363,56 @@ static void PM_Weapon( void ) {
     ammo--;
     BG_packAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
   }
-
-  // fire weapon
-  if( pm->cmd.buttons & BUTTON_ATTACK )   PM_AddEvent( EV_FIRE_WEAPON );
-  if( pm->cmd.buttons & BUTTON_ATTACK2 )  PM_AddEvent( EV_FIRE_WEAPON2 );
-
-  switch( pm->ps->weapon ) {
-  default:
-  case WP_GAUNTLET:
-    addTime = 400;
-    break;
-  case WP_LIGHTNING:
-    addTime = 50;
-    break;
-  case WP_SHOTGUN:
-    addTime = 1000;
-    break;
-  case WP_MACHINEGUN:
-    addTime = 100;
-    break;
-  case WP_CHAINGUN:
-    addTime = 50;
-    break;
-  case WP_GRENADE_LAUNCHER:
-    addTime = 800;
-    break;
-  case WP_ROCKET_LAUNCHER:
-    addTime = 800;
-    break;
-  case WP_FLAMER:
-    addTime = 75;
-    break;
-  case WP_RAILGUN:
-    addTime = 1500;
-    break;
-  case WP_BFG:
-    addTime = 200;
-    break;
-  case WP_GRAPPLING_HOOK:
-    addTime = 400;
-    break;
-  case WP_VENOM:
-    addTime = 500;
-    break;
-  case WP_ABUILD:
-    addTime = 1000;
-    break;
-  case WP_HBUILD:
-    addTime = 1000;
-    break;
-  case WP_SCANNER:
-    addTime = 1000; //abritutary since scaner doesn't "fire"
-    break;
+  
+  switch( pm->ps->weapon )
+  {
+    default:
+    case WP_GAUNTLET:
+      addTime = 400;
+      break;
+    case WP_LIGHTNING:
+      addTime = 50;
+      break;
+    case WP_SHOTGUN:
+      addTime = 1000;
+      break;
+    case WP_MACHINEGUN:
+      addTime = 200;
+      break;
+    case WP_CHAINGUN:
+      addTime = 50;
+      break;
+    case WP_GRENADE_LAUNCHER:
+      addTime = 800;
+      break;
+    case WP_ROCKET_LAUNCHER:
+      addTime = 800;
+      break;
+    case WP_FLAMER:
+      addTime = 70;
+      break;
+    case WP_RAILGUN:
+      addTime = 1500;
+      break;
+    case WP_BFG:
+      addTime = 200;
+      break;
+    case WP_GRAPPLING_HOOK:
+      addTime = 400;
+      break;
+    case WP_VENOM:
+      addTime = 500;
+      break;
+    case WP_ABUILD:
+      addTime = 1000;
+      break;
+    case WP_HBUILD:
+      addTime = 1000;
+      break;
+    case WP_SCANNER:
+      addTime = 1000; //abritutary since scaner doesn't "fire"
+      break;
   }
-
-  /*if ( pm->ps->powerups[PW_HASTE] ) {
-    addTime /= 1.3;
-  }*/
 
   if( pm->ps->weapon == WP_CHAINGUN )
   {
@@ -2599,11 +2649,18 @@ void PmoveSingle (pmove_t *pmove)
 
   // set the firing flag for continuous beam weapons
   if ( !(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION
-    && ( pm->cmd.buttons & BUTTON_ATTACK ) && ( ammo > 0 || clips > 0 ) ) {
+    && ( pm->cmd.buttons & BUTTON_ATTACK ) && ( ammo > 0 || clips > 0 ) )
     pm->ps->eFlags |= EF_FIRING;
-  } else {
+  else
     pm->ps->eFlags &= ~EF_FIRING;
-  }
+ 
+  // set the firing flag for continuous beam weapons
+  if ( !(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION
+    && ( pm->cmd.buttons & BUTTON_ATTACK2 ) && ( ammo > 0 || clips > 0 ) )
+    pm->ps->eFlags |= EF_FIRING2;
+  else
+    pm->ps->eFlags &= ~EF_FIRING2;
+ 
 
   // clear the respawned flag if attack and use are cleared
   if ( pm->ps->stats[STAT_HEALTH] > 0 &&

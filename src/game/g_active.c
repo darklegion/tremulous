@@ -360,17 +360,11 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
   if( ( client->buttons & BUTTON_ATTACK ) && !( client->oldbuttons & BUTTON_ATTACK ) )
   {
     if( client->pers.pteam == PTE_NONE )
-    {
       G_AddPredictableEvent( ent, EV_MENU, MN_TEAM );
-    }
     else if( client->pers.pteam == PTE_DROIDS )
-    {
       G_AddPredictableEvent( ent, EV_MENU, MN_D_CLASS );
-    }
     else if( client->pers.pteam == PTE_HUMANS )
-    {
       G_AddPredictableEvent( ent, EV_MENU, MN_H_SPAWN );
-    }
   }
 
   // attack button cycles through spectators
@@ -504,6 +498,7 @@ ClientIntermissionThink
 void ClientIntermissionThink( gclient_t *client ) {
   client->ps.eFlags &= ~EF_TALK;
   client->ps.eFlags &= ~EF_FIRING;
+  client->ps.eFlags &= ~EF_FIRING2;
 
   // the level will exit when everyone wants to or after timeouts
 
@@ -567,6 +562,11 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
       break;
 
     case EV_FIRE_WEAPON2:
+      FireWeapon2( ent );
+      break;
+
+    case EV_FIRE_WEAPONBOTH:
+      FireWeapon( ent );
       FireWeapon2( ent );
       break;
 
@@ -768,8 +768,7 @@ void ClientThink_real( gentity_t *ent ) {
   //TA: slow player if standing in creep
   for ( i = 1, creepNode = g_entities + i; i < level.num_entities; i++, creepNode++ )
   {
-    if( ( !Q_stricmp( creepNode->classname, "team_droid_spawn" ) ) ||
-        ( !Q_stricmp( creepNode->classname, "team_droid_def1" ) ) )
+    if( creepNode->biteam == PTE_DROIDS ) 
     {
       VectorSubtract( client->ps.origin, creepNode->s.origin, temp_v );
 
@@ -887,9 +886,10 @@ void ClientThink_real( gentity_t *ent ) {
   else {
     BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtrue );
   }
-  if ( !( ent->client->ps.eFlags & EF_FIRING ) ) {
+  if( !( ent->client->ps.eFlags & EF_FIRING ) )
     client->fireHeld = qfalse;    // for grapple
-  }
+  if( !( ent->client->ps.eFlags & EF_FIRING2 ) )
+    client->fire2Held = qfalse;
 
   // use the snapped origin for linking so it matches client predicted versions
   VectorCopy( ent->s.pos.trBase, ent->r.currentOrigin );

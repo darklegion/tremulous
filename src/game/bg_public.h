@@ -282,6 +282,7 @@ typedef enum {
 #define EF_AWARD_GAUNTLET   0x00000040    // draw a gauntlet sprite
 #define EF_NODRAW           0x00000080    // may have an event, but no model (unspawned items)
 #define EF_FIRING           0x00000100    // for lightning gun
+#define EF_FIRING2          0x00000200    // alt fire
 #define EF_MOVER_STOP       0x00000400    // will push otherwise
 #define EF_TALK             0x00001000    // draw a talk balloon
 #define EF_CONNECTION       0x00002000    // draw a connection trouble sprite
@@ -450,6 +451,7 @@ typedef enum {
   EV_CHANGE_WEAPON,
   EV_FIRE_WEAPON,
   EV_FIRE_WEAPON2,
+  EV_FIRE_WEAPONBOTH,
 
   EV_USE_ITEM0,
   EV_USE_ITEM1,
@@ -847,6 +849,9 @@ typedef struct
   int       quan;
   int       clips;
   int       maxClips;
+  
+  qboolean  hasAltMode;
+  qboolean  synced;
 } weaponAttributes_t;
 
 //TA: upgrade record
@@ -917,6 +922,8 @@ char      *BG_FindNameForWeapon( int weapon );
 int       BG_FindWeaponNumForName( char *name );
 char      *BG_FindHumanNameForWeapon( int weapon );
 void      BG_FindAmmoForWeapon( int weapon, int *quan, int *clips, int *maxClips );
+qboolean  BG_WeaponHasAltMode( int weapon );
+qboolean  BG_WeaponModesAreSynced( int weapon );
 
 int       BG_FindPriceForUpgrade( int upgrade );
 int       BG_FindSlotsForUpgrade( int upgrade );

@@ -2524,7 +2524,9 @@ weaponAttributes_t bg_weapons[ ] =
     "Rifle",
     30,
     3,
-    3
+    3,
+    qfalse,
+    qfalse
   },
   {
     WP_FLAMER,
@@ -2534,7 +2536,9 @@ weaponAttributes_t bg_weapons[ ] =
     "Flame Thrower",
     400,
     0,
-    0
+    0,
+    qfalse,
+    qfalse
   },
   {
     WP_CHAINGUN,
@@ -2544,7 +2548,9 @@ weaponAttributes_t bg_weapons[ ] =
     "Chaingun",
     300,
     0,
-    0
+    0,
+    qfalse,
+    qfalse
   },
   {
     WP_HBUILD,
@@ -2554,7 +2560,9 @@ weaponAttributes_t bg_weapons[ ] =
     "Construction Kit",
     0,
     0,
-    0
+    0,
+    qfalse,
+    qfalse
   },
   {
     WP_ABUILD,
@@ -2564,7 +2572,9 @@ weaponAttributes_t bg_weapons[ ] =
     "",
     0,
     0,
-    0
+    0,
+    qfalse,
+    qfalse
   },
   {
     WP_SCANNER,
@@ -2574,7 +2584,9 @@ weaponAttributes_t bg_weapons[ ] =
     "Scanner",
     0,
     0,
-    0
+    0,
+    qfalse,
+    qfalse
   }
 };
 
@@ -2701,6 +2713,46 @@ void BG_FindAmmoForWeapon( int weapon, int *quan, int *clips, int *maxClips )
       break;
     }
   }
+}
+
+/*
+==============
+BG_WeaponHasAltMode
+==============
+*/
+qboolean BG_WeaponHasAltMode( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+    {
+      return bg_weapons[ i ].hasAltMode;
+    }
+  }
+
+  return qfalse;
+}
+
+/*
+==============
+BG_WeaponModesAreSynced
+==============
+*/
+qboolean BG_WeaponModesAreSynced( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+    {
+      return bg_weapons[ i ].synced;
+    }
+  }
+
+  return qfalse;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3240,6 +3292,7 @@ char *eventnames[] = {
   "EV_CHANGE_WEAPON",
   "EV_FIRE_WEAPON",
   "EV_FIRE_WEAPON2",
+  "EV_FIRE_WEAPONBOTH",
 
   "EV_USE_ITEM0",
   "EV_USE_ITEM1",

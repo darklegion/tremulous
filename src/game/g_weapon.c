@@ -601,9 +601,13 @@ void Weapon_Hbuild_Fire( gentity_t *ent )
 }
 ///////build weapons
 
-//=====
-//VENOM
-//=====
+/*
+======================================================================
+
+VENOM
+
+======================================================================
+*/
 
 /*
 ===============
@@ -760,33 +764,15 @@ FireWeapon2
 */
 void FireWeapon2( gentity_t *ent )
 {
-  //just so i can do a cvs commit on compilable code before sleep
-  Com_Printf( "Attack2 pressed\n" );
-}
-
-/*
-===============
-FireWeapon
-===============
-*/
-void FireWeapon( gentity_t *ent )
-{
   if( ent->client )
   {
-    // track shots taken for accuracy tracking.  Grapple is not a weapon and gauntet is just not tracked
-    if( ent->s.weapon != WP_GRAPPLING_HOOK && ent->s.weapon != WP_GAUNTLET ) {
-      ent->client->accuracy_shots++;
-    }
-
     // set aiming directions
     AngleVectors (ent->client->ps.viewangles, forward, right, up);
-  
     CalcMuzzlePoint( ent, forward, right, up, muzzle );
   }
   else
   {
     AngleVectors( ent->s.angles2, forward, right, up );
-
     VectorCopy( ent->s.pos.trBase, muzzle );
   }
 
@@ -803,11 +789,81 @@ void FireWeapon( gentity_t *ent )
       weapon_supershotgun_fire( ent );
       break;
     case WP_MACHINEGUN:
-      if ( g_gametype.integer != GT_TEAM ) {
-        Bullet_Fire( ent, MACHINEGUN_SPREAD, MACHINEGUN_DAMAGE, MOD_MACHINEGUN );
-      } else {
-        Bullet_Fire( ent, MACHINEGUN_SPREAD, MACHINEGUN_TEAM_DAMAGE, MOD_MACHINEGUN );
-      }
+      Bullet_Fire( ent, MACHINEGUN_SPREAD, MACHINEGUN_DAMAGE, MOD_MACHINEGUN );
+      break;
+    case WP_CHAINGUN:
+      Bullet_Fire( ent, CHAINGUN_SPREAD, CHAINGUN_DAMAGE, MOD_CHAINGUN );
+      break;
+    case WP_GRENADE_LAUNCHER:
+      weapon_grenadelauncher_fire( ent );
+      break;
+    case WP_ROCKET_LAUNCHER:
+      Weapon_RocketLauncher_Fire( ent );
+      break;
+    case WP_FLAMER:
+      Weapon_Flamer_Fire( ent );
+      break;
+    case WP_PLASMAGUN:
+      Weapon_Plasma_Fire( ent );
+      break;
+    case WP_RAILGUN:
+      weapon_railgun_fire( ent );
+      break;
+    case WP_BFG:
+      BFG_Fire( ent );
+      break;
+    case WP_GRAPPLING_HOOK:
+      Weapon_GrapplingHook_Fire( ent );
+      break;
+    case WP_VENOM:
+      Weapon_Venom_Fire( ent );
+      break;
+    case WP_ABUILD:
+      Weapon_Abuild_Fire( ent );
+      break;
+    case WP_HBUILD:
+      Weapon_Hbuild_Fire( ent );
+      break;
+    case WP_SCANNER: //scanner doesn't "fire"
+    default:
+  // FIXME    G_Error( "Bad ent->s.weapon" );
+      break;
+  }
+}
+
+/*
+===============
+FireWeapon
+===============
+*/
+void FireWeapon( gentity_t *ent )
+{
+  if( ent->client )
+  {
+    // set aiming directions
+    AngleVectors (ent->client->ps.viewangles, forward, right, up);
+    CalcMuzzlePoint( ent, forward, right, up, muzzle );
+  }
+  else
+  {
+    AngleVectors( ent->s.angles2, forward, right, up );
+    VectorCopy( ent->s.pos.trBase, muzzle );
+  }
+
+  // fire the specific weapon
+  switch( ent->s.weapon )
+  {
+    case WP_GAUNTLET:
+      Weapon_Gauntlet( ent );
+      break;
+    case WP_LIGHTNING:
+      Weapon_LightningFire( ent );
+      break;
+    case WP_SHOTGUN:
+      weapon_supershotgun_fire( ent );
+      break;
+    case WP_MACHINEGUN:
+      Bullet_Fire( ent, MACHINEGUN_SPREAD, MACHINEGUN_DAMAGE, MOD_MACHINEGUN );
       break;
     case WP_CHAINGUN:
       Bullet_Fire( ent, CHAINGUN_SPREAD, CHAINGUN_DAMAGE, MOD_CHAINGUN );
