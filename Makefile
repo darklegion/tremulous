@@ -37,7 +37,6 @@ GOBJ = \
 	$(GDIRNAME)/g_trigger.o \
 	$(GDIRNAME)/g_utils.o \
 	$(GDIRNAME)/g_weapon.o
-	#(GDIRNAME)/g_creep.o \
 
 CGOBJ = \
 	$(CGDIRNAME)/cg_main.o \

@@ -794,11 +794,12 @@ static void CG_TorchLight( centity_t *cent )
     projection, MAX_MARK_POINTS, markPoints[0],
     MAX_MARK_FRAGMENTS, markFragments );
    
-  color[ 0 ] = 255;
-  color[ 1 ] = 255;
-  color[ 2 ] = 255;
-  color[ 3 ] = 255;
+  color[ 0 ] = color[ 1 ] = color[ 2 ] = color[ 3 ] = 255;
   
+  r = g = b = 1;
+
+  lum = CG_AmbientLight( origin );
+
   for ( i = 0, mf = markFragments ; i < numFragments ; i++, mf++ )
   {
     polyVert_t  *v;
@@ -815,7 +816,7 @@ static void CG_TorchLight( centity_t *cent )
       vec3_t    delta;
 
       VectorCopy( markPoints[ mf->firstPoint + j ], v->xyz );
-      VectorMA( v->xyz, 1, normal, v->xyz );
+      VectorMA( v->xyz, 0.1f, normal, v->xyz );
 
       VectorSubtract( v->xyz, origin, delta );
       v->st[0] = 0.5 + DotProduct( delta, axis[1] ) * texCoordScale;
@@ -823,33 +824,12 @@ static void CG_TorchLight( centity_t *cent )
       *(int *)v->modulate = *(int *)color;
     }
 
-    //trap_R_AddPolyToScene( cgs.media.humanTorch, mf->numPoints, verts );
     trap_R_AddPolyToScene( cgs.media.humanTorch, mf->numPoints, verts );
                                                                                                                 
   }
   
-  r = ( (float)( cent->currentState.constantLight & 0xFF ) ) / 255.0;
-  g = ( (float)( ( cent->currentState.constantLight >> 8 ) & 0xFF ) ) / 255.0;
-  b = ( (float)( ( cent->currentState.constantLight >> 16 ) & 0xFF ) ) / 255.0;
-  i = ( cent->currentState.constantLight >> 24 ) & 0xFF;
 
-  lum = CG_AmbientLight( cent->lerpOrigin );
-
-  if( lum > 32 )
-  {
-    k = 1;
-  }
-  else if( lum <= 32 )
-  {
-    k = 2;
-    r *= 1.0f - ( (float)lum / 64.0f );
-    g *= 1.0f - ( (float)lum / 64.0f );
-    b *= 1.0f - ( (float)lum / 64.0f );
-  }
-
-  /*for( j = 0; j <= k; j++ )
-    trap_R_AddLightToScene(cent->lerpOrigin, i*2, r, g, b );*/
-    //trap_R_AddLightToScene( origin, (int)size, r, g, b );
+  trap_R_AddLightToScene( origin, (int)size, r, g, b );
 }
 
 /*
