@@ -1067,6 +1067,11 @@ void      BG_deactivateItem( int item, int stats[ ] );
 qboolean  BG_activated( int item, int stats[ ] );
 qboolean  BG_rotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
                          vec3_t outAxis[ 3 ], qboolean inverse, qboolean ceiling );
+void      BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
+                                                const vec3_t mins, const vec3_t maxs,
+                                                void (*trace)( trace_t *, const vec3_t, const vec3_t,
+                                                               const vec3_t, const vec3_t, int, int ), 
+                                                vec3_t outOrigin, vec3_t outAngles, trace_t *tr );
   
 int       BG_FindBuildNumForName( char *name );
 int       BG_FindBuildNumForEntityName( char *name );

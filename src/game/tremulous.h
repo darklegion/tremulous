@@ -307,7 +307,7 @@
  * 
  */
 
-#define HUMAN_WDMG_MODIFIER         1.0f
+#define HUMAN_WDMG_MODIFIER         1.05f
 #define HDM(d)                      ((int)((float)d*HUMAN_WDMG_MODIFIER))
 
 #define BLASTER_REPEAT              600
@@ -469,14 +469,14 @@
 #define MGTURRET_HEALTH             HBHM(450)
 #define MGTURRET_SPLASHDAMAGE       50
 #define MGTURRET_SPLASHRADIUS       100
-#define MGTURRET_ANGULARSPEED       5  //degrees/think ~= 200deg/sec
+#define MGTURRET_ANGULARSPEED       6  //degrees/think ~= 200deg/sec
 #define MGTURRET_ACCURACYTOLERANCE  MGTURRET_ANGULARSPEED / 1.5f //angular difference for turret to fire
 #define MGTURRET_VERTICALCAP        30  // +/- maximum pitch
 #define MGTURRET_REPEAT             100
 #define MGTURRET_RANGE              250
 #define MGTURRET_SPREAD             200
 #define MGTURRET_DMG                HDM(5)
-#define MGTURRET_DCC_ANGULARSPEED       6
+#define MGTURRET_DCC_ANGULARSPEED       7
 #define MGTURRET_DCC_ACCURACYTOLERANCE  MGTURRET_DCC_ANGULARSPEED / 1.5f
 
 #define TESLAGEN_BP                 10
@@ -502,7 +502,7 @@
 
 #define REACTOR_BP                  0
 #define REACTOR_BT                  20000
-#define REACTOR_HEALTH              HBHM(1000)
+#define REACTOR_HEALTH              HBHM(1500)
 #define REACTOR_SPLASHDAMAGE        200
 #define REACTOR_SPLASHRADIUS        300
 #define REACTOR_VALUE               2

@@ -687,7 +687,49 @@ static void CG_BuildableAnimation( centity_t *cent, int *old, int *now, float *b
   }
 }
 
-#define TRACE_DEPTH 128.0f
+#define TRACE_DEPTH 64.0f
+
+/*
+===============
+CG_PositionAndOrientateBuildable
+===============
+*/
+static void CG_PositionAndOrientateBuildable( const vec3_t angles, const vec3_t inOrigin,
+                                              const vec3_t normal, const int skipNumber,
+                                              const vec3_t mins, const vec3_t maxs,
+                                              vec3_t outAxis[ 3 ], vec3_t outOrigin )
+{
+  vec3_t  forward, start, end;
+  trace_t tr;
+  
+  AngleVectors( angles, forward, NULL, NULL );
+  VectorCopy( normal, outAxis[ 2 ] );
+  ProjectPointOnPlane( outAxis[ 0 ], forward, outAxis[ 2 ] );
+  
+  if( !VectorNormalize( outAxis[ 0 ] ) )
+  {
+    AngleVectors( angles, NULL, NULL, forward );
+    ProjectPointOnPlane( outAxis[ 0 ], forward, outAxis[ 2 ] );
+    VectorNormalize( outAxis[ 0 ] );
+  }
+  
+  CrossProduct( outAxis[ 0 ], outAxis[ 2 ], outAxis[ 1 ] );
+  outAxis[ 1 ][ 0 ] = -outAxis[ 1 ][ 0 ];
+  outAxis[ 1 ][ 1 ] = -outAxis[ 1 ][ 1 ];
+  outAxis[ 1 ][ 2 ] = -outAxis[ 1 ][ 2 ];
+
+  VectorMA( inOrigin, -TRACE_DEPTH, normal, end );
+  VectorMA( inOrigin, 1.0f, normal, start );
+  CG_CapTrace( &tr, start, mins, maxs, end, skipNumber, MASK_PLAYERSOLID );
+  
+  if( tr.fraction == 1.0f )
+  {
+    //erm we missed completely - try again with a box trace
+    CG_Trace( &tr, start, mins, maxs, end, skipNumber, MASK_PLAYERSOLID );
+  }
+  
+  VectorMA( inOrigin, tr.fraction * -TRACE_DEPTH, normal, outOrigin );
+}
 
 /*
 ==================
@@ -705,61 +747,14 @@ void CG_GhostBuildable( buildable_t buildable )
   
   ps = &cg.predictedPlayerState;
   
-  memset ( &ent, 0, sizeof( ent ) );
-
-  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBING )
-  {
-    if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
-      VectorSet( normal, 0.0f, 0.0f, -1.0f );
-    else
-      VectorCopy( cg.predictedPlayerState.grapplePoint, normal );
-  }
-  else
-    VectorSet( normal, 0.0f, 0.0f, 1.0f );
-  
-  VectorCopy( cg.predictedPlayerState.viewangles, angles );
-
-  AngleVectors( angles, forward, NULL, NULL );
-  CrossProduct( forward, normal, cross );
-  VectorNormalize( cross );
-  CrossProduct( normal, cross, forward );
-  VectorNormalize( forward );
-
-  VectorCopy( ps->origin, player_origin );
-
-  distance = BG_FindBuildDistForClass( ps->stats[ STAT_PCLASS ] );
-  VectorMA( player_origin, distance, forward, entity_origin );
-  
-  VectorCopy( entity_origin, target_origin );
-  VectorMA( entity_origin, 32, normal, entity_origin );
-  VectorMA( target_origin, -128, normal, target_origin );
+  memset( &ent, 0, sizeof( ent ) );
 
   BG_FindBBoxForBuildable( buildable, mins, maxs );
-  
-  CG_Trace( &tr, entity_origin, mins, maxs, target_origin, ps->clientNum, MASK_PLAYERSOLID );
-  VectorCopy( tr.endpos, entity_origin );
-  VectorMA( entity_origin, 0.1f, normal, entity_origin );
 
-  AngleVectors( angles, forward, NULL, NULL );
-  VectorCopy( tr.plane.normal, ent.axis[ 2 ] );
-  ProjectPointOnPlane( ent.axis[ 0 ], forward, ent.axis[ 2 ] );
-  
-  if( !VectorNormalize( ent.axis[ 0 ] ) )
-  {
-    AngleVectors( angles, NULL, NULL, forward );
-    ProjectPointOnPlane( ent.axis[ 0 ], forward, ent.axis[ 2 ] );
-    VectorNormalize( ent.axis[ 0 ] );
-  }
-  
-  CrossProduct( ent.axis[ 0 ], ent.axis[ 2 ], ent.axis[ 1 ] );
-  ent.axis[ 1 ][ 0 ] = -ent.axis[ 1 ][ 0 ];
-  ent.axis[ 1 ][ 1 ] = -ent.axis[ 1 ][ 1 ];
-  ent.axis[ 1 ][ 2 ] = -ent.axis[ 1 ][ 2 ];
+  BG_PositionBuildableRelativeToPlayer( ps, mins, maxs, CG_Trace, entity_origin, angles, &tr );
 
-  VectorMA( entity_origin, -TRACE_DEPTH, tr.plane.normal, end );
-  VectorMA( entity_origin, 1.0f, tr.plane.normal, start );
-  CG_CapTrace( &tr, start, mins, maxs, end, ps->clientNum, MASK_PLAYERSOLID );
-  VectorMA( entity_origin, tr.fraction * -TRACE_DEPTH, tr.plane.normal, ent.origin );
+  CG_PositionAndOrientateBuildable( ps->viewangles, entity_origin, tr.plane.normal, ps->clientNum,
+                                    mins, maxs, ent.axis, ent.origin );
 
   //offset on the Z axis if required
   VectorMA( ent.origin, BG_FindZOffsetForBuildable( buildable ), tr.plane.normal, ent.origin );
@@ -912,10 +907,9 @@ void CG_Buildable( centity_t *cent )
   refEntity_t     ent;
   entityState_t   *es = &cent->currentState;
   vec3_t          angles;
-  vec3_t          forward, surfNormal, xNormal, end, start, mins, maxs;
+  vec3_t          forward, surfNormal, xNormal, mins, maxs;
   vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
   float           rotAngle;
-  trace_t         tr;
   buildableTeam_t team = BG_FindTeamForBuildable( es->modelindex );
   
   //must be before EF_NODRAW check
@@ -938,36 +932,13 @@ void CG_Buildable( centity_t *cent )
   VectorCopy( cent->lerpOrigin, ent.lightingOrigin );
 
   VectorCopy( es->origin2, surfNormal );
-  CrossProduct( surfNormal, refNormal, xNormal );
-  VectorNormalize( xNormal );
-  rotAngle = RAD2DEG( acos( DotProduct( surfNormal, refNormal ) ) );
   
   VectorCopy( es->angles, angles );
   BG_FindBBoxForBuildable( es->modelindex, mins, maxs );
-
-  AngleVectors( angles, forward, NULL, NULL );
-  VectorCopy( surfNormal, ent.axis[ 2 ] );
-  ProjectPointOnPlane( ent.axis[ 0 ], forward, ent.axis[ 2 ] );
   
-  if( !VectorNormalize( ent.axis[ 0 ] ) )
-  {
-    AngleVectors( angles, NULL, NULL, forward );
-    ProjectPointOnPlane( ent.axis[ 0 ], forward, ent.axis[ 2 ] );
-    VectorNormalize( ent.axis[ 0 ] );
-  }
-  
-  CrossProduct( ent.axis[ 0 ], ent.axis[ 2 ], ent.axis[ 1 ] );
-  ent.axis[ 1 ][ 0 ] = -ent.axis[ 1 ][ 0 ];
-  ent.axis[ 1 ][ 1 ] = -ent.axis[ 1 ][ 1 ];
-  ent.axis[ 1 ][ 2 ] = -ent.axis[ 1 ][ 2 ];
-
   if( es->pos.trType == TR_STATIONARY )
-  {
-    VectorMA( ent.origin, -TRACE_DEPTH, surfNormal, end );
-    VectorMA( ent.origin, 1.0f, surfNormal, start );
-    CG_CapTrace( &tr, start, mins, maxs, end, es->number, MASK_PLAYERSOLID );
-    VectorMA( ent.origin, tr.fraction * -TRACE_DEPTH, surfNormal, ent.origin );
-  }
+    CG_PositionAndOrientateBuildable( angles, ent.origin, surfNormal, es->number,
+                                      mins, maxs, ent.axis, ent.origin );
   
   //offset on the Z axis if required
   VectorMA( ent.origin, BG_FindZOffsetForBuildable( es->modelindex ), surfNormal, ent.origin );
@@ -996,9 +967,13 @@ void CG_Buildable( centity_t *cent )
       
   CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
 
-  // add to refresh list
+  //add to refresh list
   trap_R_AddRefEntityToScene( &ent );
 
+  CrossProduct( surfNormal, refNormal, xNormal );
+  VectorNormalize( xNormal );
+  rotAngle = RAD2DEG( acos( DotProduct( surfNormal, refNormal ) ) );
+  
   //turret barrel bit
   if( cg_buildables[ es->modelindex ].models[ 1 ] )
   {

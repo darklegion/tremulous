@@ -575,7 +575,7 @@ void cancelBuildFire( gentity_t *ent )
         ( traceEnt->biteam == ent->client->ps.stats[ STAT_PTEAM ] ) &&
         ( ( ent->client->ps.weapon >= WP_HBUILD2 ) &&
           ( ent->client->ps.weapon <= WP_HBUILD ) ) &&
-        traceEnt->spawned )
+        traceEnt->spawned && traceEnt->health > 0 )
     {
       if( ent->client->ps.stats[ STAT_MISC ] > 0 )
       {

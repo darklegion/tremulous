@@ -1830,12 +1830,12 @@ void G_StopFollowing( gentity_t *ent )
 Cmd_Follow_f
 =================
 */
-void Cmd_Follow_f( gentity_t *ent )
+void Cmd_Follow_f( gentity_t *ent, qboolean toggle )
 {
   int   i;
   char  arg[ MAX_TOKEN_CHARS ];
 
-  if( trap_Argc( ) != 2 )
+  if( trap_Argc( ) != 2 || toggle )
   {
     if( ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
       G_StopFollowing( ent );
@@ -2067,7 +2067,7 @@ void ClientCommand( int clientNum )
   else if( Q_stricmp( cmd, "callteamvote" ) == 0 )
     Cmd_CallTeamVote_f( ent );
 	else if( Q_stricmp( cmd, "follow" ) == 0 )
-		Cmd_Follow_f( ent );
+		Cmd_Follow_f( ent, qfalse );
 	else if( Q_stricmp (cmd, "follownext") == 0)
 		Cmd_FollowCycle_f( ent, 1 );
 	else if( Q_stricmp( cmd, "followprev" ) == 0 )

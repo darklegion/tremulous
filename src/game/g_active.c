@@ -361,7 +361,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
   }
 
   if( ( client->buttons & BUTTON_USE_HOLDABLE ) && !( client->oldbuttons & BUTTON_USE_HOLDABLE ) )
-    Cmd_Follow_f( ent );
+    Cmd_Follow_f( ent, qtrue );
 }
 
 

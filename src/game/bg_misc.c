@@ -4768,3 +4768,54 @@ qboolean BG_rotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
 
   return qtrue;
 }
+
+/*
+===============
+BG_PositionBuildableRelativeToPlayer
+
+Find a place to build a buildable
+===============
+*/
+void BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
+                                           const vec3_t mins, const vec3_t maxs,
+                                           void (*trace)( trace_t *, const vec3_t, const vec3_t,
+                                                          const vec3_t, const vec3_t, int, int ), 
+                                           vec3_t outOrigin, vec3_t outAngles, trace_t *tr )
+{
+  vec3_t  forward, entityOrigin, targetOrigin;
+  vec3_t  angles, playerOrigin, playerNormal;
+  float   buildDist;
+  
+  if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
+  {
+    if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
+      VectorSet( playerNormal, 0.0f, 0.0f, -1.0f );
+    else
+      VectorCopy( ps->grapplePoint, playerNormal );
+  }
+  else
+    VectorSet( playerNormal, 0.0f, 0.0f, 1.0f );
+  
+  VectorCopy( ps->viewangles, angles );
+  VectorCopy( ps->origin, playerOrigin );
+  buildDist = BG_FindBuildDistForClass( ps->stats[ STAT_PCLASS ] );
+
+  AngleVectors( angles, forward, NULL, NULL );
+  ProjectPointOnPlane( forward, forward, playerNormal );
+  VectorNormalize( forward );
+
+  VectorMA( playerOrigin, buildDist, forward, entityOrigin );
+  
+  VectorCopy( entityOrigin, targetOrigin );
+
+  //so buildings can be placed facing slopes
+  VectorMA( entityOrigin, 32, playerNormal, entityOrigin );
+
+  //so buildings drop to floor
+  VectorMA( targetOrigin, -128, playerNormal, targetOrigin );
+
+  (*trace)( tr, entityOrigin, mins, maxs, targetOrigin, ps->clientNum, MASK_PLAYERSOLID );
+  VectorCopy( tr->endpos, entityOrigin );
+  VectorMA( entityOrigin, 0.1f, playerNormal, outOrigin );
+  vectoangles( forward, outAngles );
+}

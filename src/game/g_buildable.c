@@ -2214,10 +2214,9 @@ Checks to see if an item fits in a specific area
 */
 itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin )
 {
-  vec3_t            forward, angles;
-  vec3_t            player_origin, entity_origin, target_origin, normal, cross;
+  vec3_t            angles;
+  vec3_t            entity_origin, normal;
   vec3_t            mins, maxs;
-  vec3_t            temp_v;
   trace_t           tr1, tr2, tr3;
   int               i;
   itemBuildError_t  reason = IBE_NONE;
@@ -2226,44 +2225,16 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   int               templength;
   float             minNormal;
   qboolean          invert;
-
-  if( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING )
-  {
-    if( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
-      VectorSet( normal, 0.0f, 0.0f, -1.0f );
-    else
-      VectorCopy( ent->client->ps.grapplePoint, normal );
-  }
-  else
-    VectorSet( normal, 0.0f, 0.0f, 1.0f );
-  
-  //FIXME: must sync with cg_buildable.c/CG_GhostBuildable ick.
-  VectorCopy( ent->s.apos.trBase, angles );
-
-  AngleVectors( angles, forward, NULL, NULL );
-  CrossProduct( forward, normal, cross );
-  VectorNormalize( cross );
-  CrossProduct( normal, cross, forward );
-  VectorNormalize( forward );
-  
-  VectorCopy( ent->s.pos.trBase, player_origin );
-  VectorMA( player_origin, distance, forward, entity_origin );
-
-  VectorCopy( entity_origin, target_origin );
-  VectorMA( entity_origin, 32, normal, entity_origin );
-  VectorMA( target_origin, -128, normal, target_origin );
+  playerState_t     *ps = &ent->client->ps;
 
   BG_FindBBoxForBuildable( buildable, mins, maxs );
   
-  trap_Trace( &tr1, entity_origin, mins, maxs, target_origin, ent->s.number, MASK_PLAYERSOLID );
-  VectorCopy( tr1.endpos, entity_origin );
-  VectorMA( entity_origin, 0.1f, normal, entity_origin );
+  BG_PositionBuildableRelativeToPlayer( ps, mins, maxs, trap_Trace, entity_origin, angles, &tr1 );
 
   trap_Trace( &tr2, entity_origin, mins, maxs, entity_origin, ent->s.number, MASK_PLAYERSOLID );
-  trap_Trace( &tr3, player_origin, NULL, NULL, entity_origin, ent->s.number, MASK_PLAYERSOLID );
+  trap_Trace( &tr3, ps->origin, NULL, NULL, entity_origin, ent->s.number, MASK_PLAYERSOLID );
 
   VectorCopy( entity_origin, origin );
-  vectoangles( forward, angles );
 
   //this item does not fit here
   if( tr2.fraction < 1.0 || tr3.fraction < 1.0 )
