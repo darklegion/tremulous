@@ -599,6 +599,7 @@ void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
   if( self->active )
   {
     //this hovel is in use
+    G_AddPredictableEvent( activator, EV_MENU, MN_A_HOVEL_OCCUPIED );
   }
   else if( ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_A_B_BASE ) ||
            ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_A_B_LEV1 ) )
@@ -612,6 +613,7 @@ void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
     activator->client->sess.sessionTeam = TEAM_FREE;
     activator->client->ps.stats[ STAT_STATE ] |= SS_HOVELING;
     activator->client->infestBody = self;
+    self->builder = activator;
 
     VectorCopy( self->s.pos.trBase, hovelOrigin );
     VectorMA( hovelOrigin, 128.0f, self->s.origin2, hovelOrigin );
@@ -646,6 +648,59 @@ void AHovel_Think( gentity_t *self )
   self->nextthink = level.time + 200;
 }
 
+/*
+================
+AHovel_Die
+
+Die for alien hovel
+================
+*/
+void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
+{
+  vec3_t  dir;
+
+  // we don't have a valid direction, so just point straight up
+  dir[0] = dir[1] = 0;
+  dir[2] = 1;
+
+  //do a bit of radius damage
+  G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
+    self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
+
+  //pretty events and item cleanup
+  self->s.modelindex = 0; //don't draw the model once its destroyed
+  G_AddEvent( self, EV_GIB_ALIEN, DirToByte( dir ) );
+  self->r.contents = CONTENTS_TRIGGER;
+  self->timestamp = level.time;
+  self->think = ASpawn_Melt;
+  self->nextthink = level.time + 500; //wait .5 seconds before damaging others
+  
+  //if the hovel is occupied free the occupant
+  if( self->active )
+  {
+    gentity_t *builder = self->builder;
+    vec3_t    newOrigin;
+    vec3_t    newAngles;
+    
+    VectorCopy( self->s.angles, newAngles );
+    newAngles[ ROLL ] = 0;
+    
+    VectorCopy( self->s.origin, newOrigin );
+    VectorMA( newOrigin, 1.0f, self->s.origin2, newOrigin );
+    
+    //prevent lerping
+    builder->client->ps.eFlags ^= EF_TELEPORT_BIT;
+      
+    G_SetOrigin( builder, newOrigin );
+    VectorCopy( newOrigin, builder->client->ps.origin );
+    SetClientViewAngle( builder, newAngles );
+    
+    //client leaves hovel
+    builder->client->ps.stats[ STAT_STATE ] &= ~SS_HOVELING;
+  }
+  
+  trap_LinkEntity( self );
+}
 
 //==================================================================================
 
@@ -1853,7 +1908,7 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       break;
       
     case BA_A_HOVEL:
-      built->die = ASpawn_Die;
+      built->die = AHovel_Die;
       built->use = AHovel_Use;
       built->think = AHovel_Think;
       built->pain = ASpawn_Pain;
@@ -1977,19 +2032,19 @@ void G_ValidateBuild( gentity_t *ent, buildable_t buildable )
       break;
 
     case IBE_NOASSERT:
-      G_AddPredictableEvent( ent, EV_MENU, MN_D_NOASSERT );
+      G_AddPredictableEvent( ent, EV_MENU, MN_A_NOASSERT );
       break;
 
     case IBE_NOHIVEMIND:
-      G_AddPredictableEvent( ent, EV_MENU, MN_D_NOHVMND );
+      G_AddPredictableEvent( ent, EV_MENU, MN_A_NOHVMND );
       break;
 
     case IBE_HIVEMIND:
-      G_AddPredictableEvent( ent, EV_MENU, MN_D_HIVEMIND );
+      G_AddPredictableEvent( ent, EV_MENU, MN_A_HIVEMIND );
       break;
 
     case IBE_NORMAL:
-      G_AddPredictableEvent( ent, EV_MENU, MN_D_NORMAL );
+      G_AddPredictableEvent( ent, EV_MENU, MN_A_NORMAL );
       break;
 
     case IBE_REACTOR:
@@ -2004,7 +2059,7 @@ void G_ValidateBuild( gentity_t *ent, buildable_t buildable )
       if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
         G_AddPredictableEvent( ent, EV_MENU, MN_H_NOROOM );
       else
-        G_AddPredictableEvent( ent, EV_MENU, MN_D_NOROOM );
+        G_AddPredictableEvent( ent, EV_MENU, MN_A_NOROOM );
       break;
 
     case IBE_NOPOWER:
@@ -2012,7 +2067,7 @@ void G_ValidateBuild( gentity_t *ent, buildable_t buildable )
       break;
       
     case IBE_SPWNWARN:
-      G_AddPredictableEvent( ent, EV_MENU, MN_D_SPWNWARN );
+      G_AddPredictableEvent( ent, EV_MENU, MN_A_SPWNWARN );
       G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
       break;
       

@@ -560,16 +560,20 @@ typedef enum {
 typedef enum
 {
   MN_TEAM,
-  MN_D_CLASS,
-  MN_D_BUILD,
-  MN_D_INFEST,
-  MN_D_NOROOM,
-  MN_D_NOCREEP,
-  MN_D_NOHVMND,
-  MN_D_HIVEMIND,
-  MN_D_NOASSERT,
-  MN_D_SPWNWARN,
-  MN_D_NORMAL,
+  
+  MN_A_CLASS,
+  MN_A_BUILD,
+  MN_A_INFEST,
+  MN_A_NOROOM,
+  MN_A_NOCREEP,
+  MN_A_NOHVMND,
+  MN_A_HIVEMIND,
+  MN_A_NOASSERT,
+  MN_A_SPWNWARN,
+  MN_A_NORMAL,
+  MN_A_HOVEL_OCCUPIED,
+  MN_A_HOVEL_BLOCKED,
+  
   MN_H_SPAWN,
   MN_H_BUILD,
   MN_H_MCU,
@@ -583,6 +587,7 @@ typedef enum
   MN_H_NOSLOTS,
   MN_H_NOFUNDS,
   MN_H_ITEMHELD
+    
 } dynMenu_t;
 
 // animations

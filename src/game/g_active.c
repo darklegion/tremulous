@@ -352,7 +352,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
     if( client->pers.pteam == PTE_NONE )
       G_AddPredictableEvent( ent, EV_MENU, MN_TEAM );
     else if( client->pers.pteam == PTE_ALIENS )
-      G_AddPredictableEvent( ent, EV_MENU, MN_D_CLASS );
+      G_AddPredictableEvent( ent, EV_MENU, MN_A_CLASS );
     else if( client->pers.pteam == PTE_HUMANS )
       G_AddPredictableEvent( ent, EV_MENU, MN_H_SPAWN );
   }
@@ -1043,7 +1043,6 @@ void ClientThink_real( gentity_t *ent ) {
   client->buttons = ucmd->buttons;
   client->latched_buttons |= client->buttons & ~client->oldbuttons;
 
-  //TA: look for MCU infront of player
   if( ( client->buttons & BUTTON_GETFLAG ) && !( client->oldbuttons & BUTTON_GETFLAG ) )
   {
     trace_t   trace;
@@ -1086,9 +1085,15 @@ void ClientThink_real( gentity_t *ent ) {
         G_setBuildableAnim( hovel, BANIM_ATTACK1, qfalse );
         hovel->active = qfalse;
       }
+      else
+      {
+        //exit is blocked
+        G_AddPredictableEvent( ent, EV_MENU, MN_A_HOVEL_BLOCKED );
+      }
     }
     else
     {
+      //TA: look for MCU infront of player
       AngleVectors( client->ps.viewangles, view, NULL, NULL );
       VectorMA( client->ps.origin, 200, view, point );
       trap_Trace( &trace, client->ps.origin, NULL, NULL, point, ent->s.number, MASK_SHOT );

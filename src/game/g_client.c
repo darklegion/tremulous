@@ -604,7 +604,7 @@ void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
     if( self->killedBy > 0 && self->killedBy != activator->client->ps.clientNum )
       return;
 
-    G_AddPredictableEvent( activator, EV_MENU, MN_D_INFEST );
+    G_AddPredictableEvent( activator, EV_MENU, MN_A_INFEST );
   }
   else
   {
@@ -1394,7 +1394,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   if( client->sess.sessionTeam == TEAM_SPECTATOR )
   {
     if( teamLocal == PTE_ALIENS )
-      G_AddPredictableEvent( ent, EV_MENU, MN_D_CLASS );
+      G_AddPredictableEvent( ent, EV_MENU, MN_A_CLASS );
     else if( teamLocal == PTE_HUMANS )
       G_AddPredictableEvent( ent, EV_MENU, MN_H_SPAWN );
   }

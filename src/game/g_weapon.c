@@ -1170,10 +1170,10 @@ void FireWeapon( gentity_t *ent )
       Weapon_Claw_Fire( ent );
       break;
     case WP_ABUILD:
-      Weapon_Build_Fire( ent, MN_D_BUILD );
+      Weapon_Build_Fire( ent, MN_A_BUILD );
       break;
     case WP_ABUILD2:
-      Weapon_Build_Fire( ent, MN_D_BUILD );
+      Weapon_Build_Fire( ent, MN_A_BUILD );
       break;
     case WP_HBUILD:
       Weapon_Build_Fire( ent, MN_H_BUILD );

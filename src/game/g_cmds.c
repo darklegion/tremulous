@@ -423,7 +423,10 @@ void Cmd_Kill_f( gentity_t *ent ) {
     return;
     
   if( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
+  {
+    trap_SendServerCommand( ent-g_entities, "print \"Leave the hovel first (use your destroy key)\n\"" );
     return;
+  }
     
   if (ent->health <= 0)
     return;
@@ -599,7 +602,8 @@ void StopFollowing( gentity_t *ent ) {
 Cmd_Team_f
 =================
 */
-void Cmd_Team_f( gentity_t *ent ) {
+void Cmd_Team_f( gentity_t *ent )
+{
   int     oldTeam;
   char    s[MAX_TOKEN_CHARS];
 
@@ -1704,8 +1708,10 @@ void Cmd_Destroy_f( gentity_t *ent )
   trace_t     tr;
   gentity_t   *traceEnt;
 
-  if( !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
-      !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
+  if( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
+    G_Damage( ent->client->infestBody, ent, ent, forward, ent->s.origin, 10000, 0, MOD_SUICIDE );
+  
+  if( !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) )
   {
     AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
     VectorMA( ent->client->ps.origin, 50, forward, end );
@@ -2149,15 +2155,15 @@ void Cmd_Build_f( gentity_t *ent )
         break;
 
       case IBE_NOASSERT:
-        G_AddPredictableEvent( ent, EV_MENU, MN_D_NOASSERT );
+        G_AddPredictableEvent( ent, EV_MENU, MN_A_NOASSERT );
         break;
 
       case IBE_NOHIVEMIND:
-        G_AddPredictableEvent( ent, EV_MENU, MN_D_NOHVMND );
+        G_AddPredictableEvent( ent, EV_MENU, MN_A_NOHVMND );
         break;
 
       case IBE_HIVEMIND:
-        G_AddPredictableEvent( ent, EV_MENU, MN_D_HIVEMIND );
+        G_AddPredictableEvent( ent, EV_MENU, MN_A_HIVEMIND );
         break;
 
       case IBE_REACTOR:

@@ -186,6 +186,8 @@ struct gentity_s {
   vec4_t    animation;    //TA: animated map objects
 
   vec3_t    turretAim;    //TA: aim vector for turrets
+
+  gentity_t *builder;     //TA: occupant of this hovel
 };
 
 typedef enum {
