@@ -179,7 +179,7 @@ CG_StartOrbit_f
 
 static void CG_StartOrbit_f( void ) {
   if (cg_cameraOrbit.value != 0) {
-    trap_Cvar_Set ("cg_cameraOrbit", "0");
+    trap_Cvar_Set("cg_cameraOrbit", "0");
     trap_Cvar_Set("cg_thirdPerson", "0");
   } else {
     trap_Cvar_Set("cg_cameraOrbit", "5");
@@ -242,6 +242,28 @@ static void CG_ClientMenu( const char *menuname )
     trap_SendConsoleCommand( va( "%s not defined", menuname ) );
 }
 
+/*
+==================
+CG_DecodeMP3_f
+==================
+*/
+void CG_DecodeMP3_f( void )
+{
+  char  mp3file[ MAX_QPATH ];
+  char  wavfile[ MAX_QPATH ];
+
+  if( trap_Argc() < 2 )
+  {
+    CG_Printf( "usage: decodeMP3 <mp3file> <wavfile>\n" );
+    return;
+  }
+  
+  Q_strncpyz( mp3file, CG_Argv( 1 ), MAX_QPATH );
+  Q_strncpyz( wavfile, CG_Argv( 2 ), MAX_QPATH );
+
+  S_decodeMP3( mp3file, wavfile );
+}
+
 typedef struct {
   char  *cmd;
   void  (*function)(void);
@@ -270,6 +292,7 @@ static consoleCommand_t commands[] = {
   { "vtell_attacker", CG_VoiceTellAttacker_f },
   { "tcmd", CG_TargetCommand_f },
   { "startOrbit", CG_StartOrbit_f },
+  { "decodeMP3", CG_DecodeMP3_f },
   { "loaddeferred", CG_LoadDeferredPlayers }
 };
 

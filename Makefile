@@ -16,6 +16,7 @@ GOBJ = \
 	$(GDIRNAME)/bg_misc.o \
 	$(GDIRNAME)/bg_pmove.o \
 	$(GDIRNAME)/bg_slidemove.o \
+	$(GDIRNAME)/g_mem.o \
 	$(GDIRNAME)/q_math.o \
 	$(GDIRNAME)/q_shared.o \
 	$(GDIRNAME)/g_active.o \
@@ -25,7 +26,6 @@ GOBJ = \
 	$(GDIRNAME)/g_combat.o \
 	$(GDIRNAME)/g_items.o \
 	$(GDIRNAME)/g_buildable.o \
-	$(GDIRNAME)/g_mem.o \
 	$(GDIRNAME)/g_misc.o \
 	$(GDIRNAME)/g_missile.o \
 	$(GDIRNAME)/g_mover.o \
@@ -64,8 +64,9 @@ CGOBJ = \
 	$(CGDIRNAME)/cg_view.o \
 	$(CGDIRNAME)/cg_weapons.o \
 	$(CGDIRNAME)/cg_creep.o  \
-	$(CGDIRNAME)/cg_scanner.o \
-	$(CGDIRNAME)/cg_mem.o
+	$(CGDIRNAME)/cg_mem.o \
+	$(CGDIRNAME)/cg_mp3decoder.o \
+	$(CGDIRNAME)/cg_scanner.o
   
 UIOBJ = \
 	$(UIDIRNAME)/ui_main.o \

@@ -1022,4 +1022,3 @@ qboolean  BG_gotWeapon( int weapon, int stats[ ] );*/
 void    AxisToAngles( vec3_t axis[3], vec3_t angles);
 float   arccos( float x );
 #define Vector2Set(v, x, y) ((v)[0]=(x), (v)[1]=(y))
-

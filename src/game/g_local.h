@@ -728,12 +728,13 @@ void G_RunClient( gentity_t *ent );
 qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 );
 void Team_CheckDroppedItem( gentity_t *dropped );
 
-
 //
 // g_mem.c
 //
 void *G_Alloc( int size );
 void G_InitMemory( void );
+void G_Free( void *ptr );
+void G_DefragmentMemory( void );
 void Svcmd_GameMem_f( void );
 
 //
