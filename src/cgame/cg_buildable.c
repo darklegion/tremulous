@@ -340,7 +340,7 @@ static void CG_SetBuildableLerpFrameAnimation( buildable_t buildable, lerpFrame_
   animation_t *anim;
 
   lf->animationNumber = newAnimation;
-  newAnimation &= ~ANIM_TOGGLEBIT;
+  newAnimation &= ~( ANIM_TOGGLEBIT|ANIM_FORCEBIT );
 
   if( newAnimation < 0 || newAnimation >= MAX_BUILDABLE_ANIMATIONS )
     CG_Error( "Bad animation number: %i", newAnimation );
@@ -478,9 +478,9 @@ static void CG_BuildableAnimation( centity_t *cent, int *old, int *now, float *b
   if( cent->buildableAnim == BANIM_NONE )
     cent->buildableAnim = es->torsoAnim;
 
-  if( cent->oldBuildableAnim != es->legsAnim )
+  if( ( cent->oldBuildableAnim ^ es->legsAnim ) & ANIM_TOGGLEBIT )
   {
-    if( cent->buildableAnim == es->torsoAnim || es->legsAnim & ANIM_TOGGLEBIT )
+    if( cent->buildableAnim == es->torsoAnim || es->legsAnim & ANIM_FORCEBIT )
       cent->buildableAnim = cent->oldBuildableAnim = es->legsAnim;
   }
   
@@ -933,6 +933,17 @@ void CG_Buildable( centity_t *cent )
       break;
   }
 
+  if( cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && es->eFlags & EF_FIRING )
+  {
+    weaponInfo_t *weapon = &cg_weapons[ es->weapon ];
+    
+    if( weapon->flashDlightColor[ 0 ] || weapon->flashDlightColor[ 1 ] || weapon->flashDlightColor[ 2 ] )
+    {
+      trap_R_AddLightToScene( cent->lerpOrigin, 300 + ( rand( ) & 31 ), weapon->flashDlightColor[ 0 ],
+        weapon->flashDlightColor[ 1 ], weapon->flashDlightColor[ 2 ] );
+    }
+  }
+    
   //smoke etc for damaged buildables
   CG_BuildableParticleEffects( cent );
 }

@@ -25,7 +25,9 @@ void G_setBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim, qboolean fo
   int localAnim = anim;
 
   if( force )
-    localAnim |= ANIM_TOGGLEBIT;
+    localAnim |= ANIM_FORCEBIT;
+    
+  localAnim |= ( ( ent->s.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT );
     
   ent->s.legsAnim = localAnim;
 }
@@ -1534,7 +1536,11 @@ void HTeslaGen_FireOnEnemy( gentity_t *self, int firespeed )
 
   //fire at target
   FireWeapon( self );
+  
+  self->s.eFlags |= EF_FIRING;
+  G_AddEvent( self, EV_FIRE_WEAPON, 0 );
   G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
+
   self->count = level.time + firespeed;
 }
 
@@ -1549,7 +1555,11 @@ void HMGTurret_FireOnEnemy( gentity_t *self, int firespeed )
 {
   //fire at target
   FireWeapon( self );
+  
+  self->s.eFlags |= EF_FIRING;
+  G_AddEvent( self, EV_FIRE_WEAPON, 0 );
   G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
+
   self->count = level.time + firespeed;
 }
 
@@ -1640,6 +1650,9 @@ void HDef_Think( gentity_t *self )
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 
+  //used for client side muzzle flashes
+  self->s.eFlags &= ~EF_FIRING;
+  
   //if not powered don't do anything and check again for power next think
   if( !( self->powered = findPower( self ) ) )
   {

@@ -118,6 +118,8 @@ char *modNames[ ] =
   "MOD_MACHINEGUN",
   "MOD_CHAINGUN",
   "MOD_PRIFLE",
+  "MOD_MDRIVER",
+  "MOD_LASGUN",
   "MOD_LCANNON",
   "MOD_LCANNON_SPLASH",
   "MOD_FLAMER",
@@ -148,6 +150,8 @@ char *modNames[ ] =
 
   "MOD_HSPAWN",
   "MOD_TESLAGEN",
+  "MOD_MGTURRET",
+
   "MOD_ASPAWN",
   "MOD_ATUBE",
   "MOD_OVERMIND"

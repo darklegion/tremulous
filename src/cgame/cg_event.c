@@ -96,7 +96,7 @@ static void CG_Obituary( entityState_t *ent )
     case MOD_ASPAWN:
       message = "was melted by the acid blood";
       break;
-    case MOD_MACHINEGUN:
+    case MOD_MGTURRET:
       message = "was gunned down by a turret";
       break;
     case MOD_TESLAGEN:
@@ -198,6 +198,12 @@ static void CG_Obituary( entityState_t *ent )
         break;
       case MOD_PRIFLE:
         message = "was pulse rifled by";
+        break;
+      case MOD_MDRIVER:
+        message = "was mass driven by";
+        break;
+      case MOD_LASGUN:
+        message = "was lasgunned by";
         break;
       case MOD_FLAMER:
         message = "was grilled by";

@@ -332,6 +332,7 @@ typedef enum
 
   WP_LOCKBLOB_LAUNCHER,
   WP_TESLAGEN,
+  WP_MGTURRET,
   
   //build weapons must remain in a block
   WP_ABUILD,
@@ -717,7 +718,8 @@ typedef struct animation_s
 
 // flip the togglebit every time an animation
 // changes so a restart of the same anim can be detected
-#define ANIM_TOGGLEBIT    128
+#define ANIM_TOGGLEBIT    0x80
+#define ANIM_FORCEBIT     0x40
 
 
 typedef enum
@@ -782,6 +784,8 @@ typedef enum
   MOD_MACHINEGUN,
   MOD_CHAINGUN,
   MOD_PRIFLE,
+  MOD_MDRIVER,
+  MOD_LASGUN,
   MOD_LCANNON,
   MOD_LCANNON_SPLASH,
   MOD_FLAMER,
@@ -812,6 +816,8 @@ typedef enum
   
   MOD_HSPAWN,
   MOD_TESLAGEN,
+  MOD_MGTURRET,
+
   MOD_ASPAWN,
   MOD_ATUBE,
   MOD_OVERMIND

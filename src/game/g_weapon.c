@@ -151,7 +151,7 @@ void bulletFire( gentity_t *ent, float spread, int damage, int mod )
   if( traceEnt->takedamage )
   {
     G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-      damage, 0, MOD_MACHINEGUN );
+      damage, 0, mod );
   }
 }
 
@@ -188,7 +188,7 @@ void massDriverFire( gentity_t *ent )
   if( traceEnt->takedamage )
   {
     G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-      MDRIVER_DMG, 0, MOD_MACHINEGUN );
+      MDRIVER_DMG, 0, MOD_MDRIVER );
   }
 }
 
@@ -303,7 +303,7 @@ void lasGunFire( gentity_t *ent )
   tent->s.otherEntityNum = ent->s.number;
 
   if( traceEnt->takedamage )
-    G_Damage( traceEnt, ent, ent, forward, tr.endpos, LASGUN_DAMAGE, 0, MOD_MACHINEGUN );
+    G_Damage( traceEnt, ent, ent, forward, tr.endpos, LASGUN_DAMAGE, 0, MOD_LASGUN );
 }
 
 /*
@@ -386,9 +386,7 @@ void teslaFire( gentity_t *ent )
   trace_t   tr;
   vec3_t    end;
   gentity_t *traceEnt, *tent;
-  int     damage, i, passent;
-
-  damage = 8;
+  int       i, passent;
 
   VectorMA( muzzle, TESLAGEN_RANGE, forward, end );
 
@@ -402,7 +400,7 @@ void teslaFire( gentity_t *ent )
   if( traceEnt->takedamage)
   {
     G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-      damage, 0, MOD_TESLAGEN );
+      TESLAGEN_DMG, 0, MOD_TESLAGEN );
   }
 
   // snap the endpos to integers to save net bandwidth, but nudged towards the line
@@ -1090,6 +1088,9 @@ void FireWeapon( gentity_t *ent )
       break;
     case WP_TESLAGEN:
       teslaFire( ent );
+      break;
+    case WP_MGTURRET:
+      bulletFire( ent, MGTURRET_SPREAD, MGTURRET_DMG, MOD_MGTURRET );
       break;
       
     case WP_ABUILD:

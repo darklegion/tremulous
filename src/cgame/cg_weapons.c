@@ -486,6 +486,7 @@ void CG_RegisterWeapon( int weaponNum )
   switch( weaponNum )
   {
     case WP_MACHINEGUN:
+    case WP_MGTURRET:
     case WP_CHAINGUN:
       weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
       break;
@@ -1518,7 +1519,20 @@ void CG_FireWeapon( centity_t *cent, int mode )
 
   // do brass ejection
   if( weap->ejectBrassFunc && cg_brassTime.integer > 0 )
-    weap->ejectBrassFunc( cent );
+  {
+    if( ent->eType == ET_BUILDABLE )
+    {
+      //yucko hack to get turret brass ejecting with the barrel instead of the base
+      vec3_t temp;
+
+      VectorCopy( cent->lerpAngles, temp );
+      VectorCopy( ent->angles2, cent->lerpAngles );
+      weap->ejectBrassFunc( cent );
+      VectorCopy( temp, cent->lerpAngles );
+    }
+    else
+      weap->ejectBrassFunc( cent );
+  }
 }
 
 
@@ -1529,7 +1543,8 @@ CG_MissileHitWall
 Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 =================
 */
-void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, int damage ) {
+void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, int damage )
+{
   qhandle_t     mod;
   qhandle_t     mark;
   qhandle_t     shader;
@@ -1606,6 +1621,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
       break;
       
     case WP_MACHINEGUN:
+    case WP_MGTURRET:
     case WP_CHAINGUN:
     case WP_LAS_GUN:
       mod = cgs.media.bulletFlashModel;
