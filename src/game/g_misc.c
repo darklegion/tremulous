@@ -364,12 +364,24 @@ void ShineTorch( gentity_t *self )
   trap_LinkEntity( self );
 }
 
+//TA: use function for spriter
+void SP_use_spriter( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  //toggle EF_NODRAW
+  if( self->s.eFlags & EF_NODRAW )
+    self->s.eFlags &= ~EF_NODRAW;
+  else
+    self->s.eFlags |= EF_NODRAW;
+}
+
+//TA: spawn function for spriter
 void SP_spriter( gentity_t *self )
 {
   vec3_t  accel;
   
   G_SetOrigin( self, self->s.origin );
 
+  //set a bunch of stuff to be visible client side
   VectorCopy( self->acceleration, self->s.origin2 );
   
   self->s.time = (int)self->speed;
@@ -388,7 +400,17 @@ void SP_spriter( gentity_t *self )
   else
     self->s.angles2[ 1 ] = 1000;
 
+  //add the shader to the client precache list
   self->s.weapon = G_ShaderIndex( self->targetShaderName );
+
+  if( self->spawnflags & 1 )
+    self->s.eFlags |= EF_OVERDRAW_OFF;
+  if( self->spawnflags & ( 1 << 1 ) )
+    self->s.eFlags |= EF_REAL_LIGHT;
+  if( self->spawnflags & ( 1 << 2 ) )
+    self->s.eFlags |= EF_NODRAW;
+
+  self->use = SP_use_spriter;
 
   self->s.eType = ET_SPRITER;
   

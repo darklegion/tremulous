@@ -279,6 +279,7 @@ typedef struct localEntity_s {
   float     initAlp, finalAlp;
   float     initRad, finalRad;
   qboolean  overdraw;
+  qboolean  realLight;
 } localEntity_t;
 
 //======================================================================
