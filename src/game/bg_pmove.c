@@ -71,7 +71,7 @@ static void PM_AddSmoothOp( vec3_t rotAxis, float rotAngle )
   //this happens often because groundtrace is called twice a frame
   for( i = 0; i < MAXSMOOTHS; i++ )
   {
-    if( wcl[ pm->ps->clientNum ].sList[ i ].time >= pm->cmd.serverTime-100 )
+    if( wcl[ pm->ps->clientNum ].sList[ i ].time >= pm->cmd.serverTime - 10 )
       return;
 
     /*if( VectorCompare( sList[ i ].rotAxis, rotAxis ) )
@@ -106,9 +106,9 @@ Perform all the smoothing operations in the smoothing queue
 */
 static qboolean PM_PerformSmoothOps( vec3_t in[3], vec3_t out[3] )
 {
-  int i;
-  float stLocal, sFraction;
-  vec3_t  localIn[3], localOut[3];
+  int       i;
+  float     stLocal, sFraction;
+  vec3_t    localIn[3], localOut[3];
   qboolean  performed = qfalse;
 
   AxisCopy( in, localIn );
@@ -129,9 +129,12 @@ static qboolean PM_PerformSmoothOps( vec3_t in[3], vec3_t out[3] )
       //sFraction = -( 1.0 - sin( stLocal * M_PI / 2 ) );
       sFraction = -( cos( stLocal * M_PI ) + 1 ) / 2;
 
-      RotatePointAroundVector( localOut[0], wcl[ pm->ps->clientNum ].sList[ i ].rotAxis, localIn[0], sFraction * wcl[ pm->ps->clientNum ].sList[ i ].rotAngle );
-      RotatePointAroundVector( localOut[1], wcl[ pm->ps->clientNum ].sList[ i ].rotAxis, localIn[1], sFraction * wcl[ pm->ps->clientNum ].sList[ i ].rotAngle );
-      RotatePointAroundVector( localOut[2], wcl[ pm->ps->clientNum ].sList[ i ].rotAxis, localIn[2], sFraction * wcl[ pm->ps->clientNum ].sList[ i ].rotAngle );
+      RotatePointAroundVector(  localOut[0], wcl[ pm->ps->clientNum ].sList[ i ].rotAxis,
+                                localIn[0], sFraction * wcl[ pm->ps->clientNum ].sList[ i ].rotAngle );
+      RotatePointAroundVector(  localOut[1], wcl[ pm->ps->clientNum ].sList[ i ].rotAxis,
+                                localIn[1], sFraction * wcl[ pm->ps->clientNum ].sList[ i ].rotAngle );
+      RotatePointAroundVector(  localOut[2], wcl[ pm->ps->clientNum ].sList[ i ].rotAxis,
+                                localIn[2], sFraction * wcl[ pm->ps->clientNum ].sList[ i ].rotAngle );
 
       AxisCopy( localOut, localIn );
       performed = qtrue;
@@ -1650,9 +1653,8 @@ static void PM_GroundTrace( void ) {
   vec3_t      ceilingNormal = { 0, 0, -1 };
   trace_t     trace;
   float       srotAngle;
-  static int  old; //TA: is it bad to use statics too often?
 
-  if( pm->cmd.upmove < 0 && old >= 0 )
+  if( pm->cmd.upmove < 0 && wcl[ pm->ps->clientNum ].lastUpmove >= 0 )
   {
     if( !pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING && pm->cmd.upmove < 0 )
       pm->ps->stats[ STAT_STATE ] |= SS_WALLCLIMBING;
@@ -1660,7 +1662,7 @@ static void PM_GroundTrace( void ) {
       pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
   }
 
-  old = pm->cmd.upmove;
+  wcl[ pm->ps->clientNum ].lastUpmove = pm->cmd.upmove;
 
   //if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) && ( pm->cmd.upmove < 0 ) )
   if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) && ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )

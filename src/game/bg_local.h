@@ -79,6 +79,7 @@ typedef struct
   qboolean  justFallen;
   vec3_t    lastNormal;
   vec3_t    nonSvangles;
+  int       lastUpmove; //for toggleable walling
 } wcl_t;
 
 extern  pmove_t       *pm;
