@@ -237,6 +237,26 @@
       }
     }
 
+    itemDef
+    {
+      name game
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Disable Build Warnings:"
+      cvar "cg_disableBuildWarnings"
+      rect 90 195 192 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 128 
+      textaligny 12
+      textscale .25         
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
+    }
+
 
 //////// CONTROLS
 
