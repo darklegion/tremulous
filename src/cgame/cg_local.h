@@ -454,7 +454,9 @@ typedef struct {
 typedef struct
 {
   float     time;
-  vec3_t    deltaAngles;
+  
+  vec3_t    rotAxis;
+  float     rotAngle;
 } smooth_t;
 
 #define MAX_REWARDSTACK   10

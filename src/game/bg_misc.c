@@ -1846,7 +1846,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 15 },                                             //vec3_t  crouchmaxs;
     { -15, -15, -4 },                                           //vec3_t  deadmins;
     { 15, 15, 4 },                                              //vec3_t  deadmaxs;
-    4, 4,                                                       //int     viewheight, crouchviewheight;
+    0, 0,                                                       //int     viewheight, crouchviewheight;
     25,                                                         //int     health;
     0,                                                          //int     armor;
     SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
