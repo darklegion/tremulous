@@ -709,7 +709,7 @@ void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
   if( self->active )
   {
     //this hovel is in use
-    G_AddPredictableEvent( activator, EV_MENU, MN_A_HOVEL_OCCUPIED );
+    G_TriggerMenu( activator->client->ps.clientNum, MN_A_HOVEL_OCCUPIED );
   }
   else if( ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_A_B_BASE ) ||
            ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_A_B_LEV1 ) )
@@ -1099,9 +1099,9 @@ void HArmoury_Activate( gentity_t *self, gentity_t *other, gentity_t *activator 
   
   //if this is powered then call the armoury menu
   if( self->powered )
-    G_AddPredictableEvent( activator, EV_MENU, MN_H_ARMOURY );
+    G_TriggerMenu( activator->client->ps.clientNum, MN_H_ARMOURY );
   else
-    G_AddPredictableEvent( activator, EV_MENU, MN_H_NOPOWER );
+    G_TriggerMenu( activator->client->ps.clientNum, MN_H_NOPOWER );
 }
 
 /*
@@ -1140,9 +1140,9 @@ void HBank_Activate( gentity_t *self, gentity_t *other, gentity_t *activator )
   
   //if this is powered then call the bank menu
   if( self->powered )
-    G_AddPredictableEvent( activator, EV_MENU, MN_H_BANK );
+    G_TriggerMenu( activator->client->ps.clientNum, MN_H_BANK );
   else
-    G_AddPredictableEvent( activator, EV_MENU, MN_H_NOPOWER );
+    G_TriggerMenu( activator->client->ps.clientNum, MN_H_NOPOWER );
 }
 
 /*
@@ -2070,56 +2070,56 @@ qboolean G_ValidateBuild( gentity_t *ent, buildable_t buildable )
       return qtrue;
 
     case IBE_NOASSERT:
-      G_AddPredictableEvent( ent, EV_MENU, MN_A_NOASSERT );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOASSERT );
       return qfalse;
 
     case IBE_NOHIVEMIND:
-      G_AddPredictableEvent( ent, EV_MENU, MN_A_NOHVMND );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOHVMND );
       return qfalse;
 
     case IBE_HIVEMIND:
-      G_AddPredictableEvent( ent, EV_MENU, MN_A_HIVEMIND );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_A_HIVEMIND );
       return qfalse;
 
     case IBE_NORMAL:
-      G_AddPredictableEvent( ent, EV_MENU, MN_A_NORMAL );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_A_NORMAL );
       return qfalse;
 
     case IBE_REACTOR:
-      G_AddPredictableEvent( ent, EV_MENU, MN_H_REACTOR );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_REACTOR );
       return qfalse;
 
     case IBE_REPEATER:
-      G_AddPredictableEvent( ent, EV_MENU, MN_H_REPEATER );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_REPEATER );
       return qfalse;
 
     case IBE_NOROOM:
       if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-        G_AddPredictableEvent( ent, EV_MENU, MN_H_NOROOM );
+        G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOROOM );
       else
-        G_AddPredictableEvent( ent, EV_MENU, MN_A_NOROOM );
+        G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOROOM );
       return qfalse;
 
     case IBE_NOPOWER:
-      G_AddPredictableEvent( ent, EV_MENU, MN_H_NOPOWER );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOPOWER );
       return qfalse;
       
     case IBE_NODCC:
-      G_AddPredictableEvent( ent, EV_MENU, MN_H_NODCC );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NODCC );
       return qfalse;
       
     case IBE_SPWNWARN:
-      G_AddPredictableEvent( ent, EV_MENU, MN_A_SPWNWARN );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_A_SPWNWARN );
       G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
       return qtrue;
       
     case IBE_RPLWARN:
-      G_AddPredictableEvent( ent, EV_MENU, MN_H_RPLWARN );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPLWARN );
       G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
       return qtrue;
       
     case IBE_RPTWARN:
-      G_AddPredictableEvent( ent, EV_MENU, MN_H_RPTWARN );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPTWARN );
       G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
       return qtrue;
   }

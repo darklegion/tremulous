@@ -726,6 +726,20 @@ qboolean G_Visible( gentity_t *ent1, gentity_t *ent2 )
   return qtrue;
 }
 
+/*
+===============
+G_TriggerMenu
+
+Trigger a menu on some client
+===============
+*/
+void G_TriggerMenu( int clientNum, dynMenu_t menu )
+{
+  char buffer[ 32 ];
+
+  Com_sprintf( buffer, 32, "servermenu %d", menu );
+  trap_SendServerCommand( clientNum, buffer );
+}
 
 /*
 ================

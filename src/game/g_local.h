@@ -185,10 +185,9 @@ struct gentity_s
   int               killedBy;                   //TA: clientNum of killer
 
   gentity_t         *targeted;    //TA: true if the player is currently a valid target of a turret
+  vec3_t            turretAim;    //TA: aim vector for turrets
 
   vec4_t            animation;    //TA: animated map objects
-
-  vec3_t            turretAim;    //TA: aim vector for turrets
 
   gentity_t         *builder;     //TA: occupant of this hovel
 
@@ -363,6 +362,9 @@ struct gclient_s
   int                 lastFlameBall;    //TA: s.number of the last flame ball fired
 
   int                 lastRefilTime;    //TA: last time human got a refil from rpt/rctr
+
+#define RAM_FRAMES  1                       //TA: number of frames to wait before retriggering
+  int                 retriggerArmouryMenu; //TA: frame number to retrigger the armoury menu
 };
 
 #define MAX_LOCDAMAGE_TEXT    8192
@@ -587,6 +589,8 @@ void        G_AddEvent( gentity_t *ent, int event, int eventParm );
 void        G_SetOrigin( gentity_t *ent, vec3_t origin );
 void        AddRemap(const char *oldShader, const char *newShader, float timeOffset);
 const char  *BuildShaderStateConfig();
+
+void        G_TriggerMenu( int clientNum, dynMenu_t menu );
 
 //
 // g_combat.c

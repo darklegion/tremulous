@@ -1024,7 +1024,7 @@ void Cmd_Class_f( gentity_t *ent )
       else
       {
         ent->client->pers.pclass = PCL_NONE;
-        G_AddPredictableEvent( ent, EV_MENU, MN_A_NOEROOM );
+        G_TriggerMenu( clientNum, MN_A_NOEROOM );
         return;
       }
     }
@@ -1279,7 +1279,7 @@ void Cmd_Buy_f( gentity_t *ent )
     //already got this?
     if( BG_gotWeapon( weapon, ent->client->ps.stats ) )
     {
-      G_AddPredictableEvent( ent, EV_MENU, MN_H_ITEMHELD );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_ITEMHELD );
       return;
     }
       
@@ -1292,14 +1292,14 @@ void Cmd_Buy_f( gentity_t *ent )
                    BG_FindPriceForWeapon( weapon ),
                    (short)ent->client->ps.persistant[ PERS_CREDIT ] );
 
-      G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOFUNDS );
       return;
     }
     
     //have space to carry this?
     if( BG_FindSlotsForWeapon( weapon ) & ent->client->ps.stats[ STAT_SLOTS ] )
     {
-      G_AddPredictableEvent( ent, EV_MENU, MN_H_NOSLOTS );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOSLOTS );
       return;
     }
     
@@ -1350,14 +1350,14 @@ void Cmd_Buy_f( gentity_t *ent )
     //already got this?
     if( BG_gotItem( upgrade, ent->client->ps.stats ) )
     {
-      G_AddPredictableEvent( ent, EV_MENU, MN_H_ITEMHELD );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_ITEMHELD );
       return;
     }
     
     //can afford this?
     if( BG_FindPriceForUpgrade( upgrade ) > (short)ent->client->ps.persistant[ PERS_CREDIT ] )
     {
-      G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOFUNDS );
       G_LogPrintf( "Client %d buying upgrade %d, value %d, credit %d\n",
                    ent->client->ps.clientNum,
                    weapon,
@@ -1370,7 +1370,7 @@ void Cmd_Buy_f( gentity_t *ent )
     //have space to carry this?
     if( BG_FindSlotsForUpgrade( upgrade ) & ent->client->ps.stats[ STAT_SLOTS ] )
     {
-      G_AddPredictableEvent( ent, EV_MENU, MN_H_NOSLOTS );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOSLOTS );
       return;
     }
     
@@ -1403,7 +1403,7 @@ void Cmd_Buy_f( gentity_t *ent )
       if( clips + newClips > maxClips )
       {
         //FIXME: different dialog?
-        G_AddPredictableEvent( ent, EV_MENU, MN_H_NOSLOTS );
+        G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOSLOTS );
         return;
       }
       else
@@ -1437,7 +1437,7 @@ void Cmd_Buy_f( gentity_t *ent )
     G_AddPredictableEvent( ent, EV_NEXT_WEAPON, 0 );
   
   //retrigger the armoury menu
-  G_AddPredictableEvent( ent, EV_MENU, MN_H_ARMOURY );
+  ent->client->retriggerArmouryMenu = level.framenum + RAM_FRAMES;
   
   //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum );
@@ -1522,7 +1522,7 @@ void Cmd_Sell_f( gentity_t *ent )
     trap_SendServerCommand( ent-g_entities, va( "print \"Unknown item\n\"" ) );
   
   //retrigger the armoury menu
-  G_AddPredictableEvent( ent, EV_MENU, MN_H_ARMOURY );
+  ent->client->retriggerArmouryMenu = level.framenum + RAM_FRAMES;
   
   //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum );
@@ -1583,7 +1583,7 @@ void Cmd_Deposit_f( gentity_t *ent )
       level.bankCredits[ ent->client->ps.clientNum ] += amount;
     }
     else
-      G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOFUNDS );
   }
   else
     trap_SendServerCommand( ent-g_entities, va( "print \"Aliens have no bank\n\"" ) );
@@ -1645,7 +1645,7 @@ void Cmd_Withdraw_f( gentity_t *ent )
       level.bankCredits[ ent->client->ps.clientNum ] -= amount;
     }
     else
-      G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOFUNDS );
   }
   else
     trap_SendServerCommand( ent-g_entities, va( "print \"Aliens have no bank\n\"" ) );
@@ -1693,35 +1693,35 @@ void Cmd_Build_f( gentity_t *ent )
         break;
 
       case IBE_NOASSERT:
-        G_AddPredictableEvent( ent, EV_MENU, MN_A_NOASSERT );
+        G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOASSERT );
         break;
 
       case IBE_NOHIVEMIND:
-        G_AddPredictableEvent( ent, EV_MENU, MN_A_NOHVMND );
+        G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOHVMND );
         break;
 
       case IBE_HIVEMIND:
-        G_AddPredictableEvent( ent, EV_MENU, MN_A_HIVEMIND );
+        G_TriggerMenu( ent->client->ps.clientNum, MN_A_HIVEMIND );
         break;
 
       case IBE_REACTOR:
-        G_AddPredictableEvent( ent, EV_MENU, MN_H_REACTOR );
+        G_TriggerMenu( ent->client->ps.clientNum, MN_H_REACTOR );
         break;
 
       case IBE_REPEATER:
-        G_AddPredictableEvent( ent, EV_MENU, MN_H_REPEATER );
+        G_TriggerMenu( ent->client->ps.clientNum, MN_H_REPEATER );
         break;
 
       case IBE_NOPOWER:
-        G_AddPredictableEvent( ent, EV_MENU, MN_H_NOPOWER );
+        G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOPOWER );
         break;
         
       case IBE_NOCREEP:
-        G_AddPredictableEvent( ent, EV_MENU, MN_A_NOCREEP );
+        G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOCREEP );
         break;
         
       case IBE_NODCC:
-        G_AddPredictableEvent( ent, EV_MENU, MN_H_NODCC );
+        G_TriggerMenu( ent->client->ps.clientNum, MN_H_NODCC );
         break;
     }
   }

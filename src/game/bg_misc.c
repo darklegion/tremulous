@@ -3574,7 +3574,6 @@ char *eventnames[ ] =
   "EV_STOPLOOPINGSOUND",
   "EV_TAUNT",
 
-  "EV_MENU",            //TA: menu event
   "EV_BUILD_DELAY",     //TA: can't build yet
   "EV_POISONCLOUD",     //TA: client poisoned
   "EV_KNOCKOVER",       //TA: client knocked over

@@ -482,7 +482,7 @@ void buildFire( gentity_t *ent, dynMenu_t menu )
     return;
   }
 
-  G_AddPredictableEvent( ent, EV_MENU, menu );
+  G_TriggerMenu( ent->client->ps.clientNum, menu );
 }
 
 

@@ -344,11 +344,11 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
   if( ( client->buttons & BUTTON_ATTACK ) && !( client->oldbuttons & BUTTON_ATTACK ) )
   {
     if( client->pers.pteam == PTE_NONE )
-      G_AddPredictableEvent( ent, EV_MENU, MN_TEAM );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_TEAM );
     else if( client->pers.pteam == PTE_ALIENS )
-      G_AddPredictableEvent( ent, EV_MENU, MN_A_CLASS );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_A_CLASS );
     else if( client->pers.pteam == PTE_HUMANS )
-      G_AddPredictableEvent( ent, EV_MENU, MN_H_SPAWN );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_SPAWN );
   }
 
   // attack button cycles through spectators
@@ -1113,7 +1113,7 @@ void ClientThink_real( gentity_t *ent )
       else
       {
         //exit is blocked
-        G_AddPredictableEvent( ent, EV_MENU, MN_A_HOVEL_BLOCKED );
+        G_TriggerMenu( ent->client->ps.clientNum, MN_A_HOVEL_BLOCKED );
       }
     }
     else
@@ -1158,7 +1158,7 @@ void ClientThink_real( gentity_t *ent )
           if( client->ps.persistant[ PERS_CREDIT ] > 0 )
           {
             //no nearby objects and alien - show class menu
-            G_AddPredictableEvent( ent, EV_MENU, MN_A_INFEST );
+            G_TriggerMenu( ent->client->ps.clientNum, MN_A_INFEST );
           }
         }
       }
@@ -1174,7 +1174,7 @@ void ClientThink_real( gentity_t *ent )
       // forcerespawn is to prevent users from waiting out powerups
       if( g_forcerespawn.integer > 0 &&
         ( level.time - client->respawnTime ) > 0 )
-      { //g_forcerespawn.integer * 1000 ) {
+      {
         respawn( ent );
         return;
       }
@@ -1194,6 +1194,13 @@ void ClientThink_real( gentity_t *ent )
   {
     client->ps.stats[ STAT_STATE ] &= ~SS_INFESTING;
     ClientSpawn( ent, client->infestBody );
+  }
+
+  if( level.framenum > client->retriggerArmouryMenu && client->retriggerArmouryMenu )
+  {
+    G_TriggerMenu( client->ps.clientNum, MN_H_ARMOURY );
+
+    client->retriggerArmouryMenu = 0;
   }
 
   // perform once-a-second actions

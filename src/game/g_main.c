@@ -236,13 +236,17 @@ void QDECL G_Printf( const char *fmt, ... )
 {
   va_list argptr;
   char    text[ 1024 ];
+  char    clientText[ 1048 ];
 
   va_start( argptr, fmt );
   vsprintf( text, fmt, argptr );
   va_end( argptr );
 
   if( !g_dedicated.integer )
-    trap_SendServerCommand( -1, va( "gprintf \"%s\"", text ) );
+  {
+    Com_sprintf( clientText, 1048, "gprintf \"%s\"", text );
+    trap_SendServerCommand( -1, clientText );
+  }
     
   trap_Printf( text );
 }
