@@ -1486,19 +1486,58 @@ static void PM_GroundClimbTrace( void )
         if( !VectorCompare( trace.plane.normal, refNormal ) && !VectorCompare( surfNormal, refNormal ) &&
             !VectorCompare( trace.plane.normal, ceilingNormal ) && !VectorCompare( surfNormal, ceilingNormal ) )
         {
-          int dAngle;
-          vectoangles( trace.plane.normal, toAngles );
-          vectoangles( surfNormal, surfAngles );
+          int     traceANGsurf, traceANGref, surfANGref, correction;
+          vec3_t  traceCROSSsurf;
+          float   traceDOTsurf, traceDOTref, surfDOTref;
+          vec3_t  abc;
+          float   d;
+          vec3_t  point;
 
-          //pm->ps->delta_angles[ YAW ] -= ANGLE2SHORT( surfAngles[ YAW ] - toAngles[ YAW ] );
-          dAngle = ANGLE2SHORT( RAD2DEG( arccos( DotProduct( trace.plane.normal, surfNormal ) ) ) );
-          if( dAngle < 0 )
-            dAngle = -dAngle;
+          CrossProduct( trace.plane.normal, surfNormal, traceCROSSsurf );
+          VectorNormalize( traceCROSSsurf );
 
-          pm->ps->delta_angles[ YAW ] += dAngle;
+          VectorAdd( pm->ps->origin, traceCROSSsurf, point );
+
+          //calculate the eq of the plane defined by points: origin, origin + surf, origin + trace
+          VectorCopy( traceCROSSsurf, abc );
+          if( abc[ 2 ] < 0 )
+            VectorInverse( abc );
+          d = DotProduct( abc, pm->ps->origin );
           
-          Com_Printf( "%1.0f ", surfAngles[ YAW ] - toAngles[ YAW ] );
-          Com_Printf( "%1.0f\n", RAD2DEG( arccos( DotProduct( trace.plane.normal, surfNormal ) ) ) );
+          //calculate angle between surf and trace
+          traceDOTsurf = DotProduct( trace.plane.normal, surfNormal );
+          traceANGsurf = ANGLE2SHORT( RAD2DEG( arccos( traceDOTsurf ) ) );
+
+          if( traceANGsurf > 32768 )
+            traceANGsurf -= 32768;
+
+          //calculate angle between trace and ref
+          traceDOTref = DotProduct( trace.plane.normal, refNormal );
+          traceANGref = ANGLE2SHORT( RAD2DEG( arccos( traceDOTref ) ) );
+
+          if( traceANGref > 32768 )
+            traceANGref -= 32768;
+
+          //calculate angle between surf and ref
+          surfDOTref = DotProduct( surfNormal, refNormal );
+          surfANGref = ANGLE2SHORT( RAD2DEG( arccos( surfDOTref ) ) );
+
+          if( surfANGref > 32768 )
+            surfANGref -= 32768;
+            
+          //change the sign of traceANGsurf if necessary
+          if( ( abc[ 0 ] * point[ 0 ] + abc[ 1 ] * point[ 1 ] + abc[ 2 ] * point[ 2 ] - d ) < 0 )
+            traceANGsurf = -traceANGsurf;
+
+          //set the correction angle
+          correction = ( traceANGsurf + surfANGref ) - traceANGref;
+
+          //if the rotation plane is vertical then no correction is necessary - special case
+          if( abc[ 2 ] == 0 )
+            correction = 0;
+          
+          //phew! - correct the angle
+          pm->ps->delta_angles[ YAW ] -= correction;
         }
 
         //transition from wall to ceiling
@@ -1520,7 +1559,7 @@ static void PM_GroundClimbTrace( void )
           pm->ps->delta_angles[1] -= ANGLE2SHORT( ( ( surfAngles[1] - toAngles[1] ) * 2 ) - 180 );
         }
 
-        //TA: smooth transitions
+        //smooth transitions
         CrossProduct( surfNormal, trace.plane.normal, srotAxis );
         VectorNormalize( srotAxis );
         srotAngle = abs( RAD2DEG( arccos( DotProduct( surfNormal, trace.plane.normal ) ) ) );
