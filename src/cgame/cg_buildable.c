@@ -282,12 +282,12 @@ void CG_InitBuildables( )
     //animation.cfg
     Com_sprintf( filename, sizeof( filename ), "models/buildables/%s/animation.cfg", buildableName );
     if ( !CG_ParseBuildableAnimationFile( filename, i ) )
-      Com_Printf( "Failed to load animation file %s\n", filename );
+      Com_Printf( S_COLOR_YELLOW "WARNING: failed to load animation file %s\n", filename );
 
     //sound.cfg
     Com_sprintf( filename, sizeof( filename ), "sound/buildables/%s/sound.cfg", buildableName );
     if ( !CG_ParseBuildableSoundFile( filename, i ) )
-      Com_Printf( "Failed to load sound file %s\n", filename );
+      Com_Printf( S_COLOR_YELLOW "WARNING: failed to load sound file %s\n", filename );
 
     //models
     for( j = 0; j <= 3; j++ )

@@ -114,6 +114,13 @@ typedef enum
   IMPACTSOUND_FLESH
 } impactSound_t;
 
+typedef enum
+{
+  JPS_OFF,
+  JPS_DESCENDING,
+  JPS_HOVERING,
+  JPS_ASCENDING
+} jetPackState_t;
 
 //particle system stuff
 #define MAX_SHADER_FRAMES         64
@@ -424,8 +431,6 @@ typedef struct centity_s
   lerpFrame_t           lerpFrame;
 
   //TA:
-  int                   jetTime;          //limit jet count
-  
   buildableAnimNumber_t buildableAnim;    //persistant anim number
   buildableAnimNumber_t oldBuildableAnim; //to detect when new anims are set
   int                   buildableSmokeTime;
@@ -442,6 +447,9 @@ typedef struct centity_s
 
   particleSystem_t      *muzzlePS;
   qboolean              muzzlePsTrigger;
+
+  particleSystem_t      *jetPackPS;
+  jetPackState_t        jetPackState;
 
   qboolean              valid;
   qboolean              oldValid;
@@ -1142,6 +1150,10 @@ typedef struct
   sfxHandle_t jetpackDescendSound;
   sfxHandle_t jetpackIdleSound;
   sfxHandle_t jetpackAscendSound;
+  
+  qhandle_t   jetPackDescendPS;
+  qhandle_t   jetPackHoverPS;
+  qhandle_t   jetPackAscendPS;
   
   //TA:
   sfxHandle_t alienStageTransition;

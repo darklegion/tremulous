@@ -1386,8 +1386,6 @@ static void CG_PlayerNonSegAngles( centity_t *cent, vec3_t srcAngles, vec3_t non
 
 //==========================================================================
 
-#define JET_LIFETIME  1500
-
 /*
 ===============
 CG_PlayerUpgrade
@@ -1396,15 +1394,6 @@ CG_PlayerUpgrade
 static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
 {
   int           held, active;
-  vec3_t        acc = { 0.0f, 0.0f, 10.0f };
-  vec3_t        vel = { 0.0f, 0.0f, 0.0f };
-  vec3_t        origin;
-  vec3_t        forward = { 1.0f, 0.0f, 0.0f };
-  vec3_t        right = { 0.0f, 1.0f, 0.0f };
-  vec3_t        pvel;
-  vec3_t        angles;
-  int           addTime;
-  float         spread;
   refEntity_t   jetpack;
   refEntity_t   flash;
 
@@ -1432,27 +1421,45 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
     {
       if( cent->currentState.pos.trDelta[ 2 ] > 10.0f )
       {
+        if( cent->jetPackState != JPS_ASCENDING )
+        {
+          if( cent->jetPackPS != NULL )
+            CG_DestroyParticleSystem( cent->jetPackPS );
+            
+          cent->jetPackPS = CG_SpawnNewParticleSystem( cgs.media.jetPackAscendPS );
+          cent->jetPackState = JPS_ASCENDING;
+        }
+        
         trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
                                 vec3_origin, cgs.media.jetpackAscendSound );
-        addTime = 70;
-        vel[ 2 ] = -60.0f;
-        spread = 30.0f;
       }
       else if( cent->currentState.pos.trDelta[ 2 ] < -10.0f )
       {
+        if( cent->jetPackState != JPS_DESCENDING )
+        {
+          if( cent->jetPackPS != NULL )
+            CG_DestroyParticleSystem( cent->jetPackPS );
+            
+          cent->jetPackPS = CG_SpawnNewParticleSystem( cgs.media.jetPackDescendPS );
+          cent->jetPackState = JPS_DESCENDING;
+        }
+        
         trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
                                 vec3_origin, cgs.media.jetpackDescendSound );
-        addTime = 90;
-        vel[ 2 ] = -100.0f;
-        spread = 5.0f;
       }
       else
       {
+        if( cent->jetPackState != JPS_HOVERING )
+        {
+          if( cent->jetPackPS != NULL )
+            CG_DestroyParticleSystem( cent->jetPackPS );
+            
+          cent->jetPackPS = CG_SpawnNewParticleSystem( cgs.media.jetPackHoverPS );
+          cent->jetPackState = JPS_HOVERING;
+        }
+        
         trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
                                 vec3_origin, cgs.media.jetpackIdleSound );
-        addTime = 80;
-        vel[ 2 ] = -80.0f;
-        spread = 15.0f;
       }
       
       memset( &flash, 0, sizeof( flash ) );
@@ -1464,29 +1471,23 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
       if( !flash.hModel )
         return;
 
-      angles[ YAW ] = 0;
-      angles[ PITCH ] = 0;
-      angles[ ROLL ] = 0;
-      AnglesToAxis( angles, flash.axis );
+      AxisCopy( axisDefault, flash.axis );
 
       CG_PositionRotatedEntityOnTag( &flash, &jetpack, jetpack.hModel, "tag_flash" );
       trap_R_AddRefEntityToScene( &flash );
       
-      if( cent->jetTime < cg.time )
+      if( cent->jetPackPS != NULL )
       {
-        VectorCopy( flash.origin, origin );
-
-        VectorScale( cent->currentState.pos.trDelta, 0.75f, pvel );
-        VectorAdd( vel, pvel, vel );
-      
-        CG_LaunchSprite( origin, vel, acc, spread,
-                         0.5f, 4.0f, 20.0f, 128.0f, 0.0f,
-                         rand( ) % 360, cg.time, cg.time, JET_LIFETIME,
-                         cgs.media.smokePuffShader, qfalse, qfalse );
-
-        //set next ball time
-        cent->jetTime = cg.time + addTime;
+        CG_SetParticleSystemTag( cent->jetPackPS, jetpack, jetpack.hModel, "tag_flash" );
+        CG_SetParticleSystemCent( cent->jetPackPS, cent );
+        CG_AttachParticleSystemToTag( cent->jetPackPS );
       }
+    }
+    else if( cent->jetPackPS != NULL )
+    {
+      CG_DestroyParticleSystem( cent->jetPackPS );
+      cent->jetPackState = JPS_OFF;
+      cent->jetPackPS = NULL;
     }
   }
 }

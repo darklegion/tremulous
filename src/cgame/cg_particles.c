@@ -131,6 +131,7 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
           if( !ps->attachment.tagValid )
             return NULL;
           
+          AxisCopy( axisDefault, ps->attachment.re.axis );
           CG_PositionRotatedEntityOnTag( &ps->attachment.re, &ps->attachment.parent,
                                          ps->attachment.model, ps->attachment.tagName );
           VectorCopy( ps->attachment.re.origin, p->origin );
@@ -403,6 +404,7 @@ qhandle_t CG_RegisterParticleSystem( char *name )
     }
   }
 
+  CG_Printf( S_COLOR_YELLOW "WARNING: failed to load particle system %s\n", name );
   return 0;
 }
 
@@ -1395,10 +1397,21 @@ Destroy a particle system
 */
 void CG_DestroyParticleSystem( particleSystem_t *ps )
 {
+  int               i;
+  particleEjector_t *pe;
+  
   if( cg_debugParticles.integer >= 1 )
     CG_Printf( "PS destroyed\n" );
 
   ps->valid = qfalse;
+
+  for( i = 0; i < MAX_PARTICLE_EJECTORS; i++ )
+  {
+    pe = &particleEjectors[ i ];
+    
+    if( pe->valid && pe->parent == ps )
+      pe->valid = qfalse;
+  }
 }
 
 /*

@@ -875,6 +875,9 @@ static void CG_CEntityPVSEnter( centity_t *cent )
   //clear any particle systems from previous uses of this centity_t
   cent->muzzlePS = NULL;
   cent->muzzlePsTrigger = qfalse;
+
+  cent->jetPackPS = NULL;
+  cent->jetPackState = JPS_OFF;
 }
 
 

@@ -790,6 +790,10 @@ static void CG_RegisterGraphics( void )
 
   cgs.media.poisonCloudPS             = CG_RegisterParticleSystem( "poisonCloud" );
 
+  cgs.media.jetPackDescendPS          = CG_RegisterParticleSystem( "jetPackDescendPS" );
+  cgs.media.jetPackHoverPS            = CG_RegisterParticleSystem( "jetPackHoverPS" );
+  cgs.media.jetPackAscendPS           = CG_RegisterParticleSystem( "jetPackAscendPS" );
+
   // register the inline models
   cgs.numInlineModels = trap_CM_NumInlineModels( );
   
