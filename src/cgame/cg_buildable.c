@@ -112,7 +112,7 @@ static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_
   }
 
   if ( i != MAX_BUILDABLE_ANIMATIONS ) {
-    CG_Printf( "Error parsing animation file: %s", filename );
+    CG_Printf( "Error parsing animation file: %s\n", filename );
     return qfalse;
   }
   
