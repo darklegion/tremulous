@@ -623,7 +623,7 @@ static void CG_OffsetFirstPersonView( void )
   }
 
   // add bob height
-  bob = cg.bobfracsin * cg.xyspeed * cg_bobup.value;
+  bob = cg.bobfracsin * cg.xyspeed * bob2;
   
   if( bob > 6 )
     bob = 6;

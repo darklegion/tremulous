@@ -103,6 +103,8 @@ typedef enum
   FOOTSTEP_ENERGY,
   FOOTSTEP_METAL,
   FOOTSTEP_SPLASH,
+  FOOTSTEP_CUSTOM,
+  FOOTSTEP_NONE,
 
   FOOTSTEP_TOTAL
 } footstep_t;
@@ -650,6 +652,8 @@ typedef struct
   animation_t animations[ MAX_PLAYER_TOTALANIMATIONS ];
 
   sfxHandle_t sounds[ MAX_CUSTOM_SOUNDS ];
+
+  sfxHandle_t customFootsteps[ 4 ];
 } clientInfo_t;
 
 

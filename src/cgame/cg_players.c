@@ -147,6 +147,21 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
         ci->footsteps = FOOTSTEP_MECH;
       else if( !Q_stricmp( token, "energy" ) )
         ci->footsteps = FOOTSTEP_ENERGY;
+      else if( !Q_stricmp( token, "none" ) )
+        ci->footsteps = FOOTSTEP_NONE;
+      else if( !Q_stricmp( token, "custom" ) )
+      {
+        ci->footsteps = FOOTSTEP_CUSTOM;
+        
+        for( i = 0; i < 4; i++ )
+        {
+          token = COM_Parse( &text_p );
+          if( !token )
+            break;
+
+          ci->customFootsteps[ i ] = trap_S_RegisterSound( token, qfalse );
+        }
+      }
       else
         CG_Printf( "Bad footsteps parm in %s: %s\n", filename, token );
 

@@ -1446,13 +1446,12 @@ classAttributes_t bg_classList[ ] =
     ABUILDER_HEALTH,                                //int     health;
     0.2f,                                           //float   fallDamage;
     ABUILDER_REGEN,                                 //int     regenRate;
-    SCA_TAKESFALLDAMAGE|SCA_FOVWARPS|
-      SCA_NOFOOTSTEPS,                              //int     abilities;
+    SCA_TAKESFALLDAMAGE|SCA_FOVWARPS|SCA_ALIENSENSE,//int     abilities;
     WP_ABUILD,                                      //weapon_t  startWeapon
     95.0f,                                          //float   buildDist;
     80,                                             //int     fov;
     0.001f,                                         //float   bob;
-    1.0f,                                           //float   bobCycle;
+    2.0f,                                           //float   bobCycle;
     350,                                            //int     steptime;
     ABUILDER_SPEED,                                 //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1483,13 +1482,12 @@ classAttributes_t bg_classList[ ] =
     ABUILDER_UPG_HEALTH,                            //int     health;
     0.0f,                                           //float   fallDamage;
     ABUILDER_UPG_REGEN,                             //int     regenRate;
-    SCA_FOVWARPS|SCA_WALLCLIMBER|
-      SCA_NOFOOTSTEPS,                              //int     abilities;
+    SCA_FOVWARPS|SCA_WALLCLIMBER|SCA_ALIENSENSE,    //int     abilities;
     WP_ABUILD2,                                     //weapon_t  startWeapon
     95.0f,                                          //float   buildDist;
     110,                                            //int     fov;
     0.001f,                                         //float   bob;
-    1.0f,                                           //float   bobCycle;
+    2.0f,                                           //float   bobCycle;
     200,                                            //int     steptime;
     ABUILDER_UPG_SPEED,                             //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1521,12 +1519,12 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   fallDamage;
     SOLDIER_REGEN,                                  //int     regenRate;
     SCA_WALLCLIMBER|SCA_NOWEAPONDRIFT|
-      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
-    WP_SOLDIER,                                       //weapon_t  startWeapon
+      SCA_FOVWARPS|SCA_ALIENSENSE,                  //int     abilities;
+    WP_SOLDIER,                                     //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     140,                                            //int     fov;
     0.0f,                                           //float   bob;
-    1.0f,                                           //float   bobCycle;
+    2.5f,                                           //float   bobCycle;
     25,                                             //int     steptime;
     SOLDIER_SPEED,                                  //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1558,13 +1556,12 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   fallDamage;
     HYDRA_REGEN,                                    //int     regenRate;
     SCA_NOWEAPONDRIFT|
-      SCA_FOVWARPS|SCA_WALLCLIMBER|SCA_ALIENSENSE|
-      SCA_NOFOOTSTEPS,                              //int     abilities;
+      SCA_FOVWARPS|SCA_WALLCLIMBER|SCA_ALIENSENSE,  //int     abilities;
     WP_HYDRA,                                   //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     120,                                            //int     fov;
     0.001f,                                         //float   bob;
-    1.0f,                                           //float   bobCycle;
+    1.8f,                                           //float   bobCycle;
     25,                                             //int     steptime;
     HYDRA_SPEED,                                    //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1596,13 +1593,12 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   fallDamage;
     HYDRA_UPG_REGEN,                                //int     regenRate;
     SCA_NOWEAPONDRIFT|SCA_FOVWARPS|
-      SCA_WALLCLIMBER|SCA_ALIENSENSE|
-      SCA_NOFOOTSTEPS,                              //int     abilities;
+      SCA_WALLCLIMBER|SCA_ALIENSENSE,               //int     abilities;
     WP_HYDRA_UPG,                               //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     120,                                            //int     fov;
     0.001f,                                         //float   bob;
-    1.0f,                                           //float   bobCycle;
+    1.8f,                                           //float   bobCycle;
     25,                                             //int     steptime;
     HYDRA_UPG_SPEED,                                //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1634,12 +1630,12 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   fallDamage;
     CHIMERA_REGEN,                                  //int     regenRate;
     SCA_NOWEAPONDRIFT|SCA_WALLJUMPER|
-      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
+      SCA_FOVWARPS|SCA_ALIENSENSE,                  //int     abilities;
     WP_CHIMERA,                                    //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     90,                                             //int     fov;
-    0.0f,                                           //float   bob;
-    1.0f,                                           //float   bobCycle;
+    0.001f,                                         //float   bob;
+    1.5f,                                           //float   bobCycle;
     60,                                             //int     steptime;
     CHIMERA_SPEED,                                  //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1671,12 +1667,12 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   fallDamage;
     CHIMERA_UPG_REGEN,                              //int     regenRate;
     SCA_NOWEAPONDRIFT|SCA_WALLJUMPER|
-      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
+      SCA_FOVWARPS|SCA_ALIENSENSE,                  //int     abilities;
     WP_CHIMERA_UPG,                                  //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     90,                                             //int     fov;
-    0.0f,                                           //float   bob;
-    1.0f,                                           //float   bobCycle;
+    0.001f,                                         //float   bob;
+    1.5f,                                           //float   bobCycle;
     60,                                             //int     steptime;
     CHIMERA_UPG_SPEED,                              //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1708,12 +1704,12 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   fallDamage;
     DRAGOON_REGEN,                                  //int     regenRate;
     SCA_NOWEAPONDRIFT|
-      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
+      SCA_FOVWARPS|SCA_ALIENSENSE,                  //int     abilities;
     WP_DRAGOON,                                      //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     110,                                            //int     fov;
     0.0005f,                                        //float   bob;
-    1.0f,                                           //float   bobCycle;
+    1.3f,                                           //float   bobCycle;
     25,                                             //int     steptime;
     DRAGOON_SPEED,                                  //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1745,12 +1741,12 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   fallDamage;
     DRAGOON_UPG_REGEN,                              //int     regenRate;
     SCA_NOWEAPONDRIFT|
-      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
+      SCA_FOVWARPS|SCA_ALIENSENSE,                  //int     abilities;
     WP_DRAGOON_UPG,                                  //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     110,                                            //int     fov;
     0.0005f,                                        //float   bob;
-    1.0f,                                           //float   bobCycle;
+    1.3f,                                           //float   bobCycle;
     25,                                             //int     steptime;
     DRAGOON_UPG_SPEED,                              //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1782,12 +1778,12 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   fallDamage;
     BMOFO_REGEN,                                    //int     regenRate;
     SCA_NOWEAPONDRIFT|
-      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
+      SCA_FOVWARPS|SCA_ALIENSENSE,                  //int     abilities;
     WP_BIGMOFO,                                      //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     90,                                             //int     fov;
     0.001f,                                         //float   bob;
-    1.0f,                                           //float   bobCycle;
+    1.1f,                                           //float   bobCycle;
     60,                                             //int     steptime;
     BMOFO_SPEED,                                    //float   speed;
     5.0f,                                           //float   acceleration;

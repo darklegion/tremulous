@@ -1584,7 +1584,7 @@ static void PM_CrashLand( void )
       if( pm->ps->stats[STAT_HEALTH] > 0 )
         PM_AddEvent( EV_FALL_MEDIUM );
     }
-    else if( !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_NOFOOTSTEPS ) )
+    else
     {
       if( delta > 7 )
         PM_AddEvent( EV_FALL_SHORT );
@@ -2489,8 +2489,7 @@ static void PM_Footsteps( void )
     if( pm->waterlevel == 0 )
     {
       // on ground will only play sounds if running
-      if( footstep && !pm->noFootsteps &&
-          !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_NOFOOTSTEPS ) )
+      if( footstep && !pm->noFootsteps )
         PM_AddEvent( PM_FootstepForSurface( ) );
     }
     else if( pm->waterlevel == 1 )
