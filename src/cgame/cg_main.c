@@ -788,6 +788,8 @@ static void CG_RegisterGraphics( void )
   cgs.media.wakeMarkShader            = trap_R_RegisterShader( "wake" );
   cgs.media.bloodMarkShader           = trap_R_RegisterShader( "bloodMark" );
 
+  cgs.media.testParticleSystem        = CG_RegisterParticleSystem( "blah" );
+
   // register the inline models
   cgs.numInlineModels = trap_CM_NumInlineModels( );
   
@@ -1677,8 +1679,11 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 
   cg.loading = qtrue;   // force players to load instead of defer
 
+  CG_LoadParticleSystems( );
+  CG_UpdateMediaFraction( 0.05f );
+  
   CG_RegisterSounds( );
-  CG_UpdateMediaFraction( 0.33f );
+  CG_UpdateMediaFraction( 0.60f );
 
   CG_RegisterGraphics( );
   CG_UpdateMediaFraction( 0.90f );

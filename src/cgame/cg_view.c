@@ -1233,6 +1233,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
     CG_AddPacketEntities( );     // adter calcViewValues, so predicted player state is correct
     CG_AddMarks( );
     CG_AddLocalEntities( );
+    CG_AddParticles( );
 
     //TA: wolf trails stuff
 		CG_AddTrails( );		// this must come last, so the trails dropped this frame get drawn

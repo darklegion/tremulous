@@ -66,6 +66,7 @@ CGOBJ = \
 	$(CGDIRNAME)/cg_mp3decoder.o \
 	$(CGDIRNAME)/cg_scanner.o \
 	$(CGDIRNAME)/cg_trails.o \
+	$(CGDIRNAME)/cg_particles.o \
 	$(UIDIRNAME)/ui_shared.o
   
 UIOBJ = \

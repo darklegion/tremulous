@@ -386,7 +386,7 @@ static void CG_Missile( centity_t *cent )
       ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
 
       // convert direction of travel into axis
-      if ( VectorNormalize2( s1->pos.trDelta, ent.axis[ 0 ] ) == 0 )
+      if( VectorNormalize2( s1->pos.trDelta, ent.axis[ 0 ] ) == 0 )
         ent.axis[ 0 ][ 2 ] = 1;
 
       RotateAroundDirection( ent.axis, cg.time / 4 );

@@ -267,6 +267,10 @@ releasei386-glibc/cgame/cg_mp3decoder.o: src/cgame/cg_mp3decoder.c src/cgame/cg_
   src/cgame/cg_local.h src/game/q_shared.h src/game/surfaceflags.h \
   src/cgame/tr_types.h src/game/bg_public.h src/game/tremulous.h \
   src/cgame/cg_public.h src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
+releasei386-glibc/cgame/cg_particles.o: src/cgame/cg_particles.c src/cgame/cg_local.h \
+  src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
+  src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
+  src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
 releasei386-glibc/cgame/cg_players.o: src/cgame/cg_players.c src/cgame/cg_local.h \
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
@@ -363,6 +367,10 @@ debugi386-glibc/cgame/cg_mp3decoder.o: src/cgame/cg_mp3decoder.c src/cgame/cg_mp
   src/cgame/cg_local.h src/game/q_shared.h src/game/surfaceflags.h \
   src/cgame/tr_types.h src/game/bg_public.h src/game/tremulous.h \
   src/cgame/cg_public.h src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
+debugi386-glibc/cgame/cg_particles.o: src/cgame/cg_particles.c src/cgame/cg_local.h \
+  src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
+  src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
+  src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
 debugi386-glibc/cgame/cg_players.o: src/cgame/cg_players.c src/cgame/cg_local.h \
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
@@ -459,6 +467,10 @@ qvm/cgame/cg_mp3decoder.asm: src/cgame/cg_mp3decoder.c src/cgame/cg_mp3decoder.h
   src/cgame/cg_local.h src/game/q_shared.h src/game/surfaceflags.h \
   src/cgame/tr_types.h src/game/bg_public.h src/game/tremulous.h \
   src/cgame/cg_public.h src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
+qvm/cgame/cg_particles.asm: src/cgame/cg_particles.c src/cgame/cg_local.h \
+  src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
+  src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
+  src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
 qvm/cgame/cg_players.asm: src/cgame/cg_players.c src/cgame/cg_local.h \
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \

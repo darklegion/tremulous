@@ -402,6 +402,34 @@ void G_UpdateCvars( void )
 
 
 /*
+===============
+G_GenerateParticleFileList
+
+Make a list of particle files for each client to parse since fsr
+the client does not have trap_FS_GetFileList
+===============
+*/
+static void G_GenerateParticleFileList( void )
+{
+  int   i, numFiles, fileLen;
+  char  fileList[ MAX_PARTICLE_FILES ];
+  char  fileName[ MAX_QPATH ];
+  char  *filePtr;
+
+  numFiles = trap_FS_GetFileList( "scripts", ".particle", fileList, 1024 );
+  filePtr = fileList;
+  
+  for( i = 0; i < numFiles; i++, filePtr += fileLen + 1 )
+  {
+    fileLen = strlen( filePtr );
+    strcpy( fileName, "scripts/" );
+    strcat( fileName, filePtr );
+    trap_SetConfigstring( CS_PARTICLE_FILES + i, fileName );  
+  }
+}
+
+
+/*
 ============
 G_InitGame
 
@@ -482,6 +510,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
   //TA:
   G_InitDamageLocations( );
+  G_GenerateParticleFileList( );
 
   //reset stages
   trap_Cvar_Set( "g_alienStage", va( "%d", S1 ) );
