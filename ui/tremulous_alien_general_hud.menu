@@ -219,7 +219,7 @@
       rect 465 417.5 25 25
       visible 1
       decoration
-      forecolor 1.0 0.0 0.0 0.75
+      forecolor 1.0 0.0 0.0 0.6
       ownerdraw CG_PLAYER_WEAPONICON
     }
 
