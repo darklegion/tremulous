@@ -503,6 +503,11 @@ void G_Checktrigger_stages( pTeam_t team, stage_t stage )
 }
 
 
+/*
+===============
+trigger_stage_use
+===============
+*/
 void trigger_stage_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
   G_UseTargets( self, self );
@@ -516,4 +521,608 @@ void SP_trigger_stage( gentity_t *self )
   self->use = trigger_stage_use;
 
   self->r.svFlags = SVF_NOCLIENT;
+}
+
+
+/*
+===============
+trigger_buildable_trigger
+===============
+*/
+void trigger_buildable_trigger( gentity_t *self, gentity_t *activator )
+{
+  int i = 0;
+
+  self->activator = activator;
+  if( self->nextthink )
+    return;   // can't retrigger until the wait is over
+
+  //if there is no buildable list every buildable triggers
+  if( self->bTriggers[ i ] == BA_NONE )
+    G_UseTargets( self, activator );
+  else
+  {
+    //otherwise check against the list
+    for( i = 0; self->bTriggers[ i ] != BA_NONE; i++ )
+    {
+      if( activator->s.modelindex == self->bTriggers[ i ] )
+      {
+        G_UseTargets( self, activator );
+        return;
+      }
+    }
+  }
+  
+  if( self->wait > 0 )
+  {
+    self->think = multi_wait;
+    self->nextthink = level.time + ( self->wait + self->random * crandom( ) ) * 1000;
+  }
+  else
+  {
+    // we can't just remove (self) here, because this is a touch function
+    // called while looping through area links...
+    self->touch = 0;
+    self->nextthink = level.time + FRAMETIME;
+    self->think = G_FreeEntity;
+  }
+}
+
+/*
+===============
+trigger_buildable_touch
+===============
+*/
+void trigger_buildable_touch( gentity_t *ent, gentity_t *other, trace_t *trace )
+{
+  //only triggered by buildables
+  if( other->s.eType != ET_BUILDABLE )
+    return;
+  
+  trigger_buildable_trigger( ent, other );
+}
+
+/*
+===============
+trigger_buildable_use
+===============
+*/
+void trigger_buildable_use( gentity_t *ent, gentity_t *other, gentity_t *activator )
+{
+  trigger_buildable_trigger( ent, activator );
+}
+
+/*
+===============
+SP_trigger_buildable
+===============
+*/
+void SP_trigger_buildable( gentity_t *self )
+{
+  char      *buffer;
+  int       i = 0;
+  char      *p, *q;
+  qboolean  EOS = qfalse;
+
+  G_SpawnFloat( "wait", "0.5", &self->wait );
+  G_SpawnFloat( "random", "0", &self->random );
+
+  if( self->random >= self->wait && self->wait >= 0 )
+  {
+    self->random = self->wait - FRAMETIME;
+    G_Printf( S_COLOR_YELLOW "WARNING: trigger_buildable has random >= wait\n" );
+  }
+  
+  G_SpawnString( "buildables", "", &buffer );
+  
+  p = q = buffer;
+
+  while( *p != '\0' )
+  {
+    //skip to first , or EOS
+    while( *p != ',' && *p != '\0' )
+      p++;
+
+    if( *p == '\0' )
+      EOS = qtrue;
+    
+    *p = '\0';
+
+    //strip leading whitespace
+    while( *q == ' ' )
+      q++;
+    
+    self->bTriggers[ i ] = BG_FindBuildNumForName( q );
+    if( self->bTriggers[ i ] == BA_NONE )
+      G_Printf( S_COLOR_YELLOW "WARNING: unknown buildable %s in trigger_buildable\n", q );
+    else
+      i++;
+    
+    if( !EOS )
+    {
+      p++;
+      q = p;
+    }
+    else
+      break;
+  }
+
+  self->bTriggers[ i ] = BA_NONE;
+  
+  self->touch = trigger_buildable_touch;
+  self->use = trigger_buildable_use;
+
+  InitTrigger( self );
+  trap_LinkEntity( self );
+}
+
+
+/*
+===============
+trigger_class_trigger
+===============
+*/
+void trigger_class_trigger( gentity_t *self, gentity_t *activator )
+{
+  int i = 0;
+
+  //sanity check
+  if( !activator->client )
+    return;
+  
+  if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
+    return;
+  
+  self->activator = activator;
+  if( self->nextthink )
+    return;   // can't retrigger until the wait is over
+
+  //if there is no class list every class triggers (stupid case)
+  if( self->cTriggers[ i ] == PCL_NONE )
+    G_UseTargets( self, activator );
+  else
+  {
+    //otherwise check against the list
+    for( i = 0; self->cTriggers[ i ] != PCL_NONE; i++ )
+    {
+      if( activator->client->ps.stats[ STAT_PCLASS ] == self->cTriggers[ i ] )
+      {
+        G_UseTargets( self, activator );
+        return;
+      }
+    }
+  }
+  
+  if( self->wait > 0 )
+  {
+    self->think = multi_wait;
+    self->nextthink = level.time + ( self->wait + self->random * crandom( ) ) * 1000;
+  }
+  else
+  {
+    // we can't just remove (self) here, because this is a touch function
+    // called while looping through area links...
+    self->touch = 0;
+    self->nextthink = level.time + FRAMETIME;
+    self->think = G_FreeEntity;
+  }
+}
+
+/*
+===============
+trigger_class_touch
+===============
+*/
+void trigger_class_touch( gentity_t *ent, gentity_t *other, trace_t *trace )
+{
+  //only triggered by clients
+  if( !other->client )
+    return;
+  
+  trigger_class_trigger( ent, other );
+}
+
+/*
+===============
+trigger_class_use
+===============
+*/
+void trigger_class_use( gentity_t *ent, gentity_t *other, gentity_t *activator )
+{
+  trigger_class_trigger( ent, activator );
+}
+
+/*
+===============
+SP_trigger_class
+===============
+*/
+void SP_trigger_class( gentity_t *self )
+{
+  char      *buffer;
+  int       i = 0;
+  char      *p, *q;
+  qboolean  EOS = qfalse;
+
+  G_SpawnFloat( "wait", "0.5", &self->wait );
+  G_SpawnFloat( "random", "0", &self->random );
+
+  if( self->random >= self->wait && self->wait >= 0 )
+  {
+    self->random = self->wait - FRAMETIME;
+    G_Printf( S_COLOR_YELLOW "WARNING: trigger_class has random >= wait\n" );
+  }
+  
+  G_SpawnString( "classes", "", &buffer );
+  
+  p = q = buffer;
+
+  while( *p != '\0' )
+  {
+    //skip to first , or EOS
+    while( *p != ',' && *p != '\0' )
+      p++;
+
+    if( *p == '\0' )
+      EOS = qtrue;
+    
+    *p = '\0';
+
+    //strip leading whitespace
+    while( *q == ' ' )
+      q++;
+    
+    self->cTriggers[ i ] = BG_FindClassNumForName( q );
+    if( self->cTriggers[ i ] == PCL_NONE )
+      G_Printf( S_COLOR_YELLOW "WARNING: unknown class %s in trigger_class\n", q );
+    else
+      i++;
+    
+    if( !EOS )
+    {
+      p++;
+      q = p;
+    }
+    else
+      break;
+  }
+
+  self->cTriggers[ i ] = PCL_NONE;
+  
+  self->touch = trigger_class_touch;
+  self->use = trigger_class_use;
+
+  InitTrigger( self );
+  trap_LinkEntity( self );
+}
+
+
+/*
+===============
+trigger_equipment_trigger
+===============
+*/
+void trigger_equipment_trigger( gentity_t *self, gentity_t *activator )
+{
+  int i = 0;
+
+  //sanity check
+  if( !activator->client )
+    return;
+
+  if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
+    return;
+  
+  self->activator = activator;
+  if( self->nextthink )
+    return;   // can't retrigger until the wait is over
+
+  //if there is no equipment list all equipment triggers (stupid case)
+  if( self->wTriggers[ i ] == WP_NONE && self->wTriggers[ i ] == UP_NONE )
+    G_UseTargets( self, activator );
+  else
+  {
+    //otherwise check against the lists
+    for( i = 0; self->wTriggers[ i ] != WP_NONE; i++ )
+    {
+      if( BG_gotWeapon( self->wTriggers[ i ], activator->client->ps.stats ) )
+      {
+        G_UseTargets( self, activator );
+        return;
+      }
+    }
+    
+    for( i = 0; self->uTriggers[ i ] != UP_NONE; i++ )
+    {
+      if( BG_gotItem( self->uTriggers[ i ], activator->client->ps.stats ) )
+      {
+        G_UseTargets( self, activator );
+        return;
+      }
+    }
+  }
+  
+  if( self->wait > 0 )
+  {
+    self->think = multi_wait;
+    self->nextthink = level.time + ( self->wait + self->random * crandom( ) ) * 1000;
+  }
+  else
+  {
+    // we can't just remove (self) here, because this is a touch function
+    // called while looping through area links...
+    self->touch = 0;
+    self->nextthink = level.time + FRAMETIME;
+    self->think = G_FreeEntity;
+  }
+}
+
+/*
+===============
+trigger_equipment_touch
+===============
+*/
+void trigger_equipment_touch( gentity_t *ent, gentity_t *other, trace_t *trace )
+{
+  //only triggered by clients
+  if( !other->client )
+    return;
+  
+  trigger_equipment_trigger( ent, other );
+}
+
+/*
+===============
+trigger_equipment_use
+===============
+*/
+void trigger_equipment_use( gentity_t *ent, gentity_t *other, gentity_t *activator )
+{
+  trigger_equipment_trigger( ent, activator );
+}
+
+/*
+===============
+SP_trigger_equipment
+===============
+*/
+void SP_trigger_equipment( gentity_t *self )
+{
+  char      *buffer;
+  int       i = 0, j = 0;
+  char      *p, *q;
+  qboolean  EOS = qfalse;
+
+  G_SpawnFloat( "wait", "0.5", &self->wait );
+  G_SpawnFloat( "random", "0", &self->random );
+
+  if( self->random >= self->wait && self->wait >= 0 )
+  {
+    self->random = self->wait - FRAMETIME;
+    G_Printf( S_COLOR_YELLOW "WARNING: trigger_equipment has random >= wait\n" );
+  }
+  
+  G_SpawnString( "equipment", "", &buffer );
+  
+  p = q = buffer;
+
+  while( *p != '\0' )
+  {
+    //skip to first , or EOS
+    while( *p != ',' && *p != '\0' )
+      p++;
+
+    if( *p == '\0' )
+      EOS = qtrue;
+    
+    *p = '\0';
+
+    //strip leading whitespace
+    while( *q == ' ' )
+      q++;
+    
+    self->wTriggers[ i ] = BG_FindWeaponNumForName( q );
+    self->uTriggers[ j ] = BG_FindUpgradeNumForName( q );
+    
+    if( self->wTriggers[ i ] == WP_NONE && self->uTriggers[ j ] == UP_NONE )
+      G_Printf( S_COLOR_YELLOW "WARNING: unknown equipment %s in trigger_class\n", q );
+    else if( self->wTriggers[ i ] != WP_NONE )
+      i++;
+    else if( self->uTriggers[ j ] != UP_NONE )
+      j++;
+    
+    if( !EOS )
+    {
+      p++;
+      q = p;
+    }
+    else
+      break;
+  }
+
+  self->wTriggers[ i ] = WP_NONE;
+  self->uTriggers[ j ] = UP_NONE;
+  
+  self->touch = trigger_equipment_touch;
+  self->use = trigger_equipment_use;
+
+  InitTrigger( self );
+  trap_LinkEntity( self );
+}
+
+
+/*
+===============
+trigger_gravity_touch
+===============
+*/
+void trigger_gravity_touch( gentity_t *ent, gentity_t *other, trace_t *trace )
+{
+  //only triggered by clients
+  if( !other->client )
+    return;
+  
+  other->client->ps.gravity = ent->triggerGravity;
+}
+
+/*
+===============
+trigger_gravity_use
+===============
+*/
+void trigger_gravity_use( gentity_t *ent, gentity_t *other, gentity_t *activator )
+{
+  if( ent->r.linked )
+    trap_UnlinkEntity( ent );
+  else
+    trap_LinkEntity( ent );
+}
+
+
+/*
+===============
+SP_trigger_gravity
+===============
+*/
+void SP_trigger_gravity( gentity_t *self )
+{
+  G_SpawnInt( "gravity", "800", &self->triggerGravity );
+  
+  self->touch = trigger_gravity_touch;
+  self->use = trigger_gravity_use;
+
+  InitTrigger( self );
+  trap_LinkEntity( self );
+}
+
+
+/*
+===============
+trigger_heal_use
+===============
+*/
+void trigger_heal_use( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  if( self->r.linked )
+    trap_UnlinkEntity( self );
+  else
+    trap_LinkEntity( self );
+}
+
+/*
+===============
+trigger_heal_touch
+===============
+*/
+void trigger_heal_touch( gentity_t *self, gentity_t *other, trace_t *trace )
+{
+  int max;
+
+  if( !other->client )
+    return;
+
+  if( self->timestamp > level.time )
+    return;
+
+  if( self->spawnflags & 2 )
+    self->timestamp = level.time + 1000;
+  else
+    self->timestamp = level.time + FRAMETIME;
+
+	max = other->client->ps.stats[ STAT_MAX_HEALTH ];
+  
+  other->health += self->damage;
+
+	if( other->health > max )
+		other->health = max;
+  
+	other->client->ps.stats[ STAT_HEALTH ] = other->health;
+}
+
+/*
+===============
+SP_trigger_heal
+===============
+*/
+void SP_trigger_heal( gentity_t *self )
+{
+  G_SpawnInt( "heal", "5", &self->damage );
+  
+  self->touch = trigger_heal_touch;
+  self->use = trigger_heal_use;
+
+  InitTrigger( self );
+
+  // link in to the world if starting active
+  if( !( self->spawnflags & 1 ) )
+    trap_LinkEntity( self );
+}
+
+
+/*
+===============
+trigger_ammo_touch
+===============
+*/
+void trigger_ammo_touch( gentity_t *self, gentity_t *other, trace_t *trace )
+{
+  int ammo, clips, maxClips, maxAmmo;
+
+  if( !other->client )
+    return;
+
+  if( other->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
+    return;
+
+  if( self->timestamp > level.time )
+    return;
+
+  if( other->client->ps.weaponstate != WEAPON_READY )
+    return;
+
+  if( BG_FindUsesEnergyForWeapon( other->client->ps.weapon ) && self->spawnflags & 2 )
+    return;
+  
+  if( !BG_FindUsesEnergyForWeapon( other->client->ps.weapon ) && self->spawnflags & 4 )
+    return;
+  
+  if( self->spawnflags & 1 )
+    self->timestamp = level.time + 1000;
+  else
+    self->timestamp = level.time + FRAMETIME;
+
+  BG_FindAmmoForWeapon( other->client->ps.weapon, &maxAmmo, NULL, NULL );
+  BG_unpackAmmoArray( other->client->ps.weapon, other->client->ps.ammo, other->client->ps.powerups,
+                      &ammo, &clips, &maxClips );
+
+  if( ( ammo + self->damage ) > maxAmmo )
+  {
+    if( clips < maxClips )
+    {
+      clips++;
+      ammo = 1;
+    }
+    else
+      ammo = maxAmmo;
+  }
+  else
+    ammo += self->damage;
+  
+  BG_packAmmoArray( other->client->ps.weapon, other->client->ps.ammo, other->client->ps.powerups,
+                    ammo, clips, maxClips );
+}
+
+/*
+===============
+SP_trigger_ammo
+===============
+*/
+void SP_trigger_ammo( gentity_t *self )
+{
+  G_SpawnInt( "ammo", "1", &self->damage );
+  
+  self->touch = trigger_ammo_touch;
+
+  InitTrigger( self );
+  trap_LinkEntity( self );
 }

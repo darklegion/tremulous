@@ -179,6 +179,12 @@ void SP_trigger_push( gentity_t *ent );
 void SP_trigger_teleport( gentity_t *ent );
 void SP_trigger_hurt( gentity_t *ent );
 void SP_trigger_stage( gentity_t *ent );
+void SP_trigger_buildable( gentity_t *ent );
+void SP_trigger_class( gentity_t *ent );
+void SP_trigger_equipment( gentity_t *ent );
+void SP_trigger_gravity( gentity_t *ent );
+void SP_trigger_heal( gentity_t *ent );
+void SP_trigger_ammo( gentity_t *ent );
 
 void SP_target_delay( gentity_t *ent );
 void SP_target_speaker( gentity_t *ent );
@@ -191,6 +197,7 @@ void SP_target_kill( gentity_t *ent );
 void SP_target_position( gentity_t *ent );
 void SP_target_location( gentity_t *ent );
 void SP_target_push( gentity_t *ent );
+void SP_target_rumble( gentity_t *ent );
 
 void SP_light( gentity_t *self );
 void SP_info_null( gentity_t *self );
@@ -252,6 +259,12 @@ spawn_t spawns[ ] =
   { "trigger_teleport",         SP_trigger_teleport },
   { "trigger_hurt",             SP_trigger_hurt },
   { "trigger_stage",            SP_trigger_stage },
+  { "trigger_buildable",        SP_trigger_buildable },
+  { "trigger_class",            SP_trigger_class },
+  { "trigger_equipment",        SP_trigger_equipment },
+  { "trigger_gravity",          SP_trigger_gravity },
+  { "trigger_heal",             SP_trigger_heal },
+  { "trigger_ammo",             SP_trigger_ammo },
 
   // targets perform no action by themselves, but must be triggered
   // by another entity
@@ -265,6 +278,7 @@ spawn_t spawns[ ] =
   { "target_position",          SP_target_position },
   { "target_location",          SP_target_location },
   { "target_push",              SP_target_push },
+  { "target_rumble",            SP_target_rumble },
 
   { "light",                    SP_light },
   { "path_corner",              SP_path_corner },

@@ -1096,6 +1096,11 @@ void ClientThink_real( gentity_t *ent )
 
   VectorCopy( client->ps.origin, client->oldOrigin );
 
+  // moved from after Pmove -- potentially the cause of
+  // future triggering bugs
+  if( !ent->client->noclip )
+    G_TouchTriggers( ent );
+
   Pmove( &pm );
 
   // save results of pmove
@@ -1129,9 +1134,6 @@ void ClientThink_real( gentity_t *ent )
   // link entity now, after any personal teleporters have been used
   trap_LinkEntity( ent );
   
-  if( !ent->client->noclip )
-    G_TouchTriggers( ent );
-
   // NOTE: now copy the exact origin over otherwise clients can be snapped into solid
   VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
 

@@ -480,13 +480,14 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
     return qfalse;
   }
 
-  Com_sprintf( filename, sizeof( filename ), "models/players/%s/icon_%s.tga", modelName, skinName );
+  //FIXME: skins do not load without icon present. do we want icons anyway?
+/*  Com_sprintf( filename, sizeof( filename ), "models/players/%s/icon_%s.tga", modelName, skinName );
   ci->modelIcon = trap_R_RegisterShaderNoMip( filename );
   if( !ci->modelIcon )
   {
     Com_Printf( "Failed to load icon file: %s\n", filename );
     return qfalse;
-  }
+  }*/
 
   return qtrue;
 }

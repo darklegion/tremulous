@@ -320,3 +320,73 @@ void SP_target_location( gentity_t *self )
   G_SetOrigin( self, self->s.origin );
 }
 
+
+/*
+===============
+target_rumble_think
+===============
+*/
+void target_rumble_think( gentity_t *self )
+{
+	int		    i;
+	gentity_t	*ent;
+
+	if( self->last_move_time < level.time )
+		self->last_move_time = level.time + 0.5;
+
+	for( i = 0, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+	{
+		if( !ent->inuse )
+			continue;
+    
+		if( !ent->client )
+			continue;
+    
+		if( ent->client->ps.groundEntityNum == ENTITYNUM_NONE )
+			continue;
+
+		ent->client->ps.groundEntityNum = ENTITYNUM_NONE;
+		ent->client->ps.velocity[ 0 ] += crandom( ) * 150;
+		ent->client->ps.velocity[ 1 ] += crandom( ) * 150;
+		ent->client->ps.velocity[ 2 ] = self->speed;
+	}
+
+	if( level.time < self->timestamp )
+		self->nextthink = level.time + FRAMETIME;
+}
+
+/*
+===============
+target_rumble_use
+===============
+*/
+void target_rumble_use( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+	self->timestamp = level.time + ( self->count * FRAMETIME );
+	self->nextthink = level.time + FRAMETIME;
+	self->activator = activator;
+	self->last_move_time = 0;
+}
+
+/*
+===============
+SP_target_rumble
+===============
+*/
+void SP_target_rumble( gentity_t *self )
+{
+	if( !self->targetname )
+  {
+		G_Printf( S_COLOR_YELLOW "WARNING: untargeted %s at %s\n", self->classname,
+                                                               vtos( self->s.origin ) );
+  }
+
+	if( !self->count )
+		self->count = 10;
+
+	if( !self->speed )
+		self->speed = 100;
+
+	self->think = target_rumble_think;
+	self->use = target_rumble_use;
+}

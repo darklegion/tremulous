@@ -1382,7 +1382,7 @@ void Cmd_ToggleItem_f( gentity_t *ent )
   if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
 
-  if( weapon == WP_NONE )
+  if( weapon != WP_NONE )
   {
     //special case to allow switching between
     //the blaster and the primary weapon

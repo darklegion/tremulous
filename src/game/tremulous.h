@@ -371,9 +371,9 @@
 #define FLAMER_PRICE                450
 #define FLAMER_GAS                  80
 #define FLAMER_REPEAT               300
-#define FLAMER_DMG                  HDM(30)
+#define FLAMER_DMG                  HDM(35)
 #define FLAMER_RADIUS               50
-#define FLAMER_LIFETIME             1000.0f
+#define FLAMER_LIFETIME             500.0f
 #define FLAMER_SPEED                200.0f
 #define FLAMER_LAG                  0.65f  //the amount of player velocity that is added to the fireball
 

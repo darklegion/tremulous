@@ -217,6 +217,13 @@ struct gentity_s
   gentity_t         *builder;     //TA: occupant of this hovel
 
   qboolean          nonSegModel;  //TA: this entity uses a nonsegmented player model
+
+  buildable_t       bTriggers[ BA_NUM_BUILDABLES ]; //TA: which buildables are triggers
+  pClass_t          cTriggers[ PCL_NUM_CLASSES ];   //TA: which classes are triggers
+  weapon_t          wTriggers[ WP_NUM_WEAPONS ];    //TA: which weapons are triggers
+  upgrade_t         uTriggers[ UP_NUM_UPGRADES ];   //TA: which upgrades are triggers
+
+  int               triggerGravity;                 //TA: gravity for this trigger
 };
 
 typedef enum

@@ -1045,6 +1045,15 @@ TARGET_* ENTITIES
 
 //=============================================================================
 
+/*QUAKED target_rumble (1 0 0) (-8 -8 -8) (8 8 8)
+When triggered, this initiates a level-wide rumble effect. All players are affected.
+
+-------- KEYS --------
+speed: severity of the quake (default: 100)
+
+count: duration of the quake (default: 10)
+*/
+
 /*QUAKED target_delay (0 .7 .7) (-8 -8 -8) (8 8 8)
 Time delay trigger intermediary. Like a target_relay, this can only be fired by other triggers which will cause it in turn to fire its own targets.
 
@@ -1418,6 +1427,84 @@ model="models/buildables/trapper/trapper.md3"
 //=============================================================================
 
 TRIGGER_* ENTITIES
+
+//=============================================================================
+
+/*QUAKED trigger_heal (.5 .5 .5) ? START_OFF SLOW
+Any player that touches this will be healed. It does heal points of healage each server frame. Targeting the trigger will toggle its effects.
+
+-------- SPAWNFLAGS --------
+START_OFF: needs to be triggered (toggle) to activate.
+
+SLOW: changes the heal rate to once per second.
+
+-------- KEYS --------
+heal: Health points to heal (default 5)
+*/
+
+/*QUAKED trigger_ammo (.5 .5 .5) ? SLOW NOENERGY NOCASE
+Any player that touches this will have the ammo for his held weapon restored. It gives ammo in chunks reflected by the key "ammo" each server frame.
+
+-------- SPAWNFLAGS --------
+SLOW: changes the ammo rate to once per second.
+
+NOENERGY: disables this entity for energy weapons.
+
+NOCASE: disables this entity for case based weapons.
+
+-------- KEYS --------
+ammo: Amount of ammo to give (default 1)
+*/
+
+/*QUAKED trigger_gravity (.5 .5 .5) ?
+The gravity (for players) within this trigger is determined by the gravity key. Targetting this entity toggles its effects.
+NOT THROUGHLY TESTED: please report whether or not this works for you.
+
+-------- KEYS --------
+gravity: The gravity within this trigger (default 800).
+*/
+
+/*QUAKED trigger_buildable (.5 .5 .5) ?
+Triggered by a buildable or subset of buildables. If no buildables key is supplied every buildable will trigger this entity.
+NOT THROUGHLY TESTED: please report whether or not this works for you.
+
+-------- KEYS --------
+target: this points to the entity to activate.
+
+buildables: a comma delimited list of buildables which will trigger this entity.
+
+wait: time in seconds until trigger becomes re-triggerable after it's been touched (default 0.2, -1 = trigger once).
+
+random: random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).
+*/
+
+/*QUAKED trigger_class (.5 .5 .5) ?
+Triggered by a specific class or subset of classes. If no classes key is supplied every class will trigger this entity.
+NOT THROUGHLY TESTED: please report whether or not this works for you.
+
+-------- KEYS --------
+target: this points to the entity to activate.
+
+classes: a comma delimited list of classes which will trigger this entity.
+
+wait: time in seconds until trigger becomes re-triggerable after it's been touched (default 0.2, -1 = trigger once).
+
+random: random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).
+*/
+
+/*QUAKED trigger_equipment (.5 .5 .5) ?
+Triggered by a player carrying some item (weapon or upgrade) or subset of items. If no equipment key is supplied every human will trigger this entity.
+NOT THROUGHLY TESTED: please report whether or not this works for you.
+
+-------- KEYS --------
+target: this points to the entity to activate.
+
+equipment: a comma delimited list of equipment which will trigger this entity.
+
+wait: time in seconds until trigger becomes re-triggerable after it's been touched (default 0.2, -1 = trigger once).
+
+random: random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).
+*/
 
 //=============================================================================
 
