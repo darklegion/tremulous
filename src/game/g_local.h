@@ -515,6 +515,8 @@ typedef struct
 
   int               alienKills;
   int               humanKills;
+
+  pTeam_t           lastWin;
 } level_locals_t;
 
 //
@@ -780,18 +782,57 @@ void G_WriteSessionData( void );
 //
 // g_maprotation.c
 //
-#define MAX_MAP_ROTATIONS     16
-#define MAX_MAP_ROTATION_MAPS 32
-#define MAX_MAP_COMMANDS      16
+#define MAX_MAP_ROTATIONS       16
+#define MAX_MAP_ROTATION_MAPS   64
+#define MAX_MAP_COMMANDS        16
+#define MAX_MAP_ROTATION_CONDS  4
 
 #define NOT_ROTATING          -1
 
+typedef enum
+{
+  MCV_ERR,
+  MCV_RANDOM,
+  MCV_NUMCLIENTS,
+  MCV_LASTWIN
+} mapConditionVariable_t;
+
+typedef enum
+{
+  MCO_LT,
+  MCO_EQ,
+  MCO_GT
+} mapConditionOperator_t;
+
+typedef enum
+{
+  MCT_ERR,
+  MCT_MAP,
+  MCT_ROTATION
+} mapConditionType_t;
+
+typedef struct mapRotationCondition_s
+{
+  char                    dest[ MAX_QPATH ];
+  
+  qboolean                unconditional;
+  
+  mapConditionVariable_t  lhs;
+  mapConditionOperator_t  op;
+
+  int                     numClients;
+  pTeam_t                 lastWin;
+} mapRotationCondition_t;
+
 typedef struct mapRotationEntry_s
 {
-  char  name[ MAX_QPATH ];
+  char                    name[ MAX_QPATH ];
   
-  char  postCmds[ MAX_QPATH ][ MAX_MAP_COMMANDS ];
-  int   numCmds;
+  char                    postCmds[ MAX_QPATH ][ MAX_MAP_COMMANDS ];
+  int                     numCmds;
+
+  mapRotationCondition_t  conditions[ MAX_MAP_ROTATION_CONDS ];
+  int                     numConditions;
 } mapRotationEntry_t;
 
 typedef struct mapRotation_s
@@ -811,7 +852,7 @@ typedef struct mapRotations_s
 
 void      G_PrintRotations( void );
 qboolean  G_AdvanceMapRotation( void );
-qboolean  G_StartMapRotation( char *name );
+qboolean  G_StartMapRotation( char *name, qboolean changeMap );
 void      G_StopMapRotation( void );
 qboolean  G_MapRotationActive( void );
 void      G_InitMapRotations( void );
@@ -877,6 +918,7 @@ extern  vmCvar_t  g_alienStage3Threshold;
 extern  vmCvar_t  g_debugMapRotation;
 extern  vmCvar_t  g_currentMapRotation;
 extern  vmCvar_t  g_currentMap;
+extern  vmCvar_t  g_initialMapRotation;
 
 void      trap_Printf( const char *fmt );
 void      trap_Error( const char *fmt );

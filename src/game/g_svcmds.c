@@ -522,7 +522,7 @@ qboolean  ConsoleCommand( void )
   {
     char *rotationName = ConcatArgs( 1 );
     
-    if( !G_StartMapRotation( rotationName ) )
+    if( !G_StartMapRotation( rotationName, qfalse ) )
       G_Printf( "Can't find map rotation %s\n", rotationName );
 
     return qtrue;

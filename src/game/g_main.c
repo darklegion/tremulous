@@ -89,6 +89,7 @@ vmCvar_t  g_alienStage3Threshold;
 vmCvar_t  g_debugMapRotation;
 vmCvar_t  g_currentMapRotation;
 vmCvar_t  g_currentMap;
+vmCvar_t  g_initialMapRotation;
 
 static cvarTable_t   gameCvarTable[ ] =
 {
@@ -168,6 +169,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_debugMapRotation, "g_debugMapRotation", "0", 0, 0, qfalse  },
   { &g_currentMapRotation, "g_currentMapRotation", "-1", 0, 0, qfalse  }, // -1 = NOT_ROTATING
   { &g_currentMap, "g_currentMap", "0", 0, 0, qfalse  },
+  { &g_initialMapRotation, "g_initialMapRotation", "", CVAR_ARCHIVE, 0, qfalse  },
   
   { &g_rankings, "g_rankings", "0", 0, 0, qfalse}
 };
@@ -1307,7 +1309,8 @@ void CheckExitRules( void )
       ( level.numAlienSpawns == 0 ) &&
       ( level.numLiveAlienClients == 0 ) )
   {
-    //aliens lose
+    //humans win
+    level.lastWin = PTE_HUMANS;
     trap_SendServerCommand( -1, "print \"Humans win.\n\"");
     LogExit( "Humans win." );
     return;
@@ -1316,7 +1319,8 @@ void CheckExitRules( void )
            ( level.numHumanSpawns == 0 ) &&
            ( level.numLiveHumanClients == 0 ) )
   {
-    //humans lose
+    //aliens win
+    level.lastWin = PTE_ALIENS;
     trap_SendServerCommand( -1, "print \"Aliens win.\n\"");
     LogExit( "Aliens win." );
     return;
@@ -1347,7 +1351,12 @@ void CheckVote( void )
   if( level.voteExecuteTime && level.voteExecuteTime < level.time )
   {
     level.voteExecuteTime = 0;
-    trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
+
+    //SUPAR HAK
+    if( !Q_stricmp( level.voteString, "vstr nextmap" ) )
+      LogExit( "Vote for next map." );
+    else
+      trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
   }
   
   if( !level.voteTime )

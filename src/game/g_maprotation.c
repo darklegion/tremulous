@@ -76,9 +76,10 @@ Parse a map rotation section
 */
 static qboolean G_ParseMapRotation( mapRotation_t *mr, char **text_p )
 {
-  char                  *token;
-  qboolean              mnSet = qfalse;
-  mapRotationEntry_t    *mre;
+  char                    *token;
+  qboolean                mnSet = qfalse;
+  mapRotationEntry_t      *mre;
+  mapRotationCondition_t  *mrc;
 
   // read optional parameters
   while( 1 )
@@ -106,6 +107,111 @@ static qboolean G_ParseMapRotation( mapRotation_t *mr, char **text_p )
       }
         
       mnSet = qfalse;
+      continue;
+    }
+    else if( !Q_stricmp( token, "goto" ) )
+    {
+      token = COM_Parse( text_p );
+      
+      if( !token )
+        break;
+      
+      mrc = &mre->conditions[ mre->numConditions ];
+      mrc->unconditional = qtrue;
+      Q_strncpyz( mrc->dest, token, sizeof( mrc->dest ) );
+
+      if( mre->numConditions == MAX_MAP_ROTATION_CONDS )
+      {
+        G_Printf( S_COLOR_RED "ERROR: maximum number of conditions for one map (%d) reached\n",
+                  MAX_MAP_ROTATION_CONDS );
+        return qfalse;
+      }
+      else
+        mre->numConditions++;
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "if" ) )
+    {
+      token = COM_Parse( text_p );
+      
+      if( !token )
+        break;
+      
+      mrc = &mre->conditions[ mre->numConditions ];
+      
+      if( !Q_stricmp( token, "numClients" ) )
+      {
+        mrc->lhs = MCV_NUMCLIENTS;
+      
+        token = COM_Parse( text_p );
+      
+        if( !token )
+          break;
+      
+        if( !Q_stricmp( token, "<" ) )
+          mrc->op = MCO_LT;
+        else if( !Q_stricmp( token, ">" ) )
+          mrc->op = MCO_GT;
+        else if( !Q_stricmp( token, "=" ) )
+          mrc->op = MCO_EQ;
+        else
+        {
+          G_Printf( S_COLOR_RED "ERROR: invalid operator in expression: %s\n", token );
+          return qfalse;
+        }
+        
+        token = COM_Parse( text_p );
+      
+        if( !token )
+          break;
+      
+        mrc->numClients = atoi( token );
+      }
+      else if( !Q_stricmp( token, "lastWin" ) )
+      {
+        mrc->lhs = MCV_LASTWIN;
+        
+        token = COM_Parse( text_p );
+      
+        if( !token )
+          break;
+      
+        if( !Q_stricmp( token, "aliens" ) )
+          mrc->lastWin = PTE_ALIENS;
+        else if( !Q_stricmp( token, "humans" ) )
+          mrc->lastWin = PTE_HUMANS;
+        else
+        {
+          G_Printf( S_COLOR_RED "ERROR: invalid right hand side in expression: %s\n", token );
+          return qfalse;
+        }
+      }
+      else if( !Q_stricmp( token, "random" ) )
+        mrc->lhs = MCV_RANDOM;
+      else
+      {
+        G_Printf( S_COLOR_RED "ERROR: invalid left hand side in expression: %s\n", token );
+        return qfalse;
+      }
+
+      token = COM_Parse( text_p );
+      
+      if( !token )
+        break;
+      
+      mrc->unconditional = qfalse;
+      Q_strncpyz( mrc->dest, token, sizeof( mrc->dest ) );
+
+      if( mre->numConditions == MAX_MAP_ROTATION_CONDS )
+      {
+        G_Printf( S_COLOR_RED "ERROR: maximum number of conditions for one map (%d) reached\n",
+                  MAX_MAP_ROTATION_CONDS );
+        return qfalse;
+      }
+      else
+        mre->numConditions++;
+
       continue;
     }
     else if( !Q_stricmp( token, "}" ) )
@@ -262,6 +368,13 @@ void G_PrintRotations( void )
       }
 
       G_Printf( "  }\n" );
+      
+      for( k = 0; k < mapRotations.rotations[ i ].maps[ j ].numConditions; k++ )
+      {
+        G_Printf( "  conditional: %s\n",
+                  mapRotations.rotations[ i ].maps[ j ].conditions[ k ].dest );
+      }
+
     }
       
     G_Printf( "}\n" );
@@ -367,6 +480,87 @@ static void G_IssueMapChange( int rotation )
 
 /*
 ===============
+G_ResolveConditionDestination
+
+Resolve the destination of some condition
+===============
+*/
+static mapConditionType_t G_ResolveConditionDestination( int *n, char *name )
+{
+  int i;
+
+  //search the current rotation first...
+  for( i = 0; i < mapRotations.rotations[ g_currentMapRotation.integer ].numMaps; i++ )
+  {
+    if( !Q_stricmp( mapRotations.rotations[ g_currentMapRotation.integer ].maps[ i ].name, name ) )
+    {
+      *n = i;
+      return MCT_MAP;
+    }
+  }
+  
+  //...then search the rotation names
+  for( i = 0; i < mapRotations.numRotations; i++ )
+  {
+    if( !Q_stricmp( mapRotations.rotations[ i ].name, name ) )
+    {
+      *n = i;
+      return MCT_ROTATION;
+    }
+  }
+  
+  //this should probably be prevented by a 2nd pass at compile time
+  //but i'm lazy (FIXME)
+  return MCT_ERR;
+}
+
+/*
+===============
+G_EvaluateMapCondition
+
+Evaluate a map condition
+===============
+*/
+static qboolean G_EvaluateMapCondition( mapRotationCondition_t *mrc )
+{
+  switch( mrc->lhs )
+  {
+    case MCV_RANDOM:
+      return rand( ) & 1;
+      break;
+
+    case MCV_NUMCLIENTS:
+      switch( mrc->op )
+      {
+        case MCO_LT:
+          return level.numConnectedClients < mrc->numClients;
+          break;
+
+        case MCO_GT:
+          return level.numConnectedClients > mrc->numClients;
+          break;
+
+        case MCO_EQ:
+          return level.numConnectedClients == mrc->numClients;
+          break;
+      }
+      break;
+
+    case MCV_LASTWIN:
+      return level.lastWin == mrc->lastWin;
+      break;
+
+    default:
+    case MCV_ERR:
+      G_Printf( S_COLOR_RED "ERROR: malformed map switch condition\n" );
+      break;
+  }
+  
+  return qfalse;
+}
+
+/*
+===============
 G_AdvanceMapRotation
 
 Increment the current map rotation
@@ -374,16 +568,52 @@ Increment the current map rotation
 */
 qboolean G_AdvanceMapRotation( void )
 {
-  mapRotation_t       *mr;
-  int                 nextMap;
+  mapRotation_t           *mr;
+  mapRotationEntry_t      *mre;
+  mapRotationCondition_t  *mrc;
+  int                     currentRotation, currentMap, nextMap;
+  int                     i, n;
+  mapConditionType_t      mct;
 
-  if( g_currentMapRotation.integer == NOT_ROTATING )
+  if( ( currentRotation = g_currentMapRotation.integer ) == NOT_ROTATING )
     return qfalse;
   
-  mr = &mapRotations.rotations[ g_currentMapRotation.integer ];
-  nextMap = ( G_GetCurrentMap( g_currentMapRotation.integer ) + 1 ) % mr->numMaps;
-  G_SetCurrentMap( nextMap, g_currentMapRotation.integer );
-  G_IssueMapChange( g_currentMapRotation.integer );
+  currentMap = G_GetCurrentMap( currentRotation );
+  
+  mr = &mapRotations.rotations[ currentRotation ];
+  mre = &mr->maps[ currentMap ];
+  nextMap = ( currentMap + 1 ) % mr->numMaps;
+
+  for( i = 0; i < mre->numConditions; i++ )
+  {
+    mrc = &mre->conditions[ i ];
+
+    if( mrc->unconditional || G_EvaluateMapCondition( mrc ) )
+    {
+      mct = G_ResolveConditionDestination( &n, mrc->dest );
+      
+      switch( mct )
+      {
+        case MCT_MAP:
+          nextMap = n;
+          break;
+
+        case MCT_ROTATION:
+          G_StartMapRotation( mrc->dest, qtrue );
+          return qtrue;
+          break;
+
+        default:
+        case MCT_ERR:
+          G_Printf( S_COLOR_YELLOW "WARNING: map switch destination could not be resolved: %s\n",
+                    mrc->dest );
+          break;
+      }
+    }
+  }
+  
+  G_SetCurrentMap( nextMap, currentRotation );
+  G_IssueMapChange( currentRotation );
 
   return qtrue;
 }
@@ -395,7 +625,7 @@ G_StartMapRotation
 Switch to a new map rotation
 ===============
 */
-qboolean G_StartMapRotation( char *name )
+qboolean G_StartMapRotation( char *name, qboolean changeMap )
 {
   int i;
 
@@ -404,7 +634,10 @@ qboolean G_StartMapRotation( char *name )
     if( !Q_stricmp( mapRotations.rotations[ i ].name, name ) )
     {
       trap_Cvar_Set( "g_currentMapRotation", va( "%d", i ) );
-      G_IssueMapChange( i );
+      trap_Cvar_Update( &g_currentMapRotation );
+
+      if( changeMap )
+        G_IssueMapChange( i );
       break;
     }
   }
@@ -425,6 +658,7 @@ Stop the current map rotation
 void G_StopMapRotation( void )
 {
   trap_Cvar_Set( "g_currentMapRotation", va( "%d", NOT_ROTATING ) );
+  trap_Cvar_Update( &g_currentMapRotation );
 }
 
 /*
@@ -461,4 +695,15 @@ void G_InitMapRotations( void )
   }
   else
     G_Printf( "%s file not found.\n", fileName );
+
+  if( g_currentMapRotation.integer == NOT_ROTATING )
+  {
+    if( g_initialMapRotation.string[ 0 ] != 0 )
+    {
+      G_StartMapRotation( g_initialMapRotation.string, qfalse );
+
+      trap_Cvar_Set( "g_initialMapRotation", "" );
+      trap_Cvar_Update( &g_initialMapRotation );
+    }
+  }
 }

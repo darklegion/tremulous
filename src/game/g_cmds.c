@@ -1647,6 +1647,46 @@ void Cmd_Test_f( gentity_t *ent )
 
 /*
 =================
+Cmd_AlienWin_f
+=================
+*/
+void Cmd_AlienWin_f( gentity_t *ent )
+{
+  int       i;
+  gentity_t *e;
+  
+  if( !CheatsOk( ent ) )
+    return;
+
+  for( i = 1, e = g_entities+i; i < level.num_entities; i++, e++ )
+  {
+    if( e->s.modelindex == BA_H_SPAWN )
+      G_Damage( e, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+  }
+}
+
+/*
+=================
+Cmd_HumanWin_f
+=================
+*/
+void Cmd_HumanWin_f( gentity_t *ent )
+{
+  int       i;
+  gentity_t *e;
+  
+  if( !CheatsOk( ent ) )
+    return;
+
+  for( i = 1, e = g_entities+i; i < level.num_entities; i++, e++ )
+  {
+    if( e->s.modelindex == BA_A_SPAWN )
+      G_Damage( e, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+  }
+}
+
+/*
+=================
 ClientCommand
 =================
 */
@@ -1742,6 +1782,10 @@ void ClientCommand( int clientNum )
     Cmd_SetViewpos_f( ent );
   else if( Q_stricmp( cmd, "test" ) == 0 )
     Cmd_Test_f( ent );
+  else if( Q_stricmp( cmd, "alienWin" ) == 0 )
+    Cmd_AlienWin_f( ent );
+  else if( Q_stricmp( cmd, "humanWin" ) == 0 )
+    Cmd_HumanWin_f( ent );
   else
     trap_SendServerCommand( clientNum, va( "print \"unknown cmd %s\n\"", cmd ) );
 }
