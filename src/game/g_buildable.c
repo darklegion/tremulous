@@ -41,7 +41,7 @@ qboolean findPower( gentity_t *self )
   int       distance = 0;
   int       minDistance = 10000;
   vec3_t    temp_v;
-  
+
   if( self->parentNode && self->parentNode->active )
     return qtrue;
   
@@ -66,15 +66,13 @@ qboolean findPower( gentity_t *self )
   if( (
         !Q_stricmp( closestPower->classname, "team_human_reactor" ) &&
         ( minDistance <= REACTOR_BASESIZE )
-      )
-      || 
+      ) || 
       (
         !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
         !Q_stricmp( self->classname, "team_human_spawn" ) &&
         ( minDistance <= REPEATER_BASESIZE ) &&
         closestPower->powered 
-      )
-      ||
+      ) ||
       (
         !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
         ( minDistance <= REPEATER_BASESIZE ) &&
@@ -84,6 +82,7 @@ qboolean findPower( gentity_t *self )
     )
   {
     self->parentNode = closestPower;
+
     return qtrue;
   }
   else
@@ -581,7 +580,8 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
   trace_t           tr1, tr2;
   int               i;
   itemBuildError_t  reason = IBE_NONE;
-  gentity_t         *tempent;
+  gentity_t         *tempent, *closestPower;
+  int               minDistance, templength;
 
   VectorCopy( ent->s.apos.trBase, angles );
   angles[PITCH] = 0;  // always forward
@@ -622,6 +622,43 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
     //human criteria
     if( level.humanBuildPoints - BG_FindBuildPointsForBuildable( buildable ) < 0 )
       reason = IBE_NOPOWER;
+
+/*    tempent->classname = BG_FindEntityNameForBuildable( buildable );
+    VectorCopy( entity_origin, tempent->s.origin );
+    tempent->parentNode = NULL;
+
+    if( !findPower( tempent ) )
+      reason = IBE_NOPOWER;*/
+    for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
+    {
+      if( !Q_stricmp( tempent->classname, "team_human_reactor" ) ||
+          !Q_stricmp( tempent->classname, "team_human_repeater" ) )
+      {
+        VectorSubtract( entity_origin, tempent->s.origin, temp_v );
+        templength = VectorLength( temp_v );
+        if( templength < minDistance )
+        {
+          closestPower = tempent;
+          minDistance = templength;
+        }
+      }
+    }
+    
+    if( !(
+          !Q_stricmp( closestPower->classname, "team_human_reactor" ) &&
+          ( minDistance <= REACTOR_BASESIZE )
+        ) && 
+        !(
+          !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
+          ( minDistance <= REPEATER_BASESIZE ) &&
+          closestPower->active &&
+          closestPower->powered 
+        )
+      )
+    {
+      if( buildable != BA_H_SPAWN && buildable != BA_H_REACTOR && buildable != BA_H_REPEATER )
+        reason = IBE_NOPOWER;
+    }
 
     if( BG_FindReactorTestForBuildable( buildable ) )
     {
