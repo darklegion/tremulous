@@ -437,102 +437,121 @@ void CG_Menu( int eventParm )
     case MN_A_OBANK:    trap_SendConsoleCommand( "menu tremulous_alienbank\n" );                  break;
                         
     case MN_H_NOROOM:
-      trap_Cvar_Set( "ui_dialog", "There is no room here" );
+      trap_Cvar_Set( "ui_dialog", "There is no room to build here. Move until the buildable turns "
+                                  "translucent green indicating a valid build location." );
       trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       break;
       
     case MN_H_NOPOWER:
-      trap_Cvar_Set( "ui_dialog", "There is no power remaining" );
+      trap_Cvar_Set( "ui_dialog", "There is no power remaining. Free up power by destroying existing "
+                                  "buildable objects." );
       trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       break;
       
     case MN_H_REACTOR:
-      trap_Cvar_Set( "ui_dialog", "There can only be one reactor" );
+      trap_Cvar_Set( "ui_dialog", "There can only be one reactor. Destroy the existing one if you "
+                                  "wish to move it." );
       trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       break;
       
     case MN_H_REPEATER:
-      trap_Cvar_Set( "ui_dialog", "There is no power here" );
+      trap_Cvar_Set( "ui_dialog", "There is no power here. If available, a Repeater may be used to "
+                                  "transmit power to this location." );
       trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       break;
       
     case MN_H_NODCC:
-      trap_Cvar_Set( "ui_dialog", "There is no dcc" );
+      trap_Cvar_Set( "ui_dialog", "There is no Defense Computer. A Defense Computer is needed to build "
+                                  "this." );
       trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       break;
       
     case MN_H_RPLWARN:
-      trap_Cvar_Set( "ui_dialog", "This replicator will not be powered" );
+      trap_Cvar_Set( "ui_dialog", "WARNING: This replicator will not be powered. Build a reactor to "
+                                  "prevent seeing this message again." );
       trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       break;
       
     case MN_H_RPTWARN:
-      trap_Cvar_Set( "ui_dialog", "This repeater will not be powered" );
+      trap_Cvar_Set( "ui_dialog", "WARNING: This repeater will not be powered as there is no parent "
+                                  "reactor providing power. Build a reactor." );
       trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       break;
       
     case MN_H_NOSLOTS:
-      trap_Cvar_Set( "ui_dialog", "You have no room to carry this" );
+      trap_Cvar_Set( "ui_dialog", "You have no room to carry this. Please sell any conflicting "
+                                  "upgrades before purchasing this item." );
       trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       break;
       
     case MN_H_NOFUNDS:
-      trap_Cvar_Set( "ui_dialog", "Insufficient funds" );
+      trap_Cvar_Set( "ui_dialog", "Insufficient funds. You do not have enough credits to perform this "
+                                  "action." );
       trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       break;
       
     case MN_H_ITEMHELD:
-      trap_Cvar_Set( "ui_dialog", "You already hold this item" );
+      trap_Cvar_Set( "ui_dialog", "You already hold this item. It is not possible to carry multiple items "
+                                  "of the same type." );
       trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       break;
       
     case MN_A_NOROOM:
-      trap_Cvar_Set( "ui_dialog", "There is no room here" );
+      trap_Cvar_Set( "ui_dialog", "There is no room to build here. Move until the structure turns "
+                                  "translucent green indicating a valid build location." );
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       break;
       
     case MN_A_NOCREEP:
-      trap_Cvar_Set( "ui_dialog", "There is no creep here" );
+      trap_Cvar_Set( "ui_dialog", "There is no creep here. You must build near existing Eggs or "
+                                  "the Overmind. Alien structures will not support themselves." );
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       break;
       
     case MN_A_NOHVMND:
-      trap_Cvar_Set( "ui_dialog", "There is no overmind" );
+      trap_Cvar_Set( "ui_dialog", "There is no Overmind. An Overmind must be built to control "
+                                  "the structure you tried to place" );
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       break;
       
     case MN_A_HIVEMIND:
-      trap_Cvar_Set( "ui_dialog", "There can only be one overmind" );
+      trap_Cvar_Set( "ui_dialog", "There can only be one Overmind. Destroy the existing one if you "
+                                  "wish to move it." );
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       break;
       
     case MN_A_NOASSERT:
-      trap_Cvar_Set( "ui_dialog", "No assertion left" );
+      trap_Cvar_Set( "ui_dialog", "The Overmind cannot control anymore structures. Destroy existing "
+                                  "structures to build more." );
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       break;
       
     case MN_A_SPWNWARN:
-      trap_Cvar_Set( "ui_dialog", "This spawn will not be controlled" );
+      trap_Cvar_Set( "ui_dialog", "WARNING: This spawn will not be controlled by an Overmind. "
+                                  "Build an Overmind to prevent seeing this message again." );
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       break;
       
     case MN_A_NORMAL:
-      trap_Cvar_Set( "ui_dialog", "Cannot build on this surface" );
+      trap_Cvar_Set( "ui_dialog", "Cannot build on this surface. This surface is too steep or unsuitable "
+                                  "to build on. Please choose another site for this structure." );
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       break;
       
     case MN_A_NOFUNDS:
-      trap_Cvar_Set( "ui_dialog", "Insufficient organs" );
+      trap_Cvar_Set( "ui_dialog", "You do not possess sufficient organs to perform this action." );
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       break;
       
     case MN_A_HOVEL_OCCUPIED:
-      trap_Cvar_Set( "ui_dialog", "This hovel is occupied" );
+      trap_Cvar_Set( "ui_dialog", "This Hovel is occupied by another builder. Please find or build "
+                                  "another." );
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       break;
       
     case MN_A_HOVEL_BLOCKED:
-      trap_Cvar_Set( "ui_dialog", "This hovel is blocked" );
+      trap_Cvar_Set( "ui_dialog", "The exit to this Hovel is currently blocked. Please wait until it "
+                                  "becomes clear then try again." );
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       break;
       
