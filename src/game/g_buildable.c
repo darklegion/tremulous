@@ -2078,7 +2078,7 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   if( built->powered = findPower( built ) )
     built->s.generic1 |= B_POWERED_TOGGLEBIT;
   
-  if( built->dcced  = findDCC( built ) )
+  if( built->dcced = findDCC( built ) )
     built->s.generic1 |= B_DCCED_TOGGLEBIT;
     
   VectorCopy( normal, built->s.origin2 );

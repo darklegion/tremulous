@@ -183,7 +183,7 @@ makedirs:
 	@if [ ! -d $(BQ)/$(UIDIRNAME) ];then mkdir $(BQ)/$(UIDIRNAME);fi
 
 ctags:
-	ctags -f tags -R src/*
+	ctags -f tags -R src/* ui/menudef.h
 
 # --object lists for each build type--
 GQVMOBJ = $(GOBJ:%.o=$(BQ)/%.asm)

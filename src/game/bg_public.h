@@ -882,6 +882,7 @@ typedef struct
   int       idleAnim;
 
   int       nextthink;
+  qboolean  usable;
 
   int       turretRange;
   int       turretFireSpeed;
@@ -994,6 +995,7 @@ int       BG_FindTeamForBuildable( int bclass );
 weapon_t  BG_FindBuildWeaponForBuildable( int bclass );
 int       BG_FindAnimForBuildable( int bclass );
 int       BG_FindNextThinkForBuildable( int bclass );
+qboolean  BG_FindUsableForBuildable( int bclass );
 int       BG_FindRangeForBuildable( int bclass );
 int       BG_FindFireSpeedForBuildable( int bclass );
 weapon_t  BG_FindProjTypeForBuildable( int bclass );

@@ -1332,8 +1332,8 @@ void        CG_Creep( centity_t *cent );
 //
 // cg_scanner.c
 //
-void        CG_Scanner( );
-void        CG_AlienSense( );
+void        CG_Scanner( rectDef_t *rect, qhandle_t shader );
+void        CG_AlienSense( rectDef_t *rect );
 
 //
 // cg_marks.c

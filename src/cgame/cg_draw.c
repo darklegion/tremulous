@@ -885,6 +885,58 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
   }
 }
 
+
+/*
+==============
+CG_DrawAlienSense
+==============
+*/
+static void CG_DrawAlienSense( rectDef_t *rect )
+{
+  if( BG_ClassHasAbility( cg.snap->ps.stats[ STAT_PCLASS ], SCA_ALIENSENSE ) )
+    CG_AlienSense( rect );
+}
+
+
+/*
+==============
+CG_DrawHumanScanner
+==============
+*/
+static void CG_DrawHumanScanner( rectDef_t *rect, qhandle_t shader )
+{
+  if( BG_gotItem( UP_HELMET, cg.snap->ps.stats ) )
+    CG_Scanner( rect, shader );
+}
+
+      
+/*
+==============
+CG_DrawUsableBuildable
+==============
+*/
+static void CG_DrawUsableBuildable( rectDef_t *rect, qhandle_t shader, vec4_t color )
+{
+  vec3_t        view, point;
+  trace_t       trace;
+  entityState_t *es;
+  
+  AngleVectors( cg.refdefViewAngles, view, NULL, NULL );
+  VectorMA( cg.refdef.vieworg, 64, view, point );
+  CG_Trace( &trace, cg.refdef.vieworg, NULL, NULL,
+            point, cg.predictedPlayerState.clientNum, MASK_SHOT );
+
+  es = &cg_entities[ trace.entityNum ].currentState;
+
+  if( es->eType == ET_BUILDABLE && BG_FindUsableForBuildable( es->modelindex ) )
+  {
+    trap_R_SetColor( color );
+    CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+    trap_R_SetColor( NULL );
+  }
+}
+
+
 #define BUILD_DELAY_TIME  2000
 
 static void CG_DrawPlayerClipsValue( rectDef_t *rect, vec4_t color )
@@ -2042,6 +2094,12 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
     case CG_PLAYER_POISON_BARBS:
       CG_DrawPlayerPoisonBarbs( &rect, color, shader );
       break;
+    case CG_PLAYER_ALIEN_SENSE:
+      CG_DrawAlienSense( &rect );
+      break;
+    case CG_PLAYER_USABLE_BUILDABLE:
+      CG_DrawUsableBuildable( &rect, shader, color );
+      break;
     case CG_AREA_SYSTEMCHAT:
       CG_DrawAreaSystemChat( &rect, scale, color, shader );
       break;
@@ -2693,12 +2751,6 @@ static void CG_Draw2D( void )
         Menu_Paint( menu, qtrue );
       
       CG_DrawCrosshair( );
-      
-      if( BG_gotItem( UP_HELMET, cg.snap->ps.stats ) )
-        CG_Scanner( );
-
-      if( BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_PCLASS ], SCA_ALIENSENSE ) )
-        CG_AlienSense( );
     }
   }
   else if( cg_drawStatus.integer )
