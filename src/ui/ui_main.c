@@ -3860,6 +3860,7 @@ static void UI_Update(const char *name) {
 static void UI_RunMenuScript(char **args) {
   const char *name, *name2;
   char buff[1024];
+  const char *cmd;
 
   if (String_Parse(args, &name)) {
     if (Q_stricmp(name, "StartServer") == 0) {
@@ -4003,35 +4004,59 @@ static void UI_RunMenuScript(char **args) {
     else if( Q_stricmp( name, "LoadTeams" ) == 0 )
       UI_LoadTremTeams( );
     else if( Q_stricmp( name, "JoinTeam" ) == 0 )
-      trap_Cmd_ExecuteText( EXEC_APPEND, uiInfo.tremTeamList[ uiInfo.tremTeamIndex ].cmd );
+    {
+      if( cmd = uiInfo.tremTeamList[ uiInfo.tremTeamIndex ].cmd )
+        trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
+    }
     else if( Q_stricmp( name, "LoadHumanItems" ) == 0 )
       UI_LoadTremHumanItems( );
     else if( Q_stricmp( name, "SpawnWithHumanItem" ) == 0 )
-      trap_Cmd_ExecuteText( EXEC_APPEND, uiInfo.tremHumanItemList[ uiInfo.tremHumanItemIndex ].cmd );
+    {
+      if( cmd = uiInfo.tremHumanItemList[ uiInfo.tremHumanItemIndex ].cmd )
+        trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
+    }
     else if( Q_stricmp( name, "LoadAlienClasses" ) == 0 )
       UI_LoadTremAlienClasses( );
     else if( Q_stricmp( name, "SpawnAsAlienClass" ) == 0 )
-      trap_Cmd_ExecuteText( EXEC_APPEND, uiInfo.tremAlienClassList[ uiInfo.tremAlienClassIndex ].cmd );
+    {
+      if( cmd = uiInfo.tremAlienClassList[ uiInfo.tremAlienClassIndex ].cmd )
+        trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
+    }
     else if( Q_stricmp( name, "LoadHumanMCUBuys" ) == 0 )
       UI_LoadTremHumanMCUBuys( );
     else if( Q_stricmp( name, "BuyFromMCU" ) == 0 )
-      trap_Cmd_ExecuteText( EXEC_APPEND, uiInfo.tremHumanMCUBuyList[ uiInfo.tremHumanMCUBuyIndex ].cmd );
+    {
+      if( cmd = uiInfo.tremHumanMCUBuyList[ uiInfo.tremHumanMCUBuyIndex ].cmd )
+      trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
+    }
     else if( Q_stricmp( name, "LoadHumanMCUSells" ) == 0 )
       UI_LoadTremHumanMCUSells( );
     else if( Q_stricmp( name, "SellToMCU" ) == 0 )
-      trap_Cmd_ExecuteText( EXEC_APPEND, uiInfo.tremHumanMCUSellList[ uiInfo.tremHumanMCUSellIndex ].cmd );
+    {
+      if( cmd = uiInfo.tremHumanMCUSellList[ uiInfo.tremHumanMCUSellIndex ].cmd )
+      trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
+    }
     else if( Q_stricmp( name, "LoadAlienUpgrades" ) == 0 )
       UI_LoadTremAlienUpgrades( );
     else if( Q_stricmp( name, "UpgradeToNewClass" ) == 0 )
-      trap_Cmd_ExecuteText( EXEC_APPEND, uiInfo.tremAlienUpgradeList[ uiInfo.tremAlienUpgradeIndex ].cmd );
+    {
+      if( cmd = uiInfo.tremAlienUpgradeList[ uiInfo.tremAlienUpgradeIndex ].cmd )
+      trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
+    }
     else if( Q_stricmp( name, "LoadAlienBuilds" ) == 0 )
       UI_LoadTremAlienBuilds( );
     else if( Q_stricmp( name, "BuildAlienBuildable" ) == 0 )
-      trap_Cmd_ExecuteText( EXEC_APPEND, uiInfo.tremAlienBuildList[ uiInfo.tremAlienBuildIndex ].cmd );
+    {
+      if( cmd = uiInfo.tremAlienBuildList[ uiInfo.tremAlienBuildIndex ].cmd )
+      trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
+    }
     else if( Q_stricmp( name, "LoadHumanBuilds" ) == 0 )
       UI_LoadTremHumanBuilds( );
     else if( Q_stricmp( name, "BuildHumanBuildable" ) == 0 )
-      trap_Cmd_ExecuteText( EXEC_APPEND, uiInfo.tremHumanBuildList[ uiInfo.tremHumanBuildIndex ].cmd );
+    {
+      if( cmd = uiInfo.tremHumanBuildList[ uiInfo.tremHumanBuildIndex ].cmd )
+      trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
+    }
 //TA: tremulous menus
     
     else if (Q_stricmp(name, "playMovie") == 0) {

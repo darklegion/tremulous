@@ -2162,7 +2162,7 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   built->physicsBounce = BG_FindBounceForBuildable( buildable );
   built->s.groundEntityNum = -1;
   
-  if( builder->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING )
+  if( builder->client && builder->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING )
   {
     if( builder->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
       VectorSet( normal, 0.0f, 0.0f, -1.0f );

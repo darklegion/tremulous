@@ -1535,7 +1535,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
       
       AngleVectors( spawn_angles, forward, NULL, NULL );
       VectorScale( forward, F_VEL, forward );
-      VectorAdd( spawn->s.origin2, forward, dir );
+      VectorAdd( spawnPoint->s.origin2, forward, dir );
       VectorNormalize( dir );
 
       VectorScale( dir, UP_VEL, client->ps.velocity );
