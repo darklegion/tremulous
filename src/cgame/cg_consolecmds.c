@@ -329,6 +329,7 @@ void CG_InitConsoleCommands( void ) {
   trap_AddCommand ("itemdeact");
   trap_AddCommand ("itemtoggle");
   trap_AddCommand ("destroy");
+  trap_AddCommand ("deconstruct");
   trap_AddCommand ("torch");
   trap_AddCommand ("menu");
   trap_AddCommand ("ui_menu");

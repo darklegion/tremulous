@@ -871,7 +871,7 @@ void ClientThink_real( gentity_t *ent ) {
     client->ps.pm_type = PM_NORMAL;
 
   if( client->ps.stats[ STAT_STATE ] & SS_GRABBED &&
-      client->lastGrabTime + BG_FindRepeatRateForWeapon( WP_GRAB_CLAW ) + 100 < level.time )
+      client->lastGrabTime + 1000 < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_GRABBED;
 
   if( client->ps.stats[ STAT_STATE ] & SS_BLOBLOCKED &&
@@ -986,6 +986,11 @@ void ClientThink_real( gentity_t *ent ) {
       case WP_VENOM:
         if( client->ps.weaponTime <= 0 )
           pm.autoWeaponHit[ client->ps.weapon ] = CheckVenomAttack( ent );
+        break;
+
+      case WP_GRAB_CLAW:
+        /*if( client->ps.weaponTime <= 0 )*/ //FIXME: correct decision?
+          CheckGrabAttack( ent );
         break;
 
       case WP_POUNCE:

@@ -2264,7 +2264,7 @@ static void PM_Weapon( void )
   {
     case WP_VENOM:
       //venom is only autohit
-      attack1 = attack2 = qfalse;
+      attack1 = attack2 = attack3 = qfalse;
 
       if( !pm->autoWeaponHit[ pm->ps->weapon ] )
       {
@@ -2279,9 +2279,7 @@ static void PM_Weapon( void )
       //pouncing has primary secondary AND autohit procedures
       attack1 = pm->cmd.buttons & BUTTON_ATTACK;
       attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
-
-      if( pm->ps->weapon == WP_POUNCE_UPG )
-        attack3 = pm->cmd.buttons & BUTTON_USE_HOLDABLE;
+      attack3 = pm->cmd.buttons & BUTTON_USE_HOLDABLE;
       
       if( !pm->autoWeaponHit[ pm->ps->weapon ] && !attack1 && !attack2 && !attack3 )
       {
@@ -2294,8 +2292,9 @@ static void PM_Weapon( void )
     case WP_LUCIFER_CANON:
       attack1 = pm->cmd.buttons & BUTTON_ATTACK;
       attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
+      attack3 = pm->cmd.buttons & BUTTON_USE_HOLDABLE;
       
-      if( ( attack1 || pm->ps->stats[ STAT_MISC ] == 0 ) && !attack2 )
+      if( ( attack1 || pm->ps->stats[ STAT_MISC ] == 0 ) && !attack2 && !attack3 )
       {
         pm->ps->weaponTime = 0;
         pm->ps->weaponstate = WEAPON_READY;
@@ -2311,8 +2310,9 @@ static void PM_Weapon( void )
       //by default primary and secondary attacks are allowed
       attack1 = pm->cmd.buttons & BUTTON_ATTACK;
       attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
+      attack3 = pm->cmd.buttons & BUTTON_USE_HOLDABLE;
       
-      if( !attack1 && !attack2 )
+      if( !attack1 && !attack2 && !attack3 )
       {
         pm->ps->weaponTime = 0;
         pm->ps->weaponstate = WEAPON_READY;
@@ -2323,8 +2323,17 @@ static void PM_Weapon( void )
 
   //TA: fire events for non auto weapons
   if( attack3 )
-    PM_AddEvent( EV_FIRE_WEAPON3 );
-  if( attack2 )
+  {
+    if( BG_WeaponHasThirdMode( pm->ps->weapon ) )
+      PM_AddEvent( EV_FIRE_WEAPON3 );
+    else
+    {
+      pm->ps->weaponTime = 0;
+      pm->ps->weaponstate = WEAPON_READY;
+      return;
+    }
+  }
+  else if( attack2 )
   {
     if( BG_WeaponHasAltMode( pm->ps->weapon ) )
     {

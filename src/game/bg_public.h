@@ -970,6 +970,7 @@ typedef struct
   int       reloadTime;
   
   qboolean  hasAltMode;
+  qboolean  hasThirdMode;
   qboolean  synced;
 
   qboolean  purchasable;
@@ -1082,6 +1083,7 @@ qboolean  BG_FindUsesEnergyForWeapon( int weapon );
 int       BG_FindRepeatRateForWeapon( int weapon );
 int       BG_FindReloadTimeForWeapon( int weapon );
 qboolean  BG_WeaponHasAltMode( int weapon );
+qboolean  BG_WeaponHasThirdMode( int weapon );
 qboolean  BG_WeaponModesAreSynced( int weapon );
 qboolean  BG_FindPurchasableForWeapon( int weapon );
 int       BG_FindBuildDelayForWeapon( int weapon );

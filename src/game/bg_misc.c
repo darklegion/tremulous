@@ -2077,6 +2077,7 @@ weaponAttributes_t bg_weapons[ ] =
     100,                  //int       repeatRate;
     2000,                 //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2099,6 +2100,7 @@ weaponAttributes_t bg_weapons[ ] =
     150,                  //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2121,6 +2123,7 @@ weaponAttributes_t bg_weapons[ ] =
     50,                   //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2143,6 +2146,7 @@ weaponAttributes_t bg_weapons[ ] =
     1000,                 //int       repeatRate;
     2000,                 //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2165,6 +2169,7 @@ weaponAttributes_t bg_weapons[ ] =
     50,                   //int       repeatRate;
     2000,                 //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2187,6 +2192,7 @@ weaponAttributes_t bg_weapons[ ] =
     500,                  //int       repeatRate;
     2000,                 //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2209,6 +2215,7 @@ weaponAttributes_t bg_weapons[ ] =
     100,                  //int       repeatRate;
     2000,                 //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2231,6 +2238,7 @@ weaponAttributes_t bg_weapons[ ] =
     75,                   //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2253,6 +2261,7 @@ weaponAttributes_t bg_weapons[ ] =
     1000,                 //int       repeatRate;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     10000,                //int       buildDelay;
@@ -2275,6 +2284,7 @@ weaponAttributes_t bg_weapons[ ] =
     1000,                 //int       repeatRate;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     5000,                 //int       buildDelay;
@@ -2297,6 +2307,7 @@ weaponAttributes_t bg_weapons[ ] =
     1000,                 //int       repeatRate;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     10000,                //int       buildDelay;
@@ -2319,6 +2330,7 @@ weaponAttributes_t bg_weapons[ ] =
     1000,                 //int       repeatRate;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     5000,                 //int       buildDelay;
@@ -2341,6 +2353,7 @@ weaponAttributes_t bg_weapons[ ] =
     500,                  //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2362,8 +2375,9 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //int       usesEnergy;
     500,                  //int       repeatRate;
     0,                    //int       reloadTime;
-    qtrue,                //qboolean  hasAltMode;
-    qtrue,                //qboolean  synced;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
+    qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
@@ -2385,6 +2399,7 @@ weaponAttributes_t bg_weapons[ ] =
     1500,                 //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2407,6 +2422,7 @@ weaponAttributes_t bg_weapons[ ] =
     1500,                 //int       repeatRate;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2429,6 +2445,7 @@ weaponAttributes_t bg_weapons[ ] =
     750,                  //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2451,6 +2468,7 @@ weaponAttributes_t bg_weapons[ ] =
     750,                  //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
+    qtrue,                //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2473,6 +2491,7 @@ weaponAttributes_t bg_weapons[ ] =
     500,                  //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2495,6 +2514,7 @@ weaponAttributes_t bg_weapons[ ] =
     500,                  //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2517,6 +2537,7 @@ weaponAttributes_t bg_weapons[ ] =
     500,                  //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
@@ -2804,6 +2825,26 @@ qboolean BG_WeaponHasAltMode( int weapon )
     if( bg_weapons[ i ].weaponNum == weapon )
     {
       return bg_weapons[ i ].hasAltMode;
+    }
+  }
+
+  return qfalse;
+}
+
+/*
+==============
+BG_WeaponHasThirdMode
+==============
+*/
+qboolean BG_WeaponHasThirdMode( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+    {
+      return bg_weapons[ i ].hasThirdMode;
     }
   }
 
