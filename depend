@@ -19,6 +19,9 @@ releasei386-glibc/game/g_buildable.o: ./src/game/g_buildable.c src/game/g_local.
 releasei386-glibc/game/g_client.o: ./src/game/g_client.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
+releasei386-glibc/game/g_cmds.o: ./src/game/g_cmds.c src/game/g_local.h src/game/q_shared.h \
+ src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
+ src/game/g_team.h src/game/../../ui/menudef.h
 releasei386-glibc/game/g_combat.o: ./src/game/g_combat.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
@@ -91,6 +94,9 @@ debugi386-glibc/game/g_buildable.o: ./src/game/g_buildable.c src/game/g_local.h 
 debugi386-glibc/game/g_client.o: ./src/game/g_client.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
+debugi386-glibc/game/g_cmds.o: ./src/game/g_cmds.c src/game/g_local.h src/game/q_shared.h \
+ src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
+ src/game/g_team.h src/game/../../ui/menudef.h
 debugi386-glibc/game/g_combat.o: ./src/game/g_combat.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
@@ -163,6 +169,9 @@ qvm/game/g_buildable.asm: ./src/game/g_buildable.c src/game/g_local.h \
 qvm/game/g_client.asm: ./src/game/g_client.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
+qvm/game/g_cmds.asm: ./src/game/g_cmds.c src/game/g_local.h src/game/q_shared.h \
+ src/game/surfaceflags.h src/game/bg_public.h src/game/g_public.h \
+ src/game/g_team.h src/game/../../ui/menudef.h
 qvm/game/g_combat.asm: ./src/game/g_combat.c src/game/g_local.h \
  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
  src/game/g_public.h src/game/g_team.h
@@ -299,6 +308,10 @@ releasei386-glibc/cgame/cg_scoreboard.o: ./src/cgame/cg_scoreboard.c src/cgame/c
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h
+releasei386-glibc/cgame/cg_servercmds.o: ./src/cgame/cg_servercmds.c src/cgame/cg_local.h \
+ src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
+ src/cgame/tr_types.h src/cgame/../game/bg_public.h \
+ src/cgame/cg_public.h src/cgame/../../ui/menudef.h
 releasei386-glibc/cgame/cg_snapshot.o: ./src/cgame/cg_snapshot.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -403,6 +416,10 @@ debugi386-glibc/cgame/cg_scoreboard.o: ./src/cgame/cg_scoreboard.c src/cgame/cg_
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h
+debugi386-glibc/cgame/cg_servercmds.o: ./src/cgame/cg_servercmds.c src/cgame/cg_local.h \
+ src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
+ src/cgame/tr_types.h src/cgame/../game/bg_public.h \
+ src/cgame/cg_public.h src/cgame/../../ui/menudef.h
 debugi386-glibc/cgame/cg_snapshot.o: ./src/cgame/cg_snapshot.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
@@ -507,6 +524,10 @@ qvm/cgame/cg_scoreboard.asm: ./src/cgame/cg_scoreboard.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \
  src/cgame/cg_public.h
+qvm/cgame/cg_servercmds.asm: ./src/cgame/cg_servercmds.c src/cgame/cg_local.h \
+ src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
+ src/cgame/tr_types.h src/cgame/../game/bg_public.h \
+ src/cgame/cg_public.h src/cgame/../../ui/menudef.h
 qvm/cgame/cg_snapshot.asm: ./src/cgame/cg_snapshot.c src/cgame/cg_local.h \
  src/cgame/../game/q_shared.h src/cgame/../game/surfaceflags.h \
  src/cgame/tr_types.h src/cgame/../game/bg_public.h \

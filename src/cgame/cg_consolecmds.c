@@ -328,10 +328,11 @@ qboolean CG_ConsoleCommand( void ) {
   cmd = CG_Argv(0);
 
   //TA: ugly hacky special case
-  if( !Q_stricmp( cmd, "cmenu" ) )
+  if( !Q_stricmp( cmd, "ui_menu" ) )
   {
     arg1 = CG_Argv( 1 );
-    CG_ClientMenu( arg1 );
+    /*CG_ClientMenu( arg1 );*/
+    trap_SendConsoleCommand( va( "menu %s\n", arg1 ) );
     return qtrue;
   }
 
@@ -405,6 +406,6 @@ void CG_InitConsoleCommands( void ) {
   trap_AddCommand ("menu");
   trap_AddCommand ("defmenu");
   trap_AddCommand ("undefmenu");
-  trap_AddCommand ("cmenu");
+  trap_AddCommand ("ui_menu");
   trap_AddCommand ("loaddefered");  // spelled wrong, but not changing for demo
 }

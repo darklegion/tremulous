@@ -426,12 +426,12 @@ void CG_Menu( int eventParm )
   
   switch( eventParm )
   {
-    case MN_TEAM: trap_SendConsoleCommand( "menu tremulous_team\n" ); break;
+    case MN_TEAM: trap_SendConsoleCommand( "menu tremulous_teamselect\n" ); break;
     case MN_D_CLASS: trap_SendConsoleCommand( "menu tremulous_alienclass\n" ); break;
-    case MN_H_SPAWN: trap_SendConsoleCommand( "menu hsitemmenu\n" ); break;
-    case MN_D_BUILD: trap_SendConsoleCommand( "menu dbuildmenu\n" ); break;
-    case MN_H_BUILD: trap_SendConsoleCommand( "menu hbuildmenu\n" ); break;
-    case MN_H_MCU: trap_SendConsoleCommand( "menu hmcumenu\n" ); break;
+    case MN_H_SPAWN: trap_SendConsoleCommand( "menu tremulous_humanitem\n" ); break;
+    case MN_D_BUILD: trap_SendConsoleCommand( "menu tremulous_alienbuild\n" ); break;
+    case MN_H_BUILD: trap_SendConsoleCommand( "menu tremulous_humanbuild\n" ); break;
+    case MN_H_MCU: trap_SendConsoleCommand( "menu tremulous_humanmcu\n" ); break;
     case MN_H_BANK: trap_SendConsoleCommand( "menu hbankmenu\n" ); break;
     case MN_H_NOROOM: trap_SendConsoleCommand( "menu hnoroom\n" ); break;
     case MN_H_NOPOWER: trap_SendConsoleCommand( "menu hnopower\n" ); break;
