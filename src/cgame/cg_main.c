@@ -446,7 +446,7 @@ void CG_RemoveConsoleLine( void )
 }
 
 //TA: team arena UI based console
-void TAUIConsole( const char *text )
+void CG_TAUIConsole( const char *text )
 {
   if( cg.numConsoleLines == MAX_CONSOLE_LINES )
     CG_RemoveConsoleLine( );
@@ -470,7 +470,7 @@ void QDECL CG_Printf( const char *msg, ... )
   vsprintf( text, msg, argptr );
   va_end( argptr );
 
-  TAUIConsole( text );
+  CG_TAUIConsole( text );
 
   trap_Print( text );
 }

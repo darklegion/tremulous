@@ -73,15 +73,15 @@
 
 //TA: ripped from wolf source
 // Ridah, trails
-#define	STYPE_STRETCH	0
-#define	STYPE_REPEAT	1
+#define STYPE_STRETCH 0
+#define STYPE_REPEAT  1
 
-#define	TJFL_FADEIN		(1<<0)
-#define	TJFL_CROSSOVER	(1<<1)
-#define	TJFL_NOCULL		(1<<2)
-#define	TJFL_FIXDISTORT	(1<<3)
+#define TJFL_FADEIN   (1<<0)
+#define TJFL_CROSSOVER  (1<<1)
+#define TJFL_NOCULL   (1<<2)
+#define TJFL_FIXDISTORT (1<<3)
 #define TJFL_SPARKHEADFLARE (1<<4)
-#define	TJFL_NOPOLYMERGE	(1<<5)
+#define TJFL_NOPOLYMERGE  (1<<5)
 // done.
 
 #define TEAM_OVERLAY_MAXNAME_WIDTH  12
@@ -923,7 +923,7 @@ typedef struct
   sfxHandle_t hgrenb2aSound;
                         
   //TA: for wolf trail effects
-	qhandle_t	  sparkFlareShader;
+  qhandle_t   sparkFlareShader;
 } cgMedia_t;
 
 
@@ -1142,7 +1142,7 @@ extern  vmCvar_t    ui_loading;
 const char  *CG_ConfigString( int index );
 const char  *CG_Argv( int arg );
 
-void        TAUIConsole( const char *text );
+void        CG_TAUIConsole( const char *text );
 void QDECL  CG_Printf( const char *msg, ... );
 void QDECL  CG_Error( const char *msg, ... );
 

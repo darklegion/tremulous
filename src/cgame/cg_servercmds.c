@@ -605,7 +605,7 @@ static void CG_ServerCommand( void )
   {
     if( trap_Argc( ) == 2 )
     {
-      TAUIConsole( CG_Argv( 1 ) );
+      CG_TAUIConsole( CG_Argv( 1 ) );
       return;
     }
   }
