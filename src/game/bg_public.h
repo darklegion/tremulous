@@ -224,6 +224,7 @@ typedef enum {
   STAT_STAMINA,   //TA: stamina (human only)
   STAT_STATE,     //TA: client states e.g. wall climbing
   STAT_CREDIT,    //TA: human credit
+  STAT_BANK,      //TA: human credit in the bank
   STAT_MISC,      //TA: for uh...misc stuff
   STAT_BUILDABLE  //TA: which ghost model to display for building
 } statIndex_t;
@@ -248,6 +249,8 @@ typedef enum {
 #define SS_BOOSTED              1024
 
 #define SB_VALID_TOGGLEBIT      16384
+
+#define MAX_STAMINA             1000
 
 // player_state->persistant[] indexes
 // these fields are the only part of player_state that isn't

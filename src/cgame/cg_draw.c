@@ -250,8 +250,73 @@ void CG_SetPrintString( int type, const char *p )
   }
 }
 
-static void CG_DrawPlayerAmmoValue( rectDef_t *rect, float scale, vec4_t color,
-                                    qhandle_t shader, int textStyle )
+static void CG_DrawPlayerCreditsValue( rectDef_t *rect, float scale, vec4_t color, int textStyle )
+{
+  char          num[ 16 ];
+  int           value;
+  centity_t     *cent;
+  playerState_t *ps;
+
+  cent = &cg_entities[ cg.snap->ps.clientNum ];
+  ps = &cg.snap->ps;
+
+  value = ps->stats[ STAT_CREDIT ];
+  if( value > -1 )
+  {
+    Com_sprintf( num, sizeof( num ), "%d", value );
+    value = CG_Text_Width( num, scale, 0 );
+    CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h,
+      scale, color, num, 0, 0, textStyle );
+  }
+}
+
+static void CG_DrawPlayerBankValue( rectDef_t *rect, float scale, vec4_t color, int textStyle )
+{
+  char          num[ 16 ];
+  int           value;
+  centity_t     *cent;
+  playerState_t *ps;
+
+  cent = &cg_entities[ cg.snap->ps.clientNum ];
+  ps = &cg.snap->ps;
+
+  value = ps->stats[ STAT_BANK ];
+  if( value > -1 )
+  {
+    Com_sprintf( num, sizeof( num ), "%d", value );
+    value = CG_Text_Width( num, scale, 0 );
+    CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h,
+      scale, color, num, 0, 0, textStyle );
+  }
+}
+
+static void CG_DrawPlayerStamina( rectDef_t *rect )
+{
+  playerState_t *ps = &cg.snap->ps;
+  int stamina = ps->stats[ STAT_STAMINA ];
+  int height = (int)( (float)stamina / ( MAX_STAMINA / ( rect->h / 2 ) ) );
+  vec4_t bcolor = { 0.5f, 0.5f, 0.5f, 0.5f };
+  vec4_t pos =    { 0.0f, 0.5f, 0.0f, 0.5f };
+  vec4_t neg =    { 0.5f, 0.0f, 0.0f, 0.5f };
+
+  trap_R_SetColor( bcolor );   // white
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, cgs.media.whiteShader );
+
+  if( stamina > 0 )
+  {
+    trap_R_SetColor( pos ); // green
+    CG_DrawPic( rect->x, rect->y + ( rect->h / 2 - height ),
+                rect->w, height, cgs.media.whiteShader );
+  }
+  
+  if( stamina < 0 )
+  {
+    trap_R_SetColor( neg ); // red
+    CG_DrawPic( rect->x, rect->y + rect->h / 2, rect->w, -height, cgs.media.whiteShader );
+  }
+}
+
+static void CG_DrawPlayerAmmoValue( rectDef_t *rect, float scale, vec4_t color, int textStyle )
 {
   char          num[ 16 ];
   int           value;
@@ -266,25 +331,15 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, float scale, vec4_t color,
     BG_unpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, &value, NULL, NULL );
     if( value > -1 )
     {
-      if( shader )
-      {
-        trap_R_SetColor( color );
-        CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
-        trap_R_SetColor( NULL );
-      }
-      else
-      {
-        Com_sprintf( num, sizeof( num ), "%d", value );
-        value = CG_Text_Width( num, scale, 0 );
-        CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h,
-          scale, color, num, 0, 0, textStyle );
-      }
+      Com_sprintf( num, sizeof( num ), "%d", value );
+      value = CG_Text_Width( num, scale, 0 );
+      CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h,
+        scale, color, num, 0, 0, textStyle );
     }
   }
 }
 
-static void CG_DrawPlayerClipsValue( rectDef_t *rect, float scale, vec4_t color,
-                                     qhandle_t shader, int textStyle )
+static void CG_DrawPlayerClipsValue( rectDef_t *rect, float scale, vec4_t color, int textStyle )
 {
   char          num[ 16 ];
   int           value;
@@ -299,25 +354,15 @@ static void CG_DrawPlayerClipsValue( rectDef_t *rect, float scale, vec4_t color,
     BG_unpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, NULL, &value, NULL );
     if( value > -1 )
     {
-      if( shader )
-      {
-        trap_R_SetColor( color );
-        CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
-        trap_R_SetColor( NULL );
-      }
-      else
-      {
-        Com_sprintf( num, sizeof( num ), "%d", value );
-        value = CG_Text_Width( num, scale, 0 );
-        CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h,
-          scale, color, num, 0, 0, textStyle );
-      }
+      Com_sprintf( num, sizeof( num ), "%d", value );
+      value = CG_Text_Width( num, scale, 0 );
+      CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h,
+        scale, color, num, 0, 0, textStyle );
     }
   }
 }
 
-static void CG_DrawPlayerHealth( rectDef_t *rect, float scale, vec4_t color,
-                                 qhandle_t shader, int textStyle )
+static void CG_DrawPlayerHealth( rectDef_t *rect, float scale, vec4_t color, int textStyle )
 {
   playerState_t *ps;
   int value;
@@ -327,19 +372,10 @@ static void CG_DrawPlayerHealth( rectDef_t *rect, float scale, vec4_t color,
 
   value = ps->stats[ STAT_HEALTH ];
 
-  if( shader )
-  {
-    trap_R_SetColor( color );
-    CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
-    trap_R_SetColor( NULL );
-  }
-  else
-  {
-    Com_sprintf( num, sizeof( num ), "%d", value );
-    value = CG_Text_Width( num, scale, 0 );
-    CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h,
-      scale, color, num, 0, 0, textStyle );
-  }
+  Com_sprintf( num, sizeof( num ), "%d", value );
+  value = CG_Text_Width( num, scale, 0 );
+  CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h,
+    scale, color, num, 0, 0, textStyle );
 }
 
 float CG_GetValue( int ownerDraw )
@@ -514,14 +550,23 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
 
   switch( ownerDraw )
   {
+    case CG_PLAYER_CREDITS_VALUE:
+      CG_DrawPlayerCreditsValue( &rect, scale, color, textStyle );
+      break;
+    case CG_PLAYER_BANK_VALUE:
+      CG_DrawPlayerBankValue( &rect, scale, color, textStyle );
+      break;
+    case CG_PLAYER_STAMINA:
+      CG_DrawPlayerStamina( &rect );
+      break;
     case CG_PLAYER_AMMO_VALUE:
-      CG_DrawPlayerAmmoValue( &rect, scale, color, shader, textStyle );
+      CG_DrawPlayerAmmoValue( &rect, scale, color, textStyle );
       break;
     case CG_PLAYER_CLIPS_VALUE:
-      CG_DrawPlayerClipsValue( &rect, scale, color, shader, textStyle );
+      CG_DrawPlayerClipsValue( &rect, scale, color, textStyle );
       break;
     case CG_PLAYER_HEALTH:
-      CG_DrawPlayerHealth( &rect, scale, color, shader, textStyle );
+      CG_DrawPlayerHealth( &rect, scale, color, textStyle );
       break;
     case CG_AREA_SYSTEMCHAT:
       CG_DrawAreaSystemChat( &rect, scale, color, shader );

@@ -442,8 +442,8 @@ void ClientTimerActions( gentity_t *ent, int msec )
       else
         client->ps.stats[ STAT_STAMINA ] -= STAMINA_SPRINT_TAKE;
       
-      if( client->ps.stats[ STAT_STAMINA ] < -1000 )
-        client->ps.stats[ STAT_STAMINA ] = -1000;
+      if( client->ps.stats[ STAT_STAMINA ] < -MAX_STAMINA )
+        client->ps.stats[ STAT_STAMINA ] = -MAX_STAMINA;
     }
                                                             
     if( ( aForward <= 64 && aForward > 5 ) || ( aRight <= 64 && aRight > 5 ) )
@@ -451,16 +451,16 @@ void ClientTimerActions( gentity_t *ent, int msec )
       //restore stamina
       client->ps.stats[ STAT_STAMINA ] += STAMINA_WALK_RESTORE;
       
-      if( client->ps.stats[ STAT_STAMINA ] > 1000 )
-        client->ps.stats[ STAT_STAMINA ] = 1000;
+      if( client->ps.stats[ STAT_STAMINA ] > MAX_STAMINA )
+        client->ps.stats[ STAT_STAMINA ] = MAX_STAMINA;
     }
     else if( aForward <= 5 && aRight <= 5 )
     {
       //restore stamina faster
       client->ps.stats[ STAT_STAMINA ] += STAMINA_STOP_RESTORE;
       
-      if( client->ps.stats[ STAT_STAMINA ] > 1000 )
-        client->ps.stats[ STAT_STAMINA ] = 1000;
+      if( client->ps.stats[ STAT_STAMINA ] > MAX_STAMINA )
+        client->ps.stats[ STAT_STAMINA ] = MAX_STAMINA;
     }
 
     //client is poisoned

@@ -64,11 +64,43 @@ static void CG_DrawBlips( vec3_t origin, vec4_t colour )
 static void CG_DrawDir( vec3_t origin, vec4_t colour )
 {
   vec3_t  drawOrigin;
-  vec3_t  up = { 0.0f, 0.0f, 1.0f };
+  vec3_t  noZOrigin;
+  vec3_t  normal, antinormal, normalDiff;
+  vec3_t  view, noZview;
+  vec3_t  up  = { 0.0f, 0.0f,   1.0f };
+  vec3_t  top = { 0.0f, -1.0f,  0.0f };
+  float   angle;
+  playerState_t *ps = &cg.snap->ps;
 
-  RotatePointAroundVector( drawOrigin, up, origin, -cg.refdefViewAngles[ 1 ] - 90 );
-  drawOrigin[ 2 ] = 0.0f;
-  VectorNormalize( drawOrigin );
+  if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
+  {
+    if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
+      VectorSet( normal, 0.0f, 0.0f, -1.0f );
+    else
+      VectorCopy( ps->grapplePoint, normal );
+  }
+  else
+    VectorSet( normal, 0.0f, 0.0f, 1.0f );
+
+  AngleVectors( cg.refdefViewAngles, view, NULL, NULL );
+  
+  ProjectPointOnPlane( noZOrigin, origin, normal );
+  ProjectPointOnPlane( noZview, view, normal );
+  VectorNormalize( noZOrigin );
+  VectorNormalize( noZview );
+
+  angle = RAD2DEG( acos( DotProduct( noZOrigin, noZview ) ) );
+  CrossProduct( noZOrigin, noZview, antinormal );
+  VectorNormalize( antinormal );
+
+  VectorSubtract( normal, antinormal, normalDiff );
+  
+  if( VectorLength( normalDiff ) < 1.0f )
+    angle = 360.0f - angle;
+
+  CG_Printf( "%f\n", angle );
+
+  RotatePointAroundVector( drawOrigin, up, top, angle );
 
   trap_R_SetColor( colour );
   CG_DrawPic( XPOS2 + ( WIDTH2 / 2 ) - ( BLIPX2 / 2 ) - drawOrigin[ 0 ] * ( WIDTH2 / 2 ),

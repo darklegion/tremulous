@@ -2098,6 +2098,7 @@ void Cmd_Deposit_f( gentity_t *ent )
   if( amount <= ent->client->ps.stats[ STAT_CREDIT ] )
   {
     ent->client->ps.stats[ STAT_CREDIT ] -= amount;
+    ent->client->ps.stats[ STAT_BANK ] += amount;
     level.bankCredits[ ent->client->ps.clientNum ] += amount;
   }
   else
@@ -2153,6 +2154,7 @@ void Cmd_Withdraw_f( gentity_t *ent )
   if( amount <= level.bankCredits[ ent->client->ps.clientNum ] )
   {
     ent->client->ps.stats[ STAT_CREDIT ] += amount;
+    ent->client->ps.stats[ STAT_BANK ] -= amount;
     level.bankCredits[ ent->client->ps.clientNum ] -= amount;
   }
   else
