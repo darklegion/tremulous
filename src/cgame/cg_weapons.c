@@ -764,7 +764,9 @@ void CG_RegisterWeapon( int weaponNum ) {
     break;
 
   case WP_DBUILD:
+  case WP_DBUILD2:
   case WP_HBUILD:
+  case WP_HBUILD2:
   case WP_SCANNER:
     //nowt
     break;

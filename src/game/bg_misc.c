@@ -258,18 +258,34 @@ gitem_t bg_itemlist[] =
     ""
   },
 
-/*QUAKED weapon_abuild (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+/*QUAKED weapon_dbuild (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
   {
-    "weapon_abuild",
+    "weapon_dbuild",
     "sound/misc/w_pkup.wav",
         { "models/weapons2/gauntlet/gauntlet.md3",
     0, 0, 0},
     "icons/iconw_gauntlet",
-    "ABuild",
+    "Droid Build",
     0,
     IT_WEAPON,
     WP_DBUILD,
+    "",
+    ""
+  },
+  
+/*QUAKED weapon_dbuild2 (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+  {
+    "weapon_dbuild2",
+    "sound/misc/w_pkup.wav",
+        { "models/weapons2/gauntlet/gauntlet.md3",
+    0, 0, 0},
+    "icons/iconw_gauntlet",
+    "Droid Build 2",
+    0,
+    IT_WEAPON,
+    WP_DBUILD2,
     "",
     ""
   },
@@ -286,6 +302,22 @@ gitem_t bg_itemlist[] =
     0,
     IT_WEAPON,
     WP_HBUILD,
+    "",
+    ""
+  },
+  
+/*QUAKED weapon_hbuild2 (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+  {
+    "weapon_hbuild2",
+    "sound/misc/w_pkup.wav",
+        { "models/weapons2/gauntlet/gauntlet.md3",
+    0, 0, 0},
+    "icons/iconw_gauntlet",
+    "Human Build 2",
+    0,
+    IT_WEAPON,
+    WP_HBUILD2,
     "",
     ""
   },
@@ -1127,7 +1159,7 @@ buildableAttributes_t bg_buildableList[ ] =
     200,                   //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
     BIT_DROIDS,            //int       team;
-    ( 1 << WP_DBUILD ),    //weapon_t  buildWeapon;
+    ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
@@ -1151,7 +1183,7 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
     BIT_DROIDS,            //int       team;
-    ( 1 << WP_DBUILD ),    //weapon_t  buildWeapon;
+    ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
@@ -1175,7 +1207,7 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
     BIT_DROIDS,            //int       team;
-    ( 1 << WP_DBUILD ),    //weapon_t  buildWeapon;
+    ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       constructAnim;
     100,                   //int       nextthink;
     1500,                  //int       turretFireSpeed;
@@ -1199,7 +1231,7 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
     BIT_DROIDS,            //int       team;
-    ( 1 << WP_DBUILD ),    //weapon_t  buildWeapon;
+    ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       constructAnim;
     -1,                    //int       nextthink;
     0,                     //int       turretFireSpeed;
@@ -1223,7 +1255,7 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
@@ -1247,7 +1279,7 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       constructAnim;
     50,                    //int       nextthink;
     500,                   //int       turretFireSpeed;
@@ -1271,7 +1303,7 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       constructAnim;
     50,                    //int       nextthink;
     50,                    //int       turretFireSpeed;
@@ -1295,7 +1327,7 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       constructAnim;
     150,                   //int       nextthink;
     4000,                  //int       turretFireSpeed;
@@ -1319,7 +1351,7 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
@@ -1343,7 +1375,7 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       constructAnim;
     -1,                    //int       nextthink;
     0,                     //int       turretFireSpeed;
@@ -1367,7 +1399,7 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
@@ -1391,7 +1423,7 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
@@ -2824,11 +2856,35 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse                //qboolean  synced;
   },
   {
+    WP_HBUILD2,           //int       weaponNum;
+    100,                  //int       price;
+    SLOT_WEAPON,          //int       slots;
+    "ackit",              //char      *weaponName;
+    "Adv Construction Kit",//char      *weaponHumanName;
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse                //qboolean  synced;
+  },
+  {
     WP_DBUILD,            //int       weaponNum;
     100,                  //int       price;
     SLOT_WEAPON,          //int       slots;
     "dbuild",             //char      *weaponName;
     "Droid build weapon", //char      *weaponHumanName;
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse                //qboolean  synced;
+  },
+  {
+    WP_DBUILD2,           //int       weaponNum;
+    100,                  //int       price;
+    SLOT_WEAPON,          //int       slots;
+    "dbuild2",            //char      *weaponName;
+    "Droid build weapon2",//char      *weaponHumanName;
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -3974,7 +4030,9 @@ qboolean BG_infiniteAmmo( int weapon )
     case WP_GRABANDCSAW:
     case WP_POUNCE:
     case WP_DBUILD:
+    case WP_DBUILD2:
     case WP_HBUILD:
+    case WP_HBUILD2:
     case WP_SCANNER:
       return qtrue;
       break;

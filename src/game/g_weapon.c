@@ -579,10 +579,20 @@ BUILD GUN
 ///////build weapons
 /*
 ===============
-Weapon_Abuild_Fire
+Weapon_Dbuild_Fire
 ===============
 */
-void Weapon_Abuild_Fire( gentity_t *ent )
+void Weapon_Dbuild_Fire( gentity_t *ent )
+{
+  G_AddPredictableEvent( ent, EV_MENU, MN_D_BUILD );
+}
+
+/*
+===============
+Weapon_Dbuild2_Fire
+===============
+*/
+void Weapon_Dbuild2_Fire( gentity_t *ent )
 {
   G_AddPredictableEvent( ent, EV_MENU, MN_D_BUILD );
 }
@@ -593,6 +603,16 @@ Weapon_Hbuild_Fire
 ===============
 */
 void Weapon_Hbuild_Fire( gentity_t *ent )
+{
+  G_AddPredictableEvent( ent, EV_MENU, MN_H_BUILD );
+}
+
+/*
+===============
+Weapon_Hbuild2_Fire
+===============
+*/
+void Weapon_Hbuild2_Fire( gentity_t *ent )
 {
   G_AddPredictableEvent( ent, EV_MENU, MN_H_BUILD );
 }
@@ -1021,10 +1041,16 @@ void FireWeapon2( gentity_t *ent )
     case WP_POUNCE:
       break;
     case WP_DBUILD:
-      Weapon_Abuild_Fire( ent );
+      Weapon_Dbuild_Fire( ent );
+      break;
+    case WP_DBUILD2:
+      Weapon_Dbuild2_Fire( ent );
       break;
     case WP_HBUILD:
       Weapon_Hbuild_Fire( ent );
+      break;
+    case WP_HBUILD2:
+      Weapon_Hbuild2_Fire( ent );
       break;
     case WP_SCANNER: //scanner doesn't "fire"
     default:
@@ -1104,10 +1130,16 @@ void FireWeapon( gentity_t *ent )
       Weapon_Claw_Fire( ent );
       break;
     case WP_DBUILD:
-      Weapon_Abuild_Fire( ent );
+      Weapon_Dbuild_Fire( ent );
+      break;
+    case WP_DBUILD2:
+      Weapon_Dbuild2_Fire( ent );
       break;
     case WP_HBUILD:
       Weapon_Hbuild_Fire( ent );
+      break;
+    case WP_HBUILD2:
+      Weapon_Hbuild2_Fire( ent );
       break;
     case WP_SCANNER: //scanner doesn't "fire"
     default:

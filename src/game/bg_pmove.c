@@ -2361,13 +2361,11 @@ static void PM_Weapon( void )
       addTime = 750;
       break;
     case WP_DBUILD:
-      addTime = 1000;
-      break;
+    case WP_DBUILD2:
     case WP_HBUILD:
-      addTime = 1000;
-      break;
+    case WP_HBUILD2:
     case WP_SCANNER:
-      addTime = 1000; //abritutary since scaner doesn't "fire"
+      addTime = 1000; //abritutary since doesn't "fire"
       break;
   }
 

@@ -348,6 +348,8 @@ typedef enum {
 
   //build weapons must remain in a block
   WP_DBUILD,
+  WP_DBUILD2,
+  WP_HBUILD2,
   WP_HBUILD,
   //ok?
   

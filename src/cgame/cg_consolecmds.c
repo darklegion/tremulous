@@ -227,7 +227,7 @@ static void CG_ClientMenu( const char *menuname )
   }
   else if( !Q_stricmp( menuname, "hmcusell" ) )
   {
-    strcpy( menuDef, "5,5|Sell|1,1,1,1|0.000,0.412,0.702,1|1,1,1,1|2|32||" );
+    strcpy( menuDef, "5,5|Sell|1,1,1,1|0.000,0.412,0.702,1|1,1,1,1|2|32|" );
     for( i = WP_NONE +1; i < WP_NUM_WEAPONS; i++ )
     {
       if( BG_gotWeapon( i, cg.snap->ps.stats ) )
