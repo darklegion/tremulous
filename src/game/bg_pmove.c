@@ -2611,7 +2611,13 @@ static void PM_Weapon( void )
     PM_StartTorsoAnim( TORSO_ATTACK );
   else
   {
-    PM_ForceLegsAnim( NSPA_ATTACK3 );
+    if( attack1 )
+      PM_ForceLegsAnim( NSPA_ATTACK1 );
+    else if( attack2 )
+      PM_ForceLegsAnim( NSPA_ATTACK2 );
+    else if( attack3 )
+      PM_ForceLegsAnim( NSPA_ATTACK3 );
+    
     pm->ps->torsoTimer = TIMER_ATTACK;
   }
 

@@ -1930,11 +1930,12 @@ void CG_Player( centity_t *cent )
   vec3_t        tempAxis[ 3 ], tempAxis2[ 3 ];
   vec3_t        angles;
   int           held = es->modelindex;
+  pTeam_t       team = es->powerups & 0xFF;
 
   // the client number is stored in clientNum.  It can't be derived
   // from the entity number, because a single client may have
   // multiple corpses on the level using the same clientinfo
-  clientNum = cent->currentState.clientNum;
+  clientNum = es->clientNum;
   if( clientNum < 0 || clientNum >= MAX_CLIENTS )
     CG_Error( "Bad clientNum on player entity" );
 
@@ -1947,7 +1948,7 @@ void CG_Player( centity_t *cent )
 
   // get the player model information
   renderfx = 0;
-  if( cent->currentState.number == cg.snap->ps.clientNum )
+  if( es->number == cg.snap->ps.clientNum )
   {
     if( !cg.renderingThirdPerson )
       renderfx = RF_THIRD_PERSON;     // only draw in mirrors
@@ -1996,7 +1997,7 @@ void CG_Player( centity_t *cent )
 
   // add the shadow
   //TA: but only for humans
-  if( ( cent->currentState.powerups & 0xFF ) == PTE_HUMANS )
+  if( team == PTE_HUMANS )
     shadow = CG_PlayerShadow( cent, &shadowPlane );
 
   // add a water splash if partially in and out of water
@@ -2041,7 +2042,7 @@ void CG_Player( centity_t *cent )
     if( es->eFlags & EF_WALLCLIMBCEILING )
       VectorSet( surfNormal, 0.0f, 0.0f, -1.0f );
     else
-      VectorCopy( cent->currentState.angles2, surfNormal );
+      VectorCopy( es->angles2, surfNormal );
       
     BG_FindBBoxForClass( class, mins, maxs, NULL, NULL, NULL );
 
@@ -2130,7 +2131,8 @@ void CG_Player( centity_t *cent )
   //
   // add the gun / barrel / flash
   //
-  CG_AddPlayerWeapon( &torso, NULL, cent );
+  if( team == PTE_HUMANS )
+    CG_AddPlayerWeapon( &torso, NULL, cent );
 
   CG_PlayerUpgrades( cent, &torso );
 }
@@ -2146,6 +2148,7 @@ void CG_Corpse( centity_t *cent )
   refEntity_t   legs;
   refEntity_t   torso;
   refEntity_t   head;
+  entityState_t *es = &cent->currentState;
   int           corpseNum;
   int           renderfx;
   qboolean      shadow;
@@ -2153,7 +2156,7 @@ void CG_Corpse( centity_t *cent )
   vec3_t        origin, liveZ, deadZ;
   float         scale;
 
-  corpseNum = CG_GetCorpseNum( cent->currentState.clientNum );
+  corpseNum = CG_GetCorpseNum( es->clientNum );
   
   if( corpseNum < 0 || corpseNum >= MAX_CLIENTS )
     CG_Error( "Bad corpseNum on corpse entity: %d", corpseNum );
@@ -2170,10 +2173,10 @@ void CG_Corpse( centity_t *cent )
   memset( &head, 0, sizeof( head ) );
 
   VectorCopy( cent->lerpOrigin, origin );
-  BG_FindBBoxForClass( cent->currentState.clientNum, liveZ, NULL, NULL, deadZ, NULL );
+  BG_FindBBoxForClass( es->clientNum, liveZ, NULL, NULL, deadZ, NULL );
   origin[ 2 ] -= ( liveZ[ 2 ] - deadZ[ 2 ] );
 
-  VectorCopy( cent->currentState.angles, cent->lerpAngles );
+  VectorCopy( es->angles, cent->lerpAngles );
   
   // get the rotation information
   if( !ci->nonsegmented )
@@ -2186,19 +2189,19 @@ void CG_Corpse( centity_t *cent )
     legs.oldframe = legs.frame = torso.oldframe = torso.frame = 0;
   else if( !ci->nonsegmented )
   {
-    CG_RunLerpFrame( ci, &cent->pe.legs, cent->currentState.legsAnim, 1 );
+    CG_RunLerpFrame( ci, &cent->pe.legs, es->legsAnim, 1 );
     legs.oldframe = cent->pe.legs.oldFrame;
     legs.frame = cent->pe.legs.frame;
     legs.backlerp = cent->pe.legs.backlerp;
 
-    CG_RunLerpFrame( ci, &cent->pe.torso, cent->currentState.torsoAnim, 1 );
+    CG_RunLerpFrame( ci, &cent->pe.torso, es->torsoAnim, 1 );
     torso.oldframe = cent->pe.torso.oldFrame;
     torso.frame = cent->pe.torso.frame;
     torso.backlerp = cent->pe.torso.backlerp;
   }
   else
   {
-    CG_RunLerpFrame( ci, &cent->pe.nonseg, cent->currentState.legsAnim, 1 );
+    CG_RunLerpFrame( ci, &cent->pe.nonseg, es->legsAnim, 1 );
     legs.oldframe = cent->pe.nonseg.oldFrame;
     legs.frame = cent->pe.nonseg.frame;
     legs.backlerp = cent->pe.nonseg.backlerp;
@@ -2237,7 +2240,7 @@ void CG_Corpse( centity_t *cent )
   VectorCopy( legs.origin, legs.oldorigin ); // don't positionally lerp at all
 
   //rescale the model
-  scale = BG_FindModelScaleForClass( cent->currentState.clientNum );
+  scale = BG_FindModelScaleForClass( es->clientNum );
 
   if( scale != 1.0f )
   {
@@ -2248,7 +2251,7 @@ void CG_Corpse( centity_t *cent )
     legs.nonNormalizedAxes = qtrue;
   }
   
-  //CG_AddRefEntityWithPowerups( &legs, cent->currentState.powerups, ci->team );
+  //CG_AddRefEntityWithPowerups( &legs, es->powerups, ci->team );
   trap_R_AddRefEntityToScene( &legs );
 
   // if the model failed, allow the default nullmodel to be displayed
@@ -2273,7 +2276,7 @@ void CG_Corpse( centity_t *cent )
     torso.shadowPlane = shadowPlane;
     torso.renderfx = renderfx;
 
-    //CG_AddRefEntityWithPowerups( &torso, cent->currentState.powerups, ci->team );
+    //CG_AddRefEntityWithPowerups( &torso, es->powerups, ci->team );
     trap_R_AddRefEntityToScene( &torso );
 
     //
@@ -2292,14 +2295,14 @@ void CG_Corpse( centity_t *cent )
     head.shadowPlane = shadowPlane;
     head.renderfx = renderfx;
 
-    //CG_AddRefEntityWithPowerups( &head, cent->currentState.powerups, ci->team );
+    //CG_AddRefEntityWithPowerups( &head, es->powerups, ci->team );
     trap_R_AddRefEntityToScene( &head );
   }
 
   if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
-    if( cent->currentState.powerups == cg.predictedPlayerState.clientNum ||
-        cent->currentState.powerups == 65535 ) //65535 = 16bit signed -1
+    if( es->powerups == cg.predictedPlayerState.clientNum ||
+        es->powerups == 65535 ) //65535 = 16bit signed -1
     {
       //draw indicator
       CG_PlayerFloatSprite( cent, cgs.media.friendShader );
