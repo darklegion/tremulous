@@ -2454,12 +2454,9 @@ void Cmd_Spawnbody_f( gentity_t *ent )
 
 void Cmd_Test_f( gentity_t *ent )
 {
-  int ammo, clips, maxclips;
-  playerState_t *ps = &ent->client->ps;
-  
-  BG_unpackAmmoArray( WP_MACHINEGUN, ps->ammo, ps->powerups, &ammo, &clips, &maxclips );
-  G_Printf( "%d %d\n", ammo, clips );
-  BG_packAmmoArray( WP_MACHINEGUN, ps->ammo, ps->powerups, 0, 1, maxclips );
+  ent->client->ps.stats[ STAT_STATE ] |= SS_POISONCLOUDED;
+  ent->client->lastPoisonCloudedTime = level.time;
+  G_AddPredictableEvent( ent, EV_POISONCLOUD, 0 );
 }
 
 /*

@@ -2140,7 +2140,6 @@ weaponAttributes_t bg_weapons[ ] =
     2000,                 //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
@@ -2163,7 +2162,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
@@ -2186,7 +2184,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
@@ -2209,7 +2206,6 @@ weaponAttributes_t bg_weapons[ ] =
     2000,                 //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
@@ -2232,7 +2228,6 @@ weaponAttributes_t bg_weapons[ ] =
     2000,                 //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
@@ -2255,7 +2250,6 @@ weaponAttributes_t bg_weapons[ ] =
     2000,                 //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
@@ -2278,7 +2272,6 @@ weaponAttributes_t bg_weapons[ ] =
     2000,                 //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
@@ -2301,7 +2294,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
@@ -2324,7 +2316,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     10000,                //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
@@ -2347,7 +2338,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qtrue,                //qboolean  purchasable;
     5000,                 //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
@@ -2370,7 +2360,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     10000,                //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
@@ -2393,7 +2382,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     5000,                 //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
@@ -2416,7 +2404,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
@@ -2439,7 +2426,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
@@ -2462,7 +2448,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
@@ -2485,7 +2470,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
@@ -2508,7 +2492,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
@@ -2531,7 +2514,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
@@ -2554,7 +2536,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qtrue,                //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
@@ -2577,7 +2558,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
@@ -2600,7 +2580,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
@@ -2623,7 +2602,6 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
@@ -2930,26 +2908,6 @@ qboolean BG_WeaponHasThirdMode( int weapon )
     if( bg_weapons[ i ].weaponNum == weapon )
     {
       return bg_weapons[ i ].hasThirdMode;
-    }
-  }
-
-  return qfalse;
-}
-
-/*
-==============
-BG_WeaponModesAreSynced
-==============
-*/
-qboolean BG_WeaponModesAreSynced( int weapon )
-{
-  int i;
-
-  for( i = 0; i < bg_numWeapons; i++ )
-  {
-    if( bg_weapons[ i ].weaponNum == weapon )
-    {
-      return bg_weapons[ i ].synced;
     }
   }
 
@@ -3520,7 +3478,6 @@ char *eventnames[] = {
   "EV_FIRE_WEAPON",
   "EV_FIRE_WEAPON2",
   "EV_FIRE_WEAPON3",
-  "EV_FIRE_WEAPONBOTH",
 
   "EV_USE_ITEM0",
   "EV_USE_ITEM1",
@@ -3593,7 +3550,8 @@ char *eventnames[] = {
   "EV_TAUNT_GUARDBASE",
   "EV_TAUNT_PATROL",
 
-  "EV_MENU"             //TA: menu event
+  "EV_MENU",             //TA: menu event
+  "EV_POISONCLOUD"      //TA: client poisoned
 };
 
 /*

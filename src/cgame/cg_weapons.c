@@ -1019,12 +1019,82 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 }
 
 
+#define POISONCLOUD_LIFETIME  800
+#define POISONCLOUD_SPEED     80.0f
+#define POISONCLOUD_GAP       40
+#define POISONCLOUD_LAG       0.75f
+#define POISONCLOUD_SPREAD    160.0f
+
+/*
+===============
+CG_PoisonCloud
+===============
+*/
+static void CG_PoisonCloud( centity_t *cent, int firstPoisonTime )
+{
+  vec3_t  forward, right, up;
+  vec3_t  muzzlePoint;
+  vec3_t  velocity;
+  vec3_t  pVelocity;
+  vec3_t  accel = { 0.0f, 0.0f, 2.0f };
+  vec3_t  surfNormal;
+  entityState_t *es = &cent->currentState;
+
+  if( cent->currentState.weapon != WP_GRAB_CLAW_UPG )
+    return;
+
+  //finite lifetime
+  if( firstPoisonTime + POISONCLOUD_LIFETIME < cg.time )
+    return;
+  
+  //not time for the next ball yet
+  if( cg.time < cent->poisonTime )
+    return;
+  
+  if( cent->currentState.clientNum == cg.predictedPlayerState.clientNum && !cg.renderingThirdPerson )
+  {
+    AngleVectors( cg.refdefViewAngles, forward, right, up );
+    VectorCopy( cg.refdef.vieworg, muzzlePoint );
+    VectorScale( cg.predictedPlayerState.velocity, POISONCLOUD_LAG, pVelocity );
+  }
+  else
+  {
+    AngleVectors( cent->lerpAngles, forward, right, up );
+    VectorCopy( cent->lerpOrigin, muzzlePoint );
+
+    //FIXME: this is gonna look weird when crouching
+    muzzlePoint[ 2 ] += DEFAULT_VIEWHEIGHT;
+    VectorScale( cent->currentState.pos.trDelta, POISONCLOUD_LAG, pVelocity );
+  }
+  
+  VectorMA( pVelocity, POISONCLOUD_SPEED, forward, velocity );
+
+  VectorMA( muzzlePoint, 24.0f, forward, muzzlePoint );
+  VectorMA( muzzlePoint, -6.0f, up, muzzlePoint );
+
+  if( es->eFlags & EF_WALLCLIMBCEILING )
+    VectorSet( surfNormal, 0.0f, 0.0f, -1.0f );
+  else
+    VectorCopy( es->angles2, surfNormal );
+  
+  VectorMA( velocity, -33.0f, surfNormal, velocity );
+
+  CG_LaunchSprite( muzzlePoint, velocity, accel, POISONCLOUD_SPREAD,
+                   0.5f, 10.0f, 40.0f, 127.0f, 0.0f,
+                   rand( ) % 360, cg.time, cg.time, POISONCLOUD_LIFETIME,
+                   cgs.media.poisonCloudShader, qfalse, qfalse );
+
+  //set next ball time
+  cent->poisonTime = cg.time + POISONCLOUD_GAP;
+}
+
+
 /*
 ===============
 CG_FlameTrail
 ===============
 */
-static void CG_FlameTrail( centity_t *cent, vec3_t origin )
+static void CG_FlameTrail( centity_t *cent )
 {
   vec3_t  forward, right, up;
   vec3_t  muzzlePoint;
@@ -1061,34 +1131,13 @@ static void CG_FlameTrail( centity_t *cent, vec3_t origin )
   VectorMA( muzzlePoint, 6.0f, right, muzzlePoint );
   VectorMA( muzzlePoint, -6.0f, up, muzzlePoint );
   
-  CG_LaunchSprite( muzzlePoint, velocity, vec3_origin,
+  CG_LaunchSprite( muzzlePoint, velocity, vec3_origin, 0.0f,
                    0.1f, 4.0f, 40.0f, 255.0f, 255.0f,
-                   rand( ) % 360, cg.time, FIREBALL_LIFETIME,
+                   rand( ) % 360, cg.time, cg.time, FIREBALL_LIFETIME,
                    cgs.media.flameShader[ 0 ], qfalse, qfalse );
 
   //set next ball time
   cent->flamerTime = cg.time + FIREBALL_GAP;
-}
-
-
-/*
-===============
-CG_SpawnRailTrail
-
-Origin will be the exact tag point, which is slightly
-different than the muzzle point used for determining hits.
-===============
-*/
-static void CG_SpawnRailTrail( centity_t *cent, vec3_t origin )
-{
-/*  if ( cent->currentState.weapon != WP_RAILGUN )
-    return;
-
-  if ( !cent->pe.railgunFlash )
-    return;
- 
-  cent->pe.railgunFlash = qtrue;
-  CG_RailTrail( origin, cent->pe.railgunImpact );*/
 }
 
 
@@ -1160,7 +1209,8 @@ The main player will have this called for BOTH cases, so effects like light and
 sound should only be done on the world model case.
 =============
 */
-void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent ) {
+void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent )
+{
   refEntity_t gun;
   refEntity_t barrel;
   refEntity_t flash;
@@ -1172,7 +1222,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   weaponNum = cent->currentState.weapon;
 
   CG_RegisterWeapon( weaponNum );
-  weapon = &cg_weapons[weaponNum];
+  weapon = &cg_weapons[ weaponNum ];
 
   // add the weapon
   memset( &gun, 0, sizeof( gun ) );
@@ -1181,25 +1231,12 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   gun.renderfx = parent->renderfx;
 
   // set custom shading for railgun refire rate
-  if ( ps )
+  if( ps )
   {
-/*    if ( cg.predictedPlayerState.weapon == WP_RAILGUN
-      && cg.predictedPlayerState.weaponstate == WEAPON_FIRING )
-    {
-      float f;
-
-      f = (float)cg.predictedPlayerState.weaponTime / 1500;
-      gun.shaderRGBA[1] = 0;
-      gun.shaderRGBA[0] =
-      gun.shaderRGBA[2] = 255 * ( 1.0 - f );
-    }
-    else*/
-    {
-      gun.shaderRGBA[0] = 255;
-      gun.shaderRGBA[1] = 255;
-      gun.shaderRGBA[2] = 255;
-      gun.shaderRGBA[3] = 255;
-    }
+    gun.shaderRGBA[ 0 ] = 255;
+    gun.shaderRGBA[ 1 ] = 255;
+    gun.shaderRGBA[ 2 ] = 255;
+    gun.shaderRGBA[ 3 ] = 255;
 
     //set weapon[1/2]Time when respective buttons change state
     if( cg.weapon1Firing != ( cg.predictedPlayerState.eFlags & EF_FIRING ) )
@@ -1216,28 +1253,30 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   }
 
   gun.hModel = weapon->weaponModel;
-  if (!gun.hModel) {
+  if( !gun.hModel )
     return;
-  }
 
-  if ( !ps ) {
+  if( !ps )
+  {
     // add weapon ready sound
     cent->pe.lightningFiring = qfalse;
-    if ( ( cent->currentState.eFlags & EF_FIRING ) && weapon->firingSound ) {
+    if( ( cent->currentState.eFlags & EF_FIRING ) && weapon->firingSound )
+    {
       // lightning gun and guantlet make a different sound when fire is held down
       trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound );
       cent->pe.lightningFiring = qtrue;
-    } else if ( weapon->readySound ) {
-      trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound );
     }
+    else if( weapon->readySound )
+      trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound );
   }
 
-  CG_PositionEntityOnTag( &gun, parent, parent->hModel, "tag_weapon");
+  CG_PositionEntityOnTag( &gun, parent, parent->hModel, "tag_weapon" );
 
   CG_AddWeaponWithPowerups( &gun, cent->currentState.powerups );
 
   // add the spinning barrel
-  if( weapon->barrelModel ) {
+  if( weapon->barrelModel )
+  {
     memset( &barrel, 0, sizeof( barrel ) );
     VectorCopy( parent->lightingOrigin, barrel.lightingOrigin );
     barrel.shadowPlane = parent->shadowPlane;
@@ -1255,25 +1294,27 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   }
 
   // make sure we aren't looking at cg.predictedPlayerEntity for LG
-  nonPredictedCent = &cg_entities[cent->currentState.clientNum];
+  nonPredictedCent = &cg_entities[ cent->currentState.clientNum ];
 
   // if the index of the nonPredictedCent is not the same as the clientNum
   // then this is a fake player (like on teh single player podiums), so
   // go ahead and use the cent
-  if( ( nonPredictedCent - cg_entities ) != cent->currentState.clientNum ) {
+  if( ( nonPredictedCent - cg_entities ) != cent->currentState.clientNum )
     nonPredictedCent = cent;
-  }
+
+  CG_PoisonCloud( nonPredictedCent, cent->firstPoisonTime );
 
   // add the flash
-  if ( ( weaponNum == WP_TESLAGEN || weaponNum == WP_FLAMER ) &&
-       ( nonPredictedCent->currentState.eFlags & EF_FIRING ) )
+  if( ( weaponNum == WP_TESLAGEN || weaponNum == WP_FLAMER ) &&
+      ( nonPredictedCent->currentState.eFlags & EF_FIRING ) )
   {
     // continuous flash
-  } else {
+  }
+  else
+  {
     // impulse flash
-    if ( cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && !cent->pe.railgunFlash ) {
+    if( cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && !cent->pe.railgunFlash )
       return;
-    }
   }
 
   memset( &flash, 0, sizeof( flash ) );
@@ -1282,41 +1323,30 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   flash.renderfx = parent->renderfx;
 
   flash.hModel = weapon->flashModel;
-  if (!flash.hModel) {
+  if( !flash.hModel )
     return;
-  }
-  angles[YAW] = 0;
-  angles[PITCH] = 0;
-  angles[ROLL] = crandom() * 10;
+
+  angles[ YAW ] = 0;
+  angles[ PITCH ] = 0;
+  angles[ ROLL ] = crandom( ) * 10;
   AnglesToAxis( angles, flash.axis );
 
-  // colorize the railgun blast
-/*  if ( weaponNum == WP_RAILGUN ) {
-    clientInfo_t  *ci;
-
-    ci = &cgs.clientinfo[ cent->currentState.clientNum ];
-    flash.shaderRGBA[0] = 255 * ci->color1[0];
-    flash.shaderRGBA[1] = 255 * ci->color1[1];
-    flash.shaderRGBA[2] = 255 * ci->color1[2];
-  }*/
-
-  CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash");
+  CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash" );
   trap_R_AddRefEntityToScene( &flash );
 
-  if ( ps || cg.renderingThirdPerson ||
-    cent->currentState.number != cg.predictedPlayerState.clientNum ) {
+  if( ps || cg.renderingThirdPerson ||
+      cent->currentState.number != cg.predictedPlayerState.clientNum )
+  {
     // add lightning bolt
     CG_LightningBolt( nonPredictedCent, flash.origin );
     
-    CG_FlameTrail( nonPredictedCent, flash.origin );
-
-    // add rail trail
-    CG_SpawnRailTrail( cent, flash.origin );
+    CG_FlameTrail( nonPredictedCent );
 
     // make a dlight for the flash
-    if ( weapon->flashDlightColor[0] || weapon->flashDlightColor[1] || weapon->flashDlightColor[2] ) {
-      trap_R_AddLightToScene( flash.origin, 300 + (rand()&31), weapon->flashDlightColor[0],
-        weapon->flashDlightColor[1], weapon->flashDlightColor[2] );
+    if( weapon->flashDlightColor[ 0 ] || weapon->flashDlightColor[ 1 ] || weapon->flashDlightColor[ 2 ] )
+    {
+      trap_R_AddLightToScene( flash.origin, 300 + ( rand( ) & 31 ), weapon->flashDlightColor[ 0 ],
+        weapon->flashDlightColor[ 1 ], weapon->flashDlightColor[ 2 ] );
     }
   }
 }
@@ -1368,7 +1398,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
       VectorCopy( cg.refdef.vieworg, origin );
       VectorMA( origin, -8, cg.refdef.viewaxis[2], origin );
       CG_LightningBolt( &cg_entities[ps->clientNum], origin );
-      CG_FlameTrail( &cg_entities[ps->clientNum], origin );
+      CG_FlameTrail( &cg_entities[ ps->clientNum ] );
     }
     return;
   }
@@ -1803,7 +1833,8 @@ CG_FireWeapon
 Caused by an EV_FIRE_WEAPON event
 ================
 */
-void CG_FireWeapon( centity_t *cent ) {
+void CG_FireWeapon( centity_t *cent, int mode )
+{
   entityState_t *ent;
   int       c;
   weaponInfo_t  *weap;
@@ -1821,6 +1852,9 @@ void CG_FireWeapon( centity_t *cent ) {
   // mark the entity as muzzle flashing, so when it is added it will
   // append the flash to the weapon model
   cent->muzzleFlashTime = cg.time;
+
+  if( ent->weapon == WP_GRAB_CLAW_UPG && mode == 1 )
+    cent->firstPoisonTime = cg.time;
 
   // lightning gun only does this this on initial press
   if ( ent->weapon == WP_TESLAGEN ) {
@@ -1981,8 +2015,9 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
       velocity[ 1 ] = ( 2 * random( ) - 1.0f ) * LCANON_EJECTION_VEL;
       velocity[ 2 ] = ( 2 * random( ) - 1.0f ) * LCANON_EJECTION_VEL;
       
-      CG_LaunchSprite( origin, velocity, accel, 0.9, 1.0f, 40.0f, 255, 0, rand( ) % 360,
-                       cg.time, 2000 + ( crandom( ) * 1000 ),
+      CG_LaunchSprite( origin, velocity, accel, 0.0f,
+                       0.9f, 1.0f, 40.0f, 255, 0, rand( ) % 360,
+                       cg.time, cg.time, 2000 + ( crandom( ) * 1000 ),
                        spark, qfalse, qfalse );
     }
     break;

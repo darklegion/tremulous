@@ -49,6 +49,8 @@
 #define LC_TOTAL_CHARGE         255
 #define LC_CHARGE_TIME          2000.0f
 
+#define PCLOUD_TIME             10000
+
 //
 // config strings are a general means of communicating variable length strings
 // from the server to all connected clients.
@@ -248,6 +250,7 @@ typedef enum {
 #define SS_HOVELING             0x00000100
 #define SS_BOOSTED              0x00000200
 #define SS_SLOWLOCKED           0x00000400
+#define SS_POISONCLOUDED        0x00000800
 
 #define SB_VALID_TOGGLEBIT      0x00004000
 
@@ -510,7 +513,6 @@ typedef enum {
   EV_FIRE_WEAPON,
   EV_FIRE_WEAPON2,
   EV_FIRE_WEAPON3,
-  EV_FIRE_WEAPONBOTH,
 
   EV_USE_ITEM0,
   EV_USE_ITEM1,
@@ -584,7 +586,8 @@ typedef enum {
   EV_TAUNT_PATROL,
 
   EV_MENU,            //TA: menu event
-  EV_BUILD_DELAY      //TA: can't build yet
+  EV_BUILD_DELAY,     //TA: can't build yet
+  EV_POISONCLOUD      //TA: client poisoned
 } entity_event_t;
 
 typedef enum
@@ -973,7 +976,6 @@ typedef struct
   
   qboolean  hasAltMode;
   qboolean  hasThirdMode;
-  qboolean  synced;
 
   qboolean  purchasable;
   
@@ -1090,7 +1092,6 @@ int       BG_FindRepeatRateForWeapon( int weapon );
 int       BG_FindReloadTimeForWeapon( int weapon );
 qboolean  BG_WeaponHasAltMode( int weapon );
 qboolean  BG_WeaponHasThirdMode( int weapon );
-qboolean  BG_WeaponModesAreSynced( int weapon );
 qboolean  BG_FindPurchasableForWeapon( int weapon );
 int       BG_FindBuildDelayForWeapon( int weapon );
 WUTeam_t  BG_FindTeamForWeapon( int weapon );

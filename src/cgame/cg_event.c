@@ -812,19 +812,15 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     break;
   case EV_FIRE_WEAPON:
     DEBUGNAME("EV_FIRE_WEAPON");
-    CG_FireWeapon( cent );
+    CG_FireWeapon( cent, 0 );
     break;
   case EV_FIRE_WEAPON2:
     DEBUGNAME("EV_FIRE_WEAPON2");
-    CG_FireWeapon( cent ); //FIXME:??
+    CG_FireWeapon( cent, 1 ); //FIXME:??
     break;
   case EV_FIRE_WEAPON3:
     DEBUGNAME("EV_FIRE_WEAPON3");
-    CG_FireWeapon( cent ); //FIXME:??
-    break;
-  case EV_FIRE_WEAPONBOTH:
-    DEBUGNAME("EV_FIRE_WEAPONBOTH");
-    CG_FireWeapon( cent ); //FIXME:??
+    CG_FireWeapon( cent, 2 ); //FIXME:??
     break;
   case EV_USE_ITEM0:
     DEBUGNAME("EV_USE_ITEM0");
@@ -1039,8 +1035,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       velocity[ 1 ] = ( 2 * random( ) - 1.0f ) * MASS_EJECTION_VEL;
       velocity[ 2 ] = ( 2 * random( ) - 1.0f ) * MASS_EJECTION_VEL;
       
-      CG_LaunchSprite( origin, velocity, accel, 0.999, 4.0f, 2.0f, 255, 0, rand( ) % 360,
-                       cg.time, 5000 + ( crandom( ) * 3000 ),
+      CG_LaunchSprite( origin, velocity, accel, 0.0f, 0.5f, 4.0f, 2.0f, 255, 0, rand( ) % 360,
+                       cg.time, cg.time, 5000 + ( crandom( ) * 3000 ),
                        spark, qfalse, qfalse );
     }
 
@@ -1156,6 +1152,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     //FIXME: change to "negative" sound
     trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
     cg.lastBuildAttempt = cg.time;
+    break;
+
+  case EV_POISONCLOUD:
+    DEBUGNAME("EV_POISONCLOUD");
+    cg.firstPoisonedTime = cg.time;
     break;
 
   case EV_PLAYER_RESPAWN:

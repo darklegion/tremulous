@@ -2346,10 +2346,7 @@ static void PM_Weapon( void )
   {
     if( BG_WeaponHasAltMode( pm->ps->weapon ) )
     {
-      if( BG_WeaponModesAreSynced( pm->ps->weapon ) && attack1 )
-        PM_AddEvent( EV_FIRE_WEAPONBOTH );
-      else
-        PM_AddEvent( EV_FIRE_WEAPON2 );
+      PM_AddEvent( EV_FIRE_WEAPON2 );
     }
     else
     {
@@ -2523,7 +2520,8 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
   //convert viewangles -> axis
   AnglesToAxis( tempang, axis );
 
-  if( !BG_rotateAxis( ps->grapplePoint, axis, rotaxis, qfalse,
+  if( !( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) ||
+      !BG_rotateAxis( ps->grapplePoint, axis, rotaxis, qfalse,
                       ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )   
     AxisCopy( axis, rotaxis );
 

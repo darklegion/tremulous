@@ -225,10 +225,15 @@ static void CG_OffsetThirdPersonView( void )
   float         forwardScale, sideScale;
   vec3_t        surfNormal;
   
-  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
-    VectorSet( surfNormal, 0.0f, 0.0f, -1.0f );
+  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBING )
+  {
+    if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
+      VectorSet( surfNormal, 0.0f, 0.0f, -1.0f );
+    else
+      VectorCopy( cg.predictedPlayerState.grapplePoint, surfNormal );
+  }
   else
-    VectorCopy( cg.predictedPlayerState.grapplePoint, surfNormal );
+    VectorSet( surfNormal, 0.0f, 0.0f, 1.0f );
   
   VectorMA( cg.refdef.vieworg, cg.predictedPlayerState.viewheight, surfNormal, cg.refdef.vieworg );
 
@@ -326,6 +331,14 @@ static void CG_StepOffset( void )
 		  cg.refdef.vieworg[2] -= stepChange;
 	}
 }
+
+#define PCLOUD_ROLL_AMPLITUDE   25.0f
+#define PCLOUD_ROLL_FREQUENCY   0.4f
+#define PCLOUD_ZOOM_AMPLITUDE   15
+#define PCLOUD_ZOOM_FREQUENCY   0.7f
+#define PCLOUD_SPRITE_GAP       25
+    
+
 /*
 ===============
 CG_OffsetFirstPersonView
@@ -506,6 +519,40 @@ static void CG_OffsetFirstPersonView( void ) {
       cg.upMoveTime = cg.time;
   }
 
+  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_POISONCLOUDED )
+  {
+    float fraction = sin( ( (float)cg.time / 1000.0f ) * M_PI * 2 * PCLOUD_ROLL_FREQUENCY );
+    float pitchFraction = sin( ( (float)cg.time / 1000.0f ) * M_PI * 5 * PCLOUD_ROLL_FREQUENCY );
+
+    fraction *= 1.0f - ( ( cg.time - cg.firstPoisonedTime ) / (float)PCLOUD_TIME );
+    pitchFraction *= 1.0f - ( ( cg.time - cg.firstPoisonedTime ) / (float)PCLOUD_TIME );
+
+    angles[ ROLL ] += fraction * PCLOUD_ROLL_AMPLITUDE;
+    angles[ YAW ] += fraction * PCLOUD_ROLL_AMPLITUDE;
+    angles[ PITCH ] += pitchFraction * PCLOUD_ROLL_AMPLITUDE / 2.0f;
+
+    if( cg.time > cg.poisonedTime )
+    {
+      vec3_t accel = { 0.0f, 0.0f, 300.0f };
+      vec3_t    forward, right, up;
+      vec3_t    spriteOrigin;
+
+      AngleVectors( angles, forward, right, NULL );
+      forward[ 2 ] = 0.0f;
+      VectorCopy( cg.predictedPlayerState.velocity, up );
+      up[ 2 ] += 32.0f;
+      VectorMA( origin, 32.0f, forward, spriteOrigin );
+      VectorMA( spriteOrigin, ( rand( ) % 128 ) - 64, right, spriteOrigin );
+      
+      CG_LaunchSprite( spriteOrigin, up, accel, 0.0f,
+                       0.5f, 10.0f, 40.0f, 127.0f, 0.0f,
+                       rand( ) % 360, cg.time, rand( ) % 10000, 500,
+                       cgs.media.poisonCloudShader, qfalse, qfalse );
+
+      cg.poisonedTime = cg.time + PCLOUD_SPRITE_GAP;
+    }
+  }
+  
   //TA: this *feels* more realisitic for humans
   if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
@@ -618,6 +665,7 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 */
 #define WAVE_AMPLITUDE  1
 #define WAVE_FREQUENCY  0.4
+
 #define FOVWARPTIME     400.0
 
 static int CG_CalcFov( void ) {
@@ -710,6 +758,16 @@ static int CG_CalcFov( void ) {
     inwater = qfalse;
   }
 
+  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_POISONCLOUDED &&
+      cg.predictedPlayerState.stats[ STAT_HEALTH ] > 0 )
+  {
+    phase = cg.time / 1000.0 * PCLOUD_ZOOM_FREQUENCY * M_PI * 2;
+    v = PCLOUD_ZOOM_AMPLITUDE * sin( phase );
+    v *= 1.0f - ( ( cg.time - cg.firstPoisonedTime ) / (float)PCLOUD_TIME );
+    fov_x += v;
+    fov_y += v;
+  }
+  
 
   // set it
   cg.refdef.fov_x = fov_x;

@@ -1384,8 +1384,6 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
   vec3_t        right = { 0.0f, 1.0f, 0.0f };
   vec3_t        pvel;
   int           addTime;
-  float         fspread = tan( DEG2RAD( ( random( ) * JET_SPREAD ) - ( JET_SPREAD / 2 ) ) );
-  float         rspread = tan( DEG2RAD( ( random( ) * JET_SPREAD ) - ( JET_SPREAD / 2 ) ) );
 
   held = cent->currentState.modelindex;
   active = cent->currentState.modelindex2;
@@ -1432,13 +1430,10 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
 
         VectorScale( cent->currentState.pos.trDelta, 0.75f, pvel );
         VectorAdd( vel, pvel, vel );
-  
-        VectorMA( vel, fspread, forward, vel );
-        VectorMA( vel, rspread, right, vel );
       
-        CG_LaunchSprite( origin, vel, acc,
+        CG_LaunchSprite( origin, vel, acc, JET_SPREAD,
                          0.5f, 4.0f, 20.0f, 128.0f, 0.0f,
-                         rand( ) % 360, cg.time, JET_LIFETIME,
+                         rand( ) % 360, cg.time, cg.time, JET_LIFETIME,
                          cgs.media.smokePuffShader, qfalse, qfalse );
 
         //set next ball time
@@ -1895,7 +1890,8 @@ void CG_Player( centity_t *cent )
   AnglesToAxis( cent->lerpAngles, tempAxis );
 
   //rotate lerpAngles to floor
-  if( BG_rotateAxis( es->angles2, tempAxis, tempAxis2, qtrue, es->eFlags & EF_WALLCLIMBCEILING ) )
+  if( es->eFlags & EF_WALLCLIMB &&
+      BG_rotateAxis( es->angles2, tempAxis, tempAxis2, qtrue, es->eFlags & EF_WALLCLIMBCEILING ) )
     AxisToAngles( tempAxis2, angles );
   else
     VectorCopy( cent->lerpAngles, angles );
@@ -1908,7 +1904,8 @@ void CG_Player( centity_t *cent )
   CG_PlayerAngles( cent, angles, legs.axis, torso.axis, head.axis );
 
   //rotate the legs axis to back to the wall
-  if( BG_rotateAxis( es->angles2, legs.axis, tempAxis, qfalse, es->eFlags & EF_WALLCLIMBCEILING ) )
+  if( es->eFlags & EF_WALLCLIMB &&
+      BG_rotateAxis( es->angles2, legs.axis, tempAxis, qfalse, es->eFlags & EF_WALLCLIMBCEILING ) )
     AxisCopy( tempAxis, legs.axis );
 
   // get the animation state (after rotation, to allow feet shuffle)

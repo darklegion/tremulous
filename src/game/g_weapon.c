@@ -559,14 +559,6 @@ qboolean CheckVenomAttack( gentity_t *ent )
   }
 
   G_Damage( traceEnt, ent, ent, forward, tr.endpos, 100, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
-/*  if( traceEnt->client )
-  {
-    if( !( traceEnt->client->ps.stats[ STAT_STATE ] & SS_POISONED ) )
-    {
-      traceEnt->client->ps.stats[ STAT_STATE ] |= SS_POISONED;
-      traceEnt->client->lastPoisonTime = level.time;
-    }
-  }*/
 
   return qtrue;
 }
@@ -603,7 +595,7 @@ void CheckGrabAttack( gentity_t *ent )
 
   traceEnt = &g_entities[ tr.entityNum ];
 
-  if( !traceEnt->takedamage)
+  if( !traceEnt->takedamage )
     return;
   if( !traceEnt->client )
     return;
@@ -614,9 +606,40 @@ void CheckGrabAttack( gentity_t *ent )
     VectorCopy( traceEnt->client->ps.viewangles, traceEnt->client->ps.grapplePoint );
   
   traceEnt->client->ps.stats[ STAT_STATE ] |= SS_GRABBED;
-  traceEnt->client->lastLockTime = level.time;
+  traceEnt->client->lastGrabTime = level.time;
 
   //FIXME: event for some client side grab effect?
+}
+
+/*
+===============
+poisonCloud
+===============
+*/
+void poisonCloud( gentity_t *ent )
+{
+  int       entityList[ MAX_GENTITIES ];
+  vec3_t    range = { 200, 200, 200 };
+  vec3_t    mins, maxs, dir;
+  int       i, num;
+  gentity_t *humanPlayer;
+  float     modifier = 1.0f;
+  
+  VectorAdd( ent->client->ps.origin, range, maxs );
+  VectorSubtract( ent->client->ps.origin, range, mins );
+  
+  num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+  for( i = 0; i < num; i++ )
+  {
+    humanPlayer = &g_entities[ entityList[ i ] ];
+    
+    if( humanPlayer->client && humanPlayer->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    {
+      humanPlayer->client->ps.stats[ STAT_STATE ] |= SS_POISONCLOUDED;
+      humanPlayer->client->lastPoisonCloudedTime = level.time;
+      G_AddPredictableEvent( humanPlayer, EV_POISONCLOUD, 0 );
+    }
+  }
 }
 
 /*
@@ -913,6 +936,7 @@ void FireWeapon2( gentity_t *ent )
   switch( ent->s.weapon )
   {
     case WP_GRAB_CLAW_UPG:
+      poisonCloud( ent );
       break;
     case WP_POUNCE:
     case WP_POUNCE_UPG:

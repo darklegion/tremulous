@@ -341,9 +341,10 @@ struct gclient_s {
   gentity_t *infestBody;  //TA: body that is being infested. must be persistant
 
   int       lastPoisonTime;
-  int       lastGrabTime; //TA: yuck yuck hack urgh
-  int       lastLockTime; //TA: "                 "
-  int       lastSlowTime; //TA: "                 "
+  int       lastPoisonCloudedTime;
+  int       lastGrabTime;
+  int       lastLockTime;
+  int       lastSlowTime;
   int       lastBoostedTime;
 
   int       pouncePayload; //TA: amount of damage pounce attack will do

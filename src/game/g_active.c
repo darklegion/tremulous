@@ -545,6 +545,10 @@ void ClientTimerActions( gentity_t *ent, int msec )
   {
     client->time1000 -= 1000;
 
+    //client is poisoned
+    if( client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED )
+      G_Damage( ent, NULL, NULL, NULL, NULL, 5, 0, MOD_VENOM );
+    
     //replenish alien health
     if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     {
@@ -657,11 +661,6 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 
     case EV_FIRE_WEAPON3:
       FireWeapon3( ent );
-      break;
-
-    case EV_FIRE_WEAPONBOTH:
-      FireWeapon( ent );
-      FireWeapon2( ent );
       break;
 
     case EV_USE_ITEM1:    // teleporter
@@ -899,6 +898,10 @@ void ClientThink_real( gentity_t *ent ) {
   if( client->ps.stats[ STAT_STATE ] & SS_BOOSTED &&
       client->lastBoostedTime + 20000 < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_BOOSTED;
+
+  if( client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED &&
+      client->lastPoisonCloudedTime + PCLOUD_TIME < level.time )
+    client->ps.stats[ STAT_STATE ] &= ~SS_POISONCLOUDED;
 
   client->ps.gravity = g_gravity.value;
 

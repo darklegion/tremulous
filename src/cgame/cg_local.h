@@ -174,6 +174,8 @@ typedef struct centity_s {
   qboolean    currentValid; // true if cg.frame holds this entity
 
   int       muzzleFlashTime;  // move to playerEntity?
+  int       muzzleFlashTime2;  // move to playerEntity?
+  int       muzzleFlashTime3;  // move to playerEntity?
   int       previousEvent;
   int       teleportFlag;
 
@@ -203,6 +205,8 @@ typedef struct centity_s {
   //TA:
   buildableAnimNumber_t buildableAnim; //persistant anim number
   int         flamerTime; //limit flameball count
+  int         poisonTime; //limit poison count
+  int         firstPoisonTime; //when poison cloud starts
   int         jetTime;    //limit jet count
 } centity_t;
 
@@ -712,6 +716,9 @@ typedef struct {
   int       rightMoveTime;
   int       upMoveTime;
 
+  int       poisonedTime; //TA: poison cloud
+  int       firstPoisonedTime; //TA: poison cloud
+
   float     charModelFraction; //TA: loading percentages
   float     mediaFraction;
   float     buildablesFraction;
@@ -834,6 +841,7 @@ typedef struct {
   qhandle_t greenBloodMarkShader;
   qhandle_t greenBloodExplosionShader;
   qhandle_t explosionTrailShader;
+  qhandle_t poisonCloudShader;
 
   qhandle_t humanNV;
   qhandle_t humanTorch8;
@@ -1407,11 +1415,12 @@ void CG_InitBuildables( );
 // cg_spriter.c
 //
 void CG_Spriter( centity_t *cent );
-void CG_LaunchSprite( const vec3_t p, const vec3_t vel, const vec3_t accel, float bounce,
+void CG_LaunchSprite( const vec3_t p, const vec3_t vel, const vec3_t accel,
+                      float spread, float bounce,
                       float initRad, float finalRad,
                       float initAlp, float finalAlp,
                       float rotation,
-                      int startTime, int duration,
+                      int startTime, int shaderTime, int duration,
                       qhandle_t hShader, qboolean overdraw, qboolean realLight );
 
 //
@@ -1469,7 +1478,7 @@ void CG_RegisterUpgrade( int upgradeNum );
 void CG_InitWeapons( );
 void CG_RegisterWeapon( int weaponNum );
 
-void CG_FireWeapon( centity_t *cent );
+void CG_FireWeapon( centity_t *cent, int mode );
 void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, int damage );
 void CG_Explosion( int clientNum, vec3_t origin, vec3_t dir );
 void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum, int damage );
