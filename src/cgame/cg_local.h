@@ -220,6 +220,7 @@ typedef enum {
   LE_SPRITE_EXPLOSION,
   LE_FRAGMENT,
   LE_MOVE_SCALE_FADE,
+  LE_SPRITER,
   LE_FALL_SCALE_FADE,
   LE_FADE_RGB,
   LE_SCALE_FADE
@@ -272,6 +273,12 @@ typedef struct localEntity_s {
   leBounceSoundType_t leBounceSoundType;
 
   refEntity_t   refEntity;
+
+  //TA: random stuff for cg_spriter.c
+  vec3_t    acceleration;
+  float     initAlp, finalAlp;
+  float     initRad, finalRad;
+  qboolean  overdraw;
 } localEntity_t;
 
 //======================================================================
@@ -1025,6 +1032,7 @@ typedef struct {
   // locally derived information from gamestate
   //
   qhandle_t   gameModels[MAX_MODELS];
+  qhandle_t   gameShaders[MAX_SHADERS];
   sfxHandle_t   gameSounds[MAX_SOUNDS];
 
   int       numInlineModels;
@@ -1326,6 +1334,11 @@ sfxHandle_t CG_CustomSound( int clientNum, const char *soundName );
 //
 void CG_Buildable( centity_t *cent );
 void CG_InitBuildables( );
+
+//
+// cg_spriter.c
+//
+void CG_Spriter( centity_t *cent );
 
 //
 // cg_predict.c

@@ -118,6 +118,12 @@ field_t fields[] = {
   {"dmg", FOFS(damage), F_INT},
   {"angles", FOFS(s.angles), F_VECTOR},
   {"angle", FOFS(s.angles), F_ANGLEHACK},
+  //TA
+  {"bounce", FOFS(physicsBounce), F_FLOAT},
+  {"alpha", FOFS(pos1), F_VECTOR},
+  {"radius", FOFS(pos2), F_VECTOR},
+  {"acceleration", FOFS(acceleration), F_VECTOR},
+  //TA
   {"targetShaderName", FOFS(targetShaderName), F_LSTRING},
   {"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
 
@@ -135,8 +141,8 @@ void SP_info_player_deathmatch (gentity_t *ent);
 void SP_info_player_intermission (gentity_t *ent);
 
 //TA: extra bits
-void SP_info_droid_intermission (gentity_t *ent);
-void SP_info_human_intermission (gentity_t *ent);
+void SP_info_droid_intermission( gentity_t *ent );
+void SP_info_human_intermission( gentity_t *ent );
 
 void SP_info_firstplace(gentity_t *ent);
 void SP_info_secondplace(gentity_t *ent);
@@ -194,6 +200,9 @@ void SP_team_CTF_blueplayer( gentity_t *ent );
 
 void SP_team_CTF_redspawn( gentity_t *ent );
 void SP_team_CTF_bluespawn( gentity_t *ent );
+
+//TA:
+void SP_spriter( gentity_t *ent );
 
 spawn_t spawns[] = {
   // info entities don't do anything at all, but provide positional
@@ -266,6 +275,8 @@ spawn_t spawns[] = {
   {"team_CTF_redspawn", SP_team_CTF_redspawn},
   {"team_CTF_bluespawn", SP_team_CTF_bluespawn},
 
+  {"spriter", SP_spriter},
+  
   {0, 0}
 };
 

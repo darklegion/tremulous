@@ -70,24 +70,6 @@ void SP_light( gentity_t *self ) {
   G_FreeEntity( self );
 }
 
-//TA: position/colour/intensity calculating function
-void ShineTorch( gentity_t *self )
-{
-  vec3_t  origin, angles;
-
-  VectorCopy( self->parent->s.pos.trBase, origin );
-  VectorCopy( self->parent->s.apos.trBase, angles );
-
-  G_SetOrigin( self, origin );
-
-  VectorCopy( angles, self->s.apos.trBase );
-
-  //so we can use the predicted values client side if available
-  self->s.clientNum = self->parent->s.number;
-
-  trap_LinkEntity( self );
-}
-
 
 
 /*
@@ -356,3 +338,59 @@ void SP_shooter_grenade( gentity_t *ent ) {
   //InitShooter( ent, WP_GRENADE_LAUNCHER);
 }
 
+/*
+======================================================================
+
+  NEAT EFFECTS AND STUFF FOR TREMULOUS
+
+======================================================================
+*/
+
+//TA: position/colour/intensity calculating function
+void ShineTorch( gentity_t *self )
+{
+  vec3_t  origin, angles;
+
+  VectorCopy( self->parent->s.pos.trBase, origin );
+  VectorCopy( self->parent->s.apos.trBase, angles );
+
+  G_SetOrigin( self, origin );
+
+  VectorCopy( angles, self->s.apos.trBase );
+
+  //so we can use the predicted values client side if available
+  self->s.clientNum = self->parent->s.number;
+
+  trap_LinkEntity( self );
+}
+
+void SP_spriter( gentity_t *self )
+{
+  vec3_t  accel;
+  
+  G_SetOrigin( self, self->s.origin );
+
+  VectorCopy( self->acceleration, self->s.origin2 );
+  
+  self->s.time = (int)self->speed;
+  self->s.time2 = (int)self->wait;
+  self->s.powerups = (int)self->random;
+  self->s.angles2[ 0 ] = self->physicsBounce;
+  
+  self->s.modelindex = self->pos1[ 0 ];
+  self->s.modelindex2 = self->pos1[ 1 ];
+  
+  self->s.legsAnim = self->pos2[ 0 ];
+  self->s.torsoAnim = self->pos2[ 1 ];
+
+  if( self->count > 0 )
+    self->s.angles2[ 1 ] = ( 1000 / self->count );
+  else
+    self->s.angles2[ 1 ] = 1000;
+
+  self->s.weapon = G_ShaderIndex( self->targetShaderName );
+
+  self->s.eType = ET_SPRITER;
+  
+  trap_LinkEntity( self );
+}

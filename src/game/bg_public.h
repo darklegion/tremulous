@@ -98,12 +98,13 @@
 
 #define CS_MODELS           33
 #define CS_SOUNDS           (CS_MODELS+MAX_MODELS)
-#define CS_PLAYERS          (CS_SOUNDS+MAX_SOUNDS)
+#define CS_SHADERS          (CS_SOUNDS+MAX_SOUNDS)
+#define CS_PLAYERS          (CS_SHADERS+MAX_SHADERS)
 #define CS_PRECACHES        (CS_PLAYERS+MAX_CLIENTS)
 #define CS_LOCATIONS        (CS_PRECACHES+MAX_CLIENTS)
-#define CS_PARTICLES        (CS_LOCATIONS+MAX_LOCATIONS)
+/*#define CS_PARTICLES        (CS_LOCATIONS+MAX_LOCATIONS) TA: never used?!*/
 
-#define CS_MAX              (CS_PARTICLES+MAX_LOCATIONS)
+#define CS_MAX              (CS_LOCATIONS+MAX_LOCATIONS)
 
 #if (CS_MAX) > MAX_CONFIGSTRINGS
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
@@ -1003,6 +1004,7 @@ typedef enum {
 
   ET_TORCH,         //TA: torch type
   ET_CORPSE,
+  ET_SPRITER,
 
   ET_EVENTS       // any of the EV_* events can be added freestanding
               // by setting eType to ET_EVENTS + eventNum

@@ -117,6 +117,10 @@ int G_FindConfigstringIndex( char *name, int start, int max, qboolean create ) {
 	return i;
 }
 
+//TA: added ShaderIndex
+int G_ShaderIndex( char *name ) {
+	return G_FindConfigstringIndex (name, CS_SHADERS, MAX_SHADERS, qtrue);
+}
 
 int G_ModelIndex( char *name ) {
 	return G_FindConfigstringIndex (name, CS_MODELS, MAX_MODELS, qtrue);

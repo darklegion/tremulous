@@ -907,6 +907,17 @@ static void CG_RegisterGraphics( void ) {
     cgs.gameModels[i] = trap_R_RegisterModel( modelName );
   }
 
+  // register all the server specified shaders
+  for (i=1 ; i<MAX_SHADERS ; i++) {
+    const char    *shaderName;
+
+    shaderName = CG_ConfigString( CS_SHADERS+i );
+    if ( !shaderName[0] ) {
+      break;
+    }
+    cgs.gameShaders[i] = trap_R_RegisterShader( shaderName );
+  }
+
   CG_ClearParticles ();
 }
 

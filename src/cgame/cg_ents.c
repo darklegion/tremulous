@@ -953,6 +953,9 @@ static void CG_AddCEntity( centity_t *cent ) {
   case ET_GRAPPLE:
     CG_Grapple( cent );
     break;
+  case ET_SPRITER:
+    CG_Spriter( cent );
+    break;
   }
 }
 
