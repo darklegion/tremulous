@@ -1692,6 +1692,12 @@ static void PM_GroundTraceMissed( void )
     }
   }
 
+  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_TAKESFALLDAMAGE ) )
+  {
+    if( pm->ps->velocity[ 2 ] < FALLING_THRESHOLD && pml.previous_velocity[ 2 ] >= FALLING_THRESHOLD )
+      PM_AddEvent( EV_FALLING );
+  }
+
   pm->ps->groundEntityNum = ENTITYNUM_NONE;
   pml.groundPlane = qfalse;
   pml.walking = qfalse;

@@ -460,6 +460,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       }
       break;
 
+    case EV_FALLING:
+      DEBUGNAME( "EV_FALLING" );
+      trap_S_StartSound( NULL, es->number, CHAN_AUTO, CG_CustomSound( es->number, "*falling1.wav" ) );
+      break;
+
     case EV_STEP_4:
     case EV_STEP_8:
     case EV_STEP_12:
