@@ -190,6 +190,7 @@ vmCvar_t  cg_oldPlasma;
 vmCvar_t  cg_trueLightning;
 vmCvar_t  cg_creepRes;
 vmCvar_t  cg_drawSurfNormal;
+vmCvar_t  cg_drawBBOX;
 vmCvar_t  cg_debugAlloc;
 vmCvar_t  cg_wwSmoothTime;
 vmCvar_t  cg_wwFollow;
@@ -289,6 +290,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_noVoiceText, "cg_noVoiceText", "0", CVAR_ARCHIVE },
   { &cg_creepRes, "cg_creepRes", "16", CVAR_ARCHIVE },
   { &cg_drawSurfNormal, "cg_drawSurfNormal", "0", CVAR_CHEAT },
+  { &cg_drawBBOX, "cg_drawBBOX", "0", CVAR_CHEAT },
   { &cg_debugAlloc, "cg_debugAlloc", "0", 0 },
   { &cg_wwSmoothTime, "cg_wwSmoothTime", "300", CVAR_ARCHIVE },
   { &cg_wwFollow, "cg_wwFollow", "1", CVAR_ARCHIVE|CVAR_USERINFO },

@@ -1320,12 +1320,30 @@ static void CG_PlayerNonSegAngles( centity_t *cent, vec3_t srcAngles, vec3_t non
   float         speed;
   int           dir, clientNum;
   clientInfo_t  *ci;
+  entityState_t *es = &cent->currentState;
+  vec3_t        surfNormal;
+  vec3_t        ceilingNormal = { 0.0f, 0.0f, -1.0f };
 
   VectorCopy( srcAngles, localAngles );
   localAngles[ YAW ] = AngleMod( localAngles[ YAW ] );
   localAngles[ PITCH ] = 0.0f;
   localAngles[ ROLL ] = 0.0f;
 
+  //set surfNormal
+  if( !( es->eFlags & EF_WALLCLIMBCEILING ) )
+    VectorCopy( es->angles2, surfNormal );
+  else
+    VectorCopy( ceilingNormal, surfNormal );
+
+  //make sure that WW transitions don't cause the swing stuff to go nuts
+  if( !VectorCompare( surfNormal, cent->pe.lastNormal ) )
+  {
+    VectorCopy( surfNormal, cent->pe.lastNormal );
+
+    cent->pe.nonseg.yawAngle = localAngles[ YAW ];
+    cent->pe.nonseg.yawing = qfalse;
+  }
+  
   // --------- yaw -------------
 
   // allow yaw to drift a bit

@@ -2984,10 +2984,13 @@ static void PM_Animate( void )
     }
     else
     {
-      PM_ForceLegsAnim( NSPA_GESTURE );
-      pm->ps->torsoTimer = TIMER_GESTURE;
-      
-      PM_AddEvent( EV_TAUNT );
+      if( pm->ps->torsoTimer == 0 )
+      {
+        PM_ForceLegsAnim( NSPA_GESTURE );
+        pm->ps->torsoTimer = TIMER_GESTURE;
+        
+        PM_AddEvent( EV_TAUNT );
+      }
     }
   }
 }

@@ -394,6 +394,8 @@ typedef struct
   float       barrelAngle;
   int         barrelTime;
   qboolean    barrelSpinning;
+
+  vec3_t      lastNormal;
 } playerEntity_t;
 
 typedef struct lightFlareStatus_s
@@ -1410,6 +1412,7 @@ extern  vmCvar_t    cg_oldPlasma;
 extern  vmCvar_t    cg_trueLightning;
 extern  vmCvar_t    cg_creepRes;
 extern  vmCvar_t    cg_drawSurfNormal;
+extern  vmCvar_t    cg_drawBBOX;
 extern  vmCvar_t    cg_debugAlloc;
 extern  vmCvar_t    cg_wwSmoothTime;
 extern  vmCvar_t    cg_wwFollow;

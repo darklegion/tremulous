@@ -1112,5 +1112,40 @@ void CG_AddPacketEntities( void )
     CG_AddCEntity( cent );
   }
   
+  //make an attempt at drawing bounding boxes of selected entity types
+  if( cg_drawBBOX.integer )
+  {
+    for( num = 0; num < cg.snap->numEntities; num++ )
+    {
+      float         x, zd, zu;
+      vec3_t        mins, maxs;
+      entityState_t *es;
+      
+      cent = &cg_entities[ cg.snap->entities[ num ].number ];
+      es = &cent->currentState;
+      
+      switch( es->eType )
+      {
+        case ET_PLAYER:
+        case ET_BUILDABLE:
+        case ET_MISSILE:
+        case ET_CORPSE:
+          x = ( es->solid & 255 );
+          zd = ( ( es->solid >> 8 ) & 255 );
+          zu = ( ( es->solid >> 16 ) & 255 ) - 32;
+
+          mins[ 0 ] = mins[ 1 ] = -x;
+          maxs[ 0 ] = maxs[ 1 ] = x;
+          mins[ 2 ] = -zd;
+          maxs[ 2 ] = zu;
+
+          CG_DrawBoundingBox( es->origin, mins, maxs );
+          break;
+
+        default:
+          break;
+      }
+    }
+  }
 }
 
