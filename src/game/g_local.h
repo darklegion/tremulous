@@ -525,6 +525,10 @@ void SaveRegisteredItems( void );
 //
 // g_buildable.c
 //
+
+#define M_ROOT3 1.732050808f
+#define MAX_ALIEN_BBOX  15
+
 typedef enum
 {
   IBE_NONE,

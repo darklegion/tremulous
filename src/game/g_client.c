@@ -258,30 +258,55 @@ SelectDroidSpawnPoint
 go to a random point that doesn't telefrag
 ================
 */
-gentity_t *SelectDroidSpawnPoint( void ) {
+gentity_t *SelectDroidSpawnPoint( void )
+{
   gentity_t *spot;
-  int     count;
-  int     selection;
-  gentity_t *spots[MAX_SPAWN_POINTS];
+  int       count;
+  int       selection;
+  gentity_t *spots[ MAX_SPAWN_POINTS ];
+  vec3_t    mins, maxs, origin;
+  gentity_t *ent;
+  trace_t   tr;
+  float     displacement;
+
+  VectorSet( mins, -MAX_ALIEN_BBOX, -MAX_ALIEN_BBOX, -MAX_ALIEN_BBOX );
+  VectorSet( maxs,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX );
 
   count = 0;
   spot = NULL;
 
-  while ((spot = G_Find (spot, FOFS(classname), "team_droid_spawn")) != NULL) {
-    if ( SpotWouldTelefrag( spot ) || ( spot->health <= 0 ) ) {
+  while( ( spot = G_Find( spot, FOFS( classname ), "team_droid_spawn" ) ) != NULL )
+  {
+    if( SpotWouldTelefrag( spot ) || ( spot->health <= 0 ) )
       continue;
-    }
+
+    if( !spot->s.groundEntityNum )
+      continue;
+      
+    VectorCopy( spot->s.origin, origin );
+    displacement = ( spot->r.maxs[ 2 ] + MAX_ALIEN_BBOX ) * M_ROOT3 + 1.0f;
+    VectorMA( origin, displacement, spot->s.origin2, origin );
+    
+    trap_Trace( &tr, origin, mins, maxs, origin, spot->s.number, MASK_SHOT );
+    ent = &g_entities[ tr.entityNum ];
+    
+    //spawn will suicide itself in the next 100ms
+    if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
+      continue;
+
     spots[ count ] = spot;
     count++;
   }
 
-  if ( !count ) { // no spots that won't telefrag
-    spot = G_Find( NULL, FOFS(classname), "team_droid_spawn");
+  if( !count )
+  {
+    // no spots that won't telefrag
+    spot = G_Find( NULL, FOFS( classname ), "team_droid_spawn" );
+    
     if( spot->health > 0 )
       return spot;
     else
       return NULL;
-
   }
 
   selection = rand() % count;
@@ -298,23 +323,45 @@ go to a random point that doesn't telefrag
 */
 gentity_t *SelectHumanSpawnPoint( void ) {
   gentity_t *spot;
-  int     count;
-  int     selection;
-  gentity_t *spots[MAX_SPAWN_POINTS];
+  int       count;
+  int       selection;
+  gentity_t *spots[ MAX_SPAWN_POINTS ];
+  vec3_t    mins, maxs, origin;
+  gentity_t *ent;
+  trace_t   tr;
+
+  BG_FindBBoxForClass( PCL_H_BASE, mins, maxs, NULL, NULL, NULL );
 
   count = 0;
   spot = NULL;
 
-  while ((spot = G_Find (spot, FOFS(classname), "team_human_spawn")) != NULL) {
-    if ( SpotWouldTelefrag( spot ) || ( spot->health <= 0 ) ) {
+  while( ( spot = G_Find( spot, FOFS( classname ), "team_human_spawn" ) ) != NULL )
+  {
+    if( SpotWouldTelefrag( spot ) || ( spot->health <= 0 ) )
       continue;
-    }
+
+    if( !spot->s.groundEntityNum )
+      continue;
+
+    VectorCopy( spot->s.origin, origin );
+    origin[ 2 ] += spot->r.maxs[ 2 ] + fabs( mins[ 2 ] ) + 1.0f;
+    
+    trap_Trace( &tr, origin, mins, maxs, origin, spot->s.number, MASK_SHOT );
+    ent = &g_entities[ tr.entityNum ];
+    
+    //spawn will suicide itself in the next 100ms
+    if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
+      continue;
+
     spots[ count ] = spot;
     count++;
   }
 
-  if ( !count ) { // no spots that won't telefrag
-    spot = G_Find( NULL, FOFS(classname), "team_human_spawn");
+  if( !count )
+  {
+    // no spots that won't telefrag
+    spot = G_Find( NULL, FOFS( classname ), "team_human_spawn" );
+    
     if( spot->health > 0 )
       return spot;
     else
@@ -376,6 +423,9 @@ Chooses a player start, deathmatch start, etc
 gentity_t *SelectTremulousSpawnPoint( int team, vec3_t origin, vec3_t angles )
 {
   gentity_t *spot;
+  float     displacement;
+  vec3_t    classMins, classMaxs, spawnMins, spawnMaxs;
+  vec3_t    normal = { 0, 0, 1 };
 
   if( team == PTE_DROIDS )
     spot = SelectDroidSpawnPoint( );
@@ -386,14 +436,25 @@ gentity_t *SelectTremulousSpawnPoint( int team, vec3_t origin, vec3_t angles )
   if( !spot )
     return NULL;
 
-  //TA: why isn't spot->s.origin being set?
   VectorCopy( spot->s.pos.trBase, origin );
   VectorCopy( spot->s.angles, angles );
 
   if( team == PTE_DROIDS )
-    VectorMA( origin, 40.0f, spot->s.origin2, origin );
+  {
+    BG_FindBBoxForBuildable( BA_D_SPAWN, spawnMins, spawnMaxs );
+    
+    //TA: really a *safe* extreme upper limit
+    displacement = ( spawnMaxs[ 2 ] + MAX_ALIEN_BBOX + 1.0f ) * M_ROOT3;
+    VectorMA( origin, displacement, spot->s.origin2, origin );
+  }
   else if( team == PTE_HUMANS )
-    VectorMA( origin, 29.0f, spot->s.origin2, origin );
+  {
+    BG_FindBBoxForClass( PCL_H_BASE, classMins, classMaxs, NULL, NULL, NULL );
+    BG_FindBBoxForBuildable( BA_H_SPAWN, spawnMins, spawnMaxs );
+
+    displacement = spawnMaxs[ 2 ] + fabs( classMins[ 2 ] ) + 1.0f;
+    origin[ 2 ] += displacement;
+  }
 
   return spot;
   
@@ -1286,7 +1347,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
       BG_FindBBoxForClass( spawn->s.clientNum, NULL, NULL, NULL, NULL, bodyMaxs );
       BG_FindBBoxForClass( ent->client->pers.pclass, classMins, NULL, NULL, NULL, NULL );
 
-      spawn_origin[ 2 ] += bodyMaxs[ 2 ] + abs( classMins[ 2 ] ) + 1;
+      spawn_origin[ 2 ] += bodyMaxs[ 2 ] + fabs( classMins[ 2 ] ) + 1;
       G_AddEvent( spawn, EV_GIB_DROID, DirToByte( up ) );
       spawn->freeAfterEvent = qtrue;
     }

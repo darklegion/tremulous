@@ -369,6 +369,28 @@ think function for Droid Spawn
 */
 void DSpawn_Think( gentity_t *self )
 {
+  vec3_t    mins, maxs, origin;
+  gentity_t *ent;
+  trace_t   tr;
+  float     displacement;
+
+  VectorSet( mins, -MAX_ALIEN_BBOX, -MAX_ALIEN_BBOX, -MAX_ALIEN_BBOX );
+  VectorSet( maxs,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX );
+  
+  VectorCopy( self->s.origin, origin );
+  displacement = ( self->r.maxs[ 2 ] + MAX_ALIEN_BBOX ) * M_ROOT3 + 1.0f;
+  VectorMA( origin, displacement, self->s.origin2, origin );
+  
+  trap_Trace( &tr, origin, mins, maxs, origin, self->s.number, MASK_SHOT );
+  ent = &g_entities[ tr.entityNum ];
+  
+  if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
+  {
+    G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+    return;
+  }
+
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
 }
 
 /*
@@ -862,11 +884,9 @@ void HMedistat_Think( gentity_t *self )
   maxs[ 2 ] += 60; //player height
   
   //make sure we have power
-  self->nextthink = level.time + REFRESH_TIME;
-  
   self->powered = findPower( self );
 
-  //do some damage
+  //do some healage
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
   {
@@ -1403,10 +1423,28 @@ Think for human spawn
 */
 void HSpawn_Think( gentity_t *self )
 {
-  //search for power
-  self->nextthink = level.time + REFRESH_TIME;
+  vec3_t    mins, maxs, origin;
+  gentity_t *ent;
+  trace_t   tr;
 
+  BG_FindBBoxForClass( PCL_H_BASE, mins, maxs, NULL, NULL, NULL );
+
+  VectorCopy( self->s.origin, origin );
+  origin[ 2 ] += self->r.maxs[ 2 ] + fabs( mins[ 2 ] ) + 1.0f;
+  
+  //make sure we have power
   self->powered = findPower( self );
+
+  trap_Trace( &tr, origin, mins, maxs, origin, self->s.number, MASK_SHOT );
+  ent = &g_entities[ tr.entityNum ];
+  
+  if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
+  {
+    G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+    return;
+  }
+
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
 }
 
 
