@@ -843,7 +843,7 @@ void calculateBuildPoints( void )
     level.humanBuildPoints = 0;
   }
   
-  if( level.humanBuildPoints < 0 )
+  if( level.alienBuildPoints < 0 )
   {
     localDTP -= level.alienBuildPoints;
     level.alienBuildPoints = 0;
