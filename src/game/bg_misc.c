@@ -22,10 +22,10 @@ buildableAttributes_t bg_buildableList[ ] =
 {
   {
     BA_A_SPAWN,            //int       buildNum;     
-    "bioegg",              //char      *buildName;
+    "eggpod",              //char      *buildName;
     "Egg",                 //char      *humanName;
     "team_alien_spawn",    //char      *entityName;
-    { "models/buildables/bioegg/bioegg.md3", 0, 0, 0 },
+    { "models/buildables/eggpod/eggpod.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -229,7 +229,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "overmind",            //char      *buildName;
     "Overmind",            //char      *humanName;
     "team_alien_overmind", //char      *entityName;
-    { "models/buildables/hivemind/hivemind.md3", 0, 0, 0 },
+    { "models/buildables/overmind/overmind.md3", 0, 0, 0 },
     { -45, -45, -15 },     //vec3_t    mins;
     { 45, 45, 95 },        //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -294,10 +294,10 @@ buildableAttributes_t bg_buildableList[ ] =
   },
   {
     BA_H_SPAWN,            //int       buildNum;
-    "replicator",          //char      *buildName;
-    "Replicator",          //char      *humanName;
+    "telenode",            //char      *buildName;
+    "Telenode",            //char      *humanName;
     "team_human_spawn",    //char      *entityName;
-    { "models/buildables/replicator/replicator.md3", 0, 0, 0 },
+    { "models/buildables/telenode/telenode.md3", 0, 0, 0 },
     { -40, -40, -4 },      //vec3_t    mins;
     { 40, 40, 4 },         //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -466,10 +466,10 @@ buildableAttributes_t bg_buildableList[ ] =
   },
   {
     BA_H_ARMOURY,          //int       buildNum;
-    "mcu",                 //char      *buildName;
+    "arm",                 //char      *buildName;
     "Armoury",             //char      *humanName;
     "team_human_armoury",  //char      *entityName;
-    { "models/buildables/mcu/mcu.md3", 0, 0, 0 },
+    { "models/buildables/arm/arm.md3", 0, 0, 0 },
     { -40, -40, -13 },     //vec3_t    mins;
     { 40, 40, 50 },        //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -677,6 +677,9 @@ char *BG_FindModelsForBuildable( int bclass, int modelNum )
 {
   int i;
 
+  if( bg_buildableOverrideList[ bclass ].models[ modelNum ][ 0 ] != 0 )
+    return bg_buildableOverrideList[ bclass ].models[ modelNum ];
+
   for( i = 0; i < bg_numBuildables; i++ )
   {
     if( bg_buildableList[ i ].buildNum == bclass )
@@ -701,10 +704,20 @@ void BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs )
     if( bg_buildableList[ i ].buildNum == bclass )
     {
       if( mins != NULL )
+      {
         VectorCopy( bg_buildableList[ i ].mins, mins );
+
+        if( VectorLength( bg_buildableOverrideList[ bclass ].mins ) )
+          VectorCopy( bg_buildableOverrideList[ bclass ].mins, mins );
+      }
         
       if( maxs != NULL )
+      {
         VectorCopy( bg_buildableList[ i ].maxs, maxs );
+
+        if( VectorLength( bg_buildableOverrideList[ bclass ].maxs ) )
+          VectorCopy( bg_buildableOverrideList[ bclass ].maxs, maxs );
+      }
         
       return;
     }
@@ -725,6 +738,9 @@ BG_FindZOffsetForBuildable
 float BG_FindZOffsetForBuildable( int bclass )
 {
   int i;
+
+  if( bg_buildableOverrideList[ bclass ].zOffset != 0.0f )
+    return bg_buildableOverrideList[ bclass ].zOffset;
 
   for( i = 0; i < bg_numBuildables; i++ )
   {
@@ -1780,7 +1796,6 @@ classAttributes_t bg_classList[ ] =
     100.0f,                                         //float   stopSpeed;
     170.0f,                                         //float   jumpMagnitude;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
-    0,                                              //int     timetoevolve;
     BMOFO_VALUE                                     //int     value;
   },
   {
@@ -1818,7 +1833,6 @@ classAttributes_t bg_classList[ ] =
     100.0f,                                         //float   stopSpeed;
     220.0f,                                         //float   jumpMagnitude;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
-    0,                                              //int     timetoevolve;
     0                                               //int     value;
   },
   {
@@ -1833,7 +1847,7 @@ classAttributes_t bg_classList[ ] =
     
     "bsuit", ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), { 0, 0, 0 }, { 0, 0, 0, },                             
     { 0, 0, 0, }, { 0, 0, 0, }, { 0, 0, 0, }, 0.0f, 0, 0, 0, 0.0f, 0, 0, WP_NONE, 0.0f, 0,   
-    0.0f, 1.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 270.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
+    0.0f, 1.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 270.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0
   }
 };
 
@@ -3084,8 +3098,8 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
-    "venom",              //char      *weaponName;
-    "Venom",              //char      *weaponHumanName;
+    "bite",               //char      *weaponName;
+    "Bite",               //char      *weaponHumanName;
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;

@@ -1558,8 +1558,8 @@ static void CG_GarbageCollectParticleSystems( void )
       ps->valid = qfalse;
 
     //check systems where the parent cent has left the PVS
-    //( centNum 0 - player entity, is always valid )
-    if( ps->attachment.centValid && ps->attachment.centNum != 0 )
+    //( local player entity is always valid )
+    if( ps->attachment.centValid && ps->attachment.centNum != cg.clientNum )
     {
       if( !cg_entities[ ps->attachment.centNum ].valid )
         ps->valid = qfalse;

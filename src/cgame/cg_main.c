@@ -737,7 +737,7 @@ static void CG_RegisterGraphics( void )
   cgs.media.greenBuildShader          = trap_R_RegisterShader("gfx/2d/greenbuild" );
   cgs.media.redBuildShader            = trap_R_RegisterShader("gfx/2d/redbuild" );
   cgs.media.noPowerShader             = trap_R_RegisterShader("gfx/2d/nopower" );
-  cgs.media.humanSpawningShader       = trap_R_RegisterShader("models/buildables/replicator/rep_cyl" );
+  cgs.media.humanSpawningShader       = trap_R_RegisterShader("models/buildables/telenode/rep_cyl" );
 
   cgs.media.machinegunBrassModel      = trap_R_RegisterModel( "models/weapons2/shells/m_shell.md3" );
   cgs.media.shotgunBrassModel         = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
@@ -920,11 +920,9 @@ static void CG_RegisterClients( void )
     trap_UpdateScreen( );
   }
 
-  cgs.media.helmetModel        = trap_R_RegisterModel( "models/players/human_base/helmet.md3" );
-  cgs.media.helmetSkin         = trap_R_RegisterSkin( "models/players/human_base/helmet_default.skin" );
-
-  cgs.media.larmourLegsSkin    = trap_R_RegisterSkin( "models/players/sarge/lower_red.skin" );
-  cgs.media.larmourTorsoSkin   = trap_R_RegisterSkin( "models/players/sarge/upper_red.skin" );
+  cgs.media.larmourHeadSkin    = trap_R_RegisterSkin( "models/players/trooper/head_light.skin" );
+  cgs.media.larmourLegsSkin    = trap_R_RegisterSkin( "models/players/trooper/lower_light.skin" );
+  cgs.media.larmourTorsoSkin   = trap_R_RegisterSkin( "models/players/trooper/upper_light.skin" );
   
   cgs.media.jetpackModel       = trap_R_RegisterModel( "models/players/human_base/jetpack.md3" );
   cgs.media.jetpackFlashModel  = trap_R_RegisterModel( "models/players/human_base/jetpack_flash.md3" );
@@ -1634,7 +1632,6 @@ void CG_AssetCache( void )
   cgDC.Assets.sliderBar           = trap_R_RegisterShaderNoMip( ASSET_SLIDER_BAR );
   cgDC.Assets.sliderThumb         = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
 }
-//TA: FIXME: preliminary integration of CG TA UI stuff
 
 /*
 =================
@@ -1680,7 +1677,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   //TA: moved up for LoadHudMenu
   String_Init( );
 
-  //TA: FIXME: TA UI
+  //TA: TA UI
   CG_AssetCache( );
   CG_LoadHudMenu( );      // load new hud stuff
 

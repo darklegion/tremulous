@@ -1277,7 +1277,7 @@ TEAM_* ENTITIES
 The human spawn point.
 
 -------- MODEL FOR RADIANT ONLY - DO NOT SET THIS AS A KEY --------
-model="models/buildables/replicator/replicator.md3"
+model="models/buildables/telenode/telenode.md3"
 */
 
 //=============================================================================
@@ -1286,7 +1286,7 @@ model="models/buildables/replicator/replicator.md3"
 The human armoury.
 
 -------- MODEL FOR RADIANT ONLY - DO NOT SET THIS AS A KEY --------
-model="models/buildables/mcu/mcu.md3"
+model="models/buildables/arm/arm.md3"
 */
 
 //=============================================================================
@@ -1351,7 +1351,7 @@ model="models/buildables/tesla/tesla.md3"
 The alien spawn point.
 
 -------- MODEL FOR RADIANT ONLY - DO NOT SET THIS AS A KEY --------
-model="models/buildables/bioegg/bioegg.md3"
+model="models/buildables/eggpod/eggpod.md3"
 */
 
 //=============================================================================
@@ -1396,7 +1396,7 @@ model="models/buildables/hovel/hovel.md3"
 The alien overmind.
 
 -------- MODEL FOR RADIANT ONLY - DO NOT SET THIS AS A KEY --------
-model="models/buildables/hivemind/hivemind.md3"
+model="models/buildables/overmind/overmind.md3"
 */
 
 //=============================================================================
@@ -1536,7 +1536,7 @@ humanMaxStage: The highest stage the humans are allowed to use [0/1/2]. Defaults
 humanStage2Threshold: The number of kills the humans must aquire to advance to stage 2. Defaults to 50.
 humanStage3Threshold: The number of kills the humans must aquire to advance to stage 3. Defaults to 100.
 
-alienBuildPoints: The maximum amount of sentience available to the hivemind. Defaults to 1000.
+alienBuildPoints: The maximum amount of sentience available to the overmind. Defaults to 1000.
 
 alienMaxStage: The highest stage the aliens are allowed to use [0/1/2]. Defaults to 2.
 alienStage2Threshold: The number of kills the aliens must aquire to advance to stage 2. Defaults to 50.

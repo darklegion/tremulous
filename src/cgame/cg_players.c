@@ -2040,16 +2040,12 @@ void CG_Player( centity_t *cent )
     //
     // add the head
     //
+    head.hModel = ci->headModel;
+
     if( held & ( 1 << UP_HELMET ) )
-    {
-      head.hModel = cgs.media.helmetModel;
-      head.customSkin = cgs.media.helmetSkin;
-    }
+      head.customSkin = cgs.media.larmourHeadSkin;
     else
-    {
-      head.hModel = ci->headModel;
       head.customSkin = ci->headSkin;
-    }
     
     if( !head.hModel )
       return;

@@ -906,7 +906,6 @@ typedef struct
   float     jumpMagnitude;
 
   int       children[ 3 ];
-  int       timeToEvolve;
   int       value;
 } classAttributes_t;
 
@@ -990,7 +989,7 @@ typedef struct
 
 typedef struct
 {
-  char      models[ MAX_QPATH ][ MAX_BUILDABLE_MODELS ];
+  char      models[ MAX_BUILDABLE_MODELS ][ MAX_QPATH ];
 
   vec3_t    mins;
   vec3_t    maxs;

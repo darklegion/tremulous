@@ -1181,10 +1181,9 @@ typedef struct
   qhandle_t   sparkFlareShader;
 
   //TA: media used for armour switching stuff
-  qhandle_t helmetModel;
-  qhandle_t helmetSkin;
 
   //light armour
+  qhandle_t larmourHeadSkin;
   qhandle_t larmourLegsSkin;
   qhandle_t larmourTorsoSkin;
   
