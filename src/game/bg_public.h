@@ -406,12 +406,9 @@ typedef enum
   BA_H_ARMOURY,
   BA_H_DCC,
   BA_H_MEDISTAT,
-  BA_H_BANK,
   
   BA_H_REACTOR,
   BA_H_REPEATER,
-
-  BA_H_FLOATMINE,
 
   BA_NUM_BUILDABLES
 } buildable_t;
@@ -555,7 +552,6 @@ typedef enum
   MN_A_INFEST,
   MN_A_HOVEL_OCCUPIED,
   MN_A_HOVEL_BLOCKED,
-  MN_A_OBANK,
   MN_A_NOFUNDS,
   MN_A_NOEROOM,
   
@@ -573,7 +569,6 @@ typedef enum
   MN_H_SPAWN,
   MN_H_BUILD,
   MN_H_ARMOURY,
-  MN_H_BANK,
   MN_H_NOSLOTS,
   MN_H_NOFUNDS,
   MN_H_ITEMHELD,

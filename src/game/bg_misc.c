@@ -321,7 +321,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_MGTURRET,         //int       buildNum;
     "mgturret",            //char      *buildName;
     "Machinegun Turret",   //char      *humanName;
-    "team_human_def2",     //char      *entityName;
+    "team_human_mgturret", //char      *entityName;
     { "models/buildables/mgturret/turret_base.md3",
       "models/buildables/mgturret/turret_barrel.md3",
       "models/buildables/mgturret/turret_top.md3", 0 },
@@ -408,40 +408,6 @@ buildableAttributes_t bg_buildableList[ ] =
     100,                   //int       nextthink;
     10000,                 //int       buildTime;
     qfalse,                //qboolean  usable;
-    0,                     //int       turretRange;
-    0,                     //int       turretFireSpeed;
-    WP_NONE,               //weapon_t  turretProjType;
-    0.95f,                 //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qfalse,                //qboolean  creepTest;
-    0,                     //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qfalse                 //qboolean  reactorTest;
-  },
-  {
-    BA_H_BANK,             //int       buildNum;
-    "bank",                //char      *buildName;
-    "Bank",                //char      *humanName;
-    "team_human_bank",     //char      *entityName;
-    { "models/buildables/bank/bank.md3", 0, 0, 0 },
-    { -25, -25, 0 },       //vec3_t    mins;
-    { 25, 25, 45 },        //vec3_t    maxs;
-    TR_GRAVITY,            //trType_t  traj;
-    0.0,                   //float     bounce;
-    BANK_BP,               //int       buildPoints;
-    //( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    0, //DISABLE BANK //int  stages
-    BANK_HEALTH,           //int       health;
-    0,                     //int       regenRate;
-    BANK_SPLASHDAMAGE,     //int       splashDamage;
-    BANK_SPLASHRADIUS,     //int       splashRadius;
-    MOD_HSPAWN,            //int       meansOfDeath;
-    BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       idleAnim;
-    100,                   //int       nextthink;
-    10000,                 //int       buildTime;
-    qtrue,                 //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
@@ -545,39 +511,6 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
     0.95f,                 //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qfalse,                //qboolean  creepTest;
-    0,                     //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qfalse                 //qboolean  reactorTest;
-  },
-  {
-    BA_H_FLOATMINE,        //int       buildNum;
-    "floatmine",           //char      *buildName;
-    "Floatmine",           //char      *humanName;
-    "team_human_floatmine",//char      *entityName;
-    { "models/buildables/floatmine/floatmine.md3", 0, 0, 0 },
-    { -25, -25, -25 },     //vec3_t    mins;
-    { 25, 25, 25 },        //vec3_t    maxs;
-    TR_BUOYANCY,           //trType_t  traj;
-    0.2,                   //float     bounce;
-    FLOATMINE_BP,          //int       buildPoints;
-    ( 1 << S2 )|( 1 << S3 ), //int  stages
-    FLOATMINE_HEALTH,      //int       health;
-    0,                     //int       regenRate;
-    FLOATMINE_SPLASHDAMAGE,//int       splashDamage;
-    FLOATMINE_SPLASHRADIUS,//int       splashRadius;
-    MOD_HSPAWN,            //int       meansOfDeath;
-    BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       idleAnim;
-    100,                   //int       nextthink;
-    10000,                 //int       buildTime;
-    qfalse,                //qboolean  usable;
-    0,                     //int       turretRange;
-    0,                     //int       turretFireSpeed;
-    WP_NONE,               //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;

@@ -243,13 +243,6 @@
 #define HOVEL_SPLASHRADIUS          200
 #define HOVEL_CREEPSIZE             120
 
-#define OBANK_BP                    80
-#define OBANK_HEALTH                ABHM(100)
-#define OBANK_REGEN                 10
-#define OBANK_SPLASHDAMAGE          20
-#define OBANK_SPLASHRADIUS          100
-#define OBANK_CREEPSIZE             120
-
 
 
 /*
@@ -442,11 +435,6 @@
 #define DC_HEALTH                   HBHM(150)
 #define DC_SPLASHDAMAGE             50
 #define DC_SPLASHRADIUS             100
-
-#define BANK_BP                     80
-#define BANK_HEALTH                 HBHM(100)
-#define BANK_SPLASHDAMAGE           50
-#define BANK_SPLASHRADIUS           100
 
 #define ARMOURY_BP                  100
 #define ARMOURY_HEALTH              HBHM(175)

@@ -1309,50 +1309,6 @@ void HArmoury_Think( gentity_t *self )
 
 
 
-/*
-================
-HBank_Activate
-
-Called when a human activates a Bank 
-================
-*/
-void HBank_Activate( gentity_t *self, gentity_t *other, gentity_t *activator )
-{
-  if( self->spawned )
-  {
-    //only humans can activate this
-    if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
-      return;
-    
-    //if this is powered then call the bank menu
-    if( self->powered )
-      G_TriggerMenu( activator->client->ps.clientNum, MN_H_BANK );
-    else
-      G_TriggerMenu( activator->client->ps.clientNum, MN_H_NOPOWER );
-  }
-}
-
-/*
-================
-HBank_Think
-
-Think for bank
-================
-*/
-void HBank_Think( gentity_t *self )
-{
-  //make sure we have power
-  self->nextthink = level.time + POWER_REFRESH_TIME;
-  
-  self->powered = findPower( self );
-}
-
-
-
-
-//==================================================================================
-
-
 
 
 /*
@@ -1448,83 +1404,6 @@ void HMedistat_Think( gentity_t *self )
       self->active = qfalse;
     }
   }
-}
-
-
-
-
-//==================================================================================
-
-
-
-/*
-================
-HFM_Touch
-
-Called when a floatmine is triggered
-================
-*/
-void HFM_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
-{
-  //can't blow up twice
-  if( self->health <= 0 )
-    return;
-    
-  if( other && other->client && other->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-    return;
-
-  //go boom
-  G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
-}
-
-/*
-================
-HFM_Die
-
-Called when a floatmine dies
-================
-*/
-void HFM_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
-{
-  vec3_t  dir;
-  
-  // we don't have a valid direction, so just point straight up
-  dir[ 0 ] = dir[ 1 ] = 0;
-  dir[ 2 ] = -1;
-
-  self->takedamage = qfalse;
-
-  //do a bit of radius damage
-  G_RadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
-    self->splashRadius, self, self->splashMethodOfDeath );
-
-  //pretty events and item cleanup
-  self->s.modelindex = 0; //don't draw the model once its destroyed
-  G_AddEvent( self, EV_BUILDABLE_EXPLOSION, DirToByte( dir ) );
-  self->r.contents = CONTENTS_TRIGGER;
-  self->timestamp = level.time;
-
-  self->think = freeBuildable;
-  self->die = nullDieFunction;
-  self->nextthink = level.time + 100;
-  
-  trap_LinkEntity( self );
-}
-
-/*
-================
-HFM_Think
-
-Think for floatmine
-================
-*/
-void HFM_Think( gentity_t *self )
-{
-  //make sure we have power
-  self->nextthink = level.time + POWER_REFRESH_TIME;
-  
-  if( !( self->powered = findPower( self ) ) )
-    G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
 }
 
 
@@ -2263,12 +2142,6 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       built->use = HArmoury_Activate;
       break;
       
-    case BA_H_BANK:
-      built->think = HBank_Think;
-      built->die = HSpawn_Die;
-      built->use = HBank_Activate;
-      break;
-      
     case BA_H_DCC:
       built->think = HDCC_Think;
       built->die = HSpawn_Die;
@@ -2289,12 +2162,6 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       built->think = HRpt_Think;
       built->die = HSpawn_Die;
       built->use = HRpt_Use;
-      break;
-      
-    case BA_H_FLOATMINE:
-      built->think = HFM_Think;
-      built->die = HFM_Die;
-      built->touch = HFM_Touch;
       break;
       
     default:

@@ -500,7 +500,6 @@ typedef struct
   int               humanBuildPointsPowered;
 
   int               bankCredits[ MAX_CLIENTS ];   //global credits storage
-  int               oBankCredits[ MAX_CLIENTS ];  //global credits storage
 
   int               alienKills;
   int               humanKills;
