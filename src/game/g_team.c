@@ -907,7 +907,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
   int     i, j;
   gentity_t *player;
   int     cnt;
-  int     h, a;
+  int     h, a = 0;
   int     clients[TEAM_MAXOVERLAY];
 
   if ( ! ent->client->pers.teamInfo )
@@ -937,9 +937,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
       ent->client->sess.sessionTeam ) {
 
       h = player->client->ps.stats[STAT_HEALTH];
-      a = player->client->ps.stats[STAT_ARMOR];
       if (h < 0) h = 0;
-      if (a < 0) a = 0;
 
       Com_sprintf (entry, sizeof(entry),
         " %i %i %i %i %i %i",

@@ -1293,7 +1293,6 @@ classAttributes_t bg_classList[ ] =
     12, 12,                                         //int     viewheight, crouchviewheight;
     50,                                             //int     health;
     5,                                              //int     regenRate;
-    0,                                              //int     armor;
     SCA_TAKESFALLDAMAGE|SCA_FOVWARPS,               //int     abilities;
     95.0f,                                          //float   buildDist;
     80,                                             //int     fov;
@@ -1321,7 +1320,6 @@ classAttributes_t bg_classList[ ] =
     0, 0,                                           //int     viewheight, crouchviewheight;
     75,                                             //int     health;
     5,                                              //int     regenRate;
-    10,                                             //int     armor;
     SCA_CANJUMP|SCA_FOVWARPS|SCA_WALLCLIMBER,       //int     abilities;
     95.0f,                                          //float   buildDist;
     110,                                            //int     fov;
@@ -1349,7 +1347,6 @@ classAttributes_t bg_classList[ ] =
     0, 0,                                                       //int     viewheight, crouchviewheight;
     25,                                                         //int     health;
     5,                                                          //int     regenRate;
-    0,                                                          //int     armor;
     SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS|SCA_ALIENSENSE, //int     abilities;
     0.0f,                                                       //float   buildDist;
     140,                                                        //int     fov;
@@ -1377,7 +1374,6 @@ classAttributes_t bg_classList[ ] =
     6, 6,                                         //int     viewheight, crouchviewheight;
     50,                                           //int     health;
     5,                                            //int     regenRate;
-    5,                                            //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
     120,                                          //int     fov;
@@ -1405,7 +1401,6 @@ classAttributes_t bg_classList[ ] =
     6, 6,                                         //int     viewheight, crouchviewheight;
     50,                                           //int     health;
     5,                                            //int     regenRate;
-    5,                                            //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
     120,                                          //int     fov;
@@ -1433,7 +1428,6 @@ classAttributes_t bg_classList[ ] =
     6, 6,                                         //int     viewheight, crouchviewheight;
     50,                                           //int     health;
     5,                                            //int     regenRate;
-    10,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
     120,                                          //int     fov;
@@ -1461,7 +1455,6 @@ classAttributes_t bg_classList[ ] =
     6, 6,                                         //int     viewheight, crouchviewheight;
     50,                                           //int     health;
     5,                                            //int     regenRate;
-    10,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
     120,                                          //int     fov;
@@ -1489,7 +1482,6 @@ classAttributes_t bg_classList[ ] =
     4, 4,                                         //int     viewheight, crouchviewheight;
     100,                                          //int     health;
     5,                                            //int     regenRate;
-    20,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
     130,                                          //int     fov;
@@ -1517,7 +1509,6 @@ classAttributes_t bg_classList[ ] =
     4, 4,                                         //int     viewheight, crouchviewheight;
     100,                                          //int     health;
     5,                                            //int     regenRate;
-    20,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
     130,                                          //int     fov;
@@ -1545,7 +1536,6 @@ classAttributes_t bg_classList[ ] =
     4, 4,                                         //int     viewheight, crouchviewheight;
     100,                                          //int     health;
     5,                                            //int     regenRate;
-    30,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
     130,                                          //int     fov;
@@ -1573,7 +1563,6 @@ classAttributes_t bg_classList[ ] =
     26, 12,                                     //int     viewheight, crouchviewheight;
     100,                                        //int     health;
     0,                                          //int     regenRate;
-    0,                                          //int     armor;
     SCA_TAKESFALLDAMAGE|SCA_CANJUMP,            //int     abilities;
     110.0f,                                     //float   buildDist;
     90,                                         //int     fov;
@@ -1838,26 +1827,6 @@ int BG_FindRegenRateForClass( int pclass )
     if( bg_classList[ i ].classNum == pclass )
     {
       return bg_classList[ i ].regenRate;
-    }
-  }
-  
-  return 0;
-}
-
-/*
-==============
-BG_FindArmorForClass
-==============
-*/
-int BG_FindArmorForClass( int pclass )
-{
-  int i;
-
-  for( i = 0; i < bg_numPclasses; i++ )
-  {
-    if( bg_classList[ i ].classNum == pclass )
-    {
-      return bg_classList[ i ].armor;
     }
   }
   

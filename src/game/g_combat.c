@@ -468,43 +468,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 /*
 ================
-CheckArmor
-================
-*/
-int CheckArmor( gentity_t *ent, int damage, int dflags )
-{
-  gclient_t *client;
-  int     save;
-  int     count;
-
-  if (!damage)
-    return 0;
-
-  client = ent->client;
-
-  if (!client)
-    return 0;
-
-  if (dflags & DAMAGE_NO_ARMOR)
-    return 0;
-
-  // armor
-  count = client->ps.stats[STAT_ARMOR];
-  save = ceil( damage * ARMOR_PROTECTION );
-  if (save >= count)
-    save = count;
-
-  if (!save)
-    return 0;
-
-  client->ps.stats[STAT_ARMOR] -= save;
-
-  return save;
-}
-
-
-/*
-================
 RaySphereIntersections
 ================
 */
@@ -1100,19 +1063,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     
   take = damage;
   save = 0;
-
-  // save some from armor
-/*  asave = CheckArmor (targ, take, dflags);
-  take -= asave;*/
-  //TA: armour is the chance of deflecting an attack (out of 100)
-/*  if( targ->client && targ->client->ps.stats[ STAT_ARMOR ] > 0 )
-  {
-    //TA: this whole thing is probably a bad idea. Worth a try I guess.
-    float chance = (float)targ->client->ps.stats[ STAT_ARMOR ] / 100.0f;
-
-    if( crandom( ) > chance )
-      take *= chance;
-  }*/
 
   if( g_debugDamage.integer )
   {

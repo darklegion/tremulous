@@ -501,7 +501,7 @@ CG_ColorForHealth
 void CG_ColorForHealth( vec4_t hcolor ) {
 
   CG_GetColorForHealth( cg.snap->ps.stats[STAT_HEALTH],
-    cg.snap->ps.stats[STAT_ARMOR], hcolor );
+    0, hcolor );
 }
 
 // bk001205 - code below duplicated in q3_ui/ui-atoms.c

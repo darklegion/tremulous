@@ -220,7 +220,6 @@ typedef enum {
   STAT_ACTIVEITEMS,
   STAT_WEAPONS,         // 16 bit fields
   STAT_WEAPONS2,        //TA: another 16 bits to push the max weapon count up
-  STAT_ARMOR,
   STAT_MAX_HEALTH, // health / armor limit, changable by handicap
   STAT_PCLASS,    //TA: player class (for aliens AND humans)
   STAT_PTEAM,     //TA: player team
@@ -867,7 +866,6 @@ typedef struct
   
   int     health;
   int     regenRate;
-  int     armor;
   
   int     abilities;
   
@@ -1055,7 +1053,6 @@ void      BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmax
 void      BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight );
 int       BG_FindHealthForClass( int pclass );
 int       BG_FindRegenRateForClass( int pclass );
-int       BG_FindArmorForClass( int pclass );
 int       BG_FindFovForClass( int pclass );
 float     BG_FindBobForClass( int pclass );
 float     BG_FindSpeedForClass( int pclass );

@@ -246,14 +246,6 @@ void Cmd_Give_f (gentity_t *ent)
       return;
   }
 
-  if (give_all || Q_stricmp(name, "armor") == 0)
-  {
-    ent->client->ps.stats[STAT_ARMOR] = 200;
-
-    if (!give_all)
-      return;
-  }
-
   if( give_all || Q_stricmp( name, "funds" ) == 0 )
   {
     ent->client->ps.persistant[ PERS_CREDIT ] += 123;
