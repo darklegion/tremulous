@@ -1650,7 +1650,7 @@
       group optionsGrp
       type ITEM_TYPE_YESNO
       text "Depth Sort Particles:"
-      cvar "cg_zsortLEs"
+      cvar "cg_depthSortParticles"
       rect 96 235 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
