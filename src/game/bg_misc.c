@@ -42,7 +42,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    10000,                 //int       buildTime;
+    ASPAWN_BT,             //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -76,7 +76,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    10000,                 //int       buildTime;
+    BARRICADE_BT,          //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -100,7 +100,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     BOOSTER_BP,            //int       buildPoints;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S2 )|( 1 << S3 ), //int  stages
     BOOSTER_HEALTH,        //int       health;
     BOOSTER_REGEN,         //int       regenRate;
     BOOSTER_SPLASHDAMAGE,  //int       splashDamage;
@@ -110,7 +110,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    10000,                 //int       buildTime;
+    BOOSTER_BT,            //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -144,7 +144,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     500,                   //int       nextthink;
-    10000,                 //int       buildTime;
+    ACIDTUBE_BT,           //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -168,7 +168,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     HIVE_BP,               //int       buildPoints;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S3 ),           //int  stages
     HIVE_HEALTH,           //int       health;
     HIVE_REGEN,            //int       regenRate;
     HIVE_SPLASHDAMAGE,     //int       splashDamage;
@@ -178,7 +178,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     500,                   //int       nextthink;
-    10000,                 //int       buildTime;
+    HIVE_BT,               //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -202,7 +202,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     TRAPPER_BP,            //int       buildPoints;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S2 )|( 1 << S3 ), //int  stages
     TRAPPER_HEALTH,        //int       health;
     TRAPPER_REGEN,         //int       regenRate;
     TRAPPER_SPLASHDAMAGE,  //int       splashDamage;
@@ -212,7 +212,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    10000,                 //int       buildTime;
+    TRAPPER_BT,            //int       buildTime;
     qfalse,                //qboolean  usable;
     TRAPPER_RANGE,         //int       turretRange;
     TRAPPER_REPEAT,        //int       turretFireSpeed;
@@ -246,7 +246,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     OVERMIND_ATTACK_REPEAT,//int       nextthink;
-    10000,                 //int       buildTime;
+    OVERMIND_BT,           //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -270,7 +270,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     HOVEL_BP,              //int       buildPoints;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S3 ),           //int  stages
     HOVEL_HEALTH,          //int       health;
     HOVEL_REGEN,           //int       regenRate;
     HOVEL_SPLASHDAMAGE,    //int       splashDamage;
@@ -280,7 +280,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     150,                   //int       nextthink;
-    10000,                 //int       buildTime;
+    HOVEL_BT,              //int       buildTime;
     qtrue,                 //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -314,7 +314,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    10000,                 //int       buildTime;
+    HSPAWN_BT,             //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -348,7 +348,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    10000,                 //int       buildTime;
+    MEDISTAT_BT,           //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -384,7 +384,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     50,                    //int       nextthink;
-    10000,                 //int       buildTime;
+    MGTURRET_BT,           //int       buildTime;
     qfalse,                //qboolean  usable;
     MGTURRET_RANGE,        //int       turretRange;
     MGTURRET_REPEAT,       //int       turretFireSpeed;
@@ -418,7 +418,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     150,                   //int       nextthink;
-    10000,                 //int       buildTime;
+    TESLAGEN_BT,           //int       buildTime;
     qfalse,                //qboolean  usable;
     TESLAGEN_RANGE,        //int       turretRange;
     TESLAGEN_REPEAT,       //int       turretFireSpeed;
@@ -442,7 +442,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     DC_BP,                 //int       buildPoints;
-    ( 1 << S3 ),           //int       stages
+    ( 1 << S2 )|( 1 << S3 ), //int       stages
     DC_HEALTH,             //int       health;
     0,                     //int       regenRate;
     DC_SPLASHDAMAGE,       //int       splashDamage;
@@ -452,7 +452,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    10000,                 //int       buildTime;
+    DC_BT,                 //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -486,7 +486,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    10000,                 //int       buildTime;
+    ARMOURY_BT,            //int       buildTime;
     qtrue,                 //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -520,7 +520,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     -1,                    //int       nextthink;
-    10000,                 //int       buildTime;
+    REACTOR_BT,            //int       buildTime;
     qtrue,                 //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -554,7 +554,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
-    10000,                 //int       buildTime;
+    REPEATER_BT,           //int       buildTime;
     qtrue,                 //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -1452,7 +1452,7 @@ classAttributes_t bg_classList[ ] =
     80,                                             //int     fov;
     0.001f,                                         //float   bob;
     2.0f,                                           //float   bobCycle;
-    350,                                            //int     steptime;
+    200,                                            //int     steptime;
     ABUILDER_SPEED,                                 //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
@@ -1581,7 +1581,7 @@ classAttributes_t bg_classList[ ] =
     "blue",                                         //char    *skinname;
     1.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    ( 1 << S2 )|( 1 << S3 ),                        //int  stages
     { -20, -20, -20 },                              //vec3_t  mins;
     { 20, 20, 20 },                                 //vec3_t  maxs;
     { 20, 20, 20 },                                 //vec3_t  crouchmaxs;
@@ -1655,7 +1655,7 @@ classAttributes_t bg_classList[ ] =
     "red",                                          //char    *skinname;
     1.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    ( 1 << S2 )|( 1 << S3 ),                        //int  stages
     { -24, -24, -24 },                              //vec3_t  mins;
     { 24, 24, 24 },                                 //vec3_t  maxs;
     { 24, 24, 24 },                                 //vec3_t  crouchmaxs;
@@ -1729,7 +1729,7 @@ classAttributes_t bg_classList[ ] =
     "default",                                      //char    *skinname;
     1.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    ( 1 << S3 ),                                    //int  stages
     { -32, -32, -21 },                              //vec3_t  mins;
     { 32, 32, 21 },                                 //vec3_t  maxs;
     { 32, 32, 21 },                                 //vec3_t  crouchmaxs;
@@ -2872,7 +2872,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_FLAMER,            //int       weaponNum;
     FLAMER_PRICE,         //int       price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "flamer",             //char      *weaponName;
     "Flame Thrower",      //char      *weaponHumanName;
@@ -2938,7 +2938,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_PULSE_RIFLE,       //int       weaponNum;
     PRIFLE_PRICE,         //int       price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
     "prifle",             //char      *weaponName;
     "Pulse Rifle",        //char      *weaponHumanName;
@@ -2960,7 +2960,7 @@ weaponAttributes_t bg_weapons[ ] =
   {
     WP_LUCIFER_CANNON,    //int       weaponNum;
     LCANNON_PRICE,        //int       price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S3 ),          //int  stages
     SLOT_WEAPON,          //int       slots;
     "lcannon",            //char      *weaponName;
     "Lucifer Cannon",     //char      *weaponHumanName;
@@ -3786,7 +3786,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   {
     UP_JETPACK,             //int   upgradeNum;
     JETPACK_PRICE,          //int   price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_BACKPACK,          //int   slots;
     "jetpack",              //char  *upgradeName;
     "Jet Pack",             //char  *upgradeHumanName;
@@ -3796,7 +3796,7 @@ upgradeAttributes_t bg_upgrades[ ] =
   {
     UP_BATTLESUIT,                            //int   upgradeNum;
     BSUIT_PRICE,                              //int   price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),      //int  stages
+    ( 1 << S2 )|( 1 << S3 ),      //int  stages
     SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS|SLOT_BACKPACK, //int   slots;
     "bsuit",                                  //char  *upgradeName;
     "Battlesuit",                             //char  *upgradeHumanName;

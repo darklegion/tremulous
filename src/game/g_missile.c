@@ -732,7 +732,7 @@ gentity_t *fire_bounceBall( gentity_t *self, vec3_t start, vec3_t dir )
   VectorScale( dir, DRAGOON_BOUNCEBALL_SPEED, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
   VectorCopy( start, bolt->r.currentOrigin );
-  bolt->s.eFlags |= EF_BOUNCE;
+  /*bolt->s.eFlags |= EF_BOUNCE;*/
 
   return bolt;
 }

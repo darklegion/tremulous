@@ -432,6 +432,9 @@ void ClientTimerActions( gentity_t *ent, int msec )
     if( aForward <= 64 )
       client->ps.stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
 
+    if( BG_gotItem( UP_JETPACK, client->ps.stats ) && BG_activated( UP_JETPACK, client->ps.stats ) )
+      client->ps.stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
+      
     if( ( client->ps.stats[ STAT_STATE ] & SS_SPEEDBOOST ) &&  ucmd->upmove >= 0 )
     {
       //subtract stamina
@@ -459,14 +462,6 @@ void ClientTimerActions( gentity_t *ent, int msec )
       
       if( client->ps.stats[ STAT_STAMINA ] > MAX_STAMINA )
         client->ps.stats[ STAT_STAMINA ] = MAX_STAMINA;
-    }
-
-    //client is poisoned
-    if( client->ps.stats[ STAT_STATE ] & SS_POISONED )
-    {
-      int damage = ( level.time - client->lastPoisonTime ) / 1000;
-
-      G_Damage( ent, client->lastPoisonClient, client->lastPoisonClient, NULL, NULL, damage, 0, MOD_POISON );
     }
 
     //client is charging up for a pounce
@@ -576,11 +571,32 @@ void ClientTimerActions( gentity_t *ent, int msec )
   {
     client->time1000 -= 1000;
 
-    //client is poisoned
+    //client is hydra poisoned
     if( client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED )
       G_Damage( ent, client->lastPoisonCloudedClient, client->lastPoisonCloudedClient, NULL, NULL,
                 HYDRA_PCLOUD_DMG, 0, MOD_HYDRA_PCLOUD );
     
+    //client is poisoned
+    if( client->ps.stats[ STAT_STATE ] & SS_POISONED )
+    {
+      int i;
+      int seconds = ( ( level.time - client->lastPoisonTime ) / 1000 ) + 1;
+      int damage = ALIEN_POISON_DMG, damage2;
+      
+      for( i = 0; i < seconds; i++ )
+      {
+        if( i == seconds - 1 )
+          damage2 = damage;
+        
+        damage *= ALIEN_POISON_DIVIDER;
+      }
+
+      damage = damage2 - damage;
+
+      G_Damage( ent, client->lastPoisonClient, client->lastPoisonClient, NULL, NULL,
+                damage, 0, MOD_POISON );
+    }
+
     //replenish alien health
     if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     {
@@ -922,6 +938,10 @@ void ClientThink_real( gentity_t *ent )
   if( client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED &&
       client->lastPoisonCloudedTime + HYDRA_PCLOUD_TIME < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_POISONCLOUDED;
+  
+  if( client->ps.stats[ STAT_STATE ] & SS_POISONED &&
+      client->lastPoisonTime + ALIEN_POISON_TIME < level.time )
+    client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
   
   client->ps.gravity = g_gravity.value;
 

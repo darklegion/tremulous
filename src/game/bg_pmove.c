@@ -643,7 +643,7 @@ static qboolean PM_CheckJump( void )
   if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
     return PM_CheckWallJump( );
 
-  //can't jump and pounce charge at the same time
+  //can't jump and pounce at the same time
   if( ( pm->ps->weapon == WP_DRAGOON ||
         pm->ps->weapon == WP_DRAGOON_UPG ) &&
       pm->ps->stats[ STAT_MISC ] > 0 )
@@ -2409,7 +2409,10 @@ static void PM_Footsteps( void )
     if( pm->xyspeed > 160 )
     {
       bobmove = 0.4f; // faster speeds bob faster
-      if( pm->ps->pm_flags & PMF_BACKWARDS_RUN )
+
+      if( pm->ps->pm_flags & PMF_CHARGE )
+        PM_ContinueLegsAnim( NSPA_CHARGE );
+      else if( pm->ps->pm_flags & PMF_BACKWARDS_RUN )
       {
         if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
           PM_ContinueLegsAnim( LEGS_BACK );
@@ -2895,12 +2898,28 @@ static void PM_Weapon( void )
     PM_StartTorsoAnim( TORSO_ATTACK );
   else
   {
-    if( attack1 )
-      PM_ForceLegsAnim( NSPA_ATTACK1 );
-    else if( attack2 )
-      PM_ForceLegsAnim( NSPA_ATTACK2 );
-    else if( attack3 )
-      PM_ForceLegsAnim( NSPA_ATTACK3 );
+    if( pm->ps->weapon == WP_BIGMOFO )
+    {
+      //hack to get random attack animations
+      //FIXME: does pm->ps->weaponTime cycle enough?
+      int num = abs( pm->ps->weaponTime ) % 3;
+
+      if( num == 0 )
+        PM_ForceLegsAnim( NSPA_ATTACK1 );
+      else if( num == 1 )
+        PM_ForceLegsAnim( NSPA_ATTACK2 );
+      else if( num == 2 )
+        PM_ForceLegsAnim( NSPA_ATTACK3 );
+    }
+    else
+    {
+      if( attack1 )
+        PM_ForceLegsAnim( NSPA_ATTACK1 );
+      else if( attack2 )
+        PM_ForceLegsAnim( NSPA_ATTACK2 );
+      else if( attack3 )
+        PM_ForceLegsAnim( NSPA_ATTACK3 );
+    }
     
     pm->ps->torsoTimer = TIMER_ATTACK;
   }

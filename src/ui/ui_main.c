@@ -3343,24 +3343,24 @@ static void UI_LoadTremAlienClasses( void )
   
   uiInfo.tremAlienClassCount = 2;
   
+  uiInfo.tremAlienClassList[ 0 ].text =
+    String_Alloc( BG_FindHumanNameForClassNum( PCL_A_O_BASE ) );
+  uiInfo.tremAlienClassList[ 0 ].cmd =
+    String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( PCL_A_O_BASE ) ) );
+  uiInfo.tremAlienClassList[ 0 ].infopane =
+    UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( PCL_A_O_BASE ) ) );
+    
   if( BG_FindStagesForClass( PCL_A_B_LEV1, UI_GetCurrentAlienStage( ) ) )
     bClass = PCL_A_B_LEV1;
   else
     bClass = PCL_A_B_BASE;
-    
-  uiInfo.tremAlienClassList[ 0 ].text =
-    String_Alloc( BG_FindHumanNameForClassNum( bClass ) );
-  uiInfo.tremAlienClassList[ 0 ].cmd =
-    String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( bClass ) ) );
-  uiInfo.tremAlienClassList[ 0 ].infopane =
-    UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( bClass ) ) );
   
   uiInfo.tremAlienClassList[ 1 ].text =
-    String_Alloc( BG_FindHumanNameForClassNum( PCL_A_O_BASE ) );
+    String_Alloc( BG_FindHumanNameForClassNum( bClass ) );
   uiInfo.tremAlienClassList[ 1 ].cmd =
-    String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( PCL_A_O_BASE ) ) );
+    String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( bClass ) ) );
   uiInfo.tremAlienClassList[ 1 ].infopane =
-    UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( PCL_A_O_BASE ) ) );
+    UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( bClass ) ) );
 }
 
 /*
@@ -3371,20 +3371,20 @@ UI_LoadTremHumanItems
 static void UI_LoadTremHumanItems( void )
 {
   uiInfo.tremHumanItemCount = 2;
-  
-  uiInfo.tremHumanItemList[ 0 ].text =
-    String_Alloc( BG_FindHumanNameForWeapon( WP_HBUILD ) );
-  uiInfo.tremHumanItemList[ 0 ].cmd =
-    String_Alloc( va( "cmd class %s", BG_FindNameForWeapon( WP_HBUILD ) ) );
-  uiInfo.tremHumanItemList[ 0 ].infopane =
-    UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( WP_HBUILD ) ) );
 
-  uiInfo.tremHumanItemList[ 1 ].text =
+  uiInfo.tremHumanItemList[ 0 ].text =
     String_Alloc( BG_FindHumanNameForWeapon( WP_MACHINEGUN ) );
-  uiInfo.tremHumanItemList[ 1 ].cmd =
+  uiInfo.tremHumanItemList[ 0 ].cmd =
     String_Alloc( va( "cmd class %s", BG_FindNameForWeapon( WP_MACHINEGUN ) ) );
-  uiInfo.tremHumanItemList[ 1 ].infopane =
+  uiInfo.tremHumanItemList[ 0 ].infopane =
     UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( WP_MACHINEGUN ) ) );
+  
+  uiInfo.tremHumanItemList[ 1 ].text =
+    String_Alloc( BG_FindHumanNameForWeapon( WP_HBUILD ) );
+  uiInfo.tremHumanItemList[ 1 ].cmd =
+    String_Alloc( va( "cmd class %s", BG_FindNameForWeapon( WP_HBUILD ) ) );
+  uiInfo.tremHumanItemList[ 1 ].infopane =
+    UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( WP_HBUILD ) ) );
 }
 
 /*

@@ -1619,6 +1619,10 @@ Cmd_Boost_f
 */
 void Cmd_Boost_f( gentity_t *ent )
 {
+  if( BG_gotItem( UP_JETPACK, ent->client->ps.stats ) &&
+      BG_activated( UP_JETPACK, ent->client->ps.stats ) )
+    return;
+
   if( ( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) &&
       ( ent->client->ps.stats[ STAT_STAMINA ] > 0 ) )
     ent->client->ps.stats[ STAT_STATE ] |= SS_SPEEDBOOST;
@@ -1634,10 +1638,14 @@ void Cmd_Test_f( gentity_t *ent )
   if( !CheatsOk( ent ) )
     return;
 
-  ent->client->ps.stats[ STAT_STATE ] |= SS_POISONCLOUDED;
+/*  ent->client->ps.stats[ STAT_STATE ] |= SS_POISONCLOUDED;
   ent->client->lastPoisonCloudedTime = level.time;
   ent->client->lastPoisonCloudedClient = ent;
-  trap_SendServerCommand( ent->client->ps.clientNum, "poisoncloud" );
+  trap_SendServerCommand( ent->client->ps.clientNum, "poisoncloud" );*/
+  
+  ent->client->ps.stats[ STAT_STATE ] |= SS_POISONED;
+  ent->client->lastPoisonTime = level.time;
+  ent->client->lastPoisonClient = ent;
 }
 
 /*

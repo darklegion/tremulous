@@ -524,7 +524,7 @@ void ASpawn_Pain( gentity_t *self, gentity_t *attacker, int damage )
 ================
 AOvermind_Think
 
-think function for Alien Acid Tube
+Think function for Alien Overmind
 ================
 */
 void AOvermind_Think( gentity_t *self )

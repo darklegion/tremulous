@@ -620,6 +620,9 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
   float   modifier = 1.0f;
   int     i, j;
 
+  if( point == NULL )
+    return 1.0f;
+
   clientHeight = targ->r.maxs[ 2 ] - targ->r.mins[ 2 ];  
 
   if( targ->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING )
@@ -974,7 +977,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     //if boosted poison every attack
     if( attacker->client && attacker->client->ps.stats[ STAT_STATE ] & SS_BOOSTED )
     {
-      if( !( targ->client->ps.stats[ STAT_STATE ] & SS_POISONED ) )
+      if( !( targ->client->ps.stats[ STAT_STATE ] & SS_POISONED ) &&
+          !BG_gotItem( UP_BATTLESUIT, targ->client->ps.stats ) )
       {
         targ->client->ps.stats[ STAT_STATE ] |= SS_POISONED;
         targ->client->lastPoisonTime = level.time;

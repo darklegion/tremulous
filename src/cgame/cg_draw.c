@@ -1901,7 +1901,9 @@ static void CG_DrawLagometer( rectDef_t *rect, qhandle_t shader )
 
   if( !cg_lagometer.integer )
   {
-    CG_DrawDisconnect( );
+    if( cg.snap->ps.pm_type != PM_INTERMISSION )
+      CG_DrawDisconnect( );
+
     return;
   }
 
@@ -2124,6 +2126,147 @@ void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
 }
 
 
+
+/*
+================================================================================
+
+CROSSHAIR
+
+================================================================================
+*/
+
+
+/*
+=================
+CG_DrawCrosshair
+=================
+*/
+static void CG_DrawCrosshair( void )
+{
+  float         w, h;
+  qhandle_t     hShader;
+  float         f;
+  float         x, y;
+  weaponInfo_t  *wi;
+
+  if( !cg_drawCrosshair.integer )
+    return;
+
+  if( ( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR ) ||
+      ( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) ||
+      ( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
+    return;
+
+  if( cg.renderingThirdPerson )
+    return;
+
+  wi = &cg_weapons[ cg.snap->ps.weapon ];
+  
+  w = h = wi->crossHairSize;
+
+  x = cg_crosshairX.integer;
+  y = cg_crosshairY.integer;
+  CG_AdjustFrom640( &x, &y, &w, &h );
+  
+  hShader = wi->crossHair;
+
+  if( hShader != 0 )
+  {
+    trap_R_DrawStretchPic( x + cg.refdef.x + 0.5 * ( cg.refdef.width - w ),
+      y + cg.refdef.y + 0.5 * ( cg.refdef.height - h ),
+      w, h, 0, 0, 1, 1, hShader );
+  }
+}
+
+
+
+/*
+=================
+CG_ScanForCrosshairEntity
+=================
+*/
+static void CG_ScanForCrosshairEntity( void )
+{
+  trace_t   trace;
+  vec3_t    start, end;
+  int       content;
+  pTeam_t   team;
+
+  VectorCopy( cg.refdef.vieworg, start );
+  VectorMA( start, 131072, cg.refdef.viewaxis[ 0 ], end );
+
+  CG_Trace( &trace, start, vec3_origin, vec3_origin, end,
+    cg.snap->ps.clientNum, CONTENTS_SOLID|CONTENTS_BODY );
+  
+  if( trace.entityNum >= MAX_CLIENTS )
+    return;
+
+  // if the player is in fog, don't show it
+  content = trap_CM_PointContents( trace.endpos, 0 );
+  if( content & CONTENTS_FOG )
+    return;
+
+  team = cgs.clientinfo[ trace.entityNum ].team;
+  
+  if( cg.snap->ps.persistant[ PERS_TEAM ] != TEAM_SPECTATOR )
+  {
+    //only display team names of those on the same team as this player
+    if( team != cg.snap->ps.stats[ STAT_PTEAM ] )
+      return;
+  }
+  
+  // update the fade timer
+  cg.crosshairClientNum = trace.entityNum;
+  cg.crosshairClientTime = cg.time;
+}
+
+
+/*
+=====================
+CG_DrawCrosshairNames
+=====================
+*/
+static void CG_DrawCrosshairNames( rectDef_t *rect, float scale, int textStyle )
+{
+  float   *color;
+  char    *name;
+  float   w, x;
+
+  if( !cg_drawCrosshair.integer )
+    return;
+  
+  if( !cg_drawCrosshairNames.integer )
+    return;
+  
+  if( cg.renderingThirdPerson )
+    return;
+
+  // scan the known entities to see if the crosshair is sighted on one
+  CG_ScanForCrosshairEntity( );
+
+  // draw the name of the player being looked at
+  color = CG_FadeColor( cg.crosshairClientTime, 1000 );
+  if( !color )
+  {
+    trap_R_SetColor( NULL );
+    return;
+  }
+
+  name = cgs.clientinfo[ cg.crosshairClientNum ].name;
+  w = CG_Text_Width( name, scale, 0 );
+  x = rect->x + rect->w / 2;
+  CG_Text_Paint( x - w / 2, rect->y + rect->h, scale, color, name, 0, 0, textStyle );
+  trap_R_SetColor( NULL );
+}
+
+
+/*
+===============
+CG_OwnerDraw
+
+Draw an owner drawn item
+===============
+*/
 void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
                    float text_y, int ownerDraw, int ownerDrawFlags,
                    int align, float special, float scale, vec4_t color,
@@ -2236,6 +2379,9 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       break;
     case CG_SPECTATORS:
       CG_DrawTeamSpectators( &rect, scale, color, shader );
+      break;
+    case CG_PLAYER_CROSSHAIRNAMES:
+      CG_DrawCrosshairNames( &rect, scale, textStyle );
       break;
       
     //loading screen
@@ -2560,129 +2706,6 @@ static void CG_DrawCenterString( void )
 
 
 
-/*
-================================================================================
-
-CROSSHAIR
-
-================================================================================
-*/
-
-
-/*
-=================
-CG_DrawCrosshair
-=================
-*/
-static void CG_DrawCrosshair( void )
-{
-  float         w, h;
-  qhandle_t     hShader;
-  float         f;
-  float         x, y;
-  weaponInfo_t  *wi;
-
-  if( !cg_drawCrosshair.integer )
-    return;
-
-  if( ( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR ) ||
-      ( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) ||
-      ( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
-    return;
-
-  if( cg.renderingThirdPerson )
-    return;
-
-  wi = &cg_weapons[ cg.snap->ps.weapon ];
-  
-  w = h = wi->crossHairSize;
-
-  x = cg_crosshairX.integer;
-  y = cg_crosshairY.integer;
-  CG_AdjustFrom640( &x, &y, &w, &h );
-  
-  hShader = wi->crossHair;
-
-  if( hShader != 0 )
-  {
-    trap_R_DrawStretchPic( x + cg.refdef.x + 0.5 * ( cg.refdef.width - w ),
-      y + cg.refdef.y + 0.5 * ( cg.refdef.height - h ),
-      w, h, 0, 0, 1, 1, hShader );
-  }
-}
-
-
-
-/*
-=================
-CG_ScanForCrosshairEntity
-=================
-*/
-static void CG_ScanForCrosshairEntity( void )
-{
-  trace_t   trace;
-  vec3_t    start, end;
-  int     content;
-
-  VectorCopy( cg.refdef.vieworg, start );
-  VectorMA( start, 131072, cg.refdef.viewaxis[ 0 ], end );
-
-  CG_Trace( &trace, start, vec3_origin, vec3_origin, end,
-    cg.snap->ps.clientNum, CONTENTS_SOLID|CONTENTS_BODY );
-  
-  if( trace.entityNum >= MAX_CLIENTS )
-    return;
-
-  // if the player is in fog, don't show it
-  content = trap_CM_PointContents( trace.endpos, 0 );
-  if( content & CONTENTS_FOG )
-    return;
-
-  // update the fade timer
-  cg.crosshairClientNum = trace.entityNum;
-  cg.crosshairClientTime = cg.time;
-}
-
-
-/*
-=====================
-CG_DrawCrosshairNames
-=====================
-*/
-static void CG_DrawCrosshairNames( void )
-{
-  float   *color;
-  char    *name;
-  float   w;
-
-  if( !cg_drawCrosshair.integer )
-    return;
-  
-  if( !cg_drawCrosshairNames.integer )
-    return;
-  
-  if( cg.renderingThirdPerson )
-    return;
-
-  // scan the known entities to see if the crosshair is sighted on one
-  CG_ScanForCrosshairEntity( );
-
-  // draw the name of the player being looked at
-  color = CG_FadeColor( cg.crosshairClientTime, 1000 );
-  if( !color )
-  {
-    trap_R_SetColor( NULL );
-    return;
-  }
-
-  name = cgs.clientinfo[ cg.crosshairClientNum ].name;
-  color[ 3 ] *= 0.5f;
-  w = CG_Text_Width( name, 0.3f, 0 );
-  CG_Text_Paint( 320 - w / 2, 190, 0.3f, color, name, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
-
-  trap_R_SetColor( NULL );
-}
-
 
 
 //==============================================================================
@@ -2813,6 +2836,9 @@ CG_DrawIntermission
 */
 static void CG_DrawIntermission( void )
 {
+  if( cg_drawStatus.integer )
+    Menu_Paint( Menus_FindByName( "default_hud" ), qtrue );
+  
   cg.scoreFadeTime = cg.time;
   cg.scoreBoardShowing = CG_DrawScoreboard( );
 }
@@ -2861,16 +2887,13 @@ static void CG_Draw2D( void )
     menu = Menus_FindByName( BG_FindHudNameForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] ) );
   
   if( !( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
-      !( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) && menu )
+      !( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) && menu &&
+      ( cg.snap->ps.stats[ STAT_HEALTH ] > 0 ) )
   {
-    // don't draw any status if dead or the scoreboard is being explicitly shown
-    if( !cg.showScores && cg.snap->ps.stats[ STAT_HEALTH ] > 0 )
-    {
-      if( cg_drawStatus.integer )
-        Menu_Paint( menu, qtrue );
-      
-      CG_DrawCrosshair( );
-    }
+    if( cg_drawStatus.integer )
+      Menu_Paint( menu, qtrue );
+    
+    CG_DrawCrosshair( );
   }
   else if( cg_drawStatus.integer )
     Menu_Paint( defaultMenu, qtrue );

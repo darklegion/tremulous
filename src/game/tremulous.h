@@ -159,6 +159,7 @@
  * ALIEN buildables
  *
  * _BP            - build points required for this buildable
+ * _BT            - build time required for this buildable
  * _REGEN         - the amount of health per second regained
  * _SPLASHDAMGE   - the amount of damage caused by this buildable when melting
  * _SPLASHRADIUS  - the radius around which it does this damage
@@ -177,6 +178,7 @@
 #define CREEP_ARMOUR_MODIFIER       0.75f
 
 #define ASPAWN_BP                   100
+#define ASPAWN_BT                   10000
 #define ASPAWN_HEALTH               ABHM(500)
 #define ASPAWN_REGEN                10
 #define ASPAWN_SPLASHDAMAGE         50
@@ -185,6 +187,7 @@
 #define ASPAWN_VALUE                150
 
 #define BARRICADE_BP                80
+#define BARRICADE_BT                10000
 #define BARRICADE_HEALTH            ABHM(250)
 #define BARRICADE_REGEN             15
 #define BARRICADE_SPLASHDAMAGE      50
@@ -192,6 +195,7 @@
 #define BARRICADE_CREEPSIZE         120
 
 #define BOOSTER_BP                  120
+#define BOOSTER_BT                  10000
 #define BOOSTER_HEALTH              ABHM(200)
 #define BOOSTER_REGEN               10
 #define BOOSTER_SPLASHDAMAGE        50
@@ -200,15 +204,17 @@
 #define BOOSTER_INTERVAL            30000 //time in msec between uses (per player)
 
 #define ACIDTUBE_BP                 50
+#define ACIDTUBE_BT                 10000
 #define ACIDTUBE_HEALTH             ABHM(100)
 #define ACIDTUBE_REGEN              10
-#define ACIDTUBE_SPLASHDAMAGE       30
-#define ACIDTUBE_SPLASHRADIUS       200
+#define ACIDTUBE_SPLASHDAMAGE       40
+#define ACIDTUBE_SPLASHRADIUS       300
 #define ACIDTUBE_CREEPSIZE          120
-#define ACIDTUBE_RANGE              200.0f
+#define ACIDTUBE_RANGE              300.0f
 #define ACIDTUBE_REPEAT             3000
 
 #define HIVE_BP                     50
+#define HIVE_BT                     10000
 #define HIVE_HEALTH                 ABHM(100)
 #define HIVE_REGEN                  10
 #define HIVE_SPLASHDAMAGE           30
@@ -221,6 +227,7 @@
 #define HIVE_DIR_CHANGE_PERIOD      500
 
 #define TRAPPER_BP                  150
+#define TRAPPER_BT                  5000
 #define TRAPPER_HEALTH              ABHM(80)
 #define TRAPPER_REGEN               8
 #define TRAPPER_SPLASHDAMAGE        15
@@ -232,6 +239,7 @@
 #define LOCKBLOB_DOT                0.85f // max angle = acos( LOCKBLOB_DOT )
 
 #define OVERMIND_BP                 0
+#define OVERMIND_BT                 20000
 #define OVERMIND_HEALTH             ABHM(1000)
 #define OVERMIND_REGEN              15
 #define OVERMIND_SPLASHDAMAGE       100
@@ -242,6 +250,7 @@
 #define OVERMIND_VALUE              300
 
 #define HOVEL_BP                    80
+#define HOVEL_BT                    10000
 #define HOVEL_HEALTH                ABHM(750)
 #define HOVEL_REGEN                 20
 #define HOVEL_SPLASHDAMAGE          20
@@ -261,6 +270,9 @@
 #define ALIENSTAGE2_HLTH_MODIFIER   1.2f
 #define ALIENSTAGE3_HLTH_MODIFIER   1.5f
 
+#define ALIEN_POISON_TIME           10000
+#define ALIEN_POISON_DMG            30
+#define ALIEN_POISON_DIVIDER        (1.0f/1.32f) //about 1.0/(time`th root of damage)
 
 
 /*
@@ -347,7 +359,7 @@
 #define LASGUN_AMMO                 300
 #define LASGUN_REPEAT               150
 #define LASGUN_RELOAD               2000
-#define LASGUN_DAMAGE               HDM(10)
+#define LASGUN_DAMAGE               HDM(15)
 
 #define PAINSAW_PRICE               100
 #define PAINSAW_REPEAT              75
@@ -398,6 +410,7 @@
  * HUMAN buildables
  *
  * _BP            - build points required for this buildable
+ * _BT            - build time required for this buildable
  * _SPLASHDAMGE   - the amount of damage caused by this buildable when it blows up
  * _SPLASHRADIUS  - the radius around which it does this damage 
  *
@@ -415,18 +428,21 @@
 #define HUMAN_DETONATION_DELAY      5000
 
 #define HSPAWN_BP                   100
+#define HSPAWN_BT                   10000
 #define HSPAWN_HEALTH               HBHM(500)
 #define HSPAWN_SPLASHDAMAGE         50
 #define HSPAWN_SPLASHRADIUS         100
 #define HSPAWN_VALUE                1
 
 #define MEDISTAT_BP                 80
+#define MEDISTAT_BT                 10000
 #define MEDISTAT_HEALTH             HBHM(200)
 #define MEDISTAT_SPLASHDAMAGE       50
 #define MEDISTAT_SPLASHRADIUS       100
 #define MAX_MEDISTAT_CLIENTS        1
 
 #define MGTURRET_BP                 80
+#define MGTURRET_BT                 10000
 #define MGTURRET_HEALTH             HBHM(100)
 #define MGTURRET_SPLASHDAMAGE       50
 #define MGTURRET_SPLASHRADIUS       100
@@ -441,6 +457,7 @@
 #define MGTURRET_DCC_ACCURACYTOLERANCE  MGTURRET_DCC_ANGULARSPEED / 1.5f
 
 #define TESLAGEN_BP                 100
+#define TESLAGEN_BT                 15000
 #define TESLAGEN_HEALTH             HBHM(200)
 #define TESLAGEN_SPLASHDAMAGE       50
 #define TESLAGEN_SPLASHRADIUS       100
@@ -449,32 +466,31 @@
 #define TESLAGEN_DMG                HDM(50)
 
 #define DC_BP                       80
+#define DC_BT                       10000
 #define DC_HEALTH                   HBHM(150)
 #define DC_SPLASHDAMAGE             50
 #define DC_SPLASHRADIUS             100
 
 #define ARMOURY_BP                  100
+#define ARMOURY_BT                  10000
 #define ARMOURY_HEALTH              HBHM(175)
 #define ARMOURY_SPLASHDAMAGE        50
 #define ARMOURY_SPLASHRADIUS        100
 
 #define REACTOR_BP                  0
+#define REACTOR_BT                  20000
 #define REACTOR_HEALTH              HBHM(1000)
 #define REACTOR_SPLASHDAMAGE        200
 #define REACTOR_SPLASHRADIUS        300
 #define REACTOR_VALUE               2
 
 #define REPEATER_BP                 100
+#define REPEATER_BT                 10000
 #define REPEATER_HEALTH             HBHM(200)
 #define REPEATER_SPLASHDAMAGE       50
 #define REPEATER_SPLASHRADIUS       100
 
 #define ENERGY_REFIL_TIME           1000 //1/2 second between every clip refil
-
-#define FLOATMINE_BP                50
-#define FLOATMINE_HEALTH            HBHM(10)
-#define FLOATMINE_SPLASHDAMAGE      250
-#define FLOATMINE_SPLASHRADIUS      500
 
 /*
  * HUMAN misc

@@ -159,12 +159,12 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_alienBuildPoints, "g_alienBuildPoints", "1000", 0, 0, qfalse  },
   { &g_humanStage, "g_humanStage", "0", 0, 0, qfalse  },
   { &g_humanMaxStage, "g_humanMaxStage", "2", 0, 0, qfalse  },
-  { &g_humanStage2Threshold, "g_humanStage2Threshold", "50", 0, 0, qfalse  },
-  { &g_humanStage3Threshold, "g_humanStage3Threshold", "100", 0, 0, qfalse  },
+  { &g_humanStage2Threshold, "g_humanStage2Threshold", "25", 0, 0, qfalse  },
+  { &g_humanStage3Threshold, "g_humanStage3Threshold", "50", 0, 0, qfalse  },
   { &g_alienStage, "g_alienStage", "0", 0, 0, qfalse  },
   { &g_alienMaxStage, "g_alienMaxStage", "2", 0, 0, qfalse  },
-  { &g_alienStage2Threshold, "g_alienStage2Threshold", "50", 0, 0, qfalse  },
-  { &g_alienStage3Threshold, "g_alienStage3Threshold", "100", 0, 0, qfalse  },
+  { &g_alienStage2Threshold, "g_alienStage2Threshold", "25", 0, 0, qfalse  },
+  { &g_alienStage3Threshold, "g_alienStage3Threshold", "50", 0, 0, qfalse  },
 
   { &g_debugMapRotation, "g_debugMapRotation", "0", 0, 0, qfalse  },
   { &g_currentMapRotation, "g_currentMapRotation", "-1", 0, 0, qfalse  }, // -1 = NOT_ROTATING
