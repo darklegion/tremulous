@@ -189,7 +189,7 @@ qboolean findCreep( gentity_t *self )
       if( !ent->classname || ent->s.eType != ET_BUILDABLE )
         continue;
 
-      if( ent->s.modelindex == BA_D_SPAWN || ent->s.modelindex == BA_D_HIVEMIND )
+      if( ent->s.modelindex == BA_A_SPAWN || ent->s.modelindex == BA_A_HIVEMIND )
       {
         /*VectorSubtract( self->s.origin, ent->s.origin, temp_v );*/
         VectorSubtract( self->s.origin, ent->s.origin, temp_v );
@@ -243,12 +243,12 @@ static void freeBuildable( gentity_t *self )
 
 /*
 ================
-D_CreepRecede
+A_CreepRecede
 
-Called when an droid spawn dies
+Called when an alien spawn dies
 ================
 */
-void D_CreepRecede( gentity_t *self )
+void A_CreepRecede( gentity_t *self )
 {
   //if the creep just died begin the recession
   if( !( self->s.eFlags & EF_DEAD ) )
@@ -277,16 +277,16 @@ void D_CreepRecede( gentity_t *self )
 
 /*
 ================
-DSpawn_Melt
+ASpawn_Melt
 
-Called when an droid spawn dies
+Called when an alien spawn dies
 ================
 */
-void DSpawn_Melt( gentity_t *self )
+void ASpawn_Melt( gentity_t *self )
 {
   //FIXME: this line crashes the QVM (but not binary when MOD is set to MOD_[H/D]SPAWN
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
-    self->splashRadius, self, MOD_SHOTGUN, PTE_DROIDS );
+    self->splashRadius, self, MOD_SHOTGUN, PTE_ALIENS );
 
   //start creep recession
   if( !( self->s.eFlags & EF_DEAD ) )
@@ -307,12 +307,12 @@ void DSpawn_Melt( gentity_t *self )
 
 /*
 ================
-DSpawn_Blast
+ASpawn_Blast
 
-Called when an droid spawn dies
+Called when an alien spawn dies
 ================
 */
-void DSpawn_Blast( gentity_t *self )
+void ASpawn_Blast( gentity_t *self )
 {
   vec3_t  dir;
 
@@ -322,14 +322,14 @@ void DSpawn_Blast( gentity_t *self )
 
   //do a bit of radius damage
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
-    self->splashRadius, self, self->splashMethodOfDeath, PTE_DROIDS );
+    self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
 
   //pretty events and item cleanup
   self->s.modelindex = 0; //don't draw the model once its destroyed
-  G_AddEvent( self, EV_GIB_DROID, DirToByte( dir ) );
+  G_AddEvent( self, EV_GIB_ALIEN, DirToByte( dir ) );
   self->r.contents = CONTENTS_TRIGGER;
   self->timestamp = level.time;
-  self->think = DSpawn_Melt;
+  self->think = ASpawn_Melt;
   self->nextthink = level.time + 500; //wait .5 seconds before damaging others
     
   trap_LinkEntity( self );
@@ -337,18 +337,18 @@ void DSpawn_Blast( gentity_t *self )
 
 /*
 ================
-DSpawn_Die
+ASpawn_Die
 
-Called when an droid spawn dies
+Called when an alien spawn dies
 ================
 */
-void DSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
+void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
 {
   G_setBuildableAnim( self, BANIM_DESTROY1, qtrue );
   G_setIdleBuildableAnim( self, BANIM_DESTROYED );
 
   self->die = nullDieFunction;
-  self->think = DSpawn_Blast;
+  self->think = ASpawn_Blast;
   self->nextthink = level.time + 5000; //wait .5 seconds before damaging others
     
   trap_LinkEntity( self );
@@ -356,12 +356,12 @@ void DSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 /*
 ================
-DSpawn_Think
+ASpawn_Think
 
-think function for Droid Spawn
+think function for Alien Spawn
 ================
 */
-void DSpawn_Think( gentity_t *self )
+void ASpawn_Think( gentity_t *self )
 {
   vec3_t    mins, maxs, origin;
   gentity_t *ent;
@@ -396,12 +396,12 @@ void DSpawn_Think( gentity_t *self )
 
 /*
 ================
-DSpawn_Pain
+ASpawn_Pain
 
-pain function for Droid Spawn
+pain function for Alien Spawn
 ================
 */
-void DSpawn_Pain( gentity_t *self, gentity_t *attacker, int damage )
+void ASpawn_Pain( gentity_t *self, gentity_t *attacker, int damage )
 {
   G_setBuildableAnim( self, BANIM_PAIN1, qfalse );
 }
@@ -414,12 +414,12 @@ void DSpawn_Pain( gentity_t *self, gentity_t *attacker, int damage )
 
 /*
 ================
-DBarricade_Pain
+ABarricade_Pain
 
-pain function for Droid Spawn
+pain function for Alien Spawn
 ================
 */
-void DBarricade_Pain( gentity_t *self, gentity_t *attacker, int damage )
+void ABarricade_Pain( gentity_t *self, gentity_t *attacker, int damage )
 {
   if( random() > 0.5f )
     G_setBuildableAnim( self, BANIM_PAIN1, qfalse );
@@ -429,12 +429,12 @@ void DBarricade_Pain( gentity_t *self, gentity_t *attacker, int damage )
 
 /*
 ================
-DBarricade_Blast
+ABarricade_Blast
 
-Called when an droid spawn dies
+Called when an alien spawn dies
 ================
 */
-void DBarricade_Blast( gentity_t *self )
+void ABarricade_Blast( gentity_t *self )
 {
   vec3_t  dir;
 
@@ -444,14 +444,14 @@ void DBarricade_Blast( gentity_t *self )
 
   //do a bit of radius damage
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
-    self->splashRadius, self, self->splashMethodOfDeath, PTE_DROIDS );
+    self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
 
   //pretty events and item cleanup
   self->s.modelindex = 0; //don't draw the model once its destroyed
-  G_AddEvent( self, EV_GIB_DROID, DirToByte( dir ) );
+  G_AddEvent( self, EV_GIB_ALIEN, DirToByte( dir ) );
   self->r.contents = CONTENTS_TRIGGER;
   self->timestamp = level.time;
-  self->think = D_CreepRecede;
+  self->think = A_CreepRecede;
   self->nextthink = level.time + 500; //wait .5 seconds before damaging others
     
   trap_LinkEntity( self );
@@ -459,18 +459,18 @@ void DBarricade_Blast( gentity_t *self )
 
 /*
 ================
-DBarricade_Die
+ABarricade_Die
 
-Called when an droid spawn dies
+Called when an alien spawn dies
 ================
 */
-void DBarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
+void ABarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
 {
   G_setBuildableAnim( self, BANIM_DESTROY1, qtrue );
   G_setIdleBuildableAnim( self, BANIM_DESTROYED );
   
   self->die = nullDieFunction;
-  self->think = DBarricade_Blast;
+  self->think = ABarricade_Blast;
   self->nextthink = level.time + 5000;
 
   trap_LinkEntity( self );
@@ -478,12 +478,12 @@ void DBarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
 
 /*
 ================
-DBarricade_Think
+ABarricade_Think
 
-think function for Droid Barricade
+think function for Alien Barricade
 ================
 */
-void DBarricade_Think( gentity_t *self )
+void ABarricade_Think( gentity_t *self )
 {
   //if there is no creep nearby die
   if( !findCreep( self ) )
@@ -503,46 +503,46 @@ void DBarricade_Think( gentity_t *self )
 
 
 
-void DAcidTube_Think( gentity_t *self );
+void AAcidTube_Think( gentity_t *self );
 
 /*
 ================
-DAcidTube_Damage
+AAcidTube_Damage
 
-damage function for Droid Acid Tube
+damage function for Alien Acid Tube
 ================
 */
-void DAcidTube_Damage( gentity_t *self )
+void AAcidTube_Damage( gentity_t *self )
 {
   if( !( self->s.eFlags & EF_FIRING ) )
   {
     self->s.eFlags |= EF_FIRING;
-    G_AddEvent( self, EV_GIB_DROID, DirToByte( self->s.origin2 ) );
+    G_AddEvent( self, EV_GIB_ALIEN, DirToByte( self->s.origin2 ) );
   }
     
   if( ( self->timestamp + 10000 ) > level.time )
-    self->think = DAcidTube_Damage;
+    self->think = AAcidTube_Damage;
   else
   {
-    self->think = DAcidTube_Think;
+    self->think = AAcidTube_Think;
     self->s.eFlags &= ~EF_FIRING;
   }
 
   //do some damage
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
-    self->splashRadius, self, self->splashMethodOfDeath, PTE_DROIDS );
+    self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
 
 /*
 ================
-DAcidTube_Think
+AAcidTube_Think
 
-think function for Droid Acid Tube
+think function for Alien Acid Tube
 ================
 */
-void DAcidTube_Think( gentity_t *self )
+void AAcidTube_Think( gentity_t *self )
 {
   int       entityList[ MAX_GENTITIES ];
   vec3_t    range = { 200, 200, 200 };
@@ -569,7 +569,7 @@ void DAcidTube_Think( gentity_t *self )
     if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
     {
       self->timestamp = level.time;
-      self->think = DAcidTube_Damage;
+      self->think = AAcidTube_Damage;
       self->nextthink = level.time + 100;
       G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
     }
@@ -587,12 +587,12 @@ void DAcidTube_Think( gentity_t *self )
 
 /*
 ================
-DBooster_Touch
+ABooster_Touch
 
 Called when an alien touches a booster
 ================
 */
-void DBooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
+void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 {
   G_Printf( "%d is touching me\n", other->s.number );
 }
@@ -608,12 +608,12 @@ void DBooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 /*
 ================
-ddef_fireonemeny
+adef_fireonemeny
 
-Used by DDef2_Think to fire at enemy
+Used by ADef2_Think to fire at enemy
 ================
 */
-void ddef_fireonenemy( gentity_t *self, int firespeed )
+void adef_fireonenemy( gentity_t *self, int firespeed )
 {
   vec3_t  dirToTarget;
   vec3_t  target;
@@ -650,12 +650,12 @@ void ddef_fireonenemy( gentity_t *self, int firespeed )
 
 /*
 ================
-ddef_checktarget
+adef_checktarget
 
 Used by DDef2_Think to check enemies for validity
 ================
 */
-qboolean ddef_checktarget( gentity_t *self, gentity_t *target, int range )
+qboolean adef_checktarget( gentity_t *self, gentity_t *target, int range )
 {
   vec3_t    distance;
   trace_t   trace;
@@ -668,7 +668,7 @@ qboolean ddef_checktarget( gentity_t *self, gentity_t *target, int range )
     return qfalse;
   if( !target->client ) // is the target a bot or player?
     return qfalse;
-  if( target->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS ) // one of us?
+  if( target->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS ) // one of us?
     return qfalse;
   if( target->client->sess.sessionTeam == TEAM_SPECTATOR ) // is the target alive?
     return qfalse;
@@ -695,12 +695,12 @@ qboolean ddef_checktarget( gentity_t *self, gentity_t *target, int range )
 
 /*
 ================
-ddef_findenemy
+adef_findenemy
 
 Used by DDef2_Think to locate enemy gentities
 ================
 */
-void ddef_findenemy( gentity_t *ent, int range )
+void adef_findenemy( gentity_t *ent, int range )
 {
   gentity_t *target;
 
@@ -722,12 +722,12 @@ void ddef_findenemy( gentity_t *ent, int range )
 
 /*
 ================
-DTrapper_Think
+ATrapper_Think
 
-think function for Droid Defense
+think function for Alien Defense
 ================
 */
-void DTrapper_Think( gentity_t *self )
+void ATrapper_Think( gentity_t *self )
 {
   int range =     BG_FindRangeForBuildable( self->s.modelindex );
   int firespeed = BG_FindFireSpeedForBuildable( self->s.modelindex );
@@ -916,7 +916,7 @@ void HDCC_Think( gentity_t *self )
 ================
 HMedistat_Think
 
-think function for Droid Acid Tube
+think function for Alien Acid Tube
 ================
 */
 void HMedistat_Think( gentity_t *self )
@@ -1573,9 +1573,9 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   if( tr2.fraction < 1.0 || tr3.fraction < 1.0 )
     return IBE_NOROOM; //NO other reason is allowed to override this
     
-  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
+  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
-    //droid criteria
+    //alien criteria
 
     float     minNormal = BG_FindMinNormalForBuildable( buildable );
     qboolean  invert = BG_FindInvertNormalForBuildable( buildable );
@@ -1589,14 +1589,14 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     {
       if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
         continue;
-      if( tempent->s.modelindex == BA_D_HIVEMIND )
+      if( tempent->s.modelindex == BA_A_HIVEMIND )
         break;
     }
 
     //if none found...
-    if( i >= level.num_entities && buildable != BA_D_HIVEMIND )
+    if( i >= level.num_entities && buildable != BA_A_HIVEMIND )
     {
-      if( buildable == BA_D_SPAWN )
+      if( buildable == BA_A_SPAWN )
         reason = IBE_SPWNWARN;
       else
         reason = IBE_NOHIVEMIND;
@@ -1610,7 +1610,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
         if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
           continue;
 
-        if( tempent->s.modelindex == BA_D_HIVEMIND )
+        if( tempent->s.modelindex == BA_A_HIVEMIND )
         {
           reason = IBE_HIVEMIND;
           break;
@@ -1618,7 +1618,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
       }
     }
 
-    if( level.droidBuildPoints - BG_FindBuildPointsForBuildable( buildable ) < 0 )
+    if( level.alienBuildPoints - BG_FindBuildPointsForBuildable( buildable ) < 0 )
       reason = IBE_NOASSERT;
   }
   else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
@@ -1744,40 +1744,40 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   //things that vary for each buildable that aren't in the dbase
   switch( buildable )
   {
-    case BA_D_SPAWN:
-      built->die = DSpawn_Die;
-      built->think = DSpawn_Think;
-      built->pain = DSpawn_Pain;
+    case BA_A_SPAWN:
+      built->die = ASpawn_Die;
+      built->think = ASpawn_Think;
+      built->pain = ASpawn_Pain;
       break;
       
-    case BA_D_BARRICADE:
-      built->die = DBarricade_Die;
-      built->think = DBarricade_Think;
-      built->pain = DBarricade_Pain;
+    case BA_A_BARRICADE:
+      built->die = ABarricade_Die;
+      built->think = ABarricade_Think;
+      built->pain = ABarricade_Pain;
       break;
       
-    case BA_D_BOOSTER:
-      built->die = DBarricade_Die;
-      built->think = DBarricade_Think;
-      built->pain = DBarricade_Pain;
-      built->touch = DBooster_Touch;
+    case BA_A_BOOSTER:
+      built->die = ABarricade_Die;
+      built->think = ABarricade_Think;
+      built->pain = ABarricade_Pain;
+      built->touch = ABooster_Touch;
       break;
       
-    case BA_D_ACIDTUBE:
-      built->die = DBarricade_Die;
-      built->think = DAcidTube_Think;
-      built->pain = DSpawn_Pain;
+    case BA_A_ACIDTUBE:
+      built->die = ABarricade_Die;
+      built->think = AAcidTube_Think;
+      built->pain = ASpawn_Pain;
       break;
       
-    case BA_D_TRAPPER:
-      built->die = DBarricade_Die;
-      built->think = DTrapper_Think;
-      built->pain = DSpawn_Pain;
+    case BA_A_TRAPPER:
+      built->die = ABarricade_Die;
+      built->think = ATrapper_Think;
+      built->pain = ASpawn_Pain;
       break;
       
-    case BA_D_HIVEMIND:
-      built->die = DSpawn_Die;
-      built->pain = DSpawn_Pain;
+    case BA_A_HIVEMIND:
+      built->die = ASpawn_Die;
+      built->pain = ASpawn_Pain;
       break;
       
     case BA_H_SPAWN:

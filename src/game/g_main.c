@@ -77,7 +77,7 @@ vmCvar_t  g_listEntity;
 
 //TA
 vmCvar_t  g_humanBuildPoints;
-vmCvar_t  g_droidBuildPoints;
+vmCvar_t  g_alienBuildPoints;
 
 static cvarTable_t   gameCvarTable[] = {
   // don't override the cheat state set by the system
@@ -148,7 +148,7 @@ static cvarTable_t   gameCvarTable[] = {
   { &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
   
   { &g_humanBuildPoints, "g_humanBuildPoints", "1000", 0, 0, qfalse  },
-  { &g_droidBuildPoints, "g_droidBuildPoints", "1000", 0, 0, qfalse  },
+  { &g_alienBuildPoints, "g_alienBuildPoints", "1000", 0, 0, qfalse  },
 
   { &g_rankings, "g_rankings", "0", 0, 0, qfalse}
 };
@@ -758,7 +758,7 @@ void countSpawns( void )
   int i;
   gentity_t *ent;
 
-  level.numDroidSpawns = 0;
+  level.numAlienSpawns = 0;
   level.numHumanSpawns = 0;
   
   for ( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
@@ -766,8 +766,8 @@ void countSpawns( void )
     if (!ent->inuse)
       continue;
 
-    if( !Q_stricmp( ent->classname, "team_droid_spawn" ) && ent->health > 0 )
-      level.numDroidSpawns++;
+    if( !Q_stricmp( ent->classname, "team_alien_spawn" ) && ent->health > 0 )
+      level.numAlienSpawns++;
       
     if( !Q_stricmp( ent->classname, "team_human_spawn" ) && ent->health > 0 )
       level.numHumanSpawns++;
@@ -788,10 +788,10 @@ void calculateBuildPoints( void )
   int       bclass;
   gentity_t *ent;
   int       localHTP = g_humanBuildPoints.integer,
-            localDTP = g_droidBuildPoints.integer;
+            localDTP = g_alienBuildPoints.integer;
 
   level.humanBuildPoints = level.humanBuildPointsPowered = localHTP;
-  level.droidBuildPoints = localDTP;
+  level.alienBuildPoints = localDTP;
 
   for ( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
   {
@@ -811,7 +811,7 @@ void calculateBuildPoints( void )
       }
       else
       {
-        level.droidBuildPoints -= BG_FindBuildPointsForBuildable( bclass );
+        level.alienBuildPoints -= BG_FindBuildPointsForBuildable( bclass );
       }
     }
   }
@@ -825,12 +825,12 @@ void calculateBuildPoints( void )
   
   if( level.humanBuildPoints < 0 )
   {
-    localDTP -= level.droidBuildPoints;
-    level.droidBuildPoints = 0;
+    localDTP -= level.alienBuildPoints;
+    level.alienBuildPoints = 0;
   }
   
   trap_SetConfigstring( CS_BUILDPOINTS,
-                        va( "%d %d %d %d %d", level.droidBuildPoints,
+                        va( "%d %d %d %d %d", level.alienBuildPoints,
                                               localDTP,
                                               level.humanBuildPoints,
                                               localHTP,
@@ -860,9 +860,9 @@ void CalculateRanks( void ) {
   level.numNonSpectatorClients = 0;
   level.numPlayingClients = 0;
   level.numVotingClients = 0;   // don't count bots
-  level.numDroidClients = 0;
+  level.numAlienClients = 0;
   level.numHumanClients = 0;
-  level.numLiveDroidClients = 0;
+  level.numLiveAlienClients = 0;
   level.numLiveHumanClients = 0;
 
   for ( i = 0; i < TEAM_NUM_TEAMS; i++ ) {
@@ -877,11 +877,11 @@ void CalculateRanks( void ) {
       level.numConnectedClients++;
 
       //TA: so we know when the game ends and for team leveling
-      if( level.clients[i].pers.pteam == PTE_DROIDS )
+      if( level.clients[i].pers.pteam == PTE_ALIENS )
       {
-        level.numDroidClients++;
+        level.numAlienClients++;
         if ( level.clients[i].sess.sessionTeam != TEAM_SPECTATOR )
-          level.numLiveDroidClients++;
+          level.numLiveAlienClients++;
       }
 
       if( level.clients[i].pers.pteam == PTE_HUMANS )
@@ -904,7 +904,7 @@ void CalculateRanks( void ) {
             level.numVotingClients++;
             if ( level.clients[i].sess.sessionTeam == TEAM_HUMANS )
               level.numteamVotingClients[0]++;
-            else if ( level.clients[i].sess.sessionTeam == TEAM_DROIDS )
+            else if ( level.clients[i].sess.sessionTeam == TEAM_ALIENS )
               level.numteamVotingClients[1]++;
 
           if ( level.follow1 == -1 )
@@ -925,9 +925,9 @@ void CalculateRanks( void ) {
     // in team games, rank is just the order of the teams, 0=red, 1=blue, 2=tied
     for ( i = 0;  i < level.numConnectedClients; i++ ) {
       cl = &level.clients[ level.sortedClients[i] ];
-      if ( level.teamScores[TEAM_HUMANS] == level.teamScores[TEAM_DROIDS] ) {
+      if ( level.teamScores[TEAM_HUMANS] == level.teamScores[TEAM_ALIENS] ) {
         cl->ps.persistant[PERS_RANK] = 2;
-      } else if ( level.teamScores[TEAM_HUMANS] > level.teamScores[TEAM_DROIDS] ) {
+      } else if ( level.teamScores[TEAM_HUMANS] > level.teamScores[TEAM_ALIENS] ) {
         cl->ps.persistant[PERS_RANK] = 0;
       } else {
         cl->ps.persistant[PERS_RANK] = 1;
@@ -958,7 +958,7 @@ void CalculateRanks( void ) {
   // set the CS_SCORES1/2 configstrings, which will be visible to everyone
   if ( g_gametype.integer >= GT_TEAM ) {
     trap_SetConfigstring( CS_SCORES1, va("%i", level.teamScores[TEAM_HUMANS] ) );
-    trap_SetConfigstring( CS_SCORES2, va("%i", level.teamScores[TEAM_DROIDS] ) );
+    trap_SetConfigstring( CS_SCORES2, va("%i", level.teamScores[TEAM_ALIENS] ) );
   } else {
     if ( level.numConnectedClients == 0 ) {
       trap_SetConfigstring( CS_SCORES1, va("%i", SCORE_NOT_PRESENT) );
@@ -1152,7 +1152,7 @@ void ExitLevel (void) {
 
   // reset all the scores so we don't enter the intermission again
   level.teamScores[TEAM_HUMANS] = 0;
-  level.teamScores[TEAM_DROIDS] = 0;
+  level.teamScores[TEAM_ALIENS] = 0;
   for ( i=0 ; i< g_maxclients.integer ; i++ ) {
     cl = level.clients + i;
     if ( cl->pers.connected != CON_CONNECTED ) {
@@ -1240,7 +1240,7 @@ void LogExit( const char *string ) {
 
   if ( g_gametype.integer >= GT_TEAM ) {
     G_LogPrintf( "red:%i  blue:%i\n",
-      level.teamScores[TEAM_HUMANS], level.teamScores[TEAM_DROIDS] );
+      level.teamScores[TEAM_HUMANS], level.teamScores[TEAM_ALIENS] );
   }
 
   for (i=0 ; i < numSorted ; i++) {
@@ -1364,7 +1364,7 @@ qboolean ScoreIsTied( void ) {
   }
 
   if ( g_gametype.integer >= GT_TEAM ) {
-    return level.teamScores[TEAM_HUMANS] == level.teamScores[TEAM_DROIDS];
+    return level.teamScores[TEAM_HUMANS] == level.teamScores[TEAM_ALIENS];
   }
 
   a = level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE];
@@ -1416,17 +1416,17 @@ void CheckExitRules( void ) {
   }
 
   /*trap_SendServerCommand( -1, va("print \"%d %d %d %d %d %d\n\"",
-    level.numDroidClients,
-    level.numLiveDroidClients,
+    level.numAlienClients,
+    level.numLiveAlienClients,
     level.numHumanClients,
     level.numLiveHumanClients,
-    level.numDroidSpawns,
+    level.numAlienSpawns,
     level.numHumanSpawns ) );*/
 
   //TA: end the game on these conditions
-  if( ( level.time > level.startTime + 1000 ) && ( level.numDroidSpawns == 0 ) && ( level.numLiveDroidClients == 0 ) )
+  if( ( level.time > level.startTime + 1000 ) && ( level.numAlienSpawns == 0 ) && ( level.numLiveAlienClients == 0 ) )
   {
-    //droids lose
+    //aliens lose
     trap_SendServerCommand( -1, "print \"Humans win.\n\"");
     LogExit( "Humans win." );
     return;
@@ -1434,8 +1434,8 @@ void CheckExitRules( void ) {
   else if( ( level.time > level.startTime + 1000 ) && ( level.numHumanSpawns == 0 ) && ( level.numLiveHumanClients == 0 ) )
   {
     //humans lose
-    trap_SendServerCommand( -1, "print \"Droids win.\n\"");
-    LogExit( "Droids win." );
+    trap_SendServerCommand( -1, "print \"Aliens win.\n\"");
+    LogExit( "Aliens win." );
     return;
   }
 
@@ -1450,7 +1450,7 @@ void CheckExitRules( void ) {
       return;
     }
 
-    if ( level.teamScores[TEAM_DROIDS] >= g_fraglimit.integer ) {
+    if ( level.teamScores[TEAM_ALIENS] >= g_fraglimit.integer ) {
       trap_SendServerCommand( -1, "print \"Blue hit the fraglimit.\n\"" );
       LogExit( "Fraglimit hit." );
       return;
@@ -1482,7 +1482,7 @@ void CheckExitRules( void ) {
       return;
     }
 
-    if ( level.teamScores[TEAM_DROIDS] >= g_capturelimit.integer ) {
+    if ( level.teamScores[TEAM_ALIENS] >= g_capturelimit.integer ) {
       trap_SendServerCommand( -1, "print \"Blue hit the capturelimit.\n\"" );
       LogExit( "Capturelimit hit." );
       return;
@@ -1563,10 +1563,10 @@ void CheckTournament( void ) {
     qboolean  notEnough = qfalse;
 
     if ( g_gametype.integer > GT_TEAM ) {
-      counts[TEAM_DROIDS] = TeamCount( -1, TEAM_DROIDS );
+      counts[TEAM_ALIENS] = TeamCount( -1, TEAM_ALIENS );
       counts[TEAM_HUMANS] = TeamCount( -1, TEAM_HUMANS );
 
-      if (counts[TEAM_HUMANS] < 1 || counts[TEAM_DROIDS] < 1) {
+      if (counts[TEAM_HUMANS] < 1 || counts[TEAM_ALIENS] < 1) {
         notEnough = qtrue;
       }
     } else if ( level.numPlayingClients < 2 ) {
@@ -1732,7 +1732,7 @@ void CheckTeamVote( int team ) {
 
   if ( team == TEAM_HUMANS )
     cs_offset = 0;
-  else if ( team == TEAM_DROIDS )
+  else if ( team == TEAM_ALIENS )
     cs_offset = 1;
   else
     return;
@@ -1964,7 +1964,7 @@ end = trap_Milliseconds();
 
   // check team votes
   CheckTeamVote( TEAM_HUMANS );
-  CheckTeamVote( TEAM_DROIDS );
+  CheckTeamVote( TEAM_ALIENS );
 
   // for tracking changes
   CheckCvars();

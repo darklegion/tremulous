@@ -388,7 +388,7 @@ float *CG_TeamColor( int team ) {
   switch ( team ) {
   case TEAM_HUMANS:
     return red;
-  case TEAM_DROIDS:
+  case TEAM_ALIENS:
     return blue;
   case TEAM_SPECTATOR:
     return spectator;

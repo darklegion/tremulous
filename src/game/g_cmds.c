@@ -62,7 +62,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
   }
 
   trap_SendServerCommand( ent-g_entities, va("scores %i %i %i%s", i,
-    level.teamScores[TEAM_HUMANS], level.teamScores[TEAM_DROIDS],
+    level.teamScores[TEAM_HUMANS], level.teamScores[TEAM_ALIENS],
     string ) );
 }
 
@@ -442,8 +442,8 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
   if ( client->sess.sessionTeam == TEAM_HUMANS ) {
     trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the humans.\n\"",
       client->pers.netname) );
-  } else if ( client->sess.sessionTeam == TEAM_DROIDS ) {
-    trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the droids.\n\"",
+  } else if ( client->sess.sessionTeam == TEAM_ALIENS ) {
+    trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the aliens.\n\"",
     client->pers.netname));
   } else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
     trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"",
@@ -494,8 +494,8 @@ void SetTeam( gentity_t *ent, char *s ) {
     specState = SPECTATOR_NOT;
     if ( !Q_stricmp( s, "humans" ) || !Q_stricmp( s, "h" ) ) {
       team = TEAM_HUMANS;
-    } else if ( !Q_stricmp( s, "droids" ) || !Q_stricmp( s, "d" ) ) {
-      team = TEAM_DROIDS;
+    } else if ( !Q_stricmp( s, "aliens" ) || !Q_stricmp( s, "d" ) ) {
+      team = TEAM_ALIENS;
     } else {
       // pick the team with the least number of players
       team = PickTeam( clientNum );
@@ -504,18 +504,18 @@ void SetTeam( gentity_t *ent, char *s ) {
     if ( g_teamForceBalance.integer ) {
       int   counts[TEAM_NUM_TEAMS];
 
-      counts[TEAM_DROIDS] = TeamCount( ent->client->ps.clientNum, TEAM_DROIDS );
+      counts[TEAM_ALIENS] = TeamCount( ent->client->ps.clientNum, TEAM_ALIENS );
       counts[TEAM_HUMANS] = TeamCount( ent->client->ps.clientNum, TEAM_HUMANS );
 
       // We allow a spread of two
-      if ( team == TEAM_HUMANS && counts[TEAM_HUMANS] - counts[TEAM_DROIDS] > 1 ) {
+      if ( team == TEAM_HUMANS && counts[TEAM_HUMANS] - counts[TEAM_ALIENS] > 1 ) {
         trap_SendServerCommand( ent->client->ps.clientNum,
           "cp \"Humans team has too many players.\n\"" );
         return; // ignore the request
       }
-      if ( team == TEAM_DROIDS && counts[TEAM_DROIDS] - counts[TEAM_HUMANS] > 1 ) {
+      if ( team == TEAM_ALIENS && counts[TEAM_ALIENS] - counts[TEAM_HUMANS] > 1 ) {
         trap_SendServerCommand( ent->client->ps.clientNum,
-          "cp \"Droids team has too many players.\n\"" );
+          "cp \"Aliens team has too many players.\n\"" );
         return; // ignore the request
       }
 
@@ -615,7 +615,7 @@ void Cmd_Team_f( gentity_t *ent ) {
   if( !Q_stricmp( s, "0" ) || !Q_stricmp( s, "spectate" ) )
     ent->client->pers.pteam = PTE_NONE;
   else if( !Q_stricmp( s, "1" ) || !Q_stricmp( s, "aliens" ) )
-    ent->client->pers.pteam = PTE_DROIDS;
+    ent->client->pers.pteam = PTE_ALIENS;
   else if( !Q_stricmp( s, "2" ) || !Q_stricmp( s, "humans" ) )
     ent->client->pers.pteam = PTE_HUMANS;
 
@@ -1304,7 +1304,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
   team = ent->client->sess.sessionTeam;
   if ( team == TEAM_HUMANS )
     cs_offset = 0;
-  else if ( team == TEAM_DROIDS )
+  else if ( team == TEAM_ALIENS )
     cs_offset = 1;
   else
     return;
@@ -1432,7 +1432,7 @@ void Cmd_TeamVote_f( gentity_t *ent ) {
   team = ent->client->sess.sessionTeam;
   if ( team == TEAM_HUMANS )
     cs_offset = 0;
-  else if ( team == TEAM_DROIDS )
+  else if ( team == TEAM_ALIENS )
     cs_offset = 1;
   else
     return;
@@ -1554,14 +1554,14 @@ void Cmd_Class_f( gentity_t *ent )
   int       i;
   trace_t   tr;
   vec3_t    infestOrigin, infestAngles;
-  int       allowedClasses[ NUM_AC ] = {  PCL_D_B_BASE,
-                                          PCL_D_B_LEV1,
-                                          PCL_D_O_BASE };
+  int       allowedClasses[ NUM_AC ] = {  PCL_A_B_BASE,
+                                          PCL_A_B_LEV1,
+                                          PCL_A_O_BASE };
 
   clientNum = ent->client - level.clients;
   trap_Argv( 1, s, sizeof( s ) );
 
-  if( ent->client->pers.pteam == PTE_DROIDS )
+  if( ent->client->pers.pteam == PTE_ALIENS )
   {
     //if we are not currently spectating, we are attempting evolution
     if( ent->client->pers.pclass != PCL_NONE )
@@ -1810,7 +1810,7 @@ void Cmd_Buy_f( gentity_t *ent )
 
   trap_Argv( 1, s, sizeof( s ) );
   
-  //droids don't buy stuff
+  //aliens don't buy stuff
   if( ent->client->pers.pteam != PTE_HUMANS )
     return;
 
@@ -1931,7 +1931,7 @@ void Cmd_Sell_f( gentity_t *ent )
 
   trap_Argv( 1, s, sizeof( s ) );
 
-  //droids don't sell stuff
+  //aliens don't sell stuff
   if( ent->client->pers.pteam != PTE_HUMANS )
     return;
     
@@ -2003,7 +2003,7 @@ void Cmd_Deposit_f( gentity_t *ent )
 
   trap_Argv( 1, s, sizeof( s ) );
 
-  //droids don't sell stuff
+  //aliens don't sell stuff
   if( ent->client->pers.pteam != PTE_HUMANS )
     return;
     
@@ -2058,7 +2058,7 @@ void Cmd_Withdraw_f( gentity_t *ent )
 
   trap_Argv( 1, s, sizeof( s ) );
   
-  //droids don't sell stuff
+  //aliens don't sell stuff
   if( ent->client->pers.pteam != PTE_HUMANS )
     return;
     

@@ -48,7 +48,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator ) {
       return;
     }
     if ( ( ent->spawnflags & 2 ) &&
-      activator->client->sess.sessionTeam != TEAM_DROIDS ) {
+      activator->client->sess.sessionTeam != TEAM_ALIENS ) {
       return;
     }
   }

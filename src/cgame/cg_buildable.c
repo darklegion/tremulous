@@ -394,7 +394,7 @@ void CG_Buildable( centity_t *cent )
     CG_Error( "Bad item index %i on entity", es->modelindex );
   
   //add creep
-  if( es->modelindex2 == BIT_DROIDS )
+  if( es->modelindex2 == BIT_ALIENS )
     CG_Creep( cent );  
 
   // if set to invisible, skip

@@ -752,7 +752,7 @@ static void CG_RegisterGraphics( void ) {
     
   /*cgs.media.creepShader = trap_R_RegisterShader( "creep" );*/
   
-  cgs.media.scannerBlipShader = trap_R_RegisterShader( "gfx/2d/droidhealth" );
+  cgs.media.scannerBlipShader = trap_R_RegisterShader( "gfx/2d/alienhealth" );
   cgs.media.scannerLineShader = trap_R_RegisterShader( "gfx/2d/func/mult2" );
   /*cgs.media.scannerShader = trap_R_RegisterShader( "gfx/2d/scanner" );*/
   
@@ -815,16 +815,16 @@ static void CG_RegisterGraphics( void ) {
   cgs.media.humanTorch3 = trap_R_RegisterShader( "humanTorch3" );
   cgs.media.humanTorch2 = trap_R_RegisterShader( "humanTorch2" );
   cgs.media.humanTorch1 = trap_R_RegisterShader( "humanTorch1" );
-  cgs.media.droidNav9 = trap_R_RegisterShader( "droidNav9" );
-  cgs.media.droidNav8 = trap_R_RegisterShader( "droidNav8" );
-  cgs.media.droidNav7 = trap_R_RegisterShader( "droidNav7" );
-  cgs.media.droidNav6 = trap_R_RegisterShader( "droidNav6" );
-  cgs.media.droidNav5 = trap_R_RegisterShader( "droidNav5" );
-  cgs.media.droidNav4 = trap_R_RegisterShader( "droidNav4" );
-  cgs.media.droidNav3 = trap_R_RegisterShader( "droidNav3" );
-  cgs.media.droidNav2 = trap_R_RegisterShader( "droidNav2" );
-  cgs.media.droidNav1 = trap_R_RegisterShader( "droidNav1" );
-  cgs.media.droidHealth = trap_R_RegisterShader( "gfx/2d/droidhealth.tga" );
+  cgs.media.alienNav9 = trap_R_RegisterShader( "alienNav9" );
+  cgs.media.alienNav8 = trap_R_RegisterShader( "alienNav8" );
+  cgs.media.alienNav7 = trap_R_RegisterShader( "alienNav7" );
+  cgs.media.alienNav6 = trap_R_RegisterShader( "alienNav6" );
+  cgs.media.alienNav5 = trap_R_RegisterShader( "alienNav5" );
+  cgs.media.alienNav4 = trap_R_RegisterShader( "alienNav4" );
+  cgs.media.alienNav3 = trap_R_RegisterShader( "alienNav3" );
+  cgs.media.alienNav2 = trap_R_RegisterShader( "alienNav2" );
+  cgs.media.alienNav1 = trap_R_RegisterShader( "alienNav1" );
+  cgs.media.alienHealth = trap_R_RegisterShader( "gfx/2d/alienhealth.tga" );
 
   cgs.media.armorModel = trap_R_RegisterModel( "models/powerups/armor/armor_yel.md3" );
   cgs.media.armorIcon  = trap_R_RegisterShaderNoMip( "icons/iconr_yellow" );

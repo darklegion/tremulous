@@ -39,7 +39,7 @@ void Team_InitGame(void)
     case GT_CTF:
       teamgame.redStatus = teamgame.blueStatus = -1; // Invalid to force update
       Team_SetFlagStatus( TEAM_HUMANS, FLAG_ATBASE );
-      Team_SetFlagStatus( TEAM_DROIDS, FLAG_ATBASE );
+      Team_SetFlagStatus( TEAM_ALIENS, FLAG_ATBASE );
       break;
     default:
       break;
@@ -48,8 +48,8 @@ void Team_InitGame(void)
 
 int OtherTeam(int team) {
   if (team==TEAM_HUMANS)
-    return TEAM_DROIDS;
-  else if (team==TEAM_DROIDS)
+    return TEAM_ALIENS;
+  else if (team==TEAM_ALIENS)
     return TEAM_HUMANS;
   return team;
 }
@@ -57,7 +57,7 @@ int OtherTeam(int team) {
 const char *TeamName(int team)  {
   if (team==TEAM_HUMANS)
     return "RED";
-  else if (team==TEAM_DROIDS)
+  else if (team==TEAM_ALIENS)
     return "BLUE";
   else if (team==TEAM_SPECTATOR)
     return "SPECTATOR";
@@ -67,7 +67,7 @@ const char *TeamName(int team)  {
 const char *OtherTeamName(int team) {
   if (team==TEAM_HUMANS)
     return "BLUE";
-  else if (team==TEAM_DROIDS)
+  else if (team==TEAM_ALIENS)
     return "RED";
   else if (team==TEAM_SPECTATOR)
     return "SPECTATOR";
@@ -77,7 +77,7 @@ const char *OtherTeamName(int team) {
 const char *TeamColorString(int team) {
   if (team==TEAM_HUMANS)
     return S_COLOR_RED;
-  else if (team==TEAM_DROIDS)
+  else if (team==TEAM_ALIENS)
     return S_COLOR_BLUE;
   else if (team==TEAM_SPECTATOR)
     return S_COLOR_YELLOW;
@@ -119,12 +119,12 @@ void AddTeamScore(vec3_t origin, int team, int score) {
   te->r.svFlags |= SVF_BROADCAST;
 
   if ( team == TEAM_HUMANS ) {
-    if ( level.teamScores[ TEAM_HUMANS ] + score == level.teamScores[ TEAM_DROIDS ] ) {
+    if ( level.teamScores[ TEAM_HUMANS ] + score == level.teamScores[ TEAM_ALIENS ] ) {
       //teams are tied sound
       //te->s.eventParm = GTS_TEAMS_ARE_TIED;
     }
-    else if ( level.teamScores[ TEAM_HUMANS ] <= level.teamScores[ TEAM_DROIDS ] &&
-          level.teamScores[ TEAM_HUMANS ] + score > level.teamScores[ TEAM_DROIDS ]) {
+    else if ( level.teamScores[ TEAM_HUMANS ] <= level.teamScores[ TEAM_ALIENS ] &&
+          level.teamScores[ TEAM_HUMANS ] + score > level.teamScores[ TEAM_ALIENS ]) {
       // red took the lead sound
       //te->s.eventParm = GTS_REDTEAM_TOOK_LEAD;
     }
@@ -134,12 +134,12 @@ void AddTeamScore(vec3_t origin, int team, int score) {
     }
   }
   else {
-    if ( level.teamScores[ TEAM_DROIDS ] + score == level.teamScores[ TEAM_HUMANS ] ) {
+    if ( level.teamScores[ TEAM_ALIENS ] + score == level.teamScores[ TEAM_HUMANS ] ) {
       //teams are tied sound
       //te->s.eventParm = GTS_TEAMS_ARE_TIED;
     }
-    else if ( level.teamScores[ TEAM_DROIDS ] <= level.teamScores[ TEAM_HUMANS ] &&
-          level.teamScores[ TEAM_DROIDS ] + score > level.teamScores[ TEAM_HUMANS ]) {
+    else if ( level.teamScores[ TEAM_ALIENS ] <= level.teamScores[ TEAM_HUMANS ] &&
+          level.teamScores[ TEAM_ALIENS ] + score > level.teamScores[ TEAM_HUMANS ]) {
       // blue took the lead sound
       //te->s.eventParm = GTS_BLUETEAM_TOOK_LEAD;
     }
@@ -187,7 +187,7 @@ void Team_SetFlagStatus( int team, flagStatus_t status ) {
     }
     break;
 
-  case TEAM_DROIDS: // CTF
+  case TEAM_ALIENS: // CTF
     if( teamgame.blueStatus != status ) {
       teamgame.blueStatus = status;
       modified = qtrue;
@@ -225,7 +225,7 @@ void Team_CheckDroppedItem( gentity_t *dropped )
   /*if (dropped->item->giTag == PW_REDFLAG)
     Team_SetFlagStatus( TEAM_HUMANS, FLAG_DROPPED );
   else if (dropped->item->giTag == PW_BLUEFLAG)
-    Team_SetFlagStatus( TEAM_DROIDS, FLAG_DROPPED );*/
+    Team_SetFlagStatus( TEAM_ALIENS, FLAG_DROPPED );*/
 }
 
 
@@ -375,7 +375,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
   case TEAM_HUMANS:
     c = "team_CTF_redflag";
     break;
-  case TEAM_DROIDS:
+  case TEAM_ALIENS:
     c = "team_CTF_blueflag";
     break;
   default:
@@ -483,7 +483,7 @@ gentity_t *Team_ResetFlag(int team)
   case TEAM_HUMANS:
     c = "team_CTF_redflag";
     break;
-  case TEAM_DROIDS:
+  case TEAM_ALIENS:
     c = "team_CTF_blueflag";
     break;
   case TEAM_FREE:
@@ -511,7 +511,7 @@ gentity_t *Team_ResetFlag(int team)
 void Team_ResetFlags( void ) {
   if( g_gametype.integer == GT_CTF ) {
     Team_ResetFlag( TEAM_HUMANS );
-    Team_ResetFlag( TEAM_DROIDS );
+    Team_ResetFlag( TEAM_ALIENS );
   }
 }
 
@@ -526,7 +526,7 @@ void Team_ReturnFlagSound(gentity_t *ent, int team)
   }
 
   //te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND );
-  if( team == TEAM_DROIDS ) {
+  if( team == TEAM_ALIENS ) {
     //te->s.eventParm = GTS_RED_RETURN;
   }
   else {
@@ -554,7 +554,7 @@ void Team_TakeFlagSound( gentity_t *ent, int team ) {
       teamgame.blueTakenTime = level.time;
       break;
 
-    case TEAM_DROIDS: // CTF
+    case TEAM_ALIENS: // CTF
       if( teamgame.redStatus != FLAG_ATBASE ) {
         if (teamgame.redTakenTime > level.time - 10000)
           return;
@@ -564,7 +564,7 @@ void Team_TakeFlagSound( gentity_t *ent, int team ) {
   }
 
   //te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND );
-  if( team == TEAM_DROIDS ) {
+  if( team == TEAM_ALIENS ) {
     //te->s.eventParm = GTS_RED_TAKEN;
   }
   else {
@@ -582,7 +582,7 @@ void Team_CaptureFlagSound( gentity_t *ent, int team ) {
   }
 
   //te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_TEAM_SOUND );
-  if( team == TEAM_DROIDS ) {
+  if( team == TEAM_ALIENS ) {
     //te->s.eventParm = GTS_BLUE_CAPTURE;
   }
   else {
@@ -606,7 +606,7 @@ void Team_FreeEntity(gentity_t *ent)
   /*if (ent->item->giTag == PW_REDFLAG)
     Team_ReturnFlag(TEAM_HUMANS);
   else if (ent->item->giTag == PW_BLUEFLAG)
-    Team_ReturnFlag(TEAM_DROIDS);*/
+    Team_ReturnFlag(TEAM_ALIENS);*/
 }
 
 /*
@@ -623,7 +623,7 @@ void Team_DroppedFlagThink(gentity_t *ent)
   /*if (ent->item->giTag == PW_REDFLAG)
     Team_ReturnFlagSound(Team_ResetFlag(TEAM_HUMANS), TEAM_HUMANS);
   else if (ent->item->giTag == PW_BLUEFLAG)
-    Team_ReturnFlagSound(Team_ResetFlag(TEAM_DROIDS), TEAM_DROIDS);*/
+    Team_ReturnFlagSound(Team_ResetFlag(TEAM_ALIENS), TEAM_ALIENS);*/
   // Reset Flag will delete this entity
 }
 
@@ -734,7 +734,7 @@ int Pickup_Team( gentity_t *ent, gentity_t *other ) {
   if (strcmp(ent->classname, "team_CTF_redflag") == 0)
     team = TEAM_HUMANS;
   else if (strcmp(ent->classname, "team_CTF_blueflag") == 0)
-    team = TEAM_DROIDS;
+    team = TEAM_ALIENS;
   else {
     PrintMsg ( other, "Don't know what team the flag is on.\n");
     return 0;
@@ -833,14 +833,14 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team ) {
   if (teamstate == TEAM_BEGIN) {
     if (team == TEAM_HUMANS)
       classname = "team_CTF_redplayer";
-    else if (team == TEAM_DROIDS)
+    else if (team == TEAM_ALIENS)
       classname = "team_CTF_blueplayer";
     else
       return NULL;
   } else {
     if (team == TEAM_HUMANS)
       classname = "team_CTF_redspawn";
-    else if (team == TEAM_DROIDS)
+    else if (team == TEAM_ALIENS)
       classname = "team_CTF_bluespawn";
     else
       return NULL;
@@ -978,7 +978,7 @@ void CheckTeamStatus(void)
         continue;
       }
 
-      if (ent->inuse && (ent->client->sess.sessionTeam == TEAM_HUMANS || ent->client->sess.sessionTeam == TEAM_DROIDS)) {
+      if (ent->inuse && (ent->client->sess.sessionTeam == TEAM_HUMANS || ent->client->sess.sessionTeam == TEAM_ALIENS)) {
 
         loc = Team_GetLocation( ent );
         if (loc)
@@ -994,7 +994,7 @@ void CheckTeamStatus(void)
         continue;
       }
 
-      if (ent->inuse && (ent->client->sess.sessionTeam == TEAM_HUMANS || ent->client->sess.sessionTeam == TEAM_DROIDS)) {
+      if (ent->inuse && (ent->client->sess.sessionTeam == TEAM_HUMANS || ent->client->sess.sessionTeam == TEAM_ALIENS)) {
         TeamplayInfoMessage( ent );
       }
     }

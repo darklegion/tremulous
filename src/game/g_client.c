@@ -56,10 +56,10 @@ void SP_info_player_intermission( gentity_t *ent ) {
 
 }
 
-/*QUAKED info_droid_intermission (1 0 1) (-16 -16 -24) (16 16 32)
+/*QUAKED info_alien_intermission (1 0 1) (-16 -16 -24) (16 16 32)
 The intermission will be viewed from this point.  Target an info_notnull for the view direction.
 */
-void SP_info_droid_intermission( gentity_t *ent ) {
+void SP_info_alien_intermission( gentity_t *ent ) {
 
 }
 
@@ -243,12 +243,12 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 
 /*
 ================
-SelectDroidSpawnPoint
+SelectAlienSpawnPoint
 
 go to a random point that doesn't telefrag
 ================
 */
-gentity_t *SelectDroidSpawnPoint( void )
+gentity_t *SelectAlienSpawnPoint( void )
 {
   gentity_t *spot;
   int       count;
@@ -265,7 +265,7 @@ gentity_t *SelectDroidSpawnPoint( void )
   count = 0;
   spot = NULL;
 
-  while( ( spot = G_Find( spot, FOFS( classname ), "team_droid_spawn" ) ) != NULL )
+  while( ( spot = G_Find( spot, FOFS( classname ), "team_alien_spawn" ) ) != NULL )
   {
     if( SpotWouldTelefrag( spot ) || ( spot->health <= 0 ) )
       continue;
@@ -291,7 +291,7 @@ gentity_t *SelectDroidSpawnPoint( void )
   if( !count )
   {
     // no spots that won't telefrag
-    spot = G_Find( NULL, FOFS( classname ), "team_droid_spawn" );
+    spot = G_Find( NULL, FOFS( classname ), "team_alien_spawn" );
     
     if( spot->health > 0 )
       return spot;
@@ -417,8 +417,8 @@ gentity_t *SelectTremulousSpawnPoint( int team, vec3_t origin, vec3_t angles )
   vec3_t    classMins, classMaxs, spawnMins, spawnMaxs;
   vec3_t    normal = { 0, 0, 1 };
 
-  if( team == PTE_DROIDS )
-    spot = SelectDroidSpawnPoint( );
+  if( team == PTE_ALIENS )
+    spot = SelectAlienSpawnPoint( );
   else if( team == PTE_HUMANS )
     spot = SelectHumanSpawnPoint( );
 
@@ -429,9 +429,9 @@ gentity_t *SelectTremulousSpawnPoint( int team, vec3_t origin, vec3_t angles )
   VectorCopy( spot->s.pos.trBase, origin );
   VectorCopy( spot->s.angles, angles );
 
-  if( team == PTE_DROIDS )
+  if( team == PTE_ALIENS )
   {
-    BG_FindBBoxForBuildable( BA_D_SPAWN, spawnMins, spawnMaxs );
+    BG_FindBBoxForBuildable( BA_A_SPAWN, spawnMins, spawnMaxs );
     
     //TA: really a *safe* extreme upper limit
     displacement = ( spawnMaxs[ 2 ] + MAX_ALIEN_BBOX + 1.0f ) * M_ROOT3;
@@ -498,17 +498,17 @@ gentity_t *SelectSpectatorSpawnPoint( vec3_t origin, vec3_t angles ) {
 
 /*
 ===========
-SelectDroidLockSpawnPoint
+SelectAlienLockSpawnPoint
 
-Try to find a spawn point for droid intermission otherwise
+Try to find a spawn point for alien intermission otherwise
 use normal intermission spawn.
 ============
 */
-gentity_t *SelectDroidLockSpawnPoint( vec3_t origin, vec3_t angles ) {
+gentity_t *SelectAlienLockSpawnPoint( vec3_t origin, vec3_t angles ) {
   gentity_t *spot;
 
   spot = NULL;
-  spot = G_Find (spot, FOFS(classname), "info_droid_intermission");
+  spot = G_Find (spot, FOFS(classname), "info_alien_intermission");
 
   if ( !spot ) {
     return SelectSpectatorSpawnPoint( origin, angles );
@@ -590,10 +590,10 @@ void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
   vec3_t  up = { 0.0, 0.0, 1.0 };
 
   
-  if( activator->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
+  if( activator->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     //can't pick teammates bodies to bits
-    if( !Q_stricmp( self->classname, "droidCorpse" ) )
+    if( !Q_stricmp( self->classname, "alienCorpse" ) )
       return;
 
     //can't use bodies that are not owned
@@ -639,7 +639,7 @@ void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
       if( ( self->credits[ clientNum ] == 0 || !self->creditsHash[ clientNum ] ) && total != 0 )
         continue;
         
-      G_AddEvent( self, EV_GIB_DROID, DirToByte( up ) );
+      G_AddEvent( self, EV_GIB_ALIEN, DirToByte( up ) );
       self->freeAfterEvent = qtrue;
       break;
     }
@@ -695,7 +695,7 @@ void SpawnCorpse( gentity_t *ent )
   }
   else
   {
-    body->classname = "droidCorpse";
+    body->classname = "alienCorpse";
     for( i = 0; i < MAX_CLIENTS; body->credits[ i ] = ent->credits[ i++ ] );
   }
     
@@ -861,20 +861,20 @@ PickTeam
 team_t PickTeam( int ignoreClientNum ) {
   int   counts[TEAM_NUM_TEAMS];
 
-  counts[TEAM_DROIDS] = TeamCount( ignoreClientNum, TEAM_DROIDS );
+  counts[TEAM_ALIENS] = TeamCount( ignoreClientNum, TEAM_ALIENS );
   counts[TEAM_HUMANS] = TeamCount( ignoreClientNum, TEAM_HUMANS );
 
-  if ( counts[TEAM_DROIDS] > counts[TEAM_HUMANS] ) {
+  if ( counts[TEAM_ALIENS] > counts[TEAM_HUMANS] ) {
     return TEAM_HUMANS;
   }
-  if ( counts[TEAM_HUMANS] > counts[TEAM_DROIDS] ) {
-    return TEAM_DROIDS;
+  if ( counts[TEAM_HUMANS] > counts[TEAM_ALIENS] ) {
+    return TEAM_ALIENS;
   }
   // equal team count, so join the team with the lowest score
-  if ( level.teamScores[TEAM_DROIDS] > level.teamScores[TEAM_HUMANS] ) {
+  if ( level.teamScores[TEAM_ALIENS] > level.teamScores[TEAM_HUMANS] ) {
     return TEAM_HUMANS;
   }
-  return TEAM_DROIDS;
+  return TEAM_ALIENS;
 }
 
 /*
@@ -1067,7 +1067,7 @@ void ClientUserinfoChanged( int clientNum ) {
   case TEAM_HUMANS:
     //ForceClientSkin(client, model, "red");
     break;
-  case TEAM_DROIDS:
+  case TEAM_ALIENS:
     //ForceClientSkin(client, model, "blue");
     break;
   }
@@ -1095,7 +1095,7 @@ void ClientUserinfoChanged( int clientNum ) {
   strcpy(c1, Info_ValueForKey( userinfo, "color1" ));
   strcpy(c2, Info_ValueForKey( userinfo, "color2" ));
   strcpy(redTeam, "humans");
-  strcpy(blueTeam, "droids");
+  strcpy(blueTeam, "aliens");
                 
   // send over a subset of the userinfo keys so other clients can
   // print scoreboards, display models, and play custom sounds
@@ -1321,8 +1321,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   {
     if( teamLocal == PTE_NONE )
       spawnPoint = SelectSpectatorSpawnPoint ( spawn_origin, spawn_angles);
-    else if( teamLocal == PTE_DROIDS )
-      spawnPoint = SelectDroidLockSpawnPoint ( spawn_origin, spawn_angles);
+    else if( teamLocal == PTE_ALIENS )
+      spawnPoint = SelectAlienLockSpawnPoint ( spawn_origin, spawn_angles);
     else if( teamLocal == PTE_HUMANS )
       spawnPoint = SelectHumanLockSpawnPoint ( spawn_origin, spawn_angles);
   }
@@ -1331,7 +1331,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
     //this is an infest spawn
     if( spawn )
     {
-      //spawn as new droid
+      //spawn as new alien
       VectorCopy( spawn->s.pos.trBase, spawn_origin );
       VectorCopy( spawn->s.angles, spawn_angles );
       
@@ -1339,7 +1339,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
       BG_FindBBoxForClass( ent->client->pers.pclass, classMins, NULL, NULL, NULL, NULL );
 
       spawn_origin[ 2 ] += bodyMaxs[ 2 ] + fabs( classMins[ 2 ] ) + 1;
-      G_AddEvent( spawn, EV_GIB_DROID, DirToByte( up ) );
+      G_AddEvent( spawn, EV_GIB_ALIEN, DirToByte( up ) );
       spawn->freeAfterEvent = qtrue;
     }
     else
@@ -1389,7 +1389,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
 
   if( client->sess.sessionTeam == TEAM_SPECTATOR )
   {
-    if( teamLocal == PTE_DROIDS )
+    if( teamLocal == PTE_ALIENS )
       G_AddPredictableEvent( ent, EV_MENU, MN_D_CLASS );
     else if( teamLocal == PTE_HUMANS )
       G_AddPredictableEvent( ent, EV_MENU, MN_H_SPAWN );
@@ -1436,52 +1436,52 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   // clear entity values
   switch( ent->client->pers.pclass )
   {
-    case PCL_D_B_BASE:
+    case PCL_A_B_BASE:
       BG_packWeapon( WP_DBUILD, client->ps.stats );
       BG_packAmmoArray( WP_DBUILD, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
       
-    case PCL_D_B_LEV1:
+    case PCL_A_B_LEV1:
       BG_packWeapon( WP_DBUILD2, client->ps.stats );
       BG_packAmmoArray( WP_DBUILD2, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
 
-    case PCL_D_O_BASE:
+    case PCL_A_O_BASE:
       BG_packWeapon( WP_VENOM, client->ps.stats );
       BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
       
-    case PCL_D_O_LEV1:
+    case PCL_A_O_LEV1:
       BG_packWeapon( WP_GRABANDCSAW, client->ps.stats );
       BG_packAmmoArray( WP_GRABANDCSAW, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
       
-    case PCL_D_O_LEV1_UPG:
+    case PCL_A_O_LEV1_UPG:
       BG_packWeapon( WP_GRABANDCSAW, client->ps.stats );
       BG_packAmmoArray( WP_GRABANDCSAW, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
       
-    case PCL_D_O_LEV2:
+    case PCL_A_O_LEV2:
       BG_packWeapon( WP_POUNCE, client->ps.stats );
       BG_packAmmoArray( WP_POUNCE, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
 
-    case PCL_D_O_LEV2_UPG:
+    case PCL_A_O_LEV2_UPG:
       BG_packWeapon( WP_POUNCE, client->ps.stats );
       BG_packAmmoArray( WP_POUNCE, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
 
-    case PCL_D_O_LEV3:
+    case PCL_A_O_LEV3:
       BG_packWeapon( WP_VENOM, client->ps.stats );
       BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
       
-    case PCL_D_O_LEV3_UPG:
+    case PCL_A_O_LEV3_UPG:
       BG_packWeapon( WP_VENOM, client->ps.stats );
       BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
       
-    case PCL_D_O_LEV4:
+    case PCL_A_O_LEV4:
       BG_packWeapon( WP_VENOM, client->ps.stats );
       BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
@@ -1526,7 +1526,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
 #define F_VEL   50.0f
 
   //give aliens some spawn velocity
-  if( client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
+  if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     if( spawnPoint->s.origin2[ 2 ] > 0.0f )
     {
@@ -1563,7 +1563,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
   client->ps.pm_time = 100;
 
-  //TA: STAT_SPAWNTIME for droid fov effects
+  //TA: STAT_SPAWNTIME for alien fov effects
   client->respawnTime = level.time;
   G_AddPredictableEvent( ent, EV_PLAYER_RESPAWN, 0 );
 

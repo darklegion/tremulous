@@ -350,7 +350,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
   {
     if( client->pers.pteam == PTE_NONE )
       G_AddPredictableEvent( ent, EV_MENU, MN_TEAM );
-    else if( client->pers.pteam == PTE_DROIDS )
+    else if( client->pers.pteam == PTE_ALIENS )
       G_AddPredictableEvent( ent, EV_MENU, MN_D_CLASS );
     else if( client->pers.pteam == PTE_HUMANS )
       G_AddPredictableEvent( ent, EV_MENU, MN_H_SPAWN );
@@ -522,8 +522,8 @@ void ClientTimerActions( gentity_t *ent, int msec )
   {
     client->time1000 -= 1000;
 
-    //replenish droid health
-    if( client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
+    //replenish alien health
+    if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     {
       if( ent->health < client->ps.stats[ STAT_MAX_HEALTH ] )
         ent->health++;
@@ -859,7 +859,7 @@ void ClientThink_real( gentity_t *ent ) {
   //TA: slow player if standing in creep
   for ( i = 1, creepNode = g_entities + i; i < level.num_entities; i++, creepNode++ )
   {
-    if( creepNode->biteam == PTE_DROIDS ) 
+    if( creepNode->biteam == PTE_ALIENS ) 
     {
       VectorSubtract( client->ps.origin, creepNode->s.origin, temp_v );
 

@@ -1167,7 +1167,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
     }
   }
 
-  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_DROIDS &&
+  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS &&
       cg.predictedPlayerState.persistant[PERS_TEAM] != TEAM_SPECTATOR )
     trap_R_AddAdditiveLightToScene( cg.predictedPlayerState.origin, 500, 0.07f, 0.07f, 0.07f );
 

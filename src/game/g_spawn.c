@@ -141,7 +141,7 @@ void SP_info_player_deathmatch (gentity_t *ent);
 void SP_info_player_intermission (gentity_t *ent);
 
 //TA: extra bits
-void SP_info_droid_intermission( gentity_t *ent );
+void SP_info_alien_intermission( gentity_t *ent );
 void SP_info_human_intermission( gentity_t *ent );
 
 void SP_info_firstplace(gentity_t *ent);
@@ -214,7 +214,7 @@ spawn_t spawns[] = {
   {"info_player_intermission", SP_info_player_intermission},
 
   //TA: extra bits
-  {"info_droid_intermission", SP_info_droid_intermission},
+  {"info_alien_intermission", SP_info_alien_intermission},
   {"info_human_intermission", SP_info_human_intermission},
   
   {"info_null", SP_info_null},
@@ -616,8 +616,8 @@ void SP_worldspawn( void ) {
   G_SpawnString( "humanBuildPoints", "1000", &s );
   trap_Cvar_Set( "g_humanBuildPoints", s );
 
-  G_SpawnString( "droidBuildPoints", "1000", &s );
-  trap_Cvar_Set( "g_droidBuildPoints", s );
+  G_SpawnString( "alienBuildPoints", "1000", &s );
+  trap_Cvar_Set( "g_alienBuildPoints", s );
 
   G_SpawnString( "enableDust", "0", &s );
   trap_Cvar_Set( "g_enableDust", s );

@@ -683,7 +683,7 @@ qboolean CheckVenomAttack( gentity_t *ent )
     return qfalse;
   if( !traceEnt->client )
     return qfalse;
-  if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
+  if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     return qfalse;
 
   // send blood impact
@@ -793,7 +793,7 @@ void Weapon_Grab_Fire( gentity_t *ent )
     return;
   if( !traceEnt->client )
     return;
-  if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
+  if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     return;
     
   if( traceEnt->client )
@@ -835,7 +835,7 @@ qboolean CheckGrabAttack( gentity_t *ent )
     return qfalse;
   if( !traceEnt->client )
     return qfalse;
-  if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
+  if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     return qfalse;
     
   return qtrue;

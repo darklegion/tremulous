@@ -66,7 +66,7 @@ void Use_target_remove_powerups( gentity_t *ent, gentity_t *other, gentity_t *ac
   /*if( activator->client->ps.powerups[PW_REDFLAG] ) {
     Team_ReturnFlag( TEAM_HUMANS );
   } else if( activator->client->ps.powerups[PW_BLUEFLAG] ) {
-    Team_ReturnFlag( TEAM_DROIDS );
+    Team_ReturnFlag( TEAM_ALIENS );
   } else if( activator->client->ps.powerups[PW_NEUTRALFLAG] ) {
     Team_ReturnFlag( TEAM_FREE );
   }*/
@@ -144,7 +144,7 @@ void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator) {
       G_TeamCommand( TEAM_HUMANS, va("cp \"%s\"", ent->message) );
     }
     if ( ent->spawnflags & 2 ) {
-      G_TeamCommand( TEAM_DROIDS, va("cp \"%s\"", ent->message) );
+      G_TeamCommand( TEAM_ALIENS, va("cp \"%s\"", ent->message) );
     }
     return;
   }
@@ -374,7 +374,7 @@ void target_relay_use (gentity_t *self, gentity_t *other, gentity_t *activator) 
     return;
   }
   if ( ( self->spawnflags & 2 ) && activator->client
-    && activator->client->sess.sessionTeam != TEAM_DROIDS ) {
+    && activator->client->sess.sessionTeam != TEAM_ALIENS ) {
     return;
   }
   if ( self->spawnflags & 4 ) {

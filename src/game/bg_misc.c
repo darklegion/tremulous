@@ -255,7 +255,7 @@ gitem_t bg_itemlist[] =
         { "models/weapons2/gauntlet/gauntlet.md3",
     0, 0, 0},
     "icons/iconw_gauntlet",
-    "Droid Build",
+    "Alien Build",
     0,
     IT_WEAPON,
     WP_DBUILD,
@@ -271,7 +271,7 @@ gitem_t bg_itemlist[] =
         { "models/weapons2/gauntlet/gauntlet.md3",
     0, 0, 0},
     "icons/iconw_gauntlet",
-    "Droid Build 2",
+    "Alien Build 2",
     0,
     IT_WEAPON,
     WP_DBUILD2,
@@ -955,10 +955,10 @@ int   bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) - 1;
 buildableAttributes_t bg_buildableList[ ] =
 {
   {
-    BA_D_SPAWN,            //int       buildNum;     
+    BA_A_SPAWN,            //int       buildNum;     
     "bioegg",              //char      *buildName;
     "Egg",                 //char      *humanName;
-    "team_droid_spawn",    //char      *entityName;
+    "team_alien_spawn",    //char      *entityName;
     { "models/buildables/bioegg/bioegg.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
@@ -970,7 +970,7 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashDamage;
     200,                   //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
-    BIT_DROIDS,            //int       team;
+    BIT_ALIENS,            //int       team;
     ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
@@ -984,10 +984,10 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_D_BARRICADE,        //int       buildNum;
+    BA_A_BARRICADE,        //int       buildNum;
     "barricade",           //char      *buildName;
     "Barricade",           //char      *humanName;
-    "team_droid_barricade",//char      *entityName;
+    "team_alien_barricade",//char      *entityName;
     { "models/buildables/barricade/barricade.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
@@ -999,7 +999,7 @@ buildableAttributes_t bg_buildableList[ ] =
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
-    BIT_DROIDS,            //int       team;
+    BIT_ALIENS,            //int       team;
     ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
@@ -1013,10 +1013,10 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_D_BOOSTER,          //int       buildNum;
+    BA_A_BOOSTER,          //int       buildNum;
     "booster",             //char      *buildName;
     "Booster",             //char      *humanName;
-    "team_droid_booster",  //char      *entityName;
+    "team_alien_booster",  //char      *entityName;
     { "models/buildables/booster/booster.md3", 0, 0, 0 },
     { -26, -26, -9 },     //vec3_t    mins;
     { 26, 26, 9 },        //vec3_t    maxs;
@@ -1028,7 +1028,7 @@ buildableAttributes_t bg_buildableList[ ] =
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
-    BIT_DROIDS,            //int       team;
+    BIT_ALIENS,            //int       team;
     ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
@@ -1042,10 +1042,10 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_D_ACIDTUBE,         //int       buildNum;
+    BA_A_ACIDTUBE,         //int       buildNum;
     "acid_tube",           //char      *buildName;
     "Acid Tube",           //char      *humanName;
-    "team_droid_acid_tube",//char      *entityName;
+    "team_alien_acid_tube",//char      *entityName;
     { "models/buildables/acid_tube/acid_tube.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
@@ -1057,7 +1057,7 @@ buildableAttributes_t bg_buildableList[ ] =
     20,                    //int       splashDamage;
     400,                   //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
-    BIT_DROIDS,            //int       team;
+    BIT_ALIENS,            //int       team;
     ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     500,                   //int       nextthink;
@@ -1071,10 +1071,10 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_D_TRAPPER,          //int       buildNum;
+    BA_A_TRAPPER,          //int       buildNum;
     "trapper",             //char      *buildName;
     "Trapper",             //char      *humanName;
-    "team_droid_trapper",  //char      *entityName;
+    "team_alien_trapper",  //char      *entityName;
     { "models/buildables/trapper/trapper.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
@@ -1086,7 +1086,7 @@ buildableAttributes_t bg_buildableList[ ] =
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
-    BIT_DROIDS,            //int       team;
+    BIT_ALIENS,            //int       team;
     ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     1000,                  //int       nextthink;
@@ -1100,10 +1100,10 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_D_HIVEMIND,         //int       buildNum;
+    BA_A_HIVEMIND,         //int       buildNum;
     "hivemind",            //char      *buildName;
     "Hivemind",            //char      *humanName;
-    "team_droid_hivemind", //char      *entityName;
+    "team_alien_hivemind", //char      *entityName;
     { "models/buildables/hivemind/hivemind.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
@@ -1115,7 +1115,7 @@ buildableAttributes_t bg_buildableList[ ] =
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
-    BIT_DROIDS,            //int       team;
+    BIT_ALIENS,            //int       team;
     ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     -1,                    //int       nextthink;
@@ -2002,7 +2002,7 @@ int BG_FindUniqueTestForBuildable( int bclass )
 classAttributes_t bg_classList[ ] =
 {
   { 
-    PCL_D_B_BASE,                                   //int     classnum;
+    PCL_A_B_BASE,                                   //int     classnum;
     "Builder",                                      //char    *className;
     "Builder",                                      //char    *humanName;
     "lucy",                                         //char    *modelname;
@@ -2022,12 +2022,12 @@ classAttributes_t bg_classList[ ] =
     350,                                            //int     steptime;
     0.8f,                                           //float   speed;
     1.0f,                                           //float   sticky;
-    { PCL_D_B_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    { PCL_A_B_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
     2000,                                           //int     timetoevolve;
     100                                             //int     value;
   },
   { 
-    PCL_D_B_LEV1,                                   //int     classnum;
+    PCL_A_B_LEV1,                                   //int     classnum;
     "BuilderLevel1",                                //char    *classname;
     "Advanced Builder",                             //char    *humanname;
     "lucy",                                         //char    *modelname;
@@ -2052,7 +2052,7 @@ classAttributes_t bg_classList[ ] =
     100                                             //int     value;
   },
   {
-    PCL_D_O_BASE,                                               //int     classnum;
+    PCL_A_O_BASE,                                               //int     classnum;
     "Offensive",                                                //char    *classname;
     "Offensive",                                                //char    *humanname;
     "klesk",                                                    //char    *modelname;
@@ -2072,12 +2072,12 @@ classAttributes_t bg_classList[ ] =
     25,                                                         //int     steptime;
     1.8f,                                                       //float   speed;
     5.0f,                                                       //float   sticky;
-    { PCL_D_O_LEV1, PCL_NONE, PCL_NONE },                       //int     children[ 3 ];
+    { PCL_A_O_LEV1, PCL_NONE, PCL_NONE },                       //int     children[ 3 ];
     3000,                                                       //int     timetoevolve;
     100                                                         //int     value;
   },
   {
-    PCL_D_O_LEV1,                                 //int     classnum;
+    PCL_A_O_LEV1,                                 //int     classnum;
     "OffensiveLevel1",                            //char    *classname;
     "Offensive Level 1",                          //char    *humanname;
     "anarki",                                     //char    *modelname;
@@ -2097,12 +2097,12 @@ classAttributes_t bg_classList[ ] =
     25,                                           //int     steptime;
     1.6f,                                         //float   speed;
     4.0f,                                         //float   sticky;
-    { PCL_D_O_LEV2, PCL_D_O_LEV1_UPG, PCL_NONE }, //int     children[ 3 ];
+    { PCL_A_O_LEV2, PCL_A_O_LEV1_UPG, PCL_NONE }, //int     children[ 3 ];
     3000,                                         //int     timetoevolve;
     100                                           //int     value;
   },
   {
-    PCL_D_O_LEV1_UPG,                             //int     classnum;
+    PCL_A_O_LEV1_UPG,                             //int     classnum;
     "OffensiveLevel1-Upgrade",                    //char    *classname;
     "Offensive Level 1 Upgrade",                  //char    *humanname;
     "anarki",                                     //char    *modelname;
@@ -2122,12 +2122,12 @@ classAttributes_t bg_classList[ ] =
     25,                                           //int     steptime;
     1.6f,                                         //float   speed;
     4.0f,                                         //float   sticky;
-    { PCL_D_O_LEV2, PCL_NONE, PCL_NONE },         //int     children[ 3 ];
+    { PCL_A_O_LEV2, PCL_NONE, PCL_NONE },         //int     children[ 3 ];
     3000,                                         //int     timetoevolve;
     100                                           //int     value;
   },
   {
-    PCL_D_O_LEV2,                                 //int     classnum;
+    PCL_A_O_LEV2,                                 //int     classnum;
     "OffensiveLevel2",                            //char    *classname;
     "Offensive Level 2",                          //char    *humanname;
     "bones",                                      //char    *modelname;
@@ -2147,12 +2147,12 @@ classAttributes_t bg_classList[ ] =
     25,                                           //int     steptime;
     1.5f,                                         //float   speed;
     3.0f,                                         //float   sticky;
-    { PCL_D_O_LEV3, PCL_D_O_LEV2_UPG, PCL_NONE }, //int     children[ 3 ];
+    { PCL_A_O_LEV3, PCL_A_O_LEV2_UPG, PCL_NONE }, //int     children[ 3 ];
     3000,                                         //int     timetoevolve;
     100                                           //int     value;
   },
   {
-    PCL_D_O_LEV2_UPG,                             //int     classnum;
+    PCL_A_O_LEV2_UPG,                             //int     classnum;
     "OffensiveLevel2-Upgrade",                    //char    *classname;
     "Offensive Level 2 Upgrade",                  //char    *humanname;
     "bones",                                      //char    *modelname;
@@ -2172,12 +2172,12 @@ classAttributes_t bg_classList[ ] =
     25,                                           //int     steptime;
     1.5f,                                         //float   speed;
     3.0f,                                         //float   sticky;
-    { PCL_D_O_LEV3, PCL_NONE, PCL_NONE },         //int     children[ 3 ];
+    { PCL_A_O_LEV3, PCL_NONE, PCL_NONE },         //int     children[ 3 ];
     3000,                                         //int     timetoevolve;
     100                                           //int     value;
   },
   {
-    PCL_D_O_LEV3,                                 //int     classnum;
+    PCL_A_O_LEV3,                                 //int     classnum;
     "OffensiveLevel3",                            //char    *classname;
     "Offensive Level 3",                          //char    *humanname;
     "orbb",                                       //char    *modelname;
@@ -2197,12 +2197,12 @@ classAttributes_t bg_classList[ ] =
     60,                                           //int     steptime;
     1.3f,                                         //float   speed;
     5.0f,                                         //float   sticky;
-    { PCL_D_O_LEV4, PCL_D_O_LEV3_UPG, PCL_NONE }, //int     children[ 3 ];
+    { PCL_A_O_LEV4, PCL_A_O_LEV3_UPG, PCL_NONE }, //int     children[ 3 ];
     3000,                                         //int     timetoevolve;
     100                                           //int     value;
   },
   {
-    PCL_D_O_LEV3_UPG,                             //int     classnum;
+    PCL_A_O_LEV3_UPG,                             //int     classnum;
     "OffensiveLevel3-Upgrade",                    //char    *classname;
     "Offensive Level 3 Upgrade",                  //char    *humanname;
     "orbb",                                       //char    *modelname;
@@ -2222,12 +2222,12 @@ classAttributes_t bg_classList[ ] =
     60,                                           //int     steptime;
     1.3f,                                         //float   speed;
     5.0f,                                         //float   sticky;
-    { PCL_D_O_LEV4, PCL_NONE, PCL_NONE },         //int     children[ 3 ];
+    { PCL_A_O_LEV4, PCL_NONE, PCL_NONE },         //int     children[ 3 ];
     3000,                                         //int     timetoevolve;
     100                                           //int     value;
   },
   {
-    PCL_D_O_LEV4,                                 //int     classnum;
+    PCL_A_O_LEV4,                                 //int     classnum;
     "OffensiveLevel4",                            //char    *classname;
     "Offensive Level 4",                          //char    *humanname;
     "xaero",                                      //char    *modelname;
@@ -2784,7 +2784,7 @@ weaponAttributes_t bg_weapons[ ] =
     100,                  //int       price;
     SLOT_WEAPON,          //int       slots;
     "dbuild",             //char      *weaponName;
-    "Droid build weapon", //char      *weaponHumanName;
+    "Alien build weapon", //char      *weaponHumanName;
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2797,7 +2797,7 @@ weaponAttributes_t bg_weapons[ ] =
     100,                  //int       price;
     SLOT_WEAPON,          //int       slots;
     "dbuild2",            //char      *weaponName;
-    "Droid build weapon2",//char      *weaponHumanName;
+    "Alien build weapon2",//char      *weaponHumanName;
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -3416,7 +3416,7 @@ qboolean  BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const pla
         (item->giTag == PW_REDFLAG && ent->modelindex2) ||
         (item->giTag == PW_REDFLAG && ps->powerups[PW_BLUEFLAG]))
         return qtrue;*/
-    } else if (ps->persistant[PERS_TEAM] == TEAM_DROIDS) {
+    } else if (ps->persistant[PERS_TEAM] == TEAM_ALIENS) {
       /*if (item->giTag == PW_REDFLAG ||
         (item->giTag == PW_BLUEFLAG && ent->modelindex2) ||
         (item->giTag == PW_BLUEFLAG && ps->powerups[PW_REDFLAG]))
@@ -3634,7 +3634,7 @@ char *eventnames[] = {
   "EV_POWERUP_REGEN",
 
   "EV_GIB_PLAYER",      // gib a previously living player
-  "EV_GIB_DROID",       //TA: generic green gib for droids
+  "EV_GIB_ALIEN",       //TA: generic green gib for aliens
 
   "EV_BUILD_CONSTRUCT", //TA
   "EV_BUILD_DESTROY",   //TA

@@ -226,7 +226,7 @@ typedef enum {
   LEMT_NONE,
   LEMT_BURN,
   LEMT_BLOOD,
-  LEMT_GREENBLOOD, //TA: when droids are injured
+  LEMT_GREENBLOOD, //TA: when aliens are injured
   LEMT_BANG        //TA: human item explosions
 } leMarkType_t;     // fragment local entities can leave marks on walls
 
@@ -791,16 +791,16 @@ typedef struct {
   qhandle_t humanTorch3;
   qhandle_t humanTorch2;
   qhandle_t humanTorch1;
-  qhandle_t droidNav9;
-  qhandle_t droidNav8;
-  qhandle_t droidNav7;
-  qhandle_t droidNav6;
-  qhandle_t droidNav5;
-  qhandle_t droidNav4;
-  qhandle_t droidNav3;
-  qhandle_t droidNav2;
-  qhandle_t droidNav1;
-  qhandle_t droidHealth;
+  qhandle_t alienNav9;
+  qhandle_t alienNav8;
+  qhandle_t alienNav7;
+  qhandle_t alienNav6;
+  qhandle_t alienNav5;
+  qhandle_t alienNav4;
+  qhandle_t alienNav3;
+  qhandle_t alienNav2;
+  qhandle_t alienNav1;
+  qhandle_t alienHealth;
 
   qhandle_t flameShader[ 32 ];
   qhandle_t flameExplShader;
@@ -1107,16 +1107,16 @@ extern  markPoly_t    cg_markPolys[MAX_MARK_POLYS];
 //TA:
 typedef struct
 {
-  vec3_t    droidItemPositions[ MAX_ITEMS ];
-  int       droidItemTimes[ MAX_ITEMS ];
-  int       numDroidItems;
+  vec3_t    alienItemPositions[ MAX_ITEMS ];
+  int       alienItemTimes[ MAX_ITEMS ];
+  int       numAlienItems;
   
   vec3_t    humanItemPositions[ MAX_ITEMS ];
   int       numHumanItems;
   
-  vec3_t    droidClientPositions[ MAX_CLIENTS ];
-  int       droidClientClass;
-  int       numDroidClients;
+  vec3_t    alienClientPositions[ MAX_CLIENTS ];
+  int       alienClientClass;
+  int       numAlienClients;
   
   vec3_t    humanClientPositions[ MAX_CLIENTS ];
   int       humanClientClass;

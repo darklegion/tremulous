@@ -305,7 +305,7 @@ void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
     hcolor[0] = 1.0f;
     hcolor[1] = 0.0f;
     hcolor[2] = 0.0f;
-  } else if ( team == TEAM_DROIDS ) {
+  } else if ( team == TEAM_ALIENS ) {
     hcolor[0] = 0.0f;
     hcolor[1] = 0.0f;
     hcolor[2] = 1.0f;
@@ -345,23 +345,23 @@ static void CG_DrawLighting( void )
   {
     default:
 /*      if( lum < 10 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav9 );
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.alienNav9 );
       else if( lum >= 10 && lum < 16 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav8 );
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.alienNav8 );
       else if( lum >= 16 && lum < 22 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav7 );
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.alienNav7 );
       else if( lum >= 22 && lum < 28 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav6 );
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.alienNav6 );
       else if( lum >= 28 && lum < 34 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav5 );
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.alienNav5 );
       else if( lum >= 34 && lum < 40 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav4 );
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.alienNav4 );
       else if( lum >= 40 && lum < 46 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav3 );
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.alienNav3 );
       else if( lum >= 46 && lum < 53 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav2 );
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.alienNav2 );
       else if( lum >= 53 )
-        CG_DrawPic( -4, -4, 648, 488, cgs.media.droidNav1 );*/
+        CG_DrawPic( -4, -4, 648, 488, cgs.media.alienNav1 );*/
 
       break;
 
@@ -435,7 +435,7 @@ static void CG_DrawStatusBar( void ) {
   /*if (cg.predictedPlayerState.powerups[PW_REDFLAG])
     CG_DrawStatusBarFlag( 185 + CHAR_WIDTH*3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_HUMANS);
   else if (cg.predictedPlayerState.powerups[PW_BLUEFLAG])
-    CG_DrawStatusBarFlag( 185 + CHAR_WIDTH*3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_DROIDS);*/
+    CG_DrawStatusBarFlag( 185 + CHAR_WIDTH*3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_ALIENS);*/
 
   /*if ( ps->stats[ STAT_ARMOR ] ) {
     origin[0] = 90;
@@ -564,7 +564,7 @@ static void CG_DrawStatusBar( void ) {
   #define HV_WIDTH  80
   #define HV_X      555
   #define HV_Y      20
-  if( ps->stats[ STAT_PTEAM ] == PTE_DROIDS )
+  if( ps->stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     float total = cgs.dBuildPointsTotal;
     float allocated = total - cgs.dBuildPoints;
@@ -582,19 +582,19 @@ static void CG_DrawStatusBar( void ) {
   //
   // health+armor
   //
-  if( ps->stats[ STAT_PTEAM ] == PTE_DROIDS )
+  if( ps->stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     vec4_t fcolor = { 1, 0, 0, 0.5 }; //red half alpha
     vec4_t tcolor = { 0.3, 0.8, 1, 1 }; //cyan no alpha
 
     value = (int)( (float)( (float)ps->stats[STAT_HEALTH] / ps->stats[STAT_MAX_HEALTH] ) * 100 );
 
-    CG_DrawFadePic( 20, 0, 30, 440, fcolor, tcolor, value, cgs.media.droidHealth );
+    CG_DrawFadePic( 20, 0, 30, 440, fcolor, tcolor, value, cgs.media.alienHealth );
 
 /*    value = (int)( (float)( (float)ps->stats[STAT_ARMOR] / ps->stats[STAT_MAX_HEALTH] ) * 100 );
 
     if( value > 0 )
-      CG_DrawFadePic( 580, 0, 30, 440, fcolor, tcolor, value, cgs.media.droidHealth );*/
+      CG_DrawFadePic( 580, 0, 30, 440, fcolor, tcolor, value, cgs.media.alienHealth );*/
   }
   else
   {
@@ -799,7 +799,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
   }
 
   if ( cg.snap->ps.persistant[PERS_TEAM] != TEAM_HUMANS &&
-    cg.snap->ps.persistant[PERS_TEAM] != TEAM_DROIDS ) {
+    cg.snap->ps.persistant[PERS_TEAM] != TEAM_ALIENS ) {
     return y; // Not on any team
   }
 
@@ -859,7 +859,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
     hcolor[1] = 0;
     hcolor[2] = 0;
     hcolor[3] = 0.33f;
-  } else { // if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_DROIDS )
+  } else { // if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_ALIENS )
     hcolor[0] = 0;
     hcolor[1] = 0;
     hcolor[2] = 1;
@@ -1014,7 +1014,7 @@ static float CG_DrawPoints( float y )
 
   team = cg.snap->ps.stats[ STAT_PTEAM ];
   
-  if( team == PTE_DROIDS )
+  if( team == PTE_ALIENS )
     buildpoints = cgs.dBuildPoints;
   else if( team == PTE_HUMANS )
     buildpoints = cgs.hBuildPoints;
@@ -1081,7 +1081,7 @@ static float CG_DrawScores( float y ) {
     w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
     x -= w;
     CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
-    if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_DROIDS ) {
+    if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_ALIENS ) {
       CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
     }
     CG_DrawBigString( x + 4, y, s, 1.0F);
@@ -1419,7 +1419,7 @@ static void CG_DrawTeamInfo( void ) {
       hcolor[1] = 0.0f;
       hcolor[2] = 0.0f;
       hcolor[3] = 0.33f;
-    } else if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_DROIDS ) {
+    } else if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_ALIENS ) {
       hcolor[0] = 0.0f;
       hcolor[1] = 0.0f;
       hcolor[2] = 1.0f;
@@ -2031,7 +2031,7 @@ static void CG_DrawTeamVote(void) {
 
   if ( cgs.clientinfo->team == TEAM_HUMANS )
     cs_offset = 0;
-  else if ( cgs.clientinfo->team == TEAM_DROIDS )
+  else if ( cgs.clientinfo->team == TEAM_ALIENS )
     cs_offset = 1;
   else
     return;

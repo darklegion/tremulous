@@ -218,7 +218,7 @@ typedef enum {
   STAT_WEAPONS2,        //TA: another 16 bits to push the max weapon count up
   STAT_ARMOR,
   STAT_MAX_HEALTH, // health / armor limit, changable by handicap
-  STAT_PCLASS,    //TA: player class (for droids AND humans)
+  STAT_PCLASS,    //TA: player class (for aliens AND humans)
   STAT_PTEAM,     //TA: player team
   STAT_STAMINA,   //TA: stamina (human only)
   STAT_STATE,     //TA: client states e.g. wall climbing
@@ -397,13 +397,13 @@ typedef enum
 {
   BA_NONE,
 
-  BA_D_SPAWN,
-  BA_D_HIVEMIND,
+  BA_A_SPAWN,
+  BA_A_HIVEMIND,
   
-  BA_D_BARRICADE,
-  BA_D_ACIDTUBE,
-  BA_D_TRAPPER,
-  BA_D_BOOSTER,
+  BA_A_BARRICADE,
+  BA_A_ACIDTUBE,
+  BA_A_TRAPPER,
+  BA_A_BOOSTER,
   
   BA_H_SPAWN,
   
@@ -428,7 +428,7 @@ typedef enum
 {
   BIT_NONE,
   
-  BIT_DROIDS,
+  BIT_ALIENS,
   BIT_HUMANS,
 
   BIT_NUM_TEAMS
@@ -542,7 +542,7 @@ typedef enum {
   EV_POWERUP_REGEN,
 
   EV_GIB_PLAYER,      // gib a previously living player
-  EV_GIB_DROID,       //TA: generic green gib for droids
+  EV_GIB_ALIEN,       //TA: generic green gib for aliens
 
   EV_BUILD_CONSTRUCT, //TA
   EV_BUILD_DESTROY,   //TA
@@ -693,7 +693,7 @@ typedef struct animation_s {
 typedef enum {
   TEAM_FREE,
   TEAM_HUMANS,
-  TEAM_DROIDS,
+  TEAM_ALIENS,
   TEAM_SPECTATOR,
 
   TEAM_NUM_TEAMS
@@ -711,18 +711,18 @@ typedef enum {
   PCL_NONE,
   
   //builder classes
-  PCL_D_B_BASE,
-  PCL_D_B_LEV1,
+  PCL_A_B_BASE,
+  PCL_A_B_LEV1,
   
   //offensive classes
-  PCL_D_O_BASE,
-  PCL_D_O_LEV1,
-  PCL_D_O_LEV1_UPG,
-  PCL_D_O_LEV2,
-  PCL_D_O_LEV2_UPG,
-  PCL_D_O_LEV3,
-  PCL_D_O_LEV3_UPG,
-  PCL_D_O_LEV4,
+  PCL_A_O_BASE,
+  PCL_A_O_LEV1,
+  PCL_A_O_LEV1_UPG,
+  PCL_A_O_LEV2,
+  PCL_A_O_LEV2_UPG,
+  PCL_A_O_LEV3,
+  PCL_A_O_LEV3_UPG,
+  PCL_A_O_LEV4,
   
   //human class
   PCL_H_BASE,
@@ -734,7 +734,7 @@ typedef enum {
 //TA: player teams
 typedef enum {
   PTE_NONE,
-  PTE_DROIDS,
+  PTE_ALIENS,
   PTE_HUMANS,
 
   PTE_NUM_TEAMS

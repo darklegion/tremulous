@@ -1054,9 +1054,9 @@ void CG_AddPacketEntities( void ) {
   CG_CalcEntityLerpPositions( &cg_entities[ cg.snap->ps.clientNum ] );
 
   //TA: "empty" item position arrays
-  cgIP.numDroidItems = 0;
+  cgIP.numAlienItems = 0;
   cgIP.numHumanItems = 0;
-  cgIP.numDroidClients = 0;
+  cgIP.numAlienClients = 0;
   cgIP.numHumanClients = 0;
 
   for ( num = 0 ; num < cg.snap->numEntities ; num++ )
@@ -1066,11 +1066,11 @@ void CG_AddPacketEntities( void ) {
     if( cent->currentState.eType == ET_BUILDABLE )
     {
       //TA: add to list of item positions (for creep)
-      if( cent->currentState.modelindex2 == BIT_DROIDS )
+      if( cent->currentState.modelindex2 == BIT_ALIENS )
       {
-        VectorCopy( cent->lerpOrigin, cgIP.droidItemPositions[ cgIP.numDroidItems ] );
-        cgIP.droidItemTimes[ cgIP.numDroidItems ] = cent->miscTime;
-        cgIP.numDroidItems++;
+        VectorCopy( cent->lerpOrigin, cgIP.alienItemPositions[ cgIP.numAlienItems ] );
+        cgIP.alienItemTimes[ cgIP.numAlienItems ] = cent->miscTime;
+        cgIP.numAlienItems++;
       }
       else if( cent->currentState.modelindex2 == BIT_HUMANS )
       {
@@ -1084,11 +1084,11 @@ void CG_AddPacketEntities( void ) {
       int team = cent->currentState.powerups & 0x00FF;
       int class = ( cent->currentState.powerups & 0xFF00 ) >> 8;
 
-      if( team == PTE_DROIDS )
+      if( team == PTE_ALIENS )
       {
-        VectorCopy( cent->lerpOrigin, cgIP.droidClientPositions[ cgIP.numDroidClients ] );
-        cgIP.droidClientClass = class;
-        cgIP.numDroidClients++;
+        VectorCopy( cent->lerpOrigin, cgIP.alienClientPositions[ cgIP.numAlienClients ] );
+        cgIP.alienClientClass = class;
+        cgIP.numAlienClients++;
       }
       else if( team == PTE_HUMANS )
       {
@@ -1099,7 +1099,7 @@ void CG_AddPacketEntities( void ) {
     }
   }
 
-  //Com_Printf( "%d %d\n", cgIP.numDroidClients, cgIP.numHumanClients );
+  //Com_Printf( "%d %d\n", cgIP.numAlienClients, cgIP.numHumanClients );
 
   // add each entity sent over by the server
   for ( num = 0 ; num < cg.snap->numEntities ; num++ ) {

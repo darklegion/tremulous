@@ -830,7 +830,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.respawnSound );
     break;
 
-  //TA: make droid items "grow"
+  //TA: make alien items "grow"
   case EV_BUILD_CONSTRUCT:
     DEBUGNAME("EV_BUILD_CONSTRUCT");
     cent->miscTime = cg.time; // scale up from this
@@ -839,7 +839,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     cent->buildableAnim = es->eventParm;
     break;
     
-  //TA: make droid creep "recede"
+  //TA: make alien creep "recede"
   case EV_BUILD_DESTROY:
     DEBUGNAME("EV_BUILD_DESTROY");
     cent->miscTime = -cg.time; // scale down from this
@@ -1033,8 +1033,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     CG_GibPlayer( cent->lerpOrigin );
     break;
 
-  case EV_GIB_DROID:
-    DEBUGNAME("EV_GIB_DROID");
+  case EV_GIB_ALIEN:
+    DEBUGNAME("EV_GIB_ALIEN");
     trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.gibSound );
     CG_GenericGib( cent->lerpOrigin );
     break;

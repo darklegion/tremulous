@@ -77,10 +77,10 @@ void CG_Scanner( )
   }
   
   //draw alien items below scanner plane
-  for( i = 0; i < cgIP.numDroidItems; i++ )
+  for( i = 0; i < cgIP.numAlienItems; i++ )
   {
     VectorClear( relOrigin );
-    VectorSubtract( cgIP.droidItemPositions[ i ], origin, relOrigin );
+    VectorSubtract( cgIP.alienItemPositions[ i ], origin, relOrigin );
 
     if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] < 0 ) )
       CG_DrawBlips( relOrigin, aIbelow );
@@ -99,10 +99,10 @@ void CG_Scanner( )
   }
 
   //draw alien items above scanner plane
-  for( i = 0; i < cgIP.numDroidItems; i++ )
+  for( i = 0; i < cgIP.numAlienItems; i++ )
   {
     VectorClear( relOrigin );
-    VectorSubtract( cgIP.droidItemPositions[ i ], origin, relOrigin );
+    VectorSubtract( cgIP.alienItemPositions[ i ], origin, relOrigin );
 
     if( VectorLength( relOrigin ) < RANGE && ( relOrigin[ 2 ] > 0 ) )
       CG_DrawBlips( relOrigin, aIabove );

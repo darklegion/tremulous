@@ -1951,7 +1951,7 @@ void CG_Player( centity_t *cent )
   //
   CG_AddPlayerWeapon( &torso, NULL, cent );
 
-  if( ( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_DROIDS ) &&
+  if( ( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS ) &&
       ( ( cent->currentState.powerups & 0xFF ) == PTE_HUMANS ) )
     trap_R_AddAdditiveLightToScene( cent->lerpOrigin, 64, 0.1, 0.1, 0.4 );
 }

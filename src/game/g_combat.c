@@ -191,7 +191,7 @@ void GibEntity( gentity_t *self, int killer )
   if( self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
     G_AddEvent( self, EV_GIB_PLAYER, killer );
   else
-    G_AddEvent( self, EV_GIB_DROID, killer );
+    G_AddEvent( self, EV_GIB_ALIEN, killer );
     
   self->takedamage = qfalse;
   self->s.eType = ET_INVISIBLE;
@@ -266,7 +266,7 @@ void CheckAlmostCapture( gentity_t *self, gentity_t *attacker ) {
     self->client->ps.powerups[PW_NEUTRALFLAG] ) {
     // get the goal flag this player should have been going for
     if ( g_gametype.integer == GT_CTF ) {
-      if ( self->client->sess.sessionTeam == TEAM_DROIDS ) {
+      if ( self->client->sess.sessionTeam == TEAM_ALIENS ) {
         classname = "team_CTF_blueflag";
       }
       else {
@@ -274,7 +274,7 @@ void CheckAlmostCapture( gentity_t *self, gentity_t *attacker ) {
       }
     }
     else {
-      if ( self->client->sess.sessionTeam == TEAM_DROIDS ) {
+      if ( self->client->sess.sessionTeam == TEAM_ALIENS ) {
         classname = "team_CTF_redflag";
       }
       else {
@@ -312,7 +312,7 @@ void CheckAlmostScored( gentity_t *self, gentity_t *attacker ) {
 
   // if the player was carrying cubes
   if ( self->client->ps.generic1 ) {
-    if ( self->client->sess.sessionTeam == TEAM_DROIDS ) {
+    if ( self->client->sess.sessionTeam == TEAM_ALIENS ) {
       classname = "team_redobelisk";
     }
     else {
@@ -1253,7 +1253,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
     //TA: add to the attackers "account" on the target
     if( targ->client && attacker->client &&
-        targ->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS &&
+        targ->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
         attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
       targ->credits[ attacker->client->ps.clientNum ] += take;
 

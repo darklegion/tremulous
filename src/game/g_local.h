@@ -457,16 +457,16 @@ typedef struct {
   gentity_t *locationHead;      // head of the location list
 
   //TA: extra stuff:
-  int     numDroidSpawns;
+  int     numAlienSpawns;
   int     numHumanSpawns;
   
-  int     numDroidClients;
+  int     numAlienClients;
   int     numHumanClients;
   
-  int     numLiveDroidClients;
+  int     numLiveAlienClients;
   int     numLiveHumanClients;
   
-  int     droidBuildPoints;
+  int     alienBuildPoints;
   int     humanBuildPoints;
   int     humanBuildPointsPowered;
 
@@ -847,7 +847,7 @@ extern  vmCvar_t  g_enableBreath;
 extern  vmCvar_t  g_singlePlayer;
 
 extern  vmCvar_t  g_humanBuildPoints;
-extern  vmCvar_t  g_droidBuildPoints;
+extern  vmCvar_t  g_alienBuildPoints;
 
 void  trap_Printf( const char *fmt );
 void  trap_Error( const char *fmt );
