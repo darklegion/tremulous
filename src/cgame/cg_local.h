@@ -809,7 +809,7 @@ typedef struct {
   qhandle_t droidNav1;
   qhandle_t droidHealth;
 
-  qhandle_t flameShader;
+  qhandle_t flameShader[ 32 ];
   qhandle_t flameExplShader;
   qhandle_t creepShader;
   

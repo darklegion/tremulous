@@ -718,7 +718,7 @@ void CG_RegisterWeapon( int weaponNum ) {
     weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/plasma/lasfly.wav", qfalse );
     MAKERGB( weaponInfo->flashDlightColor, 0.25, 0.1, 0 );
     //weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/railgun/railgf1a.wav", qfalse );
-    cgs.media.flameExplShader = trap_R_RegisterShader( "rocketExplosion" );
+    /*cgs.media.flameExplShader = trap_R_RegisterShader( "rocketExplosion" );*/
     break;
     
   case WP_PLASMAGUN:
@@ -1839,12 +1839,9 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
     radius = 24;
     break;
   case WP_FLAMER:
-    mod = cgs.media.dishFlashModel;
-    shader = cgs.media.flameExplShader;
     sfx = cgs.media.sfx_lghit2;
     mark = cgs.media.burnMarkShader;
     radius = 32;
-    isSprite = qtrue;
     break;
   case WP_PLASMAGUN:
     mod = cgs.media.ringFlashModel;

@@ -5219,6 +5219,7 @@ void UI_LoadNonIngame() {
 void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
 	char buf[256];
 
+  Com_Printf( "_UI_SetActiveMenu\n" );
 	// this should be the ONLY way the menu system is brought up
 	// enusure minumum menu data is cached
   if (Menu_Count() > 0) {

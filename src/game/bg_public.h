@@ -327,6 +327,9 @@ typedef enum {
   HI_NUM_HOLDABLE
 } holdable_t;
 
+//TA: needed client side to size sprites
+#define FIREBALL_LIFETIME 1500.0f
+
 typedef enum
 {
   WP_NONE,

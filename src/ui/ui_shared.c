@@ -4105,6 +4105,7 @@ menuDef_t *Menus_ActivateByName(const char *p) {
   int i;
   menuDef_t *m = NULL;
 	menuDef_t *focus = Menu_GetFocused();
+
   for (i = 0; i < menuCount; i++) {
     if (Q_stricmp(Menus[i].window.name, p) == 0) {
 	    m = &Menus[i];
@@ -5567,8 +5568,6 @@ Menu_New
 */
 void Menu_New(int handle) {
 	menuDef_t *menu = &Menus[menuCount];
-
-  Com_Printf( "menu_new\n" );
 
 	if (menuCount < MAX_MENUS) {
 		Menu_Init(menu);

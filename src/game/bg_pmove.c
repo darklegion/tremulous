@@ -2343,7 +2343,7 @@ static void PM_Weapon( void )
       addTime = 800;
       break;
     case WP_FLAMER:
-      addTime = 70;
+      addTime = 40;
       break;
     case WP_RAILGUN:
       addTime = 1500;

@@ -432,22 +432,22 @@ void CG_Menu( int eventParm )
     case MN_D_BUILD: trap_SendConsoleCommand( "menu tremulous_alienbuild\n" ); break;
     case MN_H_BUILD: trap_SendConsoleCommand( "menu tremulous_humanbuild\n" ); break;
     case MN_H_MCU: trap_SendConsoleCommand( "menu tremulous_humanmcu\n" ); break;
-    case MN_H_BANK: trap_SendConsoleCommand( "menu hbankmenu\n" ); break;
-    case MN_H_NOROOM: trap_SendConsoleCommand( "menu hnoroom\n" ); break;
-    case MN_H_NOPOWER: trap_SendConsoleCommand( "menu hnopower\n" ); break;
-    case MN_D_NOROOM: trap_SendConsoleCommand( "menu dnoroom\n" ); break;
-    case MN_D_NOCREEP: trap_SendConsoleCommand( "menu dnocreep\n" ); break;
-    case MN_D_NOHVMND: trap_SendConsoleCommand( "menu dnohvmnd\n" ); break;
-    case MN_D_HIVEMIND: trap_SendConsoleCommand( "menu dhivemind\n" ); break;
-    case MN_D_NOASSERT: trap_SendConsoleCommand( "menu dnoassert\n" ); break;
-    case MN_D_SPWNWARN: trap_SendConsoleCommand( "menu dspwnwarn\n" ); break;
-    case MN_H_REACTOR: trap_SendConsoleCommand( "menu hreactor\n" ); break;
-    case MN_H_REPEATER: trap_SendConsoleCommand( "menu hrepeater\n" ); break;
-    case MN_H_RPLWARN: trap_SendConsoleCommand( "menu hrplwarn\n" ); break;
-    case MN_H_RPTWARN: trap_SendConsoleCommand( "menu hrptwarn\n" ); break;
-    case MN_H_NOSLOTS: trap_SendConsoleCommand( "menu hnoslots\n" ); break;
-    case MN_H_NOFUNDS: trap_SendConsoleCommand( "menu hnofunds\n" ); break;
-    case MN_H_ITEMHELD: trap_SendConsoleCommand( "menu hitemheld\n" ); break;
+    case MN_H_BANK: trap_SendConsoleCommand( "menu tremulous_humanbank\n" ); break;
+    case MN_H_NOROOM: trap_SendConsoleCommand( "menu tremulous_human_no_room\n" ); break;
+    case MN_H_NOPOWER: trap_SendConsoleCommand( "menu tremulous_human_no_power\n" ); break;
+    case MN_D_NOROOM: trap_SendConsoleCommand( "menu tremulous_alien_no_room\n" ); break;
+    case MN_D_NOCREEP: trap_SendConsoleCommand( "menu tremulous_alien_no_creep\n" ); break;
+    case MN_D_NOHVMND: trap_SendConsoleCommand( "menu tremulous_alien_no_hivemind\n" ); break;
+    case MN_D_HIVEMIND: trap_SendConsoleCommand( "menu tremulous_alien_one_hivemind\n" ); break;
+    case MN_D_NOASSERT: trap_SendConsoleCommand( "menu tremulous_alien_no_assertion\n" ); break;
+    case MN_D_SPWNWARN: trap_SendConsoleCommand( "menu tremulous_alien_egg_warning\n" ); break;
+    case MN_H_REACTOR: trap_SendConsoleCommand( "menu tremulous_human_one_reactor\n" ); break;
+    case MN_H_REPEATER: trap_SendConsoleCommand( "menu tremulous_human_repeater\n" ); break;
+    case MN_H_RPLWARN: trap_SendConsoleCommand( "menu tremulous_human_replicator_warning\n" ); break;
+    case MN_H_RPTWARN: trap_SendConsoleCommand( "menu tremulous_human_repeater_warning\n" ); break;
+    case MN_H_NOSLOTS: trap_SendConsoleCommand( "menu tremulous_human_no_slots\n" ); break;
+    case MN_H_NOFUNDS: trap_SendConsoleCommand( "menu tremulous_human_no_funds\n" ); break;
+    case MN_H_ITEMHELD: trap_SendConsoleCommand( "menu tremulous_human_item_held\n" ); break;
     case MN_D_INFEST: trap_SendConsoleCommand( "menu dinfest\n" ); break;
 
     default:

@@ -356,7 +356,7 @@ qboolean UI_ConsoleCommand( int realTime )
 
   if ( Q_stricmp (cmd, "menu") == 0 )
   {
-    strcpy( arg1, UI_Argv( 1 ) );
+    arg1 = UI_Argv( 1 );
 
     if( Menu_Count() > 0 )
     {

@@ -83,7 +83,7 @@ void G_ExplodeMissile( gentity_t *ent ) {
   ent->s.eType = ET_GENERAL;
 
   //TA: tired... can't be fucked... hack
-  if( ent->s.weapon != WP_LOCKBLOB_LAUNCHER )
+  if( ent->s.weapon != WP_LOCKBLOB_LAUNCHER && ent->s.weapon != WP_FLAMER )
     G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
 
   ent->freeAfterEvent = qtrue;
@@ -309,7 +309,7 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
 
 	bolt = G_Spawn();
 	bolt->classname = "flame";
-	bolt->nextthink = level.time + 600;
+	bolt->nextthink = level.time + FIREBALL_LIFETIME;
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
@@ -328,7 +328,7 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
 	VectorCopy( start, bolt->s.pos.trBase );
 	//VectorMA( self->client->ps.velocity, 300, dir, bolt->s.pos.trDelta );
-	VectorScale( dir, 350, bolt->s.pos.trDelta );
+	VectorScale( dir, 200, bolt->s.pos.trDelta );
 	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
 
 	VectorCopy (start, bolt->r.currentOrigin);

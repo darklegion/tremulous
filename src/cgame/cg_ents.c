@@ -383,6 +383,8 @@ static void CG_Missile( centity_t *cent )
   entityState_t       *s1;
   const weaponInfo_t  *weapon;
   vec3_t              up;
+  float               fraction;
+  int                 index;
 
   s1 = &cent->currentState;
   if ( s1->weapon > WP_NUM_WEAPONS ) {
@@ -435,10 +437,18 @@ static void CG_Missile( centity_t *cent )
       break;
 
     case WP_FLAMER:
+      fraction = ( ( cg.time - s1->pos.trTime ) / FIREBALL_LIFETIME );
+      
+      if( fraction > 1.0f )
+        fraction = 1.0f;
+        
       ent.reType = RT_SPRITE;
-      ent.radius = ( ( cg.time - s1->pos.trTime ) * ( cg.time - s1->pos.trTime ) ) / 9000;
+      ent.radius = fraction * 32;
+      ent.shaderTime = s1->pos.trTime / 1000.0f;
       ent.rotation = 0;
-      ent.customShader = cgs.media.flameShader;
+      
+      index = (int)( fraction * 31 );
+      ent.customShader = cgs.media.flameShader[ index ];
       trap_R_AddRefEntityToScene( &ent );
       return;
       break;
