@@ -4027,35 +4027,35 @@ static void UI_RunMenuScript(char **args) {
     else if( Q_stricmp( name, "BuyFromMCU" ) == 0 )
     {
       if( cmd = uiInfo.tremHumanMCUBuyList[ uiInfo.tremHumanMCUBuyIndex ].cmd )
-      trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
+        trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
     else if( Q_stricmp( name, "LoadHumanMCUSells" ) == 0 )
       UI_LoadTremHumanMCUSells( );
     else if( Q_stricmp( name, "SellToMCU" ) == 0 )
     {
       if( cmd = uiInfo.tremHumanMCUSellList[ uiInfo.tremHumanMCUSellIndex ].cmd )
-      trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
+        trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
     else if( Q_stricmp( name, "LoadAlienUpgrades" ) == 0 )
       UI_LoadTremAlienUpgrades( );
     else if( Q_stricmp( name, "UpgradeToNewClass" ) == 0 )
     {
       if( cmd = uiInfo.tremAlienUpgradeList[ uiInfo.tremAlienUpgradeIndex ].cmd )
-      trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
+        trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
     else if( Q_stricmp( name, "LoadAlienBuilds" ) == 0 )
       UI_LoadTremAlienBuilds( );
     else if( Q_stricmp( name, "BuildAlienBuildable" ) == 0 )
     {
       if( cmd = uiInfo.tremAlienBuildList[ uiInfo.tremAlienBuildIndex ].cmd )
-      trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
+        trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
     else if( Q_stricmp( name, "LoadHumanBuilds" ) == 0 )
       UI_LoadTremHumanBuilds( );
     else if( Q_stricmp( name, "BuildHumanBuildable" ) == 0 )
     {
       if( cmd = uiInfo.tremHumanBuildList[ uiInfo.tremHumanBuildIndex ].cmd )
-      trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
+        trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
 //TA: tremulous menus
     
@@ -5984,21 +5984,22 @@ void _UI_Init( qboolean inGameLoad ) {
 
   UI_LoadInfoPanes( "ui/infopanes.def" );
 
+  if( uiInfo.uiDC.debug )
   {
-    int ijk, abc;
+    int i, j;
 
-    for( ijk = 0; ijk < uiInfo.tremInfoPaneCount; ijk++ )
+    for( i = 0; i < uiInfo.tremInfoPaneCount; i++ )
     {
-      Com_Printf( "name: %s\n", uiInfo.tremInfoPanes[ ijk ].name );
+      Com_Printf( "name: %s\n", uiInfo.tremInfoPanes[ i ].name );
 
-      for( abc = 0; abc < uiInfo.tremInfoPanes[ ijk ].numLines; abc++ )
-        Com_Printf( "line %d: %s\n", abc, uiInfo.tremInfoPanes[ ijk ].lines[ abc ] );
+      for( j = 0; j < uiInfo.tremInfoPanes[ i ].numLines; j++ )
+        Com_Printf( "line %d: %s\n", j, uiInfo.tremInfoPanes[ i ].lines[ j ] );
       
-      for( abc = 0; abc < uiInfo.tremInfoPanes[ ijk ].numGraphics; abc++ )
-        Com_Printf( "graphic %d: %d %d %d %d\n", abc, uiInfo.tremInfoPanes[ ijk ].graphics[ abc ].side,
-                                                      uiInfo.tremInfoPanes[ ijk ].graphics[ abc ].width,
-                                                      uiInfo.tremInfoPanes[ ijk ].graphics[ abc ].height,
-                                                      uiInfo.tremInfoPanes[ ijk ].graphics[ abc ].offset );
+      for( j = 0; j < uiInfo.tremInfoPanes[ i ].numGraphics; j++ )
+        Com_Printf( "graphic %d: %d %d %d %d\n", j, uiInfo.tremInfoPanes[ i ].graphics[ j ].side,
+                                                    uiInfo.tremInfoPanes[ i ].graphics[ j ].offset,
+                                                    uiInfo.tremInfoPanes[ i ].graphics[ j ].width,
+                                                    uiInfo.tremInfoPanes[ i ].graphics[ j ].height );
     }
   }
 #endif
