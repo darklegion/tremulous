@@ -381,8 +381,12 @@ void teslaFire( gentity_t *ent )
   tent = G_TempEntity( tr.endpos, EV_TESLATRAIL );
 
   VectorCopy( muzzle, tent->s.origin2 );
+  
+  tent->s.generic1 = ent->s.number; //src
+  tent->s.clientNum = traceEnt->s.number; //dest
+  
   // move origin a bit to come closer to the drawn gun muzzle
-  VectorMA( tent->s.origin2, 16, up, tent->s.origin2 );
+  VectorMA( tent->s.origin2, 28, up, tent->s.origin2 );
 
   // no explosion at end if SURF_NOIMPACT, but still make the trail
   if( tr.surfaceFlags & SURF_NOIMPACT )
@@ -770,6 +774,9 @@ void areaZapFire( gentity_t *ent )
     tent = G_TempEntity( enemy->s.pos.trBase, EV_TESLATRAIL );
 
     VectorCopy( muzzle, tent->s.origin2 );
+
+    tent->s.generic1 = ent->s.number; //src
+    tent->s.clientNum = enemy->s.number; //dest
   }
 }
 
@@ -808,6 +815,9 @@ void directZapFire( gentity_t *ent )
 
   VectorCopy( muzzle, tent->s.origin2 );
 
+  tent->s.generic1 = ent->s.number; //src
+  tent->s.clientNum = -1; //dest
+  
   // no explosion at end if SURF_NOIMPACT, but still make the trail
   if( tr.surfaceFlags & SURF_NOIMPACT )
     tent->s.eventParm = 255;  // don't make the explosion at the end

@@ -283,43 +283,11 @@ void CG_RailTrail( vec3_t start, vec3_t end )
 CG_TeslaTrail
 ==========================
 */
-void CG_TeslaTrail( vec3_t start, vec3_t end )
+void CG_TeslaTrail( vec3_t start, vec3_t end, int srcENum, int destENum )
 {
   localEntity_t *le;
   refEntity_t   *re;
-
-/*  start[ 2 ] += 12; //nudge up a bit so the bolt comes from the sphere
-
-  //add a bunch of bolt segments
-  le = CG_AllocLocalEntity();
-  re = &le->refEntity;
-
-  le->leType = LE_FADE_RGB;
-  le->startTime = cg.time;
-  le->endTime = cg.time + cg_teslaTrailTime.value;
-  le->lifeRate = 1.0 / ( le->endTime - le->startTime );
-
-  re->shaderTime = cg.time / 1000.0f;
-  re->reType = RT_RAIL_CORE;
-  re->customShader = cgs.media.lightningShader;
-
-  VectorCopy( start, re->origin );
-  VectorCopy( end, re->oldorigin );
-
-  re->shaderRGBA[0] = 255;
-  re->shaderRGBA[1] = 255;
-  re->shaderRGBA[2] = 255;
-  re->shaderRGBA[3] = 255;
-
-  le->color[0] = 1.0f;
-  le->color[1] = 1.0f;
-  le->color[2] = 1.0f;
-  le->color[3] = 1.0f;
-
-  AxisClear( re->axis );*/
   
-  start[ 2 ] += 12; //nudge up a bit so the bolt comes from the sphere
-
   //add a bunch of bolt segments
   le = CG_AllocLocalEntity();
   re = &le->refEntity;
@@ -328,6 +296,12 @@ void CG_TeslaTrail( vec3_t start, vec3_t end )
   le->startTime = cg.time;
   le->endTime = cg.time + cg_teslaTrailTime.value;
   le->lifeRate = 1.0 / ( le->endTime - le->startTime );
+  re->customShader = cgs.media.lightningShader;
+
+  le->srcENum = srcENum;
+  le->destENum = destENum;
+  le->vOffset = 28;
+  le->maxRange = BG_FindRangeForBuildable( BA_H_DEF3 );
 
   VectorCopy( start, re->origin );
   VectorCopy( end, re->oldorigin );

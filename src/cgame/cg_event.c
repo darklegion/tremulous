@@ -959,7 +959,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
   case EV_TESLATRAIL:
     DEBUGNAME("EV_TESLATRAIL");
     cent->currentState.weapon = WP_TESLAGEN;
-    CG_TeslaTrail( es->origin2, es->pos.trBase );
+    CG_TeslaTrail( es->origin2, es->pos.trBase, es->generic1, es->clientNum );
     break;
 
   case EV_BULLET_HIT_WALL:

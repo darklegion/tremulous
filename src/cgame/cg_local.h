@@ -291,6 +291,11 @@ typedef struct localEntity_s {
   qboolean  overdraw;
   qboolean  realLight;
   int       sortKey;
+
+  //TA: lightning bolt endpoint entities
+  int       srcENum, destENum;
+  int       vOffset;
+  int       maxRange;
 } localEntity_t;
 
 //======================================================================
@@ -1472,7 +1477,7 @@ void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean fles
 void CG_LasGunHit( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 
 void CG_RailTrail( vec3_t start, vec3_t end );
-void CG_TeslaTrail( vec3_t start, vec3_t end );
+void CG_TeslaTrail( vec3_t start, vec3_t end, int srcENum, int destENum );
 void CG_GrappleTrail( centity_t *ent, const weaponInfo_t *wi );
 void CG_AddViewWeapon (playerState_t *ps);
 void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent );
