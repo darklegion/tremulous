@@ -1030,6 +1030,423 @@ static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, vec4_t color, q
       cg.spectatorPaintX2 = -1;
   }
 }
+
+/*
+==================
+CG_DrawFPS
+==================
+*/
+//TA: personally i think this should be longer - it should really be a cvar
+#define FPS_FRAMES  40
+#define FPS_STRING  "fps"
+static void CG_DrawFPS( rectDef_t *rect, float text_x, float text_y,
+                        float scale, vec4_t color, int align, int textStyle )
+{
+  char        *s;
+  int         tx, w, totalWidth, strLength;
+  static int  previousTimes[ FPS_FRAMES ];
+  static int  index;
+  int         i, total;
+  int         fps;
+  static int  previous;
+  int         t, frameTime;
+
+  if( !cg_drawFPS.integer )
+    return;
+  
+  // don't use serverTime, because that will be drifting to
+  // correct for internet lag changes, timescales, timedemos, etc
+  t = trap_Milliseconds( );
+  frameTime = t - previous;
+  previous = t;
+
+  previousTimes[ index % FPS_FRAMES ] = frameTime;
+  index++;
+  
+  if( index > FPS_FRAMES )
+  {
+    // average multiple frames together to smooth changes out a bit
+    total = 0;
+    
+    for( i = 0 ; i < FPS_FRAMES ; i++ )
+      total += previousTimes[ i ];
+    
+    if( !total )
+      total = 1;
+    
+    fps = 1000 * FPS_FRAMES / total;
+
+    s = va( "%d", fps );
+    w = CG_Text_Width( "0", scale, 0 );
+    strLength = CG_DrawStrlen( s );
+    totalWidth = CG_Text_Width( FPS_STRING, scale, 0 ) + w * strLength;
+    
+    switch( align )
+    {
+      case ITEM_ALIGN_LEFT:
+        tx = rect->x;
+        break;
+
+      case ITEM_ALIGN_RIGHT:
+        tx = rect->x + rect->w - totalWidth;
+        break;
+
+      case ITEM_ALIGN_CENTER:
+        tx = rect->x + ( rect->w / 2.0f ) - ( totalWidth / 2.0f );
+        break;
+
+      default:
+        tx = 0.0f;
+    }
+    
+    for( i = 0; i < strLength; i++ )
+    {
+      char c[ 2 ];
+
+      c[ 0 ] = s[ i ];
+      c[ 1 ] = '\0';
+      
+      CG_Text_Paint( text_x + tx + i * w, rect->y + text_y, scale, color, c, 0, 0, textStyle );
+    }
+      
+    CG_Text_Paint( text_x + tx + i * w, rect->y + text_y, scale, color, FPS_STRING, 0, 0, textStyle );
+  }
+}
+
+
+/*
+=================
+CG_DrawTimer
+=================
+*/
+static void CG_DrawTimer( rectDef_t *rect, float text_x, float text_y,
+                          float scale, vec4_t color, int align, int textStyle )
+{
+  char    *s;
+  int     i, tx, w, totalWidth, strLength;
+  int     mins, seconds, tens;
+  int     msec;
+
+  if( !cg_drawTimer.integer )
+    return;
+
+  msec = cg.time - cgs.levelStartTime;
+
+  seconds = msec / 1000;
+  mins = seconds / 60;
+  seconds -= mins * 60;
+  tens = seconds / 10;
+  seconds -= tens * 10;
+
+  s = va( "%d:%d%d", mins, tens, seconds );
+  w = CG_Text_Width( "0", scale, 0 );
+  strLength = CG_DrawStrlen( s );
+  totalWidth = w * strLength;
+  
+  switch( align )
+  {
+    case ITEM_ALIGN_LEFT:
+      tx = rect->x;
+      break;
+
+    case ITEM_ALIGN_RIGHT:
+      tx = rect->x + rect->w - totalWidth;
+      break;
+
+    case ITEM_ALIGN_CENTER:
+      tx = rect->x + ( rect->w / 2.0f ) - ( totalWidth / 2.0f );
+      break;
+
+    default:
+      tx = 0.0f;
+  }
+
+  for( i = 0; i < strLength; i++ )
+  {
+    char c[ 2 ];
+
+    c[ 0 ] = s[ i ];
+    c[ 1 ] = '\0';
+    
+    CG_Text_Paint( text_x + tx + i * w, rect->y + text_y, scale, color, c, 0, 0, textStyle );
+  }
+}
+
+/*
+==================
+CG_DrawSnapshot
+==================
+*/
+static void CG_DrawSnapshot( rectDef_t *rect, float text_x, float text_y,
+                             float scale, vec4_t color, int align, int textStyle )
+{
+  char    *s;
+  int     w, tx;
+
+  if( !cg_drawSnapshot.integer )
+    return;
+  
+  s = va( "time:%d snap:%d cmd:%d", cg.snap->serverTime,
+    cg.latestSnapshotNum, cgs.serverCommandSequence );
+  w = CG_Text_Width( s, scale, 0 );
+  
+  switch( align )
+  {
+    case ITEM_ALIGN_LEFT:
+      tx = rect->x;
+      break;
+
+    case ITEM_ALIGN_RIGHT:
+      tx = rect->x + rect->w - w;
+      break;
+
+    case ITEM_ALIGN_CENTER:
+      tx = rect->x + ( rect->w / 2.0f ) - ( w / 2.0f );
+      break;
+
+    default:
+      tx = 0.0f;
+  }
+
+  CG_Text_Paint( text_x + tx, rect->y + text_y, scale, color, s, 0, 0, textStyle );
+}
+
+/*
+===============================================================================
+
+LAGOMETER
+
+===============================================================================
+*/
+
+#define LAG_SAMPLES   128
+
+typedef struct
+{
+  int   frameSamples[ LAG_SAMPLES ];
+  int   frameCount;
+  int   snapshotFlags[ LAG_SAMPLES ];
+  int   snapshotSamples[ LAG_SAMPLES ];
+  int   snapshotCount;
+} lagometer_t;
+
+lagometer_t   lagometer;
+
+/*
+==============
+CG_AddLagometerFrameInfo
+
+Adds the current interpolate / extrapolate bar for this frame
+==============
+*/
+void CG_AddLagometerFrameInfo( void )
+{
+  int     offset;
+
+  offset = cg.time - cg.latestSnapshotTime;
+  lagometer.frameSamples[ lagometer.frameCount & ( LAG_SAMPLES - 1 ) ] = offset;
+  lagometer.frameCount++;
+}
+
+/*
+==============
+CG_AddLagometerSnapshotInfo
+
+Each time a snapshot is received, log its ping time and
+the number of snapshots that were dropped before it.
+
+Pass NULL for a dropped packet.
+==============
+*/
+void CG_AddLagometerSnapshotInfo( snapshot_t *snap )
+{
+  // dropped packet
+  if( !snap )
+  {
+    lagometer.snapshotSamples[ lagometer.snapshotCount & ( LAG_SAMPLES - 1 ) ] = -1;
+    lagometer.snapshotCount++;
+    return;
+  }
+
+  // add this snapshot's info
+  lagometer.snapshotSamples[ lagometer.snapshotCount & ( LAG_SAMPLES - 1 ) ] = snap->ping;
+  lagometer.snapshotFlags[ lagometer.snapshotCount & ( LAG_SAMPLES - 1 ) ] = snap->snapFlags;
+  lagometer.snapshotCount++;
+}
+
+/*
+==============
+CG_DrawDisconnect
+
+Should we draw something differnet for long lag vs no packets?
+==============
+*/
+static void CG_DrawDisconnect( void )
+{
+  float       x, y;
+  int         cmdNum;
+  usercmd_t   cmd;
+  const char  *s;
+  int         w;
+  vec4_t      color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+  // draw the phone jack if we are completely past our buffers
+  cmdNum = trap_GetCurrentCmdNumber( ) - CMD_BACKUP + 1;
+  trap_GetUserCmd( cmdNum, &cmd );
+  
+  // special check for map_restart
+  if( cmd.serverTime <= cg.snap->ps.commandTime || cmd.serverTime > cg.time )
+    return;
+
+  // also add text in center of screen
+  s = "Connection Interrupted";
+  w = CG_Text_Width( s, 0.7f, 0 );
+  CG_Text_Paint( 320 - w / 2, 100, 0.7f, color, s, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
+
+  // blink the icon
+  if( ( cg.time >> 9 ) & 1 )
+    return;
+
+  x = 640 - 48;
+  y = 480 - 48;
+
+  CG_DrawPic( x, y, 48, 48, trap_R_RegisterShader( "gfx/2d/net.tga" ) );
+}
+
+#define MAX_LAGOMETER_PING  900
+#define MAX_LAGOMETER_RANGE 300
+
+/*
+==============
+CG_DrawLagometer
+==============
+*/
+static void CG_DrawLagometer( rectDef_t *rect, qhandle_t shader )
+{
+  int   a, x, y, i;
+  float v;
+  float ax, ay, aw, ah, mid, range;
+  int   color;
+  float vscale;
+
+  if( !cg_lagometer.integer )
+  {
+    CG_DrawDisconnect( );
+    return;
+  }
+
+  //
+  // draw the graph
+  //
+  ax = x = rect->x;
+  ay = y = rect->y;
+  aw = rect->w;
+  ah = rect->h;
+
+  trap_R_SetColor( NULL );
+  CG_DrawPic( x, y, rect->w, rect->h, shader );
+
+  CG_AdjustFrom640( &ax, &ay, &aw, &ah );
+
+  color = -1;
+  range = ah / 3;
+  mid = ay + range;
+
+  vscale = range / MAX_LAGOMETER_RANGE;
+
+  // draw the frame interpoalte / extrapolate graph
+  for( a = 0 ; a < aw ; a++ )
+  {
+    i = ( lagometer.frameCount - 1 - a ) & ( LAG_SAMPLES - 1 );
+    v = lagometer.frameSamples[ i ];
+    v *= vscale;
+    
+    if( v > 0 )
+    {
+      if( color != 1 )
+      {
+        color = 1;
+        trap_R_SetColor( g_color_table[ ColorIndex( COLOR_YELLOW ) ] );
+      }
+      
+      if( v > range )
+        v = range;
+        
+      trap_R_DrawStretchPic( ax + aw - a, mid - v, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
+    }
+    else if( v < 0 )
+    {
+      if( color != 2 )
+      {
+        color = 2;
+        trap_R_SetColor( g_color_table[ ColorIndex( COLOR_BLUE ) ] );
+      }
+      
+      v = -v;
+      if( v > range )
+        v = range;
+      
+      trap_R_DrawStretchPic( ax + aw - a, mid, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
+    }
+  }
+
+  // draw the snapshot latency / drop graph
+  range = ah / 2;
+  vscale = range / MAX_LAGOMETER_PING;
+
+  for( a = 0 ; a < aw ; a++ )
+  {
+    i = ( lagometer.snapshotCount - 1 - a ) & ( LAG_SAMPLES - 1 );
+    v = lagometer.snapshotSamples[ i ];
+    
+    if( v > 0 )
+    {
+      if( lagometer.snapshotFlags[ i ] & SNAPFLAG_RATE_DELAYED )
+      {
+        if( color != 5 )
+        {
+          color = 5;  // YELLOW for rate delay
+          trap_R_SetColor( g_color_table[ ColorIndex( COLOR_YELLOW ) ] );
+        }
+      }
+      else
+      {
+        if( color != 3 )
+        {
+          color = 3;
+        
+          trap_R_SetColor( g_color_table[ ColorIndex( COLOR_GREEN ) ] );
+        }
+      }
+    
+      v = v * vscale;
+      
+      if( v > range )
+        v = range;
+      
+      trap_R_DrawStretchPic( ax + aw - a, ay + ah - v, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
+    }
+    else if( v < 0 )
+    {
+      if( color != 4 )
+      {
+        color = 4;    // RED for dropped snapshots
+        trap_R_SetColor( g_color_table[ ColorIndex( COLOR_RED ) ] );
+      }
+      
+      trap_R_DrawStretchPic( ax + aw - a, ay + ah - range, 1, range, 0, 0, 0, 0, cgs.media.whiteShader );
+    }
+  }
+
+  trap_R_SetColor( NULL );
+
+  if( cg_nopredict.integer || cg_synchronousClients.integer )
+    CG_DrawBigString( ax, ay, "snc", 1.0 );
+
+  CG_DrawDisconnect();
+}
+
+
 void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
                    float text_y, int ownerDraw, int ownerDrawFlags,
                    int align, float special, float scale, vec4_t color,
@@ -1121,6 +1538,20 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
     case CG_LOAD_HOSTNAME:
       CG_DrawHostname( &rect, text_x, text_y, color, scale, align, textStyle );
       break;
+      
+    case CG_FPS:
+      CG_DrawFPS( &rect, text_x, text_y, scale, color, align, textStyle );
+      break;
+    case CG_TIMER:
+      CG_DrawTimer( &rect, text_x, text_y, scale, color, align, textStyle );
+      break;
+    case CG_SNAPSHOT:
+      CG_DrawSnapshot( &rect, text_x, text_y, scale, color, align, textStyle );
+      break;
+    case CG_LAGOMETER:
+      CG_DrawLagometer( &rect, shader );
+      break;
+      
     default:
       break;
   }
@@ -1310,435 +1741,10 @@ static void CG_DrawLighting( void )
 /*
 ===========================================================================================
 
-  UPPER RIGHT CORNER
-
-===========================================================================================
-*/
-
-/*
-==================
-CG_DrawSnapshot
-==================
-*/
-static float CG_DrawSnapshot( float y )
-{
-  char    *s;
-  int     w;
-
-  s = va( "time:%d snap:%d cmd:%d", cg.snap->serverTime,
-    cg.latestSnapshotNum, cgs.serverCommandSequence );
-  w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
-
-  CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
-
-  return y + BIGCHAR_HEIGHT + 4;
-}
-
-/*
-==================
-CG_DrawFPS
-==================
-*/
-//TA: personally i think this should be longer - it should really be a cvar
-#define FPS_FRAMES  40
-static float CG_DrawFPS( float y )
-{
-  char        *s;
-  int         w;
-  static int  previousTimes[ FPS_FRAMES ];
-  static int  index;
-  int         i, total;
-  int         fps;
-  static int  previous;
-  int         t, frameTime;
-
-  // don't use serverTime, because that will be drifting to
-  // correct for internet lag changes, timescales, timedemos, etc
-  t = trap_Milliseconds( );
-  frameTime = t - previous;
-  previous = t;
-
-  previousTimes[ index % FPS_FRAMES ] = frameTime;
-  index++;
-  
-  if( index > FPS_FRAMES )
-  {
-    // average multiple frames together to smooth changes out a bit
-    total = 0;
-    
-    for( i = 0 ; i < FPS_FRAMES ; i++ )
-      total += previousTimes[ i ];
-    
-    if( !total )
-      total = 1;
-    
-    fps = 1000 * FPS_FRAMES / total;
-
-    s = va( "%dfps", fps );
-    w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
-
-    CG_DrawBigString( 635 - w, y + 2, s, 1.0F );
-  }
-
-  return y + BIGCHAR_HEIGHT + 4;
-}
-
-/*
-=================
-CG_DrawTimer
-=================
-*/
-static float CG_DrawTimer( float y )
-{
-  char    *s;
-  int     w;
-  int     mins, seconds, tens;
-  int     msec;
-
-  msec = cg.time - cgs.levelStartTime;
-
-  seconds = msec / 1000;
-  mins = seconds / 60;
-  seconds -= mins * 60;
-  tens = seconds / 10;
-  seconds -= tens * 10;
-
-  s = va( "%d:%d%d", mins, tens, seconds );
-  w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
-
-  CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
-
-  return y + BIGCHAR_HEIGHT + 4;
-}
-
-
-/*
-=====================
-CG_DrawUpperRight
-
-=====================
-*/
-static void CG_DrawUpperRight( void )
-{
-  float y;
-
-  y = 0;
-
-  if( cg_drawSnapshot.integer )
-    y = CG_DrawSnapshot( y );
-  
-  if( cg_drawFPS.integer )
-    y = CG_DrawFPS( y );
-  
-  if( cg_drawTimer.integer )
-    y = CG_DrawTimer( y );
-}
-
-/*
-===========================================================================================
-
   LOWER RIGHT CORNER
 
 ===========================================================================================
 */
-
-
-/*
-=================
-CG_DrawBuildPoints
-
-Draw the small two score display
-=================
-*/
-/*static float CG_DrawBuildPoints( float y )
-{
-  const char  *s;
-  int     points, totalpoints, buildpoints;
-  int     team;
-  int     x, w;
-  float   y1;
-  qboolean  spectator;
-
-  y -= BIGCHAR_HEIGHT + 8;
-
-  y1 = y;
- 
-
-  x = 640;
-  points = cg.snap->ps.persistant[PERS_POINTS];
-  totalpoints = cg.snap->ps.persistant[PERS_TOTALPOINTS];
-
-  team = cg.snap->ps.stats[ STAT_PTEAM ];
-  
-  if( team == PTE_ALIENS )
-    buildpoints = cgs.alienBuildPoints;
-  else if( team == PTE_HUMANS )
-    buildpoints = cgs.humanBuildPoints;
-
-  spectator = ( team == PTE_NONE );
-
-  if( !spectator )
-  {
-    s = va( "%2i", points );
-    w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
-    x -= w;
-
-    CG_DrawBigString( x + 2, y, s, 1.0F );
-
-    s = va( "%2i", totalpoints );
-    w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
-    x -= w;
-
-    CG_DrawBigString( x + 2, y, s, 1.0F );
-
-    s = va( "%2i", buildpoints );
-    w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
-    x -= w;
-
-    CG_DrawBigString( x + 2, y, s, 1.0F );
-  }
-
-  return y1 - 8;
-}*/
-
-//===========================================================================================
-
-
-/*
-===============================================================================
-
-LAGOMETER
-
-===============================================================================
-*/
-
-#define LAG_SAMPLES   128
-
-typedef struct
-{
-  int   frameSamples[ LAG_SAMPLES ];
-  int   frameCount;
-  int   snapshotFlags[ LAG_SAMPLES ];
-  int   snapshotSamples[ LAG_SAMPLES ];
-  int   snapshotCount;
-} lagometer_t;
-
-lagometer_t   lagometer;
-
-/*
-==============
-CG_AddLagometerFrameInfo
-
-Adds the current interpolate / extrapolate bar for this frame
-==============
-*/
-void CG_AddLagometerFrameInfo( void )
-{
-  int     offset;
-
-  offset = cg.time - cg.latestSnapshotTime;
-  lagometer.frameSamples[ lagometer.frameCount & ( LAG_SAMPLES - 1 ) ] = offset;
-  lagometer.frameCount++;
-}
-
-/*
-==============
-CG_AddLagometerSnapshotInfo
-
-Each time a snapshot is received, log its ping time and
-the number of snapshots that were dropped before it.
-
-Pass NULL for a dropped packet.
-==============
-*/
-void CG_AddLagometerSnapshotInfo( snapshot_t *snap )
-{
-  // dropped packet
-  if( !snap )
-  {
-    lagometer.snapshotSamples[ lagometer.snapshotCount & ( LAG_SAMPLES - 1 ) ] = -1;
-    lagometer.snapshotCount++;
-    return;
-  }
-
-  // add this snapshot's info
-  lagometer.snapshotSamples[ lagometer.snapshotCount & ( LAG_SAMPLES - 1 ) ] = snap->ping;
-  lagometer.snapshotFlags[ lagometer.snapshotCount & ( LAG_SAMPLES - 1 ) ] = snap->snapFlags;
-  lagometer.snapshotCount++;
-}
-
-/*
-==============
-CG_DrawDisconnect
-
-Should we draw something differnet for long lag vs no packets?
-==============
-*/
-static void CG_DrawDisconnect( void )
-{
-  float       x, y;
-  int         cmdNum;
-  usercmd_t   cmd;
-  const char  *s;
-  int         w;
-
-  // draw the phone jack if we are completely past our buffers
-  cmdNum = trap_GetCurrentCmdNumber( ) - CMD_BACKUP + 1;
-  trap_GetUserCmd( cmdNum, &cmd );
-  
-  // special check for map_restart
-  if( cmd.serverTime <= cg.snap->ps.commandTime || cmd.serverTime > cg.time )
-    return;
-
-  // also add text in center of screen
-  s = "Connection Interrupted";
-  w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
-  CG_DrawBigString( 320 - w / 2, 100, s, 1.0F);
-
-  // blink the icon
-  if( ( cg.time >> 9 ) & 1 )
-    return;
-
-  x = 640 - 48;
-  y = 480 - 48;
-
-  CG_DrawPic( x, y, 48, 48, trap_R_RegisterShader( "gfx/2d/net.tga" ) );
-}
-
-#define MAX_LAGOMETER_PING  900
-#define MAX_LAGOMETER_RANGE 300
-
-/*
-==============
-CG_DrawLagometer
-==============
-*/
-static void CG_DrawLagometer( void )
-{
-  int   a, x, y, i;
-  float v;
-  float ax, ay, aw, ah, mid, range;
-  int   color;
-  float vscale;
-
-  if( !cg_lagometer.integer || cgs.localServer )
-  {
-    CG_DrawDisconnect( );
-    return;
-  }
-
-  //
-  // draw the graph
-  //
-  x = 640 - 48;
-  y = 480 - 144;
-
-  trap_R_SetColor( NULL );
-  CG_DrawPic( x, y, 48, 48, cgs.media.lagometerShader );
-
-  ax = x;
-  ay = y;
-  aw = 48;
-  ah = 48;
-  CG_AdjustFrom640( &ax, &ay, &aw, &ah );
-
-  color = -1;
-  range = ah / 3;
-  mid = ay + range;
-
-  vscale = range / MAX_LAGOMETER_RANGE;
-
-  // draw the frame interpoalte / extrapolate graph
-  for( a = 0 ; a < aw ; a++ )
-  {
-    i = ( lagometer.frameCount - 1 - a ) & ( LAG_SAMPLES - 1 );
-    v = lagometer.frameSamples[ i ];
-    v *= vscale;
-    
-    if( v > 0 )
-    {
-      if( color != 1 )
-      {
-        color = 1;
-        trap_R_SetColor( g_color_table[ ColorIndex( COLOR_YELLOW ) ] );
-      }
-      
-      if( v > range )
-        v = range;
-        
-      trap_R_DrawStretchPic( ax + aw - a, mid - v, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
-    }
-    else if( v < 0 )
-    {
-      if( color != 2 )
-      {
-        color = 2;
-        trap_R_SetColor( g_color_table[ ColorIndex( COLOR_BLUE ) ] );
-      }
-      
-      v = -v;
-      if( v > range )
-        v = range;
-      
-      trap_R_DrawStretchPic( ax + aw - a, mid, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
-    }
-  }
-
-  // draw the snapshot latency / drop graph
-  range = ah / 2;
-  vscale = range / MAX_LAGOMETER_PING;
-
-  for( a = 0 ; a < aw ; a++ )
-  {
-    i = ( lagometer.snapshotCount - 1 - a ) & ( LAG_SAMPLES - 1 );
-    v = lagometer.snapshotSamples[ i ];
-    
-    if( v > 0 )
-    {
-      if( lagometer.snapshotFlags[ i ] & SNAPFLAG_RATE_DELAYED )
-      {
-        if( color != 5 )
-        {
-          color = 5;  // YELLOW for rate delay
-          trap_R_SetColor( g_color_table[ ColorIndex( COLOR_YELLOW ) ] );
-        }
-      }
-      else
-      {
-        if( color != 3 )
-        {
-          color = 3;
-        
-          trap_R_SetColor( g_color_table[ ColorIndex( COLOR_GREEN ) ] );
-        }
-      }
-    
-      v = v * vscale;
-      
-      if( v > range )
-        v = range;
-      
-      trap_R_DrawStretchPic( ax + aw - a, ay + ah - v, 1, v, 0, 0, 0, 0, cgs.media.whiteShader );
-    }
-    else if( v < 0 )
-    {
-      if( color != 4 )
-      {
-        color = 4;    // RED for dropped snapshots
-        trap_R_SetColor( g_color_table[ ColorIndex( COLOR_RED ) ] );
-      }
-      
-      trap_R_DrawStretchPic( ax + aw - a, ay + ah - range, 1, range, 0, 0, 0, 0, cgs.media.whiteShader );
-    }
-  }
-
-  trap_R_SetColor( NULL );
-
-  if( cg_nopredict.integer || cg_synchronousClients.integer )
-    CG_DrawBigString( ax, ay, "snc", 1.0 );
-
-  CG_DrawDisconnect();
-}
 
 
 
@@ -2366,8 +2372,8 @@ static void CG_Draw2D( void )
             BG_FindHudNameForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] ) ), qtrue );
       }
       
-      CG_DrawAmmoWarning();
-      CG_DrawCrosshair();
+      CG_DrawAmmoWarning( );
+      CG_DrawCrosshair( );
       
       if( BG_gotItem( UP_HELMET, cg.snap->ps.stats ) )
         CG_Scanner( );
@@ -2377,12 +2383,8 @@ static void CG_Draw2D( void )
     }
   }
 
-  CG_DrawVote();
-  CG_DrawTeamVote();
-
-  CG_DrawLagometer();
-
-  CG_DrawUpperRight();
+  CG_DrawVote( );
+  CG_DrawTeamVote( );
 
   if( !CG_DrawFollow( ) )
     CG_DrawWarmup();

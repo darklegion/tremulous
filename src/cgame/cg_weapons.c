@@ -1552,14 +1552,6 @@ void CG_DrawWeaponSelect( rectDef_t *rect )
     else
       x += iconsize;
   }
-  
-  /*//TA: yuck! :)
-  if( y == 10 )
-  {
-    trap_R_SetColor( NULL );
-    return;
-  }*/
-
 }
 
 
@@ -1583,7 +1575,8 @@ void CG_DrawWeaponSelectText( rectDef_t *rect, float scale, int textStyle )
   // draw the selected name
   if( cg.weaponSelect <= 32 )
   {
-    if( cg_weapons[ cg.weaponSelect ].registered )
+    if( cg_weapons[ cg.weaponSelect ].registered &&
+        BG_gotWeapon( cg.weaponSelect, cg.snap->ps.stats ) )
     {
       if( name = cg_weapons[ cg.weaponSelect ].humanName )
       {
@@ -1595,7 +1588,8 @@ void CG_DrawWeaponSelectText( rectDef_t *rect, float scale, int textStyle )
   }
   else if( cg.weaponSelect > 32 )
   {
-    if( cg_upgrades[ cg.weaponSelect - 32 ].registered )
+    if( cg_upgrades[ cg.weaponSelect - 32 ].registered &&
+        BG_gotItem( cg.weaponSelect - 32, cg.snap->ps.stats ) )
     {
       if( name = cg_upgrades[ cg.weaponSelect - 32 ].humanName )
       {

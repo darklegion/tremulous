@@ -220,6 +220,12 @@
 #define CG_LOAD_MOTD              85
 #define CG_LOAD_HOSTNAME          86
 
+#define CG_FPS                    87
+#define CG_TIMER                  88
+#define CG_SNAPSHOT               89
+#define CG_LAGOMETER              90
+
+
 
 #define UI_OWNERDRAW_BASE 200
 #define UI_HANDICAP 200

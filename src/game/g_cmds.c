@@ -1851,8 +1851,20 @@ void Cmd_Buy_f( gentity_t *ent )
   int       i;
   gentity_t *mcuEntity;
   qboolean  nearMCU = qfalse;
-  int       weapon, upgrade;
+  int       weapon, upgrade, numItems = 0;
   int       quan, clips, maxClips;
+
+  for( i = UP_NONE; i < UP_NUM_UPGRADES; i++ )
+  {
+    if( BG_gotItem( i, ent->client->ps.stats ) )
+      numItems++;
+  }
+
+  for( i = WP_NONE; i < WP_NUM_WEAPONS; i++ )
+  {
+    if( BG_gotWeapon( i, ent->client->ps.stats ) )
+      numItems++;
+  }
 
   trap_Argv( 1, s, sizeof( s ) );
   
@@ -2029,6 +2041,9 @@ void Cmd_Buy_f( gentity_t *ent )
     trap_SendServerCommand( ent-g_entities, va("print \"Unknown item\n\"" ) );
   }
   
+  //if the buyer previously had no items at all, force a new selection
+  if( numItems == 0 )
+    G_AddEvent( ent, EV_NEXT_WEAPON, 0 );
 }
 
 
@@ -2086,6 +2101,10 @@ void Cmd_Sell_f( gentity_t *ent )
       //add to funds
       ent->client->ps.persistant[ PERS_CREDIT ] += BG_FindPriceForWeapon( weapon );
     }
+
+    //if we have this weapon selected, force a new selection
+    if( weapon == ent->client->ps.weapon )
+      G_AddEvent( ent, EV_NEXT_WEAPON, 0 );
   }
   else if( upgrade != UP_NONE )
   {
@@ -2097,6 +2116,10 @@ void Cmd_Sell_f( gentity_t *ent )
       //add to funds
       ent->client->ps.persistant[ PERS_CREDIT ] += BG_FindPriceForUpgrade( upgrade );
     }
+    
+    //if we have this upgrade selected, force a new selection
+    if( upgrade == ent->client->pers.cmd.weapon - 32 )
+      G_AddEvent( ent, EV_NEXT_WEAPON, 0 );
   }
   else
   {
