@@ -128,10 +128,13 @@
     itemDef
     {
       name "s"
-      rect 121 398 17 68
+      rect 121 348 50 5
       visible 1
       decoration
-      forecolor 1 1 0 1
+      forecolor 0 0.8 1 1
+      textScale 0.0
+      special 0.0
+      align ITEM_ALIGN_RIGHT
       ownerdraw CG_PLAYER_STAMINA
     }
     
@@ -258,11 +261,13 @@
     itemDef
     {
       name "healthok"
-      rect 0 410 108 44
+      rect 10 410 108 10
       visible 1
       decoration
-      forecolor 1 1 0 1
-      ownerdraw CG_PLAYER_HEALTH
+      forecolor 0 0.8 1 1
+      textScale 0.0
+      special 0.0
+      ownerdraw CG_PLAYER_HEALTH_BAR
     }
 
     // SELECT

@@ -185,25 +185,10 @@
     {
       name game				
       group optionsGrp
-      text "Crosshair:"
-      ownerdraw UI_CROSSHAIR
-      rect 218 167 20 17
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 0 
-      textaligny 17
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 0 
-    }
-
-    itemDef
-    {
-      name game				
-      group optionsGrp
       type ITEM_TYPE_YESNO
       text "Auto Wallwalk Pitching:"
       cvar "cg_wwFollow"
-      rect 90 185 192 15
+      rect 90 165 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128
       textaligny 12
@@ -220,7 +205,7 @@
       text "Wallwalking Speed:"
       cvarfloat "cg_wwSmoothTime" 300 0 1000
       cvarFloatList { "Medium" 300 "Fast" 150 "Instant" 0 "Slow" 600 }
-      rect 90 200 192 15
+      rect 90 180 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128 
       textaligny 12

@@ -78,11 +78,12 @@
       rect 20 300 380 30
       visible 1
       decoration
-      forecolor 0.3 1 1 0.8
+      forecolor 0.0 0.8 1 1
       ownerdraw CG_LOAD_MEDIA
       align ITEM_ALIGN_CENTER
       textstyle ITEM_TEXTSTYLE_NEON
       textscale 0.5
+      special 1.0
     }
     
     itemDef
@@ -94,7 +95,7 @@
       align ITEM_ALIGN_RIGHT
       textaligny 28
       textalignx 0
-      forecolor 0.3 1 1 0.8
+      forecolor 0.0 0.8 1 1
       visible 1 
       decoration 
       ownerdraw CG_LOAD_MEDIA_LABEL
@@ -106,11 +107,12 @@
       rect 20 340 380 30
       visible 1
       decoration
-      forecolor 0.3 1 1 0.8
+      forecolor 0.0 0.8 1 1
       ownerdraw CG_LOAD_BUILDABLES
       align ITEM_ALIGN_CENTER
       textstyle ITEM_TEXTSTYLE_NEON
       textscale 0.5
+      special 1.0
     }
     
     itemDef
@@ -122,7 +124,7 @@
       align ITEM_ALIGN_RIGHT
       textaligny 28
       textalignx 0
-      forecolor 0.3 1 1 0.8
+      forecolor 0.0 0.8 1 1
       visible 1 
       decoration 
       ownerdraw CG_LOAD_BUILDABLES_LABEL
@@ -134,11 +136,12 @@
       rect 20 380 380 30
       visible 1
       decoration
-      forecolor 0.3 1 1 0.8
+      forecolor 0.0 0.8 1 1
       ownerdraw CG_LOAD_CHARMODEL
       align ITEM_ALIGN_CENTER
       textstyle ITEM_TEXTSTYLE_NEON
       textscale 0.5
+      special 1.0
     }
     
     itemDef
@@ -150,7 +153,7 @@
       align ITEM_ALIGN_RIGHT
       textaligny 28
       textalignx 0
-      forecolor 0.3 1 1 0.8
+      forecolor 0.0 0.8 1 1
       visible 1 
       decoration 
       ownerdraw CG_LOAD_CHARMODEL_LABEL
@@ -162,11 +165,12 @@
       rect 20 420 600 30
       visible 1
       decoration
-      forecolor 0.3 1 1 0.8
+      forecolor 0.0 0.8 1 1
       ownerdraw CG_LOAD_OVERALL
       align ITEM_ALIGN_CENTER
       textstyle ITEM_TEXTSTYLE_NEON
       textscale 0.5
+      special 1.0
     }
   }
 }
