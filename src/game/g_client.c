@@ -928,11 +928,8 @@ void ClientUserinfoChanged( int clientNum ) {
   //client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
 
   // set model
-  //Q_strncpyz( model, Info_ValueForKey (userinfo, "model"), sizeof( model ) );
   s = BG_FindModelNameForClass( client->pers.pclass );
-
-  //if( client->pers.pclass > PCL_NONE && client->pers.pclass < PCL_NUM_CLASSES )
-    Q_strncpyz( model, s, sizeof( model ) );
+  Q_strncpyz( model, s, sizeof( model ) );
 
   // team
   switch( client->sess.sessionTeam ) {
