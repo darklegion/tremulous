@@ -284,6 +284,8 @@ static void CG_BuildableAnimation( centity_t *cent, int *old, int *now, float *b
   *backLerp = cent->lerpFrame.backlerp;
 }
 
+#define TRACE_DEPTH 128.0f
+
 /*
 ==================
 CG_GhostBuildable
@@ -294,7 +296,7 @@ void CG_GhostBuildable( buildable_t buildable )
   refEntity_t     ent;
   playerState_t   *ps;
   vec3_t          angles, forward, player_origin, entity_origin, target_origin;
-  vec3_t          mins, maxs;
+  vec3_t          mins, maxs, start, end;
   float           distance;
   trace_t         tr;
   
@@ -321,10 +323,28 @@ void CG_GhostBuildable( buildable_t buildable )
   VectorCopy( tr.endpos, entity_origin );
   entity_origin[ 2 ] += 0.1f;
 
-  VectorCopy( entity_origin, ent.origin );
-  VectorCopy( entity_origin, ent.oldorigin );
+  AngleVectors( angles, forward, NULL, NULL );
+  VectorCopy( tr.plane.normal, ent.axis[2] );
+  ProjectPointOnPlane( ent.axis[0], forward, ent.axis[2] );
+  if( !VectorNormalize( ent.axis[0] ) )
+  {
+    AngleVectors( angles, NULL, NULL, forward );
+    ProjectPointOnPlane( ent.axis[0], forward, ent.axis[2] );
+    VectorNormalize( ent.axis[0] );
+  }
+  CrossProduct( ent.axis[0], ent.axis[2], ent.axis[1] );
+  ent.axis[1][0] = -ent.axis[1][0];
+  ent.axis[1][1] = -ent.axis[1][1];
+  ent.axis[1][2] = -ent.axis[1][2];
 
-  AnglesToAxis( angles, ent.axis );
+  VectorMA( entity_origin, -TRACE_DEPTH, tr.plane.normal, end );
+  VectorMA( entity_origin, 1.0f, tr.plane.normal, start );
+  CG_CapTrace( &tr, start, mins, maxs, end, ps->clientNum, MASK_PLAYERSOLID );
+  VectorMA( entity_origin, tr.fraction * -TRACE_DEPTH, tr.plane.normal, ent.origin );
+
+  VectorCopy( ent.origin, ent.lightingOrigin );
+  VectorCopy( ent.origin, ent.oldorigin ); // don't positionally lerp at all
+    
   ent.hModel = cg_buildables[ buildable ].models[ 0 ];
 
   if( ps->stats[ STAT_BUILDABLE ] & SB_VALID_TOGGLEBIT )
@@ -338,9 +358,6 @@ void CG_GhostBuildable( buildable_t buildable )
   trap_R_AddRefEntityToScene( &ent );
 }
 
-
-#define TRACE_DEPTH 128.0f
-
 /*
 ==================
 CG_Buildable
@@ -351,6 +368,7 @@ void CG_Buildable( centity_t *cent )
   refEntity_t     ent;
   refEntity_t     ent2;
   entityState_t   *es;
+  vec3_t          angles;
   vec3_t          forward, surfNormal, end, start, mins, maxs;
   trace_t         tr;
 
@@ -370,18 +388,20 @@ void CG_Buildable( centity_t *cent )
 
   VectorCopy( cent->lerpOrigin, ent.origin );
   VectorCopy( cent->lerpOrigin, ent.oldorigin );
+  VectorCopy( cent->lerpOrigin, ent.lightingOrigin );
 
   VectorCopy( es->origin2, surfNormal );
+  VectorCopy( es->angles, angles );
   BG_FindBBoxForBuildable( es->modelindex, mins, maxs );
 
   if( surfNormal[ 2 ] != 1.0f )
   {
-    AngleVectors( cent->lerpAngles, forward, NULL, NULL );
+    AngleVectors( angles, forward, NULL, NULL );
     VectorCopy( surfNormal, ent.axis[2] );
     ProjectPointOnPlane( ent.axis[0], forward, ent.axis[2] );
     if( !VectorNormalize( ent.axis[0] ) )
     {
-      AngleVectors( cent->lerpAngles, NULL, NULL, forward );
+      AngleVectors( angles, NULL, NULL, forward );
       ProjectPointOnPlane( ent.axis[0], forward, ent.axis[2] );
       VectorNormalize( ent.axis[0] );
     }
