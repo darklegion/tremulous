@@ -66,7 +66,8 @@ void CG_CheckAmmo( void ) {
 			total += ammo * 200;
 			break;
 		}
-		if ( total >= 5000 || BG_infiniteAmmo( i ) ) {
+		if ( total >= 5000 || BG_infiniteAmmo( i ) )
+    {
 			cg.lowAmmoWarning = 0;
 			return;
 		}

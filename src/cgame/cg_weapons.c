@@ -934,7 +934,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   gun.renderfx = parent->renderfx;
 
   // set custom shading for railgun refire rate
-  if ( ps ) {
+  if ( ps )
+  {
     if ( cg.predictedPlayerState.weapon == WP_RAILGUN
       && cg.predictedPlayerState.weaponstate == WEAPON_FIRING ) {
       float f;
@@ -1075,6 +1076,10 @@ void CG_AddViewWeapon( playerState_t *ps ) {
     return;
   }
 
+  //TA: no weapon carried - can't draw it
+  if( ps->weapon == WP_NONE )
+    return;
+      
   if ( ps->pm_type == PM_INTERMISSION ) {
     return;
   }
@@ -1235,13 +1240,22 @@ void CG_DrawWeaponSelect( void ) {
 
     y += 20;
   }
+  
+  //TA: yuck! :)
+  if( y == 10 )
+  {
+    trap_R_SetColor( NULL );
+    return;
+  }
 
   // draw the selected name
   if( cg.weaponSelect <= 32 )
   {
-    if ( cg_weapons[ cg.weaponSelect ].item ) {
+    if ( cg_weapons[ cg.weaponSelect ].item )
+    {
       name = cg_weapons[ cg.weaponSelect ].item->pickup_name;
-      if ( name ) {
+      if ( name )
+      {
         w = CG_DrawStrlen( name ) * BIGCHAR_WIDTH;
         x = ( SCREEN_WIDTH - w ) / 2;
         CG_DrawBigStringColor(x, y - 22, name, color);
@@ -1250,9 +1264,11 @@ void CG_DrawWeaponSelect( void ) {
   }
   else if( cg.weaponSelect > 32 )
   {
-    if ( cg_upgrades[ cg.weaponSelect - 32 ].item ) {
+    if ( cg_upgrades[ cg.weaponSelect - 32 ].item )
+    {
       name = cg_upgrades[ cg.weaponSelect - 32 ].item->pickup_name;
-      if ( name ) {
+      if ( name )
+      {
         w = CG_DrawStrlen( name ) * BIGCHAR_WIDTH;
         x = ( SCREEN_WIDTH - w ) / 2;
         CG_DrawBigStringColor(x, y - 22, name, color);

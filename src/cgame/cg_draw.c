@@ -2119,19 +2119,21 @@ static void CG_DrawAmmoWarning( void ) {
   const char  *s;
   int     w;
 
-  if ( cg_drawAmmoWarning.integer == 0 ) {
+  //TA: hack
+  if( cg.snap->ps.weapon == WP_NONE )
     return;
-  }
-
-  if ( !cg.lowAmmoWarning ) {
+    
+  if ( cg_drawAmmoWarning.integer == 0 )
     return;
-  }
 
-  if ( cg.lowAmmoWarning == 2 ) {
+  if ( !cg.lowAmmoWarning )
+    return;
+
+  if ( cg.lowAmmoWarning == 2 )
     s = "OUT OF AMMO";
-  } else {
+  else
     s = "LOW AMMO WARNING";
-  }
+
   w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
   CG_DrawBigString(320 - w / 2, 64, s, 1.0F);
 }

@@ -2042,11 +2042,11 @@ PM_BeginWeaponChange
 ===============
 */
 static void PM_BeginWeaponChange( int weapon ) {
-  if ( weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS ) {
+  if ( weapon < WP_NONE || weapon >= WP_NUM_WEAPONS ) {
     return;
   }
 
-  if ( !BG_gotWeapon( weapon, pm->ps->stats ) ) {
+  if ( !BG_gotWeapon( weapon, pm->ps->stats ) && weapon != WP_NONE ) {
     return;
   }
 
@@ -2164,10 +2164,15 @@ static void PM_Weapon( void ) {
     pm->ps->weaponTime -= pml.msec;
   }
 
+  //TA: if we haven't got the weapon
+  if( !BG_gotWeapon( pm->ps->weapon, pm->ps->stats ) && pm->ps->weapon != WP_NONE )
+    PM_BeginWeaponChange( WP_NONE );
+      
   // check for weapon change
   // can't change if weapon is firing, but can change
   // again if lowering or raising
-  if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING ) {
+  if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING )
+  {
     //TA: must press use to switch weapons
     if( pm->cmd.buttons & BUTTON_USE_HOLDABLE )
     {
@@ -2176,7 +2181,7 @@ static void PM_Weapon( void ) {
         if( pm->cmd.weapon <= 32 )
         {
           //if trying to select a weapon, select it
-          if ( pm->ps->weapon != pm->cmd.weapon )
+          if( pm->ps->weapon != pm->cmd.weapon )
             PM_BeginWeaponChange( pm->cmd.weapon );
         }
         else if( pm->cmd.weapon > 32 )
@@ -2185,13 +2190,9 @@ static void PM_Weapon( void ) {
           if( BG_gotItem( pm->cmd.weapon - 32, pm->ps->stats ) ) //sanity check
           {
             if( BG_activated( pm->cmd.weapon - 32, pm->ps->stats ) )
-            {
               BG_deactivateItem( pm->cmd.weapon - 32, pm->ps->stats );
-            }
             else
-            {
               BG_activateItem( pm->cmd.weapon - 32, pm->ps->stats );
-            }
           }
         }
         pm->ps->pm_flags |= PMF_USE_ITEM_HELD;                          
@@ -2200,7 +2201,7 @@ static void PM_Weapon( void ) {
     else
       pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
   }
-
+  
   if ( pm->ps->weaponTime > 0 ) {
     return;
   }
