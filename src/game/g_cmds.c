@@ -1536,6 +1536,7 @@ void Cmd_TorchOff_f( gentity_t *ent )
   ent->client->torch = NULL;
 }
 
+#define NUM_AC  3
 
 /*
 =================
@@ -1553,6 +1554,9 @@ void Cmd_Class_f( gentity_t *ent )
   int       i;
   trace_t   tr;
   vec3_t    infestOrigin, infestAngles;
+  int       allowedClasses[ NUM_AC ] = {  PCL_D_B_BASE,
+                                          PCL_D_B_LEV1,
+                                          PCL_D_O_BASE };
 
   clientNum = ent->client - level.clients;
   trap_Argv( 1, s, sizeof( s ) );
@@ -1626,9 +1630,19 @@ void Cmd_Class_f( gentity_t *ent )
 
       if( ent->client->pers.pclass != PCL_NONE )
       {
-        ent->client->sess.sessionTeam = TEAM_FREE;
-        ClientUserinfoChanged( clientNum );
-        ClientSpawn( ent, NULL );
+        for( i = 0; i < NUM_AC; i++ )
+        {
+          if( allowedClasses[ i ] == ent->client->pers.pclass )
+          {
+            ent->client->sess.sessionTeam = TEAM_FREE;
+            ClientUserinfoChanged( clientNum );
+            ClientSpawn( ent, NULL );
+            return;
+          }
+        }
+
+        ent->client->pers.pclass = PCL_NONE;
+        trap_SendServerCommand( ent-g_entities, va("print \"You cannot spawn as this class\n\"" ) );
       }
       else
       {
@@ -2087,18 +2101,12 @@ void Cmd_Build_f( gentity_t *ent )
   char          s1[ MAX_TOKEN_CHARS ];
   buildable_t   buildable;
   weapon_t      weapon;
-  float         dist, speed, maxspeed;
+  float         dist;
   vec3_t        origin;
 
   trap_Argv( 1, s, sizeof( s ) );
-  trap_Argv( 2, s1, sizeof( s1 ) );
 
   buildable = BG_FindBuildNumForName( s );
-  speed = atof( s1 );
-  maxspeed = BG_FindLaunchSpeedForClass( ent->client->ps.stats[ STAT_PCLASS ] );
-
-  if( speed > maxspeed )
-    speed = maxspeed;
   
   if( buildable != BA_NONE &&
       ( 1 << ent->client->ps.weapon ) & BG_FindBuildWeaponForBuildable( buildable ) )

@@ -1676,7 +1676,7 @@ G_buildItem
 Spawns a buildable
 ================
 */
-gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin, vec3_t angles, float speed )
+gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin, vec3_t angles )
 {
   gentity_t *built;
 
@@ -1813,14 +1813,11 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   VectorCopy( angles, built->s.angles );
   built->s.angles[ PITCH ] = 0.0f;
   built->s.angles2[ YAW ] = angles[ YAW ];
-  VectorCopy( origin, built->s.origin );
   built->s.pos.trType = BG_FindTrajectoryForBuildable( buildable );
   built->physicsBounce = BG_FindBounceForBuildable( buildable );
   built->s.groundEntityNum = -1;
   built->s.pos.trTime = level.time;
-  AngleVectors( angles, built->s.pos.trDelta, NULL, NULL );
   
-  VectorScale( built->s.pos.trDelta, speed, built->s.pos.trDelta );
   VectorSet( built->s.origin2, 0.0f, 0.0f, 1.0f );
   
   G_AddEvent( built, EV_BUILD_CONSTRUCT, BANIM_CONSTRUCT1 );
@@ -1835,7 +1832,7 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
 G_ValidateBuild
 =================
 */
-void G_ValidateBuild( gentity_t *ent, buildable_t buildable, float speed )
+void G_ValidateBuild( gentity_t *ent, buildable_t buildable )
 {
   weapon_t      weapon;
   float         dist;
@@ -1846,7 +1843,7 @@ void G_ValidateBuild( gentity_t *ent, buildable_t buildable, float speed )
   switch( G_itemFits( ent, buildable, dist, origin ) )
   {
     case IBE_NONE:
-      G_buildItem( ent, buildable, origin, ent->s.apos.trBase, speed );
+      G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
       break;
 
     case IBE_NOASSERT:
@@ -1882,17 +1879,17 @@ void G_ValidateBuild( gentity_t *ent, buildable_t buildable, float speed )
       
     case IBE_SPWNWARN:
       G_AddPredictableEvent( ent, EV_MENU, MN_D_SPWNWARN );
-      G_buildItem( ent, buildable, origin, ent->s.apos.trBase, speed );
+      G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
       break;
       
     case IBE_RPLWARN:
       G_AddPredictableEvent( ent, EV_MENU, MN_H_RPLWARN );
-      G_buildItem( ent, buildable, origin, ent->s.apos.trBase, speed );
+      G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
       break;
       
     case IBE_RPTWARN:
       G_AddPredictableEvent( ent, EV_MENU, MN_H_RPTWARN );
-      G_buildItem( ent, buildable, origin, ent->s.apos.trBase, speed );
+      G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
       break;
   }
 }

@@ -415,8 +415,6 @@ void ClientTimerActions( gentity_t *ent, int msec )
   gclient_t *client;
   usercmd_t *ucmd;
   int       aForward, aRight;
-  float     maxspeed =
-    BG_FindLaunchSpeedForClass( ent->client->ps.stats[ STAT_PCLASS ] );
 
   ucmd = &ent->client->pers.cmd;
   
@@ -501,36 +499,14 @@ void ClientTimerActions( gentity_t *ent, int msec )
       case WP_DBUILD2:
       case WP_HBUILD:
       case WP_HBUILD2:
-        //charge up launch velocity
-        if( client->ps.stats[ STAT_MISC ] < maxspeed && ucmd->buttons & BUTTON_ATTACK )
-          client->ps.stats[ STAT_MISC ] += ( 100.0f / LAUNCH_TIME ) * maxspeed;
-
-        //not holding attack anymore and allowed to launch so build
-        if( !( ucmd->buttons & BUTTON_ATTACK ) && client->allowedToLaunch )
-        {
-          if( !BG_FindInvertNormalForBuildable( client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) )
-            client->ps.stats[ STAT_MISC ] = 0;
-
-          G_ValidateBuild( ent,
-            client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT,
-            client->ps.stats[ STAT_MISC ] );
-          
-          client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
-          client->allowedToLaunch = qfalse;
-          client->ps.stats[ STAT_MISC ] = 0;
-        }
-
-        //cap speed
-        if( client->ps.stats[ STAT_MISC ] > maxspeed )
-          client->ps.stats[ STAT_MISC ] = maxspeed;
-          
         //set validity bit on buildable
         if( ( client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
         {
           int     dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
           vec3_t  dummy;
           
-          if( G_itemFits( ent, client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT, dist, dummy ) == IBE_NONE )
+          if( G_itemFits( ent, client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT,
+                          dist, dummy ) == IBE_NONE )
             client->ps.stats[ STAT_BUILDABLE ] |= SB_VALID_TOGGLEBIT;
           else
             client->ps.stats[ STAT_BUILDABLE ] &= ~SB_VALID_TOGGLEBIT;

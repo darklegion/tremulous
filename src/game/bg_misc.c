@@ -2251,7 +2251,6 @@ classAttributes_t bg_classList[ ] =
     0,                                              //int     armor;
     SCA_TAKESFALLDAMAGE|SCA_FOVWARPS,               //int     abilities;
     50.0f,                                          //float   buildDist;
-    1000.0f,                                        //float   launchSpeed;
     80,                                             //int     fov;
     0.005f,                                         //float   bob;
     350,                                            //int     steptime;
@@ -2274,9 +2273,8 @@ classAttributes_t bg_classList[ ] =
     12, 12,                                         //int     viewheight, crouchviewheight;
     75,                                             //int     health;
     10,                                             //int     armor;
-    SCA_CANJUMP|SCA_FOVWARPS,                       //int     abilities;
+    SCA_CANJUMP|SCA_FOVWARPS|SCA_WALLCLIMBER,       //int     abilities;
     50.0f,                                          //float   buildDist;
-    0.0f,                                           //float   launchSpeed;
     110,                                            //int     fov;
     0.005f,                                         //float   bob;
     200,                                            //int     steptime;
@@ -2301,7 +2299,6 @@ classAttributes_t bg_classList[ ] =
     0,                                                          //int     armor;
     SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
     0.0f,                                                       //float   buildDist;
-    0.0f,                                                       //float   launchSpeed;
     140,                                                        //int     fov;
     0.0f,                                                       //float   bob;
     25,                                                         //int     steptime;
@@ -2326,7 +2323,6 @@ classAttributes_t bg_classList[ ] =
     5,                                            //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
-    0.0f,                                         //float   launchSpeed;
     120,                                          //int     fov;
     0.001f,                                       //float   bob;
     25,                                           //int     steptime;
@@ -2351,7 +2347,6 @@ classAttributes_t bg_classList[ ] =
     5,                                            //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
-    0.0f,                                         //float   launchSpeed;
     120,                                          //int     fov;
     0.001f,                                       //float   bob;
     25,                                           //int     steptime;
@@ -2376,7 +2371,6 @@ classAttributes_t bg_classList[ ] =
     10,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
-    0.0f,                                         //float   launchSpeed;
     120,                                          //int     fov;
     0.0005f,                                      //float   bob;
     25,                                           //int     steptime;
@@ -2401,7 +2395,6 @@ classAttributes_t bg_classList[ ] =
     10,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
-    0.0f,                                         //float   launchSpeed;
     120,                                          //int     fov;
     0.0005f,                                      //float   bob;
     25,                                           //int     steptime;
@@ -2426,7 +2419,6 @@ classAttributes_t bg_classList[ ] =
     20,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
-    0.0f,                                         //float   launchSpeed;
     130,                                          //int     fov;
     0.0f,                                         //float   bob;
     60,                                           //int     steptime;
@@ -2451,7 +2443,6 @@ classAttributes_t bg_classList[ ] =
     20,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
-    0.0f,                                         //float   launchSpeed;
     130,                                          //int     fov;
     0.0f,                                         //float   bob;
     60,                                           //int     steptime;
@@ -2476,7 +2467,6 @@ classAttributes_t bg_classList[ ] =
     30,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
     0.0f,                                         //float   buildDist;
-    0.0f,                                         //float   launchSpeed;
     130,                                          //int     fov;
     0.0f,                                         //float   bob;
     60,                                           //int     steptime;
@@ -2501,7 +2491,6 @@ classAttributes_t bg_classList[ ] =
     0,                                          //int     armor;
     SCA_TAKESFALLDAMAGE|SCA_CANJUMP,            //int     abilities;
     80.0f,                                      //float   buildDist;
-    0.0f,                                       //float   launchSpeed;
     90,                                         //int     fov;
     0.002f,                                     //float   bob;
     200,                                        //int     steptime;
@@ -2828,26 +2817,6 @@ float BG_FindBuildDistForClass( int pclass )
     if( bg_classList[ i ].classNum == pclass )
     {
       return bg_classList[ i ].buildDist;
-    }
-  }
-  
-  return 0.0f;
-}
-
-/*
-==============
-BG_FindLaunchSpeedForClass
-==============
-*/
-float BG_FindLaunchSpeedForClass( int pclass )
-{
-  int i;
-
-  for( i = 0; i < bg_numPclasses; i++ )
-  {
-    if( bg_classList[ i ].classNum == pclass )
-    {
-      return bg_classList[ i ].launchSpeed;
     }
   }
   

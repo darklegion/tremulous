@@ -636,7 +636,8 @@ void Weapon_Build_Fire( gentity_t *ent, dynMenu_t menu )
 {
   if( ( ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
   {
-    ent->client->allowedToLaunch = qtrue;
+    G_ValidateBuild( ent, ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT );
+    ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
     return;
   }
 

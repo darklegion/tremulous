@@ -827,7 +827,6 @@ typedef struct
   int     abilities;
   
   float   buildDist;
-  float   launchSpeed;
   
   int     fov;
   float   bob;
@@ -972,7 +971,6 @@ float     BG_FindStickyForClass( int pclass );
 int       BG_FindSteptimeForClass( int pclass );
 qboolean  BG_ClassHasAbility( int pclass, int ability );
 float     BG_FindBuildDistForClass( int pclass );
-float     BG_FindLaunchSpeedForClass( int pclass );
 qboolean  BG_ClassCanEvolveFromTo( int fclass, int tclass );
 int       BG_FindEvolveTimeForClass( int pclass );
 int       BG_FindValueOfClass( int pclass );
