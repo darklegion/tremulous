@@ -679,13 +679,12 @@ void SpawnCorpse( gentity_t *ent )
 
   VectorCopy( ent->r.currentOrigin, origin );
 
-  trap_UnlinkEntity (ent);
+  /*trap_UnlinkEntity( ent );*/
 
   // if client is in a nodrop area, don't leave the body
-  contents = trap_PointContents( ent->s.origin, -1 );
-  if ( contents & CONTENTS_NODROP ) {
+  contents = trap_PointContents( origin, -1 );
+  if( contents & CONTENTS_NODROP )
     return;
-  }
   
   body = G_Spawn( );
 
@@ -727,20 +726,21 @@ void SpawnCorpse( gentity_t *ent )
   
   body->use = useBody;
 
-  switch ( body->s.legsAnim & ~ANIM_TOGGLEBIT ) {
-  case BOTH_DEATH1:
-  case BOTH_DEAD1:
-    body->s.torsoAnim = body->s.legsAnim = BOTH_DEAD1;
-    break;
-  case BOTH_DEATH2:
-  case BOTH_DEAD2:
-    body->s.torsoAnim = body->s.legsAnim = BOTH_DEAD2;
-    break;
-  case BOTH_DEATH3:
-  case BOTH_DEAD3:
-  default:
-    body->s.torsoAnim = body->s.legsAnim = BOTH_DEAD3;
-    break;
+  switch( body->s.legsAnim & ~ANIM_TOGGLEBIT )
+  {
+    case BOTH_DEATH1:
+    case BOTH_DEAD1:
+      body->s.torsoAnim = body->s.legsAnim = BOTH_DEAD1;
+      break;
+    case BOTH_DEATH2:
+    case BOTH_DEAD2:
+      body->s.torsoAnim = body->s.legsAnim = BOTH_DEAD2;
+      break;
+    case BOTH_DEATH3:
+    case BOTH_DEAD3:
+    default:
+      body->s.torsoAnim = body->s.legsAnim = BOTH_DEAD3;
+      break;
   }
 
   body->takedamage = qfalse;
@@ -751,8 +751,8 @@ void SpawnCorpse( gentity_t *ent )
   ent->r.contents = 0;
   ent->s.solid = 0;
   ent->r.s.solid = 0;
-  body->health = ent->health = ent->client->ps.stats[STAT_HEALTH];
-  ent->health = ent->client->ps.stats[STAT_HEALTH] = GIB_HEALTH - 1;
+  body->health = ent->health = ent->client->ps.stats[ STAT_HEALTH ];
+  ent->health = ent->client->ps.stats[ STAT_HEALTH ] = GIB_HEALTH - 1;
   
   //change body dimensions
   BG_FindBBoxForClass( ent->client->ps.stats[ STAT_PCLASS ], NULL, NULL, NULL, body->r.mins, body->r.maxs );
@@ -770,7 +770,6 @@ void SpawnCorpse( gentity_t *ent )
             
   VectorCopy ( body->s.pos.trBase, body->r.currentOrigin );
   trap_LinkEntity( body );
-
 }
 
 //======================================================================
@@ -1487,13 +1486,13 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
       break;
 
     case PCL_A_O_LEV3:
-      BG_packWeapon( WP_VENOM, client->ps.stats );
-      BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
+      BG_packWeapon( WP_AREA_ZAP, client->ps.stats );
+      BG_packAmmoArray( WP_AREA_ZAP, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
       
     case PCL_A_O_LEV3_UPG:
-      BG_packWeapon( WP_VENOM, client->ps.stats );
-      BG_packAmmoArray( WP_VENOM, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
+      BG_packWeapon( WP_DIRECT_ZAP, client->ps.stats );
+      BG_packAmmoArray( WP_DIRECT_ZAP, client->ps.ammo, client->ps.powerups, 0, 0, 0 );
       break;
       
     case PCL_A_O_LEV4:

@@ -289,20 +289,21 @@ static void CG_Missile( centity_t *cent )
       break;
 
     case WP_FLAMER:
-      fraction = ( ( cg.time - s1->pos.trTime ) / FIREBALL_LIFETIME );
-      
-      if( fraction > 1.0f )
-        fraction = 1.0f;
+      {
+        fraction = ( ( cg.time - s1->pos.trTime ) / FIREBALL_LIFETIME );
         
-      ent.reType = RT_SPRITE;
-      ent.radius = fraction * 32;
-      ent.shaderTime = s1->pos.trTime / 1000.0f;
-      ent.rotation = 0;
-      
-      index = (int)( fraction * 31 );
-      ent.customShader = cgs.media.flameShader[ index ];
-      trap_R_AddRefEntityToScene( &ent );
-      return;
+        if( fraction > 1.0f )
+          fraction = 1.0f;
+          
+        ent.reType = RT_SPRITE;
+        ent.radius = fraction * 32;
+        ent.rotation = s1->generic1;
+        
+        index = (int)( fraction * 31 );
+        ent.customShader = cgs.media.flameShader[ index ];
+        trap_R_AddRefEntityToScene( &ent );
+        return;
+      }
       break;
 
     default:
@@ -910,7 +911,7 @@ void CG_AddPacketEntities( void ) {
   cgIP.numAlienClients = 0;
   cgIP.numHumanClients = 0;
 
-  for ( num = 0 ; num < cg.snap->numEntities ; num++ )
+  for( num = 0 ; num < cg.snap->numEntities ; num++ )
   {
     cent = &cg_entities[ cg.snap->entities[ num ].number ];
     
@@ -953,7 +954,8 @@ void CG_AddPacketEntities( void ) {
   //Com_Printf( "%d %d\n", cgIP.numAlienClients, cgIP.numHumanClients );
 
   // add each entity sent over by the server
-  for ( num = 0 ; num < cg.snap->numEntities ; num++ ) {
+  for( num = 0; num < cg.snap->numEntities; num++ )
+  {
     cent = &cg_entities[ cg.snap->entities[ num ].number ];
     CG_AddCEntity( cent );
   }

@@ -2487,7 +2487,6 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
         ps->delta_angles[ i ] -= ANGLE2SHORT( fabs( diff ) * 0.05f );
     }
   }
-    
 }
 
 

@@ -1076,13 +1076,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     return;
   }
 
-  //TA: handicaps.. WTF is all that about? If someone is shit they deserve to die.
-  // reduce damage by the attacker's handicap value
-  // unless they are rocket jumping
-  /*if ( attacker->client && attacker != targ ) {
-    damage = damage * attacker->client->ps.stats[STAT_MAX_HEALTH] / 100;
-  }*/
-
   client = targ->client;
 
   if( client ) 
@@ -1385,9 +1378,6 @@ qboolean G_SelectiveRadiusDamage ( vec3_t origin, gentity_t *attacker, float dam
     points = damage * ( 1.0 - dist / radius );
 
     if( CanDamage (ent, origin) ) {
-      if( LogAccuracyHit( ent, attacker ) ) {
-        hitClient = qtrue;
-      }
       VectorSubtract (ent->r.currentOrigin, origin, dir);
       // push the center of mass higher than the origin so players
       // get knocked into the air more
@@ -1455,9 +1445,6 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
     points = damage * ( 1.0 - dist / radius );
 
     if( CanDamage (ent, origin) ) {
-      if( LogAccuracyHit( ent, attacker ) ) {
-        hitClient = qtrue;
-      }
       VectorSubtract (ent->r.currentOrigin, origin, dir);
       // push the center of mass higher than the origin so players
       // get knocked into the air more

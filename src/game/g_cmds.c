@@ -2250,6 +2250,29 @@ void Cmd_Boost_f( gentity_t *ent )
 
 /*
 =================
+Cmd_Spawnbody_f
+=================
+*/
+void Cmd_Spawnbody_f( gentity_t *ent )
+{
+  gentity_t *dummy = G_Spawn( );
+  vec3_t    forward;
+
+  AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
+  VectorMA( ent->client->ps.origin, 128.0f, forward, dummy->r.currentOrigin );
+
+  dummy->client->ps.stats[ STAT_PTEAM ] = PTE_HUMANS;
+  dummy->client->ps.stats[ STAT_PCLASS ] = PCL_H_BASE;
+  
+  dummy->client->lasthurt_client = dummy->client->ps.clientNum = -1;
+
+  SpawnCorpse( dummy );
+
+  G_FreeEntity( dummy );
+}
+
+/*
+=================
 ClientCommand
 =================
 */
@@ -2377,6 +2400,8 @@ void ClientCommand( int clientNum ) {
     Cmd_SetViewpos_f( ent );
   else if (Q_stricmp (cmd, "stats") == 0)
     Cmd_Stats_f( ent );
+  else if (Q_stricmp (cmd, "spawnbody") == 0)
+    Cmd_Spawnbody_f( ent );
   else
     trap_SendServerCommand( clientNum, va("print \"unknown cmd %s\n\"", cmd ) );
 }

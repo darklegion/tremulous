@@ -28,25 +28,18 @@ static  vec3_t  muzzle;
 G_BounceProjectile
 ================
 */
-void G_BounceProjectile( vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout ) {
+void G_BounceProjectile( vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout )
+{
   vec3_t v, newv;
   float dot;
 
   VectorSubtract( impact, start, v );
   dot = DotProduct( v, dir );
-  VectorMA( v, -2*dot, dir, newv );
+  VectorMA( v, -2 * dot, dir, newv );
 
   VectorNormalize(newv);
   VectorMA(impact, 8192, newv, endout);
 }
-
-/*
-======================================================================
-
-MACHINEGUN
-
-======================================================================
-*/
 
 /*
 ======================
@@ -58,17 +51,26 @@ rather than blindly truncating.  This prevents it from truncating
 into a wall.
 ======================
 */
-void SnapVectorTowards( vec3_t v, vec3_t to ) {
+void SnapVectorTowards( vec3_t v, vec3_t to )
+{
   int   i;
 
-  for ( i = 0 ; i < 3 ; i++ ) {
-    if ( to[i] <= v[i] ) {
-      v[i] = (int)v[i];
-    } else {
-      v[i] = (int)v[i] + 1;
-    }
+  for( i = 0 ; i < 3 ; i++ )
+  {
+    if( to[ i ] <= v[ i ] )
+      v[ i ] = (int)v[ i ];
+    else
+      v[ i ] = (int)v[ i ] + 1;
   }
 }
+
+/*
+======================================================================
+
+MACHINEGUN
+
+======================================================================
+*/
 
 #define MACHINEGUN_SPREAD 200
 #define MACHINEGUN_DAMAGE 7
@@ -77,7 +79,7 @@ void SnapVectorTowards( vec3_t v, vec3_t to ) {
 #define CHAINGUN_SPREAD 1200
 #define CHAINGUN_DAMAGE 14
 
-void Bullet_Fire( gentity_t *ent, float spread, int damage, int mod )
+void bulletFire( gentity_t *ent, float spread, int damage, int mod )
 {
   trace_t   tr;
   vec3_t    end;
@@ -107,8 +109,6 @@ void Bullet_Fire( gentity_t *ent, float spread, int damage, int mod )
   {
     tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
     tent->s.eventParm = traceEnt->s.number;
-    if( LogAccuracyHit( traceEnt, ent ) )
-      ent->client->accuracy_hits++;
   }
   else
   {
@@ -139,7 +139,7 @@ void massDriverFire( gentity_t *ent )
   gentity_t *tent;
   gentity_t *traceEnt;
 
-  VectorMA( muzzle, 8192*16, forward, end );
+  VectorMA( muzzle, 8192 * 16, forward, end );
 
   trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
   if( tr.surfaceFlags & SURF_NOIMPACT )
@@ -169,7 +169,7 @@ LOCKBLOB
 ======================================================================
 */
 
-void Weapon_LockBlobLauncher_Fire( gentity_t *ent )
+void lockBlobLauncherFire( gentity_t *ent )
 {
   gentity_t *m;
 
@@ -186,7 +186,8 @@ PLASMAGUN
 ======================================================================
 */
 
-void Weapon_Plasma_Fire (gentity_t *ent) {
+void plasmaFire( gentity_t *ent )
+{
   gentity_t *m;
 
   m = fire_plasma (ent, muzzle, forward);
@@ -202,7 +203,7 @@ PULSE RIFLE
 ======================================================================
 */
 
-void Weapon_PulseRifle_Fire (gentity_t *ent)
+void pulseRifleFire( gentity_t *ent )
 {
   gentity_t *m;
 
@@ -219,10 +220,11 @@ FLAME THROWER
 ======================================================================
 */
 
-void Weapon_Flamer_Fire (gentity_t *ent) {
+void flamerFire( gentity_t *ent )
+{
   gentity_t *m;
 
-  m = fire_flamer (ent, muzzle, forward);
+  m = fire_flamer( ent, muzzle, forward );
 
   VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
@@ -236,7 +238,7 @@ TESLA GENERATOR
 */
 
 
-void Weapon_TeslaFire( gentity_t *ent )
+void teslaFire( gentity_t *ent )
 {
   trace_t   tr;
   vec3_t    end;
@@ -266,9 +268,6 @@ void Weapon_TeslaFire( gentity_t *ent )
   // send railgun beam effect
   tent = G_TempEntity( tr.endpos, EV_TESLATRAIL );
 
-  // set player number for custom colors on the railtrail
-  tent->s.clientNum = ent->s.clientNum;
-
   VectorCopy( muzzle, tent->s.origin2 );
   // move origin a bit to come closer to the drawn gun muzzle
   VectorMA( tent->s.origin2, 16, up, tent->s.origin2 );
@@ -291,23 +290,12 @@ BUILD GUN
 ======================================================================
 */
 
-
-/*
-===============
-Weapon_Cancel_Build
-===============
-*/
-void Weapon_Cancel_Build( gentity_t *ent )
+void cancelBuildFire( gentity_t *ent )
 {
   ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
 }
 
-/*
-===============
-Weapon_Build_Fire
-===============
-*/
-void Weapon_Build_Fire( gentity_t *ent, dynMenu_t menu )
+void buildFire( gentity_t *ent, dynMenu_t menu )
 {
   if( ( ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
   {
@@ -384,15 +372,6 @@ qboolean CheckVenomAttack( gentity_t *ent )
 }
 
 /*
-===============
-Weapon_Venom_Fire
-===============
-*/
-void Weapon_Venom_Fire( gentity_t *ent )
-{
-}
-
-/*
 ======================================================================
 
 GRAB AND CLAW
@@ -400,12 +379,7 @@ GRAB AND CLAW
 ======================================================================
 */
 
-/*
-===============
-Weapon_GClaw_Fire
-===============
-*/
-void Weapon_GClaw_Fire( gentity_t *ent )
+void gClawFire( gentity_t *ent )
 {
   trace_t   tr;
   vec3_t    end;
@@ -413,7 +387,7 @@ void Weapon_GClaw_Fire( gentity_t *ent )
   gentity_t *traceEnt;
 
   // set aiming directions
-  AngleVectors (ent->client->ps.viewangles, forward, right, up);
+  AngleVectors( ent->client->ps.viewangles, forward, right, up );
 
   CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
@@ -438,12 +412,7 @@ void Weapon_GClaw_Fire( gentity_t *ent )
     G_Damage( traceEnt, ent, ent, forward, tr.endpos, 5, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
 }
 
-/*
-===============
-Weapon_Grab_Fire
-===============
-*/
-void Weapon_Grab_Fire( gentity_t *ent )
+void grabFire( gentity_t *ent )
 {
   trace_t   tr;
   vec3_t    end;
@@ -476,7 +445,9 @@ void Weapon_Grab_Fire( gentity_t *ent )
     //lock client
     traceEnt->client->ps.stats[ STAT_STATE ] |= SS_GRABBED;
     traceEnt->client->lastGrabTime = level.time;
-    VectorCopy( traceEnt->client->ps.viewangles, traceEnt->client->ps.grapplePoint );
+
+    if( !( traceEnt->client->ps.stats[ STAT_STATE ] & SS_GRABBED ) )
+      VectorCopy( traceEnt->client->ps.viewangles, traceEnt->client->ps.grapplePoint );
   }
 }
 
@@ -526,10 +497,10 @@ CLAW AND POUNCE
 
 /*
 ===============
-Weapon_Claw_Fire
+clawFire
 ===============
 */
-void Weapon_Claw_Fire( gentity_t *ent )
+void clawFire( gentity_t *ent )
 {
   trace_t   tr;
   vec3_t    end;
@@ -582,25 +553,25 @@ qboolean CheckPounceAttack( gentity_t *ent )
     return qfalse;
 
   // set aiming directions
-  AngleVectors (ent->client->ps.viewangles, forward, right, up);
+  AngleVectors( ent->client->ps.viewangles, forward, right, up );
 
   CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
-  VectorMA (muzzle, 48, forward, end);
+  VectorMA( muzzle, 48, forward, end );
 
-  trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
+  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
 
   //miss
   if( tr.fraction >= 1.0 )
     return qfalse;
     
-  if ( tr.surfaceFlags & SURF_NOIMPACT )
+  if( tr.surfaceFlags & SURF_NOIMPACT )
     return qfalse;
 
   traceEnt = &g_entities[ tr.entityNum ];
 
   // send blood impact
-  if ( traceEnt->takedamage && traceEnt->client )
+  if( traceEnt->takedamage && traceEnt->client )
   {
     tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
     tent->s.otherEntityNum = traceEnt->s.number;
@@ -620,45 +591,119 @@ qboolean CheckPounceAttack( gentity_t *ent )
   return qtrue;
 }
 
-//======================================================================
+/*
+======================================================================
+
+ZAP
+
+======================================================================
+*/
+
+#define AREAZAP_DAMAGE 500.0f
 
 /*
 ===============
-LogAccuracyHit
+areaZapFire
 ===============
 */
-qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) 
-{ 
-  //TA: theres a crash bug in here somewhere, but i'm too lazy to find it hence,
-  return qfalse;
+void areaZapFire( gentity_t *ent )
+{
+  int       entityList[ MAX_GENTITIES ];
+  int       targetList[ MAX_GENTITIES ];
+  vec3_t    range = { 200, 200, 200 };
+  vec3_t    mins, maxs, dir;
+  int       i, num, numTargets = 0;
+  gentity_t *enemy;
+  gentity_t *tent;
+  trace_t   tr;
+  int       damage;
+
+  VectorAdd( muzzle, range, maxs );
+  VectorSubtract( muzzle, range, mins );
   
-  /*if( !target->takedamage ) {
-    return qfalse;
+  //do some damage
+  num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+  for( i = 0; i < num; i++ )
+  {
+    enemy = &g_entities[ entityList[ i ] ];
+    
+    if( ( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) ||
+        ( enemy->s.eType == ET_BUILDABLE && BG_FindTeamForBuildable( enemy->s.modelindex ) == BIT_HUMANS ) )
+    {
+      trap_Trace( &tr, muzzle, NULL, NULL, enemy->s.origin, ent->s.number, MASK_SHOT );
+    
+      //can't see target from here
+      if( tr.entityNum == ENTITYNUM_WORLD )
+        continue;
+
+      targetList[ numTargets++ ] = entityList[ i ];
+    }
   }
 
-  if ( target == attacker ) {
-    return qfalse;
-  }
+  damage = (int)( AREAZAP_DAMAGE / (float)numTargets );
+  for( i = 0; i < numTargets; i++ )
+  {
+    enemy = &g_entities[ targetList[ i ] ];
 
-  if( !target->client ) {
-    return qfalse;
-  }
+    VectorSubtract( enemy->s.origin, muzzle, dir );
+    VectorNormalize( dir );
+    
+    G_Damage( enemy, ent, ent, dir, tr.endpos,
+              damage, DAMAGE_NO_KNOCKBACK, MOD_LIGHTNING );
+    
+    // snap the endpos to integers to save net bandwidth, but nudged towards the line
+    SnapVectorTowards( tr.endpos, muzzle );
 
-  if( !attacker->client ) {
-    return qfalse;
-  }
+    // send railgun beam effect
+    tent = G_TempEntity( enemy->s.pos.trBase, EV_TESLATRAIL );
 
-  if( target->client->ps.stats[STAT_HEALTH] <= 0 ) {
-    return qfalse;
+    VectorCopy( muzzle, tent->s.origin2 );
   }
-
-  if ( OnSameTeam( target, attacker ) ) {
-    return qfalse;
-  }
-
-  return qtrue;*/
 }
 
+/*
+===============
+directZapFire
+===============
+*/
+void directZapFire( gentity_t *ent )
+{
+  trace_t   tr;
+  vec3_t    end;
+  gentity_t *traceEnt, *tent;
+  int     damage, i, passent;
+
+  damage = 100;
+
+  VectorMA( muzzle, LIGHTNING_RANGE, forward, end );
+
+  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+
+  if( tr.entityNum != ENTITYNUM_NONE )
+    traceEnt = &g_entities[ tr.entityNum ];
+
+  if( traceEnt->takedamage )
+  {
+    G_Damage( traceEnt, ent, ent, forward, tr.endpos,
+      damage, 0, MOD_LIGHTNING);
+  }
+
+  // snap the endpos to integers to save net bandwidth, but nudged towards the line
+  SnapVectorTowards( tr.endpos, muzzle );
+
+  // send railgun beam effect
+  tent = G_TempEntity( tr.endpos, EV_TESLATRAIL );
+
+  VectorCopy( muzzle, tent->s.origin2 );
+
+  // no explosion at end if SURF_NOIMPACT, but still make the trail
+  if( tr.surfaceFlags & SURF_NOIMPACT )
+    tent->s.eventParm = 255;  // don't make the explosion at the end
+  else
+    tent->s.eventParm = DirToByte( tr.plane.normal );
+}
+
+//======================================================================
 
 /*
 ===============
@@ -667,10 +712,12 @@ CalcMuzzlePoint
 set muzzle location relative to pivoting eye
 ===============
 */
-void CalcMuzzlePoint( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) {
+void CalcMuzzlePoint( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint )
+{
   VectorCopy( ent->s.pos.trBase, muzzlePoint );
-  muzzlePoint[2] += ent->client->ps.viewheight;
+  muzzlePoint[ 2 ] += ent->client->ps.viewheight;
   VectorMA( muzzlePoint, 1, forward, muzzlePoint );
+  VectorMA( muzzlePoint, 1, right, muzzlePoint );
   // snap to integer coordinates for more efficient network bandwidth usage
   SnapVector( muzzlePoint );
 }
@@ -685,7 +732,7 @@ void FireWeapon2( gentity_t *ent )
   if( ent->client )
   {
     // set aiming directions
-    AngleVectors (ent->client->ps.viewangles, forward, right, up);
+    AngleVectors( ent->client->ps.viewangles, forward, right, up );
     CalcMuzzlePoint( ent, forward, right, up, muzzle );
   }
   else
@@ -698,47 +745,43 @@ void FireWeapon2( gentity_t *ent )
   switch( ent->s.weapon )
   {
     case WP_TESLAGEN:
-      Weapon_TeslaFire( ent );
+      teslaFire( ent );
       break;
     case WP_MACHINEGUN:
-      Bullet_Fire( ent, MACHINEGUN_SPREAD, MACHINEGUN_DAMAGE, MOD_MACHINEGUN );
+      bulletFire( ent, MACHINEGUN_SPREAD, MACHINEGUN_DAMAGE, MOD_MACHINEGUN );
       break;
     case WP_CHAINGUN:
-      Bullet_Fire( ent, CHAINGUN_SPREAD, CHAINGUN_DAMAGE, MOD_CHAINGUN );
+      bulletFire( ent, CHAINGUN_SPREAD, CHAINGUN_DAMAGE, MOD_CHAINGUN );
       break;
     case WP_FLAMER:
-      Weapon_Flamer_Fire( ent );
+      flamerFire( ent );
       break;
     case WP_PLASMAGUN:
-      Weapon_Plasma_Fire( ent );
+      plasmaFire( ent );
       break;
     case WP_PULSE_RIFLE:
-      Weapon_PulseRifle_Fire( ent );
+      pulseRifleFire( ent );
       break;
     case WP_MASS_DRIVER:
       massDriverFire( ent );
       break;
     case WP_LOCKBLOB_LAUNCHER:
       break;
-    case WP_VENOM:
-      Weapon_Venom_Fire( ent );
-      break;
     case WP_GRAB_CLAW:
-      Weapon_Grab_Fire( ent );
+      grabFire( ent );
       break;
+    case WP_AREA_ZAP:
+    case WP_DIRECT_ZAP:
+      areaZapFire( ent );
+      break;
+    case WP_VENOM:
     case WP_POUNCE:
       break;
     case WP_ABUILD:
-      Weapon_Cancel_Build( ent );
-      break;
     case WP_ABUILD2:
-      Weapon_Cancel_Build( ent );
-      break;
     case WP_HBUILD:
-      Weapon_Cancel_Build( ent );
-      break;
     case WP_HBUILD2:
-      Weapon_Cancel_Build( ent );
+      cancelBuildFire( ent );
       break;
     default:
   // FIXME    G_Error( "Bad ent->s.weapon" );
@@ -756,13 +799,12 @@ void FireWeapon( gentity_t *ent )
   if( ent->client )
   {
     // set aiming directions
-    AngleVectors (ent->client->ps.viewangles, forward, right, up);
+    AngleVectors( ent->client->ps.viewangles, forward, right, up );
     CalcMuzzlePoint( ent, forward, right, up, muzzle );
   }
   else
   {
     AngleVectors( ent->turretAim, forward, right, up );
-    /*AngleVectors( ent->s.angles2, forward, right, up );*/
     VectorCopy( ent->s.pos.trBase, muzzle );
   }
 
@@ -770,49 +812,54 @@ void FireWeapon( gentity_t *ent )
   switch( ent->s.weapon )
   {
     case WP_TESLAGEN:
-      Weapon_TeslaFire( ent );
+      teslaFire( ent );
       break;
     case WP_MACHINEGUN:
-      Bullet_Fire( ent, MACHINEGUN_SPREAD, MACHINEGUN_DAMAGE, MOD_MACHINEGUN );
+      bulletFire( ent, MACHINEGUN_SPREAD, MACHINEGUN_DAMAGE, MOD_MACHINEGUN );
       break;
     case WP_CHAINGUN:
-      Bullet_Fire( ent, CHAINGUN_SPREAD, CHAINGUN_DAMAGE, MOD_CHAINGUN );
+      bulletFire( ent, CHAINGUN_SPREAD, CHAINGUN_DAMAGE, MOD_CHAINGUN );
       break;
     case WP_FLAMER:
-      Weapon_Flamer_Fire( ent );
+      flamerFire( ent );
       break;
     case WP_PLASMAGUN:
-      Weapon_Plasma_Fire( ent );
+      plasmaFire( ent );
       break;
     case WP_PULSE_RIFLE:
-      Weapon_PulseRifle_Fire( ent );
+      pulseRifleFire( ent );
       break;
     case WP_MASS_DRIVER:
       massDriverFire( ent );
       break;
     case WP_LOCKBLOB_LAUNCHER:
-      Weapon_LockBlobLauncher_Fire( ent );
+      lockBlobLauncherFire( ent );
       break;
     case WP_VENOM:
-      Weapon_Venom_Fire( ent );
       break;
     case WP_GRAB_CLAW:
-      Weapon_GClaw_Fire( ent );
+      gClawFire( ent );
       break;
     case WP_POUNCE:
-      Weapon_Claw_Fire( ent );
+      clawFire( ent );
+      break;
+    case WP_AREA_ZAP:
+      areaZapFire( ent );
+      break;
+    case WP_DIRECT_ZAP:
+      directZapFire( ent );
       break;
     case WP_ABUILD:
-      Weapon_Build_Fire( ent, MN_A_BUILD );
+      buildFire( ent, MN_A_BUILD );
       break;
     case WP_ABUILD2:
-      Weapon_Build_Fire( ent, MN_A_BUILD );
+      buildFire( ent, MN_A_BUILD );
       break;
     case WP_HBUILD:
-      Weapon_Build_Fire( ent, MN_H_BUILD );
+      buildFire( ent, MN_H_BUILD );
       break;
     case WP_HBUILD2:
-      Weapon_Build_Fire( ent, MN_H_BUILD );
+      buildFire( ent, MN_H_BUILD );
       break;
     default:
   // FIXME    G_Error( "Bad ent->s.weapon" );

@@ -348,6 +348,8 @@ struct gclient_s {
   qboolean  allowedToPounce;
 
   vec3_t    hovelOrigin;  //TA: player origin before entering hovel
+
+  int       lastFlameBall;  //TA: s.number of the last flame ball fired
 };
 
 #define MAX_LOCDAMAGE_TEXT    8192

@@ -115,10 +115,6 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		if ( ent->damage ) {
 			vec3_t	velocity;
 
-			if( LogAccuracyHit( other, &g_entities[ent->r.ownerNum] ) ) {
-        g_entities[ent->r.ownerNum].client->accuracy_hits++;
-				hitClient = qtrue;
-			}
 			BG_EvaluateTrajectoryDelta( &ent->s.pos, level.time, velocity );
 			if ( VectorLength( velocity ) == 0 ) {
 				velocity[2] = 1;	// stepped on a grenade
@@ -258,6 +254,8 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_FLAMER;
 	bolt->r.ownerNum = self->s.number;
+  //random rotation for the flame sprite
+  bolt->s.generic1 = rand( ) % 360;
 	bolt->parent = self;
 	bolt->damage = 60;
 	bolt->splashDamage = 65;

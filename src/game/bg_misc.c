@@ -1960,7 +1960,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
-    40,                   //int       repeatRate;
+    20,                   //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
@@ -2160,9 +2160,29 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
-    500,                  //int       repeatRate;
+    1500,                 //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  synced;
+    qfalse,               //qboolean  purchasable;
+    WUT_ALIENS            //WUTeam_t  team;
+  },
+  {
+    WP_DIRECT_ZAP,          //int       weaponNum;
+    100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_WEAPON,          //int       slots;
+    "directzap",          //char      *weaponName;
+    "Directed Zap",       //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    1500,                 //int       repeatRate;
+    0,                    //int       reloadTime;
+    qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  synced;
     qfalse,               //qboolean  purchasable;
     WUT_ALIENS            //WUTeam_t  team;

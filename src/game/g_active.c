@@ -842,7 +842,7 @@ void ClientThink_real( gentity_t *ent ) {
     client->ps.pm_type = PM_NORMAL;
 
   if( client->ps.stats[ STAT_STATE ] & SS_GRABBED &&
-      client->lastGrabTime + 500 < level.time )
+      client->lastGrabTime + BG_FindRepeatRateForWeapon( WP_GRAB_CLAW ) + 100 < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_GRABBED;
 
   if( client->ps.stats[ STAT_STATE ] & SS_BLOBLOCKED &&

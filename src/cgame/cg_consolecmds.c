@@ -324,6 +324,7 @@ void CG_InitConsoleCommands( void ) {
   trap_AddCommand ("sell");
   trap_AddCommand ("deposit");
   trap_AddCommand ("withdraw");
+  trap_AddCommand ("spawnbody");
   trap_AddCommand ("itemact");
   trap_AddCommand ("itemdeact");
   trap_AddCommand ("itemtoggle");

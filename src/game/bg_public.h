@@ -32,7 +32,7 @@
 
 #define ITEM_RADIUS             15    // item sizes are needed for client side pickup detection
 
-#define LIGHTNING_RANGE         768
+#define LIGHTNING_RANGE         1024
 
 #define SCORE_NOT_PRESENT       -9999 // for the CS_SCORES[12] when only one player is present
 
@@ -338,6 +338,7 @@ typedef enum
   WP_GRAB_CLAW,
   WP_POUNCE,
   WP_AREA_ZAP,
+  WP_DIRECT_ZAP,
   WP_MASS_DRIVER,
   WP_PULSE_RIFLE,
 

@@ -650,6 +650,8 @@ void CG_RegisterWeapon( int weaponNum )
   switch( weaponNum )
   {
     case WP_TESLAGEN:
+    case WP_AREA_ZAP:
+    case WP_DIRECT_ZAP:
       MAKERGB( weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f );
       weaponInfo->readySound = trap_S_RegisterSound( "sound/weapons/melee/fsthum.wav", qfalse );
       weaponInfo->firingSound = trap_S_RegisterSound( "sound/weapons/lightning/lg_hum.wav", qfalse );
@@ -1741,6 +1743,8 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
   {
   default:
   case WP_TESLAGEN:
+  case WP_AREA_ZAP:
+  case WP_DIRECT_ZAP:
     mod = cgs.media.lightningExplosionModel;
     shader = cgs.media.lightningShader;
     sfx = cgs.media.sfx_lghit;
@@ -1754,7 +1758,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
     isSprite = qtrue;
     break;
   case WP_FLAMER:
-    sfx = cgs.media.sfx_lghit;
+    sfx = cgs.media.sfx_plasmaexp;
     mark = cgs.media.burnMarkShader;
     radius = 32;
     break;
