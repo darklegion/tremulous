@@ -460,7 +460,7 @@
       type ITEM_TYPE_YESNO
       text "Always Run:"
       cvar "cl_run"
-      rect 96 70 192 15
+      rect 96 65 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -479,7 +479,24 @@
       type ITEM_TYPE_BIND
       text "Run / Walk:"
       cvar "+speed"
-      rect 96 85 192 15
+      rect 96 80 192 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 90
+      maxPaintChars 20
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+    }
+
+    itemDef
+    {
+      name move
+      group optionsGrp
+      type ITEM_TYPE_BIND
+      text "Sprint:"
+      cvar "boost"
+      rect 96 95 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -496,7 +513,7 @@
       type ITEM_TYPE_BIND
       text "Forward:"
       cvar "+forward"
-      rect 96 100 192 15
+      rect 96 110 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -515,7 +532,7 @@
       type ITEM_TYPE_BIND
       text "Backpedal:"
       cvar "+back"
-      rect 96 115 192 15
+      rect 96 125 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -534,7 +551,7 @@
       type ITEM_TYPE_BIND
       text "Move Left:"
       cvar "+moveleft"
-      rect 96 130 192 15
+      rect 96 140 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -553,7 +570,7 @@
       type ITEM_TYPE_BIND
       text "Move Right:"
       cvar "+moveright"
-      rect 96 145 192 15
+      rect 96 155 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -572,7 +589,7 @@
       type ITEM_TYPE_BIND
       text "Jump:"
       cvar "+moveup"
-      rect 96 160 192 15
+      rect 96 170 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -591,7 +608,7 @@
       type ITEM_TYPE_BIND
       text "Crouch:"
       cvar "+movedown"
-      rect 96 175 192 15
+      rect 96 185 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -610,7 +627,7 @@
       type ITEM_TYPE_BIND
       text "Turn Left:"
       cvar "+left"
-      rect 96 190 192 15
+      rect 96 200 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -629,7 +646,7 @@
       type ITEM_TYPE_BIND
       text "Turn Right:"
       cvar "+right"
-      rect 96 205 192 15
+      rect 96 215 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -648,7 +665,7 @@
       type ITEM_TYPE_BIND
       text "Strafe:"
       cvar "+strafe"
-      rect 96 220 192 15
+      rect 96 230 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
