@@ -32,7 +32,7 @@
 #define ABUILDER_BASE_DELAY         10000
 #define ABUILDER_ADV_DELAY          5000
 
-#define SOLDIER_BITE_DMG            ADM(75)
+#define SOLDIER_BITE_DMG            ADM(34)
 #define SOLDIER_BITE_RANGE          32.0f
 #define SOLDIER_BITE_REPEAT         500
 
@@ -74,7 +74,7 @@
 #define CHIMERA_DIRECTZAP_REPEAT    1500
 
 #define BMOFO_CLAW_DMG              ADM(150)
-#define BMOFO_CLAW_RANGE            32.0f
+#define BMOFO_CLAW_RANGE            64.0f
 #define BMOFO_CLAW_REPEAT           750
 #define BMOFO_KNOCK_RANGE           200.0f
 #define BMOFO_KNOCK_REPEAT          3000

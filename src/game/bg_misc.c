@@ -292,7 +292,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
+    0.907f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -323,7 +323,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
+    0.907f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -354,7 +354,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
+    0.907f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -387,7 +387,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MGTURRET_RANGE,        //int       turretRange;
     MGTURRET_REPEAT,       //int       turretFireSpeed;
     WP_MACHINEGUN,         //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
+    0.907f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -418,7 +418,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TESLAGEN_RANGE,        //int       turretRange;
     TESLAGEN_REPEAT,       //int       turretFireSpeed;
     WP_TESLAGEN,           //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
+    0.907f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -449,7 +449,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
+    0.907f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -467,20 +467,20 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     BANK_BP,               //int       buildPoints;
-    ( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     BANK_HEALTH,           //int       health;
     0,                     //int       regenRate;
     BANK_SPLASHDAMAGE,     //int       splashDamage;
     BANK_SPLASHRADIUS,     //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
+    0.907f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -511,7 +511,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
+    0.907f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -542,7 +542,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
+    0.907f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -573,7 +573,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
+    0.907f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
@@ -1268,8 +1268,8 @@ classAttributes_t bg_classList[ ] =
     PCL_A_O_BASE,                                   //int     classnum;
     "soldier",                                      //char    *classname;
     "Soldier",                                      //char    *humanname;
-    "klesk",                                        //char    *modelname;
-    0.5f,                                           //float   modelScale;
+    "jumper",                                       //char    *modelname;
+    0.2f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
@@ -1298,9 +1298,9 @@ classAttributes_t bg_classList[ ] =
     PCL_A_O_LEV1,                                   //int     classnum;
     "dragoon",                                      //char    *classname;
     "Dragoon",                                      //char    *humanname;
-    "bones",                                        //char    *modelname;
-    1.0f,                                           //float   modelScale;
-    "default",                                      //char    *skinname;
+    "jumper",                                       //char    *modelname;
+    0.3f,                                           //float   modelScale;
+    "red",                                          //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -24, -24, -24 },                              //vec3_t  mins;
@@ -1325,11 +1325,11 @@ classAttributes_t bg_classList[ ] =
   },
   {
     PCL_A_O_LEV1_UPG,                               //int     classnum;
-    "dragoonupg",                                  //char    *classname;
-    "Dragoon Upgrade",                             //char    *humanname;
-    "bones",                                        //char    *modelname;
-    1.0f,                                           //float   modelScale;
-    "default",                                      //char    *skinname;
+    "dragoonupg",                                   //char    *classname;
+    "Dragoon Upgrade",                              //char    *humanname;
+    "jumper",                                       //char    *modelname;
+    0.4f,                                           //float   modelScale;
+    "blue",                                         //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -24, -24, -24 },                              //vec3_t  mins;
@@ -1356,8 +1356,8 @@ classAttributes_t bg_classList[ ] =
     PCL_A_O_LEV2,                                   //int     classnum;
     "hydra",                                        //char    *classname;
     "Hydra",                                        //char    *humanname;
-    "anarki",                                       //char    *modelname;
-    1.0f,                                           //float   modelScale;
+    "spitter",                                      //char    *modelname;
+    0.4f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
@@ -1386,9 +1386,9 @@ classAttributes_t bg_classList[ ] =
     PCL_A_O_LEV2_UPG,                               //int     classnum;
     "hydraupg",                                     //char    *classname;
     "Hydra Upgrade",                                //char    *humanname;
-    "anarki",                                       //char    *modelname;
-    1.0f,                                           //float   modelScale;
-    "default",                                      //char    *skinname;
+    "spitter",                                      //char    *modelname;
+    0.5f,                                           //float   modelScale;
+    "blue",                                         //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -24, -24, -24 },                              //vec3_t  mins;
@@ -1416,8 +1416,8 @@ classAttributes_t bg_classList[ ] =
     PCL_A_O_LEV3,                                   //int     classnum;
     "chimera",                                      //char    *classname;
     "Chimera",                                      //char    *humanname;
-    "orbb",                                         //char    *modelname;
-    1.0f,                                           //float   modelScale;
+    "tarantula",                                    //char    *modelname;
+    0.5f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
@@ -1445,9 +1445,9 @@ classAttributes_t bg_classList[ ] =
     PCL_A_O_LEV3_UPG,                               //int     classnum;
     "chimeraupg",                                   //char    *classname;
     "Chimera Upgrade",                              //char    *humanname;
-    "orbb",                                         //char    *modelname;
-    1.0f,                                           //float   modelScale;
-    "default",                                      //char    *skinname;
+    "tarantula",                                    //char    *modelname;
+    0.6f,                                           //float   modelScale;
+    "red",                                          //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
     { -15, -15, -15 },                              //vec3_t  mins;
@@ -1474,14 +1474,14 @@ classAttributes_t bg_classList[ ] =
     PCL_A_O_LEV4,                                   //int     classnum;
     "bigmofo",                                      //char    *classname;
     "Big Mofo",                                     //char    *humanname;
-    "xaero",                                        //char    *modelname;
-    1.0f,                                           //float   modelScale;
+    "bug",                                          //char    *modelname;
+    1.5f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
     "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -15, -15, -15 },                              //vec3_t  mins;
-    { 15, 15, 15 },                                 //vec3_t  maxs;
-    { 15, 15, 15 },                                 //vec3_t  crouchmaxs;
+    { -30, -30, -35 },                              //vec3_t  mins;
+    { 30, 30, 15 },                                 //vec3_t  maxs;
+    { 30, 30, 15 },                                 //vec3_t  crouchmaxs;
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     4, 4,                                           //int     viewheight, crouchviewheight;

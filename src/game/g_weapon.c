@@ -508,7 +508,7 @@ qboolean CheckVenomAttack( gentity_t *ent )
   int     damage;
 
   // set aiming directions
-  AngleVectors (ent->client->ps.viewangles, forward, right, up);
+  AngleVectors( ent->client->ps.viewangles, forward, right, up );
 
   CalcMuzzlePoint( ent, forward, right, up, muzzle );
 

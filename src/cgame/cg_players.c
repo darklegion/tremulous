@@ -1956,6 +1956,7 @@ void CG_Corpse( centity_t *cent )
   qboolean      shadow;
   float         shadowPlane;
   vec3_t        origin, liveZ, deadZ;
+  float         scale;
 
   corpseNum = CG_GetCorpseNum( cent->currentState.clientNum );
   
@@ -2022,6 +2023,18 @@ void CG_Corpse( centity_t *cent )
   legs.renderfx = renderfx;
   VectorCopy( legs.origin, legs.oldorigin ); // don't positionally lerp at all
 
+  //rescale the model
+  scale = BG_FindModelScaleForClass( cent->currentState.clientNum );
+
+  if( scale != 1.0f )
+  {
+    VectorScale( legs.axis[ 0 ], scale, legs.axis[ 0 ] );
+    VectorScale( legs.axis[ 1 ], scale, legs.axis[ 1 ] );
+    VectorScale( legs.axis[ 2 ], scale, legs.axis[ 2 ] );
+    
+    legs.nonNormalizedAxes = qtrue;
+  }
+  
   //CG_AddRefEntityWithPowerups( &legs, cent->currentState.powerups, ci->team );
   trap_R_AddRefEntityToScene( &legs );
 
