@@ -154,12 +154,6 @@ think function for Droid Spawn
 */
 void DSpawn_Think( gentity_t *self )
 {
-  /*if( self->parentNode == NULL )
-    self->parentNode = createCreepNode( self );
-
-  VectorCopy( self->s.origin, self->parentNode->s.origin );*/
-  
-  self->nextthink = level.time + 100;
 }
 
 
@@ -384,6 +378,13 @@ void HDef1_Think( gentity_t *self )
 {
   self->nextthink = level.time + 50;
   
+  if( ( self->parentNode == NULL ) || !self->parentNode->inuse )
+  {
+    if( !findPower( self ) )
+      self->nextthink = level.time + 10000;
+      return;
+  }
+  
   if( !hdef1_checktarget( self, self->enemy) )
     hdef1_findenemy( self );
   if( !self->enemy )
@@ -438,6 +439,71 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->nextthink = level.time + 1000; //wait 1.5 seconds before damaging others
 
   trap_LinkEntity( self );
+}
+
+qboolean findPower( gentity_t *self )
+{
+  int       i;
+  gentity_t *ent;
+  gentity_t *closestPower;
+  int       distance = 0;
+  int       minDistance = 10000;
+  vec3_t    temp_v;
+  
+  for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  {
+    if( !Q_stricmp( ent->classname, "team_human_reactor" ) ||
+        !Q_stricmp( ent->classname, "team_human_repeater" ) )
+    {
+      VectorSubtract( self->s.origin, ent->s.origin, temp_v );
+      distance = VectorLength( temp_v );
+      if( distance < minDistance )
+      {
+        closestPower = ent;
+        minDistance = distance;
+      }
+    }
+  }
+  
+  if( ( !Q_stricmp( closestPower->classname, "team_human_reactor" ) &&
+      ( minDistance <= REACTOR_BASESIZE ) ) ||
+      ( !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
+      ( minDistance <= REPEATER_BASESIZE ) ) )
+  {
+    self->powered = qtrue;
+    self->parentNode = closestPower;
+    return qtrue;
+  }
+  else
+  {
+    self->powered = qfalse;
+    return qfalse;
+  }
+}
+
+/*
+================
+HSpawn_Think
+
+Think for human spawn
+================
+*/
+void HSpawn_Think( gentity_t *self )
+{
+  int       i;
+  gentity_t *ent;
+  gentity_t *closestPower;
+  int       distance = 0;
+  int       minDistance = 10000;
+  vec3_t    temp_v;
+  
+  self->nextthink = level.time + 100;
+  
+  if( ( self->parentNode == NULL ) || !self->parentNode->inuse )
+  {
+    if( !findPower( self ) )
+      self->nextthink = level.time + 10000;
+  }
 }
 
 
@@ -563,6 +629,7 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
   else if( buildable == BA_H_SPAWN )
   {
     built->die = HSpawn_Die;
+    built->think = HSpawn_Think;
   }
   else if( buildable == BA_H_DEF1 )
   {

@@ -177,6 +177,8 @@ struct gentity_s {
   int       biteam;       //TA: buildable item team
   gentity_t *parentNode;  //TA: for creep and defence/spawn dependencies
   vec3_t    turloc;       //TA: direction human defense turrets are pointing
+  qboolean  active;       //TA: for power repeater, but could be useful elsewhere
+  qboolean  powered;      //TA: for human buildables
 };
 
 typedef enum {

@@ -879,7 +879,9 @@ qboolean  BG_infiniteAmmo( int weapon );
 void      BG_packWeapon( int weapon, int stats[ ] );
 qboolean  BG_gotWeapon( int weapon, int stats[ ] );*/
 
-#define CREEP_BASESIZE    120
+#define CREEP_BASESIZE      120 
+#define REACTOR_BASESIZE    1000
+#define REPEATER_BASESIZE   500
 
 #define ARENAS_PER_TIER   4
 #define MAX_ARENAS      1024
