@@ -125,6 +125,8 @@ extern vmCvar_t	ui_smallFont;
 extern vmCvar_t	ui_bigFont;
 extern vmCvar_t ui_serverStatusTimeOut;
 
+//TA: bank values
+extern vmCvar_t	ui_bank;
 
 
 //

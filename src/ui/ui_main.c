@@ -4221,6 +4221,12 @@ static void UI_RunMenuScript(char **args) {
       if( cmd = uiInfo.tremHumanBuildList[ uiInfo.tremHumanBuildIndex ].cmd )
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
+    else if( Q_stricmp( name, "SetBankDefaults" ) == 0 )
+      trap_Cvar_Set( "ui_bank", "0" );
+    else if( Q_stricmp( name, "BankDeposit" ) == 0 )
+      trap_Cmd_ExecuteText( EXEC_APPEND, va( "cmd deposit %d", (int)trap_Cvar_VariableValue( "ui_bank" ) ) );
+    else if( Q_stricmp( name, "BankWithdraw" ) == 0 )
+      trap_Cmd_ExecuteText( EXEC_APPEND, va( "cmd withdraw %d", (int)trap_Cvar_VariableValue( "ui_bank" ) ) );
 //TA: tremulous menus
     
     else if (Q_stricmp(name, "playMovie") == 0) {
@@ -6665,6 +6671,9 @@ vmCvar_t  ui_realCaptureLimit;
 vmCvar_t  ui_realWarmUp;
 vmCvar_t  ui_serverStatusTimeOut;
 
+//TA: bank values
+vmCvar_t	ui_bank;
+
 
 // bk001129 - made static to avoid aliasing
 static cvarTable_t    cvarTable[] = {
@@ -6786,6 +6795,8 @@ static cvarTable_t    cvarTable[] = {
   { &ui_realWarmUp, "g_warmup", "20", CVAR_ARCHIVE},
   { &ui_realCaptureLimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART},
   { &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
+  
+  { &ui_bank, "ui_bank", "0", 0 },
 
 };
 

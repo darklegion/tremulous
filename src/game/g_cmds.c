@@ -2284,7 +2284,7 @@ void Cmd_Withdraw_f( gentity_t *ent )
       level.bankCredits[ ent->client->ps.clientNum ] -= amount;
     }
     else
-      G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
+      G_AddPredictableEvent( ent, EV_MENU, MN_A_NOFUNDS );
   }
 }
 
