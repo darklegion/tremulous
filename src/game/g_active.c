@@ -317,6 +317,9 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
 
   client = ent->client;
 
+  client->oldbuttons = client->buttons;
+  client->buttons = ucmd->buttons;
+
   if( client->sess.spectatorState != SPECTATOR_FOLLOW )
   {
     if( client->sess.spectatorState == SPECTATOR_LOCKED )
@@ -342,23 +345,23 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
 
     G_TouchTriggers( ent );
     trap_UnlinkEntity( ent );
-  }
-
-  client->oldbuttons = client->buttons;
-  client->buttons = ucmd->buttons;
-
-  if( ( client->buttons & BUTTON_ATTACK ) && !( client->oldbuttons & BUTTON_ATTACK ) )
-  {
-    if( client->pers.classSelection == PCL_NONE )
+  
+    if( ( client->buttons & BUTTON_ATTACK ) && !( client->oldbuttons & BUTTON_ATTACK ) )
     {
-      if( client->pers.teamSelection == PTE_NONE )
-        G_TriggerMenu( client->ps.clientNum, MN_TEAM );
-      else if( client->pers.teamSelection == PTE_ALIENS )
-        G_TriggerMenu( client->ps.clientNum, MN_A_CLASS );
-      else if( client->pers.teamSelection == PTE_HUMANS )
-        G_TriggerMenu( client->ps.clientNum, MN_H_SPAWN );
+      if( client->pers.classSelection == PCL_NONE )
+      {
+        if( client->pers.teamSelection == PTE_NONE )
+          G_TriggerMenu( client->ps.clientNum, MN_TEAM );
+        else if( client->pers.teamSelection == PTE_ALIENS )
+          G_TriggerMenu( client->ps.clientNum, MN_A_CLASS );
+        else if( client->pers.teamSelection == PTE_HUMANS )
+          G_TriggerMenu( client->ps.clientNum, MN_H_SPAWN );
+      }
     }
   }
+
+  if( ( client->buttons & BUTTON_ATTACK2 ) && !( client->oldbuttons & BUTTON_ATTACK2 ) )
+    Cmd_FollowCycle_f( ent, 1 );
 }
 
 

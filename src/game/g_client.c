@@ -1497,6 +1497,17 @@ void ClientDisconnect( int clientNum )
   if( !ent->client )
     return;
 
+  // stop any following clients
+  for( i = 0; i < level.maxclients; i++ )
+  {
+    if( level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR &&
+        level.clients[ i ].sess.spectatorState == SPECTATOR_FOLLOW &&
+        level.clients[ i ].sess.spectatorClient == clientNum )
+    {
+      G_StopFollowing( &g_entities[ i ] );
+    }
+  }
+
   // send effect if they were completely connected
   if( ent->client->pers.connected == CON_CONNECTED &&
       ent->client->sess.sessionTeam != TEAM_SPECTATOR )

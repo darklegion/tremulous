@@ -18,6 +18,90 @@
 
 /*
 ==================
+G_SanitiseName
+
+Remove case and control characters from a player name
+==================
+*/
+void G_SanitiseName( char *in, char *out )
+{
+  while( *in )
+  {
+    if( *in == 27 )
+    {
+      in += 2;    // skip color code
+      continue;
+    }
+    
+    if( *in < 32 )
+    {
+      in++;
+      continue;
+    }
+    
+    *out++ = tolower( *in++ );
+  }
+
+  *out = 0;
+}
+
+/*
+==================
+G_ClientNumberFromString
+
+Returns a player number for either a number or name string
+Returns -1 if invalid
+==================
+*/
+int G_ClientNumberFromString( gentity_t *to, char *s )
+{
+  gclient_t *cl;
+  int       idnum;
+  char      s2[ MAX_STRING_CHARS ];
+  char      n2[ MAX_STRING_CHARS ];
+
+  // numeric values are just slot numbers
+  if( s[ 0 ] >= '0' && s[ 0 ] <= '9' )
+  {
+    idnum = atoi( s );
+    
+    if( idnum < 0 || idnum >= level.maxclients )
+    {
+      trap_SendServerCommand( to - g_entities, va( "print \"Bad client slot: %i\n\"", idnum ) );
+      return -1;
+    }
+
+    cl = &level.clients[ idnum ];
+    
+    if( cl->pers.connected != CON_CONNECTED )
+    {
+      trap_SendServerCommand( to - g_entities, va( "print \"Client %i is not active\n\"", idnum ) );
+      return -1;
+    }
+    
+    return idnum;
+  }
+
+  // check for a name match
+  G_SanitiseName( s, s2 );
+  
+  for( idnum = 0, cl = level.clients; idnum < level.maxclients; idnum++, cl++ )
+  {
+    if( cl->pers.connected != CON_CONNECTED )
+      continue;
+    
+    G_SanitiseName( cl->pers.netname, n2 );
+    
+    if( !strcmp( n2, s2 ) )
+      return idnum;
+  }
+
+  trap_SendServerCommand( to - g_entities, va( "print \"User %s is not on the server\n\"", s ) );
+  return -1;
+}
+
+/*
+==================
 ScoreboardMessage
 
 ==================
@@ -336,17 +420,36 @@ void Cmd_Kill_f( gentity_t *ent )
 
 /*
 =================
+G_ChangeTeam
+=================
+*/
+void G_ChangeTeam( gentity_t *ent, pTeam_t newTeam )
+{
+  pTeam_t oldTeam = ent->client->pers.teamSelection;
+
+  ent->client->pers.teamSelection = newTeam;
+
+  if( oldTeam != newTeam )
+  {
+    level.bankCredits[ ent->client->ps.clientNum ] = 0;
+    ent->client->ps.persistant[ PERS_CREDIT ] = 0;
+    ent->client->pers.classSelection = PCL_NONE;
+    ClientSpawn( ent, NULL, NULL, NULL );
+  }
+  
+  //update ClientInfo
+  ClientUserinfoChanged( ent->client->ps.clientNum );
+}
+
+/*
+=================
 Cmd_Team_f
 =================
 */
 void Cmd_Team_f( gentity_t *ent )
 {
-  int     oldTeam;
-  char    s[MAX_TOKEN_CHARS];
-
-  //TA: rip out the q3a team system :)
-
-  oldTeam = ent->client->pers.teamSelection;
+  pTeam_t team;
+  char    s[ MAX_TOKEN_CHARS ];
 
   trap_Argv( 1, s, sizeof( s ) );
 
@@ -357,7 +460,7 @@ void Cmd_Team_f( gentity_t *ent )
   }
 
   if( !Q_stricmp( s, "spectate" ) )
-    ent->client->pers.teamSelection = PTE_NONE;
+    team = PTE_NONE;
   else if( !Q_stricmp( s, "aliens" ) )
   {
     if( g_teamForceBalance.integer && level.numAlienClients > level.numHumanClients )
@@ -367,7 +470,7 @@ void Cmd_Team_f( gentity_t *ent )
       return;
     }
     
-    ent->client->pers.teamSelection = PTE_ALIENS;
+    team = PTE_ALIENS;
   }
   else if( !Q_stricmp( s, "humans" ) )
   {
@@ -378,28 +481,19 @@ void Cmd_Team_f( gentity_t *ent )
       return;
     }
     
-    ent->client->pers.teamSelection = PTE_HUMANS;
+    team = PTE_HUMANS;
   }
   else if( !Q_stricmp( s, "auto" ) )
   {
     if( level.numHumanClients > level.numAlienClients )
-      ent->client->pers.teamSelection = PTE_ALIENS;
+      team = PTE_ALIENS;
     else if( level.numHumanClients < level.numAlienClients )
-      ent->client->pers.teamSelection = PTE_HUMANS;
+      team = PTE_HUMANS;
     else
-      ent->client->pers.teamSelection = PTE_ALIENS + ( rand( ) % 2 );
+      team = PTE_ALIENS + ( rand( ) % 2 );
   }
 
-  if( oldTeam != ent->client->pers.teamSelection )
-  {
-    level.bankCredits[ ent->client->ps.clientNum ] = 0;
-    ent->client->ps.persistant[ PERS_CREDIT ] = 0;
-    ent->client->pers.classSelection = PCL_NONE;
-    ClientSpawn( ent, NULL, NULL, NULL );
-  }
-
-  //update ClientInfo
-  ClientUserinfoChanged( ent->client->ps.clientNum );
+  G_ChangeTeam( ent, team );
   
   //FIXME: put some team change broadcast code here.
 }
@@ -1715,6 +1809,117 @@ void Cmd_Reload_f( gentity_t *ent )
 
 /*
 =================
+G_StopFollowing
+
+If the client being followed leaves the game, or you just want to drop
+to free floating spectator mode
+=================
+*/
+void G_StopFollowing( gentity_t *ent )
+{
+  ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR; 
+  ent->client->sess.sessionTeam = TEAM_SPECTATOR; 
+  ent->client->sess.spectatorState = SPECTATOR_FREE;
+  ent->client->ps.pm_flags &= ~PMF_FOLLOW;
+  ent->r.svFlags &= ~SVF_BOT;
+  ent->client->ps.clientNum = ent - g_entities;
+}
+
+/*
+=================
+Cmd_Follow_f
+=================
+*/
+void Cmd_Follow_f( gentity_t *ent )
+{
+  int   i;
+  char  arg[ MAX_TOKEN_CHARS ];
+
+  if( trap_Argc( ) != 2 )
+  {
+    if( ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
+      G_StopFollowing( ent );
+    
+    return;
+  }
+
+  trap_Argv( 1, arg, sizeof( arg ) );
+  i = G_ClientNumberFromString( ent, arg );
+  
+  if( i == -1 )
+    return;
+
+  // can't follow self
+  if( &level.clients[ i ] == ent->client )
+    return;
+
+  // can't follow another spectator
+  if( level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR )
+    return;
+
+  // first set them to spectator
+  if( ent->client->sess.sessionTeam != TEAM_SPECTATOR )
+    G_ChangeTeam( ent, PTE_NONE );
+
+  ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+  ent->client->sess.spectatorClient = i;
+}
+
+/*
+=================
+Cmd_FollowCycle_f
+=================
+*/
+void Cmd_FollowCycle_f( gentity_t *ent, int dir )
+{
+  int clientnum;
+  int original;
+
+  // first set them to spectator
+  if( ent->client->sess.spectatorState == SPECTATOR_NOT )
+    G_ChangeTeam( ent, PTE_NONE );
+
+  if( dir != 1 && dir != -1 )
+    G_Error( "Cmd_FollowCycle_f: bad dir %i", dir );
+
+  clientnum = ent->client->sess.spectatorClient;
+  original = clientnum;
+  
+  do
+  {
+    clientnum += dir;
+    
+    if( clientnum >= level.maxclients )
+      clientnum = 0;
+    
+    if( clientnum < 0 )
+      clientnum = level.maxclients - 1;
+
+    // can't follow self
+    if( &level.clients[ clientnum ] == ent->client )
+      continue;
+
+    // can only follow connected clients
+    if( level.clients[ clientnum ].pers.connected != CON_CONNECTED )
+      continue;
+
+    // can't follow another spectator
+    if( level.clients[ clientnum ].sess.sessionTeam == TEAM_SPECTATOR )
+      continue;
+
+    // this is good, we can use it
+    ent->client->sess.spectatorClient = clientnum;
+    ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+    return;
+    
+  } while( clientnum != original );
+
+  // leave it where it was
+}
+
+
+/*
+=================
 Cmd_Test_f
 =================
 */
@@ -1826,6 +2031,12 @@ void ClientCommand( int clientNum )
     Cmd_Vote_f( ent );
   else if( Q_stricmp( cmd, "callteamvote" ) == 0 )
     Cmd_CallTeamVote_f( ent );
+	else if( Q_stricmp( cmd, "follow" ) == 0 )
+		Cmd_Follow_f( ent );
+	else if( Q_stricmp (cmd, "follownext") == 0)
+		Cmd_FollowCycle_f( ent, 1 );
+	else if( Q_stricmp( cmd, "followprev" ) == 0 )
+		Cmd_FollowCycle_f( ent, -1 );
   else if( Q_stricmp( cmd, "teamvote" ) == 0 )
     Cmd_TeamVote_f( ent );
   else if( Q_stricmp( cmd, "setviewpos" ) == 0 )
