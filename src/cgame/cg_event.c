@@ -937,7 +937,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
       ByteToDir( es->eventParm, dir );
       CG_MissileHitWall( es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT );
     }
-    CG_RailTrail( ci, es->origin2, es->pos.trBase );
+    CG_RailTrail( es->origin2, es->pos.trBase );
     break;
 
   case EV_BULLET_HIT_WALL:

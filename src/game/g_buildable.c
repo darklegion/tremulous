@@ -436,22 +436,6 @@ qboolean hdef1_trackenemy( gentity_t *self )
   return qfalse;
 }
 
-/*
-================
-hdef1_fireonemeny
-
-Used by HDef1_Think to fire at enemy
-================
-*/
-void hdef1_fireonenemy( gentity_t *self )
-{
-  vec3_t  aimVector;
-  
-  AngleVectors( self->s.angles2, aimVector, NULL, NULL );
-  fire_plasma( self, self->s.pos.trBase, aimVector );
-  self->count = level.time + HDEF1_FIRINGSPEED;
-}
-
 #define HDEF2_RANGE             300 //maximum range
 #define HDEF2_ANGULARSPEED      20  //degrees/think ~= 200deg/sec
 #define HDEF2_FIRINGSPEED       50  //time between projectiles
@@ -509,25 +493,9 @@ qboolean hdef2_trackenemy( gentity_t *self )
   return qfalse;
 }
 
-/*
-================
-hdef2_fireonemeny
-
-Used by HDef1_Think to fire at enemy
-================
-*/
-void hdef2_fireonenemy( gentity_t *self )
-{
-  vec3_t  aimVector;
-  
-  AngleVectors( self->s.angles2, aimVector, NULL, NULL );
-  fire_plasma( self, self->s.pos.trBase, aimVector );
-  self->count = level.time + HDEF2_FIRINGSPEED;
-}
-
 #define HDEF3_RANGE             1500  //maximum range
 #define HDEF3_ANGULARSPEED      2     //degrees/think ~= 200deg/sec
-#define HDEF3_FIRINGSPEED       1500  //time between projectiles
+#define HDEF3_FIRINGSPEED       4000  //time between projectiles
 #define HDEF3_ACCURACYTOLERANCE HDEF3_ANGULARSPEED / 2 //angular difference for turret to fire
 #define HDEF3_VERTICALCAP       15    //+/- maximum pitch
 
@@ -586,28 +554,25 @@ qboolean hdef3_trackenemy( gentity_t *self )
 
 /*
 ================
-hdef3_fireonemeny
+hdef_fireonemeny
 
-Used by HDef1_Think to fire at enemy
+Used by HDef_Think to fire at enemy
 ================
 */
-void hdef3_fireonenemy( gentity_t *self )
+void hdef_fireonenemy( gentity_t *self, int firespeed )
 {
-  vec3_t  aimVector;
-  
-  AngleVectors( self->s.angles2, aimVector, NULL, NULL );
-  fire_plasma( self, self->s.pos.trBase, aimVector );
-  self->count = level.time + HDEF3_FIRINGSPEED;
+  FireWeapon( self );
+  self->count = level.time + firespeed;
 }
 
 /*
 ================
-hdef1_checktarget
+hdef_checktarget
 
-Used by HDef1_Think to check enemies for validity
+Used by HDef_Think to check enemies for validity
 ================
 */
-qboolean hdef1_checktarget( gentity_t *self, gentity_t *target, int range )
+qboolean hdef_checktarget( gentity_t *self, gentity_t *target, int range )
 {
   vec3_t    distance;
   trace_t   trace;
@@ -643,12 +608,12 @@ qboolean hdef1_checktarget( gentity_t *self, gentity_t *target, int range )
 
 /*
 ================
-hdef1_findenemy
+hdef_findenemy
 
-Used by HDef1_Think to locate enemy gentities
+Used by HDef_Think to locate enemy gentities
 ================
 */
-void hdef1_findenemy( gentity_t *ent, int range )
+void hdef_findenemy( gentity_t *ent, int range )
 {
   gentity_t *target;
 
@@ -656,7 +621,7 @@ void hdef1_findenemy( gentity_t *ent, int range )
 
   for (; target < &g_entities[ level.num_entities ]; target++)
   {
-    if( !hdef1_checktarget( ent, target, range ) )
+    if( !hdef_checktarget( ent, target, range ) )
       continue;
       
     ent->enemy = target;
@@ -669,14 +634,39 @@ void hdef1_findenemy( gentity_t *ent, int range )
 
 /*
 ================
-HDef1_Think
+HDef_Think
 
 think function for Human Defense
 ================
 */
-void HDef1_Think( gentity_t *self )
+void HDef_Think( gentity_t *self )
 {
-  self->nextthink = level.time + 50;
+  int range, firespeed;
+
+  switch( self->s.clientNum )
+  {
+    case BA_H_DEF1:
+      range = HDEF1_RANGE;
+      firespeed = HDEF1_FIRINGSPEED;
+      self->nextthink = level.time + 50;
+      break;
+      
+    case BA_H_DEF2:
+      range = HDEF2_RANGE;
+      firespeed = HDEF2_FIRINGSPEED;
+      self->nextthink = level.time + 50;
+      break;
+      
+    case BA_H_DEF3:
+      range = HDEF3_RANGE;
+      firespeed = HDEF3_FIRINGSPEED;
+      self->nextthink = level.time + 150;
+      break;
+      
+    default:
+      Com_Printf( S_COLOR_YELLOW "WARNING: Unknown turret type in think\n" );
+      break;
+  }
   
   self->powered = findPower( self );
 
@@ -686,36 +676,26 @@ void HDef1_Think( gentity_t *self )
     return;
   }
   
+  if( !hdef_checktarget( self, self->enemy, range ) )
+    hdef_findenemy( self, range );
+  if( !self->enemy )
+    return;
+  
   switch( self->s.clientNum )
   {
     case BA_H_DEF1:
-      if( !hdef1_checktarget( self, self->enemy, HDEF1_RANGE ) )
-        hdef1_findenemy( self, HDEF1_RANGE );
-      if( !self->enemy )
-        return;
-
       if( hdef1_trackenemy( self ) && ( self->count < level.time ) )
-        hdef1_fireonenemy( self );
+        hdef_fireonenemy( self, firespeed );
       break;
       
     case BA_H_DEF2:
-      if( !hdef1_checktarget( self, self->enemy, HDEF2_RANGE ) )
-        hdef1_findenemy( self, HDEF2_RANGE );
-      if( !self->enemy )
-        return;
-
       if( hdef2_trackenemy( self ) && ( self->count < level.time ) )
-        hdef2_fireonenemy( self );
+        hdef_fireonenemy( self, firespeed );
       break;
       
     case BA_H_DEF3:
-      if( !hdef1_checktarget( self, self->enemy, HDEF3_RANGE ) )
-        hdef1_findenemy( self, HDEF3_RANGE );
-      if( !self->enemy )
-        return;
-
       if( hdef3_trackenemy( self ) && ( self->count < level.time ) )
-        hdef3_fireonenemy( self );
+        hdef_fireonenemy( self, firespeed );
       break;
 
     default:
@@ -874,6 +854,8 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
     if( level.humanBuildPoints - BG_FindBuildPointsForBuildable( buildable ) < 0 )
       reason = IBE_NOPOWER;
 
+    closestPower = g_entities + 1; //FIXME
+    
     for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
     {
       if( !Q_stricmp( tempent->classname, "team_human_reactor" ) ||
@@ -889,12 +871,12 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
       }
     }
     
-    if( !(( !Q_stricmp( closestPower->classname, "team_human_reactor" ) &&
-            minDistance <= REACTOR_BASESIZE ) || 
-          ( !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
-            minDistance <= REPEATER_BASESIZE &&
-            ( ( buildable == BA_H_SPAWN && closestPower->powered ) ||
-              ( closestPower->powered && closestPower->active ) ) ) )
+    if( !( ( !Q_stricmp( closestPower->classname, "team_human_reactor" ) &&
+             minDistance <= REACTOR_BASESIZE ) || 
+           ( !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
+             minDistance <= REPEATER_BASESIZE &&
+             ( ( buildable == BA_H_SPAWN && closestPower->powered ) ||
+               ( closestPower->powered && closestPower->active ) ) ) )
       )
     {
       if( buildable != BA_H_REACTOR && buildable != BA_H_REPEATER )
@@ -977,46 +959,68 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
     
   built->nextthink = BG_FindNextThinkForBuildable( buildable );
 
-  if( buildable == BA_D_SPAWN )
+  //things that vary for each buildable that aren't in the dbase
+  switch( buildable )
   {
-    built->die = DSpawn_Die;
-    built->think = DSpawn_Think;
-  }
-  else if( buildable == BA_D_DEF1 )
-  {
-    built->die = DDef1_Die;
-    built->think = DDef1_Think;
-  }
-  else if( buildable == BA_D_HIVEMIND )
-  {
-    built->die = DSpawn_Die;
-  }
-  else if( buildable == BA_H_SPAWN )
-  {
-    built->die = HSpawn_Die;
-    built->think = HSpawn_Think;
-  }
-  else if( buildable == BA_H_DEF1 || buildable == BA_H_DEF2 || buildable == BA_H_DEF3 )
-  {
-    built->die = HSpawn_Die;
-    built->think = HDef1_Think;
-    built->enemy = NULL;
-  }
-  else if( buildable == BA_H_MCU )
-  {
-    built->think = HMCU_Think;
-    built->die = HSpawn_Die;
-    built->use = HMCU_Activate;
-  }
-  else if( buildable == BA_H_REACTOR )
-  {
-    built->die = HSpawn_Die;
-    built->powered = qtrue;
-  }
-  else if( buildable == BA_H_REPEATER )
-  {
-    built->think = HRpt_Think;
-    built->die = HSpawn_Die;
+    case BA_D_SPAWN:
+      built->die = DSpawn_Die;
+      built->think = DSpawn_Think;
+      break;
+      
+    case BA_D_DEF1:
+      built->die = DDef1_Die;
+      built->think = DDef1_Think;
+      break;
+      
+    case BA_D_HIVEMIND:
+      built->die = DSpawn_Die;
+      break;
+      
+    case BA_H_SPAWN:
+      built->die = HSpawn_Die;
+      built->think = HSpawn_Think;
+      break;
+      
+    case BA_H_DEF1:
+      built->die = HSpawn_Die;
+      built->think = HDef_Think;
+      built->enemy = NULL;
+      built->s.weapon = WP_PLASMAGUN;
+      break;
+      
+    case BA_H_DEF2:
+      built->die = HSpawn_Die;
+      built->think = HDef_Think;
+      built->enemy = NULL;
+      built->s.weapon = WP_MACHINEGUN;
+      break;
+      
+    case BA_H_DEF3:
+      built->die = HSpawn_Die;
+      built->think = HDef_Think;
+      built->enemy = NULL;
+      built->s.weapon = WP_RAILGUN;
+      break;
+      
+    case BA_H_MCU:
+      built->think = HMCU_Think;
+      built->die = HSpawn_Die;
+      built->use = HMCU_Activate;
+      break;
+      
+    case BA_H_REACTOR:
+      built->die = HSpawn_Die;
+      built->powered = qtrue;
+      break;
+      
+    case BA_H_REPEATER:
+      built->think = HRpt_Think;
+      built->die = HSpawn_Die;
+      break;
+      
+    default:
+      //erk
+      break;
   }
 
   built->takedamage = qtrue;

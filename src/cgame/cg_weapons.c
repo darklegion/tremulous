@@ -183,7 +183,8 @@ static void CG_ShotgunEjectBrass( centity_t *cent ) {
 CG_RailTrail
 ==========================
 */
-void CG_RailTrail( clientInfo_t *ci, vec3_t start, vec3_t end ) {
+void CG_RailTrail( vec3_t start, vec3_t end )
+{
   localEntity_t *le;
   refEntity_t   *re;
 
@@ -209,9 +210,9 @@ void CG_RailTrail( clientInfo_t *ci, vec3_t start, vec3_t end ) {
   re->origin[2] -= 8;
   re->oldorigin[2] -= 8;
 
-  le->color[0] = ci->color[0] * 0.75;
-  le->color[1] = ci->color[1] * 0.75;
-  le->color[2] = ci->color[2] * 0.75;
+  le->color[0] = 0.75f;
+  le->color[1] = 0.75f;
+  le->color[2] = 0.75f;
   le->color[3] = 1.0f;
 
   AxisClear( re->axis );
@@ -238,9 +239,9 @@ void CG_RailTrail( clientInfo_t *ci, vec3_t start, vec3_t end ) {
   re->origin[2] -= 8;
   re->oldorigin[2] -= 8;
 
-  le->color[0] = ci->color[0] * 0.75;
-  le->color[1] = ci->color[1] * 0.75;
-  le->color[2] = ci->color[2] * 0.75;
+  le->color[0] = 0.75f;
+  le->color[1] = 0.75f;
+  le->color[2] = 0.75f;
   le->color[3] = 1.0f;
 
   AxisClear( re->axis );
@@ -830,18 +831,16 @@ Origin will be the exact tag point, which is slightly
 different than the muzzle point used for determining hits.
 ===============
 */
-static void CG_SpawnRailTrail( centity_t *cent, vec3_t origin ) {
-  clientInfo_t  *ci;
+static void CG_SpawnRailTrail( centity_t *cent, vec3_t origin )
+{
+  if ( cent->currentState.weapon != WP_RAILGUN )
+    return;
 
-  if ( cent->currentState.weapon != WP_RAILGUN ) {
+  if ( !cent->pe.railgunFlash )
     return;
-  }
-  if ( !cent->pe.railgunFlash ) {
-    return;
-  }
+ 
   cent->pe.railgunFlash = qtrue;
-  ci = &cgs.clientinfo[ cent->currentState.clientNum ];
-  CG_RailTrail( ci, origin, cent->pe.railgunImpact );
+  CG_RailTrail( origin, cent->pe.railgunImpact );
 }
 
 

@@ -189,7 +189,7 @@ static void CG_RunBuildableLerpFrame( buildable_t buildable, lerpFrame_t *lf, in
 
   // see if the animation sequence is switching
   if ( newAnimation != lf->animationNumber || !lf->animation ) {
-    CG_SetLerpFrameAnimation( buildable, lf, newAnimation );
+    CG_SetBuildableLerpFrameAnimation( buildable, lf, newAnimation );
   }
 
   // if we have passed the current frame, move it to

@@ -1349,7 +1349,7 @@ void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum )
 void CG_ShotgunFire( entityState_t *es );
 void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 
-void CG_RailTrail( clientInfo_t *ci, vec3_t start, vec3_t end );
+void CG_RailTrail( vec3_t start, vec3_t end );
 void CG_GrappleTrail( centity_t *ent, const weaponInfo_t *wi );
 void CG_AddViewWeapon (playerState_t *ps);
 void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent );

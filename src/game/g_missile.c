@@ -85,13 +85,13 @@ void G_ExplodeMissile( gentity_t *ent ) {
 
   ent->freeAfterEvent = qtrue;
 
-  // splash damage
+/*  // splash damage
   if ( ent->splashDamage ) {
     if( G_RadiusDamage( ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent
       , ent->splashMethodOfDeath ) ) {
       g_entities[ent->r.ownerNum].client->accuracy_hits++;
     }
-  }
+  }*/
 
   trap_LinkEntity( ent );
 }
@@ -232,42 +232,45 @@ void G_RunMissile( gentity_t *ent ) {
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
 
   // if this missile bounced off an invulnerability sphere
-  if ( ent->target_ent ) {
+  if ( ent->target_ent )
+  {
     passent = ent->target_ent->s.number;
   }
-  else {
+  else
+  {
     // ignore interactions with the missile owner
     passent = ent->r.ownerNum;
   }
   // trace a line from the previous position to the current position
   trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, passent, ent->clipmask );
 
-  if ( tr.startsolid || tr.allsolid ) {
+  if( tr.startsolid || tr.allsolid )
+  {
     // make sure the tr.entityNum is set to the entity we're stuck in
     trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, passent, ent->clipmask );
 		tr.fraction = 0;
 	}
-  else {
+  else
     VectorCopy( tr.endpos, ent->r.currentOrigin );
-  }
 
 	trap_LinkEntity( ent );
 
-	if ( tr.fraction != 1 ) {
+	if( tr.fraction != 1 )
+  {
 		// never explode or bounce on sky
-		if ( tr.surfaceFlags & SURF_NOIMPACT ) {
+		if ( tr.surfaceFlags & SURF_NOIMPACT )
+    {
 			// If grapple, reset owner
-      if (ent->parent && ent->parent->client && ent->parent->client->hook == ent) {
+      if (ent->parent && ent->parent->client && ent->parent->client->hook == ent)
 				ent->parent->client->hook = NULL;
-      }
+        
 			G_FreeEntity( ent );
 			return;
 		}
 
 		G_MissileImpact( ent, &tr );
-		if ( ent->s.eType != ET_MISSILE ) {
+		if ( ent->s.eType != ET_MISSILE )
 			return;		// exploded
-		}
 	}
 
 	// check think function after bouncing

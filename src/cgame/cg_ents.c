@@ -409,6 +409,10 @@ static void CG_Missile( centity_t *cent ) {
 
     BG_EvaluateTrajectoryDelta( &cent->currentState.pos, cg.time, velocity );
 
+    //TA: FIXME: hack until i figure out why trap_S_ALS has a problem with velocity`
+    if( s1->weapon == WP_PLASMAGUN )
+      VectorClear( velocity );
+
     trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, velocity, weapon->missileSound );
   }
 

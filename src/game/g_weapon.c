@@ -354,6 +354,23 @@ void Weapon_RocketLauncher_Fire (gentity_t *ent) {
 //  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
 }
 
+/*
+======================================================================
+
+PLASMAGUN
+
+======================================================================
+*/
+
+void Weapon_Plasma_Fire (gentity_t *ent) {
+  gentity_t *m;
+
+  m = fire_plasma (ent, muzzle, forward);
+  m->damage *= s_quadFactor;
+  m->splashDamage *= s_quadFactor;
+
+//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
+}
 
 /*
 ======================================================================
@@ -388,7 +405,8 @@ weapon_railgun_fire
 =================
 */
 #define MAX_RAIL_HITS 4
-void weapon_railgun_fire (gentity_t *ent) {
+void weapon_railgun_fire( gentity_t *ent )
+{
   vec3_t    end;
   trace_t   trace;
   gentity_t *tent;
@@ -408,31 +426,30 @@ void weapon_railgun_fire (gentity_t *ent) {
   unlinked = 0;
   hits = 0;
   passent = ent->s.number;
-  do {
+  
+  do
+  {
     trap_Trace (&trace, muzzle, NULL, NULL, end, passent, MASK_SHOT );
-    if ( trace.entityNum >= ENTITYNUM_MAX_NORMAL ) {
+    if ( trace.entityNum >= ENTITYNUM_MAX_NORMAL )
       break;
-    }
+
     traceEnt = &g_entities[ trace.entityNum ];
-    if ( traceEnt->takedamage ) {
-        if( LogAccuracyHit( traceEnt, ent ) ) {
-          hits++;
-        }
-        G_Damage (traceEnt, ent, ent, forward, trace.endpos, damage, 0, MOD_RAILGUN);
-    }
-    if ( trace.contents & CONTENTS_SOLID ) {
+    if ( traceEnt->takedamage )
+      G_Damage( traceEnt, ent, ent, forward, trace.endpos, damage, 0, MOD_RAILGUN );
+    
+    if ( trace.contents & CONTENTS_SOLID )
       break;    // we hit something solid enough to stop the beam
-    }
+ 
     // unlink this entity, so the next trace will go past it
     trap_UnlinkEntity( traceEnt );
     unlinkedEntities[unlinked] = traceEnt;
     unlinked++;
-  } while ( unlinked < MAX_RAIL_HITS );
+  }
+  while ( unlinked < MAX_RAIL_HITS );
 
   // link back in any entities we unlinked
-  for ( i = 0 ; i < unlinked ; i++ ) {
+  for ( i = 0 ; i < unlinked ; i++ )
     trap_LinkEntity( unlinkedEntities[i] );
-  }
 
   // the final trace endpos will be the terminal point of the rail trail
 
@@ -447,35 +464,15 @@ void weapon_railgun_fire (gentity_t *ent) {
 
   VectorCopy( muzzle, tent->s.origin2 );
   // move origin a bit to come closer to the drawn gun muzzle
-  VectorMA( tent->s.origin2, 4, right, tent->s.origin2 );
-  VectorMA( tent->s.origin2, -1, up, tent->s.origin2 );
+  VectorMA( tent->s.origin2, 16, up, tent->s.origin2 );
 
   // no explosion at end if SURF_NOIMPACT, but still make the trail
-  if ( trace.surfaceFlags & SURF_NOIMPACT ) {
+  if ( trace.surfaceFlags & SURF_NOIMPACT )
     tent->s.eventParm = 255;  // don't make the explosion at the end
-  } else {
+  else
     tent->s.eventParm = DirToByte( trace.plane.normal );
-  }
+ 
   tent->s.clientNum = ent->s.clientNum;
-
-  // give the shooter a reward sound if they have made two railgun hits in a row
-  if ( hits == 0 ) {
-    // complete miss
-    ent->client->accurateCount = 0;
-  } else {
-    // check for "impressive" reward sound
-    ent->client->accurateCount += hits;
-    if ( ent->client->accurateCount >= 2 ) {
-      ent->client->accurateCount -= 2;
-      ent->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
-      // add the sprite over the player's head
-      //ent->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-      ent->client->ps.eFlags |= EF_AWARD_IMPRESSIVE;
-      ent->client->rewardTime = level.time + REWARD_SPRITE_TIME;
-    }
-    ent->client->accuracy_hits++;
-  }
-
 }
 
 
@@ -769,15 +766,24 @@ void FireWeapon( gentity_t *ent ) {
     s_quadFactor = 1;
   }
 
-  // track shots taken for accuracy tracking.  Grapple is not a weapon and gauntet is just not tracked
-  if( ent->s.weapon != WP_GRAPPLING_HOOK && ent->s.weapon != WP_GAUNTLET ) {
-    ent->client->accuracy_shots++;
+  if( ent->client )
+  {
+    // track shots taken for accuracy tracking.  Grapple is not a weapon and gauntet is just not tracked
+    if( ent->s.weapon != WP_GRAPPLING_HOOK && ent->s.weapon != WP_GAUNTLET ) {
+      ent->client->accuracy_shots++;
+    }
+
+    // set aiming directions
+    AngleVectors (ent->client->ps.viewangles, forward, right, up);
+  
+    CalcMuzzlePoint( ent, forward, right, up, muzzle );
   }
+  else
+  {
+    AngleVectors( ent->s.angles2, forward, right, up );
 
-  // set aiming directions
-  AngleVectors (ent->client->ps.viewangles, forward, right, up);
-
-  CalcMuzzlePoint( ent, forward, right, up, muzzle );
+    VectorCopy( ent->s.pos.trBase, muzzle );
+  }
 
   // fire the specific weapon
   switch( ent->s.weapon ) {
@@ -808,6 +814,9 @@ void FireWeapon( gentity_t *ent ) {
     break;
   case WP_FLAMER:
     Weapon_Flamer_Fire( ent );
+    break;
+  case WP_PLASMAGUN:
+    Weapon_Plasma_Fire( ent );
     break;
   case WP_RAILGUN:
     weapon_railgun_fire( ent );

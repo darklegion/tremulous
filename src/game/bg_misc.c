@@ -388,7 +388,7 @@ gitem_t bg_itemlist[] =
 
 /*QUAKED weapon_railgun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
-  /*{
+  {
     "weapon_railgun",
     "sound/misc/w_pkup.wav",
     { "models/weapons2/railgun/railgun.md3",
@@ -400,7 +400,7 @@ gitem_t bg_itemlist[] =
     WP_RAILGUN,
     "",
     ""
-  },*/
+  },
 
 /*QUAKED weapon_plasmagun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
