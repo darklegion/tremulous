@@ -250,6 +250,7 @@
 #define CG_TIMER_SECS             102
 #define CG_SNAPSHOT               89
 #define CG_LAGOMETER              90
+#define CG_PLAYER_CROSSHAIRNAMES  114
 
 #define CG_CONSOLE                91
 
