@@ -344,7 +344,8 @@ void HMCU_Think( gentity_t *self )
 //TA: the following defense turret code was written by
 // "fuzzysteve"           (fuzzysteve@quakefiles.com) and
 // Anthony "inolen" Pesch (www.inolen.com)
-//with modifications by me of course :)
+//with (heavy) modifications by me of course :)
+  
 #define HDEF1_RANGE             500 //maximum range
 #define HDEF1_ANGULARSPEED      10  //degrees/think ~= 200deg/sec
 #define HDEF1_FIRINGSPEED       500 //time between projectiles
@@ -426,8 +427,6 @@ qboolean hdef1_trackenemy( gentity_t *self )
   else
     self->s.angles2[ YAW ] = angleToTarget[ YAW ];
     
-  VectorCopy( self->s.angles2, self->s.angles2 );
-  
   trap_LinkEntity( self );
 
   if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= HDEF1_ACCURACYTOLERANCE &&
@@ -453,6 +452,154 @@ void hdef1_fireonenemy( gentity_t *self )
   self->count = level.time + HDEF1_FIRINGSPEED;
 }
 
+#define HDEF2_RANGE             300 //maximum range
+#define HDEF2_ANGULARSPEED      20  //degrees/think ~= 200deg/sec
+#define HDEF2_FIRINGSPEED       50  //time between projectiles
+#define HDEF2_ACCURACYTOLERANCE HDEF2_ANGULARSPEED / 2 //angular difference for turret to fire
+#define HDEF2_VERTICALCAP       30  //- maximum pitch
+
+/*
+================
+hdef2_trackenemy
+
+Used by HDef1_Think to track enemy location
+================
+*/
+qboolean hdef2_trackenemy( gentity_t *self )
+{
+  vec3_t  dirToTarget, angleToTarget, angularDiff;
+  float   temp;
+
+  VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
+
+  VectorNormalize( dirToTarget );
+  
+  vectoangles( dirToTarget, angleToTarget );
+
+  angularDiff[ PITCH ] = AngleSubtract( self->s.angles2[ PITCH ], angleToTarget[ PITCH ] );
+  angularDiff[ YAW ] = AngleSubtract( self->s.angles2[ YAW ], angleToTarget[ YAW ] );
+
+  if( angularDiff[ PITCH ] < -HDEF2_ACCURACYTOLERANCE )
+    self->s.angles2[ PITCH ] += HDEF2_ANGULARSPEED;
+  else if( angularDiff[ PITCH ] > HDEF2_ACCURACYTOLERANCE )
+    self->s.angles2[ PITCH ] -= HDEF2_ANGULARSPEED;
+  else
+    self->s.angles2[ PITCH ] = angleToTarget[ PITCH ];
+
+  temp = fabs( self->s.angles2[ PITCH ] );
+  if( temp > 180 )
+    temp -= 360;
+  
+  if( temp < -HDEF2_VERTICALCAP )
+    self->s.angles2[ PITCH ] = (-360)+HDEF2_VERTICALCAP;
+    
+  if( angularDiff[ YAW ] < -HDEF2_ACCURACYTOLERANCE )
+    self->s.angles2[ YAW ] += HDEF2_ANGULARSPEED;
+  else if( angularDiff[ YAW ] > HDEF2_ACCURACYTOLERANCE )
+    self->s.angles2[ YAW ] -= HDEF2_ANGULARSPEED;
+  else
+    self->s.angles2[ YAW ] = angleToTarget[ YAW ];
+    
+  trap_LinkEntity( self );
+
+  if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= HDEF2_ACCURACYTOLERANCE &&
+      abs( angleToTarget[ PITCH ] - self->s.angles2[ PITCH ] ) <= HDEF2_ACCURACYTOLERANCE )
+    return qtrue;
+    
+  return qfalse;
+}
+
+/*
+================
+hdef2_fireonemeny
+
+Used by HDef1_Think to fire at enemy
+================
+*/
+void hdef2_fireonenemy( gentity_t *self )
+{
+  vec3_t  aimVector;
+  
+  AngleVectors( self->s.angles2, aimVector, NULL, NULL );
+  fire_plasma( self, self->s.pos.trBase, aimVector );
+  self->count = level.time + HDEF2_FIRINGSPEED;
+}
+
+#define HDEF3_RANGE             1500  //maximum range
+#define HDEF3_ANGULARSPEED      2     //degrees/think ~= 200deg/sec
+#define HDEF3_FIRINGSPEED       1500  //time between projectiles
+#define HDEF3_ACCURACYTOLERANCE HDEF3_ANGULARSPEED / 2 //angular difference for turret to fire
+#define HDEF3_VERTICALCAP       15    //+/- maximum pitch
+
+/*
+================
+hdef3_trackenemy
+
+Used by HDef1_Think to track enemy location
+================
+*/
+qboolean hdef3_trackenemy( gentity_t *self )
+{
+  vec3_t  dirToTarget, angleToTarget, angularDiff;
+  float   temp;
+
+  VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
+
+  VectorNormalize( dirToTarget );
+  
+  vectoangles( dirToTarget, angleToTarget );
+
+  angularDiff[ PITCH ] = AngleSubtract( self->s.angles2[ PITCH ], angleToTarget[ PITCH ] );
+  angularDiff[ YAW ] = AngleSubtract( self->s.angles2[ YAW ], angleToTarget[ YAW ] );
+
+  if( angularDiff[ PITCH ] < -HDEF3_ACCURACYTOLERANCE )
+    self->s.angles2[ PITCH ] += HDEF3_ANGULARSPEED;
+  else if( angularDiff[ PITCH ] > HDEF3_ACCURACYTOLERANCE )
+    self->s.angles2[ PITCH ] -= HDEF3_ANGULARSPEED;
+  else
+    self->s.angles2[ PITCH ] = angleToTarget[ PITCH ];
+
+  temp = fabs( self->s.angles2[ PITCH ] );
+  if( temp > 180 )
+    temp -= 360;
+  
+  if( temp < -HDEF3_VERTICALCAP )
+    self->s.angles2[ PITCH ] = (-360)+HDEF3_VERTICALCAP;
+  else if( temp > HDEF3_VERTICALCAP )
+    self->s.angles2[ PITCH ] = -HDEF3_VERTICALCAP;
+    
+  if( angularDiff[ YAW ] < -HDEF3_ACCURACYTOLERANCE )
+    self->s.angles2[ YAW ] += HDEF3_ANGULARSPEED;
+  else if( angularDiff[ YAW ] > HDEF3_ACCURACYTOLERANCE )
+    self->s.angles2[ YAW ] -= HDEF3_ANGULARSPEED;
+  else
+    self->s.angles2[ YAW ] = angleToTarget[ YAW ];
+    
+  trap_LinkEntity( self );
+
+  if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= HDEF3_ACCURACYTOLERANCE &&
+      abs( angleToTarget[ PITCH ] - self->s.angles2[ PITCH ] ) <= HDEF3_ACCURACYTOLERANCE )
+    return qtrue;
+    
+  return qfalse;
+}
+
+/*
+================
+hdef3_fireonemeny
+
+Used by HDef1_Think to fire at enemy
+================
+*/
+void hdef3_fireonenemy( gentity_t *self )
+{
+  vec3_t  aimVector;
+  
+  AngleVectors( self->s.angles2, aimVector, NULL, NULL );
+  fire_plasma( self, self->s.pos.trBase, aimVector );
+  self->count = level.time + HDEF3_FIRINGSPEED;
+}
+
 /*
 ================
 hdef1_checktarget
@@ -460,7 +607,7 @@ hdef1_checktarget
 Used by HDef1_Think to check enemies for validity
 ================
 */
-qboolean hdef1_checktarget(gentity_t *self, gentity_t *target)
+qboolean hdef1_checktarget( gentity_t *self, gentity_t *target, int range )
 {
   vec3_t    distance;
   trace_t   trace;
@@ -483,7 +630,7 @@ qboolean hdef1_checktarget(gentity_t *self, gentity_t *target)
     return qfalse;
 
   VectorSubtract( target->r.currentOrigin, self->r.currentOrigin, distance );
-  if( VectorLength( distance ) > HDEF1_RANGE ) // is the target within range?
+  if( VectorLength( distance ) > range ) // is the target within range?
     return qfalse;
 
   trap_Trace( &trace, self->s.pos.trBase, NULL, NULL, target->s.pos.trBase, self->s.number, MASK_SHOT );
@@ -501,7 +648,7 @@ hdef1_findenemy
 Used by HDef1_Think to locate enemy gentities
 ================
 */
-void hdef1_findenemy( gentity_t *ent )
+void hdef1_findenemy( gentity_t *ent, int range )
 {
   gentity_t *target;
 
@@ -509,7 +656,7 @@ void hdef1_findenemy( gentity_t *ent )
 
   for (; target < &g_entities[ level.num_entities ]; target++)
   {
-    if( !hdef1_checktarget( ent, target ) )
+    if( !hdef1_checktarget( ent, target, range ) )
       continue;
       
     ent->enemy = target;
@@ -539,13 +686,42 @@ void HDef1_Think( gentity_t *self )
     return;
   }
   
-  if( !hdef1_checktarget( self, self->enemy) )
-    hdef1_findenemy( self );
-  if( !self->enemy )
-    return;
+  switch( self->s.clientNum )
+  {
+    case BA_H_DEF1:
+      if( !hdef1_checktarget( self, self->enemy, HDEF1_RANGE ) )
+        hdef1_findenemy( self, HDEF1_RANGE );
+      if( !self->enemy )
+        return;
 
-  if( hdef1_trackenemy( self ) && ( self->count < level.time ) )
-    hdef1_fireonenemy( self );
+      if( hdef1_trackenemy( self ) && ( self->count < level.time ) )
+        hdef1_fireonenemy( self );
+      break;
+      
+    case BA_H_DEF2:
+      if( !hdef1_checktarget( self, self->enemy, HDEF2_RANGE ) )
+        hdef1_findenemy( self, HDEF2_RANGE );
+      if( !self->enemy )
+        return;
+
+      if( hdef2_trackenemy( self ) && ( self->count < level.time ) )
+        hdef2_fireonenemy( self );
+      break;
+      
+    case BA_H_DEF3:
+      if( !hdef1_checktarget( self, self->enemy, HDEF3_RANGE ) )
+        hdef1_findenemy( self, HDEF3_RANGE );
+      if( !self->enemy )
+        return;
+
+      if( hdef3_trackenemy( self ) && ( self->count < level.time ) )
+        hdef3_fireonenemy( self );
+      break;
+
+    default:
+      Com_Printf( S_COLOR_YELLOW "WARNING: Unknown turret type in think\n" );
+      break;
+  }
 }
 
 
@@ -820,7 +996,7 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
     built->die = HSpawn_Die;
     built->think = HSpawn_Think;
   }
-  else if( buildable == BA_H_DEF1 )
+  else if( buildable == BA_H_DEF1 || buildable == BA_H_DEF2 || buildable == BA_H_DEF3 )
   {
     built->die = HSpawn_Die;
     built->think = HDef1_Think;

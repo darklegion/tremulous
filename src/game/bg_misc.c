@@ -819,6 +819,38 @@ TA: human defense item
     ""                  //sounds
   },
 
+/*QUAKED team_human_def2 (0 0 1) (-16 -16 -16) (16 16 16)
+TA: human defense item
+*/
+  {
+    "team_human_def2",
+    "sound/items/holdable.wav",
+    { "models/bitems/turret-base.md3", "models/weapons2/machinegun/machinegun.md3", 0, 0 },
+    "icons/teleporter", //icon
+    "Human Defense2",      //pickup
+    0,
+    IT_BUILDABLE,
+    BA_H_DEF2,
+    "",                 //precache
+    ""                  //sounds
+  },
+
+/*QUAKED team_human_def3 (0 0 1) (-16 -16 -16) (16 16 16)
+TA: human defense item
+*/
+  {
+    "team_human_def3",
+    "sound/items/holdable.wav",
+    { "models/bitems/turret-base.md3", "models/weapons2/railgun/railgun.md3", 0, 0 },
+    "icons/teleporter", //icon
+    "Human Defense3",      //pickup
+    0,
+    IT_BUILDABLE,
+    BA_H_DEF3,
+    "",                 //precache
+    ""                  //sounds
+  },
+
 /*QUAKED team_human_mcu (0 0 1) (-16 -16 -16) (16 16 16)
 TA: human defense item
 */
@@ -1077,6 +1109,42 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_DEF1,
     "plasmaturret",
     "team_human_def1",
+    { -24, -24, -11 },
+    { 24, 24, 11 },
+    80,
+    1000,
+    50,
+    20,
+    50,
+    MOD_HSPAWN,
+    BIT_HUMANS,
+    EV_NONE,
+    50,
+    qfalse,
+    qfalse
+  },
+  {
+    BA_H_DEF2,
+    "mgturret",
+    "team_human_def2",
+    { -24, -24, -11 },
+    { 24, 24, 11 },
+    80,
+    1000,
+    50,
+    20,
+    50,
+    MOD_HSPAWN,
+    BIT_HUMANS,
+    EV_NONE,
+    50,
+    qfalse,
+    qfalse
+  },
+  {
+    BA_H_DEF3,
+    "railturret",
+    "team_human_def3",
     { -24, -24, -11 },
     { 24, 24, 11 },
     80,

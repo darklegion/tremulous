@@ -388,9 +388,15 @@ typedef enum {
   BA_D_SPAWN,
   BA_D_DEF1,
   BA_D_HIVEMIND,
+  
   BA_H_SPAWN,
+  
   BA_H_DEF1,
+  BA_H_DEF2,
+  BA_H_DEF3,
+  
   BA_H_MCU,
+  
   BA_H_REACTOR,
   BA_H_REPEATER,
 
