@@ -959,7 +959,51 @@ void HRpt_Think( gentity_t *self )
   self->nextthink = level.time + REFRESH_TIME;
 }
 
+#define REFIL_TIME 500 //1/2 second between every clip refil
 
+/*
+================
+HRpt_Use
+
+Use for human power repeater
+================
+*/
+void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  int maxAmmo, maxClips;
+  int ammo, clips;
+
+  playerState_t *ps = &activator->client->ps;
+
+  if( activator->client->lastRefilTime + REFIL_TIME > level.time )
+    return;
+  
+  if( !BG_FindUsesEnergyForWeapon( ps->weapon ) )
+    return;
+  
+  BG_FindAmmoForWeapon( ps->weapon, &maxAmmo, NULL, &maxClips );
+  
+  if( BG_gotItem( UP_BATTPACK, ps->stats ) )
+    maxAmmo *= 2;
+  
+  BG_unpackAmmoArray( ps->weapon, ps->ammo, ps->powerups, &ammo, &clips, NULL );
+
+  if( ammo == maxAmmo && clips < maxClips )
+  {
+    clips++;
+    ammo = 0;
+  }
+  
+  //add half max ammo
+  ammo += maxAmmo >> 1;
+  
+  if( ammo > maxAmmo )
+    ammo = maxAmmo;
+
+  BG_packAmmoArray( ps->weapon, ps->ammo, ps->powerups, ammo, clips, maxClips );
+
+  activator->client->lastRefilTime = level.time;
+}
 
 
 //==================================================================================
@@ -1991,12 +2035,14 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       
     case BA_H_REACTOR:
       built->die = HSpawn_Die;
+      built->use = HRpt_Use;
       built->powered = built->active = qtrue;
       break;
       
     case BA_H_REPEATER:
       built->think = HRpt_Think;
       built->die = HSpawn_Die;
+      built->use = HRpt_Use;
       break;
       
     case BA_H_FLOATMINE:

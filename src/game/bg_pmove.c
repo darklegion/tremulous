@@ -2175,6 +2175,10 @@ static void PM_Weapon( void )
       BG_FindAmmoForWeapon( pm->ps->weapon, &ammo, NULL, NULL );
     }
 
+    if( BG_FindUsesEnergyForWeapon( pm->ps->weapon ) &&
+        BG_gotItem( UP_BATTPACK, pm->ps->stats ) )
+      ammo *= 2;
+    
     BG_packAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
   }
   

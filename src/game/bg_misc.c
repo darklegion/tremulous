@@ -1940,6 +1940,7 @@ weaponAttributes_t bg_weapons[ ] =
     3,                    //int       clips;
     3,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
     100,                  //int       repeatRate;
     2000,                 //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
@@ -1960,6 +1961,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
     40,                   //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
@@ -1980,6 +1982,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
     50,                   //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
@@ -2000,6 +2003,7 @@ weaponAttributes_t bg_weapons[ ] =
     2,                    //int       clips;
     3,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
+    qtrue,                //int       usesEnergy;
     1000,                 //int       repeatRate;
     2000,                 //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
@@ -2020,6 +2024,7 @@ weaponAttributes_t bg_weapons[ ] =
     3,                    //int       clips;
     3,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
+    qtrue,               //int       usesEnergy;
     50,                   //int       repeatRate;
     2000,                 //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
@@ -2040,6 +2045,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
     1000,                 //int       repeatRate;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
@@ -2060,6 +2066,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
     1000,                 //int       repeatRate;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
@@ -2080,6 +2087,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
     1000,                 //int       repeatRate;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
@@ -2100,6 +2108,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
     1000,                 //int       repeatRate;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
@@ -2120,6 +2129,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
     500,                  //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
@@ -2140,6 +2150,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
     500,                  //int       repeatRate;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
@@ -2160,6 +2171,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
     1500,                 //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
@@ -2180,6 +2192,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
     1500,                 //int       repeatRate;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
@@ -2200,6 +2213,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
     750,                  //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
@@ -2220,6 +2234,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
     500,                  //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
@@ -2240,6 +2255,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
+    qtrue,                //int       usesEnergy;
     500,                  //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
@@ -2260,6 +2276,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
+    qtrue,                //int       usesEnergy;
     500,                  //int       repeatRate;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
@@ -2469,6 +2486,26 @@ qboolean BG_FindInfinteAmmoForWeapon( int weapon )
     if( bg_weapons[ i ].weaponNum == weapon )
     {
       return bg_weapons[ i ].infiniteAmmo;
+    }
+  }
+
+  return qfalse;
+}
+
+/*
+==============
+BG_FindUsesEnergyForWeapon
+==============
+*/
+qboolean BG_FindUsesEnergyForWeapon( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+    {
+      return bg_weapons[ i ].usesEnergy;
     }
   }
 

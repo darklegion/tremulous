@@ -121,36 +121,6 @@ void TossClientItems( gentity_t *self ) {
       weapon = WP_NONE;
     }
   }
-
-  if( weapon > WP_MACHINEGUN && ( ammo > 0 || clips > 0 ) ) {
-    // find the item type for this weapon
-    /*item = BG_FindItemForWeapon( weapon );*/
-
-    //TA: never drop weapons...
-    // spawn the item
-    //Drop_Item( self, item, 0 );
-  }
-
-  // drop all the powerups if not in teamplay
-  if ( g_gametype.integer != GT_TEAM ) {
-    angle = 45;
-    /*for ( i = 1 ; i < PW_NUM_POWERUPS ; i++ ) {
-      if ( self->client->ps.powerups[ i ] > level.time ) {
-        item = BG_FindItemForPowerup( i );
-        if ( !item ) {
-          continue;
-        }
-        //TA: ...or powerups
-        /*drop = Drop_Item( self, item, angle );
-        // decide how many seconds it has left
-        drop->count = ( self->client->ps.powerups[ i ] - level.time ) / 1000;
-        if ( drop->count < 1 ) {
-          drop->count = 1;
-        }
-        angle += 45;
-      }
-    }*/
-  }
 }
 
 
@@ -409,36 +379,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       AddScore( attacker, 1 );
       AddPoints( attacker, CalculatePoints( self, attacker ) );
 
-      //TA: disable rewards
-      /*if( meansOfDeath == MOD_GAUNTLET ) {
-        attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
-        attacker->client->ps.persistant[PERS_REWARD] = REWARD_GAUNTLET;
-        attacker->client->ps.persistant[PERS_REWARD_COUNT]++;
-
-        // add the sprite over the player's head
-        attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET );
-        attacker->client->ps.eFlags |= EF_AWARD_GAUNTLET;
-        attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
-
-        // also play humiliation on target
-        self->client->ps.persistant[PERS_REWARD] = REWARD_GAUNTLET;
-        self->client->ps.persistant[PERS_REWARD_COUNT]++;
-      }
-
-      // check for two kills in a short amount of time
-      // if this is close enough to the last kill, give a reward sound
-      if ( level.time - attacker->client->lastKillTime < CARNAGE_REWARD_TIME ) {
-        attacker->client->ps.persistant[PERS_REWARD_COUNT]++;
-        attacker->client->ps.persistant[PERS_REWARD] = REWARD_EXCELLENT;
-        attacker->client->ps.persistant[PERS_EXCELLENT_COUNT]++;
-
-        // add the sprite over the player's head
-        attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET );
-        attacker->client->ps.eFlags |= EF_AWARD_EXCELLENT;
-        attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
-      }*/
       attacker->client->lastKillTime = level.time;
-
+      
+      if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+        level.alienKills++;
+      else if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+        level.humanKills++;
     }
   } else {
     AddScore( self, -1 );

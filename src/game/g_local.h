@@ -350,6 +350,8 @@ struct gclient_s {
   vec3_t    hovelOrigin;  //TA: player origin before entering hovel
 
   int       lastFlameBall;  //TA: s.number of the last flame ball fired
+
+  int       lastRefilTime;  //TA: last time human got a refil from rpt/rctr
 };
 
 #define MAX_LOCDAMAGE_TEXT    8192
@@ -478,6 +480,9 @@ typedef struct {
   int     humanBuildPointsPowered;
 
   int     bankCredits[ MAX_CLIENTS ]; //global credits storage
+
+  int     alienKills;
+  int     humanKills;
 } level_locals_t;
 
 //
@@ -858,7 +863,13 @@ extern  vmCvar_t  g_singlePlayer;
 extern  vmCvar_t  g_humanBuildPoints;
 extern  vmCvar_t  g_alienBuildPoints;
 extern  vmCvar_t  g_humanStage;
+extern  vmCvar_t  g_humanMaxStage;
+extern  vmCvar_t  g_humanStage2Threshold;
+extern  vmCvar_t  g_humanStage3Threshold;
 extern  vmCvar_t  g_alienStage;
+extern  vmCvar_t  g_alienMaxStage;
+extern  vmCvar_t  g_alienStage2Threshold;
+extern  vmCvar_t  g_alienStage3Threshold;
 
 void  trap_Printf( const char *fmt );
 void  trap_Error( const char *fmt );

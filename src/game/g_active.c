@@ -853,7 +853,11 @@ void ClientThink_real( gentity_t *ent ) {
       client->lastBoostedTime + 20000 < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_BOOSTED;
 
-  client->ps.gravity = g_gravity.value;
+  if( BG_gotItem( UP_JETPACK, client->ps.stats ) &&
+      BG_activated( UP_JETPACK, client->ps.stats ) )
+    client->ps.gravity = 200.0f;
+  else
+    client->ps.gravity = g_gravity.value;
 
   // set speed
   client->ps.speed = g_speed.value * BG_FindSpeedForClass( client->ps.stats[ STAT_PCLASS ] );

@@ -1901,6 +1901,11 @@ void Cmd_Buy_f( gentity_t *ent )
     //add to inventory
     BG_packWeapon( weapon, ent->client->ps.stats );
     BG_FindAmmoForWeapon( weapon, &quan, &clips, &maxClips );
+    
+    if( BG_FindUsesEnergyForWeapon( weapon ) &&
+        BG_gotItem( UP_BATTPACK, ent->client->ps.stats ) )
+      quan *= 2;
+    
     BG_packAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
                       quan, clips, maxClips );
     ent->client->ps.weapon = weapon;
@@ -2271,6 +2276,14 @@ void Cmd_Spawnbody_f( gentity_t *ent )
   G_FreeEntity( dummy );
 }
 
+/*void Cmd_Test_f( gentity_t *ent )
+{
+  if( level.alienKills < 50 )
+    level.alienKills = 50;
+  else if( level.alienKills < 100 )
+    level.alienKills = 100;
+}*/
+
 /*
 =================
 ClientCommand
@@ -2402,6 +2415,8 @@ void ClientCommand( int clientNum ) {
     Cmd_Stats_f( ent );
   else if (Q_stricmp (cmd, "spawnbody") == 0)
     Cmd_Spawnbody_f( ent );
+/*  else if (Q_stricmp (cmd, "test") == 0)
+    Cmd_Test_f( ent );*/
   else
     trap_SendServerCommand( clientNum, va("print \"unknown cmd %s\n\"", cmd ) );
 }

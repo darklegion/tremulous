@@ -933,6 +933,7 @@ typedef struct
   int       clips;
   int       maxClips;
   qboolean  infiniteAmmo;
+  qboolean  usesEnergy;
 
   int       repeatRate;
   int       reloadTime;
@@ -1024,6 +1025,7 @@ char      *BG_FindModelsForWeapon( int weapon, int modelNum );
 char      *BG_FindIconForWeapon( int weapon );
 void      BG_FindAmmoForWeapon( int weapon, int *quan, int *clips, int *maxClips );
 qboolean  BG_FindInfinteAmmoForWeapon( int weapon );
+qboolean  BG_FindUsesEnergyForWeapon( int weapon );
 int       BG_FindRepeatRateForWeapon( int weapon );
 int       BG_FindReloadTimeForWeapon( int weapon );
 qboolean  BG_WeaponHasAltMode( int weapon );
