@@ -22,21 +22,36 @@
   menuDef 
   {
     name "ingame"
-    visible 0
+    style WINDOW_STYLE_FILLED
+    visible 1
     fullScreen 0
     outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
-    rect 0 0 640 480
+    rect 0 0 640 48 
     focusColor 1 .75 0 1
     disableColor .5 .5 .5 1
+    backColor 0 0 0 1
+
+    itemDef
+    {
+      name splashmodel
+      rect 0 0 640 48
+      type ITEM_TYPE_MODEL
+      style WINDOW_STYLE_EMPTY
+      asset_model "models/splash/splash_screen.md3"
+      model_fovx 32.0
+      model_fovy 2.4
+      model_angle 180
+      visible 1
+      decoration
+    }
 
     itemdef
     {
       name about
       text "About"  
-      rect 179 0 53 30
-      type 1
+      rect 232 0 53 30
+      type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_FILLED
-      background "ui/assets/button_back.tga"
       textalign 1
       textalignx 27
       textaligny 22
@@ -48,24 +63,13 @@
       mouseEnter { setitemcolor about backcolor .1 .37 .1 1 }
       mouseExit { setitemcolor about backcolor .0 .17 .0 1 }
     }
-    
-    itemdef
-    {
-      name aboutframe
-      style 3
-      rect 174 0 58 32
-      background "ui/assets/ingameframea.tga" 
-      visible 1
-      decoration
-    }
 
-    itemDef
+/*    itemDef
     {
       name player
       text "Player"
-      type 1
+      type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_FILLED
-      background "ui/assets/button_back.tga"
       rect 232 0 58 30
       textalign 1 
       textalignx 29      
@@ -77,26 +81,14 @@
       action { open ingame_player } 
       mouseEnter { setitemcolor player backcolor .1 .37 .1 1 }
       mouseExit { setitemcolor player backcolor 0 .17 0 1 }
-    }
-    
-    itemdef
-    {
-      name playerframe
-      style 3
-      rect 232 0 58 32
-      textalign 1 
-      background "ui/assets/ingameframe.tga"  
-      visible 1
-      decoration
-    }
+    }*/
 
     itemDef
     {
       name controls
       text "Controls"
-      type 1
+      type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_FILLED
-      background "ui/assets/button_back.tga"
       rect 290 0 58 30
       textalign 1 
       textalignx 29      
@@ -110,24 +102,12 @@
       mouseExit { setitemcolor controls backcolor 0 .17 0 1 }
     }
 
-    itemdef
-    {
-      name controlsframe
-      style 3
-      rect 290 0 58 32
-      textalign 1 
-      background "ui/assets/ingameframe.tga"  
-      visible 1
-      decoration
-    }
-
     itemDef
     {
       name options
       text "Options"
-      type 1
+      type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_FILLED
-      background "ui/assets/button_back.tga"
       rect 348 0 58 30
       textalign 1 
       textalignx 29      
@@ -141,24 +121,12 @@
       mouseExit { setitemcolor options backcolor 0 .17 0 1 }
     }
 
-    itemdef
-    {
-      name optionsframe
-      style 3
-      rect 348 0 58 32
-      textalign 1 
-      background "ui/assets/ingameframe.tga"  
-      visible 1
-      decoration
-    }
-
     itemDef
     {
       name system
       text "System"
-      type 1
+      type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_FILLED
-      background "ui/assets/button_back.tga"
       rect 406 0 58 30
       textalign 1 
       textalignx 29      
@@ -172,24 +140,12 @@
       mouseExit { setitemcolor system backcolor 0 .17 0 1 }
     }
 
-    itemdef
-    {
-      name systemframe
-      style 3
-      rect 406 0 58 32
-      textalign 1 
-      background "ui/assets/ingameframe.tga"  
-      visible 1
-      decoration
-    }
-
     itemDef
     {
       name vote
       text "Vote"
-      type 1
+      type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_FILLED
-      background "ui/assets/button_back.tga"
       cvarTest "ui_singleplayeractive"
       disableCvar { "1" }
 
@@ -205,25 +161,13 @@
       mouseEnter { setitemcolor vote backcolor .1 .37 .1 1 }
       mouseExit { setitemcolor vote backcolor 0 .17 0 1 }
     }
-    
-    itemdef
-    {
-      name voteframe
-      style 3
-      rect 464 0 58 32
-      textalign 1 
-      background "ui/assets/ingameframe.tga"  
-      visible 1
-      decoration
-    }
 
     itemDef
     {
       name callvote
       text "CallVote"
-      type 1
+      type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_FILLED
-      background "ui/assets/button_back.tga"
       cvarTest "ui_singleplayeractive"
       disableCvar { "1" }
 
@@ -240,24 +184,12 @@
       mouseExit { setitemcolor callvote backcolor 0 .17 0 1 }
     }
     
-    itemdef
-    {
-      name callvoteframe
-      style 3
-      rect 522 0 58 32
-      textalign 1 
-      background "ui/assets/ingameframe.tga"  
-      visible 1
-      decoration
-    }
-    
     itemDef
     {
       name leave
       text "Exit"
-      type 1
+      type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_FILLED
-      background "ui/assets/button_back.tga"
       rect 580 0 58 30
       textalign 1 
       textalignx 29      
@@ -269,17 +201,6 @@
       action { open ingame_leave }
       mouseEnter { setitemcolor leave backcolor .1 .37 .1 1 }
       mouseExit { setitemcolor leave backcolor 0 .17 0 1 }
-    }
-
-    itemDef
-    {
-      name leave
-      style 3
-      rect 580 0 58 32
-      textalign 1 
-      background "ui/assets/ingameframe.tga"  
-      visible 1
-      decoration
     }
   }
 }
