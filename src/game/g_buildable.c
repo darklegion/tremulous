@@ -366,7 +366,7 @@ qboolean hdef1_trackenemy( gentity_t *self )
   float   distanceToTarget = HDEF1_RANGE;
   float   timeTilImpact;
   vec3_t  halfAcceleration;
-  vec3_t  thirdJounce;
+  vec3_t  thirdJerk;
   int     i;
 
   VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
@@ -379,8 +379,8 @@ qboolean hdef1_trackenemy( gentity_t *self )
   VectorSubtract( dirToTarget, self->s.pos.trBase, dirToTarget );
 #endif
 
-  VectorScale( self->enemy->acceleration, 0.5f, halfAcceleration );
-  VectorScale( self->enemy->jounce, 0.33333f, thirdJounce );
+  VectorScale( self->enemy->acceleration, 1.0f / 2.0f, halfAcceleration );
+  VectorScale( self->enemy->jerk, 1.0f / 3.0f, thirdJerk );
 
   //O( time ) - worst case O( time ) = 250 iterations
   for( i = 0; ( i * HDEF1_PROJSPEED ) / 1000.0f < distanceToTarget; i++ )

@@ -1816,7 +1816,7 @@ void G_EvaluateAcceleration( gentity_t *ent, int msec )
   VectorScale( deltaVelocity, 1.0f / (float)msec, ent->acceleration );
 
   VectorSubtract( ent->acceleration, ent->oldAccel, deltaAccel );
-  VectorScale( deltaAccel, 1.0f / (float)msec, ent->jounce );
+  VectorScale( deltaAccel, 1.0f / (float)msec, ent->jerk );
 
   VectorCopy( ent->s.pos.trDelta, ent->oldVelocity );
   VectorCopy( ent->acceleration, ent->oldAccel );

@@ -137,7 +137,7 @@ struct gentity_s {
   vec3_t    oldVelocity;
   vec3_t    acceleration;
   vec3_t    oldAccel;
-  vec3_t    jounce;
+  vec3_t    jerk;
 
   int     nextthink;
   void    (*think)(gentity_t *self);
