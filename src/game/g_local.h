@@ -885,10 +885,6 @@ qboolean  trap_GetEntityToken( char *buffer, int bufferSize );
 int   trap_DebugPolygonCreate(int color, int numPoints, vec3_t *points);
 void  trap_DebugPolygonDelete(int id);
 
-//TA: conceptually should live in q_shared.h
-//void    AxisToAngles( vec3_t axis[3], vec3_t angles);
-//float   arccos( float x );
-
 int   trap_BotLibSetup( void );
 int   trap_BotLibShutdown( void );
 int   trap_BotLibVarSet(char *var_name, char *value);

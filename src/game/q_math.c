@@ -385,7 +385,6 @@ void RotatePointAroundVector(vec3_t dst, const vec3_t dir, const vec3_t point, f
   rot[1][0] = i_j_ia + c_sin;
   rot[1][1] = j_j_ia + cos_a;
   rot[1][2] = j_k_ia - a_sin;
-
   rot[2][0] = i_k_ia - b_sin;
   rot[2][1] = j_k_ia + a_sin;
   rot[2][2] = k_k_ia + cos_a;
@@ -1355,9 +1354,3 @@ void PerpendicularVector( vec3_t dst, const vec3_t src )
   */
   VectorNormalize( dst );
 }
-
-float arccos( float x )
-{
-  return atan2( sqrt( 1.0 - x * x ) / x, x );
-}
-

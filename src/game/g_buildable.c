@@ -1271,7 +1271,11 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
   built->s.number = built - g_entities;
   built->r.contents = CONTENTS_BODY;
   built->clipmask = MASK_PLAYERSOLID;
-  built->builtBy = ent->client->ps.clientNum;
+
+  if( ent->client )
+    built->builtBy = ent->client->ps.clientNum;
+  else
+    built->builtBy = -1;
 
   G_SetOrigin( built, origin );
   VectorCopy( angles, built->s.angles );

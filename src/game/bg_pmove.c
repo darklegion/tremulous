@@ -445,16 +445,9 @@ static float PM_CmdScale( usercmd_t *cmd ) {
     return 0;
   }
 
-  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) &&
-      ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
-  {
-    total = sqrt( cmd->forwardmove * cmd->forwardmove + cmd->rightmove * cmd->rightmove );
-  }
-  else
-  {
-    total = sqrt( cmd->forwardmove * cmd->forwardmove
-      + cmd->rightmove * cmd->rightmove + cmd->upmove * cmd->upmove );
-  }
+  total = sqrt( cmd->forwardmove * cmd->forwardmove
+    + cmd->rightmove * cmd->rightmove + cmd->upmove * cmd->upmove );
+
   scale = (float)pm->ps->speed * max / ( 127.0 * total ) * modifier;
 
   return scale;
@@ -979,14 +972,8 @@ static void PM_ClimbMove( void ) {
 
   PM_Accelerate (wishdir, wishspeed, accelerate);
 
-  //Com_Printf("velocity = %1.1f %1.1f %1.1f\n", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
-  //Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
-
   if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
     pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
-  } else {
-    // don't reset the z velocity for slopes
-//    pm->ps->velocity[2] = 0;
   }
 
   vel = VectorLength(pm->ps->velocity);
@@ -1004,10 +991,7 @@ static void PM_ClimbMove( void ) {
     return;
   }
 
-  PM_StepSlideMove( qfalse );
-
-  //Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
-
+  PM_SlideMove( qfalse );
 }
 
 
@@ -1425,8 +1409,8 @@ PM_GroundClimbTrace
 static void PM_GroundClimbTrace( void )
 {
   vec3_t    surfNormal, movedir, forward, right, point, srotAxis;
-  vec3_t    refNormal = { 0, 0, 1 };
-  vec3_t    ceilingNormal = { 0, 0, -1 };
+  vec3_t    refNormal = { 0.0f, 0.0f, 1.0f };
+  vec3_t    ceilingNormal = { 0.0f, 0.0f, -1.0f };
   float     toAngles[3], surfAngles[3], srotAngle;
   trace_t   trace;
   int       i;
@@ -1461,13 +1445,13 @@ static void PM_GroundClimbTrace( void )
     {
     case 0:
       //trace into direction we are moving
-      VectorMA( pm->ps->origin, 0.25, movedir, point );
+      VectorMA( pm->ps->origin, 0.25f, movedir, point );
       pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
       break;
 
     case 1:
       //trace straight down anto "ground" surface
-      VectorMA( pm->ps->origin, -0.25, surfNormal, point );
+      VectorMA( pm->ps->origin, -0.25f, surfNormal, point );
       pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
       break;
 
@@ -1486,7 +1470,7 @@ static void PM_GroundClimbTrace( void )
     case 3:
       //fall back so we don't have to modify PM_GroundTrace too much
       VectorCopy( pm->ps->origin, point );
-      point[2] = pm->ps->origin[2] - 0.25;
+      point[2] = pm->ps->origin[2] - 0.25f;
       pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
       break;
     }
@@ -1512,61 +1496,65 @@ static void PM_GroundClimbTrace( void )
         if( !VectorCompare( trace.plane.normal, refNormal ) && !VectorCompare( surfNormal, refNormal ) &&
             !VectorCompare( trace.plane.normal, ceilingNormal ) && !VectorCompare( surfNormal, ceilingNormal ) )
         {
-          int     traceANGsurf, traceANGref, surfANGref, correction;
-          vec3_t  traceCROSSsurf;
-          float   traceDOTsurf, traceDOTref, surfDOTref;
-          vec3_t  abc;
-          float   d;
-          vec3_t  point;
+          //behold the evil mindfuck from hell
+          //it has fucked mind like nothing has fucked mind before
+          vec3_t  traceCROSSsurf, traceCROSSref, surfCROSSref;
+          float   traceDOTsurf, traceDOTref, surfDOTref, rTtDOTrTsTt;
+          float   traceANGsurf, traceANGref, surfANGref;
+          vec3_t  horizontal = { 1.0f, 0.0f, 0.0f }; //arbituary vector perpendicular to refNormal
+          vec3_t  refTOtrace, refTOsurfTOtrace, tempVec;
+          int     rTtANGrTsTt;
 
           CrossProduct( trace.plane.normal, surfNormal, traceCROSSsurf );
           VectorNormalize( traceCROSSsurf );
 
-          VectorAdd( pm->ps->origin, traceCROSSsurf, point );
+          CrossProduct( trace.plane.normal, refNormal, traceCROSSref );
+          VectorNormalize( traceCROSSref );
 
-          //calculate the eq of the plane defined by points: origin, origin + surf, origin + trace
-          VectorCopy( traceCROSSsurf, abc );
-          if( abc[ 2 ] < 0 )
-            VectorInverse( abc );
-          d = DotProduct( abc, pm->ps->origin );
-          
+          CrossProduct( surfNormal, refNormal, surfCROSSref );
+          VectorNormalize( surfCROSSref );
+
           //calculate angle between surf and trace
           traceDOTsurf = DotProduct( trace.plane.normal, surfNormal );
-          traceANGsurf = ANGLE2SHORT( RAD2DEG( arccos( traceDOTsurf ) ) );
+          traceANGsurf = RAD2DEG( acos( traceDOTsurf ) );
 
-          if( traceANGsurf > 32768 )
-            traceANGsurf -= 32768;
+          if( traceANGsurf > 180.0f )
+            traceANGsurf -= 180.0f;
 
           //calculate angle between trace and ref
           traceDOTref = DotProduct( trace.plane.normal, refNormal );
-          traceANGref = ANGLE2SHORT( RAD2DEG( arccos( traceDOTref ) ) );
+          traceANGref = RAD2DEG( acos( traceDOTref ) );
 
-          if( traceANGref > 32768 )
-            traceANGref -= 32768;
+          if( traceANGref > 180.0f )
+            traceANGref -= 180.0f;
 
           //calculate angle between surf and ref
           surfDOTref = DotProduct( surfNormal, refNormal );
-          surfANGref = ANGLE2SHORT( RAD2DEG( arccos( surfDOTref ) ) );
+          surfANGref = RAD2DEG( acos( surfDOTref ) );
 
-          if( surfANGref > 32768 )
-            surfANGref -= 32768;
+          if( surfANGref > 180.0f )
+            surfANGref -= 180.0f;
             
-          //change the sign of traceANGsurf if necessary
-          if( ( abc[ 0 ] * point[ 0 ] + abc[ 1 ] * point[ 1 ] + abc[ 2 ] * point[ 2 ] - d ) < 0 )
-            traceANGsurf = -traceANGsurf;
+          //calculate reference rotated through to trace plane
+          RotatePointAroundVector( refTOtrace, traceCROSSref, horizontal, -traceANGref );
+          
+          //calculate reference rotated through to surf plane then to trace plane
+          RotatePointAroundVector( tempVec, surfCROSSref, horizontal, -surfANGref );
+          RotatePointAroundVector( refTOsurfTOtrace, traceCROSSsurf, tempVec, -traceANGsurf );
+
+          //calculate angle between refTOtrace and refTOsurfTOtrace
+          rTtDOTrTsTt = DotProduct( refTOtrace, refTOsurfTOtrace );
+          rTtANGrTsTt = ANGLE2SHORT( RAD2DEG( acos( rTtDOTrTsTt ) ) );
+
+          if( rTtANGrTsTt > 32768 )
+            rTtANGrTsTt -= 32768;
 
           //set the correction angle
-          correction = ( traceANGsurf + surfANGref ) - traceANGref;
+          if( traceCROSSsurf[ 2 ] < 0 )
+            rTtANGrTsTt = -rTtANGrTsTt;
 
-          //if the rotation plane is vertical then no correction is necessary - special case
-          if( abc[ 2 ] == 0 )
-            correction = 0;
-          
-          if( correction > 32768 )
-            correction -= 32768;
-          
           //phew! - correct the angle
-          pm->ps->delta_angles[ YAW ] -= correction;
+          pm->ps->delta_angles[ YAW ] -= rTtANGrTsTt;
         }
 
         //transition from wall to ceiling
@@ -1591,7 +1579,7 @@ static void PM_GroundClimbTrace( void )
         //smooth transitions
         CrossProduct( surfNormal, trace.plane.normal, srotAxis );
         VectorNormalize( srotAxis );
-        srotAngle = abs( RAD2DEG( arccos( DotProduct( surfNormal, trace.plane.normal ) ) ) );
+        srotAngle = abs( RAD2DEG( acos( DotProduct( surfNormal, trace.plane.normal ) ) ) );
 
         PM_AddSmoothOp( srotAxis, srotAngle );
         smoothed = qfalse;
@@ -1653,7 +1641,7 @@ static void PM_GroundClimbTrace( void )
       {
         CrossProduct( wcl[ pm->ps->clientNum ].lastNormal, refNormal, srotAxis );
         VectorNormalize( srotAxis );
-        srotAngle = abs( RAD2DEG( arccos( DotProduct( refNormal, wcl[ pm->ps->clientNum ].lastNormal ) ) ) );
+        srotAngle = abs( RAD2DEG( acos( DotProduct( refNormal, wcl[ pm->ps->clientNum ].lastNormal ) ) ) );
       }
       
       PM_AddSmoothOp( srotAxis, srotAngle );
@@ -1693,8 +1681,8 @@ PM_GroundTrace
 */
 static void PM_GroundTrace( void ) {
   vec3_t      point, forward, srotAxis;
-  vec3_t      refNormal = { 0, 0, 1 };
-  vec3_t      ceilingNormal = { 0, 0, -1 };
+  vec3_t      refNormal = { 0.0f, 0.0f, 1.0f };
+  vec3_t      ceilingNormal = { 0.0f, 0.0f, -1.0f };
   trace_t     trace;
   float       srotAngle;
 
@@ -1759,7 +1747,7 @@ static void PM_GroundTrace( void ) {
       CrossProduct( wcl[ pm->ps->clientNum ].lastNormal, refNormal, srotAxis );
       VectorNormalize( srotAxis );
 
-      srotAngle = abs( RAD2DEG( arccos( DotProduct( refNormal, wcl[ pm->ps->clientNum ].lastNormal ) ) ) );
+      srotAngle = abs( RAD2DEG( acos( DotProduct( refNormal, wcl[ pm->ps->clientNum ].lastNormal ) ) ) );
     }
       
     PM_AddSmoothOp( srotAxis, srotAngle );
@@ -1980,6 +1968,7 @@ static void PM_Footsteps( void ) {
   //
   if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) && ( pml.groundPlane ) )
   {
+    //TA: FIXME: yes yes i know this is wrong
     pm->xyspeed = sqrt( pm->ps->velocity[0] * pm->ps->velocity[0]
                       + pm->ps->velocity[1] * pm->ps->velocity[1]
                       + pm->ps->velocity[2] * pm->ps->velocity[2] );
@@ -2578,7 +2567,7 @@ static void PM_DropTimers( void ) {
 PM_UpdateViewAngles
 
 This can be used as another entry point when only the viewangles
-are being updated isntead of a full move
+are being updated instead of a full move
 ================
 */
 void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
@@ -2586,8 +2575,8 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
   int     i;
   vec3_t  surfNormal, xNormal;
   vec3_t  axis[3], rotaxis[3], smoothaxis[3];
-  vec3_t  refNormal = { 0, 0, 1 };
-  vec3_t  ceilingNormal = { 0, 0, -1 };
+  vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
+  vec3_t  ceilingNormal = { 0.0f, 0.0f, -1.0f };
   float   rotAngle; 
   vec3_t  tempang, tempang2;
 
@@ -2645,17 +2634,17 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
     if( surfNormal[2] == -1 )
       rotAngle = 180;
     else
-      rotAngle = RAD2DEG( arccos( DotProduct( surfNormal, refNormal ) ) );
+      rotAngle = RAD2DEG( acos( DotProduct( surfNormal, refNormal ) ) );
 
+    //FIXME: rotAngle is always +ve??
     //-abs( rotAngle ).. sorta
-    if( rotAngle > 0 )
-      rotAngle = -rotAngle;
+/*    if( rotAngle > 0 )
+      rotAngle = -rotAngle;*/
       
     //hmmm could get away with only one rotation and some clever stuff later... but i'm lazy
-    RotatePointAroundVector( rotaxis[0], xNormal, axis[0], rotAngle );
-    RotatePointAroundVector( rotaxis[1], xNormal, axis[1], rotAngle );
-    RotatePointAroundVector( rotaxis[2], xNormal, axis[2], rotAngle );
-    //MAJOR FIXME: try to reduce the number of vector rotations.. they kill the QVM
+    RotatePointAroundVector( rotaxis[0], xNormal, axis[0], -rotAngle );
+    RotatePointAroundVector( rotaxis[1], xNormal, axis[1], -rotAngle );
+    RotatePointAroundVector( rotaxis[2], xNormal, axis[2], -rotAngle );
   }
   else
   {
@@ -2675,7 +2664,6 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
     while( wcl[ pm->ps->clientNum ].nonSvangles[ i ] < 180 )
       wcl[ pm->ps->clientNum ].nonSvangles[ i ] += 360;
   }
-  //AnglesSubtract( wcl[ pm->ps->clientNum ].nonSvangles, 0, wcl[ pm->ps->clientNum ].nonSvangles );
 
   //smooth transitions
   if( !PM_PerformSmoothOps( rotaxis, smoothaxis ) )
@@ -2796,6 +2784,10 @@ void PmoveSingle (pmove_t *pmove)
 
   pml.frametime = pml.msec * 0.001;
 
+  //TA: temporary fix to prediction errors until the view smoothing
+  //    is moved to the client side
+  PM_UpdateViewAngles( pm->ps, &pm->cmd );
+  
   if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) &&
       ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
     AngleVectors( wcl[ pm->ps->clientNum ].nonSvangles, pml.forward, pml.right, pml.up );
