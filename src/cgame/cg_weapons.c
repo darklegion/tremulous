@@ -782,6 +782,11 @@ void CG_RegisterWeapon( int weaponNum )
       weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/grenade1.md3" );
       break;
 
+    case WP_GROUND_POUND:
+      MAKERGB( weaponInfo->flashDlightColor, 0, 0, 0 );
+      weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav", qfalse );
+      break;
+
     case WP_ABUILD:
     case WP_ABUILD2:
     case WP_HBUILD:
@@ -1437,6 +1442,17 @@ void CG_AddViewWeapon( playerState_t *ps ) {
     VectorMA( hand.origin, random( ) * fraction, cg.refdef.viewaxis[1], hand.origin );
   }
   
+  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_KNOCKEDOVER )
+  {
+    vec3_t  weaponRumble;
+
+    VectorCopy( cg.rumbleVector, weaponRumble );
+    VectorInverse( weaponRumble );
+    VectorScale( weaponRumble, 0.1f, weaponRumble );
+      
+    VectorAdd( hand.origin, weaponRumble, hand.origin );
+  }
+  
   AnglesToAxis( angles, hand.axis );
 
   // map torso animations to weapon animations
@@ -1456,8 +1472,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
   hand.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON | RF_MINLIGHT;
 
   // add everything onto the hand
-  CG_AddPlayerWeapon( &hand, ps, &cg.predictedPlayerEntity );
-}
+  CG_AddPlayerWeapon( &hand, ps, &cg.predictedPlayerEntity );}
 
 /*
 ==============================================================================

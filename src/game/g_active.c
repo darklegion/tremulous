@@ -800,9 +800,6 @@ void ClientThink_real( gentity_t *ent ) {
   usercmd_t *ucmd;
   float   speed;
 
-  //TA: torch
-  gentity_t *light;
-
   //TA: creep variables
   gentity_t *creepNode;
   vec3_t    temp_v;
@@ -884,6 +881,9 @@ void ClientThink_real( gentity_t *ent ) {
   else if( client->ps.stats[ STAT_STATE ] & SS_BLOBLOCKED ||
            client->ps.stats[ STAT_STATE ] & SS_GRABBED )
     client->ps.pm_type = PM_GRABBED;
+  else if( client->ps.stats[ STAT_STATE ] & SS_GETTINGUP ||
+           client->ps.stats[ STAT_STATE ] & SS_KNOCKEDOVER )
+    client->ps.pm_type = PM_KNOCKED;
   else
     client->ps.pm_type = PM_NORMAL;
 
@@ -903,6 +903,29 @@ void ClientThink_real( gentity_t *ent ) {
       client->lastPoisonCloudedTime + PCLOUD_TIME < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_POISONCLOUDED;
 
+  if( client->ps.stats[ STAT_STATE ] & SS_KNOCKEDOVER &&
+      client->lastKnockedOverTime + KOVER_TIME < level.time &&
+      ucmd->upmove > 0 )
+  {
+    client->lastGetUpTime = level.time;
+    G_AddPredictableEvent( ent, EV_GETUP, 0 );
+    client->ps.stats[ STAT_STATE ] &= ~SS_KNOCKEDOVER;
+    client->ps.stats[ STAT_STATE ] |= SS_GETTINGUP;
+
+    //FIXME: getup animation
+    client->ps.legsAnim =
+      ( ( client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | BOTH_DEATH2;
+    client->ps.torsoAnim =
+      ( ( client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | BOTH_DEATH2;
+  }
+
+  if( client->ps.stats[ STAT_STATE ] & SS_GETTINGUP &&
+      client->lastGetUpTime + GETUP_TIME < level.time )
+  {
+    client->ps.stats[ STAT_STATE ] &= ~SS_GETTINGUP;
+    VectorCopy( ent->client->ps.grapplePoint, ent->client->ps.viewangles );
+  }
+  
   client->ps.gravity = g_gravity.value;
 
   if( BG_gotItem( UP_ANTITOXIN, client->ps.stats ) &&
@@ -964,36 +987,6 @@ void ClientThink_real( gentity_t *ent ) {
     client->hook && !( ucmd->buttons & BUTTON_ATTACK ) ) {
     Weapon_HookFree(client->hook);
   }*/
-
-  //TA: torch stuff
-  if( client->torch == NULL &&
-      BG_activated( UP_TORCH, client->ps.stats ) &&
-      BG_gotItem( UP_TORCH, client->ps.stats ) &&
-      !( client->ps.pm_type == PM_DEAD )
-    )
-  {
-    light = G_Spawn( );
-    light->s.eType = ET_TORCH;
-    light->r.ownerNum = ent->s.number;
-    light->parent = ent;
-    client->torch = light;
-  }
-
-  if( client->torch != NULL &&
-      ( !BG_activated( UP_TORCH, client->ps.stats ) ||
-        client->ps.pm_type == PM_DEAD ||
-        !BG_gotItem( UP_TORCH, client->ps.stats )
-      )
-    )
-  {
-    G_FreeEntity( client->torch );
-    trap_LinkEntity( client->torch );
-    client->torch = NULL;
-  }
-          
-                              
-  if( client->torch != NULL )
-    ShineTorch( client->torch );
 
   // set up for pmove
   oldEventSequence = client->ps.eventSequence;

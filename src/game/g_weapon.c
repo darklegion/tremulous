@@ -623,7 +623,6 @@ void poisonCloud( gentity_t *ent )
   vec3_t    mins, maxs, dir;
   int       i, num;
   gentity_t *humanPlayer;
-  float     modifier = 1.0f;
   
   VectorAdd( ent->client->ps.origin, range, maxs );
   VectorSubtract( ent->client->ps.origin, range, mins );
@@ -635,9 +634,12 @@ void poisonCloud( gentity_t *ent )
     
     if( humanPlayer->client && humanPlayer->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
     {
-      humanPlayer->client->ps.stats[ STAT_STATE ] |= SS_POISONCLOUDED;
-      humanPlayer->client->lastPoisonCloudedTime = level.time;
-      G_AddPredictableEvent( humanPlayer, EV_POISONCLOUD, 0 );
+      if( !( humanPlayer->client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED ) )
+      {
+        humanPlayer->client->ps.stats[ STAT_STATE ] |= SS_POISONCLOUDED;
+        humanPlayer->client->lastPoisonCloudedTime = level.time;
+        G_AddPredictableEvent( humanPlayer, EV_POISONCLOUD, 0 );
+      }
     }
   }
 }
@@ -863,6 +865,56 @@ void directZapFire( gentity_t *ent )
   }
 }
 
+
+/*
+======================================================================
+
+GROUND POUND
+
+======================================================================
+*/
+
+/*
+===============
+groundPound
+===============
+*/
+void groundPound( gentity_t *ent )
+{
+  int       entityList[ MAX_GENTITIES ];
+  vec3_t    range = { 200, 200, 200 };
+  vec3_t    mins, maxs, dir;
+  int       i, num;
+  gentity_t *humanPlayer;
+  
+  VectorAdd( ent->client->ps.origin, range, maxs );
+  VectorSubtract( ent->client->ps.origin, range, mins );
+  
+  num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+  for( i = 0; i < num; i++ )
+  {
+    humanPlayer = &g_entities[ entityList[ i ] ];
+    
+    if( humanPlayer->client && humanPlayer->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    {
+      if( !( humanPlayer->client->ps.stats[ STAT_STATE ] & SS_KNOCKEDOVER ) )
+      {
+        humanPlayer->client->ps.stats[ STAT_STATE ] |= SS_KNOCKEDOVER;
+        humanPlayer->client->lastKnockedOverTime = level.time;
+        G_AddPredictableEvent( humanPlayer, EV_KNOCKOVER, 0 );
+        
+        VectorCopy( humanPlayer->client->ps.viewangles, humanPlayer->client->ps.grapplePoint );
+        
+        //FIXME: fallover anim
+        humanPlayer->client->ps.legsAnim =
+          ( ( humanPlayer->client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | BOTH_DEATH1;
+        humanPlayer->client->ps.torsoAnim =
+          ( ( humanPlayer->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | BOTH_DEATH1;
+      }
+    }
+  }
+}
+
 //======================================================================
 
 /*
@@ -907,6 +959,9 @@ void FireWeapon3( gentity_t *ent )
     case WP_POUNCE_UPG:
       slowBlobFire( ent );
       break;
+    case WP_GROUND_POUND:
+      slowBlobFire( ent );
+      break;
       
     default:
       break;
@@ -946,9 +1001,14 @@ void FireWeapon2( gentity_t *ent )
     case WP_DIRECT_ZAP:
       areaZapFire( ent );
       break;
+    case WP_GROUND_POUND:
+      groundPound( ent );
+      break;
+      
     case WP_LUCIFER_CANON:
       LCChargeFire( ent, qtrue );
       break;
+      
     case WP_ABUILD:
     case WP_ABUILD2:
     case WP_HBUILD:
@@ -982,9 +1042,24 @@ void FireWeapon( gentity_t *ent )
   // fire the specific weapon
   switch( ent->s.weapon )
   {
-    case WP_TESLAGEN:
-      teslaFire( ent );
+    case WP_GRAB_CLAW:
+    case WP_GRAB_CLAW_UPG:
+      meleeAttack( ent, 32.0f, 5 );
       break;
+    case WP_POUNCE:
+    case WP_POUNCE_UPG:
+      meleeAttack( ent, 32.0f, 50 );
+      break;
+    case WP_AREA_ZAP:
+      areaZapFire( ent );
+      break;
+    case WP_DIRECT_ZAP:
+      directZapFire( ent );
+      break;
+    case WP_GROUND_POUND:
+      meleeAttack( ent, 32.0f, 150 );
+      break;
+
     case WP_MACHINEGUN:
       bulletFire( ent, MACHINEGUN_SPREAD, MACHINEGUN_DAMAGE, MOD_MACHINEGUN );
       break;
@@ -1003,23 +1078,6 @@ void FireWeapon( gentity_t *ent )
     case WP_MASS_DRIVER:
       massDriverFire( ent );
       break;
-    case WP_LOCKBLOB_LAUNCHER:
-      lockBlobLauncherFire( ent );
-      break;
-    case WP_GRAB_CLAW:
-    case WP_GRAB_CLAW_UPG:
-      meleeAttack( ent, 32.0f, 5 );
-      break;
-    case WP_POUNCE:
-    case WP_POUNCE_UPG:
-      meleeAttack( ent, 32.0f, 50 );
-      break;
-    case WP_AREA_ZAP:
-      areaZapFire( ent );
-      break;
-    case WP_DIRECT_ZAP:
-      directZapFire( ent );
-      break;
     case WP_LUCIFER_CANON:
       LCChargeFire( ent, qfalse );
       break;
@@ -1029,6 +1087,14 @@ void FireWeapon( gentity_t *ent )
     case WP_PAIN_SAW:
       painSawFire( ent );
       break;
+      
+    case WP_LOCKBLOB_LAUNCHER:
+      lockBlobLauncherFire( ent );
+      break;
+    case WP_TESLAGEN:
+      teslaFire( ent );
+      break;
+      
     case WP_ABUILD:
       buildFire( ent, MN_A_BUILD );
       break;

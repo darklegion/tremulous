@@ -329,7 +329,7 @@ static float PM_CmdScale( usercmd_t *cmd ) {
       modifier *= (float)( pm->ps->stats[ STAT_STAMINA ] + 1000 ) / 500.0f;
   }
 
-  if( pm->ps->pm_type == PM_GRABBED )
+  if( pm->ps->pm_type == PM_GRABBED || pm->ps->pm_type == PM_KNOCKED )
     modifier = 0.0f;
 
   if( !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_CANJUMP ) )
@@ -463,7 +463,7 @@ static qboolean PM_CheckJump( void )
   }
 
   //can't jump whilst grabbed
-  if( pm->ps->pm_type == PM_GRABBED )
+  if( pm->ps->pm_type == PM_GRABBED && pm->ps->pm_type == PM_KNOCKED )
   {
     pm->cmd.upmove = 0;
     return qfalse;
@@ -2152,6 +2152,9 @@ static void PM_Weapon( void )
   if( pm->ps->stats[ STAT_STATE ] & SS_HOVELING )
     return;
 
+  if( pm->ps->stats[ STAT_STATE ] & SS_KNOCKEDOVER )
+    return;
+
   // check for dead player
   if ( pm->ps->stats[STAT_HEALTH] <= 0 )
   {
@@ -2561,6 +2564,25 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
         ps->delta_angles[ i ] -= ANGLE2SHORT( fabs( diff ) * 0.05f );
     }
   }
+
+  //fiz the view to the lock point
+  if( ps->pm_type == PM_KNOCKED )
+  {
+    for( i = 0; i < 3; i++ )
+    {
+      float diff = AngleSubtract( ps->viewangles[ i ], ps->grapplePoint[ i ] );
+
+      while( diff > 180.0f )
+        diff -= 360.0f;
+      while( diff < -180.0f )
+        diff += 360.0f;
+
+      if( diff < 0 )
+        ps->delta_angles[ i ] += ANGLE2SHORT( fabs( diff ) );
+      else if( diff > 0 )
+        ps->delta_angles[ i ] -= ANGLE2SHORT( fabs( diff ) );
+    }
+  }
 }
 
 
@@ -2714,7 +2736,7 @@ void PmoveSingle (pmove_t *pmove)
   // update the viewangles
   PM_UpdateViewAngles( pm->ps, &pm->cmd );
 
-  if ( pm->ps->pm_type == PM_DEAD || pm->ps->pm_type == PM_GRABBED )
+  if ( pm->ps->pm_type == PM_DEAD || pm->ps->pm_type == PM_GRABBED || pm->ps->pm_type == PM_KNOCKED )
     PM_DeadMove( );
 
   PM_DropTimers( );

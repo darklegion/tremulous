@@ -50,6 +50,8 @@
 #define LC_CHARGE_TIME          2000.0f
 
 #define PCLOUD_TIME             10000
+#define KOVER_TIME              2000
+#define GETUP_TIME              1000
 
 //
 // config strings are a general means of communicating variable length strings
@@ -137,6 +139,7 @@ typedef enum {
   PM_GRABBED,       // like dead, but for when the player is still live
   PM_DEAD,          // no acceleration or turning, but free falling
   PM_FREEZE,        // stuck in place with no control
+  PM_KNOCKED,       // knocked over
   PM_INTERMISSION,  // no movement or status bar
   PM_SPINTERMISSION // no movement or status bar
 } pmtype_t;
@@ -251,6 +254,8 @@ typedef enum {
 #define SS_BOOSTED              0x00000200
 #define SS_SLOWLOCKED           0x00000400
 #define SS_POISONCLOUDED        0x00000800
+#define SS_KNOCKEDOVER          0x00001000
+#define SS_GETTINGUP            0x00002000
 
 #define SB_VALID_TOGGLEBIT      0x00004000
 
@@ -333,12 +338,6 @@ typedef enum
 {
   WP_NONE,
 
-  WP_MACHINEGUN,
-  WP_CHAINGUN,
-  WP_LOCKBLOB_LAUNCHER,
-  WP_TESLAGEN,
-  WP_FLAMER,
-  WP_PLASMAGUN,
   WP_VENOM,
   WP_GRAB_CLAW,
   WP_GRAB_CLAW_UPG,
@@ -346,12 +345,21 @@ typedef enum
   WP_POUNCE_UPG,
   WP_AREA_ZAP,
   WP_DIRECT_ZAP,
+  WP_GROUND_POUND,
+  
+  WP_MACHINEGUN,
+  WP_CHAINGUN,
+  WP_FLAMER,
+  WP_PLASMAGUN,
   WP_MASS_DRIVER,
   WP_PULSE_RIFLE,
   WP_LUCIFER_CANON,
   WP_LAS_GUN,
   WP_PAIN_SAW,
 
+  WP_LOCKBLOB_LAUNCHER,
+  WP_TESLAGEN,
+  
   //build weapons must remain in a block
   WP_ABUILD,
   WP_ABUILD2,
@@ -366,8 +374,6 @@ typedef enum
 {
   UP_NONE,
 
-  UP_TORCH,
-  UP_NVG,
   UP_CHESTARMOUR,
   UP_LIMBARMOUR,
   UP_HELMET,
@@ -587,7 +593,9 @@ typedef enum {
 
   EV_MENU,            //TA: menu event
   EV_BUILD_DELAY,     //TA: can't build yet
-  EV_POISONCLOUD      //TA: client poisoned
+  EV_POISONCLOUD,     //TA: client poisoned
+  EV_KNOCKOVER,       //TA: client knocked over
+  EV_GETUP            //TA: client getting up
 } entity_event_t;
 
 typedef enum
@@ -1143,7 +1151,6 @@ typedef enum {
   ET_INVISIBLE,
   ET_GRAPPLE,       // grapple hooked on wall
 
-  ET_TORCH,         //TA: torch type
   ET_CORPSE,
   ET_SPRITER,
   ET_ANIMMAPOBJ,

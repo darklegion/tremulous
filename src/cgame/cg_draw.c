@@ -1451,8 +1451,12 @@ static void CG_DrawConsole( rectDef_t *rect, float text_x, float text_y, vec4_t 
                             float scale, int align, int textStyle )
 {
   float     x, y, w, h;
-  menuDef_t dummyParent;
-  itemDef_t textItem;
+
+  //for some reason if these are stored locally occasionally rendering fails
+  //even though they are both live until the end of the function, hence static
+  //possible compiler bug??
+  static menuDef_t dummyParent;
+  static itemDef_t textItem;
 
   //offset the text
   x = rect->x;
@@ -1780,14 +1784,8 @@ static void CG_DrawLighting( void )
   
   cent = &cg_entities[cg.snap->ps.clientNum];
 
-  if( cg.snap->ps.stats[ STAT_PCLASS ] == PCL_H_BASE )
-  {
-    if( BG_activated( UP_NVG, cg.snap->ps.stats ) )
-      CG_DrawPic( 0, 0, 640, 480, cgs.media.humanNV );
-  }
-
   //fade to black if stamina is low
-  if( ( cg.snap->ps.stats[ STAT_STAMINA ] < -800  ) &&
+  if( ( cg.snap->ps.stats[ STAT_STAMINA ] < -800 ) &&
       ( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) )
   {
     vec4_t black = { 0, 0, 0, 0 };
@@ -2393,8 +2391,9 @@ CG_Draw2D
 */
 static void CG_Draw2D( void )
 {
-  vec4_t  color;
-  float   w;
+  vec4_t    color;
+  float     w;
+  menuDef_t *menu, *defaultMenu;
 
   color[ 0 ] = color[ 1 ] = color[ 2 ] = color[ 3 ] = 1.0f;
   
@@ -2414,23 +2413,23 @@ static void CG_Draw2D( void )
   //TA: draw the lighting effects e.g. nvg
   CG_DrawLighting( );
 
+  menu = Menus_FindByName( BG_FindHudNameForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] ) );
+  defaultMenu = Menus_FindByName( "default_hud" );
+  
   if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
   {
     w = CG_Text_Width( SPECTATOR_STRING, 0.7f, 0 );
     CG_Text_Paint( 320 - w / 2, 440, 0.7f, color, SPECTATOR_STRING, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
   }
-  else if( !( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
-           !( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
+  
+  if( !( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
+      !( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) && menu )
   {
     // don't draw any status if dead or the scoreboard is being explicitly shown
     if( !cg.showScores && cg.snap->ps.stats[ STAT_HEALTH ] > 0 )
     {
       if( cg_drawStatus.integer )
-      {
-        Menu_Paint(
-          Menus_FindByName(
-            BG_FindHudNameForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] ) ), qtrue );
-      }
+        Menu_Paint( menu, qtrue );
       
       CG_DrawAmmoWarning( );
       CG_DrawCrosshair( );
@@ -2442,6 +2441,8 @@ static void CG_Draw2D( void )
         CG_AlienSense( );
     }
   }
+  else if( cg_drawStatus.integer )
+    Menu_Paint( defaultMenu, qtrue );
 
   CG_DrawVote( );
   CG_DrawTeamVote( );

@@ -335,24 +335,6 @@ void SP_shooter_grenade( gentity_t *ent ) {
 ======================================================================
 */
 
-//TA: position/colour/intensity calculating function
-void ShineTorch( gentity_t *self )
-{
-  vec3_t  origin, angles;
-
-  VectorCopy( self->parent->s.pos.trBase, origin );
-  VectorCopy( self->parent->s.apos.trBase, angles );
-
-  G_SetOrigin( self, origin );
-
-  VectorCopy( angles, self->s.apos.trBase );
-
-  //so we can use the predicted values client side if available
-  self->s.clientNum = self->parent->s.number;
-
-  trap_LinkEntity( self );
-}
-
 //TA: use function for spriter
 void SP_use_spriter( gentity_t *self, gentity_t *other, gentity_t *activator )
 {

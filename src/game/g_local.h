@@ -327,8 +327,6 @@ struct gclient_s {
 
   int       switchTeamTime;   // time the player switched teams
 
-  gentity_t *torch;       //TA: torch entity ( NULL if switched off )
-
   // timeResidual is used to handle events that happen every second
   // like health / armor countdowns and regeneration
   //TA: two timers, one every 100 msecs, another every sec
@@ -346,6 +344,8 @@ struct gclient_s {
   int       lastLockTime;
   int       lastSlowTime;
   int       lastBoostedTime;
+  int       lastKnockedOverTime;
+  int       lastGetUpTime;
 
   int       pouncePayload; //TA: amount of damage pounce attack will do
   qboolean  allowedToPounce;

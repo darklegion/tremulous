@@ -725,8 +725,12 @@ typedef struct {
   int       rightMoveTime;
   int       upMoveTime;
 
-  int       poisonedTime; //TA: poison cloud
-  int       firstPoisonedTime; //TA: poison cloud
+  int       poisonedTime;       //TA: poison cloud
+  int       firstPoisonedTime;  //TA: poison cloud
+  int       lastRumbleTime;     //TA: knocked over time
+  vec3_t    rumbleVector;       //TA: vertical displacement whilst rumbling
+  int       firstKnockedTime;   //TA: knocked over time
+  int       firstGetUpTime;     //TA: getting up time
 
   float     charModelFraction; //TA: loading percentages
   float     mediaFraction;
@@ -739,6 +743,8 @@ typedef struct {
   char          consoleText[ MAX_CONSOLE_TEXT ];
   consoleLine_t consoleLines[ MAX_CONSOLE_LINES ];
   int           numConsoleLines;
+  qboolean      consoleValid;
+
 } cg_t;
 
 

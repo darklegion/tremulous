@@ -1525,18 +1525,6 @@ void Cmd_Stats_f( gentity_t *ent ) {
 }
 
 
-/*
-=================
-Cmd_TorchOff_f
-=================
-*/
-void Cmd_TorchOff_f( gentity_t *ent )
-{
-  G_FreeEntity( ent->client->torch );
-  trap_LinkEntity( ent->client->torch );
-  ent->client->torch = NULL;
-}
-
 #define NUM_AC  3
 
 /*
@@ -2454,9 +2442,15 @@ void Cmd_Spawnbody_f( gentity_t *ent )
 
 void Cmd_Test_f( gentity_t *ent )
 {
-  ent->client->ps.stats[ STAT_STATE ] |= SS_POISONCLOUDED;
-  ent->client->lastPoisonCloudedTime = level.time;
-  G_AddPredictableEvent( ent, EV_POISONCLOUD, 0 );
+  ent->client->ps.stats[ STAT_STATE ] |= SS_KNOCKEDOVER;
+  ent->client->lastKnockedOverTime = level.time;
+  G_AddPredictableEvent( ent, EV_KNOCKOVER, 0 );
+  VectorCopy( ent->client->ps.viewangles, ent->client->ps.grapplePoint );
+  
+  ent->client->ps.legsAnim =
+    ( ( ent->client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | BOTH_DEATH1;
+  ent->client->ps.torsoAnim =
+    ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | BOTH_DEATH1;
 }
 
 /*

@@ -1556,7 +1556,7 @@ classAttributes_t bg_classList[ ] =
     100,                                          //int     health;
     5,                                            //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
-    WP_VENOM,                                     //weapon_t  startWeapon
+    WP_GROUND_POUND,                              //weapon_t  startWeapon
     0.0f,                                         //float   buildDist;
     130,                                          //int     fov;
     0.0f,                                         //float   bob;
@@ -1730,7 +1730,7 @@ char *BG_FindHudNameForClass( int pclass )
       return bg_classList[ i ].hudName;
   }
 
-  //note: must return a valid modelName!
+  //note: must return a valid hudName!
   return bg_classList[ 0 ].hudName;
 }
 
@@ -2541,6 +2541,28 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
+    WP_GROUND_POUND,      //int       weaponNum;
+    100,                  //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_WEAPON,          //int       slots;
+    "groundpound",        //char      *weaponName;
+    "Ground Pound",       //char      *weaponHumanName;
+    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
+    "icons/iconw_gauntlet",
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
+    750,                  //int       repeatRate;
+    0,                    //int       reloadTime;
+    qtrue,                //qboolean  hasAltMode;
+    qtrue,                //qboolean  hasThirdMode;
+    qfalse,               //qboolean  purchasable;
+    0,                    //int       buildDelay;
+    WUT_ALIENS            //WUTeam_t  team;
+  },
+  {
     WP_LOCKBLOB_LAUNCHER, //int       weaponNum;
     100,                  //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
@@ -2978,32 +3000,6 @@ WUTeam_t BG_FindTeamForWeapon( int weapon )
 
 upgradeAttributes_t bg_upgrades[ ] =
 {
-  {
-    UP_TORCH,               //int   upgradeNum;
-    100,                    //int   price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    SLOT_NONE,              //int   slots;
-    "torch",                //char  *upgradeName;
-    "Torch",                //char  *upgradeHumanName;
-    "icons/iconw_machinegun",
-    WP_NONE,                //weapon_t weaponAmmo;
-    0,                      //int   ammo;
-    0,                      //int   clips;
-    WUT_HUMANS              //WUTeam_t  team;
-  },
-  {
-    UP_NVG,                 //int   upgradeNum;
-    100,                    //int   price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    SLOT_HEAD,              //int   slots;
-    "nvg",                  //char  *upgradeName;
-    "NVG",                  //char  *upgradeHumanName;
-    "icons/iconw_plasma",
-    WP_NONE,                //weapon_t weaponAmmo;
-    0,                      //int   ammo;
-    0,                      //int   clips;
-    WUT_HUMANS              //WUTeam_t  team;
-  },
   {
     UP_CHESTARMOUR,         //int   upgradeNum;
     100,                    //int   price;
@@ -3551,7 +3547,9 @@ char *eventnames[] = {
   "EV_TAUNT_PATROL",
 
   "EV_MENU",             //TA: menu event
-  "EV_POISONCLOUD"      //TA: client poisoned
+  "EV_POISONCLOUD",     //TA: client poisoned
+  "EV_KNOCKOVER"        //TA: client knocked over
+  "EV_GETUP"            //TA: client getting up
 };
 
 /*

@@ -356,7 +356,7 @@ static void CG_OffsetFirstPersonView( void ) {
   vec3_t    predictedVelocity;
   int       timeDelta;
   float     bob2;
-  vec3_t        normal;
+  vec3_t        normal, baseOrigin;
   playerState_t *ps = &cg.predictedPlayerState;
 	
   if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
@@ -376,6 +376,8 @@ static void CG_OffsetFirstPersonView( void ) {
 
   origin = cg.refdef.vieworg;
   angles = cg.refdefViewAngles;
+
+  VectorCopy( origin, baseOrigin );
 
   // if dead, fix the angle and don't add any kick
   if ( cg.snap->ps.stats[STAT_HEALTH] <= 0 ) {
@@ -551,6 +553,89 @@ static void CG_OffsetFirstPersonView( void ) {
 
       cg.poisonedTime = cg.time + PCLOUD_SPRITE_GAP;
     }
+  }
+  
+#define KNOCK_ROLL          70.0f
+#define KNOCK_SHAKE_HEIGHT  10
+#define KNOCK_RUMBLE_TIME   60
+  
+  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_KNOCKEDOVER )
+  {
+    int     deltaTime;
+    float   deltaSecs;
+    trace_t tr;
+    vec3_t  mins, maxs;
+    float   rollFraction;
+
+    BG_FindBBoxForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ], NULL, NULL, NULL, mins, maxs );
+
+    //bit closer to the ground
+    mins[ 2 ] = -1.0f;
+    
+    deltaTime = cg.time - ( cg.firstKnockedTime + (int)( (float)KOVER_TIME / 5.0f ) );
+    
+    if( deltaTime < 0 )
+    {
+      if( cg.time > cg.lastRumbleTime )
+      {
+        cg.rumbleVector[ 0 ] = rand( ) % KNOCK_SHAKE_HEIGHT;
+        cg.rumbleVector[ 1 ] = rand( ) % KNOCK_SHAKE_HEIGHT;
+        cg.rumbleVector[ 2 ] = rand( ) % KNOCK_SHAKE_HEIGHT;
+        
+        cg.lastRumbleTime = cg.time + KNOCK_RUMBLE_TIME;
+      }
+      
+      VectorAdd( origin, cg.rumbleVector, origin );
+    }
+    else
+    {
+      deltaSecs = deltaTime * 0.001;  // milliseconds to seconds
+      origin[ 2 ] -= 0.5 * DEFAULT_GRAVITY * deltaSecs * deltaSecs;   // FIXME: local gravity...
+
+      CG_Trace( &tr, baseOrigin, mins, maxs, origin, cg.predictedPlayerState.clientNum, MASK_SOLID );
+      VectorCopy( tr.endpos, origin );
+
+      rollFraction = (float)deltaTime / ( (float)KOVER_TIME / 6.0f );
+
+      if( rollFraction > 1.0f )
+        rollFraction = 1.0f;
+
+      angles[ ROLL ] -= rollFraction * KNOCK_ROLL;
+      VectorSet( cg.rumbleVector, 0.0f, 0.0f, 0.0f );
+    }
+  }
+  
+  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_GETTINGUP )
+  {
+    int     deltaTime;
+    trace_t tr;
+    vec3_t  mins, maxs, ground, pushUp;
+    float   rollFraction;
+
+    BG_FindBBoxForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ], NULL, NULL, NULL, mins, maxs );
+
+    //bit closer to the ground
+    mins[ 2 ] = -1.0f;
+    
+    VectorCopy( baseOrigin, ground );
+    ground[ 2 ] -= 64.0f;
+    
+    CG_Trace( &tr, baseOrigin, mins, maxs, ground, cg.predictedPlayerState.clientNum, MASK_SOLID );
+    VectorSubtract( baseOrigin, tr.endpos, pushUp );
+    
+    deltaTime = cg.time - cg.firstGetUpTime;
+
+    rollFraction = (float)deltaTime / (float)GETUP_TIME;
+
+    if( rollFraction > 1.0f )
+      rollFraction = 1.0f;
+
+    rollFraction = 1.0f - rollFraction;
+    
+    VectorScale( pushUp, rollFraction, pushUp );
+    VectorSubtract( origin, pushUp, origin );
+
+    angles[ ROLL ] -= rollFraction * KNOCK_ROLL;
   }
   
   //TA: this *feels* more realisitic for humans
@@ -1237,7 +1322,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
   /*CG_PowerupTimerSounds();*/
 
   //remove expired console lines
-  if( cg.consoleLines[ 0 ].time + cg_consoleLatency.integer < cg.time )
+  if( cg.consoleLines[ 0 ].time + cg_consoleLatency.integer < cg.time && cg_consoleLatency.integer > 0 )
     CG_RemoveConsoleLine( );
   
   // update audio positions

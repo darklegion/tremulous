@@ -132,7 +132,7 @@ static void CG_EntityEffects( centity_t *cent ) {
 
 
   // constant light glow
-  if ( cent->currentState.constantLight && cent->currentState.eType != ET_TORCH )
+  if ( cent->currentState.constantLight )
   {
     int   cl;
     int   i, r, g, b;
@@ -484,154 +484,6 @@ static void CG_Portal( centity_t *cent ) {
 
 //============================================================================
 
-#define MAX_MARK_FRAGMENTS  128
-#define MAX_MARK_POINTS     384
-#define TORCH_R             0.2f
-#define TORCH_G             0.25f
-#define TORCH_B             0.3f
-
-/*
-===============
-CG_TorchLight
-===============
-*/
-static void CG_TorchLight( centity_t *cent )
-{
-  int             i, j, lum, numFragments;
-  polyVert_t      verts[ 4 ];
-  float           size, texCoordScale, veclength;
-  trace_t         tr;
-  vec2_t          tex[ 4 ];
-  vec3_t          temp, origin, normal, projection, angles;
-  vec3_t          to, from, forward, length;
-  vec3_t          markPoints[ MAX_MARK_POINTS ];
-  vec3_t          square[ 4 ];
-  vec4_t          axis[ 3 ], color;
-  vec3_t          mins = { -15, -15, -15 };
-  vec3_t          maxs = {  15,  15,  15 };
-  markFragment_t  markFragments[ MAX_MARK_FRAGMENTS ], *mf;
-
-  if( cent->currentState.clientNum == cg.predictedPlayerState.clientNum )
-  {
-    VectorCopy( cg.predictedPlayerState.origin, from );
-    VectorCopy( cg.refdefViewAngles, angles );
-  }
-  else
-  {
-    VectorCopy( cent->lerpOrigin, from );
-    VectorCopy( cent->lerpAngles, angles );
-  }
-
-  from[2] += cg.predictedPlayerState.viewheight;
-
-  AngleVectors( angles, forward, NULL, NULL );
-  VectorMA( from, 4096, forward, to );
-
-  CG_Trace( &tr, from, mins, maxs, to, -1, MASK_SOLID );
-  
-  VectorSubtract( tr.endpos, from, length );
-  veclength = VectorLength( length );
-
-  size = veclength / 2.0f;
-  if( size > 255 ) size = 255;
-  if( size < 0 ) size = 0;       
-
-  VectorCopy( tr.endpos, origin );
-  VectorCopy( tr.plane.normal, normal );
-
-  //slightly above surface 
-  VectorMA( origin, 1, normal, origin );
-  
-#if 1
-  trap_R_AddLightToScene( origin, size * 2, 1, 1, 1 );
-  trap_R_AddAdditiveLightToScene( origin, size * 2, ( ( 512 - size ) / 512 ) * TORCH_R,
-                                                    ( ( 512 - size ) / 512 ) * TORCH_G,
-                                                    ( ( 512 - size ) / 512 ) * TORCH_B );
-#else
-  texCoordScale = 0.5f / size;
-
-  //decide where the corners of the poly go
-  VectorNormalize2( normal, axis[0] );
-  PerpendicularVector( axis[1], axis[0] );
-  CrossProduct( axis[0], axis[1], axis[2] );
-
-  for ( i = 0 ; i < 3 ; i++ )
-  {
-    square[0][i] = origin[i] - size * axis[1][i] - size * axis[2][i];
-    square[1][i] = origin[i] - size * axis[1][i] + size * axis[2][i];
-    square[2][i] = origin[i] + size * axis[1][i] + size * axis[2][i];
-    square[3][i] = origin[i] + size * axis[1][i] - size * axis[2][i];
-  }
-  
-  //set texture coordinates
-  Vector2Set( tex[ 0 ], 0, 0 );
-  Vector2Set( tex[ 1 ], 0, 1 );
-  Vector2Set( tex[ 2 ], 1, 1 );
-  Vector2Set( tex[ 3 ], 1, 0 );
-
-  VectorScale( normal, -32, projection );
-  numFragments = trap_CM_MarkFragments( 4, (void *)square,
-    projection, MAX_MARK_POINTS, markPoints[0],
-    MAX_MARK_FRAGMENTS, markFragments );
-   
-  color[ 0 ] = color[ 1 ] = color[ 2 ] = color[ 3 ] = 255;
-  
-  VectorCopy( origin, temp );
-  VectorMA( temp, 48, normal, temp );
-  lum = CG_AmbientLight( temp );
-
-  lum += (int)( ( size / 255.0f ) * 24 );
-
-  if( lum > 255 )
-    lum = 255;
-
-  for ( i = 0, mf = markFragments ; i < numFragments ; i++, mf++ )
-  {
-    polyVert_t  *v;
-    polyVert_t  verts[MAX_VERTS_ON_POLY];
-    markPoly_t  *mark;
-
-    // we have an upper limit on the complexity of polygons
-    // that we store persistantly
-    if ( mf->numPoints > MAX_VERTS_ON_POLY )
-      mf->numPoints = MAX_VERTS_ON_POLY;
-      
-    for ( j = 0, v = verts ; j < mf->numPoints ; j++, v++ )
-    {
-      vec3_t    delta;
-
-      VectorCopy( markPoints[ mf->firstPoint + j ], v->xyz );
-      VectorMA( v->xyz, 0.1f, normal, v->xyz );
-
-      VectorSubtract( v->xyz, origin, delta );
-      v->st[0] = 0.5 + DotProduct( delta, axis[1] ) * texCoordScale;
-      v->st[1] = 0.5 + DotProduct( delta, axis[2] ) * texCoordScale;
-      *(int *)v->modulate = *(int *)color;
-    }
-    
-    if( lum < 64 )
-    {
-      if( lum < 10 )
-        trap_R_AddPolyToScene( cgs.media.humanTorch8, mf->numPoints, verts );
-      else if( lum >= 10 && lum < 16 )
-        trap_R_AddPolyToScene( cgs.media.humanTorch7, mf->numPoints, verts );
-      else if( lum >= 16 && lum < 22 )
-        trap_R_AddPolyToScene( cgs.media.humanTorch6, mf->numPoints, verts );
-      else if( lum >= 22 && lum < 28 )
-        trap_R_AddPolyToScene( cgs.media.humanTorch5, mf->numPoints, verts );
-      else if( lum >= 28 && lum < 34 )
-        trap_R_AddPolyToScene( cgs.media.humanTorch4, mf->numPoints, verts );
-      else if( lum >= 34 && lum < 40 )
-        trap_R_AddPolyToScene( cgs.media.humanTorch3, mf->numPoints, verts );
-      else if( lum >= 40 && lum < 46 )
-        trap_R_AddPolyToScene( cgs.media.humanTorch2, mf->numPoints, verts );
-      else if( lum >= 46 )
-        trap_R_AddPolyToScene( cgs.media.humanTorch1, mf->numPoints, verts );
-    }
-  }
-#endif
-}
-
 /*
 =========================
 CG_LightFlare
@@ -845,9 +697,6 @@ static void CG_AddCEntity( centity_t *cent ) {
     break;
   case ET_MISSILE:
     CG_Missile( cent );
-    break;
-  case ET_TORCH:
-    CG_TorchLight( cent );
     break;
   case ET_MOVER:
     CG_Mover( cent );

@@ -1159,6 +1159,16 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     cg.firstPoisonedTime = cg.time;
     break;
 
+  case EV_KNOCKOVER:
+    DEBUGNAME("EV_KNOCKOVER");
+    cg.firstKnockedTime = cg.time;
+    break;
+
+  case EV_GETUP:
+    DEBUGNAME("EV_GETUP");
+    cg.firstGetUpTime = cg.time;
+    break;
+
   case EV_PLAYER_RESPAWN:
     DEBUGNAME("EV_PLAYER_RESPAWN");
     if( es->number == cg.clientNum )

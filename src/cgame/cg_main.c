@@ -445,10 +445,13 @@ void QDECL CG_Printf( const char *msg, ... ) {
   if( cg.numConsoleLines == MAX_CONSOLE_LINES )
     CG_RemoveConsoleLine( );
 
-  strcat( cg.consoleText, text );
-  cg.consoleLines[ cg.numConsoleLines ].time = cg.time;
-  cg.consoleLines[ cg.numConsoleLines ].length = strlen( text );
-  cg.numConsoleLines++;
+  if( cg.consoleValid )
+  {
+    strcat( cg.consoleText, text );
+    cg.consoleLines[ cg.numConsoleLines ].time = cg.time;
+    cg.consoleLines[ cg.numConsoleLines ].length = strlen( text );
+    cg.numConsoleLines++;
+  }
   
   trap_Print( text );
 }
@@ -486,6 +489,18 @@ void QDECL Com_Printf( const char *msg, ... ) {
   vsprintf (text, msg, argptr);
   va_end (argptr);
 
+  //TA: team arena UI based console
+  if( cg.numConsoleLines == MAX_CONSOLE_LINES )
+    CG_RemoveConsoleLine( );
+
+  if( cg.consoleValid )
+  {
+    strcat( cg.consoleText, text );
+    cg.consoleLines[ cg.numConsoleLines ].time = cg.time;
+    cg.consoleLines[ cg.numConsoleLines ].length = strlen( text );
+    cg.numConsoleLines++;
+  }
+  
   CG_Printf ("%s", text);
 }
 
@@ -1744,6 +1759,8 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
   CG_ShaderStateChanged();
 
   trap_S_ClearLoopingSounds( qtrue );
+
+  cg.consoleValid = qtrue;
 }
 
 /*
