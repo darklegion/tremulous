@@ -243,12 +243,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   if( attacker && attacker->client )
   {
     int       clientNum = attacker->client->ps.clientNum;
-    int       totalDamage = 0;
+    float     totalDamage = 0.0f;
     gentity_t *player;
     
     //total up all the damage done by every client
     for( i = 0; i < MAX_CLIENTS; i++ )
-      totalDamage += self->credits[ i ];
+      totalDamage += (float)self->credits[ i ];
     
     if( totalDamage > 0.0f )
     {
@@ -272,7 +272,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
           
           //add credit
           G_AddCreditToClient( player->client,
-              (int)( classValue * ( self->credits[ i ] / totalDamage ) ) );
+              (int)( classValue * ( (float)self->credits[ i ] / totalDamage ) ) );
         }
       }
       else if( self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
@@ -300,7 +300,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
           if( !unclaimedFrags )
             break;
           
-          frags = (int)floor( humanValue * ( self->credits[ i ] / totalDamage ) );
+          frags = (int)floor( humanValue * ( (float)self->credits[ i ] / totalDamage ) );
           
           if( frags > 0 )
           {
