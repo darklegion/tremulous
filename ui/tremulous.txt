@@ -10,9 +10,6 @@
   
 	loadMenu { "ui/tremulous_humanarmoury.menu" }
 	
-  loadMenu { "ui/tremulous_alienbank.menu" }
-  loadMenu { "ui/tremulous_humanbank.menu" }
-	
   loadMenu { "ui/tremulous_humandialogs.menu" }
 	loadMenu { "ui/tremulous_aliendialogs.menu" }
   
