@@ -43,7 +43,7 @@ static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_
   char    *token;
   float   fps;
   int     skip;
-  char    text[20000];
+  char    text[ 20000 ];
   fileHandle_t  f;
   animation_t *animations;
 
@@ -149,15 +149,15 @@ CG_SetBuildableLerpFrameAnimation
 may include ANIM_TOGGLEBIT
 ===============
 */
-static void CG_SetBuildableLerpFrameAnimation( buildable_t buildable, lerpFrame_t *lf, int newAnimation ) {
+static void CG_SetBuildableLerpFrameAnimation( buildable_t buildable, lerpFrame_t *lf, int newAnimation )
+{
   animation_t *anim;
 
   lf->animationNumber = newAnimation;
   newAnimation &= ~ANIM_TOGGLEBIT;
 
-  if ( newAnimation < 0 || newAnimation >= MAX_BUILDABLE_ANIMATIONS ) {
+  if( newAnimation < 0 || newAnimation >= MAX_BUILDABLE_ANIMATIONS )
     CG_Error( "Bad animation number: %i", newAnimation );
-  }
 
   anim = &buildAnimations[ buildable ][ newAnimation ];
 
@@ -168,9 +168,8 @@ static void CG_SetBuildableLerpFrameAnimation( buildable_t buildable, lerpFrame_
   lf->animation = anim;
   lf->animationTime = lf->frameTime + anim->initialLerp;
 
-  if ( cg_debugAnim.integer ) {
+  if( cg_debugAnim.integer )
     CG_Printf( "Anim: %i\n", newAnimation );
-  }
 }
 
 /*
