@@ -2158,31 +2158,6 @@ static void PM_Weapon( void ) {
     return;
   }
 
-  // check for item using
-  //TA: not using q3 holdable item code
-  /*if ( pm->cmd.buttons & BUTTON_USE_HOLDABLE )
-  {
-    if ( ! ( pm->ps->pm_flags & PMF_USE_ITEM_HELD ) )
-    {
-      if ( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_MEDKIT
-        && pm->ps->stats[STAT_HEALTH] >= pm->ps->stats[STAT_MAX_HEALTH] )
-      {
-        // don't use medkit if at max health
-      }
-      else
-      {
-        pm->ps->pm_flags |= PMF_USE_ITEM_HELD;
-        PM_AddEvent( EV_USE_ITEM0 + bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag );
-        pm->ps->stats[STAT_HOLDABLE_ITEM] = 0;
-      }
-      return;
-    }
-  }
-  else
-  {
-    pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
-  }*/
-
   // make weapon function
   if ( pm->ps->weaponTime > 0 ) {
     pm->ps->weaponTime -= pml.msec;
@@ -2248,6 +2223,52 @@ static void PM_Weapon( void ) {
 
   // start the animation even if out of ammo
 
+  BG_unpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips, &maxclips );
+
+  // check for out of ammo
+  if ( !ammo && !clips && !BG_infiniteAmmo( pm->ps->weapon ) ) {
+    PM_AddEvent( EV_NOAMMO );
+    pm->ps->weaponTime += 200;
+    return;
+  }
+
+  //done reloading so give em some ammo
+  if( pm->ps->weaponstate == WEAPON_RELOADING )
+  {
+    
+    switch( pm->ps->weapon )
+    {
+      case WP_MACHINEGUN:
+        clips--;
+        ammo = CS_MG;
+        break;
+  
+      default:
+        break;
+    }
+
+    BG_packAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
+  }
+  
+  // check for end of clip 
+  if ( !ammo && clips )
+  {
+    pm->ps->weaponstate = WEAPON_RELOADING;
+    
+    switch( pm->ps->weapon )
+    {
+      case WP_MACHINEGUN:
+        addTime = 2000;
+        break;
+  
+      default:
+        break;
+    }
+
+    pm->ps->weaponTime += addTime;
+    return;
+  }
+    
   switch( pm->ps->weapon )
   {
     case WP_VENOM:
@@ -2272,50 +2293,6 @@ static void PM_Weapon( void ) {
   
   PM_StartTorsoAnim( TORSO_ATTACK );
 
-  BG_unpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips, &maxclips );
-
-  // check for out of ammo
-  if ( !ammo && !clips && !BG_infiniteAmmo( pm->ps->weapon ) ) {
-    PM_AddEvent( EV_NOAMMO );
-    pm->ps->weaponTime += 200;
-    return;
-  }
-
-  //done reloading so give em some ammo
-  if( pm->ps->weaponstate == WEAPON_RELOADING )
-  {
-    
-    switch( pm->ps->weapon )
-    {
-      default:
-      case WP_MACHINEGUN:
-        clips--;
-        ammo = CS_MG;
-      break;
-  
-    }
-
-    BG_packAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
-  }
-  
-  // check for end of clip 
-  if ( !ammo && clips )
-  {
-    pm->ps->weaponstate = WEAPON_RELOADING;
-    
-    switch( pm->ps->weapon )
-    {
-      default:
-      case WP_MACHINEGUN:
-        addTime = 2000;
-      break;
-  
-    }
-
-    pm->ps->weaponTime += addTime;
-    return;
-  }
-    
   pm->ps->weaponstate = WEAPON_FIRING;
   
   // take an ammo away if not infinite
