@@ -1,0 +1,207 @@
+#include "ui/menudef.h"
+
+{
+  assetGlobalDef
+  {
+    font "fonts/font" 16        // font
+    smallFont "fonts/smallfont" 12        // font
+    bigFont "fonts/bigfont" 20        // font
+    cursor "ui/assets/3_cursor3"      // cursor 
+    gradientBar "ui/assets/gradientbar2.tga"  // gradient bar
+    itemFocusSound "sound/misc/menu2.wav"   // sound for item getting focus (via keyboard or mouse )
+  
+    fadeClamp 1.0         // sets the fadeup alpha
+    fadeCycle 1         // how often fade happens in milliseconds
+    fadeAmount 0.1          // amount to adjust alpha per cycle
+
+    shadowColor 0.1 0.1 0.1 0.25      // shadow color
+  }
+                 
+
+
+
+
+  menuDef
+  {
+    name "main"
+    fullScreen MENU_TRUE        
+    rect 0 0 640 480        // Size and position of the menu
+    visible MENU_TRUE       // Visible on open
+    focusColor 1 .75 0 1        // Menu focus color for text and items
+
+    onOpen { uiScript stopRefresh ; playlooped "sounds/ui/heartbeat.wav" }	
+    onESC{open quit_popmenu}
+  
+    itemDef
+    {
+      name background
+      rect 0 0 640 480
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 1
+      visible 1
+      decoration
+    }
+
+    itemDef
+    {
+      name splashmodel
+      rect 0 0 640 480
+      type ITEM_TYPE_MODEL
+      style WINDOW_STYLE_EMPTY
+      asset_model "models/splash/splash_screen.md3"
+      model_fovx 33.0
+      model_fovy 24.75
+      model_angle 180
+      visible 1
+      decoration
+    }
+
+    itemDef
+    {
+      name mainmenu
+      text "Join Server"
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_EMPTY
+      textstyle ITEM_TEXTSTYLE_NORMAL 
+      rect 472 20 128 20 
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 128 
+      textaligny 20 
+      textscale .416
+      forecolor 1 1 1 1 
+      visible 1 
+      action
+      {
+        play "sound/misc/kcaction.wav"; 
+        close main; 
+        open joinserver
+      }
+    }
+
+    itemDef
+    {
+      name mainmenu
+      text "Start Server"
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_EMPTY 
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      rect 472 40 128 20 
+      textalign ITEM_ALIGN_RIGHT   
+      textalignx 128 
+      textaligny 20 
+      textscale .416
+      forecolor 1 1 1 1  
+      visible 1 
+      action
+      {
+        play "sound/misc/kcaction.wav"; 
+        close main; 
+        open createserver
+      }
+    }
+    itemDef
+    {
+      name mainmenu
+      text "Setup"
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_EMPTY
+      textstyle ITEM_TEXTSTYLE_NORMAL 
+      rect 472 80 128 20 
+      textalignx 128 
+      textaligny 20 
+      textscale .416
+      textalign ITEM_ALIGN_RIGHT   
+      forecolor 1 1 1 1
+      visible 1 
+      action
+      {
+        play "sound/misc/kcaction.wav"; 
+        close main; 
+        open setup_menu; 
+        open control_menu
+      }
+    }
+
+    itemDef
+    {
+      name mainmenu
+      text "Credits"
+      type ITEM_TYPE_BUTTON
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      textscale .416
+      style WINDOW_STYLE_EMPTY 
+      rect 472 100 128 20
+      textalignx 128 
+      textaligny 20 
+      textalign ITEM_ALIGN_RIGHT   
+      backcolor 0 0 0 0
+      forecolor 1 1 1 1
+      visible 1
+      action
+      {
+        play "sound/misc/kcaction.wav"; 
+        close main; 
+        open credit
+      } 
+    }
+
+    itemDef
+    {
+      name mainmenu
+      text "Mods"
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_EMPTY 
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      textscale .416
+      rect 472 120 128 20 
+      textalignx 128 
+      textaligny 20 
+      textalign ITEM_ALIGN_RIGHT   
+      backcolor 0 0 0 0
+      forecolor 1 1 1 1
+      visible 1 
+      action
+      {
+        play "sound/misc/kcaction.wav"; 
+        close main; 
+        open mod
+      }
+    }
+    itemDef
+    {
+      name mainmenu
+      text "Quit"
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_EMPTY
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      rect 472 160 128 20
+      textalignx 128 
+      textaligny 20 
+      textscale .416
+      textalign ITEM_ALIGN_RIGHT   
+      forecolor 1 1 1 1
+      visible 1 
+      action
+      {
+        play "sound/misc/kcaction.wav";
+        open quit_popmenu
+      }
+    }
+
+    itemDef
+    {
+      name copyright
+      text "Q3A (C) 2000 Id Software Inc. Tremulous by Timbo and Veda."
+      style WINDOW_STYLE_EMPTY
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      textscale .15
+      rect 0 440 640 40
+      textalign 1 
+      textaligny 32
+      textalignx 320 
+      forecolor .75 .75 .75 .75
+      visible 1 
+      decoration 
+    }
+  }
+}

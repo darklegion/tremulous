@@ -1,0 +1,303 @@
+#include "ui/menudef.h"
+
+{
+\\ MOD \\
+
+  menuDef {
+    	name "mod"
+    	visible 0
+    	fullscreen 1
+    	rect 0 0 640 480
+    	background "menuback_a"
+    	focusColor 1 .67 0 1
+    	style 1
+    	border 1
+	onEsc { close mod ; open main }
+	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ;
+	playlooped "music/fla_mp03.wav" ;
+	fadeout fadebox ; 
+	uiScript loadMods ; 
+	hide lightning ; 
+	hide accept_alt ; 
+	show accept ;
+	hide back_alt ;
+	show back ;
+	hide grpmessage }
+	
+		 
+
+
+
+
+
+// LEVEL SELECTION BAR	//
+
+
+  itemDef {
+      name levelbar
+	text "TEAM ARENA MODS"
+	textstyle 6
+      style 2
+      rect 0 16 640 40 
+      textscale 0.416
+      textalign 1		        // center
+      textalignx 320        // x alignment point for text
+                            // use it to offset left/right text from the edge 
+                            // or to center the text on a different point
+      textaligny 27        
+      style 2
+      border 4
+      bordercolor 0.5 0.5 0.5 0.5
+      bordersize 2
+      backcolor 0 0 .75 0.5
+      visible 1 
+      decoration 
+    }
+
+    itemDef {
+      	name teamarenaimage
+	style 3
+	background "ui/assets/teamarenaimage.tga"
+	rect 0 80 220 115 
+      	visible 1 
+    	}
+
+
+itemDef {
+	name mappreview
+      	style 5
+	cinematic "mpintro.roq"
+	rect 20 195 200 150
+	backcolor 1 1 1 .25
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 1
+	decoration
+	visible 1
+	}
+/*
+
+//	DEMO ONLY	//
+itemDef {
+	name demo_only
+	style 0 
+	rect 240 250 360 20
+	textstyle 1
+	textalign 1
+	textalignx 180
+	textaligny 25
+	textscale .333
+	text "This Option is Not Available in Demo."
+	forecolor 1 1 1 1
+	decoration 
+	visible 1
+	}
+
+*/
+
+
+
+itemDef {
+	name modlist
+      	rect 240 100 360 300
+	type ITEM_TYPE_LISTBOX
+	style WINDOW_STYLE_FILLED
+	elementwidth 120
+	elementheight 20
+	textscale .25
+	elementtype LISTBOX_TEXT
+	feeder FEEDER_MODS
+	textalign 3
+	textaligny 14
+	border 1
+	bordercolor .5 .5 .5 .5
+	forecolor 1 1 1 1
+	backcolor 0 0 .5 .25
+	outlinecolor .1 .1 .7 .5
+	visible 1
+	doubleClick { uiScript RunMod }
+	mouseEnter { fadein message_mod ; setitemcolor modlist bordercolor .7 0 0 1 } 
+	mouseExit { fadeout message_mod ; setitemcolor modlist bordercolor .5 .5 .5 .5 } 
+  	}
+
+
+
+
+// BACK BAR	//
+
+
+  itemDef {
+      name gotobar
+      style 2
+      rect 0 430 640 30 
+      textscale 0.4
+      textalign 0		        // center
+      textalignx 60        // x alignment point for text
+                            // use it to offset left/right text from the edge 
+                            // or to center the text on a different point
+      textaligny 21        
+      style 2
+      border 4
+      bordercolor 0.5 0.5 0.5 0.5
+      bordersize 2
+      backcolor 0 0 .75 0.5
+      visible 1 
+      mouseEnter { setcolor backcolor .75 0 0 .5 }
+      mouseExit { setcolor backcolor 0 0 .75 .5 }
+      decoration 
+    	}
+
+
+
+    itemDef {
+      	name back
+	style 3
+	background "ui/assets/backarrow.tga"
+	rect 16 424 50 50 
+      	visible 1 
+      	action { close mod ; open main }
+	mouseEnter { hide back ; show back_alt ; fadein message_back }
+    	}
+
+itemDef {
+      	name back_alt
+      	style WINDOW_STYLE_SHADER
+	background "ui/assets/backarrow_alt.tga"
+	rect 14 422 54 54 
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	visible 0
+	type ITEM_TYPE_BUTTON
+      	mouseExit { hide back_alt ; show back ; fadeout message_back }	    
+      	action { close mod ; open main }	  
+	}
+
+
+
+
+
+itemDef {
+      	name accept
+      	style 3	
+     	rect 574 424 50 50 
+     	background "ui/assets/forwardarrow.tga"
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	visible 1 
+	mouseEnter { show lightning ; hide accept ; show accept_alt ; show message_accept ; playlooped "sound/misc/loop_electricity_05.wav" }
+      	action { close mod ; uiScript RunMod }
+  	}
+
+itemDef {
+      	name accept_alt
+      	style 3	
+     	rect 572 422 54 54 
+     	background "ui/assets/forwardarrow_alt.tga"
+      	backcolor 0 0 0 0
+      	forecolor 1 1 1 1
+      	visible 0
+	type ITEM_TYPE_BUTTON   
+      	action { close mod ; uiScript RunMod }
+      	mouseExit { hide lightning ; hide accept_alt ; show accept ; hide message_accept ; playlooped "music/fla_mp03.wav" }	 
+  }
+
+
+ itemDef {
+      	name lightning
+      	style 3
+	background lightningkc
+      	rect 46 385 250 128     
+      	visible 0 
+      	decoration 
+    	}
+itemDef {
+      	name lightning
+      	style 3
+	background lightningkc
+      	rect 341 385 250 128     
+      	visible 0 
+      	decoration 
+    	}
+
+
+
+//	MESSAGES	//
+
+itemDef {
+	name message_back
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textstyle 1
+	textalign 1
+	textalignx 0
+	textaligny 25
+	textscale .416
+	text "Exit to Main Menu"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+itemDef {
+	name message_accept
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .416
+	text "Play Mod"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+itemDef {
+	name message_mod
+	group grpmessage
+	style 0 
+	rect 320 430 128 30
+	textalign 1
+	textstyle 1
+	textalignx 0
+	textaligny 25
+	textscale .416
+	text "Select Mod Name to Play"
+	forecolor 1 1 1 1
+	decoration 
+	visible 0
+	}
+
+
+itemDef {
+      	name fadebox
+      	style WINDOW_STYLE_FILLED
+ 	background "ui/assets/fadebox.tga"
+	forecolor 0 0 0 1
+	backcolor 0 0 0 1
+	rect 0 0 640 480
+      	visible 1 
+	decoration
+    	}
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+}
+
+}
+}

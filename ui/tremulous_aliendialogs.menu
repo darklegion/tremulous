@@ -1,0 +1,369 @@
+#include "ui/menudef.h"
+
+{
+  menuDef
+  {
+    name "tremulous_alien_no_room"
+    visible 0
+    fullscreen 0
+    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
+    rect 250 90 300 300
+    focusColor 1 .75 0 1
+    style 1
+    border 1
+    disableColor .5 .5 .5 0
+
+    itemDef
+    {
+      name alien_no_room
+      text "Error"
+      type ITEM_TYPE_TEXT
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      style 0	
+      rect 0 20 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      decoration
+    }
+    itemDef
+    {
+      name alien_no_room
+      text "There is no room here"
+      type ITEM_TYPE_TEXT
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      style 0	
+      rect 0 40 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      decoration
+    }
+    itemDef
+    {
+      name alien_no_room
+      text "OK"
+      type ITEM_TYPE_BUTTON
+      style 2	
+      rect 0 80 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      action { close tremulous_alien_no_room }
+    }
+  }
+  
+  menuDef
+  {
+    name "tremulous_alien_no_creep"
+    visible 0
+    fullscreen 0
+    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
+    rect 250 90 300 300
+    focusColor 1 .75 0 1
+    style 1
+    border 1
+    disableColor .5 .5 .5 0
+
+    itemDef
+    {
+      name alien_no_creep
+      text "Error"
+      type ITEM_TYPE_TEXT
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      style 0	
+      rect 0 20 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      decoration
+    }
+    itemDef
+    {
+      name alien_no_creep
+      text "There is no creep here"
+      type ITEM_TYPE_TEXT
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      style 0	
+      rect 0 40 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      decoration
+    }
+    itemDef
+    {
+      name alien_no_creep
+      text "OK"
+      type ITEM_TYPE_BUTTON
+      style 2	
+      rect 0 80 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      action { close tremulous_alien_no_creep }
+    }
+  }
+  
+  menuDef
+  {
+    name "tremulous_alien_no_hivemind"
+    visible 0
+    fullscreen 0
+    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
+    rect 250 90 300 300
+    focusColor 1 .75 0 1
+    style 1
+    border 1
+    disableColor .5 .5 .5 0
+
+    itemDef
+    {
+      name alien_no_hivemind
+      text "Error"
+      type ITEM_TYPE_TEXT
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      style 0	
+      rect 0 20 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      decoration
+    }
+    itemDef
+    {
+      name alien_no_hivemind
+      text "There is no hivemind"
+      type ITEM_TYPE_TEXT
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      style 0	
+      rect 0 40 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      decoration
+    }
+    itemDef
+    {
+      name alien_no_hivemind
+      text "OK"
+      type ITEM_TYPE_BUTTON
+      style 2	
+      rect 0 80 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      action { close tremulous_alien_no_hivemind }
+    }
+  }
+
+  menuDef
+  {
+    name "tremulous_alien_one_hivemind"
+    visible 0
+    fullscreen 0
+    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
+    rect 250 90 300 300
+    focusColor 1 .75 0 1
+    style 1
+    border 1
+    disableColor .5 .5 .5 0
+
+    itemDef
+    {
+      name alien_one_hivemind
+      text "Error"
+      type ITEM_TYPE_TEXT
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      style 0	
+      rect 0 20 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      decoration
+    }
+    itemDef
+    {
+      name alien_one_hivemind
+      text "There can be only one hivemind"
+      type ITEM_TYPE_TEXT
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      style 0	
+      rect 0 40 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      decoration
+    }
+    itemDef
+    {
+      name alien_one_hivemind
+      text "OK"
+      type ITEM_TYPE_BUTTON
+      style 2	
+      rect 0 80 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      action { close tremulous_alien_one_hivemind }
+    }
+  }
+
+  menuDef
+  {
+    name "tremulous_alien_no_assertion"
+    visible 0
+    fullscreen 0
+    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
+    rect 250 90 300 300
+    focusColor 1 .75 0 1
+    style 1
+    border 1
+    disableColor .5 .5 .5 0
+
+    itemDef
+    {
+      name alien_no_assertion
+      text "Error"
+      type ITEM_TYPE_TEXT
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      style 0	
+      rect 0 20 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      decoration
+    }
+    itemDef
+    {
+      name alien_no_assertion
+      text "The hivemind cannot control additional structures"
+      type ITEM_TYPE_TEXT
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      style 0	
+      rect 0 40 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      decoration
+    }
+    itemDef
+    {
+      name alien_no_assertion
+      text "OK"
+      type ITEM_TYPE_BUTTON
+      style 2	
+      rect 0 80 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      action { close tremulous_alien_no_assertion }
+    }
+  }
+  
+  menuDef
+  {
+    name "tremulous_alien_egg_warning"
+    visible 0
+    fullscreen 0
+    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
+    rect 250 90 300 300
+    focusColor 1 .75 0 1
+    style 1
+    border 1
+    disableColor .5 .5 .5 0
+
+    itemDef
+    {
+      name alien_egg_warning
+      text "Error"
+      type ITEM_TYPE_TEXT
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      style 0	
+      rect 0 20 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      decoration
+    }
+    itemDef
+    {
+      name alien_egg_warning
+      text "This egg will not be controlled by a hivemind"
+      type ITEM_TYPE_TEXT
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      style 0	
+      rect 0 40 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      decoration
+    }
+    itemDef
+    {
+      name alien_egg_warning
+      text "OK"
+      type ITEM_TYPE_BUTTON
+      style 2	
+      rect 0 80 300 20   
+      textalign ITEM_ALIGN_CENTER
+      textalignx 64
+      textaligny 18        
+      textscale .4
+      forecolor 1 1 1 1
+      visible 1 
+      action { close tremulous_alien_egg_warning }
+    }
+  }
+}

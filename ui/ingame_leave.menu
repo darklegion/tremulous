@@ -1,0 +1,344 @@
+#include "ui/menudef.h"
+
+
+{
+\\ INGAME_LEAVE MENU \\
+
+  menuDef {
+    	name "ingame_leave"
+    	visible 1
+    	fullScreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+    	rect 511 30 128 125
+	focusColor 1 .75 0 1
+	onOpen { show grpMenu ; hide grpConfirm }
+
+
+
+itemDef {
+     	name leave
+	style WINDOW_STYLE_FILLED
+     	rect 10 15 108 110   
+	backcolor 0 .1 0 1
+      	visible 1 
+     	decoration
+    	}
+
+
+// FRAME	//
+
+
+itemDef {
+	name window
+	rect 0 10 64 64
+	style 3
+	background "ui/assets/ingameleftcorner.tga"
+	visible 1
+	decoration
+	}
+
+itemDef {
+	name window
+	rect 112 10 16 64
+	style 3
+	background "ui/assets/ingameright.tga"
+	visible 1
+	decoration
+	}
+itemDef {
+	name window
+	rect 64 0 63 16
+	style 3
+	background "ui/assets/ingameconnection.tga"
+	visible 1
+	decoration
+	}
+
+itemDef {
+	name window
+	rect 0 64 64 64
+	style 3
+	background "ui/assets/ingameleftcornerb.tga"
+	visible 1
+	decoration
+	}
+itemDef {
+	name window
+	rect 64 64 64 64
+	style 3
+	background "ui/assets/ingamerightcornerb.tga"
+	visible 1
+	decoration
+	}
+
+
+
+itemDef {
+     	name leave
+     	text "Main Menu"
+	group grpMenu
+      	style 2	
+     	rect 0 30 128 20 
+	type 1  
+     	textalign 1	
+     	textalignx 64
+    	textaligny 18        
+	textscale .25
+      	forecolor 1 1 1 1
+      	visible 1 
+      	action { hide grpMenu ; show leaveConfirm }
+    	}
+
+ itemDef {
+      	name leave
+	group grpMenu
+      	text "Restart"
+      	style 2	
+	type 1
+      	rect 0 50 128 20   
+      	textalign 1	
+      	textalignx 65 
+      	textaligny 18
+	textscale .25
+      	forecolor  1 1 1 1
+      	visible 1 
+	action { hide grpMenu ; show restartConfirm }
+    	}
+
+ itemDef {
+      	name leave
+	group grpMenu
+	type 1
+      	text "Quit"
+      	style 2	
+      	rect 0 70 128 20   
+      	textalign 1	
+      	textalignx 64 
+      	textaligny 18
+	textscale .25
+      	forecolor  1 1 1 1
+      	visible 1 
+      	action { hide grpMenu ; show quitConfirm }
+    	}
+
+
+// CONFIRMS	//
+
+
+itemDef {
+     	name leaveConfirm
+     	text "Exit to"
+	group grpConfirm
+      	style 2	
+     	rect 0 33 128 20   
+     	textalign 1	
+     	textalignx 64
+    	textaligny 18        
+	textscale .25
+	decoration
+      	forecolor 1 1 1 1
+      	visible 1 
+    	}
+itemDef {
+     	name leaveConfirm
+     	text "Main Menu?"
+	group grpConfirm
+      	style 2	
+     	rect 0 50 128 20   
+     	textalign 1	
+     	textalignx 64
+    	textaligny 18        
+	textscale .25
+	decoration
+      	forecolor 1 1 1 1
+      	visible 1 
+    	}
+
+
+itemDef {
+	name leaveConfirm
+	text "Yes"
+	group grpConfirm
+	type 1
+	textscale .25
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 18 80 40 20
+	textalign 1
+	textalignx 20
+	textaligny 15
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1 
+	visible 1
+	action { uiScript leave }
+	mouseEnter { setitemcolor ok backcolor .1 .37 .1 1 }
+      	mouseExit { setitemcolor ok backcolor .37 .1 .1 1 }
+	}
+
+itemDef {
+	name leaveConfirm
+	text "No"
+	group grpConfirm
+	type 1
+	textscale .25
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 70 80 40 20
+	textalign 1
+	textalignx 20
+	textaligny 15
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1 
+	visible 1
+	action { hide grpConfirm ; show grpMenu }
+	mouseEnter { setitemcolor ok backcolor .1 .37 .1 1 }
+      	mouseExit { setitemcolor ok backcolor .37 .1 .1 1 }
+	}
+
+
+itemDef {
+     	name restartConfirm
+     	text "Want to"
+	group grpConfirm
+      	style 2	
+     	rect 0 33 128 20   
+     	textalign 1	
+     	textalignx 64
+    	textaligny 18        
+	textscale .25
+	decoration
+      	forecolor 1 1 1 1
+      	visible 1 
+    	}
+itemDef {
+     	name restartConfirm
+     	text "Restart Map?"
+	group grpConfirm
+      	style 2	
+     	rect 0 50 128 20   
+     	textalign 1	
+     	textalignx 64
+    	textaligny 18        
+	textscale .25
+	decoration
+      	forecolor 1 1 1 1
+      	visible 1 
+    	}
+
+
+
+itemDef {
+	name restartConfirm
+	text "Yes"
+	group grpConfirm
+	type 1
+	textscale .25
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 18 80 40 20
+	textalign 1
+	textalignx 20
+	textaligny 15
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1 
+	visible 1
+	action { exec "map_restart" ; close ingame_leave ; close ingame }
+	mouseEnter { setitemcolor ok backcolor .1 .37 .1 1 }
+      	mouseExit { setitemcolor ok backcolor .37 .1 .1 1 }
+	}
+
+itemDef {
+	name restartConfirm
+	text "No"
+	group grpConfirm
+	type 1
+	textscale .25
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 70 80 40 20
+	textalign 1
+	textalignx 20
+	textaligny 15
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1 
+	visible 1
+	action { hide grpConfirm ; show grpMenu }
+	mouseEnter { setitemcolor ok backcolor .1 .37 .1 1 }
+      	mouseExit { setitemcolor ok backcolor .37 .1 .1 1 }
+	}
+
+itemDef {
+     	name quitConfirm
+     	text "Want to"
+	group grpConfirm
+      	style 2	
+     	rect 0 33 128 20   
+     	textalign 1	
+     	textalignx 64
+    	textaligny 18        
+	textscale .25
+      	forecolor 1 1 1 1
+	decoration
+      	visible 1 
+    	}
+itemDef {
+     	name quitConfirm
+     	text "Quit Game?"
+	group grpConfirm
+      	style 2	
+     	rect 0 50 128 20   
+     	textalign 1	
+     	textalignx 64
+    	textaligny 18        
+	textscale .25
+      	forecolor 1 1 1 1
+	decoration
+      	visible 1 
+    	}
+
+
+itemDef {
+	name quitConfirm
+	text "Yes"
+	group grpConfirm
+	type 1
+	textscale .25
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 18 80 40 20
+	textalign 1
+	textalignx 20
+	textaligny 15
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1 
+	visible 1
+	action { uiScript quit }
+	mouseEnter { setitemcolor ok backcolor .1 .37 .1 1 }
+      	mouseExit { setitemcolor ok backcolor .37 .1 .1 1 }
+	}
+
+itemDef {
+	name quitConfirm
+	text "No"
+	group grpConfirm
+	type 1
+	textscale .25
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/button_back.tga"
+	rect 70 80 40 20
+	textalign 1
+	textalignx 20
+	textaligny 15
+	forecolor 1 1 1 1
+	backcolor .37 .1 .1 1 
+	visible 1
+	action { hide grpConfirm ; show grpMenu }
+	mouseEnter { setitemcolor ok backcolor .1 .37 .1 1 }
+      	mouseExit { setitemcolor ok backcolor .37 .1 .1 1 }
+	}
+
+
+
+}
+
+}

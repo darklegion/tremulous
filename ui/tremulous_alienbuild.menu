@@ -1,0 +1,84 @@
+#include "ui/menudef.h"
+
+{
+  menuDef
+  {
+    name "tremulous_alienbuild"
+    visible 0
+    fullscreen 0
+    outOfBoundsClick
+    rect 120 140 400 200
+    focusColor 1 .75 0 1
+    style WINDOW_STYLE_FILLED
+    disableColor .5 .5 .5 0
+    backcolor 0 .5 0 .25
+    onOpen { uiScript LoadAlienBuilds }
+
+    itemDef
+    {
+      name "list"
+      rect 10 10 150 180
+      type ITEM_TYPE_LISTBOX
+      style WINDOW_STYLE_FILLED
+      elementwidth 120
+      elementheight 15
+      textscale .25
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_TREMALIENBUILD
+      forecolor 1 1 1 1
+      backcolor 0 0 .5 .25
+      outlinecolor .1 .1 .7 .5
+      visible 1
+    }
+    
+    itemDef
+    {
+      name "infopane"
+      text "Put some info here based on selection"
+      textalignx 5
+      textaligny 15
+      rect 170 10 220 155
+      type ITEM_TYPE_TEXT
+      style WINDOW_STYLE_FILLED
+      textscale .25
+      forecolor 1 1 1 1
+      backcolor 0 0 .5 .25
+      outlinecolor .1 .1 .7 .5
+      visible 1
+    }
+    
+    itemDef
+    {
+      name "OKCancel"
+      text "OK"
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_FILLED
+      rect 320 176 20 14
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 12
+      textscale .25
+      forecolor 1 1 1 1
+      backcolor .5 0 0 .25
+      visible 1
+      action { uiScript BuildAlienBuildable; close tremulous_alienbuild }
+    }
+    
+    itemDef
+    {
+      name "OKCancel"
+      text "Cancel"
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_FILLED
+      rect 350 176 40 14
+      textalign ITEM_ALIGN_LEFT
+      textalignx 6
+      textaligny 12
+      textscale .25
+      forecolor 1 1 1 1
+      backcolor .5 0 0 .25
+      visible 1 
+      action { close tremulous_alienbuild }
+    }
+  }
+}
