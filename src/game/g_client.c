@@ -542,7 +542,7 @@ void InfestBody( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
   if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_DROIDS ) return;
 
-  G_AddPredictableEvent( activator, EV_MENU, MN_INFEST );
+  G_AddPredictableEvent( activator, EV_MENU, MN_D_INFEST );
 }
 
 /*
@@ -1275,9 +1275,9 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
   if( client->sess.sessionTeam == TEAM_SPECTATOR )
   {
     if( teamLocal == PTE_DROIDS )
-      G_AddPredictableEvent( ent, EV_MENU, MN_DROID );
+      G_AddPredictableEvent( ent, EV_MENU, MN_D_CLASS );
     else if( teamLocal == PTE_HUMANS )
-      G_AddPredictableEvent( ent, EV_MENU, MN_HUMAN );
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_SPAWN );
   }
 
   // increment the spawncount so the client will detect the respawn

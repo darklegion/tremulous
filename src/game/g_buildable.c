@@ -311,9 +311,9 @@ void HMCU_Activate( gentity_t *self, gentity_t *other, gentity_t *activator )
   if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS ) return;
   
   if( self->powered )
-    G_AddPredictableEvent( activator, EV_MENU, MN_MCU );
+    G_AddPredictableEvent( activator, EV_MENU, MN_H_MCU );
   else
-    G_AddPredictableEvent( activator, EV_MENU, MN_MCUPOWER );
+    G_AddPredictableEvent( activator, EV_MENU, MN_H_MCUPOWER );
 }
 
 /*
@@ -650,8 +650,13 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
         )
       )
     {
-      if( buildable != BA_H_SPAWN && buildable != BA_H_REACTOR && buildable != BA_H_REPEATER )
-        reason = IBE_NOPOWER;
+      if( buildable != BA_H_REACTOR )
+        reason = IBE_REPEATER;
+
+      if( buildable == BA_H_SPAWN )
+        reason = IBE_RPLWARN;
+      else if( buildable == BA_H_REPEATER )
+        reason = IBE_RPTWARN;
     }
 
     if( BG_FindReactorTestForBuildable( buildable ) )

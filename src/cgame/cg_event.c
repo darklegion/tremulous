@@ -430,51 +430,63 @@ void CG_Menu( int eventParm )
       trap_SendConsoleCommand( "menu teammenu\n" );
       break;
 
-    case MN_DROID:
+    case MN_D_CLASS:
       trap_SendConsoleCommand( "menu dclassmenu\n" );
       break;
 
-    case MN_HUMAN:
+    case MN_H_SPAWN:
       trap_SendConsoleCommand( "menu hsitemmenu\n" );
       break;
 
-    case MN_ABUILD:
+    case MN_D_BUILD:
       trap_SendConsoleCommand( "menu dbuildmenu\n" );
       break;
 
-    case MN_HBUILD:
+    case MN_H_BUILD:
       trap_SendConsoleCommand( "menu hbuildmenu\n" );
       break;
 
-    case MN_MCU:
+    case MN_H_MCU:
       trap_SendConsoleCommand( "menu hmcumenu\n" );
       break;
 
-    case MN_HNOROOM:
+    case MN_H_NOROOM:
       trap_SendConsoleCommand( "menu hnoroom\n" );
       break;
 
-    case MN_HNOPOWER:
+    case MN_H_NOPOWER:
       trap_SendConsoleCommand( "menu hnopower\n" );
       break;
 
-    case MN_DNOROOM:
+    case MN_D_NOROOM:
       trap_SendConsoleCommand( "menu dnoroom\n" );
       break;
 
-    case MN_NOCREEP:
+    case MN_D_NOCREEP:
       trap_SendConsoleCommand( "menu dnocreep\n" );
       break;
 
-    case MN_REACTOR:
+    case MN_H_REACTOR:
       trap_SendConsoleCommand( "menu hreactor\n" );
       break;
 
-    case MN_MCUPOWER:
+    case MN_H_MCUPOWER:
       trap_SendConsoleCommand( "menu hmcupower\n" );
       break;
 
-    case MN_INFEST:
+    case MN_H_REPEATER:
+      trap_SendConsoleCommand( "menu hrepeater\n" );
+      break;
+
+    case MN_H_RPLWARN:
+      trap_SendConsoleCommand( "menu hrplwarn\n" );
+      break;
+
+    case MN_H_RPTWARN:
+      trap_SendConsoleCommand( "menu hrptwarn\n" );
+      break;
+
+    case MN_D_INFEST:
       strcpy( menuDef, "5,5|Infest|0.976,0.957,0.0,1.0|0.933,0.612,0.0,1.0|0.976,0.957,0.0,1.0|1|16|" );
       for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
       {

@@ -516,18 +516,21 @@ typedef enum {
 typedef enum
 {
   MN_TEAM,
-  MN_DROID,
-  MN_HUMAN,
-  MN_ABUILD,
-  MN_HBUILD,
-  MN_MCU,
-  MN_INFEST,
-  MN_DNOROOM,
-  MN_HNOROOM,
-  MN_HNOPOWER,
-  MN_NOCREEP,
-  MN_REACTOR,
-  MN_MCUPOWER
+  MN_D_CLASS,
+  MN_D_BUILD,
+  MN_D_INFEST,
+  MN_D_NOROOM,
+  MN_D_NOCREEP,
+  MN_H_SPAWN,
+  MN_H_BUILD,
+  MN_H_MCU,
+  MN_H_NOROOM,
+  MN_H_NOPOWER,
+  MN_H_REACTOR,
+  MN_H_REPEATER,
+  MN_H_RPLWARN,
+  MN_H_RPTWARN,
+  MN_H_MCUPOWER
 } dynMenu_t;
 
 // animations

@@ -365,11 +365,11 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
     }
     else if( client->pers.pteam == PTE_DROIDS )
     {
-      G_AddPredictableEvent( ent, EV_MENU, MN_DROID );
+      G_AddPredictableEvent( ent, EV_MENU, MN_D_CLASS );
     }
     else if( client->pers.pteam == PTE_HUMANS )
     {
-      G_AddPredictableEvent( ent, EV_MENU, MN_HUMAN );
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_SPAWN );
     }
   }
 

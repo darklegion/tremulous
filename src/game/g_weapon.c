@@ -593,7 +593,7 @@ Weapon_Abuild_Fire
 */
 void Weapon_Abuild_Fire( gentity_t *ent )
 {
-  G_AddPredictableEvent( ent, EV_MENU, MN_ABUILD );
+  G_AddPredictableEvent( ent, EV_MENU, MN_D_BUILD );
 }
 
 /*
@@ -603,7 +603,7 @@ Weapon_Hbuild_Fire
 */
 void Weapon_Hbuild_Fire( gentity_t *ent )
 {
-  G_AddPredictableEvent( ent, EV_MENU, MN_HBUILD );
+  G_AddPredictableEvent( ent, EV_MENU, MN_H_BUILD );
 }
 ///////build weapons
 

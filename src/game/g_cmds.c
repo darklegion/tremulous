@@ -1925,11 +1925,11 @@ void Cmd_Build_f( gentity_t *ent )
           break;
 
         case IBE_NOCREEP:
-          G_AddPredictableEvent( ent, EV_MENU, MN_NOCREEP );
+          G_AddPredictableEvent( ent, EV_MENU, MN_D_NOCREEP );
           break;
 
         case IBE_NOROOM:
-          G_AddPredictableEvent( ent, EV_MENU, MN_DNOROOM );
+          G_AddPredictableEvent( ent, EV_MENU, MN_D_NOROOM );
           break;
       }
     }
@@ -1951,15 +1951,29 @@ void Cmd_Build_f( gentity_t *ent )
           break;
 
         case IBE_REACTOR:
-          G_AddPredictableEvent( ent, EV_MENU, MN_REACTOR );
+          G_AddPredictableEvent( ent, EV_MENU, MN_H_REACTOR );
+          break;
+
+        case IBE_REPEATER:
+          G_AddPredictableEvent( ent, EV_MENU, MN_H_REPEATER );
           break;
 
         case IBE_NOROOM:
-          G_AddPredictableEvent( ent, EV_MENU, MN_HNOROOM );
+          G_AddPredictableEvent( ent, EV_MENU, MN_H_NOROOM );
           break;
 
         case IBE_NOPOWER:
-          G_AddPredictableEvent( ent, EV_MENU, MN_HNOPOWER );
+          G_AddPredictableEvent( ent, EV_MENU, MN_H_NOPOWER );
+          break;
+          
+        case IBE_RPLWARN:
+          G_AddPredictableEvent( ent, EV_MENU, MN_H_RPLWARN );
+          Build_Item( ent, buildable, 80 );
+          break;
+          
+        case IBE_RPTWARN:
+          G_AddPredictableEvent( ent, EV_MENU, MN_H_RPTWARN );
+          Build_Item( ent, buildable, 80 );
           break;
       }
     }
