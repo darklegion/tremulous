@@ -371,9 +371,7 @@ static void CG_RunBuildableLerpFrame( centity_t *cent )
   buildable_t           buildable = cent->currentState.modelindex;
   lerpFrame_t           *lf = &cent->lerpFrame;
   animation_t           *anim;
-  buildableAnimNumber_t newAnimation = cent->buildableAnim;
-  
-  newAnimation &= ~( ANIM_TOGGLEBIT|ANIM_FORCEBIT );
+  buildableAnimNumber_t newAnimation = cent->buildableAnim & ~( ANIM_TOGGLEBIT|ANIM_FORCEBIT );
 
   // debugging tool to get no animations
   if( cg_animSpeed.integer == 0 )
@@ -386,9 +384,6 @@ static void CG_RunBuildableLerpFrame( centity_t *cent )
   if( newAnimation != lf->animationNumber || !lf->animation )
   {
     CG_SetBuildableLerpFrameAnimation( buildable, lf, newAnimation );
-
-    CG_Printf( "new anim/sound: %d %d\n", !cg_buildables[ buildable ].sounds[ newAnimation ].looped,
-        cg_buildables[ buildable ].sounds[ newAnimation ].enabled );
 
     if( !cg_buildables[ buildable ].sounds[ newAnimation ].looped &&
         cg_buildables[ buildable ].sounds[ newAnimation ].enabled )
