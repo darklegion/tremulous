@@ -1110,8 +1110,16 @@ void ClientUserinfoChanged( int clientNum )
     client->pers.maxHealth = 0;
 
   // set model
-  Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( client->pers.pclass ),
-                                            BG_FindSkinNameForClass( client->pers.pclass ) );
+  if( client->ps.stats[ STAT_PCLASS ] == PCL_H_BASE && BG_gotItem( UP_BATTLESUIT, client->ps.stats ) )
+  {
+    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( PCL_H_BSUIT ),
+                                              BG_FindSkinNameForClass( PCL_H_BSUIT ) );
+  }
+  else
+  {
+    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( client->pers.pclass ),
+                                              BG_FindSkinNameForClass( client->pers.pclass ) );
+  }
   Q_strncpyz( model, buffer, sizeof( model ) );
 
   //model segmentation

@@ -753,6 +753,7 @@ typedef enum
   
   //human class
   PCL_H_BASE,
+  PCL_H_BSUIT,
 
   PCL_NUM_CLASSES
 } pClass_t;

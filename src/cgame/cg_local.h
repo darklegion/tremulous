@@ -929,17 +929,8 @@ typedef struct
                         
   //TA: for wolf trail effects
   qhandle_t   sparkFlareShader;
-} cgMedia_t;
 
-
-//TA: media used for armour switching stuff
-typedef struct
-{
-  qhandle_t bsuitLegsModel;
-  qhandle_t bsuitTorsoModel;
-  qhandle_t bsuitLegsSkin;
-  qhandle_t bsuitTorsoSkin;
-
+  //TA: media used for armour switching stuff
   qhandle_t helmetModel;
   qhandle_t helmetSkin;
 
@@ -948,7 +939,8 @@ typedef struct
   qhandle_t carmourTorsoSkin;
   qhandle_t clarmourTorsoSkin;
   qhandle_t larmourTorsoSkin;
-} cgArmourMedia_t;
+} cgMedia_t;
+
 
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
@@ -1033,7 +1025,6 @@ typedef struct
 
   // media
   cgMedia_t           media;
-  cgArmourMedia_t     amedia;
 } cgs_t;
 
 //==============================================================================

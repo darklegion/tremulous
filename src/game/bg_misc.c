@@ -1575,6 +1575,19 @@ classAttributes_t bg_classList[ ] =
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
     0,                                              //int     timetoevolve;
     0                                               //int     value;
+  },
+  {
+    //this isn't a real class, but a dummy to force the client to precache the model
+    //FIXME: one day do this in a less hacky fashion
+    PCL_H_BSUIT, "bsuit", "bsuit",
+    
+    "keel",
+    1.0f,                                    
+    "default",
+    
+    "bsuit", ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), { 0, 0, 0 }, { 0, 0, 0, },                             
+    { 0, 0, 0, }, { 0, 0, 0, }, { 0, 0, 0, }, 0, 0, 0, 0, 0, WP_NONE, 0.0f, 0,   
+    0.0f, 0, 1.0f, 1.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
   }
 };
 

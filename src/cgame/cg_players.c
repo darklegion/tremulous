@@ -2012,20 +2012,12 @@ void CG_Player( centity_t *cent )
   //
   if( !ci->nonsegmented )
   {
-    if( held & ( 1 << UP_BATTLESUIT ) )
-    {
-      legs.hModel = cgs.amedia.bsuitLegsModel;
-      legs.customSkin = cgs.amedia.bsuitLegsSkin;
-    }
-    else
-    {
-      legs.hModel = ci->legsModel;
+    legs.hModel = ci->legsModel;
 
-      if( held & ( 1 << UP_LIMBARMOUR ) )
-        legs.customSkin = cgs.amedia.larmourLegsSkin;
-      else
-        legs.customSkin = ci->legsSkin;
-    }
+    if( held & ( 1 << UP_LIMBARMOUR ) )
+      legs.customSkin = cgs.media.larmourLegsSkin;
+    else
+      legs.customSkin = ci->legsSkin;
   }
   else
   {
@@ -2085,24 +2077,16 @@ void CG_Player( centity_t *cent )
     //
     // add the torso
     //
-    if( held & ( 1 << UP_BATTLESUIT ) )
-    {
-      torso.hModel = cgs.amedia.bsuitTorsoModel;
-      torso.customSkin = cgs.amedia.bsuitTorsoSkin;
-    }
-    else
-    {
-      torso.hModel = ci->torsoModel;
+    torso.hModel = ci->torsoModel;
 
-      if( ( held & ( 1 << UP_LIMBARMOUR ) ) && ( held & ( 1 << UP_CHESTARMOUR ) ) )
-        torso.customSkin = cgs.amedia.clarmourTorsoSkin;
-      if( held & ( 1 << UP_CHESTARMOUR ) )
-        torso.customSkin = cgs.amedia.carmourTorsoSkin;
-      if( held & ( 1 << UP_LIMBARMOUR ) )
-        torso.customSkin = cgs.amedia.larmourLegsSkin;
-      else
-        torso.customSkin = ci->torsoSkin;
-    }
+    if( ( held & ( 1 << UP_LIMBARMOUR ) ) && ( held & ( 1 << UP_CHESTARMOUR ) ) )
+      torso.customSkin = cgs.media.clarmourTorsoSkin;
+    else if( held & ( 1 << UP_CHESTARMOUR ) )
+      torso.customSkin = cgs.media.carmourTorsoSkin;
+    else if( held & ( 1 << UP_LIMBARMOUR ) )
+      torso.customSkin = cgs.media.larmourTorsoSkin;
+    else
+      torso.customSkin = ci->torsoSkin;
     
     if( !torso.hModel )
       return;
@@ -2121,8 +2105,8 @@ void CG_Player( centity_t *cent )
     //
     if( held & ( 1 << UP_HELMET ) )
     {
-      head.hModel = cgs.amedia.helmetModel;
-      head.customSkin = cgs.amedia.helmetSkin;
+      head.hModel = cgs.media.helmetModel;
+      head.customSkin = cgs.media.helmetSkin;
     }
     else
     {

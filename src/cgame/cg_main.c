@@ -888,19 +888,14 @@ static void CG_RegisterClients( void )
     trap_UpdateScreen( );
   }
 
-  cgs.amedia.bsuitLegsModel     = trap_R_RegisterModel( "models/players/tankjr/lower.md3" );
-  cgs.amedia.bsuitTorsoModel    = trap_R_RegisterModel( "models/players/tankjr/upper.md3" );
-  cgs.amedia.bsuitLegsSkin      = trap_R_RegisterShader( "models/players/tankjr/lower_default.skin" );
-  cgs.amedia.bsuitTorsoSkin     = trap_R_RegisterShader( "models/players/tankjr/upper_default.skin" );
+  cgs.media.helmetModel        = trap_R_RegisterModel( "models/players/doom/head.md3" );
+  cgs.media.helmetSkin         = trap_R_RegisterSkin( "models/players/doom/head_default.skin" );
 
-  cgs.amedia.helmetModel        = trap_R_RegisterModel( "models/players/doom/head.md3" );
-  cgs.amedia.helmetSkin         = trap_R_RegisterShader( "models/players/doom/head_default.skin" );
-
-  cgs.amedia.larmourLegsSkin    = trap_R_RegisterShader( "models/players/sarge/lower_red.skin" );
+  cgs.media.larmourLegsSkin    = trap_R_RegisterSkin( "models/players/sarge/lower_red.skin" );
   
-  cgs.amedia.carmourTorsoSkin   = trap_R_RegisterShader( "models/players/sarge/upper_krusade.skin" );
-  cgs.amedia.clarmourTorsoSkin  = trap_R_RegisterShader( "models/players/sarge/upper_roderic.skin" );
-  cgs.amedia.larmourTorsoSkin   = trap_R_RegisterShader( "models/players/sarge/upper_blue.skin" );
+  cgs.media.carmourTorsoSkin   = trap_R_RegisterSkin( "models/players/sarge/upper_krusade.skin" );
+  cgs.media.clarmourTorsoSkin  = trap_R_RegisterSkin( "models/players/sarge/upper_roderic.skin" );
+  cgs.media.larmourTorsoSkin   = trap_R_RegisterSkin( "models/players/sarge/upper_blue.skin" );
   
   cg.charModelFraction = 1.0f;
   trap_UpdateScreen( );
