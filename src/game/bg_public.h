@@ -832,6 +832,8 @@ typedef struct
   char    *modelName;
   char    *skinName;
   
+  char    *hudName;
+  
   int     stages;
   
   vec3_t  mins;
@@ -1004,6 +1006,8 @@ int       BG_FindClassNumForName( char *name );
 char      *BG_FindNameForClassNum( int pclass );
 char      *BG_FindHumanNameForClassNum( int pclass );
 char      *BG_FindModelNameForClass( int pclass );
+char      *BG_FindSkinNameForClass( int pclass );
+char      *BG_FindHudNameForClass( int pclass );
 qboolean  BG_FindStagesForClass( int pclass, stage_t stage );
 void      BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, vec3_t dmins, vec3_t dmaxs );
 void      BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight );

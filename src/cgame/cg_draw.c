@@ -2075,8 +2075,11 @@ static void CG_Draw2D( void )
     {
       if( cg_drawStatus.integer )
       {
-        Menu_PaintAll();
+        /*Menu_PaintAll();*/
         /*CG_DrawTimedMenus();*/
+        Menu_Paint(
+          Menus_FindByName(
+            BG_FindHudNameForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] ) ), qtrue );
       }
       
       CG_DrawAmmoWarning();

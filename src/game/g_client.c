@@ -1001,6 +1001,7 @@ void ClientUserinfoChanged( int clientNum ) {
   int   teamTask, teamLeader, team, health;
   char  *s;
   char  model[MAX_QPATH];
+  char  buffer[ MAX_QPATH ];
   char  oldname[MAX_STRING_CHARS];
   gclient_t *client;
   char  c1[MAX_INFO_STRING];
@@ -1063,8 +1064,9 @@ void ClientUserinfoChanged( int clientNum ) {
     client->pers.maxHealth = 0;
 
   // set model
-  s = BG_FindModelNameForClass( client->pers.pclass );
-  Q_strncpyz( model, s, sizeof( model ) );
+  Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( client->pers.pclass ),
+                                            BG_FindSkinNameForClass( client->pers.pclass ) );
+  Q_strncpyz( model, buffer, sizeof( model ) );
 
   // wallwalk follow
   s = Info_ValueForKey( userinfo, "cg_wwFollow" );

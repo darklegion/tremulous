@@ -1243,6 +1243,7 @@ classAttributes_t bg_classList[ ] =
     "Builder",                                      //char    *humanName;
     "lucy",                                         //char    *modelname;
     "default",                                      //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -15, -15, -20 },                              //vec3_t  mins;
     { 15, 15, 20 },                                 //vec3_t  maxs;
@@ -1269,6 +1270,7 @@ classAttributes_t bg_classList[ ] =
     "Advanced Builder",                             //char    *humanname;
     "lucy",                                         //char    *modelname;
     "angel",                                        //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
     { -20, -20, -20 },                              //vec3_t  mins;
     { 20, 20, 20 },                                 //vec3_t  maxs;
@@ -1295,6 +1297,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive",                                                //char    *humanname;
     "klesk",                                                    //char    *modelname;
     "default",                                                  //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -15, -15, -15 },                                          //vec3_t  mins;
     { 15, 15, 15 },                                             //vec3_t  maxs;
@@ -1321,6 +1324,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive Level 1",                          //char    *humanname;
     "anarki",                                     //char    *modelname;
     "default",                                    //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -24, -24, -24 },                            //vec3_t  mins;
     { 24, 24, 24 },                               //vec3_t  maxs;
@@ -1347,6 +1351,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive Level 1 Upgrade",                  //char    *humanname;
     "anarki",                                     //char    *modelname;
     "default",                                    //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -24, -24, -24 },                            //vec3_t  mins;
     { 24, 24, 24 },                               //vec3_t  maxs;
@@ -1373,6 +1378,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive Level 2",                          //char    *humanname;
     "bones",                                      //char    *modelname;
     "default",                                    //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -24, -24, -24 },                            //vec3_t  mins;
     { 24, 24, 24 },                               //vec3_t  maxs;
@@ -1399,6 +1405,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive Level 2 Upgrade",                  //char    *humanname;
     "bones",                                      //char    *modelname;
     "default",                                    //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -24, -24, -24 },                            //vec3_t  mins;
     { 24, 24, 24 },                               //vec3_t  maxs;
@@ -1425,6 +1432,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive Level 3",                          //char    *humanname;
     "orbb",                                       //char    *modelname;
     "default",                                    //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -15, -15, -15 },                            //vec3_t  mins;
     { 15, 15, 15 },                               //vec3_t  maxs;
@@ -1451,6 +1459,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive Level 3 Upgrade",                  //char    *humanname;
     "orbb",                                       //char    *modelname;
     "default",                                    //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -15, -15, -15 },                            //vec3_t  mins;
     { 15, 15, 15 },                               //vec3_t  maxs;
@@ -1477,6 +1486,7 @@ classAttributes_t bg_classList[ ] =
     "Offensive Level 4",                          //char    *humanname;
     "xaero",                                      //char    *modelname;
     "default",                                    //char    *skinname;
+    "alien_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -15, -15, -15 },                            //vec3_t  mins;
     { 15, 15, 15 },                               //vec3_t  maxs;
@@ -1503,6 +1513,7 @@ classAttributes_t bg_classList[ ] =
     "Human",                                    //char    *humanname;
     "sarge",                                    //char    *modelname;
     "default",                                  //char    *skinname;
+    "human_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     { -15, -15, -24 },                          //vec3_t  mins;
     { 15, 15, 32 },                             //vec3_t  maxs;
@@ -1601,6 +1612,44 @@ char *BG_FindModelNameForClass( int pclass )
 
   //note: must return a valid modelName!
   return bg_classList[ 0 ].modelName;
+}
+
+/*
+==============
+BG_FindSkinNameForClass
+==============
+*/
+char *BG_FindSkinNameForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+      return bg_classList[ i ].skinName;
+  }
+
+  //note: must return a valid modelName!
+  return bg_classList[ 0 ].skinName;
+}
+
+/*
+==============
+BG_FindHudNameForClass
+==============
+*/
+char *BG_FindHudNameForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+      return bg_classList[ i ].hudName;
+  }
+
+  //note: must return a valid modelName!
+  return bg_classList[ 0 ].hudName;
 }
 
 /*
