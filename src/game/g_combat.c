@@ -252,8 +252,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     
     if( totalDamage > 0.0f )
     {
-      if( self->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
-          player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+      if( self->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
       {
         //nice simple happy bouncy human land
         float classValue = BG_FindValueOfClass( self->client->ps.stats[ STAT_PCLASS ] );
@@ -261,6 +260,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         for( i = 0; i < MAX_CLIENTS; i++ )
         {
           player = g_entities + i;
+
+          if( player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+            continue;
 
           if( !self->credits[ i ] )
             continue;
@@ -270,8 +272,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
               (int)( classValue * ( self->credits[ i ] / totalDamage ) ) );
         }
       }
-      else if( self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
-               player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      else if( self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
       {
         //horribly complex nasty alien land
         float humanValue = BG_GetValueOfHuman( self->client->ps );
@@ -282,6 +283,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         {
           player = g_entities + i;
 
+          if( player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+            continue;
+            
           //this client did no damage
           if( !self->credits[ i ] )
             continue;

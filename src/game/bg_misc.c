@@ -4880,7 +4880,6 @@ int BG_GetValueOfHuman( playerState_t *ps )
   }
 
   portion = worth / (float)HUMAN_MAXED;
-  Com_Printf( "portion: %f, worth: %d\n", portion, worth );
 
   if( portion < 0.01f )
     portion = 0.01f;
