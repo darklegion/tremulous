@@ -686,20 +686,36 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
         !(
           !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
           ( minDistance <= REPEATER_BASESIZE ) &&
+          ( buildable == BA_H_SPAWN ) &&
+          closestPower->powered 
+        ) &&
+        !(
+          !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
+          ( minDistance <= REPEATER_BASESIZE ) &&
           closestPower->active &&
           closestPower->powered 
         )
       )
     {
-      if( buildable != BA_H_REACTOR )
+      if( buildable != BA_H_REACTOR && buildable != BA_H_REPEATER )
         reason = IBE_REPEATER;
 
       if( buildable == BA_H_SPAWN )
         reason = IBE_RPLWARN;
-      else if( buildable == BA_H_REPEATER )
-        reason = IBE_RPTWARN;
     }
 
+    if( buildable == BA_H_REPEATER )
+    {
+      for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
+      {
+        if( !Q_stricmp( tempent->classname, "team_human_reactor" ) )
+          break;
+      }
+      
+      if( i >= level.num_entities )
+        reason = IBE_RPTWARN;
+    }
+      
     if( BG_FindUniqueTestForBuildable( buildable ) )
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
