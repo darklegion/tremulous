@@ -7,19 +7,19 @@
 {
   assetGlobalDef
   {
-    cursor "ui/assets/3_cursor2"      // cursor 
-    gradientBar "ui/assets/gradientbar2.tga"  // gradient bar
-    fadeClamp 1.0         // sets the fadeup alpha
-    fadeCycle 1         // how often fade happens in milliseconds
-    fadeAmount 0.1          // amount to adjust alpha per cycle
+    cursor "ui/assets/3_cursor2"		// cursor 
+    gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
+    fadeClamp 1.0				// sets the fadeup alpha
+    fadeCycle 1					// how often fade happens in milliseconds
+    fadeAmount 0.1				// amount to adjust alpha per cycle
 
-    shadowX  5          // x amount for shadow offset
-    shadowY  5          // y amount for shadow offset
-    shadowColor 0.1 0.1 0.1 0.25      // shadow color
+    shadowX  5					// x amount for shadow offset
+    shadowY  5					// y amount for shadow offset
+    shadowColor 0.1 0.1 0.1 0.25		// shadow color
 
-    font "fonts/font" 16        // font
-    smallFont "fonts/smallfont" 12      // font
-    bigFont "fonts/bigfont" 20      // font
+    font "fonts/font" 16			// font
+    smallFont "fonts/smallfont" 12		// font
+    bigFont "fonts/bigfont" 20		// font
   }
 
   menuDef
@@ -28,6 +28,7 @@
     fullScreen MENU_FALSE
     visible MENU_TRUE
     rect 0 0 640 480
+
     //CONSOLE
     itemDef
     {
@@ -44,280 +45,301 @@
       textstyle ITEM_TEXTSTYLE_NORMAL
       ownerdraw CG_CONSOLE
     }   
+
+    //////////////////
+    //STATIC OBJECTS//
+    //////////////////
+
+    //LEFT CIRCLE
+    itemDef
+    {
+      name "left-circle"
+      rect 35 417.5 25 25
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.25
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/circle.tga"
+    }   
+
+    //LEFT ARM
+    itemDef
+    {
+      name "left-arm"
+      rect 68.25 420 94.5 35
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.25
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/left-arm.tga"
+    }   
+
+    //LEFT CAP
+    itemDef
+    {
+      name "left-cap"
+      rect 49 387.75 81 27.5
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.25
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/left-cap.tga"
+    }   
+
+    //CREDITS LABEL
+    itemDef
+    {
+      name "credits-label"
+      rect 70 392.75 7 7.5
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.5
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/credits.tga"
+    }   
+
+    //RIGHT CIRCLE
+    itemDef
+    {
+      name "right-circle"
+      rect 580 417.5 25 25
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.25
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/circle.tga"
+    }   
+
+    //RIGHT ARM
+    itemDef
+    {
+      name "right-arm"
+      rect 477.25 420 94.5 35
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.25
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/right-arm.tga"
+    }   
+
+    //RIGHT CAP
+    itemDef
+    {
+      name "right-cap"
+      rect 510 387.75 81 27.5
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.25
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/right-cap.tga"
+    }   
+
+    ///////////////////
+    //DYNAMIC OBJECTS//
+    ///////////////////
+
+    //BOLT
+    itemDef
+    {
+      name "bolt"
+      rect 40 420 15 20
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.5
+      background "ui/assets/bolt.tga"
+      ownerdraw CG_PLAYER_STAMINA_BOLT
+    }   
+
+    //CROSS
+    itemDef
+    {
+      name "cross"
+      rect 137.5 430 15 15
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.5
+      background "ui/assets/cross.tga"
+      ownerdraw CG_PLAYER_HEALTH_CROSS
+    }   
+
+    //STAMINA 1
+    itemDef
+    {
+      name "stamina1"
+    //rect 34 403.25 9 11.5
+      rect 34.5 403.5 9 11.5
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.5
+      background "ui/assets/stamina1.tga"
+      ownerdraw CG_PLAYER_STAMINA_1
+    }   
+
+    //STAMINA 2
+    itemDef
+    {
+      name "stamina2"
+    //rect 23.75 410.75 11.5 10.5
+      rect 24 410.75 11.5 10.5
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.5
+      background "ui/assets/stamina2.tga"
+      ownerdraw CG_PLAYER_STAMINA_2
+    }   
+
+    //STAMINA 3
+    itemDef
+    {
+      name "stamina3"
+    //rect 20.25 423 10.5 7
+      rect 20.75 423.5 10.5 7
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.5
+      background "ui/assets/stamina3.tga"
+      ownerdraw CG_PLAYER_STAMINA_3
+    }   
+
+    //STAMINA 4
+    itemDef
+    {
+      name "stamina4"
+      rect 21 402.5 54 55
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.5
+      background "ui/assets/stamina4.tga"
+      ownerdraw CG_PLAYER_STAMINA_4
+    }   
+
+    //RING
+    itemDef
+    {
+      name "ring"
+    //  rect 20 402.5 55 55  // Guide for Stamina alignment
+      rect 565 402.5 55 55
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.5
+      background "ui/assets/ring.tga"
+      ownerdraw CG_PLAYER_CLIPS_RING
+    }
+
+    //CREDITS
+    itemDef
+    {
+      name "credits"
+      rect 77 392 40 10
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.5
+      ownerdraw CG_PLAYER_CREDITS_VALUE
+    }   
+
+    //BANK
+    itemDef
+    {
+      name "bank"
+      rect 80 404 32 8
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.5
+      ownerdraw CG_PLAYER_BANK_VALUE
+    }
+
+    //HEALTH
+    itemDef
+    {
+      name "health"
+      rect 67 430 60 15
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 .5
+      ownerdraw CG_PLAYER_HEALTH
+    }
+
+    //WEAPON ICON
+    itemDef
+    {
+      name "weapon"
+      rect 482.5 425 25 25
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.5
+//      background "icons/iconw_rifle.tga"
+//      background "icons/iconw_construct.tga"
+//      background "icons/iconw_chaingun.tga"
+//      background "icons/iconw_flamer.tga"
+//      background "icons/iconw_lucifer.tga"
+//      background "icons/iconw_saw.tga"
+//      background "icons/iconw_pulse.tga"
+//      background "icons/iconw_lasgun.tga"
+//      background "icons/iconw_driver.tga"
+      ownerdraw CG_PLAYER_SELECT
+    }   
+
+
+    //AMMO
+    itemDef
+    {
+      name "ammo"
+      rect 494 430 60 15
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 .5
+      ownerdraw CG_PLAYER_AMMO_VALUE
+    }
+
+
+    //CLIPS
+    itemDef
+    {
+      name "clips"
+      rect 538 423 60 15
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 .5
+      ownerdraw CG_PLAYER_CLIPS_VALUE
+    }
+
     //FPS
     itemDef
     {
       name "fps"
-      rect 556 64 56 22
+//      rect 540 392 20 5
+      rect 520 390 30 10
       style WINDOW_STYLE_EMPTY
       visible 1
       decoration
-      forecolor 1 1 1 1
-      align ITEM_ALIGN_RIGHT
-      textalignx 0
-      textaligny 18
-      textscale 0.4
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      ownerdraw CG_FPS
+      forecolor 0.0 0.8 1.0 .5
+      ownerdraw CG_FPS_FIXED
     }   
+
     //TIMER
     itemDef
     {
       name "timer"
-      rect 500 64 56 22
+//      rect 535 404 20 5
+      rect 540 402 20 10
       style WINDOW_STYLE_EMPTY
       visible 1
       decoration
-      forecolor 1 1 1 1
-      align ITEM_ALIGN_RIGHT
-      textalignx 0
-      textaligny 18
-      textscale 0.4
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      ownerdraw CG_TIMER
+      forecolor 0.0 0.8 1.0 .5
+      ownerdraw CG_TIMER_SECS
     }   
-    //SNAPSHOT
+    
+    //TIMER
     itemDef
     {
-      name "snapshot"
-      rect 300 96 200 22
+      name "timer"
+//      rect 535 404 20 5
+      rect 505 402 30 10
       style WINDOW_STYLE_EMPTY
       visible 1
       decoration
-      forecolor 1 1 1 1
-      align ITEM_ALIGN_RIGHT
-      textalignx 0
-      textaligny 18
-      textscale 0.4
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      ownerdraw CG_SNAPSHOT
+      forecolor 0.0 0.8 1.0 .5
+      ownerdraw CG_TIMER_MINS
     }   
-    //LAGOMETER
-    itemDef
-    {
-      name "lagometer"
-      rect 502 358 132 28
-      visible 0
-      decoration
-      background "lagometer"
-      ownerdraw CG_LAGOMETER
-    }   
-    //CREDIT LABEL
-    itemDef
-    {
-      name credits
-      rect 489 30 57 10
-      visible 1
-      decoration
-      forecolor 1.0 1.0 1.0 1.0
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/credits.tga"
-    }   
-    //CREDIT
-    itemDef
-    {
-      name "c"
-      rect 547 25 64 16
-      visible 1
-      decoration
-      forecolor 0.0 0.8 1.0 1.0
-      ownerdraw CG_PLAYER_CREDITS_VALUE
-    }   
-    //BANK LABEL
-    itemDef
-    {
-      name credits
-      rect 526 46 38 10
-      visible 1
-      decoration
-      forecolor 1.0 1.0 1.0 1.0
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/bank.tga"
-    }   
-    //BANK
-    itemDef
-    {
-      name "b"
-      rect 569 46 40 10
-      visible 1
-      decoration
-      forecolor 0.0 0.8 1.0 1.0
-      ownerdraw CG_PLAYER_BANK_VALUE
-    }
-    //AMMO
-    itemDef
-    {
-      name "a"
-      rect 13 25 64 16
-      visible 1
-      decoration
-      forecolor 0.0 0.8 1.0 1.0
-      ownerdraw CG_PLAYER_AMMO_VALUE
-    }
-    //SLASH
-    itemDef
-    {
-      name credits
-      rect 80 29 8 10
-      visible 1
-      decoration
-      forecolor 1.0 1.0 1.0 1.0
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/slash.tga"
-    }   
-    //CLIPS
-    itemDef
-    {
-      name "c"
-      rect 70 29 40 10
-      visible 1
-      decoration
-      forecolor 1.0 1.0 1.0 1.0
-      ownerdraw CG_PLAYER_CLIPS_VALUE
-    }
-    //HEALTH
-    itemDef
-    {
-      name "healthok"
-      rect 13 430 64 16
-      visible 0
-      decoration
-      forecolor 0.0 0.8 1.0 1.0
-      ownerdraw CG_PLAYER_HEALTH
-    }
-    //HEALTH BAR
-    itemDef
-    {
-      name "health"
-      rect 513 448 97 5
-      visible 1
-      decoration
-      align ITEM_ALIGN_RIGHT
-      special 0.0
-      textScale 0.0
-      forecolor 0.0 0.8 1.0 1.0
-      ownerdraw CG_PLAYER_HEALTH_BAR
-    }
-    //HEALTH BORDER
-    itemDef
-    {
-      name healthborder
-      rect 511 446 101 9
-      visible 1
-      decoration
-      forecolor 1.0 1.0 1.0 1.0
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/healthborder.tga"
-    }   
-    //CROSS
-    itemDef
-    {
-      name cross
-      rect 500 446 9 9
-      visible 1
-      decoration
-      forecolor 1.0 1.0 1.0 1.0
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/cross.tga"
-    }   
-    //CROSS BORDER
-    itemDef
-    {
-      name crossborder
-      rect 490 445 12 12
-      visible 0
-      decoration
-      forecolor 1.0 1.0 1.0 1.0
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/crossborder.tga"
-    }   
-    //STAMINA BAR
-    itemDef
-    {
-      name "s"
-      rect 548 435 62 5
-      visible 1
-      decoration
-      align ITEM_ALIGN_RIGHT
-      special 0.0
-      textScale 0.0
-      forecolor 0.0 0.8 1.0 1.0
-      ownerdraw CG_PLAYER_STAMINA
-    }
-    //STAMINA BORDER
-    itemDef
-    {
-      name staminaborder
-      rect 546 433 66 9
-      visible 1
-      decoration
-      forecolor 1.0 1.0 1.0 1.0
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/staminaborder.tga"
-    }   
-    //PILL
-    itemDef
-    {
-      name pill
-      rect 533 434 10 7
-      visible 0
-      decoration
-      forecolor 1.0 1.0 1.0 1.0
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/pill.tga"
-    }   
-    //SELECT
-    itemDef
-    {
-      name "select"
-      rect 240 435 160 32
-      visible 0
-      decoration
-      ownerdraw CG_PLAYER_SELECT
-    }
-    //SELECT TEXT
-    itemDef
-    {
-      name "selecttext"
-      rect 200 25 240 40
-      visible 1
-      decoration
-      textScale .5
-      ownerdraw CG_PLAYER_SELECTTEXT
-    }
-    //BANK LABEL
-    itemDef
-    {
-      name banklabel
-      text "Bank"	
-      rect 500 92 53 30
-      style WINDOW_STYLE_EMPTY
-      textalign ITEM_ALIGN_LEFT
-      textalignx 27
-      textaligny 22
-      textscale 0.45
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      forecolor 0.219608 0.933333 0 1
-      backcolor 0 0 0 0
-      visible 0
-      decoration
-    }
-    //CREDITS LABEL
-    itemDef
-    {
-      name creditslabel
-      text "Credits"	
-      rect 400 14 53 30
-      style WINDOW_STYLE_EMPTY
-      textalign ITEM_ALIGN_LEFT
-      textalignx 27
-      textaligny 22
-      textscale 0.6
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      forecolor 0.219608 0.933333 0 1
-      backcolor 0 0 0 0
-      visible 0
-      decoration
-    }
   }
 }
