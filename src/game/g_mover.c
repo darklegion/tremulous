@@ -1209,8 +1209,8 @@ static void manualDoorTriggerSpectator( gentity_t *door, gentity_t *player )
       best = i;
   }
   
-  maxs[ best ] += 30;
-  mins[ best ] -= 30;
+  maxs[ best ] += 60;
+  mins[ best ] -= 60;
 
   VectorCopy( mins, triggerHull.r.absmin );
   VectorCopy( maxs, triggerHull.r.absmax );
@@ -1340,8 +1340,8 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent )
       best = i;
   }
   
-  maxs[ best ] += 30;
-  mins[ best ] -= 30;
+  maxs[ best ] += 60;
+  mins[ best ] -= 60;
 
   // create a trigger with this size
   other = G_Spawn( );

@@ -520,6 +520,9 @@ typedef struct
   int               alienKills;
   int               humanKills;
 
+  qboolean          reactorPresent;
+  qboolean          overmindPresent;
+
   pTeam_t           lastWin;
 } level_locals_t;
 

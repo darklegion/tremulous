@@ -986,11 +986,17 @@ void ClientThink_real( gentity_t *ent )
   
   //randomly disable the jet pack if damaged
   if( BG_gotItem( UP_JETPACK, client->ps.stats ) &&
-      BG_activated( UP_JETPACK, client->ps.stats ) &&
-      ( client->lastDamageTime + JETPACK_DISABLE_TIME > level.time ) )
+      BG_activated( UP_JETPACK, client->ps.stats ) )
   {
-    if( random( ) > JETPACK_DISABLE_CHANCE )
-      client->ps.pm_type = PM_NORMAL;
+    if( client->lastDamageTime + JETPACK_DISABLE_TIME > level.time )
+    {
+      if( random( ) > JETPACK_DISABLE_CHANCE )
+        client->ps.pm_type = PM_NORMAL;
+    }
+
+    //switch jetpack off if no reactor
+    if( !level.reactorPresent )
+      BG_deactivateItem( UP_JETPACK, client->ps.stats );
   }
   
   // set up for pmove

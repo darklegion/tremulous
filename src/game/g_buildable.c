@@ -140,7 +140,7 @@ static qboolean findPower( gentity_t *self )
   //iterate through entities
   for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
-    if( !ent->classname || ent->s.eType != ET_BUILDABLE )
+    if( ent->s.eType != ET_BUILDABLE )
       continue;
 
     //if entity is a power item calculate the distance to it
@@ -223,7 +223,7 @@ static qboolean findDCC( gentity_t *self )
   //iterate through entities
   for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
-    if( !ent->classname || ent->s.eType != ET_BUILDABLE )
+    if( ent->s.eType != ET_BUILDABLE )
       continue;
 
     //if entity is a dcc calculate the distance to it
@@ -277,11 +277,6 @@ static qboolean findOvermind( gentity_t *self )
 {
   int       i;
   gentity_t *ent;
-  gentity_t *closestOvermind;
-  int       distance = 0;
-  int       minDistance = 10000;
-  vec3_t    temp_v;
-  qboolean  foundOvermind = qfalse;
 
   if( self->biteam != BIT_ALIENS )
     return qfalse;
@@ -296,30 +291,18 @@ static qboolean findOvermind( gentity_t *self )
   //iterate through entities
   for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
-    if( !ent->classname || ent->s.eType != ET_BUILDABLE )
+    if( ent->s.eType != ET_BUILDABLE )
       continue;
 
     //if entity is a dcc calculate the distance to it
     if( ent->s.modelindex == BA_A_OVERMIND && ent->spawned )
     {
-      VectorSubtract( self->s.origin, ent->s.origin, temp_v );
-      distance = VectorLength( temp_v );
-      if( distance < minDistance && ent->powered )
-      {
-        closestOvermind = ent;
-        minDistance = distance;
-        foundOvermind = qtrue;
-      }
+      self->overmindNode = ent;
+      return qtrue;
     }
   }
 
-  //if there were no power items nearby give up
-  if( !foundOvermind )
-    return qfalse;
-  
-  self->overmindNode = closestOvermind;
-
-  return qtrue;
+  return qfalse;
 }
 
 /*
@@ -347,7 +330,7 @@ static qboolean findCreep( gentity_t *self )
   {
     for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
     {
-      if( !ent->classname || ent->s.eType != ET_BUILDABLE )
+      if( ent->s.eType != ET_BUILDABLE )
         continue;
 
       if( ( ent->s.modelindex == BA_A_SPAWN || ent->s.modelindex == BA_A_OVERMIND ) &&
@@ -1429,7 +1412,7 @@ void HRpt_Think( gentity_t *self )
     //iterate through entities
     for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
     {
-      if( !ent->classname || ent->s.eType != ET_BUILDABLE )
+      if( ent->s.eType != ET_BUILDABLE )
         continue;
 
       if( ent->s.modelindex == BA_H_REACTOR )
@@ -2270,7 +2253,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     //look for a hivemind
     for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
     {
-      if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
+      if( tempent->s.eType != ET_BUILDABLE )
         continue;
       if( tempent->s.modelindex == BA_A_OVERMIND )
         break;
@@ -2290,7 +2273,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
       {
-        if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
+        if( tempent->s.eType != ET_BUILDABLE )
           continue;
 
         if( tempent->s.modelindex == BA_A_OVERMIND )
@@ -2327,7 +2310,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
       {
-        if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
+        if( tempent->s.eType != ET_BUILDABLE )
           continue;
 
         if( tempent->s.modelindex == BA_H_REACTOR ) 
@@ -2347,7 +2330,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
       {
-        if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
+        if( tempent->s.eType != ET_BUILDABLE )
           continue;
 
         if( tempent->s.modelindex == BA_H_REACTOR ) 
@@ -2691,7 +2674,7 @@ void FinishSpawningBuildable( gentity_t *ent )
   
   if( tr.startsolid )
   {
-    G_Printf( "FinishSpawningBuildable: %s startsolid at %s\n", built->classname, vtos( built->s.origin ) );
+    G_Printf( S_COLOR_YELLOW "FinishSpawningBuildable: %s startsolid at %s\n", built->classname, vtos( built->s.origin ) );
     G_FreeEntity( built );
     return;
   }

@@ -317,7 +317,7 @@
 
 #define PAINSAW_PRICE               100
 #define PAINSAW_REPEAT              75
-#define PAINSAW_DAMAGE              HDM(5)
+#define PAINSAW_DAMAGE              HDM(25)
 #define PAINSAW_RANGE               48.0f
 
 #define SHOTGUN_PRICE               150

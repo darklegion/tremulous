@@ -713,6 +713,9 @@ void calculateBuildPoints( void )
   level.humanBuildPoints = level.humanBuildPointsPowered = localHTP;
   level.alienBuildPoints = localATP;
 
+  level.reactorPresent = qfalse;
+  level.overmindPresent = qfalse;
+  
   for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
   {
     if( !ent->inuse )
@@ -725,6 +728,12 @@ void calculateBuildPoints( void )
     
     if( buildable != BA_NONE )
     {
+      if( buildable == BA_H_REACTOR )
+        level.reactorPresent = qtrue;
+
+      if( buildable == BA_A_OVERMIND )
+        level.overmindPresent = qtrue;
+
       if( BG_FindTeamForBuildable( buildable ) == BIT_HUMANS )
       {
         level.humanBuildPoints -= BG_FindBuildPointsForBuildable( buildable );
