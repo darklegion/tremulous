@@ -250,7 +250,7 @@ char  *modNames[] = {
   "MOD_GRAPPLE",
   "MOD_VENOM",
   "MOD_HSPAWN",
-  "MOD_ASPAWN"
+  "MOD_DSPAWN"
 };
 
 

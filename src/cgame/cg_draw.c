@@ -548,8 +548,6 @@ static void CG_DrawStatusBar( void ) {
     int awidth = (int)( (float)allocated / ( total / PWR_WIDTH ) );
     int pwidth = (int)( (float)powered / ( total / PWR_WIDTH ) );
     vec4_t bcolor = { 0.5, 0.5, 0.5, 0.5 };
-
-    //Com_Printf( "%d %d %d\n", allocated, powered, total );
     
     trap_R_SetColor( bcolor );   // white
     CG_DrawPic( PWR_X, PWR_Y, PWR_WIDTH, PWR_HEIGHT, cgs.media.whiteShader );
@@ -562,6 +560,28 @@ static void CG_DrawStatusBar( void ) {
       trap_R_SetColor( colors[1] ); // red
       CG_DrawPic( PWR_X + pwidth, PWR_Y, awidth - pwidth, PWR_HEIGHT, cgs.media.whiteShader );
     }
+  }
+
+  //
+  // hive
+  //
+  #define HV_HEIGHT 10
+  #define HV_WIDTH  80
+  #define HV_X      555
+  #define HV_Y      20
+  if( ps->stats[ STAT_PTEAM ] == PTE_DROIDS )
+  {
+    int total = cgs.dBuildPointsTotal;
+    int allocated = total - cgs.dBuildPoints;
+
+    int awidth = (int)( (float)allocated / ( total / HV_WIDTH ) );
+    vec4_t bcolor = { 0.5, 0.5, 0.5, 0.5 };
+
+    trap_R_SetColor( bcolor );   // white
+    CG_DrawPic( HV_X, HV_Y, HV_WIDTH, HV_HEIGHT, cgs.media.whiteShader );
+
+    trap_R_SetColor( colors[0] ); // green
+    CG_DrawPic( HV_X, HV_Y, awidth, HV_HEIGHT, cgs.media.whiteShader );
   }
 
   //

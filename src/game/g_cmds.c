@@ -1928,8 +1928,25 @@ void Cmd_Build_f( gentity_t *ent )
           G_AddPredictableEvent( ent, EV_MENU, MN_D_NOCREEP );
           break;
 
+        case IBE_NOASSERT:
+          G_AddPredictableEvent( ent, EV_MENU, MN_D_NOASSERT );
+          break;
+
+        case IBE_NOHIVEMIND:
+          G_AddPredictableEvent( ent, EV_MENU, MN_D_NOHVMND );
+          break;
+
+        case IBE_HIVEMIND:
+          G_AddPredictableEvent( ent, EV_MENU, MN_D_HIVEMIND );
+          break;
+
         case IBE_NOROOM:
           G_AddPredictableEvent( ent, EV_MENU, MN_D_NOROOM );
+          break;
+          
+        case IBE_SPWNWARN:
+          G_AddPredictableEvent( ent, EV_MENU, MN_D_SPWNWARN );
+          Build_Item( ent, buildable, -50 );
           break;
       }
     }

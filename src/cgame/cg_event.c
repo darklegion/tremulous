@@ -147,10 +147,10 @@ static void CG_Obituary( entityState_t *ent ) {
     message = "was in the wrong place";
     break;
   case MOD_HSPAWN:
-      message = "should have run further";
+    message = "should have run further";
     break;
-  case MOD_ASPAWN:
-      message = "was melted by the acid blood";
+  case MOD_DSPAWN:
+    message = "was melted by the acid blood";
     break;
   default:
     message = NULL;
@@ -464,6 +464,22 @@ void CG_Menu( int eventParm )
 
     case MN_D_NOCREEP:
       trap_SendConsoleCommand( "menu dnocreep\n" );
+      break;
+
+    case MN_D_NOHVMND:
+      trap_SendConsoleCommand( "menu dnohvmnd\n" );
+      break;
+
+    case MN_D_HIVEMIND:
+      trap_SendConsoleCommand( "menu dhivemind\n" );
+      break;
+
+    case MN_D_NOASSERT:
+      trap_SendConsoleCommand( "menu dnoassert\n" );
+      break;
+
+    case MN_D_SPWNWARN:
+      trap_SendConsoleCommand( "menu dspwnwarn\n" );
       break;
 
     case MN_H_REACTOR:

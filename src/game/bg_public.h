@@ -374,6 +374,7 @@ typedef enum {
 
   BA_D_SPAWN,
   BA_D_DEF1,
+  BA_D_HIVEMIND,
   BA_H_SPAWN,
   BA_H_DEF1,
   BA_H_MCU,
@@ -521,6 +522,10 @@ typedef enum
   MN_D_INFEST,
   MN_D_NOROOM,
   MN_D_NOCREEP,
+  MN_D_NOHVMND,
+  MN_D_HIVEMIND,
+  MN_D_NOASSERT,
+  MN_D_SPWNWARN,
   MN_H_SPAWN,
   MN_H_BUILD,
   MN_H_MCU,
@@ -675,7 +680,7 @@ typedef enum {
   MOD_GRAPPLE,
   MOD_VENOM,
   MOD_HSPAWN,
-  MOD_ASPAWN
+  MOD_DSPAWN
 } meansOfDeath_t;
 
 
@@ -808,7 +813,7 @@ int       BG_FindTeamForBuildable( int bclass );
 int       BG_FindEventForBuildable( int bclass );
 int       BG_FindNextThinkForBuildable( int bclass );
 int       BG_FindCreepTestForBuildable( int bclass );
-int       BG_FindReactorTestForBuildable( int bclass );
+int       BG_FindUniqueTestForBuildable( int bclass );
 
 int       BG_FindClassNumForName( char *name );
 char      *BG_FindNameForClassNum( int pclass );

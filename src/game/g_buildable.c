@@ -41,6 +41,7 @@ qboolean findPower( gentity_t *self )
   int       distance = 0;
   int       minDistance = 10000;
   vec3_t    temp_v;
+  qboolean  foundPower = qfalse;
 
   if( self->parentNode && self->parentNode->active )
     return qtrue;
@@ -50,6 +51,9 @@ qboolean findPower( gentity_t *self )
   
   for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
+    if( !ent->classname )
+      continue;
+
     if( !Q_stricmp( ent->classname, "team_human_reactor" ) ||
         !Q_stricmp( ent->classname, "team_human_repeater" ) )
     {
@@ -59,9 +63,13 @@ qboolean findPower( gentity_t *self )
       {
         closestPower = ent;
         minDistance = distance;
+        foundPower = qtrue;
       }
     }
   }
+
+  if( !foundPower )
+    return qfalse;
   
   if( (
         !Q_stricmp( closestPower->classname, "team_human_reactor" ) &&
@@ -131,9 +139,11 @@ Called when an droid spawn dies
 */
 void DSpawn_Melt( gentity_t *self )
 {
-  G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, 2,
-    self->splashRadius, self, self->splashMethodOfDeath, PTE_DROIDS );
+  //FIXME: this line crashes the QVM (but not binary when MOD is set to MOD_[H/D]SPAWN
+  G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
+    self->splashRadius, self, MOD_SHOTGUN, PTE_DROIDS );
 
+  
   if( ( self->timestamp + 500 ) == level.time )
     G_AddEvent( self, EV_ITEM_RECEDE, 0 );
   
@@ -239,7 +249,8 @@ void DDef1_Think( gentity_t *self )
   {
     for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
     {
-      if( !Q_stricmp( ent->classname, "team_droid_spawn" ) )
+      if( !Q_stricmp( ent->classname, "team_droid_spawn" ) ||
+          !Q_stricmp( ent->classname, "team_droid_hivemind" ) )
       {
         VectorSubtract( self->s.origin, ent->s.origin, temp_v );
         distance = VectorLength( temp_v );
@@ -601,11 +612,15 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
   {
     //droid criteria
+    if( level.droidBuildPoints - BG_FindBuildPointsForBuildable( buildable ) < 0 )
+      reason = IBE_NOASSERT;
+      
     if( BG_FindCreepTestForBuildable( buildable ) )
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
       {
-        if( !Q_stricmp( tempent->classname, "team_droid_spawn" ) )
+        if( !Q_stricmp( tempent->classname, "team_droid_spawn" ) ||
+            !Q_stricmp( tempent->classname, "team_droid_hivemind" ) )
         {
           VectorSubtract( entity_origin, tempent->s.origin, temp_v );
           if( VectorLength( temp_v ) <= ( CREEP_BASESIZE * 3 ) )
@@ -615,6 +630,32 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
 
       if( i >= level.num_entities )
         reason = IBE_NOCREEP;
+    }
+    
+    for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
+    {
+      if( !Q_stricmp( tempent->classname, "team_droid_hivemind" ) )
+        break;
+    }
+
+    if( i >= level.num_entities && buildable != BA_D_HIVEMIND )
+    {
+      if( buildable == BA_D_SPAWN )
+        reason = IBE_SPWNWARN;
+      else
+        reason = IBE_NOHIVEMIND;
+    }
+      
+    if( BG_FindUniqueTestForBuildable( buildable ) )
+    {
+      for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
+      {
+        if( !Q_stricmp( tempent->classname, "team_droid_hivemind" ) )
+        {
+          reason = IBE_HIVEMIND;
+          break;
+        }
+      }
     }
   }
   else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
@@ -659,7 +700,7 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
         reason = IBE_RPTWARN;
     }
 
-    if( BG_FindReactorTestForBuildable( buildable ) )
+    if( BG_FindUniqueTestForBuildable( buildable ) )
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
       {
@@ -728,6 +769,10 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
   {
     built->die = DDef1_Die;
     built->think = DDef1_Think;
+  }
+  else if( buildable == BA_D_HIVEMIND )
+  {
+    built->die = DSpawn_Die;
   }
   else if( buildable == BA_H_SPAWN )
   {

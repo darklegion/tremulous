@@ -771,6 +771,22 @@ TA: droid defense item
     ""                  //sounds
   },
 
+/*QUAKED team_droid_hivemind (0 0 1) (-16 -16 -16) (16 16 16)
+TA: droid build limitation item
+*/
+  {
+    "team_droid_hivemind",
+    "sound/items/holdable.wav",
+    { "models/powerups/instant/invis.md3", 0, 0, 0 },
+    "icons/teleporter", //icon
+    "Droid Hivemind",      //pickup
+    0,
+    IT_BUILDABLE,
+    BA_D_HIVEMIND,
+    "",                 //precache
+    ""                  //sounds
+  },
+  
 /*QUAKED team_human_spawn (0 0 1) (-16 -16 -16) (16 16 16)
 TA: human spawn item
 */
@@ -931,12 +947,12 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_droid_spawn",
     { -15, -15, -15 },
     { 15, 15, 15 },
-    0,
+    100,
     1000,
     50,
     50,
     200,
-    MOD_ASPAWN,
+    MOD_DSPAWN,
     BIT_DROIDS,
     EV_ITEM_GROW,
     100,
@@ -949,17 +965,35 @@ buildableAttributes_t bg_buildableList[ ] =
     "team_droid_def1",
     { -15, -15, -15 },
     { 15, 15, 15 },
-    0,
+    80,
     1000,
     50,
     20,
     50,
-    MOD_ASPAWN,
+    MOD_DSPAWN,
     BIT_DROIDS,
     EV_ITEM_GROW,
     100,
     qtrue,
     qfalse
+  },
+  {
+    BA_D_HIVEMIND,
+    "hivemind",
+    "team_droid_hivemind",
+    { -15, -15, -15 },
+    { 15, 15, 15 },
+    0,
+    1000,
+    50,
+    20,
+    50,
+    MOD_DSPAWN,
+    BIT_DROIDS,
+    EV_ITEM_GROW,
+    -1,
+    qfalse,
+    qtrue
   },
   {
     BA_H_SPAWN,
@@ -990,7 +1024,7 @@ buildableAttributes_t bg_buildableList[ ] =
     50,
     20,
     50,
-    MOD_ASPAWN,
+    MOD_HSPAWN,
     BIT_HUMANS,
     EV_NONE,
     50,
@@ -1363,10 +1397,10 @@ int BG_FindCreepTestForBuildable( int bclass )
 
 /*
 ==============
-BG_FindReactorTestForBuildable
+BG_FindUniqueTestForBuildable
 ==============
 */
-int BG_FindReactorTestForBuildable( int bclass )
+int BG_FindUniqueTestForBuildable( int bclass )
 {
   int i;
 
