@@ -35,7 +35,7 @@
     itemDef
     {
       name "s"
-      rect 148 410 16 64
+      rect 121 399 17 68
       visible 1
       decoration
       forecolor 1 1 1 1
@@ -46,18 +46,18 @@
     itemDef
     {
       name "c"
-      rect 510 69 108 44
+      rect 505 27 108 44
       visible 1
       decoration
       forecolor 1 1 1 1
       ownerdraw CG_PLAYER_CREDITS_VALUE
-    }
-    
+    }   
+
     //BANK
     itemDef
     {
       name "b"
-      rect 569 117 50 20
+      rect 580 95 50 20
       visible 1
       decoration
       forecolor 1 1 1 1
@@ -68,18 +68,18 @@
     itemDef
     {
       name "a"
-      rect 510 420 108 44
+      rect 508 414 108 44
       visible 1
       decoration
       forecolor 1 1 1 1
       ownerdraw CG_PLAYER_AMMO_VALUE
     }
-    
+
     //CLIPS
     itemDef
     {
       name "c"
-      rect 480 442 50 20
+      rect 448 443 50 20
       visible 1
       decoration
       forecolor 1 1 1 1
@@ -90,18 +90,18 @@
     itemDef
     {
       name "healthok"
-      rect 20 420 108 44
+      rect 0 410 108 44
       visible 1
       decoration
       forecolor 1 1 1 1
       ownerdraw CG_PLAYER_HEALTH
     }
-    
+
     // SELECT
     itemDef
     {
       name "select"
-      rect 200 420 160 32
+      rect 240 435 160 32
       visible 1
       decoration
       ownerdraw CG_PLAYER_SELECT
@@ -111,11 +111,95 @@
     itemDef
     {
       name "selecttext"
-      rect 200 20 240 40
+      rect 200 25 240 40
       visible 1
       decoration
       textScale .5
       ownerdraw CG_PLAYER_SELECTTEXT
+    }
+   
+    //AMMO WINDOW
+    itemDef
+    {
+      name ammowindow
+      rect 446 390 189 86
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/hud_ammowindow.tga"
+    }
+
+    //CREDITS WINDOW
+    itemDef
+    {
+      name creditswindow
+      rect 385 3 254 117
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/hud_creditswindow.tga"
+    }
+    
+    //HEALTH WINDOW
+    itemDef
+    {
+      name healthwindow
+      rect 3 390 189 86
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/hud_healthwindow.tga"
+    }
+
+    //WEAPON WINDOW
+    itemDef
+    {
+      name weaponwindow
+      rect 205 423 230 52
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/hud_weaponwindow.tga"
+    }
+
+    //BANK LABEL
+    itemDef
+    {
+      name banklabel
+      text "Bank"	
+      rect 500 92 53 30
+      style WINDOW_STYLE_EMPTY
+      textalign ITEM_ALIGN_LEFT
+      textalignx 27
+      textaligny 22
+      textscale 0.45
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      forecolor 0.219608 0.933333 0 1
+      backcolor 0 0 0 0
+      visible 1
+      decoration
+    }
+
+    //CREDITS LABEL
+    itemDef
+    {
+      name creditslabel
+      text "Credits"	
+      rect 400 14 53 30
+      style WINDOW_STYLE_EMPTY
+      textalign ITEM_ALIGN_LEFT
+      textalignx 27
+      textaligny 22
+      textscale 0.6
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      forecolor 0.219608 0.933333 0 1
+      backcolor 0 0 0 0
+      visible 1
+      decoration
     }
   }
 }
