@@ -1484,7 +1484,7 @@ classAttributes_t bg_classList[ ] =
     ABUILDER_UPG_REGEN,                             //int     regenRate;
     SCA_FOVWARPS|SCA_WALLCLIMBER|SCA_ALIENSENSE,    //int     abilities;
     WP_ABUILD2,                                     //weapon_t  startWeapon
-    95.0f,                                          //float   buildDist;
+    105.0f,                                         //float   buildDist;
     110,                                            //int     fov;
     0.001f,                                         //float   bob;
     2.0f,                                           //float   bobCycle;

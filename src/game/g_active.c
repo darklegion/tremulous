@@ -1111,24 +1111,14 @@ void ClientThink_real( gentity_t *ent )
     if( client->ps.stats[ STAT_STATE ] & SS_HOVELING )
     {
       gentity_t *hovel = client->hovel;
-      vec3_t    newOrigin, newAngles;
-      vec3_t    mins, maxs;
-      
-      BG_FindBBoxForClass( client->ps.stats[ STAT_PCLASS ], mins, maxs, NULL, NULL, NULL );
       
       //only let the player out if there is room
-      if( !AHovel_Blocked( hovel->s.angles, hovel->s.origin, hovel->s.origin2,
-                           mins, maxs, 0, newOrigin, newAngles ) )
+      if( !AHovel_Blocked( hovel, ent, qtrue ) )
       {
         //prevent lerping
         client->ps.eFlags ^= EF_TELEPORT_BIT;
         client->ps.eFlags &= ~EF_NODRAW;
 
-        G_SetOrigin( ent, newOrigin );
-        VectorCopy( newOrigin, client->ps.origin );
-        VectorCopy( vec3_origin, client->ps.velocity );
-        SetClientViewAngle( ent, newAngles );
-        
         //client leaves hovel
         client->ps.stats[ STAT_STATE ] &= ~SS_HOVELING;
         

@@ -3320,15 +3320,15 @@ static void UI_LoadTremTeams( void )
 {
   uiInfo.tremTeamCount = 3;
   uiInfo.tremTeamList[ 0 ].text = String_Alloc( "Aliens" );
-  uiInfo.tremTeamList[ 0 ].cmd = String_Alloc( "cmd team aliens" );
+  uiInfo.tremTeamList[ 0 ].cmd = String_Alloc( "cmd team aliens\n" );
   uiInfo.tremTeamList[ 0 ].infopane = UI_FindInfoPaneByName( "alienteam" );
   
   uiInfo.tremTeamList[ 1 ].text = String_Alloc( "Humans" );
-  uiInfo.tremTeamList[ 1 ].cmd = String_Alloc( "cmd team humans" );
+  uiInfo.tremTeamList[ 1 ].cmd = String_Alloc( "cmd team humans\n" );
   uiInfo.tremTeamList[ 1 ].infopane = UI_FindInfoPaneByName( "humanteam" );
   
   uiInfo.tremTeamList[ 2 ].text = String_Alloc( "Spectate" );
-  uiInfo.tremTeamList[ 2 ].cmd = String_Alloc( "cmd team spectate" );
+  uiInfo.tremTeamList[ 2 ].cmd = String_Alloc( "cmd team spectate\n" );
   uiInfo.tremTeamList[ 2 ].infopane = UI_FindInfoPaneByName( "spectateteam" );
 }
 
@@ -3346,7 +3346,7 @@ static void UI_LoadTremAlienClasses( void )
   uiInfo.tremAlienClassList[ 0 ].text =
     String_Alloc( BG_FindHumanNameForClassNum( PCL_A_O_BASE ) );
   uiInfo.tremAlienClassList[ 0 ].cmd =
-    String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( PCL_A_O_BASE ) ) );
+    String_Alloc( va( "cmd class %s\n", BG_FindNameForClassNum( PCL_A_O_BASE ) ) );
   uiInfo.tremAlienClassList[ 0 ].infopane =
     UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( PCL_A_O_BASE ) ) );
     
@@ -3358,7 +3358,7 @@ static void UI_LoadTremAlienClasses( void )
   uiInfo.tremAlienClassList[ 1 ].text =
     String_Alloc( BG_FindHumanNameForClassNum( bClass ) );
   uiInfo.tremAlienClassList[ 1 ].cmd =
-    String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( bClass ) ) );
+    String_Alloc( va( "cmd class %s\n", BG_FindNameForClassNum( bClass ) ) );
   uiInfo.tremAlienClassList[ 1 ].infopane =
     UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( bClass ) ) );
 }
@@ -3375,14 +3375,14 @@ static void UI_LoadTremHumanItems( void )
   uiInfo.tremHumanItemList[ 0 ].text =
     String_Alloc( BG_FindHumanNameForWeapon( WP_MACHINEGUN ) );
   uiInfo.tremHumanItemList[ 0 ].cmd =
-    String_Alloc( va( "cmd class %s", BG_FindNameForWeapon( WP_MACHINEGUN ) ) );
+    String_Alloc( va( "cmd class %s\n", BG_FindNameForWeapon( WP_MACHINEGUN ) ) );
   uiInfo.tremHumanItemList[ 0 ].infopane =
     UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( WP_MACHINEGUN ) ) );
   
   uiInfo.tremHumanItemList[ 1 ].text =
     String_Alloc( BG_FindHumanNameForWeapon( WP_HBUILD ) );
   uiInfo.tremHumanItemList[ 1 ].cmd =
-    String_Alloc( va( "cmd class %s", BG_FindNameForWeapon( WP_HBUILD ) ) );
+    String_Alloc( va( "cmd class %s\n", BG_FindNameForWeapon( WP_HBUILD ) ) );
   uiInfo.tremHumanItemList[ 1 ].infopane =
     UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( WP_HBUILD ) ) );
 }
@@ -3486,7 +3486,7 @@ static void UI_LoadTremHumanArmouryBuys( )
       uiInfo.tremHumanArmouryBuyList[ j ].text =
         String_Alloc( BG_FindHumanNameForWeapon( i ) );
       uiInfo.tremHumanArmouryBuyList[ j ].cmd =
-        String_Alloc( va( "cmd buy %s retrigger", BG_FindNameForWeapon( i ) ) );
+        String_Alloc( va( "cmd buy %s retrigger\n", BG_FindNameForWeapon( i ) ) );
       uiInfo.tremHumanArmouryBuyList[ j ].infopane =
         UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( i ) ) );
       
@@ -3506,7 +3506,7 @@ static void UI_LoadTremHumanArmouryBuys( )
       uiInfo.tremHumanArmouryBuyList[ j ].text =
         String_Alloc( BG_FindHumanNameForUpgrade( i ) );
       uiInfo.tremHumanArmouryBuyList[ j ].cmd =
-        String_Alloc( va( "cmd buy %s retrigger", BG_FindNameForUpgrade( i ) ) );
+        String_Alloc( va( "cmd buy %s retrigger\n", BG_FindNameForUpgrade( i ) ) );
       uiInfo.tremHumanArmouryBuyList[ j ].infopane =
         UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForUpgrade( i ) ) );
 
@@ -3536,7 +3536,7 @@ static void UI_LoadTremHumanArmourySells( )
     {
       uiInfo.tremHumanArmourySellList[ j ].text = String_Alloc( BG_FindHumanNameForWeapon( i ) );
       uiInfo.tremHumanArmourySellList[ j ].cmd =
-        String_Alloc( va( "cmd sell %s retrigger", BG_FindNameForWeapon( i ) ) );
+        String_Alloc( va( "cmd sell %s retrigger\n", BG_FindNameForWeapon( i ) ) );
       uiInfo.tremHumanArmourySellList[ j ].infopane =
         UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( i ) ) );
 
@@ -3552,7 +3552,7 @@ static void UI_LoadTremHumanArmourySells( )
     {
       uiInfo.tremHumanArmourySellList[ j ].text = String_Alloc( BG_FindHumanNameForUpgrade( i ) );
       uiInfo.tremHumanArmourySellList[ j ].cmd =
-        String_Alloc( va( "cmd sell %s retrigger", BG_FindNameForUpgrade( i ) ) );
+        String_Alloc( va( "cmd sell %s retrigger\n", BG_FindNameForUpgrade( i ) ) );
       uiInfo.tremHumanArmourySellList[ j ].infopane =
         UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForUpgrade( i ) ) );
 
@@ -3587,7 +3587,7 @@ static void UI_LoadTremAlienUpgrades( )
     {
       uiInfo.tremAlienUpgradeList[ j ].text = String_Alloc( BG_FindHumanNameForClassNum( i ) );
       uiInfo.tremAlienUpgradeList[ j ].cmd =
-        String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( i ) ) );
+        String_Alloc( va( "cmd class %s\n", BG_FindNameForClassNum( i ) ) );
       uiInfo.tremAlienUpgradeList[ j ].infopane =
         UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( i ) ) );
 
@@ -3623,7 +3623,7 @@ static void UI_LoadTremAlienBuilds( )
       uiInfo.tremAlienBuildList[ j ].text =
         String_Alloc( BG_FindHumanNameForBuildable( i ) );
       uiInfo.tremAlienBuildList[ j ].cmd =
-        String_Alloc( va( "cmd build %s", BG_FindNameForBuildable( i ) ) );
+        String_Alloc( va( "cmd build %s\n", BG_FindNameForBuildable( i ) ) );
       uiInfo.tremAlienBuildList[ j ].infopane =
         UI_FindInfoPaneByName( va( "%sbuild", BG_FindNameForBuildable( i ) ) );
 
@@ -3661,7 +3661,7 @@ static void UI_LoadTremHumanBuilds( )
       uiInfo.tremHumanBuildList[ j ].text =
         String_Alloc( BG_FindHumanNameForBuildable( i ) );
       uiInfo.tremHumanBuildList[ j ].cmd =
-        String_Alloc( va( "cmd build %s", BG_FindNameForBuildable( i ) ) );
+        String_Alloc( va( "cmd build %s\n", BG_FindNameForBuildable( i ) ) );
       uiInfo.tremHumanBuildList[ j ].infopane =
         UI_FindInfoPaneByName( va( "%sbuild", BG_FindNameForBuildable( i ) ) );
 
@@ -4205,12 +4205,6 @@ static void UI_RunMenuScript(char **args) {
       if( cmd = uiInfo.tremHumanBuildList[ uiInfo.tremHumanBuildIndex ].cmd )
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
-    else if( Q_stricmp( name, "SetBankDefaults" ) == 0 )
-      trap_Cvar_Set( "ui_bank", "0" );
-    else if( Q_stricmp( name, "BankDeposit" ) == 0 )
-      trap_Cmd_ExecuteText( EXEC_APPEND, va( "cmd deposit %d", (int)trap_Cvar_VariableValue( "ui_bank" ) ) );
-    else if( Q_stricmp( name, "BankWithdraw" ) == 0 )
-      trap_Cmd_ExecuteText( EXEC_APPEND, va( "cmd withdraw %d", (int)trap_Cvar_VariableValue( "ui_bank" ) ) );
 //TA: tremulous menus
     
     else if (Q_stricmp(name, "playMovie") == 0) {

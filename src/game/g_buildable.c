@@ -857,57 +857,84 @@ void AHive_Think( gentity_t *self )
 
 
 
-#define HOVEL_TRACE_DEPTH 16.0f
+#define HOVEL_TRACE_DEPTH 128.0f
 
 /*
 ================
 AHovel_Blocked
 
-Is this hovel entrace blocked?
+Is this hovel entrance blocked?
 ================
 */
-qboolean AHovel_Blocked( vec3_t srcAngles, vec3_t srcOrigin, vec3_t normal,
-                         vec3_t mins, vec3_t maxs, int entityNum,
-                         vec3_t newOrigin, vec3_t newAngles )
+qboolean AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideExit )
 {
-  vec3_t    forward, origin, start, end, angles, hovelMaxs;
+  vec3_t    forward, normal, origin, start, end, angles, hovelMaxs;
+  vec3_t    mins, maxs;
   float     displacement;
   trace_t   tr;
 
   BG_FindBBoxForBuildable( BA_A_HOVEL, NULL, hovelMaxs );
+  BG_FindBBoxForClass( player->client->ps.stats[ STAT_PCLASS ],
+                       mins, maxs, NULL, NULL, NULL );
   
-  AngleVectors( srcAngles, forward, NULL, NULL );
+  VectorCopy( hovel->s.origin2, normal );
+  AngleVectors( hovel->s.angles, forward, NULL, NULL );
   VectorInverse( forward );
 
-  displacement = VectorMaxComponent( maxs ) + VectorMaxComponent( hovelMaxs ) + 1.0f;
+  displacement = VectorMaxComponent( maxs ) * M_ROOT3 +
+                 VectorMaxComponent( hovelMaxs ) * M_ROOT3 + 1.0f;
 
-  VectorMA( srcOrigin, displacement, forward, origin );
+  VectorMA( hovel->s.origin, displacement, forward, origin );
   vectoangles( forward, angles );
 
   VectorMA( origin, HOVEL_TRACE_DEPTH, normal, start );
+  
+  //compute a place up in the air to start the real trace
+  trap_Trace( &tr, origin, mins, maxs, start, player->s.number, MASK_PLAYERSOLID );
+  VectorMA( origin, ( HOVEL_TRACE_DEPTH * tr.fraction ) - 1.0f, normal, start );
   VectorMA( origin, -HOVEL_TRACE_DEPTH, normal, end );
   
-  trap_Trace( &tr, start, mins, maxs, end, entityNum, MASK_PLAYERSOLID );
+  trap_Trace( &tr, start, mins, maxs, end, player->s.number, MASK_PLAYERSOLID );
   
   if( tr.startsolid )
-    return qfalse;
+    return qtrue;
 
   VectorCopy( tr.endpos, origin );
   
-  trap_Trace( &tr, origin, mins, maxs, origin, entityNum, MASK_PLAYERSOLID );
+  trap_Trace( &tr, origin, mins, maxs, origin, player->s.number, MASK_PLAYERSOLID );
   
-  if( newOrigin != NULL )
-    VectorCopy( origin, newOrigin );
+  if( provideExit )
+  {
+    G_SetOrigin( player, origin );
+    VectorCopy( origin, player->client->ps.origin );
+    VectorCopy( vec3_origin, player->client->ps.velocity );
+    SetClientViewAngle( player, angles );
+  }
   
-  if( newAngles != NULL )
-    VectorCopy( angles, newAngles );
-  
-  if( tr.fraction < 1.0 )
+  if( tr.fraction < 1.0f )
     return qtrue;
   else
     return qfalse;
 }
 
+/*
+================
+APropHovel_Blocked
+
+Wrapper to test a hovel placement for validity
+================
+*/
+static qboolean APropHovel_Blocked( vec3_t origin, vec3_t angles, vec3_t normal,
+                                    gentity_t *player )
+{
+  gentity_t hovel;
+
+  VectorCopy( origin, hovel.s.origin );
+  VectorCopy( angles, hovel.s.angles );
+  VectorCopy( normal, hovel.s.origin2 );
+
+  return AHovel_Use( &hovel, player, qfalse );
+}
 
 /*
 ================
@@ -930,6 +957,13 @@ void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
     else if( ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_A_B_BASE ) ||
              ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_A_B_LEV1 ) )
     {
+      if( AHovel_Blocked( self, activator, qfalse ) )
+      {
+        //you can get in, but you can't get out
+        G_TriggerMenu( activator->client->ps.clientNum, MN_A_HOVEL_BLOCKED );
+        return;
+      }
+
       self->active = qtrue;
       G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
 
@@ -2020,8 +2054,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
       //this assumes the adv builder is the biggest thing that'll use the hovel
       BG_FindBBoxForClass( PCL_A_B_LEV1, builderMins, builderMaxs, NULL, NULL, NULL );
 
-      if( AHovel_Blocked( angles, origin, normal, builderMins, builderMaxs,
-                          ent->client->ps.clientNum, NULL, NULL ) )
+      if( APropHovel_Blocked( angles, origin, normal, ent ) )
         reason = IBE_HOVELEXIT;
     }
     

@@ -573,9 +573,7 @@ typedef enum
   IBE_MAXERRORS
 } itemBuildError_t;
 
-qboolean          AHovel_Blocked( vec3_t srcAngles, vec3_t srcOrigin, vec3_t normal,
-                                  vec3_t mins, vec3_t maxs, int entityNum,
-                                  vec3_t newOrigin, vec3_t newAngles );
+qboolean          AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideExit );
   
 qboolean          G_BuildableRange( vec3_t origin, float r, buildable_t buildable );
 itemBuildError_t  G_itemFits( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin );
