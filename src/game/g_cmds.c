@@ -1860,6 +1860,13 @@ void Cmd_Buy_f( gentity_t *ent )
       return;
     }
     
+    if( BG_FindTeamForWeapon( weapon ) != WUT_HUMANS )
+    {
+      //shouldn't need a fancy dialog
+      trap_SendServerCommand( ent-g_entities, va("print \"You can't buy alien items\n\"" ) );
+      return;
+    }
+    
     //add to inventory
     BG_packWeapon( weapon, ent->client->ps.stats );
     BG_FindAmmoForWeapon( weapon, &quan, &clips, &maxClips );

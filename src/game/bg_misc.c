@@ -957,6 +957,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_D_SPAWN,            //int       buildNum;     
     "bioegg",              //char      *buildName;
+    "Egg",                 //char      *humanName;
     "team_droid_spawn",    //char      *entityName;
     { "models/buildables/bioegg/bioegg.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
@@ -985,6 +986,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_D_BARRICADE,        //int       buildNum;
     "barricade",           //char      *buildName;
+    "Barricade",           //char      *humanName;
     "team_droid_barricade",//char      *entityName;
     { "models/buildables/barricade/barricade.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
@@ -1013,6 +1015,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_D_BOOSTER,          //int       buildNum;
     "booster",             //char      *buildName;
+    "Booster",             //char      *humanName;
     "team_droid_booster",  //char      *entityName;
     { "models/buildables/booster/booster.md3", 0, 0, 0 },
     { -26, -26, -9 },     //vec3_t    mins;
@@ -1041,6 +1044,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_D_ACIDTUBE,         //int       buildNum;
     "acid_tube",           //char      *buildName;
+    "Acid Tube",           //char      *humanName;
     "team_droid_acid_tube",//char      *entityName;
     { "models/buildables/acid_tube/acid_tube.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
@@ -1069,6 +1073,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_D_TRAPPER,          //int       buildNum;
     "trapper",             //char      *buildName;
+    "Trapper",             //char      *humanName;
     "team_droid_trapper",  //char      *entityName;
     { "models/buildables/trapper/trapper.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
@@ -1097,6 +1102,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_D_HIVEMIND,         //int       buildNum;
     "hivemind",            //char      *buildName;
+    "Hivemind",            //char      *humanName;
     "team_droid_hivemind", //char      *entityName;
     { "models/buildables/hivemind/hivemind.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
@@ -1125,6 +1131,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_H_SPAWN,            //int       buildNum;
     "replicator",          //char      *buildName;
+    "Replicator",          //char      *humanName;
     "team_human_spawn",    //char      *entityName;
     { "models/buildables/replicator/replicator.md3", 0, 0, 0 },
     { -40, -40, -4 },      //vec3_t    mins;
@@ -1153,6 +1160,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_H_MEDISTAT,         //int       buildNum;
     "medistat",            //char      *buildName;
+    "Medistation",         //char      *humanName;
     "team_human_medistat", //char      *entityName;
     { "models/buildables/medistat/medistat.md3", 0, 0, 0 },
     { -35, -35, -7 },      //vec3_t    mins;
@@ -1181,6 +1189,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_H_DEF1,             //int       buildNum;
     "plasmaturret",        //char      *buildName;
+    "Plasma Turret",       //char      *humanName;
     "team_human_def1",     //char      *entityName;
     { "models/buildables/plasmaturret/pturret_base.md3", "models/buildables/plasmaturret/pturret_top.md3", 0, 0 },
     { -24, -24, -11 },     //vec3_t    mins;
@@ -1209,6 +1218,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_H_DEF2,             //int       buildNum;
     "mgturret",            //char      *buildName;
+    "Machinegun Turret",   //char      *humanName;
     "team_human_def2",     //char      *entityName;
     { "models/buildables/mgturret/turret_base.md3",
       "models/buildables/mgturret/turret_barrel.md3",
@@ -1239,6 +1249,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_H_DEF3,             //int       buildNum;
     "tesla",               //char      *buildName;
+    "Tesla Generator",     //char      *humanName;
     "team_human_tesla",    //char      *entityName;
     { "models/buildables/tesla/tesla.md3", 0, 0, 0 },
     { -22, -22, -40 },     //vec3_t    mins;
@@ -1267,6 +1278,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_H_DCC,              //int       buildNum;
     "dcc",                 //char      *buildName;
+    "D.C.C.",              //char      *humanName;
     "team_human_dcc",      //char      *entityName;
     { "models/buildables/dcc/dcc.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
@@ -1295,6 +1307,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_H_BANK,             //int       buildNum;
     "bank",                //char      *buildName;
+    "Bank",                //char      *humanName;
     "team_human_bank",     //char      *entityName;
     { "models/buildables/bank/bank.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
@@ -1323,6 +1336,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_H_MCU,              //int       buildNum;
     "mcu",                 //char      *buildName;
+    "M.C.U.",              //char      *humanName;
     "team_human_mcu",      //char      *entityName;
     { "models/buildables/mcu/mcu.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
@@ -1351,6 +1365,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_H_REACTOR,          //int       buildNum;
     "reactor",             //char      *buildName;
+    "Reactor",             //char      *humanName;
     "team_human_reactor",  //char      *entityName;
     { "models/buildables/reactor/reactor.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
@@ -1379,6 +1394,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_H_REPEATER,         //int       buildNum;
     "repeater",            //char      *buildName;
+    "Repeater",            //char      *humanName;
     "team_human_repeater", //char      *entityName;
     { "models/buildables/repeater/repeater.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
@@ -1407,6 +1423,7 @@ buildableAttributes_t bg_buildableList[ ] =
   {
     BA_H_FLOATMINE,        //int       buildNum;
     "floatmine",           //char      *buildName;
+    "Floatmine",           //char      *humanName;
     "team_human_floatmine",//char      *entityName;
     { "models/buildables/floatmine/floatmine.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
@@ -1487,6 +1504,25 @@ char *BG_FindNameForBuildable( int bclass )
   {
     if( bg_buildableList[ i ].buildNum == bclass )
       return bg_buildableList[ i ].buildName;
+  }
+
+  //wimp out
+  return "";
+}
+
+/*
+==============
+BG_FindHumanNameForBuildNum
+==============
+*/
+char *BG_FindHumanNameForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+      return bg_buildableList[ i ].humanName;
   }
 
   //wimp out
@@ -1967,7 +2003,8 @@ classAttributes_t bg_classList[ ] =
 {
   { 
     PCL_D_B_BASE,                                   //int     classnum;
-    "Builder",                                      //char    *classname;
+    "Builder",                                      //char    *className;
+    "Builder",                                      //char    *humanName;
     "lucy",                                         //char    *modelname;
     "default",                                      //char    *skinname;
     { -15, -15, -20 },                              //vec3_t  mins;
@@ -1992,6 +2029,7 @@ classAttributes_t bg_classList[ ] =
   { 
     PCL_D_B_LEV1,                                   //int     classnum;
     "BuilderLevel1",                                //char    *classname;
+    "Advanced Builder",                             //char    *humanname;
     "lucy",                                         //char    *modelname;
     "angel",                                        //char    *skinname;
     { -20, -20, -20 },                              //vec3_t  mins;
@@ -2016,6 +2054,7 @@ classAttributes_t bg_classList[ ] =
   {
     PCL_D_O_BASE,                                               //int     classnum;
     "Offensive",                                                //char    *classname;
+    "Offensive",                                                //char    *humanname;
     "klesk",                                                    //char    *modelname;
     "default",                                                  //char    *skinname;
     { -15, -15, -15 },                                          //vec3_t  mins;
@@ -2040,6 +2079,7 @@ classAttributes_t bg_classList[ ] =
   {
     PCL_D_O_LEV1,                                 //int     classnum;
     "OffensiveLevel1",                            //char    *classname;
+    "Offensive Level 1",                          //char    *humanname;
     "anarki",                                     //char    *modelname;
     "default",                                    //char    *skinname;
     { -24, -24, -24 },                            //vec3_t  mins;
@@ -2064,6 +2104,7 @@ classAttributes_t bg_classList[ ] =
   {
     PCL_D_O_LEV1_UPG,                             //int     classnum;
     "OffensiveLevel1-Upgrade",                    //char    *classname;
+    "Offensive Level 1 Upgrade",                  //char    *humanname;
     "anarki",                                     //char    *modelname;
     "default",                                    //char    *skinname;
     { -24, -24, -24 },                            //vec3_t  mins;
@@ -2088,6 +2129,7 @@ classAttributes_t bg_classList[ ] =
   {
     PCL_D_O_LEV2,                                 //int     classnum;
     "OffensiveLevel2",                            //char    *classname;
+    "Offensive Level 2",                          //char    *humanname;
     "bones",                                      //char    *modelname;
     "default",                                    //char    *skinname;
     { -24, -24, -24 },                            //vec3_t  mins;
@@ -2112,6 +2154,7 @@ classAttributes_t bg_classList[ ] =
   {
     PCL_D_O_LEV2_UPG,                             //int     classnum;
     "OffensiveLevel2-Upgrade",                    //char    *classname;
+    "Offensive Level 2 Upgrade",                  //char    *humanname;
     "bones",                                      //char    *modelname;
     "default",                                    //char    *skinname;
     { -24, -24, -24 },                            //vec3_t  mins;
@@ -2136,6 +2179,7 @@ classAttributes_t bg_classList[ ] =
   {
     PCL_D_O_LEV3,                                 //int     classnum;
     "OffensiveLevel3",                            //char    *classname;
+    "Offensive Level 3",                          //char    *humanname;
     "orbb",                                       //char    *modelname;
     "default",                                    //char    *skinname;
     { -15, -15, -15 },                            //vec3_t  mins;
@@ -2160,6 +2204,7 @@ classAttributes_t bg_classList[ ] =
   {
     PCL_D_O_LEV3_UPG,                             //int     classnum;
     "OffensiveLevel3-Upgrade",                    //char    *classname;
+    "Offensive Level 3 Upgrade",                  //char    *humanname;
     "orbb",                                       //char    *modelname;
     "default",                                    //char    *skinname;
     { -15, -15, -15 },                            //vec3_t  mins;
@@ -2184,6 +2229,7 @@ classAttributes_t bg_classList[ ] =
   {
     PCL_D_O_LEV4,                                 //int     classnum;
     "OffensiveLevel4",                            //char    *classname;
+    "Offensive Level 4",                          //char    *humanname;
     "xaero",                                      //char    *modelname;
     "default",                                    //char    *skinname;
     { -15, -15, -15 },                            //vec3_t  mins;
@@ -2208,6 +2254,7 @@ classAttributes_t bg_classList[ ] =
   {
     PCL_H_BASE,                                 //int     classnum;
     "Human",                                    //char    *classname;
+    "Human",                                    //char    *humanname;
     "sarge",                                    //char    *modelname;
     "default",                                  //char    *skinname;
     { -15, -15, -24 },                          //vec3_t  mins;
@@ -2265,6 +2312,25 @@ char *BG_FindNameForClassNum( int pclass )
   {
     if( bg_classList[ i ].classNum == pclass )
       return bg_classList[ i ].className;
+  }
+
+  //wimp out
+  return "";
+}
+
+/*
+==============
+BG_FindHumanNameForClassNum
+==============
+*/
+char *BG_FindHumanNameForClassNum( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+      return bg_classList[ i ].humanName;
   }
 
   //wimp out
@@ -2632,7 +2698,8 @@ weaponAttributes_t bg_weapons[ ] =
     3,                    //int       clips;
     3,                    //int       maxClips;
     qfalse,               //qboolean  hasAltMode;
-    qfalse                //qboolean  synced;
+    qfalse,               //qboolean  synced;
+    WUT_HUMANS            //WUTeam_t  team;
   },
   {
     WP_FLAMER,            //int       weaponNum;
@@ -2644,7 +2711,8 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qfalse,               //qboolean  hasAltMode;
-    qfalse                //qboolean  synced;
+    qfalse,               //qboolean  synced;
+    WUT_HUMANS            //WUTeam_t  team;
   },
   {
     WP_CHAINGUN,          //int       weaponNum;
@@ -2656,7 +2724,8 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qfalse,               //qboolean  hasAltMode;
-    qfalse                //qboolean  synced;
+    qfalse,               //qboolean  synced;
+    WUT_HUMANS            //WUTeam_t  team;
   },
   {
     WP_MASS_DRIVER,       //int       weaponNum;
@@ -2668,7 +2737,8 @@ weaponAttributes_t bg_weapons[ ] =
     2,                    //int       clips;
     3,                    //int       maxClips;
     qfalse,               //qboolean  hasAltMode;
-    qfalse                //qboolean  synced;
+    qfalse,               //qboolean  synced;
+    WUT_HUMANS            //WUTeam_t  team;
   },
   {
     WP_PULSE_RIFLE,       //int       weaponNum;
@@ -2680,7 +2750,8 @@ weaponAttributes_t bg_weapons[ ] =
     3,                    //int       clips;
     3,                    //int       maxClips;
     qfalse,               //qboolean  hasAltMode;
-    qfalse                //qboolean  synced;
+    qfalse,               //qboolean  synced;
+    WUT_HUMANS            //WUTeam_t  team;
   },
   {
     WP_HBUILD,            //int       weaponNum;
@@ -2692,7 +2763,8 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //qboolean  hasAltMode;
-    qfalse                //qboolean  synced;
+    qfalse,               //qboolean  synced;
+    WUT_HUMANS            //WUTeam_t  team;
   },
   {
     WP_HBUILD2,           //int       weaponNum;
@@ -2704,7 +2776,8 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //qboolean  hasAltMode;
-    qfalse                //qboolean  synced;
+    qfalse,               //qboolean  synced;
+    WUT_HUMANS            //WUTeam_t  team;
   },
   {
     WP_DBUILD,            //int       weaponNum;
@@ -2716,7 +2789,8 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //qboolean  hasAltMode;
-    qfalse                //qboolean  synced;
+    qfalse,               //qboolean  synced;
+    WUT_ALIENS            //WUTeam_t  team;
   },
   {
     WP_DBUILD2,           //int       weaponNum;
@@ -2728,7 +2802,8 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //qboolean  hasAltMode;
-    qfalse                //qboolean  synced;
+    qfalse,               //qboolean  synced;
+    WUT_ALIENS            //WUTeam_t  team;
   },
   {
     WP_VENOM,             //int       weaponNum;
@@ -2740,7 +2815,8 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qfalse,               //qboolean  hasAltMode;
-    qfalse                //qboolean  synced;
+    qfalse,               //qboolean  synced;
+    WUT_ALIENS            //WUTeam_t  team;
   },
   {
     WP_GRABANDCSAW,       //int       weaponNum;
@@ -2752,7 +2828,8 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qtrue,                //qboolean  hasAltMode;
-    qtrue                 //qboolean  synced;
+    qtrue,                //qboolean  synced;
+    WUT_ALIENS            //WUTeam_t  team;
   },
   {
     WP_POUNCE,            //int       weaponNum;
@@ -2764,7 +2841,8 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       clips;
     0,                    //int       maxClips;
     qfalse,               //qboolean  hasAltMode;
-    qfalse                //qboolean  synced;
+    qfalse,               //qboolean  synced;
+    WUT_ALIENS            //WUTeam_t  team;
   }
 };
 
@@ -2933,6 +3011,26 @@ qboolean BG_WeaponModesAreSynced( int weapon )
   return qfalse;
 }
 
+/*
+==============
+BG_FindTeamForWeapon
+==============
+*/
+WUTeam_t BG_FindTeamForWeapon( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+    {
+      return bg_weapons[ i ].team;
+    }
+  }
+
+  return WUT_NONE;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 upgradeAttributes_t bg_upgrades[ ] =
@@ -2942,77 +3040,72 @@ upgradeAttributes_t bg_upgrades[ ] =
     100,                    //int   price;
     SLOT_NONE,              //int   slots;
     "torch",                //char  *upgradeName;
-    "Torch"                 //char  *upgradeHumanName;
+    "Torch",                //char  *upgradeHumanName;
+    WUT_HUMANS              //WUTeam_t  team;
   },
   {
     UP_NVG,                 //int   upgradeNum;
     100,                    //int   price;
     SLOT_HEAD,              //int   slots;
     "nvg",                  //char  *upgradeName;
-    "NVG"                   //char  *upgradeHumanName;
+    "NVG",                  //char  *upgradeHumanName;
+    WUT_HUMANS              //WUTeam_t  team;
   },
   {
     UP_CHESTARMOUR,         //int   upgradeNum;
     100,                    //int   price;
     SLOT_TORSO,             //int   slots;
     "carmour",              //char  *upgradeName;
-    "Chest Armour"          //char  *upgradeHumanName;
+    "Chest Armour",         //char  *upgradeHumanName;
+    WUT_HUMANS              //WUTeam_t  team;
   },
   {
     UP_LIMBARMOUR,          //int   upgradeNum;        
     100,                    //int   price;
     SLOT_ARMS|SLOT_LEGS,    //int   slots;
     "larmour",              //char  *upgradeName;
-    "Limb Armour"           //char  *upgradeHumanName;
+    "Limb Armour",          //char  *upgradeHumanName;
+    WUT_HUMANS              //WUTeam_t  team;
   },
   {
     UP_HELMET,              //int   upgradeNum;
     100,                    //int   price;
     SLOT_HEAD,              //int   slots;
     "helmet",               //char  *upgradeName;
-    "Helmet"                //char  *upgradeHumanName;
+    "Helmet",               //char  *upgradeHumanName;
+    WUT_HUMANS              //WUTeam_t  team;
   },
   {
     UP_ANTITOXIN,           //int   upgradeNum;
     100,                    //int   price;
     SLOT_NONE,              //int   slots;
     "atoxin",               //char  *upgradeName;
-    "Anti-toxin"            //char  *upgradeHumanName;
+    "Anti-toxin",           //char  *upgradeHumanName;
+    WUT_HUMANS              //WUTeam_t  team;
   },
   {
     UP_BATTPACK,            //int   upgradeNum;
     100,                    //int   price;
     SLOT_BACKPACK,          //int   slots;
     "battpack",             //char  *upgradeName;
-    "Battery Pack"          //char  *upgradeHumanName;
+    "Battery Pack",         //char  *upgradeHumanName;
+    WUT_HUMANS              //WUTeam_t  team;
   },
   {
     UP_JETPACK,             //int   upgradeNum;
     100,                    //int   price;
     SLOT_BACKPACK,          //int   slots;
     "jetpack",              //char  *upgradeName;
-    "Jet Pack"              //char  *upgradeHumanName;
-  },
-  {
-    UP_THREATHELMET,        //int   upgradeNum;
-    100,                    //int   price;
-    SLOT_HEAD,              //int   slots;
-    "thelmet",              //char  *upgradeName;
-    "Threat Helmet"         //char  *upgradeHumanName;
+    "Jet Pack",             //char  *upgradeHumanName;
+    WUT_HUMANS              //WUTeam_t  team;
   },
   {
     UP_BATTLESUIT,                            //int   upgradeNum;
     100,                                      //int   price;
     SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS, //int   slots;
     "bsuit",                                  //char  *upgradeName;
-    "Battlesuit"                              //char  *upgradeHumanName;
-  },
-  {
-    UP_IMPANTKIT,                             //int   upgradeNum;
-    100,                                      //int   price;
-    SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS, //int   slots;
-    "ikit",                                   //char  *upgradeName;
-    "Implant Kit"                             //char  *upgradeHumanName;
+    "Battlesuit",                             //char  *upgradeHumanName;
+    WUT_HUMANS              //WUTeam_t  team;
   }
 };
 
@@ -3113,6 +3206,26 @@ char *BG_FindHumanNameForUpgrade( int upgrade )
 
   //wimp out
   return "";
+}
+
+/*
+==============
+BG_FindTeamForUpgrade
+==============
+*/
+WUTeam_t BG_FindTeamForUpgrade( int upgrade )
+{
+  int i;
+
+  for( i = 0; i < bg_numUpgrades; i++ )
+  {
+    if( bg_upgrades[ i ].upgradeNum == upgrade )
+    {
+      return bg_upgrades[ i ].team;
+    }
+  }
+
+  return WUT_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

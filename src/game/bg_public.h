@@ -368,12 +368,20 @@ typedef enum
   UP_ANTITOXIN,
   UP_BATTPACK,
   UP_JETPACK,
-  UP_THREATHELMET,
   UP_BATTLESUIT,
-  UP_IMPANTKIT,
 
   UP_NUM_UPGRADES
 } upgrade_t;
+
+typedef enum
+{
+  WUT_NONE,
+  
+  WUT_ALIENS,
+  WUT_HUMANS,
+
+  WUT_NUM_TEAMS
+} WUTeam_t;
 
 //TA: bitmasks for upgrade slots
 #define SLOT_NONE       0
@@ -809,6 +817,7 @@ typedef struct
   int     classNum;
 
   char    *className;
+  char    *humanName;
   
   char    *modelName;
   char    *skinName;
@@ -846,6 +855,7 @@ typedef struct
   int       buildNum;
 
   char      *buildName;
+  char      *humanName;
   char      *entityName;
   
   char      *models[ MAX_ITEM_MODELS ];
@@ -904,6 +914,8 @@ typedef struct
   
   qboolean  hasAltMode;
   qboolean  synced;
+
+  WUTeam_t  team;
 } weaponAttributes_t;
 
 //TA: upgrade record
@@ -917,6 +929,8 @@ typedef struct
 
   char      *upgradeName;
   char      *upgradeHumanName;
+  
+  WUTeam_t  team;
 } upgradeAttributes_t;
 
 // included in both the game dll and the client
@@ -933,6 +947,7 @@ gitem_t *BG_FindItemForHoldable( holdable_t pw );
 int           BG_FindBuildNumForName( char *name );
 int           BG_FindBuildNumForEntityName( char *name );
 char          *BG_FindNameForBuildable( int bclass );
+char          *BG_FindHumanNameForBuildable( int bclass );
 char          *BG_FindEntityNameForBuildable( int bclass );
 char          *BG_FindModelsForBuildable( int bclass, int modelNum );
 void          BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs );
@@ -959,6 +974,7 @@ int           BG_FindUniqueTestForBuildable( int bclass );
 
 int       BG_FindClassNumForName( char *name );
 char      *BG_FindNameForClassNum( int pclass );
+char      *BG_FindHumanNameForClassNum( int pclass );
 char      *BG_FindModelNameForClass( int pclass );
 void      BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, vec3_t dmins, vec3_t dmaxs );
 void      BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight );
@@ -983,12 +999,14 @@ char      *BG_FindHumanNameForWeapon( int weapon );
 void      BG_FindAmmoForWeapon( int weapon, int *quan, int *clips, int *maxClips );
 qboolean  BG_WeaponHasAltMode( int weapon );
 qboolean  BG_WeaponModesAreSynced( int weapon );
+WUTeam_t  BG_FindTeamForWeapon( int weapon );
 
 int       BG_FindPriceForUpgrade( int upgrade );
 int       BG_FindSlotsForUpgrade( int upgrade );
 char      *BG_FindNameForUpgrade( int upgrade );
 int       BG_FindUpgradeNumForName( char *name );
 char      *BG_FindHumanNameForUpgrade( int upgrade );
+WUTeam_t  BG_FindTeamForUpgrade( int upgrade );
 
 #define ITEM_INDEX(x) ((x)-bg_itemlist)
 

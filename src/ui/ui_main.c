@@ -2837,14 +2837,21 @@ UI_LoadTremAlienClasses
 static void UI_LoadTremAlienClasses( )
 {
   uiInfo.tremAlienClassCount = 3;
-  uiInfo.tremAlienClassList[ 0 ].text = String_Alloc( "Builder" );
-  uiInfo.tremAlienClassList[ 0 ].cmd = String_Alloc( "cmd class builder" );
   
-  uiInfo.tremAlienClassList[ 1 ].text = String_Alloc( "Advanced Builder" );
-  uiInfo.tremAlienClassList[ 1 ].cmd = String_Alloc( "cmd class builderlevel1" );
+  uiInfo.tremAlienClassList[ 0 ].text =
+    String_Alloc( BG_FindHumanNameForClassNum( PCL_D_B_BASE ) );
+  uiInfo.tremAlienClassList[ 0 ].cmd =
+    String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( PCL_D_B_BASE ) ) );
   
-  uiInfo.tremAlienClassList[ 2 ].text = String_Alloc( "Offensive" );
-  uiInfo.tremAlienClassList[ 2 ].cmd = String_Alloc( "cmd class offensive" );
+  uiInfo.tremAlienClassList[ 1 ].text =
+    String_Alloc( BG_FindHumanNameForClassNum( PCL_D_B_LEV1 ) );
+  uiInfo.tremAlienClassList[ 1 ].cmd =
+    String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( PCL_D_B_LEV1 ) ) );
+  
+  uiInfo.tremAlienClassList[ 2 ].text =
+    String_Alloc( BG_FindHumanNameForClassNum( PCL_D_O_BASE ) );
+  uiInfo.tremAlienClassList[ 2 ].cmd =
+    String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( PCL_D_O_BASE ) ) );
 }
 
 /*
@@ -2855,11 +2862,16 @@ UI_LoadTremHumanItems
 static void UI_LoadTremHumanItems( )
 {
   uiInfo.tremHumanItemCount = 2;
-  uiInfo.tremHumanItemList[ 0 ].text = String_Alloc( "Rifle" );
-  uiInfo.tremHumanItemList[ 0 ].cmd = String_Alloc( "cmd class rifle" );
+
+  uiInfo.tremHumanItemList[ 0 ].text =
+    String_Alloc( BG_FindHumanNameForWeapon( WP_MACHINEGUN ) );
+  uiInfo.tremHumanItemList[ 0 ].cmd =
+    String_Alloc( va( "cmd class %s", BG_FindNameForWeapon( WP_MACHINEGUN ) ) );
   
-  uiInfo.tremHumanItemList[ 1 ].text = String_Alloc( "Construction Kit" );
-  uiInfo.tremHumanItemList[ 1 ].cmd = String_Alloc( "cmd class ckit" );
+  uiInfo.tremHumanItemList[ 1 ].text =
+    String_Alloc( BG_FindHumanNameForWeapon( WP_HBUILD ) );
+  uiInfo.tremHumanItemList[ 1 ].cmd =
+    String_Alloc( va( "cmd class %s", BG_FindNameForWeapon( WP_HBUILD ) ) );
 }
 
 /*
@@ -2869,39 +2881,35 @@ UI_LoadTremHumanMCUBuys
 */
 static void UI_LoadTremHumanMCUBuys( )
 {
-  uiInfo.tremHumanMCUBuyCount = 11;
-  uiInfo.tremHumanMCUBuyList[ 0 ].text = String_Alloc( "Rifle" );
-  uiInfo.tremHumanMCUBuyList[ 0 ].cmd = String_Alloc( "cmd buy rifle" );
+  int i, j = 0;
+
+  uiInfo.tremHumanMCUBuyCount = 0;
   
-  uiInfo.tremHumanMCUBuyList[ 1 ].text = String_Alloc( "Chaingun" );
-  uiInfo.tremHumanMCUBuyList[ 1 ].cmd = String_Alloc( "cmd buy chaingun" );
+  for( i = WP_NONE +1; i < WP_NUM_WEAPONS; i++ )
+  {
+    if( BG_FindTeamForWeapon( i ) == WUT_HUMANS )
+    {
+      uiInfo.tremHumanMCUBuyList[ j ].text =
+        String_Alloc( BG_FindHumanNameForWeapon( i ) );
+      uiInfo.tremHumanMCUBuyList[ j++ ].cmd =
+        String_Alloc( va( "cmd buy %s", BG_FindNameForWeapon( i ) ) );
+
+      uiInfo.tremHumanMCUBuyCount++;
+    }
+  }
   
-  uiInfo.tremHumanMCUBuyList[ 2 ].text = String_Alloc( "Flamer" );
-  uiInfo.tremHumanMCUBuyList[ 2 ].cmd = String_Alloc( "cmd buy flamer" );
-  
-  uiInfo.tremHumanMCUBuyList[ 3 ].text = String_Alloc( "Mass Driver" );
-  uiInfo.tremHumanMCUBuyList[ 3 ].cmd = String_Alloc( "cmd buy mdriver" );
-  
-  uiInfo.tremHumanMCUBuyList[ 4 ].text = String_Alloc( "Pulse Rifle" );
-  uiInfo.tremHumanMCUBuyList[ 4 ].cmd = String_Alloc( "cmd buy prifle" );
-  
-  uiInfo.tremHumanMCUBuyList[ 5 ].text = String_Alloc( "NVG" );
-  uiInfo.tremHumanMCUBuyList[ 5 ].cmd = String_Alloc( "cmd buy nvg" );
-  
-  uiInfo.tremHumanMCUBuyList[ 6 ].text = String_Alloc( "Torch" );
-  uiInfo.tremHumanMCUBuyList[ 6 ].cmd = String_Alloc( "cmd buy torch" );
-  
-  uiInfo.tremHumanMCUBuyList[ 7 ].text = String_Alloc( "Chest Armour" );
-  uiInfo.tremHumanMCUBuyList[ 7 ].cmd = String_Alloc( "cmd buy carmour" );
-  
-  uiInfo.tremHumanMCUBuyList[ 8 ].text = String_Alloc( "Limb Armour" );
-  uiInfo.tremHumanMCUBuyList[ 8 ].cmd = String_Alloc( "cmd buy larmour" );
-  
-  uiInfo.tremHumanMCUBuyList[ 9 ].text = String_Alloc( "Helmet" );
-  uiInfo.tremHumanMCUBuyList[ 9 ].cmd = String_Alloc( "cmd buy helmet" );
-  
-  uiInfo.tremHumanMCUBuyList[ 10 ].text = String_Alloc( "Battlesuit" );
-  uiInfo.tremHumanMCUBuyList[ 10 ].cmd = String_Alloc( "cmd buy bsuit" );
+  for( i = UP_NONE +1; i < UP_NUM_UPGRADES; i++ )
+  {
+    if( BG_FindTeamForUpgrade( i ) == WUT_HUMANS )
+    {
+      uiInfo.tremHumanMCUBuyList[ j ].text =
+        String_Alloc( BG_FindHumanNameForUpgrade( i ) );
+      uiInfo.tremHumanMCUBuyList[ j++ ].cmd =
+        String_Alloc( va( "cmd buy %s", BG_FindNameForUpgrade( i ) ) );
+
+      uiInfo.tremHumanMCUBuyCount++;
+    }
+  }
 }
 
 /*
@@ -2995,24 +3003,22 @@ UI_LoadTremAlienBuilds
 */
 static void UI_LoadTremAlienBuilds( )
 {
-  uiInfo.tremAlienBuildCount = 6;
-  uiInfo.tremAlienBuildList[ 0 ].text = String_Alloc( "Egg" );
-  uiInfo.tremAlienBuildList[ 0 ].cmd = String_Alloc( "cmd build bioegg" );
+  int i, j = 0;
+
+  uiInfo.tremAlienBuildCount = 0;
   
-  uiInfo.tremAlienBuildList[ 1 ].text = String_Alloc( "Barricade" );
-  uiInfo.tremAlienBuildList[ 1 ].cmd = String_Alloc( "cmd build barricade" );
-  
-  uiInfo.tremAlienBuildList[ 2 ].text = String_Alloc( "Acid Tube" );
-  uiInfo.tremAlienBuildList[ 2 ].cmd = String_Alloc( "cmd build acid_tube" );
-  
-  uiInfo.tremAlienBuildList[ 3 ].text = String_Alloc( "Trapper" );
-  uiInfo.tremAlienBuildList[ 3 ].cmd = String_Alloc( "cmd build trapper" );
-  
-  uiInfo.tremAlienBuildList[ 4 ].text = String_Alloc( "Hivemind" );
-  uiInfo.tremAlienBuildList[ 4 ].cmd = String_Alloc( "cmd build hivemind" );
-  
-  uiInfo.tremAlienBuildList[ 5 ].text = String_Alloc( "Booster" );
-  uiInfo.tremAlienBuildList[ 5 ].cmd = String_Alloc( "cmd build booster" );
+  for( i = BA_NONE +1; i < BA_NUM_BUILDABLES; i++ )
+  {
+    if( BG_FindTeamForBuildable( i ) == BIT_DROIDS )
+    {
+      uiInfo.tremAlienBuildList[ j ].text =
+        String_Alloc( BG_FindHumanNameForBuildable( i ) );
+      uiInfo.tremAlienBuildList[ j++ ].cmd =
+        String_Alloc( va( "cmd build %s", BG_FindNameForBuildable( i ) ) );
+
+      uiInfo.tremAlienBuildCount++;
+    }
+  }
 }
 
 /*
@@ -3022,39 +3028,22 @@ UI_LoadTremHumanBuilds
 */
 static void UI_LoadTremHumanBuilds( )
 {
-  uiInfo.tremHumanBuildCount = 11;
-  uiInfo.tremHumanBuildList[ 0 ].text = String_Alloc( "Replicator" );
-  uiInfo.tremHumanBuildList[ 0 ].cmd = String_Alloc( "cmd build replicator" );
+  int i, j = 0;
+
+  uiInfo.tremHumanBuildCount = 0;
   
-  uiInfo.tremHumanBuildList[ 1 ].text = String_Alloc( "M.C.U." );
-  uiInfo.tremHumanBuildList[ 1 ].cmd = String_Alloc( "cmd build mcu" );
-  
-  uiInfo.tremHumanBuildList[ 2 ].text = String_Alloc( "Computer" );
-  uiInfo.tremHumanBuildList[ 2 ].cmd = String_Alloc( "cmd build computer" );
-  
-  uiInfo.tremHumanBuildList[ 3 ].text = String_Alloc( "Medistation" );
-  uiInfo.tremHumanBuildList[ 3 ].cmd = String_Alloc( "cmd build medistat" );
-  
-  uiInfo.tremHumanBuildList[ 4 ].text = String_Alloc( "Bank" );
-  uiInfo.tremHumanBuildList[ 4 ].cmd = String_Alloc( "cmd build bank" );
-  
-  uiInfo.tremHumanBuildList[ 5 ].text = String_Alloc( "Machinegun Turret" );
-  uiInfo.tremHumanBuildList[ 5 ].cmd = String_Alloc( "cmd build mgturret" );
-  
-  uiInfo.tremHumanBuildList[ 6 ].text = String_Alloc( "Plasma Turret" );
-  uiInfo.tremHumanBuildList[ 6 ].cmd = String_Alloc( "cmd build plasmaturret" );
-  
-  uiInfo.tremHumanBuildList[ 7 ].text = String_Alloc( "Tesla Generator" );
-  uiInfo.tremHumanBuildList[ 7 ].cmd = String_Alloc( "cmd build tesla" );
-  
-  uiInfo.tremHumanBuildList[ 8 ].text = String_Alloc( "Floatmine" );
-  uiInfo.tremHumanBuildList[ 8 ].cmd = String_Alloc( "cmd build floatmine" );
-  
-  uiInfo.tremHumanBuildList[ 9 ].text = String_Alloc( "Reactor" );
-  uiInfo.tremHumanBuildList[ 9 ].cmd = String_Alloc( "cmd build reactor" );
-  
-  uiInfo.tremHumanBuildList[ 10 ].text = String_Alloc( "Repeater" );
-  uiInfo.tremHumanBuildList[ 10 ].cmd = String_Alloc( "cmd build repeater" );
+  for( i = BA_NONE +1; i < BA_NUM_BUILDABLES; i++ )
+  {
+    if( BG_FindTeamForBuildable( i ) == BIT_HUMANS )
+    {
+      uiInfo.tremHumanBuildList[ j ].text =
+        String_Alloc( BG_FindHumanNameForBuildable( i ) );
+      uiInfo.tremHumanBuildList[ j++ ].cmd =
+        String_Alloc( va( "cmd build %s", BG_FindNameForBuildable( i ) ) );
+
+      uiInfo.tremHumanBuildCount++;
+    }
+  }
 }
 
 /*

@@ -824,27 +824,27 @@ typedef struct {
 	int             tremAlienClassCount;
 	int             tremAlienClassIndex;
   
-	tremMenuItem_t  tremHumanItemList[ 2 ];
+	tremMenuItem_t  tremHumanItemList[ 3 ];
 	int             tremHumanItemCount;
 	int             tremHumanItemIndex;
   
-	tremMenuItem_t  tremHumanMCUBuyList[ 11 ];
+	tremMenuItem_t  tremHumanMCUBuyList[ 32 ];
 	int             tremHumanMCUBuyCount;
 	int             tremHumanMCUBuyIndex;
 
-	tremMenuItem_t  tremHumanMCUSellList[ 11 ];
+	tremMenuItem_t  tremHumanMCUSellList[ 32 ];
 	int             tremHumanMCUSellCount;
 	int             tremHumanMCUSellIndex;
 
-	tremMenuItem_t  tremAlienUpgradeList[ 2 ];
+	tremMenuItem_t  tremAlienUpgradeList[ 3 ];
 	int             tremAlienUpgradeCount;
 	int             tremAlienUpgradeIndex;
 
-	tremMenuItem_t  tremAlienBuildList[ 6 ];
+	tremMenuItem_t  tremAlienBuildList[ 32 ];
 	int             tremAlienBuildCount;
 	int             tremAlienBuildIndex;
 
-	tremMenuItem_t  tremHumanBuildList[ 11 ];
+	tremMenuItem_t  tremHumanBuildList[ 32 ];
 	int             tremHumanBuildCount;
 	int             tremHumanBuildIndex;
 //TA: tremulous menus
