@@ -274,6 +274,7 @@ typedef struct localEntity_s {
   float     initRad, finalRad;
   qboolean  overdraw;
   qboolean  realLight;
+  int       sortKey;
 } localEntity_t;
 
 //======================================================================
