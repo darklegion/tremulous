@@ -452,12 +452,22 @@ void SP_misc_anim_model( gentity_t *self )
   trap_LinkEntity( self );
 }
 
-//TA: spawn function for lens flares
+//TA: use function for light flares
+void SP_use_light_flare( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  self->s.eFlags ^= EF_NODRAW;
+}
+
+//TA: spawn function for light flares
 void SP_misc_light_flare( gentity_t *self )
 {
   self->s.eType = ET_LIGHTFLARE;
   self->s.modelindex = G_ShaderIndex( self->targetShaderName );
   VectorCopy( self->pos2, self->s.origin2 );
+  self->use = SP_use_light_flare;
+  
+  G_SpawnFloat( "speed", "200", &self->speed );
+  self->s.time = self->speed;
   
   if( self->spawnflags & 1 )
     self->s.eFlags |= EF_NODRAW;

@@ -195,6 +195,7 @@ vmCvar_t  cg_wwSmoothTime;
 vmCvar_t  cg_wwFollow;
 vmCvar_t  cg_zsortLEs;
 vmCvar_t  cg_consoleLatency;
+vmCvar_t  cg_lightFlare;
 
 //TA: hack to get class and carriage through to UI module
 vmCvar_t  ui_currentClass;
@@ -288,6 +289,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_wwFollow, "cg_wwFollow", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_zsortLEs, "cg_zsortLEs", "1", CVAR_ARCHIVE },
   { &cg_consoleLatency, "cg_consoleLatency", "3000", CVAR_ARCHIVE },
+  { &cg_lightFlare, "cg_lightFlare", "3", CVAR_ARCHIVE },
   
   { &ui_currentClass, "ui_currentClass", "0", 0 },
   { &ui_carriage, "ui_carriage", "", 0 },

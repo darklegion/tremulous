@@ -216,6 +216,10 @@ typedef struct centity_s
   int                   buildableSmokeTime;
   int                   buildableSparkTime;
   int                   buildableBleedTime;
+
+  float                 lastFlareRadius;  //caching of likely flare radius
+  int                   lastFlareTime;    //last time flare was visible/occluded
+  qboolean              flareStatus;      //flare is visble?
 } centity_t;
 
 
@@ -1122,6 +1126,7 @@ extern  vmCvar_t    cg_wwSmoothTime;
 extern  vmCvar_t    cg_wwFollow;
 extern  vmCvar_t    cg_zsortLEs;
 extern  vmCvar_t    cg_consoleLatency;
+extern  vmCvar_t    cg_lightFlare;
 
 //TA: hack to get class an carriage through to UI module
 extern  vmCvar_t    ui_currentClass;
