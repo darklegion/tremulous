@@ -138,11 +138,11 @@ typedef enum
 #define PMF_GRAPPLE_PULL    2048  // pull towards grapple location
 #define PMF_FOLLOW          4096  // spectate following another player
 #define PMF_SCOREBOARD      8192  // spectate as a scoreboard
-#define PMF_INVULEXPAND     16384 // invulnerability sphere set to full size
+#define PMF_TIME_WALLJUMP   16384 //TA: for limiting wall jumping
 #define PMF_CHARGE          32768 //TA: keep track of pouncing
 
 
-#define PMF_ALL_TIMES (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
+#define PMF_ALL_TIMES (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK|PMF_TIME_WALLJUMP)
 
 #define MAXTOUCH  32
 typedef struct
@@ -895,6 +895,7 @@ typedef struct
 
   float     speed;
   float     acceleration;
+  float     airAcceleration;
   float     friction;
   float     stopSpeed;
   float     jumpMagnitude;
@@ -1087,6 +1088,7 @@ float     BG_FindBobForClass( int pclass );
 float     BG_FindBobCycleForClass( int pclass );
 float     BG_FindSpeedForClass( int pclass );
 float     BG_FindAccelerationForClass( int pclass );
+float     BG_FindAirAccelerationForClass( int pclass );
 float     BG_FindFrictionForClass( int pclass );
 float     BG_FindStopSpeedForClass( int pclass );
 float     BG_FindJumpMagnitudeForClass( int pclass );

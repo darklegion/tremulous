@@ -291,6 +291,11 @@ static void CG_ConfigStringModified( void )
   {
     cgs.voteTime = atoi( str );
     cgs.voteModified = qtrue;
+
+    if( cgs.voteTime )
+      trap_Cvar_Set( "ui_voteActive", "1" );
+    else
+      trap_Cvar_Set( "ui_voteActive", "0" );
   }
   else if( num == CS_VOTE_YES )
   {
@@ -306,8 +311,25 @@ static void CG_ConfigStringModified( void )
     Q_strncpyz( cgs.voteString, str, sizeof( cgs.voteString ) );
   else if( num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1 )
   {
-    cgs.teamVoteTime[ num - CS_TEAMVOTE_TIME ] = atoi( str );
-    cgs.teamVoteModified[ num - CS_TEAMVOTE_TIME ] = qtrue;
+    int cs_offset = num - CS_TEAMVOTE_TIME;
+  
+    cgs.teamVoteTime[ cs_offset ] = atoi( str );
+    cgs.teamVoteModified[ cs_offset ] = qtrue;
+
+    if( cs_offset == 0 )
+    {
+      if( cgs.teamVoteTime[ cs_offset ] )
+        trap_Cvar_Set( "ui_humanTeamVoteActive", "1" );
+      else
+        trap_Cvar_Set( "ui_humanTeamVoteActive", "0" );
+    }
+    else if( cs_offset == 1 )
+    {
+      if( cgs.teamVoteTime[ cs_offset ] )
+        trap_Cvar_Set( "ui_alienTeamVoteActive", "1" );
+      else
+        trap_Cvar_Set( "ui_alienTeamVoteActive", "0" );
+    }
   }
   else if( num >= CS_TEAMVOTE_YES && num <= CS_TEAMVOTE_YES + 1 )
   {

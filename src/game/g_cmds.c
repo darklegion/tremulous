@@ -715,6 +715,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   char  arg2[ MAX_STRING_TOKENS ];
 
   team = ent->client->ps.stats[ STAT_PTEAM ];
+  
   if( team == PTE_HUMANS )
     cs_offset = 0;
   else if( team == PTE_ALIENS )
@@ -748,77 +749,51 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 
   // make sure it is a valid command to vote on
   trap_Argv( 1, arg1, sizeof( arg1 ) );
-  arg2[ 0 ] = '\0';
+  trap_Argv( 2, arg2, sizeof( arg2 ) );
   
-  for( i = 2; i < trap_Argc( ); i++ )
-  {
-    if( i > 2 )
-      strcat( arg2, " " );
-    
-    trap_Argv( i, &arg2[ strlen( arg2 ) ], sizeof( arg2 ) - strlen( arg2 ) );
-  }
-
   if( strchr( arg1, ';' ) || strchr( arg2, ';' ) )
   {
-    trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Invalid team vote string.\n\"" );
     return;
   }
 
+  if( !Q_stricmp( arg1, "teamkick" ) )
+  {
+    char netname[ MAX_NETNAME ], kickee[ MAX_NETNAME ];
 
-  /*if ( !Q_stricmp( arg1, "leader" ) ) {
-    char netname[MAX_NETNAME], leader[MAX_NETNAME];
-
-    if ( !arg2[0] ) {
-      i = ent->client->ps.clientNum;
+    Q_strncpyz( kickee, arg2, sizeof( kickee ) );
+    Q_CleanStr( kickee );
+    
+    for( i = 0; i < level.maxclients; i++ )
+    {
+      if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
+        continue;
+      
+      if( level.clients[ i ].ps.stats[ STAT_PTEAM ] != team )
+        continue;
+      
+      Q_strncpyz( netname, level.clients[ i ].pers.netname, sizeof( netname ) );
+      Q_CleanStr( netname );
+      
+      if( !Q_stricmp( netname, kickee ) )
+        break;
     }
-    else {
-      // numeric values are just slot numbers
-      for (i = 0; i < 3; i++) {
-        if ( !arg2[i] || arg2[i] < '0' || arg2[i] > '9' )
-          break;
-      }
-      if ( i >= 3 || !arg2[i]) {
-        i = atoi( arg2 );
-        if ( i < 0 || i >= level.maxclients ) {
-          trap_SendServerCommand( ent-g_entities, va("print \"Bad client slot: %i\n\"", i) );
-          return;
-        }
-
-        if ( !g_entities[i].inuse ) {
-          trap_SendServerCommand( ent-g_entities, va("print \"Client %i is not active\n\"", i) );
-          return;
-        }
-      }
-      else {
-        Q_strncpyz(leader, arg2, sizeof(leader));
-        Q_CleanStr(leader);
-        for ( i = 0 ; i < level.maxclients ; i++ ) {
-          if ( level.clients[i].pers.connected == CON_DISCONNECTED )
-            continue;
-          if (level.clients[i].sess.sessionTeam != team)
-            continue;
-          Q_strncpyz(netname, level.clients[i].pers.netname, sizeof(netname));
-          Q_CleanStr(netname);
-          if ( !Q_stricmp(netname, leader) ) {
-            break;
-          }
-        }
-        if ( i >= level.maxclients ) {
-          trap_SendServerCommand( ent-g_entities, va("print \"%s is not a valid player on your team.\n\"", arg2) );
-          return;
-        }
-      }
+    
+    if( i >= level.maxclients )
+    {
+      trap_SendServerCommand( ent-g_entities, va( "print \"%s is not a valid player on your team.\n\"", arg2 ) );
+      return;
     }
-    Com_sprintf(arg2, sizeof(arg2), "%d", i);
-  } else*/
+  }
+  else
   {
     trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
-    trap_SendServerCommand( ent-g_entities, "print \"Team vote commands are: leader <player>.\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Team vote commands are: teamkick <player>.\n\"" );
     return;
   }
 
-/*  Com_sprintf( level.teamVoteString[ cs_offset ],
-               sizeof( level.teamVoteString[ cs_offset ] ), "%s %s", arg1, arg2 );
+  Com_sprintf( level.teamVoteString[ cs_offset ],
+               sizeof( level.teamVoteString[ cs_offset ] ), "kick \"%s\"", arg2 );
 
   for( i = 0 ; i < level.maxclients ; i++ )
   {
@@ -836,7 +811,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 
   for( i = 0 ; i < level.maxclients ; i++ )
   {
-    if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == team)
+    if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == team )
       level.clients[ i ].ps.eFlags &= ~EF_TEAMVOTED;
   }
   
@@ -845,7 +820,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   trap_SetConfigstring( CS_TEAMVOTE_TIME + cs_offset, va( "%i", level.teamVoteTime[ cs_offset ] ) );
   trap_SetConfigstring( CS_TEAMVOTE_STRING + cs_offset, level.teamVoteString[ cs_offset ] );
   trap_SetConfigstring( CS_TEAMVOTE_YES + cs_offset, va( "%i", level.teamVoteYes[ cs_offset ] ) );
-  trap_SetConfigstring( CS_TEAMVOTE_NO + cs_offset, va( "%i", level.teamVoteNo[ cs_offset ] ) );*/
+  trap_SetConfigstring( CS_TEAMVOTE_NO + cs_offset, va( "%i", level.teamVoteNo[ cs_offset ] ) );
 }
 
 
@@ -1690,37 +1665,6 @@ void Cmd_Boost_f( gentity_t *ent )
 
 /*
 =================
-Cmd_Spawnbody_f
-=================
-*/
-void Cmd_Spawnbody_f( gentity_t *ent )
-{
-  gentity_t *dummy = G_Spawn( );
-  vec3_t    forward;
-  
-  if( !CheatsOk( ent ) )
-    return;
-
-  AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
-  forward[ 2 ] = 0.0f;
-  
-  VectorMA( ent->client->ps.origin, 128.0f, forward, dummy->r.currentOrigin );
-  dummy->r.currentOrigin[ 2 ] += 64.0f;
-  
-  dummy->client = level.clients + MAX_CLIENTS;
-
-  dummy->client->ps.stats[ STAT_PTEAM ] = PTE_HUMANS;
-  dummy->client->ps.stats[ STAT_PCLASS ] = PCL_H_BASE;
-  
-  dummy->client->lasthurt_client = dummy->client->ps.clientNum = -1;
-
-  SpawnCorpse( dummy );
-
-  G_FreeEntity( dummy );
-}
-
-/*
-=================
 Cmd_Test_f
 =================
 */
@@ -1830,8 +1774,6 @@ void ClientCommand( int clientNum )
     Cmd_TeamVote_f( ent );
   else if( Q_stricmp( cmd, "setviewpos" ) == 0 )
     Cmd_SetViewpos_f( ent );
-  else if( Q_stricmp( cmd, "spawnbody" ) == 0 )
-    Cmd_Spawnbody_f( ent );
   else if( Q_stricmp( cmd, "test" ) == 0 )
     Cmd_Test_f( ent );
   else

@@ -1416,6 +1416,9 @@ extern  vmCvar_t    ui_carriage;
 extern  vmCvar_t    ui_stages;
 extern  vmCvar_t    ui_dialog;
 extern  vmCvar_t    ui_loading;
+extern  vmCvar_t    ui_voteActive;
+extern  vmCvar_t    ui_alienTeamVoteActive;
+extern  vmCvar_t    ui_humanTeamVoteActive;
 
 //
 // cg_main.c
@@ -1444,6 +1447,7 @@ void        CG_BuildSpectatorString( );
 //
 // cg_view.c
 //
+void        CG_addSmoothOp( vec3_t rotAxis, float rotAngle ); //TA
 void        CG_TestModel_f( void );
 void        CG_TestGun_f( void );
 void        CG_TestModelNextFrame_f( void );

@@ -205,6 +205,9 @@ vmCvar_t  ui_carriage;
 vmCvar_t  ui_stages;
 vmCvar_t  ui_dialog;
 vmCvar_t  ui_loading;
+vmCvar_t  ui_voteActive;
+vmCvar_t  ui_alienTeamVoteActive;
+vmCvar_t  ui_humanTeamVoteActive;
 
 
 typedef struct
@@ -300,6 +303,9 @@ static cvarTable_t cvarTable[ ] =
   { &ui_stages, "ui_stages", "0 0", 0 },
   { &ui_dialog, "ui_dialog", "Text not set", 0 },
   { &ui_loading, "ui_loading", "0", 0 },
+  { &ui_voteActive, "ui_voteActive", "0", 0 },
+  { &ui_humanTeamVoteActive, "ui_humanTeamVoteActive", "0", 0 },
+  { &ui_alienTeamVoteActive, "ui_alienTeamVoteActive", "0", 0 },
 
   // the following variables are created in other parts of the system,
   // but we also reference them here

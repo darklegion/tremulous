@@ -2686,6 +2686,8 @@ static void CG_DrawCrosshairNames( void )
 
 //==============================================================================
 
+//FIXME: both vote notes are hardcoded, change to ownerdrawn?
+
 /*
 =================
 CG_DrawVote
@@ -2712,10 +2714,8 @@ static void CG_DrawVote( void )
   if( sec < 0 )
     sec = 0;
   
-  s = va( "VOTE(%i):%s yes:%i no:%i", sec, cgs.voteString, cgs.voteYes, cgs.voteNo );
-  CG_Text_Paint( 0, 58, 0.3f, white, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
-  s = "or press ESC then click Vote";
-  CG_Text_Paint( 0, 78, 0.3f, white, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
+  s = va( "VOTE(%i): \"%s\"  Yes:%i No:%i", sec, cgs.voteString, cgs.voteYes, cgs.voteNo );
+  CG_Text_Paint( 8, 340, 0.3f, white, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
 }
 
 /*
@@ -2751,10 +2751,10 @@ static void CG_DrawTeamVote( void )
   if( sec < 0 )
     sec = 0;
   
-  s = va( "TEAMVOTE(%i):%s yes:%i no:%i", sec, cgs.teamVoteString[ cs_offset ],
+  s = va( "TEAMVOTE(%i): \"%s\"  Yes:%i No:%i", sec, cgs.teamVoteString[ cs_offset ],
               cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[ cs_offset ] );
   
-  CG_Text_Paint( 0, 90, 0.3f, white, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
+  CG_Text_Paint( 8, 360, 0.3f, white, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
 }
 
 

@@ -388,7 +388,7 @@ static float PM_CmdScale( usercmd_t *cmd )
   if( pm->ps->pm_type == PM_GRABBED )
     modifier = 0.0f;
 
-  if( pm->ps->persistant[ PERS_TEAM ] != TEAM_SPECTATOR )
+  if( pm->ps->pm_type != PM_SPECTATOR && pm->ps->pm_type != PM_NOCLIP )
   {
     if( BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ) == 0.0f )
       cmd->upmove = 0;
@@ -487,8 +487,6 @@ PM_CheckPounce
 */
 static qboolean PM_CheckPounce( void )
 {
-  vec3_t forward;
-  
   if( pm->ps->weapon != WP_POUNCE &&
       pm->ps->weapon != WP_POUNCE_UPG )
     return qfalse;
@@ -512,12 +510,103 @@ static qboolean PM_CheckPounce( void )
   
   pm->ps->groundEntityNum = ENTITYNUM_NONE;
   
-  AngleVectors( pm->ps->viewangles, forward, NULL, NULL );
-  VectorMA( pm->ps->velocity, pm->ps->stats[ STAT_MISC ], forward, pm->ps->velocity );
-  pm->ps->velocity[ 2 ] += BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ) / 2.0f;
+  VectorMA( pm->ps->velocity, pm->ps->stats[ STAT_MISC ], pml.forward, pm->ps->velocity );
   
   PM_AddEvent( EV_JUMP );
   
+  if( pm->cmd.forwardmove >= 0 )
+  {
+    if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+      PM_ForceLegsAnim( LEGS_JUMP );
+    else
+      PM_ForceLegsAnim( NSPA_JUMP );
+      
+    pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+  }
+  else
+  {
+    if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+      PM_ForceLegsAnim( LEGS_JUMPB );
+    else
+      PM_ForceLegsAnim( NSPA_JUMPBACK );
+    
+    pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
+  }
+
+  return qtrue;
+}
+
+/*
+=============
+PM_CheckWallJump
+=============
+*/
+static qboolean PM_CheckWallJump( void )
+{
+  vec3_t  dir, forward, right, temp;
+  vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
+  float   normalFraction = 1.5f;
+  float   cmdFraction = 1.0f;
+  float   upFraction = 1.5f;
+  
+  if( pm->ps->pm_flags & PMF_RESPAWNED )
+    return qfalse;    // don't allow jump until all buttons are up
+
+  if( pm->cmd.upmove < 10 )
+    // not holding jump
+    return qfalse;
+
+  if( pm->ps->pm_flags & PMF_TIME_WALLJUMP )
+    return qfalse;
+
+  // must wait for jump to be released
+  if( pm->ps->pm_flags & PMF_JUMP_HELD &&
+      pm->ps->grapplePoint[ 2 ] == 1.0f )
+  {
+    // clear upmove so cmdscale doesn't lower running speed
+    pm->cmd.upmove = 0;
+    return qfalse;
+  }
+
+  pm->ps->pm_flags |= PMF_TIME_WALLJUMP;
+  pm->ps->pm_time = 200;
+
+  pml.groundPlane = qfalse;   // jumping away
+  pml.walking = qfalse;
+  pm->ps->pm_flags |= PMF_JUMP_HELD;
+
+  pm->ps->groundEntityNum = ENTITYNUM_NONE;
+  
+  ProjectPointOnPlane( forward, pml.forward, pm->ps->grapplePoint );
+  ProjectPointOnPlane( right, pml.right, pm->ps->grapplePoint );
+  
+  VectorScale( pm->ps->grapplePoint, normalFraction, dir );
+
+  if( pm->cmd.forwardmove > 0 )
+    VectorMA( dir, cmdFraction, forward, dir );
+  else if( pm->cmd.forwardmove < 0 )
+    VectorMA( dir, -cmdFraction, forward, dir );
+  
+  if( pm->cmd.rightmove > 0 )
+    VectorMA( dir, cmdFraction, right, dir );
+  else if( pm->cmd.rightmove < 0 )
+    VectorMA( dir, -cmdFraction, right, dir );
+  
+  VectorMA( dir, upFraction, refNormal, dir );
+  VectorNormalize( dir );
+  
+  VectorMA( pm->ps->velocity, BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ),
+            dir, pm->ps->velocity );
+  
+  //for a long run of wall jumps the velocity can get pretty large, this caps it
+  if( VectorLength( pm->ps->velocity ) > CHIMERA_WALLJUMP_MAXSPEED )
+  {
+    VectorNormalize( pm->ps->velocity );
+    VectorScale( pm->ps->velocity, CHIMERA_WALLJUMP_MAXSPEED, pm->ps->velocity );
+  }
+    
+  PM_AddEvent( EV_JUMP );
+
   if( pm->cmd.forwardmove >= 0 )
   {
     if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
@@ -549,6 +638,9 @@ static qboolean PM_CheckJump( void )
 {
   if( BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ) == 0.0f )
     return qfalse;
+
+  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
+    return PM_CheckWallJump( );
 
   //can't jump and pounce charge at the same time
   if( ( pm->ps->weapon == WP_POUNCE ||
@@ -916,7 +1008,8 @@ static void PM_AirMove( void )
   wishspeed *= scale;
 
   // not on ground, so little effect on velocity
-  PM_Accelerate( wishdir, wishspeed, pm_airaccelerate );
+  PM_Accelerate( wishdir, wishspeed,
+    BG_FindAirAccelerationForClass( pm->ps->stats[ STAT_PCLASS ] ) );
 
   // we may have a ground plane that is very steep, even
   // though we don't have a groundentity
@@ -1042,7 +1135,7 @@ static void PM_ClimbMove( void )
   // when a player gets hit, they temporarily lose
   // full control, which allows them to be moved a bit
   if( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK )
-    accelerate = pm_airaccelerate;
+    accelerate = BG_FindAirAccelerationForClass( pm->ps->stats[ STAT_PCLASS ] );
   else
     accelerate = BG_FindAccelerationForClass( pm->ps->stats[ STAT_PCLASS ] );
 
@@ -1162,7 +1255,7 @@ static void PM_WalkMove( void )
   // when a player gets hit, they temporarily lose
   // full control, which allows them to be moved a bit
   if( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK )
-    accelerate = pm_airaccelerate;
+    accelerate = BG_FindAirAccelerationForClass( pm->ps->stats[ STAT_PCLASS ] );
   else
     accelerate = BG_FindAccelerationForClass( pm->ps->stats[ STAT_PCLASS ] );
 
@@ -1612,7 +1705,7 @@ PM_GroundClimbTrace
 */
 static void PM_GroundClimbTrace( void )
 {
-  vec3_t    surfNormal, movedir, lookdir, forward, right, point;
+  vec3_t    surfNormal, movedir, lookdir, point;
   vec3_t    refNormal = { 0.0f, 0.0f, 1.0f };
   vec3_t    ceilingNormal = { 0.0f, 0.0f, -1.0f };
   vec3_t    toAngles, surfAngles;
@@ -1637,10 +1730,7 @@ static void PM_GroundClimbTrace( void )
     VectorCopy( pm->ps->grapplePoint, surfNormal );
 
   //construct a vector which reflects the direction the player is looking wrt the surface normal
-  AngleVectors( pm->ps->viewangles, forward, NULL, NULL );
-  CrossProduct( forward, surfNormal, right );
-  VectorNormalize( right );
-  CrossProduct( surfNormal, right, movedir );
+  ProjectPointOnPlane( movedir, pml.forward, surfNormal );
   VectorNormalize( movedir );
 
   VectorCopy( movedir, lookdir );
@@ -1651,7 +1741,7 @@ static void PM_GroundClimbTrace( void )
   //allow strafe transitions
   if( pm->cmd.rightmove )
   {
-    VectorCopy( right, movedir );
+    VectorCopy( pml.right, movedir );
     
     if( pm->cmd.rightmove < 0 )
       VectorNegate( movedir, movedir );
@@ -1668,13 +1758,13 @@ static void PM_GroundClimbTrace( void )
 
         //trace into direction we are moving
         VectorMA( pm->ps->origin, 0.25f, movedir, point );
-        pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+        pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
         break;
 
       case 1:
         //trace straight down anto "ground" surface
         VectorMA( pm->ps->origin, -0.25f, surfNormal, point );
-        pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+        pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
         break;
 
       case 2:
@@ -1694,7 +1784,7 @@ static void PM_GroundClimbTrace( void )
         {
           VectorMA( pm->ps->origin, -16.0f, surfNormal, point );
           VectorMA( point, -16.0f, movedir, point );
-          pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+          pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
         }
         else
           continue;
@@ -1703,13 +1793,13 @@ static void PM_GroundClimbTrace( void )
       case 4:
         //fall back so we don't have to modify PM_GroundTrace too much
         VectorCopy( pm->ps->origin, point );
-        point[2] = pm->ps->origin[2] - 0.25f;
-        pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+        point[ 2 ] = pm->ps->origin[ 2 ] - 0.25f;
+        pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
         break;
     }
 
     //if we hit something
-    if( trace.fraction < 1.0 && !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) &&
+    if( trace.fraction < 1.0f && !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) &&
         !( trace.entityNum != ENTITYNUM_WORLD && i != 4 ) )
     {
       if( i == 2 || i == 3 )
@@ -1849,16 +1939,16 @@ static void PM_GroundClimbTrace( void )
       //IMPORTANT: break out of the for loop if we've hit something
       break;
     }
-    else if ( trace.allsolid )
+    else if( trace.allsolid )
     {
       // do something corrective if the trace starts in a solid...
       //TA: fuck knows what this does with all my new stuff :(
-      if ( !PM_CorrectAllSolid(&trace) )
+      if( !PM_CorrectAllSolid( &trace ) )
         return;
     }
   }
 
-  if ( trace.fraction >= 1.0 )
+  if ( trace.fraction >= 1.0f )
   {
     // if the trace didn't hit anything, we are in free fall
     PM_GroundTraceMissed();
@@ -1899,7 +1989,8 @@ PM_GroundTrace
 */
 static void PM_GroundTrace( void )
 {
-  vec3_t      point, forward, srotAxis;
+  vec3_t      point, srotAxis;
+  vec3_t      movedir;
   vec3_t      refNormal = { 0.0f, 0.0f, 1.0f };
   trace_t     trace;
   float       srotAngle;
@@ -1933,19 +2024,11 @@ static void PM_GroundTrace( void )
   pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
   pm->ps->eFlags &= ~EF_WALLCLIMB;
 
-  //make sure that the surfNormal is reset to the ground
-  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) )
-    VectorCopy( refNormal, pm->ps->grapplePoint );
-
   point[ 0 ] = pm->ps->origin[ 0 ];
   point[ 1 ] = pm->ps->origin[ 1 ];
   point[ 2 ] = pm->ps->origin[ 2 ] - 0.25;
 
-  //FIXME: hack until i find out where CONTENTS_BODY is getting unset for uhm.. bodies.
-  if( pm->ps->pm_type == PM_DEAD )
-    pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, MASK_PLAYERSOLID );
-  else
-    pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
+  pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
   
   pml.groundTrace = trace;
 
@@ -1954,6 +2037,9 @@ static void PM_GroundTrace( void )
     if( !PM_CorrectAllSolid( &trace ) )
       return;
   
+  //make sure that the surfNormal is reset to the ground
+  VectorCopy( refNormal, pm->ps->grapplePoint );
+
   // if the trace didn't hit anything, we are in free fall
   if( trace.fraction == 1.0 )
   {
@@ -1961,6 +2047,38 @@ static void PM_GroundTrace( void )
     pml.groundPlane = qfalse;
     pml.walking = qfalse;
 
+    if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
+    {
+      ProjectPointOnPlane( movedir, pml.forward, refNormal );
+      VectorNormalize( movedir );
+
+      if( pm->cmd.forwardmove < 0 )
+        VectorNegate( movedir, movedir );
+
+      //allow strafe transitions
+      if( pm->cmd.rightmove )
+      {
+        VectorCopy( pml.right, movedir );
+        
+        if( pm->cmd.rightmove < 0 )
+          VectorNegate( movedir, movedir );
+      }
+      
+      //trace into direction we are moving
+      VectorMA( pm->ps->origin, 0.25f, movedir, point );
+      pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
+      
+      if( trace.fraction < 1.0f && !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) &&
+          ( trace.entityNum == ENTITYNUM_WORLD ) )
+      {
+        if( !VectorCompare( trace.plane.normal, pm->ps->grapplePoint ) )
+        {
+          VectorCopy( trace.plane.normal, pm->ps->grapplePoint );
+          PM_CheckWallJump( );
+        }
+      }
+    }
+  
     return;
   }
 

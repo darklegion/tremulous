@@ -536,6 +536,32 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     case EV_JUMP:
       DEBUGNAME( "EV_JUMP" );
       trap_S_StartSound( NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*jump1.wav" ) );
+      
+      if( BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
+      {  
+        vec3_t  surfNormal, refNormal = { 0.0f, 0.0f, 1.0f };
+        vec3_t  rotAxis;
+
+        if( clientNum != cg.predictedPlayerState.clientNum )
+          break;
+        
+        //set surfNormal
+        VectorCopy( cg.predictedPlayerState.grapplePoint, surfNormal );
+    
+        //if we are moving from one surface to another smooth the transition
+        if( !VectorCompare( surfNormal, cg.lastNormal ) && surfNormal[ 2 ] != 1.0f )
+        {
+          CrossProduct( refNormal, surfNormal, rotAxis );
+          VectorNormalize( rotAxis );
+          
+          //add the op
+          CG_addSmoothOp( rotAxis, 15.0f );
+        }
+
+        //copy the current normal to the lastNormal
+        VectorCopy( surfNormal, cg.lastNormal );
+      }
+        
       break;
       
     case EV_TAUNT:

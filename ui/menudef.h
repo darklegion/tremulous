@@ -117,8 +117,12 @@
 #define UI_SHOW_NETANYTEAMGAME            0x00000800
 #define UI_SHOW_NOTFAVORITESERVERS        0x00001000
 
+#define UI_SHOW_VOTEACTIVE                0x00002000
+#define UI_SHOW_CANVOTE                   0x00004000
+#define UI_SHOW_TEAMVOTEACTIVE            0x00008000
+#define UI_SHOW_CANTEAMVOTE               0x00010000
 
-
+#define UI_SHOW_NOTSPECTATING             0x00020000
 
 // owner draw types
 // ideally these should be done outside of this file but

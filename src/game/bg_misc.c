@@ -1186,6 +1186,40 @@ int BG_FindUniqueTestForBuildable( int bclass )
 classAttributes_t bg_classList[ ] =
 {
   { 
+    PCL_NONE,                                       //int     classnum;
+    "spectator",                                    //char    *className;
+    "Spectator",                                    //char    *humanName;
+    "",                                             //char    *modelname;
+    1.0f,                                           //float   modelScale;
+    "",                                             //char    *skinname;
+    "",                                             //char    *hudname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    { -15, -15, -15 },                              //vec3_t  mins;
+    { 15, 15, 15 },                                 //vec3_t  maxs;
+    { 15, 15, 15 },                                 //vec3_t  crouchmaxs;
+    { -15, -15, -15 },                              //vec3_t  deadmins;
+    { 15, 15, 15 },                                 //vec3_t  deadmaxs;
+    0, 0,                                           //int     viewheight, crouchviewheight;
+    0,                                              //int     health;
+    0.0f,                                           //float   fallDamage;
+    0,                                              //int     regenRate;
+    0,                                              //int     abilities;
+    WP_NONE,                                        //weapon_t  startWeapon
+    0.0f,                                           //float   buildDist;
+    90,                                             //int     fov;
+    0.000f,                                         //float   bob;
+    1.0f,                                           //float   bobCycle;
+    350,                                            //int     steptime;
+    100,                                            //float   speed;
+    10.0f,                                          //float   acceleration;
+    1.0f,                                           //float   airAcceleration;
+    6.0f,                                           //float   friction;
+    100.0f,                                         //float   stopSpeed;
+    270.0f,                                         //float   jumpMagnitude;
+    { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
+    0                                               //int     value;
+  },
+  { 
     PCL_A_B_BASE,                                   //int     classnum;
     "builder",                                      //char    *className;
     "Builder",                                      //char    *humanName;
@@ -1213,6 +1247,7 @@ classAttributes_t bg_classList[ ] =
     350,                                            //int     steptime;
     ABUILDER_SPEED,                                 //float   speed;
     10.0f,                                          //float   acceleration;
+    1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
     130.0f,                                         //float   jumpMagnitude;
@@ -1247,6 +1282,7 @@ classAttributes_t bg_classList[ ] =
     200,                                            //int     steptime;
     ABUILDER_UPG_SPEED,                             //float   speed;
     10.0f,                                          //float   acceleration;
+    1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
     270.0f,                                         //float   jumpMagnitude;
@@ -1281,9 +1317,10 @@ classAttributes_t bg_classList[ ] =
     25,                                             //int     steptime;
     SOLDIER_SPEED,                                  //float   speed;
     10.0f,                                          //float   acceleration;
+    1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     400.0f,                                         //float   stopSpeed;
-    270.0f,                                         //float   jumpMagnitude;
+    250.0f,                                         //float   jumpMagnitude;
     { PCL_A_O_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
     SOLDIER_VALUE                                   //int     value;
   },
@@ -1316,6 +1353,7 @@ classAttributes_t bg_classList[ ] =
     25,                                             //int     steptime;
     HYDRA_SPEED,                                    //float   speed;
     10.0f,                                          //float   acceleration;
+    1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     300.0f,                                         //float   stopSpeed;
     270.0f,                                         //float   jumpMagnitude;
@@ -1351,6 +1389,7 @@ classAttributes_t bg_classList[ ] =
     25,                                             //int     steptime;
     HYDRA_UPG_SPEED,                                //float   speed;
     10.0f,                                          //float   acceleration;
+    1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     300.0f,                                         //float   stopSpeed;
     270.0f,                                         //float   jumpMagnitude;
@@ -1371,7 +1410,7 @@ classAttributes_t bg_classList[ ] =
     { 22, 22, 22 },                                 //vec3_t  crouchmaxs;
     { -22, -22, -4 },                               //vec3_t  deadmins;
     { 22, 22, 4 },                                  //vec3_t  deadmaxs;
-    30, 30,                                         //int     viewheight, crouchviewheight;
+    10, 10,                                         //int     viewheight, crouchviewheight;
     CHIMERA_HEALTH,                                 //int     health;
     0.0f,                                           //float   fallDamage;
     CHIMERA_REGEN,                                  //int     regenRate;
@@ -1385,9 +1424,10 @@ classAttributes_t bg_classList[ ] =
     60,                                             //int     steptime;
     CHIMERA_SPEED,                                  //float   speed;
     10.0f,                                          //float   acceleration;
+    2.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
-    270.0f,                                         //float   jumpMagnitude;
+    400.0f,                                         //float   jumpMagnitude;
     { PCL_A_O_LEV3, PCL_A_O_LEV2_UPG, PCL_NONE },   //int     children[ 3 ];
     CHIMERA_VALUE                                   //int     value;
   },
@@ -1405,7 +1445,7 @@ classAttributes_t bg_classList[ ] =
     { 24, 24, 24 },                                 //vec3_t  crouchmaxs;
     { -24, -24, -4 },                               //vec3_t  deadmins;
     { 24, 24, 4 },                                  //vec3_t  deadmaxs;
-    32, 32,                                         //int     viewheight, crouchviewheight;
+    12, 12,                                         //int     viewheight, crouchviewheight;
     CHIMERA_UPG_HEALTH,                             //int     health;
     0.0f,                                           //float   fallDamage;
     CHIMERA_UPG_REGEN,                              //int     regenRate;
@@ -1419,9 +1459,10 @@ classAttributes_t bg_classList[ ] =
     60,                                             //int     steptime;
     CHIMERA_UPG_SPEED,                              //float   speed;
     10.0f,                                          //float   acceleration;
+    2.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
-    270.0f,                                         //float   jumpMagnitude;
+    400.0f,                                         //float   jumpMagnitude;
     { PCL_A_O_LEV3, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
     CHIMERA_UPG_VALUE                               //int     value;
   },
@@ -1453,6 +1494,7 @@ classAttributes_t bg_classList[ ] =
     25,                                             //int     steptime;
     DRAGOON_SPEED,                                  //float   speed;
     10.0f,                                          //float   acceleration;
+    1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     200.0f,                                         //float   stopSpeed;
     270.0f,                                         //float   jumpMagnitude;
@@ -1487,6 +1529,7 @@ classAttributes_t bg_classList[ ] =
     25,                                             //int     steptime;
     DRAGOON_UPG_SPEED,                              //float   speed;
     10.0f,                                          //float   acceleration;
+    1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     200.0f,                                         //float   stopSpeed;
     270.0f,                                         //float   jumpMagnitude;
@@ -1521,9 +1564,10 @@ classAttributes_t bg_classList[ ] =
     60,                                             //int     steptime;
     BMOFO_SPEED,                                    //float   speed;
     5.0f,                                           //float   acceleration;
+    1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
-    270.0f,                                         //float   jumpMagnitude;
+    170.0f,                                         //float   jumpMagnitude;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
     0,                                              //int     timetoevolve;
     BMOFO_VALUE                                     //int     value;
@@ -1556,9 +1600,10 @@ classAttributes_t bg_classList[ ] =
     200,                                            //int     steptime;
     1.0f,                                           //float   speed;
     10.0f,                                          //float   acceleration;
+    1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
-    270.0f,                                         //float   jumpMagnitude;
+    220.0f,                                         //float   jumpMagnitude;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
     0,                                              //int     timetoevolve;
     0                                               //int     value;
@@ -1574,7 +1619,7 @@ classAttributes_t bg_classList[ ] =
     
     "bsuit", ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), { 0, 0, 0 }, { 0, 0, 0, },                             
     { 0, 0, 0, }, { 0, 0, 0, }, { 0, 0, 0, }, 0, 0, 0, 0.0f, 0, 0, WP_NONE, 0.0f, 0,   
-    0.0f, 1.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f, 270.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
+    0.0f, 1.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 270.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
   }
 };
 
@@ -1992,6 +2037,27 @@ float BG_FindAccelerationForClass( int pclass )
 
 /*
 ==============
+BG_FindAirAccelerationForClass
+==============
+*/
+float BG_FindAirAccelerationForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].airAcceleration;
+    }
+  }
+  
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindAirAccelerationForClass\n" );
+  return 1.0f;
+}
+
+/*
+==============
 BG_FindFrictionForClass
 ==============
 */
@@ -2149,7 +2215,7 @@ int BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int num )
   if( credits == 0 )
     return 0;
 
-  if( tclass == PCL_NONE )
+  if( fclass == PCL_NONE || tclass == PCL_NONE )
     return 0;
 
   for( i = 0; i < bg_numPclasses; i++ )

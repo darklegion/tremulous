@@ -907,7 +907,7 @@ static void CG_DrawSurfNormal( void )
 CG_addSmoothOp
 ===============
 */
-static void CG_addSmoothOp( vec3_t rotAxis, float rotAngle )
+void CG_addSmoothOp( vec3_t rotAxis, float rotAngle )
 {
   int i;
 
@@ -991,8 +991,8 @@ static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t o
     //if this op has time remaining, perform it
     if( cg.time < cg.sList[ i ].time + cg_wwSmoothTime.integer )
     {
-      stLocal = 1.0 - ( ( ( cg.sList[ i ].time + cg_wwSmoothTime.integer ) - cg.time ) / cg_wwSmoothTime.integer );
-      sFraction = -( cos( stLocal * M_PI ) + 1 ) / 2;
+      stLocal = 1.0f - ( ( ( cg.sList[ i ].time + cg_wwSmoothTime.integer ) - cg.time ) / cg_wwSmoothTime.integer );
+      sFraction = -( cos( stLocal * M_PI ) + 1.0f ) / 2.0f;
 
       RotatePointAroundVector( outAxis[ 0 ], cg.sList[ i ].rotAxis,
         inAxis[ 0 ], sFraction * cg.sList[ i ].rotAngle );
@@ -1020,6 +1020,50 @@ static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t o
 
 /*
 ===============
+CG_smoothWJTransitions
+===============
+*/
+static void CG_smoothWJTransitions( playerState_t *ps, const vec3_t in, vec3_t out )
+{
+  int       i;
+  float     stLocal, sFraction;
+  qboolean  performed = qfalse;
+  vec3_t    inAxis[ 3 ], outAxis[ 3 ];
+
+  AnglesToAxis( in, inAxis );
+
+  //iterate through ops
+  for( i = MAXSMOOTHS - 1; i >= 0; i-- )
+  {
+    //if this op has time remaining, perform it
+    if( cg.time < cg.sList[ i ].time + cg_wwSmoothTime.integer )
+    {
+      stLocal = ( ( cg.sList[ i ].time + cg_wwSmoothTime.integer ) - cg.time ) / cg_wwSmoothTime.integer;
+      sFraction = 1.0f - ( ( cos( stLocal * M_PI * 2.0f ) + 1.0f ) / 2.0f );
+
+      RotatePointAroundVector( outAxis[ 0 ], cg.sList[ i ].rotAxis,
+        inAxis[ 0 ], sFraction * cg.sList[ i ].rotAngle );
+      RotatePointAroundVector( outAxis[ 1 ], cg.sList[ i ].rotAxis,
+        inAxis[ 1 ], sFraction * cg.sList[ i ].rotAngle );
+      RotatePointAroundVector( outAxis[ 2 ], cg.sList[ i ].rotAxis,
+        inAxis[ 2 ], sFraction * cg.sList[ i ].rotAngle );
+
+      AxisCopy( outAxis, inAxis );
+      performed = qtrue;
+    }
+  }
+
+  //if we performed any ops then return the smoothed angles
+  //otherwise simply return the in angles
+  if( performed )
+    AxisToAngles( outAxis, out );
+  else
+    VectorCopy( in, out );
+}
+
+
+/*
+===============
 CG_CalcViewValues
 
 Sets cg.refdef view values
@@ -1030,10 +1074,6 @@ static int CG_CalcViewValues( void )
   playerState_t *ps;
 
   memset( &cg.refdef, 0, sizeof( cg.refdef ) );
-
-  // strings for in game rendering
-  // Q_strncpyz( cg.refdef.text[0], "Park Ranger", sizeof(cg.refdef.text[0]) );
-  // Q_strncpyz( cg.refdef.text[1], "19", sizeof(cg.refdef.text[1]) );
 
   // calculate size of 3D view
   CG_CalcVrect( );
@@ -1059,11 +1099,18 @@ static int CG_CalcViewValues( void )
 
   if( BG_ClassHasAbility( ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) )
     CG_smoothWWTransitions( ps, ps->viewangles, cg.refdefViewAngles );
+  else if( BG_ClassHasAbility( ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
+    CG_smoothWJTransitions( ps, ps->viewangles, cg.refdefViewAngles );
   else
     VectorCopy( ps->viewangles, cg.refdefViewAngles );
 
-  if( !( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
-    VectorSet( cg.lastNormal, 0.0f, 0.0f, 1.0f );
+  //clumsy logic, but it needs to be this way round because the CS propogation
+  //delay screws things up otherwise
+  if( !BG_ClassHasAbility( ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
+  {
+    if( !( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
+      VectorSet( cg.lastNormal, 0.0f, 0.0f, 1.0f );
+  }
 
   // add error decay
   if( cg_errorDecay.value > 0 )

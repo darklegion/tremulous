@@ -2611,9 +2611,73 @@ static void UI_OwnerDraw( float x, float y, float w, float h,
 
 static qboolean UI_OwnerDrawVisible(int flags) {
   qboolean vis = qtrue;
+  uiClientState_t cs;
+  pTeam_t         team;
+  char            info[ MAX_INFO_STRING ];
+
+  trap_GetClientState( &cs );
+  trap_GetConfigString( CS_PLAYERS + cs.clientNum, info, MAX_INFO_STRING );
+  team = atoi( Info_ValueForKey( info, "t" ) );
+      
 
   while (flags) {
-
+    
+    if( flags & UI_SHOW_NOTSPECTATING )
+    {
+      if( team == PTE_NONE )
+        vis = qfalse;
+      
+      flags &= ~UI_SHOW_NOTSPECTATING;
+    } 
+    
+    if( flags & UI_SHOW_VOTEACTIVE )
+    {
+      if( !trap_Cvar_VariableValue( "ui_voteActive" ) )
+        vis = qfalse;
+      
+      flags &= ~UI_SHOW_VOTEACTIVE;
+    } 
+    
+    if( flags & UI_SHOW_CANVOTE )
+    {
+      if( trap_Cvar_VariableValue( "ui_voteActive" ) )
+        vis = qfalse;
+      
+      flags &= ~UI_SHOW_CANVOTE;
+    } 
+    
+    if( flags & UI_SHOW_TEAMVOTEACTIVE )
+    {
+      if( team == PTE_ALIENS )
+      {
+        if( !trap_Cvar_VariableValue( "ui_alienTeamVoteActive" ) )
+          vis = qfalse;
+      }
+      else if( team == PTE_HUMANS )
+      {
+        if( !trap_Cvar_VariableValue( "ui_humanTeamVoteActive" ) )
+          vis = qfalse;
+      }
+      
+      flags &= ~UI_SHOW_TEAMVOTEACTIVE;
+    } 
+    
+    if( flags & UI_SHOW_CANTEAMVOTE )
+    {
+      if( team == PTE_ALIENS )
+      {
+        if( trap_Cvar_VariableValue( "ui_alienTeamVoteActive" ) )
+          vis = qfalse;
+      }
+      else if( team == PTE_HUMANS )
+      {
+        if( trap_Cvar_VariableValue( "ui_humanTeamVoteActive" ) )
+          vis = qfalse;
+      }
+      
+      flags &= ~UI_SHOW_CANTEAMVOTE;
+    } 
+    
     if (flags & UI_SHOW_LEADER) {
       // these need to show when this client can give orders to a player or a group
       if (!uiInfo.teamLeader) {
@@ -4249,7 +4313,15 @@ static void UI_RunMenuScript(char **args) {
       if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
         trap_Cmd_ExecuteText( EXEC_APPEND, va("callvote kick %s\n",uiInfo.playerNames[uiInfo.playerIndex]) );
       }
-    } else if (Q_stricmp(name, "voteGame") == 0) {
+    }
+    else if( Q_stricmp( name, "voteTeamKick" ) == 0 )
+    {
+      if( uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount )
+      {
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote teamkick %s\n", uiInfo.playerNames[ uiInfo.teamIndex ] ) );
+      }
+    }
+    else if (Q_stricmp(name, "voteGame") == 0) {
       if (ui_netGameType.integer >= 0 && ui_netGameType.integer < uiInfo.numGameTypes) {
         trap_Cmd_ExecuteText( EXEC_APPEND, va("callvote g_gametype %i\n",uiInfo.gameTypes[ui_netGameType.integer].gtEnum) );
       }
@@ -4257,7 +4329,8 @@ static void UI_RunMenuScript(char **args) {
       if (uiInfo.teamIndex >= 0 && uiInfo.teamIndex < uiInfo.myTeamCount) {
         trap_Cmd_ExecuteText( EXEC_APPEND, va("callteamvote leader %s\n",uiInfo.teamNames[uiInfo.teamIndex]) );
       }
-    } else if (Q_stricmp(name, "addBot") == 0) {
+    }
+    else if (Q_stricmp(name, "addBot") == 0) {
         trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot %s %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
     } else if (Q_stricmp(name, "addFavorite") == 0) {
       if (ui_netSource.integer != AS_FAVORITES) {
