@@ -332,11 +332,11 @@ gentity_t *fire_pulseRifle( gentity_t *self, vec3_t start, vec3_t dir )
 
 /*
 =================
-fire_luciferCanon
+fire_luciferCannon
 
 =================
 */
-gentity_t *fire_luciferCanon( gentity_t *self, vec3_t start, vec3_t dir, int damage )
+gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int damage )
 {
   gentity_t *bolt;
   int localDamage = (int)( ceil( ( (float)damage /
@@ -345,7 +345,7 @@ gentity_t *fire_luciferCanon( gentity_t *self, vec3_t start, vec3_t dir, int dam
   VectorNormalize( dir );
 
   bolt = G_Spawn( );
-  bolt->classname = "lcanon";
+  bolt->classname = "lcannon";
   bolt->nextthink = level.time + 10000;
   bolt->think = G_ExplodeMissile;
   bolt->s.eType = ET_MISSILE;

@@ -350,9 +350,7 @@
  * HUMAN upgrades
  */
 
-#define CHESTARMOUR_PRICE           75
-
-#define LIMBARMOUR_PRICE            50
+#define LIGHTARMOUR_PRICE           100
 
 #define HELMET_PRICE                90
 #define HELMET_RANGE                1000.0f

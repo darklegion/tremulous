@@ -350,7 +350,7 @@ void LCChargeFire( gentity_t *ent, qboolean secondary )
   if( secondary )
     ent->client->ps.stats[ STAT_MISC ] = LCANNON_SECONDARY_DAMAGE;
 
-  m = fire_luciferCanon( ent, muzzle, forward, ent->client->ps.stats[ STAT_MISC ] );
+  m = fire_luciferCannon( ent, muzzle, forward, ent->client->ps.stats[ STAT_MISC ] );
   
   ent->client->ps.stats[ STAT_MISC ] = 0;
 }

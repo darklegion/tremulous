@@ -2031,7 +2031,7 @@ void CG_Player( centity_t *cent )
   {
     legs.hModel = ci->legsModel;
 
-    if( held & ( 1 << UP_LIMBARMOUR ) )
+    if( held & ( 1 << UP_LIGHTARMOUR ) )
       legs.customSkin = cgs.media.larmourLegsSkin;
     else
       legs.customSkin = ci->legsSkin;
@@ -2096,11 +2096,7 @@ void CG_Player( centity_t *cent )
     //
     torso.hModel = ci->torsoModel;
 
-    if( ( held & ( 1 << UP_LIMBARMOUR ) ) && ( held & ( 1 << UP_CHESTARMOUR ) ) )
-      torso.customSkin = cgs.media.clarmourTorsoSkin;
-    else if( held & ( 1 << UP_CHESTARMOUR ) )
-      torso.customSkin = cgs.media.carmourTorsoSkin;
-    else if( held & ( 1 << UP_LIMBARMOUR ) )
+    if( held & ( 1 << UP_LIGHTARMOUR ) )
       torso.customSkin = cgs.media.larmourTorsoSkin;
     else
       torso.customSkin = ci->torsoSkin;

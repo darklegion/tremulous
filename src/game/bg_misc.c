@@ -2923,26 +2923,13 @@ WUTeam_t BG_FindTeamForWeapon( int weapon )
 upgradeAttributes_t bg_upgrades[ ] =
 {
   {
-    UP_CHESTARMOUR,         //int   upgradeNum;
-    CHESTARMOUR_PRICE,      //int   price;
+    UP_LIGHTARMOUR,         //int   upgradeNum;
+    LIGHTARMOUR_PRICE,      //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    SLOT_TORSO,             //int   slots;
-    "carmour",              //char  *upgradeName;
-    "Chest Armour",         //char  *upgradeHumanName;
-    "icons/iconw_bfg",
-    WP_NONE,                //weapon_t weaponAmmo;
-    0,                      //int   ammo;
-    0,                      //int   clips;
-    WUT_HUMANS              //WUTeam_t  team;
-  },
-  {
-    UP_LIMBARMOUR,          //int   upgradeNum;        
-    LIMBARMOUR_PRICE,       //int   price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    SLOT_ARMS|SLOT_LEGS,    //int   slots;
+    SLOT_TORSO|SLOT_ARMS|SLOT_LEGS, //int   slots;
     "larmour",              //char  *upgradeName;
-    "Limb Armour",          //char  *upgradeHumanName;
-    "icons/iconw_plasma",
+    "Light Armour",         //char  *upgradeHumanName;
+    "icons/iconu_larmour",
     WP_NONE,                //weapon_t weaponAmmo;
     0,                      //int   ammo;
     0,                      //int   clips;
@@ -2955,7 +2942,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_HEAD,              //int   slots;
     "helmet",               //char  *upgradeName;
     "Helmet",               //char  *upgradeHumanName;
-    "icons/iconw_gauntlet",
+    "icons/iconu_helmet",
     WP_NONE,                //weapon_t weaponAmmo;
     0,                      //int   ammo;
     0,                      //int   clips;
@@ -2968,7 +2955,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_NONE,              //int   slots;
     "atoxin",               //char  *upgradeName;
     "Anti-toxin",           //char  *upgradeHumanName;
-    "icons/iconw_machinegun",
+    "icons/iconu_atoxin",
     WP_NONE,                //weapon_t weaponAmmo;
     0,                      //int   ammo;
     0,                      //int   clips;
@@ -2981,7 +2968,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_BACKPACK,          //int   slots;
     "battpack",             //char  *upgradeName;
     "Battery Pack",         //char  *upgradeHumanName;
-    "icons/iconw_gauntlet",
+    "icons/iconu_battpack",
     WP_NONE,                //weapon_t weaponAmmo;
     0,                      //int   ammo;
     0,                      //int   clips;
@@ -2994,7 +2981,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_BACKPACK,          //int   slots;
     "jetpack",              //char  *upgradeName;
     "Jet Pack",             //char  *upgradeHumanName;
-    "icons/iconw_gauntlet",
+    "icons/iconu_jetpack",
     WP_NONE,                //weapon_t weaponAmmo;
     0,                      //int   ammo;
     0,                      //int   clips;
@@ -3007,7 +2994,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS, //int   slots;
     "bsuit",                                  //char  *upgradeName;
     "Battlesuit",                             //char  *upgradeHumanName;
-    "icons/iconw_gauntlet",
+    "icons/iconu_bsuit",
     WP_NONE,                //weapon_t weaponAmmo;
     0,                      //int   ammo;
     0,                      //int   clips;
@@ -3020,7 +3007,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_NONE,              //int   slots;
     "mgclip",               //char  *upgradeName;
     "1 Rifle Clip",         //char  *upgradeHumanName;
-    "icons/iconw_gauntlet",
+    0,
     WP_MACHINEGUN,          //weapon_t weaponAmmo;
     0,                      //int   ammo;
     1,                      //int   clips;
@@ -3033,7 +3020,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_NONE,              //int   slots;
     "cgammo",               //char  *upgradeName;
     "Chaingun bullets",     //char  *upgradeHumanName;
-    "icons/iconw_gauntlet",
+    0,
     WP_CHAINGUN,            //weapon_t weaponAmmo;
     100,                    //int   ammo;
     0,                      //int   clips;
@@ -3046,7 +3033,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_NONE,              //int   slots;
     "gas",                  //char  *upgradeName;
     "Flamer gas",           //char  *upgradeHumanName;
-    "icons/iconw_gauntlet",
+    0,
     WP_FLAMER,              //weapon_t weaponAmmo;
     200,                    //int   ammo;
     0,                      //int   clips;

@@ -429,7 +429,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
     if( ( client->ps.stats[ STAT_STATE ] & SS_SPEEDBOOST ) &&  ucmd->upmove >= 0 )
     {
       //subtract stamina
-      if( BG_gotItem( UP_LIMBARMOUR, client->ps.stats ) )
+      if( BG_gotItem( UP_LIGHTARMOUR, client->ps.stats ) )
         client->ps.stats[ STAT_STAMINA ] -= STAMINA_LARMOUR_TAKE;
       else
         client->ps.stats[ STAT_STAMINA ] -= STAMINA_SPRINT_TAKE;
@@ -484,7 +484,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
         client->ps.stats[ STAT_MISC ] = DRAGOON_POUNCE_SPEED;
     }
 
-    //client is charging up an lcanon
+    //client is charging up an lcannon
     if( client->ps.weapon == WP_LUCIFER_CANNON )
     {
       int ammo;
@@ -939,7 +939,7 @@ void ClientThink_real( gentity_t *ent )
           ( temp_v[ 2 ] <= 21 ) && //assumes mins of player is (x, x, -24)
           ( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) )
       {
-        if( BG_gotItem( UP_LIMBARMOUR, client->ps.stats ) )
+        if( BG_gotItem( UP_LIGHTARMOUR, client->ps.stats ) )
           client->ps.speed *= 0.75;
         else
           client->ps.speed *= 0.5;
