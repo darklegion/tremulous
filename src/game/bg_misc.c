@@ -1209,6 +1209,7 @@ classAttributes_t bg_classList[ ] =
     95.0f,                                          //float   buildDist;
     80,                                             //int     fov;
     0.001f,                                         //float   bob;
+    1.0f,                                           //float   bobCycle;
     350,                                            //int     steptime;
     ABUILDER_SPEED,                                 //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1242,6 +1243,7 @@ classAttributes_t bg_classList[ ] =
     95.0f,                                          //float   buildDist;
     110,                                            //int     fov;
     0.001f,                                         //float   bob;
+    1.0f,                                           //float   bobCycle;
     200,                                            //int     steptime;
     ABUILDER_UPG_SPEED,                             //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1275,6 +1277,7 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   buildDist;
     140,                                            //int     fov;
     0.0f,                                           //float   bob;
+    1.0f,                                           //float   bobCycle;
     25,                                             //int     steptime;
     SOLDIER_SPEED,                                  //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1309,6 +1312,7 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   buildDist;
     120,                                            //int     fov;
     0.001f,                                         //float   bob;
+    1.0f,                                           //float   bobCycle;
     25,                                             //int     steptime;
     HYDRA_SPEED,                                    //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1343,6 +1347,7 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   buildDist;
     120,                                            //int     fov;
     0.001f,                                         //float   bob;
+    1.0f,                                           //float   bobCycle;
     25,                                             //int     steptime;
     HYDRA_UPG_SPEED,                                //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1376,6 +1381,7 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   buildDist;
     110,                                            //int     fov;
     0.0005f,                                        //float   bob;
+    1.0f,                                           //float   bobCycle;
     25,                                             //int     steptime;
     DRAGOON_SPEED,                                  //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1409,6 +1415,7 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   buildDist;
     110,                                            //int     fov;
     0.0005f,                                        //float   bob;
+    1.0f,                                           //float   bobCycle;
     25,                                             //int     steptime;
     DRAGOON_UPG_SPEED,                              //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1442,6 +1449,7 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   buildDist;
     90,                                             //int     fov;
     0.0f,                                           //float   bob;
+    1.0f,                                           //float   bobCycle;
     60,                                             //int     steptime;
     CHIMERA_SPEED,                                  //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1475,6 +1483,7 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   buildDist;
     90,                                             //int     fov;
     0.0f,                                           //float   bob;
+    1.0f,                                           //float   bobCycle;
     60,                                             //int     steptime;
     CHIMERA_UPG_SPEED,                              //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1508,6 +1517,7 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   buildDist;
     90,                                             //int     fov;
     0.001f,                                         //float   bob;
+    1.0f,                                           //float   bobCycle;
     60,                                             //int     steptime;
     BMOFO_SPEED,                                    //float   speed;
     5.0f,                                           //float   acceleration;
@@ -1541,6 +1551,7 @@ classAttributes_t bg_classList[ ] =
     110.0f,                                         //float   buildDist;
     90,                                             //int     fov;
     0.002f,                                         //float   bob;
+    1.0f,                                           //float   bobCycle;
     200,                                            //int     steptime;
     1.0f,                                           //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1561,7 +1572,7 @@ classAttributes_t bg_classList[ ] =
     
     "bsuit", ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), { 0, 0, 0 }, { 0, 0, 0, },                             
     { 0, 0, 0, }, { 0, 0, 0, }, { 0, 0, 0, }, 0, 0, 0, 0.0f, 0, 0, WP_NONE, 0.0f, 0,   
-    0.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
+    0.0f, 1.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
   }
 };
 
@@ -1912,6 +1923,27 @@ float BG_FindBobForClass( int pclass )
   
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindBobForClass\n" );
   return 0.002;
+}
+
+/*
+==============
+BG_FindBobCycleForClass
+==============
+*/
+float BG_FindBobCycleForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].bobCycle;
+    }
+  }
+  
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindBobCycleForClass\n" );
+  return 1.0f;
 }
 
 /*

@@ -2201,7 +2201,7 @@ static void PM_Footsteps( void )
   // if not trying to move
   if( !pm->cmd.forwardmove && !pm->cmd.rightmove )
   {
-    if(  pm->xyspeed < 5 )
+    if( pm->xyspeed < 5 )
     {
       pm->ps->bobCycle = 0; // start at beginning of cycle again
       if( pm->ps->pm_flags & PMF_DUCKED )
@@ -2341,6 +2341,8 @@ static void PM_Footsteps( void )
       }
     }
   }
+
+  bobmove *= BG_FindBobCycleForClass( pm->ps->stats[ STAT_PCLASS ] );
 
   // check for footstep / splash sounds
   old = pm->ps->bobCycle;
