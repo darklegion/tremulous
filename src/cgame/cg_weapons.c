@@ -242,7 +242,7 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
       break;
 
     if( !Q_stricmp( token, "" ) )
-      return;
+      return qfalse;
 
     if( !Q_stricmp( token, "weaponModel" ) )
     {
