@@ -2891,7 +2891,7 @@ int Item_Text_AutoWrapped_Lines( itemDef_t *item )
     }
 
     //TA: forceably split lines that are too long (where normal splitage has failed)
-    if( textWidth > item->window.rect.w && newLine == 0 )
+    if( textWidth > item->window.rect.w && newLine == 0 && *p != '\n' )
     {
       newLine = len;
       newLinePtr = p;
@@ -3068,7 +3068,7 @@ void Item_Text_AutoWrapped_Paint( itemDef_t *item )
       }
 
       //TA: forceably split lines that are too long (where normal splitage has failed)
-      if( textWidth > item->window.rect.w && newLine == 0 )
+      if( textWidth > item->window.rect.w && newLine == 0 && *p != '\n' )
       {
         newLine = len;
         newLinePtr = p;
