@@ -303,6 +303,8 @@ qboolean G_CallSpawn( gentity_t *ent ) {
   // check normal spawn functions
   for ( s=spawns ; s->name ; s++ ) {
     if ( !strcmp(s->name, ent->classname) ) {
+      if( G_ItemDisabled(item) )
+        return qfalse;
       // found it
       s->spawn(ent);
       return qtrue;
