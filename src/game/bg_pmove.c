@@ -2451,7 +2451,7 @@ static void PM_Weapon( void )
     return;
   }
 
-  if ( pm->ps->weaponstate == WEAPON_RAISING )
+  if( pm->ps->weaponstate == WEAPON_RAISING )
   {
     pm->ps->weaponstate = WEAPON_READY;
 
@@ -2466,7 +2466,7 @@ static void PM_Weapon( void )
   BG_unpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips, &maxclips );
 
   // check for out of ammo
-  if ( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
+  if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
   {
     PM_AddEvent( EV_NOAMMO );
     pm->ps->weaponTime += 200;
@@ -2487,12 +2487,21 @@ static void PM_Weapon( void )
       ammo = (int)( (float)ammo * BATTPACK_MODIFIER );
     
     BG_packAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
+
+    //allow some time for the weapon to be raised
+    pm->ps->weaponstate = WEAPON_RAISING;
+    PM_StartTorsoAnim( TORSO_RAISE );
+    pm->ps->weaponTime += 250;
+    return;
   }
   
   // check for end of clip 
-  if ( !ammo && clips )
+  if( !ammo && clips )
   {
     pm->ps->weaponstate = WEAPON_RELOADING;
+
+    //drop the weapon
+    PM_StartTorsoAnim( TORSO_DROP );
     
     addTime = BG_FindReloadTimeForWeapon( pm->ps->weapon );
 
