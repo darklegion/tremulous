@@ -484,7 +484,8 @@ static qboolean PM_CheckPounce( void )
 {
   vec3_t forward;
   
-  if( pm->ps->weapon != WP_POUNCE && pm->ps->weapon != WP_POUNCE_UPG )
+  if( pm->ps->weapon != WP_POUNCE &&
+      pm->ps->weapon != WP_POUNCE_UPG )
     return qfalse;
 
   if( pm->cmd.buttons & BUTTON_ATTACK2 )
@@ -545,11 +546,14 @@ static qboolean PM_CheckJump( void )
     return qfalse;
 
   //can't jump and pounce charge at the same time
-  if( ( pm->ps->weapon == WP_POUNCE || pm->ps->weapon == WP_POUNCE_UPG ) && pm->ps->stats[ STAT_MISC ] > 0 )
+  if( ( pm->ps->weapon == WP_POUNCE ||
+        pm->ps->weapon == WP_POUNCE_UPG ) &&
+      pm->ps->stats[ STAT_MISC ] > 0 )
     return qfalse;
 
   //can't jump and charge at the same time
-  if( ( pm->ps->weapon == WP_CHARGE ) && pm->ps->stats[ STAT_MISC ] > 0 )
+  if( ( pm->ps->weapon == WP_CHARGE ) &&
+      pm->ps->stats[ STAT_MISC ] > 0 )
     return qfalse;
 
   if( ( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS ) &&
@@ -2483,11 +2487,11 @@ Generates weapon events and modifes the weapon counter
 */
 static void PM_Weapon( void )
 {
-  int       addTime = 200; //default addTime - should never be used
-  int       ammo, clips, maxclips;
-  qboolean  attack1 = qfalse;
-  qboolean  attack2 = qfalse;
-  qboolean  attack3 = qfalse;
+  int           addTime = 200; //default addTime - should never be used
+  int           ammo, clips, maxclips;
+  qboolean      attack1 = qfalse;
+  qboolean      attack2 = qfalse;
+  qboolean      attack3 = qfalse;
   
   // don't allow attack until all buttons are up
   if( pm->ps->pm_flags & PMF_RESPAWNED )
@@ -2695,6 +2699,7 @@ static void PM_Weapon( void )
         return;
       }
 
+      pm->ps->generic1 = WPM_TERTIARY;
       PM_AddEvent( EV_FIRE_WEAPON3 );
       addTime = BG_FindRepeatRate3ForWeapon( pm->ps->weapon );
     }
@@ -2709,6 +2714,7 @@ static void PM_Weapon( void )
   {
     if( BG_WeaponHasAltMode( pm->ps->weapon ) )
     {
+      pm->ps->generic1 = WPM_SECONDARY;
       PM_AddEvent( EV_FIRE_WEAPON2 );
       addTime = BG_FindRepeatRate2ForWeapon( pm->ps->weapon );
     }
@@ -2721,6 +2727,7 @@ static void PM_Weapon( void )
   }
   else if( attack1 )
   {
+    pm->ps->generic1 = WPM_PRIMARY;
     PM_AddEvent( EV_FIRE_WEAPON );
     addTime = BG_FindRepeatRate1ForWeapon( pm->ps->weapon );
   }
@@ -2731,12 +2738,14 @@ static void PM_Weapon( void )
     switch( pm->ps->weapon )
     {
       case WP_VENOM:
+        pm->ps->generic1 = WPM_PRIMARY;
         PM_AddEvent( EV_FIRE_WEAPON );
         addTime = BG_FindRepeatRate1ForWeapon( pm->ps->weapon );
         break;
     
       case WP_POUNCE:
       case WP_POUNCE_UPG:
+        pm->ps->generic1 = WPM_SECONDARY;
         PM_AddEvent( EV_FIRE_WEAPON2 );
         addTime = BG_FindRepeatRate2ForWeapon( pm->ps->weapon );
         break;
@@ -2971,7 +2980,8 @@ void trap_SnapVector( float *v );
 
 void PmoveSingle (pmove_t *pmove)
 {
-  int ammo, clips, maxclips;
+  int       ammo, clips, maxclips;
+  
   pm = pmove;
 
   BG_unpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips, &maxclips );

@@ -318,18 +318,23 @@ CG_LaunchMissile
 static void CG_LaunchMissile( centity_t *cent )
 {
   entityState_t       *es;
-  const weaponInfo_t  *weapon;
+  const weaponInfo_t  *wi;
   particleSystem_t    *ps;
+  weapon_t            weapon;
+  weaponMode_t        weaponMode;
 
   es = &cent->currentState;
-  if( es->weapon > WP_NUM_WEAPONS )
-    es->weapon = 0;
-  
-  weapon = &cg_weapons[ es->weapon ];
 
-  if( weapon->missileParticleSystem )
+  weapon = es->weapon;
+  if( weapon > WP_NUM_WEAPONS )
+    weapon = WP_NONE;
+  
+  wi = &cg_weapons[ weapon ];
+  weaponMode = es->generic1;
+
+  if( wi->wim[ weaponMode ].missileParticleSystem )
   {
-    ps = CG_SpawnNewParticleSystem( weapon->missileParticleSystem );
+    ps = CG_SpawnNewParticleSystem( wi->wim[ weaponMode ].missileParticleSystem );
     CG_SetParticleSystemCent( ps, cent );
     CG_AttachParticleSystemToCent( ps );
   }
@@ -343,41 +348,43 @@ CG_Missile
 static void CG_Missile( centity_t *cent )
 {
   refEntity_t         ent;
-  entityState_t       *s1;
-  const weaponInfo_t  *weapon;
+  entityState_t       *es;
+  const weaponInfo_t  *wi;
   vec3_t              up;
   float               fraction;
   int                 index;
-  qboolean            switchBugWorkaround = qfalse;
+  weapon_t            weapon;
+  weaponMode_t        weaponMode;
 
-  s1 = &cent->currentState;
-  if( s1->weapon > WP_NUM_WEAPONS )
-    s1->weapon = 0;
+  es = &cent->currentState;
+
+  weapon = es->weapon;
+  if( weapon > WP_NUM_WEAPONS )
+    weapon = WP_NONE;
   
-  weapon = &cg_weapons[ s1->weapon ];
-
+  wi = &cg_weapons[ weapon ];
+  weaponMode = es->generic1;
+  
   // calculate the axis
-  VectorCopy( s1->angles, cent->lerpAngles );
-
-  // add trails
-  if( weapon->missileTrailFunc )
-    weapon->missileTrailFunc( cent, weapon );
+  VectorCopy( es->angles, cent->lerpAngles );
 
   // add dynamic light
-  if( weapon->missileDlight )
+  if( wi->wim[ weaponMode ].missileDlight )
   {
-    trap_R_AddLightToScene( cent->lerpOrigin, weapon->missileDlight,
-      weapon->missileDlightColor[ 0 ], weapon->missileDlightColor[ 1 ], weapon->missileDlightColor[ 2 ] );
+    trap_R_AddLightToScene( cent->lerpOrigin, wi->wim[ weaponMode ].missileDlight,
+      wi->wim[ weaponMode ].missileDlightColor[ 0 ],
+      wi->wim[ weaponMode ].missileDlightColor[ 1 ],
+      wi->wim[ weaponMode ].missileDlightColor[ 2 ] );
   }
 
   // add missile sound
-  if( weapon->missileSound )
+  if( wi->wim[ weaponMode ].missileSound )
   {
     vec3_t  velocity;
 
     BG_EvaluateTrajectoryDelta( &cent->currentState.pos, cg.time, velocity );
 
-    trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, velocity, weapon->missileSound );
+    trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, velocity, wi->wim[ weaponMode ].missileSound );
   }
 
   // create the render entity
@@ -385,34 +392,34 @@ static void CG_Missile( centity_t *cent )
   VectorCopy( cent->lerpOrigin, ent.origin );
   VectorCopy( cent->lerpOrigin, ent.oldorigin );
 
-  if( weapon->usesSpriteMissle )
+  if( wi->wim[ weaponMode ].usesSpriteMissle )
   {
     ent.reType = RT_SPRITE;
-    ent.radius = weapon->missileSpriteSize;
+    ent.radius = wi->wim[ weaponMode ].missileSpriteSize;
     ent.rotation = 0;
-    ent.customShader = weapon->missileSprite;
+    ent.customShader = wi->wim[ weaponMode ].missileSprite;
   }
   else
   {
-    ent.hModel = weapon->missileModel;
-    ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
+    ent.hModel = wi->wim[ weaponMode ].missileModel;
+    ent.renderfx = wi->wim[ weaponMode ].missileRenderfx | RF_NOSHADOW;
 
     // convert direction of travel into axis
-    if( VectorNormalize2( s1->pos.trDelta, ent.axis[ 0 ] ) == 0 )
+    if( VectorNormalize2( es->pos.trDelta, ent.axis[ 0 ] ) == 0 )
       ent.axis[ 0 ][ 2 ] = 1;
 
-    if( weapon->missileRotates )
+    if( wi->wim[ weaponMode ].missileRotates )
     {
       // spin as it moves
-      if( s1->pos.trType != TR_STATIONARY )
+      if( es->pos.trType != TR_STATIONARY )
         RotateAroundDirection( ent.axis, cg.time / 4 );
       else
-        RotateAroundDirection( ent.axis, s1->time );
+        RotateAroundDirection( ent.axis, es->time );
     }
   }
   
   //only refresh if there is something to display
-  if( weapon->missileSprite || weapon->missileModel )
+  if( wi->wim[ weaponMode ].missileSprite || wi->wim[ weaponMode ].missileModel )
     trap_R_AddRefEntityToScene( &ent );
 }
 
@@ -855,8 +862,6 @@ CG_CEntityPVSEnter
 */
 static void CG_CEntityPVSEnter( centity_t *cent )
 {
-  int i;
-  
   if( cg_debugPVS.integer )
     CG_Printf( "Entity %d entered PVS\n", cent->currentState.number );
   
@@ -1014,6 +1019,7 @@ void CG_AddPacketEntities( void )
   // generate and add the entity from the playerstate
   ps = &cg.predictedPlayerState;
   BG_PlayerStateToEntityState( ps, &cg.predictedPlayerEntity.currentState, qfalse );
+  cg.predictedPlayerEntity.valid = qtrue;
   CG_AddCEntity( &cg.predictedPlayerEntity );
 
   // lerp the non-predicted value for lightning gun origins

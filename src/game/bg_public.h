@@ -313,6 +313,17 @@ typedef enum
 
 typedef enum
 {
+  WPM_NONE,
+  
+  WPM_PRIMARY,
+  WPM_SECONDARY,
+  WPM_TERTIARY,
+
+  WPM_NUM_WEAPONMODES
+} weaponMode_t;
+
+typedef enum
+{
   WP_NONE,
 
   WP_VENOM,

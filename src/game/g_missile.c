@@ -76,7 +76,8 @@ void G_ExplodeMissile( gentity_t *ent )
   ent->s.eType = ET_GENERAL;
 
   //TA: tired... can't be fucked... hack
-  if( ent->s.weapon != WP_LOCKBLOB_LAUNCHER && ent->s.weapon != WP_FLAMER )
+  if( ent->s.weapon != WP_LOCKBLOB_LAUNCHER &&
+      ent->s.weapon != WP_FLAMER )
     G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
 
   ent->freeAfterEvent = qtrue;
@@ -292,6 +293,7 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.eType = ET_MISSILE;
   bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_FLAMER;
+  bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
   bolt->damage = FLAMER_DMG;
@@ -335,6 +337,7 @@ gentity_t *fire_blaster( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.eType = ET_MISSILE;
   bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_BLASTER;
+  bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
   bolt->damage = BLASTER_DMG;
@@ -377,6 +380,7 @@ gentity_t *fire_pulseRifle( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.eType = ET_MISSILE;
   bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_PULSE_RIFLE;
+  bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
   bolt->damage = PRIFLE_DMG;
@@ -421,12 +425,12 @@ gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int da
   bolt->s.eType = ET_MISSILE;
   bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_LUCIFER_CANNON;
+  bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
   bolt->damage = localDamage;
   bolt->splashDamage = localDamage / 2;
   bolt->splashRadius = localDamage;
-  bolt->s.generic1 = damage;
   bolt->methodOfDeath = MOD_LCANNON;
   bolt->splashMethodOfDeath = MOD_LCANNON_SPLASH;
   bolt->clipmask = MASK_SHOT;
@@ -554,6 +558,7 @@ gentity_t *fire_hive( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.eFlags |= EF_BOUNCE|EF_NO_BOUNCE_SOUND;
   bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_HIVE;
+  bolt->s.generic1 = WPM_PRIMARY; //weaponMode
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
   bolt->damage = HIVE_DMG;
@@ -593,6 +598,7 @@ gentity_t *fire_lockblob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.eType = ET_MISSILE;
   bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_LOCKBLOB_LAUNCHER;
+  bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
   bolt->damage = 0;
@@ -630,6 +636,7 @@ gentity_t *fire_slowBlob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.eType = ET_MISSILE;
   bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_POUNCE_UPG;
+  bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
   bolt->damage = DRAGOON_SLOWBLOB_DMG;
@@ -668,6 +675,7 @@ gentity_t *fire_paraLockBlob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->s.eType = ET_MISSILE;
   bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_LOCKBLOB_LAUNCHER;
+  bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
   bolt->damage = 0;

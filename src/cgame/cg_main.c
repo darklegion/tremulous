@@ -715,10 +715,6 @@ static void CG_RegisterGraphics( void )
   cgs.media.greenBloodExplosionShader = trap_R_RegisterShader( "greenBloodExplosion" );
   cgs.media.greenBloodMarkShader      = trap_R_RegisterShader( "greenBloodMark" );
   cgs.media.explosionTrailShader      = trap_R_RegisterShader( "explosionTrail" );
-  cgs.media.poisonCloudShader         = trap_R_RegisterShader( "poisonCloud" );
-  
-  for( i = 0; i < 32; i++ )
-    cgs.media.flameShader[ i ] = trap_R_RegisterShader( va( "fireball%d", i + 1 ) );
   
   cgs.media.scannerBlipShader         = trap_R_RegisterShader( "gfx/2d/blip" );
   cgs.media.scannerLineShader         = trap_R_RegisterShader( "white" );
@@ -792,7 +788,7 @@ static void CG_RegisterGraphics( void )
   cgs.media.wakeMarkShader            = trap_R_RegisterShader( "wake" );
   cgs.media.bloodMarkShader           = trap_R_RegisterShader( "bloodMark" );
 
-  cgs.media.testParticleSystem        = CG_RegisterParticleSystem( "blah" );
+  cgs.media.poisonCloudPS             = CG_RegisterParticleSystem( "poisonCloud" );
 
   // register the inline models
   cgs.numInlineModels = trap_CM_NumInlineModels( );

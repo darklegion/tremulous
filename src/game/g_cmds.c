@@ -1170,7 +1170,8 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
       else
         G_FreeEntity( traceEnt );
     
-      ent->client->ps.stats[ STAT_MISC ] += BG_FindBuildDelayForWeapon( ent->s.weapon ) >> 1;
+      ent->client->ps.stats[ STAT_MISC ] +=
+        BG_FindBuildDelayForWeapon( ent->s.weapon ) >> 1;
     }
   }
 }
@@ -1728,11 +1729,10 @@ void Cmd_Test_f( gentity_t *ent )
   if( !CheatsOk( ent ) )
     return;
 
-  G_Printf( "%d %d %d\n",
-      ent->client->sess.sessionTeam,
-      ent->client->ps.stats[ STAT_PTEAM ],
-      ent->client->ps.persistant[ PERS_TEAM ]
-      );
+  ent->client->ps.stats[ STAT_STATE ] |= SS_POISONCLOUDED;
+  ent->client->lastPoisonCloudedTime = level.time;
+  ent->client->lastPoisonCloudedClient = ent;
+  G_AddPredictableEvent( ent, EV_POISONCLOUD, 0 );
 }
 
 /*

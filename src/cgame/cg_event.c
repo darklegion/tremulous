@@ -587,17 +587,17 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       
     case EV_FIRE_WEAPON:
       DEBUGNAME( "EV_FIRE_WEAPON" );
-      CG_FireWeapon( cent, 0 );
+      CG_FireWeapon( cent, WPM_PRIMARY );
       break;
       
     case EV_FIRE_WEAPON2:
       DEBUGNAME( "EV_FIRE_WEAPON2" );
-      CG_FireWeapon( cent, 1 ); //FIXME:??
+      CG_FireWeapon( cent, WPM_SECONDARY );
       break;
       
     case EV_FIRE_WEAPON3:
       DEBUGNAME( "EV_FIRE_WEAPON3" );
-      CG_FireWeapon( cent, 2 ); //FIXME:??
+      CG_FireWeapon( cent, WPM_TERTIARY );
       break;
 
     //=================================================================
@@ -646,19 +646,19 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     case EV_MISSILE_HIT:
       DEBUGNAME( "EV_MISSILE_HIT" );
       ByteToDir( es->eventParm, dir );
-      CG_MissileHitPlayer( es->weapon, position, dir, es->otherEntityNum, es->generic1 );
+      CG_MissileHitPlayer( es->weapon, es->generic1, position, dir, es->otherEntityNum );
       break;
 
     case EV_MISSILE_MISS:
       DEBUGNAME( "EV_MISSILE_MISS" );
       ByteToDir( es->eventParm, dir );
-      CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_DEFAULT, es->generic1 );
+      CG_MissileHitWall( es->weapon, es->generic1, 0, position, dir, IMPACTSOUND_DEFAULT );
       break;
 
     case EV_MISSILE_MISS_METAL:
       DEBUGNAME( "EV_MISSILE_MISS_METAL" );
       ByteToDir( es->eventParm, dir );
-      CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_METAL, es->generic1 );
+      CG_MissileHitWall( es->weapon, es->generic1, 0, position, dir, IMPACTSOUND_METAL );
       break;
 
     case EV_BUILDABLE_EXPLOSION:
@@ -804,7 +804,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
 
     case EV_POISONCLOUD:
       DEBUGNAME( "EV_POISONCLOUD" );
-      cg.firstPoisonedTime = cg.time;
+      cg.poisonedTime = cg.time;
+      {
+        particleSystem_t *ps = CG_SpawnNewParticleSystem( cgs.media.poisonCloudPS );
+        CG_SetParticleSystemCent( ps, &cg.predictedPlayerEntity );
+        CG_AttachParticleSystemToCent( ps );
+      }
       break;
 
     case EV_PLAYER_RESPAWN:

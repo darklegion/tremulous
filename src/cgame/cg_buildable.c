@@ -935,21 +935,25 @@ void CG_Buildable( centity_t *cent )
   //weapon effects for turrets
   if( es->eFlags & EF_FIRING )
   {
-    weaponInfo_t *weapon = &cg_weapons[ es->weapon ];
+    weaponInfo_t  *weapon = &cg_weapons[ es->weapon ];
       
     if( cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME || 
         BG_FindProjTypeForBuildable( es->modelindex ) == WP_TESLAGEN )
     {
-      if( weapon->flashDlightColor[ 0 ] || weapon->flashDlightColor[ 1 ] || weapon->flashDlightColor[ 2 ] )
+      if( weapon->wim[ WPM_PRIMARY ].flashDlightColor[ 0 ] ||
+          weapon->wim[ WPM_PRIMARY ].flashDlightColor[ 1 ] ||
+          weapon->wim[ WPM_PRIMARY ].flashDlightColor[ 2 ] )
       {
-        trap_R_AddLightToScene( cent->lerpOrigin, 300 + ( rand( ) & 31 ), weapon->flashDlightColor[ 0 ],
-          weapon->flashDlightColor[ 1 ], weapon->flashDlightColor[ 2 ] );
+        trap_R_AddLightToScene( cent->lerpOrigin, 300 + ( rand( ) & 31 ),
+            weapon->wim[ WPM_PRIMARY ].flashDlightColor[ 0 ],
+            weapon->wim[ WPM_PRIMARY ].flashDlightColor[ 1 ],
+            weapon->wim[ WPM_PRIMARY ].flashDlightColor[ 2 ] );
       }
     }
       
-    if( weapon->firingSound )
+    if( weapon->wim[ WPM_PRIMARY ].firingSound )
     {
-      trap_S_AddLoopingSound( es->number, cent->lerpOrigin, vec3_origin, weapon->firingSound );
+      trap_S_AddLoopingSound( es->number, cent->lerpOrigin, vec3_origin, weapon->wim[ WPM_PRIMARY ].firingSound );
     }
     else if( weapon->readySound )
       trap_S_AddLoopingSound( es->number, cent->lerpOrigin, vec3_origin, weapon->readySound );

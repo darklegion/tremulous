@@ -96,6 +96,7 @@ void meleeAttack( gentity_t *ent, float range, int damage, meansOfDeath_t mod )
     tent->s.otherEntityNum = traceEnt->s.number;
     tent->s.eventParm = DirToByte( tr.plane.normal );
     tent->s.weapon = ent->s.weapon;
+    tent->s.generic1 = ent->s.generic1; //weaponMode
   }
 
   if ( traceEnt->takedamage )
@@ -188,11 +189,14 @@ void massDriverFire( gentity_t *ent )
     tent->s.otherEntityNum = traceEnt->s.number;
     tent->s.eventParm = DirToByte( tr.plane.normal );
     tent->s.weapon = ent->s.weapon;
+    tent->s.generic1 = ent->s.generic1; //weaponMode
   }
   else
   {
     tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
     tent->s.eventParm = DirToByte( tr.plane.normal );
+    tent->s.weapon = ent->s.weapon;
+    tent->s.generic1 = ent->s.generic1; //weaponMode
   }
 
   if( traceEnt->takedamage )
@@ -316,18 +320,21 @@ void lasGunFire( gentity_t *ent )
   // snap the endpos to integers, but nudged towards the line
   SnapVectorTowards( tr.endpos, muzzle );
 
-  // send bullet impact
+  // send impact
   if( traceEnt->takedamage && traceEnt->client )
   {
     tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
     tent->s.otherEntityNum = traceEnt->s.number;
     tent->s.eventParm = DirToByte( tr.plane.normal );
     tent->s.weapon = ent->s.weapon;
+    tent->s.generic1 = ent->s.generic1; //weaponMode
   }
   else
   {
     tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
     tent->s.eventParm = DirToByte( tr.plane.normal );
+    tent->s.weapon = ent->s.weapon;
+    tent->s.generic1 = ent->s.generic1; //weaponMode
   }
   tent->s.otherEntityNum = ent->s.number;
 
@@ -370,6 +377,7 @@ void painSawFire( gentity_t *ent )
     tent->s.otherEntityNum = traceEnt->s.number;
     tent->s.eventParm = DirToByte( tr.plane.normal );
     tent->s.weapon = ent->s.weapon;
+    tent->s.generic1 = ent->s.generic1; //weaponMode
   }
 
   if ( traceEnt->takedamage )
@@ -545,7 +553,8 @@ void buildFire( gentity_t *ent, dynMenu_t menu )
     if( G_ValidateBuild( ent, ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) )
     {
       ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
-      ent->client->ps.stats[ STAT_MISC ] += BG_FindBuildDelayForWeapon( ent->s.weapon );
+      ent->client->ps.stats[ STAT_MISC ] +=
+        BG_FindBuildDelayForWeapon( ent->s.weapon );
     }
     return;
   }
@@ -605,6 +614,7 @@ qboolean CheckVenomAttack( gentity_t *ent )
     tent->s.otherEntityNum = traceEnt->s.number;
     tent->s.eventParm = DirToByte( tr.plane.normal );
     tent->s.weapon = ent->s.weapon;
+    tent->s.generic1 = ent->s.generic1; //weaponMode
   }
 
   G_Damage( traceEnt, ent, ent, forward, tr.endpos, SOLDIER_BITE_DMG, DAMAGE_NO_KNOCKBACK, MOD_SOLDIER_BITE );
@@ -748,6 +758,7 @@ qboolean CheckPounceAttack( gentity_t *ent )
     tent->s.otherEntityNum = traceEnt->s.number;
     tent->s.eventParm = DirToByte( tr.plane.normal );
     tent->s.weapon = ent->s.weapon;
+    tent->s.generic1 = ent->s.generic1; //weaponMode
   }
 
   if( !traceEnt->takedamage )
@@ -949,6 +960,7 @@ void ChargeAttack( gentity_t *ent, gentity_t *victim )
     tent->s.otherEntityNum = victim->s.number;
     tent->s.eventParm = DirToByte( normal );
     tent->s.weapon = ent->s.weapon;
+    tent->s.generic1 = ent->s.generic1; //weaponMode
   }
 
   if( !victim->takedamage )

@@ -2615,8 +2615,8 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
-    "groundpound",        //char      *weaponName;
-    "Ground Pound",       //char      *weaponHumanName;
+    "charge",             //char      *weaponName;
+    "Charge",             //char      *weaponHumanName;
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;

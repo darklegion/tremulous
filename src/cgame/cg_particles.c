@@ -1465,8 +1465,9 @@ static void CG_GarbageCollectParticleSystems( void )
     if( !count )
       ps->valid = qfalse;
 
-    //check systems where the parent cent has left te PVS
-    if( ps->attachType == PSA_CENT_ORIGIN )
+    //check systems where the parent cent has left the PVS
+    //( centNum 0 - player entity, is always valid )
+    if( ps->attachType == PSA_CENT_ORIGIN && ps->attachment.centNum != 0 )
     {
       if( !cg_entities[ ps->attachment.centNum ].valid )
         ps->valid = qfalse;
@@ -1696,7 +1697,11 @@ static void CG_RenderParticle( particle_t *p )
   if( bp->framerate == 0.0f )
   {
     //sync animation time to lifeTime of particle
-    index = (int)( timeFrac * bp->numFrames );
+    index = (int)( timeFrac * ( bp->numFrames + 1 ) );
+
+    if( index >= bp->numFrames )
+      index = bp->numFrames - 1;
+
     re.customShader = bp->shaders[ index ];
   }
   else

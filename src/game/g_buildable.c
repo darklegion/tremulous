@@ -1280,10 +1280,12 @@ Use for human power repeater
 */
 void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-  int maxAmmo, maxClips;
-  int ammo, clips;
-
+  int           maxAmmo, maxClips;
+  int           ammo, clips;
+  weapon_t      weapon;
   playerState_t *ps = &activator->client->ps;
+  
+  weapon = ps->weapon;
 
   if( !self->spawned )
     return;
@@ -1291,15 +1293,15 @@ void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
   if( activator->client->lastRefilTime + ENERGY_REFIL_TIME > level.time )
     return;
   
-  if( !BG_FindUsesEnergyForWeapon( ps->weapon ) )
+  if( !BG_FindUsesEnergyForWeapon( weapon ) )
     return;
   
-  BG_FindAmmoForWeapon( ps->weapon, &maxAmmo, NULL, &maxClips );
+  BG_FindAmmoForWeapon( weapon, &maxAmmo, NULL, &maxClips );
   
   if( BG_gotItem( UP_BATTPACK, ps->stats ) )
     maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
   
-  BG_unpackAmmoArray( ps->weapon, ps->ammo, ps->powerups, &ammo, &clips, NULL );
+  BG_unpackAmmoArray( weapon, ps->ammo, ps->powerups, &ammo, &clips, NULL );
 
   if( ammo == maxAmmo && clips < maxClips )
   {
@@ -1313,7 +1315,7 @@ void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
   if( ammo > maxAmmo )
     ammo = maxAmmo;
 
-  BG_packAmmoArray( ps->weapon, ps->ammo, ps->powerups, ammo, clips, maxClips );
+  BG_packAmmoArray( weapon, ps->ammo, ps->powerups, ammo, clips, maxClips );
 
   G_AddEvent( activator, EV_RPTUSE_SOUND, 0 );
   activator->client->lastRefilTime = level.time;

@@ -374,11 +374,6 @@ typedef struct
   lerpFrame_t legs, torso, flag, nonseg;
   int         painTime;
   int         painDirection;  // flip from 0 to 1
-  int         lightningFiring;
-
-  // railgun trail spawning
-  vec3_t      railgunImpact;
-  qboolean    railgunFlash;
 
   // machinegun spinning
   float       barrelAngle;
@@ -429,9 +424,6 @@ typedef struct centity_s
   lerpFrame_t           lerpFrame;
 
   //TA:
-  int                   flamerTime;       //limit flameball count
-  int                   poisonTime;       //limit poison count
-  int                   firstPoisonTime;  //when poison cloud starts
   int                   jetTime;          //limit jet count
   
   buildableAnimNumber_t buildableAnim;    //persistant anim number
@@ -642,35 +634,15 @@ typedef struct
 } clientInfo_t;
 
 
-// each WP_* weapon enum has an associated weaponInfo_t
-// that contains media references necessary to present the
-// weapon and its effects
-typedef struct weaponInfo_s
+typedef struct weaponInfoMode_s
 {
-  qboolean    registered;
-  char        *humanName;
-
-  qhandle_t   handsModel;       // the hands don't actually draw, they just position the weapon
-  qhandle_t   weaponModel;
-  qhandle_t   barrelModel;
-  qhandle_t   flashModel;
-
-  vec3_t      weaponMidpoint;   // so it will rotate centered instead of by tag
-
   float       flashDlight;
   vec3_t      flashDlightColor;
   sfxHandle_t flashSound[ 4 ];  // fast firing weapons randomly choose
   qboolean    continuousFlash;
 
-  qhandle_t   weaponIcon;
-  qhandle_t   ammoIcon;
-
-  qhandle_t   crossHair;
-  int         crossHairSize;
-
   qhandle_t   missileModel;
   sfxHandle_t missileSound;
-  void        (*missileTrailFunc)( centity_t *, const struct weaponInfo_s *wi );
   float       missileDlight;
   vec3_t      missileDlightColor;
   int         missileRenderfx;
@@ -680,26 +652,48 @@ typedef struct weaponInfo_s
   qhandle_t   missileParticleSystem;
   qboolean    missileRotates;
 
-  void        (*ejectBrassFunc)( centity_t * );
-
-  float       trailRadius;
-  float       wiTrailTime;
-
-  sfxHandle_t readySound;
   sfxHandle_t firingSound;
   qboolean    loopFireSound;
 
   qhandle_t   muzzleParticleSystem;
 
   qboolean    alwaysImpact;
-  qhandle_t   impactDish;
-  qhandle_t   impactDishShader;
+  qhandle_t   impactModel;
+  qhandle_t   impactModelShader;
   qhandle_t   impactParticleSystem;
   qhandle_t   impactMark;
   qhandle_t   impactMarkSize;
   sfxHandle_t impactSound[ 4 ]; //random impact sound
   float       impactDlight;
   vec3_t      impactDlightColor;
+} weaponInfoMode_t;
+
+// each WP_* weapon enum has an associated weaponInfo_t
+// that contains media references necessary to present the
+// weapon and its effects
+typedef struct weaponInfo_s
+{
+  qboolean          registered;
+  char              *humanName;
+
+  qhandle_t         handsModel;       // the hands don't actually draw, they just position the weapon
+  qhandle_t         weaponModel;
+  qhandle_t         barrelModel;
+  qhandle_t         flashModel;
+
+  vec3_t            weaponMidpoint;   // so it will rotate centered instead of by tag
+
+  qhandle_t         weaponIcon;
+  qhandle_t         ammoIcon;
+
+  qhandle_t         crossHair;
+  int               crossHairSize;
+
+  void              (*ejectBrassFunc)( centity_t * );
+
+  sfxHandle_t       readySound;
+  
+  weaponInfoMode_t  wim[ WPM_NUM_WEAPONMODES ];
 } weaponInfo_t;
 
 typedef struct upgradeInfo_s
@@ -972,6 +966,8 @@ typedef struct
   qboolean      weapon2Firing;                      
   qboolean      weapon3Firing;                      
 
+  int           poisonedTime;
+
   vec3_t        lastNormal;                         //TA: view smoothage
   vec3_t        lastVangles;                        //TA: view smoothage
   smooth_t      sList[ MAXSMOOTHS ];                //TA: WW smoothing
@@ -979,9 +975,6 @@ typedef struct
   int           forwardMoveTime;                    //TA: for struggling
   int           rightMoveTime;
   int           upMoveTime;
-
-  int           poisonedTime;                       //TA: poison cloud
-  int           firstPoisonedTime;                  //TA: poison cloud
 
   float         charModelFraction;                  //TA: loading percentages
   float         mediaFraction;
@@ -1067,9 +1060,7 @@ typedef struct
   qhandle_t   greenBloodMarkShader;
   qhandle_t   greenBloodExplosionShader;
   qhandle_t   explosionTrailShader;
-  qhandle_t   poisonCloudShader;
 
-  qhandle_t   flameShader[ 32 ];
   qhandle_t   flameExplShader;
   qhandle_t   creepShader;
   
@@ -1188,7 +1179,7 @@ typedef struct
   sfxHandle_t buildableRepairSound;
   sfxHandle_t buildableRepairedSound;
 
-  qhandle_t   testParticleSystem;
+  qhandle_t   poisonCloudPS;
 } cgMedia_t;
 
 
@@ -1579,10 +1570,11 @@ void        CG_RegisterUpgrade( int upgradeNum );
 void        CG_InitWeapons( );
 void        CG_RegisterWeapon( int weaponNum );
 
-void        CG_FireWeapon( centity_t *cent, int mode );
-void        CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, int damage );
+void        CG_FireWeapon( centity_t *cent, weaponMode_t weaponMode );
+void        CG_MissileHitWall( weapon_t weapon, weaponMode_t weaponMode, int clientNum,
+                               vec3_t origin, vec3_t dir, impactSound_t soundType );
 void        CG_Explosion( int clientNum, vec3_t origin, vec3_t dir );
-void        CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum, int damage );
+void        CG_MissileHitPlayer( weapon_t weapon, weaponMode_t weaponMode, vec3_t origin, vec3_t dir, int entityNum );
 void        CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 
 void        CG_TeslaTrail( vec3_t start, vec3_t end, int srcENum, int destENum );

@@ -199,6 +199,336 @@ void CG_InitUpgrades( void )
     CG_RegisterUpgrade( i );
 }
 
+
+/*
+===============
+CG_ParseWeaponModeSection
+
+Parse a weapon mode section
+===============
+*/
+static qboolean CG_ParseWeaponModeSection( weaponInfoMode_t *wim, char **text_p )
+{
+  char  *token;
+  float number, randFrac;
+  int   i;
+
+  // read optional parameters
+  while( 1 )
+  {
+    token = COM_Parse( text_p );
+    
+    if( !token )
+      break;
+
+    if( !Q_stricmp( token, "" ) )
+      return qfalse;
+
+    if( !Q_stricmp( token, "missileModel" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      wim->missileModel = trap_R_RegisterModel( token );
+      
+      if( !wim->missileModel )
+        CG_Printf( S_COLOR_RED "ERROR: missile model not found %s\n", token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "missileSprite" ) )
+    {
+      int size = 0;
+      
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      size = atoi( token );
+      
+      if( size < 0 )
+        size = 0;
+      
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      wim->missileSprite = trap_R_RegisterShader( token );
+      wim->missileSpriteSize = size;
+      wim->usesSpriteMissle = qtrue;
+      
+      if( !wim->missileSprite )
+        CG_Printf( S_COLOR_RED "ERROR: missile sprite not found %s\n", token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "missileRotates" ) )
+    {
+      wim->missileRotates = qtrue;
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "missileParticleSystem" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      wim->missileParticleSystem = CG_RegisterParticleSystem( token );
+      
+      if( !wim->missileParticleSystem )
+        CG_Printf( S_COLOR_RED "ERROR: missile particle system not found %s\n", token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "muzzleParticleSystem" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      wim->muzzleParticleSystem = CG_RegisterParticleSystem( token );
+      
+      if( !wim->muzzleParticleSystem )
+        CG_Printf( S_COLOR_RED "ERROR: muzzle particle system not found %s\n", token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "impactParticleSystem" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      wim->impactParticleSystem = CG_RegisterParticleSystem( token );
+      
+      if( !wim->impactParticleSystem )
+        CG_Printf( S_COLOR_RED "ERROR: impact particle system not found %s\n", token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "impactModel" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      wim->impactModel = trap_R_RegisterModel( token );
+      
+      if( !wim->impactModel )
+        CG_Printf( S_COLOR_RED "ERROR: impact model not found %s\n", token );
+
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      wim->impactModelShader = trap_R_RegisterShader( token );
+      
+      if( !wim->impactModelShader )
+        CG_Printf( S_COLOR_RED "ERROR: impact model shader not found %s\n", token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "impactMark" ) )
+    {
+      int size = 0;
+      
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      size = atoi( token );
+      
+      if( size < 0 )
+        size = 0;
+      
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      wim->impactMark = trap_R_RegisterShader( token );
+      wim->impactMarkSize = size;
+      
+      if( !wim->impactMark )
+        CG_Printf( S_COLOR_RED "ERROR: impact mark shader not found %s\n", token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "impactSound" ) )
+    {
+      int index = 0;
+      
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      index = atoi( token );
+      
+      if( index < 0 )
+        index = 0;
+      else if( index > 3 )
+        index = 3;
+      
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      wim->impactSound[ index ] = trap_S_RegisterSound( token, qfalse );
+      
+      if( !wim->impactSound[ index ] )
+        CG_Printf( S_COLOR_RED "ERROR: impact sound %d not found %s\n", index, token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "impactDlightColor" ) )
+    {
+      for( i = 0 ; i < 3 ; i++ )
+      {
+        token = COM_Parse( text_p );
+        if( !token )
+          break;
+
+        wim->impactDlightColor[ i ] = atof( token );
+      }
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "impactDlight" ) )
+    {
+      int size = 0;
+      
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      size = atoi( token );
+      
+      if( size < 0 )
+        size = 0;
+      
+      wim->impactDlight = size;
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "alwaysImpact" ) )
+    {
+      wim->alwaysImpact = qtrue;
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "flashDLightColor" ) )
+    {
+      for( i = 0 ; i < 3 ; i++ )
+      {
+        token = COM_Parse( text_p );
+        if( !token )
+          break;
+
+        wim->flashDlightColor[ i ] = atof( token );
+      }
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "continuousFlash" ) )
+    {
+      wim->continuousFlash = qtrue;
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "missileDlightColor" ) )
+    {
+      for( i = 0 ; i < 3 ; i++ )
+      {
+        token = COM_Parse( text_p );
+        if( !token )
+          break;
+
+        wim->missileDlightColor[ i ] = atof( token );
+      }
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "missileDlight" ) )
+    {
+      int size = 0;
+      
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      size = atoi( token );
+      
+      if( size < 0 )
+        size = 0;
+      
+      wim->missileDlight = size;
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "firingSound" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      wim->firingSound = trap_S_RegisterSound( token, qfalse );
+      
+      if( !wim->firingSound )
+        CG_Printf( S_COLOR_RED "ERROR: firing sound not found %s\n", token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "missileSound" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      wim->missileSound = trap_S_RegisterSound( token, qfalse );
+      
+      if( !wim->missileSound )
+        CG_Printf( S_COLOR_RED "ERROR: missile sound not found %s\n", token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "flashSound" ) )
+    {
+      int index = 0;
+      
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      index = atoi( token );
+      
+      if( index < 0 )
+        index = 0;
+      else if( index > 3 )
+        index = 3;
+      
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      wim->flashSound[ index ] = trap_S_RegisterSound( token, qfalse );
+      
+      if( !wim->flashSound[ index ] )
+        CG_Printf( S_COLOR_RED "ERROR: flash sound %d not found %s\n", index, token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "}" ) )
+      return qtrue; //reached the end of this weapon section
+    else
+    {
+      CG_Printf( S_COLOR_RED "ERROR: unknown token '%s' in weapon section\n", token );
+      return qfalse;
+    }
+  }
+
+  return qfalse;
+}
 /*
 ======================
 CG_ParseWeaponFile
@@ -214,6 +544,7 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
   char          *token;
   char          text[ 20000 ];
   fileHandle_t  f;
+  weaponMode_t  weaponMode = WPM_NONE;
 
   // load the file
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
@@ -242,9 +573,42 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
       break;
 
     if( !Q_stricmp( token, "" ) )
-      return qfalse;
+      break;
 
-    if( !Q_stricmp( token, "weaponModel" ) )
+    if( !Q_stricmp( token, "{" ) )
+    {
+      if( weaponMode == WPM_NONE )
+      {
+        CG_Printf( S_COLOR_RED "ERROR: weapon mode section started without a declaration\n" );
+        return qfalse;
+      }
+      else if( !CG_ParseWeaponModeSection( &wi->wim[ weaponMode ], &text_p ) )
+      {
+        CG_Printf( S_COLOR_RED "ERROR: failed to parse weapon mode section\n" );
+        return qfalse;
+      }
+
+      //start parsing ejectors again
+      weaponMode = WPM_NONE;
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "primary" ) )
+    {
+      weaponMode = WPM_PRIMARY;
+      continue;
+    }
+    else if( !Q_stricmp( token, "secondary" ) )
+    {
+      weaponMode = WPM_SECONDARY;
+      continue;
+    }
+    else if( !Q_stricmp( token, "tertiary" ) )
+    {
+      weaponMode = WPM_TERTIARY;
+      continue;
+    }
+    else if( !Q_stricmp( token, "weaponModel" ) )
     {
       char path[ MAX_QPATH ];
       
@@ -255,7 +619,7 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
       wi->weaponModel = trap_R_RegisterModel( token );
       
       if( !wi->weaponModel )
-        CG_Printf( "Weapon model not found %s: %s\n", filename, token );
+        CG_Printf( S_COLOR_RED "ERROR: weapon model not found %s\n", token );
 
       strcpy( path, token );
       COM_StripExtension( path, path );
@@ -277,248 +641,6 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
       
       continue;
     }
-    else if( !Q_stricmp( token, "missileModel" ) )
-    {
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      wi->missileModel = trap_R_RegisterModel( token );
-      
-      if( !wi->missileModel )
-        CG_Printf( "Missile model not found %s: %s\n", filename, token );
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "missileSprite" ) )
-    {
-      int size = 0;
-      
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      size = atoi( token );
-      
-      if( size < 0 )
-        size = 0;
-      
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      wi->missileSprite = trap_R_RegisterShader( token );
-      wi->missileSpriteSize = size;
-      wi->usesSpriteMissle = qtrue;
-      
-      if( !wi->missileSprite )
-        CG_Printf( "Missile sprite not found %s: %s\n", filename, token );
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "missileRotates" ) )
-    {
-      wi->missileRotates = qtrue;
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "missileParticleSystem" ) )
-    {
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      wi->missileParticleSystem = CG_RegisterParticleSystem( token );
-      
-      if( !wi->missileParticleSystem )
-        CG_Printf( "Missile particle system not found %s: %s\n", filename, token );
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "muzzleParticleSystem" ) )
-    {
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      wi->muzzleParticleSystem = CG_RegisterParticleSystem( token );
-      
-      if( !wi->muzzleParticleSystem )
-        CG_Printf( "Muzzle particle system not found %s: %s\n", filename, token );
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "impactParticleSystem" ) )
-    {
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      wi->impactParticleSystem = CG_RegisterParticleSystem( token );
-      
-      if( !wi->impactParticleSystem )
-        CG_Printf( "Impact particle system not found %s: %s\n", filename, token );
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "impactDish" ) )
-    {
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      wi->impactDish = trap_R_RegisterModel( token );
-      
-      if( !wi->impactDish )
-        CG_Printf( "Impact dish model not found %s: %s\n", filename, token );
-
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      wi->impactDishShader = trap_R_RegisterShader( token );
-      
-      if( !wi->impactDishShader )
-        CG_Printf( "Impact dish shader not found %s: %s\n", filename, token );
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "impactMark" ) )
-    {
-      int size = 0;
-      
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      size = atoi( token );
-      
-      if( size < 0 )
-        size = 0;
-      
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      wi->impactMark = trap_R_RegisterShader( token );
-      wi->impactMarkSize = size;
-      
-      if( !wi->impactMark )
-        CG_Printf( "Impact mark shader not found %s: %s\n", filename, token );
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "impactSound" ) )
-    {
-      int index = 0;
-      
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      index = atoi( token );
-      
-      if( index < 0 )
-        index = 0;
-      else if( index > 3 )
-        index = 3;
-      
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      wi->impactSound[ index ] = trap_S_RegisterSound( token, qfalse );
-      
-      if( !wi->impactSound[ index ] )
-        CG_Printf( "Weapon impact sound %d not found %s: %s\n", index, filename, token );
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "impactDlightColor" ) )
-    {
-      for( i = 0 ; i < 3 ; i++ )
-      {
-        token = COM_Parse( &text_p );
-        if( !token )
-          break;
-
-        wi->impactDlightColor[ i ] = atof( token );
-      }
-      
-      continue;
-    }
-    else if( !Q_stricmp( token, "impactDlight" ) )
-    {
-      int size = 0;
-      
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      size = atoi( token );
-      
-      if( size < 0 )
-        size = 0;
-      
-      wi->impactDlight = size;
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "alwaysImpact" ) )
-    {
-      wi->alwaysImpact = qtrue;
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "flashDLightColor" ) )
-    {
-      for( i = 0 ; i < 3 ; i++ )
-      {
-        token = COM_Parse( &text_p );
-        if( !token )
-          break;
-
-        wi->flashDlightColor[ i ] = atof( token );
-      }
-      
-      continue;
-    }
-    else if( !Q_stricmp( token, "continuousFlash" ) )
-    {
-      wi->continuousFlash = qtrue;
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "missileDlightColor" ) )
-    {
-      for( i = 0 ; i < 3 ; i++ )
-      {
-        token = COM_Parse( &text_p );
-        if( !token )
-          break;
-
-        wi->missileDlightColor[ i ] = atof( token );
-      }
-      
-      continue;
-    }
-    else if( !Q_stricmp( token, "missileDlight" ) )
-    {
-      int size = 0;
-      
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      size = atoi( token );
-      
-      if( size < 0 )
-        size = 0;
-      
-      wi->missileDlight = size;
-
-      continue;
-    }
     else if( !Q_stricmp( token, "idleSound" ) )
     {
       token = COM_Parse( &text_p );
@@ -528,59 +650,7 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
       wi->readySound = trap_S_RegisterSound( token, qfalse );
       
       if( !wi->readySound )
-        CG_Printf( "Weapon idle sound not found %s: %s\n", filename, token );
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "firingSound" ) )
-    {
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      wi->firingSound = trap_S_RegisterSound( token, qfalse );
-      
-      if( !wi->firingSound )
-        CG_Printf( "Weapon firing sound not found %s: %s\n", filename, token );
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "missileSound" ) )
-    {
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      wi->missileSound = trap_S_RegisterSound( token, qfalse );
-      
-      if( !wi->missileSound )
-        CG_Printf( "Weapon missile sound not found %s: %s\n", filename, token );
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "flashSound" ) )
-    {
-      int index = 0;
-      
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      index = atoi( token );
-      
-      if( index < 0 )
-        index = 0;
-      else if( index > 3 )
-        index = 3;
-      
-      token = COM_Parse( &text_p );
-      if( !token )
-        break;
-
-      wi->flashSound[ index ] = trap_S_RegisterSound( token, qfalse );
-      
-      if( !wi->flashSound[ index ] )
-        CG_Printf( "Weapon flash sound %d not found %s: %s\n", index, filename, token );
+        CG_Printf( S_COLOR_RED "ERROR: weapon idle sound not found %s\n", token );
 
       continue;
     }
@@ -593,7 +663,7 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
       wi->weaponIcon = wi->ammoIcon = trap_R_RegisterShader( token );
       
       if( !wi->weaponIcon )
-        CG_Printf( "Weapon icon shader not found %s: %s\n", filename, token );
+        CG_Printf( S_COLOR_RED "ERROR: weapon icon not found %s\n", token );
 
       continue;
     }
@@ -618,12 +688,13 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
       wi->crossHairSize = size;
       
       if( !wi->crossHair )
-        CG_Printf( "Weapon crosshair not found %s: %s\n", filename, token );
+        CG_Printf( S_COLOR_RED "ERROR: weapon crosshair not found %s\n", token );
 
       continue;
     }
 
-    Com_Printf( "unknown token '%s' in %s\n", token, filename );
+    Com_Printf( S_COLOR_RED "ERROR: unknown token '%s'\n", token );
+    return qfalse;
   }
 
   return qtrue;
@@ -660,14 +731,17 @@ void CG_RegisterWeapon( int weaponNum )
   
   weaponInfo->humanName = BG_FindHumanNameForWeapon( weaponNum );
 
-  CG_ParseWeaponFile( path, weaponInfo );
+  if( !CG_ParseWeaponFile( path, weaponInfo ) )
+    Com_Printf( S_COLOR_RED "ERROR: failed to parse %s\n", path );
   
   // calc midpoint for rotation
   trap_R_ModelBounds( weaponInfo->weaponModel, mins, maxs );
   for( i = 0 ; i < 3 ; i++ )
     weaponInfo->weaponMidpoint[ i ] = mins[ i ] + 0.5 * ( maxs[ i ] - mins[ i ] );
 
-  weaponInfo->loopFireSound = qfalse;
+  //FIXME:
+  for( i = WPM_NONE + 1; i < WPM_NUM_WEAPONMODES; i++ )
+    weaponInfo->wim[ i ].loopFireSound = qfalse;
 
   switch( weaponNum )
   {
@@ -789,227 +863,6 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles )
 
 
 /*
-===============
-CG_LightningBolt
-
-Origin will be the exact tag point, which is slightly
-different than the muzzle point used for determining hits.
-The cent should be the non-predicted cent if it is from the player,
-so the endpoint will reflect the simulated strike (lagging the predicted
-angle)
-===============
-*/
-static void CG_LightningBolt( centity_t *cent, vec3_t origin )
-{
-  trace_t       trace;
-  refEntity_t   beam;
-  vec3_t        forward;
-  vec3_t        muzzlePoint, endPoint;
-
-  if( cent->currentState.weapon != WP_TESLAGEN )
-    return;
-
-  memset( &beam, 0, sizeof( beam ) );
-
-  // CPMA  "true" lightning
-  if( ( cent->currentState.number == cg.predictedPlayerState.clientNum ) &&
-      ( cg_trueLightning.value != 0 ) )
-  {
-    vec3_t angle;
-    int i;
-
-    for( i = 0; i < 3; i++ )
-    {
-      float a = cent->lerpAngles[ i ] - cg.refdefViewAngles[ i ];
-      if( a > 180 )
-        a -= 360;
-
-      if( a < -180 )
-        a += 360;
-
-      angle[ i ] = cg.refdefViewAngles[ i ] + a * ( 1.0 - cg_trueLightning.value );
-      
-      if( angle[ i ] < 0 )
-        angle[ i ] += 360;
-
-      if( angle[ i ] > 360 )
-        angle[ i ] -= 360;
-    }
-
-    AngleVectors( angle, forward, NULL, NULL );
-    VectorCopy( cent->lerpOrigin, muzzlePoint );
-//    VectorCopy(cg.refdef.vieworg, muzzlePoint );
-  }
-  else
-  {
-    // !CPMA
-    AngleVectors( cent->lerpAngles, forward, NULL, NULL );
-    VectorCopy( cent->lerpOrigin, muzzlePoint );
-  }
-
-  // FIXME: crouch
-  muzzlePoint[ 2 ] += DEFAULT_VIEWHEIGHT;
-
-  VectorMA( muzzlePoint, 14, forward, muzzlePoint );
-
-  // project forward by the lightning range
-  VectorMA( muzzlePoint, TESLAGEN_RANGE, forward, endPoint );
-
-  // see if it hit a wall
-  CG_Trace( &trace, muzzlePoint, vec3_origin, vec3_origin, endPoint,
-    cent->currentState.number, MASK_SHOT );
-
-  // this is the endpoint
-  VectorCopy( trace.endpos, beam.oldorigin );
-
-  // use the provided origin, even though it may be slightly
-  // different than the muzzle origin
-  VectorCopy( origin, beam.origin );
-
-  beam.reType = RT_LIGHTNING;
-  beam.customShader = cgs.media.lightningShader;
-  trap_R_AddRefEntityToScene( &beam );
-
-  // add the impact flare if it hit something
-  if( trace.fraction < 1.0 )
-  {
-    vec3_t  angles;
-    vec3_t  dir;
-
-    VectorSubtract( beam.oldorigin, beam.origin, dir );
-    VectorNormalize( dir );
-
-    memset( &beam, 0, sizeof( beam ) );
-    beam.hModel = cgs.media.lightningExplosionModel;
-
-    VectorMA( trace.endpos, -16, dir, beam.origin );
-
-    // make a random orientation
-    angles[ 0 ] = rand( ) % 360;
-    angles[ 1 ] = rand( ) % 360;
-    angles[ 2 ] = rand( ) % 360;
-    AnglesToAxis( angles, beam.axis );
-    trap_R_AddRefEntityToScene( &beam );
-  }
-}
-
-
-#define POISONCLOUD_LIFETIME  800
-#define POISONCLOUD_SPEED     80.0f
-#define POISONCLOUD_GAP       40
-#define POISONCLOUD_LAG       0.75f
-#define POISONCLOUD_SPREAD    160.0f
-
-/*
-===============
-CG_PoisonCloud
-===============
-*/
-static void CG_PoisonCloud( centity_t *cent, int firstPoisonTime )
-{
-  vec3_t  forward, right, up;
-  vec3_t  muzzlePoint;
-  vec3_t  velocity;
-  vec3_t  pVelocity;
-  vec3_t  accel = { 0.0f, 0.0f, 2.0f };
-  vec3_t  surfNormal;
-  entityState_t *es = &cent->currentState;
-
-  if( cent->currentState.weapon != WP_GRAB_CLAW_UPG )
-    return;
-
-  //finite lifetime
-  if( firstPoisonTime + POISONCLOUD_LIFETIME < cg.time )
-    return;
-  
-  //not time for the next ball yet
-  if( cg.time < cent->poisonTime )
-    return;
-  
-  if( cent->currentState.clientNum == cg.predictedPlayerState.clientNum && !cg.renderingThirdPerson )
-  {
-    AngleVectors( cg.refdefViewAngles, forward, right, up );
-    VectorCopy( cg.refdef.vieworg, muzzlePoint );
-    VectorScale( cg.predictedPlayerState.velocity, POISONCLOUD_LAG, pVelocity );
-  }
-  else
-  {
-    AngleVectors( cent->lerpAngles, forward, right, up );
-    VectorCopy( cent->lerpOrigin, muzzlePoint );
-
-    //FIXME: this is gonna look weird when crouching
-    muzzlePoint[ 2 ] += DEFAULT_VIEWHEIGHT;
-    VectorScale( cent->currentState.pos.trDelta, POISONCLOUD_LAG, pVelocity );
-  }
-  
-  VectorMA( pVelocity, POISONCLOUD_SPEED, forward, velocity );
-
-  VectorMA( muzzlePoint, 24.0f, forward, muzzlePoint );
-  VectorMA( muzzlePoint, -6.0f, up, muzzlePoint );
-
-  if( es->eFlags & EF_WALLCLIMBCEILING )
-    VectorSet( surfNormal, 0.0f, 0.0f, -1.0f );
-  else
-    VectorCopy( es->angles2, surfNormal );
-  
-  VectorMA( velocity, -33.0f, surfNormal, velocity );
-
-  CG_LaunchSprite( muzzlePoint, velocity, accel, POISONCLOUD_SPREAD,
-                   0.5f, 10.0f, 40.0f, 127.0f, 0.0f,
-                   rand( ) % 360, cg.time, cg.time, POISONCLOUD_LIFETIME,
-                   cgs.media.poisonCloudShader, qfalse, qfalse );
-
-  //set next ball time
-  cent->poisonTime = cg.time + POISONCLOUD_GAP;
-}
-
-#define FIREBALL_GAP              15    //basically as fast as possible yet regular
-
-/*
-===============
-CG_FlameTrail
-===============
-*/
-static void CG_FlameTrail( centity_t *cent, vec3_t origin )
-{
-  vec3_t  forward, right, up;
-  vec3_t  muzzlePoint;
-  vec3_t  velocity;
-  vec3_t  pVelocity;
-
-  if( cent->currentState.weapon != WP_FLAMER )
-    return;
-
-  //not time for the next ball yet
-  if( cg.time < cent->flamerTime )
-    return;
-  
-  VectorCopy( origin, muzzlePoint );
-  
-  if( cent->currentState.clientNum == cg.predictedPlayerState.clientNum && !cg.renderingThirdPerson )
-  {
-    AngleVectors( cg.refdefViewAngles, forward, right, up );
-    VectorScale( cg.predictedPlayerState.velocity, FLAMER_LAG, pVelocity );
-  }
-  else
-  {
-    AngleVectors( cent->lerpAngles, forward, right, up );
-    VectorScale( cent->currentState.pos.trDelta, FLAMER_LAG, pVelocity );
-  }
-  
-  VectorMA( pVelocity, FLAMER_SPEED, forward, velocity );
-
-  CG_LaunchSprite( muzzlePoint, velocity, vec3_origin, 0.0f,
-                   0.1f, 4.0f, 40.0f, 255.0f, 255.0f,
-                   rand( ) % 360, cg.time, cg.time, FLAMER_LIFETIME,
-                   cgs.media.flameShader[ 0 ], qfalse, qfalse );
-
-  //set next ball time
-  cent->flamerTime = cg.time + FIREBALL_GAP;
-}
-
-
-/*
 ======================
 CG_MachinegunSpinAngle
 ======================
@@ -1073,11 +926,13 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   refEntity_t   flash;
   vec3_t        angles;
   weapon_t      weaponNum;
+  weaponMode_t  weaponMode;
   weaponInfo_t  *weapon;
   centity_t     *nonPredictedCent;
 
   weaponNum = cent->currentState.weapon;
-
+  weaponMode = cent->currentState.generic1;
+  
   CG_RegisterWeapon( weaponNum );
   weapon = &cg_weapons[ weaponNum ];
 
@@ -1122,12 +977,11 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   if( !ps )
   {
     // add weapon ready sound
-    cent->pe.lightningFiring = qfalse;
-    if( ( cent->currentState.eFlags & EF_FIRING ) && weapon->firingSound )
+    if( ( cent->currentState.eFlags & EF_FIRING ) && weapon->wim[ weaponMode ].firingSound )
     {
       // lightning gun and guantlet make a different sound when fire is held down
-      trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound );
-      cent->pe.lightningFiring = qtrue;
+      trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
+                              weapon->wim[ weaponMode ].firingSound );
     }
     else if( weapon->readySound )
       trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound );
@@ -1165,16 +1019,20 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   if( ( nonPredictedCent - cg_entities ) != cent->currentState.clientNum )
     nonPredictedCent = cent;
 
-  CG_PoisonCloud( nonPredictedCent, cent->firstPoisonTime );
-
   if( cent->muzzlePS )
   {
     if( ps || cg.renderingThirdPerson ||
         cent->currentState.number != cg.predictedPlayerState.clientNum )
       CG_SetParticleSystemTag( cent->muzzlePS, gun, weapon->weaponModel, "tag_flash" );
 
+    //FIXME: this leaves open the possibility for keep a persistent muzzle system going
+    //       by hopping between firing buttons -- currently nothing with a persistent
+    //       muzzle system has multiple fire modes however
     //if the PS is infinite disable it when not firing
-    if( !( cent->currentState.eFlags & EF_FIRING ) && CG_IsParticleSystemInfinite( cent->muzzlePS ) )
+    if( !( cent->currentState.eFlags & EF_FIRING ) &&
+        !( cent->currentState.eFlags & EF_FIRING2 ) &&
+        !( cent->currentState.eFlags & EF_FIRING3 ) &&
+        CG_IsParticleSystemInfinite( cent->muzzlePS ) )
     {
       CG_DestroyParticleSystem( cent->muzzlePS );
       cent->muzzlePS = NULL;
@@ -1182,11 +1040,11 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   }
     
   // add the flash
-  if( !( weapon->continuousFlash &&
+  if( !( weapon->wim[ weaponMode ].continuousFlash &&
          ( nonPredictedCent->currentState.eFlags & EF_FIRING ) ) )
   {
     // impulse flash
-    if( cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && !cent->pe.railgunFlash )
+    if( cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME )
       return;
   }
 
@@ -1210,25 +1068,24 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   if( ps || cg.renderingThirdPerson ||
       cent->currentState.number != cg.predictedPlayerState.clientNum )
   {
-    if( weapon->muzzleParticleSystem && cent->muzzlePsTrigger )
+    if( weapon->wim[ weaponMode ].muzzleParticleSystem && cent->muzzlePsTrigger )
     {
-      cent->muzzlePS = CG_SpawnNewParticleSystem( weapon->muzzleParticleSystem );
+      cent->muzzlePS = CG_SpawnNewParticleSystem( weapon->wim[ weaponMode ].muzzleParticleSystem );
       CG_SetParticleSystemTag( cent->muzzlePS, gun, weapon->weaponModel, "tag_flash" );
       CG_SetParticleSystemCent( cent->muzzlePS, cent );
       CG_AttachParticleSystemToTag( cent->muzzlePS );
       cent->muzzlePsTrigger = qfalse;
     }
   
-    // add lightning bolt
-    CG_LightningBolt( nonPredictedCent, flash.origin );
-    
-    /*CG_FlameTrail( nonPredictedCent, flash.origin );*/
-
     // make a dlight for the flash
-    if( weapon->flashDlightColor[ 0 ] || weapon->flashDlightColor[ 1 ] || weapon->flashDlightColor[ 2 ] )
+    if( weapon->wim[ weaponMode ].flashDlightColor[ 0 ] ||
+        weapon->wim[ weaponMode ].flashDlightColor[ 1 ] ||
+        weapon->wim[ weaponMode ].flashDlightColor[ 2 ] )
     {
-      trap_R_AddLightToScene( flash.origin, 300 + ( rand( ) & 31 ), weapon->flashDlightColor[ 0 ],
-        weapon->flashDlightColor[ 1 ], weapon->flashDlightColor[ 2 ] );
+      trap_R_AddLightToScene( flash.origin, 300 + ( rand( ) & 31 ),
+          weapon->wim[ weaponMode ].flashDlightColor[ 0 ],
+          weapon->wim[ weaponMode ].flashDlightColor[ 1 ],
+          weapon->wim[ weaponMode ].flashDlightColor[ 2 ] );
     }
   }
 }
@@ -1247,7 +1104,8 @@ void CG_AddViewWeapon( playerState_t *ps )
   clientInfo_t  *ci;
   float         fovOffset;
   vec3_t        angles;
-  weaponInfo_t  *weapon;
+  weaponInfo_t  *wi;
+  weapon_t      weapon = ps->weapon;
 
   if( ( ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) ||
       ( ps->stats[ STAT_STATE ] & SS_INFESTING ) ||
@@ -1255,7 +1113,7 @@ void CG_AddViewWeapon( playerState_t *ps )
     return;
 
   //TA: no weapon carried - can't draw it
-  if( ps->weapon == WP_NONE )
+  if( weapon == WP_NONE )
     return;
       
   if( ps->pm_type == PM_INTERMISSION )
@@ -1274,14 +1132,13 @@ void CG_AddViewWeapon( playerState_t *ps )
   {
     vec3_t origin;
 
+    //FIXME: deal with new particle system
     if( cg.predictedPlayerState.eFlags & EF_FIRING )
     {
       // special hack for lightning gun...
       // TA: and flamer
       VectorCopy( cg.refdef.vieworg, origin );
       VectorMA( origin, -8, cg.refdef.viewaxis[ 2 ], origin );
-      CG_LightningBolt( &cg_entities[ ps->clientNum ], origin );
-      CG_FlameTrail( &cg_entities[ ps->clientNum ], cg.refdef.vieworg );
     }
     
     return;
@@ -1300,8 +1157,8 @@ void CG_AddViewWeapon( playerState_t *ps )
     fovOffset = 0;
 
   cent = &cg.predictedPlayerEntity; // &cg_entities[cg.snap->ps.clientNum];
-  CG_RegisterWeapon( ps->weapon );
-  weapon = &cg_weapons[ ps->weapon ];
+  CG_RegisterWeapon( weapon );
+  wi = &cg_weapons[ weapon ];
 
   memset( &hand, 0, sizeof( hand ) );
 
@@ -1312,7 +1169,7 @@ void CG_AddViewWeapon( playerState_t *ps )
   VectorMA( hand.origin, cg_gun_y.value, cg.refdef.viewaxis[ 1 ], hand.origin );
   VectorMA( hand.origin, ( cg_gun_z.value + fovOffset ), cg.refdef.viewaxis[ 2 ], hand.origin );
 
-  if( ps->weapon == WP_LUCIFER_CANNON && ps->stats[ STAT_MISC ] > 0 )
+  if( weapon == WP_LUCIFER_CANNON && ps->stats[ STAT_MISC ] > 0 )
   {
     float fraction = (float)ps->stats[ STAT_MISC ] / (float)LCANNON_TOTAL_CHARGE;
 
@@ -1338,7 +1195,7 @@ void CG_AddViewWeapon( playerState_t *ps )
     hand.backlerp = cent->pe.torso.backlerp;
   }
 
-  hand.hModel = weapon->handsModel;
+  hand.hModel = wi->handsModel;
   hand.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON | RF_MINLIGHT;
 
   // add everything onto the hand
@@ -1670,73 +1527,67 @@ CG_FireWeapon
 Caused by an EV_FIRE_WEAPON event
 ================
 */
-void CG_FireWeapon( centity_t *cent, int mode )
+void CG_FireWeapon( centity_t *cent, weaponMode_t weaponMode )
 {
-  entityState_t     *ent;
+  entityState_t     *es;
   int               c;
-  weaponInfo_t      *weap;
+  weaponInfo_t      *wi;
+  weapon_t          weaponNum;
 
-  ent = &cent->currentState;
-  if( ent->weapon == WP_NONE )
+  es = &cent->currentState;
+
+  weaponNum = es->weapon;
+  
+  if( weaponNum == WP_NONE )
     return;
 
-  if( ent->weapon >= WP_NUM_WEAPONS )
+  if( weaponNum >= WP_NUM_WEAPONS )
   {
     CG_Error( "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS" );
     return;
   }
   
-  weap = &cg_weapons[ ent->weapon ];
+  wi = &cg_weapons[ weaponNum ];
 
   // mark the entity as muzzle flashing, so when it is added it will
   // append the flash to the weapon model
   cent->muzzleFlashTime = cg.time;
 
-  if( ent->weapon == WP_GRAB_CLAW_UPG && mode == 1 )
-    cent->firstPoisonTime = cg.time;
-
-  if( weap->muzzleParticleSystem )
+  if( wi->wim[ weaponMode ].muzzleParticleSystem )
   {
     if( !( cent->muzzlePS && CG_IsParticleSystemInfinite( cent->muzzlePS ) ) )
       cent->muzzlePsTrigger = qtrue;
   }
   
-  // lightning gun only does this this on initial press
-  if( ent->weapon == WP_TESLAGEN )
-  {
-    if( cent->pe.lightningFiring )
-      return;
-  }
-
   // play a sound
   for( c = 0; c < 4; c++ )
   {
-    if( !weap->flashSound[ c ] )
+    if( !wi->wim[ weaponMode ].flashSound[ c ] )
       break;
   }
   
   if( c > 0 )
   {
     c = rand( ) % c;
-    if( weap->flashSound[ c ] )
-      trap_S_StartSound( NULL, ent->number, CHAN_WEAPON, weap->flashSound[ c ] );
+    if( wi->wim[ weaponMode ].flashSound[ c ] )
+      trap_S_StartSound( NULL, es->number, CHAN_WEAPON, wi->wim[ weaponMode ].flashSound[ c ] );
   }
 
   // do brass ejection
-  if( weap->ejectBrassFunc && cg_brassTime.integer > 0 )
+  if( wi->ejectBrassFunc && cg_brassTime.integer > 0 )
   {
-    if( ent->eType == ET_BUILDABLE )
+    if( es->eType == ET_BUILDABLE )
     {
       //yucko hack to get turret brass ejecting with the barrel instead of the base
       vec3_t temp;
 
       VectorCopy( cent->lerpAngles, temp );
-      VectorCopy( ent->angles2, cent->lerpAngles );
-      weap->ejectBrassFunc( cent );
+      VectorCopy( es->angles2, cent->lerpAngles );
+      wi->ejectBrassFunc( cent );
       VectorCopy( temp, cent->lerpAngles );
     }
     else
-      weap->ejectBrassFunc( cent );
+      wi->ejectBrassFunc( cent );
   }
 }
 
@@ -1748,7 +1599,8 @@ CG_MissileHitWall
 Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 =================
 */
-void CG_MissileHitWall( int weaponNum, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, int damage )
+void CG_MissileHitWall( weapon_t weaponNum, weaponMode_t weaponMode, int clientNum,
+                        vec3_t origin, vec3_t dir, impactSound_t soundType )
 {
   qhandle_t           mod = 0;
   qhandle_t           mark = 0;
@@ -1759,30 +1611,29 @@ void CG_MissileHitWall( int weaponNum, int clientNum, vec3_t origin, vec3_t dir,
   float               light = 0.0f;
   vec3_t              lightColor = { 0.0f, 0.0f, 0.0f };
   localEntity_t       *le;
-  weaponInfo_t        *weapon;
+  weaponMode_t        mode;
+  weaponInfo_t        *weapon = &cg_weapons[ weaponNum ];
   
-  weapon = &cg_weapons[ weaponNum ];
-
-  mark = weapon->impactMark;
-  radius = weapon->impactMarkSize;
-  mod = weapon->impactDish;
-  shader = weapon->impactDishShader;
-  light = weapon->impactDlight;
-  VectorCopy( weapon->impactDlightColor, lightColor );
-  ps = weapon->impactParticleSystem;
+  mark = weapon->wim[ weaponMode ].impactMark;
+  radius = weapon->wim[ weaponMode ].impactMarkSize;
+  mod = weapon->wim[ weaponMode ].impactModel;
+  shader = weapon->wim[ weaponMode ].impactModelShader;
+  light = weapon->wim[ weaponMode ].impactDlight;
+  VectorCopy( weapon->wim[ weaponMode ].impactDlightColor, lightColor );
+  ps = weapon->wim[ weaponMode ].impactParticleSystem;
 
   // play a sound
   for( c = 0; c < 4; c++ )
   {
-    if( !weapon->impactSound[ c ] )
+    if( !weapon->wim[ weaponMode ].impactSound[ c ] )
       break;
   }
   
   if( c > 0 )
   {
     c = rand( ) % c;
-    if( weapon->impactSound[ c ] )
-      trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, weapon->impactSound[ c ] );
+    if( weapon->wim[ weaponMode ].impactSound[ c ] )
+      trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, weapon->wim[ weaponMode ].impactSound[ c ] );
   }
 
   //create impact particle system
@@ -1824,14 +1675,15 @@ void CG_MissileHitWall( int weaponNum, int clientNum, vec3_t origin, vec3_t dir,
 CG_MissileHitPlayer
 =================
 */
-void CG_MissileHitPlayer( int weaponNum, vec3_t origin, vec3_t dir, int entityNum, int damage )
+void CG_MissileHitPlayer( weapon_t weaponNum, weaponMode_t weaponMode, vec3_t origin, vec3_t dir, int entityNum )
 {
+  weaponMode_t  mode;
   weaponInfo_t  *weapon = &cg_weapons[ weaponNum ];
   
   CG_Bleed( origin, entityNum );
 
-  if( weapon->alwaysImpact )
-    CG_MissileHitWall( weaponNum, 0, origin, dir, IMPACTSOUND_FLESH, damage );
+  if( weapon->wim[ weaponMode ].alwaysImpact )
+    CG_MissileHitWall( weaponNum, weaponMode, 0, origin, dir, IMPACTSOUND_FLESH );
 }
 
 
@@ -2015,5 +1867,5 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
   if( flesh )
     CG_Bleed( end, fleshEntityNum );
   else
-    CG_MissileHitWall( WP_MACHINEGUN, 0, end, normal, IMPACTSOUND_DEFAULT, 0 );
+    CG_MissileHitWall( WP_MACHINEGUN, WPM_PRIMARY, 0, end, normal, IMPACTSOUND_DEFAULT );
 }
