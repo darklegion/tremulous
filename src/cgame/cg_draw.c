@@ -284,6 +284,86 @@ void CG_Text_Paint( float x, float y, float scale, vec4_t color, const char *tex
 
 /*
 ==============
+CG_DrawFieldPadded
+
+Draws large numbers for status bar and powerups
+==============
+*/
+static void CG_DrawFieldPadded( int x, int y, int width, int cw, int ch, int value )
+{
+  char  num[ 16 ], *ptr;
+  int   l, orgL;
+  int   frame;
+  int   charWidth, charHeight;
+
+  if( !( charWidth = cw ) )
+    charWidth = CHAR_WIDTH;
+
+  if( !( charHeight = ch ) )
+    charWidth = CHAR_HEIGHT;
+
+  if( width < 1 )
+    return;
+
+  // draw number string
+  if( width > 4 )
+    width = 4;
+
+  switch( width )
+  {
+    case 1:
+      value = value > 9 ? 9 : value;
+      value = value < 0 ? 0 : value;
+      break;
+    case 2:
+      value = value > 99 ? 99 : value;
+      value = value < -9 ? -9 : value;
+      break;
+    case 3:
+      value = value > 999 ? 999 : value;
+      value = value < -99 ? -99 : value;
+      break;
+    case 4:
+      value = value > 9999 ? 9999 : value;
+      value = value < -999 ? -999 : value;
+      break;
+  }
+
+  Com_sprintf( num, sizeof( num ), "%d", value );
+  l = strlen( num );
+  
+  if( l > width )
+    l = width;
+  
+  orgL = l;
+  
+  x += 2;
+
+  ptr = num;
+  while( *ptr && l )
+  {
+    if( width > orgL )
+    {
+      CG_DrawPic( x,y, charWidth, charHeight, cgs.media.numberShaders[ 0 ] );
+      width--;
+      x += charWidth;
+      continue;
+    }
+    
+    if( *ptr == '-' )
+      frame = STAT_MINUS;
+    else
+      frame = *ptr - '0';
+
+    CG_DrawPic( x,y, charWidth, charHeight, cgs.media.numberShaders[ frame ] );
+    x += charWidth;
+    ptr++;
+    l--;
+  }
+}
+
+/*
+==============
 CG_DrawField
 
 Draws large numbers for status bar and powerups
@@ -485,6 +565,168 @@ static void CG_DrawPlayerBankValue( rectDef_t *rect, vec4_t color )
   }
 }
 
+/*
+==============
+CG_DrawPlayerStamina1
+==============
+*/
+static void CG_DrawPlayerStamina1( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  playerState_t *ps = &cg.snap->ps;
+  float         stamina = ps->stats[ STAT_STAMINA ];
+  float         maxStaminaBy3 = (float)MAX_STAMINA / 3.0f;
+  float         progress;
+
+  stamina -= ( 2 * (int)maxStaminaBy3 );
+  progress = stamina / maxStaminaBy3;
+
+  if( progress > 1.0f )
+    progress  = 1.0f;
+  else if( progress < 0.0f )
+    progress = 0.0f;
+
+  color[ 3 ] = 0.25f + ( progress * 0.25f );
+  
+  trap_R_SetColor( color );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
+}
+
+/*
+==============
+CG_DrawPlayerStamina2
+==============
+*/
+static void CG_DrawPlayerStamina2( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  playerState_t *ps = &cg.snap->ps;
+  float         stamina = ps->stats[ STAT_STAMINA ];
+  float         maxStaminaBy3 = (float)MAX_STAMINA / 3.0f;
+  float         progress;
+
+  stamina -= (int)maxStaminaBy3;
+  progress = stamina / maxStaminaBy3;
+
+  if( progress > 1.0f )
+    progress  = 1.0f;
+  else if( progress < 0.0f )
+    progress = 0.0f;
+
+  color[ 3 ] = 0.25f + ( progress * 0.25f );
+  
+  trap_R_SetColor( color );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
+}
+
+/*
+==============
+CG_DrawPlayerStamina3
+==============
+*/
+static void CG_DrawPlayerStamina3( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  playerState_t *ps = &cg.snap->ps;
+  float         stamina = ps->stats[ STAT_STAMINA ];
+  float         maxStaminaBy3 = (float)MAX_STAMINA / 3.0f;
+  float         progress;
+
+  progress = stamina / maxStaminaBy3;
+
+  if( progress > 1.0f )
+    progress  = 1.0f;
+  else if( progress < 0.0f )
+    progress = 0.0f;
+
+  color[ 3 ] = 0.25f + ( progress * 0.25f );
+  
+  trap_R_SetColor( color );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
+}
+
+/*
+==============
+CG_DrawPlayerStamina4
+==============
+*/
+static void CG_DrawPlayerStamina4( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  playerState_t *ps = &cg.snap->ps;
+  float         stamina = ps->stats[ STAT_STAMINA ];
+  float         progress;
+
+  stamina += (float)MAX_STAMINA;
+  progress = stamina / (float)MAX_STAMINA;
+
+  if( progress > 1.0f )
+    progress  = 1.0f;
+  else if( progress < 0.0f )
+    progress = 0.0f;
+
+  color[ 3 ] = 0.25f + ( progress * 0.25f );
+  
+  trap_R_SetColor( color );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
+}
+
+/*
+==============
+CG_DrawPlayerStaminaBolt
+==============
+*/
+static void CG_DrawPlayerStaminaBolt( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  playerState_t *ps = &cg.snap->ps;
+  float         stamina = ps->stats[ STAT_STAMINA ];
+
+  if( stamina < 0 )
+    color[ 3 ] = 0.25f;
+  else
+    color[ 3 ] = 0.50f;
+  
+  trap_R_SetColor( color );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
+}
+
+/*
+==============
+CG_DrawPlayerClipsRing
+==============
+*/
+static void CG_DrawPlayerClipsRing( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  playerState_t *ps = &cg.snap->ps;
+  centity_t     *cent;
+  float         buildTime = ps->stats[ STAT_MISC ];
+  float         progress;
+  float         maxDelay;
+
+  cent = &cg_entities[ cg.snap->ps.clientNum ];
+  
+  switch( cent->currentState.weapon )
+  {
+    case WP_ABUILD:
+    case WP_ABUILD2:
+    case WP_HBUILD:
+    case WP_HBUILD2:
+      maxDelay = (float)BG_FindBuildDelayForWeapon( cent->currentState.weapon );
+      progress = ( maxDelay - buildTime ) / maxDelay;
+
+      color[ 3 ] = 0.25f + ( progress * 0.25f );
+      break;
+
+    default:
+      break;
+  }
+  
+  trap_R_SetColor( color );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
+}
+
 static void CG_DrawPlayerStamina( rectDef_t *rect, vec4_t color, float scale,
                                   int align, int textStyle, int special )
 {
@@ -601,6 +843,27 @@ static void CG_DrawPlayerHealthBar( rectDef_t *rect, vec4_t color, float scale,
 
   total = ( (float)ps->stats[ STAT_HEALTH ] / (float)ps->stats[ STAT_MAX_HEALTH ] );
   CG_DrawProgressBar( rect, color, scale, align, textStyle, special, total );
+}
+
+/*
+==============
+CG_DrawPlayerHealthCross
+==============
+*/
+static void CG_DrawPlayerHealthCross( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  playerState_t *ps = &cg.snap->ps;
+  int           health = ps->stats[ STAT_HEALTH ];
+
+  if( health < 10 )
+  {
+    color[ 0 ] = 1.0f;
+    color[ 1 ] = color[ 2 ] = 0.0f;
+  }
+  
+  trap_R_SetColor( color );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
 }
 
 static void CG_DrawProgressLabel( rectDef_t *rect, float text_x, float text_y, vec4_t color,
@@ -1059,7 +1322,8 @@ CG_DrawFPS
 #define FPS_FRAMES  20
 #define FPS_STRING  "fps"
 static void CG_DrawFPS( rectDef_t *rect, float text_x, float text_y,
-                        float scale, vec4_t color, int align, int textStyle )
+                        float scale, vec4_t color, int align, int textStyle,
+                        qboolean scalableText )
 {
   char        *s;
   int         tx, w, totalWidth, strLength;
@@ -1118,18 +1382,78 @@ static void CG_DrawFPS( rectDef_t *rect, float text_x, float text_y,
         tx = 0.0f;
     }
     
-    for( i = 0; i < strLength; i++ )
+    if( scalableText )
     {
-      char c[ 2 ];
+      for( i = 0; i < strLength; i++ )
+      {
+        char c[ 2 ];
 
-      c[ 0 ] = s[ i ];
-      c[ 1 ] = '\0';
-      
-      CG_Text_Paint( text_x + tx + i * w, rect->y + text_y, scale, color, c, 0, 0, textStyle );
+        c[ 0 ] = s[ i ];
+        c[ 1 ] = '\0';
+        
+        CG_Text_Paint( text_x + tx + i * w, rect->y + text_y, scale, color, c, 0, 0, textStyle );
+      }
+    }
+    else
+    {
+      trap_R_SetColor( color );
+      CG_DrawField( rect->x, rect->y, 3, rect->w / 3, rect->h, fps );
+      trap_R_SetColor( NULL );
     }
       
-    CG_Text_Paint( text_x + tx + i * w, rect->y + text_y, scale, color, FPS_STRING, 0, 0, textStyle );
+    if( scalableText )
+      CG_Text_Paint( text_x + tx + i * w, rect->y + text_y, scale, color, FPS_STRING, 0, 0, textStyle );
   }
+}
+
+
+/*
+=================
+CG_DrawTimerMins
+=================
+*/
+static void CG_DrawTimerMins( rectDef_t *rect, vec4_t color )
+{
+  int     mins, seconds, tens;
+  int     msec;
+
+  if( !cg_drawTimer.integer )
+    return;
+
+  msec = cg.time - cgs.levelStartTime;
+
+  seconds = msec / 1000;
+  mins = seconds / 60;
+  seconds -= mins * 60;
+
+  trap_R_SetColor( color );
+  CG_DrawField( rect->x, rect->y, 3, rect->w / 3, rect->h, mins );
+  trap_R_SetColor( NULL );
+}
+
+
+/*
+=================
+CG_DrawTimerSecs
+=================
+*/
+static void CG_DrawTimerSecs( rectDef_t *rect, vec4_t color )
+{
+  int     mins, seconds, tens;
+  int     msec;
+
+  if( !cg_drawTimer.integer )
+    return;
+
+  msec = cg.time - cgs.levelStartTime;
+
+  seconds = msec / 1000;
+  mins = seconds / 60;
+  seconds -= mins * 60;
+
+  trap_R_SetColor( color );
+  CG_DrawFieldPadded( rect->x, rect->y, 2, rect->w / 2, rect->h, seconds );
+  trap_R_SetColor( NULL );
 }
 
 
@@ -1557,6 +1881,21 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
     case CG_PLAYER_STAMINA:
       CG_DrawPlayerStamina( &rect, color, scale, align, textStyle, special );
       break;
+    case CG_PLAYER_STAMINA_1:
+      CG_DrawPlayerStamina1( &rect, color, shader );
+      break;
+    case CG_PLAYER_STAMINA_2:
+      CG_DrawPlayerStamina2( &rect, color, shader );
+      break;
+    case CG_PLAYER_STAMINA_3:
+      CG_DrawPlayerStamina3( &rect, color, shader );
+      break;
+    case CG_PLAYER_STAMINA_4:
+      CG_DrawPlayerStamina4( &rect, color, shader );
+      break;
+    case CG_PLAYER_STAMINA_BOLT:
+      CG_DrawPlayerStaminaBolt( &rect, color, shader );
+      break;
     case CG_PLAYER_AMMO_VALUE:
       CG_DrawPlayerAmmoValue( &rect, color );
       break;
@@ -1568,6 +1907,12 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       break;
     case CG_PLAYER_HEALTH_BAR:
       CG_DrawPlayerHealthBar( &rect, color, scale, align, textStyle, special );
+      break;
+    case CG_PLAYER_HEALTH_CROSS:
+      CG_DrawPlayerHealthCross( &rect, color, shader );
+      break;
+    case CG_PLAYER_CLIPS_RING:
+      CG_DrawPlayerClipsRing( &rect, color, shader );
       break;
     case CG_AREA_SYSTEMCHAT:
       CG_DrawAreaSystemChat( &rect, scale, color, shader );
@@ -1582,7 +1927,7 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawKiller( &rect, scale, color, shader, textStyle );
       break;
     case CG_PLAYER_SELECT:
-      CG_DrawWeaponSelect( &rect );
+      CG_DrawWeaponSelect( &rect, color );
       break;
     case CG_PLAYER_SELECTTEXT:
       CG_DrawWeaponSelectText( &rect, scale, textStyle );
@@ -1627,10 +1972,19 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       break;
       
     case CG_FPS:
-      CG_DrawFPS( &rect, text_x, text_y, scale, color, align, textStyle );
+      CG_DrawFPS( &rect, text_x, text_y, scale, color, align, textStyle, qtrue );
+      break;
+    case CG_FPS_FIXED:
+      CG_DrawFPS( &rect, text_x, text_y, scale, color, align, textStyle, qfalse );
       break;
     case CG_TIMER:
       CG_DrawTimer( &rect, text_x, text_y, scale, color, align, textStyle );
+      break;
+    case CG_TIMER_MINS:
+      CG_DrawTimerMins( &rect, color );
+      break;
+    case CG_TIMER_SECS:
+      CG_DrawTimerSecs( &rect, color );
       break;
     case CG_SNAPSHOT:
       CG_DrawSnapshot( &rect, text_x, text_y, scale, color, align, textStyle );

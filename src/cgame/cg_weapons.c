@@ -1071,22 +1071,31 @@ WEAPON SELECTION
 CG_DrawWeaponSelect
 ===================
 */
-void CG_DrawWeaponSelect( rectDef_t *rect )
+void CG_DrawWeaponSelect( rectDef_t *rect, vec4_t color )
 {
-  int i;
-  int x = rect->x;
-  int y = rect->y;
-  int width = rect->w;
-  int height = rect->h;
-  int iconsize;
-  int items[ 64 ];
-  int numItems = 0, selectedItem;
-  int length;
-  int selectWindow;
-  qboolean vertical;
+  int           i;
+  int           x = rect->x;
+  int           y = rect->y;
+  int           width = rect->w;
+  int           height = rect->h;
+  int           iconsize;
+  int           items[ 64 ];
+  int           numItems = 0, selectedItem;
+  int           length;
+  int           selectWindow;
+  qboolean      vertical;
+  int           ammo, clips, maxAmmo, maxClips;
+  centity_t     *cent;
+  playerState_t *ps;
 
+  cent = &cg_entities[ cg.snap->ps.clientNum ];
+  ps = &cg.snap->ps;
+
+  BG_unpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, &ammo, &clips, NULL );
+  BG_FindAmmoForWeapon( cent->currentState.weapon, &maxAmmo, &maxClips, NULL );
+  
   // don't display if dead
-  if( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 )
+  if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
     return;
 
   // showing weapon select clears pickup item display, but not the blend blob
@@ -1140,15 +1149,41 @@ void CG_DrawWeaponSelect( rectDef_t *rect )
     
     if( ( item >= 0 ) && ( item < numItems ) )
     {
+      switch( cent->currentState.weapon )
+      {
+        case WP_ABUILD:
+        case WP_ABUILD2:
+        case WP_HBUILD:
+        case WP_HBUILD2:
+          break;
+
+        default:
+          if( clips == 0 )
+          {
+            float ammoPercent = (float)ammo / (float)maxAmmo;
+
+            if( ammoPercent < 0.33f )
+            {
+              color[ 0 ] = 1.0f;
+              color[ 1 ] = color[ 2 ] = 0.0f;
+            }
+          }
+          break;
+      }
+      
+      trap_R_SetColor( color );
+
       if( items[ item ] <= 32 )
         CG_DrawPic( x + ICON_BORDER, y + ICON_BORDER, iconsize - 2 * ICON_BORDER, iconsize - 2 * ICON_BORDER,
                     cg_weapons[ items[ item ] ].weaponIcon );
       else if( items[ item ] > 32 )
         CG_DrawPic( x + ICON_BORDER, y + ICON_BORDER, iconsize - 2 * ICON_BORDER, iconsize - 2 * ICON_BORDER,
                     cg_upgrades[ items[ item ] - 32 ].upgradeIcon );
+      
+      trap_R_SetColor( NULL );
 
-      if( displacement == 0 )
-        CG_DrawPic( x, y, iconsize, iconsize, cgs.media.selectShader );
+/*      if( displacement == 0 )
+        CG_DrawPic( x, y, iconsize, iconsize, cgs.media.selectShader );*/
     }
 
     if( vertical )

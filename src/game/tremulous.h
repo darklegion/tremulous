@@ -29,8 +29,8 @@
 #define ABUILDER_CLAW_DMG           ADM(25)
 #define ABUILDER_CLAW_RANGE         32.0f
 #define ABUILDER_CLAW_REPEAT        1000
-#define ABUILDER_BASE_DELAY         10000
-#define ABUILDER_ADV_DELAY          5000
+#define ABUILDER_BASE_DELAY         9000
+#define ABUILDER_ADV_DELAY          4000
 
 #define SOLDIER_BITE_DMG            ADM(34)
 #define SOLDIER_BITE_RANGE          32.0f
@@ -335,11 +335,11 @@
 
 #define HBUILD_PRICE                100
 #define HBUILD_REPEAT               1000
-#define HBUILD_DELAY                10000
+#define HBUILD_DELAY                9000
 
 #define HBUILD2_PRICE               200
 #define HBUILD2_REPEAT              1000
-#define HBUILD2_DELAY               5000
+#define HBUILD2_DELAY               4000
 
 
 

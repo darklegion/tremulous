@@ -130,12 +130,19 @@
 #define CG_PLAYER_HEAD              3
 #define CG_PLAYER_HEALTH            4
 #define CG_PLAYER_HEALTH_BAR        92
+#define CG_PLAYER_HEALTH_CROSS      99
 #define CG_PLAYER_AMMO_ICON         5
 #define CG_PLAYER_AMMO_VALUE        6
 #define CG_PLAYER_CLIPS_VALUE       70
 #define CG_PLAYER_CREDITS_VALUE     71
 #define CG_PLAYER_BANK_VALUE        72
 #define CG_PLAYER_STAMINA           73
+#define CG_PLAYER_STAMINA_1         93
+#define CG_PLAYER_STAMINA_2         94
+#define CG_PLAYER_STAMINA_3         95
+#define CG_PLAYER_STAMINA_4         96
+#define CG_PLAYER_STAMINA_BOLT      97
+#define CG_PLAYER_CLIPS_RING        98
 #define CG_PLAYER_SELECT            74
 #define CG_PLAYER_SELECTTEXT        75
 #define CG_SELECTEDPLAYER_HEAD      7
@@ -222,7 +229,10 @@
 #define CG_LOAD_HOSTNAME          86
 
 #define CG_FPS                    87
+#define CG_FPS_FIXED              100
 #define CG_TIMER                  88
+#define CG_TIMER_MINS             101
+#define CG_TIMER_SECS             102
 #define CG_SNAPSHOT               89
 #define CG_LAGOMETER              90
 

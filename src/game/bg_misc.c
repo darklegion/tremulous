@@ -2062,7 +2062,7 @@ weaponAttributes_t bg_weapons[ ] =
     "rifle",              //char      *weaponName;
     "Rifle",              //char      *weaponHumanName;
     { "models/weapons2/machinegun/machinegun.md3", 0, 0, 0 },
-    "icons/iconw_machinegun",
+    "icons/iconw_rifle",
     "gfx/2d/crosshaira", 24,
     RIFLE_CLIPSIZE,       //int       quan;
     RIFLE_SPAWNCLIPS,     //int       clips;
@@ -2087,7 +2087,7 @@ weaponAttributes_t bg_weapons[ ] =
     "flamer",             //char      *weaponName;
     "Flame Thrower",      //char      *weaponHumanName;
     { "models/weapons2/plasma/plasma.md3", 0, 0, 0 },
-    "icons/iconw_plasma",
+    "icons/iconw_flamer",
     "gfx/2d/crosshaira", 24,
     FLAMER_GAS,           //int       quan;
     0,                    //int       clips;
@@ -2112,7 +2112,7 @@ weaponAttributes_t bg_weapons[ ] =
     "chaingun",           //char      *weaponName;
     "Chaingun",           //char      *weaponHumanName;
     { "models/weapons2/machinegun/machinegun.md3", 0, 0, 0 },
-    "icons/iconw_machinegun",
+    "icons/iconw_chaingun",
     "gfx/2d/crosshairb", 48,
     CHAINGUN_BULLETS,     //int       quan;
     0,                    //int       clips;
@@ -2137,7 +2137,7 @@ weaponAttributes_t bg_weapons[ ] =
     "mdriver",            //char      *weaponName;
     "Mass Driver",        //char      *weaponHumanName;
     { "models/weapons2/bfg/bfg.md3", 0, 0, 0 },
-    "icons/iconw_bfg",
+    "icons/iconw_driver",
     "gfx/2d/crosshaira", 24,
     MDRIVER_CLIPSIZE,     //int       quan;
     MDRIVER_SPAWNCLIPS,   //int       clips;
@@ -2162,7 +2162,7 @@ weaponAttributes_t bg_weapons[ ] =
     "prifle",             //char      *weaponName;
     "Pulse Rifle",        //char      *weaponHumanName;
     { "models/weapons2/plasma/plasma.md3", 0, 0, 0 },
-    "icons/iconw_plasma",
+    "icons/iconw_pulse",
     "gfx/2d/crosshaira", 24,
     PRIFLE_CLIPS,         //int       quan;
     PRIFLE_SPAWNCLIPS,    //int       clips;
@@ -2187,7 +2187,7 @@ weaponAttributes_t bg_weapons[ ] =
     "lcanon",             //char      *weaponName;
     "Lucifer Canon",      //char      *weaponHumanName;
     { "models/weapons2/bfg/bfg.md3", 0, 0, 0 },
-    "icons/iconw_bfg",
+    "icons/iconw_lucifer",
     "gfx/2d/crosshaira", 24,
     LCANON_AMMO,          //int       quan;
     0,                    //int       clips;
@@ -2212,7 +2212,7 @@ weaponAttributes_t bg_weapons[ ] =
     "lgun",               //char      *weaponName;
     "Las Gun",            //char      *weaponHumanName;
     { "models/weapons2/grenadel/grenadel.md3", 0, 0, 0 },
-    "icons/iconw_plasma",
+    "icons/iconw_lasgun",
     "gfx/2d/crosshaira", 24,
     LASGUN_AMMO,          //int       quan;
     0,                    //int       clips;
@@ -2237,7 +2237,7 @@ weaponAttributes_t bg_weapons[ ] =
     "psaw",               //char      *weaponName;
     "Pain Saw",           //char      *weaponHumanName;
     { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
+    "icons/iconw_saw",
     NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
@@ -2262,7 +2262,7 @@ weaponAttributes_t bg_weapons[ ] =
     "ckit",               //char      *weaponName;
     "Construction Kit",   //char      *weaponHumanName;
     { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
+    "icons/iconw_construct",
     NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
@@ -2287,7 +2287,7 @@ weaponAttributes_t bg_weapons[ ] =
     "ackit",              //char      *weaponName;
     "Adv Construction Kit",//char      *weaponHumanName;
     { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
+    "icons/iconw_construct",
     NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
