@@ -197,7 +197,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   //TA: deactivate all upgrades
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
-    BG_deactivateItem( i, self->client->ps.stats );
+    BG_DeactivateUpgrade( i, self->client->ps.stats );
 
   // broadcast the death event to everyone
   ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY );
@@ -764,7 +764,7 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
 
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
-    if( BG_gotItem( i, targ->client->ps.stats ) )
+    if( BG_InventoryContainsUpgrade( i, targ->client->ps.stats ) )
     {
       for( j = 0; j < g_numArmourRegions[ i ]; j++ )
       {
@@ -1066,7 +1066,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     if( attacker->client && attacker->client->ps.stats[ STAT_STATE ] & SS_BOOSTED )
     {
       if( !( targ->client->ps.stats[ STAT_STATE ] & SS_POISONED ) &&
-          !BG_gotItem( UP_BATTLESUIT, targ->client->ps.stats ) &&
+          !BG_InventoryContainsUpgrade( UP_BATTLESUIT, targ->client->ps.stats ) &&
           mod != MOD_CHIMERA_ZAP )
       {
         targ->client->ps.stats[ STAT_STATE ] |= SS_POISONED;

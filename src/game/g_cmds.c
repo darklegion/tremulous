@@ -260,7 +260,7 @@ void Cmd_Give_f( gentity_t *ent )
 
   if( give_all || Q_stricmp( name, "weapons" ) == 0 )
   {
-    BG_packWeapon( ( 1 << WP_NUM_WEAPONS ) - 1 - ( 1 << WP_NONE ), ent->client->ps.stats );
+    BG_AddWeaponToInventory( ( 1 << WP_NUM_WEAPONS ) - 1 - ( 1 << WP_NONE ), ent->client->ps.stats );
     
     if( !give_all )
       return;
@@ -269,7 +269,7 @@ void Cmd_Give_f( gentity_t *ent )
   if( give_all || Q_stricmp( name, "ammo" ) == 0 )
   {
     for( i = 0; i < MAX_WEAPONS; i++ )
-      BG_packAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups, 999, 0, 0 );
+      BG_PackAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups, 999, 0, 0 );
 
     if( !give_all )
       return;
@@ -1343,9 +1343,9 @@ void Cmd_ActivateItem_f( gentity_t *ent )
   if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
     
-  if( upgrade != UP_NONE && BG_gotItem( upgrade, ent->client->ps.stats ) )
-    BG_activateItem( upgrade, ent->client->ps.stats );
-  else if( weapon != WP_NONE && BG_gotWeapon( weapon, ent->client->ps.stats ) )
+  if( upgrade != UP_NONE && BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
+    BG_ActivateUpgrade( upgrade, ent->client->ps.stats );
+  else if( weapon != WP_NONE && BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
   {
     //force a weapon change
     ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
@@ -1374,8 +1374,8 @@ void Cmd_DeActivateItem_f( gentity_t *ent )
   if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
     
-  if( BG_gotItem( upgrade, ent->client->ps.stats ) )
-    BG_deactivateItem( upgrade, ent->client->ps.stats );
+  if( BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
+    BG_DeactivateUpgrade( upgrade, ent->client->ps.stats );
   else
     trap_SendServerCommand( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
 }
@@ -1413,7 +1413,7 @@ void Cmd_ToggleItem_f( gentity_t *ent )
         if( i == WP_BLASTER )
           continue;
 
-        if( BG_gotWeapon( i, ent->client->ps.stats ) )
+        if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) )
         {
           weapon = i;
           break;
@@ -1428,12 +1428,12 @@ void Cmd_ToggleItem_f( gentity_t *ent )
     ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
     trap_SendServerCommand( ent-g_entities, va( "weaponswitch %d", weapon ) );
   }
-  else if( BG_gotItem( upgrade, ent->client->ps.stats ) )
+  else if( BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
   {
-    if( BG_activated( upgrade, ent->client->ps.stats ) )
-      BG_deactivateItem( upgrade, ent->client->ps.stats );
+    if( BG_UpgradeIsActive( upgrade, ent->client->ps.stats ) )
+      BG_DeactivateUpgrade( upgrade, ent->client->ps.stats );
     else
-      BG_activateItem( upgrade, ent->client->ps.stats );
+      BG_ActivateUpgrade( upgrade, ent->client->ps.stats );
   }
   else
     trap_SendServerCommand( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
@@ -1454,13 +1454,13 @@ void Cmd_Buy_f( gentity_t *ent )
 
   for( i = UP_NONE; i < UP_NUM_UPGRADES; i++ )
   {
-    if( BG_gotItem( i, ent->client->ps.stats ) )
+    if( BG_InventoryContainsUpgrade( i, ent->client->ps.stats ) )
       numItems++;
   }
 
   for( i = WP_NONE; i < WP_NUM_WEAPONS; i++ )
   {
-    if( BG_gotWeapon( i, ent->client->ps.stats ) )
+    if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) )
       numItems++;
   }
 
@@ -1494,7 +1494,7 @@ void Cmd_Buy_f( gentity_t *ent )
   if( weapon != WP_NONE )
   {
     //already got this?
-    if( BG_gotWeapon( weapon, ent->client->ps.stats ) )
+    if( BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
     {
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_ITEMHELD );
       return;
@@ -1542,14 +1542,14 @@ void Cmd_Buy_f( gentity_t *ent )
     }
     
     //add to inventory
-    BG_packWeapon( weapon, ent->client->ps.stats );
+    BG_AddWeaponToInventory( weapon, ent->client->ps.stats );
     BG_FindAmmoForWeapon( weapon, &quan, &clips, &maxClips );
     
     if( BG_FindUsesEnergyForWeapon( weapon ) &&
-        BG_gotItem( UP_BATTPACK, ent->client->ps.stats ) )
+        BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
       quan = (int)( (float)quan * BATTPACK_MODIFIER );
     
-    BG_packAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
+    BG_PackAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
                       quan, clips, maxClips );
 
     //force a weapon change
@@ -1567,7 +1567,7 @@ void Cmd_Buy_f( gentity_t *ent )
     weapon_t  weaponAmmo;
     
     //already got this?
-    if( BG_gotItem( upgrade, ent->client->ps.stats ) )
+    if( BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
     {
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_ITEMHELD );
       return;
@@ -1618,7 +1618,7 @@ void Cmd_Buy_f( gentity_t *ent )
         else
           weaponType = !BG_FindUsesEnergyForWeapon( i );
         
-        if( BG_gotWeapon( i, ent->client->ps.stats ) &&
+        if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
             weaponType &&
             !BG_FindInfinteAmmoForWeapon( i ) )
         {
@@ -1629,11 +1629,11 @@ void Cmd_Buy_f( gentity_t *ent )
             G_AddEvent( ent, EV_RPTUSE_SOUND, 0 );
             ent->client->lastRefilTime = level.time;
             
-            if( BG_gotItem( UP_BATTPACK, ent->client->ps.stats ) )
+            if( BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
               quan = (int)( (float)quan * BATTPACK_MODIFIER );
           }
 
-          BG_packAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups,
+          BG_PackAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups,
                             quan, clips, maxClips );
         }
       }
@@ -1641,7 +1641,7 @@ void Cmd_Buy_f( gentity_t *ent )
     else
     {
       //add to inventory
-      BG_packItem( upgrade, ent->client->ps.stats );
+      BG_AddUpgradeToInventory( upgrade, ent->client->ps.stats );
     }
     
     //subtract from funds
@@ -1708,7 +1708,7 @@ void Cmd_Sell_f( gentity_t *ent )
     }
     
     //remove weapon if carried
-    if( BG_gotWeapon( weapon, ent->client->ps.stats ) )
+    if( BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
     {
       //guard against selling the HBUILD weapons exploit
       if( ( weapon == WP_HBUILD || weapon == WP_HBUILD2 ) &&
@@ -1718,7 +1718,7 @@ void Cmd_Sell_f( gentity_t *ent )
         return;
       }
     
-      BG_removeWeapon( weapon, ent->client->ps.stats );
+      BG_RemoveWeaponFromInventory( weapon, ent->client->ps.stats );
 
       //add to funds
       G_AddCreditToClient( ent->client, (short)BG_FindPriceForWeapon( weapon ) );
@@ -1735,9 +1735,9 @@ void Cmd_Sell_f( gentity_t *ent )
   else if( upgrade != UP_NONE )
   {
     //remove upgrade if carried
-    if( BG_gotItem( upgrade, ent->client->ps.stats ) )
+    if( BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
     {
-      BG_removeItem( upgrade, ent->client->ps.stats );
+      BG_RemoveUpgradeFromInventory( upgrade, ent->client->ps.stats );
 
       if( upgrade == UP_BATTPACK )
       {
@@ -1746,11 +1746,11 @@ void Cmd_Sell_f( gentity_t *ent )
         //remove energy
         for( j = WP_NONE; j < WP_NUM_WEAPONS; j++ )
         {
-          if( BG_gotWeapon( j, ent->client->ps.stats ) &&
+          if( BG_InventoryContainsWeapon( j, ent->client->ps.stats ) &&
               BG_FindUsesEnergyForWeapon( j ) &&
               !BG_FindInfinteAmmoForWeapon( j ) )
           {
-            BG_packAmmoArray( j, ent->client->ps.ammo, ent->client->ps.powerups, 0, 0, 0 );
+            BG_PackAmmoArray( j, ent->client->ps.ammo, ent->client->ps.powerups, 0, 0, 0 );
           }
         }
       }
@@ -1767,9 +1767,9 @@ void Cmd_Sell_f( gentity_t *ent )
   {
     for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
     {
-      if( BG_gotWeapon( i, ent->client->ps.stats ) && i != WP_BLASTER )
+      if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) && i != WP_BLASTER )
       {
-        BG_removeWeapon( i, ent->client->ps.stats );
+        BG_RemoveWeaponFromInventory( i, ent->client->ps.stats );
 
         //add to funds
         G_AddCreditToClient( ent->client, (short)BG_FindPriceForWeapon( i ) );
@@ -1789,9 +1789,9 @@ void Cmd_Sell_f( gentity_t *ent )
     for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
     {
       //remove upgrade if carried
-      if( BG_gotItem( i, ent->client->ps.stats ) )
+      if( BG_InventoryContainsUpgrade( i, ent->client->ps.stats ) )
       {
-        BG_removeItem( i, ent->client->ps.stats );
+        BG_RemoveUpgradeFromInventory( i, ent->client->ps.stats );
 
         if( i == UP_BATTPACK )
         {
@@ -1800,11 +1800,11 @@ void Cmd_Sell_f( gentity_t *ent )
           //remove energy
           for( j = WP_NONE; j < WP_NUM_WEAPONS; j++ )
           {
-            if( BG_gotWeapon( j, ent->client->ps.stats ) &&
+            if( BG_InventoryContainsWeapon( j, ent->client->ps.stats ) &&
                 BG_FindUsesEnergyForWeapon( j ) &&
                 !BG_FindInfinteAmmoForWeapon( j ) )
             {
-              BG_packAmmoArray( j, ent->client->ps.ammo, ent->client->ps.powerups, 0, 0, 0 );
+              BG_PackAmmoArray( j, ent->client->ps.ammo, ent->client->ps.powerups, 0, 0, 0 );
             }
           }
         }
@@ -1945,8 +1945,8 @@ Cmd_Boost_f
 */
 void Cmd_Boost_f( gentity_t *ent )
 {
-  if( BG_gotItem( UP_JETPACK, ent->client->ps.stats ) &&
-      BG_activated( UP_JETPACK, ent->client->ps.stats ) )
+  if( BG_InventoryContainsUpgrade( UP_JETPACK, ent->client->ps.stats ) &&
+      BG_UpgradeIsActive( UP_JETPACK, ent->client->ps.stats ) )
     return;
 
   if( ent->client->pers.cmd.buttons & BUTTON_WALKING )

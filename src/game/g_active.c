@@ -472,13 +472,13 @@ void ClientTimerActions( gentity_t *ent, int msec )
     if( aForward <= 64 )
       client->ps.stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
 
-    if( BG_gotItem( UP_JETPACK, client->ps.stats ) && BG_activated( UP_JETPACK, client->ps.stats ) )
+    if( BG_InventoryContainsUpgrade( UP_JETPACK, client->ps.stats ) && BG_UpgradeIsActive( UP_JETPACK, client->ps.stats ) )
       client->ps.stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
       
     if( ( client->ps.stats[ STAT_STATE ] & SS_SPEEDBOOST ) &&  ucmd->upmove >= 0 )
     {
       //subtract stamina
-      if( BG_gotItem( UP_LIGHTARMOUR, client->ps.stats ) )
+      if( BG_InventoryContainsUpgrade( UP_LIGHTARMOUR, client->ps.stats ) )
         client->ps.stats[ STAT_STAMINA ] -= STAMINA_LARMOUR_TAKE;
       else
         client->ps.stats[ STAT_STAMINA ] -= STAMINA_SPRINT_TAKE;
@@ -575,7 +575,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
     {
       int ammo;
       
-      BG_unpackAmmoArray( WP_LUCIFER_CANNON, client->ps.ammo, client->ps.powerups, &ammo, NULL, NULL );
+      BG_UnpackAmmoArray( WP_LUCIFER_CANNON, client->ps.ammo, client->ps.powerups, &ammo, NULL, NULL );
       
       if( client->ps.stats[ STAT_MISC ] < LCANNON_TOTAL_CHARGE && ucmd->buttons & BUTTON_ATTACK )
         client->ps.stats[ STAT_MISC ] += ( 100.0f / LCANNON_CHARGE_TIME ) * LCANNON_TOTAL_CHARGE;
@@ -692,12 +692,12 @@ void ClientTimerActions( gentity_t *ent, int msec )
       int ammo, maxAmmo;
       
       BG_FindAmmoForWeapon( WP_DRAGOON_UPG, &maxAmmo, NULL, NULL );
-      BG_unpackAmmoArray( WP_DRAGOON_UPG, client->ps.ammo, client->ps.powerups, &ammo, NULL, NULL );
+      BG_UnpackAmmoArray( WP_DRAGOON_UPG, client->ps.ammo, client->ps.powerups, &ammo, NULL, NULL );
       
       if( ammo < maxAmmo )
       {
         ammo++;
-        BG_packAmmoArray( WP_DRAGOON_UPG, client->ps.ammo, client->ps.powerups, ammo, 0, 0 );
+        BG_PackAmmoArray( WP_DRAGOON_UPG, client->ps.ammo, client->ps.powerups, ammo, 0, 0 );
       }
     }
   }
@@ -983,7 +983,7 @@ void ClientThink_real( gentity_t *ent )
   else if( client->ps.stats[ STAT_STATE ] & SS_BLOBLOCKED ||
            client->ps.stats[ STAT_STATE ] & SS_GRABBED )
     client->ps.pm_type = PM_GRABBED;
-  else if( BG_gotItem( UP_JETPACK, client->ps.stats ) && BG_activated( UP_JETPACK, client->ps.stats ) )
+  else if( BG_InventoryContainsUpgrade( UP_JETPACK, client->ps.stats ) && BG_UpgradeIsActive( UP_JETPACK, client->ps.stats ) )
     client->ps.pm_type = PM_JETPACK;
   else
     client->ps.pm_type = PM_NORMAL;
@@ -1016,13 +1016,13 @@ void ClientThink_real( gentity_t *ent )
   
   client->ps.gravity = g_gravity.value;
 
-  if( BG_gotItem( UP_ANTITOXIN, client->ps.stats ) &&
-      BG_activated( UP_ANTITOXIN, client->ps.stats ) )
+  if( BG_InventoryContainsUpgrade( UP_ANTITOXIN, client->ps.stats ) &&
+      BG_UpgradeIsActive( UP_ANTITOXIN, client->ps.stats ) )
   {
     if( client->ps.stats[ STAT_STATE ] & SS_POISONED )
     {
       //remove anti toxin
-      BG_removeItem( UP_ANTITOXIN, client->ps.stats );
+      BG_RemoveUpgradeFromInventory( UP_ANTITOXIN, client->ps.stats );
     
       client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
     }
@@ -1044,8 +1044,8 @@ void ClientThink_real( gentity_t *ent )
     client->ps.stats[ STAT_STATE ] &= ~SS_CREEPSLOWED;
   
   //randomly disable the jet pack if damaged
-  if( BG_gotItem( UP_JETPACK, client->ps.stats ) &&
-      BG_activated( UP_JETPACK, client->ps.stats ) )
+  if( BG_InventoryContainsUpgrade( UP_JETPACK, client->ps.stats ) &&
+      BG_UpgradeIsActive( UP_JETPACK, client->ps.stats ) )
   {
     if( client->lastDamageTime + JETPACK_DISABLE_TIME > level.time )
     {
@@ -1055,7 +1055,7 @@ void ClientThink_real( gentity_t *ent )
 
     //switch jetpack off if no reactor
     if( !level.reactorPresent )
-      BG_deactivateItem( UP_JETPACK, client->ps.stats );
+      BG_DeactivateUpgrade( UP_JETPACK, client->ps.stats );
   }
   
   // set up for pmove

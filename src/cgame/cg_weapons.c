@@ -1339,7 +1339,7 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
   cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
 
-  BG_unpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, &ammo, &clips, NULL );
+  BG_UnpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, &ammo, &clips, NULL );
   BG_FindAmmoForWeapon( cent->currentState.weapon, &maxAmmo, &maxClips, NULL );
   
   // don't display if dead
@@ -1366,7 +1366,7 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
   
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
-    if( !BG_gotWeapon( i, cg.snap->ps.stats ) )
+    if( !BG_InventoryContainsWeapon( i, cg.snap->ps.stats ) )
       continue;
 
     if( i == cg.weaponSelect )
@@ -1379,7 +1379,7 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
 
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
-    if( !BG_gotItem( i, cg.snap->ps.stats ) )
+    if( !BG_InventoryContainsUpgrade( i, cg.snap->ps.stats ) )
       continue;
     
     if( i == cg.weaponSelect - 32 )
@@ -1439,7 +1439,7 @@ void CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
   if( cg.weaponSelect <= 32 )
   {
     if( cg_weapons[ cg.weaponSelect ].registered &&
-        BG_gotWeapon( cg.weaponSelect, cg.snap->ps.stats ) )
+        BG_InventoryContainsWeapon( cg.weaponSelect, cg.snap->ps.stats ) )
     {
       if( name = cg_weapons[ cg.weaponSelect ].humanName )
       {
@@ -1452,7 +1452,7 @@ void CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
   else if( cg.weaponSelect > 32 )
   {
     if( cg_upgrades[ cg.weaponSelect - 32 ].registered &&
-        BG_gotItem( cg.weaponSelect - 32, cg.snap->ps.stats ) )
+        BG_InventoryContainsUpgrade( cg.weaponSelect - 32, cg.snap->ps.stats ) )
     {
       if( name = cg_upgrades[ cg.weaponSelect - 32 ].humanName )
       {
@@ -1476,13 +1476,13 @@ static qboolean CG_WeaponSelectable( int i )
 {
   int ammo, clips, maxclips;
 
-  BG_unpackAmmoArray( i, cg.snap->ps.ammo, cg.snap->ps.powerups, &ammo, &clips, &maxclips );
+  BG_UnpackAmmoArray( i, cg.snap->ps.ammo, cg.snap->ps.powerups, &ammo, &clips, &maxclips );
   
   //TA: this is a pain in the ass
 /*  if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( i ) )
     return qfalse;*/
   
-  if( !BG_gotWeapon( i, cg.snap->ps.stats ) )
+  if( !BG_InventoryContainsWeapon( i, cg.snap->ps.stats ) )
     return qfalse;
 
   return qtrue;
@@ -1496,7 +1496,7 @@ CG_UpgradeSelectable
 */
 static qboolean CG_UpgradeSelectable( int i )
 {
-  if( !BG_gotItem( i, cg.snap->ps.stats ) )
+  if( !BG_InventoryContainsUpgrade( i, cg.snap->ps.stats ) )
     return qfalse;
 
   return qtrue;
@@ -1613,7 +1613,7 @@ void CG_Weapon_f( void )
 
   cg.weaponSelectTime = cg.time;
 
-  if( !BG_gotWeapon( num, cg.snap->ps.stats ) )
+  if( !BG_InventoryContainsWeapon( num, cg.snap->ps.stats ) )
     return;   // don't have the weapon
 
   cg.weaponSelect = num;

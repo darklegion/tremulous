@@ -996,7 +996,7 @@ void ClientUserinfoChanged( int clientNum )
     client->pers.maxHealth = 0;
 
   // set model
-  if( client->ps.stats[ STAT_PCLASS ] == PCL_H_BASE && BG_gotItem( UP_BATTLESUIT, client->ps.stats ) )
+  if( client->ps.stats[ STAT_PCLASS ] == PCL_H_BASE && BG_InventoryContainsUpgrade( UP_BATTLESUIT, client->ps.stats ) )
   {
     Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( PCL_H_BSUIT ),
                                               BG_FindSkinNameForClass( PCL_H_BSUIT ) );
@@ -1365,7 +1365,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   // clear entity values
   if( ent->client->pers.classSelection == PCL_H_BASE )
   {
-    BG_packWeapon( WP_BLASTER, client->ps.stats );
+    BG_AddWeaponToInventory( WP_BLASTER, client->ps.stats );
     weapon = client->pers.humanItemSelection;
   }
   else if( client->sess.sessionTeam != TEAM_SPECTATOR )
@@ -1374,8 +1374,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     weapon = WP_NONE;
   
   BG_FindAmmoForWeapon( weapon, &ammo, &clips, &maxClips );
-  BG_packWeapon( weapon, client->ps.stats );
-  BG_packAmmoArray( weapon, client->ps.ammo, client->ps.powerups, ammo, clips, maxClips );
+  BG_AddWeaponToInventory( weapon, client->ps.stats );
+  BG_PackAmmoArray( weapon, client->ps.ammo, client->ps.powerups, ammo, clips, maxClips );
 
   ent->client->ps.stats[ STAT_PCLASS ] = ent->client->pers.classSelection;
   ent->client->ps.stats[ STAT_PTEAM ] = ent->client->pers.teamSelection;
@@ -1467,7 +1467,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     
     for( i = WP_NUM_WEAPONS - 1; i > 0 ; i-- )
     {
-      if( BG_gotWeapon( i, client->ps.stats ) )
+      if( BG_InventoryContainsWeapon( i, client->ps.stats ) )
       {
         client->ps.weapon = i;
         break;

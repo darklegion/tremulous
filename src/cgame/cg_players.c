@@ -2053,7 +2053,7 @@ void CG_Player( centity_t *cent )
 
   //rotate lerpAngles to floor
   if( es->eFlags & EF_WALLCLIMB &&
-      BG_rotateAxis( es->angles2, tempAxis, tempAxis2, qtrue, es->eFlags & EF_WALLCLIMBCEILING ) )
+      BG_RotateAxis( es->angles2, tempAxis, tempAxis2, qtrue, es->eFlags & EF_WALLCLIMBCEILING ) )
     AxisToAngles( tempAxis2, angles );
   else
     VectorCopy( cent->lerpAngles, angles );
@@ -2072,7 +2072,7 @@ void CG_Player( centity_t *cent )
   
   //rotate the legs axis to back to the wall
   if( es->eFlags & EF_WALLCLIMB &&
-      BG_rotateAxis( es->angles2, legs.axis, tempAxis, qfalse, es->eFlags & EF_WALLCLIMBCEILING ) )
+      BG_RotateAxis( es->angles2, legs.axis, tempAxis, qfalse, es->eFlags & EF_WALLCLIMBCEILING ) )
     AxisCopy( tempAxis, legs.axis );
 
   //smooth out WW transitions so the model doesn't hop around

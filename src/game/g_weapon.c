@@ -805,10 +805,10 @@ void poisonCloud( gentity_t *ent )
     
     if( humanPlayer->client && humanPlayer->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
     {
-      if( BG_gotItem( UP_LIGHTARMOUR, humanPlayer->client->ps.stats ) )
+      if( BG_InventoryContainsUpgrade( UP_LIGHTARMOUR, humanPlayer->client->ps.stats ) )
         continue;
       
-      if( BG_gotItem( UP_BATTLESUIT, humanPlayer->client->ps.stats ) )
+      if( BG_InventoryContainsUpgrade( UP_BATTLESUIT, humanPlayer->client->ps.stats ) )
         continue;
       
       trap_Trace( &tr, muzzle, NULL, NULL, humanPlayer->s.origin, humanPlayer->s.number, MASK_SHOT );

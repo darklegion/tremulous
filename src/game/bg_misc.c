@@ -4509,11 +4509,11 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
   s->modelindex2 = 0;
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
-    if( BG_gotItem( i, ps->stats ) )
+    if( BG_InventoryContainsUpgrade( i, ps->stats ) )
     {
       s->modelindex |= 1 << i;
 
-      if( BG_activated( i, ps->stats ) )
+      if( BG_UpgradeIsActive( i, ps->stats ) )
         s->modelindex2 |= 1 << i;
     }
   }
@@ -4619,11 +4619,11 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
-    if( BG_gotItem( i, ps->stats ) )
+    if( BG_InventoryContainsUpgrade( i, ps->stats ) )
     {
       s->modelindex |= 1 << i;
 
-      if( BG_activated( i, ps->stats ) )
+      if( BG_UpgradeIsActive( i, ps->stats ) )
         s->modelindex2 |= 1 << i;
     }
   }
@@ -4640,8 +4640,14 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   s->generic1 = ps->generic1;
 }
 
-//TA: extract the ammo quantity from the array
-void BG_unpackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int *quan, int *clips, int *maxclips )
+/*
+========================
+BG_UnpackAmmoArray
+
+Extract the ammo quantity from the array
+========================
+*/
+void BG_UnpackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int *quan, int *clips, int *maxclips )
 {
   int   ammoarray[32];
   int   i;
@@ -4662,8 +4668,14 @@ void BG_unpackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int *quan, int *
     *maxclips = ( ammoarray[ weapon ] >> 13 ) & 0x07;
 }
 
-//TA: pack the ammo quantity into the array
-void BG_packAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int quan, int clips, int maxclips )
+/*
+========================
+BG_PackAmmoArray
+
+Pack the ammo quantity into the array
+========================
+*/
+void BG_PackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int quan, int clips, int maxclips )
 {
   int   weaponvalue;
 
@@ -4675,8 +4687,14 @@ void BG_packAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int quan, int clip
     ammo2[ weapon - 16 ] = weaponvalue;
 }
 
-//TA: pack weapons into the array
-void BG_packWeapon( int weapon, int stats[ ] )
+/*
+========================
+BG_AddWeaponToInventory
+
+Give a player a weapon
+========================
+*/
+void BG_AddWeaponToInventory( int weapon, int stats[ ] )
 {
   int  weaponList;
 
@@ -4693,8 +4711,14 @@ void BG_packWeapon( int weapon, int stats[ ] )
   stats[ STAT_SLOTS ] |= BG_FindSlotsForWeapon( weapon );
 }
 
-//TA: remove weapons from the array
-void BG_removeWeapon( int weapon, int stats[ ] )
+/*
+========================
+BG_RemoveWeaponToInventory
+
+Take a weapon from a player
+========================
+*/
+void BG_RemoveWeaponFromInventory( int weapon, int stats[ ] )
 {
   int  weaponList;
 
@@ -4708,8 +4732,14 @@ void BG_removeWeapon( int weapon, int stats[ ] )
   stats[ STAT_SLOTS ] &= ~BG_FindSlotsForWeapon( weapon );
 }
 
-//TA: check whether array contains weapon
-qboolean BG_gotWeapon( int weapon, int stats[ ] )
+/*
+========================
+BG_InventoryContainsWeapon
+
+Does the player hold a weapon?
+========================
+*/
+qboolean BG_InventoryContainsWeapon( int weapon, int stats[ ] )
 {
   int  weaponList;
 
@@ -4718,8 +4748,14 @@ qboolean BG_gotWeapon( int weapon, int stats[ ] )
   return( weaponList & ( 1 << weapon ) );
 }
 
-//TA: pack items into array
-void BG_packItem( int item, int stats[ ] )
+/*
+========================
+BG_AddUpgradeToInventory
+
+Give the player an upgrade
+========================
+*/
+void BG_AddUpgradeToInventory( int item, int stats[ ] )
 {
   stats[ STAT_ITEMS ] |= ( 1 << item );
 
@@ -4729,39 +4765,76 @@ void BG_packItem( int item, int stats[ ] )
   stats[ STAT_SLOTS ] |= BG_FindSlotsForUpgrade( item );
 }
 
-//TA: remove items from array
-void BG_removeItem( int item, int stats[ ] )
+/*
+========================
+BG_RemoveUpgradeFromInventory
+
+Take an upgrade from the player
+========================
+*/
+void BG_RemoveUpgradeFromInventory( int item, int stats[ ] )
 {
   stats[ STAT_ITEMS ] &= ~( 1 << item );
 
   stats[ STAT_SLOTS ] &= ~BG_FindSlotsForUpgrade( item );
 }
 
-//TA: check if item is in array
-qboolean BG_gotItem( int item, int stats[ ] )
+/*
+========================
+BG_InventoryContainsUpgrade
+
+Does the player hold an upgrade?
+========================
+*/
+qboolean BG_InventoryContainsUpgrade( int item, int stats[ ] )
 {
   return( stats[ STAT_ITEMS ] & ( 1 << item ) );
 }
 
-//TA: set item active in array
-void BG_activateItem( int item, int stats[ ] )
+/*
+========================
+BG_ActivateUpgrade
+
+Activates an upgrade
+========================
+*/
+void BG_ActivateUpgrade( int item, int stats[ ] )
 {
   stats[ STAT_ACTIVEITEMS ] |= ( 1 << item );
 }
 
-//TA: set item deactive in array
-void BG_deactivateItem( int item, int stats[ ] )
+/*
+========================
+BG_DeactivateUpgrade
+
+Deactivates an upgrade
+========================
+*/
+void BG_DeactivateUpgrade( int item, int stats[ ] )
 {
   stats[ STAT_ACTIVEITEMS ] &= ~( 1 << item );
 }
 
-//TA: check if item active in array
-qboolean BG_activated( int item, int stats[ ] )
+/*
+========================
+BG_UpgradeIsActive
+
+Is this upgrade active?
+========================
+*/
+qboolean BG_UpgradeIsActive( int item, int stats[ ] )
 {
   return( stats[ STAT_ACTIVEITEMS ] & ( 1 << item ) );
 }
 
-qboolean BG_rotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
+/*
+===============
+BG_RotateAxis
+
+Shared axis rotation function
+===============
+*/
+qboolean BG_RotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
                         vec3_t outAxis[ 3 ], qboolean inverse, qboolean ceiling )
 {
   vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
@@ -4869,13 +4942,13 @@ int BG_GetValueOfHuman( playerState_t *ps )
 
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
-    if( BG_gotItem( i, ps->stats ) )
+    if( BG_InventoryContainsUpgrade( i, ps->stats ) )
       worth += BG_FindPriceForUpgrade( i );
   }
   
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
-    if( BG_gotWeapon( i, ps->stats ) )
+    if( BG_InventoryContainsWeapon( i, ps->stats ) )
       worth += BG_FindPriceForWeapon( i );
   }
 

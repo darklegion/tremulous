@@ -856,7 +856,7 @@ static void CG_DrawPlayerPoisonBarbs( rectDef_t *rect, vec4_t color, qhandle_t s
   qboolean      vertical;
   int           iconsize, numBarbs, i;
 
-  BG_unpackAmmoArray( ps->weapon, ps->ammo, ps->powerups, &numBarbs, NULL, NULL );
+  BG_UnpackAmmoArray( ps->weapon, ps->ammo, ps->powerups, &numBarbs, NULL, NULL );
   
   if( height > width )
   {
@@ -941,7 +941,7 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
         break;
 
       default:
-        BG_unpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, &value, NULL, NULL );
+        BG_UnpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, &value, NULL, NULL );
         break;
     }
 
@@ -977,7 +977,7 @@ CG_DrawHumanScanner
 */
 static void CG_DrawHumanScanner( rectDef_t *rect, qhandle_t shader )
 {
-  if( BG_gotItem( UP_HELMET, cg.snap->ps.stats ) )
+  if( BG_InventoryContainsUpgrade( UP_HELMET, cg.snap->ps.stats ) )
     CG_Scanner( rect, shader );
 }
 
@@ -1100,7 +1100,7 @@ static void CG_DrawPlayerClipsValue( rectDef_t *rect, vec4_t color )
         break;
 
       default:
-        BG_unpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, NULL, &value, NULL );
+        BG_UnpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, NULL, &value, NULL );
     
         if( value > -1 )
         {
@@ -1393,7 +1393,7 @@ float CG_GetValue( int ownerDraw )
       {
         int value;
 
-        BG_unpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups,
+        BG_UnpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups,
            &value, NULL, NULL );
         
         return value;
@@ -1404,7 +1404,7 @@ float CG_GetValue( int ownerDraw )
       {
         int value;
 
-        BG_unpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups,
+        BG_UnpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups,
            NULL, &value, NULL );
         
         return value;
@@ -2169,7 +2169,7 @@ void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
   cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
 
-  BG_unpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, &ammo, &clips, NULL );
+  BG_UnpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, &ammo, &clips, NULL );
   BG_FindAmmoForWeapon( cent->currentState.weapon, &maxAmmo, &maxClips, NULL );
   
   // don't display if dead

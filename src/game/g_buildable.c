@@ -1239,7 +1239,7 @@ void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
   
   //restore ammo, if any
   BG_FindAmmoForWeapon( client->ps.weapon, &ammo, &clips, &maxClips );
-  BG_packAmmoArray( client->ps.weapon, client->ps.ammo, client->ps.powerups, ammo, clips, maxClips );
+  BG_PackAmmoArray( client->ps.weapon, client->ps.ammo, client->ps.powerups, ammo, clips, maxClips );
   
   if( !( client->ps.stats[ STAT_STATE ] & SS_BOOSTED ) )
   {
@@ -1474,10 +1474,10 @@ void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
   
   BG_FindAmmoForWeapon( weapon, &maxAmmo, NULL, &maxClips );
   
-  if( BG_gotItem( UP_BATTPACK, ps->stats ) )
+  if( BG_InventoryContainsUpgrade( UP_BATTPACK, ps->stats ) )
     maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
 
-  BG_packAmmoArray( weapon, ps->ammo, ps->powerups, maxAmmo, maxClips, maxClips );
+  BG_PackAmmoArray( weapon, ps->ammo, ps->powerups, maxAmmo, maxClips, maxClips );
 
   G_AddEvent( activator, EV_RPTUSE_SOUND, 0 );
   activator->client->lastRefilTime = level.time;

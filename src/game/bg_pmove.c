@@ -374,8 +374,8 @@ static float PM_CmdScale( usercmd_t *cmd )
 
     if( pm->ps->stats[ STAT_STATE ] & SS_CREEPSLOWED )
     {
-      if( BG_gotItem( UP_LIGHTARMOUR, pm->ps->stats ) ||
-          BG_gotItem( UP_BATTLESUIT, pm->ps->stats ) )
+      if( BG_InventoryContainsUpgrade( UP_LIGHTARMOUR, pm->ps->stats ) ||
+          BG_InventoryContainsUpgrade( UP_BATTLESUIT, pm->ps->stats ) )
         modifier *= CREEP_ARMOUR_MODIFIER;
       else
         modifier *= CREEP_MODIFIER;
@@ -2572,7 +2572,7 @@ static void PM_BeginWeaponChange( int weapon )
   if( weapon < WP_NONE || weapon >= WP_NUM_WEAPONS )
     return;
 
-  if( !BG_gotWeapon( weapon, pm->ps->stats ) && weapon != WP_NONE )
+  if( !BG_InventoryContainsWeapon( weapon, pm->ps->stats ) && weapon != WP_NONE )
     return;
 
   if( pm->ps->weaponstate == WEAPON_DROPPING )
@@ -2603,7 +2603,7 @@ static void PM_FinishWeaponChange( void )
   if( weapon < WP_NONE || weapon >= WP_NUM_WEAPONS )
     weapon = WP_NONE;
 
-  if( !BG_gotWeapon( weapon, pm->ps->stats ) )
+  if( !BG_InventoryContainsWeapon( weapon, pm->ps->stats ) )
     weapon = WP_NONE;
 
   pm->ps->weapon = weapon;
@@ -2690,12 +2690,12 @@ static void PM_Weapon( void )
         else if( pm->cmd.weapon > 32 )
         {
           //if trying to toggle an upgrade, toggle it
-          if( BG_gotItem( pm->cmd.weapon - 32, pm->ps->stats ) ) //sanity check
+          if( BG_InventoryContainsUpgrade( pm->cmd.weapon - 32, pm->ps->stats ) ) //sanity check
           {
-            if( BG_activated( pm->cmd.weapon - 32, pm->ps->stats ) )
-              BG_deactivateItem( pm->cmd.weapon - 32, pm->ps->stats );
+            if( BG_UpgradeIsActive( pm->cmd.weapon - 32, pm->ps->stats ) )
+              BG_DeactivateUpgrade( pm->cmd.weapon - 32, pm->ps->stats );
             else
-              BG_activateItem( pm->cmd.weapon - 32, pm->ps->stats );
+              BG_ActivateUpgrade( pm->cmd.weapon - 32, pm->ps->stats );
           }
         }
         pm->ps->pm_flags |= PMF_USE_ITEM_HELD;                          
@@ -2734,7 +2734,7 @@ static void PM_Weapon( void )
 
   // start the animation even if out of ammo
 
-  BG_unpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips, &maxclips );
+  BG_UnpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips, &maxclips );
 
   // check for out of ammo
   if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
@@ -2754,10 +2754,10 @@ static void PM_Weapon( void )
     }
 
     if( BG_FindUsesEnergyForWeapon( pm->ps->weapon ) &&
-        BG_gotItem( UP_BATTPACK, pm->ps->stats ) )
+        BG_InventoryContainsUpgrade( UP_BATTPACK, pm->ps->stats ) )
       ammo = (int)( (float)ammo * BATTPACK_MODIFIER );
     
-    BG_packAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
+    BG_PackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
 
     //allow some time for the weapon to be raised
     pm->ps->weaponstate = WEAPON_RAISING;
@@ -2980,13 +2980,13 @@ static void PM_Weapon( void )
     else
       ammo--;
     
-    BG_packAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
+    BG_PackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
   }
   else if( pm->ps->weapon == WP_DRAGOON_UPG && attack3 )
   {
     //special case for slowblob
     ammo--;
-    BG_packAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
+    BG_PackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
   }
   
   //FIXME: predicted angles miss a problem??
@@ -3125,7 +3125,7 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
   AnglesToAxis( tempang, axis );
 
   if( !( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) ||
-      !BG_rotateAxis( ps->grapplePoint, axis, rotaxis, qfalse,
+      !BG_RotateAxis( ps->grapplePoint, axis, rotaxis, qfalse,
                       ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )   
     AxisCopy( axis, rotaxis );
 
@@ -3147,7 +3147,7 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
     ps->viewangles[ i ] = tempang[ i ];
 
   //pull the view into the lock point
-  if( ps->pm_type == PM_GRABBED && !BG_gotItem( UP_BATTLESUIT, ps->stats ) )
+  if( ps->pm_type == PM_GRABBED && !BG_InventoryContainsUpgrade( UP_BATTLESUIT, ps->stats ) )
   {
     vec3_t  dir, angles;
     
@@ -3191,7 +3191,7 @@ void PmoveSingle( pmove_t *pmove )
   
   pm = pmove;
 
-  BG_unpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips, &maxclips );
+  BG_UnpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips, &maxclips );
 
   // this counter lets us debug movement problems with a journal
   // by setting a conditional breakpoint fot the previous frame

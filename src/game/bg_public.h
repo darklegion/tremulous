@@ -1063,18 +1063,18 @@ typedef struct
 
 
 //TA:
-void      BG_unpackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int *quan, int *clips, int *maxclips );
-void      BG_packAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int quan, int clips, int maxclips );
-void      BG_packWeapon( int weapon, int stats[ ] );
-void      BG_removeWeapon( int weapon, int stats[ ] );
-qboolean  BG_gotWeapon( int weapon, int stats[ ] );
-void      BG_packItem( int item, int stats[ ] );
-void      BG_removeItem( int item, int stats[ ] );
-qboolean  BG_gotItem( int item, int stats[ ] );
-void      BG_activateItem( int item, int stats[ ] );
-void      BG_deactivateItem( int item, int stats[ ] );
-qboolean  BG_activated( int item, int stats[ ] );
-qboolean  BG_rotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
+void      BG_UnpackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int *quan, int *clips, int *maxclips );
+void      BG_PackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int quan, int clips, int maxclips );
+void      BG_AddWeaponToInventory( int weapon, int stats[ ] );
+void      BG_RemoveWeaponFromInventory( int weapon, int stats[ ] );
+qboolean  BG_InventoryContainsWeapon( int weapon, int stats[ ] );
+void      BG_AddUpgradeToInventory( int item, int stats[ ] );
+void      BG_RemoveUpgradeFromInventory( int item, int stats[ ] );
+qboolean  BG_InventoryContainsUpgrade( int item, int stats[ ] );
+void      BG_ActivateUpgrade( int item, int stats[ ] );
+void      BG_DeactivateUpgrade( int item, int stats[ ] );
+qboolean  BG_UpgradeIsActive( int item, int stats[ ] );
+qboolean  BG_RotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
                          vec3_t outAxis[ 3 ], qboolean inverse, qboolean ceiling );
 void      BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
                                                 const vec3_t mins, const vec3_t maxs,

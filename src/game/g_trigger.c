@@ -825,7 +825,7 @@ void trigger_equipment_trigger( gentity_t *self, gentity_t *activator )
     //otherwise check against the lists
     for( i = 0; self->wTriggers[ i ] != WP_NONE; i++ )
     {
-      if( BG_gotWeapon( self->wTriggers[ i ], activator->client->ps.stats ) )
+      if( BG_InventoryContainsWeapon( self->wTriggers[ i ], activator->client->ps.stats ) )
       {
         G_UseTargets( self, activator );
         return;
@@ -834,7 +834,7 @@ void trigger_equipment_trigger( gentity_t *self, gentity_t *activator )
     
     for( i = 0; self->uTriggers[ i ] != UP_NONE; i++ )
     {
-      if( BG_gotItem( self->uTriggers[ i ], activator->client->ps.stats ) )
+      if( BG_InventoryContainsUpgrade( self->uTriggers[ i ], activator->client->ps.stats ) )
       {
         G_UseTargets( self, activator );
         return;
@@ -1092,7 +1092,7 @@ void trigger_ammo_touch( gentity_t *self, gentity_t *other, trace_t *trace )
     self->timestamp = level.time + FRAMETIME;
 
   BG_FindAmmoForWeapon( other->client->ps.weapon, &maxAmmo, NULL, NULL );
-  BG_unpackAmmoArray( other->client->ps.weapon, other->client->ps.ammo, other->client->ps.powerups,
+  BG_UnpackAmmoArray( other->client->ps.weapon, other->client->ps.ammo, other->client->ps.powerups,
                       &ammo, &clips, &maxClips );
 
   if( ( ammo + self->damage ) > maxAmmo )
@@ -1108,7 +1108,7 @@ void trigger_ammo_touch( gentity_t *self, gentity_t *other, trace_t *trace )
   else
     ammo += self->damage;
   
-  BG_packAmmoArray( other->client->ps.weapon, other->client->ps.ammo, other->client->ps.powerups,
+  BG_PackAmmoArray( other->client->ps.weapon, other->client->ps.ammo, other->client->ps.powerups,
                     ammo, clips, maxClips );
 }
 
