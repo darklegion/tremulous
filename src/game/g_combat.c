@@ -261,7 +261,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         {
           player = g_entities + i;
 
-          if( player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+          if( !player->client )
+            continue;
+          
+          if( player->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
             continue;
 
           if( !self->credits[ i ] )
@@ -283,7 +286,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         {
           player = g_entities + i;
 
-          if( player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+          if( !player->client )
+            continue;
+          
+          if( player->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
             continue;
             
           //this client did no damage
