@@ -402,6 +402,7 @@ typedef enum {
   BA_H_DEF3,
   
   BA_H_MCU,
+  BA_H_DCC,
   
   BA_H_REACTOR,
   BA_H_REPEATER,
@@ -860,7 +861,7 @@ typedef struct
   int       team;
   weapon_t  buildWeapon;
 
-  int       constructAnim;
+  int       idleAnim;
 
   int       nextthink;
 

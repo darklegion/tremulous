@@ -962,6 +962,22 @@ TA: human defense item
     ""                  //sounds
   },
   
+/*QUAKED team_human_dcc (0 0 1) (-16 -16 -16) (16 16 16)
+TA: human defense item
+*/
+  {
+    "team_human_dcc",
+    "sound/items/holdable.wav",
+    { "models/buildables/dcc/dcc.md3", 0, 0, 0 },
+    "icons/teleporter", //icon
+    "Human DCC",      //pickup
+    0,
+    IT_BUILDABLE,
+    BA_H_DCC,
+    "",                 //precache
+    ""                  //sounds
+  },
+  
 /*QUAKED team_human_reactor (0 0 1) (-16 -16 -16) (16 16 16)
 TA: human power item
 */
@@ -1160,7 +1176,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MOD_DSPAWN,            //int       meansOfDeath;
     BIT_DROIDS,            //int       team;
     ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       constructAnim;
+    BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1186,7 +1202,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MOD_DSPAWN,            //int       meansOfDeath;
     BIT_DROIDS,            //int       team;
     ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       constructAnim;
+    BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1212,7 +1228,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MOD_DSPAWN,            //int       meansOfDeath;
     BIT_DROIDS,            //int       team;
     ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       constructAnim;
+    BANIM_IDLE1,           //int       idleAnim;
     500,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1238,7 +1254,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MOD_DSPAWN,            //int       meansOfDeath;
     BIT_DROIDS,            //int       team;
     ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       constructAnim;
+    BANIM_IDLE1,           //int       idleAnim;
     -1,                    //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1264,7 +1280,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       constructAnim;
+    BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1290,7 +1306,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       constructAnim;
+    BANIM_IDLE1,           //int       idleAnim;
     50,                    //int       nextthink;
     500,                   //int       turretFireSpeed;
     500,                   //int       turretRange;
@@ -1316,7 +1332,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       constructAnim;
+    BANIM_IDLE1,           //int       idleAnim;
     50,                    //int       nextthink;
     50,                    //int       turretFireSpeed;
     300,                   //int       turretRange;
@@ -1342,11 +1358,37 @@ buildableAttributes_t bg_buildableList[ ] =
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       constructAnim;
+    BANIM_IDLE1,           //int       idleAnim;
     150,                   //int       nextthink;
     4000,                  //int       turretFireSpeed;
     1500,                  //int       turretRange;
     WP_RAILGUN,            //weapon_t  turretProjType;
+    0.707f,                //float     minNormal;
+    qfalse,                //qboolean  invertNormal;
+    qfalse,                //qboolean  creepTest;
+    qfalse                 //qboolean  reactorTest;
+  },
+  {
+    BA_H_DCC,              //int       buildNum;
+    "dcc",                 //char      *buildName;
+    "team_human_dcc",      //char      *entityName;
+    { -15, -15, -15 },     //vec3_t    mins;
+    { 15, 15, 15 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
+    200,                   //int       buildPoints;
+    1000,                  //int       health;
+    50,                    //int       damage;
+    50,                    //int       splashDamage;
+    150,                   //int       splashRadius;
+    MOD_HSPAWN,            //int       meansOfDeath;
+    BIT_HUMANS,            //int       team;
+    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       idleAnim;
+    100,                   //int       nextthink;
+    0,                     //int       turretFireSpeed;
+    0,                     //int       turretRange;
+    WP_NONE,               //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
@@ -1368,7 +1410,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       constructAnim;
+    BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1394,7 +1436,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       constructAnim;
+    BANIM_IDLE1,           //int       idleAnim;
     -1,                    //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1420,7 +1462,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       constructAnim;
+    BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1446,7 +1488,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       constructAnim;
+    BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1779,7 +1821,7 @@ int BG_FindAnimForBuildable( int bclass )
   {
     if( bg_buildableList[ i ].buildNum == bclass )
     {
-      return bg_buildableList[ i ].constructAnim;
+      return bg_buildableList[ i ].idleAnim;
     }
   }
   

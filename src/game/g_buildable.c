@@ -86,12 +86,11 @@ qboolean findPower( gentity_t *self )
       continue;
 
     //if entity is a power item calculate the distance to it
-    if( !Q_stricmp( ent->classname, "team_human_reactor" ) ||
-        !Q_stricmp( ent->classname, "team_human_repeater" ) )
+    if( ent->s.clientNum == BA_H_REACTOR || ent->s.clientNum == BA_H_REPEATER )
     {
       VectorSubtract( self->s.origin, ent->s.origin, temp_v );
       distance = VectorLength( temp_v );
-      if( distance < minDistance && ( ent->active || !Q_stricmp( self->classname, "team_human_spawn" ) ) )
+      if( distance < minDistance && ( ent->active || self->s.clientNum == BA_H_SPAWN ) )
       {
         closestPower = ent;
         minDistance = distance;
@@ -105,22 +104,11 @@ qboolean findPower( gentity_t *self )
     return qfalse;
   
   //bleh
-  if( (
-        !Q_stricmp( closestPower->classname, "team_human_reactor" ) &&
-        ( minDistance <= REACTOR_BASESIZE )
-      ) || 
-      (
-        !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
-        !Q_stricmp( self->classname, "team_human_spawn" ) &&
-        ( minDistance <= REPEATER_BASESIZE ) &&
-        closestPower->powered 
-      ) ||
-      (
-        !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
-        ( minDistance <= REPEATER_BASESIZE ) &&
-        closestPower->active &&
-        closestPower->powered 
-      )
+  if( ( closestPower->s.clientNum == BA_H_REACTOR && ( minDistance <= REACTOR_BASESIZE ) ) || 
+      ( closestPower->s.clientNum == BA_H_REPEATER && self->s.clientNum == BA_H_SPAWN &&
+        ( minDistance <= REPEATER_BASESIZE ) && closestPower->powered ) ||
+      ( closestPower->s.clientNum == BA_H_REPEATER && ( minDistance <= REPEATER_BASESIZE ) &&
+        closestPower->active && closestPower->powered )
     )
   {
     self->parentNode = closestPower;
@@ -129,6 +117,59 @@ qboolean findPower( gentity_t *self )
   }
   else
     return qfalse;
+}
+
+/*
+================
+findDCC
+
+attempt to find a controlling DCC for self, return qtrue if successful
+================
+*/
+qboolean findDCC( gentity_t *self )
+{
+  int       i;
+  gentity_t *ent;
+  gentity_t *closestDCC;
+  int       distance = 0;
+  int       minDistance = 10000;
+  vec3_t    temp_v;
+  qboolean  foundDCC = qfalse;
+
+  //if this already has dcc then stop now
+  if( self->dccNode && self->dccNode->powered )
+    return qtrue;
+  
+  //reset parent
+  self->dccNode = NULL;
+  
+  //iterate through entities
+  for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  {
+    if( !ent->classname )
+      continue;
+
+    //if entity is a power item calculate the distance to it
+    if( ent->s.clientNum == BA_H_DCC )
+    {
+      VectorSubtract( self->s.origin, ent->s.origin, temp_v );
+      distance = VectorLength( temp_v );
+      if( distance < minDistance && ent->powered )
+      {
+        closestDCC = ent;
+        minDistance = distance;
+        foundDCC = qtrue;
+      }
+    }
+  }
+
+  //if there were no power items nearby give up
+  if( !foundDCC )
+    return qfalse;
+  
+  self->dccNode = closestDCC;
+
+  return qtrue;
 }
 
 /*
@@ -152,8 +193,7 @@ qboolean findCreep( gentity_t *self )
   {
     for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
     {
-      if( !Q_stricmp( ent->classname, "team_droid_spawn" ) ||
-          !Q_stricmp( ent->classname, "team_droid_hivemind" ) )
+      if( ent->s.clientNum == BA_D_SPAWN || ent->s.clientNum == BA_D_HIVEMIND )
       {
         VectorSubtract( self->s.origin, ent->s.origin, temp_v );
         distance = VectorLength( temp_v );
@@ -312,7 +352,7 @@ void DSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   self->die = nullDieFunction;
   self->think = DSpawn_Blast;
-  self->nextthink = level.time + 1500; //wait .5 seconds before damaging others
+  self->nextthink = level.time + 15000; //wait .5 seconds before damaging others
     
   trap_LinkEntity( self );
 }
@@ -405,7 +445,7 @@ void DBarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
   
   self->die = nullDieFunction;
   self->think = DBarricade_Blast;
-  self->nextthink = level.time + 1500;
+  self->nextthink = level.time + 15000;
 
   trap_LinkEntity( self );
 }
@@ -664,10 +704,10 @@ void HRpt_Think( gentity_t *self )
   //iterate through entities
   for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
-    if( !Q_stricmp( ent->classname, "team_human_spawn" ) && ent->parentNode == self )
+    if( ent->s.clientNum == BA_H_SPAWN && ent->parentNode == self )
       count++;
       
-    if( !Q_stricmp( ent->classname, "team_human_reactor" ) )
+    if( ent->s.clientNum == BA_H_REACTOR )
       reactor = qtrue;
   }
   
@@ -716,6 +756,29 @@ Think for mcu
 ================
 */
 void HMCU_Think( gentity_t *self )
+{
+  //make sure we have power
+  self->nextthink = level.time + REFRESH_TIME;
+  
+  self->powered = findPower( self );
+}
+
+
+
+
+//==================================================================================
+
+
+
+
+/*
+================
+HDCC_Think
+
+Think for dcc
+================
+*/
+void HDCC_Think( gentity_t *self )
 {
   //make sure we have power
   self->nextthink = level.time + REFRESH_TIME;
@@ -840,25 +903,26 @@ qboolean hdef1_trackenemy( gentity_t *self )
   VectorSubtract( dirToTarget, self->s.pos.trBase, dirToTarget );
 #endif
 
-//better, but more expensive method
-#if 0
-  VectorScale( self->enemy->acceleration, 1.0f / 2.0f, halfAcceleration );
-  VectorScale( self->enemy->jerk, 1.0f / 3.0f, thirdJerk );
-
-  //O( time ) - worst case O( time ) = 250 iterations
-  for( i = 0; ( i * HDEF1_PROJSPEED ) / 1000.0f < distanceToTarget; i++ )
+  //better, but more expensive method
+  if( self->dcced )
   {
-    float time = (float)i / 1000.0f;
+    VectorScale( self->enemy->acceleration, 1.0f / 2.0f, halfAcceleration );
+    VectorScale( self->enemy->jerk, 1.0f / 3.0f, thirdJerk );
 
-    VectorMA( self->enemy->s.pos.trBase, time, self->enemy->s.pos.trDelta, dirToTarget );
-    VectorMA( dirToTarget, time * time, halfAcceleration, dirToTarget );
-    VectorMA( dirToTarget, time * time * time, thirdJerk, dirToTarget );
-    VectorSubtract( dirToTarget, self->s.pos.trBase, dirToTarget );
-    distanceToTarget = VectorLength( dirToTarget );
+    //O( time ) - worst case O( time ) = 250 iterations
+    for( i = 0; ( i * HDEF1_PROJSPEED ) / 1000.0f < distanceToTarget; i++ )
+    {
+      float time = (float)i / 1000.0f;
 
-    distanceToTarget -= self->enemy->r.maxs[ 0 ];
+      VectorMA( self->enemy->s.pos.trBase, time, self->enemy->s.pos.trDelta, dirToTarget );
+      VectorMA( dirToTarget, time * time, halfAcceleration, dirToTarget );
+      VectorMA( dirToTarget, time * time * time, thirdJerk, dirToTarget );
+      VectorSubtract( dirToTarget, self->s.pos.trBase, dirToTarget );
+      distanceToTarget = VectorLength( dirToTarget );
+
+      distanceToTarget -= self->enemy->r.maxs[ 0 ];
+    }
   }
-#endif
   
   VectorNormalize( dirToTarget );
   
@@ -1066,13 +1130,15 @@ qboolean hdef_checktarget( gentity_t *self, gentity_t *target, int range )
     return qfalse;
   if( target->health <= 0 ) // is the target still alive?
     return qfalse;
+  if( self->dcced && target->targeted && target->targeted->powered ) //some turret has already selected this target
+    return qfalse;
 
   VectorSubtract( target->r.currentOrigin, self->r.currentOrigin, distance );
   if( VectorLength( distance ) > range ) // is the target within range?
     return qfalse;
 
-  trap_Trace( &trace, self->s.pos.trBase, NULL, NULL, target->s.pos.trBase, self->s.number, MASK_SHOT );
-  if ( trace.contents & CONTENTS_SOLID ) // can we see the target?
+  trap_Trace( &trace, self->s.pos.trBase, NULL, NULL, target->s.pos.trBase, self->s.number, MASK_OPAQUE );
+  if( trace.fraction < 1.0 ) // can we see the target?
     return qfalse;
 
   return qtrue;
@@ -1090,10 +1156,8 @@ void hdef_findenemy( gentity_t *ent, int range )
 {
   gentity_t *target;
 
-  target = g_entities;
-
   //iterate through entities
-  for (; target < &g_entities[ level.num_entities ]; target++)
+  for( target = g_entities; target < &g_entities[ level.num_entities ]; target++ )
   {
     //if target is not valid keep searching
     if( !hdef_checktarget( ent, target, range ) )
@@ -1133,14 +1197,24 @@ void HDef_Think( gentity_t *self )
     return;
   }
   
+  //find a dcc for self
+  self->dcced = findDCC( self );
+  
   //if the current target is not valid find a new one
   if( !hdef_checktarget( self, self->enemy, range ) )
+  {
+    if( self->enemy )
+      self->enemy->targeted = NULL;
+
     hdef_findenemy( self, range );
+  }
 
   //if a new target cannot be found don't do anything
   if( !self->enemy )
     return;
   
+  self->enemy->targeted = self;
+
   //if we are pointing at our target and we can fire shoot it
   switch( self->s.clientNum )
   {
@@ -1218,7 +1292,8 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   
   self->die = nullDieFunction;
   self->think = HSpawn_Blast;
-  self->nextthink = level.time + 1500; //wait 1.5 seconds before damaging others
+  self->nextthink = level.time + 15000; //wait 1.5 seconds before damaging others
+  self->powered = qfalse; //free up power
 
   trap_LinkEntity( self );
 }
@@ -1292,8 +1367,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
       {
-        if( !Q_stricmp( tempent->classname, "team_droid_spawn" ) ||
-            !Q_stricmp( tempent->classname, "team_droid_hivemind" ) )
+        if( tempent->s.clientNum == BA_D_SPAWN || tempent->s.clientNum == BA_D_HIVEMIND )
         {
           VectorSubtract( entity_origin, tempent->s.origin, temp_v );
           if( VectorLength( temp_v ) <= ( CREEP_BASESIZE * 3 ) )
@@ -1308,7 +1382,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     //look for a hivemind
     for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
     {
-      if( !Q_stricmp( tempent->classname, "team_droid_hivemind" ) )
+      if( tempent->s.clientNum == BA_D_HIVEMIND )
         break;
     }
 
@@ -1326,7 +1400,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
       {
-        if( !Q_stricmp( tempent->classname, "team_droid_hivemind" ) )
+        if( tempent->s.clientNum == BA_D_HIVEMIND )
         {
           reason = IBE_HIVEMIND;
           break;
@@ -1346,8 +1420,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     //find the nearest power entity
     for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
     {
-      if( !Q_stricmp( tempent->classname, "team_human_reactor" ) ||
-          !Q_stricmp( tempent->classname, "team_human_repeater" ) )
+      if( tempent->s.clientNum == BA_H_REACTOR || tempent->s.clientNum == BA_H_REPEATER )
       {
         VectorSubtract( entity_origin, tempent->s.origin, temp_v );
         templength = VectorLength( temp_v );
@@ -1361,13 +1434,9 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     
     //if this power entity satisfies expression
     if( !(
+           ( closestPower->s.clientNum == BA_H_REACTOR && minDistance <= REACTOR_BASESIZE ) || 
            (
-             !Q_stricmp( closestPower->classname, "team_human_reactor" ) &&
-             minDistance <= REACTOR_BASESIZE
-           ) || 
-           (
-             !Q_stricmp( closestPower->classname, "team_human_repeater" ) &&
-             minDistance <= REPEATER_BASESIZE &&
+             closestPower->s.clientNum == BA_H_REPEATER && minDistance <= REPEATER_BASESIZE &&
              (
                ( buildable == BA_H_SPAWN && closestPower->powered ) ||
                ( closestPower->powered && closestPower->active )
@@ -1390,7 +1459,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
       {
-        if( !Q_stricmp( tempent->classname, "team_human_reactor" ) )
+        if( tempent->s.clientNum == BA_H_REACTOR ) 
           break;
       }
       
@@ -1403,7 +1472,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
       {
-        if( !Q_stricmp( tempent->classname, "team_human_reactor" ) )
+        if( tempent->s.clientNum == BA_H_REACTOR ) 
         {
           reason = IBE_REACTOR;
           break;
@@ -1516,6 +1585,11 @@ gentity_t *G_buildItem( gentity_t *ent, buildable_t buildable, int distance, flo
       built->think = HMCU_Think;
       built->die = HSpawn_Die;
       built->use = HMCU_Activate;
+      break;
+      
+    case BA_H_DCC:
+      built->think = HDCC_Think;
+      built->die = HSpawn_Die;
       break;
       
     case BA_H_REACTOR:

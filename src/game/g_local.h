@@ -185,10 +185,14 @@ struct gentity_s {
   qboolean  active;       //TA: for power repeater, but could be useful elsewhere
   qboolean  powered;      //TA: for human buildables
   int       builtBy;      //TA: clientNum of person that built this
+  gentity_t *dccNode;     //TA: controlling dcc
+  qboolean  dcced;        //TA: controlled by a dcc or not?
 
   int       credits[ MAX_CLIENTS ]; //TA: human credits for each client
   qboolean  creditsHash[ MAX_CLIENTS ]; //TA: track who has claimed credit
   int       killedBy;                   //TA: clientNum of killer
+
+  gentity_t *targeted;    //TA: true if the player is currently a valid target of a turret
 
   vec4_t    animation;    //TA: animated map objects
 };
