@@ -1127,7 +1127,8 @@ buildableAttributes_t bg_buildableList[ ] =
     200,                   //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
     BIT_DROIDS,            //int       team;
-    BANIM_IDLE1,                 //int       constructAnim;
+    ( 1 << WP_DBUILD ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1150,7 +1151,8 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
     BIT_DROIDS,            //int       team;
-    BANIM_IDLE1,                 //int       constructAnim;
+    ( 1 << WP_DBUILD ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1173,7 +1175,8 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
     BIT_DROIDS,            //int       team;
-    BANIM_IDLE1,                 //int       constructAnim;
+    ( 1 << WP_DBUILD ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       constructAnim;
     100,                   //int       nextthink;
     1500,                  //int       turretFireSpeed;
     500,                   //int       turretRange;
@@ -1196,7 +1199,8 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_DSPAWN,            //int       meansOfDeath;
     BIT_DROIDS,            //int       team;
-    BANIM_IDLE1,                 //int       constructAnim;
+    ( 1 << WP_DBUILD ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       constructAnim;
     -1,                    //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1219,7 +1223,8 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    BANIM_IDLE1,                 //int       constructAnim;
+    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1242,7 +1247,8 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    BANIM_IDLE1,                 //int       constructAnim;
+    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       constructAnim;
     50,                    //int       nextthink;
     500,                   //int       turretFireSpeed;
     500,                   //int       turretRange;
@@ -1265,7 +1271,8 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    BANIM_IDLE1,                 //int       constructAnim;
+    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       constructAnim;
     50,                    //int       nextthink;
     50,                    //int       turretFireSpeed;
     300,                   //int       turretRange;
@@ -1288,7 +1295,8 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    BANIM_IDLE1,                 //int       constructAnim;
+    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       constructAnim;
     150,                   //int       nextthink;
     4000,                  //int       turretFireSpeed;
     1500,                  //int       turretRange;
@@ -1311,7 +1319,8 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    BANIM_IDLE1,                 //int       constructAnim;
+    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1334,7 +1343,8 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    BANIM_IDLE1,                 //int       constructAnim;
+    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       constructAnim;
     -1,                    //int       nextthink;
     0,                     //int       turretFireSpeed;
     0,                     //int       turretRange;
@@ -1357,6 +1367,7 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
+    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
@@ -1380,6 +1391,7 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
+    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       constructAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
@@ -1680,6 +1692,26 @@ int BG_FindTeamForBuildable( int bclass )
 
 /*
 ==============
+BG_FindBuildWeaponForBuildable
+==============
+*/
+weapon_t BG_FindBuildWeaponForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].buildWeapon;
+    }
+  }
+  
+  return BA_NONE;
+}
+
+/*
+==============
 BG_FindAnimForBuildable
 ==============
 */
@@ -1834,8 +1866,9 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     12, 12,                                         //int     viewheight, crouchviewheight;
     50,                                             //int     health;
-    0,                                               //int     armor;
+    0,                                              //int     armor;
     SCA_TAKESFALLDAMAGE|SCA_FOVWARPS,               //int     abilities;
+    50.0f,                                          //float   buildDist;
     80,                                             //int     fov;
     0.015f,                                         //float   bob;
     350,                                            //int     steptime;
@@ -1859,6 +1892,7 @@ classAttributes_t bg_classList[ ] =
     75,                                             //int     health;
     10,                                             //int     armor;
     SCA_CANJUMP|SCA_FOVWARPS,                       //int     abilities;
+    50.0f,                                          //float   buildDist;
     110,                                            //int     fov;
     0.005f,                                         //float   bob;
     200,                                            //int     steptime;
@@ -1882,6 +1916,7 @@ classAttributes_t bg_classList[ ] =
     100,                                            //int     health;
     40,                                             //int     armor;
     SCA_TAKESFALLDAMAGE|SCA_FOVWARPS,               //int     abilities;
+    50.0f,                                          //float   buildDist;
     90,                                             //int     fov;
     0.015f,                                         //float   bob;
     350,                                            //int     steptime;
@@ -1905,6 +1940,7 @@ classAttributes_t bg_classList[ ] =
     120,                                            //int     health;
     40,                                             //int     armor;
     SCA_CANJUMP|SCA_FOVWARPS,                       //int     abilities;
+    50.0f,                                          //float   buildDist;
     120,                                            //int     fov;
     0.002f,                                         //float   bob;
     350,                                            //int     steptime;
@@ -1928,6 +1964,7 @@ classAttributes_t bg_classList[ ] =
     100,                                            //int     health;
     40,                                             //int     armor;
     SCA_CANJUMP|SCA_FOVWARPS,                       //int     abilities;
+    50.0f,                                          //float   buildDist;
     100,                                            //int     fov;
     0.015f,                                         //float   bob;
     350,                                            //int     steptime;
@@ -1951,6 +1988,7 @@ classAttributes_t bg_classList[ ] =
     25,                                                         //int     health;
     0,                                                          //int     armor;
     SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    0.0f,                                                       //float   buildDist;
     140,                                                        //int     fov;
     0.0f,                                                       //float   bob;
     25,                                                         //int     steptime;
@@ -1974,6 +2012,7 @@ classAttributes_t bg_classList[ ] =
     50,                                           //int     health;
     5,                                            //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    0.0f,                                         //float   buildDist;
     120,                                          //int     fov;
     0.001f,                                       //float   bob;
     25,                                           //int     steptime;
@@ -1997,6 +2036,7 @@ classAttributes_t bg_classList[ ] =
     50,                                           //int     health;
     10,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    0.0f,                                         //float   buildDist;
     120,                                          //int     fov;
     0.0005f,                                      //float   bob;
     25,                                           //int     steptime;
@@ -2020,6 +2060,7 @@ classAttributes_t bg_classList[ ] =
     100,                                          //int     health;
     20,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    0.0f,                                         //float   buildDist;
     130,                                          //int     fov;
     0.0f,                                         //float   bob;
     60,                                           //int     steptime;
@@ -2043,6 +2084,7 @@ classAttributes_t bg_classList[ ] =
     100,                                          //int     health;
     30,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    0.0f,                                         //float   buildDist;
     130,                                          //int     fov;
     0.0f,                                         //float   bob;
     60,                                           //int     steptime;
@@ -2066,6 +2108,7 @@ classAttributes_t bg_classList[ ] =
     200,                                          //int     health;
     40,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    0.0f,                                         //float   buildDist;
     120,                                          //int     fov;
     0.0f,                                         //float   bob;
     200,                                          //int     steptime;
@@ -2089,6 +2132,7 @@ classAttributes_t bg_classList[ ] =
     200,                                          //int     health;
     50,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    0.0f,                                         //float   buildDist;
     120,                                          //int     fov;
     0.0f,                                         //float   bob;
     200,                                          //int     steptime;
@@ -2112,6 +2156,7 @@ classAttributes_t bg_classList[ ] =
     200,                                          //int     health;
     60,                                           //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,   //int     abilities;
+    0.0f,                                         //float   buildDist;
     120,                                          //int     fov;
     0.0f,                                         //float   bob;
     200,                                          //int     steptime;
@@ -2135,6 +2180,7 @@ classAttributes_t bg_classList[ ] =
     50,                                                         //int     health;
     0,                                                          //int     armor;
     SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    0.0f,                                                       //float   buildDist;
     90,                                                         //int     fov;
     0.0f,                                                       //float   bob;
     25,                                                         //int     steptime;
@@ -2158,6 +2204,7 @@ classAttributes_t bg_classList[ ] =
     50,                                         //int     health;
     50,                                         //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    0.0f,                                       //float   buildDist;
     100,                                        //int     fov;
     0.0f,                                       //float   bob;
     25,                                         //int     steptime;
@@ -2181,6 +2228,7 @@ classAttributes_t bg_classList[ ] =
     50,                                         //int     health;
     50,                                         //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    0.0f,                                       //float   buildDist;
     100,                                        //int     fov;
     0.0f,                                       //float   bob;
     25,                                         //int     steptime;
@@ -2204,6 +2252,7 @@ classAttributes_t bg_classList[ ] =
     150,                                        //int     health;
     50,                                         //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    0.0f,                                       //float   buildDist;
     110,                                        //int     fov;
     0.0f,                                       //float   bob;
     25,                                         //int     steptime;
@@ -2227,6 +2276,7 @@ classAttributes_t bg_classList[ ] =
     150,                                        //int     health;
     50,                                         //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    0.0f,                                       //float   buildDist;
     110,                                        //int     fov;
     0.0f,                                       //float   bob;
     25,                                         //int     steptime;
@@ -2250,6 +2300,7 @@ classAttributes_t bg_classList[ ] =
     250,                                        //int     health;
     50,                                         //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    0.0f,                                       //float   buildDist;
     130,                                        //int     fov;
     0.0f,                                       //float   bob;
     25,                                         //int     steptime;
@@ -2273,6 +2324,7 @@ classAttributes_t bg_classList[ ] =
     250,                                        //int     health;
     50,                                         //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    0.0f,                                       //float   buildDist;
     130,                                        //int     fov;
     0.0f,                                       //float   bob;
     25,                                         //int     steptime;
@@ -2296,6 +2348,7 @@ classAttributes_t bg_classList[ ] =
     250,                                        //int     health;
     50,                                         //int     armor;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS, //int     abilities;
+    0.0f,                                       //float   buildDist;
     130,                                        //int     fov;
     0.0f,                                       //float   bob;
     25,                                         //int     steptime;
@@ -2319,6 +2372,7 @@ classAttributes_t bg_classList[ ] =
     100,                                        //int     health;
     0,                                          //int     armor;
     SCA_TAKESFALLDAMAGE|SCA_CANJUMP,            //int     abilities;
+    80.0f,                                      //float   buildDist;
     90,                                         //int     fov;
     0.002f,                                     //float   bob;
     200,                                        //int     steptime;
@@ -2629,6 +2683,26 @@ qboolean BG_ClassHasAbility( int pclass, int ability )
     return qtrue;
   else
     return qfalse;
+}
+
+/*
+==============
+BG_FindBuildDistForClass
+==============
+*/
+float BG_FindBuildDistForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].buildDist;
+    }
+  }
+  
+  return 0.0f;
 }
 
 /*

@@ -86,7 +86,7 @@ qboolean findPower( gentity_t *self )
     {
       VectorSubtract( self->s.origin, ent->s.origin, temp_v );
       distance = VectorLength( temp_v );
-      if( distance < minDistance )
+      if( distance < minDistance && ( ent->active || !Q_stricmp( self->classname, "team_human_spawn" ) ) )
       {
         closestPower = ent;
         minDistance = distance;
@@ -1215,7 +1215,7 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
       {
         VectorSubtract( entity_origin, tempent->s.origin, temp_v );
         templength = VectorLength( temp_v );
-        if( templength < minDistance )
+        if( templength < minDistance && ( tempent->active || buildable == BA_H_SPAWN ) )
         {
           closestPower = tempent;
           minDistance = templength;
@@ -1374,7 +1374,7 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
       
     case BA_H_REACTOR:
       built->die = HSpawn_Die;
-      built->powered = qtrue;
+      built->powered = built->active = qtrue;
       break;
       
     case BA_H_REPEATER:

@@ -1705,8 +1705,8 @@ void Cmd_Destroy_f( gentity_t *ent )
   if( tr.fraction < 1.0 &&
       ( traceEnt->s.eType == ET_BUILDABLE ) &&
       ( traceEnt->biteam == ent->client->pers.pteam ) &&
-      ( ( ent->client->ps.weapon == WP_DBUILD ) ||
-        ( ent->client->ps.weapon == WP_HBUILD ) ) )
+      ( ( ent->client->ps.weapon >= WP_DBUILD ) &&
+        ( ent->client->ps.weapon <= WP_HBUILD ) ) )
     G_Damage( traceEnt, ent, ent, forward, tr.endpos, 10000, 0, MOD_SUICIDE );
 
 }
@@ -2004,101 +2004,78 @@ Cmd_Build_f
 void Cmd_Build_f( gentity_t *ent )
 {
   char          s[ MAX_TOKEN_CHARS ];
-  int           buildable;
+  buildable_t   buildable;
+  weapon_t      weapon;
+  float         dist;
 
   trap_Argv( 1, s, sizeof( s ) );
 
-  if( ( ent->client->pers.pteam == PTE_DROIDS ) &&
-      BG_gotWeapon( WP_DBUILD, ent->client->ps.stats ) &&
-      ( ent->client->ps.weapon == WP_DBUILD ) )
+  buildable = BG_FindBuildNumForName( s );
+  
+  if( buildable != BA_NONE &&
+      ( 1 << ent->client->ps.weapon ) & BG_FindBuildWeaponForBuildable( buildable ) )
   {
-    buildable = BG_FindBuildNumForName( s );
-
-    if( buildable == BA_NONE )
-      trap_SendServerCommand( ent-g_entities, va("print \"Unknown item\n\"" ) );
-    else
+    dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
+    
+    switch( itemFits( ent, buildable, dist ) )
     {
-      switch( itemFits( ent, buildable, -50 ) )
-      {
-        case IBE_NONE:
-          Build_Item( ent, buildable, -50 );
-          break;
+      case IBE_NONE:
+        Build_Item( ent, buildable, dist );
+        break;
 
-        case IBE_NOCREEP:
-          G_AddPredictableEvent( ent, EV_MENU, MN_D_NOCREEP );
-          break;
+      case IBE_NOCREEP:
+        G_AddPredictableEvent( ent, EV_MENU, MN_D_NOCREEP );
+        break;
 
-        case IBE_NOASSERT:
-          G_AddPredictableEvent( ent, EV_MENU, MN_D_NOASSERT );
-          break;
+      case IBE_NOASSERT:
+        G_AddPredictableEvent( ent, EV_MENU, MN_D_NOASSERT );
+        break;
 
-        case IBE_NOHIVEMIND:
-          G_AddPredictableEvent( ent, EV_MENU, MN_D_NOHVMND );
-          break;
+      case IBE_NOHIVEMIND:
+        G_AddPredictableEvent( ent, EV_MENU, MN_D_NOHVMND );
+        break;
 
-        case IBE_HIVEMIND:
-          G_AddPredictableEvent( ent, EV_MENU, MN_D_HIVEMIND );
-          break;
+      case IBE_HIVEMIND:
+        G_AddPredictableEvent( ent, EV_MENU, MN_D_HIVEMIND );
+        break;
 
-        case IBE_NOROOM:
-          G_AddPredictableEvent( ent, EV_MENU, MN_D_NOROOM );
-          break;
-          
-        case IBE_SPWNWARN:
-          G_AddPredictableEvent( ent, EV_MENU, MN_D_SPWNWARN );
-          Build_Item( ent, buildable, -50 );
-          break;
-      }
-    }
-  }
-  else if( ( ent->client->pers.pteam == PTE_HUMANS ) &&
-           BG_gotWeapon( WP_HBUILD, ent->client->ps.stats ) &&
-           ( ent->client->ps.weapon == WP_HBUILD ) )
-  {
-    buildable = BG_FindBuildNumForName( s );
+      case IBE_SPWNWARN:
+        G_AddPredictableEvent( ent, EV_MENU, MN_D_SPWNWARN );
+        Build_Item( ent, buildable, dist );
+        break;
+        
+      case IBE_REACTOR:
+        G_AddPredictableEvent( ent, EV_MENU, MN_H_REACTOR );
+        break;
 
-    if( buildable == BA_NONE )
-      trap_SendServerCommand( ent-g_entities, va("print \"Unknown item\n\"" ) );
-    else
-    {
-      switch( itemFits( ent, buildable, 80 ) )
-      {
-        case IBE_NONE:
-          Build_Item( ent, buildable, 80 );
-          break;
+      case IBE_REPEATER:
+        G_AddPredictableEvent( ent, EV_MENU, MN_H_REPEATER );
+        break;
 
-        case IBE_REACTOR:
-          G_AddPredictableEvent( ent, EV_MENU, MN_H_REACTOR );
-          break;
-
-        case IBE_REPEATER:
-          G_AddPredictableEvent( ent, EV_MENU, MN_H_REPEATER );
-          break;
-
-        case IBE_NOROOM:
+      case IBE_NOROOM:
+        if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
           G_AddPredictableEvent( ent, EV_MENU, MN_H_NOROOM );
-          break;
+        else
+          G_AddPredictableEvent( ent, EV_MENU, MN_D_NOROOM );
+        break;
 
-        case IBE_NOPOWER:
-          G_AddPredictableEvent( ent, EV_MENU, MN_H_NOPOWER );
-          break;
-          
-        case IBE_RPLWARN:
-          G_AddPredictableEvent( ent, EV_MENU, MN_H_RPLWARN );
-          Build_Item( ent, buildable, 80 );
-          break;
-          
-        case IBE_RPTWARN:
-          G_AddPredictableEvent( ent, EV_MENU, MN_H_RPTWARN );
-          Build_Item( ent, buildable, 80 );
-          break;
-      }
+      case IBE_NOPOWER:
+        G_AddPredictableEvent( ent, EV_MENU, MN_H_NOPOWER );
+        break;
+        
+      case IBE_RPLWARN:
+        G_AddPredictableEvent( ent, EV_MENU, MN_H_RPLWARN );
+        Build_Item( ent, buildable, dist );
+        break;
+        
+      case IBE_RPTWARN:
+        G_AddPredictableEvent( ent, EV_MENU, MN_H_RPTWARN );
+        Build_Item( ent, buildable, dist );
+        break;
     }
   }
-  else if( ent->client->pers.pteam == PTE_NONE )
-    trap_SendServerCommand( ent-g_entities, va("print \"Join a team first\n\"" ) );
   else
-    trap_SendServerCommand( ent-g_entities, va("print \"Class is unable to build\n\"" ) );
+    trap_SendServerCommand( ent-g_entities, va("print \"Cannot build this item\n\"" ) );
 }
 
 

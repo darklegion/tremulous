@@ -345,8 +345,12 @@ typedef enum {
   WP_VENOM,
   WP_GRABANDCSAW,
   WP_POUNCE,
+
+  //build weapons must remain in a block
   WP_HBUILD,
   WP_DBUILD,
+  //ok?
+  
   WP_SCANNER,
   WP_GGRENADE,
 
@@ -825,6 +829,8 @@ typedef struct
   
   int     abilities;
   
+  float   buildDist;
+  
   int     fov;
   float   bob;
   int     steptime;
@@ -861,6 +867,7 @@ typedef struct
   int       meansOfDeath;
 
   int       team;
+  weapon_t  buildWeapon;
 
   int       constructAnim;
 
@@ -933,6 +940,7 @@ int           BG_FindSplashDamageForBuildable( int bclass );
 int           BG_FindSplashRadiusForBuildable( int bclass );
 int           BG_FindMODForBuildable( int bclass );
 int           BG_FindTeamForBuildable( int bclass );
+weapon_t      BG_FindBuildWeaponForBuildable( int bclass );
 int           BG_FindAnimForBuildable( int bclass );
 int           BG_FindNextThinkForBuildable( int bclass );
 int           BG_FindFireSpeedForBuildable( int bclass );
@@ -954,6 +962,7 @@ float     BG_FindSpeedForClass( int pclass );
 float     BG_FindStickyForClass( int pclass );
 int       BG_FindSteptimeForClass( int pclass );
 qboolean  BG_ClassHasAbility( int pclass, int ability );
+float     BG_FindBuildDistForClass( int pclass );
 qboolean  BG_ClassCanEvolveFromTo( int fclass, int tclass );
 int       BG_FindEvolveTimeForClass( int pclass );
 int       BG_FindValueOfClass( int pclass );
