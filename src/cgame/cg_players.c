@@ -2223,13 +2223,17 @@ void CG_Corpse( centity_t *cent )
   origin[ 2 ] -= ( liveZ[ 2 ] - deadZ[ 2 ] );
 
   VectorCopy( cent->currentState.angles, cent->lerpAngles );
+  
   // get the rotation information
-  CG_PlayerAngles( cent, cent->lerpAngles, legs.axis, torso.axis, head.axis );
+  if( !ci->nonsegmented )
+    CG_PlayerAngles( cent, cent->lerpAngles, legs.axis, torso.axis, head.axis );
+  else
+    CG_PlayerNonSegAngles( cent, cent->lerpAngles, legs.axis );
 
   //set the correct frame (should always be dead)
   if( cg_noPlayerAnims.integer )
     legs.oldframe = legs.frame = torso.oldframe = torso.frame = 0;
-  else
+  else if( !ci->nonsegmented )
   {
     CG_RunLerpFrame( ci, &cent->pe.legs, cent->currentState.legsAnim, 1 );
     legs.oldframe = cent->pe.legs.oldFrame;
@@ -2241,7 +2245,13 @@ void CG_Corpse( centity_t *cent )
     torso.frame = cent->pe.torso.frame;
     torso.backlerp = cent->pe.torso.backlerp;
   }
-              
+  else
+  {
+    CG_RunLerpFrame( ci, &cent->pe.nonseg, cent->currentState.legsAnim, 1 );
+    legs.oldframe = cent->pe.nonseg.oldFrame;
+    legs.frame = cent->pe.nonseg.frame;
+    legs.backlerp = cent->pe.nonseg.backlerp;
+  }
 
   // add the shadow
   shadow = CG_PlayerShadow( cent, &shadowPlane );
@@ -2257,8 +2267,16 @@ void CG_Corpse( centity_t *cent )
   //
   // add the legs
   //
-  legs.hModel = ci->legsModel;
-  legs.customSkin = ci->legsSkin;
+  if( !ci->nonsegmented )
+  {
+    legs.hModel = ci->legsModel;
+    legs.customSkin = ci->legsSkin;
+  }
+  else
+  {
+    legs.hModel = ci->nonSegModel;
+    legs.customSkin = ci->nonSegSkin;
+  }
 
   VectorCopy( origin, legs.origin );
 
@@ -2286,43 +2304,46 @@ void CG_Corpse( centity_t *cent )
   if( !legs.hModel )
     return;
 
-  //
-  // add the torso
-  //
-  torso.hModel = ci->torsoModel;
-  if( !torso.hModel )
-    return;
+  if( !ci->nonsegmented )
+  {
+    //
+    // add the torso
+    //
+    torso.hModel = ci->torsoModel;
+    if( !torso.hModel )
+      return;
 
-  torso.customSkin = ci->torsoSkin;
+    torso.customSkin = ci->torsoSkin;
 
-  VectorCopy( origin, torso.lightingOrigin );
+    VectorCopy( origin, torso.lightingOrigin );
 
-  CG_PositionRotatedEntityOnTag( &torso, &legs, ci->legsModel, "tag_torso" );
+    CG_PositionRotatedEntityOnTag( &torso, &legs, ci->legsModel, "tag_torso" );
 
-  torso.shadowPlane = shadowPlane;
-  torso.renderfx = renderfx;
+    torso.shadowPlane = shadowPlane;
+    torso.renderfx = renderfx;
 
-  //CG_AddRefEntityWithPowerups( &torso, cent->currentState.powerups, ci->team );
-  trap_R_AddRefEntityToScene( &torso );
+    //CG_AddRefEntityWithPowerups( &torso, cent->currentState.powerups, ci->team );
+    trap_R_AddRefEntityToScene( &torso );
 
-  //
-  // add the head
-  //
-  head.hModel = ci->headModel;
-  if( !head.hModel )
-    return;
+    //
+    // add the head
+    //
+    head.hModel = ci->headModel;
+    if( !head.hModel )
+      return;
 
-  head.customSkin = ci->headSkin;
+    head.customSkin = ci->headSkin;
 
-  VectorCopy( origin, head.lightingOrigin );
+    VectorCopy( origin, head.lightingOrigin );
 
-  CG_PositionRotatedEntityOnTag( &head, &torso, ci->torsoModel, "tag_head");
+    CG_PositionRotatedEntityOnTag( &head, &torso, ci->torsoModel, "tag_head");
 
-  head.shadowPlane = shadowPlane;
-  head.renderfx = renderfx;
+    head.shadowPlane = shadowPlane;
+    head.renderfx = renderfx;
 
-  //CG_AddRefEntityWithPowerups( &head, cent->currentState.powerups, ci->team );
-  trap_R_AddRefEntityToScene( &head );
+    //CG_AddRefEntityWithPowerups( &head, cent->currentState.powerups, ci->team );
+    trap_R_AddRefEntityToScene( &head );
+  }
 
   if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {

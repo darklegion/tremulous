@@ -709,6 +709,7 @@ void SpawnCorpse( gentity_t *ent )
   body->r.contents = CONTENTS_CORPSE;
   body->clipmask = CONTENTS_SOLID | CONTENTS_PLAYERCLIP;
   body->s.clientNum = ent->client->ps.stats[ STAT_PCLASS ];
+  body->nonSegModel = ent->client->ps.persistant[ PERS_STATE ] & PS_NONSEGMODEL;
   
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
@@ -746,21 +747,45 @@ void SpawnCorpse( gentity_t *ent )
   }
     
   body->s.legsAnim = ent->s.legsAnim;
-  switch( body->s.legsAnim & ~ANIM_TOGGLEBIT )
+
+  if( !body->nonSegModel )
   {
-    case BOTH_DEATH1:
-    case BOTH_DEAD1:
-      body->s.torsoAnim = body->s.legsAnim = BOTH_DEAD1;
-      break;
-    case BOTH_DEATH2:
-    case BOTH_DEAD2:
-      body->s.torsoAnim = body->s.legsAnim = BOTH_DEAD2;
-      break;
-    case BOTH_DEATH3:
-    case BOTH_DEAD3:
-    default:
-      body->s.torsoAnim = body->s.legsAnim = BOTH_DEAD3;
-      break;
+    switch( body->s.legsAnim & ~ANIM_TOGGLEBIT )
+    {
+      case BOTH_DEATH1:
+      case BOTH_DEAD1:
+        body->s.torsoAnim = body->s.legsAnim = BOTH_DEAD1;
+        break;
+      case BOTH_DEATH2:
+      case BOTH_DEAD2:
+        body->s.torsoAnim = body->s.legsAnim = BOTH_DEAD2;
+        break;
+      case BOTH_DEATH3:
+      case BOTH_DEAD3:
+      default:
+        body->s.torsoAnim = body->s.legsAnim = BOTH_DEAD3;
+        break;
+    }
+  }
+  else
+  {
+    G_Printf( "nonsegmented death\n" );
+    switch( body->s.legsAnim & ~ANIM_TOGGLEBIT )
+    {
+      case NSPA_DEATH1:
+      case NSPA_DEAD1:
+        body->s.legsAnim = NSPA_DEAD1;
+        break;
+      case NSPA_DEATH2:
+      case NSPA_DEAD2:
+        body->s.legsAnim = NSPA_DEAD2;
+        break;
+      case NSPA_DEATH3:
+      case NSPA_DEAD3:
+      default:
+        body->s.legsAnim = NSPA_DEAD3;
+        break;
+    }
   }
 
   body->takedamage = qfalse;

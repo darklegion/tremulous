@@ -191,6 +191,8 @@ struct gentity_s
   vec3_t            turretAim;    //TA: aim vector for turrets
 
   gentity_t         *builder;     //TA: occupant of this hovel
+
+  qboolean          nonSegModel;  //TA: this entity uses a nonsegmented player model
 };
 
 typedef enum

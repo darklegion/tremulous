@@ -312,18 +312,37 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     // normal death
     static int i;
 
-    switch( i )
+    if( !( self->client->ps.persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
     {
-      case 0:
-        anim = BOTH_DEATH1;
-        break;
-      case 1:
-        anim = BOTH_DEATH2;
-        break;
-      case 2:
-      default:
-        anim = BOTH_DEATH3;
-        break;
+      switch( i )
+      {
+        case 0:
+          anim = BOTH_DEATH1;
+          break;
+        case 1:
+          anim = BOTH_DEATH2;
+          break;
+        case 2:
+        default:
+          anim = BOTH_DEATH3;
+          break;
+      }
+    }
+    else
+    {
+      switch( i )
+      {
+        case 0:
+          anim = NSPA_DEATH1;
+          break;
+        case 1:
+          anim = NSPA_DEATH2;
+          break;
+        case 2:
+        default:
+          anim = NSPA_DEATH3;
+          break;
+      }
     }
 
     // for the no-blood option, we need to prevent the health
@@ -333,8 +352,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
     self->client->ps.legsAnim =
       ( ( self->client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
-    self->client->ps.torsoAnim =
-      ( ( self->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
+    
+    if( !( self->client->ps.persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+    {
+      self->client->ps.torsoAnim =
+        ( ( self->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
+    }
 
     G_AddEvent( self, EV_DEATH1 + i, killer );
 
