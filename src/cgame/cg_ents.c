@@ -408,14 +408,11 @@ static void CG_Missile( centity_t *cent )
     if( VectorNormalize2( es->pos.trDelta, ent.axis[ 0 ] ) == 0 )
       ent.axis[ 0 ][ 2 ] = 1;
 
-    if( wi->wim[ weaponMode ].missileRotates )
-    {
-      // spin as it moves
-      if( es->pos.trType != TR_STATIONARY )
-        RotateAroundDirection( ent.axis, cg.time / 4 );
-      else
-        RotateAroundDirection( ent.axis, es->time );
-    }
+    // spin as it moves
+    if( es->pos.trType != TR_STATIONARY && wi->wim[ weaponMode ].missileRotates )
+      RotateAroundDirection( ent.axis, cg.time / 4 );
+    else
+      RotateAroundDirection( ent.axis, es->time );
   }
   
   //only refresh if there is something to display

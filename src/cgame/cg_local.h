@@ -1126,6 +1126,7 @@ typedef struct
   sfxHandle_t gibBounce1Sound;
   sfxHandle_t gibBounce2Sound;
   sfxHandle_t gibBounce3Sound;
+  sfxHandle_t metalGibBounceSound;
   sfxHandle_t teleInSound;
   sfxHandle_t teleOutSound;
   sfxHandle_t noAmmoSound;
@@ -1162,8 +1163,9 @@ typedef struct
   sfxHandle_t alienOvermindDying;
   sfxHandle_t alienOvermindSpawns;
   
-  sfxHandle_t humanBuildableExpl;
-  
+  sfxHandle_t alienBuildableExplosion;
+  sfxHandle_t humanBuildableExplosion;
+
   qhandle_t   cursor;
   qhandle_t   selectCursor;
   qhandle_t   sizeCursor;

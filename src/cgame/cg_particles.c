@@ -1299,6 +1299,12 @@ Attach a particle system to a centity_t
 */
 void CG_AttachParticleSystemToCent( particleSystem_t *ps )
 {
+  if( ps == NULL )
+  {
+    CG_Printf( S_COLOR_YELLOW "WARNING: tried to modify a NULL particle system\n" );
+    return;
+  }
+  
   ps->attachType = PSA_CENT_ORIGIN;
   ps->attached = qtrue;
 }
@@ -1312,6 +1318,12 @@ Set a particle system attachment means
 */
 void CG_SetParticleSystemCent( particleSystem_t *ps, centity_t *cent )
 {
+  if( ps == NULL )
+  {
+    CG_Printf( S_COLOR_YELLOW "WARNING: tried to modify a NULL particle system\n" );
+    return;
+  }
+  
   ps->attachment.centValid = qtrue;
   ps->attachment.centNum = cent->currentState.number;
 }
@@ -1325,6 +1337,12 @@ Attach a particle system to a model tag
 */
 void CG_AttachParticleSystemToTag( particleSystem_t *ps )
 {
+  if( ps == NULL )
+  {
+    CG_Printf( S_COLOR_YELLOW "WARNING: tried to modify a NULL particle system\n" );
+    return;
+  }
+  
   ps->attachType = PSA_TAG;
   ps->attached = qtrue;
 }
@@ -1339,6 +1357,12 @@ Set a particle system attachment means
 void CG_SetParticleSystemTag( particleSystem_t *ps, refEntity_t parent,
                               qhandle_t model, char *tagName )
 {
+  if( ps == NULL )
+  {
+    CG_Printf( S_COLOR_YELLOW "WARNING: tried to modify a NULL particle system\n" );
+    return;
+  }
+  
   ps->attachment.tagValid = qtrue;
   ps->attachment.parent = parent;
   ps->attachment.model = model;
@@ -1354,6 +1378,12 @@ Attach a particle system to a point in space
 */
 void CG_AttachParticleSystemToOrigin( particleSystem_t *ps )
 {
+  if( ps == NULL )
+  {
+    CG_Printf( S_COLOR_YELLOW "WARNING: tried to modify a NULL particle system\n" );
+    return;
+  }
+  
   ps->attachType = PSA_STATIC;
   ps->attached = qtrue;
 }
@@ -1367,6 +1397,12 @@ Set a particle system attachment means
 */
 void CG_SetParticleSystemOrigin( particleSystem_t *ps, vec3_t origin )
 {
+  if( ps == NULL )
+  {
+    CG_Printf( S_COLOR_YELLOW "WARNING: tried to modify a NULL particle system\n" );
+    return;
+  }
+  
   ps->attachment.staticValid = qtrue;
   VectorCopy( origin, ps->attachment.origin );
 }
@@ -1380,6 +1416,12 @@ Set a particle system attachment means
 */
 void CG_SetParticleSystemNormal( particleSystem_t *ps, vec3_t normal )
 {
+  if( ps == NULL )
+  {
+    CG_Printf( S_COLOR_YELLOW "WARNING: tried to modify a NULL particle system\n" );
+    return;
+  }
+  
   ps->attachment.normalValid = qtrue;
   VectorCopy( normal, ps->attachment.normal );
 }
@@ -1396,6 +1438,12 @@ void CG_DestroyParticleSystem( particleSystem_t *ps )
 {
   int               i;
   particleEjector_t *pe;
+  
+  if( ps == NULL )
+  {
+    CG_Printf( S_COLOR_YELLOW "WARNING: tried to destroy a NULL particle system\n" );
+    return;
+  }
   
   if( cg_debugParticles.integer >= 1 )
     CG_Printf( "PS destroyed\n" );
@@ -1423,6 +1471,12 @@ qboolean CG_IsParticleSystemInfinite( particleSystem_t *ps )
   int               i;
   particleEjector_t *pe;
 
+  if( ps == NULL )
+  {
+    CG_Printf( S_COLOR_YELLOW "WARNING: tried to test a NULL particle system\n" );
+    return qfalse;
+  }
+  
   //don't bother checking already invalid systems
   if( !ps->valid )
     return qfalse;

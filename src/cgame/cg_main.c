@@ -563,8 +563,6 @@ static void CG_RegisterSounds( void )
   char        name[ MAX_QPATH ];
   const char  *soundName;
 
-  // voice commands
-
   cgs.media.alienStageTransition  = trap_S_RegisterSound( "sound/announcements/overmindevolved.wav", qtrue );
   cgs.media.humanStageTransition  = trap_S_RegisterSound( "sound/announcements/reinforcement.wav", qtrue );
 
@@ -580,6 +578,7 @@ static void CG_RegisterSounds( void )
   cgs.media.gibBounce1Sound       = trap_S_RegisterSound( "sound/player/gibimp1.wav", qfalse );
   cgs.media.gibBounce2Sound       = trap_S_RegisterSound( "sound/player/gibimp2.wav", qfalse );
   cgs.media.gibBounce3Sound       = trap_S_RegisterSound( "sound/player/gibimp3.wav", qfalse );
+  cgs.media.metalGibBounceSound   = trap_S_RegisterSound( "sound/weapons/rocket/rocklx1a.wav", qfalse );
 
   cgs.media.teleInSound           = trap_S_RegisterSound( "sound/world/telein.wav", qfalse );
   cgs.media.teleOutSound          = trap_S_RegisterSound( "sound/world/teleout.wav", qfalse );
@@ -640,8 +639,9 @@ static void CG_RegisterSounds( void )
 
   cgs.media.alienEvolveSound        = trap_S_RegisterSound( "sound/player/alienevolve.wav", qfalse );
   
-  cgs.media.humanBuildableExpl      = trap_S_RegisterSound( "sound/weapons/rocket/rocklx1a.wav", qfalse );
-
+  cgs.media.alienBuildableExplosion = trap_S_RegisterSound( "sound/buildables/alien/explosion.wav", qfalse );
+  cgs.media.humanBuildableExplosion = trap_S_RegisterSound( "sound/buildables/human/explosion.wav", qfalse );
+  
   cgs.media.hgrenb1aSound           = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb1a.wav", qfalse );
   cgs.media.hgrenb2aSound           = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb2a.wav", qfalse );
   
@@ -784,6 +784,7 @@ static void CG_RegisterGraphics( void )
   cgs.media.bloodMarkShader           = trap_R_RegisterShader( "bloodMark" );
 
   cgs.media.poisonCloudPS             = CG_RegisterParticleSystem( "poisonCloudPS" );
+  cgs.media.alienEvolvePS             = CG_RegisterParticleSystem( "alienEvolvePS" );
   cgs.media.alienAcidTubePS           = CG_RegisterParticleSystem( "alienAcidTubePS" );
 
   cgs.media.jetPackDescendPS          = CG_RegisterParticleSystem( "jetPackDescendPS" );

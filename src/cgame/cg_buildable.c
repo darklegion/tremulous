@@ -31,8 +31,8 @@ char *cg_buildableSoundNames[ MAX_BUILDABLE_ANIMATIONS ] =
   "destroyed.wav"
 };
 
-sfxHandle_t defaultAlienSounds[ MAX_BUILDABLE_ANIMATIONS ];
-sfxHandle_t defaultHumanSounds[ MAX_BUILDABLE_ANIMATIONS ];
+static sfxHandle_t defaultAlienSounds[ MAX_BUILDABLE_ANIMATIONS ];
+static sfxHandle_t defaultHumanSounds[ MAX_BUILDABLE_ANIMATIONS ];
 
 
 /*
@@ -82,6 +82,8 @@ void CG_AlienBuildableExplosion( vec3_t origin, vec3_t dir )
   int               count;
   particleSystem_t  *ps;
 
+  trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.alienBuildableExplosion );
+  
   // allow gibs to be turned off for speed
   if( cg_gibs.integer )
   {
@@ -157,7 +159,7 @@ void CG_HumanBuildableExplosion( vec3_t origin, vec3_t dir )
   lightColor[ 1 ] = 0.75;
   lightColor[ 2 ] = 0.0;
 
-  trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.humanBuildableExpl );
+  trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.humanBuildableExplosion );
 
   //
   // create the explosion -- only the light is important really
