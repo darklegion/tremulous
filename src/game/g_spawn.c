@@ -295,7 +295,6 @@ returning qfalse if not found
 qboolean G_CallSpawn( gentity_t *ent )
 {
   spawn_t     *s;
-  gitem_t     *item;
   buildable_t buildable;
 
   if( !ent->classname )

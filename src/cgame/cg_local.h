@@ -418,7 +418,6 @@ typedef struct
 typedef struct weaponInfo_s
 {
   qboolean    registered;
-  gitem_t     *item;
   char        *humanName;
 
   qhandle_t   handsModel;       // the hands don't actually draw, they just position the weapon
@@ -473,7 +472,7 @@ typedef struct
 
 typedef struct
 {
-  qhandle_t   models[ MAX_ITEM_MODELS ];
+  qhandle_t   models[ MAX_BUILDABLE_MODELS ];
   animation_t animations[ MAX_BUILDABLE_ANIMATIONS ];
 
   //same number of sounds as animations

@@ -833,43 +833,6 @@ typedef enum
 
 //---------------------------------------------------------
 
-// gitem_t->type
-typedef enum
-{
-  IT_BAD,
-  IT_WEAPON,        // EFX: rotate + upscale + minlight
-  IT_BUILDABLE,  //TA: gitem_t->type for buildable items (spawns etc.)
-  IT_UPGRADE,    //TA: gitem_t->type for human upgrades
-  IT_AMMO,        // EFX: rotate
-  IT_ARMOR,       // EFX: rotate + minlight
-  IT_HEALTH,        // EFX: static external sphere + rotating internal
-  IT_POWERUP,       // instant on, timer based
-              // EFX: rotate + external ring that rotates
-  IT_HOLDABLE,      // single use, holdable item
-              // EFX: rotate + bob
-  IT_TEAM
-} itemType_t;
-
-#define MAX_ITEM_MODELS 4
-
-typedef struct gitem_s
-{
-  char    *classname; // spawning name
-  char    *pickup_sound;
-  char    *world_model[MAX_ITEM_MODELS];
-
-  char    *icon;
-  char    *pickup_name; // for printing on pickup
-
-  int     quantity;   // for ammo how much, or duration of powerup
-  itemType_t  giType;     // IT_* flags
-
-  int     giTag;
-
-  char    *precaches;   // string of all models and images this item will use
-  char    *sounds;    // string of all sounds this item will use
-} gitem_t;
-
 //TA: player class record
 typedef struct
 {
@@ -927,6 +890,8 @@ typedef enum
   S3
 } stage_t;
 
+#define MAX_BUILDABLE_MODELS 4
+
 //TA: buildable item record
 typedef struct
 {
@@ -936,7 +901,7 @@ typedef struct
   char      *humanName;
   char      *entityName;
   
-  char      *models[ MAX_ITEM_MODELS ];
+  char      *models[ MAX_BUILDABLE_MODELS ];
 
   vec3_t    mins;
   vec3_t    maxs;

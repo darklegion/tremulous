@@ -1385,11 +1385,10 @@ static clientInfo_t * CG_InfoFromScoreIndex( int index, int team, int *scoreInde
 
 static const char *CG_FeederItemText( float feederID, int index, int column, qhandle_t *handle )
 {
-  gitem_t *item;
-  int scoreIndex = 0;
-  clientInfo_t *info = NULL;
-  int team = -1;
-  score_t *sp = NULL;
+  int           scoreIndex = 0;
+  clientInfo_t  *info = NULL;
+  int           team = -1;
+  score_t       *sp = NULL;
 
   *handle = -1;
 

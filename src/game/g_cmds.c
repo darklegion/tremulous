@@ -152,7 +152,6 @@ Give items to a client
 void Cmd_Give_f( gentity_t *ent )
 {
   char      *name;
-  gitem_t   *it;
   int       i;
   qboolean  give_all;
   gentity_t *it_ent;

@@ -45,8 +45,10 @@ sfxHandle_t weaponChangeSound;
 UI_PlayerInfo_SetWeapon
 ===============
 */
-static void UI_PlayerInfo_SetWeapon( playerInfo_t *pi, weapon_t weaponNum ) {
-	gitem_t *	item;
+static void UI_PlayerInfo_SetWeapon( playerInfo_t *pi, weapon_t weaponNum )
+{
+  //TA: FIXME: this is probably useless for trem
+/*	gitem_t *	item;
 	char		path[MAX_QPATH];
 
 	pi->currentWeapon = weaponNum;
@@ -86,46 +88,46 @@ tryagain:
 	pi->flashModel = trap_R_RegisterModel( path );
 
 	switch( weaponNum ) {
-/*	case WP_GAUNTLET:
+	case WP_GAUNTLET:
 		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
-		break;*/
+		break;
 
 	case WP_MACHINEGUN:
 		MAKERGB( pi->flashDlightColor, 1, 1, 0 );
 		break;
 
-/*	case WP_SHOTGUN:
+	case WP_SHOTGUN:
 		MAKERGB( pi->flashDlightColor, 1, 1, 0 );
-		break;*/
+		break;
 
-/*	case WP_GRENADE_LAUNCHER:
+	case WP_GRENADE_LAUNCHER:
 		MAKERGB( pi->flashDlightColor, 1, 0.7f, 0.5f );
-		break;*/
+		break;
 
-/*	case WP_ROCKET_LAUNCHER:
+	case WP_ROCKET_LAUNCHER:
 		MAKERGB( pi->flashDlightColor, 1, 0.75f, 0 );
-		break;*/
+		break;
 
 	case WP_TESLAGEN:
 		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
 		break;
 
-/*	case WP_RAILGUN:
+	case WP_RAILGUN:
 		MAKERGB( pi->flashDlightColor, 1, 0.5f, 0 );
-		break;*/
+		break;
 
-/*	case WP_BFG:
+	case WP_BFG:
 		MAKERGB( pi->flashDlightColor, 1, 0.7f, 1 );
-		break;*/
+		break;
 
-/*	case WP_GRAPPLING_HOOK:
+	case WP_GRAPPLING_HOOK:
 		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
-		break;*/
+		break;
 
 	default:
 		MAKERGB( pi->flashDlightColor, 1, 1, 1 );
 		break;
-	}
+	}*/
 }
 
 

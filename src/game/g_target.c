@@ -23,6 +23,7 @@ Gives the activator all the items pointed to.
 */
 void Use_Target_Give( gentity_t *ent, gentity_t *other, gentity_t *activator )
 {
+  //TA: FIXME: well, this is fucked
   gentity_t *t;
   trace_t   trace;
 
@@ -37,9 +38,6 @@ void Use_Target_Give( gentity_t *ent, gentity_t *other, gentity_t *activator )
   
   while( ( t = G_Find( t, FOFS( targetname ), ent->target ) ) != NULL )
   {
-    if( !t->item )
-      continue;
-
     // make sure it isn't going to respawn or show any events
     t->nextthink = 0;
     trap_UnlinkEntity( t );

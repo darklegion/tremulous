@@ -171,8 +171,6 @@ struct gentity_s
   float             wait;
   float             random;
 
-  gitem_t           *item;      // for bonus items
-
   int               biteam;       //TA: buildable item team
   gentity_t         *parentNode;  //TA: for creep and defence/spawn dependencies
   qboolean          active;       //TA: for power repeater, but could be useful elsewhere

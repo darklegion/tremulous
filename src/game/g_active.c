@@ -653,8 +653,6 @@ void ClientEvents( gentity_t *ent, int oldEventSequence )
   int       damage;
   vec3_t    dir;
   vec3_t    point, mins;
-//  qboolean  fired;
-  gitem_t   *item;
   gentity_t *drop;
   float     fallDistance;
   pClass_t  class;
