@@ -990,8 +990,17 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   if( take )
   {
     targ->health = targ->health - take;
+
+    if( targ->s.eType == ET_BUILDABLE )
+    {
+      if( targ->biteam == BIT_ALIENS )
+        G_AddEvent( targ, EV_ALIEN_BUILDABLE_DAMAGE, 0 );
+      else if( targ->biteam == BIT_HUMANS )
+        G_AddEvent( targ, EV_HUMAN_BUILDABLE_DAMAGE, 0 );
+    }
+    
     if( targ->client )
-      targ->client->ps.stats[STAT_HEALTH] = targ->health;
+      targ->client->ps.stats[ STAT_HEALTH ] = targ->health;
 
     //TA: add to the attackers "account" on the target
     if( targ->client && attacker->client &&

@@ -673,6 +673,16 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       CG_AlienBuildableExplosion( position, dir );
       break;
 
+    case EV_HUMAN_BUILDABLE_DAMAGE:
+      DEBUGNAME( "EV_HUMAN_BUILDABLE_DAMAGE" );
+      trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.humanBuildableDamage );
+      break;
+
+    case EV_ALIEN_BUILDABLE_DAMAGE:
+      DEBUGNAME( "EV_ALIEN_BUILDABLE_DAMAGE" );
+      trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.alienBuildableDamage );
+      break;
+
     case EV_TESLATRAIL:
       DEBUGNAME( "EV_TESLATRAIL" );
       cent->currentState.weapon = WP_TESLAGEN;

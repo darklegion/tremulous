@@ -692,6 +692,12 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
 
       continue;
     }
+    else if( !Q_stricmp( token, "disableIn3rdPerson" ) )
+    {
+      wi->disableIn3rdPerson = qtrue;
+
+      continue;
+    }
 
     Com_Printf( S_COLOR_RED "ERROR: unknown token '%s'\n", token );
     return qfalse;
@@ -900,17 +906,6 @@ static float CG_MachinegunSpinAngle( centity_t *cent )
 
 
 /*
-========================
-CG_AddWeaponWithPowerups
-========================
-*/
-static void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups )
-{
-  trap_R_AddRefEntityToScene( gun );
-}
-
-
-/*
 =============
 CG_AddPlayerWeapon
 
@@ -929,6 +924,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   weaponMode_t  weaponMode;
   weaponInfo_t  *weapon;
   centity_t     *nonPredictedCent;
+  pTeam_t       team = cent->currentState.powerups & 0xFF;
+  qboolean      noGunModel;
 
   weaponNum = cent->currentState.weapon;
   weaponMode = cent->currentState.generic1;
@@ -971,9 +968,9 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   }
 
   gun.hModel = weapon->weaponModel;
-  if( !gun.hModel )
-    return;
 
+  noGunModel = ( ( !ps || cg.renderingThirdPerson ) && weapon->disableIn3rdPerson ) || !gun.hModel;
+  
   if( !ps )
   {
     // add weapon ready sound
@@ -987,27 +984,30 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
       trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound );
   }
 
-  CG_PositionEntityOnTag( &gun, parent, parent->hModel, "tag_weapon" );
-
-  CG_AddWeaponWithPowerups( &gun, cent->currentState.powerups );
-
-  // add the spinning barrel
-  if( weapon->barrelModel )
+  if( !noGunModel )
   {
-    memset( &barrel, 0, sizeof( barrel ) );
-    VectorCopy( parent->lightingOrigin, barrel.lightingOrigin );
-    barrel.shadowPlane = parent->shadowPlane;
-    barrel.renderfx = parent->renderfx;
+    CG_PositionEntityOnTag( &gun, parent, parent->hModel, "tag_weapon" );
 
-    barrel.hModel = weapon->barrelModel;
-    angles[ YAW ] = 0;
-    angles[ PITCH ] = 0;
-    angles[ ROLL ] = CG_MachinegunSpinAngle( cent );
-    AnglesToAxis( angles, barrel.axis );
+    trap_R_AddRefEntityToScene( &gun );
 
-    CG_PositionRotatedEntityOnTag( &barrel, &gun, weapon->weaponModel, "tag_barrel" );
+    // add the spinning barrel
+    if( weapon->barrelModel )
+    {
+      memset( &barrel, 0, sizeof( barrel ) );
+      VectorCopy( parent->lightingOrigin, barrel.lightingOrigin );
+      barrel.shadowPlane = parent->shadowPlane;
+      barrel.renderfx = parent->renderfx;
 
-    CG_AddWeaponWithPowerups( &barrel, cent->currentState.powerups );
+      barrel.hModel = weapon->barrelModel;
+      angles[ YAW ] = 0;
+      angles[ PITCH ] = 0;
+      angles[ ROLL ] = CG_MachinegunSpinAngle( cent );
+      AnglesToAxis( angles, barrel.axis );
+
+      CG_PositionRotatedEntityOnTag( &barrel, &gun, weapon->weaponModel, "tag_barrel" );
+
+      trap_R_AddRefEntityToScene( &barrel );
+    }
   }
 
   // make sure we aren't looking at cg.predictedPlayerEntity for LG
@@ -1023,7 +1023,12 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   {
     if( ps || cg.renderingThirdPerson ||
         cent->currentState.number != cg.predictedPlayerState.clientNum )
-      CG_SetParticleSystemTag( cent->muzzlePS, gun, weapon->weaponModel, "tag_flash" );
+    {
+      if( noGunModel )
+        CG_SetParticleSystemTag( cent->muzzlePS, *parent, parent->hModel, "tag_weapon" );
+      else
+        CG_SetParticleSystemTag( cent->muzzlePS, gun, weapon->weaponModel, "tag_flash" );
+    }
 
     //FIXME: this leaves open the possibility for keep a persistent muzzle system going
     //       by hopping between firing buttons -- currently nothing with a persistent
@@ -1062,7 +1067,11 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   angles[ ROLL ] = crandom( ) * 10;
   AnglesToAxis( angles, flash.axis );
 
-  CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash" );
+  if( noGunModel )
+    CG_PositionRotatedEntityOnTag( &flash, parent, parent->hModel, "tag_weapon" );
+  else
+    CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash" );
+    
   trap_R_AddRefEntityToScene( &flash );
 
   if( ps || cg.renderingThirdPerson ||
@@ -1071,7 +1080,12 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
     if( weapon->wim[ weaponMode ].muzzleParticleSystem && cent->muzzlePsTrigger )
     {
       cent->muzzlePS = CG_SpawnNewParticleSystem( weapon->wim[ weaponMode ].muzzleParticleSystem );
-      CG_SetParticleSystemTag( cent->muzzlePS, gun, weapon->weaponModel, "tag_flash" );
+      
+      if( noGunModel )
+        CG_SetParticleSystemTag( cent->muzzlePS, *parent, parent->hModel, "tag_weapon" );
+      else
+        CG_SetParticleSystemTag( cent->muzzlePS, gun, weapon->weaponModel, "tag_flash" );
+
       CG_SetParticleSystemCent( cent->muzzlePS, cent );
       CG_AttachParticleSystemToTag( cent->muzzlePS );
       cent->muzzlePsTrigger = qfalse;
@@ -1106,6 +1120,11 @@ void CG_AddViewWeapon( playerState_t *ps )
   vec3_t        angles;
   weaponInfo_t  *wi;
   weapon_t      weapon = ps->weapon;
+  weaponMode_t  weaponMode = ps->generic1;
+
+  CG_RegisterWeapon( weapon );
+  wi = &cg_weapons[ weapon ];
+  cent = &cg.predictedPlayerEntity; // &cg_entities[cg.snap->ps.clientNum];
 
   if( ( ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) ||
       ( ps->stats[ STAT_STATE ] & SS_INFESTING ) ||
@@ -1132,13 +1151,20 @@ void CG_AddViewWeapon( playerState_t *ps )
   {
     vec3_t origin;
 
-    //FIXME: deal with new particle system
-    if( cg.predictedPlayerState.eFlags & EF_FIRING )
+    VectorCopy( cg.refdef.vieworg, origin );
+    VectorMA( origin, -8, cg.refdef.viewaxis[ 2 ], origin );
+    
+    if( cent->muzzlePS )
+      CG_SetParticleSystemOrigin( cent->muzzlePS, origin );
+    
+    //check for particle systems
+    if( wi->wim[ weaponMode ].muzzleParticleSystem && cent->muzzlePsTrigger )
     {
-      // special hack for lightning gun...
-      // TA: and flamer
-      VectorCopy( cg.refdef.vieworg, origin );
-      VectorMA( origin, -8, cg.refdef.viewaxis[ 2 ], origin );
+      cent->muzzlePS = CG_SpawnNewParticleSystem( wi->wim[ weaponMode ].muzzleParticleSystem );
+      CG_SetParticleSystemOrigin( cent->muzzlePS, origin );
+      CG_SetParticleSystemCent( cent->muzzlePS, cent );
+      CG_AttachParticleSystemToOrigin( cent->muzzlePS );
+      cent->muzzlePsTrigger = qfalse;
     }
     
     return;
@@ -1155,10 +1181,6 @@ void CG_AddViewWeapon( playerState_t *ps )
     fovOffset = -0.4 * ( cg.refdef.fov_y - 90 );
   else
     fovOffset = 0;
-
-  cent = &cg.predictedPlayerEntity; // &cg_entities[cg.snap->ps.clientNum];
-  CG_RegisterWeapon( weapon );
-  wi = &cg_weapons[ weapon ];
 
   memset( &hand, 0, sizeof( hand ) );
 

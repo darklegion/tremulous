@@ -348,11 +348,10 @@ static float PM_CmdScale( usercmd_t *cmd )
 
   if( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS && pm->ps->pm_type == PM_NORMAL )
   {
-    if( !( pm->ps->stats[ STAT_STATE ] & SS_SPEEDBOOST ) )
-    {
-      //if not sprinting
+    if( pm->ps->stats[ STAT_STATE ] & SS_SPEEDBOOST )
+      modifier *= HUMAN_SPRINT_MODIFIER;
+    else
       modifier *= HUMAN_JOG_MODIFIER;
-    }
 
     if( cmd->forwardmove < 0 )
     {
@@ -1771,7 +1770,7 @@ static void PM_GroundClimbTrace( void )
             rTtANGrTsTt -= 32768;
 
           //set the correction angle
-          if( traceCROSSsurf[ 2 ] < 0 )
+          if( traceCROSSsurf[ 2 ] <= 0.0f )
             rTtANGrTsTt = -rTtANGrTsTt;
 
           //phew! - correct the angle
@@ -2343,6 +2342,9 @@ static void PM_Footsteps( void )
   }
 
   bobmove *= BG_FindBobCycleForClass( pm->ps->stats[ STAT_PCLASS ] );
+  
+  if( pm->ps->stats[ STAT_STATE ] & SS_SPEEDBOOST )
+    bobmove *= HUMAN_SPRINT_MODIFIER;
 
   // check for footstep / splash sounds
   old = pm->ps->bobCycle;

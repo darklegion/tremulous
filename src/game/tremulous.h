@@ -475,6 +475,7 @@
  * HUMAN misc
  */
 
+#define HUMAN_SPRINT_MODIFIER       1.2f
 #define HUMAN_JOG_MODIFIER          0.9f
 #define HUMAN_BACK_MODIFIER         0.7f
 #define HUMAN_SIDE_MODIFIER         0.8f

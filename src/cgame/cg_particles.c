@@ -238,10 +238,12 @@ introducing new particles
 static void CG_SpawnNewParticles( void )
 {
   int                   i, j;
+  particle_t            *p;
   particleSystem_t      *ps;
   particleEjector_t     *pe;
   baseParticleEjector_t *bpe;
   float                 lerpFrac;
+  int                   count;
 
   for( i = 0; i < MAX_PARTICLE_EJECTORS; i++ )
   {
@@ -278,7 +280,21 @@ static void CG_SpawnNewParticles( void )
         pe->valid = qfalse;
       
       if( pe->count == 0 )
-        pe->valid = qfalse;
+      {
+        count = 0;
+
+        //wait for child particles to die before declaring this pe invalid
+        for( j = 0; j < MAX_PARTICLES; j++ )
+        {
+          p = &particles[ j ];
+          
+          if( p->valid && p->parent == pe )
+            count++;
+        }
+
+        if( !count )
+          pe->valid = qfalse;
+      }
     }
   }
 }
@@ -1432,6 +1448,10 @@ void CG_SetParticleSystemNormal( particleSystem_t *ps, vec3_t normal )
 CG_DestroyParticleSystem
 
 Destroy a particle system
+
+This doesn't actually invalidate anything, it just stops
+particle ejectors from producing new particles so the 
+garbage collector will eventually remove this system
 ===============
 */
 void CG_DestroyParticleSystem( particleSystem_t *ps )
@@ -1448,14 +1468,12 @@ void CG_DestroyParticleSystem( particleSystem_t *ps )
   if( cg_debugParticles.integer >= 1 )
     CG_Printf( "PS destroyed\n" );
 
-  ps->valid = qfalse;
-
   for( i = 0; i < MAX_PARTICLE_EJECTORS; i++ )
   {
     pe = &particleEjectors[ i ];
     
     if( pe->valid && pe->parent == ps )
-      pe->valid = qfalse;
+      pe->totalParticles = pe->count = 0;
   }
 }
 

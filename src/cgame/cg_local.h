@@ -708,6 +708,8 @@ typedef struct weaponInfo_s
   void              (*ejectBrassFunc)( centity_t * );
 
   sfxHandle_t       readySound;
+
+  qboolean          disableIn3rdPerson;
   
   weaponInfoMode_t  wim[ WPM_NUM_WEAPONMODES ];
 } weaponInfo_t;
@@ -1165,6 +1167,8 @@ typedef struct
   
   sfxHandle_t alienBuildableExplosion;
   sfxHandle_t humanBuildableExplosion;
+  sfxHandle_t alienBuildableDamage;
+  sfxHandle_t humanBuildableDamage;
 
   qhandle_t   cursor;
   qhandle_t   selectCursor;
