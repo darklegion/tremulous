@@ -905,7 +905,7 @@ Triggering this entity toggles it.
 
 //=============================================================================
 
-/*QUAKED misc_particle_system (1 .5 .25) (-16 -16 -16) (16 16 16) SPAWN_DISABLED
+/*QUAKED misc_particle_system (1 .5 .25) (-8 -8 -8) (8 8 8) SPAWN_DISABLED
 A particle system entity.
 
 -------- KEYS --------

@@ -882,6 +882,7 @@ static void CG_CEntityPVSEnter( centity_t *cent )
   cent->jetPackState = JPS_OFF;
   cent->buildablePS = NULL;
   cent->entityPS = NULL;
+  cent->entityPSMissing = qfalse;
 
   //make sure that the buildable animations are in a consistent state
   //when a buildable enters the PVS

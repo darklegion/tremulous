@@ -465,6 +465,7 @@ typedef struct centity_s
   jetPackState_t        jetPackState;
 
   particleSystem_t      *entityPS;
+  qboolean              entityPSMissing;
   
   qboolean              valid;
   qboolean              oldValid;
@@ -1178,9 +1179,11 @@ typedef struct
   sfxHandle_t alienOvermindSpawns;
   
   sfxHandle_t alienBuildableExplosion;
-  sfxHandle_t humanBuildableExplosion;
   sfxHandle_t alienBuildableDamage;
-  sfxHandle_t humanBuildableDamage;
+  sfxHandle_t alienBuildablePrebuild;
+  sfxHandle_t humanBuildableExplosion;
+  sfxHandle_t humanBuildablePrebuild;
+  sfxHandle_t humanBuildableDamage[ 4 ];
 
   qhandle_t   cursor;
   qhandle_t   selectCursor;

@@ -84,13 +84,13 @@ void meleeAttack( gentity_t *ent, float range, int damage, meansOfDeath_t mod )
   VectorMA( muzzle, range, forward, end );
 
   trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
-  if ( tr.surfaceFlags & SURF_NOIMPACT )
+  if( tr.surfaceFlags & SURF_NOIMPACT )
     return;
 
   traceEnt = &g_entities[ tr.entityNum ];
 
   // send blood impact
-  if ( traceEnt->takedamage && traceEnt->client )
+  if( traceEnt->takedamage && traceEnt->client )
   {
     tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
     tent->s.otherEntityNum = traceEnt->s.number;
@@ -99,7 +99,7 @@ void meleeAttack( gentity_t *ent, float range, int damage, meansOfDeath_t mod )
     tent->s.generic1 = ent->s.generic1; //weaponMode
   }
 
-  if ( traceEnt->takedamage )
+  if( traceEnt->takedamage )
     G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, mod );
 }
 

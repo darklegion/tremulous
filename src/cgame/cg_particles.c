@@ -357,8 +357,7 @@ particleSystem_t *CG_SpawnNewParticleSystem( qhandle_t psHandle )
 
   if( !bps->registered )
   {
-    CG_Printf( S_COLOR_RED "ERROR: particle system %s has not been registered yet\n",
-               bps->name );
+    CG_Printf( S_COLOR_RED "ERROR: a particle system has not been registered yet\n" );
     return NULL;
   }
     
@@ -426,7 +425,7 @@ qhandle_t CG_RegisterParticleSystem( char *name )
     }
   }
 
-  CG_Printf( S_COLOR_YELLOW "WARNING: failed to load particle system %s\n", name );
+  CG_Printf( S_COLOR_RED "ERROR: failed to load particle system %s\n", name );
   return 0;
 }
 
@@ -2004,11 +2003,17 @@ void CG_ParticleSystemEntity( centity_t *cent )
     return;
   }
   
-  if( !CG_IsParticleSystemValid( &cent->entityPS ) )
+  if( !CG_IsParticleSystemValid( &cent->entityPS ) && !cent->entityPSMissing )
   {
     cent->entityPS = CG_SpawnNewParticleSystem( cgs.gameParticleSystems[ es->modelindex ] );
-    CG_SetParticleSystemOrigin( cent->entityPS, cent->lerpOrigin );
-    CG_SetParticleSystemCent( cent->entityPS, cent );
-    CG_AttachParticleSystemToOrigin( cent->entityPS );
+
+    if( CG_IsParticleSystemValid( &cent->entityPS ) )
+    {
+      CG_SetParticleSystemOrigin( cent->entityPS, cent->lerpOrigin );
+      CG_SetParticleSystemCent( cent->entityPS, cent );
+      CG_AttachParticleSystemToOrigin( cent->entityPS );
+    }
+    else
+      cent->entityPSMissing = qtrue;
   }
 }

@@ -586,7 +586,6 @@ static void CG_RegisterSounds( void )
   cgs.media.gibBounce1Sound       = trap_S_RegisterSound( "sound/player/gibimp1.wav", qfalse );
   cgs.media.gibBounce2Sound       = trap_S_RegisterSound( "sound/player/gibimp2.wav", qfalse );
   cgs.media.gibBounce3Sound       = trap_S_RegisterSound( "sound/player/gibimp3.wav", qfalse );
-  cgs.media.metalGibBounceSound   = trap_S_RegisterSound( "sound/weapons/rocket/rocklx1a.wav", qfalse );
 
   cgs.media.teleInSound           = trap_S_RegisterSound( "sound/world/telein.wav", qfalse );
   cgs.media.teleOutSound          = trap_S_RegisterSound( "sound/world/teleout.wav", qfalse );
@@ -648,9 +647,16 @@ static void CG_RegisterSounds( void )
   cgs.media.alienEvolveSound        = trap_S_RegisterSound( "sound/player/alienevolve.wav", qfalse );
   
   cgs.media.alienBuildableExplosion = trap_S_RegisterSound( "sound/buildables/alien/explosion.wav", qfalse );
-  cgs.media.humanBuildableExplosion = trap_S_RegisterSound( "sound/buildables/human/explosion.wav", qfalse );
   cgs.media.alienBuildableDamage    = trap_S_RegisterSound( "sound/buildables/alien/damage.wav", qfalse );
-  cgs.media.humanBuildableDamage    = trap_S_RegisterSound( "sound/buildables/human/damage.wav", qfalse );
+  cgs.media.alienBuildablePrebuild  = trap_S_RegisterSound( "sound/buildables/alien/prebuild.wav", qfalse );
+  
+  cgs.media.humanBuildableExplosion = trap_S_RegisterSound( "sound/buildables/human/explosion.wav", qfalse );
+  cgs.media.humanBuildablePrebuild  = trap_S_RegisterSound( "sound/buildables/human/prebuild.wav", qfalse );
+  cgs.media.metalGibBounceSound     = trap_S_RegisterSound( "sound/buildables/human/fragmentbounce.wav", qfalse );
+
+  for( i = 0; i < 4; i++ )
+    cgs.media.humanBuildableDamage[ i ] = trap_S_RegisterSound(
+        va( "sound/buildables/human/damage%d.wav", i ), qfalse );
   
   cgs.media.hgrenb1aSound           = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb1a.wav", qfalse );
   cgs.media.hgrenb2aSound           = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb2a.wav", qfalse );

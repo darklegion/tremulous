@@ -979,12 +979,17 @@ void CG_Buildable( centity_t *cent )
 
   if( !( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
   {
+    sfxHandle_t prebuildSound;
+    
     if( team == BIT_HUMANS )
     {
       ent.customShader = cgs.media.humanSpawningShader;
+      prebuildSound = cgs.media.humanBuildablePrebuild;
     }
+    else if( team == BIT_ALIENS )
+      prebuildSound = cgs.media.alienBuildablePrebuild;
 
-    /*trap_S_AddLoopingSound*/
+    trap_S_AddLoopingSound( es->number, cent->lerpOrigin, vec3_origin, prebuildSound );
   }
       
   CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );

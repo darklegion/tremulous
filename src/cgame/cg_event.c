@@ -710,7 +710,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
 
     case EV_HUMAN_BUILDABLE_DAMAGE:
       DEBUGNAME( "EV_HUMAN_BUILDABLE_DAMAGE" );
-      trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.humanBuildableDamage );
+      i = rand( ) % 4;
+      trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.humanBuildableDamage[ i ] );
       break;
 
     case EV_ALIEN_BUILDABLE_DAMAGE:
