@@ -1758,6 +1758,7 @@ void CG_Player( centity_t *cent ) {
   refEntity_t   legs;
   refEntity_t   torso;
   refEntity_t   head;
+  refEntity_t   aura;
   int       clientNum;
   int       renderfx;
   qboolean    shadow;
@@ -1931,6 +1932,17 @@ void CG_Player( centity_t *cent ) {
   // add the gun / barrel / flash
   //
   CG_AddPlayerWeapon( &torso, NULL, cent );
+
+/*  aura.reType = RT_SPRITE;
+  VectorCopy( cent->lerpOrigin, aura.origin );
+  aura.customShader = cgs.media.whiteShader;
+  aura.shaderRGBA[ 0 ] = 0xff;
+  aura.shaderRGBA[ 1 ] = 0xff;
+  aura.shaderRGBA[ 2 ] = 0xff;
+  aura.shaderRGBA[ 3 ] = 0xff;
+  aura.radius = 64;
+  
+  trap_R_AddRefEntityToScene( &aura );*/
 }
 
 /*

@@ -863,29 +863,22 @@ void ClientThink_real( gentity_t *ent ) {
 
   memset (&pm, 0, sizeof(pm));
 
-  if( !( ucmd->buttons & BUTTON_TALK ) && client->ps.weaponTime <= 0 )
+  if( !( ucmd->buttons & BUTTON_TALK ) ) //&& client->ps.weaponTime <= 0 ) //TA: erk more server load
   {
-    qboolean temp;
-    
     switch( client->ps.weapon )
     {
       case WP_VENOM:
-        pm.autoWeaponHit[ WP_VENOM ] = CheckVenomAttack( ent );
+        if( client->ps.weaponTime <= 0 )
+          pm.autoWeaponHit[ WP_VENOM ] = CheckVenomAttack( ent );
         break;
 
       case WP_GRABANDCSAW:
-        temp = CheckGrabAttack( ent );
-        if( !pm.autoWeaponHit[ WP_GRABANDCSAW ] && temp )
-        {
-          //enemy has *just* entered grab range
-          //only allow grab if attack2 button is UP
-          if( !( ucmd->buttons & BUTTON_ATTACK2 ) )
-            pm.autoWeaponHit[ WP_GRABANDCSAW ] = qtrue;
-        }
+        pm.autoWeaponHit[ WP_GRABANDCSAW ] = CheckGrabAttack( ent );
         break;
 
       case WP_POUNCE:
-        pm.autoWeaponHit[ WP_POUNCE ] = CheckPounceAttack( ent );
+        if( client->ps.weaponTime <= 0 )
+          pm.autoWeaponHit[ WP_POUNCE ] = CheckPounceAttack( ent );
         break;
 
       default:

@@ -635,6 +635,13 @@ qboolean CheckVenomAttack( gentity_t *ent )
 
   traceEnt = &g_entities[ tr.entityNum ];
 
+  if( !traceEnt->takedamage)
+    return qfalse;
+  if( !traceEnt->client )
+    return qfalse;
+  if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
+    return qfalse;
+
   // send blood impact
   if ( traceEnt->takedamage && traceEnt->client )
   {
@@ -643,13 +650,6 @@ qboolean CheckVenomAttack( gentity_t *ent )
     tent->s.eventParm = DirToByte( tr.plane.normal );
     tent->s.weapon = ent->s.weapon;
   }
-
-  if( !traceEnt->takedamage)
-    return qfalse;
-  if( !traceEnt->client )
-    return qfalse;
-  if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
-    return qfalse;
 
   G_Damage( traceEnt, ent, ent, forward, tr.endpos, 5, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
   if( traceEnt->client )

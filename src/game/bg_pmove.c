@@ -2206,6 +2206,8 @@ static void PM_Weapon( void )
 {
   int addTime;
   int ammo, clips, maxclips;
+  qboolean attack1 = qfalse;
+  qboolean attack2 = qfalse;
   
   // don't allow attack until all buttons are up
   if ( pm->ps->pm_flags & PMF_RESPAWNED )
@@ -2336,9 +2338,13 @@ static void PM_Weapon( void )
     return;
   }
     
+  //check if non-auto primary/secondary attacks are permited
   switch( pm->ps->weapon )
   {
     case WP_VENOM:
+      //venom is only autohit
+      attack1 = attack2 = qfalse;
+
       if( !pm->autoWeaponHit[ pm->ps->weapon ] )
       {
         pm->ps->weaponTime = 0;
@@ -2348,8 +2354,26 @@ static void PM_Weapon( void )
       break;
       
     case WP_POUNCE:
-      if( !pm->autoWeaponHit[ pm->ps->weapon ] &&
-          !( pm->cmd.buttons & ( BUTTON_ATTACK | BUTTON_ATTACK2 ) ) )
+      //pouncing has primary secondary AND autohit procedures
+      attack1 = pm->cmd.buttons & BUTTON_ATTACK;
+      attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
+      
+      if( !pm->autoWeaponHit[ pm->ps->weapon ] && !attack1 && !attack2 )
+      {
+        pm->ps->weaponTime = 0;
+        pm->ps->weaponstate = WEAPON_READY;
+        return;
+      }
+      break;
+
+    case WP_GRABANDCSAW:
+      attack1 = pm->cmd.buttons & BUTTON_ATTACK;
+      
+      //secondary attack is only permitted if target is in range
+      if( pm->autoWeaponHit[ pm->ps->weapon ] )
+        attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
+
+      if( !attack1 && !attack2 )
       {
         pm->ps->weaponTime = 0;
         pm->ps->weaponstate = WEAPON_READY;
@@ -2358,8 +2382,11 @@ static void PM_Weapon( void )
       break;
       
     default:
-      // check for fire
-      if( !( pm->cmd.buttons & ( BUTTON_ATTACK | BUTTON_ATTACK2 ) ) )
+      //by default primary and secondary attacks are allowed
+      attack1 = pm->cmd.buttons & BUTTON_ATTACK;
+      attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
+      
+      if( !attack1 && !attack2 )
       {
         pm->ps->weaponTime = 0;
         pm->ps->weaponstate = WEAPON_READY;
@@ -2367,24 +2394,28 @@ static void PM_Weapon( void )
       }
       break;
   }
-  
-  // fire weapon
-  if( pm->cmd.buttons & BUTTON_ATTACK2 )
+
+  //TA: fire events for non auto weapons
+  if( attack2 )
   {
     if( BG_WeaponHasAltMode( pm->ps->weapon ) )
     {
-      if( BG_WeaponModesAreSynced( pm->ps->weapon ) && ( pm->cmd.buttons & BUTTON_ATTACK ) )
+      if( BG_WeaponModesAreSynced( pm->ps->weapon ) && attack1 )
         PM_AddEvent( EV_FIRE_WEAPONBOTH );
       else
         PM_AddEvent( EV_FIRE_WEAPON2 );
     }
     else
+    {
+      pm->ps->weaponTime = 0;
+      pm->ps->weaponstate = WEAPON_READY;
       return;
+    }
   }
-  else if( pm->cmd.buttons & BUTTON_ATTACK )
+  else if( attack1 )
     PM_AddEvent( EV_FIRE_WEAPON );
 
-  //TA: yuck hack
+  //TA: fire events for autohit weapons
   if( pm->autoWeaponHit[ pm->ps->weapon ] )
   {
     switch( pm->ps->weapon )
@@ -2453,7 +2484,7 @@ static void PM_Weapon( void )
       addTime = 500;
       break;
     case WP_GRABANDCSAW:
-      addTime = 50;
+      addTime = 500;
       break;
     case WP_POUNCE:
       addTime = 750;
