@@ -19,7 +19,7 @@
 
     font "fonts/font" 16			// font
     smallFont "fonts/smallfont" 12		// font
-    bigFont "fonts/bigfont" 20		// font
+    bigFont "fonts/bigfont" 20			// font
   }
 
   menuDef
@@ -46,6 +46,17 @@
       ownerdraw CG_CONSOLE
     }   
 
+    //LAGOMETER
+    itemDef
+    {
+      name "lagometer"
+      rect 502 358 132 28
+      visible 1
+      decoration
+      background "lagometer"
+      ownerdraw CG_LAGOMETER
+    }   
+
     //////////////////
     //STATIC OBJECTS//
     //////////////////
@@ -59,7 +70,7 @@
       decoration
       forecolor 0.0 0.8 1.0 0.25
       style WINDOW_STYLE_SHADER
-      background "ui/assets/circle.tga"
+      background "ui/assets/neutral/circle.tga"
     }   
 
     //LEFT ARM
@@ -71,7 +82,7 @@
       decoration
       forecolor 0.0 0.8 1.0 0.25
       style WINDOW_STYLE_SHADER
-      background "ui/assets/left-arm.tga"
+      background "ui/assets/human/left-arm.tga"
     }   
 
     //LEFT CAP
@@ -83,7 +94,7 @@
       decoration
       forecolor 0.0 0.8 1.0 0.25
       style WINDOW_STYLE_SHADER
-      background "ui/assets/left-cap.tga"
+      background "ui/assets/human/left-cap.tga"
     }   
 
     //CREDITS LABEL
@@ -95,7 +106,7 @@
       decoration
       forecolor 0.0 0.8 1.0 0.5
       style WINDOW_STYLE_SHADER
-      background "ui/assets/credits.tga"
+      background "ui/assets/human/credits.tga"
     }   
 
     //RIGHT CIRCLE
@@ -107,7 +118,7 @@
       decoration
       forecolor 0.0 0.8 1.0 0.25
       style WINDOW_STYLE_SHADER
-      background "ui/assets/circle.tga"
+      background "ui/assets/neutral/circle.tga"
     }   
 
     //RIGHT ARM
@@ -119,7 +130,7 @@
       decoration
       forecolor 0.0 0.8 1.0 0.25
       style WINDOW_STYLE_SHADER
-      background "ui/assets/right-arm.tga"
+      background "ui/assets/human/right-arm.tga"
     }   
 
     //RIGHT CAP
@@ -131,7 +142,31 @@
       decoration
       forecolor 0.0 0.8 1.0 0.25
       style WINDOW_STYLE_SHADER
-      background "ui/assets/right-cap.tga"
+      background "ui/assets/human/right-cap.tga"
+    }   
+
+    //TIMER COLON
+    itemDef
+    {
+      name "colon"
+      rect 538.5 406 1.5 4
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.5
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/neutral/colon.tga"
+    }   
+
+    //FPS LABEL
+    itemDef
+    {
+      name "fps-label"
+      rect 555 394 16 5
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 0.5
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/neutral/fps.tga"
     }   
 
     ///////////////////
@@ -146,7 +181,7 @@
       visible 1
       decoration
       forecolor 0.0 0.8 1.0 0.5
-      background "ui/assets/bolt.tga"
+      background "ui/assets/human/bolt.tga"
       ownerdraw CG_PLAYER_STAMINA_BOLT
     }   
 
@@ -158,7 +193,7 @@
       visible 1
       decoration
       forecolor 0.0 0.8 1.0 0.5
-      background "ui/assets/cross.tga"
+      background "ui/assets/neutral/cross.tga"
       ownerdraw CG_PLAYER_HEALTH_CROSS
     }   
 
@@ -166,12 +201,11 @@
     itemDef
     {
       name "stamina1"
-    //rect 34 403.25 9 11.5
       rect 34.5 403.5 9 11.5
       visible 1
       decoration
       forecolor 0.0 0.8 1.0 0.5
-      background "ui/assets/stamina1.tga"
+      background "ui/assets/human/stamina1.tga"
       ownerdraw CG_PLAYER_STAMINA_1
     }   
 
@@ -179,12 +213,11 @@
     itemDef
     {
       name "stamina2"
-    //rect 23.75 410.75 11.5 10.5
       rect 24 410.75 11.5 10.5
       visible 1
       decoration
       forecolor 0.0 0.8 1.0 0.5
-      background "ui/assets/stamina2.tga"
+      background "ui/assets/human/stamina2.tga"
       ownerdraw CG_PLAYER_STAMINA_2
     }   
 
@@ -192,12 +225,11 @@
     itemDef
     {
       name "stamina3"
-    //rect 20.25 423 10.5 7
       rect 20.75 423.5 10.5 7
       visible 1
       decoration
       forecolor 0.0 0.8 1.0 0.5
-      background "ui/assets/stamina3.tga"
+      background "ui/assets/human/stamina3.tga"
       ownerdraw CG_PLAYER_STAMINA_3
     }   
 
@@ -209,7 +241,7 @@
       visible 1
       decoration
       forecolor 0.0 0.8 1.0 0.5
-      background "ui/assets/stamina4.tga"
+      background "ui/assets/human/stamina4.tga"
       ownerdraw CG_PLAYER_STAMINA_4
     }   
 
@@ -222,7 +254,7 @@
       visible 1
       decoration
       forecolor 0.0 0.8 1.0 0.5
-      background "ui/assets/ring.tga"
+      background "ui/assets/human/ring.tga"
       ownerdraw CG_PLAYER_CLIPS_RING
     }
 
@@ -267,18 +299,19 @@
       visible 1
       decoration
       forecolor 0.0 0.8 1.0 0.5
-//      background "icons/iconw_rifle.tga"
-//      background "icons/iconw_construct.tga"
-//      background "icons/iconw_chaingun.tga"
-//      background "icons/iconw_flamer.tga"
-//      background "icons/iconw_lucifer.tga"
-//      background "icons/iconw_saw.tga"
-//      background "icons/iconw_pulse.tga"
-//      background "icons/iconw_lasgun.tga"
-//      background "icons/iconw_driver.tga"
       ownerdraw CG_PLAYER_SELECT
     }   
-
+    
+    //WEAPON SELECT TEXT
+    itemDef
+    {
+      name "selecttext"
+      rect 200 25 240 300
+      visible 1
+      decoration
+      textScale .5
+      ownerdraw CG_PLAYER_SELECTTEXT
+    }
 
     //AMMO
     itemDef
@@ -290,7 +323,6 @@
       forecolor 0.0 0.8 1.0 .5
       ownerdraw CG_PLAYER_AMMO_VALUE
     }
-
 
     //CLIPS
     itemDef
@@ -307,8 +339,7 @@
     itemDef
     {
       name "fps"
-//      rect 540 392 20 5
-      rect 520 390 30 10
+      rect 525 392 24 8
       style WINDOW_STYLE_EMPTY
       visible 1
       decoration
@@ -316,12 +347,11 @@
       ownerdraw CG_FPS_FIXED
     }   
 
-    //TIMER
+    //TIMER SECONDS
     itemDef
     {
       name "timer"
-//      rect 535 404 20 5
-      rect 540 402 20 10
+      rect 540 404 16 8
       style WINDOW_STYLE_EMPTY
       visible 1
       decoration
@@ -329,12 +359,11 @@
       ownerdraw CG_TIMER_SECS
     }   
     
-    //TIMER
+    //TIMER MINUTES
     itemDef
     {
       name "timer"
-//      rect 535 404 20 5
-      rect 505 402 30 10
+      rect 510 404 24 8
       style WINDOW_STYLE_EMPTY
       visible 1
       decoration
