@@ -573,7 +573,7 @@ void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
 
     //if no one did any damage client must have been killed by defense or suicide
     //body is a "free for all"
-    if( total == 0.0f ) numerator = denominator = 1.0f;
+    if( !total ) numerator = denominator = 1.0f;
     
     //add credit
     activator->client->ps.stats[ STAT_CREDIT ] += (int)( (float)BG_FindValueOfClass( class ) *
