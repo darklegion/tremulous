@@ -362,9 +362,21 @@ qboolean hdef1_trackenemy( gentity_t *self )
 {
   vec3_t  dirToTarget, angleToTarget, angularDiff;
   float   temp;
+  float   distanceToTarget;
+  float   timeTilImpact;
 
   VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
+
+//lead targets
+#if 1
+  distanceToTarget = VectorLength( dirToTarget );
+  timeTilImpact = distanceToTarget / 2000.0f;
+  VectorMA( self->enemy->s.pos.trBase, timeTilImpact, self->enemy->s.pos.trDelta, dirToTarget );
+  VectorSubtract( dirToTarget, self->s.pos.trBase, dirToTarget );
+#endif
+  
   VectorNormalize( dirToTarget );
+  
   vectoangles( dirToTarget, angleToTarget );
 
   angularDiff[ PITCH ] = AngleSubtract( self->turloc[ PITCH ], angleToTarget[ PITCH ] );

@@ -415,6 +415,10 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
   return qtrue;
 }
 
+#define STAMINA_STOP_RESTORE  10
+#define STAMINA_WALK_RESTORE  5
+#define STAMINA_SPRINT_TAKE   10
+
 /*
 ==================
 ClientTimerActions
@@ -422,52 +426,66 @@ ClientTimerActions
 Actions that happen once a second
 ==================
 */
-void ClientTimerActions( gentity_t *ent, int msec ) {
+void ClientTimerActions( gentity_t *ent, int msec )
+{
   gclient_t *client;
+  usercmd_t *ucmd;
+  int       aForward, aRight;
 
+  ucmd = &ent->client->pers.cmd;
+  
+  aForward  = abs( ucmd->forwardmove );
+  aRight    = abs( ucmd->rightmove );
+  
   client = ent->client;
-  client->timeResidual += msec;
+  client->time100 += msec;
+  client->time1000 += msec;
 
-  while ( client->timeResidual >= 1000 ) {
-    client->timeResidual -= 1000;
+  while ( client->time100 >= 100 )
+  {
+    client->time100 -= 100;
 
-    // regenerate
-    /*if ( client->ps.powerups[PW_REGEN] )
+    //if not trying to run then not trying to sprint
+    if( aForward <= 64 )
+      client->ps.stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
+
+    if( ( client->ps.stats[ STAT_STATE ] & SS_SPEEDBOOST ) &&  ucmd->upmove >= 0 )
     {
-      if ( ent->health < client->ps.stats[STAT_MAX_HEALTH])
-      {
-        ent->health += 15;
-        if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] * 1.1 )
-        {
-          ent->health = client->ps.stats[STAT_MAX_HEALTH] * 1.1;
-        }
-        G_AddEvent( ent, EV_POWERUP_REGEN, 0 );
-      }
-      else if ( ent->health < client->ps.stats[STAT_MAX_HEALTH] * 2)
-      {
-        ent->health += 5;
-        if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] * 2 )
-        {
-          ent->health = client->ps.stats[STAT_MAX_HEALTH] * 2;
-        }
-        G_AddEvent( ent, EV_POWERUP_REGEN, 0 );
-      }
+      //subtract stamina
+      client->ps.stats[ STAT_STAMINA ] -= STAMINA_SPRINT_TAKE;
+      
+      if( client->ps.stats[ STAT_STAMINA ] < -1000 )
+        client->ps.stats[ STAT_STAMINA ] = -1000;
     }
-    else
+                                                            
+    if( ( aForward <= 64 && aForward > 5 ) || ( aRight <= 64 && aRight > 5 ) )
     {
-      // count down health when over max
-      if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] )
-      {
-        //TA: dont count health and armo(u)r down
-        //ent->health--;
-      }
-    }*/
-
-    // count down armor when over max
-    if ( client->ps.stats[STAT_ARMOR] > client->ps.stats[STAT_MAX_HEALTH] ) {
-      //client->ps.stats[STAT_ARMOR]--;
+      //restore stamina
+      client->ps.stats[ STAT_STAMINA ] += STAMINA_WALK_RESTORE;
+      
+      if( client->ps.stats[ STAT_STAMINA ] > 1000 )
+        client->ps.stats[ STAT_STAMINA ] = 1000;
     }
+    else if( aForward <= 5 && aRight <= 5 )
+    {
+      //restore stamina faster
+      client->ps.stats[ STAT_STAMINA ] += STAMINA_STOP_RESTORE;
+      
+      if( client->ps.stats[ STAT_STAMINA ] > 1000 )
+        client->ps.stats[ STAT_STAMINA ] = 1000;
+    }
+  }
 
+  while( client->time1000 >= 1000 )
+  {
+    client->time1000 -= 1000;
+
+    //replenish droid health
+    if( client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
+    {
+      if( ent->health < client->ps.stats[ STAT_MAX_HEALTH ] )
+        ent->health++;
+    }
   }
 }
 
@@ -642,7 +660,6 @@ void ClientThink_real( gentity_t *ent ) {
   int     msec;
   usercmd_t *ucmd;
   float   speed;
-  int     aForward, aRight;
 
   //TA: torch
   gentity_t *light;
@@ -652,15 +669,6 @@ void ClientThink_real( gentity_t *ent ) {
   vec3_t    temp_v;
   int       i;
   qboolean  cSlowed = qfalse;
-
-  //TA: time
-  static int  lastTime;
-  int         dTime;
-
-  dTime = level.time - lastTime;
-  lastTime = level.time;
-
-  //Com_Printf( "%d\n", G_LuminanceAtPoint( ent->s.origin ) );
 
   client = ent->client;
 
@@ -733,21 +741,13 @@ void ClientThink_real( gentity_t *ent ) {
   }
 
   if( client->noclip )
-  {
     client->ps.pm_type = PM_NOCLIP;
-  }
   else if( client->ps.stats[STAT_HEALTH] <= 0 )
-  {
     client->ps.pm_type = PM_DEAD;
-  }
   else if( client->ps.stats[ STAT_STATE ] & SS_INFESTING )
-  {
     client->ps.pm_type = PM_FREEZE;
-  }
   else
-  {
     client->ps.pm_type = PM_NORMAL;
-  }
 
   client->ps.gravity = g_gravity.value;
 
@@ -816,30 +816,6 @@ void ClientThink_real( gentity_t *ent ) {
                               
   if( client->torch != NULL )
     ShineTorch( client->torch );
-
-  aForward  = abs( ucmd->forwardmove );
-  aRight    = abs( ucmd->rightmove );
-                                                                      
-  //if not trying to run then not trying to sprint
-  if( aForward <= 64 )
-    client->ps.stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
-
-  if( ( client->ps.stats[ STAT_STATE ] & SS_SPEEDBOOST ) &&  ucmd->upmove >= 0 )
-  {
-    //subtract stamina
-    client->ps.stats[ STAT_STAMINA ] -= dTime/9.0f;
-  }
-                                                          
-  if( ( aForward <= 64 && aForward > 5 ) || ( aRight <= 64 && aRight > 5 ) )
-  {
-    //restore stamina
-    client->ps.stats[ STAT_STAMINA ] += dTime/6.0f;
-  }
-  else if( aForward <= 5 && aRight <= 5 )
-  {
-    //restore stamina faster
-    client->ps.stats[ STAT_STAMINA ] += dTime/9.0f;
-  }
 
   // set up for pmove
   oldEventSequence = client->ps.eventSequence;

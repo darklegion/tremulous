@@ -323,7 +323,9 @@ struct gclient_s {
 
   // timeResidual is used to handle events that happen every second
   // like health / armor countdowns and regeneration
-  int       timeResidual;
+  //TA: two timers, one every 100 msecs, another every sec
+  int       time100;
+  int       time1000;
 
   char      *areabits;
 
