@@ -345,8 +345,8 @@ typedef enum
   WP_PULSE_RIFLE,
 
   //build weapons must remain in a block
-  WP_DBUILD,
-  WP_DBUILD2,
+  WP_ABUILD,
+  WP_ABUILD2,
   WP_HBUILD2,
   WP_HBUILD,
   //ok?
@@ -404,6 +404,8 @@ typedef enum
   BA_A_ACIDTUBE,
   BA_A_TRAPPER,
   BA_A_BOOSTER,
+  
+  BA_A_HOVEL,
   
   BA_H_SPAWN,
   
@@ -770,7 +772,7 @@ typedef enum {
   MOD_GRAPPLE,
   MOD_VENOM,
   MOD_HSPAWN,
-  MOD_DSPAWN
+  MOD_ASPAWN
 } meansOfDeath_t;
 
 

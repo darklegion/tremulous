@@ -708,7 +708,7 @@ void adef_findenemy( gentity_t *ent, int range )
   for( target = g_entities; target < &g_entities[ level.num_entities ]; target++ )
   {
     //if target is not valid keep searching
-    if( !ddef_checktarget( ent, target, range ) )
+    if( !adef_checktarget( ent, target, range ) )
       continue;
       
     //we found a target
@@ -742,8 +742,8 @@ void ATrapper_Think( gentity_t *self )
   }
 
   //if the current target is not valid find a new one
-  if( !ddef_checktarget( self, self->enemy, range ) )
-    ddef_findenemy( self, range );
+  if( !adef_checktarget( self, self->enemy, range ) )
+    adef_findenemy( self, range );
 
   //if a new target cannot be found don't do anything
   if( !self->enemy )
@@ -751,7 +751,7 @@ void ATrapper_Think( gentity_t *self )
   
   //if we are pointing at our target and we can fire shoot it
   if( self->count < level.time )
-    ddef_fireonenemy( self, firespeed );
+    adef_fireonenemy( self, firespeed );
 }
 
 
@@ -1776,6 +1776,11 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       break;
       
     case BA_A_HIVEMIND:
+      built->die = ASpawn_Die;
+      built->pain = ASpawn_Pain;
+      break;
+      
+    case BA_A_HOVEL:
       built->die = ASpawn_Die;
       built->pain = ASpawn_Pain;
       break;

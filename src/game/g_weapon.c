@@ -1074,10 +1074,10 @@ void FireWeapon2( gentity_t *ent )
       break;
     case WP_POUNCE:
       break;
-    case WP_DBUILD:
+    case WP_ABUILD:
       Weapon_Cancel_Build( ent );
       break;
-    case WP_DBUILD2:
+    case WP_ABUILD2:
       Weapon_Cancel_Build( ent );
       break;
     case WP_HBUILD:
@@ -1169,10 +1169,10 @@ void FireWeapon( gentity_t *ent )
     case WP_POUNCE:
       Weapon_Claw_Fire( ent );
       break;
-    case WP_DBUILD:
+    case WP_ABUILD:
       Weapon_Build_Fire( ent, MN_D_BUILD );
       break;
-    case WP_DBUILD2:
+    case WP_ABUILD2:
       Weapon_Build_Fire( ent, MN_D_BUILD );
       break;
     case WP_HBUILD:

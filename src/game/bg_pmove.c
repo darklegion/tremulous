@@ -2363,8 +2363,8 @@ static void PM_Weapon( void )
     case WP_PULSE_RIFLE:
       addTime = 50;
       break;
-    case WP_DBUILD:
-    case WP_DBUILD2:
+    case WP_ABUILD:
+    case WP_ABUILD2:
     case WP_HBUILD:
     case WP_HBUILD2:
       addTime = 1000; //abritutary since doesn't "fire"

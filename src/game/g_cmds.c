@@ -1708,7 +1708,7 @@ void Cmd_Destroy_f( gentity_t *ent )
   if( tr.fraction < 1.0 &&
       ( traceEnt->s.eType == ET_BUILDABLE ) &&
       ( traceEnt->biteam == ent->client->pers.pteam ) &&
-      ( ( ent->client->ps.weapon >= WP_DBUILD ) &&
+      ( ( ent->client->ps.weapon >= WP_ABUILD ) &&
         ( ent->client->ps.weapon <= WP_HBUILD ) ) )
     G_Damage( traceEnt, ent, ent, forward, tr.endpos, 10000, 0, MOD_SUICIDE );
 

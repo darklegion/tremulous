@@ -824,7 +824,7 @@ static void CG_RegisterGraphics( void ) {
   cgs.media.alienNav3 = trap_R_RegisterShader( "alienNav3" );
   cgs.media.alienNav2 = trap_R_RegisterShader( "alienNav2" );
   cgs.media.alienNav1 = trap_R_RegisterShader( "alienNav1" );
-  cgs.media.alienHealth = trap_R_RegisterShader( "gfx/2d/alienhealth.tga" );
+  cgs.media.alienHealth = trap_R_RegisterShader( "gfx/2d/droidhealth.tga" );
 
   cgs.media.armorModel = trap_R_RegisterModel( "models/powerups/armor/armor_yel.md3" );
   cgs.media.armorIcon  = trap_R_RegisterShaderNoMip( "icons/iconr_yellow" );

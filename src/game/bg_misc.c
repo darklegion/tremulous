@@ -258,7 +258,7 @@ gitem_t bg_itemlist[] =
     "Alien Build",
     0,
     IT_WEAPON,
-    WP_DBUILD,
+    WP_ABUILD,
     "",
     ""
   },
@@ -274,7 +274,7 @@ gitem_t bg_itemlist[] =
     "Alien Build 2",
     0,
     IT_WEAPON,
-    WP_DBUILD2,
+    WP_ABUILD2,
     "",
     ""
   },
@@ -969,9 +969,9 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       damage;
     50,                    //int       splashDamage;
     200,                   //int       splashRadius;
-    MOD_DSPAWN,            //int       meansOfDeath;
+    MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
-    ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
+    ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
@@ -998,9 +998,9 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       damage;
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
-    MOD_DSPAWN,            //int       meansOfDeath;
+    MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
-    ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
+    ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
@@ -1027,9 +1027,9 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       damage;
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
-    MOD_DSPAWN,            //int       meansOfDeath;
+    MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
-    ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
+    ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
@@ -1056,9 +1056,9 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       damage;
     20,                    //int       splashDamage;
     400,                   //int       splashRadius;
-    MOD_DSPAWN,            //int       meansOfDeath;
+    MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
-    ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
+    ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     500,                   //int       nextthink;
     0,                     //int       turretFireSpeed;
@@ -1085,9 +1085,9 @@ buildableAttributes_t bg_buildableList[ ] =
     50,                    //int       damage;
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
-    MOD_DSPAWN,            //int       meansOfDeath;
+    MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
-    ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
+    ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     1000,                  //int       nextthink;
     0,                     //int       turretFireSpeed;
@@ -1108,15 +1108,15 @@ buildableAttributes_t bg_buildableList[ ] =
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
-    0.0,                   //float        bounce;
+    0.0,                   //float     bounce;
     0,                     //int       buildPoints;
     1000,                  //int       health;
     50,                    //int       damage;
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
-    MOD_DSPAWN,            //int       meansOfDeath;
+    MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
-    ( 1 << WP_DBUILD )|( 1 << WP_DBUILD2 ),    //weapon_t  buildWeapon;
+    ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     -1,                    //int       nextthink;
     0,                     //int       turretFireSpeed;
@@ -1127,6 +1127,35 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  creepTest;
     120,                   //int       creepSize;
     qtrue                  //qboolean  reactorTest;
+  },
+  {
+    BA_A_HOVEL,            //int       buildNum;
+    "hovel",               //char      *buildName;
+    "Hovel",               //char      *humanName;
+    "team_alien_hovel",    //char      *entityName;
+    { "models/buildables/hovel/hovel.md3", 0, 0, 0 },
+    { -50, -50, -20 },     //vec3_t    mins;
+    { 50, 50, 20 },        //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t  traj;
+    0.0,                   //float     bounce;
+    80,                    //int       buildPoints;
+    1000,                  //int       health;
+    50,                    //int       damage;
+    20,                    //int       splashDamage;
+    50,                    //int       splashRadius;
+    MOD_ASPAWN,            //int       meansOfDeath;
+    BIT_ALIENS,            //int       team;
+    ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       idleAnim;
+    -1,                    //int       nextthink;
+    0,                     //int       turretFireSpeed;
+    0,                     //int       turretRange;
+    WP_NONE,               //weapon_t  turretProjType;
+    0.707f,                //float     minNormal;
+    qtrue,                 //qboolean  invertNormal;
+    qtrue,                 //qboolean  creepTest;
+    120,                   //int       creepSize;
+    qfalse                 //qboolean  reactorTest;
   },
   {
     BA_H_SPAWN,            //int       buildNum;
@@ -2780,7 +2809,7 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
-    WP_DBUILD,            //int       weaponNum;
+    WP_ABUILD,            //int       weaponNum;
     100,                  //int       price;
     SLOT_WEAPON,          //int       slots;
     "dbuild",             //char      *weaponName;
@@ -2793,7 +2822,7 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_DBUILD2,           //int       weaponNum;
+    WP_ABUILD2,           //int       weaponNum;
     100,                  //int       price;
     SLOT_WEAPON,          //int       slots;
     "dbuild2",            //char      *weaponName;
@@ -3948,8 +3977,8 @@ qboolean BG_infiniteAmmo( int weapon )
     case WP_VENOM:
     case WP_GRABANDCSAW:
     case WP_POUNCE:
-    case WP_DBUILD:
-    case WP_DBUILD2:
+    case WP_ABUILD:
+    case WP_ABUILD2:
     case WP_HBUILD:
     case WP_HBUILD2:
       return qtrue;

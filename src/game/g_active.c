@@ -495,8 +495,8 @@ void ClientTimerActions( gentity_t *ent, int msec )
 
     switch( client->ps.weapon )
     {
-      case WP_DBUILD:
-      case WP_DBUILD2:
+      case WP_ABUILD:
+      case WP_ABUILD2:
       case WP_HBUILD:
       case WP_HBUILD2:
         //set validity bit on buildable

@@ -138,7 +138,7 @@ static void CG_Obituary( entityState_t *ent ) {
   case MOD_HSPAWN:
     message = "should have run further";
     break;
-  case MOD_DSPAWN:
+  case MOD_ASPAWN:
     message = "was melted by the acid blood";
     break;
   default:

@@ -766,10 +766,10 @@ void countSpawns( void )
     if (!ent->inuse)
       continue;
 
-    if( !Q_stricmp( ent->classname, "team_alien_spawn" ) && ent->health > 0 )
+    if( ent->s.modelindex == BA_A_SPAWN && ent->health > 0 )
       level.numAlienSpawns++;
       
-    if( !Q_stricmp( ent->classname, "team_human_spawn" ) && ent->health > 0 )
+    if( ent->s.modelindex == BA_H_SPAWN && ent->health > 0 )
       level.numHumanSpawns++;
   }
 }

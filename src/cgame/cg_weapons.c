@@ -807,8 +807,8 @@ void CG_RegisterWeapon( int weaponNum ) {
     weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav", qfalse );
     break;
 
-  case WP_DBUILD:
-  case WP_DBUILD2:
+  case WP_ABUILD:
+  case WP_ABUILD2:
   case WP_HBUILD:
   case WP_HBUILD2:
     //nowt
