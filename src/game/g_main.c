@@ -808,10 +808,10 @@ void calculateBuildPoints( void )
   int       bclass;
   gentity_t *ent;
   int       localHTP = g_humanBuildPoints.integer,
-            localDTP = g_alienBuildPoints.integer;
+            localATP = g_alienBuildPoints.integer;
 
   level.humanBuildPoints = level.humanBuildPointsPowered = localHTP;
-  level.alienBuildPoints = localDTP;
+  level.alienBuildPoints = localATP;
 
   for ( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
   {
@@ -845,13 +845,13 @@ void calculateBuildPoints( void )
   
   if( level.alienBuildPoints < 0 )
   {
-    localDTP -= level.alienBuildPoints;
+    localATP -= level.alienBuildPoints;
     level.alienBuildPoints = 0;
   }
   
   trap_SetConfigstring( CS_BUILDPOINTS,
                         va( "%d %d %d %d %d", level.alienBuildPoints,
-                                              localDTP,
+                                              localATP,
                                               level.humanBuildPoints,
                                               localHTP,
                                               level.humanBuildPointsPowered ) );
