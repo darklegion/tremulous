@@ -981,6 +981,40 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 
 /*
 ===============
+CG_FlameTrail
+===============
+*/
+static void CG_FlameTrail( centity_t *cent, vec3_t origin )
+{
+  vec3_t        forward;
+  vec3_t        muzzlePoint;
+
+  if( cent->currentState.weapon != WP_FLAMER )
+    return;
+
+  if( cent->currentState.clientNum == cg.predictedPlayerState.clientNum )
+  {
+    AngleVectors( cg.refdefViewAngles, forward, NULL, NULL );
+    VectorCopy( cg.predictedPlayerState.origin, muzzlePoint );
+  }
+  else
+  {
+    AngleVectors( cent->lerpAngles, forward, NULL, NULL );
+    VectorCopy( cent->lerpOrigin, muzzlePoint );
+  }
+
+  // FIXME: crouch
+  muzzlePoint[2] += DEFAULT_VIEWHEIGHT;
+
+  VectorMA( muzzlePoint, 8.0f, forward, muzzlePoint );
+  VectorScale( forward, 300.0f, forward );
+
+  CG_LaunchSprite( muzzlePoint, forward, vec3_origin, 0.1f, 0.0f, 48.0f, 192.0f, 64.0f, rand( ) % 360, cg.time, FIREBALL_LIFETIME, cgs.media.smokePuffShader, qfalse, qfalse );
+}
+
+
+/*
+===============
 CG_SpawnRailTrail
 
 Origin will be the exact tag point, which is slightly
@@ -1214,6 +1248,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
     cent->currentState.number != cg.predictedPlayerState.clientNum ) {
     // add lightning bolt
     CG_LightningBolt( nonPredictedCent, flash.origin );
+    
+    CG_FlameTrail( nonPredictedCent, flash.origin );
 
     // add rail trail
     CG_SpawnRailTrail( cent, flash.origin );
@@ -1269,9 +1305,11 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 
     if ( cg.predictedPlayerState.eFlags & EF_FIRING ) {
       // special hack for lightning gun...
+      // TA: and flamer
       VectorCopy( cg.refdef.vieworg, origin );
       VectorMA( origin, -8, cg.refdef.viewaxis[2], origin );
       CG_LightningBolt( &cg_entities[ps->clientNum], origin );
+      CG_FlameTrail( &cg_entities[ps->clientNum], origin );
     }
     return;
   }

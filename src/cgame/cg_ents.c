@@ -289,7 +289,7 @@ static void CG_Missile( centity_t *cent )
       break;
 
     case WP_FLAMER:
-      {
+/*      {
         fraction = ( ( cg.time - s1->pos.trTime ) / FIREBALL_LIFETIME );
         
         if( fraction > 1.0f )
@@ -303,7 +303,8 @@ static void CG_Missile( centity_t *cent )
         ent.customShader = cgs.media.flameShader[ index ];
         trap_R_AddRefEntityToScene( &ent );
         return;
-      }
+      }*/
+      return;
       break;
 
     default:
