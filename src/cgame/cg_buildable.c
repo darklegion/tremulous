@@ -34,7 +34,6 @@ char *cg_buildableSoundNames[ MAX_BUILDABLE_ANIMATIONS ] =
 sfxHandle_t defaultAlienSounds[ MAX_BUILDABLE_ANIMATIONS ];
 sfxHandle_t defaultHumanSounds[ MAX_BUILDABLE_ANIMATIONS ];
 
-#define CREEP_SCALEUP_TIME    3000
 #define CREEP_SCALEDOWN_TIME  3000
 #define CREEP_SIZE            64.0f
 
@@ -786,10 +785,14 @@ void CG_Buildable( centity_t *cent )
   vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
   float           rotAngle;
   trace_t         tr;
-  buildableTeam_t team = BG_FindTeamForBuildable( es->modelindex );
+  buildableTeam_t team = BG_FindTeamForBuildable( es->modelindex2 );
+  
+  //must be before EF_NODRAW check
+  if( team == BIT_ALIENS )
+    CG_Creep( cent );
   
   // if set to invisible, skip
-  if ( !es->modelindex || ( es->eFlags & EF_NODRAW ) )
+  if( !es->modelindex || ( es->eFlags & EF_NODRAW ) )
     return;
 
   memset ( &ent, 0, sizeof( ent ) );
@@ -837,11 +840,8 @@ void CG_Buildable( centity_t *cent )
 
   ent.nonNormalizedAxes = qfalse;
 
-  //add creep
   if( team == BIT_ALIENS )
   {
-    CG_Creep( cent );
-    
     if( es->generic1 & B_SPAWNED_TOGGLEBIT )
     {
       //run animations

@@ -555,7 +555,7 @@ typedef enum
   MN_A_NOFUNDS,
   MN_A_NOEROOM,
   
-  //alien build denial menus
+  //alien build
   MN_A_SPWNWARN,
   MN_A_OVERMIND,
   MN_A_NOASSERT,

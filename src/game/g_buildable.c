@@ -357,10 +357,7 @@ void A_CreepRecede( gentity_t *self )
   
   //creep is still receeding
   if( ( self->timestamp + 10000 ) > level.time )
-  {
     self->nextthink = level.time + 500;
-    trap_LinkEntity( self );
-  }
   else //creep has died
     G_FreeEntity( self );
 }
@@ -382,9 +379,8 @@ Called when an alien spawn dies
 */
 void ASpawn_Melt( gentity_t *self )
 {
-  //FIXME: this line crashes the QVM (but not binary when MOD is set to MOD_[H/D]SPAWN
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
-    self->splashRadius, self, MOD_ASPAWN, PTE_ALIENS );
+    self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
 
   //start creep recession
   if( !( self->s.eFlags & EF_DEAD ) )
@@ -395,10 +391,7 @@ void ASpawn_Melt( gentity_t *self )
   
   //not dead yet
   if( ( self->timestamp + 10000 ) > level.time )
-  {
     self->nextthink = level.time + 500;
-    trap_LinkEntity( self );
-  }
   else //dead now
     G_FreeEntity( self );
 }
@@ -425,12 +418,12 @@ void ASpawn_Blast( gentity_t *self )
   //pretty events and item cleanup
   self->s.modelindex = 0; //don't draw the model once its destroyed
   G_AddEvent( self, EV_GIB_ALIEN, DirToByte( dir ) );
-  self->r.contents = CONTENTS_TRIGGER;
   self->timestamp = level.time;
   self->think = ASpawn_Melt;
   self->nextthink = level.time + 500; //wait .5 seconds before damaging others
     
-  trap_LinkEntity( self );
+  self->r.contents = 0;    //stop collisions...
+  trap_LinkEntity( self ); //...requires a relink
 }
 
 /*
@@ -456,8 +449,6 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     else if( self->s.modelindex == BA_A_SPAWN )
       attacker->client->ps.persistant[ PERS_CREDIT ] += ASPAWN_VALUE;
   }
-  
-  trap_LinkEntity( self );
 }
 
 /*
@@ -643,12 +634,12 @@ void ABarricade_Blast( gentity_t *self )
   //pretty events and item cleanup
   self->s.modelindex = 0; //don't draw the model once its destroyed
   G_AddEvent( self, EV_GIB_ALIEN, DirToByte( dir ) );
-  self->r.contents = CONTENTS_TRIGGER;
   self->timestamp = level.time;
   self->think = A_CreepRecede;
   self->nextthink = level.time + 500; //wait .5 seconds before damaging others
     
-  trap_LinkEntity( self );
+  self->r.contents = 0;    //stop collisions...
+  trap_LinkEntity( self ); //...requires a relink
 }
 
 /*
@@ -666,8 +657,6 @@ void ABarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
   self->die = nullDieFunction;
   self->think = ABarricade_Blast;
   self->nextthink = level.time + 5000;
-
-  trap_LinkEntity( self );
 }
 
 /*
@@ -938,7 +927,6 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   //pretty events and item cleanup
   self->s.modelindex = 0; //don't draw the model once its destroyed
   G_AddEvent( self, EV_GIB_ALIEN, DirToByte( dir ) );
-  self->r.contents = CONTENTS_TRIGGER;
   self->timestamp = level.time;
   self->think = ASpawn_Melt;
   self->nextthink = level.time + 500; //wait .5 seconds before damaging others
@@ -967,7 +955,8 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     builder->client->ps.stats[ STAT_STATE ] &= ~SS_HOVELING;
   }
   
-  trap_LinkEntity( self );
+  self->r.contents = 0;    //stop collisions...
+  trap_LinkEntity( self ); //...requires a relink
 }
 
 
@@ -1746,7 +1735,6 @@ void HSpawn_Blast( gentity_t *self )
 
   self->s.modelindex = 0; //don't draw the model once its destroyed
   G_AddEvent( self, EV_BUILDABLE_EXPLOSION, DirToByte( dir ) );
-  self->r.contents = CONTENTS_TRIGGER;
   self->timestamp = level.time;
 
   //do some radius damage
@@ -1755,6 +1743,9 @@ void HSpawn_Blast( gentity_t *self )
 
   self->think = freeBuildable;
   self->nextthink = level.time + 100;
+  
+  self->r.contents = 0;    //stop collisions...
+  trap_LinkEntity( self ); //...requires a relink
 }
 
 
@@ -1783,8 +1774,6 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     else if( self->s.modelindex == BA_H_SPAWN )
       attacker->client->ps.persistant[ PERS_CREDIT ] += HSPAWN_VALUE;
   }
-  
-  trap_LinkEntity( self );
 }
 
 /*
