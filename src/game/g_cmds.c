@@ -268,6 +268,14 @@ void Cmd_Give_f (gentity_t *ent)
       return;
   }
 
+  if( give_all || Q_stricmp( name, "funds" ) == 0 )
+  {
+    ent->client->ps.stats[ STAT_CREDIT ] += 100;
+
+    if( !give_all )
+      return;
+  }
+
   // spawn a specific item right on the player
   if ( !give_all ) {
     it = BG_FindItem (name);
@@ -1824,6 +1832,10 @@ void Cmd_Buy_f( gentity_t *ent )
   int       quan, clips, maxClips;
 
   trap_Argv( 1, s, sizeof( s ) );
+  
+  //droids don't buy stuff
+  if( ent->client->pers.pteam != PTE_HUMANS )
+    return;
 
   for ( i = 1, mcuEntity = g_entities + i; i < level.num_entities; i++, mcuEntity++ )
   {
@@ -1835,48 +1847,83 @@ void Cmd_Buy_f( gentity_t *ent )
     }
   }
 
+  //no MCU nearby
   if( !nearMCU )
   {
     trap_SendServerCommand( ent-g_entities, va("print \"You must be near an MCU\n\"" ) );
     return;
   }
 
-  if( ent->client->pers.pteam != PTE_HUMANS )
-    return;
-    
   weapon = BG_FindWeaponNumForName( s );
   upgrade = BG_FindUpgradeNumForName( s );
     
   if( weapon != WP_NONE )
   {
+    //already got this?
+    if( BG_gotWeapon( weapon, ent->client->ps.stats ) )
+    {
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_ITEMHELD );
+      return;
+    }
+      
+    //can afford this?
+    if( BG_FindPriceForWeapon( weapon ) > ent->client->ps.stats[ STAT_CREDIT ] )
+    {
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
+      return;
+    }
+    
+    //have space to carry this?
     if( BG_FindSlotsForWeapon( weapon ) & ent->client->ps.stats[ STAT_SLOTS ] )
     {
       G_AddPredictableEvent( ent, EV_MENU, MN_H_NOSLOTS );
       return;
     }
     
+    //add to inventory
     BG_packWeapon( weapon, ent->client->ps.stats );
     BG_FindAmmoForWeapon( weapon, &quan, &clips, &maxClips );
     BG_packAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
                       quan, clips, maxClips );
     ent->client->ps.weapon = weapon;
+    
+    //subtract from funds
+    ent->client->ps.stats[ STAT_CREDIT ] -= BG_FindPriceForWeapon( weapon );
   }
   else if( upgrade != UP_NONE )
   {
+    //already got this?
+    if( BG_gotItem( upgrade, ent->client->ps.stats ) )
+    {
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_ITEMHELD );
+      return;
+    }
+    
+    //can afford this?
+    if( BG_FindPriceForUpgrade( upgrade ) > ent->client->ps.stats[ STAT_CREDIT ] )
+    {
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
+      return;
+    }
+    
+    //have space to carry this?
     if( BG_FindSlotsForUpgrade( upgrade ) & ent->client->ps.stats[ STAT_SLOTS ] )
     {
       G_AddPredictableEvent( ent, EV_MENU, MN_H_NOSLOTS );
       return;
     }
     
+    //add to inventory
     BG_packItem( upgrade, ent->client->ps.stats );
+    
+    //subtract from funds
+    ent->client->ps.stats[ STAT_CREDIT ] -= BG_FindPriceForUpgrade( upgrade );
   }
   else
   {
     trap_SendServerCommand( ent-g_entities, va("print \"Unknown item\n\"" ) );
   }
   
-  //subtract from funds
 }
 
 
@@ -1897,6 +1944,10 @@ void Cmd_Sell_f( gentity_t *ent )
 
   trap_Argv( 1, s, sizeof( s ) );
 
+  //droids don't sell stuff
+  if( ent->client->pers.pteam != PTE_HUMANS )
+    return;
+    
   for ( i = 1, mcuEntity = g_entities + i; i < level.num_entities; i++, mcuEntity++ )
   {
     if( !Q_stricmp( mcuEntity->classname, "team_human_mcu" ) )
@@ -1907,34 +1958,38 @@ void Cmd_Sell_f( gentity_t *ent )
     }
   }
 
+  //no MCU nearby
   if( !nearMCU )
   {
     trap_SendServerCommand( ent-g_entities, va("print \"You must be near an MCU\n\"" ) );
     return;
   }
 
-  if( ent->client->pers.pteam != PTE_HUMANS )
-    return;
-    
   weapon = BG_FindWeaponNumForName( s );
   upgrade = BG_FindUpgradeNumForName( s );
   
   if( weapon != WP_NONE )
   {
+    //remove weapon if carried
     if( BG_gotWeapon( weapon, ent->client->ps.stats ) )
       BG_removeWeapon( weapon, ent->client->ps.stats );
+
+    //add to funds
+    ent->client->ps.stats[ STAT_CREDIT ] += BG_FindPriceForWeapon( weapon );
   }
   else if( upgrade != UP_NONE )
   {
+    //remove upgrade if carried
     if( BG_gotItem( upgrade, ent->client->ps.stats ) )
       BG_removeItem( upgrade, ent->client->ps.stats );
+
+    //add to funds
+    ent->client->ps.stats[ STAT_CREDIT ] += BG_FindPriceForUpgrade( upgrade );
   }
   else
   {
     trap_SendServerCommand( ent-g_entities, va("print \"Unknown item\n\"" ) );
   }
-  
-  //add to funds
 }
 
 
@@ -2072,11 +2127,6 @@ void Cmd_Boost_f( gentity_t *ent )
     ent->client->ps.stats[ STAT_STATE ] |= SS_SPEEDBOOST;
 }
 
-void Cmd_Credit_f( gentity_t *ent )
-{
-  trap_SendServerCommand( ent-g_entities, va("print \"%d\n\"", ent->client->ps.stats[ STAT_CREDIT ] ) );
-}
-
 /*
 =================
 ClientCommand
@@ -2202,8 +2252,6 @@ void ClientCommand( int clientNum ) {
     Cmd_SetViewpos_f( ent );
   else if (Q_stricmp (cmd, "stats") == 0)
     Cmd_Stats_f( ent );
-  else if (Q_stricmp (cmd, "credit") == 0)
-    Cmd_Credit_f( ent );
   else
     trap_SendServerCommand( clientNum, va("print \"unknown cmd %s\n\"", cmd ) );
 }

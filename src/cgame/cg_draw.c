@@ -548,6 +548,9 @@ static void CG_DrawStatusBar( void ) {
     int awidth = (int)( (float)allocated / ( total / PWR_WIDTH ) );
     int pwidth = (int)( (float)powered / ( total / PWR_WIDTH ) );
     vec4_t bcolor = { 0.5, 0.5, 0.5, 0.5 };
+
+    char  *s;
+    int   w;
     
     trap_R_SetColor( bcolor );   // white
     CG_DrawPic( PWR_X, PWR_Y, PWR_WIDTH, PWR_HEIGHT, cgs.media.whiteShader );
@@ -560,6 +563,11 @@ static void CG_DrawStatusBar( void ) {
       trap_R_SetColor( colors[1] ); // red
       CG_DrawPic( PWR_X + pwidth, PWR_Y, awidth - pwidth, PWR_HEIGHT, cgs.media.whiteShader );
     }
+    
+    //display amount of credit
+    s = va( "%dg", ps->stats[ STAT_CREDIT ] );
+    w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+    CG_DrawBigString( 635 - w, 35, s, 1.0F);
   }
 
   //

@@ -506,6 +506,14 @@ void CG_Menu( int eventParm )
       trap_SendConsoleCommand( "menu hnoslots\n" );
       break;
 
+    case MN_H_NOFUNDS:
+      trap_SendConsoleCommand( "menu hnofunds\n" );
+      break;
+
+    case MN_H_ITEMHELD:
+      trap_SendConsoleCommand( "menu hitemheld\n" );
+      break;
+
     case MN_D_INFEST:
       trap_SendConsoleCommand( "menu dinfest\n" );
       break;

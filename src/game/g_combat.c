@@ -1065,6 +1065,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       targ->client->ps.stats[STAT_HEALTH] = targ->health;
     }
 
+    //TA: add to the attackers "account" on the target
+    if( targ->client && attacker->client &&
+        targ->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS &&
+        attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+      targ->credits[ attacker->client->ps.clientNum ] += take;
+
     if ( targ->health <= 0 ) {
       if ( client )
         targ->flags |= FL_NO_KNOCKBACK;

@@ -548,7 +548,9 @@ typedef enum
   MN_H_RPLWARN,
   MN_H_RPTWARN,
   MN_H_MCUPOWER,
-  MN_H_NOSLOTS
+  MN_H_NOSLOTS,
+  MN_H_NOFUNDS,
+  MN_H_ITEMHELD
 } dynMenu_t;
 
 // animations

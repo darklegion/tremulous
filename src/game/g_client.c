@@ -540,9 +540,11 @@ Called when a body is used
 */
 void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-  int   i,  class;
-  int   total = 0;
-  float numerator, denominator;
+  int     i,  class, clientNum;
+  int     total = 0;
+  float   numerator, denominator;
+  vec3_t  up = { 0.0, 0.0, 1.0 };
+
   
   if( activator->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
   {
@@ -550,10 +552,12 @@ void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
   }
   else
   {
-    //client has already raided this corpse
-    if( self->creditsHash[ activator->client->ps.clientNum ] ) return;
+    clientNum = activator->client->ps.clientNum;
     
-    numerator = self->credits[ activator->client->ps.clientNum ];
+    //client has already raided this corpse
+    if( self->creditsHash[ clientNum ] ) return;
+    
+    numerator = self->credits[ clientNum ];
     class = self->s.clientNum;
     
     //total up all the damage done by every client
@@ -571,7 +575,18 @@ void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
                                                          ( numerator / denominator ) );
 
     //prevent clients claiming credit twice
-    self->creditsHash[ activator->client->ps.clientNum ] = qtrue;
+    self->creditsHash[ clientNum ] = qtrue;
+
+    //if this corpse has been 100% claimed destroy it
+    for( i = 0; i < MAX_CLIENTS; i++ )
+    {
+      if( ( self->credits[ clientNum ] == 0 || !self->creditsHash[ clientNum ] ) && total != 0 )
+        continue;
+        
+      G_AddEvent( self, EV_GIB_DROID, DirToByte( up ) );
+      self->freeAfterEvent = qtrue;
+      break;
+    }
   }
 }
 
@@ -588,6 +603,7 @@ void SpawnCorpse( gentity_t *ent ) {
   int         contents;
   vec3_t      origin, dest;
   trace_t     tr;
+  int         i;
 
   VectorCopy( ent->r.currentOrigin, origin );
 
@@ -602,9 +618,14 @@ void SpawnCorpse( gentity_t *ent ) {
   body = G_Spawn( );
 
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  {
     body->classname = "humanCorpse";
+  }
   else
+  {
     body->classname = "droidCorpse";
+    for( i = 0; i < MAX_CLIENTS; body->credits[ i ] = ent->credits[ i++ ] );
+  }
     
   body->s = ent->s;
   body->r.s = body->s;
