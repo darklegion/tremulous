@@ -1974,7 +1974,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 4 },
     26, 12,
     100,
-    50,
+    0,
     SCA_TAKESFALLDAMAGE|SCA_CANJUMP,
     90,
     0.002f,
