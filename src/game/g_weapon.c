@@ -715,7 +715,8 @@ ZAP
 ======================================================================
 */
 
-#define AREAZAP_DAMAGE 100.0f
+#define AREAZAP_DAMAGE    100.0f
+#define DIRECTZAP_DAMAGE  100.0f
 
 /*
 ===============
@@ -737,7 +738,6 @@ void areaZapFire( gentity_t *ent )
   VectorAdd( muzzle, range, maxs );
   VectorSubtract( muzzle, range, mins );
   
-  //do some damage
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
   {
@@ -764,6 +764,7 @@ void areaZapFire( gentity_t *ent )
     VectorSubtract( enemy->s.origin, muzzle, dir );
     VectorNormalize( dir );
     
+    //do some damage
     G_Damage( enemy, ent, ent, dir, tr.endpos,
               damage, DAMAGE_NO_KNOCKBACK, MOD_LIGHTNING );
     
@@ -787,42 +788,69 @@ directZapFire
 */
 void directZapFire( gentity_t *ent )
 {
-  trace_t   tr;
+  int       entityList[ MAX_GENTITIES ];
+  int       targetList[ MAX_GENTITIES ];
+  vec3_t    range = { 200, 200, 200 };
+  vec3_t    mins, maxs, dir;
+  int       i, num, numTargets = 0;
+  gentity_t *enemy;
   vec3_t    end;
-  gentity_t *traceEnt, *tent;
-  int     damage, i, passent;
+  gentity_t *target = NULL, *tent;
+  float     distance, minDist = 10000.0f;
+  trace_t   tr;
 
-  damage = 100;
-
-  VectorMA( muzzle, LIGHTNING_RANGE, forward, end );
-
-  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
-
-  if( tr.entityNum != ENTITYNUM_NONE )
-    traceEnt = &g_entities[ tr.entityNum ];
-
-  if( traceEnt->takedamage )
-  {
-    G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-      damage, 0, MOD_LIGHTNING);
-  }
-
-  // snap the endpos to integers to save net bandwidth, but nudged towards the line
-  SnapVectorTowards( tr.endpos, muzzle );
-
-  // send railgun beam effect
-  tent = G_TempEntity( tr.endpos, EV_TESLATRAIL );
-
-  VectorCopy( muzzle, tent->s.origin2 );
-
-  tent->s.generic1 = ent->s.number; //src
-  tent->s.clientNum = -1; //dest
+  VectorAdd( muzzle, range, maxs );
+  VectorSubtract( muzzle, range, mins );
   
-  // no explosion at end if SURF_NOIMPACT, but still make the trail
-  if( tr.surfaceFlags & SURF_NOIMPACT )
-    tent->s.eventParm = 255;  // don't make the explosion at the end
-  else
-    tent->s.eventParm = DirToByte( tr.plane.normal );
+  num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+  for( i = 0; i < num; i++ )
+  {
+    enemy = &g_entities[ entityList[ i ] ];
+    
+    if( ( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) ||
+        ( enemy->s.eType == ET_BUILDABLE && BG_FindTeamForBuildable( enemy->s.modelindex ) == BIT_HUMANS ) )
+    {
+      trap_Trace( &tr, muzzle, NULL, NULL, enemy->s.origin, ent->s.number, MASK_SHOT );
+    
+      //can't see target from here
+      if( tr.entityNum == ENTITYNUM_WORLD )
+        continue;
+
+      targetList[ numTargets++ ] = entityList[ i ];
+    }
+  }
+  
+  VectorAdd( muzzle, forward, end );
+
+  for( i = 0; i < numTargets; i++ )
+  {
+    enemy = &g_entities[ targetList[ i ] ];
+
+    distance = pointToLineDistance( enemy->s.origin, muzzle, end );
+    if( distance < minDist )
+    {
+      target = enemy;
+      minDist = distance;
+    }
+  }
+  
+  if( target != NULL )
+  {
+    //do some damage
+    G_Damage( target, ent, ent, dir, tr.endpos,
+              DIRECTZAP_DAMAGE, DAMAGE_NO_KNOCKBACK, MOD_LIGHTNING );
+    
+    // snap the endpos to integers to save net bandwidth, but nudged towards the line
+    SnapVectorTowards( tr.endpos, muzzle );
+
+    // send railgun beam effect
+    tent = G_TempEntity( target->s.pos.trBase, EV_TESLATRAIL );
+
+    VectorCopy( muzzle, tent->s.origin2 );
+
+    tent->s.generic1 = ent->s.number; //src
+    tent->s.clientNum = target->s.number; //dest
+  }
 }
 
 //======================================================================

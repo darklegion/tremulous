@@ -1344,6 +1344,31 @@ void PerpendicularVector( vec3_t dst, const vec3_t src )
   VectorNormalize( dst );
 }
 
+/*
+=================
+pointToLineDistance
+
+Distance from a point to some line
+=================
+*/
+float pointToLineDistance( const vec3_t p0, const vec3_t p1, const vec3_t p2 )
+{
+  vec3_t  v, w, x, y;
+  float   c1, c2, b;
+
+  VectorSubtract( p2, p1, v );
+  VectorSubtract( p1, p0, w );
+  
+  CrossProduct( w, v, y );
+  c1 = VectorLength( y );
+  c2 = VectorLength( v );
+
+  if( c2 == 0.0f )
+    return 0.0f;
+  else
+    return c1 / c2;
+}
+
 //TA: wolf trail stuff
 // Ridah
 /*
