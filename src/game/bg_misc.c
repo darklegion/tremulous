@@ -2563,7 +2563,7 @@ weaponAttributes_t bg_weapons[ ] =
     BMOFO_KNOCK_REPEAT,   //int       repeatRate2;
     BMOFO_CLAW_REPEAT,    //int       repeatRate3;
     0,                    //int       reloadTime;
-    qtrue,                //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasAltMode;
     qtrue,                //qboolean  hasThirdMode;
     qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;

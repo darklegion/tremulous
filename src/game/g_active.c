@@ -484,6 +484,27 @@ void ClientTimerActions( gentity_t *ent, int msec )
         client->ps.stats[ STAT_MISC ] = DRAGOON_POUNCE_SPEED;
     }
 
+    //client is charging up for a charge
+    if( client->ps.weapon == WP_GROUND_POUND )
+    {
+      if( client->ps.stats[ STAT_MISC ] < BMOFO_CHARGE_SPEED && ucmd->buttons & BUTTON_ATTACK2 )
+      {
+        client->ps.stats[ STAT_MISC ] += ( 100.0f / (float)BMOFO_CHARGE_TIME ) * BMOFO_CHARGE_SPEED;
+        client->allowedToCharge = qtrue;
+      }
+
+      if( !( ucmd->buttons & BUTTON_ATTACK2 ) )
+      {
+        if( client->ps.stats[ STAT_MISC ] > 0 )
+          client->chargePayload = client->ps.stats[ STAT_MISC ];
+
+        client->ps.stats[ STAT_MISC ] = 0;
+      }
+
+      if( client->ps.stats[ STAT_MISC ] > BMOFO_CHARGE_SPEED )
+        client->ps.stats[ STAT_MISC ] = BMOFO_CHARGE_SPEED;
+    }
+
     //client is charging up an lcannon
     if( client->ps.weapon == WP_LUCIFER_CANNON )
     {
@@ -948,6 +969,11 @@ void ClientThink_real( gentity_t *ent )
       case WP_POUNCE_UPG:
         if( client->ps.weaponTime <= 0 )
           pm.autoWeaponHit[ client->ps.weapon ] = CheckPounceAttack( ent );
+        break;
+
+      case WP_GROUND_POUND:
+        if( client->ps.weaponTime <= 0 )
+          pm.autoWeaponHit[ client->ps.weapon ] = CheckChargeAttack( ent );
         break;
 
       default:

@@ -458,6 +458,36 @@ static void PM_SetMovementDir( void )
 
 /*
 =============
+PM_CheckCharge
+=============
+*/
+static void PM_CheckCharge( void )
+{
+  vec3_t forward;
+  
+  if( pm->ps->weapon != WP_GROUND_POUND )
+    return;
+
+  if( pm->cmd.buttons & BUTTON_ATTACK2 )
+  {
+    pm->ps->pm_flags &= ~PMF_CHARGE_POUNCE;
+    return;
+  }
+
+  if( pm->ps->pm_flags & PMF_CHARGE_POUNCE )
+    return;
+
+  if( pm->ps->stats[ STAT_MISC ] == 0 )
+    return;
+
+  pm->ps->pm_flags |= PMF_CHARGE_POUNCE;
+  
+  AngleVectors( pm->ps->viewangles, forward, NULL, NULL );
+  VectorMA( pm->ps->velocity, pm->ps->stats[ STAT_MISC ], forward, pm->ps->velocity );
+}
+
+/*
+=============
 PM_CheckPounce
 =============
 */
@@ -470,11 +500,11 @@ static qboolean PM_CheckPounce( void )
 
   if( pm->cmd.buttons & BUTTON_ATTACK2 )
   {
-    pm->ps->pm_flags &= ~PMF_POUNCE;
+    pm->ps->pm_flags &= ~PMF_CHARGE_POUNCE;
     return qfalse;
   }
 
-  if( pm->ps->pm_flags & PMF_POUNCE )
+  if( pm->ps->pm_flags & PMF_CHARGE_POUNCE )
     return qfalse;
 
   if( pm->ps->stats[ STAT_MISC ] == 0 )
@@ -483,7 +513,7 @@ static qboolean PM_CheckPounce( void )
   pml.groundPlane = qfalse;   // jumping away
   pml.walking = qfalse;
   
-  pm->ps->pm_flags |= PMF_POUNCE;
+  pm->ps->pm_flags |= PMF_CHARGE_POUNCE;
   
   pm->ps->groundEntityNum = ENTITYNUM_NONE;
   
@@ -527,6 +557,10 @@ static qboolean PM_CheckJump( void )
 
   //can't jump and pounce charge at the same time
   if( ( pm->ps->weapon == WP_POUNCE || pm->ps->weapon == WP_POUNCE_UPG ) && pm->ps->stats[ STAT_MISC ] > 0 )
+    return qfalse;
+
+  //can't jump and charge at the same time
+  if( ( pm->ps->weapon == WP_GROUND_POUND ) && pm->ps->stats[ STAT_MISC ] > 0 )
     return qfalse;
 
   if( ( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS ) &&
@@ -1082,6 +1116,9 @@ static void PM_WalkMove( void )
 
     return;
   }
+
+  //charging
+  PM_CheckCharge( );
 
   PM_Friction( );
 

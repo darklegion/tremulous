@@ -882,43 +882,60 @@ GROUND POUND
 
 /*
 ===============
-groundPound
+CheckChargeAttack
 ===============
 */
-void groundPound( gentity_t *ent )
+qboolean CheckChargeAttack( gentity_t *ent )
 {
-  int       entityList[ MAX_GENTITIES ];
-  vec3_t    range = { BMOFO_KNOCK_RANGE, BMOFO_KNOCK_RANGE, BMOFO_KNOCK_RANGE };
-  vec3_t    mins, maxs, dir;
-  int       i, num;
-  gentity_t *humanPlayer;
-  
-  VectorAdd( ent->client->ps.origin, range, maxs );
-  VectorSubtract( ent->client->ps.origin, range, mins );
-  
-  num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
-  for( i = 0; i < num; i++ )
-  {
-    humanPlayer = &g_entities[ entityList[ i ] ];
+  //FIXME
+  trace_t   tr;
+  vec3_t    end;
+  gentity_t *tent;
+  gentity_t *traceEnt;
+  int     damage;
+
+  if( !ent->client->allowedToCharge )
+    return qfalse;
+
+  // set aiming directions
+  AngleVectors( ent->client->ps.viewangles, forward, right, up );
+
+  CalcMuzzlePoint( ent, forward, right, up, muzzle );
+
+  VectorMA( muzzle, BMOFO_CHARGE_RANGE, forward, end );
+
+  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+
+  //miss
+  if( tr.fraction >= 1.0 )
+    return qfalse;
     
-    if( humanPlayer->client && humanPlayer->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-    {
-      if( !( humanPlayer->client->ps.stats[ STAT_STATE ] & SS_KNOCKEDOVER ) )
-      {
-        humanPlayer->client->ps.stats[ STAT_STATE ] |= SS_KNOCKEDOVER;
-        humanPlayer->client->lastKnockedOverTime = level.time;
-        G_AddPredictableEvent( humanPlayer, EV_KNOCKOVER, 0 );
-        
-        VectorCopy( humanPlayer->client->ps.viewangles, humanPlayer->client->ps.grapplePoint );
-        
-        //FIXME: fallover anim
-        humanPlayer->client->ps.legsAnim =
-          ( ( humanPlayer->client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | BOTH_DEATH1;
-        humanPlayer->client->ps.torsoAnim =
-          ( ( humanPlayer->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | BOTH_DEATH1;
-      }
-    }
+  if( tr.surfaceFlags & SURF_NOIMPACT )
+    return qfalse;
+
+  traceEnt = &g_entities[ tr.entityNum ];
+
+  // send blood impact
+  if( traceEnt->takedamage && traceEnt->client )
+  {
+    tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
+    tent->s.otherEntityNum = traceEnt->s.number;
+    tent->s.eventParm = DirToByte( tr.plane.normal );
+    tent->s.weapon = ent->s.weapon;
   }
+
+  if( !traceEnt->takedamage )
+    return qfalse;
+
+  damage = (int)( ( (float)ent->client->chargePayload / (float)BMOFO_CHARGE_SPEED ) * BMOFO_CHARGE_DMG );
+
+  G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_VENOM );
+
+  ent->client->allowedToCharge = qfalse;
+  
+  G_Printf( "charge!\n" );
+
+  return qtrue;
 }
 
 //======================================================================
@@ -1007,9 +1024,6 @@ void FireWeapon2( gentity_t *ent )
       break;
     case WP_DIRECT_ZAP:
       directZapFire( ent );
-      break;
-    case WP_GROUND_POUND:
-      groundPound( ent );
       break;
       
     case WP_LUCIFER_CANNON:

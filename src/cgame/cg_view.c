@@ -484,7 +484,8 @@ static void CG_OffsetFirstPersonView( void )
 
   //provide some feedback for pouncing
   if( cg.predictedPlayerState.weapon == WP_POUNCE ||
-      cg.predictedPlayerState.weapon == WP_POUNCE_UPG )
+      cg.predictedPlayerState.weapon == WP_POUNCE_UPG ||
+      cg.predictedPlayerState.weapon == WP_GROUND_POUND )
   {
     if( cg.predictedPlayerState.stats[ STAT_MISC ] > 0 )
     {
@@ -494,7 +495,10 @@ static void CG_OffsetFirstPersonView( void )
       AngleVectors( angles, forward, NULL, NULL );
       VectorNormalize( forward );
 
-      fraction1 = (float)( cg.time - cg.weapon2Time ) / (float)DRAGOON_POUNCE_TIME;
+      if( cg.predictedPlayerState.weapon == WP_GROUND_POUND )
+        fraction1 = (float)( cg.time - cg.weapon2Time ) / (float)BMOFO_CHARGE_TIME;
+      else
+        fraction1 = (float)( cg.time - cg.weapon2Time ) / (float)DRAGOON_POUNCE_TIME;
 
       if( fraction1 > 1.0f )
         fraction1 = 1.0f;
