@@ -254,8 +254,6 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_FLAMER;
 	bolt->r.ownerNum = self->s.number;
-  //random rotation for the flame sprite
-  bolt->s.generic1 = rand( ) % 360;
 	bolt->parent = self;
 	bolt->damage = 5;
 	bolt->splashDamage = 5;
@@ -269,7 +267,7 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
 	bolt->s.pos.trTime = level.time - ( MISSILE_PRESTEP_TIME / 2 );		// move a bit on the very first frame
 	VectorCopy( start, bolt->s.pos.trBase );
 	//VectorMA( self->client->ps.velocity, 300, dir, bolt->s.pos.trDelta );
-	VectorScale( dir, 300, bolt->s.pos.trDelta );
+	VectorScale( dir, FIREBALL_SPEED, bolt->s.pos.trDelta );
 	/*SnapVector( bolt->s.pos.trDelta );			// save net bandwidth*/
 
 	VectorCopy (start, bolt->r.currentOrigin);

@@ -289,21 +289,7 @@ static void CG_Missile( centity_t *cent )
       break;
 
     case WP_FLAMER:
-/*      {
-        fraction = ( ( cg.time - s1->pos.trTime ) / FIREBALL_LIFETIME );
-        
-        if( fraction > 1.0f )
-          fraction = 1.0f;
-          
-        ent.reType = RT_SPRITE;
-        ent.radius = fraction * 32;
-        ent.rotation = s1->generic1;
-        
-        index = (int)( fraction * 31 );
-        ent.customShader = cgs.media.flameShader[ index ];
-        trap_R_AddRefEntityToScene( &ent );
-        return;
-      }*/
+      //TA: don't actually display the missile (use the particle engine)
       return;
       break;
 

@@ -186,7 +186,9 @@ typedef struct centity_s {
 
   lerpFrame_t lerpFrame;
 
-  buildableAnimNumber_t buildableAnim; //TA: persistant anim number
+  //TA:
+  buildableAnimNumber_t buildableAnim; //persistant anim number
+  int         flamerTime; //limit flameball count
 } centity_t;
 
 

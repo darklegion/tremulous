@@ -319,7 +319,9 @@ typedef enum {
 } holdable_t;
 
 //TA: needed client side to size sprites
-#define FIREBALL_LIFETIME 800.0f
+#define FIREBALL_LIFETIME 1000.0f
+#define FIREBALL_SPEED    200.0f
+#define FIREBALL_GAP      10 //basically as fast as possible yet regular
 
 typedef enum
 {

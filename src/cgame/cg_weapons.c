@@ -986,13 +986,17 @@ CG_FlameTrail
 */
 static void CG_FlameTrail( centity_t *cent, vec3_t origin )
 {
-  vec3_t        forward;
-  vec3_t        muzzlePoint;
+  vec3_t  forward;
+  vec3_t  muzzlePoint;
 
   if( cent->currentState.weapon != WP_FLAMER )
     return;
 
-  if( cent->currentState.clientNum == cg.predictedPlayerState.clientNum )
+  //not time for the next ball yet
+  if( cg.time < cent->flamerTime )
+    return;
+  
+  if( cent->currentState.clientNum == cg.predictedPlayerState.clientNum && !cg.renderingThirdPerson )
   {
     AngleVectors( cg.refdefViewAngles, forward, NULL, NULL );
     VectorCopy( cg.predictedPlayerState.origin, muzzlePoint );
@@ -1004,12 +1008,18 @@ static void CG_FlameTrail( centity_t *cent, vec3_t origin )
   }
 
   // FIXME: crouch
-  muzzlePoint[2] += DEFAULT_VIEWHEIGHT;
+  muzzlePoint[ 2 ] += DEFAULT_VIEWHEIGHT;
 
-  VectorMA( muzzlePoint, 8.0f, forward, muzzlePoint );
-  VectorScale( forward, 300.0f, forward );
+  VectorMA( muzzlePoint, 14.0f, forward, muzzlePoint );
+  VectorScale( forward, FIREBALL_SPEED, forward );
 
-  CG_LaunchSprite( muzzlePoint, forward, vec3_origin, 0.1f, 0.0f, 48.0f, 192.0f, 64.0f, rand( ) % 360, cg.time, FIREBALL_LIFETIME, cgs.media.smokePuffShader, qfalse, qfalse );
+  CG_LaunchSprite( muzzlePoint, forward, vec3_origin,
+                   0.1f, 0.0f, 40.0f, 255.0f, 192.0f,
+                   rand( ) % 360, cg.time, FIREBALL_LIFETIME,
+                   cgs.media.flameShader[ 0 ], qfalse, qfalse );
+
+  //set next ball time
+  cent->flamerTime = cg.time + FIREBALL_GAP;
 }
 
 
