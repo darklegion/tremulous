@@ -693,6 +693,7 @@ static void CG_RegisterGraphics( void )
   cgs.media.smokePuffShader           = trap_R_RegisterShader( "smokePuff" );
   cgs.media.smokePuffRageProShader    = trap_R_RegisterShader( "smokePuffRagePro" );
   cgs.media.shotgunSmokePuffShader    = trap_R_RegisterShader( "shotgunSmokePuff" );
+  cgs.media.blasterShader             = trap_R_RegisterShader( "sprites/plasma1" );
   cgs.media.plasmaBallShader          = trap_R_RegisterShader( "sprites/plasma1" );
   cgs.media.bloodTrailShader          = trap_R_RegisterShader( "bloodTrail" );
   cgs.media.connectionShader          = trap_R_RegisterShader( "disconnected" );

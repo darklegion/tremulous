@@ -290,6 +290,48 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
 
 /*
 =================
+fire_blaster
+
+=================
+*/
+gentity_t *fire_blaster( gentity_t *self, vec3_t start, vec3_t dir )
+{
+  gentity_t *bolt;
+
+  VectorNormalize (dir);
+
+  bolt = G_Spawn();
+  bolt->classname = "blaster";
+  bolt->nextthink = level.time + 10000;
+  bolt->think = G_ExplodeMissile;
+  bolt->s.eType = ET_MISSILE;
+  bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+  bolt->s.weapon = WP_BLASTER;
+  bolt->r.ownerNum = self->s.number;
+  bolt->parent = self;
+  bolt->damage = BLASTER_DMG;
+  bolt->splashDamage = 0;
+  bolt->splashRadius = 0;
+  //bolt->methodOfDeath = MOD_FLAMER;
+  //bolt->splashMethodOfDeath = MOD_FLAMER_SPLASH;
+  bolt->clipmask = MASK_SHOT;
+  bolt->target_ent = NULL;
+
+  bolt->s.pos.trType = TR_LINEAR;
+  bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
+  VectorCopy( start, bolt->s.pos.trBase );
+  VectorScale( dir, BLASTER_SPEED, bolt->s.pos.trDelta );
+  SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
+
+  VectorCopy( start, bolt->r.currentOrigin );
+
+  return bolt;
+}
+
+//=============================================================================
+
+/*
+=================
 fire_pulseRifle
 
 =================

@@ -1522,6 +1522,13 @@ void Cmd_Sell_f( gentity_t *ent )
   
   if( weapon != WP_NONE )
   {
+    //are we /allowed/ to sell this?
+    if( !BG_FindPurchasableForWeapon( weapon ) )
+    {
+      trap_SendServerCommand( ent-g_entities, va( "print \"You can't sell this item\n\"" ) );
+      return;
+    }
+    
     //remove weapon if carried
     if( BG_gotWeapon( weapon, ent->client->ps.stats ) )
     {

@@ -279,6 +279,11 @@
 #define HUMAN_WDMG_MODIFIER         1.5f
 #define HDM(d)                      ((int)((float)d*HUMAN_WDMG_MODIFIER))
 
+#define BLASTER_REPEAT              1000
+#define BLASTER_SPREAD              200
+#define BLASTER_SPEED               500
+#define BLASTER_DMG                 HDM(10)
+
 #define RIFLE_CLIPSIZE              30
 #define RIFLE_SPAWNCLIPS            3
 #define RIFLE_MAXCLIPS              3
@@ -286,13 +291,13 @@
 #define RIFLE_RELOAD                2000
 #define RIFLE_PRICE                 0
 #define RIFLE_SPREAD                200
-#define RIFLE_DMG                   HDM(9)
+#define RIFLE_DMG                   HDM(5)
 
 #define CHAINGUN_BULLETS            300
 #define CHAINGUN_REPEAT             50
 #define CHAINGUN_PRICE              200
 #define CHAINGUN_SPREAD             1200
-#define CHAINGUN_DMG                HDM(14)
+#define CHAINGUN_DMG                HDM(10)
 
 #define FLAMER_GAS                  80
 #define FLAMER_REPEAT               300
@@ -307,17 +312,17 @@
 #define MDRIVER_SPAWNCLIPS          2
 #define MDRIVER_MAXCLIPS            3
 #define MDRIVER_PRICE               300
-#define MDRIVER_DMG                 HDM(50)
+#define MDRIVER_DMG                 HDM(100)
 #define MDRIVER_REPEAT              1000
 #define MDRIVER_RELOAD              2000
 
 #define PRIFLE_CLIPS                50
 #define PRIFLE_SPAWNCLIPS           3
 #define PRIFLE_MAXCLIPS             3
-#define PRIFLE_PRICE                250
+#define PRIFLE_PRICE                300
 #define PRIFLE_REPEAT               100
 #define PRIFLE_RELOAD               2000
-#define PRIFLE_DMG                  HDM(15)
+#define PRIFLE_DMG                  HDM(13)
 #define PRIFLE_SPEED                1500
 
 #define LCANNON_PRICE               400
@@ -326,13 +331,13 @@
 #define LCANNON_CHARGEREPEAT        1000
 #define LCANNON_RELOAD              2000
 #define LCANNON_DAMAGE              HDM(200)
-#define LCANNON_SECONDARY_DAMAGE    20
+#define LCANNON_SECONDARY_DAMAGE    HDM(20)
 #define LCANNON_SPEED               250
 #define LCANNON_CHARGE_TIME         2000
 
 #define LASGUN_PRICE                200
 #define LASGUN_AMMO                 300
-#define LASGUN_REPEAT               100
+#define LASGUN_REPEAT               150
 #define LASGUN_RELOAD               2000
 #define LASGUN_DAMAGE               HDM(10)
 

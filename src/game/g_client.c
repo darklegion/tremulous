@@ -1422,7 +1422,10 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
 
   // clear entity values
   if( ent->client->pers.pclass == PCL_H_BASE )
+  {
+    BG_packWeapon( WP_BLASTER, client->ps.stats );
     weapon = client->pers.pitem;
+  }
   else if( client->sess.sessionTeam != TEAM_SPECTATOR )
     weapon = BG_FindStartWeaponForClass( ent->client->pers.pclass );
   else

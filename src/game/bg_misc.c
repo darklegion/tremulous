@@ -2071,6 +2071,28 @@ int BG_FindValueOfClass( int pclass )
 weaponAttributes_t bg_weapons[ ] =
 {
   {
+    WP_BLASTER,           //int       weaponNum;
+    0,                    //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    0,                    //int       slots;
+    "blaster",            //char      *weaponName;
+    "Blaster",            //char      *weaponHumanName;
+    0,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
+    BLASTER_REPEAT,       //int       repeatRate1;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
+    0,                    //int       reloadTime;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
+    qfalse,               //qboolean  purchasable;
+    0,                    //int       buildDelay;
+    WUT_HUMANS            //WUTeam_t  team;
+  },
+  {
     WP_MACHINEGUN,        //int       weaponNum;
     RIFLE_PRICE,          //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages

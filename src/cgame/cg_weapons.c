@@ -1591,6 +1591,11 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
       isSprite = qtrue;
       break;
       
+    case WP_BLASTER:
+      mark = cgs.media.burnMarkShader;
+      radius = 4;
+      break;
+      
     case WP_FLAMER:
       sfx = cgs.media.sfx_flamerexp;
       mark = cgs.media.burnMarkShader;

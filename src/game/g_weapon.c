@@ -212,6 +212,23 @@ void lockBlobLauncherFire( gentity_t *ent )
 /*
 ======================================================================
 
+BLASTER PISTOL
+
+======================================================================
+*/
+
+void blasterFire( gentity_t *ent )
+{
+  gentity_t *m;
+
+  m = fire_blaster( ent, muzzle, forward );
+
+//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
+}
+
+/*
+======================================================================
+
 PULSE RIFLE
 
 ======================================================================
@@ -1040,6 +1057,9 @@ void FireWeapon( gentity_t *ent )
       meleeAttack( ent, BMOFO_CLAW_RANGE, BMOFO_CLAW_DMG );
       break;
 
+    case WP_BLASTER:
+      blasterFire( ent );
+      break;
     case WP_MACHINEGUN:
       bulletFire( ent, RIFLE_SPREAD, RIFLE_DMG, MOD_MACHINEGUN );
       break;

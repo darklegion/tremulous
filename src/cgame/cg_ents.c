@@ -361,6 +361,15 @@ static void CG_Missile( centity_t *cent )
 
   switch( cent->currentState.weapon )
   {
+    case WP_BLASTER:
+      ent.reType = RT_SPRITE;
+      ent.radius = 4;
+      ent.rotation = 0;
+      ent.customShader = cgs.media.blasterShader;
+      trap_R_AddRefEntityToScene( &ent );
+      return;
+      break;
+
     case WP_PULSE_RIFLE:
       ent.reType = RT_SPRITE;
       ent.radius = 4;
