@@ -37,45 +37,45 @@ char teamChat2[256];
 int CG_Text_Width( const char *text, float scale, int limit )
 {
   int         count,len;
-	float       out;
-	glyphInfo_t *glyph;
-	float       useScale;
+  float       out;
+  glyphInfo_t *glyph;
+  float       useScale;
 // FIXME: see ui_main.c, same problem
-//	const unsigned char *s = text;
-	const char  *s = text;
-	fontInfo_t  *font = &cgDC.Assets.textFont;
+//  const unsigned char *s = text;
+  const char  *s = text;
+  fontInfo_t  *font = &cgDC.Assets.textFont;
   
-	if( scale <= cg_smallFont.value )
-		font = &cgDC.Assets.smallFont;
-	else if( scale > cg_bigFont.value )
-		font = &cgDC.Assets.bigFont;
+  if( scale <= cg_smallFont.value )
+    font = &cgDC.Assets.smallFont;
+  else if( scale > cg_bigFont.value )
+    font = &cgDC.Assets.bigFont;
   
-	useScale = scale * font->glyphScale;
+  useScale = scale * font->glyphScale;
   out = 0;
   
   if( text )
   {
     len = strlen( text );
-		if( limit > 0 && len > limit )
-			len = limit;
+    if( limit > 0 && len > limit )
+      len = limit;
     
-		count = 0;
-		while( s && *s && count < len )
+    count = 0;
+    while( s && *s && count < len )
     {
-			if( Q_IsColorString( s ) )
+      if( Q_IsColorString( s ) )
       {
-				s += 2;
-				continue;
-			}
+        s += 2;
+        continue;
+      }
       else
       {
-				glyph = &font->glyphs[ (int)*s ];
+        glyph = &font->glyphs[ (int)*s ];
         //TTimo: FIXME: getting nasty warnings without the cast,
         //hopefully this doesn't break the VM build
-				out += glyph->xSkip;
-				s++;
-				count++;
-			}
+        out += glyph->xSkip;
+        s++;
+        count++;
+      }
     }
   }
   
@@ -85,47 +85,47 @@ int CG_Text_Width( const char *text, float scale, int limit )
 int CG_Text_Height( const char *text, float scale, int limit )
 {
   int         len, count;
-	float       max;
-	glyphInfo_t *glyph;
-	float       useScale;
+  float       max;
+  glyphInfo_t *glyph;
+  float       useScale;
 // TTimo: FIXME
-//	const unsigned char *s = text;
-	const char  *s = text;
-	fontInfo_t  *font = &cgDC.Assets.textFont;
-	
-  if( scale <= cg_smallFont.value )
-		font = &cgDC.Assets.smallFont;
-	else if( scale > cg_bigFont.value )
-		font = &cgDC.Assets.bigFont;
+//  const unsigned char *s = text;
+  const char  *s = text;
+  fontInfo_t  *font = &cgDC.Assets.textFont;
   
-	useScale = scale * font->glyphScale;
+  if( scale <= cg_smallFont.value )
+    font = &cgDC.Assets.smallFont;
+  else if( scale > cg_bigFont.value )
+    font = &cgDC.Assets.bigFont;
+  
+  useScale = scale * font->glyphScale;
   max = 0;
   
   if( text )
   {
     len = strlen( text );
-		if( limit > 0 && len > limit )
-			len = limit;
+    if( limit > 0 && len > limit )
+      len = limit;
     
-		count = 0;
-		while( s && *s && count < len )
+    count = 0;
+    while( s && *s && count < len )
     {
-			if( Q_IsColorString( s ) )
+      if( Q_IsColorString( s ) )
       {
-				s += 2;
-				continue;
-			}
+        s += 2;
+        continue;
+      }
       else
       {
-				glyph = &font->glyphs[ (int)*s ];
+        glyph = &font->glyphs[ (int)*s ];
         //TTimo: FIXME: getting nasty warnings without the cast,
         //hopefully this doesn't break the VM build
-	      if( max < glyph->height )
-		      max = glyph->height;
+        if( max < glyph->height )
+          max = glyph->height;
         
-				s++;
-				count++;
-			}
+        s++;
+        count++;
+      }
     }
   }
   
@@ -146,55 +146,55 @@ void CG_Text_Paint( float x, float y, float scale, vec4_t color, const char *tex
                     float adjust, int limit, int style )
 {
   int         len, count;
-	vec4_t      newColor;
-	glyphInfo_t *glyph;
-	float       useScale;
-	fontInfo_t  *font = &cgDC.Assets.textFont;
+  vec4_t      newColor;
+  glyphInfo_t *glyph;
+  float       useScale;
+  fontInfo_t  *font = &cgDC.Assets.textFont;
   
-	if( scale <= cg_smallFont.value )
-		font = &cgDC.Assets.smallFont;
-	else if( scale > cg_bigFont.value )
-		font = &cgDC.Assets.bigFont;
+  if( scale <= cg_smallFont.value )
+    font = &cgDC.Assets.smallFont;
+  else if( scale > cg_bigFont.value )
+    font = &cgDC.Assets.bigFont;
   
-	useScale = scale * font->glyphScale;
+  useScale = scale * font->glyphScale;
   if( text )
   {
 // TTimo: FIXME
-//		const unsigned char *s = text;
-		const char *s = text;
+//    const unsigned char *s = text;
+    const char *s = text;
     
-		trap_R_SetColor( color );
-		memcpy( &newColor[ 0 ], &color[ 0 ], sizeof( vec4_t ) );
+    trap_R_SetColor( color );
+    memcpy( &newColor[ 0 ], &color[ 0 ], sizeof( vec4_t ) );
     len = strlen( text );
     
-		if( limit > 0 && len > limit )
-			len = limit;
+    if( limit > 0 && len > limit )
+      len = limit;
     
-		count = 0;
-		while( s && *s && count < len )
+    count = 0;
+    while( s && *s && count < len )
     {
-			glyph = &font->glyphs[ (int)*s ];
+      glyph = &font->glyphs[ (int)*s ];
       //TTimo: FIXME: getting nasty warnings without the cast,
       //hopefully this doesn't break the VM build
-			
+      
       if( Q_IsColorString( s ) )
       {
-				memcpy( newColor, g_color_table[ ColorIndex( *( s + 1 ) ) ], sizeof( newColor ) );
-				newColor[ 3 ] = color[ 3 ];
-				trap_R_SetColor( newColor );
-				s += 2;
-				continue;
-			}
+        memcpy( newColor, g_color_table[ ColorIndex( *( s + 1 ) ) ], sizeof( newColor ) );
+        newColor[ 3 ] = color[ 3 ];
+        trap_R_SetColor( newColor );
+        s += 2;
+        continue;
+      }
       else
       {
-				float yadj = useScale * glyph->top;
-				if( style == ITEM_TEXTSTYLE_SHADOWED ||
+        float yadj = useScale * glyph->top;
+        if( style == ITEM_TEXTSTYLE_SHADOWED ||
             style == ITEM_TEXTSTYLE_SHADOWEDMORE )
         {
-					int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
-					colorBlack[ 3 ] = newColor[ 3 ];
-					trap_R_SetColor( colorBlack );
-					CG_Text_PaintChar( x + ofs, y - yadj + ofs, 
+          int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
+          colorBlack[ 3 ] = newColor[ 3 ];
+          trap_R_SetColor( colorBlack );
+          CG_Text_PaintChar( x + ofs, y - yadj + ofs, 
                              glyph->imageWidth,
                              glyph->imageHeight,
                              useScale, 
@@ -204,27 +204,27 @@ void CG_Text_Paint( float x, float y, float scale, vec4_t color, const char *tex
                              glyph->t2,
                              glyph->glyph );
           
-					colorBlack[ 3 ] = 1.0;
-					trap_R_SetColor( newColor );
-				}
+          colorBlack[ 3 ] = 1.0;
+          trap_R_SetColor( newColor );
+        }
         
-				CG_Text_PaintChar( x, y - yadj, 
-													 glyph->imageWidth,
-													 glyph->imageHeight,
-													 useScale, 
-													 glyph->s,
-													 glyph->t,
-													 glyph->s2,
-													 glyph->t2,
-													 glyph->glyph );
+        CG_Text_PaintChar( x, y - yadj, 
+                           glyph->imageWidth,
+                           glyph->imageHeight,
+                           useScale, 
+                           glyph->s,
+                           glyph->t,
+                           glyph->s2,
+                           glyph->t2,
+                           glyph->glyph );
         
-				x += ( glyph->xSkip * useScale ) + adjust;
-				s++;
-				count++;
-			}
+        x += ( glyph->xSkip * useScale ) + adjust;
+        s++;
+        count++;
+      }
     }
     
-	  trap_R_SetColor( NULL );
+    trap_R_SetColor( NULL );
   }
 }
 
@@ -703,18 +703,18 @@ Draws large numbers for status bar and powerups
 */
 static void CG_DrawField( int x, int y, int width, int value )
 {
-	char	num[ 16 ], *ptr;
-	int		l;
-	int		frame;
+  char  num[ 16 ], *ptr;
+  int   l;
+  int   frame;
 
-	if( width < 1 )
-		return;
+  if( width < 1 )
+    return;
 
-	// draw number string
-	if( width > 5 )
-		width = 5;
+  // draw number string
+  if( width > 5 )
+    width = 5;
 
-	switch( width )
+  switch( width )
   {
     case 1:
       value = value > 9 ? 9 : value;
@@ -732,29 +732,29 @@ static void CG_DrawField( int x, int y, int width, int value )
       value = value > 9999 ? 9999 : value;
       value = value < -999 ? -999 : value;
       break;
-	}
+  }
 
-	Com_sprintf( num, sizeof( num ), "%d", value );
-	l = strlen( num );
-	
-  if ( l > width )
-		l = width;
+  Com_sprintf( num, sizeof( num ), "%d", value );
+  l = strlen( num );
   
-	x += 2 + CHAR_WIDTH * ( width - l );
+  if ( l > width )
+    l = width;
+  
+  x += 2 + CHAR_WIDTH * ( width - l );
 
-	ptr = num;
-	while( *ptr && l )
-	{
-		if( *ptr == '-' )
-			frame = STAT_MINUS;
-		else
-			frame = *ptr -'0';
+  ptr = num;
+  while( *ptr && l )
+  {
+    if( *ptr == '-' )
+      frame = STAT_MINUS;
+    else
+      frame = *ptr -'0';
 
-		CG_DrawPic( x,y, CHAR_WIDTH, CHAR_HEIGHT, cgs.media.numberShaders[ frame ] );
-		x += CHAR_WIDTH;
-		ptr++;
-		l--;
-	}
+    CG_DrawPic( x,y, CHAR_WIDTH, CHAR_HEIGHT, cgs.media.numberShaders[ frame ] );
+    x += CHAR_WIDTH;
+    ptr++;
+    l--;
+  }
 }
 
 /*
@@ -1547,11 +1547,11 @@ static void CG_DrawCenterString( void )
     
     linebuffer[ l ] = 0;
 
-		w = CG_Text_Width( linebuffer, 0.5, 0 );
-		h = CG_Text_Height( linebuffer, 0.5, 0 );
-		x = ( SCREEN_WIDTH - w ) / 2;
-		CG_Text_Paint( x, y + h, 0.5, color, linebuffer, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
-		y += h + 6;
+    w = CG_Text_Width( linebuffer, 0.5, 0 );
+    h = CG_Text_Height( linebuffer, 0.5, 0 );
+    x = ( SCREEN_WIDTH - w ) / 2;
+    CG_Text_Paint( x, y + h, 0.5, color, linebuffer, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
+    y += h + 6;
 
     while( *start && ( *start != '\n' ) )
       start++;
@@ -1702,9 +1702,9 @@ static void CG_DrawCrosshairNames( void )
   }
 
   name = cgs.clientinfo[ cg.crosshairClientNum ].name;
-	color[ 3 ] *= 0.5f;
-	w = CG_Text_Width( name, 0.3f, 0 );
-	CG_Text_Paint( 320 - w / 2, 190, 0.3f, color, name, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
+  color[ 3 ] *= 0.5f;
+  w = CG_Text_Width( name, 0.3f, 0 );
+  CG_Text_Paint( 320 - w / 2, 190, 0.3f, color, name, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 
   trap_R_SetColor( NULL );
 }
@@ -1750,10 +1750,10 @@ static void CG_DrawVote( void )
   if( sec < 0 )
     sec = 0;
   
-	s = va( "VOTE(%i):%s yes:%i no:%i", sec, cgs.voteString, cgs.voteYes, cgs.voteNo );
-	CG_DrawSmallString( 0, 58, s, 1.0F );
-	s = "or press ESC then click Vote";
-	CG_DrawSmallString( 0, 58 + SMALLCHAR_HEIGHT + 2, s, 1.0F );
+  s = va( "VOTE(%i):%s yes:%i no:%i", sec, cgs.voteString, cgs.voteYes, cgs.voteNo );
+  CG_DrawSmallString( 0, 58, s, 1.0F );
+  s = "or press ESC then click Vote";
+  CG_DrawSmallString( 0, 58 + SMALLCHAR_HEIGHT + 2, s, 1.0F );
 }
 
 /*
@@ -2046,11 +2046,11 @@ static void CG_Draw2D( void )
     // don't draw any status if dead or the scoreboard is being explicitly shown
     if( !cg.showScores && cg.snap->ps.stats[ STAT_HEALTH ] > 0 )
     {
-			if( cg_drawStatus.integer )
+      if( cg_drawStatus.integer )
       {
-				Menu_PaintAll();
-				/*CG_DrawTimedMenus();*/
-			}
+        Menu_PaintAll();
+        /*CG_DrawTimedMenus();*/
+      }
       
       CG_DrawAmmoWarning();
       CG_DrawCrosshair();
