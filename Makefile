@@ -1,4 +1,3 @@
-# --
 # -- Makefile for building Q3A qvms on Linux
 # -- 
 # -- Copyleft under the GPL by Yumpee
