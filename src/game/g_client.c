@@ -433,6 +433,8 @@ gentity_t *SelectTremulousSpawnPoint( int team, vec3_t origin, vec3_t angles )
   VectorCopy( spot->s.pos.trBase, origin );
   VectorCopy( spot->s.angles, angles );
 
+  angles[ ROLL ] = 0;
+
   if( team == PTE_ALIENS )
   {
     BG_FindBBoxForBuildable( BA_A_SPAWN, spawnMins, spawnMaxs );
