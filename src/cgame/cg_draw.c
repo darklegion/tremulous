@@ -352,6 +352,66 @@ static void CG_DrawField( int x, int y, int width, int cw, int ch, int value )
   }
 }
 
+static void CG_DrawProgressBar( rectDef_t *rect, vec4_t color,
+                                float scale, int align, int textStyle, float progress )
+{
+  float   rimWidth = rect->h / 10.0f;
+  float   doneWidth, leftWidth;
+  float   tx, ty, tw, th;
+  char    textBuffer[ 8 ];
+  
+  if( progress < 0.0f )
+    progress = 0.0f;
+  else if( progress > 1.0f )
+    progress = 1.0f;
+  
+  doneWidth = ( rect->w - 2 * rimWidth ) * progress;
+  leftWidth = ( rect->w - 2 * rimWidth ) - doneWidth;
+  
+  trap_R_SetColor( color );
+  
+  //draw rim and bar
+  CG_DrawPic( rect->x, rect->y, rimWidth + doneWidth, rect->h, cgs.media.whiteShader );
+  CG_DrawPic( rimWidth + rect->x + doneWidth, rect->y,
+    leftWidth, rimWidth, cgs.media.whiteShader );
+  CG_DrawPic( rimWidth + rect->x + doneWidth, rect->y + rect->h - rimWidth,
+    leftWidth, rimWidth, cgs.media.whiteShader );
+  CG_DrawPic( rect->x + rect->w - rimWidth, rect->y, rimWidth, rect->h, cgs.media.whiteShader );
+
+  trap_R_SetColor( NULL );
+  
+  //draw text
+  if( scale > 0.0 )
+  {
+    Com_sprintf( textBuffer, sizeof( textBuffer ), "%d%%", (int)( progress * 100 ) );
+    tw = CG_Text_Width( textBuffer, scale, 0 );
+    th = scale * 40.0f;
+    
+    switch( align )
+    {
+      case ITEM_ALIGN_LEFT:
+        tx = rect->x + ( rect->w / 10.0f );
+        ty = rect->y + ( rect->h / 2.0f ) + ( th / 2.0f );
+        break;
+
+      case ITEM_ALIGN_RIGHT:
+        tx = rect->x + rect->w - ( rect->w / 10.0f ) - tw;
+        ty = rect->y + ( rect->h / 2.0f ) + ( th / 2.0f );
+        break;
+
+      case ITEM_ALIGN_CENTER:
+        tx = rect->x + ( rect->w / 2.0f ) - ( tw / 2.0f );
+        ty = rect->y + ( rect->h / 2.0f ) + ( th / 2.0f );
+        break;
+
+      default:
+        tx = ty = 0.0f;
+    }
+    
+    CG_Text_Paint( tx, ty, scale, color, textBuffer, 0, 0, textStyle );
+  }
+}
+
 //=============== TA: was cg_newdraw.c
 
 void CG_InitTeamChat( )
@@ -406,28 +466,13 @@ static void CG_DrawPlayerBankValue( rectDef_t *rect, vec4_t color )
   }
 }
 
-static void CG_DrawPlayerStamina( rectDef_t *rect )
+static void CG_DrawPlayerStamina( rectDef_t *rect, vec4_t color, float scale, int align, int textStyle )
 {
   playerState_t *ps = &cg.snap->ps;
-  int stamina = ps->stats[ STAT_STAMINA ];
-  int height = (int)( (float)stamina / ( MAX_STAMINA / ( rect->h / 2 ) ) );
-  vec4_t pos =    { 0.0f, 1.0f, 0.0f, 0.5f };
-  vec4_t neg =    { 1.0f, 0.0f, 0.0f, 0.5f };
-
-  if( stamina > 0 )
-  {
-    trap_R_SetColor( pos ); // green
-    CG_DrawPic( rect->x, rect->y + ( rect->h / 2 - height ),
-                rect->w, height, cgs.media.whiteShader );
-  }
+  int           stamina = ps->stats[ STAT_STAMINA ];
+  float         progress = ( (float)stamina + (float)MAX_STAMINA ) / ( (float)MAX_STAMINA * 2.0f );
   
-  if( stamina < 0 )
-  {
-    trap_R_SetColor( neg ); // red
-    CG_DrawPic( rect->x, rect->y + rect->h / 2, rect->w, -height, cgs.media.whiteShader );
-  }
-
-  trap_R_SetColor( NULL );
+  CG_DrawProgressBar( rect, color, scale, align, textStyle, progress );
 }
 
 static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
@@ -512,7 +557,7 @@ static void CG_DrawPlayerClipsValue( rectDef_t *rect, vec4_t color )
   }
 }
 
-static void CG_DrawPlayerHealth( rectDef_t *rect, vec4_t color )
+static void CG_DrawPlayerHealthValue( rectDef_t *rect, vec4_t color )
 {
   playerState_t *ps;
   int value;
@@ -526,61 +571,15 @@ static void CG_DrawPlayerHealth( rectDef_t *rect, vec4_t color )
   trap_R_SetColor( NULL );
 }
 
-static void CG_DrawProgressBar( rectDef_t *rect, vec4_t color,
-                                float scale, int align, int textStyle, float progress )
+static void CG_DrawPlayerHealthBar( rectDef_t *rect, vec4_t color, float scale, int align, int textStyle )
 {
-  int     rimWidth = (int)( rect->h / 20.0f );
-  float   doneWidth, leftWidth;
-  float   tx, ty, tw, th;
-  char    textBuffer[ 8 ];
-  
-  if( progress < 0.0f )
-    progress = 0.0f;
-  else if( progress > 1.0f )
-    progress = 1.0f;
-  
-  doneWidth = ( rect->w - 2 * rimWidth ) * progress;
-  leftWidth = ( rect->w - 2 * rimWidth ) - doneWidth;
-  
-  trap_R_SetColor( color );
-  
-  //draw rim and bar
-  CG_DrawPic( rect->x, rect->y, rimWidth + doneWidth, rect->h, cgs.media.whiteShader );
-  CG_DrawPic( rimWidth + rect->x + doneWidth, rect->y,
-    leftWidth, rimWidth, cgs.media.whiteShader );
-  CG_DrawPic( rimWidth + rect->x + doneWidth, rect->y + rect->h - rimWidth,
-    leftWidth, rimWidth, cgs.media.whiteShader );
-  CG_DrawPic( rect->x + rect->w - rimWidth, rect->y, rimWidth, rect->h, cgs.media.whiteShader );
+  playerState_t *ps;
+  float total;
 
-  trap_R_SetColor( NULL );
-  
-  //draw text
-  Com_sprintf( textBuffer, sizeof( textBuffer ), "%d%%", (int)( progress * 100 ) );
-  tw = CG_Text_Width( textBuffer, scale, 0 );
-  th = scale * 40.0f;
-  
-  switch( align )
-  {
-    case ITEM_ALIGN_LEFT:
-      tx = rect->x + ( rect->w / 10.0f );
-      ty = rect->y + ( rect->h / 2.0f ) + ( th / 2.0f );
-      break;
+  ps = &cg.snap->ps;
 
-    case ITEM_ALIGN_RIGHT:
-      tx = rect->x + rect->w - ( rect->w / 10.0f ) - tw;
-      ty = rect->y + ( rect->h / 2.0f ) + ( th / 2.0f );
-      break;
-
-    case ITEM_ALIGN_CENTER:
-      tx = rect->x + ( rect->w / 2.0f ) - ( tw / 2.0f );
-      ty = rect->y + ( rect->h / 2.0f ) + ( th / 2.0f );
-      break;
-
-    default:
-      tx = ty = 0.0f;
-  }
-  
-  CG_Text_Paint( tx, ty, scale, color, textBuffer, 0, 0, textStyle );
+  total = ( (float)ps->stats[ STAT_HEALTH ] / (float)ps->stats[ STAT_MAX_HEALTH ] );
+  CG_DrawProgressBar( rect, color, scale, align, textStyle, total );
 }
 
 static void CG_DrawProgressLabel( rectDef_t *rect, float text_x, float text_y, vec4_t color,
@@ -1531,7 +1530,7 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawPlayerBankValue( &rect, color );
       break;
     case CG_PLAYER_STAMINA:
-      CG_DrawPlayerStamina( &rect );
+      CG_DrawPlayerStamina( &rect, color, scale, align, textStyle );
       break;
     case CG_PLAYER_AMMO_VALUE:
       CG_DrawPlayerAmmoValue( &rect, color );
@@ -1540,7 +1539,10 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawPlayerClipsValue( &rect, color );
       break;
     case CG_PLAYER_HEALTH:
-      CG_DrawPlayerHealth( &rect, color );
+      CG_DrawPlayerHealthValue( &rect, color );
+      break;
+    case CG_PLAYER_HEALTH_BAR:
+      CG_DrawPlayerHealthBar( &rect, color, scale, align, textStyle );
       break;
     case CG_AREA_SYSTEMCHAT:
       CG_DrawAreaSystemChat( &rect, scale, color, shader );

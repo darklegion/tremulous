@@ -129,6 +129,7 @@
 #define CG_PLAYER_ARMOR_VALUE       2
 #define CG_PLAYER_HEAD              3
 #define CG_PLAYER_HEALTH            4
+#define CG_PLAYER_HEALTH_BAR        92
 #define CG_PLAYER_AMMO_ICON         5
 #define CG_PLAYER_AMMO_VALUE        6
 #define CG_PLAYER_CLIPS_VALUE       70
