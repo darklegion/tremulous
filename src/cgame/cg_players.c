@@ -120,6 +120,7 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
   ci->gender = GENDER_MALE;
   ci->fixedlegs = qfalse;
   ci->fixedtorso = qfalse;
+  ci->nonsegmented = qfalse;
 
   // read optional parameters
   while( 1 )
@@ -377,23 +378,36 @@ static qboolean CG_RegisterClientSkin( clientInfo_t *ci, const char *modelName, 
 {
   char filename[ MAX_QPATH ];
 
-  Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower_%s.skin", modelName, skinName );
-  ci->legsSkin = trap_R_RegisterSkin( filename );
-  if( !ci->legsSkin )
-    Com_Printf( "Leg skin load failure: %s\n", filename );
+  if( !ci->nonsegmented )
+  {
+    Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower_%s.skin", modelName, skinName );
+    ci->legsSkin = trap_R_RegisterSkin( filename );
+    if( !ci->legsSkin )
+      Com_Printf( "Leg skin load failure: %s\n", filename );
 
-  Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper_%s.skin", modelName, skinName );
-  ci->torsoSkin = trap_R_RegisterSkin( filename );
-  if( !ci->torsoSkin )
-    Com_Printf( "Torso skin load failure: %s\n", filename );
+    Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper_%s.skin", modelName, skinName );
+    ci->torsoSkin = trap_R_RegisterSkin( filename );
+    if( !ci->torsoSkin )
+      Com_Printf( "Torso skin load failure: %s\n", filename );
 
-  Com_sprintf( filename, sizeof( filename ), "models/players/%s/head_%s.skin", modelName, skinName );
-  ci->headSkin = trap_R_RegisterSkin( filename );
-  if( !ci->headSkin )
-    Com_Printf( "Head skin load failure: %s\n", filename );
+    Com_sprintf( filename, sizeof( filename ), "models/players/%s/head_%s.skin", modelName, skinName );
+    ci->headSkin = trap_R_RegisterSkin( filename );
+    if( !ci->headSkin )
+      Com_Printf( "Head skin load failure: %s\n", filename );
 
-  if( !ci->legsSkin || !ci->torsoSkin || !ci->headSkin )
-    return qfalse;
+    if( !ci->legsSkin || !ci->torsoSkin || !ci->headSkin )
+      return qfalse;
+  }
+  else
+  {
+    Com_sprintf( filename, sizeof( filename ), "models/players/%s/nonseg_%s.skin", modelName, skinName );
+    ci->nonSegSkin = trap_R_RegisterSkin( filename );
+    if( !ci->nonSegSkin )
+      Com_Printf( "Non-segmented skin load failure: %s\n", filename );
+
+    if( !ci->nonSegSkin )
+      return qfalse;
+  }
 
   return qtrue;
 }
@@ -407,44 +421,58 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 {
   char filename[ MAX_QPATH * 2 ];
 
+  //TA: do this first so the nonsegemented property is set
+  // load the animations
+  Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg", modelName );
+  if( !CG_ParseAnimationFile( filename, ci ) )
+  {
+    Com_Printf( "Failed to load animation file %s\n", filename );
+    return qfalse;
+  }
+
   // load cmodels before models so filecache works
 
-  Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower.md3", modelName );
-  ci->legsModel = trap_R_RegisterModel( filename );
-  if( !ci->legsModel )
+  if( !ci->nonsegmented )
   {
-    Com_Printf( "Failed to load model file %s\n", filename );
-    return qfalse;
-  }
+    Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower.md3", modelName );
+    ci->legsModel = trap_R_RegisterModel( filename );
+    if( !ci->legsModel )
+    {
+      Com_Printf( "Failed to load model file %s\n", filename );
+      return qfalse;
+    }
 
-  Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper.md3", modelName );
-  ci->torsoModel = trap_R_RegisterModel( filename );
-  if( !ci->torsoModel )
-  {
-    Com_Printf( "Failed to load model file %s\n", filename );
-    return qfalse;
-  }
+    Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper.md3", modelName );
+    ci->torsoModel = trap_R_RegisterModel( filename );
+    if( !ci->torsoModel )
+    {
+      Com_Printf( "Failed to load model file %s\n", filename );
+      return qfalse;
+    }
 
-  Com_sprintf( filename, sizeof( filename ), "models/players/%s/head.md3", modelName );
-  ci->headModel = trap_R_RegisterModel( filename );
-  if( !ci->headModel )
+    Com_sprintf( filename, sizeof( filename ), "models/players/%s/head.md3", modelName );
+    ci->headModel = trap_R_RegisterModel( filename );
+    if( !ci->headModel )
+    {
+      Com_Printf( "Failed to load model file %s\n", filename );
+      return qfalse;
+    }
+  }
+  else
   {
-    Com_Printf( "Failed to load model file %s\n", filename );
-    return qfalse;
+    Com_sprintf( filename, sizeof( filename ), "models/players/%s/nonseg.md3", modelName );
+    ci->nonSegModel = trap_R_RegisterModel( filename );
+    if( !ci->nonSegModel )
+    {
+      Com_Printf( "Failed to load model file %s\n", filename );
+      return qfalse;
+    }
   }
 
   // if any skins failed to load, return failure
   if( !CG_RegisterClientSkin( ci, modelName, skinName ) )
   {
     Com_Printf( "Failed to load skin file: %s : %s\n", modelName, skinName );
-    return qfalse;
-  }
-
-  // load the animations
-  Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg", modelName );
-  if( !CG_ParseAnimationFile( filename, ci ) )
-  {
-    Com_Printf( "Failed to load animation file %s\n", filename );
     return qfalse;
   }
 
@@ -563,6 +591,8 @@ static void CG_CopyClientInfoModel( clientInfo_t *from, clientInfo_t *to )
   to->torsoSkin = from->torsoSkin;
   to->headModel = from->headModel;
   to->headSkin = from->headSkin;
+  to->nonSegModel = from->nonSegModel;
+  to->nonSegSkin = from->nonSegSkin;
   to->modelIcon = from->modelIcon;
 
   memcpy( to->animations, from->animations, sizeof( to->animations ) );
@@ -1154,6 +1184,40 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
   *torsoBackLerp = cent->pe.torso.backlerp;
 }
 
+
+/*
+===============
+CG_PlayerNonSegAnimation
+===============
+*/
+static void CG_PlayerNonSegAnimation( centity_t *cent, int *nonSegOld,
+                                      int *nonSeg, float *nonSegBackLerp )
+{
+  clientInfo_t  *ci;
+  int           clientNum;
+  float         speedScale = 1.0f;
+
+  clientNum = cent->currentState.clientNum;
+
+  if( cg_noPlayerAnims.integer )
+  {
+    *nonSegOld = *nonSeg = 0;
+    return;
+  }
+
+  ci = &cgs.clientinfo[ clientNum ];
+
+  // do the shuffle turn frames locally
+  if( cent->pe.nonseg.yawing && ( cent->currentState.legsAnim & ~ANIM_TOGGLEBIT ) == NSPA_STAND )
+    CG_RunLerpFrame( ci, &cent->pe.nonseg, NSPA_TURN, speedScale );
+  else
+    CG_RunLerpFrame( ci, &cent->pe.legs, cent->currentState.legsAnim, speedScale );
+
+  *nonSegOld = cent->pe.nonseg.oldFrame;
+  *nonSeg = cent->pe.nonseg.frame;
+  *nonSegBackLerp = cent->pe.nonseg.backlerp;
+}
+
 /*
 =============================================================================
 
@@ -1399,6 +1463,101 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t srcAngles,
   AnglesToAxis( legsAngles, legs );
   AnglesToAxis( torsoAngles, torso );
   AnglesToAxis( headAngles, head );
+}
+
+
+/*
+===============
+CG_PlayerNonSegAngles
+
+Resolve angles for non-segmented models
+===============
+*/
+static void CG_PlayerNonSegAngles( centity_t *cent, vec3_t srcAngles, vec3_t nonSegAxis[ 3 ] )
+{
+  vec3_t        localAngles;
+  float         dest;
+  static int    movementOffsets[ 8 ] = { 0, 22, 45, -22, 0, 22, -45, -22 };
+  vec3_t        velocity;
+  float         speed;
+  int           dir, clientNum;
+  clientInfo_t  *ci;
+
+  VectorCopy( srcAngles, localAngles );
+  localAngles[ YAW ] = AngleMod( localAngles[ YAW ] );
+  localAngles[ PITCH ] = 0.0f;
+  localAngles[ ROLL ] = 0.0f;
+
+  // --------- yaw -------------
+
+  // allow yaw to drift a bit
+  if( ( cent->currentState.legsAnim & ~ANIM_TOGGLEBIT ) != NSPA_STAND )
+  {
+    // if not standing still, always point all in the same direction
+    cent->pe.nonseg.yawing = qtrue; // always center
+  }
+
+  // adjust legs for movement dir
+  if( cent->currentState.eFlags & EF_DEAD )
+  {
+    // don't let dead bodies twitch
+    dir = 0;
+  }
+  else
+  {
+    //TA: did use angles2.. now uses time2.. looks a bit funny but time2 isn't used othwise
+    dir = cent->currentState.time2;
+    if( dir < 0 || dir > 7 )
+      CG_Error( "Bad player movement angle" );
+  }
+  
+  // torso
+  if( cent->currentState.eFlags & EF_DEAD )
+  {
+    CG_SwingAngles( localAngles[ YAW ], 0, 0, cg_swingSpeed.value,
+      &cent->pe.nonseg.yawAngle, &cent->pe.nonseg.yawing );
+  }
+  else
+  {
+    CG_SwingAngles( localAngles[ YAW ], 40, 90, cg_swingSpeed.value,
+      &cent->pe.nonseg.yawAngle, &cent->pe.nonseg.yawing );
+  }
+  
+  localAngles[ YAW ] = cent->pe.nonseg.yawAngle;
+
+  // --------- pitch -------------
+
+  //NO PITCH!
+
+  
+  // --------- roll -------------
+
+
+  // lean towards the direction of travel
+  VectorCopy( cent->currentState.pos.trDelta, velocity );
+  speed = VectorNormalize( velocity );
+  
+  if( speed )
+  {
+    vec3_t  axis[ 3 ];
+    float   side;
+
+    //much less than with the regular model system
+    speed *= 0.01f;
+
+    AnglesToAxis( localAngles, axis );
+    side = speed * DotProduct( velocity, axis[ 1 ] );
+    localAngles[ ROLL ] -= side;
+
+    side = speed * DotProduct( velocity, axis[ 0 ] );
+    localAngles[ PITCH ] += side;
+  }
+
+  //FIXME: PAIN[123] animations?
+  // pain twitch
+  //CG_AddPainTwitch( cent, torsoAngles );
+
+  AnglesToAxis( localAngles, nonSegAxis );
 }
 
 
@@ -1825,6 +1984,9 @@ CG_Player
 void CG_Player( centity_t *cent )
 {
   clientInfo_t  *ci;
+  
+  //TA: NOTE: legs is used for nonsegmented models
+  //          this helps reduce code to be changed
   refEntity_t   legs;
   refEntity_t   torso;
   refEntity_t   head;
@@ -1862,9 +2024,9 @@ void CG_Player( centity_t *cent )
       return;
   }
 
-  memset( &legs,  0, sizeof( legs ) );
-  memset( &torso, 0, sizeof( torso ) );
-  memset( &head,  0, sizeof( head ) );
+  memset( &legs,    0, sizeof( legs ) );
+  memset( &torso,   0, sizeof( torso ) );
+  memset( &head,    0, sizeof( head ) );
 
   VectorCopy( cent->lerpAngles, angles );
   AnglesToAxis( cent->lerpAngles, tempAxis );
@@ -1881,7 +2043,10 @@ void CG_Player( centity_t *cent )
     angles[ PITCH ] += 360.0f;
 
   // get the rotation information
-  CG_PlayerAngles( cent, angles, legs.axis, torso.axis, head.axis );
+  if( !ci->nonsegmented )
+    CG_PlayerAngles( cent, angles, legs.axis, torso.axis, head.axis );
+  else
+    CG_PlayerNonSegAngles( cent, angles, legs.axis );
 
   //rotate the legs axis to back to the wall
   if( es->eFlags & EF_WALLCLIMB &&
@@ -1889,8 +2054,11 @@ void CG_Player( centity_t *cent )
     AxisCopy( tempAxis, legs.axis );
 
   // get the animation state (after rotation, to allow feet shuffle)
-  CG_PlayerAnimation( cent, &legs.oldframe, &legs.frame, &legs.backlerp,
-                      &torso.oldframe, &torso.frame, &torso.backlerp );
+  if( !ci->nonsegmented )
+    CG_PlayerAnimation( cent, &legs.oldframe, &legs.frame, &legs.backlerp,
+                        &torso.oldframe, &torso.frame, &torso.backlerp );
+  else
+    CG_PlayerNonSegAnimation( cent, &legs.oldframe, &legs.frame, &legs.backlerp );
 
   // add the talk baloon or disconnect icon
   CG_PlayerSprites( cent );
@@ -1911,8 +2079,16 @@ void CG_Player( centity_t *cent )
   //
   // add the legs
   //
-  legs.hModel = ci->legsModel;
-  legs.customSkin = ci->legsSkin;
+  if( !ci->nonsegmented )
+  {
+    legs.hModel = ci->legsModel;
+    legs.customSkin = ci->legsSkin;
+  }
+  else
+  {
+    legs.hModel = ci->nonSegModel;
+    legs.customSkin = ci->nonSegSkin;
+  }
 
   VectorCopy( cent->lerpOrigin, legs.origin );
 
@@ -1961,41 +2137,44 @@ void CG_Player( centity_t *cent )
   if( !legs.hModel )
     return;
 
-  //
-  // add the torso
-  //
-  torso.hModel = ci->torsoModel;
-  if( !torso.hModel )
-    return;
+  if( !ci->nonsegmented )
+  {
+    //
+    // add the torso
+    //
+    torso.hModel = ci->torsoModel;
+    if( !torso.hModel )
+      return;
 
-  torso.customSkin = ci->torsoSkin;
+    torso.customSkin = ci->torsoSkin;
 
-  VectorCopy( cent->lerpOrigin, torso.lightingOrigin );
+    VectorCopy( cent->lerpOrigin, torso.lightingOrigin );
 
-  CG_PositionRotatedEntityOnTag( &torso, &legs, ci->legsModel, "tag_torso" );
+    CG_PositionRotatedEntityOnTag( &torso, &legs, ci->legsModel, "tag_torso" );
 
-  torso.shadowPlane = shadowPlane;
-  torso.renderfx = renderfx;
+    torso.shadowPlane = shadowPlane;
+    torso.renderfx = renderfx;
 
-  trap_R_AddRefEntityToScene( &torso );
+    trap_R_AddRefEntityToScene( &torso );
 
-  //
-  // add the head
-  //
-  head.hModel = ci->headModel;
-  if( !head.hModel )
-    return;
+    //
+    // add the head
+    //
+    head.hModel = ci->headModel;
+    if( !head.hModel )
+      return;
 
-  head.customSkin = ci->headSkin;
+    head.customSkin = ci->headSkin;
 
-  VectorCopy( cent->lerpOrigin, head.lightingOrigin );
+    VectorCopy( cent->lerpOrigin, head.lightingOrigin );
 
-  CG_PositionRotatedEntityOnTag( &head, &torso, ci->torsoModel, "tag_head" );
+    CG_PositionRotatedEntityOnTag( &head, &torso, ci->torsoModel, "tag_head" );
 
-  head.shadowPlane = shadowPlane;
-  head.renderfx = renderfx;
+    head.shadowPlane = shadowPlane;
+    head.renderfx = renderfx;
 
-  trap_R_AddRefEntityToScene( &head );
+    trap_R_AddRefEntityToScene( &head );
+  }
 
   //
   // add the gun / barrel / flash
@@ -2175,6 +2354,8 @@ void CG_ResetPlayerEntity( centity_t *cent )
                      &cent->pe.legs, cent->currentState.legsAnim );
   CG_ClearLerpFrame( &cgs.clientinfo[ cent->currentState.clientNum ],
                      &cent->pe.torso, cent->currentState.torsoAnim );
+  CG_ClearLerpFrame( &cgs.clientinfo[ cent->currentState.clientNum ],
+                     &cent->pe.nonseg, cent->currentState.legsAnim );
 
   BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, cent->lerpOrigin );
   BG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
@@ -2193,6 +2374,12 @@ void CG_ResetPlayerEntity( centity_t *cent )
   cent->pe.torso.yawing = qfalse;
   cent->pe.torso.pitchAngle = cent->rawAngles[ PITCH ];
   cent->pe.torso.pitching = qfalse;
+
+  memset( &cent->pe.nonseg, 0, sizeof( cent->pe.nonseg ) );
+  cent->pe.nonseg.yawAngle = cent->rawAngles[ YAW ];
+  cent->pe.nonseg.yawing = qfalse;
+  cent->pe.nonseg.pitchAngle = cent->rawAngles[ PITCH ];
+  cent->pe.nonseg.pitching = qfalse;
 
   if( cg_debugPosition.integer )
     CG_Printf( "%i ResetPlayerEntity yaw=%i\n", cent->currentState.number, cent->pe.torso.yawAngle );

@@ -149,7 +149,7 @@ typedef struct
 
 typedef struct
 {
-  lerpFrame_t legs, torso, flag;
+  lerpFrame_t legs, torso, flag, nonseg;
   int         painTime;
   int         painDirection;  // flip from 0 to 1
   int         lightningFiring;
@@ -399,6 +399,9 @@ typedef struct
 
   qhandle_t   headModel;
   qhandle_t   headSkin;
+
+  qhandle_t   nonSegModel;                //non-segmented model system
+  qhandle_t   nonSegSkin;                 //non-segmented model system
 
   qhandle_t   modelIcon;
 
