@@ -450,29 +450,27 @@ gitem_t bg_itemlist[] =
     ""
   },*/
 
-/*QUAKED weapon_lightning (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+/*QUAKED weapon_teslagen (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
-  /*{
-    "weapon_lightning",
+  {
+    "weapon_teslagen",
     "sound/misc/w_pkup.wav",
-    { "models/weapons2/lightning/lightning.md3",
-    0, 0, 0},
+    { 0, 0, 0, 0},
     "icons/iconw_lightning",
-    "Lightning Gun",
+    "Tesla Generator",
     100,
     IT_WEAPON,
-    WP_LIGHTNING,
+    WP_TESLAGEN,
     "",
     ""
-  },*/
+  },
 
 /*QUAKED weapon_railgun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
   {
     "weapon_railgun",
     "sound/misc/w_pkup.wav",
-    { "models/weapons2/railgun/railgun.md3",
-    0, 0, 0},
+    { 0, 0, 0, 0},
     "icons/iconw_railgun",
     "Railgun",
     10,
@@ -981,11 +979,11 @@ TA: human defense item
 TA: human defense item
 */
   {
-    "team_human_def3",
+    "team_human_tesla",
     "sound/items/holdable.wav",
-    { "models/buildables/plasmaturret/pturret_base.md3", 0, 0, 0 },
+    { "models/buildables/tesla/tesla.md3", 0, 0, 0 },
     "icons/teleporter", //icon
-    "Human Defense3",      //pickup
+    "Human Tesla Generator",      //pickup
     0,
     IT_BUILDABLE,
     BA_H_DEF3,
@@ -1511,10 +1509,10 @@ buildableAttributes_t bg_buildableList[ ] =
   },
   {
     BA_H_DEF3,             //int       buildNum;
-    "railturret",          //char      *buildName;
-    "team_human_def3",     //char      *entityName;
-    { -24, -24, -11 },     //vec3_t    mins;
-    { 24, 24, 11 },        //vec3_t    maxs;
+    "tesla",               //char      *buildName;
+    "team_human_tesla",    //char      *entityName;
+    { -22, -22, -40 },     //vec3_t    mins;
+    { 22, 22, 40 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     80,                    //int       buildPoints;
@@ -1529,7 +1527,7 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       nextthink;
     4000,                  //int       turretFireSpeed;
     1500,                  //int       turretRange;
-    WP_LIGHTNING,          //weapon_t  turretProjType;
+    WP_TESLAGEN,           //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
@@ -3805,6 +3803,7 @@ char *eventnames[] = {
   "EV_MISSILE_MISS_METAL",
   "EV_ITEM_EXPLOSION", //TA: human item explosions
   "EV_RAILTRAIL",
+  "EV_TESLATRAIL",
   "EV_SHOTGUN",
   "EV_BULLET",        // otherEntity is the shooter
 

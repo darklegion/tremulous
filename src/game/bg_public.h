@@ -341,7 +341,7 @@ typedef enum
   WP_GRENADE_LAUNCHER,
   WP_ROCKET_LAUNCHER,
   WP_LOCKBLOB_LAUNCHER,
-  WP_LIGHTNING,
+  WP_TESLAGEN,
   WP_RAILGUN,
   WP_FLAMER,
   WP_PLASMAGUN,
@@ -528,6 +528,7 @@ typedef enum {
   EV_MISSILE_MISS_METAL,
   EV_ITEM_EXPLOSION, //TA: human item explosions
   EV_RAILTRAIL,
+  EV_TESLATRAIL,
   EV_SHOTGUN,
   EV_BULLET,        // otherEntity is the shooter
 

@@ -2325,7 +2325,7 @@ static void PM_Weapon( void )
     case WP_GAUNTLET:
       addTime = 400;
       break;
-    case WP_LIGHTNING:
+    case WP_TESLAGEN:
       addTime = 50;
       break;
     case WP_SHOTGUN:

@@ -90,6 +90,9 @@ itemInfo_t      cg_items[MAX_ITEMS];
 cgItemPos_t      cgIP;
 
 
+vmCvar_t  cg_teslaTrailTime;
+vmCvar_t  cg_teslaSegments;
+vmCvar_t  cg_teslaDeviation;
 vmCvar_t  cg_railTrailTime;
 vmCvar_t  cg_centertime;
 vmCvar_t  cg_runpitch;
@@ -226,6 +229,9 @@ static cvarTable_t   cvarTable[] = {
   { &cg_simpleItems, "cg_simpleItems", "0", CVAR_ARCHIVE },
   { &cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE },
   { &cg_lagometer, "cg_lagometer", "1", CVAR_ARCHIVE },
+  { &cg_teslaTrailTime, "cg_teslaTrailTime", "400", CVAR_ARCHIVE  },
+  { &cg_teslaSegments, "cg_teslaSegments", "8", CVAR_ARCHIVE  },
+  { &cg_teslaDeviation, "cg_teslaDeviation", "8", CVAR_ARCHIVE  },
   { &cg_railTrailTime, "cg_railTrailTime", "400", CVAR_ARCHIVE  },
   { &cg_gun_x, "cg_gunX", "0", CVAR_CHEAT },
   { &cg_gun_y, "cg_gunY", "0", CVAR_CHEAT },

@@ -889,6 +889,17 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     }
     break;
 
+  case EV_TESLATRAIL:
+    DEBUGNAME("EV_TESLATRAIL");
+    cent->currentState.weapon = WP_TESLAGEN;
+    // if the end was on a nomark surface, don't make an explosion
+    CG_TeslaTrail( es->origin2, es->pos.trBase );
+    if ( es->eventParm != 255 ) {
+      ByteToDir( es->eventParm, dir );
+      CG_MissileHitWall( es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT );
+    }
+    break;
+
   case EV_BULLET_HIT_WALL:
     DEBUGNAME("EV_BULLET_HIT_WALL");
     ByteToDir( es->eventParm, dir );

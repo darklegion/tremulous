@@ -101,7 +101,7 @@ tryagain:
 		MAKERGB( pi->flashDlightColor, 1, 0.75f, 0 );
 		break;
 
-	case WP_LIGHTNING:
+	case WP_TESLAGEN:
 		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
 		break;
 

@@ -566,13 +566,13 @@ void Weapon_HookThink (gentity_t *ent)
 /*
 ======================================================================
 
-LIGHTNING GUN
+TESLA GENERATOR
 
 ======================================================================
 */
 
 
-void Weapon_LightningFire( gentity_t *ent )
+void Weapon_TeslaFire( gentity_t *ent )
 {
   trace_t   tr;
   vec3_t    end;
@@ -600,7 +600,7 @@ void Weapon_LightningFire( gentity_t *ent )
   SnapVectorTowards( tr.endpos, muzzle );
 
   // send railgun beam effect
-  tent = G_TempEntity( tr.endpos, EV_RAILTRAIL );
+  tent = G_TempEntity( tr.endpos, EV_TESLATRAIL );
 
   // set player number for custom colors on the railtrail
   tent->s.clientNum = ent->s.clientNum;
@@ -1050,8 +1050,8 @@ void FireWeapon2( gentity_t *ent )
     case WP_GAUNTLET:
       Weapon_Gauntlet( ent );
       break;
-    case WP_LIGHTNING:
-      Weapon_LightningFire( ent );
+    case WP_TESLAGEN:
+      Weapon_TeslaFire( ent );
       break;
     case WP_SHOTGUN:
       weapon_supershotgun_fire( ent );
@@ -1142,8 +1142,8 @@ void FireWeapon( gentity_t *ent )
     case WP_GAUNTLET:
       Weapon_Gauntlet( ent );
       break;
-    case WP_LIGHTNING:
-      Weapon_LightningFire( ent );
+    case WP_TESLAGEN:
+      Weapon_TeslaFire( ent );
       break;
     case WP_SHOTGUN:
       weapon_supershotgun_fire( ent );
