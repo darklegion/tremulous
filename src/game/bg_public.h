@@ -266,12 +266,8 @@ typedef enum {
   PERS_EXCELLENT_COUNT,
   PERS_GAUNTLET_FRAG_COUNT,
   PERS_ACCURACY_SHOTS,
-  PERS_ACCURACY_HITS,
+  PERS_ACCURACY_HITS
   //TA: FIXME: /\ get rid of award counts to make some room
-  
-  //TA: extra gubbins
-  PERS_POINTS,
-  PERS_TOTALPOINTS
 } persEnum_t;
 
 

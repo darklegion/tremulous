@@ -157,18 +157,13 @@ void AddTeamScore(vec3_t origin, int team, int score) {
 OnSameTeam
 ==============
 */
-qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
-  if ( !ent1->client || !ent2->client ) {
+qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 )
+{
+  if( !ent1->client || !ent2->client )
     return qfalse;
-  }
 
-  if ( g_gametype.integer < GT_TEAM ) {
-    return qfalse;
-  }
-
-  if ( ent1->client->sess.sessionTeam == ent2->client->sess.sessionTeam ) {
+  if( ent1->client->ps.stats[ STAT_PTEAM ] == ent2->client->ps.stats[ STAT_PTEAM ] )
     return qtrue;
-  }
 
   return qfalse;
 }

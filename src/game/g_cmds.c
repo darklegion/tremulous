@@ -2036,6 +2036,16 @@ void Cmd_Sell_f( gentity_t *ent )
   }
 }
 
+/*
+=================
+Cmd_Statement_f
+=================
+*/
+void Cmd_Statement_f( gentity_t *ent )
+{
+  trap_SendServerCommand( ent-g_entities, va("print \"Credits: %d\n\"",
+    ent->client->ps.stats[ STAT_CREDIT ] ) );
+}
 
 /*
 =================
@@ -2381,6 +2391,8 @@ void ClientCommand( int clientNum ) {
     Cmd_Buy_f( ent );
   else if (Q_stricmp (cmd, "sell") == 0)
     Cmd_Sell_f( ent );
+  else if (Q_stricmp (cmd, "statement") == 0)
+    Cmd_Statement_f( ent );
   else if (Q_stricmp (cmd, "deposit") == 0)
     Cmd_Deposit_f( ent );
   else if (Q_stricmp (cmd, "withdraw") == 0)

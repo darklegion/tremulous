@@ -568,17 +568,38 @@ BodySink
 After sitting around for five seconds, fall into the ground and dissapear
 =============
 */
-void BodySink( gentity_t *ent ) {
-  if ( level.time - ent->timestamp > 6500 ) {
-    // the body ques are never actually freed, they are just unlinked
-    trap_UnlinkEntity( ent );
-    ent->physicsObject = qfalse;
+void BodySink( gentity_t *ent )
+{
+  //arbituary number > 100 and < time since nextthink was set 
+  if( level.time - ent->nextthink > 1000 )
+    ent->timestamp = level.time;
+  
+  if( level.time - ent->timestamp > 6500 )
+  {
+    G_FreeEntity( ent );
     return;
   }
+  
   ent->nextthink = level.time + 100;
-  ent->s.pos.trBase[2] -= 1;
+  ent->s.pos.trBase[ 2 ] -= 1;
 }
 
+
+/*
+=============
+BodyFree
+
+After sitting around for a while the body becomes a freebie
+=============
+*/
+void BodyFree( gentity_t *ent )
+{
+  ent->killedBy = -1;
+
+  //if not claimed in the next minute destroy
+  ent->think = BodySink;
+  ent->nextthink = level.time + 60000;
+}
 
 
 /*
@@ -595,7 +616,6 @@ void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
   float   numerator, denominator;
   vec3_t  up = { 0.0, 0.0, 1.0 };
 
-  
   if( activator->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     //can't pick teammates bodies to bits
@@ -617,48 +637,6 @@ void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
     if( i < PCL_NUM_CLASSES )
       G_AddPredictableEvent( activator, EV_MENU, MN_A_INFEST );
   }
-  else
-  {
-    clientNum = activator->client->ps.clientNum;
-    numerator = self->credits[ clientNum ];
-    class = self->s.clientNum;
-    
-    //can't pick teammates bodies to bits
-    if( !Q_stricmp( self->classname, "humanCorpse" ) )
-      return;
-
-    //client has already raided this corpse
-    if( self->creditsHash[ clientNum ] )
-      return;
-    
-    //total up all the damage done by every client
-    for( i = 0; i < MAX_CLIENTS; i++ )
-      total += self->credits[ i ];
-    
-    denominator = total;
-
-    //if no one did any damage client must have been killed by defense or suicide
-    //body is a "free for all"
-    if( !total ) numerator = denominator = 1.0f;
-    
-    //add credit
-    activator->client->ps.stats[ STAT_CREDIT ] += (int)( (float)BG_FindValueOfClass( class ) *
-                                                         ( numerator / denominator ) );
-
-    //prevent clients claiming credit twice
-    self->creditsHash[ clientNum ] = qtrue;
-
-    //if this corpse has been 100% claimed destroy it
-    for( i = 0; i < MAX_CLIENTS; i++ )
-    {
-      if( ( self->credits[ clientNum ] == 0 || !self->creditsHash[ clientNum ] ) && total != 0 )
-        continue;
-        
-      G_AddEvent( self, EV_GIB_ALIEN, DirToByte( up ) );
-      self->freeAfterEvent = qtrue;
-      break;
-    }
-  }
 }
 
 /*
@@ -679,7 +657,7 @@ void SpawnCorpse( gentity_t *ent )
 
   VectorCopy( ent->r.currentOrigin, origin );
 
-  /*trap_UnlinkEntity( ent );*/
+  trap_UnlinkEntity( ent );
 
   // if client is in a nodrop area, don't leave the body
   contents = trap_PointContents( origin, -1 );
@@ -706,11 +684,17 @@ void SpawnCorpse( gentity_t *ent )
       body->killedBy = buildable->builtBy;
     else // *shrugs* probably killed by some map entity - freebie
       body->killedBy = -1;
+
+    //the body becomes free in a minute
+    body->think = BodyFree;
+    body->nextthink = level.time + 60000;
   }
   else
   {
     body->classname = "alienCorpse";
-    for( i = 0; i < MAX_CLIENTS; body->credits[ i ] = ent->credits[ i++ ] );
+
+    body->think = BodySink;
+    body->nextthink = level.time + 60000;
   }
     
   body->s = ent->s;
@@ -720,8 +704,8 @@ void SpawnCorpse( gentity_t *ent )
   body->s.number = body - g_entities;
   body->timestamp = level.time;
   body->s.event = 0;
-  body->r.contents = CONTENTS_BODY;
-  body->clipmask = MASK_PLAYERSOLID;
+  body->r.contents = CONTENTS_CORPSE;
+  body->clipmask = MASK_SHOT;
   body->s.clientNum = ent->client->ps.stats[ STAT_PCLASS ];
   
   body->use = useBody;

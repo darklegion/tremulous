@@ -44,51 +44,6 @@ void AddScore( gentity_t *ent, int score ) {
   CalculateRanks();
 }
 
-
-/*
-============
-AddPoints
-
-Adds points to both the client and his team
-============
-*/
-void AddPoints( gentity_t *ent, int score )
-{
-  if ( !ent->client ) {
-    return;
-  }
-  // no scoring during pre-match warmup
-  if ( level.warmupTime ) {
-    return;
-  }
-  ent->client->ps.persistant[PERS_POINTS] += score;
-  ent->client->ps.persistant[PERS_TOTALPOINTS] += score;
-  
-  /*if (g_gametype.integer == GT_TEAM)
-    level.teamScores[ ent->client->ps.persistant[PERS_TEAM] ] += score;
-  CalculateRanks();*/
-}
-
-
-/*
-============
-CalculatePoints
-
-Calculates the points to given to a client
-============
-*/
-int CalculatePoints( gentity_t *victim, gentity_t *attacker )
-{
-  int victim_value, attacker_value;
-
-  if( !victim->client || !attacker->client )
-    return 0;
-
-  return 1;
-
-}
-
-  
 /*
 =================
 TossClientItems
@@ -308,7 +263,8 @@ void CheckAlmostScored( gentity_t *self, gentity_t *attacker ) {
 player_die
 ==================
 */
-void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
+void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
+{
   gentity_t *ent;
   int     anim;
   int     contents;
@@ -316,44 +272,39 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   int     i;
   char    *killerName, *obit;
 
-  if ( self->client->ps.pm_type == PM_DEAD ) {
+  if( self->client->ps.pm_type == PM_DEAD )
     return;
-  }
 
-  if ( level.intermissiontime ) {
+  if( level.intermissiontime )
     return;
-  }
-
-  //TA: prolly dont need this
-  // check for an almost capture
-  //CheckAlmostCapture( self, attacker );
-  // check for a player that almost brought in cubes
-  //CheckAlmostScored( self, attacker );
 
   self->client->ps.pm_type = PM_DEAD;
 
-  if ( attacker ) {
+  if( attacker )
+  {
     killer = attacker->s.number;
-    if ( attacker->client ) {
+    
+    if( attacker->client )
       killerName = attacker->client->pers.netname;
-    } else {
+    else
       killerName = "<non-client>";
-    }
-  } else {
+  }
+  else
+  {
     killer = ENTITYNUM_WORLD;
     killerName = "<world>";
   }
 
-  if ( killer < 0 || killer >= MAX_CLIENTS ) {
+  if( killer < 0 || killer >= MAX_CLIENTS )
+  {
     killer = ENTITYNUM_WORLD;
     killerName = "<world>";
   }
 
-  if ( meansOfDeath < 0 || meansOfDeath >= sizeof( modNames ) / sizeof( modNames[0] ) ) {
+  if( meansOfDeath < 0 || meansOfDeath >= sizeof( modNames ) / sizeof( modNames[0] ) )
     obit = "<bad obituary>";
-  } else {
+  else
     obit = modNames[ meansOfDeath ];
-  }
 
   G_LogPrintf("Kill: %i %i %i: %s killed %s by %s\n",
     killer, self->s.number, meansOfDeath, killerName,
@@ -370,14 +321,17 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   self->client->ps.persistant[PERS_KILLED]++;
 
-  if (attacker && attacker->client) {
+  if( attacker && attacker->client )
+  {
     attacker->client->lastkilled_client = self->s.number;
-    if ( attacker == self || OnSameTeam (self, attacker ) ) {
+    
+    if( attacker == self || OnSameTeam( self, attacker ) )
+    {
       AddScore( attacker, -1 );
-      AddPoints( attacker, -10 );
-    } else {
+    }
+    else
+    {
       AddScore( attacker, 1 );
-      AddPoints( attacker, CalculatePoints( self, attacker ) );
 
       attacker->client->lastKillTime = level.time;
       
@@ -385,36 +339,63 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         level.alienKills++;
       else if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
         level.humanKills++;
+      
     }
-  } else {
+  }
+  else
+  {
     AddScore( self, -1 );
-    AddPoints( self, -10 );
   }
 
+  if( self->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  {
+    int       clientNum = attacker->client->ps.clientNum;
+    float     denominator, numerator = self->credits[ clientNum ];
+    int       classValue = BG_FindValueOfClass( self->client->ps.stats[ STAT_PCLASS ] );
+    int       total = 0;
+    gentity_t *player;
+    
+    //total up all the damage done by every client
+    for( i = 0; i < MAX_CLIENTS; i++ )
+      total += self->credits[ i ];
+    
+    denominator = total;
+    
+    //if this corpse has been 100% claimed destroy it
+    for( i = 0; i < MAX_CLIENTS; i++ )
+    {
+      player = g_entities + i;
+
+      if( player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+      {
+        numerator = self->credits[ i ];
+        
+        //add credit
+        player->client->ps.stats[ STAT_CREDIT ] += (int)( (float)classValue * ( numerator / denominator ) );
+      }
+    }
+  }
+      
   // Add team bonuses
   //Team_FragBonuses(self, inflictor, attacker);
 
-  // if client is in a nodrop area, don't drop anything (but return CTF flags!)
-  contents = trap_PointContents( self->r.currentOrigin, -1 );
-  if ( !( contents & CONTENTS_NODROP ) )
-    //TossClientItems( self );
-
   Cmd_Score_f( self );    // show scores
+  
   // send updated scores to any clients that are following this one,
   // or they would get stale scoreboards
-  for ( i = 0 ; i < level.maxclients ; i++ ) {
+  for( i = 0 ; i < level.maxclients ; i++ )
+  {
     gclient_t *client;
 
-    client = &level.clients[i];
-    if ( client->pers.connected != CON_CONNECTED ) {
+    client = &level.clients[ i ];
+    if( client->pers.connected != CON_CONNECTED )
       continue;
-    }
-    if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
+    
+    if( client->sess.sessionTeam != TEAM_SPECTATOR )
       continue;
-    }
-    if ( client->sess.spectatorClient == self->s.number ) {
+    
+    if( client->sess.spectatorClient == self->s.number )
       Cmd_Score_f( g_entities + i );
-    }
   }
 
   self->client->pers.pclass = 0; //TA: reset the classtype
@@ -426,9 +407,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->r.contents = CONTENTS_BODY;
   //self->r.contents = CONTENTS_CORPSE;
 
-  self->s.angles[0] = 0;
-  self->s.angles[2] = 0;
-  LookAtKiller (self, inflictor, attacker);
+  self->s.angles[ 0 ] = 0;
+  self->s.angles[ 2 ] = 0;
+  LookAtKiller( self, inflictor, attacker );
 
   VectorCopy( self->s.angles, self->client->ps.viewangles );
 
@@ -441,34 +422,30 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->client->respawnTime = level.time + 1700;
 
   // remove powerups
-  memset( self->client->ps.powerups, 0, sizeof(self->client->ps.powerups) );
+  memset( self->client->ps.powerups, 0, sizeof( self->client->ps.powerups ) );
 
-  // never gib in a nodrop
-  /*if ( self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer ) {
-    // gib death
-    GibEntity( self, killer );
-  } else*/ {
+  {
     // normal death
     static int i;
 
-    switch ( i ) {
-    case 0:
-      anim = BOTH_DEATH1;
-      break;
-    case 1:
-      anim = BOTH_DEATH2;
-      break;
-    case 2:
-    default:
-      anim = BOTH_DEATH3;
-      break;
+    switch( i )
+    {
+      case 0:
+        anim = BOTH_DEATH1;
+        break;
+      case 1:
+        anim = BOTH_DEATH2;
+        break;
+      case 2:
+      default:
+        anim = BOTH_DEATH3;
+        break;
     }
 
     // for the no-blood option, we need to prevent the health
     // from going to gib level
-    if ( self->health <= GIB_HEALTH ) {
+    if( self->health <= GIB_HEALTH )
       self->health = GIB_HEALTH+1;
-    }
 
     self->client->ps.legsAnim =
       ( ( self->client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
@@ -484,7 +461,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     i = ( i + 1 ) % 3;
   }
 
-  trap_LinkEntity (self);
+  trap_LinkEntity( self );
 }
 
 
