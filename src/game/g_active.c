@@ -859,6 +859,18 @@ void ClientThink_real( gentity_t *ent ) {
   else
     client->ps.gravity = g_gravity.value;
 
+  if( BG_gotItem( UP_ANTITOXIN, client->ps.stats ) &&
+      BG_activated( UP_ANTITOXIN, client->ps.stats ) )
+  {
+    if( client->ps.stats[ STAT_STATE ] & SS_POISONED )
+    {
+      //remove anti toxin
+      BG_removeItem( UP_ANTITOXIN, client->ps.stats );
+    
+      client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
+    }
+  }
+  
   // set speed
   client->ps.speed = g_speed.value * BG_FindSpeedForClass( client->ps.stats[ STAT_PCLASS ] );
 
