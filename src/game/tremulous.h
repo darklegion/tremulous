@@ -294,6 +294,7 @@
 
 #define ALIEN_SPAWN_REPEAT_TIME     10000
 
+#define ALIEN_REGEN_DAMAGE_TIME     2000 //msec since damage that regen starts again
 
 /*
  * HUMAN weapons
@@ -356,7 +357,7 @@
 #define CHAINGUN_BULLETS            200
 #define CHAINGUN_REPEAT             75
 #define CHAINGUN_SPREAD             1000
-#define CHAINGUN_DMG                HDM(9)
+#define CHAINGUN_DMG                HDM(8)
 
 #define PRIFLE_PRICE                400
 #define PRIFLE_CLIPS                50
@@ -443,7 +444,7 @@
  * 
  */
 
-#define HUMAN_BHLTH_MODIFIER        0.6f
+#define HUMAN_BHLTH_MODIFIER        0.62f
 #define HBHM(h)                     ((int)((float)h*HUMAN_BHLTH_MODIFIER))
 
 #define REACTOR_BASESIZE            1000
@@ -465,17 +466,17 @@
 
 #define MGTURRET_BP                 8
 #define MGTURRET_BT                 10000
-#define MGTURRET_HEALTH             HBHM(300)
+#define MGTURRET_HEALTH             HBHM(350)
 #define MGTURRET_SPLASHDAMAGE       200
 #define MGTURRET_SPLASHRADIUS       150
-#define MGTURRET_ANGULARSPEED       6  //degrees/think ~= 200deg/sec
+#define MGTURRET_ANGULARSPEED       8  //degrees/think ~= 200deg/sec
 #define MGTURRET_ACCURACYTOLERANCE  MGTURRET_ANGULARSPEED / 1.5f //angular difference for turret to fire
 #define MGTURRET_VERTICALCAP        30  // +/- maximum pitch
 #define MGTURRET_REPEAT             100
 #define MGTURRET_RANGE              250
 #define MGTURRET_SPREAD             200
 #define MGTURRET_DMG                HDM(5)
-#define MGTURRET_DCC_ANGULARSPEED       7
+#define MGTURRET_DCC_ANGULARSPEED       10
 #define MGTURRET_DCC_ACCURACYTOLERANCE  MGTURRET_DCC_ANGULARSPEED / 1.5f
 
 #define TESLAGEN_BP                 10
@@ -495,7 +496,7 @@
 
 #define ARMOURY_BP                  10
 #define ARMOURY_BT                  10000
-#define ARMOURY_HEALTH              HBHM(400)
+#define ARMOURY_HEALTH              HBHM(450)
 #define ARMOURY_SPLASHDAMAGE        50
 #define ARMOURY_SPLASHRADIUS        100
 

@@ -1099,7 +1099,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
     //TA: add to the attackers "account" on the target
     if( targ->client && attacker->client )
-      targ->credits[ attacker->client->ps.clientNum ] += take;
+    {
+      if( attacker != targ && !OnSameTeam( targ, attacker ) )
+        targ->credits[ attacker->client->ps.clientNum ] += take;
+    }
 
     if( targ->health <= 0 )
     {

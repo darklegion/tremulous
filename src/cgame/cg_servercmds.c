@@ -769,6 +769,12 @@ void CG_Menu( int menu )
       trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       break;
       
+    case MN_A_NOOVMND_EVOLVE:
+      trap_Cvar_Set( "ui_dialog", "There is no Overmind. An Overmind must be built to allow "
+                                  "you to upgrade." );
+      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      break;
+      
     case MN_A_HOVEL_OCCUPIED:
       trap_Cvar_Set( "ui_dialog", "This Hovel is occupied by another builder. Please find or build "
                                   "another." );

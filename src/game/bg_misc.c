@@ -1806,7 +1806,7 @@ classAttributes_t bg_classList[ ] =
     1.1f,                                           //float   bobCycle;
     60,                                             //int     steptime;
     BMOFO_SPEED,                                    //float   speed;
-    5.0f,                                           //float   acceleration;
+    10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;

@@ -675,7 +675,8 @@ void ClientTimerActions( gentity_t *ent, int msec )
         }
       }
       
-      if( ent->health < client->ps.stats[ STAT_MAX_HEALTH ] )
+      if( ent->health < client->ps.stats[ STAT_MAX_HEALTH ] &&
+          ( client->lastDamageTime + ALIEN_REGEN_DAMAGE_TIME ) < level.time )
         ent->health += BG_FindRegenRateForClass( client->ps.stats[ STAT_PCLASS ] ) * modifier;
 
       if( ent->health > client->ps.stats[ STAT_MAX_HEALTH ] )

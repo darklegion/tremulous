@@ -577,6 +577,7 @@ typedef enum
   MN_A_HOVEL_BLOCKED,
   MN_A_NOEROOM,
   MN_A_TOOCLOSE,
+  MN_A_NOOVMND_EVOLVE,
   
   //alien build
   MN_A_SPWNWARN,

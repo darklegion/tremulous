@@ -1150,6 +1150,13 @@ void Cmd_Class_f( gentity_t *ent )
         }
       }
 
+      if( !level.overmindPresent )
+      {
+        ent->client->pers.classSelection = PCL_NONE;
+        G_TriggerMenu( clientNum, MN_A_NOOVMND_EVOLVE );
+        return;
+      }
+      
       //evolve now
       ent->client->pers.classSelection = BG_FindClassNumForName( s );
 
