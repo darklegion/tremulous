@@ -344,28 +344,28 @@ void Cmd_Team_f( gentity_t *ent )
 
   //TA: rip out the q3a team system :)
 
-  oldTeam = ent->client->pers.pteam;
+  oldTeam = ent->client->pers.teamSelection;
 
   trap_Argv( 1, s, sizeof( s ) );
 
   if( !strlen( s ) )
   {
-    trap_SendServerCommand( ent-g_entities, va("print \"team: %i\n\"", ent->client->pers.pteam ) );
+    trap_SendServerCommand( ent-g_entities, va("print \"team: %i\n\"", ent->client->pers.teamSelection ) );
     return;
   }
 
   if( !Q_stricmp( s, "0" ) || !Q_stricmp( s, "spectate" ) )
-    ent->client->pers.pteam = PTE_NONE;
+    ent->client->pers.teamSelection = PTE_NONE;
   else if( !Q_stricmp( s, "1" ) || !Q_stricmp( s, "aliens" ) )
-    ent->client->pers.pteam = PTE_ALIENS;
+    ent->client->pers.teamSelection = PTE_ALIENS;
   else if( !Q_stricmp( s, "2" ) || !Q_stricmp( s, "humans" ) )
-    ent->client->pers.pteam = PTE_HUMANS;
+    ent->client->pers.teamSelection = PTE_HUMANS;
 
-  if( oldTeam != ent->client->pers.pteam )
+  if( oldTeam != ent->client->pers.teamSelection )
   {
     level.bankCredits[ ent->client->ps.clientNum ] = 0;
     ent->client->ps.persistant[ PERS_CREDIT ] = 0;
-    ent->client->pers.pclass = 0;
+    ent->client->pers.classSelection = 0;
     ClientSpawn( ent, NULL, NULL, NULL );
   }
 
@@ -987,7 +987,7 @@ void Cmd_Class_f( gentity_t *ent )
     numClasses = 2;
   }
   
-  if( ent->client->pers.pteam == PTE_ALIENS &&
+  if( ent->client->pers.teamSelection == PTE_ALIENS &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING ) &&
@@ -997,20 +997,20 @@ void Cmd_Class_f( gentity_t *ent )
     if( ent->client->ps.stats[ STAT_PCLASS ] != PCL_NONE )
     {
       //evolve now
-      ent->client->pers.pclass = BG_FindClassNumForName( s );
+      ent->client->pers.classSelection = BG_FindClassNumForName( s );
 
-      if( ent->client->pers.pclass == PCL_NONE )
+      if( ent->client->pers.classSelection == PCL_NONE )
       {
         trap_SendServerCommand( ent-g_entities, va( "print \"Unknown class\n\"" ) );
         return;
       }
       
-      numLevels = BG_ClassCanEvolveFromTo( ent->client->ps.stats[ STAT_PCLASS ], ent->client->pers.pclass,
+      numLevels = BG_ClassCanEvolveFromTo( ent->client->ps.stats[ STAT_PCLASS ], ent->client->pers.classSelection,
                                            (short)ent->client->ps.persistant[ PERS_CREDIT ], 0 );
 
       BG_FindBBoxForClass( ent->client->ps.stats[ STAT_PCLASS ],
                            fromMins, fromMaxs, NULL, NULL, NULL );
-      BG_FindBBoxForClass( ent->client->pers.pclass,
+      BG_FindBBoxForClass( ent->client->pers.classSelection,
                            toMins, toMaxs, NULL, NULL, NULL );
 
       VectorCopy( ent->s.pos.trBase, infestOrigin );
@@ -1023,7 +1023,7 @@ void Cmd_Class_f( gentity_t *ent )
       if( tr.fraction == 1.0f )
       {
         //...check we can evolve to that class
-        if( numLevels && BG_FindStagesForClass( ent->client->pers.pclass, g_alienStage.integer ) )
+        if( numLevels && BG_FindStagesForClass( ent->client->pers.classSelection, g_alienStage.integer ) )
         {
           //remove credit
           ent->client->ps.persistant[ PERS_CREDIT ] -= (short)numLevels;
@@ -1035,14 +1035,14 @@ void Cmd_Class_f( gentity_t *ent )
         }
         else
         {
-          ent->client->pers.pclass = PCL_NONE;
+          ent->client->pers.classSelection = PCL_NONE;
           trap_SendServerCommand( ent-g_entities, va( "print \"You cannot evolve from your current class\n\"" ) );
           return;
         }
       }
       else
       {
-        ent->client->pers.pclass = PCL_NONE;
+        ent->client->pers.classSelection = PCL_NONE;
         G_TriggerMenu( clientNum, MN_A_NOEROOM );
         return;
       }
@@ -1050,16 +1050,16 @@ void Cmd_Class_f( gentity_t *ent )
     else
     {
       //spawning from an egg
-      ent->client->pers.pclass = BG_FindClassNumForName( s );
+      ent->client->pers.classSelection = BG_FindClassNumForName( s );
 
-      if( ent->client->pers.pclass != PCL_NONE )
+      if( ent->client->pers.classSelection != PCL_NONE )
       {
         for( i = 0; i < numClasses; i++ )
         {
-          if( allowedClasses[ i ] == ent->client->pers.pclass &&
-              BG_FindStagesForClass( ent->client->pers.pclass, g_alienStage.integer ) )
+          if( allowedClasses[ i ] == ent->client->pers.classSelection &&
+              BG_FindStagesForClass( ent->client->pers.classSelection, g_alienStage.integer ) )
           {
-            if( ( spawn = SelectTremulousSpawnPoint( ent->client->pers.pteam, spawn_origin, spawn_angles ) ) &&
+            if( ( spawn = SelectTremulousSpawnPoint( ent->client->pers.teamSelection, spawn_origin, spawn_angles ) ) &&
                 level.numAlienSpawns > 0 ) //sanity check
             {
               ent->client->sess.sessionTeam = TEAM_FREE;
@@ -1075,7 +1075,7 @@ void Cmd_Class_f( gentity_t *ent )
           }
         }
 
-        ent->client->pers.pclass = PCL_NONE;
+        ent->client->pers.classSelection = PCL_NONE;
         trap_SendServerCommand( ent-g_entities, va( "print \"You cannot spawn as this class\n\"" ) );
       }
       else
@@ -1085,7 +1085,7 @@ void Cmd_Class_f( gentity_t *ent )
       }
     }
   }
-  else if( ent->client->pers.pteam == PTE_HUMANS )
+  else if( ent->client->pers.teamSelection == PTE_HUMANS )
   {
     //humans cannot use this command whilst alive
     if( ent->client->ps.stats[ STAT_PCLASS ] != PCL_NONE )
@@ -1094,21 +1094,21 @@ void Cmd_Class_f( gentity_t *ent )
       return;
     }
 
-    ent->client->pers.pclass = PCL_H_BASE;
+    ent->client->pers.classSelection = PCL_H_BASE;
 
     //set the item to spawn with
     if( !Q_stricmp( s, BG_FindNameForWeapon( WP_MACHINEGUN ) ) )
-      ent->client->pers.pitem = WP_MACHINEGUN;
+      ent->client->pers.humanItemSelection = WP_MACHINEGUN;
     else if( !Q_stricmp( s, BG_FindNameForWeapon( WP_HBUILD ) ) )
-      ent->client->pers.pitem = WP_HBUILD;
+      ent->client->pers.humanItemSelection = WP_HBUILD;
     else
     {
-      ent->client->pers.pclass = PCL_NONE;
+      ent->client->pers.classSelection = PCL_NONE;
       trap_SendServerCommand( ent-g_entities, va( "print \"Unknown starting item\n\"" ) );
       return;
     }
 
-    if( ( spawn = SelectTremulousSpawnPoint( ent->client->pers.pteam, spawn_origin, spawn_angles ) ) &&
+    if( ( spawn = SelectTremulousSpawnPoint( ent->client->pers.teamSelection, spawn_origin, spawn_angles ) ) &&
         level.numHumanSpawns > 0 ) //sanity check
     {
       ent->client->sess.sessionTeam = TEAM_FREE;
@@ -1121,10 +1121,10 @@ void Cmd_Class_f( gentity_t *ent )
       return;
     }
   }
-  else if( ent->client->pers.pteam == PTE_NONE )
+  else if( ent->client->pers.teamSelection == PTE_NONE )
   {
     //can't use this command unless on a team
-    ent->client->pers.pclass = PCL_NONE;
+    ent->client->pers.classSelection = PCL_NONE;
     ent->client->sess.sessionTeam = TEAM_FREE;
     ClientSpawn( ent, NULL, NULL, NULL );
     trap_SendServerCommand( ent-g_entities, va( "print \"Join a team first\n\"" ) );
@@ -1156,7 +1156,7 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
 
     if( tr.fraction < 1.0 &&
         ( traceEnt->s.eType == ET_BUILDABLE ) &&
-        ( traceEnt->biteam == ent->client->pers.pteam ) &&
+        ( traceEnt->biteam == ent->client->pers.teamSelection ) &&
         ( ( ent->client->ps.weapon >= WP_ABUILD ) &&
           ( ent->client->ps.weapon <= WP_HBUILD ) ) )
     {
@@ -1192,7 +1192,7 @@ void Cmd_ActivateItem_f( gentity_t *ent )
   trap_Argv( 1, s, sizeof( s ) );
   upgrade = BG_FindUpgradeNumForName( s );
 
-  if( ent->client->pers.pteam != PTE_HUMANS )
+  if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
     
   if( BG_gotItem( upgrade, ent->client->ps.stats ) )
@@ -1217,7 +1217,7 @@ void Cmd_DeActivateItem_f( gentity_t *ent )
   trap_Argv( 1, s, sizeof( s ) );
   upgrade = BG_FindUpgradeNumForName( s );
 
-  if( ent->client->pers.pteam != PTE_HUMANS )
+  if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
     
   if( BG_gotItem( upgrade, ent->client->ps.stats ) )
@@ -1240,7 +1240,7 @@ void Cmd_ToggleItem_f( gentity_t *ent )
   trap_Argv( 1, s, sizeof( s ) );
   upgrade = BG_FindUpgradeNumForName( s );
 
-  if( ent->client->pers.pteam != PTE_HUMANS )
+  if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
     
   if( BG_gotItem( upgrade, ent->client->ps.stats ) )
@@ -1285,7 +1285,7 @@ void Cmd_Buy_f( gentity_t *ent )
   trap_Argv( 1, s, sizeof( s ) );
   
   //aliens don't buy stuff
-  if( ent->client->pers.pteam != PTE_HUMANS )
+  if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
 
   for ( i = 1, armouryEntity = g_entities + i; i < level.num_entities; i++, armouryEntity++ )
@@ -1499,7 +1499,7 @@ void Cmd_Sell_f( gentity_t *ent )
   trap_Argv( 1, s, sizeof( s ) );
 
   //aliens don't sell stuff
-  if( ent->client->pers.pteam != PTE_HUMANS )
+  if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
     
   for ( i = 1, armouryEntity = g_entities + i; i < level.num_entities; i++, armouryEntity++ )
@@ -1588,7 +1588,7 @@ void Cmd_Deposit_f( gentity_t *ent )
 
   trap_Argv( 1, s, sizeof( s ) );
 
-  if( ent->client->pers.pteam == PTE_HUMANS )
+  if( ent->client->pers.teamSelection == PTE_HUMANS )
   {
     for ( i = 1, bankEntity = g_entities + i; i < level.num_entities; i++, bankEntity++ )
     {
@@ -1650,7 +1650,7 @@ void Cmd_Withdraw_f( gentity_t *ent )
 
   trap_Argv( 1, s, sizeof( s ) );
     
-  if( ent->client->pers.pteam == PTE_HUMANS )
+  if( ent->client->pers.teamSelection == PTE_HUMANS )
   {
     for ( i = 1, bankEntity = g_entities + i; i < level.num_entities; i++, bankEntity++ )
     {

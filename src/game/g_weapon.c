@@ -461,7 +461,7 @@ void cancelBuildFire( gentity_t *ent )
   }
   
   //repair buildable
-  if( ent->client->pers.pteam == PTE_HUMANS )
+  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
     AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
     VectorMA( ent->client->ps.origin, 100, forward, end );
@@ -471,7 +471,7 @@ void cancelBuildFire( gentity_t *ent )
 
     if( tr.fraction < 1.0 &&
         ( traceEnt->s.eType == ET_BUILDABLE ) &&
-        ( traceEnt->biteam == ent->client->pers.pteam ) &&
+        ( traceEnt->biteam == ent->client->ps.stats[ STAT_PTEAM ] ) &&
         ( ( ent->client->ps.weapon >= WP_HBUILD2 ) &&
           ( ent->client->ps.weapon <= WP_HBUILD ) ) )
     {

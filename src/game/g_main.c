@@ -771,14 +771,14 @@ void CalculateRanks( void )
       level.numConnectedClients++;
 
       //TA: so we know when the game ends and for team leveling
-      if( level.clients[ i ].pers.pteam == PTE_ALIENS )
+      if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
       {
         level.numAlienClients++;
         if( level.clients[ i ].sess.sessionTeam != TEAM_SPECTATOR )
           level.numLiveAlienClients++;
       }
 
-      if( level.clients[ i ].pers.pteam == PTE_HUMANS )
+      if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
       {
         level.numHumanClients++;
         if( level.clients[ i ].sess.sessionTeam != TEAM_SPECTATOR )

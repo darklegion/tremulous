@@ -421,7 +421,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 {
   char filename[ MAX_QPATH * 2 ];
 
-  //TA: do this first so the nonsegemented property is set
+  //TA: do this first so the nonsegmented property is set
   // load the animations
   Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg", modelName );
   if( !CG_ParseAnimationFile( filename, ci ) )
@@ -521,8 +521,7 @@ static void CG_ColorFromString( const char *v, vec3_t color )
 ===================
 CG_LoadClientInfo
 
-Load it now, taking the disk hits.
-This will usually be deferred to a safe time
+Load it now, taking the disk hits
 ===================
 */
 static void CG_LoadClientInfo( clientInfo_t *ci )
@@ -546,7 +545,7 @@ static void CG_LoadClientInfo( clientInfo_t *ci )
   dir = ci->modelName;
   fallback = DEFAULT_MODEL;
 
-  for( i = 0 ; i < MAX_CUSTOM_SOUNDS ; i++ )
+  for( i = 0; i < MAX_CUSTOM_SOUNDS; i++ )
   {
     s = cg_customSoundNames[ i ];
     
@@ -558,19 +557,14 @@ static void CG_LoadClientInfo( clientInfo_t *ci )
       ci->sounds[ i ] = trap_S_RegisterSound( va( "sound/player/%s/%s", fallback, s + 1 ), qfalse );
   }
 
-  ci->deferred = qfalse;
-
   // reset any existing players and bodies, because they might be in bad
   // frames for this new model
-  if( clientNum <= MAX_CLIENTS )
+  clientNum = ci - cgs.clientinfo;
+  for( i = 0; i < MAX_GENTITIES; i++ )
   {
-    clientNum = ci - cgs.clientinfo;
-    for( i = 0; i < MAX_GENTITIES; i++ )
-    {
-      if( cg_entities[ i ].currentState.clientNum == clientNum &&
-          cg_entities[ i ].currentState.eType == ET_PLAYER )
-        CG_ResetPlayerEntity( &cg_entities[ i ] );
-    }
+    if( cg_entities[ i ].currentState.clientNum == clientNum &&
+        cg_entities[ i ].currentState.eType == ET_PLAYER )
+      CG_ResetPlayerEntity( &cg_entities[ i ] );
   }
 }
 
@@ -593,6 +587,7 @@ static void CG_CopyClientInfoModel( clientInfo_t *from, clientInfo_t *to )
   to->headSkin = from->headSkin;
   to->nonSegModel = from->nonSegModel;
   to->nonSegSkin = from->nonSegSkin;
+  to->nonsegmented = from->nonsegmented;
   to->modelIcon = from->modelIcon;
 
   memcpy( to->animations, from->animations, sizeof( to->animations ) );
@@ -605,13 +600,15 @@ static void CG_CopyClientInfoModel( clientInfo_t *from, clientInfo_t *to )
 CG_GetCorpseNum
 ======================
 */
-static int CG_GetCorpseNum( int pclass )
+static int CG_GetCorpseNum( pClass_t class )
 {
   int           i;
   clientInfo_t  *match;
   char          *modelName;
+  char          *skinName;
 
-  modelName = BG_FindModelNameForClass( pclass );
+  modelName = BG_FindModelNameForClass( class );
+  skinName = BG_FindSkinNameForClass( class );
 
   for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
   {
@@ -620,11 +617,8 @@ static int CG_GetCorpseNum( int pclass )
     if( !match->infoValid )
       continue;
       
-    if( match->deferred )
-      continue;
-    
     if( !Q_stricmp( modelName, match->modelName )
-      /*&& !Q_stricmp( modelName, match->skinName )*/ )
+      && !Q_stricmp( skinName, match->skinName ) )
     {
       // this clientinfo is identical, so use it's handles
       return i;
@@ -646,60 +640,25 @@ static qboolean CG_ScanForExistingClientInfo( clientInfo_t *ci )
   int   i;
   clientInfo_t  *match;
 
-  for( i = 0 ; i < cgs.maxclients ; i++ )
+  for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
   {
-    match = &cgs.clientinfo[ i ];
+    match = &cgs.corpseinfo[ i ];
+    
     if( !match->infoValid )
-      continue;
-
-    if( match->deferred )
       continue;
 
     if( !Q_stricmp( ci->modelName, match->modelName ) &&
         !Q_stricmp( ci->skinName, match->skinName ) )
     {
       // this clientinfo is identical, so use it's handles
-      ci->deferred = qfalse;
-
       CG_CopyClientInfoModel( match, ci );
 
       return qtrue;
     }
   }
 
-  // nothing matches, so defer the load
+  //TA: shouldn't happen
   return qfalse;
-}
-
-/*
-======================
-CG_SetDeferredClientInfo
-
-We aren't going to load it now, so grab some other
-client's info to use until we have some spare time.
-======================
-*/
-static void CG_SetDeferredClientInfo( clientInfo_t *ci )
-{
-  int           i;
-  clientInfo_t  *match;
-
-  // find the first valid clientinfo and grab its stuff
-  for( i = 0; i < cgs.maxclients; i++ )
-  {
-    match = &cgs.clientinfo[ i ];
-    if( !match->infoValid )
-      continue;
-
-    ci->deferred = qtrue;
-    CG_CopyClientInfoModel( match, ci );
-    return;
-  }
-
-  // we should never get here...
-  CG_Printf( "CG_SetDeferredClientInfo: no valid clients!\n" );
-
-  CG_LoadClientInfo( ci );
 }
 
 
@@ -708,14 +667,14 @@ static void CG_SetDeferredClientInfo( clientInfo_t *ci )
 CG_PrecacheClientInfo
 ======================
 */
-void CG_PrecacheClientInfo( int clientNum, char *model, char *skin, char *headModel, char *headSkin )
+void CG_PrecacheClientInfo( pClass_t class, char *model, char *skin, char *headModel, char *headSkin )
 {
   clientInfo_t  *ci;
   clientInfo_t  newInfo;
   const char    *v;
   char          *slash;
 
-  ci = &cgs.corpseinfo[ clientNum ];
+  ci = &cgs.corpseinfo[ class ];
 
   // the old value
   memset( &newInfo, 0, sizeof( newInfo ) );
@@ -740,8 +699,9 @@ void CG_PrecacheClientInfo( int clientNum, char *model, char *skin, char *headMo
   else
     Q_strncpyz( newInfo.headSkinName, headSkin, sizeof( newInfo.headSkinName ) );
 
-  newInfo.deferred = qfalse;
   newInfo.infoValid = qtrue;
+
+  //TA: actually register the models
   CG_LoadClientInfo( &newInfo );
   *ci = newInfo;
 }
@@ -763,13 +723,12 @@ void CG_NewClientInfo( int clientNum )
   ci = &cgs.clientinfo[ clientNum ];
 
   configstring = CG_ConfigString( clientNum + CS_PLAYERS );
-  if( !configstring[0] )
+  if( !configstring[ 0 ] )
   {
     memset( ci, 0, sizeof( *ci ) );
     return;   // player just left
   }
 
-  // build into a temp buffer so the defer checks can use
   // the old value
   memset( &newInfo, 0, sizeof( newInfo ) );
 
@@ -859,37 +818,7 @@ void CG_NewClientInfo( int clientNum )
   // scan for an existing clientinfo that matches this modelname
   // so we can avoid loading checks if possible
   if( !CG_ScanForExistingClientInfo( &newInfo ) )
-  {
-    qboolean  forceDefer;
-
-    forceDefer = trap_MemoryRemaining( ) < 4000000;
-
-    // if we are defering loads, just have it pick the first valid
-    //TA: we should only defer models when ABSOLUTELY TOTALLY necessary since models are precached
-    if( forceDefer )
-    {
-      // keep whatever they had if it won't violate team skins
-      if ( ci->infoValid && ( !Q_stricmp( newInfo.skinName, ci->skinName ) ) )
-      {
-        CG_CopyClientInfoModel( ci, &newInfo );
-        newInfo.deferred = qtrue;
-      }
-      else
-      {
-        // use whatever is available
-        CG_SetDeferredClientInfo( &newInfo );
-      }
-      
-      // if we are low on memory, leave them with this model
-      if( forceDefer )
-      {
-        CG_Printf( "Memory is low.  Using deferred model.\n" );
-        newInfo.deferred = qfalse;
-      }
-    }
-    else
-      CG_LoadClientInfo( &newInfo );
-  }
+    CG_LoadClientInfo( &newInfo );
 
   // replace whatever was there with the new one
   newInfo.infoValid = qtrue;
@@ -897,38 +826,6 @@ void CG_NewClientInfo( int clientNum )
 }
 
 
-
-/*
-======================
-CG_LoadDeferredPlayers
-
-Called each frame when a player is dead
-and the scoreboard is up
-so deferred players can be loaded
-======================
-*/
-void CG_LoadDeferredPlayers( void )
-{
-  int           i;
-  clientInfo_t  *ci;
-
-  // scan for a deferred player to load
-  for( i = 0, ci = cgs.clientinfo; i < cgs.maxclients; i++, ci++ )
-  {
-    if( ci->infoValid && ci->deferred )
-    {
-      // if we are low on memory, leave it deferred
-      if( trap_MemoryRemaining( ) < 4000000 )
-      {
-        CG_Printf( "Memory is low.  Using deferred model.\n" );
-        ci->deferred = qfalse;
-        continue;
-      }
-      
-      CG_LoadClientInfo( ci );
-    }
-  }
-}
 
 /*
 =============================================================================
@@ -2026,7 +1923,7 @@ void CG_Player( centity_t *cent )
   CG_PlayerSprites( cent );
 
   // add the shadow
-  //TA: but only for humans
+  //TA: but only for humans FIXME this is dumb
   if( team == PTE_HUMANS )
     shadow = CG_PlayerShadow( cent, &shadowPlane );
 

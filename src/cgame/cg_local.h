@@ -383,8 +383,6 @@ typedef struct
   char        redTeam[ MAX_TEAMNAME ];
   char        blueTeam[ MAX_TEAMNAME ];
         
-  qboolean    deferred;
-
   qboolean    newAnims;                   // true if using the new mission pack animations
   qboolean    fixedlegs;                  // true if legs yaw is always the same as torso yaw
   qboolean    fixedtorso;                 // true if torso never changes yaw
@@ -1262,7 +1260,7 @@ void        CG_Corpse( centity_t *cent );
 void        CG_ResetPlayerEntity( centity_t *cent );
 void        CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, int team );
 void        CG_NewClientInfo( int clientNum );
-void        CG_PrecacheClientInfo( int clientNum, char *model, char *skin, char *headModel, char *headSkin );
+void        CG_PrecacheClientInfo( pClass_t class, char *model, char *skin, char *headModel, char *headSkin );
 sfxHandle_t CG_CustomSound( int clientNum, const char *soundName );
 
 //
@@ -1299,7 +1297,6 @@ void        CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, co
 void        CG_CapTrace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, 
                          int skipNumber, int mask );
 void        CG_PredictPlayerState( void );
-void        CG_LoadDeferredPlayers( void );
 
 
 //

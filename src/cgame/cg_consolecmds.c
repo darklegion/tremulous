@@ -190,7 +190,6 @@ static consoleCommand_t commands[ ] =
   { "tell_attacker", CG_TellAttacker_f },
   { "tcmd", CG_TargetCommand_f },
   { "decodeMP3", CG_DecodeMP3_f },
-  { "loaddeferred", CG_LoadDeferredPlayers }
 };
 
 
@@ -290,5 +289,4 @@ void CG_InitConsoleCommands( void )
   trap_AddCommand( "deconstruct" );
   trap_AddCommand( "menu" );
   trap_AddCommand( "ui_menu" );
-  trap_AddCommand( "loaddefered" );  // spelled wrong, but not changing for demo
 }

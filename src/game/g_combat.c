@@ -302,12 +302,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       Cmd_Score_f( g_entities + i );
   }
 
-  self->client->pers.pclass = 0; //TA: reset the classtype
+  self->client->pers.classSelection = 0; //TA: reset the classtype
 
   self->takedamage = qtrue; // can still be gibbed
 
   self->s.weapon = WP_NONE;
-  /*self->s.powerups = 0;*/ //TA: class is encoded into powers in trem
+  /*self->s.powerups = 0;*/ //TA: class is encoded into powerups in trem
   self->r.contents = CONTENTS_BODY;
   //self->r.contents = CONTENTS_CORPSE;
 
@@ -815,7 +815,7 @@ dflags    these flags are used to control how T_Damage works
 void G_SelectiveDamage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
          vec3_t dir, vec3_t point, int damage, int dflags, int mod, int team )
 {
-  if( targ->client && ( team != targ->client->pers.pteam ) )
+  if( targ->client && ( team != targ->client->ps.stats[ STAT_PTEAM ] ) )
     G_Damage( targ, inflictor, attacker, dir, point, damage, dflags, mod );
 }
 

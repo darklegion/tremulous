@@ -781,13 +781,6 @@ static void CG_ServerCommand( void )
       trap_R_RemapShader( CG_Argv( 1 ), CG_Argv( 2 ), CG_Argv( 3 ) );
   }
 
-  // loaddeferred can be both a servercmd and a consolecmd
-  if( !strcmp( cmd, "loaddefered" ) )
-  {  // FIXME: spelled wrong, but not changing for demo
-    CG_LoadDeferredPlayers( );
-    return;
-  }
-
   // clientLevelShot is sent before taking a special screenshot for
   // the menu system during development
   if( !strcmp( cmd, "clientLevelShot" ) )

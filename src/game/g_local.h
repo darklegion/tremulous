@@ -282,10 +282,9 @@ typedef struct
   int               teamVoteCount;      // to prevent people from constantly calling votes
   qboolean          teamInfo;           // send team overlay updates?
 
-  int               pclass;   //TA: player class (copied to ent->client->ps.stats[ STAT_PCLASS ] once spawned)
-                              //not really persistant.. this is just a nice place to stick it :)
-  int               pitem;    //TA: humans have a starting item
-  int               pteam;    //TA: player team (copied to ps.stats[ STAT_PTEAM ])
+  pClass_t          classSelection;     //TA: player class (copied to ent->client->ps.stats[ STAT_PCLASS ] once spawned)
+  weapon_t          humanItemSelection; //TA: humans have a starting item
+  pTeam_t           teamSelection;      //TA: player team (copied to ps.stats[ STAT_PTEAM ])
 } clientPersistant_t;
 
 // this structure is cleared on each ClientSpawn(),

@@ -1044,7 +1044,7 @@ void ClientUserinfoChanged( int clientNum )
     client->pers.maxHealth = 100;
 
   //hack to force a client update if the config string does not change between spawning
-  if( client->pers.pclass == PCL_NONE )
+  if( client->pers.classSelection == PCL_NONE )
     client->pers.maxHealth = 0;
 
   // set model
@@ -1053,7 +1053,7 @@ void ClientUserinfoChanged( int clientNum )
     Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( PCL_H_BSUIT ),
                                               BG_FindSkinNameForClass( PCL_H_BSUIT ) );
   }
-  else if( client->pers.pclass == PCL_NONE )
+  else if( client->pers.classSelection == PCL_NONE )
   {
     //This looks hacky and frankly it is. The clientInfo string needs to hold different
     //model details to that of the spawning class or the info change will not be
@@ -1064,17 +1064,17 @@ void ClientUserinfoChanged( int clientNum )
   }
   else
   {
-    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( client->pers.pclass ),
-                                              BG_FindSkinNameForClass( client->pers.pclass ) );
+    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( client->pers.classSelection ),
+                                              BG_FindSkinNameForClass( client->pers.classSelection ) );
   }
   Q_strncpyz( model, buffer, sizeof( model ) );
 
   //don't bother setting model type if spectating
-  if( client->pers.pclass != PCL_NONE )
+  if( client->pers.classSelection != PCL_NONE )
   {
     //model segmentation
     Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg",
-                 BG_FindModelNameForClass( client->pers.pclass ) );
+                 BG_FindModelNameForClass( client->pers.classSelection ) );
 
     if( G_NonSegModel( filename ) )
       client->ps.persistant[ PERS_STATE ] |= PS_NONSEGMODEL;
@@ -1289,15 +1289,15 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   index = ent - g_entities;
   client = ent->client;
 
-  teamLocal = client->pers.pteam;
+  teamLocal = client->pers.teamSelection;
 
   //TA: only start client if chosen a class and joined a team
-  if( client->pers.pclass == PCL_NONE && teamLocal == PTE_NONE )
+  if( client->pers.classSelection == PCL_NONE && teamLocal == PTE_NONE )
   {
     client->sess.sessionTeam = TEAM_SPECTATOR;
     client->sess.spectatorState = SPECTATOR_FREE;
   }
-  else if( client->pers.pclass == PCL_NONE )
+  else if( client->pers.classSelection == PCL_NONE )
   {
     client->sess.sessionTeam = TEAM_SPECTATOR;
     client->sess.spectatorState = SPECTATOR_LOCKED;
@@ -1374,7 +1374,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   trap_GetUserinfo( index, userinfo, sizeof( userinfo ) );
   client->ps.eFlags = flags;
 
-  //Com_Printf( "ent->client->pers->pclass = %i\n", ent->client->pers.pclass );
+  //Com_Printf( "ent->client->pers->pclass = %i\n", ent->client->pers.classSelection );
 
   ent->s.groundEntityNum = ENTITYNUM_NONE;
   ent->client = &level.clients[ index ];
@@ -1402,7 +1402,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   client->ps.eFlags = flags;
   client->ps.clientNum = index;
   
-  BG_FindBBoxForClass( ent->client->pers.pclass, ent->r.mins, ent->r.maxs, NULL, NULL, NULL );
+  BG_FindBBoxForClass( ent->client->pers.classSelection, ent->r.mins, ent->r.maxs, NULL, NULL, NULL );
 
   hModifier = 1.0f;
   
@@ -1416,18 +1416,18 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   
   if( client->sess.sessionTeam != TEAM_SPECTATOR )
     client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] =
-      (int)( (float)BG_FindHealthForClass( ent->client->pers.pclass ) * hModifier );
+      (int)( (float)BG_FindHealthForClass( ent->client->pers.classSelection ) * hModifier );
   else
     client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] = 100;
 
   // clear entity values
-  if( ent->client->pers.pclass == PCL_H_BASE )
+  if( ent->client->pers.classSelection == PCL_H_BASE )
   {
     BG_packWeapon( WP_BLASTER, client->ps.stats );
-    weapon = client->pers.pitem;
+    weapon = client->pers.humanItemSelection;
   }
   else if( client->sess.sessionTeam != TEAM_SPECTATOR )
-    weapon = BG_FindStartWeaponForClass( ent->client->pers.pclass );
+    weapon = BG_FindStartWeaponForClass( ent->client->pers.classSelection );
   else
     weapon = WP_NONE;
   
@@ -1435,8 +1435,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   BG_packWeapon( weapon, client->ps.stats );
   BG_packAmmoArray( weapon, client->ps.ammo, client->ps.powerups, ammo, clips, maxClips );
 
-  ent->client->ps.stats[ STAT_PCLASS ] = ent->client->pers.pclass;
-  ent->client->ps.stats[ STAT_PTEAM ] = ent->client->pers.pteam;
+  ent->client->ps.stats[ STAT_PCLASS ] = ent->client->pers.classSelection;
+  ent->client->ps.stats[ STAT_PTEAM ] = ent->client->pers.teamSelection;
   
   ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
   ent->client->ps.stats[ STAT_STATE ] = 0;
