@@ -22,7 +22,7 @@
  * 
  */
 
-#define ALIEN_WDMG_MODIFIER         0.8f
+#define ALIEN_WDMG_MODIFIER         0.85f
 #define ADM(d)                      ((int)((float)d*ALIEN_WDMG_MODIFIER))
 
 #define ABUILDER_BUILD_REPEAT       500
@@ -103,66 +103,66 @@
 #define ALIEN_HLTH_MODIFIER         1.0f
 #define AHM(h)                      ((int)((float)h*ALIEN_HLTH_MODIFIER))
 
-#define ALIEN_VALUE_MODIFIER        4.0f
+#define ALIEN_VALUE_MODIFIER        1.0f
 #define AVM(h)                      ((int)((float)h*ALIEN_VALUE_MODIFIER))
 
 #define ABUILDER_SPEED              0.8f
-#define ABUILDER_VALUE              AVM(50)
+#define ABUILDER_VALUE              AVM(200)
 #define ABUILDER_HEALTH             AHM(50)
 #define ABUILDER_REGEN              2
 #define ABUILDER_COST               0
 
 #define ABUILDER_UPG_SPEED          1.0f
-#define ABUILDER_UPG_VALUE          AVM(120)
+#define ABUILDER_UPG_VALUE          AVM(250)
 #define ABUILDER_UPG_HEALTH         AHM(75)
 #define ABUILDER_UPG_REGEN          3
 #define ABUILDER_UPG_COST           0
 
 #define SOLDIER_SPEED               1.3f
-#define SOLDIER_VALUE               AVM(50)
+#define SOLDIER_VALUE               AVM(175)
 #define SOLDIER_HEALTH              AHM(25)
 #define SOLDIER_REGEN               1
 #define SOLDIER_COST                0
 
 #define HYDRA_SPEED                 1.25f
-#define HYDRA_VALUE                 AVM(100)
-#define HYDRA_HEALTH                AHM(50)
+#define HYDRA_VALUE                 AVM(225)
+#define HYDRA_HEALTH                AHM(75)
 #define HYDRA_REGEN                 2
 #define HYDRA_COST                  1
 
 #define HYDRA_UPG_SPEED             1.25f
-#define HYDRA_UPG_VALUE             AVM(120)
-#define HYDRA_UPG_HEALTH            AHM(50)
+#define HYDRA_UPG_VALUE             AVM(250)
+#define HYDRA_UPG_HEALTH            AHM(100)
 #define HYDRA_UPG_REGEN             2
 #define HYDRA_UPG_COST              1
 
 #define CHIMERA_SPEED               1.2f
-#define CHIMERA_VALUE               AVM(200)
-#define CHIMERA_HEALTH              AHM(100)
+#define CHIMERA_VALUE               AVM(500)
+#define CHIMERA_HEALTH              AHM(150)
 #define CHIMERA_REGEN               3
 #define CHIMERA_COST                1
 
 #define CHIMERA_UPG_SPEED           1.2f
-#define CHIMERA_UPG_VALUE           AVM(340)
-#define CHIMERA_UPG_HEALTH          AHM(120)
+#define CHIMERA_UPG_VALUE           AVM(600)
+#define CHIMERA_UPG_HEALTH          AHM(175)
 #define CHIMERA_UPG_REGEN           4
 #define CHIMERA_UPG_COST            1
 
 #define DRAGOON_SPEED               1.2f
-#define DRAGOON_VALUE               AVM(300)
-#define DRAGOON_HEALTH              AHM(200)
+#define DRAGOON_VALUE               AVM(600)
+#define DRAGOON_HEALTH              AHM(250)
 #define DRAGOON_REGEN               5
 #define DRAGOON_COST                1
 
 #define DRAGOON_UPG_SPEED           1.2f
-#define DRAGOON_UPG_VALUE           AVM(360)
-#define DRAGOON_UPG_HEALTH          AHM(250)
+#define DRAGOON_UPG_VALUE           AVM(700)
+#define DRAGOON_UPG_HEALTH          AHM(300)
 #define DRAGOON_UPG_REGEN           6
 #define DRAGOON_UPG_COST            1
 
 #define BMOFO_SPEED                 1.1f
-#define BMOFO_VALUE                 AVM(400)
-#define BMOFO_HEALTH                AHM(400)
+#define BMOFO_VALUE                 AVM(1000)
+#define BMOFO_HEALTH                AHM(350)
 #define BMOFO_REGEN                 7
 #define BMOFO_COST                  2
 
@@ -280,8 +280,6 @@
  */
 
 #define ALIENSENSE_RANGE            1000.0f
-#define ALIENSTAGE2_HLTH_MODIFIER   1.2f
-#define ALIENSTAGE3_HLTH_MODIFIER   1.5f
 
 #define ALIEN_POISON_TIME           10000
 #define ALIEN_POISON_DMG            30
@@ -318,8 +316,8 @@
 
 #define SHOTGUN_SHELLS              8
 #define SHOTGUN_PELLETS             8 //used to sync server and client side
-#define SHOTGUN_SPAWNCLIPS          3
-#define SHOTGUN_MAXCLIPS            3
+#define SHOTGUN_SPAWNCLIPS          2
+#define SHOTGUN_MAXCLIPS            2
 #define SHOTGUN_REPEAT              1200
 #define SHOTGUN_RELOAD              2000
 #define SHOTGUN_PRICE               150
@@ -364,12 +362,16 @@
 #define LCANNON_CHARGEREPEAT        1000
 #define LCANNON_RELOAD              2000
 #define LCANNON_DAMAGE              HDM(400)
+#define LCANNON_RADIUS              200
 #define LCANNON_SECONDARY_DAMAGE    HDM(30)
+#define LCANNON_SECONDARY_RADIUS    75
 #define LCANNON_SPEED               250
 #define LCANNON_CHARGE_TIME         1000
+#define LCANNON_TOTAL_CHARGE        255
+
 
 #define LASGUN_PRICE                200
-#define LASGUN_AMMO                 300
+#define LASGUN_AMMO                 100
 #define LASGUN_REPEAT               150
 #define LASGUN_RELOAD               2000
 #define LASGUN_DAMAGE               HDM(15)

@@ -413,7 +413,7 @@ fire_luciferCannon
 
 =================
 */
-gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int damage )
+gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int damage, int radius )
 {
   gentity_t *bolt;
   int localDamage = (int)( ceil( ( (float)damage /
@@ -433,7 +433,7 @@ gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int da
   bolt->parent = self;
   bolt->damage = localDamage;
   bolt->splashDamage = localDamage / 2;
-  bolt->splashRadius = localDamage;
+  bolt->splashRadius = radius;
   bolt->methodOfDeath = MOD_LCANNON;
   bolt->splashMethodOfDeath = MOD_LCANNON_SPLASH;
   bolt->clipmask = MASK_SHOT;

@@ -1199,7 +1199,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   vec3_t              classMins, classMaxs, up = { 0.0f, 0.0f, 1.0f };
   int                 ammo, clips, maxClips;
   weapon_t            weapon;
-  float               hModifier;
       
 
   index = ent - g_entities;
@@ -1320,19 +1319,9 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   
   BG_FindBBoxForClass( ent->client->pers.classSelection, ent->r.mins, ent->r.maxs, NULL, NULL, NULL );
 
-  hModifier = 1.0f;
-  
-  if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-  {
-    if( g_humanStage.integer == S2 )
-      hModifier = ALIENSTAGE2_HLTH_MODIFIER;
-    else if( g_humanStage.integer == S2 )
-      hModifier = ALIENSTAGE3_HLTH_MODIFIER;
-  }
-  
   if( client->sess.sessionTeam != TEAM_SPECTATOR )
     client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] =
-      (int)( (float)BG_FindHealthForClass( ent->client->pers.classSelection ) * hModifier );
+      BG_FindHealthForClass( ent->client->pers.classSelection );
   else
     client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] = 100;
 
@@ -1375,23 +1364,27 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   if( client->sess.sessionTeam != TEAM_SPECTATOR &&
       client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
-    if( ent != spawn && spawnPoint->s.origin2[ 2 ] > 0.0f )
-    {
-      vec3_t  forward, dir;
-      
-      AngleVectors( spawn_angles, forward, NULL, NULL );
-      VectorScale( forward, F_VEL, forward );
-      VectorAdd( spawnPoint->s.origin2, forward, dir );
-      VectorNormalize( dir );
-
-      VectorScale( dir, UP_VEL, client->ps.velocity );
-      
-      G_AddPredictableEvent( ent, EV_PLAYER_RESPAWN, 0 );
-    }
-    else
+    if( ent == spawn )
     {
       //evolution particle system
       G_AddPredictableEvent( ent, EV_ALIEN_EVOLVE, DirToByte( up ) );
+    }
+    else
+    {
+      if( spawnPoint->s.origin2[ 2 ] > 0.0f )
+      {
+        vec3_t  forward, dir;
+        
+        AngleVectors( spawn_angles, forward, NULL, NULL );
+        VectorScale( forward, F_VEL, forward );
+        VectorAdd( spawnPoint->s.origin2, forward, dir );
+        VectorNormalize( dir );
+
+        VectorScale( dir, UP_VEL, client->ps.velocity );
+        
+      }
+      
+      G_AddPredictableEvent( ent, EV_PLAYER_RESPAWN, 0 );
     }
   }
 

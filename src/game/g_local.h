@@ -658,7 +658,7 @@ void      G_RunMissile( gentity_t *ent );
 gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t aimdir );
 gentity_t *fire_blaster( gentity_t *self, vec3_t start, vec3_t dir );
 gentity_t *fire_pulseRifle( gentity_t *self, vec3_t start, vec3_t dir );
-gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int damage );
+gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int damage, int radius );
 gentity_t *fire_lockblob( gentity_t *self, vec3_t start, vec3_t dir );
 gentity_t *fire_paraLockBlob( gentity_t *self, vec3_t start, vec3_t dir );
 gentity_t *fire_slowBlob( gentity_t *self, vec3_t start, vec3_t dir );
