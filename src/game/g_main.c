@@ -426,11 +426,11 @@ the client does not have trap_FS_GetFileList
 static void G_GenerateParticleFileList( void )
 {
   int   i, numFiles, fileLen;
-  char  fileList[ MAX_PARTICLE_FILES ];
+  char  fileList[ MAX_PARTICLE_FILES * MAX_QPATH ];
   char  fileName[ MAX_QPATH ];
   char  *filePtr;
 
-  numFiles = trap_FS_GetFileList( "scripts", ".particle", fileList, 1024 );
+  numFiles = trap_FS_GetFileList( "scripts", ".particle", fileList, MAX_PARTICLE_FILES * MAX_QPATH );
   filePtr = fileList;
   
   for( i = 0; i < numFiles; i++, filePtr += fileLen + 1 )
