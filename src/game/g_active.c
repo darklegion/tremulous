@@ -566,6 +566,10 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
       FireWeapon( ent );
       break;
 
+    case EV_FIRE_WEAPON2:
+      FireWeapon2( ent );
+      break;
+
     case EV_USE_ITEM1:    // teleporter
       // drop flags in CTF
       item = NULL;

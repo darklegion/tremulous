@@ -668,6 +668,7 @@ qboolean G_FilterPacket (char *from);
 // g_weapon.c
 //
 void FireWeapon( gentity_t *ent );
+void FireWeapon2( gentity_t *ent );
 
 //
 // p_hud.c

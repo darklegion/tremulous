@@ -1654,24 +1654,27 @@ static void PM_GroundTrace( void ) {
   trace_t     trace;
   float       srotAngle;
 
-  if( pm->cmd.upmove < 0 && wcl[ pm->ps->clientNum ].lastUpmove >= 0 )
+  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) )
   {
-    if( !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) && pm->cmd.upmove < 0 )
-      pm->ps->stats[ STAT_STATE ] |= SS_WALLCLIMBING;
-    else if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING && pm->cmd.upmove < 0 )
+    //toggle wall climbing if holding crouch
+    if( pm->cmd.upmove < 0 && wcl[ pm->ps->clientNum ].lastUpmove >= 0 )
+    {
+      if( !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) && pm->cmd.upmove < 0 )
+        pm->ps->stats[ STAT_STATE ] |= SS_WALLCLIMBING;
+      else if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING && pm->cmd.upmove < 0 )
+        pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
+    }
+
+    if( pm->ps->pm_type == PM_DEAD )
       pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
-  }
 
-  if( pm->ps->pm_type == PM_DEAD )
-    pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
+    wcl[ pm->ps->clientNum ].lastUpmove = pm->cmd.upmove;
 
-  wcl[ pm->ps->clientNum ].lastUpmove = pm->cmd.upmove;
-
-  //if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) && ( pm->cmd.upmove < 0 ) )
-  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) && ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
-  {
-    PM_GroundClimbTrace( );
-    return;
+    if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
+    {
+      PM_GroundClimbTrace( );
+      return;
+    }
   }
 
   pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
@@ -2238,12 +2241,11 @@ static void PM_Weapon( void ) {
   //done reloading so give em some ammo
   if( pm->ps->weaponstate == WEAPON_RELOADING )
   {
-    
     switch( pm->ps->weapon )
     {
       case WP_MACHINEGUN:
         clips--;
-        ammo = CS_MG;
+        BG_FindAmmoForWeapon( pm->ps->weapon, &ammo, NULL, NULL );
         break;
   
       default:
@@ -2285,7 +2287,7 @@ static void PM_Weapon( void ) {
       
     default:
       // check for fire
-      if ( !( pm->cmd.buttons & BUTTON_ATTACK ) )
+      if ( !( pm->cmd.buttons & ( BUTTON_ATTACK | BUTTON_ATTACK2 ) ) )
       {
         pm->ps->weaponTime = 0;
         pm->ps->weaponstate = WEAPON_READY;
@@ -2306,7 +2308,8 @@ static void PM_Weapon( void ) {
   }
 
   // fire weapon
-  PM_AddEvent( EV_FIRE_WEAPON );
+  if( pm->cmd.buttons & BUTTON_ATTACK )   PM_AddEvent( EV_FIRE_WEAPON );
+  if( pm->cmd.buttons & BUTTON_ATTACK2 )  PM_AddEvent( EV_FIRE_WEAPON2 );
 
   switch( pm->ps->weapon ) {
   default:

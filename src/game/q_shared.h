@@ -1006,7 +1006,7 @@ typedef struct playerState_s {
                     // only generate a small move value for that frame
                     // walking will use different animations and
                     // won't generate footsteps
-#define BUTTON_AFFIRMATIVE  32
+#define BUTTON_ATTACK2  32 //TA: should be safe to change from BUTTON_AFFIRMATIVE
 #define BUTTON_NEGATIVE   64
 
 #define BUTTON_GETFLAG    128

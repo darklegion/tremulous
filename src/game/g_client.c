@@ -1405,8 +1405,12 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
     case PCL_H_BASE:
       if( client->pers.pitem == WP_MACHINEGUN )
       {
+        int ammo, clips, maxClips;
+
+        BG_FindAmmoForWeapon( WP_MACHINEGUN, &ammo, &clips, &maxClips );
+
         BG_packWeapon( WP_MACHINEGUN, client->ps.stats );
-        BG_packAmmoArray( WP_MACHINEGUN, client->ps.ammo, client->ps.powerups, CS_MG, 4, 4 );
+        BG_packAmmoArray( WP_MACHINEGUN, client->ps.ammo, client->ps.powerups, ammo, clips, maxClips );
       }
       else if( client->pers.pitem == WP_HBUILD )
       {

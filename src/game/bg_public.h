@@ -151,21 +151,6 @@ typedef enum {
   WEAPON_RELOADING
 } weaponstate_t;
 
-//TA: clip-size defines
-#define CS_MG         30   //clip-size
-#define CS_CG         500
-#define CS_BFG        100 
-#define CS_FLAMER     400
-
-//TA: bitmasks to get ammo, clips and maxclips out of ammo array
-#define BM_AMMO       0x3F
-#define BM_CLIPS      0xC0
-
-//TA: bitmasks to get weapons out of weapons store
-#define BM_SWB        0x0000FFFF
-#define BM_SW2B       0xFFFF0000
-
-
 // pmove->pm_flags
 #define PMF_DUCKED      1
 #define PMF_JUMP_HELD   2
@@ -464,6 +449,7 @@ typedef enum {
   EV_NOAMMO,
   EV_CHANGE_WEAPON,
   EV_FIRE_WEAPON,
+  EV_FIRE_WEAPON2,
 
   EV_USE_ITEM0,
   EV_USE_ITEM1,
