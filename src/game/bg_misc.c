@@ -4084,7 +4084,6 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   s->generic1 = ps->generic1;
 }
 
-
 //TA: extract the ammo quantity from the array
 void BG_unpackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int *quan, int *clips, int *maxclips )
 {

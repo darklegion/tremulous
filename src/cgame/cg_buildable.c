@@ -329,7 +329,7 @@ void CG_GhostBuildable( buildable_t buildable )
   
   VectorCopy( entity_origin, target_origin );
   VectorMA( entity_origin, 32, normal, entity_origin );
-  VectorMA( target_origin, -4096, normal, target_origin );
+  VectorMA( target_origin, -128, normal, target_origin );
 
   BG_FindBBoxForBuildable( buildable, mins, maxs );
   
@@ -338,18 +338,18 @@ void CG_GhostBuildable( buildable_t buildable )
   VectorMA( entity_origin, 0.1f, normal, entity_origin );
 
   AngleVectors( angles, forward, NULL, NULL );
-  VectorCopy( tr.plane.normal, ent.axis[2] );
-  ProjectPointOnPlane( ent.axis[0], forward, ent.axis[2] );
-  if( !VectorNormalize( ent.axis[0] ) )
+  VectorCopy( tr.plane.normal, ent.axis[ 2 ] );
+  ProjectPointOnPlane( ent.axis[ 0 ], forward, ent.axis[ 2 ] );
+  if( !VectorNormalize( ent.axis[ 0 ] ) )
   {
     AngleVectors( angles, NULL, NULL, forward );
-    ProjectPointOnPlane( ent.axis[0], forward, ent.axis[2] );
-    VectorNormalize( ent.axis[0] );
+    ProjectPointOnPlane( ent.axis[ 0 ], forward, ent.axis[ 2 ] );
+    VectorNormalize( ent.axis[ 0 ] );
   }
-  CrossProduct( ent.axis[0], ent.axis[2], ent.axis[1] );
-  ent.axis[1][0] = -ent.axis[1][0];
-  ent.axis[1][1] = -ent.axis[1][1];
-  ent.axis[1][2] = -ent.axis[1][2];
+  CrossProduct( ent.axis[ 0 ], ent.axis[ 2 ], ent.axis[ 1 ] );
+  ent.axis[ 1 ][ 0 ] = -ent.axis[ 1 ][ 0 ];
+  ent.axis[ 1 ][ 1 ] = -ent.axis[ 1 ][ 1 ];
+  ent.axis[ 1 ][ 2 ] = -ent.axis[ 1 ][ 2 ];
 
   VectorMA( entity_origin, -TRACE_DEPTH, tr.plane.normal, end );
   VectorMA( entity_origin, 1.0f, tr.plane.normal, start );
@@ -411,18 +411,18 @@ void CG_Buildable( centity_t *cent )
   if( surfNormal[ 2 ] != 1.0f )
   {
     AngleVectors( angles, forward, NULL, NULL );
-    VectorCopy( surfNormal, ent.axis[2] );
-    ProjectPointOnPlane( ent.axis[0], forward, ent.axis[2] );
-    if( !VectorNormalize( ent.axis[0] ) )
+    VectorCopy( surfNormal, ent.axis[ 2 ] );
+    ProjectPointOnPlane( ent.axis[ 0 ], forward, ent.axis[ 2 ] );
+    if( !VectorNormalize( ent.axis[ 0 ] ) )
     {
       AngleVectors( angles, NULL, NULL, forward );
-      ProjectPointOnPlane( ent.axis[0], forward, ent.axis[2] );
-      VectorNormalize( ent.axis[0] );
+      ProjectPointOnPlane( ent.axis[ 0 ], forward, ent.axis[ 2 ] );
+      VectorNormalize( ent.axis[ 0 ] );
     }
-    CrossProduct( ent.axis[0], ent.axis[2], ent.axis[1] );
-    ent.axis[1][0] = -ent.axis[1][0];
-    ent.axis[1][1] = -ent.axis[1][1];
-    ent.axis[1][2] = -ent.axis[1][2];
+    CrossProduct( ent.axis[ 0 ], ent.axis[ 2 ], ent.axis[ 1 ] );
+    ent.axis[ 1 ][ 0 ] = -ent.axis[ 1 ][ 0 ];
+    ent.axis[ 1 ][ 1 ] = -ent.axis[ 1 ][ 1 ];
+    ent.axis[ 1 ][ 2 ] = -ent.axis[ 1 ][ 2 ];
 
     VectorMA( ent.origin, -TRACE_DEPTH, surfNormal, end );
     VectorMA( ent.origin, 1.0f, surfNormal, start );

@@ -383,6 +383,7 @@ void DSpawn_Think( gentity_t *self )
     
     if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
     {
+      G_Printf( "suiciding %d\n", ent->s.number == ENTITYNUM_WORLD );
       G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
       return;
     }
@@ -1506,7 +1507,7 @@ Checks to see if an item fits in a specific area
 itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin )
 {
   vec3_t            forward, angles;
-  vec3_t            player_origin, entity_origin, target_origin;
+  vec3_t            player_origin, entity_origin, target_origin, normal, cross;
   vec3_t            mins, maxs;
   vec3_t            temp_v;
   trace_t           tr1, tr2, tr3;
@@ -1516,22 +1517,37 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   int               minDistance = 10000;
   int               templength;
 
+  if( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING )
+  {
+    if( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
+      VectorSet( normal, 0.0f, 0.0f, -1.0f );
+    else
+      VectorCopy( ent->client->ps.grapplePoint, normal );
+  }
+  else
+    VectorSet( normal, 0.0f, 0.0f, 1.0f );
+  
+  //FIXME: must sync with cg_buildable.c/CG_GhostBuildable ick.
   VectorCopy( ent->s.apos.trBase, angles );
-  angles[PITCH] = 0;  // always forward
 
   AngleVectors( angles, forward, NULL, NULL );
+  CrossProduct( forward, normal, cross );
+  VectorNormalize( cross );
+  CrossProduct( normal, cross, forward );
+  VectorNormalize( forward );
+  
   VectorCopy( ent->s.pos.trBase, player_origin );
   VectorMA( player_origin, distance, forward, entity_origin );
 
   VectorCopy( entity_origin, target_origin );
-  entity_origin[ 2 ] += 32;
-  target_origin[ 2 ] -= 4096;
+  VectorMA( entity_origin, 32, normal, entity_origin );
+  VectorMA( target_origin, -128, normal, target_origin );
 
   BG_FindBBoxForBuildable( buildable, mins, maxs );
   
   trap_Trace( &tr1, entity_origin, mins, maxs, target_origin, ent->s.number, MASK_PLAYERSOLID );
   VectorCopy( tr1.endpos, entity_origin );
-  entity_origin[ 2 ] += 0.1f;
+  VectorMA( entity_origin, 0.1f, normal, entity_origin );
 
   trap_Trace( &tr2, entity_origin, mins, maxs, entity_origin, ent->s.number, MASK_PLAYERSOLID );
   trap_Trace( &tr3, player_origin, NULL, NULL, entity_origin, ent->s.number, MASK_PLAYERSOLID );
@@ -1679,6 +1695,7 @@ Spawns a buildable
 gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin, vec3_t angles )
 {
   gentity_t *built;
+  vec3_t    normal;
 
   //spawn the buildable
   built = G_Spawn();
@@ -1818,7 +1835,20 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   built->s.groundEntityNum = -1;
   built->s.pos.trTime = level.time;
   
-  VectorSet( built->s.origin2, 0.0f, 0.0f, 1.0f );
+  if( builder->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING )
+  {
+    if( builder->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
+      VectorSet( normal, 0.0f, 0.0f, -1.0f );
+    else
+      VectorCopy( builder->client->ps.grapplePoint, normal );
+  }
+  else
+    VectorSet( normal, 0.0f, 0.0f, 1.0f );
+
+  VectorMA( origin, -10.0f, normal, built->s.pos.trBase );
+  
+  VectorCopy( normal, built->s.origin2 );
+  /*VectorSet( built->s.origin2, 0.0f, 0.0f, 1.0f );*/
   
   G_AddEvent( built, EV_BUILD_CONSTRUCT, BANIM_CONSTRUCT1 );
 
