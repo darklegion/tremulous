@@ -708,107 +708,37 @@ static void CG_SetDeferredClientInfo( clientInfo_t *ci )
 CG_PrecacheClientInfo
 ======================
 */
-void CG_PrecacheClientInfo( int clientNum )
+void CG_PrecacheClientInfo( int clientNum, char *model, char *skin, char *headModel, char *headSkin )
 {
   clientInfo_t  *ci;
   clientInfo_t  newInfo;
-  const char    *configstring;
   const char    *v;
   char          *slash;
 
   ci = &cgs.corpseinfo[ clientNum ];
 
-  //CG_Printf( "%d %d\n", clientNum, (clientNum - MAX_CLIENTS ) );
-
-  configstring = CG_ConfigString( clientNum + CS_PRECACHES );
-  if( !configstring[ 0 ] )
-    return;   // player just left
-
-  // build into a temp buffer so the defer checks can use
   // the old value
   memset( &newInfo, 0, sizeof( newInfo ) );
 
-  // isolate the player's name
-  v = Info_ValueForKey( configstring, "n" );
-  Q_strncpyz( newInfo.name, v, sizeof( newInfo.name ) );
-
-  // colors
-  v = Info_ValueForKey( configstring, "c1" );
-  CG_ColorFromString( v, newInfo.color1 );
-
-  v = Info_ValueForKey( configstring, "c2" );
-  CG_ColorFromString( v, newInfo.color2 );
-
-  // bot skill
-  v = Info_ValueForKey( configstring, "skill" );
-  newInfo.botSkill = atoi( v );
-
-  // handicap
-  v = Info_ValueForKey( configstring, "hc" );
-  newInfo.handicap = atoi( v );
-
-  // wins
-  v = Info_ValueForKey( configstring, "w" );
-  newInfo.wins = atoi( v );
-
-  // losses
-  v = Info_ValueForKey( configstring, "l" );
-  newInfo.losses = atoi( v );
-
-  // team
-  v = Info_ValueForKey( configstring, "t" );
-  newInfo.team = atoi( v );
-
-  // team task
-  v = Info_ValueForKey( configstring, "tt" );
-  newInfo.teamTask = atoi( v );
-
-  // team leader
-  v = Info_ValueForKey( configstring, "tl" );
-  newInfo.teamLeader = atoi( v );
-
-  v = Info_ValueForKey( configstring, "g_redteam" );
-  Q_strncpyz( newInfo.redTeam, v, MAX_TEAMNAME );
-
-  v = Info_ValueForKey( configstring, "g_blueteam" );
-  Q_strncpyz( newInfo.blueTeam, v, MAX_TEAMNAME );
-                    
   // model
-  v = Info_ValueForKey( configstring, "model" );
-  Q_strncpyz( newInfo.modelName, v, sizeof( newInfo.modelName ) );
+  Q_strncpyz( newInfo.modelName, model, sizeof( newInfo.modelName ) );
 
-  slash = strchr( newInfo.modelName, '/' );
-  if( !slash )
-  {
-    // modelName didn not include a skin name
+  // modelName didn not include a skin name
+  if( !skin )
     Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
-  }
   else
-  {
-    Q_strncpyz( newInfo.skinName, slash + 1, sizeof( newInfo.skinName ) );
-    // truncate modelName
-    *slash = 0;
-  }
+    Q_strncpyz( newInfo.skinName, skin, sizeof( newInfo.skinName ) );
 
   //CG_Printf( "PCI: %s\n", v );
 
   // head model
-  v = Info_ValueForKey( configstring, "hmodel" );
-  Q_strncpyz( newInfo.headModelName, v, sizeof( newInfo.headModelName ) );
+  Q_strncpyz( newInfo.headModelName, headModel, sizeof( newInfo.headModelName ) );
 
-  slash = strchr( newInfo.headModelName, '/' );
-  
-  if( !slash )
-  {
-    // modelName didn not include a skin name
+  // modelName didn not include a skin name
+  if( !headSkin )
     Q_strncpyz( newInfo.headSkinName, "default", sizeof( newInfo.headSkinName ) );
-  }
   else
-  {
-    Q_strncpyz( newInfo.headSkinName, slash + 1, sizeof( newInfo.headSkinName ) );
-    // truncate modelName
-    *slash = 0;
-  }
+    Q_strncpyz( newInfo.headSkinName, headSkin, sizeof( newInfo.headSkinName ) );
 
   newInfo.deferred = qfalse;
   newInfo.infoValid = qtrue;
@@ -1999,6 +1929,7 @@ void CG_Player( centity_t *cent )
   float         scale;
   vec3_t        tempAxis[ 3 ], tempAxis2[ 3 ];
   vec3_t        angles;
+  int           held = es->modelindex;
 
   // the client number is stored in clientNum.  It can't be derived
   // from the entity number, because a single client may have
@@ -2081,8 +2012,20 @@ void CG_Player( centity_t *cent )
   //
   if( !ci->nonsegmented )
   {
-    legs.hModel = ci->legsModel;
-    legs.customSkin = ci->legsSkin;
+    if( held & ( 1 << UP_BATTLESUIT ) )
+    {
+      legs.hModel = cgs.amedia.bsuitLegsModel;
+      legs.customSkin = cgs.amedia.bsuitLegsSkin;
+    }
+    else
+    {
+      legs.hModel = ci->legsModel;
+
+      if( held & ( 1 << UP_LIMBARMOUR ) )
+        legs.customSkin = cgs.amedia.larmourLegsSkin;
+      else
+        legs.customSkin = ci->legsSkin;
+    }
   }
   else
   {
@@ -2142,11 +2085,27 @@ void CG_Player( centity_t *cent )
     //
     // add the torso
     //
-    torso.hModel = ci->torsoModel;
+    if( held & ( 1 << UP_BATTLESUIT ) )
+    {
+      torso.hModel = cgs.amedia.bsuitTorsoModel;
+      torso.customSkin = cgs.amedia.bsuitTorsoSkin;
+    }
+    else
+    {
+      torso.hModel = ci->torsoModel;
+
+      if( ( held & ( 1 << UP_LIMBARMOUR ) ) && ( held & ( 1 << UP_CHESTARMOUR ) ) )
+        torso.customSkin = cgs.amedia.clarmourTorsoSkin;
+      if( held & ( 1 << UP_CHESTARMOUR ) )
+        torso.customSkin = cgs.amedia.carmourTorsoSkin;
+      if( held & ( 1 << UP_LIMBARMOUR ) )
+        torso.customSkin = cgs.amedia.larmourLegsSkin;
+      else
+        torso.customSkin = ci->torsoSkin;
+    }
+    
     if( !torso.hModel )
       return;
-
-    torso.customSkin = ci->torsoSkin;
 
     VectorCopy( cent->lerpOrigin, torso.lightingOrigin );
 
@@ -2160,11 +2119,19 @@ void CG_Player( centity_t *cent )
     //
     // add the head
     //
-    head.hModel = ci->headModel;
+    if( held & ( 1 << UP_HELMET ) )
+    {
+      head.hModel = cgs.amedia.helmetModel;
+      head.customSkin = cgs.amedia.helmetSkin;
+    }
+    else
+    {
+      head.hModel = ci->headModel;
+      head.customSkin = ci->headSkin;
+    }
+    
     if( !head.hModel )
       return;
-
-    head.customSkin = ci->headSkin;
 
     VectorCopy( cent->lerpOrigin, head.lightingOrigin );
 

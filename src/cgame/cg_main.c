@@ -870,6 +870,8 @@ CG_RegisterClients
 */
 static void CG_RegisterClients( void )
 {
+  char  buffer[ MAX_INFO_STRING ];
+  char  *s;
   int   i;
 
   cg.charModelFraction = 0.0f;
@@ -877,18 +879,32 @@ static void CG_RegisterClients( void )
   //precache all the models/sounds/etc
   for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES;  i++ )
   {
-    const char  *clientInfo;
-
-    clientInfo = CG_ConfigString( CS_PRECACHES + i );
-    if( !clientInfo[0] )
-      continue;
+    CG_PrecacheClientInfo( i, BG_FindModelNameForClass( i ),
+                              BG_FindSkinNameForClass( i ),
+                              BG_FindModelNameForClass( i ),
+                              BG_FindSkinNameForClass( i ) );
     
-    CG_PrecacheClientInfo( i );
-
-    cg.charModelFraction = (float)i / (float)( PCL_NUM_CLASSES - 1 );
+    cg.charModelFraction = (float)i / (float)PCL_NUM_CLASSES;
     trap_UpdateScreen( );
   }
 
+  cgs.amedia.bsuitLegsModel     = trap_R_RegisterModel( "models/players/tankjr/lower.md3" );
+  cgs.amedia.bsuitTorsoModel    = trap_R_RegisterModel( "models/players/tankjr/upper.md3" );
+  cgs.amedia.bsuitLegsSkin      = trap_R_RegisterShader( "models/players/tankjr/lower_default.skin" );
+  cgs.amedia.bsuitTorsoSkin     = trap_R_RegisterShader( "models/players/tankjr/upper_default.skin" );
+
+  cgs.amedia.helmetModel        = trap_R_RegisterModel( "models/players/doom/head.md3" );
+  cgs.amedia.helmetSkin         = trap_R_RegisterShader( "models/players/doom/head_default.skin" );
+
+  cgs.amedia.larmourLegsSkin    = trap_R_RegisterShader( "models/players/sarge/lower_red.skin" );
+  
+  cgs.amedia.carmourTorsoSkin   = trap_R_RegisterShader( "models/players/sarge/upper_krusade.skin" );
+  cgs.amedia.clarmourTorsoSkin  = trap_R_RegisterShader( "models/players/sarge/upper_roderic.skin" );
+  cgs.amedia.larmourTorsoSkin   = trap_R_RegisterShader( "models/players/sarge/upper_blue.skin" );
+  
+  cg.charModelFraction = 1.0f;
+  trap_UpdateScreen( );
+  
   //load all the clientinfos of clients already connected to the server
   for( i = 0; i < MAX_CLIENTS; i++ )
   {

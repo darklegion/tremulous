@@ -751,6 +751,7 @@ typedef struct
   int           numConsoleLines;
   qboolean      consoleValid;
 
+  qboolean      nearbyCorpse;
 } cg_t;
 
 
@@ -931,6 +932,24 @@ typedef struct
 } cgMedia_t;
 
 
+//TA: media used for armour switching stuff
+typedef struct
+{
+  qhandle_t bsuitLegsModel;
+  qhandle_t bsuitTorsoModel;
+  qhandle_t bsuitLegsSkin;
+  qhandle_t bsuitTorsoSkin;
+
+  qhandle_t helmetModel;
+  qhandle_t helmetSkin;
+
+  qhandle_t larmourLegsSkin;
+  
+  qhandle_t carmourTorsoSkin;
+  qhandle_t clarmourTorsoSkin;
+  qhandle_t larmourTorsoSkin;
+} cgArmourMedia_t;
+
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
 // be cleared when a tournement restart is done, allowing
@@ -1013,7 +1032,8 @@ typedef struct
   qhandle_t     activeCursor;
 
   // media
-  cgMedia_t     media;
+  cgMedia_t           media;
+  cgArmourMedia_t     amedia;
 } cgs_t;
 
 //==============================================================================
@@ -1239,7 +1259,7 @@ void        CG_Corpse( centity_t *cent );
 void        CG_ResetPlayerEntity( centity_t *cent );
 void        CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, int team );
 void        CG_NewClientInfo( int clientNum );
-void        CG_PrecacheClientInfo( int clientNum );
+void        CG_PrecacheClientInfo( int clientNum, char *model, char *skin, char *headModel, char *headSkin );
 sfxHandle_t CG_CustomSound( int clientNum, const char *soundName );
 
 //

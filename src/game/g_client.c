@@ -707,7 +707,7 @@ void SpawnCorpse( gentity_t *ent )
   body->timestamp = level.time;
   body->s.event = 0;
   body->r.contents = CONTENTS_CORPSE;
-  body->clipmask = CONTENTS_SOLID | CONTENTS_PLAYERCLIP;
+  body->clipmask = MASK_DEADSOLID;
   body->s.clientNum = ent->client->ps.stats[ STAT_PCLASS ];
   body->nonSegModel = ent->client->ps.persistant[ PERS_STATE ] & PS_NONSEGMODEL;
   

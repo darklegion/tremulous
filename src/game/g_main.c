@@ -325,31 +325,6 @@ void G_FindTeams( void )
   G_Printf( "%i teams with %i entities\n", c, c2 );
 }
 
-/*
-=================
-G_RegisterPlayerModels
-=================
-*/
-void G_RegisterPlayerModels( void )
-{
-  char  buffer[ MAX_INFO_STRING ];
-  char  *s;
-  int   i;
-
-  for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ ) 
-  {
-    Com_sprintf( buffer, MAX_INFO_STRING, "%s/%s",
-                 BG_FindModelNameForClass( i ), BG_FindSkinNameForClass( i ) );
-    s = va( "n\\%s%d\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\"
-            "g_blueteam\\%s\\c1\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-            "precache", i, 0, buffer, buffer, 0, 0, "7", 100, 0, 0, 0, 0);
-
-    trap_SetConfigstring( CS_PRECACHES + i, s );
-  }
-        
-}
-
-
 void G_RemapTeamShaders( )
 {
 }
@@ -501,7 +476,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   G_FindTeams( );
 
   //TA:
-  G_RegisterPlayerModels( );
   G_InitDamageLocations( );
 
   G_Printf( "-----------------------------------\n" );

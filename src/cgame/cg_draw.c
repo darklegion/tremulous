@@ -928,7 +928,8 @@ static void CG_DrawUsableBuildable( rectDef_t *rect, qhandle_t shader, vec4_t co
 
   es = &cg_entities[ trace.entityNum ].currentState;
 
-  if( es->eType == ET_BUILDABLE && BG_FindUsableForBuildable( es->modelindex ) )
+  if( ( es->eType == ET_BUILDABLE && BG_FindUsableForBuildable( es->modelindex ) ) ||
+      cg.nearbyCorpse )
   {
     trap_R_SetColor( color );
     CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
