@@ -1143,21 +1143,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       VectorCopy ( targ->r.currentOrigin, client->damage_from );
       client->damage_fromWorld = qtrue;
     }
-  }
 
-  // See if it's the player hurting the emeny flag carrier
-  if( g_gametype.integer == GT_CTF)
-    Team_CheckHurtCarrier(targ, attacker);
-
-  if( targ->client )
-  {
     // set the last client who damaged the target
     targ->client->lasthurt_client = attacker->s.number;
     targ->client->lasthurt_mod = mod;
     take = (int)( (float)take * G_CalcDamageModifier( point, targ, attacker, client->ps.stats[ STAT_PCLASS ] ) );
 
     //if boosted poison every attack
-    if( client && client->ps.stats[ STAT_STATE ] & SS_BOOSTED )
+    if( attacker->client && attacker->client->ps.stats[ STAT_STATE ] & SS_BOOSTED )
     {
       if( !( targ->client->ps.stats[ STAT_STATE ] & SS_POISONED ) )
       {
