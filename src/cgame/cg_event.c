@@ -306,12 +306,12 @@ void CG_Menu( int eventParm )
   *carriageCvar = 0;
   
   //determine what the player is carrying
-  for( i = WP_NONE +1; i < WP_NUM_WEAPONS; i++ )
+  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
     if( BG_gotWeapon( i, cg.snap->ps.stats ) )
       strcat( carriageCvar, va( "W%d ", i ) );
   }
-  for( i = UP_NONE +1; i < UP_NUM_UPGRADES; i++ )
+  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
     if( BG_gotItem( i, cg.snap->ps.stats ) )
       strcat( carriageCvar, va( "U%d ", i ) );
@@ -329,7 +329,7 @@ void CG_Menu( int eventParm )
     case MN_H_SPAWN:    trap_SendConsoleCommand( "menu tremulous_humanitem\n" );                  break;
     case MN_A_BUILD:    trap_SendConsoleCommand( "menu tremulous_alienbuild\n" );                 break;
     case MN_H_BUILD:    trap_SendConsoleCommand( "menu tremulous_humanbuild\n" );                 break;
-    case MN_H_MCU:      trap_SendConsoleCommand( "menu tremulous_humanmcu\n" );                   break;
+    case MN_H_ARMOURY:  trap_SendConsoleCommand( "menu tremulous_humanarmoury\n" );               break;
     case MN_H_BANK:     trap_SendConsoleCommand( "menu tremulous_humanbank\n" );                  break;
     case MN_A_OBANK:    trap_SendConsoleCommand( "menu tremulous_alienbank\n" );                  break;
                         
@@ -701,18 +701,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     case EV_WATER_CLEAR:
       DEBUGNAME( "EV_WATER_CLEAR" );
       trap_S_StartSound( NULL, es->number, CHAN_AUTO, CG_CustomSound( es->number, "*gasp.wav" ) );
-      break;
-
-    case EV_ITEM_PICKUP:
-      DEBUGNAME( "EV_ITEM_PICKUP" );
-      {
-      }
-      break;
-
-    case EV_GLOBAL_ITEM_PICKUP:
-      DEBUGNAME( "EV_GLOBAL_ITEM_PICKUP" );
-      {
-      }
       break;
 
     //

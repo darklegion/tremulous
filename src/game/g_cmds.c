@@ -16,8 +16,6 @@
  
 #include "g_local.h"
 
-//#include "../../ui/menudef.h"     // for the voice chats
-
 /*
 ==================
 ScoreboardMessage
@@ -1008,7 +1006,7 @@ void Cmd_Class_f( gentity_t *ent )
 
           if( ent->client->pers.pclass == PCL_NONE )
           {
-            trap_SendServerCommand( ent-g_entities, va("print \"Unknown class\n\"" ) );
+            trap_SendServerCommand( ent-g_entities, va( "print \"Unknown class\n\"" ) );
             return;
           }
           
@@ -1049,7 +1047,7 @@ void Cmd_Class_f( gentity_t *ent )
           else
           {
             ent->client->pers.pclass = PCL_NONE;
-            trap_SendServerCommand( ent-g_entities, va("print \"You cannot evolve from your current class\n\"" ) );
+            trap_SendServerCommand( ent-g_entities, va( "print \"You cannot evolve from your current class\n\"" ) );
             return;
           }
         }
@@ -1075,11 +1073,11 @@ void Cmd_Class_f( gentity_t *ent )
         }
 
         ent->client->pers.pclass = PCL_NONE;
-        trap_SendServerCommand( ent-g_entities, va("print \"You cannot spawn as this class\n\"" ) );
+        trap_SendServerCommand( ent-g_entities, va( "print \"You cannot spawn as this class\n\"" ) );
       }
       else
       {
-        trap_SendServerCommand( ent-g_entities, va("print \"Unknown class\n\"" ) );
+        trap_SendServerCommand( ent-g_entities, va( "print \"Unknown class\n\"" ) );
         return;
       }
     }
@@ -1089,7 +1087,7 @@ void Cmd_Class_f( gentity_t *ent )
     //humans cannot use this command whilst alive
     if( ent->client->ps.stats[ STAT_PCLASS ] != PCL_NONE )
     {
-      trap_SendServerCommand( ent-g_entities, va("print \"You must be dead to use the class command\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You must be dead to use the class command\n\"" ) );
       return;
     }
 
@@ -1103,7 +1101,7 @@ void Cmd_Class_f( gentity_t *ent )
     else
     {
       ent->client->pers.pclass = PCL_NONE;
-      trap_SendServerCommand( ent-g_entities, va("print \"Unknown starting item\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"Unknown starting item\n\"" ) );
       return;
     }
 
@@ -1117,7 +1115,7 @@ void Cmd_Class_f( gentity_t *ent )
     ent->client->pers.pclass = PCL_NONE;
     ent->client->sess.sessionTeam = TEAM_FREE;
     ClientSpawn( ent, NULL );
-    trap_SendServerCommand( ent-g_entities, va("print \"Join a team first\n\"" ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"Join a team first\n\"" ) );
   }
 }
 
@@ -1255,8 +1253,8 @@ void Cmd_Buy_f( gentity_t *ent )
   char      s[ MAX_TOKEN_CHARS ];
   vec3_t    distance;
   int       i;
-  gentity_t *mcuEntity;
-  qboolean  nearMCU = qfalse;
+  gentity_t *armouryEntity;
+  qboolean  nearArmoury = qfalse;
   int       weapon, upgrade, numItems = 0;
   int       quan, clips, maxClips;
 
@@ -1278,23 +1276,23 @@ void Cmd_Buy_f( gentity_t *ent )
   if( ent->client->pers.pteam != PTE_HUMANS )
     return;
 
-  for ( i = 1, mcuEntity = g_entities + i; i < level.num_entities; i++, mcuEntity++ )
+  for ( i = 1, armouryEntity = g_entities + i; i < level.num_entities; i++, armouryEntity++ )
   {
-    if( mcuEntity->s.eType != ET_BUILDABLE )
+    if( armouryEntity->s.eType != ET_BUILDABLE )
       continue;
       
-    if( mcuEntity->s.modelindex == BA_H_MCU )
+    if( armouryEntity->s.modelindex == BA_H_ARMOURY )
     {
-      VectorSubtract( ent->s.pos.trBase, mcuEntity->s.origin, distance );
+      VectorSubtract( ent->s.pos.trBase, armouryEntity->s.origin, distance );
       if( VectorLength( distance ) <= 100 )
-        nearMCU = qtrue;
+        nearArmoury = qtrue;
     }
   }
 
-  //no MCU nearby
-  if( !nearMCU )
+  //no armoury nearby
+  if( !nearArmoury )
   {
-    trap_SendServerCommand( ent-g_entities, va("print \"You must be near an MCU\n\"" ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"You must be near an armoury\n\"" ) );
     return;
   }
 
@@ -1327,21 +1325,21 @@ void Cmd_Buy_f( gentity_t *ent )
     if( BG_FindTeamForWeapon( weapon ) != WUT_HUMANS )
     {
       //shouldn't need a fancy dialog
-      trap_SendServerCommand( ent-g_entities, va("print \"You can't buy alien items\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You can't buy alien items\n\"" ) );
       return;
     }
     
     //are we /allowed/ to buy this?
     if( !BG_FindPurchasableForWeapon( weapon ) )
     {
-      trap_SendServerCommand( ent-g_entities, va("print \"You can't buy this item\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
       return;
     }
     
     //are we /allowed/ to buy this?
     if( !BG_FindStagesForWeapon( weapon, g_humanStage.integer ) )
     {
-      trap_SendServerCommand( ent-g_entities, va("print \"You can't buy this item\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
       return;
     }
     
@@ -1392,14 +1390,14 @@ void Cmd_Buy_f( gentity_t *ent )
     if( BG_FindTeamForUpgrade( upgrade ) != WUT_HUMANS )
     {
       //shouldn't need a fancy dialog
-      trap_SendServerCommand( ent-g_entities, va("print \"You can't buy alien items\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You can't buy alien items\n\"" ) );
       return;
     }
     
     //are we /allowed/ to buy this?
     if( !BG_FindStagesForUpgrade( upgrade, g_humanStage.integer ) )
     {
-      trap_SendServerCommand( ent-g_entities, va("print \"You can't buy this item\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
       return;
     }
     
@@ -1444,7 +1442,7 @@ void Cmd_Buy_f( gentity_t *ent )
   }
   else
   {
-    trap_SendServerCommand( ent-g_entities, va("print \"Unknown item\n\"" ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"Unknown item\n\"" ) );
   }
   
   //if the buyer previously had no items at all, force a new selection
@@ -1463,8 +1461,8 @@ void Cmd_Sell_f( gentity_t *ent )
   char      s[ MAX_TOKEN_CHARS ];
   vec3_t    distance;
   int       i;
-  gentity_t *mcuEntity;
-  qboolean  nearMCU = qfalse;
+  gentity_t *armouryEntity;
+  qboolean  nearArmoury = qfalse;
   int       weapon, upgrade;
   int       quan, clips, maxClips;
 
@@ -1474,23 +1472,23 @@ void Cmd_Sell_f( gentity_t *ent )
   if( ent->client->pers.pteam != PTE_HUMANS )
     return;
     
-  for ( i = 1, mcuEntity = g_entities + i; i < level.num_entities; i++, mcuEntity++ )
+  for ( i = 1, armouryEntity = g_entities + i; i < level.num_entities; i++, armouryEntity++ )
   {
-    if( mcuEntity->s.eType != ET_BUILDABLE )
+    if( armouryEntity->s.eType != ET_BUILDABLE )
       continue;
       
-    if( mcuEntity->s.modelindex == BA_H_MCU )
+    if( armouryEntity->s.modelindex == BA_H_ARMOURY )
     {
-      VectorSubtract( ent->s.pos.trBase, mcuEntity->s.origin, distance );
+      VectorSubtract( ent->s.pos.trBase, armouryEntity->s.origin, distance );
       if( VectorLength( distance ) <= 100 )
-        nearMCU = qtrue;
+        nearArmoury = qtrue;
     }
   }
 
-  //no MCU nearby
-  if( !nearMCU )
+  //no armoury nearby
+  if( !nearArmoury )
   {
-    trap_SendServerCommand( ent-g_entities, va("print \"You must be near an MCU\n\"" ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"You must be near an armoury\n\"" ) );
     return;
   }
 
@@ -1528,9 +1526,7 @@ void Cmd_Sell_f( gentity_t *ent )
       G_AddEvent( ent, EV_NEXT_WEAPON, 0 );
   }
   else
-  {
-    trap_SendServerCommand( ent-g_entities, va("print \"Unknown item\n\"" ) );
-  }
+    trap_SendServerCommand( ent-g_entities, va( "print \"Unknown item\n\"" ) );
 }
 
 /*
@@ -1572,7 +1568,7 @@ void Cmd_Deposit_f( gentity_t *ent )
     //no Bank nearby
     if( !nearBank )
     {
-      trap_SendServerCommand( ent-g_entities, va("print \"You must be near an Bank\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You must be near an Bank\n\"" ) );
       return;
     }
 
@@ -1608,7 +1604,7 @@ void Cmd_Deposit_f( gentity_t *ent )
     //no Bank nearby
     if( !nearBank )
     {
-      trap_SendServerCommand( ent-g_entities, va("print \"You must be near an Bank\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You must be near an Bank\n\"" ) );
       return;
     }
 
@@ -1663,7 +1659,7 @@ void Cmd_Withdraw_f( gentity_t *ent )
     //no Bank nearby
     if( !nearBank )
     {
-      trap_SendServerCommand( ent-g_entities, va("print \"You must be near an Bank\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You must be near an Bank\n\"" ) );
       return;
     }
 
@@ -1699,7 +1695,7 @@ void Cmd_Withdraw_f( gentity_t *ent )
     //no Bank nearby
     if( !nearBank )
     {
-      trap_SendServerCommand( ent-g_entities, va("print \"You must be near an Bank\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You must be near an Bank\n\"" ) );
       return;
     }
 
@@ -1789,7 +1785,7 @@ void Cmd_Build_f( gentity_t *ent )
     }
   }
   else
-    trap_SendServerCommand( ent-g_entities, va("print \"Cannot build this item\n\"" ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"Cannot build this item\n\"" ) );
 }
 
 
@@ -1805,7 +1801,7 @@ void Cmd_Echo_f( gentity_t *ent )
   
   trap_Argv( 1, s, sizeof( s ) );
 
-  trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", s ) );
+  trap_SendServerCommand( ent-g_entities, va( "print \"%s\n\"", s ) );
 }
 
 

@@ -399,7 +399,7 @@ typedef enum
   BA_H_MGTURRET,
   BA_H_TESLAGEN,
   
-  BA_H_MCU,
+  BA_H_ARMOURY,
   BA_H_DCC,
   BA_H_MEDISTAT,
   BA_H_ADVMEDISTAT,
@@ -480,9 +480,6 @@ typedef enum
   EV_WATER_UNDER, // head touches
   EV_WATER_CLEAR, // head leaves
 
-  EV_ITEM_PICKUP,     // normal item pickups are predictable
-  EV_GLOBAL_ITEM_PICKUP,  // powerup / team sounds are broadcast to everyone
-
   EV_NOAMMO,
   EV_CHANGE_WEAPON,
   EV_NEXT_WEAPON,
@@ -490,26 +487,7 @@ typedef enum
   EV_FIRE_WEAPON2,
   EV_FIRE_WEAPON3,
 
-  EV_USE_ITEM0,
-  EV_USE_ITEM1,
-  EV_USE_ITEM2,
-  EV_USE_ITEM3,
-  EV_USE_ITEM4,
-  EV_USE_ITEM5,
-  EV_USE_ITEM6,
-  EV_USE_ITEM7,
-  EV_USE_ITEM8,
-  EV_USE_ITEM9,
-  EV_USE_ITEM10,
-  EV_USE_ITEM11,
-  EV_USE_ITEM12,
-  EV_USE_ITEM13,
-  EV_USE_ITEM14,
-  EV_USE_ITEM15,
-
-  EV_ITEM_RESPAWN,
   EV_PLAYER_RESPAWN, //TA: for fovwarp effects
-  EV_ITEM_POP,
   EV_PLAYER_TELEPORT_IN,
   EV_PLAYER_TELEPORT_OUT,
 
@@ -528,10 +506,8 @@ typedef enum
   EV_MISSILE_MISS,
   EV_MISSILE_MISS_METAL,
   EV_BUILDABLE_EXPLOSION, //TA: human item explosions
-  EV_RAILTRAIL,
   EV_TESLATRAIL,
   EV_ALIENZAP,
-  EV_SHOTGUN,
   EV_BULLET,        // otherEntity is the shooter
 
   EV_PAIN,
@@ -539,10 +515,6 @@ typedef enum
   EV_DEATH2,
   EV_DEATH3,
   EV_OBITUARY,
-
-  EV_POWERUP_QUAD,
-  EV_POWERUP_BATTLESUIT,
-  EV_POWERUP_REGEN,
 
   EV_GIB_PLAYER,      // gib a previously living player
   EV_GIB_ALIEN,       //TA: generic green gib for aliens
@@ -554,12 +526,6 @@ typedef enum
   EV_DEBUG_LINE,
   EV_STOPLOOPINGSOUND,
   EV_TAUNT,
-  EV_TAUNT_YES,
-  EV_TAUNT_NO,
-  EV_TAUNT_FOLLOWME,
-  EV_TAUNT_GETFLAG,
-  EV_TAUNT_GUARDBASE,
-  EV_TAUNT_PATROL,
 
   EV_MENU,            //TA: menu event
   EV_BUILD_DELAY,     //TA: can't build yet
@@ -589,7 +555,7 @@ typedef enum
   
   MN_H_SPAWN,
   MN_H_BUILD,
-  MN_H_MCU,
+  MN_H_ARMOURY,
   MN_H_BANK,
   MN_H_NOROOM,
   MN_H_NOPOWER,

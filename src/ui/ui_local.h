@@ -866,13 +866,13 @@ typedef struct {
 	int             tremHumanItemCount;
 	int             tremHumanItemIndex;
   
-	tremMenuItem_t  tremHumanMCUBuyList[ 32 ];
-	int             tremHumanMCUBuyCount;
-	int             tremHumanMCUBuyIndex;
+	tremMenuItem_t  tremHumanArmouryBuyList[ 32 ];
+	int             tremHumanArmouryBuyCount;
+	int             tremHumanArmouryBuyIndex;
 
-	tremMenuItem_t  tremHumanMCUSellList[ 32 ];
-	int             tremHumanMCUSellCount;
-	int             tremHumanMCUSellIndex;
+	tremMenuItem_t  tremHumanArmourySellList[ 32 ];
+	int             tremHumanArmourySellCount;
+	int             tremHumanArmourySellIndex;
 
 	tremMenuItem_t  tremAlienUpgradeList[ 16 ];
 	int             tremAlienUpgradeCount;

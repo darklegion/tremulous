@@ -51,32 +51,32 @@
 #define LISTBOX_IMAGE 0x01
 
 // list feeders
-#define FEEDER_HEADS              0x00      // model heads
-#define FEEDER_MAPS               0x01      // text maps based on game type
-#define FEEDER_SERVERS            0x02      // servers
-#define FEEDER_CLANS              0x03      // clan names
-#define FEEDER_ALLMAPS            0x04      // all maps available, in graphic format
-#define FEEDER_ALIENTEAM_LIST     0x05      // red team members
-#define FEEDER_HUMANTEAM_LIST     0x06      // blue team members
-#define FEEDER_PLAYER_LIST        0x07      // players
-#define FEEDER_TEAM_LIST          0x08      // team members for team voting
-#define FEEDER_MODS               0x09      // team members for team voting
-#define FEEDER_DEMOS              0x0a      // team members for team voting
-#define FEEDER_SCOREBOARD         0x0b      // team members for team voting
-#define FEEDER_Q3HEADS            0x0c      // model heads
-#define FEEDER_SERVERSTATUS       0x0d      // server status
-#define FEEDER_FINDPLAYER         0x0e      // find player
-#define FEEDER_CINEMATICS         0x0f      // cinematics
+#define FEEDER_HEADS                0x00      // model heads
+#define FEEDER_MAPS                 0x01      // text maps based on game type
+#define FEEDER_SERVERS              0x02      // servers
+#define FEEDER_CLANS                0x03      // clan names
+#define FEEDER_ALLMAPS              0x04      // all maps available, in graphic format
+#define FEEDER_ALIENTEAM_LIST       0x05      // red team members
+#define FEEDER_HUMANTEAM_LIST       0x06      // blue team members
+#define FEEDER_PLAYER_LIST          0x07      // players
+#define FEEDER_TEAM_LIST            0x08      // team members for team voting
+#define FEEDER_MODS                 0x09      // team members for team voting
+#define FEEDER_DEMOS                0x0a      // team members for team voting
+#define FEEDER_SCOREBOARD           0x0b      // team members for team voting
+#define FEEDER_Q3HEADS              0x0c      // model heads
+#define FEEDER_SERVERSTATUS         0x0d      // server status
+#define FEEDER_FINDPLAYER           0x0e      // find player
+#define FEEDER_CINEMATICS           0x0f      // cinematics
 
 //TA: tremulous menus
-#define FEEDER_TREMTEAMS          0x10      //teams
-#define FEEDER_TREMALIENCLASSES   0x11      //alien classes
-#define FEEDER_TREMHUMANITEMS     0x12      //human items
-#define FEEDER_TREMHUMANMCUBUY    0x13      //human mcu
-#define FEEDER_TREMHUMANMCUSELL   0x14      //human sell
-#define FEEDER_TREMALIENUPGRADE   0x15      //alien upgrade
-#define FEEDER_TREMALIENBUILD     0x16      //alien buildables
-#define FEEDER_TREMHUMANBUILD     0x17      //human buildables
+#define FEEDER_TREMTEAMS            0x10      //teams
+#define FEEDER_TREMALIENCLASSES     0x11      //alien classes
+#define FEEDER_TREMHUMANITEMS       0x12      //human items
+#define FEEDER_TREMHUMANARMOURYBUY  0x13      //human buy
+#define FEEDER_TREMHUMANARMOURYSELL 0x14      //human sell
+#define FEEDER_TREMALIENUPGRADE     0x15      //alien upgrade
+#define FEEDER_TREMALIENBUILD       0x16      //alien buildables
+#define FEEDER_TREMHUMANBUILD       0x17      //human buildables
 //TA: tremulous menus
 
 // display flags

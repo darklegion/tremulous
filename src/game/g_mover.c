@@ -752,10 +752,8 @@ Blocked_Door
 void Blocked_Door( gentity_t *ent, gentity_t *other )
 {
   // remove anything other than a client
-  if( !other->client )
+  if( !other->client && other->s.eType != ET_BUILDABLE )
   {
-    // except CTF flags!!!!
-    G_TempEntity( other->s.origin, EV_ITEM_POP );
     G_FreeEntity( other );
     return;
   }

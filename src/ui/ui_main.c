@@ -2439,12 +2439,12 @@ static void UI_OwnerDraw( float x, float y, float w, float h,
       break;
       
     case UI_HBUYINFOPANE:
-      if( pane = uiInfo.tremHumanMCUBuyList[ uiInfo.tremHumanMCUBuyIndex ].infopane )
+      if( pane = uiInfo.tremHumanArmouryBuyList[ uiInfo.tremHumanArmouryBuyIndex ].infopane )
         UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
       
     case UI_HSELLINFOPANE:
-      if( pane = uiInfo.tremHumanMCUSellList[ uiInfo.tremHumanMCUSellIndex ].infopane )
+      if( pane = uiInfo.tremHumanArmourySellList[ uiInfo.tremHumanArmourySellIndex ].infopane )
         UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
       
@@ -3327,15 +3327,15 @@ static void UI_LoadTremHumanItems( )
 
 /*
 ===============
-UI_LoadTremHumanMCUBuys
+UI_LoadTremHumanArmouryBuys
 ===============
 */
-static void UI_LoadTremHumanMCUBuys( )
+static void UI_LoadTremHumanArmouryBuys( )
 {
   int i, j = 0;
   stage_t stage = UI_GetCurrentHumanStage( );
 
-  uiInfo.tremHumanMCUBuyCount = 0;
+  uiInfo.tremHumanArmouryBuyCount = 0;
   
   for( i = WP_NONE +1; i < WP_NUM_WEAPONS; i++ )
   {
@@ -3343,16 +3343,16 @@ static void UI_LoadTremHumanMCUBuys( )
         BG_FindPurchasableForWeapon( i ) &&
         BG_FindStagesForWeapon( i, stage ) )
     {
-      uiInfo.tremHumanMCUBuyList[ j ].text =
+      uiInfo.tremHumanArmouryBuyList[ j ].text =
         String_Alloc( BG_FindHumanNameForWeapon( i ) );
-      uiInfo.tremHumanMCUBuyList[ j ].cmd =
+      uiInfo.tremHumanArmouryBuyList[ j ].cmd =
         String_Alloc( va( "cmd buy %s", BG_FindNameForWeapon( i ) ) );
-      uiInfo.tremHumanMCUBuyList[ j ].infopane =
+      uiInfo.tremHumanArmouryBuyList[ j ].infopane =
         UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( i ) ) );
       
       j++;
 
-      uiInfo.tremHumanMCUBuyCount++;
+      uiInfo.tremHumanArmouryBuyCount++;
     }
   }
   
@@ -3361,16 +3361,16 @@ static void UI_LoadTremHumanMCUBuys( )
     if( BG_FindTeamForUpgrade( i ) == WUT_HUMANS &&
         BG_FindStagesForUpgrade( i, stage ) )
     {
-      uiInfo.tremHumanMCUBuyList[ j ].text =
+      uiInfo.tremHumanArmouryBuyList[ j ].text =
         String_Alloc( BG_FindHumanNameForUpgrade( i ) );
-      uiInfo.tremHumanMCUBuyList[ j ].cmd =
+      uiInfo.tremHumanArmouryBuyList[ j ].cmd =
         String_Alloc( va( "cmd buy %s", BG_FindNameForUpgrade( i ) ) );
-      uiInfo.tremHumanMCUBuyList[ j ].infopane =
+      uiInfo.tremHumanArmouryBuyList[ j ].infopane =
         UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForUpgrade( i ) ) );
 
       j++;
       
-      uiInfo.tremHumanMCUBuyCount++;
+      uiInfo.tremHumanArmouryBuyCount++;
     }
   }
 }
@@ -3437,30 +3437,30 @@ static void UI_ParseCarriageList( int *weapons, int *upgrades )
 
 /*
 ===============
-UI_LoadTremHumanMCUSells
+UI_LoadTremHumanArmourySells
 ===============
 */
-static void UI_LoadTremHumanMCUSells( )
+static void UI_LoadTremHumanArmourySells( )
 {
   int weapons, upgrades;
   int i, j = 0;
   
-  uiInfo.tremHumanMCUSellCount = 0;
+  uiInfo.tremHumanArmourySellCount = 0;
   UI_ParseCarriageList( &weapons, &upgrades );
   
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
     if( weapons & ( 1 << i ) )
     {
-      uiInfo.tremHumanMCUSellList[ j ].text = String_Alloc( BG_FindHumanNameForWeapon( i ) );
-      uiInfo.tremHumanMCUSellList[ j ].cmd =
+      uiInfo.tremHumanArmourySellList[ j ].text = String_Alloc( BG_FindHumanNameForWeapon( i ) );
+      uiInfo.tremHumanArmourySellList[ j ].cmd =
         String_Alloc( va( "cmd sell %s", BG_FindNameForWeapon( i ) ) );
-      uiInfo.tremHumanMCUSellList[ j ].infopane =
+      uiInfo.tremHumanArmourySellList[ j ].infopane =
         UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( i ) ) );
 
       j++;
       
-      uiInfo.tremHumanMCUSellCount++;
+      uiInfo.tremHumanArmourySellCount++;
     }
   }
   
@@ -3468,15 +3468,15 @@ static void UI_LoadTremHumanMCUSells( )
   {
     if( upgrades & ( 1 << i ) )
     {
-      uiInfo.tremHumanMCUSellList[ j ].text = String_Alloc( BG_FindHumanNameForUpgrade( i ) );
-      uiInfo.tremHumanMCUSellList[ j ].cmd =
+      uiInfo.tremHumanArmourySellList[ j ].text = String_Alloc( BG_FindHumanNameForUpgrade( i ) );
+      uiInfo.tremHumanArmourySellList[ j ].cmd =
         String_Alloc( va( "cmd sell %s", BG_FindNameForUpgrade( i ) ) );
-      uiInfo.tremHumanMCUSellList[ j ].infopane =
+      uiInfo.tremHumanArmourySellList[ j ].infopane =
         UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForUpgrade( i ) ) );
 
       j++;
       
-      uiInfo.tremHumanMCUSellCount++;
+      uiInfo.tremHumanArmourySellCount++;
     }
   }
 }
@@ -4085,18 +4085,18 @@ static void UI_RunMenuScript(char **args) {
       if( cmd = uiInfo.tremAlienClassList[ uiInfo.tremAlienClassIndex ].cmd )
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
-    else if( Q_stricmp( name, "LoadHumanMCUBuys" ) == 0 )
-      UI_LoadTremHumanMCUBuys( );
-    else if( Q_stricmp( name, "BuyFromMCU" ) == 0 )
+    else if( Q_stricmp( name, "LoadHumanArmouryBuys" ) == 0 )
+      UI_LoadTremHumanArmouryBuys( );
+    else if( Q_stricmp( name, "BuyFromArmoury" ) == 0 )
     {
-      if( cmd = uiInfo.tremHumanMCUBuyList[ uiInfo.tremHumanMCUBuyIndex ].cmd )
+      if( cmd = uiInfo.tremHumanArmouryBuyList[ uiInfo.tremHumanArmouryBuyIndex ].cmd )
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
-    else if( Q_stricmp( name, "LoadHumanMCUSells" ) == 0 )
-      UI_LoadTremHumanMCUSells( );
-    else if( Q_stricmp( name, "SellToMCU" ) == 0 )
+    else if( Q_stricmp( name, "LoadHumanArmourySells" ) == 0 )
+      UI_LoadTremHumanArmourySells( );
+    else if( Q_stricmp( name, "SellToArmoury" ) == 0 )
     {
-      if( cmd = uiInfo.tremHumanMCUSellList[ uiInfo.tremHumanMCUSellIndex ].cmd )
+      if( cmd = uiInfo.tremHumanArmourySellList[ uiInfo.tremHumanArmourySellIndex ].cmd )
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
     else if( Q_stricmp( name, "LoadAlienUpgrades" ) == 0 )
@@ -5048,10 +5048,10 @@ static int UI_FeederCount(float feederID) {
     return uiInfo.tremHumanItemCount;
   else if( feederID == FEEDER_TREMALIENCLASSES )
     return uiInfo.tremAlienClassCount;
-  else if( feederID == FEEDER_TREMHUMANMCUBUY )
-    return uiInfo.tremHumanMCUBuyCount;
-  else if( feederID == FEEDER_TREMHUMANMCUSELL )
-    return uiInfo.tremHumanMCUSellCount;
+  else if( feederID == FEEDER_TREMHUMANARMOURYBUY )
+    return uiInfo.tremHumanArmouryBuyCount;
+  else if( feederID == FEEDER_TREMHUMANARMOURYSELL )
+    return uiInfo.tremHumanArmourySellCount;
   else if( feederID == FEEDER_TREMALIENUPGRADE )
     return uiInfo.tremAlienUpgradeCount;
   else if( feederID == FEEDER_TREMALIENBUILD )
@@ -5237,15 +5237,15 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
     if( index >= 0 && index < uiInfo.tremAlienClassCount )
       return uiInfo.tremAlienClassList[ index ].text;
   }
-  else if( feederID == FEEDER_TREMHUMANMCUBUY )
+  else if( feederID == FEEDER_TREMHUMANARMOURYBUY )
   {
-    if( index >= 0 && index < uiInfo.tremHumanMCUBuyCount )
-      return uiInfo.tremHumanMCUBuyList[ index ].text;
+    if( index >= 0 && index < uiInfo.tremHumanArmouryBuyCount )
+      return uiInfo.tremHumanArmouryBuyList[ index ].text;
   }
-  else if( feederID == FEEDER_TREMHUMANMCUSELL )
+  else if( feederID == FEEDER_TREMHUMANARMOURYSELL )
   {
-    if( index >= 0 && index < uiInfo.tremHumanMCUSellCount )
-      return uiInfo.tremHumanMCUSellList[ index ].text;
+    if( index >= 0 && index < uiInfo.tremHumanArmourySellCount )
+      return uiInfo.tremHumanArmourySellList[ index ].text;
   }
   else if( feederID == FEEDER_TREMALIENUPGRADE )
   {
@@ -5385,10 +5385,10 @@ static void UI_FeederSelection(float feederID, int index) {
     uiInfo.tremHumanItemIndex = index;
   else if( feederID == FEEDER_TREMALIENCLASSES )
     uiInfo.tremAlienClassIndex = index;
-  else if( feederID == FEEDER_TREMHUMANMCUBUY )
-    uiInfo.tremHumanMCUBuyIndex = index;
-  else if( feederID == FEEDER_TREMHUMANMCUSELL )
-    uiInfo.tremHumanMCUSellIndex = index;
+  else if( feederID == FEEDER_TREMHUMANARMOURYBUY )
+    uiInfo.tremHumanArmouryBuyIndex = index;
+  else if( feederID == FEEDER_TREMHUMANARMOURYSELL )
+    uiInfo.tremHumanArmourySellIndex = index;
   else if( feederID == FEEDER_TREMALIENUPGRADE )
     uiInfo.tremAlienUpgradeIndex = index;
   else if( feederID == FEEDER_TREMALIENBUILD )

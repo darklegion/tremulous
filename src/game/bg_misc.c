@@ -488,10 +488,10 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse                 //qboolean  reactorTest;
   },
   {
-    BA_H_MCU,              //int       buildNum;
+    BA_H_ARMOURY,          //int       buildNum;
     "mcu",                 //char      *buildName;
     "Armoury",             //char      *humanName;
-    "team_human_mcu",      //char      *entityName;
+    "team_human_armoury",  //char      *entityName;
     { "models/buildables/mcu/mcu.md3", 0, 0, 0 },
     { -40, -40, -15 },     //vec3_t    mins;
     { 40, 40, 15 },        //vec3_t    maxs;
@@ -3463,16 +3463,13 @@ char *eventnames[ ] =
   "EV_FALL_MEDIUM",
   "EV_FALL_FAR",
 
-  "EV_JUMP_PAD",      // boing sound at origin, jump sound on player
+  "EV_JUMP_PAD",      // boing sound at origin", jump sound on player
 
   "EV_JUMP",
   "EV_WATER_TOUCH", // foot touches
   "EV_WATER_LEAVE", // foot leaves
   "EV_WATER_UNDER", // head touches
   "EV_WATER_CLEAR", // head leaves
-
-  "EV_ITEM_PICKUP",     // normal item pickups are predictable
-  "EV_GLOBAL_ITEM_PICKUP",  // powerup / team sounds are broadcast to everyone
 
   "EV_NOAMMO",
   "EV_CHANGE_WEAPON",
@@ -3481,26 +3478,7 @@ char *eventnames[ ] =
   "EV_FIRE_WEAPON2",
   "EV_FIRE_WEAPON3",
 
-  "EV_USE_ITEM0",
-  "EV_USE_ITEM1",
-  "EV_USE_ITEM2",
-  "EV_USE_ITEM3",
-  "EV_USE_ITEM4",
-  "EV_USE_ITEM5",
-  "EV_USE_ITEM6",
-  "EV_USE_ITEM7",
-  "EV_USE_ITEM8",
-  "EV_USE_ITEM9",
-  "EV_USE_ITEM10",
-  "EV_USE_ITEM11",
-  "EV_USE_ITEM12",
-  "EV_USE_ITEM13",
-  "EV_USE_ITEM14",
-  "EV_USE_ITEM15",
-
-  "EV_ITEM_RESPAWN",
   "EV_PLAYER_RESPAWN", //TA: for fovwarp effects
-  "EV_ITEM_POP",
   "EV_PLAYER_TELEPORT_IN",
   "EV_PLAYER_TELEPORT_OUT",
 
@@ -3519,10 +3497,8 @@ char *eventnames[ ] =
   "EV_MISSILE_MISS",
   "EV_MISSILE_MISS_METAL",
   "EV_BUILDABLE_EXPLOSION", //TA: human item explosions
-  "EV_RAILTRAIL",
   "EV_TESLATRAIL",
   "EV_ALIENZAP",
-  "EV_SHOTGUN",
   "EV_BULLET",        // otherEntity is the shooter
 
   "EV_PAIN",
@@ -3530,10 +3506,6 @@ char *eventnames[ ] =
   "EV_DEATH2",
   "EV_DEATH3",
   "EV_OBITUARY",
-
-  "EV_POWERUP_QUAD",
-  "EV_POWERUP_BATTLESUIT",
-  "EV_POWERUP_REGEN",
 
   "EV_GIB_PLAYER",      // gib a previously living player
   "EV_GIB_ALIEN",       //TA: generic green gib for aliens
@@ -3545,16 +3517,11 @@ char *eventnames[ ] =
   "EV_DEBUG_LINE",
   "EV_STOPLOOPINGSOUND",
   "EV_TAUNT",
-  "EV_TAUNT_YES",
-  "EV_TAUNT_NO",
-  "EV_TAUNT_FOLLOWME",
-  "EV_TAUNT_GETFLAG",
-  "EV_TAUNT_GUARDBASE",
-  "EV_TAUNT_PATROL",
 
-  "EV_MENU",             //TA: menu event
+  "EV_MENU",            //TA: menu event
+  "EV_BUILD_DELAY",     //TA: can't build yet
   "EV_POISONCLOUD",     //TA: client poisoned
-  "EV_KNOCKOVER"        //TA: client knocked over
+  "EV_KNOCKOVER",       //TA: client knocked over
   "EV_GETUP"            //TA: client getting up
 };
 

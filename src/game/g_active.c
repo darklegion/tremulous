@@ -1119,7 +1119,7 @@ void ClientThink_real( gentity_t *ent )
     }
     else
     {
-      //TA: look for MCU infront of player
+      //TA: look for object infront of player
       AngleVectors( client->ps.viewangles, view, NULL, NULL );
       VectorMA( client->ps.origin, 200, view, point );
       trap_Trace( &trace, client->ps.origin, NULL, NULL, point, ent->s.number, MASK_SHOT );

@@ -61,6 +61,13 @@ static qboolean findPower( gentity_t *self )
   vec3_t    temp_v;
   qboolean  foundPower = qfalse;
 
+  if( self->biteam != BIT_HUMANS )
+    return qfalse;
+  
+  //reactor is always powered
+  if( self->s.modelindex == BA_H_REACTOR )
+    return qtrue;
+  
   //if this already has power then stop now
   if( self->parentNode && self->parentNode->powered )
     return qtrue;
@@ -117,6 +124,7 @@ static qboolean isPower( vec3_t origin )
   gentity_t dummy;
 
   dummy.parentNode = NULL;
+  dummy.biteam = BIT_HUMANS;
   VectorCopy( origin, dummy.s.origin );
 
   return findPower( &dummy );
@@ -139,6 +147,9 @@ static qboolean findDCC( gentity_t *self )
   vec3_t    temp_v;
   qboolean  foundDCC = qfalse;
 
+  if( self->biteam != BIT_HUMANS )
+    return qfalse;
+  
   //if this already has dcc then stop now
   if( self->dccNode && self->dccNode->powered )
     return qtrue;
@@ -187,6 +198,7 @@ static qboolean isDCC( )
   gentity_t dummy;
 
   dummy.dccNode = NULL;
+  dummy.biteam = BIT_HUMANS;
 
   return findDCC( &dummy );
 }
@@ -1097,31 +1109,31 @@ void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 
 /*
 ================
-HMCU_Activate
+HArmoury_Activate
 
-Called when a human activates an MCU
+Called when a human activates an Armoury
 ================
 */
-void HMCU_Activate( gentity_t *self, gentity_t *other, gentity_t *activator )
+void HArmoury_Activate( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
   //only humans can activate this
   if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS ) return;
   
-  //if this is powered then call the mcu menu
+  //if this is powered then call the armoury menu
   if( self->powered )
-    G_AddPredictableEvent( activator, EV_MENU, MN_H_MCU );
+    G_AddPredictableEvent( activator, EV_MENU, MN_H_ARMOURY );
   else
     G_AddPredictableEvent( activator, EV_MENU, MN_H_NOPOWER );
 }
 
 /*
 ================
-HMCU_Think
+HArmoury_Think
 
-Think for mcu
+Think for armoury
 ================
 */
-void HMCU_Think( gentity_t *self )
+void HArmoury_Think( gentity_t *self )
 {
   //make sure we have power
   self->nextthink = level.time + REFRESH_TIME;
@@ -1148,7 +1160,7 @@ void HBank_Activate( gentity_t *self, gentity_t *other, gentity_t *activator )
   //only humans can activate this
   if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS ) return;
   
-  //if this is powered then call the mcu menu
+  //if this is powered then call the bank menu
   if( self->powered )
     G_AddPredictableEvent( activator, EV_MENU, MN_H_BANK );
   else
@@ -1973,10 +1985,10 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       built->think = HDef_Think;
       break;
       
-    case BA_H_MCU:
-      built->think = HMCU_Think;
+    case BA_H_ARMOURY:
+      built->think = HArmoury_Think;
       built->die = HSpawn_Die;
-      built->use = HMCU_Activate;
+      built->use = HArmoury_Activate;
       break;
       
     case BA_H_BANK:
@@ -2063,10 +2075,10 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   if( built->s.generic1 < 0 )
     built->s.generic1 = 0;
     
-  if( built->powered )
+  if( built->powered = findPower( built ) )
     built->s.generic1 |= B_POWERED_TOGGLEBIT;
   
-  if( built->dcced )
+  if( built->dcced  = findDCC( built ) )
     built->s.generic1 |= B_DCCED_TOGGLEBIT;
     
   VectorCopy( normal, built->s.origin2 );
