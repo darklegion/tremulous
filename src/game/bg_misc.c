@@ -2063,7 +2063,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     100,
     SLOT_HEAD,
     "nvg",
-    "nvg"
+    "NVG"
   },
   {
     UP_CHESTARMOUR,

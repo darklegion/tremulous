@@ -752,7 +752,7 @@ void ClientThink_real( gentity_t *ent ) {
   client->ps.gravity = g_gravity.value;
 
   // set speed
-  client->ps.speed = g_speed.value * client->classSpeed;
+  client->ps.speed = g_speed.value * BG_FindSpeedForClass( client->ps.stats[ STAT_PCLASS ] );
 
   //TA: slow player if standing in creep
   for ( i = 1, creepNode = g_entities + i; i < level.num_entities; i++, creepNode++ )

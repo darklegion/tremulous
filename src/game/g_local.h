@@ -324,7 +324,6 @@ struct gclient_s {
 
   char      *areabits;
 
-  float     classSpeed; //TA: here to save STAT_ space
   int       lastInfestTime; //TA: to keep track of how long infests take
   gentity_t *infestBody;  //TA: body that is being infested. must be persistant
 };

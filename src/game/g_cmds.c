@@ -1846,9 +1846,15 @@ void Cmd_Buy_f( gentity_t *ent )
     
   weapon = BG_FindWeaponNumForName( s );
   upgrade = BG_FindUpgradeNumForName( s );
-  
+    
   if( weapon != WP_NONE )
   {
+    if( BG_FindSlotsForWeapon( weapon ) & ent->client->ps.stats[ STAT_SLOTS ] )
+    {
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_NOSLOTS );
+      return;
+    }
+    
     BG_packWeapon( weapon, ent->client->ps.stats );
     BG_FindAmmoForWeapon( weapon, &quan, &clips, &maxClips );
     BG_packAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
@@ -1857,6 +1863,12 @@ void Cmd_Buy_f( gentity_t *ent )
   }
   else if( upgrade != UP_NONE )
   {
+    if( BG_FindSlotsForUpgrade( upgrade ) & ent->client->ps.stats[ STAT_SLOTS ] )
+    {
+      G_AddPredictableEvent( ent, EV_MENU, MN_H_NOSLOTS );
+      return;
+    }
+    
     BG_packItem( upgrade, ent->client->ps.stats );
   }
   else
@@ -1914,7 +1926,7 @@ void Cmd_Sell_f( gentity_t *ent )
   }
   else if( upgrade != UP_NONE )
   {
-    if( BG_gotItem( weapon, ent->client->ps.stats ) )
+    if( BG_gotItem( upgrade, ent->client->ps.stats ) )
       BG_removeItem( upgrade, ent->client->ps.stats );
   }
   else

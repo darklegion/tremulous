@@ -502,18 +502,12 @@ void CG_Menu( int eventParm )
       trap_SendConsoleCommand( "menu hrptwarn\n" );
       break;
 
+    case MN_H_NOSLOTS:
+      trap_SendConsoleCommand( "menu hnoslots\n" );
+      break;
+
     case MN_D_INFEST:
-      strcpy( menuDef, "5,5|Infest|0.976,0.957,0.0,1.0|0.933,0.612,0.0,1.0|0.976,0.957,0.0,1.0|1|16|" );
-      for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
-      {
-        if( BG_ClassCanEvolveFromTo( cg.snap->ps.stats[ STAT_PCLASS ], i ) )
-          strcat( menuDef, va( "%s, class %s|", BG_FindNameForClassNum( i ), BG_FindNameForClassNum( i ) ) );
-      }
-      strcat( menuDef, "|Choose a class|to evolve to" );
-      
-      trap_SendConsoleCommand( va( "defmenu infest \"%s\"\n", menuDef ) );
-      trap_SendConsoleCommand( "menu infest\n" );
-      trap_SendConsoleCommand( "undefmenu infest\n" );
+      trap_SendConsoleCommand( "menu dinfest\n" );
       break;
 
     default:

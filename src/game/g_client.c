@@ -1314,7 +1314,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn ) {
 
   client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] = BG_FindHealthForClass( ent->client->pers.pclass );
   client->ps.stats[ STAT_ARMOR ] = BG_FindArmorForClass( ent->client->pers.pclass );
-  client->classSpeed = BG_FindSpeedForClass( ent->client->pers.pclass );
 
   // clear entity values
   switch( ent->client->pers.pclass )

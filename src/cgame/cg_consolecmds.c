@@ -189,6 +189,52 @@ static void CG_StartOrbit_f( void ) {
   }
 }
 
+/*
+==================
+CG_ClientMenu
+==================
+*/
+static void CG_ClientMenu( const char *menuname )
+{
+  char  menuDef[ MAX_STRING_CHARS ];
+  int   i;
+  
+  if( !Q_stricmp( menuname, "dinfest" ) )
+  {
+    strcpy( menuDef, "5,5|Infest|0.976,0.957,0.0,1.0|0.933,0.612,0.0,1.0|0.976,0.957,0.0,1.0|1|16|" );
+    for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
+    {
+      if( BG_ClassCanEvolveFromTo( cg.snap->ps.stats[ STAT_PCLASS ], i ) )
+        strcat( menuDef, va( "%s, class %s|", BG_FindNameForClassNum( i ), BG_FindNameForClassNum( i ) ) );
+    }
+    strcat( menuDef, "|Choose a class|to evolve to" );
+    
+    trap_SendConsoleCommand( va( "defmenu infest \"%s\"\n", menuDef ) );
+    trap_SendConsoleCommand( "menu infest\n" );
+    trap_SendConsoleCommand( "undefmenu infest\n" );
+  }
+  else if( !Q_stricmp( menuname, "hmcusell" ) )
+  {
+    strcpy( menuDef, "5,5|Sell|1,1,1,1|0.000,0.412,0.702,1|1,1,1,1|2|32||" );
+    for( i = WP_NONE +1; i < WP_NUM_WEAPONS; i++ )
+    {
+      if( BG_gotWeapon( i, cg.snap->ps.stats ) )
+        strcat( menuDef, va( "%s, sell %s|", BG_FindHumanNameForWeapon( i ), BG_FindNameForWeapon( i ) ) );
+    }
+    for( i = UP_NONE +1; i < UP_NUM_UPGRADES; i++ )
+    {
+      if( BG_gotItem( i, cg.snap->ps.stats ) )
+        strcat( menuDef, va( "%s, sell %s|", BG_FindHumanNameForUpgrade( i ), BG_FindNameForUpgrade( i ) ) );
+    }
+    strcat( menuDef, "Previous, menu hmcumenu||Choose an item|to sell" );
+    
+    trap_SendConsoleCommand( va( "defmenu mcusell \"%s\"\n", menuDef ) );
+    trap_SendConsoleCommand( "menu mcusell\n" );
+    trap_SendConsoleCommand( "undefmenu mcusell\n" );
+  }
+  else
+    trap_SendConsoleCommand( va( "%s not defined", menuname ) );
+}
 
 typedef struct {
   char  *cmd;
@@ -232,9 +278,18 @@ Cmd_Argc() / Cmd_Argv()
 */
 qboolean CG_ConsoleCommand( void ) {
   const char  *cmd;
+  const char  *arg1;
   int   i;
 
   cmd = CG_Argv(0);
+
+  //TA: ugly hacky special case
+  if( !Q_stricmp( cmd, "cmenu" ) )
+  {
+    arg1 = CG_Argv( 1 );
+    CG_ClientMenu( arg1 );
+    return qtrue;
+  }
 
   for ( i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) {
     if ( !Q_stricmp( cmd, commands[i].cmd ) ) {
@@ -304,5 +359,6 @@ void CG_InitConsoleCommands( void ) {
   trap_AddCommand ("menu");
   trap_AddCommand ("defmenu");
   trap_AddCommand ("undefmenu");
+  trap_AddCommand ("cmenu");
   trap_AddCommand ("loaddefered");  // spelled wrong, but not changing for demo
 }

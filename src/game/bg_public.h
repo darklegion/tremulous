@@ -546,7 +546,8 @@ typedef enum
   MN_H_REPEATER,
   MN_H_RPLWARN,
   MN_H_RPTWARN,
-  MN_H_MCUPOWER
+  MN_H_MCUPOWER,
+  MN_H_NOSLOTS
 } dynMenu_t;
 
 // animations
