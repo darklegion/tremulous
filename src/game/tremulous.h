@@ -60,7 +60,7 @@
 #define CHIMERA_CLAW_WIDTH          12.0f
 #define CHIMERA_CLAW_REPEAT         500
 #define CHIMERA_CLAW_U_REPEAT       400
-#define CHIMERA_AREAZAP_DMG         ADM(200)
+#define CHIMERA_AREAZAP_DMG         ADM(100)
 #define CHIMERA_AREAZAP_RANGE       300.0f
 #define CHIMERA_AREAZAP_REPEAT      1500
 #define CHIMERA_WALLJUMP_MAXSPEED   1000.0f
@@ -465,7 +465,7 @@
 
 #define MGTURRET_BP                 8
 #define MGTURRET_BT                 10000
-#define MGTURRET_HEALTH             HBHM(400)
+#define MGTURRET_HEALTH             HBHM(300)
 #define MGTURRET_SPLASHDAMAGE       200
 #define MGTURRET_SPLASHRADIUS       150
 #define MGTURRET_ANGULARSPEED       6  //degrees/think ~= 200deg/sec
@@ -489,13 +489,13 @@
 
 #define DC_BP                       8
 #define DC_BT                       10000
-#define DC_HEALTH                   HBHM(150)
+#define DC_HEALTH                   HBHM(300)
 #define DC_SPLASHDAMAGE             50
 #define DC_SPLASHRADIUS             100
 
 #define ARMOURY_BP                  10
 #define ARMOURY_BT                  10000
-#define ARMOURY_HEALTH              HBHM(200)
+#define ARMOURY_HEALTH              HBHM(400)
 #define ARMOURY_SPLASHDAMAGE        50
 #define ARMOURY_SPLASHRADIUS        100
 
@@ -511,7 +511,7 @@
 
 #define REPEATER_BP                 10
 #define REPEATER_BT                 10000
-#define REPEATER_HEALTH             HBHM(200)
+#define REPEATER_HEALTH             HBHM(400)
 #define REPEATER_SPLASHDAMAGE       50
 #define REPEATER_SPLASHRADIUS       100
 

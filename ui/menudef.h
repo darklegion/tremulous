@@ -138,6 +138,7 @@
 #define CG_PLAYER_AMMO_ICON         5
 #define CG_PLAYER_AMMO_VALUE        6
 #define CG_PLAYER_CLIPS_VALUE       70
+#define CG_PLAYER_BUILD_TIMER       115
 #define CG_PLAYER_CREDITS_VALUE     71
 #define CG_PLAYER_BANK_VALUE        72
 #define CG_PLAYER_CREDITS_VALUE_NOPAD     106

@@ -1059,6 +1059,11 @@ typedef struct
   qhandle_t   metalGib7;
   qhandle_t   metalGib8;
 
+  qhandle_t   alienGib1;
+  qhandle_t   alienGib2;
+  qhandle_t   alienGib3;
+  qhandle_t   alienGib4;
+
   qhandle_t   gibSpark1;
   qhandle_t   gibSpark2;
   
@@ -1223,6 +1228,8 @@ typedef struct
   qhandle_t   alienBuildableDestroyedPS;
 
   sfxHandle_t lCannonWarningSound;
+
+  qhandle_t   buildWeaponTimerPie[ 8 ];
 } cgMedia_t;
 
 

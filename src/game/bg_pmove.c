@@ -2919,7 +2919,22 @@ static void PM_Weapon( void )
   }
     
   if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
-    PM_StartTorsoAnim( TORSO_ATTACK );
+  {
+    //FIXME: this should be an option in the client weapon.cfg
+    switch( pm->ps->weapon )
+    { 
+      case WP_FLAMER:
+        if( pm->ps->weaponstate == WEAPON_READY )
+        {
+          PM_StartTorsoAnim( TORSO_ATTACK );
+        }
+        break;
+
+      default:
+        PM_StartTorsoAnim( TORSO_ATTACK );
+        break;
+    }
+  }
   else
   {
     if( pm->ps->weapon == WP_BIGMOFO )

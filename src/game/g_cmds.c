@@ -423,8 +423,8 @@ void Cmd_Kill_f( gentity_t *ent )
   {
     if( ent->suicideTime == 0 )
     {
-      trap_SendServerCommand( ent-g_entities, "print \"You will suicide in 10 seconds.\n\"" );
-      ent->suicideTime = level.time + 10000;
+      trap_SendServerCommand( ent-g_entities, "print \"You will suicide in 20 seconds.\n\"" );
+      ent->suicideTime = level.time + 20000;
     }
     else if( ent->suicideTime > level.time )
     {
@@ -1623,6 +1623,16 @@ void Cmd_Buy_f( gentity_t *ent )
             !BG_FindInfinteAmmoForWeapon( i ) )
         {
           BG_FindAmmoForWeapon( i, &quan, &clips, &maxClips );
+          
+          if( buyingEnergyAmmo )
+          {
+            G_AddEvent( ent, EV_RPTUSE_SOUND, 0 );
+            ent->client->lastRefilTime = level.time;
+            
+            if( BG_gotItem( UP_BATTPACK, ent->client->ps.stats ) )
+              quan = (int)( (float)quan * BATTPACK_MODIFIER );
+          }
+
           BG_packAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups,
                             quan, clips, maxClips );
         }

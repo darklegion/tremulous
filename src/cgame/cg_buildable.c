@@ -81,18 +81,29 @@ void CG_AlienBuildableExplosion( vec3_t origin, vec3_t dir )
   vec3_t            velocity;
   int               count;
   particleSystem_t  *ps;
+  qhandle_t         gibModel;
+  int               i;
 
   trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.alienBuildableExplosion );
   
   // allow gibs to be turned off for speed
   if( cg_gibs.integer )
   {
-    for( count = 0; count <= 9; count++ )
+    for( count = 0; count <= 8; count++ )
     {
       velocity[ 0 ] = crandom( ) * GGIB_VELOCITY;
       velocity[ 1 ] = crandom( ) * GGIB_VELOCITY;
       velocity[ 2 ] = GGIB_JUMP + crandom( ) * GGIB_VELOCITY;
-      CG_AlienBuildableExplosionFragment( origin, velocity, cgs.media.gibAbdomen );
+      
+      switch( i )
+      {
+        case 1: case 5: gibModel = cgs.media.alienGib1; break;
+        case 2: case 6: gibModel = cgs.media.alienGib2; break;
+        case 3: case 7: gibModel = cgs.media.alienGib3; break;
+        case 4: case 8: gibModel = cgs.media.alienGib4; break;
+      }
+    
+      CG_AlienBuildableExplosionFragment( origin, velocity, gibModel );
     }
   }
   

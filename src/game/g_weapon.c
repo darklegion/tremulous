@@ -961,12 +961,12 @@ void areaZapFire( gentity_t *ent )
     
     //do some damage
     G_Damage( enemy, ent, ent, dir, tr.endpos,
-              damage, DAMAGE_NO_KNOCKBACK, MOD_CHIMERA_ZAP );
+              damage, DAMAGE_NO_KNOCKBACK | DAMAGE_NO_LOCDAMAGE, MOD_CHIMERA_ZAP );
     
     // snap the endpos to integers to save net bandwidth, but nudged towards the line
     SnapVectorTowards( tr.endpos, muzzle );
 
-    // send railgun beam effect
+    // send arc effect
     tent = G_TempEntity( enemy->s.pos.trBase, EV_ALIENZAP );
 
     VectorCopy( ent->client->ps.origin, tent->s.origin2 );

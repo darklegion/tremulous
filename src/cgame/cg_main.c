@@ -706,6 +706,17 @@ static void CG_RegisterGraphics( void )
     "gfx/2d/numbers/nine_32b",
     "gfx/2d/numbers/minus_32b",
   };
+  static char *buildWeaponTimerPieShaders[ 8 ] =
+  {
+    "ui/assets/neutral/1_5pie",
+    "ui/assets/neutral/3_0pie",
+    "ui/assets/neutral/4_5pie",
+    "ui/assets/neutral/6_0pie",
+    "ui/assets/neutral/7_5pie",
+    "ui/assets/neutral/9_0pie",
+    "ui/assets/neutral/10_5pie",
+    "ui/assets/neutral/12_0pie",
+  };
 
   // clear any references to old media
   memset( &cg.refdef, 0, sizeof( cg.refdef ) );
@@ -757,6 +768,9 @@ static void CG_RegisterGraphics( void )
   cgs.media.noPowerShader             = trap_R_RegisterShader("gfx/2d/nopower" );
   cgs.media.humanSpawningShader       = trap_R_RegisterShader("models/buildables/telenode/rep_cyl" );
 
+  for( i = 0; i < 8; i++ )
+    cgs.media.buildWeaponTimerPie[ i ] = trap_R_RegisterShader( buildWeaponTimerPieShaders[ i ] );
+
   cgs.media.machinegunBrassModel      = trap_R_RegisterModel( "models/weapons2/shells/m_shell.md3" );
   cgs.media.shotgunBrassModel         = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
 
@@ -782,6 +796,11 @@ static void CG_RegisterGraphics( void )
   
   cgs.media.gibSpark1                 = trap_R_RegisterShader( "models/fx/metal_gibs/spark.jpg" );
   cgs.media.gibSpark2                 = trap_R_RegisterShader( "models/fx/metal_gibs/spark2.jpg" );
+  
+  cgs.media.alienGib1                 = trap_R_RegisterModel( "models/fx/alien_gibs/a_gib1.md3" );
+  cgs.media.alienGib2                 = trap_R_RegisterModel( "models/fx/alien_gibs/a_gib2.md3" );
+  cgs.media.alienGib3                 = trap_R_RegisterModel( "models/fx/alien_gibs/a_gib3.md3" );
+  cgs.media.alienGib4                 = trap_R_RegisterModel( "models/fx/alien_gibs/a_gib4.md3" );
   
   cgs.media.smoke2                    = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
 
