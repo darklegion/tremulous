@@ -81,6 +81,10 @@
 
 #include "bg_lib.h"
 
+#ifdef __linux__
+#undef __linux__
+#endif
+
 #else
 
 #include <assert.h>
@@ -242,7 +246,6 @@ static inline float LittleFloat (const float l) { return FloatSwap(&l); }
 // the mac compiler can't handle >32k of locals, so we
 // just waste space and make big arrays static...
 #ifdef __linux__
-#ifndef __LCC__ //TA: q3lcc defines __linux__
 
 // bk001205 - from Makefile
 #define stricmp strcasecmp
@@ -284,7 +287,6 @@ inline static int LittleLong (int l) { return LongSwap(l); }
 inline static float LittleFloat (const float *l) { return FloatSwap(l); }
 #endif
 
-#endif
 #endif
 
 //======================= FreeBSD DEFINES =====================
