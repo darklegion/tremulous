@@ -2,6 +2,6 @@
 // 
 {
 	loadMenu { "ui/tremulous_human_hud.menu" }
- 	loadMenu { "ui/score.menu" }
 	loadMenu { "ui/teamscore.menu" }
+  loadMenu { "ui/loading.menu" }
 }

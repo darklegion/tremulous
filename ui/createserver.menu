@@ -205,7 +205,8 @@ itemDef {
 	backcolor 0 0 .5 .25
 	outlinecolor .1 .1 .7 .5
 	visible 1
-	columns 1 2 190 25
+	columns 1
+    2 190 25 ITEM_ALIGN_LEFT
 	mouseEnter { fadein message_arena ; setitemcolor maplist bordercolor .7 0 0 1 } 
 	mouseExit { fadeout message_arena ; setitemcolor maplist bordercolor .5 .5 .5 .5 } 
   	}
