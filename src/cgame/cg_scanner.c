@@ -89,16 +89,15 @@ static void CG_DrawDir( vec3_t origin, vec4_t colour )
   VectorNormalize( noZOrigin );
   VectorNormalize( noZview );
 
+  //calculate the angle between the images of the blip and the view
   angle = RAD2DEG( acos( DotProduct( noZOrigin, noZview ) ) );
   CrossProduct( noZOrigin, noZview, antinormal );
   VectorNormalize( antinormal );
 
+  //decide which way to rotate
   VectorSubtract( normal, antinormal, normalDiff );
-  
   if( VectorLength( normalDiff ) < 1.0f )
     angle = 360.0f - angle;
-
-  CG_Printf( "%f\n", angle );
 
   RotatePointAroundVector( drawOrigin, up, top, angle );
 
