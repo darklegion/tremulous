@@ -2025,7 +2025,7 @@ void Cmd_Deposit_f( gentity_t *ent )
   if( amount <= ent->client->ps.stats[ STAT_CREDIT ] )
   {
     ent->client->ps.stats[ STAT_CREDIT ] -= amount;
-    bankEntity->credits[ ent->client->ps.clientNum ] += amount;
+    level.bankCredits[ ent->client->ps.clientNum ] += amount;
   }
   else
     G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
@@ -2066,7 +2066,7 @@ void Cmd_Withdraw_f( gentity_t *ent )
   }
 
   if( !Q_stricmp( s, "all" ) )
-    amount = bankEntity->credits[ ent->client->ps.clientNum ];
+    amount = level.bankCredits[ ent->client->ps.clientNum ];
   else
     amount = atoi( s );
 
@@ -2077,10 +2077,10 @@ void Cmd_Withdraw_f( gentity_t *ent )
     return;
   }
 
-  if( amount <= bankEntity->credits[ ent->client->ps.clientNum ] )
+  if( amount <= level.bankCredits[ ent->client->ps.clientNum ] )
   {
     ent->client->ps.stats[ STAT_CREDIT ] += amount;
-    bankEntity->credits[ ent->client->ps.clientNum ] -= amount;
+    level.bankCredits[ ent->client->ps.clientNum ] -= amount;
   }
   else
     G_AddPredictableEvent( ent, EV_MENU, MN_H_NOFUNDS );
@@ -2099,6 +2099,7 @@ void Cmd_Build_f( gentity_t *ent )
   buildable_t   buildable;
   weapon_t      weapon;
   float         dist, speed, maxspeed;
+  vec3_t        origin;
 
   trap_Argv( 1, s, sizeof( s ) );
   trap_Argv( 2, s1, sizeof( s1 ) );
@@ -2115,10 +2116,10 @@ void Cmd_Build_f( gentity_t *ent )
   {
     dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
     
-    switch( G_itemFits( ent, buildable, dist ) )
+    switch( G_itemFits( ent, buildable, dist, origin ) )
     {
       case IBE_NONE:
-        G_buildItem( ent, buildable, dist, speed );
+        G_buildItem( ent, buildable, origin, ent->s.apos.trBase, speed );
         break;
 
       case IBE_NOCREEP:
@@ -2158,17 +2159,17 @@ void Cmd_Build_f( gentity_t *ent )
         
       case IBE_SPWNWARN:
         G_AddPredictableEvent( ent, EV_MENU, MN_D_SPWNWARN );
-        G_buildItem( ent, buildable, dist, speed );
+        G_buildItem( ent, buildable, origin, ent->s.apos.trBase, speed );
         break;
         
       case IBE_RPLWARN:
         G_AddPredictableEvent( ent, EV_MENU, MN_H_RPLWARN );
-        G_buildItem( ent, buildable, dist, speed );
+        G_buildItem( ent, buildable, origin, ent->s.apos.trBase, speed );
         break;
         
       case IBE_RPTWARN:
         G_AddPredictableEvent( ent, EV_MENU, MN_H_RPTWARN );
-        G_buildItem( ent, buildable, dist, speed );
+        G_buildItem( ent, buildable, origin, ent->s.apos.trBase, speed );
         break;
     }
   }

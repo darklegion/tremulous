@@ -572,7 +572,8 @@ LIGHTNING GUN
 */
 
 
-void Weapon_LightningFire( gentity_t *ent ) {
+void Weapon_LightningFire( gentity_t *ent )
+{
   trace_t   tr;
   vec3_t    end;
   gentity_t *traceEnt, *tent;
@@ -580,38 +581,39 @@ void Weapon_LightningFire( gentity_t *ent ) {
 
   damage = 8;
 
-  passent = ent->s.number;
-  for (i = 0; i < 10; i++) {
-    VectorMA( muzzle, LIGHTNING_RANGE, forward, end );
+  VectorMA( muzzle, LIGHTNING_RANGE, forward, end );
 
-    trap_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
+  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
 
-    if ( tr.entityNum == ENTITYNUM_NONE ) {
-      return;
-    }
+  if( tr.entityNum == ENTITYNUM_NONE )
+    return;
 
-    traceEnt = &g_entities[ tr.entityNum ];
+  traceEnt = &g_entities[ tr.entityNum ];
 
-    if ( traceEnt->takedamage) {
-        G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-          damage, 0, MOD_LIGHTNING);
-    }
-
-    if ( traceEnt->takedamage && traceEnt->client ) {
-      tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
-      tent->s.otherEntityNum = traceEnt->s.number;
-      tent->s.eventParm = DirToByte( tr.plane.normal );
-      tent->s.weapon = ent->s.weapon;
-      if( LogAccuracyHit( traceEnt, ent ) ) {
-        ent->client->accuracy_hits++;
-      }
-    } else if ( !( tr.surfaceFlags & SURF_NOIMPACT ) ) {
-      tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
-      tent->s.eventParm = DirToByte( tr.plane.normal );
-    }
-
-    break;
+  if( traceEnt->takedamage)
+  {
+    G_Damage( traceEnt, ent, ent, forward, tr.endpos,
+      damage, 0, MOD_LIGHTNING);
   }
+
+  // snap the endpos to integers to save net bandwidth, but nudged towards the line
+  SnapVectorTowards( tr.endpos, muzzle );
+
+  // send railgun beam effect
+  tent = G_TempEntity( tr.endpos, EV_RAILTRAIL );
+
+  // set player number for custom colors on the railtrail
+  tent->s.clientNum = ent->s.clientNum;
+
+  VectorCopy( muzzle, tent->s.origin2 );
+  // move origin a bit to come closer to the drawn gun muzzle
+  VectorMA( tent->s.origin2, 16, up, tent->s.origin2 );
+
+  // no explosion at end if SURF_NOIMPACT, but still make the trail
+  if( tr.surfaceFlags & SURF_NOIMPACT )
+    tent->s.eventParm = 255;  // don't make the explosion at the end
+  else
+    tent->s.eventParm = DirToByte( tr.plane.normal );
 }
 
 

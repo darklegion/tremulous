@@ -478,6 +478,8 @@ typedef struct {
   int     droidBuildPoints;
   int     humanBuildPoints;
   int     humanBuildPointsPowered;
+
+  int     bankCredits[ MAX_CLIENTS ]; //global credits storage
 } level_locals_t;
 
 //
@@ -549,8 +551,8 @@ typedef enum
   IBE_MAXERRORS
 } itemBuildError_t;
 
-itemBuildError_t  G_itemFits( gentity_t *ent, buildable_t buildable, int distance );
-gentity_t         *G_buildItem( gentity_t *ent, buildable_t buildable, int distance, float speed );
+itemBuildError_t  G_itemFits( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin );
+gentity_t         *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin, vec3_t angles, float speed );
 void              G_setBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim, qboolean force );
 void              G_setIdleBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim );
 

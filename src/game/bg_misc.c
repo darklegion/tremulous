@@ -983,7 +983,7 @@ TA: human defense item
   {
     "team_human_def3",
     "sound/items/holdable.wav",
-    { "models/buildables/plasmaturret/pturret_base.md3", "models/weapons2/railgun/railgun.md3", 0, 0 },
+    { "models/buildables/plasmaturret/pturret_base.md3", 0, 0, 0 },
     "icons/teleporter", //icon
     "Human Defense3",      //pickup
     0,
@@ -1529,7 +1529,7 @@ buildableAttributes_t bg_buildableList[ ] =
     150,                   //int       nextthink;
     4000,                  //int       turretFireSpeed;
     1500,                  //int       turretRange;
-    WP_RAILGUN,            //weapon_t  turretProjType;
+    WP_LIGHTNING,          //weapon_t  turretProjType;
     0.707f,                //float     minNormal;
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;

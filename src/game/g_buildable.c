@@ -187,6 +187,10 @@ qboolean findCreep( gentity_t *self )
   int       distance = 0;
   int       minDistance = 10000;
   vec3_t    temp_v;
+
+  //don't check for creep if flying through the air
+  if( self->s.groundEntityNum == -1 )
+    return qtrue;
   
   //if self does not have a parentNode or it's parentNode is invalid find a new one
   if( ( self->parentNode == NULL ) || !self->parentNode->inuse )
@@ -198,6 +202,7 @@ qboolean findCreep( gentity_t *self )
 
       if( ent->s.clientNum == BA_D_SPAWN || ent->s.clientNum == BA_D_HIVEMIND )
       {
+        /*VectorSubtract( self->s.origin, ent->s.origin, temp_v );*/
         VectorSubtract( self->s.origin, ent->s.origin, temp_v );
         distance = VectorLength( temp_v );
         if( distance < minDistance )
@@ -1196,65 +1201,25 @@ qboolean hdef2_trackenemy( gentity_t *self )
   return qfalse;
 }
 
-#define HDEF3_ANGULARSPEED      2     //degrees/think ~= 200deg/sec
-#define HDEF3_ACCURACYTOLERANCE HDEF3_ANGULARSPEED / 2 //angular difference for turret to fire
-#define HDEF3_VERTICALCAP       15    //+/- maximum pitch
-
 /*
 ================
-hdef3_trackenemy
+hdef3_fireonemeny
 
-Used by HDef1_Think to track enemy location
+Used by HDef_Think to fire at enemy
 ================
 */
-qboolean hdef3_trackenemy( gentity_t *self )
+void hdef3_fireonenemy( gentity_t *self, int firespeed )
 {
-  vec3_t  dirToTarget, angleToTarget, angularDiff;
-  float   temp;
-
+  vec3_t  dirToTarget;
+ 
   VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
-
   VectorNormalize( dirToTarget );
-  
-  vectoangles( dirToTarget, angleToTarget );
+  vectoangles( dirToTarget, self->s.angles2 );
 
-  angularDiff[ PITCH ] = AngleSubtract( self->s.angles2[ PITCH ], angleToTarget[ PITCH ] );
-  angularDiff[ YAW ] = AngleSubtract( self->s.angles2[ YAW ], angleToTarget[ YAW ] );
-
-  //if not pointing at our target then move accordingly
-  if( angularDiff[ PITCH ] < -HDEF3_ACCURACYTOLERANCE )
-    self->s.angles2[ PITCH ] += HDEF3_ANGULARSPEED;
-  else if( angularDiff[ PITCH ] > HDEF3_ACCURACYTOLERANCE )
-    self->s.angles2[ PITCH ] -= HDEF3_ANGULARSPEED;
-  else
-    self->s.angles2[ PITCH ] = angleToTarget[ PITCH ];
-
-  //disallow vertical movement past a certain limit
-  temp = fabs( self->s.angles2[ PITCH ] );
-  if( temp > 180 )
-    temp -= 360;
-  
-  if( temp < -HDEF3_VERTICALCAP )
-    self->s.angles2[ PITCH ] = (-360)+HDEF3_VERTICALCAP;
-  else if( temp > HDEF3_VERTICALCAP )
-    self->s.angles2[ PITCH ] = -HDEF3_VERTICALCAP;
-    
-  //if not pointing at our target then move accordingly
-  if( angularDiff[ YAW ] < -HDEF3_ACCURACYTOLERANCE )
-    self->s.angles2[ YAW ] += HDEF3_ANGULARSPEED;
-  else if( angularDiff[ YAW ] > HDEF3_ACCURACYTOLERANCE )
-    self->s.angles2[ YAW ] -= HDEF3_ANGULARSPEED;
-  else
-    self->s.angles2[ YAW ] = angleToTarget[ YAW ];
-    
-  trap_LinkEntity( self );
-
-  //if pointing at our target return true
-  if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= HDEF3_ACCURACYTOLERANCE &&
-      abs( angleToTarget[ PITCH ] - self->s.angles2[ PITCH ] ) <= HDEF3_ACCURACYTOLERANCE )
-    return qtrue;
-    
-  return qfalse;
+  //fire at target
+  FireWeapon( self );
+  G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
+  self->count = level.time + firespeed;
 }
 
 /*
@@ -1399,8 +1364,8 @@ void HDef_Think( gentity_t *self )
       break;
       
     case BA_H_DEF3:
-      if( hdef3_trackenemy( self ) && ( self->count < level.time ) )
-        hdef_fireonenemy( self, firespeed );
+      if( self->count < level.time )
+        hdef3_fireonenemy( self, firespeed );
       break;
 
     default:
@@ -1524,14 +1489,14 @@ G_itemFits
 Checks to see if an item fits in a specific area
 ================
 */
-itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance )
+itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin )
 {
   vec3_t            forward;
   vec3_t            angles;
-  vec3_t            player_origin, entity_origin;
+  vec3_t            player_origin, entity_origin, target_origin;
   vec3_t            mins, maxs;
   vec3_t            temp_v;
-  trace_t           tr1, tr2;
+  trace_t           tr1, tr2, tr3;
   int               i;
   itemBuildError_t  reason = IBE_NONE;
   gentity_t         *tempent, *closestPower;
@@ -1545,21 +1510,30 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   VectorCopy( ent->s.pos.trBase, player_origin );
   VectorMA( player_origin, distance, forward, entity_origin );
 
+  VectorCopy( entity_origin, target_origin );
+  entity_origin[ 2 ] += 32;
+  target_origin[ 2 ] -= 4096;
+
   BG_FindBBoxForBuildable( buildable, mins, maxs );
   
-  trap_Trace( &tr1, entity_origin, mins, maxs, entity_origin, ent->s.number, MASK_PLAYERSOLID );
-  trap_Trace( &tr2, player_origin, NULL, NULL, entity_origin, ent->s.number, MASK_PLAYERSOLID );
+  trap_Trace( &tr1, entity_origin, mins, maxs, target_origin, ent->s.number, MASK_PLAYERSOLID );
+  VectorCopy( tr1.endpos, entity_origin );
+  entity_origin[ 2 ] += 0.1f;
+
+  trap_Trace( &tr2, entity_origin, mins, maxs, entity_origin, ent->s.number, MASK_PLAYERSOLID );
+  trap_Trace( &tr3, player_origin, NULL, NULL, entity_origin, ent->s.number, MASK_PLAYERSOLID );
+
+  VectorCopy( entity_origin, origin );
 
   //this item does not fit here
-  if( tr1.fraction < 1.0 || tr2.fraction < 1.0 )
+  if( tr2.fraction < 1.0 || tr3.fraction < 1.0 )
     return IBE_NOROOM; //NO other reason is allowed to override this
     
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
   {
     //droid criteria
     //check there is creep near by for building on
-
-    if( BG_FindCreepTestForBuildable( buildable ) )
+/*    if( BG_FindCreepTestForBuildable( buildable ) )
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
       {
@@ -1576,7 +1550,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
 
       if( i >= level.num_entities )
         reason = IBE_NOCREEP;
-    }
+    }*/
     
     //look for a hivemind
     for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
@@ -1708,19 +1682,9 @@ G_buildItem
 Spawns a buildable
 ================
 */
-gentity_t *G_buildItem( gentity_t *ent, buildable_t buildable, int distance, float speed )
+gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin, vec3_t angles, float speed )
 {
-  vec3_t  forward;
-  vec3_t  angles;
-  vec3_t  origin;
   gentity_t *built;
-
-  VectorCopy( ent->s.apos.trBase, angles );
-  angles[PITCH] = 0;  // always forward
-
-  AngleVectors( angles, forward, NULL, NULL );
-  VectorCopy( ent->s.pos.trBase, origin );
-  VectorMA( origin, distance, forward, origin );
 
   //spawn the buildable
   built = G_Spawn();
@@ -1847,19 +1811,21 @@ gentity_t *G_buildItem( gentity_t *ent, buildable_t buildable, int distance, flo
   built->enemy = NULL;
   built->s.weapon = BG_FindProjTypeForBuildable( buildable );
 
-  if( ent->client )
-    built->builtBy = ent->client->ps.clientNum;
+  if( builder->client )
+    built->builtBy = builder->client->ps.clientNum;
   else
     built->builtBy = -1;
 
   G_SetOrigin( built, origin );
   VectorCopy( angles, built->s.angles );
+  built->s.angles[ PITCH ] = 0.0f;
   built->s.angles2[ YAW ] = angles[ YAW ];
   VectorCopy( origin, built->s.origin );
   built->s.pos.trType = BG_FindTrajectoryForBuildable( buildable );
   built->physicsBounce = BG_FindBounceForBuildable( buildable );
+  built->s.groundEntityNum = -1;
   built->s.pos.trTime = level.time;
-  AngleVectors( ent->s.apos.trBase, built->s.pos.trDelta, NULL, NULL );
+  AngleVectors( angles, built->s.pos.trDelta, NULL, NULL );
   
   VectorScale( built->s.pos.trDelta, speed, built->s.pos.trDelta );
   VectorSet( built->s.origin2, 0.0f, 0.0f, 1.0f );
