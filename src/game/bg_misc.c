@@ -335,20 +335,20 @@ buildableAttributes_t bg_buildableList[ ] =
     "plasmaturret",        //char      *buildName;
     "Plasma Turret",       //char      *humanName;
     "team_human_def1",     //char      *entityName;
-    { "models/buildables/plasmaturret/pturret_base.md3", "models/buildables/plasmaturret/pturret_top.md3", 0, 0 },
+    { "base.md3", "barrel.md3", "top.md3", 0 },
     { -24, -24, -11 },     //vec3_t    mins;
     { 24, 24, 11 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     80,                    //int       buildPoints;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     50,                    //int       nextthink;
     500,                   //int       turretFireSpeed;
@@ -374,14 +374,14 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t traj;
     0.0,                   //float        bounce;
     80,                    //int       buildPoints;
-    ( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     1000,                  //int       health;
     50,                    //int       damage;
     20,                    //int       splashDamage;
     50,                    //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     50,                    //int       nextthink;
     50,                    //int       turretFireSpeed;

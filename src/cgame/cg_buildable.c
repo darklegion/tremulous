@@ -460,7 +460,7 @@ void CG_Buildable( centity_t *cent )
 
     turretBarrel.hModel = cg_buildables[ es->modelindex ].models[ 1 ];
 
-    CG_PositionRotatedEntityOnTag( &turretBarrel, &ent, ent.hModel, "tag_turret" );
+    CG_PositionEntityOnTag( &turretBarrel, &ent, ent.hModel, "tag_turret" );
     VectorCopy( cent->lerpOrigin, turretBarrel.lightingOrigin );
     AnglesToAxis( es->angles2, flatAxis );
 

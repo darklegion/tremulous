@@ -1242,7 +1242,7 @@ void HFM_Think( gentity_t *self )
   
 #define HDEF1_ANGULARSPEED      10  //degrees/think ~= 200deg/sec
 #define HDEF1_ACCURACYTOLERANCE HDEF1_ANGULARSPEED / 2 //angular difference for turret to fire
-#define HDEF1_VERTICALCAP       20 //+/- maximum pitch
+#define HDEF1_VERTICALCAP       90 //+/- maximum pitch
 #define HDEF1_PROJSPEED         2000.0f //speed of projectile (used in prediction)
 
 /*
