@@ -1048,7 +1048,14 @@ void Cmd_Class_f( gentity_t *ent )
     }
     else
     {
-      //spawing from a bioegg
+      //sanity check
+      if( level.numAlienSpawns <= 0 )
+      {
+        trap_SendServerCommand( ent-g_entities, va( "print \"No suitable spawns available\n\"" ) );
+        return;
+      }
+    
+      //spawing from an egg
       ent->client->pers.pclass = BG_FindClassNumForName( s );
 
       if( ent->client->pers.pclass != PCL_NONE )
@@ -1077,6 +1084,13 @@ void Cmd_Class_f( gentity_t *ent )
   }
   else if( ent->client->pers.pteam == PTE_HUMANS )
   {
+    //sanity check
+    if( level.numHumanSpawns <= 0 )
+    {
+      trap_SendServerCommand( ent-g_entities, va( "print \"No suitable spawns available\n\"" ) );
+      return;
+    }
+    
     //humans cannot use this command whilst alive
     if( ent->client->ps.stats[ STAT_PCLASS ] != PCL_NONE )
     {

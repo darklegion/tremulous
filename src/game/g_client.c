@@ -281,6 +281,9 @@ gentity_t *SelectAlienSpawnPoint( void )
   trace_t   tr;
   float     displacement;
 
+  if( level.numAlienSpawns <= 0 )
+    return NULL;
+  
   VectorSet( mins, -MAX_ALIEN_BBOX, -MAX_ALIEN_BBOX, -MAX_ALIEN_BBOX );
   VectorSet( maxs,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX );
 
@@ -340,6 +343,9 @@ gentity_t *SelectHumanSpawnPoint( void )
   gentity_t *ent;
   trace_t   tr;
 
+  if( level.numHumanSpawns <= 0 )
+    return NULL;
+  
   BG_FindBBoxForClass( PCL_H_BASE, mins, maxs, NULL, NULL, NULL );
 
   count = 0;

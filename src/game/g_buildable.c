@@ -833,6 +833,12 @@ void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
   int       ammo, clips, maxClips;
   gclient_t *client = other->client;
   
+  if( !client )
+    return;
+
+  if( client && client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    return;
+    
   //only allow boostage once every 30 seconds
   if( client->lastBoostedTime + BOOSTER_INTERVAL > level.time )
     return;
