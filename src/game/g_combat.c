@@ -212,6 +212,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   //TA: close any menus the client has open
   G_CloseMenus( self->client->ps.clientNum );
 
+  //TA: deactivate all upgrades
+  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
+    BG_deactivateItem( i, self->client->ps.stats );
+
   // broadcast the death event to everyone
   ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY );
   ent->s.eventParm = meansOfDeath;

@@ -652,6 +652,7 @@ void SpawnCorpse( gentity_t *ent )
   vec3_t      origin, dest;
   trace_t     tr;
   int         i;
+  float       vDiff;
 
   VectorCopy( ent->r.currentOrigin, origin );
 
@@ -739,9 +740,10 @@ void SpawnCorpse( gentity_t *ent )
   
   //change body dimensions
   BG_FindBBoxForClass( ent->client->ps.stats[ STAT_PCLASS ], NULL, NULL, NULL, body->r.mins, body->r.maxs );
-
-  //drop to floor
-  VectorSet( dest, origin[0], origin[1], origin[2] - 4096 );
+  vDiff = body->r.mins[ 2 ] - ent->r.mins[ 2 ];
+  
+  //drop down to match the *model* origins of ent and body
+  VectorSet( dest, origin[ 0 ], origin[ 1 ], origin[ 2 ] - vDiff );
   trap_Trace( &tr, origin, body->r.mins, body->r.maxs, dest, body->s.number, body->clipmask );
   VectorCopy( tr.endpos, origin );
 

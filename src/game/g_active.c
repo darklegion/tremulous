@@ -888,7 +888,7 @@ void ClientThink_real( gentity_t *ent )
 
   if( client->noclip )
     client->ps.pm_type = PM_NOCLIP;
-  else if( client->ps.stats[STAT_HEALTH] <= 0 )
+  else if( client->ps.stats[ STAT_HEALTH ] <= 0 )
     client->ps.pm_type = PM_DEAD;
   else if( client->ps.stats[ STAT_STATE ] & SS_INFESTING ||
            client->ps.stats[ STAT_STATE ] & SS_HOVELING )
@@ -896,6 +896,8 @@ void ClientThink_real( gentity_t *ent )
   else if( client->ps.stats[ STAT_STATE ] & SS_BLOBLOCKED ||
            client->ps.stats[ STAT_STATE ] & SS_GRABBED )
     client->ps.pm_type = PM_GRABBED;
+  else if( BG_gotItem( UP_JETPACK, client->ps.stats ) && BG_activated( UP_JETPACK, client->ps.stats ) )
+    client->ps.pm_type = PM_JETPACK;
   else
     client->ps.pm_type = PM_NORMAL;
 

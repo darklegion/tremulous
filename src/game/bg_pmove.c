@@ -264,7 +264,7 @@ static void PM_Friction( void )
     drop += speed * pm_waterfriction * pm->waterlevel * pml.frametime;
 
   // apply flying friction
-  if( BG_gotItem( UP_JETPACK, pm->ps->stats ) && BG_activated( UP_JETPACK, pm->ps->stats ) )
+  if( pm->ps->pm_type == PM_JETPACK )
     drop += speed * pm_flightfriction * pml.frametime;
 
   if( pm->ps->pm_type == PM_SPECTATOR )
@@ -346,8 +346,7 @@ static float PM_CmdScale( usercmd_t *cmd )
   float       modifier = 1.0f;
   int         aForward, aRight;
 
-  if( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS && pm->ps->pm_type == PM_NORMAL &&
-      !( BG_gotItem( UP_JETPACK, pm->ps->stats ) && BG_activated( UP_JETPACK, pm->ps->stats ) ) )
+  if( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS && pm->ps->pm_type == PM_NORMAL )
   {
     if( !( pm->ps->stats[ STAT_STATE ] & SS_SPEEDBOOST ) )
     {
@@ -2112,22 +2111,23 @@ static void PM_CheckDuck (void)
 
   pm->mins[ 2 ] = PCmins[ 2 ];
 
-  if (pm->ps->pm_type == PM_DEAD)
+  if( pm->ps->pm_type == PM_DEAD )
   {
-    pm->maxs[2] = -8;
+    pm->maxs[ 2 ] = -8;
     pm->ps->viewheight = DEAD_VIEWHEIGHT;
     return;
   }
 
   //TA: If the standing and crouching viewheights are the same the class can't crouch
-  if( ( pm->cmd.upmove < 0 ) && ( PCvh != PCcvh ) &&
-      !( BG_gotItem( UP_JETPACK, pm->ps->stats ) && BG_activated( UP_JETPACK, pm->ps->stats ) ) )
-  { // duck
+  if( ( pm->cmd.upmove < 0 ) && ( PCvh != PCcvh ) && pm->ps->pm_type != PM_JETPACK )
+  {
+    // duck
     pm->ps->pm_flags |= PMF_DUCKED;
   }
   else
-  { // stand up if possible
-    if (pm->ps->pm_flags & PMF_DUCKED)
+  {
+    // stand up if possible
+    if( pm->ps->pm_flags & PMF_DUCKED )
     {
       // try to stand up
       pm->maxs[ 2 ] = PCmaxs[ 2 ];
@@ -3122,12 +3122,12 @@ void PmoveSingle (pmove_t *pmove)
   // update the viewangles
   PM_UpdateViewAngles( pm->ps, &pm->cmd );
 
-  if ( pm->ps->pm_type == PM_DEAD || pm->ps->pm_type == PM_GRABBED )
+  if( pm->ps->pm_type == PM_DEAD || pm->ps->pm_type == PM_GRABBED )
     PM_DeadMove( );
 
   PM_DropTimers( );
 
-  if( BG_gotItem( UP_JETPACK, pm->ps->stats ) && BG_activated( UP_JETPACK, pm->ps->stats ) )
+  if( pm->ps->pm_type == PM_JETPACK )
     PM_JetPackMove( );
   else if( pm->ps->pm_flags & PMF_GRAPPLE_PULL )
   {

@@ -107,6 +107,7 @@ typedef enum
   PM_NORMAL,        // can accelerate and turn
   PM_NOCLIP,        // noclip movement
   PM_SPECTATOR,     // still run into walls
+  PM_JETPACK,       // jetpack physics
   PM_GRABBED,       // like dead, but for when the player is still live
   PM_DEAD,          // no acceleration or turning, but free falling
   PM_FREEZE,        // stuck in place with no control
