@@ -2819,9 +2819,14 @@ static void PM_Weapon( void )
       
       if( ( attack1 || pm->ps->stats[ STAT_MISC ] == 0 ) && !attack2 && !attack3 )
       {
-        pm->ps->weaponTime = 0;
-        pm->ps->weaponstate = WEAPON_READY;
-        return;
+        if( pm->ps->stats[ STAT_MISC ] < LCANNON_TOTAL_CHARGE )
+        {
+          pm->ps->weaponTime = 0;
+          pm->ps->weaponstate = WEAPON_READY;
+          return;
+        }
+        else
+          attack1 = !attack1;
       }
 
       //erp this looks confusing

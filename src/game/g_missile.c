@@ -423,7 +423,12 @@ gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int da
 
   bolt = G_Spawn( );
   bolt->classname = "lcannon";
-  bolt->nextthink = level.time + 10000;
+
+  if( damage == LCANNON_TOTAL_CHARGE )
+    bolt->nextthink = level.time;
+  else
+    bolt->nextthink = level.time + 10000;
+
   bolt->think = G_ExplodeMissile;
   bolt->s.eType = ET_MISSILE;
   bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;

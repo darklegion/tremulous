@@ -1221,6 +1221,8 @@ typedef struct
   qhandle_t   humanBuildableDestroyedPS;
   qhandle_t   alienBuildableDamagedPS;
   qhandle_t   alienBuildableDestroyedPS;
+
+  sfxHandle_t lCannonWarningSound;
 } cgMedia_t;
 
 

@@ -387,7 +387,7 @@
 #define LCANNON_SECONDARY_DAMAGE    HDM(30)
 #define LCANNON_SECONDARY_RADIUS    75
 #define LCANNON_SPEED               250
-#define LCANNON_CHARGE_TIME         1000
+#define LCANNON_CHARGE_TIME         2000
 #define LCANNON_TOTAL_CHARGE        255
 
 #define HBUILD_PRICE                0

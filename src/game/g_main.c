@@ -747,28 +747,31 @@ qboolean G_RemoveFromSpawnQueue( spawnQueue_t *sq, int clientNum )
 {
   int i = sq->front;
 
-  do
+  if( G_GetSpawnQueueLength( sq ) )
   {
-    if( sq->clients[ i ] == clientNum )
+    do
     {
-      //and this kids is why it would have
-      //been better to use an LL for internal
-      //representation
-      do
+      if( sq->clients[ i ] == clientNum )
       {
-        sq->clients[ i ] = sq->clients[ QUEUE_PLUS1( i ) ];
+        //and this kids is why it would have
+        //been better to use an LL for internal
+        //representation
+        do
+        {
+          sq->clients[ i ] = sq->clients[ QUEUE_PLUS1( i ) ];
+          
+          i = QUEUE_PLUS1( i );
+        } while( i != sq->back );
+
+        sq->back = QUEUE_MINUS1( sq->back );
+        g_entities[ clientNum ].client->ps.pm_flags &= ~PMF_QUEUED;
         
-        i = QUEUE_PLUS1( i );
-      } while( i != sq->back );
+        return qtrue;
+      }
 
-      sq->back = QUEUE_MINUS1( sq->back );
-      g_entities[ clientNum ].client->ps.pm_flags &= ~PMF_QUEUED;
-      
-      return qtrue;
-    }
-
-    i = QUEUE_PLUS1( i );
-  } while( i != QUEUE_PLUS1( sq->back ) );
+      i = QUEUE_PLUS1( i );
+    } while( i != QUEUE_PLUS1( sq->back ) );
+  }
 
   return qfalse;
 }
@@ -784,20 +787,50 @@ int G_GetPosInSpawnQueue( spawnQueue_t *sq, int clientNum )
 {
   int i = sq->front;
 
-  do
+  if( G_GetSpawnQueueLength( sq ) )
   {
-    if( sq->clients[ i ] == clientNum )
+    do
     {
-      if( i < sq->front )
-        return i + MAX_CLIENTS - sq->front + 1;
-      else
-        return i - sq->front + 1;
-    }
+      if( sq->clients[ i ] == clientNum )
+      {
+        if( i < sq->front )
+          return i + MAX_CLIENTS - sq->front + 1;
+        else
+          return i - sq->front + 1;
+      }
 
-    i = QUEUE_PLUS1( i );
-  } while( i != QUEUE_PLUS1( sq->back ) );
+      i = QUEUE_PLUS1( i );
+    } while( i != QUEUE_PLUS1( sq->back ) );
+  }
 
   return -1;
+}
+
+/*
+============
+G_PrintSpawnQueue
+
+Print the contents of a spawn queue
+============
+*/
+void G_PrintSpawnQueue( spawnQueue_t *sq )
+{
+  int i = sq->front;
+  int length = G_GetSpawnQueueLength( sq );
+
+  G_Printf( "l: %d f: %d b: %d c: ", length, sq->front, sq->back );
+  
+  if( length > 0 )
+  {
+    do
+    {
+      G_Printf( "%d ", sq->clients[ i ] );
+
+      i = QUEUE_PLUS1( i );
+    } while( i != QUEUE_PLUS1( sq->back ) );
+  }
+
+  G_Printf( "\n" );
 }
 
 /*

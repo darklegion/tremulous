@@ -510,8 +510,8 @@ void trigger_stage_use( gentity_t *self, gentity_t *other, gentity_t *activator 
 
 void SP_trigger_stage( gentity_t *self )
 {
-  G_SpawnInt( "team", "0", &self->stageTeam );
-  G_SpawnInt( "stage", "0", &self->stageStage );
+  G_SpawnInt( "team", "0", (int *)&self->stageTeam );
+  G_SpawnInt( "stage", "0", (int *)&self->stageStage );
 
   self->use = trigger_stage_use;
 
