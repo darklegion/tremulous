@@ -936,7 +936,7 @@ void Cmd_Class_f( gentity_t *ent )
   vec3_t    up = { 0.0f, 0.0f, 1.0f };
   int       length = 4096;
   int       i;
-  trace_t   tr;
+  trace_t   tr, tr2;
   vec3_t    infestOrigin, infestAngles;
   int       allowedClasses[ PCL_NUM_CLASSES ];
   int       numClasses = 0;
@@ -991,7 +991,7 @@ void Cmd_Class_f( gentity_t *ent )
 
       VectorCopy( ent->s.pos.trBase, infestOrigin );
       
-      infestOrigin[ 2 ] += ( fabs( toMins[ 2 ] ) - fabs( fromMins[ 2 ] ) ) + 1;
+      infestOrigin[ 2 ] += ( fabs( toMins[ 2 ] ) - fabs( fromMins[ 2 ] ) ) + 1.0f;
       VectorCopy( infestOrigin, temp );
       temp[ 2 ] += EVOLVE_TRACE_HEIGHT;
 
@@ -1004,8 +1004,11 @@ void Cmd_Class_f( gentity_t *ent )
       trap_Trace( &tr, temp, toMins, toMaxs, infestOrigin, ent->s.number, MASK_SHOT );
       VectorCopy( tr.endpos, infestOrigin );
       
+      //make REALLY sure
+      trap_Trace( &tr2, ent->s.pos.trBase, NULL, NULL, infestOrigin, ent->s.number, MASK_SHOT );
+      
       //check there is room to evolve
-      if( !tr.startsolid )
+      if( !tr.startsolid && tr2.fraction == 1.0f )
       {
         //...check we can evolve to that class
         if( numLevels >= 0 && BG_FindStagesForClass( ent->client->pers.classSelection, g_alienStage.integer ) )

@@ -259,6 +259,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         
         //add credit
         player->client->ps.persistant[ PERS_CREDIT ] += (int)( (float)classValue * ( numerator / denominator ) );
+
+        if( player->client->ps.persistant[ PERS_CREDIT ] > HUMAN_MAX_CREDITS )
+          player->client->ps.persistant[ PERS_CREDIT ] = HUMAN_MAX_CREDITS;
       }
     }
   }
@@ -267,6 +270,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
            self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
     attacker->client->ps.persistant[ PERS_CREDIT ]++;
+    
+    if( attacker->client->ps.persistant[ PERS_CREDIT ] > HUMAN_MAX_CREDITS )
+      attacker->client->ps.persistant[ PERS_CREDIT ] = HUMAN_MAX_CREDITS;
   }
       
   // Add team bonuses

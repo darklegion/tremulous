@@ -38,7 +38,7 @@
 #define ABUILDER_BLOB_TIME          5000
 
 #define SOLDIER_BITE_DMG            ADM(60)
-#define SOLDIER_BITE_RANGE          64.0f
+#define SOLDIER_BITE_RANGE          80.0f
 #define SOLDIER_BITE_REPEAT         500
 
 #define HYDRA_CLAW_DMG              ADM(40)
@@ -131,37 +131,37 @@
 #define HYDRA_COST                  1
 
 #define HYDRA_UPG_SPEED             1.25f
-#define HYDRA_UPG_VALUE             AVM(250)
+#define HYDRA_UPG_VALUE             AVM(275)
 #define HYDRA_UPG_HEALTH            AHM(100)
 #define HYDRA_UPG_REGEN             2
 #define HYDRA_UPG_COST              1
 
 #define CHIMERA_SPEED               1.2f
-#define CHIMERA_VALUE               AVM(500)
+#define CHIMERA_VALUE               AVM(350)
 #define CHIMERA_HEALTH              AHM(150)
 #define CHIMERA_REGEN               3
 #define CHIMERA_COST                1
 
 #define CHIMERA_UPG_SPEED           1.2f
-#define CHIMERA_UPG_VALUE           AVM(600)
+#define CHIMERA_UPG_VALUE           AVM(450)
 #define CHIMERA_UPG_HEALTH          AHM(175)
 #define CHIMERA_UPG_REGEN           4
 #define CHIMERA_UPG_COST            1
 
 #define DRAGOON_SPEED               1.2f
-#define DRAGOON_VALUE               AVM(600)
+#define DRAGOON_VALUE               AVM(500)
 #define DRAGOON_HEALTH              AHM(250)
 #define DRAGOON_REGEN               5
 #define DRAGOON_COST                1
 
 #define DRAGOON_UPG_SPEED           1.2f
-#define DRAGOON_UPG_VALUE           AVM(700)
+#define DRAGOON_UPG_VALUE           AVM(600)
 #define DRAGOON_UPG_HEALTH          AHM(300)
 #define DRAGOON_UPG_REGEN           6
 #define DRAGOON_UPG_COST            1
 
 #define BMOFO_SPEED                 1.1f
-#define BMOFO_VALUE                 AVM(1000)
+#define BMOFO_VALUE                 AVM(800)
 #define BMOFO_HEALTH                AHM(350)
 #define BMOFO_REGEN                 7
 #define BMOFO_COST                  2
@@ -300,7 +300,7 @@
 #define HUMAN_WDMG_MODIFIER         1.0f
 #define HDM(d)                      ((int)((float)d*HUMAN_WDMG_MODIFIER))
 
-#define BLASTER_REPEAT              1000
+#define BLASTER_REPEAT              600
 #define BLASTER_SPREAD              200
 #define BLASTER_SPEED               700
 #define BLASTER_DMG                 HDM(10)
@@ -314,49 +314,60 @@
 #define RIFLE_SPREAD                200
 #define RIFLE_DMG                   HDM(5)
 
+#define PAINSAW_PRICE               100
+#define PAINSAW_REPEAT              75
+#define PAINSAW_DAMAGE              HDM(5)
+#define PAINSAW_RANGE               48.0f
+
+#define SHOTGUN_PRICE               150
 #define SHOTGUN_SHELLS              8
 #define SHOTGUN_PELLETS             8 //used to sync server and client side
 #define SHOTGUN_SPAWNCLIPS          2
 #define SHOTGUN_MAXCLIPS            2
 #define SHOTGUN_REPEAT              1200
 #define SHOTGUN_RELOAD              2000
-#define SHOTGUN_PRICE               150
 #define SHOTGUN_SPREAD              900
 #define SHOTGUN_DMG                 HDM(12)
 
+#define LASGUN_PRICE                250
+#define LASGUN_AMMO                 80
+#define LASGUN_REPEAT               150
+#define LASGUN_RELOAD               2000
+#define LASGUN_DAMAGE               HDM(10)
+
+#define MDRIVER_PRICE               350
+#define MDRIVER_CLIPSIZE            5
+#define MDRIVER_SPAWNCLIPS          2
+#define MDRIVER_MAXCLIPS            3
+#define MDRIVER_DMG                 HDM(50)
+#define MDRIVER_REPEAT              1000
+#define MDRIVER_RELOAD              2000
+
+#define CHAINGUN_PRICE              400
 #define CHAINGUN_BULLETS            200
 #define CHAINGUN_REPEAT             75
-#define CHAINGUN_PRICE              300
 #define CHAINGUN_SPREAD             1200
 #define CHAINGUN_DMG                HDM(6)
 
+#define PRIFLE_PRICE                400
+#define PRIFLE_CLIPS                50
+#define PRIFLE_SPAWNCLIPS           3
+#define PRIFLE_MAXCLIPS             3
+#define PRIFLE_REPEAT               100
+#define PRIFLE_RELOAD               2000
+#define PRIFLE_DMG                  HDM(13)
+#define PRIFLE_SPEED                1500
+
+#define FLAMER_PRICE                450
 #define FLAMER_GAS                  80
 #define FLAMER_REPEAT               300
-#define FLAMER_PRICE                350
 #define FLAMER_DMG                  HDM(30)
 #define FLAMER_RADIUS               50
 #define FLAMER_LIFETIME             1000.0f
 #define FLAMER_SPEED                200.0f
 #define FLAMER_LAG                  0.65f  //the amount of player velocity that is added to the fireball
 
-#define MDRIVER_CLIPSIZE            5
-#define MDRIVER_SPAWNCLIPS          2
-#define MDRIVER_MAXCLIPS            3
-#define MDRIVER_PRICE               250
-#define MDRIVER_DMG                 HDM(50)
-#define MDRIVER_REPEAT              1000
-#define MDRIVER_RELOAD              2000
-
-#define PRIFLE_CLIPS                50
-#define PRIFLE_SPAWNCLIPS           3
-#define PRIFLE_MAXCLIPS             3
-#define PRIFLE_PRICE                300
-#define PRIFLE_REPEAT               100
-#define PRIFLE_RELOAD               2000
-#define PRIFLE_DMG                  HDM(13)
-#define PRIFLE_SPEED                1500
-
-#define LCANNON_PRICE               400
+#define LCANNON_PRICE               600
 #define LCANNON_AMMO                60
 #define LCANNON_REPEAT              500
 #define LCANNON_CHARGEREPEAT        1000
@@ -369,23 +380,11 @@
 #define LCANNON_CHARGE_TIME         1000
 #define LCANNON_TOTAL_CHARGE        255
 
-
-#define LASGUN_PRICE                200
-#define LASGUN_AMMO                 100
-#define LASGUN_REPEAT               150
-#define LASGUN_RELOAD               2000
-#define LASGUN_DAMAGE               HDM(15)
-
-#define PAINSAW_PRICE               100
-#define PAINSAW_REPEAT              75
-#define PAINSAW_DAMAGE              HDM(5)
-#define PAINSAW_RANGE               48.0f
-
 #define HBUILD_PRICE                0
 #define HBUILD_REPEAT               1000
 #define HBUILD_DELAY                9000
 
-#define HBUILD2_PRICE               200
+#define HBUILD2_PRICE               75
 #define HBUILD2_REPEAT              1000
 #define HBUILD2_DELAY               4000
 
@@ -403,7 +402,7 @@
 #define ANTITOXIN_PRICE             20
 
 #define BATTPACK_PRICE              100
-#define BATTPACK_MODIFIER           2.0f //modifier for extra energy storage available
+#define BATTPACK_MODIFIER           1.5f //modifier for extra energy storage available
 
 #define JETPACK_PRICE               120
 #define JETPACK_FLOAT_SPEED         128.0f //up movement speed
@@ -528,3 +527,6 @@
 #define MIN_FALL_DISTANCE           30.0f //the fall distance at which fall damage kicks in
 #define MAX_FALL_DISTANCE           120.0f //the fall distance at which maximum damage is dealt
 #define AVG_FALL_DISTANCE           ((MIN_FALL_DISTANCE+MAX_FALL_DISTANCE)/2.0f)
+
+#define HUMAN_MAX_CREDITS           2000
+#define ALIEN_MAX_KILLS             9

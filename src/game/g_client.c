@@ -1396,7 +1396,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
 
   if( !( client->sess.sessionTeam == TEAM_SPECTATOR ) )
   {
-    G_KillBox( ent );
+    /*G_KillBox( ent );*/ //blame this if a newly spawned client gets stuck in another
     trap_LinkEntity( ent );
 
     // force the base weapon up
