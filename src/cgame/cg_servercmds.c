@@ -576,51 +576,81 @@ void CG_Menu( int menu )
     case MN_H_ARMOURY:  trap_SendConsoleCommand( "menu tremulous_humanarmoury\n" ); break;
                         
     case MN_H_NOROOM:
-      trap_Cvar_Set( "ui_dialog", "There is no room to build here. Move until the buildable turns "
-                                  "translucent green indicating a valid build location." );
-      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "There is no room to build here. Move until the buildable turns "
+                                    "translucent green indicating a valid build location." );
+        trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      }
       break;
       
     case MN_H_NOPOWER:
-      trap_Cvar_Set( "ui_dialog", "There is no power remaining. Free up power by destroying existing "
-                                  "buildable objects." );
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "There is no power remaining. Free up power by destroying existing "
+                                    "buildable objects." );
+        trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      }
+      break;
+      
+    case MN_H_NOTPOWERED:
+      trap_Cvar_Set( "ui_dialog", "This buildable is not powered. Build a reactor and/or repeater in "
+                                  "order to power it." );
       trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       break;
       
     case MN_H_NORMAL:
-      trap_Cvar_Set( "ui_dialog", "Cannot build on this surface. The surface is too steep or unsuitable "
-                                  "to build on. Please choose another site for this structure." );
-      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "Cannot build on this surface. The surface is too steep or unsuitable "
+                                    "to build on. Please choose another site for this structure." );
+        trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      }
       break;
       
     case MN_H_REACTOR:
-      trap_Cvar_Set( "ui_dialog", "There can only be one reactor. Destroy the existing one if you "
-                                  "wish to move it." );
-      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "There can only be one reactor. Destroy the existing one if you "
+                                    "wish to move it." );
+        trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      }
       break;
       
     case MN_H_REPEATER:
-      trap_Cvar_Set( "ui_dialog", "There is no power here. If available, a Repeater may be used to "
-                                  "transmit power to this location." );
-      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "There is no power here. If available, a Repeater may be used to "
+                                    "transmit power to this location." );
+        trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      }
       break;
       
     case MN_H_NODCC:
-      trap_Cvar_Set( "ui_dialog", "There is no Defense Computer. A Defense Computer is needed to build "
-                                  "this." );
-      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "There is no Defense Computer. A Defense Computer is needed to build "
+                                    "this." );
+        trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      }
       break;
       
     case MN_H_RPLWARN:
-      trap_Cvar_Set( "ui_dialog", "WARNING: This replicator will not be powered. Build a reactor to "
-                                  "prevent seeing this message again." );
-      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "WARNING: This replicator will not be powered. Build a reactor to "
+                                    "prevent seeing this message again." );
+        trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      }
       break;
       
     case MN_H_RPTWARN:
-      trap_Cvar_Set( "ui_dialog", "WARNING: This repeater will not be powered as there is no parent "
-                                  "reactor providing power. Build a reactor." );
-      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "WARNING: This repeater will not be powered as there is no parent "
+                                    "reactor providing power. Build a reactor." );
+        trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      }
       break;
       
     case MN_H_NOSLOTS:
@@ -646,56 +676,75 @@ void CG_Menu( int menu )
 
       
     case MN_A_NOROOM:
-      trap_Cvar_Set( "ui_dialog", "There is no room to build here. Move until the structure turns "
-                                  "translucent green indicating a valid build location." );
-      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "There is no room to build here. Move until the structure turns "
+                                    "translucent green indicating a valid build location." );
+        trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      }
       break;
       
     case MN_A_NOCREEP:
-      trap_Cvar_Set( "ui_dialog", "There is no creep here. You must build near existing Eggs or "
-                                  "the Overmind. Alien structures will not support themselves." );
-      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "There is no creep here. You must build near existing Eggs or "
+                                    "the Overmind. Alien structures will not support themselves." );
+        trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      }
       break;
       
     case MN_A_NOOVMND:
-      trap_Cvar_Set( "ui_dialog", "There is no Overmind. An Overmind must be built to control "
-                                  "the structure you tried to place" );
-      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "There is no Overmind. An Overmind must be built to control "
+                                    "the structure you tried to place" );
+        trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      }
       break;
       
     case MN_A_NOEROOM:
-      trap_Cvar_Set( "ui_dialog", "There is no room to evolve here. Move away from walls or other "
-                                  "nearby objects and try again." );
-      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "There is no room to evolve here. Move away from walls or other "
+                                    "nearby objects and try again." );
+        trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      }
       break;
       
     case MN_A_OVERMIND:
-      trap_Cvar_Set( "ui_dialog", "There can only be one Overmind. Destroy the existing one if you "
-                                  "wish to move it." );
-      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "There can only be one Overmind. Destroy the existing one if you "
+                                    "wish to move it." );
+        trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      }
       break;
       
     case MN_A_NOASSERT:
-      trap_Cvar_Set( "ui_dialog", "The Overmind cannot control anymore structures. Destroy existing "
-                                  "structures to build more." );
-      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "The Overmind cannot control anymore structures. Destroy existing "
+                                    "structures to build more." );
+        trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      }
       break;
       
     case MN_A_SPWNWARN:
-      trap_Cvar_Set( "ui_dialog", "WARNING: This spawn will not be controlled by an Overmind. "
-                                  "Build an Overmind to prevent seeing this message again." );
-      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "WARNING: This spawn will not be controlled by an Overmind. "
+                                    "Build an Overmind to prevent seeing this message again." );
+        trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      }
       break;
       
     case MN_A_NORMAL:
-      trap_Cvar_Set( "ui_dialog", "Cannot build on this surface. This surface is too steep or unsuitable "
-                                  "to build on. Please choose another site for this structure." );
-      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
-      break;
-      
-    case MN_A_NOFUNDS:
-      trap_Cvar_Set( "ui_dialog", "You do not possess sufficient organs to perform this action." );
-      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "Cannot build on this surface. This surface is too steep or unsuitable "
+                                    "to build on. Please choose another site for this structure." );
+        trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      }
       break;
       
     case MN_A_HOVEL_OCCUPIED:

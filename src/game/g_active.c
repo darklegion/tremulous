@@ -1051,7 +1051,7 @@ void ClientThink_real( gentity_t *ent )
 
   VectorCopy( client->ps.origin, client->oldOrigin );
 
-  Pmove( &pm);
+  Pmove( &pm );
 
   // save results of pmove
   if( ent->client->ps.eventSequence != oldEventSequence )

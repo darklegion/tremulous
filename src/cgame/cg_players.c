@@ -1303,6 +1303,100 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t srcAngles,
   AnglesToAxis( headAngles, head );
 }
 
+#define MODEL_WWSMOOTHTIME 200
+
+/*
+===============
+CG_PlayerWWSmoothing
+
+Smooth the angles of transitioning wall walkers
+===============
+*/
+static void CG_PlayerWWSmoothing( centity_t *cent, vec3_t in[ 3 ], vec3_t out[ 3 ] )
+{
+  entityState_t *es = &cent->currentState;
+  int           i;
+  vec3_t        surfNormal, rotAxis, temp;
+  vec3_t        refNormal     = { 0.0f, 0.0f,  1.0f };
+  vec3_t        ceilingNormal = { 0.0f, 0.0f, -1.0f };
+  float         stLocal, sFraction, rotAngle;
+  vec3_t        inAxis[ 3 ], lastAxis[ 3 ], outAxis[ 3 ];
+    
+  //set surfNormal
+  if( !( es->eFlags & EF_WALLCLIMBCEILING ) )
+    VectorCopy( es->angles2, surfNormal );
+  else
+    VectorCopy( ceilingNormal, surfNormal );
+
+  AxisCopy( in, inAxis );
+
+  if( !VectorCompare( surfNormal, cent->pe.lastNormal ) )
+  {
+    //if we moving from the ceiling to the floor special case
+    //( x product of colinear vectors is undefined)
+    if( VectorCompare( ceilingNormal, cent->pe.lastNormal ) &&
+        VectorCompare( refNormal,     surfNormal ) )
+    {
+      VectorCopy( in, rotAxis );
+      rotAngle = 180.0f;
+    }
+    else
+    {
+      AxisCopy( cent->pe.lastAxis, lastAxis );
+      rotAngle = DotProduct( inAxis[ 0 ], lastAxis[ 0 ] ) +
+                 DotProduct( inAxis[ 1 ], lastAxis[ 1 ] ) +
+                 DotProduct( inAxis[ 2 ], lastAxis[ 2 ] );
+
+      rotAngle = RAD2DEG( acos( ( rotAngle - 1.0f ) / 2.0f ) );
+
+      CrossProduct( lastAxis[ 0 ], inAxis[ 0 ], temp );
+      VectorCopy( temp, rotAxis );
+      CrossProduct( lastAxis[ 1 ], inAxis[ 1 ], temp );
+      VectorAdd( rotAxis, temp, rotAxis );
+      CrossProduct( lastAxis[ 2 ], inAxis[ 2 ], temp );
+      VectorAdd( rotAxis, temp, rotAxis );
+
+      VectorNormalize( rotAxis );
+    }
+          
+    //iterate through smooth array
+    for( i = 0; i < MAXSMOOTHS; i++ )
+    {
+      //found an unused index in the smooth array
+      if( cent->pe.sList[ i ].time + MODEL_WWSMOOTHTIME < cg.time )
+      {
+        //copy to array and stop
+        VectorCopy( rotAxis, cent->pe.sList[ i ].rotAxis );
+        cent->pe.sList[ i ].rotAngle = rotAngle;
+        cent->pe.sList[ i ].time = cg.time;
+        break;
+      }
+    }
+  }
+  
+  //iterate through ops
+  for( i = MAXSMOOTHS - 1; i >= 0; i-- )
+  {
+    //if this op has time remaining, perform it
+    if( cg.time < cent->pe.sList[ i ].time + MODEL_WWSMOOTHTIME )
+    {
+      stLocal = 1.0f - ( ( ( cent->pe.sList[ i ].time + MODEL_WWSMOOTHTIME ) - cg.time ) / MODEL_WWSMOOTHTIME );
+      sFraction = -( cos( stLocal * M_PI ) + 1.0f ) / 2.0f;
+
+      RotatePointAroundVector( outAxis[ 0 ], cent->pe.sList[ i ].rotAxis,
+        inAxis[ 0 ], sFraction * cent->pe.sList[ i ].rotAngle );
+      RotatePointAroundVector( outAxis[ 1 ], cent->pe.sList[ i ].rotAxis,
+        inAxis[ 1 ], sFraction * cent->pe.sList[ i ].rotAngle );
+      RotatePointAroundVector( outAxis[ 2 ], cent->pe.sList[ i ].rotAxis,
+        inAxis[ 2 ], sFraction * cent->pe.sList[ i ].rotAngle );
+
+      AxisCopy( outAxis, inAxis );
+    }
+  }
+
+  //outAxis has been copied to inAxis
+  AxisCopy( inAxis, out );
+}
 
 /*
 ===============
@@ -1315,7 +1409,6 @@ static void CG_PlayerNonSegAngles( centity_t *cent, vec3_t srcAngles, vec3_t non
 {
   vec3_t        localAngles;
   float         dest;
-  static int    movementOffsets[ 8 ] = { 0, 22, 45, -22, 0, 22, -45, -22 };
   vec3_t        velocity;
   float         speed;
   int           dir, clientNum;
@@ -1338,8 +1431,7 @@ static void CG_PlayerNonSegAngles( centity_t *cent, vec3_t srcAngles, vec3_t non
   //make sure that WW transitions don't cause the swing stuff to go nuts
   if( !VectorCompare( surfNormal, cent->pe.lastNormal ) )
   {
-    VectorCopy( surfNormal, cent->pe.lastNormal );
-
+    //stop CG_SwingAngles having an eppy
     cent->pe.nonseg.yawAngle = localAngles[ YAW ];
     cent->pe.nonseg.yawing = qfalse;
   }
@@ -1948,10 +2040,17 @@ void CG_Player( centity_t *cent )
   else
     CG_PlayerNonSegAngles( cent, angles, legs.axis );
 
+  AxisCopy( legs.axis, tempAxis );
+  
   //rotate the legs axis to back to the wall
   if( es->eFlags & EF_WALLCLIMB &&
       BG_rotateAxis( es->angles2, legs.axis, tempAxis, qfalse, es->eFlags & EF_WALLCLIMBCEILING ) )
     AxisCopy( tempAxis, legs.axis );
+
+  //smooth out WW transitions so the model doesn't hop around
+  CG_PlayerWWSmoothing( cent, legs.axis, legs.axis );
+
+  AxisCopy( tempAxis, cent->pe.lastAxis );
 
   // get the animation state (after rotation, to allow feet shuffle)
   if( !ci->nonsegmented )
@@ -2107,6 +2206,8 @@ void CG_Player( centity_t *cent )
     if( CG_IsParticleSystemValid( &cent->jetPackPS ) )
       CG_DestroyParticleSystem( &cent->jetPackPS );
   }
+    
+  VectorCopy( surfNormal, cent->pe.lastNormal );
 }
 
 /*

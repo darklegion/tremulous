@@ -345,7 +345,7 @@
 #define MDRIVER_SPAWNCLIPS          2
 #define MDRIVER_MAXCLIPS            3
 #define MDRIVER_PRICE               250
-#define MDRIVER_DMG                 HDM(100)
+#define MDRIVER_DMG                 HDM(50)
 #define MDRIVER_REPEAT              1000
 #define MDRIVER_RELOAD              2000
 
@@ -363,8 +363,8 @@
 #define LCANNON_REPEAT              500
 #define LCANNON_CHARGEREPEAT        1000
 #define LCANNON_RELOAD              2000
-#define LCANNON_DAMAGE              HDM(500)
-#define LCANNON_SECONDARY_DAMAGE    HDM(50)
+#define LCANNON_DAMAGE              HDM(400)
+#define LCANNON_SECONDARY_DAMAGE    HDM(30)
 #define LCANNON_SPEED               250
 #define LCANNON_CHARGE_TIME         1000
 
@@ -433,7 +433,7 @@
  * 
  */
 
-#define HUMAN_BHLTH_MODIFIER        0.5f
+#define HUMAN_BHLTH_MODIFIER        0.6f
 #define HBHM(h)                     ((int)((float)h*HUMAN_BHLTH_MODIFIER))
 
 #define REACTOR_BASESIZE            1000
@@ -449,14 +449,14 @@
 
 #define MEDISTAT_BP                 80
 #define MEDISTAT_BT                 10000
-#define MEDISTAT_HEALTH             HBHM(200)
+#define MEDISTAT_HEALTH             HBHM(300)
 #define MEDISTAT_SPLASHDAMAGE       50
 #define MEDISTAT_SPLASHRADIUS       100
 #define MAX_MEDISTAT_CLIENTS        1
 
 #define MGTURRET_BP                 80
 #define MGTURRET_BT                 10000
-#define MGTURRET_HEALTH             HBHM(100)
+#define MGTURRET_HEALTH             HBHM(250)
 #define MGTURRET_SPLASHDAMAGE       50
 #define MGTURRET_SPLASHRADIUS       100
 #define MGTURRET_ANGULARSPEED       5  //degrees/think ~= 200deg/sec
@@ -471,7 +471,7 @@
 
 #define TESLAGEN_BP                 100
 #define TESLAGEN_BT                 15000
-#define TESLAGEN_HEALTH             HBHM(200)
+#define TESLAGEN_HEALTH             HBHM(350)
 #define TESLAGEN_SPLASHDAMAGE       50
 #define TESLAGEN_SPLASHRADIUS       100
 #define TESLAGEN_REPEAT             500
@@ -486,7 +486,7 @@
 
 #define ARMOURY_BP                  100
 #define ARMOURY_BT                  10000
-#define ARMOURY_HEALTH              HBHM(175)
+#define ARMOURY_HEALTH              HBHM(200)
 #define ARMOURY_SPLASHDAMAGE        50
 #define ARMOURY_SPLASHRADIUS        100
 

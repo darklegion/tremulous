@@ -571,7 +571,6 @@ typedef enum
   MN_A_INFEST,
   MN_A_HOVEL_OCCUPIED,
   MN_A_HOVEL_BLOCKED,
-  MN_A_NOFUNDS,
   MN_A_NOEROOM,
   
   //alien build
@@ -595,6 +594,7 @@ typedef enum
   //human build
   MN_H_REPEATER,
   MN_H_NOPOWER,
+  MN_H_NOTPOWERED,
   MN_H_NODCC,
   MN_H_REACTOR,
   MN_H_NOROOM,

@@ -383,6 +383,17 @@ typedef struct
   int         animationTime;    // time when the first frame of the animation will be exact
 } lerpFrame_t;
 
+//TA: smoothing of view and model for WW transitions
+#define   MAXSMOOTHS          32
+
+typedef struct
+{
+  float     time;
+  
+  vec3_t    rotAxis;
+  float     rotAngle;
+} smooth_t;
+
 
 typedef struct
 {
@@ -396,6 +407,8 @@ typedef struct
   qboolean    barrelSpinning;
 
   vec3_t      lastNormal;
+  vec3_t      lastAxis[ 3 ];
+  smooth_t    sList[ MAXSMOOTHS ];
 } playerEntity_t;
 
 typedef struct lightFlareStatus_s
@@ -749,17 +762,6 @@ typedef struct
   //same number of sounds as animations
   sound_t     sounds[ MAX_BUILDABLE_ANIMATIONS ];
 } buildableInfo_t;
-
-//TA: smoothing of view for WW transitions
-#define   MAXSMOOTHS          32
-
-typedef struct
-{
-  float     time;
-  
-  vec3_t    rotAxis;
-  float     rotAngle;
-} smooth_t;
 
 #define MAX_REWARDSTACK   10
 #define MAX_SOUNDBUFFER   20
@@ -1356,6 +1358,7 @@ extern  vmCvar_t    cg_alienZapTime;
 extern  vmCvar_t    cg_railTrailTime;
 extern  vmCvar_t    cg_errorDecay;
 extern  vmCvar_t    cg_nopredict;
+extern  vmCvar_t    cg_debugMove;
 extern  vmCvar_t    cg_noPlayerAnims;
 extern  vmCvar_t    cg_showmiss;
 extern  vmCvar_t    cg_footsteps;
@@ -1425,6 +1428,7 @@ extern  vmCvar_t    cg_consoleLatency;
 extern  vmCvar_t    cg_lightFlare;
 extern  vmCvar_t    cg_debugParticles;
 extern  vmCvar_t    cg_debugPVS;
+extern  vmCvar_t    cg_disableBuildWarnings;
 
 //TA: hack to get class an carriage through to UI module
 extern  vmCvar_t    ui_currentClass;

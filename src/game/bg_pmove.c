@@ -2036,6 +2036,12 @@ static void PM_GroundTrace( void )
   point[ 2 ] = pm->ps->origin[ 2 ] - 0.25f;
 
   pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
+/*  if( trace.fraction < 1.0f && VectorCompare( trace.plane.normal, vec3_origin ) )
+  {
+    Com_Printf( "\n%v %d\n", trace.plane.normal, trace.entityNum );
+    Com_Printf( "%v %v\n", pm->ps->origin, point );
+    Com_Printf( "%d %d\n", trace.allsolid, trace.startsolid );
+  }*/
   
   pml.groundTrace = trace;
 
@@ -3306,11 +3312,11 @@ void PmoveSingle( pmove_t *pmove )
   }
   else if( pm->ps->pm_flags & PMF_TIME_WATERJUMP )
     PM_WaterJumpMove( );
-  else if ( pm->waterlevel > 1 )
+  else if( pm->waterlevel > 1 )
     PM_WaterMove( );
-  else if ( pml.ladder )
+  else if( pml.ladder )
     PM_LadderMove( );
-  else if ( pml.walking )
+  else if( pml.walking )
   {
     if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) &&
         ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )

@@ -1434,7 +1434,7 @@ void HArmoury_Activate( gentity_t *self, gentity_t *other, gentity_t *activator 
     if( self->powered )
       G_TriggerMenu( activator->client->ps.clientNum, MN_H_ARMOURY );
     else
-      G_TriggerMenu( activator->client->ps.clientNum, MN_H_NOPOWER );
+      G_TriggerMenu( activator->client->ps.clientNum, MN_H_NOTPOWERED );
   }
 }
 
@@ -2505,6 +2505,10 @@ qboolean G_ValidateBuild( gentity_t *ent, buildable_t buildable )
 
     case IBE_NOOVERMIND:
       G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOOVMND );
+      return qfalse;
+
+    case IBE_NOCREEP:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOCREEP );
       return qfalse;
 
     case IBE_OVERMIND:

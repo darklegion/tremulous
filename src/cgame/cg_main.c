@@ -126,6 +126,7 @@ vmCvar_t  cg_debugPosition;
 vmCvar_t  cg_debugEvents;
 vmCvar_t  cg_errorDecay;
 vmCvar_t  cg_nopredict;
+vmCvar_t  cg_debugMove;
 vmCvar_t  cg_noPlayerAnims;
 vmCvar_t  cg_showmiss;
 vmCvar_t  cg_footsteps;
@@ -199,6 +200,7 @@ vmCvar_t  cg_consoleLatency;
 vmCvar_t  cg_lightFlare;
 vmCvar_t  cg_debugParticles;
 vmCvar_t  cg_debugPVS;
+vmCvar_t  cg_disableBuildWarnings;
 
 //TA: hack to get class and carriage through to UI module
 vmCvar_t  ui_currentClass;
@@ -267,6 +269,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_debugEvents, "cg_debugevents", "0", CVAR_CHEAT },
   { &cg_errorDecay, "cg_errordecay", "100", 0 },
   { &cg_nopredict, "cg_nopredict", "0", 0 },
+  { &cg_debugMove, "cg_debugMove", "0", 0 },
   { &cg_noPlayerAnims, "cg_noplayeranims", "0", CVAR_CHEAT },
   { &cg_showmiss, "cg_showmiss", "0", 0 },
   { &cg_footsteps, "cg_footsteps", "1", CVAR_CHEAT },
@@ -299,6 +302,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_lightFlare, "cg_lightFlare", "3", CVAR_ARCHIVE },
   { &cg_debugParticles, "cg_debugParticles", "0", CVAR_CHEAT },
   { &cg_debugPVS, "cg_debugPVS", "0", CVAR_CHEAT },
+  { &cg_disableBuildWarnings, "cg_disableBuildWarnings", "0", CVAR_ARCHIVE },
   
   { &ui_currentClass, "ui_currentClass", "0", 0 },
   { &ui_carriage, "ui_carriage", "", 0 },

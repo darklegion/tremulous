@@ -307,7 +307,7 @@ qboolean PM_StepSlideMove( qboolean gravity, qboolean predictive )
   {
     if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
     {
-      VectorCopy(start_o, down);
+      VectorCopy( start_o, down );
       VectorMA( down, -STEPSIZE, normal, down );
       pm->trace( &trace, start_o, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask );
 
@@ -328,8 +328,8 @@ qboolean PM_StepSlideMove( qboolean gravity, qboolean predictive )
     VectorMA( down, -STEPSIZE, normal, down );
     pm->trace( &trace, start_o, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask );
     // never step up when you still have up velocity
-    if( DotProduct( trace.plane.normal, pm->ps->velocity ) > 0 &&
-        ( trace.fraction == 1.0 || DotProduct( trace.plane.normal, normal ) < 0.7 ) )
+    if( DotProduct( trace.plane.normal, pm->ps->velocity ) > 0.0f &&
+        ( trace.fraction == 1.0f || DotProduct( trace.plane.normal, normal ) < 0.7f ) )
     {
       return stepped;
     }
@@ -375,7 +375,7 @@ qboolean PM_StepSlideMove( qboolean gravity, qboolean predictive )
     if( !trace.allsolid )
       VectorCopy( trace.endpos, pm->ps->origin );
     
-    if( trace.fraction < 1.0 )
+    if( trace.fraction < 1.0f )
       PM_ClipVelocity( pm->ps->velocity, trace.plane.normal, pm->ps->velocity, OVERCLIP );
   }
 
