@@ -1241,6 +1241,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_D_SPAWN,            //int       buildNum;     
     "bioegg",              //char      *buildName;
     "team_droid_spawn",    //char      *entityName;
+    { "models/buildables/bioegg/bioegg.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
@@ -1268,6 +1269,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_D_BARRICADE,        //int       buildNum;
     "barricade",           //char      *buildName;
     "team_droid_barricade",//char      *entityName;
+    { "models/buildables/barricade/barricade.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
@@ -1295,6 +1297,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_D_BOOSTER,          //int       buildNum;
     "booster",             //char      *buildName;
     "team_droid_booster",  //char      *entityName;
+    { "models/buildables/booster/booster.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
@@ -1322,6 +1325,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_D_ACIDTUBE,         //int       buildNum;
     "acid_tube",           //char      *buildName;
     "team_droid_acid_tube",//char      *entityName;
+    { "models/buildables/acid_tube/acid_tube.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
@@ -1349,6 +1353,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_D_TRAPPER,          //int       buildNum;
     "trapper",             //char      *buildName;
     "team_droid_trapper",  //char      *entityName;
+    { "models/buildables/trapper/trapper.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
@@ -1376,6 +1381,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_D_HIVEMIND,         //int       buildNum;
     "hivemind",            //char      *buildName;
     "team_droid_hivemind", //char      *entityName;
+    { "models/buildables/hivemind/hivemind.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
@@ -1403,6 +1409,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_SPAWN,            //int       buildNum;
     "replicator",          //char      *buildName;
     "team_human_spawn",    //char      *entityName;
+    { "models/buildables/replicator/replicator.md3", 0, 0, 0 },
     { -40, -40, -4 },      //vec3_t    mins;
     { 40, 40, 4 },         //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
@@ -1430,6 +1437,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_MEDISTAT,         //int       buildNum;
     "medistat",            //char      *buildName;
     "team_human_medistat", //char      *entityName;
+    { "models/buildables/medistat/medistat.md3", 0, 0, 0 },
     { -40, -40, -4 },      //vec3_t    mins;
     { 40, 40, 4 },         //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
@@ -1457,6 +1465,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_DEF1,             //int       buildNum;
     "plasmaturret",        //char      *buildName;
     "team_human_def1",     //char      *entityName;
+    { "models/buildables/plasmaturret/pturret_base.md3", "models/buildables/plasmaturret/pturret_top.md3", 0, 0 },
     { -24, -24, -11 },     //vec3_t    mins;
     { 24, 24, 11 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
@@ -1484,6 +1493,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_DEF2,             //int       buildNum;
     "mgturret",            //char      *buildName;
     "team_human_def2",     //char      *entityName;
+    { "models/buildables/plasmaturret/pturret_base.md3", "models/weapons2/machinegun/machinegun.md3", 0, 0 },
     { -24, -24, -11 },     //vec3_t    mins;
     { 24, 24, 11 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
@@ -1511,6 +1521,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_DEF3,             //int       buildNum;
     "tesla",               //char      *buildName;
     "team_human_tesla",    //char      *entityName;
+    { "models/buildables/tesla/tesla.md3", 0, 0, 0 },
     { -22, -22, -40 },     //vec3_t    mins;
     { 22, 22, 40 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
@@ -1538,6 +1549,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_DCC,              //int       buildNum;
     "dcc",                 //char      *buildName;
     "team_human_dcc",      //char      *entityName;
+    { "models/buildables/dcc/dcc.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
@@ -1565,6 +1577,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_BANK,             //int       buildNum;
     "bank",                //char      *buildName;
     "team_human_bank",     //char      *entityName;
+    { "models/buildables/bank/bank.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
@@ -1592,6 +1605,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_MCU,              //int       buildNum;
     "mcu",                 //char      *buildName;
     "team_human_mcu",      //char      *entityName;
+    { "models/buildables/mcu/mcu.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
@@ -1619,6 +1633,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_REACTOR,          //int       buildNum;
     "reactor",             //char      *buildName;
     "team_human_reactor",  //char      *entityName;
+    { "models/buildables/reactor/reactor.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
@@ -1646,6 +1661,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_REPEATER,         //int       buildNum;
     "repeater",            //char      *buildName;
     "team_human_repeater", //char      *entityName;
+    { "models/buildables/repeater/repeater.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
@@ -1673,6 +1689,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_FLOATMINE,        //int       buildNum;
     "floatmine",           //char      *buildName;
     "team_human_floatmine",//char      *entityName;
+    { "models/buildables/floatmine/floatmine.md3", 0, 0, 0 },
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     TR_BUOYANCY,           //trType_t traj;
@@ -1770,6 +1787,25 @@ char *BG_FindEntityNameForBuildable( int bclass )
   {
     if( bg_buildableList[ i ].buildNum == bclass )
       return bg_buildableList[ i ].entityName;
+  }
+
+  //wimp out
+  return "";
+}
+
+/*
+==============
+BG_FindModelsForBuildNum
+==============
+*/
+char *BG_FindModelsForBuildable( int bclass, int modelNum )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+      return bg_buildableList[ i ].models[ modelNum ];
   }
 
   //wimp out

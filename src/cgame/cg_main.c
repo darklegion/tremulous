@@ -82,9 +82,10 @@ centity_t     cg_entities[MAX_GENTITIES];
 //TA: weapons limit expanded:
 //weaponInfo_t    cg_weapons[MAX_WEAPONS];
 weaponInfo_t    cg_weapons[32];
-upgradeInfo_t    cg_upgrades[32];
+upgradeInfo_t   cg_upgrades[32];
 
 itemInfo_t      cg_items[MAX_ITEMS];
+buildableInfo_t cg_buildables[ BA_NUM_BUILDABLES ];
 
 //TA:
 cgItemPos_t      cgIP;
@@ -227,7 +228,7 @@ static cvarTable_t   cvarTable[] = {
   { &cg_simpleItems, "cg_simpleItems", "0", CVAR_ARCHIVE },
   { &cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE },
   { &cg_lagometer, "cg_lagometer", "1", CVAR_ARCHIVE },
-  { &cg_teslaTrailTime, "cg_teslaTrailTime", "400", CVAR_ARCHIVE  },
+  { &cg_teslaTrailTime, "cg_teslaTrailTime", "600", CVAR_ARCHIVE  },
   { &cg_railTrailTime, "cg_railTrailTime", "400", CVAR_ARCHIVE  },
   { &cg_gun_x, "cg_gunX", "0", CVAR_CHEAT },
   { &cg_gun_y, "cg_gunY", "0", CVAR_CHEAT },

@@ -234,7 +234,8 @@ typedef enum {
   STAT_STAMINA,   //TA: stamina (human only)
   STAT_STATE,     //TA: client states e.g. wall climbing
   STAT_CREDIT,    //TA: human credit
-  STAT_MISC       //TA: for uh...misc stuff
+  STAT_MISC,      //TA: for uh...misc stuff
+  STAT_BUILDABLE  //TA: which ghost model to display for building
 } statIndex_t;
 
 #define SCA_WALLCLIMBER         1
@@ -253,6 +254,8 @@ typedef enum {
 #define SS_BLOBLOCKED           128
 #define SS_POISONED             256
 
+#define SB_VALID_TOGGLEBIT      8192
+#define SB_ACTIVE_TOGGLEBIT     16384
 
 // player_state->persistant[] indexes
 // these fields are the only part of player_state that isn't
@@ -856,6 +859,8 @@ typedef struct
 
   char      *buildName;
   char      *entityName;
+  
+  char      *models[ MAX_ITEM_MODELS ];
 
   vec3_t    mins;
   vec3_t    maxs;
@@ -942,6 +947,7 @@ int           BG_FindBuildNumForName( char *name );
 int           BG_FindBuildNumForEntityName( char *name );
 char          *BG_FindNameForBuildable( int bclass );
 char          *BG_FindEntityNameForBuildable( int bclass );
+char          *BG_FindModelsForBuildable( int bclass, int modelNum );
 void          BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs );
 int           BG_FindHealthForBuildable( int bclass );
 trType_t      BG_FindTrajectoryForBuildable( int bclass );
@@ -1026,8 +1032,8 @@ typedef enum {
   ET_PLAYER,
   ET_ITEM,
   
-  ET_BUILDABLE, //TA: buildable type
-  ET_CREEP, //TA: creep type
+  ET_BUILDABLE,       //TA: buildable type
+  ET_CREEP,           //TA: creep type
   
   ET_MISSILE,
   ET_MOVER,

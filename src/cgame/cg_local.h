@@ -436,6 +436,10 @@ typedef struct {
   qhandle_t   icon;
 } itemInfo_t;
 
+typedef struct
+{
+  qhandle_t   models[MAX_ITEM_MODELS];
+} buildableInfo_t;
 
 typedef struct {
   int       itemNum;
@@ -1098,11 +1102,13 @@ extern  centity_t   cg_entities[MAX_GENTITIES];
 
 //TA: weapon limit expanded:
 //extern  weaponInfo_t  cg_weapons[MAX_WEAPONS];
-extern  weaponInfo_t  cg_weapons[32];
+extern  weaponInfo_t    cg_weapons[32];
 //TA: upgrade infos:
-extern  upgradeInfo_t  cg_upgrades[32];
+extern  upgradeInfo_t   cg_upgrades[32];
+extern  itemInfo_t      cg_items[MAX_ITEMS];
+//TA: buildable infos:
+extern  buildableInfo_t cg_buildables[ BA_NUM_BUILDABLES ];
 
-extern  itemInfo_t    cg_items[MAX_ITEMS];
 extern  markPoly_t    cg_markPolys[MAX_MARK_POLYS];
 
 //TA:
@@ -1352,6 +1358,7 @@ sfxHandle_t CG_CustomSound( int clientNum, const char *soundName );
 //
 // cg_buildable.c
 //
+void CG_GhostBuildable( buildable_t buildable );
 void CG_Buildable( centity_t *cent );
 void CG_InitBuildables( );
 

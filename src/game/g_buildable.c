@@ -86,11 +86,11 @@ qboolean findPower( gentity_t *self )
       continue;
 
     //if entity is a power item calculate the distance to it
-    if( ent->s.clientNum == BA_H_REACTOR || ent->s.clientNum == BA_H_REPEATER )
+    if( ent->s.modelindex == BA_H_REACTOR || ent->s.modelindex == BA_H_REPEATER )
     {
       VectorSubtract( self->s.origin, ent->s.origin, temp_v );
       distance = VectorLength( temp_v );
-      if( distance < minDistance && ( ent->active || self->s.clientNum == BA_H_SPAWN ) )
+      if( distance < minDistance && ( ent->active || self->s.modelindex == BA_H_SPAWN ) )
       {
         closestPower = ent;
         minDistance = distance;
@@ -104,10 +104,10 @@ qboolean findPower( gentity_t *self )
     return qfalse;
   
   //bleh
-  if( ( closestPower->s.clientNum == BA_H_REACTOR && ( minDistance <= REACTOR_BASESIZE ) ) || 
-      ( closestPower->s.clientNum == BA_H_REPEATER && self->s.clientNum == BA_H_SPAWN &&
+  if( ( closestPower->s.modelindex == BA_H_REACTOR && ( minDistance <= REACTOR_BASESIZE ) ) || 
+      ( closestPower->s.modelindex == BA_H_REPEATER && self->s.modelindex == BA_H_SPAWN &&
         ( minDistance <= REPEATER_BASESIZE ) && closestPower->powered ) ||
-      ( closestPower->s.clientNum == BA_H_REPEATER && ( minDistance <= REPEATER_BASESIZE ) &&
+      ( closestPower->s.modelindex == BA_H_REPEATER && ( minDistance <= REPEATER_BASESIZE ) &&
         closestPower->active && closestPower->powered )
     )
   {
@@ -150,7 +150,7 @@ qboolean findDCC( gentity_t *self )
       continue;
 
     //if entity is a power item calculate the distance to it
-    if( ent->s.clientNum == BA_H_DCC )
+    if( ent->s.modelindex == BA_H_DCC )
     {
       VectorSubtract( self->s.origin, ent->s.origin, temp_v );
       distance = VectorLength( temp_v );
@@ -200,7 +200,7 @@ qboolean findCreep( gentity_t *self )
       if( !ent->classname || ent->s.eType != ET_BUILDABLE )
         continue;
 
-      if( ent->s.clientNum == BA_D_SPAWN || ent->s.clientNum == BA_D_HIVEMIND )
+      if( ent->s.modelindex == BA_D_SPAWN || ent->s.modelindex == BA_D_HIVEMIND )
       {
         /*VectorSubtract( self->s.origin, ent->s.origin, temp_v );*/
         VectorSubtract( self->s.origin, ent->s.origin, temp_v );
@@ -402,7 +402,7 @@ void DSpawn_Think( gentity_t *self )
       G_FreeEntity( ent ); //quietly remove
   }
 
-  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
 
 /*
@@ -503,7 +503,7 @@ void DBarricade_Think( gentity_t *self )
     return;
   }
   
-  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
 
 
@@ -543,7 +543,7 @@ void DAcidTube_Damage( gentity_t *self )
   G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
     self->splashRadius, self, self->splashMethodOfDeath, PTE_DROIDS );
 
-  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
 
 /*
@@ -586,7 +586,7 @@ void DAcidTube_Think( gentity_t *self )
     }
   }
 
-  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
 
 
@@ -629,7 +629,7 @@ void ddef_fireonenemy( gentity_t *self, int firespeed )
   vec3_t  dirToTarget;
   vec3_t  target;
   vec3_t  halfAcceleration, thirdJerk;
-  float   distanceToTarget = BG_FindRangeForBuildable( self->s.clientNum );
+  float   distanceToTarget = BG_FindRangeForBuildable( self->s.modelindex );
   int     i;
  
   VectorScale( self->enemy->acceleration, 1.0f / 2.0f, halfAcceleration );
@@ -740,10 +740,10 @@ think function for Droid Defense
 */
 void DTrapper_Think( gentity_t *self )
 {
-  int range =     BG_FindRangeForBuildable( self->s.clientNum );
-  int firespeed = BG_FindFireSpeedForBuildable( self->s.clientNum );
+  int range =     BG_FindRangeForBuildable( self->s.modelindex );
+  int firespeed = BG_FindFireSpeedForBuildable( self->s.modelindex );
 
-  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 
   //if there is no creep nearby die
   if( !findCreep( self ) )
@@ -791,10 +791,10 @@ void HRpt_Think( gentity_t *self )
     if( !ent->classname || ent->s.eType != ET_BUILDABLE )
       continue;
 
-    if( ent->s.clientNum == BA_H_SPAWN && ent->parentNode == self )
+    if( ent->s.modelindex == BA_H_SPAWN && ent->parentNode == self )
       count++;
       
-    if( ent->s.clientNum == BA_H_REACTOR )
+    if( ent->s.modelindex == BA_H_REACTOR )
       reactor = qtrue;
   }
   
@@ -958,7 +958,7 @@ void HMedistat_Think( gentity_t *self )
     }
   }
 
-  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
 
 
@@ -1062,7 +1062,7 @@ qboolean hdef1_trackenemy( gentity_t *self )
 {
   vec3_t  dirToTarget, angleToTarget, angularDiff;
   float   temp;
-  float   distanceToTarget = BG_FindRangeForBuildable( self->s.clientNum );
+  float   distanceToTarget = BG_FindRangeForBuildable( self->s.modelindex );
   float   timeTilImpact;
   vec3_t  halfAcceleration;
   vec3_t  thirdJerk;
@@ -1317,10 +1317,10 @@ think function for Human Defense
 */
 void HDef_Think( gentity_t *self )
 {
-  int range =     BG_FindRangeForBuildable( self->s.clientNum );
-  int firespeed = BG_FindFireSpeedForBuildable( self->s.clientNum );
+  int range =     BG_FindRangeForBuildable( self->s.modelindex );
+  int firespeed = BG_FindFireSpeedForBuildable( self->s.modelindex );
 
-  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 
   //find power for self
   self->powered = findPower( self );
@@ -1351,7 +1351,7 @@ void HDef_Think( gentity_t *self )
   self->enemy->targeted = self;
 
   //if we are pointing at our target and we can fire shoot it
-  switch( self->s.clientNum )
+  switch( self->s.modelindex )
   {
     case BA_H_DEF1:
       if( hdef1_trackenemy( self ) && ( self->count < level.time ) )
@@ -1471,7 +1471,7 @@ void HSpawn_Think( gentity_t *self )
       G_FreeEntity( ent ); //quietly remove
   }
 
-  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.clientNum );
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
 
 
@@ -1540,7 +1540,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
         if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
           continue;
 
-        if( tempent->s.clientNum == BA_D_SPAWN || tempent->s.clientNum == BA_D_HIVEMIND )
+        if( tempent->s.modelindex == BA_D_SPAWN || tempent->s.modelindex == BA_D_HIVEMIND )
         {
           VectorSubtract( entity_origin, tempent->s.origin, temp_v );
           if( VectorLength( temp_v ) <= ( CREEP_BASESIZE * 3 ) )
@@ -1557,7 +1557,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     {
       if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
         continue;
-      if( tempent->s.clientNum == BA_D_HIVEMIND )
+      if( tempent->s.modelindex == BA_D_HIVEMIND )
         break;
     }
 
@@ -1578,7 +1578,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
         if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
           continue;
 
-        if( tempent->s.clientNum == BA_D_HIVEMIND )
+        if( tempent->s.modelindex == BA_D_HIVEMIND )
         {
           reason = IBE_HIVEMIND;
           break;
@@ -1601,7 +1601,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
       if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
         continue;
         
-      if( tempent->s.clientNum == BA_H_REACTOR || tempent->s.clientNum == BA_H_REPEATER )
+      if( tempent->s.modelindex == BA_H_REACTOR || tempent->s.modelindex == BA_H_REPEATER )
       {
         VectorSubtract( entity_origin, tempent->s.origin, temp_v );
         templength = VectorLength( temp_v );
@@ -1615,9 +1615,9 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     
     //if this power entity satisfies expression
     if( !(
-           ( closestPower->s.clientNum == BA_H_REACTOR && minDistance <= REACTOR_BASESIZE ) || 
+           ( closestPower->s.modelindex == BA_H_REACTOR && minDistance <= REACTOR_BASESIZE ) || 
            (
-             closestPower->s.clientNum == BA_H_REPEATER && minDistance <= REPEATER_BASESIZE &&
+             closestPower->s.modelindex == BA_H_REPEATER && minDistance <= REPEATER_BASESIZE &&
              (
                ( buildable == BA_H_SPAWN && closestPower->powered ) ||
                ( closestPower->powered && closestPower->active )
@@ -1643,7 +1643,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
         if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
           continue;
 
-        if( tempent->s.clientNum == BA_H_REACTOR ) 
+        if( tempent->s.modelindex == BA_H_REACTOR ) 
           break;
       }
       
@@ -1659,7 +1659,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
         if( !tempent->classname || tempent->s.eType != ET_BUILDABLE )
           continue;
 
-        if( tempent->s.clientNum == BA_H_REACTOR ) 
+        if( tempent->s.modelindex == BA_H_REACTOR ) 
         {
           reason = IBE_REACTOR;
           break;
@@ -1694,11 +1694,10 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   built->classname = BG_FindEntityNameForBuildable( buildable );
   built->item = BG_FindItemForBuildable( buildable );
   
-  built->s.modelindex = built->item - bg_itemlist; // store item number in modelindex
-  built->s.clientNum = buildable; //so we can tell what this is on the client side
+  built->s.modelindex = buildable; //so we can tell what this is on the client side
+  built->biteam = built->s.modelindex2 = BG_FindTeamForBuildable( buildable );
 
   BG_FindBBoxForBuildable( buildable, built->r.mins, built->r.maxs );
-  built->biteam = built->s.modelindex2 = BG_FindTeamForBuildable( buildable );
   built->health = BG_FindHealthForBuildable( buildable );
   
   built->damage = BG_FindDamageForBuildable( buildable );

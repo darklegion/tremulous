@@ -1353,6 +1353,9 @@ void CG_AddViewWeapon( playerState_t *ps ) {
     return;
   }
 
+  /*if( ps->stats[ STAT_BUILDABLE ] & SB_ACTIVE_TOGGLEBIT )*/
+    CG_GhostBuildable( BA_H_SPAWN );
+
   // no gun if in third person view
   if ( cg.renderingThirdPerson ) {
     return;

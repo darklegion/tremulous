@@ -130,7 +130,11 @@ void CG_InitBuildables( )
 {
   char  filename[MAX_QPATH];
   char  *buildableName;
+  char  *modelFile;
   int   i;
+  int   j;
+
+  memset( cg_buildables, 0, sizeof( cg_buildables ) );
 
   for( i = BA_NONE + 1; i < BA_NUM_BUILDABLES; i++ )
   {
@@ -139,6 +143,12 @@ void CG_InitBuildables( )
     Com_sprintf( filename, sizeof( filename ), "models/buildables/%s/animation.cfg", buildableName );
     if ( !CG_ParseBuildableAnimationFile( filename, i ) )
       Com_Printf( "Failed to load animation file %s\n", filename );
+
+    for( j = 0; j <= 3; j++ )
+    {
+      if( modelFile = BG_FindModelsForBuildable( i, j ) )
+        cg_buildables[ i ].models[ j ] = trap_R_RegisterModel( modelFile );
+    }
   }
 }
 
@@ -184,7 +194,7 @@ static void CG_RunBuildableLerpFrame( centity_t *cent )
 {
   int                   f, numFrames;
   animation_t           *anim;
-  buildable_t           buildable = cent->currentState.clientNum;
+  buildable_t           buildable = cent->currentState.modelindex;
   lerpFrame_t           *lf = &cent->lerpFrame;
   buildableAnimNumber_t newAnimation = cent->buildableAnim;
 
@@ -285,6 +295,56 @@ static void CG_BuildableAnimation( centity_t *cent, int *old, int *now, float *b
   *backLerp = cent->lerpFrame.backlerp;
 }
 
+/*
+==================
+CG_GhostBuildable
+==================
+*/
+void CG_GhostBuildable( buildable_t buildable )
+{
+  refEntity_t     ent;
+  playerState_t   *ps;
+  vec3_t          angles, forward, player_origin, entity_origin, target_origin;
+  vec3_t          mins, maxs;
+  float           distance;
+  trace_t         tr;
+  
+  ps = &cg.predictedPlayerState;
+  
+  memset ( &ent, 0, sizeof( ent ) );
+
+  VectorCopy( cg.predictedPlayerState.viewangles, angles );
+  angles[ PITCH ] = 0;  // always forward
+
+  AngleVectors( angles, forward, NULL, NULL );
+  VectorCopy( ps->origin, player_origin );
+
+  distance = BG_FindBuildDistForClass( ps->stats[ STAT_PCLASS ] );
+  VectorMA( player_origin, distance, forward, entity_origin );
+  
+  VectorCopy( entity_origin, target_origin );
+  entity_origin[ 2 ] += 32;
+  target_origin[ 2 ] -= 4096;
+
+  BG_FindBBoxForBuildable( buildable, mins, maxs );
+  
+  CG_Trace( &tr, entity_origin, mins, maxs, target_origin, ps->clientNum, MASK_PLAYERSOLID );
+  VectorCopy( tr.endpos, entity_origin );
+  entity_origin[ 2 ] += 0.1f;
+
+  VectorCopy( entity_origin, ent.origin );
+  VectorCopy( entity_origin, ent.oldorigin );
+
+  AnglesToAxis( angles, ent.axis );
+  ent.hModel = cg_buildables[ buildable ].models[ 0 ];
+  ent.customShader = cgs.media.quadShader;
+  ent.nonNormalizedAxes = qfalse;
+
+  // add to refresh list
+  trap_R_AddRefEntityToScene( &ent );
+}
+
+
 #define TRACE_DEPTH 128.0f
 
 /*
@@ -318,7 +378,7 @@ void CG_Buildable( centity_t *cent )
   VectorCopy( cent->lerpOrigin, ent.oldorigin );
 
   VectorCopy( es->origin2, surfNormal );
-  BG_FindBBoxForBuildable( es->clientNum, mins, maxs );
+  BG_FindBBoxForBuildable( es->modelindex, mins, maxs );
 
   if( surfNormal[ 2 ] != 1.0f )
   {
@@ -347,7 +407,7 @@ void CG_Buildable( centity_t *cent )
   else
     AnglesToAxis( es->angles, ent.axis );
 
-  ent.hModel = cg_items[es->modelindex].models[0];
+  ent.hModel = cg_buildables[ es->modelindex ].models[ 0 ];
 
   ent.nonNormalizedAxes = qfalse;
 
@@ -355,7 +415,7 @@ void CG_Buildable( centity_t *cent )
   CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
   
   //turret barrel bit
-  if( cg_items[ es->modelindex ].models[ 1 ] != 0 )
+  if( cg_buildables[ es->modelindex ].models[ 1 ] != 0 )
   {
     vec3_t turretOrigin;
     
@@ -363,7 +423,7 @@ void CG_Buildable( centity_t *cent )
 
     AnglesToAxis( es->angles2, ent2.axis );
 
-    ent2.hModel = cg_items[ es->modelindex ].models[ 1 ];
+    ent2.hModel = cg_buildables[ es->modelindex ].models[ 1 ];
 
     VectorCopy( cent->lerpOrigin, turretOrigin );
     turretOrigin[ 2 ] += 5;
