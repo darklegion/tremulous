@@ -1154,14 +1154,6 @@ void ClientThink_real( gentity_t *ent )
     return;
   }
 
-  if( ( ( client->lastInfestTime +
-          BG_FindEvolveTimeForClass( client->ps.stats[ STAT_PCLASS ] ) ) < level.time ) &&
-      ( client->ps.stats[ STAT_STATE ] & SS_INFESTING ) )
-  {
-    client->ps.stats[ STAT_STATE ] &= ~SS_INFESTING;
-    ClientSpawn( ent, client->infestBody );
-  }
-
   if( level.framenum > client->retriggerArmouryMenu && client->retriggerArmouryMenu )
   {
     G_TriggerMenu( client->ps.clientNum, MN_H_ARMOURY );

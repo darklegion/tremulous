@@ -1539,7 +1539,7 @@ void G_RunFrame( int levelTime )
       G_Physics( ent, msec );
       continue;
     }
-
+    
     if( ent->s.eType == ET_MOVER )
     {
       G_RunMover( ent );

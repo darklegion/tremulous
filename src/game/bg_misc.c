@@ -41,6 +41,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
+    10000,                 //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -73,6 +74,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
+    10000,                 //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -105,6 +107,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
+    10000,                 //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -137,6 +140,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     500,                   //int       nextthink;
+    10000,                 //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -169,6 +173,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
+    10000,                 //int       buildTime;
     qfalse,                //qboolean  usable;
     TRAPPER_RANGE,         //int       turretRange;
     TRAPPER_REPEAT,        //int       turretFireSpeed;
@@ -201,6 +206,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     OVERMIND_ATTACK_REPEAT,//int       nextthink;
+    10000,                 //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -233,6 +239,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     150,                   //int       nextthink;
+    10000,                 //int       buildTime;
     qtrue,                 //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -265,6 +272,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
+    10000,                 //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -297,6 +305,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
+    10000,                 //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -331,6 +340,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     50,                    //int       nextthink;
+    10000,                 //int       buildTime;
     qfalse,                //qboolean  usable;
     MGTURRET_RANGE,        //int       turretRange;
     MGTURRET_REPEAT,       //int       turretFireSpeed;
@@ -363,6 +373,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     150,                   //int       nextthink;
+    10000,                 //int       buildTime;
     qfalse,                //qboolean  usable;
     TESLAGEN_RANGE,        //int       turretRange;
     TESLAGEN_REPEAT,       //int       turretFireSpeed;
@@ -395,6 +406,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
+    10000,                 //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -428,6 +440,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
+    10000,                 //int       buildTime;
     qtrue,                 //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -460,6 +473,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
+    10000,                 //int       buildTime;
     qtrue,                 //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -492,6 +506,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     -1,                    //int       nextthink;
+    10000,                 //int       buildTime;
     qtrue,                 //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -524,6 +539,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
+    10000,                 //int       buildTime;
     qtrue,                 //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -556,6 +572,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
+    10000,                 //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
@@ -976,6 +993,26 @@ int BG_FindNextThinkForBuildable( int bclass )
   }
   
   return 100;
+}
+
+/*
+==============
+BG_FindBuildTimeForBuildable
+==============
+*/
+int BG_FindBuildTimeForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].buildTime;
+    }
+  }
+  
+  return 10000;
 }
 
 /*

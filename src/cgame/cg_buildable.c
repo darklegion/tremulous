@@ -597,8 +597,8 @@ static void CG_BuildableParticleEffects( centity_t *cent )
 {
   entityState_t   *es = &cent->currentState;
   buildableTeam_t team = BG_FindTeamForBuildable( es->modelindex );
-  int             health = es->generic1 & ~( B_POWERED_TOGGLEBIT | B_DCCED_TOGGLEBIT );
-  float           healthFrac = (float)health / 63.0f;
+  int             health = es->generic1 & ~( B_POWERED_TOGGLEBIT | B_DCCED_TOGGLEBIT | B_SPAWNED_TOGGLEBIT );
+  float           healthFrac = (float)health / B_HEALTH_SCALE;
   int             smokeTime, sparkTime, i, bleedBlobs;
   vec3_t          origin;
   vec3_t          acc = { 0.0f, 0.0f, 50.0f };
@@ -704,8 +704,8 @@ static void CG_BuildableHealthBar( centity_t *cent )
 
   es = &cent->currentState;
 
-  health = es->generic1 & ~( B_POWERED_TOGGLEBIT | B_DCCED_TOGGLEBIT );
-  progress = (float)health / 63.0f;
+  health = es->generic1 & ~( B_POWERED_TOGGLEBIT | B_DCCED_TOGGLEBIT | B_SPAWNED_TOGGLEBIT );
+  progress = (float)health / B_HEALTH_SCALE;
   
   if( progress < 0.0f )
     progress = 0.0f;
@@ -773,19 +773,14 @@ CG_Buildable
 void CG_Buildable( centity_t *cent )
 {
   refEntity_t     ent;
-  entityState_t   *es;
+  entityState_t   *es = &cent->currentState;
   vec3_t          angles;
   vec3_t          forward, surfNormal, xNormal, end, start, mins, maxs;
   vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
   float           rotAngle;
   trace_t         tr;
-
-  es = &cent->currentState;
+  buildableTeam_t team = BG_FindTeamForBuildable( es->modelindex );
   
-  //add creep
-  if( es->modelindex2 == BIT_ALIENS )
-    CG_Creep( cent );  
-
   // if set to invisible, skip
   if ( !es->modelindex || ( es->eFlags & EF_NODRAW ) )
     return;
@@ -835,11 +830,24 @@ void CG_Buildable( centity_t *cent )
 
   ent.nonNormalizedAxes = qfalse;
 
-  //run animations
-  CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
+  //add creep
+  if( team == BIT_ALIENS )
+  {
+    CG_Creep( cent );
   
+    //run animations
+    CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
+  }
+  else if( team == BIT_HUMANS )
+  {
+    if( !( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
+      ent.customShader = cgs.media.humanSpawningShader;
+    else
+      CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
+  }
+
   // add to refresh list
-  trap_R_AddRefEntityToScene(&ent);
+  trap_R_AddRefEntityToScene( &ent );
 
   //turret barrel bit
   if( cg_buildables[ es->modelindex ].models[ 1 ] )
@@ -863,6 +871,8 @@ void CG_Buildable( centity_t *cent )
     turretBarrel.frame    = ent.frame;
     turretBarrel.backlerp = ent.backlerp;
 
+    turretBarrel.customShader = ent.customShader;
+    
     trap_R_AddRefEntityToScene( &turretBarrel );
   }
 
@@ -892,6 +902,8 @@ void CG_Buildable( centity_t *cent )
     turretTop.frame    = ent.frame;
     turretTop.backlerp = ent.backlerp;
 
+    turretTop.customShader = ent.customShader;
+    
     trap_R_AddRefEntityToScene( &turretTop );
   }
 

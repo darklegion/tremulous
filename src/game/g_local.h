@@ -178,6 +178,8 @@ struct gentity_s
   int               builtBy;      //TA: clientNum of person that built this
   gentity_t         *dccNode;     //TA: controlling dcc
   qboolean          dcced;        //TA: controlled by a dcc or not?
+  qboolean          spawned;      //TA: whether or not this buildable has finished spawning
+  int               buildTime;    //TA: when this buildable was built
   int               time1000;     //TA: timer evaluated every second
 
   int               credits[ MAX_CLIENTS ]; //TA: human credits for each client
@@ -664,11 +666,12 @@ qboolean  CheckPounceAttack( gentity_t *ent );
 //
 team_t    TeamCount( int ignoreClientNum, int team );
 void      SetClientViewAngle( gentity_t *ent, vec3_t angle );
+gentity_t *SelectTremulousSpawnPoint( int team, vec3_t origin, vec3_t angles );
 gentity_t *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
 void      SpawnCorpse( gentity_t *ent );
 void      respawn( gentity_t *ent );
 void      BeginIntermission( void );
-void      ClientSpawn( gentity_t *ent, gentity_t *spawn );
+void      ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles );
 void      player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod );
 qboolean  SpotWouldTelefrag( gentity_t *spot );
 

@@ -727,6 +727,7 @@ static void CG_RegisterGraphics( void )
   cgs.media.greenBuildShader          = trap_R_RegisterShader("gfx/2d/greenbuild" );
   cgs.media.redBuildShader            = trap_R_RegisterShader("gfx/2d/redbuild" );
   cgs.media.noPowerShader             = trap_R_RegisterShader("gfx/2d/nopower" );
+  cgs.media.humanSpawningShader       = trap_R_RegisterShader("models/buildables/replicator/rep_cyl" );
 
   cgs.media.machinegunBrassModel      = trap_R_RegisterModel( "models/weapons2/shells/m_shell.md3" );
   cgs.media.shotgunBrassModel         = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );

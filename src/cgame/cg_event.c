@@ -780,9 +780,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
 
     case EV_BUILD_DELAY:
       DEBUGNAME( "EV_BUILD_DELAY" );
-      //FIXME: change to "negative" sound
-      trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
-      cg.lastBuildAttempt = cg.time;
+      if( clientNum == cg.predictedPlayerState.clientNum )
+      {
+        //FIXME: change to "negative" sound
+        trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
+        cg.lastBuildAttempt = cg.time;
+      }
       break;
 
     case EV_POISONCLOUD:

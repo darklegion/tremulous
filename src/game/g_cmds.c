@@ -366,7 +366,7 @@ void Cmd_Team_f( gentity_t *ent )
     level.bankCredits[ ent->client->ps.clientNum ] = 0;
     ent->client->ps.persistant[ PERS_CREDIT ] = 0;
     ent->client->pers.pclass = 0;
-    ClientSpawn( ent, NULL );
+    ClientSpawn( ent, NULL, NULL, NULL );
   }
 
   //update ClientInfo
@@ -956,7 +956,8 @@ void Cmd_Class_f( gentity_t *ent )
   char      s[ MAX_TOKEN_CHARS ];
   qboolean  dontSpawn = qfalse;
   int       clientNum;
-  gentity_t *body, *victim;
+  gentity_t *spawn;
+  vec3_t    spawn_origin, spawn_angles;
   vec3_t    distance;
   vec3_t    up = { 0.0f, 0.0f, 1.0f };
   int       length = 4096;
@@ -1029,7 +1030,7 @@ void Cmd_Class_f( gentity_t *ent )
        
           ClientUserinfoChanged( clientNum );
           VectorCopy( infestOrigin, ent->s.pos.trBase );
-          ClientSpawn( ent, ent );
+          ClientSpawn( ent, ent, ent->s.pos.trBase, ent->s.apos.trBase );
           return;
         }
         else
@@ -1048,14 +1049,7 @@ void Cmd_Class_f( gentity_t *ent )
     }
     else
     {
-      //sanity check
-      if( level.numAlienSpawns <= 0 )
-      {
-        trap_SendServerCommand( ent-g_entities, va( "print \"No suitable spawns available\n\"" ) );
-        return;
-      }
-    
-      //spawing from an egg
+      //spawning from an egg
       ent->client->pers.pclass = BG_FindClassNumForName( s );
 
       if( ent->client->pers.pclass != PCL_NONE )
@@ -1065,10 +1059,19 @@ void Cmd_Class_f( gentity_t *ent )
           if( allowedClasses[ i ] == ent->client->pers.pclass &&
               BG_FindStagesForClass( ent->client->pers.pclass, g_alienStage.integer ) )
           {
-            ent->client->sess.sessionTeam = TEAM_FREE;
-            ClientUserinfoChanged( clientNum );
-            ClientSpawn( ent, NULL );
-            return;
+            if( ( spawn = SelectTremulousSpawnPoint( ent->client->pers.pteam, spawn_origin, spawn_angles ) ) &&
+                level.numAlienSpawns > 0 ) //sanity check
+            {
+              ent->client->sess.sessionTeam = TEAM_FREE;
+              ClientUserinfoChanged( clientNum );
+              ClientSpawn( ent, spawn, spawn_origin, spawn_angles );
+              return;
+            }
+            else
+            {
+              trap_SendServerCommand( ent-g_entities, va( "print \"No suitable spawns available\n\"" ) );
+              return;
+            }
           }
         }
 
@@ -1084,13 +1087,6 @@ void Cmd_Class_f( gentity_t *ent )
   }
   else if( ent->client->pers.pteam == PTE_HUMANS )
   {
-    //sanity check
-    if( level.numHumanSpawns <= 0 )
-    {
-      trap_SendServerCommand( ent-g_entities, va( "print \"No suitable spawns available\n\"" ) );
-      return;
-    }
-    
     //humans cannot use this command whilst alive
     if( ent->client->ps.stats[ STAT_PCLASS ] != PCL_NONE )
     {
@@ -1112,16 +1108,25 @@ void Cmd_Class_f( gentity_t *ent )
       return;
     }
 
-    ent->client->sess.sessionTeam = TEAM_FREE;
-    ClientUserinfoChanged( clientNum );
-    ClientSpawn( ent, NULL );
+    if( ( spawn = SelectTremulousSpawnPoint( ent->client->pers.pteam, spawn_origin, spawn_angles ) ) &&
+        level.numHumanSpawns > 0 ) //sanity check
+    {
+      ent->client->sess.sessionTeam = TEAM_FREE;
+      ClientUserinfoChanged( clientNum );
+      ClientSpawn( ent, spawn, spawn_origin, spawn_angles );
+    }
+    else
+    {
+      trap_SendServerCommand( ent-g_entities, va( "print \"No suitable spawns available\n\"" ) );
+      return;
+    }
   }
   else if( ent->client->pers.pteam == PTE_NONE )
   {
     //can't use this command unless on a team
     ent->client->pers.pclass = PCL_NONE;
     ent->client->sess.sessionTeam = TEAM_FREE;
-    ClientSpawn( ent, NULL );
+    ClientSpawn( ent, NULL, NULL, NULL );
     trap_SendServerCommand( ent-g_entities, va( "print \"Join a team first\n\"" ) );
   }
 }
@@ -1157,7 +1162,7 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
     {
       if( ent->client->ps.stats[ STAT_MISC ] > 0 )
       {
-        G_AddEvent( ent, EV_BUILD_DELAY, 0 );
+        G_AddEvent( ent, EV_BUILD_DELAY, ent->client->ps.clientNum );
         return;
       }
 
@@ -1288,7 +1293,7 @@ void Cmd_Buy_f( gentity_t *ent )
     if( armouryEntity->s.eType != ET_BUILDABLE )
       continue;
       
-    if( armouryEntity->s.modelindex == BA_H_ARMOURY )
+    if( armouryEntity->s.modelindex == BA_H_ARMOURY && armouryEntity->spawned )
     {
       VectorSubtract( ent->s.pos.trBase, armouryEntity->s.origin, distance );
       if( VectorLength( distance ) <= 100 )
@@ -1502,7 +1507,7 @@ void Cmd_Sell_f( gentity_t *ent )
     if( armouryEntity->s.eType != ET_BUILDABLE )
       continue;
       
-    if( armouryEntity->s.modelindex == BA_H_ARMOURY )
+    if( armouryEntity->s.modelindex == BA_H_ARMOURY && armouryEntity->spawned )
     {
       VectorSubtract( ent->s.pos.trBase, armouryEntity->s.origin, distance );
       if( VectorLength( distance ) <= 100 )
@@ -1590,7 +1595,7 @@ void Cmd_Deposit_f( gentity_t *ent )
       if( bankEntity->s.eType != ET_BUILDABLE )
         continue;
         
-      if( bankEntity->s.modelindex == BA_H_BANK )
+      if( bankEntity->s.modelindex == BA_H_BANK && bankEntity->spawned )
       {
         VectorSubtract( ent->s.pos.trBase, bankEntity->s.origin, distance );
         if( VectorLength( distance ) <= 100 )
@@ -1652,7 +1657,7 @@ void Cmd_Withdraw_f( gentity_t *ent )
       if( bankEntity->s.eType != ET_BUILDABLE )
         continue;
         
-      if( bankEntity->s.modelindex == BA_H_BANK )
+      if( bankEntity->s.modelindex == BA_H_BANK && bankEntity->spawned )
       {
         VectorSubtract( ent->s.pos.trBase, bankEntity->s.origin, distance );
         if( VectorLength( distance ) <= 100 )

@@ -854,6 +854,7 @@ typedef struct
   qhandle_t   greenBuildShader;
   qhandle_t   redBuildShader;
   qhandle_t   noPowerShader;
+  qhandle_t   humanSpawningShader;
 
   // weapon effect models
   qhandle_t   bulletFlashModel;

@@ -87,7 +87,17 @@ void G_Physics( gentity_t *ent, int msec )
   //pack health, power and dcc
   if( ent->s.eType == ET_BUILDABLE )
   {
-    ent->s.generic1 = (int)( ( (float)ent->health / (float)bHealth ) * 63.0f );
+    //toggle spawned flag for buildables
+    if( !ent->spawned )
+    {
+      if( ent->buildTime + BG_FindBuildTimeForBuildable( ent->s.modelindex ) < level.time )
+      {
+        ent->takedamage = qtrue;
+        ent->spawned = qtrue;
+      }
+    }
+    
+    ent->s.generic1 = (int)( ( (float)ent->health / (float)bHealth ) * B_HEALTH_SCALE );
 
     if( ent->s.generic1 < 0 )
       ent->s.generic1 = 0;
@@ -97,6 +107,9 @@ void G_Physics( gentity_t *ent, int msec )
     
     if( ent->dcced )
       ent->s.generic1 |= B_DCCED_TOGGLEBIT;
+
+    if( ent->spawned )
+      ent->s.generic1 |= B_SPAWNED_TOGGLEBIT;
 
     ent->time1000 += msec;
 

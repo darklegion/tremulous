@@ -465,7 +465,7 @@ void cancelBuildFire( gentity_t *ent )
     {
       if( ent->client->ps.stats[ STAT_MISC ] > 0 )
       {
-        G_AddPredictableEvent( ent, EV_BUILD_DELAY, 0 );
+        G_AddEvent( ent, EV_BUILD_DELAY, ent->client->ps.clientNum );
         return;
       }
 
@@ -487,7 +487,7 @@ void buildFire( gentity_t *ent, dynMenu_t menu )
   {
     if( ent->client->ps.stats[ STAT_MISC ] > 0 )
     {
-      G_AddPredictableEvent( ent, EV_BUILD_DELAY, 0 );
+      G_AddEvent( ent, EV_BUILD_DELAY, ent->client->ps.clientNum );
       return;
     }
     

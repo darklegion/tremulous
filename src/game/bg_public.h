@@ -426,6 +426,10 @@ typedef enum
   BIT_NUM_TEAMS
 } buildableTeam_t;
 
+#define B_HEALTH_BITS       5
+#define B_HEALTH_SCALE      (float)((1<<B_HEALTH_BITS)-1)
+
+#define B_SPAWNED_TOGGLEBIT 0x00000020
 #define B_POWERED_TOGGLEBIT 0x00000040
 #define B_DCCED_TOGGLEBIT   0x00000080
 
@@ -932,6 +936,7 @@ typedef struct
   int       idleAnim;
 
   int       nextthink;
+  int       buildTime;
   qboolean  usable;
 
   int       turretRange;
@@ -1040,6 +1045,7 @@ int       BG_FindTeamForBuildable( int bclass );
 weapon_t  BG_FindBuildWeaponForBuildable( int bclass );
 int       BG_FindAnimForBuildable( int bclass );
 int       BG_FindNextThinkForBuildable( int bclass );
+int       BG_FindBuildTimeForBuildable( int bclass );
 qboolean  BG_FindUsableForBuildable( int bclass );
 int       BG_FindRangeForBuildable( int bclass );
 int       BG_FindFireSpeedForBuildable( int bclass );

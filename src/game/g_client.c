@@ -293,6 +293,9 @@ gentity_t *SelectAlienSpawnPoint( void )
   while( ( spot = G_Find( spot, FOFS( classname ),
     BG_FindEntityNameForBuildable( BA_A_SPAWN ) ) ) != NULL )
   {
+    if( !spot->spawned )
+      continue;
+    
     if( spot->health <= 0 )
       continue;
 
@@ -354,6 +357,9 @@ gentity_t *SelectHumanSpawnPoint( void )
   while( ( spot = G_Find( spot, FOFS( classname ),
     BG_FindEntityNameForBuildable( BA_H_SPAWN ) ) ) != NULL )
   {
+    if( !spot->spawned )
+      continue;
+    
     if( spot->health <= 0 )
       continue;
 
@@ -787,7 +793,7 @@ void respawn( gentity_t *ent )
   SpawnCorpse( ent );
 
   //TA: Clients can't respawn - they must go thru the class cmd
-  ClientSpawn( ent, NULL );
+  ClientSpawn( ent, NULL, NULL, NULL );
 
   //FIXME: need different spawn effects for different teams
 
@@ -1232,7 +1238,7 @@ void ClientBegin( int clientNum )
 
   // locate ent at a spawn point
 
-  ClientSpawn( ent, NULL );
+  ClientSpawn( ent, NULL, NULL, NULL );
 
   if( client->sess.sessionTeam != TEAM_SPECTATOR )
   {
@@ -1258,7 +1264,7 @@ after the first ClientBegin, and after each respawn
 Initializes all non-persistant parts of playerState
 ============
 */
-void ClientSpawn( gentity_t *ent, gentity_t *spawn )
+void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles )
 {
   int                 index;
   vec3_t              spawn_origin, spawn_angles;
@@ -1266,15 +1272,15 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   int                 i;
   clientPersistant_t  saved;
   clientSession_t     savedSess;
-  int                 persistant[MAX_PERSISTANT];
+  int                 persistant[ MAX_PERSISTANT ];
   gentity_t           *spawnPoint;
   int                 flags;
   int                 savedPing;
   int                 ammoIndex, ammoSubIndex;
   int                 teamLocal;
   int                 eventSequence;
-  char                userinfo[MAX_INFO_STRING];
-  vec3_t              classMins, classMaxs, up = { 0, 0, 1 };
+  char                userinfo[ MAX_INFO_STRING ];
+  vec3_t              classMins, classMaxs, up = { 0.0f, 0.0f, 1.0f };
   int                 ammo, clips, maxClips;
   weapon_t            weapon;
   float               hModifier;
@@ -1286,17 +1292,23 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   teamLocal = client->pers.pteam;
 
   //TA: only start client if chosen a class and joined a team
-  if( client->pers.pclass == 0 && teamLocal == 0 )
+  if( client->pers.pclass == PCL_NONE && teamLocal == PTE_NONE )
   {
     client->sess.sessionTeam = TEAM_SPECTATOR;
     client->sess.spectatorState = SPECTATOR_FREE;
   }
-  else if( client->pers.pclass == 0 )
+  else if( client->pers.pclass == PCL_NONE )
   {
     client->sess.sessionTeam = TEAM_SPECTATOR;
     client->sess.spectatorState = SPECTATOR_LOCKED;
   }
 
+  if( origin != NULL )
+    VectorCopy( origin, spawn_origin );
+  
+  if( angles != NULL )
+    VectorCopy( angles, spawn_angles );
+  
   // find a spawn point
   // do it before setting health back up, so farthest
   // ranging doesn't count this client
@@ -1311,29 +1323,17 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn )
   }
   else
   {
-    //this is an infest spawn
-    if( spawn )
+    if( spawn == NULL )
     {
-      vec3_t prevMins, prevMaxs;
-      
-      //spawn as new alien
-      VectorCopy( spawn->s.pos.trBase, spawn_origin );
-      VectorCopy( spawn->s.apos.trBase, spawn_angles );
-      
-      spawnPoint = spawn;
+      G_Error( "ClientSpawn: spawn is NULL\n" );
+      return;
     }
-    else
-    {
-      // don't spawn near existing origin if possible
-      spawnPoint = SelectTremulousSpawnPoint( teamLocal, spawn_origin, spawn_angles );
 
-      if( spawnPoint == NULL )
-      {
-        trap_SendServerCommand( ent-g_entities, va("print \"No suitable spawns available\n\"" ) );
-        return;
-      }
-      
-      //start spawn animation on egg
+    spawnPoint = spawn;
+    
+    if( ent != spawn )
+    {
+      //start spawn animation on spawnPoint
       G_setBuildableAnim( spawnPoint, BANIM_SPAWN1, qtrue );
     }
   }
