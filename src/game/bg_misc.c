@@ -2058,9 +2058,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "rifle",              //char      *weaponName;
     "Rifle",              //char      *weaponHumanName;
-    { "models/weapons2/machinegun/machinegun.md3", 0, 0, 0 },
-    "icons/iconw_rifle",
-    "gfx/2d/crosshaira", 24,
     RIFLE_CLIPSIZE,       //int       quan;
     RIFLE_SPAWNCLIPS,     //int       clips;
     RIFLE_MAXCLIPS,       //int       maxClips;
@@ -2083,9 +2080,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "flamer",             //char      *weaponName;
     "Flame Thrower",      //char      *weaponHumanName;
-    { "models/weapons2/plasma/plasma.md3", 0, 0, 0 },
-    "icons/iconw_flamer",
-    "gfx/2d/crosshaira", 24,
     FLAMER_GAS,           //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2108,9 +2102,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "chaingun",           //char      *weaponName;
     "Chaingun",           //char      *weaponHumanName;
-    { "models/weapons2/machinegun/machinegun.md3", 0, 0, 0 },
-    "icons/iconw_chaingun",
-    "gfx/2d/crosshairb", 48,
     CHAINGUN_BULLETS,     //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2133,9 +2124,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "mdriver",            //char      *weaponName;
     "Mass Driver",        //char      *weaponHumanName;
-    { "models/weapons2/bfg/bfg.md3", 0, 0, 0 },
-    "icons/iconw_driver",
-    "gfx/2d/crosshaira", 24,
     MDRIVER_CLIPSIZE,     //int       quan;
     MDRIVER_SPAWNCLIPS,   //int       clips;
     MDRIVER_MAXCLIPS,     //int       maxClips;
@@ -2158,9 +2146,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "prifle",             //char      *weaponName;
     "Pulse Rifle",        //char      *weaponHumanName;
-    { "models/weapons2/prifle/prifle.md3", 0, 0, 0 },
-    "icons/iconw_pulse",
-    "gfx/2d/crosshaira", 24,
     PRIFLE_CLIPS,         //int       quan;
     PRIFLE_SPAWNCLIPS,    //int       clips;
     PRIFLE_MAXCLIPS,      //int       maxClips;
@@ -2183,9 +2168,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "lcanon",             //char      *weaponName;
     "Lucifer Canon",      //char      *weaponHumanName;
-    { "models/weapons2/bfg/bfg.md3", 0, 0, 0 },
-    "icons/iconw_lucifer",
-    "gfx/2d/crosshaira", 24,
     LCANON_AMMO,          //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2208,9 +2190,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "lgun",               //char      *weaponName;
     "Las Gun",            //char      *weaponHumanName;
-    { "models/weapons2/grenadel/grenadel.md3", 0, 0, 0 },
-    "icons/iconw_lasgun",
-    "gfx/2d/crosshaira", 24,
     LASGUN_AMMO,          //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2233,9 +2212,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "psaw",               //char      *weaponName;
     "Pain Saw",           //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_saw",
-    NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2258,9 +2234,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "ckit",               //char      *weaponName;
     "Construction Kit",   //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_construct",
-    NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2283,9 +2256,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "ackit",              //char      *weaponName;
     "Adv Construction Kit",//char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_construct",
-    NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2308,9 +2278,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "abuild",             //char      *weaponName;
     "Alien build weapon", //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2333,9 +2300,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "abuild2",            //char      *weaponName;
     "Alien build weapon2",//char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2358,9 +2322,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "venom",              //char      *weaponName;
     "Venom",              //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2383,9 +2344,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "pounce",             //char      *weaponName;
     "Claw and pounce",    //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2408,9 +2366,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "pounce_upgrade",     //char      *weaponName;
     "Claw and pounce (upgrade)", //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    NULL, 0,
     3,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2433,9 +2388,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "grabandclaw",        //char      *weaponName;
     "Claws",              //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2458,9 +2410,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "grabandclaw_upgrade",//char      *weaponName;
     "Claws Upgrade",      //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2483,9 +2432,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "areazap",            //char      *weaponName;
     "Area Zap",           //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2508,9 +2454,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "directzap",          //char      *weaponName;
     "Directed Zap",       //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2533,9 +2476,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "groundpound",        //char      *weaponName;
     "Ground Pound",       //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2558,9 +2498,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "lockblob",           //char      *weaponName;
     "Lock Blob",          //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2583,9 +2520,6 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "teslagen",           //char      *weaponName;
     "Tesla Generator",    //char      *weaponHumanName;
-    { "models/weapons2/gauntlet/gauntlet.md3", 0, 0, 0 },
-    "icons/iconw_gauntlet",
-    NULL, 0,
     0,                    //int       quan;
     0,                    //int       clips;
     0,                    //int       maxClips;
@@ -2723,81 +2657,6 @@ char *BG_FindHumanNameForWeapon( int weapon )
 
   //wimp out
   return 0;
-}
-
-/*
-==============
-BG_FindModelsForWeapon
-==============
-*/
-char *BG_FindModelsForWeapon( int weapon, int modelNum )
-{
-  int i;
-
-  for( i = 0; i < bg_numWeapons; i++ )
-  {
-    if( bg_weapons[ i ].weaponNum == weapon )
-      return bg_weapons[ i ].models[ modelNum ];
-  }
-
-  //wimp out
-  return 0;
-}
-
-/*
-==============
-BG_FindIconForWeapon
-==============
-*/
-char *BG_FindIconForWeapon( int weapon )
-{
-  int i;
-
-  for( i = 0; i < bg_numWeapons; i++ )
-  {
-    if( bg_weapons[ i ].weaponNum == weapon )
-      return bg_weapons[ i ].icon;
-  }
-
-  //wimp out
-  return 0;
-}
-
-/*
-==============
-BG_FindCrosshairForWeapon
-==============
-*/
-char *BG_FindCrosshairForWeapon( int weapon )
-{
-  int i;
-
-  for( i = 0; i < bg_numWeapons; i++ )
-  {
-    if( bg_weapons[ i ].weaponNum == weapon )
-      return bg_weapons[ i ].crosshair;
-  }
-
-  //wimp out
-  return 0;
-}
-
-/*
-==============
-BG_FindCrosshairSizeForWeapon
-==============
-*/
-int BG_FindCrosshairSizeForWeapon( int weapon )
-{
-  int i;
-
-  for( i = 0; i < bg_numWeapons; i++ )
-  {
-    if( bg_weapons[ i ].weaponNum == weapon )
-      return bg_weapons[ i ].crosshairSize;
-  }
-  
-  return 24;
 }
 
 /*

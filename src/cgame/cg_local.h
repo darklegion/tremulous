@@ -436,7 +436,8 @@ typedef struct weaponInfo_s
   qhandle_t   weaponIcon;
   qhandle_t   ammoIcon;
 
-  qhandle_t   ammoModel;
+  qhandle_t   crossHair;
+  int         crossHairSize;
 
   qhandle_t   missileModel;
   sfxHandle_t missileSound;

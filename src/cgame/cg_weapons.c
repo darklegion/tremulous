@@ -147,6 +147,7 @@ void CG_AlienZap( vec3_t start, vec3_t end, int srcENum, int destENum )
   VectorCopy( end, re->oldorigin );
 }
 
+
 /*
 =================
 CG_RegisterUpgrade
@@ -199,16 +200,258 @@ void CG_InitUpgrades( void )
 }
 
 /*
+======================
+CG_ParseWeaponFile
+
+Parses a configuration file describing a weapon
+======================
+*/
+static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
+{
+  char          *text_p;
+  int           i;
+  int           len;
+  char          *token;
+  char          text[ 20000 ];
+  fileHandle_t  f;
+
+  // load the file
+  len = trap_FS_FOpenFile( filename, &f, FS_READ );
+  if( len <= 0 )
+    return qfalse;
+
+  if( len >= sizeof( text ) - 1 )
+  {
+    CG_Printf( "File %s too long\n", filename );
+    return qfalse;
+  }
+  
+  trap_FS_Read( text, len, f );
+  text[ len ] = 0;
+  trap_FS_FCloseFile( f );
+
+  // parse the text
+  text_p = text;
+
+  // read optional parameters
+  while( 1 )
+  {
+    token = COM_Parse( &text_p );
+    
+    if( !token )
+      break;
+
+    if( !Q_stricmp( token, "" ) )
+      return;
+
+    if( !Q_stricmp( token, "weaponModel" ) )
+    {
+      char path[ MAX_QPATH ];
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->weaponModel = trap_R_RegisterModel( token );
+      
+      if( !wi->weaponModel )
+        CG_Printf( "Weapon model not found %s: %s\n", filename, token );
+
+      strcpy( path, token );
+      COM_StripExtension( path, path );
+      strcat( path, "_flash.md3" );
+      wi->flashModel = trap_R_RegisterModel( path );
+
+      strcpy( path, token );
+      COM_StripExtension( path, path );
+      strcat( path, "_barrel.md3" );
+      wi->barrelModel = trap_R_RegisterModel( path );
+
+      strcpy( path, token );
+      COM_StripExtension( path, path );
+      strcat( path, "_hand.md3" );
+      wi->handsModel = trap_R_RegisterModel( path );
+
+      if( !wi->handsModel )
+        wi->handsModel = trap_R_RegisterModel( "models/weapons2/shotgun/shotgun_hand.md3" );
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "missileModel" ) )
+    {
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->missileModel = trap_R_RegisterModel( token );
+      
+      if( !wi->missileModel )
+        CG_Printf( "Missile model not found %s: %s\n", filename, token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "flashDLightColor" ) )
+    {
+      for( i = 0 ; i < 3 ; i++ )
+      {
+        token = COM_Parse( &text_p );
+        if( !token )
+          break;
+
+        wi->flashDlightColor[ i ] = atof( token );
+      }
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "missileDlightColor" ) )
+    {
+      for( i = 0 ; i < 3 ; i++ )
+      {
+        token = COM_Parse( &text_p );
+        if( !token )
+          break;
+
+        wi->missileDlightColor[ i ] = atof( token );
+      }
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "missileDlight" ) )
+    {
+      int size = 0;
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      size = atoi( token );
+      
+      if( size < 0 )
+        size = 0;
+      
+      wi->missileDlight = size;
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "idleSound" ) )
+    {
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->readySound = trap_S_RegisterSound( token, qfalse );
+      
+      if( !wi->readySound )
+        CG_Printf( "Weapon idle sound not found %s: %s\n", filename, token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "firingSound" ) )
+    {
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->firingSound = trap_S_RegisterSound( token, qfalse );
+      
+      if( !wi->firingSound )
+        CG_Printf( "Weapon firing sound not found %s: %s\n", filename, token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "missileSound" ) )
+    {
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->missileSound = trap_S_RegisterSound( token, qfalse );
+      
+      if( !wi->missileSound )
+        CG_Printf( "Weapon missile sound not found %s: %s\n", filename, token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "flashSound" ) )
+    {
+      int index = 0;
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      index = atoi( token );
+      
+      if( index < 0 )
+        index = 0;
+      else if( index > 3 )
+        index = 3;
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->flashSound[ index ] = trap_S_RegisterSound( token, qfalse );
+      
+      if( !wi->flashSound[ index ] )
+        CG_Printf( "Weapon flash sound %d not found %s: %s\n", index, filename, token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "icon" ) )
+    {
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->weaponIcon = wi->ammoIcon = trap_R_RegisterShader( token );
+      
+      if( !wi->weaponIcon )
+        CG_Printf( "Weapon icon shader not found %s: %s\n", filename, token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "crosshair" ) )
+    {
+      int size = 0;
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      size = atoi( token );
+      
+      if( size < 0 )
+        size = 0;
+      
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->crossHair = trap_R_RegisterShader( token );
+      wi->crossHairSize = size;
+      
+      if( !wi->crossHair )
+        CG_Printf( "Weapon crosshair not found %s: %s\n", filename, token );
+
+      continue;
+    }
+
+    Com_Printf( "unknown token '%s' in %s\n", token, filename );
+  }
+
+  return qtrue;
+}
+
+/*
 =================
 CG_RegisterWeapon
-
-The server says this item is used on this level
 =================
 */
 void CG_RegisterWeapon( int weaponNum )
 {
   weaponInfo_t  *weaponInfo;
-  char          path[MAX_QPATH];
+  char          path[ MAX_QPATH ];
   vec3_t        mins, maxs;
   int           i;
   char          *icon, *model;
@@ -227,175 +470,24 @@ void CG_RegisterWeapon( int weaponNum )
   if( !BG_FindNameForWeapon( weaponNum ) )
     CG_Error( "Couldn't find weapon %i", weaponNum );
   
+  Com_sprintf( path, MAX_QPATH, "models/weapons/%s/weapon.cfg", BG_FindNameForWeapon( weaponNum ) );
+  
   weaponInfo->humanName = BG_FindHumanNameForWeapon( weaponNum );
 
-  // load cmodel before model so filecache works
-  if( model = BG_FindModelsForWeapon( weaponNum, 0 ) )
-    weaponInfo->weaponModel = trap_R_RegisterModel( model );
-
+  CG_ParseWeaponFile( path, weaponInfo );
+  
   // calc midpoint for rotation
   trap_R_ModelBounds( weaponInfo->weaponModel, mins, maxs );
   for( i = 0 ; i < 3 ; i++ )
     weaponInfo->weaponMidpoint[ i ] = mins[ i ] + 0.5 * ( maxs[ i ] - mins[ i ] );
 
-  if( icon = BG_FindIconForWeapon( weaponNum ) )
-  {
-    weaponInfo->weaponIcon = trap_R_RegisterShader( icon );
-    weaponInfo->ammoIcon = trap_R_RegisterShader( icon );
-  }
-  
-  strcpy( path, model );
-  COM_StripExtension( path, path );
-  strcat( path, "_flash.md3" );
-  weaponInfo->flashModel = trap_R_RegisterModel( path );
-
-  strcpy( path, model );
-  COM_StripExtension( path, path );
-  strcat( path, "_barrel.md3" );
-  weaponInfo->barrelModel = trap_R_RegisterModel( path );
-
-  strcpy( path, model );
-  COM_StripExtension( path, path );
-  strcat( path, "_hand.md3" );
-  weaponInfo->handsModel = trap_R_RegisterModel( path );
-
-  if( !weaponInfo->handsModel )
-    weaponInfo->handsModel = trap_R_RegisterModel( "models/weapons2/shotgun/shotgun_hand.md3" );
-
   weaponInfo->loopFireSound = qfalse;
 
   switch( weaponNum )
   {
-    case WP_TESLAGEN:
-      MAKERGB( weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f );
-      weaponInfo->readySound = trap_S_RegisterSound( "sound/weapons/melee/fsthum.wav", qfalse );
-      weaponInfo->firingSound = trap_S_RegisterSound( "sound/weapons/lightning/lg_hum.wav", qfalse );
-
-      weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/lightning/lg_fire.wav", qfalse );
-      cgs.media.lightningShader = trap_R_RegisterShader( "models/ammo/tesla/tesla_bolt");
-      cgs.media.lightningExplosionModel = trap_R_RegisterModel( "models/weaphits/crackle.md3" );
-      cgs.media.sfx_lghit = trap_S_RegisterSound( "sound/weapons/lightning/lg_fire.wav", qfalse );
-      break;
-
-    case WP_AREA_ZAP:
-    case WP_DIRECT_ZAP:
-      MAKERGB( weaponInfo->flashDlightColor, 0.0f, 0.0f, 0.0f );
-
-      weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/lightning/lg_fire.wav", qfalse );
-      cgs.media.lightningShader = trap_R_RegisterShader( "models/ammo/tesla/tesla_bolt");
-      cgs.media.sfx_lghit = trap_S_RegisterSound( "sound/weapons/lightning/lg_fire.wav", qfalse );
-      break;
-
     case WP_MACHINEGUN:
-      MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
-      weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf1b.wav", qfalse );
-      weaponInfo->flashSound[ 1 ] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf2b.wav", qfalse );
-      weaponInfo->flashSound[ 2 ] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf3b.wav", qfalse );
-      weaponInfo->flashSound[ 3 ] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf4b.wav", qfalse );
-      weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
-      cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
-      break;
-
-    case WP_MASS_DRIVER:
-      MAKERGB( weaponInfo->flashDlightColor, 0, 0, 1 );
-      weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf1b.wav", qfalse );
-      weaponInfo->flashSound[ 1 ] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf2b.wav", qfalse );
-      weaponInfo->flashSound[ 2 ] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf3b.wav", qfalse );
-      weaponInfo->flashSound[ 3 ] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf4b.wav", qfalse );
-      break;
-
     case WP_CHAINGUN:
-      MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
-      weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf1b.wav", qfalse );
-      weaponInfo->flashSound[ 1 ] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf2b.wav", qfalse );
-      weaponInfo->flashSound[ 2 ] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf3b.wav", qfalse );
-      weaponInfo->flashSound[ 3 ] = trap_S_RegisterSound( "sound/weapons/machinegun/machgf4b.wav", qfalse );
       weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
-      cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
-      break;
-      
-    case WP_LOCKBLOB_LAUNCHER:
-  /*    weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/rocket/rockfly.wav", qfalse );
-      weaponInfo->missileTrailFunc = CG_RocketTrail;
-      weaponInfo->missileDlight = 200;
-      weaponInfo->wiTrailTime = 2000;
-      weaponInfo->trailRadius = 64;
-      MAKERGB( weaponInfo->missileDlightColor, 1, 0.75f, 0 );
-      MAKERGB( weaponInfo->flashDlightColor, 1, 0.75f, 0 );*/
-      weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/grenade1.md3" );
-      weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav", qfalse );
-      /*cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion" );*/
-      break;
-
-    case WP_FLAMER:
-      weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/flamer/fireloop.wav", qfalse );
-      MAKERGB( weaponInfo->flashDlightColor, 0.25f, 0.1f, 0 );
-      MAKERGB( weaponInfo->missileDlightColor, 0.25f, 0.1f, 0 );
-      weaponInfo->missileDlight = 200;
-      //weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/railgun/railgf1a.wav", qfalse );
-      /*cgs.media.flameExplShader = trap_R_RegisterShader( "rocketExplosion" );*/
-      break;
-
-    case WP_PULSE_RIFLE:
-      weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/plasma/lasfly.wav", qfalse );
-      MAKERGB( weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f );
-      weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/plasma/hyprbf1a.wav", qfalse );
-      cgs.media.plasmaExplosionShader = trap_R_RegisterShader( "plasmaExplosion" );
-      break;
-
-    case WP_LAS_GUN:
-      MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
-      weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/plasma/hyprbf1a.wav", qfalse );
-      cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
-      break;
-      
-    case WP_LUCIFER_CANON:
-      weaponInfo->readySound = trap_S_RegisterSound( "sound/weapons/bfg/bfg_hum.wav", qfalse );
-      MAKERGB( weaponInfo->flashDlightColor, 1, 0.7f, 1 );
-      weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/bfg/bfg_fire.wav", qfalse );
-      cgs.media.bfgExplosionShader = trap_R_RegisterShader( "bfgExplosion" );
-      weaponInfo->missileModel = trap_R_RegisterModel( "models/weaphits/bfg.md3" );
-      weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/rocket/rockfly.wav", qfalse );
-      break;
-
-    case WP_VENOM:
-      MAKERGB( weaponInfo->flashDlightColor, 0, 0, 0 );
-      weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav", qfalse );
-      break;
-
-    case WP_PAIN_SAW:
-      MAKERGB( weaponInfo->flashDlightColor, 0, 0, 0 );
-      weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav", qfalse );
-      break;
-
-    case WP_GRAB_CLAW:
-    case WP_GRAB_CLAW_UPG:
-      MAKERGB( weaponInfo->flashDlightColor, 0, 0, 0 );
-      weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav", qfalse );
-      break;
-
-    case WP_POUNCE:
-    case WP_POUNCE_UPG:
-      MAKERGB( weaponInfo->flashDlightColor, 0, 0, 0 );
-      weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav", qfalse );
-      weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/grenade1.md3" );
-      break;
-
-    case WP_GROUND_POUND:
-      MAKERGB( weaponInfo->flashDlightColor, 0, 0, 0 );
-      weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav", qfalse );
-      break;
-
-    case WP_ABUILD:
-    case WP_ABUILD2:
-    case WP_HBUILD:
-    case WP_HBUILD2:
-      //nowt
-      break;
-
-    default:
-      MAKERGB( weaponInfo->flashDlightColor, 1, 1, 1 );
-      weaponInfo->flashSound[ 0 ] = trap_S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav", qfalse );
       break;
   }
 }
@@ -415,6 +507,15 @@ void CG_InitWeapons( void )
 
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
     CG_RegisterWeapon( i );
+  
+  cgs.media.lightningShader         = trap_R_RegisterShader( "models/ammo/tesla/tesla_bolt");
+  cgs.media.lightningExplosionModel = trap_R_RegisterModel( "models/weaphits/crackle.md3" );
+  cgs.media.sfx_lghit               = trap_S_RegisterSound( "sound/weapons/lightning/lg_fire.wav", qfalse );
+  cgs.media.lightningShader         = trap_R_RegisterShader( "models/ammo/tesla/tesla_bolt");
+  cgs.media.bulletExplosionShader   = trap_R_RegisterShader( "bulletExplosion" );
+  cgs.media.plasmaExplosionShader   = trap_R_RegisterShader( "plasmaExplosion" );
+  cgs.media.bulletExplosionShader   = trap_R_RegisterShader( "bulletExplosion" );
+  cgs.media.bfgExplosionShader      = trap_R_RegisterShader( "bfgExplosion" );
 }
 
 

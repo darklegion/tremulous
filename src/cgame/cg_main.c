@@ -715,14 +715,6 @@ static void CG_RegisterGraphics( void )
   cgs.media.tracerShader              = trap_R_RegisterShader( "gfx/misc/tracer" );
   cgs.media.selectShader              = trap_R_RegisterShader( "gfx/2d/select" );
 
-  for( i = WP_NONE + 1 ; i < WP_NUM_WEAPONS ; i++ )
-  {
-    char *crosshair = BG_FindCrosshairForWeapon( i );
-
-    if( crosshair != NULL )
-      cgs.media.crosshairShader[ i ] = trap_R_RegisterShader( crosshair );
-  }
-
   cgs.media.backTileShader            = trap_R_RegisterShader( "gfx/2d/backtile" );
   cgs.media.noammoShader              = trap_R_RegisterShader( "icons/noammo" );
   cgs.media.friendShader              = trap_R_RegisterShader( "sprites/foe" );
@@ -1682,8 +1674,10 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 
   CG_RegisterGraphics( );
   CG_UpdateMediaFraction( 0.90f );
+  
   CG_InitWeapons( );
   CG_UpdateMediaFraction( 0.95f );
+  
   CG_InitUpgrades( );
   CG_UpdateMediaFraction( 1.0f );
   

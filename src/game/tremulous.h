@@ -410,12 +410,12 @@
 #define MGTURRET_BP                 80
 #define MGTURRET_HEALTH             HBHM(100)
 #define MGTURRET_SPLASHDAMAGE       50
-#define MGTURRET_SPLASHRADIUS       1000
+#define MGTURRET_SPLASHRADIUS       100
 #define MGTURRET_ANGULARSPEED       5  //degrees/think ~= 200deg/sec
 #define MGTURRET_ACCURACYTOLERANCE  MGTURRET_ANGULARSPEED / 2 //angular difference for turret to fire
 #define MGTURRET_VERTICALCAP        30  // +/- maximum pitch
 #define MGTURRET_REPEAT             100
-#define MGTURRET_RANGE              200
+#define MGTURRET_RANGE              250
 
 #define TESLAGEN_BP                 100
 #define TESLAGEN_HEALTH             HBHM(200)

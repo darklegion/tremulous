@@ -2510,10 +2510,11 @@ CG_DrawCrosshair
 */
 static void CG_DrawCrosshair( void )
 {
-  float     w, h;
-  qhandle_t hShader;
-  float     f;
-  float     x, y;
+  float         w, h;
+  qhandle_t     hShader;
+  float         f;
+  float         x, y;
+  weaponInfo_t  *wi;
 
   if( !cg_drawCrosshair.integer )
     return;
@@ -2526,13 +2527,15 @@ static void CG_DrawCrosshair( void )
   if( cg.renderingThirdPerson )
     return;
 
-  w = h = BG_FindCrosshairSizeForWeapon( cg.snap->ps.weapon );
+  wi = &cg_weapons[ cg.snap->ps.weapon ];
+  
+  w = h = wi->crossHairSize;
 
   x = cg_crosshairX.integer;
   y = cg_crosshairY.integer;
   CG_AdjustFrom640( &x, &y, &w, &h );
   
-  hShader = cgs.media.crosshairShader[ cg.snap->ps.weapon ];
+  hShader = wi->crossHair;
 
   if( hShader != 0 )
   {

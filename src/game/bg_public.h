@@ -957,11 +957,6 @@ typedef struct
   char      *weaponName;
   char      *weaponHumanName;
 
-  char      *models[ MAX_ITEM_MODELS ];
-  char      *icon;
-  char      *crosshair;
-  int       crosshairSize;
-  
   int       quan;
   int       clips;
   int       maxClips;
