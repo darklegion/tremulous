@@ -70,13 +70,13 @@ static void CG_Obituary( entityState_t *ent )
       message = "suicides";
       break;
     case MOD_FALLING:
-      message = "cratered";
+      message = "fell fowl to gravity";
       break;
     case MOD_CRUSH:
       message = "was squished";
       break;
     case MOD_WATER:
-      message = "sank like a rock";
+      message = "forgot to pack a snorkel";
       break;
     case MOD_SLIME:
       message = "melted";
@@ -96,6 +96,21 @@ static void CG_Obituary( entityState_t *ent )
     case MOD_ASPAWN:
       message = "was melted by the acid blood";
       break;
+    case MOD_MACHINEGUN:
+      message = "was gunned down by a turret";
+      break;
+    case MOD_TESLAGEN:
+      message = "was zapped by a tesla generator";
+      break;
+    case MOD_ATUBE:
+      message = "was melted by an acid tube";
+      break;
+    case MOD_OVERMIND:
+      message = "got too close to the overmind";
+      break;
+    case MOD_SLOWBLOB:
+      message = "should have visited a medical station";
+      break;
     default:
       message = NULL;
       break;
@@ -106,24 +121,6 @@ static void CG_Obituary( entityState_t *ent )
     gender = ci->gender;
     switch( mod )
     {
-      case MOD_GRENADE_SPLASH:
-        if( gender == GENDER_FEMALE )
-          message = "tripped on her own grenade";
-        else if( gender == GENDER_NEUTER )
-          message = "tripped on its own grenade";
-        else
-          message = "tripped on his own grenade";
-        break;
-        
-      case MOD_ROCKET_SPLASH:
-        if( gender == GENDER_FEMALE )
-          message = "blew herself up";
-        else if( gender == GENDER_NEUTER )
-          message = "blew itself up";
-        else
-          message = "blew himself up";
-        break;
-        
       case MOD_FLAMER_SPLASH:
         if( gender == GENDER_FEMALE )
           message = "toasted herself";
@@ -131,10 +128,6 @@ static void CG_Obituary( entityState_t *ent )
           message = "toasted itself";
         else
           message = "toasted himself";
-        break;
-        
-      case MOD_BFG_SPLASH:
-        message = "should have used a smaller gun";
         break;
         
       default:
@@ -152,17 +145,6 @@ static void CG_Obituary( entityState_t *ent )
   {
     CG_Printf( "%s %s.\n", targetName, message );
     return;
-  }
-
-  // check for kill messages from the current clientNum
-  if( attacker == cg.snap->ps.clientNum )
-  {
-    char  *s;
-
-/*    s = va( "You fragged %s", targetName );
-    CG_CenterPrint( s, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );*/
-
-    // print the text message as well
   }
 
   // check for double client messages
@@ -184,11 +166,8 @@ static void CG_Obituary( entityState_t *ent )
   {
     switch( mod )
     {
-      case MOD_GRAPPLE:
-        message = "was caught by";
-        break;
-      case MOD_GAUNTLET:
-        message = "was pummeled by";
+      case MOD_BLASTER:
+        message = "was blasted by";
         break;
       case MOD_MACHINEGUN:
         message = "was machinegunned by";
@@ -199,43 +178,27 @@ static void CG_Obituary( entityState_t *ent )
       case MOD_SHOTGUN:
         message = "was gunned down by";
         break;
-      case MOD_GRENADE:
-        message = "ate";
-        message2 = "'s grenade";
-        break;
-      case MOD_GRENADE_SPLASH:
-        message = "was shredded by";
-        message2 = "'s shrapnel";
-        break;
-      case MOD_ROCKET:
-        message = "ate";
-        message2 = "'s rocket";
-        break;
-      case MOD_ROCKET_SPLASH:
-        message = "almost dodged";
-        message2 = "'s rocket";
+      case MOD_PRIFLE:
+        message = "was pulse rifled by";
         break;
       case MOD_FLAMER:
-        message = "was toasted by";
+        message = "was grilled by";
         message2 = "'s flamer";
         break;
       case MOD_FLAMER_SPLASH:
         message = "was toasted by";
         message2 = "'s flamer";
         break;
-      case MOD_RAILGUN:
-        message = "was railed by";
+      case MOD_LCANNON:
+        message = "felt the full force of";
+        message2 = "'s lucifer cannon";
         break;
-      case MOD_LIGHTNING:
-        message = "was electrocuted by";
+      case MOD_LCANNON_SPLASH:
+        message = "was caught in the fallout of";
+        message2 = "'s lucifer cannon";
         break;
       case MOD_VENOM:
             message = "was biten by";
-        break;
-      case MOD_BFG:
-      case MOD_BFG_SPLASH:
-        message = "was blasted by";
-        message2 = "'s BFG";
         break;
       case MOD_TELEFRAG:
         message = "tried to invade";

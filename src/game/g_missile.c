@@ -312,8 +312,8 @@ gentity_t *fire_blaster( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->damage = BLASTER_DMG;
   bolt->splashDamage = 0;
   bolt->splashRadius = 0;
-  //bolt->methodOfDeath = MOD_FLAMER;
-  //bolt->splashMethodOfDeath = MOD_FLAMER_SPLASH;
+  bolt->methodOfDeath = MOD_BLASTER;
+  bolt->splashMethodOfDeath = MOD_BLASTER;
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = NULL;
 
@@ -354,8 +354,8 @@ gentity_t *fire_pulseRifle( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->damage = PRIFLE_DMG;
   bolt->splashDamage = 0;
   bolt->splashRadius = 0;
-  //bolt->methodOfDeath = MOD_FLAMER;
-  //bolt->splashMethodOfDeath = MOD_FLAMER_SPLASH;
+  bolt->methodOfDeath = MOD_PRIFLE;
+  bolt->splashMethodOfDeath = MOD_PRIFLE;
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = NULL;
 
@@ -399,8 +399,8 @@ gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int da
   bolt->splashDamage = localDamage / 2;
   bolt->splashRadius = localDamage;
   bolt->s.generic1 = damage;
-  //bolt->methodOfDeath = MOD_FLAMER;
-  //bolt->splashMethodOfDeath = MOD_FLAMER_SPLASH;
+  bolt->methodOfDeath = MOD_LCANNON;
+  bolt->splashMethodOfDeath = MOD_LCANNON_SPLASH;
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = NULL;
 
@@ -440,8 +440,6 @@ gentity_t *fire_lockblob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->damage = 0;
   bolt->splashDamage = 0;
   bolt->splashRadius = 0;
-  bolt->methodOfDeath = MOD_ROCKET;
-  bolt->splashMethodOfDeath = MOD_ROCKET_SPLASH;
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = NULL;
 
@@ -478,8 +476,8 @@ gentity_t *fire_slowBlob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->damage = DRAGOON_SLOWBLOB_DMG;
   bolt->splashDamage = 0;
   bolt->splashRadius = 0;
-  bolt->methodOfDeath = MOD_ROCKET;
-  bolt->splashMethodOfDeath = MOD_ROCKET_SPLASH;
+  bolt->methodOfDeath = MOD_SLOWBLOB;
+  bolt->splashMethodOfDeath = MOD_SLOWBLOB;
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = NULL;
 
@@ -516,8 +514,6 @@ gentity_t *fire_paraLockBlob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->damage = 0;
   bolt->splashDamage = 0;
   bolt->splashRadius = 0;
-  bolt->methodOfDeath = MOD_ROCKET;
-  bolt->splashMethodOfDeath = MOD_ROCKET_SPLASH;
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = NULL;
 

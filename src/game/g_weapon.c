@@ -402,7 +402,7 @@ void teslaFire( gentity_t *ent )
   if( traceEnt->takedamage)
   {
     G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-      damage, 0, MOD_LIGHTNING);
+      damage, 0, MOD_TESLAGEN );
   }
 
   // snap the endpos to integers to save net bandwidth, but nudged towards the line
@@ -774,7 +774,7 @@ void areaZapFire( gentity_t *ent )
     
     //do some damage
     G_Damage( enemy, ent, ent, dir, tr.endpos,
-              damage, DAMAGE_NO_KNOCKBACK, MOD_LIGHTNING );
+              damage, DAMAGE_NO_KNOCKBACK, MOD_TESLAGEN );
     
     // snap the endpos to integers to save net bandwidth, but nudged towards the line
     SnapVectorTowards( tr.endpos, muzzle );
@@ -846,7 +846,7 @@ void directZapFire( gentity_t *ent )
   {
     //do some damage
     G_Damage( target, ent, ent, dir, tr.endpos,
-              CHIMERA_DIRECTZAP_DMG, DAMAGE_NO_KNOCKBACK, MOD_LIGHTNING );
+              CHIMERA_DIRECTZAP_DMG, DAMAGE_NO_KNOCKBACK, MOD_TESLAGEN );
     
     // snap the endpos to integers to save net bandwidth, but nudged towards the line
     SnapVectorTowards( tr.endpos, muzzle );

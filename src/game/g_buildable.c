@@ -447,7 +447,7 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->think = ASpawn_Blast;
   self->nextthink = level.time + 5000; //wait .5 seconds before damaging others
     
-  if( attacker && attacker->client )
+  if( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
     if( self->s.modelindex == BA_A_OVERMIND )
       attacker->client->ps.persistant[ PERS_CREDIT ] += OVERMIND_VALUE;
@@ -1743,7 +1743,7 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->nextthink = level.time + HUMAN_DETONATION_DELAY;
   self->powered = qfalse; //free up power
 
-  if( attacker && attacker->client )
+  if( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     if( self->s.modelindex == BA_H_REACTOR )
       attacker->client->ps.persistant[ PERS_CREDIT ] += REACTOR_VALUE;
