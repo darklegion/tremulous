@@ -2737,6 +2737,9 @@ upgradeAttributes_t bg_upgrades[ ] =
     "torch",                //char  *upgradeName;
     "Torch",                //char  *upgradeHumanName;
     "icons/iconw_gauntlet",
+    WP_NONE,                //weapon_t weaponAmmo;
+    0,                      //int   ammo;
+    0,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -2747,6 +2750,9 @@ upgradeAttributes_t bg_upgrades[ ] =
     "nvg",                  //char  *upgradeName;
     "NVG",                  //char  *upgradeHumanName;
     "icons/iconw_gauntlet",
+    WP_NONE,                //weapon_t weaponAmmo;
+    0,                      //int   ammo;
+    0,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -2757,6 +2763,9 @@ upgradeAttributes_t bg_upgrades[ ] =
     "carmour",              //char  *upgradeName;
     "Chest Armour",         //char  *upgradeHumanName;
     "icons/iconw_gauntlet",
+    WP_NONE,                //weapon_t weaponAmmo;
+    0,                      //int   ammo;
+    0,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -2767,6 +2776,9 @@ upgradeAttributes_t bg_upgrades[ ] =
     "larmour",              //char  *upgradeName;
     "Limb Armour",          //char  *upgradeHumanName;
     "icons/iconw_gauntlet",
+    WP_NONE,                //weapon_t weaponAmmo;
+    0,                      //int   ammo;
+    0,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -2777,6 +2789,9 @@ upgradeAttributes_t bg_upgrades[ ] =
     "helmet",               //char  *upgradeName;
     "Helmet",               //char  *upgradeHumanName;
     "icons/iconw_gauntlet",
+    WP_NONE,                //weapon_t weaponAmmo;
+    0,                      //int   ammo;
+    0,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -2787,6 +2802,9 @@ upgradeAttributes_t bg_upgrades[ ] =
     "atoxin",               //char  *upgradeName;
     "Anti-toxin",           //char  *upgradeHumanName;
     "icons/iconw_gauntlet",
+    WP_NONE,                //weapon_t weaponAmmo;
+    0,                      //int   ammo;
+    0,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -2797,6 +2815,9 @@ upgradeAttributes_t bg_upgrades[ ] =
     "battpack",             //char  *upgradeName;
     "Battery Pack",         //char  *upgradeHumanName;
     "icons/iconw_gauntlet",
+    WP_NONE,                //weapon_t weaponAmmo;
+    0,                      //int   ammo;
+    0,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -2807,6 +2828,9 @@ upgradeAttributes_t bg_upgrades[ ] =
     "jetpack",              //char  *upgradeName;
     "Jet Pack",             //char  *upgradeHumanName;
     "icons/iconw_gauntlet",
+    WP_NONE,                //weapon_t weaponAmmo;
+    0,                      //int   ammo;
+    0,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -2817,6 +2841,22 @@ upgradeAttributes_t bg_upgrades[ ] =
     "bsuit",                                  //char  *upgradeName;
     "Battlesuit",                             //char  *upgradeHumanName;
     "icons/iconw_gauntlet",
+    WP_NONE,                //weapon_t weaponAmmo;
+    0,                      //int   ammo;
+    0,                      //int   clips;
+    WUT_HUMANS              //WUTeam_t  team;
+  },
+  {
+    UP_MGCLIP,              //int   upgradeNum;
+    10,                     //int   price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_NONE,              //int   slots;
+    "mgclip",               //char  *upgradeName;
+    "1 Rifle Clip",         //char  *upgradeHumanName;
+    "icons/iconw_gauntlet",
+    WP_MACHINEGUN,          //weapon_t weaponAmmo;
+    0,                      //int   ammo;
+    1,                      //int   clips;
     WUT_HUMANS              //WUTeam_t  team;
   }
 };
@@ -2960,6 +3000,44 @@ char *BG_FindIconForUpgrade( int upgrade )
 
   //wimp out
   return 0;
+}
+
+/*
+==============
+BG_FindWeaponAmmoForUpgrade
+==============
+*/
+weapon_t BG_FindWeaponAmmoForUpgrade( int upgrade )
+{
+  int i;
+
+  for( i = 0; i < bg_numUpgrades; i++ )
+  {
+    if( bg_upgrades[ i ].upgradeNum == upgrade )
+      return bg_upgrades[ i ].weaponAmmo;
+  }
+}
+
+/*
+==============
+BG_FindAmmoForUpgrade
+==============
+*/
+void BG_FindAmmoForUpgrade( int upgrade, int *ammo, int *clips )
+{
+  int i;
+
+  for( i = 0; i < bg_numUpgrades; i++ )
+  {
+    if( bg_upgrades[ i ].upgradeNum == upgrade )
+    {
+      if( ammo != NULL )
+        *ammo = bg_upgrades[ i ].ammo;
+
+      if( clips != NULL )
+        *clips = bg_upgrades[ i ].clips;
+    }
+  }
 }
 
 /*

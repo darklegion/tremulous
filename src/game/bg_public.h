@@ -364,6 +364,8 @@ typedef enum
   UP_BATTPACK,
   UP_JETPACK,
   UP_BATTLESUIT,
+  
+  UP_MGCLIP,
 
   UP_NUM_UPGRADES
 } upgrade_t;
@@ -970,6 +972,10 @@ typedef struct
 
   char      *icon;
   
+  weapon_t  weaponAmmo;
+  int       ammo;
+  int       clips;
+  
   WUTeam_t  team;
 } upgradeAttributes_t;
 
@@ -1051,6 +1057,8 @@ char      *BG_FindNameForUpgrade( int upgrade );
 int       BG_FindUpgradeNumForName( char *name );
 char      *BG_FindHumanNameForUpgrade( int upgrade );
 char      *BG_FindIconForUpgrade( int upgrade );
+weapon_t  BG_FindWeaponAmmoForBuildable( int upgrade );
+void      BG_FindAmmoForUpgrade( int upgrade, int *ammo, int *clips );
 WUTeam_t  BG_FindTeamForUpgrade( int upgrade );
 
 // g_dmflags->integer flags

@@ -1939,6 +1939,9 @@ void Cmd_Buy_f( gentity_t *ent )
   }
   else if( upgrade != UP_NONE )
   {
+    int       maxAmmo, newAmmo, newClips;
+    weapon_t  weaponAmmo;
+    
     //already got this?
     if( BG_gotItem( upgrade, ent->client->ps.stats ) )
     {
@@ -1974,8 +1977,41 @@ void Cmd_Buy_f( gentity_t *ent )
       return;
     }
     
-    //add to inventory
-    BG_packItem( upgrade, ent->client->ps.stats );
+    BG_FindAmmoForUpgrade( upgrade, &newAmmo, &newClips );
+
+    if( newAmmo || newClips )
+    {
+      //get current ammo for the weapon in question
+      weaponAmmo = BG_FindWeaponAmmoForUpgrade( upgrade );
+      BG_unpackAmmoArray( weaponAmmo, ent->client->ps.ammo, ent->client->ps.powerups,
+                          &quan, &clips, &maxClips );
+      
+      BG_FindAmmoForWeapon( weaponAmmo, &maxAmmo, NULL, NULL );
+
+      //this ammo package would exceed max ammo
+      if( clips + newClips > maxClips )
+      {
+        //FIXME: different dialog?
+        G_AddPredictableEvent( ent, EV_MENU, MN_H_NOSLOTS );
+        return;
+      }
+      else
+        clips += newClips;
+
+      if( quan + newAmmo > maxAmmo )
+        quan = maxAmmo;
+      else
+        quan += newAmmo;
+
+      //updata ammo count
+      BG_packAmmoArray( weaponAmmo, ent->client->ps.ammo, ent->client->ps.powerups,
+                        quan, clips, maxClips );
+    }
+    else
+    {
+      //add to inventory
+      BG_packItem( upgrade, ent->client->ps.stats );
+    }
     
     //subtract from funds
     ent->client->ps.persistant[ PERS_CREDIT ] -= BG_FindPriceForUpgrade( upgrade );
@@ -2385,18 +2421,15 @@ void Cmd_Spawnbody_f( gentity_t *ent )
   G_FreeEntity( dummy );
 }
 
-/*void Cmd_Test_f( gentity_t *ent )
+void Cmd_Test_f( gentity_t *ent )
 {
-  char  s[ MAX_TOKEN_CHARS ];
-  int   a, b, c;
+  int ammo, clips, maxclips;
+  playerState_t *ps = &ent->client->ps;
   
-  trap_Argv( 1, s, sizeof( s ) );
-  a = atoi( s );
-  trap_Argv( 2, s, sizeof( s ) );
-  b = atoi( s );
-  
-  G_Printf( "%d\n", BG_ClassCanEvolveFromTo( a, b, 10000, 0 ) );
-}*/
+  BG_unpackAmmoArray( WP_MACHINEGUN, ps->ammo, ps->powerups, &ammo, &clips, &maxclips );
+  G_Printf( "%d %d\n", ammo, clips );
+  BG_packAmmoArray( WP_MACHINEGUN, ps->ammo, ps->powerups, 0, 1, maxclips );
+}
 
 /*
 =================
@@ -2531,8 +2564,8 @@ void ClientCommand( int clientNum ) {
     Cmd_Stats_f( ent );
   else if (Q_stricmp (cmd, "spawnbody") == 0)
     Cmd_Spawnbody_f( ent );
-/*  else if (Q_stricmp (cmd, "test") == 0)
-    Cmd_Test_f( ent );*/
+  else if (Q_stricmp (cmd, "test") == 0)
+    Cmd_Test_f( ent );
   else
     trap_SendServerCommand( clientNum, va("print \"unknown cmd %s\n\"", cmd ) );
 }
