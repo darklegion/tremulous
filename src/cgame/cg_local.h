@@ -1224,6 +1224,10 @@ extern  vmCvar_t    cg_drawSurfNormal;
 extern  vmCvar_t    cg_debugAlloc;
 extern  vmCvar_t    cg_smoothTime;
 
+//TA: hack to get class an carriage through to UI module
+extern  vmCvar_t    ui_currentClass;
+extern  vmCvar_t    ui_carriage;
+
 //
 // cg_main.c
 //

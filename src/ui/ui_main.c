@@ -2813,6 +2813,252 @@ static void UI_StartSinglePlayer() {
 
 /*
 ===============
+UI_LoadTremTeams
+===============
+*/
+static void UI_LoadTremTeams( )
+{
+  uiInfo.tremTeamCount = 3;
+  uiInfo.tremTeamList[ 0 ].text = String_Alloc( "Aliens" );
+  uiInfo.tremTeamList[ 0 ].cmd = String_Alloc( "cmd team aliens" );
+  
+  uiInfo.tremTeamList[ 1 ].text = String_Alloc( "Humans" );
+  uiInfo.tremTeamList[ 1 ].cmd = String_Alloc( "cmd team humans" );
+  
+  uiInfo.tremTeamList[ 2 ].text = String_Alloc( "Spectate" );
+  uiInfo.tremTeamList[ 2 ].cmd = String_Alloc( "cmd team spectate" );
+}
+
+/*
+===============
+UI_LoadTremAlienClasses
+===============
+*/
+static void UI_LoadTremAlienClasses( )
+{
+  uiInfo.tremAlienClassCount = 3;
+  uiInfo.tremAlienClassList[ 0 ].text = String_Alloc( "Builder" );
+  uiInfo.tremAlienClassList[ 0 ].cmd = String_Alloc( "cmd class builder" );
+  
+  uiInfo.tremAlienClassList[ 1 ].text = String_Alloc( "Advanced Builder" );
+  uiInfo.tremAlienClassList[ 1 ].cmd = String_Alloc( "cmd class builderlevel1" );
+  
+  uiInfo.tremAlienClassList[ 2 ].text = String_Alloc( "Offensive" );
+  uiInfo.tremAlienClassList[ 2 ].cmd = String_Alloc( "cmd class offensive" );
+}
+
+/*
+===============
+UI_LoadTremHumanItems
+===============
+*/
+static void UI_LoadTremHumanItems( )
+{
+  uiInfo.tremHumanItemCount = 2;
+  uiInfo.tremHumanItemList[ 0 ].text = String_Alloc( "Rifle" );
+  uiInfo.tremHumanItemList[ 0 ].cmd = String_Alloc( "cmd class rifle" );
+  
+  uiInfo.tremHumanItemList[ 1 ].text = String_Alloc( "Construction Kit" );
+  uiInfo.tremHumanItemList[ 1 ].cmd = String_Alloc( "cmd class ckit" );
+}
+
+/*
+===============
+UI_LoadTremHumanMCUBuys
+===============
+*/
+static void UI_LoadTremHumanMCUBuys( )
+{
+  uiInfo.tremHumanMCUBuyCount = 11;
+  uiInfo.tremHumanMCUBuyList[ 0 ].text = String_Alloc( "Rifle" );
+  uiInfo.tremHumanMCUBuyList[ 0 ].cmd = String_Alloc( "cmd buy rifle" );
+  
+  uiInfo.tremHumanMCUBuyList[ 1 ].text = String_Alloc( "Chaingun" );
+  uiInfo.tremHumanMCUBuyList[ 1 ].cmd = String_Alloc( "cmd buy chaingun" );
+  
+  uiInfo.tremHumanMCUBuyList[ 2 ].text = String_Alloc( "Flamer" );
+  uiInfo.tremHumanMCUBuyList[ 2 ].cmd = String_Alloc( "cmd buy flamer" );
+  
+  uiInfo.tremHumanMCUBuyList[ 3 ].text = String_Alloc( "Mass Driver" );
+  uiInfo.tremHumanMCUBuyList[ 3 ].cmd = String_Alloc( "cmd buy mdriver" );
+  
+  uiInfo.tremHumanMCUBuyList[ 4 ].text = String_Alloc( "Pulse Rifle" );
+  uiInfo.tremHumanMCUBuyList[ 4 ].cmd = String_Alloc( "cmd buy prifle" );
+  
+  uiInfo.tremHumanMCUBuyList[ 5 ].text = String_Alloc( "NVG" );
+  uiInfo.tremHumanMCUBuyList[ 5 ].cmd = String_Alloc( "cmd buy nvg" );
+  
+  uiInfo.tremHumanMCUBuyList[ 6 ].text = String_Alloc( "Torch" );
+  uiInfo.tremHumanMCUBuyList[ 6 ].cmd = String_Alloc( "cmd buy torch" );
+  
+  uiInfo.tremHumanMCUBuyList[ 7 ].text = String_Alloc( "Chest Armour" );
+  uiInfo.tremHumanMCUBuyList[ 7 ].cmd = String_Alloc( "cmd buy carmour" );
+  
+  uiInfo.tremHumanMCUBuyList[ 8 ].text = String_Alloc( "Limb Armour" );
+  uiInfo.tremHumanMCUBuyList[ 8 ].cmd = String_Alloc( "cmd buy larmour" );
+  
+  uiInfo.tremHumanMCUBuyList[ 9 ].text = String_Alloc( "Helmet" );
+  uiInfo.tremHumanMCUBuyList[ 9 ].cmd = String_Alloc( "cmd buy helmet" );
+  
+  uiInfo.tremHumanMCUBuyList[ 10 ].text = String_Alloc( "Battlesuit" );
+  uiInfo.tremHumanMCUBuyList[ 10 ].cmd = String_Alloc( "cmd buy bsuit" );
+}
+
+/*
+===============
+UI_LoadTremHumanMCUSells
+===============
+*/
+static void UI_LoadTremHumanMCUSells( )
+{
+  int i, j = 0;
+  char carriageCvar[ MAX_TOKEN_CHARS ];
+  char *iterator;
+  char buffer[ MAX_TOKEN_CHARS ];
+  char *bufPointer;
+  
+  uiInfo.tremHumanMCUSellCount = 0;
+  trap_Cvar_VariableStringBuffer( "ui_carriage", carriageCvar, sizeof( carriageCvar ) );
+  iterator = carriageCvar;
+
+  //simple parser to give rise to weapon/upgrade list
+  while( iterator && iterator[ 0 ] != '$' )
+  {
+    bufPointer = buffer;
+    
+    if( iterator[ 0 ] == 'W' )
+    {
+      iterator++;
+
+      while( iterator[ 0 ] != ' ' )
+        *bufPointer++ = *iterator++;
+
+      *bufPointer++ = '\n';
+
+      i = atoi( buffer );
+      uiInfo.tremHumanMCUSellList[ j ].text = String_Alloc( BG_FindHumanNameForWeapon( i ) );
+      uiInfo.tremHumanMCUSellList[ j++ ].cmd =
+        String_Alloc( va( "cmd sell %s", BG_FindNameForWeapon( i ) ) );
+
+      uiInfo.tremHumanMCUSellCount++;
+    }
+    else if( iterator[ 0 ] == 'U' )
+    {
+      iterator++;
+
+      while( iterator[ 0 ] != ' ' )
+        *bufPointer++ = *iterator++;
+
+      *bufPointer++ = '\n';
+
+      i = atoi( buffer );
+      uiInfo.tremHumanMCUSellList[ j ].text = String_Alloc( BG_FindHumanNameForUpgrade( i ) );
+      uiInfo.tremHumanMCUSellList[ j++ ].cmd =
+        String_Alloc( va( "cmd sell %s", BG_FindNameForUpgrade( i ) ) );
+
+      uiInfo.tremHumanMCUSellCount++;
+    }
+
+    iterator++;
+  }
+}
+
+/*
+===============
+UI_LoadTremAlienUpgrades( )
+===============
+*/
+static void UI_LoadTremAlienUpgrades( )
+{
+  int i, j = 0;
+  int class = trap_Cvar_VariableValue( "ui_currentClass" );
+  
+  uiInfo.tremAlienUpgradeCount = 0;
+  
+  for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
+  {
+    if( BG_ClassCanEvolveFromTo( class, i ) )
+    {
+      uiInfo.tremAlienUpgradeList[ j ].text = String_Alloc( BG_FindNameForClassNum( i ) );
+      uiInfo.tremAlienUpgradeList[ j++ ].cmd =
+        String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( i ) ) );
+
+      uiInfo.tremAlienUpgradeCount++;
+    }
+  }
+}
+
+/*
+===============
+UI_LoadTremAlienBuilds
+===============
+*/
+static void UI_LoadTremAlienBuilds( )
+{
+  uiInfo.tremAlienBuildCount = 6;
+  uiInfo.tremAlienBuildList[ 0 ].text = String_Alloc( "Egg" );
+  uiInfo.tremAlienBuildList[ 0 ].cmd = String_Alloc( "cmd build bioegg" );
+  
+  uiInfo.tremAlienBuildList[ 1 ].text = String_Alloc( "Barricade" );
+  uiInfo.tremAlienBuildList[ 1 ].cmd = String_Alloc( "cmd build barricade" );
+  
+  uiInfo.tremAlienBuildList[ 2 ].text = String_Alloc( "Acid Tube" );
+  uiInfo.tremAlienBuildList[ 2 ].cmd = String_Alloc( "cmd build acid_tube" );
+  
+  uiInfo.tremAlienBuildList[ 3 ].text = String_Alloc( "Trapper" );
+  uiInfo.tremAlienBuildList[ 3 ].cmd = String_Alloc( "cmd build trapper" );
+  
+  uiInfo.tremAlienBuildList[ 4 ].text = String_Alloc( "Hivemind" );
+  uiInfo.tremAlienBuildList[ 4 ].cmd = String_Alloc( "cmd build hivemind" );
+  
+  uiInfo.tremAlienBuildList[ 5 ].text = String_Alloc( "Booster" );
+  uiInfo.tremAlienBuildList[ 5 ].cmd = String_Alloc( "cmd build booster" );
+}
+
+/*
+===============
+UI_LoadTremHumanBuilds
+===============
+*/
+static void UI_LoadTremHumanBuilds( )
+{
+  uiInfo.tremHumanBuildCount = 11;
+  uiInfo.tremHumanBuildList[ 0 ].text = String_Alloc( "Replicator" );
+  uiInfo.tremHumanBuildList[ 0 ].cmd = String_Alloc( "cmd build replicator" );
+  
+  uiInfo.tremHumanBuildList[ 1 ].text = String_Alloc( "M.C.U." );
+  uiInfo.tremHumanBuildList[ 1 ].cmd = String_Alloc( "cmd build mcu" );
+  
+  uiInfo.tremHumanBuildList[ 2 ].text = String_Alloc( "Computer" );
+  uiInfo.tremHumanBuildList[ 2 ].cmd = String_Alloc( "cmd build computer" );
+  
+  uiInfo.tremHumanBuildList[ 3 ].text = String_Alloc( "Medistation" );
+  uiInfo.tremHumanBuildList[ 3 ].cmd = String_Alloc( "cmd build medistat" );
+  
+  uiInfo.tremHumanBuildList[ 4 ].text = String_Alloc( "Bank" );
+  uiInfo.tremHumanBuildList[ 4 ].cmd = String_Alloc( "cmd build bank" );
+  
+  uiInfo.tremHumanBuildList[ 5 ].text = String_Alloc( "Machinegun Turret" );
+  uiInfo.tremHumanBuildList[ 5 ].cmd = String_Alloc( "cmd build mgturret" );
+  
+  uiInfo.tremHumanBuildList[ 6 ].text = String_Alloc( "Plasma Turret" );
+  uiInfo.tremHumanBuildList[ 6 ].cmd = String_Alloc( "cmd build plasmaturret" );
+  
+  uiInfo.tremHumanBuildList[ 7 ].text = String_Alloc( "Tesla Generator" );
+  uiInfo.tremHumanBuildList[ 7 ].cmd = String_Alloc( "cmd build tesla" );
+  
+  uiInfo.tremHumanBuildList[ 8 ].text = String_Alloc( "Floatmine" );
+  uiInfo.tremHumanBuildList[ 8 ].cmd = String_Alloc( "cmd build floatmine" );
+  
+  uiInfo.tremHumanBuildList[ 9 ].text = String_Alloc( "Reactor" );
+  uiInfo.tremHumanBuildList[ 9 ].cmd = String_Alloc( "cmd build reactor" );
+  
+  uiInfo.tremHumanBuildList[ 10 ].text = String_Alloc( "Repeater" );
+  uiInfo.tremHumanBuildList[ 10 ].cmd = String_Alloc( "cmd build repeater" );
+}
+
+/*
+===============
 UI_LoadMods
 ===============
 */
@@ -3297,7 +3543,44 @@ static void UI_RunMenuScript(char **args) {
 			UI_LoadMovies();
 		} else if (Q_stricmp(name, "LoadMods") == 0) {
 			UI_LoadMods();
-		} else if (Q_stricmp(name, "playMovie") == 0) {
+		}
+    
+//TA: tremulous menus
+    else if( Q_stricmp( name, "LoadTeams" ) == 0 )
+			UI_LoadTremTeams( );
+    else if( Q_stricmp( name, "JoinTeam" ) == 0 )
+			trap_Cmd_ExecuteText( EXEC_APPEND, uiInfo.tremTeamList[ uiInfo.tremTeamIndex ].cmd );
+    else if( Q_stricmp( name, "LoadHumanItems" ) == 0 )
+			UI_LoadTremHumanItems( );
+    else if( Q_stricmp( name, "SpawnWithHumanItem" ) == 0 )
+			trap_Cmd_ExecuteText( EXEC_APPEND, uiInfo.tremHumanItemList[ uiInfo.tremHumanItemIndex ].cmd );
+    else if( Q_stricmp( name, "LoadAlienClasses" ) == 0 )
+			UI_LoadTremAlienClasses( );
+    else if( Q_stricmp( name, "SpawnAsAlienClass" ) == 0 )
+			trap_Cmd_ExecuteText( EXEC_APPEND, uiInfo.tremAlienClassList[ uiInfo.tremAlienClassIndex ].cmd );
+    else if( Q_stricmp( name, "LoadHumanMCUBuys" ) == 0 )
+			UI_LoadTremHumanMCUBuys( );
+    else if( Q_stricmp( name, "BuyFromMCU" ) == 0 )
+			trap_Cmd_ExecuteText( EXEC_APPEND, uiInfo.tremHumanMCUBuyList[ uiInfo.tremHumanMCUBuyIndex ].cmd );
+    else if( Q_stricmp( name, "LoadHumanMCUSells" ) == 0 )
+			UI_LoadTremHumanMCUSells( );
+    else if( Q_stricmp( name, "SellToMCU" ) == 0 )
+			trap_Cmd_ExecuteText( EXEC_APPEND, uiInfo.tremHumanMCUSellList[ uiInfo.tremHumanMCUSellIndex ].cmd );
+    else if( Q_stricmp( name, "LoadAlienUpgrades" ) == 0 )
+			UI_LoadTremAlienUpgrades( );
+    else if( Q_stricmp( name, "UpgradeToNewClass" ) == 0 )
+			trap_Cmd_ExecuteText( EXEC_APPEND, uiInfo.tremAlienUpgradeList[ uiInfo.tremAlienUpgradeIndex ].cmd );
+    else if( Q_stricmp( name, "LoadAlienBuilds" ) == 0 )
+			UI_LoadTremAlienBuilds( );
+    else if( Q_stricmp( name, "BuildAlienBuildable" ) == 0 )
+			trap_Cmd_ExecuteText( EXEC_APPEND, uiInfo.tremAlienBuildList[ uiInfo.tremAlienBuildIndex ].cmd );
+    else if( Q_stricmp( name, "LoadHumanBuilds" ) == 0 )
+			UI_LoadTremHumanBuilds( );
+    else if( Q_stricmp( name, "BuildHumanBuildable" ) == 0 )
+			trap_Cmd_ExecuteText( EXEC_APPEND, uiInfo.tremHumanBuildList[ uiInfo.tremHumanBuildIndex ].cmd );
+//TA: tremulous menus
+    
+    else if (Q_stricmp(name, "playMovie") == 0) {
 			if (uiInfo.previewMovie >= 0) {
 			  trap_CIN_StopCinematic(uiInfo.previewMovie);
 			}
@@ -4218,6 +4501,26 @@ static int UI_FeederCount(float feederID) {
 	} else if (feederID == FEEDER_DEMOS) {
 		return uiInfo.demoCount;
 	}
+
+//TA: tremulous menus
+	else if( feederID == FEEDER_TREMTEAMS )
+		return uiInfo.tremTeamCount;
+	else if( feederID == FEEDER_TREMHUMANITEMS )
+		return uiInfo.tremHumanItemCount;
+	else if( feederID == FEEDER_TREMALIENCLASSES )
+		return uiInfo.tremAlienClassCount;
+	else if( feederID == FEEDER_TREMHUMANMCUBUY )
+		return uiInfo.tremHumanMCUBuyCount;
+	else if( feederID == FEEDER_TREMHUMANMCUSELL )
+		return uiInfo.tremHumanMCUSellCount;
+	else if( feederID == FEEDER_TREMALIENUPGRADE )
+		return uiInfo.tremAlienUpgradeCount;
+	else if( feederID == FEEDER_TREMALIENBUILD )
+		return uiInfo.tremAlienBuildCount;
+	else if( feederID == FEEDER_TREMHUMANBUILD )
+		return uiInfo.tremHumanBuildCount;
+//TA: tremulous menus
+  
 	return 0;
 }
 
@@ -4383,6 +4686,50 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 			return uiInfo.demoList[index];
 		}
 	}
+
+//TA: tremulous menus
+  else if( feederID == FEEDER_TREMTEAMS )
+  {
+    if( index >= 0 && index < uiInfo.tremTeamCount )
+      return uiInfo.tremTeamList[ index ].text;
+  }
+  else if( feederID == FEEDER_TREMHUMANITEMS )
+  {
+    if( index >= 0 && index < uiInfo.tremHumanItemCount )
+      return uiInfo.tremHumanItemList[ index ].text;
+  }
+  else if( feederID == FEEDER_TREMALIENCLASSES )
+  {
+    if( index >= 0 && index < uiInfo.tremAlienClassCount )
+      return uiInfo.tremAlienClassList[ index ].text;
+  }
+  else if( feederID == FEEDER_TREMHUMANMCUBUY )
+  {
+    if( index >= 0 && index < uiInfo.tremHumanMCUBuyCount )
+      return uiInfo.tremHumanMCUBuyList[ index ].text;
+  }
+  else if( feederID == FEEDER_TREMHUMANMCUSELL )
+  {
+    if( index >= 0 && index < uiInfo.tremHumanMCUSellCount )
+      return uiInfo.tremHumanMCUSellList[ index ].text;
+  }
+  else if( feederID == FEEDER_TREMALIENUPGRADE )
+  {
+    if( index >= 0 && index < uiInfo.tremAlienUpgradeCount )
+      return uiInfo.tremAlienUpgradeList[ index ].text;
+  }
+  else if( feederID == FEEDER_TREMALIENBUILD )
+  {
+    if( index >= 0 && index < uiInfo.tremAlienBuildCount )
+      return uiInfo.tremAlienBuildList[ index ].text;
+  }
+  else if( feederID == FEEDER_TREMHUMANBUILD )
+  {
+    if( index >= 0 && index < uiInfo.tremHumanBuildCount )
+      return uiInfo.tremHumanBuildList[ index ].text;
+  }
+//TA: tremulous menus
+  
 	return "";
 }
 
@@ -4496,6 +4843,25 @@ static void UI_FeederSelection(float feederID, int index) {
   } else if (feederID == FEEDER_DEMOS) {
 		uiInfo.demoIndex = index;
 	}
+
+//TA: tremulous menus
+  else if( feederID == FEEDER_TREMTEAMS )
+		uiInfo.tremTeamIndex = index;
+  else if( feederID == FEEDER_TREMHUMANITEMS )
+		uiInfo.tremHumanItemIndex = index;
+  else if( feederID == FEEDER_TREMALIENCLASSES )
+		uiInfo.tremAlienClassIndex = index;
+  else if( feederID == FEEDER_TREMHUMANMCUBUY )
+		uiInfo.tremHumanMCUBuyIndex = index;
+  else if( feederID == FEEDER_TREMHUMANMCUSELL )
+		uiInfo.tremHumanMCUSellIndex = index;
+  else if( feederID == FEEDER_TREMALIENUPGRADE )
+		uiInfo.tremAlienUpgradeIndex = index;
+  else if( feederID == FEEDER_TREMALIENBUILD )
+		uiInfo.tremAlienBuildIndex = index;
+  else if( feederID == FEEDER_TREMHUMANBUILD )
+		uiInfo.tremHumanBuildIndex = index;
+//TA: tremulous menus
 }
 
 static qboolean Team_Parse(char **p) {

@@ -179,6 +179,10 @@ vmCvar_t  cg_drawSurfNormal;
 vmCvar_t  cg_debugAlloc;
 vmCvar_t  cg_smoothTime;
 
+//TA: hack to get class an carriage through to UI module
+vmCvar_t  ui_currentClass;
+vmCvar_t  ui_carriage;
+
 
 typedef struct {
   vmCvar_t  *vmCvar;
@@ -260,6 +264,9 @@ static cvarTable_t   cvarTable[] = {
   { &cg_drawSurfNormal, "cg_drawSurfNormal", "0", CVAR_CHEAT },
   { &cg_debugAlloc, "cg_debugAlloc", "0", 0 },
   { &cg_smoothTime, "cg_smoothTime", "300", 0 },
+  
+  { &ui_currentClass, "ui_currentClass", "0", 0 },
+  { &ui_carriage, "ui_carriage", "", 0 },
 
   // the following variables are created in other parts of the system,
   // but we also reference them here

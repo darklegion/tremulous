@@ -12,7 +12,7 @@
 #define ITEM_TYPE_SLIDER 10               // mouse speed, volume, etc.
 #define ITEM_TYPE_YESNO 11                // yes no cvar setting
 #define ITEM_TYPE_MULTI 12                // multiple list setting, enumerated
-#define ITEM_TYPE_BIND 13		              // multiple list setting, enumerated
+#define ITEM_TYPE_BIND 13                 // multiple list setting, enumerated
     
 #define ITEM_ALIGN_LEFT 0                 // left alignment
 #define ITEM_ALIGN_CENTER 1               // center alignment
@@ -42,30 +42,41 @@
 #define MENU_TRUE 1                       // uh.. true
 #define MENU_FALSE 0                      // and false
 
-#define HUD_VERTICAL				0x00
-#define HUD_HORIZONTAL				0x01
+#define HUD_VERTICAL        0x00
+#define HUD_HORIZONTAL        0x01
 
 // list box element types
 #define LISTBOX_TEXT  0x00
 #define LISTBOX_IMAGE 0x01
 
 // list feeders
-#define FEEDER_HEADS						0x00			// model heads
-#define FEEDER_MAPS							0x01			// text maps based on game type
-#define FEEDER_SERVERS						0x02			// servers
-#define FEEDER_CLANS						0x03			// clan names
-#define FEEDER_ALLMAPS						0x04			// all maps available, in graphic format
-#define FEEDER_REDTEAM_LIST					0x05			// red team members
-#define FEEDER_BLUETEAM_LIST				0x06			// blue team members
-#define FEEDER_PLAYER_LIST					0x07			// players
-#define FEEDER_TEAM_LIST					0x08			// team members for team voting
-#define FEEDER_MODS							0x09			// team members for team voting
-#define FEEDER_DEMOS 						0x0a			// team members for team voting
-#define FEEDER_SCOREBOARD					0x0b			// team members for team voting
-#define FEEDER_Q3HEADS		 				0x0c			// model heads
-#define FEEDER_SERVERSTATUS					0x0d			// server status
-#define FEEDER_FINDPLAYER					0x0e			// find player
-#define FEEDER_CINEMATICS					0x0f			// cinematics
+#define FEEDER_HEADS              0x00      // model heads
+#define FEEDER_MAPS               0x01      // text maps based on game type
+#define FEEDER_SERVERS            0x02      // servers
+#define FEEDER_CLANS              0x03      // clan names
+#define FEEDER_ALLMAPS            0x04      // all maps available, in graphic format
+#define FEEDER_REDTEAM_LIST       0x05      // red team members
+#define FEEDER_BLUETEAM_LIST      0x06      // blue team members
+#define FEEDER_PLAYER_LIST        0x07      // players
+#define FEEDER_TEAM_LIST          0x08      // team members for team voting
+#define FEEDER_MODS               0x09      // team members for team voting
+#define FEEDER_DEMOS              0x0a      // team members for team voting
+#define FEEDER_SCOREBOARD         0x0b      // team members for team voting
+#define FEEDER_Q3HEADS            0x0c      // model heads
+#define FEEDER_SERVERSTATUS       0x0d      // server status
+#define FEEDER_FINDPLAYER         0x0e      // find player
+#define FEEDER_CINEMATICS         0x0f      // cinematics
+
+//TA: tremulous menus
+#define FEEDER_TREMTEAMS          0x10      //teams
+#define FEEDER_TREMALIENCLASSES   0x11      //alien classes
+#define FEEDER_TREMHUMANITEMS     0x12      //human items
+#define FEEDER_TREMHUMANMCUBUY    0x13      //human mcu
+#define FEEDER_TREMHUMANMCUSELL   0x14      //human sell
+#define FEEDER_TREMALIENUPGRADE   0x15      //alien upgrade
+#define FEEDER_TREMALIENBUILD     0x16      //alien buildables
+#define FEEDER_TREMHUMANBUILD     0x17      //human buildables
+//TA: tremulous menus
 
 // display flags
 #define CG_SHOW_BLUE_TEAM_HAS_REDFLAG     0x00000001
@@ -79,31 +90,31 @@
 #define CG_SHOW_SINGLEPLAYER              0x00000100
 #define CG_SHOW_TOURNAMENT                0x00000200
 #define CG_SHOW_DURINGINCOMINGVOICE       0x00000400
-#define CG_SHOW_IF_PLAYER_HAS_FLAG				0x00000800
-#define CG_SHOW_LANPLAYONLY								0x00001000
-#define CG_SHOW_MINED											0x00002000
-#define CG_SHOW_HEALTHOK			            0x00004000
-#define CG_SHOW_TEAMINFO			            0x00008000
-#define CG_SHOW_NOTEAMINFO		            0x00010000
+#define CG_SHOW_IF_PLAYER_HAS_FLAG        0x00000800
+#define CG_SHOW_LANPLAYONLY               0x00001000
+#define CG_SHOW_MINED                     0x00002000
+#define CG_SHOW_HEALTHOK                  0x00004000
+#define CG_SHOW_TEAMINFO                  0x00008000
+#define CG_SHOW_NOTEAMINFO                0x00010000
 #define CG_SHOW_OTHERTEAMHASFLAG          0x00020000
 #define CG_SHOW_YOURTEAMHASENEMYFLAG      0x00040000
 #define CG_SHOW_ANYNONTEAMGAME            0x00080000
-#define CG_SHOW_2DONLY										0x10000000
+#define CG_SHOW_2DONLY                    0x10000000
 
 
-#define UI_SHOW_LEADER				            0x00000001
-#define UI_SHOW_NOTLEADER			            0x00000002
-#define UI_SHOW_FAVORITESERVERS						0x00000004
-#define UI_SHOW_ANYNONTEAMGAME						0x00000008
-#define UI_SHOW_ANYTEAMGAME								0x00000010
-#define UI_SHOW_NEWHIGHSCORE							0x00000020
-#define UI_SHOW_DEMOAVAILABLE							0x00000040
-#define UI_SHOW_NEWBESTTIME								0x00000080
-#define UI_SHOW_FFA												0x00000100
-#define UI_SHOW_NOTFFA										0x00000200
-#define UI_SHOW_NETANYNONTEAMGAME	 				0x00000400
-#define UI_SHOW_NETANYTEAMGAME		 				0x00000800
-#define UI_SHOW_NOTFAVORITESERVERS				0x00001000
+#define UI_SHOW_LEADER                    0x00000001
+#define UI_SHOW_NOTLEADER                 0x00000002
+#define UI_SHOW_FAVORITESERVERS           0x00000004
+#define UI_SHOW_ANYNONTEAMGAME            0x00000008
+#define UI_SHOW_ANYTEAMGAME               0x00000010
+#define UI_SHOW_NEWHIGHSCORE              0x00000020
+#define UI_SHOW_DEMOAVAILABLE             0x00000040
+#define UI_SHOW_NEWBESTTIME               0x00000080
+#define UI_SHOW_FFA                       0x00000100
+#define UI_SHOW_NOTFFA                    0x00000200
+#define UI_SHOW_NETANYNONTEAMGAME         0x00000400
+#define UI_SHOW_NETANYTEAMGAME            0x00000800
+#define UI_SHOW_NOTFAVORITESERVERS        0x00001000
 
 
 
@@ -147,14 +158,14 @@
 #define CG_RED_SCORE 28
 #define CG_RED_NAME 29
 #define CG_BLUE_NAME 30
-#define CG_HARVESTER_SKULLS 31					// only shows in harvester
-#define CG_ONEFLAG_STATUS 32						// only shows in one flag
+#define CG_HARVESTER_SKULLS 31          // only shows in harvester
+#define CG_ONEFLAG_STATUS 32            // only shows in one flag
 #define CG_PLAYER_LOCATION 33
 #define CG_TEAM_COLOR 34
 #define CG_CTF_POWERUP 35
                                         
-#define CG_AREA_POWERUP	36
-#define CG_AREA_LAGOMETER	37            // painted with old system
+#define CG_AREA_POWERUP 36
+#define CG_AREA_LAGOMETER 37            // painted with old system
 #define CG_PLAYER_HASFLAG 38            
 #define CG_GAME_TYPE 39                 // not done
 
@@ -183,8 +194,8 @@
 #define CG_VOICE_HEAD 62
 #define CG_VOICE_NAME 63
 #define CG_PLAYER_HASFLAG2D 64            
-#define CG_HARVESTER_SKULLS2D 65					// only shows in harvester
-#define CG_CAPFRAGLIMIT 66	 
+#define CG_HARVESTER_SKULLS2D 65          // only shows in harvester
+#define CG_CAPFRAGLIMIT 66   
 #define CG_1STPLACE 67
 #define CG_2NDPLACE 68
 #define CG_CAPTURES 69
@@ -249,32 +260,32 @@
 #define UI_STARTMAPCINEMATIC 255
 #define UI_MAPS_SELECTION 256
 
-#define VOICECHAT_GETFLAG			"getflag"				// command someone to get the flag
-#define VOICECHAT_OFFENSE			"offense"				// command someone to go on offense
-#define VOICECHAT_DEFEND			"defend"				// command someone to go on defense
-#define VOICECHAT_DEFENDFLAG		"defendflag"			// command someone to defend the flag
-#define VOICECHAT_PATROL			"patrol"				// command someone to go on patrol (roam)
-#define VOICECHAT_CAMP				"camp"					// command someone to camp (we don't have sounds for this one)
-#define VOICECHAT_FOLLOWME			"followme"				// command someone to follow you
-#define VOICECHAT_RETURNFLAG		"returnflag"			// command someone to return our flag
-#define VOICECHAT_FOLLOWFLAGCARRIER	"followflagcarrier"		// command someone to follow the flag carrier
-#define VOICECHAT_YES				"yes"					// yes, affirmative, etc.
-#define VOICECHAT_NO				"no"					// no, negative, etc.
-#define VOICECHAT_ONGETFLAG			"ongetflag"				// I'm getting the flag
-#define VOICECHAT_ONOFFENSE			"onoffense"				// I'm on offense
-#define VOICECHAT_ONDEFENSE			"ondefense"				// I'm on defense
-#define VOICECHAT_ONPATROL			"onpatrol"				// I'm on patrol (roaming)
-#define VOICECHAT_ONCAMPING			"oncamp"				// I'm camping somewhere
-#define VOICECHAT_ONFOLLOW			"onfollow"				// I'm following
-#define VOICECHAT_ONFOLLOWCARRIER	"onfollowcarrier"		// I'm following the flag carrier
-#define VOICECHAT_ONRETURNFLAG		"onreturnflag"			// I'm returning our flag
-#define VOICECHAT_INPOSITION		"inposition"			// I'm in position
-#define VOICECHAT_IHAVEFLAG			"ihaveflag"				// I have the flag
-#define VOICECHAT_BASEATTACK		"baseattack"			// the base is under attack
-#define VOICECHAT_ENEMYHASFLAG		"enemyhasflag"			// the enemy has our flag (CTF)
-#define VOICECHAT_STARTLEADER		"startleader"			// I'm the leader
-#define VOICECHAT_STOPLEADER		"stopleader"			// I resign leadership
-#define VOICECHAT_TRASH				"trash"					// lots of trash talk
-#define VOICECHAT_WHOISLEADER		"whoisleader"			// who is the team leader
-#define VOICECHAT_WANTONDEFENSE		"wantondefense"			// I want to be on defense
-#define VOICECHAT_WANTONOFFENSE		"wantonoffense"			// I want to be on offense
+#define VOICECHAT_GETFLAG     "getflag"       // command someone to get the flag
+#define VOICECHAT_OFFENSE     "offense"       // command someone to go on offense
+#define VOICECHAT_DEFEND      "defend"        // command someone to go on defense
+#define VOICECHAT_DEFENDFLAG    "defendflag"      // command someone to defend the flag
+#define VOICECHAT_PATROL      "patrol"        // command someone to go on patrol (roam)
+#define VOICECHAT_CAMP        "camp"          // command someone to camp (we don't have sounds for this one)
+#define VOICECHAT_FOLLOWME      "followme"        // command someone to follow you
+#define VOICECHAT_RETURNFLAG    "returnflag"      // command someone to return our flag
+#define VOICECHAT_FOLLOWFLAGCARRIER "followflagcarrier"   // command someone to follow the flag carrier
+#define VOICECHAT_YES       "yes"         // yes, affirmative, etc.
+#define VOICECHAT_NO        "no"          // no, negative, etc.
+#define VOICECHAT_ONGETFLAG     "ongetflag"       // I'm getting the flag
+#define VOICECHAT_ONOFFENSE     "onoffense"       // I'm on offense
+#define VOICECHAT_ONDEFENSE     "ondefense"       // I'm on defense
+#define VOICECHAT_ONPATROL      "onpatrol"        // I'm on patrol (roaming)
+#define VOICECHAT_ONCAMPING     "oncamp"        // I'm camping somewhere
+#define VOICECHAT_ONFOLLOW      "onfollow"        // I'm following
+#define VOICECHAT_ONFOLLOWCARRIER "onfollowcarrier"   // I'm following the flag carrier
+#define VOICECHAT_ONRETURNFLAG    "onreturnflag"      // I'm returning our flag
+#define VOICECHAT_INPOSITION    "inposition"      // I'm in position
+#define VOICECHAT_IHAVEFLAG     "ihaveflag"       // I have the flag
+#define VOICECHAT_BASEATTACK    "baseattack"      // the base is under attack
+#define VOICECHAT_ENEMYHASFLAG    "enemyhasflag"      // the enemy has our flag (CTF)
+#define VOICECHAT_STARTLEADER   "startleader"     // I'm the leader
+#define VOICECHAT_STOPLEADER    "stopleader"      // I resign leadership
+#define VOICECHAT_TRASH       "trash"         // lots of trash talk
+#define VOICECHAT_WHOISLEADER   "whoisleader"     // who is the team leader
+#define VOICECHAT_WANTONDEFENSE   "wantondefense"     // I want to be on defense
+#define VOICECHAT_WANTONOFFENSE   "wantonoffense"     // I want to be on offense

@@ -410,6 +410,11 @@ CG_Menu
 */
 void CG_Menu( int eventParm )
 {
+  int   i;
+  char  carriageCvar[ MAX_TOKEN_CHARS ];
+
+  *carriageCvar = 0;
+  
   switch( eventParm )
   {
     case MN_TEAM:       trap_SendConsoleCommand( "menu tremulous_teamselect\n" );               break;
@@ -417,7 +422,22 @@ void CG_Menu( int eventParm )
     case MN_H_SPAWN:    trap_SendConsoleCommand( "menu tremulous_humanitem\n" );                break;
     case MN_D_BUILD:    trap_SendConsoleCommand( "menu tremulous_alienbuild\n" );               break;
     case MN_H_BUILD:    trap_SendConsoleCommand( "menu tremulous_humanbuild\n" );               break;
-    case MN_H_MCU:      trap_SendConsoleCommand( "menu tremulous_humanmcu\n" );                 break;
+    case MN_H_MCU:
+      for( i = WP_NONE +1; i < WP_NUM_WEAPONS; i++ )
+      {
+        if( BG_gotWeapon( i, cg.snap->ps.stats ) )
+          strcat( carriageCvar, va( "W%d ", i ) );
+      }
+      for( i = UP_NONE +1; i < UP_NUM_UPGRADES; i++ )
+      {
+        if( BG_gotItem( i, cg.snap->ps.stats ) )
+          strcat( carriageCvar, va( "U%d ", i ) );
+      }
+      strcat( carriageCvar, "$" );
+          
+      trap_Cvar_Set( "ui_carriage", carriageCvar );
+      trap_SendConsoleCommand( "menu tremulous_humanmcu\n" );
+      break;
     case MN_H_BANK:     trap_SendConsoleCommand( "menu tremulous_humanbank\n" );                break;
     case MN_H_NOROOM:   trap_SendConsoleCommand( "menu tremulous_human_no_room\n" );            break;
     case MN_H_NOPOWER:  trap_SendConsoleCommand( "menu tremulous_human_no_power\n" );           break;
@@ -435,7 +455,10 @@ void CG_Menu( int eventParm )
     case MN_H_NOSLOTS:  trap_SendConsoleCommand( "menu tremulous_human_no_slots\n" );           break;
     case MN_H_NOFUNDS:  trap_SendConsoleCommand( "menu tremulous_human_no_funds\n" );           break;
     case MN_H_ITEMHELD: trap_SendConsoleCommand( "menu tremulous_human_item_held\n" );          break;
-    case MN_D_INFEST:   trap_SendConsoleCommand( "menu dinfest\n" );                            break;
+    case MN_D_INFEST:
+      trap_Cvar_Set( "ui_currentClass", va( "%d", cg.snap->ps.stats[ STAT_PCLASS ] ) );
+      trap_SendConsoleCommand( "menu tremulous_alienupgrade\n" );
+      break;
 
     default:
       Com_Printf( "cgame: debug: no such menu %d\n", eventParm );

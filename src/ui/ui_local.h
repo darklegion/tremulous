@@ -748,6 +748,13 @@ typedef struct {
 	const char *modDescr;
 } modInfo_t;
 
+//TA: tremulous menus
+typedef struct
+{
+	const char *text;
+	const char *cmd;
+} tremMenuItem_t;
+//TA: tremulous menus
 
 typedef struct {
 	displayContextDef_t uiDC;
@@ -808,6 +815,40 @@ typedef struct {
 	int movieIndex;
 	int previewMovie;
 
+//TA: tremulous menus
+	tremMenuItem_t  tremTeamList[ 3 ];
+	int             tremTeamCount;
+	int             tremTeamIndex;
+  
+	tremMenuItem_t  tremAlienClassList[ 3 ];
+	int             tremAlienClassCount;
+	int             tremAlienClassIndex;
+  
+	tremMenuItem_t  tremHumanItemList[ 2 ];
+	int             tremHumanItemCount;
+	int             tremHumanItemIndex;
+  
+	tremMenuItem_t  tremHumanMCUBuyList[ 11 ];
+	int             tremHumanMCUBuyCount;
+	int             tremHumanMCUBuyIndex;
+
+	tremMenuItem_t  tremHumanMCUSellList[ 11 ];
+	int             tremHumanMCUSellCount;
+	int             tremHumanMCUSellIndex;
+
+	tremMenuItem_t  tremAlienUpgradeList[ 2 ];
+	int             tremAlienUpgradeCount;
+	int             tremAlienUpgradeIndex;
+
+	tremMenuItem_t  tremAlienBuildList[ 6 ];
+	int             tremAlienBuildCount;
+	int             tremAlienBuildIndex;
+
+	tremMenuItem_t  tremHumanBuildList[ 11 ];
+	int             tremHumanBuildCount;
+	int             tremHumanBuildIndex;
+//TA: tremulous menus
+  
 	serverStatus_t serverStatus;
 
 	// for the showing the status of a server
