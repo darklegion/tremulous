@@ -407,8 +407,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->r.contents = CONTENTS_BODY;
   //self->r.contents = CONTENTS_CORPSE;
 
-  self->s.angles[ 0 ] = 0;
-  self->s.angles[ 2 ] = 0;
+  self->s.angles[ PITCH ] = 0;
+  self->s.angles[ ROLL ] = 0;
+  self->s.angles[ YAW ] = self->s.apos.trBase[ YAW ];
   LookAtKiller( self, inflictor, attacker );
 
   VectorCopy( self->s.angles, self->client->ps.viewangles );

@@ -1624,6 +1624,9 @@ void Cmd_Class_f( gentity_t *ent )
           G_SetOrigin( ent, infestOrigin );
           VectorCopy( infestOrigin, ent->client->ps.origin );
           SetClientViewAngle( ent, infestAngles );
+
+          //so no one can claim this body as of now
+          victim->killedBy = victim->s.powerups = MAX_CLIENTS;
         }
         else
         {

@@ -1216,9 +1216,21 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
   torsoAngles[YAW] = headAngles[YAW] + 0.25 * movementOffsets[ dir ];
 
   // torso
-  CG_SwingAngles( torsoAngles[YAW], 25, 90, cg_swingSpeed.value, &cent->pe.torso.yawAngle, &cent->pe.torso.yawing );
-  CG_SwingAngles( legsAngles[YAW], 40, 90, cg_swingSpeed.value, &cent->pe.legs.yawAngle, &cent->pe.legs.yawing );
-
+  if( cent->currentState.eFlags & EF_DEAD )
+  {
+    CG_SwingAngles( torsoAngles[YAW], 0, 0, cg_swingSpeed.value,
+      &cent->pe.torso.yawAngle, &cent->pe.torso.yawing );
+    CG_SwingAngles( legsAngles[YAW], 0, 0, cg_swingSpeed.value,
+      &cent->pe.legs.yawAngle, &cent->pe.legs.yawing );
+  }
+  else
+  {
+    CG_SwingAngles( torsoAngles[YAW], 25, 90, cg_swingSpeed.value,
+      &cent->pe.torso.yawAngle, &cent->pe.torso.yawing );
+    CG_SwingAngles( legsAngles[YAW], 40, 90, cg_swingSpeed.value,
+      &cent->pe.legs.yawAngle, &cent->pe.legs.yawing );
+  }
+  
   torsoAngles[YAW] = cent->pe.torso.yawAngle;
   legsAngles[YAW] = cent->pe.legs.yawAngle;
 
@@ -1951,9 +1963,9 @@ void CG_Player( centity_t *cent )
   //
   CG_AddPlayerWeapon( &torso, NULL, cent );
 
-  if( ( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS ) &&
+/*  if( ( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS ) &&
       ( ( cent->currentState.powerups & 0xFF ) == PTE_HUMANS ) )
-    trap_R_AddAdditiveLightToScene( cent->lerpOrigin, 64, 0.1, 0.1, 0.4 );
+    trap_R_AddAdditiveLightToScene( cent->lerpOrigin, 64, 0.1, 0.1, 0.4 );*/
 }
 
 /*
@@ -1981,9 +1993,8 @@ void CG_Corpse( centity_t *cent )
     
   // it is possible to see corpses from disconnected players that may
   // not have valid clientinfo
-  if ( !ci->infoValid ) {
+  if( !ci->infoValid )
     return;
-  }
 
   memset( &legs, 0, sizeof(legs) );
   memset( &torso, 0, sizeof(torso) );
@@ -1993,6 +2004,7 @@ void CG_Corpse( centity_t *cent )
   BG_FindBBoxForClass( cent->currentState.clientNum, liveZ, NULL, NULL, deadZ, NULL );
   origin[ 2 ] -= ( liveZ[ 2 ] - deadZ[ 2 ] );
 
+  VectorCopy( cent->currentState.angles, cent->lerpAngles );
   // get the rotation information
   CG_PlayerAngles( cent, legs.axis, torso.axis, head.axis );
 
@@ -2018,9 +2030,9 @@ void CG_Corpse( centity_t *cent )
 
   // get the player model information
   renderfx = 0;
-  if ( cg_shadows.integer == 3 && shadow ) {
+  if( cg_shadows.integer == 3 && shadow )
     renderfx |= RF_SHADOW_PLANE;
-  }
+
   renderfx |= RF_LIGHTING_ORIGIN;     // use the same origin for all
 
   //
@@ -2040,17 +2052,15 @@ void CG_Corpse( centity_t *cent )
   trap_R_AddRefEntityToScene( &legs );
 
   // if the model failed, allow the default nullmodel to be displayed
-  if (!legs.hModel) {
+  if( !legs.hModel )
     return;
-  }
 
   //
   // add the torso
   //
   torso.hModel = ci->torsoModel;
-  if (!torso.hModel) {
+  if( !torso.hModel )
     return;
-  }
 
   torso.customSkin = ci->torsoSkin;
 
@@ -2068,9 +2078,9 @@ void CG_Corpse( centity_t *cent )
   // add the head
   //
   head.hModel = ci->headModel;
-  if (!head.hModel) {
+  if( !head.hModel )
     return;
-  }
+
   head.customSkin = ci->headSkin;
 
   VectorCopy( origin, head.lightingOrigin );
@@ -2082,6 +2092,16 @@ void CG_Corpse( centity_t *cent )
 
   //CG_AddRefEntityWithPowerups( &head, cent->currentState.powerups, ci->team );
   trap_R_AddRefEntityToScene( &head );
+
+  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  {
+    if( cent->currentState.powerups == cg.predictedPlayerState.clientNum ||
+        cent->currentState.powerups == 65535 ) //65535 = 16bit signed -1
+    {
+      //draw indicator
+      CG_PlayerFloatSprite( cent, cgs.media.medalImpressive );
+    }
+  }
 }
 
 

@@ -572,7 +572,11 @@ void BodySink( gentity_t *ent )
 {
   //arbituary number > 100 and < time since nextthink was set 
   if( level.time - ent->nextthink > 1000 )
+  {
+    //sinking bodies can't be infested
+    ent->killedBy = ent->s.powerups = MAX_CLIENTS;
     ent->timestamp = level.time;
+  }
   
   if( level.time - ent->timestamp > 6500 )
   {
@@ -666,6 +670,16 @@ void SpawnCorpse( gentity_t *ent )
   
   body = G_Spawn( );
 
+  VectorCopy( ent->s.apos.trBase, body->s.angles );
+  body->s.eFlags = EF_DEAD;
+  body->s.eType = ET_CORPSE;
+  body->s.number = body - g_entities;
+  body->timestamp = level.time;
+  body->s.event = 0;
+  body->r.contents = CONTENTS_CORPSE;
+  body->clipmask = CONTENTS_SOLID | CONTENTS_PLAYERCLIP;
+  body->s.clientNum = ent->client->ps.stats[ STAT_PCLASS ];
+  
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
     gentity_t *buildable = &g_entities[ ent->client->lasthurt_client ];
@@ -685,31 +699,23 @@ void SpawnCorpse( gentity_t *ent )
     else // *shrugs* probably killed by some map entity - freebie
       body->killedBy = -1;
 
+    body->s.powerups = body->killedBy;
+    
     //the body becomes free in a minute
     body->think = BodyFree;
+    body->use = useBody;
     body->nextthink = level.time + 60000;
   }
   else
   {
     body->classname = "alienCorpse";
+    body->s.powerups = MAX_CLIENTS;
 
     body->think = BodySink;
     body->nextthink = level.time + 60000;
   }
     
-  body->s = ent->s;
-  body->r.s = body->s;
-  body->s.eFlags = EF_DEAD;
-  body->s.eType = ET_CORPSE;
-  body->s.number = body - g_entities;
-  body->timestamp = level.time;
-  body->s.event = 0;
-  body->r.contents = CONTENTS_CORPSE;
-  body->clipmask = MASK_SHOT;
-  body->s.clientNum = ent->client->ps.stats[ STAT_PCLASS ];
-  
-  body->use = useBody;
-
+  body->s.legsAnim = ent->s.legsAnim;
   switch( body->s.legsAnim & ~ANIM_TOGGLEBIT )
   {
     case BOTH_DEATH1:
