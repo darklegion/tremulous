@@ -1656,11 +1656,14 @@ static void PM_GroundTrace( void ) {
 
   if( pm->cmd.upmove < 0 && wcl[ pm->ps->clientNum ].lastUpmove >= 0 )
   {
-    if( !pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING && pm->cmd.upmove < 0 )
+    if( !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) && pm->cmd.upmove < 0 )
       pm->ps->stats[ STAT_STATE ] |= SS_WALLCLIMBING;
     else if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING && pm->cmd.upmove < 0 )
       pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
   }
+
+  if( pm->ps->pm_type == PM_DEAD )
+    pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
 
   wcl[ pm->ps->clientNum ].lastUpmove = pm->cmd.upmove;
 

@@ -345,12 +345,12 @@ void HMCU_Think( gentity_t *self )
 // "fuzzysteve"           (fuzzysteve@quakefiles.com) and
 // Anthony "inolen" Pesch (www.inolen.com)
 //with modifications by me of course :)
-#define HDEF1_RANGE             500
-#define HDEF1_ANGULARSPEED      15
-#define HDEF1_FIRINGSPEED       200
-#define HDEF1_ACCURACYTOLERANCE HDEF1_ANGULARSPEED - 5
-#define HDEF1_VERTICALCAP       20
-#define HDEF1_PROJSPEED         2000.0f
+#define HDEF1_RANGE             500 //maximum range
+#define HDEF1_ANGULARSPEED      10  //degrees/think ~= 200deg/sec
+#define HDEF1_FIRINGSPEED       500 //time between projectiles
+#define HDEF1_ACCURACYTOLERANCE HDEF1_ANGULARSPEED / 2 //angular difference for turret to fire
+#define HDEF1_VERTICALCAP       20 //+/- maximum pitch
+#define HDEF1_PROJSPEED         2000.0f //speed of projectile (used in prediction)
 
 /*
 ================
@@ -393,7 +393,7 @@ qboolean hdef1_trackenemy( gentity_t *self )
     VectorSubtract( dirToTarget, self->s.pos.trBase, dirToTarget );
     distanceToTarget = VectorLength( dirToTarget );
 
-    distanceToTarget -= ( self->r.maxs[ 0 ] + self->enemy->r.maxs[ 0 ] );
+    distanceToTarget -= self->enemy->r.maxs[ 0 ];
   }
   
   VectorNormalize( dirToTarget );
