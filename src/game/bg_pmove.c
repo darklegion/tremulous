@@ -876,6 +876,10 @@ static void PM_ClimbMove( void ) {
 
   PM_Accelerate (wishdir, wishspeed, accelerate);
 
+  if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
+    pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
+  }
+
   vel = VectorLength(pm->ps->velocity);
 
   // slide along the ground plane
