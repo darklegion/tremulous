@@ -2868,7 +2868,7 @@ UI_LoadTremAlienClasses
 */
 static void UI_LoadTremAlienClasses( )
 {
-  uiInfo.tremAlienClassCount = 3;
+  uiInfo.tremAlienClassCount = 2;
   
   uiInfo.tremAlienClassList[ 0 ].text =
     String_Alloc( BG_FindHumanNameForClassNum( PCL_A_B_BASE ) );
@@ -2876,13 +2876,8 @@ static void UI_LoadTremAlienClasses( )
     String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( PCL_A_B_BASE ) ) );
   
   uiInfo.tremAlienClassList[ 1 ].text =
-    String_Alloc( BG_FindHumanNameForClassNum( PCL_A_B_LEV1 ) );
-  uiInfo.tremAlienClassList[ 1 ].cmd =
-    String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( PCL_A_B_LEV1 ) ) );
-  
-  uiInfo.tremAlienClassList[ 2 ].text =
     String_Alloc( BG_FindHumanNameForClassNum( PCL_A_O_BASE ) );
-  uiInfo.tremAlienClassList[ 2 ].cmd =
+  uiInfo.tremAlienClassList[ 1 ].cmd =
     String_Alloc( va( "cmd class %s", BG_FindNameForClassNum( PCL_A_O_BASE ) ) );
 }
 

@@ -604,7 +604,16 @@ void useBody( gentity_t *self, gentity_t *other, gentity_t *activator )
     if( self->killedBy > 0 && self->killedBy != activator->client->ps.clientNum )
       return;
 
-    G_AddPredictableEvent( activator, EV_MENU, MN_A_INFEST );
+    //check the client /can/ upgrade to another class
+    for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
+    {
+      if( BG_ClassCanEvolveFromTo( activator->client->ps.stats[ STAT_PCLASS ], i ) &&
+          BG_FindStagesForClass( i, g_alienStage.integer ) )
+        break;
+    }
+    
+    if( i < PCL_NUM_CLASSES )
+      G_AddPredictableEvent( activator, EV_MENU, MN_A_INFEST );
   }
   else
   {

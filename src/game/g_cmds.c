@@ -1562,7 +1562,6 @@ void Cmd_Class_f( gentity_t *ent )
   trace_t   tr;
   vec3_t    infestOrigin, infestAngles;
   int       allowedClasses[ NUM_AC ] = {  PCL_A_B_BASE,
-                                          PCL_A_B_LEV1,
                                           PCL_A_O_BASE };
 
   clientNum = ent->client - level.clients;
@@ -2202,6 +2201,10 @@ void Cmd_Build_f( gentity_t *ent )
 
       case IBE_NOPOWER:
         G_AddPredictableEvent( ent, EV_MENU, MN_H_NOPOWER );
+        break;
+        
+      case IBE_NOCREEP:
+        G_AddPredictableEvent( ent, EV_MENU, MN_A_NOCREEP );
         break;
     }
   }
