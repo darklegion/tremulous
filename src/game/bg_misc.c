@@ -889,15 +889,55 @@ Only in CTF games
 
 int   bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) - 1;
 
-classModelName_t bg_pModelList[ ] =
+classAttributes_t bg_classList[ ] =
 {
-  { PCL_D_O_BASE, "klesk" },
-  { PCL_D_D_BASE, "orbb" },
-  { PCL_D_B_BASE, "lucy" },
-  { PCL_H_BASE,   "sarge" },
+  {
+    PCL_D_O_BASE,
+    "klesk",
+    "default",
+    { -15, -15, -15 },
+    { 15, 15, 15 },
+    { 15, 15, 15 },
+    { -15, -15, -4 },
+    { 15, 15, 4 },
+    4, 4
+  },
+  {
+    PCL_D_D_BASE,
+    "orbb",
+    "default",
+    { -15, -15, -15 },
+    { 15, 15 ,15 },
+    { 15, 15 ,15 },
+    { -15, -15, -4 },
+    { 15, 15, 4 },
+    4, 4
+  },
+  { 
+    PCL_D_B_BASE,
+    "lucy",
+    "default",
+    { -15, -15, -20 },
+    { 15, 15, 20 },
+    { 15, 15, 20 },
+    { -15, -15, -4 },
+    { 15, 15, 4 },
+    12, 12
+  },
+  {
+    PCL_H_BASE,
+    "sarge",
+    "default",
+    { -15, -15, -24 },
+    { 15, 15, 32 },
+    { 15, 15, 16 },
+    { -15, -15, -4 },
+    { 15, 15, 4 },
+    26, 12
+  }
 };
 
-int   bg_numPModels = sizeof( bg_pModelList ) / sizeof( bg_pModelList[ 0 ] );
+int   bg_numPclasses = sizeof( bg_classList ) / sizeof( bg_classList[ 0 ] );
 
 /*
 ==============
@@ -908,15 +948,94 @@ char *BG_FindModelNameForClass( int pclass )
 {
   int i;
 
-  for( i = 0; i < bg_numPModels; i++ )
+  for( i = 0; i < bg_numPclasses; i++ )
   {
-    if( bg_pModelList[ i ].classNum == pclass )
-      return bg_pModelList[ i ].className;
+    if( bg_classList[ i ].classNum == pclass )
+      return bg_classList[ i ].modelName;
   }
 
   //wimp out
-  return bg_pModelList[ 0 ].className;
+  return bg_classList[ 0 ].modelName;
 }
+
+/*
+==============
+BG_FindBBoxForClass
+==============
+*/
+void BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, vec3_t dmins, vec3_t dmaxs )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      if( mins != NULL )
+        VectorCopy( bg_classList[ i ].mins,        mins );
+        
+      if( maxs != NULL )
+        VectorCopy( bg_classList[ i ].maxs,        maxs );
+        
+      if( cmaxs != NULL )
+        VectorCopy( bg_classList[ i ].crouchMaxs,  cmaxs );
+        
+      if( dmins != NULL )
+        VectorCopy( bg_classList[ i ].deadMins,    dmins );
+        
+      if( dmaxs != NULL )
+        VectorCopy( bg_classList[ i ].deadMaxs,    dmaxs );
+
+      return;
+    }
+  }
+  
+  if( mins != NULL )
+    VectorCopy( bg_classList[ 0 ].mins,        mins );
+    
+  if( maxs != NULL )
+    VectorCopy( bg_classList[ 0 ].maxs,        maxs );
+    
+  if( cmaxs != NULL )
+    VectorCopy( bg_classList[ 0 ].crouchMaxs,  cmaxs );
+    
+  if( dmins != NULL )
+    VectorCopy( bg_classList[ 0 ].deadMins,    dmins );
+    
+  if( dmaxs != NULL )
+    VectorCopy( bg_classList[ 0 ].deadMaxs,    dmaxs );
+}
+
+/*
+==============
+BG_FindViewheightForClass
+==============
+*/
+void BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      if( viewheight != NULL )
+        *viewheight = bg_classList[ i ].viewheight;
+        
+      if( cViewheight != NULL )
+        *cViewheight = bg_classList[ i ].crouchViewheight;
+
+      return;
+    }
+  }
+  
+  if( viewheight != NULL )
+    *viewheight = bg_classList[ 0 ].viewheight;
+    
+  if( cViewheight != NULL )
+    *cViewheight = bg_classList[ 0 ].crouchViewheight;
+}
+
 
 /*
 ==============

@@ -1854,47 +1854,8 @@ static void PM_CheckDuck (void)
   vec3_t PCmins, PCmaxs, PCcmaxs;
   int PCvh, PCcvh;
 
-  switch( pm->ps->stats[ STAT_PCLASS ] )
-  {
-    case PCL_D_B_BASE:
-      VectorSet( PCmins, -15, -15, -20 );
-      VectorSet( PCmaxs, 15, 15, 20 );
-      VectorSet( PCcmaxs, 15, 15, 20 );
-      PCvh = 12;
-      PCcvh = 12;
-      break;
-
-    case PCL_D_O_BASE:
-      VectorSet( PCmins, -15, -15, -15 );
-      VectorSet( PCmaxs, 15, 15, 15 );
-      VectorSet( PCcmaxs, 15, 15, 15 );
-      PCvh = 4;
-      PCcvh = 4;
-      break;
-
-    case PCL_D_D_BASE:
-      VectorSet( PCmins, -15, -15, -15 );
-      VectorSet( PCmaxs, 15, 15, 15 );
-      VectorSet( PCcmaxs, 15, 15, 15 );
-      PCvh = 4;
-      PCcvh = 4;
-      break;
-      
-    case PCL_H_BASE:
-      VectorSet( PCmins, -15, -15, -24 );
-      VectorSet( PCmaxs, 15, 15, 32 );
-      VectorSet( PCcmaxs, 15, 15, 16 );
-      PCvh = 26;
-      PCcvh = 12;
-      break;
-      
-   default:
-      VectorSet( PCmins, -15, -15, MINS_Z );
-      VectorSet( PCmaxs, 15, 15, 32 );
-      VectorSet( PCcmaxs, 15, 15, 16 );
-      PCvh = DEFAULT_VIEWHEIGHT;
-      PCcvh = CROUCH_VIEWHEIGHT;
-  }
+  BG_FindBBoxForClass( pm->ps->stats[ STAT_PCLASS ], PCmins, PCmaxs, PCcmaxs, NULL, NULL );
+  BG_FindViewheightForClass( pm->ps->stats[ STAT_PCLASS ], &PCvh, &PCcvh );
 
   //TA: iD bug? you can still crouch when you're a spectator
   if( pm->ps->persistant[PERS_TEAM] == TEAM_SPECTATOR )

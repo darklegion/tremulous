@@ -619,9 +619,8 @@ void CopyToBodyQue( gentity_t *ent ) {
   body->health = ent->health = ent->client->ps.stats[STAT_HEALTH];
   ent->health = ent->client->ps.stats[STAT_HEALTH] = GIB_HEALTH - 1;
   
-  //FIXME: change body dimensions
-  VectorSet( body->r.mins, -15, -15, -15 );
-  VectorSet( body->r.maxs, 15, 15, 15 );
+  //change body dimensions
+  BG_FindBBoxForClass( ent->client->ps.stats[ STAT_PCLASS ], NULL, NULL, NULL, body->r.mins, body->r.maxs );
 
   //drop to floor
   VectorSet( dest, origin[0], origin[1], origin[2] - 4096 );

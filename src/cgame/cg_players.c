@@ -1947,6 +1947,7 @@ void CG_Corpse( centity_t *cent )
   int       renderfx;
   qboolean    shadow;
   float     shadowPlane;
+  vec3_t    origin, liveZ, deadZ;
 
   //if this is the first time the function has been run set cent->corpseNum
   cent->corpseNum = CG_GetCorpseNum( cent->currentState.clientNum );
@@ -1966,6 +1967,10 @@ void CG_Corpse( centity_t *cent )
   memset( &legs, 0, sizeof(legs) );
   memset( &torso, 0, sizeof(torso) );
   memset( &head, 0, sizeof(head) );
+
+  VectorCopy( cent->lerpOrigin, origin );
+  BG_FindBBoxForClass( cent->currentState.clientNum, liveZ, NULL, NULL, deadZ, NULL );
+  origin[ 2 ] -= ( liveZ[ 2 ] - deadZ[ 2 ] );
 
   // get the rotation information
   CG_PlayerAngles( cent, legs.axis, torso.axis, head.axis );
@@ -2003,9 +2008,9 @@ void CG_Corpse( centity_t *cent )
   legs.hModel = ci->legsModel;
   legs.customSkin = ci->legsSkin;
 
-  VectorCopy( cent->lerpOrigin, legs.origin );
+  VectorCopy( origin, legs.origin );
 
-  VectorCopy( cent->lerpOrigin, legs.lightingOrigin );
+  VectorCopy( origin, legs.lightingOrigin );
   legs.shadowPlane = shadowPlane;
   legs.renderfx = renderfx;
   VectorCopy (legs.origin, legs.oldorigin); // don't positionally lerp at all
@@ -2028,7 +2033,7 @@ void CG_Corpse( centity_t *cent )
 
   torso.customSkin = ci->torsoSkin;
 
-  VectorCopy( cent->lerpOrigin, torso.lightingOrigin );
+  VectorCopy( origin, torso.lightingOrigin );
 
   CG_PositionRotatedEntityOnTag( &torso, &legs, ci->legsModel, "tag_torso");
 
@@ -2047,7 +2052,7 @@ void CG_Corpse( centity_t *cent )
   }
   head.customSkin = ci->headSkin;
 
-  VectorCopy( cent->lerpOrigin, head.lightingOrigin );
+  VectorCopy( origin, head.lightingOrigin );
 
   CG_PositionRotatedEntityOnTag( &head, &torso, ci->torsoModel, "tag_head");
 

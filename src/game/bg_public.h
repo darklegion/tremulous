@@ -697,9 +697,17 @@ typedef struct gitem_s {
 //TA: player model precaching
 typedef struct
 {
-  int   classNum;
-  char  *className;
-} classModelName_t;
+  int     classNum;
+  char    *modelName;
+  char    *skinName;
+  vec3_t  mins;
+  vec3_t  maxs;
+  vec3_t  crouchMaxs;
+  vec3_t  deadMins;
+  vec3_t  deadMaxs;
+  int     viewheight;
+  int     crouchViewheight;
+} classAttributes_t;
 
 
 // included in both the game dll and the client
@@ -715,6 +723,8 @@ gitem_t *BG_FindItemForHoldable( holdable_t pw );
 
 //TA:
 char *BG_FindModelNameForClass( int pclass );
+void BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, vec3_t dmins, vec3_t dmaxs );
+void BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight );
 #define ITEM_INDEX(x) ((x)-bg_itemlist)
 
 qboolean  BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps );
