@@ -1215,8 +1215,8 @@ classAttributes_t bg_classList[ ] =
     10.0f,                                          //float   acceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
+    130.0f,                                         //float   jumpMagnitude;
     { PCL_A_B_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
-    ABUILDER_TTE,                                   //int     timetoevolve;
     ABUILDER_VALUE                                  //int     value;
   },
   { 
@@ -1237,7 +1237,7 @@ classAttributes_t bg_classList[ ] =
     ABUILDER_UPG_HEALTH,                            //int     health;
     0.0f,                                           //float   fallDamage;
     ABUILDER_UPG_REGEN,                             //int     regenRate;
-    SCA_CANJUMP|SCA_FOVWARPS|SCA_WALLCLIMBER|
+    SCA_FOVWARPS|SCA_WALLCLIMBER|
       SCA_NOFOOTSTEPS,                              //int     abilities;
     WP_ABUILD2,                                     //weapon_t  startWeapon
     95.0f,                                          //float   buildDist;
@@ -1249,8 +1249,8 @@ classAttributes_t bg_classList[ ] =
     10.0f,                                          //float   acceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
+    270.0f,                                         //float   jumpMagnitude;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
-    0,                                              //int     timetoevolve;
     ABUILDER_UPG_VALUE                              //int     value;
   },
   {
@@ -1271,7 +1271,7 @@ classAttributes_t bg_classList[ ] =
     SOLDIER_HEALTH,                                 //int     health;
     0.0f,                                           //float   fallDamage;
     SOLDIER_REGEN,                                  //int     regenRate;
-    SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|
+    SCA_WALLCLIMBER|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
     WP_VENOM,                                       //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
@@ -1283,8 +1283,8 @@ classAttributes_t bg_classList[ ] =
     10.0f,                                          //float   acceleration;
     6.0f,                                           //float   friction;
     400.0f,                                         //float   stopSpeed;
+    270.0f,                                         //float   jumpMagnitude;
     { PCL_A_O_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
-    SOLDIER_TTE,                                    //int     timetoevolve;
     SOLDIER_VALUE                                   //int     value;
   },
   {
@@ -1305,7 +1305,7 @@ classAttributes_t bg_classList[ ] =
     HYDRA_HEALTH,                                   //int     health;
     0.0f,                                           //float   fallDamage;
     HYDRA_REGEN,                                    //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
+    SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_WALLCLIMBER|SCA_ALIENSENSE|
       SCA_NOFOOTSTEPS,                              //int     abilities;
     WP_GRAB_CLAW,                                   //weapon_t  startWeapon
@@ -1318,8 +1318,8 @@ classAttributes_t bg_classList[ ] =
     10.0f,                                          //float   acceleration;
     6.0f,                                           //float   friction;
     300.0f,                                         //float   stopSpeed;
+    270.0f,                                         //float   jumpMagnitude;
     { PCL_A_O_LEV2, PCL_A_O_LEV1_UPG, PCL_NONE },   //int     children[ 3 ];
-    HYDRA_TTE,                                      //int     timetoevolve;
     HYDRA_VALUE                                     //int     value;
   },
   {
@@ -1340,7 +1340,7 @@ classAttributes_t bg_classList[ ] =
     HYDRA_UPG_HEALTH,                               //int     health;
     0.0f,                                           //float   fallDamage;
     HYDRA_UPG_REGEN,                                //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS|
+    SCA_NOWEAPONDRIFT|SCA_FOVWARPS|
       SCA_WALLCLIMBER|SCA_ALIENSENSE|
       SCA_NOFOOTSTEPS,                              //int     abilities;
     WP_GRAB_CLAW_UPG,                               //weapon_t  startWeapon
@@ -1353,80 +1353,12 @@ classAttributes_t bg_classList[ ] =
     10.0f,                                          //float   acceleration;
     6.0f,                                           //float   friction;
     300.0f,                                         //float   stopSpeed;
+    270.0f,                                         //float   jumpMagnitude;
     { PCL_A_O_LEV2, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
-    HYDRA_UPG_TTE,                                  //int     timetoevolve;
     HYDRA_UPG_VALUE                                 //int     value;
   },
   {
     PCL_A_O_LEV2,                                   //int     classnum;
-    "dragoon",                                      //char    *classname;
-    "Dragoon",                                      //char    *humanname;
-    "prowl",                                        //char    *modelname;
-    1.0f,                                           //float   modelScale;
-    "default",                                      //char    *skinname;
-    "alien_general_hud",                            //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -32, -32, -21 },                              //vec3_t  mins;
-    { 32, 32, 21 },                                 //vec3_t  maxs;
-    { 32, 32, 21 },                                 //vec3_t  crouchmaxs;
-    { -32, -32, -4 },                               //vec3_t  deadmins;
-    { 32, 32, 4 },                                  //vec3_t  deadmaxs;
-    24, 24,                                         //int     viewheight, crouchviewheight;
-    DRAGOON_HEALTH,                                 //int     health;
-    0.0f,                                           //float   fallDamage;
-    DRAGOON_REGEN,                                  //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
-      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
-    WP_POUNCE,                                      //weapon_t  startWeapon
-    0.0f,                                           //float   buildDist;
-    110,                                            //int     fov;
-    0.0005f,                                        //float   bob;
-    1.0f,                                           //float   bobCycle;
-    25,                                             //int     steptime;
-    DRAGOON_SPEED,                                  //float   speed;
-    10.0f,                                          //float   acceleration;
-    6.0f,                                           //float   friction;
-    200.0f,                                         //float   stopSpeed;
-    { PCL_A_O_LEV3, PCL_A_O_LEV2_UPG, PCL_NONE },   //int     children[ 3 ];
-    DRAGOON_TTE,                                    //int     timetoevolve;
-    DRAGOON_VALUE                                   //int     value;
-  },
-  {
-    PCL_A_O_LEV2_UPG,                               //int     classnum;
-    "dragoonupg",                                   //char    *classname;
-    "Dragoon Upgrade",                              //char    *humanname;
-    "prowl",                                        //char    *modelname;
-    1.0f,                                           //float   modelScale;
-    "default",                                      //char    *skinname;
-    "alien_general_hud",                            //char    *hudname;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -32, -32, -21 },                              //vec3_t  mins;
-    { 32, 32, 21 },                                 //vec3_t  maxs;
-    { 32, 32, 21 },                                 //vec3_t  crouchmaxs;
-    { -32, -32, -4 },                               //vec3_t  deadmins;
-    { 32, 32, 4 },                                  //vec3_t  deadmaxs;
-    27, 27,                                         //int     viewheight, crouchviewheight;
-    DRAGOON_UPG_HEALTH,                             //int     health;
-    0.0f,                                           //float   fallDamage;
-    DRAGOON_UPG_REGEN,                              //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
-      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
-    WP_POUNCE_UPG,                                  //weapon_t  startWeapon
-    0.0f,                                           //float   buildDist;
-    110,                                            //int     fov;
-    0.0005f,                                        //float   bob;
-    1.0f,                                           //float   bobCycle;
-    25,                                             //int     steptime;
-    DRAGOON_UPG_SPEED,                              //float   speed;
-    10.0f,                                          //float   acceleration;
-    6.0f,                                           //float   friction;
-    200.0f,                                         //float   stopSpeed;
-    { PCL_A_O_LEV3, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
-    DRAGOON_UPG_TTE,                                //int     timetoevolve;
-    DRAGOON_UPG_VALUE                               //int     value;
-  },
-  {
-    PCL_A_O_LEV3,                                   //int     classnum;
     "chimera",                                      //char    *classname;
     "Chimera",                                      //char    *humanname;
     "tarantula",                                    //char    *modelname;
@@ -1443,7 +1375,7 @@ classAttributes_t bg_classList[ ] =
     CHIMERA_HEALTH,                                 //int     health;
     0.0f,                                           //float   fallDamage;
     CHIMERA_REGEN,                                  //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
+    SCA_NOWEAPONDRIFT|SCA_WALLJUMPER|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
     WP_AREA_ZAP,                                    //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
@@ -1455,12 +1387,12 @@ classAttributes_t bg_classList[ ] =
     10.0f,                                          //float   acceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
-    { PCL_A_O_LEV4, PCL_A_O_LEV3_UPG, PCL_NONE },   //int     children[ 3 ];
-    CHIMERA_TTE,                                    //int     timetoevolve;
+    270.0f,                                         //float   jumpMagnitude;
+    { PCL_A_O_LEV3, PCL_A_O_LEV2_UPG, PCL_NONE },   //int     children[ 3 ];
     CHIMERA_VALUE                                   //int     value;
   },
   {
-    PCL_A_O_LEV3_UPG,                               //int     classnum;
+    PCL_A_O_LEV2_UPG,                               //int     classnum;
     "chimeraupg",                                   //char    *classname;
     "Chimera Upgrade",                              //char    *humanname;
     "tarantula",                                    //char    *modelname;
@@ -1477,7 +1409,7 @@ classAttributes_t bg_classList[ ] =
     CHIMERA_UPG_HEALTH,                             //int     health;
     0.0f,                                           //float   fallDamage;
     CHIMERA_UPG_REGEN,                              //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
+    SCA_NOWEAPONDRIFT|SCA_WALLJUMPER|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
     WP_DIRECT_ZAP,                                  //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
@@ -1489,9 +1421,77 @@ classAttributes_t bg_classList[ ] =
     10.0f,                                          //float   acceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
-    { PCL_A_O_LEV4, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
-    CHIMERA_UPG_TTE,                                //int     timetoevolve;
+    270.0f,                                         //float   jumpMagnitude;
+    { PCL_A_O_LEV3, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
     CHIMERA_UPG_VALUE                               //int     value;
+  },
+  {
+    PCL_A_O_LEV3,                                   //int     classnum;
+    "dragoon",                                      //char    *classname;
+    "Dragoon",                                      //char    *humanname;
+    "prowl",                                        //char    *modelname;
+    1.0f,                                           //float   modelScale;
+    "default",                                      //char    *skinname;
+    "alien_general_hud",                            //char    *hudname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    { -32, -32, -21 },                              //vec3_t  mins;
+    { 32, 32, 21 },                                 //vec3_t  maxs;
+    { 32, 32, 21 },                                 //vec3_t  crouchmaxs;
+    { -32, -32, -4 },                               //vec3_t  deadmins;
+    { 32, 32, 4 },                                  //vec3_t  deadmaxs;
+    24, 24,                                         //int     viewheight, crouchviewheight;
+    DRAGOON_HEALTH,                                 //int     health;
+    0.0f,                                           //float   fallDamage;
+    DRAGOON_REGEN,                                  //int     regenRate;
+    SCA_NOWEAPONDRIFT|
+      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
+    WP_POUNCE,                                      //weapon_t  startWeapon
+    0.0f,                                           //float   buildDist;
+    110,                                            //int     fov;
+    0.0005f,                                        //float   bob;
+    1.0f,                                           //float   bobCycle;
+    25,                                             //int     steptime;
+    DRAGOON_SPEED,                                  //float   speed;
+    10.0f,                                          //float   acceleration;
+    6.0f,                                           //float   friction;
+    200.0f,                                         //float   stopSpeed;
+    270.0f,                                         //float   jumpMagnitude;
+    { PCL_A_O_LEV4, PCL_A_O_LEV3_UPG, PCL_NONE },   //int     children[ 3 ];
+    DRAGOON_VALUE                                   //int     value;
+  },
+  {
+    PCL_A_O_LEV3_UPG,                               //int     classnum;
+    "dragoonupg",                                   //char    *classname;
+    "Dragoon Upgrade",                              //char    *humanname;
+    "prowl",                                        //char    *modelname;
+    1.0f,                                           //float   modelScale;
+    "default",                                      //char    *skinname;
+    "alien_general_hud",                            //char    *hudname;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    { -32, -32, -21 },                              //vec3_t  mins;
+    { 32, 32, 21 },                                 //vec3_t  maxs;
+    { 32, 32, 21 },                                 //vec3_t  crouchmaxs;
+    { -32, -32, -4 },                               //vec3_t  deadmins;
+    { 32, 32, 4 },                                  //vec3_t  deadmaxs;
+    27, 27,                                         //int     viewheight, crouchviewheight;
+    DRAGOON_UPG_HEALTH,                             //int     health;
+    0.0f,                                           //float   fallDamage;
+    DRAGOON_UPG_REGEN,                              //int     regenRate;
+    SCA_NOWEAPONDRIFT|
+      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
+    WP_POUNCE_UPG,                                  //weapon_t  startWeapon
+    0.0f,                                           //float   buildDist;
+    110,                                            //int     fov;
+    0.0005f,                                        //float   bob;
+    1.0f,                                           //float   bobCycle;
+    25,                                             //int     steptime;
+    DRAGOON_UPG_SPEED,                              //float   speed;
+    10.0f,                                          //float   acceleration;
+    6.0f,                                           //float   friction;
+    200.0f,                                         //float   stopSpeed;
+    270.0f,                                         //float   jumpMagnitude;
+    { PCL_A_O_LEV4, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    DRAGOON_UPG_VALUE                               //int     value;
   },
   {
     PCL_A_O_LEV4,                                   //int     classnum;
@@ -1511,7 +1511,7 @@ classAttributes_t bg_classList[ ] =
     BMOFO_HEALTH,                                   //int     health;
     0.0f,                                           //float   fallDamage;
     BMOFO_REGEN,                                    //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
+    SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
     WP_CHARGE,                                      //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
@@ -1523,6 +1523,7 @@ classAttributes_t bg_classList[ ] =
     5.0f,                                           //float   acceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
+    270.0f,                                         //float   jumpMagnitude;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
     0,                                              //int     timetoevolve;
     BMOFO_VALUE                                     //int     value;
@@ -1545,7 +1546,7 @@ classAttributes_t bg_classList[ ] =
     100,                                            //int     health;
     1.0f,                                           //float   fallDamage;
     0,                                              //int     regenRate;
-    SCA_TAKESFALLDAMAGE|SCA_CANJUMP|
+    SCA_TAKESFALLDAMAGE|
       SCA_CANUSELADDERS,                            //int     abilities;
     WP_NONE, //special-cased in g_client.c          //weapon_t  startWeapon
     110.0f,                                         //float   buildDist;
@@ -1557,6 +1558,7 @@ classAttributes_t bg_classList[ ] =
     10.0f,                                          //float   acceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
+    270.0f,                                         //float   jumpMagnitude;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
     0,                                              //int     timetoevolve;
     0                                               //int     value;
@@ -1572,7 +1574,7 @@ classAttributes_t bg_classList[ ] =
     
     "bsuit", ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), { 0, 0, 0 }, { 0, 0, 0, },                             
     { 0, 0, 0, }, { 0, 0, 0, }, { 0, 0, 0, }, 0, 0, 0, 0.0f, 0, 0, WP_NONE, 0.0f, 0,   
-    0.0f, 1.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
+    0.0f, 1.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f, 270.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
   }
 };
 
@@ -2032,6 +2034,27 @@ float BG_FindStopSpeedForClass( int pclass )
 
 /*
 ==============
+BG_FindJumpMagnitudeForClass
+==============
+*/
+float BG_FindJumpMagnitudeForClass( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      return bg_classList[ i ].jumpMagnitude;
+    }
+  }
+  
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindJumpMagnitudeForClass\n" );
+  return 270.0f;
+}
+
+/*
+==============
 BG_FindSteptimeForClass
 ==============
 */
@@ -2068,11 +2091,7 @@ qboolean BG_ClassHasAbility( int pclass, int ability )
     }
   }
 
-  //hack to get CANJUMP when a spectator
-  if( ability == SCA_CANJUMP )
-    return qtrue;
-  else
-    return qfalse;
+  return qfalse;
 }
 
 /*
@@ -2154,27 +2173,6 @@ int BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int num )
   }
 
   return 0;
-}
-
-/*
-==============
-BG_FindEvolveTimeForClass
-==============
-*/
-int BG_FindEvolveTimeForClass( int pclass )
-{
-  int i;
-
-  for( i = 0; i < bg_numPclasses; i++ )
-  {
-    if( bg_classList[ i ].classNum == pclass )
-    {
-      return bg_classList[ i ].timeToEvolve;
-    }
-  }
-  
-  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindEvolveTimeForClass\n" );
-  return 5000;
 }
 
 /*

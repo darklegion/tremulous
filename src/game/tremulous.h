@@ -27,7 +27,7 @@
 
 #define ABUILDER_BUILD_REPEAT       500
 #define ABUILDER_CLAW_DMG           ADM(25)
-#define ABUILDER_CLAW_RANGE         48.0f
+#define ABUILDER_CLAW_RANGE         64.0f
 #define ABUILDER_CLAW_REPEAT        1000
 #define ABUILDER_BASE_DELAY         9000
 #define ABUILDER_ADV_DELAY          4000
@@ -36,7 +36,7 @@
 #define SOLDIER_BITE_RANGE          32.0f
 #define SOLDIER_BITE_REPEAT         500
 
-#define HYDRA_CLAW_DMG              ADM(50)
+#define HYDRA_CLAW_DMG              ADM(40)
 #define HYDRA_CLAW_RANGE            96.0f
 #define HYDRA_CLAW_REPEAT           500
 #define HYDRA_CLAW_U_REPEAT         500
@@ -47,12 +47,23 @@
 #define HYDRA_PCLOUD_REPEAT         1000
 #define HYDRA_PCLOUD_TIME           10000
 
+#define CHIMERA_CLAW_DMG            ADM(50)
+#define CHIMERA_CLAW_RANGE          96.0f
+#define CHIMERA_CLAW_REPEAT         400
+#define CHIMERA_CLAW_U_REPEAT       300
+#define CHIMERA_AREAZAP_DMG         ADM(75)
+#define CHIMERA_AREAZAP_RANGE       200.0f
+#define CHIMERA_AREAZAP_REPEAT      1500
+#define CHIMERA_DIRECTZAP_DMG       ADM(100)
+#define CHIMERA_DIRECTZAP_RANGE     200.0f
+#define CHIMERA_DIRECTZAP_REPEAT    1500
+
 #define DRAGOON_CLAW_DMG            ADM(75)
-#define DRAGOON_CLAW_RANGE          48.0f
+#define DRAGOON_CLAW_RANGE          96.0f
 #define DRAGOON_CLAW_REPEAT         750
-#define DRAGOON_CLAW_U_REPEAT       750
-#define DRAGOON_POUNCE_DMG          ADM(100)
-#define DRAGOON_POUNCE_RANGE        48.0f
+#define DRAGOON_CLAW_U_REPEAT       500
+#define DRAGOON_POUNCE_DMG          ADM(200)
+#define DRAGOON_POUNCE_RANGE        96.0f
 #define DRAGOON_POUNCE_SPEED        750
 #define DRAGOON_POUNCE_SPEED_MOD    0.75f
 #define DRAGOON_POUNCE_TIME         1000
@@ -61,17 +72,6 @@
 #define DRAGOON_SLOWBLOB_SPEED      800.0f
 #define DRAGOON_SLOWBLOB_SPEED_MOD  0.5f
 #define DRAGOON_SLOWBLOB_TIME       5000
-
-#define CHIMERA_CLAW_DMG            ADM(75)
-#define CHIMERA_CLAW_RANGE          96.0f
-#define CHIMERA_CLAW_REPEAT         400
-#define CHIMERA_CLAW_U_REPEAT       300
-#define CHIMERA_AREAZAP_DMG         ADM(75)
-#define CHIMERA_AREAZAP_RANGE       200.0f
-#define CHIMERA_AREAZAP_REPEAT      1500
-#define CHIMERA_DIRECTZAP_DMG       ADM(75)
-#define CHIMERA_DIRECTZAP_RANGE     200.0f
-#define CHIMERA_DIRECTZAP_REPEAT    1500
 
 #define BMOFO_CLAW_DMG              ADM(150)
 #define BMOFO_CLAW_RANGE            128.0f
@@ -103,7 +103,6 @@
 #define AVM(h)                      ((int)((float)h*ALIEN_VALUE_MODIFIER))
 
 #define ABUILDER_SPEED              0.8f
-#define ABUILDER_TTE                2000
 #define ABUILDER_VALUE              AVM(50)
 #define ABUILDER_HEALTH             AHM(50)
 #define ABUILDER_REGEN              2
@@ -114,46 +113,39 @@
 #define ABUILDER_UPG_REGEN          3
 
 #define SOLDIER_SPEED               1.3f
-#define SOLDIER_TTE                 2000
 #define SOLDIER_VALUE               AVM(50)
 #define SOLDIER_HEALTH              AHM(25)
 #define SOLDIER_REGEN               1
 
 #define HYDRA_SPEED                 1.25f
-#define HYDRA_TTE                   3000
 #define HYDRA_VALUE                 AVM(100)
 #define HYDRA_HEALTH                AHM(50)
 #define HYDRA_REGEN                 2
 
 #define HYDRA_UPG_SPEED             1.25f
-#define HYDRA_UPG_TTE               3000
 #define HYDRA_UPG_VALUE             AVM(120)
 #define HYDRA_UPG_HEALTH            AHM(50)
 #define HYDRA_UPG_REGEN             3
 
-#define DRAGOON_SPEED               1.2f
-#define DRAGOON_TTE                 3000
-#define DRAGOON_VALUE               AVM(200)
-#define DRAGOON_HEALTH              AHM(100)
-#define DRAGOON_REGEN               4
-
-#define DRAGOON_UPG_SPEED           1.2f
-#define DRAGOON_UPG_TTE             3000
-#define DRAGOON_UPG_VALUE           AVM(240)
-#define DRAGOON_UPG_HEALTH          AHM(120)
-#define DRAGOON_UPG_REGEN           5
-
 #define CHIMERA_SPEED               1.2f
-#define CHIMERA_TTE                 3000
-#define CHIMERA_VALUE               AVM(300)
-#define CHIMERA_HEALTH              AHM(200)
-#define CHIMERA_REGEN               6
+#define CHIMERA_VALUE               AVM(200)
+#define CHIMERA_HEALTH              AHM(100)
+#define CHIMERA_REGEN               4
 
 #define CHIMERA_UPG_SPEED           1.2f
-#define CHIMERA_UPG_TTE             3000
-#define CHIMERA_UPG_VALUE           AVM(360)
-#define CHIMERA_UPG_HEALTH          AHM(250)
-#define CHIMERA_UPG_REGEN           7
+#define CHIMERA_UPG_VALUE           AVM(340)
+#define CHIMERA_UPG_HEALTH          AHM(120)
+#define CHIMERA_UPG_REGEN           5
+
+#define DRAGOON_SPEED               1.2f
+#define DRAGOON_VALUE               AVM(300)
+#define DRAGOON_HEALTH              AHM(200)
+#define DRAGOON_REGEN               6
+
+#define DRAGOON_UPG_SPEED           1.2f
+#define DRAGOON_UPG_VALUE           AVM(360)
+#define DRAGOON_UPG_HEALTH          AHM(250)
+#define DRAGOON_UPG_REGEN           7
 
 #define BMOFO_SPEED                 1.1f
 #define BMOFO_VALUE                 AVM(400)

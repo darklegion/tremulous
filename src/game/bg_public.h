@@ -214,12 +214,12 @@ typedef enum
 #define SCA_WALLCLIMBER         0x00000001
 #define SCA_TAKESFALLDAMAGE     0x00000002
 #define SCA_CANZOOM             0x00000004
-#define SCA_CANJUMP             0x00000008
-#define SCA_NOWEAPONDRIFT       0x00000010
-#define SCA_FOVWARPS            0x00000020
-#define SCA_ALIENSENSE          0x00000040
-#define SCA_NOFOOTSTEPS         0x00000080
-#define SCA_CANUSELADDERS       0x00000100
+#define SCA_NOWEAPONDRIFT       0x00000008
+#define SCA_FOVWARPS            0x00000010
+#define SCA_ALIENSENSE          0x00000020
+#define SCA_NOFOOTSTEPS         0x00000040
+#define SCA_CANUSELADDERS       0x00000080
+#define SCA_WALLJUMPER          0x00000100
 
 #define SS_WALLCLIMBING         0x00000001
 #define SS_WALLCLIMBINGCEILING  0x00000002
@@ -897,6 +897,7 @@ typedef struct
   float     acceleration;
   float     friction;
   float     stopSpeed;
+  float     jumpMagnitude;
 
   int       children[ 3 ];
   int       timeToEvolve;
@@ -1088,12 +1089,12 @@ float     BG_FindSpeedForClass( int pclass );
 float     BG_FindAccelerationForClass( int pclass );
 float     BG_FindFrictionForClass( int pclass );
 float     BG_FindStopSpeedForClass( int pclass );
+float     BG_FindJumpMagnitudeForClass( int pclass );
 int       BG_FindSteptimeForClass( int pclass );
 qboolean  BG_ClassHasAbility( int pclass, int ability );
 weapon_t  BG_FindStartWeaponForClass( int pclass );
 float     BG_FindBuildDistForClass( int pclass );
 int       BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int num );
-int       BG_FindEvolveTimeForClass( int pclass );
 int       BG_FindValueOfClass( int pclass );
 
 int       BG_FindPriceForWeapon( int weapon );

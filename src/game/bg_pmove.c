@@ -388,8 +388,14 @@ static float PM_CmdScale( usercmd_t *cmd )
   if( pm->ps->pm_type == PM_GRABBED )
     modifier = 0.0f;
 
-  if( !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_CANJUMP ) )
-    cmd->upmove = 0;
+  if( pm->ps->persistant[ PERS_TEAM ] != TEAM_SPECTATOR )
+  {
+    if( BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ) == 0.0f )
+      cmd->upmove = 0;
+
+    if( !( pm->ps->pm_flags & PMF_DUCKED ) && cmd->upmove < 0 )
+      cmd->upmove = 0;
+  }
 
   max = abs( cmd->forwardmove );
   if( abs( cmd->rightmove ) > max )
@@ -508,7 +514,7 @@ static qboolean PM_CheckPounce( void )
   
   AngleVectors( pm->ps->viewangles, forward, NULL, NULL );
   VectorMA( pm->ps->velocity, pm->ps->stats[ STAT_MISC ], forward, pm->ps->velocity );
-  pm->ps->velocity[ 2 ] += JUMP_VELOCITY / 2;
+  pm->ps->velocity[ 2 ] += BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ) / 2.0f;
   
   PM_AddEvent( EV_JUMP );
   
@@ -541,7 +547,7 @@ PM_CheckJump
 */
 static qboolean PM_CheckJump( void )
 {
-  if( !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_CANJUMP ) )
+  if( BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ) == 0.0f )
     return qfalse;
 
   //can't jump and pounce charge at the same time
@@ -599,10 +605,11 @@ static qboolean PM_CheckJump( void )
     if( !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )
       VectorCopy( pm->ps->grapplePoint, normal );
       
-    VectorMA( pm->ps->velocity, JUMP_VELOCITY, normal, pm->ps->velocity );
+    VectorMA( pm->ps->velocity, BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ),
+              normal, pm->ps->velocity );
   }
   else
-    pm->ps->velocity[ 2 ] = JUMP_VELOCITY;
+    pm->ps->velocity[ 2 ] = BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] );
     
   PM_AddEvent( EV_JUMP );
 
