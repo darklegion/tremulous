@@ -1157,7 +1157,7 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
     {
       if( ent->client->ps.stats[ STAT_MISC ] > 0 )
       {
-        G_AddPredictableEvent( ent, EV_BUILD_DELAY, 0 );
+        G_AddEvent( ent, EV_BUILD_DELAY, 0 );
         return;
       }
 
@@ -1466,7 +1466,7 @@ void Cmd_Buy_f( gentity_t *ent )
   
   //if the buyer previously had no items at all, force a new selection
   if( numItems == 0 )
-    G_AddPredictableEvent( ent, EV_NEXT_WEAPON, 0 );
+    G_AddEvent( ent, EV_NEXT_WEAPON, 0 );
   
   //retrigger the armoury menu
   ent->client->retriggerArmouryMenu = level.framenum + RAM_FRAMES;

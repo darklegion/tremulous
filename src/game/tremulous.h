@@ -271,7 +271,7 @@
  * 
  */
 
-#define HUMAN_WDMG_MODIFIER         2.0f
+#define HUMAN_WDMG_MODIFIER         1.5f
 #define HDM(d)                      ((int)((float)d*HUMAN_WDMG_MODIFIER))
 
 #define RIFLE_CLIPSIZE              30
@@ -289,7 +289,7 @@
 #define CHAINGUN_SPREAD             1200
 #define CHAINGUN_DMG                HDM(14)
 
-#define FLAMER_GAS                  400
+#define FLAMER_GAS                  40
 #define FLAMER_REPEAT               300
 #define FLAMER_PRICE                300
 #define FLAMER_DMG                  HDM(30)
@@ -419,7 +419,7 @@
 #define TESLAGEN_HEALTH             HBHM(200)
 #define TESLAGEN_SPLASHDAMAGE       50
 #define TESLAGEN_SPLASHRADIUS       100
-#define TESLAGEN_REPEAT             1500
+#define TESLAGEN_REPEAT             500
 #define TESLAGEN_RANGE              1500
 
 #define DC_BP                       80
