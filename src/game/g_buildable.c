@@ -383,7 +383,6 @@ void DSpawn_Think( gentity_t *self )
     
     if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD )
     {
-      G_Printf( "suiciding %d\n", ent->s.number == ENTITYNUM_WORLD );
       G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
       return;
     }
@@ -1845,10 +1844,9 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   else
     VectorSet( normal, 0.0f, 0.0f, 1.0f );
 
-  VectorMA( origin, -10.0f, normal, built->s.pos.trBase );
+  VectorMA( origin, -50.0f, normal, built->s.pos.trDelta );
   
   VectorCopy( normal, built->s.origin2 );
-  /*VectorSet( built->s.origin2, 0.0f, 0.0f, 1.0f );*/
   
   G_AddEvent( built, EV_BUILD_CONSTRUCT, BANIM_CONSTRUCT1 );
 

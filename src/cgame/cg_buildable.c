@@ -340,12 +340,14 @@ void CG_GhostBuildable( buildable_t buildable )
   AngleVectors( angles, forward, NULL, NULL );
   VectorCopy( tr.plane.normal, ent.axis[ 2 ] );
   ProjectPointOnPlane( ent.axis[ 0 ], forward, ent.axis[ 2 ] );
+  
   if( !VectorNormalize( ent.axis[ 0 ] ) )
   {
     AngleVectors( angles, NULL, NULL, forward );
     ProjectPointOnPlane( ent.axis[ 0 ], forward, ent.axis[ 2 ] );
     VectorNormalize( ent.axis[ 0 ] );
   }
+  
   CrossProduct( ent.axis[ 0 ], ent.axis[ 2 ], ent.axis[ 1 ] );
   ent.axis[ 1 ][ 0 ] = -ent.axis[ 1 ][ 0 ];
   ent.axis[ 1 ][ 1 ] = -ent.axis[ 1 ][ 1 ];
@@ -408,32 +410,29 @@ void CG_Buildable( centity_t *cent )
   VectorCopy( es->angles, angles );
   BG_FindBBoxForBuildable( es->modelindex, mins, maxs );
 
-  if( surfNormal[ 2 ] != 1.0f )
+  AngleVectors( angles, forward, NULL, NULL );
+  VectorCopy( surfNormal, ent.axis[ 2 ] );
+  ProjectPointOnPlane( ent.axis[ 0 ], forward, ent.axis[ 2 ] );
+  
+  if( !VectorNormalize( ent.axis[ 0 ] ) )
   {
-    AngleVectors( angles, forward, NULL, NULL );
-    VectorCopy( surfNormal, ent.axis[ 2 ] );
+    AngleVectors( angles, NULL, NULL, forward );
     ProjectPointOnPlane( ent.axis[ 0 ], forward, ent.axis[ 2 ] );
-    if( !VectorNormalize( ent.axis[ 0 ] ) )
-    {
-      AngleVectors( angles, NULL, NULL, forward );
-      ProjectPointOnPlane( ent.axis[ 0 ], forward, ent.axis[ 2 ] );
-      VectorNormalize( ent.axis[ 0 ] );
-    }
-    CrossProduct( ent.axis[ 0 ], ent.axis[ 2 ], ent.axis[ 1 ] );
-    ent.axis[ 1 ][ 0 ] = -ent.axis[ 1 ][ 0 ];
-    ent.axis[ 1 ][ 1 ] = -ent.axis[ 1 ][ 1 ];
-    ent.axis[ 1 ][ 2 ] = -ent.axis[ 1 ][ 2 ];
-
-    VectorMA( ent.origin, -TRACE_DEPTH, surfNormal, end );
-    VectorMA( ent.origin, 1.0f, surfNormal, start );
-    CG_CapTrace( &tr, start, mins, maxs, end, es->number, MASK_PLAYERSOLID );
-    VectorMA( ent.origin, tr.fraction * -TRACE_DEPTH, surfNormal, ent.origin );
-
-    VectorCopy( ent.origin, ent.lightingOrigin );
-    VectorCopy( ent.origin, ent.oldorigin ); // don't positionally lerp at all
+    VectorNormalize( ent.axis[ 0 ] );
   }
-  else
-    AnglesToAxis( es->angles, ent.axis );
+  
+  CrossProduct( ent.axis[ 0 ], ent.axis[ 2 ], ent.axis[ 1 ] );
+  ent.axis[ 1 ][ 0 ] = -ent.axis[ 1 ][ 0 ];
+  ent.axis[ 1 ][ 1 ] = -ent.axis[ 1 ][ 1 ];
+  ent.axis[ 1 ][ 2 ] = -ent.axis[ 1 ][ 2 ];
+
+  VectorMA( ent.origin, -TRACE_DEPTH, surfNormal, end );
+  VectorMA( ent.origin, 1.0f, surfNormal, start );
+  CG_CapTrace( &tr, start, mins, maxs, end, es->number, MASK_PLAYERSOLID );
+  VectorMA( ent.origin, tr.fraction * -TRACE_DEPTH, surfNormal, ent.origin );
+
+  VectorCopy( ent.origin, ent.lightingOrigin );
+  VectorCopy( ent.origin, ent.oldorigin ); // don't positionally lerp at all
 
   ent.hModel = cg_buildables[ es->modelindex ].models[ 0 ];
 

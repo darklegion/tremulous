@@ -2265,12 +2265,12 @@ classAttributes_t bg_classList[ ] =
     "BuilderLevel1",                                //char    *classname;
     "lucy",                                         //char    *modelname;
     "angel",                                        //char    *skinname;
-    { -15, -15, -20 },                              //vec3_t  mins;
-    { 15, 15, 20 },                                 //vec3_t  maxs;
-    { 15, 15, 20 },                                 //vec3_t  crouchmaxs;
-    { -15, -15, -4 },                               //vec3_t  deadmins;
-    { 15, 15, 4 },                                  //vec3_t  deadmaxs;
-    12, 12,                                         //int     viewheight, crouchviewheight;
+    { -20, -20, -20 },                              //vec3_t  mins;
+    { 20, 20, 20 },                                 //vec3_t  maxs;
+    { 20, 20, 20 },                                 //vec3_t  crouchmaxs;
+    { -20, -20, -4 },                               //vec3_t  deadmins;
+    { 20, 20, 4 },                                  //vec3_t  deadmaxs;
+    0, 0,                                           //int     viewheight, crouchviewheight;
     75,                                             //int     health;
     10,                                             //int     armor;
     SCA_CANJUMP|SCA_FOVWARPS|SCA_WALLCLIMBER,       //int     abilities;
