@@ -1592,6 +1592,11 @@ gentity_t *G_buildItem( gentity_t *ent, buildable_t buildable, int distance, flo
       built->die = HSpawn_Die;
       break;
       
+    case BA_H_MEDISTAT:
+      built->think = HDCC_Think;
+      built->die = HSpawn_Die;
+      break;
+      
     case BA_H_REACTOR:
       built->die = HSpawn_Die;
       built->powered = built->active = qtrue;

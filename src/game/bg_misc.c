@@ -978,6 +978,22 @@ TA: human defense item
     ""                  //sounds
   },
   
+/*QUAKED team_human_medistat (0 0 1) (-16 -16 -16) (16 16 16)
+TA: human defense item
+*/
+  {
+    "team_human_medistat",
+    "sound/items/holdable.wav",
+    { "models/buildables/medistat/medistat.md3", 0, 0, 0 },
+    "icons/teleporter", //icon
+    "Human Medistation",      //pickup
+    0,
+    IT_BUILDABLE,
+    BA_H_MEDISTAT,
+    "",                 //precache
+    ""                  //sounds
+  },
+  
 /*QUAKED team_human_reactor (0 0 1) (-16 -16 -16) (16 16 16)
 TA: human power item
 */
@@ -1268,6 +1284,32 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_SPAWN,            //int       buildNum;
     "replicator",          //char      *buildName;
     "team_human_spawn",    //char      *entityName;
+    { -40, -40, -4 },      //vec3_t    mins;
+    { 40, 40, 4 },         //vec3_t    maxs;
+    TR_GRAVITY,            //trType_t traj;
+    0.0,                   //float        bounce;
+    100,                   //int       buildPoints;
+    1000,                  //int       health;
+    50,                    //int       damage;
+    50,                    //int       splashDamage;
+    150,                   //int       splashRadius;
+    MOD_HSPAWN,            //int       meansOfDeath;
+    BIT_HUMANS,            //int       team;
+    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
+    BANIM_IDLE1,           //int       idleAnim;
+    100,                   //int       nextthink;
+    0,                     //int       turretFireSpeed;
+    0,                     //int       turretRange;
+    WP_NONE,               //weapon_t  turretProjType;
+    0.707f,                //float     minNormal;
+    qfalse,                //qboolean  invertNormal;
+    qfalse,                //qboolean  creepTest;
+    qfalse                 //qboolean  reactorTest;
+  },
+  {
+    BA_H_MEDISTAT,         //int       buildNum;
+    "medistat",            //char      *buildName;
+    "team_human_medistat", //char      *entityName;
     { -40, -40, -4 },      //vec3_t    mins;
     { 40, 40, 4 },         //vec3_t    maxs;
     TR_GRAVITY,            //trType_t traj;
