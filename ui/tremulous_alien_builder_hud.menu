@@ -296,5 +296,15 @@
       textstyle ITEM_TEXTSTYLE_NORMAL
       ownerdraw CG_TIMER
     }      
+    
+    //ALIENSENSE
+    itemDef
+    {
+      name "aliensense"
+      rect 20 20 600 400
+      visible 1
+      decoration
+      ownerdraw CG_PLAYER_ALIEN_SENSE
+    }
   }
 }
