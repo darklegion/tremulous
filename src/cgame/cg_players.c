@@ -1781,6 +1781,7 @@ int CG_AmbientLight( vec3_t point )
   return (int)((float)( result[0] + result[1] + result[2] ) / 3.0f );
 }
 
+#define TRACE_DEPTH 128.0f
 
 /*
 ===============
@@ -1793,10 +1794,11 @@ void CG_Player( centity_t *cent )
   refEntity_t   legs;
   refEntity_t   torso;
   refEntity_t   head;
-  int       clientNum;
-  int       renderfx;
-  qboolean    shadow;
-  float     shadowPlane;
+  int           clientNum;
+  int           renderfx;
+  qboolean      shadow;
+  float         shadowPlane;
+  entityState_t *es = &cent->currentState;
 
   // the client number is stored in clientNum.  It can't be derived
   // from the entity number, because a single client may have
@@ -1870,17 +1872,12 @@ void CG_Player( centity_t *cent )
      !( cent->currentState.eFlags & EF_DEAD ) &&
      !( cg.intermissionStarted ) )
   {
-    vec3_t forward, surfNormal;
+    vec3_t  forward, surfNormal, start, end, mins, maxs;
     trace_t tr;
 
     VectorCopy( cent->currentState.angles2, surfNormal );
+    BG_FindBBoxForClass( ( es->powerups >> 8 ) & 0xFF, mins, maxs, NULL, NULL, NULL );
 
-    /*CG_Printf( "%d: ", cent->currentState.number );
-    CG_Printf( "%f ", surfNormal[ 0 ] );
-    CG_Printf( "%f ", surfNormal[ 1 ] );
-    CG_Printf( "%f ", surfNormal[ 2 ] );
-    CG_Printf( "\n" );*/
-    
     AngleVectors( cent->lerpAngles, forward, NULL, NULL );
     VectorCopy( surfNormal, legs.axis[2] );
     ProjectPointOnPlane( legs.axis[0], forward, legs.axis[2] );
@@ -1894,6 +1891,11 @@ void CG_Player( centity_t *cent )
     legs.axis[1][0] = -legs.axis[1][0];
     legs.axis[1][1] = -legs.axis[1][1];
     legs.axis[1][2] = -legs.axis[1][2];
+
+    VectorMA( legs.origin, -TRACE_DEPTH, surfNormal, end );
+    VectorMA( legs.origin, 1.0f, surfNormal, start );
+    CG_CapTrace( &tr, start, mins, maxs, end, es->number, MASK_PLAYERSOLID );
+    VectorMA( legs.origin, tr.fraction * -TRACE_DEPTH, surfNormal, legs.origin );
 
     VectorCopy( legs.origin, legs.lightingOrigin );
     VectorCopy( legs.origin, legs.oldorigin ); // don't positionally lerp at all

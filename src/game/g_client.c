@@ -384,23 +384,16 @@ gentity_t *SelectTremulousSpawnPoint( int team, vec3_t origin, vec3_t angles )
 
   //no available spots
   if( !spot )
-  {
     return NULL;
-  }
-
-  // find a single player start spot
-  if (!spot) {
-    //G_Error( "Couldn't find a spawn point" );
-  }
 
   //TA: why isn't spot->s.origin being set?
-  VectorCopy (spot->s.pos.trBase, origin);
-  VectorCopy (spot->s.angles, angles);
+  VectorCopy( spot->s.pos.trBase, origin );
+  VectorCopy( spot->s.angles, angles );
 
   if( team == PTE_DROIDS )
-    origin[2] += 40;
+    VectorMA( origin, 40.0f, spot->s.origin2, origin );
   else if( team == PTE_HUMANS )
-    origin[2] += 29;
+    VectorMA( origin, 29.0f, spot->s.origin2, origin );
 
   return spot;
   

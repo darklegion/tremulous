@@ -1111,12 +1111,12 @@ void HSpawn_Think( gentity_t *self )
 
 /*
 ================
-itemFits
+G_itemFits
 
 Checks to see if an item fits in a specific area
 ================
 */
-itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
+itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance )
 {
   vec3_t            forward;
   vec3_t            angles;
@@ -1149,10 +1149,8 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_DROIDS )
   {
     //droid criteria
-    if( level.droidBuildPoints - BG_FindBuildPointsForBuildable( buildable ) < 0 )
-      reason = IBE_NOASSERT;
-      
     //check there is creep near by for building on
+
     if( BG_FindCreepTestForBuildable( buildable ) )
     {
       for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
@@ -1198,12 +1196,15 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
         }
       }
     }
+
+    if( level.droidBuildPoints - BG_FindBuildPointsForBuildable( buildable ) < 0 )
+      reason = IBE_NOASSERT;
+      
+    G_Printf( "%d %d\n", level.droidBuildPoints );
   }
   else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
     //human criteria
-    if( level.humanBuildPoints - BG_FindBuildPointsForBuildable( buildable ) < 0 )
-      reason = IBE_NOPOWER;
 
     closestPower = g_entities + 1; //FIXME
     
@@ -1274,6 +1275,9 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
         }
       }
     }
+
+    if( level.humanBuildPoints - BG_FindBuildPointsForBuildable( buildable ) < 0 )
+      reason = IBE_NOPOWER;
   }
 
   return reason;
@@ -1282,12 +1286,13 @@ itemBuildError_t itemFits( gentity_t *ent, buildable_t buildable, int distance )
 
 /*
 ================
-Build_Item
+G_buildItem
 
-Spawns an item and tosses it forward
+Spawns a buildable
 ================
 */
-gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
+gentity_t *G_buildItem( gentity_t *ent, buildable_t buildable, int distance, float speed )
+{
   vec3_t  forward;
   vec3_t  angles;
   vec3_t  origin;
@@ -1410,6 +1415,10 @@ gentity_t *Build_Item( gentity_t *ent, buildable_t buildable, int distance ) {
   built->s.pos.trType = BG_FindTrajectoryForBuildable( buildable );
   built->physicsBounce = BG_FindBounceForBuildable( buildable );
   built->s.pos.trTime = level.time;
+  AngleVectors( ent->s.apos.trBase, built->s.pos.trDelta, NULL, NULL );
+  
+  VectorScale( built->s.pos.trDelta, speed, built->s.pos.trDelta );
+  VectorSet( built->s.origin2, 0.0f, 0.0f, 1.0f );
   
   G_AddEvent( built, EV_BUILD_CONSTRUCT, BANIM_CONSTRUCT1 );
 

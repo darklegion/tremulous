@@ -286,6 +286,7 @@ static void CG_BuildableAnimation( centity_t *cent, int *old, int *now, float *b
   *backLerp = cent->lerpFrame.backlerp;
 }
 
+#define TRACE_DEPTH 128.0f
 
 /*
 ==================
@@ -297,6 +298,8 @@ void CG_Buildable( centity_t *cent )
   refEntity_t     ent;
   refEntity_t     ent2;
   entityState_t   *es;
+  vec3_t          forward, surfNormal, end, start, mins, maxs;
+  trace_t         tr;
 
   es = &cent->currentState;
   if ( es->modelindex >= bg_numItems )
@@ -312,13 +315,40 @@ void CG_Buildable( centity_t *cent )
 
   memset ( &ent, 0, sizeof( ent ) );
 
-  VectorCopy( es->angles, cent->lerpAngles );
-  AnglesToAxis( cent->lerpAngles, ent.axis );
+  VectorCopy( cent->lerpOrigin, ent.origin );
+  VectorCopy( cent->lerpOrigin, ent.oldorigin );
+
+  VectorCopy( es->origin2, surfNormal );
+  BG_FindBBoxForBuildable( es->clientNum, mins, maxs );
+
+  if( surfNormal[ 2 ] != 1.0f )
+  {
+    AngleVectors( cent->lerpAngles, forward, NULL, NULL );
+    VectorCopy( surfNormal, ent.axis[2] );
+    ProjectPointOnPlane( ent.axis[0], forward, ent.axis[2] );
+    if( !VectorNormalize( ent.axis[0] ) )
+    {
+      AngleVectors( cent->lerpAngles, NULL, NULL, forward );
+      ProjectPointOnPlane( ent.axis[0], forward, ent.axis[2] );
+      VectorNormalize( ent.axis[0] );
+    }
+    CrossProduct( ent.axis[0], ent.axis[2], ent.axis[1] );
+    ent.axis[1][0] = -ent.axis[1][0];
+    ent.axis[1][1] = -ent.axis[1][1];
+    ent.axis[1][2] = -ent.axis[1][2];
+
+    VectorMA( ent.origin, -TRACE_DEPTH, surfNormal, end );
+    VectorMA( ent.origin, 1.0f, surfNormal, start );
+    CG_CapTrace( &tr, start, mins, maxs, end, es->number, MASK_PLAYERSOLID );
+    VectorMA( ent.origin, tr.fraction * -TRACE_DEPTH, surfNormal, ent.origin );
+
+    VectorCopy( ent.origin, ent.lightingOrigin );
+    VectorCopy( ent.origin, ent.oldorigin ); // don't positionally lerp at all
+  }
+  else
+    AnglesToAxis( es->angles, ent.axis );
 
   ent.hModel = cg_items[es->modelindex].models[0];
-
-  VectorCopy( cent->lerpOrigin, ent.origin);
-  VectorCopy( cent->lerpOrigin, ent.oldorigin);
 
   ent.nonNormalizedAxes = qfalse;
 

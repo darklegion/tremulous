@@ -2004,23 +2004,30 @@ Cmd_Build_f
 void Cmd_Build_f( gentity_t *ent )
 {
   char          s[ MAX_TOKEN_CHARS ];
+  char          s1[ MAX_TOKEN_CHARS ];
   buildable_t   buildable;
   weapon_t      weapon;
-  float         dist;
+  float         dist, speed, maxspeed;
 
   trap_Argv( 1, s, sizeof( s ) );
+  trap_Argv( 2, s1, sizeof( s1 ) );
 
   buildable = BG_FindBuildNumForName( s );
+  speed = atof( s1 );
+  maxspeed = BG_FindLaunchSpeedForClass( ent->client->ps.stats[ STAT_PCLASS ] );
+
+  if( speed > maxspeed )
+    speed = maxspeed;
   
   if( buildable != BA_NONE &&
       ( 1 << ent->client->ps.weapon ) & BG_FindBuildWeaponForBuildable( buildable ) )
   {
     dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
     
-    switch( itemFits( ent, buildable, dist ) )
+    switch( G_itemFits( ent, buildable, dist ) )
     {
       case IBE_NONE:
-        Build_Item( ent, buildable, dist );
+        G_buildItem( ent, buildable, dist, speed );
         break;
 
       case IBE_NOCREEP:
@@ -2039,11 +2046,6 @@ void Cmd_Build_f( gentity_t *ent )
         G_AddPredictableEvent( ent, EV_MENU, MN_D_HIVEMIND );
         break;
 
-      case IBE_SPWNWARN:
-        G_AddPredictableEvent( ent, EV_MENU, MN_D_SPWNWARN );
-        Build_Item( ent, buildable, dist );
-        break;
-        
       case IBE_REACTOR:
         G_AddPredictableEvent( ent, EV_MENU, MN_H_REACTOR );
         break;
@@ -2063,14 +2065,19 @@ void Cmd_Build_f( gentity_t *ent )
         G_AddPredictableEvent( ent, EV_MENU, MN_H_NOPOWER );
         break;
         
+      case IBE_SPWNWARN:
+        G_AddPredictableEvent( ent, EV_MENU, MN_D_SPWNWARN );
+        G_buildItem( ent, buildable, dist, speed );
+        break;
+        
       case IBE_RPLWARN:
         G_AddPredictableEvent( ent, EV_MENU, MN_H_RPLWARN );
-        Build_Item( ent, buildable, dist );
+        G_buildItem( ent, buildable, dist, speed );
         break;
         
       case IBE_RPTWARN:
         G_AddPredictableEvent( ent, EV_MENU, MN_H_RPTWARN );
-        Build_Item( ent, buildable, dist );
+        G_buildItem( ent, buildable, dist, speed );
         break;
     }
   }

@@ -540,8 +540,8 @@ typedef enum
   IBE_MAXERRORS
 } itemBuildError_t;
 
-itemBuildError_t  itemFits( gentity_t *ent, buildable_t buildable, int distance );
-gentity_t         *Build_Item( gentity_t *ent, buildable_t buildable, int distance );
+itemBuildError_t  G_itemFits( gentity_t *ent, buildable_t buildable, int distance );
+gentity_t         *G_buildItem( gentity_t *ent, buildable_t buildable, int distance, float speed );
 void              G_setBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim );
 void              G_setIdleBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim );
 
