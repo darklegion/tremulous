@@ -921,8 +921,8 @@ void areaZapFire( gentity_t *ent )
   trace_t   tr;
   int       damage;
 
-  VectorAdd( muzzle, range, maxs );
-  VectorSubtract( muzzle, range, mins );
+  VectorAdd( ent->client->ps.origin, range, maxs );
+  VectorSubtract( ent->client->ps.origin, range, mins );
   
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
@@ -960,7 +960,7 @@ void areaZapFire( gentity_t *ent )
     // send railgun beam effect
     tent = G_TempEntity( enemy->s.pos.trBase, EV_ALIENZAP );
 
-    VectorCopy( muzzle, tent->s.origin2 );
+    VectorCopy( ent->client->ps.origin, tent->s.origin2 );
 
     tent->s.generic1 = ent->s.number; //src
     tent->s.clientNum = enemy->s.number; //dest

@@ -180,7 +180,7 @@ void CG_TeslaTrail( vec3_t start, vec3_t end, int srcENum, int destENum )
   le->srcENum = srcENum;
   le->destENum = destENum;
   le->vOffset = 28;
-  le->maxRange = BG_FindRangeForBuildable( BA_H_TESLAGEN ) * M_SQRT2;
+  le->maxRange = BG_FindRangeForBuildable( BA_H_TESLAGEN ) * M_ROOT3;
 
   VectorCopy( start, re->origin );
   VectorCopy( end, re->oldorigin );
@@ -208,9 +208,9 @@ void CG_AlienZap( vec3_t start, vec3_t end, int srcENum, int destENum )
 
   le->srcENum = srcENum;
   le->destENum = destENum;
-  le->vOffset = -4;
+  le->vOffset = 6.0f;
 
-  le->maxRange = CHIMERA_AREAZAP_RANGE;
+  le->maxRange = CHIMERA_AREAZAP_RANGE * M_ROOT3;
 
   VectorCopy( start, re->origin );
   VectorCopy( end, re->oldorigin );

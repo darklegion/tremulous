@@ -1258,6 +1258,7 @@ void ProjectPointOntoVector( vec3_t point, vec3_t vStart,
 float VectorDistance( vec3_t v1, vec3_t v2 );
 // done.
 
+#define M_ROOT3 1.732050808f
 float VectorMinComponent( vec3_t v );
 float VectorMaxComponent( vec3_t v );
 float round( float v );
