@@ -790,6 +790,10 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator )
   int   total;
   int   partial;
 
+  // if this is a non-client-usable door return
+  if( ent->targetname && other && other->client )
+    return;
+    
   // only the master should be used
   if( ent->flags & FL_TEAMSLAVE )
   {
@@ -1448,7 +1452,7 @@ void SP_func_door( gentity_t *ent )
 
   ent->nextthink = level.time + FRAMETIME;
 
-  if( ! (ent->flags & FL_TEAMSLAVE ) )
+  if( !( ent->flags & FL_TEAMSLAVE ) )
   {
     int health;
 

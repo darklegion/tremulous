@@ -1702,7 +1702,12 @@ void HMedistat_Think( gentity_t *self )
       self->active = qfalse;
     }
     else if( self->enemy ) //heal!
+    {
+      if( self->enemy->client && self->enemy->client->ps.stats[ STAT_STATE ] & SS_POISONED )
+        self->enemy->client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
+      
       self->enemy->health++;
+    }
   }
 }
 

@@ -793,6 +793,7 @@ void poisonCloud( gentity_t *ent )
   vec3_t    mins, maxs, dir;
   int       i, num;
   gentity_t *humanPlayer;
+  trace_t   tr;
   
   VectorAdd( ent->client->ps.origin, range, maxs );
   VectorSubtract( ent->client->ps.origin, range, mins );
@@ -810,6 +811,12 @@ void poisonCloud( gentity_t *ent )
       if( BG_gotItem( UP_BATTLESUIT, humanPlayer->client->ps.stats ) )
         continue;
       
+      trap_Trace( &tr, muzzle, NULL, NULL, humanPlayer->s.origin, humanPlayer->s.number, MASK_SHOT );
+    
+      //can't see target from here
+      if( tr.entityNum == ENTITYNUM_WORLD )
+        continue;
+
       if( !( humanPlayer->client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED ) )
       {
         humanPlayer->client->ps.stats[ STAT_STATE ] |= SS_POISONCLOUDED;
