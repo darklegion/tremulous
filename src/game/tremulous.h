@@ -77,7 +77,7 @@
 #define BMOFO_CLAW_RANGE            64.0f
 #define BMOFO_CLAW_REPEAT           750
 #define BMOFO_KNOCK_RANGE           200.0f
-#define BMOFO_KNOCK_REPEAT          3000
+#define BMOFO_KNOCK_REPEAT          15000
 #define BMOFO_KOVER_TIME            2000
 #define BMOFO_GETUP_TIME            1000
 #define BMOFO_REGEN_RANGE           200.0f
@@ -103,59 +103,59 @@
 #define ABUILDER_TTE                2000
 #define ABUILDER_VALUE              50
 #define ABUILDER_HEALTH             AHM(50)
-#define ABUILDER_REGEN              5
+#define ABUILDER_REGEN              2
 
 #define ABUILDER_UPG_SPEED          1.0f
 #define ABUILDER_UPG_VALUE          120
 #define ABUILDER_UPG_HEALTH         AHM(75)
-#define ABUILDER_UPG_REGEN          7
+#define ABUILDER_UPG_REGEN          3
 
 #define SOLDIER_SPEED               1.5f
 #define SOLDIER_TTE                 2000
 #define SOLDIER_VALUE               50
 #define SOLDIER_HEALTH              AHM(25)
-#define SOLDIER_REGEN               2
+#define SOLDIER_REGEN               1
 
 #define DRAGOON_SPEED               1.5f
 #define DRAGOON_TTE                 3000
 #define DRAGOON_VALUE               100
 #define DRAGOON_HEALTH              AHM(50)
-#define DRAGOON_REGEN               5
+#define DRAGOON_REGEN               2
 
 #define DRAGOON_UPG_SPEED           1.5f
 #define DRAGOON_UPG_TTE             3000
 #define DRAGOON_UPG_VALUE           120
 #define DRAGOON_UPG_HEALTH          AHM(60)
-#define DRAGOON_UPG_REGEN           6
+#define DRAGOON_UPG_REGEN           3
 
 #define HYDRA_SPEED                 1.5f
 #define HYDRA_TTE                   3000
 #define HYDRA_VALUE                 200
 #define HYDRA_HEALTH                AHM(100)
-#define HYDRA_REGEN                 10
+#define HYDRA_REGEN                 5
 
 #define HYDRA_UPG_SPEED             1.5f
 #define HYDRA_UPG_TTE               3000
 #define HYDRA_UPG_VALUE             240
 #define HYDRA_UPG_HEALTH            AHM(120)
-#define HYDRA_UPG_REGEN             12
+#define HYDRA_UPG_REGEN             6
 
 #define CHIMERA_SPEED               1.3f
 #define CHIMERA_TTE                 3000
 #define CHIMERA_VALUE               300
 #define CHIMERA_HEALTH              AHM(200)
-#define CHIMERA_REGEN               15
+#define CHIMERA_REGEN               7
 
 #define CHIMERA_UPG_SPEED           1.3f
 #define CHIMERA_UPG_TTE             3000
 #define CHIMERA_UPG_VALUE           360
 #define CHIMERA_UPG_HEALTH          AHM(250)
-#define CHIMERA_UPG_REGEN           20
+#define CHIMERA_UPG_REGEN           10
 
 #define BMOFO_SPEED                 1.2f
 #define BMOFO_VALUE                 400
 #define BMOFO_HEALTH                AHM(400)
-#define BMOFO_REGEN                 30
+#define BMOFO_REGEN                 15
 
 
 
@@ -417,7 +417,7 @@
 #define MGTURRET_ANGULARSPEED       20  //degrees/think ~= 200deg/sec
 #define MGTURRET_ACCURACYTOLERANCE  MGTURRET_ANGULARSPEED / 2 //angular difference for turret to fire
 #define MGTURRET_VERTICALCAP        30  // +/- maximum pitch
-#define MGTURRET_REPEAT             50
+#define MGTURRET_REPEAT             100
 #define MGTURRET_RANGE              200
 
 #define TESLAGEN_BP                 100

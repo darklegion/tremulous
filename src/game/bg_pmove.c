@@ -2045,7 +2045,8 @@ static void PM_Footsteps( void )
     if( pm->waterlevel == 0 )
     {
       // on ground will only play sounds if running
-      if( footstep && !pm->noFootsteps )
+      if( footstep && !pm->noFootsteps &&
+          !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_NOFOOTSTEPS ) )
         PM_AddEvent( PM_FootstepForSurface( ) );
     }
     else if( pm->waterlevel == 1 )

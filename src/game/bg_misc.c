@@ -1223,7 +1223,8 @@ classAttributes_t bg_classList[ ] =
     12, 12,                                         //int     viewheight, crouchviewheight;
     ABUILDER_HEALTH,                                //int     health;
     ABUILDER_REGEN,                                 //int     regenRate;
-    SCA_TAKESFALLDAMAGE|SCA_FOVWARPS,               //int     abilities;
+    SCA_TAKESFALLDAMAGE|SCA_FOVWARPS|
+      SCA_NOFOOTSTEPS,                              //int     abilities;
     WP_ABUILD,                                      //weapon_t  startWeapon
     95.0f,                                          //float   buildDist;
     80,                                             //int     fov;
@@ -1252,7 +1253,8 @@ classAttributes_t bg_classList[ ] =
     0, 0,                                           //int     viewheight, crouchviewheight;
     ABUILDER_UPG_HEALTH,                            //int     health;
     ABUILDER_UPG_REGEN,                             //int     regenRate;
-    SCA_CANJUMP|SCA_FOVWARPS|SCA_WALLCLIMBER,       //int     abilities;
+    SCA_CANJUMP|SCA_FOVWARPS|SCA_WALLCLIMBER|
+      SCA_NOFOOTSTEPS,                              //int     abilities;
     WP_ABUILD2,                                     //weapon_t  startWeapon
     95.0f,                                          //float   buildDist;
     110,                                            //int     fov;
@@ -1282,7 +1284,7 @@ classAttributes_t bg_classList[ ] =
     SOLDIER_HEALTH,                                 //int     health;
     SOLDIER_REGEN,                                  //int     regenRate;
     SCA_WALLCLIMBER|SCA_CANJUMP|SCA_NOWEAPONDRIFT|
-      SCA_FOVWARPS|SCA_ALIENSENSE,                  //int     abilities;
+      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
     WP_VENOM,                                       //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     140,                                            //int     fov;
@@ -1311,7 +1313,8 @@ classAttributes_t bg_classList[ ] =
     6, 6,                                           //int     viewheight, crouchviewheight;
     DRAGOON_HEALTH,                                 //int     health;
     DRAGOON_REGEN,                                  //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,     //int     abilities;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
+      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
     WP_POUNCE,                                      //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     120,                                            //int     fov;
@@ -1340,7 +1343,8 @@ classAttributes_t bg_classList[ ] =
     6, 6,                                           //int     viewheight, crouchviewheight;
     DRAGOON_UPG_HEALTH,                             //int     health;
     DRAGOON_UPG_REGEN,                              //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,     //int     abilities;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
+      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
     WP_POUNCE_UPG,                                  //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     120,                                            //int     fov;
@@ -1370,7 +1374,8 @@ classAttributes_t bg_classList[ ] =
     HYDRA_HEALTH,                                   //int     health;
     HYDRA_REGEN,                                    //int     regenRate;
     SCA_CANJUMP|SCA_NOWEAPONDRIFT|
-      SCA_FOVWARPS|SCA_WALLCLIMBER,                 //int     abilities;
+      SCA_FOVWARPS|SCA_WALLCLIMBER|SCA_ALIENSENSE|
+      SCA_NOFOOTSTEPS,                              //int     abilities;
     WP_GRAB_CLAW,                                   //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     120,                                            //int     fov;
@@ -1399,8 +1404,9 @@ classAttributes_t bg_classList[ ] =
     6, 6,                                           //int     viewheight, crouchviewheight;
     HYDRA_UPG_HEALTH,                               //int     health;
     HYDRA_UPG_REGEN,                                //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
-      SCA_FOVWARPS|SCA_WALLCLIMBER,                 //int     abilities;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS|
+      SCA_WALLCLIMBER|SCA_ALIENSENSE|
+      SCA_NOFOOTSTEPS,                              //int     abilities;
     WP_GRAB_CLAW_UPG,                               //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     120,                                            //int     fov;
@@ -1429,7 +1435,8 @@ classAttributes_t bg_classList[ ] =
     4, 4,                                           //int     viewheight, crouchviewheight;
     CHIMERA_HEALTH,                                 //int     health;
     CHIMERA_REGEN,                                  //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,     //int     abilities;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
+      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
     WP_AREA_ZAP,                                    //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     130,                                            //int     fov;
@@ -1458,7 +1465,8 @@ classAttributes_t bg_classList[ ] =
     4, 4,                                           //int     viewheight, crouchviewheight;
     CHIMERA_UPG_HEALTH,                             //int     health;
     CHIMERA_UPG_REGEN,                              //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,     //int     abilities;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
+      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
     WP_DIRECT_ZAP,                                  //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     130,                                            //int     fov;
@@ -1487,7 +1495,8 @@ classAttributes_t bg_classList[ ] =
     4, 4,                                           //int     viewheight, crouchviewheight;
     BMOFO_HEALTH,                                   //int     health;
     BMOFO_REGEN,                                    //int     regenRate;
-    SCA_CANJUMP|SCA_NOWEAPONDRIFT|SCA_FOVWARPS,     //int     abilities;
+    SCA_CANJUMP|SCA_NOWEAPONDRIFT|
+      SCA_FOVWARPS|SCA_ALIENSENSE|SCA_NOFOOTSTEPS,  //int     abilities;
     WP_GROUND_POUND,                                //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     130,                                            //int     fov;

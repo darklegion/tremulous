@@ -526,6 +526,8 @@ qboolean CheckVenomAttack( gentity_t *ent )
     return qfalse;
   if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     return qfalse;
+  if( traceEnt->client->ps.stats[ STAT_HEALTH ] <= 0 )
+    return qfalse;
 
   // send blood impact
   if ( traceEnt->takedamage && traceEnt->client )
@@ -578,6 +580,8 @@ void CheckGrabAttack( gentity_t *ent )
   if( !traceEnt->client )
     return;
   if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    return;
+  if( traceEnt->client->ps.stats[ STAT_HEALTH ] <= 0 )
     return;
     
   if( !( traceEnt->client->ps.stats[ STAT_STATE ] & SS_GRABBED ) )
