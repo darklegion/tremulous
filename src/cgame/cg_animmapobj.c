@@ -117,13 +117,18 @@ CG_AMOAnimation
 static void CG_AMOAnimation( centity_t *cent, int *old, int *now, float *backLerp )
 {
   if( !( cent->currentState.eFlags & EF_MOVER_STOP ) )
-    CG_RunAMOLerpFrame( &cent->lerpFrame );
-  else
   {
-    //FIXME: fiddle with params so that when anim is resumed the lerp doesn't freak
-    //       cos of the time differential
-/*    cent->lerpFrame.oldFrameTime = cg.time;
-    cent->lerpFrame.frameTime = cg.time + 50;*/
+    int delta = cg.time - cent->miscTime;
+
+    //hack to prevent "pausing" mucking up the lerping
+    if( delta > 900 )
+    {
+      cent->lerpFrame.oldFrameTime  += delta;
+      cent->lerpFrame.frameTime     += delta;
+    }
+    
+    CG_RunAMOLerpFrame( &cent->lerpFrame );
+    cent->miscTime = cg.time;
   }
 
   *old      = cent->lerpFrame.oldFrame;
