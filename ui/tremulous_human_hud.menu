@@ -22,46 +22,35 @@
     bigFont "fonts/bigfont" 20      // font
   }
 
-  //  STAMINA  //
-
   menuDef
   {
     name "human_hud"
     fullScreen MENU_FALSE
     visible MENU_TRUE
     rect 0 0 640 480
-    
-    // HUE
+    //CONSOLE
     itemDef
     {
-      name hue
-      rect 0 0 640 480
-      visible 0
+      name "console"
+      rect 8 8 560 180
+      style WINDOW_STYLE_EMPTY
+      visible 1
       decoration
-      forecolor 0.0 0.8 1.0 .1
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/hue.tga"
+      forecolor 1 1 1 1
+      align ITEM_ALIGN_LEFT
+      textalignx 0
+      textaligny 18
+      textscale 0.4
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_CONSOLE
     }   
-
-    // HUD
-    itemDef
-    {
-      name hud
-      rect 0 0 640 480
-      visible 0
-      decoration
-      forecolor 1.0 1.0 1.0 1.0
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/hud.tga"
-    }   
-
-    // FPS
+    //FPS
     itemDef
     {
       name "fps"
-      rect 397 48 56 22
+      rect 556 64 56 22
       style WINDOW_STYLE_EMPTY
-      visible 0
+      visible 1
       decoration
       forecolor 1 1 1 1
       align ITEM_ALIGN_RIGHT
@@ -71,13 +60,13 @@
       textstyle ITEM_TEXTSTYLE_NORMAL
       ownerdraw CG_FPS
     }   
-    // TIMER
+    //TIMER
     itemDef
     {
       name "timer"
-      rect 417 72 56 22
+      rect 500 64 56 22
       style WINDOW_STYLE_EMPTY
-      visible 0
+      visible 1
       decoration
       forecolor 1 1 1 1
       align ITEM_ALIGN_RIGHT
@@ -87,14 +76,13 @@
       textstyle ITEM_TEXTSTYLE_NORMAL
       ownerdraw CG_TIMER
     }   
-
-    // SNAPSHOT
+    //SNAPSHOT
     itemDef
     {
       name "snapshot"
       rect 300 96 200 22
       style WINDOW_STYLE_EMPTY
-      visible 0
+      visible 1
       decoration
       forecolor 1 1 1 1
       align ITEM_ALIGN_RIGHT
@@ -104,8 +92,7 @@
       textstyle ITEM_TEXTSTYLE_NORMAL
       ownerdraw CG_SNAPSHOT
     }   
-
-    // LAGOMETER
+    //LAGOMETER
     itemDef
     {
       name "lagometer"
@@ -115,8 +102,7 @@
       background "lagometer"
       ownerdraw CG_LAGOMETER
     }   
-
-    // CREDIT LABEL
+    //CREDIT LABEL
     itemDef
     {
       name credits
@@ -127,8 +113,7 @@
       style WINDOW_STYLE_SHADER
       background "ui/assets/credits.tga"
     }   
-
-    // CREDIT
+    //CREDIT
     itemDef
     {
       name "c"
@@ -138,8 +123,7 @@
       forecolor 0.0 0.8 1.0 1.0
       ownerdraw CG_PLAYER_CREDITS_VALUE
     }   
-
-    // BANK LABEL
+    //BANK LABEL
     itemDef
     {
       name credits
@@ -150,8 +134,7 @@
       style WINDOW_STYLE_SHADER
       background "ui/assets/bank.tga"
     }   
-
-    // BANK
+    //BANK
     itemDef
     {
       name "b"
@@ -161,8 +144,7 @@
       forecolor 0.0 0.8 1.0 1.0
       ownerdraw CG_PLAYER_BANK_VALUE
     }
-    
-    // AMMO
+    //AMMO
     itemDef
     {
       name "a"
@@ -172,8 +154,7 @@
       forecolor 0.0 0.8 1.0 1.0
       ownerdraw CG_PLAYER_AMMO_VALUE
     }
-
-    // SLASH
+    //SLASH
     itemDef
     {
       name credits
@@ -184,8 +165,7 @@
       style WINDOW_STYLE_SHADER
       background "ui/assets/slash.tga"
     }   
-
-    // CLIPS
+    //CLIPS
     itemDef
     {
       name "c"
@@ -195,8 +175,7 @@
       forecolor 1.0 1.0 1.0 1.0
       ownerdraw CG_PLAYER_CLIPS_VALUE
     }
-  
-    // HEALTH
+    //HEALTH
     itemDef
     {
       name "healthok"
@@ -206,8 +185,7 @@
       forecolor 0.0 0.8 1.0 1.0
       ownerdraw CG_PLAYER_HEALTH
     }
-
-    // HEALTH BAR
+    //HEALTH BAR
     itemDef
     {
       name "health"
@@ -220,8 +198,7 @@
       forecolor 0.0 0.8 1.0 1.0
       ownerdraw CG_PLAYER_HEALTH_BAR
     }
-
-    // HEALTH BORDER
+    //HEALTH BORDER
     itemDef
     {
       name healthborder
@@ -232,8 +209,7 @@
       style WINDOW_STYLE_SHADER
       background "ui/assets/healthborder.tga"
     }   
-
-    // CROSS
+    //CROSS
     itemDef
     {
       name cross
@@ -244,8 +220,7 @@
       style WINDOW_STYLE_SHADER
       background "ui/assets/cross.tga"
     }   
-
-    // CROSS BORDER
+    //CROSS BORDER
     itemDef
     {
       name crossborder
@@ -256,8 +231,7 @@
       style WINDOW_STYLE_SHADER
       background "ui/assets/crossborder.tga"
     }   
-
-    // STAMINA BAR
+    //STAMINA BAR
     itemDef
     {
       name "s"
@@ -270,8 +244,7 @@
       forecolor 0.0 0.8 1.0 1.0
       ownerdraw CG_PLAYER_STAMINA
     }
-
-    // STAMINA BORDER
+    //STAMINA BORDER
     itemDef
     {
       name staminaborder
@@ -282,8 +255,18 @@
       style WINDOW_STYLE_SHADER
       background "ui/assets/staminaborder.tga"
     }   
-
-    // SELECT
+    //PILL
+    itemDef
+    {
+      name pill
+      rect 533 434 10 7
+      visible 0
+      decoration
+      forecolor 1.0 1.0 1.0 1.0
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/pill.tga"
+    }   
+    //SELECT
     itemDef
     {
       name "select"
@@ -292,8 +275,7 @@
       decoration
       ownerdraw CG_PLAYER_SELECT
     }
-    
-    // SELECT TEXT
+    //SELECT TEXT
     itemDef
     {
       name "selecttext"
@@ -303,8 +285,7 @@
       textScale .5
       ownerdraw CG_PLAYER_SELECTTEXT
     }
-   
-    // BANK LABEL
+    //BANK LABEL
     itemDef
     {
       name banklabel
@@ -321,8 +302,7 @@
       visible 0
       decoration
     }
-
-    // CREDITS LABEL
+    //CREDITS LABEL
     itemDef
     {
       name creditslabel
