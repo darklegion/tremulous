@@ -42,11 +42,70 @@
       ownerdraw CG_PLAYER_STAMINA
     }
     
+    //FPS
+    itemDef
+    {
+      name "fps"
+      rect 397 48 56 22
+      style WINDOW_STYLE_EMPTY
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      align ITEM_ALIGN_RIGHT
+      textalignx 0
+      textaligny 18
+      textscale 0.4
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_FPS
+    }   
+    //TIMER
+    itemDef
+    {
+      name "timer"
+      rect 417 72 56 22
+      style WINDOW_STYLE_EMPTY
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      align ITEM_ALIGN_RIGHT
+      textalignx 0
+      textaligny 18
+      textscale 0.4
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_TIMER
+    }   
+    //SNAPSHOT
+    itemDef
+    {
+      name "snapshot"
+      rect 300 96 200 22
+      style WINDOW_STYLE_EMPTY
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      align ITEM_ALIGN_RIGHT
+      textalignx 0
+      textaligny 18
+      textscale 0.4
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_SNAPSHOT
+    }   
+    //LAGOMETER
+    itemDef
+    {
+      name "lagometer"
+      rect 502 358 132 28
+      visible 1
+      decoration
+      background "lagometer"
+      ownerdraw CG_LAGOMETER
+    }   
+
     //CREDIT
     itemDef
     {
       name "c"
-      rect 505 27 108 44
+      rect 502 27 108 44
       visible 1
       decoration
       forecolor 1 1 0 1
@@ -57,7 +116,7 @@
     itemDef
     {
       name "b"
-      rect 580 95 50 20
+      rect 577 95 50 20
       visible 1
       decoration
       forecolor 1 1 0 1
@@ -68,7 +127,7 @@
     itemDef
     {
       name "a"
-      rect 508 414 108 44
+      rect 505 414 108 44
       visible 1
       decoration
       forecolor 1 1 0 1
@@ -79,7 +138,7 @@
     itemDef
     {
       name "c"
-      rect 448 443 50 20
+      rect 445 443 50 20
       visible 1
       decoration
       forecolor 1 1 0 1
@@ -134,7 +193,7 @@
     itemDef
     {
       name creditswindow
-      rect 385 3 254 117
+      rect 382 3 254 117
       visible 1
       decoration
       forecolor 1 1 0 1
