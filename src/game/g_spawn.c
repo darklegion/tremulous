@@ -215,6 +215,7 @@ void SP_team_CTF_bluespawn( gentity_t *ent );
 //TA:
 void SP_misc_spriter( gentity_t *ent );
 void SP_misc_anim_model( gentity_t *ent );
+void SP_misc_lens_flare( gentity_t *ent );
 
 spawn_t spawns[] = {
   // info entities don't do anything at all, but provide positional
@@ -289,6 +290,7 @@ spawn_t spawns[] = {
 
   {"misc_spriter", SP_misc_spriter},
   {"misc_anim_model", SP_misc_anim_model},
+  {"misc_lens_flare", SP_misc_lens_flare},
   
   {0, 0}
 };

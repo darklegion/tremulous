@@ -777,6 +777,52 @@ static void CG_TorchLight( centity_t *cent )
 
 /*
 =========================
+CG_LensFlare
+=========================
+*/
+static void CG_LensFlare( centity_t *cent )
+{
+  refEntity_t   flare;
+  entityState_t *es;
+  vec3_t        forward, delta;
+  float         len;
+  trace_t       tr;
+
+  es = &cent->currentState;
+  
+  memset( &flare, 0, sizeof( flare ) );
+  
+  //bunch of geometry
+  AngleVectors( cent->lerpAngles, forward, NULL, NULL );
+  VectorCopy( cent->lerpOrigin, flare.origin );
+  VectorSubtract( flare.origin, cg.refdef.vieworg, delta );
+  len = VectorLength( delta );
+  VectorNormalize( delta );
+
+  flare.reType = RT_SPRITE;
+  flare.customShader = cgs.gameShaders[ es->modelindex ];
+  flare.shaderRGBA[ 0 ] = 0xFF;
+  flare.shaderRGBA[ 1 ] = 0xFF;
+  flare.shaderRGBA[ 2 ] = 0xFF;
+  flare.shaderRGBA[ 3 ] = 0xFF;
+
+  //can only see the flare when in front of it
+  flare.radius = len / es->origin2[ 0 ];
+  flare.radius *= DotProduct( delta, forward );
+
+  //if can't see the centre do not draw
+  CG_Trace( &tr, flare.origin, NULL, NULL, cg.refdef.vieworg, 0, MASK_SHOT );
+  if( tr.fraction < 1.0f )
+    return;
+
+  if( flare.radius < 0 )
+    flare.radius = 0;
+
+  trap_R_AddRefEntityToScene( &flare );
+}
+
+/*
+=========================
 CG_AdjustPositionForMover
 
 Also called by client movement prediction code
@@ -958,6 +1004,9 @@ static void CG_AddCEntity( centity_t *cent ) {
     break;
   case ET_ANIMMAPOBJ:
     CG_animMapObj( cent );
+    break;
+  case ET_LENSFLARE:
+    CG_LensFlare( cent );
     break;
   }
 }

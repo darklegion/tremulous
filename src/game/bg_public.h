@@ -1011,6 +1011,7 @@ typedef enum {
   ET_CORPSE,
   ET_SPRITER,
   ET_ANIMMAPOBJ,
+  ET_LENSFLARE,
 
   ET_EVENTS       // any of the EV_* events can be added freestanding
               // by setting eType to ET_EVENTS + eventNum
