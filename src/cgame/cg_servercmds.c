@@ -154,6 +154,7 @@ void CG_SetConfigValues( void )
                             &cgs.humanBuildPointsPowered );
 
   sscanf( CG_ConfigString( CS_STAGES ), "%d %d", &cgs.alienStage, &cgs.humanStage );
+  sscanf( CG_ConfigString( CS_SPAWNS ), "%d %d", &cgs.numAlienSpawns, &cgs.numHumanSpawns );
   
   cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
   cg.warmup = atoi( CG_ConfigString( CS_WARMUP ) );
@@ -288,6 +289,8 @@ static void CG_ConfigStringModified( void )
     if( cgs.humanStage != oldHumanStage )
       CG_AnnounceHumanStageTransistion( oldHumanStage, cgs.humanStage );
   }
+  else if( num == CS_SPAWNS )
+    sscanf( str, "%d %d", &cgs.numAlienSpawns, &cgs.numHumanSpawns );
   else if( num == CS_LEVEL_START_TIME )
     cgs.levelStartTime = atoi( str );
   else if( num == CS_VOTE_TIME )

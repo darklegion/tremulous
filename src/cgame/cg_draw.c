@@ -2911,6 +2911,26 @@ static qboolean CG_DrawQueue( void )
                cg.snap->ps.persistant[ PERS_QUEUEPOS ] + 1 );
 
   w = CG_Text_Width( buffer, 0.7f, 0 );
+  CG_Text_Paint( 320 - w / 2, 360, 0.7f, color, buffer, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
+
+  if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  {
+    if( cgs.numAlienSpawns == 1 )
+      Com_sprintf( buffer, MAX_STRING_CHARS, "There is 1 spawn remaining." );
+    else
+      Com_sprintf( buffer, MAX_STRING_CHARS, "There are %d spawns remaining.",
+                   cgs.numAlienSpawns );
+  }
+  else if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  {
+    if( cgs.numHumanSpawns == 1 )
+      Com_sprintf( buffer, MAX_STRING_CHARS, "There is 1 spawn remaining." );
+    else
+      Com_sprintf( buffer, MAX_STRING_CHARS, "There are %d spawns remaining.",
+                   cgs.numHumanSpawns );
+  }
+
+  w = CG_Text_Width( buffer, 0.7f, 0 );
   CG_Text_Paint( 320 - w / 2, 400, 0.7f, color, buffer, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 
   return qtrue;

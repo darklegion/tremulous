@@ -67,6 +67,7 @@
 //TA: extra stuff:
 #define CS_BUILDPOINTS      28
 #define CS_STAGES           29
+#define CS_SPAWNS           30
 
 #define CS_MODELS           33
 #define CS_SOUNDS           (CS_MODELS+MAX_MODELS)

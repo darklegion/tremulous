@@ -1276,6 +1276,9 @@ typedef struct
 
   int           alienStage;
   int           humanStage;
+  
+  int           numAlienSpawns;
+  int           numHumanSpawns;
 
   //
   // locally derived information from gamestate
