@@ -4208,6 +4208,27 @@ static void UI_RunMenuScript(char **args) {
       if( cmd = uiInfo.tremHumanBuildList[ uiInfo.tremHumanBuildIndex ].cmd )
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
+    else if( Q_stricmp( name, "PTRCRestore" ) == 0 )
+    {
+      int           len;
+      char          text[ 16 ];
+      fileHandle_t  f;
+      char          command[ 32 ];
+
+      // load the file
+      len = trap_FS_FOpenFile( "ptrc.txt", &f, FS_READ );
+      
+      if( len > 0 && ( len < sizeof( text ) - 1 ) )
+      {
+        trap_FS_Read( text, len, f );
+        text[ len ] = 0;
+        trap_FS_FCloseFile( f );
+        
+        Com_sprintf( command, 32, "ptrcrestore %s", text );
+          
+        trap_Cmd_ExecuteText( EXEC_APPEND, command );
+      }
+    }
 //TA: tremulous menus
     
     else if (Q_stricmp(name, "playMovie") == 0) {

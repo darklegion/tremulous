@@ -291,27 +291,40 @@ typedef struct
 #define MAX_NETNAME       36
 #define MAX_VOTE_COUNT    3
 
+// data to store details of clients that have abnormally disconnected
+typedef struct connectionRecord_s
+{
+  int       clientNum;
+  pTeam_t   clientTeam;
+  int       clientCredit;
+
+  int       ptrCode;
+} connectionRecord_t;
+
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
 typedef struct
 {
-  clientConnected_t connected;
-  usercmd_t         cmd;                // we would lose angles if not persistant
-  qboolean          localClient;        // true if "ip" info key is "localhost"
-  qboolean          initialSpawn;       // the first spawn should be at a cool location
-  qboolean          predictItemPickup;  // based on cg_predictItems userinfo
-  qboolean          pmoveFixed;         //
-  char              netname[ MAX_NETNAME ];
-  int               maxHealth;          // for handicapping
-  int               enterTime;          // level.time the client entered the game
-  playerTeamState_t teamState;          // status in teamplay games
-  int               voteCount;          // to prevent people from constantly calling votes
-  int               teamVoteCount;      // to prevent people from constantly calling votes
-  qboolean          teamInfo;           // send team overlay updates?
+  clientConnected_t   connected;
+  usercmd_t           cmd;                // we would lose angles if not persistant
+  qboolean            localClient;        // true if "ip" info key is "localhost"
+  qboolean            initialSpawn;       // the first spawn should be at a cool location
+  qboolean            predictItemPickup;  // based on cg_predictItems userinfo
+  qboolean            pmoveFixed;         //
+  char                netname[ MAX_NETNAME ];
+  int                 maxHealth;          // for handicapping
+  int                 enterTime;          // level.time the client entered the game
+  playerTeamState_t   teamState;          // status in teamplay games
+  int                 voteCount;          // to prevent people from constantly calling votes
+  int                 teamVoteCount;      // to prevent people from constantly calling votes
+  qboolean            teamInfo;           // send team overlay updates?
 
-  pClass_t          classSelection;     //TA: player class (copied to ent->client->ps.stats[ STAT_PCLASS ] once spawned)
-  weapon_t          humanItemSelection; //TA: humans have a starting item
-  pTeam_t           teamSelection;      //TA: player team (copied to ps.stats[ STAT_PTEAM ])
+  pClass_t            classSelection;     //TA: player class (copied to ent->client->ps.stats[ STAT_PCLASS ] once spawned)
+  weapon_t            humanItemSelection; //TA: humans have a starting item
+  pTeam_t             teamSelection;      //TA: player team (copied to ps.stats[ STAT_PTEAM ])
+
+  qboolean            joinedATeam;        //TA: used to tell when a PTR code is valid
+  connectionRecord_t  *connection;
 } clientPersistant_t;
 
 // this structure is cleared on each ClientSpawn(),
@@ -916,6 +929,17 @@ void      G_StopMapRotation( void );
 qboolean  G_MapRotationActive( void );
 void      G_InitMapRotations( void );
   
+//
+// g_ptr.c
+//
+void                G_UpdatePTRConnection( gclient_t *client );
+connectionRecord_t  *G_GenerateNewConnection( gclient_t *client );
+qboolean            G_VerifyPTRC( int code );
+void                G_ResetPTRConnections( void );
+connectionRecord_t  *G_FindConnectionForCode( int code );
+void                G_DeletePTRConnection( connectionRecord_t *connection );
+
+
 //some maxs
 #define MAX_FILEPATH      144
 

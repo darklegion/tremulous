@@ -1788,6 +1788,13 @@ void                CG_AddParticles( void );
 
 void                CG_ParticleSystemEntity( centity_t *cent );
 
+//
+// cg_ptr.c
+// 
+int   CG_ReadPTRCode( void );
+void  CG_WritePTRCode( int code );
+  
+//
 //===============================================
 
 //

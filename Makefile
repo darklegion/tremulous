@@ -36,6 +36,7 @@ GOBJ = \
 	$(GDIRNAME)/g_trigger.o \
 	$(GDIRNAME)/g_utils.o \
 	$(GDIRNAME)/g_maprotation.o \
+	$(GDIRNAME)/g_ptr.o \
 	$(GDIRNAME)/g_weapon.o
 
 CGOBJ = \
@@ -68,6 +69,7 @@ CGOBJ = \
 	$(CGDIRNAME)/cg_scanner.o \
 	$(CGDIRNAME)/cg_trails.o \
 	$(CGDIRNAME)/cg_particles.o \
+	$(CGDIRNAME)/cg_ptr.o \
 	$(UIDIRNAME)/ui_shared.o
   
 UIOBJ = \

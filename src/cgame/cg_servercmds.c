@@ -896,20 +896,18 @@ static void CG_ServerCommand( void )
   if( !strcmp( cmd, "gprintf" ) )
   {
     if( trap_Argc( ) == 2 )
-    {
       CG_TAUIConsole( CG_Argv( 1 ) );
-      return;
-    }
+    
+    return;
   }
 
   //the server has triggered a menu
   if( !strcmp( cmd, "servermenu" ) )
   {
     if( trap_Argc( ) == 2 )
-    {
       CG_Menu( atoi( CG_Argv( 1 ) ) );
-      return;
-    }
+    
+    return;
   }
   
   //the server thinks this client should close all menus
@@ -938,6 +936,36 @@ static void CG_ServerCommand( void )
       cg.weaponSelectTime = cg.time;
     }
 
+    return;
+  }
+  
+  // server requests a ptrc
+  if( !strcmp( cmd, "ptrcrequest" ) )
+  {
+    int   code = CG_ReadPTRCode( );
+
+    trap_SendClientCommand( va( "ptrcverify %d", code ) );
+    return;
+  }
+  
+  // server issues a ptrc
+  if( !strcmp( cmd, "ptrcissue" ) )
+  {
+    if( trap_Argc( ) == 2 )
+    {
+      int code = atoi( CG_Argv( 1 ) );
+      
+      CG_WritePTRCode( code );
+    }
+    
+    return;
+  }
+  
+  // reply to ptrcverify
+  if( !strcmp( cmd, "ptrcconfirm" ) )
+  {
+    trap_SendConsoleCommand( "menu ptrc_popmenu\n" );
+    
     return;
   }
   

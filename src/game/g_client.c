@@ -1196,6 +1196,9 @@ void ClientBegin( int clientNum )
   }
   
   trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
+
+  // request the clients PTR code
+  trap_SendServerCommand( ent - g_entities, "ptrcrequest" );
   
   G_LogPrintf( "ClientBegin: %i\n", clientNum );
 

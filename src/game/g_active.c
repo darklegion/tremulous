@@ -969,6 +969,8 @@ void ClientThink_real( gentity_t *ent )
     return;
   }
 
+  G_UpdatePTRConnection( client );
+
   // check for inactivity timer, but never drop the local client of a non-dedicated server
   if( !ClientInactivityTimer( client ) )
     return;

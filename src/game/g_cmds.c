@@ -459,6 +459,8 @@ void G_ChangeTeam( gentity_t *ent, pTeam_t newTeam )
     ClientSpawn( ent, NULL, NULL, NULL );
   }
   
+  ent->client->pers.joinedATeam = qtrue;
+
   //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum );
 }
@@ -2118,6 +2120,99 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir )
   // leave it where it was
 }
 
+/*
+=================
+Cmd_PTRCVerify_f
+
+Check a PTR code is valid
+=================
+*/
+void Cmd_PTRCVerify_f( gentity_t *ent )
+{
+  connectionRecord_t  *connection;
+  char                s[ MAX_TOKEN_CHARS ] = { 0 };
+  int                 code;
+
+  trap_Argv( 1, s, sizeof( s ) );
+
+  if( !strlen( s ) )
+    return;
+
+  code = atoi( s );
+
+  if( G_VerifyPTRC( code ) )
+  {
+    connection = G_FindConnectionForCode( code );
+    
+    // valid code
+    if( connection->clientTeam != PTE_NONE )
+      trap_SendServerCommand( ent->client->ps.clientNum, "ptrcconfirm" );
+
+    // restore mapping
+    ent->client->pers.connection = connection;
+  }
+  else
+  {
+    // invalid code -- generate a new one
+    connection = G_GenerateNewConnection( ent->client );
+    
+    if( connection )
+    {
+      trap_SendServerCommand( ent->client->ps.clientNum,
+        va( "ptrcissue %d", connection->ptrCode ) );
+    }
+  }
+}
+
+/*
+=================
+Cmd_PTRCRestore_f
+
+Restore against a PTR code
+=================
+*/
+void Cmd_PTRCRestore_f( gentity_t *ent )
+{
+  char                s[ MAX_TOKEN_CHARS ] = { 0 };
+  int                 code;
+  connectionRecord_t  *connection;
+
+  trap_Argv( 1, s, sizeof( s ) );
+
+  if( !strlen( s ) )
+    return;
+
+  code = atoi( s );
+
+  if( G_VerifyPTRC( code ) )
+  {
+    if( ent->client->pers.joinedATeam )
+    {
+      trap_SendServerCommand( ent - g_entities,
+        "print \"You cannot use a PTR code after joining a team\n\"" );
+    }
+    else
+    {
+      // valid code
+      connection = G_FindConnectionForCode( code );
+
+      if( connection )
+      {
+        // set the correct team
+        G_ChangeTeam( ent, connection->clientTeam );
+        
+        // set the correct credit
+        ent->client->ps.persistant[ PERS_CREDIT ] = 0;
+        G_AddCreditToClient( ent->client, connection->clientCredit );
+      }
+    }
+  }
+  else
+  {
+    trap_SendServerCommand( ent - g_entities,
+      va( "print \"\"%d\" is not a valid PTR code\n\"", code ) );
+  }
+}
 
 /*
 =================
@@ -2327,6 +2422,10 @@ void ClientCommand( int clientNum )
     Cmd_TeamVote_f( ent );
   else if( Q_stricmp( cmd, "setviewpos" ) == 0 )
     Cmd_SetViewpos_f( ent );
+  else if( Q_stricmp( cmd, "ptrcverify" ) == 0 )
+    Cmd_PTRCVerify_f( ent );
+  else if( Q_stricmp( cmd, "ptrcrestore" ) == 0 )
+    Cmd_PTRCRestore_f( ent );
   else if( Q_stricmp( cmd, "test" ) == 0 )
     Cmd_Test_f( ent );
   else if( Q_stricmp( cmd, "evolvebug" ) == 0 )
