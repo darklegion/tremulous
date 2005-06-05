@@ -347,14 +347,15 @@ CG_Missile
 */
 static void CG_Missile( centity_t *cent )
 {
-  refEntity_t         ent;
-  entityState_t       *es;
-  const weaponInfo_t  *wi;
-  vec3_t              up;
-  float               fraction;
-  int                 index;
-  weapon_t            weapon;
-  weaponMode_t        weaponMode;
+  refEntity_t             ent;
+  entityState_t           *es;
+  const weaponInfo_t      *wi;
+  vec3_t                  up;
+  float                   fraction;
+  int                     index;
+  weapon_t                weapon;
+  weaponMode_t            weaponMode;
+  const weaponInfoMode_t  *wim;
 
   es = &cent->currentState;
 
@@ -365,26 +366,28 @@ static void CG_Missile( centity_t *cent )
   wi = &cg_weapons[ weapon ];
   weaponMode = es->generic1;
   
+  wim = &wi->wim[ weaponMode ];
+  
   // calculate the axis
   VectorCopy( es->angles, cent->lerpAngles );
 
   // add dynamic light
-  if( wi->wim[ weaponMode ].missileDlight )
+  if( wim->missileDlight )
   {
-    trap_R_AddLightToScene( cent->lerpOrigin, wi->wim[ weaponMode ].missileDlight,
-      wi->wim[ weaponMode ].missileDlightColor[ 0 ],
-      wi->wim[ weaponMode ].missileDlightColor[ 1 ],
-      wi->wim[ weaponMode ].missileDlightColor[ 2 ] );
+    trap_R_AddLightToScene( cent->lerpOrigin, wim->missileDlight,
+      wim->missileDlightColor[ 0 ],
+      wim->missileDlightColor[ 1 ],
+      wim->missileDlightColor[ 2 ] );
   }
 
   // add missile sound
-  if( wi->wim[ weaponMode ].missileSound )
+  if( wim->missileSound )
   {
     vec3_t  velocity;
 
     BG_EvaluateTrajectoryDelta( &cent->currentState.pos, cg.time, velocity );
 
-    trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, velocity, wi->wim[ weaponMode ].missileSound );
+    trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, velocity, wim->missileSound );
   }
 
   // create the render entity
@@ -392,12 +395,12 @@ static void CG_Missile( centity_t *cent )
   VectorCopy( cent->lerpOrigin, ent.origin );
   VectorCopy( cent->lerpOrigin, ent.oldorigin );
 
-  if( wi->wim[ weaponMode ].usesSpriteMissle )
+  if( wim->usesSpriteMissle )
   {
     ent.reType = RT_SPRITE;
-    ent.radius = wi->wim[ weaponMode ].missileSpriteSize;
+    ent.radius = wim->missileSpriteSize;
     ent.rotation = 0;
-    ent.customShader = wi->wim[ weaponMode ].missileSprite;
+    ent.customShader = wim->missileSprite;
     ent.shaderRGBA[ 0 ] = 0xFF;
     ent.shaderRGBA[ 1 ] = 0xFF;
     ent.shaderRGBA[ 2 ] = 0xFF;
@@ -405,22 +408,42 @@ static void CG_Missile( centity_t *cent )
   }
   else
   {
-    ent.hModel = wi->wim[ weaponMode ].missileModel;
-    ent.renderfx = wi->wim[ weaponMode ].missileRenderfx | RF_NOSHADOW;
+    ent.hModel = wim->missileModel;
+    ent.renderfx = wim->missileRenderfx | RF_NOSHADOW;
 
     // convert direction of travel into axis
     if( VectorNormalize2( es->pos.trDelta, ent.axis[ 0 ] ) == 0 )
       ent.axis[ 0 ][ 2 ] = 1;
 
     // spin as it moves
-    if( es->pos.trType != TR_STATIONARY && wi->wim[ weaponMode ].missileRotates )
+    if( es->pos.trType != TR_STATIONARY && wim->missileRotates )
       RotateAroundDirection( ent.axis, cg.time / 4 );
     else
       RotateAroundDirection( ent.axis, es->time );
+    
+    if( wim->missileAnimates )
+    {
+      int timeSinceStart = cg.time - es->time;
+    
+      if( wim->missileAnimLooping )
+      {
+        ent.frame = wim->missileAnimStartFrame +
+          (int)( ( timeSinceStart / 1000.0f ) * wim->missileAnimFrameRate ) %
+          wim->missileAnimNumFrames;
+      }
+      else
+      {
+        ent.frame = wim->missileAnimStartFrame +
+          (int)( ( timeSinceStart / 1000.0f ) * wim->missileAnimFrameRate );
+        
+        if( ent.frame > ( wim->missileAnimStartFrame + wim->missileAnimNumFrames ) )
+          ent.frame = wim->missileAnimStartFrame + wim->missileAnimNumFrames;
+      }
+    }
   }
   
   //only refresh if there is something to display
-  if( wi->wim[ weaponMode ].missileSprite || wi->wim[ weaponMode ].missileModel )
+  if( wim->missileSprite || wim->missileModel )
     trap_R_AddRefEntityToScene( &ent );
 }
 
@@ -1045,57 +1068,8 @@ void CG_AddPacketEntities( void )
   // lerp the non-predicted value for lightning gun origins
   CG_CalcEntityLerpPositions( &cg_entities[ cg.snap->ps.clientNum ] );
 
-  //TA: "empty" item position arrays
-  cg.ep.numAlienBuildables = 0;
-  cg.ep.numHumanBuildables = 0;
-  cg.ep.numAlienClients = 0;
-  cg.ep.numHumanClients = 0;
-
-  for( num = 0; num < cg.snap->numEntities; num++ )
-  {
-    cent = &cg_entities[ cg.snap->entities[ num ].number ];
-    
-    if( cent->currentState.eType == ET_BUILDABLE )
-    {
-      //TA: add to list of item positions (for creep)
-      if( cent->currentState.modelindex2 == BIT_ALIENS )
-      {
-        VectorCopy( cent->lerpOrigin, cg.ep.alienBuildablePos[ cg.ep.numAlienBuildables ] );
-        cg.ep.alienBuildableTimes[ cg.ep.numAlienBuildables ] = cent->miscTime;
-        
-        if( cg.ep.numAlienBuildables < MAX_GENTITIES )
-          cg.ep.numAlienBuildables++;
-      }
-      else if( cent->currentState.modelindex2 == BIT_HUMANS )
-      {
-        VectorCopy( cent->lerpOrigin, cg.ep.humanBuildablePos[ cg.ep.numHumanBuildables ] );
-
-        if( cg.ep.numHumanBuildables < MAX_GENTITIES )
-          cg.ep.numHumanBuildables++;
-      }
-    }
-    else if( cent->currentState.eType == ET_PLAYER )
-    {
-      int team = cent->currentState.powerups & 0x00FF;
-
-      if( team == PTE_ALIENS )
-      {
-        VectorCopy( cent->lerpOrigin, cg.ep.alienClientPos[ cg.ep.numAlienClients ] );
-
-        if( cg.ep.numAlienClients < MAX_CLIENTS )
-          cg.ep.numAlienClients++;
-      }
-      else if( team == PTE_HUMANS )
-      {
-        VectorCopy( cent->lerpOrigin, cg.ep.humanClientPos[ cg.ep.numHumanClients ] );
-        
-        if( cg.ep.numHumanClients < MAX_CLIENTS )
-          cg.ep.numHumanClients++;
-      }
-    }
-  }
-
-  //Com_Printf( "%d %d\n", cgIP.numAlienClients, cgIP.numHumanClients );
+  // scanner
+  CG_UpdateEntityPositions( );
 
   for( num = 0; num < MAX_GENTITIES; num++ )
     cg_entities[ num ].valid = qfalse;
@@ -1140,7 +1114,6 @@ void CG_AddPacketEntities( void )
       
       switch( es->eType )
       {
-        case ET_PLAYER:
         case ET_BUILDABLE:
         case ET_MISSILE:
         case ET_CORPSE:

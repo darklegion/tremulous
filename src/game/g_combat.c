@@ -115,16 +115,16 @@ char *modNames[ ] =
   "MOD_TRIGGER_HURT",
 
   "MOD_ABUILDER_CLAW",
-  "MOD_SOLDIER_BITE",
-  "MOD_HYDRA_CLAW",
-  "MOD_HYDRA_PCLOUD",
-  "MOD_DRAGOON_CLAW",
-  "MOD_DRAGOON_POUNCE",
-  "MOD_DRAGOON_BOUNCEBALL",
-  "MOD_CHIMERA_CLAW",
-  "MOD_CHIMERA_ZAP",
-  "MOD_BMOFO_CLAW",
-  "MOD_BMOFO_CHARGE",
+  "MOD_LEVEL0_BITE",
+  "MOD_LEVEL1_CLAW",
+  "MOD_LEVEL1_PCLOUD",
+  "MOD_LEVEL3_CLAW",
+  "MOD_LEVEL3_POUNCE",
+  "MOD_LEVEL3_BOUNCEBALL",
+  "MOD_LEVEL2_CLAW",
+  "MOD_LEVEL2_ZAP",
+  "MOD_LEVEL4_CLAW",
+  "MOD_LEVEL4_CHARGE",
 
   "MOD_SLOWBLOB",
   "MOD_POISON",
@@ -223,9 +223,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
            
       //punish team kills and suicides
       if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-        G_AddCreditToClient( attacker->client, -1 );
+        G_AddCreditToClient( attacker->client, -1, qtrue );
       else if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-        G_AddCreditToClient( attacker->client, -ASPAWN_VALUE );
+        G_AddCreditToClient( attacker->client, -ASPAWN_VALUE, qtrue );
     }
     else
     {
@@ -269,7 +269,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         
         //add credit
         G_AddCreditToClient( player->client,
-            (int)( classValue * ( (float)self->credits[ i ] / totalDamage ) ) );
+            (int)( classValue * ( (float)self->credits[ i ] / totalDamage ) ), qtrue );
       }
     }
     else if( self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
@@ -302,7 +302,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         if( frags > 0 )
         {
           //add kills
-          G_AddCreditToClient( player->client, frags );
+          G_AddCreditToClient( player->client, frags, qtrue );
 
           //can't revist this account later
           self->credits[ i ] = 0;
@@ -343,7 +343,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
             player = g_entities + topClient;
             
             //add kills
-            G_AddCreditToClient( player->client, 1 );
+            G_AddCreditToClient( player->client, 1, qtrue );
 
             //can't revist this account again
             self->credits[ topClient ] = 0;
@@ -1065,7 +1065,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     {
       if( !( targ->client->ps.stats[ STAT_STATE ] & SS_POISONED ) &&
           !BG_InventoryContainsUpgrade( UP_BATTLESUIT, targ->client->ps.stats ) &&
-          mod != MOD_CHIMERA_ZAP )
+          mod != MOD_LEVEL2_ZAP )
       {
         targ->client->ps.stats[ STAT_STATE ] |= SS_POISONED;
         targ->client->lastPoisonTime = level.time;

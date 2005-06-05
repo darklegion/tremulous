@@ -356,6 +356,21 @@ void flamerFire( gentity_t *ent )
 /*
 ======================================================================
 
+GRENADE
+
+======================================================================
+*/
+
+void throwGrenade( gentity_t *ent )
+{
+  gentity_t *m;
+
+  m = launch_grenade( ent, muzzle, forward );
+}
+
+/*
+======================================================================
+
 LAS GUN
 
 ======================================================================
@@ -665,7 +680,7 @@ void slowBlobFire( gentity_t *ent )
 /*
 ======================================================================
 
-SOLDIER
+LEVEL0
 
 ======================================================================
 */
@@ -684,15 +699,15 @@ qboolean CheckVenomAttack( gentity_t *ent )
   int       damage;
   vec3_t    mins, maxs;
 
-  VectorSet( mins, -SOLDIER_BITE_WIDTH, -SOLDIER_BITE_WIDTH, -SOLDIER_BITE_WIDTH );
-  VectorSet( maxs, SOLDIER_BITE_WIDTH, SOLDIER_BITE_WIDTH, SOLDIER_BITE_WIDTH );
+  VectorSet( mins, -LEVEL0_BITE_WIDTH, -LEVEL0_BITE_WIDTH, -LEVEL0_BITE_WIDTH );
+  VectorSet( maxs, LEVEL0_BITE_WIDTH, LEVEL0_BITE_WIDTH, LEVEL0_BITE_WIDTH );
 
   // set aiming directions
   AngleVectors( ent->client->ps.viewangles, forward, right, up );
 
   CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
-  VectorMA( muzzle, SOLDIER_BITE_RANGE, forward, end );
+  VectorMA( muzzle, LEVEL0_BITE_RANGE, forward, end );
 
   trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
 
@@ -720,7 +735,7 @@ qboolean CheckVenomAttack( gentity_t *ent )
     tent->s.generic1 = ent->s.generic1; //weaponMode
   }
 
-  G_Damage( traceEnt, ent, ent, forward, tr.endpos, SOLDIER_BITE_DMG, DAMAGE_NO_KNOCKBACK, MOD_SOLDIER_BITE );
+  G_Damage( traceEnt, ent, ent, forward, tr.endpos, LEVEL0_BITE_DMG, DAMAGE_NO_KNOCKBACK, MOD_LEVEL0_BITE );
 
   return qtrue;
 }
@@ -728,7 +743,7 @@ qboolean CheckVenomAttack( gentity_t *ent )
 /*
 ======================================================================
 
-HYDRA
+LEVEL1
 
 ======================================================================
 */
@@ -749,7 +764,7 @@ void CheckGrabAttack( gentity_t *ent )
 
   CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
-  VectorMA( muzzle, HYDRA_GRAB_RANGE, forward, end );
+  VectorMA( muzzle, LEVEL1_GRAB_RANGE, forward, end );
 
   trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
   if( tr.surfaceFlags & SURF_NOIMPACT )
@@ -775,10 +790,14 @@ void CheckGrabAttack( gentity_t *ent )
     traceEnt->client->ps.stats[ STAT_VIEWLOCK ] = DirToByte( dir );
   }
   
+  if( !( traceEnt->client->ps.stats[ STAT_STATE ] & SS_GRABBED ) )
+  {
+    //event for client side grab effect
+    G_AddPredictableEvent( ent, EV_LEV1_GRAB, 0 );
+  }
+  
   traceEnt->client->ps.stats[ STAT_STATE ] |= SS_GRABBED;
   traceEnt->client->lastGrabTime = level.time;
-
-  //FIXME: event for some client side grab effect?
 }
 
 /*
@@ -789,7 +808,7 @@ poisonCloud
 void poisonCloud( gentity_t *ent )
 {
   int       entityList[ MAX_GENTITIES ];
-  vec3_t    range = { HYDRA_PCLOUD_RANGE, HYDRA_PCLOUD_RANGE, HYDRA_PCLOUD_RANGE };
+  vec3_t    range = { LEVEL1_PCLOUD_RANGE, LEVEL1_PCLOUD_RANGE, LEVEL1_PCLOUD_RANGE };
   vec3_t    mins, maxs, dir;
   int       i, num;
   gentity_t *humanPlayer;
@@ -828,93 +847,11 @@ void poisonCloud( gentity_t *ent )
   }
 }
 
-/*
-======================================================================
-
-DRAGOON
-
-======================================================================
-*/
-
-/*
-===============
-CheckPounceAttack
-===============
-*/
-qboolean CheckPounceAttack( gentity_t *ent )
-{
-  trace_t   tr;
-  vec3_t    end;
-  gentity_t *tent;
-  gentity_t *traceEnt;
-  int       damage;
-  vec3_t    mins, maxs;
-
-  VectorSet( mins, -DRAGOON_POUNCE_WIDTH, -DRAGOON_POUNCE_WIDTH, -DRAGOON_POUNCE_WIDTH );
-  VectorSet( maxs, DRAGOON_POUNCE_WIDTH, DRAGOON_POUNCE_WIDTH, DRAGOON_POUNCE_WIDTH );
-
-  if( !ent->client->allowedToPounce )
-    return qfalse;
-
-  if( ent->client->ps.groundEntityNum != ENTITYNUM_NONE )
-  {
-    ent->client->allowedToPounce = qfalse;
-    return qfalse;
-  }
-
-  // set aiming directions
-  AngleVectors( ent->client->ps.viewangles, forward, right, up );
-
-  CalcMuzzlePoint( ent, forward, right, up, muzzle );
-
-  VectorMA( muzzle, DRAGOON_POUNCE_RANGE, forward, end );
-
-  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
-
-  //miss
-  if( tr.fraction >= 1.0 )
-    return qfalse;
-    
-  if( tr.surfaceFlags & SURF_NOIMPACT )
-    return qfalse;
-
-  traceEnt = &g_entities[ tr.entityNum ];
-
-  // send blood impact
-  if( traceEnt->takedamage && traceEnt->client )
-  {
-    tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
-    tent->s.otherEntityNum = traceEnt->s.number;
-    tent->s.eventParm = DirToByte( tr.plane.normal );
-    tent->s.weapon = ent->s.weapon;
-    tent->s.generic1 = ent->s.generic1; //weaponMode
-  }
-
-  if( !traceEnt->takedamage )
-    return qfalse;
-
-  damage = (int)( ( (float)ent->client->pouncePayload / (float)DRAGOON_POUNCE_SPEED ) * DRAGOON_POUNCE_DMG );
-
-  G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_DRAGOON_POUNCE );
-
-  ent->client->allowedToPounce = qfalse;
-  
-  return qtrue;
-}
-
-void bounceBallFire( gentity_t *ent )
-{
-  gentity_t *m;
-
-  m = fire_bounceBall( ent, muzzle, forward );
-
-//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
-}
 
 /*
 ======================================================================
 
-CHIMERA
+LEVEL2
 
 ======================================================================
 */
@@ -928,7 +865,7 @@ void areaZapFire( gentity_t *ent )
 {
   int       entityList[ MAX_GENTITIES ];
   int       targetList[ MAX_GENTITIES ];
-  vec3_t    range = { CHIMERA_AREAZAP_RANGE, CHIMERA_AREAZAP_RANGE, CHIMERA_AREAZAP_RANGE };
+  vec3_t    range = { LEVEL2_AREAZAP_RANGE, LEVEL2_AREAZAP_RANGE, LEVEL2_AREAZAP_RANGE };
   vec3_t    mins, maxs, dir;
   int       i, num, numTargets = 0;
   gentity_t *enemy;
@@ -958,7 +895,7 @@ void areaZapFire( gentity_t *ent )
     }
   }
 
-  damage = (int)( (float)CHIMERA_AREAZAP_DMG / (float)numTargets );
+  damage = (int)( (float)LEVEL2_AREAZAP_DMG / (float)numTargets );
   for( i = 0; i < numTargets; i++ )
   {
     enemy = &g_entities[ targetList[ i ] ];
@@ -968,7 +905,7 @@ void areaZapFire( gentity_t *ent )
     
     //do some damage
     G_Damage( enemy, ent, ent, dir, tr.endpos,
-              damage, DAMAGE_NO_KNOCKBACK | DAMAGE_NO_LOCDAMAGE, MOD_CHIMERA_ZAP );
+              damage, DAMAGE_NO_KNOCKBACK | DAMAGE_NO_LOCDAMAGE, MOD_LEVEL2_ZAP );
     
     // snap the endpos to integers to save net bandwidth, but nudged towards the line
     SnapVectorTowards( tr.endpos, muzzle );
@@ -984,11 +921,94 @@ void areaZapFire( gentity_t *ent )
 }
 
 
+/*
+======================================================================
+
+LEVEL3
+
+======================================================================
+*/
+
+/*
+===============
+CheckPounceAttack
+===============
+*/
+qboolean CheckPounceAttack( gentity_t *ent )
+{
+  trace_t   tr;
+  vec3_t    end;
+  gentity_t *tent;
+  gentity_t *traceEnt;
+  int       damage;
+  vec3_t    mins, maxs;
+
+  VectorSet( mins, -LEVEL3_POUNCE_WIDTH, -LEVEL3_POUNCE_WIDTH, -LEVEL3_POUNCE_WIDTH );
+  VectorSet( maxs, LEVEL3_POUNCE_WIDTH, LEVEL3_POUNCE_WIDTH, LEVEL3_POUNCE_WIDTH );
+
+  if( !ent->client->allowedToPounce )
+    return qfalse;
+
+  if( ent->client->ps.groundEntityNum != ENTITYNUM_NONE )
+  {
+    ent->client->allowedToPounce = qfalse;
+    return qfalse;
+  }
+
+  // set aiming directions
+  AngleVectors( ent->client->ps.viewangles, forward, right, up );
+
+  CalcMuzzlePoint( ent, forward, right, up, muzzle );
+
+  VectorMA( muzzle, LEVEL3_POUNCE_RANGE, forward, end );
+
+  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+
+  //miss
+  if( tr.fraction >= 1.0 )
+    return qfalse;
+    
+  if( tr.surfaceFlags & SURF_NOIMPACT )
+    return qfalse;
+
+  traceEnt = &g_entities[ tr.entityNum ];
+
+  // send blood impact
+  if( traceEnt->takedamage && traceEnt->client )
+  {
+    tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
+    tent->s.otherEntityNum = traceEnt->s.number;
+    tent->s.eventParm = DirToByte( tr.plane.normal );
+    tent->s.weapon = ent->s.weapon;
+    tent->s.generic1 = ent->s.generic1; //weaponMode
+  }
+
+  if( !traceEnt->takedamage )
+    return qfalse;
+
+  damage = (int)( ( (float)ent->client->pouncePayload / (float)LEVEL3_POUNCE_SPEED ) * LEVEL3_POUNCE_DMG );
+
+  G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_LEVEL3_POUNCE );
+
+  ent->client->allowedToPounce = qfalse;
+  
+  return qtrue;
+}
+
+void bounceBallFire( gentity_t *ent )
+{
+  gentity_t *m;
+
+  m = fire_bounceBall( ent, muzzle, forward );
+
+//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
+}
+
 
 /*
 ======================================================================
 
-BIG MOFO
+LEVEL4
 
 ======================================================================
 */
@@ -1007,7 +1027,7 @@ void ChargeAttack( gentity_t *ent, gentity_t *victim )
   if( level.time < victim->chargeRepeat )
     return;
 
-  victim->chargeRepeat = level.time + BMOFO_CHARGE_REPEAT;
+  victim->chargeRepeat = level.time + LEVEL4_CHARGE_REPEAT;
   
   VectorSubtract( victim->s.origin, ent->s.origin, forward );
   VectorNormalize( forward );
@@ -1025,9 +1045,9 @@ void ChargeAttack( gentity_t *ent, gentity_t *victim )
   if( !victim->takedamage )
     return;
   
-  damage = (int)( ( (float)ent->client->ps.stats[ STAT_MISC ] / (float)BMOFO_CHARGE_TIME ) * BMOFO_CHARGE_DMG );
+  damage = (int)( ( (float)ent->client->ps.stats[ STAT_MISC ] / (float)LEVEL4_CHARGE_TIME ) * LEVEL4_CHARGE_DMG );
 
-  G_Damage( victim, ent, ent, forward, victim->s.origin, damage, 0, MOD_BMOFO_CHARGE );
+  G_Damage( victim, ent, ent, forward, victim->s.origin, damage, 0, MOD_LEVEL4_CHARGE );
 }
 
 //======================================================================
@@ -1071,7 +1091,7 @@ void FireWeapon3( gentity_t *ent )
   // fire the specific weapon
   switch( ent->s.weapon )
   {
-    case WP_DRAGOON_UPG:
+    case WP_ALEVEL3_UPG:
       bounceBallFire( ent );
       break;
       
@@ -1106,10 +1126,10 @@ void FireWeapon2( gentity_t *ent )
   // fire the specific weapon
   switch( ent->s.weapon )
   {
-    case WP_HYDRA_UPG:
+    case WP_ALEVEL1_UPG:
       poisonCloud( ent );
       break;
-    case WP_CHIMERA_UPG:
+    case WP_ALEVEL2_UPG:
       areaZapFire( ent );
       break;
       
@@ -1150,22 +1170,22 @@ void FireWeapon( gentity_t *ent )
   // fire the specific weapon
   switch( ent->s.weapon )
   {
-    case WP_HYDRA:
-    case WP_HYDRA_UPG:
-      meleeAttack( ent, HYDRA_CLAW_RANGE, HYDRA_CLAW_WIDTH, HYDRA_CLAW_DMG, MOD_HYDRA_CLAW );
+    case WP_ALEVEL1:
+    case WP_ALEVEL1_UPG:
+      meleeAttack( ent, LEVEL1_CLAW_RANGE, LEVEL1_CLAW_WIDTH, LEVEL1_CLAW_DMG, MOD_LEVEL1_CLAW );
       break;
-    case WP_DRAGOON:
-    case WP_DRAGOON_UPG:
-      meleeAttack( ent, DRAGOON_CLAW_RANGE, DRAGOON_CLAW_WIDTH, DRAGOON_CLAW_DMG, MOD_DRAGOON_CLAW );
+    case WP_ALEVEL3:
+    case WP_ALEVEL3_UPG:
+      meleeAttack( ent, LEVEL3_CLAW_RANGE, LEVEL3_CLAW_WIDTH, LEVEL3_CLAW_DMG, MOD_LEVEL3_CLAW );
       break;
-    case WP_CHIMERA:
-      meleeAttack( ent, CHIMERA_CLAW_RANGE, CHIMERA_CLAW_WIDTH, CHIMERA_CLAW_DMG, MOD_CHIMERA_CLAW );
+    case WP_ALEVEL2:
+      meleeAttack( ent, LEVEL2_CLAW_RANGE, LEVEL2_CLAW_WIDTH, LEVEL2_CLAW_DMG, MOD_LEVEL2_CLAW );
       break;
-    case WP_CHIMERA_UPG:
-      meleeAttack( ent, CHIMERA_CLAW_RANGE, CHIMERA_CLAW_WIDTH, CHIMERA_CLAW_DMG, MOD_CHIMERA_CLAW );
+    case WP_ALEVEL2_UPG:
+      meleeAttack( ent, LEVEL2_CLAW_RANGE, LEVEL2_CLAW_WIDTH, LEVEL2_CLAW_DMG, MOD_LEVEL2_CLAW );
       break;
-    case WP_BIGMOFO:
-      meleeAttack( ent, BMOFO_CLAW_RANGE, BMOFO_CLAW_WIDTH, BMOFO_CLAW_DMG, MOD_BMOFO_CLAW );
+    case WP_ALEVEL4:
+      meleeAttack( ent, LEVEL4_CLAW_RANGE, LEVEL4_CLAW_WIDTH, LEVEL4_CLAW_DMG, MOD_LEVEL4_CLAW );
       break;
 
     case WP_BLASTER:
@@ -1197,6 +1217,9 @@ void FireWeapon( gentity_t *ent )
       break;
     case WP_PAIN_SAW:
       painSawFire( ent );
+      break;
+    case WP_GRENADE:
+      throwGrenade( ent );
       break;
       
     case WP_LOCKBLOB_LAUNCHER:

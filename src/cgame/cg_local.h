@@ -219,6 +219,12 @@ typedef struct baseParticle_s
   pLerpValues_t   alpha;
   pLerpValues_t   rotation;
 
+  char            childSystemName[ MAX_QPATH ];
+  qhandle_t       childSystemHandle;
+
+  char            onDeathSystemName[ MAX_QPATH ];
+  qhandle_t       onDeathSystemHandle;
+  
   //particle invariant stuff
   char            shaderNames[ MAX_QPATH ][ MAX_SHADER_FRAMES ];
   qhandle_t       shaders[ MAX_SHADER_FRAMES ];
@@ -267,7 +273,8 @@ typedef enum
 {
   PSA_STATIC,
   PSA_TAG,
-  PSA_CENT_ORIGIN
+  PSA_CENT_ORIGIN,
+  PSA_PARTICLE
 } psAttachmentType_t;
 
 
@@ -277,6 +284,7 @@ typedef struct psAttachment_s
   qboolean tagValid;
   qboolean centValid;
   qboolean normalValid;
+  qboolean particleValid;
 
   //PMT_STATIC
   vec3_t      origin;
@@ -342,6 +350,8 @@ typedef struct particle_s
 
   int               lastEvalTime;
 
+  int               nextChildTime;
+
   pLerpValues_t     radius;
   pLerpValues_t     alpha;
   pLerpValues_t     rotation;
@@ -349,6 +359,8 @@ typedef struct particle_s
   qboolean          valid;
 
   int               sortKey;
+
+  particleSystem_t  *childSystem;
 } particle_t;
 
 
@@ -692,6 +704,11 @@ typedef struct weaponInfoMode_s
   int         missileSpriteSize;
   qhandle_t   missileParticleSystem;
   qboolean    missileRotates;
+  qboolean    missileAnimates;
+  int         missileAnimStartFrame;
+  int         missileAnimNumFrames;
+  int         missileAnimFrameRate;
+  int         missileAnimLooping;
 
   sfxHandle_t firingSound;
   qboolean    loopFireSound;
@@ -785,6 +802,10 @@ typedef struct
   
   vec3_t    humanClientPos[ MAX_CLIENTS ];
   int       numHumanClients;
+
+  int       lastUpdateTime;
+  vec3_t    origin;
+  vec3_t    vangles;
 } entityPos_t;
 
 typedef struct
@@ -1013,9 +1034,8 @@ typedef struct
   float         mediaFraction;
   float         buildablesFraction;
 
-  entityPos_t   ep;
-
   int           lastBuildAttempt;
+  int           lastEvolveAttempt;
 
   char          consoleText[ MAX_CONSOLE_TEXT ];
   consoleLine_t consoleLines[ MAX_CONSOLE_LINES ];
@@ -1194,6 +1214,10 @@ typedef struct
   sfxHandle_t humanBuildablePrebuild;
   sfxHandle_t humanBuildableDamage[ 4 ];
 
+  sfxHandle_t alienL1Grab;
+  sfxHandle_t alienL4ChargePrepare;
+  sfxHandle_t alienL4ChargeStart;
+  
   qhandle_t   cursor;
   qhandle_t   selectCursor;
   qhandle_t   sizeCursor;
@@ -1210,6 +1234,7 @@ typedef struct
   
   qhandle_t jetpackModel;
   qhandle_t jetpackFlashModel;
+  qhandle_t battpackModel;
   
   sfxHandle_t repeaterUseSound;
   
@@ -1443,6 +1468,7 @@ extern  vmCvar_t    cg_lightFlare;
 extern  vmCvar_t    cg_debugParticles;
 extern  vmCvar_t    cg_debugPVS;
 extern  vmCvar_t    cg_disableBuildWarnings;
+extern  vmCvar_t    cg_disableScannerPlane;
 
 //TA: hack to get class an carriage through to UI module
 extern  vmCvar_t    ui_currentClass;
@@ -1478,6 +1504,8 @@ void        CG_MouseEvent( int x, int y );
 void        CG_EventHandling( int type );
 void        CG_SetScoreSelection( void *menu );
 void        CG_BuildSpectatorString( );
+
+qboolean    CG_FileExists( char *filename );
 
 
 //
@@ -1656,7 +1684,8 @@ void        CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
 //
 // cg_scanner.c
 //
-void        CG_Scanner( rectDef_t *rect, qhandle_t shader );
+void        CG_UpdateEntityPositions( void );
+void        CG_Scanner( rectDef_t *rect, qhandle_t shader, vec4_t color );
 void        CG_AlienSense( rectDef_t *rect );
 
 //
@@ -1781,8 +1810,10 @@ void                CG_AttachParticleSystemToCent( particleSystem_t *ps );
 void                CG_SetParticleSystemTag( particleSystem_t *ps, refEntity_t parent, qhandle_t model, char *tagName );
 void                CG_AttachParticleSystemToTag( particleSystem_t *ps );
 void                CG_SetParticleSystemOrigin( particleSystem_t *ps, vec3_t origin );
-void                CG_AttachParticleSystemOrigin( particleSystem_t *ps );
+void                CG_AttachParticleSystemToOrigin( particleSystem_t *ps );
 void                CG_SetParticleSystemNormal( particleSystem_t *ps, vec3_t normal );
+void                CG_AttachParticleSystemToParticle( particleSystem_t *ps );
+void                CG_SetParticleSystemParentParticle( particleSystem_t *ps, particle_t *p );
 
 void                CG_AddParticles( void );
 

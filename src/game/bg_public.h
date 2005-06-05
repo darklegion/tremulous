@@ -328,14 +328,14 @@ typedef enum
 {
   WP_NONE,
 
-  WP_SOLDIER,
-  WP_HYDRA,
-  WP_HYDRA_UPG,
-  WP_CHIMERA,
-  WP_CHIMERA_UPG,
-  WP_DRAGOON,
-  WP_DRAGOON_UPG,
-  WP_BIGMOFO,
+  WP_ALEVEL0,
+  WP_ALEVEL1,
+  WP_ALEVEL1_UPG,
+  WP_ALEVEL2,
+  WP_ALEVEL2_UPG,
+  WP_ALEVEL3,
+  WP_ALEVEL3_UPG,
+  WP_ALEVEL4,
   
   WP_BLASTER,
   WP_MACHINEGUN,
@@ -347,6 +347,7 @@ typedef enum
   WP_PULSE_RIFLE,
   WP_FLAMER,
   WP_LUCIFER_CANNON,
+  WP_GRENADE,
 
   WP_LOCKBLOB_LAUNCHER,
   WP_HIVE,
@@ -529,6 +530,10 @@ typedef enum
   EV_ALIENZAP,
   EV_BULLET,        // otherEntity is the shooter
 
+  EV_LEV1_GRAB,
+  EV_LEV4_CHARGE_PREPARE,
+  EV_LEV4_CHARGE_START,
+  
   EV_PAIN,
   EV_DEATH1,
   EV_DEATH2,
@@ -549,6 +554,7 @@ typedef enum
   EV_ALIEN_BUILDABLE_DAMAGE,
 
   EV_ALIEN_EVOLVE,
+  EV_ALIEN_EVOLVE_FAILED,
 
   EV_DEBUG_LINE,
   EV_STOPLOOPINGSOUND,
@@ -778,22 +784,22 @@ typedef enum
   PCL_NONE,
   
   //builder classes
-  PCL_A_B_BASE,
-  PCL_A_B_LEV1,
+  PCL_ALIEN_BUILDER0,
+  PCL_ALIEN_BUILDER0_UPG,
   
   //offensive classes
-  PCL_A_O_BASE,
-  PCL_A_O_LEV1,
-  PCL_A_O_LEV1_UPG,
-  PCL_A_O_LEV2,
-  PCL_A_O_LEV2_UPG,
-  PCL_A_O_LEV3,
-  PCL_A_O_LEV3_UPG,
-  PCL_A_O_LEV4,
+  PCL_ALIEN_LEVEL0,
+  PCL_ALIEN_LEVEL1,
+  PCL_ALIEN_LEVEL1_UPG,
+  PCL_ALIEN_LEVEL2,
+  PCL_ALIEN_LEVEL2_UPG,
+  PCL_ALIEN_LEVEL3,
+  PCL_ALIEN_LEVEL3_UPG,
+  PCL_ALIEN_LEVEL4,
   
   //human class
-  PCL_H_BASE,
-  PCL_H_BSUIT,
+  PCL_HUMAN,
+  PCL_HUMAN_BSUIT,
 
   PCL_NUM_CLASSES
 } pClass_t;
@@ -826,6 +832,7 @@ typedef enum
   MOD_LCANNON_SPLASH,
   MOD_FLAMER,
   MOD_FLAMER_SPLASH,
+  MOD_GRENADE,
   MOD_WATER,
   MOD_SLIME,
   MOD_LAVA,
@@ -837,16 +844,16 @@ typedef enum
   MOD_TRIGGER_HURT,
 
   MOD_ABUILDER_CLAW,
-  MOD_SOLDIER_BITE,
-  MOD_HYDRA_CLAW,
-  MOD_HYDRA_PCLOUD,
-  MOD_DRAGOON_CLAW,
-  MOD_DRAGOON_POUNCE,
-  MOD_DRAGOON_BOUNCEBALL,
-  MOD_CHIMERA_CLAW,
-  MOD_CHIMERA_ZAP,
-  MOD_BMOFO_CLAW,
-  MOD_BMOFO_CHARGE,
+  MOD_LEVEL0_BITE,
+  MOD_LEVEL1_CLAW,
+  MOD_LEVEL1_PCLOUD,
+  MOD_LEVEL3_CLAW,
+  MOD_LEVEL3_POUNCE,
+  MOD_LEVEL3_BOUNCEBALL,
+  MOD_LEVEL2_CLAW,
+  MOD_LEVEL2_ZAP,
+  MOD_LEVEL4_CLAW,
+  MOD_LEVEL4_CHARGE,
 
   MOD_SLOWBLOB,
   MOD_POISON,
@@ -927,6 +934,7 @@ typedef struct
   char      skinName[ MAX_QPATH ];
   float     shadowScale;
   char      hudName[ MAX_QPATH ];
+  char      humanName[ MAX_STRING_CHARS ];
   
   vec3_t    mins;
   vec3_t    maxs;
@@ -1263,6 +1271,13 @@ void ProjectPointOntoVector( vec3_t point, vec3_t vStart,
                              vec3_t vEnd, vec3_t vProj );
 float VectorDistance( vec3_t v1, vec3_t v2 );
 // done.
+
+//call roundf in place of round on non VM platforms
+#ifdef Q3_VM
+#define roundf round
+#else
+#define round roundf
+#endif
 
 #define M_ROOT3 1.732050808f
 float VectorMinComponent( vec3_t v );

@@ -1429,7 +1429,7 @@ classAttributes_t bg_classList[ ] =
     0                                               //int     value;
   },
   { 
-    PCL_A_B_BASE,                                   //int     classnum;
+    PCL_ALIEN_BUILDER0,                             //int     classnum;
     "builder",                                      //char    *className;
     "Builder",                                      //char    *humanName;
     "builder",                                      //char    *modelname;
@@ -1462,12 +1462,12 @@ classAttributes_t bg_classList[ ] =
     100.0f,                                         //float   stopSpeed;
     130.0f,                                         //float   jumpMagnitude;
     1.0f,                                           //float   knockbackScale;
-    { PCL_A_B_LEV1, PCL_A_O_BASE, PCL_NONE },       //int     children[ 3 ];
+    { PCL_ALIEN_BUILDER0_UPG, PCL_ALIEN_LEVEL0, PCL_NONE },       //int     children[ 3 ];
     ABUILDER_COST,                                  //int     cost;
     ABUILDER_VALUE                                  //int     value;
   },
   { 
-    PCL_A_B_LEV1,                                   //int     classnum;
+    PCL_ALIEN_BUILDER0_UPG,                         //int     classnum;
     "builderupg",                                   //char    *classname;
     "Advanced Builder",                             //char    *humanname;
     "builder",                                      //char    *modelname;
@@ -1500,13 +1500,13 @@ classAttributes_t bg_classList[ ] =
     100.0f,                                         //float   stopSpeed;
     270.0f,                                         //float   jumpMagnitude;
     1.0f,                                           //float   knockbackScale;
-    { PCL_A_O_BASE, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
+    { PCL_ALIEN_LEVEL0, PCL_NONE, PCL_NONE },       //int     children[ 3 ];
     ABUILDER_UPG_COST,                              //int     cost;
     ABUILDER_UPG_VALUE                              //int     value;
   },
   {
-    PCL_A_O_BASE,                                   //int     classnum;
-    "soldier",                                      //char    *classname;
+    PCL_ALIEN_LEVEL0,                               //int     classnum;
+    "level0",                                       //char    *classname;
     "Soldier",                                      //char    *humanname;
     "jumper",                                       //char    *modelname;
     0.2f,                                           //float   modelScale;
@@ -1521,31 +1521,31 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     -8.0f,                                          //float   zOffset
     0, 0,                                           //int     viewheight, crouchviewheight;
-    SOLDIER_HEALTH,                                 //int     health;
+    LEVEL0_HEALTH,                                  //int     health;
     0.0f,                                           //float   fallDamage;
-    SOLDIER_REGEN,                                  //int     regenRate;
+    LEVEL0_REGEN,                                   //int     regenRate;
     SCA_WALLCLIMBER|SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE,                  //int     abilities;
-    WP_SOLDIER,                                     //weapon_t  startWeapon
+    WP_ALEVEL0,                                     //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     140,                                            //int     fov;
     0.0f,                                           //float   bob;
     2.5f,                                           //float   bobCycle;
     25,                                             //int     steptime;
-    SOLDIER_SPEED,                                  //float   speed;
+    LEVEL0_SPEED,                                   //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     400.0f,                                         //float   stopSpeed;
     250.0f,                                         //float   jumpMagnitude;
     2.0f,                                           //float   knockbackScale;
-    { PCL_A_O_LEV1, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
-    SOLDIER_COST,                                   //int     cost;
-    SOLDIER_VALUE                                   //int     value;
+    { PCL_ALIEN_LEVEL1, PCL_NONE, PCL_NONE },       //int     children[ 3 ];
+    LEVEL0_COST,                                    //int     cost;
+    LEVEL0_VALUE                                    //int     value;
   },
   {
-    PCL_A_O_LEV1,                                   //int     classnum;
-    "hydra",                                        //char    *classname;
+    PCL_ALIEN_LEVEL1,                               //int     classnum;
+    "level1",                                       //char    *classname;
     "Hydra",                                        //char    *humanname;
     "spitter",                                      //char    *modelname;
     0.6f,                                           //float   modelScale;
@@ -1560,31 +1560,31 @@ classAttributes_t bg_classList[ ] =
     { 18, 18, 4 },                                  //vec3_t  deadmaxs;
     0.0f,                                           //float   zOffset
     0, 0,                                           //int     viewheight, crouchviewheight;
-    HYDRA_HEALTH,                                   //int     health;
+    LEVEL1_HEALTH,                                  //int     health;
     0.0f,                                           //float   fallDamage;
-    HYDRA_REGEN,                                    //int     regenRate;
+    LEVEL1_REGEN,                                   //int     regenRate;
     SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_WALLCLIMBER|SCA_ALIENSENSE,  //int     abilities;
-    WP_HYDRA,                                   //weapon_t  startWeapon
+    WP_ALEVEL1,                                     //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     120,                                            //int     fov;
     0.001f,                                         //float   bob;
     1.8f,                                           //float   bobCycle;
     25,                                             //int     steptime;
-    HYDRA_SPEED,                                    //float   speed;
+    LEVEL1_SPEED,                                   //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     300.0f,                                         //float   stopSpeed;
     270.0f,                                         //float   jumpMagnitude;
     1.2f,                                           //float   knockbackScale;
-    { PCL_A_O_LEV2, PCL_A_O_LEV1_UPG, PCL_NONE },   //int     children[ 3 ];
-    HYDRA_COST,                                     //int     cost;
-    HYDRA_VALUE                                     //int     value;
+    { PCL_ALIEN_LEVEL2, PCL_ALIEN_LEVEL1_UPG, PCL_NONE },   //int     children[ 3 ];
+    LEVEL1_COST,                                     //int     cost;
+    LEVEL1_VALUE                                     //int     value;
   },
   {
-    PCL_A_O_LEV1_UPG,                               //int     classnum;
-    "hydraupg",                                     //char    *classname;
+    PCL_ALIEN_LEVEL1_UPG,                           //int     classnum;
+    "level1upg",                                    //char    *classname;
     "Hydra Upgrade",                                //char    *humanname;
     "spitter",                                      //char    *modelname;
     0.7f,                                           //float   modelScale;
@@ -1599,31 +1599,31 @@ classAttributes_t bg_classList[ ] =
     { 20, 20, 4 },                                  //vec3_t  deadmaxs;
     0.0f,                                           //float   zOffset
     0, 0,                                           //int     viewheight, crouchviewheight;
-    HYDRA_UPG_HEALTH,                               //int     health;
+    LEVEL1_UPG_HEALTH,                              //int     health;
     0.0f,                                           //float   fallDamage;
-    HYDRA_UPG_REGEN,                                //int     regenRate;
+    LEVEL1_UPG_REGEN,                               //int     regenRate;
     SCA_NOWEAPONDRIFT|SCA_FOVWARPS|
       SCA_WALLCLIMBER|SCA_ALIENSENSE,               //int     abilities;
-    WP_HYDRA_UPG,                               //weapon_t  startWeapon
+    WP_ALEVEL1_UPG,                                 //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     120,                                            //int     fov;
     0.001f,                                         //float   bob;
     1.8f,                                           //float   bobCycle;
     25,                                             //int     steptime;
-    HYDRA_UPG_SPEED,                                //float   speed;
+    LEVEL1_UPG_SPEED,                               //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     300.0f,                                         //float   stopSpeed;
     270.0f,                                         //float   jumpMagnitude;
     1.1f,                                           //float   knockbackScale;
-    { PCL_A_O_LEV2, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
-    HYDRA_UPG_COST,                                 //int     cost;
-    HYDRA_UPG_VALUE                                 //int     value;
+    { PCL_ALIEN_LEVEL2, PCL_NONE, PCL_NONE },       //int     children[ 3 ];
+    LEVEL1_UPG_COST,                                //int     cost;
+    LEVEL1_UPG_VALUE                                //int     value;
   },
   {
-    PCL_A_O_LEV2,                                   //int     classnum;
-    "chimera",                                      //char    *classname;
+    PCL_ALIEN_LEVEL2,                               //int     classnum;
+    "level2",                                       //char    *classname;
     "Chimera",                                      //char    *humanname;
     "tarantula",                                    //char    *modelname;
     0.75f,                                          //float   modelScale;
@@ -1638,31 +1638,31 @@ classAttributes_t bg_classList[ ] =
     { 22, 22, 4 },                                  //vec3_t  deadmaxs;
     0.0f,                                           //float   zOffset
     10, 10,                                         //int     viewheight, crouchviewheight;
-    CHIMERA_HEALTH,                                 //int     health;
+    LEVEL2_HEALTH,                                  //int     health;
     0.0f,                                           //float   fallDamage;
-    CHIMERA_REGEN,                                  //int     regenRate;
+    LEVEL2_REGEN,                                   //int     regenRate;
     SCA_NOWEAPONDRIFT|SCA_WALLJUMPER|
       SCA_FOVWARPS|SCA_ALIENSENSE,                  //int     abilities;
-    WP_CHIMERA,                                    //weapon_t  startWeapon
+    WP_ALEVEL2,                                     //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     90,                                             //int     fov;
     0.001f,                                         //float   bob;
     1.5f,                                           //float   bobCycle;
     60,                                             //int     steptime;
-    CHIMERA_SPEED,                                  //float   speed;
+    LEVEL2_SPEED,                                   //float   speed;
     10.0f,                                          //float   acceleration;
     2.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
     400.0f,                                         //float   jumpMagnitude;
     0.8f,                                           //float   knockbackScale;
-    { PCL_A_O_LEV3, PCL_A_O_LEV2_UPG, PCL_NONE },   //int     children[ 3 ];
-    CHIMERA_COST,                                   //int     cost;
-    CHIMERA_VALUE                                   //int     value;
+    { PCL_ALIEN_LEVEL3, PCL_ALIEN_LEVEL2_UPG, PCL_NONE },   //int     children[ 3 ];
+    LEVEL2_COST,                                    //int     cost;
+    LEVEL2_VALUE                                    //int     value;
   },
   {
-    PCL_A_O_LEV2_UPG,                               //int     classnum;
-    "chimeraupg",                                   //char    *classname;
+    PCL_ALIEN_LEVEL2_UPG,                           //int     classnum;
+    "level2upg",                                    //char    *classname;
     "Chimera Upgrade",                              //char    *humanname;
     "tarantula",                                    //char    *modelname;
     0.9f,                                           //float   modelScale;
@@ -1677,31 +1677,31 @@ classAttributes_t bg_classList[ ] =
     { 24, 24, 4 },                                  //vec3_t  deadmaxs;
     0.0f,                                           //float   zOffset
     12, 12,                                         //int     viewheight, crouchviewheight;
-    CHIMERA_UPG_HEALTH,                             //int     health;
+    LEVEL2_UPG_HEALTH,                              //int     health;
     0.0f,                                           //float   fallDamage;
-    CHIMERA_UPG_REGEN,                              //int     regenRate;
+    LEVEL2_UPG_REGEN,                               //int     regenRate;
     SCA_NOWEAPONDRIFT|SCA_WALLJUMPER|
       SCA_FOVWARPS|SCA_ALIENSENSE,                  //int     abilities;
-    WP_CHIMERA_UPG,                                  //weapon_t  startWeapon
+    WP_ALEVEL2_UPG,                                 //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     90,                                             //int     fov;
     0.001f,                                         //float   bob;
     1.5f,                                           //float   bobCycle;
     60,                                             //int     steptime;
-    CHIMERA_UPG_SPEED,                              //float   speed;
+    LEVEL2_UPG_SPEED,                               //float   speed;
     10.0f,                                          //float   acceleration;
     2.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
     400.0f,                                         //float   jumpMagnitude;
     0.7f,                                           //float   knockbackScale;
-    { PCL_A_O_LEV3, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
-    CHIMERA_UPG_COST,                               //int     cost;
-    CHIMERA_UPG_VALUE                               //int     value;
+    { PCL_ALIEN_LEVEL3, PCL_NONE, PCL_NONE },       //int     children[ 3 ];
+    LEVEL2_UPG_COST,                                //int     cost;
+    LEVEL2_UPG_VALUE                                //int     value;
   },
   {
-    PCL_A_O_LEV3,                                   //int     classnum;
-    "dragoon",                                      //char    *classname;
+    PCL_ALIEN_LEVEL3,                               //int     classnum;
+    "level3",                                       //char    *classname;
     "Dragoon",                                      //char    *humanname;
     "prowl",                                        //char    *modelname;
     1.0f,                                           //float   modelScale;
@@ -1716,31 +1716,31 @@ classAttributes_t bg_classList[ ] =
     { 32, 32, 4 },                                  //vec3_t  deadmaxs;
     0.0f,                                           //float   zOffset
     24, 24,                                         //int     viewheight, crouchviewheight;
-    DRAGOON_HEALTH,                                 //int     health;
+    LEVEL3_HEALTH,                                  //int     health;
     0.0f,                                           //float   fallDamage;
-    DRAGOON_REGEN,                                  //int     regenRate;
+    LEVEL3_REGEN,                                   //int     regenRate;
     SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE,                  //int     abilities;
-    WP_DRAGOON,                                      //weapon_t  startWeapon
+    WP_ALEVEL3,                                     //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     110,                                            //int     fov;
     0.0005f,                                        //float   bob;
     1.3f,                                           //float   bobCycle;
     25,                                             //int     steptime;
-    DRAGOON_SPEED,                                  //float   speed;
+    LEVEL3_SPEED,                                   //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     200.0f,                                         //float   stopSpeed;
     270.0f,                                         //float   jumpMagnitude;
     0.5f,                                           //float   knockbackScale;
-    { PCL_A_O_LEV4, PCL_A_O_LEV3_UPG, PCL_NONE },   //int     children[ 3 ];
-    DRAGOON_COST,                                   //int     cost;
-    DRAGOON_VALUE                                   //int     value;
+    { PCL_ALIEN_LEVEL4, PCL_ALIEN_LEVEL3_UPG, PCL_NONE },   //int     children[ 3 ];
+    LEVEL3_COST,                                    //int     cost;
+    LEVEL3_VALUE                                    //int     value;
   },
   {
-    PCL_A_O_LEV3_UPG,                               //int     classnum;
-    "dragoonupg",                                   //char    *classname;
+    PCL_ALIEN_LEVEL3_UPG,                           //int     classnum;
+    "level3upg",                                    //char    *classname;
     "Dragoon Upgrade",                              //char    *humanname;
     "prowl",                                        //char    *modelname;
     1.0f,                                           //float   modelScale;
@@ -1755,31 +1755,31 @@ classAttributes_t bg_classList[ ] =
     { 32, 32, 4 },                                  //vec3_t  deadmaxs;
     0.0f,                                           //float   zOffset
     27, 27,                                         //int     viewheight, crouchviewheight;
-    DRAGOON_UPG_HEALTH,                             //int     health;
+    LEVEL3_UPG_HEALTH,                              //int     health;
     0.0f,                                           //float   fallDamage;
-    DRAGOON_UPG_REGEN,                              //int     regenRate;
+    LEVEL3_UPG_REGEN,                               //int     regenRate;
     SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE,                  //int     abilities;
-    WP_DRAGOON_UPG,                                  //weapon_t  startWeapon
+    WP_ALEVEL3_UPG,                                 //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     110,                                            //int     fov;
     0.0005f,                                        //float   bob;
     1.3f,                                           //float   bobCycle;
     25,                                             //int     steptime;
-    DRAGOON_UPG_SPEED,                              //float   speed;
+    LEVEL3_UPG_SPEED,                               //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     200.0f,                                         //float   stopSpeed;
     270.0f,                                         //float   jumpMagnitude;
     0.4f,                                           //float   knockbackScale;
-    { PCL_A_O_LEV4, PCL_NONE, PCL_NONE },           //int     children[ 3 ];
-    DRAGOON_UPG_COST,                               //int     cost;
-    DRAGOON_UPG_VALUE                               //int     value;
+    { PCL_ALIEN_LEVEL4, PCL_NONE, PCL_NONE },       //int     children[ 3 ];
+    LEVEL3_UPG_COST,                                //int     cost;
+    LEVEL3_UPG_VALUE                                //int     value;
   },
   {
-    PCL_A_O_LEV4,                                   //int     classnum;
-    "bigmofo",                                      //char    *classname;
+    PCL_ALIEN_LEVEL4,                               //int     classnum;
+    "level4",                                       //char    *classname;
     "Big Mofo",                                     //char    *humanname;
     "mofo",                                         //char    *modelname;
     1.0f,                                           //float   modelScale;
@@ -1794,18 +1794,18 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
     0.0f,                                           //float   zOffset
     35, 35,                                         //int     viewheight, crouchviewheight;
-    BMOFO_HEALTH,                                   //int     health;
+    LEVEL4_HEALTH,                                  //int     health;
     0.0f,                                           //float   fallDamage;
-    BMOFO_REGEN,                                    //int     regenRate;
+    LEVEL4_REGEN,                                   //int     regenRate;
     SCA_NOWEAPONDRIFT|
       SCA_FOVWARPS|SCA_ALIENSENSE,                  //int     abilities;
-    WP_BIGMOFO,                                      //weapon_t  startWeapon
+    WP_ALEVEL4,                                     //weapon_t  startWeapon
     0.0f,                                           //float   buildDist;
     90,                                             //int     fov;
     0.001f,                                         //float   bob;
     1.1f,                                           //float   bobCycle;
     60,                                             //int     steptime;
-    BMOFO_SPEED,                                    //float   speed;
+    LEVEL4_SPEED,                                   //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
@@ -1813,12 +1813,12 @@ classAttributes_t bg_classList[ ] =
     170.0f,                                         //float   jumpMagnitude;
     0.1f,                                           //float   knockbackScale;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
-    BMOFO_COST,                                     //int     cost;
-    BMOFO_VALUE                                     //int     value;
+    LEVEL4_COST,                                    //int     cost;
+    LEVEL4_VALUE                                    //int     value;
   },
   {
-    PCL_H_BASE,                                     //int     classnum;
-    "human",                                        //char    *classname;
+    PCL_HUMAN,                                      //int     classnum;
+    "human_base",                                   //char    *classname;
     "Human",                                        //char    *humanname;
     "sarge",                                        //char    *modelname;
     1.0f,                                           //float   modelScale;
@@ -1858,7 +1858,7 @@ classAttributes_t bg_classList[ ] =
   {
     //this isn't a real class, but a dummy to force the client to precache the model
     //FIXME: one day do this in a less hacky fashion
-    PCL_H_BSUIT, "bsuit", "bsuit",
+    PCL_HUMAN_BSUIT, "human_bsuit", "bsuit",
     
     "keel",
     1.0f,                                    
@@ -1923,6 +1923,9 @@ BG_FindHumanNameForClassNum
 char *BG_FindHumanNameForClassNum( int pclass )
 {
   int i;
+
+  if( bg_classOverrideList[ pclass ].humanName[ 0 ] != 0 )
+    return bg_classOverrideList[ pclass ].humanName;
 
   for( i = 0; i < bg_numPclasses; i++ )
   {
@@ -2841,6 +2844,16 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
 
       continue;
     }
+    else if( !Q_stricmp( token, "name" ) )
+    {
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      Q_strncpyz( cao->humanName, token, sizeof( cao->humanName ) );
+      
+      continue;
+    }
 
 
     Com_Printf( S_COLOR_RED "ERROR: unknown token '%s'\n", token );
@@ -3115,6 +3128,30 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
+    WP_GRENADE,           //int       weaponNum;
+    GRENADE_PRICE,        //int       price;
+    ( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_NONE,            //int       slots;
+    "grenade",            //char      *weaponName;
+    "Grenade",            //char      *weaponHumanName;
+    1,                    //int       quan;
+    0,                    //int       clips;
+    0,                    //int       maxClips;
+    qfalse,               //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
+    GRENADE_REPEAT,       //int       repeatRate1;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
+    0,                    //int       reloadTime;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
+    qfalse,               //qboolean  canZoom;
+    90.0f,                //float     zoomFov;
+    qtrue,                //qboolean  purchasable;
+    0,                    //int       buildDelay;
+    WUT_HUMANS            //WUTeam_t  team;
+  },
+  {
     WP_HBUILD,            //int       weaponNum;
     HBUILD_PRICE,         //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
@@ -3211,7 +3248,7 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_SOLDIER,           //int       weaponNum;
+    WP_ALEVEL0,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
@@ -3222,7 +3259,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    SOLDIER_BITE_REPEAT,  //int       repeatRate1;
+    LEVEL0_BITE_REPEAT,  //int       repeatRate1;
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
@@ -3235,7 +3272,7 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_DRAGOON,           //int       weaponNum;
+    WP_ALEVEL3,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
@@ -3246,7 +3283,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    DRAGOON_CLAW_REPEAT,  //int       repeatRate1;
+    LEVEL3_CLAW_REPEAT,  //int       repeatRate1;
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
@@ -3259,7 +3296,7 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_DRAGOON_UPG,       //int       weaponNum;
+    WP_ALEVEL3_UPG,       //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
@@ -3270,9 +3307,9 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    DRAGOON_CLAW_U_REPEAT,//int       repeatRate1;
+    LEVEL3_CLAW_U_REPEAT,//int       repeatRate1;
     0,                    //int       repeatRate2;
-    DRAGOON_BOUNCEBALL_REPEAT,//int       repeatRate3;
+    LEVEL3_BOUNCEBALL_REPEAT,//int       repeatRate3;
     0,                    //int       reloadTime;
     qfalse,               //qboolean  hasAltMode;
     qtrue,                //qboolean  hasThirdMode;
@@ -3283,7 +3320,7 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_HYDRA,             //int       weaponNum;
+    WP_ALEVEL1,             //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
@@ -3294,7 +3331,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    HYDRA_CLAW_REPEAT,    //int       repeatRate1;
+    LEVEL1_CLAW_REPEAT,    //int       repeatRate1;
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
@@ -3307,7 +3344,7 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_HYDRA_UPG,         //int       weaponNum;
+    WP_ALEVEL1_UPG,         //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
@@ -3318,8 +3355,8 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    HYDRA_CLAW_U_REPEAT,  //int       repeatRate1;
-    HYDRA_PCLOUD_REPEAT,  //int       repeatRate2;
+    LEVEL1_CLAW_U_REPEAT,  //int       repeatRate1;
+    LEVEL1_PCLOUD_REPEAT,  //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
@@ -3331,7 +3368,7 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_CHIMERA,           //int       weaponNum;
+    WP_ALEVEL2,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
@@ -3342,7 +3379,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    CHIMERA_CLAW_REPEAT,  //int       repeatRate1;
+    LEVEL2_CLAW_REPEAT,  //int       repeatRate1;
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
@@ -3355,7 +3392,7 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_CHIMERA_UPG,       //int       weaponNum;
+    WP_ALEVEL2_UPG,       //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
@@ -3366,8 +3403,8 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    CHIMERA_CLAW_U_REPEAT,//int       repeatRate1;
-    CHIMERA_AREAZAP_REPEAT,//int       repeatRate2;
+    LEVEL2_CLAW_U_REPEAT,//int       repeatRate1;
+    LEVEL2_AREAZAP_REPEAT,//int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
@@ -3379,7 +3416,7 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_BIGMOFO,           //int       weaponNum;
+    WP_ALEVEL4,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
@@ -3390,7 +3427,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    BMOFO_CLAW_REPEAT,    //int       repeatRate1;
+    LEVEL4_CLAW_REPEAT,    //int       repeatRate1;
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
@@ -4318,6 +4355,10 @@ char *eventnames[ ] =
   "EV_ALIENZAP",
   "EV_BULLET",        // otherEntity is the shooter
 
+  "EV_LEV1_GRAB",
+  "EV_LEV4_CHARGE_PREPARE",
+  "EV_LEV4_CHARGE_START",
+  
   "EV_PAIN",
   "EV_DEATH1",
   "EV_DEATH2",
@@ -4338,6 +4379,7 @@ char *eventnames[ ] =
   "EV_ALIEN_BUILDABLE_DAMAGE",
 
   "EV_ALIEN_EVOLVE",
+  "EV_ALIEN_EVOLVE_FAILED",
 
   "EV_DEBUG_LINE",
   "EV_STOPLOOPINGSOUND",

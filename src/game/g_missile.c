@@ -120,7 +120,18 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
     return;
   }
   
-  if( !strcmp( ent->classname, "lockblob" ) )
+  if( !strcmp( ent->classname, "grenade" ) )
+  {
+    //grenade doesn't explode on impact
+    G_BounceMissile( ent, trace );
+    
+    //only play a sound if requested
+    if( !( ent->s.eFlags & EF_NO_BOUNCE_SOUND ) )
+      G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
+
+    return;
+  }
+  else if( !strcmp( ent->classname, "lockblob" ) )
   {
     if( other->client && other->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
     {
@@ -455,6 +466,50 @@ gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int da
   return bolt;
 }
 
+/*
+=================
+launch_grenade
+
+=================
+*/
+gentity_t *launch_grenade( gentity_t *self, vec3_t start, vec3_t dir )
+{
+  gentity_t *bolt;
+
+  VectorNormalize( dir );
+
+  bolt = G_Spawn( );
+  bolt->classname = "grenade";
+  bolt->nextthink = level.time + 5000;
+  bolt->think = G_ExplodeMissile;
+  bolt->s.eType = ET_MISSILE;
+  bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+  bolt->s.weapon = WP_GRENADE;
+  bolt->s.eFlags = EF_BOUNCE_HALF;
+  bolt->s.generic1 = self->s.generic1; //weaponMode
+  bolt->r.ownerNum = self->s.number;
+  bolt->parent = self;
+  bolt->damage = GRENADE_DAMAGE;
+  bolt->splashDamage = GRENADE_DAMAGE;
+  bolt->splashRadius = GRENADE_RANGE;
+  bolt->methodOfDeath = MOD_GRENADE;
+  bolt->splashMethodOfDeath = MOD_GRENADE;
+  bolt->clipmask = MASK_SHOT;
+  bolt->target_ent = NULL;
+  bolt->r.mins[ 0 ] = bolt->r.mins[ 1 ] = bolt->r.mins[ 2 ] = -3.0f;
+  bolt->r.maxs[ 0 ] = bolt->r.maxs[ 1 ] = bolt->r.maxs[ 2 ] = 3.0f;
+  bolt->s.time = level.time;
+
+  bolt->s.pos.trType = TR_GRAVITY;
+  bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
+  VectorCopy( start, bolt->s.pos.trBase );
+  VectorScale( dir, GRENADE_SPEED, bolt->s.pos.trDelta );
+  SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
+
+  VectorCopy( start, bolt->r.currentOrigin );
+
+  return bolt;
+}
 //=============================================================================
 
 /*
@@ -719,22 +774,22 @@ gentity_t *fire_bounceBall( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->think = G_ExplodeMissile;
   bolt->s.eType = ET_MISSILE;
   bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-  bolt->s.weapon = WP_DRAGOON_UPG;
+  bolt->s.weapon = WP_ALEVEL3_UPG;
   bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
-  bolt->damage = DRAGOON_BOUNCEBALL_DMG;
+  bolt->damage = LEVEL3_BOUNCEBALL_DMG;
   bolt->splashDamage = 0;
   bolt->splashRadius = 0;
-  bolt->methodOfDeath = MOD_DRAGOON_BOUNCEBALL;
-  bolt->splashMethodOfDeath = MOD_DRAGOON_BOUNCEBALL;
+  bolt->methodOfDeath = MOD_LEVEL3_BOUNCEBALL;
+  bolt->splashMethodOfDeath = MOD_LEVEL3_BOUNCEBALL;
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = NULL;
 
   bolt->s.pos.trType = TR_LINEAR;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
-  VectorScale( dir, DRAGOON_BOUNCEBALL_SPEED, bolt->s.pos.trDelta );
+  VectorScale( dir, LEVEL3_BOUNCEBALL_SPEED, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
   VectorCopy( start, bolt->r.currentOrigin );
   /*bolt->s.eFlags |= EF_BOUNCE;*/

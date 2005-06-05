@@ -463,19 +463,19 @@ static void CG_OffsetFirstPersonView( void )
     bob2 = BG_FindBobForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
   
 
-#define BMOFO_FEEDBACK  10.0f
+#define LEVEL4_FEEDBACK  10.0f
   
   //give a charging player some feedback
-  if( ps->weapon == WP_BIGMOFO )
+  if( ps->weapon == WP_ALEVEL4 )
   {
     if( ps->stats[ STAT_MISC ] > 0 )
     {
-      float fraction = (float)ps->stats[ STAT_MISC ] / (float)BMOFO_CHARGE_TIME;
+      float fraction = (float)ps->stats[ STAT_MISC ] / (float)LEVEL4_CHARGE_TIME;
 
       if( fraction > 1.0f )
         fraction = 1.0f;
 
-      bob2 *= ( 1.0f + fraction * BMOFO_FEEDBACK );
+      bob2 *= ( 1.0f + fraction * LEVEL4_FEEDBACK );
     }
   }
   
@@ -499,11 +499,11 @@ static void CG_OffsetFirstPersonView( void )
     angles[ ROLL ] += delta;
   }
 
-#define DRAGOON_FEEDBACK  20.0f
+#define LEVEL3_FEEDBACK  20.0f
   
   //provide some feedback for pouncing
-  if( cg.predictedPlayerState.weapon == WP_DRAGOON ||
-      cg.predictedPlayerState.weapon == WP_DRAGOON_UPG )
+  if( cg.predictedPlayerState.weapon == WP_ALEVEL3 ||
+      cg.predictedPlayerState.weapon == WP_ALEVEL3_UPG )
   {
     if( cg.predictedPlayerState.stats[ STAT_MISC ] > 0 )
     {
@@ -513,14 +513,14 @@ static void CG_OffsetFirstPersonView( void )
       AngleVectors( angles, forward, NULL, NULL );
       VectorNormalize( forward );
 
-      fraction1 = (float)( cg.time - cg.weapon2Time ) / (float)DRAGOON_POUNCE_TIME;
+      fraction1 = (float)( cg.time - cg.weapon2Time ) / (float)LEVEL3_POUNCE_TIME;
 
       if( fraction1 > 1.0f )
         fraction1 = 1.0f;
 
       fraction2 = -sin( fraction1 * M_PI / 2 );
       
-      VectorMA( origin, DRAGOON_FEEDBACK * fraction2, forward, origin );
+      VectorMA( origin, LEVEL3_FEEDBACK * fraction2, forward, origin );
     }
   }
 
@@ -583,8 +583,8 @@ static void CG_OffsetFirstPersonView( void )
     float fraction = sin( ( (float)cg.time / 1000.0f ) * M_PI * 2 * PCLOUD_ROLL_FREQUENCY );
     float pitchFraction = sin( ( (float)cg.time / 1000.0f ) * M_PI * 5 * PCLOUD_ROLL_FREQUENCY );
 
-    fraction *= 1.0f - ( ( cg.time - cg.poisonedTime ) / (float)HYDRA_PCLOUD_TIME );
-    pitchFraction *= 1.0f - ( ( cg.time - cg.poisonedTime ) / (float)HYDRA_PCLOUD_TIME );
+    fraction *= 1.0f - ( ( cg.time - cg.poisonedTime ) / (float)LEVEL1_PCLOUD_TIME );
+    pitchFraction *= 1.0f - ( ( cg.time - cg.poisonedTime ) / (float)LEVEL1_PCLOUD_TIME );
 
     angles[ ROLL ] += fraction * PCLOUD_ROLL_AMPLITUDE;
     angles[ YAW ] += fraction * PCLOUD_ROLL_AMPLITUDE;
@@ -795,7 +795,7 @@ static int CG_CalcFov( void )
   {
     phase = cg.time / 1000.0 * PCLOUD_ZOOM_FREQUENCY * M_PI * 2;
     v = PCLOUD_ZOOM_AMPLITUDE * sin( phase );
-    v *= 1.0f - ( ( cg.time - cg.poisonedTime ) / (float)HYDRA_PCLOUD_TIME );
+    v *= 1.0f - ( ( cg.time - cg.poisonedTime ) / (float)LEVEL1_PCLOUD_TIME );
     fov_x += v;
     fov_y += v;
   }

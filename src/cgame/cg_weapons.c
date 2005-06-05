@@ -210,7 +210,7 @@ void CG_AlienZap( vec3_t start, vec3_t end, int srcENum, int destENum )
   le->destENum = destENum;
   le->vOffset = 6.0f;
 
-  le->maxRange = CHIMERA_AREAZAP_RANGE * M_ROOT3;
+  le->maxRange = LEVEL2_AREAZAP_RANGE * M_ROOT3;
 
   VectorCopy( start, re->origin );
   VectorCopy( end, re->oldorigin );
@@ -336,6 +336,36 @@ static qboolean CG_ParseWeaponModeSection( weaponInfoMode_t *wim, char **text_p 
     {
       wim->missileRotates = qtrue;
 
+      continue;
+    }
+    else if( !Q_stricmp( token, "missileAnimates" ) )
+    {
+      wim->missileAnimates = qtrue;
+
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+      
+      wim->missileAnimStartFrame = atoi( token );   
+      
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+      
+      wim->missileAnimNumFrames = atoi( token );   
+      
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+      
+      wim->missileAnimFrameRate = atoi( token );   
+      
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+      
+      wim->missileAnimLooping = atoi( token );   
+      
       continue;
     }
     else if( !Q_stricmp( token, "missileParticleSystem" ) )

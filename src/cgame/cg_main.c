@@ -201,6 +201,7 @@ vmCvar_t  cg_lightFlare;
 vmCvar_t  cg_debugParticles;
 vmCvar_t  cg_debugPVS;
 vmCvar_t  cg_disableBuildWarnings;
+vmCvar_t  cg_disableScannerPlane;
 
 //TA: hack to get class and carriage through to UI module
 vmCvar_t  ui_currentClass;
@@ -305,6 +306,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_debugParticles, "cg_debugParticles", "0", CVAR_CHEAT },
   { &cg_debugPVS, "cg_debugPVS", "0", CVAR_CHEAT },
   { &cg_disableBuildWarnings, "cg_disableBuildWarnings", "0", CVAR_ARCHIVE },
+  { &cg_disableScannerPlane, "cg_disableScannerPlane", "0", CVAR_ARCHIVE },
   { &cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
   
   { &ui_currentClass, "ui_currentClass", "0", 0 },
@@ -569,6 +571,28 @@ const char *CG_Argv( int arg )
 
 /*
 =================
+CG_FileExists
+
+Test if a specific file exists or not
+=================
+*/
+qboolean CG_FileExists( char *filename )
+{
+  fileHandle_t  f;
+  
+  if( trap_FS_FOpenFile( filename, &f, FS_READ ) > 0 )
+  {
+    //file exists so close it
+    trap_FS_FCloseFile( f );
+
+    return qtrue;
+  }
+  else
+    return qfalse;
+}
+
+/*
+=================
 CG_RegisterSounds
 
 called during a precache command
@@ -586,6 +610,10 @@ static void CG_RegisterSounds( void )
   cgs.media.alienOvermindAttack   = trap_S_RegisterSound( "sound/announcements/overmindattack.wav", qtrue );
   cgs.media.alienOvermindDying    = trap_S_RegisterSound( "sound/announcements/overminddying.wav", qtrue );
   cgs.media.alienOvermindSpawns   = trap_S_RegisterSound( "sound/announcements/overmindspawns.wav", qtrue );
+  
+  cgs.media.alienL1Grab           = trap_S_RegisterSound( "sound/player/level1/grab.wav", qtrue );
+  cgs.media.alienL4ChargePrepare  = trap_S_RegisterSound( "sound/player/level4/charge_prepare.wav", qtrue );
+  cgs.media.alienL4ChargeStart    = trap_S_RegisterSound( "sound/player/level4/charge_start.wav", qtrue );
   
   cgs.media.tracerSound           = trap_S_RegisterSound( "sound/weapons/machinegun/buletby1.wav", qfalse );
   cgs.media.selectSound           = trap_S_RegisterSound( "sound/weapons/change.wav", qfalse );
@@ -749,8 +777,7 @@ static void CG_RegisterGraphics( void )
   cgs.media.creepShader               = trap_R_RegisterShader( "creep" );
   
   cgs.media.scannerBlipShader         = trap_R_RegisterShader( "gfx/2d/blip" );
-  cgs.media.scannerLineShader         = trap_R_RegisterShader( "white" );
-  /*cgs.media.scannerShader = trap_R_RegisterShader( "gfx/2d/scanner" );*/
+  cgs.media.scannerLineShader         = trap_R_RegisterShader( "gfx/2d/stalk" );
   
   cgs.media.waterBubbleShader         = trap_R_RegisterShader( "waterBubble" );
 
@@ -958,12 +985,13 @@ static void CG_RegisterClients( void )
     trap_UpdateScreen( );
   }
 
-  cgs.media.larmourHeadSkin    = trap_R_RegisterSkin( "models/players/trooper/head_light.skin" );
-  cgs.media.larmourLegsSkin    = trap_R_RegisterSkin( "models/players/trooper/lower_light.skin" );
-  cgs.media.larmourTorsoSkin   = trap_R_RegisterSkin( "models/players/trooper/upper_light.skin" );
+  cgs.media.larmourHeadSkin    = trap_R_RegisterSkin( "models/players/human_base/head_light.skin" );
+  cgs.media.larmourLegsSkin    = trap_R_RegisterSkin( "models/players/human_base/lower_light.skin" );
+  cgs.media.larmourTorsoSkin   = trap_R_RegisterSkin( "models/players/human_base/upper_light.skin" );
   
   cgs.media.jetpackModel       = trap_R_RegisterModel( "models/players/human_base/jetpack.md3" );
   cgs.media.jetpackFlashModel  = trap_R_RegisterModel( "models/players/human_base/jetpack_flash.md3" );
+  cgs.media.battpackModel      = trap_R_RegisterModel( "models/players/human_base/battpack.md3" );
   
   cg.charModelFraction = 1.0f;
   trap_UpdateScreen( );

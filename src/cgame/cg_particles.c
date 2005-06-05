@@ -80,6 +80,33 @@ static void CG_SpreadVector( vec3_t v, float spread )
 
 /*
 ===============
+CG_DestroyParticle
+
+Destroy an individual particle
+===============
+*/
+static void CG_DestroyParticle( particle_t *p )
+{
+  //this particle has an onDeath particle system attached
+  if( p->class->onDeathSystemName[ 0 ] != '\0' )
+  {
+    particleSystem_t  *ps;
+    
+    ps = CG_SpawnNewParticleSystem( p->class->childSystemHandle );
+
+    if( CG_IsParticleSystemValid( &ps ) )
+    {
+      CG_SetParticleSystemOrigin( ps, p->origin );
+      CG_SetParticleSystemNormal( ps, p->velocity );
+      CG_AttachParticleSystemToOrigin( ps );
+    }
+  }
+  
+  p->valid = qfalse;
+}
+
+/*
+===============
 CG_SpawnNewParticle
 
 Introduce a new particle into the world
@@ -146,6 +173,32 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
           
           VectorCopy( cent->lerpOrigin, p->origin );
           break;
+        
+        case PSA_PARTICLE:
+          if( !ps->attachment.particleValid )
+            return NULL;
+          
+          //find a particle which has ps as a child
+          for( j = 0; j < MAX_PARTICLES; j++ )
+          {
+            particle_t *parentParticle = &particles[ j ];
+
+            if( parentParticle->valid && parentParticle->childSystem == ps )
+            {
+              VectorCopy( parentParticle->origin, p->origin );
+              break;
+            }
+          }
+
+          if( j == MAX_PARTICLES )
+          {
+            //didn't find the parent, so it's probably died already
+            
+            //prevent further (expensive) attempts at particle creation
+            ps->attachment.particleValid = qfalse;
+            return NULL;
+          }
+          break;
       }
         
       VectorAdd( p->origin, bp->displacement, p->origin );
@@ -191,18 +244,18 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
           
           break;
           
-      case PMT_NORMAL:
-        
-        if( !ps->attachment.normalValid )
-          return NULL;
-        
-        VectorCopy( ps->attachment.normal, p->velocity );
+        case PMT_NORMAL:
+          
+          if( !ps->attachment.normalValid )
+            return NULL;
+          
+          VectorCopy( ps->attachment.normal, p->velocity );
 
-        //normal displacement
-        VectorNormalize( p->velocity );
-        VectorMA( p->origin, bp->normalDisplacement, p->velocity, p->origin );
-        
-        break;
+          //normal displacement
+          VectorNormalize( p->velocity );
+          VectorMA( p->origin, bp->normalDisplacement, p->velocity, p->origin );
+          
+          break;
       }
             
       VectorNormalize( p->velocity );
@@ -221,6 +274,21 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
       p->lastEvalTime = cg.time;
 
       p->valid = qtrue;
+      
+      //this particle has a child particle system attached
+      if( bp->childSystemName[ 0 ] != '\0' )
+      {
+        particleSystem_t  *ps;
+        
+        ps = CG_SpawnNewParticleSystem( bp->childSystemHandle );
+
+        if( CG_IsParticleSystemValid( &ps ) )
+        {
+          CG_SetParticleSystemParentParticle( ps, p );
+          CG_SetParticleSystemNormal( ps, p->velocity );
+          CG_AttachParticleSystemToParticle( ps );
+        }
+      }
       
       break;
     }
@@ -418,6 +486,10 @@ qhandle_t CG_RegisterParticleSystem( char *name )
     
     if( !strcmp( bps->name, name ) )
     {
+      //already registered
+      if( bps->registered )
+        return i + 1;
+    
       for( j = 0; j < bps->numEjectors; j++ )
       {
         bpe = bps->ejectors[ j ];
@@ -428,6 +500,21 @@ qhandle_t CG_RegisterParticleSystem( char *name )
 
           for( k = 0; k < bp->numFrames; k++ )
             bp->shaders[ k ] = trap_R_RegisterShader( bp->shaderNames[ k ] );
+
+          //recursively register any children
+          if( bp->childSystemName[ 0 ] != '\0' )
+          {
+            //don't care about a handle for children since
+            //the system deals with it
+            CG_RegisterParticleSystem( bp->childSystemName );
+          }
+          
+          if( bp->onDeathSystemName[ 0 ] != '\0' )
+          {
+            //don't care about a handle for children since
+            //the system deals with it
+            CG_RegisterParticleSystem( bp->onDeathSystemName );
+          }
         }
       }
 
@@ -980,6 +1067,26 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
 
       continue;
     }
+    else if( !Q_stricmp( token, "childSystem" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      Q_strncpyz( bp->childSystemName, token, MAX_QPATH );
+      
+      continue;
+    }
+    else if( !Q_stricmp( token, "onDeathSystem" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      Q_strncpyz( bp->onDeathSystemName, token, MAX_QPATH );
+      
+      continue;
+    }
     else if( !Q_stricmp( token, "}" ) )
       return qtrue; //reached the end of this particle
     else
@@ -1306,13 +1413,34 @@ Load particle systems from .particle files
 */
 void CG_LoadParticleSystems( void )
 {
-  int         i;
+  int         i, j;
   const char  *s[ MAX_PARTICLE_FILES ];
 
+  //clear out the old
   numBaseParticleSystems = 0;
   numBaseParticleEjectors = 0;
   numBaseParticles = 0;
 
+  for( i = 0; i < MAX_BASEPARTICLE_SYSTEMS; i++ )
+  {
+    baseParticleSystem_t  *bps = &baseParticleSystems[ i ];
+    memset( bps, 0, sizeof( baseParticleSystem_t ) );
+  }
+  
+  for( i = 0; i < MAX_BASEPARTICLE_EJECTORS; i++ )
+  {
+    baseParticleEjector_t  *bpe = &baseParticleEjectors[ i ];
+    memset( bpe, 0, sizeof( baseParticleEjector_t ) );
+  }
+  
+  for( i = 0; i < MAX_BASEPARTICLES; i++ )
+  {
+    baseParticle_t  *bp = &baseParticles[ i ];
+    memset( bp, 0, sizeof( baseParticle_t ) );
+  }
+  
+
+  //and bring in the new
   for( i = 0; i < MAX_PARTICLE_FILES; i++ )
   {
     s[ i ] = CG_ConfigString( CS_PARTICLE_FILES + i );
@@ -1324,6 +1452,62 @@ void CG_LoadParticleSystems( void )
     }
     else
       break;
+  }
+
+  //connect any child systems to their psHandle
+  for( i = 0; i < numBaseParticles; i++ )
+  {
+    baseParticle_t  *bp = &baseParticles[ i ];
+
+    if( bp->childSystemName[ 0 ] )
+    {
+      //particle class has a child, resolve the name
+      for( j = 0; j < numBaseParticleSystems; j++ )
+      {
+        baseParticleSystem_t  *bps = &baseParticleSystems[ j ];
+
+        if( !Q_stricmp( bps->name, bp->childSystemName ) )
+        {
+          //FIXME: add checks for cycles and infinite children
+
+          bp->childSystemHandle = j + 1;
+
+          break;
+        }
+      }
+
+      if( j == numBaseParticleSystems )
+      {
+        //couldn't find named particle system
+        CG_Printf( S_COLOR_YELLOW "WARNING: failed to find child %s\n", bp->childSystemName );
+        bp->childSystemName[ 0 ] = '\0';
+      }
+    }
+
+    if( bp->onDeathSystemName[ 0 ] )
+    {
+      //particle class has a child, resolve the name
+      for( j = 0; j < numBaseParticleSystems; j++ )
+      {
+        baseParticleSystem_t  *bps = &baseParticleSystems[ j ];
+
+        if( !Q_stricmp( bps->name, bp->onDeathSystemName ) )
+        {
+          //FIXME: add checks for cycles and infinite children
+
+          bp->onDeathSystemHandle = j + 1;
+
+          break;
+        }
+      }
+
+      if( j == numBaseParticleSystems )
+      {
+        //couldn't find named particle system
+        CG_Printf( S_COLOR_YELLOW "WARNING: failed to find onDeath system %s\n", bp->onDeathSystemName );
+        bp->onDeathSystemName[ 0 ] = '\0';
+      }
+    }
   }
 }
 
@@ -1447,6 +1631,44 @@ void CG_SetParticleSystemOrigin( particleSystem_t *ps, vec3_t origin )
 
 /*
 ===============
+CG_AttachParticleSystemToParticle
+
+Attach a particle system to a particle
+===============
+*/
+void CG_AttachParticleSystemToParticle( particleSystem_t *ps )
+{
+  if( ps == NULL || !ps->valid )
+  {
+    CG_Printf( S_COLOR_YELLOW "WARNING: tried to modify a NULL particle system\n" );
+    return;
+  }
+  
+  ps->attachType = PSA_PARTICLE;
+  ps->attached = qtrue;
+}
+
+/*
+===============
+CG_SetParticleSystemParentParticle
+
+Set a particle system attachment means
+===============
+*/
+void CG_SetParticleSystemParentParticle( particleSystem_t *ps, particle_t *p )
+{
+  if( ps == NULL || !ps->valid )
+  {
+    CG_Printf( S_COLOR_YELLOW "WARNING: tried to modify a NULL particle system\n" );
+    return;
+  }
+  
+  ps->attachment.particleValid = qtrue;
+  p->childSystem = ps;
+}
+
+/*
+===============
 CG_SetParticleSystemNormal
 
 Set a particle system attachment means
@@ -1462,6 +1684,7 @@ void CG_SetParticleSystemNormal( particleSystem_t *ps, vec3_t normal )
   
   ps->attachment.normalValid = qtrue;
   VectorCopy( normal, ps->attachment.normal );
+  VectorNormalize( ps->attachment.normal );
 }
 
 
@@ -1760,7 +1983,7 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
   if( ( trap_CM_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) ||
       ( bp->cullOnStartSolid && trace.startsolid ) || bp->bounceCull )
   {
-    p->valid = qfalse;
+    CG_DestroyParticle( p );
     return;
   }
 
@@ -1979,7 +2202,7 @@ void CG_AddParticles( void )
         CG_RenderParticle( p );
       }
       else
-        p->valid = qfalse;
+        CG_DestroyParticle( p );
     }
   }
 

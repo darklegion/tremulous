@@ -83,7 +83,7 @@ gentity_t *G_CheckSpawnPoint( vec3_t origin, vec3_t normal, buildable_t spawn, v
   }
   else if( spawn == BA_H_SPAWN )
   {
-    BG_FindBBoxForClass( PCL_H_BASE, cmins, cmaxs, NULL, NULL, NULL );
+    BG_FindBBoxForClass( PCL_HUMAN, cmins, cmaxs, NULL, NULL, NULL );
 
     VectorCopy( origin, localOrigin );
     localOrigin[ 2 ] += maxs[ 2 ] + fabs( cmins[ 2 ] ) + 1.0f;
@@ -581,9 +581,9 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   if( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
     if( self->s.modelindex == BA_A_OVERMIND )
-      G_AddCreditToClient( attacker->client, OVERMIND_VALUE );
+      G_AddCreditToClient( attacker->client, OVERMIND_VALUE, qtrue );
     else if( self->s.modelindex == BA_A_SPAWN )
-      G_AddCreditToClient( attacker->client, ASPAWN_VALUE );
+      G_AddCreditToClient( attacker->client, ASPAWN_VALUE, qtrue );
   }
 }
 
@@ -1086,8 +1086,8 @@ void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
       //this hovel is in use
       G_TriggerMenu( activator->client->ps.clientNum, MN_A_HOVEL_OCCUPIED );
     }
-    else if( ( ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_A_B_BASE ) ||
-               ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_A_B_LEV1 ) ) &&
+    else if( ( ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_ALIEN_BUILDER0 ) ||
+               ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_ALIEN_BUILDER0_UPG ) ) &&
              activator->health > 0 && self->health > 0 )
     {
       if( AHovel_Blocked( self, activator, qfalse ) )
@@ -2144,9 +2144,9 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   if( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     if( self->s.modelindex == BA_H_REACTOR )
-      G_AddCreditToClient( attacker->client, REACTOR_VALUE );
+      G_AddCreditToClient( attacker->client, REACTOR_VALUE, qtrue );
     else if( self->s.modelindex == BA_H_SPAWN )
-      G_AddCreditToClient( attacker->client, HSPAWN_VALUE );
+      G_AddCreditToClient( attacker->client, HSPAWN_VALUE, qtrue );
   }
 }
 
@@ -2421,7 +2421,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
       vec3_t    builderMins, builderMaxs;
       
       //this assumes the adv builder is the biggest thing that'll use the hovel
-      BG_FindBBoxForClass( PCL_A_B_LEV1, builderMins, builderMaxs, NULL, NULL, NULL );
+      BG_FindBBoxForClass( PCL_ALIEN_BUILDER0_UPG, builderMins, builderMaxs, NULL, NULL, NULL );
 
       if( APropHovel_Blocked( angles, origin, normal, ent ) )
         reason = IBE_HOVELEXIT;

@@ -32,6 +32,7 @@ static void CG_Obituary( entityState_t *ent )
   const char    *attackerInfo;
   char          targetName[ 32 ];
   char          attackerName[ 32 ];
+  char          className[ 64 ];
   gender_t      gender;
   clientInfo_t  *ci;
 
@@ -57,7 +58,7 @@ static void CG_Obituary( entityState_t *ent )
   if( !targetInfo )
     return;
 
-  Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof( targetName ) - 2);
+  Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof( targetName ) - 2 );
   strcat( targetName, S_COLOR_WHITE );
 
   message2 = "";
@@ -145,6 +146,15 @@ static void CG_Obituary( entityState_t *ent )
           message = "irradiated himself";
         break;
         
+      case MOD_GRENADE:
+        if( gender == GENDER_FEMALE )
+          message = "blew herself up";
+        else if( gender == GENDER_NEUTER )
+          message = "blew itself up";
+        else
+          message = "blew himself up";
+        break;
+        
       default:
         if( gender == GENDER_FEMALE )
           message = "killed herself";
@@ -221,50 +231,70 @@ static void CG_Obituary( entityState_t *ent )
         message = "was caught in the fallout of";
         message2 = "'s lucifer cannon";
         break;
+      case MOD_GRENADE:
+        message = "couldn't escape";
+        message2 = "'s grenade";
+        break;
         
       case MOD_ABUILDER_CLAW:
         message = "should leave";
         message2 = "'s buildings alone";
         break;
-      case MOD_SOLDIER_BITE:
+      case MOD_LEVEL0_BITE:
         message = "was bitten by";
         break;
-      case MOD_HYDRA_CLAW:
+      case MOD_LEVEL1_CLAW:
         message = "was swiped by";
-        message2 = "'s hydra";
+        Com_sprintf( className, 64, "'s %s",
+            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL1 ) );
+        message2 = className;
         break;
-      case MOD_DRAGOON_CLAW:
+      case MOD_LEVEL3_CLAW:
         message = "was clawed by";
-        message2 = "'s dragoon";
+        Com_sprintf( className, 64, "'s %s",
+            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL3 ) );
+        message2 = className;
         break;
-      case MOD_DRAGOON_POUNCE:
+      case MOD_LEVEL3_POUNCE:
         message = "was pounced upon by";
-        message2 = "'s dragoon";
+        Com_sprintf( className, 64, "'s %s",
+            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL3 ) );
+        message2 = className;
         break;
-      case MOD_CHIMERA_CLAW:
+      case MOD_LEVEL2_CLAW:
         message = "was clawed by";
-        message2 = "'s chimera";
+        Com_sprintf( className, 64, "'s %s",
+            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL3 ) );
+        message2 = className;
         break;
-      case MOD_CHIMERA_ZAP:
+      case MOD_LEVEL2_ZAP:
         message = "was zapped by";
-        message2 = "'s chimera";
+        Com_sprintf( className, 64, "'s %s",
+            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL3 ) );
+        message2 = className;
         break;
-      case MOD_BMOFO_CLAW:
+      case MOD_LEVEL4_CLAW:
         message = "was mauled by";
-        message2 = "'s big mofo";
+        Com_sprintf( className, 64, "'s %s",
+            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL4 ) );
+        message2 = className;
         break;
-      case MOD_BMOFO_CHARGE:
+      case MOD_LEVEL4_CHARGE:
         message = "should have gotten out of the way of";
-        message2 = "'s big mofo";
+        Com_sprintf( className, 64, "'s %s",
+            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL4 ) );
+        message2 = className;
         break;
         
       case MOD_POISON:
         message = "should have used antitox against";
         message2 = "'s poison";
         break;
-      case MOD_HYDRA_PCLOUD:
+      case MOD_LEVEL1_PCLOUD:
         message = "was gassed by";
-        message2 = "'s hydra";
+        Com_sprintf( className, 64, "'s %s",
+            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL1 ) );
+        message2 = className;
         break;
       
       
@@ -580,6 +610,22 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
         
       break;
       
+    case EV_LEV1_GRAB:
+      DEBUGNAME( "EV_LEV1_GRAB" );
+      trap_S_StartSound( NULL, es->number, CHAN_VOICE, cgs.media.alienL1Grab );
+      break;
+      
+    case EV_LEV4_CHARGE_PREPARE:
+      DEBUGNAME( "EV_LEV4_CHARGE_PREPARE" );
+      trap_S_StartSound( NULL, es->number, CHAN_VOICE, cgs.media.alienL4ChargePrepare );
+      break;
+      
+    case EV_LEV4_CHARGE_START:
+      DEBUGNAME( "EV_LEV4_CHARGE_START" );
+      //FIXME: stop cgs.media.alienL4ChargePrepare playing here
+      trap_S_StartSound( NULL, es->number, CHAN_VOICE, cgs.media.alienL4ChargeStart );
+      break;
+      
     case EV_TAUNT:
       DEBUGNAME( "EV_TAUNT" );
       trap_S_StartSound( NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*taunt.wav" ) );
@@ -882,6 +928,16 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
         cg.spawnTime = cg.time;
       break;
 
+    case EV_ALIEN_EVOLVE_FAILED:
+      DEBUGNAME( "EV_ALIEN_EVOLVE_FAILED" );
+      if( clientNum == cg.predictedPlayerState.clientNum )
+      {
+        //FIXME: change to "negative" sound
+        trap_S_StartLocalSound( cgs.media.buildableRepairedSound, CHAN_LOCAL_SOUND );
+        cg.lastEvolveAttempt = cg.time;
+      }
+      break;
+      
     case EV_ALIEN_ACIDTUBE:
       DEBUGNAME( "EV_ALIEN_ACIDTUBE" );
       {

@@ -3349,16 +3349,16 @@ static void UI_LoadTremAlienClasses( void )
   uiInfo.tremAlienClassCount = 2;
   
   uiInfo.tremAlienClassList[ 0 ].text =
-    String_Alloc( BG_FindHumanNameForClassNum( PCL_A_O_BASE ) );
+    String_Alloc( BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL0 ) );
   uiInfo.tremAlienClassList[ 0 ].cmd =
-    String_Alloc( va( "cmd class %s\n", BG_FindNameForClassNum( PCL_A_O_BASE ) ) );
+    String_Alloc( va( "cmd class %s\n", BG_FindNameForClassNum( PCL_ALIEN_LEVEL0 ) ) );
   uiInfo.tremAlienClassList[ 0 ].infopane =
-    UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( PCL_A_O_BASE ) ) );
+    UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( PCL_ALIEN_LEVEL0 ) ) );
     
-  if( BG_FindStagesForClass( PCL_A_B_LEV1, UI_GetCurrentAlienStage( ) ) )
-    bClass = PCL_A_B_LEV1;
+  if( BG_FindStagesForClass( PCL_ALIEN_BUILDER0_UPG, UI_GetCurrentAlienStage( ) ) )
+    bClass = PCL_ALIEN_BUILDER0_UPG;
   else
-    bClass = PCL_A_B_BASE;
+    bClass = PCL_ALIEN_BUILDER0;
   
   uiInfo.tremAlienClassList[ 1 ].text =
     String_Alloc( BG_FindHumanNameForClassNum( bClass ) );
@@ -6042,6 +6042,8 @@ void _UI_Init( qboolean inGameLoad ) {
   const char *menuSet;
   int start;
 
+  BG_InitClassOverrides( );
+  
   //uiInfo.inGameLoad = inGameLoad;
 
   UI_RegisterCvars();

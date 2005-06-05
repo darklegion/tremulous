@@ -533,6 +533,35 @@ void CG_SetPrintString( int type, const char *p )
   }
 }
 
+/*
+===============
+CG_AtHighestClass
+
+Is the local client at the highest class possible?
+===============
+*/
+static qboolean CG_AtHighestClass( void )
+{
+  int       i;
+  qboolean  superiorClasses = qfalse;
+  
+  for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
+  {
+    if( BG_ClassCanEvolveFromTo(
+          cg.predictedPlayerState.stats[ STAT_PCLASS ], i,
+          ALIEN_MAX_KILLS, 0 ) >= 0 &&
+        BG_FindStagesForClass( i, cgs.alienStage ) )
+    {
+      superiorClasses = qtrue;
+      break;
+    }
+  }
+
+  return !superiorClasses;
+}
+
+#define NO_CREDITS_TIME 2000
+
 static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color, qboolean padding )
 {
   int           value;
@@ -550,6 +579,16 @@ static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color, qboolean p
   value = ps->persistant[ PERS_CREDIT ];
   if( value > -1 )
   {
+    if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS &&
+        !CG_AtHighestClass( ) )
+    {
+      if( cg.time - cg.lastEvolveAttempt <= NO_CREDITS_TIME )
+      {
+        if( ( ( cg.time - cg.lastEvolveAttempt ) / 300 ) % 2 )
+          color[ 3 ] = 0.0f;
+      }
+    }
+    
     trap_R_SetColor( color );
 
     if( padding )
@@ -975,10 +1014,10 @@ static void CG_DrawAlienSense( rectDef_t *rect )
 CG_DrawHumanScanner
 ==============
 */
-static void CG_DrawHumanScanner( rectDef_t *rect, qhandle_t shader )
+static void CG_DrawHumanScanner( rectDef_t *rect, qhandle_t shader, vec4_t color )
 {
   if( BG_InventoryContainsUpgrade( UP_HELMET, cg.snap->ps.stats ) )
-    CG_Scanner( rect, shader );
+    CG_Scanner( rect, shader, color );
 }
 
       
@@ -1065,7 +1104,7 @@ static void CG_DrawPlayerBuildTimer( rectDef_t *rect, vec4_t color )
     
     if( cg.time - cg.lastBuildAttempt <= BUILD_DELAY_TIME )
     {
-      if( ( cg.time / 300 ) % 2 )
+      if( ( ( cg.time - cg.lastBuildAttempt ) / 300 ) % 2 )
       {
         color[ 0 ] = 1.0f;
         color[ 1 ] = color[ 2 ] = 0.0f;
@@ -2192,6 +2231,15 @@ void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
     }
   }
   
+  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS && CG_AtHighestClass( ) )
+  {
+    if( cg.time - cg.lastEvolveAttempt <= NO_CREDITS_TIME )
+    {
+      if( ( ( cg.time - cg.lastEvolveAttempt ) / 300 ) % 2 )
+        color[ 3 ] = 0.0f;
+    }
+  }
+  
   trap_R_SetColor( color );
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, cg_weapons[ cent->currentState.weapon ].weaponIcon );
   trap_R_SetColor( NULL );
@@ -2426,7 +2474,7 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawAlienSense( &rect );
       break;
     case CG_PLAYER_HUMAN_SCANNER:
-      CG_DrawHumanScanner( &rect, shader );
+      CG_DrawHumanScanner( &rect, shader, color );
       break;
     case CG_PLAYER_USABLE_BUILDABLE:
       CG_DrawUsableBuildable( &rect, shader, color );

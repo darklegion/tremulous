@@ -214,7 +214,7 @@ void ClientImpacts( gentity_t *ent, pmove_t *pm )
       ent->touch( ent, other, &trace );
 
     //charge attack
-    if( ent->client->ps.weapon == WP_BIGMOFO &&
+    if( ent->client->ps.weapon == WP_ALEVEL4 &&
         ent->client->ps.stats[ STAT_MISC ] > 0 && 
         ent->client->charging )
       ChargeAttack( ent, other );
@@ -505,17 +505,17 @@ void ClientTimerActions( gentity_t *ent, int msec )
     }
 
     //client is charging up for a pounce
-    if( client->ps.weapon == WP_DRAGOON || client->ps.weapon == WP_DRAGOON_UPG )
+    if( client->ps.weapon == WP_ALEVEL3 || client->ps.weapon == WP_ALEVEL3_UPG )
     {
       int pounceSpeed;
 
-      if( client->ps.weapon == WP_DRAGOON )
-        pounceSpeed = DRAGOON_POUNCE_SPEED;
-      else if( client->ps.weapon == WP_DRAGOON_UPG )
-        pounceSpeed = DRAGOON_POUNCE_UPG_SPEED;
+      if( client->ps.weapon == WP_ALEVEL3 )
+        pounceSpeed = LEVEL3_POUNCE_SPEED;
+      else if( client->ps.weapon == WP_ALEVEL3_UPG )
+        pounceSpeed = LEVEL3_POUNCE_UPG_SPEED;
 
       if( client->ps.stats[ STAT_MISC ] < pounceSpeed && ucmd->buttons & BUTTON_ATTACK2 )
-        client->ps.stats[ STAT_MISC ] += ( 100.0f / (float)DRAGOON_POUNCE_TIME ) * pounceSpeed;
+        client->ps.stats[ STAT_MISC ] += ( 100.0f / (float)LEVEL3_POUNCE_TIME ) * pounceSpeed;
 
       if( !( ucmd->buttons & BUTTON_ATTACK2 ) )
       {
@@ -533,24 +533,32 @@ void ClientTimerActions( gentity_t *ent, int msec )
     }
 
     //client is charging up for a... charge
-    if( client->ps.weapon == WP_BIGMOFO )
+    if( client->ps.weapon == WP_ALEVEL4 )
     {
-      if( client->ps.stats[ STAT_MISC ] < BMOFO_CHARGE_TIME && ucmd->buttons & BUTTON_ATTACK2 && 
-          ( ucmd->forwardmove > 0 ) )
+      if( client->ps.stats[ STAT_MISC ] < LEVEL4_CHARGE_TIME && ucmd->buttons & BUTTON_ATTACK2 && 
+          ( ucmd->forwardmove > 0 ) && !client->charging )
       {
         client->charging = qfalse; //should already be off, just making sure
 
-        client->ps.stats[ STAT_MISC ] += (int)( 100 * (float)BMOFO_CHARGE_CHARGE_RATIO );
+        //trigger charge sound
+        if( client->ps.stats[ STAT_MISC ] <= 0 )
+          G_AddEvent( ent, EV_LEV4_CHARGE_PREPARE, 0 );
         
-        if( client->ps.stats[ STAT_MISC ] > BMOFO_CHARGE_TIME )
-          client->ps.stats[ STAT_MISC ] = BMOFO_CHARGE_TIME;
+        client->ps.stats[ STAT_MISC ] += (int)( 100 * (float)LEVEL4_CHARGE_CHARGE_RATIO );
+        
+        if( client->ps.stats[ STAT_MISC ] > LEVEL4_CHARGE_TIME )
+          client->ps.stats[ STAT_MISC ] = LEVEL4_CHARGE_TIME;
       }
 
-      if( !( ucmd->buttons & BUTTON_ATTACK2 ) )
+      if( !( ucmd->buttons & BUTTON_ATTACK2 ) || client->charging )
       {
         if( client->ps.stats[ STAT_MISC ] > 0 )
         {
           client->ps.stats[ STAT_MISC ] -= 100;
+          
+          if( client->charging == qfalse )
+            G_AddEvent( ent, EV_LEV4_CHARGE_START, 0 );
+          
           client->charging = qtrue;
 
           //if the charger has stopped moving take a chunk of charge away
@@ -623,10 +631,10 @@ void ClientTimerActions( gentity_t *ent, int msec )
   {
     client->time1000 -= 1000;
 
-    //client is hydra poisoned
+    //client is poison clouded
     if( client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED )
       G_Damage( ent, client->lastPoisonCloudedClient, client->lastPoisonCloudedClient, NULL, NULL,
-                HYDRA_PCLOUD_DMG, 0, MOD_HYDRA_PCLOUD );
+                LEVEL1_PCLOUD_DMG, 0, MOD_LEVEL1_PCLOUD );
     
     //client is poisoned
     if( client->ps.stats[ STAT_STATE ] & SS_POISONED )
@@ -653,7 +661,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
     if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     {
       int       entityList[ MAX_GENTITIES ];
-      vec3_t    range = { BMOFO_REGEN_RANGE, BMOFO_REGEN_RANGE, BMOFO_REGEN_RANGE };
+      vec3_t    range = { LEVEL4_REGEN_RANGE, LEVEL4_REGEN_RANGE, LEVEL4_REGEN_RANGE };
       vec3_t    mins, maxs, dir;
       int       i, num;
       gentity_t *alienPlayer;
@@ -668,9 +676,9 @@ void ClientTimerActions( gentity_t *ent, int msec )
         alienPlayer = &g_entities[ entityList[ i ] ];
         
         if( alienPlayer->client && alienPlayer->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
-            alienPlayer->client->ps.stats[ STAT_PCLASS ] == PCL_A_O_LEV4 )
+            alienPlayer->client->ps.stats[ STAT_PCLASS ] == PCL_ALIEN_LEVEL4 )
         {
-          modifier = BMOFO_REGEN_MOD;
+          modifier = LEVEL4_REGEN_MOD;
           break;
         }
       }
@@ -688,17 +696,17 @@ void ClientTimerActions( gentity_t *ent, int msec )
   {
     client->time10000 -= 10000;
     
-    if( client->ps.weapon == WP_DRAGOON_UPG )
+    if( client->ps.weapon == WP_ALEVEL3_UPG )
     {
       int ammo, maxAmmo;
       
-      BG_FindAmmoForWeapon( WP_DRAGOON_UPG, &maxAmmo, NULL, NULL );
-      BG_UnpackAmmoArray( WP_DRAGOON_UPG, client->ps.ammo, client->ps.powerups, &ammo, NULL, NULL );
+      BG_FindAmmoForWeapon( WP_ALEVEL3_UPG, &maxAmmo, NULL, NULL );
+      BG_UnpackAmmoArray( WP_ALEVEL3_UPG, client->ps.ammo, client->ps.powerups, &ammo, NULL, NULL );
       
       if( ammo < maxAmmo )
       {
         ammo++;
-        BG_PackAmmoArray( WP_DRAGOON_UPG, client->ps.ammo, client->ps.powerups, ammo, 0, 0 );
+        BG_PackAmmoArray( WP_ALEVEL3_UPG, client->ps.ammo, client->ps.powerups, ammo, 0, 0 );
       }
     }
   }
@@ -792,6 +800,40 @@ void ClientEvents( gentity_t *ent, int oldEventSequence )
 
       case EV_FIRE_WEAPON3:
         FireWeapon3( ent );
+        break;
+
+      case EV_NOAMMO:
+        //if we just ran out of grenades, remove the inventory item
+        if( ent->s.weapon == WP_GRENADE )
+        {
+          int j;
+          
+          BG_RemoveWeaponFromInventory( ent->s.weapon, ent->client->ps.stats );
+          
+          //force a weapon change
+          ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
+          
+          //switch to the first non blaster weapon
+          for( j = WP_NONE + 1; j < WP_NUM_WEAPONS; j++ )
+          {
+            if( j == WP_BLASTER )
+              continue;
+            
+            if( BG_InventoryContainsWeapon( j, ent->client->ps.stats ) )
+            {
+              trap_SendServerCommand( ent - g_entities, va( "weaponswitch %d", j ) );
+              break;
+            }
+          }
+          
+          //only got the blaster to switch to
+          if( j == WP_NUM_WEAPONS )
+            trap_SendServerCommand( ent - g_entities, va( "weaponswitch %d", WP_BLASTER ) );
+  
+          //update ClientInfo
+          ClientUserinfoChanged( ent->client->ps.clientNum );
+        }
+        
         break;
 
       default:
@@ -992,7 +1034,7 @@ void ClientThink_real( gentity_t *ent )
     client->ps.pm_type = PM_NORMAL;
 
   if( client->ps.stats[ STAT_STATE ] & SS_GRABBED &&
-      client->lastGrabTime + HYDRA_GRAB_TIME < level.time )
+      client->lastGrabTime + LEVEL1_GRAB_TIME < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_GRABBED;
 
   if( client->ps.stats[ STAT_STATE ] & SS_BLOBLOCKED &&
@@ -1010,7 +1052,7 @@ void ClientThink_real( gentity_t *ent )
     client->ps.stats[ STAT_STATE ] &= ~SS_BOOSTED;
 
   if( client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED &&
-      client->lastPoisonCloudedTime + HYDRA_PCLOUD_TIME < level.time )
+      client->lastPoisonCloudedTime + LEVEL1_PCLOUD_TIME < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_POISONCLOUDED;
   
   if( client->ps.stats[ STAT_STATE ] & SS_POISONED &&
@@ -1035,9 +1077,9 @@ void ClientThink_real( gentity_t *ent )
   client->ps.speed = g_speed.value * BG_FindSpeedForClass( client->ps.stats[ STAT_PCLASS ] );
 
   //TA: slow player if charging up for a pounce
-  if( ( client->ps.weapon == WP_DRAGOON || client->ps.weapon == WP_DRAGOON_UPG ) &&
+  if( ( client->ps.weapon == WP_ALEVEL3 || client->ps.weapon == WP_ALEVEL3_UPG ) &&
       ucmd->buttons & BUTTON_ATTACK2 )
-    client->ps.speed *= DRAGOON_POUNCE_SPEED_MOD;
+    client->ps.speed *= LEVEL3_POUNCE_SPEED_MOD;
 
   //TA: slow the player if slow locked
   if( client->ps.stats[ STAT_STATE ] & SS_SLOWLOCKED )
@@ -1070,18 +1112,18 @@ void ClientThink_real( gentity_t *ent )
   {
     switch( client->ps.weapon )
     {
-      case WP_SOLDIER:
+      case WP_ALEVEL0:
         if( client->ps.weaponTime <= 0 )
           pm.autoWeaponHit[ client->ps.weapon ] = CheckVenomAttack( ent );
         break;
 
-      case WP_HYDRA:
-      case WP_HYDRA_UPG:
+      case WP_ALEVEL1:
+      case WP_ALEVEL1_UPG:
         CheckGrabAttack( ent );
         break;
 
-      case WP_DRAGOON:
-      case WP_DRAGOON_UPG:
+      case WP_ALEVEL3:
+      case WP_ALEVEL3_UPG:
         if( client->ps.weaponTime <= 0 )
           pm.autoWeaponHit[ client->ps.weapon ] = CheckPounceAttack( ent );
         break;
@@ -1261,6 +1303,11 @@ void ClientThink_real( gentity_t *ent )
             //no nearby objects and alien - show class menu
             G_TriggerMenu( ent->client->ps.clientNum, MN_A_INFEST );
           }
+          else
+          {
+            //flash frags
+            G_AddEvent( ent, EV_ALIEN_EVOLVE_FAILED, 0 );
+          }
         }
       }
     }
@@ -1310,11 +1357,11 @@ void ClientThink_real( gentity_t *ent )
   {
     if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     {
-        G_AddCreditToClient( ent->client, FREEKILL_ALIEN );
+        G_AddCreditToClient( ent->client, FREEKILL_ALIEN, qtrue );
     }
     else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
     {
-        G_AddCreditToClient( ent->client, FREEKILL_HUMAN );
+        G_AddCreditToClient( ent->client, FREEKILL_HUMAN, qtrue );
     }
 
     ent->client->lastKillTime = level.time;

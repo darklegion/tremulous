@@ -77,22 +77,42 @@ void SP_info_human_intermission( gentity_t *ent )
 G_AddCreditToClient
 ===============
 */
-void G_AddCreditToClient( gclient_t *client, short credit )
+void G_AddCreditToClient( gclient_t *client, short credit, qboolean cap )
 {
   if( !client )
     return;
 
+  //if we're already at the max and trying to add credit then stop
+  if( cap )
+  {
+    if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    {
+      if( client->ps.persistant[ PERS_CREDIT ] >= ALIEN_MAX_KILLS &&
+          credit > 0 )
+        return;
+    }
+    else if( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    {
+      if( client->ps.persistant[ PERS_CREDIT ] >= HUMAN_MAX_CREDITS &&
+          credit > 0 )
+        return;
+    }
+  }
+    
   client->ps.persistant[ PERS_CREDIT ] += credit;
   
-  if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  if( cap )
   {
-    if( client->ps.persistant[ PERS_CREDIT ] > ALIEN_MAX_KILLS )
-      client->ps.persistant[ PERS_CREDIT ] = ALIEN_MAX_KILLS;
-  }
-  else if( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-  {
-    if( client->ps.persistant[ PERS_CREDIT ] > HUMAN_MAX_CREDITS )
-      client->ps.persistant[ PERS_CREDIT ] = HUMAN_MAX_CREDITS;
+    if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    {
+      if( client->ps.persistant[ PERS_CREDIT ] > ALIEN_MAX_KILLS )
+        client->ps.persistant[ PERS_CREDIT ] = ALIEN_MAX_KILLS;
+    }
+    else if( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    {
+      if( client->ps.persistant[ PERS_CREDIT ] > HUMAN_MAX_CREDITS )
+        client->ps.persistant[ PERS_CREDIT ] = HUMAN_MAX_CREDITS;
+    }
   }
     
   if( client->ps.persistant[ PERS_CREDIT ] < 0 )
@@ -996,10 +1016,10 @@ void ClientUserinfoChanged( int clientNum )
     client->pers.maxHealth = 0;
 
   // set model
-  if( client->ps.stats[ STAT_PCLASS ] == PCL_H_BASE && BG_InventoryContainsUpgrade( UP_BATTLESUIT, client->ps.stats ) )
+  if( client->ps.stats[ STAT_PCLASS ] == PCL_HUMAN && BG_InventoryContainsUpgrade( UP_BATTLESUIT, client->ps.stats ) )
   {
-    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( PCL_H_BSUIT ),
-                                              BG_FindSkinNameForClass( PCL_H_BSUIT ) );
+    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( PCL_HUMAN_BSUIT ),
+                                              BG_FindSkinNameForClass( PCL_HUMAN_BSUIT ) );
   }
   else if( client->pers.classSelection == PCL_NONE )
   {
@@ -1007,8 +1027,8 @@ void ClientUserinfoChanged( int clientNum )
     //model details to that of the spawning class or the info change will not be
     //registered and an axis appears instead of the player model. There is zero chance
     //the player can spawn with the battlesuit, hence this choice.
-    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( PCL_H_BSUIT ),
-                                              BG_FindSkinNameForClass( PCL_H_BSUIT ) );
+    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( PCL_HUMAN_BSUIT ),
+                                              BG_FindSkinNameForClass( PCL_HUMAN_BSUIT ) );
   }
   else
   {
@@ -1366,7 +1386,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] = 100;
 
   // clear entity values
-  if( ent->client->pers.classSelection == PCL_H_BASE )
+  if( ent->client->pers.classSelection == PCL_HUMAN )
   {
     BG_AddWeaponToInventory( WP_BLASTER, client->ps.stats );
     weapon = client->pers.humanItemSelection;

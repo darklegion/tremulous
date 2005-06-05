@@ -557,9 +557,33 @@ static void CG_LoadClientInfo( clientInfo_t *ci )
     if( !s )
       break;
 
-    ci->sounds[ i ] = trap_S_RegisterSound( va( "sound/player/%s/%s", dir, s + 1 ), qfalse );
-    if( !ci->sounds[ i ] )
-      ci->sounds[ i ] = trap_S_RegisterSound( va( "sound/player/%s/%s", fallback, s + 1 ), qfalse );
+    // fanny about a bit with sounds that are missing
+    if( !CG_FileExists( va( "sound/player/%s/%s", dir, s + 1 ) ) )
+    {
+      //file doesn't exist
+      
+      if( i == 11 || i == 8 ) //fall or falling
+      {
+        ci->sounds[ i ] = trap_S_RegisterSound( "sound/null.wav", qfalse );
+      }
+      else
+      {
+        if( i == 9 ) //gasp
+          s = cg_customSoundNames[ 7 ]; //pain100_1
+        else if( i == 10 ) //drown
+          s = cg_customSoundNames[ 0 ]; //death1
+        
+        ci->sounds[ i ] = trap_S_RegisterSound( va( "sound/player/%s/%s", dir, s + 1 ), qfalse );
+        if( !ci->sounds[ i ] )
+          ci->sounds[ i ] = trap_S_RegisterSound( va( "sound/player/%s/%s", fallback, s + 1 ), qfalse );
+      }
+    }
+    else
+    {
+      ci->sounds[ i ] = trap_S_RegisterSound( va( "sound/player/%s/%s", dir, s + 1 ), qfalse );
+      if( !ci->sounds[ i ] )
+        ci->sounds[ i ] = trap_S_RegisterSound( va( "sound/player/%s/%s", fallback, s + 1 ), qfalse );
+    }
   }
 
   if( ci->footsteps == FOOTSTEP_CUSTOM )
@@ -1526,6 +1550,7 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
 {
   int           held, active;
   refEntity_t   jetpack;
+  refEntity_t   battpack;
   refEntity_t   flash;
   entityState_t *es = &cent->currentState;
 
@@ -1627,6 +1652,24 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
     cent->jetPackState = JPS_OFF;
   }
 
+  if( held & ( 1 << UP_BATTPACK ) )
+  {
+    memset( &battpack, 0, sizeof( battpack ) );
+    VectorCopy( torso->lightingOrigin, battpack.lightingOrigin );
+    battpack.shadowPlane = torso->shadowPlane;
+    battpack.renderfx = torso->renderfx;
+    
+    battpack.hModel = cgs.media.battpackModel;
+
+    //identity matrix
+    AxisCopy( axisDefault, battpack.axis );
+
+    //FIXME: change to tag_back when it exists
+    CG_PositionRotatedEntityOnTag( &battpack, torso, torso->hModel, "tag_head" );
+
+    trap_R_AddRefEntityToScene( &battpack );
+  }
+    
   if( es->eFlags & EF_BLOBLOCKED )
   {
     vec3_t  temp, origin, up = { 0.0f, 0.0f, 1.0f };
@@ -2044,6 +2087,14 @@ void CG_Player( centity_t *cent )
       return;
   }
 
+  if( cg_drawBBOX.integer )
+  {
+    vec3_t  mins, maxs;
+
+    BG_FindBBoxForClass( class, mins, maxs, NULL, NULL, NULL );
+    CG_DrawBoundingBox( cent->lerpOrigin, mins, maxs );
+  }
+  
   memset( &legs,    0, sizeof( legs ) );
   memset( &torso,   0, sizeof( torso ) );
   memset( &head,    0, sizeof( head ) );

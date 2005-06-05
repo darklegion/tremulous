@@ -280,9 +280,9 @@ void Cmd_Give_f( gentity_t *ent )
     int credits = atoi( name + 6 );
 
     if( !credits )
-      G_AddCreditToClient( ent->client, 1 );
+      G_AddCreditToClient( ent->client, 1, qtrue );
     else
-      G_AddCreditToClient( ent->client, credits );
+      G_AddCreditToClient( ent->client, credits, qtrue );
 
     if( !give_all )
       return;
@@ -1109,17 +1109,17 @@ void Cmd_Class_f( gentity_t *ent )
   clientNum = ent->client - level.clients;
   trap_Argv( 1, s, sizeof( s ) );
 
-  if( BG_FindStagesForClass( PCL_A_B_LEV1, g_alienStage.integer ) )
+  if( BG_FindStagesForClass( PCL_ALIEN_BUILDER0_UPG, g_alienStage.integer ) )
   {
-    allowedClasses[ 0 ] = PCL_A_B_BASE;
-    allowedClasses[ 1 ] = PCL_A_B_LEV1;
-    allowedClasses[ 2 ] = PCL_A_O_BASE;
+    allowedClasses[ 0 ] = PCL_ALIEN_BUILDER0;
+    allowedClasses[ 1 ] = PCL_ALIEN_BUILDER0_UPG;
+    allowedClasses[ 2 ] = PCL_ALIEN_LEVEL0;
     numClasses = 3;
   }
   else
   {
-    allowedClasses[ 0 ] = PCL_A_B_BASE;
-    allowedClasses[ 1 ] = PCL_A_O_BASE;
+    allowedClasses[ 0 ] = PCL_ALIEN_BUILDER0;
+    allowedClasses[ 1 ] = PCL_ALIEN_LEVEL0;
     numClasses = 2;
   }
   
@@ -1200,7 +1200,7 @@ void Cmd_Class_f( gentity_t *ent )
         if( numLevels >= 0 && BG_FindStagesForClass( ent->client->pers.classSelection, g_alienStage.integer ) )
         {
           //remove credit
-          G_AddCreditToClient( ent->client, -(short)numLevels );
+          G_AddCreditToClient( ent->client, -(short)numLevels, qtrue );
        
           ClientUserinfoChanged( clientNum );
           VectorCopy( infestOrigin, ent->s.pos.trBase );
@@ -1260,7 +1260,7 @@ void Cmd_Class_f( gentity_t *ent )
     }
 
     ent->client->pers.classSelection =
-      ent->client->ps.stats[ STAT_PCLASS ] = PCL_H_BASE;
+      ent->client->ps.stats[ STAT_PCLASS ] = PCL_HUMAN;
 
     //set the item to spawn with
     if( !Q_stricmp( s, BG_FindNameForWeapon( WP_MACHINEGUN ) ) )
@@ -1569,7 +1569,7 @@ void Cmd_Buy_f( gentity_t *ent )
     ent->client->ps.stats[ STAT_MISC ] = 0;
     
     //subtract from funds
-    G_AddCreditToClient( ent->client, -(short)BG_FindPriceForWeapon( weapon ) );
+    G_AddCreditToClient( ent->client, -(short)BG_FindPriceForWeapon( weapon ), qfalse );
   }
   else if( upgrade != UP_NONE )
   {
@@ -1654,7 +1654,7 @@ void Cmd_Buy_f( gentity_t *ent )
     }
     
     //subtract from funds
-    G_AddCreditToClient( ent->client, -(short)BG_FindPriceForUpgrade( upgrade ) );
+    G_AddCreditToClient( ent->client, -(short)BG_FindPriceForUpgrade( upgrade ), qfalse );
   }
   else
   {
@@ -1730,7 +1730,7 @@ void Cmd_Sell_f( gentity_t *ent )
       BG_RemoveWeaponFromInventory( weapon, ent->client->ps.stats );
 
       //add to funds
-      G_AddCreditToClient( ent->client, (short)BG_FindPriceForWeapon( weapon ) );
+      G_AddCreditToClient( ent->client, (short)BG_FindPriceForWeapon( weapon ), qfalse );
     }
 
     //if we have this weapon selected, force a new selection
@@ -1765,7 +1765,7 @@ void Cmd_Sell_f( gentity_t *ent )
       }
         
       //add to funds
-      G_AddCreditToClient( ent->client, (short)BG_FindPriceForUpgrade( upgrade ) );
+      G_AddCreditToClient( ent->client, (short)BG_FindPriceForUpgrade( upgrade ), qfalse );
     }
     
     //if we have this upgrade selected, force a new selection
@@ -1781,7 +1781,7 @@ void Cmd_Sell_f( gentity_t *ent )
         BG_RemoveWeaponFromInventory( i, ent->client->ps.stats );
 
         //add to funds
-        G_AddCreditToClient( ent->client, (short)BG_FindPriceForWeapon( i ) );
+        G_AddCreditToClient( ent->client, (short)BG_FindPriceForWeapon( i ), qfalse );
       }
       
       //if we have this weapon selected, force a new selection
@@ -1819,7 +1819,7 @@ void Cmd_Sell_f( gentity_t *ent )
         }
         
         //add to funds
-        G_AddCreditToClient( ent->client, (short)BG_FindPriceForUpgrade( i ) );
+        G_AddCreditToClient( ent->client, (short)BG_FindPriceForUpgrade( i ), qfalse );
       }
       
       //if we have this upgrade selected, force a new selection
@@ -2210,7 +2210,7 @@ void Cmd_PTRCRestore_f( gentity_t *ent )
         
         // set the correct credit
         ent->client->ps.persistant[ PERS_CREDIT ] = 0;
-        G_AddCreditToClient( ent->client, connection->clientCredit );
+        G_AddCreditToClient( ent->client, connection->clientCredit, qtrue );
       }
     }
   }

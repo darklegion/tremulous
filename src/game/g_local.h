@@ -732,6 +732,7 @@ gentity_t *fire_paraLockBlob( gentity_t *self, vec3_t start, vec3_t dir );
 gentity_t *fire_slowBlob( gentity_t *self, vec3_t start, vec3_t dir );
 gentity_t *fire_bounceBall( gentity_t *self, vec3_t start, vec3_t dir );
 gentity_t *fire_hive( gentity_t *self, vec3_t start, vec3_t dir );
+gentity_t *launch_grenade( gentity_t *self, vec3_t start, vec3_t dir );
 
 
 //
@@ -767,7 +768,7 @@ void      ChargeAttack( gentity_t *ent, gentity_t *victim );
 //
 // g_client.c
 //
-void      G_AddCreditToClient( gclient_t *client, short credit );
+void      G_AddCreditToClient( gclient_t *client, short credit, qboolean cap );
 team_t    TeamCount( int ignoreClientNum, int team );
 void      SetClientViewAngle( gentity_t *ent, vec3_t angle );
 gentity_t *SelectTremulousSpawnPoint( pTeam_t team, vec3_t origin, vec3_t angles );
