@@ -349,10 +349,11 @@
     itemDef
     {
       name "scanner"
-      rect 60 300 520 120
+      rect 164 340 312 72
       visible 1
       decoration
-      background "textures/common/invisible" //FIXME: change to a bunch on concentric circles
+      forecolor 0.0 0.8 1.0 .5
+      background "ui/assets/human/scanner.tga"
       ownerdraw CG_PLAYER_HUMAN_SCANNER
     }
 

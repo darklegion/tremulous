@@ -39,15 +39,16 @@
     itemDef
     {
       name splashmodel
-      rect 0 0 640 56 
+      rect 0 -10 640 66 
       type ITEM_TYPE_MODEL
-      style WINDOW_STYLE_EMPTY
+      style WINDOW_STYLE_FILLED
       asset_model "models/splash/splash_screen.md3"
       model_fovx 32.0
-      model_fovy 2.8
+      model_fovy 3.8
       model_angle 180
       visible 1
       decoration
+      backcolor 0 0 0 1
     }
 
     itemdef

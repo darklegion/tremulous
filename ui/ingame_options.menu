@@ -1016,7 +1016,7 @@
       name misc
       group optionsGrp
       type ITEM_TYPE_BIND
-      text "Use Object:"
+      text "Use Object/Evolve:"
       cvar "+button7"
       rect 96 125 192 15
       textalign ITEM_ALIGN_RIGHT
