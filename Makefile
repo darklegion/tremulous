@@ -123,7 +123,7 @@ RPMARCH=i386
 VENDOR=unknown
 endif #alpha test
 
-BASE_CFLAGS=-pipe
+BASE_CFLAGS=-pipe -Wall
 DEBUG_CFLAGS=$(BASE_CFLAGS) -g -pg
 DEPEND_CFLAGS= -MM
 

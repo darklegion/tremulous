@@ -15,7 +15,7 @@
 
 static entityPos_t   entityPositions;
 
-#define HUMAN_SCANNER_UPDATE_PERIOD 300
+#define HUMAN_SCANNER_UPDATE_PERIOD 700
 
 /*
 =============
@@ -112,6 +112,12 @@ static void CG_DrawBlips( rectDef_t *rect, vec3_t origin, vec4_t colour )
   vec3_t  drawOrigin;
   vec3_t  up = { 0, 0, 1 };
   float   alphaMod = 1.0f;
+  float   timeFractionSinceRefresh = 1.0f -
+    ( (float)( cg.time - entityPositions.lastUpdateTime ) /
+      (float)HUMAN_SCANNER_UPDATE_PERIOD );
+  vec4_t  localColour;
+
+  Vector4Copy( colour, localColour );
 
   RotatePointAroundVector( drawOrigin, up, origin, -entityPositions.vangles[ 1 ] - 90 );
   drawOrigin[ 0 ] /= ( 2 * HELMET_RANGE / rect->w );
@@ -121,14 +127,15 @@ static void CG_DrawBlips( rectDef_t *rect, vec3_t origin, vec4_t colour )
   alphaMod = FAR_ALPHA +
     ( ( drawOrigin[ 1 ] + ( rect->h / 2.0f ) ) / rect->h ) * ( NEAR_ALPHA - FAR_ALPHA );
   
-  colour[ 3 ] *= alphaMod;
+  localColour[ 3 ] *= alphaMod;
+  localColour[ 3 ] *= ( 0.5f + ( timeFractionSinceRefresh * 0.5f ) );
 
-  if( colour[ 3 ] > 1.0f )
-    colour[ 3 ] = 1.0f;
-  else if( colour[ 3 ] < 0.0f )
-    colour[ 3 ] = 0.0f;
+  if( localColour[ 3 ] > 1.0f )
+    localColour[ 3 ] = 1.0f;
+  else if( localColour[ 3 ] < 0.0f )
+    localColour[ 3 ] = 0.0f;
 
-  trap_R_SetColor( colour );
+  trap_R_SetColor( localColour );
 
   if( drawOrigin[ 2 ] > 0 )
     CG_DrawPic( rect->x + ( rect->w / 2 ) - ( STALKWIDTH / 2 ) - drawOrigin[ 0 ],
