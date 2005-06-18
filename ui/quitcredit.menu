@@ -246,7 +246,7 @@
       textaligny  10
       textscale   0.50
       textstyle   ITEM_TEXTSTYLE_NORMAL
-      text        "Modelling and texturing"
+      text        "Modelling, animation and texturing"
       forecolor   1 1 1 1
       backcolor   0 1 0 1
       visible     1
