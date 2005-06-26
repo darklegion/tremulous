@@ -79,7 +79,6 @@ Generated a bunch of gibs launching out from a location
 void CG_AlienBuildableExplosion( vec3_t origin, vec3_t dir )
 {
   vec3_t            velocity;
-  int               count;
   particleSystem_t  *ps;
   qhandle_t         gibModel;
   int               i;
@@ -89,7 +88,7 @@ void CG_AlienBuildableExplosion( vec3_t origin, vec3_t dir )
   // allow gibs to be turned off for speed
   if( cg_gibs.integer )
   {
-    for( count = 0; count <= 8; count++ )
+    for( i = 1; i <= 8; i++ )
     {
       velocity[ 0 ] = crandom( ) * GGIB_VELOCITY;
       velocity[ 1 ] = crandom( ) * GGIB_VELOCITY;

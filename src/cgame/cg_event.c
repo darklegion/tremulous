@@ -264,13 +264,13 @@ static void CG_Obituary( entityState_t *ent )
       case MOD_LEVEL2_CLAW:
         message = "was clawed by";
         Com_sprintf( className, 64, "'s %s",
-            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL3 ) );
+            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL2 ) );
         message2 = className;
         break;
       case MOD_LEVEL2_ZAP:
         message = "was zapped by";
         Com_sprintf( className, 64, "'s %s",
-            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL3 ) );
+            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL2 ) );
         message2 = className;
         break;
       case MOD_LEVEL4_CLAW:

@@ -321,6 +321,12 @@ qboolean G_CallSpawn( gentity_t *ent )
     /*if( BG_FindStagesForBuildable( buildable, 1 ) )*/
     if( qtrue )
     {
+      if( buildable == BA_A_SPAWN || buildable == BA_H_SPAWN )
+      {
+        ent->s.angles[ YAW ] += 180.0f;
+        AngleNormalize360( ent->s.angles[ YAW ] );
+      }
+
       G_SpawnBuildable( ent, buildable );
       return qtrue;
     }

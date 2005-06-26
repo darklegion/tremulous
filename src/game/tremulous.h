@@ -361,9 +361,9 @@
 
 #define CHAINGUN_PRICE              400
 #define CHAINGUN_BULLETS            200
-#define CHAINGUN_REPEAT             75
+#define CHAINGUN_REPEAT             80
 #define CHAINGUN_SPREAD             1000
-#define CHAINGUN_DMG                HDM(8)
+#define CHAINGUN_DMG                HDM(6)
 
 #define PRIFLE_PRICE                400
 #define PRIFLE_CLIPS                50

@@ -2291,24 +2291,10 @@ void Cmd_Evolve_Debug_f( gentity_t *ent )
       }
     }
   
-    trap_SendServerCommand( ent - g_entities,
-      va( "print \"i:%d == num:%d\n\"", i, num ) );
-
     if( i == num && client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     {
       for( j = PCL_NONE + 1; j < PCL_NUM_CLASSES; j++ )
       {
-        trap_SendServerCommand( ent - g_entities,
-          va( "print \"BG_ClassCanEvolveFromTo( %d, %d, %d, 0 ) = %d\n\"",
-            client->ps.stats[ STAT_PCLASS ], j, client->ps.persistant[ PERS_CREDIT ],
-            BG_ClassCanEvolveFromTo( client->ps.stats[ STAT_PCLASS ], j,
-                                     client->ps.persistant[ PERS_CREDIT ], 0 ) ) );
-        
-        trap_SendServerCommand( ent - g_entities,
-          va( "print \"BG_FindStagesForClass( %d, %d ) = %d\n\"",
-            j, g_alienStage.integer,
-            BG_FindStagesForClass( j, g_alienStage.integer ) ) );
-        
         if( BG_ClassCanEvolveFromTo( client->ps.stats[ STAT_PCLASS ], j,
                                      client->ps.persistant[ PERS_CREDIT ], 0 ) >= 0 &&
             BG_FindStagesForClass( j, g_alienStage.integer ) )
@@ -2317,9 +2303,6 @@ void Cmd_Evolve_Debug_f( gentity_t *ent )
           break;
         }
       }
-      
-      trap_SendServerCommand( ent - g_entities,
-        va( "print \"upgrade = %d\n\"", upgrade ) );
     }
   }
 }

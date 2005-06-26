@@ -1431,6 +1431,9 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     }
     else
     {
+      spawn_angles[ YAW ] += 180.0f;
+      AngleNormalize360( spawn_angles[ YAW ] );
+      
       if( spawnPoint->s.origin2[ 2 ] > 0.0f )
       {
         vec3_t  forward, dir;
@@ -1445,6 +1448,11 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
       
       G_AddPredictableEvent( ent, EV_PLAYER_RESPAWN, 0 );
     }
+  }
+  else if( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  {
+    spawn_angles[ YAW ] += 180.0f;
+    AngleNormalize360( spawn_angles[ YAW ] );
   }
 
   // the respawned flag will be cleared after the attack and jump keys come up
