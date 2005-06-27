@@ -227,8 +227,6 @@ The server says this item is used on this level
 void CG_RegisterUpgrade( int upgradeNum )
 {
   upgradeInfo_t   *upgradeInfo;
-  char            path[MAX_QPATH];
-  int             i;
   char            *icon;
 
   upgradeInfo = &cg_upgrades[ upgradeNum ];
@@ -247,7 +245,7 @@ void CG_RegisterUpgrade( int upgradeNum )
   
   upgradeInfo->humanName = BG_FindHumanNameForUpgrade( upgradeNum );
   
-  if( icon = BG_FindIconForUpgrade( upgradeNum ) )
+  if( ( icon = BG_FindIconForUpgrade( upgradeNum ) ) )
     upgradeInfo->upgradeIcon = trap_R_RegisterShader( icon );
 }
 
@@ -279,7 +277,6 @@ Parse a weapon mode section
 static qboolean CG_ParseWeaponModeSection( weaponInfoMode_t *wim, char **text_p )
 {
   char  *token;
-  float number, randFrac;
   int   i;
 
   // read optional parameters
@@ -651,7 +648,6 @@ Parses a configuration file describing a weapon
 static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
 {
   char          *text_p;
-  int           i;
   int           len;
   char          *token;
   char          text[ 20000 ];
@@ -826,7 +822,6 @@ void CG_RegisterWeapon( int weaponNum )
   char          path[ MAX_QPATH ];
   vec3_t        mins, maxs;
   int           i;
-  char          *icon, *model;
 
   weaponInfo = &cg_weapons[ weaponNum ];
 
@@ -1037,7 +1032,6 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   weaponMode_t  weaponMode;
   weaponInfo_t  *weapon;
   centity_t     *nonPredictedCent;
-  pTeam_t       team = cent->currentState.powerups & 0xFF;
   qboolean      noGunModel;
 
   weaponNum = cent->currentState.weapon;
@@ -1358,7 +1352,7 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
   int           height = rect->h;
   int           iconsize;
   int           items[ 64 ];
-  int           numItems = 0, selectedItem;
+  int           numItems = 0, selectedItem = 0;
   int           length;
   int           selectWindow;
   qboolean      vertical;
@@ -1471,7 +1465,7 @@ void CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
     if( cg_weapons[ cg.weaponSelect ].registered &&
         BG_InventoryContainsWeapon( cg.weaponSelect, cg.snap->ps.stats ) )
     {
-      if( name = cg_weapons[ cg.weaponSelect ].humanName )
+      if( ( name = cg_weapons[ cg.weaponSelect ].humanName ) )
       {
         w = CG_Text_Width( name, scale, 0 );
         x = rect->x + rect->w / 2;
@@ -1484,7 +1478,7 @@ void CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
     if( cg_upgrades[ cg.weaponSelect - 32 ].registered &&
         BG_InventoryContainsUpgrade( cg.weaponSelect - 32, cg.snap->ps.stats ) )
     {
-      if( name = cg_upgrades[ cg.weaponSelect - 32 ].humanName )
+      if( ( name = cg_upgrades[ cg.weaponSelect - 32 ].humanName ) )
       {
         w = CG_Text_Width( name, scale, 0 );
         x = rect->x + rect->w / 2;
@@ -1750,7 +1744,6 @@ void CG_MissileHitWall( weapon_t weaponNum, weaponMode_t weaponMode, int clientN
   float               light = 0.0f;
   vec3_t              lightColor = { 0.0f, 0.0f, 0.0f };
   localEntity_t       *le;
-  weaponMode_t        mode;
   weaponInfo_t        *weapon = &cg_weapons[ weaponNum ];
   
   mark = weapon->wim[ weaponMode ].impactMark;
@@ -1828,7 +1821,6 @@ CG_MissileHitPlayer
 */
 void CG_MissileHitPlayer( weapon_t weaponNum, weaponMode_t weaponMode, vec3_t origin, vec3_t dir, int entityNum )
 {
-  weaponMode_t  mode;
   weaponInfo_t  *weapon = &cg_weapons[ weaponNum ];
   
   CG_Bleed( origin, entityNum );
@@ -1978,7 +1970,6 @@ Renders bullet effects.
 */
 void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum )
 {
-  trace_t trace;
   vec3_t  start;
 
   // if the shooter is currently valid, calc a source point and possibly
@@ -2063,9 +2054,7 @@ CG_ShotgunFire
 */
 void CG_ShotgunFire( entityState_t *es )
 {
-  vec3_t  up;
   vec3_t  v;
-  int     contents;
 
   VectorSubtract( es->origin2, es->pos.trBase, v );
   VectorNormalize( v );

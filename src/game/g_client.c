@@ -431,7 +431,7 @@ Chooses a player start, deathmatch start, etc
 */
 gentity_t *SelectTremulousSpawnPoint( pTeam_t team, vec3_t origin, vec3_t angles )
 {
-  gentity_t *spot;
+  gentity_t *spot = NULL;
 
   if( team == PTE_ALIENS )
     spot = SelectAlienSpawnPoint( );
@@ -623,7 +623,6 @@ void SpawnCorpse( gentity_t *ent )
   int         contents;
   vec3_t      origin, dest;
   trace_t     tr;
-  int         i;
   float       vDiff;
 
   VectorCopy( ent->r.currentOrigin, origin );
@@ -756,8 +755,6 @@ respawn
 */
 void respawn( gentity_t *ent )
 {
-  gentity_t *tent;
-
   SpawnCorpse( ent );
 
   //TA: Clients can't respawn - they must go thru the class cmd
@@ -948,7 +945,7 @@ if desired.
 void ClientUserinfoChanged( int clientNum )
 {
   gentity_t *ent;
-  int       teamTask, teamLeader, team, health;
+  int       teamTask, teamLeader, health;
   char      *s;
   char      model[ MAX_QPATH ];
   char      buffer[ MAX_QPATH ];
@@ -1244,14 +1241,13 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   clientPersistant_t  saved;
   clientSession_t     savedSess;
   int                 persistant[ MAX_PERSISTANT ];
-  gentity_t           *spawnPoint;
+  gentity_t           *spawnPoint = NULL;
   int                 flags;
   int                 savedPing;
-  int                 ammoIndex, ammoSubIndex;
   int                 teamLocal;
   int                 eventSequence;
   char                userinfo[ MAX_INFO_STRING ];
-  vec3_t              classMins, classMaxs, up = { 0.0f, 0.0f, 1.0f };
+  vec3_t              up = { 0.0f, 0.0f, 1.0f };
   int                 ammo, clips, maxClips;
   weapon_t            weapon;
       

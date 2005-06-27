@@ -693,6 +693,8 @@ const char  *BuildShaderStateConfig();
 void        G_TriggerMenu( int clientNum, dynMenu_t menu );
 void        G_CloseMenus( int clientNum );
 
+qboolean    G_Visible( gentity_t *ent1, gentity_t *ent2 );
+
 //
 // g_combat.c
 //
@@ -740,6 +742,7 @@ gentity_t *launch_grenade( gentity_t *self, vec3_t start, vec3_t dir );
 //
 void G_RunMover( gentity_t *ent );
 void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace );
+void manualTriggerSpectator( gentity_t *trigger, gentity_t *player );
 
 //
 // g_trigger.c

@@ -350,9 +350,6 @@ static void CG_Missile( centity_t *cent )
   refEntity_t             ent;
   entityState_t           *es;
   const weaponInfo_t      *wi;
-  vec3_t                  up;
-  float                   fraction;
-  int                     index;
   weapon_t                weapon;
   weaponMode_t            weaponMode;
   const weaponInfoMode_t  *wim;

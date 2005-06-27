@@ -344,7 +344,6 @@ static float PM_CmdScale( usercmd_t *cmd )
   float       total;
   float       scale;
   float       modifier = 1.0f;
-  int         aForward, aRight;
 
   if( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS && pm->ps->pm_type == PM_NORMAL )
   {
@@ -545,7 +544,7 @@ PM_CheckWallJump
 */
 static qboolean PM_CheckWallJump( void )
 {
-  vec3_t  dir, forward, right, temp;
+  vec3_t  dir, forward, right;
   vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
   float   normalFraction = 1.5f;
   float   cmdFraction = 1.0f;
@@ -1022,34 +1021,6 @@ static void PM_AirMove( void )
 
   PM_StepSlideMove( qtrue, qfalse );
 }
-
-/*
-===================
-PM_GrappleMove
-
-===================
-*/
-static void PM_GrappleMove( void )
-{
-  vec3_t  vel, v;
-  float   vlen;
-
-  VectorScale( pml.forward, -16, v );
-  VectorAdd( pm->ps->grapplePoint, v, v );
-  VectorSubtract( v, pm->ps->origin, vel );
-  vlen = VectorLength( vel );
-  VectorNormalize( vel );
-
-  if( vlen <= 100 )
-    VectorScale( vel, 10 * vlen, vel );
-  else
-    VectorScale( vel, 800, vel );
-
-  VectorCopy( vel, pm->ps->velocity );
-
-  pml.groundPlane = qfalse;
-}
-
 
 /*
 ===================
@@ -2009,11 +1980,10 @@ PM_GroundTrace
 */
 static void PM_GroundTrace( void )
 {
-  vec3_t      point, srotAxis;
+  vec3_t      point;
   vec3_t      movedir;
   vec3_t      refNormal = { 0.0f, 0.0f, 1.0f };
   trace_t     trace;
-  float       srotAngle;
 
   if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) )
   {

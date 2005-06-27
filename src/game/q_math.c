@@ -465,7 +465,7 @@ TA: takes an axis (forward + right + up)
 */
 void AxisToAngles( vec3_t axis[3], vec3_t angles ) {
   float length1;
-  float yaw, pitch, roll;
+  float yaw, pitch, roll = 0.0f;
 
   if ( axis[0][1] == 0 && axis[0][0] == 0 ) {
     yaw = 0;
@@ -1362,8 +1362,8 @@ Distance from a point to some line
 */
 float pointToLineDistance( const vec3_t p0, const vec3_t p1, const vec3_t p2 )
 {
-  vec3_t  v, w, x, y;
-  float   c1, c2, b;
+  vec3_t  v, w, y;
+  float   c1, c2;
 
   VectorSubtract( p2, p1, v );
   VectorSubtract( p1, p0, w );

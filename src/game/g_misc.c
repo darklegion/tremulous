@@ -264,8 +264,6 @@ Spawn function for spriter
 */
 void SP_misc_spriter( gentity_t *self )
 {
-  vec3_t  accel;
-  
   G_SetOrigin( self, self->s.origin );
 
   //set a bunch of stuff to be visible client side

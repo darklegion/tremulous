@@ -514,7 +514,6 @@ void teslaFire( gentity_t *ent )
   trace_t   tr;
   vec3_t    end;
   gentity_t *traceEnt, *tent;
-  int       i, passent;
 
   VectorMA( muzzle, TESLAGEN_RANGE, forward, end );
 
@@ -696,7 +695,6 @@ qboolean CheckVenomAttack( gentity_t *ent )
   vec3_t    end;
   gentity_t *tent;
   gentity_t *traceEnt;
-  int       damage;
   vec3_t    mins, maxs;
 
   VectorSet( mins, -LEVEL0_BITE_WIDTH, -LEVEL0_BITE_WIDTH, -LEVEL0_BITE_WIDTH );
@@ -809,7 +807,7 @@ void poisonCloud( gentity_t *ent )
 {
   int       entityList[ MAX_GENTITIES ];
   vec3_t    range = { LEVEL1_PCLOUD_RANGE, LEVEL1_PCLOUD_RANGE, LEVEL1_PCLOUD_RANGE };
-  vec3_t    mins, maxs, dir;
+  vec3_t    mins, maxs;
   int       i, num;
   gentity_t *humanPlayer;
   trace_t   tr;

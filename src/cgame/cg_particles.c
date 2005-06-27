@@ -114,7 +114,7 @@ Introduce a new particle into the world
 */
 static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *parent )
 {
-  int                     i, j, start;
+  int                     i, j;
   particle_t              *p = NULL;
   particleEjector_t       *pe = parent;
   particleSystem_t        *ps = parent->parent;
@@ -382,7 +382,7 @@ Allocate a new particle ejector
 static particleEjector_t *CG_SpawnNewParticleEjector( baseParticleEjector_t *bpe,
                                                       particleSystem_t *parent )
 {
-  int                     i, start;
+  int                     i;
   particleEjector_t       *pe = NULL;
   particleSystem_t        *ps = parent;
 
@@ -429,7 +429,7 @@ Allocate a new particle system
 */
 particleSystem_t *CG_SpawnNewParticleSystem( qhandle_t psHandle )
 {
-  int                   i, j, start;
+  int                   i, j;
   particleSystem_t      *ps = NULL;
   baseParticleSystem_t  *bps = &baseParticleSystems[ psHandle - 1 ];
 
@@ -1234,7 +1234,6 @@ Parse a particle system section
 static qboolean CG_ParseParticleSystem( baseParticleSystem_t *bps, char **text_p )
 {
   char                  *token;
-  int                   i;
   baseParticleEjector_t *bpe;
 
   // read optional parameters
@@ -2097,7 +2096,7 @@ Actually render a particle
 static void CG_RenderParticle( particle_t *p )
 {
   refEntity_t     re;
-  float           timeFrac, frac;
+  float           timeFrac;
   int             index;
   baseParticle_t  *bp = p->class;
   vec3_t          alight, dlight, lightdir;

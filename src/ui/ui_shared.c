@@ -2853,7 +2853,6 @@ int Item_Text_AutoWrapped_Lines( itemDef_t *item )
   const char  *p, *textPtr, *newLinePtr;
   char        buff[ 1024 ];
   int         len, textWidth, newLine;
-  vec4_t      color;
   int         lines = 0;
 
   textWidth = 0;
@@ -2973,7 +2972,7 @@ void Item_Text_AutoWrapped_Paint( itemDef_t *item )
   const char  *p, *textPtr, *newLinePtr;
   char        buff[ 1024 ];
   char        lastCMod[ 2 ] = { 0, 0 };
-  qboolean    forwardColor;
+  qboolean    forwardColor = qfalse;
   int         width, height, len, textWidth, newLine, newLineWidth;
   int         skipLines, totalLines, lineNum = 0;
   float       y, totalY, diffY;
@@ -3265,7 +3264,7 @@ void Item_Text_Paint(itemDef_t *item) {
 
 void Item_TextField_Paint(itemDef_t *item) {
   char buff[1024];
-  vec4_t newColor, lowLight;
+  vec4_t newColor;
   int offset;
   menuDef_t *parent = (menuDef_t*)item->parent;
   editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
@@ -3303,7 +3302,7 @@ void Item_TextField_Paint(itemDef_t *item) {
 }
 
 void Item_YesNo_Paint(itemDef_t *item) {
-  vec4_t newColor, lowLight;
+  vec4_t newColor;
   float value;
   menuDef_t *parent = (menuDef_t*)item->parent;
 
@@ -3330,7 +3329,7 @@ void Item_YesNo_Paint(itemDef_t *item) {
 }
 
 void Item_Multi_Paint(itemDef_t *item) {
-  vec4_t newColor, lowLight;
+  vec4_t newColor;
   const char *text = "";
   menuDef_t *parent = (menuDef_t*)item->parent;
 
@@ -3447,21 +3446,6 @@ static bind_t g_bindings[] =
 
 
 static const int g_bindCount = sizeof(g_bindings) / sizeof(bind_t);
-
-#ifndef MISSIONPACK // bk001206
-static configcvar_t g_configcvars[] =
-{
-  {"cl_run",      0,          0},
-  {"m_pitch",     0,          0},
-  {"cg_autoswitch", 0,          0},
-  {"sensitivity",   0,          0},
-  {"in_joystick",   0,          0},
-  {"joy_threshold", 0,          0},
-  {"m_filter",    0,          0},
-  {"cl_freelook",   0,          0},
-  {NULL,        0,          0}
-};
-#endif
 
 /*
 =================
@@ -3629,7 +3613,7 @@ void BindingFromName(const char *cvar) {
 }
 
 void Item_Slider_Paint(itemDef_t *item) {
-  vec4_t newColor, lowLight;
+  vec4_t newColor;
   float x, y, value;
   menuDef_t *parent = (menuDef_t*)item->parent;
 
@@ -5945,11 +5929,6 @@ displayContextDef_t *Display_GetContext() {
   return DC;
 }
  
-#ifndef MISSIONPACK // bk001206
-static float captureX;
-static float captureY;
-#endif
-
 void *Display_CaptureItem(int x, int y) {
   int i;
 

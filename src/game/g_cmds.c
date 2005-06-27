@@ -238,8 +238,6 @@ void Cmd_Give_f( gentity_t *ent )
   char      *name;
   int       i;
   qboolean  give_all;
-  gentity_t *it_ent;
-  trace_t   trace;
 
   if( !CheatsOk( ent ) )
     return;
@@ -1084,15 +1082,10 @@ Cmd_Class_f
 void Cmd_Class_f( gentity_t *ent )
 {
   char      s[ MAX_TOKEN_CHARS ];
-  qboolean  dontSpawn = qfalse;
   int       clientNum;
-  gentity_t *spawn;
-  vec3_t    spawn_origin, spawn_angles;
-  vec3_t    up = { 0.0f, 0.0f, 1.0f };
-  int       length = 4096;
   int       i;
   trace_t   tr, tr2;
-  vec3_t    infestOrigin, infestAngles;
+  vec3_t    infestOrigin;
   int       allowedClasses[ PCL_NUM_CLASSES ];
   int       numClasses = 0;
   
@@ -1102,7 +1095,7 @@ void Cmd_Class_f( gentity_t *ent )
 
   int       entityList[ MAX_GENTITIES ];
   vec3_t    range = { AS_OVER_RT3, AS_OVER_RT3, AS_OVER_RT3 };
-  vec3_t    mins, maxs, dir;
+  vec3_t    mins, maxs;
   int       num;
   gentity_t *other;
       
@@ -1573,8 +1566,6 @@ void Cmd_Buy_f( gentity_t *ent )
   }
   else if( upgrade != UP_NONE )
   {
-    weapon_t  weaponAmmo;
-    
     //already got this?
     if( BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
     {
@@ -1689,7 +1680,6 @@ void Cmd_Sell_f( gentity_t *ent )
   char      s[ MAX_TOKEN_CHARS ];
   int       i;
   int       weapon, upgrade;
-  int       quan, clips, maxClips;
 
   trap_Argv( 1, s, sizeof( s ) );
 
@@ -1852,9 +1842,7 @@ Cmd_Build_f
 void Cmd_Build_f( gentity_t *ent )
 {
   char          s[ MAX_TOKEN_CHARS ];
-  char          s1[ MAX_TOKEN_CHARS ];
   buildable_t   buildable;
-  weapon_t      weapon;
   float         dist;
   vec3_t        origin;
   pTeam_t       team;
@@ -1916,6 +1904,9 @@ void Cmd_Build_f( gentity_t *ent )
         
       case IBE_NODCC:
         G_TriggerMenu( ent->client->ps.clientNum, MN_H_NODCC );
+        break;
+
+      default:
         break;
     }
   }
@@ -2252,7 +2243,7 @@ void Cmd_Evolve_Debug_f( gentity_t *ent )
   
   int       entityList[ MAX_GENTITIES ];
   vec3_t    range = { USE_OBJECT_RANGE, USE_OBJECT_RANGE, USE_OBJECT_RANGE };
-  vec3_t    mins, maxs, dir;
+  vec3_t    mins, maxs;
   int       i, num;
   int       j;
   qboolean  upgrade = qfalse;

@@ -1506,6 +1506,7 @@ void        CG_SetScoreSelection( void *menu );
 void        CG_BuildSpectatorString( );
 
 qboolean    CG_FileExists( char *filename );
+void        CG_RemoveConsoleLine( void );
 
 
 //
@@ -1893,6 +1894,13 @@ void          trap_CM_TransformedBoxTrace( trace_t *results, const vec3_t start,
                                            const vec3_t mins, const vec3_t maxs,
                                            clipHandle_t model, int brushmask,
                                            const vec3_t origin, const vec3_t angles );
+void          trap_CM_CapsuleTrace( trace_t *results, const vec3_t start, const vec3_t end,
+                const vec3_t mins, const vec3_t maxs,
+                clipHandle_t model, int brushmask );
+void          trap_CM_TransformedCapsuleTrace( trace_t *results, const vec3_t start, const vec3_t end,
+                const vec3_t mins, const vec3_t maxs,
+                clipHandle_t model, int brushmask,
+                const vec3_t origin, const vec3_t angles );
 
 // Returns the projection of a polygon onto the solid brushes in the world
 int           trap_CM_MarkFragments( int numPoints, const vec3_t *points,

@@ -382,7 +382,6 @@ static void CG_OffsetFirstPersonView( void )
   float         bob2;
   vec3_t        normal, baseOrigin;
   playerState_t *ps = &cg.predictedPlayerState;
-  centity_t     *cent = &cg.predictedPlayerEntity;
 	
   if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
   {
@@ -708,8 +707,6 @@ static int CG_CalcFov( void )
   float f;
   int   inwater;
   int   attribFov;
-  int   a;
-  float b;
 
   if( cg.predictedPlayerState.pm_type == PM_INTERMISSION ||
       ( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR ) )

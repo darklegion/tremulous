@@ -117,7 +117,7 @@ static qboolean findPower( gentity_t *self )
 {
   int       i;
   gentity_t *ent;
-  gentity_t *closestPower;
+  gentity_t *closestPower = NULL;
   int       distance = 0;
   int       minDistance = 10000;
   vec3_t    temp_v;
@@ -204,7 +204,7 @@ static qboolean findDCC( gentity_t *self )
 {
   int       i;
   gentity_t *ent;
-  gentity_t *closestDCC;
+  gentity_t *closestDCC = NULL;
   int       distance = 0;
   int       minDistance = 10000;
   vec3_t    temp_v;
@@ -333,7 +333,7 @@ static qboolean findCreep( gentity_t *self )
 {
   int       i;
   gentity_t *ent;
-  gentity_t *closestSpawn;
+  gentity_t *closestSpawn = NULL;
   int       distance = 0;
   int       minDistance = 10000;
   vec3_t    temp_v;
@@ -1264,7 +1264,6 @@ Used by ADef2_Think to fire at enemy
 void ADef_FireOnEnemy( gentity_t *self, int firespeed )
 {
   vec3_t  dirToTarget;
-  vec3_t  target;
   vec3_t  halfAcceleration, thirdJerk;
   float   distanceToTarget = BG_FindRangeForBuildable( self->s.modelindex );
   int     i;
@@ -1469,7 +1468,6 @@ Use for human power repeater
 void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
   int           maxAmmo, maxClips;
-  int           ammo, clips;
   weapon_t      weapon;
   playerState_t *ps = &activator->client->ps;
   
@@ -1864,7 +1862,6 @@ void HMGTurret_FindEnemy( gentity_t *self )
   int       entityList[ MAX_GENTITIES ];
   vec3_t    range;
   vec3_t    mins, maxs;
-  vec3_t    dir;
   int       i, num;
   gentity_t *target;
 
@@ -2338,7 +2335,7 @@ qboolean G_BuildableRange( vec3_t origin, float r, buildable_t buildable )
 {
   int       entityList[ MAX_GENTITIES ];
   vec3_t    range;
-  vec3_t    mins, maxs, dir;
+  vec3_t    mins, maxs;
   int       i, num;
   gentity_t *ent;
   
@@ -2374,9 +2371,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   trace_t           tr1, tr2, tr3;
   int               i;
   itemBuildError_t  reason = IBE_NONE;
-  gentity_t         *tempent, *closestPower;
-  int               minDistance = 10000;
-  int               templength;
+  gentity_t         *tempent;
   float             minNormal;
   qboolean          invert;
   int               contents;
@@ -2715,10 +2710,10 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   if( built->s.generic1 < 0 )
     built->s.generic1 = 0;
     
-  if( built->powered = findPower( built ) )
+  if( ( built->powered = findPower( built ) ) )
     built->s.generic1 |= B_POWERED_TOGGLEBIT;
   
-  if( built->dcced = findDCC( built ) )
+  if( ( built->dcced = findDCC( built ) ) )
     built->s.generic1 |= B_DCCED_TOGGLEBIT;
     
   built->s.generic1 &= ~B_SPAWNED_TOGGLEBIT;
@@ -2744,7 +2739,6 @@ G_ValidateBuild
 */
 qboolean G_ValidateBuild( gentity_t *ent, buildable_t buildable )
 {
-  weapon_t      weapon;
   float         dist;
   vec3_t        origin;
 
@@ -2827,6 +2821,9 @@ qboolean G_ValidateBuild( gentity_t *ent, buildable_t buildable )
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPTWARN );
       G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
       return qtrue;
+
+    default:
+      break;
   }
 
   return qfalse;

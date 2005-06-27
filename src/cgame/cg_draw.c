@@ -17,6 +17,7 @@
  */
 
 #include "cg_local.h"
+#include "../ui/ui_shared.h"
 
 // used for scoreboard
 extern    displayContextDef_t cgDC;
@@ -1419,7 +1420,6 @@ void CG_DrawLoadingScreen( void )
 float CG_GetValue( int ownerDraw )
 {
   centity_t *cent;
-  clientInfo_t *ci;
   playerState_t *ps;
 
   cent = &cg_entities[ cg.snap->ps.clientNum ];
@@ -1753,7 +1753,7 @@ CG_DrawTimerMins
 */
 static void CG_DrawTimerMins( rectDef_t *rect, vec4_t color )
 {
-  int     mins, seconds, tens;
+  int     mins, seconds;
   int     msec;
 
   if( !cg_drawTimer.integer )
@@ -1778,7 +1778,7 @@ CG_DrawTimerSecs
 */
 static void CG_DrawTimerSecs( rectDef_t *rect, vec4_t color )
 {
-  int     mins, seconds, tens;
+  int     mins, seconds;
   int     msec;
 
   if( !cg_drawTimer.integer )
@@ -2265,7 +2265,6 @@ static void CG_DrawCrosshair( void )
 {
   float         w, h;
   qhandle_t     hShader;
-  float         f;
   float         x, y;
   weaponInfo_t  *wi;
 

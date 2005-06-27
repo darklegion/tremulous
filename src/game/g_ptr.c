@@ -67,11 +67,9 @@ connectionRecord_t *G_GenerateNewConnection( gclient_t *client )
 {
   int     code = 0;
   int     i;
-  qtime_t time;
 
   // this should be really random
-  trap_RealTime( &time );
-  srand( time.tm_sec + time.tm_min + time.tm_hour );
+  srand( trap_Milliseconds( ) );
   
   // there is a very very small possibility that this
   // will loop infinitely

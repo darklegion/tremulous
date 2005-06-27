@@ -78,7 +78,7 @@ static qboolean G_ParseMapRotation( mapRotation_t *mr, char **text_p )
 {
   char                    *token;
   qboolean                mnSet = qfalse;
-  mapRotationEntry_t      *mre;
+  mapRotationEntry_t      *mre = NULL;
   mapRotationCondition_t  *mrc;
 
   // read optional parameters

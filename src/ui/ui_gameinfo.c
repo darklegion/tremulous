@@ -32,11 +32,6 @@ static char   *ui_botInfos[MAX_BOTS];
 static int    ui_numArenas;
 static char   *ui_arenaInfos[MAX_ARENAS];
 
-#ifndef MISSIONPACK // bk001206
-static int    ui_numSinglePlayerArenas;
-static int    ui_numSpecialSinglePlayerArenas;
-#endif
-
 /*
 ===============
 UI_ParseInfos
@@ -128,7 +123,6 @@ UI_LoadArenas
 */
 void UI_LoadArenas( void ) {
   int     numdirs;
-  vmCvar_t  arenasFile;
   char    filename[128];
   char    dirlist[1024];
   char*   dirptr;

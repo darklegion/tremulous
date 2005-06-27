@@ -28,7 +28,7 @@ static void G_Bounce( gentity_t *ent, trace_t *trace )
   float     dot;
   int       hitTime;
   float     minNormal;
-  qboolean  invert;
+  qboolean  invert = qfalse;
 
   // reflect the velocity on the trace plane
   hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;

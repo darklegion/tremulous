@@ -80,7 +80,7 @@ void CG_AlienBuildableExplosion( vec3_t origin, vec3_t dir )
 {
   vec3_t            velocity;
   particleSystem_t  *ps;
-  qhandle_t         gibModel;
+  qhandle_t         gibModel = cgs.media.alienGib1;
   int               i;
 
   trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.alienBuildableExplosion );
@@ -162,7 +162,7 @@ void CG_HumanBuildableExplosion( vec3_t origin, vec3_t dir )
   vec3_t            lightColor, fragOrigin, velocity;
   localEntity_t     *le;
   int               i;
-  qhandle_t         gibModel;
+  qhandle_t         gibModel = cgs.media.metalGib1;
   particleSystem_t  *ps;
 
   lightColor[ 0 ] = 1;
@@ -220,14 +220,10 @@ CG_Creep
 */
 static void CG_Creep( centity_t *cent )
 {
-  polyVert_t    verts[ 4 ];
-  vec3_t        square[ 4 ];
-  vec2_t        tex[ 4 ];
-  int           i, msec, seed;
-  float         size, newsize, frac;
-  float         length;
-  trace_t       tr, tr2;
-  vec3_t        temp, origin, p1, p2;
+  int           msec;
+  float         size, frac;
+  trace_t       tr;
+  vec3_t        temp, origin;
   int           scaleUpTime = BG_FindBuildTimeForBuildable( cent->currentState.modelindex );
   int           time;
 
@@ -276,7 +272,7 @@ models/buildables/hivemind/animation.cfg, etc
 */
 static qboolean CG_ParseBuildableAnimationFile( const char *filename, buildable_t buildable )
 {
-  char          *text_p, *prev;
+  char          *text_p;
   int           len;
   int           i;
   char          *token;
@@ -367,7 +363,7 @@ sound/buildables/hivemind/sound.cfg, etc
 */
 static qboolean CG_ParseBuildableSoundFile( const char *filename, buildable_t buildable )
 {
-  char          *text_p, *prev;
+  char          *text_p;
   int           len;
   int           i;
   char          *token;
@@ -471,7 +467,7 @@ void CG_InitBuildables( )
     //models
     for( j = 0; j <= 3; j++ )
     {
-      if( modelFile = BG_FindModelsForBuildable( i, j ) )
+      if( ( modelFile = BG_FindModelsForBuildable( i, j ) ) )
         cg_buildables[ i ].models[ j ] = trap_R_RegisterModel( modelFile );
     }
 
@@ -754,9 +750,8 @@ void CG_GhostBuildable( buildable_t buildable )
 {
   refEntity_t     ent;
   playerState_t   *ps;
-  vec3_t          angles, forward, player_origin, entity_origin, target_origin, normal, cross;
-  vec3_t          mins, maxs, start, end;
-  float           distance;
+  vec3_t          angles, entity_origin;
+  vec3_t          mins, maxs;
   trace_t         tr;
   
   ps = &cg.predictedPlayerState;
@@ -921,7 +916,7 @@ void CG_Buildable( centity_t *cent )
   refEntity_t     ent;
   entityState_t   *es = &cent->currentState;
   vec3_t          angles;
-  vec3_t          forward, surfNormal, xNormal, mins, maxs;
+  vec3_t          surfNormal, xNormal, mins, maxs;
   vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
   float           rotAngle;
   buildableTeam_t team = BG_FindTeamForBuildable( es->modelindex );
@@ -966,7 +961,7 @@ void CG_Buildable( centity_t *cent )
 
   if( !( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
   {
-    sfxHandle_t prebuildSound;
+    sfxHandle_t prebuildSound = cgs.media.humanBuildablePrebuild;
     
     if( team == BIT_HUMANS )
     {

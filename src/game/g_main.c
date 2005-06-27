@@ -860,8 +860,8 @@ void G_SpawnClients( pTeam_t team )
   int           clientNum;
   gentity_t     *ent, *spawn;
   vec3_t        spawn_origin, spawn_angles;
-  spawnQueue_t  *sq;
-  int           numSpawns;
+  spawnQueue_t  *sq = NULL;
+  int           numSpawns = 0;
 
   if( team == PTE_ALIENS )
   {
@@ -935,7 +935,6 @@ Recalculate the quantity of building points available to the teams
 void G_CalculateBuildPoints( void )
 {
   int         i;
-  int         bclass;
   buildable_t buildable;
   gentity_t   *ent;
   int         localHTP = g_humanBuildPoints.integer,
@@ -1578,8 +1577,6 @@ can see the last frag.
 */
 void CheckExitRules( void )
 {
-  int       i;
-  gclient_t *cl;
   char      s[ MAX_STRING_CHARS ];
 
   trap_Cvar_VariableStringBuffer( "mapname", s, sizeof( s ) );

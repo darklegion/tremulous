@@ -528,6 +528,9 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time )
       
     case MODEL_POS2:
       break;
+
+    default:
+      break;
   }
   
   if( moverState >= MOVER_POS1 && moverState <= MOVER_2TO1 )
@@ -1604,15 +1607,11 @@ NOMONSTER monsters will not trigger this door
 */
 void SP_func_door_model( gentity_t *ent )
 {
-  vec3_t    abs_movedir;
-  float     distance;
-  vec3_t    size;
   char      *s;
   float     light;
   vec3_t    color;
   qboolean  lightSet, colorSet;
   char      *sound;
-  gentity_t *door;
   gentity_t *clipBrush;
 
   G_SpawnString( "sound2to1", "sound/movers/doors/dr1_strt.wav", &s );

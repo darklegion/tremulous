@@ -149,7 +149,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 {
   gentity_t *ent;
   int       anim;
-  int       contents;
   int       killer;
   int       i, j;
   char      *killerName, *obit;
@@ -323,7 +322,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         for( i = 0; i < unclaimedFrags; i++ )
         {
           int maximum = 0;
-          int topClient;
+          int topClient = 0;
           
           for( j = 0; j < MAX_CLIENTS; j++ )
           {
@@ -902,9 +901,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   gclient_t *client;
   int     take;
   int     save;
-  int     asave;
+  int     asave = 0;
   int     knockback;
-  int     max;
 
   if( !targ->takedamage )
     return;

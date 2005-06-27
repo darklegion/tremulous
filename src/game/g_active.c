@@ -507,7 +507,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
     //client is charging up for a pounce
     if( client->ps.weapon == WP_ALEVEL3 || client->ps.weapon == WP_ALEVEL3_UPG )
     {
-      int pounceSpeed;
+      int pounceSpeed = 0;
 
       if( client->ps.weapon == WP_ALEVEL3 )
         pounceSpeed = LEVEL3_POUNCE_SPEED;
@@ -641,7 +641,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
     {
       int i;
       int seconds = ( ( level.time - client->lastPoisonTime ) / 1000 ) + 1;
-      int damage = ALIEN_POISON_DMG, damage2;
+      int damage = ALIEN_POISON_DMG, damage2 = 0;
       
       for( i = 0; i < seconds; i++ )
       {
@@ -662,7 +662,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
     {
       int       entityList[ MAX_GENTITIES ];
       vec3_t    range = { LEVEL4_REGEN_RANGE, LEVEL4_REGEN_RANGE, LEVEL4_REGEN_RANGE };
-      vec3_t    mins, maxs, dir;
+      vec3_t    mins, maxs;
       int       i, num;
       gentity_t *alienPlayer;
       float     modifier = 1.0f;
@@ -743,13 +743,12 @@ but any server game effects are handled here
 */
 void ClientEvents( gentity_t *ent, int oldEventSequence )
 {
-  int       i, j;
+  int       i;
   int       event;
   gclient_t *client;
   int       damage;
   vec3_t    dir;
   vec3_t    point, mins;
-  gentity_t *drop;
   float     fallDistance;
   pClass_t  class;
 
@@ -842,56 +841,6 @@ void ClientEvents( gentity_t *ent, int oldEventSequence )
   }
 }
 
-/*
-==============
-StuckInOtherClient
-==============
-*/
-static int StuckInOtherClient( gentity_t *ent )
-{
-  int       i;
-  gentity_t *ent2;
-
-  ent2 = &g_entities[ 0 ];
-  
-  for( i = 0; i < MAX_CLIENTS; i++, ent2++ )
-  {
-    if( ent2 == ent )
-      continue;
-
-    if( !ent2->inuse )
-      continue;
-
-    if( !ent2->client )
-      continue;
-
-    if( ent2->health <= 0 )
-      continue;
-
-    //
-    if( ent2->r.absmin[ 0 ] > ent->r.absmax[ 0 ] )
-      continue;
-    
-    if( ent2->r.absmin[ 1 ] > ent->r.absmax[ 1 ] )
-      continue;
-    
-    if( ent2->r.absmin[ 2 ] > ent->r.absmax[ 2 ] )
-      continue;
-    
-    if( ent2->r.absmax[ 0 ] < ent->r.absmin[ 0 ] )
-      continue;
-    
-    if( ent2->r.absmax[ 1 ] < ent->r.absmin[ 1 ] )
-      continue;
-    
-    if( ent2->r.absmax[ 2 ] < ent->r.absmin[ 2 ] )
-      continue;
-    
-    return qtrue;
-  }
-  
-  return qfalse;
-}
 
 /*
 ==============
@@ -948,7 +897,6 @@ void ClientThink_real( gentity_t *ent )
   int       oldEventSequence;
   int       msec;
   usercmd_t *ucmd;
-  float     speed;
 
   client = ent->client;
 
@@ -1252,7 +1200,7 @@ void ClientThink_real( gentity_t *ent )
       
       int       entityList[ MAX_GENTITIES ];
       vec3_t    range = { USE_OBJECT_RANGE, USE_OBJECT_RANGE, USE_OBJECT_RANGE };
-      vec3_t    mins, maxs, dir;
+      vec3_t    mins, maxs;
       int       i, num;
       int       j;
       qboolean  upgrade = qfalse;
@@ -1463,7 +1411,6 @@ while a slow client may have multiple ClientEndFrame between ClientThink.
 */
 void ClientEndFrame( gentity_t *ent )
 {
-  int                 i;
   clientPersistant_t  *pers;
 
   if( ent->client->sess.sessionTeam == TEAM_SPECTATOR )

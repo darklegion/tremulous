@@ -434,6 +434,9 @@ void Controls_GetConfig( void );
 void Controls_SetConfig(qboolean restart);
 void Controls_SetDefaults( void );
 
+//for cg_draw.c
+void Item_Text_AutoWrapped_Paint( itemDef_t *item );
+
 int			trap_PC_AddGlobalDefine( char *define );
 int			trap_PC_LoadSource( const char *filename );
 int			trap_PC_FreeSource( int handle );

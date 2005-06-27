@@ -27,7 +27,7 @@ CG_ParseScores
 */
 static void CG_ParseScores( void )
 {
-  int   i, powerups;
+  int   i;
 
   cg.numScores = atoi( CG_Argv( 1 ) );
   
@@ -54,7 +54,7 @@ static void CG_ParseScores( void )
       cg.scores[ i ].client = 0;
     
     cgs.clientinfo[ cg.scores[ i ].client ].score = cg.scores[ i ].score;
-    cgs.clientinfo[ cg.scores[ i ].client ].powerups = powerups;
+    cgs.clientinfo[ cg.scores[ i ].client ].powerups = 0;
 
     cg.scores[ i ].team = cgs.clientinfo[ cg.scores[ i ].client ].team;
   } 
@@ -141,8 +141,6 @@ Called on load to set the initial values from configure strings
 */
 void CG_SetConfigValues( void )
 {
-  const char *s;
-
   cgs.scores1 = atoi( CG_ConfigString( CS_SCORES1 ) );
   cgs.scores2 = atoi( CG_ConfigString( CS_SCORES2 ) );
 

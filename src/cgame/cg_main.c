@@ -969,8 +969,6 @@ CG_RegisterClients
 */
 static void CG_RegisterClients( void )
 {
-  char  buffer[ MAX_INFO_STRING ];
-  char  *s;
   int   i;
 
   cg.charModelFraction = 0.0f;

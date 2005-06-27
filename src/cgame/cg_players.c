@@ -716,8 +716,6 @@ void CG_PrecacheClientInfo( pClass_t class, char *model, char *skin )
 {
   clientInfo_t  *ci;
   clientInfo_t  newInfo;
-  const char    *v;
-  char          *slash;
 
   ci = &cgs.corpseinfo[ class ];
 
@@ -1438,11 +1436,9 @@ Resolve angles for non-segmented models
 static void CG_PlayerNonSegAngles( centity_t *cent, vec3_t srcAngles, vec3_t nonSegAxis[ 3 ] )
 {
   vec3_t        localAngles;
-  float         dest;
   vec3_t        velocity;
   float         speed;
-  int           dir, clientNum;
-  clientInfo_t  *ci;
+  int           dir;
   entityState_t *es = &cent->currentState;
   vec3_t        surfNormal;
   vec3_t        ceilingNormal = { 0.0f, 0.0f, -1.0f };
@@ -1966,12 +1962,12 @@ CG_LightFromDirection
 */
 int CG_LightFromDirection( vec3_t point, vec3_t direction )
 {
-  int       i, j;
+  int       j;
   float     incoming;
-  vec3_t      ambientLight;
-  vec3_t      lightDir;
-  vec3_t      directedLight;
-  vec3_t      result;
+  vec3_t    ambientLight;
+  vec3_t    lightDir;
+  vec3_t    directedLight;
+  vec3_t    result;
 
   trap_R_LightForPoint( point, ambientLight, directedLight, lightDir );
 
@@ -2056,7 +2052,6 @@ void CG_Player( centity_t *cent )
   vec3_t        tempAxis[ 3 ], tempAxis2[ 3 ];
   vec3_t        angles;
   int           held = es->modelindex;
-  pTeam_t       team = es->powerups & 0xFF;
   vec3_t        surfNormal = { 0.0f, 0.0f, 1.0f };
 
   // the client number is stored in clientNum.  It can't be derived

@@ -18,6 +18,12 @@
 #include "q_shared.h"
 #include "bg_public.h"
 
+int  trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
+void trap_FS_Read( void *buffer, int len, fileHandle_t f );
+void trap_FS_Write( const void *buffer, int len, fileHandle_t f );
+void trap_FS_FCloseFile( fileHandle_t f );
+void trap_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin ); // fsOrigin_t
+
 buildableAttributes_t bg_buildableList[ ] =
 {
   {
@@ -1261,7 +1267,6 @@ static qboolean BG_ParseBuildableFile( const char *filename, buildableAttributeO
   char          *token;
   char          text[ 20000 ];
   fileHandle_t  f;
-  float         scale = 0.0f;
       
 
   // load the file
@@ -4479,7 +4484,6 @@ and after local prediction on the client
 void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean snap )
 {
   int     i;
-  vec3_t  ceilingNormal = { 0, 0, -1 };
 
   if( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR || ps->pm_type == PM_FREEZE )
     s->eType = ET_INVISIBLE;
@@ -4584,7 +4588,6 @@ and after local prediction on the client
 void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap )
 {
   int     i;
-  vec3_t  ceilingNormal = { 0, 0, -1 };
 
   if( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR || ps->pm_type == PM_FREEZE )
     s->eType = ET_INVISIBLE;

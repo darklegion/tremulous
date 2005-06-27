@@ -125,13 +125,8 @@ void CG_ModelDoor( centity_t *cent )
 {
   refEntity_t     ent;
   entityState_t   *es;
-  vec3_t          mins, maxs, size, rotSize;
-  vec3_t          cMins, cMaxs, displacement;
-  vec3_t          bMaxs, scale;
   animation_t     anim;
   lerpFrame_t     *lf = &cent->lerpFrame;
-  float           temp;
-    
 
   es = &cent->currentState;
 
