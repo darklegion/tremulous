@@ -1609,33 +1609,44 @@ void Cmd_Buy_f( gentity_t *ent )
     
     if( upgrade == UP_AMMO )
     {
-      qboolean weaponType;
-
-      for( i = WP_NONE; i < WP_NUM_WEAPONS; i++ )
+      if( !ent->client->campingAtTheArmoury )
       {
-        if( buyingEnergyAmmo )
-          weaponType = BG_FindUsesEnergyForWeapon( i );
-        else
-          weaponType = !BG_FindUsesEnergyForWeapon( i );
-        
-        if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
-            weaponType &&
-            !BG_FindInfinteAmmoForWeapon( i ) )
-        {
-          BG_FindAmmoForWeapon( i, &quan, &clips, &maxClips );
-          
-          if( buyingEnergyAmmo )
-          {
-            G_AddEvent( ent, EV_RPTUSE_SOUND, 0 );
-            ent->client->lastRefilTime = level.time;
-            
-            if( BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
-              quan = (int)( (float)quan * BATTPACK_MODIFIER );
-          }
+        qboolean weaponType;
 
-          BG_PackAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups,
-                            quan, clips, maxClips );
+        for( i = WP_NONE; i < WP_NUM_WEAPONS; i++ )
+        {
+          if( buyingEnergyAmmo )
+            weaponType = BG_FindUsesEnergyForWeapon( i );
+          else
+            weaponType = !BG_FindUsesEnergyForWeapon( i );
+          
+          if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
+              weaponType &&
+              !BG_FindInfinteAmmoForWeapon( i ) )
+          {
+            BG_FindAmmoForWeapon( i, &quan, &clips, &maxClips );
+            
+            if( buyingEnergyAmmo )
+            {
+              G_AddEvent( ent, EV_RPTUSE_SOUND, 0 );
+              ent->client->lastRefilTime = level.time;
+              
+              if( BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
+                quan = (int)( (float)quan * BATTPACK_MODIFIER );
+            }
+
+            BG_PackAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups,
+                              quan, clips, maxClips );
+          }
         }
+
+        ent->client->lastBoughtAmmoTime = level.time;
+        ent->client->campingAtTheArmoury = qtrue;
+      }
+      else
+      {
+        trap_SendServerCommand( ent-g_entities, va( "print \"Move away from the armoury\n\"" ) );
+        return;
       }
     }
     else

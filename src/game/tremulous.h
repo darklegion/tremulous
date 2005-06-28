@@ -540,6 +540,9 @@
 
 #define HUMAN_SPAWN_REPEAT_TIME     10000
 
+#define HUMAN_ARMOURY_CAMP_TIME     45000
+#define HUMAN_ARMOURY_CAMP_DISTANCE 256.0f
+
 /*
  * Misc
  */

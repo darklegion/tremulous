@@ -415,6 +415,9 @@ struct gclient_s
 
 #define RAM_FRAMES  1                       //TA: number of frames to wait before retriggering
   int                 retriggerArmouryMenu; //TA: frame number to retrigger the armoury menu
+
+  int                 lastBoughtAmmoTime;
+  qboolean            campingAtTheArmoury;
 };
 
 
