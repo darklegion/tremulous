@@ -695,7 +695,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
       vec3_t    range = { LEVEL4_REGEN_RANGE, LEVEL4_REGEN_RANGE, LEVEL4_REGEN_RANGE };
       vec3_t    mins, maxs;
       int       i, num;
-      gentity_t *alienPlayer;
+      gentity_t *boostEntity;
       float     modifier = 1.0f;
       
       VectorAdd( client->ps.origin, range, maxs );
@@ -704,12 +704,18 @@ void ClientTimerActions( gentity_t *ent, int msec )
       num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
       for( i = 0; i < num; i++ )
       {
-        alienPlayer = &g_entities[ entityList[ i ] ];
+        boostEntity = &g_entities[ entityList[ i ] ];
         
-        if( alienPlayer->client && alienPlayer->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
-            alienPlayer->client->ps.stats[ STAT_PCLASS ] == PCL_ALIEN_LEVEL4 )
+        if( boostEntity->client && boostEntity->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
+            boostEntity->client->ps.stats[ STAT_PCLASS ] == PCL_ALIEN_LEVEL4 )
         {
           modifier = LEVEL4_REGEN_MOD;
+          break;
+        }
+        else if( boostEntity->s.eType == ET_BUILDABLE &&
+            boostEntity->s.modelindex == BA_A_BOOSTER )
+        {
+          modifier = BOOSTER_REGEN_MOD;
           break;
         }
       }

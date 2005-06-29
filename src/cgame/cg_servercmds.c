@@ -908,7 +908,7 @@ static void CG_ServerCommand( void )
   //the server has triggered a menu
   if( !strcmp( cmd, "servermenu" ) )
   {
-    if( trap_Argc( ) == 2 )
+    if( trap_Argc( ) == 2 && !cg.demoPlayback )
       CG_Menu( atoi( CG_Argv( 1 ) ) );
     
     return;

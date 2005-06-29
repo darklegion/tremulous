@@ -696,6 +696,7 @@ qboolean CheckVenomAttack( gentity_t *ent )
   gentity_t *tent;
   gentity_t *traceEnt;
   vec3_t    mins, maxs;
+  int       damage = LEVEL0_BITE_DMG;
 
   VectorSet( mins, -LEVEL0_BITE_WIDTH, -LEVEL0_BITE_WIDTH, -LEVEL0_BITE_WIDTH );
   VectorSet( maxs, LEVEL0_BITE_WIDTH, LEVEL0_BITE_WIDTH, LEVEL0_BITE_WIDTH );
@@ -709,22 +710,38 @@ qboolean CheckVenomAttack( gentity_t *ent )
 
   trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
 
-  if ( tr.surfaceFlags & SURF_NOIMPACT )
+  if( tr.surfaceFlags & SURF_NOIMPACT )
     return qfalse;
 
   traceEnt = &g_entities[ tr.entityNum ];
 
-  if( !traceEnt->takedamage)
+  if( !traceEnt->takedamage )
     return qfalse;
-  if( !traceEnt->client )
-    return qfalse;
-  if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-    return qfalse;
-  if( traceEnt->client->ps.stats[ STAT_HEALTH ] <= 0 )
+  
+  if( !traceEnt->client && !traceEnt->s.eType == ET_BUILDABLE )
     return qfalse;
 
+  //allow bites to work against defensive buildables only
+  if( traceEnt->s.eType == ET_BUILDABLE )
+  {
+    if( traceEnt->s.modelindex != BA_H_MGTURRET &&
+        traceEnt->s.modelindex != BA_H_TESLAGEN )
+      return qfalse;
+
+    //hackery
+    damage *= 0.5f;
+  }
+  
+  if( traceEnt->client )
+  {
+    if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      return qfalse;
+    if( traceEnt->client->ps.stats[ STAT_HEALTH ] <= 0 )
+      return qfalse;
+  }
+
   // send blood impact
-  if ( traceEnt->takedamage && traceEnt->client )
+  if( traceEnt->takedamage && traceEnt->client )
   {
     tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
     tent->s.otherEntityNum = traceEnt->s.number;
@@ -733,7 +750,7 @@ qboolean CheckVenomAttack( gentity_t *ent )
     tent->s.generic1 = ent->s.generic1; //weaponMode
   }
 
-  G_Damage( traceEnt, ent, ent, forward, tr.endpos, LEVEL0_BITE_DMG, DAMAGE_NO_KNOCKBACK, MOD_LEVEL0_BITE );
+  G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_LEVEL0_BITE );
 
   return qtrue;
 }

@@ -26,6 +26,9 @@ releasei386-glibc/game/g_combat.o: src/game/g_combat.c src/game/g_local.h src/ga
 releasei386-glibc/game/g_main.o: src/game/g_main.c src/game/g_local.h src/game/q_shared.h \
   src/game/surfaceflags.h src/game/bg_public.h src/game/tremulous.h \
   src/game/g_public.h
+releasei386-glibc/game/g_maprotation.o: src/game/g_maprotation.c src/game/g_local.h \
+  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
+  src/game/tremulous.h src/game/g_public.h
 releasei386-glibc/game/g_mem.o: src/game/g_mem.c src/game/g_local.h src/game/q_shared.h \
   src/game/surfaceflags.h src/game/bg_public.h src/game/tremulous.h \
   src/game/g_public.h
@@ -39,6 +42,9 @@ releasei386-glibc/game/g_mover.o: src/game/g_mover.c src/game/g_local.h src/game
   src/game/surfaceflags.h src/game/bg_public.h src/game/tremulous.h \
   src/game/g_public.h
 releasei386-glibc/game/g_physics.o: src/game/g_physics.c src/game/g_local.h src/game/q_shared.h \
+  src/game/surfaceflags.h src/game/bg_public.h src/game/tremulous.h \
+  src/game/g_public.h
+releasei386-glibc/game/g_ptr.o: src/game/g_ptr.c src/game/g_local.h src/game/q_shared.h \
   src/game/surfaceflags.h src/game/bg_public.h src/game/tremulous.h \
   src/game/g_public.h
 releasei386-glibc/game/g_session.o: src/game/g_session.c src/game/g_local.h src/game/q_shared.h \
@@ -98,6 +104,9 @@ debugi386-glibc/game/g_combat.o: src/game/g_combat.c src/game/g_local.h src/game
 debugi386-glibc/game/g_main.o: src/game/g_main.c src/game/g_local.h src/game/q_shared.h \
   src/game/surfaceflags.h src/game/bg_public.h src/game/tremulous.h \
   src/game/g_public.h
+debugi386-glibc/game/g_maprotation.o: src/game/g_maprotation.c src/game/g_local.h \
+  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
+  src/game/tremulous.h src/game/g_public.h
 debugi386-glibc/game/g_mem.o: src/game/g_mem.c src/game/g_local.h src/game/q_shared.h \
   src/game/surfaceflags.h src/game/bg_public.h src/game/tremulous.h \
   src/game/g_public.h
@@ -111,6 +120,9 @@ debugi386-glibc/game/g_mover.o: src/game/g_mover.c src/game/g_local.h src/game/q
   src/game/surfaceflags.h src/game/bg_public.h src/game/tremulous.h \
   src/game/g_public.h
 debugi386-glibc/game/g_physics.o: src/game/g_physics.c src/game/g_local.h src/game/q_shared.h \
+  src/game/surfaceflags.h src/game/bg_public.h src/game/tremulous.h \
+  src/game/g_public.h
+debugi386-glibc/game/g_ptr.o: src/game/g_ptr.c src/game/g_local.h src/game/q_shared.h \
   src/game/surfaceflags.h src/game/bg_public.h src/game/tremulous.h \
   src/game/g_public.h
 debugi386-glibc/game/g_session.o: src/game/g_session.c src/game/g_local.h src/game/q_shared.h \
@@ -170,6 +182,9 @@ qvm/game/g_combat.asm: src/game/g_combat.c src/game/g_local.h src/game/q_shared.
 qvm/game/g_main.asm: src/game/g_main.c src/game/g_local.h src/game/q_shared.h \
   src/game/surfaceflags.h src/game/bg_public.h src/game/tremulous.h \
   src/game/g_public.h
+qvm/game/g_maprotation.asm: src/game/g_maprotation.c src/game/g_local.h \
+  src/game/q_shared.h src/game/surfaceflags.h src/game/bg_public.h \
+  src/game/tremulous.h src/game/g_public.h
 qvm/game/g_mem.asm: src/game/g_mem.c src/game/g_local.h src/game/q_shared.h \
   src/game/surfaceflags.h src/game/bg_public.h src/game/tremulous.h \
   src/game/g_public.h
@@ -183,6 +198,9 @@ qvm/game/g_mover.asm: src/game/g_mover.c src/game/g_local.h src/game/q_shared.h 
   src/game/surfaceflags.h src/game/bg_public.h src/game/tremulous.h \
   src/game/g_public.h
 qvm/game/g_physics.asm: src/game/g_physics.c src/game/g_local.h src/game/q_shared.h \
+  src/game/surfaceflags.h src/game/bg_public.h src/game/tremulous.h \
+  src/game/g_public.h
+qvm/game/g_ptr.asm: src/game/g_ptr.c src/game/g_local.h src/game/q_shared.h \
   src/game/surfaceflags.h src/game/bg_public.h src/game/tremulous.h \
   src/game/g_public.h
 qvm/game/g_session.asm: src/game/g_session.c src/game/g_local.h src/game/q_shared.h \
@@ -283,6 +301,10 @@ releasei386-glibc/cgame/cg_predict.o: src/cgame/cg_predict.c src/cgame/cg_local.
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
   src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
+releasei386-glibc/cgame/cg_ptr.o: src/cgame/cg_ptr.c src/cgame/cg_local.h src/game/q_shared.h \
+  src/game/surfaceflags.h src/cgame/tr_types.h src/game/bg_public.h \
+  src/game/tremulous.h src/cgame/cg_public.h src/ui/ui_shared.h \
+  src/ui/keycodes.h ui/menudef.h
 releasei386-glibc/cgame/cg_scanner.o: src/cgame/cg_scanner.c src/cgame/cg_local.h \
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
@@ -383,6 +405,10 @@ debugi386-glibc/cgame/cg_predict.o: src/cgame/cg_predict.c src/cgame/cg_local.h 
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
   src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
+debugi386-glibc/cgame/cg_ptr.o: src/cgame/cg_ptr.c src/cgame/cg_local.h src/game/q_shared.h \
+  src/game/surfaceflags.h src/cgame/tr_types.h src/game/bg_public.h \
+  src/game/tremulous.h src/cgame/cg_public.h src/ui/ui_shared.h \
+  src/ui/keycodes.h ui/menudef.h
 debugi386-glibc/cgame/cg_scanner.o: src/cgame/cg_scanner.c src/cgame/cg_local.h \
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
@@ -483,6 +509,10 @@ qvm/cgame/cg_predict.asm: src/cgame/cg_predict.c src/cgame/cg_local.h \
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
   src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
+qvm/cgame/cg_ptr.asm: src/cgame/cg_ptr.c src/cgame/cg_local.h src/game/q_shared.h \
+  src/game/surfaceflags.h src/cgame/tr_types.h src/game/bg_public.h \
+  src/game/tremulous.h src/cgame/cg_public.h src/ui/ui_shared.h \
+  src/ui/keycodes.h ui/menudef.h
 qvm/cgame/cg_scanner.asm: src/cgame/cg_scanner.c src/cgame/cg_local.h \
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
