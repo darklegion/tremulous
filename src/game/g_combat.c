@@ -163,6 +163,18 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   if( level.intermissiontime )
     return;
 
+  // stop any following clients
+  for( i = 0; i < level.maxclients; i++ )
+  {
+    if( level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR &&
+        level.clients[ i ].sess.spectatorState == SPECTATOR_FOLLOW &&
+        level.clients[ i ].sess.spectatorClient == self->client->ps.clientNum )
+    {
+      if( !G_FollowNewClient( &g_entities[ i ], 1 ) )
+        G_StopFollowing( &g_entities[ i ] );
+    }
+  }
+
   self->client->ps.pm_type = PM_DEAD;
   self->suicideTime = 0;
 

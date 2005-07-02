@@ -577,7 +577,8 @@ static void CG_OffsetFirstPersonView( void )
       cg.upMoveTime = cg.time;
   }
 
-  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_POISONCLOUDED )
+  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_POISONCLOUDED &&
+      !( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
   {
     float fraction = sin( ( (float)cg.time / 1000.0f ) * M_PI * 2 * PCLOUD_ROLL_FREQUENCY );
     float pitchFraction = sin( ( (float)cg.time / 1000.0f ) * M_PI * 5 * PCLOUD_ROLL_FREQUENCY );
@@ -788,7 +789,8 @@ static int CG_CalcFov( void )
     inwater = qfalse;
 
   if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_POISONCLOUDED &&
-      cg.predictedPlayerState.stats[ STAT_HEALTH ] > 0 )
+      cg.predictedPlayerState.stats[ STAT_HEALTH ] > 0 &&
+      !( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
   {
     phase = cg.time / 1000.0 * PCLOUD_ZOOM_FREQUENCY * M_PI * 2;
     v = PCLOUD_ZOOM_AMPLITUDE * sin( phase );
@@ -948,6 +950,12 @@ static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t o
   qboolean  performed = qfalse;
   vec3_t    inAxis[ 3 ], lastAxis[ 3 ], outAxis[ 3 ];
 
+  if( cg.snap->ps.pm_flags & PMF_FOLLOW )
+  {
+    VectorCopy( in, out );
+    return;
+  }
+
   //set surfNormal
   if( !( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )
     VectorCopy( ps->grapplePoint, surfNormal );
@@ -990,7 +998,7 @@ static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t o
 
       timeMod = 1.0f;
     }
-          
+    
     //add the op
     CG_addSmoothOp( rotAxis, rotAngle, timeMod );
   }
@@ -1041,6 +1049,12 @@ static void CG_smoothWJTransitions( playerState_t *ps, const vec3_t in, vec3_t o
   float     stLocal, sFraction;
   qboolean  performed = qfalse;
   vec3_t    inAxis[ 3 ], outAxis[ 3 ];
+
+  if( cg.snap->ps.pm_flags & PMF_FOLLOW )
+  {
+    VectorCopy( in, out );
+    return;
+  }
 
   AnglesToAxis( in, inAxis );
 

@@ -443,4 +443,7 @@ int			trap_PC_FreeSource( int handle );
 int			trap_PC_ReadToken( int handle, pc_token_t *pc_token );
 int			trap_PC_SourceFileAndLine( int handle, char *filename, int *line );
 
+void    BindingFromName( const char *cvar );
+extern char g_nameBind1[ 32 ];
+extern char g_nameBind2[ 32 ];
 #endif

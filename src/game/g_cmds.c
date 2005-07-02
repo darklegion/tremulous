@@ -1991,6 +1991,7 @@ void G_StopFollowing( gentity_t *ent )
   ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR; 
   ent->client->sess.sessionTeam = TEAM_SPECTATOR; 
   ent->client->sess.spectatorState = SPECTATOR_FREE;
+  ent->client->sess.spectatorClient = -1;
   ent->client->ps.pm_flags &= ~PMF_FOLLOW;
 
   ent->client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
@@ -2000,6 +2001,69 @@ void G_StopFollowing( gentity_t *ent )
 
   ent->r.svFlags &= ~SVF_BOT;
   ent->client->ps.clientNum = ent - g_entities;
+}
+
+/*
+=================
+G_FollowNewClient
+
+This was a really nice, elegant function. Then I fucked it up.
+=================
+*/
+qboolean G_FollowNewClient( gentity_t *ent, int dir )
+{
+  int       clientnum = ent->client->sess.spectatorClient;
+  int       original = clientnum;
+  qboolean  selectAny = qfalse;
+  
+  if( dir > 1 )
+    dir = 1;
+  else if( dir < -1 )
+    dir = -1;
+  else if( dir == 0 )
+    return qtrue;
+
+  // select any if no target exists
+  if( clientnum < 0 || clientnum >= level.maxclients )
+  {
+    clientnum = original = 0;
+    selectAny = qtrue;
+  }
+  
+  do
+  {
+    clientnum += dir;
+    
+    if( clientnum >= level.maxclients )
+      clientnum = 0;
+    
+    if( clientnum < 0 )
+      clientnum = level.maxclients - 1;
+
+    // avoid selecting existing follow target
+    if( clientnum == original && !selectAny )
+      continue; //effectively break;
+    
+    // can't follow self
+    if( &level.clients[ clientnum ] == ent->client )
+      continue;
+
+    // can only follow connected clients
+    if( level.clients[ clientnum ].pers.connected != CON_CONNECTED )
+      continue;
+
+    // can't follow another spectator
+    if( level.clients[ clientnum ].sess.sessionTeam == TEAM_SPECTATOR )
+      continue;
+
+    // this is good, we can use it
+    ent->client->sess.spectatorClient = clientnum;
+    ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+    return qtrue;
+    
+  } while( clientnum != original );
+
+  return qfalse;
 }
 
 /*
@@ -2016,43 +2080,10 @@ void Cmd_Follow_f( gentity_t *ent, qboolean toggle )
   {
     if( ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
       G_StopFollowing( ent );
-    else
-    {
-      //follow somebody, anybody
-      int clientnum = ent->client->sess.spectatorClient;
-      int original = clientnum;
-      
-      do
-      {
-        clientnum++;
-        
-        if( clientnum >= level.maxclients )
-          clientnum = 0;
-        
-        if( clientnum < 0 )
-          clientnum = level.maxclients - 1;
-
-        // can't follow self
-        if( &level.clients[ clientnum ] == ent->client )
-          continue;
-
-        // can only follow connected clients
-        if( level.clients[ clientnum ].pers.connected != CON_CONNECTED )
-          continue;
-
-        // can't follow another spectator
-        if( level.clients[ clientnum ].sess.sessionTeam == TEAM_SPECTATOR )
-          continue;
-
-        // this is good, we can use it
-        ent->client->sess.spectatorClient = clientnum;
-        ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
-        break;
-        
-      } while( clientnum != original );
-    }
+    else if( ent->client->sess.spectatorState == SPECTATOR_FREE )
+      G_FollowNewClient( ent, 1 );
   }
-  else
+  else if( ent->client->sess.spectatorState == SPECTATOR_FREE )
   {
     trap_Argv( 1, arg, sizeof( arg ) );
     i = G_ClientNumberFromString( ent, arg );
@@ -2084,49 +2115,14 @@ Cmd_FollowCycle_f
 */
 void Cmd_FollowCycle_f( gentity_t *ent, int dir )
 {
-  int clientnum;
-  int original;
-
-  // first set them to spectator
+  // won't work unless spectating
   if( ent->client->sess.spectatorState == SPECTATOR_NOT )
     return;
 
   if( dir != 1 && dir != -1 )
     G_Error( "Cmd_FollowCycle_f: bad dir %i", dir );
 
-  clientnum = ent->client->sess.spectatorClient;
-  original = clientnum;
-  
-  do
-  {
-    clientnum += dir;
-    
-    if( clientnum >= level.maxclients )
-      clientnum = 0;
-    
-    if( clientnum < 0 )
-      clientnum = level.maxclients - 1;
-
-    // can't follow self
-    if( &level.clients[ clientnum ] == ent->client )
-      continue;
-
-    // can only follow connected clients
-    if( level.clients[ clientnum ].pers.connected != CON_CONNECTED )
-      continue;
-
-    // can't follow another spectator
-    if( level.clients[ clientnum ].sess.sessionTeam == TEAM_SPECTATOR )
-      continue;
-
-    // this is good, we can use it
-    ent->client->sess.spectatorClient = clientnum;
-    ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
-    return;
-    
-  } while( clientnum != original );
-
-  // leave it where it was
+  G_FollowNewClient( ent, dir );
 }
 
 /*

@@ -208,7 +208,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     TRAPPER_BP,            //int       buildPoints;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S2 )|( 1 << S3 ), //int  stages //NEEDS ADV BUILDER SO S2 AND UP
     TRAPPER_HEALTH,        //int       health;
     TRAPPER_REGEN,         //int       regenRate;
     TRAPPER_SPLASHDAMAGE,  //int       splashDamage;

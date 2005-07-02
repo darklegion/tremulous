@@ -600,9 +600,10 @@ char      *G_NewString( const char *string );
 //
 // g_cmds.c
 //
-void Cmd_Score_f( gentity_t *ent );
-void G_StopFollowing( gentity_t *ent );
-void Cmd_Follow_f( gentity_t *ent, qboolean toggle );
+void      Cmd_Score_f( gentity_t *ent );
+void      G_StopFollowing( gentity_t *ent );
+qboolean  G_FollowNewClient( gentity_t *ent, int dir );
+void      Cmd_Follow_f( gentity_t *ent, qboolean toggle );
 
 //
 // g_physics.c

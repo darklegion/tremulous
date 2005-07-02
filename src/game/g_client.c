@@ -1559,7 +1559,8 @@ void ClientDisconnect( int clientNum )
         level.clients[ i ].sess.spectatorState == SPECTATOR_FOLLOW &&
         level.clients[ i ].sess.spectatorClient == clientNum )
     {
-      G_StopFollowing( &g_entities[ i ] );
+      if( !G_FollowNewClient( &g_entities[ i ], 1 ) )
+        G_StopFollowing( &g_entities[ i ] );
     }
   }
 
