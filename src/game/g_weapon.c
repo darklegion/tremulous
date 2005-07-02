@@ -790,29 +790,35 @@ void CheckGrabAttack( gentity_t *ent )
   if( !traceEnt->takedamage )
     return;
   
-  if( !traceEnt->client )
-    return;
-  
-  if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-    return;
-  
-  if( traceEnt->client->ps.stats[ STAT_HEALTH ] <= 0 )
-    return;
+  if( traceEnt->client )
+  {
+    if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      return;
+    
+    if( traceEnt->client->ps.stats[ STAT_HEALTH ] <= 0 )
+      return;
 
-  if( !( traceEnt->client->ps.stats[ STAT_STATE ] & SS_GRABBED ) )
-  {
-    AngleVectors( traceEnt->client->ps.viewangles, dir, NULL, NULL );
-    traceEnt->client->ps.stats[ STAT_VIEWLOCK ] = DirToByte( dir );
+    if( !( traceEnt->client->ps.stats[ STAT_STATE ] & SS_GRABBED ) )
+    {
+      AngleVectors( traceEnt->client->ps.viewangles, dir, NULL, NULL );
+      traceEnt->client->ps.stats[ STAT_VIEWLOCK ] = DirToByte( dir );
+      
+      //event for client side grab effect
+      G_AddPredictableEvent( ent, EV_LEV1_GRAB, 0 );
+    }
+    
+    traceEnt->client->ps.stats[ STAT_STATE ] |= SS_GRABBED;
+    traceEnt->client->lastGrabTime = level.time;
   }
-  
-  if( !( traceEnt->client->ps.stats[ STAT_STATE ] & SS_GRABBED ) )
+  else if( traceEnt->s.eType == ET_BUILDABLE &&
+      traceEnt->s.modelindex == BA_H_MGTURRET )
   {
-    //event for client side grab effect
-    G_AddPredictableEvent( ent, EV_LEV1_GRAB, 0 );
+    if( !traceEnt->lev1Grabbed )
+      G_AddPredictableEvent( ent, EV_LEV1_GRAB, 0 );
+
+    traceEnt->lev1Grabbed = qtrue;
+    traceEnt->lev1GrabTime = level.time;
   }
-  
-  traceEnt->client->ps.stats[ STAT_STATE ] |= SS_GRABBED;
-  traceEnt->client->lastGrabTime = level.time;
 }
 
 /*

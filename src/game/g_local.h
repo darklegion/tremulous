@@ -204,6 +204,8 @@ struct gentity_s
   int               nextPhysicsTime; //TA: buildables don't need to check what they're sitting on
                                      //    every single frame.. so only do it periodically
   int               clientSpawnTime; //TA: the time until this spawn can spawn a client
+  qboolean          lev1Grabbed;      //TA: for turrets interacting with lev1s
+  int               lev1GrabTime;     //TA: for turrets interacting with lev1s
 
   int               credits[ MAX_CLIENTS ]; //TA: human credits for each client
   qboolean          creditsHash[ MAX_CLIENTS ]; //TA: track who has claimed credit

@@ -1743,7 +1743,13 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
   float   temp, rotAngle;
   float   accuracyTolerance, angularSpeed;
 
-  if( self->dcced )
+  if( self->lev1Grabbed )
+  {
+    //can't turn fast if grabbed
+    accuracyTolerance = MGTURRET_GRAB_ACCURACYTOLERANCE;
+    angularSpeed = MGTURRET_GRAB_ANGULARSPEED;
+  }
+  else if( self->dcced )
   {
     accuracyTolerance = MGTURRET_DCC_ACCURACYTOLERANCE;
     angularSpeed = MGTURRET_DCC_ANGULARSPEED;
@@ -2309,6 +2315,9 @@ void G_BuildableThink( gentity_t *ent, int msec )
     if( ent->health > bHealth )
       ent->health = bHealth;
   }
+
+  if( ent->lev1Grabbed && ent->lev1GrabTime + LEVEL1_GRAB_TIME < level.time )
+    ent->lev1Grabbed = qfalse;
 
   if( ent->clientSpawnTime > 0 )
     ent->clientSpawnTime -= msec;
