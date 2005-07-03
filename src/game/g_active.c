@@ -336,6 +336,8 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
 
     client->ps.speed = 400; // faster than normal
 
+    client->ps.stats[ STAT_STAMINA ] = 0;
+
     // set up for pmove
     memset( &pm, 0, sizeof( pm ) );
     pm.ps = &client->ps;
@@ -713,7 +715,8 @@ void ClientTimerActions( gentity_t *ent, int msec )
           break;
         }
         else if( boostEntity->s.eType == ET_BUILDABLE &&
-            boostEntity->s.modelindex == BA_A_BOOSTER )
+            boostEntity->s.modelindex == BA_A_BOOSTER &&
+            boostEntity->spawned )
         {
           modifier = BOOSTER_REGEN_MOD;
           break;
