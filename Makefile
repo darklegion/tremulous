@@ -49,7 +49,6 @@ CGOBJ = \
 	$(CGDIRNAME)/cg_consolecmds.o \
 	$(CGDIRNAME)/cg_buildable.o \
 	$(CGDIRNAME)/cg_animmapobj.o \
-	$(CGDIRNAME)/cg_spriter.o \
 	$(CGDIRNAME)/cg_draw.o \
 	$(CGDIRNAME)/cg_drawtools.o \
 	$(CGDIRNAME)/cg_effects.o \

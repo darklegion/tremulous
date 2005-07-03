@@ -523,7 +523,6 @@ typedef enum
   LE_SPRITE_EXPLOSION,
   LE_FRAGMENT,
   LE_MOVE_SCALE_FADE,
-  LE_SPRITER,
   LE_FALL_SCALE_FADE,
   LE_FADE_RGB,
   LE_SCALE_FADE
@@ -581,12 +580,6 @@ typedef struct localEntity_s
 
   refEntity_t           refEntity;
 
-  //TA: random stuff for cg_spriter.c
-  vec3_t                acceleration;
-  float                 initAlp, finalAlp;
-  float                 initRad, finalRad;
-  qboolean              overdraw;
-  qboolean              realLight;
   unsigned int          sortKey;
 
   //TA: lightning bolt endpoint entities
@@ -1596,18 +1589,6 @@ void        CG_Buildable( centity_t *cent );
 void        CG_InitBuildables( );
 void        CG_HumanBuildableExplosion( vec3_t origin, vec3_t dir );
 void        CG_AlienBuildableExplosion( vec3_t origin, vec3_t dir );
-
-//
-// cg_spriter.c
-//
-void        CG_Spriter( centity_t *cent );
-void        CG_LaunchSprite( const vec3_t p, const vec3_t vel, const vec3_t accel,
-                             float spread, float bounce,
-                             float initRad, float finalRad,
-                             float initAlp, float finalAlp,
-                             float rotation,
-                             int startTime, int shaderTime, int duration,
-                             qhandle_t hShader, qboolean overdraw, qboolean realLight );
 
 //
 // cg_animmapobj.c

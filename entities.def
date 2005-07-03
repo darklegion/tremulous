@@ -871,43 +871,6 @@ TRIGGER_TOGGLE: With this set triggering the entity disables the model altogethe
 
 //=============================================================================
 
-/*QUAKED misc_spriter (1 .5 .25) (-16 -16 -16) (16 16 16) DISABLE_OVERDRAW AMBIENT_LIGHT SPAWN_DISABLED
-A simple particle system producing entity.
-
--------- KEYS --------
-angles: The direction the sprites will move in initially. angles is a vector of PITCH YAW ROLL. For example a value of "90 0 0" would emit sprites downwards. Special attention should be paid to the roll angle - this governs the rotation of the sprites. Setting this to 360 or greater will produce random rotations on the sprites.
-
-speed: The speed at which sprites are launched. This will remain constant unless acted upon by an acceleration (see below).
-
-acceleration: This is a vector that specifys the acceleration that sprites launched will be subject to. This is not a normalised vector, magnitude is incorporated.
-
-wait: The lifetime of sprites launched in 1000ths of a second.
-
-bounce: A value reflecting the proportion of velocity that is carried through by the sprite when it collides with a surface. e.g. 1.0 means all velocity is reflected, 0.5 means half. A value of 0.0 (or no bounce key at all) results in sprites that do not collide with brushes.
-
-alpha: Two numerical values giving the start and end alpha values for the sprites. e.g. a value "255 0" gives sprites that start 100% opaque and end up transparent.
-
-radius: Similar to alpha, this gives the start and end radii of the sprites. "16 64" will give sprites that start 16 units big and end up 64 units big.
-
-random: The angle about "angles" that the launch vector is randomised by. Maximum 180 degrees.
-
-count: The number of sprites to launch every second. Defaults to 1.
-
-targetShaderName: The full name of the shader to use for the sprites.
-
--------- SPAWNFLAGS --------
-DISABLE_OVERDRAW: This turns overdraw protection off. With overdraw protection on sprites too close to the client's viewport are culled to prevent excessive fps loss.
-
-AMBIENT_LIGHT: Sprites are rendered with the ambient light value, otherwise sprites are fullbright.
-
-SPAWN_DISABLED: Spawn disabled.
-
--------- NOTES --------
-Triggering this entity toggles it.
-*/
-
-//=============================================================================
-
 /*QUAKED misc_particle_system (1 .5 .25) (-8 -8 -8) (8 8 8) SPAWN_DISABLED
 A particle system entity.
 

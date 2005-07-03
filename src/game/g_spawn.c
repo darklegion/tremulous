@@ -215,7 +215,6 @@ void SP_shooter_plasma( gentity_t *ent );
 void SP_shooter_grenade( gentity_t *ent );
 
 //TA:
-void SP_misc_spriter( gentity_t *ent );
 void SP_misc_particle_system( gentity_t *ent );
 void SP_misc_anim_model( gentity_t *ent );
 void SP_misc_light_flare( gentity_t *ent );
@@ -288,7 +287,6 @@ spawn_t spawns[ ] =
   { "misc_portal_surface",      SP_misc_portal_surface },
   { "misc_portal_camera",       SP_misc_portal_camera },
 
-  { "misc_spriter",             SP_misc_spriter },
   { "misc_particle_system",     SP_misc_particle_system },
   { "misc_anim_model",          SP_misc_anim_model },
   { "misc_light_flare",         SP_misc_light_flare },

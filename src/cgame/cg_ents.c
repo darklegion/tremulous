@@ -992,10 +992,6 @@ static void CG_AddCEntity( centity_t *cent )
       CG_Speaker( cent );
       break;
       
-    case ET_SPRITER:
-      CG_Spriter( cent );
-      break;
-      
     case ET_PARTICLE_SYSTEM:
       CG_ParticleSystemEntity( cent );
       break;

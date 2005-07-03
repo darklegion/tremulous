@@ -1226,7 +1226,6 @@ typedef enum
   ET_GRAPPLE,       // grapple hooked on wall
 
   ET_CORPSE,
-  ET_SPRITER,
   ET_PARTICLE_SYSTEM,
   ET_ANIMMAPOBJ,
   ET_MODELDOOR,

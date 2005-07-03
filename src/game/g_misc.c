@@ -244,66 +244,6 @@ void SP_misc_portal_camera( gentity_t *ent )
 
 /*
 ===============
-SP_use_spriter
-
-Use function for spriter
-===============
-*/
-void SP_use_spriter( gentity_t *self, gentity_t *other, gentity_t *activator )
-{
-  //toggle EF_NODRAW
-  self->s.eFlags ^= EF_NODRAW;
-}
-
-/*
-===============
-SP_spawn_spriter
-
-Spawn function for spriter
-===============
-*/
-void SP_misc_spriter( gentity_t *self )
-{
-  G_SetOrigin( self, self->s.origin );
-
-  //set a bunch of stuff to be visible client side
-  VectorCopy( self->acceleration, self->s.origin2 );
-  
-  self->s.time = (int)self->speed;
-  self->s.time2 = (int)self->wait;
-  self->s.powerups = (int)self->random;
-  self->s.angles2[ 0 ] = self->physicsBounce;
-  
-  self->s.modelindex = self->pos1[ 0 ];
-  self->s.modelindex2 = self->pos1[ 1 ];
-  
-  self->s.legsAnim = self->pos2[ 0 ];
-  self->s.torsoAnim = self->pos2[ 1 ];
-
-  if( self->count > 0 )
-    self->s.angles2[ 1 ] = ( 1000 / self->count );
-  else
-    self->s.angles2[ 1 ] = 1000;
-
-  //add the shader to the client precache list
-  self->s.weapon = G_ShaderIndex( self->targetShaderName );
-
-/*  if( self->spawnflags & 1 )
-    self->s.eFlags |= EF_OVERDRAW_OFF;*/
-  if( self->spawnflags & ( 1 << 1 ) )
-    self->s.eFlags |= EF_REAL_LIGHT;
-  if( self->spawnflags & ( 1 << 2 ) )
-    self->s.eFlags |= EF_NODRAW;
-
-  self->use = SP_use_spriter;
-
-  self->s.eType = ET_SPRITER;
-  
-  trap_LinkEntity( self );
-}
-
-/*
-===============
 SP_use_particle_system
 
 Use function for particle_system
