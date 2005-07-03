@@ -337,6 +337,10 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
     client->ps.speed = 400; // faster than normal
 
     client->ps.stats[ STAT_STAMINA ] = 0;
+    client->ps.stats[ STAT_MISC ] = 0;
+    client->ps.stats[ STAT_BUILDABLE ] = 0;
+    client->ps.stats[ STAT_PCLASS ] = PCL_NONE;
+    client->ps.weapon = WP_NONE;
 
     // set up for pmove
     memset( &pm, 0, sizeof( pm ) );
