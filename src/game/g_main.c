@@ -1115,21 +1115,23 @@ void CalculateRanks( void )
       level.sortedClients[ level.numConnectedClients ] = i;
       level.numConnectedClients++;
 
-      //TA: so we know when the game ends and for team leveling
-      if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      if( !( level.clients[ i ].ps.pm_flags & PMF_FOLLOW ) )
       {
-        level.numAlienClients++;
-        if( level.clients[ i ].sess.sessionTeam != TEAM_SPECTATOR )
-          level.numLiveAlienClients++;
-      }
+        //so we know when the game ends and for team leveling
+        if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+        {
+          level.numAlienClients++;
+          if( level.clients[ i ].sess.sessionTeam != TEAM_SPECTATOR )
+            level.numLiveAlienClients++;
+        }
 
-      if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-      {
-        level.numHumanClients++;
-        if( level.clients[ i ].sess.sessionTeam != TEAM_SPECTATOR )
-          level.numLiveHumanClients++;
+        if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+        {
+          level.numHumanClients++;
+          if( level.clients[ i ].sess.sessionTeam != TEAM_SPECTATOR )
+            level.numLiveHumanClients++;
+        }
       }
-      ////////////////
 
       if( level.clients[ i ].sess.sessionTeam != TEAM_SPECTATOR )
       {

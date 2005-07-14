@@ -486,7 +486,7 @@ gentity_t *launch_grenade( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_GRENADE;
   bolt->s.eFlags = EF_BOUNCE_HALF;
-  bolt->s.generic1 = self->s.generic1; //weaponMode
+  bolt->s.generic1 = WPM_PRIMARY; //weaponMode
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
   bolt->damage = GRENADE_DAMAGE;

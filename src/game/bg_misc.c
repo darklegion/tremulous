@@ -3152,7 +3152,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
-    qtrue,                //qboolean  purchasable;
+    qfalse,               //qboolean  purchasable;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -4006,6 +4006,16 @@ upgradeAttributes_t bg_upgrades[ ] =
     "bsuit",                //char  *upgradeName;
     "Battlesuit",           //char  *upgradeHumanName;
     "icons/iconu_bsuit",
+    WUT_HUMANS              //WUTeam_t  team;
+  },
+  {
+    UP_GRENADE,             //int   upgradeNum;
+    GRENADE_PRICE,          //int   price;
+    ( 1 << S2 )|( 1 << S3 ),//int  stages
+    SLOT_NONE,              //int   slots;
+    "gren",                 //char  *upgradeName;
+    "Grenade",              //char  *upgradeHumanName;
+    0,
     WUT_HUMANS              //WUTeam_t  team;
   },
   {

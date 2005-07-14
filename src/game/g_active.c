@@ -685,7 +685,10 @@ void ClientTimerActions( gentity_t *ent, int msec )
         {
           armoury = &g_entities[ entityList[ i ] ];
           
-          if( armoury->s.eType == ET_BUILDABLE && armoury->s.modelindex == BA_H_ARMOURY )
+          if( armoury->s.eType == ET_BUILDABLE &&
+              ( armoury->s.modelindex == BA_H_ARMOURY ||
+                armoury->s.modelindex == BA_H_REACTOR ||
+                armoury->s.modelindex == BA_H_REPEATER ) )
             break;
         }
 
@@ -1059,10 +1062,26 @@ void ClientThink_real( gentity_t *ent )
     if( client->ps.stats[ STAT_STATE ] & SS_POISONED )
     {
       //remove anti toxin
+      BG_DeactivateUpgrade( UP_ANTITOXIN, client->ps.stats );
       BG_RemoveUpgradeFromInventory( UP_ANTITOXIN, client->ps.stats );
     
       client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
     }
+  }
+  
+  if( BG_InventoryContainsUpgrade( UP_GRENADE, client->ps.stats ) &&
+      BG_UpgradeIsActive( UP_GRENADE, client->ps.stats ) )
+  {
+    int lastWeapon = ent->s.weapon;
+    
+    //remove anti toxin
+    BG_DeactivateUpgrade( UP_GRENADE, client->ps.stats );
+    BG_RemoveUpgradeFromInventory( UP_GRENADE, client->ps.stats );
+    
+    //M-M-M-M-MONSTER HACK
+    ent->s.weapon = WP_GRENADE;
+    FireWeapon( ent );
+    ent->s.weapon = lastWeapon;
   }
   
   // set speed

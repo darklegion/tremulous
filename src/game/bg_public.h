@@ -374,6 +374,7 @@ typedef enum
   UP_BATTPACK,
   UP_JETPACK,
   UP_BATTLESUIT,
+  UP_GRENADE,
   
   UP_AMMO,
 

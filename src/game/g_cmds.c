@@ -1561,6 +1561,10 @@ void Cmd_Buy_f( gentity_t *ent )
     //set build delay/pounce etc to 0
     ent->client->ps.stats[ STAT_MISC ] = 0;
     
+    //prevent filling up ammo again soon
+    ent->client->lastBoughtAmmoTime = level.time;
+    ent->client->campingAtTheArmoury = qtrue;
+    
     //subtract from funds
     G_AddCreditToClient( ent->client, -(short)BG_FindPriceForWeapon( weapon ), qfalse );
   }
@@ -1645,7 +1649,8 @@ void Cmd_Buy_f( gentity_t *ent )
       }
       else
       {
-        trap_SendServerCommand( ent-g_entities, va( "print \"Move away from the armoury\n\"" ) );
+        trap_SendServerCommand( ent-g_entities,
+            va( "print \"Move away or wait 45 seconds for ammo/energy\n\"" ) );
         return;
       }
     }
@@ -1777,6 +1782,14 @@ void Cmd_Sell_f( gentity_t *ent )
   {
     for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
     {
+      //guard against selling the HBUILD weapons exploit
+      if( ( i == WP_HBUILD || i == WP_HBUILD2 ) &&
+          ent->client->ps.stats[ STAT_MISC ] > 0 )
+      {
+        trap_SendServerCommand( ent-g_entities, va( "print \"Cannot sell until build timer expires.\n\"" ) );
+        continue;
+      }
+      
       if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) && i != WP_BLASTER )
       {
         BG_RemoveWeaponFromInventory( i, ent->client->ps.stats );
@@ -1993,6 +2006,7 @@ void G_StopFollowing( gentity_t *ent )
   ent->client->sess.spectatorState = SPECTATOR_FREE;
   ent->client->sess.spectatorClient = -1;
   ent->client->ps.pm_flags &= ~PMF_FOLLOW;
+  ent->client->ps.stats[ STAT_PTEAM ] = PTE_NONE;
 
   ent->client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
   ent->client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
@@ -2001,6 +2015,8 @@ void G_StopFollowing( gentity_t *ent )
 
   ent->r.svFlags &= ~SVF_BOT;
   ent->client->ps.clientNum = ent - g_entities;
+
+  CalculateRanks( );
 }
 
 /*
@@ -2022,6 +2038,9 @@ qboolean G_FollowNewClient( gentity_t *ent, int dir )
     dir = -1;
   else if( dir == 0 )
     return qtrue;
+
+  if( ent->client->sess.sessionTeam != TEAM_SPECTATOR )
+    return qfalse;
 
   // select any if no target exists
   if( clientnum < 0 || clientnum >= level.maxclients )
@@ -2101,7 +2120,7 @@ void Cmd_Follow_f( gentity_t *ent, qboolean toggle )
 
     // first set them to spectator
     if( ent->client->sess.sessionTeam != TEAM_SPECTATOR )
-      G_ChangeTeam( ent, PTE_NONE );
+      return;
 
     ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
     ent->client->sess.spectatorClient = i;

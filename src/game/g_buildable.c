@@ -1485,15 +1485,27 @@ void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
   if( !BG_FindUsesEnergyForWeapon( weapon ) )
     return;
   
-  BG_FindAmmoForWeapon( weapon, &maxAmmo, NULL, &maxClips );
-  
-  if( BG_InventoryContainsUpgrade( UP_BATTPACK, ps->stats ) )
-    maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
+  if( !other->client->campingAtTheArmoury )
+  {
+    BG_FindAmmoForWeapon( weapon, &maxAmmo, NULL, &maxClips );
+    
+    if( BG_InventoryContainsUpgrade( UP_BATTPACK, ps->stats ) )
+      maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
 
-  BG_PackAmmoArray( weapon, ps->ammo, ps->powerups, maxAmmo, maxClips, maxClips );
+    BG_PackAmmoArray( weapon, ps->ammo, ps->powerups, maxAmmo, maxClips, maxClips );
 
-  G_AddEvent( activator, EV_RPTUSE_SOUND, 0 );
-  activator->client->lastRefilTime = level.time;
+    G_AddEvent( activator, EV_RPTUSE_SOUND, 0 );
+    activator->client->lastRefilTime = level.time;
+    
+    other->client->lastBoughtAmmoTime = level.time;
+    other->client->campingAtTheArmoury = qtrue;
+  }
+  else
+  {
+    trap_SendServerCommand( other-g_entities,
+        va( "print \"Move away or wait 45 seconds for ammo/energy\n\"" ) );
+    return;
+  }
 }
 
 

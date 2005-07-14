@@ -245,7 +245,10 @@ void CG_RegisterUpgrade( int upgradeNum )
   
   upgradeInfo->humanName = BG_FindHumanNameForUpgrade( upgradeNum );
   
-  if( ( icon = BG_FindIconForUpgrade( upgradeNum ) ) )
+  //la la la la la, i'm not listening!
+  if( upgradeNum == UP_GRENADE )
+    upgradeInfo->upgradeIcon = cg_weapons[ WP_GRENADE ].weaponIcon;
+  else if( ( icon = BG_FindIconForUpgrade( upgradeNum ) ) )
     upgradeInfo->upgradeIcon = trap_R_RegisterShader( icon );
 }
 
@@ -1243,6 +1246,12 @@ void CG_AddViewWeapon( playerState_t *ps )
   if( ( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
     CG_GhostBuildable( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT );
 
+  if( weapon == WP_LUCIFER_CANNON && ps->stats[ STAT_MISC ] > 0 )
+  {
+    if( ps->stats[ STAT_MISC ] > ( LCANNON_TOTAL_CHARGE - ( LCANNON_TOTAL_CHARGE / 3 ) ) )
+      trap_S_AddLoopingSound( ps->clientNum, ps->origin, vec3_origin, cgs.media.lCannonWarningSound );
+  }
+  
   // no gun if in third person view
   if( cg.renderingThirdPerson )
     return;
@@ -1298,9 +1307,6 @@ void CG_AddViewWeapon( playerState_t *ps )
 
     VectorMA( hand.origin, random( ) * fraction, cg.refdef.viewaxis[ 0 ], hand.origin );
     VectorMA( hand.origin, random( ) * fraction, cg.refdef.viewaxis[ 1 ], hand.origin );
-
-    if( ps->stats[ STAT_MISC ] > ( LCANNON_TOTAL_CHARGE - ( LCANNON_TOTAL_CHARGE / 3 ) ) )
-      trap_S_AddLoopingSound( ps->clientNum, ps->origin, vec3_origin, cgs.media.lCannonWarningSound );
   }
   
   AnglesToAxis( angles, hand.axis );

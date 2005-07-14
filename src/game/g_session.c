@@ -123,6 +123,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo )
 
 	sess->spectatorState = SPECTATOR_FREE;
 	sess->spectatorTime = level.time;
+  sess->spectatorClient = -1;
 
 	G_WriteClientSessionData( client );
 }
