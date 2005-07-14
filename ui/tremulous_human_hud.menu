@@ -361,7 +361,7 @@
     itemDef
     {
       name "inventory"
-      rect 282.5 425 75 25
+      rect 232.5 425 175 25
       visible 1
       decoration
       forecolor 0.0 0.8 1.0 0.5
