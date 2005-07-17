@@ -91,7 +91,7 @@
     itemDef
     {
       name leftteamheadings
-      text "Status   Name                                   Kills      Time      Ping"
+      text "Status     Name                                        Kills       Time        Ping"
       textscale .25
       style 0	
       rect 25 112 128 30 
@@ -109,7 +109,7 @@
     itemDef
     {
       name rightteamheadings
-      text "Status   Name                                   Kills      Time      Ping"
+      text "Status     Name                                        Kills       Time        Ping"
       textscale .25
       style 0	
       rect 331 112 128 30 
