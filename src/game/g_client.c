@@ -957,6 +957,7 @@ void ClientUserinfoChanged( int clientNum )
   char      redTeam[ MAX_INFO_STRING ];
   char      blueTeam[ MAX_INFO_STRING ];
   char      userinfo[ MAX_INFO_STRING ];
+  team_t    team;
 
   ent = g_entities + clientNum;
   client = ent->client;
@@ -1073,11 +1074,16 @@ void ClientUserinfoChanged( int clientNum )
   strcpy( c2, Info_ValueForKey( userinfo, "color2" ) );
   strcpy( redTeam, "humans" );
   strcpy( blueTeam, "aliens" );
-                
+
+  if( client->ps.pm_flags & PMF_FOLLOW )
+    team = PTE_NONE;
+  else
+    team = client->ps.stats[ STAT_PTEAM ];
+  
   // send over a subset of the userinfo keys so other clients can
   // print scoreboards, display models, and play custom sounds
   s = va( "n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-    client->pers.netname, client->ps.stats[ STAT_PTEAM ], model, model, redTeam, blueTeam, c1, c2,
+    client->pers.netname, team, model, model, redTeam, blueTeam, c1, c2,
     client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
 
   trap_SetConfigstring( CS_PLAYERS + clientNum, s );
