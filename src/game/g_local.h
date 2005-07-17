@@ -420,6 +420,7 @@ struct gclient_s
 
   int                 lastBoughtAmmoTime;
   qboolean            campingAtTheArmoury;
+  qboolean            firedWeapon;
 };
 
 

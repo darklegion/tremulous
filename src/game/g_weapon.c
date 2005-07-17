@@ -1181,6 +1181,7 @@ void FireWeapon( gentity_t *ent )
     // set aiming directions
     AngleVectors( ent->client->ps.viewangles, forward, right, up );
     CalcMuzzlePoint( ent, forward, right, up, muzzle );
+    ent->client->firedWeapon = qtrue;
   }
   else
   {

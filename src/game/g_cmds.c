@@ -1443,6 +1443,58 @@ void Cmd_ToggleItem_f( gentity_t *ent )
 
 /*
 =================
+G_GiveClientMaxAmmo
+=================
+*/
+static void G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo )
+{
+  int i;
+  int quan, clips, maxClips;
+
+  if( !ent->client->campingAtTheArmoury || !ent->client->firedWeapon )
+  {
+    qboolean weaponType;
+
+    for( i = WP_NONE; i < WP_NUM_WEAPONS; i++ )
+    {
+      if( buyingEnergyAmmo )
+        weaponType = BG_FindUsesEnergyForWeapon( i );
+      else
+        weaponType = !BG_FindUsesEnergyForWeapon( i );
+      
+      if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
+          weaponType &&
+          !BG_FindInfinteAmmoForWeapon( i ) )
+      {
+        BG_FindAmmoForWeapon( i, &quan, &clips, &maxClips );
+        
+        if( buyingEnergyAmmo )
+        {
+          G_AddEvent( ent, EV_RPTUSE_SOUND, 0 );
+          ent->client->lastRefilTime = level.time;
+          
+          if( BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
+            quan = (int)( (float)quan * BATTPACK_MODIFIER );
+        }
+
+        BG_PackAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups,
+                          quan, clips, maxClips );
+      }
+    }
+
+    ent->client->lastBoughtAmmoTime = level.time;
+    ent->client->campingAtTheArmoury = qtrue;
+  }
+  else
+  {
+    trap_SendServerCommand( ent-g_entities,
+        va( "print \"Move away or wait 45 seconds for ammo/energy\n\"" ) );
+    return;
+  }
+}
+
+/*
+=================
 Cmd_Buy_f
 =================
 */
@@ -1551,8 +1603,14 @@ void Cmd_Buy_f( gentity_t *ent )
         BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
       quan = (int)( (float)quan * BATTPACK_MODIFIER );
     
-    BG_PackAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
-                      quan, clips, maxClips );
+    if( ent->client->firedWeapon && ent->client->campingAtTheArmoury )
+      BG_PackAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
+                        0, 0, maxClips );
+    else
+      BG_PackAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
+                        quan, clips, maxClips );
+
+    ent->client->firedWeapon = qfalse;
 
     //force a weapon change
     ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
@@ -1612,54 +1670,16 @@ void Cmd_Buy_f( gentity_t *ent )
     }
     
     if( upgrade == UP_AMMO )
-    {
-      if( !ent->client->campingAtTheArmoury )
-      {
-        qboolean weaponType;
-
-        for( i = WP_NONE; i < WP_NUM_WEAPONS; i++ )
-        {
-          if( buyingEnergyAmmo )
-            weaponType = BG_FindUsesEnergyForWeapon( i );
-          else
-            weaponType = !BG_FindUsesEnergyForWeapon( i );
-          
-          if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
-              weaponType &&
-              !BG_FindInfinteAmmoForWeapon( i ) )
-          {
-            BG_FindAmmoForWeapon( i, &quan, &clips, &maxClips );
-            
-            if( buyingEnergyAmmo )
-            {
-              G_AddEvent( ent, EV_RPTUSE_SOUND, 0 );
-              ent->client->lastRefilTime = level.time;
-              
-              if( BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
-                quan = (int)( (float)quan * BATTPACK_MODIFIER );
-            }
-
-            BG_PackAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups,
-                              quan, clips, maxClips );
-          }
-        }
-
-        ent->client->lastBoughtAmmoTime = level.time;
-        ent->client->campingAtTheArmoury = qtrue;
-      }
-      else
-      {
-        trap_SendServerCommand( ent-g_entities,
-            va( "print \"Move away or wait 45 seconds for ammo/energy\n\"" ) );
-        return;
-      }
-    }
+      G_GiveClientMaxAmmo( ent, buyingEnergyAmmo );
     else
     {
       //add to inventory
       BG_AddUpgradeToInventory( upgrade, ent->client->ps.stats );
     }
     
+    if( upgrade == UP_BATTPACK )
+      G_GiveClientMaxAmmo( ent, qtrue );
+
     //subtract from funds
     G_AddCreditToClient( ent->client, -(short)BG_FindPriceForUpgrade( upgrade ), qfalse );
   }

@@ -1649,17 +1649,27 @@ void CheckVote( void )
   
   if( level.time - level.voteTime >= VOTE_TIME )
   {
-    trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
-  }
-  else
-  {
-    if( level.voteYes > level.numVotingClients / 2 )
+    if( level.voteYes > level.voteNo )
     {
       // execute the command, then remove the vote
       trap_SendServerCommand( -1, "print \"Vote passed.\n\"" );
       level.voteExecuteTime = level.time + 3000;
     }
-    else if( level.voteNo >= level.numVotingClients / 2 )
+    else
+    {
+      // same behavior as a timeout
+      trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
+    }
+  }
+  else
+  {
+    if( level.voteYes > level.numConnectedClients / 2 )
+    {
+      // execute the command, then remove the vote
+      trap_SendServerCommand( -1, "print \"Vote passed.\n\"" );
+      level.voteExecuteTime = level.time + 3000;
+    }
+    else if( level.voteNo >= level.numConnectedClients / 2 )
     {
       // same behavior as a timeout
       trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
