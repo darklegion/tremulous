@@ -1372,10 +1372,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   client->ps.stats[ STAT_WEAPONS2 ] = 0;
   client->ps.stats[ STAT_SLOTS ] = 0;
 
-  //NON-VOLATILE CREDIT //no credit
-/*  if( !spawn )
-    client->ps.persistant[ PERS_CREDIT ] = 0;*/
-  
   client->ps.eFlags = flags;
   client->ps.clientNum = index;
   
@@ -1415,6 +1411,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   //clear the credits array
   for( i = 0; i < MAX_CLIENTS; i++ )
     ent->credits[ i ] = 0;
+  
+  client->ps.stats[ STAT_STAMINA ] = MAX_STAMINA;
   
   G_SetOrigin( ent, spawn_origin );
   VectorCopy( spawn_origin, client->ps.origin );
