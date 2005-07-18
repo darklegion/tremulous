@@ -32,6 +32,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "Egg",                 //char      *humanName;
     "team_alien_spawn",    //char      *entityName;
     { "models/buildables/eggpod/eggpod.md3", 0, 0, 0 },
+    1.0f,                  //float     modelScale;
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -66,6 +67,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "Barricade",           //char      *humanName;
     "team_alien_barricade",//char      *entityName;
     { "models/buildables/barricade/barricade.md3", 0, 0, 0 },
+    1.0f,                  //float     modelScale;
     { -35, -35, -15 },     //vec3_t    mins;
     { 35, 35, 60 },        //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -100,6 +102,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "Booster",             //char      *humanName;
     "team_alien_booster",  //char      *entityName;
     { "models/buildables/booster/booster.md3", 0, 0, 0 },
+    1.0f,                  //float     modelScale;
     { -26, -26, -9 },     //vec3_t     mins;
     { 26, 26, 9 },        //vec3_t     maxs;
     0.0f,                  //float     zOffset;
@@ -134,6 +137,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "Acid Tube",           //char      *humanName;
     "team_alien_acid_tube",//char      *entityName;
     { "models/buildables/acid_tube/acid_tube.md3", 0, 0, 0 },
+    1.0f,                  //float     modelScale;
     { -25, -25, -25 },     //vec3_t    mins;
     { 25, 25, 25 },        //vec3_t    maxs;
     -15.0f,                //float     zOffset;
@@ -155,7 +159,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_NONE,               //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
+    0.0f,                  //float     minNormal;
     qtrue,                 //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
     ACIDTUBE_CREEPSIZE,    //int       creepSize;
@@ -168,6 +172,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "Hive",                //char      *humanName;
     "team_alien_hive",     //char      *entityName;
     { "models/buildables/acid_tube/acid_tube.md3", 0, 0, 0 },
+    1.0f,                  //float     modelScale;
     { -35, -35, -25 },     //vec3_t    mins;
     { 35, 35, 25 },        //vec3_t    maxs;
     -15.0f,                //float     zOffset;
@@ -202,6 +207,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "Trapper",             //char      *humanName;
     "team_alien_trapper",  //char      *entityName;
     { "models/buildables/trapper/trapper.md3", 0, 0, 0 },
+    1.0f,                  //float     modelScale;
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 15 },        //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -236,6 +242,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "Overmind",            //char      *humanName;
     "team_alien_overmind", //char      *entityName;
     { "models/buildables/overmind/overmind.md3", 0, 0, 0 },
+    1.0f,                  //float     modelScale;
     { -45, -45, -15 },     //vec3_t    mins;
     { 45, 45, 95 },        //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -270,6 +277,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "Hovel",               //char      *humanName;
     "team_alien_hovel",    //char      *entityName;
     { "models/buildables/hovel/hovel.md3", 0, 0, 0 },
+    1.0f,                  //float     modelScale;
     { -50, -50, -20 },     //vec3_t    mins;
     { 50, 50, 20 },        //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -304,6 +312,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "Telenode",            //char      *humanName;
     "team_human_spawn",    //char      *entityName;
     { "models/buildables/telenode/telenode.md3", 0, 0, 0 },
+    1.0f,                  //float     modelScale;
     { -40, -40, -4 },      //vec3_t    mins;
     { 40, 40, 4 },         //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -338,6 +347,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "Medistation",         //char      *humanName;
     "team_human_medistat", //char      *entityName;
     { "models/buildables/medistat/medistat.md3", 0, 0, 0 },
+    1.0f,                  //float     modelScale;
     { -35, -35, -7 },      //vec3_t    mins;
     { 35, 35, 7 },         //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -374,6 +384,7 @@ buildableAttributes_t bg_buildableList[ ] =
     { "models/buildables/mgturret/turret_base.md3",
       "models/buildables/mgturret/turret_barrel.md3",
       "models/buildables/mgturret/turret_top.md3", 0 },
+    1.0f,                  //float     modelScale;
     { -25, -25, -20 },     //vec3_t    mins;
     { 25, 25, 20 },        //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -408,6 +419,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "Tesla Generator",     //char      *humanName;
     "team_human_tesla",    //char      *entityName;
     { "models/buildables/tesla/tesla.md3", 0, 0, 0 },
+    1.0f,                  //float     modelScale;
     { -22, -22, -40 },     //vec3_t    mins;
     { 22, 22, 40 },        //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -442,6 +454,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "Defence Computer",    //char      *humanName;
     "team_human_dcc",      //char      *entityName;
     { "models/buildables/dcc/dcc.md3", 0, 0, 0 },
+    1.0f,                  //float     modelScale;
     { -35, -35, -13 },     //vec3_t    mins;
     { 35, 35, 47 },        //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -476,6 +489,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "Armoury",             //char      *humanName;
     "team_human_armoury",  //char      *entityName;
     { "models/buildables/arm/arm.md3", 0, 0, 0 },
+    1.0f,                  //float     modelScale;
     { -40, -40, -13 },     //vec3_t    mins;
     { 40, 40, 50 },        //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -510,6 +524,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "Reactor",             //char      *humanName;
     "team_human_reactor",  //char      *entityName;
     { "models/buildables/reactor/reactor.md3", 0, 0, 0 },
+    1.0f,                  //float     modelScale;
     { -50, -50, -15 },     //vec3_t    mins;
     { 50, 50, 95 },        //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -544,6 +559,7 @@ buildableAttributes_t bg_buildableList[ ] =
     "Repeater",            //char      *humanName;
     "team_human_repeater", //char      *entityName;
     { "models/buildables/repeater/repeater.md3", 0, 0, 0 },
+    1.0f,                  //float     modelScale;
     { -15, -15, -15 },     //vec3_t    mins;
     { 15, 15, 25 },        //vec3_t    maxs;
     0.0f,                  //float     zOffset;
@@ -694,6 +710,28 @@ char *BG_FindModelsForBuildable( int bclass, int modelNum )
 
   //wimp out
   return 0;
+}
+
+/*
+==============
+BG_FindModelScaleForBuildable
+==============
+*/
+float BG_FindModelScaleForBuildable( int bclass )
+{
+  int i;
+
+  if( bg_buildableOverrideList[ bclass ].modelScale != 0.0f )
+    return bg_buildableOverrideList[ bclass ].modelScale;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+      return bg_buildableList[ i ].modelScale;
+  }
+  
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindModelScaleForBuildable( %d )\n", bclass );
+  return 1.0f;
 }
 
 /*
@@ -1267,6 +1305,7 @@ static qboolean BG_ParseBuildableFile( const char *filename, buildableAttributeO
   char          *token;
   char          text[ 20000 ];
   fileHandle_t  f;
+  float         scale;
       
 
   // load the file
@@ -1321,6 +1360,21 @@ static qboolean BG_ParseBuildableFile( const char *filename, buildableAttributeO
       
       continue;
     }
+    else if( !Q_stricmp( token, "modelScale" ) )
+    {
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      scale = atof( token );
+      
+      if( scale < 0.0f )
+        scale = 0.0f;
+
+      bao->modelScale = scale;
+
+      continue;
+    }
     else if( !Q_stricmp( token, "mins" ) )
     {
       for( i = 0; i <= 2; i++ )
@@ -1356,7 +1410,6 @@ static qboolean BG_ParseBuildableFile( const char *filename, buildableAttributeO
         break;
 
       offset = atof( token );
-      offset = 0.0f;
 
       bao->zOffset = offset;
 

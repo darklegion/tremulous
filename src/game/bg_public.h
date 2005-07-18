@@ -966,6 +966,7 @@ typedef struct
   char      *entityName;
   
   char      *models[ MAX_BUILDABLE_MODELS ];
+  float     modelScale;
 
   vec3_t    mins;
   vec3_t    maxs;
@@ -1012,6 +1013,7 @@ typedef struct
 {
   char      models[ MAX_BUILDABLE_MODELS ][ MAX_QPATH ];
 
+  float     modelScale;
   vec3_t    mins;
   vec3_t    maxs;
   float     zOffset;
@@ -1100,6 +1102,7 @@ char      *BG_FindNameForBuildable( int bclass );
 char      *BG_FindHumanNameForBuildable( int bclass );
 char      *BG_FindEntityNameForBuildable( int bclass );
 char      *BG_FindModelsForBuildable( int bclass, int modelNum );
+float     BG_FindModelScaleForBuildable( int bclass );
 void      BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs );
 float     BG_FindZOffsetForBuildable( int pclass );
 int       BG_FindHealthForBuildable( int bclass );

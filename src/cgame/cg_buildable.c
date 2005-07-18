@@ -753,6 +753,7 @@ void CG_GhostBuildable( buildable_t buildable )
   vec3_t          angles, entity_origin;
   vec3_t          mins, maxs;
   trace_t         tr;
+  float           scale;
   
   ps = &cg.predictedPlayerState;
   
@@ -778,7 +779,19 @@ void CG_GhostBuildable( buildable_t buildable )
   else
     ent.customShader = cgs.media.redBuildShader;
     
-  ent.nonNormalizedAxes = qfalse;
+  //rescale the model
+  scale = BG_FindModelScaleForBuildable( buildable );
+
+  if( scale != 1.0f )
+  {
+    VectorScale( ent.axis[ 0 ], scale, ent.axis[ 0 ] );
+    VectorScale( ent.axis[ 1 ], scale, ent.axis[ 1 ] );
+    VectorScale( ent.axis[ 2 ], scale, ent.axis[ 2 ] );
+    
+    ent.nonNormalizedAxes = qtrue;
+  }
+  else
+    ent.nonNormalizedAxes = qfalse;
 
   // add to refresh list
   trap_R_AddRefEntityToScene( &ent );
@@ -920,6 +933,7 @@ void CG_Buildable( centity_t *cent )
   vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
   float           rotAngle;
   buildableTeam_t team = BG_FindTeamForBuildable( es->modelindex );
+  float           scale;
   
   //must be before EF_NODRAW check
   if( team == BIT_ALIENS )
@@ -957,8 +971,6 @@ void CG_Buildable( centity_t *cent )
 
   ent.hModel = cg_buildables[ es->modelindex ].models[ 0 ];
 
-  ent.nonNormalizedAxes = qfalse;
-
   if( !( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
   {
     sfxHandle_t prebuildSound = cgs.media.humanBuildablePrebuild;
@@ -976,6 +988,21 @@ void CG_Buildable( centity_t *cent )
       
   CG_BuildableAnimation( cent, &ent.oldframe, &ent.frame, &ent.backlerp );
 
+  //rescale the model
+  scale = BG_FindModelScaleForBuildable( es->modelindex );
+
+  if( scale != 1.0f )
+  {
+    VectorScale( ent.axis[ 0 ], scale, ent.axis[ 0 ] );
+    VectorScale( ent.axis[ 1 ], scale, ent.axis[ 1 ] );
+    VectorScale( ent.axis[ 2 ], scale, ent.axis[ 2 ] );
+    
+    ent.nonNormalizedAxes = qtrue;
+  }
+  else
+    ent.nonNormalizedAxes = qfalse;
+
+  
   //add to refresh list
   trap_R_AddRefEntityToScene( &ent );
 
@@ -1007,6 +1034,17 @@ void CG_Buildable( centity_t *cent )
 
     turretBarrel.customShader = ent.customShader;
     
+    if( scale != 1.0f )
+    {
+      VectorScale( turretBarrel.axis[ 0 ], scale, turretBarrel.axis[ 0 ] );
+      VectorScale( turretBarrel.axis[ 1 ], scale, turretBarrel.axis[ 1 ] );
+      VectorScale( turretBarrel.axis[ 2 ], scale, turretBarrel.axis[ 2 ] );
+      
+      turretBarrel.nonNormalizedAxes = qtrue;
+    }
+    else
+      turretBarrel.nonNormalizedAxes = qfalse;
+    
     trap_R_AddRefEntityToScene( &turretBarrel );
   }
 
@@ -1037,6 +1075,17 @@ void CG_Buildable( centity_t *cent )
     turretTop.backlerp = ent.backlerp;
 
     turretTop.customShader = ent.customShader;
+    
+    if( scale != 1.0f )
+    {
+      VectorScale( turretTop.axis[ 0 ], scale, turretTop.axis[ 0 ] );
+      VectorScale( turretTop.axis[ 1 ], scale, turretTop.axis[ 1 ] );
+      VectorScale( turretTop.axis[ 2 ], scale, turretTop.axis[ 2 ] );
+      
+      turretTop.nonNormalizedAxes = qtrue;
+    }
+    else
+      turretTop.nonNormalizedAxes = qfalse;
     
     trap_R_AddRefEntityToScene( &turretTop );
   }
