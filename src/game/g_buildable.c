@@ -104,6 +104,30 @@ gentity_t *G_CheckSpawnPoint( vec3_t origin, vec3_t normal, buildable_t spawn, v
   return NULL;
 }
 
+/*
+================
+G_NumberOfDependants
+
+Return number of entities that depend on this one
+================
+*/
+static int G_NumberOfDependants( gentity_t *self )
+{
+  int       i, n = 0;
+  gentity_t *ent;
+  
+  for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  {
+    if( ent->s.eType != ET_BUILDABLE )
+      continue;
+
+    if( ent->parentNode == self )
+      n++;
+  }
+
+  return n;
+}
+
 #define POWER_REFRESH_TIME  2000
 
 /*
@@ -1453,6 +1477,17 @@ void HRpt_Think( gentity_t *self )
     }
   }
   
+  if( G_NumberOfDependants( self ) == 0 )
+  {
+    //if no dependants for x seconds then disappear
+    if( self->count < 0 )
+      self->count = level.time;
+    else if( self->count > 0 && ( ( level.time - self->count ) > REPEATER_INACTIVE_TIME ) )
+      G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+  }
+  else
+    self->count = -1;
+
   self->powered = reactor;
 
   self->nextthink = level.time + POWER_REFRESH_TIME;
@@ -2503,7 +2538,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
 
       //warn that the current spawn will not be externally powered
       if( buildable == BA_H_SPAWN )
-        reason = IBE_RPLWARN;
+        reason = IBE_TNODEWARN;
     }
 
     //this buildable requires a DCC
@@ -2524,6 +2559,8 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
       
       if( i >= level.num_entities )
         reason = IBE_RPTWARN;
+      else if( G_isPower( entity_origin ) )
+        reason = IBE_RPTWARN2;
     }
       
     //check permission to build here
@@ -2685,6 +2722,7 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       built->think = HRpt_Think;
       built->die = HSpawn_Die;
       built->use = HRpt_Use;
+      built->count = -1;
       break;
       
     default:
@@ -2833,8 +2871,8 @@ qboolean G_ValidateBuild( gentity_t *ent, buildable_t buildable )
       G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
       return qtrue;
       
-    case IBE_RPLWARN:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPLWARN );
+    case IBE_TNODEWARN:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_TNODEWARN );
       G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
       return qtrue;
       
@@ -2842,6 +2880,10 @@ qboolean G_ValidateBuild( gentity_t *ent, buildable_t buildable )
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPTWARN );
       G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
       return qtrue;
+
+    case IBE_RPTWARN2:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPTWARN2 );
+      return qfalse;
 
     default:
       break;

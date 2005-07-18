@@ -30,8 +30,8 @@
 #define ABUILDER_CLAW_RANGE         64.0f
 #define ABUILDER_CLAW_WIDTH         4.0f
 #define ABUILDER_CLAW_REPEAT        1000
-#define ABUILDER_BASE_DELAY         15000
-#define ABUILDER_ADV_DELAY          10000
+#define ABUILDER_BASE_DELAY         17000
+#define ABUILDER_ADV_DELAY          12000
 #define ABUILDER_BLOB_DMG           ADM(5)
 #define ABUILDER_BLOB_REPEAT        1000
 #define ABUILDER_BLOB_SPEED         800.0f
@@ -356,7 +356,7 @@
 #define MDRIVER_CLIPSIZE            5
 #define MDRIVER_SPAWNCLIPS          2
 #define MDRIVER_MAXCLIPS            3
-#define MDRIVER_DMG                 HDM(50)
+#define MDRIVER_DMG                 HDM(35)
 #define MDRIVER_REPEAT              1000
 #define MDRIVER_RELOAD              2000
 
@@ -399,11 +399,12 @@
 
 #define HBUILD_PRICE                0
 #define HBUILD_REPEAT               1000
-#define HBUILD_DELAY                15000
+#define HBUILD_DELAY                20000
+#define HBUILD_HEALRATE             18
 
 #define HBUILD2_PRICE               75
 #define HBUILD2_REPEAT              1000
-#define HBUILD2_DELAY               10000
+#define HBUILD2_DELAY               17500
 
 
 
@@ -519,11 +520,12 @@
 #define REACTOR_ATTACK_DAMAGE       40
 #define REACTOR_VALUE               2
 
-#define REPEATER_BP                 10
+#define REPEATER_BP                 0
 #define REPEATER_BT                 10000
 #define REPEATER_HEALTH             HBHM(400)
 #define REPEATER_SPLASHDAMAGE       50
 #define REPEATER_SPLASHRADIUS       100
+#define REPEATER_INACTIVE_TIME      90000
 
 #define ENERGY_REFIL_TIME           1000 //1/2 second between every clip refil
 
@@ -559,6 +561,6 @@
 #define ALIEN_MAX_KILLS             9
 #define ALIEN_MAX_SINGLE_KILLS      3
 
-#define FREEKILL_PERIOD             180000 //msec
+#define FREEKILL_PERIOD             120000 //msec
 #define FREEKILL_ALIEN              1
 #define FREEKILL_HUMAN              LEVEL0_VALUE

@@ -651,11 +651,11 @@ void CG_Menu( int menu )
       }
       break;
       
-    case MN_H_RPLWARN:
+    case MN_H_TNODEWARN:
       if( !cg_disableBuildWarnings.integer )
       {
-        trap_Cvar_Set( "ui_dialog", "WARNING: This replicator will not be powered. Build a reactor to "
-                                    "prevent seeing this message again." );
+        trap_Cvar_Set( "ui_dialog", "WARNING: This telenode will not be powered. Build near a power "
+                                    "structure to prevent seeing this message again." );
         trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       }
       break;
@@ -665,6 +665,14 @@ void CG_Menu( int menu )
       {
         trap_Cvar_Set( "ui_dialog", "WARNING: This repeater will not be powered as there is no parent "
                                     "reactor providing power. Build a reactor." );
+        trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      }
+      break;
+      
+    case MN_H_RPTWARN2:
+      if( !cg_disableBuildWarnings.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "This area already has power. A repeater is not required here." );
         trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       }
       break;

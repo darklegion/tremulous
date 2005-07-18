@@ -1909,8 +1909,9 @@ void Cmd_Build_f( gentity_t *ent )
     switch( G_itemFits( ent, buildable, dist, origin ) )
     {
       case IBE_NONE:
-      case IBE_RPLWARN:
+      case IBE_TNODEWARN:
       case IBE_RPTWARN:
+      case IBE_RPTWARN2:
       case IBE_SPWNWARN:
       case IBE_NOROOM:
       case IBE_NORMAL:

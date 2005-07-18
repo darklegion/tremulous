@@ -612,8 +612,9 @@ typedef enum
   MN_H_REACTOR,
   MN_H_NOROOM,
   MN_H_NORMAL,
-  MN_H_RPLWARN,
-  MN_H_RPTWARN
+  MN_H_TNODEWARN,
+  MN_H_RPTWARN,
+  MN_H_RPTWARN2
 } dynMenu_t;
 
 // animations

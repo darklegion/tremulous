@@ -611,7 +611,7 @@ void cancelBuildFire( gentity_t *ent )
 
       bHealth = BG_FindHealthForBuildable( traceEnt->s.modelindex );
 
-      traceEnt->health += ( bHealth / 10.0f );
+      traceEnt->health += HBUILD_HEALRATE;
 
       if( traceEnt->health > bHealth )
         traceEnt->health = bHealth;
@@ -659,6 +659,10 @@ void buildFire( gentity_t *ent, dynMenu_t menu )
       else
         ent->client->ps.stats[ STAT_MISC ] +=
           BG_FindBuildDelayForWeapon( ent->s.weapon );
+
+      // don't want it bigger than 32k
+      if( ent->client->ps.stats[ STAT_MISC ] > 30000 )
+        ent->client->ps.stats[ STAT_MISC ] = 30000;
     }
     return;
   }
@@ -1181,7 +1185,6 @@ void FireWeapon( gentity_t *ent )
     // set aiming directions
     AngleVectors( ent->client->ps.viewangles, forward, right, up );
     CalcMuzzlePoint( ent, forward, right, up, muzzle );
-    ent->client->firedWeapon = qtrue;
   }
   else
   {
@@ -1215,27 +1218,35 @@ void FireWeapon( gentity_t *ent )
       break;
     case WP_MACHINEGUN:
       bulletFire( ent, RIFLE_SPREAD, RIFLE_DMG, MOD_MACHINEGUN );
+      if( ent->client ) ent->client->firedWeapon = qtrue;
       break;
     case WP_SHOTGUN:
       shotgunFire( ent );
+      if( ent->client ) ent->client->firedWeapon = qtrue;
       break;
     case WP_CHAINGUN:
       bulletFire( ent, CHAINGUN_SPREAD, CHAINGUN_DMG, MOD_CHAINGUN );
+      if( ent->client ) ent->client->firedWeapon = qtrue;
       break;
     case WP_FLAMER:
       flamerFire( ent );
+      if( ent->client ) ent->client->firedWeapon = qtrue;
       break;
     case WP_PULSE_RIFLE:
       pulseRifleFire( ent );
+      if( ent->client ) ent->client->firedWeapon = qtrue;
       break;
     case WP_MASS_DRIVER:
       massDriverFire( ent );
+      if( ent->client ) ent->client->firedWeapon = qtrue;
       break;
     case WP_LUCIFER_CANNON:
       LCChargeFire( ent, qfalse );
+      if( ent->client ) ent->client->firedWeapon = qtrue;
       break;
     case WP_LAS_GUN:
       lasGunFire( ent );
+      if( ent->client ) ent->client->firedWeapon = qtrue;
       break;
     case WP_PAIN_SAW:
       painSawFire( ent );
