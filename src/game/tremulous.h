@@ -399,12 +399,12 @@
 
 #define HBUILD_PRICE                0
 #define HBUILD_REPEAT               1000
-#define HBUILD_DELAY                20000
+#define HBUILD_DELAY                17500
 #define HBUILD_HEALRATE             18
 
 #define HBUILD2_PRICE               75
 #define HBUILD2_REPEAT              1000
-#define HBUILD2_DELAY               17500
+#define HBUILD2_DELAY               15000
 
 
 
