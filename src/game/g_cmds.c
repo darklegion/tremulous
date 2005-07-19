@@ -1453,7 +1453,7 @@ static void G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo )
 
   if( !ent->client->campingAtTheArmoury || !ent->client->firedWeapon )
   {
-    qboolean weaponType;
+    qboolean weaponType, successfullyBought = qfalse;
 
     for( i = WP_NONE; i < WP_NUM_WEAPONS; i++ )
     {
@@ -1463,8 +1463,8 @@ static void G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo )
         weaponType = !BG_FindUsesEnergyForWeapon( i );
       
       if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
-          weaponType &&
-          !BG_FindInfinteAmmoForWeapon( i ) )
+          weaponType && !BG_FindInfinteAmmoForWeapon( i ) &&
+          !BG_WeaponIsFull( i, ent->client->ps.ammo, ent->client->ps.powerups ) )
       {
         BG_FindAmmoForWeapon( i, &quan, &clips, &maxClips );
         
@@ -1476,14 +1476,21 @@ static void G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo )
           if( BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
             quan = (int)( (float)quan * BATTPACK_MODIFIER );
         }
+        else
+          G_AddEvent( ent, EV_CHANGE_WEAPON, 0 );
 
         BG_PackAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups,
                           quan, clips, maxClips );
+
+        successfullyBought = qtrue;
       }
     }
 
-    ent->client->lastBoughtAmmoTime = level.time;
-    ent->client->campingAtTheArmoury = qtrue;
+    if( successfullyBought )
+    {
+      ent->client->lastBoughtAmmoTime = level.time;
+      ent->client->campingAtTheArmoury = qtrue;
+    }
   }
   else
   {

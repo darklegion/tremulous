@@ -1520,7 +1520,8 @@ void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
   if( !BG_FindUsesEnergyForWeapon( weapon ) )
     return;
   
-  if( !other->client->campingAtTheArmoury )
+  if( !other->client->campingAtTheArmoury &&
+      !BG_WeaponIsFull( weapon, ps->ammo, ps->powerups ) )
   {
     BG_FindAmmoForWeapon( weapon, &maxAmmo, NULL, &maxClips );
     

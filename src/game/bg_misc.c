@@ -4797,6 +4797,24 @@ void BG_PackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int quan, int clip
 
 /*
 ========================
+BG_WeaponIsFull
+
+Check if a weapon has full ammo
+========================
+*/
+qboolean BG_WeaponIsFull( weapon_t weapon, int ammo[ ], int ammo2[ ] )
+{
+  int maxAmmo, maxClips;
+  int quan, clips;
+
+  BG_FindAmmoForWeapon( weapon, &maxAmmo, NULL, &maxClips );
+  BG_UnpackAmmoArray( weapon, ammo, ammo2, &quan, &clips, NULL );
+
+  return ( maxAmmo == quan ) && ( maxClips == clips );
+}
+
+/*
+========================
 BG_AddWeaponToInventory
 
 Give a player a weapon

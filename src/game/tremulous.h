@@ -354,7 +354,7 @@
 
 #define MDRIVER_PRICE               350
 #define MDRIVER_CLIPSIZE            5
-#define MDRIVER_SPAWNCLIPS          2
+#define MDRIVER_SPAWNCLIPS          3
 #define MDRIVER_MAXCLIPS            3
 #define MDRIVER_DMG                 HDM(35)
 #define MDRIVER_REPEAT              1000
