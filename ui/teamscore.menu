@@ -191,7 +191,9 @@
       elementtype LISTBOX_TEXT
       feeder FEEDER_ALIENTEAM_LIST
       notselectable
-      columns 5
+      columns 7
+        5   15  1   ITEM_ALIGN_LEFT
+        21  15  1   ITEM_ALIGN_LEFT
         7   30  5   ITEM_ALIGN_LEFT
         45  100 24  ITEM_ALIGN_LEFT
         172 20  4   ITEM_ALIGN_RIGHT
@@ -212,7 +214,9 @@
       elementtype LISTBOX_TEXT
       feeder FEEDER_HUMANTEAM_LIST
       notselectable
-      columns 5
+      columns 7
+        5   15  1   ITEM_ALIGN_LEFT
+        21  15  1   ITEM_ALIGN_LEFT
         7   30  5   ITEM_ALIGN_LEFT
         45  100 24  ITEM_ALIGN_LEFT
         172 20  4   ITEM_ALIGN_RIGHT
