@@ -701,7 +701,7 @@ void SpawnCorpse( gentity_t *ent )
   body->takedamage = qfalse;
 
   body->health = ent->health = ent->client->ps.stats[ STAT_HEALTH ];
-  ent->health = ent->client->ps.stats[ STAT_HEALTH ] = GIB_HEALTH - 1;
+  ent->health = 0;
   
   //change body dimensions
   BG_FindBBoxForClass( ent->client->ps.stats[ STAT_PCLASS ], NULL, NULL, NULL, body->r.mins, body->r.maxs );

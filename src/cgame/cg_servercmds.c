@@ -151,7 +151,8 @@ void CG_SetConfigValues( void )
                             &cgs.humanBuildPointsTotal,
                             &cgs.humanBuildPointsPowered );
 
-  sscanf( CG_ConfigString( CS_STAGES ), "%d %d", &cgs.alienStage, &cgs.humanStage );
+  sscanf( CG_ConfigString( CS_STAGES ), "%d %d %d %d %d %d", &cgs.alienStage, &cgs.humanStage,
+      &cgs.alienKills, &cgs.humanKills, &cgs.alienNextStageThreshold, &cgs.humanNextStageThreshold );
   sscanf( CG_ConfigString( CS_SPAWNS ), "%d %d", &cgs.numAlienSpawns, &cgs.numHumanSpawns );
   
   cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
@@ -279,7 +280,10 @@ static void CG_ConfigStringModified( void )
     stage_t oldAlienStage = cgs.alienStage;
     stage_t oldHumanStage = cgs.humanStage;
   
-    sscanf( str, "%d %d", &cgs.alienStage, &cgs.humanStage );
+    sscanf( str, "%d %d %d %d %d %d",
+        &cgs.alienStage, &cgs.humanStage,
+        &cgs.alienKills, &cgs.humanKills,
+        &cgs.alienNextStageThreshold, &cgs.humanNextStageThreshold );
     
     if( cgs.alienStage != oldAlienStage )
       CG_AnnounceAlienStageTransistion( oldAlienStage, cgs.alienStage );

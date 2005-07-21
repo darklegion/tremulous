@@ -4550,8 +4550,6 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
 
   if( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR || ps->pm_type == PM_FREEZE )
     s->eType = ET_INVISIBLE;
-  else if( ps->stats[STAT_HEALTH] <= GIB_HEALTH )
-    s->eType = ET_INVISIBLE;
   else if( ps->persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
     s->eType = ET_INVISIBLE;
   else
@@ -4653,8 +4651,6 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   int     i;
 
   if( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR || ps->pm_type == PM_FREEZE )
-    s->eType = ET_INVISIBLE;
-  else if( ps->stats[STAT_HEALTH] <= GIB_HEALTH )
     s->eType = ET_INVISIBLE;
   else if( ps->persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
     s->eType = ET_INVISIBLE;

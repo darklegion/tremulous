@@ -1301,6 +1301,10 @@ typedef struct
 
   int           alienStage;
   int           humanStage;
+  int           alienKills;
+  int           humanKills;
+  int           alienNextStageThreshold;
+  int           humanNextStageThreshold;
   
   int           numAlienSpawns;
   int           numHumanSpawns;

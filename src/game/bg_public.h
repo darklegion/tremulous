@@ -23,7 +23,6 @@
 #define GAME_VERSION            "baseq3-1"
 
 #define DEFAULT_GRAVITY         800
-#define GIB_HEALTH              -40
 
 #define SCORE_NOT_PRESENT       -9999 // for the CS_SCORES[12] when only one player is present
 

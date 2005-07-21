@@ -1654,6 +1654,70 @@ static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, vec4_t color, q
 
 /*
 ==================
+CG_DrawStageReport
+==================
+*/
+static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
+    vec4_t color, float scale, int align, int textStyle )
+{
+  char  s[ MAX_TOKEN_CHARS ];
+  int   tx, w, kills;
+  
+  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
+    return;
+
+  if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  {
+    kills = cgs.alienNextStageThreshold - cgs.alienKills;
+    
+    if( cgs.alienNextStageThreshold < 0 )
+      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d", cgs.alienStage + 1 );
+    else if( kills == 1 )
+      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, %d kill for next stage",
+          cgs.alienStage + 1, kills );
+    else
+      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, %d kills for next stage",
+          cgs.alienStage + 1, kills );
+  }
+  else if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  {
+    kills = cgs.humanNextStageThreshold - cgs.humanKills;
+    
+    if( cgs.humanNextStageThreshold < 0 )
+      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d", cgs.humanStage + 1 );
+    else if( kills == 1 )
+      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, %d kill for next stage",
+          cgs.humanStage + 1, kills );
+    else
+      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, %d kills for next stage",
+          cgs.humanStage + 1, kills );
+  }
+  
+  w = CG_Text_Width( s, scale, 0 );
+  
+  switch( align )
+  {
+    case ITEM_ALIGN_LEFT:
+      tx = rect->x;
+      break;
+
+    case ITEM_ALIGN_RIGHT:
+      tx = rect->x + rect->w - w;
+      break;
+
+    case ITEM_ALIGN_CENTER:
+      tx = rect->x + ( rect->w / 2.0f ) - ( w / 2.0f );
+      break;
+
+    default:
+      tx = 0.0f;
+  }
+
+  CG_Text_Paint( text_x + tx, rect->y + text_y, scale, color, s, 0, 0, textStyle );
+}
+
+/*
+==================
 CG_DrawFPS
 ==================
 */
@@ -1998,12 +2062,15 @@ static void CG_DrawDisconnect( void )
 #define MAX_LAGOMETER_PING  900
 #define MAX_LAGOMETER_RANGE 300
 
+#define PING_FRAMES 40
+
 /*
 ==============
 CG_DrawLagometer
 ==============
 */
-static void CG_DrawLagometer( rectDef_t *rect, qhandle_t shader )
+static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
+    float scale, vec4_t textColor )
 {
   int     a, x, y, i;
   float   v;
@@ -2027,7 +2094,6 @@ static void CG_DrawLagometer( rectDef_t *rect, qhandle_t shader )
   ah = rect->h;
 
   trap_R_SetColor( NULL );
-  CG_DrawPic( x, y, rect->w, rect->h, shader );
 
   CG_AdjustFrom640( &ax, &ay, &aw, &ah );
 
@@ -2125,6 +2191,27 @@ static void CG_DrawLagometer( rectDef_t *rect, qhandle_t shader )
 
   if( cg_nopredict.integer || cg_synchronousClients.integer )
     CG_Text_Paint( ax, ay, 0.5, white, "snc", 0, 0, ITEM_TEXTSTYLE_NORMAL );
+  else
+  {
+    static int  previousPings[ PING_FRAMES ];
+    static int  index;
+    int         i, ping = 0;
+    char        *s;
+
+    previousPings[ index++ ] = cg.snap->ping;
+    index = index % PING_FRAMES;
+
+    for( i = 0; i < PING_FRAMES; i++ )
+      ping += previousPings[ i ];
+
+    ping /= PING_FRAMES;
+    
+    s = va( "%d", ping );
+    ax = rect->x + ( rect->w / 2.0f ) - ( CG_Text_Width( s, scale, 0 ) / 2.0f ) + text_x;
+    ay = rect->y + ( rect->h / 2.0f ) + ( CG_Text_Height( s, scale, 0 ) / 2.0f ) + text_y;
+
+    CG_Text_Paint( ax, ay, scale, textColor, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
+  }
 
   CG_DrawDisconnect( );
 }
@@ -2505,6 +2592,9 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
     case CG_PLAYER_CROSSHAIRNAMES:
       CG_DrawCrosshairNames( &rect, scale, textStyle );
       break;
+    case CG_STAGE_REPORT_TEXT:
+      CG_DrawStageReport( &rect, text_x, text_y, color, scale, align, textStyle );
+      break;
       
     //loading screen
     case CG_LOAD_LEVELSHOT:
@@ -2560,7 +2650,7 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawSnapshot( &rect, text_x, text_y, scale, color, align, textStyle );
       break;
     case CG_LAGOMETER:
-      CG_DrawLagometer( &rect, shader );
+      CG_DrawLagometer( &rect, text_x, text_y, scale, color );
       break;
       
     case CG_CONSOLE:

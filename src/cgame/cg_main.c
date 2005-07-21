@@ -1045,7 +1045,6 @@ void CG_StartMusic( void )
   trap_S_StartBackgroundTrack( parm1, parm2 );
 }
 
-//TA: FIXME: preliminary integration of CG TA UI stuff
 //
 // ==============================
 // new hud stuff ( mission pack )

@@ -891,6 +891,8 @@ void G_CountSpawns( void )
 }
 
 
+#define PLAYER_COUNT_MOD 5.0f
+
 /*
 ============
 G_CalculateBuildPoints
@@ -965,11 +967,37 @@ void G_CalculateBuildPoints( void )
                                               level.humanBuildPointsPowered ) );
 
   //may as well pump the stages here too
-  trap_SetConfigstring( CS_STAGES, va( "%d %d",
-        g_alienStage.integer, g_humanStage.integer ) );
-}
+  {
+    float alienPlayerCountMod = (float)level.numAlienClients / PLAYER_COUNT_MOD;
+    float humanPlayerCountMod = (float)level.numHumanClients / PLAYER_COUNT_MOD;
+    int   alienNextStageThreshold, humanNextStageThreshold;
 
-#define PLAYER_COUNT_MOD 5.0f
+    if( alienPlayerCountMod < 0.1f )
+      alienPlayerCountMod = 0.1f;
+    
+    if( humanPlayerCountMod < 0.1f )
+      humanPlayerCountMod = 0.1f;
+    
+    if( g_alienStage.integer == S1 && g_alienMaxStage.integer > S1 )
+      alienNextStageThreshold = (int)( (float)g_alienStage2Threshold.integer * alienPlayerCountMod );
+    else if( g_alienStage.integer == S2 && g_alienMaxStage.integer > S2 )
+      alienNextStageThreshold = (int)( (float)g_alienStage3Threshold.integer * alienPlayerCountMod );
+    else
+      alienNextStageThreshold = -1;
+    
+    if( g_humanStage.integer == S1 && g_humanMaxStage.integer > S1 )
+      humanNextStageThreshold = (int)( (float)g_humanStage2Threshold.integer * humanPlayerCountMod );
+    else if( g_humanStage.integer == S2 && g_humanMaxStage.integer > S2 )
+      humanNextStageThreshold = (int)( (float)g_humanStage3Threshold.integer * humanPlayerCountMod );
+    else
+      humanNextStageThreshold = -1;
+    
+    trap_SetConfigstring( CS_STAGES, va( "%d %d %d %d %d %d",
+          g_alienStage.integer, g_humanStage.integer,
+          g_alienKills.integer, g_humanKills.integer,
+          alienNextStageThreshold, humanNextStageThreshold ) );
+  }
+}
 
 /*
 ============
@@ -979,7 +1007,7 @@ G_CalculateStages
 void G_CalculateStages( void )
 {
   float alienPlayerCountMod = (float)level.numAlienClients / PLAYER_COUNT_MOD;
-  float humanPlayerCountMod = (float)level.numAlienClients / PLAYER_COUNT_MOD;
+  float humanPlayerCountMod = (float)level.numHumanClients / PLAYER_COUNT_MOD;
 
   if( alienPlayerCountMod < 0.1f )
     alienPlayerCountMod = 0.1f;

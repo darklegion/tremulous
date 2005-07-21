@@ -559,14 +559,20 @@ static void CG_RunBuildableLerpFrame( centity_t *cent )
   {
     if( cg_debugRandom.integer )
       CG_Printf( "newAnimation: %d lf->animationNumber: %d lf->animation: %d\n",
-                 newAnimation, lf->animationNumber, !!lf->animation );
+                 newAnimation, lf->animationNumber, lf->animation );
 
     CG_SetBuildableLerpFrameAnimation( buildable, lf, newAnimation );
 
     if( !cg_buildables[ buildable ].sounds[ newAnimation ].looped &&
         cg_buildables[ buildable ].sounds[ newAnimation ].enabled )
+    {
+      if( cg_debugRandom.integer )
+        CG_Printf( "Sound for animation %d for a %s\n",
+            newAnimation, BG_FindHumanNameForBuildable( buildable ) );
+
       trap_S_StartSound( cent->lerpOrigin, cent->currentState.number, CHAN_AUTO,
         cg_buildables[ buildable ].sounds[ newAnimation ].sound );
+    }
   }
 
   if( cg_buildables[ buildable ].sounds[ lf->animationNumber ].looped &&

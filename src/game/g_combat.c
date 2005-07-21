@@ -70,24 +70,6 @@ void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker )
   angles[ ROLL ] = 0;
 }
 
-/*
-==================
-body_die
-==================
-*/
-void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
-{
-  if( self->health > GIB_HEALTH )
-    return;
-  
-  if( !g_blood.integer )
-  {
-    self->health = GIB_HEALTH + 1;
-    return;
-  }
-}
-
-
 // these are just for logging, the client prints its own messages
 char *modNames[ ] =
 {
@@ -387,7 +369,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   self->client->pers.classSelection = PCL_NONE; //TA: reset the classtype
 
-  self->takedamage = qtrue; // can still be gibbed
+  self->takedamage = qfalse; // can still be gibbed
 
   self->s.weapon = WP_NONE;
   self->r.contents = CONTENTS_CORPSE;
@@ -447,11 +429,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       }
     }
 
-    // for the no-blood option, we need to prevent the health
-    // from going to gib level
-    if( self->health <= GIB_HEALTH )
-      self->health = GIB_HEALTH+1;
-
     self->client->ps.legsAnim =
       ( ( self->client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
     
@@ -462,9 +439,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     }
 
     G_AddEvent( self, EV_DEATH1 + i, killer );
-
-    // the body can still be gibbed
-    self->die = body_die;
 
     // globally cycle through the different death animations
     i = ( i + 1 ) % 3;

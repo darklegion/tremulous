@@ -252,6 +252,7 @@
 #define CG_SNAPSHOT               89
 #define CG_LAGOMETER              90
 #define CG_PLAYER_CROSSHAIRNAMES  114
+#define CG_STAGE_REPORT_TEXT      116
 
 #define CG_CONSOLE                91
 

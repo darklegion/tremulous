@@ -889,10 +889,12 @@ CG_CEntityPVSEnter
 */
 static void CG_CEntityPVSEnter( centity_t *cent )
 {
+  entityState_t *es = &cent->currentState;
+  
   if( cg_debugPVS.integer )
     CG_Printf( "Entity %d entered PVS\n", cent->currentState.number );
   
-  switch( cent->currentState.eType )
+  switch( es->eType )
   {
     case ET_MISSILE:
       CG_LaunchMissile( cent );
@@ -910,7 +912,8 @@ static void CG_CEntityPVSEnter( centity_t *cent )
 
   //make sure that the buildable animations are in a consistent state
   //when a buildable enters the PVS
-  cent->buildableAnim = BANIM_NONE;
+  cent->buildableAnim = cent->lerpFrame.animationNumber = BANIM_NONE;
+  cent->oldBuildableAnim = es->legsAnim;
 }
 
 
