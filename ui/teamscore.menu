@@ -35,7 +35,7 @@
     {
       name alienteamname
       text "Aliens"
-      textalign 0
+      textalign ITEM_ALIGN_LEFT
       textscale .5
       textaligny 26
       rect 20 78 306 23
@@ -46,9 +46,22 @@
 
     itemDef
     {
+      name stagereport
+      align ITEM_ALIGN_CENTER
+      textscale 0.4
+      textaligny 24
+      rect 14 78 612 23
+      forecolor 1 1 1 1	 
+      decoration
+      visible 1
+      ownerdraw CG_STAGE_REPORT_TEXT
+    }
+
+    itemDef
+    {
       name humanteamname
       text "Humans"
-      textalign 2
+      textalign ITEM_ALIGN_RIGHT
       textscale .5
       textaligny 26
       rect 620 78 0 23		 

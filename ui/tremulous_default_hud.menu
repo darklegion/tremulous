@@ -78,10 +78,15 @@
     itemDef
     {
       name "lagometer"
-      rect 576 68 56 28
+      rect 596 68 32 20
+      style WINDOW_STYLE_FILLED
       visible 1
       decoration
-      background "white"
+      backcolor 1 1 1 0.25
+      forecolor 1 1 1 0.5
+      textscale 0.3
+      textalignx 1
+      textaligny 0.5
       ownerdraw CG_LAGOMETER
     }   
     
