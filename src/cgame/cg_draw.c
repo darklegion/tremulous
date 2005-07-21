@@ -1663,7 +1663,8 @@ static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
   char  s[ MAX_TOKEN_CHARS ];
   int   tx, w, kills;
   
-  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
+  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR ||
+      cg.intermissionStarted )
     return;
 
   if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )

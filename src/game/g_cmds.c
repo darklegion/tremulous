@@ -108,12 +108,14 @@ ScoreboardMessage
 */
 void ScoreboardMessage( gentity_t *ent )
 {
-  char    entry[ 1024 ];
-  char    string[ 1400 ];
-  int     stringlength;
-  int     i, j;
+  char      entry[ 1024 ];
+  char      string[ 1400 ];
+  int       stringlength;
+  int       i, j;
   gclient_t *cl;
-  int     numSorted;
+  int       numSorted;
+  weapon_t  weapon = WP_NONE;
+  upgrade_t upgrade = UP_NONE;
 
   // send the latest information on all clients
   string[ 0 ] = 0;
@@ -132,9 +134,32 @@ void ScoreboardMessage( gentity_t *ent )
     else
       ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
 
+    if( cl->ps.stats[ STAT_HEALTH ] > 0 )
+    {
+      weapon = cl->ps.weapon;
+      
+      if( BG_InventoryContainsUpgrade( UP_BATTLESUIT, cl->ps.stats ) )
+        upgrade = UP_BATTLESUIT;
+      else if( BG_InventoryContainsUpgrade( UP_JETPACK, cl->ps.stats ) )
+        upgrade = UP_JETPACK;
+      else if( BG_InventoryContainsUpgrade( UP_BATTPACK, cl->ps.stats ) )
+        upgrade = UP_BATTPACK;
+      else if( BG_InventoryContainsUpgrade( UP_HELMET, cl->ps.stats ) )
+        upgrade = UP_HELMET;
+      else if( BG_InventoryContainsUpgrade( UP_LIGHTARMOUR, cl->ps.stats ) )
+        upgrade = UP_LIGHTARMOUR;
+      else
+        upgrade = UP_NONE;
+    }
+    else
+    {
+      weapon = WP_NONE;
+      upgrade = UP_NONE;
+    }
+    
     Com_sprintf( entry, sizeof( entry ),
-      " %i %i %i %i", level.sortedClients[ i ],
-      cl->ps.persistant[ PERS_SCORE ], ping, ( level.time - cl->pers.enterTime ) / 60000 );
+      " %d %d %d %d %d %d", level.sortedClients[ i ], cl->ps.persistant[ PERS_SCORE ],
+      ping, ( level.time - cl->pers.enterTime ) / 60000, weapon, upgrade );
     
     j = strlen( entry );
     

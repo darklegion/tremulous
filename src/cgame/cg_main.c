@@ -797,6 +797,8 @@ static void CG_RegisterGraphics( void )
 
   for( i = 0; i < 8; i++ )
     cgs.media.buildWeaponTimerPie[ i ] = trap_R_RegisterShader( buildWeaponTimerPieShaders[ i ] );
+  
+  cgs.media.upgradeClassIconShader    = trap_R_RegisterShader( "icons/icona_upgrade.tga" );
 
   cgs.media.machinegunBrassModel      = trap_R_RegisterModel( "models/weapons2/shells/m_shell.md3" );
   cgs.media.shotgunBrassModel         = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
@@ -1481,6 +1483,7 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
   clientInfo_t  *info = NULL;
   int           team = -1;
   score_t       *sp = NULL;
+  qboolean      showIcons = qfalse;
 
   *handle = -1;
 
@@ -1489,6 +1492,13 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
   else if( feederID == FEEDER_HUMANTEAM_LIST )
     team = PTE_HUMANS;
 
+  if( ( atoi( CG_ConfigString( CS_CLIENTS_READY ) ) & ( 1 << sp->client ) ) &&
+      cg.intermissionStarted )
+    showIcons = qfalse;
+  else if( cg.snap->ps.pm_type == PM_SPECTATOR || cg.snap->ps.pm_flags & PMF_FOLLOW ||
+    team == cg.snap->ps.stats[ STAT_PTEAM ] || cg.intermissionStarted )
+    showIcons = qtrue;
+  
   info = CG_InfoFromScoreIndex( index, team, &scoreIndex );
   sp = &cg.scores[ scoreIndex ];
 
@@ -1497,24 +1507,55 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
     switch( column )
     {
       case 0:
+        if( showIcons )
+        {
+          if( sp->weapon != WP_NONE )
+            *handle = cg_weapons[ sp->weapon ].weaponIcon;
+        }
+        break;
+        
+      case 1:
+        if( showIcons )
+        {
+          if( sp->team == PTE_HUMANS && sp->upgrade != UP_NONE )
+            *handle = cg_upgrades[ sp->upgrade ].upgradeIcon;
+          else if( sp->team == PTE_ALIENS )
+          {
+            switch( sp->weapon )
+            {
+              case WP_ABUILD2:
+              case WP_ALEVEL1_UPG:
+              case WP_ALEVEL2_UPG:
+              case WP_ALEVEL3_UPG:
+                *handle = cgs.media.upgradeClassIconShader;
+                break;
+              
+              default:
+                break;
+            }
+          }
+        }
+        break;
+        
+      case 2:
         if( ( atoi( CG_ConfigString( CS_CLIENTS_READY ) ) & ( 1 << sp->client ) ) &&
             cg.intermissionStarted )
           return "Ready";
         break;
         
-      case 1:
+      case 3:
         return info->name;
         break;
       
-      case 2:
+      case 4:
         return va( "%d", info->score );
         break;
         
-      case 3:
+      case 5:
         return va( "%4d", sp->time );
         break;
         
-      case 4:
+      case 6:
         if( sp->ping == -1 )
           return "connecting";
         

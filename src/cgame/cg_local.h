@@ -593,11 +593,13 @@ typedef struct localEntity_s
 
 typedef struct
 {
-  int client;
-  int score;
-  int ping;
-  int time;
-  int team;
+  int       client;
+  int       score;
+  int       ping;
+  int       time;
+  int       team;
+  weapon_t  weapon;
+  upgrade_t upgrade;
 } score_t;
 
 // each client has an associated clientInfo_t
@@ -1248,6 +1250,7 @@ typedef struct
   sfxHandle_t lCannonWarningSound;
 
   qhandle_t   buildWeaponTimerPie[ 8 ];
+  qhandle_t   upgradeClassIconShader;
 } cgMedia_t;
 
 

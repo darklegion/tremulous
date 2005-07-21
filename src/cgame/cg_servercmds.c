@@ -45,10 +45,12 @@ static void CG_ParseScores( void )
   for( i = 0; i < cg.numScores; i++ )
   {
     //
-    cg.scores[ i ].client = atoi( CG_Argv( i * 4 + 4 ) );
-    cg.scores[ i ].score = atoi( CG_Argv( i * 4 + 5 ) );
-    cg.scores[ i ].ping = atoi( CG_Argv( i * 4 + 6 ) );
-    cg.scores[ i ].time = atoi( CG_Argv( i * 4 + 7 ) );
+    cg.scores[ i ].client = atoi( CG_Argv( i * 6 + 4 ) );
+    cg.scores[ i ].score = atoi( CG_Argv( i * 6 + 5 ) );
+    cg.scores[ i ].ping = atoi( CG_Argv( i * 6 + 6 ) );
+    cg.scores[ i ].time = atoi( CG_Argv( i * 6 + 7 ) );
+    cg.scores[ i ].weapon = atoi( CG_Argv( i * 6 + 8 ) );
+    cg.scores[ i ].upgrade = atoi( CG_Argv( i * 6 + 9 ) );
 
     if( cg.scores[ i ].client < 0 || cg.scores[ i ].client >= MAX_CLIENTS )
       cg.scores[ i ].client = 0;
