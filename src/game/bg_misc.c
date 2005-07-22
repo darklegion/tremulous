@@ -1518,7 +1518,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
-    130.0f,                                         //float   jumpMagnitude;
+    195.0f,                                         //float   jumpMagnitude;
     1.0f,                                           //float   knockbackScale;
     { PCL_ALIEN_BUILDER0_UPG, PCL_ALIEN_LEVEL0, PCL_NONE },       //int     children[ 3 ];
     ABUILDER_COST,                                  //int     cost;

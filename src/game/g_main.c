@@ -493,7 +493,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
     }
   }
   else
-    G_Printf( "Not logging to disk.\n" );
+    G_Printf( "Not logging to disk\n" );
 
   // initialize all entities for this game
   memset( g_entities, 0, MAX_GENTITIES * sizeof( g_entities[ 0 ] ) );
@@ -1600,7 +1600,7 @@ void CheckExitRules( void )
   {
     if( level.time - level.startTime >= g_timelimit.integer * 60000 )
     {
-      trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
+      trap_SendServerCommand( -1, "print \"Timelimit hit\n\"" );
       G_LogPrintf( "STATS T:L A:%f H:%f M:%s D:%d\n", level.averageNumAlienClients,
                                                       level.averageNumHumanClients,
                                                       s, level.time - level.startTime );
@@ -1616,7 +1616,7 @@ void CheckExitRules( void )
   {
     //humans win
     level.lastWin = PTE_HUMANS;
-    trap_SendServerCommand( -1, "print \"Humans win.\n\"");
+    trap_SendServerCommand( -1, "print \"Humans win\n\"");
     G_LogPrintf( "STATS T:H A:%f H:%f M:%s D:%d\n", level.averageNumAlienClients,
                                                     level.averageNumHumanClients,
                                                     s, level.time - level.startTime );
@@ -1630,7 +1630,7 @@ void CheckExitRules( void )
   {
     //aliens win
     level.lastWin = PTE_ALIENS;
-    trap_SendServerCommand( -1, "print \"Aliens win.\n\"");
+    trap_SendServerCommand( -1, "print \"Aliens win\n\"");
     G_LogPrintf( "STATS T:A A:%f H:%f M:%s D:%d\n", level.averageNumAlienClients,
                                                     level.averageNumHumanClients,
                                                     s, level.time - level.startTime );
@@ -1680,13 +1680,13 @@ void CheckVote( void )
     if( level.voteYes > level.voteNo )
     {
       // execute the command, then remove the vote
-      trap_SendServerCommand( -1, "print \"Vote passed.\n\"" );
+      trap_SendServerCommand( -1, "print \"Vote passed\n\"" );
       level.voteExecuteTime = level.time + 3000;
     }
     else
     {
       // same behavior as a timeout
-      trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
+      trap_SendServerCommand( -1, "print \"Vote failed\n\"" );
     }
   }
   else
@@ -1694,13 +1694,13 @@ void CheckVote( void )
     if( level.voteYes > level.numConnectedClients / 2 )
     {
       // execute the command, then remove the vote
-      trap_SendServerCommand( -1, "print \"Vote passed.\n\"" );
+      trap_SendServerCommand( -1, "print \"Vote passed\n\"" );
       level.voteExecuteTime = level.time + 3000;
     }
     else if( level.voteNo >= level.numConnectedClients / 2 )
     {
       // same behavior as a timeout
-      trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
+      trap_SendServerCommand( -1, "print \"Vote failed\n\"" );
     }
     else
     {
@@ -1735,21 +1735,21 @@ void CheckTeamVote( int team )
   
   if( level.time - level.teamVoteTime[ cs_offset ] >= VOTE_TIME )
   {
-    trap_SendServerCommand( -1, "print \"Team vote failed.\n\"" );
+    trap_SendServerCommand( -1, "print \"Team vote failed\n\"" );
   }
   else
   {
     if( level.teamVoteYes[ cs_offset ] > level.numteamVotingClients[ cs_offset ] / 2 )
     {
       // execute the command, then remove the vote
-      trap_SendServerCommand( -1, "print \"Team vote passed.\n\"" );
+      trap_SendServerCommand( -1, "print \"Team vote passed\n\"" );
       //
       trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.teamVoteString[ cs_offset ] ) );
     }
     else if( level.teamVoteNo[ cs_offset ] >= level.numteamVotingClients[ cs_offset ] / 2 )
     {
       // same behavior as a timeout
-      trap_SendServerCommand( -1, "print \"Team vote failed.\n\"" );
+      trap_SendServerCommand( -1, "print \"Team vote failed\n\"" );
     }
     else
     {

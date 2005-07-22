@@ -3309,6 +3309,8 @@ UI_LoadTremHumanItems
 */
 static void UI_LoadTremHumanItems( void )
 {
+  weapon_t  bWeapon;
+
   uiInfo.tremHumanItemCount = 2;
 
   uiInfo.tremHumanItemList[ 0 ].text =
@@ -3318,12 +3320,17 @@ static void UI_LoadTremHumanItems( void )
   uiInfo.tremHumanItemList[ 0 ].infopane =
     UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( WP_MACHINEGUN ) ) );
   
+  if( BG_FindStagesForWeapon( WP_HBUILD2, UI_GetCurrentHumanStage( ) ) )
+    bWeapon = WP_HBUILD2;
+  else
+    bWeapon = WP_HBUILD;
+  
   uiInfo.tremHumanItemList[ 1 ].text =
-    String_Alloc( BG_FindHumanNameForWeapon( WP_HBUILD ) );
+    String_Alloc( BG_FindHumanNameForWeapon( bWeapon ) );
   uiInfo.tremHumanItemList[ 1 ].cmd =
-    String_Alloc( va( "cmd class %s\n", BG_FindNameForWeapon( WP_HBUILD ) ) );
+    String_Alloc( va( "cmd class %s\n", BG_FindNameForWeapon( bWeapon ) ) );
   uiInfo.tremHumanItemList[ 1 ].infopane =
-    UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( WP_HBUILD ) ) );
+    UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( bWeapon ) ) );
 }
 
 /*

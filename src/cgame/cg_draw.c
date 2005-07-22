@@ -1663,11 +1663,18 @@ static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
   char  s[ MAX_TOKEN_CHARS ];
   int   tx, w, kills;
   
-  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR ||
-      cg.intermissionStarted )
+  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR && !cg.intermissionStarted )
     return;
 
-  if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  if( cg.intermissionStarted )
+  {
+    Com_sprintf( s, MAX_TOKEN_CHARS,
+        "Stage %d" //PH34R MY MAD-LEET CODING SKILLZ
+        "                                                       "
+        "Stage %d",
+        cgs.alienStage + 1, cgs.humanStage + 1 );
+  }
+  else if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     kills = cgs.alienNextStageThreshold - cgs.alienKills;
     

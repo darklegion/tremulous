@@ -2405,7 +2405,13 @@ qboolean G_BuildableRange( vec3_t origin, float r, buildable_t buildable )
   {
     ent = &g_entities[ entityList[ i ] ];
     
-    if( ent->s.eType == ET_BUILDABLE && ent->s.modelindex == buildable && ent->spawned )
+    if( ent->s.eType != ET_BUILDABLE )
+      continue;
+    
+    if( ent->biteam == BIT_HUMANS && !ent->powered )
+      continue;
+
+    if( ent->s.modelindex == buildable && ent->spawned )
       return qtrue;
   }
 
