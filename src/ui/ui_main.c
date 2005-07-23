@@ -5823,6 +5823,18 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
           trap_Cvar_Set("com_errorMessage", "");
         }
       }
+
+#define MIN_HUNKMEGS  100
+
+      trap_Cvar_VariableStringBuffer( "com_hunkMegs", buf, sizeof( buf ) );
+      if( strlen( buf ) && atoi( buf ) < MIN_HUNKMEGS )
+      {
+        trap_Cvar_Set( "com_hunkMegs", va( "%d", MIN_HUNKMEGS ) );
+        trap_Cvar_Set( "com_errorMessage", "Your com_hunkMegs setting was too low. "
+            "It has been changed to a suitable value, but you must restart Quake 3 "
+            "for it to take effect." );
+        Menus_ActivateByName( "error_popmenu" );
+      }
       return;
     case UIMENU_TEAM:
       trap_Key_SetCatcher( KEYCATCH_UI );

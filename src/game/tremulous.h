@@ -256,7 +256,7 @@
 #define TRAPPER_CREEPSIZE           30
 #define TRAPPER_RANGE               400
 #define TRAPPER_REPEAT              1000
-#define LOCKBLOB_SPEED              500
+#define LOCKBLOB_SPEED              500.0f
 #define LOCKBLOB_DOT                0.85f // max angle = acos( LOCKBLOB_DOT )
 
 #define OVERMIND_BP                 0

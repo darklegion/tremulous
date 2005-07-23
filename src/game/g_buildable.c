@@ -1296,17 +1296,19 @@ void ADef_FireOnEnemy( gentity_t *self, int firespeed )
   VectorScale( self->enemy->jerk, 1.0f / 3.0f, thirdJerk );
 
   //O( time ) - worst case O( time ) = 250 iterations
-  for( i = 0; ( i * LOCKBLOB_SPEED ) / 1000.0f < distanceToTarget; i++ )
+  for( i = 0; (float)( i * LOCKBLOB_SPEED ) / 1000.0f < distanceToTarget; i++ )
   {
     float time = (float)i / 1000.0f;
 
     if( i > 250 )
     {
-      G_Printf( "ADef_FireOnEnemy failed.\n"
+      G_LogPrintf( "ADef_FireOnEnemy failed.\n"
+                "  %dth iteration\n"
                 "  enemy location: %v\n"
                 "  enemy accleration: %v\n"
                 "  enemy jerk: %v\n"
                 "  base location: %v\n",
+                i,
                 self->enemy->s.pos.trBase,
                 self->enemy->acceleration,
                 self->enemy->jerk,
