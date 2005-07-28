@@ -1665,8 +1665,8 @@ void Cmd_Buy_f( gentity_t *ent )
     ent->client->ps.stats[ STAT_MISC ] = 0;
     
     //prevent filling up ammo again soon
-    ent->client->lastBoughtAmmoTime = level.time;
-    ent->client->campingAtTheArmoury = qtrue;
+    //ent->client->lastBoughtAmmoTime = level.time;
+    //ent->client->campingAtTheArmoury = qtrue;
     
     //subtract from funds
     G_AddCreditToClient( ent->client, -(short)BG_FindPriceForWeapon( weapon ), qfalse );

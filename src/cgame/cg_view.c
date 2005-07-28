@@ -67,12 +67,18 @@ void CG_TestModel_f( void )
   vec3_t    angles;
 
   memset( &cg.testModelEntity, 0, sizeof( cg.testModelEntity ) );
+  memset( &cg.testModelBarrelEntity, 0, sizeof( cg.testModelBarrelEntity ) );
   
   if( trap_Argc( ) < 2 )
     return;
 
   Q_strncpyz( cg.testModelName, CG_Argv( 1 ), MAX_QPATH );
   cg.testModelEntity.hModel = trap_R_RegisterModel( cg.testModelName );
+  
+  Q_strncpyz( cg.testModelBarrelName, CG_Argv( 1 ), MAX_QPATH );
+  cg.testModelBarrelName[ strlen( cg.testModelBarrelName ) - 4 ] = '\0';
+  Q_strcat( cg.testModelBarrelName, MAX_QPATH, "_barrel.md3" );
+  cg.testModelBarrelEntity.hModel = trap_R_RegisterModel( cg.testModelBarrelName );
 
   if( trap_Argc( ) == 3 )
   {
@@ -95,6 +101,14 @@ void CG_TestModel_f( void )
 
   AnglesToAxis( angles, cg.testModelEntity.axis );
   cg.testGun = qfalse;
+    
+  if( cg.testModelBarrelEntity.hModel )
+  {
+    angles[ YAW ] = 0;
+    angles[ PITCH ] = 0;
+    angles[ ROLL ] = 0;
+    AnglesToAxis( angles, cg.testModelBarrelEntity.axis );
+  }
 }
 
 /*
@@ -150,10 +164,11 @@ static void CG_AddTestModel( void )
 
   // re-register the model, because the level may have changed
   cg.testModelEntity.hModel = trap_R_RegisterModel( cg.testModelName );
+  cg.testModelBarrelEntity.hModel = trap_R_RegisterModel( cg.testModelBarrelName );
   
-  if( ! cg.testModelEntity.hModel )
+  if( !cg.testModelEntity.hModel )
   {
-    CG_Printf ("Can't register model\n");
+    CG_Printf( "Can't register model\n" );
     return;
   }
 
@@ -175,6 +190,14 @@ static void CG_AddTestModel( void )
   }
 
   trap_R_AddRefEntityToScene( &cg.testModelEntity );
+
+  if( cg.testModelBarrelEntity.hModel )
+  {
+    CG_PositionEntityOnTag( &cg.testModelBarrelEntity, &cg.testModelEntity,
+        cg.testModelEntity.hModel, "tag_barrel" );
+
+    trap_R_AddRefEntityToScene( &cg.testModelBarrelEntity );
+  }
 }
 
 

@@ -1529,16 +1529,16 @@ void CheckIntermissionExit( void )
     return;
   }
 
-  // the first person to ready starts the ten second timeout
+  // the first person to ready starts the thirty second timeout
   if( !level.readyToExit )
   {
     level.readyToExit = qtrue;
     level.exitTime = level.time;
   }
 
-  // if we have waited ten seconds since at least one player
+  // if we have waited thirty seconds since at least one player
   // wanted to exit, go ahead
-  if( level.time < level.exitTime + 10000 )
+  if( level.time < level.exitTime + 30000 )
     return;
 
   ExitLevel( );

@@ -1004,7 +1004,9 @@ typedef struct
 
   // development tool
   refEntity_t   testModelEntity;
+  refEntity_t   testModelBarrelEntity;
   char          testModelName[MAX_QPATH];
+  char          testModelBarrelName[MAX_QPATH];
   qboolean      testGun;
 
   int           spawnTime;                          //TA: fovwarp

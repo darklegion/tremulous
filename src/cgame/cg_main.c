@@ -1492,6 +1492,9 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
   else if( feederID == FEEDER_HUMANTEAM_LIST )
     team = PTE_HUMANS;
 
+  info = CG_InfoFromScoreIndex( index, team, &scoreIndex );
+  sp = &cg.scores[ scoreIndex ];
+
   if( ( atoi( CG_ConfigString( CS_CLIENTS_READY ) ) & ( 1 << sp->client ) ) &&
       cg.intermissionStarted )
     showIcons = qfalse;
@@ -1499,9 +1502,6 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
     team == cg.snap->ps.stats[ STAT_PTEAM ] || cg.intermissionStarted )
     showIcons = qtrue;
   
-  info = CG_InfoFromScoreIndex( index, team, &scoreIndex );
-  sp = &cg.scores[ scoreIndex ];
-
   if( info && info->infoValid )
   {
     switch( column )
