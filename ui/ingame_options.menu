@@ -1016,7 +1016,7 @@
       name misc
       group optionsGrp
       type ITEM_TYPE_BIND
-      text "Use Object/Evolve:"
+      text "Use Structure/Evolve:"
       cvar "+button7"
       rect 96 125 192 15
       textalign ITEM_ALIGN_RIGHT
@@ -1037,7 +1037,7 @@
       name misc
       group optionsGrp
       type ITEM_TYPE_BIND
-      text "Deconstruct Object:"
+      text "Deconstruct Structure:"
       cvar "deconstruct"
       rect 96 140 192 15
       textalign ITEM_ALIGN_RIGHT
