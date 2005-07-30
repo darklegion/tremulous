@@ -1285,7 +1285,7 @@ ADef_fireonemeny
 Used by ADef2_Think to fire at enemy
 ================
 */
-void ADef_FireOnEnemy( gentity_t *self, int firespeed )
+void ADef_FireOnEnemy( gentity_t *self, int firespeed, float range )
 {
   vec3_t  dirToTarget;
   vec3_t  halfAcceleration, thirdJerk;
@@ -1295,24 +1295,22 @@ void ADef_FireOnEnemy( gentity_t *self, int firespeed )
   VectorScale( self->enemy->acceleration, 1.0f / 2.0f, halfAcceleration );
   VectorScale( self->enemy->jerk, 1.0f / 3.0f, thirdJerk );
 
-  //O( time ) - worst case O( time ) = 250 iterations
+  //O( time ) - worst case O( time ) = ( range * 1000 ) / speed
   for( i = 0; (float)( i * LOCKBLOB_SPEED ) / 1000.0f < distanceToTarget; i++ )
   {
     float time = (float)i / 1000.0f;
 
-    if( i > 250 )
+    if( i > ( ( (float)range * 1000.0f ) / LOCKBLOB_SPEED ) )
     {
+      VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
+      distanceToTarget = VectorLength( dirToTarget );
+      
       G_LogPrintf( "ADef_FireOnEnemy failed.\n"
-                "  %dth iteration\n"
-                "  enemy location: %v\n"
-                "  enemy accleration: %v\n"
-                "  enemy jerk: %v\n"
-                "  base location: %v\n",
-                i,
-                self->enemy->s.pos.trBase,
-                self->enemy->acceleration,
-                self->enemy->jerk,
-                self->s.pos.trBase );
+          "  %dth iteration\n  enemy location: %v\n"
+          "  enemy accleration: %v\n  enemy jerk: %v\n"
+          "  base location: %v\n  distanceToTarget: %f\n",
+          i, self->enemy->s.pos.trBase, self->enemy->acceleration,
+          self->enemy->jerk, self->s.pos.trBase, distanceToTarget );
 
       return;               
     }
@@ -1443,7 +1441,7 @@ void ATrapper_Think( gentity_t *self )
     
     //if we are pointing at our target and we can fire shoot it
     if( self->count < level.time )
-      ADef_FireOnEnemy( self, firespeed );
+      ADef_FireOnEnemy( self, firespeed, range );
   }
 }
 

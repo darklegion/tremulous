@@ -1367,13 +1367,9 @@ void ClientThink_real( gentity_t *ent )
   if( ent->client->lastKillTime + FREEKILL_PERIOD < level.time )
   {
     if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-    {
-        G_AddCreditToClient( ent->client, FREEKILL_ALIEN, qtrue );
-    }
+      G_AddCreditToClient( ent->client, FREEKILL_ALIEN, qtrue );
     else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-    {
-        G_AddCreditToClient( ent->client, FREEKILL_HUMAN, qtrue );
-    }
+      G_AddCreditToClient( ent->client, FREEKILL_HUMAN, qtrue );
 
     ent->client->lastKillTime = level.time;
   }

@@ -1106,8 +1106,6 @@ typedef struct
   qhandle_t   smokePuffShader;
   qhandle_t   smokePuffRageProShader;
   qhandle_t   shotgunSmokePuffShader;
-  qhandle_t   plasmaBallShader;
-  qhandle_t   blasterShader;
   qhandle_t   waterBubbleShader;
   qhandle_t   bloodTrailShader;
 
