@@ -1486,55 +1486,37 @@ G_GiveClientMaxAmmo
 */
 static void G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo )
 {
-  int i;
-  int quan, clips, maxClips;
+  int       i;
+  int       quan, clips, maxClips;
+  qboolean  weaponType;
 
-  if( !ent->client->campingAtTheArmoury || !ent->client->firedWeapon )
+  for( i = WP_NONE; i < WP_NUM_WEAPONS; i++ )
   {
-    qboolean weaponType, successfullyBought = qfalse;
-
-    for( i = WP_NONE; i < WP_NUM_WEAPONS; i++ )
+    if( buyingEnergyAmmo )
+      weaponType = BG_FindUsesEnergyForWeapon( i );
+    else
+      weaponType = !BG_FindUsesEnergyForWeapon( i );
+    
+    if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
+        weaponType && !BG_FindInfinteAmmoForWeapon( i ) &&
+        !BG_WeaponIsFull( i, ent->client->ps.ammo, ent->client->ps.powerups ) )
     {
-      if( buyingEnergyAmmo )
-        weaponType = BG_FindUsesEnergyForWeapon( i );
-      else
-        weaponType = !BG_FindUsesEnergyForWeapon( i );
+      BG_FindAmmoForWeapon( i, &quan, &clips, &maxClips );
       
-      if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
-          weaponType && !BG_FindInfinteAmmoForWeapon( i ) &&
-          !BG_WeaponIsFull( i, ent->client->ps.ammo, ent->client->ps.powerups ) )
+      if( buyingEnergyAmmo )
       {
-        BG_FindAmmoForWeapon( i, &quan, &clips, &maxClips );
+        G_AddEvent( ent, EV_RPTUSE_SOUND, 0 );
+        ent->client->lastRefilTime = level.time;
         
-        if( buyingEnergyAmmo )
-        {
-          G_AddEvent( ent, EV_RPTUSE_SOUND, 0 );
-          ent->client->lastRefilTime = level.time;
-          
-          if( BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
-            quan = (int)( (float)quan * BATTPACK_MODIFIER );
-        }
-        else
-          G_AddEvent( ent, EV_CHANGE_WEAPON, 0 );
-
-        BG_PackAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups,
-                          quan, clips, maxClips );
-
-        successfullyBought = qtrue;
+        if( BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
+          quan = (int)( (float)quan * BATTPACK_MODIFIER );
       }
-    }
+      else
+        G_AddEvent( ent, EV_CHANGE_WEAPON, 0 );
 
-    if( successfullyBought )
-    {
-      ent->client->lastBoughtAmmoTime = level.time;
-      ent->client->campingAtTheArmoury = qtrue;
+      BG_PackAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups,
+                        quan, clips, maxClips );
     }
-  }
-  else
-  {
-    trap_SendServerCommand( ent-g_entities,
-        va( "print \"Move away or wait 45 seconds for ammo/energy\n\"" ) );
-    return;
   }
 }
 
@@ -1648,14 +1630,8 @@ void Cmd_Buy_f( gentity_t *ent )
         BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
       quan = (int)( (float)quan * BATTPACK_MODIFIER );
     
-    if( ent->client->firedWeapon && ent->client->campingAtTheArmoury )
-      BG_PackAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
-                        0, 0, maxClips );
-    else
-      BG_PackAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
-                        quan, clips, maxClips );
-
-    ent->client->firedWeapon = qfalse;
+    BG_PackAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
+                      quan, clips, maxClips );
 
     //force a weapon change
     ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
@@ -1663,10 +1639,6 @@ void Cmd_Buy_f( gentity_t *ent )
 
     //set build delay/pounce etc to 0
     ent->client->ps.stats[ STAT_MISC ] = 0;
-    
-    //prevent filling up ammo again soon
-    //ent->client->lastBoughtAmmoTime = level.time;
-    //ent->client->campingAtTheArmoury = qtrue;
     
     //subtract from funds
     G_AddCreditToClient( ent->client, -(short)BG_FindPriceForWeapon( weapon ), qfalse );

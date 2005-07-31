@@ -663,40 +663,6 @@ void ClientTimerActions( gentity_t *ent, int msec )
                 damage, 0, MOD_POISON );
     }
 
-    if( client->campingAtTheArmoury )
-    {
-      if( client->lastBoughtAmmoTime + HUMAN_ARMOURY_CAMP_TIME < level.time )
-        client->campingAtTheArmoury = qfalse;
-      else
-      {
-        //check if there are no armouries in range
-        int       entityList[ MAX_GENTITIES ];
-        vec3_t    range = { HUMAN_ARMOURY_CAMP_DISTANCE,
-          HUMAN_ARMOURY_CAMP_DISTANCE, HUMAN_ARMOURY_CAMP_DISTANCE };
-        vec3_t    mins, maxs;
-        int       i, num;
-        gentity_t *armoury;
-        
-        VectorAdd( client->ps.origin, range, maxs );
-        VectorSubtract( client->ps.origin, range, mins );
-        
-        num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
-        for( i = 0; i < num; i++ )
-        {
-          armoury = &g_entities[ entityList[ i ] ];
-          
-          if( armoury->s.eType == ET_BUILDABLE &&
-              ( armoury->s.modelindex == BA_H_ARMOURY ||
-                armoury->s.modelindex == BA_H_REACTOR ||
-                armoury->s.modelindex == BA_H_REPEATER ) )
-            break;
-        }
-
-        if( i == num )
-          client->campingAtTheArmoury = qfalse;
-      } 
-    }
-
     //replenish alien health
     if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     {

@@ -1218,35 +1218,27 @@ void FireWeapon( gentity_t *ent )
       break;
     case WP_MACHINEGUN:
       bulletFire( ent, RIFLE_SPREAD, RIFLE_DMG, MOD_MACHINEGUN );
-      if( ent->client ) ent->client->firedWeapon = qtrue;
       break;
     case WP_SHOTGUN:
       shotgunFire( ent );
-      if( ent->client ) ent->client->firedWeapon = qtrue;
       break;
     case WP_CHAINGUN:
       bulletFire( ent, CHAINGUN_SPREAD, CHAINGUN_DMG, MOD_CHAINGUN );
-      if( ent->client ) ent->client->firedWeapon = qtrue;
       break;
     case WP_FLAMER:
       flamerFire( ent );
-      if( ent->client ) ent->client->firedWeapon = qtrue;
       break;
     case WP_PULSE_RIFLE:
       pulseRifleFire( ent );
-      if( ent->client ) ent->client->firedWeapon = qtrue;
       break;
     case WP_MASS_DRIVER:
       massDriverFire( ent );
-      if( ent->client ) ent->client->firedWeapon = qtrue;
       break;
     case WP_LUCIFER_CANNON:
       LCChargeFire( ent, qfalse );
-      if( ent->client ) ent->client->firedWeapon = qtrue;
       break;
     case WP_LAS_GUN:
       lasGunFire( ent );
-      if( ent->client ) ent->client->firedWeapon = qtrue;
       break;
     case WP_PAIN_SAW:
       painSawFire( ent );

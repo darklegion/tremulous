@@ -49,7 +49,7 @@
 #define LEVEL1_CLAW_REPEAT          600
 #define LEVEL1_CLAW_U_REPEAT        500
 #define LEVEL1_GRAB_RANGE           64.0f
-#define LEVEL1_GRAB_TIME            1000
+#define LEVEL1_GRAB_TIME            800
 #define LEVEL1_PCLOUD_DMG           ADM(4)
 #define LEVEL1_PCLOUD_RANGE         200.0f
 #define LEVEL1_PCLOUD_REPEAT        2000
@@ -356,7 +356,7 @@
 #define MDRIVER_CLIPSIZE            5
 #define MDRIVER_SPAWNCLIPS          3
 #define MDRIVER_MAXCLIPS            3
-#define MDRIVER_DMG                 HDM(31)
+#define MDRIVER_DMG                 HDM(35)
 #define MDRIVER_REPEAT              1000
 #define MDRIVER_RELOAD              2000
 
@@ -544,9 +544,6 @@
 #define STAMINA_LARMOUR_TAKE        4
 
 #define HUMAN_SPAWN_REPEAT_TIME     10000
-
-#define HUMAN_ARMOURY_CAMP_TIME     45000
-#define HUMAN_ARMOURY_CAMP_DISTANCE 256.0f
 
 /*
  * Misc
