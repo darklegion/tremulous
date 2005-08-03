@@ -527,7 +527,7 @@ Called when an alien spawn dies
 */
 void ASpawn_Melt( gentity_t *self )
 {
-  G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
+  G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
     self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
 
   //start creep recession
@@ -566,7 +566,7 @@ void ASpawn_Blast( gentity_t *self )
   VectorCopy( self->s.origin2, dir );
 
   //do a bit of radius damage
-  G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
+  G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
     self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
 
   //pretty events and item cleanup
@@ -777,7 +777,7 @@ void ABarricade_Blast( gentity_t *self )
   VectorCopy( self->s.origin2, dir );
 
   //do a bit of radius damage
-  G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
+  G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
     self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
 
   //pretty events and item cleanup
@@ -870,7 +870,7 @@ void AAcidTube_Damage( gentity_t *self )
     }
 
     //do some damage
-    G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
+    G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
       self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
   }
 
@@ -1185,7 +1185,7 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   VectorCopy( self->s.origin2, dir );
 
   //do a bit of radius damage
-  G_SelectiveRadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
+  G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
     self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
 
   //pretty events and item cleanup
@@ -1472,7 +1472,7 @@ void HRpt_Think( gentity_t *self )
       if( ent->s.eType != ET_BUILDABLE )
         continue;
 
-      if( ent->s.modelindex == BA_H_REACTOR )
+      if( ent->s.modelindex == BA_H_REACTOR && ent->spawned )
         reactor = qtrue;
     }
   }
@@ -2143,7 +2143,7 @@ void HSpawn_Blast( gentity_t *self )
   self->timestamp = level.time;
 
   //do some radius damage
-  G_RadiusDamage( self->s.pos.trBase, self->parent, self->splashDamage,
+  G_RadiusDamage( self->s.pos.trBase, self, self->splashDamage,
     self->splashRadius, self, self->splashMethodOfDeath );
 
   self->think = freeBuildable;

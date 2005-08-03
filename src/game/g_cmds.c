@@ -1516,6 +1516,10 @@ static void G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo )
 
       BG_PackAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups,
                         quan, clips, maxClips );
+      
+      //force a weapon change
+      ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
+      trap_SendServerCommand( ent-g_entities, va( "weaponswitch %d", ent->client->ps.weapon ) );
     }
   }
 }
