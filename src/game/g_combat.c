@@ -208,8 +208,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   self->client->ps.persistant[ PERS_KILLED ]++;
 
-  G_Printf( "attacker->classname: %s\n inflictor->classname: %s\n",
-      attacker->classname, inflictor->classname );
   if( attacker && attacker->client )
   {
     attacker->client->lastkilled_client = self->s.number;
