@@ -1433,6 +1433,7 @@ void LogExit( const char *string )
 {
   int         i, numSorted;
   gclient_t   *cl;
+  gentity_t   *ent;
 
   G_LogPrintf( "Exit: %s\n", string );
 
@@ -1465,6 +1466,18 @@ void LogExit( const char *string )
       cl->ps.persistant[ PERS_SCORE ], ping, level.sortedClients[ i ],
       cl->pers.netname );
 
+  }
+
+  for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
+  {
+    if( !ent->inuse )
+      continue;
+
+    if( !Q_stricmp( ent->classname, "trigger_win" ) )
+    {
+      if( level.lastWin == ent->stageTeam )
+        ent->use( ent, ent, ent );
+    }
   }
 }
 
@@ -1604,6 +1617,7 @@ void CheckExitRules( void )
       G_LogPrintf( "STATS T:L A:%f H:%f M:%s D:%d\n", level.averageNumAlienClients,
                                                       level.averageNumHumanClients,
                                                       s, level.time - level.startTime );
+      level.lastWin = PTE_NONE;
       LogExit( "Timelimit hit." );
       return;
     }
@@ -1667,7 +1681,10 @@ void CheckVote( void )
 
     //SUPAR HAK
     if( !Q_stricmp( level.voteString, "vstr nextmap" ) )
+    {
+      level.lastWin = PTE_NONE;
       LogExit( "Vote for next map." );
+    }
     else
       trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
   }

@@ -526,6 +526,26 @@ void SP_trigger_stage( gentity_t *self )
 
 /*
 ===============
+trigger_win
+===============
+*/
+void trigger_win( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  G_UseTargets( self, self );
+}
+
+void SP_trigger_win( gentity_t *self )
+{
+  G_SpawnInt( "team", "0", (int *)&self->stageTeam );
+
+  self->use = trigger_win;
+
+  self->r.svFlags = SVF_NOCLIENT;
+}
+
+
+/*
+===============
 trigger_buildable_trigger
 ===============
 */

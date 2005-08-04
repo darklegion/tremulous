@@ -1485,6 +1485,18 @@ stage: the stage at which this entity is triggered; 1 for stage 2, 2 for stage 3
 
 //=============================================================================
 
+/*QUAKED trigger_win (.5 .5 .5) (-8 -8 -8) (8 8 8)
+Fires its targets when the team key wins.
+UNTESTED: please report whether or not this works for you.
+
+-------- KEYS --------
+target: this points to the entity to activate.
+
+team: the team which triggers this entity; 1 for aliens, 2 for humans
+*/
+
+//=============================================================================
+
 /*QUAKED trigger_always (.5 .5 .5) (-8 -8 -8) (8 8 8)
 Automatic trigger. It will fire the entities it targets as soon as it spawns in the game.
 

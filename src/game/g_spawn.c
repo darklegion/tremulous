@@ -179,6 +179,7 @@ void SP_trigger_push( gentity_t *ent );
 void SP_trigger_teleport( gentity_t *ent );
 void SP_trigger_hurt( gentity_t *ent );
 void SP_trigger_stage( gentity_t *ent );
+void SP_trigger_win( gentity_t *ent );
 void SP_trigger_buildable( gentity_t *ent );
 void SP_trigger_class( gentity_t *ent );
 void SP_trigger_equipment( gentity_t *ent );
@@ -258,6 +259,7 @@ spawn_t spawns[ ] =
   { "trigger_teleport",         SP_trigger_teleport },
   { "trigger_hurt",             SP_trigger_hurt },
   { "trigger_stage",            SP_trigger_stage },
+  { "trigger_win",              SP_trigger_win },
   { "trigger_buildable",        SP_trigger_buildable },
   { "trigger_class",            SP_trigger_class },
   { "trigger_equipment",        SP_trigger_equipment },
