@@ -617,7 +617,7 @@ void SP_worldspawn( void )
   G_SpawnString( "gravity", "800", &s );
   trap_Cvar_Set( "g_gravity", s );
 
-  G_SpawnString( "humanBuildPoints", g_humanBuildPoints.string, &s );
+  G_SpawnString( "humanBuildPoints", DEFAULT_HUMAN_BUILDPOINTS, &s );
   trap_Cvar_Set( "g_humanBuildPoints", s );
 
   G_SpawnString( "humanMaxStage", "2", &s );
@@ -629,7 +629,7 @@ void SP_worldspawn( void )
   G_SpawnString( "humanStage3Threshold", g_humanStage3Threshold.string, &s );
   trap_Cvar_Set( "g_humanStage3Threshold", s );
 
-  G_SpawnString( "alienBuildPoints", g_alienBuildPoints.string, &s );
+  G_SpawnString( "alienBuildPoints", DEFAULT_ALIEN_BUILDPOINTS, &s );
   trap_Cvar_Set( "g_alienBuildPoints", s );
 
   G_SpawnString( "alienMaxStage", "2", &s );

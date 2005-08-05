@@ -561,3 +561,6 @@
 #define FREEKILL_PERIOD             120000 //msec
 #define FREEKILL_ALIEN              1
 #define FREEKILL_HUMAN              LEVEL0_VALUE
+
+#define DEFAULT_ALIEN_BUILDPOINTS   "100"
+#define DEFAULT_HUMAN_BUILDPOINTS   "100"
