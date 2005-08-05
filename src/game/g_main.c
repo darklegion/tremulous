@@ -34,6 +34,7 @@ gclient_t   g_clients[ MAX_CLIENTS ];
 
 vmCvar_t  g_fraglimit;
 vmCvar_t  g_timelimit;
+vmCvar_t  g_suddenDeathTime;
 vmCvar_t  g_capturelimit;
 vmCvar_t  g_friendlyFire;
 vmCvar_t  g_password;
@@ -111,6 +112,7 @@ static cvarTable_t   gameCvarTable[ ] =
 
   // change anytime vars
   { &g_timelimit, "timelimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+  { &g_suddenDeathTime, "g_suddenDeathTime", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
   { &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
 
@@ -908,6 +910,18 @@ void G_CalculateBuildPoints( void )
   int         localHTP = g_humanBuildPoints.integer,
               localATP = g_alienBuildPoints.integer;
 
+  if( g_suddenDeathTime.integer && !level.warmupTime &&
+    ( level.time - level.startTime >= g_suddenDeathTime.integer * 60000 ) )
+  {
+    localHTP = 0;
+    localATP = 0;
+  }
+  else
+  {
+    localHTP = g_humanBuildPoints.integer;
+    localATP = g_alienBuildPoints.integer;
+  }
+  
   level.humanBuildPoints = level.humanBuildPointsPowered = localHTP;
   level.alienBuildPoints = localATP;
 
@@ -1514,6 +1528,13 @@ void CheckIntermissionExit( void )
   gclient_t *cl;
   int       readyMask;
 
+  //if no clients are connected, just exit
+  if( !level.numConnectedClients )
+  {
+    ExitLevel( );
+    return;
+  }
+  
   // see which players are ready
   ready = 0;
   notReady = 0;
