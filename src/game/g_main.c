@@ -968,8 +968,8 @@ void G_CalculateBuildPoints( void )
 
   //may as well pump the stages here too
   {
-    float alienPlayerCountMod = (float)level.numAlienClients / PLAYER_COUNT_MOD;
-    float humanPlayerCountMod = (float)level.numHumanClients / PLAYER_COUNT_MOD;
+    float alienPlayerCountMod = level.averageNumAlienClients / PLAYER_COUNT_MOD;
+    float humanPlayerCountMod = level.averageNumHumanClients / PLAYER_COUNT_MOD;
     int   alienNextStageThreshold, humanNextStageThreshold;
 
     if( alienPlayerCountMod < 0.1f )
@@ -979,16 +979,16 @@ void G_CalculateBuildPoints( void )
       humanPlayerCountMod = 0.1f;
     
     if( g_alienStage.integer == S1 && g_alienMaxStage.integer > S1 )
-      alienNextStageThreshold = (int)( (float)g_alienStage2Threshold.integer * alienPlayerCountMod );
+      alienNextStageThreshold = (int)( ceil( (float)g_alienStage2Threshold.integer * alienPlayerCountMod ) );
     else if( g_alienStage.integer == S2 && g_alienMaxStage.integer > S2 )
-      alienNextStageThreshold = (int)( (float)g_alienStage3Threshold.integer * alienPlayerCountMod );
+      alienNextStageThreshold = (int)( ceil( (float)g_alienStage3Threshold.integer * alienPlayerCountMod ) );
     else
       alienNextStageThreshold = -1;
     
     if( g_humanStage.integer == S1 && g_humanMaxStage.integer > S1 )
-      humanNextStageThreshold = (int)( (float)g_humanStage2Threshold.integer * humanPlayerCountMod );
+      humanNextStageThreshold = (int)( ceil( (float)g_humanStage2Threshold.integer * humanPlayerCountMod ) );
     else if( g_humanStage.integer == S2 && g_humanMaxStage.integer > S2 )
-      humanNextStageThreshold = (int)( (float)g_humanStage3Threshold.integer * humanPlayerCountMod );
+      humanNextStageThreshold = (int)( ceil( (float)g_humanStage3Threshold.integer * humanPlayerCountMod ) );
     else
       humanNextStageThreshold = -1;
     
@@ -1006,8 +1006,8 @@ G_CalculateStages
 */
 void G_CalculateStages( void )
 {
-  float alienPlayerCountMod = (float)level.numAlienClients / PLAYER_COUNT_MOD;
-  float humanPlayerCountMod = (float)level.numHumanClients / PLAYER_COUNT_MOD;
+  float alienPlayerCountMod = level.averageNumAlienClients / PLAYER_COUNT_MOD;
+  float humanPlayerCountMod = level.averageNumHumanClients / PLAYER_COUNT_MOD;
 
   if( alienPlayerCountMod < 0.1f )
     alienPlayerCountMod = 0.1f;
@@ -1016,7 +1016,7 @@ void G_CalculateStages( void )
     humanPlayerCountMod = 0.1f;
   
   if( g_alienKills.integer >=
-      (int)( (float)g_alienStage2Threshold.integer * alienPlayerCountMod ) &&
+      (int)( ceil( (float)g_alienStage2Threshold.integer * alienPlayerCountMod ) ) &&
       g_alienStage.integer == S1 && g_alienMaxStage.integer > S1 )
   {
     G_Checktrigger_stages( PTE_ALIENS, S2 );
@@ -1024,7 +1024,7 @@ void G_CalculateStages( void )
   }
   
   if( g_alienKills.integer >=
-      (int)( (float)g_alienStage3Threshold.integer * alienPlayerCountMod ) &&
+      (int)( ceil( (float)g_alienStage3Threshold.integer * alienPlayerCountMod ) ) &&
       g_alienStage.integer == S2 && g_alienMaxStage.integer > S2 )
   {
     G_Checktrigger_stages( PTE_ALIENS, S3 );
@@ -1032,7 +1032,7 @@ void G_CalculateStages( void )
   }
 
   if( g_humanKills.integer >=
-      (int)( (float)g_humanStage2Threshold.integer * humanPlayerCountMod ) &&
+      (int)( ceil( (float)g_humanStage2Threshold.integer * humanPlayerCountMod ) ) &&
       g_humanStage.integer == S1 && g_humanMaxStage.integer > S1 )
   {
     G_Checktrigger_stages( PTE_HUMANS, S2 );
@@ -1040,7 +1040,7 @@ void G_CalculateStages( void )
   }
 
   if( g_humanKills.integer >=
-      (int)( (float)g_humanStage3Threshold.integer * humanPlayerCountMod ) &&
+      (int)( ceil( (float)g_humanStage3Threshold.integer * humanPlayerCountMod ) ) &&
       g_humanStage.integer == S2 && g_humanMaxStage.integer > S2 )
   {
     G_Checktrigger_stages( PTE_HUMANS, S3 );
@@ -1057,6 +1057,21 @@ Calculates the average number of players playing this game
 */
 void G_CalculateAvgPlayers( void )
 {
+  //there are no clients or only spectators connected, so
+  //reset the number of samples in order to avoid the situation
+  //where the average tends to 0
+  if( !level.numAlienClients )
+  {
+    level.numAlienSamples = 0;
+    trap_Cvar_Set( "g_alienKills", "0" );
+  }
+  
+  if( !level.numHumanClients )
+  {
+    level.numHumanSamples = 0;
+    trap_Cvar_Set( "g_humanKills", "0" );
+  }
+  
   //calculate average number of clients for stats
   level.averageNumAlienClients =
     ( ( level.averageNumAlienClients * level.numAlienSamples )

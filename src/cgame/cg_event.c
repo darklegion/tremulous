@@ -92,7 +92,7 @@ static void CG_Obituary( entityState_t *ent )
       message = "was in the wrong place";
       break;
     case MOD_HSPAWN:
-      message = "should have run further";
+      message = "should have ran further";
       break;
     case MOD_ASPAWN:
       message = "shouldn't have trod in the acid";
@@ -249,6 +249,18 @@ static void CG_Obituary( entityState_t *ent )
             BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL1 ) );
         message2 = className;
         break;
+      case MOD_LEVEL2_CLAW:
+        message = "was clawed by";
+        Com_sprintf( className, 64, "'s %s",
+            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL2 ) );
+        message2 = className;
+        break;
+      case MOD_LEVEL2_ZAP:
+        message = "was zapped by";
+        Com_sprintf( className, 64, "'s %s",
+            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL2 ) );
+        message2 = className;
+        break;
       case MOD_LEVEL3_CLAW:
         message = "was chomped by";
         Com_sprintf( className, 64, "'s %s",
@@ -261,16 +273,10 @@ static void CG_Obituary( entityState_t *ent )
             BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL3 ) );
         message2 = className;
         break;
-      case MOD_LEVEL2_CLAW:
-        message = "was clawed by";
+      case MOD_LEVEL3_BOUNCEBALL:
+        message = "was sniped by";
         Com_sprintf( className, 64, "'s %s",
-            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL2 ) );
-        message2 = className;
-        break;
-      case MOD_LEVEL2_ZAP:
-        message = "was zapped by";
-        Com_sprintf( className, 64, "'s %s",
-            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL2 ) );
+            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL3 ) );
         message2 = className;
         break;
       case MOD_LEVEL4_CLAW:

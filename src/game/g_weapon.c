@@ -815,7 +815,7 @@ void CheckGrabAttack( gentity_t *ent )
     traceEnt->client->ps.stats[ STAT_STATE ] |= SS_GRABBED;
     
     //if getting damaged, don't reset the grab time
-    if( ( ent->client->lastDamageTime + ALIEN_REGEN_DAMAGE_TIME ) < level.time )
+    if( ( ent->client->lastDamageTime + LEVEL1_GRAB_TIME ) < level.time )
       traceEnt->client->lastGrabTime = level.time;
   }
   else if( traceEnt->s.eType == ET_BUILDABLE &&
