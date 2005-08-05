@@ -1518,8 +1518,9 @@ static void G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo )
                         quan, clips, maxClips );
       
       //force a weapon change
-      ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
-      trap_SendServerCommand( ent-g_entities, va( "weaponswitch %d", ent->client->ps.weapon ) );
+      //FIXME: needs to work even if weapon is the same
+      //ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
+      //trap_SendServerCommand( ent-g_entities, va( "weaponswitch %d", ent->client->ps.weapon ) );
     }
   }
 }

@@ -2683,7 +2683,7 @@ static void PM_Weapon( void )
       pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
     
     //something external thinks a weapon change is necessary
-    if( pm->ps->pm_flags & PMF_WEAPON_SWITCH )
+    if( pm->ps->weapon != pm->cmd.weapon && pm->ps->pm_flags & PMF_WEAPON_SWITCH )
     {
       pm->ps->pm_flags &= ~PMF_WEAPON_SWITCH;
 			PM_BeginWeaponChange( pm->cmd.weapon );
