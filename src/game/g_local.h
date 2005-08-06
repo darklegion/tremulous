@@ -397,7 +397,7 @@ struct gclient_s
   gentity_t           *lastPoisonClient;
   int                 lastPoisonCloudedTime;
   gentity_t           *lastPoisonCloudedClient;
-  int                 lastGrabTime;
+  int                 grabExpiryTime;
   int                 lastLockTime;
   int                 lastSlowTime;
   int                 lastBoostedTime;

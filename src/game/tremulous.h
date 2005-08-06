@@ -49,7 +49,8 @@
 #define LEVEL1_CLAW_REPEAT          600
 #define LEVEL1_CLAW_U_REPEAT        500
 #define LEVEL1_GRAB_RANGE           64.0f
-#define LEVEL1_GRAB_TIME            800
+#define LEVEL1_GRAB_TIME            300
+#define LEVEL1_GRAB_U_TIME          450
 #define LEVEL1_PCLOUD_DMG           ADM(4)
 #define LEVEL1_PCLOUD_RANGE         200.0f
 #define LEVEL1_PCLOUD_REPEAT        2000

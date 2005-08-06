@@ -995,7 +995,7 @@ void ClientThink_real( gentity_t *ent )
     client->ps.pm_type = PM_NORMAL;
 
   if( client->ps.stats[ STAT_STATE ] & SS_GRABBED &&
-      client->lastGrabTime + LEVEL1_GRAB_TIME < level.time )
+      client->grabExpiryTime < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_GRABBED;
 
   if( client->ps.stats[ STAT_STATE ] & SS_BLOBLOCKED &&
