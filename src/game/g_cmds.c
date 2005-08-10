@@ -1125,6 +1125,9 @@ void Cmd_Class_f( gentity_t *ent )
   int       num;
   gentity_t *other;
       
+  if( ent->client->ps.stats[ STAT_HEALTH ] <= 0 )
+    return;
+      
   clientNum = ent->client - level.clients;
   trap_Argv( 1, s, sizeof( s ) );
 
