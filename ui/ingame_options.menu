@@ -242,8 +242,8 @@
       name game
       group optionsGrp
       type ITEM_TYPE_YESNO
-      text "Disable Build Warnings:"
-      cvar "cg_disableBuildWarnings"
+      text "Disable Warning Dialogs:"
+      cvar "cg_disableWarningDialogs"
       rect 90 195 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128 
@@ -783,7 +783,7 @@
       type ITEM_TYPE_BIND
       text "Primary Attack:"
       cvar "+attack"
-      rect 96 100 192 15
+      rect 96 90 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -804,7 +804,7 @@
       type ITEM_TYPE_BIND
       text "Secondary Attack:"
       cvar "+button5"
-      rect 96 115 192 15
+      rect 96 105 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -825,7 +825,7 @@
       type ITEM_TYPE_BIND
       text "Previous Upgrade:"
       cvar "weapprev"
-      rect 96 130 192 15
+      rect 96 120 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -846,7 +846,7 @@
       type ITEM_TYPE_BIND
       text "Next Upgrade:"
       cvar "weapnext"
-      rect 96 145 192 15
+      rect 96 135 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -867,7 +867,7 @@
       type ITEM_TYPE_BIND
       text "Activate Upgrade:"
       cvar "+button2"
-      rect 96 160 192 15
+      rect 96 150 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -888,7 +888,7 @@
       type ITEM_TYPE_BIND
       text "Reload:"
       cvar "reload"
-      rect 96 175 192 15
+      rect 96 165 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -909,7 +909,28 @@
       type ITEM_TYPE_BIND
       text "Buy Ammo:"
       cvar "buy ammo"
-      rect 96 190 192 15
+      rect 96 180 192 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 90
+      maxPaintChars 20
+      textaligny 12
+      textscale .25       
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
+    }
+    
+    itemDef
+    {
+      name upgrades
+      group optionsGrp
+      type ITEM_TYPE_BIND
+      text "Use Medkit:"
+      cvar "itemact medkit"
+      rect 96 195 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
