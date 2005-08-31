@@ -1826,7 +1826,8 @@ void Cmd_Sell_f( gentity_t *ent )
         continue;
       }
       
-      if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) && i != WP_BLASTER )
+      if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
+          BG_FindPurchasableForWeapon( i ) )
       {
         BG_RemoveWeaponFromInventory( i, ent->client->ps.stats );
 
@@ -1848,7 +1849,8 @@ void Cmd_Sell_f( gentity_t *ent )
     for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
     {
       //remove upgrade if carried
-      if( BG_InventoryContainsUpgrade( i, ent->client->ps.stats ) )
+      if( BG_InventoryContainsUpgrade( i, ent->client->ps.stats ) &&
+          BG_FindPurchasableForUpgrade( i ) )
       {
         BG_RemoveUpgradeFromInventory( i, ent->client->ps.stats );
 
