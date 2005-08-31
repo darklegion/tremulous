@@ -144,28 +144,6 @@ static void CG_TellAttacker_f( void )
   trap_SendClientCommand( command );
 }
 
-/*
-==================
-CG_DecodeMP3_f
-==================
-*/
-void CG_DecodeMP3_f( void )
-{
-  char  mp3file[ MAX_QPATH ];
-  char  wavfile[ MAX_QPATH ];
-
-  if( trap_Argc( ) < 2 )
-  {
-    CG_Printf( "usage: decodeMP3 <mp3file> <wavfile>\n" );
-    return;
-  }
-  
-  Q_strncpyz( mp3file, CG_Argv( 1 ), MAX_QPATH );
-  Q_strncpyz( wavfile, CG_Argv( 2 ), MAX_QPATH );
-
-  S_decodeMP3( mp3file, wavfile );
-}
-
 typedef struct
 {
   char  *cmd;
@@ -193,7 +171,6 @@ static consoleCommand_t commands[ ] =
   { "tell_target", CG_TellTarget_f },
   { "tell_attacker", CG_TellAttacker_f },
   { "tcmd", CG_TargetCommand_f },
-  { "decodeMP3", CG_DecodeMP3_f },
 };
 
 

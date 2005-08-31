@@ -64,7 +64,6 @@ CGOBJ = \
 	$(CGDIRNAME)/cg_view.o \
 	$(CGDIRNAME)/cg_weapons.o \
 	$(CGDIRNAME)/cg_mem.o \
-	$(CGDIRNAME)/cg_mp3decoder.o \
 	$(CGDIRNAME)/cg_scanner.o \
 	$(CGDIRNAME)/cg_trails.o \
 	$(CGDIRNAME)/cg_particles.o \

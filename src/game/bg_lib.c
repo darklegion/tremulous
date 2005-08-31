@@ -828,9 +828,6 @@ double tan( double x )
  * ====================================================
  */
 
-/* A union which permits us to convert between a float and a 32 bit
-   int.  */
-
 typedef union
 {
   float value;
@@ -855,6 +852,9 @@ do {                          \
   (d) = sf_u.value;           \
 } while (0)
 
+/* A union which permits us to convert between a float and a 32 bit
+   int.  */
+
 //acos
 static const float
 pi      =  3.1415925026e+00, /* 0x40490fda */
@@ -878,39 +878,43 @@ acos
 */
 double acos( double x )
 {
-  float z, p, q, r, w, s, c, df;
+  float z, subp, p, q, r, w, s, c, df;
   int hx, ix;
   
   GET_FLOAT_WORD( hx, x );
   ix = hx & 0x7fffffff;
   
   if( ix == 0x3f800000 )
-  {   /* |x|==1 */
+  {   // |x|==1
     if( hx > 0 )
-      return 0.0; /* acos(1) = 0  */
+      return 0.0; // acos(1) = 0
     else
-      return pi + (float)2.0 * pio2_lo; /* acos(-1)= pi */
+      return pi + (float)2.0 * pio2_lo; // acos(-1)= pi
   }
   else if( ix > 0x3f800000 )
-  { /* |x| >= 1 */
-    return (x-x)/(x-x);   /* acos(|x|>1) is NaN */
+  { // |x| >= 1
+    return (x-x)/(x-x);   // acos(|x|>1) is NaN
   }
   
   if( ix < 0x3f000000 )
-  { /* |x| < 0.5 */
+  { // |x| < 0.5
     if( ix <= 0x23000000 )
-      return pio2_hi + pio2_lo;/*if|x|<2**-57*/
+      return pio2_hi + pio2_lo;//if|x|<2**-57
       
     z = x * x;
-    p = z * ( pS0 + z * ( pS1 + z * ( pS2 + z * ( pS3 + z * ( pS4 + z * pS5 ) ) ) ) );
+    subp = pS3 + z * ( pS4 + z * pS5 );
+    // chop up expression to keep mac register based stack happy
+    p = z * ( pS0 + z * ( pS1 + z * ( pS2 + z * subp ) ) );
     q = 1.0 + z * ( qS1 + z * ( qS2 + z * ( qS3 + z * qS4 ) ) );
     r = p / q;
     return pio2_hi - ( x - ( pio2_lo - x * r ) );
   }
   else if( hx < 0 )
-  {   /* x < -0.5 */
+  {   // x < -0.5
     z = ( 1.0 + x ) * (float)0.5;
-    p = z * ( pS0 + z * ( pS1 + z * ( pS2 + z * ( pS3 + z * ( pS4 + z * pS5 ) ) ) ) );
+    subp = pS3 + z * ( pS4 + z * pS5 );
+    // chop up expression to keep mac register based stack happy
+    p = z * ( pS0 + z * ( pS1 + z * ( pS2 + z * subp ) ) );
     q = 1.0 + z * ( qS1 + z * ( qS2 + z * ( qS3 + z * qS4 ) ) );
     s = sqrt( z );
     r = p / q;
@@ -918,7 +922,7 @@ double acos( double x )
     return pi - (float)2.0 * ( s + w );
   }
   else
-  {     /* x > 0.5 */
+  {     // x > 0.5
     int idf;
     z = ( 1.0 - x ) * (float)0.5;
     s = sqrt( z );
@@ -926,7 +930,9 @@ double acos( double x )
     GET_FLOAT_WORD( idf, df );
     SET_FLOAT_WORD( df, idf & 0xfffff000 );
     c  = ( z - df * df ) / ( s + df );
-    p = z * ( pS0 + z * ( pS1 + z * ( pS2 + z * ( pS3 + z * ( pS4 + z * pS5 ) ) ) ) );
+    subp = pS3 + z * ( pS4 + z * pS5 );
+    // chop up expression to keep mac register based stack happy
+    p = z * ( pS0 + z * ( pS1 + z * ( pS2 + z * subp ) ) );
     q = 1.0 + z * ( qS1 + z * ( qS2 + z * ( qS3 + z * qS4 ) ) );
     r = p / q;
     w = r * s + c;
@@ -1037,7 +1043,7 @@ pow
 float pow( float x, float y )
 {
   float z, ax, z_h, z_l, p_h, p_l;
-  float y1, t1, t2, r, s, t, u, v, w;
+  float y1, subt1, t1, t2, subr, r, s, t, u, v, w;
   int i, j, k, yisint, n;
   int hx, hy, ix, iy, is;
   
@@ -1192,7 +1198,9 @@ float pow( float x, float y )
     s_l = v * ( ( u - s_h * t_h ) - s_h * t_l );
     /* compute log(ax) */
     s2 = s * s;
-    r = s2 * s2 * ( L1 + s2 * ( L2 + s2 * ( L3 + s2 * ( L4 + s2 * ( L5 + s2 * L6 ) ) ) ) );
+    subr = L3 + s2 * ( L4 + s2 * ( L5 + s2 * L6 ) );
+    // chop up expression to keep mac register based stack happy
+    r = s2 * s2 * ( L1 + s2 * ( L2 + s2 * subr ) );
     r += s_l * ( s_h + s );
     s2  = s_h * s_h;
     t_h = (float)3.0 + s2 + r;
@@ -1272,7 +1280,9 @@ float pow( float x, float y )
   z = u + v;
   w = v - ( z - u );
   t = z * z;
-  t1 = z - t * ( P1 + t * ( P2 + t * ( P3 + t * ( P4 + t * P5 ) ) ) );
+  subt1 = P3 + t * ( P4 + t * P5 );
+  // chop up expression to keep mac register based stack happy
+  t1 = z - t * ( P1 + t * ( P2 + t * subt1 ) );
   r = ( z * t1 ) / ( t1 - two ) - ( w + z * w );
   z = one - ( r - z );
   GET_FLOAT_WORD( j, z );

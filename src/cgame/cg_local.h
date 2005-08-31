@@ -1777,11 +1777,6 @@ void          CG_Free( void *ptr );
 void          CG_DefragmentMemory( void );
 
 //
-// cg_mp3decoder.c
-//
-qboolean      S_decodeMP3( char *mp3File, char *wavFile );
-
-//
 // cg_particles.c
 //
 void                CG_LoadParticleSystems( void );
