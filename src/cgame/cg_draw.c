@@ -896,7 +896,7 @@ static void CG_DrawPlayerPoisonBarbs( rectDef_t *rect, vec4_t color, qhandle_t s
   qboolean      vertical;
   int           iconsize, numBarbs, i;
 
-  BG_UnpackAmmoArray( ps->weapon, ps->ammo, ps->powerups, &numBarbs, NULL, NULL );
+  BG_UnpackAmmoArray( ps->weapon, ps->ammo, ps->powerups, &numBarbs, NULL );
   
   if( height > width )
   {
@@ -981,7 +981,7 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
         break;
 
       default:
-        BG_UnpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, &value, NULL, NULL );
+        BG_UnpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, &value, NULL );
         break;
     }
 
@@ -1140,7 +1140,7 @@ static void CG_DrawPlayerClipsValue( rectDef_t *rect, vec4_t color )
         break;
 
       default:
-        BG_UnpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, NULL, &value, NULL );
+        BG_UnpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, NULL, &value );
     
         if( value > -1 )
         {
@@ -1433,7 +1433,7 @@ float CG_GetValue( int ownerDraw )
         int value;
 
         BG_UnpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups,
-           &value, NULL, NULL );
+           &value, NULL );
         
         return value;
       }
@@ -1444,7 +1444,7 @@ float CG_GetValue( int ownerDraw )
         int value;
 
         BG_UnpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups,
-           NULL, &value, NULL );
+           NULL, &value );
         
         return value;
       }
@@ -2309,15 +2309,15 @@ CG_DrawWeaponIcon
 */
 void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
 {
-  int           ammo, clips, maxAmmo, maxClips;
+  int           ammo, clips, maxAmmo;
   centity_t     *cent;
   playerState_t *ps;
 
   cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
 
-  BG_UnpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, &ammo, &clips, NULL );
-  BG_FindAmmoForWeapon( cent->currentState.weapon, &maxAmmo, &maxClips, NULL );
+  BG_UnpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, &ammo, &clips );
+  BG_FindAmmoForWeapon( cent->currentState.weapon, &maxAmmo, NULL );
   
   // don't display if dead
   if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )

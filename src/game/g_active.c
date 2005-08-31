@@ -334,7 +334,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
     else
       client->ps.pm_type = PM_SPECTATOR;
 
-    client->ps.speed = 400; // faster than normal
+    client->ps.speed = BG_FindSpeedForClass( client->ps.stats[ STAT_PCLASS ] );
 
     client->ps.stats[ STAT_STAMINA ] = 0;
     client->ps.stats[ STAT_MISC ] = 0;
@@ -440,7 +440,7 @@ qboolean ClientInactivityTimer( gclient_t *client )
     if( level.time > client->inactivityTime - 10000 && !client->inactivityWarning )
     {
       client->inactivityWarning = qtrue;
-      trap_SendServerCommand( client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"" );
+      G_SendCommandFromServer( client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"" );
     }
   }
   
@@ -542,23 +542,30 @@ void ClientTimerActions( gentity_t *ent, int msec )
     if( client->ps.weapon == WP_ALEVEL4 )
     {
       if( client->ps.stats[ STAT_MISC ] < LEVEL4_CHARGE_TIME && ucmd->buttons & BUTTON_ATTACK2 && 
-          ( ucmd->forwardmove > 0 ) && !client->charging )
+          !client->charging )
       {
         client->charging = qfalse; //should already be off, just making sure
+        client->ps.stats[ STAT_STATE ] &= ~SS_CHARGING;
 
-        //trigger charge sound
-        if( client->ps.stats[ STAT_MISC ] <= 0 )
-          G_AddEvent( ent, EV_LEV4_CHARGE_PREPARE, 0 );
-        
-        client->ps.stats[ STAT_MISC ] += (int)( 100 * (float)LEVEL4_CHARGE_CHARGE_RATIO );
-        
-        if( client->ps.stats[ STAT_MISC ] > LEVEL4_CHARGE_TIME )
-          client->ps.stats[ STAT_MISC ] = LEVEL4_CHARGE_TIME;
+        if( ucmd->forwardmove > 0 )
+        {
+          //trigger charge sound...is quite annoying
+          //if( client->ps.stats[ STAT_MISC ] <= 0 )
+          //  G_AddEvent( ent, EV_LEV4_CHARGE_PREPARE, 0 );
+          
+          client->ps.stats[ STAT_MISC ] += (int)( 100 * (float)LEVEL4_CHARGE_CHARGE_RATIO );
+          
+          if( client->ps.stats[ STAT_MISC ] > LEVEL4_CHARGE_TIME )
+            client->ps.stats[ STAT_MISC ] = LEVEL4_CHARGE_TIME;
+        }
+        else
+          client->ps.stats[ STAT_MISC ] = 0;
       }
 
-      if( !( ucmd->buttons & BUTTON_ATTACK2 ) || client->charging )
+      if( !( ucmd->buttons & BUTTON_ATTACK2 ) || client->charging ||
+          client->ps.stats[ STAT_MISC ] == LEVEL4_CHARGE_TIME )
       {
-        if( client->ps.stats[ STAT_MISC ] > 0 )
+        if( client->ps.stats[ STAT_MISC ] > LEVEL4_MIN_CHARGE_TIME )
         {
           client->ps.stats[ STAT_MISC ] -= 100;
           
@@ -566,20 +573,25 @@ void ClientTimerActions( gentity_t *ent, int msec )
             G_AddEvent( ent, EV_LEV4_CHARGE_START, 0 );
           
           client->charging = qtrue;
+          client->ps.stats[ STAT_STATE ] |= SS_CHARGING;
 
           //if the charger has stopped moving take a chunk of charge away
           if( VectorLength( client->ps.velocity ) < 64.0f || aRight )
-            client->ps.stats[ STAT_MISC ] = client->ps.stats[ STAT_MISC ] >> 1;
+            client->ps.stats[ STAT_MISC ] = client->ps.stats[ STAT_MISC ] / 2;
 
           //can't charge backwards
           if( ucmd->forwardmove < 0 )
             client->ps.stats[ STAT_MISC ] = 0;
         }
+        else
+          client->ps.stats[ STAT_MISC ] = 0;
+          
         
         if( client->ps.stats[ STAT_MISC ] <= 0 )
         {
           client->ps.stats[ STAT_MISC ] = 0;
           client->charging = qfalse;
+          client->ps.stats[ STAT_STATE ] &= ~SS_CHARGING;
         }
       }
     }
@@ -589,7 +601,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
     {
       int ammo;
       
-      BG_UnpackAmmoArray( WP_LUCIFER_CANNON, client->ps.ammo, client->ps.powerups, &ammo, NULL, NULL );
+      BG_UnpackAmmoArray( WP_LUCIFER_CANNON, client->ps.ammo, client->ps.powerups, &ammo, NULL );
       
       if( client->ps.stats[ STAT_MISC ] < LCANNON_TOTAL_CHARGE && ucmd->buttons & BUTTON_ATTACK )
         client->ps.stats[ STAT_MISC ] += ( 100.0f / LCANNON_CHARGE_TIME ) * LCANNON_TOTAL_CHARGE;
@@ -630,6 +642,43 @@ void ClientTimerActions( gentity_t *ent, int msec )
         
       default:
         break;
+    }
+
+    if( client->ps.stats[ STAT_STATE ] & SS_MEDKIT_ACTIVE )
+    {
+      int remainingStartupTime = MEDKIT_STARTUP_TIME - ( level.time - client->lastMedKitTime );
+      
+      if( remainingStartupTime < 0 )
+      {
+        if( ent->health < ent->client->ps.stats[ STAT_MAX_HEALTH ] &&
+            ent->client->medKitHealthToRestore &&
+            ent->client->ps.pm_type != PM_DEAD )
+        {
+          ent->client->medKitHealthToRestore--;
+          ent->health++;
+        }
+        else
+          ent->client->ps.stats[ STAT_STATE ] &= ~SS_MEDKIT_ACTIVE;
+      }
+      else
+      {
+        if( ent->health < ent->client->ps.stats[ STAT_MAX_HEALTH ] &&
+            ent->client->medKitHealthToRestore &&
+            ent->client->ps.pm_type != PM_DEAD )
+        {
+          //partial increase
+          if( level.time > client->medKitIncrementTime )
+          {
+            ent->client->medKitHealthToRestore--;
+            ent->health++;
+
+            client->medKitIncrementTime = level.time +
+              ( remainingStartupTime / MEDKIT_STARTUP_SPEED );
+          }
+        }
+        else
+          ent->client->ps.stats[ STAT_STATE ] &= ~SS_MEDKIT_ACTIVE;
+      }
     }
   }
 
@@ -697,7 +746,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
       }
       
       if( ent->health < client->ps.stats[ STAT_MAX_HEALTH ] &&
-          ( client->lastDamageTime + ALIEN_REGEN_DAMAGE_TIME ) < level.time )
+          ( ent->lastDamageTime + ALIEN_REGEN_DAMAGE_TIME ) < level.time )
         ent->health += BG_FindRegenRateForClass( client->ps.stats[ STAT_PCLASS ] ) * modifier;
 
       if( ent->health > client->ps.stats[ STAT_MAX_HEALTH ] )
@@ -713,13 +762,13 @@ void ClientTimerActions( gentity_t *ent, int msec )
     {
       int ammo, maxAmmo;
       
-      BG_FindAmmoForWeapon( WP_ALEVEL3_UPG, &maxAmmo, NULL, NULL );
-      BG_UnpackAmmoArray( WP_ALEVEL3_UPG, client->ps.ammo, client->ps.powerups, &ammo, NULL, NULL );
+      BG_FindAmmoForWeapon( WP_ALEVEL3_UPG, &maxAmmo, NULL );
+      BG_UnpackAmmoArray( WP_ALEVEL3_UPG, client->ps.ammo, client->ps.powerups, &ammo, NULL );
       
       if( ammo < maxAmmo )
       {
         ammo++;
-        BG_PackAmmoArray( WP_ALEVEL3_UPG, client->ps.ammo, client->ps.powerups, ammo, 0, 0 );
+        BG_PackAmmoArray( WP_ALEVEL3_UPG, client->ps.ammo, client->ps.powerups, ammo, 0 );
       }
     }
   }
@@ -833,14 +882,14 @@ void ClientEvents( gentity_t *ent, int oldEventSequence )
             
             if( BG_InventoryContainsWeapon( j, ent->client->ps.stats ) )
             {
-              trap_SendServerCommand( ent - g_entities, va( "weaponswitch %d", j ) );
+              G_SendCommandFromServer( ent - g_entities, va( "weaponswitch %d", j ) );
               break;
             }
           }
           
           //only got the blaster to switch to
           if( j == WP_NUM_WEAPONS )
-            trap_SendServerCommand( ent - g_entities, va( "weaponswitch %d", WP_BLASTER ) );
+            G_SendCommandFromServer( ent - g_entities, va( "weaponswitch %d", WP_BLASTER ) );
   
           //update ClientInfo
           ClientUserinfoChanged( ent->client->ps.clientNum );
@@ -1022,16 +1071,33 @@ void ClientThink_real( gentity_t *ent )
   
   client->ps.gravity = g_gravity.value;
 
-  if( BG_InventoryContainsUpgrade( UP_ANTITOXIN, client->ps.stats ) &&
-      BG_UpgradeIsActive( UP_ANTITOXIN, client->ps.stats ) )
+  if( BG_InventoryContainsUpgrade( UP_MEDKIT, client->ps.stats ) &&
+      BG_UpgradeIsActive( UP_MEDKIT, client->ps.stats ) )
   {
-    if( client->ps.stats[ STAT_STATE ] & SS_POISONED )
+    //if currently using a medkit or have no need for a medkit now
+    if( client->ps.stats[ STAT_STATE ] & SS_MEDKIT_ACTIVE ||
+        ( client->ps.stats[ STAT_HEALTH ] == client->ps.stats[ STAT_MAX_HEALTH ] &&
+          !( client->ps.stats[ STAT_STATE ] & SS_POISONED ) ) )
+    {
+      BG_DeactivateUpgrade( UP_MEDKIT, client->ps.stats );
+    }
+    else
     {
       //remove anti toxin
-      BG_DeactivateUpgrade( UP_ANTITOXIN, client->ps.stats );
-      BG_RemoveUpgradeFromInventory( UP_ANTITOXIN, client->ps.stats );
+      BG_DeactivateUpgrade( UP_MEDKIT, client->ps.stats );
+      BG_RemoveUpgradeFromInventory( UP_MEDKIT, client->ps.stats );
     
       client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
+      client->poisonImmunityTime = level.time + MEDKIT_POISON_IMMUNITY_TIME;
+      
+      client->ps.stats[ STAT_STATE ] |= SS_MEDKIT_ACTIVE;
+      client->lastMedKitTime = level.time;
+      client->medKitHealthToRestore =
+        client->ps.stats[ STAT_MAX_HEALTH ] - client->ps.stats[ STAT_HEALTH ];
+      client->medKitIncrementTime = level.time +
+        ( MEDKIT_STARTUP_TIME / MEDKIT_STARTUP_SPEED );
+      
+      G_AddEvent( ent, EV_MEDKIT_USED, 0 );
     }
   }
   
@@ -1053,15 +1119,6 @@ void ClientThink_real( gentity_t *ent )
   // set speed
   client->ps.speed = g_speed.value * BG_FindSpeedForClass( client->ps.stats[ STAT_PCLASS ] );
 
-  //TA: slow player if charging up for a pounce
-  if( ( client->ps.weapon == WP_ALEVEL3 || client->ps.weapon == WP_ALEVEL3_UPG ) &&
-      ucmd->buttons & BUTTON_ATTACK2 )
-    client->ps.speed *= LEVEL3_POUNCE_SPEED_MOD;
-
-  //TA: slow the player if slow locked
-  if( client->ps.stats[ STAT_STATE ] & SS_SLOWLOCKED )
-    client->ps.speed *= ABUILDER_BLOB_SPEED_MOD;
-  
   if( client->lastCreepSlowTime + CREEP_TIMEOUT < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_CREEPSLOWED;
   
@@ -1069,7 +1126,7 @@ void ClientThink_real( gentity_t *ent )
   if( BG_InventoryContainsUpgrade( UP_JETPACK, client->ps.stats ) &&
       BG_UpgradeIsActive( UP_JETPACK, client->ps.stats ) )
   {
-    if( client->lastDamageTime + JETPACK_DISABLE_TIME > level.time )
+    if( ent->lastDamageTime + JETPACK_DISABLE_TIME > level.time )
     {
       if( random( ) > JETPACK_DISABLE_CHANCE )
         client->ps.pm_type = PM_NORMAL;

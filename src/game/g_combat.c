@@ -368,6 +368,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   }
 
   self->client->pers.classSelection = PCL_NONE; //TA: reset the classtype
+  VectorCopy( self->s.origin, self->client->pers.lastDeathLocation );
 
   self->takedamage = qfalse; // can still be gibbed
 
@@ -1003,17 +1004,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       attacker->client->ps.persistant[ PERS_HITS ]++;
   }
 
-  if( damage < 1 )
-    damage = 1;
-    
   take = damage;
   save = 0;
-
-  if( g_debugDamage.integer )
-  {
-    G_Printf( "%i: client:%i health:%i damage:%i armor:%i\n", level.time, targ->s.number,
-      targ->health, take, asave );
-  }
 
   // add to the damage inflicted on a player this frame
   // the total will be turned into screen blends and view angle kicks
@@ -1051,7 +1043,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     {
       if( !( targ->client->ps.stats[ STAT_STATE ] & SS_POISONED ) &&
           !BG_InventoryContainsUpgrade( UP_BATTLESUIT, targ->client->ps.stats ) &&
-          mod != MOD_LEVEL2_ZAP )
+          mod != MOD_LEVEL2_ZAP &&
+          targ->client->poisonImmunityTime < level.time )
       {
         targ->client->ps.stats[ STAT_STATE ] |= SS_POISONED;
         targ->client->lastPoisonTime = level.time;
@@ -1060,24 +1053,24 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     }
   }
 
+  if( take < 1 )
+    take = 1;
+    
+  if( g_debugDamage.integer )
+  {
+    G_Printf( "%i: client:%i health:%i damage:%i armor:%i\n", level.time, targ->s.number,
+      targ->health, take, asave );
+  }
+
   // do the damage
   if( take )
   {
     targ->health = targ->health - take;
 
-    if( targ->s.eType == ET_BUILDABLE )
-    {
-      if( targ->biteam == BIT_ALIENS )
-        G_AddEvent( targ, EV_ALIEN_BUILDABLE_DAMAGE, 0 );
-      else if( targ->biteam == BIT_HUMANS )
-        G_AddEvent( targ, EV_HUMAN_BUILDABLE_DAMAGE, 0 );
-    }
-    
     if( targ->client )
-    {
       targ->client->ps.stats[ STAT_HEALTH ] = targ->health;
-      targ->client->lastDamageTime = level.time;
-    }
+      
+    targ->lastDamageTime = level.time;
 
     //TA: add to the attackers "account" on the target
     if( targ->client && attacker->client )
@@ -1225,7 +1218,8 @@ qboolean G_SelectiveRadiusDamage( vec3_t origin, gentity_t *attacker, float dama
       // push the center of mass higher than the origin so players
       // get knocked into the air more
       dir[ 2 ] += 24;
-      G_SelectiveDamage( ent, NULL, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod, team );
+      G_SelectiveDamage( ent, NULL, attacker, dir, origin,
+          (int)points, DAMAGE_RADIUS|DAMAGE_NO_LOCDAMAGE, mod, team );
     }
   }
 
@@ -1295,7 +1289,8 @@ qboolean G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage,
       // push the center of mass higher than the origin so players
       // get knocked into the air more
       dir[ 2 ] += 24;
-      G_Damage( ent, NULL, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod );
+      G_Damage( ent, NULL, attacker, dir, origin,
+          (int)points, DAMAGE_RADIUS|DAMAGE_NO_LOCDAMAGE, mod );
     }
   }
 

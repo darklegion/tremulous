@@ -64,6 +64,8 @@
 #define LEVEL2_AREAZAP_DMG          ADM(80)
 #define LEVEL2_AREAZAP_RANGE        200.0f
 #define LEVEL2_AREAZAP_REPEAT       3000
+#define LEVEL2_AREAZAP_TIME         1000
+#define LEVEL2_AREAZAP_MAX_TARGETS  3
 #define LEVEL2_WALLJUMP_MAXSPEED    1000.0f
 
 #define LEVEL3_CLAW_DMG             ADM(80)
@@ -78,11 +80,11 @@
 #define LEVEL3_POUNCE_UPG_SPEED     800
 #define LEVEL3_POUNCE_SPEED_MOD     0.75f
 #define LEVEL3_POUNCE_TIME          700
-#define LEVEL3_BOUNCEBALL_DMG       ADM(120)
+#define LEVEL3_BOUNCEBALL_DMG       ADM(110)
 #define LEVEL3_BOUNCEBALL_REPEAT    1000
 #define LEVEL3_BOUNCEBALL_SPEED     1000.0f
 
-#define LEVEL4_CLAW_DMG             ADM(120)
+#define LEVEL4_CLAW_DMG             ADM(100)
 #define LEVEL4_CLAW_RANGE           128.0f
 #define LEVEL4_CLAW_WIDTH           20.0f
 #define LEVEL4_CLAW_REPEAT          750
@@ -90,10 +92,11 @@
 #define LEVEL4_REGEN_MOD            2.0f
 #define LEVEL4_CHARGE_SPEED         2.0f
 #define LEVEL4_CHARGE_TIME          3000
-#define LEVEL4_CHARGE_CHARGE_TIME   1000
+#define LEVEL4_CHARGE_CHARGE_TIME   1500
+#define LEVEL4_MIN_CHARGE_TIME      750
 #define LEVEL4_CHARGE_CHARGE_RATIO  (LEVEL4_CHARGE_TIME/LEVEL4_CHARGE_CHARGE_TIME)
-#define LEVEL4_CHARGE_REPEAT        500
-#define LEVEL4_CHARGE_DMG           ADM(160)
+#define LEVEL4_CHARGE_REPEAT        1000
+#define LEVEL4_CHARGE_DMG           ADM(110)
 
 
 
@@ -210,7 +213,7 @@
 #define BARRICADE_BP                10
 #define BARRICADE_BT                20000
 #define BARRICADE_HEALTH            ABHM(200)
-#define BARRICADE_REGEN             12
+#define BARRICADE_REGEN             14
 #define BARRICADE_SPLASHDAMAGE      50
 #define BARRICADE_SPLASHRADIUS      50
 #define BARRICADE_CREEPSIZE         120
@@ -229,7 +232,7 @@
 #define ACIDTUBE_BT                 15000
 #define ACIDTUBE_HEALTH             ABHM(125)
 #define ACIDTUBE_REGEN              10
-#define ACIDTUBE_SPLASHDAMAGE       30
+#define ACIDTUBE_SPLASHDAMAGE       6
 #define ACIDTUBE_SPLASHRADIUS       300
 #define ACIDTUBE_CREEPSIZE          120
 #define ACIDTUBE_RANGE              300.0f
@@ -262,8 +265,8 @@
 
 #define OVERMIND_BP                 0
 #define OVERMIND_BT                 30000
-#define OVERMIND_HEALTH             ABHM(500)
-#define OVERMIND_REGEN              10
+#define OVERMIND_HEALTH             ABHM(750)
+#define OVERMIND_REGEN              6
 #define OVERMIND_SPLASHDAMAGE       15
 #define OVERMIND_SPLASHRADIUS       300
 #define OVERMIND_CREEPSIZE          120
@@ -314,12 +317,11 @@
 
 #define BLASTER_REPEAT              600
 #define BLASTER_SPREAD              200
-#define BLASTER_SPEED               700
+#define BLASTER_SPEED               1400
 #define BLASTER_DMG                 HDM(9)
 
 #define RIFLE_CLIPSIZE              30
-#define RIFLE_SPAWNCLIPS            4
-#define RIFLE_MAXCLIPS              4
+#define RIFLE_MAXCLIPS              6
 #define RIFLE_REPEAT                90
 #define RIFLE_RELOAD                2000
 #define RIFLE_PRICE                 0
@@ -328,10 +330,10 @@
 
 #define PAINSAW_PRICE               100
 #define PAINSAW_REPEAT              75
-#define PAINSAW_DAMAGE              HDM(18)
-#define PAINSAW_RANGE               48.0f
+#define PAINSAW_DAMAGE              HDM(15)
+#define PAINSAW_RANGE               40.0f
 
-#define GRENADE_PRICE               300
+#define GRENADE_PRICE               200
 #define GRENADE_REPEAT              0
 #define GRENADE_DAMAGE              HDM(310)
 #define GRENADE_RANGE               192.0f
@@ -340,53 +342,50 @@
 #define SHOTGUN_PRICE               150
 #define SHOTGUN_SHELLS              8
 #define SHOTGUN_PELLETS             8 //used to sync server and client side
-#define SHOTGUN_SPAWNCLIPS          2
-#define SHOTGUN_MAXCLIPS            2
-#define SHOTGUN_REPEAT              1200
+#define SHOTGUN_MAXCLIPS            3
+#define SHOTGUN_REPEAT              1000
 #define SHOTGUN_RELOAD              2000
 #define SHOTGUN_SPREAD              900
-#define SHOTGUN_DMG                 HDM(6)
+#define SHOTGUN_DMG                 HDM(7)
 
 #define LASGUN_PRICE                250
-#define LASGUN_AMMO                 150
+#define LASGUN_AMMO                 200
 #define LASGUN_REPEAT               200
 #define LASGUN_RELOAD               2000
 #define LASGUN_DAMAGE               HDM(9)
 
 #define MDRIVER_PRICE               350
 #define MDRIVER_CLIPSIZE            5
-#define MDRIVER_SPAWNCLIPS          3
-#define MDRIVER_MAXCLIPS            3
-#define MDRIVER_DMG                 HDM(35)
+#define MDRIVER_MAXCLIPS            4
+#define MDRIVER_DMG                 HDM(38)
 #define MDRIVER_REPEAT              1000
 #define MDRIVER_RELOAD              2000
 
 #define CHAINGUN_PRICE              400
-#define CHAINGUN_BULLETS            200
+#define CHAINGUN_BULLETS            300
 #define CHAINGUN_REPEAT             80
 #define CHAINGUN_SPREAD             1000
-#define CHAINGUN_DMG                HDM(5)
+#define CHAINGUN_DMG                HDM(6)
 
 #define PRIFLE_PRICE                400
 #define PRIFLE_CLIPS                50
-#define PRIFLE_SPAWNCLIPS           2
-#define PRIFLE_MAXCLIPS             2
+#define PRIFLE_MAXCLIPS             4
 #define PRIFLE_REPEAT               100
 #define PRIFLE_RELOAD               2000
 #define PRIFLE_DMG                  HDM(9)
 #define PRIFLE_SPEED                1000
 
 #define FLAMER_PRICE                450
-#define FLAMER_GAS                  80
-#define FLAMER_REPEAT               300
+#define FLAMER_GAS                  150
+#define FLAMER_REPEAT               200
 #define FLAMER_DMG                  HDM(31)
 #define FLAMER_RADIUS               50
-#define FLAMER_LIFETIME             500.0f
+#define FLAMER_LIFETIME             800.0f
 #define FLAMER_SPEED                200.0f
 #define FLAMER_LAG                  0.65f  //the amount of player velocity that is added to the fireball
 
 #define LCANNON_PRICE               600
-#define LCANNON_AMMO                60
+#define LCANNON_AMMO                90
 #define LCANNON_REPEAT              500
 #define LCANNON_CHARGEREPEAT        1000
 #define LCANNON_RELOAD              2000
@@ -418,7 +417,7 @@
 #define HELMET_PRICE                90
 #define HELMET_RANGE                1000.0f
 
-#define ANTITOXIN_PRICE             20
+#define MEDKIT_PRICE                0
 
 #define BATTPACK_PRICE              100
 #define BATTPACK_MODIFIER           1.5f //modifier for extra energy storage available
@@ -437,6 +436,9 @@
 
 #define GAS_PRICE                   0
 
+#define MEDKIT_POISON_IMMUNITY_TIME 30000
+#define MEDKIT_STARTUP_TIME         4000
+#define MEDKIT_STARTUP_SPEED        5
 
 
 /*
@@ -476,8 +478,8 @@
 #define MGTURRET_BP                 8
 #define MGTURRET_BT                 10000
 #define MGTURRET_HEALTH             HBHM(190)
-#define MGTURRET_SPLASHDAMAGE       200
-#define MGTURRET_SPLASHRADIUS       150
+#define MGTURRET_SPLASHDAMAGE       100
+#define MGTURRET_SPLASHRADIUS       100
 #define MGTURRET_ANGULARSPEED       8  //degrees/think ~= 200deg/sec
 #define MGTURRET_ACCURACYTOLERANCE  MGTURRET_ANGULARSPEED / 1.5f //angular difference for turret to fire
 #define MGTURRET_VERTICALCAP        30  // +/- maximum pitch

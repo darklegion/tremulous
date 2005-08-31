@@ -260,7 +260,9 @@ void G_RunMissile( gentity_t *ent )
   else
     VectorCopy( tr.endpos, ent->r.currentOrigin );
 
+  ent->r.contents = CONTENTS_SOLID; //trick trap_LinkEntity into...
   trap_LinkEntity( ent );
+  ent->r.contents = 0; //...encoding bbox information
 
   if( tr.fraction != 1 )
   {
@@ -317,6 +319,8 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->splashMethodOfDeath = MOD_FLAMER_SPLASH;
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = NULL;
+  bolt->r.mins[ 0 ] = bolt->r.mins[ 1 ] = bolt->r.mins[ 2 ] = -15.0f;
+  bolt->r.maxs[ 0 ] = bolt->r.maxs[ 1 ] = bolt->r.maxs[ 2 ] = 15.0f;
 
   bolt->s.pos.trType = TR_LINEAR;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame

@@ -925,6 +925,8 @@ static void CG_BuildableHealthBar( centity_t *cent )
   }
 }
 
+#define BUILDABLE_SOUND_PERIOD  500
+
 /*
 ==================
 CG_Buildable
@@ -940,6 +942,8 @@ void CG_Buildable( centity_t *cent )
   float           rotAngle;
   buildableTeam_t team = BG_FindTeamForBuildable( es->modelindex );
   float           scale;
+  int             health;
+  float           healthScale;
   
   //must be before EF_NODRAW check
   if( team == BIT_ALIENS )
@@ -1132,12 +1136,34 @@ void CG_Buildable( centity_t *cent )
       
     if( weapon->wim[ WPM_PRIMARY ].firingSound )
     {
-      trap_S_AddLoopingSound( es->number, cent->lerpOrigin, vec3_origin, weapon->wim[ WPM_PRIMARY ].firingSound );
+      trap_S_AddLoopingSound( es->number, cent->lerpOrigin, vec3_origin,
+          weapon->wim[ WPM_PRIMARY ].firingSound );
     }
     else if( weapon->readySound )
       trap_S_AddLoopingSound( es->number, cent->lerpOrigin, vec3_origin, weapon->readySound );
   }
     
+  health = es->generic1 & ~( B_POWERED_TOGGLEBIT | B_DCCED_TOGGLEBIT | B_SPAWNED_TOGGLEBIT );
+  healthScale = (float)health / B_HEALTH_SCALE;
+
+  if( healthScale < cent->lastBuildableHealthScale && ( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
+  {
+    if( cent->lastBuildableDamageSoundTime + BUILDABLE_SOUND_PERIOD < cg.time )
+    {
+      if( team == BIT_HUMANS )
+      {
+        int i = rand( ) % 4;
+        trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.humanBuildableDamage[ i ] );
+      }
+      else if( team == BIT_ALIENS )
+        trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.alienBuildableDamage );
+    
+      cent->lastBuildableDamageSoundTime = cg.time;
+    }
+  }
+  
+  cent->lastBuildableHealthScale = healthScale;
+  
   //smoke etc for damaged buildables
   CG_BuildableParticleEffects( cent );
 }

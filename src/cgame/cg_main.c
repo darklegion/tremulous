@@ -96,7 +96,6 @@ upgradeInfo_t   cg_upgrades[ 32 ];
 buildableInfo_t cg_buildables[ BA_NUM_BUILDABLES ];
 
 vmCvar_t  cg_teslaTrailTime;
-vmCvar_t  cg_alienZapTime;
 vmCvar_t  cg_railTrailTime;
 vmCvar_t  cg_centertime;
 vmCvar_t  cg_runpitch;
@@ -200,7 +199,7 @@ vmCvar_t  cg_consoleLatency;
 vmCvar_t  cg_lightFlare;
 vmCvar_t  cg_debugParticles;
 vmCvar_t  cg_debugPVS;
-vmCvar_t  cg_disableBuildWarnings;
+vmCvar_t  cg_disableWarningDialogs;
 vmCvar_t  cg_disableScannerPlane;
 
 //TA: hack to get class and carriage through to UI module
@@ -254,7 +253,6 @@ static cvarTable_t cvarTable[ ] =
   { &cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE },
   { &cg_lagometer, "cg_lagometer", "0", CVAR_ARCHIVE },
   { &cg_teslaTrailTime, "cg_teslaTrailTime", "600", CVAR_ARCHIVE  },
-  { &cg_alienZapTime, "cg_alienZapTime", "500", CVAR_ARCHIVE  },
   { &cg_railTrailTime, "cg_railTrailTime", "400", CVAR_ARCHIVE  },
   { &cg_gun_x, "cg_gunX", "0", CVAR_CHEAT },
   { &cg_gun_y, "cg_gunY", "0", CVAR_CHEAT },
@@ -305,7 +303,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_lightFlare, "cg_lightFlare", "3", CVAR_ARCHIVE },
   { &cg_debugParticles, "cg_debugParticles", "0", CVAR_CHEAT },
   { &cg_debugPVS, "cg_debugPVS", "0", CVAR_CHEAT },
-  { &cg_disableBuildWarnings, "cg_disableBuildWarnings", "0", CVAR_ARCHIVE },
+  { &cg_disableWarningDialogs, "cg_disableWarningDialogs", "0", CVAR_ARCHIVE },
   { &cg_disableScannerPlane, "cg_disableScannerPlane", "0", CVAR_ARCHIVE },
   { &cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
   
@@ -680,6 +678,8 @@ static void CG_RegisterSounds( void )
   cgs.media.jetpackDescendSound     = trap_S_RegisterSound( "sound/upgrades/jetpack/low.wav", qfalse );
   cgs.media.jetpackIdleSound        = trap_S_RegisterSound( "sound/upgrades/jetpack/idle.wav", qfalse );
   cgs.media.jetpackAscendSound      = trap_S_RegisterSound( "sound/upgrades/jetpack/hi.wav", qfalse );
+  
+  cgs.media.medkitUseSound          = trap_S_RegisterSound( "sound/upgrades/medkit/medkit.wav", qfalse );
 
   cgs.media.alienEvolveSound        = trap_S_RegisterSound( "sound/player/alienevolve.wav", qfalse );
   

@@ -758,6 +758,64 @@ static void CG_LightFlare( centity_t *cent )
 
 /*
 =========================
+CG_Lev2ZapChain
+=========================
+*/
+static void CG_Lev2ZapChain( centity_t *cent )
+{
+  int           i = 0;
+  entityState_t *es;
+  vec3_t        start, end;
+  centity_t     *source, *target;
+
+  es = &cent->currentState;
+
+  if( es->time > 0 )
+  {
+    source = &cg_entities[ es->powerups ];
+    target = &cg_entities[ es->time ];
+    
+    if( es->powerups == cg.predictedPlayerState.clientNum )
+      VectorCopy( cg.predictedPlayerState.origin, start );
+    else
+      VectorCopy( source->currentState.pos.trBase, start );
+    
+    VectorCopy( target->currentState.pos.trBase, end );
+    
+    CG_DynamicLightningBolt( cgs.media.lightningShader, start, end,
+                             1+((cg.time%((i+2)*(i+3)))+i)%2, 7 + (float)(i%3)*5 + 6.0*random(),
+                             qtrue, 1.0, 0, i*i*3 );
+  }
+
+  if( es->time2 > 0 )
+  {
+    source = &cg_entities[ es->time ];
+    target = &cg_entities[ es->time2 ];
+    
+    VectorCopy( source->currentState.pos.trBase, start );
+    VectorCopy( target->currentState.pos.trBase, end );
+    
+    CG_DynamicLightningBolt( cgs.media.lightningShader, start, end,
+                             1+((cg.time%((i+2)*(i+3)))+i)%2, 7 + (float)(i%3)*5 + 6.0*random(),
+                             qtrue, 1.0, 0, i*i*3 );
+  }
+
+  if( es->constantLight > 0 )
+  {
+    source = &cg_entities[ es->time2 ];
+    target = &cg_entities[ es->constantLight ];
+    
+    VectorCopy( source->currentState.pos.trBase, start );
+    VectorCopy( target->currentState.pos.trBase, end );
+    
+    CG_DynamicLightningBolt( cgs.media.lightningShader, start, end,
+                             1+((cg.time%((i+2)*(i+3)))+i)%2, 7 + (float)(i%3)*5 + 6.0*random(),
+                             qtrue, 1.0, 0, i*i*3 );
+  }
+}
+
+/*
+=========================
 CG_AdjustPositionForMover
 
 Also called by client movement prediction code
@@ -1010,6 +1068,10 @@ static void CG_AddCEntity( centity_t *cent )
     case ET_LIGHTFLARE:
       CG_LightFlare( cent );
       break;
+      
+    case ET_LEV2_ZAP_CHAIN:
+      CG_Lev2ZapChain( cent );
+      break;
   }
 }
 
@@ -1122,7 +1184,7 @@ void CG_AddPacketEntities( void )
           mins[ 2 ] = -zd;
           maxs[ 2 ] = zu;
 
-          CG_DrawBoundingBox( es->origin, mins, maxs );
+          CG_DrawBoundingBox( cent->lerpOrigin, mins, maxs );
           break;
 
         default:

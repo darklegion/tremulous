@@ -8,7 +8,7 @@
 # --Makefile variables--
 MOUNT_DIR=./src
 Q3A_DIR=/home/tma/.q3a
-MOD_DIR=tremulous
+MOD_DIR=tremulous-dev
 
 # --object list--
 GOBJ = \

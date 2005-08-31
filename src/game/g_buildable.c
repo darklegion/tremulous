@@ -319,7 +319,7 @@ static qboolean findOvermind( gentity_t *self )
       continue;
 
     //if entity is an overmind calculate the distance to it
-    if( ent->s.modelindex == BA_A_OVERMIND && ent->spawned )
+    if( ent->s.modelindex == BA_A_OVERMIND && ent->spawned && ent->health > 0 )
     {
       self->overmindNode = ent;
       return qtrue;
@@ -424,19 +424,20 @@ creepSlow
 Set any nearby humans' SS_CREEPSLOWED flag
 ================
 */
-static void creepSlow( buildable_t buildable, vec3_t origin )
+static void creepSlow( gentity_t *self )
 {
-  int       entityList[ MAX_GENTITIES ];
-  vec3_t    range;
-  vec3_t    mins, maxs;
-  int       i, num;
-  gentity_t *enemy;
-  float     creepSize = (float)BG_FindCreepSizeForBuildable( buildable );
+  int         entityList[ MAX_GENTITIES ];
+  vec3_t      range;
+  vec3_t      mins, maxs;
+  int         i, num;
+  gentity_t   *enemy;
+  buildable_t buildable = self->s.modelindex;
+  float       creepSize = (float)BG_FindCreepSizeForBuildable( buildable );
 
   VectorSet( range, creepSize, creepSize, creepSize );
 
-  VectorAdd( origin, range, maxs );
-  VectorSubtract( origin, range, mins );
+  VectorAdd( self->s.origin, range, maxs );
+  VectorSubtract( self->s.origin, range, mins );
   
   //find humans
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
@@ -445,7 +446,8 @@ static void creepSlow( buildable_t buildable, vec3_t origin )
     enemy = &g_entities[ entityList[ i ] ];
     
     if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
-        enemy->client->ps.groundEntityNum != ENTITYNUM_NONE )
+        enemy->client->ps.groundEntityNum != ENTITYNUM_NONE &&
+        G_Visible( self, enemy ) )
     {
       enemy->client->ps.stats[ STAT_STATE ] |= SS_CREEPSLOWED;
       enemy->client->lastCreepSlowTime = level.time;
@@ -642,7 +644,7 @@ void ASpawn_Think( gentity_t *self )
     }
   }
 
-  creepSlow( self->s.modelindex, self->s.origin );
+  creepSlow( self );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
@@ -709,7 +711,7 @@ void AOvermind_Think( gentity_t *self )
     }
 
     //low on spawns
-    if( level.numAlienSpawns <= 1 && level.time > self->overmindSpawnsTimer )
+    if( level.numAlienSpawns <= 0 && level.time > self->overmindSpawnsTimer )
     {
       self->overmindSpawnsTimer = level.time + OVERMIND_SPAWNS_PERIOD;
       G_BroadcastEvent( EV_OVERMIND_SPAWNS, 0 );
@@ -731,8 +733,10 @@ void AOvermind_Think( gentity_t *self )
     
     self->lastHealth = self->health;
   }
+  else
+    self->overmindSpawnsTimer = level.time + OVERMIND_SPAWNS_PERIOD;
 
-  creepSlow( self->s.modelindex, self->s.origin );
+  creepSlow( self );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
@@ -829,7 +833,7 @@ void ABarricade_Think( gentity_t *self )
     return;
   }
   
-  creepSlow( self->s.modelindex, self->s.origin );
+  creepSlow( self );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
@@ -874,7 +878,7 @@ void AAcidTube_Damage( gentity_t *self )
       self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
   }
 
-  creepSlow( self->s.modelindex, self->s.origin );
+  creepSlow( self );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
@@ -926,7 +930,7 @@ void AAcidTube_Think( gentity_t *self )
     }
   }
 
-  creepSlow( self->s.modelindex, self->s.origin );
+  creepSlow( self );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
@@ -1002,7 +1006,7 @@ void AHive_Think( gentity_t *self )
     }
   }
 
-  creepSlow( self->s.modelindex, self->s.origin );
+  creepSlow( self );
 }
 
 
@@ -1166,7 +1170,7 @@ void AHovel_Think( gentity_t *self )
       G_setIdleBuildableAnim( self, BANIM_IDLE1 );
   }
     
-  creepSlow( self->s.modelindex, self->s.origin );
+  creepSlow( self );
 
   self->nextthink = level.time + 200;
 }
@@ -1242,7 +1246,7 @@ Called when an alien touches a booster
 */
 void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 {
-  int       ammo, clips, maxClips;
+  int       maxAmmo, maxClips;
   gclient_t *client = other->client;
   
   if( !self->spawned )
@@ -1262,8 +1266,8 @@ void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
     return;
   
   //restore ammo, if any
-  BG_FindAmmoForWeapon( client->ps.weapon, &ammo, &clips, &maxClips );
-  BG_PackAmmoArray( client->ps.weapon, client->ps.ammo, client->ps.powerups, ammo, clips, maxClips );
+  BG_FindAmmoForWeapon( client->ps.weapon, &maxAmmo, &maxClips );
+  BG_PackAmmoArray( client->ps.weapon, client->ps.ammo, client->ps.powerups, maxAmmo, maxClips );
   
   if( !( client->ps.stats[ STAT_STATE ] & SS_BOOSTED ) )
   {
@@ -1418,7 +1422,7 @@ void ATrapper_Think( gentity_t *self )
   int range =     BG_FindRangeForBuildable( self->s.modelindex );
   int firespeed = BG_FindFireSpeedForBuildable( self->s.modelindex );
 
-  creepSlow( self->s.modelindex, self->s.origin );
+  creepSlow( self );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 
@@ -1520,14 +1524,14 @@ void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
   if( !BG_FindUsesEnergyForWeapon( weapon ) )
     return;
   
-  if( !BG_WeaponIsFull( weapon, ps->ammo, ps->powerups ) )
+  if( !BG_WeaponIsFull( weapon, ps->stats, ps->ammo, ps->powerups ) )
   {
-    BG_FindAmmoForWeapon( weapon, &maxAmmo, NULL, &maxClips );
+    BG_FindAmmoForWeapon( weapon, &maxAmmo, &maxClips );
     
     if( BG_InventoryContainsUpgrade( UP_BATTPACK, ps->stats ) )
       maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
 
-    BG_PackAmmoArray( weapon, ps->ammo, ps->powerups, maxAmmo, maxClips, maxClips );
+    BG_PackAmmoArray( weapon, ps->ammo, ps->powerups, maxAmmo, maxClips );
 
     G_AddEvent( activator, EV_RPTUSE_SOUND, 0 );
     activator->client->lastRefilTime = level.time;
@@ -1737,6 +1741,8 @@ void HMedistat_Think( gentity_t *self )
               self->active = qtrue;
             }
           }
+          else if( !BG_InventoryContainsUpgrade( UP_MEDKIT, player->client->ps.stats ) )
+            BG_AddUpgradeToInventory( UP_MEDKIT, player->client->ps.stats );
         }
       }
     }
@@ -1754,7 +1760,15 @@ void HMedistat_Think( gentity_t *self )
       if( self->enemy->client && self->enemy->client->ps.stats[ STAT_STATE ] & SS_POISONED )
         self->enemy->client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
       
+      if( self->enemy->client && self->enemy->client->ps.stats[ STAT_STATE ] & SS_MEDKIT_ACTIVE )
+        self->enemy->client->ps.stats[ STAT_STATE ] &= ~SS_MEDKIT_ACTIVE;
+      
       self->enemy->health++;
+
+      //if they're completely healed, give them a medkit
+      if( self->enemy->health >= self->enemy->client->ps.stats[ STAT_MAX_HEALTH ] &&
+          !BG_InventoryContainsUpgrade( UP_MEDKIT, self->enemy->client->ps.stats ) )
+        BG_AddUpgradeToInventory( UP_MEDKIT, self->enemy->client->ps.stats );
     }
   }
 }
@@ -2347,7 +2361,8 @@ void G_BuildableThink( gentity_t *ent, int msec )
     
     if( !ent->spawned )
       ent->health += (int)( ceil( (float)bHealth / (float)( bTime * 0.001 ) ) );
-    else if( ent->health > 0 && ent->health < bHealth && bRegen )
+    else if( ent->biteam == BIT_ALIENS && ent->health > 0 && ent->health < bHealth &&
+        bRegen && ( ent->lastDamageTime + ALIEN_REGEN_DAMAGE_TIME ) < level.time )
       ent->health += bRegen;
       
     if( ent->health > bHealth )
@@ -2498,12 +2513,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
 
     //if none found...
     if( i >= level.num_entities && buildable != BA_A_OVERMIND )
-    {
-      if( buildable == BA_A_SPAWN )
-        reason = IBE_SPWNWARN;
-      else
-        reason = IBE_NOOVERMIND;
-    }
+      reason = IBE_NOOVERMIND;
     
     //can we only have one of these?
     if( BG_FindUniqueTestForBuildable( buildable ) )
@@ -2532,10 +2542,6 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
       //tell player to build a repeater to provide power
       if( buildable != BA_H_REACTOR && buildable != BA_H_REPEATER )
         reason = IBE_REPEATER;
-
-      //warn that the current spawn will not be externally powered
-      if( buildable == BA_H_SPAWN )
-        reason = IBE_TNODEWARN;
     }
 
     //this buildable requires a DCC

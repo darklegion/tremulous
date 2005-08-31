@@ -479,6 +479,8 @@ typedef struct centity_s
   buildableAnimNumber_t buildableAnim;    //persistant anim number
   buildableAnimNumber_t oldBuildableAnim; //to detect when new anims are set
   particleSystem_t      *buildablePS;
+  float                 lastBuildableHealthScale;
+  int                   lastBuildableDamageSoundTime;
 
   lightFlareStatus_t    lfs;
 
@@ -1194,7 +1196,8 @@ typedef struct
   qhandle_t   jetPackHoverPS;
   qhandle_t   jetPackAscendPS;
   
-  //TA:
+  sfxHandle_t medkitUseSound;
+  
   sfxHandle_t alienStageTransition;
   sfxHandle_t humanStageTransition;
   
@@ -1219,8 +1222,6 @@ typedef struct
 
   //TA: for wolf trail effects
   qhandle_t   sparkFlareShader;
-
-  //TA: media used for armour switching stuff
 
   //light armour
   qhandle_t larmourHeadSkin;
@@ -1393,7 +1394,6 @@ extern  vmCvar_t    cg_debugAnim;
 extern  vmCvar_t    cg_debugPosition;
 extern  vmCvar_t    cg_debugEvents;
 extern  vmCvar_t    cg_teslaTrailTime;
-extern  vmCvar_t    cg_alienZapTime;
 extern  vmCvar_t    cg_railTrailTime;
 extern  vmCvar_t    cg_errorDecay;
 extern  vmCvar_t    cg_nopredict;
@@ -1467,7 +1467,7 @@ extern  vmCvar_t    cg_consoleLatency;
 extern  vmCvar_t    cg_lightFlare;
 extern  vmCvar_t    cg_debugParticles;
 extern  vmCvar_t    cg_debugPVS;
-extern  vmCvar_t    cg_disableBuildWarnings;
+extern  vmCvar_t    cg_disableWarningDialogs;
 extern  vmCvar_t    cg_disableScannerPlane;
 
 //TA: hack to get class an carriage through to UI module
@@ -1663,7 +1663,6 @@ void        CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboole
 void        CG_ShotgunFire( entityState_t *es );
 
 void        CG_TeslaTrail( vec3_t start, vec3_t end, int srcENum, int destENum );
-void        CG_AlienZap( vec3_t start, vec3_t end, int srcENum, int destENum );
 void        CG_AddViewWeapon (playerState_t *ps);
 void        CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent );
 void        CG_DrawItemSelect( rectDef_t *rect, vec4_t color );

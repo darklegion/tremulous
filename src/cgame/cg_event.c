@@ -376,7 +376,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
   const char    *s;
   int           clientNum;
   clientInfo_t  *ci;
-  int           steptime, i;
+  int           steptime;
 
   if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
     steptime = 200;
@@ -767,26 +767,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       CG_AlienBuildableExplosion( position, dir );
       break;
 
-    case EV_HUMAN_BUILDABLE_DAMAGE:
-      DEBUGNAME( "EV_HUMAN_BUILDABLE_DAMAGE" );
-      i = rand( ) % 4;
-      trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.humanBuildableDamage[ i ] );
-      break;
-
-    case EV_ALIEN_BUILDABLE_DAMAGE:
-      DEBUGNAME( "EV_ALIEN_BUILDABLE_DAMAGE" );
-      trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.alienBuildableDamage );
-      break;
-
     case EV_TESLATRAIL:
       DEBUGNAME( "EV_TESLATRAIL" );
       cent->currentState.weapon = WP_TESLAGEN;
       CG_TeslaTrail( es->origin2, es->pos.trBase, es->generic1, es->clientNum );
-      break;
-
-    case EV_ALIENZAP:
-      DEBUGNAME( "EV_ALIENZAP" );
-      CG_AlienZap( es->origin2, es->pos.trBase, es->generic1, es->clientNum );
       break;
 
     case EV_BULLET_HIT_WALL:
@@ -953,6 +937,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
         CG_SetParticleSystemNormal( ps, dir );
         CG_AttachParticleSystemToCent( ps );
       }
+      break;
+
+    case EV_MEDKIT_USED:
+      DEBUGNAME( "EV_MEDKIT_USED" );
+      trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.medkitUseSound );
       break;
 
     case EV_PLAYER_RESPAWN:

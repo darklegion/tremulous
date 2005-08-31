@@ -63,7 +63,7 @@ void CG_BuildSolidList( void )
       continue;
     }
 
-    if( cent->nextState.solid )
+    if( cent->nextState.solid && ent->eType != ET_MISSILE )
     {
       cg_solidEntities[ cg_numSolidEntities ] = cent;
       cg_numSolidEntities++;

@@ -153,7 +153,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BIT_ALIENS,            //int       team;
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
-    500,                   //int       nextthink;
+    200,                   //int       nextthink;
     ACIDTUBE_BT,           //int       buildTime;
     qfalse,                //qboolean  usable;
     0,                     //int       turretRange;
@@ -1475,7 +1475,7 @@ classAttributes_t bg_classList[ ] =
     0.000f,                                         //float   bob;
     1.0f,                                           //float   bobCycle;
     350,                                            //int     steptime;
-    100,                                            //float   speed;
+    600,                                            //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
@@ -1512,7 +1512,7 @@ classAttributes_t bg_classList[ ] =
     80,                                             //int     fov;
     0.001f,                                         //float   bob;
     2.0f,                                           //float   bobCycle;
-    200,                                            //int     steptime;
+    150,                                            //int     steptime;
     ABUILDER_SPEED,                                 //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
@@ -1550,7 +1550,7 @@ classAttributes_t bg_classList[ ] =
     110,                                            //int     fov;
     0.001f,                                         //float   bob;
     2.0f,                                           //float   bobCycle;
-    200,                                            //int     steptime;
+    100,                                            //int     steptime;
     ABUILDER_UPG_SPEED,                             //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
@@ -1628,7 +1628,7 @@ classAttributes_t bg_classList[ ] =
     120,                                            //int     fov;
     0.001f,                                         //float   bob;
     1.8f,                                           //float   bobCycle;
-    25,                                             //int     steptime;
+    60,                                             //int     steptime;
     LEVEL1_SPEED,                                   //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
@@ -1667,7 +1667,7 @@ classAttributes_t bg_classList[ ] =
     120,                                            //int     fov;
     0.001f,                                         //float   bob;
     1.8f,                                           //float   bobCycle;
-    25,                                             //int     steptime;
+    60,                                             //int     steptime;
     LEVEL1_UPG_SPEED,                               //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
@@ -1706,7 +1706,7 @@ classAttributes_t bg_classList[ ] =
     90,                                             //int     fov;
     0.001f,                                         //float   bob;
     1.5f,                                           //float   bobCycle;
-    60,                                             //int     steptime;
+    80,                                             //int     steptime;
     LEVEL2_SPEED,                                   //float   speed;
     10.0f,                                          //float   acceleration;
     2.0f,                                           //float   airAcceleration;
@@ -1745,7 +1745,7 @@ classAttributes_t bg_classList[ ] =
     90,                                             //int     fov;
     0.001f,                                         //float   bob;
     1.5f,                                           //float   bobCycle;
-    60,                                             //int     steptime;
+    80,                                             //int     steptime;
     LEVEL2_UPG_SPEED,                               //float   speed;
     10.0f,                                          //float   acceleration;
     2.0f,                                           //float   airAcceleration;
@@ -1784,7 +1784,7 @@ classAttributes_t bg_classList[ ] =
     110,                                            //int     fov;
     0.0005f,                                        //float   bob;
     1.3f,                                           //float   bobCycle;
-    25,                                             //int     steptime;
+    90,                                             //int     steptime;
     LEVEL3_SPEED,                                   //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
@@ -1823,7 +1823,7 @@ classAttributes_t bg_classList[ ] =
     110,                                            //int     fov;
     0.0005f,                                        //float   bob;
     1.3f,                                           //float   bobCycle;
-    25,                                             //int     steptime;
+    90,                                             //int     steptime;
     LEVEL3_UPG_SPEED,                               //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
@@ -1862,7 +1862,7 @@ classAttributes_t bg_classList[ ] =
     90,                                             //int     fov;
     0.001f,                                         //float   bob;
     1.1f,                                           //float   bobCycle;
-    60,                                             //int     steptime;
+    100,                                            //int     steptime;
     LEVEL4_SPEED,                                   //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
@@ -1901,7 +1901,7 @@ classAttributes_t bg_classList[ ] =
     90,                                             //int     fov;
     0.002f,                                         //float   bob;
     1.0f,                                           //float   bobCycle;
-    200,                                            //int     steptime;
+    100,                                            //int     steptime;
     1.0f,                                           //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
@@ -2952,8 +2952,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       slots;
     "blaster",            //char      *weaponName;
     "Blaster",            //char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -2976,8 +2975,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "rifle",              //char      *weaponName;
     "Rifle",              //char      *weaponHumanName;
-    RIFLE_CLIPSIZE,       //int       quan;
-    RIFLE_SPAWNCLIPS,     //int       clips;
+    RIFLE_CLIPSIZE,       //int       maxAmmo;
     RIFLE_MAXCLIPS,       //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3000,8 +2998,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "shotgun",            //char      *weaponName;
     "Shotgun",            //char      *weaponHumanName;
-    SHOTGUN_SHELLS,       //int       quan;
-    SHOTGUN_SPAWNCLIPS,   //int       clips;
+    SHOTGUN_SHELLS,       //int       maxAmmo;
     SHOTGUN_MAXCLIPS,     //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3024,8 +3021,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "flamer",             //char      *weaponName;
     "Flame Thrower",      //char      *weaponHumanName;
-    FLAMER_GAS,           //int       quan;
-    0,                    //int       clips;
+    FLAMER_GAS,           //int       maxAmmo;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3048,8 +3044,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "chaingun",           //char      *weaponName;
     "Chaingun",           //char      *weaponHumanName;
-    CHAINGUN_BULLETS,     //int       quan;
-    0,                    //int       clips;
+    CHAINGUN_BULLETS,     //int       maxAmmo;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3072,8 +3067,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "mdriver",            //char      *weaponName;
     "Mass Driver",        //char      *weaponHumanName;
-    MDRIVER_CLIPSIZE,     //int       quan;
-    MDRIVER_SPAWNCLIPS,   //int       clips;
+    MDRIVER_CLIPSIZE,     //int       maxAmmo;
     MDRIVER_MAXCLIPS,     //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qtrue,                //int       usesEnergy;
@@ -3096,8 +3090,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "prifle",             //char      *weaponName;
     "Pulse Rifle",        //char      *weaponHumanName;
-    PRIFLE_CLIPS,         //int       quan;
-    PRIFLE_SPAWNCLIPS,    //int       clips;
+    PRIFLE_CLIPS,         //int       maxAmmo;
     PRIFLE_MAXCLIPS,      //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qtrue,                //int       usesEnergy;
@@ -3120,8 +3113,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "lcannon",            //char      *weaponName;
     "Lucifer Cannon",     //char      *weaponHumanName;
-    LCANNON_AMMO,         //int       quan;
-    0,                    //int       clips;
+    LCANNON_AMMO,         //int       maxAmmo;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qtrue,                //int       usesEnergy;
@@ -3144,8 +3136,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "lgun",               //char      *weaponName;
     "Las Gun",            //char      *weaponHumanName;
-    LASGUN_AMMO,          //int       quan;
-    0,                    //int       clips;
+    LASGUN_AMMO,          //int       maxAmmo;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qtrue,                //int       usesEnergy;
@@ -3168,8 +3159,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "psaw",               //char      *weaponName;
     "Pain Saw",           //char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3192,8 +3182,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_NONE,            //int       slots;
     "grenade",            //char      *weaponName;
     "Grenade",            //char      *weaponHumanName;
-    1,                    //int       quan;
-    0,                    //int       clips;
+    1,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3216,8 +3205,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "ckit",               //char      *weaponName;
     "Construction Kit",   //char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3240,8 +3228,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "ackit",              //char      *weaponName;
     "Adv Construction Kit",//char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3264,8 +3251,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "abuild",             //char      *weaponName;
     "Alien build weapon", //char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3288,8 +3274,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "abuild2",            //char      *weaponName;
     "Alien build weapon2",//char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3312,8 +3297,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "bite",               //char      *weaponName;
     "Bite",               //char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3336,8 +3320,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "pounce",             //char      *weaponName;
     "Claw and pounce",    //char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3360,8 +3343,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "pounce_upgrade",     //char      *weaponName;
     "Claw and pounce (upgrade)", //char      *weaponHumanName;
-    3,                    //int       quan;
-    0,                    //int       clips;
+    3,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3384,8 +3366,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "grabandclaw",        //char      *weaponName;
     "Claws",              //char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3408,8 +3389,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "grabandclaw_upgrade",//char      *weaponName;
     "Claws Upgrade",      //char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3432,8 +3412,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "areazap",            //char      *weaponName;
     "Area Zap",           //char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3456,8 +3435,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "directzap",          //char      *weaponName;
     "Directed Zap",       //char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3480,8 +3458,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "charge",             //char      *weaponName;
     "Charge",             //char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3504,8 +3481,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "lockblob",           //char      *weaponName;
     "Lock Blob",          //char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3528,8 +3504,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "hive",               //char      *weaponName;
     "Hive",               //char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3552,8 +3527,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "mgturret",           //char      *weaponName;
     "Machinegun Turret",  //char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
@@ -3576,8 +3550,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "teslagen",           //char      *weaponName;
     "Tesla Generator",    //char      *weaponHumanName;
-    0,                    //int       quan;
-    0,                    //int       clips;
+    0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qtrue,                //int       usesEnergy;
@@ -3722,7 +3695,7 @@ char *BG_FindHumanNameForWeapon( int weapon )
 BG_FindAmmoForWeapon
 ==============
 */
-void BG_FindAmmoForWeapon( int weapon, int *quan, int *clips, int *maxClips )
+void BG_FindAmmoForWeapon( int weapon, int *maxAmmo, int *maxClips )
 {
   int i;
 
@@ -3730,10 +3703,8 @@ void BG_FindAmmoForWeapon( int weapon, int *quan, int *clips, int *maxClips )
   {
     if( bg_weapons[ i ].weaponNum == weapon )
     {
-      if( quan != NULL )
-        *quan = bg_weapons[ i ].quan;
-      if( clips != NULL )
-        *clips = bg_weapons[ i ].clips;
+      if( maxAmmo != NULL )
+        *maxAmmo = bg_weapons[ i ].maxAmmo;
       if( maxClips != NULL )
         *maxClips = bg_weapons[ i ].maxClips;
 
@@ -4009,6 +3980,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     "larmour",              //char  *upgradeName;
     "Light Armour",         //char  *upgradeHumanName;
     "icons/iconu_larmour",
+    qtrue,                  //qboolean purchasable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4019,16 +3991,18 @@ upgradeAttributes_t bg_upgrades[ ] =
     "helmet",               //char  *upgradeName;
     "Helmet",               //char  *upgradeHumanName;
     "icons/iconu_helmet",
+    qtrue,                  //qboolean purchasable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
-    UP_ANTITOXIN,           //int   upgradeNum;
-    ANTITOXIN_PRICE,        //int   price;
+    UP_MEDKIT,              //int   upgradeNum;
+    MEDKIT_PRICE,           //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_NONE,              //int   slots;
-    "atoxin",               //char  *upgradeName;
-    "Anti-toxin",           //char  *upgradeHumanName;
+    "medkit",               //char  *upgradeName;
+    "Medkit",               //char  *upgradeHumanName;
     "icons/iconu_atoxin",
+    qfalse,                 //qboolean purchasable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4039,6 +4013,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     "battpack",             //char  *upgradeName;
     "Battery Pack",         //char  *upgradeHumanName;
     "icons/iconu_battpack",
+    qtrue,                  //qboolean purchasable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4049,6 +4024,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     "jetpack",              //char  *upgradeName;
     "Jet Pack",             //char  *upgradeHumanName;
     "icons/iconu_jetpack",
+    qtrue,                  //qboolean purchasable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4059,6 +4035,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     "bsuit",                //char  *upgradeName;
     "Battlesuit",           //char  *upgradeHumanName;
     "icons/iconu_bsuit",
+    qtrue,                  //qboolean purchasable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4069,6 +4046,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     "gren",                 //char  *upgradeName;
     "Grenade",              //char  *upgradeHumanName;
     0,
+    qtrue,                  //qboolean purchasable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4079,6 +4057,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     "ammo",                 //char  *upgradeName;
     "Ammunition",           //char  *upgradeHumanName;
     0,
+    qtrue,                  //qboolean purchasable
     WUT_HUMANS              //WUTeam_t  team;
   }
 };
@@ -4222,6 +4201,24 @@ char *BG_FindIconForUpgrade( int upgrade )
 
   //wimp out
   return 0;
+}
+
+/*
+==============
+BG_FindPurchasableForUpgrade
+==============
+*/
+qboolean BG_FindPurchasableForUpgrade( int upgrade )
+{
+  int i;
+
+  for( i = 0; i < bg_numUpgrades; i++ )
+  {
+    if( bg_upgrades[ i ].upgradeNum == upgrade )
+      return bg_upgrades[ i ].purchasable;
+  }
+
+  return qfalse;
 }
 
 /*
@@ -4420,7 +4417,6 @@ char *eventnames[ ] =
   "EV_MISSILE_MISS",
   "EV_MISSILE_MISS_METAL",
   "EV_TESLATRAIL",
-  "EV_ALIENZAP",
   "EV_BULLET",        // otherEntity is the shooter
 
   "EV_LEV1_GRAB",
@@ -4443,9 +4439,9 @@ char *eventnames[ ] =
   "EV_HUMAN_BUILDABLE_EXPLOSION",
   "EV_ALIEN_BUILDABLE_EXPLOSION",
   "EV_ALIEN_ACIDTUBE",
-  "EV_HUMAN_BUILDABLE_DAMAGE",
-  "EV_ALIEN_BUILDABLE_DAMAGE",
 
+  "EV_MEDKIT_USED",
+  
   "EV_ALIEN_EVOLVE",
   "EV_ALIEN_EVOLVE_FAILED",
 
@@ -4751,25 +4747,22 @@ BG_UnpackAmmoArray
 Extract the ammo quantity from the array
 ========================
 */
-void BG_UnpackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int *quan, int *clips, int *maxclips )
+void BG_UnpackAmmoArray( int weapon, int psAmmo[ ], int psAmmo2[ ], int *ammo, int *clips )
 {
-  int   ammoarray[32];
+  int   ammoarray[ 32 ];
   int   i;
   
   for( i = 0; i <= 15; i++ )
-    ammoarray[ i ] = ammo[ i ];
+    ammoarray[ i ] = psAmmo[ i ];
 
   for( i = 16; i <= 31; i++ )
-    ammoarray[ i ] = ammo2[ i - 16 ];
+    ammoarray[ i ] = psAmmo2[ i - 16 ];
 
-  if( quan != NULL )
-    *quan = ammoarray[ weapon ] & 0x03FF;
+  if( ammo != NULL )
+    *ammo = ammoarray[ weapon ] & 0x0FFF;
 
   if( clips != NULL )
-    *clips = ( ammoarray[ weapon ] >> 10 ) & 0x07;
-
-  if( maxclips != NULL )
-    *maxclips = ( ammoarray[ weapon ] >> 13 ) & 0x07;
+    *clips = ( ammoarray[ weapon ] >> 12 ) & 0x0F;
 }
 
 /*
@@ -4779,16 +4772,16 @@ BG_PackAmmoArray
 Pack the ammo quantity into the array
 ========================
 */
-void BG_PackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int quan, int clips, int maxclips )
+void BG_PackAmmoArray( int weapon, int psAmmo[ ], int psAmmo2[ ], int ammo, int clips )
 {
   int   weaponvalue;
 
-  weaponvalue = quan | ( clips << 10 ) | ( maxclips << 13 );
+  weaponvalue = ammo | ( clips << 12 );
 
   if( weapon <= 15 )
-    ammo[ weapon ] = weaponvalue;
+    psAmmo[ weapon ] = weaponvalue;
   else if( weapon >= 16 )
-    ammo2[ weapon - 16 ] = weaponvalue;
+    psAmmo2[ weapon - 16 ] = weaponvalue;
 }
 
 /*
@@ -4798,15 +4791,18 @@ BG_WeaponIsFull
 Check if a weapon has full ammo
 ========================
 */
-qboolean BG_WeaponIsFull( weapon_t weapon, int ammo[ ], int ammo2[ ] )
+qboolean BG_WeaponIsFull( weapon_t weapon, int stats[ ], int psAmmo[ ], int psAmmo2[ ] )
 {
   int maxAmmo, maxClips;
-  int quan, clips;
+  int ammo, clips;
 
-  BG_FindAmmoForWeapon( weapon, &maxAmmo, NULL, &maxClips );
-  BG_UnpackAmmoArray( weapon, ammo, ammo2, &quan, &clips, NULL );
+  BG_FindAmmoForWeapon( weapon, &maxAmmo, &maxClips );
+  BG_UnpackAmmoArray( weapon, psAmmo, psAmmo2, &ammo, &clips );
 
-  return ( maxAmmo == quan ) && ( maxClips == clips );
+  if( BG_InventoryContainsUpgrade( UP_BATTPACK, stats ) )
+    maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
+  
+  return ( maxAmmo == ammo ) && ( maxClips == clips );
 }
 
 /*

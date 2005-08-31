@@ -316,11 +316,10 @@ SelectAlienSpawnPoint
 go to a random point that doesn't telefrag
 ================
 */
-gentity_t *SelectAlienSpawnPoint( void )
+gentity_t *SelectAlienSpawnPoint( vec3_t preference )
 {
   gentity_t *spot;
   int       count;
-  int       selection;
   gentity_t *spots[ MAX_SPAWN_POINTS ];
 
   if( level.numAlienSpawns <= 0 )
@@ -354,8 +353,7 @@ gentity_t *SelectAlienSpawnPoint( void )
   if( !count )
     return NULL;
 
-  selection = rand() % count;
-  return spots[ selection ];
+  return G_ClosestEnt( preference, spots, count );
 }
 
 
@@ -366,11 +364,10 @@ SelectHumanSpawnPoint
 go to a random point that doesn't telefrag
 ================
 */
-gentity_t *SelectHumanSpawnPoint( void )
+gentity_t *SelectHumanSpawnPoint( vec3_t preference )
 {
   gentity_t *spot;
   int       count;
-  int       selection;
   gentity_t *spots[ MAX_SPAWN_POINTS ];
 
   if( level.numHumanSpawns <= 0 )
@@ -404,8 +401,7 @@ gentity_t *SelectHumanSpawnPoint( void )
   if( !count )
     return NULL;
 
-  selection = rand() % count;
-  return spots[ selection ];
+  return G_ClosestEnt( preference, spots, count );
 }
 
 
@@ -429,14 +425,14 @@ SelectTremulousSpawnPoint
 Chooses a player start, deathmatch start, etc
 ============
 */
-gentity_t *SelectTremulousSpawnPoint( pTeam_t team, vec3_t origin, vec3_t angles )
+gentity_t *SelectTremulousSpawnPoint( pTeam_t team, vec3_t preference, vec3_t origin, vec3_t angles )
 {
   gentity_t *spot = NULL;
 
   if( team == PTE_ALIENS )
-    spot = SelectAlienSpawnPoint( );
+    spot = SelectAlienSpawnPoint( preference );
   else if( team == PTE_HUMANS )
-    spot = SelectHumanSpawnPoint( );
+    spot = SelectHumanSpawnPoint( preference );
 
   //no available spots
   if( !spot )
@@ -997,7 +993,7 @@ void ClientUserinfoChanged( int clientNum )
   {
     if( strcmp( oldname, client->pers.netname ) )
     {
-      trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
+      G_SendCommandFromServer( -1, va( "print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
         client->pers.netname ) );
     }
   }
@@ -1158,7 +1154,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot )
 
   // don't do the "xxx connected" messages if they were caried over from previous level
   if( firstTime )
-    trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname ) );
+    G_SendCommandFromServer( -1, va( "print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname ) );
 
   // count current clients and rank for scoreboard
   CalculateRanks( );
@@ -1218,10 +1214,12 @@ void ClientBegin( int clientNum )
     tent->s.clientNum = ent->s.clientNum;
   }
   
-  trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
+  G_InitCommandQueue( clientNum );
+
+  G_SendCommandFromServer( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
 
   // request the clients PTR code
-  trap_SendServerCommand( ent - g_entities, "ptrcrequest" );
+  G_SendCommandFromServer( ent - g_entities, "ptrcrequest" );
   
   G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
@@ -1254,7 +1252,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   int                 eventSequence;
   char                userinfo[ MAX_INFO_STRING ];
   vec3_t              up = { 0.0f, 0.0f, 1.0f };
-  int                 ammo, clips, maxClips;
+  int                 maxAmmo, maxClips;
   weapon_t            weapon;
       
 
@@ -1387,6 +1385,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   if( ent->client->pers.classSelection == PCL_HUMAN )
   {
     BG_AddWeaponToInventory( WP_BLASTER, client->ps.stats );
+    BG_AddUpgradeToInventory( UP_MEDKIT, client->ps.stats );
     weapon = client->pers.humanItemSelection;
   }
   else if( client->sess.sessionTeam != TEAM_SPECTATOR )
@@ -1394,9 +1393,9 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   else
     weapon = WP_NONE;
   
-  BG_FindAmmoForWeapon( weapon, &ammo, &clips, &maxClips );
+  BG_FindAmmoForWeapon( weapon, &maxAmmo, &maxClips );
   BG_AddWeaponToInventory( weapon, client->ps.stats );
-  BG_PackAmmoArray( weapon, client->ps.ammo, client->ps.powerups, ammo, clips, maxClips );
+  BG_PackAmmoArray( weapon, client->ps.ammo, client->ps.powerups, maxAmmo, maxClips );
 
   ent->client->ps.stats[ STAT_PCLASS ] = ent->client->pers.classSelection;
   ent->client->ps.stats[ STAT_PTEAM ] = ent->client->pers.teamSelection;
@@ -1407,6 +1406,13 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
 
   // health will count down towards max_health
   ent->health = client->ps.stats[ STAT_HEALTH ] = client->ps.stats[ STAT_MAX_HEALTH ]; //* 1.25;
+  
+  //if evolving scale health
+  if( ent == spawn )
+  {
+    ent->health *= ent->client->pers.evolveHealthFraction;
+    client->ps.stats[ STAT_HEALTH ] *= ent->client->pers.evolveHealthFraction;
+  }
 
   //clear the credits array
   for( i = 0; i < MAX_CLIENTS; i++ )

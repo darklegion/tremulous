@@ -305,21 +305,18 @@ qboolean PM_StepSlideMove( qboolean gravity, qboolean predictive )
 
   if( PM_SlideMove( gravity ) == 0 )
   {
-    if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
-    {
-      VectorCopy( start_o, down );
-      VectorMA( down, -STEPSIZE, normal, down );
-      pm->trace( &trace, start_o, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask );
+    VectorCopy( start_o, down );
+    VectorMA( down, -STEPSIZE, normal, down );
+    pm->trace( &trace, start_o, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask );
 
-      //we can step down
-      if( trace.fraction > 0.01f && trace.fraction < 1.0f &&
-          !trace.allsolid && pml.groundPlane != qfalse )
-      {
-        if( pm->debugLevel )
-          Com_Printf( "%d: step down\n", c_pmove );
-        
-        stepped = qtrue;
-      }
+    //we can step down
+    if( trace.fraction > 0.01f && trace.fraction < 1.0f &&
+        !trace.allsolid && pml.groundPlane != qfalse )
+    {
+      if( pm->debugLevel )
+        Com_Printf( "%d: step down\n", c_pmove );
+      
+      stepped = qtrue;
     }
   }
   else

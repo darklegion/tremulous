@@ -3410,6 +3410,7 @@ static bind_t g_bindings[] =
   { "+button5",     K_MOUSE2,      -1, -1, -1 }, //TA: secondary attack
   { "reload",       'r',           -1, -1, -1 }, //TA: reload
   { "buy ammo",     'b',           -1, -1, -1 }, //TA: buy ammo
+  { "itemact medkit", 'm',         -1, -1, -1 }, //TA: use medkit
   { "+button7",     'q',           -1, -1, -1 }, //TA: buildable use
   { "deconstruct",  'e',           -1, -1, -1 }, //TA: buildable destroy
   { "weapprev",     '[',           -1, -1, -1 },

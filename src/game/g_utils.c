@@ -155,7 +155,7 @@ void G_TeamCommand( pTeam_t team, char *cmd )
     if( level.clients[ i ].pers.connected == CON_CONNECTED )
     {
       if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == team )
-        trap_SendServerCommand( i, va( "%s", cmd ) );
+        G_SendCommandFromServer( i, va( "%s", cmd ) );
     }
   }
 }
@@ -683,6 +683,195 @@ void G_Sound( gentity_t *ent, int channel, int soundIndex )
 }
 
 
+#define MAX_QUEUE_ELEMENTS MAX_CLIENTS * MAX_QUEUE_COMMANDS
+
+static commandQueueElement_t  queuedCommandElements[ MAX_QUEUE_ELEMENTS ];
+static commandQueue_t         queuedCommands[ MAX_CLIENTS ];
+
+/*
+===============
+G_PopCommandQueue
+
+Return the front of a command queue
+Must use immediately or copy to a buffer
+===============
+*/
+static const char *G_PopCommandQueue( commandQueue_t *cq )
+{
+  if( cq->front )
+  {
+    commandQueueElement_t *cqe = cq->front;
+
+    cq->front = cqe->next;
+
+    // last element in the queue
+    if( cq->front == NULL )
+      cq->back = NULL;
+
+    cq->nextCommandTime = level.time + g_minCommandPeriod.integer;
+    cqe->used = qfalse;
+
+    return cqe->command;
+  }
+  else
+    return NULL;
+}
+
+/*
+===============
+G_PushCommandQueue
+
+Put a command on a command queue
+===============
+*/
+static void G_PushCommandQueue( commandQueue_t *cq, const char *cmd )
+{
+  int i;
+
+  for( i = 0; i < MAX_QUEUE_ELEMENTS; i++ )
+  {
+    commandQueueElement_t *cqe = &queuedCommandElements[ i ];
+
+    if( !cqe->used )
+    {
+      cqe->used = qtrue;
+      cqe->next = NULL;
+      Q_strncpyz( cqe->command, cmd, MAX_TOKEN_CHARS );
+
+      if( cq->back )
+      {
+        cq->back->next = cqe;
+        cq->back = cqe;
+      }
+      else
+      {
+        cq->front = cqe;
+        cq->back = cqe;
+      }
+
+      return;
+    }
+  }
+
+  //drop the command
+}
+
+/*
+===============
+G_PrintCommandQueue
+===============
+*/
+#if 0 //quiet compiler
+static void G_PrintCommandQueue( commandQueue_t *cq )
+{
+  commandQueueElement_t *cqe;
+
+  if( cq->front )
+  {
+    cqe = cq->front;
+
+    do
+    {
+      G_Printf( "->\"%s\"", cqe->command );
+    } while( ( cqe = cqe->next ) );
+
+    G_Printf( "\n" );
+  }
+}
+#endif
+
+/*
+===============
+G_ReadyToDequeue
+===============
+*/
+static qboolean G_ReadyToDequeue( commandQueue_t *cq )
+{
+  if( !cq )
+    return qfalse;
+  
+  return cq->front && cq->nextCommandTime <= level.time;
+}
+
+/*
+===============
+G_ProcessCommandQueues
+
+Check for any outstanding commands to be sent
+===============
+*/
+void G_ProcessCommandQueues( void )
+{
+  int i;
+
+  for( i = 0; i < MAX_CLIENTS; i++ )
+  {
+    commandQueue_t *cq = &queuedCommands[ i ];
+
+    if( G_ReadyToDequeue( cq ) )
+    {
+      const char *command = G_PopCommandQueue( cq );
+    
+      if( command )
+        trap_SendServerCommand( i, command );
+    }
+  }
+}
+
+/*
+===============
+G_InitCommandQueue
+===============
+*/
+void G_InitCommandQueue( int clientNum )
+{
+  commandQueue_t *cq = &queuedCommands[ clientNum ];
+  
+  if( clientNum >= 0 && clientNum < MAX_CLIENTS )
+  {
+    cq->front = cq->back = NULL;
+    cq->nextCommandTime = 0;
+  }
+}
+
+/*
+===============
+G_SendCommandFromServer
+
+Sends a command to a client
+===============
+*/
+void G_SendCommandFromServer( int clientNum, const char *cmd )
+{
+  commandQueue_t  *cq = &queuedCommands[ clientNum ];
+
+  if( clientNum < 0 )
+    cq = NULL;
+    
+  if( strlen( cmd ) > 1022 )
+  {
+    G_LogPrintf( "G_SendCommandFromServer( %d, ... ) length exceeds 1022.\n", clientNum );
+    G_LogPrintf( "cmd [%s]\n", cmd );
+    return;
+  } 
+  
+  if( cq )
+  {
+    if( cq->nextCommandTime > level.time )
+    {
+      //can't send yet, so queue the command up
+      G_PushCommandQueue( cq, cmd );
+    }
+    else
+    {
+      cq->nextCommandTime = level.time + g_minCommandPeriod.integer;
+      trap_SendServerCommand( clientNum, cmd );
+    }
+  }
+  else
+    trap_SendServerCommand( clientNum, cmd );
+}
+
 //==============================================================================
 
 
@@ -735,8 +924,13 @@ gentity_t *G_FindRadius( gentity_t *from, vec3_t org, float rad )
   return NULL;
 }
 
-// (NOBODY): Code helper function
-//
+/*
+===============
+G_Visible
+
+Test for a LOS between two entities
+===============
+*/
 qboolean G_Visible( gentity_t *ent1, gentity_t *ent2 )
 {
   trace_t trace;
@@ -749,6 +943,32 @@ qboolean G_Visible( gentity_t *ent1, gentity_t *ent2 )
   return qtrue;
 }
 
+/*
+===============
+G_ClosestEnt
+
+Test a list of entities for the closest to a particular point
+===============
+*/
+gentity_t *G_ClosestEnt( vec3_t origin, gentity_t **entities, int numEntities )
+{
+  int       i;
+  float     nd, d = 1000000.0f;
+  gentity_t *closestEnt = NULL;
+  
+  for( i = 0; i < numEntities; i++ )
+  {
+    gentity_t *ent = entities[ i ];
+
+    if( ( nd = VectorDistance( origin, ent->s.origin ) ) < d )
+    {
+      d = nd;
+      closestEnt = ent;
+    }
+  }
+
+  return closestEnt;
+}
 
 /*
 ===============
@@ -762,7 +982,7 @@ void G_TriggerMenu( int clientNum, dynMenu_t menu )
   char buffer[ 32 ];
 
   Com_sprintf( buffer, 32, "servermenu %d", menu );
-  trap_SendServerCommand( clientNum, buffer );
+  G_SendCommandFromServer( clientNum, buffer );
 }
 
 
@@ -778,7 +998,7 @@ void G_CloseMenus( int clientNum )
   char buffer[ 32 ];
 
   Com_sprintf( buffer, 32, "serverclosemenus" );
-  trap_SendServerCommand( clientNum, buffer );
+  G_SendCommandFromServer( clientNum, buffer );
 }
 
 

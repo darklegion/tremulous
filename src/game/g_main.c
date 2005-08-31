@@ -74,6 +74,7 @@ vmCvar_t  pmove_fixed;
 vmCvar_t  pmove_msec;
 vmCvar_t  g_rankings;
 vmCvar_t  g_listEntity;
+vmCvar_t  g_minCommandPeriod;
 
 //TA
 vmCvar_t  g_humanBuildPoints;
@@ -154,6 +155,7 @@ static cvarTable_t   gameCvarTable[ ] =
 
   { &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse },
   { &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
+  { &g_minCommandPeriod, "g_minCommandPeriod", "500", 0, 0, qfalse},
 
   { &g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
   { &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
@@ -261,7 +263,7 @@ void QDECL G_Printf( const char *fmt, ... )
   if( !g_dedicated.integer )
   {
     Com_sprintf( clientText, 1048, "gprintf \"%s\"", text );
-    trap_SendServerCommand( -1, clientText );
+    G_SendCommandFromServer( -1, clientText );
   }
     
   trap_Printf( text );
@@ -403,7 +405,7 @@ void G_UpdateCvars( void )
         cv->modificationCount = cv->vmCvar->modificationCount;
 
         if( cv->trackChange )
-          trap_SendServerCommand( -1, va( "print \"Server: %s changed to %s\n\"",
+          G_SendCommandFromServer( -1, va( "print \"Server: %s changed to %s\n\"",
             cv->cvarName, cv->vmCvar->string ) );
 
         if( cv->teamShader )
@@ -703,6 +705,18 @@ int G_PopSpawnQueue( spawnQueue_t *sq )
 
 /*
 ============
+G_PeekSpawnQueue
+
+Look at front element from a spawn queue
+============
+*/
+int G_PeekSpawnQueue( spawnQueue_t *sq )
+{
+  return sq->clients[ sq->front ];
+}
+  
+/*
+============
 G_PushSpawnQueue
 
 Add an element to the back of the spawn queue
@@ -844,7 +858,12 @@ void G_SpawnClients( pTeam_t team )
 
   if( G_GetSpawnQueueLength( sq ) > 0 && numSpawns > 0 )
   {
-    if( ( spawn = SelectTremulousSpawnPoint( team, spawn_origin, spawn_angles ) ) )
+    clientNum = G_PeekSpawnQueue( sq );
+    ent = &g_entities[ clientNum ];
+
+    if( ( spawn = SelectTremulousSpawnPoint( team,
+            ent->client->pers.lastDeathLocation,
+            spawn_origin, spawn_angles ) ) )
     {
       clientNum = G_PopSpawnQueue( sq );
 
@@ -1545,6 +1564,9 @@ void CheckIntermissionExit( void )
     if( cl->pers.connected != CON_CONNECTED )
       continue;
     
+    if( cl->sess.sessionTeam == TEAM_SPECTATOR )
+      continue;
+
     if( g_entities[ cl->ps.clientNum ].r.svFlags & SVF_BOT )
       continue;
 
@@ -1649,10 +1671,13 @@ void CheckExitRules( void )
   {
     if( level.time - level.startTime >= g_timelimit.integer * 60000 )
     {
-      trap_SendServerCommand( -1, "print \"Timelimit hit\n\"" );
-      G_LogPrintf( "STATS T:L A:%f H:%f M:%s D:%d\n", level.averageNumAlienClients,
-                                                      level.averageNumHumanClients,
-                                                      s, level.time - level.startTime );
+      G_SendCommandFromServer( -1, "print \"Timelimit hit\n\"" );
+      
+      G_LogPrintf( "STATS T:L A:%f H:%f M:%s D:%d AS:%d HS:%d\n",
+          level.averageNumAlienClients, level.averageNumHumanClients,
+          s, level.time - level.startTime,
+          g_alienStage.integer, g_humanStage.integer );
+      
       level.lastWin = PTE_NONE;
       LogExit( "Timelimit hit." );
       return;
@@ -1666,11 +1691,13 @@ void CheckExitRules( void )
   {
     //humans win
     level.lastWin = PTE_HUMANS;
-    trap_SendServerCommand( -1, "print \"Humans win\n\"");
-    G_LogPrintf( "STATS T:H A:%f H:%f M:%s D:%d\n", level.averageNumAlienClients,
-                                                    level.averageNumHumanClients,
-                                                    s, level.time - level.startTime );
+    G_SendCommandFromServer( -1, "print \"Humans win\n\"");
 
+    G_LogPrintf( "STATS T:H A:%f H:%f M:%s D:%d AS:%d HS:%d\n",
+        level.averageNumAlienClients, level.averageNumHumanClients,
+        s, level.time - level.startTime,
+        g_alienStage.integer, g_humanStage.integer );
+    
     LogExit( "Humans win." );
     return;
   }
@@ -1680,11 +1707,13 @@ void CheckExitRules( void )
   {
     //aliens win
     level.lastWin = PTE_ALIENS;
-    trap_SendServerCommand( -1, "print \"Aliens win\n\"");
-    G_LogPrintf( "STATS T:A A:%f H:%f M:%s D:%d\n", level.averageNumAlienClients,
-                                                    level.averageNumHumanClients,
-                                                    s, level.time - level.startTime );
+    G_SendCommandFromServer( -1, "print \"Aliens win\n\"");
 
+    G_LogPrintf( "STATS T:A A:%f H:%f M:%s D:%d AS:%d HS:%d\n",
+        level.averageNumAlienClients, level.averageNumHumanClients,
+        s, level.time - level.startTime,
+        g_alienStage.integer, g_humanStage.integer );
+    
     LogExit( "Aliens win." );
     return;
   }
@@ -1733,13 +1762,13 @@ void CheckVote( void )
     if( level.voteYes > level.voteNo )
     {
       // execute the command, then remove the vote
-      trap_SendServerCommand( -1, "print \"Vote passed\n\"" );
+      G_SendCommandFromServer( -1, "print \"Vote passed\n\"" );
       level.voteExecuteTime = level.time + 3000;
     }
     else
     {
       // same behavior as a timeout
-      trap_SendServerCommand( -1, "print \"Vote failed\n\"" );
+      G_SendCommandFromServer( -1, "print \"Vote failed\n\"" );
     }
   }
   else
@@ -1747,13 +1776,13 @@ void CheckVote( void )
     if( level.voteYes > level.numConnectedClients / 2 )
     {
       // execute the command, then remove the vote
-      trap_SendServerCommand( -1, "print \"Vote passed\n\"" );
+      G_SendCommandFromServer( -1, "print \"Vote passed\n\"" );
       level.voteExecuteTime = level.time + 3000;
     }
     else if( level.voteNo >= level.numConnectedClients / 2 )
     {
       // same behavior as a timeout
-      trap_SendServerCommand( -1, "print \"Vote failed\n\"" );
+      G_SendCommandFromServer( -1, "print \"Vote failed\n\"" );
     }
     else
     {
@@ -1788,21 +1817,21 @@ void CheckTeamVote( int team )
   
   if( level.time - level.teamVoteTime[ cs_offset ] >= VOTE_TIME )
   {
-    trap_SendServerCommand( -1, "print \"Team vote failed\n\"" );
+    G_SendCommandFromServer( -1, "print \"Team vote failed\n\"" );
   }
   else
   {
     if( level.teamVoteYes[ cs_offset ] > level.numteamVotingClients[ cs_offset ] / 2 )
     {
       // execute the command, then remove the vote
-      trap_SendServerCommand( -1, "print \"Team vote passed\n\"" );
+      G_SendCommandFromServer( -1, "print \"Team vote passed\n\"" );
       //
       trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.teamVoteString[ cs_offset ] ) );
     }
     else if( level.teamVoteNo[ cs_offset ] >= level.numteamVotingClients[ cs_offset ] / 2 )
     {
       // same behavior as a timeout
-      trap_SendServerCommand( -1, "print \"Team vote failed\n\"" );
+      G_SendCommandFromServer( -1, "print \"Team vote failed\n\"" );
     }
     else
     {
@@ -2016,7 +2045,11 @@ void G_RunFrame( int levelTime )
   G_SpawnClients( PTE_ALIENS );
   G_SpawnClients( PTE_HUMANS );
   G_CalculateAvgPlayers( );
+  G_UpdateZaps( msec );
 
+  //send any pending commands
+  G_ProcessCommandQueues( );
+  
   // see if it is time to end the level
   CheckExitRules( );
 

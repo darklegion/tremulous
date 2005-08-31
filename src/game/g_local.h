@@ -228,6 +228,8 @@ struct gentity_s
   int               triggerGravity;                 //TA: gravity for this trigger
 
   int               suicideTime;  //TA: when the client will suicide
+  
+  int               lastDamageTime;
 };
 
 typedef enum
@@ -322,11 +324,14 @@ typedef struct
   qboolean            teamInfo;           // send team overlay updates?
 
   pClass_t            classSelection;     //TA: player class (copied to ent->client->ps.stats[ STAT_PCLASS ] once spawned)
+  float               evolveHealthFraction;
   weapon_t            humanItemSelection; //TA: humans have a starting item
   pTeam_t             teamSelection;      //TA: player team (copied to ps.stats[ STAT_PTEAM ])
 
   qboolean            joinedATeam;        //TA: used to tell when a PTR code is valid
   connectionRecord_t  *connection;
+
+  vec3_t              lastDeathLocation;
 } clientPersistant_t;
 
 // this structure is cleared on each ClientSpawn(),
@@ -394,6 +399,7 @@ struct gclient_s
   gentity_t           *hovel;      //TA: body that is being infested. must be persistant
 
   int                 lastPoisonTime;
+  int                 poisonImmunityTime;
   gentity_t           *lastPoisonClient;
   int                 lastPoisonCloudedTime;
   gentity_t           *lastPoisonCloudedClient;
@@ -401,8 +407,10 @@ struct gclient_s
   int                 lastLockTime;
   int                 lastSlowTime;
   int                 lastBoostedTime;
+  int                 lastMedKitTime;
+  int                 medKitHealthToRestore;
+  int                 medKitIncrementTime;
   int                 lastCreepSlowTime; //TA: time until creep can be removed
-  int                 lastDamageTime;
 
   int                 pouncePayload;    //TA: amount of damage pounce attack will do
   qboolean            allowedToPounce;
@@ -433,6 +441,7 @@ typedef struct spawnQueue_s
 void      G_InitSpawnQueue( spawnQueue_t *sq );
 int       G_GetSpawnQueueLength( spawnQueue_t *sq );
 int       G_PopSpawnQueue( spawnQueue_t *sq );
+int       G_PeekSpawnQueue( spawnQueue_t *sq );
 void      G_PushSpawnQueue( spawnQueue_t *sq, int clientNum );
 qboolean  G_RemoveFromSpawnQueue( spawnQueue_t *sq, int clientNum );
 int       G_GetPosInSpawnQueue( spawnQueue_t *sq, int clientNum );
@@ -694,10 +703,32 @@ void        G_SetOrigin( gentity_t *ent, vec3_t origin );
 void        AddRemap(const char *oldShader, const char *newShader, float timeOffset);
 const char  *BuildShaderStateConfig();
 
+#define MAX_QUEUE_COMMANDS  10
+
+typedef struct commandQueueElement_s
+{
+  qboolean                      used;
+  struct commandQueueElement_s  *next;
+  char                          command[ MAX_TOKEN_CHARS ];
+} commandQueueElement_t;
+
+typedef struct commandQueue_s
+{
+  int                   nextCommandTime; //next time that the queue can be popped
+
+  commandQueueElement_t *front;
+  commandQueueElement_t *back;
+} commandQueue_t;
+
+void        G_ProcessCommandQueues( void );
+void        G_SendCommandFromServer( int clientNum, const char *cmd );
+void        G_InitCommandQueue( int clientNum );
+
 void        G_TriggerMenu( int clientNum, dynMenu_t menu );
 void        G_CloseMenus( int clientNum );
 
 qboolean    G_Visible( gentity_t *ent1, gentity_t *ent2 );
+gentity_t   *G_ClosestEnt( vec3_t origin, gentity_t **entities, int numEntities );
 
 //
 // g_combat.c
@@ -764,12 +795,44 @@ void ShineTorch( gentity_t *self );
 //
 // g_weapon.c
 //
+
+/*typedef struct zap_s
+{
+  qboolean      used;
+
+  gentity_t     *creator;
+  gentity_t     *source;
+  gentity_t     *target;
+
+  int           timeToLive;
+
+  int           depth;
+
+  gentity_t     *effectTempEnt;
+} zap_t;*/
+
+#define MAX_ZAP_TARGETS LEVEL2_AREAZAP_MAX_TARGETS
+
+typedef struct zap_s
+{
+  qboolean      used;
+
+  gentity_t     *creator;
+  gentity_t     *targets[ MAX_ZAP_TARGETS ];
+  int           numTargets;
+
+  int           timeToLive;
+
+  gentity_t     *effectChannel;
+} zap_t;
+
 void      CalcMuzzlePoint( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint );
 void      SnapVectorTowards( vec3_t v, vec3_t to );
 qboolean  CheckVenomAttack( gentity_t *ent );
 void      CheckGrabAttack( gentity_t *ent );
 qboolean  CheckPounceAttack( gentity_t *ent );
 void      ChargeAttack( gentity_t *ent, gentity_t *victim );
+void      G_UpdateZaps( int msec );
 
 
 //
@@ -778,7 +841,7 @@ void      ChargeAttack( gentity_t *ent, gentity_t *victim );
 void      G_AddCreditToClient( gclient_t *client, short credit, qboolean cap );
 team_t    TeamCount( int ignoreClientNum, int team );
 void      SetClientViewAngle( gentity_t *ent, vec3_t angle );
-gentity_t *SelectTremulousSpawnPoint( pTeam_t team, vec3_t origin, vec3_t angles );
+gentity_t *SelectTremulousSpawnPoint( pTeam_t team, vec3_t preference, vec3_t origin, vec3_t angles );
 gentity_t *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
 void      SpawnCorpse( gentity_t *ent );
 void      respawn( gentity_t *ent );
@@ -961,6 +1024,7 @@ extern  vmCvar_t  g_cheats;
 extern  vmCvar_t  g_maxclients;     // allow this many total, including spectators
 extern  vmCvar_t  g_maxGameClients;   // allow this many active
 extern  vmCvar_t  g_restarted;
+extern  vmCvar_t  g_minCommandPeriod;
 
 extern  vmCvar_t  g_timelimit;
 extern  vmCvar_t  g_suddenDeathTime;

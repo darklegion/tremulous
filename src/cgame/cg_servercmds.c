@@ -556,7 +556,8 @@ static void CG_SetUIVars( void )
   }
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
-    if( BG_InventoryContainsUpgrade( i, cg.snap->ps.stats ) )
+    if( BG_InventoryContainsUpgrade( i, cg.snap->ps.stats ) &&
+        BG_FindPurchasableForUpgrade( i ) )
       strcat( carriageCvar, va( "U%d ", i ) );
   }
   strcat( carriageCvar, "$" );
@@ -598,107 +599,158 @@ void CG_Menu( int menu )
       break;
 
     case MN_H_NOROOM:
-      if( !cg_disableBuildWarnings.integer )
+      if( !cg_disableWarningDialogs.integer )
       {
         trap_Cvar_Set( "ui_dialog", "There is no room to build here. Move until the buildable turns "
                                     "translucent green indicating a valid build location." );
         trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       }
+      else
+        CG_Printf( "There is no room to build here\n" );
+      
       break;
       
     case MN_H_NOPOWER:
-      if( !cg_disableBuildWarnings.integer )
+      if( !cg_disableWarningDialogs.integer )
       {
         trap_Cvar_Set( "ui_dialog", "There is no power remaining. Free up power by destroying existing "
                                     "buildable objects." );
         trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       }
+      else
+        CG_Printf( "There is no power remaining\n" );
+      
       break;
       
     case MN_H_NOTPOWERED:
-      trap_Cvar_Set( "ui_dialog", "This buildable is not powered. Build a reactor and/or repeater in "
-                                  "order to power it." );
-      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      if( !cg_disableWarningDialogs.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "This buildable is not powered. Build a Reactor and/or Repeater in "
+                                    "order to power it." );
+        trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      }
+      else
+        CG_Printf( "This buildable is not powered\n" );
+      
       break;
       
     case MN_H_NORMAL:
-      if( !cg_disableBuildWarnings.integer )
+      if( !cg_disableWarningDialogs.integer )
       {
         trap_Cvar_Set( "ui_dialog", "Cannot build on this surface. The surface is too steep or unsuitable "
                                     "to build on. Please choose another site for this structure." );
         trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       }
+      else
+        CG_Printf( "Cannot build on this surface\n" );
+      
       break;
       
     case MN_H_REACTOR:
-      if( !cg_disableBuildWarnings.integer )
+      if( !cg_disableWarningDialogs.integer )
       {
-        trap_Cvar_Set( "ui_dialog", "There can only be one reactor. Destroy the existing one if you "
+        trap_Cvar_Set( "ui_dialog", "There can only be one Reactor. Destroy the existing one if you "
                                     "wish to move it." );
         trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       }
+      else
+        CG_Printf( "There can only be one Reactor\n" );
+      
       break;
       
     case MN_H_REPEATER:
-      if( !cg_disableBuildWarnings.integer )
+      if( !cg_disableWarningDialogs.integer )
       {
         trap_Cvar_Set( "ui_dialog", "There is no power here. If available, a Repeater may be used to "
                                     "transmit power to this location." );
         trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       }
+      else
+        CG_Printf( "There is no power here\n" );
+      
       break;
       
     case MN_H_NODCC:
-      if( !cg_disableBuildWarnings.integer )
+      if( !cg_disableWarningDialogs.integer )
       {
         trap_Cvar_Set( "ui_dialog", "There is no Defense Computer. A Defense Computer is needed to build "
                                     "this." );
         trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       }
+      else
+        CG_Printf( "There is no Defense Computer\n" );
+      
       break;
       
     case MN_H_TNODEWARN:
-      if( !cg_disableBuildWarnings.integer )
+      if( !cg_disableWarningDialogs.integer )
       {
-        trap_Cvar_Set( "ui_dialog", "WARNING: This telenode will not be powered. Build near a power "
+        trap_Cvar_Set( "ui_dialog", "WARNING: This Telenode will not be powered. Build near a power "
                                     "structure to prevent seeing this message again." );
         trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       }
+      else
+        CG_Printf( "This Telenode will not be powered\n" );
+      
       break;
       
     case MN_H_RPTWARN:
-      if( !cg_disableBuildWarnings.integer )
+      if( !cg_disableWarningDialogs.integer )
       {
-        trap_Cvar_Set( "ui_dialog", "WARNING: This repeater will not be powered as there is no parent "
-                                    "reactor providing power. Build a reactor." );
+        trap_Cvar_Set( "ui_dialog", "WARNING: This Repeater will not be powered as there is no parent "
+                                    "Reactor providing power. Build a Reactor." );
         trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       }
+      else
+        CG_Printf( "This Repeater will not be powered\n" );
+      
       break;
       
     case MN_H_RPTWARN2:
-      if( !cg_disableBuildWarnings.integer )
+      if( !cg_disableWarningDialogs.integer )
       {
-        trap_Cvar_Set( "ui_dialog", "This area already has power. A repeater is not required here." );
+        trap_Cvar_Set( "ui_dialog", "This area already has power. A Repeater is not required here." );
         trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
       }
+      else
+        CG_Printf( "This area already has power\n" );
+      
       break;
       
     case MN_H_NOSLOTS:
-      trap_Cvar_Set( "ui_dialog", "You have no room to carry this. Please sell any conflicting "
-                                  "upgrades before purchasing this item." );
-      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      if( !cg_disableWarningDialogs.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "You have no room to carry this. Please sell any conflicting "
+                                    "upgrades before purchasing this item." );
+        trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      }
+      else
+        CG_Printf( "You have no room to carry this\n" );
+      
       break;
       
     case MN_H_NOFUNDS:
-      trap_Cvar_Set( "ui_dialog", "Insufficient funds. You do not have enough credits to perform this "
-                                  "action." );
-      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      if( !cg_disableWarningDialogs.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "Insufficient funds. You do not have enough credits to perform this "
+                                    "action." );
+        trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      }
+      else
+        CG_Printf( "Insufficient funds\n" );
+      
       break;
       
     case MN_H_ITEMHELD:
-      trap_Cvar_Set( "ui_dialog", "You already hold this item. It is not possible to carry multiple items "
-                                  "of the same type." );
-      trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      if( !cg_disableWarningDialogs.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "You already hold this item. It is not possible to carry multiple items "
+                                    "of the same type." );
+        trap_SendConsoleCommand( "menu tremulous_human_dialog\n" );
+      }
+      else
+        CG_Printf( "You already hold this item\n" );
+      
       break;
       
     
@@ -706,103 +758,160 @@ void CG_Menu( int menu )
 
       
     case MN_A_NOROOM:
-      if( !cg_disableBuildWarnings.integer )
+      if( !cg_disableWarningDialogs.integer )
       {
         trap_Cvar_Set( "ui_dialog", "There is no room to build here. Move until the structure turns "
                                     "translucent green indicating a valid build location." );
         trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       }
+      else
+        CG_Printf( "There is no room to build here\n" );
+      
       break;
       
     case MN_A_NOCREEP:
-      if( !cg_disableBuildWarnings.integer )
+      if( !cg_disableWarningDialogs.integer )
       {
         trap_Cvar_Set( "ui_dialog", "There is no creep here. You must build near existing Eggs or "
                                     "the Overmind. Alien structures will not support themselves." );
         trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       }
+      else
+        CG_Printf( "There is no creep here\n" );
+      
       break;
       
     case MN_A_NOOVMND:
-      if( !cg_disableBuildWarnings.integer )
+      if( !cg_disableWarningDialogs.integer )
       {
         trap_Cvar_Set( "ui_dialog", "There is no Overmind. An Overmind must be built to control "
                                     "the structure you tried to place" );
         trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       }
+      else
+        CG_Printf( "There is no Overmind\n" );
+      
       break;
       
     case MN_A_OVERMIND:
-      if( !cg_disableBuildWarnings.integer )
+      if( !cg_disableWarningDialogs.integer )
       {
         trap_Cvar_Set( "ui_dialog", "There can only be one Overmind. Destroy the existing one if you "
                                     "wish to move it." );
         trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       }
+      else
+        CG_Printf( "There can only be one Overmind\n" );
+      
       break;
       
     case MN_A_NOASSERT:
-      if( !cg_disableBuildWarnings.integer )
+      if( !cg_disableWarningDialogs.integer )
       {
-        trap_Cvar_Set( "ui_dialog", "The Overmind cannot control anymore structures. Destroy existing "
+        trap_Cvar_Set( "ui_dialog", "The Overmind cannot control any more structures. Destroy existing "
                                     "structures to build more." );
         trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       }
+      else
+        CG_Printf( "The Overmind cannot control any more structures\n" );
+      
       break;
       
     case MN_A_SPWNWARN:
-      if( !cg_disableBuildWarnings.integer )
+      if( !cg_disableWarningDialogs.integer )
       {
         trap_Cvar_Set( "ui_dialog", "WARNING: This spawn will not be controlled by an Overmind. "
                                     "Build an Overmind to prevent seeing this message again." );
         trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       }
+      else
+        CG_Printf( "This spawn will not be controlled by an Overmind\n" );
+      
       break;
       
     case MN_A_NORMAL:
-      if( !cg_disableBuildWarnings.integer )
+      if( !cg_disableWarningDialogs.integer )
       {
         trap_Cvar_Set( "ui_dialog", "Cannot build on this surface. This surface is too steep or unsuitable "
                                     "to build on. Please choose another site for this structure." );
         trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
       }
+      else
+        CG_Printf( "Cannot build on this surface\n" );
+      
       break;
       
     case MN_A_NOEROOM:
-      trap_Cvar_Set( "ui_dialog", "There is no room to evolve here. Move away from walls or other "
-                                  "nearby objects and try again." );
-      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      if( !cg_disableWarningDialogs.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "There is no room to evolve here. Move away from walls or other "
+                                    "nearby objects and try again." );
+        trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      }
+      else
+        CG_Printf( "There is no room to evolve here\n" );
+      
       break;
       
     case MN_A_TOOCLOSE:
-      trap_Cvar_Set( "ui_dialog", "This location is too close to the enemy to evolve. "
-                                  "Move away until you are no longer aware of the enemy's "
-                                  "presence and try again." );
-      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      if( !cg_disableWarningDialogs.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "This location is too close to the enemy to evolve. "
+                                    "Move away until you are no longer aware of the enemy's "
+                                    "presence and try again." );
+        trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      }
+      else
+        CG_Printf( "This location is too close to the enemy to evolve\n" );
+      
       break;
       
     case MN_A_NOOVMND_EVOLVE:
-      trap_Cvar_Set( "ui_dialog", "There is no Overmind. An Overmind must be built to allow "
-                                  "you to upgrade." );
-      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      if( !cg_disableWarningDialogs.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "There is no Overmind. An Overmind must be built to allow "
+                                    "you to upgrade." );
+        trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      }
+      else
+        CG_Printf( "There is no Overmind\n" );
+      
       break;
       
     case MN_A_HOVEL_OCCUPIED:
-      trap_Cvar_Set( "ui_dialog", "This Hovel is occupied by another builder. Please find or build "
-                                  "another." );
-      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      if( !cg_disableWarningDialogs.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "This Hovel is occupied by another builder. Please find or build "
+                                    "another." );
+        trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      }
+      else
+        CG_Printf( "This Hovel is occupied by another builder\n" );
+      
       break;
       
     case MN_A_HOVEL_BLOCKED:
-      trap_Cvar_Set( "ui_dialog", "The exit to this Hovel is currently blocked. Please wait until it "
-                                  "becomes clear then try again." );
-      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      if( !cg_disableWarningDialogs.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "The exit to this Hovel is currently blocked. Please wait until it "
+                                    "becomes clear then try again." );
+        trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      }
+      else
+        CG_Printf( "The exit to this Hovel is currently blocked\n" );
+      
       break;
       
     case MN_A_HOVEL_EXIT:
-      trap_Cvar_Set( "ui_dialog", "The exit to this Hovel will always be blocked. Please choose "
-                                  "a more suitable location." );
-      trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      if( !cg_disableWarningDialogs.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "The exit to this Hovel would always be blocked. Please choose "
+                                    "a more suitable location." );
+        trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      }
+      else
+        CG_Printf( "The exit to this Hovel would always be blocked\n" );
+      
       break;
       
     case MN_A_INFEST:

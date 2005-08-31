@@ -385,6 +385,15 @@ static float PM_CmdScale( usercmd_t *cmd )
     modifier *= ( 1.0f + ( pm->ps->stats[ STAT_MISC ] / (float)LEVEL4_CHARGE_TIME ) *
         ( LEVEL4_CHARGE_SPEED - 1.0f ) );
   
+  //slow player if charging up for a pounce
+  if( ( pm->ps->weapon == WP_ALEVEL3 || pm->ps->weapon == WP_ALEVEL3_UPG ) &&
+      cmd->buttons & BUTTON_ATTACK2 )
+    modifier *= LEVEL3_POUNCE_SPEED_MOD;
+  
+  //slow the player if slow locked
+  if( pm->ps->stats[ STAT_STATE ] & SS_SLOWLOCKED )
+    modifier *= ABUILDER_BLOB_SPEED_MOD;
+  
   if( pm->ps->pm_type == PM_GRABBED )
     modifier = 0.0f;
 
@@ -469,7 +478,8 @@ static void PM_CheckCharge( void )
   if( pm->ps->weapon != WP_ALEVEL4 )
     return;
 
-  if( pm->cmd.buttons & BUTTON_ATTACK2 )
+  if( pm->cmd.buttons & BUTTON_ATTACK2 &&
+      !( pm->ps->stats[ STAT_STATE ] & SS_CHARGING ) )
   {
     pm->ps->pm_flags &= ~PMF_CHARGE;
     return;
@@ -2046,43 +2056,66 @@ static void PM_GroundTrace( void )
   // if the trace didn't hit anything, we are in free fall
   if( trace.fraction == 1.0f )
   {
-    PM_GroundTraceMissed( );
-    pml.groundPlane = qfalse;
-    pml.walking = qfalse;
-
-    if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
+    qboolean  steppedDown = qfalse;
+    
+    // try to step down
+    if( pml.groundPlane != qfalse && PM_PredictStepMove( ) )
     {
-      ProjectPointOnPlane( movedir, pml.forward, refNormal );
-      VectorNormalize( movedir );
-
-      if( pm->cmd.forwardmove < 0 )
-        VectorNegate( movedir, movedir );
-
-      //allow strafe transitions
-      if( pm->cmd.rightmove )
-      {
-        VectorCopy( pml.right, movedir );
-        
-        if( pm->cmd.rightmove < 0 )
-          VectorNegate( movedir, movedir );
-      }
-      
-      //trace into direction we are moving
-      VectorMA( pm->ps->origin, 0.25f, movedir, point );
+      //step down
+      point[ 0 ] = pm->ps->origin[ 0 ];
+      point[ 1 ] = pm->ps->origin[ 1 ];
+      point[ 2 ] = pm->ps->origin[ 2 ] - STEPSIZE;
       pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
-      
-      if( trace.fraction < 1.0f && !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) &&
-          ( trace.entityNum == ENTITYNUM_WORLD ) )
+
+      //if we hit something
+      if( trace.fraction < 1.0f )
       {
-        if( !VectorCompare( trace.plane.normal, pm->ps->grapplePoint ) )
-        {
-          VectorCopy( trace.plane.normal, pm->ps->grapplePoint );
-          PM_CheckWallJump( );
-        }
+        PM_StepEvent( pm->ps->origin, trace.endpos, refNormal );
+        VectorCopy( trace.endpos, pm->ps->origin );
+        steppedDown = qtrue;
       }
     }
-  
-    return;
+        
+    if( !steppedDown )
+    {
+      PM_GroundTraceMissed( );
+      pml.groundPlane = qfalse;
+      pml.walking = qfalse;
+
+      if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
+      {
+        ProjectPointOnPlane( movedir, pml.forward, refNormal );
+        VectorNormalize( movedir );
+
+        if( pm->cmd.forwardmove < 0 )
+          VectorNegate( movedir, movedir );
+
+        //allow strafe transitions
+        if( pm->cmd.rightmove )
+        {
+          VectorCopy( pml.right, movedir );
+          
+          if( pm->cmd.rightmove < 0 )
+            VectorNegate( movedir, movedir );
+        }
+        
+        //trace into direction we are moving
+        VectorMA( pm->ps->origin, 0.25f, movedir, point );
+        pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
+        
+        if( trace.fraction < 1.0f && !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) &&
+            ( trace.entityNum == ENTITYNUM_WORLD ) )
+        {
+          if( !VectorCompare( trace.plane.normal, pm->ps->grapplePoint ) )
+          {
+            VectorCopy( trace.plane.normal, pm->ps->grapplePoint );
+            PM_CheckWallJump( );
+          }
+        }
+      }
+    
+      return;
+    }
   }
 
   // check if getting thrown off the ground
@@ -2619,7 +2652,7 @@ Generates weapon events and modifes the weapon counter
 static void PM_Weapon( void )
 {
   int           addTime = 200; //default addTime - should never be used
-  int           ammo, clips, maxclips;
+  int           ammo, clips, maxClips;
   qboolean      attack1 = qfalse;
   qboolean      attack2 = qfalse;
   qboolean      attack3 = qfalse;
@@ -2717,7 +2750,8 @@ static void PM_Weapon( void )
 
   // start the animation even if out of ammo
 
-  BG_UnpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips, &maxclips );
+  BG_UnpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips );
+  BG_FindAmmoForWeapon( pm->ps->weapon, NULL, &maxClips );
 
   // check for out of ammo
   if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
@@ -2730,17 +2764,17 @@ static void PM_Weapon( void )
   //done reloading so give em some ammo
   if( pm->ps->weaponstate == WEAPON_RELOADING )
   {
-    if( maxclips > 0 )
+    if( maxClips > 0 )
     {
       clips--;
-      BG_FindAmmoForWeapon( pm->ps->weapon, &ammo, NULL, NULL );
+      BG_FindAmmoForWeapon( pm->ps->weapon, &ammo, NULL );
     }
 
     if( BG_FindUsesEnergyForWeapon( pm->ps->weapon ) &&
         BG_InventoryContainsUpgrade( UP_BATTPACK, pm->ps->stats ) )
       ammo = (int)( (float)ammo * BATTPACK_MODIFIER );
     
-    BG_PackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
+    BG_PackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips );
 
     //allow some time for the weapon to be raised
     pm->ps->weaponstate = WEAPON_RAISING;
@@ -2967,13 +3001,13 @@ static void PM_Weapon( void )
     else
       ammo--;
     
-    BG_PackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
+    BG_PackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips );
   }
   else if( pm->ps->weapon == WP_ALEVEL3_UPG && attack3 )
   {
     //special case for slowblob
     ammo--;
-    BG_PackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips, maxclips );
+    BG_PackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips );
   }
   
   //FIXME: predicted angles miss a problem??
@@ -3175,11 +3209,11 @@ void trap_SnapVector( float *v );
 
 void PmoveSingle( pmove_t *pmove )
 {
-  int       ammo, clips, maxclips;
+  int ammo, clips;
   
   pm = pmove;
 
-  BG_UnpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips, &maxclips );
+  BG_UnpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips );
 
   // this counter lets us debug movement problems with a journal
   // by setting a conditional breakpoint fot the previous frame

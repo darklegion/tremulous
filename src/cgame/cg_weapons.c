@@ -186,36 +186,6 @@ void CG_TeslaTrail( vec3_t start, vec3_t end, int srcENum, int destENum )
   VectorCopy( end, re->oldorigin );
 }
 
-/*
-==========================
-CG_AlienZap
-==========================
-*/
-void CG_AlienZap( vec3_t start, vec3_t end, int srcENum, int destENum )
-{
-  localEntity_t *le;
-  refEntity_t   *re;
-  
-  //add a bunch of bolt segments
-  le = CG_AllocLocalEntity();
-  re = &le->refEntity;
-
-  le->leType = LE_LIGHTNING_BOLT;
-  le->startTime = cg.time;
-  le->endTime = cg.time + cg_alienZapTime.value;
-  le->lifeRate = 1.0 / ( le->endTime - le->startTime );
-  re->customShader = cgs.media.lightningShader;
-
-  le->srcENum = srcENum;
-  le->destENum = destENum;
-  le->vOffset = 6.0f;
-
-  le->maxRange = LEVEL2_AREAZAP_RANGE * M_ROOT3;
-
-  VectorCopy( start, re->origin );
-  VectorCopy( end, re->oldorigin );
-}
-
 
 /*
 =================
@@ -1362,16 +1332,12 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
   int           length;
   int           selectWindow;
   qboolean      vertical;
-  int           ammo, clips, maxAmmo, maxClips;
   centity_t     *cent;
   playerState_t *ps;
 
   cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
 
-  BG_UnpackAmmoArray( cent->currentState.weapon, ps->ammo, ps->powerups, &ammo, &clips, NULL );
-  BG_FindAmmoForWeapon( cent->currentState.weapon, &maxAmmo, &maxClips, NULL );
-  
   // don't display if dead
   if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
     return;
@@ -1504,13 +1470,13 @@ CG_WeaponSelectable
 */
 static qboolean CG_WeaponSelectable( int i )
 {
-  int ammo, clips, maxclips;
+  int ammo, clips;
 
-  BG_UnpackAmmoArray( i, cg.snap->ps.ammo, cg.snap->ps.powerups, &ammo, &clips, &maxclips );
+  BG_UnpackAmmoArray( i, cg.snap->ps.ammo, cg.snap->ps.powerups, &ammo, &clips );
   
   //TA: this is a pain in the ass
-/*  if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( i ) )
-    return qfalse;*/
+  //if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( i ) )
+  //  return qfalse;
   
   if( !BG_InventoryContainsWeapon( i, cg.snap->ps.stats ) )
     return qfalse;

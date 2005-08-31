@@ -3445,6 +3445,7 @@ static void UI_LoadTremHumanArmouryBuys( )
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
     if( BG_FindTeamForUpgrade( i ) == WUT_HUMANS &&
+        BG_FindPurchasableForUpgrade( i ) &&
         BG_FindStagesForUpgrade( i, stage ) &&
         !( BG_FindSlotsForUpgrade( i ) & slots ) &&
         !( upgrades & ( 1 << i ) ) )

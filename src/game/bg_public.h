@@ -233,6 +233,8 @@ typedef enum
 #define SS_BOOSTED              0x00000200
 #define SS_SLOWLOCKED           0x00000400
 #define SS_POISONCLOUDED        0x00000800
+#define SS_MEDKIT_ACTIVE        0x00001000
+#define SS_CHARGING             0x00002000
 
 #define SB_VALID_TOGGLEBIT      0x00004000
 
@@ -369,7 +371,7 @@ typedef enum
 
   UP_LIGHTARMOUR,
   UP_HELMET,
-  UP_ANTITOXIN,
+  UP_MEDKIT,
   UP_BATTPACK,
   UP_JETPACK,
   UP_BATTLESUIT,
@@ -527,7 +529,6 @@ typedef enum
   EV_MISSILE_MISS,
   EV_MISSILE_MISS_METAL,
   EV_TESLATRAIL,
-  EV_ALIENZAP,
   EV_BULLET,        // otherEntity is the shooter
 
   EV_LEV1_GRAB,
@@ -550,8 +551,8 @@ typedef enum
   EV_HUMAN_BUILDABLE_EXPLOSION,
   EV_ALIEN_BUILDABLE_EXPLOSION,
   EV_ALIEN_ACIDTUBE,
-  EV_HUMAN_BUILDABLE_DAMAGE,
-  EV_ALIEN_BUILDABLE_DAMAGE,
+
+  EV_MEDKIT_USED,
 
   EV_ALIEN_EVOLVE,
   EV_ALIEN_EVOLVE_FAILED,
@@ -1031,8 +1032,7 @@ typedef struct
   char      *weaponName;
   char      *weaponHumanName;
 
-  int       quan;
-  int       clips;
+  int       maxAmmo;
   int       maxClips;
   qboolean  infiniteAmmo;
   qboolean  usesEnergy;
@@ -1070,14 +1070,16 @@ typedef struct
 
   char      *icon;
   
+  qboolean  purchasable;
+  
   WUTeam_t  team;
 } upgradeAttributes_t;
 
 
 //TA:
-void      BG_UnpackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int *quan, int *clips, int *maxclips );
-void      BG_PackAmmoArray( int weapon, int ammo[ ], int ammo2[ ], int quan, int clips, int maxclips );
-qboolean  BG_WeaponIsFull( weapon_t weapon, int ammo[ ], int ammo2[ ] );
+void      BG_UnpackAmmoArray( int weapon, int psAmmo[ ], int psAmmo2[ ], int *ammo, int *clips );
+void      BG_PackAmmoArray( int weapon, int psAmmo[ ], int psAmmo2[ ], int ammo, int clips );
+qboolean  BG_WeaponIsFull( weapon_t weapon, int stats[ ], int psAmmo[ ], int psAmmo2[ ] );
 void      BG_AddWeaponToInventory( int weapon, int stats[ ] );
 void      BG_RemoveWeaponFromInventory( int weapon, int stats[ ] );
 qboolean  BG_InventoryContainsWeapon( int weapon, int stats[ ] );
@@ -1175,7 +1177,7 @@ char      *BG_FindModelsForWeapon( int weapon, int modelNum );
 char      *BG_FindIconForWeapon( int weapon );
 char      *BG_FindCrosshairForWeapon( int weapon );
 int       BG_FindCrosshairSizeForWeapon( int weapon );
-void      BG_FindAmmoForWeapon( int weapon, int *quan, int *clips, int *maxClips );
+void      BG_FindAmmoForWeapon( int weapon, int *maxAmmo, int *maxClips );
 qboolean  BG_FindInfinteAmmoForWeapon( int weapon );
 qboolean  BG_FindUsesEnergyForWeapon( int weapon );
 int       BG_FindRepeatRate1ForWeapon( int weapon );
@@ -1197,6 +1199,7 @@ char      *BG_FindNameForUpgrade( int upgrade );
 int       BG_FindUpgradeNumForName( char *name );
 char      *BG_FindHumanNameForUpgrade( int upgrade );
 char      *BG_FindIconForUpgrade( int upgrade );
+qboolean  BG_FindPurchasableForUpgrade( int upgrade );
 WUTeam_t  BG_FindTeamForUpgrade( int upgrade );
 
 // content masks
@@ -1235,6 +1238,7 @@ typedef enum
   ET_ANIMMAPOBJ,
   ET_MODELDOOR,
   ET_LIGHTFLARE,
+  ET_LEV2_ZAP_CHAIN,
 
   ET_EVENTS       // any of the EV_* events can be added freestanding
               // by setting eType to ET_EVENTS + eventNum
