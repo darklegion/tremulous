@@ -421,8 +421,6 @@ struct gclient_s
 
   int                 lastFlameBall;    //TA: s.number of the last flame ball fired
 
-  int                 lastRefilTime;    //TA: last time human got a refil from rpt/rctr
-
 #define RAM_FRAMES  1                       //TA: number of frames to wait before retriggering
   int                 retriggerArmouryMenu; //TA: frame number to retrigger the armoury menu
 };
@@ -796,21 +794,6 @@ void ShineTorch( gentity_t *self );
 // g_weapon.c
 //
 
-/*typedef struct zap_s
-{
-  qboolean      used;
-
-  gentity_t     *creator;
-  gentity_t     *source;
-  gentity_t     *target;
-
-  int           timeToLive;
-
-  int           depth;
-
-  gentity_t     *effectTempEnt;
-} zap_t;*/
-
 #define MAX_ZAP_TARGETS LEVEL2_AREAZAP_MAX_TARGETS
 
 typedef struct zap_s
@@ -826,6 +809,8 @@ typedef struct zap_s
   gentity_t     *effectChannel;
 } zap_t;
 
+void      G_ForceWeaponChange( gentity_t *ent, weapon_t weapon );
+void      G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo );
 void      CalcMuzzlePoint( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint );
 void      SnapVectorTowards( vec3_t v, vec3_t to );
 qboolean  CheckVenomAttack( gentity_t *ent );

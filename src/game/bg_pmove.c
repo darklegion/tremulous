@@ -2587,6 +2587,7 @@ static void PM_BeginWeaponChange( int weapon )
   PM_AddEvent( EV_CHANGE_WEAPON );
   pm->ps->weaponstate = WEAPON_DROPPING;
   pm->ps->weaponTime += 200;
+  pm->ps->persistant[ PERS_NEWWEAPON ] = weapon;
 
   //reset build weapon
   pm->ps->stats[ STAT_BUILDABLE ] = BA_NONE;
@@ -2605,7 +2606,7 @@ static void PM_FinishWeaponChange( void )
 {
   int   weapon;
 
-  weapon = pm->cmd.weapon;
+  weapon = pm->ps->persistant[ PERS_NEWWEAPON ];
   if( weapon < WP_NONE || weapon >= WP_NUM_WEAPONS )
     weapon = WP_NONE;
 
@@ -2716,10 +2717,10 @@ static void PM_Weapon( void )
       pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
     
     //something external thinks a weapon change is necessary
-    if( pm->ps->weapon != pm->cmd.weapon && pm->ps->pm_flags & PMF_WEAPON_SWITCH )
+    if( pm->ps->pm_flags & PMF_WEAPON_SWITCH )
     {
       pm->ps->pm_flags &= ~PMF_WEAPON_SWITCH;
-			PM_BeginWeaponChange( pm->cmd.weapon );
+      PM_BeginWeaponChange( pm->ps->persistant[ PERS_NEWWEAPON ] );
     }
   }
   

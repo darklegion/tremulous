@@ -530,8 +530,6 @@
 #define REPEATER_SPLASHRADIUS       100
 #define REPEATER_INACTIVE_TIME      90000
 
-#define ENERGY_REFIL_TIME           1000 //1/2 second between every clip refil
-
 /*
  * HUMAN misc
  */
@@ -567,3 +565,6 @@
 
 #define DEFAULT_ALIEN_BUILDPOINTS   "100"
 #define DEFAULT_HUMAN_BUILDPOINTS   "100"
+
+#define DAMAGE_FRACTION_FOR_KILL    0.5f //how much damage players (versus structures) need to 
+                                         //do to increment the stage kill counters

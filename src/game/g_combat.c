@@ -227,12 +227,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       AddScore( attacker, 1 );
 
       attacker->client->lastKillTime = level.time;
-      
-      if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-        trap_Cvar_Set( "g_alienKills", va( "%d", g_alienKills.integer + 1 ) );
-      else if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-        trap_Cvar_Set( "g_humanKills", va( "%d", g_humanKills.integer + 1 ) );
-      
     }
   }
   else if( attacker->s.eType != ET_BUILDABLE )
@@ -241,6 +235,15 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   //total up all the damage done by every client
   for( i = 0; i < MAX_CLIENTS; i++ )
     totalDamage += (float)self->credits[ i ];
+  
+  // if players did more than DAMAGE_FRACTION_FOR_KILL increment the stage counters
+  if( totalDamage >= ( self->client->ps.stats[ STAT_MAX_HEALTH ] * DAMAGE_FRACTION_FOR_KILL ) )
+  {
+    if( self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+      trap_Cvar_Set( "g_alienKills", va( "%d", g_alienKills.integer + 1 ) );
+    else if( self->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      trap_Cvar_Set( "g_humanKills", va( "%d", g_humanKills.integer + 1 ) );
+  }
   
   if( totalDamage > 0.0f )
   {

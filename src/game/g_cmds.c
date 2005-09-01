@@ -1379,11 +1379,7 @@ void Cmd_ActivateItem_f( gentity_t *ent )
   if( upgrade != UP_NONE && BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
     BG_ActivateUpgrade( upgrade, ent->client->ps.stats );
   else if( weapon != WP_NONE && BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
-  {
-    //force a weapon change
-    ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
-    G_SendCommandFromServer( ent-g_entities, va( "weaponswitch %d", weapon ) );
-  }
+    G_ForceWeaponChange( ent, weapon );
   else
     G_SendCommandFromServer( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
 }
@@ -1457,9 +1453,7 @@ void Cmd_ToggleItem_f( gentity_t *ent )
         weapon = WP_BLASTER;
     }
       
-    //force a weapon change
-    ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
-    G_SendCommandFromServer( ent-g_entities, va( "weaponswitch %d", weapon ) );
+    G_ForceWeaponChange( ent, weapon );
   }
   else if( BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
   {
@@ -1470,53 +1464,6 @@ void Cmd_ToggleItem_f( gentity_t *ent )
   }
   else
     G_SendCommandFromServer( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
-}
-
-/*
-=================
-G_GiveClientMaxAmmo
-=================
-*/
-static void G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo )
-{
-  int       i;
-  int       maxAmmo, maxClips;
-  qboolean  weaponType;
-
-  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
-  {
-    if( buyingEnergyAmmo )
-      weaponType = BG_FindUsesEnergyForWeapon( i );
-    else
-      weaponType = !BG_FindUsesEnergyForWeapon( i );
-    
-    if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
-        weaponType && !BG_FindInfinteAmmoForWeapon( i ) &&
-        !BG_WeaponIsFull( i, ent->client->ps.stats,
-          ent->client->ps.ammo, ent->client->ps.powerups ) )
-    {
-      BG_FindAmmoForWeapon( i, &maxAmmo, &maxClips );
-      
-      if( buyingEnergyAmmo )
-      {
-        G_AddEvent( ent, EV_RPTUSE_SOUND, 0 );
-        ent->client->lastRefilTime = level.time;
-        
-        if( BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
-          maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
-      }
-      else
-        G_AddEvent( ent, EV_CHANGE_WEAPON, 0 );
-
-      BG_PackAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups,
-                        maxAmmo, maxClips );
-      
-      //force a weapon change
-      //FIXME: needs to work even if weapon is the same
-      //ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
-      //G_SendCommandFromServer( ent-g_entities, va( "weaponswitch %d", ent->client->ps.weapon ) );
-    }
-  }
 }
 
 /*
@@ -1632,9 +1579,7 @@ void Cmd_Buy_f( gentity_t *ent )
     BG_PackAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
                       maxAmmo, maxClips );
 
-    //force a weapon change
-    ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
-    G_SendCommandFromServer( ent-g_entities, va( "weaponswitch %d", weapon ) );
+    G_ForceWeaponChange( ent, weapon );
 
     //set build delay/pounce etc to 0
     ent->client->ps.stats[ STAT_MISC ] = 0;
@@ -1711,10 +1656,6 @@ void Cmd_Buy_f( gentity_t *ent )
     G_SendCommandFromServer( ent-g_entities, va( "print \"Unknown item\n\"" ) );
   }
   
-  //if the buyer previously had no items at all, force a new selection
-  if( numItems == 0 )
-    G_AddEvent( ent, EV_NEXT_WEAPON, ent->client->ps.clientNum );
-  
   if( trap_Argc( ) >= 2 )
   {
     trap_Argv( 2, s, sizeof( s ) );
@@ -1784,11 +1725,7 @@ void Cmd_Sell_f( gentity_t *ent )
 
     //if we have this weapon selected, force a new selection
     if( weapon == ent->client->ps.weapon )
-    {
-      //force a weapon change
-      ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
-      G_SendCommandFromServer( ent-g_entities, va( "weaponswitch %d", WP_BLASTER ) );
-    }
+      G_ForceWeaponChange( ent, WP_NONE );
   }
   else if( upgrade != UP_NONE )
   {
@@ -1809,10 +1746,6 @@ void Cmd_Sell_f( gentity_t *ent )
       //add to funds
       G_AddCreditToClient( ent->client, (short)BG_FindPriceForUpgrade( upgrade ), qfalse );
     }
-    
-    //if we have this upgrade selected, force a new selection
-    if( upgrade == ent->client->pers.cmd.weapon - 32 )
-      G_AddEvent( ent, EV_NEXT_WEAPON, ent->client->ps.clientNum );
   }
   else if( !Q_stricmp( s, "weapons" ) )
   {
@@ -1837,11 +1770,7 @@ void Cmd_Sell_f( gentity_t *ent )
       
       //if we have this weapon selected, force a new selection
       if( i == ent->client->ps.weapon )
-      {
-        //force a weapon change
-        ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
-        G_SendCommandFromServer( ent-g_entities, va( "weaponswitch %d", WP_BLASTER ) );
-      }
+        G_ForceWeaponChange( ent, WP_NONE );
     }
   }
   else if( !Q_stricmp( s, "upgrades" ) )
@@ -1873,10 +1802,6 @@ void Cmd_Sell_f( gentity_t *ent )
         //add to funds
         G_AddCreditToClient( ent->client, (short)BG_FindPriceForUpgrade( i ), qfalse );
       }
-      
-      //if we have this upgrade selected, force a new selection
-      if( i == ent->client->pers.cmd.weapon - 32 )
-        G_AddEvent( ent, EV_NEXT_WEAPON, ent->client->ps.clientNum );
     }
   }
   else

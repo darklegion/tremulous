@@ -21,7 +21,86 @@
 static  vec3_t  forward, right, up;
 static  vec3_t  muzzle;
 
-#define NUM_NAILSHOTS 15
+/*
+================
+G_ForceWeaponChange
+================
+*/
+void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
+{
+  int i;
+  
+  if( ent )
+  {
+    ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
+    
+    if( weapon == WP_NONE )
+    {
+      //switch to the first non blaster weapon
+      for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+      {
+        if( i == WP_BLASTER )
+          continue;
+        
+        if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) )
+        {
+          ent->client->ps.persistant[ PERS_NEWWEAPON ] = i;
+          break;
+        }
+      }
+      
+      //only got the blaster to switch to
+      if( i == WP_NUM_WEAPONS )
+        ent->client->ps.persistant[ PERS_NEWWEAPON ] = WP_BLASTER;
+    }
+    else
+      ent->client->ps.persistant[ PERS_NEWWEAPON ] = weapon;
+  }
+}
+
+/*
+=================
+G_GiveClientMaxAmmo
+=================
+*/
+void G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo )
+{
+  int       i;
+  int       maxAmmo, maxClips;
+  qboolean  weaponType, restoredAmmo = qfalse;
+
+  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+  {
+    if( buyingEnergyAmmo )
+      weaponType = BG_FindUsesEnergyForWeapon( i );
+    else
+      weaponType = !BG_FindUsesEnergyForWeapon( i );
+    
+    if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
+        weaponType && !BG_FindInfinteAmmoForWeapon( i ) &&
+        !BG_WeaponIsFull( i, ent->client->ps.stats,
+          ent->client->ps.ammo, ent->client->ps.powerups ) )
+    {
+      BG_FindAmmoForWeapon( i, &maxAmmo, &maxClips );
+      
+      if( buyingEnergyAmmo )
+      {
+        G_AddEvent( ent, EV_RPTUSE_SOUND, 0 );
+        
+        if( BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
+          maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
+      }
+
+      BG_PackAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups,
+                        maxAmmo, maxClips );
+      
+      restoredAmmo = qtrue;
+    }
+  }
+
+  if( restoredAmmo )
+    G_ForceWeaponChange( ent, ent->client->ps.weapon );
+}
 
 /*
 ================

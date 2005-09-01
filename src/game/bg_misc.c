@@ -4394,7 +4394,6 @@ char *eventnames[ ] =
 
   "EV_NOAMMO",
   "EV_CHANGE_WEAPON",
-  "EV_NEXT_WEAPON",
   "EV_FIRE_WEAPON",
   "EV_FIRE_WEAPON2",
   "EV_FIRE_WEAPON3",

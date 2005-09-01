@@ -1457,12 +1457,12 @@ void ATrapper_Think( gentity_t *self )
 
 /*
 ================
-HRpt_Think
+HRepeater_Think
 
 Think for human power repeater
 ================
 */
-void HRpt_Think( gentity_t *self )
+void HRepeater_Think( gentity_t *self )
 {
   int       i;
   qboolean  reactor = qfalse;
@@ -1499,43 +1499,20 @@ void HRpt_Think( gentity_t *self )
 
 /*
 ================
-HRpt_Use
+HRepeater_Use
 
 Use for human power repeater
 ================
 */
-void HRpt_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
+void HRepeater_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-  int           maxAmmo, maxClips;
-  weapon_t      weapon;
-  playerState_t *ps = &activator->client->ps;
-  
-  weapon = ps->weapon;
-
   if( self->health <= 0 )
     return;
 
   if( !self->spawned )
     return;
   
-  if( activator->client->lastRefilTime + ENERGY_REFIL_TIME > level.time )
-    return;
-  
-  if( !BG_FindUsesEnergyForWeapon( weapon ) )
-    return;
-  
-  if( !BG_WeaponIsFull( weapon, ps->stats, ps->ammo, ps->powerups ) )
-  {
-    BG_FindAmmoForWeapon( weapon, &maxAmmo, &maxClips );
-    
-    if( BG_InventoryContainsUpgrade( UP_BATTPACK, ps->stats ) )
-      maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
-
-    BG_PackAmmoArray( weapon, ps->ammo, ps->powerups, maxAmmo, maxClips );
-
-    G_AddEvent( activator, EV_RPTUSE_SOUND, 0 );
-    activator->client->lastRefilTime = level.time;
-  }
+  G_GiveClientMaxAmmo( self, qtrue );
 }
 
 
@@ -2717,14 +2694,14 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
     case BA_H_REACTOR:
       built->think = HReactor_Think;
       built->die = HSpawn_Die;
-      built->use = HRpt_Use;
+      built->use = HRepeater_Use;
       built->powered = built->active = qtrue;
       break;
       
     case BA_H_REPEATER:
-      built->think = HRpt_Think;
+      built->think = HRepeater_Think;
       built->die = HSpawn_Die;
-      built->use = HRpt_Use;
+      built->use = HRepeater_Use;
       built->count = -1;
       break;
       

@@ -1312,6 +1312,42 @@ WEAPON SELECTION
 ==============================================================================
 */
 
+/*
+===============
+CG_WeaponSelectable
+===============
+*/
+static qboolean CG_WeaponSelectable( int i )
+{
+  int ammo, clips;
+
+  BG_UnpackAmmoArray( i, cg.snap->ps.ammo, cg.snap->ps.powerups, &ammo, &clips );
+  
+  //TA: this is a pain in the ass
+  //if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( i ) )
+  //  return qfalse;
+  
+  if( !BG_InventoryContainsWeapon( i, cg.snap->ps.stats ) )
+    return qfalse;
+
+  return qtrue;
+}
+
+
+/*
+===============
+CG_UpgradeSelectable
+===============
+*/
+static qboolean CG_UpgradeSelectable( int i )
+{
+  if( !BG_InventoryContainsUpgrade( i, cg.snap->ps.stats ) )
+    return qfalse;
+
+  return qtrue;
+}
+
+
 #define ICON_BORDER 4
 
 /*
@@ -1342,6 +1378,12 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
   if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
     return;
 
+  // first make sure that whatever it selected is actually selectable
+  if( cg.weaponSelect <= 32 && !CG_WeaponSelectable( cg.weaponSelect ) )
+    CG_NextWeapon_f( );
+  else if( cg.weaponSelect > 32 && !CG_UpgradeSelectable( cg.weaponSelect ) )
+    CG_NextWeapon_f( );
+  
   // showing weapon select clears pickup item display, but not the blend blob
   cg.itemPickupTime = 0;
 
@@ -1460,42 +1502,6 @@ void CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
   }
 
   trap_R_SetColor( NULL );
-}
-
-
-/*
-===============
-CG_WeaponSelectable
-===============
-*/
-static qboolean CG_WeaponSelectable( int i )
-{
-  int ammo, clips;
-
-  BG_UnpackAmmoArray( i, cg.snap->ps.ammo, cg.snap->ps.powerups, &ammo, &clips );
-  
-  //TA: this is a pain in the ass
-  //if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( i ) )
-  //  return qfalse;
-  
-  if( !BG_InventoryContainsWeapon( i, cg.snap->ps.stats ) )
-    return qfalse;
-
-  return qtrue;
-}
-
-
-/*
-===============
-CG_UpgradeSelectable
-===============
-*/
-static qboolean CG_UpgradeSelectable( int i )
-{
-  if( !BG_InventoryContainsUpgrade( i, cg.snap->ps.stats ) )
-    return qfalse;
-
-  return qtrue;
 }
 
 

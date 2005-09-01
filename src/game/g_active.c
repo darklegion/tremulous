@@ -871,9 +871,6 @@ void ClientEvents( gentity_t *ent, int oldEventSequence )
           
           BG_RemoveWeaponFromInventory( ent->s.weapon, ent->client->ps.stats );
           
-          //force a weapon change
-          ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
-          
           //switch to the first non blaster weapon
           for( j = WP_NONE + 1; j < WP_NUM_WEAPONS; j++ )
           {
@@ -882,14 +879,14 @@ void ClientEvents( gentity_t *ent, int oldEventSequence )
             
             if( BG_InventoryContainsWeapon( j, ent->client->ps.stats ) )
             {
-              G_SendCommandFromServer( ent - g_entities, va( "weaponswitch %d", j ) );
+              G_ForceWeaponChange( ent, j );
               break;
             }
           }
           
           //only got the blaster to switch to
           if( j == WP_NUM_WEAPONS )
-            G_SendCommandFromServer( ent - g_entities, va( "weaponswitch %d", WP_BLASTER ) );
+            G_ForceWeaponChange( ent, WP_BLASTER );
   
           //update ClientInfo
           ClientUserinfoChanged( ent->client->ps.clientNum );

@@ -257,9 +257,10 @@ typedef enum
 
   //TA:
   PERS_STATE,
-  PERS_CREDIT,    //TA: human credit
-  PERS_BANK,      //TA: human credit in the bank
-  PERS_QUEUEPOS   //TA: position in the spawn queue
+  PERS_CREDIT,    // human credit
+  PERS_BANK,      // human credit in the bank
+  PERS_QUEUEPOS,  // position in the spawn queue
+  PERS_NEWWEAPON  // weapon to switch to
 } persEnum_t;
 
 #define PS_WALLCLIMBINGFOLLOW   0x00000001
@@ -506,7 +507,6 @@ typedef enum
 
   EV_NOAMMO,
   EV_CHANGE_WEAPON,
-  EV_NEXT_WEAPON,
   EV_FIRE_WEAPON,
   EV_FIRE_WEAPON2,
   EV_FIRE_WEAPON3,

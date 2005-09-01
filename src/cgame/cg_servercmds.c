@@ -1057,6 +1057,7 @@ static void CG_ServerCommand( void )
 
   if( !strcmp( cmd, "weaponswitch" ) )
   {
+    CG_Printf( "client weaponswitch\n" );
     if( trap_Argc( ) == 2 )
     {
       cg.weaponSelect = atoi( CG_Argv( 1 ) );
