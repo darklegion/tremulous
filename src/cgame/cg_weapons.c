@@ -1317,17 +1317,17 @@ WEAPON SELECTION
 CG_WeaponSelectable
 ===============
 */
-static qboolean CG_WeaponSelectable( int i )
+static qboolean CG_WeaponSelectable( weapon_t weapon )
 {
-  int ammo, clips;
-
-  BG_UnpackAmmoArray( i, cg.snap->ps.ammo, cg.snap->ps.powerups, &ammo, &clips );
-  
+  //int ammo, clips;
+  //
+  //BG_UnpackAmmoArray( i, cg.snap->ps.ammo, cg.snap->ps.powerups, &ammo, &clips );
+  //
   //TA: this is a pain in the ass
   //if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( i ) )
   //  return qfalse;
   
-  if( !BG_InventoryContainsWeapon( i, cg.snap->ps.stats ) )
+  if( !BG_InventoryContainsWeapon( weapon, cg.snap->ps.stats ) )
     return qfalse;
 
   return qtrue;
@@ -1339,9 +1339,9 @@ static qboolean CG_WeaponSelectable( int i )
 CG_UpgradeSelectable
 ===============
 */
-static qboolean CG_UpgradeSelectable( int i )
+static qboolean CG_UpgradeSelectable( upgrade_t upgrade )
 {
-  if( !BG_InventoryContainsUpgrade( i, cg.snap->ps.stats ) )
+  if( !BG_InventoryContainsUpgrade( upgrade, cg.snap->ps.stats ) )
     return qfalse;
 
   return qtrue;
@@ -1378,11 +1378,14 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
   if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
     return;
 
-  // first make sure that whatever it selected is actually selectable
-  if( cg.weaponSelect <= 32 && !CG_WeaponSelectable( cg.weaponSelect ) )
-    CG_NextWeapon_f( );
-  else if( cg.weaponSelect > 32 && !CG_UpgradeSelectable( cg.weaponSelect ) )
-    CG_NextWeapon_f( );
+  if( !( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
+  {
+    // first make sure that whatever it selected is actually selectable
+    if( cg.weaponSelect <= 32 && !CG_WeaponSelectable( cg.weaponSelect ) )
+      CG_NextWeapon_f( );
+    else if( cg.weaponSelect > 32 && !CG_UpgradeSelectable( cg.weaponSelect ) )
+      CG_NextWeapon_f( );
+  }
   
   // showing weapon select clears pickup item display, but not the blend blob
   cg.itemPickupTime = 0;
