@@ -1195,6 +1195,10 @@ void areaZapFire( gentity_t *ent )
   trace_t   tr;
   vec3_t    end;
   gentity_t *traceEnt;
+  vec3_t    mins, maxs;
+
+  VectorSet( mins, -LEVEL2_AREAZAP_WIDTH, -LEVEL2_AREAZAP_WIDTH, -LEVEL2_AREAZAP_WIDTH );
+  VectorSet( maxs, LEVEL2_AREAZAP_WIDTH, LEVEL2_AREAZAP_WIDTH, LEVEL2_AREAZAP_WIDTH );
 
   // set aiming directions
   AngleVectors( ent->client->ps.viewangles, forward, right, up );
@@ -1203,7 +1207,8 @@ void areaZapFire( gentity_t *ent )
 
   VectorMA( muzzle, LEVEL2_AREAZAP_RANGE, forward, end );
 
-  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+  trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
+  
   if( tr.surfaceFlags & SURF_NOIMPACT )
     return;
 
@@ -1259,7 +1264,7 @@ qboolean CheckPounceAttack( gentity_t *ent )
 
   VectorMA( muzzle, LEVEL3_POUNCE_RANGE, forward, end );
 
-  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+  trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
 
   //miss
   if( tr.fraction >= 1.0 )

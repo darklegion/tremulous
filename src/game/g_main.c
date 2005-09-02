@@ -521,6 +521,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
     &level.clients[ 0 ].ps, sizeof( level.clients[ 0 ] ) );
 
+  trap_SetConfigstring( CS_INTERMISSION, "0" );
+  
   // parse the key/value pairs and spawn gentities
   G_SpawnEntitiesFromString( );
 
@@ -1564,7 +1566,7 @@ void CheckIntermissionExit( void )
     if( cl->pers.connected != CON_CONNECTED )
       continue;
     
-    if( cl->sess.sessionTeam == TEAM_SPECTATOR )
+    if( cl->ps.stats[ STAT_PTEAM ] == PTE_NONE )
       continue;
 
     if( g_entities[ cl->ps.clientNum ].r.svFlags & SVF_BOT )
