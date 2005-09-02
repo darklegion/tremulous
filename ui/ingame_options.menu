@@ -236,6 +236,26 @@
         play "sound/misc/menu1.wav"; 
       }
     }
+    
+    itemDef
+    {
+      name game				
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Wallwalk Control Toggles:"
+      cvar "cg_wwToggle"
+      rect 90 195 192 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 128
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
+    }
 
     itemDef
     {
@@ -244,7 +264,7 @@
       type ITEM_TYPE_YESNO
       text "Disable Warning Dialogs:"
       cvar "cg_disableWarningDialogs"
-      rect 90 195 192 15
+      rect 90 210 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128 
       textaligny 12
