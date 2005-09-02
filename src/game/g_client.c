@@ -1052,6 +1052,14 @@ void ClientUserinfoChanged( int clientNum )
   else
     client->ps.persistant[ PERS_STATE ] &= ~PS_WALLCLIMBINGFOLLOW;
 
+  // wallwalk toggle
+  s = Info_ValueForKey( userinfo, "cg_wwToggle" );
+  
+  if( atoi( s ) )
+    client->ps.persistant[ PERS_STATE ] |= PS_WALLCLIMBINGTOGGLE;
+  else
+    client->ps.persistant[ PERS_STATE ] &= ~PS_WALLCLIMBINGTOGGLE;
+
   // teamInfo
   s = Info_ValueForKey( userinfo, "teamoverlay" );
   

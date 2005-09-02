@@ -194,6 +194,7 @@ vmCvar_t  cg_drawBBOX;
 vmCvar_t  cg_debugAlloc;
 vmCvar_t  cg_wwSmoothTime;
 vmCvar_t  cg_wwFollow;
+vmCvar_t  cg_wwToggle;
 vmCvar_t  cg_depthSortParticles;
 vmCvar_t  cg_consoleLatency;
 vmCvar_t  cg_lightFlare;
@@ -298,6 +299,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_debugAlloc, "cg_debugAlloc", "0", 0 },
   { &cg_wwSmoothTime, "cg_wwSmoothTime", "300", CVAR_ARCHIVE },
   { &cg_wwFollow, "cg_wwFollow", "1", CVAR_ARCHIVE|CVAR_USERINFO },
+  { &cg_wwToggle, "cg_wwToggle", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_depthSortParticles, "cg_depthSortParticles", "1", CVAR_ARCHIVE },
   { &cg_consoleLatency, "cg_consoleLatency", "3000", CVAR_ARCHIVE },
   { &cg_lightFlare, "cg_lightFlare", "3", CVAR_ARCHIVE },

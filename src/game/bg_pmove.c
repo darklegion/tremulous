@@ -1997,18 +1997,28 @@ static void PM_GroundTrace( void )
 
   if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) )
   {
-    //toggle wall climbing if holding crouch
-    if( pm->cmd.upmove < 0 && !( pm->ps->pm_flags & PMF_CROUCH_HELD ) )
+    if( pm->ps->persistant[ PERS_STATE ] & PS_WALLCLIMBINGTOGGLE )
     {
-      if( !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
-        pm->ps->stats[ STAT_STATE ] |= SS_WALLCLIMBING;
-      else if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
-        pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
+      //toggle wall climbing if holding crouch
+      if( pm->cmd.upmove < 0 && !( pm->ps->pm_flags & PMF_CROUCH_HELD ) )
+      {
+        if( !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
+          pm->ps->stats[ STAT_STATE ] |= SS_WALLCLIMBING;
+        else if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
+          pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
 
-      pm->ps->pm_flags |= PMF_CROUCH_HELD;
+        pm->ps->pm_flags |= PMF_CROUCH_HELD;
+      }
+      else if( pm->cmd.upmove >= 0 )
+        pm->ps->pm_flags &= ~PMF_CROUCH_HELD;
     }
-    else if( pm->cmd.upmove >= 0 )
-      pm->ps->pm_flags &= ~PMF_CROUCH_HELD;
+    else
+    {
+      if( pm->cmd.upmove < 0 )
+        pm->ps->stats[ STAT_STATE ] |= SS_WALLCLIMBING;
+      else if( pm->cmd.upmove >= 0 )
+        pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
+    }
 
     if( pm->ps->pm_type == PM_DEAD )
       pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;

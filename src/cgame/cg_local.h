@@ -1462,6 +1462,7 @@ extern  vmCvar_t    cg_drawBBOX;
 extern  vmCvar_t    cg_debugAlloc;
 extern  vmCvar_t    cg_wwSmoothTime;
 extern  vmCvar_t    cg_wwFollow;
+extern  vmCvar_t    cg_wwToggle;
 extern  vmCvar_t    cg_depthSortParticles;
 extern  vmCvar_t    cg_consoleLatency;
 extern  vmCvar_t    cg_lightFlare;
