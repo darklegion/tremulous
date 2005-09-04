@@ -30,7 +30,7 @@
 
 \layout Title
 
-TREMULOUS 1.0
+TREMULOUS 1.0.1
 \layout Standard
 
 
@@ -53,7 +53,7 @@ Tremulous is a first person shooter featuring two opposing teams, humans
 \layout Standard
 
 Each team in Tremulous differs fundamentally from the other.
- The aliens are class based, with two classes initially available; the alien
+ The aliens are class based, with two classes initially available: the alien
  team's builder, known as the Granger, and the Dretch, the weakest offensive
  alien.
  The aliens are awarded frags for killing their foes which may be used to
@@ -69,8 +69,8 @@ During a game of Tremulous, each team occupies one of three stages of developmen
 t.
  These stages are reached by accruing more than a specific total number
  of kills by the whole team.
- Each new stage unlocks classes, upgrades and buildable structures.
- If one team reaches a stage significantly earlier than the other team,
+ Each new stage unlocks new classes, upgrades and buildable structures.
+ If one team reaches a stage significantly earlier than the other team
  it stands a better chance of defeating the opposing team.
 \layout Standard
 
@@ -101,7 +101,7 @@ Game
 Aliens
 \layout Standard
 
-Two classes are available upon joining the alien team; the Dretch and the
+Two classes are available upon joining the alien team: the Dretch and the
  Granger.
  As you gain kills, you may use your earned frags to evolve into higher
  classes with the 
@@ -296,27 +296,27 @@ Granger
 Primary Attack
 \noun default 
  will bring up a menu of structures available for building.
- After selecting a structure, a glowing outline of it will appear.
- When this outline is green, you can use the 
+ After selecting a structure a glowing outline of it will appear.
+ When this outline is green you can use the 
 \noun on 
 Primary Attack
 \noun default 
  button to place it.
- The outline changes to red, to indicate that the structure cannot currently
- be placed in that location.
- To cancel placing the structure, press the 
+ The outline changes to red when the structure cannot be placed
+ in its current location.
+ To cancel placing the structure press the 
 \noun on 
 Secondary Attack
 \noun default 
  button.
- To remove a placed structure, use the 
+ To remove a placed structure use the 
 \noun on 
 Deconstruct Structure
 \noun default 
  button.
- After building or deconstructing a structure, a timer will show up in the
- lower right side of the screen.
- Until this timer expires, you cannot create or destroy another object.
+ After building or deconstructing a structure a timer will appear in the
+ lower right corner of the screen.
+ Until this timer expires you cannot create or destroy another building.
 \layout Standard
 \align center 
 
@@ -1253,12 +1253,12 @@ The
 \emph on 
 Marauder
 \emph default 
- attacks by using the 
+ attacks with the 
 \noun on 
 Primary Attack
 \noun default 
  button and has the ability to rebound off walls.
- To use this ability, jump towards a wall and hold down the 
+ To use this ability jump towards a wall and hold down the 
 \noun on 
 Jump
 \noun default 
@@ -1441,14 +1441,15 @@ Marauder's
 \emph on 
 Advanced Marauder
 \emph default 
- can use an area electrical attack.
+ can use a chain lightning attack.
  To use this, press the 
 \noun on 
 Secondary Attack
 \noun default 
- button while near humans or human structures.
- The electric shock will automatically divide between every target within
- range.
+ button while aiming at a nearby human or human structure. If it connects the
+ electric shock will jump to up to two other nearby targets doing full damage to the
+ first, half damage to the second and one third damage to the third over a period of one
+ second provided the attacker stays within range.
 \layout Standard
 \align center 
 
@@ -1615,7 +1616,7 @@ Secondary Attack
 \noun on 
 Secondary Attack
 \noun default 
- button to charge up, then release it to leap forward and damage anything
+ button to charge up, then release to leap forward and damage anything
  that gets in the way.
  While charging you will be unable to jump normally and will move at a reduced
  rate.
@@ -1801,14 +1802,8 @@ Advanced Dragoon
 \noun on 
 Activate Upgrade
 \noun default 
- button.
- The 
-\emph on 
-Advanced Dragoon
-\emph default 
- can hold up to three of these barbs at a time.
- They regenerate automatically over time or are replenished immediately
- by touching a 
+ button. Up to three of these barbs may be held in reserve and
+ they regenerate automatically over time or instantly by touching a 
 \emph on 
 Booster
 \emph default 
@@ -2003,8 +1998,7 @@ Secondary Attack
 \emph on 
 Tyrant
 \emph default 
- also has a healing aura that will increase the regeneration rate of any
- nearby aliens.
+ also has a healing aura that will double the regeneration rate of lower class aliens within range.
 \layout Subsubsection
 
 Structures
@@ -2024,15 +2018,17 @@ Overmind
 Eggs
 \emph default 
  as the only exception, all alien structures require the presence of an
- 
 \emph on 
 Overmind
 \emph default 
  to function.
- All alien structures create `creep' around their bases that slows human
- movement.
+ All alien structures create `creep' around their bases that slows human movement.
  When destroyed, alien structures explode in a shower of acid harmful to
- humans.
+ humans. All structures may be built on level floors and when 
+\emph on 
+Advanced Grangers
+\emph default 
+ become available some structures may also be built on walls and ceilings.
 \layout Standard
 \align center 
 
@@ -2119,12 +2115,8 @@ Overmind
 \emph on 
 Overmind
 \emph default 
-, and it must be present before any structures other than 
-\emph on 
-Eggs
-\emph default 
- can be built.
- If the 
+ and it must be operational before any other structures
+ can be built. If the 
 \emph on 
 Overmind
 \emph default 
@@ -2142,7 +2134,7 @@ Overmind
 \emph on 
 Overmind
 \emph default 
- has a limited amount of `sentience' which is distributed among every other
+ has a limited amount of `sentience' which is distributed amongst every other
  structure built, each having its own cost.
 \layout Standard
 \align center 
@@ -2224,27 +2216,18 @@ The
 \emph on 
 Egg
 \emph default 
- is the most basic and important alien structure.
- It is from these that aliens spawn into the game.
+ is the most basic and important alien structure;
+ it is from these that aliens spawn into the game.
  They are also the only structure that continues to function in the absence
  of an 
 \emph on 
 Overmind
 \emph default 
-, and may even be built at a reduced rate without an 
-\emph on 
-Overmind
-\emph default 
- present.
- When 
-\emph on 
-Advanced Grangers
-\emph default 
- become available 
+. 
 \emph on 
 Eggs
 \emph default 
- may also be built on ceilings.
+ may be built on ceilings.
 \layout Standard
 \align center 
 
@@ -2325,16 +2308,11 @@ Stage: 1
 \emph on 
 Acid Tubes
 \emph default 
- are the primary defense mode for alien bases.
+ are the primary defensive structure for the alien team.
  When approached by a human they eject lethal acid in all directions, even
  over other structures.
- When 
 \emph on 
-Advanced Grangers
-\emph default 
- become available 
-\emph on 
-Acid Tubes
+ Acid Tubes
 \emph default 
  may be built on walls and ceilings.
 \layout Standard
@@ -2495,19 +2473,18 @@ Stage: 2
 
 
 \emph on 
-Trappers
+ Trappers
 \emph default 
- fire a blob of adhesive spit at any human in their line of sight.
- This freezes them in place and, if they're not wearing a 
+ fire a blob of adhesive spit at any human in their line of sight, freezing them in place
+ and, if they're not wearing a 
 \emph on 
 Battlesuit
 \emph default 
-, restricts their ability to turn.
- 
+ , restricts their ability to turn.
 \emph on 
-Trappers 
+ Trappers 
 \emph default 
-are most useful when built on walls and ceilings.
+ may be built on walls and ceilings, and are rarely effective when built on floors.
 \layout Standard
 \align center 
 
@@ -2586,12 +2563,11 @@ Any alien that touches a
 \emph on 
 Booster
 \emph default 
- is provided with a poison enhancement on all melee attacks for a limited
+ is provided with a poison enhancement on all their melee attacks for a limited
  time.
- This causes victims to lose health steadily over time unless they use an
- 
+ Poison causes victims to lose health steadily over time unless they use a
 \emph on 
-Anti-toxin
+Medkit
 \emph default 
  or visit a 
 \emph on 
@@ -2611,7 +2587,16 @@ Booster
 \emph on 
 Advanced Dragoon's
 \emph default 
- spike barbs and increase the regeneration rate of any nearby aliens.
+ spike barbs and double the regeneration rate of any nearby aliens with the exception
+ of
+\emph on
+Tyrants
+\emph default
+ . The healing aura of
+\emph on
+Tyrants
+\emph off
+ does not stack with the healing effect of boosters.
 \layout Standard
 \align center 
 
@@ -2696,7 +2681,7 @@ Hovels
 \emph on 
 Grangers
 \emph default 
- may hide in, should the need arise.
+ may hide in should the need arise.
  They may be entered and exited with the 
 \noun on 
 Use Structure/Evolve
@@ -2783,7 +2768,7 @@ Stage: 3
 Hives
 \emph default 
  house millions of tiny insectoid aliens.
- When a human approaches the structure, the insects attack.
+ When a human approaches the structure the insects attack.
  
 \emph on 
 Hives
@@ -2797,7 +2782,7 @@ Humans
 Weapons
 \layout Standard
 
-The humans may spawn with either the 
+Humans may spawn with either the 
 \emph on 
 Construction Kit
 \emph default 
@@ -2806,7 +2791,7 @@ Construction Kit
 Rifle
 \emph default 
 .
- As credits are earned, the humans may sell their old upgrades and purchase
+ As credits are earned, humans may sell their old upgrades and purchase
  new ones at an 
 \emph on 
 Armoury
@@ -2928,8 +2913,7 @@ Attack
 Primary Attack
 \noun default 
  button will place it.
- When the outline is red, the structure cannot currently be placed in that
- location.
+ When the outline is red, the structure cannot be placed in its current location.
  To cancel placing the structure, press the 
 \noun on 
 Secondary Attack
@@ -2941,7 +2925,7 @@ Deconstruct Structure
 \noun default 
  button.
  After building or deconstructing a structure, a timer will show up in the
- lower right side of the screen.
+ lower right corner of the screen.
  Until this timer expires, you cannot create, destroy or repair any structures.
  Damaged structures may otherwise be repaired with the 
 \noun on 
@@ -3199,7 +3183,7 @@ Rifle
 \emph default 
  is the human team's most basic weapon and is available from spawning.
  It rapidly fires moderately accurate shots with clip sizes of 30.
- Up to 4 extra clips may be carried at a time.
+ Up to 6 extra clips may be carried at a time.
 \layout Standard
 \align center 
 
@@ -3363,7 +3347,7 @@ The
 Shotgun
 \emph default 
  fires 8 pellets at a wide angle and is thus best used in close quarters.
- It holds 8 shots per clip and 2 extra clips may be carried at a time.
+ It holds 8 shots per clip and 3 extra clips may be carried at a time.
 \layout Standard
 \align center 
 
@@ -3448,7 +3432,7 @@ Las Gun
 \emph on 
 Rifle
 \emph default 
- but is more powerful, accurate and slower to fire.
+ but is more powerful, accurate, slower to fire and uses no clips.
  It is an energy weapon and so must be refilled at a 
 \emph on 
 Reactor
@@ -3458,7 +3442,7 @@ Reactor
 Repeater
 \emph default 
 .
- It can hold up to 150 cells at a time, or 225 with a 
+ It can hold up to 200 cells at a time, or 300 with a 
 \emph on 
 Battery Pack
 \emph default 
@@ -3549,7 +3533,7 @@ Mass Driver
 Battery Pack
 \emph default 
 .
- Up to 3 extra clips may be carried at a time.
+ Up to 4 extra clips may be carried at a time.
 \layout Standard
 \align center 
 
@@ -3631,7 +3615,7 @@ The
 Chaingun
 \emph default 
  is a powerful, wildly inaccurate rapid-fire weapon.
- It holds up to 200 bullets at a time and is best used when crouching to
+ It holds up to 300 bullets at a time and is best used when crouching to
  reduce its kickback.
  Humans equipped with a 
 \emph on 
@@ -3724,7 +3708,7 @@ Pulse Rifle
 Battery Pack
 \emph default 
 .
- Up to 2 extra clips may be carried at a time.
+ Up to 4 extra clips may be carried at a time.
 \layout Standard
 \align center 
 
@@ -3782,7 +3766,7 @@ Grenade
 
 \layout Standard
 
-Cost: 300
+Cost: 200
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -3894,8 +3878,7 @@ The
 Flamethrower
 \emph default 
  is a short range incendiary weapon.
- It can hold up to 80 shots at a time and can easily damage the careless
- wielder.
+ It holds up to 150 shots at a time and can easily damage the careless wielder.
 \layout Standard
 \align center 
 
@@ -3977,8 +3960,7 @@ The
 Lucifer Cannon
 \emph default 
  is the human team's most devastating weapon.
- It is an energy weapon that can hold up to 60 cells at a time, or 80 with
- a 
+ It is an energy weapon that can hold up to 90 cells at a time, or 135 with a 
 \emph on 
 Battery Pack
 \emph default 
@@ -3989,9 +3971,9 @@ Primary Attack
 \noun default 
  button, a player may charge up a powerful, slow moving projectile with
  splash damage.
- The longer the attack is charged, the more powerful the projectile and
+ The longer the attack is charged the more powerful the projectile and
  the more ammo used.
- If the attack is charged for too long, the weapon will explode, damaging
+ If the attack is charged for too long the weapon will explode, damaging
  the player.
  The 
 \noun on 
@@ -4128,7 +4110,7 @@ Stage: 1
 \emph on 
 Light Armour
 \emph default 
- grants the wearer improved defense to the torso area.
+ grants the wearer improved defense to the torso and leg areas.
 \layout Standard
 \align center 
 
@@ -4227,7 +4209,7 @@ Helmet
 
 
 \emph on 
-Anti-toxin
+Medkit
 \end_inset 
 </cell>
 <cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -4244,7 +4226,7 @@ Anti-toxin
 
 \layout Standard
 
-Cost: 20
+Cost: 0
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -4265,19 +4247,33 @@ Stage: 1
 
 
 \emph on 
-Anti-toxin
+Medkits
 \emph default 
- can be applied to neutralize the alien's life-draining poison by using
- the 
+ are a free holdable given to every human upon spawning and refilled at
+\emph on
+Medistations
+\emph default
+ to players with full health. They may not be refilled or exchanged at
+\emph on
+ Armouries
+\emph default
+ . When used with the
 \noun on 
 Activate Upgrade
 \noun default 
- button.
- One 
+ button,
 \emph on 
-Anti-toxin
+Medkits
 \emph default 
- is good for a single application.
+ immediately begin restoring health at a slow rate, gradually speeding up until all damage incurred before the
+\emph on 
+Medkit
+\emph default
+ was activated is healed. Additionally, if a human is poisoned, using a
+\emph on 
+Medkit
+\emph default
+ will cure the poison and confer a 30 second immunity to poison.
 \layout Standard
 \align center 
 
@@ -4359,11 +4355,7 @@ The
 Battery Pack
 \emph default 
  increases the maximum ammo capacity of energy weapons by 50%.
- The 
-\emph on 
-Battery Pack
-\emph default 
- may not be used in conjunction with the 
+ It may not be used in conjunction with the 
 \emph on 
 Jet Pack
 \emph default 
@@ -4461,7 +4453,7 @@ Jump
 \noun on 
 Crouch
 \noun default 
- buttons respectively.
+ buttons, respectively.
  The 
 \emph on 
 Jet Pack
@@ -4471,7 +4463,7 @@ Jet Pack
 Reactor 
 \emph default 
 present.
- Additionally, it temporarily cuts out if the player receives any damage.
+ Additionally it temporarily cuts out if the player receives any damage.
  The 
 \emph on 
 Jet Pack
@@ -4799,13 +4791,13 @@ The
 \emph on 
 Telenode
 \emph default 
- is the most basic and fundamental human structure.
- It is from these that humans spawn into the game.
- They may even be built at a reduced rate when no 
+ is the most basic and fundamental human structure;
+ it is from these that humans spawn into the game.
+ They are also the only structure that continues to function in the absence of a
 \emph on 
 Reactor
 \emph default 
- is present.
+.
 \layout Standard
 \align center 
 
@@ -5252,7 +5244,14 @@ Medistation
  provides the only means for humans to heal themselves.
  By standing on one, a human will quickly regenerate health up to their
  maximum of 100.
- Only one person may use a 
+\emph on
+Medistations
+\emph default
+ will also refill
+\emph on
+Medkits
+\emph default
+ to humans with full health. Only one person may use a 
 \emph on 
 Medistation
 \emph default 
@@ -6028,7 +6027,7 @@ As a builder class, build the specified structure.
  -- 
 \emph on 
 blaster, rifle, ckit, ackit, shotgun, lgun, prifle, mdriver, flamer, chaingun,
- lcannon, psaw, gren, atoxin, jetpack
+ lcannon, psaw, gren, medkit, jetpack
 \layout Standard
 
 
