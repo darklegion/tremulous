@@ -683,10 +683,26 @@ void G_Sound( gentity_t *ent, int channel, int soundIndex )
 }
 
 
-#define MAX_QUEUE_ELEMENTS MAX_CLIENTS * MAX_QUEUE_COMMANDS
+/*
+=============
+G_ClientIsLagging
+=============
+*/
+qboolean G_ClientIsLagging( gclient_t *client )
+{
+  if( client )
+  {
+    if( client->ps.ping >= 999 )
+      return qtrue;
+    else
+      return qfalse;
+  }
 
-static commandQueueElement_t  queuedCommandElements[ MAX_QUEUE_ELEMENTS ];
-static commandQueue_t         queuedCommands[ MAX_CLIENTS ];
+  return qfalse; //is a non-existant client lagging? woooo zen
+}
+
+
+static commandQueue_t queuedCommands[ MAX_CLIENTS ];
 
 /*
 ===============
@@ -728,9 +744,9 @@ static void G_PushCommandQueue( commandQueue_t *cq, const char *cmd )
 {
   int i;
 
-  for( i = 0; i < MAX_QUEUE_ELEMENTS; i++ )
+  for( i = 0; i < MAX_QUEUE_COMMANDS; i++ )
   {
-    commandQueueElement_t *cqe = &queuedCommandElements[ i ];
+    commandQueueElement_t *cqe = &cq->pool[ i ];
 
     if( !cqe->used )
     {
@@ -806,9 +822,10 @@ void G_ProcessCommandQueues( void )
 
   for( i = 0; i < MAX_CLIENTS; i++ )
   {
-    commandQueue_t *cq = &queuedCommands[ i ];
+    gclient_t       *cl = &level.clients[ i ];
+    commandQueue_t  *cq = &queuedCommands[ i ];
 
-    if( G_ReadyToDequeue( cq ) )
+    if( !G_ClientIsLagging( cl ) && G_ReadyToDequeue( cq ) )
     {
       const char *command = G_PopCommandQueue( cq );
     
@@ -825,12 +842,20 @@ G_InitCommandQueue
 */
 void G_InitCommandQueue( int clientNum )
 {
-  commandQueue_t *cq = &queuedCommands[ clientNum ];
+  int             i;
+  commandQueue_t  *cq = &queuedCommands[ clientNum ];
   
   if( clientNum >= 0 && clientNum < MAX_CLIENTS )
   {
     cq->front = cq->back = NULL;
     cq->nextCommandTime = 0;
+    
+    for( i = 0; i < MAX_QUEUE_COMMANDS; i++ )
+    {
+      commandQueueElement_t *cqe = &cq->pool[ i ];
+
+      cqe->used = qfalse;
+    }
   }
 }
 
@@ -857,7 +882,9 @@ void G_SendCommandFromServer( int clientNum, const char *cmd )
   
   if( cq )
   {
-    if( cq->nextCommandTime > level.time )
+    gclient_t *cl = &level.clients[ clientNum ];
+    
+    if( cq->nextCommandTime > level.time || G_ClientIsLagging( cl ) )
     {
       //can't send yet, so queue the command up
       G_PushCommandQueue( cq, cmd );
@@ -868,7 +895,7 @@ void G_SendCommandFromServer( int clientNum, const char *cmd )
       trap_SendServerCommand( clientNum, cmd );
     }
   }
-  else
+  else //no queue exists for this client
     trap_SendServerCommand( clientNum, cmd );
 }
 

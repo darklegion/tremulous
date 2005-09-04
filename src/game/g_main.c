@@ -1504,7 +1504,7 @@ void LogExit( const char *string )
 
     cl = &level.clients[ level.sortedClients[ i ] ];
 
-    if( cl->sess.sessionTeam == TEAM_SPECTATOR )
+    if( cl->ps.stats[ STAT_PTEAM ] == PTE_NONE )
       continue;
     
     if( cl->pers.connected == CON_CONNECTING )

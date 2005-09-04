@@ -1078,7 +1078,7 @@ void ClientThink_real( gentity_t *ent )
     {
       BG_DeactivateUpgrade( UP_MEDKIT, client->ps.stats );
     }
-    else
+    else if( client->ps.stats[ STAT_HEALTH ] > 0 )
     {
       //remove anti toxin
       BG_DeactivateUpgrade( UP_MEDKIT, client->ps.stats );

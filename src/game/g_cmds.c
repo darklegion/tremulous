@@ -1530,12 +1530,6 @@ void Cmd_Buy_f( gentity_t *ent )
     //can afford this?
     if( BG_FindPriceForWeapon( weapon ) > (short)ent->client->ps.persistant[ PERS_CREDIT ] )
     {
-      G_LogPrintf( "Client %d buying weapon %d, value %d, credit %d\n",
-                   ent->client->ps.clientNum,
-                   weapon,
-                   BG_FindPriceForWeapon( weapon ),
-                   (short)ent->client->ps.persistant[ PERS_CREDIT ] );
-
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOFUNDS );
       return;
     }
@@ -1600,12 +1594,6 @@ void Cmd_Buy_f( gentity_t *ent )
     if( BG_FindPriceForUpgrade( upgrade ) > (short)ent->client->ps.persistant[ PERS_CREDIT ] )
     {
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOFUNDS );
-      G_LogPrintf( "Client %d buying upgrade %d, value %d, credit %d\n",
-                   ent->client->ps.clientNum,
-                   weapon,
-                   BG_FindPriceForWeapon( upgrade ),
-                   (short)ent->client->ps.persistant[ PERS_CREDIT ] );
-
       return;
     }
     
@@ -1899,30 +1887,7 @@ void Cmd_Build_f( gentity_t *ent )
     }
   }
   else
-  {
     G_SendCommandFromServer( ent-g_entities, va( "print \"Cannot build this item\n\"" ) );
-
-    G_LogPrintf( "Client %d tried to build %d using weapon %d\n",
-                 ent->client->ps.clientNum,
-                 buildable,
-                 ( 1 << ent->client->ps.weapon ) & BG_FindBuildWeaponForBuildable( buildable ) );
-  }
-}
-
-
-//TA: so we can print to the console from anywhere
-/*
-=================
-Cmd_Echo_f
-=================
-*/
-void Cmd_Echo_f( gentity_t *ent )
-{
-  char  s[ MAX_TOKEN_CHARS ];
-  
-  trap_Argv( 1, s, sizeof( s ) );
-
-  G_SendCommandFromServer( ent-g_entities, va( "print \"%s\n\"", s ) );
 }
 
 
@@ -2301,8 +2266,6 @@ void ClientCommand( int clientNum )
     Cmd_Destroy_f( ent, qtrue );
   else if( Q_stricmp( cmd, "reload" ) == 0 )
     Cmd_Reload_f( ent );
-  else if( Q_stricmp( cmd, "echo" ) == 0 )
-    Cmd_Echo_f( ent );
   else if( Q_stricmp( cmd, "boost" ) == 0 )
     Cmd_Boost_f( ent );
   else if( Q_stricmp( cmd, "where" ) == 0 )

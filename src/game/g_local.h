@@ -701,7 +701,8 @@ void        G_SetOrigin( gentity_t *ent, vec3_t origin );
 void        AddRemap(const char *oldShader, const char *newShader, float timeOffset);
 const char  *BuildShaderStateConfig();
 
-#define MAX_QUEUE_COMMANDS  10
+
+#define MAX_QUEUE_COMMANDS  64 //should be MAX_RELIABLE_COMMANDS/server.h
 
 typedef struct commandQueueElement_s
 {
@@ -714,10 +715,14 @@ typedef struct commandQueue_s
 {
   int                   nextCommandTime; //next time that the queue can be popped
 
+  int                   numElements;
   commandQueueElement_t *front;
   commandQueueElement_t *back;
+
+  commandQueueElement_t pool[ MAX_QUEUE_COMMANDS ];
 } commandQueue_t;
 
+qboolean    G_ClientIsLagging( gclient_t *client );
 void        G_ProcessCommandQueues( void );
 void        G_SendCommandFromServer( int clientNum, const char *cmd );
 void        G_InitCommandQueue( int clientNum );
