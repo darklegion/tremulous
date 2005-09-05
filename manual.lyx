@@ -61,7 +61,7 @@ Each team in Tremulous differs fundamentally from the other.
  In contrast the human team is upgrade based, receiving credits for kills
  that may be exchanged at an Armoury structure for new weapons, armour and
  equipment.
- Two such upgrades are available for free; a rifle and a construction kit,
+ Two such upgrades are available for free: a rifle and a construction kit,
  used for building structures.
 \layout Standard
 
@@ -70,8 +70,8 @@ t.
  These stages are reached by accruing more than a specific total number
  of kills by the whole team.
  Each new stage unlocks new classes, upgrades and buildable structures.
- If one team reaches a stage significantly earlier than the other team
- it stands a better chance of defeating the opposing team.
+ If one team reaches a stage significantly earlier than the other team it
+ stands a better chance of defeating the opposing team.
 \layout Standard
 
 Section 
@@ -302,8 +302,8 @@ Primary Attack
 Primary Attack
 \noun default 
  button to place it.
- The outline changes to red when the structure cannot be placed
- in its current location.
+ The outline changes to red when the structure cannot be placed in its current
+ location.
  To cancel placing the structure press the 
 \noun on 
 Secondary Attack
@@ -1446,10 +1446,11 @@ Advanced Marauder
 \noun on 
 Secondary Attack
 \noun default 
- button while aiming at a nearby human or human structure. If it connects the
- electric shock will jump to up to two other nearby targets doing full damage to the
- first, half damage to the second and one third damage to the third over a period of one
- second provided the attacker stays within range.
+ button while aiming at a nearby human or human structure.
+ If it connects the electric shock will jump to up to two other nearby targets
+ doing full damage to the first, half damage to the second and one third
+ damage to the third over a period of one second provided the attacker stays
+ within range.
 \layout Standard
 \align center 
 
@@ -1616,8 +1617,8 @@ Secondary Attack
 \noun on 
 Secondary Attack
 \noun default 
- button to charge up, then release to leap forward and damage anything
- that gets in the way.
+ button to charge up, then release to leap forward and damage anything that
+ gets in the way.
  While charging you will be unable to jump normally and will move at a reduced
  rate.
  Aim up a little to fly further when pouncing.
@@ -1802,8 +1803,9 @@ Advanced Dragoon
 \noun on 
 Activate Upgrade
 \noun default 
- button. Up to three of these barbs may be held in reserve and
- they regenerate automatically over time or instantly by touching a 
+ button.
+ Up to three of these barbs may be held in reserve and they regenerate automatic
+ally over time or instantly by touching a 
 \emph on 
 Booster
 \emph default 
@@ -1998,7 +2000,8 @@ Secondary Attack
 \emph on 
 Tyrant
 \emph default 
- also has a healing aura that will double the regeneration rate of lower class aliens within range.
+ also has a healing aura that will double the regeneration rate of lower
+ class aliens within range.
 \layout Subsubsection
 
 Structures
@@ -2013,18 +2016,16 @@ Egg
 Overmind
 \emph default 
 .
- With 
+ All alien structures require the presence of an
 \emph on 
-Eggs
-\emph default 
- as the only exception, all alien structures require the presence of an
-\emph on 
-Overmind
+ Overmind
 \emph default 
  to function.
- All alien structures create `creep' around their bases that slows human movement.
+ All alien structures create `creep' around their bases that slows human
+ movement.
  When destroyed, alien structures explode in a shower of acid harmful to
- humans. All structures may be built on level floors and when 
+ humans.
+ All structures may be built on level floors and when 
 \emph on 
 Advanced Grangers
 \emph default 
@@ -2115,8 +2116,8 @@ Overmind
 \emph on 
 Overmind
 \emph default 
- and it must be operational before any other structures
- can be built. If the 
+ and it must be alive before any other structures can be built.
+ If the 
 \emph on 
 Overmind
 \emph default 
@@ -2134,8 +2135,8 @@ Overmind
 \emph on 
 Overmind
 \emph default 
- has a limited amount of `sentience' which is distributed amongst every other
- structure built, each having its own cost.
+ has a limited amount of `sentience' which is distributed amongst every
+ other structure built, each having its own cost.
 \layout Standard
 \align center 
 
@@ -2216,14 +2217,15 @@ The
 \emph on 
 Egg
 \emph default 
- is the most basic and important alien structure;
- it is from these that aliens spawn into the game.
+ is the most basic and important alien structure; it is from these that
+ aliens spawn into the game.
  They are also the only structure that continues to function in the absence
  of an 
 \emph on 
 Overmind
 \emph default 
-. 
+.
+ 
 \emph on 
 Eggs
 \emph default 
@@ -2311,6 +2313,7 @@ Acid Tubes
  are the primary defensive structure for the alien team.
  When approached by a human they eject lethal acid in all directions, even
  over other structures.
+
 \emph on 
  Acid Tubes
 \emph default 
@@ -2473,18 +2476,20 @@ Stage: 2
 
 
 \emph on 
- Trappers
+Trappers
 \emph default 
- fire a blob of adhesive spit at any human in their line of sight, freezing them in place
- and, if they're not wearing a 
+ fire a blob of adhesive spit at any human in their line of sight, freezing
+ them in place and, if they're not wearing a 
 \emph on 
 Battlesuit
 \emph default 
- , restricts their ability to turn.
+, restricts their ability to turn.
+
 \emph on 
  Trappers 
 \emph default 
- may be built on walls and ceilings, and are rarely effective when built on floors.
+ may be built on walls and ceilings, and are rarely effective when built
+ on floors.
 \layout Standard
 \align center 
 
@@ -2563,18 +2568,19 @@ Any alien that touches a
 \emph on 
 Booster
 \emph default 
- is provided with a poison enhancement on all their melee attacks for a limited
- time.
- Poison causes victims to lose health steadily over time unless they use a
+ is provided with a poison enhancement on all their melee attacks for a
+ limited time.
+ Poison causes victims to lose health steadily over time unless they use
+ a
 \emph on 
-Medkit
+ Medkit
 \emph default 
  or visit a 
 \emph on 
 Medistation
 \emph default 
 .
- Poison does not work on humans equipped with a 
+ Poison does not work against humans equipped with a 
 \emph on 
 Battlesuit
 \emph default 
@@ -2587,16 +2593,25 @@ Booster
 \emph on 
 Advanced Dragoon's
 \emph default 
- spike barbs and double the regeneration rate of any nearby aliens with the exception
- of
-\emph on
-Tyrants
-\emph default
- . The healing aura of
-\emph on
-Tyrants
-\emph off
- does not stack with the healing effect of boosters.
+ spike barbs and double the regeneration rate of any nearby aliens with
+ the exception of
+\emph on 
+ Tyrants
+\emph default 
+.
+ The healing aura of a
+\emph on 
+ Tyrant
+\emph off 
+ 
+\emph default 
+i
+\emph off 
+s not 
+\emph default 
+cumulative
+\emph off 
+ with the healing effect of boosters.
 \layout Standard
 \align center 
 
@@ -2913,7 +2928,8 @@ Attack
 Primary Attack
 \noun default 
  button will place it.
- When the outline is red, the structure cannot be placed in its current location.
+ When the outline is red, the structure cannot be placed in its current
+ location.
  To cancel placing the structure, press the 
 \noun on 
 Secondary Attack
@@ -3960,7 +3976,8 @@ The
 Lucifer Cannon
 \emph default 
  is the human team's most devastating weapon.
- It is an energy weapon that can hold up to 90 cells at a time, or 135 with a 
+ It is an energy weapon that can hold up to 90 cells at a time, or 135 with
+ a 
 \emph on 
 Battery Pack
 \emph default 
@@ -3971,15 +3988,15 @@ Primary Attack
 \noun default 
  button, a player may charge up a powerful, slow moving projectile with
  splash damage.
- The longer the attack is charged the more powerful the projectile and
- the more ammo used.
+ The longer the attack is charged the more powerful the projectile and the
+ more ammo used.
  If the attack is charged for too long the weapon will explode, damaging
  the player.
  The 
 \noun on 
 Secondary Attack 
 \noun default 
-button fires a smaller, faster projectile that requires no charging.
+button fires a smaller projectile that requires no charging.
 \layout Subsubsection
 
 Upgrades
@@ -4250,29 +4267,33 @@ Stage: 1
 Medkits
 \emph default 
  are a free holdable given to every human upon spawning and refilled at
-\emph on
-Medistations
-\emph default
- to players with full health. They may not be refilled or exchanged at
-\emph on
+\emph on 
+ Medistations
+\emph default 
+ to players with full health.
+ They may not be refilled or exchanged at
+\emph on 
  Armouries
-\emph default
- . When used with the
+\emph default 
+.
+ When used with the
 \noun on 
-Activate Upgrade
+ Activate Upgrade
 \noun default 
  button,
 \emph on 
-Medkits
+ Medkits
 \emph default 
- immediately begin restoring health at a slow rate, gradually speeding up until all damage incurred before the
+ immediately begin restoring health at a slow rate, gradually speeding up
+ until all damage incurred before the
 \emph on 
-Medkit
-\emph default
- was activated is healed. Additionally, if a human is poisoned, using a
+ Medkit
+\emph default 
+ was activated is healed.
+ Additionally, if a human is poisoned, using a
 \emph on 
-Medkit
-\emph default
+ Medkit
+\emph default 
  will cure the poison and confer a 30 second immunity to poison.
 \layout Standard
 \align center 
@@ -4687,13 +4708,9 @@ Reactor
 \emph on 
 Reactor
 \emph default 
-, and it must be present before any structures other than 
+, and it must be present before any structures other than
 \emph on 
-Telenodes
-\emph default 
- and 
-\emph on 
-Repeaters
+ Repeaters
 \emph default 
  can be built.
  If the 
@@ -4791,11 +4808,12 @@ The
 \emph on 
 Telenode
 \emph default 
- is the most basic and fundamental human structure;
- it is from these that humans spawn into the game.
- They are also the only structure that continues to function in the absence of a
+ is the most basic and fundamental human structure; it is from these that
+ humans spawn into the game.
+ They are also the only structure that continues to function in the absence
+ of a
 \emph on 
-Reactor
+ Reactor
 \emph default 
 .
 \layout Standard
@@ -4963,8 +4981,11 @@ Tesla Generators
 \emph default 
  are a defensive structure that will unconditionally hit any target within
  their range and line of sight with an electrical surge.
- To be built and to function once built, they require the presence of a
- 
+ To be built and function, a 
+\emph on 
+Tesla Generator
+\emph default 
+ requires the presence of a 
 \emph on 
 Defense Computer
 \emph default 
@@ -5244,14 +5265,16 @@ Medistation
  provides the only means for humans to heal themselves.
  By standing on one, a human will quickly regenerate health up to their
  maximum of 100.
-\emph on
-Medistations
-\emph default
+
+\emph on 
+ Medistations
+\emph default 
  will also refill
-\emph on
-Medkits
-\emph default
- to humans with full health. Only one person may use a 
+\emph on 
+ Medkits
+\emph default 
+ to humans with full health.
+ Only one person may use a 
 \emph on 
 Medistation
 \emph default 
@@ -5371,7 +5394,7 @@ Bindings
 \align center 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="21" columns="3">
+<lyxtabular version="3" rows="22" columns="3">
 <features islongtable="true">
 <column alignment="block" valignment="top" rightline="true" width="4cm">
 <column alignment="block" valignment="top" rightline="true" width="4cm">
@@ -5620,6 +5643,40 @@ repeater
  or 
 \emph on 
 reactor
+\emph default 
+.
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\noun on 
+Use Medkit
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\series bold 
+itemact medkit
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+As human, activate your 
+\emph on 
+Medkit
 \emph default 
 .
 \end_inset 
