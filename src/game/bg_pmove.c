@@ -2435,8 +2435,7 @@ static void PM_Footsteps( void )
   }
   else
   {
-    //TA: switch walking/running anims based on speed
-    if( pm->xyspeed > 160 )
+    if( !( pm->cmd.buttons & BUTTON_WALKING ) )
     {
       bobmove = 0.4f; // faster speeds bob faster
 
