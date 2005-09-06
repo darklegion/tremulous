@@ -518,6 +518,9 @@ qhandle_t CG_RegisterParticleSystem( char *name )
         }
       }
 
+      if( cg_debugParticles.integer >= 1 )
+        CG_Printf( "Registered particle system %s\n", name );
+      
       bps->registered = qtrue;
 
       //avoid returning 0
@@ -1231,7 +1234,7 @@ CG_ParseParticleSystem
 Parse a particle system section
 ===============
 */
-static qboolean CG_ParseParticleSystem( baseParticleSystem_t *bps, char **text_p )
+static qboolean CG_ParseParticleSystem( baseParticleSystem_t *bps, char **text_p, const char *name )
 {
   char                  *token;
   baseParticleEjector_t *bpe;
@@ -1287,7 +1290,12 @@ static qboolean CG_ParseParticleSystem( baseParticleSystem_t *bps, char **text_p
     else if( !Q_stricmp( token, "ejector" ) ) //acceptable text
       continue;
     else if( !Q_stricmp( token, "}" ) )
+    {
+      if( cg_debugParticles.integer >= 1 )
+        CG_Printf( "Parsed particle system %s\n", name );
+      
       return qtrue; //reached the end of this particle system
+    }
     else
     {
       CG_Printf( S_COLOR_RED "ERROR: unknown token '%s' in particle system %s\n", token, bps->name );
@@ -1361,7 +1369,7 @@ static qboolean CG_ParseParticleFile( const char *fileName )
         
         Q_strncpyz( baseParticleSystems[ numBaseParticleSystems ].name, psName, MAX_QPATH );
         
-        if( !CG_ParseParticleSystem( &baseParticleSystems[ numBaseParticleSystems ], &text_p ) )
+        if( !CG_ParseParticleSystem( &baseParticleSystems[ numBaseParticleSystems ], &text_p, psName ) )
         {
           CG_Printf( S_COLOR_RED "ERROR: %s: failed to parse particle system %s\n", fileName, psName );
           return qfalse;
