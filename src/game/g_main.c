@@ -1544,7 +1544,7 @@ wait 10 seconds before going on.
 */
 void CheckIntermissionExit( void )
 {
-  int       ready, notReady;
+  int       ready, notReady, numPlayers;
   int       i;
   gclient_t *cl;
   int       readyMask;
@@ -1560,6 +1560,7 @@ void CheckIntermissionExit( void )
   ready = 0;
   notReady = 0;
   readyMask = 0;
+  numPlayers = 0;
   for( i = 0; i < g_maxclients.integer; i++ )
   {
     cl = level.clients + i;
@@ -1580,6 +1581,8 @@ void CheckIntermissionExit( void )
     }
     else
       notReady++;
+
+    numPlayers++;
   }
 
   trap_SetConfigstring( CS_CLIENTS_READY, va( "%d", readyMask ) );
@@ -1589,7 +1592,7 @@ void CheckIntermissionExit( void )
     return;
 
   // if nobody wants to go, clear timer
-  if( !ready )
+  if( !ready && numPlayers )
   {
     level.readyToExit = qfalse;
     return;
