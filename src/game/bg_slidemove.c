@@ -14,7 +14,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
-                  
+
 #include "q_shared.h"
 #include "bg_public.h"
 #include "bg_local.h"
@@ -51,7 +51,7 @@ qboolean  PM_SlideMove( qboolean gravity )
   float   into;
   vec3_t  endVelocity;
   vec3_t  endClipVelocity;
-  
+
   numbumps = 4;
 
   VectorCopy( pm->ps->velocity, primal_velocity );
@@ -62,11 +62,11 @@ qboolean  PM_SlideMove( qboolean gravity )
     endVelocity[ 2 ] -= pm->ps->gravity * pml.frametime;
     pm->ps->velocity[ 2 ] = ( pm->ps->velocity[ 2 ] + endVelocity[ 2 ] ) * 0.5;
     primal_velocity[ 2 ] = endVelocity[ 2 ];
-    
+
     if( pml.groundPlane )
     {
       // slide along the ground plane
-      PM_ClipVelocity( pm->ps->velocity, pml.groundTrace.plane.normal, 
+      PM_ClipVelocity( pm->ps->velocity, pml.groundTrace.plane.normal,
         pm->ps->velocity, OVERCLIP );
     }
   }
@@ -135,10 +135,10 @@ qboolean  PM_SlideMove( qboolean gravity )
         break;
       }
     }
-    
+
     if( i < numplanes )
       continue;
-    
+
     VectorCopy( trace.plane.normal, planes[ numplanes ] );
     numplanes++;
 
@@ -236,7 +236,7 @@ void PM_StepEvent( vec3_t from, vec3_t to, vec3_t normal )
   VectorSubtract( from, to, delta );
   VectorCopy( delta, dNormal );
   VectorNormalize( dNormal );
-  
+
   size = DotProduct( normal, dNormal ) * VectorLength( delta );
 
   if( size > 0.0f )
@@ -256,7 +256,7 @@ void PM_StepEvent( vec3_t from, vec3_t to, vec3_t normal )
   else
   {
     size = fabs( size );
-    
+
     if( size > 2.0f )
     {
       if( size < 7.0f )
@@ -269,7 +269,7 @@ void PM_StepEvent( vec3_t from, vec3_t to, vec3_t normal )
         PM_AddEvent( EV_STEP_16 );
     }
   }
-    
+
   if( pm->debugLevel )
     Com_Printf( "%i:stepped\n", c_pmove );
 }
@@ -299,7 +299,7 @@ qboolean PM_StepSlideMove( qboolean gravity, qboolean predictive )
   }
   else
     VectorSet( normal, 0.0f, 0.0f, 1.0f );
-  
+
   VectorCopy( pm->ps->origin, start_o );
   VectorCopy( pm->ps->velocity, start_v );
 
@@ -315,7 +315,7 @@ qboolean PM_StepSlideMove( qboolean gravity, qboolean predictive )
     {
       if( pm->debugLevel )
         Com_Printf( "%d: step down\n", c_pmove );
-      
+
       stepped = qtrue;
     }
   }
@@ -339,7 +339,7 @@ qboolean PM_StepSlideMove( qboolean gravity, qboolean predictive )
 
     // test the player position if they were a stepheight higher
     pm->trace( &trace, start_o, pm->mins, pm->maxs, up, pm->ps->clientNum, pm->tracemask );
-    if( trace.allsolid ) 
+    if( trace.allsolid )
     {
       if( pm->debugLevel )
         Com_Printf( "%i:bend can't step\n", c_pmove );
@@ -350,7 +350,7 @@ qboolean PM_StepSlideMove( qboolean gravity, qboolean predictive )
     VectorSubtract( trace.endpos, start_o, step_v );
     VectorCopy( step_v, step_vNormal );
     VectorNormalize( step_vNormal );
-    
+
     stepSize = DotProduct( normal, step_vNormal ) * VectorLength( step_v );
     // try slidemove from this position
     VectorCopy( trace.endpos, pm->ps->origin );
@@ -360,7 +360,7 @@ qboolean PM_StepSlideMove( qboolean gravity, qboolean predictive )
     {
       if( pm->debugLevel )
         Com_Printf( "%d: step up\n", c_pmove );
-      
+
       stepped = qtrue;
     }
 
@@ -368,10 +368,10 @@ qboolean PM_StepSlideMove( qboolean gravity, qboolean predictive )
     VectorCopy( pm->ps->origin, down );
     VectorMA( down, -stepSize, normal, down );
     pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask );
-    
+
     if( !trace.allsolid )
       VectorCopy( trace.endpos, pm->ps->origin );
-    
+
     if( trace.fraction < 1.0f )
       PM_ClipVelocity( pm->ps->velocity, trace.plane.normal, pm->ps->velocity, OVERCLIP );
   }
@@ -399,7 +399,7 @@ qboolean PM_PredictStepMove( void )
 
   if( PM_StepSlideMove( qfalse, qtrue ) )
     stepped = qtrue;
-  
+
   VectorCopy( velocity, pm->ps->velocity );
   VectorCopy( origin, pm->ps->origin );
   pml.impactSpeed = impactSpeed;

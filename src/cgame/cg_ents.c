@@ -79,7 +79,7 @@ void CG_DrawBoundingBox( vec3_t origin, vec3_t mins, vec3_t maxs )
   pmp[ 0 ] = origin[ 0 ] + maxs[ 0 ];
   pmp[ 1 ] = origin[ 1 ] + mins[ 1 ];
   pmp[ 2 ] = origin[ 2 ] + maxs[ 2 ];
-  
+
   ppm[ 0 ] = origin[ 0 ] + maxs[ 0 ];
   ppm[ 1 ] = origin[ 1 ] + maxs[ 1 ];
   ppm[ 2 ] = origin[ 2 ] + mins[ 2 ];
@@ -215,12 +215,12 @@ static void CG_EntityEffects( centity_t *cent )
   {
     if( cent->currentState.eType != ET_SPEAKER )
     {
-      trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, 
+      trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
                               cgs.gameSounds[ cent->currentState.loopSound ] );
     }
     else
     {
-      trap_S_AddRealLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, 
+      trap_S_AddRealLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
                                   cgs.gameSounds[ cent->currentState.loopSound ] );
     }
   }
@@ -328,7 +328,7 @@ static void CG_LaunchMissile( centity_t *cent )
   weapon = es->weapon;
   if( weapon > WP_NUM_WEAPONS )
     weapon = WP_NONE;
-  
+
   wi = &cg_weapons[ weapon ];
   weaponMode = es->generic1;
 
@@ -359,12 +359,12 @@ static void CG_Missile( centity_t *cent )
   weapon = es->weapon;
   if( weapon > WP_NUM_WEAPONS )
     weapon = WP_NONE;
-  
+
   wi = &cg_weapons[ weapon ];
   weaponMode = es->generic1;
-  
+
   wim = &wi->wim[ weaponMode ];
-  
+
   // calculate the axis
   VectorCopy( es->angles, cent->lerpAngles );
 
@@ -417,11 +417,11 @@ static void CG_Missile( centity_t *cent )
       RotateAroundDirection( ent.axis, cg.time / 4 );
     else
       RotateAroundDirection( ent.axis, es->time );
-    
+
     if( wim->missileAnimates )
     {
       int timeSinceStart = cg.time - es->time;
-    
+
       if( wim->missileAnimLooping )
       {
         ent.frame = wim->missileAnimStartFrame +
@@ -432,13 +432,13 @@ static void CG_Missile( centity_t *cent )
       {
         ent.frame = wim->missileAnimStartFrame +
           (int)( ( timeSinceStart / 1000.0f ) * wim->missileAnimFrameRate );
-        
+
         if( ent.frame > ( wim->missileAnimStartFrame + wim->missileAnimNumFrames ) )
           ent.frame = wim->missileAnimStartFrame + wim->missileAnimNumFrames;
       }
     }
   }
-  
+
   //only refresh if there is something to display
   if( wim->missileSprite || wim->missileModel )
     trap_R_AddRefEntityToScene( &ent );
@@ -552,7 +552,7 @@ static void CG_Portal( centity_t *cent )
 #define SETBOUNDS(v1,v2,r)  ((v1)[0]=(-r/2),(v1)[1]=(-r/2),(v1)[2]=(-r/2),\
                              (v2)[0]=(r/2),(v2)[1]=(r/2),(v2)[2]=(r/2))
 #define RADIUSSTEP          0.5f
-  
+
 #define FLARE_OFF       0
 #define FLARE_NOFADE    1
 #define FLARE_TIMEFADE  2
@@ -576,12 +576,12 @@ static void CG_LightFlare( centity_t *cent )
   int           entityNum;
 
   es = &cent->currentState;
-  
+
   if( cg.renderingThirdPerson )
     entityNum = MAGIC_TRACE_HACK;
   else
     entityNum = cg.predictedPlayerState.clientNum;
-  
+
   //don't draw light flares
   if( cg_lightFlare.integer == FLARE_OFF )
     return;
@@ -589,7 +589,7 @@ static void CG_LightFlare( centity_t *cent )
   //flare is "off"
   if( es->eFlags & EF_NODRAW )
     return;
-       
+
   CG_Trace( &tr, cg.refdef.vieworg, NULL, NULL, es->angles2,
             entityNum, MASK_SHOT );
 
@@ -597,16 +597,16 @@ static void CG_LightFlare( centity_t *cent )
   //it definately cannot be seen
   if( tr.fraction < 1.0f || tr.allsolid )
     return;
-  
+
   memset( &flare, 0, sizeof( flare ) );
-  
+
   flare.reType = RT_SPRITE;
   flare.customShader = cgs.gameShaders[ es->modelindex ];
   flare.shaderRGBA[ 0 ] = 0xFF;
   flare.shaderRGBA[ 1 ] = 0xFF;
   flare.shaderRGBA[ 2 ] = 0xFF;
   flare.shaderRGBA[ 3 ] = 0xFF;
-  
+
   //flares always drawn before the rest of the scene
   flare.renderfx |= RF_DEPTHHACK;
 
@@ -620,7 +620,7 @@ static void CG_LightFlare( centity_t *cent )
   //flare is too close to camera to be drawn
   if( len < es->generic1 )
     return;
-  
+
   //don't bother for flares behind the view plane
   if( DotProduct( delta, cg.refdef.viewaxis[ 0 ] ) < 0.0 )
     return;
@@ -635,31 +635,31 @@ static void CG_LightFlare( centity_t *cent )
       srcRadius = srLocal = flare.radius / 2.0f;
     else
       srcRadius = srLocal = len / es->origin2[ 2 ];
-    
+
     maxAngle = es->origin2[ 1 ];
 
     if( maxAngle > 0.0f )
     {
       float radiusMod = 1.0f - ( 180.0f - RAD2DEG(
             acos( DotProduct( delta, forward ) ) ) ) / maxAngle;
-      
+
       if( es->eFlags & EF_NODRAW )
         flare.radius *= radiusMod;
       else if( radiusMod < 0.0f )
         flare.radius = 0.0f;
-    }   
+    }
 
     if( flare.radius < 0.0f )
       flare.radius = 0.0f;
-    
+
     VectorMA( flare.origin, -flare.radius, delta, end );
     VectorMA( cg.refdef.vieworg, flare.radius, delta, start );
-    
+
     if( cg_lightFlare.integer == FLARE_REALFADE )
     {
       //draw "correct" albeit inefficient flares
       srLocal = cent->lfs.lastSrcRadius;
-      
+
       //flare radius is likely to be the same as last frame so start with it
       do
       {
@@ -669,9 +669,9 @@ static void CG_LightFlare( centity_t *cent )
                   entityNum, MASK_SHOT );
 
       } while( ( tr.fraction == 1.0f && !tr.startsolid ) && ( srLocal < srcRadius ) );
-      
+
       srLocal -= RADIUSSTEP;
-      
+
       //shink the flare until there is a los
       do
       {
@@ -681,7 +681,7 @@ static void CG_LightFlare( centity_t *cent )
 
         srLocal -= RADIUSSTEP;
       } while( ( tr.fraction < 1.0f || tr.startsolid ) && ( srLocal > 0.0f ) );
-      
+
       ratio = srLocal / srcRadius;
 
       cent->lfs.lastSrcRadius = srLocal;
@@ -710,7 +710,7 @@ static void CG_LightFlare( centity_t *cent )
         if( cent->lfs.lastTime + es->time > cg.time )
           ratio = (float)( cg.time - cent->lfs.lastTime ) / es->time;
       }
-      
+
       //fade flare down
       if( !cent->lfs.status )
       {
@@ -743,13 +743,13 @@ static void CG_LightFlare( centity_t *cent )
 
   cent->lfs.lastRatio  = ratio;
   cent->lfs.lastRadius = flare.radius;
-    
+
   if( ratio < 1.0f )
   {
     flare.radius *= ratio;
     flare.shaderRGBA[ 3 ] = (byte)( (float)flare.shaderRGBA[ 3 ] * ratio );
   }
-    
+
   if( flare.radius <= 0.0f )
     return;
 
@@ -774,14 +774,14 @@ static void CG_Lev2ZapChain( centity_t *cent )
   {
     source = &cg_entities[ es->powerups ];
     target = &cg_entities[ es->time ];
-    
+
     if( es->powerups == cg.predictedPlayerState.clientNum )
       VectorCopy( cg.predictedPlayerState.origin, start );
     else
       VectorCopy( source->currentState.pos.trBase, start );
-    
+
     VectorCopy( target->currentState.pos.trBase, end );
-    
+
     CG_DynamicLightningBolt( cgs.media.lightningShader, start, end,
                              1+((cg.time%((i+2)*(i+3)))+i)%2, 7 + (float)(i%3)*5 + 6.0*random(),
                              qtrue, 1.0, 0, i*i*3 );
@@ -791,10 +791,10 @@ static void CG_Lev2ZapChain( centity_t *cent )
   {
     source = &cg_entities[ es->time ];
     target = &cg_entities[ es->time2 ];
-    
+
     VectorCopy( source->currentState.pos.trBase, start );
     VectorCopy( target->currentState.pos.trBase, end );
-    
+
     CG_DynamicLightningBolt( cgs.media.lightningShader, start, end,
                              1+((cg.time%((i+2)*(i+3)))+i)%2, 7 + (float)(i%3)*5 + 6.0*random(),
                              qtrue, 1.0, 0, i*i*3 );
@@ -804,10 +804,10 @@ static void CG_Lev2ZapChain( centity_t *cent )
   {
     source = &cg_entities[ es->time2 ];
     target = &cg_entities[ es->constantLight ];
-    
+
     VectorCopy( source->currentState.pos.trBase, start );
     VectorCopy( target->currentState.pos.trBase, end );
-    
+
     CG_DynamicLightningBolt( cgs.media.lightningShader, start, end,
                              1+((cg.time%((i+2)*(i+3)))+i)%2, 7 + (float)(i%3)*5 + 6.0*random(),
                              qtrue, 1.0, 0, i*i*3 );
@@ -834,7 +834,7 @@ void CG_AdjustPositionForMover( const vec3_t in, int moverNum, int fromTime, int
   }
 
   cent = &cg_entities[ moverNum ];
-  
+
   if( cent->currentState.eType != ET_MOVER )
   {
     VectorCopy( in, out );
@@ -948,10 +948,10 @@ CG_CEntityPVSEnter
 static void CG_CEntityPVSEnter( centity_t *cent )
 {
   entityState_t *es = &cent->currentState;
-  
+
   if( cg_debugPVS.integer )
     CG_Printf( "Entity %d entered PVS\n", cent->currentState.number );
-  
+
   switch( es->eType )
   {
     case ET_MISSILE:
@@ -999,7 +999,7 @@ static void CG_AddCEntity( centity_t *cent )
   // event-only entities will have been dealt with already
   if( cent->currentState.eType >= ET_EVENTS )
     return;
-  
+
   // calculate the current origin
   CG_CalcEntityLerpPositions( cent );
 
@@ -1011,64 +1011,64 @@ static void CG_AddCEntity( centity_t *cent )
     default:
       CG_Error( "Bad entity type: %i\n", cent->currentState.eType );
       break;
-      
+
     case ET_INVISIBLE:
     case ET_PUSH_TRIGGER:
     case ET_TELEPORT_TRIGGER:
       break;
-      
+
     case ET_GENERAL:
       CG_General( cent );
       break;
-      
+
     case ET_CORPSE:
       CG_Corpse( cent );
       break;
-      
+
     case ET_PLAYER:
       CG_Player( cent );
       break;
-      
+
     case ET_BUILDABLE:
       CG_Buildable( cent );
       break;
-      
+
     case ET_MISSILE:
       CG_Missile( cent );
       break;
-      
+
     case ET_MOVER:
       CG_Mover( cent );
       break;
-      
+
     case ET_BEAM:
       CG_Beam( cent );
       break;
-      
+
     case ET_PORTAL:
       CG_Portal( cent );
       break;
-      
+
     case ET_SPEAKER:
       CG_Speaker( cent );
       break;
-      
+
     case ET_PARTICLE_SYSTEM:
       CG_ParticleSystemEntity( cent );
       break;
-      
+
     case ET_ANIMMAPOBJ:
       CG_animMapObj( cent );
       break;
-      
+
     case ET_MODELDOOR:
       CG_ModelDoor( cent );
       break;
-      
+
     case ET_LIGHTFLARE:
       CG_LightFlare( cent );
       break;
-      
+
     case ET_LEV2_ZAP_CHAIN:
       CG_Lev2ZapChain( cent );
       break;
@@ -1093,7 +1093,7 @@ void CG_AddPacketEntities( void )
     int   delta;
 
     delta = ( cg.nextSnap->serverTime - cg.snap->serverTime );
-    
+
     if( delta == 0 )
       cg.frameInterpolation = 0;
     else
@@ -1138,7 +1138,7 @@ void CG_AddPacketEntities( void )
     cent = &cg_entities[ cg.snap->entities[ num ].number ];
     cent->valid = qtrue;
   }
-  
+
   for( num = 0; num < MAX_GENTITIES; num++ )
   {
     cent = &cg_entities[ num ];
@@ -1157,7 +1157,7 @@ void CG_AddPacketEntities( void )
     cent = &cg_entities[ cg.snap->entities[ num ].number ];
     CG_AddCEntity( cent );
   }
-  
+
   //make an attempt at drawing bounding boxes of selected entity types
   if( cg_drawBBOX.integer )
   {
@@ -1166,10 +1166,10 @@ void CG_AddPacketEntities( void )
       float         x, zd, zu;
       vec3_t        mins, maxs;
       entityState_t *es;
-      
+
       cent = &cg_entities[ cg.snap->entities[ num ].number ];
       es = &cent->currentState;
-      
+
       switch( es->eType )
       {
         case ET_BUILDABLE:

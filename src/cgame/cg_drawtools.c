@@ -14,7 +14,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
-                    
+
 #include "cg_local.h"
 
 /*
@@ -28,7 +28,7 @@ void CG_DrawPlane( vec3_t origin, vec3_t down, vec3_t right, qhandle_t shader )
 {
   polyVert_t  verts[ 4 ];
   vec3_t      temp;
-  
+
   VectorCopy( origin, verts[ 0 ].xyz );
   verts[ 0 ].st[ 0 ] = 0;
   verts[ 0 ].st[ 1 ] = 0;
@@ -36,7 +36,7 @@ void CG_DrawPlane( vec3_t origin, vec3_t down, vec3_t right, qhandle_t shader )
   verts[ 0 ].modulate[ 1 ] = 255;
   verts[ 0 ].modulate[ 2 ] = 255;
   verts[ 0 ].modulate[ 3 ] = 255;
-  
+
   VectorAdd( origin, right, temp );
   VectorCopy( temp, verts[ 1 ].xyz );
   verts[ 1 ].st[ 0 ] = 1;
@@ -45,7 +45,7 @@ void CG_DrawPlane( vec3_t origin, vec3_t down, vec3_t right, qhandle_t shader )
   verts[ 1 ].modulate[ 1 ] = 255;
   verts[ 1 ].modulate[ 2 ] = 255;
   verts[ 1 ].modulate[ 3 ] = 255;
-  
+
   VectorAdd( origin, right, temp );
   VectorAdd( temp, down, temp );
   VectorCopy( temp, verts[ 2 ].xyz );
@@ -55,7 +55,7 @@ void CG_DrawPlane( vec3_t origin, vec3_t down, vec3_t right, qhandle_t shader )
   verts[ 2 ].modulate[ 1 ] = 255;
   verts[ 2 ].modulate[ 2 ] = 255;
   verts[ 2 ].modulate[ 3 ] = 255;
-  
+
   VectorAdd( origin, down, temp );
   VectorCopy( temp, verts[ 3 ].xyz );
   verts[ 3 ].st[ 0 ] = 0;
@@ -64,7 +64,7 @@ void CG_DrawPlane( vec3_t origin, vec3_t down, vec3_t right, qhandle_t shader )
   verts[ 3 ].modulate[ 1 ] = 255;
   verts[ 3 ].modulate[ 2 ] = 255;
   verts[ 3 ].modulate[ 3 ] = 255;
-  
+
   trap_R_AddPolyToScene( shader, 4, verts );
 }
 
@@ -179,7 +179,7 @@ void CG_DrawFadePic( float x, float y, float width, float height, vec4_t fcolor,
   float   inverse;
 
   inverse = 100 - amount;
-  
+
   CG_AdjustFrom640( &x, &y, &width, &height );
 
   finalcolor[ 0 ] = ( ( inverse * fcolor[ 0 ] ) + ( amount * tcolor[ 0 ] ) ) / 100;

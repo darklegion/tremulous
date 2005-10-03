@@ -26,9 +26,9 @@ void G_setBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim, qboolean fo
 
   if( force )
     localAnim |= ANIM_FORCEBIT;
-    
+
   localAnim |= ( ( ent->s.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT );
-    
+
   ent->s.legsAnim = localAnim;
 }
 
@@ -51,7 +51,8 @@ G_CheckSpawnPoint
 Check if a spawn at a specified point is valid
 ===============
 */
-gentity_t *G_CheckSpawnPoint( vec3_t origin, vec3_t normal, buildable_t spawn, vec3_t spawnOrigin )
+gentity_t *G_CheckSpawnPoint( int spawnNum, vec3_t origin, vec3_t normal,
+    buildable_t spawn, vec3_t spawnOrigin )
 {
   float   displacement;
   vec3_t  mins, maxs;
@@ -65,17 +66,22 @@ gentity_t *G_CheckSpawnPoint( vec3_t origin, vec3_t normal, buildable_t spawn, v
   {
     VectorSet( cmins, -MAX_ALIEN_BBOX, -MAX_ALIEN_BBOX, -MAX_ALIEN_BBOX );
     VectorSet( cmaxs,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX );
-  
+
     displacement = ( maxs[ 2 ] + MAX_ALIEN_BBOX ) * M_ROOT3;
     VectorMA( origin, displacement, normal, localOrigin );
-    
+
+    trap_Trace( &tr, origin, NULL, NULL, localOrigin, spawnNum, MASK_SHOT );
+
+    if( tr.entityNum != ENTITYNUM_NONE )
+      return &g_entities[ tr.entityNum ];
+
     trap_Trace( &tr, localOrigin, cmins, cmaxs, localOrigin, -1, MASK_SHOT );
 
     if( tr.entityNum == ENTITYNUM_NONE )
     {
       if( spawnOrigin != NULL )
         VectorCopy( localOrigin, spawnOrigin );
-      
+
       return NULL;
     }
     else
@@ -87,14 +93,19 @@ gentity_t *G_CheckSpawnPoint( vec3_t origin, vec3_t normal, buildable_t spawn, v
 
     VectorCopy( origin, localOrigin );
     localOrigin[ 2 ] += maxs[ 2 ] + fabs( cmins[ 2 ] ) + 1.0f;
-    
+
+    trap_Trace( &tr, origin, NULL, NULL, localOrigin, spawnNum, MASK_SHOT );
+
+    if( tr.entityNum != ENTITYNUM_NONE )
+      return &g_entities[ tr.entityNum ];
+
     trap_Trace( &tr, localOrigin, cmins, cmaxs, localOrigin, -1, MASK_SHOT );
-    
+
     if( tr.entityNum == ENTITYNUM_NONE )
     {
       if( spawnOrigin != NULL )
         VectorCopy( localOrigin, spawnOrigin );
-      
+
       return NULL;
     }
     else
@@ -115,7 +126,7 @@ static int G_NumberOfDependants( gentity_t *self )
 {
   int       i, n = 0;
   gentity_t *ent;
-  
+
   for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
     if( ent->s.eType != ET_BUILDABLE )
@@ -149,18 +160,18 @@ static qboolean findPower( gentity_t *self )
 
   if( self->biteam != BIT_HUMANS )
     return qfalse;
-  
+
   //reactor is always powered
   if( self->s.modelindex == BA_H_REACTOR )
     return qtrue;
-  
+
   //if this already has power then stop now
   if( self->parentNode && self->parentNode->powered )
     return qtrue;
-  
+
   //reset parent
   self->parentNode = NULL;
-  
+
   //iterate through entities
   for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
@@ -185,9 +196,9 @@ static qboolean findPower( gentity_t *self )
   //if there were no power items nearby give up
   if( !foundPower )
     return qfalse;
-  
+
   //bleh
-  if( ( closestPower->s.modelindex == BA_H_REACTOR && ( minDistance <= REACTOR_BASESIZE ) ) || 
+  if( ( closestPower->s.modelindex == BA_H_REACTOR && ( minDistance <= REACTOR_BASESIZE ) ) ||
       ( closestPower->s.modelindex == BA_H_REPEATER && ( minDistance <= REPEATER_BASESIZE ) &&
         closestPower->powered ) )
   {
@@ -236,14 +247,14 @@ static qboolean findDCC( gentity_t *self )
 
   if( self->biteam != BIT_HUMANS )
     return qfalse;
-  
+
   //if this already has dcc then stop now
   if( self->dccNode && self->dccNode->powered )
     return qtrue;
-  
+
   //reset parent
   self->dccNode = NULL;
-  
+
   //iterate through entities
   for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
@@ -267,7 +278,7 @@ static qboolean findDCC( gentity_t *self )
   //if there were no power items nearby give up
   if( !foundDCC )
     return qfalse;
-  
+
   self->dccNode = closestDCC;
 
   return qtrue;
@@ -304,14 +315,14 @@ static qboolean findOvermind( gentity_t *self )
 
   if( self->biteam != BIT_ALIENS )
     return qfalse;
-  
+
   //if this already has overmind then stop now
   if( self->overmindNode && self->overmindNode->health > 0 )
     return qtrue;
-  
+
   //reset parent
   self->overmindNode = NULL;
-  
+
   //iterate through entities
   for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
@@ -365,7 +376,7 @@ static qboolean findCreep( gentity_t *self )
   //don't check for creep if flying through the air
   if( self->s.groundEntityNum == -1 )
     return qtrue;
-  
+
   //if self does not have a parentNode or it's parentNode is invalid find a new one
   if( ( self->parentNode == NULL ) || !self->parentNode->inuse )
   {
@@ -386,7 +397,7 @@ static qboolean findCreep( gentity_t *self )
         }
       }
     }
-    
+
     if( minDistance <= CREEP_BASESIZE )
     {
       self->parentNode = closestSpawn;
@@ -438,13 +449,13 @@ static void creepSlow( gentity_t *self )
 
   VectorAdd( self->s.origin, range, maxs );
   VectorSubtract( self->s.origin, range, mins );
-  
+
   //find humans
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
   {
     enemy = &g_entities[ entityList[ i ] ];
-    
+
     if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
         enemy->client->ps.groundEntityNum != ENTITYNUM_NONE &&
         G_Visible( self, enemy ) )
@@ -504,7 +515,7 @@ void A_CreepRecede( gentity_t *self )
                  ( 1.0f - ( (float)( level.time - self->buildTime ) /
                             (float)BG_FindBuildTimeForBuildable( self->s.modelindex ) ) ) ) );
   }
-  
+
   //creep is still receeding
   if( ( self->timestamp + 10000 ) > level.time )
     self->nextthink = level.time + 500;
@@ -537,7 +548,7 @@ void ASpawn_Melt( gentity_t *self )
   {
     self->s.eFlags |= EF_DEAD;
     G_AddEvent( self, EV_BUILD_DESTROY, 0 );
-    
+
     if( self->spawned )
       self->s.time = -level.time;
     else
@@ -546,7 +557,7 @@ void ASpawn_Melt( gentity_t *self )
                  ( 1.0f - ( (float)( level.time - self->buildTime ) /
                             (float)BG_FindBuildTimeForBuildable( self->s.modelindex ) ) ) ) );
   }
-  
+
   //not dead yet
   if( ( self->timestamp + 10000 ) > level.time )
     self->nextthink = level.time + 500;
@@ -577,7 +588,7 @@ void ASpawn_Blast( gentity_t *self )
   self->timestamp = level.time;
   self->think = ASpawn_Melt;
   self->nextthink = level.time + 500; //wait .5 seconds before damaging others
-    
+
   self->r.contents = 0;    //stop collisions...
   trap_LinkEntity( self ); //...requires a relink
 }
@@ -596,14 +607,14 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   self->die = nullDieFunction;
   self->think = ASpawn_Blast;
-  
+
   if( self->spawned )
     self->nextthink = level.time + 5000;
   else
     self->nextthink = level.time; //blast immediately
-  
+
   self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
-    
+
   if( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
     if( self->s.modelindex == BA_A_OVERMIND )
@@ -624,12 +635,13 @@ void ASpawn_Think( gentity_t *self )
 {
   gentity_t *ent;
 
-  if( self->spawned )  
+  if( self->spawned )
   {
     //only suicide if at rest
     if( self->s.groundEntityNum )
     {
-      if( ( ent = G_CheckSpawnPoint( self->s.origin, self->s.origin2, BA_A_SPAWN, NULL ) ) != NULL )
+      if( ( ent = G_CheckSpawnPoint( self->s.number, self->s.origin,
+              self->s.origin2, BA_A_SPAWN, NULL ) ) != NULL )
       {
         if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD ||
             ent->s.eType == ET_MOVER )
@@ -692,7 +704,7 @@ void AOvermind_Think( gentity_t *self )
 
   VectorAdd( self->s.origin, range, maxs );
   VectorSubtract( self->s.origin, range, mins );
-  
+
   if( self->spawned && ( self->health > 0 ) )
   {
     //do some damage
@@ -700,7 +712,7 @@ void AOvermind_Think( gentity_t *self )
     for( i = 0; i < num; i++ )
     {
       enemy = &g_entities[ entityList[ i ] ];
-      
+
       if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
       {
         self->timestamp = level.time;
@@ -716,7 +728,7 @@ void AOvermind_Think( gentity_t *self )
       self->overmindSpawnsTimer = level.time + OVERMIND_SPAWNS_PERIOD;
       G_BroadcastEvent( EV_OVERMIND_SPAWNS, 0 );
     }
-    
+
     //overmind dying
     if( self->health < ( OVERMIND_HEALTH / 10.0f ) && level.time > self->overmindDyingTimer )
     {
@@ -730,7 +742,7 @@ void AOvermind_Think( gentity_t *self )
       self->overmindAttackTimer = level.time + OVERMIND_ATTACK_PERIOD;
       G_BroadcastEvent( EV_OVERMIND_ATTACK, 0 );
     }
-    
+
     self->lastHealth = self->health;
   }
   else
@@ -790,7 +802,7 @@ void ABarricade_Blast( gentity_t *self )
   self->timestamp = level.time;
   self->think = A_CreepRecede;
   self->nextthink = level.time + 500; //wait .5 seconds before damaging others
-    
+
   self->r.contents = 0;    //stop collisions...
   trap_LinkEntity( self ); //...requires a relink
 }
@@ -806,11 +818,11 @@ void ABarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
 {
   G_setBuildableAnim( self, BANIM_DESTROY1, qtrue );
   G_setIdleBuildableAnim( self, BANIM_DESTROYED );
-  
+
   self->die = nullDieFunction;
   self->think = ABarricade_Blast;
   self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
-  
+
   if( self->spawned )
     self->nextthink = level.time + 5000;
   else
@@ -832,7 +844,7 @@ void ABarricade_Think( gentity_t *self )
     G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
     return;
   }
-  
+
   creepSlow( self );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
@@ -864,7 +876,7 @@ void AAcidTube_Damage( gentity_t *self )
       self->s.eFlags |= EF_FIRING;
       G_AddEvent( self, EV_ALIEN_ACIDTUBE, DirToByte( self->s.origin2 ) );
     }
-      
+
     if( ( self->timestamp + ACIDTUBE_REPEAT ) > level.time )
       self->think = AAcidTube_Damage;
     else
@@ -900,22 +912,22 @@ void AAcidTube_Think( gentity_t *self )
 
   VectorAdd( self->s.origin, range, maxs );
   VectorSubtract( self->s.origin, range, mins );
-  
+
   //if there is no creep nearby die
   if( !findCreep( self ) )
   {
     G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
     return;
   }
-  
-  if( self->spawned && findOvermind( self ) )  
+
+  if( self->spawned && findOvermind( self ) )
   {
     //do some damage
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
     for( i = 0; i < num; i++ )
     {
       enemy = &g_entities[ entityList[ i ] ];
-      
+
       if( !G_Visible( self, enemy ) )
         continue;
 
@@ -960,10 +972,10 @@ void AHive_Think( gentity_t *self )
   vec3_t    dirToTarget;
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
-  
+
   VectorAdd( self->s.origin, range, maxs );
   VectorSubtract( self->s.origin, range, mins );
-  
+
   //if there is no creep nearby die
   if( !findCreep( self ) )
   {
@@ -973,15 +985,15 @@ void AHive_Think( gentity_t *self )
 
   if( self->timestamp < level.time )
     self->active = qfalse; //nothing has returned in HIVE_REPEAT seconds, forget about it
-  
-  if( self->spawned && !self->active && findOvermind( self ) )  
+
+  if( self->spawned && !self->active && findOvermind( self ) )
   {
     //do some damage
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
     for( i = 0; i < num; i++ )
     {
       enemy = &g_entities[ entityList[ i ] ];
-      
+
       if( enemy->health <= 0 )
         continue;
 
@@ -993,11 +1005,11 @@ void AHive_Think( gentity_t *self )
         self->active = qtrue;
         self->target_ent = enemy;
         self->timestamp = level.time + HIVE_REPEAT;
-        
+
         VectorSubtract( enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
         VectorNormalize( dirToTarget );
         vectoangles( dirToTarget, self->turretAim );
-          
+
         //fire at target
         FireWeapon( self );
         G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
@@ -1036,7 +1048,7 @@ qboolean AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideEx
   BG_FindBBoxForBuildable( BA_A_HOVEL, NULL, hovelMaxs );
   BG_FindBBoxForClass( player->client->ps.stats[ STAT_PCLASS ],
                        mins, maxs, NULL, NULL, NULL );
-  
+
   VectorCopy( hovel->s.origin2, normal );
   AngleVectors( hovel->s.angles, forward, NULL, NULL );
   VectorInverse( forward );
@@ -1048,21 +1060,21 @@ qboolean AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideEx
   vectoangles( forward, angles );
 
   VectorMA( origin, HOVEL_TRACE_DEPTH, normal, start );
-  
+
   //compute a place up in the air to start the real trace
   trap_Trace( &tr, origin, mins, maxs, start, player->s.number, MASK_PLAYERSOLID );
   VectorMA( origin, ( HOVEL_TRACE_DEPTH * tr.fraction ) - 1.0f, normal, start );
   VectorMA( origin, -HOVEL_TRACE_DEPTH, normal, end );
-  
+
   trap_Trace( &tr, start, mins, maxs, end, player->s.number, MASK_PLAYERSOLID );
-  
+
   if( tr.startsolid )
     return qtrue;
 
   VectorCopy( tr.endpos, origin );
-  
+
   trap_Trace( &tr, origin, mins, maxs, origin, player->s.number, MASK_PLAYERSOLID );
-  
+
   if( provideExit )
   {
     G_SetOrigin( player, origin );
@@ -1070,7 +1082,7 @@ qboolean AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideEx
     VectorCopy( vec3_origin, player->client->ps.velocity );
     SetClientViewAngle( player, angles );
   }
-  
+
   if( tr.fraction < 1.0f )
     return qtrue;
   else
@@ -1106,8 +1118,8 @@ Called when an alien uses a hovel
 void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
   vec3_t  hovelOrigin, hovelAngles, inverseNormal;
-  
-  if( self->spawned && findOvermind( self ) )  
+
+  if( self->spawned && findOvermind( self ) )
   {
     if( self->active )
     {
@@ -1169,7 +1181,7 @@ void AHovel_Think( gentity_t *self )
     else
       G_setIdleBuildableAnim( self, BANIM_IDLE1 );
   }
-    
+
   creepSlow( self );
 
   self->nextthink = level.time + 200;
@@ -1199,31 +1211,31 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->timestamp = level.time;
   self->think = ASpawn_Melt;
   self->nextthink = level.time + 500; //wait .5 seconds before damaging others
-  
+
   //if the hovel is occupied free the occupant
   if( self->active )
   {
     gentity_t *builder = self->builder;
     vec3_t    newOrigin;
     vec3_t    newAngles;
-    
+
     VectorCopy( self->s.angles, newAngles );
     newAngles[ ROLL ] = 0;
-    
+
     VectorCopy( self->s.origin, newOrigin );
     VectorMA( newOrigin, 1.0f, self->s.origin2, newOrigin );
-    
+
     //prevent lerping
     builder->client->ps.eFlags ^= EF_TELEPORT_BIT;
-      
+
     G_SetOrigin( builder, newOrigin );
     VectorCopy( newOrigin, builder->client->ps.origin );
     SetClientViewAngle( builder, newAngles );
-    
+
     //client leaves hovel
     builder->client->ps.stats[ STAT_STATE ] &= ~SS_HOVELING;
   }
-  
+
   self->r.contents = 0;    //stop collisions...
   trap_LinkEntity( self ); //...requires a relink
 }
@@ -1248,10 +1260,10 @@ void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 {
   int       maxAmmo, maxClips;
   gclient_t *client = other->client;
-  
+
   if( !self->spawned )
     return;
-  
+
   if( !findOvermind( self ) )
     return;
 
@@ -1260,15 +1272,15 @@ void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 
   if( client && client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
     return;
-    
+
   //only allow boostage once every 30 seconds
   if( client->lastBoostedTime + BOOSTER_INTERVAL > level.time )
     return;
-  
+
   //restore ammo, if any
   BG_FindAmmoForWeapon( client->ps.weapon, &maxAmmo, &maxClips );
   BG_PackAmmoArray( client->ps.weapon, client->ps.ammo, client->ps.powerups, maxAmmo, maxClips );
-  
+
   if( !( client->ps.stats[ STAT_STATE ] & SS_BOOSTED ) )
   {
     client->ps.stats[ STAT_STATE ] |= SS_BOOSTED;
@@ -1295,7 +1307,7 @@ void ADef_FireOnEnemy( gentity_t *self, int firespeed, float range )
   vec3_t  halfAcceleration, thirdJerk;
   float   distanceToTarget = BG_FindRangeForBuildable( self->s.modelindex );
   int     i;
- 
+
   VectorScale( self->enemy->acceleration, 1.0f / 2.0f, halfAcceleration );
   VectorScale( self->enemy->jerk, 1.0f / 3.0f, thirdJerk );
 
@@ -1308,7 +1320,7 @@ void ADef_FireOnEnemy( gentity_t *self, int firespeed, float range )
     {
       VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
       distanceToTarget = VectorLength( dirToTarget );
-      
+
       G_LogPrintf( "ADef_FireOnEnemy failed.\n"
           "  %dth iteration\n  enemy location: %v\n"
           "  enemy accleration: %v\n  enemy jerk: %v\n"
@@ -1316,9 +1328,9 @@ void ADef_FireOnEnemy( gentity_t *self, int firespeed, float range )
           i, self->enemy->s.pos.trBase, self->enemy->acceleration,
           self->enemy->jerk, self->s.pos.trBase, distanceToTarget );
 
-      return;               
+      return;
     }
-    
+
     VectorMA( self->enemy->s.pos.trBase, time, self->enemy->s.pos.trDelta,
               dirToTarget );
     VectorMA( dirToTarget, time * time, halfAcceleration, dirToTarget );
@@ -1328,7 +1340,7 @@ void ADef_FireOnEnemy( gentity_t *self, int firespeed, float range )
 
     distanceToTarget -= self->enemy->r.maxs[ 0 ];
   }
-  
+
   VectorNormalize( dirToTarget );
   vectoangles( dirToTarget, self->turretAim );
 
@@ -1400,7 +1412,7 @@ void ADef_FindEnemy( gentity_t *ent, int range )
     //if target is not valid keep searching
     if( !ADef_CheckTarget( ent, target, range ) )
       continue;
-      
+
     //we found a target
     ent->enemy = target;
     return;
@@ -1442,7 +1454,7 @@ void ATrapper_Think( gentity_t *self )
     //if a new target cannot be found don't do anything
     if( !self->enemy )
       return;
-    
+
     //if we are pointing at our target and we can fire shoot it
     if( self->count < level.time )
       ADef_FireOnEnemy( self, firespeed, range );
@@ -1480,7 +1492,7 @@ void HRepeater_Think( gentity_t *self )
         reactor = qtrue;
     }
   }
-  
+
   if( G_NumberOfDependants( self ) == 0 )
   {
     //if no dependants for x seconds then disappear
@@ -1511,7 +1523,7 @@ void HRepeater_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 
   if( !self->spawned )
     return;
-  
+
   G_GiveClientMaxAmmo( self, qtrue );
 }
 
@@ -1535,7 +1547,7 @@ void HReactor_Think( gentity_t *self )
 
   VectorAdd( self->s.origin, range, maxs );
   VectorSubtract( self->s.origin, range, mins );
-  
+
   if( self->spawned && ( self->health > 0 ) )
   {
     //do some damage
@@ -1543,22 +1555,22 @@ void HReactor_Think( gentity_t *self )
     for( i = 0; i < num; i++ )
     {
       enemy = &g_entities[ entityList[ i ] ];
-      
+
       if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
       {
         self->timestamp = level.time;
         G_SelectiveRadiusDamage( self->s.pos.trBase, self, REACTOR_ATTACK_DAMAGE,
           REACTOR_ATTACK_RANGE, self, MOD_REACTOR, PTE_HUMANS );
-        
+
         tent = G_TempEntity( enemy->s.pos.trBase, EV_TESLATRAIL );
 
         VectorCopy( self->s.pos.trBase, tent->s.origin2 );
-        
+
         tent->s.generic1 = self->s.number; //src
         tent->s.clientNum = enemy->s.number; //dest
       }
     }
-    
+
     //reactor under attack
     if( self->health < self->lastHealth &&
         level.time > level.humanBaseAttackTimer && G_isDCC( ) )
@@ -1566,7 +1578,7 @@ void HReactor_Think( gentity_t *self )
       level.humanBaseAttackTimer = level.time + DCC_ATTACK_PERIOD;
       G_BroadcastEvent( EV_DCC_ATTACK, 0 );
     }
-    
+
     self->lastHealth = self->health;
   }
 
@@ -1591,7 +1603,7 @@ void HArmoury_Activate( gentity_t *self, gentity_t *other, gentity_t *activator 
     //only humans can activate this
     if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
       return;
-    
+
     //if this is powered then call the armoury menu
     if( self->powered )
       G_TriggerMenu( activator->client->ps.clientNum, MN_H_ARMOURY );
@@ -1611,7 +1623,7 @@ void HArmoury_Think( gentity_t *self )
 {
   //make sure we have power
   self->nextthink = level.time + POWER_REFRESH_TIME;
-  
+
   self->powered = findPower( self );
 }
 
@@ -1635,7 +1647,7 @@ void HDCC_Think( gentity_t *self )
 {
   //make sure we have power
   self->nextthink = level.time + POWER_REFRESH_TIME;
-  
+
   self->powered = findPower( self );
 }
 
@@ -1667,7 +1679,7 @@ void HMedistat_Think( gentity_t *self )
     self->nextthink = level.time + POWER_REFRESH_TIME;
     return;
   }
-  
+
   if( self->spawned )
   {
     VectorAdd( self->s.origin, self->r.maxs, maxs );
@@ -1675,7 +1687,7 @@ void HMedistat_Think( gentity_t *self )
 
     mins[ 2 ] += fabs( self->r.mins[ 2 ] ) + self->r.maxs[ 2 ];
     maxs[ 2 ] += 60; //player height
-    
+
     //if active use the healing idle
     if( self->active )
       G_setIdleBuildableAnim( self, BANIM_IDLE2 );
@@ -1685,7 +1697,7 @@ void HMedistat_Think( gentity_t *self )
     for( i = 0; i < num; i++ )
     {
       player = &g_entities[ entityList[ i ] ];
-      
+
       if( player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
       {
         if( player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] &&
@@ -1698,19 +1710,19 @@ void HMedistat_Think( gentity_t *self )
     if( !occupied )
     {
       self->enemy = NULL;
-    
+
       //look for something to heal
       for( i = 0; i < num; i++ )
       {
         player = &g_entities[ entityList[ i ] ];
-        
+
         if( player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
         {
           if( player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] &&
               player->client->ps.pm_type != PM_DEAD )
           {
             self->enemy = player;
-            
+
             //start the heal anim
             if( !self->active )
             {
@@ -1729,17 +1741,17 @@ void HMedistat_Think( gentity_t *self )
     {
       G_setBuildableAnim( self, BANIM_CONSTRUCT2, qtrue );
       G_setIdleBuildableAnim( self, BANIM_IDLE1 );
-      
+
       self->active = qfalse;
     }
     else if( self->enemy ) //heal!
     {
       if( self->enemy->client && self->enemy->client->ps.stats[ STAT_STATE ] & SS_POISONED )
         self->enemy->client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
-      
+
       if( self->enemy->client && self->enemy->client->ps.stats[ STAT_STATE ] & SS_MEDKIT_ACTIVE )
         self->enemy->client->ps.stats[ STAT_STATE ] &= ~SS_MEDKIT_ACTIVE;
-      
+
       self->enemy->health++;
 
       //if they're completely healed, give them a medkit
@@ -1792,12 +1804,12 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
   VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
 
   VectorNormalize( dirToTarget );
-  
+
   CrossProduct( self->s.origin2, refNormal, xNormal );
   VectorNormalize( xNormal );
   rotAngle = RAD2DEG( acos( DotProduct( self->s.origin2, refNormal ) ) );
   RotatePointAroundVector( dttAdjusted, xNormal, dirToTarget, rotAngle );
-  
+
   vectoangles( dttAdjusted, angleToTarget );
 
   angularDiff[ PITCH ] = AngleSubtract( self->s.angles2[ PITCH ], angleToTarget[ PITCH ] );
@@ -1815,10 +1827,10 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
   temp = fabs( self->s.angles2[ PITCH ] );
   if( temp > 180 )
     temp -= 360;
-  
+
   if( temp < -MGTURRET_VERTICALCAP )
     self->s.angles2[ PITCH ] = (-360) + MGTURRET_VERTICALCAP;
-    
+
   //if not pointing at our target then move accordingly
   if( angularDiff[ YAW ] < (-accuracyTolerance) )
     self->s.angles2[ YAW ] += angularSpeed;
@@ -1826,7 +1838,7 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
     self->s.angles2[ YAW ] -= angularSpeed;
   else
     self->s.angles2[ YAW ] = angleToTarget[ YAW ];
-    
+
   AngleVectors( self->s.angles2, dttAdjusted, NULL, NULL );
   RotatePointAroundVector( dirToTarget, xNormal, dttAdjusted, -rotAngle );
   vectoangles( dirToTarget, self->turretAim );
@@ -1835,7 +1847,7 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
   if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= accuracyTolerance &&
       abs( angleToTarget[ PITCH ] - self->s.angles2[ PITCH ] ) <= accuracyTolerance )
     return qtrue;
-    
+
   return qfalse;
 }
 
@@ -1851,7 +1863,7 @@ qboolean HMGTurret_CheckTarget( gentity_t *self, gentity_t *target, qboolean ign
 {
   trace_t   trace;
   gentity_t *traceEnt;
-   
+
   if( !target )
     return qfalse;
 
@@ -1860,10 +1872,10 @@ qboolean HMGTurret_CheckTarget( gentity_t *self, gentity_t *target, qboolean ign
 
   if( target->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
     return qfalse;
-   
+
   if( target->health <= 0 )
     return qfalse;
-    
+
   if( Distance( self->s.origin, target->s.pos.trBase ) > MGTURRET_RANGE )
     return qfalse;
 
@@ -1872,7 +1884,7 @@ qboolean HMGTurret_CheckTarget( gentity_t *self, gentity_t *target, qboolean ign
     return qfalse;
 
   trap_Trace( &trace, self->s.pos.trBase, NULL, NULL, target->s.pos.trBase, self->s.number, MASK_SHOT );
-  
+
   traceEnt = &g_entities[ trace.entityNum ];
 
   if( !traceEnt->client )
@@ -1903,19 +1915,19 @@ void HMGTurret_FindEnemy( gentity_t *self )
   VectorSet( range, MGTURRET_RANGE, MGTURRET_RANGE, MGTURRET_RANGE );
   VectorAdd( self->s.origin, range, maxs );
   VectorSubtract( self->s.origin, range, mins );
-  
+
   //find aliens
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
   {
     target = &g_entities[ entityList[ i ] ];
-    
+
     if( target->client && target->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     {
       //if target is not valid keep searching
       if( !HMGTurret_CheckTarget( self, target, qfalse ) )
         continue;
-        
+
       //we found a target
       self->enemy = target;
       return;
@@ -1928,20 +1940,20 @@ void HMGTurret_FindEnemy( gentity_t *self )
     for( i = 0; i < num; i++ )
     {
       target = &g_entities[ entityList[ i ] ];
-      
+
       if( target->client && target->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
       {
         //if target is not valid keep searching
         if( !HMGTurret_CheckTarget( self, target, qtrue ) )
           continue;
-          
+
         //we found a target
         self->enemy = target;
         return;
       }
     }
   }
-  
+
   //couldn't find a target
   self->enemy = NULL;
 }
@@ -1962,19 +1974,19 @@ void HMGTurret_Think( gentity_t *self )
 
   //used for client side muzzle flashes
   self->s.eFlags &= ~EF_FIRING;
-  
+
   //if not powered don't do anything and check again for power next think
   if( !( self->powered = findPower( self ) ) )
   {
     self->nextthink = level.time + POWER_REFRESH_TIME;
     return;
   }
-  
+
   if( self->spawned )
   {
     //find a dcc for self
     self->dcced = findDCC( self );
-    
+
     //if the current target is not valid find a new one
     if( !HMGTurret_CheckTarget( self, self->enemy, qfalse ) )
     {
@@ -1987,7 +1999,7 @@ void HMGTurret_Think( gentity_t *self )
     //if a new target cannot be found don't do anything
     if( !self->enemy )
       return;
-    
+
     self->enemy->targeted = self;
 
     //if we are pointing at our target and we can fire shoot it
@@ -1995,7 +2007,7 @@ void HMGTurret_Think( gentity_t *self )
     {
       //fire at target
       FireWeapon( self );
-      
+
       self->s.eFlags |= EF_FIRING;
       G_AddEvent( self, EV_FIRE_WEAPON, 0 );
       G_setBuildableAnim( self, BANIM_ATTACK1, qfalse );
@@ -2038,22 +2050,22 @@ void HTeslaGen_Think( gentity_t *self )
     self->nextthink = level.time + POWER_REFRESH_TIME;
     return;
   }
-  
+
   if( self->spawned && self->count < level.time )
   {
     //used to mark client side effects
     self->s.eFlags &= ~EF_FIRING;
-    
+
     VectorSet( range, TESLAGEN_RANGE, TESLAGEN_RANGE, TESLAGEN_RANGE );
     VectorAdd( self->s.origin, range, maxs );
     VectorSubtract( self->s.origin, range, mins );
-    
+
     //find aliens
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
     for( i = 0; i < num; i++ )
     {
       enemy = &g_entities[ entityList[ i ] ];
-      
+
       if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
           enemy->health > 0 )
       {
@@ -2107,7 +2119,7 @@ void HSpawn_Disappear( gentity_t *self )
 
   self->think = freeBuildable;
   self->nextthink = level.time + 100;
-  
+
   self->r.contents = 0;    //stop collisions...
   trap_LinkEntity( self ); //...requires a relink
 }
@@ -2139,7 +2151,7 @@ void HSpawn_Blast( gentity_t *self )
 
   self->think = freeBuildable;
   self->nextthink = level.time + 100;
-  
+
   self->r.contents = 0;    //stop collisions...
   trap_LinkEntity( self ); //...requires a relink
 }
@@ -2157,11 +2169,11 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   //pretty events and cleanup
   G_setBuildableAnim( self, BANIM_DESTROY1, qtrue );
   G_setIdleBuildableAnim( self, BANIM_DESTROYED );
-  
+
   self->die = nullDieFunction;
   self->powered = qfalse; //free up power
   self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
-  
+
   if( self->spawned )
   {
     self->think = HSpawn_Blast;
@@ -2201,7 +2213,8 @@ void HSpawn_Think( gentity_t *self )
     //only suicide if at rest
     if( self->s.groundEntityNum )
     {
-      if( ( ent = G_CheckSpawnPoint( self->s.origin, self->s.origin2, BA_H_SPAWN, NULL ) ) != NULL )
+      if( ( ent = G_CheckSpawnPoint( self->s.number, self->s.origin,
+              self->s.origin2, BA_H_SPAWN, NULL ) ) != NULL )
       {
         if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD ||
             ent->s.eType == ET_MOVER )
@@ -2214,7 +2227,7 @@ void HSpawn_Think( gentity_t *self )
           G_FreeEntity( ent ); //quietly remove
       }
     }
-    
+
     //spawn under attack
     if( self->health < self->lastHealth &&
         level.time > level.humanBaseAttackTimer && G_isDCC( ) )
@@ -2222,7 +2235,7 @@ void HSpawn_Think( gentity_t *self )
       level.humanBaseAttackTimer = level.time + DCC_ATTACK_PERIOD;
       G_BroadcastEvent( EV_DCC_ATTACK, 0 );
     }
-    
+
     self->lastHealth = self->health;
   }
 
@@ -2257,10 +2270,10 @@ void G_BuildableTouchTriggers( gentity_t *ent )
     return;
 
   BG_FindBBoxForBuildable( ent->s.modelindex, bmins, bmaxs );
-  
+
   VectorAdd( ent->s.origin, bmins, mins );
   VectorAdd( ent->s.origin, bmaxs, maxs );
-  
+
   VectorSubtract( mins, range, mins );
   VectorAdd( maxs, range, maxs );
 
@@ -2269,7 +2282,7 @@ void G_BuildableTouchTriggers( gentity_t *ent )
   VectorAdd( ent->s.origin, bmins, mins );
   VectorAdd( ent->s.origin, bmaxs, maxs );
 
-  for( i = 0; i < num; i++ ) 
+  for( i = 0; i < num; i++ )
   {
     hit = &g_entities[ touch[ i ] ];
 
@@ -2282,7 +2295,7 @@ void G_BuildableTouchTriggers( gentity_t *ent )
     //ignore buildables not yet spawned
     if( !ent->spawned )
       continue;
-    
+
     if( !trap_EntityContact( mins, maxs, hit ) )
       continue;
 
@@ -2315,15 +2328,15 @@ void G_BuildableThink( gentity_t *ent, int msec )
     if( ent->buildTime + bTime < level.time )
       ent->spawned = qtrue;
   }
-  
+
   ent->s.generic1 = (int)( ( (float)ent->health / (float)bHealth ) * B_HEALTH_SCALE );
 
   if( ent->s.generic1 < 0 )
     ent->s.generic1 = 0;
-  
+
   if( ent->powered )
     ent->s.generic1 |= B_POWERED_TOGGLEBIT;
-  
+
   if( ent->dcced )
     ent->s.generic1 |= B_DCCED_TOGGLEBIT;
 
@@ -2335,13 +2348,13 @@ void G_BuildableThink( gentity_t *ent, int msec )
   if( ent->time1000 >= 1000 )
   {
     ent->time1000 -= 1000;
-    
+
     if( !ent->spawned )
       ent->health += (int)( ceil( (float)bHealth / (float)( bTime * 0.001 ) ) );
     else if( ent->biteam == BIT_ALIENS && ent->health > 0 && ent->health < bHealth &&
         bRegen && ( ent->lastDamageTime + ALIEN_REGEN_DAMAGE_TIME ) < level.time )
       ent->health += bRegen;
-      
+
     if( ent->health > bHealth )
       ent->health = bHealth;
   }
@@ -2351,13 +2364,13 @@ void G_BuildableThink( gentity_t *ent, int msec )
 
   if( ent->clientSpawnTime > 0 )
     ent->clientSpawnTime -= msec;
-  
+
   if( ent->clientSpawnTime < 0 )
     ent->clientSpawnTime = 0;
 
   //check if this buildable is touching any triggers
   G_BuildableTouchTriggers( ent );
-  
+
   //fall back on normal physics routines
   G_Physics( ent, msec );
 }
@@ -2377,19 +2390,19 @@ qboolean G_BuildableRange( vec3_t origin, float r, buildable_t buildable )
   vec3_t    mins, maxs;
   int       i, num;
   gentity_t *ent;
-  
+
   VectorSet( range, r, r, r );
   VectorAdd( origin, range, maxs );
   VectorSubtract( origin, range, mins );
-  
+
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
   {
     ent = &g_entities[ entityList[ i ] ];
-    
+
     if( ent->s.eType != ET_BUILDABLE )
       continue;
-    
+
     if( ent->biteam == BIT_HUMANS && !ent->powered )
       continue;
 
@@ -2423,7 +2436,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   playerState_t     *ps = &ent->client->ps;
 
   BG_FindBBoxForBuildable( buildable, mins, maxs );
-  
+
   BG_PositionBuildableRelativeToPlayer( ps, mins, maxs, trap_Trace, entity_origin, angles, &tr1 );
 
   trap_Trace( &tr2, entity_origin, mins, maxs, entity_origin, ent->s.number, MASK_PLAYERSOLID );
@@ -2434,7 +2447,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   //this item does not fit here
   if( tr2.fraction < 1.0 || tr3.fraction < 1.0 )
     return IBE_NOROOM; //NO other reason is allowed to override this
-    
+
   VectorCopy( tr1.plane.normal, normal );
   minNormal = BG_FindMinNormalForBuildable( buildable );
   invert = BG_FindInvertNormalForBuildable( buildable );
@@ -2442,12 +2455,12 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
   //can we build at this angle?
   if( !( normal[ 2 ] >= minNormal || ( invert && normal[ 2 ] <= -minNormal ) ) )
     return IBE_NORMAL;
-    
+
   if( tr1.entityNum != ENTITYNUM_WORLD )
     return IBE_NORMAL;
 
   //check there is enough room to spawn from (presuming this is a spawn)
-  if( G_CheckSpawnPoint( origin, normal, buildable, NULL ) != NULL )
+  if( G_CheckSpawnPoint( -1, origin, normal, buildable, NULL ) != NULL )
     return IBE_NORMAL;
 
   contents = trap_PointContents( entity_origin, -1 );
@@ -2459,21 +2472,21 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     if( buildable == BA_A_HOVEL )
     {
       vec3_t    builderMins, builderMaxs;
-      
+
       //this assumes the adv builder is the biggest thing that'll use the hovel
       BG_FindBBoxForClass( PCL_ALIEN_BUILDER0_UPG, builderMins, builderMaxs, NULL, NULL, NULL );
 
       if( APropHovel_Blocked( angles, origin, normal, ent ) )
         reason = IBE_HOVELEXIT;
     }
-    
+
     //check there is creep near by for building on
     if( BG_FindCreepTestForBuildable( buildable ) )
     {
       if( !isCreep( entity_origin ) )
         reason = IBE_NOCREEP;
     }
-    
+
     //check permission to build here
     if( tr1.surfaceFlags & SURF_NOALIENBUILD || tr1.surfaceFlags & SURF_NOBUILD ||
         contents & CONTENTS_NOALIENBUILD || contents & CONTENTS_NOBUILD )
@@ -2491,7 +2504,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     //if none found...
     if( i >= level.num_entities && buildable != BA_A_OVERMIND )
       reason = IBE_NOOVERMIND;
-    
+
     //can we only have one of these?
     if( BG_FindUniqueTestForBuildable( buildable ) )
     {
@@ -2524,7 +2537,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     //this buildable requires a DCC
     if( BG_FindDCCTestForBuildable( buildable ) && !G_isDCC( ) )
       reason = IBE_NODCC;
-    
+
     //check that there is a parent reactor when building a repeater
     if( buildable == BA_H_REPEATER )
     {
@@ -2533,16 +2546,16 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
         if( tempent->s.eType != ET_BUILDABLE )
           continue;
 
-        if( tempent->s.modelindex == BA_H_REACTOR ) 
+        if( tempent->s.modelindex == BA_H_REACTOR )
           break;
       }
-      
+
       if( i >= level.num_entities )
         reason = IBE_RPTWARN;
       else if( G_isPower( entity_origin ) )
         reason = IBE_RPTWARN2;
     }
-      
+
     //check permission to build here
     if( tr1.surfaceFlags & SURF_NOHUMANBUILD || tr1.surfaceFlags & SURF_NOBUILD ||
         contents & CONTENTS_NOHUMANBUILD || contents & CONTENTS_NOBUILD )
@@ -2556,7 +2569,7 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
         if( tempent->s.eType != ET_BUILDABLE )
           continue;
 
-        if( tempent->s.modelindex == BA_H_REACTOR ) 
+        if( tempent->s.modelindex == BA_H_REACTOR )
         {
           reason = IBE_REACTOR;
           break;
@@ -2590,19 +2603,19 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   built->s.eType = ET_BUILDABLE;
 
   built->classname = BG_FindEntityNameForBuildable( buildable );
-  
+
   built->s.modelindex = buildable; //so we can tell what this is on the client side
   built->biteam = built->s.modelindex2 = BG_FindTeamForBuildable( buildable );
 
   BG_FindBBoxForBuildable( buildable, built->r.mins, built->r.maxs );
   built->health = 1;
-  
+
   built->splashDamage = BG_FindSplashDamageForBuildable( buildable );
   built->splashRadius = BG_FindSplashRadiusForBuildable( buildable );
   built->splashMethodOfDeath = BG_FindMODForBuildable( buildable );
-  
+
   built->nextthink = BG_FindNextThinkForBuildable( buildable );
-  
+
   built->takedamage = qtrue;
   built->spawned = qfalse;
   built->buildTime = built->s.time = level.time;
@@ -2615,96 +2628,96 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
       built->think = ASpawn_Think;
       built->pain = ASpawn_Pain;
       break;
-      
+
     case BA_A_BARRICADE:
       built->die = ABarricade_Die;
       built->think = ABarricade_Think;
       built->pain = ABarricade_Pain;
       break;
-      
+
     case BA_A_BOOSTER:
       built->die = ABarricade_Die;
       built->think = ABarricade_Think;
       built->pain = ABarricade_Pain;
       built->touch = ABooster_Touch;
       break;
-      
+
     case BA_A_ACIDTUBE:
       built->die = ABarricade_Die;
       built->think = AAcidTube_Think;
       built->pain = ASpawn_Pain;
       break;
-      
+
     case BA_A_HIVE:
       built->die = ABarricade_Die;
       built->think = AHive_Think;
       built->pain = ASpawn_Pain;
       break;
-      
+
     case BA_A_TRAPPER:
       built->die = ABarricade_Die;
       built->think = ATrapper_Think;
       built->pain = ASpawn_Pain;
       break;
-      
+
     case BA_A_OVERMIND:
       built->die = ASpawn_Die;
       built->think = AOvermind_Think;
       built->pain = ASpawn_Pain;
       break;
-      
+
     case BA_A_HOVEL:
       built->die = AHovel_Die;
       built->use = AHovel_Use;
       built->think = AHovel_Think;
       built->pain = ASpawn_Pain;
       break;
-      
+
     case BA_H_SPAWN:
       built->die = HSpawn_Die;
       built->think = HSpawn_Think;
       break;
-      
+
     case BA_H_MGTURRET:
       built->die = HSpawn_Die;
       built->think = HMGTurret_Think;
       break;
-      
+
     case BA_H_TESLAGEN:
       built->die = HSpawn_Die;
       built->think = HTeslaGen_Think;
       break;
-      
+
     case BA_H_ARMOURY:
       built->think = HArmoury_Think;
       built->die = HSpawn_Die;
       built->use = HArmoury_Activate;
       break;
-      
+
     case BA_H_DCC:
       built->think = HDCC_Think;
       built->die = HSpawn_Die;
       break;
-      
+
     case BA_H_MEDISTAT:
       built->think = HMedistat_Think;
       built->die = HSpawn_Die;
       break;
-      
+
     case BA_H_REACTOR:
       built->think = HReactor_Think;
       built->die = HSpawn_Die;
       built->use = HRepeater_Use;
       built->powered = built->active = qtrue;
       break;
-      
+
     case BA_H_REPEATER:
       built->think = HRepeater_Think;
       built->die = HSpawn_Die;
       built->use = HRepeater_Use;
       built->count = -1;
       break;
-      
+
     default:
       //erk
       break;
@@ -2729,14 +2742,14 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
   built->s.pos.trTime = level.time;
   built->physicsBounce = BG_FindBounceForBuildable( buildable );
   built->s.groundEntityNum = -1;
-  
+
   if( builder->client && builder->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING )
   {
     if( builder->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
       VectorSet( normal, 0.0f, 0.0f, -1.0f );
     else
       VectorCopy( builder->client->ps.grapplePoint, normal );
-  
+
     //gently nudge the buildable onto the surface :)
     VectorScale( normal, -50.0f, built->s.pos.trDelta );
   }
@@ -2748,21 +2761,21 @@ gentity_t *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin
 
   if( built->s.generic1 < 0 )
     built->s.generic1 = 0;
-    
+
   if( ( built->powered = findPower( built ) ) )
     built->s.generic1 |= B_POWERED_TOGGLEBIT;
-  
+
   if( ( built->dcced = findDCC( built ) ) )
     built->s.generic1 |= B_DCCED_TOGGLEBIT;
-    
+
   built->s.generic1 &= ~B_SPAWNED_TOGGLEBIT;
 
   VectorCopy( normal, built->s.origin2 );
-  
+
   G_AddEvent( built, EV_BUILD_CONSTRUCT, 0 );
 
   G_setIdleBuildableAnim( built, BG_FindAnimForBuildable( buildable ) );
-    
+
   if( built->builtBy >= 0 )
     G_setBuildableAnim( built, BANIM_CONSTRUCT1, qtrue );
 
@@ -2782,7 +2795,7 @@ qboolean G_ValidateBuild( gentity_t *ent, buildable_t buildable )
   vec3_t        origin;
 
   dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
-    
+
   switch( G_itemFits( ent, buildable, dist, origin ) )
   {
     case IBE_NONE:
@@ -2841,21 +2854,21 @@ qboolean G_ValidateBuild( gentity_t *ent, buildable_t buildable )
     case IBE_NOPOWER:
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOPOWER );
       return qfalse;
-      
+
     case IBE_NODCC:
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_NODCC );
       return qfalse;
-      
+
     case IBE_SPWNWARN:
       G_TriggerMenu( ent->client->ps.clientNum, MN_A_SPWNWARN );
       G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
       return qtrue;
-      
+
     case IBE_TNODEWARN:
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_TNODEWARN );
       G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
       return qtrue;
-      
+
     case IBE_RPTWARN:
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPTWARN );
       G_buildItem( ent, buildable, origin, ent->s.apos.trBase );
@@ -2894,7 +2907,7 @@ void FinishSpawningBuildable( gentity_t *ent )
   built->spawned = qtrue; //map entities are already spawned
   built->health = BG_FindHealthForBuildable( buildable );
   built->s.generic1 |= B_SPAWNED_TOGGLEBIT;
-  
+
   // drop to floor
   if( buildable != BA_NONE && BG_FindTrajectoryForBuildable( buildable ) == TR_BUOYANCY )
     VectorSet( dest, built->s.origin[ 0 ], built->s.origin[ 1 ], built->s.origin[ 2 ] + 4096 );
@@ -2902,7 +2915,7 @@ void FinishSpawningBuildable( gentity_t *ent )
     VectorSet( dest, built->s.origin[ 0 ], built->s.origin[ 1 ], built->s.origin[ 2 ] - 4096 );
 
   trap_Trace( &tr, built->s.origin, built->r.mins, built->r.maxs, dest, built->s.number, built->clipmask );
-  
+
   if( tr.startsolid )
   {
     G_Printf( S_COLOR_YELLOW "FinishSpawningBuildable: %s startsolid at %s\n", built->classname, vtos( built->s.origin ) );

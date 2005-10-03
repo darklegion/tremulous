@@ -160,7 +160,7 @@ void UI_LoadArenas( void ) {
       // determine type
     type = Info_ValueForKey( ui_arenaInfos[ n ], "type" );
     // if no type specified, it will be treated as "ffa"
-    
+
     if( *type && strstr( type, "tremulous" ) )
       uiInfo.mapList[ uiInfo.mapCount ].typeBits |= ( 1 << 0 );
     else

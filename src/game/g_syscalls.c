@@ -46,7 +46,7 @@ void  trap_Error( const char *fmt )
 
 int   trap_Milliseconds( void )
 {
-  return syscall( G_MILLISECONDS ); 
+  return syscall( G_MILLISECONDS );
 }
 int   trap_Argc( void )
 {

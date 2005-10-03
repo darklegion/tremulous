@@ -76,7 +76,7 @@ void *CG_Alloc( int size )
       }
     }
   }
-  
+
   if( !ptr && smallest )
   {
     // We found a slot big enough

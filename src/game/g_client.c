@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
- 
+
 #include "g_local.h"
 
 // g_client.c -- client functions that don't happen every frame
@@ -33,7 +33,7 @@ void SP_info_player_deathmatch( gentity_t *ent )
   int   i;
 
   G_SpawnInt( "nobots", "0", &i);
-  
+
   if( i )
     ent->flags |= FL_NO_BOTS;
 
@@ -98,9 +98,9 @@ void G_AddCreditToClient( gclient_t *client, short credit, qboolean cap )
         return;
     }
   }
-    
+
   client->ps.persistant[ PERS_CREDIT ] += credit;
-  
+
   if( cap )
   {
     if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
@@ -114,7 +114,7 @@ void G_AddCreditToClient( gclient_t *client, short credit, qboolean cap )
         client->ps.persistant[ PERS_CREDIT ] = HUMAN_MAX_CREDITS;
     }
   }
-    
+
   if( client->ps.persistant[ PERS_CREDIT ] < 0 )
     client->ps.persistant[ PERS_CREDIT ] = 0;
 }
@@ -179,7 +179,7 @@ gentity_t *SelectNearestDeathmatchSpawnPoint( vec3_t from )
   {
     VectorSubtract( spot->s.origin, from, delta );
     dist = VectorLength( delta );
-    
+
     if( dist < nearestDist )
     {
       nearestDist = dist;
@@ -252,31 +252,31 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 
     VectorSubtract( spot->s.origin, avoidPoint, delta );
     dist = VectorLength( delta );
-    
+
     for( i = 0; i < numSpots; i++ )
     {
       if( dist > list_dist[ i ] )
       {
         if( numSpots >= 64 )
           numSpots = 64 - 1;
-        
+
         for( j = numSpots; j > i; j-- )
         {
           list_dist[ j ] = list_dist[ j - 1 ];
           list_spot[ j ] = list_spot[ j - 1 ];
         }
-        
+
         list_dist[ i ] = dist;
         list_spot[ i ] = spot;
         numSpots++;
-        
+
         if( numSpots > 64 )
           numSpots = 64;
-        
+
         break;
       }
     }
-    
+
     if( i >= numSpots && numSpots < 64 )
     {
       list_dist[ numSpots ] = dist;
@@ -284,14 +284,14 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
       numSpots++;
     }
   }
-  
+
   if( !numSpots )
   {
     spot = G_Find( NULL, FOFS( classname ), "info_player_deathmatch" );
-    
+
     if( !spot )
       G_Error( "Couldn't find a spawn point" );
-    
+
     VectorCopy( spot->s.origin, origin );
     origin[ 2 ] += 9;
     VectorCopy( spot->s.angles, angles );
@@ -324,7 +324,7 @@ gentity_t *SelectAlienSpawnPoint( vec3_t preference )
 
   if( level.numAlienSpawns <= 0 )
     return NULL;
-  
+
   count = 0;
   spot = NULL;
 
@@ -333,7 +333,7 @@ gentity_t *SelectAlienSpawnPoint( vec3_t preference )
   {
     if( !spot->spawned )
       continue;
-    
+
     if( spot->health <= 0 )
       continue;
 
@@ -342,10 +342,11 @@ gentity_t *SelectAlienSpawnPoint( vec3_t preference )
 
     if( spot->clientSpawnTime > 0 )
       continue;
-    
-    if( G_CheckSpawnPoint( spot->s.origin, spot->s.origin2, BA_A_SPAWN, NULL ) != NULL )
+
+    if( G_CheckSpawnPoint( spot->s.number, spot->s.origin,
+          spot->s.origin2, BA_A_SPAWN, NULL ) != NULL )
       continue;
-    
+
     spots[ count ] = spot;
     count++;
   }
@@ -372,7 +373,7 @@ gentity_t *SelectHumanSpawnPoint( vec3_t preference )
 
   if( level.numHumanSpawns <= 0 )
     return NULL;
-  
+
   count = 0;
   spot = NULL;
 
@@ -381,7 +382,7 @@ gentity_t *SelectHumanSpawnPoint( vec3_t preference )
   {
     if( !spot->spawned )
       continue;
-    
+
     if( spot->health <= 0 )
       continue;
 
@@ -390,10 +391,11 @@ gentity_t *SelectHumanSpawnPoint( vec3_t preference )
 
     if( spot->clientSpawnTime > 0 )
       continue;
-    
-    if( G_CheckSpawnPoint( spot->s.origin, spot->s.origin2, BA_H_SPAWN, NULL ) != NULL )
+
+    if( G_CheckSpawnPoint( spot->s.number, spot->s.origin,
+          spot->s.origin2, BA_H_SPAWN, NULL ) != NULL )
       continue;
-    
+
     spots[ count ] = spot;
     count++;
   }
@@ -439,15 +441,15 @@ gentity_t *SelectTremulousSpawnPoint( pTeam_t team, vec3_t preference, vec3_t or
     return NULL;
 
   if( team == PTE_ALIENS )
-    G_CheckSpawnPoint( spot->s.origin, spot->s.origin2, BA_A_SPAWN, origin );
+    G_CheckSpawnPoint( spot->s.number, spot->s.origin, spot->s.origin2, BA_A_SPAWN, origin );
   else if( team == PTE_HUMANS )
-    G_CheckSpawnPoint( spot->s.origin, spot->s.origin2, BA_H_SPAWN, origin );
+    G_CheckSpawnPoint( spot->s.number, spot->s.origin, spot->s.origin2, BA_H_SPAWN, origin );
 
   VectorCopy( spot->s.angles, angles );
   angles[ ROLL ] = 0;
 
   return spot;
-  
+
 }
 
 
@@ -571,18 +573,18 @@ void BodySink( gentity_t *ent )
   if( !ent->active )
   {
     ent->active = qtrue;
-    
+
     //sinking bodies can't be infested
     ent->killedBy = ent->s.powerups = MAX_CLIENTS;
     ent->timestamp = level.time;
   }
-  
+
   if( level.time - ent->timestamp > 6500 )
   {
     G_FreeEntity( ent );
     return;
   }
-  
+
   ent->nextthink = level.time + 100;
   ent->s.pos.trBase[ 2 ] -= 1;
 }
@@ -629,7 +631,7 @@ void SpawnCorpse( gentity_t *ent )
   contents = trap_PointContents( origin, -1 );
   if( contents & CONTENTS_NODROP )
     return;
-  
+
   body = G_Spawn( );
 
   VectorCopy( ent->s.apos.trBase, body->s.angles );
@@ -639,10 +641,9 @@ void SpawnCorpse( gentity_t *ent )
   body->timestamp = level.time;
   body->s.event = 0;
   body->r.contents = CONTENTS_CORPSE;
-  body->clipmask = MASK_DEADSOLID;
   body->s.clientNum = ent->client->ps.stats[ STAT_PCLASS ];
   body->nonSegModel = ent->client->ps.persistant[ PERS_STATE ] & PS_NONSEGMODEL;
-  
+
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
     body->classname = "humanCorpse";
   else
@@ -651,8 +652,8 @@ void SpawnCorpse( gentity_t *ent )
   body->s.powerups = MAX_CLIENTS;
 
   body->think = BodySink;
-  body->nextthink = level.time + 60000;
-    
+  body->nextthink = level.time + 20000;
+
   body->s.legsAnim = ent->s.legsAnim;
 
   if( !body->nonSegModel )
@@ -698,11 +699,11 @@ void SpawnCorpse( gentity_t *ent )
 
   body->health = ent->health = ent->client->ps.stats[ STAT_HEALTH ];
   ent->health = 0;
-  
+
   //change body dimensions
   BG_FindBBoxForClass( ent->client->ps.stats[ STAT_PCLASS ], NULL, NULL, NULL, body->r.mins, body->r.maxs );
   vDiff = body->r.mins[ 2 ] - ent->r.mins[ 2 ];
-  
+
   //drop down to match the *model* origins of ent and body
   VectorSet( dest, origin[ 0 ], origin[ 1 ], origin[ 2 ] - vDiff );
   trap_Trace( &tr, origin, body->r.mins, body->r.maxs, dest, body->s.number, body->clipmask );
@@ -713,7 +714,7 @@ void SpawnCorpse( gentity_t *ent )
   body->s.pos.trType = TR_GRAVITY;
   body->s.pos.trTime = level.time;
   VectorCopy( ent->client->ps.velocity, body->s.pos.trDelta );
-            
+
   VectorCopy ( body->s.pos.trBase, body->r.currentOrigin );
   trap_LinkEntity( body );
 }
@@ -739,7 +740,7 @@ void SetClientViewAngle( gentity_t *ent, vec3_t angle )
     cmdAngle = ANGLE2SHORT( angle[ i ] );
     ent->client->ps.delta_angles[ i ] = cmdAngle - ent->client->pers.cmd.angles[ i ];
   }
-  
+
   VectorCopy( angle, ent->s.angles );
   VectorCopy( ent->s.angles, ent->client->ps.viewangles );
 }
@@ -755,12 +756,6 @@ void respawn( gentity_t *ent )
 
   //TA: Clients can't respawn - they must go thru the class cmd
   ClientSpawn( ent, NULL, NULL, NULL );
-
-  //FIXME: need different spawn effects for different teams
-
-  // add a teleportation effect
-  //tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
-  //tent->s.clientNum = ent->s.clientNum;
 }
 
 /*
@@ -863,7 +858,7 @@ static void ClientCleanName( const char *in, char *out, int outSize )
     colorlessLen++;
     len++;
   }
-  
+
   *out = 0;
 
   // don't allow empty names
@@ -894,7 +889,7 @@ static qboolean G_NonSegModel( const char *filename )
     G_Printf( "File not found: %s\n", filename );
     return qfalse;
   }
-  
+
   if( len <= 0 )
     return qfalse;
 
@@ -903,7 +898,7 @@ static qboolean G_NonSegModel( const char *filename )
     G_Printf( "File %s too long\n", filename );
     return qfalse;
   }
-  
+
   trap_FS_Read( text, len, f );
   text[ len ] = 0;
   trap_FS_FCloseFile( f );
@@ -915,7 +910,7 @@ static qboolean G_NonSegModel( const char *filename )
   while( 1 )
   {
     token = COM_Parse( &text_p );
-    
+
     //EOF
     if( !token[ 0 ] )
       break;
@@ -966,13 +961,13 @@ void ClientUserinfoChanged( int clientNum )
 
   // check for local client
   s = Info_ValueForKey( userinfo, "ip" );
-  
+
   if( !strcmp( s, "localhost" ) )
     client->pers.localClient = qtrue;
 
   // check the item prediction
   s = Info_ValueForKey( userinfo, "cg_predictItems" );
-  
+
   if( !atoi( s ) )
     client->pers.predictItemPickup = qfalse;
   else
@@ -1001,7 +996,7 @@ void ClientUserinfoChanged( int clientNum )
   // set max health
   health = atoi( Info_ValueForKey( userinfo, "handicap" ) );
   client->pers.maxHealth = health;
-  
+
   if( client->pers.maxHealth < 1 || client->pers.maxHealth > 100 )
     client->pers.maxHealth = 100;
 
@@ -1046,7 +1041,7 @@ void ClientUserinfoChanged( int clientNum )
 
   // wallwalk follow
   s = Info_ValueForKey( userinfo, "cg_wwFollow" );
-  
+
   if( atoi( s ) )
     client->ps.persistant[ PERS_STATE ] |= PS_WALLCLIMBINGFOLLOW;
   else
@@ -1054,7 +1049,7 @@ void ClientUserinfoChanged( int clientNum )
 
   // wallwalk toggle
   s = Info_ValueForKey( userinfo, "cg_wwToggle" );
-  
+
   if( atoi( s ) )
     client->ps.persistant[ PERS_STATE ] |= PS_WALLCLIMBINGTOGGLE;
   else
@@ -1062,7 +1057,7 @@ void ClientUserinfoChanged( int clientNum )
 
   // teamInfo
   s = Info_ValueForKey( userinfo, "teamoverlay" );
-  
+
   if( ! *s || atoi( s ) != 0 )
     client->pers.teamInfo = qtrue;
   else
@@ -1083,7 +1078,7 @@ void ClientUserinfoChanged( int clientNum )
     team = PTE_NONE;
   else
     team = client->ps.stats[ STAT_PTEAM ];
-  
+
   // send over a subset of the userinfo keys so other clients can
   // print scoreboards, display models, and play custom sounds
   s = va( "n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
@@ -1137,7 +1132,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot )
 
   // check for a password
   value = Info_ValueForKey( userinfo, "password" );
-  
+
   if( g_password.string[ 0 ] && Q_stricmp( g_password.string, "none" ) &&
       strcmp( g_password.string, value ) != 0 )
     return "Invalid password";
@@ -1221,14 +1216,14 @@ void ClientBegin( int clientNum )
     tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
     tent->s.clientNum = ent->s.clientNum;
   }
-  
+
   G_InitCommandQueue( clientNum );
 
   G_SendCommandFromServer( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
 
   // request the clients PTR code
   G_SendCommandFromServer( ent - g_entities, "ptrcrequest" );
-  
+
   G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
   // count current clients and rank for scoreboard
@@ -1262,7 +1257,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   vec3_t              up = { 0.0f, 0.0f, 1.0f };
   int                 maxAmmo, maxClips;
   weapon_t            weapon;
-      
+
 
   index = ent - g_entities;
   client = ent->client;
@@ -1283,10 +1278,10 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
 
   if( origin != NULL )
     VectorCopy( origin, spawn_origin );
-  
+
   if( angles != NULL )
     VectorCopy( angles, spawn_angles );
-  
+
   // find a spawn point
   // do it before setting health back up, so farthest
   // ranging doesn't count this client
@@ -1308,7 +1303,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     }
 
     spawnPoint = spawn;
-    
+
     if( ent != spawn )
     {
       //start spawn animation on spawnPoint
@@ -1331,21 +1326,21 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   saved = client->pers;
   savedSess = client->sess;
   savedPing = client->ps.ping;
-  
+
   for( i = 0; i < MAX_PERSISTANT; i++ )
     persistant[ i ] = client->ps.persistant[ i ];
-  
+
   eventSequence = client->ps.eventSequence;
   memset( client, 0, sizeof( *client ) );
-  
+
   client->pers = saved;
   client->sess = savedSess;
   client->ps.ping = savedPing;
   client->lastkilled_client = -1;
-  
+
   for( i = 0; i < MAX_PERSISTANT; i++ )
     client->ps.persistant[ i ] = persistant[ i ];
-  
+
   client->ps.eventSequence = eventSequence;
 
   // increment the spawncount so the client will detect the respawn
@@ -1380,7 +1375,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
 
   client->ps.eFlags = flags;
   client->ps.clientNum = index;
-  
+
   BG_FindBBoxForClass( ent->client->pers.classSelection, ent->r.mins, ent->r.maxs, NULL, NULL, NULL );
 
   if( client->sess.sessionTeam != TEAM_SPECTATOR )
@@ -1400,21 +1395,21 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     weapon = BG_FindStartWeaponForClass( ent->client->pers.classSelection );
   else
     weapon = WP_NONE;
-  
+
   BG_FindAmmoForWeapon( weapon, &maxAmmo, &maxClips );
   BG_AddWeaponToInventory( weapon, client->ps.stats );
   BG_PackAmmoArray( weapon, client->ps.ammo, client->ps.powerups, maxAmmo, maxClips );
 
   ent->client->ps.stats[ STAT_PCLASS ] = ent->client->pers.classSelection;
   ent->client->ps.stats[ STAT_PTEAM ] = ent->client->pers.teamSelection;
-  
+
   ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
   ent->client->ps.stats[ STAT_STATE ] = 0;
   VectorSet( ent->client->ps.grapplePoint, 0.0f, 0.0f, 1.0f );
 
   // health will count down towards max_health
   ent->health = client->ps.stats[ STAT_HEALTH ] = client->ps.stats[ STAT_MAX_HEALTH ]; //* 1.25;
-  
+
   //if evolving scale health
   if( ent == spawn )
   {
@@ -1425,9 +1420,9 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   //clear the credits array
   for( i = 0; i < MAX_CLIENTS; i++ )
     ent->credits[ i ] = 0;
-  
+
   client->ps.stats[ STAT_STAMINA ] = MAX_STAMINA;
-  
+
   G_SetOrigin( ent, spawn_origin );
   VectorCopy( spawn_origin, client->ps.origin );
 
@@ -1447,11 +1442,11 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     {
       spawn_angles[ YAW ] += 180.0f;
       AngleNormalize360( spawn_angles[ YAW ] );
-      
+
       if( spawnPoint->s.origin2[ 2 ] > 0.0f )
       {
         vec3_t  forward, dir;
-        
+
         AngleVectors( spawn_angles, forward, NULL, NULL );
         VectorScale( forward, F_VEL, forward );
         VectorAdd( spawnPoint->s.origin2, forward, dir );
@@ -1459,7 +1454,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
 
         VectorScale( dir, UP_VEL, client->ps.velocity );
       }
-      
+
       G_AddPredictableEvent( ent, EV_PLAYER_RESPAWN, 0 );
     }
   }
@@ -1511,7 +1506,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     // select the highest weapon number available, after any
     // spawn given items have fired
     client->ps.weapon = 1;
-    
+
     for( i = WP_NUM_WEAPONS - 1; i > 0 ; i-- )
     {
       if( BG_InventoryContainsWeapon( i, client->ps.stats ) )
@@ -1566,7 +1561,7 @@ void ClientDisconnect( int clientNum )
   int       i;
 
   ent = g_entities + clientNum;
-  
+
   if( !ent->client )
     return;
 

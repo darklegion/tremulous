@@ -10,7 +10,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
- 
+
 
 /*
  * ALIEN weapons
@@ -19,7 +19,7 @@
  * _DMG     - amount of damage the weapon does
  *
  * ALIEN_WDMG_MODIFIER - overall damage modifier for coarse tuning
- * 
+ *
  */
 
 #define ALIEN_WDMG_MODIFIER         1.0f
@@ -108,7 +108,7 @@
  * _REGEN   - health per second regained
  *
  * ALIEN_HLTH_MODIFIER - overall health modifier for coarse tuning
- * 
+ *
  */
 
 #define ALIEN_HLTH_MODIFIER         1.0f
@@ -190,13 +190,13 @@
  *
  * CREEP_BASESIZE - the maximum distance a buildable can be from an egg/overmind
  * ALIEN_BHLTH_MODIFIER - overall health modifier for coarse tuning
- * 
+ *
  */
 
 #define ALIEN_BHLTH_MODIFIER        1.0f
 #define ABHM(h)                     ((int)((float)h*ALIEN_BHLTH_MODIFIER))
 
-#define CREEP_BASESIZE              700 
+#define CREEP_BASESIZE              700
 #define CREEP_TIMEOUT               1000
 #define CREEP_MODIFIER              0.5f
 #define CREEP_ARMOUR_MODIFIER       0.75f
@@ -289,7 +289,7 @@
  * ALIEN misc
  *
  * ALIENSENSE_RANGE - the distance alien sense is useful for
- * 
+ *
  */
 
 #define ALIENSENSE_RANGE            1000.0f
@@ -310,7 +310,7 @@
  * _PRICE   - amount in credits weapon costs
  *
  * HUMAN_WDMG_MODIFIER - overall damage modifier for coarse tuning
- * 
+ *
  */
 
 #define HUMAN_WDMG_MODIFIER         1.0f
@@ -448,12 +448,12 @@
  * _BP            - build points required for this buildable
  * _BT            - build time required for this buildable
  * _SPLASHDAMGE   - the amount of damage caused by this buildable when it blows up
- * _SPLASHRADIUS  - the radius around which it does this damage 
+ * _SPLASHRADIUS  - the radius around which it does this damage
  *
  * REACTOR_BASESIZE - the maximum distance a buildable can be from an reactor
  * REPEATER_BASESIZE - the maximum distance a buildable can be from a repeater
  * HUMAN_BHLTH_MODIFIER - overall health modifier for coarse tuning
- * 
+ *
  */
 
 #define HUMAN_BHLTH_MODIFIER        1.0f
@@ -567,5 +567,5 @@
 #define DEFAULT_ALIEN_BUILDPOINTS   "100"
 #define DEFAULT_HUMAN_BUILDPOINTS   "100"
 
-#define DAMAGE_FRACTION_FOR_KILL    0.5f //how much damage players (versus structures) need to 
+#define DAMAGE_FRACTION_FOR_KILL    0.5f //how much damage players (versus structures) need to
                                          //do to increment the stage kill counters

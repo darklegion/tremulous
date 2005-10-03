@@ -82,7 +82,7 @@ void G_Physics( gentity_t *ent, int msec )
   trace_t   tr;
   int     contents;
   int     mask;
-  
+
   // if groundentity has been set to -1, it may have been pushed off an edge
   if( ent->s.groundEntityNum == -1 )
   {
@@ -100,7 +100,7 @@ void G_Physics( gentity_t *ent, int msec )
       ent->s.pos.trTime = level.time;
     }
   }
-  
+
   // trace a line from the previous position to the current position
   if( ent->clipmask )
     mask = ent->clipmask;
@@ -120,7 +120,7 @@ void G_Physics( gentity_t *ent, int msec )
       VectorMA( origin, -2.0f, ent->s.origin2, origin );
 
       trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, ent->s.number, mask );
-      
+
       if( tr.fraction == 1.0f )
         ent->s.groundEntityNum = -1;
 
@@ -145,7 +145,7 @@ void G_Physics( gentity_t *ent, int msec )
   // check think function
   G_RunThink( ent );
 
-  if( tr.fraction == 1.0f ) 
+  if( tr.fraction == 1.0f )
     return;
 
   // if it is in a nodrop volume, remove it

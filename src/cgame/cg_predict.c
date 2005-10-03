@@ -129,7 +129,7 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 
       if( i == cg_numSolidEntities )
         BG_FindBBoxForClass( ( ent->powerups >> 8 ) & 0xFF, bmins, bmaxs, NULL, NULL, NULL );
-      
+
       cmodel = trap_CM_TempBoxModel( bmins, bmaxs );
       VectorCopy( vec3_origin, angles );
       VectorCopy( cent->lerpOrigin, origin );
@@ -154,7 +154,7 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
     }
     else if( trace.startsolid )
       tr->startsolid = qtrue;
-    
+
     if( tr->allsolid )
       return;
   }
@@ -165,7 +165,7 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 CG_Trace
 ================
 */
-void  CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, 
+void  CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
                 int skipNumber, int mask )
 {
   trace_t t;
@@ -183,7 +183,7 @@ void  CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const ve
 CG_CapTrace
 ================
 */
-void  CG_CapTrace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, 
+void  CG_CapTrace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
                    int skipNumber, int mask )
 {
   trace_t t;
@@ -224,7 +224,7 @@ int   CG_PointContents( const vec3_t point, int passEntityNum )
       continue;
 
     cmodel = trap_CM_InlineModel( ent->modelindex );
-    
+
     if( !cmodel )
       continue;
 
@@ -280,16 +280,16 @@ static void CG_InterpolatePlayerState( qboolean grabAngles )
   i = next->ps.bobCycle;
   if( i < prev->ps.bobCycle )
     i += 256;   // handle wraparound
-  
+
   out->bobCycle = prev->ps.bobCycle + f * ( i - prev->ps.bobCycle );
 
   for( i = 0; i < 3; i++ )
   {
     out->origin[ i ] = prev->ps.origin[ i ] + f * ( next->ps.origin[ i ] - prev->ps.origin[ i ] );
-    
+
     if( !grabAngles )
       out->viewangles[ i ] = LerpAngle( prev->ps.viewangles[ i ], next->ps.viewangles[ i ], f );
-    
+
     out->velocity[ i ] = prev->ps.velocity[ i ] +
       f * (next->ps.velocity[ i ] - prev->ps.velocity[ i ] );
   }
@@ -341,8 +341,6 @@ static void CG_TouchTriggerPrediction( void )
 
     if( ent->eType == ET_TELEPORT_TRIGGER )
       cg.hyperspace = qtrue;
-    else if( ent->eType == ET_PUSH_TRIGGER )
-      BG_TouchJumpPad( &cg.predictedPlayerState, ent );
   }
 
   // if we didn't touch a jump pad this pmove frame
@@ -425,7 +423,7 @@ void CG_PredictPlayerState( void )
     cg_pmove.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
   else
     cg_pmove.tracemask = MASK_PLAYERSOLID;
-  
+
   if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
     cg_pmove.tracemask &= ~CONTENTS_BODY; // spectators can fly through bodies
 
@@ -441,13 +439,13 @@ void CG_PredictPlayerState( void )
   // the last good position we had
   cmdNum = current - CMD_BACKUP + 1;
   trap_GetUserCmd( cmdNum, &oldestCmd );
-  
+
   if( oldestCmd.serverTime > cg.snap->ps.commandTime &&
       oldestCmd.serverTime < cg.time )
   { // special check for map_restart
     if( cg_showmiss.integer )
       CG_Printf( "exceeded PACKET_BACKUP on commands\n" );
-    
+
     return;
   }
 
@@ -479,7 +477,7 @@ void CG_PredictPlayerState( void )
 
   // run cmds
   moved = qfalse;
-  
+
   for( cmdNum = current - CMD_BACKUP + 1; cmdNum <= current; cmdNum++ )
   {
     // get the command
@@ -510,10 +508,10 @@ void CG_PredictPlayerState( void )
       {
         // a teleport will not cause an error decay
         VectorClear( cg.predictedError );
-        
+
         if( cg_showmiss.integer )
           CG_Printf( "PredictionTeleport\n" );
-        
+
         cg.thisFrameTeleport = qfalse;
       }
       else
@@ -527,10 +525,10 @@ void CG_PredictPlayerState( void )
           if( !VectorCompare( oldPlayerState.origin, adjusted ) )
             CG_Printf("prediction error\n");
         }
-        
+
         VectorSubtract( oldPlayerState.origin, adjusted, delta );
         len = VectorLength( delta );
-        
+
         if( len > 0.1 )
         {
           if( cg_showmiss.integer )
@@ -543,18 +541,18 @@ void CG_PredictPlayerState( void )
 
             t = cg.time - cg.predictedErrorTime;
             f = ( cg_errorDecay.value - t ) / cg_errorDecay.value;
-            
+
             if( f < 0 )
               f = 0;
 
             if( f > 0 && cg_showmiss.integer )
               CG_Printf( "Double prediction decay: %f\n", f );
-            
+
             VectorScale( cg.predictedError, f, cg.predictedError );
           }
           else
             VectorClear( cg.predictedError );
-          
+
           VectorAdd( delta, cg.predictedError, cg.predictedError );
           cg.predictedErrorTime = cg.oldTime;
         }

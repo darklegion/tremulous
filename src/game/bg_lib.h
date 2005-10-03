@@ -15,7 +15,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
-                    
+
 typedef int size_t;
 
 typedef char *  va_list;
@@ -42,8 +42,8 @@ typedef char *  va_list;
 // Misc functions
 typedef int cmp_t( const void *, const void * );
 void        qsort( void *a, size_t n, size_t es, cmp_t *cmp );
-void	      srand( unsigned seed );
-int		      rand( void );
+void        srand( unsigned seed );
+int         rand( void );
 
 // String functions
 size_t  strlen( const char *string );

@@ -29,11 +29,11 @@ G_ForceWeaponChange
 void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
 {
   int i;
-  
+
   if( ent )
   {
     ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
-    
+
     if( weapon == WP_NONE )
     {
       //switch to the first non blaster weapon
@@ -41,14 +41,14 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
       {
         if( i == WP_BLASTER )
           continue;
-        
+
         if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) )
         {
           ent->client->ps.persistant[ PERS_NEWWEAPON ] = i;
           break;
         }
       }
-      
+
       //only got the blaster to switch to
       if( i == WP_NUM_WEAPONS )
         ent->client->ps.persistant[ PERS_NEWWEAPON ] = WP_BLASTER;
@@ -75,25 +75,25 @@ void G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo )
       weaponType = BG_FindUsesEnergyForWeapon( i );
     else
       weaponType = !BG_FindUsesEnergyForWeapon( i );
-    
+
     if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
         weaponType && !BG_FindInfinteAmmoForWeapon( i ) &&
         !BG_WeaponIsFull( i, ent->client->ps.stats,
           ent->client->ps.ammo, ent->client->ps.powerups ) )
     {
       BG_FindAmmoForWeapon( i, &maxAmmo, &maxClips );
-      
+
       if( buyingEnergyAmmo )
       {
         G_AddEvent( ent, EV_RPTUSE_SOUND, 0 );
-        
+
         if( BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
           maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
       }
 
       BG_PackAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups,
                         maxAmmo, maxClips );
-      
+
       restoredAmmo = qtrue;
     }
   }
@@ -250,28 +250,28 @@ SHOTGUN
 // this should match CG_ShotgunPattern
 void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent )
 {
-	int			  i;
-	float		  r, u;
-	vec3_t		end;
-	vec3_t		forward, right, up;
-	trace_t		tr;
-	gentity_t	*traceEnt;
+  int        i;
+  float      r, u;
+  vec3_t    end;
+  vec3_t    forward, right, up;
+  trace_t    tr;
+  gentity_t  *traceEnt;
 
-	// derive the right and up vectors from the forward vector, because
-	// the client won't have any other information
-	VectorNormalize2( origin2, forward );
-	PerpendicularVector( right, forward );
-	CrossProduct( forward, right, up );
+  // derive the right and up vectors from the forward vector, because
+  // the client won't have any other information
+  VectorNormalize2( origin2, forward );
+  PerpendicularVector( right, forward );
+  CrossProduct( forward, right, up );
 
-	// generate the "random" spread pattern
-	for( i = 0; i < SHOTGUN_PELLETS; i++ )
+  // generate the "random" spread pattern
+  for( i = 0; i < SHOTGUN_PELLETS; i++ )
   {
-		r = Q_crandom( &seed ) * SHOTGUN_SPREAD * 16;
-		u = Q_crandom( &seed ) * SHOTGUN_SPREAD * 16;
-		VectorMA( origin, 8192 * 16, forward, end );
-		VectorMA( end, r, right, end );
-		VectorMA( end, u, up, end );
-		
+    r = Q_crandom( &seed ) * SHOTGUN_SPREAD * 16;
+    u = Q_crandom( &seed ) * SHOTGUN_SPREAD * 16;
+    VectorMA( origin, 8192 * 16, forward, end );
+    VectorMA( end, r, right, end );
+    VectorMA( end, u, up, end );
+
     trap_Trace( &tr, origin, NULL, NULL, end, ent->s.number, MASK_SHOT );
     traceEnt = &g_entities[ tr.entityNum ];
 
@@ -279,24 +279,24 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent )
     if( !( tr.surfaceFlags & SURF_NOIMPACT ) )
     {
       if( traceEnt->takedamage )
-        G_Damage( traceEnt, ent, ent, forward, tr.endpos,	SHOTGUN_DMG, 0, MOD_SHOTGUN );
+        G_Damage( traceEnt, ent, ent, forward, tr.endpos,  SHOTGUN_DMG, 0, MOD_SHOTGUN );
     }
-	}
+  }
 }
 
 
 void shotgunFire( gentity_t *ent )
 {
-	gentity_t		*tent;
+  gentity_t    *tent;
 
-	// send shotgun blast
-	tent = G_TempEntity( muzzle, EV_SHOTGUN );
-	VectorScale( forward, 4096, tent->s.origin2 );
-	SnapVector( tent->s.origin2 );
-	tent->s.eventParm = rand() & 255;		// seed for spread pattern
-	tent->s.otherEntityNum = ent->s.number;
+  // send shotgun blast
+  tent = G_TempEntity( muzzle, EV_SHOTGUN );
+  VectorScale( forward, 4096, tent->s.origin2 );
+  SnapVector( tent->s.origin2 );
+  tent->s.eventParm = rand() & 255;    // seed for spread pattern
+  tent->s.otherEntityNum = ent->s.number;
 
-	ShotgunPattern( tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent );
+  ShotgunPattern( tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent );
 }
 
 /*
@@ -532,11 +532,11 @@ void painSawFire( gentity_t *ent )
   if( traceEnt->takedamage )
   {
     vec3_t  temp;
-    
+
     //hack to get the particle system to line up with the weapon
     VectorCopy( tr.endpos, temp );
     temp[ 2 ] -= 10.0f;
-    
+
     if( traceEnt->client )
     {
       tent = G_TempEntity( temp, EV_MISSILE_HIT );
@@ -544,7 +544,7 @@ void painSawFire( gentity_t *ent )
     }
     else
       tent = G_TempEntity( temp, EV_MISSILE_MISS );
-      
+
     tent->s.eventParm = DirToByte( tr.plane.normal );
     tent->s.weapon = ent->s.weapon;
     tent->s.generic1 = ent->s.generic1; //weaponMode
@@ -575,7 +575,7 @@ void LCChargeFire( gentity_t *ent, qboolean secondary )
     m = fire_luciferCannon( ent, muzzle, forward, LCANNON_SECONDARY_DAMAGE, LCANNON_SECONDARY_RADIUS );
   else
     m = fire_luciferCannon( ent, muzzle, forward, ent->client->ps.stats[ STAT_MISC ], LCANNON_RADIUS );
-  
+
   ent->client->ps.stats[ STAT_MISC ] = 0;
 }
 
@@ -611,7 +611,7 @@ void teslaFire( gentity_t *ent )
 
   //so the client side knows
   ent->s.eFlags |= EF_FIRING;
-  
+
   if( traceEnt->takedamage )
   {
     G_Damage( traceEnt, ent, ent, forward, tr.endpos,
@@ -625,10 +625,10 @@ void teslaFire( gentity_t *ent )
   tent = G_TempEntity( tr.endpos, EV_TESLATRAIL );
 
   VectorCopy( muzzle, tent->s.origin2 );
-  
+
   tent->s.generic1 = ent->s.number; //src
   tent->s.clientNum = traceEnt->s.number; //dest
-  
+
   // move origin a bit to come closer to the drawn gun muzzle
   VectorMA( tent->s.origin2, 28, up, tent->s.origin2 );
 
@@ -665,7 +665,7 @@ void cancelBuildFire( gentity_t *ent )
     ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
     return;
   }
-  
+
   //repair buildable
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
@@ -720,7 +720,7 @@ void buildFire( gentity_t *ent, dynMenu_t menu )
       G_AddEvent( ent, EV_BUILD_DELAY, ent->client->ps.clientNum );
       return;
     }
-    
+
     if( G_ValidateBuild( ent, ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) )
     {
       if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS && !G_isOvermind( ) )
@@ -737,7 +737,7 @@ void buildFire( gentity_t *ent, dynMenu_t menu )
       else
         ent->client->ps.stats[ STAT_MISC ] +=
           BG_FindBuildDelayForWeapon( ent->s.weapon );
-      
+
       ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
 
       // don't want it bigger than 32k
@@ -801,7 +801,7 @@ qboolean CheckVenomAttack( gentity_t *ent )
 
   if( !traceEnt->takedamage )
     return qfalse;
-  
+
   if( !traceEnt->client && !traceEnt->s.eType == ET_BUILDABLE )
     return qfalse;
 
@@ -815,7 +815,7 @@ qboolean CheckVenomAttack( gentity_t *ent )
     //hackery
     damage *= 0.5f;
   }
-  
+
   if( traceEnt->client )
   {
     if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
@@ -873,12 +873,12 @@ void CheckGrabAttack( gentity_t *ent )
 
   if( !traceEnt->takedamage )
     return;
-  
+
   if( traceEnt->client )
   {
     if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
       return;
-    
+
     if( traceEnt->client->ps.stats[ STAT_HEALTH ] <= 0 )
       return;
 
@@ -886,11 +886,11 @@ void CheckGrabAttack( gentity_t *ent )
     {
       AngleVectors( traceEnt->client->ps.viewangles, dir, NULL, NULL );
       traceEnt->client->ps.stats[ STAT_VIEWLOCK ] = DirToByte( dir );
-      
+
       //event for client side grab effect
       G_AddPredictableEvent( ent, EV_LEV1_GRAB, 0 );
     }
-    
+
     traceEnt->client->ps.stats[ STAT_STATE ] |= SS_GRABBED;
 
     if( ent->client->ps.weapon == WP_ALEVEL1 )
@@ -922,25 +922,25 @@ void poisonCloud( gentity_t *ent )
   int       i, num;
   gentity_t *humanPlayer;
   trace_t   tr;
-  
+
   VectorAdd( ent->client->ps.origin, range, maxs );
   VectorSubtract( ent->client->ps.origin, range, mins );
-  
+
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
   {
     humanPlayer = &g_entities[ entityList[ i ] ];
-    
+
     if( humanPlayer->client && humanPlayer->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
     {
       if( BG_InventoryContainsUpgrade( UP_LIGHTARMOUR, humanPlayer->client->ps.stats ) )
         continue;
-      
+
       if( BG_InventoryContainsUpgrade( UP_BATTLESUIT, humanPlayer->client->ps.stats ) )
         continue;
-      
+
       trap_Trace( &tr, muzzle, NULL, NULL, humanPlayer->s.origin, humanPlayer->s.number, MASK_SHOT );
-    
+
       //can't see target from here
       if( tr.entityNum == ENTITYNUM_WORLD )
         continue;
@@ -986,21 +986,21 @@ static gentity_t *G_FindNewZapTarget( gentity_t *ent )
   VectorScale( range, 1.0f / M_ROOT3, range );
   VectorAdd( ent->s.origin, range, maxs );
   VectorSubtract( ent->s.origin, range, mins );
-  
+
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
 
   for( i = 0; i < num; i++ )
   {
     enemy = &g_entities[ entityList[ i ] ];
-    
+
     if( ( ( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) ||
         ( enemy->s.eType == ET_BUILDABLE &&
           BG_FindTeamForBuildable( enemy->s.modelindex ) == BIT_HUMANS ) ) && enemy->health > 0 )
     {
       qboolean foundOldTarget = qfalse;
-      
+
       trap_Trace( &tr, muzzle, NULL, NULL, enemy->s.origin, ent->s.number, MASK_SHOT );
-    
+
       //can't see target from here
       if( tr.entityNum == ENTITYNUM_WORLD )
         continue;
@@ -1025,7 +1025,7 @@ static gentity_t *G_FindNewZapTarget( gentity_t *ent )
       // enemy is already targetted
       if( foundOldTarget )
         continue;
-      
+
       return enemy;
     }
   }
@@ -1042,7 +1042,7 @@ static void G_UpdateZapEffect( zap_t *zap )
 {
   int       j;
   gentity_t *effect = zap->effectChannel;
-  
+
   effect->s.eType = ET_LEV2_ZAP_CHAIN;
   effect->classname = "lev2zapchain";
   G_SetOrigin( effect, zap->creator->s.origin );
@@ -1053,7 +1053,7 @@ static void G_UpdateZapEffect( zap_t *zap )
   for( j = 0; j < zap->numTargets; j++ )
   {
     int number = zap->targets[ j ]->s.number;
-    
+
     switch( j )
     {
       case 0: effect->s.time = number;          break;
@@ -1083,22 +1083,22 @@ static void G_CreateNewZap( gentity_t *creator, gentity_t *target )
     if( !zap->used )
     {
       zap->used = qtrue;
-      
+
       zap->timeToLive = LEVEL2_AREAZAP_TIME;
-      
+
       zap->creator = creator;
-      
+
       zap->targets[ 0 ] = target;
       zap->numTargets = 1;
 
       for( j = 1; j < MAX_ZAP_TARGETS && zap->targets[ j - 1 ]; j++ )
       {
         zap->targets[ j ] = G_FindNewZapTarget( zap->targets[ j - 1 ] );
-        
+
         if( zap->targets[ j ] )
           zap->numTargets++;
       }
-      
+
       zap->effectChannel = G_Spawn( );
       G_UpdateZapEffect( zap );
 
@@ -1135,7 +1135,7 @@ void G_UpdateZaps( int msec )
           source = zap->creator;
         else
           source = zap->targets[ j - 1 ];
-        
+
         if( target->health <= 0 || !target->inuse || //early out
             VectorDistance( source->s.origin, target->s.origin ) > LEVEL2_AREAZAP_RANGE )
         {
@@ -1145,7 +1145,6 @@ void G_UpdateZaps( int msec )
           if( !target )
             zap->numTargets = j;
         }
-        
       }
 
       if( zap->numTargets )
@@ -1154,26 +1153,30 @@ void G_UpdateZaps( int msec )
         {
           gentity_t *source;
           gentity_t *target = zap->targets[ j ];
-          float r = 1.0f / zap->numTargets;
-          float damageFraction = 2 * r - 2 * j * r * r - r * r;
-          
+          float     r = 1.0f / zap->numTargets;
+          float     damageFraction = 2 * r - 2 * j * r * r - r * r;
+          vec3_t    forward;
+
           if( j == 0 )
             source = zap->creator;
           else
             source = zap->targets[ j - 1 ];
-          
+
           damage = ceil( ( (float)msec / LEVEL2_AREAZAP_TIME ) *
               LEVEL2_AREAZAP_DMG * damageFraction );
 
+          VectorSubtract( target->s.origin, source->s.origin, forward );
+          VectorNormalize( forward );
+
           //do the damage
           if( damage )
-            G_Damage( target, source, zap->creator, NULL, NULL,
+            G_Damage( target, source, zap->creator, forward, target->s.origin,
                     damage, DAMAGE_NO_KNOCKBACK | DAMAGE_NO_LOCDAMAGE, MOD_LEVEL2_ZAP );
         }
       }
-      
+
       G_UpdateZapEffect( zap );
-      
+
       zap->timeToLive -= msec;
 
       if( zap->timeToLive <= 0 || zap->numTargets == 0 || zap->creator->health <= 0 )
@@ -1208,7 +1211,7 @@ void areaZapFire( gentity_t *ent )
   VectorMA( muzzle, LEVEL2_AREAZAP_RANGE, forward, end );
 
   trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
-  
+
   if( tr.surfaceFlags & SURF_NOIMPACT )
     return;
 
@@ -1264,12 +1267,12 @@ qboolean CheckPounceAttack( gentity_t *ent )
 
   VectorMA( muzzle, LEVEL3_POUNCE_RANGE, forward, end );
 
-  trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
+  trap_Trace( &tr, ent->s.origin, mins, maxs, end, ent->s.number, MASK_SHOT );
 
   //miss
   if( tr.fraction >= 1.0 )
     return qfalse;
-    
+
   if( tr.surfaceFlags & SURF_NOIMPACT )
     return qfalse;
 
@@ -1293,7 +1296,7 @@ qboolean CheckPounceAttack( gentity_t *ent )
   G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_LEVEL3_POUNCE );
 
   ent->client->allowedToPounce = qfalse;
-  
+
   return qtrue;
 }
 
@@ -1325,16 +1328,16 @@ void ChargeAttack( gentity_t *ent, gentity_t *victim )
   gentity_t *tent;
   int       damage;
   vec3_t    forward, normal;
-  
+
   if( level.time < victim->chargeRepeat )
     return;
 
   victim->chargeRepeat = level.time + LEVEL4_CHARGE_REPEAT;
-  
+
   VectorSubtract( victim->s.origin, ent->s.origin, forward );
   VectorNormalize( forward );
   VectorNegate( forward, normal );
-  
+
   if( victim->client )
   {
     tent = G_TempEntity( victim->s.origin, EV_MISSILE_HIT );
@@ -1346,7 +1349,7 @@ void ChargeAttack( gentity_t *ent, gentity_t *victim )
 
   if( !victim->takedamage )
     return;
-  
+
   damage = (int)( ( (float)ent->client->ps.stats[ STAT_MISC ] / (float)LEVEL4_CHARGE_TIME ) * LEVEL4_CHARGE_DMG );
 
   G_Damage( victim, ent, ent, forward, victim->s.origin, damage, 0, MOD_LEVEL4_CHARGE );
@@ -1396,11 +1399,11 @@ void FireWeapon3( gentity_t *ent )
     case WP_ALEVEL3_UPG:
       bounceBallFire( ent );
       break;
-      
+
     case WP_ABUILD2:
       slowBlobFire( ent );
       break;
-      
+
     default:
       break;
   }
@@ -1434,11 +1437,11 @@ void FireWeapon2( gentity_t *ent )
     case WP_ALEVEL2_UPG:
       areaZapFire( ent );
       break;
-      
+
     case WP_LUCIFER_CANNON:
       LCChargeFire( ent, qtrue );
       break;
-      
+
     case WP_ABUILD:
     case WP_ABUILD2:
     case WP_HBUILD:
@@ -1523,7 +1526,7 @@ void FireWeapon( gentity_t *ent )
     case WP_GRENADE:
       throwGrenade( ent );
       break;
-      
+
     case WP_LOCKBLOB_LAUNCHER:
       lockBlobLauncherFire( ent );
       break;
@@ -1536,7 +1539,7 @@ void FireWeapon( gentity_t *ent )
     case WP_MGTURRET:
       bulletFire( ent, MGTURRET_SPREAD, MGTURRET_DMG, MOD_MGTURRET );
       break;
-      
+
     case WP_ABUILD:
     case WP_ABUILD2:
       buildFire( ent, MN_A_BUILD );

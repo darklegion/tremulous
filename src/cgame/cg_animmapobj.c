@@ -71,7 +71,7 @@ static void CG_RunAMOLerpFrame( lerpFrame_t *lf )
         lf->frameTime = cg.time;
       }
     }
-    
+
     if( anim->reversed )
       lf->frame = anim->firstFrame + anim->numFrames - 1 - f;
     else if( anim->flipflop && f >= anim->numFrames )
@@ -132,7 +132,7 @@ void CG_ModelDoor( centity_t *cent )
 
   if( !es->modelindex )
     return;
-  
+
   //create the render entity
   memset( &ent, 0, sizeof( ent ) );
   VectorCopy( cent->lerpOrigin, ent.origin );
@@ -166,7 +166,7 @@ void CG_ModelDoor( centity_t *cent )
     lf->animationTime = lf->frameTime + anim.initialLerp;
     cent->doorState = es->legsAnim;
   }
-  
+
   lf->animation = &anim;
 
   //run animation
@@ -193,7 +193,7 @@ static void CG_AMOAnimation( centity_t *cent, int *old, int *now, float *backLer
       cent->lerpFrame.oldFrameTime  += delta;
       cent->lerpFrame.frameTime     += delta;
     }
-    
+
     CG_RunAMOLerpFrame( &cent->lerpFrame );
     cent->miscTime = cg.time;
   }
@@ -242,21 +242,21 @@ void CG_animMapObj( centity_t *cent )
     VectorScale( ent.axis[ 1 ], scale, ent.axis[ 1 ] );
     VectorScale( ent.axis[ 2 ], scale, ent.axis[ 2 ] );
     ent.nonNormalizedAxes = qtrue;
-  } 
+  }
 
   //setup animation
   anim.firstFrame = es->powerups;
   anim.numFrames = es->weapon;
   anim.reversed = qfalse;
   anim.flipflop = qfalse;
-  
+
   // if numFrames is negative the animation is reversed
   if( anim.numFrames < 0 )
   {
     anim.numFrames = -anim.numFrames;
     anim.reversed = qtrue;
   }
-  
+
   anim.loopFrames = es->torsoAnim;
 
   if( !es->legsAnim )

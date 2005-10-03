@@ -68,13 +68,13 @@ void CG_TestModel_f( void )
 
   memset( &cg.testModelEntity, 0, sizeof( cg.testModelEntity ) );
   memset( &cg.testModelBarrelEntity, 0, sizeof( cg.testModelBarrelEntity ) );
-  
+
   if( trap_Argc( ) < 2 )
     return;
 
   Q_strncpyz( cg.testModelName, CG_Argv( 1 ), MAX_QPATH );
   cg.testModelEntity.hModel = trap_R_RegisterModel( cg.testModelName );
-  
+
   Q_strncpyz( cg.testModelBarrelName, CG_Argv( 1 ), MAX_QPATH );
   cg.testModelBarrelName[ strlen( cg.testModelBarrelName ) - 4 ] = '\0';
   Q_strcat( cg.testModelBarrelName, MAX_QPATH, "_barrel.md3" );
@@ -86,7 +86,7 @@ void CG_TestModel_f( void )
     cg.testModelEntity.frame = 1;
     cg.testModelEntity.oldframe = 0;
   }
-  
+
   if( !cg.testModelEntity.hModel )
   {
     CG_Printf( "Can't register model\n" );
@@ -101,7 +101,7 @@ void CG_TestModel_f( void )
 
   AnglesToAxis( angles, cg.testModelEntity.axis );
   cg.testGun = qfalse;
-    
+
   if( cg.testModelBarrelEntity.hModel )
   {
     angles[ YAW ] = 0;
@@ -135,10 +135,10 @@ void CG_TestModelNextFrame_f( void )
 void CG_TestModelPrevFrame_f( void )
 {
   cg.testModelEntity.frame--;
-  
+
   if( cg.testModelEntity.frame < 0 )
     cg.testModelEntity.frame = 0;
-  
+
   CG_Printf( "frame %i\n", cg.testModelEntity.frame );
 }
 
@@ -151,7 +151,7 @@ void CG_TestModelNextSkin_f( void )
 void CG_TestModelPrevSkin_f( void )
 {
   cg.testModelEntity.skinNum--;
-  
+
   if( cg.testModelEntity.skinNum < 0 )
     cg.testModelEntity.skinNum = 0;
 
@@ -165,7 +165,7 @@ static void CG_AddTestModel( void )
   // re-register the model, because the level may have changed
   cg.testModelEntity.hModel = trap_R_RegisterModel( cg.testModelName );
   cg.testModelBarrelEntity.hModel = trap_R_RegisterModel( cg.testModelBarrelName );
-  
+
   if( !cg.testModelEntity.hModel )
   {
     CG_Printf( "Can't register model\n" );
@@ -235,7 +235,7 @@ static void CG_CalcVrect( void )
     else
       size = cg_viewsize.integer;
   }
-  
+
   cg.refdef.width = cgs.glconfig.vidWidth * size / 100;
   cg.refdef.width &= ~1;
 
@@ -268,7 +268,7 @@ static void CG_OffsetThirdPersonView( void )
   float         focusDist;
   float         forwardScale, sideScale;
   vec3_t        surfNormal;
-  
+
   if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBING )
   {
     if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
@@ -278,7 +278,7 @@ static void CG_OffsetThirdPersonView( void )
   }
   else
     VectorSet( surfNormal, 0.0f, 0.0f, 1.0f );
-  
+
   VectorMA( cg.refdef.vieworg, cg.predictedPlayerState.viewheight, surfNormal, cg.refdef.vieworg );
 
   VectorCopy( cg.refdefViewAngles, focusAngles );
@@ -346,10 +346,10 @@ static void CG_OffsetThirdPersonView( void )
 static void CG_StepOffset( void )
 {
   float         steptime;
-	int		        timeDelta;
+  int            timeDelta;
   vec3_t        normal;
   playerState_t *ps = &cg.predictedPlayerState;
-	
+
   if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
   {
     if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
@@ -359,31 +359,31 @@ static void CG_StepOffset( void )
   }
   else
     VectorSet( normal, 0.0f, 0.0f, 1.0f );
- 
+
   if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
     steptime = 200;
   else
     steptime = BG_FindSteptimeForClass( ps->stats[ STAT_PCLASS ] );
-  
-	// smooth out stair climbing
-	timeDelta = cg.time - cg.stepTime;
-	if( timeDelta < steptime )
+
+  // smooth out stair climbing
+  timeDelta = cg.time - cg.stepTime;
+  if( timeDelta < steptime )
   {
-    float stepChange = cg.stepChange 
-			* (steptime - timeDelta) / steptime;
+    float stepChange = cg.stepChange
+      * (steptime - timeDelta) / steptime;
 
     if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
       VectorMA( cg.refdef.vieworg, -stepChange, normal, cg.refdef.vieworg );
     else
-		  cg.refdef.vieworg[ 2 ] -= stepChange;
-	}
+      cg.refdef.vieworg[ 2 ] -= stepChange;
+  }
 }
 
 #define PCLOUD_ROLL_AMPLITUDE   25.0f
 #define PCLOUD_ROLL_FREQUENCY   0.4f
 #define PCLOUD_ZOOM_AMPLITUDE   15
 #define PCLOUD_ZOOM_FREQUENCY   0.7f
-    
+
 
 /*
 ===============
@@ -405,7 +405,7 @@ static void CG_OffsetFirstPersonView( void )
   float         bob2;
   vec3_t        normal, baseOrigin;
   playerState_t *ps = &cg.predictedPlayerState;
-	
+
   if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
   {
     if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
@@ -415,7 +415,7 @@ static void CG_OffsetFirstPersonView( void )
   }
   else
     VectorSet( normal, 0.0f, 0.0f, 1.0f );
-  
+
 
   if( cg.snap->ps.pm_type == PM_INTERMISSION )
     return;
@@ -478,15 +478,15 @@ static void CG_OffsetFirstPersonView( void )
 
   // add angles based on bob
   //TA: bob amount is class dependant
-  
+
   if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
     bob2 = 0.0f;
   else
     bob2 = BG_FindBobForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
-  
+
 
 #define LEVEL4_FEEDBACK  10.0f
-  
+
   //give a charging player some feedback
   if( ps->weapon == WP_ALEVEL4 )
   {
@@ -500,7 +500,7 @@ static void CG_OffsetFirstPersonView( void )
       bob2 *= ( 1.0f + fraction * LEVEL4_FEEDBACK );
     }
   }
-  
+
   if( bob2 != 0.0f )
   {
     // make sure the bob is visible even at low speeds
@@ -509,20 +509,20 @@ static void CG_OffsetFirstPersonView( void )
     delta = cg.bobfracsin * ( bob2 ) * speed;
     if( cg.predictedPlayerState.pm_flags & PMF_DUCKED )
       delta *= 3;   // crouching
-    
+
     angles[ PITCH ] += delta;
     delta = cg.bobfracsin * ( bob2 ) * speed;
     if( cg.predictedPlayerState.pm_flags & PMF_DUCKED )
       delta *= 3;   // crouching accentuates roll
-    
+
     if( cg.bobcycle & 1 )
       delta = -delta;
-    
+
     angles[ ROLL ] += delta;
   }
 
 #define LEVEL3_FEEDBACK  20.0f
-  
+
   //provide some feedback for pouncing
   if( cg.predictedPlayerState.weapon == WP_ALEVEL3 ||
       cg.predictedPlayerState.weapon == WP_ALEVEL3_UPG )
@@ -541,7 +541,7 @@ static void CG_OffsetFirstPersonView( void )
         fraction1 = 1.0f;
 
       fraction2 = -sin( fraction1 * M_PI / 2 );
-      
+
       VectorMA( origin, LEVEL3_FEEDBACK * fraction2, forward, origin );
     }
   }
@@ -573,25 +573,25 @@ static void CG_OffsetFirstPersonView( void )
       rFraction = 1.0f;
     if( uFraction > 1.0f )
       uFraction = 1.0f;
-    
+
     fFraction2 = -sin( fFraction * M_PI / 2 );
     rFraction2 = -sin( rFraction * M_PI / 2 );
     uFraction2 = -sin( uFraction * M_PI / 2 );
-      
+
     if( cmd.forwardmove > 0 )
       VectorMA( origin, STRUGGLE_DIST * fFraction, forward, origin );
     else if( cmd.forwardmove < 0 )
       VectorMA( origin, -STRUGGLE_DIST * fFraction, forward, origin );
     else
       cg.forwardMoveTime = cg.time;
-      
+
     if( cmd.rightmove > 0 )
       VectorMA( origin, STRUGGLE_DIST * rFraction, right, origin );
     else if( cmd.rightmove < 0 )
       VectorMA( origin, -STRUGGLE_DIST * rFraction, right, origin );
     else
       cg.rightMoveTime = cg.time;
-      
+
     if( cmd.upmove > 0 )
       VectorMA( origin, STRUGGLE_DIST * uFraction, up, origin );
     else if( cmd.upmove < 0 )
@@ -618,12 +618,12 @@ static void CG_OffsetFirstPersonView( void )
   if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
     angles[PITCH] += cg.bobfracsin * bob2 * 0.5;
-    
+
     //TA: heavy breathing effects //FIXME: sound
     if( cg.predictedPlayerState.stats[ STAT_STAMINA ] < 0 )
     {
       float deltaBreath = (float)(
-        cg.predictedPlayerState.stats[ STAT_STAMINA ] < 0 ? 
+        cg.predictedPlayerState.stats[ STAT_STAMINA ] < 0 ?
         -cg.predictedPlayerState.stats[ STAT_STAMINA ] :
         cg.predictedPlayerState.stats[ STAT_STAMINA ] ) / 200.0;
       float deltaAngle = cos( (float)cg.time/150.0 ) * deltaBreath;
@@ -642,7 +642,7 @@ static void CG_OffsetFirstPersonView( void )
     VectorMA( origin, ps->viewheight, normal, origin );
   else
     origin[ 2 ] += cg.predictedPlayerState.viewheight;
-  
+
   // smooth out duck height changes
   timeDelta = cg.time - cg.duckTime;
   if( timeDelta < DUCK_TIME)
@@ -653,7 +653,7 @@ static void CG_OffsetFirstPersonView( void )
 
   // add bob height
   bob = cg.bobfracsin * cg.xyspeed * bob2;
-  
+
   if( bob > 6 )
     bob = 6;
 
@@ -666,7 +666,7 @@ static void CG_OffsetFirstPersonView( void )
 
   // add fall height
   delta = cg.time - cg.landTime;
-  
+
   if( delta < LAND_DEFLECT_TIME )
   {
     f = delta / LAND_DEFLECT_TIME;
@@ -761,7 +761,7 @@ static int CG_CalcFov( void )
 
       fov_x = 180 - temp2;
     }
-  
+
     // account for zooms
     zoomFov = BG_FindZoomFovForWeapon( cg.predictedPlayerState.weapon );
     if ( zoomFov < 1 )
@@ -799,7 +799,7 @@ static int CG_CalcFov( void )
 
   // warp if underwater
   contents = CG_PointContents( cg.refdef.vieworg, -1 );
-  
+
   if( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) )
   {
     phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
@@ -821,7 +821,7 @@ static int CG_CalcFov( void )
     fov_x += v;
     fov_y += v;
   }
-  
+
 
   // set it
   cg.refdef.fov_x = fov_x;
@@ -858,7 +858,7 @@ static void CG_DamageBlendBlob( void )
 
   maxTime = DAMAGE_TIME;
   t = cg.time - cg.damageTime;
-  
+
   if( t <= 0 || t >= maxTime )
     return;
 
@@ -984,7 +984,7 @@ static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t o
     VectorCopy( ps->grapplePoint, surfNormal );
   else
     VectorCopy( ceilingNormal, surfNormal );
-    
+
   AnglesToAxis( in, inAxis );
 
   //if we are moving from one surface to another smooth the transition
@@ -1021,7 +1021,7 @@ static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t o
 
       timeMod = 1.0f;
     }
-    
+
     //add the op
     CG_addSmoothOp( rotAxis, rotAngle, timeMod );
   }
@@ -1030,7 +1030,7 @@ static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t o
   for( i = MAXSMOOTHS - 1; i >= 0; i-- )
   {
     smoothTime = (int)( cg_wwSmoothTime.integer * cg.sList[ i ].timeMod );
-    
+
     //if this op has time remaining, perform it
     if( cg.time < cg.sList[ i ].time + smoothTime )
     {
@@ -1135,7 +1135,7 @@ static int CG_CalcViewValues( void )
     VectorCopy( ps->origin, cg.refdef.vieworg );
     VectorCopy( ps->viewangles, cg.refdefViewAngles );
     AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );
-    
+
     return CG_CalcFov( );
   }
 
@@ -1169,7 +1169,7 @@ static int CG_CalcViewValues( void )
 
     t = cg.time - cg.predictedErrorTime;
     f = ( cg_errorDecay.value - t ) / cg_errorDecay.value;
-    
+
     if( f > 0 && f < 1 )
       VectorMA( cg.refdef.vieworg, f, cg.predictedError, cg.refdef.vieworg );
     else
@@ -1182,7 +1182,7 @@ static int CG_CalcViewValues( void )
     if( CG_IsParticleSystemValid( &cg.poisonCloudPS ) )
       CG_DestroyParticleSystem( &cg.poisonCloudPS );
   }
-  
+
   if( cg.renderingThirdPerson )
   {
     // back away from character
@@ -1217,10 +1217,10 @@ void CG_AddBufferedSound( sfxHandle_t sfx )
 {
   if( !sfx )
     return;
-  
+
   cg.soundBuffer[ cg.soundBufferIn ] = sfx;
   cg.soundBufferIn = ( cg.soundBufferIn + 1 ) % MAX_SOUNDBUFFER;
-  
+
   if( cg.soundBufferIn == cg.soundBufferOut )
     cg.soundBufferOut++;
 }
@@ -1315,7 +1315,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
     CG_AddMarks( );
     CG_AddLocalEntities( );
   }
-  
+
   CG_AddViewWeapon( &cg.predictedPlayerState );
 
   //after CG_AddViewWeapon
@@ -1324,7 +1324,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
     CG_AddParticles( );
 
     //TA: wolf trails stuff
-		CG_AddTrails( );		// this must come last, so the trails dropped this frame get drawn
+    CG_AddTrails( );    // this must come last, so the trails dropped this frame get drawn
   }
 
   // add buffered sounds
@@ -1333,14 +1333,14 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
   // finish up the rest of the refdef
   if( cg.testModelEntity.hModel )
     CG_AddTestModel( );
-  
+
   cg.refdef.time = cg.time;
   memcpy( cg.refdef.areamask, cg.snap->areamask, sizeof( cg.refdef.areamask ) );
 
   //remove expired console lines
   if( cg.consoleLines[ 0 ].time + cg_consoleLatency.integer < cg.time && cg_consoleLatency.integer > 0 )
     CG_RemoveConsoleLine( );
-  
+
   // update audio positions
   trap_S_Respatialize( cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater );
 
@@ -1348,14 +1348,14 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
   if( stereoView != STEREO_RIGHT )
   {
     cg.frametime = cg.time - cg.oldTime;
-    
+
     if( cg.frametime < 0 )
       cg.frametime = 0;
-    
+
     cg.oldTime = cg.time;
     CG_AddLagometerFrameInfo( );
   }
-  
+
   if( cg_timescale.value != cg_timescaleFadeEnd.value )
   {
     if( cg_timescale.value < cg_timescaleFadeEnd.value )
@@ -1370,7 +1370,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
       if( cg_timescale.value < cg_timescaleFadeEnd.value )
         cg_timescale.value = cg_timescaleFadeEnd.value;
     }
-    
+
     if( cg_timescaleFadeSpeed.value )
       trap_Cvar_Set( "timescale", va( "%f", cg_timescale.value ) );
   }

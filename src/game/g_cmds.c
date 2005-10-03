@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
- 
+
 #include "g_local.h"
 
 /*
@@ -32,13 +32,13 @@ void G_SanitiseName( char *in, char *out )
       in += 2;    // skip color code
       continue;
     }
-    
+
     if( *in < 32 )
     {
       in++;
       continue;
     }
-    
+
     *out++ = tolower( *in++ );
   }
 
@@ -64,7 +64,7 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
   if( s[ 0 ] >= '0' && s[ 0 ] <= '9' )
   {
     idnum = atoi( s );
-    
+
     if( idnum < 0 || idnum >= level.maxclients )
     {
       G_SendCommandFromServer( to - g_entities, va( "print \"Bad client slot: %i\n\"", idnum ) );
@@ -72,26 +72,26 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
     }
 
     cl = &level.clients[ idnum ];
-    
+
     if( cl->pers.connected != CON_CONNECTED )
     {
       G_SendCommandFromServer( to - g_entities, va( "print \"Client %i is not active\n\"", idnum ) );
       return -1;
     }
-    
+
     return idnum;
   }
 
   // check for a name match
   G_SanitiseName( s, s2 );
-  
+
   for( idnum = 0, cl = level.clients; idnum < level.maxclients; idnum++, cl++ )
   {
     if( cl->pers.connected != CON_CONNECTED )
       continue;
-    
+
     G_SanitiseName( cl->pers.netname, n2 );
-    
+
     if( !strcmp( n2, s2 ) )
       return idnum;
   }
@@ -137,7 +137,7 @@ void ScoreboardMessage( gentity_t *ent )
     if( cl->ps.stats[ STAT_HEALTH ] > 0 )
     {
       weapon = cl->ps.weapon;
-      
+
       if( BG_InventoryContainsUpgrade( UP_BATTLESUIT, cl->ps.stats ) )
         upgrade = UP_BATTLESUIT;
       else if( BG_InventoryContainsUpgrade( UP_JETPACK, cl->ps.stats ) )
@@ -156,16 +156,16 @@ void ScoreboardMessage( gentity_t *ent )
       weapon = WP_NONE;
       upgrade = UP_NONE;
     }
-    
+
     Com_sprintf( entry, sizeof( entry ),
       " %d %d %d %d %d %d", level.sortedClients[ i ], cl->ps.persistant[ PERS_SCORE ],
       ping, ( level.time - cl->pers.enterTime ) / 60000, weapon, upgrade );
-    
+
     j = strlen( entry );
-    
+
     if( stringlength + j > 1024 )
       break;
-    
+
     strcpy( string + stringlength, entry );
     stringlength += j;
   }
@@ -201,11 +201,11 @@ qboolean CheatsOk( gentity_t *ent )
     G_SendCommandFromServer( ent-g_entities, va( "print \"Cheats are not enabled on this server\n\"" ) );
     return qfalse;
   }
-  
+
   if( ent->health <= 0 )
   {
     G_SendCommandFromServer( ent-g_entities, va( "print \"You must be alive to use this command\n\"" ) );
-    return qfalse; 
+    return qfalse;
   }
 
   return qtrue;
@@ -226,18 +226,18 @@ char *ConcatArgs( int start )
 
   len = 0;
   c = trap_Argc( );
-  
+
   for( i = start; i < c; i++ )
   {
     trap_Argv( i, arg, sizeof( arg ) );
     tlen = strlen( arg );
-    
+
     if( len + tlen >= MAX_STRING_CHARS - 1 )
       break;
 
     memcpy( line + len, arg, tlen );
     len += tlen;
-    
+
     if( i != c - 1 )
     {
       line[ len ] = ' ';
@@ -312,7 +312,7 @@ void Cmd_God_f( gentity_t *ent )
     return;
 
   ent->flags ^= FL_GODMODE;
-  
+
   if( !( ent->flags & FL_GODMODE ) )
     msg = "godmode OFF\n";
   else
@@ -339,7 +339,7 @@ void Cmd_Notarget_f( gentity_t *ent )
     return;
 
   ent->flags ^= FL_NOTARGET;
-  
+
   if( !( ent->flags & FL_NOTARGET ) )
     msg = "notarget OFF\n";
   else
@@ -405,16 +405,16 @@ void Cmd_Kill_f( gentity_t *ent )
 
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
     return;
-  
+
   if( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING )
     return;
-    
+
   if( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
   {
     G_SendCommandFromServer( ent-g_entities, "print \"Leave the hovel first (use your destroy key)\n\"" );
     return;
   }
-    
+
   if( ent->health <= 0 )
     return;
 
@@ -457,13 +457,13 @@ void G_ChangeTeam( gentity_t *ent, pTeam_t newTeam )
       G_RemoveFromSpawnQueue( &level.alienSpawnQueue, ent->client->ps.clientNum );
     else if( oldTeam == PTE_HUMANS )
       G_RemoveFromSpawnQueue( &level.humanSpawnQueue, ent->client->ps.clientNum );
-    
+
     level.bankCredits[ ent->client->ps.clientNum ] = 0;
     ent->client->ps.persistant[ PERS_CREDIT ] = 0;
     ent->client->pers.classSelection = PCL_NONE;
     ClientSpawn( ent, NULL, NULL, NULL );
   }
-  
+
   ent->client->pers.joinedATeam = qtrue;
 
   //update ClientInfo
@@ -497,7 +497,7 @@ void Cmd_Team_f( gentity_t *ent )
       G_TriggerMenu( ent->client->ps.clientNum, MN_A_TEAMFULL );
       return;
     }
-    
+
     team = PTE_ALIENS;
   }
   else if( !Q_stricmp( s, "humans" ) )
@@ -507,7 +507,7 @@ void Cmd_Team_f( gentity_t *ent )
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_TEAMFULL );
       return;
     }
-    
+
     team = PTE_HUMANS;
   }
   else if( !Q_stricmp( s, "auto" ) )
@@ -526,7 +526,7 @@ void Cmd_Team_f( gentity_t *ent )
   }
 
   G_ChangeTeam( ent, team );
-  
+
   if( team == PTE_ALIENS )
     G_SendCommandFromServer( -1, va( "print \"%s" S_COLOR_WHITE " joined the aliens\n\"", ent->client->pers.netname ) );
   else if( team == PTE_HUMANS )
@@ -543,13 +543,13 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 {
   if( !other )
     return;
-  
+
   if( !other->inuse )
     return;
-  
+
   if( !other->client )
     return;
-  
+
   if( other->client->pers.connected != CON_CONNECTED )
     return;
 
@@ -582,20 +582,20 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
                    Q_COLOR_ESCAPE, COLOR_WHITE );
       color = COLOR_GREEN;
       break;
-      
+
     case SAY_TEAM:
       G_LogPrintf( "sayteam: %s: %s\n", ent->client->pers.netname, chatText );
       if( Team_GetLocationMsg( ent, location, sizeof( location ) ) )
-        Com_sprintf( name, sizeof( name ), EC"(%s%c%c"EC") (%s)"EC": ", 
+        Com_sprintf( name, sizeof( name ), EC"(%s%c%c"EC") (%s)"EC": ",
           ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location );
       else
-        Com_sprintf( name, sizeof( name ), EC"(%s%c%c"EC")"EC": ", 
+        Com_sprintf( name, sizeof( name ), EC"(%s%c%c"EC")"EC": ",
           ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
       color = COLOR_CYAN;
       break;
-      
+
     case SAY_TELL:
-      if( target && 
+      if( target &&
           target->client->ps.stats[ STAT_PTEAM ] == ent->client->ps.stats[ STAT_PTEAM ] &&
           Team_GetLocationMsg( ent, location, sizeof( location ) ) )
         Com_sprintf( name, sizeof( name ), EC"[%s%c%c"EC"] (%s)"EC": ",
@@ -665,7 +665,7 @@ static void Cmd_Tell_f( gentity_t *ent )
 
   trap_Argv( 1, arg, sizeof( arg ) );
   targetNum = atoi( arg );
-  
+
   if( targetNum < 0 || targetNum >= level.maxclients )
     return;
 
@@ -715,13 +715,13 @@ void Cmd_CallVote_f( gentity_t *ent )
     G_SendCommandFromServer( ent-g_entities, "print \"A vote is already in progress\n\"" );
     return;
   }
-  
+
   if( ent->client->pers.voteCount >= MAX_VOTE_COUNT )
   {
     G_SendCommandFromServer( ent-g_entities, "print \"You have called the maximum number of votes\n\"" );
     return;
   }
-  
+
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
   {
     G_SendCommandFromServer( ent-g_entities, "print \"Not allowed to call a vote as spectator\n\"" );
@@ -767,7 +767,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     char  s[ MAX_STRING_CHARS ];
 
     trap_Cvar_VariableStringBuffer( "nextmap", s, sizeof( s ) );
-    
+
     if( *s )
       Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s; set nextmap \"%s\"", arg1, arg2, s );
     else
@@ -780,13 +780,13 @@ void Cmd_CallVote_f( gentity_t *ent )
     char  s[ MAX_STRING_CHARS ];
 
     trap_Cvar_VariableStringBuffer( "nextmap", s, sizeof( s ) );
-    
+
     if( !*s )
     {
       G_SendCommandFromServer( ent-g_entities, "print \"nextmap not set\n\"" );
       return;
     }
-    
+
     Com_sprintf( level.voteString, sizeof( level.voteString ), "vstr nextmap" );
     Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
   }
@@ -828,7 +828,7 @@ void Cmd_Vote_f( gentity_t *ent )
     G_SendCommandFromServer( ent-g_entities, "print \"No vote in progress\n\"" );
     return;
   }
-  
+
   if( ent->client->ps.eFlags & EF_VOTED )
   {
     G_SendCommandFromServer( ent-g_entities, "print \"Vote already cast\n\"" );
@@ -874,7 +874,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   char  arg2[ MAX_STRING_TOKENS ];
 
   team = ent->client->ps.stats[ STAT_PTEAM ];
-  
+
   if( team == PTE_HUMANS )
     cs_offset = 0;
   else if( team == PTE_ALIENS )
@@ -893,13 +893,13 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     G_SendCommandFromServer( ent-g_entities, "print \"A team vote is already in progress\n\"" );
     return;
   }
-  
+
   if( ent->client->pers.teamVoteCount >= MAX_VOTE_COUNT )
   {
     G_SendCommandFromServer( ent-g_entities, "print \"You have called the maximum number of team votes\n\"" );
     return;
   }
-  
+
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
   {
     G_SendCommandFromServer( ent-g_entities, "print \"Not allowed to call a vote as spectator\n\"" );
@@ -909,7 +909,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   // make sure it is a valid command to vote on
   trap_Argv( 1, arg1, sizeof( arg1 ) );
   trap_Argv( 2, arg2, sizeof( arg2 ) );
-  
+
   if( strchr( arg1, ';' ) || strchr( arg2, ';' ) )
   {
     G_SendCommandFromServer( ent-g_entities, "print \"Invalid team vote string\n\"" );
@@ -922,22 +922,22 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 
     Q_strncpyz( kickee, arg2, sizeof( kickee ) );
     Q_CleanStr( kickee );
-    
+
     for( i = 0; i < level.maxclients; i++ )
     {
       if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
         continue;
-      
+
       if( level.clients[ i ].ps.stats[ STAT_PTEAM ] != team )
         continue;
-      
+
       Q_strncpyz( netname, level.clients[ i ].pers.netname, sizeof( netname ) );
       Q_CleanStr( netname );
-      
+
       if( !Q_stricmp( netname, kickee ) )
         break;
     }
-    
+
     if( i >= level.maxclients )
     {
       G_SendCommandFromServer( ent-g_entities, va( "print \"%s is not a valid player on your team\n\"", arg2 ) );
@@ -958,7 +958,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   {
     if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
       continue;
-    
+
     if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == team )
       G_SendCommandFromServer( i, va("print \"%s called a team vote\n\"", ent->client->pers.netname ) );
   }
@@ -973,7 +973,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == team )
       level.clients[ i ].ps.eFlags &= ~EF_TEAMVOTED;
   }
-  
+
   ent->client->ps.eFlags |= EF_TEAMVOTED;
 
   trap_SetConfigstring( CS_TEAMVOTE_TIME + cs_offset, va( "%i", level.teamVoteTime[ cs_offset ] ) );
@@ -1006,13 +1006,13 @@ void Cmd_TeamVote_f( gentity_t *ent )
     G_SendCommandFromServer( ent-g_entities, "print \"No team vote in progress\n\"" );
     return;
   }
-  
+
   if( ent->client->ps.eFlags & EF_TEAMVOTED )
   {
     G_SendCommandFromServer( ent-g_entities, "print \"Team vote already cast\n\"" );
     return;
   }
-  
+
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
   {
     G_SendCommandFromServer( ent-g_entities, "print \"Not allowed to vote as spectator\n\"" );
@@ -1033,7 +1033,7 @@ void Cmd_TeamVote_f( gentity_t *ent )
   else
   {
     level.teamVoteNo[ cs_offset ]++;
-    trap_SetConfigstring( CS_TEAMVOTE_NO + cs_offset, va( "%i", level.teamVoteNo[ cs_offset ] ) ); 
+    trap_SetConfigstring( CS_TEAMVOTE_NO + cs_offset, va( "%i", level.teamVoteNo[ cs_offset ] ) );
   }
 
   // a majority will be determined in TeamCheckVote, which will also account
@@ -1057,7 +1057,7 @@ void Cmd_SetViewpos_f( gentity_t *ent )
     G_SendCommandFromServer( ent-g_entities, va( "print \"Cheats are not enabled on this server\n\"" ) );
     return;
   }
-  
+
   if( trap_Argc( ) != 5 )
   {
     G_SendCommandFromServer( ent-g_entities, va( "print \"usage: setviewpos x y z yaw\n\"" ) );
@@ -1065,7 +1065,7 @@ void Cmd_SetViewpos_f( gentity_t *ent )
   }
 
   VectorClear( angles );
-  
+
   for( i = 0 ; i < 3 ; i++ )
   {
     trap_Argv( i + 1, buffer, sizeof( buffer ) );
@@ -1095,8 +1095,8 @@ void Cmd_Class_f( gentity_t *ent )
   vec3_t    infestOrigin;
   int       allowedClasses[ PCL_NUM_CLASSES ];
   int       numClasses = 0;
-  pClass_t  currentClass = ent->client->ps.stats[ STAT_PCLASS ]; 
-  
+  pClass_t  currentClass = ent->client->ps.stats[ STAT_PCLASS ];
+
   int       numLevels;
   vec3_t    fromMins, fromMaxs, toMins, toMaxs;
   vec3_t    temp;
@@ -1106,10 +1106,10 @@ void Cmd_Class_f( gentity_t *ent )
   vec3_t    mins, maxs;
   int       num;
   gentity_t *other;
-      
+
   if( ent->client->ps.stats[ STAT_HEALTH ] <= 0 )
     return;
-      
+
   clientNum = ent->client - level.clients;
   trap_Argv( 1, s, sizeof( s ) );
 
@@ -1126,7 +1126,7 @@ void Cmd_Class_f( gentity_t *ent )
     allowedClasses[ 1 ] = PCL_ALIEN_LEVEL0;
     numClasses = 2;
   }
-  
+
   if( ent->client->pers.teamSelection == PTE_ALIENS &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) &&
@@ -1139,12 +1139,12 @@ void Cmd_Class_f( gentity_t *ent )
       //check there are no humans nearby
       VectorAdd( ent->client->ps.origin, range, maxs );
       VectorSubtract( ent->client->ps.origin, range, mins );
-      
+
       num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
       for( i = 0; i < num; i++ )
       {
         other = &g_entities[ entityList[ i ] ];
-        
+
         if( ( other->client && other->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) ||
             ( other->s.eType == ET_BUILDABLE && other->biteam == BIT_HUMANS ) )
         {
@@ -1160,7 +1160,7 @@ void Cmd_Class_f( gentity_t *ent )
         G_TriggerMenu( clientNum, MN_A_NOOVMND_EVOLVE );
         return;
       }
-      
+
       //guard against selling the HBUILD weapons exploit
       if( ( currentClass == PCL_ALIEN_BUILDER0 ||
             currentClass == PCL_ALIEN_BUILDER0_UPG ) &&
@@ -1169,7 +1169,7 @@ void Cmd_Class_f( gentity_t *ent )
         G_SendCommandFromServer( ent-g_entities, va( "print \"Cannot evolve until build timer expires\n\"" ) );
         return;
       }
-      
+
       //evolve now
       ent->client->pers.classSelection = BG_FindClassNumForName( s );
 
@@ -1178,7 +1178,7 @@ void Cmd_Class_f( gentity_t *ent )
         G_SendCommandFromServer( ent-g_entities, va( "print \"Unknown class\n\"" ) );
         return;
       }
-      
+
       numLevels = BG_ClassCanEvolveFromTo( currentClass,
                                            ent->client->pers.classSelection,
                                            (short)ent->client->ps.persistant[ PERS_CREDIT ], 0 );
@@ -1189,7 +1189,7 @@ void Cmd_Class_f( gentity_t *ent )
                            toMins, toMaxs, NULL, NULL, NULL );
 
       VectorCopy( ent->s.pos.trBase, infestOrigin );
-      
+
       infestOrigin[ 2 ] += ( fabs( toMins[ 2 ] ) - fabs( fromMins[ 2 ] ) ) + 1.0f;
       VectorCopy( infestOrigin, temp );
       temp[ 2 ] += EVOLVE_TRACE_HEIGHT;
@@ -1198,14 +1198,14 @@ void Cmd_Class_f( gentity_t *ent )
       trap_Trace( &tr, infestOrigin, toMins, toMaxs, temp, ent->s.number, MASK_SHOT );
       VectorCopy( infestOrigin, temp );
       temp[ 2 ] += ( EVOLVE_TRACE_HEIGHT * tr.fraction ) - 1.0f;
-      
+
       //trace down to the ground so that we can evolve on slopes
       trap_Trace( &tr, temp, toMins, toMaxs, infestOrigin, ent->s.number, MASK_SHOT );
       VectorCopy( tr.endpos, infestOrigin );
-      
+
       //make REALLY sure
       trap_Trace( &tr2, ent->s.pos.trBase, NULL, NULL, infestOrigin, ent->s.number, MASK_SHOT );
-      
+
       //check there is room to evolve
       if( !tr.startsolid && tr2.fraction == 1.0f )
       {
@@ -1219,10 +1219,10 @@ void Cmd_Class_f( gentity_t *ent )
             ent->client->pers.evolveHealthFraction = 0.0f;
           else if( ent->client->pers.evolveHealthFraction > 1.0f )
             ent->client->pers.evolveHealthFraction = 1.0f;
-          
+
           //remove credit
           G_AddCreditToClient( ent->client, -(short)numLevels, qtrue );
-       
+
           ClientUserinfoChanged( clientNum );
           VectorCopy( infestOrigin, ent->s.pos.trBase );
           ClientSpawn( ent, ent, ent->s.pos.trBase, ent->s.apos.trBase );
@@ -1324,7 +1324,7 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
 
   if( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
     G_Damage( ent->client->hovel, ent, ent, forward, ent->s.origin, 10000, 0, MOD_SUICIDE );
-  
+
   if( !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) )
   {
     AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
@@ -1349,7 +1349,7 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
         G_Damage( traceEnt, ent, ent, forward, tr.endpos, 10000, 0, MOD_SUICIDE );
       else
         G_FreeEntity( traceEnt );
-    
+
       ent->client->ps.stats[ STAT_MISC ] +=
         BG_FindBuildDelayForWeapon( ent->s.weapon ) >> 2;
     }
@@ -1375,7 +1375,7 @@ void Cmd_ActivateItem_f( gentity_t *ent )
 
   if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
-    
+
   if( upgrade != UP_NONE && BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
     BG_ActivateUpgrade( upgrade, ent->client->ps.stats );
   else if( weapon != WP_NONE && BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
@@ -1402,7 +1402,7 @@ void Cmd_DeActivateItem_f( gentity_t *ent )
 
   if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
-    
+
   if( BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
     BG_DeactivateUpgrade( upgrade, ent->client->ps.stats );
   else
@@ -1452,7 +1452,7 @@ void Cmd_ToggleItem_f( gentity_t *ent )
       if( i == WP_NUM_WEAPONS )
         weapon = WP_BLASTER;
     }
-      
+
     G_ForceWeaponChange( ent, weapon );
   }
   else if( BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
@@ -1492,14 +1492,14 @@ void Cmd_Buy_f( gentity_t *ent )
   }
 
   trap_Argv( 1, s, sizeof( s ) );
-  
+
   //aliens don't buy stuff
   if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
 
   weapon = BG_FindWeaponNumForName( s );
   upgrade = BG_FindUpgradeNumForName( s );
-  
+
   //special case to keep norf happy
   if( weapon == WP_NONE && upgrade == UP_AMMO )
   {
@@ -1526,50 +1526,50 @@ void Cmd_Buy_f( gentity_t *ent )
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_ITEMHELD );
       return;
     }
-      
+
     //can afford this?
     if( BG_FindPriceForWeapon( weapon ) > (short)ent->client->ps.persistant[ PERS_CREDIT ] )
     {
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOFUNDS );
       return;
     }
-    
+
     //have space to carry this?
     if( BG_FindSlotsForWeapon( weapon ) & ent->client->ps.stats[ STAT_SLOTS ] )
     {
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOSLOTS );
       return;
     }
-    
+
     if( BG_FindTeamForWeapon( weapon ) != WUT_HUMANS )
     {
       //shouldn't need a fancy dialog
       G_SendCommandFromServer( ent-g_entities, va( "print \"You can't buy alien items\n\"" ) );
       return;
     }
-    
+
     //are we /allowed/ to buy this?
     if( !BG_FindPurchasableForWeapon( weapon ) )
     {
       G_SendCommandFromServer( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
       return;
     }
-    
+
     //are we /allowed/ to buy this?
     if( !BG_FindStagesForWeapon( weapon, g_humanStage.integer ) )
     {
       G_SendCommandFromServer( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
       return;
     }
-    
+
     //add to inventory
     BG_AddWeaponToInventory( weapon, ent->client->ps.stats );
     BG_FindAmmoForWeapon( weapon, &maxAmmo, &maxClips );
-    
+
     if( BG_FindUsesEnergyForWeapon( weapon ) &&
         BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
       maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
-    
+
     BG_PackAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
                       maxAmmo, maxClips );
 
@@ -1577,7 +1577,7 @@ void Cmd_Buy_f( gentity_t *ent )
 
     //set build delay/pounce etc to 0
     ent->client->ps.stats[ STAT_MISC ] = 0;
-    
+
     //subtract from funds
     G_AddCreditToClient( ent->client, -(short)BG_FindPriceForWeapon( weapon ), qfalse );
   }
@@ -1589,42 +1589,42 @@ void Cmd_Buy_f( gentity_t *ent )
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_ITEMHELD );
       return;
     }
-    
+
     //can afford this?
     if( BG_FindPriceForUpgrade( upgrade ) > (short)ent->client->ps.persistant[ PERS_CREDIT ] )
     {
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOFUNDS );
       return;
     }
-    
+
     //have space to carry this?
     if( BG_FindSlotsForUpgrade( upgrade ) & ent->client->ps.stats[ STAT_SLOTS ] )
     {
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOSLOTS );
       return;
     }
-    
+
     if( BG_FindTeamForUpgrade( upgrade ) != WUT_HUMANS )
     {
       //shouldn't need a fancy dialog
       G_SendCommandFromServer( ent-g_entities, va( "print \"You can't buy alien items\n\"" ) );
       return;
     }
-    
+
     //are we /allowed/ to buy this?
     if( !BG_FindPurchasableForUpgrade( upgrade ) )
     {
       G_SendCommandFromServer( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
       return;
     }
-    
+
     //are we /allowed/ to buy this?
     if( !BG_FindStagesForUpgrade( upgrade, g_humanStage.integer ) )
     {
       G_SendCommandFromServer( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
       return;
     }
-    
+
     if( upgrade == UP_AMMO )
       G_GiveClientMaxAmmo( ent, buyingEnergyAmmo );
     else
@@ -1632,7 +1632,7 @@ void Cmd_Buy_f( gentity_t *ent )
       //add to inventory
       BG_AddUpgradeToInventory( upgrade, ent->client->ps.stats );
     }
-    
+
     if( upgrade == UP_BATTPACK )
       G_GiveClientMaxAmmo( ent, qtrue );
 
@@ -1643,16 +1643,16 @@ void Cmd_Buy_f( gentity_t *ent )
   {
     G_SendCommandFromServer( ent-g_entities, va( "print \"Unknown item\n\"" ) );
   }
-  
+
   if( trap_Argc( ) >= 2 )
   {
     trap_Argv( 2, s, sizeof( s ) );
-    
+
     //retrigger the armoury menu
     if( !Q_stricmp( s, "retrigger" ) )
       ent->client->retriggerArmouryMenu = level.framenum + RAM_FRAMES;
   }
-  
+
   //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum );
 }
@@ -1684,7 +1684,7 @@ void Cmd_Sell_f( gentity_t *ent )
 
   weapon = BG_FindWeaponNumForName( s );
   upgrade = BG_FindUpgradeNumForName( s );
-  
+
   if( weapon != WP_NONE )
   {
     //are we /allowed/ to sell this?
@@ -1693,7 +1693,7 @@ void Cmd_Sell_f( gentity_t *ent )
       G_SendCommandFromServer( ent-g_entities, va( "print \"You can't sell this weapon\n\"" ) );
       return;
     }
-    
+
     //remove weapon if carried
     if( BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
     {
@@ -1704,7 +1704,7 @@ void Cmd_Sell_f( gentity_t *ent )
         G_SendCommandFromServer( ent-g_entities, va( "print \"Cannot sell until build timer expires\n\"" ) );
         return;
       }
-    
+
       BG_RemoveWeaponFromInventory( weapon, ent->client->ps.stats );
 
       //add to funds
@@ -1730,7 +1730,7 @@ void Cmd_Sell_f( gentity_t *ent )
 
       if( upgrade == UP_BATTPACK )
         G_GiveClientMaxAmmo( ent, qtrue );
-        
+
       //add to funds
       G_AddCreditToClient( ent->client, (short)BG_FindPriceForUpgrade( upgrade ), qfalse );
     }
@@ -1746,7 +1746,7 @@ void Cmd_Sell_f( gentity_t *ent )
         G_SendCommandFromServer( ent-g_entities, va( "print \"Cannot sell until build timer expires\n\"" ) );
         continue;
       }
-      
+
       if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
           BG_FindPurchasableForWeapon( i ) )
       {
@@ -1755,7 +1755,7 @@ void Cmd_Sell_f( gentity_t *ent )
         //add to funds
         G_AddCreditToClient( ent->client, (short)BG_FindPriceForWeapon( i ), qfalse );
       }
-      
+
       //if we have this weapon selected, force a new selection
       if( i == ent->client->ps.weapon )
         G_ForceWeaponChange( ent, WP_NONE );
@@ -1774,7 +1774,7 @@ void Cmd_Sell_f( gentity_t *ent )
         if( i == UP_BATTPACK )
         {
           int j;
-          
+
           //remove energy
           for( j = WP_NONE; j < WP_NUM_WEAPONS; j++ )
           {
@@ -1786,7 +1786,7 @@ void Cmd_Sell_f( gentity_t *ent )
             }
           }
         }
-        
+
         //add to funds
         G_AddCreditToClient( ent->client, (short)BG_FindPriceForUpgrade( i ), qfalse );
       }
@@ -1794,16 +1794,16 @@ void Cmd_Sell_f( gentity_t *ent )
   }
   else
     G_SendCommandFromServer( ent-g_entities, va( "print \"Unknown item\n\"" ) );
-  
+
   if( trap_Argc( ) >= 2 )
   {
     trap_Argv( 2, s, sizeof( s ) );
-    
+
     //retrigger the armoury menu
     if( !Q_stricmp( s, "retrigger" ) )
       ent->client->retriggerArmouryMenu = level.framenum + RAM_FRAMES;
   }
-  
+
   //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum );
 }
@@ -1826,7 +1826,7 @@ void Cmd_Build_f( gentity_t *ent )
 
   buildable = BG_FindBuildNumForName( s );
   team = ent->client->ps.stats[ STAT_PTEAM ];
-  
+
   if( buildable != BA_NONE &&
       ( ( 1 << ent->client->ps.weapon ) & BG_FindBuildWeaponForBuildable( buildable ) ) &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
@@ -1835,7 +1835,7 @@ void Cmd_Build_f( gentity_t *ent )
         ( team == PTE_HUMANS && BG_FindStagesForBuildable( buildable, g_humanStage.integer ) ) ) )
   {
     dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
-    
+
     //these are the errors displayed when the builder first selects something to use
     switch( G_itemFits( ent, buildable, dist, origin ) )
     {
@@ -1873,11 +1873,11 @@ void Cmd_Build_f( gentity_t *ent )
       case IBE_NOPOWER:
         G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOPOWER );
         break;
-        
+
       case IBE_NOCREEP:
         G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOCREEP );
         break;
-        
+
       case IBE_NODCC:
         G_TriggerMenu( ent->client->ps.clientNum, MN_H_NODCC );
         break;
@@ -1904,7 +1904,7 @@ void Cmd_Boost_f( gentity_t *ent )
 
   if( ent->client->pers.cmd.buttons & BUTTON_WALKING )
     return;
-  
+
   if( ( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) &&
       ( ent->client->ps.stats[ STAT_STAMINA ] > 0 ) )
     ent->client->ps.stats[ STAT_STATE ] |= SS_SPEEDBOOST;
@@ -1930,8 +1930,8 @@ to free floating spectator mode
 */
 void G_StopFollowing( gentity_t *ent )
 {
-  ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR; 
-  ent->client->sess.sessionTeam = TEAM_SPECTATOR; 
+  ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
+  ent->client->sess.sessionTeam = TEAM_SPECTATOR;
   ent->client->sess.spectatorState = SPECTATOR_FREE;
   ent->client->sess.spectatorClient = -1;
   ent->client->ps.pm_flags &= ~PMF_FOLLOW;
@@ -1960,7 +1960,7 @@ qboolean G_FollowNewClient( gentity_t *ent, int dir )
   int       clientnum = ent->client->sess.spectatorClient;
   int       original = clientnum;
   qboolean  selectAny = qfalse;
-  
+
   if( dir > 1 )
     dir = 1;
   else if( dir < -1 )
@@ -1977,21 +1977,21 @@ qboolean G_FollowNewClient( gentity_t *ent, int dir )
     clientnum = original = 0;
     selectAny = qtrue;
   }
-  
+
   do
   {
     clientnum += dir;
-    
+
     if( clientnum >= level.maxclients )
       clientnum = 0;
-    
+
     if( clientnum < 0 )
       clientnum = level.maxclients - 1;
 
     // avoid selecting existing follow target
     if( clientnum == original && !selectAny )
       continue; //effectively break;
-    
+
     // can't follow self
     if( &level.clients[ clientnum ] == ent->client )
       continue;
@@ -2008,7 +2008,7 @@ qboolean G_FollowNewClient( gentity_t *ent, int dir )
     ent->client->sess.spectatorClient = clientnum;
     ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
     return qtrue;
-    
+
   } while( clientnum != original );
 
   return qfalse;
@@ -2035,7 +2035,7 @@ void Cmd_Follow_f( gentity_t *ent, qboolean toggle )
   {
     trap_Argv( 1, arg, sizeof( arg ) );
     i = G_ClientNumberFromString( ent, arg );
-    
+
     if( i == -1 )
       return;
 
@@ -2096,7 +2096,7 @@ void Cmd_PTRCVerify_f( gentity_t *ent )
   if( G_VerifyPTRC( code ) )
   {
     connection = G_FindConnectionForCode( code );
-    
+
     // valid code
     if( connection->clientTeam != PTE_NONE )
       G_SendCommandFromServer( ent->client->ps.clientNum, "ptrcconfirm" );
@@ -2108,7 +2108,7 @@ void Cmd_PTRCVerify_f( gentity_t *ent )
   {
     // invalid code -- generate a new one
     connection = G_GenerateNewConnection( ent->client );
-    
+
     if( connection )
     {
       G_SendCommandFromServer( ent->client->ps.clientNum,
@@ -2153,7 +2153,7 @@ void Cmd_PTRCRestore_f( gentity_t *ent )
       {
         // set the correct team
         G_ChangeTeam( ent, connection->clientTeam );
-        
+
         // set the correct credit
         ent->client->ps.persistant[ PERS_CREDIT ] = 0;
         G_AddCreditToClient( ent->client, connection->clientCredit, qtrue );
@@ -2181,7 +2181,7 @@ void Cmd_Test_f( gentity_t *ent )
   ent->client->lastPoisonCloudedTime = level.time;
   ent->client->lastPoisonCloudedClient = ent;
   G_SendCommandFromServer( ent->client->ps.clientNum, "poisoncloud" );*/
-  
+
 /*  ent->client->ps.stats[ STAT_STATE ] |= SS_POISONED;
   ent->client->lastPoisonTime = level.time;
   ent->client->lastPoisonClient = ent;*/
@@ -2209,19 +2209,19 @@ void ClientCommand( int clientNum )
     Cmd_Say_f( ent, SAY_ALL, qfalse );
     return;
   }
-  
+
   if( Q_stricmp( cmd, "say_team" ) == 0 )
   {
     Cmd_Say_f( ent, SAY_TEAM, qfalse );
     return;
   }
-  
+
   if( Q_stricmp( cmd, "tell" ) == 0 )
   {
     Cmd_Tell_f( ent );
     return;
   }
-  
+
   if( Q_stricmp( cmd, "score" ) == 0 )
   {
     Cmd_Score_f( ent );
@@ -2276,12 +2276,12 @@ void ClientCommand( int clientNum )
     Cmd_Vote_f( ent );
   else if( Q_stricmp( cmd, "callteamvote" ) == 0 )
     Cmd_CallTeamVote_f( ent );
-	else if( Q_stricmp( cmd, "follow" ) == 0 )
-		Cmd_Follow_f( ent, qfalse );
-	else if( Q_stricmp (cmd, "follownext") == 0)
-		Cmd_FollowCycle_f( ent, 1 );
-	else if( Q_stricmp( cmd, "followprev" ) == 0 )
-		Cmd_FollowCycle_f( ent, -1 );
+  else if( Q_stricmp( cmd, "follow" ) == 0 )
+    Cmd_Follow_f( ent, qfalse );
+  else if( Q_stricmp (cmd, "follownext") == 0)
+    Cmd_FollowCycle_f( ent, 1 );
+  else if( Q_stricmp( cmd, "followprev" ) == 0 )
+    Cmd_FollowCycle_f( ent, -1 );
   else if( Q_stricmp( cmd, "teamvote" ) == 0 )
     Cmd_TeamVote_f( ent );
   else if( Q_stricmp( cmd, "setviewpos" ) == 0 )

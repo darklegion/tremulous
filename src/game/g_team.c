@@ -24,7 +24,7 @@ void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... )
   char    *p;
 
   va_start( argptr,fmt );
-  
+
   if( vsprintf( msg, fmt, argptr ) > sizeof( msg ) )
     G_Error ( "PrintMsg overrun" );
 
@@ -112,10 +112,10 @@ qboolean Team_GetLocationMsg( gentity_t *ent, char *loc, int loclen )
   {
     if( best->count < 0 )
       best->count = 0;
-    
+
     if( best->count > 7 )
       best->count = 7;
-    
+
     Com_sprintf( loc, loclen, "%c%c%s" S_COLOR_WHITE, Q_COLOR_ESCAPE, best->count + '0', best->message );
   }
   else
@@ -162,7 +162,7 @@ void TeamplayInfoMessage( gentity_t *ent )
   for( i = 0, cnt = 0; i < g_maxclients.integer && cnt < TEAM_MAXOVERLAY; i++ )
   {
     player = g_entities + level.sortedClients[ i ];
-    
+
     if( player->inuse && player->client->sess.sessionTeam ==
         ent->client->sess.sessionTeam )
       clients[ cnt++ ] = level.sortedClients[ i ];
@@ -178,12 +178,12 @@ void TeamplayInfoMessage( gentity_t *ent )
   for( i = 0, cnt = 0; i < g_maxclients.integer && cnt < TEAM_MAXOVERLAY; i++)
   {
     player = g_entities + i;
-    
+
     if( player->inuse && player->client->sess.sessionTeam ==
         ent->client->sess.sessionTeam )
     {
       h = player->client->ps.stats[ STAT_HEALTH ];
-      
+
       if( h < 0 )
         h = 0;
 
@@ -192,12 +192,12 @@ void TeamplayInfoMessage( gentity_t *ent )
 //        level.sortedClients[i], player->client->pers.teamState.location, h, a,
         i, player->client->pers.teamState.location, h, a,
         player->client->ps.weapon, player->s.powerups );
-      
+
       j = strlen( entry );
-      
+
       if( stringlength + j > sizeof( string ) )
         break;
-      
+
       strcpy( string + stringlength, entry );
       stringlength += j;
       cnt++;
@@ -227,7 +227,7 @@ void CheckTeamStatus( void )
       {
 
         loc = Team_GetLocation( ent );
-        
+
         if( loc )
           ent->client->pers.teamState.location = loc->health;
         else

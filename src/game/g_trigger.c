@@ -149,8 +149,6 @@ void trigger_push_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 {
   if( !other->client )
     return;
-
-  BG_TouchJumpPad( &other->client->ps, &self->s );
 }
 
 
@@ -172,7 +170,7 @@ void AimAtTarget( gentity_t *self )
   VectorScale( origin, 0.5, origin );
 
   ent = G_PickTarget( self->target );
-  
+
   if( !ent )
   {
     G_FreeEntity( self );
@@ -182,7 +180,7 @@ void AimAtTarget( gentity_t *self )
   height = ent->s.origin[ 2 ] - origin[ 2 ];
   gravity = g_gravity.value;
   time = sqrt( height / ( 0.5 * gravity ) );
-  
+
   if( !time )
   {
     G_FreeEntity( self );
@@ -266,7 +264,7 @@ void SP_target_push( gentity_t *self )
     self->think = AimAtTarget;
     self->nextthink = level.time + FRAMETIME;
   }
-  
+
   self->use = Use_target_push;
 }
 
@@ -284,7 +282,7 @@ void trigger_teleporter_touch( gentity_t *self, gentity_t *other, trace_t *trace
 
   if( !other->client )
     return;
-  
+
   if( other->client->ps.pm_type == PM_DEAD )
     return;
 
@@ -295,7 +293,7 @@ void trigger_teleporter_touch( gentity_t *self, gentity_t *other, trace_t *trace
 
 
   dest = G_PickTarget( self->target );
-  
+
   if( !dest )
   {
     G_Printf( "Couldn't find teleporter destination\n" );
@@ -386,7 +384,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace )
     dflags = DAMAGE_NO_PROTECTION;
   else
     dflags = 0;
-  
+
   G_Damage( other, self, self, NULL, NULL, self->damage, dflags, MOD_TRIGGER_HURT );
 }
 
@@ -572,7 +570,7 @@ void trigger_buildable_trigger( gentity_t *self, gentity_t *activator )
       }
     }
   }
-  
+
   if( self->wait > 0 )
   {
     self->think = multi_wait;
@@ -598,7 +596,7 @@ void trigger_buildable_touch( gentity_t *ent, gentity_t *other, trace_t *trace )
   //only triggered by buildables
   if( other->s.eType != ET_BUILDABLE )
     return;
-  
+
   trigger_buildable_trigger( ent, other );
 }
 
@@ -632,9 +630,9 @@ void SP_trigger_buildable( gentity_t *self )
     self->random = self->wait - FRAMETIME;
     G_Printf( S_COLOR_YELLOW "WARNING: trigger_buildable has random >= wait\n" );
   }
-  
+
   G_SpawnString( "buildables", "", &buffer );
-  
+
   p = q = buffer;
 
   while( *p != '\0' )
@@ -645,19 +643,19 @@ void SP_trigger_buildable( gentity_t *self )
 
     if( *p == '\0' )
       EOS = qtrue;
-    
+
     *p = '\0';
 
     //strip leading whitespace
     while( *q == ' ' )
       q++;
-    
+
     self->bTriggers[ i ] = BG_FindBuildNumForName( q );
     if( self->bTriggers[ i ] == BA_NONE )
       G_Printf( S_COLOR_YELLOW "WARNING: unknown buildable %s in trigger_buildable\n", q );
     else
       i++;
-    
+
     if( !EOS )
     {
       p++;
@@ -668,7 +666,7 @@ void SP_trigger_buildable( gentity_t *self )
   }
 
   self->bTriggers[ i ] = BA_NONE;
-  
+
   self->touch = trigger_buildable_touch;
   self->use = trigger_buildable_use;
 
@@ -689,10 +687,10 @@ void trigger_class_trigger( gentity_t *self, gentity_t *activator )
   //sanity check
   if( !activator->client )
     return;
-  
+
   if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
     return;
-  
+
   self->activator = activator;
   if( self->nextthink )
     return;   // can't retrigger until the wait is over
@@ -712,7 +710,7 @@ void trigger_class_trigger( gentity_t *self, gentity_t *activator )
       }
     }
   }
-  
+
   if( self->wait > 0 )
   {
     self->think = multi_wait;
@@ -738,7 +736,7 @@ void trigger_class_touch( gentity_t *ent, gentity_t *other, trace_t *trace )
   //only triggered by clients
   if( !other->client )
     return;
-  
+
   trigger_class_trigger( ent, other );
 }
 
@@ -772,9 +770,9 @@ void SP_trigger_class( gentity_t *self )
     self->random = self->wait - FRAMETIME;
     G_Printf( S_COLOR_YELLOW "WARNING: trigger_class has random >= wait\n" );
   }
-  
+
   G_SpawnString( "classes", "", &buffer );
-  
+
   p = q = buffer;
 
   while( *p != '\0' )
@@ -785,19 +783,19 @@ void SP_trigger_class( gentity_t *self )
 
     if( *p == '\0' )
       EOS = qtrue;
-    
+
     *p = '\0';
 
     //strip leading whitespace
     while( *q == ' ' )
       q++;
-    
+
     self->cTriggers[ i ] = BG_FindClassNumForName( q );
     if( self->cTriggers[ i ] == PCL_NONE )
       G_Printf( S_COLOR_YELLOW "WARNING: unknown class %s in trigger_class\n", q );
     else
       i++;
-    
+
     if( !EOS )
     {
       p++;
@@ -808,7 +806,7 @@ void SP_trigger_class( gentity_t *self )
   }
 
   self->cTriggers[ i ] = PCL_NONE;
-  
+
   self->touch = trigger_class_touch;
   self->use = trigger_class_use;
 
@@ -832,7 +830,7 @@ void trigger_equipment_trigger( gentity_t *self, gentity_t *activator )
 
   if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
     return;
-  
+
   self->activator = activator;
   if( self->nextthink )
     return;   // can't retrigger until the wait is over
@@ -851,7 +849,7 @@ void trigger_equipment_trigger( gentity_t *self, gentity_t *activator )
         return;
       }
     }
-    
+
     for( i = 0; self->uTriggers[ i ] != UP_NONE; i++ )
     {
       if( BG_InventoryContainsUpgrade( self->uTriggers[ i ], activator->client->ps.stats ) )
@@ -861,7 +859,7 @@ void trigger_equipment_trigger( gentity_t *self, gentity_t *activator )
       }
     }
   }
-  
+
   if( self->wait > 0 )
   {
     self->think = multi_wait;
@@ -887,7 +885,7 @@ void trigger_equipment_touch( gentity_t *ent, gentity_t *other, trace_t *trace )
   //only triggered by clients
   if( !other->client )
     return;
-  
+
   trigger_equipment_trigger( ent, other );
 }
 
@@ -921,9 +919,9 @@ void SP_trigger_equipment( gentity_t *self )
     self->random = self->wait - FRAMETIME;
     G_Printf( S_COLOR_YELLOW "WARNING: trigger_equipment has random >= wait\n" );
   }
-  
+
   G_SpawnString( "equipment", "", &buffer );
-  
+
   p = q = buffer;
 
   while( *p != '\0' )
@@ -934,23 +932,23 @@ void SP_trigger_equipment( gentity_t *self )
 
     if( *p == '\0' )
       EOS = qtrue;
-    
+
     *p = '\0';
 
     //strip leading whitespace
     while( *q == ' ' )
       q++;
-    
+
     self->wTriggers[ i ] = BG_FindWeaponNumForName( q );
     self->uTriggers[ j ] = BG_FindUpgradeNumForName( q );
-    
+
     if( self->wTriggers[ i ] == WP_NONE && self->uTriggers[ j ] == UP_NONE )
       G_Printf( S_COLOR_YELLOW "WARNING: unknown equipment %s in trigger_class\n", q );
     else if( self->wTriggers[ i ] != WP_NONE )
       i++;
     else if( self->uTriggers[ j ] != UP_NONE )
       j++;
-    
+
     if( !EOS )
     {
       p++;
@@ -962,7 +960,7 @@ void SP_trigger_equipment( gentity_t *self )
 
   self->wTriggers[ i ] = WP_NONE;
   self->uTriggers[ j ] = UP_NONE;
-  
+
   self->touch = trigger_equipment_touch;
   self->use = trigger_equipment_use;
 
@@ -981,7 +979,7 @@ void trigger_gravity_touch( gentity_t *ent, gentity_t *other, trace_t *trace )
   //only triggered by clients
   if( !other->client )
     return;
-  
+
   other->client->ps.gravity = ent->triggerGravity;
 }
 
@@ -1007,7 +1005,7 @@ SP_trigger_gravity
 void SP_trigger_gravity( gentity_t *self )
 {
   G_SpawnInt( "gravity", "800", &self->triggerGravity );
-  
+
   self->touch = trigger_gravity_touch;
   self->use = trigger_gravity_use;
 
@@ -1049,14 +1047,14 @@ void trigger_heal_touch( gentity_t *self, gentity_t *other, trace_t *trace )
   else
     self->timestamp = level.time + FRAMETIME;
 
-	max = other->client->ps.stats[ STAT_MAX_HEALTH ];
-  
+  max = other->client->ps.stats[ STAT_MAX_HEALTH ];
+
   other->health += self->damage;
 
-	if( other->health > max )
-		other->health = max;
-  
-	other->client->ps.stats[ STAT_HEALTH ] = other->health;
+  if( other->health > max )
+    other->health = max;
+
+  other->client->ps.stats[ STAT_HEALTH ] = other->health;
 }
 
 /*
@@ -1067,7 +1065,7 @@ SP_trigger_heal
 void SP_trigger_heal( gentity_t *self )
 {
   G_SpawnInt( "heal", "5", &self->damage );
-  
+
   self->touch = trigger_heal_touch;
   self->use = trigger_heal_use;
 
@@ -1102,10 +1100,10 @@ void trigger_ammo_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 
   if( BG_FindUsesEnergyForWeapon( other->client->ps.weapon ) && self->spawnflags & 2 )
     return;
-  
+
   if( !BG_FindUsesEnergyForWeapon( other->client->ps.weapon ) && self->spawnflags & 4 )
     return;
-  
+
   if( self->spawnflags & 1 )
     self->timestamp = level.time + 1000;
   else
@@ -1127,7 +1125,7 @@ void trigger_ammo_touch( gentity_t *self, gentity_t *other, trace_t *trace )
   }
   else
     ammo += self->damage;
-  
+
   BG_PackAmmoArray( other->client->ps.weapon, other->client->ps.ammo, other->client->ps.powerups,
                     ammo, clips );
 }
@@ -1140,7 +1138,7 @@ SP_trigger_ammo
 void SP_trigger_ammo( gentity_t *self )
 {
   G_SpawnInt( "ammo", "1", &self->damage );
-  
+
   self->touch = trigger_ammo_touch;
 
   InitTrigger( self );

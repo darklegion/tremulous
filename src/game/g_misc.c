@@ -265,17 +265,17 @@ Spawn function for particle system
 void SP_misc_particle_system( gentity_t *self )
 {
   char  *s;
-  
+
   G_SetOrigin( self, self->s.origin );
 
   G_SpawnString( "psName", "", &s );
-  
+
   //add the particle system to the client precache list
   self->s.modelindex = G_ParticleSystemIndex( s );
 
   if( self->spawnflags & 1 )
     self->s.eFlags |= EF_NODRAW;
-  
+
   self->use = SP_use_particle_system;
   self->s.eType = ET_PARTICLE_SYSTEM;
   trap_LinkEntity( self );
@@ -323,16 +323,16 @@ void SP_misc_anim_model( gentity_t *self )
   self->s.weapon    = (int)self->animation[ 1 ];
   self->s.torsoAnim = (int)self->animation[ 2 ];
   self->s.legsAnim  = (int)self->animation[ 3 ];
-  
+
   self->s.angles2[ 0 ] = self->pos2[ 0 ];
-  
+
   //add the model to the client precache list
   self->s.modelindex = G_ModelIndex( self->model );
 
   self->use = SP_use_anim_model;
 
   self->s.eType = ET_ANIMMAPOBJ;
-  
+
   trap_LinkEntity( self );
 }
 
@@ -405,18 +405,18 @@ void SP_misc_light_flare( gentity_t *self )
   self->s.eType = ET_LIGHTFLARE;
   self->s.modelindex = G_ShaderIndex( self->targetShaderName );
   VectorCopy( self->pos2, self->s.origin2 );
-  
+
   //try to find a spot near to the flare which is empty. This
   //is used to facilitate visibility testing
   findEmptySpot( self->s.origin, 8.0f, self->s.angles2 );
-  
+
   self->use = SP_use_light_flare;
-  
+
   G_SpawnFloat( "speed", "200", &self->speed );
   self->s.time = self->speed;
 
   G_SpawnInt( "mindist", "0", &self->s.generic1 );
-  
+
   if( self->spawnflags & 1 )
     self->s.eFlags |= EF_NODRAW;
 

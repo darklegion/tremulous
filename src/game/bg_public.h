@@ -158,7 +158,7 @@ typedef struct
   qboolean      autoWeaponHit[ 32 ]; //FIXME: TA: remind myself later this might be a problem
 
   int           framecount;
-  
+
   // results (out)
   int           numtouch;
   int           touchents[ MAXTOUCH ];
@@ -169,18 +169,18 @@ typedef struct
   int           waterlevel;
 
   float         xyspeed;
-  
+
   // for fixed msec Pmove
   int           pmove_fixed;
   int           pmove_msec;
-      
+
   // callbacks to test the world
   // these will be different functions during game and cgame
   /*void    (*trace)( trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );*/
   void          (*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs,
                           const vec3_t end, int passEntityNum, int contentMask );
-  
-  
+
+
   int           (*pointcontents)( const vec3_t point, int passEntityNum );
 } pmove_t;
 
@@ -319,7 +319,7 @@ typedef enum
 typedef enum
 {
   WPM_NONE,
-  
+
   WPM_PRIMARY,
   WPM_SECONDARY,
   WPM_TERTIARY,
@@ -339,7 +339,7 @@ typedef enum
   WP_ALEVEL3,
   WP_ALEVEL3_UPG,
   WP_ALEVEL4,
-  
+
   WP_BLASTER,
   WP_MACHINEGUN,
   WP_PAIN_SAW,
@@ -356,7 +356,7 @@ typedef enum
   WP_HIVE,
   WP_TESLAGEN,
   WP_MGTURRET,
-  
+
   //build weapons must remain in a block
   WP_ABUILD,
   WP_ABUILD2,
@@ -378,7 +378,7 @@ typedef enum
   UP_JETPACK,
   UP_BATTLESUIT,
   UP_GRENADE,
-  
+
   UP_AMMO,
 
   UP_NUM_UPGRADES
@@ -387,7 +387,7 @@ typedef enum
 typedef enum
 {
   WUT_NONE,
-  
+
   WUT_ALIENS,
   WUT_HUMANS,
 
@@ -410,24 +410,24 @@ typedef enum
 
   BA_A_SPAWN,
   BA_A_OVERMIND,
-  
+
   BA_A_BARRICADE,
   BA_A_ACIDTUBE,
   BA_A_TRAPPER,
   BA_A_BOOSTER,
   BA_A_HIVE,
-  
+
   BA_A_HOVEL,
-  
+
   BA_H_SPAWN,
-  
+
   BA_H_MGTURRET,
   BA_H_TESLAGEN,
-  
+
   BA_H_ARMOURY,
   BA_H_DCC,
   BA_H_MEDISTAT,
-  
+
   BA_H_REACTOR,
   BA_H_REPEATER,
 
@@ -437,7 +437,7 @@ typedef enum
 typedef enum
 {
   BIT_NONE,
-  
+
   BIT_ALIENS,
   BIT_HUMANS,
 
@@ -498,8 +498,6 @@ typedef enum
   EV_FALL_FAR,
   EV_FALLING,
 
-  EV_JUMP_PAD,      // boing sound at origin, jump sound on player
-
   EV_JUMP,
   EV_WATER_TOUCH, // foot touches
   EV_WATER_LEAVE, // foot leaves
@@ -535,7 +533,7 @@ typedef enum
   EV_LEV1_GRAB,
   EV_LEV4_CHARGE_PREPARE,
   EV_LEV4_CHARGE_START,
-  
+
   EV_PAIN,
   EV_DEATH1,
   EV_DEATH2,
@@ -565,9 +563,9 @@ typedef enum
   EV_OVERMIND_ATTACK, //TA: overmind under attack
   EV_OVERMIND_DYING,  //TA: overmind close to death
   EV_OVERMIND_SPAWNS, //TA: overmind needs spawns
-  
+
   EV_DCC_ATTACK,      //TA: dcc under attack
-  
+
   EV_RPTUSE_SOUND     //TA: trigger a sound
 } entity_event_t;
 
@@ -576,7 +574,7 @@ typedef enum
   MN_TEAM,
   MN_A_TEAMFULL,
   MN_H_TEAMFULL,
-  
+
   //alien stuff
   MN_A_CLASS,
   MN_A_BUILD,
@@ -586,7 +584,7 @@ typedef enum
   MN_A_NOEROOM,
   MN_A_TOOCLOSE,
   MN_A_NOOVMND_EVOLVE,
-  
+
   //alien build
   MN_A_SPWNWARN,
   MN_A_OVERMIND,
@@ -596,7 +594,7 @@ typedef enum
   MN_A_NOROOM,
   MN_A_NORMAL,
   MN_A_HOVEL_EXIT,
-  
+
   //human stuff
   MN_H_SPAWN,
   MN_H_BUILD,
@@ -604,7 +602,7 @@ typedef enum
   MN_H_NOSLOTS,
   MN_H_NOFUNDS,
   MN_H_ITEMHELD,
-  
+
   //human build
   MN_H_REPEATER,
   MN_H_NOPOWER,
@@ -706,7 +704,7 @@ typedef enum
 
   NSPA_PAIN1,
   NSPA_PAIN2,
-  
+
   NSPA_DEATH1,
   NSPA_DEAD1,
   NSPA_DEATH2,
@@ -715,9 +713,9 @@ typedef enum
   NSPA_DEAD3,
 
   MAX_NONSEG_PLAYER_ANIMATIONS,
-  
+
   NSPA_WALKBACK,
-  
+
   MAX_NONSEG_PLAYER_TOTALANIMATIONS
 } nonSegPlayerAnimNumber_t;
 
@@ -741,11 +739,11 @@ typedef enum
 
   BANIM_PAIN1,
   BANIM_PAIN2,
-  
+
   BANIM_DESTROY1,
   BANIM_DESTROY2,
   BANIM_DESTROYED,
-  
+
   MAX_BUILDABLE_ANIMATIONS
 } buildableAnimNumber_t;
 
@@ -785,11 +783,11 @@ typedef enum
 typedef enum
 {
   PCL_NONE,
-  
+
   //builder classes
   PCL_ALIEN_BUILDER0,
   PCL_ALIEN_BUILDER0_UPG,
-  
+
   //offensive classes
   PCL_ALIEN_LEVEL0,
   PCL_ALIEN_LEVEL1,
@@ -799,7 +797,7 @@ typedef enum
   PCL_ALIEN_LEVEL3,
   PCL_ALIEN_LEVEL3_UPG,
   PCL_ALIEN_LEVEL4,
-  
+
   //human class
   PCL_HUMAN,
   PCL_HUMAN_BSUIT,
@@ -861,7 +859,7 @@ typedef enum
   MOD_SLOWBLOB,
   MOD_POISON,
   MOD_SWARM,
-  
+
   MOD_HSPAWN,
   MOD_TESLAGEN,
   MOD_MGTURRET,
@@ -882,36 +880,36 @@ typedef struct
 
   char      *className;
   char      *humanName;
-  
+
   char      *modelName;
   float     modelScale;
   char      *skinName;
   float     shadowScale;
-  
+
   char      *hudName;
-  
+
   int       stages;
-  
+
   vec3_t    mins;
   vec3_t    maxs;
   vec3_t    crouchMaxs;
   vec3_t    deadMins;
   vec3_t    deadMaxs;
   float     zOffset;
-  
+
   int       viewheight;
   int       crouchViewheight;
-  
+
   int       health;
   float     fallDamage;
   int       regenRate;
-  
+
   int       abilities;
-  
+
   weapon_t  startWeapon;
-  
+
   float     buildDist;
-  
+
   int       fov;
   float     bob;
   float     bobCycle;
@@ -938,7 +936,7 @@ typedef struct
   float     shadowScale;
   char      hudName[ MAX_QPATH ];
   char      humanName[ MAX_STRING_CHARS ];
-  
+
   vec3_t    mins;
   vec3_t    maxs;
   vec3_t    crouchMaxs;
@@ -965,7 +963,7 @@ typedef struct
   char      *buildName;
   char      *humanName;
   char      *entityName;
-  
+
   char      *models[ MAX_BUILDABLE_MODELS ];
   float     modelScale;
 
@@ -975,13 +973,13 @@ typedef struct
 
   trType_t  traj;
   float     bounce;
-  
+
   int       buildPoints;
   int       stages;
 
   int       health;
   int       regenRate;
-  
+
   int       splashDamage;
   int       splashRadius;
 
@@ -1008,7 +1006,7 @@ typedef struct
 
   qboolean  dccTest;
   qboolean  reactorTest;
-} buildableAttributes_t;      
+} buildableAttributes_t;
 
 typedef struct
 {
@@ -1018,7 +1016,7 @@ typedef struct
   vec3_t    mins;
   vec3_t    maxs;
   float     zOffset;
-} buildableAttributeOverrides_t;      
+} buildableAttributeOverrides_t;
 
 //TA: weapon record
 typedef struct
@@ -1042,7 +1040,7 @@ typedef struct
   int       repeatRate2;
   int       repeatRate3;
   int       reloadTime;
-  
+
   qboolean  hasAltMode;
   qboolean  hasThirdMode;
 
@@ -1050,7 +1048,7 @@ typedef struct
   float     zoomFov;
 
   qboolean  purchasable;
-  
+
   int       buildDelay;
 
   WUTeam_t  team;
@@ -1070,9 +1068,9 @@ typedef struct
   char      *upgradeHumanName;
 
   char      *icon;
-  
+
   qboolean  purchasable;
-  
+
   WUTeam_t  team;
 } upgradeAttributes_t;
 
@@ -1095,10 +1093,10 @@ qboolean  BG_RotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
 void      BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
                                                 const vec3_t mins, const vec3_t maxs,
                                                 void (*trace)( trace_t *, const vec3_t, const vec3_t,
-                                                               const vec3_t, const vec3_t, int, int ), 
+                                                               const vec3_t, const vec3_t, int, int ),
                                                 vec3_t outOrigin, vec3_t outAngles, trace_t *tr );
 int       BG_GetValueOfHuman( playerState_t *ps );
-  
+
 int       BG_FindBuildNumForName( char *name );
 int       BG_FindBuildNumForEntityName( char *name );
 char      *BG_FindNameForBuildable( int bclass );
@@ -1210,7 +1208,7 @@ WUTeam_t  BG_FindTeamForUpgrade( int upgrade );
 #define MASK_DEADSOLID    (CONTENTS_SOLID|CONTENTS_PLAYERCLIP)
 #define MASK_WATER        (CONTENTS_WATER|CONTENTS_LAVA|CONTENTS_SLIME)
 #define MASK_OPAQUE       (CONTENTS_SOLID|CONTENTS_SLIME|CONTENTS_LAVA)
-#define MASK_SHOT         (CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE)
+#define MASK_SHOT         (CONTENTS_SOLID|CONTENTS_BODY)
 
 
 //
@@ -1221,9 +1219,9 @@ typedef enum
   ET_GENERAL,
   ET_PLAYER,
   ET_ITEM,
-  
+
   ET_BUILDABLE,       //TA: buildable type
-  
+
   ET_MISSILE,
   ET_MOVER,
   ET_BEAM,
@@ -1250,8 +1248,6 @@ void  BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result )
 void  BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
 
 void  BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps );
-
-void  BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad );
 
 void  BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean snap );
 void  BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap );

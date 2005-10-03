@@ -14,7 +14,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
-                    
+
 #include "cg_local.h"
 
 char *cg_customSoundNames[ MAX_CUSTOM_SOUNDS ] =
@@ -106,7 +106,7 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
     CG_Printf( "File %s too long\n", filename );
     return qfalse;
   }
-  
+
   trap_FS_Read( text, len, f );
   text[ len ] = 0;
   trap_FS_FCloseFile( f );
@@ -127,7 +127,7 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
   {
     prev = text_p;  // so we can unget
     token = COM_Parse( &text_p );
-    
+
     if( !token )
       break;
 
@@ -166,13 +166,13 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
 
         ci->headOffset[ i ] = atof( token );
       }
-      
+
       continue;
     }
     else if( !Q_stricmp( token, "sex" ) )
     {
       token = COM_Parse( &text_p );
-      
+
       if( !token )
         break;
 
@@ -182,7 +182,7 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
         ci->gender = GENDER_NEUTER;
       else
         ci->gender = GENDER_MALE;
-      
+
       continue;
     }
     else if( !Q_stricmp( token, "fixedlegs" ) )
@@ -207,7 +207,7 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
       text_p = prev;  // unget the token
       break;
     }
-    
+
     Com_Printf( "unknown token '%s' is %s\n", token, filename );
   }
 
@@ -217,7 +217,7 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
     for( i = 0; i < MAX_PLAYER_ANIMATIONS; i++ )
     {
       token = COM_Parse( &text_p );
-      
+
       if( !*token )
       {
         if( i >= TORSO_GETFLAG && i <= TORSO_NEGATIVE )
@@ -231,12 +231,12 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
           animations[ i ].flipflop = qfalse;
           continue;
         }
-        
+
         break;
       }
-      
+
       animations[ i ].firstFrame = atoi( token );
-      
+
       // leg only frames are adjusted to not count the upper body only frames
       if( i == LEGS_WALKCR )
         skip = animations[ LEGS_WALKCR ].firstFrame - animations[ TORSO_GESTURE ].firstFrame;
@@ -247,11 +247,11 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
       token = COM_Parse( &text_p );
       if( !*token )
         break;
-      
+
       animations[ i ].numFrames = atoi( token );
       animations[ i ].reversed = qfalse;
       animations[ i ].flipflop = qfalse;
-      
+
       // if numFrames is negative the animation is reversed
       if( animations[ i ].numFrames < 0 )
       {
@@ -260,14 +260,14 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
       }
 
       token = COM_Parse( &text_p );
-      
+
       if( !*token )
         break;
 
       animations[ i ].loopFrames = atoi( token );
 
       token = COM_Parse( &text_p );
-      
+
       if( !*token )
         break;
 
@@ -318,20 +318,20 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
     for( i = 0; i < MAX_NONSEG_PLAYER_ANIMATIONS; i++ )
     {
       token = COM_Parse( &text_p );
-      
+
       if( !*token )
         break;
-      
+
       animations[ i ].firstFrame = atoi( token );
-      
+
       token = COM_Parse( &text_p );
       if( !*token )
         break;
-      
+
       animations[ i ].numFrames = atoi( token );
       animations[ i ].reversed = qfalse;
       animations[ i ].flipflop = qfalse;
-      
+
       // if numFrames is negative the animation is reversed
       if( animations[ i ].numFrames < 0 )
       {
@@ -340,14 +340,14 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
       }
 
       token = COM_Parse( &text_p );
-      
+
       if( !*token )
         break;
 
       animations[ i ].loopFrames = atoi( token );
 
       token = COM_Parse( &text_p );
-      
+
       if( !*token )
         break;
 
@@ -364,7 +364,7 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
       CG_Printf( "Error parsing animation file: %s", filename );
       return qfalse;
     }
-    
+
     // walk backward animation
     memcpy( &animations[ NSPA_WALKBACK ], &animations[ NSPA_WALK ], sizeof( animation_t ) );
     animations[ NSPA_WALKBACK ].reversed = qtrue;
@@ -553,7 +553,7 @@ static void CG_LoadClientInfo( clientInfo_t *ci )
   for( i = 0; i < MAX_CUSTOM_SOUNDS; i++ )
   {
     s = cg_customSoundNames[ i ];
-    
+
     if( !s )
       break;
 
@@ -561,7 +561,7 @@ static void CG_LoadClientInfo( clientInfo_t *ci )
     if( !CG_FileExists( va( "sound/player/%s/%s", dir, s + 1 ) ) )
     {
       //file doesn't exist
-      
+
       if( i == 11 || i == 8 ) //fall or falling
       {
         ci->sounds[ i ] = trap_S_RegisterSound( "sound/null.wav", qfalse );
@@ -572,7 +572,7 @@ static void CG_LoadClientInfo( clientInfo_t *ci )
           s = cg_customSoundNames[ 7 ]; //pain100_1
         else if( i == 10 ) //drown
           s = cg_customSoundNames[ 0 ]; //death1
-        
+
         ci->sounds[ i ] = trap_S_RegisterSound( va( "sound/player/%s/%s", dir, s + 1 ), qfalse );
         if( !ci->sounds[ i ] )
           ci->sounds[ i ] = trap_S_RegisterSound( va( "sound/player/%s/%s", fallback, s + 1 ), qfalse );
@@ -658,10 +658,10 @@ static int CG_GetCorpseNum( pClass_t class )
   for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
   {
     match = &cgs.corpseinfo[ i ];
-    
+
     if( !match->infoValid )
       continue;
-      
+
     if( !Q_stricmp( modelName, match->modelName )
       && !Q_stricmp( skinName, match->skinName ) )
     {
@@ -688,7 +688,7 @@ static qboolean CG_ScanForExistingClientInfo( clientInfo_t *ci )
   for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
   {
     match = &cgs.corpseinfo[ i ];
-    
+
     if( !match->infoValid )
       continue;
 
@@ -741,8 +741,8 @@ void CG_PrecacheClientInfo( pClass_t class, char *model, char *skin )
   newInfo.infoValid = qtrue;
 
   //TA: actually register the models
-  CG_LoadClientInfo( &newInfo );
   *ci = newInfo;
+  CG_LoadClientInfo( ci );
 }
 
 
@@ -815,13 +815,13 @@ void CG_NewClientInfo( int clientNum )
 
   v = Info_ValueForKey( configstring, "g_blueteam" );
   Q_strncpyz( newInfo.blueTeam, v, MAX_TEAMNAME );
-                    
+
   // model
   v = Info_ValueForKey( configstring, "model" );
   Q_strncpyz( newInfo.modelName, v, sizeof( newInfo.modelName ) );
 
   slash = strchr( newInfo.modelName, '/' );
-  
+
   if( !slash )
   {
     // modelName didn not include a skin name
@@ -841,7 +841,7 @@ void CG_NewClientInfo( int clientNum )
   Q_strncpyz( newInfo.headModelName, v, sizeof( newInfo.headModelName ) );
 
   slash = strchr( newInfo.headModelName, '/' );
-  
+
   if( !slash )
   {
     // modelName didn not include a skin name
@@ -854,14 +854,14 @@ void CG_NewClientInfo( int clientNum )
     *slash = 0;
   }
 
-  // scan for an existing clientinfo that matches this modelname
-  // so we can avoid loading checks if possible
-  if( !CG_ScanForExistingClientInfo( &newInfo ) )
-    CG_LoadClientInfo( &newInfo );
-
   // replace whatever was there with the new one
   newInfo.infoValid = qtrue;
   *ci = newInfo;
+
+  // scan for an existing clientinfo that matches this modelname
+  // so we can avoid loading checks if possible
+  if( !CG_ScanForExistingClientInfo( ci ) )
+    CG_LoadClientInfo( ci );
 }
 
 
@@ -938,19 +938,19 @@ static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation
     anim = lf->animation;
     if( !anim->frameLerp )
       return;   // shouldn't happen
-    
+
     if( cg.time < lf->animationTime )
       lf->frameTime = lf->animationTime;    // initial lerp
     else
       lf->frameTime = lf->oldFrameTime + anim->frameLerp;
-      
+
     f = ( lf->frameTime - lf->animationTime ) / anim->frameLerp;
     f *= speedScale;    // adjust for haste, etc
     numFrames = anim->numFrames;
-    
+
     if( anim->flipflop )
       numFrames *= 2;
-    
+
     if( f >= numFrames )
     {
       f -= numFrames;
@@ -967,7 +967,7 @@ static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation
         lf->frameTime = cg.time;
       }
     }
-    
+
     if( anim->reversed )
       lf->frame = anim->firstFrame + anim->numFrames - 1 - f;
     else if( anim->flipflop && f>=anim->numFrames )
@@ -978,7 +978,7 @@ static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation
     if( cg.time > lf->frameTime )
     {
       lf->frameTime = cg.time;
-      
+
       if( cg_debugAnim.integer )
         CG_Printf( "Clamp lf->frameTime\n" );
     }
@@ -989,7 +989,7 @@ static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation
 
   if( lf->oldFrameTime > cg.time )
     lf->oldFrameTime = cg.time;
-    
+
   // calculate current lerp value
   if( lf->frameTime == lf->oldFrameTime )
     lf->backlerp = 0;
@@ -1108,7 +1108,7 @@ static void CG_SwingAngles( float destination, float swingTolerance, float clamp
   {
     // see if a swing should be started
     swing = AngleSubtract( *angle, destination );
-    
+
     if( swing > swingTolerance || swing < -swingTolerance )
       *swinging = qtrue;
   }
@@ -1120,7 +1120,7 @@ static void CG_SwingAngles( float destination, float swingTolerance, float clamp
   // so it doesn't seem so linear
   swing = AngleSubtract( destination, *angle );
   scale = fabs( swing );
-  
+
   if( scale < swingTolerance * 0.5 )
     scale = 0.5;
   else if( scale < swingTolerance )
@@ -1132,7 +1132,7 @@ static void CG_SwingAngles( float destination, float swingTolerance, float clamp
   if( swing >= 0 )
   {
     move = cg.frametime * scale * speed;
-    
+
     if( move >= swing )
     {
       move = swing;
@@ -1143,7 +1143,7 @@ static void CG_SwingAngles( float destination, float swingTolerance, float clamp
   else if( swing < 0 )
   {
     move = cg.frametime * scale * -speed;
-    
+
     if( move <= swing )
     {
       move = swing;
@@ -1171,7 +1171,7 @@ static void CG_AddPainTwitch( centity_t *cent, vec3_t torsoAngles )
   float f;
 
   t = cg.time - cent->pe.painTime;
-  
+
   if( t >= PAIN_TWITCH_TIME )
     return;
 
@@ -1239,7 +1239,7 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t srcAngles,
     if( dir < 0 || dir > 7 )
       CG_Error( "Bad player movement angle" );
   }
-  
+
   legsAngles[ YAW ] = headAngles[ YAW ] + movementOffsets[ dir ];
   torsoAngles[ YAW ] = headAngles[ YAW ] + 0.25 * movementOffsets[ dir ];
 
@@ -1258,7 +1258,7 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t srcAngles,
     CG_SwingAngles( legsAngles[ YAW ], 40, 90, cg_swingSpeed.value,
       &cent->pe.legs.yawAngle, &cent->pe.legs.yawing );
   }
-  
+
   torsoAngles[ YAW ] = cent->pe.torso.yawAngle;
   legsAngles[ YAW ] = cent->pe.legs.yawAngle;
 
@@ -1275,7 +1275,7 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t srcAngles,
 
   //
   clientNum = cent->currentState.clientNum;
-  
+
   if( clientNum >= 0 && clientNum < MAX_CLIENTS )
   {
     ci = &cgs.clientinfo[ clientNum ];
@@ -1289,7 +1289,7 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t srcAngles,
   // lean towards the direction of travel
   VectorCopy( cent->currentState.pos.trDelta, velocity );
   speed = VectorNormalize( velocity );
-  
+
   if( speed )
   {
     vec3_t  axis[ 3 ];
@@ -1311,7 +1311,7 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t srcAngles,
   if( clientNum >= 0 && clientNum < MAX_CLIENTS )
   {
     ci = &cgs.clientinfo[ clientNum ];
-    
+
     if( ci->fixedlegs )
     {
       legsAngles[ YAW ] = torsoAngles[ YAW ];
@@ -1349,7 +1349,7 @@ static void CG_PlayerWWSmoothing( centity_t *cent, vec3_t in[ 3 ], vec3_t out[ 3
   vec3_t        ceilingNormal = { 0.0f, 0.0f, -1.0f };
   float         stLocal, sFraction, rotAngle;
   vec3_t        inAxis[ 3 ], lastAxis[ 3 ], outAxis[ 3 ];
-    
+
   //set surfNormal
   if( !( es->eFlags & EF_WALLCLIMBCEILING ) )
     VectorCopy( es->angles2, surfNormal );
@@ -1386,7 +1386,7 @@ static void CG_PlayerWWSmoothing( centity_t *cent, vec3_t in[ 3 ], vec3_t out[ 3
 
       VectorNormalize( rotAxis );
     }
-          
+
     //iterate through smooth array
     for( i = 0; i < MAXSMOOTHS; i++ )
     {
@@ -1401,7 +1401,7 @@ static void CG_PlayerWWSmoothing( centity_t *cent, vec3_t in[ 3 ], vec3_t out[ 3
       }
     }
   }
-  
+
   //iterate through ops
   for( i = MAXSMOOTHS - 1; i >= 0; i-- )
   {
@@ -1461,7 +1461,7 @@ static void CG_PlayerNonSegAngles( centity_t *cent, vec3_t srcAngles, vec3_t non
     cent->pe.nonseg.yawAngle = localAngles[ YAW ];
     cent->pe.nonseg.yawing = qfalse;
   }
-  
+
   // --------- yaw -------------
 
   // allow yaw to drift a bit
@@ -1484,7 +1484,7 @@ static void CG_PlayerNonSegAngles( centity_t *cent, vec3_t srcAngles, vec3_t non
     if( dir < 0 || dir > 7 )
       CG_Error( "Bad player movement angle" );
   }
-  
+
   // torso
   if( cent->currentState.eFlags & EF_DEAD )
   {
@@ -1496,21 +1496,21 @@ static void CG_PlayerNonSegAngles( centity_t *cent, vec3_t srcAngles, vec3_t non
     CG_SwingAngles( localAngles[ YAW ], 40, 90, cg_swingSpeed.value,
       &cent->pe.nonseg.yawAngle, &cent->pe.nonseg.yawing );
   }
-  
+
   localAngles[ YAW ] = cent->pe.nonseg.yawAngle;
 
   // --------- pitch -------------
 
   //NO PITCH!
 
-  
+
   // --------- roll -------------
 
 
   // lean towards the direction of travel
   VectorCopy( cent->currentState.pos.trDelta, velocity );
   speed = VectorNormalize( velocity );
-  
+
   if( speed )
   {
     vec3_t  axis[ 3 ];
@@ -1559,7 +1559,7 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
     VectorCopy( torso->lightingOrigin, jetpack.lightingOrigin );
     jetpack.shadowPlane = torso->shadowPlane;
     jetpack.renderfx = torso->renderfx;
-    
+
     jetpack.hModel = cgs.media.jetpackModel;
 
     //identity matrix
@@ -1569,7 +1569,7 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
     CG_PositionRotatedEntityOnTag( &jetpack, torso, torso->hModel, "tag_head" );
 
     trap_R_AddRefEntityToScene( &jetpack );
-    
+
     if( active & ( 1 << UP_JETPACK ) )
     {
       if( es->pos.trDelta[ 2 ] > 10.0f )
@@ -1578,11 +1578,11 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
         {
           if( CG_IsParticleSystemValid( &cent->jetPackPS ) )
             CG_DestroyParticleSystem( &cent->jetPackPS );
-            
+
           cent->jetPackPS = CG_SpawnNewParticleSystem( cgs.media.jetPackAscendPS );
           cent->jetPackState = JPS_ASCENDING;
         }
-        
+
         trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
                                 vec3_origin, cgs.media.jetpackAscendSound );
       }
@@ -1592,11 +1592,11 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
         {
           if( CG_IsParticleSystemValid( &cent->jetPackPS ) )
             CG_DestroyParticleSystem( &cent->jetPackPS );
-            
+
           cent->jetPackPS = CG_SpawnNewParticleSystem( cgs.media.jetPackDescendPS );
           cent->jetPackState = JPS_DESCENDING;
         }
-        
+
         trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
                                 vec3_origin, cgs.media.jetpackDescendSound );
       }
@@ -1606,15 +1606,15 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
         {
           if( CG_IsParticleSystemValid( &cent->jetPackPS ) )
             CG_DestroyParticleSystem( &cent->jetPackPS );
-            
+
           cent->jetPackPS = CG_SpawnNewParticleSystem( cgs.media.jetPackHoverPS );
           cent->jetPackState = JPS_HOVERING;
         }
-        
+
         trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
                                 vec3_origin, cgs.media.jetpackIdleSound );
       }
-      
+
       memset( &flash, 0, sizeof( flash ) );
       VectorCopy( torso->lightingOrigin, flash.lightingOrigin );
       flash.shadowPlane = torso->shadowPlane;
@@ -1628,7 +1628,7 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
 
       CG_PositionRotatedEntityOnTag( &flash, &jetpack, jetpack.hModel, "tag_flash" );
       trap_R_AddRefEntityToScene( &flash );
-      
+
       if( CG_IsParticleSystemValid( &cent->jetPackPS ) )
       {
         CG_SetParticleSystemTag( cent->jetPackPS, jetpack, jetpack.hModel, "tag_flash" );
@@ -1654,7 +1654,7 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
     VectorCopy( torso->lightingOrigin, battpack.lightingOrigin );
     battpack.shadowPlane = torso->shadowPlane;
     battpack.renderfx = torso->renderfx;
-    
+
     battpack.hModel = cgs.media.battpackModel;
 
     //identity matrix
@@ -1665,13 +1665,13 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
 
     trap_R_AddRefEntityToScene( &battpack );
   }
-    
+
   if( es->eFlags & EF_BLOBLOCKED )
   {
     vec3_t  temp, origin, up = { 0.0f, 0.0f, 1.0f };
     trace_t tr;
     float   size;
-    
+
     VectorCopy( es->pos.trBase, temp );
     temp[ 2 ] -= 4096.0f;
 
@@ -1764,7 +1764,7 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane, pClass_t c
   BG_FindBBoxForClass( class, mins, maxs, NULL, NULL, NULL );
   mins[ 2 ] = 0.0f;
   maxs[ 2 ] = 2.0f;
-  
+
   if( es->eFlags & EF_WALLCLIMB )
   {
     if( es->eFlags & EF_WALLCLIMBCEILING )
@@ -1772,7 +1772,7 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane, pClass_t c
     else
       VectorCopy( es->angles2, surfNormal );
   }
-      
+
   *shadowPlane = 0;
 
   if( cg_shadows.integer == 0 )
@@ -1836,7 +1836,7 @@ static void CG_PlayerSplash( centity_t *cent )
   // if the feet aren't in liquid, don't make a mark
   // this won't handle moving water brushes, but they wouldn't draw right anyway...
   contents = trap_CM_PointContents( end, 0 );
-  
+
   if( !( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) )
     return;
 
@@ -1845,7 +1845,7 @@ static void CG_PlayerSplash( centity_t *cent )
 
   // if the head isn't out of liquid, don't make a mark
   contents = trap_CM_PointContents( start, 0 );
-  
+
   if( contents & ( CONTENTS_SOLID | CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) )
     return;
 
@@ -1918,7 +1918,7 @@ int CG_LightVerts( vec3_t normal, int numVerts, polyVert_t *verts )
   for( i = 0; i < numVerts; i++ )
   {
     incoming = DotProduct( normal, lightDir );
-    
+
     if( incoming <= 0 )
     {
       verts[ i ].modulate[ 0 ] = ambientLight[ 0 ];
@@ -1926,24 +1926,24 @@ int CG_LightVerts( vec3_t normal, int numVerts, polyVert_t *verts )
       verts[ i ].modulate[ 2 ] = ambientLight[ 2 ];
       verts[ i ].modulate[ 3 ] = 255;
       continue;
-    } 
-    
+    }
+
     j = ( ambientLight[ 0 ] + incoming * directedLight[ 0 ] );
-    
+
     if( j > 255 )
       j = 255;
- 
+
     verts[ i ].modulate[ 0 ] = j;
 
     j = ( ambientLight[ 1 ] + incoming * directedLight[ 1 ] );
-    
+
     if( j > 255 )
       j = 255;
 
     verts[ i ].modulate[ 1 ] = j;
 
     j = ( ambientLight[ 2 ] + incoming * directedLight[ 2 ] );
-    
+
     if( j > 255 )
       j = 255;
 
@@ -1972,7 +1972,7 @@ int CG_LightFromDirection( vec3_t point, vec3_t direction )
   trap_R_LightForPoint( point, ambientLight, directedLight, lightDir );
 
   incoming = DotProduct( direction, lightDir );
-  
+
   if( incoming <= 0 )
   {
     result[ 0 ] = ambientLight[ 0 ];
@@ -1980,23 +1980,23 @@ int CG_LightFromDirection( vec3_t point, vec3_t direction )
     result[ 2 ] = ambientLight[ 2 ];
     return (int)( (float)( result[ 0 ] + result[ 1 ] + result[ 2 ] ) / 3.0f );
   }
-  
+
   j = ( ambientLight[ 0 ] + incoming * directedLight[ 0 ] );
-  
+
   if( j > 255 )
     j = 255;
 
   result[ 0 ] = j;
 
   j = ( ambientLight[ 1 ] + incoming * directedLight[ 1 ] );
-  
+
   if( j > 255 )
     j = 255;
 
   result[ 1 ] = j;
 
   j = ( ambientLight[ 2 ] + incoming * directedLight[ 2 ] );
-  
+
   if( j > 255 )
     j = 255;
 
@@ -2036,7 +2036,7 @@ CG_Player
 void CG_Player( centity_t *cent )
 {
   clientInfo_t  *ci;
-  
+
   //TA: NOTE: legs is used for nonsegmented models
   //          this helps reduce code to be changed
   refEntity_t   legs;
@@ -2089,7 +2089,7 @@ void CG_Player( centity_t *cent )
     BG_FindBBoxForClass( class, mins, maxs, NULL, NULL, NULL );
     CG_DrawBoundingBox( cent->lerpOrigin, mins, maxs );
   }
-  
+
   memset( &legs,    0, sizeof( legs ) );
   memset( &torso,   0, sizeof( torso ) );
   memset( &head,    0, sizeof( head ) );
@@ -2103,7 +2103,7 @@ void CG_Player( centity_t *cent )
     AxisToAngles( tempAxis2, angles );
   else
     VectorCopy( cent->lerpAngles, angles );
-  
+
   //normalise the pitch
   if( angles[ PITCH ] < -180.0f )
     angles[ PITCH ] += 360.0f;
@@ -2115,7 +2115,7 @@ void CG_Player( centity_t *cent )
     CG_PlayerNonSegAngles( cent, angles, legs.axis );
 
   AxisCopy( legs.axis, tempAxis );
-  
+
   //rotate the legs axis to back to the wall
   if( es->eFlags & EF_WALLCLIMB &&
       BG_RotateAxis( es->angles2, legs.axis, tempAxis, qfalse, es->eFlags & EF_WALLCLIMBCEILING ) )
@@ -2184,7 +2184,7 @@ void CG_Player( centity_t *cent )
       VectorSet( surfNormal, 0.0f, 0.0f, -1.0f );
     else
       VectorCopy( es->angles2, surfNormal );
-      
+
     BG_FindBBoxForClass( class, mins, maxs, NULL, NULL, NULL );
 
     VectorMA( legs.origin, -TRACE_DEPTH, surfNormal, end );
@@ -2208,7 +2208,7 @@ void CG_Player( centity_t *cent )
     VectorScale( legs.axis[ 0 ], scale, legs.axis[ 0 ] );
     VectorScale( legs.axis[ 1 ], scale, legs.axis[ 1 ] );
     VectorScale( legs.axis[ 2 ], scale, legs.axis[ 2 ] );
-    
+
     legs.nonNormalizedAxes = qtrue;
   }
 
@@ -2216,7 +2216,7 @@ void CG_Player( centity_t *cent )
   VectorMA( legs.origin, BG_FindZOffsetForClass( class ), surfNormal, legs.origin );
   VectorCopy( legs.origin, legs.lightingOrigin );
   VectorCopy( legs.origin, legs.oldorigin ); // don't positionally lerp at all
-  
+
   trap_R_AddRefEntityToScene( &legs );
 
   // if the model failed, allow the default nullmodel to be displayed
@@ -2234,7 +2234,7 @@ void CG_Player( centity_t *cent )
       torso.customSkin = cgs.media.larmourTorsoSkin;
     else
       torso.customSkin = ci->torsoSkin;
-    
+
     if( !torso.hModel )
       return;
 
@@ -2256,7 +2256,7 @@ void CG_Player( centity_t *cent )
       head.customSkin = cgs.media.larmourHeadSkin;
     else
       head.customSkin = ci->headSkin;
-    
+
     if( !head.hModel )
       return;
 
@@ -2285,11 +2285,11 @@ void CG_Player( centity_t *cent )
   {
     if( CG_IsParticleSystemValid( &cent->muzzlePS ) )
       CG_DestroyParticleSystem( &cent->muzzlePS );
-    
+
     if( CG_IsParticleSystemValid( &cent->jetPackPS ) )
       CG_DestroyParticleSystem( &cent->jetPackPS );
   }
-    
+
   VectorCopy( surfNormal, cent->pe.lastNormal );
 }
 
@@ -2313,12 +2313,12 @@ void CG_Corpse( centity_t *cent )
   float         scale;
 
   corpseNum = CG_GetCorpseNum( es->clientNum );
-  
+
   if( corpseNum < 0 || corpseNum >= MAX_CLIENTS )
     CG_Error( "Bad corpseNum on corpse entity: %d", corpseNum );
 
   ci = &cgs.corpseinfo[ corpseNum ];
-    
+
   // it is possible to see corpses from disconnected players that may
   // not have valid clientinfo
   if( !ci->infoValid )
@@ -2333,7 +2333,7 @@ void CG_Corpse( centity_t *cent )
   origin[ 2 ] -= ( liveZ[ 2 ] - deadZ[ 2 ] );
 
   VectorCopy( es->angles, cent->lerpAngles );
-  
+
   // get the rotation information
   if( !ci->nonsegmented )
     CG_PlayerAngles( cent, cent->lerpAngles, legs.axis, torso.axis, head.axis );
@@ -2407,10 +2407,10 @@ void CG_Corpse( centity_t *cent )
     VectorScale( legs.axis[ 0 ], scale, legs.axis[ 0 ] );
     VectorScale( legs.axis[ 1 ], scale, legs.axis[ 1 ] );
     VectorScale( legs.axis[ 2 ], scale, legs.axis[ 2 ] );
-    
+
     legs.nonNormalizedAxes = qtrue;
   }
-  
+
   //CG_AddRefEntityWithPowerups( &legs, es->powerups, ci->team );
   trap_R_AddRefEntityToScene( &legs );
 

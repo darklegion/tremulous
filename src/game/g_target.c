@@ -88,7 +88,7 @@ void Use_Target_Print( gentity_t *ent, gentity_t *other, gentity_t *activator )
       G_TeamCommand( PTE_HUMANS, va( "cp \"%s\"", ent->message ) );
     if( ent->spawnflags & 2 )
       G_TeamCommand( PTE_ALIENS, va( "cp \"%s\"", ent->message ) );
-    
+
     return;
   }
 
@@ -191,9 +191,9 @@ void target_teleporter_use( gentity_t *self, gentity_t *other, gentity_t *activa
 
   if( !activator->client )
     return;
-  
+
   dest =  G_PickTarget( self->target );
-  
+
   if( !dest )
   {
     G_Printf( "Couldn't find teleporter destination\n" );
@@ -239,7 +239,7 @@ void target_relay_use( gentity_t *self, gentity_t *other, gentity_t *activator )
     ent = G_PickTarget( self->target );
     if( ent && ent->use )
       ent->use( ent, self, activator );
-    
+
     return;
   }
 
@@ -328,31 +328,31 @@ target_rumble_think
 */
 void target_rumble_think( gentity_t *self )
 {
-	int		    i;
-	gentity_t	*ent;
+  int        i;
+  gentity_t  *ent;
 
-	if( self->last_move_time < level.time )
-		self->last_move_time = level.time + 0.5;
+  if( self->last_move_time < level.time )
+    self->last_move_time = level.time + 0.5;
 
-	for( i = 0, ent = g_entities + i; i < level.num_entities; i++, ent++ )
-	{
-		if( !ent->inuse )
-			continue;
-    
-		if( !ent->client )
-			continue;
-    
-		if( ent->client->ps.groundEntityNum == ENTITYNUM_NONE )
-			continue;
+  for( i = 0, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  {
+    if( !ent->inuse )
+      continue;
 
-		ent->client->ps.groundEntityNum = ENTITYNUM_NONE;
-		ent->client->ps.velocity[ 0 ] += crandom( ) * 150;
-		ent->client->ps.velocity[ 1 ] += crandom( ) * 150;
-		ent->client->ps.velocity[ 2 ] = self->speed;
-	}
+    if( !ent->client )
+      continue;
 
-	if( level.time < self->timestamp )
-		self->nextthink = level.time + FRAMETIME;
+    if( ent->client->ps.groundEntityNum == ENTITYNUM_NONE )
+      continue;
+
+    ent->client->ps.groundEntityNum = ENTITYNUM_NONE;
+    ent->client->ps.velocity[ 0 ] += crandom( ) * 150;
+    ent->client->ps.velocity[ 1 ] += crandom( ) * 150;
+    ent->client->ps.velocity[ 2 ] = self->speed;
+  }
+
+  if( level.time < self->timestamp )
+    self->nextthink = level.time + FRAMETIME;
 }
 
 /*
@@ -362,10 +362,10 @@ target_rumble_use
 */
 void target_rumble_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-	self->timestamp = level.time + ( self->count * FRAMETIME );
-	self->nextthink = level.time + FRAMETIME;
-	self->activator = activator;
-	self->last_move_time = 0;
+  self->timestamp = level.time + ( self->count * FRAMETIME );
+  self->nextthink = level.time + FRAMETIME;
+  self->activator = activator;
+  self->last_move_time = 0;
 }
 
 /*
@@ -375,18 +375,18 @@ SP_target_rumble
 */
 void SP_target_rumble( gentity_t *self )
 {
-	if( !self->targetname )
+  if( !self->targetname )
   {
-		G_Printf( S_COLOR_YELLOW "WARNING: untargeted %s at %s\n", self->classname,
+    G_Printf( S_COLOR_YELLOW "WARNING: untargeted %s at %s\n", self->classname,
                                                                vtos( self->s.origin ) );
   }
 
-	if( !self->count )
-		self->count = 10;
+  if( !self->count )
+    self->count = 10;
 
-	if( !self->speed )
-		self->speed = 100;
+  if( !self->speed )
+    self->speed = 100;
 
-	self->think = target_rumble_think;
-	self->use = target_rumble_use;
+  self->think = target_rumble_think;
+  self->use = target_rumble_use;
 }

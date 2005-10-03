@@ -34,7 +34,7 @@ static void CG_ResetEntity( centity_t *cent )
 
   VectorCopy( cent->currentState.origin, cent->lerpOrigin );
   VectorCopy( cent->currentState.angles, cent->lerpAngles );
-  
+
   if( cent->currentState.eType == ET_PLAYER )
     CG_ResetPlayerEntity( cent );
 }
@@ -68,7 +68,7 @@ static void CG_TransitionEntity( centity_t *cent )
 CG_SetInitialSnapshot
 
 This will only happen on the very first snapshot, or
-on tourney restarts.  All other times will use 
+on tourney restarts.  All other times will use
 CG_TransitionSnapshot instead.
 
 FIXME: Also called by map_restart?
@@ -154,7 +154,7 @@ static void CG_TransitionSnapshot( void )
   {
     cent = &cg_entities[ cg.snap->entities[ i ].number ];
     CG_TransitionEntity( cent );
-    
+
     // remember time of snapshot this entity was last updated in
     cent->snapShotTime = cg.snap->serverTime;
   }
@@ -253,7 +253,7 @@ static snapshot_t *CG_ReadNextSnapshot( void )
 
   if( cg.latestSnapshotNum > cgs.processedSnapshotNum + 1000 )
   {
-    CG_Printf( "WARNING: CG_ReadNextSnapshot: way out of range, %i > %i", 
+    CG_Printf( "WARNING: CG_ReadNextSnapshot: way out of range, %i > %i",
       cg.latestSnapshotNum, cgs.processedSnapshotNum );
   }
 
@@ -274,7 +274,7 @@ static snapshot_t *CG_ReadNextSnapshot( void )
     {
       //continue;
     }
-                    
+
     // if it succeeded, return
     if( r )
     {
@@ -325,7 +325,7 @@ void CG_ProcessSnapshots( void )
 
   // see what the latest snapshot the client system has is
   trap_GetCurrentSnapshotNumber( &n, &cg.latestSnapshotTime );
-  
+
   if( n != cg.latestSnapshotNum )
   {
     if( n < cg.latestSnapshotNum )
@@ -333,7 +333,7 @@ void CG_ProcessSnapshots( void )
       // this should never happen
       CG_Error( "CG_ProcessSnapshots: n < cg.latestSnapshotNum" );
     }
-    
+
     cg.latestSnapshotNum = n;
   }
 
@@ -343,7 +343,7 @@ void CG_ProcessSnapshots( void )
   while( !cg.snap )
   {
     snap = CG_ReadNextSnapshot( );
-    
+
     if( !snap )
     {
       // we can't continue until we get a snapshot
@@ -395,7 +395,7 @@ void CG_ProcessSnapshots( void )
     // this can happen right after a vid_restart
     cg.time = cg.snap->serverTime;
   }
-  
+
   if( cg.nextSnap != NULL && cg.nextSnap->serverTime <= cg.time )
     CG_Error( "CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time" );
 }

@@ -14,7 +14,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
-                  
+
 #include "q_shared.h"
 #include "bg_public.h"
 
@@ -27,7 +27,7 @@ void trap_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin ); // fsOrigin
 buildableAttributes_t bg_buildableList[ ] =
 {
   {
-    BA_A_SPAWN,            //int       buildNum;     
+    BA_A_SPAWN,            //int       buildNum;
     "eggpod",              //char      *buildName;
     "Egg",                 //char      *humanName;
     "team_alien_spawn",    //char      *entityName;
@@ -729,7 +729,7 @@ float BG_FindModelScaleForBuildable( int bclass )
     if( bg_buildableList[ i ].buildNum == bclass )
       return bg_buildableList[ i ].modelScale;
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindModelScaleForBuildable( %d )\n", bclass );
   return 1.0f;
 }
@@ -754,7 +754,7 @@ void BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs )
         if( VectorLength( bg_buildableOverrideList[ bclass ].mins ) )
           VectorCopy( bg_buildableOverrideList[ bclass ].mins, mins );
       }
-        
+
       if( maxs != NULL )
       {
         VectorCopy( bg_buildableList[ i ].maxs, maxs );
@@ -762,14 +762,14 @@ void BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs )
         if( VectorLength( bg_buildableOverrideList[ bclass ].maxs ) )
           VectorCopy( bg_buildableOverrideList[ bclass ].maxs, maxs );
       }
-        
+
       return;
     }
   }
-  
+
   if( mins != NULL )
     VectorCopy( bg_buildableList[ 0 ].mins, mins );
-    
+
   if( maxs != NULL )
     VectorCopy( bg_buildableList[ 0 ].maxs, maxs );
 }
@@ -793,7 +793,7 @@ float BG_FindZOffsetForBuildable( int bclass )
       return bg_buildableList[ i ].zOffset;
     }
   }
-  
+
   return 0.0f;
 }
 
@@ -813,7 +813,7 @@ trType_t BG_FindTrajectoryForBuildable( int bclass )
       return bg_buildableList[ i ].traj;
     }
   }
-  
+
   return TR_GRAVITY;
 }
 
@@ -833,7 +833,7 @@ float BG_FindBounceForBuildable( int bclass )
       return bg_buildableList[ i ].bounce;
     }
   }
-  
+
   return 0.0;
 }
 
@@ -853,7 +853,7 @@ int BG_FindBuildPointsForBuildable( int bclass )
       return bg_buildableList[ i ].buildPoints;
     }
   }
-  
+
   return 1000;
 }
 
@@ -876,7 +876,7 @@ qboolean BG_FindStagesForBuildable( int bclass, stage_t stage )
         return qfalse;
     }
   }
-  
+
   return qfalse;
 }
 
@@ -896,7 +896,7 @@ int BG_FindHealthForBuildable( int bclass )
       return bg_buildableList[ i ].health;
     }
   }
-  
+
   return 1000;
 }
 
@@ -916,7 +916,7 @@ int BG_FindRegenRateForBuildable( int bclass )
       return bg_buildableList[ i ].regenRate;
     }
   }
-  
+
   return 0;
 }
 
@@ -936,7 +936,7 @@ int BG_FindSplashDamageForBuildable( int bclass )
       return bg_buildableList[ i ].splashDamage;
     }
   }
-  
+
   return 50;
 }
 
@@ -956,7 +956,7 @@ int BG_FindSplashRadiusForBuildable( int bclass )
       return bg_buildableList[ i ].splashRadius;
     }
   }
-  
+
   return 200;
 }
 
@@ -976,7 +976,7 @@ int BG_FindMODForBuildable( int bclass )
       return bg_buildableList[ i ].meansOfDeath;
     }
   }
-  
+
   return MOD_UNKNOWN;
 }
 
@@ -996,7 +996,7 @@ int BG_FindTeamForBuildable( int bclass )
       return bg_buildableList[ i ].team;
     }
   }
-  
+
   return BIT_NONE;
 }
 
@@ -1016,7 +1016,7 @@ weapon_t BG_FindBuildWeaponForBuildable( int bclass )
       return bg_buildableList[ i ].buildWeapon;
     }
   }
-  
+
   return BA_NONE;
 }
 
@@ -1036,7 +1036,7 @@ int BG_FindAnimForBuildable( int bclass )
       return bg_buildableList[ i ].idleAnim;
     }
   }
-  
+
   return BANIM_IDLE1;
 }
 
@@ -1056,7 +1056,7 @@ int BG_FindNextThinkForBuildable( int bclass )
       return bg_buildableList[ i ].nextthink;
     }
   }
-  
+
   return 100;
 }
 
@@ -1076,7 +1076,7 @@ int BG_FindBuildTimeForBuildable( int bclass )
       return bg_buildableList[ i ].buildTime;
     }
   }
-  
+
   return 10000;
 }
 
@@ -1096,7 +1096,7 @@ qboolean BG_FindUsableForBuildable( int bclass )
       return bg_buildableList[ i ].usable;
     }
   }
-  
+
   return qfalse;
 }
 
@@ -1116,7 +1116,7 @@ int BG_FindFireSpeedForBuildable( int bclass )
       return bg_buildableList[ i ].turretFireSpeed;
     }
   }
-  
+
   return 1000;
 }
 
@@ -1136,7 +1136,7 @@ int BG_FindRangeForBuildable( int bclass )
       return bg_buildableList[ i ].turretRange;
     }
   }
-  
+
   return 1000;
 }
 
@@ -1156,7 +1156,7 @@ weapon_t BG_FindProjTypeForBuildable( int bclass )
       return bg_buildableList[ i ].turretProjType;
     }
   }
-  
+
   return WP_NONE;
 }
 
@@ -1176,7 +1176,7 @@ float BG_FindMinNormalForBuildable( int bclass )
       return bg_buildableList[ i ].minNormal;
     }
   }
-  
+
   return 0.707f;
 }
 
@@ -1196,7 +1196,7 @@ qboolean BG_FindInvertNormalForBuildable( int bclass )
       return bg_buildableList[ i ].invertNormal;
     }
   }
-  
+
   return qfalse;
 }
 
@@ -1216,7 +1216,7 @@ int BG_FindCreepTestForBuildable( int bclass )
       return bg_buildableList[ i ].creepTest;
     }
   }
-  
+
   return qfalse;
 }
 
@@ -1236,7 +1236,7 @@ int BG_FindCreepSizeForBuildable( int bclass )
       return bg_buildableList[ i ].creepSize;
     }
   }
-  
+
   return CREEP_BASESIZE;
 }
 
@@ -1256,7 +1256,7 @@ int BG_FindDCCTestForBuildable( int bclass )
       return bg_buildableList[ i ].dccTest;
     }
   }
-  
+
   return qfalse;
 }
 
@@ -1276,7 +1276,7 @@ int BG_FindUniqueTestForBuildable( int bclass )
       return bg_buildableList[ i ].reactorTest;
     }
   }
-  
+
   return qfalse;
 }
 
@@ -1306,7 +1306,7 @@ static qboolean BG_ParseBuildableFile( const char *filename, buildableAttributeO
   char          text[ 20000 ];
   fileHandle_t  f;
   float         scale;
-      
+
 
   // load the file
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
@@ -1318,7 +1318,7 @@ static qboolean BG_ParseBuildableFile( const char *filename, buildableAttributeO
     Com_Printf( S_COLOR_RED "ERROR: Buildable file %s too long\n", filename );
     return qfalse;
   }
-  
+
   trap_FS_Read( text, len, f );
   text[ len ] = 0;
   trap_FS_FCloseFile( f );
@@ -1330,7 +1330,7 @@ static qboolean BG_ParseBuildableFile( const char *filename, buildableAttributeO
   while( 1 )
   {
     token = COM_Parse( &text_p );
-    
+
     if( !token )
       break;
 
@@ -1340,24 +1340,24 @@ static qboolean BG_ParseBuildableFile( const char *filename, buildableAttributeO
     if( !Q_stricmp( token, "model" ) )
     {
       int index = 0;
-      
+
       token = COM_Parse( &text_p );
       if( !token )
         break;
 
       index = atoi( token );
-      
+
       if( index < 0 )
         index = 0;
       else if( index > 3 )
         index = 3;
-      
+
       token = COM_Parse( &text_p );
       if( !token )
         break;
 
       Q_strncpyz( bao->models[ index ], token, sizeof( bao->models[ 0 ] ) );
-      
+
       continue;
     }
     else if( !Q_stricmp( token, "modelScale" ) )
@@ -1367,7 +1367,7 @@ static qboolean BG_ParseBuildableFile( const char *filename, buildableAttributeO
         break;
 
       scale = atof( token );
-      
+
       if( scale < 0.0f )
         scale = 0.0f;
 
@@ -1382,10 +1382,10 @@ static qboolean BG_ParseBuildableFile( const char *filename, buildableAttributeO
         token = COM_Parse( &text_p );
         if( !token )
           break;
-        
+
         bao->mins[ i ] = atof( token );
       }
-      
+
       continue;
     }
     else if( !Q_stricmp( token, "maxs" ) )
@@ -1395,16 +1395,16 @@ static qboolean BG_ParseBuildableFile( const char *filename, buildableAttributeO
         token = COM_Parse( &text_p );
         if( !token )
           break;
-        
+
         bao->maxs[ i ] = atof( token );
       }
-      
+
       continue;
     }
     else if( !Q_stricmp( token, "zOffset" ) )
     {
       float offset;
-      
+
       token = COM_Parse( &text_p );
       if( !token )
         break;
@@ -1439,7 +1439,7 @@ void BG_InitBuildableOverrides( void )
   for( i = BA_NONE + 1; i < BA_NUM_BUILDABLES; i++ )
   {
     bao = BG_FindOverrideForBuildable( i );
-    
+
     BG_ParseBuildableFile( va( "overrides/buildables/%s.cfg", BG_FindNameForBuildable( i ) ), bao );
   }
 }
@@ -1448,7 +1448,7 @@ void BG_InitBuildableOverrides( void )
 
 classAttributes_t bg_classList[ ] =
 {
-  { 
+  {
     PCL_NONE,                                       //int     classnum;
     "spectator",                                    //char    *className;
     "Spectator",                                    //char    *humanName;
@@ -1486,7 +1486,7 @@ classAttributes_t bg_classList[ ] =
     0,                                              //int     cost;
     0                                               //int     value;
   },
-  { 
+  {
     PCL_ALIEN_BUILDER0,                             //int     classnum;
     "builder",                                      //char    *className;
     "Builder",                                      //char    *humanName;
@@ -1524,7 +1524,7 @@ classAttributes_t bg_classList[ ] =
     ABUILDER_COST,                                  //int     cost;
     ABUILDER_VALUE                                  //int     value;
   },
-  { 
+  {
     PCL_ALIEN_BUILDER0_UPG,                         //int     classnum;
     "builderupg",                                   //char    *classname;
     "Advanced Builder",                             //char    *humanname;
@@ -1917,14 +1917,14 @@ classAttributes_t bg_classList[ ] =
     //this isn't a real class, but a dummy to force the client to precache the model
     //FIXME: one day do this in a less hacky fashion
     PCL_HUMAN_BSUIT, "human_bsuit", "bsuit",
-    
+
     "keel",
-    1.0f,                                    
+    1.0f,
     "default",
     1.0f,
-    
-    "bsuit", ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), { 0, 0, 0 }, { 0, 0, 0, },                             
-    { 0, 0, 0, }, { 0, 0, 0, }, { 0, 0, 0, }, 0.0f, 0, 0, 0, 0.0f, 0, 0, WP_NONE, 0.0f, 0,   
+
+    "bsuit", ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), { 0, 0, 0 }, { 0, 0, 0, },
+    { 0, 0, 0, }, { 0, 0, 0, }, { 0, 0, 0, }, 0.0f, 0, 0, 0, 0.0f, 0, 0, WP_NONE, 0.0f, 0,
     0.0f, 1.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 270.0f, 1.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
   }
 };
@@ -2038,7 +2038,7 @@ float BG_FindModelScaleForClass( int pclass )
       return bg_classList[ i ].modelScale;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindModelScaleForClass( %d )\n", pclass );
   return 1.0f;
 }
@@ -2085,7 +2085,7 @@ float BG_FindShadowScaleForClass( int pclass )
       return bg_classList[ i ].shadowScale;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindShadowScaleForClass( %d )\n", pclass );
   return 1.0f;
 }
@@ -2132,7 +2132,7 @@ qboolean BG_FindStagesForClass( int pclass, stage_t stage )
         return qfalse;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindStagesForClass\n" );
   return qfalse;
 }
@@ -2157,7 +2157,7 @@ void BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, ve
         if( VectorLength( bg_classOverrideList[ pclass ].mins ) )
           VectorCopy( bg_classOverrideList[ pclass ].mins, mins );
       }
-        
+
       if( maxs != NULL )
       {
         VectorCopy( bg_classList[ i ].maxs, maxs );
@@ -2165,7 +2165,7 @@ void BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, ve
         if( VectorLength( bg_classOverrideList[ pclass ].maxs ) )
           VectorCopy( bg_classOverrideList[ pclass ].maxs, maxs );
       }
-        
+
       if( cmaxs != NULL )
       {
         VectorCopy( bg_classList[ i ].crouchMaxs, cmaxs );
@@ -2173,7 +2173,7 @@ void BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, ve
         if( VectorLength( bg_classOverrideList[ pclass ].crouchMaxs ) )
           VectorCopy( bg_classOverrideList[ pclass ].crouchMaxs, cmaxs );
       }
-        
+
       if( dmins != NULL )
       {
         VectorCopy( bg_classList[ i ].deadMins, dmins );
@@ -2181,7 +2181,7 @@ void BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, ve
         if( VectorLength( bg_classOverrideList[ pclass ].deadMins ) )
           VectorCopy( bg_classOverrideList[ pclass ].deadMins, dmins );
       }
-        
+
       if( dmaxs != NULL )
       {
         VectorCopy( bg_classList[ i ].deadMaxs, dmaxs );
@@ -2193,19 +2193,19 @@ void BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, ve
       return;
     }
   }
-  
+
   if( mins != NULL )
     VectorCopy( bg_classList[ 0 ].mins,        mins );
-    
+
   if( maxs != NULL )
     VectorCopy( bg_classList[ 0 ].maxs,        maxs );
-    
+
   if( cmaxs != NULL )
     VectorCopy( bg_classList[ 0 ].crouchMaxs,  cmaxs );
-    
+
   if( dmins != NULL )
     VectorCopy( bg_classList[ 0 ].deadMins,    dmins );
-    
+
   if( dmaxs != NULL )
     VectorCopy( bg_classList[ 0 ].deadMaxs,    dmaxs );
 }
@@ -2229,7 +2229,7 @@ float BG_FindZOffsetForClass( int pclass )
       return bg_classList[ i ].zOffset;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindZOffsetForClass\n" );
   return 0.0f;
 }
@@ -2249,17 +2249,17 @@ void BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight )
     {
       if( viewheight != NULL )
         *viewheight = bg_classList[ i ].viewheight;
-        
+
       if( cViewheight != NULL )
         *cViewheight = bg_classList[ i ].crouchViewheight;
 
       return;
     }
   }
-  
+
   if( viewheight != NULL )
     *viewheight = bg_classList[ 0 ].viewheight;
-    
+
   if( cViewheight != NULL )
     *cViewheight = bg_classList[ 0 ].crouchViewheight;
 }
@@ -2280,7 +2280,7 @@ int BG_FindHealthForClass( int pclass )
       return bg_classList[ i ].health;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindHealthForClass\n" );
   return 100;
 }
@@ -2301,7 +2301,7 @@ float BG_FindFallDamageForClass( int pclass )
       return bg_classList[ i ].fallDamage;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindFallDamageForClass\n" );
   return 100;
 }
@@ -2322,7 +2322,7 @@ int BG_FindRegenRateForClass( int pclass )
       return bg_classList[ i ].regenRate;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindRegenRateForClass\n" );
   return 0;
 }
@@ -2343,7 +2343,7 @@ int BG_FindFovForClass( int pclass )
       return bg_classList[ i ].fov;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindFovForClass\n" );
   return 90;
 }
@@ -2364,7 +2364,7 @@ float BG_FindBobForClass( int pclass )
       return bg_classList[ i ].bob;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindBobForClass\n" );
   return 0.002;
 }
@@ -2385,7 +2385,7 @@ float BG_FindBobCycleForClass( int pclass )
       return bg_classList[ i ].bobCycle;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindBobCycleForClass\n" );
   return 1.0f;
 }
@@ -2406,7 +2406,7 @@ float BG_FindSpeedForClass( int pclass )
       return bg_classList[ i ].speed;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindSpeedForClass\n" );
   return 1.0f;
 }
@@ -2427,7 +2427,7 @@ float BG_FindAccelerationForClass( int pclass )
       return bg_classList[ i ].acceleration;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindAccelerationForClass\n" );
   return 10.0f;
 }
@@ -2448,7 +2448,7 @@ float BG_FindAirAccelerationForClass( int pclass )
       return bg_classList[ i ].airAcceleration;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindAirAccelerationForClass\n" );
   return 1.0f;
 }
@@ -2469,7 +2469,7 @@ float BG_FindFrictionForClass( int pclass )
       return bg_classList[ i ].friction;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindFrictionForClass\n" );
   return 6.0f;
 }
@@ -2490,7 +2490,7 @@ float BG_FindStopSpeedForClass( int pclass )
       return bg_classList[ i ].stopSpeed;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindStopSpeedForClass\n" );
   return 100.0f;
 }
@@ -2511,7 +2511,7 @@ float BG_FindJumpMagnitudeForClass( int pclass )
       return bg_classList[ i ].jumpMagnitude;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindJumpMagnitudeForClass\n" );
   return 270.0f;
 }
@@ -2532,7 +2532,7 @@ float BG_FindKnockbackScaleForClass( int pclass )
       return bg_classList[ i ].knockbackScale;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindKnockbackScaleForClass\n" );
   return 1.0f;
 }
@@ -2553,7 +2553,7 @@ int BG_FindSteptimeForClass( int pclass )
       return bg_classList[ i ].steptime;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindSteptimeForClass\n" );
   return 200;
 }
@@ -2594,7 +2594,7 @@ weapon_t BG_FindStartWeaponForClass( int pclass )
       return bg_classList[ i ].startWeapon;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindStartWeaponForClass\n" );
   return WP_NONE;
 }
@@ -2615,7 +2615,7 @@ float BG_FindBuildDistForClass( int pclass )
       return bg_classList[ i ].buildDist;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindBuildDistForClass\n" );
   return 0.0f;
 }
@@ -2630,7 +2630,7 @@ int BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int num )
   int i, j, cost;
 
   cost = BG_FindCostOfClass( tclass );
-  
+
   //base case
   if( credits < cost )
     return -1;
@@ -2649,14 +2649,14 @@ int BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int num )
       for( j = 0; j < 3; j++ )
       {
         int sub;
-        
+
         cost = BG_FindCostOfClass( bg_classList[ i ].children[ j ] );
         sub = BG_ClassCanEvolveFromTo( bg_classList[ i ].children[ j ],
                                        tclass, credits - cost, num + cost );
         if( sub >= 0 )
           return sub;
       }
-      
+
       return -1; //may as well return by this point
     }
   }
@@ -2680,7 +2680,7 @@ int BG_FindValueOfClass( int pclass )
       return bg_classList[ i ].value;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindValueOfClass\n" );
   return 0;
 }
@@ -2701,7 +2701,7 @@ int BG_FindCostOfClass( int pclass )
       return bg_classList[ i ].cost;
     }
   }
-  
+
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindCostOfClass\n" );
   return 0;
 }
@@ -2732,7 +2732,7 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
   char          text[ 20000 ];
   fileHandle_t  f;
   float         scale = 0.0f;
-      
+
 
   // load the file
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
@@ -2744,7 +2744,7 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
     Com_Printf( S_COLOR_RED "ERROR: Class file %s too long\n", filename );
     return qfalse;
   }
-  
+
   trap_FS_Read( text, len, f );
   text[ len ] = 0;
   trap_FS_FCloseFile( f );
@@ -2756,7 +2756,7 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
   while( 1 )
   {
     token = COM_Parse( &text_p );
-    
+
     if( !token )
       break;
 
@@ -2770,7 +2770,7 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
         break;
 
       Q_strncpyz( cao->modelName, token, sizeof( cao->modelName ) );
-      
+
       continue;
     }
     else if( !Q_stricmp( token, "skin" ) )
@@ -2780,7 +2780,7 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
         break;
 
       Q_strncpyz( cao->skinName, token, sizeof( cao->skinName ) );
-      
+
       continue;
     }
     else if( !Q_stricmp( token, "hud" ) )
@@ -2790,7 +2790,7 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
         break;
 
       Q_strncpyz( cao->hudName, token, sizeof( cao->hudName ) );
-      
+
       continue;
     }
     else if( !Q_stricmp( token, "modelScale" ) )
@@ -2800,7 +2800,7 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
         break;
 
       scale = atof( token );
-      
+
       if( scale < 0.0f )
         scale = 0.0f;
 
@@ -2815,7 +2815,7 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
         break;
 
       scale = atof( token );
-      
+
       if( scale < 0.0f )
         scale = 0.0f;
 
@@ -2830,10 +2830,10 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
         token = COM_Parse( &text_p );
         if( !token )
           break;
-        
+
         cao->mins[ i ] = atof( token );
       }
-      
+
       continue;
     }
     else if( !Q_stricmp( token, "maxs" ) )
@@ -2843,10 +2843,10 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
         token = COM_Parse( &text_p );
         if( !token )
           break;
-        
+
         cao->maxs[ i ] = atof( token );
       }
-      
+
       continue;
     }
     else if( !Q_stricmp( token, "deadMins" ) )
@@ -2856,10 +2856,10 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
         token = COM_Parse( &text_p );
         if( !token )
           break;
-        
+
         cao->deadMins[ i ] = atof( token );
       }
-      
+
       continue;
     }
     else if( !Q_stricmp( token, "deadMaxs" ) )
@@ -2869,10 +2869,10 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
         token = COM_Parse( &text_p );
         if( !token )
           break;
-        
+
         cao->deadMaxs[ i ] = atof( token );
       }
-      
+
       continue;
     }
     else if( !Q_stricmp( token, "crouchMaxs" ) )
@@ -2882,16 +2882,16 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
         token = COM_Parse( &text_p );
         if( !token )
           break;
-        
+
         cao->crouchMaxs[ i ] = atof( token );
       }
-      
+
       continue;
     }
     else if( !Q_stricmp( token, "zOffset" ) )
     {
       float offset;
-      
+
       token = COM_Parse( &text_p );
       if( !token )
         break;
@@ -2909,7 +2909,7 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
         break;
 
       Q_strncpyz( cao->humanName, token, sizeof( cao->humanName ) );
-      
+
       continue;
     }
 
@@ -2936,7 +2936,7 @@ void BG_InitClassOverrides( void )
   for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
   {
     cao = BG_FindOverrideForClass( i );
-    
+
     BG_ParseClassFile( va( "overrides/classes/%s.cfg", BG_FindNameForClassNum( i ) ), cao );
   }
 }
@@ -3586,7 +3586,7 @@ int BG_FindPriceForWeapon( int weapon )
       return bg_weapons[ i ].price;
     }
   }
-  
+
   return 100;
 }
 
@@ -3609,7 +3609,7 @@ qboolean BG_FindStagesForWeapon( int weapon, stage_t stage )
         return qfalse;
     }
   }
-  
+
   return qfalse;
 }
 
@@ -3629,7 +3629,7 @@ int BG_FindSlotsForWeapon( int weapon )
       return bg_weapons[ i ].slots;
     }
   }
-  
+
   return SLOT_WEAPON;
 }
 
@@ -3768,7 +3768,7 @@ int BG_FindRepeatRate1ForWeapon( int weapon )
     if( bg_weapons[ i ].weaponNum == weapon )
       return bg_weapons[ i ].repeatRate1;
   }
-  
+
   return 1000;
 }
 
@@ -3786,7 +3786,7 @@ int BG_FindRepeatRate2ForWeapon( int weapon )
     if( bg_weapons[ i ].weaponNum == weapon )
       return bg_weapons[ i ].repeatRate2;
   }
-  
+
   return 1000;
 }
 
@@ -3804,7 +3804,7 @@ int BG_FindRepeatRate3ForWeapon( int weapon )
     if( bg_weapons[ i ].weaponNum == weapon )
       return bg_weapons[ i ].repeatRate3;
   }
-  
+
   return 1000;
 }
 
@@ -3824,7 +3824,7 @@ int BG_FindReloadTimeForWeapon( int weapon )
       return bg_weapons[ i ].reloadTime;
     }
   }
-  
+
   return 1000;
 }
 
@@ -3944,7 +3944,7 @@ int BG_FindBuildDelayForWeapon( int weapon )
       return bg_weapons[ i ].buildDelay;
     }
   }
-  
+
   return 0;
 }
 
@@ -4080,7 +4080,7 @@ int BG_FindPriceForUpgrade( int upgrade )
       return bg_upgrades[ i ].price;
     }
   }
-  
+
   return 100;
 }
 
@@ -4103,7 +4103,7 @@ qboolean BG_FindStagesForUpgrade( int upgrade, stage_t stage )
         return qfalse;
     }
   }
-  
+
   return qfalse;
 }
 
@@ -4123,7 +4123,7 @@ int BG_FindSlotsForUpgrade( int upgrade )
       return bg_upgrades[ i ].slots;
     }
   }
-  
+
   return SLOT_NONE;
 }
 
@@ -4260,18 +4260,18 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result )
     case TR_INTERPOLATE:
       VectorCopy( tr->trBase, result );
       break;
-      
+
     case TR_LINEAR:
       deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
       VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
       break;
-      
+
     case TR_SINE:
       deltaTime = ( atTime - tr->trTime ) / (float)tr->trDuration;
       phase = sin( deltaTime * M_PI * 2 );
       VectorMA( tr->trBase, phase, tr->trDelta, result );
       break;
-      
+
     case TR_LINEAR_STOP:
       if( atTime > tr->trTime + tr->trDuration )
         atTime = tr->trTime + tr->trDuration;
@@ -4279,22 +4279,22 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result )
       deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
       if( deltaTime < 0 )
         deltaTime = 0;
-      
+
       VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
       break;
-      
+
     case TR_GRAVITY:
       deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
       VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
       result[ 2 ] -= 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;   // FIXME: local gravity...
       break;
-      
+
     case TR_BUOYANCY:
       deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
       VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
       result[ 2 ] += 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;   // FIXME: local gravity...
       break;
-      
+
     default:
       Com_Error( ERR_DROP, "BG_EvaluateTrajectory: unknown trType: %i", tr->trTime );
       break;
@@ -4319,18 +4319,18 @@ void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
     case TR_INTERPOLATE:
       VectorClear( result );
       break;
-      
+
     case TR_LINEAR:
       VectorCopy( tr->trDelta, result );
       break;
-      
+
     case TR_SINE:
       deltaTime = ( atTime - tr->trTime ) / (float)tr->trDuration;
       phase = cos( deltaTime * M_PI * 2 );  // derivative of sin = cos
       phase *= 0.5;
       VectorScale( tr->trDelta, phase, result );
       break;
-      
+
     case TR_LINEAR_STOP:
       if( atTime > tr->trTime + tr->trDuration )
       {
@@ -4339,19 +4339,19 @@ void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
       }
       VectorCopy( tr->trDelta, result );
       break;
-      
+
     case TR_GRAVITY:
       deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
       VectorCopy( tr->trDelta, result );
       result[ 2 ] -= DEFAULT_GRAVITY * deltaTime;   // FIXME: local gravity...
       break;
-      
+
     case TR_BUOYANCY:
       deltaTime = ( atTime - tr->trTime ) * 0.001;  // milliseconds to seconds
       VectorCopy( tr->trDelta, result );
       result[ 2 ] += DEFAULT_GRAVITY * deltaTime;   // FIXME: local gravity...
       break;
-      
+
     default:
       Com_Error( ERR_DROP, "BG_EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime );
       break;
@@ -4383,8 +4383,6 @@ char *eventnames[ ] =
   "EV_FALL_MEDIUM",
   "EV_FALL_FAR",
   "EV_FALLING",
-
-  "EV_JUMP_PAD",      // boing sound at origin", jump sound on player
 
   "EV_JUMP",
   "EV_WATER_TOUCH", // foot touches
@@ -4421,7 +4419,7 @@ char *eventnames[ ] =
   "EV_LEV1_GRAB",
   "EV_LEV4_CHARGE_PREPARE",
   "EV_LEV4_CHARGE_START",
-  
+
   "EV_PAIN",
   "EV_DEATH1",
   "EV_DEATH2",
@@ -4440,7 +4438,7 @@ char *eventnames[ ] =
   "EV_ALIEN_ACIDTUBE",
 
   "EV_MEDKIT_USED",
-  
+
   "EV_ALIEN_EVOLVE",
   "EV_ALIEN_EVOLVE_FAILED",
 
@@ -4451,9 +4449,9 @@ char *eventnames[ ] =
   "EV_OVERMIND_ATTACK", //TA: overmind under attack
   "EV_OVERMIND_DYING",  //TA: overmind close to death
   "EV_OVERMIND_SPAWNS", //TA: overmind needs spawns
-  
+
   "EV_DCC_ATTACK",      //TA: dcc under attack
-  
+
   "EV_RPTUSE_SOUND"     //TA: trigger a sound
 };
 
@@ -4473,7 +4471,7 @@ void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerSta
   {
     char buf[ 256 ];
     trap_Cvar_VariableStringBuffer( "showevents", buf, sizeof( buf ) );
-    
+
     if( atof( buf ) != 0 )
     {
 #ifdef QAGAME
@@ -4489,45 +4487,6 @@ void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerSta
   ps->events[ ps->eventSequence & ( MAX_PS_EVENTS - 1 ) ] = newEvent;
   ps->eventParms[ ps->eventSequence & ( MAX_PS_EVENTS - 1 ) ] = eventParm;
   ps->eventSequence++;
-}
-
-
-/*
-========================
-BG_TouchJumpPad
-========================
-*/
-void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad )
-{
-  vec3_t  angles;
-  float   p;
-  int     effectNum;
-
-  // spectators don't use jump pads
-  if( ps->pm_type != PM_NORMAL )
-    return;
-
-  // if we didn't hit this same jumppad the previous frame
-  // then don't play the event sound again if we are in a fat trigger
-  if( ps->jumppad_ent != jumppad->number )
-  {
-    vectoangles( jumppad->origin2, angles);
-    
-    p = fabs( AngleNormalize180( angles[ PITCH ] ) );
-    
-    if( p < 45 )
-      effectNum = 0;
-    else
-      effectNum = 1;
-    
-    BG_AddPredictableEventToPlayerstate( EV_JUMP_PAD, effectNum, ps );
-  }
-  
-  // remember hitting this jumppad this frame
-  ps->jumppad_ent = jumppad->number;
-  ps->jumppad_frame = ps->pmove_framecount;
-  // give the player the velocity from the jumppad
-  VectorCopy( jumppad->origin2, ps->velocity );
 }
 
 
@@ -4554,16 +4513,16 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
 
   s->pos.trType = TR_INTERPOLATE;
   VectorCopy( ps->origin, s->pos.trBase );
-  
+
   if( snap )
     SnapVector( s->pos.trBase );
-  
+
   //set the trDelta for flag direction
   VectorCopy( ps->velocity, s->pos.trDelta );
 
   s->apos.trType = TR_INTERPOLATE;
   VectorCopy( ps->viewangles, s->apos.trBase );
-  
+
   if( snap )
     SnapVector( s->apos.trBase );
 
@@ -4584,7 +4543,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
     s->eFlags |= EF_BLOBLOCKED;
   else
     s->eFlags &= ~EF_BLOBLOCKED;
-  
+
   if( ps->externalEvent )
   {
     s->event = ps->externalEvent;
@@ -4680,7 +4639,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   s->clientNum = ps->clientNum;   // ET_PLAYER looks here instead of at number
                     // so corpses can also reference the proper config
   s->eFlags = ps->eFlags;
-  
+
   if( ps->stats[STAT_HEALTH] <= 0 )
     s->eFlags |= EF_DEAD;
   else
@@ -4690,7 +4649,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
     s->eFlags |= EF_BLOBLOCKED;
   else
     s->eFlags &= ~EF_BLOBLOCKED;
-  
+
   if( ps->externalEvent )
   {
     s->event = ps->externalEvent;
@@ -4715,7 +4674,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   //store items held and active items in otherEntityNum
   s->modelindex = 0;
   s->modelindex2 = 0;
-  
+
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
     if( BG_InventoryContainsUpgrade( i, ps->stats ) )
@@ -4750,7 +4709,7 @@ void BG_UnpackAmmoArray( int weapon, int psAmmo[ ], int psAmmo2[ ], int *ammo, i
 {
   int   ammoarray[ 32 ];
   int   i;
-  
+
   for( i = 0; i <= 15; i++ )
     ammoarray[ i ] = psAmmo[ i ];
 
@@ -4800,7 +4759,7 @@ qboolean BG_WeaponIsFull( weapon_t weapon, int stats[ ], int psAmmo[ ], int psAm
 
   if( BG_InventoryContainsUpgrade( UP_BATTPACK, stats ) )
     maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
-  
+
   return ( maxAmmo == ammo ) && ( maxClips == clips );
 }
 
@@ -4818,7 +4777,7 @@ void BG_AddWeaponToInventory( int weapon, int stats[ ] )
   weaponList = ( stats[ STAT_WEAPONS ] & 0x0000FFFF ) | ( ( stats[ STAT_WEAPONS2 ] << 16 ) & 0xFFFF0000 );
 
   weaponList |= ( 1 << weapon );
-  
+
   stats[ STAT_WEAPONS ] = weaponList & 0x0000FFFF;
   stats[ STAT_WEAPONS2 ] = ( weaponList & 0xFFFF0000 ) >> 16;
 
@@ -4842,10 +4801,10 @@ void BG_RemoveWeaponFromInventory( int weapon, int stats[ ] )
   weaponList = ( stats[ STAT_WEAPONS ] & 0x0000FFFF ) | ( ( stats[ STAT_WEAPONS2 ] << 16 ) & 0xFFFF0000 );
 
   weaponList &= ~( 1 << weapon );
-  
+
   stats[ STAT_WEAPONS ] = weaponList & 0x0000FFFF;
   stats[ STAT_WEAPONS2 ] = ( weaponList & 0xFFFF0000 ) >> 16;
-  
+
   stats[ STAT_SLOTS ] &= ~BG_FindSlotsForWeapon( weapon );
 }
 
@@ -4878,7 +4837,7 @@ void BG_AddUpgradeToInventory( int item, int stats[ ] )
 
   if( stats[ STAT_SLOTS ] & BG_FindSlotsForUpgrade( item ) )
     Com_Printf( S_COLOR_YELLOW "WARNING: Held items conflict with upgrade %d\n", item );
-    
+
   stats[ STAT_SLOTS ] |= BG_FindSlotsForUpgrade( item );
 }
 
@@ -4958,7 +4917,7 @@ qboolean BG_RotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
   vec3_t  ceilingNormal = { 0.0f, 0.0f, -1.0f };
   vec3_t  localNormal, xNormal;
   float   rotAngle;
-  
+
   //the grapplePoint being a surfNormal rotation Normal hack... see above :)
   if( ceiling )
   {
@@ -5004,13 +4963,13 @@ Find a place to build a buildable
 void BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
                                            const vec3_t mins, const vec3_t maxs,
                                            void (*trace)( trace_t *, const vec3_t, const vec3_t,
-                                                          const vec3_t, const vec3_t, int, int ), 
+                                                          const vec3_t, const vec3_t, int, int ),
                                            vec3_t outOrigin, vec3_t outAngles, trace_t *tr )
 {
   vec3_t  forward, entityOrigin, targetOrigin;
   vec3_t  angles, playerOrigin, playerNormal;
   float   buildDist;
-  
+
   if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
   {
     if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
@@ -5020,7 +4979,7 @@ void BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
   }
   else
     VectorSet( playerNormal, 0.0f, 0.0f, 1.0f );
-  
+
   VectorCopy( ps->viewangles, angles );
   VectorCopy( ps->origin, playerOrigin );
   buildDist = BG_FindBuildDistForClass( ps->stats[ STAT_PCLASS ] );
@@ -5030,7 +4989,7 @@ void BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
   VectorNormalize( forward );
 
   VectorMA( playerOrigin, buildDist, forward, entityOrigin );
-  
+
   VectorCopy( entityOrigin, targetOrigin );
 
   //so buildings can be placed facing slopes
@@ -5062,7 +5021,7 @@ int BG_GetValueOfHuman( playerState_t *ps )
     if( BG_InventoryContainsUpgrade( i, ps->stats ) )
       worth += BG_FindPriceForUpgrade( i );
   }
-  
+
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
     if( BG_InventoryContainsWeapon( i, ps->stats ) )

@@ -26,7 +26,7 @@
 #define OVERCLIP    1.001f
 
 #define FALLING_THRESHOLD -900.0f //what vertical speed to start falling sound at
-      
+
 
 // all of the locals will be zeroed before each
 // pmove, just to make damn sure we don't have

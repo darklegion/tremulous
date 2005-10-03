@@ -327,10 +327,10 @@ int COM_Compress( char *data_p )
       }
       else if( c == '/' && in[ 1 ] == '*' )
       {
-        while( *in && ( *in != '*' || in[ 1 ] != '/' ) ) 
+        while( *in && ( *in != '*' || in[ 1 ] != '/' ) )
           in++;
-        
-        if( *in ) 
+
+        if( *in )
           in += 2;
       // record when we hit a newline
       }
@@ -355,23 +355,23 @@ int COM_Compress( char *data_p )
           newline = qfalse;
           whitespace = qfalse;
         }
-        
+
         if( whitespace )
         {
           *out++ = ' ';
           whitespace = qfalse;
         }
-        
+
         // copy quoted strings unmolested
         if( c == '"' )
         {
           *out++ = c;
           in++;
-          
+
           while( 1 )
           {
             c = *in;
-            
+
             if( c && c != '"' )
             {
               *out++ = c;
@@ -380,7 +380,7 @@ int COM_Compress( char *data_p )
             else
               break;
           }
-          
+
           if( c == '"' )
           {
             *out++ = c;
@@ -899,10 +899,10 @@ void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...)
   va_start( argptr, fmt );
   len = vsprintf( bigbuffer, fmt, argptr );
   va_end( argptr );
-  
+
   if( len >= sizeof( bigbuffer ) )
     Com_Error( ERR_FATAL, "Com_sprintf: overflowed bigbuffer" );
-  
+
   if( len >= size )
     Com_Printf( "Com_sprintf: overflow of %i in %i\n", len, size );
 
@@ -973,10 +973,10 @@ char *Info_ValueForKey( const char *s, const char *key )
     Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring" );
 
   valueindex ^= 1;
-  
+
   if( *s == '\\' )
     s++;
-  
+
   while( 1 )
   {
     o = pkey;
@@ -984,10 +984,10 @@ char *Info_ValueForKey( const char *s, const char *key )
     {
       if( !*s )
         return "";
-      
+
       *o++ = *s++;
     }
-    
+
     *o = 0;
     s++;
 
@@ -995,7 +995,7 @@ char *Info_ValueForKey( const char *s, const char *key )
 
     while( *s != '\\' && *s )
       *o++ = *s++;
-    
+
     *o = 0;
 
     if( !Q_stricmp( key, pkey ) )
@@ -1176,7 +1176,7 @@ qboolean Info_Validate( const char *s )
 {
   if( strchr( s, '\"' ) )
     return qfalse;
-  
+
   if( strchr( s, ';' ) )
     return qfalse;
 

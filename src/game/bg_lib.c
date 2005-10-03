@@ -15,7 +15,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
- 
+
 #include "q_shared.h"
 
 /*-
@@ -228,7 +228,7 @@ char *strcat( char *strDestination, const char *strSource )
   s = strDestination;
   while( *s )
     s++;
-  
+
   while( *strSource )
     *s++ = *strSource++;
 
@@ -241,7 +241,7 @@ char *strcpy( char *strDestination, const char *strSource )
   char *s;
 
   s = strDestination;
-  
+
   while( *strSource )
     *s++ = *strSource++;
 
@@ -266,15 +266,15 @@ char *strrchr( const char *string, int c )
 {
   int   i, length = strlen( string );
   char  *p;
-  
+
   for( i = length - 1; i >= 0; i-- )
   {
     p = (char *)&string[ i ];
-    
+
     if( *p == c )
       return (char *)p;
   }
-  
+
   return (char *)0;
 }
 
@@ -301,10 +301,10 @@ char *strstr( const char *string, const char *strCharSet )
       if( string[ i ] != strCharSet[ i ] )
         break;
     }
-    
+
     if( !strCharSet[ i ] )
       return (char *)string;
-    
+
     string++;
   }
   return (char *)0;
@@ -351,7 +351,7 @@ void *memmove( void *dest, const void *src, size_t count )
     for( i = 0; i < count; i++ )
       ( (char *)dest )[ i ] = ( (char *)src )[ i ];
   }
-  
+
   return dest;
 }
 
@@ -803,14 +803,14 @@ double atan2( double y, double x ) {
     }
   }
 
-  return base + dir * i * ( M_PI/2048); 
+  return base + dir * i * ( M_PI/2048);
 }
 
 
 #endif
 
 #ifdef Q3_VM
-// bk001127 - guarded this tan replacement 
+// bk001127 - guarded this tan replacement
 // ld: undefined versioned symbol name tan@@GLIBC_2.0
 double tan( double x )
 {
@@ -880,10 +880,10 @@ double acos( double x )
 {
   float z, subp, p, q, r, w, s, c, df;
   int hx, ix;
-  
+
   GET_FLOAT_WORD( hx, x );
   ix = hx & 0x7fffffff;
-  
+
   if( ix == 0x3f800000 )
   {   // |x|==1
     if( hx > 0 )
@@ -895,12 +895,12 @@ double acos( double x )
   { // |x| >= 1
     return (x-x)/(x-x);   // acos(|x|>1) is NaN
   }
-  
+
   if( ix < 0x3f000000 )
   { // |x| < 0.5
     if( ix <= 0x23000000 )
       return pio2_hi + pio2_lo;//if|x|<2**-57
-      
+
     z = x * x;
     subp = pS3 + z * ( pS4 + z * pS5 );
     // chop up expression to keep mac register based stack happy
@@ -945,7 +945,7 @@ static const float
 bp[ ]   = { 1.0, 1.5, },
 dp_h[ ] = { 0.0, 5.84960938e-01, }, /* 0x3f15c000 */
 dp_l[ ] = { 0.0, 1.56322085e-06, }, /* 0x35d1cfdc */
-huge    =  1.0e+30, 
+huge    =  1.0e+30,
 tiny    =  1.0e-30,
 zero    =  0.0,
 one     =  1.0,
@@ -984,13 +984,13 @@ copysignf
 static float copysignf( float x, float y )
 {
   unsigned int ix, iy;
-  
+
   GET_FLOAT_WORD( ix, x );
   GET_FLOAT_WORD( iy, y );
   SET_FLOAT_WORD( x, ( ix & 0x7fffffff ) | ( iy & 0x80000000 ) );
   return x;
 }
-    
+
 /*
 ==================
 __scalbnf
@@ -999,25 +999,25 @@ __scalbnf
 static float __scalbnf( float x, int n )
 {
   int k, ix;
-  
+
   GET_FLOAT_WORD( ix, x );
-  
+
   k = ( ix & 0x7f800000 ) >> 23;    /* extract exponent */
-  
+
   if( k == 0 )
   {       /* 0 or subnormal x */
     if( ( ix & 0x7fffffff ) == 0 )
       return x; /* +-0 */
-      
+
     x *= two25;
     GET_FLOAT_WORD( ix, x );
     k = ( ( ix & 0x7f800000 ) >> 23 ) - 25;
   }
   if( k == 0xff )
     return x+x;    /* NaN or Inf */
-  
+
   k = k + n;
-  
+
   if( n > 50000 || k > 0xfe )
     return huge * copysignf( huge, x ); /* overflow  */
   if ( n < -50000 )
@@ -1029,7 +1029,7 @@ static float __scalbnf( float x, int n )
   }
   if( k <= -25 )
     return tiny * copysignf( tiny, x );  /*underflow*/
-    
+
   k += 25;        /* subnormal result */
   SET_FLOAT_WORD( x, ( ix & 0x807fffff ) | ( k << 23 ) );
   return x * twom25;
@@ -1046,13 +1046,13 @@ float pow( float x, float y )
   float y1, subt1, t1, t2, subr, r, s, t, u, v, w;
   int i, j, k, yisint, n;
   int hx, hy, ix, iy, is;
-  
+
   /*TA: for some reason the Q3 VM goes apeshit when x = 1.0
         and y > 1.0. Curiously this doesn't happen with gcc
-        hence this hack*/      
+        hence this hack*/
   if( x == 1.0 )
     return x;
-    
+
   GET_FLOAT_WORD( hx, x );
   GET_FLOAT_WORD( hy, y );
   ix = hx & 0x7fffffff;
@@ -1095,7 +1095,7 @@ float pow( float x, float y )
     else      /* (|x|<1)**-,+inf = inf,0 */
       return ( hy < 0 ) ? -y : zero;
   }
-  
+
   if( iy == 0x3f800000 )
   {  /* y is  +-1 */
     if( hy < 0 )
@@ -1103,10 +1103,10 @@ float pow( float x, float y )
     else
       return x;
   }
-  
+
   if( hy == 0x40000000 )
     return x * x; /* y is  2 */
-    
+
   if( hy == 0x3f000000 )
   {  /* y is  0.5 */
     if( hx >= 0 ) /* x >= +0 */
@@ -1114,7 +1114,7 @@ float pow( float x, float y )
   }
 
   ax = fabs( x );
-  
+
   /* special value of x */
   if( ix == 0x7f800000 || ix == 0 || ix == 0x3f800000 )
   {
@@ -1128,7 +1128,7 @@ float pow( float x, float y )
       else if( yisint == 1 )
         z = -z;   /* (x<0)**odd = -(|x|**odd) */
     }
-    
+
     return z;
   }
 
@@ -1142,7 +1142,7 @@ float pow( float x, float y )
     /* over/underflow if x is not close to one */
     if( ix < 0x3f7ffff8 )
       return ( hy < 0 ) ? huge * huge : tiny * tiny;
-      
+
     if( ix > 0x3f800007 )
       return ( hy > 0 ) ? huge * huge : tiny * tiny;
   /* now |1-x| is tiny <= 2**-20, suffice to compute
@@ -1167,10 +1167,10 @@ float pow( float x, float y )
       n -= 24;
       GET_FLOAT_WORD( ix, ax );
     }
-    
+
     n  += ( ( ix ) >> 23 ) - 0x7f;
     j  = ix & 0x007fffff;
-    
+
     /* determine interval */
     ix = j | 0x3f800000;    /* normalize ix */
     if( j <= 0x1cc471 )
@@ -1236,7 +1236,7 @@ float pow( float x, float y )
   p_h = y1 * t1;
   z = p_l + p_h;
   GET_FLOAT_WORD( j, z );
-  
+
   if( j > 0x43000000 )       /* if z > 128 */
     return s * huge * huge;       /* overflow */
   else if( j == 0x43000000 )
@@ -1251,27 +1251,27 @@ float pow( float x, float y )
     if( p_l <= z - p_h )
       return s * tiny * tiny;    /* underflow */
   }
-  
+
   /*
    * compute 2**(p_h+p_l)
    */
   i = j & 0x7fffffff;
   k = ( i >> 23 ) - 0x7f;
   n = 0;
-  
+
   if( i > 0x3f000000 )
   {    /* if |z| > 0.5, set n = [z+0.5] */
     n = j + ( 0x00800000 >> ( k + 1 ) );
     k = ( ( n & 0x7fffffff ) >> 23 ) - 0x7f;  /* new k for n */
     SET_FLOAT_WORD( t, n & ~( 0x007fffff >> k ) );
     n = ( ( n & 0x007fffff ) | 0x00800000 ) >> ( 23 - k );
-    
+
     if( j < 0 )
       n = -n;
-      
+
     p_h -= t;
   }
-  
+
   t = p_l + p_h;
   GET_FLOAT_WORD( is, t );
   SET_FLOAT_WORD( t, is & 0xfffff000 );
@@ -1287,12 +1287,12 @@ float pow( float x, float y )
   z = one - ( r - z );
   GET_FLOAT_WORD( j, z );
   j += (n << 23 );
-  
+
   if( ( j >> 23 ) <= 0 )
     z = __scalbnf( z, n );  /* subnormal output */
   else
     SET_FLOAT_WORD( z, j );
-    
+
   return s * z;
 }
 
@@ -1324,7 +1324,7 @@ double atof( const char *string )
   {
     if( !*string )
       return 0;
-    
+
     string++;
   }
 
@@ -1335,12 +1335,12 @@ double atof( const char *string )
       string++;
       sign = 1;
       break;
-      
+
     case '-':
       string++;
       sign = -1;
       break;
-      
+
     default:
       sign = 1;
       break;
@@ -1349,7 +1349,7 @@ double atof( const char *string )
   // read digits
   value = 0;
   c = string[ 0 ];
-  
+
   if( c != '.' )
   {
     do
@@ -1406,7 +1406,7 @@ double _atof( const char **stringPtr )
       *stringPtr = string;
       return 0;
     }
-    
+
     string++;
   }
 
@@ -1417,12 +1417,12 @@ double _atof( const char **stringPtr )
       string++;
       sign = 1;
       break;
-      
+
     case '-':
       string++;
       sign = -1;
       break;
-      
+
     default:
       sign = 1;
       break;
@@ -1497,12 +1497,12 @@ int atoi( const char *string )
       string++;
       sign = 1;
       break;
-      
+
     case '-':
       string++;
       sign = -1;
       break;
-      
+
     default:
       sign = 1;
       break;
@@ -1551,12 +1551,12 @@ int _atoi( const char **stringPtr )
       string++;
       sign = 1;
       break;
-      
+
     case '-':
       string++;
       sign = -1;
       break;
-      
+
     default:
       sign = 1;
       break;
@@ -1569,7 +1569,7 @@ int _atoi( const char **stringPtr )
     c = *string++;
     if( c < '0' || c > '9' )
       break;
-    
+
     c -= '0';
     value = value * 10 + c;
   } while( 1 );
@@ -1673,7 +1673,7 @@ void AddFloat( char **buf_p, float fval, int width, int prec )
   // write the float number
   digits = 0;
   val = (int)fval;
-  
+
   do
   {
     text[ digits++ ] = '0' + val % 10;
@@ -1696,10 +1696,10 @@ void AddFloat( char **buf_p, float fval, int width, int prec )
 
   if( prec < 0 )
     prec = 6;
-  
+
   // write the fraction
   digits = 0;
-  
+
   while( digits < prec )
   {
     fval -= (int)fval;
@@ -1714,7 +1714,7 @@ void AddFloat( char **buf_p, float fval, int width, int prec )
     *buf++ = '.';
     for( prec = 0; prec < digits; prec++ )
       *buf++ = text[ prec ];
-    
+
     *buf_p = buf;
   }
 }
@@ -1825,19 +1825,19 @@ reswitch:
       case '-':
         flags |= LADJUST;
         goto rflag;
-        
+
       case '.':
         n = 0;
         while( is_digit( ( ch = *fmt++ ) ) )
           n = 10 * n + ( ch - '0' );
-        
+
         prec = n < 0 ? -1 : n;
         goto reswitch;
-        
+
       case '0':
         flags |= ZEROPAD;
         goto rflag;
-        
+
       case '1':
       case '2':
       case '3':
@@ -1853,21 +1853,21 @@ reswitch:
           n = 10 * n + ( ch - '0' );
           ch = *fmt++;
         } while( is_digit( ch ) );
-        
+
         width = n;
         goto reswitch;
-        
+
       case 'c':
         *buf_p++ = (char)*arg;
         arg++;
         break;
-        
+
       case 'd':
       case 'i':
         AddInt( &buf_p, *arg, width, flags );
         arg++;
         break;
-        
+
       case 'f':
         AddFloat( &buf_p, *(double *)arg, width, prec );
 #ifdef __LCC__
@@ -1876,21 +1876,21 @@ reswitch:
         arg += 2;
 #endif
         break;
-        
+
       case 's':
         AddString( &buf_p, (char *)*arg, width, prec );
         arg++;
         break;
-        
+
       case 'v':
         AddVec3_t( &buf_p, (vec_t *)*arg, width, prec );
         arg++;
         break;
-        
+
       case '%':
         *buf_p++ = ch;
         break;
-        
+
       default:
         *buf_p++ = (char)*arg;
         arg++;

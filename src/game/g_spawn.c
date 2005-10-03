@@ -231,7 +231,7 @@ spawn_t spawns[ ] =
   //TA: extra bits
   { "info_alien_intermission",  SP_info_alien_intermission },
   { "info_human_intermission",  SP_info_human_intermission },
-  
+
   { "info_null",                SP_info_null },
   { "info_notnull",             SP_info_notnull },    // use target_position instead
 
@@ -292,7 +292,7 @@ spawn_t spawns[ ] =
   { "misc_particle_system",     SP_misc_particle_system },
   { "misc_anim_model",          SP_misc_anim_model },
   { "misc_light_flare",         SP_misc_light_flare },
-  
+
   { 0, 0 }
 };
 
@@ -348,7 +348,7 @@ qboolean G_CallSpawn( gentity_t *ent )
       return qtrue;
     }
   }
-  
+
   G_Printf( "%s doesn't have a spawn function\n", ent->classname );
   return qfalse;
 }
@@ -421,39 +421,39 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
         case F_LSTRING:
           *(char **)( b + f->ofs ) = G_NewString( value );
           break;
-          
+
         case F_VECTOR:
           sscanf( value, "%f %f %f", &vec[ 0 ], &vec[ 1 ], &vec[ 2 ] );
-          
+
           ( (float *)( b + f->ofs ) )[ 0 ] = vec[ 0 ];
           ( (float *)( b + f->ofs ) )[ 1 ] = vec[ 1 ];
           ( (float *)( b + f->ofs ) )[ 2 ] = vec[ 2 ];
           break;
-          
+
         case F_VECTOR4:
           sscanf( value, "%f %f %f %f", &vec4[ 0 ], &vec4[ 1 ], &vec4[ 2 ], &vec4[ 3 ] );
-          
+
           ( (float *)( b + f->ofs ) )[ 0 ] = vec4[ 0 ];
           ( (float *)( b + f->ofs ) )[ 1 ] = vec4[ 1 ];
           ( (float *)( b + f->ofs ) )[ 2 ] = vec4[ 2 ];
           ( (float *)( b + f->ofs ) )[ 3 ] = vec4[ 3 ];
           break;
-          
+
         case F_INT:
           *(int *)( b + f->ofs ) = atoi( value );
           break;
-          
+
         case F_FLOAT:
           *(float *)( b + f->ofs ) = atof( value );
           break;
-          
+
         case F_ANGLEHACK:
           v = atof( value );
           ( (float *)( b + f->ofs ) )[ 0 ] = 0;
           ( (float *)( b + f->ofs ) )[ 1 ] = v;
           ( (float *)( b + f->ofs ) )[ 2 ] = 0;
           break;
-          
+
         default:
         case F_IGNORE:
           break;
@@ -479,7 +479,7 @@ void G_SpawnGEntityFromSpawnVars( void )
 {
   int         i;
   gentity_t   *ent;
-    
+
   // get the next free entity
   ent = G_Spawn( );
 
@@ -487,7 +487,7 @@ void G_SpawnGEntityFromSpawnVars( void )
     G_ParseField( level.spawnVars[ i ][ 0 ], level.spawnVars[ i ][ 1 ], ent );
 
   G_SpawnInt( "notq3a", "0", &i );
-  
+
   if( i )
   {
     G_FreeEntity( ent );
@@ -551,7 +551,7 @@ qboolean G_ParseSpawnVars( void )
     // end of spawn string
     return qfalse;
   }
-  
+
   if( com_token[ 0 ] != '{' )
     G_Error( "G_ParseSpawnVars: found %s when expecting {", com_token );
 
@@ -597,7 +597,7 @@ void SP_worldspawn( void )
   char *s;
 
   G_SpawnString( "classname", "", &s );
-  
+
   if( Q_stricmp( s, "worldspawn" ) )
     G_Error( "SP_worldspawn: The first entity isn't 'worldspawn'" );
 

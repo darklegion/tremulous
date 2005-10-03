@@ -43,7 +43,7 @@ void AddRemap( const char *oldShader, const char *newShader, float timeOffset )
       return;
     }
   }
-  
+
   if( remapCount < MAX_SHADER_REMAPS )
   {
     strcpy( remappedShaders[ remapCount ].newShader,newShader );
@@ -58,9 +58,9 @@ const char *BuildShaderStateConfig( )
   static char buff[ MAX_STRING_CHARS * 4 ];
   char        out[ ( MAX_QPATH * 2 ) + 5 ];
   int         i;
-  
+
   memset( buff, 0, MAX_STRING_CHARS );
-  
+
   for( i = 0; i < remapCount; i++ )
   {
     Com_sprintf( out, ( MAX_QPATH * 2 ) + 5, "%s=%s:%5.2f@", remappedShaders[ i ].oldShader,
@@ -103,7 +103,7 @@ int G_FindConfigstringIndex( char *name, int start, int max, qboolean create )
       return i;
   }
 
-  if( !create ) 
+  if( !create )
     return 0;
 
   if( i == max )
@@ -187,10 +187,10 @@ gentity_t *G_Find( gentity_t *from, int fieldofs, const char *match )
     if( !from->inuse )
       continue;
     s = *(char **)( (byte *)from + fieldofs );
-    
+
     if( !s )
       continue;
-    
+
     if( !Q_stricmp( s, match ) )
       return from;
   }
@@ -223,12 +223,12 @@ gentity_t *G_PickTarget( char *targetname )
   while( 1 )
   {
     ent = G_Find( ent, FOFS( targetname ), targetname );
-    
+
     if( !ent )
       break;
-    
+
     choice[ num_choices++ ] = ent;
-    
+
     if( num_choices == MAXCHOICES )
       break;
   }
@@ -257,7 +257,7 @@ match (string)self.target and call their .use function
 void G_UseTargets( gentity_t *ent, gentity_t *activator )
 {
   gentity_t   *t;
-  
+
   if( !ent )
     return;
 
@@ -281,7 +281,7 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator )
       if( t->use )
         t->use( t, ent, activator );
     }
-    
+
     if( !ent->inuse )
     {
       G_Printf( "entity was removed while using targets\n" );
@@ -365,7 +365,7 @@ void G_SetMovedir( vec3_t angles, vec3_t movedir )
     VectorCopy( MOVEDIR_DOWN, movedir );
   else
     AngleVectors( angles, movedir, NULL, NULL );
-  
+
   VectorClear( angles );
 }
 
@@ -373,7 +373,7 @@ void G_SetMovedir( vec3_t angles, vec3_t movedir )
 float vectoyaw( const vec3_t vec )
 {
   float yaw;
-  
+
   if( vec[ YAW ] == 0 && vec[ PITCH ] == 0 )
   {
     yaw = 0;
@@ -425,13 +425,13 @@ gentity_t *G_Spawn( void )
 
   e = NULL; // shut up warning
   i = 0;    // shut up warning
-  
+
   for( force = 0; force < 2; force++ )
   {
     // if we go through all entities and can't find one to free,
     // override the normal minimum times before use
     e = &g_entities[ MAX_CLIENTS ];
-    
+
     for( i = MAX_CLIENTS; i < level.num_entities; i++, e++ )
     {
       if( e->inuse )
@@ -446,24 +446,24 @@ gentity_t *G_Spawn( void )
       G_InitGentity( e );
       return e;
     }
-    
+
     if( i != MAX_GENTITIES )
       break;
   }
-  
+
   if( i == ENTITYNUM_MAX_NORMAL )
   {
     for( i = 0; i < MAX_GENTITIES; i++ )
       G_Printf( "%4i: %s\n", i, g_entities[ i ].classname );
-    
+
     G_Error( "G_Spawn: no free entities" );
   }
-  
+
   // open up a new slot
   level.num_entities++;
 
   // let the server system know that there are more entities
-  trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
+  trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
     &level.clients[ 0 ].ps, sizeof( level.clients[ 0 ] ) );
 
   G_InitGentity( e );
@@ -482,7 +482,7 @@ qboolean G_EntitiesFree( void )
   gentity_t *e;
 
   e = &g_entities[ MAX_CLIENTS ];
-  
+
   for( i = MAX_CLIENTS; i < level.num_entities; i++, e++ )
   {
     if( e->inuse )
@@ -491,7 +491,7 @@ qboolean G_EntitiesFree( void )
     // slot available
     return qtrue;
   }
-  
+
   return qfalse;
 }
 
@@ -579,14 +579,14 @@ void G_KillBox( gentity_t *ent )
   for( i = 0; i < num; i++ )
   {
     hit = &g_entities[ touch[ i ] ];
-    
+
     if( !hit->client )
       continue;
 
     //TA: impossible to telefrag self
     if( ent == hit )
       continue;
-    
+
     // nail it
     G_Damage( hit, ent, ent, NULL, NULL,
       100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG );
@@ -805,7 +805,7 @@ static qboolean G_ReadyToDequeue( commandQueue_t *cq )
 {
   if( !cq )
     return qfalse;
-  
+
   return cq->front && cq->nextCommandTime <= level.time;
 }
 
@@ -828,7 +828,7 @@ void G_ProcessCommandQueues( void )
     if( !G_ClientIsLagging( cl ) && G_ReadyToDequeue( cq ) )
     {
       const char *command = G_PopCommandQueue( cq );
-    
+
       if( command )
         trap_SendServerCommand( i, command );
     }
@@ -844,12 +844,12 @@ void G_InitCommandQueue( int clientNum )
 {
   int             i;
   commandQueue_t  *cq = &queuedCommands[ clientNum ];
-  
+
   if( clientNum >= 0 && clientNum < MAX_CLIENTS )
   {
     cq->front = cq->back = NULL;
     cq->nextCommandTime = 0;
-    
+
     for( i = 0; i < MAX_QUEUE_COMMANDS; i++ )
     {
       commandQueueElement_t *cqe = &cq->pool[ i ];
@@ -872,18 +872,18 @@ void G_SendCommandFromServer( int clientNum, const char *cmd )
 
   if( clientNum < 0 )
     cq = NULL;
-    
+
   if( strlen( cmd ) > 1022 )
   {
     G_LogPrintf( "G_SendCommandFromServer( %d, ... ) length exceeds 1022.\n", clientNum );
     G_LogPrintf( "cmd [%s]\n", cmd );
     return;
-  } 
-  
+  }
+
   if( cq )
   {
     gclient_t *cl = &level.clients[ clientNum ];
-    
+
     if( cq->nextCommandTime > level.time || G_ClientIsLagging( cl ) )
     {
       //can't send yet, so queue the command up
@@ -928,20 +928,20 @@ gentity_t *G_FindRadius( gentity_t *from, vec3_t org, float rad )
 {
   vec3_t  eorg;
   int j;
-  
+
   if( !from )
     from = g_entities;
   else
     from++;
-    
+
   for( ; from < &g_entities[ level.num_entities ]; from++ )
   {
     if( !from->inuse )
       continue;
-      
+
     for( j = 0; j < 3; j++ )
       eorg[ j ] = org[ j ] - ( from->r.currentOrigin[ j ] + ( from->r.mins[ j ] + from->r.maxs[ j ] ) * 0.5 );
-      
+
     if( VectorLength( eorg ) > rad )
       continue;
 
@@ -963,10 +963,10 @@ qboolean G_Visible( gentity_t *ent1, gentity_t *ent2 )
   trace_t trace;
 
   trap_Trace( &trace, ent1->s.pos.trBase, NULL, NULL, ent2->s.pos.trBase, ent1->s.number, MASK_SHOT );
-  
+
   if( trace.contents & CONTENTS_SOLID )
     return qfalse;
-    
+
   return qtrue;
 }
 
@@ -982,7 +982,7 @@ gentity_t *G_ClosestEnt( vec3_t origin, gentity_t **entities, int numEntities )
   int       i;
   float     nd, d = 1000000.0f;
   gentity_t *closestEnt = NULL;
-  
+
   for( i = 0; i < numEntities; i++ )
   {
     gentity_t *ent = entities[ i ];
@@ -1053,7 +1053,7 @@ int DebugLine( vec3_t start, vec3_t end, int color )
   VectorSubtract( end, start, dir );
   VectorNormalize( dir );
   dot = DotProduct( dir, up );
-  
+
   if( dot > 0.99 || dot < -0.99 )
     VectorSet( cross, 1, 0, 0 );
   else

@@ -27,7 +27,7 @@ Callback to detect ptrc clashes
 static qboolean G_CheckForUniquePTRC( int code )
 {
   int i;
-  
+
   if( code == 0 )
     return qfalse;
 
@@ -36,7 +36,7 @@ static qboolean G_CheckForUniquePTRC( int code )
     if( connections[ i ].ptrCode == code )
       return qfalse;
   }
-  
+
   return qtrue;
 }
 
@@ -70,7 +70,7 @@ connectionRecord_t *G_GenerateNewConnection( gclient_t *client )
 
   // this should be really random
   srand( trap_Milliseconds( ) );
-  
+
   // there is a very very small possibility that this
   // will loop infinitely
   do
@@ -105,16 +105,16 @@ Check a PTR code for validity
 qboolean G_VerifyPTRC( int code )
 {
   int i;
-  
+
   if( code == 0 )
     return qfalse;
-  
+
   for( i = 0; i < MAX_CLIENTS; i++ )
   {
     if( connections[ i ].ptrCode == code )
       return qtrue;
   }
-  
+
   return qfalse;
 }
 
@@ -128,7 +128,7 @@ Finds a connection for a given code
 connectionRecord_t *G_FindConnectionForCode( int code )
 {
   int i;
-  
+
   if( code == 0 )
     return NULL;
 

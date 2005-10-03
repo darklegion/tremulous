@@ -30,7 +30,7 @@ static void CG_ParseScores( void )
   int   i;
 
   cg.numScores = atoi( CG_Argv( 1 ) );
-  
+
   if( cg.numScores > MAX_CLIENTS )
     cg.numScores = MAX_CLIENTS;
 
@@ -38,7 +38,7 @@ static void CG_ParseScores( void )
   cg.teamScores[ 1 ] = atoi( CG_Argv( 3 ) );
 
   memset( cg.scores, 0, sizeof( cg.scores ) );
-  
+
   if( cg_debugRandom.integer )
     CG_Printf( "cg.numScores: %d\n", cg.numScores );
 
@@ -54,12 +54,12 @@ static void CG_ParseScores( void )
 
     if( cg.scores[ i ].client < 0 || cg.scores[ i ].client >= MAX_CLIENTS )
       cg.scores[ i ].client = 0;
-    
+
     cgs.clientinfo[ cg.scores[ i ].client ].score = cg.scores[ i ].score;
     cgs.clientinfo[ cg.scores[ i ].client ].powerups = 0;
 
     cg.scores[ i ].team = cgs.clientinfo[ cg.scores[ i ].client ].team;
-  } 
+  }
 }
 
 /*
@@ -156,7 +156,7 @@ void CG_SetConfigValues( void )
   sscanf( CG_ConfigString( CS_STAGES ), "%d %d %d %d %d %d", &cgs.alienStage, &cgs.humanStage,
       &cgs.alienKills, &cgs.humanKills, &cgs.alienNextStageThreshold, &cgs.humanNextStageThreshold );
   sscanf( CG_ConfigString( CS_SPAWNS ), "%d %d", &cgs.numAlienSpawns, &cgs.numHumanSpawns );
-  
+
   cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
   cg.warmup = atoi( CG_ConfigString( CS_WARMUP ) );
 }
@@ -176,18 +176,18 @@ void CG_ShaderStateChanged( void )
   char        *n, *t;
 
   o = CG_ConfigString( CS_SHADERSTATE );
-  
+
   while( o && *o )
   {
     n = strstr( o, "=" );
-    
+
     if( n && *n )
     {
       strncpy( originalShader, o, n - o );
       originalShader[ n - o ] = 0;
       n++;
       t = strstr( n, ":" );
-      
+
       if( t && *t )
       {
         strncpy( newShader, n, t - n );
@@ -195,10 +195,10 @@ void CG_ShaderStateChanged( void )
       }
       else
         break;
-      
+
       t++;
       o = strstr( t, "@" );
-      
+
       if( o )
       {
         strncpy( timeOffset, t, o - t );
@@ -281,15 +281,15 @@ static void CG_ConfigStringModified( void )
   {
     stage_t oldAlienStage = cgs.alienStage;
     stage_t oldHumanStage = cgs.humanStage;
-  
+
     sscanf( str, "%d %d %d %d %d %d",
         &cgs.alienStage, &cgs.humanStage,
         &cgs.alienKills, &cgs.humanKills,
         &cgs.alienNextStageThreshold, &cgs.humanNextStageThreshold );
-    
+
     if( cgs.alienStage != oldAlienStage )
       CG_AnnounceAlienStageTransistion( oldAlienStage, cgs.alienStage );
-    
+
     if( cgs.humanStage != oldHumanStage )
       CG_AnnounceHumanStageTransistion( oldHumanStage, cgs.humanStage );
   }
@@ -322,7 +322,7 @@ static void CG_ConfigStringModified( void )
   else if( num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1 )
   {
     int cs_offset = num - CS_TEAMVOTE_TIME;
-  
+
     cgs.teamVoteTime[ cs_offset ] = atoi( str );
     cgs.teamVoteModified[ cs_offset ] = qtrue;
 
@@ -426,7 +426,7 @@ static void CG_AddToTeamChat( const char *str )
         str++;
         p -= ( p - ls );
       }
-      
+
       *p = 0;
 
       cgs.teamChatMsgTimes[ cgs.teamChatPos % chatHeight ] = cg.time;
@@ -447,10 +447,10 @@ static void CG_AddToTeamChat( const char *str )
       *p++ = *str++;
       continue;
     }
-    
+
     if( *str == ' ' )
       ls = p;
-    
+
     *p++ = *str++;
     len++;
   }
@@ -484,9 +484,9 @@ static void CG_MapRestart( void )
   CG_InitLocalEntities( );
   CG_InitMarkPolys( );
 
-	// Ridah, trails
-	CG_ClearTrails( );
-	// done.
+  // Ridah, trails
+  CG_ClearTrails( );
+  // done.
 
   // make sure the "3 frags left" warnings play again
   cg.fraglimitWarnings = 0;
@@ -526,7 +526,7 @@ static void CG_RemoveChatEscapeChar( char *text )
   {
     if( text[ i ] == '\x19' )
       continue;
-    
+
     text[ l++ ] = text[ i ];
   }
 
@@ -546,7 +546,7 @@ static void CG_SetUIVars( void )
   char  carriageCvar[ MAX_TOKEN_CHARS ];
 
   *carriageCvar = 0;
-  
+
   //determine what the player is carrying
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
@@ -561,12 +561,12 @@ static void CG_SetUIVars( void )
       strcat( carriageCvar, va( "U%d ", i ) );
   }
   strcat( carriageCvar, "$" );
-  
+
   trap_Cvar_Set( "ui_carriage", carriageCvar );
-  
+
   trap_Cvar_Set( "ui_stages", va( "%d %d", cgs.alienStage, cgs.humanStage ) );
 }
-  
+
 
 /*
 ==============
@@ -585,7 +585,7 @@ void CG_Menu( int menu )
     case MN_A_BUILD:    trap_SendConsoleCommand( "menu tremulous_alienbuild\n" );   break;
     case MN_H_BUILD:    trap_SendConsoleCommand( "menu tremulous_humanbuild\n" );   break;
     case MN_H_ARMOURY:  trap_SendConsoleCommand( "menu tremulous_humanarmoury\n" ); break;
-                        
+
     case MN_A_TEAMFULL:
       trap_Cvar_Set( "ui_dialog", "The alien team has too many players. Please wait until "
                                   "slots become available or join the human team." );
@@ -607,9 +607,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "There is no room to build here\n" );
-      
+
       break;
-      
+
     case MN_H_NOPOWER:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -619,9 +619,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "There is no power remaining\n" );
-      
+
       break;
-      
+
     case MN_H_NOTPOWERED:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -631,9 +631,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "This buildable is not powered\n" );
-      
+
       break;
-      
+
     case MN_H_NORMAL:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -643,9 +643,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "Cannot build on this surface\n" );
-      
+
       break;
-      
+
     case MN_H_REACTOR:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -655,9 +655,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "There can only be one Reactor\n" );
-      
+
       break;
-      
+
     case MN_H_REPEATER:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -667,9 +667,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "There is no power here\n" );
-      
+
       break;
-      
+
     case MN_H_NODCC:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -679,9 +679,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "There is no Defense Computer\n" );
-      
+
       break;
-      
+
     case MN_H_TNODEWARN:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -691,9 +691,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "This Telenode will not be powered\n" );
-      
+
       break;
-      
+
     case MN_H_RPTWARN:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -703,9 +703,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "This Repeater will not be powered\n" );
-      
+
       break;
-      
+
     case MN_H_RPTWARN2:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -714,9 +714,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "This area already has power\n" );
-      
+
       break;
-      
+
     case MN_H_NOSLOTS:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -726,9 +726,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "You have no room to carry this\n" );
-      
+
       break;
-      
+
     case MN_H_NOFUNDS:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -738,9 +738,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "Insufficient funds\n" );
-      
+
       break;
-      
+
     case MN_H_ITEMHELD:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -750,13 +750,13 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "You already hold this item\n" );
-      
+
       break;
-      
-    
+
+
     //===============================
 
-      
+
     case MN_A_NOROOM:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -766,9 +766,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "There is no room to build here\n" );
-      
+
       break;
-      
+
     case MN_A_NOCREEP:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -778,9 +778,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "There is no creep here\n" );
-      
+
       break;
-      
+
     case MN_A_NOOVMND:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -790,9 +790,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "There is no Overmind\n" );
-      
+
       break;
-      
+
     case MN_A_OVERMIND:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -802,9 +802,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "There can only be one Overmind\n" );
-      
+
       break;
-      
+
     case MN_A_NOASSERT:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -814,9 +814,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "The Overmind cannot control any more structures\n" );
-      
+
       break;
-      
+
     case MN_A_SPWNWARN:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -826,9 +826,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "This spawn will not be controlled by an Overmind\n" );
-      
+
       break;
-      
+
     case MN_A_NORMAL:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -838,9 +838,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "Cannot build on this surface\n" );
-      
+
       break;
-      
+
     case MN_A_NOEROOM:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -850,9 +850,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "There is no room to evolve here\n" );
-      
+
       break;
-      
+
     case MN_A_TOOCLOSE:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -863,9 +863,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "This location is too close to the enemy to evolve\n" );
-      
+
       break;
-      
+
     case MN_A_NOOVMND_EVOLVE:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -875,9 +875,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "There is no Overmind\n" );
-      
+
       break;
-      
+
     case MN_A_HOVEL_OCCUPIED:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -887,9 +887,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "This Hovel is occupied by another builder\n" );
-      
+
       break;
-      
+
     case MN_A_HOVEL_BLOCKED:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -899,9 +899,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "The exit to this Hovel is currently blocked\n" );
-      
+
       break;
-      
+
     case MN_A_HOVEL_EXIT:
       if( !cg_disableWarningDialogs.integer )
       {
@@ -911,9 +911,9 @@ void CG_Menu( int menu )
       }
       else
         CG_Printf( "The exit to this Hovel would always be blocked\n" );
-      
+
       break;
-      
+
     case MN_A_INFEST:
       trap_Cvar_Set( "ui_currentClass", va( "%d %d",  cg.snap->ps.stats[ STAT_PCLASS ],
                                                       cg.snap->ps.persistant[ PERS_CREDIT ] ) );
@@ -973,7 +973,7 @@ static void CG_ServerCommand( void )
       CG_RemoveChatEscapeChar( text );
       CG_Printf( "%s\n", text );
     }
-    
+
     return;
   }
 
@@ -986,7 +986,7 @@ static void CG_ServerCommand( void )
     CG_Printf( "%s\n", text );
     return;
   }
-  
+
   if( !strcmp( cmd, "scores" ) )
   {
     CG_ParseScores( );
@@ -1024,7 +1024,7 @@ static void CG_ServerCommand( void )
   {
     if( trap_Argc( ) == 2 )
       CG_TAUIConsole( CG_Argv( 1 ) );
-    
+
     return;
   }
 
@@ -1033,10 +1033,10 @@ static void CG_ServerCommand( void )
   {
     if( trap_Argc( ) == 2 && !cg.demoPlayback )
       CG_Menu( atoi( CG_Argv( 1 ) ) );
-    
+
     return;
   }
-  
+
   //the server thinks this client should close all menus
   if( !strcmp( cmd, "serverclosemenus" ) )
   {
@@ -1066,7 +1066,7 @@ static void CG_ServerCommand( void )
 
     return;
   }
-  
+
   // server requests a ptrc
   if( !strcmp( cmd, "ptrcrequest" ) )
   {
@@ -1075,28 +1075,28 @@ static void CG_ServerCommand( void )
     trap_SendClientCommand( va( "ptrcverify %d", code ) );
     return;
   }
-  
+
   // server issues a ptrc
   if( !strcmp( cmd, "ptrcissue" ) )
   {
     if( trap_Argc( ) == 2 )
     {
       int code = atoi( CG_Argv( 1 ) );
-      
+
       CG_WritePTRCode( code );
     }
-    
+
     return;
   }
-  
+
   // reply to ptrcverify
   if( !strcmp( cmd, "ptrcconfirm" ) )
   {
     trap_SendConsoleCommand( "menu ptrc_popmenu\n" );
-    
+
     return;
   }
-  
+
   CG_Printf( "Unknown client game command: %s\n", cmd );
 }
 

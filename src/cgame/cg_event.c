@@ -42,7 +42,7 @@ static void CG_Obituary( entityState_t *ent )
 
   if( target < 0 || target >= MAX_CLIENTS )
     CG_Error( "CG_Obituary: target out of range" );
-  
+
   ci = &cgs.clientinfo[ target ];
 
   if( attacker < 0 || attacker >= MAX_CLIENTS )
@@ -54,7 +54,7 @@ static void CG_Obituary( entityState_t *ent )
     attackerInfo = CG_ConfigString( CS_PLAYERS + attacker );
 
   targetInfo = CG_ConfigString( CS_PLAYERS + target );
-  
+
   if( !targetInfo )
     return;
 
@@ -136,7 +136,7 @@ static void CG_Obituary( entityState_t *ent )
         else
           message = "toasted himself";
         break;
-        
+
       case MOD_LCANNON_SPLASH:
         if( gender == GENDER_FEMALE )
           message = "irradiated herself";
@@ -145,7 +145,7 @@ static void CG_Obituary( entityState_t *ent )
         else
           message = "irradiated himself";
         break;
-        
+
       case MOD_GRENADE:
         if( gender == GENDER_FEMALE )
           message = "blew herself up";
@@ -154,7 +154,7 @@ static void CG_Obituary( entityState_t *ent )
         else
           message = "blew himself up";
         break;
-        
+
       default:
         if( gender == GENDER_FEMALE )
           message = "killed herself";
@@ -235,7 +235,7 @@ static void CG_Obituary( entityState_t *ent )
         message = "couldn't escape";
         message2 = "'s grenade";
         break;
-        
+
       case MOD_ABUILDER_CLAW:
         message = "should leave";
         message2 = "'s buildings alone";
@@ -291,7 +291,7 @@ static void CG_Obituary( entityState_t *ent )
             BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL4 ) );
         message2 = className;
         break;
-        
+
       case MOD_POISON:
         message = "should have used antitox against";
         message2 = "'s poison";
@@ -302,8 +302,8 @@ static void CG_Obituary( entityState_t *ent )
             BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL1 ) );
         message2 = className;
         break;
-      
-      
+
+
       case MOD_TELEFRAG:
         message = "tried to invade";
         message2 = "'s personal space";
@@ -398,7 +398,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
   clientNum = es->clientNum;
   if( clientNum < 0 || clientNum >= MAX_CLIENTS )
     clientNum = 0;
-  
+
   ci = &cgs.clientinfo[ clientNum ];
 
   switch( event )
@@ -418,7 +418,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
             cgs.media.footsteps[ ci->footsteps ][ rand( ) & 3 ] );
       }
       break;
-      
+
     case EV_FOOTSTEP_METAL:
       DEBUGNAME( "EV_FOOTSTEP_METAL" );
       if( cg_footsteps.integer && ci->footsteps != FOOTSTEP_NONE )
@@ -431,7 +431,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
             cgs.media.footsteps[ FOOTSTEP_METAL ][ rand( ) & 3 ] );
       }
       break;
-      
+
     case EV_FOOTSTEP_SQUELCH:
       DEBUGNAME( "EV_FOOTSTEP_SQUELCH" );
       if( cg_footsteps.integer && ci->footsteps != FOOTSTEP_NONE )
@@ -440,7 +440,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
           cgs.media.footsteps[ FOOTSTEP_FLESH ][ rand( ) & 3 ] );
       }
       break;
-      
+
     case EV_FOOTSPLASH:
       DEBUGNAME( "EV_FOOTSPLASH" );
       if( cg_footsteps.integer && ci->footsteps != FOOTSTEP_NONE )
@@ -449,7 +449,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
           cgs.media.footsteps[ FOOTSTEP_SPLASH ][ rand( ) & 3 ] );
       }
       break;
-      
+
     case EV_FOOTWADE:
       DEBUGNAME( "EV_FOOTWADE" );
       if( cg_footsteps.integer && ci->footsteps != FOOTSTEP_NONE )
@@ -458,7 +458,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
           cgs.media.footsteps[ FOOTSTEP_SPLASH ][ rand( ) & 3 ] );
       }
       break;
-      
+
     case EV_SWIM:
       DEBUGNAME( "EV_SWIM" );
       if( cg_footsteps.integer && ci->footsteps != FOOTSTEP_NONE )
@@ -472,7 +472,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     case EV_FALL_SHORT:
       DEBUGNAME( "EV_FALL_SHORT" );
       trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.landSound );
-      
+
       if( clientNum == cg.predictedPlayerState.clientNum )
       {
         // smooth landing z changes
@@ -480,12 +480,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
         cg.landTime = cg.time;
       }
       break;
-      
+
     case EV_FALL_MEDIUM:
       DEBUGNAME( "EV_FALL_MEDIUM" );
       // use normal pain sound
       trap_S_StartSound( NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*pain100_1.wav" ) );
-      
+
       if( clientNum == cg.predictedPlayerState.clientNum )
       {
         // smooth landing z changes
@@ -493,12 +493,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
         cg.landTime = cg.time;
       }
       break;
-      
+
     case EV_FALL_FAR:
       DEBUGNAME( "EV_FALL_FAR" );
       trap_S_StartSound (NULL, es->number, CHAN_AUTO, CG_CustomSound( es->number, "*fall1.wav" ) );
       cent->pe.painTime = cg.time;  // don't play a pain sound right after this
-      
+
       if( clientNum == cg.predictedPlayerState.clientNum )
       {
         // smooth landing z changes
@@ -515,28 +515,28 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     case EV_STEP_4:
     case EV_STEP_8:
     case EV_STEP_12:
-    case EV_STEP_16:		// smooth out step up transitions
+    case EV_STEP_16:    // smooth out step up transitions
     case EV_STEPDN_4:
     case EV_STEPDN_8:
     case EV_STEPDN_12:
-    case EV_STEPDN_16:		// smooth out step down transitions
+    case EV_STEPDN_16:    // smooth out step down transitions
       DEBUGNAME( "EV_STEP" );
       {
-        float	oldStep;
-        int		delta;
-        int		step;
+        float  oldStep;
+        int    delta;
+        int    step;
 
         if( clientNum != cg.predictedPlayerState.clientNum )
           break;
-        
+
         // if we are interpolating, we don't need to smooth steps
         if( cg.demoPlayback || ( cg.snap->ps.pm_flags & PMF_FOLLOW ) ||
             cg_nopredict.integer || cg_synchronousClients.integer )
           break;
-        
+
         // check for stepping up before a previous step is completed
         delta = cg.time - cg.stepTime;
-        
+
         if( delta < steptime )
           oldStep = cg.stepChange * ( steptime - delta ) / steptime;
         else
@@ -553,7 +553,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
           step = 4 * ( event - EV_STEP_4 + 1 );
           cg.stepChange = oldStep + step;
         }
-          
+
         if( cg.stepChange > MAX_STEP_CHANGE )
           cg.stepChange = MAX_STEP_CHANGE;
         else if( cg.stepChange < -MAX_STEP_CHANGE )
@@ -563,49 +563,27 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
         break;
       }
 
-    case EV_JUMP_PAD:
-      DEBUGNAME( "EV_JUMP_PAD" );
-  //    CG_Printf( "EV_JUMP_PAD w/effect #%i\n", es->eventParm );
-      {
-        localEntity_t *smoke;
-        vec3_t      up = { 0, 0, 1 };
-
-
-        smoke = CG_SmokePuff( cent->lerpOrigin, up, 
-                              32, 
-                              1, 1, 1, 0.33f,
-                              1000, 
-                              cg.time, 0,
-                              LEF_PUFF_DONT_SCALE, 
-                              cgs.media.smokePuffShader );
-      }
-      
-      // boing sound at origin, jump sound on player
-      trap_S_StartSound( cent->lerpOrigin, -1, CHAN_VOICE, cgs.media.jumpPadSound );
-      trap_S_StartSound( NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*jump1.wav" ) );
-      break;
-
     case EV_JUMP:
       DEBUGNAME( "EV_JUMP" );
       trap_S_StartSound( NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*jump1.wav" ) );
-      
+
       if( BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
-      {  
+      {
         vec3_t  surfNormal, refNormal = { 0.0f, 0.0f, 1.0f };
         vec3_t  rotAxis;
 
         if( clientNum != cg.predictedPlayerState.clientNum )
           break;
-        
+
         //set surfNormal
         VectorCopy( cg.predictedPlayerState.grapplePoint, surfNormal );
-    
+
         //if we are moving from one surface to another smooth the transition
         if( !VectorCompare( surfNormal, cg.lastNormal ) && surfNormal[ 2 ] != 1.0f )
         {
           CrossProduct( refNormal, surfNormal, rotAxis );
           VectorNormalize( rotAxis );
-          
+
           //add the op
           CG_addSmoothOp( rotAxis, 15.0f, 1.0f );
         }
@@ -613,45 +591,45 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
         //copy the current normal to the lastNormal
         VectorCopy( surfNormal, cg.lastNormal );
       }
-        
+
       break;
-      
+
     case EV_LEV1_GRAB:
       DEBUGNAME( "EV_LEV1_GRAB" );
       trap_S_StartSound( NULL, es->number, CHAN_VOICE, cgs.media.alienL1Grab );
       break;
-      
+
     case EV_LEV4_CHARGE_PREPARE:
       DEBUGNAME( "EV_LEV4_CHARGE_PREPARE" );
       trap_S_StartSound( NULL, es->number, CHAN_VOICE, cgs.media.alienL4ChargePrepare );
       break;
-      
+
     case EV_LEV4_CHARGE_START:
       DEBUGNAME( "EV_LEV4_CHARGE_START" );
       //FIXME: stop cgs.media.alienL4ChargePrepare playing here
       trap_S_StartSound( NULL, es->number, CHAN_VOICE, cgs.media.alienL4ChargeStart );
       break;
-      
+
     case EV_TAUNT:
       DEBUGNAME( "EV_TAUNT" );
       trap_S_StartSound( NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*taunt.wav" ) );
       break;
-      
+
     case EV_WATER_TOUCH:
       DEBUGNAME( "EV_WATER_TOUCH" );
       trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.watrInSound );
       break;
-      
+
     case EV_WATER_LEAVE:
       DEBUGNAME( "EV_WATER_LEAVE" );
       trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.watrOutSound );
       break;
-      
+
     case EV_WATER_UNDER:
       DEBUGNAME( "EV_WATER_UNDER" );
       trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.watrUnSound );
       break;
-      
+
     case EV_WATER_CLEAR:
       DEBUGNAME( "EV_WATER_CLEAR" );
       trap_S_StartSound( NULL, es->number, CHAN_AUTO, CG_CustomSound( es->number, "*gasp.wav" ) );
@@ -662,26 +640,25 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     //
     case EV_NOAMMO:
       DEBUGNAME( "EV_NOAMMO" );
-  //    trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.noAmmoSound );
       {
       }
       break;
-      
+
     case EV_CHANGE_WEAPON:
       DEBUGNAME( "EV_CHANGE_WEAPON" );
       trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.selectSound );
       break;
-      
+
     case EV_FIRE_WEAPON:
       DEBUGNAME( "EV_FIRE_WEAPON" );
       CG_FireWeapon( cent, WPM_PRIMARY );
       break;
-      
+
     case EV_FIRE_WEAPON2:
       DEBUGNAME( "EV_FIRE_WEAPON2" );
       CG_FireWeapon( cent, WPM_SECONDARY );
       break;
-      
+
     case EV_FIRE_WEAPON3:
       DEBUGNAME( "EV_FIRE_WEAPON3" );
       CG_FireWeapon( cent, WPM_TERTIARY );
@@ -708,7 +685,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       DEBUGNAME( "EV_BUILD_CONSTRUCT" );
       //do something useful here
       break;
-      
+
     case EV_BUILD_DESTROY:
       DEBUGNAME( "EV_BUILD_DESTROY" );
       //do something useful here
@@ -836,7 +813,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       trap_S_StopLoopingSound( es->number );
       es->loopSound = 0;
       break;
-                    
+
     case EV_DEBUG_LINE:
       DEBUGNAME( "EV_DEBUG_LINE" );
       CG_Beam( cent );
@@ -906,7 +883,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
         CG_SetParticleSystemCent( ps, cent );
         CG_AttachParticleSystemToCent( ps );
       }
-      
+
       if( es->number == cg.clientNum )
         cg.spawnTime = cg.time;
       break;
@@ -920,7 +897,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
         cg.lastEvolveAttempt = cg.time;
       }
       break;
-      
+
     case EV_ALIEN_ACIDTUBE:
       DEBUGNAME( "EV_ALIEN_ACIDTUBE" );
       {
@@ -962,23 +939,30 @@ void CG_CheckEvents( centity_t *cent )
   // check for event-only entities
   if( cent->currentState.eType > ET_EVENTS )
   {
+    entity_event_t event = cent->currentState.eType - ET_EVENTS;
+
     if( cent->previousEvent )
       return; // already fired
-    
+
     cent->previousEvent = 1;
 
     cent->currentState.event = cent->currentState.eType - ET_EVENTS;
-  }
-  else
-  {
-    // check for events riding with another entity
-    if( cent->currentState.event == cent->previousEvent )
-      return;
+    
+    // Move the pointer to the entity that the
+    // event was originally attached to
+    if( cent->currentState.eFlags & EF_PLAYER_EVENT )
+      cent = &cg_entities[ cent->currentState.otherEntityNum ];
 
-    cent->previousEvent = cent->currentState.event;
-    if( ( cent->currentState.event & ~EV_EVENT_BITS ) == 0 )
-      return;
+    cent->currentState.event = event;
   }
+
+  // check for events riding with another entity
+  if( cent->currentState.event == cent->previousEvent )
+    return;
+
+  cent->previousEvent = cent->currentState.event;
+  if( ( cent->currentState.event & ~EV_EVENT_BITS ) == 0 )
+    return;
 
   // calculate the position at exactly the frame time
   BG_EvaluateTrajectory( &cent->currentState.pos, cg.snap->serverTime, cent->lerpOrigin );

@@ -112,19 +112,19 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
       ( ent->s.eFlags & ( EF_BOUNCE | EF_BOUNCE_HALF ) ) )
   {
     G_BounceMissile( ent, trace );
-    
+
     //only play a sound if requested
     if( !( ent->s.eFlags & EF_NO_BOUNCE_SOUND ) )
       G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
 
     return;
   }
-  
+
   if( !strcmp( ent->classname, "grenade" ) )
   {
     //grenade doesn't explode on impact
     G_BounceMissile( ent, trace );
-    
+
     //only play a sound if requested
     if( !( ent->s.eFlags & EF_NO_BOUNCE_SOUND ) )
       G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
@@ -159,7 +159,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
         G_Printf( S_COLOR_YELLOW "WARNING: hive entity has no parent in G_MissileImpact\n" );
       else
         ent->parent->active = qfalse;
-      
+
       G_FreeEntity( ent );
       return;
     }
@@ -170,7 +170,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
 
       ent->think = AHive_ReturnToHive;
       ent->nextthink = level.time + FRAMETIME;
-      
+
       //only damage humans
       if( other->client && other->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
         returnAfterDamage = qtrue;
@@ -178,7 +178,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
         return;
     }
   }
-  
+
   // impact damage
   if( other->takedamage )
   {
@@ -190,8 +190,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
       BG_EvaluateTrajectoryDelta( &ent->s.pos, level.time, velocity );
       if( VectorLength( velocity ) == 0 )
         velocity[ 2 ] = 1;  // stepped on a grenade
-      
-      G_Damage( other, ent, attacker, velocity, ent->s.origin, ent->damage, 
+
+      G_Damage( other, ent, attacker, velocity, ent->s.origin, ent->damage,
         0, ent->methodOfDeath );
     }
   }
@@ -223,7 +223,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
 
   // splash damage (doesn't apply to person directly hit)
   if( ent->splashDamage )
-    G_RadiusDamage( trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius, 
+    G_RadiusDamage( trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius,
                     other, ent->splashMethodOfDeath );
 
   trap_LinkEntity( ent );
@@ -247,7 +247,7 @@ void G_RunMissile( gentity_t *ent )
 
   // ignore interactions with the missile owner
   passent = ent->r.ownerNum;
-  
+
   // trace a line from the previous position to the current position
   trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, passent, ent->clipmask );
 
@@ -272,7 +272,7 @@ void G_RunMissile( gentity_t *ent )
       // If grapple, reset owner
       if( ent->parent && ent->parent->client && ent->parent->client->hook == ent )
         ent->parent->client->hook = NULL;
-        
+
       G_FreeEntity( ent );
       return;
     }
@@ -332,7 +332,7 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
   VectorCopy( start, bolt->r.currentOrigin );
 
   return bolt;
-} 
+}
 
 //=============================================================================
 
@@ -533,7 +533,7 @@ void AHive_ReturnToHive( gentity_t *self )
     G_Printf( S_COLOR_YELLOW "WARNING: AHive_ReturnToHive called with no self->parent\n" );
     return;
   }
-  
+
   trap_UnlinkEntity( self->parent );
   trap_Trace( &tr, self->r.currentOrigin, self->r.mins, self->r.maxs,
               self->parent->r.currentOrigin, self->r.ownerNum, self->clipmask );
@@ -554,7 +554,7 @@ void AHive_ReturnToHive( gentity_t *self )
   {
     VectorSubtract( self->parent->r.currentOrigin, self->r.currentOrigin, dir );
     VectorNormalize( dir );
-    
+
     //change direction towards the hive
     VectorScale( dir, HIVE_SPEED, self->s.pos.trDelta );
     SnapVector( self->s.pos.trDelta );      // save net bandwidth
@@ -577,7 +577,7 @@ void AHive_SearchAndDestroy( gentity_t *self )
 {
   vec3_t dir;
   trace_t tr;
-  
+
   trap_Trace( &tr, self->r.currentOrigin, self->r.mins, self->r.maxs,
               self->target_ent->r.currentOrigin, self->r.ownerNum, self->clipmask );
 
@@ -595,7 +595,7 @@ void AHive_SearchAndDestroy( gentity_t *self )
   {
     VectorSubtract( self->target_ent->r.currentOrigin, self->r.currentOrigin, dir );
     VectorNormalize( dir );
-    
+
     //change direction towards the player
     VectorScale( dir, HIVE_SPEED, self->s.pos.trDelta );
     SnapVector( self->s.pos.trDelta );      // save net bandwidth

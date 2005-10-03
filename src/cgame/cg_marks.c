@@ -14,7 +14,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
-                    
+
 #include "cg_local.h"
 
 /*
@@ -47,7 +47,7 @@ void CG_InitMarkPolys( void )
   cg_activeMarkPolys.nextMark = &cg_activeMarkPolys;
   cg_activeMarkPolys.prevMark = &cg_activeMarkPolys;
   cg_freeMarkPolys = cg_markPolys;
-  
+
   for( i = 0; i < MAX_MARK_POLYS - 1; i++ )
     cg_markPolys[ i ].nextMark = &cg_markPolys[ i + 1 ];
 }
@@ -89,7 +89,7 @@ markPoly_t *CG_AllocMark( void )
     // no free entities, so free the one at the end of the chain
     // remove the oldest active entity
     time = cg_activeMarkPolys.prevMark->time;
-    
+
     while( cg_activeMarkPolys.prevMark && time == cg_activeMarkPolys.prevMark->time )
       CG_FreeMarkPoly( cg_activeMarkPolys.prevMark );
   }
@@ -123,7 +123,7 @@ passed to the renderer.
 #define MAX_MARK_FRAGMENTS  128
 #define MAX_MARK_POINTS   384
 
-void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir, 
+void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
                     float orientation, float red, float green, float blue, float alpha,
                     qboolean alphaFade, float radius, qboolean temporary )
 {
@@ -216,7 +216,7 @@ void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
     mark->color[ 2 ] = blue;
     mark->color[ 3 ] = alpha;
     memcpy( mark->verts, verts, mf->numPoints * sizeof( verts[ 0 ] ) );
-    markTotal++;    
+    markTotal++;
   }
 }
 

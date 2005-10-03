@@ -165,18 +165,18 @@ typedef enum
 typedef struct pMoveValues_u
 {
   pDirType_t  dirType;
-  
+
   //PMD_LINEAR
-  vec3_t      dir; 
+  vec3_t      dir;
   float       dirRandAngle;
-  
+
   //PMD_POINT
   vec3_t      point;
   float       pointRandAngle;
-  
+
   float       mag;
   float       magRandFrac;
-  
+
   float       parentVelFrac;
   float       parentVelFracRandFrac;
 } pMoveValues_t;
@@ -185,10 +185,10 @@ typedef struct pLerpValues_s
 {
   int   delay;
   float delayRandFrac;
-  
+
   float initial;
   float initialRandFrac;
-  
+
   float final;
   float finalRandFrac;
 
@@ -201,10 +201,10 @@ typedef struct baseParticle_s
   vec3_t          displacement;
   float           randDisplacement;
   float           normalDisplacement;
-  
+
   pMoveType_t     velMoveType;
   pMoveValues_t   velMoveValues;
-  
+
   pMoveType_t     accMoveType;
   pMoveValues_t   accMoveValues;
 
@@ -224,7 +224,7 @@ typedef struct baseParticle_s
 
   char            onDeathSystemName[ MAX_QPATH ];
   qhandle_t       onDeathSystemHandle;
-  
+
   //particle invariant stuff
   char            shaderNames[ MAX_QPATH ][ MAX_SHADER_FRAMES ];
   qhandle_t       shaders[ MAX_SHADER_FRAMES ];
@@ -242,7 +242,7 @@ typedef struct baseParticleEjector_s
 {
   baseParticle_t  *particles[ MAX_PARTICLES_PER_EJECTOR ];
   int             numParticles;
-  
+
   pLerpValues_t   eject;          //zero period indicates creation of all particles at once
 
   int             totalParticles;         //can be infinite
@@ -288,13 +288,13 @@ typedef struct psAttachment_s
 
   //PMT_STATIC
   vec3_t      origin;
-  
+
   //PMT_TAG
   refEntity_t re;     //FIXME: should be pointers?
   refEntity_t parent; //
   qhandle_t   model;
   char        tagName[ MAX_STRING_CHARS ];
-  
+
   //PMT_CENT_ANGLES
   int         centNum;
 
@@ -306,14 +306,14 @@ typedef struct psAttachment_s
 typedef struct particleSystem_s
 {
   baseParticleSystem_t  *class;
-  
+
   psAttachmentType_t    attachType;
   psAttachment_t        attachment;
   qboolean              attached;   //is the particle system attached to anything
 
   qboolean              valid;
   qboolean              lazyRemove; //mark this system for later removal
-  
+
 } particleSystem_t;
 
 
@@ -326,9 +326,9 @@ typedef struct particleEjector_s
 
   int                   count;
   int                   totalParticles;
-  
+
   int                   nextEjectionTime;
-  
+
   qboolean              valid;
 } particleEjector_t;
 
@@ -338,13 +338,13 @@ typedef struct particle_s
 {
   baseParticle_t    *class;
   particleEjector_t *parent;
-  
+
   int               birthTime;
   int               lifeTime;
-  
+
   vec3_t            origin;
   vec3_t            velocity;
-  
+
   pMoveType_t       accMoveType;
   pMoveValues_t     accMoveValues;
 
@@ -355,7 +355,7 @@ typedef struct particle_s
   pLerpValues_t     radius;
   pLerpValues_t     alpha;
   pLerpValues_t     rotation;
-  
+
   qboolean          valid;
 
   int               sortKey;
@@ -402,7 +402,7 @@ typedef struct
 {
   float     time;
   float     timeMod;
-  
+
   vec3_t    rotAxis;
   float     rotAngle;
 } smooth_t;
@@ -494,7 +494,7 @@ typedef struct centity_s
 
   particleSystem_t      *entityPS;
   qboolean              entityPSMissing;
-  
+
   qboolean              valid;
   qboolean              oldValid;
 } centity_t;
@@ -651,12 +651,12 @@ typedef struct
   char        headSkinName[ MAX_QPATH ];
   char        redTeam[ MAX_TEAMNAME ];
   char        blueTeam[ MAX_TEAMNAME ];
-        
+
   qboolean    newAnims;                   // true if using the new mission pack animations
   qboolean    fixedlegs;                  // true if legs yaw is always the same as torso yaw
   qboolean    fixedtorso;                 // true if torso never changes yaw
   qboolean    nonsegmented;               // true if model is Q2 style nonsegmented
-    
+
   vec3_t      headOffset;                 // move head in icon views
   footstep_t  footsteps;
   gender_t    gender;                     // from model
@@ -750,7 +750,7 @@ typedef struct weaponInfo_s
   sfxHandle_t       readySound;
 
   qboolean          disableIn3rdPerson;
-  
+
   weaponInfoMode_t  wim[ WPM_NUM_WEAPONMODES ];
 } weaponInfo_t;
 
@@ -766,7 +766,7 @@ typedef struct
 {
   qboolean    looped;
   qboolean    enabled;
-  
+
   sfxHandle_t sound;
 } sound_t;
 
@@ -790,13 +790,13 @@ typedef struct
   vec3_t    alienBuildablePos[ MAX_GENTITIES ];
   int       alienBuildableTimes[ MAX_GENTITIES ];
   int       numAlienBuildables;
-  
+
   vec3_t    humanBuildablePos[ MAX_GENTITIES ];
   int       numHumanBuildables;
-  
+
   vec3_t    alienClientPos[ MAX_CLIENTS ];
   int       numAlienClients;
-  
+
   vec3_t    humanClientPos[ MAX_CLIENTS ];
   int       numHumanClients;
 
@@ -827,7 +827,7 @@ typedef struct
 
   qboolean      demoPlayback;
   qboolean      levelShot;                          // taking a level menu screenshot
-  int           deferredPlayerLoading;              
+  int           deferredPlayerLoading;
   qboolean      loading;                            // don't defer players at initial startup
   qboolean      intermissionStarted;                // don't play voice rewards, because game will end shortly
 
@@ -962,7 +962,7 @@ typedef struct
   int           voiceChatTime;
   int           voiceChatBufferIn;
   int           voiceChatBufferOut;
-        
+
   // warmup countdown
   int           warmup;
   int           warmupCount;
@@ -1015,9 +1015,9 @@ typedef struct
   int           weapon1Time;                        //TA: time when BUTTON_ATTACK went t->f f->t
   int           weapon2Time;                        //TA: time when BUTTON_ATTACK2 went t->f f->t
   int           weapon3Time;                        //TA: time when BUTTON_USE_HOLDABLE went t->f f->t
-  qboolean      weapon1Firing;                      
-  qboolean      weapon2Firing;                      
-  qboolean      weapon3Firing;                      
+  qboolean      weapon1Firing;
+  qboolean      weapon2Firing;
+  qboolean      weapon3Firing;
 
   int           poisonedTime;
 
@@ -1040,7 +1040,7 @@ typedef struct
   consoleLine_t consoleLines[ MAX_CONSOLE_LINES ];
   int           numConsoleLines;
   qboolean      consoleValid;
-  
+
   particleSystem_t *poisonCloudPS;
 } cg_t;
 
@@ -1085,7 +1085,7 @@ typedef struct
 
   qhandle_t   gibSpark1;
   qhandle_t   gibSpark2;
-  
+
   qhandle_t   smoke2;
 
   qhandle_t   machinegunBrassModel;
@@ -1120,7 +1120,7 @@ typedef struct
 
   qhandle_t   flameExplShader;
   qhandle_t   creepShader;
-  
+
   qhandle_t   scannerShader;
   qhandle_t   scannerBlipShader;
   qhandle_t   scannerLineShader;
@@ -1160,8 +1160,6 @@ typedef struct
   // sounds
   sfxHandle_t tracerSound;
   sfxHandle_t selectSound;
-  sfxHandle_t useNothingSound;
-  sfxHandle_t wearOffSound;
   sfxHandle_t footsteps[ FOOTSTEP_TOTAL ][ 4 ];
   sfxHandle_t gibSound;
   sfxHandle_t gibBounce1Sound;
@@ -1170,12 +1168,10 @@ typedef struct
   sfxHandle_t metalGibBounceSound;
   sfxHandle_t teleInSound;
   sfxHandle_t teleOutSound;
-  sfxHandle_t noAmmoSound;
   sfxHandle_t respawnSound;
   sfxHandle_t talkSound;
   sfxHandle_t landSound;
   sfxHandle_t fallSound;
-  sfxHandle_t jumpPadSound;
 
   sfxHandle_t hgrenb1aSound;
   sfxHandle_t hgrenb2aSound;
@@ -1191,20 +1187,20 @@ typedef struct
   sfxHandle_t jetpackDescendSound;
   sfxHandle_t jetpackIdleSound;
   sfxHandle_t jetpackAscendSound;
-  
+
   qhandle_t   jetPackDescendPS;
   qhandle_t   jetPackHoverPS;
   qhandle_t   jetPackAscendPS;
-  
+
   sfxHandle_t medkitUseSound;
-  
+
   sfxHandle_t alienStageTransition;
   sfxHandle_t humanStageTransition;
-  
+
   sfxHandle_t alienOvermindAttack;
   sfxHandle_t alienOvermindDying;
   sfxHandle_t alienOvermindSpawns;
-  
+
   sfxHandle_t alienBuildableExplosion;
   sfxHandle_t alienBuildableDamage;
   sfxHandle_t alienBuildablePrebuild;
@@ -1215,7 +1211,7 @@ typedef struct
   sfxHandle_t alienL1Grab;
   sfxHandle_t alienL4ChargePrepare;
   sfxHandle_t alienL4ChargeStart;
-  
+
   qhandle_t   cursor;
   qhandle_t   selectCursor;
   qhandle_t   sizeCursor;
@@ -1227,13 +1223,13 @@ typedef struct
   qhandle_t larmourHeadSkin;
   qhandle_t larmourLegsSkin;
   qhandle_t larmourTorsoSkin;
-  
+
   qhandle_t jetpackModel;
   qhandle_t jetpackFlashModel;
   qhandle_t battpackModel;
-  
+
   sfxHandle_t repeaterUseSound;
-  
+
   sfxHandle_t buildableRepairSound;
   sfxHandle_t buildableRepairedSound;
 
@@ -1242,7 +1238,7 @@ typedef struct
   qhandle_t   alienAcidTubePS;
 
   sfxHandle_t alienEvolveSound;
-  
+
   qhandle_t   humanBuildableDamagedPS;
   qhandle_t   humanBuildableDestroyedPS;
   qhandle_t   alienBuildableDamagedPS;
@@ -1309,7 +1305,7 @@ typedef struct
   int           humanKills;
   int           alienNextStageThreshold;
   int           humanNextStageThreshold;
-  
+
   int           numAlienSpawns;
   int           numHumanSpawns;
 
@@ -1320,13 +1316,13 @@ typedef struct
   qhandle_t     gameShaders[ MAX_SHADERS ];
   qhandle_t     gameParticleSystems[ MAX_GAME_PARTICLE_SYSTEMS ];
   sfxHandle_t   gameSounds[ MAX_SOUNDS ];
-  
+
   int           numInlineModels;
   qhandle_t     inlineDrawModel[ MAX_MODELS ];
   vec3_t        inlineModelMidpoints[ MAX_MODELS ];
 
   clientInfo_t  clientinfo[ MAX_CLIENTS ];
-  
+
   //TA: corpse info
   clientInfo_t  corpseinfo[ MAX_CLIENTS ];
 
@@ -1612,9 +1608,9 @@ void        CG_ModelDoor( centity_t *cent );
 
 void        CG_BuildSolidList( void );
 int         CG_PointContents( const vec3_t point, int passEntityNum );
-void        CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, 
+void        CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
                       int skipNumber, int mask );
-void        CG_CapTrace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, 
+void        CG_CapTrace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
                          int skipNumber, int mask );
 void        CG_PredictPlayerState( void );
 
@@ -1735,7 +1731,7 @@ int           CG_AddTrailJunc( int headJuncIndex, qhandle_t shader, int spawnTim
 int           CG_AddSparkJunc( int headJuncIndex, qhandle_t shader, vec3_t pos, int trailLife,
                              float alphaStart, float alphaEnd, float startWidth, float endWidth );
 int           CG_AddSmokeJunc( int headJuncIndex, qhandle_t shader, vec3_t pos, int trailLife,
-                             float alpha, float startWidth, float endWidth ); 
+                             float alpha, float startWidth, float endWidth );
 int           CG_AddFireJunc( int headJuncIndex, qhandle_t shader, vec3_t pos, int trailLife,
                             float alpha, float startWidth, float endWidth );
 void          CG_AddTrails( void );
@@ -1788,7 +1784,7 @@ void                CG_DestroyParticleSystem( particleSystem_t **ps );
 
 qboolean            CG_IsParticleSystemInfinite( particleSystem_t *ps );
 qboolean            CG_IsParticleSystemValid( particleSystem_t **ps );
-  
+
 void                CG_SetParticleSystemCent( particleSystem_t *ps, centity_t *cent );
 void                CG_AttachParticleSystemToCent( particleSystem_t *ps );
 void                CG_SetParticleSystemTag( particleSystem_t *ps, refEntity_t parent, qhandle_t model, char *tagName );
@@ -1805,10 +1801,10 @@ void                CG_ParticleSystemEntity( centity_t *cent );
 
 //
 // cg_ptr.c
-// 
+//
 int   CG_ReadPTRCode( void );
 void  CG_WritePTRCode( int code );
-  
+
 //
 //===============================================
 
@@ -1937,7 +1933,7 @@ void          trap_R_SetColor( const float *rgba ); // NULL = 1,1,1,1
 void          trap_R_DrawStretchPic( float x, float y, float w, float h,
                                      float s1, float t1, float s2, float t2, qhandle_t hShader );
 void          trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs );
-int           trap_R_LerpTag( orientation_t *tag, clipHandle_t mod, int startFrame, int endFrame, 
+int           trap_R_LerpTag( orientation_t *tag, clipHandle_t mod, int startFrame, int endFrame,
                               float frac, const char *tagName );
 void          trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
 

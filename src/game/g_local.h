@@ -14,7 +14,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
-                  
+
 #include "q_shared.h"
 #include "bg_public.h"
 #include "g_public.h"
@@ -50,12 +50,12 @@ typedef enum
   MOVER_POS2,
   MOVER_1TO2,
   MOVER_2TO1,
-  
+
   ROTATOR_POS1,
   ROTATOR_POS2,
   ROTATOR_1TO2,
   ROTATOR_2TO1,
-  
+
   MODEL_POS1,
   MODEL_POS2,
   MODEL_1TO2,
@@ -186,7 +186,7 @@ struct gentity_s
 
   pTeam_t           stageTeam;
   stage_t           stageStage;
-  
+
   int               biteam;       //TA: buildable item team
   gentity_t         *parentNode;  //TA: for creep and defence/spawn dependencies
   qboolean          active;       //TA: for power repeater, but could be useful elsewhere
@@ -228,7 +228,7 @@ struct gentity_s
   int               triggerGravity;                 //TA: gravity for this trigger
 
   int               suicideTime;  //TA: when the client will suicide
-  
+
   int               lastDamageTime;
 };
 
@@ -357,7 +357,7 @@ struct gclient_s
   int                 latched_buttons;
 
   vec3_t              oldOrigin;
-  
+
   // sum up damage over an entire frame, so
   // shotgun blasts give a single big kick
   int                 damage_armor;     // damage absorbed by armor
@@ -429,7 +429,7 @@ struct gclient_s
 typedef struct spawnQueue_s
 {
   int clients[ MAX_CLIENTS ];
-  
+
   int front, back;
 } spawnQueue_t;
 
@@ -453,7 +453,7 @@ typedef struct damageRegion_s
 {
   float     minHeight, maxHeight;
   int       minAngle, maxAngle;
-  
+
   float     modifier;
 
   qboolean  crouch;
@@ -467,7 +467,7 @@ typedef struct armourRegion_s
 {
   float     minHeight, maxHeight;
   int       minAngle, maxAngle;
-  
+
   float     modifier;
 
   qboolean  crouch;
@@ -560,18 +560,18 @@ typedef struct
   //TA: extra stuff:
   int               numAlienSpawns;
   int               numHumanSpawns;
-  
+
   int               numAlienClients;
   int               numHumanClients;
-  
+
   float             averageNumAlienClients;
   int               numAlienSamples;
   float             averageNumHumanClients;
   int               numHumanSamples;
-  
+
   int               numLiveAlienClients;
   int               numLiveHumanClients;
-  
+
   int               alienBuildPoints;
   int               humanBuildPoints;
   int               humanBuildPointsPowered;
@@ -625,14 +625,14 @@ void G_Physics( gentity_t *ent, int msec );
 typedef enum
 {
   IBE_NONE,
-  
+
   IBE_NOOVERMIND,
   IBE_OVERMIND,
   IBE_NOASSERT,
   IBE_SPWNWARN,
   IBE_NOCREEP,
   IBE_HOVELEXIT,
-  
+
   IBE_REACTOR,
   IBE_REPEATER,
   IBE_TNODEWARN,
@@ -640,7 +640,7 @@ typedef enum
   IBE_RPTWARN2,
   IBE_NOPOWER,
   IBE_NODCC,
-  
+
   IBE_NORMAL,
   IBE_NOROOM,
   IBE_PERMISSION,
@@ -649,12 +649,13 @@ typedef enum
 } itemBuildError_t;
 
 qboolean          AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideExit );
-gentity_t         *G_CheckSpawnPoint( vec3_t origin, vec3_t normal, buildable_t spawn, vec3_t spawnOrigin );
+gentity_t         *G_CheckSpawnPoint( int spawnNum, vec3_t origin, vec3_t normal,
+                    buildable_t spawn, vec3_t spawnOrigin );
 
 qboolean          G_isPower( vec3_t origin );
 qboolean          G_isDCC( void );
 qboolean          G_isOvermind( void );
-  
+
 void              G_BuildableThink( gentity_t *ent, int msec );
 qboolean          G_BuildableRange( vec3_t origin, float r, buildable_t buildable );
 itemBuildError_t  G_itemFits( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin );
@@ -947,9 +948,9 @@ typedef enum
 typedef struct mapRotationCondition_s
 {
   char                    dest[ MAX_QPATH ];
-  
+
   qboolean                unconditional;
-  
+
   mapConditionVariable_t  lhs;
   mapConditionOperator_t  op;
 
@@ -960,7 +961,7 @@ typedef struct mapRotationCondition_s
 typedef struct mapRotationEntry_s
 {
   char                    name[ MAX_QPATH ];
-  
+
   char                    postCmds[ MAX_QPATH ][ MAX_MAP_COMMANDS ];
   int                     numCmds;
 
@@ -971,7 +972,7 @@ typedef struct mapRotationEntry_s
 typedef struct mapRotation_s
 {
   char                name[ MAX_QPATH ];
-  
+
   mapRotationEntry_t  maps[ MAX_MAP_ROTATION_MAPS ];
   int                 numMaps;
   int                 currentMap;
@@ -989,7 +990,7 @@ qboolean  G_StartMapRotation( char *name, qboolean changeMap );
 void      G_StopMapRotation( void );
 qboolean  G_MapRotationActive( void );
 void      G_InitMapRotations( void );
-  
+
 //
 // g_ptr.c
 //

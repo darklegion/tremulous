@@ -41,7 +41,7 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage )
 
   // the lower on health you are, the greater the view kick will be
   health = cg.snap->ps.stats[STAT_HEALTH];
-  
+
   if( health < 40 )
     scale = 1;
   else
@@ -51,7 +51,7 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage )
 
   if( kick < 5 )
     kick = 5;
-  
+
   if( kick > 10 )
     kick = 10;
 
@@ -84,12 +84,12 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage )
     dir[ 1 ] = left;
     dir[ 2 ] = 0;
     dist = VectorLength( dir );
-    
+
     if( dist < 0.1f )
       dist = 0.1f;
 
     cg.v_dmg_roll = kick * left;
-    
+
     cg.v_dmg_pitch = -kick * front;
 
     if( front <= 0.1 )
@@ -102,7 +102,7 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage )
   // clamp the position
   if( cg.damageX > 1.0 )
     cg.damageX = 1.0;
-  
+
   if( cg.damageX < - 1.0 )
     cg.damageX = -1.0;
 
@@ -200,7 +200,7 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps )
   centity_t *cent;
 
   cent = &cg.predictedPlayerEntity;
-  
+
   for( i = ps->eventSequence - MAX_PS_EVENTS; i < ps->eventSequence; i++ )
   {
     //

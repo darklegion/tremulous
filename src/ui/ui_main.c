@@ -202,20 +202,7 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 
 
 void AssetCache() {
-  int n;
-  //if (Assets.textFont == NULL) {
-  //}
-  //Assets.background = trap_R_RegisterShaderNoMip( ASSET_BACKGROUND );
-  //Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
   uiInfo.uiDC.Assets.gradientBar = trap_R_RegisterShaderNoMip( ASSET_GRADIENTBAR );
-  uiInfo.uiDC.Assets.fxBasePic = trap_R_RegisterShaderNoMip( ART_FX_BASE );
-  uiInfo.uiDC.Assets.fxPic[0] = trap_R_RegisterShaderNoMip( ART_FX_RED );
-  uiInfo.uiDC.Assets.fxPic[1] = trap_R_RegisterShaderNoMip( ART_FX_YELLOW );
-  uiInfo.uiDC.Assets.fxPic[2] = trap_R_RegisterShaderNoMip( ART_FX_GREEN );
-  uiInfo.uiDC.Assets.fxPic[3] = trap_R_RegisterShaderNoMip( ART_FX_TEAL );
-  uiInfo.uiDC.Assets.fxPic[4] = trap_R_RegisterShaderNoMip( ART_FX_BLUE );
-  uiInfo.uiDC.Assets.fxPic[5] = trap_R_RegisterShaderNoMip( ART_FX_CYAN );
-  uiInfo.uiDC.Assets.fxPic[6] = trap_R_RegisterShaderNoMip( ART_FX_WHITE );
   uiInfo.uiDC.Assets.scrollBar = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR );
   uiInfo.uiDC.Assets.scrollBarArrowDown = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
   uiInfo.uiDC.Assets.scrollBarArrowUp = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWUP );
@@ -224,12 +211,6 @@ void AssetCache() {
   uiInfo.uiDC.Assets.scrollBarThumb = trap_R_RegisterShaderNoMip( ASSET_SCROLL_THUMB );
   uiInfo.uiDC.Assets.sliderBar = trap_R_RegisterShaderNoMip( ASSET_SLIDER_BAR );
   uiInfo.uiDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
-
-  for( n = 0; n < NUM_CROSSHAIRS; n++ ) {
-    uiInfo.uiDC.Assets.crosshairShader[n] = trap_R_RegisterShaderNoMip( va("gfx/2d/crosshair%c", 'a' + n ) );
-  }
-
-  /*uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/voc_newhighscore.wav", qfalse);*/
 }
 
 void _UI_DrawSides(float x, float y, float w, float h, float size) {
@@ -381,10 +362,10 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
           int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
           colorBlack[3] = newColor[3];
           trap_R_SetColor( colorBlack );
-          Text_PaintChar(x + ofs, y - yadj + ofs, 
+          Text_PaintChar(x + ofs, y - yadj + ofs,
                             glyph->imageWidth,
                             glyph->imageHeight,
-                            useScale, 
+                            useScale,
                             glyph->s,
                             glyph->t,
                             glyph->s2,
@@ -401,19 +382,19 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
           glow[ 1 ] = newColor[ 1 ] * 0.5;
           glow[ 2 ] = newColor[ 2 ] * 0.5;
           glow[ 3 ] = newColor[ 3 ] * 0.2;
-          
+
           outer[ 0 ] = newColor[ 0 ];
           outer[ 1 ] = newColor[ 1 ];
           outer[ 2 ] = newColor[ 2 ];
           outer[ 3 ] = newColor[ 3 ];
-          
+
           inner[ 0 ] = newColor[ 0 ] * 1.5 > 1.0f ? 1.0f : newColor[ 0 ] * 1.5;
           inner[ 1 ] = newColor[ 1 ] * 1.5 > 1.0f ? 1.0f : newColor[ 1 ] * 1.5;
           inner[ 2 ] = newColor[ 2 ] * 1.5 > 1.0f ? 1.0f : newColor[ 2 ] * 1.5;
           inner[ 3 ] = newColor[ 3 ];
 
           white[ 0 ] = white[ 1 ] = white[ 2 ] = white[ 3 ] = 1.0f;
-          
+
           trap_R_SetColor( glow );
           Text_PaintChar( x - 1.5, y - yadj - 1.5,
                           glyph->imageWidth + 3,
@@ -424,7 +405,7 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
                           glyph->s2,
                           glyph->t2,
                           glyph->glyph );
-          
+
           trap_R_SetColor( outer );
           Text_PaintChar( x - 1, y - yadj - 1,
                           glyph->imageWidth + 2,
@@ -435,7 +416,7 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
                           glyph->s2,
                           glyph->t2,
                           glyph->glyph );
-          
+
           trap_R_SetColor( inner );
           Text_PaintChar( x - 0.5, y - yadj - 0.5,
                           glyph->imageWidth + 1,
@@ -446,14 +427,14 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
                           glyph->s2,
                           glyph->t2,
                           glyph->glyph );
-          
+
           trap_R_SetColor( white );
         }
-        
-        Text_PaintChar(x, y - yadj, 
+
+        Text_PaintChar(x, y - yadj,
                           glyph->imageWidth,
                           glyph->imageHeight,
-                          useScale, 
+                          useScale,
                           glyph->s,
                           glyph->t,
                           glyph->s2,
@@ -506,10 +487,10 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
           int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
           colorBlack[3] = newColor[3];
           trap_R_SetColor( colorBlack );
-          Text_PaintChar(x + ofs, y - yadj + ofs, 
+          Text_PaintChar(x + ofs, y - yadj + ofs,
                             glyph->imageWidth,
                             glyph->imageHeight,
-                            useScale, 
+                            useScale,
                             glyph->s,
                             glyph->t,
                             glyph->s2,
@@ -526,19 +507,19 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
           glow[ 1 ] = newColor[ 1 ] * 0.5;
           glow[ 2 ] = newColor[ 2 ] * 0.5;
           glow[ 3 ] = newColor[ 3 ] * 0.2;
-          
+
           outer[ 0 ] = newColor[ 0 ];
           outer[ 1 ] = newColor[ 1 ];
           outer[ 2 ] = newColor[ 2 ];
           outer[ 3 ] = newColor[ 3 ];
-          
+
           inner[ 0 ] = newColor[ 0 ] * 1.5 > 1.0f ? 1.0f : newColor[ 0 ] * 1.5;
           inner[ 1 ] = newColor[ 1 ] * 1.5 > 1.0f ? 1.0f : newColor[ 1 ] * 1.5;
           inner[ 2 ] = newColor[ 2 ] * 1.5 > 1.0f ? 1.0f : newColor[ 2 ] * 1.5;
           inner[ 3 ] = newColor[ 3 ];
 
           white[ 0 ] = white[ 1 ] = white[ 2 ] = white[ 3 ] = 1.0f;
-          
+
           trap_R_SetColor( glow );
           Text_PaintChar( x - 1.5, y - yadj - 1.5,
                           glyph->imageWidth + 3,
@@ -549,7 +530,7 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
                           glyph->s2,
                           glyph->t2,
                           glyph->glyph );
-          
+
           trap_R_SetColor( outer );
           Text_PaintChar( x - 1, y - yadj - 1,
                           glyph->imageWidth + 2,
@@ -560,7 +541,7 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
                           glyph->s2,
                           glyph->t2,
                           glyph->glyph );
-          
+
           trap_R_SetColor( inner );
           Text_PaintChar( x - 0.5, y - yadj - 0.5,
                           glyph->imageWidth + 1,
@@ -571,14 +552,14 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
                           glyph->s2,
                           glyph->t2,
                           glyph->glyph );
-          
+
           trap_R_SetColor( white );
         }
-        
-        Text_PaintChar(x, y - yadj, 
+
+        Text_PaintChar(x, y - yadj,
                           glyph->imageWidth,
                           glyph->imageHeight,
-                          useScale, 
+                          useScale,
                           glyph->s,
                           glyph->t,
                           glyph->s2,
@@ -588,10 +569,10 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
         // CG_DrawPic(x, y - yadj, scale * uiDC.Assets.textFont.glyphs[text[i]].imageWidth, scale * uiDC.Assets.textFont.glyphs[text[i]].imageHeight, uiDC.Assets.textFont.glyphs[text[i]].glyph);
         yadj = useScale * glyph2->top;
         if (count == cursorPos && !((uiInfo.uiDC.realTime/BLINK_DIVISOR) & 1)) {
-          Text_PaintChar(x, y - yadj, 
+          Text_PaintChar(x, y - yadj,
                             glyph2->imageWidth,
                             glyph2->imageHeight,
-                            useScale, 
+                            useScale,
                             glyph2->s,
                             glyph2->t,
                             glyph2->s2,
@@ -607,10 +588,10 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
     // need to paint cursor at end of text
     if (cursorPos == len && !((uiInfo.uiDC.realTime/BLINK_DIVISOR) & 1)) {
         yadj = useScale * glyph2->top;
-        Text_PaintChar(x, y - yadj, 
+        Text_PaintChar(x, y - yadj,
                           glyph2->imageWidth,
                           glyph2->imageHeight,
-                          useScale, 
+                          useScale,
                           glyph2->s,
                           glyph2->t,
                           glyph2->s2,
@@ -641,7 +622,7 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t 
     }
     useScale = scale * font->glyphScale;
     trap_R_SetColor( color );
-    len = strlen(text);          
+    len = strlen(text);
     if (limit > 0 && len > limit) {
       len = limit;
     }
@@ -660,10 +641,10 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t 
           *maxX = 0;
           break;
         }
-        Text_PaintChar(x, y - yadj, 
+        Text_PaintChar(x, y - yadj,
                        glyph->imageWidth,
                        glyph->imageHeight,
-                       useScale, 
+                       useScale,
                        glyph->s,
                        glyph->t,
                        glyph->s2,
@@ -745,8 +726,8 @@ void _UI_Refresh( int realtime )
     UI_BuildServerStatus(qfalse);
     // refresh find player list
     UI_BuildFindPlayerList(qfalse);
-  } 
-  
+  }
+
   // draw cursor
   UI_SetColor( NULL );
 
@@ -809,7 +790,7 @@ qboolean Asset_Parse(int handle) {
   if (Q_stricmp(token.string, "{") != 0) {
     return qfalse;
   }
-    
+
   while ( 1 ) {
 
     memset(&token, 0, sizeof(pc_token_t));
@@ -1032,7 +1013,7 @@ tremInfoPane_t *UI_FindInfoPaneByName( const char *name )
   uiInfo.tremInfoPanes[ i ].name = String_Alloc( name );
   strncpy( uiInfo.tremInfoPanes[ i ].text, "Not implemented.\n\nui/infopanes.def\n", MAX_INFOPANE_TEXT );
   Q_strcat( uiInfo.tremInfoPanes[ i ].text, MAX_INFOPANE_TEXT, String_Alloc( name ) );
-  
+
   uiInfo.tremInfoPaneCount++;
 
   return &uiInfo.tremInfoPanes[ i ];
@@ -1047,18 +1028,18 @@ qboolean UI_LoadInfoPane( int handle )
 {
   pc_token_t  token;
   qboolean    valid = qfalse;
-  
+
   while( 1 )
   {
     memset( &token, 0, sizeof( pc_token_t ) );
-    
+
     if( !trap_PC_ReadToken( handle, &token ) )
       break;
 
     if( !Q_stricmp( token.string, "name" ) )
     {
       memset( &token, 0, sizeof( pc_token_t ) );
-      
+
       if( !trap_PC_ReadToken( handle, &token ) )
         break;
 
@@ -1068,14 +1049,14 @@ qboolean UI_LoadInfoPane( int handle )
     else if( !Q_stricmp( token.string, "graphic" ) )
     {
       int *graphic;
-      
+
       memset( &token, 0, sizeof( pc_token_t ) );
-      
+
       if( !trap_PC_ReadToken( handle, &token ) )
         break;
 
       graphic = &uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].numGraphics;
-      
+
       if( !Q_stricmp( token.string, "top" ) )
         uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].side = INFOPANE_TOP;
       else if( !Q_stricmp( token.string, "bottom" ) )
@@ -1088,7 +1069,7 @@ qboolean UI_LoadInfoPane( int handle )
         break;
 
       memset( &token, 0, sizeof( pc_token_t ) );
-      
+
       if( !trap_PC_ReadToken( handle, &token ) )
         break;
 
@@ -1096,39 +1077,39 @@ qboolean UI_LoadInfoPane( int handle )
         uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].offset = -1;
       else
         uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].offset = token.intvalue;
-        
+
       memset( &token, 0, sizeof( pc_token_t ) );
-      
+
       if( !trap_PC_ReadToken( handle, &token ) )
         break;
-        
+
       uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].graphic =
         trap_R_RegisterShaderNoMip( token.string );
 
       memset( &token, 0, sizeof( pc_token_t ) );
-      
+
       if( !trap_PC_ReadToken( handle, &token ) )
         break;
-        
+
       uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].width = token.intvalue;
-        
+
       memset( &token, 0, sizeof( pc_token_t ) );
-      
+
       if( !trap_PC_ReadToken( handle, &token ) )
         break;
-        
+
       uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].height = token.intvalue;
-        
+
       //increment graphics
       (*graphic)++;
-      
+
       if( *graphic == MAX_INFOPANE_GRAPHICS )
         break;
     }
     else if( !Q_stricmp( token.string, "text" ) )
     {
       memset( &token, 0, sizeof( pc_token_t ) );
-      
+
       if( !trap_PC_ReadToken( handle, &token ) )
         break;
 
@@ -1137,7 +1118,7 @@ qboolean UI_LoadInfoPane( int handle )
     else if( !Q_stricmp( token.string, "align" ) )
     {
       memset( &token, 0, sizeof( pc_token_t ) );
-      
+
       if( !trap_PC_ReadToken( handle, &token ) )
         break;
 
@@ -1182,21 +1163,21 @@ void UI_LoadInfoPanes( const char *file )
   uiInfo.tremInfoPaneCount = count = 0;
 
   handle = trap_PC_LoadSource( file );
-  
+
   if( !handle )
   {
     trap_Error( va( S_COLOR_YELLOW "infopane file not found: %s\n", file ) );
     return;
   }
-  
+
   while( 1 )
   {
     if( !trap_PC_ReadToken( handle, &token ) )
       break;
-    
+
     if( token.string[ 0 ] == 0 )
       break;
-    
+
     if( token.string[ 0 ] == '{' )
     {
       if( UI_LoadInfoPane( handle ) )
@@ -1223,7 +1204,7 @@ qboolean Load_Menu(int handle) {
 
     if (!trap_PC_ReadToken(handle, &token))
       return qfalse;
-    
+
     if ( token.string[0] == 0 ) {
       return qfalse;
     }
@@ -1232,7 +1213,7 @@ qboolean Load_Menu(int handle) {
       return qtrue;
     }
 
-    UI_ParseMenu(token.string); 
+    UI_ParseMenu(token.string);
   }
   return qfalse;
 }
@@ -1364,7 +1345,7 @@ static int UI_TeamIndexFromName(const char *name) {
         return i;
       }
     }
-  } 
+  }
 
   return 0;
 
@@ -1425,7 +1406,7 @@ static void UI_DrawPreviewCinematic(rectDef_t *rect, float scale, vec4_t color) 
     } else {
       uiInfo.previewMovie = -2;
     }
-  } 
+  }
 
 }
 
@@ -1453,7 +1434,7 @@ static void UI_DrawInfoPane( tremInfoPane_t *pane, rectDef_t *rect, float text_x
     float width         = pane->graphics[ i ].width;
     float height        = pane->graphics[ i ].height;
     qhandle_t graphic = pane->graphics[ i ].graphic;
-    
+
     if( pane->graphics[ i ].side == INFOPANE_TOP || pane->graphics[ i ].side == INFOPANE_BOTTOM )
     {
       //set horizontal offset of graphic
@@ -1476,14 +1457,14 @@ static void UI_DrawInfoPane( tremInfoPane_t *pane, rectDef_t *rect, float text_x
       //set the horizontal offset of the text
       if( pane->graphics[ i ].width > maxLeft )
         maxLeft = pane->graphics[ i ].width + GRAPHIC_BWIDTH;
-    
+
       xoffset = GRAPHIC_BWIDTH;
     }
     else if( pane->graphics[ i ].side == INFOPANE_RIGHT )
     {
       if( pane->graphics[ i ].width > maxRight )
         maxRight = pane->graphics[ i ].width + GRAPHIC_BWIDTH;
-      
+
       xoffset = rect->w - width - GRAPHIC_BWIDTH;
     }
     else if( pane->graphics[ i ].side == INFOPANE_TOP )
@@ -1491,21 +1472,21 @@ static void UI_DrawInfoPane( tremInfoPane_t *pane, rectDef_t *rect, float text_x
       //set the vertical offset of the text
       if( pane->graphics[ i ].height > maxTop )
         maxTop = pane->graphics[ i ].height + GRAPHIC_BWIDTH;
-      
+
       yoffset = GRAPHIC_BWIDTH;
     }
     else if( pane->graphics[ i ].side == INFOPANE_BOTTOM )
     {
       if( pane->graphics[ i ].height > maxBottom )
         maxBottom = pane->graphics[ i ].height + GRAPHIC_BWIDTH;
-      
+
       yoffset = rect->h - height - GRAPHIC_BWIDTH;
     }
 
     //draw the graphic
     UI_DrawHandlePic( x + xoffset, y + yoffset, width, height, graphic );
   }
-  
+
   //offset the text
   x = rect->x + maxLeft;
   y = rect->y + maxTop;
@@ -1513,7 +1494,7 @@ static void UI_DrawInfoPane( tremInfoPane_t *pane, rectDef_t *rect, float text_x
   h = rect->h - ( maxTop + maxBottom );
 
   textItem.text = pane->text;
-    
+
   textItem.parent = &dummyParent;
   memcpy( textItem.window.foreColor, color, sizeof( vec4_t ) );
   textItem.window.flags = 0;
@@ -1536,7 +1517,7 @@ static void UI_DrawInfoPane( tremInfoPane_t *pane, rectDef_t *rect, float text_x
       textItem.window.rect.x = x;
       break;
   }
-  
+
   textItem.window.rect.y = y;
   textItem.window.rect.w = w;
   textItem.window.rect.h = h;
@@ -1598,11 +1579,6 @@ static void UI_DrawTeamMember(rectDef_t *rect, float scale, vec4_t color, qboole
   Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
 }
 
-static void UI_DrawEffects(rectDef_t *rect, float scale, vec4_t color) {
-  UI_DrawHandlePic( rect->x, rect->y - 14, 128, 8, uiInfo.uiDC.Assets.fxBasePic );
-  UI_DrawHandlePic( rect->x + uiInfo.effectsColor * 16 + 8, rect->y - 16, 16, 12, uiInfo.uiDC.Assets.fxPic[uiInfo.effectsColor] );
-}
-
 static void UI_DrawMapPreview(rectDef_t *rect, float scale, vec4_t color, qboolean net) {
   int map = (net) ? ui_currentNetMap.integer : ui_currentMap.integer;
   if (map < 0 || map > uiInfo.mapCount) {
@@ -1625,7 +1601,7 @@ static void UI_DrawMapPreview(rectDef_t *rect, float scale, vec4_t color, qboole
   } else {
     UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, trap_R_RegisterShaderNoMip("gfx/2d/load_screen"));
   }
-}            
+}
 
 
 static void UI_DrawMapTimeToBeat(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
@@ -1647,7 +1623,7 @@ static void UI_DrawMapTimeToBeat(rectDef_t *rect, float scale, vec4_t color, int
 
 static void UI_DrawMapCinematic(rectDef_t *rect, float scale, vec4_t color, qboolean net) {
 
-  int map = (net) ? ui_currentNetMap.integer : ui_currentMap.integer; 
+  int map = (net) ? ui_currentNetMap.integer : ui_currentMap.integer;
   if (map < 0 || map > uiInfo.mapCount) {
     if (net) {
       ui_currentNetMap.integer = 0;
@@ -1782,7 +1758,7 @@ static void UI_DrawTierMap(rectDef_t *rect, int index) {
   if (uiInfo.tierList[i].mapHandles[index] == -1) {
     uiInfo.tierList[i].mapHandles[index] = trap_R_RegisterShaderNoMip(va("levelshots/%s", uiInfo.tierList[i].maps[index]));
   }
-                         
+
   UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.tierList[i].mapHandles[index]);
 }
 
@@ -1843,9 +1819,9 @@ static void UI_DrawOpponent(rectDef_t *rect) {
   char team[256];
   vec3_t  viewangles;
   vec3_t  moveangles;
-  
+
   if (updateOpponentModel) {
-    
+
     strcpy(model, UI_Cvar_VariableString("ui_opponentModel"));
     strcpy(headmodel, UI_Cvar_VariableString("ui_opponentModel"));
     team[0] = '\0';
@@ -2108,7 +2084,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 static void UI_DrawBotName(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
   int value = uiInfo.botIndex;
   const char *text = "";
-  
+
   if( value >= UI_GetNumBots( ) )
     value = 0;
 
@@ -2125,15 +2101,6 @@ static void UI_DrawBotSkill(rectDef_t *rect, float scale, vec4_t color, int text
 
 static void UI_DrawRedBlue(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
   Text_Paint(rect->x, rect->y, scale, color, (uiInfo.redBlue == 0) ? "Red" : "Blue", 0, 0, textStyle);
-}
-
-static void UI_DrawCrosshair(rectDef_t *rect, float scale, vec4_t color) {
-  trap_R_SetColor( color );
-  if (uiInfo.currentCrosshair < 0 || uiInfo.currentCrosshair >= NUM_CROSSHAIRS) {
-    uiInfo.currentCrosshair = 0;
-  }
-  UI_DrawHandlePic( rect->x, rect->y - rect->h, rect->w, rect->h, uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]);
-  trap_R_SetColor( NULL );
 }
 
 /*
@@ -2201,10 +2168,10 @@ static void UI_DrawSelectedPlayer(rectDef_t *rect, float scale, vec4_t color, in
 static void UI_DrawServerRefreshDate(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
   if (uiInfo.serverStatus.refreshActive) {
     vec4_t lowLight, newColor;
-    lowLight[0] = 0.8 * color[0]; 
-    lowLight[1] = 0.8 * color[1]; 
-    lowLight[2] = 0.8 * color[2]; 
-    lowLight[3] = 0.8 * color[3]; 
+    lowLight[0] = 0.8 * color[0];
+    lowLight[1] = 0.8 * color[1];
+    lowLight[2] = 0.8 * color[2];
+    lowLight[3] = 0.8 * color[3];
     LerpColor(color,lowLight,newColor,0.5+0.5*sin(uiInfo.uiDC.realTime / PULSE_DIVISOR));
     Text_Paint(rect->x, rect->y, scale, newColor, va("Getting info for %d servers (ESC to cancel)", trap_LAN_GetServerCount(ui_netSource.integer)), 0, 0, textStyle);
   } else {
@@ -2217,7 +2184,7 @@ static void UI_DrawServerRefreshDate(rectDef_t *rect, float scale, vec4_t color,
 static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color) {
   if (uiInfo.serverStatus.motdLen) {
     float maxX;
-   
+
     if (uiInfo.serverStatus.motdWidth == -1) {
       uiInfo.serverStatus.motdWidth = 0;
       uiInfo.serverStatus.motdPaintX = rect->x + 1;
@@ -2256,10 +2223,10 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color) {
     }
 
     maxX = rect->x + rect->w - 2;
-    Text_Paint_Limit(&maxX, uiInfo.serverStatus.motdPaintX, rect->y + rect->h - 3, scale, color, &uiInfo.serverStatus.motd[uiInfo.serverStatus.motdOffset], 0, 0); 
+    Text_Paint_Limit(&maxX, uiInfo.serverStatus.motdPaintX, rect->y + rect->h - 3, scale, color, &uiInfo.serverStatus.motd[uiInfo.serverStatus.motdOffset], 0, 0);
     if (uiInfo.serverStatus.motdPaintX2 >= 0) {
       float maxX2 = rect->x + rect->w - 2;
-      Text_Paint_Limit(&maxX2, uiInfo.serverStatus.motdPaintX2, rect->y + rect->h - 3, scale, color, uiInfo.serverStatus.motd, 0, uiInfo.serverStatus.motdOffset); 
+      Text_Paint_Limit(&maxX2, uiInfo.serverStatus.motdPaintX2, rect->y + rect->h - 3, scale, color, uiInfo.serverStatus.motd, 0, uiInfo.serverStatus.motdOffset);
     }
     if (uiInfo.serverStatus.motdOffset && maxX > 0) {
       // if we have an offset ( we are skipping the first part of the string ) and we fit the string
@@ -2350,47 +2317,44 @@ static void UI_OwnerDraw( float x, float y, float w, float h,
       if( ( pane = uiInfo.tremTeamList[ uiInfo.tremTeamIndex ].infopane ) )
         UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
-      
+
     case UI_ACLASSINFOPANE:
       if( ( pane = uiInfo.tremAlienClassList[ uiInfo.tremAlienClassIndex ].infopane ) )
         UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
-      
+
     case UI_AUPGRADEINFOPANE:
       if( ( pane = uiInfo.tremAlienUpgradeList[ uiInfo.tremAlienUpgradeIndex ].infopane ) )
         UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
-      
+
     case UI_HITEMINFOPANE:
       if( ( pane = uiInfo.tremHumanItemList[ uiInfo.tremHumanItemIndex ].infopane ) )
         UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
-      
+
     case UI_HBUYINFOPANE:
       if( ( pane = uiInfo.tremHumanArmouryBuyList[ uiInfo.tremHumanArmouryBuyIndex ].infopane ) )
         UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
-      
+
     case UI_HSELLINFOPANE:
       if( ( pane = uiInfo.tremHumanArmourySellList[ uiInfo.tremHumanArmourySellIndex ].infopane ) )
         UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
-      
+
     case UI_ABUILDINFOPANE:
       if( ( pane = uiInfo.tremAlienBuildList[ uiInfo.tremAlienBuildIndex ].infopane ) )
         UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
-      
+
     case UI_HBUILDINFOPANE:
       if( ( pane = uiInfo.tremHumanBuildList[ uiInfo.tremHumanBuildIndex ].infopane ) )
         UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
       break;
-      
+
     case UI_HANDICAP:
       UI_DrawHandicap(&rect, scale, color, textStyle);
-      break;
-    case UI_EFFECTS:
-      UI_DrawEffects(&rect, scale, color);
       break;
     case UI_PLAYERMODEL:
       UI_DrawPlayerModel(&rect);
@@ -2520,9 +2484,6 @@ static void UI_OwnerDraw( float x, float y, float w, float h,
     case UI_REDBLUE:
       UI_DrawRedBlue(&rect, scale, color, textStyle);
       break;
-    case UI_CROSSHAIR:
-      UI_DrawCrosshair(&rect, scale, color);
-      break;
     case UI_SELECTEDPLAYER:
       UI_DrawSelectedPlayer(&rect, scale, color, textStyle);
       break;
@@ -2553,34 +2514,34 @@ static qboolean UI_OwnerDrawVisible(int flags) {
   trap_GetClientState( &cs );
   trap_GetConfigString( CS_PLAYERS + cs.clientNum, info, MAX_INFO_STRING );
   team = atoi( Info_ValueForKey( info, "t" ) );
-      
+
 
   while (flags) {
-    
+
     if( flags & UI_SHOW_NOTSPECTATING )
     {
       if( team == PTE_NONE )
         vis = qfalse;
-      
+
       flags &= ~UI_SHOW_NOTSPECTATING;
-    } 
-    
+    }
+
     if( flags & UI_SHOW_VOTEACTIVE )
     {
       if( !trap_Cvar_VariableValue( "ui_voteActive" ) )
         vis = qfalse;
-      
+
       flags &= ~UI_SHOW_VOTEACTIVE;
-    } 
-    
+    }
+
     if( flags & UI_SHOW_CANVOTE )
     {
       if( trap_Cvar_VariableValue( "ui_voteActive" ) )
         vis = qfalse;
-      
+
       flags &= ~UI_SHOW_CANVOTE;
-    } 
-    
+    }
+
     if( flags & UI_SHOW_TEAMVOTEACTIVE )
     {
       if( team == PTE_ALIENS )
@@ -2593,10 +2554,10 @@ static qboolean UI_OwnerDrawVisible(int flags) {
         if( !trap_Cvar_VariableValue( "ui_humanTeamVoteActive" ) )
           vis = qfalse;
       }
-      
+
       flags &= ~UI_SHOW_TEAMVOTEACTIVE;
-    } 
-    
+    }
+
     if( flags & UI_SHOW_CANTEAMVOTE )
     {
       if( team == PTE_ALIENS )
@@ -2609,47 +2570,47 @@ static qboolean UI_OwnerDrawVisible(int flags) {
         if( trap_Cvar_VariableValue( "ui_humanTeamVoteActive" ) )
           vis = qfalse;
       }
-      
+
       flags &= ~UI_SHOW_CANTEAMVOTE;
-    } 
-    
+    }
+
     if (flags & UI_SHOW_LEADER) {
       // these need to show when this client can give orders to a player or a group
       if (!uiInfo.teamLeader) {
         vis = qfalse;
       } else {
         // if showing yourself
-        if (ui_selectedPlayer.integer < uiInfo.myTeamCount && uiInfo.teamClientNums[ui_selectedPlayer.integer] == uiInfo.playerNumber) { 
+        if (ui_selectedPlayer.integer < uiInfo.myTeamCount && uiInfo.teamClientNums[ui_selectedPlayer.integer] == uiInfo.playerNumber) {
           vis = qfalse;
         }
       }
       flags &= ~UI_SHOW_LEADER;
-    } 
+    }
     if (flags & UI_SHOW_NOTLEADER) {
       // these need to show when this client is assigning their own status or they are NOT the leader
       if (uiInfo.teamLeader) {
         // if not showing yourself
-        if (!(ui_selectedPlayer.integer < uiInfo.myTeamCount && uiInfo.teamClientNums[ui_selectedPlayer.integer] == uiInfo.playerNumber)) { 
+        if (!(ui_selectedPlayer.integer < uiInfo.myTeamCount && uiInfo.teamClientNums[ui_selectedPlayer.integer] == uiInfo.playerNumber)) {
           vis = qfalse;
         }
         // these need to show when this client can give orders to a player or a group
       }
       flags &= ~UI_SHOW_NOTLEADER;
-    } 
+    }
     if (flags & UI_SHOW_FAVORITESERVERS) {
       // this assumes you only put this type of display flag on something showing in the proper context
       if (ui_netSource.integer != AS_FAVORITES) {
         vis = qfalse;
       }
       flags &= ~UI_SHOW_FAVORITESERVERS;
-    } 
+    }
     if (flags & UI_SHOW_NOTFAVORITESERVERS) {
       // this assumes you only put this type of display flag on something showing in the proper context
       if (ui_netSource.integer == AS_FAVORITES) {
         vis = qfalse;
       }
       flags &= ~UI_SHOW_NOTFAVORITESERVERS;
-    } 
+    }
     if (flags & UI_SHOW_NEWHIGHSCORE) {
       if (uiInfo.newHighScoreTime < uiInfo.uiDC.realTime) {
         vis = qfalse;
@@ -2663,13 +2624,13 @@ static qboolean UI_OwnerDrawVisible(int flags) {
         }
       }
       flags &= ~UI_SHOW_NEWHIGHSCORE;
-    } 
+    }
     if (flags & UI_SHOW_NEWBESTTIME) {
       if (uiInfo.newBestTime < uiInfo.uiDC.realTime) {
         vis = qfalse;
       }
       flags &= ~UI_SHOW_NEWBESTTIME;
-    } 
+    }
     if (flags & UI_SHOW_DEMOAVAILABLE) {
       if (!uiInfo.demoAvailable) {
         vis = qfalse;
@@ -2770,7 +2731,7 @@ static qboolean UI_GameType_HandleKey(int flags, float *special, int key, qboole
         ui_gameType.integer = 3;
       }
     }
-    
+
     trap_Cvar_Set("ui_Q3Model", "0");
 
     trap_Cvar_Set("ui_gameType", va("%d", ui_gameType.integer));
@@ -2798,7 +2759,7 @@ static qboolean UI_NetGameType_HandleKey(int flags, float *special, int key) {
       ui_netGameType.integer = uiInfo.numGameTypes - 1;
     } else if (ui_netGameType.integer >= uiInfo.numGameTypes) {
       ui_netGameType.integer = 0;
-    } 
+    }
 
     trap_Cvar_Set( "ui_netGameType", va("%d", ui_netGameType.integer));
     trap_Cvar_Set( "ui_actualnetGameType", va("%d", uiInfo.gameTypes[ui_netGameType.integer].gtEnum));
@@ -2907,7 +2868,7 @@ static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key, qboo
 
 static qboolean UI_NetSource_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
-    
+
     if (key == K_MOUSE2) {
       ui_netSource.integer--;
       if (ui_netSource.integer == AS_MPLAYER)
@@ -2981,7 +2942,7 @@ static qboolean UI_BotName_HandleKey(int flags, float *special, int key) {
       value = 0;
     else if( value < 0 )
       value = UI_GetNumBots( ) + 2 - 1;
-      
+
     uiInfo.botIndex = value;
     return qtrue;
   }
@@ -3026,7 +2987,7 @@ static qboolean UI_Crosshair_HandleKey(int flags, float *special, int key) {
     } else if (uiInfo.currentCrosshair < 0) {
       uiInfo.currentCrosshair = NUM_CROSSHAIRS - 1;
     }
-    trap_Cvar_Set("cg_drawCrosshair", va("%d", uiInfo.currentCrosshair)); 
+    trap_Cvar_Set("cg_drawCrosshair", va("%d", uiInfo.currentCrosshair));
     return qtrue;
   }
   return qfalse;
@@ -3043,7 +3004,7 @@ static qboolean UI_SelectedPlayer_HandleKey(int flags, float *special, int key) 
       return qfalse;
     }
     selected = trap_Cvar_VariableValue("cg_selectedPlayer");
-    
+
     if (key == K_MOUSE2) {
       selected--;
     } else {
@@ -3071,9 +3032,6 @@ static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, 
   switch (ownerDraw) {
     case UI_HANDICAP:
       return UI_Handicap_HandleKey(flags, special, key);
-      break;
-    case UI_EFFECTS:
-      return UI_Effects_HandleKey(flags, special, key);
       break;
     case UI_CLANNAME:
       return UI_ClanName_HandleKey(flags, special, key);
@@ -3127,9 +3085,6 @@ static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, 
       break;
     case UI_REDBLUE:
       UI_RedBlue_HandleKey(flags, special, key);
-      break;
-    case UI_CROSSHAIR:
-      UI_Crosshair_HandleKey(flags, special, key);
       break;
     case UI_SELECTEDPLAYER:
       UI_SelectedPlayer_HandleKey(flags, special, key);
@@ -3208,7 +3163,7 @@ static void UI_StartSinglePlayer() {
     }
     trap_Cmd_ExecuteText( EXEC_APPEND, "wait 5; team Red\n" );
   }
-  
+
 
 }
 */
@@ -3222,7 +3177,7 @@ static stage_t UI_GetCurrentAlienStage( void )
 {
   char    buffer[ MAX_TOKEN_CHARS ];
   stage_t stage, dummy;
-  
+
   trap_Cvar_VariableStringBuffer( "ui_stages", buffer, sizeof( buffer ) );
   sscanf( buffer, "%d %d", (int *)&stage , (int *)&dummy );
 
@@ -3238,7 +3193,7 @@ static stage_t UI_GetCurrentHumanStage( void )
 {
   char    buffer[ MAX_TOKEN_CHARS ];
   stage_t stage, dummy;
-  
+
   trap_Cvar_VariableStringBuffer( "ui_stages", buffer, sizeof( buffer ) );
   sscanf( buffer, "%d %d", (int *)&dummy, (int *)&stage );
 
@@ -3253,19 +3208,19 @@ UI_LoadTremTeams
 static void UI_LoadTremTeams( void )
 {
   uiInfo.tremTeamCount = 4;
-  
+
   uiInfo.tremTeamList[ 0 ].text = String_Alloc( "Aliens" );
   uiInfo.tremTeamList[ 0 ].cmd = String_Alloc( "cmd team aliens\n" );
   uiInfo.tremTeamList[ 0 ].infopane = UI_FindInfoPaneByName( "alienteam" );
-  
+
   uiInfo.tremTeamList[ 1 ].text = String_Alloc( "Humans" );
   uiInfo.tremTeamList[ 1 ].cmd = String_Alloc( "cmd team humans\n" );
   uiInfo.tremTeamList[ 1 ].infopane = UI_FindInfoPaneByName( "humanteam" );
-  
+
   uiInfo.tremTeamList[ 2 ].text = String_Alloc( "Spectate" );
   uiInfo.tremTeamList[ 2 ].cmd = String_Alloc( "cmd team spectate\n" );
   uiInfo.tremTeamList[ 2 ].infopane = UI_FindInfoPaneByName( "spectateteam" );
-  
+
   uiInfo.tremTeamList[ 3 ].text = String_Alloc( "Auto select" );
   uiInfo.tremTeamList[ 3 ].cmd = String_Alloc( "cmd team auto\n" );
   uiInfo.tremTeamList[ 3 ].infopane = UI_FindInfoPaneByName( "autoteam" );
@@ -3279,21 +3234,21 @@ UI_LoadTremAlienClasses
 static void UI_LoadTremAlienClasses( void )
 {
   pClass_t bClass;
-  
+
   uiInfo.tremAlienClassCount = 2;
-  
+
   uiInfo.tremAlienClassList[ 0 ].text =
     String_Alloc( BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL0 ) );
   uiInfo.tremAlienClassList[ 0 ].cmd =
     String_Alloc( va( "cmd class %s\n", BG_FindNameForClassNum( PCL_ALIEN_LEVEL0 ) ) );
   uiInfo.tremAlienClassList[ 0 ].infopane =
     UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( PCL_ALIEN_LEVEL0 ) ) );
-    
+
   if( BG_FindStagesForClass( PCL_ALIEN_BUILDER0_UPG, UI_GetCurrentAlienStage( ) ) )
     bClass = PCL_ALIEN_BUILDER0_UPG;
   else
     bClass = PCL_ALIEN_BUILDER0;
-  
+
   uiInfo.tremAlienClassList[ 1 ].text =
     String_Alloc( BG_FindHumanNameForClassNum( bClass ) );
   uiInfo.tremAlienClassList[ 1 ].cmd =
@@ -3319,12 +3274,12 @@ static void UI_LoadTremHumanItems( void )
     String_Alloc( va( "cmd class %s\n", BG_FindNameForWeapon( WP_MACHINEGUN ) ) );
   uiInfo.tremHumanItemList[ 0 ].infopane =
     UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( WP_MACHINEGUN ) ) );
-  
+
   if( BG_FindStagesForWeapon( WP_HBUILD2, UI_GetCurrentHumanStage( ) ) )
     bWeapon = WP_HBUILD2;
   else
     bWeapon = WP_HBUILD;
-  
+
   uiInfo.tremHumanItemList[ 1 ].text =
     String_Alloc( BG_FindHumanNameForWeapon( bWeapon ) );
   uiInfo.tremHumanItemList[ 1 ].cmd =
@@ -3345,7 +3300,7 @@ static void UI_ParseCarriageList( int *weapons, int *upgrades )
   char *iterator;
   char buffer[ MAX_TOKEN_CHARS ];
   char *bufPointer;
-  
+
   trap_Cvar_VariableStringBuffer( "ui_carriage", carriageCvar, sizeof( carriageCvar ) );
   iterator = carriageCvar;
 
@@ -3359,7 +3314,7 @@ static void UI_ParseCarriageList( int *weapons, int *upgrades )
   while( iterator && iterator[ 0 ] != '$' )
   {
     bufPointer = buffer;
-    
+
     if( iterator[ 0 ] == 'W' )
     {
       iterator++;
@@ -3384,7 +3339,7 @@ static void UI_ParseCarriageList( int *weapons, int *upgrades )
       *bufPointer++ = '\n';
 
       i = atoi( buffer );
-      
+
       if( upgrades )
         *upgrades |= ( 1 << i );
     }
@@ -3404,7 +3359,7 @@ static void UI_LoadTremHumanArmouryBuys( )
   stage_t stage = UI_GetCurrentHumanStage( );
   int weapons, upgrades;
   int slots = 0;
-  
+
   UI_ParseCarriageList( &weapons, &upgrades );
 
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
@@ -3412,15 +3367,15 @@ static void UI_LoadTremHumanArmouryBuys( )
     if( weapons & ( 1 << i ) )
       slots |= BG_FindSlotsForWeapon( i );
   }
-  
+
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
     if( upgrades & ( 1 << i ) )
       slots |= BG_FindSlotsForUpgrade( i );
   }
-  
+
   uiInfo.tremHumanArmouryBuyCount = 0;
-  
+
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
     if( BG_FindTeamForWeapon( i ) == WUT_HUMANS &&
@@ -3435,13 +3390,13 @@ static void UI_LoadTremHumanArmouryBuys( )
         String_Alloc( va( "cmd buy %s retrigger\n", BG_FindNameForWeapon( i ) ) );
       uiInfo.tremHumanArmouryBuyList[ j ].infopane =
         UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( i ) ) );
-      
+
       j++;
 
       uiInfo.tremHumanArmouryBuyCount++;
     }
   }
-  
+
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
     if( BG_FindTeamForUpgrade( i ) == WUT_HUMANS &&
@@ -3458,7 +3413,7 @@ static void UI_LoadTremHumanArmouryBuys( )
         UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForUpgrade( i ) ) );
 
       j++;
-      
+
       uiInfo.tremHumanArmouryBuyCount++;
     }
   }
@@ -3473,10 +3428,10 @@ static void UI_LoadTremHumanArmourySells( )
 {
   int weapons, upgrades;
   int i, j = 0;
-  
+
   uiInfo.tremHumanArmourySellCount = 0;
   UI_ParseCarriageList( &weapons, &upgrades );
-  
+
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
     if( weapons & ( 1 << i ) )
@@ -3488,11 +3443,11 @@ static void UI_LoadTremHumanArmourySells( )
         UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( i ) ) );
 
       j++;
-      
+
       uiInfo.tremHumanArmourySellCount++;
     }
   }
-  
+
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
     if( upgrades & ( 1 << i ) )
@@ -3504,7 +3459,7 @@ static void UI_LoadTremHumanArmourySells( )
         UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForUpgrade( i ) ) );
 
       j++;
-      
+
       uiInfo.tremHumanArmourySellCount++;
     }
   }
@@ -3521,12 +3476,12 @@ static void UI_LoadTremAlienUpgrades( )
   int     class, credits;
   char    ui_currentClass[ MAX_STRING_CHARS ];
   stage_t stage = UI_GetCurrentAlienStage( );
-  
+
   trap_Cvar_VariableStringBuffer( "ui_currentClass", ui_currentClass, MAX_STRING_CHARS );
   sscanf( ui_currentClass, "%d %d", &class, &credits );
 
   uiInfo.tremAlienUpgradeCount = 0;
-  
+
   for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
   {
     if( BG_ClassCanEvolveFromTo( class, i, credits, 0 ) >= 0 &&
@@ -3555,12 +3510,12 @@ static void UI_LoadTremAlienBuilds( )
   int     weapons;
   int     i, j = 0;
   stage_t stage;
-  
+
   UI_ParseCarriageList( &weapons, NULL );
   stage = UI_GetCurrentAlienStage( );
-  
+
   uiInfo.tremAlienBuildCount = 0;
-  
+
   for( i = BA_NONE +1; i < BA_NUM_BUILDABLES; i++ )
   {
     if( BG_FindTeamForBuildable( i ) == BIT_ALIENS &&
@@ -3575,7 +3530,7 @@ static void UI_LoadTremAlienBuilds( )
         UI_FindInfoPaneByName( va( "%sbuild", BG_FindNameForBuildable( i ) ) );
 
       j++;
-      
+
       uiInfo.tremAlienBuildCount++;
     }
   }
@@ -3591,12 +3546,12 @@ static void UI_LoadTremHumanBuilds( )
   int     weapons;
   int     i, j = 0;
   stage_t stage;
-  
+
   UI_ParseCarriageList( &weapons, NULL );
   stage = UI_GetCurrentHumanStage( );
 
   uiInfo.tremHumanBuildCount = 0;
-  
+
   for( i = BA_NONE +1; i < BA_NUM_BUILDABLES; i++ )
   {
     if( BG_FindTeamForBuildable( i ) == BIT_HUMANS &&
@@ -3611,7 +3566,7 @@ static void UI_LoadTremHumanBuilds( )
         UI_FindInfoPaneByName( va( "%sbuild", BG_FindNameForBuildable( i ) ) );
 
       j++;
-      
+
       uiInfo.tremHumanBuildCount++;
     }
   }
@@ -3874,7 +3829,7 @@ static void UI_Update(const char *name) {
         trap_Cvar_SetValue( "cg_brassTime", 2500 );
         trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
       break;
-      case 1: // normal 
+      case 1: // normal
         trap_Cvar_SetValue( "r_fullScreen", 1 );
         trap_Cvar_SetValue( "r_subdivisions", 12 );
         trap_Cvar_SetValue( "r_vertexlight", 0 );
@@ -3966,7 +3921,7 @@ static void UI_RunMenuScript(char **args) {
       if (clients == 0) {
         clients = 8;
       }
-      
+
       if (oldclients > clients) {
         clients = oldclients;
       }
@@ -4019,10 +3974,10 @@ static void UI_RunMenuScript(char **args) {
 
     } else if (Q_stricmp(name, "verifyCDKey") == 0) {
       buff[0] = '\0';
-      Q_strcat(buff, 1024, UI_Cvar_VariableString("cdkey1")); 
-      Q_strcat(buff, 1024, UI_Cvar_VariableString("cdkey2")); 
-      Q_strcat(buff, 1024, UI_Cvar_VariableString("cdkey3")); 
-      Q_strcat(buff, 1024, UI_Cvar_VariableString("cdkey4")); 
+      Q_strcat(buff, 1024, UI_Cvar_VariableString("cdkey1"));
+      Q_strcat(buff, 1024, UI_Cvar_VariableString("cdkey2"));
+      Q_strcat(buff, 1024, UI_Cvar_VariableString("cdkey3"));
+      Q_strcat(buff, 1024, UI_Cvar_VariableString("cdkey4"));
       trap_Cvar_Set("cdkey", buff);
       if (trap_VerifyCDKey(buff, UI_Cvar_VariableString("cdkeychecksum"))) {
         trap_Cvar_Set("ui_cdkeyvalid", "CD Key Appears to be valid.");
@@ -4062,7 +4017,7 @@ static void UI_RunMenuScript(char **args) {
     } else if (Q_stricmp(name, "LoadMods") == 0) {
       UI_LoadMods();
     }
-    
+
 //TA: tremulous menus
     else if( Q_stricmp( name, "LoadTeams" ) == 0 )
       UI_LoadTremTeams( );
@@ -4135,20 +4090,20 @@ static void UI_RunMenuScript(char **args) {
 
       // load the file
       len = trap_FS_FOpenFile( "ptrc.cfg", &f, FS_READ );
-      
+
       if( len > 0 && ( len < sizeof( text ) - 1 ) )
       {
         trap_FS_Read( text, len, f );
         text[ len ] = 0;
         trap_FS_FCloseFile( f );
-        
+
         Com_sprintf( command, 32, "ptrcrestore %s", text );
-          
+
         trap_Cmd_ExecuteText( EXEC_APPEND, command );
       }
     }
 //TA: tremulous menus
-    
+
     else if (Q_stricmp(name, "playMovie") == 0) {
       if (uiInfo.previewMovie >= 0) {
         trap_CIN_StopCinematic(uiInfo.previewMovie);
@@ -4426,7 +4381,7 @@ static int UI_MapCountByGameType(qboolean singlePlayer) {
 
 qboolean UI_hasSkinForBase(const char *base, const char *team) {
   char  test[1024];
-  
+
   Com_sprintf( test, sizeof( test ), "models/players/%s/%s/lower_default.skin", base, team );
 
   if (trap_FS_FOpenFile(test, 0, FS_READ)) {
@@ -4448,7 +4403,7 @@ UI_MapCountByTeam
 static int UI_HeadCountByTeam() {
   static int init = 0;
   int i, j, k, c, tIndex;
-  
+
   c = 0;
   if (!init) {
     for (i = 0; i < uiInfo.characterCount; i++) {
@@ -4601,11 +4556,11 @@ static void UI_BuildServerDisplayList(qboolean force) {
   if (len == 0) {
     strcpy(uiInfo.serverStatus.motd, "Welcome to Tremulous!");
     len = strlen(uiInfo.serverStatus.motd);
-  } 
+  }
   if (len != uiInfo.serverStatus.motdLen) {
     uiInfo.serverStatus.motdLen = len;
     uiInfo.serverStatus.motdWidth = -1;
-  } 
+  }
 
   if (force) {
     numinvisible = 0;
@@ -4666,14 +4621,14 @@ static void UI_BuildServerDisplayList(qboolean force) {
           continue;
         }
       }
-        
+
       //TA: only show tremulous servers
       if( Q_stricmp( Info_ValueForKey( info, "game" ), "tremulous" ) != 0 )
       {
         trap_LAN_MarkServerVisible( ui_netSource.integer, i, qfalse );
         continue;
       }
-      
+
       // make sure we never add a favorite server twice
       if (ui_netSource.integer == AS_FAVORITES) {
         UI_RemoveServerFromDisplayList(i);
@@ -5092,7 +5047,7 @@ static int UI_FeederCount(float feederID) {
   else if( feederID == FEEDER_TREMHUMANBUILD )
     return uiInfo.tremHumanBuildCount;
 //TA: tremulous menus
-  
+
   return 0;
 }
 
@@ -5144,7 +5099,7 @@ static int UI_GetIndexFromSelection(int actual) {
   return 0;
 }
 
-static void UI_UpdatePendingPings() { 
+static void UI_UpdatePendingPings() {
   trap_LAN_ResetPings(ui_netSource.integer);
   uiInfo.serverStatus.refreshActive = qtrue;
   uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 1000;
@@ -5183,7 +5138,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
         // UI_UpdatePendingPings();
       }
       switch (column) {
-        case SORT_HOST : 
+        case SORT_HOST :
           if (ping <= 0) {
             return Info_ValueForKey(info, "addr");
           } else {
@@ -5201,10 +5156,10 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
           }
         case SORT_MAP :
           return Info_ValueForKey(info, "mapname");
-        case SORT_CLIENTS : 
+        case SORT_CLIENTS :
           Com_sprintf( clientBuff, sizeof(clientBuff), "%s (%s)", Info_ValueForKey(info, "clients"), Info_ValueForKey(info, "sv_maxclients"));
           return clientBuff;
-        case SORT_PING : 
+        case SORT_PING :
           if (ping <= 0) {
             return "...";
           } else {
@@ -5298,7 +5253,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
       return uiInfo.tremHumanBuildList[ index ].text;
   }
 //TA: tremulous menus
-  
+
   return "";
 }
 
@@ -5340,7 +5295,7 @@ static void UI_FeederSelection(float feederID, int index) {
   index = actual;
     if (index >= 0 && index < uiInfo.characterCount) {
     trap_Cvar_Set( "team_model", va("%s", uiInfo.characterList[index].base));
-    trap_Cvar_Set( "team_headmodel", va("*%s", uiInfo.characterList[index].name)); 
+    trap_Cvar_Set( "team_headmodel", va("*%s", uiInfo.characterList[index].name));
     updateModel = qtrue;
     }
   } else if (feederID == FEEDER_Q3HEADS) {
@@ -5516,12 +5471,12 @@ static void UI_BuildQ3Model_List( void )
   for (i=0; i<numdirs && uiInfo.q3HeadCount < MAX_PLAYERMODELS; i++,dirptr+=dirlen+1)
   {
     dirlen = strlen(dirptr);
-    
+
     if (dirlen && dirptr[dirlen-1]=='/') dirptr[dirlen-1]='\0';
 
     if (!strcmp(dirptr,".") || !strcmp(dirptr,".."))
       continue;
-      
+
     // iterate all skin files in directory
     numfiles = trap_FS_GetFileList( va("models/players/%s",dirptr), "tga", filelist, 2048 );
     fileptr  = filelist;
@@ -5553,7 +5508,7 @@ static void UI_BuildQ3Model_List( void )
       }
 
     }
-  } 
+  }
 
 }
 
@@ -5569,7 +5524,7 @@ void _UI_Init( qboolean inGameLoad ) {
   int start;
 
   BG_InitClassOverrides( );
-  
+
   //uiInfo.inGameLoad = inGameLoad;
 
   UI_RegisterCvars();
@@ -5631,8 +5586,8 @@ void _UI_Init( qboolean inGameLoad ) {
   uiInfo.uiDC.getBindingBuf = &trap_Key_GetBindingBuf;
   uiInfo.uiDC.keynumToStringBuf = &trap_Key_KeynumToStringBuf;
   uiInfo.uiDC.executeText = &trap_Cmd_ExecuteText;
-  uiInfo.uiDC.Error = &Com_Error; 
-  uiInfo.uiDC.Print = &Com_Printf; 
+  uiInfo.uiDC.Error = &Com_Error;
+  uiInfo.uiDC.Print = &Com_Printf;
   uiInfo.uiDC.Pause = &UI_Pause;
   uiInfo.uiDC.ownerDrawWidth = &UI_OwnerDrawWidth;
   uiInfo.uiDC.registerSound = &trap_S_RegisterSound;
@@ -5646,8 +5601,7 @@ void _UI_Init( qboolean inGameLoad ) {
   Init_Display(&uiInfo.uiDC);
 
   String_Init();
-  
-  uiInfo.uiDC.cursor  = trap_R_RegisterShaderNoMip( "menu/art/3_cursor2" );
+
   uiInfo.uiDC.whiteShader = trap_R_RegisterShaderNoMip( "white" );
 
   AssetCache();
@@ -5672,7 +5626,7 @@ void _UI_Init( qboolean inGameLoad ) {
     UI_LoadMenus("ui/ingame.txt", qtrue);
   } else { // bk010222: left this: UI_LoadMenus(menuSet, qtrue);
   }
-#else 
+#else
   UI_LoadMenus(menuSet, qtrue);
   UI_LoadMenus("ui/ingame.txt", qfalse);
   UI_LoadMenus("ui/tremulous.txt", qfalse);
@@ -5688,7 +5642,7 @@ void _UI_Init( qboolean inGameLoad ) {
       Com_Printf( "name: %s\n", uiInfo.tremInfoPanes[ i ].name );
 
       Com_Printf( "text: %s\n", uiInfo.tremInfoPanes[ i ].text );
-      
+
       for( j = 0; j < uiInfo.tremInfoPanes[ i ].numGraphics; j++ )
         Com_Printf( "graphic %d: %d %d %d %d\n", j, uiInfo.tremInfoPanes[ i ].graphics[ j ].side,
                                                     uiInfo.tremInfoPanes[ i ].graphics[ j ].offset,
@@ -5697,7 +5651,7 @@ void _UI_Init( qboolean inGameLoad ) {
     }
   }
 #endif
-  
+
   Menus_CloseAll();
 
   trap_LAN_LoadCachedServers();
@@ -5887,11 +5841,11 @@ static void UI_ReadableSize ( char *buf, int bufsize, int value )
 {
   if (value > 1024*1024*1024 ) { // gigs
     Com_sprintf( buf, bufsize, "%d", value / (1024*1024*1024) );
-    Com_sprintf( buf+strlen(buf), bufsize-strlen(buf), ".%02d GB", 
+    Com_sprintf( buf+strlen(buf), bufsize-strlen(buf), ".%02d GB",
       (value % (1024*1024*1024))*100 / (1024*1024*1024) );
   } else if (value > 1024*1024 ) { // megs
     Com_sprintf( buf, bufsize, "%d", value / (1024*1024) );
-    Com_sprintf( buf+strlen(buf), bufsize-strlen(buf), ".%02d MB", 
+    Com_sprintf( buf+strlen(buf), bufsize-strlen(buf), ".%02d MB",
       (value % (1024*1024))*100 / (1024*1024) );
   } else if (value > 1024 ) { // kilos
     Com_sprintf( buf, bufsize, "%d KB", value / 1024 );
@@ -5919,37 +5873,37 @@ void Text_PaintCenter(float x, float y, float scale, vec4_t color, const char *t
 }
 
 void Text_PaintCenter_AutoWrapped(float x, float y, float xmax, float ystep, float scale, vec4_t color, const char *str, float adjust) {
-	int width;
-	char *s1,*s2,*s3;
-	char c_bcp;
-	char buf[1024];
+  int width;
+  char *s1,*s2,*s3;
+  char c_bcp;
+  char buf[1024];
 
-	if (!str || str[0]=='\0')
-		return;
+  if (!str || str[0]=='\0')
+    return;
 
-	Q_strncpyz(buf, str, sizeof(buf));
-	s1 = s2 = s3 = buf;
+  Q_strncpyz(buf, str, sizeof(buf));
+  s1 = s2 = s3 = buf;
 
-	while (1) {
-		do {
-			s3++;
-		} while (*s3!=' ' && *s3!='\0');
-		c_bcp = *s3;
-		*s3 = '\0';
-		width = Text_Width(s1, scale, 0);
-		*s3 = c_bcp;
-		if (width > xmax) {
-			if (s1==s2)
-			{
-				// fuck, don't have a clean cut, we'll overflow
-				s2 = s3;
-			}
-			*s2 = '\0';
-			Text_PaintCenter(x, y, scale, color, s1, adjust);
-			y += ystep;
-			if (c_bcp == '\0')
+  while (1) {
+    do {
+      s3++;
+    } while (*s3!=' ' && *s3!='\0');
+    c_bcp = *s3;
+    *s3 = '\0';
+    width = Text_Width(s1, scale, 0);
+    *s3 = c_bcp;
+    if (width > xmax) {
+      if (s1==s2)
       {
-				// that was the last word
+        // fuck, don't have a clean cut, we'll overflow
+        s2 = s3;
+      }
+      *s2 = '\0';
+      Text_PaintCenter(x, y, scale, color, s1, adjust);
+      y += ystep;
+      if (c_bcp == '\0')
+      {
+        // that was the last word
         // we could start a new loop, but that wouldn't be much use
         // even if the word is too long, we would overflow it (see above)
         // so just print it now if needed
@@ -5958,20 +5912,20 @@ void Text_PaintCenter_AutoWrapped(float x, float y, float xmax, float ystep, flo
           Text_PaintCenter(x, y, scale, color, s2, adjust);
         break;
       }
-			s2++;
-			s1 = s2;
-			s3 = s2;
-		}
-		else
-		{
-			s2 = s3;
-			if (c_bcp == '\0') // we reached the end
-			{
-				Text_PaintCenter(x, y, scale, color, s1, adjust);
-				break;
-			}
-		}
-	}
+      s2++;
+      s1 = s2;
+      s3 = s2;
+    }
+    else
+    {
+      s2 = s3;
+      if (c_bcp == '\0') // we reached the end
+      {
+        Text_PaintCenter(x, y, scale, color, s1, adjust);
+        break;
+      }
+    }
+  }
 }
 
 
@@ -6024,7 +5978,7 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
       int n = downloadSize / xferRate; // estimated time for entire d/l in secs
 
       // We do it in K (/1024) because we'd overflow around 4MB
-      UI_PrintTime ( dlTimeBuf, sizeof dlTimeBuf, 
+      UI_PrintTime ( dlTimeBuf, sizeof dlTimeBuf,
         (n - (((downloadCount/1024) * n) / (downloadSize/1024))) * 1000);
 
       Text_PaintCenter(leftWidth, yStart+216, scale, colorWhite, dlTimeBuf, 0);
@@ -6058,7 +6012,7 @@ void UI_DrawConnectScreen( qboolean overlay ) {
   char      info[MAX_INFO_VALUE];
   char text[256];
   float centerPoint, yStart, scale;
-  
+
   menuDef_t *menu = Menus_FindByName("Connect");
 
 
@@ -6272,7 +6226,7 @@ vmCvar_t  ui_realWarmUp;
 vmCvar_t  ui_serverStatusTimeOut;
 
 //TA: bank values
-vmCvar_t	ui_bank;
+vmCvar_t  ui_bank;
 
 
 // bk001129 - made static to avoid aliasing
@@ -6395,7 +6349,7 @@ static cvarTable_t    cvarTable[] = {
   { &ui_realWarmUp, "g_warmup", "20", CVAR_ARCHIVE},
   { &ui_realCaptureLimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART},
   { &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
-  
+
   { &ui_bank, "ui_bank", "0", 0 },
 
 };
