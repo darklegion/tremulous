@@ -194,7 +194,7 @@ buildableAttributes_t bg_buildableList[ ] =
     0,                     //int       turretRange;
     0,                     //int       turretFireSpeed;
     WP_HIVE,               //weapon_t  turretProjType;
-    0.707f,                //float     minNormal;
+    0.0f,                  //float     minNormal;
     qtrue,                 //qboolean  invertNormal;
     qtrue,                 //qboolean  creepTest;
     HIVE_CREEPSIZE,        //int       creepSize;

@@ -64,7 +64,7 @@
 #define LEVEL2_AREAZAP_DMG          ADM(80)
 #define LEVEL2_AREAZAP_RANGE        200.0f
 #define LEVEL2_AREAZAP_WIDTH        15.0f
-#define LEVEL2_AREAZAP_REPEAT       3000
+#define LEVEL2_AREAZAP_REPEAT       2000
 #define LEVEL2_AREAZAP_TIME         1000
 #define LEVEL2_AREAZAP_MAX_TARGETS  3
 #define LEVEL2_WALLJUMP_MAXSPEED    1000.0f
@@ -74,7 +74,7 @@
 #define LEVEL3_CLAW_WIDTH           16.0f
 #define LEVEL3_CLAW_REPEAT          700
 #define LEVEL3_CLAW_U_REPEAT        600
-#define LEVEL3_POUNCE_DMG           ADM(160)
+#define LEVEL3_POUNCE_DMG           ADM(100)
 #define LEVEL3_POUNCE_RANGE         96.0f
 #define LEVEL3_POUNCE_WIDTH         16.0f
 #define LEVEL3_POUNCE_SPEED         700
@@ -498,9 +498,9 @@
 #define TESLAGEN_HEALTH             HBHM(220)
 #define TESLAGEN_SPLASHDAMAGE       50
 #define TESLAGEN_SPLASHRADIUS       100
-#define TESLAGEN_REPEAT             500
+#define TESLAGEN_REPEAT             250
 #define TESLAGEN_RANGE              250
-#define TESLAGEN_DMG                HDM(13)
+#define TESLAGEN_DMG                HDM(7)
 
 #define DC_BP                       8
 #define DC_BT                       10000

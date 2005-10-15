@@ -1293,7 +1293,8 @@ qboolean CheckPounceAttack( gentity_t *ent )
 
   damage = (int)( ( (float)ent->client->pouncePayload / (float)LEVEL3_POUNCE_SPEED ) * LEVEL3_POUNCE_DMG );
 
-  G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_LEVEL3_POUNCE );
+  G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage,
+      DAMAGE_NO_KNOCKBACK|DAMAGE_NO_LOCDAMAGE, MOD_LEVEL3_POUNCE );
 
   ent->client->allowedToPounce = qfalse;
 

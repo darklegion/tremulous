@@ -1277,10 +1277,6 @@ void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
   if( client->lastBoostedTime + BOOSTER_INTERVAL > level.time )
     return;
 
-  //restore ammo, if any
-  BG_FindAmmoForWeapon( client->ps.weapon, &maxAmmo, &maxClips );
-  BG_PackAmmoArray( client->ps.weapon, client->ps.ammo, client->ps.powerups, maxAmmo, maxClips );
-
   if( !( client->ps.stats[ STAT_STATE ] & SS_BOOSTED ) )
   {
     client->ps.stats[ STAT_STATE ] |= SS_BOOSTED;
