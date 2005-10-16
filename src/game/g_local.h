@@ -590,6 +590,11 @@ typedef struct
 
   spawnQueue_t      alienSpawnQueue;
   spawnQueue_t      humanSpawnQueue;
+
+  int               alienStage2Time;
+  int               alienStage3Time;
+  int               humanStage2Time;
+  int               humanStage3Time;
 } level_locals_t;
 
 //

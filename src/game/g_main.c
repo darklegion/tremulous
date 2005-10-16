@@ -1056,6 +1056,7 @@ void G_CalculateStages( void )
   {
     G_Checktrigger_stages( PTE_ALIENS, S2 );
     trap_Cvar_Set( "g_alienStage", va( "%d", S2 ) );
+    level.alienStage2Time = level.time;
   }
 
   if( g_alienKills.integer >=
@@ -1064,6 +1065,7 @@ void G_CalculateStages( void )
   {
     G_Checktrigger_stages( PTE_ALIENS, S3 );
     trap_Cvar_Set( "g_alienStage", va( "%d", S3 ) );
+    level.alienStage3Time = level.time;
   }
 
   if( g_humanKills.integer >=
@@ -1072,6 +1074,7 @@ void G_CalculateStages( void )
   {
     G_Checktrigger_stages( PTE_HUMANS, S2 );
     trap_Cvar_Set( "g_humanStage", va( "%d", S2 ) );
+    level.humanStage2Time = level.time;
   }
 
   if( g_humanKills.integer >=
@@ -1080,6 +1083,7 @@ void G_CalculateStages( void )
   {
     G_Checktrigger_stages( PTE_HUMANS, S3 );
     trap_Cvar_Set( "g_humanStage", va( "%d", S3 ) );
+    level.humanStage3Time = level.time;
   }
 }
 
@@ -1678,10 +1682,13 @@ void CheckExitRules( void )
     {
       G_SendCommandFromServer( -1, "print \"Timelimit hit\n\"" );
 
-      G_LogPrintf( "STATS T:L A:%f H:%f M:%s D:%d AS:%d HS:%d\n",
+      G_LogPrintf( "STATS T:L A:%f H:%f M:%s D:%d AS:%d AS2T:%d AS3T:%d HS:%d HS2T:%d HS3T:%d\n",
           level.averageNumAlienClients, level.averageNumHumanClients,
           s, level.time - level.startTime,
-          g_alienStage.integer, g_humanStage.integer );
+          g_alienStage.integer,
+          level.alienStage2Time - level.startTime, level.alienStage3Time - level.startTime,
+          g_humanStage.integer,
+          level.humanStage2Time - level.startTime, level.humanStage3Time - level.startTime );
 
       level.lastWin = PTE_NONE;
       LogExit( "Timelimit hit." );
@@ -1698,10 +1705,13 @@ void CheckExitRules( void )
     level.lastWin = PTE_HUMANS;
     G_SendCommandFromServer( -1, "print \"Humans win\n\"");
 
-    G_LogPrintf( "STATS T:H A:%f H:%f M:%s D:%d AS:%d HS:%d\n",
+    G_LogPrintf( "STATS T:H A:%f H:%f M:%s D:%d AS:%d AS2T:%d AS3T:%d HS:%d HS2T:%d HS3T:%d\n",
         level.averageNumAlienClients, level.averageNumHumanClients,
         s, level.time - level.startTime,
-        g_alienStage.integer, g_humanStage.integer );
+        g_alienStage.integer,
+        level.alienStage2Time - level.startTime, level.alienStage3Time - level.startTime,
+        g_humanStage.integer,
+        level.humanStage2Time - level.startTime, level.humanStage3Time - level.startTime );
 
     LogExit( "Humans win." );
     return;
@@ -1714,10 +1724,13 @@ void CheckExitRules( void )
     level.lastWin = PTE_ALIENS;
     G_SendCommandFromServer( -1, "print \"Aliens win\n\"");
 
-    G_LogPrintf( "STATS T:A A:%f H:%f M:%s D:%d AS:%d HS:%d\n",
+    G_LogPrintf( "STATS T:A A:%f H:%f M:%s D:%d AS:%d AS2T:%d AS3T:%d HS:%d HS2T:%d HS3T:%d\n",
         level.averageNumAlienClients, level.averageNumHumanClients,
         s, level.time - level.startTime,
-        g_alienStage.integer, g_humanStage.integer );
+        g_alienStage.integer,
+        level.alienStage2Time - level.startTime, level.alienStage3Time - level.startTime,
+        g_humanStage.integer,
+        level.humanStage2Time - level.startTime, level.humanStage3Time - level.startTime );
 
     LogExit( "Aliens win." );
     return;
