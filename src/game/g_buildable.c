@@ -1520,7 +1520,8 @@ void HRepeater_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
   if( !self->spawned )
     return;
 
-  G_GiveClientMaxAmmo( self, qtrue );
+  if( other )
+    G_GiveClientMaxAmmo( other, qtrue );
 }
 
 
