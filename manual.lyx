@@ -30,7 +30,7 @@
 
 \layout Title
 
-TREMULOUS 1.0.1
+TREMULOUS 1.0.2
 \layout Standard
 
 
@@ -1805,11 +1805,7 @@ Activate Upgrade
 \noun default 
  button.
  Up to three of these barbs may be held in reserve and they regenerate automatic
-ally over time or instantly by touching a 
-\emph on 
-Booster
-\emph default 
-.
+ally over time.
 \layout Standard
 \align center 
 
@@ -2589,12 +2585,8 @@ Battlesuit
 \emph on 
 Booster
 \emph default 
- will also refill the 
-\emph on 
-Advanced Dragoon's
-\emph default 
- spike barbs and double the regeneration rate of any nearby aliens with
- the exception of
+ will also double the regeneration rate of any nearby aliens with the exception
+ of
 \emph on 
  Tyrants
 \emph default 
