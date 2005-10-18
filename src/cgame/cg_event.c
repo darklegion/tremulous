@@ -936,10 +936,13 @@ CG_CheckEvents
 */
 void CG_CheckEvents( centity_t *cent )
 {
+  entity_event_t event;
+  entity_event_t oldEvent = EV_NONE;
+
   // check for event-only entities
   if( cent->currentState.eType > ET_EVENTS )
   {
-    entity_event_t event = cent->currentState.eType - ET_EVENTS;
+    event = cent->currentState.eType - ET_EVENTS;
 
     if( cent->previousEvent )
       return; // already fired
@@ -951,23 +954,31 @@ void CG_CheckEvents( centity_t *cent )
     // Move the pointer to the entity that the
     // event was originally attached to
     if( cent->currentState.eFlags & EF_PLAYER_EVENT )
+    {
       cent = &cg_entities[ cent->currentState.otherEntityNum ];
-
-    cent->currentState.event = event;
+      oldEvent = cent->currentState.event;
+      cent->currentState.event = event;
+    }
   }
+  else
+  {
+    // check for events riding with another entity
+    if( cent->currentState.event == cent->previousEvent )
+      return;
 
-  // check for events riding with another entity
-  if( cent->currentState.event == cent->previousEvent )
-    return;
-
-  cent->previousEvent = cent->currentState.event;
-  if( ( cent->currentState.event & ~EV_EVENT_BITS ) == 0 )
-    return;
+    cent->previousEvent = cent->currentState.event;
+    if( ( cent->currentState.event & ~EV_EVENT_BITS ) == 0 )
+      return;
+  }
 
   // calculate the position at exactly the frame time
   BG_EvaluateTrajectory( &cent->currentState.pos, cg.snap->serverTime, cent->lerpOrigin );
   CG_SetEntitySoundPosition( cent );
 
   CG_EntityEvent( cent, cent->lerpOrigin );
+  
+  // If this was a reattached spilled event, restore the original event
+  if( oldEvent != EV_NONE )
+    cent->currentState.event = oldEvent;
 }
 
