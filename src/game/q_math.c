@@ -1378,8 +1378,6 @@ float pointToLineDistance( const vec3_t p0, const vec3_t p1, const vec3_t p2 )
     return c1 / c2;
 }
 
-//TA: wolf trail stuff
-// Ridah
 /*
 =================
 GetPerpendicularViewVector
@@ -1416,15 +1414,6 @@ void ProjectPointOntoVector( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vP
   // project onto the directional vector for this segment
   VectorMA( vStart, DotProduct( pVec, vec ), vec, vProj );
 }
-
-float VectorDistance(vec3_t v1, vec3_t v2)
-{
-  vec3_t dir;
-
-  VectorSubtract(v2, v1, dir);
-  return VectorLength(dir);
-}
-// done.
 
 /*
 ================

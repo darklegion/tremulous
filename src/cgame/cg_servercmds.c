@@ -484,10 +484,6 @@ static void CG_MapRestart( void )
   CG_InitLocalEntities( );
   CG_InitMarkPolys( );
 
-  // Ridah, trails
-  CG_ClearTrails( );
-  // done.
-
   // make sure the "3 frags left" warnings play again
   cg.fraglimitWarnings = 0;
 
@@ -1048,9 +1044,13 @@ static void CG_ServerCommand( void )
   if( !strcmp( cmd, "poisoncloud" ) )
   {
     cg.poisonedTime = cg.time;
-    cg.poisonCloudPS = CG_SpawnNewParticleSystem( cgs.media.poisonCloudPS );
-    CG_SetParticleSystemCent( cg.poisonCloudPS, &cg.predictedPlayerEntity );
-    CG_AttachParticleSystemToCent( cg.poisonCloudPS );
+
+    if( CG_IsParticleSystemValid( &cg.poisonCloudPS ) )
+    {
+      cg.poisonCloudPS = CG_SpawnNewParticleSystem( cgs.media.poisonCloudPS );
+      CG_SetAttachmentCent( &cg.poisonCloudPS->attachment, &cg.predictedPlayerEntity );
+      CG_AttachToCent( &cg.poisonCloudPS->attachment );
+    }
 
     return;
   }

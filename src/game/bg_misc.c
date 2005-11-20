@@ -5037,3 +5037,41 @@ int BG_GetValueOfHuman( playerState_t *ps )
 
   return ceil( ALIEN_MAX_SINGLE_KILLS * portion );
 }
+
+/*
+===============
+atof_neg
+
+atof with an allowance for negative values
+===============
+*/
+float atof_neg( char *token, qboolean allowNegative )
+{
+  float value;
+
+  value = atof( token );
+
+  if( !allowNegative && value < 0.0f )
+    value = 1.0f;
+
+  return value;
+}
+
+/*
+===============
+atoi_neg
+
+atoi with an allowance for negative values
+===============
+*/
+int atoi_neg( char *token, qboolean allowNegative )
+{
+  int value;
+
+  value = atoi( token );
+
+  if( !allowNegative && value < 0 )
+    value = 1;
+
+  return value;
+}

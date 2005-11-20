@@ -460,6 +460,7 @@ void G_ChangeTeam( gentity_t *ent, pTeam_t newTeam )
 
     level.bankCredits[ ent->client->ps.clientNum ] = 0;
     ent->client->ps.persistant[ PERS_CREDIT ] = 0;
+    ent->client->ps.persistant[ PERS_SCORE ] = 0;
     ent->client->pers.classSelection = PCL_NONE;
     ClientSpawn( ent, NULL, NULL, NULL );
   }

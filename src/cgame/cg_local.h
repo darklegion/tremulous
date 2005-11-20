@@ -71,19 +71,6 @@
 
 #define NUM_CROSSHAIRS      10
 
-//TA: ripped from wolf source
-// Ridah, trails
-#define STYPE_STRETCH 0
-#define STYPE_REPEAT  1
-
-#define TJFL_FADEIN   (1<<0)
-#define TJFL_CROSSOVER  (1<<1)
-#define TJFL_NOCULL   (1<<2)
-#define TJFL_FIXDISTORT (1<<3)
-#define TJFL_SPARKHEADFLARE (1<<4)
-#define TJFL_NOPOLYMERGE  (1<<5)
-// done.
-
 #define TEAM_OVERLAY_MAXNAME_WIDTH  12
 #define TEAM_OVERLAY_MAXLOCATION_WIDTH  16
 
@@ -123,6 +110,51 @@ typedef enum
   JPS_HOVERING,
   JPS_ASCENDING
 } jetPackState_t;
+
+//======================================================================
+
+//attachment system
+typedef enum
+{
+  AT_STATIC,
+  AT_TAG,
+  AT_CENT,
+  AT_PARTICLE
+} attachmentType_t;
+
+//forward declaration for particle_t
+struct particle_s;
+
+typedef struct attachment_s
+{
+  attachmentType_t  type;
+  qboolean          attached;
+
+  qboolean          staticValid;
+  qboolean          tagValid;
+  qboolean          centValid;
+  qboolean          particleValid;
+
+  qboolean          hasOffset;
+  vec3_t            offset;
+
+  //AT_STATIC
+  vec3_t            origin;
+
+  //AT_TAG
+  refEntity_t       re;     //FIXME: should be pointers?
+  refEntity_t       parent; //
+  qhandle_t         model;
+  char              tagName[ MAX_STRING_CHARS ];
+
+  //AT_CENT
+  int               centNum;
+
+  //AT_PARTICLE
+  struct particle_s *particle;
+} attachment_t;
+
+//======================================================================
 
 //particle system stuff
 #define MAX_SHADER_FRAMES         32
@@ -269,51 +301,18 @@ RUN TIME STRUCTURES
 ===============
 */
 
-typedef enum
-{
-  PSA_STATIC,
-  PSA_TAG,
-  PSA_CENT_ORIGIN,
-  PSA_PARTICLE
-} psAttachmentType_t;
-
-
-typedef struct psAttachment_s
-{
-  qboolean staticValid;
-  qboolean tagValid;
-  qboolean centValid;
-  qboolean normalValid;
-  qboolean particleValid;
-
-  //PMT_STATIC
-  vec3_t      origin;
-
-  //PMT_TAG
-  refEntity_t re;     //FIXME: should be pointers?
-  refEntity_t parent; //
-  qhandle_t   model;
-  char        tagName[ MAX_STRING_CHARS ];
-
-  //PMT_CENT_ANGLES
-  int         centNum;
-
-  //PMT_NORMAL
-  vec3_t      normal;
-} psAttachment_t;
-
-
 typedef struct particleSystem_s
 {
   baseParticleSystem_t  *class;
 
-  psAttachmentType_t    attachType;
-  psAttachment_t        attachment;
-  qboolean              attached;   //is the particle system attached to anything
+  attachment_t          attachment;
 
   qboolean              valid;
   qboolean              lazyRemove; //mark this system for later removal
 
+  //for PMT_NORMAL
+  qboolean              normalValid;
+  vec3_t                normal;
 } particleSystem_t;
 
 
@@ -357,14 +356,133 @@ typedef struct particle_s
   pLerpValues_t     rotation;
 
   qboolean          valid;
+  int               frameWhenInvalidated;
 
   int               sortKey;
-
-  particleSystem_t  *childSystem;
 } particle_t;
 
+//======================================================================
 
-//=================================================
+//trail system stuff
+#define MAX_BEAMS_PER_SYSTEM      4
+
+#define MAX_BASETRAIL_SYSTEMS     64
+#define MAX_BASETRAIL_BEAMS       MAX_BASETRAIL_SYSTEMS*MAX_BEAMS_PER_SYSTEM
+
+#define MAX_TRAIL_SYSTEMS         32
+#define MAX_TRAIL_BEAMS           MAX_TRAIL_SYSTEMS*MAX_BEAMS_PER_SYSTEM
+#define MAX_TRAIL_BEAM_NODES      128
+
+#define MAX_TRAIL_BEAM_JITTERS    4
+
+typedef enum
+{
+  TBTT_STRETCH,
+  TBTT_REPEAT
+} trailBeamTextureType_t;
+
+typedef struct baseTrailJitter_s
+{
+  float   magnitude;
+  int     period;
+} baseTrailJitter_t;
+
+//beam template
+typedef struct baseTrailBeam_s
+{
+  int                     numSegments;
+  float                   frontWidth;
+  float                   backWidth;
+  float                   frontAlpha;
+  float                   backAlpha;
+  byte                    frontColor[ 3 ];
+  byte                    backColor[ 3 ];
+
+  // the time it takes for a segment to vanish (single attached only)
+  int                     segmentTime;
+
+  // the time it takes for a beam to fade out (double attached only)
+  int                     fadeOutTime;
+
+  char                    shaderName[ MAX_QPATH ];
+  qhandle_t               shader;
+
+  trailBeamTextureType_t  textureType;
+
+  //TBTT_STRETCH
+  float                   frontTextureCoord;
+  float                   backTextureCoord;
+
+  //TBTT_REPEAT
+  float                   repeatLength;
+  qboolean                clampToBack;
+
+  qboolean                realLight;
+
+  int                     numJitters;
+  baseTrailJitter_t       jitters[ MAX_TRAIL_BEAM_JITTERS ];
+  qboolean                jitterAttachments;
+} baseTrailBeam_t;
+
+
+//trail system template
+typedef struct baseTrailSystem_s
+{
+  char            name[ MAX_QPATH ];
+  baseTrailBeam_t *beams[ MAX_BEAMS_PER_SYSTEM ];
+  int             numBeams;
+
+  qboolean        registered; //whether or not the assets for this trail have been loaded
+} baseTrailSystem_t;
+
+typedef struct trailSystem_s
+{
+  baseTrailSystem_t   *class;
+
+  attachment_t        frontAttachment;
+  attachment_t        backAttachment;
+
+  int                 destroyTime;
+  qboolean            valid;
+} trailSystem_t;
+
+typedef struct trailBeamNode_s
+{
+  vec3_t                  refPosition;
+  vec3_t                  position;
+
+  int                     timeLeft;
+
+  float                   textureCoord;
+  float                   halfWidth;
+  byte                    alpha;
+  byte                    color[ 3 ];
+
+  float                   jitters[ MAX_TRAIL_BEAM_JITTERS ];
+  float                   jitter;
+  
+  struct trailBeamNode_s  *prev;
+  struct trailBeamNode_s  *next;
+
+  qboolean                used;
+} trailBeamNode_t;
+
+typedef struct trailBeam_s
+{
+  baseTrailBeam_t   *class;
+  trailSystem_t     *parent;
+
+  trailBeamNode_t   nodePool[ MAX_TRAIL_BEAM_NODES ];
+  trailBeamNode_t   *nodes;
+
+  int               lastEvalTime;
+  
+  qboolean          valid;
+
+  int               nextJitterTimes[ MAX_TRAIL_BEAM_JITTERS ];
+} trailBeam_t;
+
+//======================================================================
 
 // player entities need to track more information
 // than any other type of entity.
@@ -435,8 +553,6 @@ typedef struct lightFlareStatus_s
 
 //=================================================
 
-#define MAX_CENTITY_PARTICLE_SYSTEMS  8
-
 // centity_t have a direct corespondence with gentity_t in the game, but
 // only the entityState_t is directly communicated to the cgame
 typedef struct centity_s
@@ -495,6 +611,11 @@ typedef struct centity_s
   particleSystem_t      *entityPS;
   qboolean              entityPSMissing;
 
+  trailSystem_t         *level2ZapTS[ 3 ];
+
+  trailSystem_t         *muzzleTS; //used for the tesla and reactor
+  int                   muzzleTSDeathTime;
+
   qboolean              valid;
   qboolean              oldValid;
 } centity_t;
@@ -521,7 +642,6 @@ typedef enum
 {
   LE_MARK,
   LE_EXPLOSION,
-  LE_LIGHTNING_BOLT, //wolf trail
   LE_SPRITE_EXPLOSION,
   LE_FRAGMENT,
   LE_MOVE_SCALE_FADE,
@@ -700,6 +820,7 @@ typedef struct weaponInfoMode_s
   qhandle_t   missileSprite;
   int         missileSpriteSize;
   qhandle_t   missileParticleSystem;
+  qhandle_t   missileTrailSystem;
   qboolean    missileRotates;
   qboolean    missileAnimates;
   int         missileAnimStartFrame;
@@ -1086,12 +1207,10 @@ typedef struct
   qhandle_t   gibSpark1;
   qhandle_t   gibSpark2;
 
-  qhandle_t   smoke2;
-
   qhandle_t   machinegunBrassModel;
   qhandle_t   shotgunBrassModel;
 
-  qhandle_t   lightningShader;
+  qhandle_t   level2ZapTS;
 
   qhandle_t   friendShader;
 
@@ -1148,7 +1267,6 @@ typedef struct
   qhandle_t   bulletFlashModel;
   qhandle_t   ringFlashModel;
   qhandle_t   dishFlashModel;
-  qhandle_t   lightningExplosionModel;
 
   // weapon effect shaders
   qhandle_t   bloodExplosionShader;
@@ -1216,9 +1334,6 @@ typedef struct
   qhandle_t   selectCursor;
   qhandle_t   sizeCursor;
 
-  //TA: for wolf trail effects
-  qhandle_t   sparkFlareShader;
-
   //light armour
   qhandle_t larmourHeadSkin;
   qhandle_t larmourLegsSkin;
@@ -1243,6 +1358,7 @@ typedef struct
   qhandle_t   humanBuildableDestroyedPS;
   qhandle_t   alienBuildableDamagedPS;
   qhandle_t   alienBuildableDestroyedPS;
+  qhandle_t   teslaZapTS;
 
   sfxHandle_t lCannonWarningSound;
 
@@ -1463,6 +1579,7 @@ extern  vmCvar_t    cg_depthSortParticles;
 extern  vmCvar_t    cg_consoleLatency;
 extern  vmCvar_t    cg_lightFlare;
 extern  vmCvar_t    cg_debugParticles;
+extern  vmCvar_t    cg_debugTrails;
 extern  vmCvar_t    cg_debugPVS;
 extern  vmCvar_t    cg_disableWarningDialogs;
 extern  vmCvar_t    cg_disableScannerPlane;
@@ -1659,7 +1776,6 @@ void        CG_MissileHitPlayer( weapon_t weapon, weaponMode_t weaponMode, vec3_
 void        CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 void        CG_ShotgunFire( entityState_t *es );
 
-void        CG_TeslaTrail( vec3_t start, vec3_t end, int srcENum, int destENum );
 void        CG_AddViewWeapon (playerState_t *ps);
 void        CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent );
 void        CG_DrawItemSelect( rectDef_t *rect, vec4_t color );
@@ -1707,37 +1823,12 @@ localEntity_t *CG_SmokePuff( const vec3_t p,
 void          CG_BubbleTrail( vec3_t start, vec3_t end, float spacing );
 void          CG_SpawnEffect( vec3_t org );
 void          CG_GibPlayer( vec3_t playerOrigin );
-void          CG_BigExplode( vec3_t playerOrigin );
 
 void          CG_Bleed( vec3_t origin, int entityNum );
 
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
                                  qhandle_t hModel, qhandle_t shader, int msec,
                                  qboolean isSprite );
-
-//TA: wolf tesla effect
-void          CG_DynamicLightningBolt( qhandle_t shader, vec3_t start, vec3_t pend,
-                                       int numBolts, float maxWidth, qboolean fade,
-                                       float startAlpha, int recursion, int randseed );
-
-// Ridah, trails
-//
-// cg_trails.c
-//
-int           CG_AddTrailJunc( int headJuncIndex, qhandle_t shader, int spawnTime,
-                             int sType, vec3_t pos, int trailLife, float alphaStart,
-                             float alphaEnd, float startWidth, float endWidth, int flags,
-                             vec3_t colorStart, vec3_t colorEnd, float sRatio, float animSpeed );
-int           CG_AddSparkJunc( int headJuncIndex, qhandle_t shader, vec3_t pos, int trailLife,
-                             float alphaStart, float alphaEnd, float startWidth, float endWidth );
-int           CG_AddSmokeJunc( int headJuncIndex, qhandle_t shader, vec3_t pos, int trailLife,
-                             float alpha, float startWidth, float endWidth );
-int           CG_AddFireJunc( int headJuncIndex, qhandle_t shader, vec3_t pos, int trailLife,
-                            float alpha, float startWidth, float endWidth );
-void          CG_AddTrails( void );
-void          CG_ClearTrails( void );
-// done.
-
 
 //
 // cg_snapshot.c
@@ -1774,6 +1865,28 @@ void          CG_Free( void *ptr );
 void          CG_DefragmentMemory( void );
 
 //
+// cg_attachment.c
+//
+qboolean    CG_AttachmentPoint( attachment_t *a, vec3_t v );
+qboolean    CG_AttachmentDir( attachment_t *a, vec3_t v );
+qboolean    CG_AttachmentVelocity( attachment_t *a, vec3_t v );
+int         CG_AttachmentCentNum( attachment_t *a );
+
+qboolean    CG_Attached( attachment_t *a );
+
+void        CG_AttachToPoint( attachment_t *a );
+void        CG_AttachToCent( attachment_t *a );
+void        CG_AttachToTag( attachment_t *a );
+void        CG_AttachToParticle( attachment_t *a );
+void        CG_SetAttachmentPoint( attachment_t *a, vec3_t v );
+void        CG_SetAttachmentCent( attachment_t *a, centity_t *cent );
+void        CG_SetAttachmentTag( attachment_t *a, refEntity_t parent,
+                qhandle_t model, char *tagName );
+void        CG_SetAttachmentParticle( attachment_t *a, particle_t *p );
+
+void        CG_SetAttachmentOffset( attachment_t *a, vec3_t v );
+
+//
 // cg_particles.c
 //
 void                CG_LoadParticleSystems( void );
@@ -1785,19 +1898,30 @@ void                CG_DestroyParticleSystem( particleSystem_t **ps );
 qboolean            CG_IsParticleSystemInfinite( particleSystem_t *ps );
 qboolean            CG_IsParticleSystemValid( particleSystem_t **ps );
 
-void                CG_SetParticleSystemCent( particleSystem_t *ps, centity_t *cent );
-void                CG_AttachParticleSystemToCent( particleSystem_t *ps );
-void                CG_SetParticleSystemTag( particleSystem_t *ps, refEntity_t parent, qhandle_t model, char *tagName );
-void                CG_AttachParticleSystemToTag( particleSystem_t *ps );
-void                CG_SetParticleSystemOrigin( particleSystem_t *ps, vec3_t origin );
-void                CG_AttachParticleSystemToOrigin( particleSystem_t *ps );
 void                CG_SetParticleSystemNormal( particleSystem_t *ps, vec3_t normal );
-void                CG_AttachParticleSystemToParticle( particleSystem_t *ps );
-void                CG_SetParticleSystemParentParticle( particleSystem_t *ps, particle_t *p );
 
 void                CG_AddParticles( void );
 
 void                CG_ParticleSystemEntity( centity_t *cent );
+
+void                CG_TestPS_f( void );
+void                CG_DestroyTestPS_f( void );
+
+//
+// cg_trails.c
+//
+void                CG_LoadTrailSystems( void );
+qhandle_t           CG_RegisterTrailSystem( char *name );
+
+trailSystem_t       *CG_SpawnNewTrailSystem( qhandle_t psHandle );
+void                CG_DestroyTrailSystem( trailSystem_t **ts );
+
+qboolean            CG_IsTrailSystemValid( trailSystem_t **ts );
+
+void                CG_AddTrails( void );
+
+void                CG_TestTS_f( void );
+void                CG_DestroyTestTS_f( void );
 
 //
 // cg_ptr.c

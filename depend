@@ -237,6 +237,10 @@ releasei386-glibc/cgame/cg_animmapobj.o: src/cgame/cg_animmapobj.c src/cgame/cg_
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
   src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
+releasei386-glibc/cgame/cg_attachment.o: src/cgame/cg_attachment.c src/cgame/cg_local.h \
+  src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
+  src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
+  src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
 releasei386-glibc/cgame/cg_buildable.o: src/cgame/cg_buildable.c src/cgame/cg_local.h \
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
@@ -281,10 +285,6 @@ releasei386-glibc/cgame/cg_mem.o: src/cgame/cg_mem.c src/cgame/cg_local.h src/ga
   src/game/surfaceflags.h src/cgame/tr_types.h src/game/bg_public.h \
   src/game/tremulous.h src/cgame/cg_public.h src/ui/ui_shared.h \
   src/ui/keycodes.h ui/menudef.h
-releasei386-glibc/cgame/cg_mp3decoder.o: src/cgame/cg_mp3decoder.c src/cgame/cg_mp3decoder.h \
-  src/cgame/cg_local.h src/game/q_shared.h src/game/surfaceflags.h \
-  src/cgame/tr_types.h src/game/bg_public.h src/game/tremulous.h \
-  src/cgame/cg_public.h src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
 releasei386-glibc/cgame/cg_particles.o: src/cgame/cg_particles.c src/cgame/cg_local.h \
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
@@ -337,6 +337,10 @@ debugi386-glibc/cgame/cg_animmapobj.o: src/cgame/cg_animmapobj.c src/cgame/cg_lo
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
   src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
+debugi386-glibc/cgame/cg_attachment.o: src/cgame/cg_attachment.c src/cgame/cg_local.h \
+  src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
+  src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
+  src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
 debugi386-glibc/cgame/cg_buildable.o: src/cgame/cg_buildable.c src/cgame/cg_local.h \
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
@@ -381,10 +385,6 @@ debugi386-glibc/cgame/cg_mem.o: src/cgame/cg_mem.c src/cgame/cg_local.h src/game
   src/game/surfaceflags.h src/cgame/tr_types.h src/game/bg_public.h \
   src/game/tremulous.h src/cgame/cg_public.h src/ui/ui_shared.h \
   src/ui/keycodes.h ui/menudef.h
-debugi386-glibc/cgame/cg_mp3decoder.o: src/cgame/cg_mp3decoder.c src/cgame/cg_mp3decoder.h \
-  src/cgame/cg_local.h src/game/q_shared.h src/game/surfaceflags.h \
-  src/cgame/tr_types.h src/game/bg_public.h src/game/tremulous.h \
-  src/cgame/cg_public.h src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
 debugi386-glibc/cgame/cg_particles.o: src/cgame/cg_particles.c src/cgame/cg_local.h \
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
@@ -437,6 +437,10 @@ qvm/cgame/cg_animmapobj.asm: src/cgame/cg_animmapobj.c src/cgame/cg_local.h \
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
   src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
+qvm/cgame/cg_attachment.asm: src/cgame/cg_attachment.c src/cgame/cg_local.h \
+  src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
+  src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
+  src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
 qvm/cgame/cg_buildable.asm: src/cgame/cg_buildable.c src/cgame/cg_local.h \
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \
@@ -481,10 +485,6 @@ qvm/cgame/cg_mem.asm: src/cgame/cg_mem.c src/cgame/cg_local.h src/game/q_shared.
   src/game/surfaceflags.h src/cgame/tr_types.h src/game/bg_public.h \
   src/game/tremulous.h src/cgame/cg_public.h src/ui/ui_shared.h \
   src/ui/keycodes.h ui/menudef.h
-qvm/cgame/cg_mp3decoder.asm: src/cgame/cg_mp3decoder.c src/cgame/cg_mp3decoder.h \
-  src/cgame/cg_local.h src/game/q_shared.h src/game/surfaceflags.h \
-  src/cgame/tr_types.h src/game/bg_public.h src/game/tremulous.h \
-  src/cgame/cg_public.h src/ui/ui_shared.h src/ui/keycodes.h ui/menudef.h
 qvm/cgame/cg_particles.asm: src/cgame/cg_particles.c src/cgame/cg_local.h \
   src/game/q_shared.h src/game/surfaceflags.h src/cgame/tr_types.h \
   src/game/bg_public.h src/game/tremulous.h src/cgame/cg_public.h \

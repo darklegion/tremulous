@@ -240,6 +240,8 @@ static void CG_EntityEffects( centity_t *cent )
     trap_R_AddLightToScene( cent->lerpOrigin, i, r, g, b );
   }
 
+  if( cg.time > cent->muzzleTSDeathTime && CG_IsTrailSystemValid( &cent->muzzleTS ) )
+    CG_DestroyTrailSystem( &cent->muzzleTS );
 }
 
 
@@ -320,6 +322,7 @@ static void CG_LaunchMissile( centity_t *cent )
   entityState_t       *es;
   const weaponInfo_t  *wi;
   particleSystem_t    *ps;
+  trailSystem_t       *ts;
   weapon_t            weapon;
   weaponMode_t        weaponMode;
 
@@ -335,8 +338,23 @@ static void CG_LaunchMissile( centity_t *cent )
   if( wi->wim[ weaponMode ].missileParticleSystem )
   {
     ps = CG_SpawnNewParticleSystem( wi->wim[ weaponMode ].missileParticleSystem );
-    CG_SetParticleSystemCent( ps, cent );
-    CG_AttachParticleSystemToCent( ps );
+
+    if( CG_IsParticleSystemValid( &ps ) )
+    {
+      CG_SetAttachmentCent( &ps->attachment, cent );
+      CG_AttachToCent( &ps->attachment );
+    }
+  }
+
+  if( wi->wim[ weaponMode ].missileTrailSystem )
+  {
+    ts = CG_SpawnNewTrailSystem( wi->wim[ weaponMode ].missileTrailSystem );
+
+    if( CG_IsTrailSystemValid( &ts ) )
+    {
+      CG_SetAttachmentCent( &ts->frontAttachment, cent );
+      CG_AttachToCent( &ts->frontAttachment );
+    }
   }
 }
 
@@ -763,54 +781,51 @@ CG_Lev2ZapChain
 */
 static void CG_Lev2ZapChain( centity_t *cent )
 {
-  int           i = 0;
+  int           i;
   entityState_t *es;
-  vec3_t        start, end;
   centity_t     *source, *target;
 
   es = &cent->currentState;
 
-  if( es->time > 0 )
+  for( i = 0; i <= 2; i++ )
   {
-    source = &cg_entities[ es->powerups ];
-    target = &cg_entities[ es->time ];
+    switch( i )
+    {
+      case 0:
+        if( es->time <= 0 )
+          continue;
 
-    if( es->powerups == cg.predictedPlayerState.clientNum )
-      VectorCopy( cg.predictedPlayerState.origin, start );
-    else
-      VectorCopy( source->currentState.pos.trBase, start );
+        source = &cg_entities[ es->powerups ];
+        target = &cg_entities[ es->time ];
+        break;
 
-    VectorCopy( target->currentState.pos.trBase, end );
+      case 1:
+        if( es->time2 <= 0 )
+          continue;
 
-    CG_DynamicLightningBolt( cgs.media.lightningShader, start, end,
-                             1+((cg.time%((i+2)*(i+3)))+i)%2, 7 + (float)(i%3)*5 + 6.0*random(),
-                             qtrue, 1.0, 0, i*i*3 );
-  }
+        source = &cg_entities[ es->time ];
+        target = &cg_entities[ es->time2 ];
+        break;
 
-  if( es->time2 > 0 )
-  {
-    source = &cg_entities[ es->time ];
-    target = &cg_entities[ es->time2 ];
+      case 2:
+        if( es->constantLight <= 0 )
+          continue;
 
-    VectorCopy( source->currentState.pos.trBase, start );
-    VectorCopy( target->currentState.pos.trBase, end );
+        source = &cg_entities[ es->time2 ];
+        target = &cg_entities[ es->constantLight ];
+        break;
+    }
 
-    CG_DynamicLightningBolt( cgs.media.lightningShader, start, end,
-                             1+((cg.time%((i+2)*(i+3)))+i)%2, 7 + (float)(i%3)*5 + 6.0*random(),
-                             qtrue, 1.0, 0, i*i*3 );
-  }
+    if( !CG_IsTrailSystemValid( &cent->level2ZapTS[ i ] ) )
+      cent->level2ZapTS[ i ] = CG_SpawnNewTrailSystem( cgs.media.level2ZapTS );
 
-  if( es->constantLight > 0 )
-  {
-    source = &cg_entities[ es->time2 ];
-    target = &cg_entities[ es->constantLight ];
-
-    VectorCopy( source->currentState.pos.trBase, start );
-    VectorCopy( target->currentState.pos.trBase, end );
-
-    CG_DynamicLightningBolt( cgs.media.lightningShader, start, end,
-                             1+((cg.time%((i+2)*(i+3)))+i)%2, 7 + (float)(i%3)*5 + 6.0*random(),
-                             qtrue, 1.0, 0, i*i*3 );
+    if( CG_IsTrailSystemValid( &cent->level2ZapTS[ i ] ) )
+    {
+      CG_SetAttachmentCent( &cent->level2ZapTS[ i ]->frontAttachment, source );
+      CG_SetAttachmentCent( &cent->level2ZapTS[ i ]->backAttachment, target );
+      CG_AttachToCent( &cent->level2ZapTS[ i ]->frontAttachment );
+      CG_AttachToCent( &cent->level2ZapTS[ i ]->backAttachment );
+    }
   }
 }
 
@@ -983,8 +998,22 @@ CG_CEntityPVSLeave
 */
 static void CG_CEntityPVSLeave( centity_t *cent )
 {
+  int           i;
+  entityState_t *es = &cent->currentState;
+
   if( cg_debugPVS.integer )
     CG_Printf( "Entity %d left PVS\n", cent->currentState.number );
+
+  switch( es->eType )
+  {
+    case ET_LEV2_ZAP_CHAIN:
+      for( i = 0; i <= 2; i++ )
+      {
+        if( CG_IsTrailSystemValid( &cent->level2ZapTS[ i ] ) )
+          CG_DestroyTrailSystem( &cent->level2ZapTS[ i ] );
+      }
+      break;
+  }
 }
 
 

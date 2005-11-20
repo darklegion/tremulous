@@ -631,12 +631,6 @@ void teslaFire( gentity_t *ent )
 
   // move origin a bit to come closer to the drawn gun muzzle
   VectorMA( tent->s.origin2, 28, up, tent->s.origin2 );
-
-  // no explosion at end if SURF_NOIMPACT, but still make the trail
-  if( tr.surfaceFlags & SURF_NOIMPACT )
-    tent->s.eventParm = 255;  // don't make the explosion at the end
-  else
-    tent->s.eventParm = DirToByte( tr.plane.normal );
 }
 
 

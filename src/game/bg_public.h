@@ -1288,3 +1288,6 @@ float VectorDistance( vec3_t v1, vec3_t v2 );
 float VectorMinComponent( vec3_t v );
 float VectorMaxComponent( vec3_t v );
 float round( float v );
+
+float atof_neg( char *token, qboolean allowNegative );
+int   atoi_neg( char *token, qboolean allowNegative );

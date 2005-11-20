@@ -1258,7 +1258,6 @@ Called when an alien touches a booster
 */
 void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 {
-  int       maxAmmo, maxClips;
   gclient_t *client = other->client;
 
   if( !self->spawned )
@@ -1289,52 +1288,50 @@ void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 //==================================================================================
 
+#define TRAPPER_ACCURACY 10 // lower is better
 
 /*
 ================
-ADef_fireonemeny
+ATrapper_FireOnEnemy
 
-Used by ADef2_Think to fire at enemy
+Used by ATrapper_Think to fire at enemy
 ================
 */
-void ADef_FireOnEnemy( gentity_t *self, int firespeed, float range )
+void ATrapper_FireOnEnemy( gentity_t *self, int firespeed, float range )
 {
-  vec3_t  dirToTarget;
-  vec3_t  halfAcceleration, thirdJerk;
-  float   distanceToTarget = BG_FindRangeForBuildable( self->s.modelindex );
-  int     i;
+  gentity_t *enemy = self->enemy;
+  vec3_t    dirToTarget;
+  vec3_t    halfAcceleration, thirdJerk;
+  float     distanceToTarget = BG_FindRangeForBuildable( self->s.modelindex );
+  int       lowMsec = 0;
+  int       highMsec = (int)( (
+    ( ( distanceToTarget * LOCKBLOB_SPEED ) +
+      ( distanceToTarget * BG_FindSpeedForClass( enemy->client->ps.stats[ STAT_PCLASS ] ) ) ) /
+    ( LOCKBLOB_SPEED * LOCKBLOB_SPEED ) ) * 1000.0f );
 
-  VectorScale( self->enemy->acceleration, 1.0f / 2.0f, halfAcceleration );
-  VectorScale( self->enemy->jerk, 1.0f / 3.0f, thirdJerk );
+  VectorScale( enemy->acceleration, 1.0f / 2.0f, halfAcceleration );
+  VectorScale( enemy->jerk, 1.0f / 3.0f, thirdJerk );
 
-  //O( time ) - worst case O( time ) = ( range * 1000 ) / speed
-  for( i = 0; (float)( i * LOCKBLOB_SPEED ) / 1000.0f < distanceToTarget; i++ )
+  // highMsec and lowMsec can only move toward
+  // one another, so the loop must terminate
+  while( highMsec - lowMsec > TRAPPER_ACCURACY )
   {
-    float time = (float)i / 1000.0f;
+    int   partitionMsec = ( highMsec + lowMsec ) / 2;
+    float time = (float)partitionMsec / 1000.0f;
+    float projectileDistance = LOCKBLOB_SPEED * time;
 
-    if( i > ( ( (float)range * 1000.0f ) / LOCKBLOB_SPEED ) )
-    {
-      VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
-      distanceToTarget = VectorLength( dirToTarget );
-
-      G_LogPrintf( "ADef_FireOnEnemy failed.\n"
-          "  %dth iteration\n  enemy location: %v\n"
-          "  enemy accleration: %v\n  enemy jerk: %v\n"
-          "  base location: %v\n  distanceToTarget: %f\n",
-          i, self->enemy->s.pos.trBase, self->enemy->acceleration,
-          self->enemy->jerk, self->s.pos.trBase, distanceToTarget );
-
-      return;
-    }
-
-    VectorMA( self->enemy->s.pos.trBase, time, self->enemy->s.pos.trDelta,
-              dirToTarget );
+    VectorMA( enemy->s.pos.trBase, time, enemy->s.pos.trDelta, dirToTarget );
     VectorMA( dirToTarget, time * time, halfAcceleration, dirToTarget );
     VectorMA( dirToTarget, time * time * time, thirdJerk, dirToTarget );
     VectorSubtract( dirToTarget, self->s.pos.trBase, dirToTarget );
     distanceToTarget = VectorLength( dirToTarget );
 
-    distanceToTarget -= self->enemy->r.maxs[ 0 ];
+    if( projectileDistance < distanceToTarget )
+      lowMsec = partitionMsec;
+    else if( projectileDistance > distanceToTarget )
+      highMsec = partitionMsec;
+    else if( projectileDistance == distanceToTarget )
+      break; // unlikely to happen
   }
 
   VectorNormalize( dirToTarget );
@@ -1348,12 +1345,12 @@ void ADef_FireOnEnemy( gentity_t *self, int firespeed, float range )
 
 /*
 ================
-ADef_checktarget
+ATrapper_CheckTarget
 
-Used by ADef2_Think to check enemies for validity
+Used by ATrapper_Think to check enemies for validity
 ================
 */
-qboolean ADef_CheckTarget( gentity_t *self, gentity_t *target, int range )
+qboolean ATrapper_CheckTarget( gentity_t *self, gentity_t *target, int range )
 {
   vec3_t    distance;
   trace_t   trace;
@@ -1393,12 +1390,12 @@ qboolean ADef_CheckTarget( gentity_t *self, gentity_t *target, int range )
 
 /*
 ================
-adef_findenemy
+ATrapper_FindEnemy
 
-Used by DDef2_Think to locate enemy gentities
+Used by ATrapper_Think to locate enemy gentities
 ================
 */
-void ADef_FindEnemy( gentity_t *ent, int range )
+void ATrapper_FindEnemy( gentity_t *ent, int range )
 {
   gentity_t *target;
 
@@ -1406,7 +1403,7 @@ void ADef_FindEnemy( gentity_t *ent, int range )
   for( target = g_entities; target < &g_entities[ level.num_entities ]; target++ )
   {
     //if target is not valid keep searching
-    if( !ADef_CheckTarget( ent, target, range ) )
+    if( !ATrapper_CheckTarget( ent, target, range ) )
       continue;
 
     //we found a target
@@ -1444,8 +1441,8 @@ void ATrapper_Think( gentity_t *self )
   if( self->spawned && findOvermind( self ) )
   {
     //if the current target is not valid find a new one
-    if( !ADef_CheckTarget( self, self->enemy, range ) )
-      ADef_FindEnemy( self, range );
+    if( !ATrapper_CheckTarget( self, self->enemy, range ) )
+      ATrapper_FindEnemy( self, range );
 
     //if a new target cannot be found don't do anything
     if( !self->enemy )
@@ -1453,7 +1450,7 @@ void ATrapper_Think( gentity_t *self )
 
     //if we are pointing at our target and we can fire shoot it
     if( self->count < level.time )
-      ADef_FireOnEnemy( self, firespeed, range );
+      ATrapper_FireOnEnemy( self, firespeed, range );
   }
 }
 

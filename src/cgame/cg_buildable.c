@@ -108,9 +108,13 @@ void CG_AlienBuildableExplosion( vec3_t origin, vec3_t dir )
 
   //particle system
   ps = CG_SpawnNewParticleSystem( cgs.media.alienBuildableDestroyedPS );
-  CG_SetParticleSystemOrigin( ps, origin );
-  CG_SetParticleSystemNormal( ps, dir );
-  CG_AttachParticleSystemToOrigin( ps );
+
+  if( CG_IsParticleSystemValid( &ps ) )
+  {
+    CG_SetAttachmentPoint( &ps->attachment, origin );
+    CG_SetParticleSystemNormal( ps, dir );
+    CG_AttachToPoint( &ps->attachment );
+  }
 }
 
 
@@ -205,9 +209,13 @@ void CG_HumanBuildableExplosion( vec3_t origin, vec3_t dir )
 
   //particle system
   ps = CG_SpawnNewParticleSystem( cgs.media.humanBuildableDestroyedPS );
-  CG_SetParticleSystemOrigin( ps, origin );
-  CG_SetParticleSystemNormal( ps, dir );
-  CG_AttachParticleSystemToOrigin( ps );
+
+  if( CG_IsParticleSystemValid( &ps ) )
+  {
+    CG_SetAttachmentPoint( &ps->attachment, origin );
+    CG_SetParticleSystemNormal( ps, dir );
+    CG_AttachToPoint( &ps->attachment );
+  }
 }
 
 
@@ -500,6 +508,8 @@ void CG_InitBuildables( )
     cg.buildablesFraction = (float)i / (float)( BA_NUM_BUILDABLES - 1 );
     trap_UpdateScreen( );
   }
+
+  cgs.media.teslaZapTS = CG_RegisterTrailSystem( "models/buildables/tesla/zap" );
 }
 
 /*
@@ -823,8 +833,12 @@ static void CG_BuildableParticleEffects( centity_t *cent )
     if( healthFrac < 0.33f && !CG_IsParticleSystemValid( &cent->buildablePS ) )
     {
       cent->buildablePS = CG_SpawnNewParticleSystem( cgs.media.humanBuildableDamagedPS );
-      CG_SetParticleSystemCent( cent->buildablePS, cent );
-      CG_AttachParticleSystemToCent( cent->buildablePS );
+
+      if( CG_IsParticleSystemValid( &cent->buildablePS ) )
+      {
+        CG_SetAttachmentCent( &cent->buildablePS->attachment, cent );
+        CG_AttachToCent( &cent->buildablePS->attachment );
+      }
     }
     else if( healthFrac >= 0.33f && CG_IsParticleSystemValid( &cent->buildablePS ) )
       CG_DestroyParticleSystem( &cent->buildablePS );
@@ -834,9 +848,13 @@ static void CG_BuildableParticleEffects( centity_t *cent )
     if( healthFrac < 0.33f && !CG_IsParticleSystemValid( &cent->buildablePS ) )
     {
       cent->buildablePS = CG_SpawnNewParticleSystem( cgs.media.alienBuildableDamagedPS );
-      CG_SetParticleSystemCent( cent->buildablePS, cent );
-      CG_SetParticleSystemNormal( cent->buildablePS, es->origin2 );
-      CG_AttachParticleSystemToCent( cent->buildablePS );
+
+      if( CG_IsParticleSystemValid( &cent->buildablePS ) )
+      {
+        CG_SetAttachmentCent( &cent->buildablePS->attachment, cent );
+        CG_SetParticleSystemNormal( cent->buildablePS, es->origin2 );
+        CG_AttachToCent( &cent->buildablePS->attachment );
+      }
     }
     else if( healthFrac >= 0.33f && CG_IsParticleSystemValid( &cent->buildablePS ) )
       CG_DestroyParticleSystem( &cent->buildablePS );

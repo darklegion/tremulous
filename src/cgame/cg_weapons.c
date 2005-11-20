@@ -157,35 +157,6 @@ static void CG_ShotgunEjectBrass( centity_t *cent )
   le->leMarkType = LEMT_NONE;
 }
 
-/*
-==========================
-CG_TeslaTrail
-==========================
-*/
-void CG_TeslaTrail( vec3_t start, vec3_t end, int srcENum, int destENum )
-{
-  localEntity_t *le;
-  refEntity_t   *re;
-
-  //add a bunch of bolt segments
-  le = CG_AllocLocalEntity( );
-  re = &le->refEntity;
-
-  le->leType = LE_LIGHTNING_BOLT;
-  le->startTime = cg.time;
-  le->endTime = cg.time + cg_teslaTrailTime.value;
-  le->lifeRate = 1.0 / ( le->endTime - le->startTime );
-  re->customShader = cgs.media.lightningShader;
-
-  le->srcENum = srcENum;
-  le->destENum = destENum;
-  le->vOffset = 28;
-  le->maxRange = BG_FindRangeForBuildable( BA_H_TESLAGEN ) * M_ROOT3;
-
-  VectorCopy( start, re->origin );
-  VectorCopy( end, re->oldorigin );
-}
-
 
 /*
 =================
@@ -348,6 +319,19 @@ static qboolean CG_ParseWeaponModeSection( weaponInfoMode_t *wim, char **text_p 
 
       if( !wim->missileParticleSystem )
         CG_Printf( S_COLOR_RED "ERROR: missile particle system not found %s\n", token );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "missileTrailSystem" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      wim->missileTrailSystem = CG_RegisterTrailSystem( token );
+
+      if( !wim->missileTrailSystem )
+        CG_Printf( S_COLOR_RED "ERROR: missile trail system not found %s\n", token );
 
       continue;
     }
@@ -856,8 +840,7 @@ void CG_InitWeapons( void )
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
     CG_RegisterWeapon( i );
 
-  cgs.media.lightningShader         = trap_R_RegisterShader( "models/ammo/tesla/tesla_bolt");
-  cgs.media.lightningExplosionModel = trap_R_RegisterModel( "models/weaphits/crackle.md3" );
+  cgs.media.level2ZapTS = CG_RegisterTrailSystem( "models/weapons/lev2zap/lightning" );
 }
 
 
@@ -1102,9 +1085,9 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
         cent->currentState.number != cg.predictedPlayerState.clientNum )
     {
       if( noGunModel )
-        CG_SetParticleSystemTag( cent->muzzlePS, *parent, parent->hModel, "tag_weapon" );
+        CG_SetAttachmentTag( &cent->muzzlePS->attachment, *parent, parent->hModel, "tag_weapon" );
       else
-        CG_SetParticleSystemTag( cent->muzzlePS, gun, weapon->weaponModel, "tag_flash" );
+        CG_SetAttachmentTag( &cent->muzzlePS->attachment, gun, weapon->weaponModel, "tag_flash" );
     }
 
     //if the PS is infinite disable it when not firing
@@ -1148,13 +1131,17 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
     {
       cent->muzzlePS = CG_SpawnNewParticleSystem( weapon->wim[ weaponMode ].muzzleParticleSystem );
 
-      if( noGunModel )
-        CG_SetParticleSystemTag( cent->muzzlePS, *parent, parent->hModel, "tag_weapon" );
-      else
-        CG_SetParticleSystemTag( cent->muzzlePS, gun, weapon->weaponModel, "tag_flash" );
+      if( CG_IsParticleSystemValid( &cent->muzzlePS ) )
+      {
+        if( noGunModel )
+          CG_SetAttachmentTag( &cent->muzzlePS->attachment, *parent, parent->hModel, "tag_weapon" );
+        else
+          CG_SetAttachmentTag( &cent->muzzlePS->attachment, gun, weapon->weaponModel, "tag_flash" );
 
-      CG_SetParticleSystemCent( cent->muzzlePS, cent );
-      CG_AttachParticleSystemToTag( cent->muzzlePS );
+        CG_SetAttachmentCent( &cent->muzzlePS->attachment, cent );
+        CG_AttachToTag( &cent->muzzlePS->attachment );
+      }
+
       cent->muzzlePsTrigger = qfalse;
     }
 
@@ -1228,15 +1215,19 @@ void CG_AddViewWeapon( playerState_t *ps )
     VectorMA( origin, -8, cg.refdef.viewaxis[ 2 ], origin );
 
     if( cent->muzzlePS )
-      CG_SetParticleSystemOrigin( cent->muzzlePS, origin );
+      CG_SetAttachmentPoint( &cent->muzzlePS->attachment, origin );
 
     //check for particle systems
     if( wi->wim[ weaponMode ].muzzleParticleSystem && cent->muzzlePsTrigger )
     {
       cent->muzzlePS = CG_SpawnNewParticleSystem( wi->wim[ weaponMode ].muzzleParticleSystem );
-      CG_SetParticleSystemOrigin( cent->muzzlePS, origin );
-      CG_SetParticleSystemCent( cent->muzzlePS, cent );
-      CG_AttachParticleSystemToOrigin( cent->muzzlePS );
+
+      if( CG_IsParticleSystemValid( &cent->muzzlePS ) )
+      {
+        CG_SetAttachmentPoint( &cent->muzzlePS->attachment, origin );
+        CG_SetAttachmentCent( &cent->muzzlePS->attachment, cent );
+        CG_AttachToPoint( &cent->muzzlePS->attachment );
+      }
       cent->muzzlePsTrigger = qfalse;
     }
 
@@ -1765,9 +1756,13 @@ void CG_MissileHitWall( weapon_t weaponNum, weaponMode_t weaponMode, int clientN
   if( ps )
   {
     particleSystem_t *partSystem = CG_SpawnNewParticleSystem( ps );
-    CG_SetParticleSystemOrigin( partSystem, origin );
-    CG_SetParticleSystemNormal( partSystem, dir );
-    CG_AttachParticleSystemToOrigin( partSystem );
+
+    if( CG_IsParticleSystemValid( &partSystem ) )
+    {
+      CG_SetAttachmentPoint( &partSystem->attachment, origin );
+      CG_SetParticleSystemNormal( partSystem, dir );
+      CG_AttachToPoint( &partSystem->attachment );
+    }
   }
 
   //

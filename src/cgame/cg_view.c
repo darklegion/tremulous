@@ -1311,7 +1311,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
   // build the render lists
   if( !cg.hyperspace )
   {
-    CG_AddPacketEntities( );     // adter calcViewValues, so predicted player state is correct
+    CG_AddPacketEntities( );     // after calcViewValues, so predicted player state is correct
     CG_AddMarks( );
     CG_AddLocalEntities( );
   }
@@ -1322,9 +1322,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
   if( !cg.hyperspace )
   {
     CG_AddParticles( );
-
-    //TA: wolf trails stuff
-    CG_AddTrails( );    // this must come last, so the trails dropped this frame get drawn
+    CG_AddTrails( );
   }
 
   // add buffered sounds

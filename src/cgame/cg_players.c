@@ -1631,9 +1631,10 @@ static void CG_PlayerUpgrades( centity_t *cent, refEntity_t *torso )
 
       if( CG_IsParticleSystemValid( &cent->jetPackPS ) )
       {
-        CG_SetParticleSystemTag( cent->jetPackPS, jetpack, jetpack.hModel, "tag_flash" );
-        CG_SetParticleSystemCent( cent->jetPackPS, cent );
-        CG_AttachParticleSystemToTag( cent->jetPackPS );
+        CG_SetAttachmentTag( &cent->jetPackPS->attachment,
+            jetpack, jetpack.hModel, "tag_flash" );
+        CG_SetAttachmentCent( &cent->jetPackPS->attachment, cent );
+        CG_AttachToTag( &cent->jetPackPS->attachment );
       }
     }
     else if( CG_IsParticleSystemValid( &cent->jetPackPS ) )

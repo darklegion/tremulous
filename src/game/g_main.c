@@ -59,8 +59,8 @@ vmCvar_t  g_synchronousClients;
 vmCvar_t  g_warmup;
 vmCvar_t  g_doWarmup;
 vmCvar_t  g_restarted;
-vmCvar_t  g_log;
-vmCvar_t  g_logSync;
+vmCvar_t  g_logFile;
+vmCvar_t  g_logFileSync;
 vmCvar_t  g_blood;
 vmCvar_t  g_podiumDist;
 vmCvar_t  g_podiumDrop;
@@ -124,8 +124,8 @@ static cvarTable_t   gameCvarTable[ ] =
 
   { &g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, qtrue  },
   { &g_doWarmup, "g_doWarmup", "0", 0, 0, qtrue  },
-  { &g_log, "g_log", "games.log", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_logSync, "g_logSync", "0", CVAR_ARCHIVE, 0, qfalse  },
+  { &g_logFile, "g_logFile", "games.log", CVAR_ARCHIVE, 0, qfalse  },
+  { &g_logFileSync, "g_logFileSync", "0", CVAR_ARCHIVE, 0, qfalse  },
 
   { &g_password, "g_password", "", CVAR_USERINFO, 0, qfalse  },
 
@@ -477,15 +477,15 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
   level.snd_fry = G_SoundIndex( "sound/player/fry.wav" ); // FIXME standing in lava / slime
 
-  if( g_log.string[ 0 ] )
+  if( g_logFile.string[ 0 ] )
   {
-    if( g_logSync.integer )
-      trap_FS_FOpenFile( g_log.string, &level.logFile, FS_APPEND_SYNC );
+    if( g_logFileSync.integer )
+      trap_FS_FOpenFile( g_logFile.string, &level.logFile, FS_APPEND_SYNC );
     else
-      trap_FS_FOpenFile( g_log.string, &level.logFile, FS_APPEND );
+      trap_FS_FOpenFile( g_logFile.string, &level.logFile, FS_APPEND );
 
     if( !level.logFile )
-      G_Printf( "WARNING: Couldn't open logfile: %s\n", g_log.string );
+      G_Printf( "WARNING: Couldn't open logfile: %s\n", g_logFile.string );
     else
     {
       char serverinfo[ MAX_INFO_STRING ];

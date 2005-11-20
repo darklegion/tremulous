@@ -171,6 +171,10 @@ static consoleCommand_t commands[ ] =
   { "tell_target", CG_TellTarget_f },
   { "tell_attacker", CG_TellAttacker_f },
   { "tcmd", CG_TargetCommand_f },
+  { "testPS", CG_TestPS_f },
+  { "destroyTestPS", CG_DestroyTestPS_f },
+  { "testTS", CG_TestTS_f },
+  { "destroyTestTS", CG_DestroyTestTS_f },
 };
 
 

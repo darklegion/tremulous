@@ -199,6 +199,7 @@ vmCvar_t  cg_depthSortParticles;
 vmCvar_t  cg_consoleLatency;
 vmCvar_t  cg_lightFlare;
 vmCvar_t  cg_debugParticles;
+vmCvar_t  cg_debugTrails;
 vmCvar_t  cg_debugPVS;
 vmCvar_t  cg_disableWarningDialogs;
 vmCvar_t  cg_disableScannerPlane;
@@ -304,6 +305,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_consoleLatency, "cg_consoleLatency", "3000", CVAR_ARCHIVE },
   { &cg_lightFlare, "cg_lightFlare", "3", CVAR_ARCHIVE },
   { &cg_debugParticles, "cg_debugParticles", "0", CVAR_CHEAT },
+  { &cg_debugTrails, "cg_debugTrails", "0", CVAR_CHEAT },
   { &cg_debugPVS, "cg_debugPVS", "0", CVAR_CHEAT },
   { &cg_disableWarningDialogs, "cg_disableWarningDialogs", "0", CVAR_ARCHIVE },
   { &cg_disableScannerPlane, "cg_disableScannerPlane", "0", CVAR_ARCHIVE },
@@ -794,8 +796,8 @@ static void CG_RegisterGraphics( void )
 
   cgs.media.upgradeClassIconShader    = trap_R_RegisterShader( "icons/icona_upgrade.tga" );
 
-  cgs.media.machinegunBrassModel      = trap_R_RegisterModel( "models/weapons2/shells/m_shell.md3" );
-  cgs.media.shotgunBrassModel         = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
+  cgs.media.machinegunBrassModel      = trap_R_RegisterModel( "models/weapons/shells/rifle_shell.md3" );
+  cgs.media.shotgunBrassModel         = trap_R_RegisterModel( "models/weapons/shells/shotgun_shell.md3" );
 
   cgs.media.gibAbdomen                = trap_R_RegisterModel( "models/gibs/abdomen.md3" );
   cgs.media.gibArm                    = trap_R_RegisterModel( "models/gibs/arm.md3" );
@@ -824,8 +826,6 @@ static void CG_RegisterGraphics( void )
   cgs.media.alienGib2                 = trap_R_RegisterModel( "models/fx/alien_gibs/a_gib2.md3" );
   cgs.media.alienGib3                 = trap_R_RegisterModel( "models/fx/alien_gibs/a_gib3.md3" );
   cgs.media.alienGib4                 = trap_R_RegisterModel( "models/fx/alien_gibs/a_gib4.md3" );
-
-  cgs.media.smoke2                    = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
 
   cgs.media.balloonShader             = trap_R_RegisterShader( "sprites/balloon3" );
 
@@ -1801,6 +1801,9 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   cg.loading = qtrue;   // force players to load instead of defer
 
   CG_LoadParticleSystems( );
+  CG_UpdateMediaFraction( 0.05f );
+
+  CG_LoadTrailSystems( );
   CG_UpdateMediaFraction( 0.05f );
 
   CG_RegisterSounds( );

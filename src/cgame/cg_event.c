@@ -740,7 +740,29 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     case EV_TESLATRAIL:
       DEBUGNAME( "EV_TESLATRAIL" );
       cent->currentState.weapon = WP_TESLAGEN;
-      CG_TeslaTrail( es->origin2, es->pos.trBase, es->generic1, es->clientNum );
+      {
+        centity_t *source = &cg_entities[ es->generic1 ];
+        centity_t *target = &cg_entities[ es->clientNum ];
+        vec3_t    sourceOffset = { 0.0f, 0.0f, 28.0f };
+        vec3_t    targetOffset = { 0.0f, 0.0f, -2.0f };
+
+        if( !CG_IsTrailSystemValid( &source->muzzleTS ) )
+        {
+          source->muzzleTS = CG_SpawnNewTrailSystem( cgs.media.teslaZapTS );
+
+          if( CG_IsTrailSystemValid( &source->muzzleTS ) )
+          {
+            CG_SetAttachmentCent( &source->muzzleTS->frontAttachment, source );
+            CG_SetAttachmentCent( &source->muzzleTS->backAttachment, target );
+            CG_AttachToCent( &source->muzzleTS->frontAttachment );
+            CG_AttachToCent( &source->muzzleTS->backAttachment );
+            CG_SetAttachmentOffset( &source->muzzleTS->frontAttachment, sourceOffset );
+            CG_SetAttachmentOffset( &source->muzzleTS->backAttachment, targetOffset );
+
+            source->muzzleTSDeathTime = cg.time + cg_teslaTrailTime.integer;
+          }
+        }
+      }
       break;
 
     case EV_BULLET_HIT_WALL:
@@ -880,8 +902,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.alienEvolveSound );
       {
         particleSystem_t *ps = CG_SpawnNewParticleSystem( cgs.media.alienEvolvePS );
-        CG_SetParticleSystemCent( ps, cent );
-        CG_AttachParticleSystemToCent( ps );
+
+        if( CG_IsParticleSystemValid( &ps ) )
+        {
+          CG_SetAttachmentCent( &ps->attachment, cent );
+          CG_AttachToCent( &ps->attachment );
+        }
       }
 
       if( es->number == cg.clientNum )
@@ -902,10 +928,14 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       DEBUGNAME( "EV_ALIEN_ACIDTUBE" );
       {
         particleSystem_t *ps = CG_SpawnNewParticleSystem( cgs.media.alienAcidTubePS );
-        CG_SetParticleSystemCent( ps, cent );
-        ByteToDir( es->eventParm, dir );
-        CG_SetParticleSystemNormal( ps, dir );
-        CG_AttachParticleSystemToCent( ps );
+
+        if( CG_IsParticleSystemValid( &ps ) )
+        {
+          CG_SetAttachmentCent( &ps->attachment, cent );
+          ByteToDir( es->eventParm, dir );
+          CG_SetParticleSystemNormal( ps, dir );
+          CG_AttachToCent( &ps->attachment );
+        }
       }
       break;
 

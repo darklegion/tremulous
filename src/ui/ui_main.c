@@ -115,7 +115,6 @@ static char* netnames[] = {
 };
 
 static int gamecodetoui[] = {4,2,3,0,5,1,6};
-static int uitogamecode[] = {4,6,2,3,1,5,7};
 
 
 static void UI_StartServerRefresh(qboolean full);
@@ -2663,27 +2662,6 @@ static qboolean UI_Handicap_HandleKey(int flags, float *special, int key) {
   return qfalse;
 }
 
-static qboolean UI_Effects_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
-
-    if (key == K_MOUSE2) {
-      uiInfo.effectsColor--;
-    } else {
-      uiInfo.effectsColor++;
-    }
-
-    if( uiInfo.effectsColor > 6 ) {
-      uiInfo.effectsColor = 0;
-    } else if (uiInfo.effectsColor < 0) {
-      uiInfo.effectsColor = 6;
-    }
-
-    trap_Cvar_SetValue( "color1", uitogamecode[uiInfo.effectsColor] );
-    return qtrue;
-  }
-  return qfalse;
-}
-
 static qboolean UI_ClanName_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     int i;
@@ -2969,25 +2947,6 @@ static qboolean UI_BotSkill_HandleKey(int flags, float *special, int key) {
 static qboolean UI_RedBlue_HandleKey(int flags, float *special, int key) {
   if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
     uiInfo.redBlue ^= 1;
-    return qtrue;
-  }
-  return qfalse;
-}
-
-static qboolean UI_Crosshair_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
-    if (key == K_MOUSE2) {
-      uiInfo.currentCrosshair--;
-    } else {
-      uiInfo.currentCrosshair++;
-    }
-
-    if (uiInfo.currentCrosshair >= NUM_CROSSHAIRS) {
-      uiInfo.currentCrosshair = 0;
-    } else if (uiInfo.currentCrosshair < 0) {
-      uiInfo.currentCrosshair = NUM_CROSSHAIRS - 1;
-    }
-    trap_Cvar_Set("cg_drawCrosshair", va("%d", uiInfo.currentCrosshair));
     return qtrue;
   }
   return qfalse;
