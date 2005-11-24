@@ -796,9 +796,6 @@ static void CG_RegisterGraphics( void )
 
   cgs.media.upgradeClassIconShader    = trap_R_RegisterShader( "icons/icona_upgrade.tga" );
 
-  cgs.media.machinegunBrassModel      = trap_R_RegisterModel( "models/weapons/shells/rifle_shell.md3" );
-  cgs.media.shotgunBrassModel         = trap_R_RegisterModel( "models/weapons/shells/shotgun_shell.md3" );
-
   cgs.media.gibAbdomen                = trap_R_RegisterModel( "models/gibs/abdomen.md3" );
   cgs.media.gibArm                    = trap_R_RegisterModel( "models/gibs/arm.md3" );
   cgs.media.gibChest                  = trap_R_RegisterModel( "models/gibs/chest.md3" );
@@ -1800,10 +1797,10 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 
   cg.loading = qtrue;   // force players to load instead of defer
 
-  CG_LoadParticleSystems( );
+  CG_LoadTrailSystems( );
   CG_UpdateMediaFraction( 0.05f );
 
-  CG_LoadTrailSystems( );
+  CG_LoadParticleSystems( );
   CG_UpdateMediaFraction( 0.05f );
 
   CG_RegisterSounds( );

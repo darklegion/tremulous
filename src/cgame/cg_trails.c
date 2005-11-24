@@ -25,12 +25,12 @@ static trailBeam_t        trailBeams[ MAX_TRAIL_BEAMS ];
 
 /*
 ===============
-CG_CalculateBeamTextureCoordinates
+CG_CalculateBeamNodeProperties
 
 Fills in trailBeamNode_t.textureCoord
 ===============
 */
-static void CG_CalculateBeamTextureCoordinates( trailBeam_t *tb )
+static void CG_CalculateBeamNodeProperties( trailBeam_t *tb )
 {
   trailBeamNode_t *i = NULL;
   trailSystem_t   *ts;
@@ -129,20 +129,30 @@ Renders a beam
 */
 static void CG_RenderBeam( trailBeam_t *tb )
 {
-  trailBeamNode_t *i = NULL;
-  trailBeamNode_t *prev = NULL;
-  trailBeamNode_t *next = NULL;
-  vec3_t          up;
-  polyVert_t      verts[ ( MAX_TRAIL_BEAM_NODES - 1 ) * 4 ];
-  int             numVerts = 0;
-  baseTrailBeam_t *btb;
+  trailBeamNode_t   *i = NULL;
+  trailBeamNode_t   *prev = NULL;
+  trailBeamNode_t   *next = NULL;
+  vec3_t            up;
+  polyVert_t        verts[ ( MAX_TRAIL_BEAM_NODES - 1 ) * 4 ];
+  int               numVerts = 0;
+  baseTrailBeam_t   *btb;
+  trailSystem_t     *ts;
+  baseTrailSystem_t *bts;
 
   if( !tb || !tb->nodes )
     return;
 
   btb = tb->class;
+  ts = tb->parent;
+  bts = ts->class;
 
-  CG_CalculateBeamTextureCoordinates( tb );
+  if( bts->thirdPersonOnly &&
+      ( CG_AttachmentCentNum( &ts->frontAttachment ) == cg.snap->ps.clientNum ||
+        CG_AttachmentCentNum( &ts->backAttachment ) == cg.snap->ps.clientNum ) &&
+      !cg.renderingThirdPerson )
+    return;
+
+  CG_CalculateBeamNodeProperties( tb );
 
   i = tb->nodes;
 
@@ -171,7 +181,7 @@ static void CG_RenderBeam( trailBeam_t *tb )
 
     if( prev )
     {
-      VectorMA( i->position, i->halfWidth + i->jitter, up, verts[ numVerts ].xyz );
+      VectorMA( i->position, i->halfWidth, up, verts[ numVerts ].xyz );
       verts[ numVerts ].st[ 0 ] = i->textureCoord;
       verts[ numVerts ].st[ 1 ] = 1.0f;
 
@@ -185,7 +195,7 @@ static void CG_RenderBeam( trailBeam_t *tb )
 
       numVerts++;
 
-      VectorMA( i->position, -i->halfWidth + i->jitter, up, verts[ numVerts ].xyz );
+      VectorMA( i->position, -i->halfWidth, up, verts[ numVerts ].xyz );
       verts[ numVerts ].st[ 0 ] = i->textureCoord;
       verts[ numVerts ].st[ 1 ] = 0.0f;
 
@@ -202,7 +212,7 @@ static void CG_RenderBeam( trailBeam_t *tb )
 
     if( next )
     {
-      VectorMA( i->position, -i->halfWidth + i->jitter, up, verts[ numVerts ].xyz );
+      VectorMA( i->position, -i->halfWidth, up, verts[ numVerts ].xyz );
       verts[ numVerts ].st[ 0 ] = i->textureCoord;
       verts[ numVerts ].st[ 1 ] = 0.0f;
 
@@ -216,7 +226,7 @@ static void CG_RenderBeam( trailBeam_t *tb )
 
       numVerts++;
 
-      VectorMA( i->position, i->halfWidth + i->jitter, up, verts[ numVerts ].xyz );
+      VectorMA( i->position, i->halfWidth, up, verts[ numVerts ].xyz );
       verts[ numVerts ].st[ 0 ] = i->textureCoord;
       verts[ numVerts ].st[ 1 ] = 1.0f;
 
@@ -444,7 +454,10 @@ static void CG_ApplyJitters( trailBeam_t *tb )
     if( tb->nextJitterTimes[ j ] <= cg.time )
     {
       for( i = tb->nodes; i; i = i->next )
-        i->jitters[ j ] = ( crandom( ) * btb->jitters[ j ].magnitude );
+      {
+        i->jitters[ j ][ 0 ] = ( crandom( ) * btb->jitters[ j ].magnitude );
+        i->jitters[ j ][ 1 ] = ( crandom( ) * btb->jitters[ j ].magnitude );
+      }
 
       tb->nextJitterTimes[ j ] = cg.time + btb->jitters[ j ].period;
     }
@@ -464,12 +477,46 @@ static void CG_ApplyJitters( trailBeam_t *tb )
 
   for( i = start; i; i = i->next )
   {
-    i->jitter = 0.0f;
+    vec3_t          forward, right, up;
+    trailBeamNode_t *prev;
+    trailBeamNode_t *next;
+    float           upJitter = 0.0f, rightJitter = 0.0f;
+
+    prev = i->prev;
+    next = i->next;
+
+    if( prev && next )
+    {
+      //this node has two neighbours
+      GetPerpendicularViewVector( cg.refdef.vieworg, next->position, prev->position, up );
+      VectorSubtract( next->position, prev->position, forward );
+    }
+    else if( !prev && next )
+    {
+      //this is the front
+      GetPerpendicularViewVector( cg.refdef.vieworg, next->position, i->position, up );
+      VectorSubtract( next->position, i->position, forward );
+    }
+    else if( prev && !next )
+    {
+      //this is the back
+      GetPerpendicularViewVector( cg.refdef.vieworg, i->position, prev->position, up );
+      VectorSubtract( i->position, prev->position, forward );
+    }
+
+    VectorNormalize( forward );
+    CrossProduct( forward, up, right );
+    VectorNormalize( right );
 
     for( j = 0; j < btb->numJitters; j++ )
-      i->jitter += i->jitters[ j ];
+    {
+      upJitter += i->jitters[ j ][ 0 ];
+      rightJitter += i->jitters[ j ][ 1 ];
+    }
 
-    //mmmm... nice
+    VectorMA( i->position, upJitter, up, i->position );
+    VectorMA( i->position, rightJitter, right, i->position );
+
     if( i == end )
       break;
   }
@@ -513,7 +560,8 @@ static void CG_UpdateBeam( trailBeam_t *tb )
       if( !tb->nodes->next && CG_Attached( &ts->frontAttachment ) )
       {
         // this is the first node to be added
-        CG_AttachmentPoint( &ts->frontAttachment, i->refPosition );
+        if( !CG_AttachmentPoint( &ts->frontAttachment, i->refPosition ) )
+          CG_DestroyTrailSystem( &ts );
       }
       else
         VectorCopy( i->prev->refPosition, i->refPosition );
@@ -536,8 +584,12 @@ static void CG_UpdateBeam( trailBeam_t *tb )
       return;
     }
 
-    CG_AttachmentPoint( &ts->frontAttachment, front );
-    CG_AttachmentPoint( &ts->backAttachment, back );
+    if( !CG_AttachmentPoint( &ts->frontAttachment, front ) )
+      CG_DestroyTrailSystem( &ts );
+
+    if( !CG_AttachmentPoint( &ts->backAttachment, back ) )
+      CG_DestroyTrailSystem( &ts );
+
     VectorSubtract( back, front, dir );
 
     for( j = 0, i = tb->nodes; i; i = i->next, j++ )
@@ -585,7 +637,9 @@ static void CG_UpdateBeam( trailBeam_t *tb )
       }
     }
 
-    CG_AttachmentPoint( &ts->frontAttachment, tb->nodes->refPosition );
+    if( !CG_AttachmentPoint( &ts->frontAttachment, tb->nodes->refPosition ) )
+      CG_DestroyTrailSystem( &ts );
+
     VectorCopy( tb->nodes->refPosition, tb->nodes->position );
   }
 
@@ -940,6 +994,8 @@ static qboolean CG_ParseTrailSystem( baseTrailSystem_t *bts, char **text_p, cons
       }
       continue;
     }
+    else if( !Q_stricmp( token, "thirdPersonOnly" ) )
+      bts->thirdPersonOnly = qtrue;
     else if( !Q_stricmp( token, "beam" ) ) //acceptable text
       continue;
     else if( !Q_stricmp( token, "}" ) )
@@ -1118,7 +1174,7 @@ qhandle_t CG_RegisterTrailSystem( char *name )
   baseTrailSystem_t *bts;
   baseTrailBeam_t   *btb;
 
-  for( i = 0; i < MAX_TRAIL_SYSTEMS; i++ )
+  for( i = 0; i < MAX_BASETRAIL_SYSTEMS; i++ )
   {
     bts = &baseTrailSystems[ i ];
 

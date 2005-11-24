@@ -29,6 +29,9 @@ qboolean CG_AttachmentPoint( attachment_t *a, vec3_t v )
   if( !a )
     return qfalse;
 
+  // if it all breaks, then use the last point we know was correct
+  VectorCopy( a->lastValidAttachmentPoint, v );
+
   switch( a->type )
   {
     case AT_STATIC:
@@ -85,6 +88,8 @@ qboolean CG_AttachmentPoint( attachment_t *a, vec3_t v )
   if( a->hasOffset )
     VectorAdd( v, a->offset, v );
 
+  VectorCopy( v, a->lastValidAttachmentPoint );
+
   return qtrue;
 }
 
@@ -106,7 +111,6 @@ qboolean CG_AttachmentDir( attachment_t *a, vec3_t v )
   switch( a->type )
   {
     case AT_STATIC:
-      //FIXME: hmmmmmmm
       return qfalse;
       break;
 
@@ -145,6 +149,53 @@ qboolean CG_AttachmentDir( attachment_t *a, vec3_t v )
   }
 
   VectorNormalize( v );
+  return qtrue;
+}
+
+/*
+===============
+CG_AttachmentAxis
+
+Return the attachment axis
+===============
+*/
+qboolean CG_AttachmentAxis( attachment_t *a, vec3_t axis[ 3 ] )
+{
+  centity_t   *cent;
+
+  if( !a )
+    return qfalse;
+
+  switch( a->type )
+  {
+    case AT_STATIC:
+      return qfalse;
+      break;
+
+    case AT_TAG:
+      if( !a->tagValid )
+        return qfalse;
+
+      AxisCopy( a->re.axis, axis );
+      break;
+
+    case AT_CENT:
+      if( !a->centValid )
+        return qfalse;
+
+      cent = &cg_entities[ a->centNum ];
+      AnglesToAxis( cent->lerpAngles, axis );
+      break;
+
+    case AT_PARTICLE:
+      return qfalse;
+      break;
+
+    default:
+      CG_Printf( S_COLOR_RED "ERROR: Invalid attachmentType_t in attachment\n" );
+      break;
+  }
+
   return qtrue;
 }
 

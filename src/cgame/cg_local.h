@@ -113,6 +113,30 @@ typedef enum
 
 //======================================================================
 
+// when changing animation, set animationTime to frameTime + lerping time
+// The current lerp will finish out, then it will lerp to the new animation
+typedef struct
+{
+  int         oldFrame;
+  int         oldFrameTime;     // time when ->oldFrame was exactly on
+
+  int         frame;
+  int         frameTime;        // time when ->frame will be exactly on
+
+  float       backlerp;
+
+  float       yawAngle;
+  qboolean    yawing;
+  float       pitchAngle;
+  qboolean    pitching;
+
+  int         animationNumber;  // may include ANIM_TOGGLEBIT
+  animation_t *animation;
+  int         animationTime;    // time when the first frame of the animation will be exact
+} lerpFrame_t;
+
+//======================================================================
+
 //attachment system
 typedef enum
 {
@@ -138,6 +162,8 @@ typedef struct attachment_s
   qboolean          hasOffset;
   vec3_t            offset;
 
+  vec3_t            lastValidAttachmentPoint;
+
   //AT_STATIC
   vec3_t            origin;
 
@@ -157,7 +183,8 @@ typedef struct attachment_s
 //======================================================================
 
 //particle system stuff
-#define MAX_SHADER_FRAMES         32
+#define MAX_PS_SHADER_FRAMES      32
+#define MAX_PS_MODELS             8
 #define MAX_EJECTORS_PER_SYSTEM   4
 #define MAX_PARTICLES_PER_EJECTOR 4
 
@@ -172,17 +199,11 @@ typedef struct attachment_s
 #define PARTICLES_INFINITE        -1
 #define PARTICLES_SAME_AS_INITIAL -2
 
-/*
-===============
-
-COMPILE TIME STRUCTURES
-
-===============
-*/
-
+//COMPILE TIME STRUCTURES
 typedef enum
 {
   PMT_STATIC,
+  PMT_STATIC_TRANSFORM,
   PMT_TAG,
   PMT_CENT_ANGLES,
   PMT_NORMAL
@@ -257,11 +278,19 @@ typedef struct baseParticle_s
   char            onDeathSystemName[ MAX_QPATH ];
   qhandle_t       onDeathSystemHandle;
 
+  char            childTrailSystemName[ MAX_QPATH ];
+  qhandle_t       childTrailSystemHandle;
+
   //particle invariant stuff
-  char            shaderNames[ MAX_QPATH ][ MAX_SHADER_FRAMES ];
-  qhandle_t       shaders[ MAX_SHADER_FRAMES ];
+  char            shaderNames[ MAX_PS_SHADER_FRAMES ][ MAX_QPATH ];
+  qhandle_t       shaders[ MAX_PS_SHADER_FRAMES ];
   int             numFrames;
   float           framerate;
+
+  char            modelNames[ MAX_PS_MODELS ][ MAX_QPATH ];
+  qhandle_t       models[ MAX_PS_MODELS ];
+  int             numModels;
+  animation_t     modelAnimation;
 
   qboolean        overdrawProtection;
   qboolean        realLight;
@@ -289,18 +318,12 @@ typedef struct baseParticleSystem_s
   baseParticleEjector_t *ejectors[ MAX_EJECTORS_PER_SYSTEM ];
   int                   numEjectors;
 
+  qboolean              thirdPersonOnly;
   qboolean              registered; //whether or not the assets for this particle have been loaded
 } baseParticleSystem_t;
 
 
-/*
-===============
-
-RUN TIME STRUCTURES
-
-===============
-*/
-
+//RUN TIME STRUCTURES
 typedef struct particleSystem_s
 {
   baseParticleSystem_t  *class;
@@ -341,6 +364,8 @@ typedef struct particle_s
   int               birthTime;
   int               lifeTime;
 
+  qboolean          atRest;
+
   vec3_t            origin;
   vec3_t            velocity;
 
@@ -354,6 +379,10 @@ typedef struct particle_s
   pLerpValues_t     radius;
   pLerpValues_t     alpha;
   pLerpValues_t     rotation;
+
+  qhandle_t         model;
+  lerpFrame_t       lf;
+  vec3_t            lastAxis[ 3 ];
 
   qboolean          valid;
   int               frameWhenInvalidated;
@@ -432,6 +461,7 @@ typedef struct baseTrailSystem_s
   baseTrailBeam_t *beams[ MAX_BEAMS_PER_SYSTEM ];
   int             numBeams;
 
+  qboolean        thirdPersonOnly;
   qboolean        registered; //whether or not the assets for this trail have been loaded
 } baseTrailSystem_t;
 
@@ -458,9 +488,8 @@ typedef struct trailBeamNode_s
   byte                    alpha;
   byte                    color[ 3 ];
 
-  float                   jitters[ MAX_TRAIL_BEAM_JITTERS ];
-  float                   jitter;
-  
+  vec2_t                  jitters[ MAX_TRAIL_BEAM_JITTERS ];
+
   struct trailBeamNode_s  *prev;
   struct trailBeamNode_s  *next;
 
@@ -476,7 +505,7 @@ typedef struct trailBeam_s
   trailBeamNode_t   *nodes;
 
   int               lastEvalTime;
-  
+
   qboolean          valid;
 
   int               nextJitterTimes[ MAX_TRAIL_BEAM_JITTERS ];
@@ -490,28 +519,6 @@ typedef struct trailBeam_s
 // note that not every player entity is a client entity,
 // because corpses after respawn are outside the normal
 // client numbering range
-
-// when changing animation, set animationTime to frameTime + lerping time
-// The current lerp will finish out, then it will lerp to the new animation
-typedef struct
-{
-  int         oldFrame;
-  int         oldFrameTime;     // time when ->oldFrame was exactly on
-
-  int         frame;
-  int         frameTime;        // time when ->frame will be exactly on
-
-  float       backlerp;
-
-  float       yawAngle;
-  qboolean    yawing;
-  float       pitchAngle;
-  qboolean    pitching;
-
-  int         animationNumber;  // may include ANIM_TOGGLEBIT
-  animation_t *animation;
-  int         animationTime;    // time when the first frame of the animation will be exact
-} lerpFrame_t;
 
 //TA: smoothing of view and model for WW transitions
 #define   MAXSMOOTHS          32
@@ -866,8 +873,6 @@ typedef struct weaponInfo_s
   qhandle_t         crossHair;
   int               crossHairSize;
 
-  void              (*ejectBrassFunc)( centity_t * );
-
   sfxHandle_t       readySound;
 
   qboolean          disableIn3rdPerson;
@@ -1206,9 +1211,6 @@ typedef struct
 
   qhandle_t   gibSpark1;
   qhandle_t   gibSpark2;
-
-  qhandle_t   machinegunBrassModel;
-  qhandle_t   shotgunBrassModel;
 
   qhandle_t   level2ZapTS;
 
@@ -1712,9 +1714,14 @@ void        CG_HumanBuildableExplosion( vec3_t origin, vec3_t dir );
 void        CG_AlienBuildableExplosion( vec3_t origin, vec3_t dir );
 
 //
+// cg_animation.c
+//
+void        CG_RunLerpFrame( lerpFrame_t *lf );
+
+//
 // cg_animmapobj.c
 //
-void        CG_animMapObj( centity_t *cent );
+void        CG_AnimMapObj( centity_t *cent );
 void        CG_ModelDoor( centity_t *cent );
 
 //
@@ -1869,6 +1876,7 @@ void          CG_DefragmentMemory( void );
 //
 qboolean    CG_AttachmentPoint( attachment_t *a, vec3_t v );
 qboolean    CG_AttachmentDir( attachment_t *a, vec3_t v );
+qboolean    CG_AttachmentAxis( attachment_t *a, vec3_t axis[ 3 ] );
 qboolean    CG_AttachmentVelocity( attachment_t *a, vec3_t v );
 int         CG_AttachmentCentNum( attachment_t *a );
 

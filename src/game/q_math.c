@@ -1279,6 +1279,17 @@ void MatrixMultiply( float in1[ 3 ][ 3 ], float in2[ 3 ][ 3 ], float out[ 3 ][ 3
                   in1[ 2 ][ 2 ] * in2[ 2 ][ 2 ];
 }
 
+/*
+================
+VectorMatrixMultiply
+================
+*/
+void VectorMatrixMultiply( const vec3_t p, vec3_t m[ 3 ], vec3_t out )
+{
+  out[ 0 ] = m[ 0 ][ 0 ] * p[ 0 ] + m[ 1 ][ 0 ] * p[ 1 ] + m[ 2 ][ 0 ] * p[ 2 ];
+  out[ 1 ] = m[ 0 ][ 1 ] * p[ 0 ] + m[ 1 ][ 1 ] * p[ 1 ] + m[ 2 ][ 1 ] * p[ 2 ];
+  out[ 2 ] = m[ 0 ][ 2 ] * p[ 0 ] + m[ 1 ][ 2 ] * p[ 1 ] + m[ 2 ][ 2 ] * p[ 2 ];
+}
 
 void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 {

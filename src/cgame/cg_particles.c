@@ -93,7 +93,7 @@ static void CG_DestroyParticle( particle_t *p, vec3_t impactNormal )
   {
     particleSystem_t  *ps;
 
-    ps = CG_SpawnNewParticleSystem( p->class->childSystemHandle );
+    ps = CG_SpawnNewParticleSystem( p->class->onDeathSystemHandle );
 
     if( CG_IsParticleSystemValid( &ps ) )
     {
@@ -126,6 +126,7 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
   particleEjector_t       *pe = parent;
   particleSystem_t        *ps = parent->parent;
   vec3_t                  attachmentPoint, attachmentVelocity;
+  vec3_t                  transform[ 3 ];
 
   for( i = 0; i < MAX_PARTICLES; i++ )
   {
@@ -155,11 +156,31 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
       p->rotation.initial = CG_RandomiseValue( bp->rotation.initial, bp->rotation.initialRandFrac );
       p->rotation.final = CG_RandomiseValue( bp->rotation.final, bp->rotation.finalRandFrac );
 
+      if( bp->numModels )
+      {
+        p->model = bp->models[ rand( ) % bp->numModels ];
+
+        if( bp->modelAnimation.frameLerp < 0 )
+        {
+          bp->modelAnimation.frameLerp = p->lifeTime / bp->modelAnimation.numFrames;
+          bp->modelAnimation.initialLerp = p->lifeTime / bp->modelAnimation.numFrames;
+        }
+      }
+
       if( !CG_AttachmentPoint( &ps->attachment, attachmentPoint ) )
         return NULL;
 
       VectorCopy( attachmentPoint, p->origin );
-      VectorAdd( p->origin, bp->displacement, p->origin );
+
+      if( CG_AttachmentAxis( &ps->attachment, transform ) )
+      {
+        vec3_t  transDisplacement;
+
+        VectorMatrixMultiply( bp->displacement, transform, transDisplacement );
+        VectorAdd( p->origin, transDisplacement, p->origin );
+      }
+      else
+        VectorAdd( p->origin, bp->displacement, p->origin );
 
       for( j = 0; j <= 2; j++ )
         p->origin[ j ] += ( crandom( ) * bp->randDisplacement );
@@ -171,6 +192,26 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
             VectorSubtract( bp->velMoveValues.point, p->origin, p->velocity );
           else if( bp->velMoveValues.dirType == PMD_LINEAR )
             VectorCopy( bp->velMoveValues.dir, p->velocity );
+          break;
+
+        case PMT_STATIC_TRANSFORM:
+          if( !CG_AttachmentAxis( &ps->attachment, transform ) )
+          {
+            CG_Printf( S_COLOR_RED "ERROR: a particle with velocityType "
+                "static_transform is not attached to something which can "
+                "provide a transformation\n" );
+            return NULL;
+          }
+
+          if( bp->velMoveValues.dirType == PMD_POINT )
+          {
+            vec3_t transPoint;
+
+            VectorMatrixMultiply( bp->velMoveValues.point, transform, transPoint );
+            VectorSubtract( transPoint, p->origin, p->velocity );
+          }
+          else if( bp->velMoveValues.dirType == PMD_LINEAR )
+            VectorMatrixMultiply( bp->velMoveValues.dir, transform, p->velocity );
           break;
 
         case PMT_TAG:
@@ -186,7 +227,11 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
 
         case PMT_NORMAL:
           if( !ps->normalValid )
+          {
+            CG_Printf( S_COLOR_RED "ERROR: a particle with velocityType "
+                "normal has no normal\n" );
             return NULL;
+          }
 
           VectorCopy( ps->normal, p->velocity );
 
@@ -222,6 +267,18 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
         {
           CG_SetAttachmentParticle( &ps->attachment, p );
           CG_AttachToParticle( &ps->attachment );
+        }
+      }
+
+      //this particle has a child trail system attached
+      if( bp->childTrailSystemName[ 0 ] != '\0' )
+      {
+        trailSystem_t *ts = CG_SpawnNewTrailSystem( bp->childTrailSystemHandle );
+
+        if( CG_IsTrailSystemValid( &ts ) )
+        {
+          CG_SetAttachmentParticle( &ts->frontAttachment, p );
+          CG_AttachToParticle( &ts->frontAttachment );
         }
       }
 
@@ -415,11 +472,11 @@ qhandle_t CG_RegisterParticleSystem( char *name )
   baseParticleEjector_t *bpe;
   baseParticle_t        *bp;
 
-  for( i = 0; i < MAX_PARTICLE_SYSTEMS; i++ )
+  for( i = 0; i < MAX_BASEPARTICLE_SYSTEMS; i++ )
   {
     bps = &baseParticleSystems[ i ];
 
-    if( !strcmp( bps->name, name ) )
+    if( !Q_stricmpn( bps->name, name, MAX_QPATH ) )
     {
       //already registered
       if( bps->registered )
@@ -436,6 +493,9 @@ qhandle_t CG_RegisterParticleSystem( char *name )
           for( k = 0; k < bp->numFrames; k++ )
             bp->shaders[ k ] = trap_R_RegisterShader( bp->shaderNames[ k ] );
 
+          for( k = 0; k < bp->numModels; k++ )
+            bp->models[ k ] = trap_R_RegisterModel( bp->modelNames[ k ] );
+
           //recursively register any children
           if( bp->childSystemName[ 0 ] != '\0' )
           {
@@ -450,6 +510,9 @@ qhandle_t CG_RegisterParticleSystem( char *name )
             //the system deals with it
             CG_RegisterParticleSystem( bp->onDeathSystemName );
           }
+
+          if( bp->childTrailSystemName[ 0 ] != '\0' )
+            bp->childTrailSystemHandle = CG_RegisterTrailSystem( bp->childTrailSystemName );
         }
       }
 
@@ -571,6 +634,13 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
     }
     else if( !Q_stricmp( token, "shader" ) )
     {
+      if( bp->numModels > 0 )
+      {
+        CG_Printf( S_COLOR_RED "ERROR: 'shader' not allowed in "
+            "conjunction with 'model'\n", token );
+        break;
+      }
+
       token = COM_Parse( text_p );
       if( !token )
         break;
@@ -581,15 +651,86 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         bp->framerate = atof_neg( token, qfalse );
 
       token = COM_ParseExt( text_p, qfalse );
+      if( !*token )
+        break;
 
-      while( token && token[ 0 ] != 0 )
+      while( *token && bp->numFrames < MAX_PS_SHADER_FRAMES )
       {
         Q_strncpyz( bp->shaderNames[ bp->numFrames++ ], token, MAX_QPATH );
         token = COM_ParseExt( text_p, qfalse );
       }
 
-      if( !token )
+      continue;
+    }
+    else if( !Q_stricmp( token, "model" ) )
+    {
+      if( bp->numFrames > 0 )
+      {
+        CG_Printf( S_COLOR_RED "ERROR: 'model' not allowed in "
+            "conjunction with 'shader'\n", token );
         break;
+      }
+
+      token = COM_ParseExt( text_p, qfalse );
+      if( !*token )
+        break;
+
+      while( *token && bp->numModels < MAX_PS_MODELS )
+      {
+        Q_strncpyz( bp->modelNames[ bp->numModels++ ], token, MAX_QPATH );
+        token = COM_ParseExt( text_p, qfalse );
+      }
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "modelAnimation" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !*token )
+        break;
+
+      bp->modelAnimation.firstFrame = atoi_neg( token, qfalse );
+
+      token = COM_Parse( text_p );
+      if( !*token )
+        break;
+
+      bp->modelAnimation.numFrames = atoi( token );
+      bp->modelAnimation.reversed = qfalse;
+      bp->modelAnimation.flipflop = qfalse;
+
+      // if numFrames is negative the animation is reversed
+      if( bp->modelAnimation.numFrames < 0 )
+      {
+        bp->modelAnimation.numFrames = -bp->modelAnimation.numFrames;
+        bp->modelAnimation.reversed = qtrue;
+      }
+
+      token = COM_Parse( text_p );
+      if( !*token )
+        break;
+
+      bp->modelAnimation.loopFrames = atoi( token );
+
+      token = COM_Parse( text_p );
+      if( !*token )
+        break;
+
+      if( !Q_stricmp( token, "sync" ) )
+      {
+        bp->modelAnimation.frameLerp = -1;
+        bp->modelAnimation.initialLerp = -1;
+      }
+      else
+      {
+        float fps = atof_neg( token, qfalse );
+
+        if( fps == 0.0f )
+          fps = 1.0f;
+
+        bp->modelAnimation.frameLerp = 1000 / fps;
+        bp->modelAnimation.initialLerp = 1000 / fps;
+      }
 
       continue;
     }
@@ -602,6 +743,8 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
 
       if( !Q_stricmp( token, "static" ) )
         bp->velMoveType = PMT_STATIC;
+      else if( !Q_stricmp( token, "static_transform" ) )
+        bp->velMoveType = PMT_STATIC_TRANSFORM;
       else if( !Q_stricmp( token, "tag" ) )
         bp->velMoveType = PMT_TAG;
       else if( !Q_stricmp( token, "cent" ) )
@@ -701,6 +844,8 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
 
       if( !Q_stricmp( token, "static" ) )
         bp->accMoveType = PMT_STATIC;
+      else if( !Q_stricmp( token, "static_transform" ) )
+        bp->accMoveType = PMT_STATIC_TRANSFORM;
       else if( !Q_stricmp( token, "tag" ) )
         bp->accMoveType = PMT_TAG;
       else if( !Q_stricmp( token, "cent" ) )
@@ -978,6 +1123,16 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
 
       continue;
     }
+    else if( !Q_stricmp( token, "childTrailSystem" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      Q_strncpyz( bp->childTrailSystemName, token, MAX_QPATH );
+
+      continue;
+    }
     else if( !Q_stricmp( token, "}" ) )
       return qtrue; //reached the end of this particle
     else
@@ -1176,6 +1331,8 @@ static qboolean CG_ParseParticleSystem( baseParticleSystem_t *bps, char **text_p
       }
       continue;
     }
+    else if( !Q_stricmp( token, "thirdPersonOnly" ) )
+      bps->thirdPersonOnly = qtrue;
     else if( !Q_stricmp( token, "ejector" ) ) //acceptable text
       continue;
     else if( !Q_stricmp( token, "}" ) )
@@ -1609,6 +1766,13 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
   vec3_t            mins, maxs;
   float             deltaTime, bounce, radius, dot;
   trace_t           trace;
+  vec3_t            transform[ 3 ];
+
+  if( p->atRest )
+  {
+    VectorClear( p->velocity );
+    return;
+  }
 
   switch( bp->accMoveType )
   {
@@ -1618,6 +1782,26 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
       else if( bp->accMoveValues.dirType == PMD_LINEAR )
         VectorCopy( bp->accMoveValues.dir, acceleration );
 
+      break;
+
+    case PMT_STATIC_TRANSFORM:
+      if( !CG_AttachmentAxis( &ps->attachment, transform ) )
+      {
+        CG_Printf( S_COLOR_RED "ERROR: a particle with accelerationType "
+            "static_transform is not attached to something which can "
+            "provide a transformation\n" );
+        return;
+      }
+
+      if( bp->accMoveValues.dirType == PMD_POINT )
+      {
+        vec3_t transPoint;
+
+        VectorMatrixMultiply( bp->accMoveValues.point, transform, transPoint );
+        VectorSubtract( transPoint, p->origin, acceleration );
+      }
+      else if( bp->accMoveValues.dirType == PMD_LINEAR )
+        VectorMatrixMultiply( bp->accMoveValues.dir, transform, acceleration );
       break;
 
     case PMT_TAG:
@@ -1719,6 +1903,11 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
   VectorMA( p->velocity, -2.0f * dot, trace.plane.normal, p->velocity );
 
   VectorScale( p->velocity, bounce, p->velocity );
+
+  if( trace.plane.normal[ 2 ] > 0.0f &&
+      ( p->velocity[ 2 ] < 40.0f ||
+        p->velocity[ 2 ] < -cg.frametime * p->velocity[ 2 ] ) )
+    p->atRest = qtrue;
 
   VectorCopy( trace.endpos, p->origin );
 }
@@ -1827,70 +2016,128 @@ Actually render a particle
 */
 static void CG_RenderParticle( particle_t *p )
 {
-  refEntity_t     re;
-  float           timeFrac;
-  int             index;
-  baseParticle_t  *bp = p->class;
-  vec3_t          alight, dlight, lightdir;
-  int             i;
+  refEntity_t           re;
+  float                 timeFrac, scale;
+  int                   index;
+  baseParticle_t        *bp = p->class;
+  particleSystem_t      *ps = p->parent->parent;
+  baseParticleSystem_t  *bps = ps->class;
+  vec3_t                alight, dlight, lightdir;
+  int                   i;
+  vec3_t                up = { 0.0f, 0.0f, 1.0f };
 
   memset( &re, 0, sizeof( refEntity_t ) );
 
-  for( i = 0; i <= 3; re.shaderRGBA[ i++ ] = 0xFF );
-
   timeFrac = CG_CalculateTimeFrac( p->birthTime, p->lifeTime, 0 );
 
-  re.reType = RT_SPRITE;
-  re.shaderTime = p->birthTime / 1000.0f; //FIXME: allow user to change?
-
-  re.shaderRGBA[ 3 ] = (byte)( (float)0xFF *
-                       CG_LerpValues( p->alpha.initial,
-                             p->alpha.final,
-                             CG_CalculateTimeFrac( p->birthTime,
-                                                   p->lifeTime,
-                                                   p->alpha.delay ) ) );
-
-  re.radius = CG_LerpValues( p->radius.initial,
+  scale = CG_LerpValues( p->radius.initial,
                     p->radius.final,
                     CG_CalculateTimeFrac( p->birthTime,
                                           p->lifeTime,
                                           p->radius.delay ) );
 
-  re.rotation = CG_LerpValues( p->rotation.initial,
-                      p->rotation.final,
-                      CG_CalculateTimeFrac( p->birthTime,
-                                            p->lifeTime,
-                                            p->rotation.delay ) );
-
-  // if the view would be "inside" the sprite, kill the sprite
-  // so it doesn't add too much overdraw
-  if( Distance( p->origin, cg.refdef.vieworg ) < re.radius && bp->overdrawProtection )
-    return;
-
-  //apply environmental lighting to the particle
-  if( bp->realLight )
+  if( bp->numFrames )       //shader based
   {
-    trap_R_LightForPoint( p->origin, alight, dlight, lightdir );
-    for( i = 0; i <= 2; i++ )
-      re.shaderRGBA[ i ] = (int)alight[ i ];
+    re.reType = RT_SPRITE;
+
+    re.shaderTime = p->birthTime / 1000.0f; //FIXME: allow user to change?
+
+    //apply environmental lighting to the particle
+    if( bp->realLight )
+    {
+      trap_R_LightForPoint( p->origin, alight, dlight, lightdir );
+      for( i = 0; i <= 2; i++ )
+        re.shaderRGBA[ i ] = (int)alight[ i ];
+    }
+    else
+      for( i = 0; i <= 3; re.shaderRGBA[ i++ ] = 0xFF );
+
+    re.shaderRGBA[ 3 ] = (byte)( (float)0xFF *
+                         CG_LerpValues( p->alpha.initial,
+                               p->alpha.final,
+                               CG_CalculateTimeFrac( p->birthTime,
+                                                     p->lifeTime,
+                                                     p->alpha.delay ) ) );
+
+    re.radius = scale;
+
+    re.rotation = CG_LerpValues( p->rotation.initial,
+                        p->rotation.final,
+                        CG_CalculateTimeFrac( p->birthTime,
+                                              p->lifeTime,
+                                              p->rotation.delay ) );
+
+    // if the view would be "inside" the sprite, kill the sprite
+    // so it doesn't add too much overdraw
+    if( Distance( p->origin, cg.refdef.vieworg ) < re.radius && bp->overdrawProtection )
+      return;
+
+    if( bp->framerate == 0.0f )
+    {
+      //sync animation time to lifeTime of particle
+      index = (int)( timeFrac * ( bp->numFrames + 1 ) );
+
+      if( index >= bp->numFrames )
+        index = bp->numFrames - 1;
+
+      re.customShader = bp->shaders[ index ];
+    }
+    else
+    {
+      //looping animation
+      index = (int)( bp->framerate * timeFrac * p->lifeTime * 0.001 ) % bp->numFrames;
+      re.customShader = bp->shaders[ index ];
+    }
+
+  }
+  else if( bp->numModels )  //model based
+  {
+    re.reType = RT_MODEL;
+
+    re.hModel = p->model;
+
+    if( p->atRest )
+      AxisCopy( p->lastAxis, re.axis );
+    else
+    {
+      // convert direction of travel into axis
+      VectorNormalize2( p->velocity, re.axis[ 0 ] );
+
+      if( re.axis[ 0 ][ 0 ] == 0.0f && re.axis[ 0 ][ 1 ] == 0.0f )
+        AxisCopy( axisDefault, re.axis );
+      else
+      {
+        ProjectPointOnPlane( re.axis[ 2 ], up, re.axis[ 0 ] );
+        VectorNormalize( re.axis[ 2 ] );
+        CrossProduct( re.axis[ 2 ], re.axis[ 0 ], re.axis[ 1 ] );
+      }
+
+      AxisCopy( re.axis, p->lastAxis );
+    }
+
+    if( scale != 1.0f )
+    {
+      VectorScale( re.axis[ 0 ], scale, re.axis[ 0 ] );
+      VectorScale( re.axis[ 1 ], scale, re.axis[ 1 ] );
+      VectorScale( re.axis[ 2 ], scale, re.axis[ 2 ] );
+      re.nonNormalizedAxes = qtrue;
+    }
+    else
+      re.nonNormalizedAxes = qfalse;
+
+    p->lf.animation = &bp->modelAnimation;
+
+    //run animation
+    CG_RunLerpFrame( &p->lf );
+
+    re.oldframe = p->lf.oldFrame;
+    re.frame    = p->lf.frame;
+    re.backlerp = p->lf.backlerp;
   }
 
-  if( bp->framerate == 0.0f )
-  {
-    //sync animation time to lifeTime of particle
-    index = (int)( timeFrac * ( bp->numFrames + 1 ) );
-
-    if( index >= bp->numFrames )
-      index = bp->numFrames - 1;
-
-    re.customShader = bp->shaders[ index ];
-  }
-  else
-  {
-    //looping animation
-    index = (int)( bp->framerate * timeFrac * p->lifeTime * 0.001 ) % bp->numFrames;
-    re.customShader = bp->shaders[ index ];
-  }
+  if( bps->thirdPersonOnly &&
+      CG_AttachmentCentNum( &ps->attachment ) == cg.snap->ps.clientNum )
+    re.renderfx |= RF_THIRD_PERSON;
 
   VectorCopy( p->origin, re.origin );
 

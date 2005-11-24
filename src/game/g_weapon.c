@@ -1131,7 +1131,7 @@ void G_UpdateZaps( int msec )
           source = zap->targets[ j - 1 ];
 
         if( target->health <= 0 || !target->inuse || //early out
-            VectorDistance( source->s.origin, target->s.origin ) > LEVEL2_AREAZAP_RANGE )
+            Distance( source->s.origin, target->s.origin ) > LEVEL2_AREAZAP_RANGE )
         {
           target = zap->targets[ j ] = G_FindNewZapTarget( source );
 

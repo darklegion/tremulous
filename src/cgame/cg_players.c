@@ -903,13 +903,13 @@ static void CG_SetLerpFrameAnimation( clientInfo_t *ci, lerpFrame_t *lf, int new
 
 /*
 ===============
-CG_RunLerpFrame
+CG_RunPlayerLerpFrame
 
 Sets cg.snap, cg.oldFrame, and cg.backlerp
 cg.time should be between oldFrameTime and frameTime after exit
 ===============
 */
-static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, float speedScale )
+static void CG_RunPlayerLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, float speedScale )
 {
   int         f, numFrames;
   animation_t *anim;
@@ -1035,15 +1035,15 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 
   // do the shuffle turn frames locally
   if( cent->pe.legs.yawing && ( cent->currentState.legsAnim & ~ANIM_TOGGLEBIT ) == LEGS_IDLE )
-    CG_RunLerpFrame( ci, &cent->pe.legs, LEGS_TURN, speedScale );
+    CG_RunPlayerLerpFrame( ci, &cent->pe.legs, LEGS_TURN, speedScale );
   else
-    CG_RunLerpFrame( ci, &cent->pe.legs, cent->currentState.legsAnim, speedScale );
+    CG_RunPlayerLerpFrame( ci, &cent->pe.legs, cent->currentState.legsAnim, speedScale );
 
   *legsOld = cent->pe.legs.oldFrame;
   *legs = cent->pe.legs.frame;
   *legsBackLerp = cent->pe.legs.backlerp;
 
-  CG_RunLerpFrame( ci, &cent->pe.torso, cent->currentState.torsoAnim, speedScale );
+  CG_RunPlayerLerpFrame( ci, &cent->pe.torso, cent->currentState.torsoAnim, speedScale );
 
   *torsoOld = cent->pe.torso.oldFrame;
   *torso = cent->pe.torso.frame;
@@ -1075,9 +1075,9 @@ static void CG_PlayerNonSegAnimation( centity_t *cent, int *nonSegOld,
 
   // do the shuffle turn frames locally
   if( cent->pe.nonseg.yawing && ( cent->currentState.legsAnim & ~ANIM_TOGGLEBIT ) == NSPA_STAND )
-    CG_RunLerpFrame( ci, &cent->pe.nonseg, NSPA_TURN, speedScale );
+    CG_RunPlayerLerpFrame( ci, &cent->pe.nonseg, NSPA_TURN, speedScale );
   else
-    CG_RunLerpFrame( ci, &cent->pe.nonseg, cent->currentState.legsAnim, speedScale );
+    CG_RunPlayerLerpFrame( ci, &cent->pe.nonseg, cent->currentState.legsAnim, speedScale );
 
   *nonSegOld = cent->pe.nonseg.oldFrame;
   *nonSeg = cent->pe.nonseg.frame;
@@ -2347,13 +2347,13 @@ void CG_Corpse( centity_t *cent )
   else if( !ci->nonsegmented )
   {
     memset( &cent->pe.legs, 0, sizeof( lerpFrame_t ) );
-    CG_RunLerpFrame( ci, &cent->pe.legs, es->legsAnim, 1 );
+    CG_RunPlayerLerpFrame( ci, &cent->pe.legs, es->legsAnim, 1 );
     legs.oldframe = cent->pe.legs.oldFrame;
     legs.frame = cent->pe.legs.frame;
     legs.backlerp = cent->pe.legs.backlerp;
 
     memset( &cent->pe.torso, 0, sizeof( lerpFrame_t ) );
-    CG_RunLerpFrame( ci, &cent->pe.torso, es->torsoAnim, 1 );
+    CG_RunPlayerLerpFrame( ci, &cent->pe.torso, es->torsoAnim, 1 );
     torso.oldframe = cent->pe.torso.oldFrame;
     torso.frame = cent->pe.torso.frame;
     torso.backlerp = cent->pe.torso.backlerp;
@@ -2361,7 +2361,7 @@ void CG_Corpse( centity_t *cent )
   else
   {
     memset( &cent->pe.nonseg, 0, sizeof( lerpFrame_t ) );
-    CG_RunLerpFrame( ci, &cent->pe.nonseg, es->legsAnim, 1 );
+    CG_RunPlayerLerpFrame( ci, &cent->pe.nonseg, es->legsAnim, 1 );
     legs.oldframe = cent->pe.nonseg.oldFrame;
     legs.frame = cent->pe.nonseg.frame;
     legs.backlerp = cent->pe.nonseg.backlerp;

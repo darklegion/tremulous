@@ -1087,7 +1087,7 @@ static void CG_AddCEntity( centity_t *cent )
       break;
 
     case ET_ANIMMAPOBJ:
-      CG_animMapObj( cent );
+      CG_AnimMapObj( cent );
       break;
 
     case ET_MODELDOOR:

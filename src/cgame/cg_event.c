@@ -744,7 +744,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
         centity_t *source = &cg_entities[ es->generic1 ];
         centity_t *target = &cg_entities[ es->clientNum ];
         vec3_t    sourceOffset = { 0.0f, 0.0f, 28.0f };
-        vec3_t    targetOffset = { 0.0f, 0.0f, -2.0f };
 
         if( !CG_IsTrailSystemValid( &source->muzzleTS ) )
         {
@@ -757,7 +756,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
             CG_AttachToCent( &source->muzzleTS->frontAttachment );
             CG_AttachToCent( &source->muzzleTS->backAttachment );
             CG_SetAttachmentOffset( &source->muzzleTS->frontAttachment, sourceOffset );
-            CG_SetAttachmentOffset( &source->muzzleTS->backAttachment, targetOffset );
 
             source->muzzleTSDeathTime = cg.time + cg_teslaTrailTime.integer;
           }
