@@ -1178,7 +1178,6 @@ void ClientBegin( int clientNum )
 {
   gentity_t *ent;
   gclient_t *client;
-  gentity_t *tent;
   int       flags;
 
   ent = g_entities + clientNum;
@@ -1209,13 +1208,6 @@ void ClientBegin( int clientNum )
   // locate ent at a spawn point
 
   ClientSpawn( ent, NULL, NULL, NULL );
-
-  if( client->sess.sessionTeam != TEAM_SPECTATOR )
-  {
-    // send event
-    tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
-    tent->s.clientNum = ent->s.clientNum;
-  }
 
   G_InitCommandQueue( clientNum );
 

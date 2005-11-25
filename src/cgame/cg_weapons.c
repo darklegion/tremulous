@@ -220,28 +220,6 @@ static qboolean CG_ParseWeaponModeSection( weaponInfoMode_t *wim, char **text_p 
 
       continue;
     }
-    else if( !Q_stricmp( token, "impactModel" ) )
-    {
-      token = COM_Parse( text_p );
-      if( !token )
-        break;
-
-      wim->impactModel = trap_R_RegisterModel( token );
-
-      if( !wim->impactModel )
-        CG_Printf( S_COLOR_RED "ERROR: impact model not found %s\n", token );
-
-      token = COM_Parse( text_p );
-      if( !token )
-        break;
-
-      wim->impactModelShader = trap_R_RegisterShader( token );
-
-      if( !wim->impactModelShader )
-        CG_Printf( S_COLOR_RED "ERROR: impact model shader not found %s\n", token );
-
-      continue;
-    }
     else if( !Q_stricmp( token, "impactMark" ) )
     {
       int size = 0;
@@ -310,36 +288,6 @@ static qboolean CG_ParseWeaponModeSection( weaponInfoMode_t *wim, char **text_p 
         break;
 
       wim->impactFleshSound[ index ] = trap_S_RegisterSound( token, qfalse );
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "impactDlightColor" ) )
-    {
-      for( i = 0 ; i < 3 ; i++ )
-      {
-        token = COM_Parse( text_p );
-        if( !token )
-          break;
-
-        wim->impactDlightColor[ i ] = atof( token );
-      }
-
-      continue;
-    }
-    else if( !Q_stricmp( token, "impactDlight" ) )
-    {
-      int size = 0;
-
-      token = COM_Parse( text_p );
-      if( !token )
-        break;
-
-      size = atoi( token );
-
-      if( size < 0 )
-        size = 0;
-
-      wim->impactDlight = size;
 
       continue;
     }
@@ -1529,23 +1477,14 @@ Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 void CG_MissileHitWall( weapon_t weaponNum, weaponMode_t weaponMode, int clientNum,
                         vec3_t origin, vec3_t dir, impactSound_t soundType )
 {
-  qhandle_t           mod = 0;
   qhandle_t           mark = 0;
-  qhandle_t           shader = 0;
   qhandle_t           ps = 0;
   int                 c;
   float               radius = 1.0f;
-  float               light = 0.0f;
-  vec3_t              lightColor = { 0.0f, 0.0f, 0.0f };
-  localEntity_t       *le;
   weaponInfo_t        *weapon = &cg_weapons[ weaponNum ];
 
   mark = weapon->wim[ weaponMode ].impactMark;
   radius = weapon->wim[ weaponMode ].impactMarkSize;
-  mod = weapon->wim[ weaponMode ].impactModel;
-  shader = weapon->wim[ weaponMode ].impactModelShader;
-  light = weapon->wim[ weaponMode ].impactDlight;
-  VectorCopy( weapon->wim[ weaponMode ].impactDlightColor, lightColor );
   ps = weapon->wim[ weaponMode ].impactParticleSystem;
 
   if( soundType == IMPACTSOUND_FLESH )
@@ -1595,16 +1534,6 @@ void CG_MissileHitWall( weapon_t weaponNum, weaponMode_t weaponMode, int clientN
   }
 
   //
-  // create the explosion
-  //
-  if( mod )
-  {
-    le = CG_MakeExplosion( origin, dir, mod, shader, 600, qfalse );
-    le->light = light;
-    VectorCopy( lightColor, le->lightColor );
-  }
-
-  //
   // impact mark
   //
   if( radius > 0.0f )
@@ -1617,11 +1546,16 @@ void CG_MissileHitWall( weapon_t weaponNum, weaponMode_t weaponMode, int clientN
 CG_MissileHitPlayer
 =================
 */
-void CG_MissileHitPlayer( weapon_t weaponNum, weaponMode_t weaponMode, vec3_t origin, vec3_t dir, int entityNum )
+void CG_MissileHitPlayer( weapon_t weaponNum, weaponMode_t weaponMode,
+    vec3_t origin, vec3_t dir, int entityNum )
 {
+  vec3_t        normal;
   weaponInfo_t  *weapon = &cg_weapons[ weaponNum ];
 
-  CG_Bleed( origin, entityNum );
+  VectorCopy( dir, normal );
+  VectorInverse( normal );
+
+  CG_Bleed( origin, normal, entityNum );
 
   if( weapon->wim[ weaponMode ].alwaysImpact )
     CG_MissileHitWall( weaponNum, weaponMode, 0, origin, dir, IMPACTSOUND_FLESH );
@@ -1776,8 +1710,6 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
   {
     if( CG_CalcMuzzlePoint( sourceEntityNum, start ) )
     {
-      CG_BubbleTrail( start, end, 32 );
-
       // draw a tracer
       if( random( ) < cg_tracerChance.value )
         CG_Tracer( start, end );
@@ -1786,7 +1718,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
 
   // impact splash and mark
   if( flesh )
-    CG_Bleed( end, fleshEntityNum );
+    CG_Bleed( end, normal, fleshEntityNum );
   else
     CG_MissileHitWall( WP_MACHINEGUN, WPM_PRIMARY, 0, end, normal, IMPACTSOUND_DEFAULT );
 }
@@ -1831,7 +1763,6 @@ static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, int othe
     VectorMA( end, u, up, end );
 
     CG_Trace( &tr, origin, NULL, NULL, end, otherEntNum, MASK_SHOT );
-    CG_BubbleTrail( origin, end, 32 );
 
     if( !( tr.surfaceFlags & SURF_NOIMPACT ) )
     {

@@ -253,28 +253,6 @@ void CG_AddMarks( void )
       continue;
     }
 
-    // fade out the energy bursts
-    if( mp->markShader == cgs.media.energyMarkShader )
-    {
-
-      fade = 450 - 450 * ( (cg.time - mp->time ) / 3000.0 );
-      if( fade < 255 )
-      {
-        if( fade < 0 )
-          fade = 0;
-
-        if( mp->verts[ 0 ].modulate[ 0 ] != 0 )
-        {
-          for( j = 0; j < mp->poly.numVerts; j++ )
-          {
-            mp->verts[ j ].modulate[ 0 ] = mp->color[ 0 ] * fade;
-            mp->verts[ j ].modulate[ 1 ] = mp->color[ 1 ] * fade;
-            mp->verts[ j ].modulate[ 2 ] = mp->color[ 2 ] * fade;
-          }
-        }
-      }
-    }
-
     // fade all marks out with time
     t = mp->time + MARK_TOTAL_TIME - cg.time;
     if( t < MARK_FADE_TIME )

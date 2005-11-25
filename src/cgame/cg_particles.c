@@ -156,6 +156,21 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
       p->rotation.initial = CG_RandomiseValue( bp->rotation.initial, bp->rotation.initialRandFrac );
       p->rotation.final = CG_RandomiseValue( bp->rotation.final, bp->rotation.finalRandFrac );
 
+      p->dLightRadius.delay =
+        (int)CG_RandomiseValue( (float)bp->dLightRadius.delay, bp->dLightRadius.delayRandFrac );
+      p->dLightRadius.initial =
+        CG_RandomiseValue( bp->dLightRadius.initial, bp->dLightRadius.initialRandFrac );
+      p->dLightRadius.final =
+        CG_RandomiseValue( bp->dLightRadius.final, bp->dLightRadius.finalRandFrac );
+
+      p->colorDelay = CG_RandomiseValue( bp->colorDelay, bp->colorDelayRandFrac );
+
+      p->bounceMarkRadius = CG_RandomiseValue( bp->bounceMarkRadius, bp->bounceMarkRadiusRandFrac );
+      p->bounceMarkCount =
+        round( CG_RandomiseValue( (float)bp->bounceMarkCount, bp->bounceMarkCountRandFrac ) );
+      p->bounceSoundCount =
+        round( CG_RandomiseValue( (float)bp->bounceSoundCount, bp->bounceSoundCountRandFrac ) );
+
       if( bp->numModels )
       {
         p->model = bp->models[ rand( ) % bp->numModels ];
@@ -496,6 +511,12 @@ qhandle_t CG_RegisterParticleSystem( char *name )
           for( k = 0; k < bp->numModels; k++ )
             bp->models[ k ] = trap_R_RegisterModel( bp->modelNames[ k ] );
 
+          if( bp->bounceMarkName[ 0 ] != '\0' )
+            bp->bounceMark = trap_R_RegisterShader( bp->bounceMarkName );
+
+          if( bp->bounceSoundName[ 0 ] != '\0' )
+            bp->bounceSound = trap_S_RegisterSound( bp->bounceSoundName, qfalse );
+
           //recursively register any children
           if( bp->childSystemName[ 0 ] != '\0' )
           {
@@ -584,6 +605,28 @@ static void CG_ParseValueAndVariance( char *token, float *value, float *variance
     *variance = localVariance;
 }
 
+/*
+===============
+CG_ParseColor
+===============
+*/
+static qboolean CG_ParseColor( byte *c, char **text_p )
+{
+  char  *token;
+  int   i;
+
+  for( i = 0; i <= 2; i++ )
+  {
+    token = COM_Parse( text_p );
+
+    if( !Q_stricmp( token, "" ) )
+      return qfalse;
+
+    c[ i ] = (int)( (float)0xFF * atof_neg( token, qfalse ) );
+  }
+
+  return qtrue;
+}
 
 /*
 ===============
@@ -629,6 +672,53 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         bp->bounceFrac = number;
         bp->bounceFracRandFrac = randFrac;
       }
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "bounceMark" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !*token )
+        break;
+
+      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
+
+      bp->bounceMarkCount = number;
+      bp->bounceMarkCountRandFrac = randFrac;
+
+      token = COM_Parse( text_p );
+      if( !*token )
+        break;
+
+      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
+
+      bp->bounceMarkRadius = number;
+      bp->bounceMarkRadiusRandFrac = randFrac;
+
+      token = COM_ParseExt( text_p, qfalse );
+      if( !*token )
+        break;
+
+      Q_strncpyz( bp->bounceMarkName, token, MAX_QPATH );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "bounceSound" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !*token )
+        break;
+
+      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
+
+      bp->bounceSoundCount = number;
+      bp->bounceSoundCountRandFrac = randFrac;
+
+      token = COM_Parse( text_p );
+      if( !*token )
+        break;
+
+      Q_strncpyz( bp->bounceSoundName, token, MAX_QPATH );
 
       continue;
     }
@@ -967,6 +1057,64 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
 
       continue;
     }
+    else if( !Q_stricmp( token, "dynamicLight" ) )
+    {
+      bp->dynamicLight = qtrue;
+
+      token = COM_Parse( text_p );
+      if( !*token )
+        break;
+
+      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
+
+      bp->dLightRadius.delay = (int)number;
+      bp->dLightRadius.delayRandFrac = randFrac;
+
+      token = COM_Parse( text_p );
+      if( !*token )
+        break;
+
+      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
+
+      bp->dLightRadius.initial = number;
+      bp->dLightRadius.initialRandFrac = randFrac;
+
+      token = COM_Parse( text_p );
+      if( !*token )
+        break;
+
+      if( !Q_stricmp( token, "-" ) )
+      {
+        bp->dLightRadius.final = PARTICLES_SAME_AS_INITIAL;
+        bp->dLightRadius.finalRandFrac = 0.0f;
+      }
+      else
+      {
+        CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
+
+        bp->dLightRadius.final = number;
+        bp->dLightRadius.finalRandFrac = randFrac;
+      }
+
+      token = COM_Parse( text_p );
+      if( !*token )
+        break;
+
+      if( !Q_stricmp( token, "{" ) )
+      {
+        if( !CG_ParseColor( bp->dLightColor, text_p ) )
+          break;
+
+        token = COM_Parse( text_p );
+        if( Q_stricmp( token, "}" ) )
+        {
+          CG_Printf( S_COLOR_RED "ERROR: missing '}'\n" );
+          break;
+        }
+      }
+
+      continue;
+    }
     else if( !Q_stricmp( token, "cullOnStartSolid" ) )
     {
       bp->cullOnStartSolid = qtrue;
@@ -1047,6 +1195,69 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
 
         bp->alpha.final = number;
         bp->alpha.finalRandFrac = randFrac;
+      }
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "color" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !*token )
+        break;
+
+      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
+
+      bp->colorDelay = (int)number;
+      bp->colorDelayRandFrac = randFrac;
+
+      token = COM_Parse( text_p );
+      if( !*token )
+        break;
+
+      if( !Q_stricmp( token, "{" ) )
+      {
+        if( !CG_ParseColor( bp->initialColor, text_p ) )
+          break;
+
+        token = COM_Parse( text_p );
+        if( Q_stricmp( token, "}" ) )
+        {
+          CG_Printf( S_COLOR_RED "ERROR: missing '}'\n" );
+          break;
+        }
+
+        token = COM_Parse( text_p );
+        if( !*token )
+          break;
+
+        if( !Q_stricmp( token, "-" ) )
+        {
+          bp->finalColor[ 0 ] = bp->initialColor[ 0 ];
+          bp->finalColor[ 1 ] = bp->initialColor[ 1 ];
+          bp->finalColor[ 2 ] = bp->initialColor[ 2 ];
+        }
+        else if( !Q_stricmp( token, "{" ) )
+        {
+          if( !CG_ParseColor( bp->finalColor, text_p ) )
+            break;
+
+          token = COM_Parse( text_p );
+          if( Q_stricmp( token, "}" ) )
+          {
+            CG_Printf( S_COLOR_RED "ERROR: missing '}'\n" );
+            break;
+          }
+        }
+        else
+        {
+          CG_Printf( S_COLOR_RED "ERROR: missing '{'\n" );
+          break;
+        }
+      }
+      else
+      {
+        CG_Printf( S_COLOR_RED "ERROR: missing '{'\n" );
+        break;
       }
 
       continue;
@@ -1145,6 +1356,18 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
   return qfalse;
 }
 
+/*
+===============
+CG_InitialiseBaseParticle
+===============
+*/
+static void CG_InitialiseBaseParticle( baseParticle_t *bp )
+{
+  memset( bp, 0, sizeof( baseParticle_t ) );
+
+  memset( bp->initialColor, 0xFF, sizeof( bp->initialColor ) );
+  memset( bp->finalColor, 0xFF, sizeof( bp->finalColor ) );
+}
 
 /*
 ===============
@@ -1171,6 +1394,8 @@ static qboolean CG_ParseParticleEjector( baseParticleEjector_t *bpe, char **text
 
     if( !Q_stricmp( token, "{" ) )
     {
+      CG_InitialiseBaseParticle( &baseParticles[ numBaseParticles ] );
+
       if( !CG_ParseParticle( &baseParticles[ numBaseParticles ], text_p ) )
       {
         CG_Printf( S_COLOR_RED "ERROR: failed to parse particle\n" );
@@ -1909,6 +2134,19 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
         p->velocity[ 2 ] < -cg.frametime * p->velocity[ 2 ] ) )
     p->atRest = qtrue;
 
+  if( bp->bounceMarkName[ 0 ] && p->bounceMarkCount > 0 )
+  {
+    CG_ImpactMark( bp->bounceMark, trace.endpos, trace.plane.normal,
+        random( ) * 360, 1, 1, 1, 1, qtrue, bp->bounceMarkRadius, qfalse );
+    p->bounceMarkCount--;
+  }
+
+  if( bp->bounceSoundName[ 0 ] && p->bounceSoundCount > 0 )
+  {
+    trap_S_StartSound( trace.endpos, ENTITYNUM_WORLD, CHAN_AUTO, bp->bounceSound );
+    p->bounceSoundCount--;
+  }
+
   VectorCopy( trace.endpos, p->origin );
 }
 
@@ -2036,21 +2274,32 @@ static void CG_RenderParticle( particle_t *p )
                                           p->lifeTime,
                                           p->radius.delay ) );
 
+  re.shaderTime = p->birthTime / 1000.0f;
+
   if( bp->numFrames )       //shader based
   {
     re.reType = RT_SPRITE;
-
-    re.shaderTime = p->birthTime / 1000.0f; //FIXME: allow user to change?
 
     //apply environmental lighting to the particle
     if( bp->realLight )
     {
       trap_R_LightForPoint( p->origin, alight, dlight, lightdir );
       for( i = 0; i <= 2; i++ )
-        re.shaderRGBA[ i ] = (int)alight[ i ];
+        re.shaderRGBA[ i ] = (byte)alight[ i ];
     }
     else
-      for( i = 0; i <= 3; re.shaderRGBA[ i++ ] = 0xFF );
+    {
+      vec3_t  colorRange;
+
+      VectorSubtract( bp->finalColor,
+          bp->initialColor, colorRange );
+
+      VectorMA( bp->initialColor,
+          CG_CalculateTimeFrac( p->birthTime,
+            p->lifeTime,
+            p->colorDelay ),
+          colorRange, re.shaderRGBA );
+    }
 
     re.shaderRGBA[ 3 ] = (byte)( (float)0xFF *
                          CG_LerpValues( p->alpha.initial,
@@ -2136,8 +2385,19 @@ static void CG_RenderParticle( particle_t *p )
   }
 
   if( bps->thirdPersonOnly &&
-      CG_AttachmentCentNum( &ps->attachment ) == cg.snap->ps.clientNum )
+      CG_AttachmentCentNum( &ps->attachment ) == cg.snap->ps.clientNum &&
+      !cg.renderingThirdPerson )
     re.renderfx |= RF_THIRD_PERSON;
+
+  if( bp->dynamicLight && !( re.renderfx & RF_THIRD_PERSON ) )
+  {
+    trap_R_AddLightToScene( p->origin,
+      CG_LerpValues( p->dLightRadius.initial, p->dLightRadius.final,
+        CG_CalculateTimeFrac( p->birthTime, p->lifeTime, p->dLightRadius.delay ) ),
+        (float)bp->dLightColor[ 0 ] / (float)0xFF,
+        (float)bp->dLightColor[ 1 ] / (float)0xFF,
+        (float)bp->dLightColor[ 2 ] / (float)0xFF );
+  }
 
   VectorCopy( p->origin, re.origin );
 

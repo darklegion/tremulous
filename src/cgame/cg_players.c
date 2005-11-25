@@ -2511,3 +2511,59 @@ void CG_ResetPlayerEntity( centity_t *cent )
     CG_Printf( "%i ResetPlayerEntity yaw=%i\n", cent->currentState.number, cent->pe.torso.yawAngle );
 }
 
+/*
+==================
+CG_PlayerDisconnect
+
+Player disconnecting
+==================
+*/
+void CG_PlayerDisconnect( vec3_t org )
+{
+  particleSystem_t  *ps;
+
+  trap_S_StartSound( org, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.disconnectSound );
+
+  ps = CG_SpawnNewParticleSystem( cgs.media.disconnectPS );
+
+  if( CG_IsParticleSystemValid( &ps ) )
+  {
+    CG_SetAttachmentPoint( &ps->attachment, org );
+    CG_AttachToPoint( &ps->attachment );
+  }
+}
+
+/*
+=================
+CG_Bleed
+
+This is the spurt of blood when a character gets hit
+=================
+*/
+void CG_Bleed( vec3_t origin, vec3_t normal, int entityNum )
+{
+  pTeam_t           team = cgs.clientinfo[ entityNum ].team;
+  qhandle_t         bleedPS;
+  particleSystem_t  *ps;
+
+  if( !cg_blood.integer )
+    return;
+
+  if( team == PTE_ALIENS )
+    bleedPS = cgs.media.alienBleedPS;
+  else if( team == PTE_HUMANS )
+    bleedPS = cgs.media.humanBleedPS;
+  else
+    return;
+
+  ps = CG_SpawnNewParticleSystem( bleedPS );
+
+  if( CG_IsParticleSystemValid( &ps ) )
+  {
+    CG_SetAttachmentPoint( &ps->attachment, origin );
+    CG_SetAttachmentCent( &ps->attachment, &cg_entities[ entityNum ] );
+    CG_AttachToPoint( &ps->attachment );
+
+    CG_SetParticleSystemNormal( ps, normal );
+  }
+}

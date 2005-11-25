@@ -52,10 +52,8 @@ CGOBJ = \
 	$(CGDIRNAME)/cg_animmapobj.o \
 	$(CGDIRNAME)/cg_draw.o \
 	$(CGDIRNAME)/cg_drawtools.o \
-	$(CGDIRNAME)/cg_effects.o \
 	$(CGDIRNAME)/cg_ents.o \
 	$(CGDIRNAME)/cg_event.o \
-	$(CGDIRNAME)/cg_localents.o \
 	$(CGDIRNAME)/cg_marks.o \
 	$(CGDIRNAME)/cg_players.o \
 	$(CGDIRNAME)/cg_playerstate.o \

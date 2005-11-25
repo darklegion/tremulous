@@ -617,24 +617,19 @@ static void CG_RegisterSounds( void )
   cgs.media.alienL4ChargePrepare  = trap_S_RegisterSound( "sound/player/level4/charge_prepare.wav", qtrue );
   cgs.media.alienL4ChargeStart    = trap_S_RegisterSound( "sound/player/level4/charge_start.wav", qtrue );
 
-  cgs.media.tracerSound           = trap_S_RegisterSound( "sound/weapons/machinegun/buletby1.wav", qfalse );
+  cgs.media.tracerSound           = trap_S_RegisterSound( "sound/weapons/machinegun/buletby1.wav", qfalse ); //FIXME
   cgs.media.selectSound           = trap_S_RegisterSound( "sound/weapons/change.wav", qfalse );
-  cgs.media.gibSound              = trap_S_RegisterSound( "sound/player/gibsplt1.wav", qfalse );
-  cgs.media.gibBounce1Sound       = trap_S_RegisterSound( "sound/player/gibimp1.wav", qfalse );
-  cgs.media.gibBounce2Sound       = trap_S_RegisterSound( "sound/player/gibimp2.wav", qfalse );
-  cgs.media.gibBounce3Sound       = trap_S_RegisterSound( "sound/player/gibimp3.wav", qfalse );
 
-  cgs.media.teleInSound           = trap_S_RegisterSound( "sound/world/telein.wav", qfalse );
-  cgs.media.teleOutSound          = trap_S_RegisterSound( "sound/world/teleout.wav", qfalse );
-  cgs.media.respawnSound          = trap_S_RegisterSound( "sound/items/respawn1.wav", qfalse );
+  cgs.media.talkSound             = trap_S_RegisterSound( "sound/player/talk.wav", qfalse ); //FIXME
+  cgs.media.landSound             = trap_S_RegisterSound( "sound/player/land1.wav", qfalse ); //FIXME
 
-  cgs.media.talkSound             = trap_S_RegisterSound( "sound/player/talk.wav", qfalse );
-  cgs.media.landSound             = trap_S_RegisterSound( "sound/player/land1.wav", qfalse );
+  cgs.media.watrInSound           = trap_S_RegisterSound( "sound/player/watr_in.wav", qfalse ); //FIXME
+  cgs.media.watrOutSound          = trap_S_RegisterSound( "sound/player/watr_out.wav", qfalse ); //FIXME
+  cgs.media.watrUnSound           = trap_S_RegisterSound( "sound/player/watr_un.wav", qfalse ); //FIXME
 
-  cgs.media.watrInSound           = trap_S_RegisterSound( "sound/player/watr_in.wav", qfalse );
-  cgs.media.watrOutSound          = trap_S_RegisterSound( "sound/player/watr_out.wav", qfalse );
-  cgs.media.watrUnSound           = trap_S_RegisterSound( "sound/player/watr_un.wav", qfalse );
+  cgs.media.disconnectSound       = trap_S_RegisterSound( "sound/world/telein.wav", qfalse ); //FIXME
 
+  //FIXME
   for( i = 0; i < 4; i++ )
   {
     Com_sprintf( name, sizeof( name ), "sound/player/footsteps/step%i.wav", i + 1 );
@@ -672,7 +667,6 @@ static void CG_RegisterSounds( void )
     cgs.gameSounds[ i ] = trap_S_RegisterSound( soundName, qfalse );
   }
 
-  //TA:
   cgs.media.jetpackDescendSound     = trap_S_RegisterSound( "sound/upgrades/jetpack/low.wav", qfalse );
   cgs.media.jetpackIdleSound        = trap_S_RegisterSound( "sound/upgrades/jetpack/idle.wav", qfalse );
   cgs.media.jetpackAscendSound      = trap_S_RegisterSound( "sound/upgrades/jetpack/hi.wav", qfalse );
@@ -687,14 +681,13 @@ static void CG_RegisterSounds( void )
 
   cgs.media.humanBuildableExplosion = trap_S_RegisterSound( "sound/buildables/human/explosion.wav", qfalse );
   cgs.media.humanBuildablePrebuild  = trap_S_RegisterSound( "sound/buildables/human/prebuild.wav", qfalse );
-  cgs.media.metalGibBounceSound     = trap_S_RegisterSound( "sound/buildables/human/fragmentbounce.wav", qfalse );
 
   for( i = 0; i < 4; i++ )
     cgs.media.humanBuildableDamage[ i ] = trap_S_RegisterSound(
         va( "sound/buildables/human/damage%d.wav", i ), qfalse );
 
-  cgs.media.hgrenb1aSound           = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb1a.wav", qfalse );
-  cgs.media.hgrenb2aSound           = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb2a.wav", qfalse );
+  cgs.media.hgrenb1aSound           = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb1a.wav", qfalse ); //FIXME
+  cgs.media.hgrenb2aSound           = trap_S_RegisterSound( "sound/weapons/grenade/hgrenb2a.wav", qfalse ); //FIXME
 
   cgs.media.repeaterUseSound        = trap_S_RegisterSound( "sound/buildables/repeater/use.wav", qfalse );
 
@@ -754,35 +747,19 @@ static void CG_RegisterGraphics( void )
   for( i = 0; i < 11; i++ )
     cgs.media.numberShaders[ i ] = trap_R_RegisterShader( sb_nums[ i ] );
 
-  cgs.media.viewBloodShader           = trap_R_RegisterShader( "viewBloodBlend" );
+  cgs.media.viewBloodShader           = trap_R_RegisterShader( "viewBloodBlend" ); //FIXME
 
-  cgs.media.deferShader               = trap_R_RegisterShaderNoMip( "gfx/2d/defer.tga" );
-
-  cgs.media.smokePuffShader           = trap_R_RegisterShader( "smokePuff" );
-  cgs.media.smokePuffRageProShader    = trap_R_RegisterShader( "smokePuffRagePro" );
-  cgs.media.shotgunSmokePuffShader    = trap_R_RegisterShader( "shotgunSmokePuff" );
-  cgs.media.bloodTrailShader          = trap_R_RegisterShader( "bloodTrail" );
-  cgs.media.connectionShader          = trap_R_RegisterShader( "disconnected" );
-
-  //TA: extra stuff
-  cgs.media.explosionShader           = trap_R_RegisterShader( "grenadeExplosion" );
-  cgs.media.greenBloodTrailShader     = trap_R_RegisterShader( "greenBloodTrail" );
-  cgs.media.greenBloodMarkShader      = trap_R_RegisterShader( "greenBloodMark" );
-  cgs.media.explosionTrailShader      = trap_R_RegisterShader( "explosionTrail" );
+  cgs.media.connectionShader          = trap_R_RegisterShader( "disconnected" ); //FIXME?
 
   cgs.media.creepShader               = trap_R_RegisterShader( "creep" );
 
   cgs.media.scannerBlipShader         = trap_R_RegisterShader( "gfx/2d/blip" );
   cgs.media.scannerLineShader         = trap_R_RegisterShader( "gfx/2d/stalk" );
 
-  cgs.media.waterBubbleShader         = trap_R_RegisterShader( "waterBubble" );
-
-  cgs.media.tracerShader              = trap_R_RegisterShader( "gfx/misc/tracer" );
+  cgs.media.tracerShader              = trap_R_RegisterShader( "gfx/misc/tracer" ); //FIXME
   cgs.media.selectShader              = trap_R_RegisterShader( "gfx/2d/select" );
 
-  cgs.media.backTileShader            = trap_R_RegisterShader( "gfx/2d/backtile" );
-  cgs.media.noammoShader              = trap_R_RegisterShader( "icons/noammo" );
-  cgs.media.friendShader              = trap_R_RegisterShader( "sprites/foe" );
+  cgs.media.backTileShader            = trap_R_RegisterShader( "gfx/2d/backtile" ); //FIXME
 
 
   //TA: building shaders
@@ -796,58 +773,17 @@ static void CG_RegisterGraphics( void )
 
   cgs.media.upgradeClassIconShader    = trap_R_RegisterShader( "icons/icona_upgrade.tga" );
 
-  cgs.media.gibAbdomen                = trap_R_RegisterModel( "models/gibs/abdomen.md3" );
-  cgs.media.gibArm                    = trap_R_RegisterModel( "models/gibs/arm.md3" );
-  cgs.media.gibChest                  = trap_R_RegisterModel( "models/gibs/chest.md3" );
-  cgs.media.gibFist                   = trap_R_RegisterModel( "models/gibs/fist.md3" );
-  cgs.media.gibFoot                   = trap_R_RegisterModel( "models/gibs/foot.md3" );
-  cgs.media.gibForearm                = trap_R_RegisterModel( "models/gibs/forearm.md3" );
-  cgs.media.gibIntestine              = trap_R_RegisterModel( "models/gibs/intestine.md3" );
-  cgs.media.gibLeg                    = trap_R_RegisterModel( "models/gibs/leg.md3" );
-  cgs.media.gibSkull                  = trap_R_RegisterModel( "models/gibs/skull.md3" );
-  cgs.media.gibBrain                  = trap_R_RegisterModel( "models/gibs/brain.md3" );
+  cgs.media.balloonShader             = trap_R_RegisterShader( "sprites/balloon3" ); //FIXME?
 
-  cgs.media.metalGib1                 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib1.md3" );
-  cgs.media.metalGib2                 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib2.md3" );
-  cgs.media.metalGib3                 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib3.md3" );
-  cgs.media.metalGib4                 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib4.md3" );
-  cgs.media.metalGib5                 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib5.md3" );
-  cgs.media.metalGib6                 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib6.md3" );
-  cgs.media.metalGib7                 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib7.md3" );
-  cgs.media.metalGib8                 = trap_R_RegisterModel( "models/fx/metal_gibs/m_gib8.md3" );
-
-  cgs.media.gibSpark1                 = trap_R_RegisterShader( "models/fx/metal_gibs/spark.jpg" );
-  cgs.media.gibSpark2                 = trap_R_RegisterShader( "models/fx/metal_gibs/spark2.jpg" );
-
-  cgs.media.alienGib1                 = trap_R_RegisterModel( "models/fx/alien_gibs/a_gib1.md3" );
-  cgs.media.alienGib2                 = trap_R_RegisterModel( "models/fx/alien_gibs/a_gib2.md3" );
-  cgs.media.alienGib3                 = trap_R_RegisterModel( "models/fx/alien_gibs/a_gib3.md3" );
-  cgs.media.alienGib4                 = trap_R_RegisterModel( "models/fx/alien_gibs/a_gib4.md3" );
-
-  cgs.media.balloonShader             = trap_R_RegisterShader( "sprites/balloon3" );
-
-  cgs.media.bloodExplosionShader      = trap_R_RegisterShader( "bloodExplosion" );
-  cgs.media.greenBloodExplosionShader = trap_R_RegisterShader( "greenBloodExplosion" );
-
-  cgs.media.bulletFlashModel          = trap_R_RegisterModel( "models/weaphits/bullet.md3" );
-  cgs.media.ringFlashModel            = trap_R_RegisterModel( "models/weaphits/ring02.md3" );
-  cgs.media.dishFlashModel            = trap_R_RegisterModel( "models/weaphits/boom01.md3" );
-  cgs.media.teleportEffectModel       = trap_R_RegisterModel( "models/misc/telep.md3" );
-  cgs.media.teleportEffectShader      = trap_R_RegisterShader( "teleportEffect" );
+  cgs.media.disconnectPS              = CG_RegisterParticleSystem( "disconnectPS" );
 
   CG_UpdateMediaFraction( 0.7f );
 
   memset( cg_weapons, 0, sizeof( cg_weapons ) );
   memset( cg_upgrades, 0, sizeof( cg_upgrades ) );
 
-  // wall marks
-  cgs.media.bulletMarkShader          = trap_R_RegisterShader( "gfx/damage/bullet_mrk" );
-  cgs.media.burnMarkShader            = trap_R_RegisterShader( "gfx/damage/burn_med_mrk" );
-  cgs.media.holeMarkShader            = trap_R_RegisterShader( "gfx/damage/hole_lg_mrk" );
-  cgs.media.energyMarkShader          = trap_R_RegisterShader( "gfx/damage/plasma_mrk" );
-  cgs.media.shadowMarkShader          = trap_R_RegisterShader( "markShadow" );
-  cgs.media.wakeMarkShader            = trap_R_RegisterShader( "wake" );
-  cgs.media.bloodMarkShader           = trap_R_RegisterShader( "bloodMark" );
+  cgs.media.shadowMarkShader          = trap_R_RegisterShader( "markShadow" ); //FIXME
+  cgs.media.wakeMarkShader            = trap_R_RegisterShader( "wake" ); //FIXME
 
   cgs.media.poisonCloudPS             = CG_RegisterParticleSystem( "poisonCloudPS" );
   cgs.media.alienEvolvePS             = CG_RegisterParticleSystem( "alienEvolvePS" );
@@ -861,6 +797,9 @@ static void CG_RegisterGraphics( void )
   cgs.media.alienBuildableDamagedPS   = CG_RegisterParticleSystem( "alienBuildableDamagedPS" );
   cgs.media.humanBuildableDestroyedPS = CG_RegisterParticleSystem( "humanBuildableDestroyedPS" );
   cgs.media.alienBuildableDestroyedPS = CG_RegisterParticleSystem( "alienBuildableDestroyedPS" );
+
+  cgs.media.alienBleedPS              = CG_RegisterParticleSystem( "alienBleedPS" );
+  cgs.media.humanBleedPS              = CG_RegisterParticleSystem( "humanBleedPS" );
 
   // register the inline models
   cgs.numInlineModels = trap_CM_NumInlineModels( );
@@ -1821,8 +1760,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   CG_RegisterClients( );   // if low on memory, some clients will be deferred
 
   cg.loading = qfalse;  // future players will be deferred
-
-  CG_InitLocalEntities( );
 
   CG_InitMarkPolys( );
 

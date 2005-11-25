@@ -925,20 +925,20 @@ static qboolean CG_ParseTrailBeam( baseTrailBeam_t *btb, char **text_p )
 
 /*
 ===============
-CG_InitialiseTrailBeam
+CG_InitialiseBaseTrailBeam
 ===============
 */
-static void CG_InitialiseTrailBeam( baseTrailBeam_t *btb )
+static void CG_InitialiseBaseTrailBeam( baseTrailBeam_t *btb )
 {
   memset( btb, 0, sizeof( baseTrailBeam_t ) );
 
   btb->numSegments = 1;
-  btb->frontWidth = btb->backWidth = 8.0f;
+  btb->frontWidth = btb->backWidth = 1.0f;
   btb->frontAlpha = btb->backAlpha = 1.0f;
   memset( btb->frontColor, 0xFF, sizeof( btb->frontColor ) );
   memset( btb->backColor, 0xFF, sizeof( btb->backColor ) );
 
-  btb->segmentTime = 250;
+  btb->segmentTime = 100;
 
   btb->textureType = TBTT_STRETCH;
   btb->frontTextureCoord = 0.0f;
@@ -966,7 +966,7 @@ static qboolean CG_ParseTrailSystem( baseTrailSystem_t *bts, char **text_p, cons
 
     if( !Q_stricmp( token, "{" ) )
     {
-      CG_InitialiseTrailBeam( &baseTrailBeams[ numBaseTrailBeams ] );
+      CG_InitialiseBaseTrailBeam( &baseTrailBeams[ numBaseTrailBeams ] );
 
       if( !CG_ParseTrailBeam( &baseTrailBeams[ numBaseTrailBeams ], text_p ) )
       {

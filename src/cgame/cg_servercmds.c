@@ -481,7 +481,6 @@ static void CG_MapRestart( void )
   if( cg_showmiss.integer )
     CG_Printf( "CG_MapRestart\n" );
 
-  CG_InitLocalEntities( );
   CG_InitMarkPolys( );
 
   // make sure the "3 frags left" warnings play again

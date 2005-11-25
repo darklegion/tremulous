@@ -671,14 +671,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     //
     case EV_PLAYER_TELEPORT_IN:
       DEBUGNAME( "EV_PLAYER_TELEPORT_IN" );
-      trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.teleInSound );
-      CG_SpawnEffect( position );
+      //deprecated
       break;
 
     case EV_PLAYER_TELEPORT_OUT:
       DEBUGNAME( "EV_PLAYER_TELEPORT_OUT" );
-      trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.teleOutSound );
-      CG_SpawnEffect( position );
+      CG_PlayerDisconnect( position );
       break;
 
     case EV_BUILD_CONSTRUCT:
@@ -824,8 +822,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
 
     case EV_GIB_PLAYER:
       DEBUGNAME( "EV_GIB_PLAYER" );
-      trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.gibSound );
-      CG_GibPlayer( cent->lerpOrigin );
+      // no gibbing
       break;
 
     case EV_STOPLOOPINGSOUND:

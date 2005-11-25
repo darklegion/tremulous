@@ -268,9 +268,30 @@ typedef struct baseParticle_s
   float           bounceFracRandFrac;
   qboolean        bounceCull;
 
+  char            bounceMarkName[ MAX_QPATH ];
+  qhandle_t       bounceMark;
+  float           bounceMarkRadius;
+  float           bounceMarkRadiusRandFrac;
+  float           bounceMarkCount;
+  float           bounceMarkCountRandFrac;
+
+  char            bounceSoundName[ MAX_QPATH ];
+  qhandle_t       bounceSound;
+  float           bounceSoundCount;
+  float           bounceSoundCountRandFrac;
+
   pLerpValues_t   radius;
   pLerpValues_t   alpha;
   pLerpValues_t   rotation;
+  
+  qboolean        dynamicLight;
+  pLerpValues_t   dLightRadius;
+  byte            dLightColor[ 3 ];
+
+  int             colorDelay;
+  float           colorDelayRandFrac;
+  byte            initialColor[ 3 ];
+  byte            finalColor[ 3 ];
 
   char            childSystemName[ MAX_QPATH ];
   qhandle_t       childSystemHandle;
@@ -364,6 +385,9 @@ typedef struct particle_s
   int               birthTime;
   int               lifeTime;
 
+  float             bounceMarkRadius;
+  int               bounceMarkCount;
+  int               bounceSoundCount;
   qboolean          atRest;
 
   vec3_t            origin;
@@ -379,6 +403,10 @@ typedef struct particle_s
   pLerpValues_t     radius;
   pLerpValues_t     alpha;
   pLerpValues_t     rotation;
+
+  pLerpValues_t     dLightRadius;
+
+  int               colorDelay;
 
   qhandle_t         model;
   lerpFrame_t       lf;
@@ -630,9 +658,6 @@ typedef struct centity_s
 
 //======================================================================
 
-// local entities are created as a result of events or predicted actions,
-// and live independantly from all server transmitted entities
-
 typedef struct markPoly_s
 {
   struct markPoly_s *prevMark, *nextMark;
@@ -643,79 +668,6 @@ typedef struct markPoly_s
   poly_t            poly;
   polyVert_t        verts[ MAX_VERTS_ON_POLY ];
 } markPoly_t;
-
-
-typedef enum
-{
-  LE_MARK,
-  LE_EXPLOSION,
-  LE_SPRITE_EXPLOSION,
-  LE_FRAGMENT,
-  LE_MOVE_SCALE_FADE,
-  LE_FALL_SCALE_FADE,
-  LE_FADE_RGB,
-  LE_SCALE_FADE
-} leType_t;
-
-typedef enum
-{
-  LEF_PUFF_DONT_SCALE   = 0x0001,      // do not scale size over time
-  LEF_TUMBLE            = 0x0002     // tumble over time, used for ejecting shells
-} leFlag_t;
-
-typedef enum
-{
-  LEMT_NONE,
-  LEMT_BURN,
-  LEMT_BLOOD,
-  LEMT_GREENBLOOD,  //TA: when aliens are injured
-  LEMT_BANG         //TA: human item explosions
-} leMarkType_t;     // fragment local entities can leave marks on walls
-
-typedef enum
-{
-  LEBS_NONE,
-  LEBS_BLOOD,
-  LEBS_BANG,        //TA: human item explosions
-  LEBS_BRASS
-} leBounceSoundType_t;  // fragment local entities can make sounds on impacts
-
-typedef struct localEntity_s
-{
-  struct localEntity_s  *prev, *next;
-  leType_t              leType;
-  int                   leFlags;
-
-  int                   startTime;
-  int                   endTime;
-  int                   fadeInTime;
-
-  float                 lifeRate;     // 1.0 / (endTime - startTime)
-
-  trajectory_t          pos;
-  trajectory_t          angles;
-
-  float                 bounceFactor;   // 0.0 = no bounce, 1.0 = perfect
-
-  float                 color[4];
-
-  float                 radius;
-
-  float                 light;
-  vec3_t                lightColor;
-
-  leMarkType_t          leMarkType;   // mark to leave on fragment impact
-  leBounceSoundType_t   leBounceSoundType;
-
-  refEntity_t           refEntity;
-
-  unsigned int          sortKey;
-
-  //TA: lightning bolt endpoint entities
-  int                   srcENum, destENum;
-  int                   vOffset;
-  int                   maxRange;
-} localEntity_t;
 
 //======================================================================
 
@@ -841,15 +793,11 @@ typedef struct weaponInfoMode_s
   qhandle_t   muzzleParticleSystem;
 
   qboolean    alwaysImpact;
-  qhandle_t   impactModel;
-  qhandle_t   impactModelShader;
   qhandle_t   impactParticleSystem;
   qhandle_t   impactMark;
   qhandle_t   impactMarkSize;
   sfxHandle_t impactSound[ 4 ]; //random impact sound
   sfxHandle_t impactFleshSound[ 4 ]; //random impact sound
-  float       impactDlight;
-  vec3_t      impactDlightColor;
 } weaponInfoMode_t;
 
 // each WP_* weapon enum has an associated weaponInfo_t
@@ -1181,40 +1129,7 @@ typedef struct
   qhandle_t   whiteShader;
   qhandle_t   outlineShader;
 
-  qhandle_t   deferShader;
-
-  // gib explosions
-  qhandle_t   gibAbdomen;
-  qhandle_t   gibArm;
-  qhandle_t   gibChest;
-  qhandle_t   gibFist;
-  qhandle_t   gibFoot;
-  qhandle_t   gibForearm;
-  qhandle_t   gibIntestine;
-  qhandle_t   gibLeg;
-  qhandle_t   gibSkull;
-  qhandle_t   gibBrain;
-
-  qhandle_t   metalGib1;
-  qhandle_t   metalGib2;
-  qhandle_t   metalGib3;
-  qhandle_t   metalGib4;
-  qhandle_t   metalGib5;
-  qhandle_t   metalGib6;
-  qhandle_t   metalGib7;
-  qhandle_t   metalGib8;
-
-  qhandle_t   alienGib1;
-  qhandle_t   alienGib2;
-  qhandle_t   alienGib3;
-  qhandle_t   alienGib4;
-
-  qhandle_t   gibSpark1;
-  qhandle_t   gibSpark2;
-
   qhandle_t   level2ZapTS;
-
-  qhandle_t   friendShader;
 
   qhandle_t   balloonShader;
   qhandle_t   connectionShader;
@@ -1224,22 +1139,7 @@ typedef struct
   qhandle_t   tracerShader;
   qhandle_t   crosshairShader[ WP_NUM_WEAPONS ];
   qhandle_t   backTileShader;
-  qhandle_t   noammoShader;
 
-  qhandle_t   smokePuffShader;
-  qhandle_t   smokePuffRageProShader;
-  qhandle_t   shotgunSmokePuffShader;
-  qhandle_t   waterBubbleShader;
-  qhandle_t   bloodTrailShader;
-
-  //TA: extra stuff
-  qhandle_t   explosionShader;
-  qhandle_t   greenBloodTrailShader;
-  qhandle_t   greenBloodMarkShader;
-  qhandle_t   greenBloodExplosionShader;
-  qhandle_t   explosionTrailShader;
-
-  qhandle_t   flameExplShader;
   qhandle_t   creepShader;
 
   qhandle_t   scannerShader;
@@ -1250,45 +1150,22 @@ typedef struct
   qhandle_t   numberShaders[ 11 ];
 
   qhandle_t   shadowMarkShader;
-
-  // wall mark shaders
   qhandle_t   wakeMarkShader;
-  qhandle_t   bloodMarkShader;
-  qhandle_t   bulletMarkShader;
-  qhandle_t   burnMarkShader;
-  qhandle_t   holeMarkShader;
-  qhandle_t   energyMarkShader;
 
-  //TA: buildable shaders
+  // buildable shaders
   qhandle_t   greenBuildShader;
   qhandle_t   redBuildShader;
   qhandle_t   noPowerShader;
   qhandle_t   humanSpawningShader;
 
-  // weapon effect models
-  qhandle_t   bulletFlashModel;
-  qhandle_t   ringFlashModel;
-  qhandle_t   dishFlashModel;
-
-  // weapon effect shaders
-  qhandle_t   bloodExplosionShader;
-
-  // special effects models
-  qhandle_t   teleportEffectModel;
-  qhandle_t   teleportEffectShader;
+  // disconnect
+  qhandle_t   disconnectPS;
+  qhandle_t   disconnectSound;
 
   // sounds
   sfxHandle_t tracerSound;
   sfxHandle_t selectSound;
   sfxHandle_t footsteps[ FOOTSTEP_TOTAL ][ 4 ];
-  sfxHandle_t gibSound;
-  sfxHandle_t gibBounce1Sound;
-  sfxHandle_t gibBounce2Sound;
-  sfxHandle_t gibBounce3Sound;
-  sfxHandle_t metalGibBounceSound;
-  sfxHandle_t teleInSound;
-  sfxHandle_t teleOutSound;
-  sfxHandle_t respawnSound;
   sfxHandle_t talkSound;
   sfxHandle_t landSound;
   sfxHandle_t fallSound;
@@ -1360,6 +1237,10 @@ typedef struct
   qhandle_t   humanBuildableDestroyedPS;
   qhandle_t   alienBuildableDamagedPS;
   qhandle_t   alienBuildableDestroyedPS;
+
+  qhandle_t   alienBleedPS;
+  qhandle_t   humanBleedPS;
+
   qhandle_t   teslaZapTS;
 
   sfxHandle_t lCannonWarningSound;
@@ -1694,7 +1575,7 @@ void        CG_DrawLoadingScreen( void );
 void        CG_UpdateMediaFraction( float newFract );
 
 //
-// cg_player.c
+// cg_players.c
 //
 void        CG_Player( centity_t *cent );
 void        CG_Corpse( centity_t *cent );
@@ -1703,6 +1584,8 @@ void        CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, int tea
 void        CG_NewClientInfo( int clientNum );
 void        CG_PrecacheClientInfo( pClass_t class, char *model, char *skin );
 sfxHandle_t CG_CustomSound( int clientNum, const char *soundName );
+void        CG_PlayerDisconnect( vec3_t org );
+void        CG_Bleed( vec3_t origin, vec3_t normal, int entityNum );
 
 //
 // cg_buildable.c
@@ -1807,35 +1690,6 @@ void        CG_ImpactMark( qhandle_t markShader,
                            float r, float g, float b, float a,
                            qboolean alphaFade,
                            float radius, qboolean temporary );
-
-//
-// cg_localents.c
-//
-void          CG_InitLocalEntities( void );
-localEntity_t *CG_AllocLocalEntity( void );
-void          CG_AddLocalEntities( void );
-
-//
-// cg_effects.c
-//
-localEntity_t *CG_SmokePuff( const vec3_t p,
-                             const vec3_t vel,
-                             float radius,
-                             float r, float g, float b, float a,
-                             float duration,
-                             int startTime,
-                             int fadeInTime,
-                             int leFlags,
-                             qhandle_t hShader );
-void          CG_BubbleTrail( vec3_t start, vec3_t end, float spacing );
-void          CG_SpawnEffect( vec3_t org );
-void          CG_GibPlayer( vec3_t playerOrigin );
-
-void          CG_Bleed( vec3_t origin, int entityNum );
-
-localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
-                                 qhandle_t hModel, qhandle_t shader, int msec,
-                                 qboolean isSprite );
 
 //
 // cg_snapshot.c
