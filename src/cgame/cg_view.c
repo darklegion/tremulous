@@ -286,8 +286,8 @@ static void CG_OffsetThirdPersonView( void )
   // if dead, look at killer
   if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
   {
-    focusAngles[ YAW ] = cg.predictedPlayerState.generic1;
-    cg.refdefViewAngles[ YAW ] = cg.predictedPlayerState.generic1;
+    focusAngles[ YAW ] = cg.predictedPlayerState.stats[ STAT_VIEWLOCK ];
+    cg.refdefViewAngles[ YAW ] = cg.predictedPlayerState.stats[ STAT_VIEWLOCK ];
   }
 
   //if ( focusAngles[PITCH] > 45 ) {
@@ -430,7 +430,7 @@ static void CG_OffsetFirstPersonView( void )
   {
     angles[ ROLL ] = 40;
     angles[ PITCH ] = -15;
-    angles[ YAW ] = cg.snap->ps.generic1;
+    angles[ YAW ] = cg.snap->ps.stats[ STAT_VIEWLOCK ];
     origin[ 2 ] += cg.predictedPlayerState.viewheight;
     return;
   }

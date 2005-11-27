@@ -1351,7 +1351,9 @@ static void CG_PlayerWWSmoothing( centity_t *cent, vec3_t in[ 3 ], vec3_t out[ 3
   vec3_t        inAxis[ 3 ], lastAxis[ 3 ], outAxis[ 3 ];
 
   //set surfNormal
-  if( !( es->eFlags & EF_WALLCLIMBCEILING ) )
+  if( !(es->eFlags & EF_WALLCLIMB ) )
+    VectorCopy( refNormal, surfNormal );
+  else if( !( es->eFlags & EF_WALLCLIMBCEILING ) )
     VectorCopy( es->angles2, surfNormal );
   else
     VectorCopy( ceilingNormal, surfNormal );
@@ -2274,10 +2276,13 @@ void CG_Player( centity_t *cent )
   //
   // add the gun / barrel / flash
   //
-  if( !ci->nonsegmented )
-    CG_AddPlayerWeapon( &torso, NULL, cent );
-  else
-    CG_AddPlayerWeapon( &legs, NULL, cent );
+  if( es->weapon != WP_NONE )
+  {
+    if( !ci->nonsegmented )
+      CG_AddPlayerWeapon( &torso, NULL, cent );
+    else
+      CG_AddPlayerWeapon( &legs, NULL, cent );
+  }
 
   CG_PlayerUpgrades( cent, &torso );
 

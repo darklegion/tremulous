@@ -51,7 +51,6 @@ LookAtKiller
 void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker )
 {
   vec3_t    dir;
-  vec3_t    angles;
 
   if ( attacker && attacker != self )
     VectorSubtract( attacker->s.pos.trBase, self->s.pos.trBase, dir );
@@ -59,15 +58,11 @@ void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker )
     VectorSubtract( inflictor->s.pos.trBase, self->s.pos.trBase, dir );
   else
   {
-    self->client->ps.generic1 = self->s.angles[ YAW ];
+    self->client->ps.stats[ STAT_VIEWLOCK ] = self->s.angles[ YAW ];
     return;
   }
 
-  self->client->ps.generic1 = vectoyaw( dir );
-
-  angles[ YAW ] = vectoyaw( dir );
-  angles[ PITCH ] = 0;
-  angles[ ROLL ] = 0;
+  self->client->ps.stats[ STAT_VIEWLOCK ] = vectoyaw( dir );
 }
 
 // these are just for logging, the client prints its own messages

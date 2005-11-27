@@ -4589,6 +4589,9 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
 
   s->loopSound = ps->loopSound;
   s->generic1 = ps->generic1;
+
+  if( s->generic1 <= WPM_NONE || s->generic1 >= WPM_NUM_WEAPONMODES )
+    s->generic1 = WPM_PRIMARY;
 }
 
 
@@ -4696,6 +4699,9 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 
   s->loopSound = ps->loopSound;
   s->generic1 = ps->generic1;
+
+  if( s->generic1 <= WPM_NONE || s->generic1 >= WPM_NUM_WEAPONMODES )
+    s->generic1 = WPM_PRIMARY;
 }
 
 /*

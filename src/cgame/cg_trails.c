@@ -637,10 +637,13 @@ static void CG_UpdateBeam( trailBeam_t *tb )
       }
     }
 
-    if( !CG_AttachmentPoint( &ts->frontAttachment, tb->nodes->refPosition ) )
-      CG_DestroyTrailSystem( &ts );
+    if( tb->nodes )
+    {
+      if( !CG_AttachmentPoint( &ts->frontAttachment, tb->nodes->refPosition ) )
+        CG_DestroyTrailSystem( &ts );
 
-    VectorCopy( tb->nodes->refPosition, tb->nodes->position );
+      VectorCopy( tb->nodes->refPosition, tb->nodes->position );
+    }
   }
 
   CG_ApplyJitters( tb );

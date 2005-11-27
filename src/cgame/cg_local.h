@@ -694,7 +694,7 @@ typedef struct
   qboolean    infoValid;
 
   char        name[ MAX_QPATH ];
-  team_t      team;
+  pTeam_t     team;
 
   int         botSkill;                   // 0 = not bot, 1-5 = bot
 

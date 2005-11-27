@@ -494,7 +494,6 @@ void lasGunFire( gentity_t *ent )
     tent->s.weapon = ent->s.weapon;
     tent->s.generic1 = ent->s.generic1; //weaponMode
   }
-  tent->s.otherEntityNum = ent->s.number;
 
   if( traceEnt->takedamage )
     G_Damage( traceEnt, ent, ent, forward, tr.endpos, LASGUN_DAMAGE, 0, MOD_LASGUN );

@@ -1503,20 +1503,26 @@ void Cmd_Buy_f( gentity_t *ent )
 
   //special case to keep norf happy
   if( weapon == WP_NONE && upgrade == UP_AMMO )
-  {
-    //if we're buying ammo, there is a reactor/repeater in range and
-    //our current weapon uses energy
-    if( ( G_BuildableRange( ent->client->ps.origin, 100, BA_H_REACTOR ) ||
-        G_BuildableRange( ent->client->ps.origin, 100, BA_H_REPEATER ) ) &&
-        BG_FindUsesEnergyForWeapon( ent->client->ps.weapon ) )
-      buyingEnergyAmmo = qtrue;
-  }
+    buyingEnergyAmmo = BG_FindUsesEnergyForWeapon( ent->client->ps.weapon );
 
-  //no armoury nearby
-  if( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) && !buyingEnergyAmmo )
+  if( buyingEnergyAmmo )
   {
-    G_SendCommandFromServer( ent-g_entities, va( "print \"You must be near a powered armoury\n\"" ) );
-    return;
+    //no armoury nearby
+    if( ( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_REACTOR ) &&
+        !G_BuildableRange( ent->client->ps.origin, 100, BA_H_REPEATER ) ) )
+    {
+      G_SendCommandFromServer( ent-g_entities, va( "print \"You must be near a reactor or repeater\n\"" ) );
+      return;
+    }
+  }
+  else
+  {
+    //no armoury nearby
+    if( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
+    {
+      G_SendCommandFromServer( ent-g_entities, va( "print \"You must be near a powered armoury\n\"" ) );
+      return;
+    }
   }
 
   if( weapon != WP_NONE )
@@ -1918,7 +1924,8 @@ Cmd_Reload_f
 */
 void Cmd_Reload_f( gentity_t *ent )
 {
-  ent->client->ps.pm_flags |= PMF_WEAPON_RELOAD;
+  if( ent->client->ps.weaponstate != WEAPON_RELOADING )
+    ent->client->ps.pm_flags |= PMF_WEAPON_RELOAD;
 }
 
 /*

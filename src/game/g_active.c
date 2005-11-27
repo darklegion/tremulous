@@ -1103,7 +1103,7 @@ void ClientThink_real( gentity_t *ent )
   {
     int lastWeapon = ent->s.weapon;
 
-    //remove anti toxin
+    //remove grenade
     BG_DeactivateUpgrade( UP_GRENADE, client->ps.stats );
     BG_RemoveUpgradeFromInventory( UP_GRENADE, client->ps.stats );
 

@@ -1227,6 +1227,7 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
     //prevent lerping
     builder->client->ps.eFlags ^= EF_TELEPORT_BIT;
+    builder->client->ps.eFlags &= ~EF_NODRAW;
 
     G_SetOrigin( builder, newOrigin );
     VectorCopy( newOrigin, builder->client->ps.origin );
@@ -2545,7 +2546,26 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
       }
 
       if( i >= level.num_entities )
-        reason = IBE_RPTWARN;
+      {
+        //no reactor present
+
+        //check for other nearby repeaters
+        for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
+        {
+          if( tempent->s.eType != ET_BUILDABLE )
+            continue;
+
+          if( tempent->s.modelindex == BA_H_REPEATER &&
+              Distance( tempent->s.origin, entity_origin ) < REPEATER_BASESIZE )
+          {
+            reason = IBE_RPTWARN2;
+            break;
+          }
+        }
+
+        if( reason == IBE_NONE )
+          reason = IBE_RPTWARN;
+      }
       else if( G_isPower( entity_origin ) )
         reason = IBE_RPTWARN2;
     }

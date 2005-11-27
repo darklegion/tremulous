@@ -293,7 +293,7 @@ static void CG_Obituary( entityState_t *ent )
         break;
 
       case MOD_POISON:
-        message = "should have used antitox against";
+        message = "should have used a medkit against";
         message2 = "'s poison";
         break;
       case MOD_LEVEL1_PCLOUD:
@@ -840,7 +840,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       DEBUGNAME( "EV_BUILD_DELAY" );
       if( clientNum == cg.predictedPlayerState.clientNum )
       {
-        //FIXME: change to "negative" sound
         trap_S_StartLocalSound( cgs.media.buildableRepairedSound, CHAN_LOCAL_SOUND );
         cg.lastBuildAttempt = cg.time;
       }

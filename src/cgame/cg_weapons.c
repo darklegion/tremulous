@@ -787,6 +787,9 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   weaponNum = cent->currentState.weapon;
   weaponMode = cent->currentState.generic1;
 
+  if( weaponMode <= WPM_NONE || weaponMode >= WPM_NUM_WEAPONMODES )
+    weaponMode = WPM_PRIMARY;
+
   if( ( ( cent->currentState.eFlags & EF_FIRING ) && weaponMode == WPM_PRIMARY ) ||
       ( ( cent->currentState.eFlags & EF_FIRING2 ) && weaponMode == WPM_SECONDARY ) ||
       ( ( cent->currentState.eFlags & EF_FIRING3 ) && weaponMode == WPM_TERTIARY ) )
@@ -969,6 +972,9 @@ void CG_AddViewWeapon( playerState_t *ps )
   weaponInfo_t  *wi;
   weapon_t      weapon = ps->weapon;
   weaponMode_t  weaponMode = ps->generic1;
+
+  if( weaponMode <= WPM_NONE || weaponMode >= WPM_NUM_WEAPONMODES )
+    weaponMode = WPM_PRIMARY;
 
   CG_RegisterWeapon( weapon );
   wi = &cg_weapons[ weapon ];
@@ -1432,6 +1438,9 @@ void CG_FireWeapon( centity_t *cent, weaponMode_t weaponMode )
   if( weaponNum == WP_NONE )
     return;
 
+  if( weaponMode <= WPM_NONE || weaponMode >= WPM_NUM_WEAPONMODES )
+    weaponMode = WPM_PRIMARY;
+
   if( weaponNum >= WP_NUM_WEAPONS )
   {
     CG_Error( "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS" );
@@ -1482,6 +1491,9 @@ void CG_MissileHitWall( weapon_t weaponNum, weaponMode_t weaponMode, int clientN
   int                 c;
   float               radius = 1.0f;
   weaponInfo_t        *weapon = &cg_weapons[ weaponNum ];
+
+  if( weaponMode <= WPM_NONE || weaponMode >= WPM_NUM_WEAPONMODES )
+    weaponMode = WPM_PRIMARY;
 
   mark = weapon->wim[ weaponMode ].impactMark;
   radius = weapon->wim[ weaponMode ].impactMarkSize;
@@ -1556,6 +1568,9 @@ void CG_MissileHitPlayer( weapon_t weaponNum, weaponMode_t weaponMode,
   VectorInverse( normal );
 
   CG_Bleed( origin, normal, entityNum );
+
+  if( weaponMode <= WPM_NONE || weaponMode >= WPM_NUM_WEAPONMODES )
+    weaponMode = WPM_PRIMARY;
 
   if( weapon->wim[ weaponMode ].alwaysImpact )
     CG_MissileHitWall( weaponNum, weaponMode, 0, origin, dir, IMPACTSOUND_FLESH );
