@@ -1322,7 +1322,7 @@ void ClientThink_real( gentity_t *ent )
           {
             if( BG_ClassCanEvolveFromTo( client->ps.stats[ STAT_PCLASS ], j,
                                          client->ps.persistant[ PERS_CREDIT ], 0 ) >= 0 &&
-                BG_FindStagesForClass( j, g_alienStage.integer ) )
+                BG_FindStagesForClass( j, g_alienStage.integer ) && G_ClassIsAllowed( j ) )
             {
               upgrade = qtrue;
               break;

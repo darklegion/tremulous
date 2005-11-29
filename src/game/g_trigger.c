@@ -617,10 +617,7 @@ SP_trigger_buildable
 */
 void SP_trigger_buildable( gentity_t *self )
 {
-  char      *buffer;
-  int       i = 0;
-  char      *p, *q;
-  qboolean  EOS = qfalse;
+  char *buffer;
 
   G_SpawnFloat( "wait", "0.5", &self->wait );
   G_SpawnFloat( "random", "0", &self->random );
@@ -633,39 +630,7 @@ void SP_trigger_buildable( gentity_t *self )
 
   G_SpawnString( "buildables", "", &buffer );
 
-  p = q = buffer;
-
-  while( *p != '\0' )
-  {
-    //skip to first , or EOS
-    while( *p != ',' && *p != '\0' )
-      p++;
-
-    if( *p == '\0' )
-      EOS = qtrue;
-
-    *p = '\0';
-
-    //strip leading whitespace
-    while( *q == ' ' )
-      q++;
-
-    self->bTriggers[ i ] = BG_FindBuildNumForName( q );
-    if( self->bTriggers[ i ] == BA_NONE )
-      G_Printf( S_COLOR_YELLOW "WARNING: unknown buildable %s in trigger_buildable\n", q );
-    else
-      i++;
-
-    if( !EOS )
-    {
-      p++;
-      q = p;
-    }
-    else
-      break;
-  }
-
-  self->bTriggers[ i ] = BA_NONE;
+  BG_ParseCSVBuildableList( buffer, self->bTriggers, BA_NUM_BUILDABLES );
 
   self->touch = trigger_buildable_touch;
   self->use = trigger_buildable_use;
@@ -757,10 +722,7 @@ SP_trigger_class
 */
 void SP_trigger_class( gentity_t *self )
 {
-  char      *buffer;
-  int       i = 0;
-  char      *p, *q;
-  qboolean  EOS = qfalse;
+  char *buffer;
 
   G_SpawnFloat( "wait", "0.5", &self->wait );
   G_SpawnFloat( "random", "0", &self->random );
@@ -773,39 +735,7 @@ void SP_trigger_class( gentity_t *self )
 
   G_SpawnString( "classes", "", &buffer );
 
-  p = q = buffer;
-
-  while( *p != '\0' )
-  {
-    //skip to first , or EOS
-    while( *p != ',' && *p != '\0' )
-      p++;
-
-    if( *p == '\0' )
-      EOS = qtrue;
-
-    *p = '\0';
-
-    //strip leading whitespace
-    while( *q == ' ' )
-      q++;
-
-    self->cTriggers[ i ] = BG_FindClassNumForName( q );
-    if( self->cTriggers[ i ] == PCL_NONE )
-      G_Printf( S_COLOR_YELLOW "WARNING: unknown class %s in trigger_class\n", q );
-    else
-      i++;
-
-    if( !EOS )
-    {
-      p++;
-      q = p;
-    }
-    else
-      break;
-  }
-
-  self->cTriggers[ i ] = PCL_NONE;
+  BG_ParseCSVClassList( buffer, self->cTriggers, PCL_NUM_CLASSES );
 
   self->touch = trigger_class_touch;
   self->use = trigger_class_use;
@@ -906,10 +836,7 @@ SP_trigger_equipment
 */
 void SP_trigger_equipment( gentity_t *self )
 {
-  char      *buffer;
-  int       i = 0, j = 0;
-  char      *p, *q;
-  qboolean  EOS = qfalse;
+  char *buffer;
 
   G_SpawnFloat( "wait", "0.5", &self->wait );
   G_SpawnFloat( "random", "0", &self->random );
@@ -922,44 +849,8 @@ void SP_trigger_equipment( gentity_t *self )
 
   G_SpawnString( "equipment", "", &buffer );
 
-  p = q = buffer;
-
-  while( *p != '\0' )
-  {
-    //skip to first , or EOS
-    while( *p != ',' && *p != '\0' )
-      p++;
-
-    if( *p == '\0' )
-      EOS = qtrue;
-
-    *p = '\0';
-
-    //strip leading whitespace
-    while( *q == ' ' )
-      q++;
-
-    self->wTriggers[ i ] = BG_FindWeaponNumForName( q );
-    self->uTriggers[ j ] = BG_FindUpgradeNumForName( q );
-
-    if( self->wTriggers[ i ] == WP_NONE && self->uTriggers[ j ] == UP_NONE )
-      G_Printf( S_COLOR_YELLOW "WARNING: unknown equipment %s in trigger_class\n", q );
-    else if( self->wTriggers[ i ] != WP_NONE )
-      i++;
-    else if( self->uTriggers[ j ] != UP_NONE )
-      j++;
-
-    if( !EOS )
-    {
-      p++;
-      q = p;
-    }
-    else
-      break;
-  }
-
-  self->wTriggers[ i ] = WP_NONE;
-  self->uTriggers[ j ] = UP_NONE;
+  BG_ParseCSVEquipmentList( buffer, self->wTriggers, WP_NUM_WEAPONS,
+      self->uTriggers, UP_NUM_UPGRADES );
 
   self->touch = trigger_equipment_touch;
   self->use = trigger_equipment_use;

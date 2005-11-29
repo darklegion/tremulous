@@ -1114,19 +1114,15 @@ void Cmd_Class_f( gentity_t *ent )
   clientNum = ent->client - level.clients;
   trap_Argv( 1, s, sizeof( s ) );
 
-  if( BG_FindStagesForClass( PCL_ALIEN_BUILDER0_UPG, g_alienStage.integer ) )
-  {
-    allowedClasses[ 0 ] = PCL_ALIEN_BUILDER0;
-    allowedClasses[ 1 ] = PCL_ALIEN_BUILDER0_UPG;
-    allowedClasses[ 2 ] = PCL_ALIEN_LEVEL0;
-    numClasses = 3;
-  }
-  else
-  {
-    allowedClasses[ 0 ] = PCL_ALIEN_BUILDER0;
-    allowedClasses[ 1 ] = PCL_ALIEN_LEVEL0;
-    numClasses = 2;
-  }
+  if( G_ClassIsAllowed( PCL_ALIEN_BUILDER0 ) )
+    allowedClasses[ numClasses++ ] = PCL_ALIEN_BUILDER0;
+
+  if( G_ClassIsAllowed( PCL_ALIEN_BUILDER0_UPG ) &&
+      BG_FindStagesForClass( PCL_ALIEN_BUILDER0_UPG, g_alienStage.integer ) )
+    allowedClasses[ numClasses++ ] = PCL_ALIEN_BUILDER0;
+
+  if( G_ClassIsAllowed( PCL_ALIEN_LEVEL0 ) )
+    allowedClasses[ numClasses++ ] = PCL_ALIEN_LEVEL0;
 
   if( ent->client->pers.teamSelection == PTE_ALIENS &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
@@ -1211,7 +1207,9 @@ void Cmd_Class_f( gentity_t *ent )
       if( !tr.startsolid && tr2.fraction == 1.0f )
       {
         //...check we can evolve to that class
-        if( numLevels >= 0 && BG_FindStagesForClass( ent->client->pers.classSelection, g_alienStage.integer ) )
+        if( numLevels >= 0 &&
+            BG_FindStagesForClass( ent->client->pers.classSelection, g_alienStage.integer ) && 
+            G_ClassIsAllowed( ent->client->pers.classSelection ) )
         {
           ent->client->pers.evolveHealthFraction = (float)ent->client->ps.stats[ STAT_HEALTH ] /
             (float)BG_FindHealthForClass( currentClass );
@@ -1255,7 +1253,8 @@ void Cmd_Class_f( gentity_t *ent )
         for( i = 0; i < numClasses; i++ )
         {
           if( allowedClasses[ i ] == ent->client->pers.classSelection &&
-              BG_FindStagesForClass( ent->client->pers.classSelection, g_alienStage.integer ) )
+              BG_FindStagesForClass( ent->client->pers.classSelection, g_alienStage.integer ) &&
+              G_ClassIsAllowed( ent->client->pers.classSelection ) )
           {
             G_PushSpawnQueue( &level.alienSpawnQueue, clientNum );
             return;
@@ -1285,11 +1284,11 @@ void Cmd_Class_f( gentity_t *ent )
       ent->client->ps.stats[ STAT_PCLASS ] = PCL_HUMAN;
 
     //set the item to spawn with
-    if( !Q_stricmp( s, BG_FindNameForWeapon( WP_MACHINEGUN ) ) )
+    if( !Q_stricmp( s, BG_FindNameForWeapon( WP_MACHINEGUN ) ) && G_WeaponIsAllowed( WP_MACHINEGUN ) )
       ent->client->pers.humanItemSelection = WP_MACHINEGUN;
-    else if( !Q_stricmp( s, BG_FindNameForWeapon( WP_HBUILD ) ) )
+    else if( !Q_stricmp( s, BG_FindNameForWeapon( WP_HBUILD ) ) && G_WeaponIsAllowed( WP_HBUILD ) )
       ent->client->pers.humanItemSelection = WP_HBUILD;
-    else if( !Q_stricmp( s, BG_FindNameForWeapon( WP_HBUILD2 ) ) &&
+    else if( !Q_stricmp( s, BG_FindNameForWeapon( WP_HBUILD2 ) ) && G_WeaponIsAllowed( WP_HBUILD2 ) &&
         BG_FindStagesForWeapon( WP_HBUILD2, g_humanStage.integer ) )
       ent->client->pers.humanItemSelection = WP_HBUILD2;
     else
@@ -1563,7 +1562,7 @@ void Cmd_Buy_f( gentity_t *ent )
     }
 
     //are we /allowed/ to buy this?
-    if( !BG_FindStagesForWeapon( weapon, g_humanStage.integer ) )
+    if( !BG_FindStagesForWeapon( weapon, g_humanStage.integer ) || !G_WeaponIsAllowed( weapon ) )
     {
       G_SendCommandFromServer( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
       return;
@@ -1626,7 +1625,7 @@ void Cmd_Buy_f( gentity_t *ent )
     }
 
     //are we /allowed/ to buy this?
-    if( !BG_FindStagesForUpgrade( upgrade, g_humanStage.integer ) )
+    if( !BG_FindStagesForUpgrade( upgrade, g_humanStage.integer ) || !G_UpgradeIsAllowed( upgrade ) )
     {
       G_SendCommandFromServer( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
       return;
@@ -1838,6 +1837,7 @@ void Cmd_Build_f( gentity_t *ent )
       ( ( 1 << ent->client->ps.weapon ) & BG_FindBuildWeaponForBuildable( buildable ) ) &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) &&
+      G_BuildableIsAllowed( buildable ) &&
       ( ( team == PTE_ALIENS && BG_FindStagesForBuildable( buildable, g_alienStage.integer ) ) ||
         ( team == PTE_HUMANS && BG_FindStagesForBuildable( buildable, g_humanStage.integer ) ) ) )
   {

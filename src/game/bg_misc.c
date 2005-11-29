@@ -1474,7 +1474,7 @@ classAttributes_t bg_classList[ ] =
     90,                                             //int     fov;
     0.000f,                                         //float   bob;
     1.0f,                                           //float   bobCycle;
-    350,                                            //int     steptime;
+    0,                                              //int     steptime;
     600,                                            //float   speed;
     10.0f,                                          //float   acceleration;
     1.0f,                                           //float   airAcceleration;
@@ -5080,4 +5080,169 @@ int atoi_neg( char *token, qboolean allowNegative )
     value = 1;
 
   return value;
+}
+
+/*
+===============
+BG_ParseCSVEquipmentList
+===============
+*/
+void BG_ParseCSVEquipmentList( const char *string, weapon_t *weapons, int weaponsSize,
+    upgrade_t *upgrades, int upgradesSize )
+{
+  char      buffer[ MAX_STRING_CHARS ];
+  int       i = 0, j = 0;
+  char      *p, *q;
+  qboolean  EOS = qfalse;
+
+  Q_strncpyz( buffer, string, MAX_STRING_CHARS );
+
+  p = q = buffer;
+
+  while( *p != '\0' )
+  {
+    //skip to first , or EOS
+    while( *p != ',' && *p != '\0' )
+      p++;
+
+    if( *p == '\0' )
+      EOS = qtrue;
+
+    *p = '\0';
+
+    //strip leading whitespace
+    while( *q == ' ' )
+      q++;
+
+    if( weaponsSize )
+      weapons[ i ] = BG_FindWeaponNumForName( q );
+
+    if( upgradesSize )
+      upgrades[ j ] = BG_FindUpgradeNumForName( q );
+
+    if( weaponsSize && weapons[ i ] == WP_NONE &&
+        upgradesSize && upgrades[ j ] == UP_NONE )
+      Com_Printf( S_COLOR_YELLOW "WARNING: unknown equipment %s\n", q );
+    else if( weaponsSize && weapons[ i ] != WP_NONE )
+      i++;
+    else if( upgradesSize && upgrades[ j ] != UP_NONE )
+      j++;
+
+    if( !EOS )
+    {
+      p++;
+      q = p;
+    }
+    else
+      break;
+
+    if( i == ( weaponsSize - 1 ) || j == ( upgradesSize - 1 ) )
+      break;
+  }
+
+  if( weaponsSize )
+    weapons[ i ] = WP_NONE;
+
+  if( upgradesSize )
+    upgrades[ j ] = UP_NONE;
+}
+
+/*
+===============
+BG_ParseCSVClassList
+===============
+*/
+void BG_ParseCSVClassList( const char *string, pClass_t *classes, int classesSize )
+{
+  char      buffer[ MAX_STRING_CHARS ];
+  int       i = 0;
+  char      *p, *q;
+  qboolean  EOS = qfalse;
+
+  Q_strncpyz( buffer, string, MAX_STRING_CHARS );
+
+  p = q = buffer;
+
+  while( *p != '\0' )
+  {
+    //skip to first , or EOS
+    while( *p != ',' && *p != '\0' )
+      p++;
+
+    if( *p == '\0' )
+      EOS = qtrue;
+
+    *p = '\0';
+
+    //strip leading whitespace
+    while( *q == ' ' )
+      q++;
+
+    classes[ i ] = BG_FindClassNumForName( q );
+
+    if( classes[ i ] == PCL_NONE )
+      Com_Printf( S_COLOR_YELLOW "WARNING: unknown class %s\n", q );
+    else
+      i++;
+
+    if( !EOS )
+    {
+      p++;
+      q = p;
+    }
+    else
+      break;
+  }
+
+  classes[ i ] = PCL_NONE;
+}
+
+/*
+===============
+BG_ParseCSVBuildableList
+===============
+*/
+void BG_ParseCSVBuildableList( const char *string, buildable_t *buildables, int buildablesSize )
+{
+  char      buffer[ MAX_STRING_CHARS ];
+  int       i = 0;
+  char      *p, *q;
+  qboolean  EOS = qfalse;
+
+  Q_strncpyz( buffer, string, MAX_STRING_CHARS );
+
+  p = q = buffer;
+
+  while( *p != '\0' )
+  {
+    //skip to first , or EOS
+    while( *p != ',' && *p != '\0' )
+      p++;
+
+    if( *p == '\0' )
+      EOS = qtrue;
+
+    *p = '\0';
+
+    //strip leading whitespace
+    while( *q == ' ' )
+      q++;
+
+    buildables[ i ] = BG_FindClassNumForName( q );
+
+    if( buildables[ i ] == BA_NONE )
+      Com_Printf( S_COLOR_YELLOW "WARNING: unknown buildable %s\n", q );
+    else
+      i++;
+
+    if( !EOS )
+    {
+      p++;
+      q = p;
+    }
+    else
+      break;
+  }
+
+  buildables[ i ] = BA_NONE;
 }

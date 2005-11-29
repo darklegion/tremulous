@@ -877,6 +877,11 @@ void SendScoreboardMessageToAllClients( void );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... );
 
+qboolean G_WeaponIsAllowed( weapon_t weapon );
+qboolean G_UpgradeIsAllowed( upgrade_t upgrade );
+qboolean G_ClassIsAllowed( pClass_t class );
+qboolean G_BuildableIsAllowed( buildable_t buildable );
+
 //
 // g_client.c
 //
@@ -1068,6 +1073,10 @@ extern  vmCvar_t  g_alienKills;
 extern  vmCvar_t  g_alienMaxStage;
 extern  vmCvar_t  g_alienStage2Threshold;
 extern  vmCvar_t  g_alienStage3Threshold;
+
+extern  vmCvar_t  g_disabledEquipment;
+extern  vmCvar_t  g_disabledClasses;
+extern  vmCvar_t  g_disabledBuildables;
 
 extern  vmCvar_t  g_debugMapRotation;
 extern  vmCvar_t  g_currentMapRotation;

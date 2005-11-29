@@ -551,7 +551,8 @@ static qboolean CG_AtHighestClass( void )
     if( BG_ClassCanEvolveFromTo(
           cg.predictedPlayerState.stats[ STAT_PCLASS ], i,
           ALIEN_MAX_KILLS, 0 ) >= 0 &&
-        BG_FindStagesForClass( i, cgs.alienStage ) )
+        BG_FindStagesForClass( i, cgs.alienStage )
+        /*FIXME && G_ClassIsAllowed( i )*/ )
     {
       superiorClasses = qtrue;
       break;

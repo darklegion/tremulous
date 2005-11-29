@@ -3186,34 +3186,160 @@ static void UI_LoadTremTeams( void )
 }
 
 /*
+============
+UI_WeaponIsAllowed
+============
+*/
+qboolean UI_WeaponIsAllowed( weapon_t weapon )
+{
+  int       i;
+  weapon_t  weapons[ WP_NUM_WEAPONS ];
+  char      cvar[ MAX_CVAR_VALUE_STRING ];
+
+  trap_Cvar_VariableStringBuffer( "g_disabledEquipment",
+      cvar, MAX_CVAR_VALUE_STRING );
+
+  BG_ParseCSVEquipmentList( cvar, weapons, WP_NUM_WEAPONS, NULL, 0 );
+
+  for( i = 0; i < WP_NUM_WEAPONS &&
+      weapons[ i ] != WP_NONE; i++ )
+  {
+    if( weapons[ i ] == weapon )
+      return qfalse;
+  }
+
+  return qtrue;
+}
+
+/*
+============
+UI_UpgradeIsAllowed
+============
+*/
+qboolean UI_UpgradeIsAllowed( upgrade_t upgrade )
+{
+  int       i;
+  upgrade_t upgrades[ UP_NUM_UPGRADES ];
+  char      cvar[ MAX_CVAR_VALUE_STRING ];
+
+  trap_Cvar_VariableStringBuffer( "g_disabledEquipment",
+      cvar, MAX_CVAR_VALUE_STRING );
+
+  BG_ParseCSVEquipmentList( cvar, NULL, 0, upgrades, UP_NUM_UPGRADES );
+
+  for( i = 0; i < UP_NUM_UPGRADES &&
+      upgrades[ i ] != UP_NONE; i++ )
+  {
+    if( upgrades[ i ] == upgrade )
+      return qfalse;
+  }
+
+  return qtrue;
+}
+
+/*
+============
+UI_ClassIsAllowed
+============
+*/
+qboolean UI_ClassIsAllowed( pClass_t class )
+{
+  int       i;
+  pClass_t  classes[ PCL_NUM_CLASSES ];
+  char      cvar[ MAX_CVAR_VALUE_STRING ];
+
+  trap_Cvar_VariableStringBuffer( "g_disabledClasses",
+      cvar, MAX_CVAR_VALUE_STRING );
+
+  BG_ParseCSVClassList( cvar, classes, PCL_NUM_CLASSES );
+
+  for( i = 0; i < PCL_NUM_CLASSES &&
+      classes[ i ] != PCL_NONE; i++ )
+  {
+    if( classes[ i ] == class )
+      return qfalse;
+  }
+
+  return qtrue;
+}
+
+/*
+============
+UI_BuildableIsAllowed
+============
+*/
+qboolean UI_BuildableIsAllowed( buildable_t buildable )
+{
+  int         i;
+  buildable_t buildables[ BA_NUM_BUILDABLES ];
+  char        cvar[ MAX_CVAR_VALUE_STRING ];
+
+  trap_Cvar_VariableStringBuffer( "g_disabledBuildables",
+      cvar, MAX_CVAR_VALUE_STRING );
+
+  BG_ParseCSVBuildableList( cvar, buildables, BA_NUM_BUILDABLES );
+
+  for( i = 0; i < BA_NUM_BUILDABLES &&
+      buildables[ i ] != BA_NONE; i++ )
+  {
+    if( buildables[ i ] == buildable )
+      return qfalse;
+  }
+
+  return qtrue;
+}
+
+/*
+===============
+UI_AddClass
+===============
+*/
+static void UI_AddClass( pClass_t class )
+{
+  uiInfo.tremAlienClassList[ uiInfo.tremAlienClassCount ].text =
+    String_Alloc( BG_FindHumanNameForClassNum( class ) );
+  uiInfo.tremAlienClassList[ uiInfo.tremAlienClassCount ].cmd =
+    String_Alloc( va( "cmd class %s\n", BG_FindNameForClassNum( class ) ) );
+  uiInfo.tremAlienClassList[ uiInfo.tremAlienClassCount ].infopane =
+    UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( class ) ) );
+
+  uiInfo.tremAlienClassCount++;
+}
+
+/*
 ===============
 UI_LoadTremAlienClasses
 ===============
 */
 static void UI_LoadTremAlienClasses( void )
 {
-  pClass_t bClass;
+  uiInfo.tremAlienClassCount = 0;
 
-  uiInfo.tremAlienClassCount = 2;
+  if( UI_ClassIsAllowed( PCL_ALIEN_LEVEL0 ) )
+    UI_AddClass( PCL_ALIEN_LEVEL0 );
 
-  uiInfo.tremAlienClassList[ 0 ].text =
-    String_Alloc( BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL0 ) );
-  uiInfo.tremAlienClassList[ 0 ].cmd =
-    String_Alloc( va( "cmd class %s\n", BG_FindNameForClassNum( PCL_ALIEN_LEVEL0 ) ) );
-  uiInfo.tremAlienClassList[ 0 ].infopane =
-    UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( PCL_ALIEN_LEVEL0 ) ) );
+  if( UI_ClassIsAllowed( PCL_ALIEN_BUILDER0_UPG ) &&
+      BG_FindStagesForClass( PCL_ALIEN_BUILDER0_UPG, UI_GetCurrentAlienStage( ) ) )
+    UI_AddClass( PCL_ALIEN_BUILDER0_UPG );
+  else if( UI_ClassIsAllowed( PCL_ALIEN_BUILDER0 ) )
+    UI_AddClass( PCL_ALIEN_BUILDER0 );
+}
 
-  if( BG_FindStagesForClass( PCL_ALIEN_BUILDER0_UPG, UI_GetCurrentAlienStage( ) ) )
-    bClass = PCL_ALIEN_BUILDER0_UPG;
-  else
-    bClass = PCL_ALIEN_BUILDER0;
+/*
+===============
+UI_AddItem
+===============
+*/
+static void UI_AddItem( weapon_t weapon )
+{
+  uiInfo.tremHumanItemList[ uiInfo.tremHumanItemCount ].text =
+    String_Alloc( BG_FindHumanNameForWeapon( weapon ) );
+  uiInfo.tremHumanItemList[ uiInfo.tremHumanItemCount ].cmd =
+    String_Alloc( va( "cmd class %s\n", BG_FindNameForWeapon( weapon ) ) );
+  uiInfo.tremHumanItemList[ uiInfo.tremHumanItemCount ].infopane =
+    UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( weapon ) ) );
 
-  uiInfo.tremAlienClassList[ 1 ].text =
-    String_Alloc( BG_FindHumanNameForClassNum( bClass ) );
-  uiInfo.tremAlienClassList[ 1 ].cmd =
-    String_Alloc( va( "cmd class %s\n", BG_FindNameForClassNum( bClass ) ) );
-  uiInfo.tremAlienClassList[ 1 ].infopane =
-    UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( bClass ) ) );
+  uiInfo.tremHumanItemCount++;
 }
 
 /*
@@ -3223,28 +3349,16 @@ UI_LoadTremHumanItems
 */
 static void UI_LoadTremHumanItems( void )
 {
-  weapon_t  bWeapon;
+  uiInfo.tremHumanItemCount = 0;
 
-  uiInfo.tremHumanItemCount = 2;
+  if( UI_WeaponIsAllowed( WP_MACHINEGUN ) )
+    UI_AddItem( WP_MACHINEGUN );
 
-  uiInfo.tremHumanItemList[ 0 ].text =
-    String_Alloc( BG_FindHumanNameForWeapon( WP_MACHINEGUN ) );
-  uiInfo.tremHumanItemList[ 0 ].cmd =
-    String_Alloc( va( "cmd class %s\n", BG_FindNameForWeapon( WP_MACHINEGUN ) ) );
-  uiInfo.tremHumanItemList[ 0 ].infopane =
-    UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( WP_MACHINEGUN ) ) );
-
-  if( BG_FindStagesForWeapon( WP_HBUILD2, UI_GetCurrentHumanStage( ) ) )
-    bWeapon = WP_HBUILD2;
-  else
-    bWeapon = WP_HBUILD;
-
-  uiInfo.tremHumanItemList[ 1 ].text =
-    String_Alloc( BG_FindHumanNameForWeapon( bWeapon ) );
-  uiInfo.tremHumanItemList[ 1 ].cmd =
-    String_Alloc( va( "cmd class %s\n", BG_FindNameForWeapon( bWeapon ) ) );
-  uiInfo.tremHumanItemList[ 1 ].infopane =
-    UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( bWeapon ) ) );
+  if( UI_WeaponIsAllowed( WP_HBUILD2 ) &&
+      BG_FindStagesForWeapon( WP_HBUILD2, UI_GetCurrentHumanStage( ) ) )
+    UI_AddItem( WP_HBUILD2 );
+  else if( UI_WeaponIsAllowed( WP_HBUILD ) )
+    UI_AddItem( WP_HBUILD );
 }
 
 /*
@@ -3340,6 +3454,7 @@ static void UI_LoadTremHumanArmouryBuys( )
     if( BG_FindTeamForWeapon( i ) == WUT_HUMANS &&
         BG_FindPurchasableForWeapon( i ) &&
         BG_FindStagesForWeapon( i, stage ) &&
+        UI_WeaponIsAllowed( i ) &&
         !( BG_FindSlotsForWeapon( i ) & slots ) &&
         !( weapons & ( 1 << i ) ) )
     {
@@ -3361,6 +3476,7 @@ static void UI_LoadTremHumanArmouryBuys( )
     if( BG_FindTeamForUpgrade( i ) == WUT_HUMANS &&
         BG_FindPurchasableForUpgrade( i ) &&
         BG_FindStagesForUpgrade( i, stage ) &&
+        UI_UpgradeIsAllowed( i ) &&
         !( BG_FindSlotsForUpgrade( i ) & slots ) &&
         !( upgrades & ( 1 << i ) ) )
     {
@@ -3444,7 +3560,8 @@ static void UI_LoadTremAlienUpgrades( )
   for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
   {
     if( BG_ClassCanEvolveFromTo( class, i, credits, 0 ) >= 0 &&
-        BG_FindStagesForClass( i, stage ) )
+        BG_FindStagesForClass( i, stage ) &&
+        UI_ClassIsAllowed( i ) )
     {
       uiInfo.tremAlienUpgradeList[ j ].text = String_Alloc( BG_FindHumanNameForClassNum( i ) );
       uiInfo.tremAlienUpgradeList[ j ].cmd =
@@ -3479,7 +3596,8 @@ static void UI_LoadTremAlienBuilds( )
   {
     if( BG_FindTeamForBuildable( i ) == BIT_ALIENS &&
         BG_FindBuildWeaponForBuildable( i ) & weapons &&
-        BG_FindStagesForBuildable( i, stage ) )
+        BG_FindStagesForBuildable( i, stage ) &&
+        UI_BuildableIsAllowed( i ) )
     {
       uiInfo.tremAlienBuildList[ j ].text =
         String_Alloc( BG_FindHumanNameForBuildable( i ) );
@@ -3515,7 +3633,8 @@ static void UI_LoadTremHumanBuilds( )
   {
     if( BG_FindTeamForBuildable( i ) == BIT_HUMANS &&
         BG_FindBuildWeaponForBuildable( i ) & weapons &&
-        BG_FindStagesForBuildable( i, stage ) )
+        BG_FindStagesForBuildable( i, stage ) &&
+        UI_BuildableIsAllowed( i ) )
     {
       uiInfo.tremHumanBuildList[ j ].text =
         String_Alloc( BG_FindHumanNameForBuildable( i ) );

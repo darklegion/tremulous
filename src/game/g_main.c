@@ -90,6 +90,10 @@ vmCvar_t  g_alienMaxStage;
 vmCvar_t  g_alienStage2Threshold;
 vmCvar_t  g_alienStage3Threshold;
 
+vmCvar_t  g_disabledEquipment;
+vmCvar_t  g_disabledClasses;
+vmCvar_t  g_disabledBuildables;
+
 vmCvar_t  g_debugMapRotation;
 vmCvar_t  g_currentMapRotation;
 vmCvar_t  g_currentMap;
@@ -173,6 +177,10 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_alienMaxStage, "g_alienMaxStage", "2", 0, 0, qfalse  },
   { &g_alienStage2Threshold, "g_alienStage2Threshold", "20", 0, 0, qfalse  },
   { &g_alienStage3Threshold, "g_alienStage3Threshold", "40", 0, 0, qfalse  },
+
+  { &g_disabledEquipment, "g_disabledEquipment", "", CVAR_ROM, 0, qfalse  },
+  { &g_disabledClasses, "g_disabledClasses", "", CVAR_ROM, 0, qfalse  },
+  { &g_disabledBuildables, "g_disabledBuildables", "", CVAR_ROM, 0, qfalse  },
 
   { &g_debugMapRotation, "g_debugMapRotation", "0", 0, 0, qfalse  },
   { &g_currentMapRotation, "g_currentMapRotation", "-1", 0, 0, qfalse  }, // -1 = NOT_ROTATING
@@ -446,6 +454,110 @@ static void G_GenerateParticleFileList( void )
   }
 }
 
+typedef struct gameElements_s
+{
+  buildable_t       buildables[ BA_NUM_BUILDABLES ];
+  pClass_t          classes[ PCL_NUM_CLASSES ];
+  weapon_t          weapons[ WP_NUM_WEAPONS ];
+  upgrade_t         upgrades[ UP_NUM_UPGRADES ];
+} gameElements_t;
+
+static gameElements_t disabledGameElements;
+
+/*
+============
+G_InitAllowedGameElements
+============
+*/
+static void G_InitAllowedGameElements( void )
+{
+  BG_ParseCSVEquipmentList( g_disabledEquipment.string,
+      disabledGameElements.weapons, WP_NUM_WEAPONS,
+      disabledGameElements.upgrades, UP_NUM_UPGRADES );
+
+  BG_ParseCSVClassList( g_disabledClasses.string,
+      disabledGameElements.classes, PCL_NUM_CLASSES );
+
+  BG_ParseCSVBuildableList( g_disabledBuildables.string,
+      disabledGameElements.buildables, BA_NUM_BUILDABLES );
+}
+
+/*
+============
+G_WeaponIsAllowed
+============
+*/
+qboolean G_WeaponIsAllowed( weapon_t weapon )
+{
+  int i;
+
+  for( i = 0; i < WP_NUM_WEAPONS &&
+      disabledGameElements.weapons[ i ] != WP_NONE; i++ )
+  {
+    if( disabledGameElements.weapons[ i ] == weapon )
+      return qfalse;
+  }
+
+  return qtrue;
+}
+
+/*
+============
+G_UpgradeIsAllowed
+============
+*/
+qboolean G_UpgradeIsAllowed( upgrade_t upgrade )
+{
+  int i;
+
+  for( i = 0; i < UP_NUM_UPGRADES &&
+      disabledGameElements.upgrades[ i ] != UP_NONE; i++ )
+  {
+    if( disabledGameElements.upgrades[ i ] == upgrade )
+      return qfalse;
+  }
+
+  return qtrue;
+}
+
+/*
+============
+G_ClassIsAllowed
+============
+*/
+qboolean G_ClassIsAllowed( pClass_t class )
+{
+  int i;
+
+  for( i = 0; i < PCL_NUM_CLASSES &&
+      disabledGameElements.classes[ i ] != PCL_NONE; i++ )
+  {
+    if( disabledGameElements.classes[ i ] == class )
+      return qfalse;
+  }
+
+  return qtrue;
+}
+
+/*
+============
+G_BuildableIsAllowed
+============
+*/
+qboolean G_BuildableIsAllowed( buildable_t buildable )
+{
+  int i;
+
+  for( i = 0; i < BA_NUM_BUILDABLES &&
+      disabledGameElements.buildables[ i ] != BA_NONE; i++ )
+  {
+    if( disabledGameElements.buildables[ i ] == buildable )
+      return qfalse;
+  }
+
+  return qtrue;
+}
+
 /*
 ============
 G_InitGame
@@ -525,6 +637,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
   // parse the key/value pairs and spawn gentities
   G_SpawnEntitiesFromString( );
+
+  // the map might disable some things
+  G_InitAllowedGameElements( );
 
   // general initialization
   G_FindTeams( );

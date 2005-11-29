@@ -360,10 +360,7 @@ static void CG_StepOffset( void )
   else
     VectorSet( normal, 0.0f, 0.0f, 1.0f );
 
-  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
-    steptime = 200;
-  else
-    steptime = BG_FindSteptimeForClass( ps->stats[ STAT_PCLASS ] );
+  steptime = BG_FindSteptimeForClass( ps->stats[ STAT_PCLASS ] );
 
   // smooth out stair climbing
   timeDelta = cg.time - cg.stepTime;

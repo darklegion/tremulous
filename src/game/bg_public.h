@@ -1291,3 +1291,8 @@ float round( float v );
 
 float atof_neg( char *token, qboolean allowNegative );
 int   atoi_neg( char *token, qboolean allowNegative );
+
+void BG_ParseCSVEquipmentList( const char *string, weapon_t *weapons, int weaponsSize,
+    upgrade_t *upgrades, int upgradesSize );
+void BG_ParseCSVClassList( const char *string, pClass_t *classes, int classesSize );
+void BG_ParseCSVBuildableList( const char *string, buildable_t *buildables, int buildablesSize );

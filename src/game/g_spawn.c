@@ -318,24 +318,14 @@ qboolean G_CallSpawn( gentity_t *ent )
   //check buildable spawn functions
   if( ( buildable = BG_FindBuildNumForEntityName( ent->classname ) ) != BA_NONE )
   {
-    /*if( BG_FindStagesForBuildable( buildable, 1 ) )*/
-    if( qtrue )
+    if( buildable == BA_A_SPAWN || buildable == BA_H_SPAWN )
     {
-      if( buildable == BA_A_SPAWN || buildable == BA_H_SPAWN )
-      {
-        ent->s.angles[ YAW ] += 180.0f;
-        AngleNormalize360( ent->s.angles[ YAW ] );
-      }
+      ent->s.angles[ YAW ] += 180.0f;
+      AngleNormalize360( ent->s.angles[ YAW ] );
+    }
 
-      G_SpawnBuildable( ent, buildable );
-      return qtrue;
-    }
-    else
-    {
-      G_Printf( S_COLOR_YELLOW "WARNING: %s not allowed in stage 1\n",
-                BG_FindHumanNameForBuildable( buildable ) );
-      return qfalse;
-    }
+    G_SpawnBuildable( ent, buildable );
+    return qtrue;
   }
 
   // check normal spawn functions
@@ -646,6 +636,15 @@ void SP_worldspawn( void )
 
   G_SpawnString( "enableBreath", "0", &s );
   trap_Cvar_Set( "g_enableBreath", s );
+
+  G_SpawnString( "disabledEquipment", "", &s );
+  trap_Cvar_Set( "g_disabledEquipment", s );
+
+  G_SpawnString( "disabledClasses", "", &s );
+  trap_Cvar_Set( "g_disabledClasses", s );
+
+  G_SpawnString( "disabledBuildables", "", &s );
+  trap_Cvar_Set( "g_disabledBuildables", s );
 
   g_entities[ ENTITYNUM_WORLD ].s.number = ENTITYNUM_WORLD;
   g_entities[ ENTITYNUM_WORLD ].classname = "worldspawn";

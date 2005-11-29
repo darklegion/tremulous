@@ -1621,6 +1621,10 @@ alienMaxStage: The highest stage the aliens are allowed to use [0/1/2]. Defaults
 alienStage2Threshold: The number of kills the aliens must aquire to advance to stage 2. Defaults to 50.
 alienStage3Threshold: The number of kills the aliens must aquire to advance to stage 3. Defaults to 100.
 
+disabledEquipment: A comma delimited list of human weapons or upgrades to disable for this map.
+disabledClasses: A comma delimited list of alien weapons to disable for this map.
+disabledBuildables: A comma delimited list of buildables to disable for this map.
+
 _ambient OR ambient: Adds a constant value to overall lighting. Use is not recommended. Ambient light will have a tendency to flatten out variations in light and shade.
 
 _color: RGB value for ambient light color (default is 0 0 0).
