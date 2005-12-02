@@ -1119,7 +1119,7 @@ void Cmd_Class_f( gentity_t *ent )
 
   if( G_ClassIsAllowed( PCL_ALIEN_BUILDER0_UPG ) &&
       BG_FindStagesForClass( PCL_ALIEN_BUILDER0_UPG, g_alienStage.integer ) )
-    allowedClasses[ numClasses++ ] = PCL_ALIEN_BUILDER0;
+    allowedClasses[ numClasses++ ] = PCL_ALIEN_BUILDER0_UPG;
 
   if( G_ClassIsAllowed( PCL_ALIEN_LEVEL0 ) )
     allowedClasses[ numClasses++ ] = PCL_ALIEN_LEVEL0;

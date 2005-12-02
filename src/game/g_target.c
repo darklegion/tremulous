@@ -390,3 +390,43 @@ void SP_target_rumble( gentity_t *self )
   self->think = target_rumble_think;
   self->use = target_rumble_use;
 }
+
+/*
+===============
+target_alien_win_use
+===============
+*/
+void target_alien_win_use( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  level.uncondAlienWin = qtrue;
+}
+
+/*
+===============
+SP_target_alien_win
+===============
+*/
+void SP_target_alien_win( gentity_t *self )
+{
+  self->use = target_alien_win_use;
+}
+
+/*
+===============
+target_human_win_use
+===============
+*/
+void target_human_win_use( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  level.uncondHumanWin = qtrue;
+}
+
+/*
+===============
+SP_target_human_win
+===============
+*/
+void SP_target_human_win( gentity_t *self )
+{
+  self->use = target_human_win_use;
+}

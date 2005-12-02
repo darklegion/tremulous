@@ -1812,9 +1812,10 @@ void CheckExitRules( void )
   }
 
   //TA: end the game on these conditions
-  if( ( level.time > level.startTime + 1000 ) &&
-      ( level.numAlienSpawns == 0 ) &&
-      ( level.numLiveAlienClients == 0 ) )
+  if( level.uncondHumanWin ||
+      ( ( level.time > level.startTime + 1000 ) &&
+        ( level.numAlienSpawns == 0 ) &&
+        ( level.numLiveAlienClients == 0 ) ) )
   {
     //humans win
     level.lastWin = PTE_HUMANS;
@@ -1831,9 +1832,10 @@ void CheckExitRules( void )
     LogExit( "Humans win." );
     return;
   }
-  else if( ( level.time > level.startTime + 1000 ) &&
-           ( level.numHumanSpawns == 0 ) &&
-           ( level.numLiveHumanClients == 0 ) )
+  else if( level.uncondAlienWin ||
+           ( ( level.time > level.startTime + 1000 ) &&
+             ( level.numHumanSpawns == 0 ) &&
+             ( level.numLiveHumanClients == 0 ) ) )
   {
     //aliens win
     level.lastWin = PTE_ALIENS;

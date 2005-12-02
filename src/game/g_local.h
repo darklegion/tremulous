@@ -595,6 +595,9 @@ typedef struct
   int               alienStage3Time;
   int               humanStage2Time;
   int               humanStage3Time;
+
+  qboolean          uncondAlienWin;
+  qboolean          uncondHumanWin;
 } level_locals_t;
 
 //

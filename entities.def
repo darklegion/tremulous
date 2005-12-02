@@ -1017,6 +1017,14 @@ speed: severity of the quake (default: 100)
 count: duration of the quake (default: 10)
 */
 
+/*QUAKED target_alien_win (1 0 0) (-8 -8 -8) (8 8 8)
+When triggered, this causes an unconditional win for the alien team.
+*/
+
+/*QUAKED target_human_win (1 0 0) (-8 -8 -8) (8 8 8)
+When triggered, this causes an unconditional win for the human team.
+*/
+
 /*QUAKED target_delay (0 .7 .7) (-8 -8 -8) (8 8 8)
 Time delay trigger intermediary. Like a target_relay, this can only be fired by other triggers which will cause it in turn to fire its own targets.
 
@@ -1473,7 +1481,6 @@ random: random time variance in seconds added or subtracted from "wait" delay (d
 
 /*QUAKED trigger_stage (.5 .5 .5) (-8 -8 -8) (8 8 8)
 Fires its targets when the team key reaches stage key.
-UNTESTED: please report whether or not this works for you.
 
 -------- KEYS --------
 target: this points to the entity to activate.
@@ -1487,7 +1494,6 @@ stage: the stage at which this entity is triggered; 1 for stage 2, 2 for stage 3
 
 /*QUAKED trigger_win (.5 .5 .5) (-8 -8 -8) (8 8 8)
 Fires its targets when the team key wins.
-UNTESTED: please report whether or not this works for you.
 
 -------- KEYS --------
 target: this points to the entity to activate.

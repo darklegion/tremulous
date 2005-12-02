@@ -2129,7 +2129,7 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
 
   VectorScale( p->velocity, bounce, p->velocity );
 
-  if( trace.plane.normal[ 2 ] > 0.0f &&
+  if( trace.plane.normal[ 2 ] > 0.5f &&
       ( p->velocity[ 2 ] < 40.0f ||
         p->velocity[ 2 ] < -cg.frametime * p->velocity[ 2 ] ) )
     p->atRest = qtrue;
