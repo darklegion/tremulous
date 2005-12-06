@@ -1116,6 +1116,10 @@ typedef struct
   qboolean      consoleValid;
 
   particleSystem_t *poisonCloudPS;
+
+  float         painBlendValue;
+  float         painBlendTarget;
+  int           lastHealth;
 } cg_t;
 
 
@@ -1467,6 +1471,11 @@ extern  vmCvar_t    cg_debugPVS;
 extern  vmCvar_t    cg_disableWarningDialogs;
 extern  vmCvar_t    cg_disableScannerPlane;
 
+extern  vmCvar_t    cg_painBlendUpRate;
+extern  vmCvar_t    cg_painBlendDownRate;
+extern  vmCvar_t    cg_painBlendMax;
+extern  vmCvar_t    cg_painBlendScale;
+
 //TA: hack to get class an carriage through to UI module
 extern  vmCvar_t    ui_currentClass;
 extern  vmCvar_t    ui_carriage;
@@ -1573,6 +1582,7 @@ void        CG_Text_PaintChar( float x, float y, float width, float height, floa
                                float s, float t, float s2, float t2, qhandle_t hShader );
 void        CG_DrawLoadingScreen( void );
 void        CG_UpdateMediaFraction( float newFract );
+void        CG_ResetPainBlend( void );
 
 //
 // cg_players.c

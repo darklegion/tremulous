@@ -3222,6 +3222,115 @@ static void CG_Draw2D( void )
     CG_DrawCenterString( );
 }
 
+#define PAINBLEND_BORDER_W  128.0f
+#define PAINBLEND_BORDER_H  96.0f
+/*
+===============
+CG_PainBlend
+===============
+*/
+static void CG_PainBlend( void )
+{
+  vec4_t      color;
+  int         damage;
+  float       damageAsFracOfMax;
+  qhandle_t   shader = cgs.media.whiteShader;
+  float       x, y, w, h;
+
+  damage = cg.lastHealth - cg.snap->ps.stats[ STAT_HEALTH ];
+
+  if( damage < 0 )
+    damage = 0;
+
+  damageAsFracOfMax = (float)damage / cg.snap->ps.stats[ STAT_MAX_HEALTH ];
+  cg.lastHealth = cg.snap->ps.stats[ STAT_HEALTH ];
+
+  cg.painBlendValue += damageAsFracOfMax * cg_painBlendScale.value;
+
+  if( cg.painBlendValue > 0.0f )
+  {
+    cg.painBlendValue -= ( cg.frametime / 1000.0f ) *
+      cg_painBlendDownRate.value;
+  }
+
+  if( cg.painBlendValue > 1.0f )
+    cg.painBlendValue = 1.0f;
+  else if( cg.painBlendValue <= 0.0f )
+  {
+    cg.painBlendValue = 0.0f;
+    return;
+  }
+
+  if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    VectorSet( color, 0.43f, 0.8f, 0.37f );
+  else if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    VectorSet( color, 0.8f, 0.0f, 0.0f );
+
+  if( cg.painBlendValue > cg.painBlendTarget )
+  {
+    cg.painBlendTarget += ( cg.frametime / 1000.0f ) *
+      cg_painBlendUpRate.value;
+  }
+  else if( cg.painBlendValue < cg.painBlendTarget )
+    cg.painBlendTarget = cg.painBlendValue;
+
+  if( cg.painBlendTarget > cg_painBlendMax.value )
+    cg.painBlendTarget = cg_painBlendMax.value;
+
+  color[ 3 ] = cg.painBlendTarget;
+
+  trap_R_SetColor( color );
+
+  //left
+  x = 0.0f; y = 0.0f;
+  w = PAINBLEND_BORDER_W; h = 480.0f;
+  CG_AdjustFrom640( &x, &y, &w, &h );
+  trap_R_DrawStretchPic( x, y, w, h,
+      0.0f, 0.0f,
+      PAINBLEND_BORDER_W / 640.0f, 1.0f,
+      shader );
+
+  //right
+  x = 640.0f - PAINBLEND_BORDER_W; y = 0.0f;
+  w = PAINBLEND_BORDER_W; h = 480.0f;
+  CG_AdjustFrom640( &x, &y, &w, &h );
+  trap_R_DrawStretchPic( x, y, w, h,
+      ( 640.0f - PAINBLEND_BORDER_W ) / 640.0f, 0.0f,
+      1.0f, 1.0f,
+      shader );
+
+  //top
+  x = PAINBLEND_BORDER_W; y = 0.0f;
+  w = 640.0f - 2 * PAINBLEND_BORDER_W; h = PAINBLEND_BORDER_H;
+  CG_AdjustFrom640( &x, &y, &w, &h );
+  trap_R_DrawStretchPic( x, y, w, h,
+      PAINBLEND_BORDER_W / 640.0f, 0.0f,
+      ( 640.0f - PAINBLEND_BORDER_W ) / 640.0f, PAINBLEND_BORDER_H / 480.0f,
+      shader );
+
+  //bottom
+  x = PAINBLEND_BORDER_W; y = 480.0f - PAINBLEND_BORDER_H;
+  w = 640.0f - 2 * PAINBLEND_BORDER_W; h = PAINBLEND_BORDER_H;
+  CG_AdjustFrom640( &x, &y, &w, &h );
+  trap_R_DrawStretchPic( x, y, w, h,
+      PAINBLEND_BORDER_W / 640.0f, ( 480.0f - PAINBLEND_BORDER_H ) / 480.0f,
+      ( 640.0f - PAINBLEND_BORDER_W ) / 640.0f, 1.0f,
+      shader );
+
+  trap_R_SetColor( NULL );
+}
+
+/*
+=====================
+CG_ResetPainBlend
+=====================
+*/
+void CG_ResetPainBlend( void )
+{
+  cg.painBlendValue = 0.0f;
+  cg.painBlendTarget = 0.0f;
+  cg.lastHealth = cg.snap->ps.stats[ STAT_MAX_HEALTH ];
+}
 
 /*
 =====================
@@ -3271,6 +3380,10 @@ void CG_DrawActive( stereoFrame_t stereoView )
   // restore original viewpoint if running stereo
   if( separation != 0 )
     VectorCopy( baseOrg, cg.refdef.vieworg );
+
+  // first person blend blobs, done after AnglesToAxis
+  if( !cg.renderingThirdPerson )
+    CG_PainBlend( );
 
   // draw status bar and other floating elements
   CG_Draw2D( );

@@ -905,7 +905,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       }
 
       if( es->number == cg.clientNum )
+      {
+        CG_ResetPainBlend( );
         cg.spawnTime = cg.time;
+      }
       break;
 
     case EV_ALIEN_EVOLVE_FAILED:
