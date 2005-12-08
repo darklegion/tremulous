@@ -304,7 +304,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qtrue,                 //qboolean  creepTest;
     HOVEL_CREEPSIZE,       //int       creepSize;
     qfalse,                //qboolean  dccTest;
-    qfalse                 //qboolean  reactorTest;
+    qtrue                  //qboolean  reactorTest;
   },
   {
     BA_H_SPAWN,            //int       buildNum;

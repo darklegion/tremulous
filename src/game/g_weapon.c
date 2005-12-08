@@ -1253,6 +1253,9 @@ qboolean CheckPounceAttack( gentity_t *ent )
     return qfalse;
   }
 
+  if( ent->client->ps.weaponTime )
+    return qfalse;
+
   // set aiming directions
   AngleVectors( ent->client->ps.viewangles, forward, right, up );
 
@@ -1289,6 +1292,7 @@ qboolean CheckPounceAttack( gentity_t *ent )
   G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage,
       DAMAGE_NO_KNOCKBACK|DAMAGE_NO_LOCDAMAGE, MOD_LEVEL3_POUNCE );
 
+  ent->client->ps.weaponTime += LEVEL3_POUNCE_TIME;
   ent->client->allowedToPounce = qfalse;
 
   return qtrue;

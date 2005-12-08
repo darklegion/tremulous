@@ -800,6 +800,18 @@ void CG_Menu( int menu )
 
       break;
 
+    case MN_A_HOVEL:
+      if( !cg_disableWarningDialogs.integer )
+      {
+        trap_Cvar_Set( "ui_dialog", "There can only be one Hovel. Destroy the existing one if you "
+                                    "wish to move it." );
+        trap_SendConsoleCommand( "menu tremulous_alien_dialog\n" );
+      }
+      else
+        CG_Printf( "There can only be one Hovel\n" );
+
+      break;
+
     case MN_A_NOASSERT:
       if( !cg_disableWarningDialogs.integer )
       {

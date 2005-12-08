@@ -208,6 +208,7 @@ vmCvar_t  cg_painBlendUpRate;
 vmCvar_t  cg_painBlendDownRate;
 vmCvar_t  cg_painBlendMax;
 vmCvar_t  cg_painBlendScale;
+vmCvar_t  cg_painBlendZoom;
 
 //TA: hack to get class and carriage through to UI module
 vmCvar_t  ui_currentClass;
@@ -317,9 +318,10 @@ static cvarTable_t cvarTable[ ] =
   { &cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
 
   { &cg_painBlendUpRate, "cg_painBlendUpRate", "10.0", 0 },
-  { &cg_painBlendDownRate, "cg_painBlendDownRate", "1.0", 0 },
-  { &cg_painBlendMax, "cg_painBlendMax", "0.5", 0 },
+  { &cg_painBlendDownRate, "cg_painBlendDownRate", "0.5", 0 },
+  { &cg_painBlendMax, "cg_painBlendMax", "0.7", 0 },
   { &cg_painBlendScale, "cg_painBlendScale", "7.0", 0 },
+  { &cg_painBlendZoom, "cg_painBlendZoom", "0.18", 0 },
 
   { &ui_currentClass, "ui_currentClass", "0", 0 },
   { &ui_carriage, "ui_carriage", "", 0 },
@@ -757,7 +759,7 @@ static void CG_RegisterGraphics( void )
   for( i = 0; i < 11; i++ )
     cgs.media.numberShaders[ i ] = trap_R_RegisterShader( sb_nums[ i ] );
 
-  cgs.media.viewBloodShader           = trap_R_RegisterShader( "viewBloodBlend" ); //FIXME
+  cgs.media.viewBloodShader           = trap_R_RegisterShader( "gfx/damage/fullscreen_painblend" ); //FIXME
 
   cgs.media.connectionShader          = trap_R_RegisterShader( "disconnected" ); //FIXME?
 

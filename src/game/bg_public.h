@@ -593,6 +593,7 @@ typedef enum
   MN_A_NOOVMND,
   MN_A_NOROOM,
   MN_A_NORMAL,
+  MN_A_HOVEL,
   MN_A_HOVEL_EXIT,
 
   //human stuff

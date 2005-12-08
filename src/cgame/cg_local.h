@@ -1475,6 +1475,7 @@ extern  vmCvar_t    cg_painBlendUpRate;
 extern  vmCvar_t    cg_painBlendDownRate;
 extern  vmCvar_t    cg_painBlendMax;
 extern  vmCvar_t    cg_painBlendScale;
+extern  vmCvar_t    cg_painBlendZoom;
 
 //TA: hack to get class an carriage through to UI module
 extern  vmCvar_t    ui_currentClass;

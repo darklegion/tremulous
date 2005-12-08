@@ -718,7 +718,29 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
 
   hitRotation = hitRotation % 360; // Keep it in the 0-359 range
 
-  if( !( dflags & DAMAGE_NO_LOCDAMAGE ) )
+  if( dflags & DAMAGE_NO_LOCDAMAGE )
+  {
+    for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
+    {
+      float totalModifier = 0.0f;
+      float averageModifier = 1.0f;
+
+      //average all of this upgrade's armour regions together
+      if( BG_InventoryContainsUpgrade( i, targ->client->ps.stats ) )
+      {
+        for( j = 0; j < g_numArmourRegions[ i ]; j++ )
+          totalModifier += g_armourRegions[ i ][ j ].modifier;
+
+        if( g_numArmourRegions[ i ] )
+          averageModifier = totalModifier / g_numArmourRegions[ i ];
+        else
+          averageModifier = 1.0f;
+      }
+
+      modifier *= averageModifier;
+    }
+  }
+  else
   {
     for( i = 0; i < g_numDamageRegions[ class ]; i++ )
     {
@@ -744,35 +766,35 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
             ( targ->client->ps.pm_flags & PMF_DUCKED ) ) )
         modifier *= g_damageRegions[ class ][ i ].modifier;
     }
-  }
 
-  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
-  {
-    if( BG_InventoryContainsUpgrade( i, targ->client->ps.stats ) )
+    for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
     {
-      for( j = 0; j < g_numArmourRegions[ i ]; j++ )
+      if( BG_InventoryContainsUpgrade( i, targ->client->ps.stats ) )
       {
-        qboolean rotationBound;
-
-        if( g_armourRegions[ i ][ j ].minAngle >
-            g_armourRegions[ i ][ j ].maxAngle )
+        for( j = 0; j < g_numArmourRegions[ i ]; j++ )
         {
-          rotationBound = ( hitRotation >= g_armourRegions[ i ][ j ].minAngle &&
-                            hitRotation <= 360 ) || ( hitRotation >= 0 &&
-                            hitRotation <= g_armourRegions[ i ][ j ].maxAngle );
-        }
-        else
-        {
-          rotationBound = ( hitRotation >= g_armourRegions[ i ][ j ].minAngle &&
-                            hitRotation <= g_armourRegions[ i ][ j ].maxAngle );
-        }
+          qboolean rotationBound;
 
-        if( rotationBound &&
-            hitRatio >= g_armourRegions[ i ][ j ].minHeight &&
-            hitRatio <= g_armourRegions[ i ][ j ].maxHeight &&
-            ( g_armourRegions[ i ][ j ].crouch ==
-              ( targ->client->ps.pm_flags & PMF_DUCKED ) ) )
-          modifier *= g_armourRegions[ i ][ j ].modifier;
+          if( g_armourRegions[ i ][ j ].minAngle >
+              g_armourRegions[ i ][ j ].maxAngle )
+          {
+            rotationBound = ( hitRotation >= g_armourRegions[ i ][ j ].minAngle &&
+                              hitRotation <= 360 ) || ( hitRotation >= 0 &&
+                              hitRotation <= g_armourRegions[ i ][ j ].maxAngle );
+          }
+          else
+          {
+            rotationBound = ( hitRotation >= g_armourRegions[ i ][ j ].minAngle &&
+                              hitRotation <= g_armourRegions[ i ][ j ].maxAngle );
+          }
+
+          if( rotationBound &&
+              hitRatio >= g_armourRegions[ i ][ j ].minHeight &&
+              hitRatio <= g_armourRegions[ i ][ j ].maxHeight &&
+              ( g_armourRegions[ i ][ j ].crouch ==
+                ( targ->client->ps.pm_flags & PMF_DUCKED ) ) )
+            modifier *= g_armourRegions[ i ][ j ].modifier;
+        }
       }
     }
   }

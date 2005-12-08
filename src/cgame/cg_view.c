@@ -532,7 +532,7 @@ static void CG_OffsetFirstPersonView( void )
       AngleVectors( angles, forward, NULL, NULL );
       VectorNormalize( forward );
 
-      fraction1 = (float)( cg.time - cg.weapon2Time ) / (float)LEVEL3_POUNCE_TIME;
+      fraction1 = (float)( cg.time - cg.weapon2Time ) / (float)LEVEL3_POUNCE_CHARGE_TIME;
 
       if( fraction1 > 1.0f )
         fraction1 = 1.0f;

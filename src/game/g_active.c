@@ -521,7 +521,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
         pounceSpeed = LEVEL3_POUNCE_UPG_SPEED;
 
       if( client->ps.stats[ STAT_MISC ] < pounceSpeed && ucmd->buttons & BUTTON_ATTACK2 )
-        client->ps.stats[ STAT_MISC ] += ( 100.0f / (float)LEVEL3_POUNCE_TIME ) * pounceSpeed;
+        client->ps.stats[ STAT_MISC ] += ( 100.0f / (float)LEVEL3_POUNCE_CHARGE_TIME ) * pounceSpeed;
 
       if( !( ucmd->buttons & BUTTON_ATTACK2 ) )
       {

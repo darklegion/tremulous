@@ -2508,9 +2508,23 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
         if( tempent->s.eType != ET_BUILDABLE )
           continue;
 
-        if( tempent->s.modelindex == BA_A_OVERMIND )
+        if( tempent->s.modelindex == buildable )
         {
-          reason = IBE_OVERMIND;
+          switch( buildable )
+          {
+            case BA_A_OVERMIND:
+              reason = IBE_OVERMIND;
+              break;
+
+            case BA_A_HOVEL:
+              reason = IBE_HOVEL;
+              break;
+
+            default:
+              Com_Error( ERR_FATAL, "No reason for denying build of %d\n", buildable );
+              break;
+          }
+
           break;
         }
       }
@@ -2830,6 +2844,10 @@ qboolean G_ValidateBuild( gentity_t *ent, buildable_t buildable )
 
     case IBE_OVERMIND:
       G_TriggerMenu( ent->client->ps.clientNum, MN_A_OVERMIND );
+      return qfalse;
+
+    case IBE_HOVEL:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_A_HOVEL );
       return qfalse;
 
     case IBE_HOVELEXIT:

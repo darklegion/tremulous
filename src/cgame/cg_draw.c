@@ -3222,8 +3222,9 @@ static void CG_Draw2D( void )
     CG_DrawCenterString( );
 }
 
-#define PAINBLEND_BORDER_W  128.0f
-#define PAINBLEND_BORDER_H  96.0f
+#define PAINBLEND_BORDER_W    0.15f
+#define PAINBLEND_BORDER_H    0.07f
+
 /*
 ===============
 CG_PainBlend
@@ -3234,7 +3235,7 @@ static void CG_PainBlend( void )
   vec4_t      color;
   int         damage;
   float       damageAsFracOfMax;
-  qhandle_t   shader = cgs.media.whiteShader;
+  qhandle_t   shader = cgs.media.viewBloodShader;
   float       x, y, w, h;
 
   damage = cg.lastHealth - cg.snap->ps.stats[ STAT_HEALTH ];
@@ -3283,38 +3284,38 @@ static void CG_PainBlend( void )
 
   //left
   x = 0.0f; y = 0.0f;
-  w = PAINBLEND_BORDER_W; h = 480.0f;
+  w = PAINBLEND_BORDER_W * 640.0f; h = 480.0f;
   CG_AdjustFrom640( &x, &y, &w, &h );
   trap_R_DrawStretchPic( x, y, w, h,
-      0.0f, 0.0f,
-      PAINBLEND_BORDER_W / 640.0f, 1.0f,
+      cg_painBlendZoom.value, cg_painBlendZoom.value,
+      cg_painBlendZoom.value + PAINBLEND_BORDER_W, 1.0f - cg_painBlendZoom.value,
       shader );
 
   //right
-  x = 640.0f - PAINBLEND_BORDER_W; y = 0.0f;
-  w = PAINBLEND_BORDER_W; h = 480.0f;
+  x = 640.0f - ( PAINBLEND_BORDER_W * 640.0f ); y = 0.0f;
+  w = PAINBLEND_BORDER_W * 640.0f; h = 480.0f;
   CG_AdjustFrom640( &x, &y, &w, &h );
   trap_R_DrawStretchPic( x, y, w, h,
-      ( 640.0f - PAINBLEND_BORDER_W ) / 640.0f, 0.0f,
-      1.0f, 1.0f,
+      1.0f - cg_painBlendZoom.value - PAINBLEND_BORDER_W, cg_painBlendZoom.value,
+      1.0f - cg_painBlendZoom.value, 1.0f - cg_painBlendZoom.value,
       shader );
 
   //top
-  x = PAINBLEND_BORDER_W; y = 0.0f;
-  w = 640.0f - 2 * PAINBLEND_BORDER_W; h = PAINBLEND_BORDER_H;
+  x = PAINBLEND_BORDER_W * 640.0f; y = 0.0f;
+  w = 640.0f - ( 2 * PAINBLEND_BORDER_W * 640.0f ); h = PAINBLEND_BORDER_H * 480.0f;
   CG_AdjustFrom640( &x, &y, &w, &h );
   trap_R_DrawStretchPic( x, y, w, h,
-      PAINBLEND_BORDER_W / 640.0f, 0.0f,
-      ( 640.0f - PAINBLEND_BORDER_W ) / 640.0f, PAINBLEND_BORDER_H / 480.0f,
+      cg_painBlendZoom.value + PAINBLEND_BORDER_W, cg_painBlendZoom.value,
+      1.0f - cg_painBlendZoom.value - PAINBLEND_BORDER_W, cg_painBlendZoom.value + PAINBLEND_BORDER_H,
       shader );
 
   //bottom
-  x = PAINBLEND_BORDER_W; y = 480.0f - PAINBLEND_BORDER_H;
-  w = 640.0f - 2 * PAINBLEND_BORDER_W; h = PAINBLEND_BORDER_H;
+  x = PAINBLEND_BORDER_W * 640.0f; y = 480.0f - ( PAINBLEND_BORDER_H * 480.0f );
+  w = 640.0f - ( 2 * PAINBLEND_BORDER_W * 640.0f ); h = PAINBLEND_BORDER_H * 480.0f;
   CG_AdjustFrom640( &x, &y, &w, &h );
   trap_R_DrawStretchPic( x, y, w, h,
-      PAINBLEND_BORDER_W / 640.0f, ( 480.0f - PAINBLEND_BORDER_H ) / 480.0f,
-      ( 640.0f - PAINBLEND_BORDER_W ) / 640.0f, 1.0f,
+      cg_painBlendZoom.value + PAINBLEND_BORDER_W, 1.0f - cg_painBlendZoom.value - PAINBLEND_BORDER_H,
+      1.0f - cg_painBlendZoom.value - PAINBLEND_BORDER_W, 1.0f - cg_painBlendZoom.value,
       shader );
 
   trap_R_SetColor( NULL );

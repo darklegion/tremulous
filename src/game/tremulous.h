@@ -75,12 +75,13 @@
 #define LEVEL3_CLAW_REPEAT          700
 #define LEVEL3_CLAW_U_REPEAT        600
 #define LEVEL3_POUNCE_DMG           ADM(100)
-#define LEVEL3_POUNCE_RANGE         96.0f
+#define LEVEL3_POUNCE_RANGE         64.0f
 #define LEVEL3_POUNCE_WIDTH         16.0f
 #define LEVEL3_POUNCE_SPEED         700
 #define LEVEL3_POUNCE_UPG_SPEED     800
 #define LEVEL3_POUNCE_SPEED_MOD     0.75f
-#define LEVEL3_POUNCE_TIME          700
+#define LEVEL3_POUNCE_CHARGE_TIME   700
+#define LEVEL3_POUNCE_TIME          400
 #define LEVEL3_BOUNCEBALL_DMG       ADM(110)
 #define LEVEL3_BOUNCEBALL_REPEAT    1000
 #define LEVEL3_BOUNCEBALL_SPEED     1000.0f
@@ -252,7 +253,7 @@
 #define HIVE_SPEED                  240.0f
 #define HIVE_DIR_CHANGE_PERIOD      500
 
-#define TRAPPER_BP                  10
+#define TRAPPER_BP                  8
 #define TRAPPER_BT                  12000
 #define TRAPPER_HEALTH              ABHM(50)
 #define TRAPPER_REGEN               6
@@ -275,7 +276,7 @@
 #define OVERMIND_ATTACK_REPEAT      1000
 #define OVERMIND_VALUE              300
 
-#define HOVEL_BP                    8
+#define HOVEL_BP                    0
 #define HOVEL_BT                    15000
 #define HOVEL_HEALTH                ABHM(375)
 #define HOVEL_REGEN                 20
@@ -500,7 +501,7 @@
 #define TESLAGEN_SPLASHRADIUS       100
 #define TESLAGEN_REPEAT             250
 #define TESLAGEN_RANGE              250
-#define TESLAGEN_DMG                HDM(7)
+#define TESLAGEN_DMG                HDM(9)
 
 #define DC_BP                       8
 #define DC_BT                       10000
