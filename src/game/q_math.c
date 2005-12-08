@@ -1466,6 +1466,7 @@ float VectorMinComponent( vec3_t v )
   return smallest;
 }
 
+#ifdef Q3_VM
 /*
 ===============
 round
@@ -1478,3 +1479,4 @@ float round( float v )
   else
     return floor( v );
 }
+#endif

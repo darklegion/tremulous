@@ -514,7 +514,7 @@ static void CG_DrawProgressBar( rectDef_t *rect, vec4_t color, float scale,
 
 //=============== TA: was cg_newdraw.c
 
-void CG_InitTeamChat( )
+void CG_InitTeamChat( void )
 {
   memset( teamChat1,  0, sizeof( teamChat1 ) );
   memset( teamChat2,  0, sizeof( teamChat2 ) );
@@ -3016,7 +3016,7 @@ static void CG_DrawTeamVote( void )
 }
 
 
-static qboolean CG_DrawScoreboard( )
+static qboolean CG_DrawScoreboard( void )
 {
   static qboolean firstTime = qtrue;
   float fade, *fadeColor;

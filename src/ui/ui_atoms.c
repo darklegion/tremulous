@@ -23,9 +23,6 @@
 
 qboolean    m_entersound;    // after a frame, so caching won't disrupt the sound
 
-// these are here so the functions in q_shared.c can link
-#ifndef UI_HARD_LINKED
-
 void QDECL Com_Error( int level, const char *error, ... ) {
   va_list    argptr;
   char    text[1024];
@@ -47,8 +44,6 @@ void QDECL Com_Printf( const char *msg, ... ) {
 
   trap_Print( va("%s", text) );
 }
-
-#endif
 
 qboolean newUI = qfalse;
 
@@ -157,7 +152,7 @@ void UI_LoadBestScores(const char *map, int game) {
 UI_ClearScores
 ===============
 */
-void UI_ClearScores() {
+void UI_ClearScores( void ) {
   char  gameList[4096];
   char *gameFile;
   int    i, len, count, size;
@@ -188,7 +183,7 @@ void UI_ClearScores() {
 
 
 
-static void  UI_Cache_f() {
+static void  UI_Cache_f( void ) {
   Display_CacheAll();
 }
 
@@ -197,7 +192,7 @@ static void  UI_Cache_f() {
 UI_CalcPostGameStats
 =======================
 */
-static void UI_CalcPostGameStats() {
+static void UI_CalcPostGameStats( void ) {
   char    map[MAX_QPATH];
   char    fileName[MAX_QPATH];
   char    info[MAX_INFO_STRING];

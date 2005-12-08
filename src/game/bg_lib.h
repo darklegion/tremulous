@@ -2,6 +2,12 @@
 // compiled for the virtual machine
 
 // This file is NOT included on native builds
+#ifndef BG_LIB_H
+#define BG_LIB_H
+
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
 
 /*
  *  Portions Copyright (C) 2000-2001 Tim Angus
@@ -83,3 +89,4 @@ double  fabs( double x );
 double  acos( double x );
 float   pow( float x, float y );
 
+#endif // BG_LIB_H

@@ -890,7 +890,7 @@ UI_FileExists
 static qboolean  UI_FileExists(const char *filename) {
   int len;
 
-  len = trap_FS_FOpenFile( filename, 0, FS_READ );
+  len = trap_FS_FOpenFile( filename, NULL, FS_READ );
   if (len>0) {
     return qtrue;
   }
@@ -1023,6 +1023,7 @@ static qboolean UI_ParseAnimationFile( const char *filename, animation_t *animat
   }
   if ( len >= ( sizeof( text ) - 1 ) ) {
     Com_Printf( "File %s too long\n", filename );
+    trap_FS_FCloseFile( f );
     return qfalse;
   }
   trap_FS_Read( text, len, f );

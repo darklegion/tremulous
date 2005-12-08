@@ -152,7 +152,9 @@ void _UI_KeyEvent( int key, qboolean down );
 void _UI_MouseEvent( int dx, int dy );
 void _UI_Refresh( int realtime );
 qboolean _UI_IsFullscreen( void );
-int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
+long vmMain( long command, long arg0, long arg1, long arg2, long arg3,
+                           long arg4, long arg5, long arg6, long arg7,
+                           long arg8, long arg9, long arg10, long arg11  ) {
   switch ( command ) {
     case UI_GETAPIVERSION:
       return UI_API_VERSION;
@@ -200,7 +202,7 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 
 
 
-void AssetCache() {
+void AssetCache( void ) {
   uiInfo.uiDC.Assets.gradientBar = trap_R_RegisterShaderNoMip( ASSET_GRADIENTBAR );
   uiInfo.uiDC.Assets.scrollBar = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR );
   uiInfo.uiDC.Assets.scrollBarArrowDown = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
@@ -931,7 +933,7 @@ qboolean Asset_Parse(int handle) {
   return qfalse;
 }
 
-void Font_Report() {
+void Font_Report( void ) {
   int i;
   Com_Printf("Font Info\n");
   Com_Printf("=========\n");
@@ -940,7 +942,7 @@ void Font_Report() {
   }
 }
 
-void UI_Report() {
+void UI_Report( void ) {
   String_Report();
   //Font_Report();
 
@@ -1264,7 +1266,7 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
   trap_PC_FreeSource( handle );
 }
 
-void UI_Load() {
+void UI_Load( void ) {
   char lastName[1024];
   menuDef_t *menu = Menu_GetFocused();
   char *menuSet = UI_Cvar_VariableString("ui_menuFiles");
@@ -1840,7 +1842,7 @@ static void UI_DrawOpponent(rectDef_t *rect) {
 
 }
 
-static void UI_NextOpponent() {
+static void UI_NextOpponent( void ) {
   int i = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_opponentName"));
   int j = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_teamName"));
   i++;
@@ -1856,7 +1858,7 @@ static void UI_NextOpponent() {
   trap_Cvar_Set( "ui_opponentName", uiInfo.teamList[i].teamName );
 }
 
-static void UI_PriorOpponent() {
+static void UI_PriorOpponent( void ) {
   int i = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_opponentName"));
   int j = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_teamName"));
   i--;
@@ -2107,7 +2109,7 @@ static void UI_DrawRedBlue(rectDef_t *rect, float scale, vec4_t color, int textS
 UI_BuildPlayerList
 ===============
 */
-static void UI_BuildPlayerList() {
+static void UI_BuildPlayerList( void ) {
   uiClientState_t cs;
   int   n, count, team, team2, playerTeamNumber;
   char  info[MAX_INFO_STRING];
@@ -3087,45 +3089,6 @@ void UI_ServersSort(int column, qboolean force) {
   qsort( &uiInfo.serverStatus.displayServers[0], uiInfo.serverStatus.numDisplayServers, sizeof(int), UI_ServersQsortCompare);
 }
 
-/*
-static void UI_StartSinglePlayer() {
-  int i,j, k, skill;
-  char buff[1024];
-  i = trap_Cvar_VariableValue( "ui_currentTier" );
-  if (i < 0 || i >= tierCount) {
-    i = 0;
-  }
-  j = trap_Cvar_VariableValue("ui_currentMap");
-  if (j < 0 || j > MAPS_PER_TIER) {
-    j = 0;
-  }
-
-  trap_Cvar_SetValue( "singleplayer", 1 );
-  trap_Cvar_SetValue( "g_gametype", Com_Clamp( 0, 7, tierList[i].gameTypes[j] ) );
-  trap_Cmd_ExecuteText( EXEC_APPEND, va( "wait ; wait ; map %s\n", tierList[i].maps[j] ) );
-  skill = trap_Cvar_VariableValue( "g_spSkill" );
-
-  if (j == MAPS_PER_TIER-1) {
-    k = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_opponentName"));
-    Com_sprintf( buff, sizeof(buff), "wait ; addbot %s %i %s 250 %s\n", UI_AIFromName(teamList[k].teamMembers[0]), skill, "", teamList[k].teamMembers[0]);
-  } else {
-    k = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_opponentName"));
-    for (i = 0; i < PLAYERS_PER_TEAM; i++) {
-      Com_sprintf( buff, sizeof(buff), "wait ; addbot %s %i %s 250 %s\n", UI_AIFromName(teamList[k].teamMembers[i]), skill, "Blue", teamList[k].teamMembers[i]);
-      trap_Cmd_ExecuteText( EXEC_APPEND, buff );
-    }
-
-    k = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_teamName"));
-    for (i = 1; i < PLAYERS_PER_TEAM; i++) {
-      Com_sprintf( buff, sizeof(buff), "wait ; addbot %s %i %s 250 %s\n", UI_AIFromName(teamList[k].teamMembers[i]), skill, "Red", teamList[k].teamMembers[i]);
-      trap_Cmd_ExecuteText( EXEC_APPEND, buff );
-    }
-    trap_Cmd_ExecuteText( EXEC_APPEND, "wait 5; team Red\n" );
-  }
-
-
-}
-*/
 
 /*
 ===============
@@ -3426,7 +3389,7 @@ static void UI_ParseCarriageList( int *weapons, int *upgrades )
 UI_LoadTremHumanArmouryBuys
 ===============
 */
-static void UI_LoadTremHumanArmouryBuys( )
+static void UI_LoadTremHumanArmouryBuys( void )
 {
   int i, j = 0;
   stage_t stage = UI_GetCurrentHumanStage( );
@@ -3499,7 +3462,7 @@ static void UI_LoadTremHumanArmouryBuys( )
 UI_LoadTremHumanArmourySells
 ===============
 */
-static void UI_LoadTremHumanArmourySells( )
+static void UI_LoadTremHumanArmourySells( void )
 {
   int weapons, upgrades;
   int i, j = 0;
@@ -3545,7 +3508,7 @@ static void UI_LoadTremHumanArmourySells( )
 UI_LoadTremAlienUpgrades
 ===============
 */
-static void UI_LoadTremAlienUpgrades( )
+static void UI_LoadTremAlienUpgrades( void )
 {
   int     i, j = 0;
   int     class, credits;
@@ -3581,7 +3544,7 @@ static void UI_LoadTremAlienUpgrades( )
 UI_LoadTremAlienBuilds
 ===============
 */
-static void UI_LoadTremAlienBuilds( )
+static void UI_LoadTremAlienBuilds( void )
 {
   int     weapons;
   int     i, j = 0;
@@ -3618,7 +3581,7 @@ static void UI_LoadTremAlienBuilds( )
 UI_LoadTremHumanBuilds
 ===============
 */
-static void UI_LoadTremHumanBuilds( )
+static void UI_LoadTremHumanBuilds( void )
 {
   int     weapons;
   int     i, j = 0;
@@ -3655,7 +3618,7 @@ static void UI_LoadTremHumanBuilds( )
 UI_LoadMods
 ===============
 */
-static void UI_LoadMods() {
+static void UI_LoadMods( void ) {
   int   numdirs;
   char  dirlist[2048];
   char  *dirptr;
@@ -3686,7 +3649,7 @@ static void UI_LoadMods() {
 UI_LoadMovies
 ===============
 */
-static void UI_LoadMovies() {
+static void UI_LoadMovies( void ) {
   char  movielist[4096];
   char  *moviename;
   int   i, len;
@@ -3718,7 +3681,7 @@ static void UI_LoadMovies() {
 UI_LoadDemos
 ===============
 */
-static void UI_LoadDemos() {
+static void UI_LoadDemos( void ) {
   char  demolist[4096];
   char demoExt[32];
   char  *demoname;
@@ -3773,7 +3736,7 @@ static void UI_StartSkirmish(qboolean next) {
     UI_SelectedMap(index, &actual);
     if (UI_SetNextMap(actual, index)) {
     } else {
-      UI_GameType_HandleKey(0, 0, K_MOUSE1, qfalse);
+      UI_GameType_HandleKey(0, NULL, K_MOUSE1, qfalse);
       UI_MapCountByGameType(qtrue);
       Menu_SetFeederSelection(NULL, FEEDER_MAPS, 0, "skirmish");
     }
@@ -4024,8 +3987,8 @@ static void UI_RunMenuScript(char **args) {
       ui_mapIndex.integer = UI_GetIndexFromSelection(ui_currentMap.integer);
       trap_Cvar_Set("ui_mapIndex", va("%d", ui_mapIndex.integer));
       Menu_SetFeederSelection(NULL, FEEDER_MAPS, ui_mapIndex.integer, "skirmish");
-      UI_GameType_HandleKey(0, 0, K_MOUSE1, qfalse);
-      UI_GameType_HandleKey(0, 0, K_MOUSE2, qfalse);
+      UI_GameType_HandleKey(0, NULL, K_MOUSE1, qfalse);
+      UI_GameType_HandleKey(0, NULL, K_MOUSE2, qfalse);
     } else if (Q_stricmp(name, "resetDefaults") == 0) {
       trap_Cmd_ExecuteText( EXEC_APPEND, "exec default.cfg\n");
       trap_Cmd_ExecuteText( EXEC_APPEND, "cvar_restart\n");
@@ -4462,12 +4425,12 @@ qboolean UI_hasSkinForBase(const char *base, const char *team) {
 
   Com_sprintf( test, sizeof( test ), "models/players/%s/%s/lower_default.skin", base, team );
 
-  if (trap_FS_FOpenFile(test, 0, FS_READ)) {
+  if (trap_FS_FOpenFile(test, NULL, FS_READ)) {
     return qtrue;
   }
   Com_sprintf( test, sizeof( test ), "models/players/characters/%s/%s/lower_default.skin", base, team );
 
-  if (trap_FS_FOpenFile(test, 0, FS_READ)) {
+  if (trap_FS_FOpenFile(test, NULL, FS_READ)) {
     return qtrue;
   }
   return qfalse;
@@ -4478,7 +4441,7 @@ qboolean UI_hasSkinForBase(const char *base, const char *team) {
 UI_MapCountByTeam
 ==================
 */
-static int UI_HeadCountByTeam() {
+static int UI_HeadCountByTeam( void ) {
   static int init = 0;
   int i, j, k, c, tIndex;
 
@@ -5177,7 +5140,7 @@ static int UI_GetIndexFromSelection(int actual) {
   return 0;
 }
 
-static void UI_UpdatePendingPings() {
+static void UI_UpdatePendingPings( void ) {
   trap_LAN_ResetPings(ui_netSource.integer);
   uiInfo.serverStatus.refreshActive = qtrue;
   uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 1000;
@@ -5813,7 +5776,7 @@ void _UI_MouseEvent( int dx, int dy )
 
 }
 
-void UI_LoadNonIngame() {
+void UI_LoadNonIngame( void ) {
   const char *menuSet = UI_Cvar_VariableString("ui_menuFiles");
   if (menuSet == NULL || menuSet[0] == '\0') {
     menuSet = "ui/menus.txt";

@@ -297,7 +297,7 @@ spawn_t spawns[ ] =
   { "misc_anim_model",          SP_misc_anim_model },
   { "misc_light_flare",         SP_misc_light_flare },
 
-  { 0, 0 }
+  { NULL, 0 }
 };
 
 /*

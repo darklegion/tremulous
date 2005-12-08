@@ -19,9 +19,9 @@
 // this file is only included when building a dll
 // syscalls.asm is included instead when building a qvm
 
-static int (QDECL *syscall)( int arg, ... ) = (int (QDECL *)( int, ...))-1;
+static long (QDECL *syscall)( long arg, ... ) = (long (QDECL *)( long, ...))-1;
 
-void dllEntry( int (QDECL *syscallptr)( int arg,... ) ) {
+void dllEntry( long (QDECL *syscallptr)( long arg,... ) ) {
   syscall = syscallptr;
 }
 
@@ -257,11 +257,11 @@ int trap_LAN_ServerStatus( const char *serverAddress, char *serverStatus, int ma
   return syscall( UI_LAN_SERVERSTATUS, serverAddress, serverStatus, maxLen );
 }
 
-void trap_LAN_SaveCachedServers() {
+void trap_LAN_SaveCachedServers( void ) {
   syscall( UI_LAN_SAVECACHEDSERVERS );
 }
 
-void trap_LAN_LoadCachedServers() {
+void trap_LAN_LoadCachedServers( void ) {
   syscall( UI_LAN_LOADCACHEDSERVERS );
 }
 

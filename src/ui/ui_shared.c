@@ -210,7 +210,7 @@ const char *String_Alloc(const char *p) {
   return NULL;
 }
 
-void String_Report() {
+void String_Report( void ) {
   float f;
   Com_Printf("Memory/String Pool Info\n");
   Com_Printf("----------------\n");
@@ -229,7 +229,7 @@ void String_Report() {
 String_Init
 =================
 */
-void String_Init( )
+void String_Init( void )
 {
   int i;
   for( i = 0; i < HASH_TABLE_SIZE; i++ )
@@ -1035,7 +1035,7 @@ void Menus_CloseByName(const char *p) {
   }
 }
 
-void Menus_CloseAll() {
+void Menus_CloseAll( void ) {
   int i;
   for (i = 0; i < menuCount; i++) {
     Menu_RunCloseScript(&Menus[i]);
@@ -2526,7 +2526,7 @@ static void Menu_CloseCinematics(menuDef_t *menu) {
   }
 }
 
-static void Display_CloseCinematics() {
+static void Display_CloseCinematics( void ) {
   int i;
   for (i = 0; i < menuCount; i++) {
     Menu_CloseCinematics(&Menus[i]);
@@ -2550,7 +2550,7 @@ void  Menus_Activate(menuDef_t *menu) {
 
 }
 
-int Display_VisibleMenuCount() {
+int Display_VisibleMenuCount( void ) {
   int i, count;
   count = 0;
   for (i = 0; i < menuCount; i++) {
@@ -3687,7 +3687,7 @@ void Item_Bind_Paint(itemDef_t *item) {
   }
 }
 
-qboolean Display_KeyBindPending() {
+qboolean Display_KeyBindPending( void ) {
   return g_waitingForKey;
 }
 
@@ -4344,7 +4344,7 @@ itemDef_t *Menu_GetFocusedItem(menuDef_t *menu) {
   return NULL;
 }
 
-menuDef_t *Menu_GetFocused() {
+menuDef_t *Menu_GetFocused( void ) {
   int i;
   for (i = 0; i < menuCount; i++) {
     if (Menus[i].window.flags & WINDOW_HASFOCUS && Menus[i].window.flags & WINDOW_VISIBLE) {
@@ -4394,7 +4394,7 @@ void Menu_SetFeederSelection(menuDef_t *menu, int feeder, int index, const char 
   }
 }
 
-qboolean Menus_AnyFullScreenVisible() {
+qboolean Menus_AnyFullScreenVisible( void ) {
   int i;
   for (i = 0; i < menuCount; i++) {
     if (Menus[i].window.flags & WINDOW_VISIBLE && Menus[i].fullScreen) {
@@ -5901,11 +5901,11 @@ void Menu_New(int handle) {
   }
 }
 
-int Menu_Count() {
+int Menu_Count( void ) {
   return menuCount;
 }
 
-void Menu_PaintAll() {
+void Menu_PaintAll( void ) {
   int i;
   if (captureFunc) {
     captureFunc(captureData);
@@ -5926,7 +5926,7 @@ void Menu_Reset( void )
   menuCount = 0;
 }
 
-displayContextDef_t *Display_GetContext() {
+displayContextDef_t *Display_GetContext( void ) {
   return DC;
 }
 
@@ -6026,7 +6026,7 @@ static void Menu_CacheContents(menuDef_t *menu) {
 
 }
 
-void Display_CacheAll() {
+void Display_CacheAll( void ) {
   int i;
   for (i = 0; i < menuCount; i++) {
     Menu_CacheContents(&Menus[i]);

@@ -1510,7 +1510,7 @@ void        CG_KeyEvent( int key, qboolean down );
 void        CG_MouseEvent( int x, int y );
 void        CG_EventHandling( int type );
 void        CG_SetScoreSelection( void *menu );
-void        CG_BuildSpectatorString( );
+void        CG_BuildSpectatorString( void );
 
 qboolean    CG_FileExists( char *filename );
 void        CG_RemoveConsoleLine( void );
@@ -1576,7 +1576,7 @@ int         CG_Text_Height( const char *text, float scale, int limit );
 float       CG_GetValue(int ownerDraw);
 void        CG_RunMenuScript(char **args);
 void        CG_SetPrintString( int type, const char *p );
-void        CG_InitTeamChat( );
+void        CG_InitTeamChat( void );
 void        CG_GetTeamColor( vec4_t *color );
 const char  *CG_GetKillerText();
 void        CG_Text_PaintChar( float x, float y, float width, float height, float scale,
@@ -1603,7 +1603,7 @@ void        CG_Bleed( vec3_t origin, vec3_t normal, int entityNum );
 //
 void        CG_GhostBuildable( buildable_t buildable );
 void        CG_Buildable( centity_t *cent );
-void        CG_InitBuildables( );
+void        CG_InitBuildables( void );
 void        CG_HumanBuildableExplosion( vec3_t origin, vec3_t dir );
 void        CG_AlienBuildableExplosion( vec3_t origin, vec3_t dir );
 

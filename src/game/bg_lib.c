@@ -51,6 +51,8 @@
  * SUCH DAMAGE.
  */
 
+#include "bg_lib.h"
+
 #if defined(LIBC_SCCS) && !defined(lint)
 #if 0
 static char sccsid[] = "@(#)qsort.c 8.1 (Berkeley) 6/4/93";
@@ -312,9 +314,6 @@ char *strstr( const char *string, const char *strCharSet )
 
 #endif // bk001211
 
-// bk001120 - presumably needed for Mac
-//#if !defined(_MSC_VER) && !defined(__linux__)
-// bk001127 - undid undo
 #if defined ( Q3_VM )
 
 int tolower( int c )
@@ -335,7 +334,6 @@ int toupper( int c )
 }
 
 #endif
-//#ifndef _MSC_VER
 
 void *memmove( void *dest, const void *src, size_t count )
 {
@@ -1469,10 +1467,6 @@ double _atof( const char **stringPtr )
 }
 
 
-// bk001120 - presumably needed for Mac
-//#if !defined ( _MSC_VER ) && ! defined ( __linux__ )
-
-// bk001127 - undid undo
 #if defined ( Q3_VM )
 
 int atoi( const char *string )
@@ -1870,7 +1864,7 @@ reswitch:
 
       case 'f':
         AddFloat( &buf_p, *(double *)arg, width, prec );
-#ifdef __LCC__
+#ifdef Q3_VM
         arg += 1; // everything is 32 bit in my compiler
 #else
         arg += 2;

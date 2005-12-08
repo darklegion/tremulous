@@ -18,10 +18,10 @@
 
 #include "cg_local.h"
 
-static int (QDECL *syscall)( int arg, ... ) = (int (QDECL *)( int, ...))-1;
+static long (QDECL *syscall)( long arg, ... ) = (long (QDECL *)( long, ...))-1;
 
 
-void dllEntry( int (QDECL  *syscallptr)( int arg,... ) )
+void dllEntry( long (QDECL  *syscallptr)( long arg,... ) )
 {
   syscall = syscallptr;
 }

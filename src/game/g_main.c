@@ -209,9 +209,9 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
-int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4,
-                         int arg5, int arg6, int arg7, int arg8, int arg9,
-                         int arg10, int arg11 )
+long vmMain( long command, long arg0, long arg1, long arg2, long arg3, long arg4,
+                           long arg5, long arg6, long arg7, long arg8, long arg9,
+                           long arg10, long arg11 )
 {
   switch( command )
   {
@@ -224,7 +224,7 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4,
       return 0;
 
     case GAME_CLIENT_CONNECT:
-      return (int)ClientConnect( arg0, arg1, arg2 );
+      return (long)ClientConnect( arg0, arg1, arg2 );
 
     case GAME_CLIENT_THINK:
       ClientThink( arg0 );
@@ -698,9 +698,6 @@ void G_ShutdownGame( int restart )
 
 //===================================================================
 
-#ifndef GAME_HARD_LINKED
-// this is only here so the functions in q_shared.c and bg_*.c can link
-
 void QDECL Com_Error( int level, const char *error, ... )
 {
   va_list argptr;
@@ -724,8 +721,6 @@ void QDECL Com_Printf( const char *msg, ... )
 
   G_Printf( "%s", text );
 }
-
-#endif
 
 /*
 ========================================================================
