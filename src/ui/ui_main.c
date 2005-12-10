@@ -1,18 +1,25 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
-
 /*
- *  Portions Copyright (C) 2000-2001 Tim Angus
- *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the OSML - Open Source Modification License v1.0 as
- *  described in the file COPYING which is distributed with this source
- *  code.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- */
+===========================================================================
+Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2000-2006 Tim Angus
+
+This file is part of Tremulous.
+
+Tremulous is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+Tremulous is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Tremulous; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
 
 /*
 =======================================================================
@@ -4155,7 +4162,7 @@ static void UI_RunMenuScript(char **args) {
       trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart;" );
     } else if (Q_stricmp(name, "RunDemo") == 0) {
       trap_Cmd_ExecuteText( EXEC_APPEND, va("demo %s\n", uiInfo.demoList[uiInfo.demoIndex]));
-    } else if (Q_stricmp(name, "Quake3") == 0) {
+    } else if (Q_stricmp(name, "Tremulous") == 0) {
       trap_Cvar_Set( "fs_game", "");
       trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart;" );
     } else if (Q_stricmp(name, "closeJoin") == 0) {
@@ -5818,18 +5825,6 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
         } else {
           trap_Cvar_Set("com_errorMessage", "");
         }
-      }
-
-#define MIN_HUNKMEGS  100
-
-      trap_Cvar_VariableStringBuffer( "com_hunkMegs", buf, sizeof( buf ) );
-      if( strlen( buf ) && atoi( buf ) < MIN_HUNKMEGS )
-      {
-        trap_Cvar_Set( "com_hunkMegs", va( "%d", MIN_HUNKMEGS ) );
-        trap_Cvar_Set( "com_errorMessage", "Your com_hunkMegs setting was too low. "
-            "It has been changed to a suitable value, but you must restart Quake 3 "
-            "for it to take effect." );
-        Menus_ActivateByName( "error_popmenu" );
       }
       return;
     case UIMENU_TEAM:

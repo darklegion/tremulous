@@ -1,23 +1,33 @@
 /*
- *  Portions Copyright (C) 2000-2001 Tim Angus
- *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the OSML - Open Source Modification License v1.0 as
- *  described in the file COPYING which is distributed with this source
- *  code.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- */
+===========================================================================
+Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2000-2006 Tim Angus
+
+This file is part of Tremulous.
+
+Tremulous is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+Tremulous is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Tremulous; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
 
 #ifndef __UI_SHARED_H
 #define __UI_SHARED_H
 
 
-#include "../game/q_shared.h"
-#include "../cgame/tr_types.h"
-#include "keycodes.h"
+#include "../qcommon/q_shared.h"
+#include "../renderer/tr_types.h"
+#include "../client/keycodes.h"
 
 #include "../../ui/menudef.h"
 
@@ -331,7 +341,7 @@ typedef struct {
   void (*setCVar)(const char *cvar, const char *value);
   void (*drawTextWithCursor)(float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style);
   void (*setOverstrikeMode)(qboolean b);
-  qboolean (*getOverstrikeMode)();
+  qboolean (*getOverstrikeMode)( void );
   void (*startLocalSound)( sfxHandle_t sfx, int channelNum );
   qboolean (*ownerDrawHandleKey)(int ownerDraw, int flags, float *special, int key);
   int (*feederCount)(float feederID);
@@ -402,7 +412,7 @@ void Menu_New(int handle);
 void Menu_PaintAll( void );
 menuDef_t *Menus_ActivateByName(const char *p);
 void Menu_Reset( void );
-qboolean Menus_AnyFullScreenVisible();
+qboolean Menus_AnyFullScreenVisible( void );
 void  Menus_Activate(menuDef_t *menu);
 
 displayContextDef_t *Display_GetContext( void );

@@ -1,22 +1,31 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
-// bg_lib,c -- standard C library replacement routines used by code
+/*
+===========================================================================
+Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2000-2006 Tim Angus
+
+This file is part of Tremulous.
+
+Tremulous is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+Tremulous is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Tremulous; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
+
+// bg_lib.c -- standard C library replacement routines used by code
 // compiled for the virtual machine
 
-/*
- *  Portions Copyright (C) 2000-2001 Tim Angus
- *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the OSML - Open Source Modification License v1.0 as
- *  described in the file COPYING which is distributed with this source
- *  code.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- */
 
-#include "q_shared.h"
+#include "../qcommon/q_shared.h"
 
 /*-
  * Copyright (c) 1992, 1993
@@ -808,6 +817,19 @@ double atan2( double y, double x ) {
 #endif
 
 #ifdef Q3_VM
+/*
+===============
+rint
+===============
+*/
+double rint( double v )
+{
+  if( v >= 0.5f )
+    return ceil( v );
+  else
+    return floor( v );
+}
+
 // bk001127 - guarded this tan replacement
 // ld: undefined versioned symbol name tan@@GLIBC_2.0
 double tan( double x )

@@ -1,19 +1,27 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
-// bg_public.h -- definitions shared by both the server game and client game modules
-
 /*
- *  Portions Copyright (C) 2000-2001 Tim Angus
- *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the OSML - Open Source Modification License v1.0 as
- *  described in the file COPYING which is distributed with this source
- *  code.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- */
+===========================================================================
+Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2000-2006 Tim Angus
+
+This file is part of Tremulous.
+
+Tremulous is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+Tremulous is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Tremulous; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
+
+// bg_public.h -- definitions shared by both the server game and client game modules
 
 //tremulous balance header
 #include "tremulous.h"
@@ -71,7 +79,7 @@
 #define CS_MODELS           33
 #define CS_SOUNDS           (CS_MODELS+MAX_MODELS)
 #define CS_SHADERS          (CS_SOUNDS+MAX_SOUNDS)
-#define CS_PARTICLE_SYSTEMS (CS_SHADERS+MAX_SHADERS)
+#define CS_PARTICLE_SYSTEMS (CS_SHADERS+MAX_GAME_SHADERS)
 #define CS_PLAYERS          (CS_PARTICLE_SYSTEMS+MAX_GAME_PARTICLE_SYSTEMS)
 #define CS_PRECACHES        (CS_PLAYERS+MAX_CLIENTS)
 #define CS_LOCATIONS        (CS_PRECACHES+MAX_CLIENTS)
@@ -1262,36 +1270,8 @@ qboolean  BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTi
 #define MAX_BOTS      1024
 #define MAX_BOTS_TEXT   8192
 
-//TA: conceptually should live in q_shared.h
-void    AxisToAngles( vec3_t axis[3], vec3_t angles );
-#define Vector2Set(v, x, y) ((v)[0]=(x), (v)[1]=(y))
-float   pointToLineDistance( const vec3_t point, const vec3_t p1, const vec3_t p2 );
-#define MAX(x,y) (x)>(y)?(x):(y)
-#define MIN(x,y) (x)<(y)?(x):(y)
-
-
-// Ridah
-void GetPerpendicularViewVector( const vec3_t point, const vec3_t p1,
-                                 const vec3_t p2, vec3_t up );
-void ProjectPointOntoVector( vec3_t point, vec3_t vStart,
-                             vec3_t vEnd, vec3_t vProj );
-float VectorDistance( vec3_t v1, vec3_t v2 );
-// done.
-
-//call roundf in place of round on non VM platforms
-#ifdef Q3_VM
-#define roundf round
-#else
-#define round roundf
-#endif
-
-#define M_ROOT3 1.732050808f
-float VectorMinComponent( vec3_t v );
-float VectorMaxComponent( vec3_t v );
-float round( float v );
-
-float atof_neg( char *token, qboolean allowNegative );
-int   atoi_neg( char *token, qboolean allowNegative );
+float   atof_neg( char *token, qboolean allowNegative );
+int     atoi_neg( char *token, qboolean allowNegative );
 
 void BG_ParseCSVEquipmentList( const char *string, weapon_t *weapons, int weaponsSize,
     upgrade_t *upgrades, int upgradesSize );

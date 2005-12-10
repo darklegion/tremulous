@@ -1,17 +1,27 @@
+/*
+===========================================================================
+Copyright (C) 2000-2006 Tim Angus
+
+This file is part of Tremulous.
+
+Tremulous is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+Tremulous is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Tremulous; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
+
 // cg_particles.c -- the particle system
 
-/*
- *  Portions Copyright (C) 2000-2001 Tim Angus
- *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the OSML - Open Source Modification License v1.0 as
- *  described in the file COPYING which is distributed with this source
- *  code.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- */
 
 #include "cg_local.h"
 
@@ -167,9 +177,9 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
 
       p->bounceMarkRadius = CG_RandomiseValue( bp->bounceMarkRadius, bp->bounceMarkRadiusRandFrac );
       p->bounceMarkCount =
-        round( CG_RandomiseValue( (float)bp->bounceMarkCount, bp->bounceMarkCountRandFrac ) );
+        rint( CG_RandomiseValue( (float)bp->bounceMarkCount, bp->bounceMarkCountRandFrac ) );
       p->bounceSoundCount =
-        round( CG_RandomiseValue( (float)bp->bounceSoundCount, bp->bounceSoundCountRandFrac ) );
+        rint( CG_RandomiseValue( (float)bp->bounceSoundCount, bp->bounceSoundCountRandFrac ) );
 
       if( bp->numModels )
       {
@@ -412,7 +422,7 @@ static particleEjector_t *CG_SpawnNewParticleEjector( baseParticleEjector_t *bpe
       pe->nextEjectionTime = cg.time +
         (int)CG_RandomiseValue( (float)bpe->eject.delay, bpe->eject.delayRandFrac );
       pe->count = pe->totalParticles =
-        (int)round( CG_RandomiseValue( (float)bpe->totalParticles, bpe->totalParticlesRandFrac ) );
+        (int)rint( CG_RandomiseValue( (float)bpe->totalParticles, bpe->totalParticlesRandFrac ) );
 
       pe->valid = qtrue;
 

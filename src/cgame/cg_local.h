@@ -1,21 +1,29 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
-
 /*
- *  Portions Copyright (C) 2000-2001 Tim Angus
- *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the OSML - Open Source Modification License v1.0 as
- *  described in the file COPYING which is distributed with this source
- *  code.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- */
+===========================================================================
+Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2000-2006 Tim Angus
 
-#include "../game/q_shared.h"
-#include "tr_types.h"
+This file is part of Tremulous.
+
+Tremulous is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+Tremulous is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Tremulous; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
+
+
+#include "../qcommon/q_shared.h"
+#include "../renderer/tr_types.h"
 #include "../game/bg_public.h"
 #include "cg_public.h"
 #include "../ui/ui_shared.h"
@@ -1316,7 +1324,7 @@ typedef struct
   // locally derived information from gamestate
   //
   qhandle_t     gameModels[ MAX_MODELS ];
-  qhandle_t     gameShaders[ MAX_SHADERS ];
+  qhandle_t     gameShaders[ MAX_GAME_SHADERS ];
   qhandle_t     gameParticleSystems[ MAX_GAME_PARTICLE_SYSTEMS ];
   sfxHandle_t   gameSounds[ MAX_SOUNDS ];
 
@@ -1578,7 +1586,7 @@ void        CG_RunMenuScript(char **args);
 void        CG_SetPrintString( int type, const char *p );
 void        CG_InitTeamChat( void );
 void        CG_GetTeamColor( vec4_t *color );
-const char  *CG_GetKillerText();
+const char  *CG_GetKillerText( void );
 void        CG_Text_PaintChar( float x, float y, float width, float height, float scale,
                                float s, float t, float s2, float t2, qhandle_t hShader );
 void        CG_DrawLoadingScreen( void );
@@ -1665,9 +1673,9 @@ void        CG_NextWeapon_f( void );
 void        CG_PrevWeapon_f( void );
 void        CG_Weapon_f( void );
 
-void        CG_InitUpgrades( );
+void        CG_InitUpgrades( void );
 void        CG_RegisterUpgrade( int upgradeNum );
-void        CG_InitWeapons( );
+void        CG_InitWeapons( void );
 void        CG_RegisterWeapon( int weaponNum );
 
 void        CG_FireWeapon( centity_t *cent, weaponMode_t weaponMode );

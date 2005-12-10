@@ -1,3 +1,26 @@
+/*
+===========================================================================
+Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2000-2006 Tim Angus
+
+This file is part of Tremulous.
+
+Tremulous is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+Tremulous is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Tremulous; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
+
 // bg_lib.h -- standard C library replacement routines used by code
 // compiled for the virtual machine
 
@@ -8,19 +31,6 @@
 #ifndef NULL
 #define NULL ((void *)0)
 #endif
-
-/*
- *  Portions Copyright (C) 2000-2001 Tim Angus
- *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the OSML - Open Source Modification License v1.0 as
- *  described in the file COPYING which is distributed with this source
- *  code.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- */
 
 typedef int size_t;
 
@@ -68,6 +78,7 @@ double  _atof( const char **stringPtr );
 int     atoi( const char *string );
 int     _atoi( const char **stringPtr );
 
+
 int     vsprintf( char *buffer, const char *fmt, va_list argptr );
 int     sscanf( const char *buffer, const char *fmt, ... );
 
@@ -88,5 +99,6 @@ int     abs( int n );
 double  fabs( double x );
 double  acos( double x );
 float   pow( float x, float y );
+double  rint( double v );
 
 #endif // BG_LIB_H

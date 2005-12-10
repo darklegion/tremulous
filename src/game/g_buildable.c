@@ -1,15 +1,25 @@
 /*
- *  Portions Copyright (C) 2000-2001 Tim Angus
- *
- *  This program is free software; you can redistribute it and/or modify it
- *  under the terms of the OSML - Open Source Modification License v1.0 as
- *  described in the file COPYING which is distributed with this source
- *  code.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- */
+===========================================================================
+Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2000-2006 Tim Angus
+
+This file is part of Tremulous.
+
+Tremulous is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+Tremulous is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Tremulous; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
 
 #include "g_local.h"
 
@@ -295,6 +305,8 @@ qboolean G_isDCC( void )
 {
   gentity_t dummy;
 
+  memset( &dummy, 0, sizeof( gentity_t ) );
+
   dummy.dccNode = NULL;
   dummy.biteam = BIT_HUMANS;
 
@@ -350,6 +362,8 @@ Simple wrapper to findOvermind to check if a location has an overmind
 qboolean G_isOvermind( void )
 {
   gentity_t dummy;
+
+  memset( &dummy, 0, sizeof( gentity_t ) );
 
   dummy.overmindNode = NULL;
   dummy.biteam = BIT_ALIENS;
@@ -421,6 +435,8 @@ simple wrapper to findCreep to check if a location has creep
 static qboolean isCreep( vec3_t origin )
 {
   gentity_t dummy;
+
+  memset( &dummy, 0, sizeof( gentity_t ) );
 
   dummy.parentNode = NULL;
   VectorCopy( origin, dummy.s.origin );

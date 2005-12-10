@@ -1,5 +1,5 @@
 #
-# Quake3 Unix Makefile
+# Tremulous Makefile
 #
 # Nov '98 by Zoid <zoid@idsoftware.com>
 #
@@ -7,6 +7,7 @@
 #  and a little more by Ryan C. Gordon.
 #  and a little more by Rafael Barrero
 #  and a little more by the ioq3 cr3w
+#  and a little more by Tim Angus
 #
 # GNU Make required
 #
@@ -36,7 +37,7 @@ endif
 -include Makefile.local
 
 ifndef COPYDIR
-COPYDIR="/usr/local/games/quake3"
+COPYDIR="/usr/local/games/tremulous"
 endif
 
 # Where we are building from (where the source code should be!)
@@ -98,7 +99,6 @@ BAIDIR=$(GDIR)
 BLIBDIR=$(MOUNT_DIR)/botlib
 NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
-Q3UIDIR=$(MOUNT_DIR)/q3_ui
 JPDIR=$(MOUNT_DIR)/jpeg-6
 SPLNDIR=$(MOUNT_DIR)/splines
 
@@ -214,24 +214,18 @@ ifeq ($(PLATFORM),linux)
 
   ifeq ($(ARCH),axp)
     TARGETS=\
-      $(B)/$(PLATFORM)q3ded
+      $(B)/$(PLATFORM)tremded
   else
     TARGETS=\
-      $(B)/$(PLATFORM)quake3 \
-      $(B)/$(PLATFORM)q3ded \
-      $(B)/baseq3/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/baseq3/qagame$(ARCH).$(SHLIBEXT) \
-      $(B)/baseq3/ui$(ARCH).$(SHLIBEXT)     \
-      $(B)/missionpack/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/missionpack/qagame$(ARCH).$(SHLIBEXT) \
-      $(B)/missionpack/ui$(ARCH).$(SHLIBEXT) \
-      $(B)/baseq3/vm/cgame.qvm \
-      $(B)/baseq3/vm/qagame.qvm \
-      $(B)/baseq3/vm/ui.qvm \
-      $(B)/missionpack/vm/qagame.qvm \
-      $(B)/missionpack/vm/cgame.qvm \
-      $(B)/missionpack/vm/ui.qvm
-#      $(B)/$(PLATFORM)quake3-smp \
+      $(B)/$(PLATFORM)tremulous \
+      $(B)/$(PLATFORM)tremded \
+      $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
+      $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
+      $(B)/base/ui$(ARCH).$(SHLIBEXT)     \
+      $(B)/base/vm/cgame.qvm \
+      $(B)/base/vm/qagame.qvm \
+      $(B)/base/vm/ui.qvm
+#      $(B)/$(PLATFORM)tremulous-smp \
 
   endif
 
@@ -318,21 +312,15 @@ ifeq ($(PLATFORM),darwin)
   endif
 
   TARGETS=\
-      $(B)/$(PLATFORM)quake3 \
-      $(B)/$(PLATFORM)q3ded \
-      $(B)/baseq3/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/baseq3/qagame$(ARCH).$(SHLIBEXT) \
-      $(B)/baseq3/ui$(ARCH).$(SHLIBEXT)     \
-      $(B)/missionpack/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/missionpack/qagame$(ARCH).$(SHLIBEXT) \
-      $(B)/missionpack/ui$(ARCH).$(SHLIBEXT) \
-      $(B)/baseq3/vm/cgame.qvm \
-      $(B)/baseq3/vm/qagame.qvm \
-      $(B)/baseq3/vm/ui.qvm \
-      $(B)/missionpack/vm/qagame.qvm \
-      $(B)/missionpack/vm/cgame.qvm \
-      $(B)/missionpack/vm/ui.qvm \
-      $(B)/$(PLATFORM)quake3-smp \
+      $(B)/$(PLATFORM)tremulous \
+      $(B)/$(PLATFORM)tremded \
+      $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
+      $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
+      $(B)/base/ui$(ARCH).$(SHLIBEXT)     \
+      $(B)/base/vm/cgame.qvm \
+      $(B)/base/vm/qagame.qvm \
+      $(B)/base/vm/ui.qvm
+      $(B)/$(PLATFORM)tremulous-smp \
 
 else # ifeq darwin
 
@@ -385,19 +373,13 @@ ifeq ($(PLATFORM),mingw32)
   endif
 
   TARGETS=\
-    $(B)/$(PLATFORM)quake3$(BINEXT) \
-    $(B)/baseq3/cgame$(ARCH).$(SHLIBEXT) \
-    $(B)/baseq3/qagame$(ARCH).$(SHLIBEXT) \
-    $(B)/baseq3/ui$(ARCH).$(SHLIBEXT)     \
-    $(B)/missionpack/cgame$(ARCH).$(SHLIBEXT) \
-    $(B)/missionpack/qagame$(ARCH).$(SHLIBEXT) \
-    $(B)/missionpack/ui$(ARCH).$(SHLIBEXT) \
-    $(B)/baseq3/vm/cgame.qvm \
-    $(B)/baseq3/vm/qagame.qvm \
-    $(B)/baseq3/vm/ui.qvm \
-    $(B)/missionpack/vm/qagame.qvm \
-    $(B)/missionpack/vm/cgame.qvm \
-    $(B)/missionpack/vm/ui.qvm
+    $(B)/$(PLATFORM)tremulous$(BINEXT) \
+    $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
+    $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
+    $(B)/base/ui$(ARCH).$(SHLIBEXT)     \
+    $(B)/base/vm/cgame.qvm \
+    $(B)/base/vm/qagame.qvm \
+    $(B)/base/vm/ui.qvm
 
 else # ifeq mingw32
 
@@ -451,23 +433,17 @@ ifeq ($(PLATFORM),freebsd)
 
   ifeq ($(ARCH),axp)
     TARGETS=\
-      $(B)/$(PLATFORM)q3ded
+      $(B)/$(PLATFORM)tremded
   else
     TARGETS=\
-      $(B)/$(PLATFORM)quake3 \
-      $(B)/$(PLATFORM)q3ded \
-      $(B)/baseq3/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/baseq3/qagame$(ARCH).$(SHLIBEXT) \
-      $(B)/baseq3/ui$(ARCH).$(SHLIBEXT)     \
-      $(B)/missionpack/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/missionpack/qagame$(ARCH).$(SHLIBEXT) \
-      $(B)/missionpack/ui$(ARCH).$(SHLIBEXT) \
-      $(B)/baseq3/vm/cgame.qvm \
-      $(B)/baseq3/vm/qagame.qvm \
-      $(B)/baseq3/vm/ui.qvm \
-      $(B)/missionpack/vm/qagame.qvm \
-      $(B)/missionpack/vm/cgame.qvm \
-      $(B)/missionpack/vm/ui.qvm
+      $(B)/$(PLATFORM)tremulous \
+      $(B)/$(PLATFORM)tremded \
+      $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
+      $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
+      $(B)/base/ui$(ARCH).$(SHLIBEXT)     \
+      $(B)/base/vm/cgame.qvm \
+      $(B)/base/vm/qagame.qvm \
+      $(B)/base/vm/ui.qvm
   endif
 
 else # ifeq freebsd
@@ -494,8 +470,8 @@ ifeq ($(PLATFORM),irix)
   LDFLAGS=-ldl -lm
   CLIENT_LDFLAGS=-L/usr/X11/$(LIB) -lGL -lX11 -lXext -lm
 
-  TARGETS=$(B)/$(PLATFORM)quake3 \
-    $(B)/$(PLATFORM)q3ded
+  TARGETS=$(B)/$(PLATFORM)tremulous \
+    $(B)/$(PLATFORM)tremded
 
 else # ifeq IRIX
 
@@ -509,7 +485,7 @@ ifeq ($(PLATFORM),SunOS)
   CC=gcc
   INSTALL=ginstall
   MKDIR=gmkdir
-  COPYDIR="/usr/local/share/games/quake3"
+  COPYDIR="/usr/local/share/games/tremulous"
 
   ifneq (,$(findstring i86pc,$(shell uname -m)))
     ARCH=i386
@@ -574,38 +550,26 @@ ifeq ($(PLATFORM),SunOS)
 
   ifeq ($(ARCH),sparc)
     TARGETS=\
-      $(B)/$(PLATFORM)quake3 \
-      $(B)/$(PLATFORM)q3ded \
-      $(B)/baseq3/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/baseq3/qagame$(ARCH).$(SHLIBEXT) \
-      $(B)/baseq3/ui$(ARCH).$(SHLIBEXT)     \
-      $(B)/missionpack/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/missionpack/qagame$(ARCH).$(SHLIBEXT) \
-      $(B)/missionpack/ui$(ARCH).$(SHLIBEXT) \
-      $(B)/baseq3/vm/cgame.qvm \
-      $(B)/baseq3/vm/qagame.qvm \
-      $(B)/baseq3/vm/ui.qvm \
-      $(B)/missionpack/vm/qagame.qvm \
-      $(B)/missionpack/vm/cgame.qvm \
-      $(B)/missionpack/vm/ui.qvm \
-      $(B)/$(PLATFORM)quake3-smp
+      $(B)/$(PLATFORM)tremulous \
+      $(B)/$(PLATFORM)tremded \
+      $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
+      $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
+      $(B)/base/ui$(ARCH).$(SHLIBEXT)     \
+      $(B)/base/vm/cgame.qvm \
+      $(B)/base/vm/qagame.qvm \
+      $(B)/base/vm/ui.qvm \
+      $(B)/$(PLATFORM)tremulous-smp
   else
     TARGETS=\
-      $(B)/$(PLATFORM)quake3 \
-      $(B)/$(PLATFORM)q3ded \
-      $(B)/baseq3/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/baseq3/qagame$(ARCH).$(SHLIBEXT) \
-      $(B)/baseq3/ui$(ARCH).$(SHLIBEXT)     \
-      $(B)/missionpack/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/missionpack/qagame$(ARCH).$(SHLIBEXT) \
-      $(B)/missionpack/ui$(ARCH).$(SHLIBEXT) \
-      $(B)/baseq3/vm/cgame.qvm \
-      $(B)/baseq3/vm/qagame.qvm \
-      $(B)/baseq3/vm/ui.qvm \
-      $(B)/missionpack/vm/qagame.qvm \
-      $(B)/missionpack/vm/cgame.qvm \
-      $(B)/missionpack/vm/ui.qvm \
-      $(B)/$(PLATFORM)quake3-smp
+      $(B)/$(PLATFORM)tremulous \
+      $(B)/$(PLATFORM)tremded \
+      $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
+      $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
+      $(B)/base/ui$(ARCH).$(SHLIBEXT)     \
+      $(B)/base/vm/cgame.qvm \
+      $(B)/base/vm/qagame.qvm \
+      $(B)/base/vm/ui.qvm \
+      $(B)/$(PLATFORM)tremulous-smp
 
   endif
 
@@ -624,7 +588,7 @@ else # ifeq SunOS
   SHLIBLDFLAGS=-shared
 
   TARGETS=\
-    $(B)/$(PLATFORM)q3ded
+    $(B)/$(PLATFORM)tremded
 
 endif #Linux
 endif #darwin
@@ -638,21 +602,17 @@ ifeq ($(USE_CCACHE),1)
 endif
 
 ifneq ($(BUILD_SERVER),1)
-  TARGETS := $(subst $(B)/$(PLATFORM)q3ded,,$(TARGETS))
+  TARGETS := $(subst $(B)/$(PLATFORM)tremded,,$(TARGETS))
 endif
 
 ifneq ($(BUILD_CLIENT),1)
   TARGETS := \
-	$(subst $(B)/baseq3/cgame$(ARCH).$(SHLIBEXT),,\
-	$(subst $(B)/baseq3/ui$(ARCH).$(SHLIBEXT),,\
-	$(subst $(B)/missionpack/cgame$(ARCH).$(SHLIBEXT),,\
-	$(subst $(B)/missionpack/ui$(ARCH).$(SHLIBEXT),,\
-	$(subst $(B)/baseq3/vm/cgame.qvm,,\
-	$(subst $(B)/baseq3/vm/ui.qvm,,\
-	$(subst $(B)/missionpack/vm/cgame.qvm,,\
-	$(subst $(B)/missionpack/vm/ui.qvm,,\
-	$(subst $(B)/$(PLATFORM)quake3-smp$(BINEXT),,\
-	$(subst $(B)/$(PLATFORM)quake3$(BINEXT),,$(TARGETS) ))))))))))
+	$(subst $(B)/base/cgame$(ARCH).$(SHLIBEXT),,\
+	$(subst $(B)/base/ui$(ARCH).$(SHLIBEXT),,\
+	$(subst $(B)/base/vm/cgame.qvm,,\
+	$(subst $(B)/base/vm/ui.qvm,,\
+	$(subst $(B)/$(PLATFORM)tremulous-smp$(BINEXT),,\
+	$(subst $(B)/$(PLATFORM)tremulous$(BINEXT),,$(TARGETS) ))))))
 endif
 
 ifdef DEFAULT_BASEDIR
@@ -705,20 +665,12 @@ makedirs:
 	@if [ ! -d $(B) ];then $(MKDIR) $(B);fi
 	@if [ ! -d $(B)/client ];then $(MKDIR) $(B)/client;fi
 	@if [ ! -d $(B)/ded ];then $(MKDIR) $(B)/ded;fi
-	@if [ ! -d $(B)/ref ];then $(MKDIR) $(B)/ref;fi
-	@if [ ! -d $(B)/baseq3 ];then $(MKDIR) $(B)/baseq3;fi
-	@if [ ! -d $(B)/baseq3/cgame ];then $(MKDIR) $(B)/baseq3/cgame;fi
-	@if [ ! -d $(B)/baseq3/game ];then $(MKDIR) $(B)/baseq3/game;fi
-	@if [ ! -d $(B)/baseq3/ui ];then $(MKDIR) $(B)/baseq3/ui;fi
-	@if [ ! -d $(B)/baseq3/qcommon ];then $(MKDIR) $(B)/baseq3/qcommon;fi
-	@if [ ! -d $(B)/baseq3/vm ];then $(MKDIR) $(B)/baseq3/vm;fi
-	@if [ ! -d $(B)/missionpack ];then $(MKDIR) $(B)/missionpack;fi
-	@if [ ! -d $(B)/missionpack/cgame ];then $(MKDIR) $(B)/missionpack/cgame;fi
-	@if [ ! -d $(B)/missionpack/game ];then $(MKDIR) $(B)/missionpack/game;fi
-	@if [ ! -d $(B)/missionpack/ui ];then $(MKDIR) $(B)/missionpack/ui;fi
-	@if [ ! -d $(B)/missionpack/qcommon ];then $(MKDIR) $(B)/missionpack/qcommon;fi
-	@if [ ! -d $(B)/missionpack/vm ];then $(MKDIR) $(B)/missionpack/vm;fi
-	@if [ ! -d $(B)/q3static ];then $(MKDIR) $(B)/q3static;fi
+	@if [ ! -d $(B)/base ];then $(MKDIR) $(B)/base;fi
+	@if [ ! -d $(B)/base/cgame ];then $(MKDIR) $(B)/base/cgame;fi
+	@if [ ! -d $(B)/base/game ];then $(MKDIR) $(B)/base/game;fi
+	@if [ ! -d $(B)/base/ui ];then $(MKDIR) $(B)/base/ui;fi
+	@if [ ! -d $(B)/base/qcommon ];then $(MKDIR) $(B)/base/qcommon;fi
+	@if [ ! -d $(B)/base/vm ];then $(MKDIR) $(B)/base/vm;fi
 
 #############################################################################
 # QVM BUILD TOOLS
@@ -1066,10 +1018,10 @@ endif #mingw32
 endif #IRIX
 endif #FreeBSD
 
-$(B)/$(PLATFORM)quake3$(BINEXT): $(Q3OBJ) $(Q3POBJ) $(LIBSDLMAIN)
+$(B)/$(PLATFORM)tremulous$(BINEXT): $(Q3OBJ) $(Q3POBJ) $(LIBSDLMAIN)
 	$(CC)  -o $@ $(Q3OBJ) $(Q3POBJ) $(CLIENT_LDFLAGS) $(LDFLAGS) $(LIBSDLMAIN)
 
-$(B)/$(PLATFORM)quake3-smp$(BINEXT): $(Q3OBJ) $(Q3POBJ_SMP) $(LIBSDLMAIN)
+$(B)/$(PLATFORM)tremulous-smp$(BINEXT): $(Q3OBJ) $(Q3POBJ_SMP) $(LIBSDLMAIN)
 	$(CC)  -o $@ $(Q3OBJ) $(Q3POBJ_SMP) $(CLIENT_LDFLAGS) \
 		$(THREAD_LDFLAGS) $(LDFLAGS) $(LIBSDLMAIN)
 
@@ -1357,7 +1309,7 @@ ifeq ($(ARCH),ppc)
   endif
 endif
 
-$(B)/$(PLATFORM)q3ded$(BINEXT): $(Q3DOBJ)
+$(B)/$(PLATFORM)tremded$(BINEXT): $(Q3DOBJ)
 	$(CC) -o $@ $(Q3DOBJ) $(LDFLAGS)
 
 $(B)/ded/sv_bot.o : $(SDIR)/sv_bot.c; $(DO_DED_CC)
@@ -1440,324 +1392,151 @@ endif
 
 
 #############################################################################
-## BASEQ3 CGAME
+## TREMULOUS CGAME
 #############################################################################
 
-Q3CGOBJ_ = \
-  $(B)/baseq3/cgame/cg_main.o \
-  $(B)/baseq3/game/bg_misc.o \
-  $(B)/baseq3/game/bg_pmove.o \
-  $(B)/baseq3/game/bg_slidemove.o \
-  $(B)/baseq3/cgame/cg_consolecmds.o \
-  $(B)/baseq3/cgame/cg_draw.o \
-  $(B)/baseq3/cgame/cg_drawtools.o \
-  $(B)/baseq3/cgame/cg_effects.o \
-  $(B)/baseq3/cgame/cg_ents.o \
-  $(B)/baseq3/cgame/cg_event.o \
-  $(B)/baseq3/cgame/cg_info.o \
-  $(B)/baseq3/cgame/cg_localents.o \
-  $(B)/baseq3/cgame/cg_marks.o \
-  $(B)/baseq3/cgame/cg_players.o \
-  $(B)/baseq3/cgame/cg_playerstate.o \
-  $(B)/baseq3/cgame/cg_predict.o \
-  $(B)/baseq3/cgame/cg_scoreboard.o \
-  $(B)/baseq3/cgame/cg_servercmds.o \
-  $(B)/baseq3/cgame/cg_snapshot.o \
-  $(B)/baseq3/cgame/cg_view.o \
-  $(B)/baseq3/cgame/cg_weapons.o \
+CGOBJ_ = \
+  $(B)/base/cgame/cg_main.o \
+  $(B)/base/game/bg_misc.o \
+  $(B)/base/game/bg_pmove.o \
+  $(B)/base/game/bg_slidemove.o \
+  $(B)/base/cgame/cg_consolecmds.o \
+  $(B)/base/cgame/cg_buildable.o \
+  $(B)/base/cgame/cg_animation.o \
+  $(B)/base/cgame/cg_animmapobj.o \
+  $(B)/base/cgame/cg_draw.o \
+  $(B)/base/cgame/cg_drawtools.o \
+  $(B)/base/cgame/cg_ents.o \
+  $(B)/base/cgame/cg_event.o \
+  $(B)/base/cgame/cg_marks.o \
+  $(B)/base/cgame/cg_players.o \
+  $(B)/base/cgame/cg_playerstate.o \
+  $(B)/base/cgame/cg_predict.o \
+  $(B)/base/cgame/cg_servercmds.o \
+  $(B)/base/cgame/cg_snapshot.o \
+  $(B)/base/cgame/cg_view.o \
+  $(B)/base/cgame/cg_weapons.o \
+  $(B)/base/cgame/cg_mem.o \
+  $(B)/base/cgame/cg_scanner.o \
+  $(B)/base/cgame/cg_attachment.o \
+  $(B)/base/cgame/cg_trails.o \
+  $(B)/base/cgame/cg_particles.o \
+  $(B)/base/cgame/cg_ptr.o \
+  $(B)/base/ui/ui_shared.o \
   \
-  $(B)/baseq3/qcommon/q_math.o \
-  $(B)/baseq3/qcommon/q_shared.o
+  $(B)/base/qcommon/q_math.o \
+  $(B)/base/qcommon/q_shared.o
 
-Q3CGOBJ = $(Q3CGOBJ_) $(B)/baseq3/cgame/cg_syscalls.o
-Q3CGVMOBJ = $(Q3CGOBJ_:%.o=%.asm) $(B)/baseq3/game/bg_lib.asm
+CGOBJ = $(CGOBJ_) $(B)/base/cgame/cg_syscalls.o
+CGVMOBJ = $(CGOBJ_:%.o=%.asm) $(B)/base/game/bg_lib.asm
 
-$(B)/baseq3/cgame$(ARCH).$(SHLIBEXT) : $(Q3CGOBJ)
-	$(CC) $(SHLIBLDFLAGS) -o $@ $(Q3CGOBJ)
+$(B)/base/cgame$(ARCH).$(SHLIBEXT) : $(CGOBJ)
+	$(CC) $(SHLIBLDFLAGS) -o $@ $(CGOBJ)
 
-$(B)/baseq3/vm/cgame.qvm: $(Q3CGVMOBJ) $(CGDIR)/cg_syscalls.asm
-	$(Q3ASM) -o $@ $(Q3CGVMOBJ) $(CGDIR)/cg_syscalls.asm
+$(B)/base/vm/cgame.qvm: $(CGVMOBJ) $(CGDIR)/cg_syscalls.asm
+	$(Q3ASM) -o $@ $(CGVMOBJ) $(CGDIR)/cg_syscalls.asm
+
+
 
 #############################################################################
-## MISSIONPACK CGAME
+## TREMULOUS GAME
 #############################################################################
 
-MPCGOBJ_ = \
-  $(B)/missionpack/cgame/cg_main.o \
-  $(B)/missionpack/game/bg_misc.o \
-  $(B)/missionpack/game/bg_pmove.o \
-  $(B)/missionpack/game/bg_slidemove.o \
-  $(B)/missionpack/cgame/cg_consolecmds.o \
-  $(B)/missionpack/cgame/cg_newdraw.o \
-  $(B)/missionpack/cgame/cg_draw.o \
-  $(B)/missionpack/cgame/cg_drawtools.o \
-  $(B)/missionpack/cgame/cg_effects.o \
-  $(B)/missionpack/cgame/cg_ents.o \
-  $(B)/missionpack/cgame/cg_event.o \
-  $(B)/missionpack/cgame/cg_info.o \
-  $(B)/missionpack/cgame/cg_localents.o \
-  $(B)/missionpack/cgame/cg_marks.o \
-  $(B)/missionpack/cgame/cg_players.o \
-  $(B)/missionpack/cgame/cg_playerstate.o \
-  $(B)/missionpack/cgame/cg_predict.o \
-  $(B)/missionpack/cgame/cg_scoreboard.o \
-  $(B)/missionpack/cgame/cg_servercmds.o \
-  $(B)/missionpack/cgame/cg_snapshot.o \
-  $(B)/missionpack/cgame/cg_view.o \
-  $(B)/missionpack/cgame/cg_weapons.o \
-  $(B)/missionpack/ui/ui_shared.o \
+GOBJ_ = \
+  $(B)/base/game/g_main.o \
+  $(B)/base/game/bg_misc.o \
+  $(B)/base/game/bg_pmove.o \
+  $(B)/base/game/bg_slidemove.o \
+  $(B)/base/game/g_mem.o \
+  $(B)/base/game/g_active.o \
+  $(B)/base/game/g_client.o \
+  $(B)/base/game/g_cmds.o \
+  $(B)/base/game/g_combat.o \
+  $(B)/base/game/g_physics.o \
+  $(B)/base/game/g_buildable.o \
+  $(B)/base/game/g_misc.o \
+  $(B)/base/game/g_missile.o \
+  $(B)/base/game/g_mover.o \
+  $(B)/base/game/g_session.o \
+  $(B)/base/game/g_spawn.o \
+  $(B)/base/game/g_svcmds.o \
+  $(B)/base/game/g_target.o \
+  $(B)/base/game/g_team.o \
+  $(B)/base/game/g_trigger.o \
+  $(B)/base/game/g_utils.o \
+  $(B)/base/game/g_maprotation.o \
+  $(B)/base/game/g_ptr.o \
+  $(B)/base/game/g_weapon.o \
   \
-  $(B)/missionpack/qcommon/q_math.o \
-  $(B)/missionpack/qcommon/q_shared.o
+  $(B)/base/qcommon/q_math.o \
+  $(B)/base/qcommon/q_shared.o
 
-MPCGOBJ = $(MPCGOBJ_) $(B)/missionpack/cgame/cg_syscalls.o
-MPCGVMOBJ = $(MPCGOBJ_:%.o=%.asm) $(B)/missionpack/game/bg_lib.asm
+GOBJ = $(GOBJ_) $(B)/base/game/g_syscalls.o
+GVMOBJ = $(GOBJ_:%.o=%.asm) $(B)/base/game/bg_lib.asm
 
-$(B)/missionpack/cgame$(ARCH).$(SHLIBEXT) : $(MPCGOBJ)
-	$(CC) $(SHLIBLDFLAGS) -o $@ $(MPCGOBJ)
+$(B)/base/qagame$(ARCH).$(SHLIBEXT) : $(GOBJ)
+	$(CC) $(SHLIBLDFLAGS) -o $@ $(GOBJ)
 
-$(B)/missionpack/vm/cgame.qvm: $(MPCGVMOBJ) $(CGDIR)/cg_syscalls.asm
-	$(Q3ASM) -o $@ $(MPCGVMOBJ) $(CGDIR)/cg_syscalls.asm
+$(B)/base/vm/qagame.qvm: $(GVMOBJ) $(GDIR)/g_syscalls.asm
+	$(Q3ASM) -o $@ $(GVMOBJ) $(GDIR)/g_syscalls.asm
 
 
 
 #############################################################################
-## BASEQ3 GAME
+## TREMULOUS UI
 #############################################################################
 
-Q3GOBJ_ = \
-  $(B)/baseq3/game/g_main.o \
-  $(B)/baseq3/game/ai_chat.o \
-  $(B)/baseq3/game/ai_cmd.o \
-  $(B)/baseq3/game/ai_dmnet.o \
-  $(B)/baseq3/game/ai_dmq3.o \
-  $(B)/baseq3/game/ai_main.o \
-  $(B)/baseq3/game/ai_team.o \
-  $(B)/baseq3/game/ai_vcmd.o \
-  $(B)/baseq3/game/bg_misc.o \
-  $(B)/baseq3/game/bg_pmove.o \
-  $(B)/baseq3/game/bg_slidemove.o \
-  $(B)/baseq3/game/g_active.o \
-  $(B)/baseq3/game/g_arenas.o \
-  $(B)/baseq3/game/g_bot.o \
-  $(B)/baseq3/game/g_client.o \
-  $(B)/baseq3/game/g_cmds.o \
-  $(B)/baseq3/game/g_combat.o \
-  $(B)/baseq3/game/g_items.o \
-  $(B)/baseq3/game/g_mem.o \
-  $(B)/baseq3/game/g_misc.o \
-  $(B)/baseq3/game/g_missile.o \
-  $(B)/baseq3/game/g_mover.o \
-  $(B)/baseq3/game/g_session.o \
-  $(B)/baseq3/game/g_spawn.o \
-  $(B)/baseq3/game/g_svcmds.o \
-  $(B)/baseq3/game/g_target.o \
-  $(B)/baseq3/game/g_team.o \
-  $(B)/baseq3/game/g_trigger.o \
-  $(B)/baseq3/game/g_utils.o \
-  $(B)/baseq3/game/g_weapon.o \
+UIOBJ_ = \
+  $(B)/base/ui/ui_main.o \
+  $(B)/base/ui/ui_atoms.o \
+  $(B)/base/ui/ui_players.o \
+  $(B)/base/ui/ui_shared.o \
+  $(B)/base/ui/ui_gameinfo.o \
   \
-  $(B)/baseq3/qcommon/q_math.o \
-  $(B)/baseq3/qcommon/q_shared.o
+  $(B)/base/game/bg_misc.o \
+  $(B)/base/qcommon/q_math.o \
+  $(B)/base/qcommon/q_shared.o
 
-Q3GOBJ = $(Q3GOBJ_) $(B)/baseq3/game/g_syscalls.o
-Q3GVMOBJ = $(Q3GOBJ_:%.o=%.asm) $(B)/baseq3/game/bg_lib.asm
+UIOBJ = $(UIOBJ_) $(B)/base/ui/ui_syscalls.o
+UIVMOBJ = $(UIOBJ_:%.o=%.asm) $(B)/base/game/bg_lib.asm
 
-$(B)/baseq3/qagame$(ARCH).$(SHLIBEXT) : $(Q3GOBJ)
-	$(CC) $(SHLIBLDFLAGS) -o $@ $(Q3GOBJ)
+$(B)/base/ui$(ARCH).$(SHLIBEXT) : $(UIOBJ)
+	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(UIOBJ)
 
-$(B)/baseq3/vm/qagame.qvm: $(Q3GVMOBJ) $(GDIR)/g_syscalls.asm
-	$(Q3ASM) -o $@ $(Q3GVMOBJ) $(GDIR)/g_syscalls.asm
-
-#############################################################################
-## MISSIONPACK GAME
-#############################################################################
-
-MPGOBJ_ = \
-  $(B)/missionpack/game/g_main.o \
-  $(B)/missionpack/game/ai_chat.o \
-  $(B)/missionpack/game/ai_cmd.o \
-  $(B)/missionpack/game/ai_dmnet.o \
-  $(B)/missionpack/game/ai_dmq3.o \
-  $(B)/missionpack/game/ai_main.o \
-  $(B)/missionpack/game/ai_team.o \
-  $(B)/missionpack/game/ai_vcmd.o \
-  $(B)/missionpack/game/bg_misc.o \
-  $(B)/missionpack/game/bg_pmove.o \
-  $(B)/missionpack/game/bg_slidemove.o \
-  $(B)/missionpack/game/g_active.o \
-  $(B)/missionpack/game/g_arenas.o \
-  $(B)/missionpack/game/g_bot.o \
-  $(B)/missionpack/game/g_client.o \
-  $(B)/missionpack/game/g_cmds.o \
-  $(B)/missionpack/game/g_combat.o \
-  $(B)/missionpack/game/g_items.o \
-  $(B)/missionpack/game/g_mem.o \
-  $(B)/missionpack/game/g_misc.o \
-  $(B)/missionpack/game/g_missile.o \
-  $(B)/missionpack/game/g_mover.o \
-  $(B)/missionpack/game/g_session.o \
-  $(B)/missionpack/game/g_spawn.o \
-  $(B)/missionpack/game/g_svcmds.o \
-  $(B)/missionpack/game/g_target.o \
-  $(B)/missionpack/game/g_team.o \
-  $(B)/missionpack/game/g_trigger.o \
-  $(B)/missionpack/game/g_utils.o \
-  $(B)/missionpack/game/g_weapon.o \
-  \
-  $(B)/missionpack/qcommon/q_math.o \
-  $(B)/missionpack/qcommon/q_shared.o
-
-MPGOBJ = $(MPGOBJ_) $(B)/missionpack/game/g_syscalls.o
-MPGVMOBJ = $(MPGOBJ_:%.o=%.asm) $(B)/missionpack/game/bg_lib.asm
-
-$(B)/missionpack/qagame$(ARCH).$(SHLIBEXT) : $(MPGOBJ)
-	$(CC) $(SHLIBLDFLAGS) -o $@ $(MPGOBJ)
-
-$(B)/missionpack/vm/qagame.qvm: $(MPGVMOBJ) $(GDIR)/g_syscalls.asm
-	$(Q3ASM) -o $@ $(MPGVMOBJ) $(GDIR)/g_syscalls.asm
-
-
-
-#############################################################################
-## BASEQ3 UI
-#############################################################################
-
-Q3UIOBJ_ = \
-  $(B)/baseq3/ui/ui_main.o \
-  $(B)/baseq3/game/bg_misc.o \
-  $(B)/baseq3/ui/ui_addbots.o \
-  $(B)/baseq3/ui/ui_atoms.o \
-  $(B)/baseq3/ui/ui_cdkey.o \
-  $(B)/baseq3/ui/ui_cinematics.o \
-  $(B)/baseq3/ui/ui_confirm.o \
-  $(B)/baseq3/ui/ui_connect.o \
-  $(B)/baseq3/ui/ui_controls2.o \
-  $(B)/baseq3/ui/ui_credits.o \
-  $(B)/baseq3/ui/ui_demo2.o \
-  $(B)/baseq3/ui/ui_display.o \
-  $(B)/baseq3/ui/ui_gameinfo.o \
-  $(B)/baseq3/ui/ui_ingame.o \
-  $(B)/baseq3/ui/ui_loadconfig.o \
-  $(B)/baseq3/ui/ui_menu.o \
-  $(B)/baseq3/ui/ui_mfield.o \
-  $(B)/baseq3/ui/ui_mods.o \
-  $(B)/baseq3/ui/ui_network.o \
-  $(B)/baseq3/ui/ui_options.o \
-  $(B)/baseq3/ui/ui_playermodel.o \
-  $(B)/baseq3/ui/ui_players.o \
-  $(B)/baseq3/ui/ui_playersettings.o \
-  $(B)/baseq3/ui/ui_preferences.o \
-  $(B)/baseq3/ui/ui_qmenu.o \
-  $(B)/baseq3/ui/ui_removebots.o \
-  $(B)/baseq3/ui/ui_saveconfig.o \
-  $(B)/baseq3/ui/ui_serverinfo.o \
-  $(B)/baseq3/ui/ui_servers2.o \
-  $(B)/baseq3/ui/ui_setup.o \
-  $(B)/baseq3/ui/ui_sound.o \
-  $(B)/baseq3/ui/ui_sparena.o \
-  $(B)/baseq3/ui/ui_specifyserver.o \
-  $(B)/baseq3/ui/ui_splevel.o \
-  $(B)/baseq3/ui/ui_sppostgame.o \
-  $(B)/baseq3/ui/ui_spskill.o \
-  $(B)/baseq3/ui/ui_startserver.o \
-  $(B)/baseq3/ui/ui_team.o \
-  $(B)/baseq3/ui/ui_teamorders.o \
-  $(B)/baseq3/ui/ui_video.o \
-  \
-  $(B)/baseq3/qcommon/q_math.o \
-  $(B)/baseq3/qcommon/q_shared.o
-
-Q3UIOBJ = $(Q3UIOBJ_) $(B)/missionpack/ui/ui_syscalls.o
-Q3UIVMOBJ = $(Q3UIOBJ_:%.o=%.asm) $(B)/baseq3/game/bg_lib.asm
-
-$(B)/baseq3/ui$(ARCH).$(SHLIBEXT) : $(Q3UIOBJ)
-	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3UIOBJ)
-
-$(B)/baseq3/vm/ui.qvm: $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm
-	$(Q3ASM) -o $@ $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm
-
-#############################################################################
-## MISSIONPACK UI
-#############################################################################
-
-MPUIOBJ_ = \
-  $(B)/missionpack/ui/ui_main.o \
-  $(B)/missionpack/ui/ui_atoms.o \
-  $(B)/missionpack/ui/ui_gameinfo.o \
-  $(B)/missionpack/ui/ui_players.o \
-  $(B)/missionpack/ui/ui_shared.o \
-  \
-  $(B)/missionpack/game/bg_misc.o \
-  \
-  $(B)/missionpack/qcommon/q_math.o \
-  $(B)/missionpack/qcommon/q_shared.o
-
-MPUIOBJ = $(MPUIOBJ_) $(B)/missionpack/ui/ui_syscalls.o
-MPUIVMOBJ = $(MPUIOBJ_:%.o=%.asm) $(B)/baseq3/game/bg_lib.asm
-
-$(B)/missionpack/ui$(ARCH).$(SHLIBEXT) : $(MPUIOBJ)
-	$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(MPUIOBJ)
-
-$(B)/missionpack/vm/ui.qvm: $(MPUIVMOBJ) $(UIDIR)/ui_syscalls.asm
-	$(Q3ASM) -o $@ $(MPUIVMOBJ) $(UIDIR)/ui_syscalls.asm
-
+$(B)/base/vm/ui.qvm: $(UIVMOBJ) $(UIDIR)/ui_syscalls.asm
+	$(Q3ASM) -o $@ $(UIVMOBJ) $(UIDIR)/ui_syscalls.asm
 
 
 #############################################################################
 ## GAME MODULE RULES
 #############################################################################
 
-$(B)/baseq3/cgame/%.o: $(CGDIR)/%.c
+$(B)/base/cgame/%.o: $(CGDIR)/%.c
 	$(DO_SHLIB_CC)
 
-$(B)/baseq3/cgame/%.asm: $(CGDIR)/%.c
+$(B)/base/cgame/%.asm: $(CGDIR)/%.c
 	$(DO_Q3LCC)
 
-$(B)/missionpack/cgame/%.o: $(CGDIR)/%.c
-	$(DO_SHLIB_CC) -DMISSIONPACK
 
-$(B)/missionpack/cgame/%.asm: $(CGDIR)/%.c
-	$(DO_Q3LCC) -DMISSIONPACK
-
-
-$(B)/baseq3/game/%.o: $(GDIR)/%.c
+$(B)/base/game/%.o: $(GDIR)/%.c
 	$(DO_SHLIB_CC)
 
-$(B)/baseq3/game/%.asm: $(GDIR)/%.c
+$(B)/base/game/%.asm: $(GDIR)/%.c
 	$(DO_Q3LCC)
 
-$(B)/missionpack/game/%.o: $(GDIR)/%.c
-	$(DO_SHLIB_CC) -DMISSIONPACK
 
-$(B)/missionpack/game/%.asm: $(GDIR)/%.c
-	$(DO_Q3LCC) -DMISSIONPACK
-
-
-$(B)/baseq3/ui/%.o: $(Q3UIDIR)/%.c
+$(B)/base/ui/%.o: $(UIDIR)/%.c
 	$(DO_SHLIB_CC)
 
-$(B)/baseq3/ui/%.asm: $(Q3UIDIR)/%.c
+$(B)/base/ui/%.asm: $(UIDIR)/%.c
 	$(DO_Q3LCC)
 
-$(B)/missionpack/ui/%.o: $(UIDIR)/%.c
-	$(DO_SHLIB_CC) -DMISSIONPACK
 
-$(B)/missionpack/ui/%.asm: $(UIDIR)/%.c
-	$(DO_Q3LCC) -DMISSIONPACK
-
-
-$(B)/baseq3/qcommon/%.o: $(CMDIR)/%.c
+$(B)/base/qcommon/%.o: $(CMDIR)/%.c
 	$(DO_SHLIB_CC)
 
-$(B)/baseq3/qcommon/%.asm: $(CMDIR)/%.c
+$(B)/base/qcommon/%.asm: $(CMDIR)/%.c
 	$(DO_Q3LCC)
-
-$(B)/missionpack/qcommon/%.o: $(CMDIR)/%.c
-	$(DO_SHLIB_CC) -DMISSIONPACK
-
-$(B)/missionpack/qcommon/%.asm: $(CMDIR)/%.c
-	$(DO_Q3LCC) -DMISSIONPACK
 
 
 #############################################################################
@@ -1765,24 +1544,17 @@ $(B)/missionpack/qcommon/%.asm: $(CMDIR)/%.c
 #############################################################################
 
 copyfiles: build_release
-	@if [ ! -d $(COPYDIR)/baseq3 ]; then echo "You need to set COPYDIR to where you installed Quake III!"; false; fi
-	$(INSTALL) -s -m 0755 $(BR)/$(PLATFORM)quake3$(BINEXT) $(COPYDIR)/quake3
-	#$(INSTALL) -s -m 0755 $(BR)/$(PLATFORM)quake3-smp$(BINEXT) $(COPYDIR)/quake3-smp
-	$(INSTALL) -s -m 0755 $(BR)/$(PLATFORM)q3ded$(BINEXT) $(COPYDIR)/q3ded
-	-$(MKDIR) -p -m 0755 $(COPYDIR)/baseq3
-	$(INSTALL) -s -m 0755 $(BR)/baseq3/cgame$(ARCH).$(SHLIBEXT) \
-					$(COPYDIR)/baseq3/.
-	$(INSTALL) -s -m 0755 $(BR)/baseq3/qagame$(ARCH).$(SHLIBEXT) \
-					$(COPYDIR)/baseq3/.
-	$(INSTALL) -s -m 0755 $(BR)/baseq3/ui$(ARCH).$(SHLIBEXT) \
-					$(COPYDIR)/baseq3/.
-	-$(MKDIR) -p -m 0755 $(COPYDIR)/missionpack
-	$(INSTALL) -s -m 0755 $(BR)/missionpack/cgame$(ARCH).$(SHLIBEXT) \
-					$(COPYDIR)/missionpack/.
-	$(INSTALL) -s -m 0755 $(BR)/missionpack/qagame$(ARCH).$(SHLIBEXT) \
-					$(COPYDIR)/missionpack/.
-	$(INSTALL) -s -m 0755 $(BR)/missionpack/ui$(ARCH).$(SHLIBEXT) \
-					$(COPYDIR)/missionpack/.
+	@if [ ! -d $(COPYDIR)/base ]; then echo "You need to set COPYDIR to where you installed Quake III!"; false; fi
+	$(INSTALL) -s -m 0755 $(BR)/$(PLATFORM)tremulous$(BINEXT) $(COPYDIR)/tremulous
+	#$(INSTALL) -s -m 0755 $(BR)/$(PLATFORM)tremulous-smp$(BINEXT) $(COPYDIR)/tremulous-smp
+	$(INSTALL) -s -m 0755 $(BR)/$(PLATFORM)tremded$(BINEXT) $(COPYDIR)/tremded
+	-$(MKDIR) -p -m 0755 $(COPYDIR)/base
+	$(INSTALL) -s -m 0755 $(BR)/base/cgame$(ARCH).$(SHLIBEXT) \
+					$(COPYDIR)/base/.
+	$(INSTALL) -s -m 0755 $(BR)/base/qagame$(ARCH).$(SHLIBEXT) \
+					$(COPYDIR)/base/.
+	$(INSTALL) -s -m 0755 $(BR)/base/ui$(ARCH).$(SHLIBEXT) \
+					$(COPYDIR)/base/.
 
 clean:clean-debug clean-release
 	$(MAKE) -C setup clean
@@ -1790,8 +1562,8 @@ clean:clean-debug clean-release
 clean2:
 	if [ -d $(B) ];then (find $(B) -name '*.d' -exec rm {} \;)fi
 	rm -f $(Q3OBJ) $(Q3POBJ) $(Q3POBJ_SMP) $(Q3DOBJ) \
-		$(MPGOBJ) $(Q3GOBJ) $(Q3CGOBJ) $(MPCGOBJ) $(Q3UIOBJ) $(MPUIOBJ) \
-		$(MPGVMOBJ) $(Q3GVMOBJ) $(Q3CGVMOBJ) $(MPCGVMOBJ) $(Q3UIVMOBJ) $(MPUIVMOBJ)
+		$(GOBJ) $(CGOBJ) $(UIOBJ) \
+		$(GVMOBJ) $(CGVMOBJ) $(UIVMOBJ)
 	rm -f $(TARGETS)
 
 clean-debug:

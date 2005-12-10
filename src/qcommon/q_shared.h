@@ -1,21 +1,22 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2000-2006 Tim Angus
 
-This file is part of Quake III Arena source code.
+This file is part of Tremulous.
 
-Quake III Arena source code is free software; you can redistribute it
+Tremulous is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Quake III Arena source code is distributed in the hope that it will be
+Tremulous is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Quake III Arena source code; if not, write to the Free Software
+along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
@@ -26,8 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define	Q3_VERSION		"ioQ3 1.33"
-// 1.32 released 7-10-2002
+#define	Q3_VERSION		"tremulous 1.1.0"
 
 #define MAX_TEAMNAME 32
 
@@ -280,6 +280,14 @@ typedef	int	fixed16_t;
 #define M_PI		3.14159265358979323846f	// matches value in gcc v2 math.h
 #endif
 
+#ifndef M_SQRT2
+#define M_SQRT2 1.414213562f
+#endif
+
+#ifndef M_ROOT3
+#define M_ROOT3 1.732050808f
+#endif
+
 #define NUMVERTEXNORMALS	162
 extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
 
@@ -420,10 +428,12 @@ typedef struct {
 #endif
 #endif
 
+#define Vector2Set(v, x, y) ((v)[0]=(x), (v)[1]=(y))
 #define VectorClear(a)			((a)[0]=(a)[1]=(a)[2]=0)
 #define VectorNegate(a,b)		((b)[0]=-(a)[0],(b)[1]=-(a)[1],(b)[2]=-(a)[2])
 #define VectorSet(v, x, y, z)	((v)[0]=(x), (v)[1]=(y), (v)[2]=(z))
 #define Vector4Copy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
+#define Vector4Add(a,b,c)    ((c)[0]=(a)[0]+(b)[0],(c)[1]=(a)[1]+(b)[1],(c)[2]=(a)[2]+(b)[2],(c)[3]=(a)[3]+(b)[3])
 
 #define	SnapVector(v) {v[0]=((int)(v[0]));v[1]=((int)(v[1]));v[2]=((int)(v[2]));}
 // just in case you do't want to use the macros
@@ -534,6 +544,7 @@ float	Q_crandom( int *seed );
 
 void vectoangles( const vec3_t value1, vec3_t angles);
 void AnglesToAxis( const vec3_t angles, vec3_t axis[3] );
+void AxisToAngles( vec3_t axis[3], vec3_t angles );
 
 void AxisClear( vec3_t axis[3] );
 void AxisCopy( vec3_t in[3], vec3_t out[3] );
@@ -553,16 +564,34 @@ float AngleDelta ( float angle1, float angle2 );
 qboolean PlaneFromPoints( vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c );
 void ProjectPointOnPlane( vec3_t dst, const vec3_t p, const vec3_t normal );
 void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point, float degrees );
-void RotateAroundDirection( vec3_t axis[3], float yaw );
+void RotateAroundDirection( vec3_t axis[3], vec_t angle );
 void MakeNormalVectors( const vec3_t forward, vec3_t right, vec3_t up );
 // perpendicular vector could be replaced by this
 
 //int	PlaneTypeForNormal (vec3_t normal);
 
 void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
+void VectorMatrixMultiply( const vec3_t p, vec3_t m[ 3 ], vec3_t out );
 void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 void PerpendicularVector( vec3_t dst, const vec3_t src );
 
+void GetPerpendicularViewVector( const vec3_t point, const vec3_t p1,
+		const vec3_t p2, vec3_t up );
+void ProjectPointOntoVector( vec3_t point, vec3_t vStart,
+		vec3_t vEnd, vec3_t vProj );
+float VectorDistance( vec3_t v1, vec3_t v2 );
+
+float pointToLineDistance( const vec3_t point, const vec3_t p1, const vec3_t p2 );
+float VectorMinComponent( vec3_t v );
+float VectorMaxComponent( vec3_t v );
+
+#ifndef MAX
+#define MAX(x,y) (x)>(y)?(x):(y)
+#endif
+
+#ifndef MIN
+#define MIN(x,y) (x)<(y)?(x):(y)
+#endif
 
 //=============================================
 
@@ -885,8 +914,11 @@ typedef enum {
 #define	ENTITYNUM_MAX_NORMAL	(MAX_GENTITIES-2)
 
 
-#define	MAX_MODELS			256		// these are sent over the net as 8 bits
-#define	MAX_SOUNDS			256		// so they cannot be blindly increased
+#define	MAX_MODELS									256		// these are sent over the net as 8 bits
+#define	MAX_SOUNDS									256		// so they cannot be blindly increased
+#define	MAX_GAME_SHADERS						64
+#define	MAX_GAME_PARTICLE_SYSTEMS		64
+#define	MAX_PARTICLE_FILES					128 //FIXME
 
 
 #define	MAX_CONFIGSTRINGS	1024
@@ -1013,7 +1045,7 @@ typedef struct playerState_s {
 										// only generate a small move value for that frame
 										// walking will use different animations and
 										// won't generate footsteps
-#define BUTTON_AFFIRMATIVE	32
+#define BUTTON_ATTACK2	32
 #define	BUTTON_NEGATIVE		64
 
 #define BUTTON_GETFLAG		128
@@ -1046,7 +1078,8 @@ typedef enum {
 	TR_LINEAR,
 	TR_LINEAR_STOP,
 	TR_SINE,					// value = base + sin( time / duration ) * delta
-	TR_GRAVITY
+	TR_GRAVITY,
+	TR_BUOYANCY //TA: what the hell is this doing in here anyway?
 } trType_t;
 
 typedef struct {

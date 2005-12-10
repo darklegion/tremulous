@@ -1,21 +1,22 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2000-2006 Tim Angus
 
-This file is part of Quake III Arena source code.
+This file is part of Tremulous.
 
-Quake III Arena source code is free software; you can redistribute it
+Tremulous is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Quake III Arena source code is distributed in the hope that it will be
+Tremulous is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Quake III Arena source code; if not, write to the Free Software
+along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
@@ -552,7 +553,7 @@ void * QDECL Sys_LoadDll( const char *name, char *fqpath , long (QDECL **entryPo
 		if (FS_FileExists(filename)) {
 			lastWarning = timestamp;
 			ret = MessageBoxEx( NULL, "You are about to load a .DLL executable that\n"
-				  "has not been verified for use with Quake III Arena.\n"
+				  "has not been verified for use with Tremulous.\n"
 				  "This type of file can compromise the security of\n"
 				  "your computer.\n\n"
 				  "Select 'OK' if you choose to load it anyway.",
@@ -1060,9 +1061,9 @@ void Sys_Init( void ) {
 		Sys_Error ("Couldn't get OS info");
 
 	if (g_wv.osversion.dwMajorVersion < 4)
-		Sys_Error ("Quake3 requires Windows version 4 or greater");
+		Sys_Error ("Tremulous requires Windows version 4 or greater");
 	if (g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32s)
-		Sys_Error ("Quake3 doesn't run on Win32s");
+		Sys_Error ("Tremulous doesn't run on Win32s");
 
 	if ( g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32_NT )
 	{
