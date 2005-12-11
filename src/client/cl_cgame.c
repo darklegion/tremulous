@@ -444,6 +444,9 @@ long CL_CgameSystemCalls( long *args ) {
 	case CG_ARGS:
 		Cmd_ArgsBuffer( VMA(1), args[2] );
 		return 0;
+	case CG_LITERAL_ARGS:
+		Cmd_LiteralArgsBuffer( VMA(1), args[2] );
+		return 0;
 	case CG_FS_FOPENFILE:
 		return FS_FOpenFileByMode( VMA(1), VMA(2), args[3] );
 	case CG_FS_READ:
@@ -457,6 +460,8 @@ long CL_CgameSystemCalls( long *args ) {
 		return 0;
 	case CG_FS_SEEK:
 		return FS_Seek( args[1], args[2], args[3] );
+	case CG_FS_GETFILELIST:
+		return FS_GetFileList( VMA(1), VMA(2), VMA(3), args[4] );
 	case CG_SENDCONSOLECOMMAND:
 		Cbuf_AddText( VMA(1) );
 		return 0;
@@ -785,6 +790,18 @@ qboolean CL_GameCommand( void ) {
 	return VM_Call( cgvm, CG_CONSOLE_COMMAND );
 }
 
+/*
+====================
+CL_GameConsoleText
+====================
+*/
+void CL_GameConsoleText( void ) {
+	if ( !cgvm ) {
+		return;
+	}
+
+	VM_Call( cgvm, CG_CONSOLE_TEXT );
+}
 
 
 /*

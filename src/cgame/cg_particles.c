@@ -1699,8 +1699,10 @@ Load particle systems from .particle files
 */
 void CG_LoadParticleSystems( void )
 {
-  int         i, j;
-  const char  *s[ MAX_PARTICLE_FILES ];
+  int   i, j, numFiles, fileLen;
+  char  fileList[ MAX_PARTICLE_FILES * MAX_QPATH ];
+  char  fileName[ MAX_QPATH ];
+  char  *filePtr;
 
   //clear out the old
   numBaseParticleSystems = 0;
@@ -1727,17 +1729,17 @@ void CG_LoadParticleSystems( void )
 
 
   //and bring in the new
-  for( i = 0; i < MAX_PARTICLE_FILES; i++ )
-  {
-    s[ i ] = CG_ConfigString( CS_PARTICLE_FILES + i );
+  numFiles = trap_FS_GetFileList( "scripts", ".particle",
+      fileList, MAX_PARTICLE_FILES * MAX_QPATH );
+  filePtr = fileList;
 
-    if( strlen( s[ i ] ) > 0 )
-    {
-      CG_Printf( "...loading '%s'\n", s[ i ] );
-      CG_ParseParticleFile( s[ i ] );
-    }
-    else
-      break;
+  for( i = 0; i < numFiles; i++, filePtr += fileLen + 1 )
+  {
+    fileLen = strlen( filePtr );
+    strcpy( fileName, "scripts/" );
+    strcat( fileName, filePtr );
+    CG_Printf( "...loading '%s'\n", fileName );
+    CG_ParseParticleFile( fileName );
   }
 
   //connect any child systems to their psHandle

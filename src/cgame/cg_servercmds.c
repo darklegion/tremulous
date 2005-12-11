@@ -1035,15 +1035,6 @@ static void CG_ServerCommand( void )
     return;
   }
 
-  //enable G_Printfs from the server to appear in the TA console
-  if( !strcmp( cmd, "gprintf" ) )
-  {
-    if( trap_Argc( ) == 2 )
-      CG_TAUIConsole( CG_Argv( 1 ) );
-
-    return;
-  }
-
   //the server has triggered a menu
   if( !strcmp( cmd, "servermenu" ) )
   {

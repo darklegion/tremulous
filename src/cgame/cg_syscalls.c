@@ -93,6 +93,11 @@ void  trap_Args( char *buffer, int bufferLength )
   syscall( CG_ARGS, buffer, bufferLength );
 }
 
+void  trap_LiteralArgs( char *buffer, int bufferLength )
+{
+  syscall( CG_LITERAL_ARGS, buffer, bufferLength );
+}
+
 int trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode )
 {
   return syscall( CG_FS_FOPENFILE, qpath, f, mode );
@@ -116,6 +121,11 @@ void  trap_FS_FCloseFile( fileHandle_t f )
 void trap_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin )
 {
   syscall( CG_FS_SEEK, f, offset, origin );
+}
+
+int trap_FS_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize )
+{
+  return syscall( CG_FS_GETFILELIST, path, extension, listbuf, bufsize );
 }
 
 void  trap_SendConsoleCommand( const char *text )

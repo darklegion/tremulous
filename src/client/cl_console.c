@@ -49,8 +49,6 @@ typedef struct {
 
 	int		vislines;		// in scanlines
 
-	int		times[NUM_CON_TIMES];	// cls.realtime time the line was generated
-								// for transparent notify lines
 	vec4_t	color;
 } console_t;
 
@@ -59,7 +57,6 @@ extern	console_t	con;
 console_t	con;
 
 cvar_t		*con_conspeed;
-cvar_t		*con_notifytime;
 
 #define	DEFAULT_CONSOLE_WIDTH	78
 
@@ -81,7 +78,6 @@ void Con_ToggleConsole_f (void) {
 	Field_Clear( &g_consoleField );
 	g_consoleField.widthInChars = g_console_field_width;
 
-	Con_ClearNotify ();
 	cls.keyCatchers ^= KEYCATCH_CONSOLE;
 }
 
@@ -230,11 +226,8 @@ Con_ClearNotify
 ================
 */
 void Con_ClearNotify( void ) {
-	int		i;
-	
-	for ( i = 0 ; i < NUM_CON_TIMES ; i++ ) {
-		con.times[i] = 0;
-	}
+	Cmd_TokenizeString( NULL );
+	CL_GameConsoleText( );
 }
 
 						
@@ -296,8 +289,6 @@ void Con_CheckResize (void)
 							  oldtotallines) * oldwidth + j];
 			}
 		}
-
-		Con_ClearNotify ();
 	}
 
 	con.current = con.totallines - 1;
@@ -313,7 +304,6 @@ Con_Init
 void Con_Init (void) {
 	int		i;
 
-	con_notifytime = Cvar_Get ("con_notifytime", "3", 0);
 	con_conspeed = Cvar_Get ("scr_conspeed", "3", 0);
 
 	Field_Clear( &g_consoleField );
@@ -342,15 +332,6 @@ void Con_Linefeed (qboolean skipnotify)
 {
 	int		i;
 
-	// mark time for transparent overlay
-	if (con.current >= 0)
-	{
-    if (skipnotify)
-		  con.times[con.current % NUM_CON_TIMES] = 0;
-    else
-		  con.times[con.current % NUM_CON_TIMES] = cls.realtime;
-	}
-
 	con.x = 0;
 	if (con.display == con.current)
 		con.display++;
@@ -373,7 +354,6 @@ void CL_ConsolePrint( char *txt ) {
 	int		c, l;
 	int		color;
 	qboolean skipnotify = qfalse;		// NERVE - SMF
-	int prev;							// NERVE - SMF
 
 	// TTimo - prefix for text that shows up in console but not in notify
 	// backported from RTCW
@@ -395,6 +375,12 @@ void CL_ConsolePrint( char *txt ) {
 		con.linewidth = -1;
 		Con_CheckResize ();
 		con.initialized = qtrue;
+	}
+
+	if( !skipnotify && !( cls.keyCatchers & KEYCATCH_CONSOLE ) ) {
+		// feed the text to cgame
+		Cmd_TokenizeString( txt );
+		CL_GameConsoleText( );
 	}
 
 	color = ColorIndex(COLOR_WHITE);
@@ -441,21 +427,6 @@ void CL_ConsolePrint( char *txt ) {
 			break;
 		}
 	}
-
-
-	// mark time for transparent overlay
-	if (con.current >= 0) {
-		// NERVE - SMF
-		if ( skipnotify ) {
-			prev = con.current % NUM_CON_TIMES - 1;
-			if ( prev < 0 )
-				prev = NUM_CON_TIMES - 1;
-			con.times[prev] = 0;
-		}
-		else
-		// -NERVE - SMF
-			con.times[con.current % NUM_CON_TIMES] = cls.realtime;
-	}
 }
 
 
@@ -490,85 +461,6 @@ void Con_DrawInput (void) {
 
 	Field_Draw( &g_consoleField, con.xadjust + 2 * SMALLCHAR_WIDTH, y,
 		SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue );
-}
-
-
-/*
-================
-Con_DrawNotify
-
-Draws the last few lines of output transparently over the game top
-================
-*/
-void Con_DrawNotify (void)
-{
-	int		x, v;
-	short	*text;
-	int		i;
-	int		time;
-	int		skip;
-	int		currentColor;
-
-	currentColor = 7;
-	re.SetColor( g_color_table[currentColor] );
-
-	v = 0;
-	for (i= con.current-NUM_CON_TIMES+1 ; i<=con.current ; i++)
-	{
-		if (i < 0)
-			continue;
-		time = con.times[i % NUM_CON_TIMES];
-		if (time == 0)
-			continue;
-		time = cls.realtime - time;
-		if (time > con_notifytime->value*1000)
-			continue;
-		text = con.text + (i % con.totallines)*con.linewidth;
-
-		if (cl.snap.ps.pm_type != PM_INTERMISSION && cls.keyCatchers & (KEYCATCH_UI | KEYCATCH_CGAME) ) {
-			continue;
-		}
-
-		for (x = 0 ; x < con.linewidth ; x++) {
-			if ( ( text[x] & 0xff ) == ' ' ) {
-				continue;
-			}
-			if ( ( (text[x]>>8)&7 ) != currentColor ) {
-				currentColor = (text[x]>>8)&7;
-				re.SetColor( g_color_table[currentColor] );
-			}
-			SCR_DrawSmallChar( cl_conXOffset->integer + con.xadjust + (x+1)*SMALLCHAR_WIDTH, v, text[x] & 0xff );
-		}
-
-		v += SMALLCHAR_HEIGHT;
-	}
-
-	re.SetColor( NULL );
-
-	if (cls.keyCatchers & (KEYCATCH_UI | KEYCATCH_CGAME) ) {
-		return;
-	}
-
-	// draw the chat line
-	if ( cls.keyCatchers & KEYCATCH_MESSAGE )
-	{
-		if (chat_team)
-		{
-			SCR_DrawBigString (8, v, "say_team:", 1.0f );
-			skip = 11;
-		}
-		else
-		{
-			SCR_DrawBigString (8, v, "say:", 1.0f );
-			skip = 5;
-		}
-
-		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, v,
-			SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, qtrue );
-
-		v += BIGCHAR_HEIGHT;
-	}
-
 }
 
 /*
@@ -707,11 +599,6 @@ void Con_DrawConsole( void ) {
 
 	if ( con.displayFrac ) {
 		Con_DrawSolidConsole( con.displayFrac );
-	} else {
-		// draw notify lines
-		if ( cls.state == CA_ACTIVE ) {
-			Con_DrawNotify ();
-		}
 	}
 }
 
@@ -780,7 +667,6 @@ void Con_Close( void ) {
 		return;
 	}
 	Field_Clear( &g_consoleField );
-	Con_ClearNotify ();
 	cls.keyCatchers &= ~KEYCATCH_CONSOLE;
 	con.finalFrac = 0;				// none visible
 	con.displayFrac = 0;

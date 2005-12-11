@@ -416,6 +416,18 @@ void	Cmd_ArgsBuffer( char *buffer, int bufferLength ) {
 
 /*
 ============
+Cmd_LiteralArgsBuffer
+
+The interpreted versions use this because
+they can't have pointers returned to them
+============
+*/
+void	Cmd_LiteralArgsBuffer( char *buffer, int bufferLength ) {
+	Q_strncpyz( buffer, cmd_cmd, bufferLength );
+}
+
+/*
+============
 Cmd_Cmd
 
 Retrieve the unmodified command string
@@ -451,6 +463,7 @@ void Cmd_TokenizeString( const char *text_in ) {
 
 	// clear previous args
 	cmd_argc = 0;
+	cmd_cmd[ 0 ] = '\0';
 
 	if ( !text_in ) {
 		return;

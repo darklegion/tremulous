@@ -165,6 +165,8 @@ typedef enum
   CG_R_ADDPOLYSTOSCENE,
   CG_R_INPVS,
   CG_FS_SEEK,
+  CG_FS_GETFILELIST,
+  CG_LITERAL_ARGS,
 
   CG_MEMSET = 100,
   CG_MEMCPY,
@@ -228,8 +230,13 @@ typedef enum
 
   CG_MOUSE_EVENT,
   // void  (*CG_MouseEvent)( int dx, int dy );
-  CG_EVENT_HANDLING
+  CG_EVENT_HANDLING,
   // void (*CG_EventHandling)(int type);
+
+  CG_CONSOLE_TEXT
+  // void (*CG_ConsoleText)( void );
+  // pass text that has been printed to the console to cgame
+  // use Cmd_Argc() / Cmd_Argv() to read it
 } cgameExport_t;
 
 //----------------------------------------------

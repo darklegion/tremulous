@@ -60,6 +60,10 @@ long vmMain( long command, long arg0, long arg1, long arg2, long arg3,
     case CG_CONSOLE_COMMAND:
       return CG_ConsoleCommand( );
 
+    case CG_CONSOLE_TEXT:
+      CG_AddNotifyText( );
+      return 0;
+
     case CG_DRAW_ACTIVE_FRAME:
       CG_DrawActiveFrame( arg0, arg1, arg2 );
       return 0;
@@ -330,7 +334,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_painBlendDownRate, "cg_painBlendDownRate", "0.5", 0 },
   { &cg_painBlendMax, "cg_painBlendMax", "0.7", 0 },
   { &cg_painBlendScale, "cg_painBlendScale", "7.0", 0 },
-  { &cg_painBlendZoom, "cg_painBlendZoom", "0.18", 0 },
+  { &cg_painBlendZoom, "cg_painBlendZoom", "0.65", 0 },
 
   { &ui_currentClass, "ui_currentClass", "0", 0 },
   { &ui_carriage, "ui_carriage", "", 0 },
@@ -470,7 +474,12 @@ int CG_LastAttacker( void )
   return cg.snap->ps.persistant[ PERS_ATTACKER ];
 }
 
-void CG_RemoveConsoleLine( void )
+/*
+=================
+CG_RemoveNotifyLine
+=================
+*/
+void CG_RemoveNotifyLine( void )
 {
   int i, offset, totalLength;
 
@@ -491,20 +500,31 @@ void CG_RemoveConsoleLine( void )
   cg.numConsoleLines--;
 }
 
-//TA: team arena UI based console
-void CG_TAUIConsole( const char *text )
+/*
+=================
+CG_AddNotifyText
+=================
+*/
+void CG_AddNotifyText( void )
 {
-  if( cg.numConsoleLines == MAX_CONSOLE_LINES )
-    CG_RemoveConsoleLine( );
+  char buffer[ BIG_INFO_STRING ];
 
-  if( cg.consoleValid )
+  trap_LiteralArgs( buffer, BIG_INFO_STRING );
+
+  if( !buffer[ 0 ] )
   {
-    strcat( cg.consoleText, text );
-    cg.consoleLines[ cg.numConsoleLines ].time = cg.time;
-    cg.consoleLines[ cg.numConsoleLines ].length = strlen( text );
-    cg.numConsoleLines++;
+    cg.consoleText[ 0 ] = '\0';
+    cg.numConsoleLines = 0;
+    return;
   }
 
+  if( cg.numConsoleLines == MAX_CONSOLE_LINES )
+    CG_RemoveNotifyLine( );
+
+  Q_strcat( cg.consoleText, MAX_CONSOLE_TEXT, buffer );
+  cg.consoleLines[ cg.numConsoleLines ].time = cg.time;
+  cg.consoleLines[ cg.numConsoleLines ].length = strlen( buffer );
+  cg.numConsoleLines++;
 }
 
 void QDECL CG_Printf( const char *msg, ... )
@@ -515,8 +535,6 @@ void QDECL CG_Printf( const char *msg, ... )
   va_start( argptr, msg );
   vsprintf( text, msg, argptr );
   va_end( argptr );
-
-  CG_TAUIConsole( text );
 
   trap_Print( text );
 }
@@ -552,18 +570,6 @@ void QDECL Com_Printf( const char *msg, ... ) {
   va_start (argptr, msg);
   vsprintf (text, msg, argptr);
   va_end (argptr);
-
-  //TA: team arena UI based console
-  if( cg.numConsoleLines == MAX_CONSOLE_LINES )
-    CG_RemoveConsoleLine( );
-
-  if( cg.consoleValid )
-  {
-    strcat( cg.consoleText, text );
-    cg.consoleLines[ cg.numConsoleLines ].time = cg.time;
-    cg.consoleLines[ cg.numConsoleLines ].length = strlen( text );
-    cg.numConsoleLines++;
-  }
 
   CG_Printf ("%s", text);
 }
@@ -1790,8 +1796,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   CG_ShaderStateChanged( );
 
   trap_S_ClearLoopingSounds( qtrue );
-
-  cg.consoleValid = qtrue;
 
   trap_Cvar_Set( "ui_loading", "0" );
 }

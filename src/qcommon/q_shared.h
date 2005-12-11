@@ -918,7 +918,6 @@ typedef enum {
 #define	MAX_SOUNDS									256		// so they cannot be blindly increased
 #define	MAX_GAME_SHADERS						64
 #define	MAX_GAME_PARTICLE_SYSTEMS		64
-#define	MAX_PARTICLE_FILES					128 //FIXME
 
 
 #define	MAX_CONFIGSTRINGS	1024

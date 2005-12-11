@@ -191,6 +191,8 @@ typedef struct attachment_s
 //======================================================================
 
 //particle system stuff
+#define MAX_PARTICLE_FILES        128
+
 #define MAX_PS_SHADER_FRAMES      32
 #define MAX_PS_MODELS             8
 #define MAX_EJECTORS_PER_SYSTEM   4
@@ -291,7 +293,7 @@ typedef struct baseParticle_s
   pLerpValues_t   radius;
   pLerpValues_t   alpha;
   pLerpValues_t   rotation;
-  
+
   qboolean        dynamicLight;
   pLerpValues_t   dLightRadius;
   byte            dLightColor[ 3 ];
@@ -429,6 +431,8 @@ typedef struct particle_s
 //======================================================================
 
 //trail system stuff
+#define MAX_TRAIL_FILES           128
+
 #define MAX_BEAMS_PER_SYSTEM      4
 
 #define MAX_BASETRAIL_SYSTEMS     64
@@ -1121,7 +1125,6 @@ typedef struct
   char          consoleText[ MAX_CONSOLE_TEXT ];
   consoleLine_t consoleLines[ MAX_CONSOLE_LINES ];
   int           numConsoleLines;
-  qboolean      consoleValid;
 
   particleSystem_t *poisonCloudPS;
 
@@ -1503,7 +1506,6 @@ extern  vmCvar_t    cg_debugRandom;
 const char  *CG_ConfigString( int index );
 const char  *CG_Argv( int arg );
 
-void        CG_TAUIConsole( const char *text );
 void QDECL  CG_Printf( const char *msg, ... );
 void QDECL  CG_Error( const char *msg, ... );
 
@@ -1521,7 +1523,8 @@ void        CG_SetScoreSelection( void *menu );
 void        CG_BuildSpectatorString( void );
 
 qboolean    CG_FileExists( char *filename );
-void        CG_RemoveConsoleLine( void );
+void        CG_RemoveNotifyLine( void );
+void        CG_AddNotifyText( void );
 
 
 //
@@ -1839,6 +1842,7 @@ void          trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer
 int           trap_Argc( void );
 void          trap_Argv( int n, char *buffer, int bufferLength );
 void          trap_Args( char *buffer, int bufferLength );
+void          trap_LiteralArgs( char *buffer, int bufferLength );
 
 // filesystem access
 // returns length of file
@@ -1847,6 +1851,8 @@ void          trap_FS_Read( void *buffer, int len, fileHandle_t f );
 void          trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 void          trap_FS_FCloseFile( fileHandle_t f );
 void          trap_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin ); // fsOrigin_t
+int           trap_FS_GetFileList( const char *path, const char *extension,
+                                   char *listbuf, int bufsize );
 
 // add commands to the local console as if they were typed in
 // for map changing, etc.  The command is not executed immediately,

@@ -269,17 +269,10 @@ void QDECL G_Printf( const char *fmt, ... )
 {
   va_list argptr;
   char    text[ 1024 ];
-  char    clientText[ 1048 ];
 
   va_start( argptr, fmt );
   vsprintf( text, fmt, argptr );
   va_end( argptr );
-
-  if( !g_dedicated.integer )
-  {
-    Com_sprintf( clientText, 1048, "gprintf \"%s\"", text );
-    G_SendCommandFromServer( -1, clientText );
-  }
 
   trap_Printf( text );
 }
@@ -433,33 +426,6 @@ void G_UpdateCvars( void )
     G_RemapTeamShaders( );
 }
 
-
-/*
-===============
-G_GenerateParticleFileList
-
-Make a list of particle files for each client to parse since fsr
-the client does not have trap_FS_GetFileList
-===============
-*/
-static void G_GenerateParticleFileList( void )
-{
-  int   i, numFiles, fileLen;
-  char  fileList[ MAX_PARTICLE_FILES * MAX_QPATH ];
-  char  fileName[ MAX_QPATH ];
-  char  *filePtr;
-
-  numFiles = trap_FS_GetFileList( "scripts", ".particle", fileList, MAX_PARTICLE_FILES * MAX_QPATH );
-  filePtr = fileList;
-
-  for( i = 0; i < numFiles; i++, filePtr += fileLen + 1 )
-  {
-    fileLen = strlen( filePtr );
-    strcpy( fileName, "scripts/" );
-    strcat( fileName, filePtr );
-    trap_SetConfigstring( CS_PARTICLE_FILES + i, fileName );
-  }
-}
 
 typedef struct gameElements_s
 {
@@ -655,7 +621,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   BG_InitClassOverrides( );
   BG_InitBuildableOverrides( );
   G_InitDamageLocations( );
-  G_GenerateParticleFileList( );
   G_InitMapRotations( );
   G_InitSpawnQueue( &level.alienSpawnQueue );
   G_InitSpawnQueue( &level.humanSpawnQueue );

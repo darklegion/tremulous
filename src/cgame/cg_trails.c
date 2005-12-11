@@ -1139,8 +1139,10 @@ Load trail system templates
 */
 void CG_LoadTrailSystems( void )
 {
-  int         i;
-  /*const char  *s[ MAX_TRAIL_FILES ];*/
+  int   i, numFiles, fileLen;
+  char  fileList[ MAX_TRAIL_FILES * MAX_QPATH ];
+  char  fileName[ MAX_QPATH ];
+  char  *filePtr;
 
   //clear out the old
   numBaseTrailSystems = 0;
@@ -1159,19 +1161,18 @@ void CG_LoadTrailSystems( void )
   }
 
   //and bring in the new
-/*  for( i = 0; i < MAX_TRAIL_FILES; i++ )
-  {
-    s[ i ] = CG_ConfigString( CS_TRAIL_FILES + i );
+  numFiles = trap_FS_GetFileList( "scripts", ".trail",
+      fileList, MAX_TRAIL_FILES * MAX_QPATH );
+  filePtr = fileList;
 
-    if( strlen( s[ i ] ) > 0 )
-    {
-      CG_Printf( "...loading '%s'\n", s[ i ] );
-      CG_ParseTrailFile( s[ i ] );
-    }
-    else
-      break;
-  }*/
-  CG_Printf( "trail.trail: %d\n", CG_ParseTrailFile( "scripts/trail.trail" ) );
+  for( i = 0; i < numFiles; i++, filePtr += fileLen + 1 )
+  {
+    fileLen = strlen( filePtr );
+    strcpy( fileName, "scripts/" );
+    strcat( fileName, filePtr );
+    CG_Printf( "...loading '%s'\n", fileName );
+    CG_ParseTrailFile( fileName );
+  }
 }
 
 /*
