@@ -92,6 +92,8 @@ equ trap_R_inPVS                      -89
 equ trap_FS_Seek                      -90
 equ trap_FS_GetFileList               -91
 equ trap_LiteralArgs                  -92
+equ trap_CM_BiSphereTrace             -93
+equ trap_CM_TransformedBiSphereTrace  -94
 
 equ memset                            -101
 equ memcpy                            -102

@@ -591,7 +591,6 @@ typedef struct
 
 typedef struct lightFlareStatus_s
 {
-  float     lastSrcRadius; //caching of likely flare source radius
   float     lastRadius;    //caching of likely flare radius
   float     lastRatio;     //caching of likely flare ratio
   int       lastTime;      //last time flare was visible/occluded
@@ -1637,10 +1636,12 @@ void        CG_ModelDoor( centity_t *cent );
 
 void        CG_BuildSolidList( void );
 int         CG_PointContents( const vec3_t point, int passEntityNum );
-void        CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-                      int skipNumber, int mask );
-void        CG_CapTrace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-                         int skipNumber, int mask );
+void        CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs,
+                const vec3_t end, int skipNumber, int mask );
+void        CG_CapTrace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs,
+                const vec3_t end, int skipNumber, int mask );
+void        CG_BiSphereTrace( trace_t *result, const vec3_t start, const vec3_t end,
+                const float startRadius, const float endRadius, int skipNumber, int mask );
 void        CG_PredictPlayerState( void );
 
 
@@ -1891,6 +1892,13 @@ void          trap_CM_TransformedCapsuleTrace( trace_t *results, const vec3_t st
                 const vec3_t mins, const vec3_t maxs,
                 clipHandle_t model, int brushmask,
                 const vec3_t origin, const vec3_t angles );
+void          trap_CM_BiSphereTrace( trace_t *results, const vec3_t start,
+                const vec3_t end, float startRad, float endRad,
+                clipHandle_t model, int mask );
+void          trap_CM_TransformedBiSphereTrace( trace_t *results, const vec3_t start,
+                const vec3_t end, float startRad, float endRad,
+                clipHandle_t model, int mask,
+                const vec3_t origin );
 
 // Returns the projection of a polygon onto the solid brushes in the world
 int           trap_CM_MarkFragments( int numPoints, const vec3_t *points,

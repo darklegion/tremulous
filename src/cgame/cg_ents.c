@@ -670,10 +670,10 @@ static void CG_LightFlare( centity_t *cent )
       float radiusMod = 1.0f - ( 180.0f - RAD2DEG(
             acos( DotProduct( delta, forward ) ) ) ) / maxAngle;
 
-      if( es->eFlags & EF_NODRAW )
-        flare.radius *= radiusMod;
-      else if( radiusMod < 0.0f )
-        flare.radius = 0.0f;
+      if( radiusMod < 0.0f )
+        radiusMod = 0.0f;
+
+      flare.radius *= radiusMod;
     }
 
     if( flare.radius < 0.0f )
@@ -684,34 +684,14 @@ static void CG_LightFlare( centity_t *cent )
 
     if( cg_lightFlare.integer == FLARE_REALFADE )
     {
-      //draw "correct" albeit inefficient flares
-      srLocal = cent->lfs.lastSrcRadius;
+      //"correct" flares
+      CG_BiSphereTrace( &tr, cg.refdef.vieworg, end,
+          1.0f, srcRadius, entityNum, MASK_SHOT );
 
-      //flare radius is likely to be the same as last frame so start with it
-      do
-      {
-        srLocal += RADIUSSTEP;
-        SETBOUNDS( mins, maxs, srLocal );
-        CG_Trace( &tr, start, mins, maxs, end,
-                  entityNum, MASK_SHOT );
-
-      } while( ( tr.fraction == 1.0f && !tr.startsolid ) && ( srLocal < srcRadius ) );
-
-      srLocal -= RADIUSSTEP;
-
-      //shink the flare until there is a los
-      do
-      {
-        SETBOUNDS( mins, maxs, srLocal );
-        CG_Trace( &tr, start, mins, maxs, end,
-                  entityNum, MASK_SHOT );
-
-        srLocal -= RADIUSSTEP;
-      } while( ( tr.fraction < 1.0f || tr.startsolid ) && ( srLocal > 0.0f ) );
-
-      ratio = srLocal / srcRadius;
-
-      cent->lfs.lastSrcRadius = srLocal;
+      if( tr.fraction < 1.0f )
+        ratio = tr.lateralFraction;
+      else
+        ratio = 1.0f;
     }
     else if( cg_lightFlare.integer == FLARE_TIMEFADE )
     {

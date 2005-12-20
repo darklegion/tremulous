@@ -226,7 +226,7 @@ void SV_AdjustAreaPortalState( sharedEntity_t *ent, qboolean open ) {
 SV_GameAreaEntities
 ==================
 */
-qboolean	SV_EntityContact( vec3_t mins, vec3_t maxs, const sharedEntity_t *gEnt, int capsule ) {
+qboolean	SV_EntityContact( vec3_t mins, vec3_t maxs, const sharedEntity_t *gEnt, traceType_t type ) {
 	const float	*origin, *angles;
 	clipHandle_t	ch;
 	trace_t			trace;
@@ -237,7 +237,7 @@ qboolean	SV_EntityContact( vec3_t mins, vec3_t maxs, const sharedEntity_t *gEnt,
 
 	ch = SV_ClipHandleForEntity( gEnt );
 	CM_TransformedBoxTrace ( &trace, vec3_origin, vec3_origin, mins, maxs,
-		ch, -1, origin, angles, capsule );
+		ch, -1, origin, angles, type );
 
 	return trace.startsolid;
 }
@@ -373,14 +373,14 @@ long SV_GameSystemCalls( long *args ) {
 	case G_ENTITIES_IN_BOX:
 		return SV_AreaEntities( VMA(1), VMA(2), VMA(3), args[4] );
 	case G_ENTITY_CONTACT:
-		return SV_EntityContact( VMA(1), VMA(2), VMA(3), /*int capsule*/ qfalse );
+		return SV_EntityContact( VMA(1), VMA(2), VMA(3), TT_AABB );
 	case G_ENTITY_CONTACTCAPSULE:
-		return SV_EntityContact( VMA(1), VMA(2), VMA(3), /*int capsule*/ qtrue );
+		return SV_EntityContact( VMA(1), VMA(2), VMA(3), TT_CAPSULE );
 	case G_TRACE:
-		SV_Trace( VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], /*int capsule*/ qfalse );
+		SV_Trace( VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], TT_AABB );
 		return 0;
 	case G_TRACECAPSULE:
-		SV_Trace( VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], /*int capsule*/ qtrue );
+		SV_Trace( VMA(1), VMA(2), VMA(3), VMA(4), VMA(5), args[6], args[7], TT_CAPSULE );
 		return 0;
 	case G_POINT_CONTENTS:
 		return SV_PointContents( VMA(1), args[2] );

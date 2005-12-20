@@ -1400,7 +1400,7 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 		planes = &pc->planes[ facet->surfacePlane ];
 		VectorCopy(planes->plane, plane);
 		plane[3] = planes->plane[3];
-		if ( tw->sphere.use ) {
+		if ( tw->type == TT_CAPSULE ) {
 			// adjust the plane distance apropriately for radius
 			plane[3] += tw->sphere.radius;
 
@@ -1439,7 +1439,7 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 				VectorCopy(planes->plane, plane);
 				plane[3] = planes->plane[3];
 			}
-			if ( tw->sphere.use ) {
+			if ( tw->type == TT_CAPSULE ) {
 				// adjust the plane distance apropriately for radius
 				plane[3] += tw->sphere.radius;
 
@@ -1528,7 +1528,7 @@ qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchColli
 		planes = &pc->planes[ facet->surfacePlane ];
 		VectorCopy(planes->plane, plane);
 		plane[3] = planes->plane[3];
-		if ( tw->sphere.use ) {
+		if ( tw->type == TT_CAPSULE ) {
 			// adjust the plane distance apropriately for radius
 			plane[3] += tw->sphere.radius;
 
@@ -1561,7 +1561,7 @@ qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchColli
 				VectorCopy(planes->plane, plane);
 				plane[3] = planes->plane[3];
 			}
-			if ( tw->sphere.use ) {
+			if ( tw->type == TT_CAPSULE ) {
 				// adjust the plane distance apropriately for radius
 				plane[3] += tw->sphere.radius;
 

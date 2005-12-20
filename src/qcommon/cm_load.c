@@ -426,6 +426,7 @@ void CMod_LoadBrushSides (lump_t *l)
 
 	for ( i=0 ; i<count ; i++, in++, out++) {
 		num = LittleLong( in->planeNum );
+		out->planeNum = num;
 		out->plane = &cm.planes[num];
 		out->shaderNum = LittleLong( in->shaderNum );
 		if ( out->shaderNum < 0 || out->shaderNum >= cm.numShaders ) {
@@ -435,6 +436,151 @@ void CMod_LoadBrushSides (lump_t *l)
 	}
 }
 
+#define CM_EDGE_VERTEX_EPSILON 0.1f
+
+/*
+=================
+CMod_BrushEdgesAreTheSame
+=================
+*/
+static qboolean CMod_BrushEdgesAreTheSame( const vec3_t p0, const vec3_t p1,
+		const vec3_t q0, const vec3_t q1 )
+{
+	if( VectorCompareEpsilon( p0, q0, CM_EDGE_VERTEX_EPSILON ) &&
+			VectorCompareEpsilon( p1, q1, CM_EDGE_VERTEX_EPSILON ) )
+		return qtrue;
+
+	if( VectorCompareEpsilon( p1, q0, CM_EDGE_VERTEX_EPSILON ) &&
+			VectorCompareEpsilon( p0, q1, CM_EDGE_VERTEX_EPSILON ) )
+		return qtrue;
+
+	return qfalse;
+}
+
+/*
+=================
+CMod_AddEdgeToBrush
+=================
+*/
+static qboolean CMod_AddEdgeToBrush( const vec3_t p0, const vec3_t p1,
+		cbrushedge_t *edges, int *numEdges )
+{
+	int i;
+
+	if( !edges || !numEdges )
+		return qfalse;
+
+	for( i = 0; i < *numEdges; i++ )
+	{
+		if( CMod_BrushEdgesAreTheSame( p0, p1,
+					edges[ i ].p0, edges[ i ].p1 ) )
+			return qfalse;
+	}
+
+	VectorCopy( p0, edges[ *numEdges ].p0 );
+	VectorCopy( p1, edges[ *numEdges ].p1 );
+	(*numEdges)++;
+
+	return qtrue;
+}
+
+/*
+=================
+CMod_CreateBrushSideWindings
+=================
+*/
+static void CMod_CreateBrushSideWindings( void )
+{
+	int						i, j, k;
+	winding_t			*w;
+	cbrushside_t	*side, *chopSide;
+	cplane_t			*plane;
+	cbrush_t			*brush;
+	cbrushedge_t	*tempEdges;
+	int						numEdges;
+	int						edgesAlloc;
+	int						totalEdgesAlloc = 0;
+	int						totalEdges = 0;
+	
+	for( i = 0; i < cm.numBrushes; i++ )
+	{
+		brush = &cm.brushes[ i ];
+		numEdges = 0;
+
+		// walk the list of brush sides
+		for( j = 0; j < brush->numsides; j++ )
+		{
+			// get side and plane
+			side = &brush->sides[ j ];
+			plane = side->plane;
+
+			w = BaseWindingForPlane( plane->normal, plane->dist );
+
+			// walk the list of brush sides
+			for( k = 0; k < brush->numsides && w != NULL; k++ )
+			{
+				chopSide = &brush->sides[ k ];
+
+				if( chopSide == side )
+					continue;
+
+				if( chopSide->planeNum == ( side->planeNum ^ 1 ) )
+					continue;		// back side clipaway
+
+				plane = &cm.planes[ chopSide->planeNum ^ 1 ];
+				ChopWindingInPlace( &w, plane->normal, plane->dist, 0 );
+			}
+
+			if( w )
+				numEdges += w->numpoints;
+
+			// set side winding
+			side->winding = w;
+		}
+
+		// Allocate a temporary buffer of the maximal size
+		tempEdges = (cbrushedge_t *)Z_Malloc( sizeof( cbrushedge_t ) * numEdges );
+		brush->numEdges = 0;
+
+		// compose the points into edges
+		for( j = 0; j < brush->numsides; j++ )
+		{
+			side = &brush->sides[ j ];
+
+			if( side->winding )
+			{
+				for( k = 0; k < side->winding->numpoints - 1; k++ )
+				{
+					if( brush->numEdges == numEdges )
+						Com_Error( ERR_FATAL,
+								"Insufficient memory allocated for collision map edges" );
+
+					CMod_AddEdgeToBrush( side->winding->p[ k ],
+							side->winding->p[ k + 1 ], tempEdges, &brush->numEdges );
+				}
+
+				FreeWinding( side->winding );
+				side->winding = NULL;
+			}
+		}
+
+		// Allocate a buffer of the actual size
+		edgesAlloc = sizeof( cbrushedge_t ) * brush->numEdges;
+		totalEdgesAlloc += edgesAlloc;
+		brush->edges = (cbrushedge_t *)Hunk_Alloc( edgesAlloc, h_low );
+
+		// Copy temporary buffer to permanent buffer
+		Com_Memcpy( brush->edges, tempEdges, edgesAlloc );
+
+		// Free temporary buffer
+		Z_Free( tempEdges );
+
+		totalEdges += brush->numEdges;
+	}
+
+	Com_DPrintf( "Allocated %d bytes for %d collision map edges...\n",
+			totalEdgesAlloc, totalEdges );
+}
 
 /*
 =================
@@ -645,6 +791,8 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	CMod_LoadVisibility( &header.lumps[LUMP_VISIBILITY] );
 	CMod_LoadPatches( &header.lumps[LUMP_SURFACES], &header.lumps[LUMP_DRAWVERTS] );
 
+	CMod_CreateBrushSideWindings( );
+
 	// we are NOT freeing the file, because it is cached for the ref
 	FS_FreeFile (buf);
 
@@ -755,6 +903,9 @@ void CM_InitBoxHull (void)
 	box_brush->numsides = 6;
 	box_brush->sides = cm.brushsides + cm.numBrushSides;
 	box_brush->contents = CONTENTS_BODY;
+	box_brush->edges = (cbrushedge_t *)Hunk_Alloc(
+			sizeof( cbrushedge_t ) * 12, h_low );
+	box_brush->numEdges = 12;
 
 	box_model.leaf.numLeafBrushes = 1;
 //	box_model.leaf.firstLeafBrush = cm.numBrushes;
@@ -817,6 +968,36 @@ clipHandle_t CM_TempBoxModel( const vec3_t mins, const vec3_t maxs, int capsule 
 	box_planes[9].dist = -maxs[2];
 	box_planes[10].dist = mins[2];
 	box_planes[11].dist = -mins[2];
+
+	// First side
+	VectorSet( box_brush->edges[ 0 ].p0,  mins[ 0 ], mins[ 1 ], mins[ 2 ] );
+	VectorSet( box_brush->edges[ 0 ].p1,  mins[ 0 ], maxs[ 1 ], mins[ 2 ] );
+	VectorSet( box_brush->edges[ 1 ].p0,  mins[ 0 ], maxs[ 1 ], mins[ 2 ] );
+	VectorSet( box_brush->edges[ 1 ].p1,  mins[ 0 ], maxs[ 1 ], maxs[ 2 ] );
+	VectorSet( box_brush->edges[ 2 ].p0,  mins[ 0 ], maxs[ 1 ], maxs[ 2 ] );
+	VectorSet( box_brush->edges[ 2 ].p1,  mins[ 0 ], mins[ 1 ], maxs[ 2 ] );
+	VectorSet( box_brush->edges[ 3 ].p0,  mins[ 0 ], mins[ 1 ], maxs[ 2 ] );
+	VectorSet( box_brush->edges[ 3 ].p1,  mins[ 0 ], mins[ 1 ], mins[ 2 ] );
+
+	// Opposite side
+	VectorSet( box_brush->edges[ 4 ].p0,  maxs[ 0 ], mins[ 1 ], mins[ 2 ] );
+	VectorSet( box_brush->edges[ 4 ].p1,  maxs[ 0 ], maxs[ 1 ], mins[ 2 ] );
+	VectorSet( box_brush->edges[ 5 ].p0,  maxs[ 0 ], maxs[ 1 ], mins[ 2 ] );
+	VectorSet( box_brush->edges[ 5 ].p1,  maxs[ 0 ], maxs[ 1 ], maxs[ 2 ] );
+	VectorSet( box_brush->edges[ 6 ].p0,  maxs[ 0 ], maxs[ 1 ], maxs[ 2 ] );
+	VectorSet( box_brush->edges[ 6 ].p1,  maxs[ 0 ], mins[ 1 ], maxs[ 2 ] );
+	VectorSet( box_brush->edges[ 7 ].p0,  maxs[ 0 ], mins[ 1 ], maxs[ 2 ] );
+	VectorSet( box_brush->edges[ 7 ].p1,  maxs[ 0 ], mins[ 1 ], mins[ 2 ] );
+
+	// Connecting edges
+	VectorSet( box_brush->edges[ 8 ].p0,  mins[ 0 ], mins[ 1 ], mins[ 2 ] );
+	VectorSet( box_brush->edges[ 8 ].p1,  maxs[ 0 ], mins[ 1 ], mins[ 2 ] );
+	VectorSet( box_brush->edges[ 9 ].p0,  mins[ 0 ], maxs[ 1 ], mins[ 2 ] );
+	VectorSet( box_brush->edges[ 9 ].p1,  maxs[ 0 ], maxs[ 1 ], mins[ 2 ] );
+	VectorSet( box_brush->edges[ 10 ].p0, mins[ 0 ], maxs[ 1 ], maxs[ 2 ] );
+	VectorSet( box_brush->edges[ 10 ].p1, maxs[ 0 ], maxs[ 1 ], maxs[ 2 ] );
+	VectorSet( box_brush->edges[ 11 ].p0, mins[ 0 ], mins[ 1 ], maxs[ 2 ] );
+	VectorSet( box_brush->edges[ 11 ].p1, maxs[ 0 ], mins[ 1 ], maxs[ 2 ] );
 
 	VectorCopy( mins, box_brush->bounds[0] );
 	VectorCopy( maxs, box_brush->bounds[1] );

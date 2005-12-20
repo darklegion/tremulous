@@ -219,6 +219,23 @@ void  trap_CM_TransformedCapsuleTrace( trace_t *results, const vec3_t start, con
   syscall( CG_CM_TRANSFORMEDCAPSULETRACE, results, start, end, mins, maxs, model, brushmask, origin, angles );
 }
 
+void trap_CM_BiSphereTrace( trace_t *results, const vec3_t start,
+             const vec3_t end, float startRad, float endRad,
+             clipHandle_t model, int mask )
+{
+  syscall( CG_CM_BISPHERETRACE, results, start, end,
+      PASSFLOAT( startRad ), PASSFLOAT( endRad ), model, mask );
+}
+
+void trap_CM_TransformedBiSphereTrace( trace_t *results, const vec3_t start,
+             const vec3_t end, float startRad, float endRad,
+             clipHandle_t model, int mask,
+             const vec3_t origin )
+{
+  syscall( CG_CM_TRANSFORMEDBISPHERETRACE, results, start, end, PASSFLOAT( startRad ),
+      PASSFLOAT( endRad ), model, mask, origin );
+}
+
 int   trap_CM_MarkFragments( int numPoints, const vec3_t *points,
         const vec3_t projection,
         int maxPoints, vec3_t pointBuffer,

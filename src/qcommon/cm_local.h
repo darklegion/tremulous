@@ -51,10 +51,18 @@ typedef struct cmodel_s {
 	cLeaf_t		leaf;			// submodels don't reference the main tree
 } cmodel_t;
 
+typedef struct cbrushedge_s
+{
+	vec3_t	p0;
+	vec3_t	p1;
+} cbrushedge_t;
+
 typedef struct {
-	cplane_t	*plane;
-	int			surfaceFlags;
-	int			shaderNum;
+	cplane_t			*plane;
+	int						planeNum;
+	int						surfaceFlags;
+	int						shaderNum;
+	winding_t			*winding;
 } cbrushside_t;
 
 typedef struct {
@@ -64,6 +72,9 @@ typedef struct {
 	int			numsides;
 	cbrushside_t	*sides;
 	int			checkcount;		// to avoid repeated testings
+	qboolean	collided; // marker for optimisation
+	cbrushedge_t	*edges;
+	int						numEdges;
 } cbrush_t;
 
 
@@ -143,28 +154,36 @@ extern	cvar_t		*cm_playerCurveClip;
 
 // cm_test.c
 
+typedef struct
+{
+	float		startRadius;
+	float		endRadius;
+} biSphere_t;
+
 // Used for oriented capsule collision detection
 typedef struct
 {
-	qboolean	use;
 	float		radius;
 	float		halfheight;
 	vec3_t		offset;
 } sphere_t;
 
 typedef struct {
-	vec3_t		start;
-	vec3_t		end;
-	vec3_t		size[2];	// size of the box being swept through the model
-	vec3_t		offsets[8];	// [signbits][x] = either size[0][x] or size[1][x]
-	float		maxOffset;	// longest corner length from origin
-	vec3_t		extents;	// greatest of abs(size[0]) and abs(size[1])
-	vec3_t		bounds[2];	// enclosing box of start and end surrounding by size
-	vec3_t		modelOrigin;// origin of the model tracing through
-	int			contents;	// ored contents of the model tracing through
-	qboolean	isPoint;	// optimized case
-	trace_t		trace;		// returned from trace call
-	sphere_t	sphere;		// sphere for oriendted capsule collision
+	traceType_t	type;
+	vec3_t			start;
+	vec3_t			end;
+	vec3_t			size[2];	// size of the box being swept through the model
+	vec3_t			offsets[8];	// [signbits][x] = either size[0][x] or size[1][x]
+	float				maxOffset;	// longest corner length from origin
+	vec3_t			extents;	// greatest of abs(size[0]) and abs(size[1])
+	vec3_t			bounds[2];	// enclosing box of start and end surrounding by size
+	vec3_t			modelOrigin;// origin of the model tracing through
+	int					contents;	// ored contents of the model tracing through
+	qboolean		isPoint;	// optimized case
+	trace_t			trace;		// returned from trace call
+	sphere_t		sphere;		// sphere for oriendted capsule collision
+	biSphere_t	biSphere;
+	qboolean		testLateralCollision; // whether or not to test for lateral collision
 } traceWork_t;
 
 typedef struct leafList_s {

@@ -461,6 +461,22 @@ static ID_INLINE int VectorCompare( const vec3_t v1, const vec3_t v2 ) {
 	return 1;
 }
 
+static ID_INLINE int VectorCompareEpsilon(
+		const vec3_t v1, const vec3_t v2, float epsilon )
+{
+	vec3_t d;
+
+	VectorSubtract( v1, v2, d );
+	d[ 0 ] = fabs( d[ 0 ] );
+	d[ 1 ] = fabs( d[ 1 ] );
+	d[ 2 ] = fabs( d[ 2 ] );
+
+	if( d[ 0 ] > epsilon || d[ 1 ] > epsilon || d[ 2 ] > epsilon )
+		return 0;
+
+	return 1;
+}
+
 static ID_INLINE vec_t VectorLength( const vec3_t v ) {
 	return (vec_t)sqrt (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
 }
@@ -584,6 +600,15 @@ float VectorDistance( vec3_t v1, vec3_t v2 );
 float pointToLineDistance( const vec3_t point, const vec3_t p1, const vec3_t p2 );
 float VectorMinComponent( vec3_t v );
 float VectorMaxComponent( vec3_t v );
+
+vec_t DistanceBetweenLineSegmentsSquared(
+    const vec3_t sP0, const vec3_t sP1,
+    const vec3_t tP0, const vec3_t tP1,
+    float *s, float *t );
+vec_t DistanceBetweenLineSegments(
+    const vec3_t sP0, const vec3_t sP1,
+    const vec3_t tP0, const vec3_t tP1,
+    float *s, float *t );
 
 #ifndef MAX
 #define MAX(x,y) (x)>(y)?(x):(y)
@@ -826,6 +851,15 @@ typedef struct cplane_s {
 	byte	pad[2];
 } cplane_t;
 
+typedef enum {
+	TT_NONE,
+
+	TT_AABB,
+	TT_CAPSULE,
+	TT_BISPHERE,
+
+	TT_NUM_TRACE_TYPES
+} traceType_t;
 
 // a trace is returned when a box is swept through the world
 typedef struct {
@@ -837,6 +871,7 @@ typedef struct {
 	int			surfaceFlags;	// surface hit
 	int			contents;	// contents on other side of surface hit
 	int			entityNum;	// entity the contacted sirface is a part of
+	float		lateralFraction; // fraction of collision tangetially to the trace direction
 } trace_t;
 
 // trace->entityNum can also be 0 to (MAX_GENTITIES-1)
