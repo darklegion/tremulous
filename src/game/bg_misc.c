@@ -3280,7 +3280,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
-    "abuild2",            //char      *weaponName;
+    "abuildupg",          //char      *weaponName;
     "Alien build weapon2",//char      *weaponHumanName;
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
@@ -3303,7 +3303,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
-    "bite",               //char      *weaponName;
+    "level0",             //char      *weaponName;
     "Bite",               //char      *weaponHumanName;
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
@@ -3322,63 +3322,17 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_ALEVEL3,           //int       weaponNum;
+    WP_ALEVEL1,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
-    "pounce",             //char      *weaponName;
-    "Claw and pounce",    //char      *weaponHumanName;
-    0,                    //int       maxAmmo;
-    0,                    //int       maxClips;
-    qtrue,                //int       infiniteAmmo;
-    qfalse,               //int       usesEnergy;
-    LEVEL3_CLAW_REPEAT,  //int       repeatRate1;
-    0,                    //int       repeatRate2;
-    0,                    //int       repeatRate3;
-    0,                    //int       reloadTime;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
-    90.0f,                //float     zoomFov;
-    qfalse,               //qboolean  purchasable;
-    0,                    //int       buildDelay;
-    WUT_ALIENS            //WUTeam_t  team;
-  },
-  {
-    WP_ALEVEL3_UPG,       //int       weaponNum;
-    0,                    //int       price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    SLOT_WEAPON,          //int       slots;
-    "pounce_upgrade",     //char      *weaponName;
-    "Claw and pounce (upgrade)", //char      *weaponHumanName;
-    3,                    //int       maxAmmo;
-    0,                    //int       maxClips;
-    qtrue,                //int       infiniteAmmo;
-    qfalse,               //int       usesEnergy;
-    LEVEL3_CLAW_U_REPEAT,//int       repeatRate1;
-    0,                    //int       repeatRate2;
-    LEVEL3_BOUNCEBALL_REPEAT,//int       repeatRate3;
-    0,                    //int       reloadTime;
-    qfalse,               //qboolean  hasAltMode;
-    qtrue,                //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
-    90.0f,                //float     zoomFov;
-    qfalse,               //qboolean  purchasable;
-    0,                    //int       buildDelay;
-    WUT_ALIENS            //WUTeam_t  team;
-  },
-  {
-    WP_ALEVEL1,             //int       weaponNum;
-    0,                    //int       price;
-    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    SLOT_WEAPON,          //int       slots;
-    "grabandclaw",        //char      *weaponName;
+    "level1",             //char      *weaponName;
     "Claws",              //char      *weaponHumanName;
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    LEVEL1_CLAW_REPEAT,    //int       repeatRate1;
+    LEVEL1_CLAW_REPEAT,   //int       repeatRate1;
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
@@ -3391,18 +3345,18 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
-    WP_ALEVEL1_UPG,         //int       weaponNum;
+    WP_ALEVEL1_UPG,       //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
-    "grabandclaw_upgrade",//char      *weaponName;
+    "level1upg",          //char      *weaponName;
     "Claws Upgrade",      //char      *weaponHumanName;
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    LEVEL1_CLAW_U_REPEAT,  //int       repeatRate1;
-    LEVEL1_PCLOUD_REPEAT,  //int       repeatRate2;
+    LEVEL1_CLAW_U_REPEAT, //int       repeatRate1;
+    LEVEL1_PCLOUD_REPEAT, //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     qtrue,                //qboolean  hasAltMode;
@@ -3418,13 +3372,13 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
-    "areazap",            //char      *weaponName;
-    "Area Zap",           //char      *weaponHumanName;
+    "level2",             //char      *weaponName;
+    "Bite",               //char      *weaponHumanName;
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    LEVEL2_CLAW_REPEAT,  //int       repeatRate1;
+    LEVEL2_CLAW_REPEAT,   //int       repeatRate1;
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
@@ -3441,13 +3395,13 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
-    "directzap",          //char      *weaponName;
-    "Directed Zap",       //char      *weaponHumanName;
+    "level2upg",          //char      *weaponName;
+    "Zap",                //char      *weaponHumanName;
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    LEVEL2_CLAW_U_REPEAT,//int       repeatRate1;
+    LEVEL2_CLAW_U_REPEAT, //int       repeatRate1;
     LEVEL2_AREAZAP_REPEAT,//int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
@@ -3460,11 +3414,57 @@ weaponAttributes_t bg_weapons[ ] =
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
+    WP_ALEVEL3,           //int       weaponNum;
+    0,                    //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_WEAPON,          //int       slots;
+    "level3",             //char      *weaponName;
+    "Pounce",             //char      *weaponHumanName;
+    0,                    //int       maxAmmo;
+    0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
+    LEVEL3_CLAW_REPEAT,   //int       repeatRate1;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
+    0,                    //int       reloadTime;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
+    qfalse,               //qboolean  canZoom;
+    90.0f,                //float     zoomFov;
+    qfalse,               //qboolean  purchasable;
+    0,                    //int       buildDelay;
+    WUT_ALIENS            //WUTeam_t  team;
+  },
+  {
+    WP_ALEVEL3_UPG,       //int       weaponNum;
+    0,                    //int       price;
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_WEAPON,          //int       slots;
+    "level3upg",          //char      *weaponName;
+    "Pounce (upgrade)",   //char      *weaponHumanName;
+    3,                    //int       maxAmmo;
+    0,                    //int       maxClips;
+    qtrue,                //int       infiniteAmmo;
+    qfalse,               //int       usesEnergy;
+    LEVEL3_CLAW_U_REPEAT, //int       repeatRate1;
+    0,                    //int       repeatRate2;
+    LEVEL3_BOUNCEBALL_REPEAT,//int       repeatRate3;
+    0,                    //int       reloadTime;
+    qfalse,               //qboolean  hasAltMode;
+    qtrue,                //qboolean  hasThirdMode;
+    qfalse,               //qboolean  canZoom;
+    90.0f,                //float     zoomFov;
+    qfalse,               //qboolean  purchasable;
+    0,                    //int       buildDelay;
+    WUT_ALIENS            //WUTeam_t  team;
+  },
+  {
     WP_ALEVEL4,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
     SLOT_WEAPON,          //int       slots;
-    "charge",             //char      *weaponName;
+    "level4",             //char      *weaponName;
     "Charge",             //char      *weaponHumanName;
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;

@@ -399,7 +399,7 @@ void SP_trigger_hurt( gentity_t *self )
 {
   InitTrigger( self );
 
-  self->noise_index = G_SoundIndex( "sound/world/electro.wav" );
+  self->noise_index = G_SoundIndex( "sound/misc/electro.wav" );
   self->touch = hurt_touch;
 
   if( !self->damage )

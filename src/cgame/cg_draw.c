@@ -1305,7 +1305,7 @@ static void CG_DrawLevelShot( rectDef_t *rect )
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, levelshot );
 
   // blend a detail texture over it
-  detail = trap_R_RegisterShader( "levelShotDetail" );
+  detail = trap_R_RegisterShader( "gfx/misc/detail" );
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, detail );
 }
 
@@ -3270,6 +3270,9 @@ static void CG_PainBlend( void )
   float       x, y, w, h;
   float       s1, t1, s2, t2;
 
+  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
+    return;
+
   damage = cg.lastHealth - cg.snap->ps.stats[ STAT_HEALTH ];
 
   if( damage < 0 )
@@ -3362,7 +3365,7 @@ void CG_ResetPainBlend( void )
 {
   cg.painBlendValue = 0.0f;
   cg.painBlendTarget = 0.0f;
-  cg.lastHealth = cg.snap->ps.stats[ STAT_MAX_HEALTH ];
+  cg.lastHealth = cg.snap->ps.stats[ STAT_HEALTH ];
 }
 
 /*

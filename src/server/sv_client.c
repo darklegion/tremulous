@@ -127,7 +127,7 @@ void SV_GetChallenge( netadr_t from ) {
 		// getIpAuthorize <challenge> <IP> <game> 0 <auth-flag>
 		NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
 			"getIpAuthorize %i %i.%i.%i.%i %s 0 %s",  svs.challenges[i].challenge,
-			from.ip[0], from.ip[1], from.ip[2], from.ip[3], game, sv_strictAuth->string );
+			from.ip[0], from.ip[1], from.ip[2], from.ip[3], game, "0" );
 	}
 }
 

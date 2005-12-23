@@ -149,14 +149,8 @@ static qboolean CG_ParseAnimationFile( const char *filename, clientInfo_t *ci )
 
       if( !Q_stricmp( token, "default" ) || !Q_stricmp( token, "normal" ) )
         ci->footsteps = FOOTSTEP_NORMAL;
-      else if( !Q_stricmp( token, "boot" ) )
-        ci->footsteps = FOOTSTEP_BOOT;
       else if( !Q_stricmp( token, "flesh" ) )
         ci->footsteps = FOOTSTEP_FLESH;
-      else if( !Q_stricmp( token, "mech" ) )
-        ci->footsteps = FOOTSTEP_MECH;
-      else if( !Q_stricmp( token, "energy" ) )
-        ci->footsteps = FOOTSTEP_ENERGY;
       else if( !Q_stricmp( token, "none" ) )
         ci->footsteps = FOOTSTEP_NONE;
       else if( !Q_stricmp( token, "custom" ) )
@@ -1819,7 +1813,7 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane, pClass_t c
   // add the mark as a temporary, so it goes directly to the renderer
   // without taking a spot in the cg_marks array
   CG_ImpactMark( cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal,
-                 cent->pe.legs.yawAngle, alpha, alpha, alpha, 1, qfalse,
+                 cent->pe.legs.yawAngle, 0.0f, 0.0f, 0.0f, alpha, qfalse,
                  24.0f * BG_FindShadowScaleForClass( class ), qtrue );
 
   return qtrue;
@@ -1833,18 +1827,20 @@ CG_PlayerSplash
 Draw a mark at the water surface
 ===============
 */
-static void CG_PlayerSplash( centity_t *cent )
+static void CG_PlayerSplash( centity_t *cent, pClass_t class )
 {
   vec3_t      start, end;
+  vec3_t      mins, maxs;
   trace_t     trace;
   int         contents;
-  polyVert_t  verts[ 4 ];
 
   if( !cg_shadows.integer )
     return;
 
+  BG_FindBBoxForClass( class, mins, maxs, NULL, NULL, NULL );
+
   VectorCopy( cent->lerpOrigin, end );
-  end[ 2 ] -= 24;
+  end[ 2 ] += mins[ 2 ];
 
   // if the feet aren't in liquid, don't make a mark
   // this won't handle moving water brushes, but they wouldn't draw right anyway...
@@ -1863,53 +1859,15 @@ static void CG_PlayerSplash( centity_t *cent )
     return;
 
   // trace down to find the surface
-  trap_CM_BoxTrace( &trace, start, end, NULL, NULL, 0, ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) );
+  trap_CM_BoxTrace( &trace, start, end, NULL, NULL, 0,
+      ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) );
 
-  if( trace.fraction == 1.0 )
+  if( trace.fraction == 1.0f )
     return;
 
-  // create a mark polygon
-  VectorCopy( trace.endpos, verts[ 0 ].xyz );
-  verts[ 0 ].xyz[ 0 ] -= 32;
-  verts[ 0 ].xyz[ 1 ] -= 32;
-  verts[ 0 ].st[ 0 ] = 0;
-  verts[ 0 ].st[ 1 ] = 0;
-  verts[ 0 ].modulate[ 0 ] = 255;
-  verts[ 0 ].modulate[ 1 ] = 255;
-  verts[ 0 ].modulate[ 2 ] = 255;
-  verts[ 0 ].modulate[ 3 ] = 255;
-
-  VectorCopy( trace.endpos, verts[ 1 ].xyz );
-  verts[ 1 ].xyz[ 0 ] -= 32;
-  verts[ 1 ].xyz[ 1 ] += 32;
-  verts[ 1 ].st[ 0 ] = 0;
-  verts[ 1 ].st[ 1 ] = 1;
-  verts[ 1 ].modulate[ 0 ] = 255;
-  verts[ 1 ].modulate[ 1 ] = 255;
-  verts[ 1 ].modulate[ 2 ] = 255;
-  verts[ 1 ].modulate[ 3 ] = 255;
-
-  VectorCopy( trace.endpos, verts[ 2 ].xyz );
-  verts[ 2 ].xyz[ 0 ] += 32;
-  verts[ 2 ].xyz[ 1 ] += 32;
-  verts[ 2 ].st[ 0 ] = 1;
-  verts[ 2 ].st[ 1 ] = 1;
-  verts[ 2 ].modulate[ 0 ] = 255;
-  verts[ 2 ].modulate[ 1 ] = 255;
-  verts[ 2 ].modulate[ 2 ] = 255;
-  verts[ 2 ].modulate[ 3 ] = 255;
-
-  VectorCopy( trace.endpos, verts[ 3 ].xyz );
-  verts[ 3 ].xyz[ 0 ] += 32;
-  verts[ 3 ].xyz[ 1 ] -= 32;
-  verts[ 3 ].st[ 0 ] = 1;
-  verts[ 3 ].st[ 1 ] = 0;
-  verts[ 3 ].modulate[ 0 ] = 255;
-  verts[ 3 ].modulate[ 1 ] = 255;
-  verts[ 3 ].modulate[ 2 ] = 255;
-  verts[ 3 ].modulate[ 3 ] = 255;
-
-  trap_R_AddPolyToScene( cgs.media.wakeMarkShader, 4, verts );
+  CG_ImpactMark( cgs.media.wakeMarkShader, trace.endpos, trace.plane.normal,
+                 cent->pe.legs.yawAngle, 1.0f, 1.0f, 1.0f, 1.0f, qfalse,
+                 32.0f * BG_FindShadowScaleForClass( class ), qtrue );
 }
 
 
@@ -2155,7 +2113,7 @@ void CG_Player( centity_t *cent )
   shadow = CG_PlayerShadow( cent, &shadowPlane, class );
 
   // add a water splash if partially in and out of water
-  CG_PlayerSplash( cent );
+  CG_PlayerSplash( cent, class );
 
   if( cg_shadows.integer == 3 && shadow )
     renderfx |= RF_SHADOW_PLANE;

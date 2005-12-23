@@ -3010,8 +3010,8 @@ static void CreateInternalShaders( void ) {
 
 static void CreateExternalShaders( void ) {
 	tr.projectionShadowShader = R_FindShader( "projectionShadow", LIGHTMAP_NONE, qtrue );
-	tr.flareShader = R_FindShader( "flareShader", LIGHTMAP_NONE, qtrue );
-	tr.sunShader = R_FindShader( "sun", LIGHTMAP_NONE, qtrue );
+	//tr.flareShader = R_FindShader( "flareShader", LIGHTMAP_NONE, qtrue );
+	//tr.sunShader = R_FindShader( "sun", LIGHTMAP_NONE, qtrue );
 }
 
 /*

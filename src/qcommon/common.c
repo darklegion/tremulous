@@ -71,7 +71,6 @@ cvar_t	*com_showtrace;
 cvar_t	*com_version;
 cvar_t	*com_blood;
 cvar_t	*com_buildScript;	// for automated data building scripts
-cvar_t	*com_introPlayed;
 cvar_t	*cl_paused;
 cvar_t	*sv_paused;
 cvar_t	*com_cameraMode;
@@ -2413,8 +2412,6 @@ void Com_Init( char *commandLine ) {
 	com_cl_running = Cvar_Get ("cl_running", "0", CVAR_ROM);
 	com_buildScript = Cvar_Get( "com_buildScript", "0", 0 );
 
-	com_introPlayed = Cvar_Get( "com_introplayed", "0", CVAR_ARCHIVE);
-
 #if defined(_WIN32) && defined(_DEBUG)
 	com_noErrorInterrupt = Cvar_Get( "com_noErrorInterrupt", "0", 0 );
 #endif
@@ -2457,11 +2454,7 @@ void Com_Init( char *commandLine ) {
 	if ( !Com_AddStartupCommands() ) {
 		// if the user didn't give any commands, run default action
 		if ( !com_dedicated->integer ) {
-			Cbuf_AddText ("cinematic idlogo.RoQ\n");
-			if( !com_introPlayed->integer ) {
-				Cvar_Set( com_introPlayed->name, "1" );
-				Cvar_Set( "nextmap", "cinematic intro.RoQ" );
-			}
+			Cbuf_AddText ("cinematic splash.RoQ\n");
 		}
 	}
 

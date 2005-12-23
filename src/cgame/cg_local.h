@@ -92,10 +92,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 typedef enum
 {
   FOOTSTEP_NORMAL,
-  FOOTSTEP_BOOT,
   FOOTSTEP_FLESH,
-  FOOTSTEP_MECH,
-  FOOTSTEP_ENERGY,
   FOOTSTEP_METAL,
   FOOTSTEP_SPLASH,
   FOOTSTEP_CUSTOM,
@@ -1125,7 +1122,7 @@ typedef struct
   consoleLine_t consoleLines[ MAX_CONSOLE_LINES ];
   int           numConsoleLines;
 
-  particleSystem_t *poisonCloudPS;
+  particleSystem_t  *poisonCloudPS;
 
   float         painBlendValue;
   float         painBlendTarget;
@@ -1148,7 +1145,6 @@ typedef struct
   qhandle_t   balloonShader;
   qhandle_t   connectionShader;
 
-  qhandle_t   selectShader;
   qhandle_t   viewBloodShader;
   qhandle_t   tracerShader;
   qhandle_t   crosshairShader[ WP_NUM_WEAPONS ];
@@ -1181,11 +1177,13 @@ typedef struct
   sfxHandle_t selectSound;
   sfxHandle_t footsteps[ FOOTSTEP_TOTAL ][ 4 ];
   sfxHandle_t talkSound;
+  sfxHandle_t alienTalkSound;
+  sfxHandle_t humanTalkSound;
   sfxHandle_t landSound;
   sfxHandle_t fallSound;
 
-  sfxHandle_t hgrenb1aSound;
-  sfxHandle_t hgrenb2aSound;
+  sfxHandle_t hardBounceSound1;
+  sfxHandle_t hardBounceSound2;
 
   sfxHandle_t voteNow;
   sfxHandle_t votePassed;

@@ -586,11 +586,8 @@ typedef struct {
   int          cursorx;
   int          cursory;
   glconfig_t   glconfig;
-  qboolean    debug;
+  qboolean     debug;
   qhandle_t    whiteShader;
-  qhandle_t    menuBackShader;
-  qhandle_t    menuBackShader2;
-  qhandle_t    menuBackNoLogoShader;
   qhandle_t    charset;
   qhandle_t    charsetProp;
   qhandle_t    charsetPropGlow;
@@ -600,8 +597,8 @@ typedef struct {
   qhandle_t    rb_off;
   float        scale;
   float        bias;
-  qboolean    demoversion;
-  qboolean    firstdraw;
+  qboolean     demoversion;
+  qboolean     firstdraw;
 } uiStatic_t;
 
 

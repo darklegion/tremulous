@@ -1239,9 +1239,6 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
         CG_DrawPic( x, y, iconsize, iconsize, cg_upgrades[ items[ item ] - 32 ].upgradeIcon );
 
       trap_R_SetColor( NULL );
-
-/*      if( displacement == 0 )
-        CG_DrawPic( x, y, iconsize, iconsize, cgs.media.selectShader );*/
     }
 
     if( vertical )
