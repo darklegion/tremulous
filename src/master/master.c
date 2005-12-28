@@ -23,7 +23,6 @@
 
 #include <stdarg.h>
 #include <signal.h>
-#include <sys/poll.h>
 
 #ifndef WIN32
 # include <pwd.h>
@@ -535,7 +534,9 @@ int main (int argc, const char* argv [])
 	int nb_bytes;
 	char packet [MAX_PACKET_SIZE + 1];  // "+ 1" because we append a '\0'
 	qboolean valid_options;
-	struct pollfd socket_poll;
+	fd_set rfds;
+	struct timeval tv;
+
 
 	signal( SIGINT, cleanUp );
 	signal( SIGTERM, cleanUp );
@@ -558,16 +559,19 @@ int main (int argc, const char* argv [])
 		return EXIT_FAILURE;
 	MsgPrint (MSG_NORMAL, "\n");
 
-	memset( &socket_poll, 0, sizeof( struct pollfd ) );
-	socket_poll.fd = sock;
-	socket_poll.events = POLLIN;
-
 	// Until the end of times...
 	while( !exitNow )
 	{
+		FD_ZERO( &rfds );
+		FD_SET( sock, &rfds );
+		tv.tv_sec = tv.tv_usec = 0;
+
 		// Check for new data every 100ms
-		if( poll( &socket_poll, 1, 100 ) <= 0 )
+		if( select( sock + 1, &rfds, NULL, NULL, &tv ) <= 0 )
+		{
+			usleep( 100000 );
 			continue;
+		}
 
 		// Get the next valid message
 		addrlen = sizeof (address);
