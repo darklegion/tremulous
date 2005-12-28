@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 int demo_protocols[] =
-{ 66, 67, 68, 0 };
+{ 66, 67, 68, 69, 0 };
 
 #define MAX_NUM_ARGVS	50
 
@@ -2227,76 +2227,6 @@ A way to force a bus error for development reasons
 */
 static void Com_Crash_f( void ) {
 	* ( int * ) 0 = 0x12345678;
-}
-
-// TTimo: centralizing the cl_cdkey stuff after I discovered a buffer overflow problem with the dedicated server version
-//   not sure it's necessary to have different defaults for regular and dedicated, but I don't want to risk it
-//   https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=470
-#ifndef DEDICATED
-char	cl_cdkey[34] = "                                ";
-#else
-char	cl_cdkey[34] = "123456789";
-#endif
-
-/*
-=================
-Com_ReadCDKey
-=================
-*/
-qboolean CL_CDKeyValidate( const char *key, const char *checksum );
-void Com_ReadCDKey( const char *filename ) {
-	fileHandle_t	f;
-	char			buffer[33];
-	char			fbuffer[MAX_OSPATH];
-
-	sprintf(fbuffer, "%s/q3key", filename);
-
-	FS_SV_FOpenFileRead( fbuffer, &f );
-	if ( !f ) {
-		Q_strncpyz( cl_cdkey, "                ", 17 );
-		return;
-	}
-
-	Com_Memset( buffer, 0, sizeof(buffer) );
-
-	FS_Read( buffer, 16, f );
-	FS_FCloseFile( f );
-
-	if (CL_CDKeyValidate(buffer, NULL)) {
-		Q_strncpyz( cl_cdkey, buffer, 17 );
-	} else {
-		Q_strncpyz( cl_cdkey, "                ", 17 );
-	}
-}
-
-/*
-=================
-Com_AppendCDKey
-=================
-*/
-void Com_AppendCDKey( const char *filename ) {
-	fileHandle_t	f;
-	char			buffer[33];
-	char			fbuffer[MAX_OSPATH];
-
-	sprintf(fbuffer, "%s/q3key", filename);
-
-	FS_SV_FOpenFileRead( fbuffer, &f );
-	if (!f) {
-		Q_strncpyz( &cl_cdkey[16], "                ", 17 );
-		return;
-	}
-
-	Com_Memset( buffer, 0, sizeof(buffer) );
-
-	FS_Read( buffer, 16, f );
-	FS_FCloseFile( f );
-
-	if (CL_CDKeyValidate(buffer, NULL)) {
-		strcat( &cl_cdkey[16], buffer );
-	} else {
-		Q_strncpyz( &cl_cdkey[16], "                ", 17 );
-	}
 }
 
 static void Com_DetectAltivec(void)

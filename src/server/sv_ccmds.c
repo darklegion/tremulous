@@ -154,9 +154,6 @@ static void SV_Map_f( void ) {
 		return;
 	}
 
-	// force latched values to get set
-	Cvar_Get ("g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH );
-
 	cmd = Cmd_Argv(0);
 	if ( !Q_stricmp( cmd, "devmap" ) || !Q_stricmp( cmd, "spdevmap" ) ) {
 		cheat = qtrue;
@@ -228,7 +225,7 @@ static void SV_MapRestart_f( void ) {
 
 	// check for changes in variables that can't just be restarted
 	// check for maxclients change
-	if ( sv_maxclients->modified || sv_gametype->modified ) {
+	if ( sv_maxclients->modified ) {
 		char	mapname[MAX_QPATH];
 
 		Com_Printf( "variable change -- restarting.\n" );
@@ -400,6 +397,8 @@ static void SV_Ban_f( void ) {
 		return;
 	}
 
+	//FIXME: there is no auth server in Tremulous
+#if 0
 	// look up the authorize server's IP
 	if ( !svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD ) {
 		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
@@ -421,6 +420,7 @@ static void SV_Ban_f( void ) {
 								   cl->netchan.remoteAddress.ip[2], cl->netchan.remoteAddress.ip[3] );
 		Com_Printf("%s was banned from coming back\n", cl->name);
 	}
+#endif
 }
 
 /*
@@ -454,6 +454,8 @@ static void SV_BanNum_f( void ) {
 		return;
 	}
 
+	//FIXME: there is no auth server in Tremulous
+#if 0
 	// look up the authorize server's IP
 	if ( !svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD ) {
 		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
@@ -475,6 +477,7 @@ static void SV_BanNum_f( void ) {
 								   cl->netchan.remoteAddress.ip[2], cl->netchan.remoteAddress.ip[3] );
 		Com_Printf("%s was banned from coming back\n", cl->name);
 	}
+#endif
 }
 
 /*

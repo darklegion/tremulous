@@ -378,9 +378,13 @@ void CL_ConsolePrint( char *txt ) {
 	}
 
 	if( !skipnotify && !( cls.keyCatchers & KEYCATCH_CONSOLE ) ) {
+		Cmd_SaveCmdContext( );
+
 		// feed the text to cgame
 		Cmd_TokenizeString( txt );
 		CL_GameConsoleText( );
+
+		Cmd_RestoreCmdContext( );
 	}
 
 	color = ColorIndex(COLOR_WHITE);

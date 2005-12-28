@@ -88,9 +88,6 @@ extern vmCvar_t  ui_server14;
 extern vmCvar_t  ui_server15;
 extern vmCvar_t  ui_server16;
 
-extern vmCvar_t  ui_cdkey;
-extern vmCvar_t  ui_cdkeychecked;
-
 extern vmCvar_t  ui_captureLimit;
 extern vmCvar_t  ui_fragLimit;
 extern vmCvar_t  ui_gameType;
@@ -430,13 +427,6 @@ extern void UI_CinematicsMenu_Cache( void );
 //
 extern void UI_ModsMenu( void );
 extern void UI_ModsMenu_Cache( void );
-
-//
-// ui_cdkey.c
-//
-extern void UI_CDKeyMenu( void );
-extern void UI_CDKeyMenu_Cache( void );
-extern void UI_CDKeyMenu_f( void );
 
 //
 // ui_playermodel.c
@@ -1059,8 +1049,6 @@ void      trap_LAN_ResetPings(int n);
 int        trap_LAN_ServerStatus( const char *serverAddress, char *serverStatus, int maxLen );
 int        trap_LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int s2 );
 int        trap_MemoryRemaining( void );
-void      trap_GetCDKey( char *buf, int buflen );
-void      trap_SetCDKey( char *buf );
 void      trap_R_RegisterFont(const char *pFontname, int pointSize, fontInfo_t *font);
 void      trap_S_StopBackgroundTrack( void );
 void      trap_S_StartBackgroundTrack( const char *intro, const char *loop);
@@ -1071,7 +1059,6 @@ void      trap_CIN_DrawCinematic (int handle);
 void      trap_CIN_SetExtents (int handle, int x, int y, int w, int h);
 int        trap_RealTime(qtime_t *qtime);
 void      trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
-qboolean    trap_VerifyCDKey( const char *key, const char *chksum);
 
 void      trap_SetPbClStatus( int status );
 

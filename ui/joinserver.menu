@@ -194,49 +194,6 @@
       }
     }
 
-    itemDef
-    {
-      name        PunkBusterInfo
-      group       pbgrp
-      text        "PunkBuster:"
-      type        ITEM_TYPE_BUTTON
-      cvar        "ui_browserShowEmpty"
-      textscale   .4
-      style       WINDOW_STYLE_FILLED
-      rect        354 50 128 26
-      textalign   ITEM_ALIGN_LEFT
-      textalignx  10
-      textaligny  22
-      backcolor   0 0 0 0
-      forecolor   1 1 1 1
-      visible     1
-      action 
-      {
-        play "sound/misc/menu1.wav";
-        conditionalopen cl_punkbuster pbdisable_popmenu pbenable_popmenu
-      }
-    }
-
-    itemDef
-    {
-      name          pbstatus
-      group         pbgrp
-      type          ITEM_TYPE_MULTI
-      text          ""
-      cvar          "cl_punkbuster"
-      cvarFloatList { "Off" 0 "On" 1 }
-      rect          438 50 64 26
-      textalign     ITEM_ALIGN_CENTER
-      textalignx    10
-      textaligny    22
-      textscale     .4     
-      forecolor     1 1 1 1
-      style         WINDOW_STYLE_FILLED
-      backcolor     0 0 0 0
-      visible       1
-      decoration
-      }
-
 
     // map selection
 
@@ -267,7 +224,7 @@
     {
       name serverColumn
       group grpColumn
-      rect 10 130 333 232
+      rect 10 130 365 232
       style WINDOW_STYLE_FILLED
       border 1
       backcolor 0 0 0 0
@@ -281,7 +238,7 @@
     {
       name mapColumn
       group grpColumn
-      rect 343 130 125 232
+      rect 375 130 125 232
       style WINDOW_STYLE_FILLED
       border 1
       backcolor 0 0 0 0
@@ -295,7 +252,7 @@
     {
       name playerColumn
       group grpColumn
-      rect 468 130 60 232
+      rect 500 130 60 232
       style WINDOW_STYLE_FILLED
       border 1
       backcolor 0 0 0 0
@@ -305,20 +262,6 @@
       decoration
     }
     
-    itemDef
-    {
-      name pbColumn
-      group grpColumn
-      rect 528 130 32 232
-      style WINDOW_STYLE_FILLED
-      border 1
-      backcolor 0 0 0 0
-      bordersize 1
-      bordercolor .5 .5 .5 1
-      visible 1
-      decoration
-    }
-
     itemDef
     {
       name pingColumn
@@ -350,11 +293,10 @@
       backcolor     0.2 0.2 0.2 1
       outlinecolor  0.1 0.1 0.1 0.5
       visible 1
-      columns 5
+      columns 4
         2   40  40  ITEM_ALIGN_LEFT
-        343 40  20  ITEM_ALIGN_LEFT
-        468 5   10  ITEM_ALIGN_LEFT
-        528 5   10  ITEM_ALIGN_LEFT
+        375 40  20  ITEM_ALIGN_LEFT
+        500 5   10  ITEM_ALIGN_LEFT
         560 20  20  ITEM_ALIGN_LEFT
 
       doubleClick { uiScript JoinServer }
@@ -371,7 +313,7 @@
       type ITEM_TYPE_BUTTON
       textscale .33
       style WINDOW_STYLE_EMPTY
-      rect 10 103 333 26 
+      rect 10 103 365 26 
       textalign ITEM_ALIGN_LEFT
       textalignx 10
       textaligny 18
@@ -399,7 +341,7 @@
       text "Map Name"
       textscale .33
       style WINDOW_STYLE_EMPTY
-      rect 343 103 125 26
+      rect 375 103 125 26
       textalign ITEM_ALIGN_LEFT
       textalignx 10
       textaligny 18
@@ -427,7 +369,7 @@
       type ITEM_TYPE_BUTTON
       textscale .33
       style WINDOW_STYLE_EMPTY
-      rect 468 103 60 26
+      rect 500 103 60 26
       textalign ITEM_ALIGN_LEFT
       textalignx 10
       textaligny 18
@@ -444,34 +386,6 @@
       
         setitemcolor grpColumn backcolor 0 0 0 0; 
         setitemcolor playerColumn backcolor 0.3 1 1 0.5
-      }
-    }
-
-    itemDef
-    {
-      name PB
-      group grpTabs
-      text "PB"
-      type ITEM_TYPE_BUTTON
-      textscale .33
-      style WINDOW_STYLE_EMPTY
-      rect 528 103 32 26
-      textalign ITEM_ALIGN_LEFT
-      textalignx 10
-      textaligny 18
-      border 1
-      bordercolor   0.5 0.5 0.5 1
-      forecolor     1   1   1   1
-      backcolor     0.2 0.2 0.2 1
-      outlinecolor  0.1 0.1 0.1 0.5
-      visible 1 
-      action
-      {
-        play "sound/misc/menu1.wav"; 
-        uiScript ServerSort 5;
-      
-        setitemcolor grpColumn backcolor 0 0 0 0; 
-        setitemcolor pbColumn backcolor 0.3 1 1 0.5
       }
     }
 

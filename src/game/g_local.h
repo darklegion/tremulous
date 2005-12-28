@@ -29,9 +29,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //==================================================================
 
-// the "gameversion" client command will print this plus compile date
-#define GAMEVERSION "tremulous"
-
 #define INFINITE      1000000
 
 #define FRAMETIME     100         // msec

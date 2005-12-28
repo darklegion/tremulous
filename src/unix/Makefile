@@ -588,6 +588,9 @@ else # ifeq SunOS
   SHLIBLDFLAGS=-shared
 
   TARGETS=\
+    $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
+    $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
+    $(B)/base/ui$(ARCH).$(SHLIBEXT) \
     $(B)/$(PLATFORM)tremded
 
 endif #Linux
@@ -650,11 +653,13 @@ release: build_release
 
 build_debug: B=$(BD)
 build_debug: makedirs tools
-	$(MAKE)  targets B=$(BD) CFLAGS="$(CFLAGS) $(DEBUG_CFLAGS) $(DEPEND_CFLAGS)"
+	$(MAKE) targets B=$(BD) CFLAGS="$(CFLAGS) $(DEBUG_CFLAGS) $(DEPEND_CFLAGS)"
+	$(MAKE) -C ../master debug
 
 build_release: B=$(BR)
 build_release: makedirs tools
-	$(MAKE)  targets B=$(BR) CFLAGS="$(CFLAGS) $(RELEASE_CFLAGS) $(DEPEND_CFLAGS)"
+	$(MAKE) targets B=$(BR) CFLAGS="$(CFLAGS) $(RELEASE_CFLAGS) $(DEPEND_CFLAGS)"
+	$(MAKE) -C ../master release
 
 #Build both debug and release builds
 all:build_debug build_release
@@ -1558,6 +1563,7 @@ copyfiles: build_release
 
 clean:clean-debug clean-release
 	$(MAKE) -C setup clean
+	$(MAKE) -C ../master clean
 
 clean2:
 	if [ -d $(B) ];then (find $(B) -name '*.d' -exec rm {} \;)fi

@@ -28,7 +28,6 @@
       background "ui/assets/credits_splash.jpg"
       action
       {
-        play "sound/misc/nomenu.wav";
         close quitCredit;
         uiScript "quit"
       }

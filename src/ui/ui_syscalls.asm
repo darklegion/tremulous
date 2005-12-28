@@ -53,8 +53,6 @@ equ trap_LAN_GetPingInfo              -50
 equ trap_Cvar_Register                -51
 equ trap_Cvar_Update                  -52
 equ trap_MemoryRemaining              -53
-equ trap_GetCDKey                     -54
-equ trap_SetCDKey                     -55
 equ trap_R_RegisterFont               -56
 equ trap_R_ModelBounds                -57
 equ trap_PC_AddGlobalDefine           -58
@@ -81,7 +79,6 @@ equ trap_CIN_RunCinematic             -78
 equ trap_CIN_DrawCinematic            -79
 equ trap_CIN_SetExtents               -80
 equ trap_R_RemapShader                -81
-equ trap_VerifyCDKey                  -82
 equ trap_LAN_ServerStatus             -83
 equ trap_LAN_GetServerPing            -84
 equ trap_LAN_ServerIsVisible          -85

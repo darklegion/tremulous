@@ -738,7 +738,8 @@ static void CM_ProximityToBrush( traceWork_t *tw, cbrush_t *brush )
 	cbrushedge_t	*edge;
 	float					dist, minDist = 1e+10f;
 	float					s, t;
-	float					sAtMin, radius, fraction;
+	float					sAtMin = 0.0f;
+	float					radius = 0.0f, fraction;
 	traceWork_t		tw2;
 
 	// cheapish purely linear trace to test for intersection

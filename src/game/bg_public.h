@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // because games can change separately from the main system version, we need a
 // second version that must match between game and cgame
-#define GAME_VERSION            "tremulous"
+#define GAME_VERSION            "base"
 
 #define DEFAULT_GRAVITY         800
 

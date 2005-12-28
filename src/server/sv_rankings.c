@@ -86,7 +86,7 @@ void SV_RankBegin( char *gamekey )
 	assert( !s_rankings_active );
 	assert( s_ranked_players == NULL );
 
-	if( sv_enableRankings->integer == 0 || Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER )
+	if( sv_enableRankings->integer == 0 )
 	{
 		s_rankings_active = qfalse;
 		if( sv_rankingsActive->integer == 1 )

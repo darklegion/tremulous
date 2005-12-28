@@ -112,7 +112,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_cheats, "sv_cheats", "", 0, 0, qfalse },
 
   // noset vars
-  { NULL, "gamename", GAMEVERSION , CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
+  { NULL, "gamename", GAME_VERSION , CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
   { NULL, "gamedate", __DATE__ , CVAR_ROM, 0, qfalse  },
   { &g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse  },
   { NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
@@ -545,10 +545,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
   G_RegisterCvars( );
 
-  //TA: moved after G_RegisterCvars since G_Printf
-  //    now depends on the value of g_dedicated
   G_Printf( "------- Game Initialization -------\n" );
-  G_Printf( "gamename: %s\n", GAMEVERSION );
+  G_Printf( "gamename: %s\n", GAME_VERSION );
   G_Printf( "gamedate: %s\n", __DATE__ );
 
   G_ProcessIPBans( );

@@ -124,6 +124,19 @@ static void UI_LoadArenasFromFile( char *filename ) {
 }
 
 /*
+=================
+UI_MapNameCompare
+=================
+*/
+static int UI_MapNameCompare( const void *a, const void *b )
+{
+  mapInfo *A = (mapInfo *)a;
+  mapInfo *B = (mapInfo *)b;
+
+  return Q_stricmp( A->mapName, B->mapName );
+}
+
+/*
 ===============
 UI_LoadArenas
 ===============
@@ -139,14 +152,6 @@ void UI_LoadArenas( void ) {
 
   ui_numArenas = 0;
   uiInfo.mapCount = 0;
-
-/*  trap_Cvar_Register( &arenasFile, "g_arenasFile", "", CVAR_INIT|CVAR_ROM );
-  if( *arenasFile.string ) {
-    UI_LoadArenasFromFile(arenasFile.string);
-  }
-  else {
-    UI_LoadArenasFromFile("scripts/arenas.txt");
-  }*/
 
   // get all arenas from .arena files
   numdirs = trap_FS_GetFileList("scripts", ".arena", dirlist, 1024 );
@@ -183,6 +188,8 @@ void UI_LoadArenas( void ) {
     if( uiInfo.mapCount >= MAX_MAPS )
       break;
   }
+
+  qsort( uiInfo.mapList, uiInfo.mapCount, sizeof( mapInfo ), UI_MapNameCompare );
 }
 
 

@@ -227,27 +227,20 @@ PROTOCOL
 ==============================================================
 */
 
-#define	PROTOCOL_VERSION	68
-// 1.31 - 67
+// 69 is identical in every way to 68 - the change is to avoid
+// confusing connecting Q3 clients
+#define	PROTOCOL_VERSION	69
 
 // maintain a list of compatible protocols for demo playing
 // NOTE: that stuff only works with two digits protocols
 extern int demo_protocols[];
 
-#define	UPDATE_SERVER_NAME	"update.quake3arena.com"
 // override on command line, config files etc.
 #ifndef MASTER_SERVER_NAME
-#define MASTER_SERVER_NAME	"master.quake3arena.com"
-#endif
-#ifndef AUTHORIZE_SERVER_NAME
-#define	AUTHORIZE_SERVER_NAME	"authorize.quake3arena.com"
+#define MASTER_SERVER_NAME	"master.tremulous.net"
 #endif
 
 #define	PORT_MASTER			27950
-#define	PORT_UPDATE			27951
-#ifndef PORT_AUTHORIZE
-#define	PORT_AUTHORIZE		27952
-#endif
 #define	PORT_SERVER			27960
 #define	NUM_SERVER_PORTS	4		// broadcast scan this many ports after
 									// PORT_SERVER so a single machine can
@@ -424,6 +417,8 @@ void	Cmd_ExecuteString( const char *text );
 // Parses a single line of text into arguments and tries to execute it
 // as if it was typed at the console
 
+void Cmd_SaveCmdContext( void );
+void Cmd_RestoreCmdContext( void );
 
 /*
 ==============================================================
@@ -693,10 +688,6 @@ MISC
 #define Q_vsnprintf vsnprintf
 #endif
 
-// centralizing the declarations for cl_cdkey
-// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=470
-extern char cl_cdkey[34];
-
 // returnbed by Sys_GetProcessorId
 #define CPUID_GENERIC			0			// any unrecognized processor
 
@@ -916,7 +907,6 @@ qboolean SV_GameCommand( void );
 // UI interface
 //
 qboolean UI_GameCommand( void );
-qboolean UI_usesUniqueCDKey(void);
 
 /*
 ==============================================================
