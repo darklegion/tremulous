@@ -8,7 +8,7 @@ ifeq ($(PLATFORM),mingw32)
 	RELEASE_LDFLAGS=-lwsock32
 	DEBUG_LDFLAGS=-lwsock32
 	RM=del
-	MKDIR=md
+	MKDIR=mkdir
 else
   BINEXT=
 	RELEASE_LDFLAGS=

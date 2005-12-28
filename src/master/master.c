@@ -569,7 +569,11 @@ int main (int argc, const char* argv [])
 		// Check for new data every 100ms
 		if( select( sock + 1, &rfds, NULL, NULL, &tv ) <= 0 )
 		{
+#ifdef _WIN32
+      Sleep( 100 );
+#else
 			usleep( 100000 );
+#endif
 			continue;
 		}
 
