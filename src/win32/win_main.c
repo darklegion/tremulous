@@ -48,7 +48,7 @@ static char		sys_cmdline[MAX_STRING_CHARS];
 #define ALT_SPANK
 #ifdef ALT_SPANK
 #include <stdio.h>
-#include <sys\stat.h>
+#include <sys/stat.h>
 
 int fh = 0;
 
@@ -529,7 +529,6 @@ extern char		*FS_BuildOSPath( const char *base, const char *game, const char *qp
 // fqpath buffersize must be at least MAX_QPATH+1 bytes long
 void * QDECL Sys_LoadDll( const char *name, char *fqpath , long (QDECL **entryPoint)(long, ...),
 				  long (QDECL *systemcalls)(long, ...) ) {
-	static int	lastWarning = 0;
 	HINSTANCE	libHandle;
 	void	(QDECL *dllEntry)( long (QDECL *syscallptr)(long, ...) );
 	char	*basepath;
@@ -537,6 +536,7 @@ void * QDECL Sys_LoadDll( const char *name, char *fqpath , long (QDECL **entryPo
 	char	*gamedir;
 	char	*fn;
 #ifdef NDEBUG
+	static int	lastWarning = 0;
 	int		timestamp;
   int   ret;
 #endif

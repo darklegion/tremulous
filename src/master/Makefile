@@ -1,7 +1,5 @@
-ARCH=$(shell uname -m | sed -e s/i.86/i386/)
-PLATFORM=$(shell uname|sed -e s/_.*//|tr A-Z a-z)
-BD_DEBUG=debug-$(ARCH)$(PLATFORM)
-BD_RELEASE=release-$(ARCH)$(PLATFORM)
+BD_DEBUG=debug-$(PLATFORM)-$(ARCH)
+BD_RELEASE=release-$(PLATFORM)-$(ARCH)
 
 ifeq ($(PLATFORM),mingw32)
   BINEXT=.exe
@@ -49,4 +47,4 @@ makedirs:
 	@if [ ! -d $(BD_RELEASE) ];then $(MKDIR) $(BD_RELEASE);fi
 	@if [ ! -d $(BD_DEBUG) ];then $(MKDIR) $(BD_DEBUG);fi
 
-.PHONY: all clean
+.PHONY: all clean release debug makedirs

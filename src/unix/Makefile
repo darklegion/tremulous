@@ -12,18 +12,13 @@
 # GNU Make required
 #
 
-PLATFORM=$(shell uname|sed -e s/_.*//|tr A-Z a-z)
-PLATFORM_RELEASE=$(shell uname -r)
+COMPILE_PLATFORM=$(shell uname|sed -e s/_.*//|tr A-Z a-z)
 
-# Apple does some things a little differently...
-ifeq ($(PLATFORM),darwin)
-  ARCH:= $(shell uname -p | sed -e s/i.86/i386/)
+ifeq ($(COMPILE_PLATFORM),darwin)
+  # Apple does some things a little differently...
+  COMPILE_ARCH=$(shell uname -p | sed -e s/i.86/i386/)
 else
-  ARCH:=$(shell uname -m | sed -e s/i.86/i386/)
-endif
-
-ifeq ($(ARCH),powerpc)
-  ARCH:=ppc
+  COMPILE_ARCH=$(shell uname -m | sed -e s/i.86/i386/)
 endif
 
 #############################################################################
@@ -36,6 +31,31 @@ endif
 #############################################################################
 -include Makefile.local
 
+ifndef PLATFORM
+PLATFORM=$(COMPILE_PLATFORM)
+endif
+export PLATFORM
+
+ifndef ARCH
+ARCH=$(COMPILE_ARCH)
+endif
+
+ifeq ($(ARCH),powerpc)
+  ARCH=ppc
+endif
+export ARCH
+
+ifneq ($(PLATFORM),$(COMPILE_PLATFORM))
+  CROSS_COMPILING=1
+else
+  CROSS_COMPILING=0
+
+  ifneq ($(ARCH),$(COMPILE_ARCH))
+    CROSS_COMPILING=1
+  endif
+endif
+export CROSS_COMPILING
+
 ifndef COPYDIR
 COPYDIR="/usr/local/games/tremulous"
 endif
@@ -47,11 +67,6 @@ endif
 
 ifndef GENERATE_DEPENDENCIES
 GENERATE_DEPENDENCIES=1
-endif
-
-# Used for building with mingw
-ifndef DXSDK_DIR
-DXSDK_DIR=C:/DXSDK
 endif
 
 ifndef USE_CCACHE
@@ -85,8 +100,8 @@ endif
 
 #############################################################################
 
-BD=debug$(ARCH)$(GLIBC)
-BR=release$(ARCH)$(GLIBC)
+BD=debug-$(PLATFORM)-$(ARCH)
+BR=release-$(PLATFORM)-$(ARCH)
 CDIR=$(MOUNT_DIR)/client
 SDIR=$(MOUNT_DIR)/server
 RDIR=$(MOUNT_DIR)/renderer
@@ -161,8 +176,8 @@ ifeq ($(PLATFORM),linux)
     OPTIMIZE = -O3 -fomit-frame-pointer -ffast-math -funroll-loops \
       -falign-loops=2 -falign-jumps=2 -falign-functions=2 \
       -fstrength-reduce
-    # experimental x86_64 jit compiler! you need as
-    #HAVE_VM_COMPILED = true
+    # experimental x86_64 jit compiler! you need GNU as
+    HAVE_VM_COMPILED = true
   else
   ifeq ($(ARCH),i386)
     OPTIMIZE = -O3 -march=i686 -fomit-frame-pointer -ffast-math \
@@ -331,21 +346,16 @@ else # ifeq darwin
 
 ifeq ($(PLATFORM),mingw32)
 
-  GLIBC=-mingw
   CC=gcc
   WINDRES=windres
 
-  ifeq ($(ARCH),i386)
-    ARCH=x86
-  endif
+  ARCH=x86
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes
 
   ifeq ($(USE_OPENAL),1)
     BASE_CFLAGS += -DUSE_OPENAL=1 -DUSE_OPENAL_DLOPEN=1
   endif
-
-  DX_CFLAGS = -I$(DXSDK_DIR)/Include
 
   GL_CFLAGS =
   MINGW_CFLAGS = -DDONT_TYPEDEF_INT32
@@ -447,6 +457,44 @@ ifeq ($(PLATFORM),freebsd)
   endif
 
 else # ifeq freebsd
+
+#############################################################################
+# SETUP AND BUILD -- NETBSD
+#############################################################################
+
+ifeq ($(PLATFORM),netbsd)
+
+  ifeq ($(shell uname -m),i386)
+    ARCH=i386
+  endif
+
+  CC=gcc
+  LDFLAGS=-lm
+  SHLIBEXT=so
+  SHLIBCFLAGS=-fPIC
+  SHLIBLDFLAGS=-shared $(LDFLAGS)
+  THREAD_LDFLAGS=-lpthread
+
+  BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes
+  DEBUG_CFLAGS=$(BASE_CFLAGS) -g
+
+  ifneq ($(ARCH),i386)
+    BASE_CFLAGS += -DNO_VM_COMPILED
+  endif
+
+  ifeq ($(ARCH),i386)
+    TARGETS=\
+      $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
+      $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
+      $(B)/base/ui$(ARCH).$(SHLIBEXT)     \
+      $(B)/$(PLATFORM)tremded
+  else
+    TARGETS=\
+      $(B)/$(PLATFORM)tremded
+
+  endif
+
+else # ifeq netbsd
 
 #############################################################################
 # SETUP AND BUILD -- IRIX
@@ -597,6 +645,7 @@ endif #Linux
 endif #darwin
 endif #mingw32
 endif #FreeBSD
+endif #NetBSD
 endif #IRIX
 endif #SunOS
 
@@ -610,12 +659,20 @@ endif
 
 ifneq ($(BUILD_CLIENT),1)
   TARGETS := \
-	$(subst $(B)/base/cgame$(ARCH).$(SHLIBEXT),,\
-	$(subst $(B)/base/ui$(ARCH).$(SHLIBEXT),,\
-	$(subst $(B)/base/vm/cgame.qvm,,\
-	$(subst $(B)/base/vm/ui.qvm,,\
-	$(subst $(B)/$(PLATFORM)tremulous-smp$(BINEXT),,\
-	$(subst $(B)/$(PLATFORM)tremulous$(BINEXT),,$(TARGETS) ))))))
+  $(subst $(B)/base/cgame$(ARCH).$(SHLIBEXT),,\
+  $(subst $(B)/base/ui$(ARCH).$(SHLIBEXT),,\
+  $(subst $(B)/base/vm/cgame.qvm,,\
+  $(subst $(B)/base/vm/ui.qvm,,\
+  $(subst $(B)/$(PLATFORM)tremulous-smp$(BINEXT),,\
+  $(subst $(B)/$(PLATFORM)tremulous$(BINEXT),,$(TARGETS) ))))))
+endif
+
+# Never build qvms when cross-compiling
+ifeq ($(CROSS_COMPILING),1)
+  TARGETS := \
+  $(subst $(B)/base/vm/qagame.qvm,,\
+  $(subst $(B)/base/vm/cgame.qvm,,\
+  $(subst $(B)/base/vm/ui.qvm,,$(TARGETS) )))
 endif
 
 ifdef DEFAULT_BASEDIR
@@ -684,9 +741,14 @@ makedirs:
 Q3LCC=../tools/q3lcc$(BINEXT)
 Q3ASM=../tools/q3asm$(BINEXT)
 
+ifeq ($(CROSS_COMPILING),1)
+tools:
+	echo QVM tools not built when cross-compiling
+else
 tools:
 	$(MAKE) -C ../tools/lcc install
 	$(MAKE) -C ../tools/asm install
+endif
 
 DO_Q3LCC=$(Q3LCC) -o $@ $<
 
@@ -1202,16 +1264,16 @@ $(B)/client/matha.o : $(UDIR)/matha.s; $(DO_AS)
 $(B)/client/ftola.o : $(UDIR)/ftola.s; $(DO_AS)
 $(B)/client/snapvectora.o : $(UDIR)/snapvectora.s; $(DO_AS)
 
-$(B)/client/win_gamma.o : $(W32DIR)/win_gamma.c; $(DO_CC) $(DX_CFLAGS)
-$(B)/client/win_glimp.o : $(W32DIR)/win_glimp.c; $(DO_CC) $(DX_CFLAGS)
-$(B)/client/win_input.o : $(W32DIR)/win_input.c; $(DO_CC) $(DX_CFLAGS)
-$(B)/client/win_main.o : $(W32DIR)/win_main.c; $(DO_CC) $(DX_CFLAGS)
-$(B)/client/win_net.o : $(W32DIR)/win_net.c; $(DO_CC) $(DX_CFLAGS)
-$(B)/client/win_qgl.o : $(W32DIR)/win_qgl.c; $(DO_CC) $(DX_CFLAGS)
-$(B)/client/win_shared.o : $(W32DIR)/win_shared.c; $(DO_CC) $(DX_CFLAGS)
-$(B)/client/win_snd.o : $(W32DIR)/win_snd.c; $(DO_CC) $(DX_CFLAGS)
-$(B)/client/win_syscon.o : $(W32DIR)/win_syscon.c; $(DO_CC) $(DX_CFLAGS)
-$(B)/client/win_wndproc.o : $(W32DIR)/win_wndproc.c; $(DO_CC) $(DX_CFLAGS)
+$(B)/client/win_gamma.o : $(W32DIR)/win_gamma.c; $(DO_CC)
+$(B)/client/win_glimp.o : $(W32DIR)/win_glimp.c; $(DO_CC)
+$(B)/client/win_input.o : $(W32DIR)/win_input.c; $(DO_CC)
+$(B)/client/win_main.o : $(W32DIR)/win_main.c; $(DO_CC)
+$(B)/client/win_net.o : $(W32DIR)/win_net.c; $(DO_CC)
+$(B)/client/win_qgl.o : $(W32DIR)/win_qgl.c; $(DO_CC)
+$(B)/client/win_shared.o : $(W32DIR)/win_shared.c; $(DO_CC)
+$(B)/client/win_snd.o : $(W32DIR)/win_snd.c; $(DO_CC)
+$(B)/client/win_syscon.o : $(W32DIR)/win_syscon.c; $(DO_CC)
+$(B)/client/win_wndproc.o : $(W32DIR)/win_wndproc.c; $(DO_CC)
 $(B)/client/win_resource.o : $(W32DIR)/winquake.rc; $(DO_WINDRES)
 
 $(B)/client/vm_x86.o : $(CMDIR)/vm_x86.c; $(DO_CC)
@@ -1551,8 +1613,10 @@ $(B)/base/qcommon/%.asm: $(CMDIR)/%.c
 copyfiles: build_release
 	@if [ ! -d $(COPYDIR)/base ]; then echo "You need to set COPYDIR to where you installed Quake III!"; false; fi
 	$(INSTALL) -s -m 0755 $(BR)/$(PLATFORM)tremulous$(BINEXT) $(COPYDIR)/tremulous
-	#$(INSTALL) -s -m 0755 $(BR)/$(PLATFORM)tremulous-smp$(BINEXT) $(COPYDIR)/tremulous-smp
-	$(INSTALL) -s -m 0755 $(BR)/$(PLATFORM)tremded$(BINEXT) $(COPYDIR)/tremded
+
+	@if [ -f $(BR)/$(PLATFORM)tremded$(BINEXT) ]; then \
+		$(INSTALL) -s -m 0755 $(BR)/$(PLATFORM)tremded$(BINEXT) $(COPYDIR)/tremded
+	fi
 	-$(MKDIR) -p -m 0755 $(COPYDIR)/base
 	$(INSTALL) -s -m 0755 $(BR)/base/cgame$(ARCH).$(SHLIBEXT) \
 					$(COPYDIR)/base/.
