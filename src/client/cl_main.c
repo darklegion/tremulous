@@ -44,7 +44,9 @@ cvar_t	*cl_freezeDemo;
 cvar_t	*cl_shownet;
 cvar_t	*cl_showSend;
 cvar_t	*cl_timedemo;
+cvar_t	*cl_autoRecordDemo;
 cvar_t	*cl_avidemo;
+cvar_t	*cl_aviMotionJpeg;
 cvar_t	*cl_forceavidemo;
 
 cvar_t	*cl_freelook;
@@ -283,7 +285,7 @@ void CL_Record_f( void ) {
 	}
 
   // sync 0 doesn't prevent recording, so not forcing it off .. everyone does g_sync 1 ; record ; g_sync 0 ..
-	if ( !Cvar_VariableValue( "g_synchronousClients" ) ) {
+	if ( NET_IsLocalAddress( clc.serverAddress ) && !Cvar_VariableValue( "g_synchronousClients" ) ) {
 		Com_Printf (S_COLOR_YELLOW "WARNING: You should set 'g_synchronousClients 1' for smoother demo recording\n");
 	}
 
@@ -774,6 +776,11 @@ void CL_Disconnect( qboolean showMainMenu ) {
 
 	// not connected to a pure server anymore
 	cl_connectedToPureServer = qfalse;
+
+	// Stop recording any video
+	if( CL_VideoRecording( ) ) {
+		CL_CloseAVI( );
+	}
 }
 
 
@@ -1104,6 +1111,11 @@ doesn't know what graphics to reload
 =================
 */
 void CL_Vid_Restart_f( void ) {
+
+	// Settings may have changed so stop recording now
+	if( CL_VideoRecording( ) ) {
+		CL_CloseAVI( );
+	}
 
 	// don't let them loop during the restart
 	S_StopAllSounds();
@@ -1916,18 +1928,57 @@ void CL_Frame ( int msec ) {
 	}
 
 	// if recording an avi, lock to a fixed fps
-	if ( cl_avidemo->integer && msec) {
+	if ( CL_VideoRecording( ) && cl_avidemo->integer && msec) {
 		// save the current screen
 		if ( cls.state == CA_ACTIVE || cl_forceavidemo->integer) {
-			Cbuf_ExecuteText( EXEC_NOW, "screenshot silent\n" );
-		}
-		// fixed time for next frame'
-		msec = (1000 / cl_avidemo->integer) * com_timescale->value;
-		if (msec == 0) {
-			msec = 1;
+			CL_TakeVideoFrame( );
+
+			// fixed time for next frame'
+			msec = (int)ceil( (1000.0f / cl_avidemo->value) * com_timescale->value );
+			if (msec == 0) {
+				msec = 1;
+			}
 		}
 	}
 	
+	if( cl_autoRecordDemo->integer ) {
+		if( cls.state == CA_ACTIVE && !clc.demorecording ) {
+			// If not recording a demo, and we should be, start one
+			qtime_t	now;
+			char		*nowString;
+			char		*p;
+			char		mapName[ MAX_QPATH ];
+			char		serverName[ MAX_OSPATH ];
+
+			Com_RealTime( &now );
+			nowString = va( "%04d%02d%02d%02d%02d%02d",
+					1900 + now.tm_year,
+					1 + now.tm_mon,
+					now.tm_mday,
+					now.tm_hour,
+					now.tm_min,
+					now.tm_sec );
+
+			Q_strncpyz( serverName, cls.servername, MAX_OSPATH );
+			// Replace the ":" in the address as it is not a valid
+			// file name character
+			p = strstr( serverName, ":" );
+			if( p ) {
+				*p = '.';
+			}
+
+			Q_strncpyz( mapName, COM_SkipPath( cl.mapname ), sizeof( cl.mapname ) );
+			COM_StripExtension( mapName, mapName );
+
+			Cbuf_ExecuteText( EXEC_NOW,
+					va( "record %s-%s-%s", nowString, serverName, mapName ) );
+		}
+		else if( cls.state != CA_ACTIVE && clc.demorecording ) {
+			// Recording, but not CA_ACTIVE, so stop recording
+			CL_StopRecord_f( );
+		}
+	}
+
 	// save the msec before checking pause
 	cls.realFrametime = msec;
 
@@ -2124,6 +2175,8 @@ void CL_InitRef( void ) {
 	ri.CIN_UploadCinematic = CIN_UploadCinematic;
 	ri.CIN_PlayCinematic = CIN_PlayCinematic;
 	ri.CIN_RunCinematic = CIN_RunCinematic;
+  
+	ri.CL_WriteAVIVideoFrame = CL_WriteAVIVideoFrame;
 
 	ret = GetRefAPI( REF_API_VERSION, &ri );
 
@@ -2161,6 +2214,72 @@ void CL_SetModel_f( void ) {
 	}
 }
 
+
+//===========================================================================================
+
+
+/*
+===============
+CL_Video_f
+
+video
+video [filename]
+===============
+*/
+void CL_Video_f( void )
+{
+  char  filename[ MAX_OSPATH ];
+  int   i, last;
+
+  if( Cmd_Argc( ) == 2 )
+  {
+    // explicit filename
+    Com_sprintf( filename, MAX_OSPATH, "videos/%s.avi", Cmd_Argv( 1 ) );
+  }
+  else
+  {
+    // scan for a free filename
+    for( i = 0; i <= 9999; i++ )
+    {
+      int a, b, c, d;
+
+      last = i;
+
+      a = last / 1000;
+      last -= a * 1000;
+      b = last / 100;
+      last -= b * 100;
+      c = last / 10;
+      last -= c * 10;
+      d = last;
+
+      Com_sprintf( filename, MAX_OSPATH, "videos/video%d%d%d%d.avi",
+          a, b, c, d );
+
+      if( !FS_FileExists( filename ) )
+        break; // file doesn't exist
+    }
+
+    if( i > 9999 )
+    {
+      Com_Printf( S_COLOR_RED "ERROR: no free file names to create video\n" );
+      return;
+    }
+  }
+
+  CL_OpenAVIForWriting( filename );
+}
+
+/*
+===============
+CL_StopVideo_f
+===============
+*/
+void CL_StopVideo_f( void )
+{
+  CL_CloseAVI( );
+}
+
 /*
 ====================
 CL_Init
@@ -2196,7 +2315,9 @@ void CL_Init( void ) {
 	cl_activeAction = Cvar_Get( "activeAction", "", CVAR_TEMP );
 
 	cl_timedemo = Cvar_Get ("timedemo", "0", 0);
-	cl_avidemo = Cvar_Get ("cl_avidemo", "0", 0);
+	cl_autoRecordDemo = Cvar_Get ("cl_autoRecordDemo", "0", CVAR_ARCHIVE);
+	cl_avidemo = Cvar_Get ("cl_avidemo", "25", CVAR_ARCHIVE);
+	cl_aviMotionJpeg = Cvar_Get ("cl_aviMotionJpeg", "1", CVAR_ARCHIVE);
 	cl_forceavidemo = Cvar_Get ("cl_forceavidemo", "0", 0);
 
 	rconAddress = Cvar_Get ("rconAddress", "", 0);
@@ -2297,6 +2418,8 @@ void CL_Init( void ) {
 	Cmd_AddCommand ("fs_openedList", CL_OpenedPK3List_f );
 	Cmd_AddCommand ("fs_referencedList", CL_ReferencedPK3List_f );
 	Cmd_AddCommand ("model", CL_SetModel_f );
+	Cmd_AddCommand ("video", CL_Video_f );
+	Cmd_AddCommand ("stopvideo", CL_StopVideo_f );
 	CL_InitRef();
 
 	SCR_Init ();
@@ -2352,6 +2475,8 @@ void CL_Shutdown( void ) {
 	Cmd_RemoveCommand ("serverstatus");
 	Cmd_RemoveCommand ("showip");
 	Cmd_RemoveCommand ("model");
+	Cmd_RemoveCommand ("video");
+	Cmd_RemoveCommand ("stopvideo");
 
 	Cvar_Set( "cl_running", "0" );
 

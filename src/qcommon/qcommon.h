@@ -651,6 +651,9 @@ qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring );
 
 void FS_Rename( const char *from, const char *to );
 
+void FS_Remove( const char *osPath );
+void FS_HomeRemove( const char *homePath );
+
 /*
 ==============================================================
 
@@ -891,7 +894,6 @@ void S_ClearSoundBuffer( void );
 // call before filesystem access
 
 void SCR_DebugGraph (float value, int color);	// FIXME: move logging to common?
-
 
 //
 // server interface

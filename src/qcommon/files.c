@@ -56,7 +56,7 @@ The "cd path" is the path to an alternate hierarchy that will be searched if a f
 is not located in the base path.  A user can do a partial install that copies some
 data to a base path created on their hard drive and leave the rest on the cd.  Files
 are never writen to the cd path.  It defaults to a value set by the installer, like
-"e:\quake3", but it can be overridden with "+set ds_cdpath g:\quake3".
+"e:\quake3", but it can be overridden with "+set fs_cdpath g:\quake3".
 
 If a user runs the game directly from a CD, the base path would be on the CD.  This
 should still function correctly, but all file writes will fail (harmlessly).
@@ -201,7 +201,8 @@ or configs will never get loaded from disk!
 
 // every time a new demo pk3 file is built, this checksum must be updated.
 // the easiest way to get it is to just run the game and see what it spits out
-#define	DEMO_PAK_CHECKSUM	437558517u
+#define	DEMO_PAK0_CHECKSUM	2985612116u
+#define	PAK0_CHECKSUM				1566731103u
 
 // if this is defined, the executable positively won't work with any paks other
 // than the demo pak, even if productid is present.  This is only used for our
@@ -306,11 +307,6 @@ static char		*fs_serverReferencedPakNames[MAX_SEARCH_PATHS];		// pk3 names
 // last valid game folder used
 char lastValidBase[MAX_OSPATH];
 char lastValidGame[MAX_OSPATH];
-
-// productId: This file is copyright 1999 Id Software, and may not be duplicated except during a licensed installation of the full commercial version of Quake 3:Arena
-static byte fs_scrambledProductId[152] = {
-220, 129, 255, 108, 244, 163, 171, 55, 133, 65, 199, 36, 140, 222, 53, 99, 65, 171, 175, 232, 236, 193, 210, 250, 169, 104, 231, 231, 21, 201, 170, 208, 135, 175, 130, 136, 85, 215, 71, 23, 96, 32, 96, 83, 44, 240, 219, 138, 184, 215, 73, 27, 196, 247, 55, 139, 148, 68, 78, 203, 213, 238, 139, 23, 45, 205, 118, 186, 236, 230, 231, 107, 212, 1, 10, 98, 30, 20, 116, 180, 216, 248, 166, 35, 45, 22, 215, 229, 35, 116, 250, 167, 117, 3, 57, 55, 201, 229, 218, 222, 128, 12, 141, 149, 32, 110, 168, 215, 184, 53, 31, 147, 62, 12, 138, 67, 132, 54, 125, 6, 221, 148, 140, 4, 21, 44, 198, 3, 126, 12, 100, 236, 61, 42, 44, 251, 15, 135, 14, 134, 89, 92, 177, 246, 152, 106, 124, 78, 118, 80, 28, 42
-};
 
 #ifdef FS_MISSING
 FILE*		missingFiles = NULL;
@@ -566,8 +562,19 @@ FS_Remove
 
 ===========
 */
-static void FS_Remove( const char *osPath ) {
+void FS_Remove( const char *osPath ) {
 	remove( osPath );
+}
+
+/*
+===========
+FS_HomeRemove
+
+===========
+*/
+void FS_HomeRemove( const char *homePath ) {
+	remove( FS_BuildOSPath( fs_homepath->string,
+			fs_gamedir, homePath ) );
 }
 
 /*
@@ -2829,69 +2836,6 @@ static void FS_Startup( const char *gameName ) {
 	Com_Printf( "%d files in pk3 files\n", fs_packFiles );
 }
 
-
-/*
-===================
-FS_SetRestrictions
-
-Looks for product keys and restricts media add on ability
-if the full version is not found
-===================
-*/
-static void FS_SetRestrictions( void ) {
-	searchpath_t	*path;
-	char			*productId;
-
-	return;
-
-#ifndef PRE_RELEASE_DEMO
-
-	// if fs_restrict is set, don't even look for the id file,
-	// which allows the demo release to be tested even if
-	// the full game is present
-	if ( !fs_restrict->integer ) {
-		// look for the full game id
-		FS_ReadFile( "productid.txt", (void **)&productId );
-		if ( productId ) {
-			// check against the hardcoded string
-			int		seed, i;
-
-			seed = 5000;
-			for ( i = 0 ; i < sizeof( fs_scrambledProductId ) ; i++ ) {
-				if ( ( fs_scrambledProductId[i] ^ (seed&255) ) != productId[i] ) {
-					break;
-				}
-				seed = (69069 * seed + 1);
-			}
-
-			FS_FreeFile( productId );
-
-			if ( i == sizeof( fs_scrambledProductId ) ) {
-				return;	// no restrictions
-			}
-			Com_Error( ERR_FATAL, "Invalid product identification" );
-		}
-	}
-#endif
-	Cvar_Set( "fs_restrict", "1" );
-
-	Com_Printf( "\nRunning in restricted demo mode.\n\n" );
-
-	// restart the filesystem with just the demo directory
-	FS_Shutdown(qfalse);
-	FS_Startup( DEMOGAME );
-
-	// make sure that the pak file has the header checksum we expect
-	for ( path = fs_searchpaths ; path ; path = path->next ) {
-		if ( path->pack ) {
-			// a tiny attempt to keep the checksum from being scannable from the exe
-			if ( (path->pack->checksum ^ 0x02261994u) != (DEMO_PAK_CHECKSUM ^ 0x02261994u) ) {
-				Com_Error( ERR_FATAL, "Corrupted pak0.pk3: %u", path->pack->checksum );
-			}
-		}
-	}
-}
-
 /*
 =====================
 FS_GamePureChecksum
@@ -3259,9 +3203,6 @@ void FS_InitFilesystem( void ) {
 	// try to start up normally
 	FS_Startup( BASEGAME );
 
-	// see if we are going to allow add-ons
-	FS_SetRestrictions();
-
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
 	// graphics screen when the font fails to load
@@ -3295,9 +3236,6 @@ void FS_Restart( int checksumFeed ) {
 
 	// try to start up normally
 	FS_Startup( BASEGAME );
-
-	// see if we are going to allow add-ons
-	FS_SetRestrictions();
 
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable

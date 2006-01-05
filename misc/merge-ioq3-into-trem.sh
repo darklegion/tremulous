@@ -31,7 +31,7 @@ rm -f `find -iname "*.def"`
 rm -f `find -iname "*.q3asm"`
 rm -f `find -iname "*.mak"`
 rm -f code/tools/lcc/makefile.nt
-rm -f code/win32/msvc/
+rm -rf code/win32/msvc/
 
 # Remove Linux docs
 rm -rf code/unix/LinuxSupport/

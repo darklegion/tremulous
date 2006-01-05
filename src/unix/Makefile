@@ -21,6 +21,12 @@ else
   COMPILE_ARCH=$(shell uname -m | sed -e s/i.86/i386/)
 endif
 
+BUILD_CLIENT     =
+BUILD_CLIENT_SMP =
+BUILD_SERVER     =
+BUILD_GAME_SO    =
+BUILD_GAME_QVM   =
+
 #############################################################################
 #
 # If you require a different configuration from the defaults below, create a
@@ -90,14 +96,6 @@ ifndef USE_LOCAL_HEADERS
 USE_LOCAL_HEADERS=1
 endif
 
-ifndef BUILD_CLIENT
-BUILD_CLIENT=1
-endif
-
-ifndef BUILD_SERVER
-BUILD_SERVER=1
-endif
-
 #############################################################################
 
 BD=debug-$(PLATFORM)-$(ARCH)
@@ -135,7 +133,6 @@ MKDIR=mkdir
 
 ifeq ($(PLATFORM),linux)
 
-  GLIBC=-glibc
   CC=gcc
 
   ifeq ($(ARCH),alpha)
@@ -227,23 +224,6 @@ ifeq ($(PLATFORM),linux)
     LDFLAGS+=-m32
   endif
 
-  ifeq ($(ARCH),axp)
-    TARGETS=\
-      $(B)/$(PLATFORM)tremded
-  else
-    TARGETS=\
-      $(B)/$(PLATFORM)tremulous \
-      $(B)/$(PLATFORM)tremded \
-      $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
-      $(B)/base/ui$(ARCH).$(SHLIBEXT)     \
-      $(B)/base/vm/cgame.qvm \
-      $(B)/base/vm/qagame.qvm \
-      $(B)/base/vm/ui.qvm
-#      $(B)/$(PLATFORM)tremulous-smp \
-
-  endif
-
 else # ifeq Linux
 
 #############################################################################
@@ -251,7 +231,6 @@ else # ifeq Linux
 #############################################################################
 
 ifeq ($(PLATFORM),darwin)
-  GLIBC=
   CC=gcc
 
   # !!! FIXME: calling conventions are still broken! See Bugzilla #2519
@@ -326,17 +305,6 @@ ifeq ($(PLATFORM),darwin)
     endif
   endif
 
-  TARGETS=\
-      $(B)/$(PLATFORM)tremulous \
-      $(B)/$(PLATFORM)tremded \
-      $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
-      $(B)/base/ui$(ARCH).$(SHLIBEXT)     \
-      $(B)/base/vm/cgame.qvm \
-      $(B)/base/vm/qagame.qvm \
-      $(B)/base/vm/ui.qvm
-      $(B)/$(PLATFORM)tremulous-smp \
-
 else # ifeq darwin
 
 
@@ -382,14 +350,8 @@ ifeq ($(PLATFORM),mingw32)
     LDFLAGS+=-m32
   endif
 
-  TARGETS=\
-    $(B)/$(PLATFORM)tremulous$(BINEXT) \
-    $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
-    $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
-    $(B)/base/ui$(ARCH).$(SHLIBEXT)     \
-    $(B)/base/vm/cgame.qvm \
-    $(B)/base/vm/qagame.qvm \
-    $(B)/base/vm/ui.qvm
+  BUILD_SERVER = 0
+  BUILD_CLIENT_SMP = 0
 
 else # ifeq mingw32
 
@@ -398,8 +360,6 @@ else # ifeq mingw32
 #############################################################################
 
 ifeq ($(PLATFORM),freebsd)
-
-  GLIBC= #libc is irrelevant
 
   ifneq (,$(findstring alpha,$(shell uname -m)))
     ARCH=axp
@@ -441,21 +401,6 @@ ifeq ($(PLATFORM),freebsd)
 
   CLIENT_LDFLAGS=-L/usr/X11R6/$(LIB) -lGL -lX11 -lXext -lXxf86dga -lXxf86vm
 
-  ifeq ($(ARCH),axp)
-    TARGETS=\
-      $(B)/$(PLATFORM)tremded
-  else
-    TARGETS=\
-      $(B)/$(PLATFORM)tremulous \
-      $(B)/$(PLATFORM)tremded \
-      $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
-      $(B)/base/ui$(ARCH).$(SHLIBEXT)     \
-      $(B)/base/vm/cgame.qvm \
-      $(B)/base/vm/qagame.qvm \
-      $(B)/base/vm/ui.qvm
-  endif
-
 else # ifeq freebsd
 
 #############################################################################
@@ -482,17 +427,8 @@ ifeq ($(PLATFORM),netbsd)
     BASE_CFLAGS += -DNO_VM_COMPILED
   endif
 
-  ifeq ($(ARCH),i386)
-    TARGETS=\
-      $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
-      $(B)/base/ui$(ARCH).$(SHLIBEXT)     \
-      $(B)/$(PLATFORM)tremded
-  else
-    TARGETS=\
-      $(B)/$(PLATFORM)tremded
-
-  endif
+  BUILD_CLIENT = 0
+  BUILD_GAME_QVM = 0
 
 else # ifeq netbsd
 
@@ -503,7 +439,6 @@ else # ifeq netbsd
 ifeq ($(PLATFORM),irix)
 
   ARCH=mips  #default to MIPS
-  GLIBC=  #libc is irrelevant
 
   CC=cc
   BASE_CFLAGS=-Dstricmp=strcasecmp -Xcpluscomm -woff 1185 -mips3 \
@@ -518,9 +453,6 @@ ifeq ($(PLATFORM),irix)
   LDFLAGS=-ldl -lm
   CLIENT_LDFLAGS=-L/usr/X11/$(LIB) -lGL -lX11 -lXext -lm
 
-  TARGETS=$(B)/$(PLATFORM)tremulous \
-    $(B)/$(PLATFORM)tremded
-
 else # ifeq IRIX
 
 #############################################################################
@@ -529,7 +461,6 @@ else # ifeq IRIX
 
 ifeq ($(PLATFORM),SunOS)
 
-  GLIBC= #libc is irrelevant
   CC=gcc
   INSTALL=ginstall
   MKDIR=gmkdir
@@ -560,9 +491,9 @@ ifeq ($(PLATFORM),SunOS)
   OPTIMIZE = -O3 -ffast-math -funroll-loops
 
   ifeq ($(ARCH),sparc)
-    OPTIMIZE = -O0 -ffast-math -falign-loops=2 \
+    OPTIMIZE = -O3 -ffast-math -falign-loops=2 \
       -falign-jumps=2 -falign-functions=2 -fstrength-reduce \
-      -mtune=ultrasparc -mv8plus -munaligned-doubles \
+      -mtune=ultrasparc -mv8plus -mno-faster-structs \
       -funroll-loops
     BASE_CFLAGS += -DNO_VM_COMPILED
   else
@@ -584,6 +515,8 @@ ifeq ($(PLATFORM),SunOS)
   THREAD_LDFLAGS=-lpthread
   LDFLAGS=-lsocket -lnsl -ldl -lm
 
+  BOTCFLAGS=-O0
+
   ifeq ($(USE_SDL),1)
     CLIENT_LDFLAGS=$(shell sdl-config --libs) -L/usr/X11/lib -lGLU -lX11 -lXext
   else
@@ -594,31 +527,6 @@ ifeq ($(PLATFORM),SunOS)
     # Solarix x86 make ...
     BASE_CFLAGS += -m32
     LDFLAGS+=-m32
-  endif
-
-  ifeq ($(ARCH),sparc)
-    TARGETS=\
-      $(B)/$(PLATFORM)tremulous \
-      $(B)/$(PLATFORM)tremded \
-      $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
-      $(B)/base/ui$(ARCH).$(SHLIBEXT)     \
-      $(B)/base/vm/cgame.qvm \
-      $(B)/base/vm/qagame.qvm \
-      $(B)/base/vm/ui.qvm \
-      $(B)/$(PLATFORM)tremulous-smp
-  else
-    TARGETS=\
-      $(B)/$(PLATFORM)tremulous \
-      $(B)/$(PLATFORM)tremded \
-      $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
-      $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
-      $(B)/base/ui$(ARCH).$(SHLIBEXT)     \
-      $(B)/base/vm/cgame.qvm \
-      $(B)/base/vm/qagame.qvm \
-      $(B)/base/vm/ui.qvm \
-      $(B)/$(PLATFORM)tremulous-smp
-
   endif
 
 else # ifeq SunOS
@@ -635,12 +543,6 @@ else # ifeq SunOS
   SHLIBCFLAGS=-fPIC
   SHLIBLDFLAGS=-shared
 
-  TARGETS=\
-    $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
-    $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
-    $(B)/base/ui$(ARCH).$(SHLIBEXT) \
-    $(B)/$(PLATFORM)tremded
-
 endif #Linux
 endif #darwin
 endif #mingw32
@@ -649,30 +551,38 @@ endif #NetBSD
 endif #IRIX
 endif #SunOS
 
+TARGETS =
+
+ifneq ($(BUILD_SERVER),0)
+  TARGETS += $(B)/tremded.$(ARCH)$(BINEXT)
+endif
+
+ifneq ($(BUILD_CLIENT),0)
+  TARGETS += $(B)/tremulous.$(ARCH)$(BINEXT)
+  ifneq ($(BUILD_CLIENT_SMP),0)
+    TARGETS += $(B)/tremulous.$(ARCH)$(BINEXT)
+  endif
+endif
+
+ifneq ($(BUILD_GAME_SO),0)
+  TARGETS += \
+    $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
+    $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
+    $(B)/base/ui$(ARCH).$(SHLIBEXT)
+endif
+
+ifneq ($(BUILD_GAME_QVM),0)
+  ifneq ($(CROSS_COMPILING),1)
+    TARGETS += \
+      $(B)/base/vm/cgame.qvm \
+      $(B)/base/vm/qagame.qvm \
+      $(B)/base/vm/ui.qvm \
+      qvmdeps
+  endif
+endif
+
 ifeq ($(USE_CCACHE),1)
   CC := ccache $(CC)
-endif
-
-ifneq ($(BUILD_SERVER),1)
-  TARGETS := $(subst $(B)/$(PLATFORM)tremded,,$(TARGETS))
-endif
-
-ifneq ($(BUILD_CLIENT),1)
-  TARGETS := \
-  $(subst $(B)/base/cgame$(ARCH).$(SHLIBEXT),,\
-  $(subst $(B)/base/ui$(ARCH).$(SHLIBEXT),,\
-  $(subst $(B)/base/vm/cgame.qvm,,\
-  $(subst $(B)/base/vm/ui.qvm,,\
-  $(subst $(B)/$(PLATFORM)tremulous-smp$(BINEXT),,\
-  $(subst $(B)/$(PLATFORM)tremulous$(BINEXT),,$(TARGETS) ))))))
-endif
-
-# Never build qvms when cross-compiling
-ifeq ($(CROSS_COMPILING),1)
-  TARGETS := \
-  $(subst $(B)/base/vm/qagame.qvm,,\
-  $(subst $(B)/base/vm/cgame.qvm,,\
-  $(subst $(B)/base/vm/ui.qvm,,$(TARGETS) )))
 endif
 
 ifdef DEFAULT_BASEDIR
@@ -691,7 +601,7 @@ endif
 
 DO_CC=$(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) -o $@ -c $<
 DO_SMP_CC=$(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) -DSMP -o $@ -c $<
-DO_BOT_CC=$(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) -DBOTLIB -o $@ -c $<   # $(SHLIBCFLAGS) # bk001212
+DO_BOT_CC=$(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) $(BOTCFLAGS) -DBOTLIB -o $@ -c $<   # $(SHLIBCFLAGS) # bk001212
 DO_DEBUG_CC=$(CC) $(NOTSHLIBCFLAGS) $(DEBUG_CFLAGS) -o $@ -c $<
 DO_SHLIB_CC=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
 DO_SHLIB_DEBUG_CC=$(CC) $(DEBUG_CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
@@ -767,6 +677,7 @@ Q3OBJ = \
   $(B)/client/cl_parse.o \
   $(B)/client/cl_scrn.o \
   $(B)/client/cl_ui.o \
+  $(B)/client/cl_avi.o \
   \
   $(B)/client/cm_load.o \
   $(B)/client/cm_patch.o \
@@ -901,12 +812,21 @@ Q3OBJ = \
   $(B)/client/tr_surface.o \
   $(B)/client/tr_world.o \
 
-
 ifeq ($(ARCH),i386)
   Q3OBJ += $(B)/client/vm_x86.o
+  Q3OBJ += \
+    $(B)/client/snd_mixa.o \
+    $(B)/client/matha.o \
+    $(B)/client/ftola.o \
+    $(B)/client/snapvectora.o
 endif
 ifeq ($(ARCH),x86)
   Q3OBJ += $(B)/client/vm_x86.o
+  Q3OBJ += \
+    $(B)/client/snd_mixa.o \
+    $(B)/client/matha.o \
+    $(B)/client/ftola.o \
+    $(B)/client/snapvectora.o
 endif
 ifeq ($(ARCH),x86_64)
   Q3OBJ += $(B)/client/vm_x86_64.o
@@ -918,48 +838,9 @@ ifeq ($(ARCH),ppc)
   endif
 endif
 
-#platform specific objects
-ifeq ($(PLATFORM),freebsd)
-ifeq ($(ARCH),axp)
-  Q3POBJ=
-else
-  Q3POBJ=\
-    $(B)/client/unix_main.o \
-    $(B)/client/unix_net.o \
-    $(B)/client/unix_shared.o \
-    $(B)/client/linux_signals.o \
-    $(B)/client/linux_common.o \
-    $(B)/client/linux_qgl.o \
-    $(B)/client/sdl_glimp.o \
-    $(B)/client/linux_glimp.o \
-    $(B)/client/linux_snd.o \
-    $(B)/client/sdl_snd.o \
-    $(B)/client/snd_mixa.o \
-    $(B)/client/matha.o
 
-  ifeq ($(ARCH),i386)
-    Q3POBJ += $(B)/client/ftola.o $(B)/client/snapvectora.o
-    Q3POBJ_SMP += $(B)/client/ftola.o $(B)/client/snapvectora.o
-  endif
-
-endif # FreeBSD-axp
-else
-ifeq ($(PLATFORM),irix)
-  Q3POBJ=\
-    $(B)/client/unix_main.o \
-    $(B)/client/unix_net.o \
-    $(B)/client/unix_shared.o \
-    $(B)/client/irix_qgl.o \
-    $(B)/client/irix_glimp.o \
-    $(B)/client/irix_snd.o
-else
 ifeq ($(PLATFORM),mingw32)
-  Q3POBJ=\
-    $(B)/client/linux_common.o \
-    $(B)/client/snd_mixa.o \
-    $(B)/client/matha.o \
-    $(B)/client/ftola.o \
-    $(B)/client/snapvectora.o \
+  Q3OBJ += \
     $(B)/client/win_gamma.o \
     $(B)/client/win_glimp.o \
     $(B)/client/win_input.o \
@@ -972,123 +853,38 @@ ifeq ($(PLATFORM),mingw32)
     $(B)/client/win_wndproc.o \
     $(B)/client/win_resource.o
 else
-ifeq ($(PLATFORM),linux)
-ifeq ($(ARCH),axp)
-  Q3POBJ=
-else
-  Q3POBJ=\
+  Q3OBJ += \
     $(B)/client/unix_main.o \
     $(B)/client/unix_net.o \
     $(B)/client/unix_shared.o \
     $(B)/client/linux_signals.o \
-    $(B)/client/linux_common.o \
     $(B)/client/linux_qgl.o \
-    $(B)/client/linux_glimp.o \
-    $(B)/client/sdl_glimp.o \
-    $(B)/client/linux_joystick.o \
-    $(B)/client/linux_snd.o \
-    $(B)/client/sdl_snd.o \
-    $(B)/client/snd_mixa.o \
-    $(B)/client/matha.o \
-
-  Q3POBJ_SMP=\
-    $(B)/client/unix_main.o \
-    $(B)/client/unix_net.o \
-    $(B)/client/unix_shared.o \
-    $(B)/client/linux_signals.o \
-    $(B)/client/linux_common.o \
-    $(B)/client/linux_qgl.o \
-    $(B)/client/linux_glimp_smp.o \
-    $(B)/client/linux_joystick.o \
-    $(B)/client/linux_snd.o \
-    $(B)/client/sdl_snd.o \
-    $(B)/client/snd_mixa.o \
-    $(B)/client/matha.o
-
-  ifeq ($(ARCH),i386)
-    Q3POBJ += $(B)/client/ftola.o $(B)/client/snapvectora.o
-    Q3POBJ_SMP += $(B)/client/ftola.o $(B)/client/snapvectora.o
-  endif
-endif #Linux-axp
-
-else
-ifeq ($(PLATFORM),darwin)
-  Q3POBJ=\
-    $(B)/client/unix_main.o \
-    $(B)/client/unix_net.o \
-    $(B)/client/unix_shared.o \
-    $(B)/client/linux_signals.o \
-    $(B)/client/linux_common.o \
-    $(B)/client/linux_qgl.o \
-    $(B)/client/linux_glimp.o \
-    $(B)/client/sdl_glimp.o \
-    $(B)/client/linux_joystick.o \
-    $(B)/client/linux_snd.o \
-    $(B)/client/sdl_snd.o \
-
-  Q3POBJ_SMP=\
-    $(B)/client/unix_main.o \
-    $(B)/client/unix_net.o \
-    $(B)/client/unix_shared.o \
-    $(B)/client/linux_signals.o \
-    $(B)/client/linux_common.o \
-    $(B)/client/linux_qgl.o \
-    $(B)/client/sdl_glimp_smp.o \
-    $(B)/client/linux_joystick.o \
-    $(B)/client/linux_snd.o \
-    $(B)/client/sdl_snd.o \
-
-  ifeq ($(ARCH),i386)
-    I386OBJS := \
-      $(B)/client/ftola.o \
-      $(B)/client/snapvectora.o \
-      $(B)/client/snd_mixa.o \
-      $(B)/client/matha.o \
-
-    Q3POBJ += $(I386OBJS)
-    Q3POBJ_SMP += $(I386OBJS)
-  endif
-
-else
-ifeq ($(PLATFORM),SunOS)
-  Q3POBJ=\
-    $(B)/client/unix_main.o \
-    $(B)/client/unix_net.o \
-    $(B)/client/unix_shared.o \
-    $(B)/client/linux_signals.o \
-    $(B)/client/linux_common.o \
-    $(B)/client/linux_qgl.o \
-    $(B)/client/linux_glimp.o \
     $(B)/client/linux_snd.o \
     $(B)/client/sdl_snd.o
 
-  Q3POBJ_SMP=\
-    $(B)/client/unix_main.o \
-    $(B)/client/unix_net.o \
-    $(B)/client/unix_shared.o \
-    $(B)/client/linux_signals.o \
-    $(B)/client/linux_common.o \
-    $(B)/client/linux_qgl.o \
-    $(B)/client/linux_glimp_smp.o \
-    $(B)/client/linux_snd.o \
-    $(B)/client/sdl_snd.o
-
-  ifeq ($(ARCH),i386)
-    Q3POBJ += $(B)/client/ftola.o $(B)/client/snapvectora.o $(B)/client/snd_mixa.o $(B)/client/matha.o
-    Q3POBJ_SMP += $(B)/client/ftola.o $(B)/client/snapvectora.o
+  ifeq ($(PLATFORM),linux)
+    Q3OBJ += $(B)/client/linux_joystick.o
   endif
 
-endif #SunOS
-endif #Linux
-endif #darwin
-endif #mingw32
-endif #IRIX
-endif #FreeBSD
+  ifeq ($(USE_SDL),1)
+    ifneq ($(PLATFORM),darwin)
+      BUILD_CLIENT_SMP = 0
+    endif
+  endif
 
-$(B)/$(PLATFORM)tremulous$(BINEXT): $(Q3OBJ) $(Q3POBJ) $(LIBSDLMAIN)
+  Q3POBJ = \
+    $(B)/client/linux_glimp.o \
+    $(B)/client/sdl_glimp.o
+
+  Q3POBJ_SMP = \
+    $(B)/client/linux_glimp_smp.o \
+    $(B)/client/sdl_glimp_smp.o
+endif
+
+$(B)/tremulous.$(ARCH)$(BINEXT): $(Q3OBJ) $(Q3POBJ) $(LIBSDLMAIN)
 	$(CC)  -o $@ $(Q3OBJ) $(Q3POBJ) $(CLIENT_LDFLAGS) $(LDFLAGS) $(LIBSDLMAIN)
 
-$(B)/$(PLATFORM)tremulous-smp$(BINEXT): $(Q3OBJ) $(Q3POBJ_SMP) $(LIBSDLMAIN)
+$(B)/tremulous-smp.$(ARCH)$(BINEXT): $(Q3OBJ) $(Q3POBJ_SMP) $(LIBSDLMAIN)
 	$(CC)  -o $@ $(Q3OBJ) $(Q3POBJ_SMP) $(CLIENT_LDFLAGS) \
 		$(THREAD_LDFLAGS) $(LDFLAGS) $(LIBSDLMAIN)
 
@@ -1110,6 +906,7 @@ $(B)/client/cl_net_chan.o : $(CDIR)/cl_net_chan.c; $(DO_CC)
 $(B)/client/cl_parse.o : $(CDIR)/cl_parse.c; $(DO_CC)
 $(B)/client/cl_scrn.o : $(CDIR)/cl_scrn.c; $(DO_CC)
 $(B)/client/cl_ui.o : $(CDIR)/cl_ui.c; $(DO_CC)
+$(B)/client/cl_avi.o : $(CDIR)/cl_avi.c; $(DO_CC)
 $(B)/client/snd_adpcm.o : $(CDIR)/snd_adpcm.c; $(DO_CC)
 $(B)/client/snd_dma.o : $(CDIR)/snd_dma.c; $(DO_CC)
 $(B)/client/snd_mem.o : $(CDIR)/snd_mem.c; $(DO_CC)
@@ -1249,7 +1046,6 @@ $(B)/client/irix_glimp_smp.o : $(UDIR)/irix_glimp.c; $(DO_SMP_CC)
 $(B)/client/irix_snd.o : $(UDIR)/irix_snd.c; $(DO_CC)
 $(B)/client/irix_input.o : $(UDIR)/irix_input.c; $(DO_CC)
 $(B)/client/linux_signals.o : $(UDIR)/linux_signals.c; $(DO_CC) $(GL_CFLAGS)
-$(B)/client/linux_common.o : $(UDIR)/linux_common.c; $(DO_CC)
 $(B)/client/linux_glimp.o : $(UDIR)/linux_glimp.c; $(DO_CC)  $(GL_CFLAGS)
 $(B)/client/sdl_glimp.o : $(UDIR)/sdl_glimp.c; $(DO_CC)  $(GL_CFLAGS)
 $(B)/client/linux_glimp_smp.o : $(UDIR)/linux_glimp.c; $(DO_SMP_CC)  $(GL_CFLAGS)
@@ -1352,7 +1148,6 @@ Q3DOBJ = \
   $(B)/ded/l_struct.o \
   \
   $(B)/ded/linux_signals.o \
-  $(B)/ded/linux_common.o \
   $(B)/ded/unix_main.o \
   $(B)/ded/unix_net.o \
   $(B)/ded/unix_shared.o \
@@ -1376,7 +1171,7 @@ ifeq ($(ARCH),ppc)
   endif
 endif
 
-$(B)/$(PLATFORM)tremded$(BINEXT): $(Q3DOBJ)
+$(B)/tremded.$(ARCH)$(BINEXT): $(Q3DOBJ)
 	$(CC) -o $@ $(Q3DOBJ) $(LDFLAGS)
 
 $(B)/ded/sv_bot.o : $(SDIR)/sv_bot.c; $(DO_DED_CC)
@@ -1434,7 +1229,6 @@ $(B)/ded/l_script.o : $(BLIBDIR)/l_script.c; $(DO_BOT_CC)
 $(B)/ded/l_struct.o : $(BLIBDIR)/l_struct.c; $(DO_BOT_CC)
 
 $(B)/ded/linux_signals.o : $(UDIR)/linux_signals.c; $(DO_DED_CC)
-$(B)/ded/linux_common.o : $(UDIR)/linux_common.c; $(DO_DED_CC)
 $(B)/ded/unix_main.o : $(UDIR)/unix_main.c; $(DO_DED_CC)
 $(B)/ded/unix_net.o : $(UDIR)/unix_net.c; $(DO_DED_CC)
 $(B)/ded/unix_shared.o : $(UDIR)/unix_shared.c; $(DO_DED_CC)
@@ -1611,11 +1405,11 @@ $(B)/base/qcommon/%.asm: $(CMDIR)/%.c
 #############################################################################
 
 copyfiles: build_release
-	@if [ ! -d $(COPYDIR)/base ]; then echo "You need to set COPYDIR to where you installed Quake III!"; false; fi
-	$(INSTALL) -s -m 0755 $(BR)/$(PLATFORM)tremulous$(BINEXT) $(COPYDIR)/tremulous
+	@if [ ! -d $(COPYDIR)/baseq3 ]; then echo "You need to set COPYDIR to where you installed Trem!"; false; fi
+	$(INSTALL) -s -m 0755 $(BR)/tremulous.$(ARCH)$(BINEXT) $(COPYDIR)/tremulous.$(ARCH)$(BINEXT)
 
-	@if [ -f $(BR)/$(PLATFORM)tremded$(BINEXT) ]; then \
-		$(INSTALL) -s -m 0755 $(BR)/$(PLATFORM)tremded$(BINEXT) $(COPYDIR)/tremded
+	@if [ -f $(BR)/tremded.$(ARCH)$(BINEXT) ]; then \
+		$(INSTALL) -s -m 0755 $(BR)/tremded.$(ARCH)$(BINEXT) $(COPYDIR)/tremded.$(ARCH)$(BINEXT); \
 	fi
 	-$(MKDIR) -p -m 0755 $(COPYDIR)/base
 	$(INSTALL) -s -m 0755 $(BR)/base/cgame$(ARCH).$(SHLIBEXT) \
@@ -1654,6 +1448,12 @@ installer: build_release
 #############################################################################
 
 D_FILES=$(shell find . -name '*.d')
+
+$(B)/base/vm/vm.d: $(GOBJ) $(CGOBJ) $(UIOBJ)
+	-rm -f $@
+	find $(B)/base -iname '*.d' | xargs sed -e 's/\.o/\.asm/g' > $@
+
+qvmdeps: $(B)/base/vm/vm.d
 
 ifneq ($(strip $(D_FILES)),)
   include $(D_FILES)
