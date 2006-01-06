@@ -108,12 +108,10 @@ UDIR=$(MOUNT_DIR)/unix
 W32DIR=$(MOUNT_DIR)/win32
 GDIR=$(MOUNT_DIR)/game
 CGDIR=$(MOUNT_DIR)/cgame
-BAIDIR=$(GDIR)
 BLIBDIR=$(MOUNT_DIR)/botlib
 NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
 JPDIR=$(MOUNT_DIR)/jpeg-6
-SPLNDIR=$(MOUNT_DIR)/splines
 
 # extract version info
 VERSION=$(shell grep Q3_VERSION ../qcommon/q_shared.h | \
@@ -830,6 +828,13 @@ ifeq ($(ARCH),x86)
 endif
 ifeq ($(ARCH),x86_64)
   Q3OBJ += $(B)/client/vm_x86_64.o
+
+  #FIXME: why do these need to be here?
+  Q3OBJ += \
+    $(B)/client/snd_mixa.o \
+    $(B)/client/matha.o \
+    $(B)/client/ftola.o \
+    $(B)/client/snapvectora.o
 endif
 
 ifeq ($(ARCH),ppc)
@@ -837,7 +842,6 @@ ifeq ($(ARCH),ppc)
     Q3OBJ += $(B)/client/$(VM_PPC).o
   endif
 endif
-
 
 ifeq ($(PLATFORM),mingw32)
   Q3OBJ += \

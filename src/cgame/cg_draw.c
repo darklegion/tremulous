@@ -1403,6 +1403,42 @@ static void CG_DrawHostname( rectDef_t *rect, float text_x, float text_y,
 }
 
 /*
+==============
+CG_DrawDemoPlayback
+==============
+*/
+static void CG_DrawDemoPlayback( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  if( !cg_drawDemoState.integer )
+    return;
+
+  if( trap_GetDemoState( ) != DS_PLAYBACK )
+    return;
+
+  trap_R_SetColor( color );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
+}
+
+/*
+==============
+CG_DrawDemoRecording
+==============
+*/
+static void CG_DrawDemoRecording( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  if( !cg_drawDemoState.integer )
+    return;
+
+  if( trap_GetDemoState( ) != DS_RECORDING )
+    return;
+
+  trap_R_SetColor( color );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
+}
+
+/*
 ======================
 CG_UpdateMediaFraction
 
@@ -2682,6 +2718,13 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       break;
     case CG_LAGOMETER:
       CG_DrawLagometer( &rect, text_x, text_y, scale, color );
+      break;
+
+    case CG_DEMO_PLAYBACK:
+      CG_DrawDemoPlayback( &rect, color, shader );
+      break;
+    case CG_DEMO_RECORDING:
+      CG_DrawDemoRecording( &rect, color, shader );
       break;
 
     case CG_CONSOLE:

@@ -94,6 +94,9 @@ equ trap_FS_GetFileList               -91
 equ trap_LiteralArgs                  -92
 equ trap_CM_BiSphereTrace             -93
 equ trap_CM_TransformedBiSphereTrace  -94
+equ trap_GetDemoState                 -95
+equ trap_GetDemoPos                   -96
+equ trap_GetDemoName                  -97
 
 equ memset                            -101
 equ memcpy                            -102

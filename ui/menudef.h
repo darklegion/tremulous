@@ -253,6 +253,8 @@
 #define CG_LAGOMETER              90
 #define CG_PLAYER_CROSSHAIRNAMES  114
 #define CG_STAGE_REPORT_TEXT      116
+#define CG_DEMO_PLAYBACK          117
+#define CG_DEMO_RECORDING         118
 
 #define CG_CONSOLE                91
 

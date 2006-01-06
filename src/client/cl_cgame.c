@@ -628,6 +628,13 @@ long CL_CgameSystemCalls( long *args ) {
   case CG_KEY_GETKEY:
 		return Key_GetKey( VMA(1) );
 
+	case CG_GETDEMOSTATE:
+		return CL_DemoState( );
+	case CG_GETDEMOPOS:
+		return CL_DemoPos( );
+	case CG_GETDEMONAME:
+		CL_DemoName( VMA(1), args[2] );
+		return 0;
 
 
 	case CG_MEMSET:

@@ -1383,6 +1383,7 @@ extern  vmCvar_t    cg_shadows;
 extern  vmCvar_t    cg_gibs;
 extern  vmCvar_t    cg_drawTimer;
 extern  vmCvar_t    cg_drawFPS;
+extern  vmCvar_t    cg_drawDemoState;
 extern  vmCvar_t    cg_drawSnapshot;
 extern  vmCvar_t    cg_draw3dIcons;
 extern  vmCvar_t    cg_drawIcons;
@@ -2021,3 +2022,7 @@ void          trap_startCamera( int time );
 qboolean      trap_getCameraInfo( int time, vec3_t *origin, vec3_t *angles );
 
 qboolean      trap_GetEntityToken( char *buffer, int bufferSize );
+
+int           trap_GetDemoState( void );
+int           trap_GetDemoPos( void );
+void          trap_GetDemoName( char *buffer, int size );

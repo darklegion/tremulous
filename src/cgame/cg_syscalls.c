@@ -541,3 +541,17 @@ void trap_CIN_SetExtents( int handle, int x, int y, int w, int h )
   syscall(CG_CIN_SETEXTENTS, handle, x, y, w, h);
 }
 
+int trap_GetDemoState( void )
+{
+  return syscall( CG_GETDEMOSTATE );
+}
+
+int trap_GetDemoPos( void )
+{
+  return syscall( CG_GETDEMOPOS );
+}
+
+void trap_GetDemoName( char *buffer, int size )
+{
+  syscall( CG_GETDEMONAME, buffer, size );
+}

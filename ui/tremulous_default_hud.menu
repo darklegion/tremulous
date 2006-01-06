@@ -88,6 +88,35 @@
       textaligny 0.5
       ownerdraw CG_LAGOMETER
     }   
+    //DEMO STATE
+    itemDef
+    {
+      name "demoRecording"
+      rect 596 100 32 32
+      style WINDOW_STYLE_EMPTY
+      visible 1
+      decoration
+      forecolor 1 0 0 1
+      textscale 0.3
+      textalignx 1
+      textaligny 0.5
+      ownerdraw CG_DEMO_RECORDING
+      background "ui/assets/neutral/circle.tga"
+    }   
+    itemDef
+    {
+      name "demoPlayback"
+      rect 596 100 32 32
+      style WINDOW_STYLE_EMPTY
+      visible 1
+      decoration
+      forecolor 1 1 1 1
+      textscale 0.3
+      textalignx 1
+      textaligny 0.5
+      ownerdraw CG_DEMO_PLAYBACK
+      background "ui/assets/forwardarrow.tga"
+    }   
     
     //PLAYER NAME
     itemDef  

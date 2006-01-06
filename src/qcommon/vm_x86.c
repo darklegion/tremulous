@@ -230,7 +230,7 @@ void AsmCall( void ) {
 		"doret:						\n\t" \
 		"	ret					\n\t" \
 		: "=rm" (callSyscallNum), "=rm" (callProgramStack), "=rm" (callOpStack) \
-		: "rm" (instructionPointers) \
+		: "m" (instructionPointers) \
 		: "ax", "di", "si", "cx" \
 	);
 }
