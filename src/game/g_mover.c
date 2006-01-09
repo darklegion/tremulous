@@ -1937,7 +1937,7 @@ void SP_func_button( gentity_t *ent )
   float   lip;
   char    *s;
 
-  G_SpawnString( "sound1to2", "sound/movers/switches/butn2.wav", &s );
+  G_SpawnString( "sound1to2", "sound/movers/switches/button1.wav", &s );
   ent->sound1to2 = G_SoundIndex( s );
 
   if( !ent->speed )

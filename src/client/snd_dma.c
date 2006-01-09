@@ -1142,7 +1142,7 @@ void S_GetSoundtime(void)
 
 	if( CL_VideoRecording( ) )
 	{
-		s_soundtime += (int)ceil( dma.speed / cl_avidemo->value );
+		s_soundtime += (int)ceil( dma.speed / cl_aviFrameRate->value );
 		return;
 	}
 
