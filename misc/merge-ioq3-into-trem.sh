@@ -30,12 +30,16 @@ rm -f `find -iname "*.vcproj"`
 rm -f `find -iname "*.def"`
 rm -f `find -iname "*.q3asm"`
 rm -f `find -iname "*.mak"`
+rm -f `find -iname "*.ico"`
+rm -f `find -iname "*.bmp"`
 rm -f code/tools/lcc/makefile.nt
 rm -rf code/win32/msvc/
 
 # Remove Linux docs
 rm -rf code/unix/LinuxSupport/
+rm -rf code/unix/setup/
 rm -f code/unix/README.*
+rm -f code/unix/quake3.*
 
 # Remove game code
 rm -rf code/cgame/ code/game/ code/ui/ code/q3_ui/
