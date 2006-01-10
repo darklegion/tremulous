@@ -1097,7 +1097,7 @@ $(B)/client/win_shared.o : $(W32DIR)/win_shared.c; $(DO_CC)
 $(B)/client/win_snd.o : $(W32DIR)/win_snd.c; $(DO_CC)
 $(B)/client/win_syscon.o : $(W32DIR)/win_syscon.c; $(DO_CC)
 $(B)/client/win_wndproc.o : $(W32DIR)/win_wndproc.c; $(DO_CC)
-$(B)/client/win_resource.o : $(W32DIR)/winquake.rc; $(DO_WINDRES)
+$(B)/client/win_resource.o : $(W32DIR)/win_resource.rc; $(DO_WINDRES)
 
 $(B)/client/vm_x86.o : $(CMDIR)/vm_x86.c; $(DO_CC)
 $(B)/client/vm_x86_64.o : $(CMDIR)/vm_x86_64.c; $(DO_CC)
