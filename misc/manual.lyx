@@ -30,7 +30,7 @@
 
 \layout Title
 
-TREMULOUS 1.0.2
+TREMULOUS 1.1.0
 \layout Standard
 
 
@@ -6130,10 +6130,15 @@ aShinyNewParticleSystem
   ejector { }
 \layout LyX-Code
 
+  thirdPersonOnly
+\layout LyX-Code
+
 }
 \layout Standard
 
-The role of the particle ejector is to create some number of new particles
+The thirdPersonOnly keyword may be used to specify that the particle system
+ is not visible from the first person if it relates to that client.
+ The role of the particle ejector is to create some number of new particles
  at a defined rate.
  These attributes are controlled by the following parameters:
 \layout Itemize
@@ -6222,6 +6227,15 @@ sync
  on birth and the last frame is displayed immediately before death.
 \layout Itemize
 
+model <model1> <model2> ...
+ <modelN> - use one of the specified models as the particle.
+ This cannot be used in conjunction with the shader keyword.
+\layout Itemize
+
+modelAnmation <firstFrame> <numFrames> <loopFrames> <fps>|sync - animation
+ parameters to use when model particles are employed.
+\layout Itemize
+
 
 \emph on 
 displacement <x> <y> <z> <variance>
@@ -6244,7 +6258,7 @@ normalDisplacement <displacement>
 
 
 \emph on 
-velocityType static|tag|cent|normal
+velocityType static|static_transform|tag|cent|normal
 \emph default 
  - this specifies how the particle will compute its initial velocity.
  
@@ -6253,7 +6267,8 @@ static
 \emph default 
  means it is specified statically in the .particle file, 
 \emph on 
-tag
+static_transform means the same, except that it is transformed by the orientatio
+n matrix of what it is attached to, tag
 \emph default 
  means the velocity is in the direction of the tag it is attached to, 
 \emph on 
@@ -6336,7 +6351,7 @@ parentVelocityFraction <fraction>
 
 
 \emph on 
-accelerationType static|tag|cent|normal
+accelerationType static|static_transform|tag|cent|normal
 \emph default 
  - this specifies how the particle will compute its acceleration.
  
@@ -6344,6 +6359,11 @@ accelerationType static|tag|cent|normal
 static
 \emph default 
  means it is specified statically in the .particle file, 
+\emph on 
+static_transform means the same, except that it is transformed by the orientatio
+n matrix of what it is attached to,
+\emph default 
+ 
 \emph on 
 tag
 \emph default 
@@ -6426,6 +6446,23 @@ bounce <fraction>|cull
 cull
 \emph default 
  is used particles are culled as soon as they collide with objects.
+\layout Itemize
+
+bounceMark <count> <radius> <shader> - make a mark at each bounce point
+ for up to <count> bounces.
+\layout Itemize
+
+bounceSound <count> <sound> - make a sound at each bounce point for up to
+ <count> bounces.
+\layout Itemize
+
+dynamicLight <delayRadius> <initialRadius> <finalRadius> { <r> <g> <b> }
+ - attach a dynamic light to this particle.
+\layout Itemize
+
+color <delay> { <ir> <ig> <ib> } { <fr> <fg> <fb> } - color the particle
+ where <i.> refers to the initial color component and <f.> refers to the final
+ color component.
 \layout Itemize
 
 
@@ -6525,6 +6562,10 @@ lifeTime <time>
 childSystem <particle system>
 \emph default 
  - specifies a particle system to attach to this particle.
+\layout Itemize
+
+childTrailSystem <trail system> - specifies a trail system to attach to
+ this particle.
 \layout Itemize
 
 
@@ -6698,6 +6739,110 @@ aShinyNewParticleSystem
 \layout LyX-Code
 
 }
+\layout Subsection
+
+Trail System
+\layout Standard
+
+Files matching the pattern scripts/*.trail are loaded as trail system description
+ files.
+ Each .trail file can contain an arbitrary number of discrete trail systems,
+ much like a .shader file can house many shaders.
+ A trail system is declared by a name followed by curly braces within which
+ the functionality of the trail system is defined.
+ For example:
+\layout LyX-Code
+
+aShinyNewTrailSystem { }
+\layout Standard
+
+Inside the particle system declaration are placed up to four trail beams.
+ Beams are identified by the keyword beam and curly braces:
+\layout LyX-Code
+
+aShinyNewTrailSystem
+\layout LyX-Code
+
+{
+\layout LyX-Code
+
+  beam { }
+\layout LyX-Code
+
+  beam { }
+\layout LyX-Code
+
+  thirdPersonOnly
+\layout LyX-Code
+
+}
+\layout Standard
+
+The thirdPersonOnly keyword may be used to specify that the trail system
+ is not visible from the first person if it relates to that client.
+ A trail beam describes the appearance of one element of the trail system:
+\layout LyX-Code
+
+\layout Itemize
+
+
+\emph on 
+shader <shader> - the shader to use to texture this beam.
+\layout Itemize
+
+segments <number> - the number of quads that make up the beam.
+\layout Itemize
+
+width <frontWidth> <backWidth> - the width of the beam at the front and
+ back.
+\layout Itemize
+
+alpha <frontAlpha> <backAlpha> - the alpha of the beam at the front and
+ back.
+\layout Itemize
+
+color { <fr> <fg> <fb> } { <br> <bg> <bb> } - the color of the beam at the
+ front and back.
+\layout Itemize
+
+segmentTime <time> - how long a single segment lasts when the trail is only
+ attached at one end.
+\layout Itemize
+
+fadeOutTime <time> - how long this beam takes to fade away.
+\layout Itemize
+
+textureType [stretch <frontTC> <backTC>]|[repeat [front|back] <repeatLength>]
+ - how to texture the beam.
+ stretch causes the texture to be stretched from the front to the back using
+ the specified texture coordinates.
+ repeat causes the texture to be repeated over a specified length either
+ from the front or the back.
+ 
+\layout Itemize
+
+model <model1> <model2> ...
+ <modelN> - use one of the specified models as the particle.
+ This cannot be used in conjunction with the shader keyword.
+\layout Itemize
+
+modelAnmation <firstFrame> <numFrames> <loopFrames> <fps>|sync - animation
+ parameters to use when model particles are employed.
+\layout Itemize
+
+
+\emph on 
+realLight
+\emph default 
+ - light particles using the lightgrid instead of fullbright.
+\layout Itemize
+
+jitter <magnitude> <period> - this specifies a random jitter of the position
+ of each beam node by magnitude every period.
+\layout Itemize
+
+jitterAttachments - if this is specified the end points of the beam are
+ jittered as well as the intervening nodes.
 \layout Subsection
 
 Map Rotation System
@@ -7051,7 +7196,7 @@ Richard
 \emph on 
 'R1CH'
 \emph default 
- Stanway -- Test server hosting
+ Stanway -- Server hosting
 \layout Standard
 
 Stéphane 
@@ -7062,6 +7207,12 @@ Stéphane
 \layout Standard
 
 Sourceforge and TARDIS -- Web hosting
+\layout Standard
+
+icculus.org -- Subversion hosting
+\layout Standard
+
+The contributors to icculus.org/quake3/ -- Various
 \layout Standard
 
 Arsonide, Bajoran, Bt, Chamooze, Crylar, Cybernetsam, dzjepp, ectox, Edo,

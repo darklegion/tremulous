@@ -962,6 +962,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   if( !strcmp( inflictor->classname, "team_human_tesla" ) )
     knockback *= 4;
 
+  // ...and for goon pouncing
+  if( mod == MOD_LEVEL3_POUNCE )
+    knockback *= 3;
+
   if( targ->client )
   {
     knockback = (int)( (float)knockback *

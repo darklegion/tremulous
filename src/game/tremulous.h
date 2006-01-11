@@ -74,7 +74,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL2_AREAZAP_DMG          ADM(80)
 #define LEVEL2_AREAZAP_RANGE        200.0f
 #define LEVEL2_AREAZAP_WIDTH        15.0f
-#define LEVEL2_AREAZAP_REPEAT       2000
+#define LEVEL2_AREAZAP_REPEAT       1500
 #define LEVEL2_AREAZAP_TIME         1000
 #define LEVEL2_AREAZAP_MAX_TARGETS  3
 #define LEVEL2_WALLJUMP_MAXSPEED    1000.0f
@@ -390,7 +390,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define FLAMER_PRICE                450
 #define FLAMER_GAS                  150
 #define FLAMER_REPEAT               200
-#define FLAMER_DMG                  HDM(31)
+#define FLAMER_DMG                  HDM(20)
 #define FLAMER_RADIUS               50
 #define FLAMER_LIFETIME             800.0f
 #define FLAMER_SPEED                200.0f
