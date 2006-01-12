@@ -239,6 +239,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define BOOSTER_CREEPSIZE           120
 #define BOOSTER_INTERVAL            30000 //time in msec between uses (per player)
 #define BOOSTER_REGEN_MOD           2.0f
+#define BOOST_TIME                  30000
 
 #define ACIDTUBE_BP                 8
 #define ACIDTUBE_BT                 15000

@@ -247,8 +247,6 @@ typedef enum
 
 #define MAX_STAMINA             1000
 
-#define BOOST_TIME              20000
-
 // player_state->persistant[] indexes
 // these fields are the only part of player_state that isn't
 // cleared on respawn
