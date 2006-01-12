@@ -2451,7 +2451,7 @@ Trapper
 
 \layout Standard
 
-Sentience: 10
+Sentience: 8
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -2661,7 +2661,7 @@ Hovel
 
 \layout Standard
 
-Sentience: 8
+Sentience: 0
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -2689,6 +2689,7 @@ Hovels
 Grangers
 \emph default 
  may hide in should the need arise.
+ There can only be one Hovel.
  They may be entered and exited with the 
 \noun on 
 Use Structure/Evolve
