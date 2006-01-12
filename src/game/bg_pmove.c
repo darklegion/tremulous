@@ -2601,6 +2601,10 @@ static void PM_BeginWeaponChange( int weapon )
   if( pm->ps->weaponstate == WEAPON_DROPPING )
     return;
 
+  //special case to prevent storing a charged up lcannon
+  if( pm->ps->weapon == WP_LUCIFER_CANNON )
+    pm->ps->stats[ STAT_MISC ] = 0;
+
   PM_AddEvent( EV_CHANGE_WEAPON );
   pm->ps->weaponstate = WEAPON_DROPPING;
   pm->ps->weaponTime += 200;
@@ -2865,8 +2869,15 @@ static void PM_Weapon( void )
       }
 
       //erp this looks confusing
-      if( pm->ps->stats[ STAT_MISC ] > 0 )
+      if( pm->ps->stats[ STAT_MISC ] > LCANNON_MIN_CHARGE )
         attack1 = !attack1;
+      else if( pm->ps->stats[ STAT_MISC ] > 0 )
+      {
+        pm->ps->stats[ STAT_MISC ] = 0;
+        pm->ps->weaponTime = 0;
+        pm->ps->weaponstate = WEAPON_READY;
+        return;
+      }
       break;
 
     default:
@@ -2905,6 +2916,7 @@ static void PM_Weapon( void )
     {
       pm->ps->weaponTime = 0;
       pm->ps->weaponstate = WEAPON_READY;
+      pm->ps->generic1 = WPM_NOTFIRING;
       return;
     }
   }
@@ -2920,6 +2932,7 @@ static void PM_Weapon( void )
     {
       pm->ps->weaponTime = 0;
       pm->ps->weaponstate = WEAPON_READY;
+      pm->ps->generic1 = WPM_NOTFIRING;
       return;
     }
   }

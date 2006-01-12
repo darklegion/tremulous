@@ -742,7 +742,7 @@ CG_MachinegunSpinAngle
 */
 #define   SPIN_SPEED  0.9
 #define   COAST_TIME  1000
-static float CG_MachinegunSpinAngle( centity_t *cent )
+static float CG_MachinegunSpinAngle( centity_t *cent, qboolean firing )
 {
   int   delta;
   float angle;
@@ -760,12 +760,11 @@ static float CG_MachinegunSpinAngle( centity_t *cent )
     angle = cent->pe.barrelAngle + delta * speed;
   }
 
-  if( cent->pe.barrelSpinning == !( cent->currentState.eFlags & EF_FIRING ) )
+  if( cent->pe.barrelSpinning == !firing )
   {
     cent->pe.barrelTime = cg.time;
     cent->pe.barrelAngle = AngleMod( angle );
-    cent->pe.barrelSpinning = !!( cent->currentState.eFlags & EF_FIRING );
-                          //TA: um?
+    cent->pe.barrelSpinning = firing;
   }
 
   return angle;
@@ -876,7 +875,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
       barrel.hModel = weapon->barrelModel;
       angles[ YAW ] = 0;
       angles[ PITCH ] = 0;
-      angles[ ROLL ] = CG_MachinegunSpinAngle( cent );
+      angles[ ROLL ] = CG_MachinegunSpinAngle( cent, firing );
       AnglesToAxis( angles, barrel.axis );
 
       CG_PositionRotatedEntityOnTag( &barrel, &gun, weapon->weaponModel, "tag_barrel" );
