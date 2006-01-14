@@ -111,7 +111,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ARCH_STRING "ppc"
 #define Q3_BIG_ENDIAN
 #elif defined __i386__
-#define ARCH_STRING "i386"
+#define ARCH_STRING "x86"
 #define Q3_LITTLE_ENDIAN
 #endif
 
@@ -128,7 +128,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PATH_SEP '/'
 
 #if defined __i386__
-#define ARCH_STRING "i386"
+#define ARCH_STRING "x86"
 #elif defined __x86_64__
 #define ARCH_STRING "x86_64"
 #elif defined __powerpc64__
@@ -178,7 +178,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PATH_SEP '/'
 
 #ifdef __i386__
-#define ARCH_STRING "i386"
+#define ARCH_STRING "x86"
 #elif defined __axp__
 #define ARCH_STRING "alpha"
 #endif
@@ -205,7 +205,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PATH_SEP '/'
 
 #ifdef __i386__
-#define ARCH_STRING "i386"
+#define ARCH_STRING "x86"
 // Netbsd has alot of platforms
 #endif
 
@@ -231,7 +231,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PATH_SEP '/'
 
 #ifdef __i386__
-#define ARCH_STRING "i386"
+#define ARCH_STRING "x86"
 #elif defined __sparc
 #define ARCH_STRING "sparc"
 #endif

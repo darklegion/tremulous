@@ -16,9 +16,9 @@ COMPILE_PLATFORM=$(shell uname|sed -e s/_.*//|tr A-Z a-z)
 
 ifeq ($(COMPILE_PLATFORM),darwin)
   # Apple does some things a little differently...
-  COMPILE_ARCH=$(shell uname -p | sed -e s/i.86/i386/)
+  COMPILE_ARCH=$(shell uname -p | sed -e s/i.86/x86/)
 else
-  COMPILE_ARCH=$(shell uname -m | sed -e s/i.86/i386/)
+  COMPILE_ARCH=$(shell uname -m | sed -e s/i.86/x86/)
 endif
 
 BUILD_CLIENT     =
@@ -182,7 +182,7 @@ ifeq ($(PLATFORM),linux)
     # experimental x86_64 jit compiler! you need GNU as
     HAVE_VM_COMPILED = true
   else
-  ifeq ($(ARCH),i386)
+  ifeq ($(ARCH),x86)
     OPTIMIZE = -O3 -march=i686 -fomit-frame-pointer -ffast-math \
       -funroll-loops -falign-loops=2 -falign-jumps=2 \
       -falign-functions=2 -fstrength-reduce
@@ -228,7 +228,7 @@ ifeq ($(PLATFORM),linux)
     CLIENT_LDFLAGS += -lvorbisfile -lvorbis -logg
   endif
 
-  ifeq ($(ARCH),i386)
+  ifeq ($(ARCH),x86)
     # linux32 make ...
     BASE_CFLAGS += -m32
     LDFLAGS+=-m32
@@ -277,7 +277,7 @@ ifeq ($(PLATFORM),darwin)
     endif
   endif
 
-  ifeq ($(ARCH),i386)
+  ifeq ($(ARCH),x86)
     # !!! FIXME: x86-specific flags here...
   endif
 
@@ -389,8 +389,8 @@ ifeq ($(PLATFORM),freebsd)
 
   ifneq (,$(findstring alpha,$(shell uname -m)))
     ARCH=axp
-  else #default to i386
-    ARCH=i386
+  else #default to x86
+    ARCH=x86
   endif #alpha test
 
 
@@ -406,7 +406,7 @@ ifeq ($(PLATFORM),freebsd)
     RELEASE_CFLAGS=$(BASE_CFLAGS) -DNDEBUG -O3 -ffast-math -funroll-loops \
       -fomit-frame-pointer -fexpensive-optimizations
   else
-  ifeq ($(ARCH),i386)
+  ifeq ($(ARCH),x86)
     CC=gcc
     RELEASE_CFLAGS=$(BASE_CFLAGS) -DNDEBUG -O3 -mtune=pentiumpro \
       -march=pentium -fomit-frame-pointer -pipe -ffast-math \
@@ -436,7 +436,7 @@ else # ifeq freebsd
 ifeq ($(PLATFORM),netbsd)
 
   ifeq ($(shell uname -m),i386)
-    ARCH=i386
+    ARCH=x86
   endif
 
   CC=gcc
@@ -449,7 +449,7 @@ ifeq ($(PLATFORM),netbsd)
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes
   DEBUG_CFLAGS=$(BASE_CFLAGS) -g
 
-  ifneq ($(ARCH),i386)
+  ifneq ($(ARCH),x86)
     BASE_CFLAGS += -DNO_VM_COMPILED
   endif
 
@@ -493,12 +493,12 @@ ifeq ($(PLATFORM),SunOS)
   COPYDIR="/usr/local/share/games/tremulous"
 
   ifneq (,$(findstring i86pc,$(shell uname -m)))
-    ARCH=i386
+    ARCH=x86
   else #default to sparc
     ARCH=sparc
   endif
 
-  ifneq ($(ARCH),i386)
+  ifneq ($(ARCH),x86)
     ifneq ($(ARCH),sparc)
       $(error arch $(ARCH) is currently not supported)
     endif
@@ -523,7 +523,7 @@ ifeq ($(PLATFORM),SunOS)
       -funroll-loops
     BASE_CFLAGS += -DNO_VM_COMPILED
   else
-  ifeq ($(ARCH),i386)
+  ifeq ($(ARCH),x86)
     OPTIMIZE = -O3 -march=i686  -ffast-math \
       -falign-loops=2 -falign-jumps=2 -falign-functions=2 \
       -funroll-loops -fstrength-reduce
@@ -549,7 +549,7 @@ ifeq ($(PLATFORM),SunOS)
     CLIENT_LDFLAGS=-L/usr/openwin/$(LIB) -L/usr/X11/lib -lGLU -lX11 -lXext
   endif
 
-  ifeq ($(ARCH),i386)
+  ifeq ($(ARCH),x86)
     # Solarix x86 make ...
     BASE_CFLAGS += -m32
     LDFLAGS+=-m32
@@ -593,7 +593,7 @@ endif
 ifneq ($(BUILD_GAME_SO),0)
   TARGETS += \
     $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
-    $(B)/base/qagame$(ARCH).$(SHLIBEXT) \
+    $(B)/base/game$(ARCH).$(SHLIBEXT) \
     $(B)/base/ui$(ARCH).$(SHLIBEXT)
 endif
 
@@ -601,7 +601,7 @@ ifneq ($(BUILD_GAME_QVM),0)
   ifneq ($(CROSS_COMPILING),1)
     TARGETS += \
       $(B)/base/vm/cgame.qvm \
-      $(B)/base/vm/qagame.qvm \
+      $(B)/base/vm/game.qvm \
       $(B)/base/vm/ui.qvm \
       qvmdeps
   endif
@@ -839,14 +839,6 @@ Q3OBJ = \
   $(B)/client/tr_surface.o \
   $(B)/client/tr_world.o \
 
-ifeq ($(ARCH),i386)
-  Q3OBJ += $(B)/client/vm_x86.o
-  Q3OBJ += \
-    $(B)/client/snd_mixa.o \
-    $(B)/client/matha.o \
-    $(B)/client/ftola.o \
-    $(B)/client/snapvectora.o
-endif
 ifeq ($(ARCH),x86)
   Q3OBJ += $(B)/client/vm_x86.o
   Q3OBJ += \
@@ -855,6 +847,7 @@ ifeq ($(ARCH),x86)
     $(B)/client/ftola.o \
     $(B)/client/snapvectora.o
 endif
+
 ifeq ($(ARCH),x86_64)
   Q3OBJ += $(B)/client/vm_x86_64.o
 endif
@@ -1183,7 +1176,7 @@ Q3DOBJ = \
   $(B)/ded/null_input.o \
   $(B)/ded/null_snddma.o
 
-ifeq ($(ARCH),i386)
+ifeq ($(ARCH),x86)
   Q3DOBJ += $(B)/ded/vm_x86.o $(B)/ded/ftola.o \
       $(B)/ded/snapvectora.o $(B)/ded/matha.o
 endif
@@ -1362,10 +1355,10 @@ GOBJ_ = \
 GOBJ = $(GOBJ_) $(B)/base/game/g_syscalls.o
 GVMOBJ = $(GOBJ_:%.o=%.asm) $(B)/base/game/bg_lib.asm
 
-$(B)/base/qagame$(ARCH).$(SHLIBEXT) : $(GOBJ)
+$(B)/base/game$(ARCH).$(SHLIBEXT) : $(GOBJ)
 	$(CC) $(SHLIBLDFLAGS) -o $@ $(GOBJ)
 
-$(B)/base/vm/qagame.qvm: $(GVMOBJ) $(GDIR)/g_syscalls.asm
+$(B)/base/vm/game.qvm: $(GVMOBJ) $(GDIR)/g_syscalls.asm
 	$(Q3ASM) -o $@ $(GVMOBJ) $(GDIR)/g_syscalls.asm
 
 
@@ -1441,13 +1434,12 @@ copyfiles: build_release
 	-$(MKDIR) -p -m 0755 $(COPYDIR)/base
 	$(INSTALL) -s -m 0755 $(BR)/base/cgame$(ARCH).$(SHLIBEXT) \
 					$(COPYDIR)/base/.
-	$(INSTALL) -s -m 0755 $(BR)/base/qagame$(ARCH).$(SHLIBEXT) \
+	$(INSTALL) -s -m 0755 $(BR)/base/game$(ARCH).$(SHLIBEXT) \
 					$(COPYDIR)/base/.
 	$(INSTALL) -s -m 0755 $(BR)/base/ui$(ARCH).$(SHLIBEXT) \
 					$(COPYDIR)/base/.
 
 clean:clean-debug clean-release
-	$(MAKE) -C setup clean
 	$(MAKE) -C ../master clean
 
 clean2:
@@ -1466,9 +1458,6 @@ clean-release:
 distclean: clean
 	$(MAKE) -C ../tools/asm clean uninstall
 	$(MAKE) -C ../tools/lcc clean uninstall
-
-installer: build_release
-	$(MAKE) VERSION=$(VERSION) -C setup
 
 #############################################################################
 # DEPENDENCIES
