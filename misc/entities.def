@@ -1296,7 +1296,7 @@ model="models/buildables/medistat/medistat.md3"
 The human machinegun turret.
 
 -------- MODEL FOR RADIANT ONLY - DO NOT SET THIS AS A KEY --------
-model="models/buildables/mgturret/mgturret.md3"
+model="models/buildables/mgturret/turret_base.md3"
 */
 
 //=============================================================================
