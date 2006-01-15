@@ -127,7 +127,7 @@ MASTERDIR=$(MOUNT_DIR)/master
 
 # extract version info
 VERSION=$(shell grep Q3_VERSION $(CMDIR)/q_shared.h | \
-  sed -e 's/.*Q3\ \(.*\)"/\1/')
+  sed -e 's/.*tremulous\ \(.*\)"/\1/')
 
 ifeq ($(wildcard .svn),.svn)
   SVN_VERSION=$(VERSION)_SVN$(shell LANG=C svnversion .)
@@ -1476,13 +1476,10 @@ distclean: clean
 	$(MAKE) -C $(TOOLSDIR)/lcc clean uninstall
 
 dist:
-	rm -rf quake3-$(SVN_VERSION)
-	svn export . quake3-$(SVN_VERSION)
-	which convert >/dev/null 2>&1 && convert web/images/thenameofthisprojectis3.jpg \
-	quake3-$(SVN_VERSION)/code/unix/setup/splash.xpm || true
-	rm -rf quake3-$(SVN_VERSION)/web
-	tar --force-local -cjf quake3-$(SVN_VERSION).tar.bz2 quake3-$(SVN_VERSION)
-	rm -rf quake3-$(SVN_VERSION)
+	rm -rf tremulous-$(SVN_VERSION)
+	svn export . tremulous-$(SVN_VERSION)
+	tar --force-local -cjf tremulous-$(SVN_VERSION).tar.bz2 tremulous-$(SVN_VERSION)
+	rm -rf tremulous-$(SVN_VERSION)
 
 #############################################################################
 # DEPENDENCIES
