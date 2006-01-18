@@ -2455,10 +2455,6 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
 
   VectorCopy( entity_origin, origin );
 
-  //this item does not fit here
-  if( tr2.fraction < 1.0 || tr3.fraction < 1.0 )
-    return IBE_NOROOM; //NO other reason is allowed to override this
-
   VectorCopy( tr1.plane.normal, normal );
   minNormal = BG_FindMinNormalForBuildable( buildable );
   invert = BG_FindInvertNormalForBuildable( buildable );
@@ -2624,6 +2620,10 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
     if( level.humanBuildPoints - BG_FindBuildPointsForBuildable( buildable ) < 0 )
       reason = IBE_NOPOWER;
   }
+
+  //this item does not fit here
+  if( reason == IBE_NONE && ( tr2.fraction < 1.0 || tr3.fraction < 1.0 ) )
+    return IBE_NOROOM;
 
   return reason;
 }
