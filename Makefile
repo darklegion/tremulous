@@ -1441,21 +1441,6 @@ $(B)/base/qcommon/%.asm: $(CMDIR)/%.c
 # MISC
 #############################################################################
 
-copyfiles: build_release
-	@if [ ! -d $(COPYDIR)/baseq3 ]; then echo "You need to set COPYDIR to where you installed Trem!"; false; fi
-	$(INSTALL) -s -m 0755 $(BR)/tremulous.$(ARCH)$(BINEXT) $(COPYDIR)/tremulous.$(ARCH)$(BINEXT)
-
-	@if [ -f $(BR)/tremded.$(ARCH)$(BINEXT) ]; then \
-		$(INSTALL) -s -m 0755 $(BR)/tremded.$(ARCH)$(BINEXT) $(COPYDIR)/tremded.$(ARCH)$(BINEXT); \
-	fi
-	-$(MKDIR) -p -m 0755 $(COPYDIR)/base
-	$(INSTALL) -s -m 0755 $(BR)/base/cgame$(ARCH).$(SHLIBEXT) \
-					$(COPYDIR)/base/.
-	$(INSTALL) -s -m 0755 $(BR)/base/game$(ARCH).$(SHLIBEXT) \
-					$(COPYDIR)/base/.
-	$(INSTALL) -s -m 0755 $(BR)/base/ui$(ARCH).$(SHLIBEXT) \
-					$(COPYDIR)/base/.
-
 clean:clean-debug clean-release
 	$(MAKE) -C $(MASTERDIR) clean
 
@@ -1472,9 +1457,15 @@ clean-debug:
 clean-release:
 	$(MAKE) clean2 B=$(BR) CFLAGS="$(RELEASE_CFLAGS)"
 
-distclean: clean
+toolsclean:
 	$(MAKE) -C $(TOOLSDIR)/asm clean uninstall
 	$(MAKE) -C $(TOOLSDIR)/lcc clean uninstall
+
+distclean: clean toolsclean
+	rm -rf $(BUILD_DIR)
+
+installer: build_release
+	$(MAKE) VERSION=$(VERSION) -C $(LOKISETUPDIR)
 
 dist:
 	rm -rf tremulous-$(SVN_VERSION)
