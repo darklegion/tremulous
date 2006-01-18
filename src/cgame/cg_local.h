@@ -1479,6 +1479,7 @@ extern  vmCvar_t    cg_debugTrails;
 extern  vmCvar_t    cg_debugPVS;
 extern  vmCvar_t    cg_disableWarningDialogs;
 extern  vmCvar_t    cg_disableScannerPlane;
+extern  vmCvar_t    cg_tutorial;
 
 extern  vmCvar_t    cg_painBlendUpRate;
 extern  vmCvar_t    cg_painBlendDownRate;
@@ -1508,6 +1509,7 @@ void QDECL  CG_Printf( const char *msg, ... );
 void QDECL  CG_Error( const char *msg, ... );
 
 void        CG_StartMusic( void );
+int         CG_PlayerCount( void );
 
 void        CG_UpdateCvars( void );
 
@@ -1606,6 +1608,7 @@ void        CG_PrecacheClientInfo( pClass_t class, char *model, char *skin );
 sfxHandle_t CG_CustomSound( int clientNum, const char *soundName );
 void        CG_PlayerDisconnect( vec3_t org );
 void        CG_Bleed( vec3_t origin, vec3_t normal, int entityNum );
+qboolean    CG_AtHighestClass( void );
 
 //
 // cg_buildable.c
@@ -1814,6 +1817,11 @@ int   CG_ReadPTRCode( void );
 void  CG_WritePTRCode( int code );
 
 //
+// cg_tutorial.c
+//
+const char *CG_TutorialText( void );
+
+//
 //===============================================
 
 //
@@ -2000,6 +2008,9 @@ qboolean      trap_Key_IsDown( int keynum );
 int           trap_Key_GetCatcher( void );
 void          trap_Key_SetCatcher( int catcher );
 int           trap_Key_GetKey( const char *binding );
+void          trap_Key_KeynumToStringBuf( int keynum, char *buf, int buflen );
+void          trap_Key_GetBindingBuf( int keynum, char *buf, int buflen );
+void          trap_Key_SetBinding( int keynum, const char *binding );
 
 typedef enum
 {

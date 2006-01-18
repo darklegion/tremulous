@@ -25,6 +25,23 @@
       ownerdraw CG_CONSOLE
     }   
 
+    //TUTORIAL
+    itemDef
+    {
+      name "tutorial"
+      rect 8 250 640 180
+      style WINDOW_STYLE_EMPTY
+      visible 1
+      decoration
+      forecolor 1 1 1 0.35
+      align ITEM_ALIGN_LEFT
+      textalignx 0
+      textaligny 18
+      textscale 0.3
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_TUTORIAL
+    }   
+
     //FPS
     itemDef
     {

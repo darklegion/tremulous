@@ -217,6 +217,7 @@ vmCvar_t  cg_debugTrails;
 vmCvar_t  cg_debugPVS;
 vmCvar_t  cg_disableWarningDialogs;
 vmCvar_t  cg_disableScannerPlane;
+vmCvar_t  cg_tutorial;
 
 vmCvar_t  cg_painBlendUpRate;
 vmCvar_t  cg_painBlendDownRate;
@@ -330,6 +331,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_debugPVS, "cg_debugPVS", "0", CVAR_CHEAT },
   { &cg_disableWarningDialogs, "cg_disableWarningDialogs", "0", CVAR_ARCHIVE },
   { &cg_disableScannerPlane, "cg_disableScannerPlane", "0", CVAR_ARCHIVE },
+  { &cg_tutorial, "cg_tutorial", "1", CVAR_ARCHIVE },
   { &cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
 
   { &cg_painBlendUpRate, "cg_painBlendUpRate", "10.0", 0 },
@@ -990,6 +992,25 @@ void CG_StartMusic( void )
   Q_strncpyz( parm2, COM_Parse( &s ), sizeof( parm2 ) );
 
   trap_S_StartBackgroundTrack( parm1, parm2 );
+}
+
+/*
+======================
+CG_PlayerCount
+======================
+*/
+int CG_PlayerCount( void )
+{
+  int i, count = 0;
+
+  for( i = 0; i < cg.numScores; i++ )
+  {
+    if( cg.scores[ i ].team == PTE_ALIENS ||
+        cg.scores[ i ].team == PTE_HUMANS )
+      count++;
+  }
+
+  return count;
 }
 
 //
@@ -1708,6 +1729,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   //TA: load overrides
   BG_InitClassOverrides( );
   BG_InitBuildableOverrides( );
+  BG_InitAllowedGameElements( );
 
   //TA: dyn memory
   CG_InitMemory( );

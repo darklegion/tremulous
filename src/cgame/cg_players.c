@@ -2540,3 +2540,32 @@ void CG_Bleed( vec3_t origin, vec3_t normal, int entityNum )
     CG_SetParticleSystemNormal( ps, normal );
   }
 }
+
+/*
+===============
+CG_AtHighestClass
+
+Is the local client at the highest class possible?
+===============
+*/
+qboolean CG_AtHighestClass( void )
+{
+  int       i;
+  qboolean  superiorClasses = qfalse;
+
+  for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
+  {
+    if( BG_ClassCanEvolveFromTo(
+          cg.predictedPlayerState.stats[ STAT_PCLASS ], i,
+          ALIEN_MAX_KILLS, 0 ) >= 0 &&
+        BG_FindStagesForClass( i, cgs.alienStage ) &&
+        BG_ClassIsAllowed( i ) )
+    {
+      superiorClasses = qtrue;
+      break;
+    }
+  }
+
+  return !superiorClasses;
+}
+

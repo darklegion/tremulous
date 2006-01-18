@@ -3989,6 +3989,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     "Light Armour",         //char  *upgradeHumanName;
     "icons/iconu_larmour",
     qtrue,                  //qboolean purchasable
+    qfalse,                 //qboolean usable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4000,6 +4001,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     "Helmet",               //char  *upgradeHumanName;
     "icons/iconu_helmet",
     qtrue,                  //qboolean purchasable
+    qfalse,                 //qboolean usable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4011,6 +4013,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     "Medkit",               //char  *upgradeHumanName;
     "icons/iconu_atoxin",
     qfalse,                 //qboolean purchasable
+    qtrue,                  //qboolean usable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4022,6 +4025,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     "Battery Pack",         //char  *upgradeHumanName;
     "icons/iconu_battpack",
     qtrue,                  //qboolean purchasable
+    qfalse,                 //qboolean usable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4033,6 +4037,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     "Jet Pack",             //char  *upgradeHumanName;
     "icons/iconu_jetpack",
     qtrue,                  //qboolean purchasable
+    qtrue,                  //qboolean usable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4044,6 +4049,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     "Battlesuit",           //char  *upgradeHumanName;
     "icons/iconu_bsuit",
     qtrue,                  //qboolean purchasable
+    qfalse,                 //qboolean usable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4055,6 +4061,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     "Grenade",              //char  *upgradeHumanName;
     0,
     qtrue,                  //qboolean purchasable
+    qtrue,                  //qboolean usable
     WUT_HUMANS              //WUTeam_t  team;
   },
   {
@@ -4066,6 +4073,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     "Ammunition",           //char  *upgradeHumanName;
     0,
     qtrue,                  //qboolean purchasable
+    qfalse,                 //qboolean usable
     WUT_HUMANS              //WUTeam_t  team;
   }
 };
@@ -4224,6 +4232,24 @@ qboolean BG_FindPurchasableForUpgrade( int upgrade )
   {
     if( bg_upgrades[ i ].upgradeNum == upgrade )
       return bg_upgrades[ i ].purchasable;
+  }
+
+  return qfalse;
+}
+
+/*
+==============
+BG_FindUsableForUpgrade
+==============
+*/
+qboolean BG_FindUsableForUpgrade( int upgrade )
+{
+  int i;
+
+  for( i = 0; i < bg_numUpgrades; i++ )
+  {
+    if( bg_upgrades[ i ].upgradeNum == upgrade )
+      return bg_upgrades[ i ].usable;
   }
 
   return qfalse;
@@ -5253,4 +5279,147 @@ void BG_ParseCSVBuildableList( const char *string, buildable_t *buildables, int 
   }
 
   buildables[ i ] = BA_NONE;
+}
+
+/*
+============
+BG_UpgradeClassAvailable
+============
+*/
+qboolean BG_UpgradeClassAvailable( playerState_t *ps )
+{
+  int     i;
+  char    buffer[ MAX_STRING_CHARS ];
+  stage_t currentStage;
+
+  trap_Cvar_VariableStringBuffer( "g_alienStage", buffer, MAX_STRING_CHARS );
+  currentStage = atoi( buffer );
+
+  for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
+  {
+    if( BG_ClassCanEvolveFromTo( ps->stats[ STAT_PCLASS ], i,
+            ps->persistant[ PERS_CREDIT ], 0 ) >= 0 &&
+        BG_FindStagesForClass( i, currentStage ) &&
+        BG_ClassIsAllowed( i ) )
+    {
+      return qtrue;
+    }
+  }
+
+  return qfalse;
+}
+
+typedef struct gameElements_s
+{
+  buildable_t       buildables[ BA_NUM_BUILDABLES ];
+  pClass_t          classes[ PCL_NUM_CLASSES ];
+  weapon_t          weapons[ WP_NUM_WEAPONS ];
+  upgrade_t         upgrades[ UP_NUM_UPGRADES ];
+} gameElements_t;
+
+static gameElements_t bg_disabledGameElements;
+
+/*
+============
+BG_InitAllowedGameElements
+============
+*/
+void BG_InitAllowedGameElements( void )
+{
+  char cvar[ MAX_CVAR_VALUE_STRING ];
+
+  trap_Cvar_VariableStringBuffer( "g_disabledEquipment",
+      cvar, MAX_CVAR_VALUE_STRING );
+
+  BG_ParseCSVEquipmentList( cvar,
+      bg_disabledGameElements.weapons, WP_NUM_WEAPONS,
+      bg_disabledGameElements.upgrades, UP_NUM_UPGRADES );
+
+  trap_Cvar_VariableStringBuffer( "g_disabledClasses",
+      cvar, MAX_CVAR_VALUE_STRING );
+
+  BG_ParseCSVClassList( cvar,
+      bg_disabledGameElements.classes, PCL_NUM_CLASSES );
+
+  trap_Cvar_VariableStringBuffer( "g_disabledBuildables",
+      cvar, MAX_CVAR_VALUE_STRING );
+
+  BG_ParseCSVBuildableList( cvar,
+      bg_disabledGameElements.buildables, BA_NUM_BUILDABLES );
+}
+
+/*
+============
+BG_WeaponIsAllowed
+============
+*/
+qboolean BG_WeaponIsAllowed( weapon_t weapon )
+{
+  int i;
+
+  for( i = 0; i < WP_NUM_WEAPONS &&
+      bg_disabledGameElements.weapons[ i ] != WP_NONE; i++ )
+  {
+    if( bg_disabledGameElements.weapons[ i ] == weapon )
+      return qfalse;
+  }
+
+  return qtrue;
+}
+
+/*
+============
+BG_UpgradeIsAllowed
+============
+*/
+qboolean BG_UpgradeIsAllowed( upgrade_t upgrade )
+{
+  int i;
+
+  for( i = 0; i < UP_NUM_UPGRADES &&
+      bg_disabledGameElements.upgrades[ i ] != UP_NONE; i++ )
+  {
+    if( bg_disabledGameElements.upgrades[ i ] == upgrade )
+      return qfalse;
+  }
+
+  return qtrue;
+}
+
+/*
+============
+BG_ClassIsAllowed
+============
+*/
+qboolean BG_ClassIsAllowed( pClass_t class )
+{
+  int i;
+
+  for( i = 0; i < PCL_NUM_CLASSES &&
+      bg_disabledGameElements.classes[ i ] != PCL_NONE; i++ )
+  {
+    if( bg_disabledGameElements.classes[ i ] == class )
+      return qfalse;
+  }
+
+  return qtrue;
+}
+
+/*
+============
+BG_BuildableIsAllowed
+============
+*/
+qboolean BG_BuildableIsAllowed( buildable_t buildable )
+{
+  int i;
+
+  for( i = 0; i < BA_NUM_BUILDABLES &&
+      bg_disabledGameElements.buildables[ i ] != BA_NONE; i++ )
+  {
+    if( bg_disabledGameElements.buildables[ i ] == buildable )
+      return qfalse;
+  }
+
+  return qtrue;
 }

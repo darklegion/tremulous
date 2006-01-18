@@ -3153,110 +3153,6 @@ static void UI_LoadTremTeams( void )
 }
 
 /*
-============
-UI_WeaponIsAllowed
-============
-*/
-qboolean UI_WeaponIsAllowed( weapon_t weapon )
-{
-  int       i;
-  weapon_t  weapons[ WP_NUM_WEAPONS ];
-  char      cvar[ MAX_CVAR_VALUE_STRING ];
-
-  trap_Cvar_VariableStringBuffer( "g_disabledEquipment",
-      cvar, MAX_CVAR_VALUE_STRING );
-
-  BG_ParseCSVEquipmentList( cvar, weapons, WP_NUM_WEAPONS, NULL, 0 );
-
-  for( i = 0; i < WP_NUM_WEAPONS &&
-      weapons[ i ] != WP_NONE; i++ )
-  {
-    if( weapons[ i ] == weapon )
-      return qfalse;
-  }
-
-  return qtrue;
-}
-
-/*
-============
-UI_UpgradeIsAllowed
-============
-*/
-qboolean UI_UpgradeIsAllowed( upgrade_t upgrade )
-{
-  int       i;
-  upgrade_t upgrades[ UP_NUM_UPGRADES ];
-  char      cvar[ MAX_CVAR_VALUE_STRING ];
-
-  trap_Cvar_VariableStringBuffer( "g_disabledEquipment",
-      cvar, MAX_CVAR_VALUE_STRING );
-
-  BG_ParseCSVEquipmentList( cvar, NULL, 0, upgrades, UP_NUM_UPGRADES );
-
-  for( i = 0; i < UP_NUM_UPGRADES &&
-      upgrades[ i ] != UP_NONE; i++ )
-  {
-    if( upgrades[ i ] == upgrade )
-      return qfalse;
-  }
-
-  return qtrue;
-}
-
-/*
-============
-UI_ClassIsAllowed
-============
-*/
-qboolean UI_ClassIsAllowed( pClass_t class )
-{
-  int       i;
-  pClass_t  classes[ PCL_NUM_CLASSES ];
-  char      cvar[ MAX_CVAR_VALUE_STRING ];
-
-  trap_Cvar_VariableStringBuffer( "g_disabledClasses",
-      cvar, MAX_CVAR_VALUE_STRING );
-
-  BG_ParseCSVClassList( cvar, classes, PCL_NUM_CLASSES );
-
-  for( i = 0; i < PCL_NUM_CLASSES &&
-      classes[ i ] != PCL_NONE; i++ )
-  {
-    if( classes[ i ] == class )
-      return qfalse;
-  }
-
-  return qtrue;
-}
-
-/*
-============
-UI_BuildableIsAllowed
-============
-*/
-qboolean UI_BuildableIsAllowed( buildable_t buildable )
-{
-  int         i;
-  buildable_t buildables[ BA_NUM_BUILDABLES ];
-  char        cvar[ MAX_CVAR_VALUE_STRING ];
-
-  trap_Cvar_VariableStringBuffer( "g_disabledBuildables",
-      cvar, MAX_CVAR_VALUE_STRING );
-
-  BG_ParseCSVBuildableList( cvar, buildables, BA_NUM_BUILDABLES );
-
-  for( i = 0; i < BA_NUM_BUILDABLES &&
-      buildables[ i ] != BA_NONE; i++ )
-  {
-    if( buildables[ i ] == buildable )
-      return qfalse;
-  }
-
-  return qtrue;
-}
-
-/*
 ===============
 UI_AddClass
 ===============
@@ -3282,13 +3178,13 @@ static void UI_LoadTremAlienClasses( void )
 {
   uiInfo.tremAlienClassCount = 0;
 
-  if( UI_ClassIsAllowed( PCL_ALIEN_LEVEL0 ) )
+  if( BG_ClassIsAllowed( PCL_ALIEN_LEVEL0 ) )
     UI_AddClass( PCL_ALIEN_LEVEL0 );
 
-  if( UI_ClassIsAllowed( PCL_ALIEN_BUILDER0_UPG ) &&
+  if( BG_ClassIsAllowed( PCL_ALIEN_BUILDER0_UPG ) &&
       BG_FindStagesForClass( PCL_ALIEN_BUILDER0_UPG, UI_GetCurrentAlienStage( ) ) )
     UI_AddClass( PCL_ALIEN_BUILDER0_UPG );
-  else if( UI_ClassIsAllowed( PCL_ALIEN_BUILDER0 ) )
+  else if( BG_ClassIsAllowed( PCL_ALIEN_BUILDER0 ) )
     UI_AddClass( PCL_ALIEN_BUILDER0 );
 }
 
@@ -3318,13 +3214,13 @@ static void UI_LoadTremHumanItems( void )
 {
   uiInfo.tremHumanItemCount = 0;
 
-  if( UI_WeaponIsAllowed( WP_MACHINEGUN ) )
+  if( BG_WeaponIsAllowed( WP_MACHINEGUN ) )
     UI_AddItem( WP_MACHINEGUN );
 
-  if( UI_WeaponIsAllowed( WP_HBUILD2 ) &&
+  if( BG_WeaponIsAllowed( WP_HBUILD2 ) &&
       BG_FindStagesForWeapon( WP_HBUILD2, UI_GetCurrentHumanStage( ) ) )
     UI_AddItem( WP_HBUILD2 );
-  else if( UI_WeaponIsAllowed( WP_HBUILD ) )
+  else if( BG_WeaponIsAllowed( WP_HBUILD ) )
     UI_AddItem( WP_HBUILD );
 }
 
@@ -3421,7 +3317,7 @@ static void UI_LoadTremHumanArmouryBuys( void )
     if( BG_FindTeamForWeapon( i ) == WUT_HUMANS &&
         BG_FindPurchasableForWeapon( i ) &&
         BG_FindStagesForWeapon( i, stage ) &&
-        UI_WeaponIsAllowed( i ) &&
+        BG_WeaponIsAllowed( i ) &&
         !( BG_FindSlotsForWeapon( i ) & slots ) &&
         !( weapons & ( 1 << i ) ) )
     {
@@ -3443,7 +3339,7 @@ static void UI_LoadTremHumanArmouryBuys( void )
     if( BG_FindTeamForUpgrade( i ) == WUT_HUMANS &&
         BG_FindPurchasableForUpgrade( i ) &&
         BG_FindStagesForUpgrade( i, stage ) &&
-        UI_UpgradeIsAllowed( i ) &&
+        BG_UpgradeIsAllowed( i ) &&
         !( BG_FindSlotsForUpgrade( i ) & slots ) &&
         !( upgrades & ( 1 << i ) ) )
     {
@@ -3528,7 +3424,7 @@ static void UI_LoadTremAlienUpgrades( void )
   {
     if( BG_ClassCanEvolveFromTo( class, i, credits, 0 ) >= 0 &&
         BG_FindStagesForClass( i, stage ) &&
-        UI_ClassIsAllowed( i ) )
+        BG_ClassIsAllowed( i ) )
     {
       uiInfo.tremAlienUpgradeList[ j ].text = String_Alloc( BG_FindHumanNameForClassNum( i ) );
       uiInfo.tremAlienUpgradeList[ j ].cmd =
@@ -3564,7 +3460,7 @@ static void UI_LoadTremAlienBuilds( void )
     if( BG_FindTeamForBuildable( i ) == BIT_ALIENS &&
         BG_FindBuildWeaponForBuildable( i ) & weapons &&
         BG_FindStagesForBuildable( i, stage ) &&
-        UI_BuildableIsAllowed( i ) )
+        BG_BuildableIsAllowed( i ) )
     {
       uiInfo.tremAlienBuildList[ j ].text =
         String_Alloc( BG_FindHumanNameForBuildable( i ) );
@@ -3601,7 +3497,7 @@ static void UI_LoadTremHumanBuilds( void )
     if( BG_FindTeamForBuildable( i ) == BIT_HUMANS &&
         BG_FindBuildWeaponForBuildable( i ) & weapons &&
         BG_FindStagesForBuildable( i, stage ) &&
-        UI_BuildableIsAllowed( i ) )
+        BG_BuildableIsAllowed( i ) )
     {
       uiInfo.tremHumanBuildList[ j ].text =
         String_Alloc( BG_FindHumanNameForBuildable( i ) );
@@ -5520,6 +5416,7 @@ void _UI_Init( qboolean inGameLoad ) {
   int start;
 
   BG_InitClassOverrides( );
+  BG_InitAllowedGameElements( );
 
   //uiInfo.inGameLoad = inGameLoad;
 

@@ -97,16 +97,19 @@ equ trap_CM_TransformedBiSphereTrace  -94
 equ trap_GetDemoState                 -95
 equ trap_GetDemoPos                   -96
 equ trap_GetDemoName                  -97
+equ trap_Key_KeynumToStringBuf        -98
+equ trap_Key_GetBindingBuf            -99
+equ trap_Key_SetBinding               -100
 
-equ memset                            -101
-equ memcpy                            -102
-equ strncpy                           -103
-equ sin                               -104
-equ cos                               -105
-equ atan2                             -106
-equ sqrt                              -107
-equ floor                             -108
-equ ceil                              -109
-equ testPrintInt                      -110
-equ testPrintFloat                    -111
+equ memset                            -201
+equ memcpy                            -202
+equ strncpy                           -203
+equ sin                               -204
+equ cos                               -205
+equ atan2                             -206
+equ sqrt                              -207
+equ floor                             -208
+equ ceil                              -209
+equ testPrintInt                      -210
+equ testPrintFloat                    -211
 

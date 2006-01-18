@@ -555,3 +555,16 @@ void trap_GetDemoName( char *buffer, int size )
 {
   syscall( CG_GETDEMONAME, buffer, size );
 }
+
+void trap_Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) {
+  syscall( CG_KEY_KEYNUMTOSTRINGBUF, keynum, buf, buflen );
+}
+
+void trap_Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
+  syscall( CG_KEY_GETBINDINGBUF, keynum, buf, buflen );
+}
+
+void trap_Key_SetBinding( int keynum, const char *binding ) {
+  syscall( CG_KEY_SETBINDING, keynum, binding );
+}
+

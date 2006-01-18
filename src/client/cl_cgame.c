@@ -636,6 +636,16 @@ long CL_CgameSystemCalls( long *args ) {
 		CL_DemoName( VMA(1), args[2] );
 		return 0;
 
+	case CG_KEY_KEYNUMTOSTRINGBUF:
+		Key_KeynumToStringBuf( args[1], VMA(2), args[3] );
+		return 0;
+	case CG_KEY_GETBINDINGBUF:
+		Key_GetBindingBuf( args[1], VMA(2), args[3] );
+		return 0;
+	case CG_KEY_SETBINDING:
+		Key_SetBinding( args[1], VMA(2) );
+		return 0;
+
 
 	case CG_MEMSET:
 		Com_Memset( VMA(1), args[2], args[3] );

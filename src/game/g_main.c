@@ -426,111 +426,6 @@ void G_UpdateCvars( void )
     G_RemapTeamShaders( );
 }
 
-
-typedef struct gameElements_s
-{
-  buildable_t       buildables[ BA_NUM_BUILDABLES ];
-  pClass_t          classes[ PCL_NUM_CLASSES ];
-  weapon_t          weapons[ WP_NUM_WEAPONS ];
-  upgrade_t         upgrades[ UP_NUM_UPGRADES ];
-} gameElements_t;
-
-static gameElements_t disabledGameElements;
-
-/*
-============
-G_InitAllowedGameElements
-============
-*/
-static void G_InitAllowedGameElements( void )
-{
-  BG_ParseCSVEquipmentList( g_disabledEquipment.string,
-      disabledGameElements.weapons, WP_NUM_WEAPONS,
-      disabledGameElements.upgrades, UP_NUM_UPGRADES );
-
-  BG_ParseCSVClassList( g_disabledClasses.string,
-      disabledGameElements.classes, PCL_NUM_CLASSES );
-
-  BG_ParseCSVBuildableList( g_disabledBuildables.string,
-      disabledGameElements.buildables, BA_NUM_BUILDABLES );
-}
-
-/*
-============
-G_WeaponIsAllowed
-============
-*/
-qboolean G_WeaponIsAllowed( weapon_t weapon )
-{
-  int i;
-
-  for( i = 0; i < WP_NUM_WEAPONS &&
-      disabledGameElements.weapons[ i ] != WP_NONE; i++ )
-  {
-    if( disabledGameElements.weapons[ i ] == weapon )
-      return qfalse;
-  }
-
-  return qtrue;
-}
-
-/*
-============
-G_UpgradeIsAllowed
-============
-*/
-qboolean G_UpgradeIsAllowed( upgrade_t upgrade )
-{
-  int i;
-
-  for( i = 0; i < UP_NUM_UPGRADES &&
-      disabledGameElements.upgrades[ i ] != UP_NONE; i++ )
-  {
-    if( disabledGameElements.upgrades[ i ] == upgrade )
-      return qfalse;
-  }
-
-  return qtrue;
-}
-
-/*
-============
-G_ClassIsAllowed
-============
-*/
-qboolean G_ClassIsAllowed( pClass_t class )
-{
-  int i;
-
-  for( i = 0; i < PCL_NUM_CLASSES &&
-      disabledGameElements.classes[ i ] != PCL_NONE; i++ )
-  {
-    if( disabledGameElements.classes[ i ] == class )
-      return qfalse;
-  }
-
-  return qtrue;
-}
-
-/*
-============
-G_BuildableIsAllowed
-============
-*/
-qboolean G_BuildableIsAllowed( buildable_t buildable )
-{
-  int i;
-
-  for( i = 0; i < BA_NUM_BUILDABLES &&
-      disabledGameElements.buildables[ i ] != BA_NONE; i++ )
-  {
-    if( disabledGameElements.buildables[ i ] == buildable )
-      return qfalse;
-  }
-
-  return qtrue;
-}
-
 /*
 ============
 G_InitGame
@@ -610,7 +505,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   G_SpawnEntitiesFromString( );
 
   // the map might disable some things
-  G_InitAllowedGameElements( );
+  BG_InitAllowedGameElements( );
 
   // general initialization
   G_FindTeams( );

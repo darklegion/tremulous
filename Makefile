@@ -1319,6 +1319,7 @@ CGOBJ_ = \
   $(B)/base/cgame/cg_trails.o \
   $(B)/base/cgame/cg_particles.o \
   $(B)/base/cgame/cg_ptr.o \
+  $(B)/base/cgame/cg_tutorial.o \
   $(B)/base/ui/ui_shared.o \
   \
   $(B)/base/qcommon/q_math.o \

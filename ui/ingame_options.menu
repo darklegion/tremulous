@@ -143,7 +143,7 @@
       type ITEM_TYPE_YESNO
       text "Auto Download:"
       cvar "cl_allowDownload"
-      rect 90 120 192 15
+      rect 90 115 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128
       textaligny 12
@@ -163,7 +163,7 @@
       type ITEM_TYPE_YESNO
       text "Taunts Off:"
       cvar "cg_noTaunt"
-      rect 90 135 192 15
+      rect 90 130 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128
       textaligny 12
@@ -183,7 +183,7 @@
       type ITEM_TYPE_YESNO
       text "Team Chats Only:"
       cvar "cg_teamChatsOnly"
-      rect 90 150 192 15
+      rect 90 145 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128
       textaligny 12
@@ -203,7 +203,7 @@
       type ITEM_TYPE_YESNO
       text "Auto Wallwalk Pitching:"
       cvar "cg_wwFollow"
-      rect 90 165 192 15
+      rect 90 160 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128
       textaligny 12
@@ -224,7 +224,7 @@
       text "Wallwalking Speed:"
       cvarfloat "cg_wwSmoothTime" 300 0 1000
       cvarFloatList { "Medium" 300 "Fast" 150 "Instant" 0 "Slow" 600 }
-      rect 90 180 192 15
+      rect 90 175 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128 
       textaligny 12
@@ -244,7 +244,7 @@
       type ITEM_TYPE_YESNO
       text "Wallwalk Control Toggles:"
       cvar "cg_wwToggle"
-      rect 90 195 192 15
+      rect 90 190 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128
       textaligny 12
@@ -264,7 +264,27 @@
       type ITEM_TYPE_YESNO
       text "Disable Warning Dialogs:"
       cvar "cg_disableWarningDialogs"
-      rect 90 210 192 15
+      rect 90 205 192 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 128 
+      textaligny 12
+      textscale .25         
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
+    }
+
+    itemDef
+    {
+      name game
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Tutorial Mode:"
+      cvar "cg_tutorial"
+      rect 90 220 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128 
       textaligny 12

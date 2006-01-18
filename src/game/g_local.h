@@ -886,11 +886,6 @@ void SendScoreboardMessageToAllClients( void );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... );
 
-qboolean G_WeaponIsAllowed( weapon_t weapon );
-qboolean G_UpgradeIsAllowed( upgrade_t upgrade );
-qboolean G_ClassIsAllowed( pClass_t class );
-qboolean G_BuildableIsAllowed( buildable_t buildable );
-
 //
 // g_client.c
 //

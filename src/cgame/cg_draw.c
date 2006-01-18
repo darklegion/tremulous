@@ -543,34 +543,6 @@ void CG_SetPrintString( int type, const char *p )
   }
 }
 
-/*
-===============
-CG_AtHighestClass
-
-Is the local client at the highest class possible?
-===============
-*/
-static qboolean CG_AtHighestClass( void )
-{
-  int       i;
-  qboolean  superiorClasses = qfalse;
-
-  for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
-  {
-    if( BG_ClassCanEvolveFromTo(
-          cg.predictedPlayerState.stats[ STAT_PCLASS ], i,
-          ALIEN_MAX_KILLS, 0 ) >= 0 &&
-        BG_FindStagesForClass( i, cgs.alienStage )
-        /*FIXME && G_ClassIsAllowed( i )*/ )
-    {
-      superiorClasses = qtrue;
-      break;
-    }
-  }
-
-  return !superiorClasses;
-}
-
 #define NO_CREDITS_TIME 2000
 
 static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color, qboolean padding )
@@ -2285,19 +2257,14 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
 
 /*
 ==============
-CG_DrawConsole
+CG_DrawTextBlock
 ==============
 */
-static void CG_DrawConsole( rectDef_t *rect, float text_x, float text_y, vec4_t color,
-                            float scale, int align, int textStyle )
+static void CG_DrawTextBlock( rectDef_t *rect, float text_x, float text_y, vec4_t color,
+                            float scale, int align, int textStyle, const char *text,
+                            menuDef_t *parent, itemDef_t *textItem )
 {
   float     x, y, w, h;
-
-  //for some reason if these are stored locally occasionally rendering fails
-  //even though they are both live until the end of the function, hence static
-  //possible compiler bug??
-  static menuDef_t dummyParent;
-  static itemDef_t textItem;
 
   //offset the text
   x = rect->x;
@@ -2305,47 +2272,80 @@ static void CG_DrawConsole( rectDef_t *rect, float text_x, float text_y, vec4_t 
   w = rect->w - ( 16 + ( 2 * text_x ) ); //16 to ensure text within frame
   h = rect->h;
 
-  textItem.text = cg.consoleText;
+  textItem->text = text;
 
-  textItem.parent = &dummyParent;
-  memcpy( textItem.window.foreColor, color, sizeof( vec4_t ) );
-  textItem.window.flags = 0;
+  textItem->parent = parent;
+  memcpy( textItem->window.foreColor, color, sizeof( vec4_t ) );
+  textItem->window.flags = 0;
 
   switch( align )
   {
     case ITEM_ALIGN_LEFT:
-      textItem.window.rect.x = x;
+      textItem->window.rect.x = x;
       break;
 
     case ITEM_ALIGN_RIGHT:
-      textItem.window.rect.x = x + w;
+      textItem->window.rect.x = x + w;
       break;
 
     case ITEM_ALIGN_CENTER:
-      textItem.window.rect.x = x + ( w / 2 );
+      textItem->window.rect.x = x + ( w / 2 );
       break;
 
     default:
-      textItem.window.rect.x = x;
+      textItem->window.rect.x = x;
       break;
   }
 
-  textItem.window.rect.y = y;
-  textItem.window.rect.w = w;
-  textItem.window.rect.h = h;
-  textItem.window.borderSize = 0;
-  textItem.textRect.x = 0;
-  textItem.textRect.y = 0;
-  textItem.textRect.w = 0;
-  textItem.textRect.h = 0;
-  textItem.textalignment = align;
-  textItem.textalignx = text_x;
-  textItem.textaligny = text_y;
-  textItem.textscale = scale;
-  textItem.textStyle = textStyle;
+  textItem->window.rect.y = y;
+  textItem->window.rect.w = w;
+  textItem->window.rect.h = h;
+  textItem->window.borderSize = 0;
+  textItem->textRect.x = 0;
+  textItem->textRect.y = 0;
+  textItem->textRect.w = 0;
+  textItem->textRect.h = 0;
+  textItem->textalignment = align;
+  textItem->textalignx = text_x;
+  textItem->textaligny = text_y;
+  textItem->textscale = scale;
+  textItem->textStyle = textStyle;
 
   //hack to utilise existing autowrap code
-  Item_Text_AutoWrapped_Paint( &textItem );
+  Item_Text_AutoWrapped_Paint( textItem );
+}
+
+/*
+===================
+CG_DrawConsole
+===================
+*/
+static void CG_DrawConsole( rectDef_t *rect, float text_x, float text_y, vec4_t color,
+                            float scale, int align, int textStyle )
+{
+  static menuDef_t dummyParent;
+  static itemDef_t textItem;
+
+  CG_DrawTextBlock( rect, text_x, text_y, color, scale, align, textStyle,
+      cg.consoleText, &dummyParent, &textItem );
+}
+
+/*
+===================
+CG_DrawTutorial
+===================
+*/
+static void CG_DrawTutorial( rectDef_t *rect, float text_x, float text_y, vec4_t color,
+                            float scale, int align, int textStyle )
+{
+  static menuDef_t dummyParent;
+  static itemDef_t textItem;
+
+  if( !cg_tutorial.integer )
+    return;
+
+  CG_DrawTextBlock( rect, text_x, text_y, color, scale, align, textStyle,
+      CG_TutorialText( ), &dummyParent, &textItem );
 }
 
 /*
@@ -2729,6 +2729,10 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
 
     case CG_CONSOLE:
       CG_DrawConsole( &rect, text_x, text_y, color, scale, align, textStyle );
+      break;
+
+    case CG_TUTORIAL:
+      CG_DrawTutorial( &rect, text_x, text_y, color, scale, align, textStyle );
       break;
 
     default:

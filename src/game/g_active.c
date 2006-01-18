@@ -1292,8 +1292,6 @@ void ClientThink_real( gentity_t *ent )
       vec3_t    range = { USE_OBJECT_RANGE, USE_OBJECT_RANGE, USE_OBJECT_RANGE };
       vec3_t    mins, maxs;
       int       i, num;
-      int       j;
-      qboolean  upgrade = qfalse;
 
       //TA: look for object infront of player
       AngleVectors( client->ps.viewangles, view, NULL, NULL );
@@ -1325,18 +1323,7 @@ void ClientThink_real( gentity_t *ent )
 
         if( i == num && client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
         {
-          for( j = PCL_NONE + 1; j < PCL_NUM_CLASSES; j++ )
-          {
-            if( BG_ClassCanEvolveFromTo( client->ps.stats[ STAT_PCLASS ], j,
-                                         client->ps.persistant[ PERS_CREDIT ], 0 ) >= 0 &&
-                BG_FindStagesForClass( j, g_alienStage.integer ) && G_ClassIsAllowed( j ) )
-            {
-              upgrade = qtrue;
-              break;
-            }
-          }
-
-          if( upgrade )
+          if( BG_UpgradeClassAvailable( &client->ps ) )
           {
             //no nearby objects and alien - show class menu
             G_TriggerMenu( ent->client->ps.clientNum, MN_A_INFEST );
