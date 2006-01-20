@@ -64,7 +64,7 @@ static void CG_GetBindings( void )
 
   for( i = 0; i < numBindings; i++ )
   {
-    bindings[ i ].keys[ 0 ] = bindings[ i ].keys[ 1 ] = -1;
+    bindings[ i ].keys[ 0 ] = bindings[ i ].keys[ 1 ] = K_NONE;
     numKeys = 0;
 
     for( j = 0; j < K_LAST_KEY; j++ )
@@ -102,7 +102,7 @@ static const char *CG_KeyNameForCommand( const char *command )
   {
     if( !Q_stricmp( command, bindings[ i ].command ) )
     {
-      if( bindings[ i ].keys[ 0 ] >= 0 )
+      if( bindings[ i ].keys[ 0 ] != K_NONE )
       {
         trap_Key_KeynumToStringBuf( bindings[ i ].keys[ 0 ],
             buffer, MAX_STRING_CHARS );
@@ -111,11 +111,11 @@ static const char *CG_KeyNameForCommand( const char *command )
         for( j = 0; j < firstKeyLength; j++ )
           buffer[ j ] = toupper( buffer[ j ] );
 
-        if( bindings[ i ].keys[ 1 ] >= 0 )
+        if( bindings[ i ].keys[ 1 ] != K_NONE )
         {
           Q_strcat( buffer, MAX_STRING_CHARS, " or " );
           trap_Key_KeynumToStringBuf( bindings[ i ].keys[ 1 ],
-              buffer + strlen( buffer ), MAX_STRING_CHARS );
+              buffer + strlen( buffer ), MAX_STRING_CHARS - strlen( buffer ) );
 
           for( j = firstKeyLength + 4; j < strlen( buffer ); j++ )
             buffer[ j ] = toupper( buffer[ j ] );
