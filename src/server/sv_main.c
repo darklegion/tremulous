@@ -293,6 +293,37 @@ void SV_MasterShutdown( void ) {
 	// it will be removed from the list
 }
 
+/*
+=================
+SV_MasterGameStat
+=================
+*/
+void SV_MasterGameStat( const char *data )
+{
+	static netadr_t	adr;
+
+	if( !com_dedicated || com_dedicated->integer != 2 )
+		return;		// only dedicated servers send stats
+
+  Com_Printf( "Resolving %s\n", MASTER_SERVER_NAME );
+  if( !NET_StringToAdr( MASTER_SERVER_NAME, &adr ) )
+  {
+    Com_Printf( "Couldn't resolve address: %s\n", MASTER_SERVER_NAME );
+    return;
+  }
+  else
+  {
+    if( !strstr( ":", MASTER_SERVER_NAME ) )
+      adr.port = BigShort( PORT_MASTER );
+
+    Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", MASTER_SERVER_NAME,
+      adr.ip[0], adr.ip[1], adr.ip[2], adr.ip[3],
+      BigShort( adr.port ) );
+  }
+
+  Com_Printf ("Sending gamestat to %s\n", MASTER_SERVER_NAME );
+  NET_OutOfBandPrint( NS_SERVER, adr, "gamestat %s", data );
+}
 
 /*
 ==============================================================================

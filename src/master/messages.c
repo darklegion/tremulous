@@ -44,6 +44,9 @@
 // "heartbeat Tremulous\n"
 #define S2M_HEARTBEAT "heartbeat"
 
+// "gamestat <data>"
+#define S2M_GAMESTAT "gamestat"
+
 // "getinfo A_Challenge"
 #define M2S_GETINFO "getinfo"
 
@@ -408,6 +411,7 @@ static void HandleGetMotd( const char* msg, const struct sockaddr_in* addr )
 	const char		*motd = ""; //FIXME
 	size_t				packetind;
 	char					*value;
+  char          version[ 1024 ], renderer[ 1024 ];
 
 	MsgPrint( MSG_DEBUG, "%s ---> getmotd\n", peer_address );
 
@@ -424,16 +428,20 @@ static void HandleGetMotd( const char* msg, const struct sockaddr_in* addr )
 	value = SearchInfostring( msg, "renderer" );
 	if( value )
 	{
-		//FIXME: create renderer stats
+    strncpy( renderer, value, 1024 );
 		MsgPrint( MSG_DEBUG, "%s is using renderer %s\n", peer_address, value );
 	}
 
 	value = SearchInfostring( msg, "version" );
 	if( value )
 	{
-		//FIXME: create version stats
+    strncpy( version, value, 1024 );
 		MsgPrint( MSG_DEBUG, "%s is using version %s\n", peer_address, value );
 	}
+
+#ifndef _WIN32
+  RecordClientStat( peer_address, version, renderer );
+#endif
 
 	// Initialize the packet contents with the header
 	packetind = headersize;
@@ -459,6 +467,18 @@ static void HandleGetMotd( const char* msg, const struct sockaddr_in* addr )
 	// Send the packet to the client
 	sendto( sock, packet, packetind, 0, (const struct sockaddr*)addr,
 			sizeof( *addr ) );
+}
+
+/*
+====================
+HandleGameStat
+====================
+*/
+static void HandleGameStat( const char* msg, const struct sockaddr_in* addr )
+{
+#ifndef _WIN32
+  RecordGameStat( peer_address, msg );
+#endif
 }
 
 // ---------- Public functions ---------- //
@@ -523,4 +543,10 @@ void HandleMessage (const char* msg, size_t length,
 	{
 		HandleGetMotd (msg + strlen (C2M_GETMOTD), address);
 	}
+
+	// If it's a game statistic
+  else if( !strncmp( S2M_GAMESTAT, msg, strlen ( S2M_GAMESTAT ) ) )
+	{
+    HandleGameStat( msg + strlen( S2M_GAMESTAT ), address );
+  }
 }

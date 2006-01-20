@@ -1136,4 +1136,4 @@ int       trap_DebugPolygonCreate(int color, int numPoints, vec3_t *points);
 void      trap_DebugPolygonDelete(int id);
 
 void      trap_SnapVector( float *v );
-
+void      trap_SendGameStat( const char *data );

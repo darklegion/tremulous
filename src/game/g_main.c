@@ -452,6 +452,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   memset( &level, 0, sizeof( level ) );
   level.time = levelTime;
   level.startTime = levelTime;
+  level.alienStage2Time = level.alienStage3Time =
+    level.humanStage2Time = level.humanStage3Time = level.startTime;
 
   level.snd_fry = G_SoundIndex( "sound/misc/fry.wav" ); // FIXME standing in lava / slime
 
@@ -1452,6 +1454,87 @@ void QDECL G_LogPrintf( const char *fmt, ... )
 }
 
 /*
+=================
+G_SendGameStat
+=================
+*/
+void G_SendGameStat( pTeam_t team )
+{
+  char      map[ MAX_STRING_CHARS ];
+  char      teamChar;
+  char      data[ BIG_INFO_STRING ];
+  char      entry[ MAX_STRING_CHARS ];
+  int       i, dataLength, entryLength;
+  gclient_t *cl;
+
+  trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+
+  switch( team )
+  {
+    case PTE_ALIENS:  teamChar = 'A'; break;
+    case PTE_HUMANS:  teamChar = 'H'; break;
+    case PTE_NONE:    teamChar = 'L'; break;
+    default: return;
+  }
+
+  Com_sprintf( data, BIG_INFO_STRING,
+      "%s T:%c A:%f H:%f M:%s D:%d AS:%d AS2T:%d AS3T:%d HS:%d HS2T:%d HS3T:%d CL:%d",
+      Q3_VERSION,
+      teamChar,
+      level.averageNumAlienClients,
+      level.averageNumHumanClients,
+      map,
+      level.time - level.startTime,
+      g_alienStage.integer,
+      level.alienStage2Time - level.startTime,
+      level.alienStage3Time - level.startTime,
+      g_humanStage.integer,
+      level.humanStage2Time - level.startTime,
+      level.humanStage3Time - level.startTime,
+      level.numConnectedClients );
+
+  dataLength = strlen( data );
+
+  for( i = 0; i < level.numConnectedClients; i++ )
+  {
+    int ping;
+
+    cl = &level.clients[ level.sortedClients[ i ] ];
+
+    if( cl->pers.connected == CON_CONNECTING )
+      ping = -1;
+    else
+      ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
+
+    switch( cl->ps.stats[ STAT_PTEAM ] )
+    {
+      case PTE_ALIENS:  teamChar = 'A'; break;
+      case PTE_HUMANS:  teamChar = 'H'; break;
+      case PTE_NONE:    teamChar = 'S'; break;
+      default: return;
+    }
+
+    Com_sprintf( entry, MAX_STRING_CHARS,
+      " %s %c %d %d %d",
+      cl->pers.netname,
+      teamChar,
+      cl->ps.persistant[ PERS_SCORE ],
+      ping,
+      ( level.time - cl->pers.enterTime ) / 60000 );
+
+    entryLength = strlen( entry );
+
+    if( dataLength + entryLength > MAX_STRING_CHARS )
+      break;
+
+    Q_strncpyz( data + dataLength, entry, BIG_INFO_STRING );
+    dataLength += entryLength;
+  }
+
+  trap_SendGameStat( data );
+}
+
+/*
 ================
 LogExit
 
@@ -1508,6 +1591,8 @@ void LogExit( const char *string )
         ent->use( ent, ent, ent );
     }
   }
+
+  G_SendGameStat( level.lastWin );
 }
 
 
@@ -1628,10 +1713,6 @@ can see the last frag.
 */
 void CheckExitRules( void )
 {
-  char      s[ MAX_STRING_CHARS ];
-
-  trap_Cvar_VariableStringBuffer( "mapname", s, sizeof( s ) );
-
   // if at the intermission, wait for all non-bots to
   // signal ready, then go to next level
   if( level.intermissiontime )
@@ -1655,23 +1736,13 @@ void CheckExitRules( void )
   {
     if( level.time - level.startTime >= g_timelimit.integer * 60000 )
     {
-      G_SendCommandFromServer( -1, "print \"Timelimit hit\n\"" );
-
-      G_LogPrintf( "STATS T:L A:%f H:%f M:%s D:%d AS:%d AS2T:%d AS3T:%d HS:%d HS2T:%d HS3T:%d\n",
-          level.averageNumAlienClients, level.averageNumHumanClients,
-          s, level.time - level.startTime,
-          g_alienStage.integer,
-          level.alienStage2Time - level.startTime, level.alienStage3Time - level.startTime,
-          g_humanStage.integer,
-          level.humanStage2Time - level.startTime, level.humanStage3Time - level.startTime );
-
       level.lastWin = PTE_NONE;
+      G_SendCommandFromServer( -1, "print \"Timelimit hit\n\"" );
       LogExit( "Timelimit hit." );
       return;
     }
   }
 
-  //TA: end the game on these conditions
   if( level.uncondHumanWin ||
       ( ( level.time > level.startTime + 1000 ) &&
         ( level.numAlienSpawns == 0 ) &&
@@ -1680,17 +1751,7 @@ void CheckExitRules( void )
     //humans win
     level.lastWin = PTE_HUMANS;
     G_SendCommandFromServer( -1, "print \"Humans win\n\"");
-
-    G_LogPrintf( "STATS T:H A:%f H:%f M:%s D:%d AS:%d AS2T:%d AS3T:%d HS:%d HS2T:%d HS3T:%d\n",
-        level.averageNumAlienClients, level.averageNumHumanClients,
-        s, level.time - level.startTime,
-        g_alienStage.integer,
-        level.alienStage2Time - level.startTime, level.alienStage3Time - level.startTime,
-        g_humanStage.integer,
-        level.humanStage2Time - level.startTime, level.humanStage3Time - level.startTime );
-
     LogExit( "Humans win." );
-    return;
   }
   else if( level.uncondAlienWin ||
            ( ( level.time > level.startTime + 1000 ) &&
@@ -1700,21 +1761,8 @@ void CheckExitRules( void )
     //aliens win
     level.lastWin = PTE_ALIENS;
     G_SendCommandFromServer( -1, "print \"Aliens win\n\"");
-
-    G_LogPrintf( "STATS T:A A:%f H:%f M:%s D:%d AS:%d AS2T:%d AS3T:%d HS:%d HS2T:%d HS3T:%d\n",
-        level.averageNumAlienClients, level.averageNumHumanClients,
-        s, level.time - level.startTime,
-        g_alienStage.integer,
-        level.alienStage2Time - level.startTime, level.alienStage3Time - level.startTime,
-        g_humanStage.integer,
-        level.humanStage2Time - level.startTime, level.humanStage3Time - level.startTime );
-
     LogExit( "Aliens win." );
-    return;
   }
-
-  if( level.numPlayingClients < 2 )
-    return;
 }
 
 

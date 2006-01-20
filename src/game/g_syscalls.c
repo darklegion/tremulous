@@ -269,3 +269,9 @@ void trap_SnapVector( float *v )
   syscall( G_SNAPVECTOR, v );
   return;
 }
+
+void trap_SendGameStat( const char *data )
+{
+  syscall( G_SEND_GAMESTAT, data );
+  return;
+}

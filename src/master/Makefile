@@ -3,16 +3,16 @@ BD_RELEASE=release-$(PLATFORM)-$(ARCH)
 
 ifeq ($(PLATFORM),mingw32)
   BINEXT=.exe
-	RELEASE_LDFLAGS=-lwsock32
-	DEBUG_LDFLAGS=-lwsock32
-	RM=del
-	MKDIR=mkdir
+  RELEASE_LDFLAGS=-lwsock32
+  DEBUG_LDFLAGS=-lwsock32
+  RM=del
+  MKDIR=mkdir
 else
   BINEXT=
-	RELEASE_LDFLAGS=
-	DEBUG_LDFLAGS=
-	RM=rm -f
-	MKDIR=mkdir
+  RELEASE_LDFLAGS=-static -ltdb
+  DEBUG_LDFLAGS=-static -ltdb
+  RM=rm -f
+  MKDIR=mkdir
 endif
 
 CC=gcc
@@ -21,6 +21,7 @@ DEBUG_CFLAGS=-g
 OBJECTS= \
 	$(BD)/master.o \
 	$(BD)/messages.o \
+	$(BD)/stats.o \
 	$(BD)/servers.o
 
 release: makedirs
