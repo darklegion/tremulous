@@ -585,6 +585,7 @@ void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
 void VectorMatrixMultiply( const vec3_t p, vec3_t m[ 3 ], vec3_t out );
 void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 void PerpendicularVector( vec3_t dst, const vec3_t src );
+int Q_isnan( float x );
 
 void GetPerpendicularViewVector( const vec3_t point, const vec3_t p1,
 		const vec3_t p2, vec3_t up );
@@ -663,6 +664,8 @@ void Parse3DMatrix (char **buf_p, int z, int y, int x, float *m);
 
 void	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...);
 
+char *Com_SkipTokens( char *s, int numTokens, char *sep );
+char *Com_SkipCharset( char *s, char *sep );
 
 // mode parm for FS_FOpenFile
 typedef enum {
@@ -732,6 +735,9 @@ float	LittleFloat (const float *l);
 void	Swap_Init (void);
 */
 char	* QDECL va(char *format, ...);
+
+#define TRUNCATE_LENGTH	64
+void Com_TruncateLongString( char *buffer, const char *s );
 
 //=============================================
 

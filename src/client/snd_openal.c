@@ -39,6 +39,7 @@ cvar_t *s_alDopplerSpeed;
 cvar_t *s_alMinDistance;
 cvar_t *s_alRolloff;
 cvar_t *s_alDriver;
+cvar_t *s_alMaxSpeakerDistance;
 
 /*
 =================
@@ -469,6 +470,7 @@ typedef struct src_s
 static src_t srcList[MAX_SRC];
 static int srcCount = 0;
 static qboolean alSourcesInitialised = qfalse;
+static vec3_t lastListenerOrigin = { 0.0f, 0.0f, 0.0f };
 
 typedef struct sentity_s
 {
@@ -484,6 +486,22 @@ typedef struct sentity_s
 } sentity_t;
 
 static sentity_t entityList[MAX_GENTITIES];
+
+/*
+=================
+S_AL_SanitiseVector
+=================
+*/
+#define S_AL_SanitiseVector(v) _S_AL_SanitiseVector(v,__LINE__)
+static void _S_AL_SanitiseVector( vec3_t v, int line )
+{
+	if( Q_isnan( v[ 0 ] ) || Q_isnan( v[ 1 ] ) || Q_isnan( v[ 2 ] ) )
+	{
+		Com_DPrintf( S_COLOR_YELLOW "WARNING: vector with one or more NaN components "
+				"being passed to OpenAL at %s:%d -- zeroing\n", __FILE__, line );
+		VectorClear( v );
+	}
+}
 
 /*
 =================
@@ -762,6 +780,7 @@ S_AL_UpdateEntityPosition
 static
 void S_AL_UpdateEntityPosition( int entityNum, const vec3_t origin )
 {
+	S_AL_SanitiseVector( (vec_t *)origin );
 	if ( entityNum < 0 || entityNum > MAX_GENTITIES )
 		Com_Error( ERR_DROP, "S_UpdateEntityPosition: bad entitynum %i", entityNum );
 	VectorCopy( origin, entityList[entityNum].origin );
@@ -816,6 +835,7 @@ void S_AL_StartSound( vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx
 	}
 	else
 		VectorCopy( origin, sorigin );
+	S_AL_SanitiseVector( sorigin );
 	qalSourcefv(srcList[src].alSource, AL_POSITION, sorigin);
 
 	// Start it playing
@@ -896,7 +916,9 @@ S_AL_AddLoopingSound
 static
 void S_AL_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx )
 {
-	S_AL_SrcLoop(SRCPRI_AMBIENT, sfx, origin, velocity, entityNum);
+	S_AL_SanitiseVector( (vec_t *)origin );
+	S_AL_SanitiseVector( (vec_t *)velocity );
+	S_AL_SrcLoop(SRCPRI_ENTITY, sfx, origin, velocity, entityNum);
 }
 
 /*
@@ -907,7 +929,17 @@ S_AL_AddRealLoopingSound
 static
 void S_AL_AddRealLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx )
 {
-	S_AL_SrcLoop(SRCPRI_ENTITY, sfx, origin, velocity, entityNum);
+	S_AL_SanitiseVector( (vec_t *)origin );
+	S_AL_SanitiseVector( (vec_t *)velocity );
+
+	// There are certain maps (*cough* Q3:TA mpterra*) that have large quantities
+	// of ET_SPEAKERS in the PVS at any given time. OpenAL can't cope with mixing
+	// large numbers of sounds, so this culls them by distance
+	if( DistanceSquared( origin, lastListenerOrigin ) > 
+			s_alMaxSpeakerDistance->value * s_alMaxSpeakerDistance->value )
+		return;
+
+	S_AL_SrcLoop(SRCPRI_AMBIENT, sfx, origin, velocity, entityNum);
 }
 
 /*
@@ -1429,11 +1461,17 @@ S_AL_Respatialize
 static
 void S_AL_Respatialize( int entityNum, const vec3_t origin, vec3_t axis[3], int inwater )
 {
+	S_AL_SanitiseVector( (vec_t *)origin );
+	S_AL_SanitiseVector( axis[ 0 ] );
+	S_AL_SanitiseVector( axis[ 1 ] );
+	S_AL_SanitiseVector( axis[ 2 ] );
 	// Axis[0] = Forward
 	// Axis[2] = Up
 	float velocity[] = {0.0f, 0.0f, 0.0f};
 	float orientation[] = {axis[0][0], axis[0][1], axis[0][2],
 		axis[2][0], axis[2][1], axis[2][2]};
+
+	VectorCopy( origin, lastListenerOrigin );
 
 	// Set OpenAL listener paramaters
 	qalListenerfv(AL_POSITION, (ALfloat *)origin);
@@ -1592,6 +1630,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 	s_alDopplerSpeed = Cvar_Get( "s_alDopplerSpeed", "2200", CVAR_ARCHIVE );
 	s_alMinDistance = Cvar_Get( "s_alMinDistance", "120", CVAR_CHEAT );
 	s_alRolloff = Cvar_Get( "s_alRolloff", "0.8", CVAR_CHEAT );
+	s_alMaxSpeakerDistance = Cvar_Get( "s_alMaxSpeakerDistance", "1024", CVAR_ARCHIVE );
 
 	s_alDriver = Cvar_Get( "s_alDriver", ALDRIVER_DEFAULT, CVAR_ARCHIVE );
 

@@ -550,7 +550,6 @@ char *Sys_ConsoleInput(void)
 {
   // we use this when sending back commands
   static char text[256];
-  int i;
   int avail;
   char key;
   field_t *history;
@@ -589,22 +588,7 @@ char *Sys_ConsoleInput(void)
         if (key == '\t')
         {
           tty_Hide();
-          Field_CompleteCommand( &tty_con );
-          // Field_CompleteCommand does weird things to the string, do a cleanup
-          //   it adds a '\' at the beginning of the string
-          //   cursor doesn't reflect actual length of the string that's sent back
-          tty_con.cursor = strlen(tty_con.buffer);
-          if (tty_con.cursor>0)
-          {
-            if (tty_con.buffer[0] == '\\')
-            {
-              for (i=0; i<=tty_con.cursor; i++)
-              {
-                tty_con.buffer[i] = tty_con.buffer[i+1];
-              }
-              tty_con.cursor--;
-            }
-          }
+          Field_AutoComplete( &tty_con );
           tty_Show();
           return NULL;
         }
@@ -1238,6 +1222,7 @@ void Sys_ANSIColorify( const char *msg, char *buffer, int bufferSize )
   int   msgLength, pos;
   int   i, j;
   char  *escapeCode;
+  char  tempBuffer[ 7 ];
 
   if( !msg || !buffer )
     return;
@@ -1251,7 +1236,8 @@ void Sys_ANSIColorify( const char *msg, char *buffer, int bufferSize )
   {
     if( msg[ i ] == '\n' )
     {
-      strncat( buffer, va( "%c[0m\n", 0x1B ), bufferSize );
+      Com_sprintf( tempBuffer, 7, "%c[0m\n", 0x1B );
+      strncat( buffer, tempBuffer, bufferSize );
       i++;
     }
     else if( msg[ i ] == Q_COLOR_ESCAPE )
@@ -1271,13 +1257,19 @@ void Sys_ANSIColorify( const char *msg, char *buffer, int bufferSize )
         }
 
         if( escapeCode )
-          strncat( buffer, va( "%c[%sm", 0x1B, escapeCode ), bufferSize );
+        {
+          Com_sprintf( tempBuffer, 7, "%c[%sm", 0x1B, escapeCode );
+          strncat( buffer, tempBuffer, bufferSize );
+        }
 
         i++;
       }
     }
     else
-      strncat( buffer, va( "%c", msg[ i++ ] ), bufferSize );
+    {
+      Com_sprintf( tempBuffer, 7, "%c", msg[ i++ ] );
+      strncat( buffer, tempBuffer, bufferSize );
+    }
   }
 }
 
@@ -1409,6 +1401,18 @@ int main ( int argc, char* argv[] )
 
   while (1)
   {
+#if !defined( DEDICATED ) && USE_SDL_VIDEO
+    int appState = SDL_GetAppState( );
+
+    // If we have no input focus at all, sleep a bit
+    if( !( appState & ( SDL_APPMOUSEFOCUS | SDL_APPINPUTFOCUS ) ) )
+      usleep( 16000 );
+
+    // If we're minimised, sleep a bit more
+    if( !( appState & SDL_APPACTIVE ) )
+      usleep( 32000 );
+#endif
+
 #ifdef __linux__
     Sys_ConfigureFPU();
 #endif
