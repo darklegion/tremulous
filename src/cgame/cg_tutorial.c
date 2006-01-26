@@ -239,6 +239,9 @@ CG_AlienLevel1Text
 static void CG_AlienLevel1Text( char *text, playerState_t *ps )
 {
   Q_strcat( text, MAX_TUTORIAL_TEXT,
+      "Touch a human to grab it\n" );
+
+  Q_strcat( text, MAX_TUTORIAL_TEXT,
       va( "Press %s to swipe\n",
         CG_KeyNameForCommand( "+attack" ) ) );
 
