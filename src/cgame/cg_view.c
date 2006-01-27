@@ -761,11 +761,11 @@ static int CG_CalcFov( void )
       float temp, temp2;
 
       temp = (float)( cg.time - cg.spawnTime ) / FOVWARPTIME;
-      temp2 = ( 180 - fov_x ) * temp;
+      temp2 = ( 170 - fov_x ) * temp;
 
       //Com_Printf( "%f %f\n", temp*100, temp2*100 );
 
-      fov_x = 180 - temp2;
+      fov_x = 170 - temp2;
     }
 
     // account for zooms
