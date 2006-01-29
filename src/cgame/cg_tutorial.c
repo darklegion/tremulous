@@ -207,7 +207,7 @@ static void CG_AlienBuilderText( char *text, playerState_t *ps )
     }
 
     Q_strcat( text, MAX_TUTORIAL_TEXT,
-        va( "Press %s to lauch a projectile\n",
+        va( "Press %s to launch a projectile\n",
           CG_KeyNameForCommand( "+button2" ) ) );
 
     Q_strcat( text, MAX_TUTORIAL_TEXT,
