@@ -1,0 +1,175 @@
+1.1.0
+-----
+
+    Feature/balance changes
+    -----------------------
+    * Quick fullscreen changes
+    * Fancy autocompletion
+    * Client now sleeps when inactive
+    * Persistent console history
+    * Increase boost time to 30 seconds from 20 seconds
+    * Lcannon now has a minimum charge value
+    * Flamer damage down to 20 from 31
+    * Zap repeat rate down to 1500ms from 2000ms
+    * Knockback from pouncing now 3 times as strong
+    * Demo state now displayed from cgame
+    * AVI video capture
+    * cl_autoRecordDemo
+    * Master server, based on dpmaster
+    * Changed defaults for r_picmip and r_textureMode
+    * Chat sounds differ depending on team
+    * New collision type, for improved light flares
+    * New pain blend effect
+    * Reduced Dragoon pounce range to 64 from 96
+    * Dragoon pounce now incurs 400ms wait before other weapons may be used
+    * Trapper cost down to 8 from 10
+    * Hovel is now free, but only one can be built
+    * Teslagen damage up to 9 from 7
+    * Non locational damage does not apply locational armour anymore; instead it
+      averages the armour regions together
+    * Added target_alien_win and target_human_win
+    * Added worldspawn keys to disable specific game elements
+    * 3D particles
+    * Brass ejections now done via particle system
+    * static_tranform particle move type
+    * thirdPersonOnly particle and trail system property
+    * Abstract attachment system
+    * Scriptable trails system
+
+    Bug fixes/development issues
+    ----------------------------
+    * Fix to a server memory leak
+    * Fix to a server 100% CPU bug
+    * Delete key on *nix fixed
+    * Fixed lcannon charge storage exploit
+    * Fixed psaw/cgun inappropriate effects bug
+    * Maps on create server menu now sorted by name
+    * Fixed death by poison MOD s/antitox/medkit/
+    * Fixed Marauders momentarily disappearing when wall jumping
+    * Fixed a potential crash bug involving the use of generic1
+    * Fixed being able to build multiple coincident repeaters if there is no reactor
+    * Fixed incorrect message when invoking "buy ammo" with an energy weapon and no
+      reactor present
+    * Fixed invoking "reload" during a weapon reload causing an unnecessary reload
+    * Fixed aliens having the wrong blood colour when shot with a las gun
+    * Fixed hovel causing invisible builders
+
+1.0.2
+-----
+
+    Feature/balance changes
+    -----------------------
+    * Extended STATS report to include the times when stages change
+    * Increased Tesla damage frequency
+    * Marginally increased Tesla damage
+    * Teslas now produce exaggerated knockback effect
+    * Hives now buildable on walls
+    * Boosters no longer restore Dragoon spitballs
+    * Dragoon spitballs now affected by gravity
+    * Dragoon pounce attack damage reduced to 100 from 160
+    * Removed jump pad code (and associated media loading)
+    * Removed loading of some Q3 cruft
+    * Corpses timeout in 20 seconds instead of 60
+
+    Bug fixes/development issues
+    ----------------------------
+    * Fixed a silly bug with using the reactor/repeater
+    * Spilled events attached to temporary entities are now reattached
+      to their original entities, fixing the missing flame bug
+    * Fixed "suicide god" bug
+    * Fixed bug where zap ignores armour
+    * Fixed missing particle systems when follow-spectating
+    * Fixed potential bug involving dodgy pointer arithmetic in
+    CG_LoadClientInfo
+    * Cleaned up logic in CG_AddPlayerWeapon
+    * MASK_SHOT traces no longer collide with corpses
+    * Improved robustness of spawn validation, fixing the bug on transit
+    * A crapload of whitespace fixes
+
+1.0.1
+-----
+
+    Feature/balance changes
+    -----------------------
+    * cg_debugParticles >= 1 now prints to the console when particle
+    systems are parsed and registered
+    * Reverted walk/run animation switching back to cmd.buttons instead
+    of basing it on speed
+    * Added option for changing whether or not the wallwalk control is a
+    toggle or not
+    * Weapon now drops momentarily when reloading
+    * The stage kill counters are now incremented for structure kills if
+    players did more then 50% of the total damage
+    * Removed the mp3 decoder from the source
+    * Marauder lightning now requires aim, does damage over time and
+    chains to other entities
+    * Implemented the Medkit -- a means for a human to restore health
+    and cure poison in the field
+    * "Disable Build Warnings" replaced with "Disable Warning
+    Dialogs" and improved
+    * Sped spectator move speed up
+    * Implemented "step down" physics for all characters; no more
+    jumping down stairs
+    * Increased frequency with which the Acid Tube deals damage
+    * Tyrant can no longer charge up forever and must pass a specific
+    minimum charge level
+    * Implemented command queueing for commands sent to clients in order
+    to prevent overflows even sv_floodProtect is off, but not by
+    dropping commands
+    * Added LOS check to creep slowing
+    * Overmind now only complains if there are 0 spawns
+    * Spawns can no longer be built when there is no Overmind/Reactor
+    * The spawn closest to the point of death is chosen preferably if
+    available
+    * Evolving no longer restores all health
+    * "give weapons" and "give ammo" cheats removed
+    * When selling the battery pack, max ammo is given
+    * Added stage information to the end of game stats
+    * Reduced Dragoon spitball damage from 120 to 110
+    * Reduced Tyrant claw damage from 120 to 100
+    * Reduced Tyrant charge damage from 160 to 110
+    * Increased Barricade regeneration rate from 12 to 14
+    * Increased Overmind health from 500 to 750
+    * Decreased Overmind regeneration rate from 10 to 6
+    * Doubled Blaster speed from 700 to 1400
+    * Reduced Painsaw damage from 18 to 15
+    * Reduced Painsaw range from 48.0 to 40.0
+    * Reduced Grenade price from 300 to 200
+    * Reduced Shotgun repeat rate from 1200 to 1000
+    * Increased Shotgun damage from 6 to 7
+    * Increased Mass driver damage from 35 to 38
+    * Increased Chaingun damage from 5 to 6
+    * Reduced Flamer repeat rate from 300 to 200
+    * Extended Flamer range
+    * Increased ammo on all human weapons
+    * Reduced splashdamage on MG Turrets
+
+    
+    Bug fixes/development issues
+    ----------------------------
+    * Hacked around trap_LinkEntity to allow missiles to have a bounding
+    box displayed
+    * Fixed "Server command overflow" bug for clients that should time
+    out
+    * Fixed a bug where only live clients would have their scores logged
+    at the end of the game
+    * Reworked how weapon changes are performed, fixing bugs in the
+    process
+    * Fixed the issue where the Mac qvm JIT compiler would not compile
+    Tremulous
+    * Reimplemented how buildables play damage sounds to not use the
+    event system
+    * Reworked the ammo/clips packing system to remove the confusion of
+    concepts
+    * Disabled client side ET_MISSILE collision
+    * G_RadiusSelectiveDamage no longer applies locational damage
+    * Moved some speed adjustment code into prediction; should prevent
+    some prediction misses
+    * Wrapped all calls to trap_SendServerCommand in order to circumvent
+    the q3amsgboom.cfg exploit
+    * Fixed restoration of energy weapons bug
+    * Fixed a bug where locational damage could sometimes scale damage
+    to 0
+    * Added G_ClosestEnt
+    * Moved build directory from tremulous to tremulous-dev
+
