@@ -7110,7 +7110,7 @@ random
  condition simply chooses whether or not to execute the change randomly,
  with each outcome equally likely.
 \layout Section
-
+\pagebreak_top 
 Credits
 \layout Standard
 
@@ -7234,5 +7234,5 @@ babyomen, Carc, djbob, Grim, Grytviken, Gumby, heimdall, Hellbringer, Hentai,
 \align center 
 
 \noun on 
-Tremulous is copyright darklegion development 2005
+Tremulous is copyright darklegion development 2005-2006
 \the_end
