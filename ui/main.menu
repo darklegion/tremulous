@@ -125,7 +125,7 @@
     itemDef
     {
       name copyright
-      text "Tremulous (C) 2005 darklegion development"
+      text "Tremulous (C) 2005-2006 darklegion development"
       style WINDOW_STYLE_EMPTY
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale .25
