@@ -40,7 +40,7 @@
 #define VERSION "1.6"
 
 // Default master port
-#define DEFAULT_MASTER_PORT 27950
+#define DEFAULT_MASTER_PORT 30710
 
 // Maximum and minimum sizes for a valid packet
 #define MAX_PACKET_SIZE 2048

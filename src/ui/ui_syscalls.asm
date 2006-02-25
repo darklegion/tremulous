@@ -79,12 +79,12 @@ equ trap_CIN_RunCinematic             -76
 equ trap_CIN_DrawCinematic            -77
 equ trap_CIN_SetExtents               -78
 equ trap_R_RemapShader                -79
-equ trap_LAN_ServerStatus             -81
-equ trap_LAN_GetServerPing            -82
-equ trap_LAN_ServerIsVisible          -83
-equ trap_LAN_CompareServers           -84
-equ trap_FS_Seek                      -85
-equ trap_SetPbClStatus                -86
+equ trap_LAN_ServerStatus             -80
+equ trap_LAN_GetServerPing            -81
+equ trap_LAN_ServerIsVisible          -82
+equ trap_LAN_CompareServers           -83
+equ trap_FS_Seek                      -84
+equ trap_SetPbClStatus                -85
 
 
 
