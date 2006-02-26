@@ -1003,6 +1003,8 @@ int CG_PlayerCount( void )
 {
   int i, count = 0;
 
+  CG_RequestScores( );
+
   for( i = 0; i < cg.numScores; i++ )
   {
     if( cg.scores[ i ].team == PTE_ALIENS ||

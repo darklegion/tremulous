@@ -84,8 +84,7 @@ static void CG_Viewpos_f( void )
     (int)cg.refdefViewAngles[ YAW ] );
 }
 
-
-static void CG_ScoresDown_f( void )
+qboolean CG_RequestScores( void )
 {
   if( cg.scoresRequestTime + 2000 < cg.time )
   {
@@ -95,6 +94,16 @@ static void CG_ScoresDown_f( void )
     //TA: added \n SendClientCommand doesn't call flush( )?
     trap_SendClientCommand( "score\n" );
 
+    return qtrue;
+  }
+  else
+    return qfalse;
+}
+
+static void CG_ScoresDown_f( void )
+{
+  if( CG_RequestScores( ) )
+  {
     // leave the current scores up if they were already
     // displayed, but if this is the first hit, clear them out
     if( !cg.showScores )

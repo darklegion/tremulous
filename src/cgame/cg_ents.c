@@ -249,8 +249,22 @@ static void CG_EntityEffects( centity_t *cent )
     trap_R_AddLightToScene( cent->lerpOrigin, i, r, g, b );
   }
 
-  if( cg.time > cent->muzzleTSDeathTime && CG_IsTrailSystemValid( &cent->muzzleTS ) )
-    CG_DestroyTrailSystem( &cent->muzzleTS );
+  if( CG_IsTrailSystemValid( &cent->muzzleTS ) )
+  {
+    if( cent->currentState.eType == ET_BUILDABLE )
+    {
+      vec3_t  front, back;
+
+      CG_AttachmentPoint( &cent->muzzleTS->frontAttachment, front );
+      CG_AttachmentPoint( &cent->muzzleTS->backAttachment, back );
+
+      if( Distance( front, back ) > TESLAGEN_RANGE )
+        CG_DestroyTrailSystem( &cent->muzzleTS );
+    }
+
+    if( cg.time > cent->muzzleTSDeathTime && CG_IsTrailSystemValid( &cent->muzzleTS ) )
+      CG_DestroyTrailSystem( &cent->muzzleTS );
+  }
 }
 
 

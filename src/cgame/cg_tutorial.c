@@ -496,36 +496,33 @@ CG_SpectatorText
 */
 static void CG_SpectatorText( char *text, playerState_t *ps )
 {
-  if( ps->pm_type == PM_SPECTATOR )
+  if( ps->pm_flags & PMF_FOLLOW )
+  {
+    Q_strcat( text, MAX_TUTORIAL_TEXT,
+        va( "Press %s to return to free spectator mode\n",
+          CG_KeyNameForCommand( "+button2" ) ) );
+
+    if( CG_PlayerCount( ) > 1 )
+    {
+      Q_strcat( text, MAX_TUTORIAL_TEXT,
+          va( "Press %s or ",
+            CG_KeyNameForCommand( "weapprev" ) ) );
+      Q_strcat( text, MAX_TUTORIAL_TEXT,
+          va( "%s to change player\n",
+            CG_KeyNameForCommand( "weapnext" ) ) );
+    }
+  }
+  else if( ps->pm_type == PM_SPECTATOR )
   {
     Q_strcat( text, MAX_TUTORIAL_TEXT,
         va( "Press %s to join a team\n",
           CG_KeyNameForCommand( "+attack" ) ) );
 
-    if( ps->pm_flags & PMF_FOLLOW )
+    if( CG_PlayerCount( ) > 0 )
     {
       Q_strcat( text, MAX_TUTORIAL_TEXT,
-          va( "Press %s to return to free spectator mode\n",
+          va( "Press %s to enter spectator follow mode\n",
             CG_KeyNameForCommand( "+button2" ) ) );
-
-      if( CG_PlayerCount( ) > 1 )
-      {
-        Q_strcat( text, MAX_TUTORIAL_TEXT,
-            va( "Press %s or ",
-              CG_KeyNameForCommand( "weapprev" ) ) );
-        Q_strcat( text, MAX_TUTORIAL_TEXT,
-            va( "%s to change player\n",
-              CG_KeyNameForCommand( "weapnext" ) ) );
-      }
-    }
-    else
-    {
-      if( CG_PlayerCount( ) > 0 )
-      {
-        Q_strcat( text, MAX_TUTORIAL_TEXT,
-            va( "Press %s to enter spectator follow mode\n",
-              CG_KeyNameForCommand( "+button2" ) ) );
-      }
     }
   }
   else
@@ -555,8 +552,11 @@ const char *CG_TutorialText( void )
 
   if( !cg.intermissionStarted )
   {
-    if( ps->persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
+    if( ps->persistant[ PERS_TEAM ] == TEAM_SPECTATOR ||
+        ps->pm_flags & PMF_FOLLOW )
+    {
       CG_SpectatorText( text, ps );
+    }
     else if( ps->stats[ STAT_HEALTH ] > 0 )
     {
       switch( ps->stats[ STAT_PCLASS ] )
