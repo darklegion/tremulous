@@ -1630,31 +1630,10 @@
     {
       name gsoftware
       group optionsGrp
-      type ITEM_TYPE_MULTI  
-      text "Ejecting Brass:"
-      cvar "cg_brassTime"
-      cvarFloatList { "High" 2500 "Med" 1250 "Off" 0 }
-      rect 96 130 192 15
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 1 
-      action
-      {
-        play "sound/misc/menu1.wav"; 
-      }
-    }
-
-    itemDef
-    {
-      name gsoftware
-      group optionsGrp
       type ITEM_TYPE_YESNO
       text "Dynamic Lights:"
       cvar "r_dynamiclight"
-      rect 96 145 192 15
+      rect 96 130 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1674,7 +1653,7 @@
       type ITEM_TYPE_YESNO
       text "Draw Gun:"
       cvar "cg_drawGun"
-      rect 96 160 192 15
+      rect 96 145 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1694,7 +1673,7 @@
       type ITEM_TYPE_YESNO
       text "Low Quality Sky:"
       cvar "r_fastsky"
-      rect 96 175 192 15
+      rect 96 160 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1714,7 +1693,7 @@
       type ITEM_TYPE_YESNO
       text "Sync Every Frame:"
       cvar "weapon 5"
-      rect 96 190 192 15
+      rect 96 175 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1734,7 +1713,7 @@
       type ITEM_TYPE_YESNO
       text "Show Time:"
       cvar "cg_drawTimer"
-      rect 96 205 192 15
+      rect 96 190 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1754,7 +1733,7 @@
       type ITEM_TYPE_YESNO
       text "In Game Videos:"
       cvar "r_inGameVideo"
-      rect 96 220 192 15
+      rect 96 205 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1774,7 +1753,7 @@
       type ITEM_TYPE_YESNO
       text "Depth Sort Particles:"
       cvar "cg_depthSortParticles"
-      rect 96 235 192 15
+      rect 96 220 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1795,7 +1774,7 @@
       text "Light Flares:"
       cvar "cg_lightFlare"
       cvarFloatList { "Off" 0 "No Fade" 1 "Timed Fade" 2 "Real Fade" 3 }
-      rect 96 250 192 15
+      rect 96 235 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1879,7 +1858,7 @@
       group optionsGrp
       style 1
       text "Sound"
-      rect 96 70 192 20
+      rect 96 50 192 20
       textalign ITEM_ALIGN_CENTER
       textalignx 80
       textaligny 17
@@ -1900,7 +1879,7 @@
       type ITEM_TYPE_SLIDER
       text "Effects Volume:"
       cvarfloat "s_volume" 0.7 0 1
-      rect 96 90 192 20
+      rect 96 70 192 20
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       textaligny 17
@@ -1916,7 +1895,7 @@
       type ITEM_TYPE_SLIDER
       text "Music Volume:"
       cvarfloat "s_musicvolume" 0.25 0 1
-      rect 96 110 192 20
+      rect 96 90 192 20
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       textaligny 17
@@ -1929,11 +1908,31 @@
     {
       name netsound
       group optionsGrp
+      type ITEM_TYPE_YESNO  
+      text "OpenAL:"
+      cvar "s_useOpenAL"
+      rect 96 120 192 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 100
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
+    }
+
+    itemDef
+    {
+      name netsound
+      group optionsGrp
       type ITEM_TYPE_MULTI  
       text "Sound Quality:"
       cvar "s_khz"
-      cvarFloatList { "22 khz (high)" 22 "11 khz (low)" 11 }
-      rect 96 130 192 15
+      cvarFloatList { "44 khz (very high)" 44 "22 khz (high)" 22 "11 khz (low)" 11 }
+      rect 96 135 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1953,7 +1952,7 @@
       type ITEM_TYPE_YESNO  
       text "Doppler Sound:"
       cvar "s_doppler"
-      rect 96 145 192 15
+      rect 96 150 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1966,14 +1965,35 @@
       }
     }
 
+    itemDef
+    {
+      name netsound
+      group optionsGrp
+      type ITEM_TYPE_BUTTON
+      text "APPLY"
+      textscale .25
+      style WINDOW_STYLE_EMPTY
+      rect 155 170 75 20
+      textalign ITEM_ALIGN_CENTER
+      textalignx 37
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        exec "snd_restart"
+      }
+    }
   
+
     itemDef
     {
       name netsound      
       group optionsGrp
       style 1
       text "Network"
-      rect 96 190 192 20
+      rect 96 200 192 20
       textalign ITEM_ALIGN_CENTER
       textalignx 80
       textaligny 17
@@ -1995,7 +2015,7 @@
       text "Net Data Rate:"
       cvar "rate"
       cvarFloatList { "<=28.8k" 2500 "33.6k" 3000 "56k" 4000 "ISDN" 5000 "LAN/CABLE/xDSl" 25000  }
-      rect 96 210 192 20
+      rect 96 220 192 20
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 17
