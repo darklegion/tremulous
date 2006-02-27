@@ -1383,6 +1383,9 @@ void Cmd_ActivateItem_f( gentity_t *ent )
   if( ent->client->pers.teamSelection != PTE_HUMANS )
     return;
 
+  if( ent->client->pers.classSelection == PCL_NONE )
+    return;
+
   if( upgrade != UP_NONE && BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
     BG_ActivateUpgrade( upgrade, ent->client->ps.stats );
   else if( weapon != WP_NONE && BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
@@ -1408,6 +1411,9 @@ void Cmd_DeActivateItem_f( gentity_t *ent )
   upgrade = BG_FindUpgradeNumForName( s );
 
   if( ent->client->pers.teamSelection != PTE_HUMANS )
+    return;
+
+  if( ent->client->pers.classSelection == PCL_NONE )
     return;
 
   if( BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
