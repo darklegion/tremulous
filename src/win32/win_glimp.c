@@ -1350,8 +1350,6 @@ static void GLW_StartOpenGL( void )
 */
 void GLimp_Init( void )
 {
-	char	buf[1024];
-	cvar_t *lastValidRenderer = ri.Cvar_Get( "r_lastValidRenderer", "(uninitialized)", CVAR_ARCHIVE );
 	cvar_t	*cv;
 
 	ri.Printf( PRINT_ALL, "Initializing OpenGL subsystem\n" );
@@ -1383,78 +1381,7 @@ void GLimp_Init( void )
 	Q_strncpyz( glConfig.version_string, qglGetString (GL_VERSION), sizeof( glConfig.version_string ) );
 	Q_strncpyz( glConfig.extensions_string, qglGetString (GL_EXTENSIONS), sizeof( glConfig.extensions_string ) );
 
-	//
-	// chipset specific configuration
-	//
-	Q_strncpyz( buf, glConfig.renderer_string, sizeof(buf) );
-	Q_strlwr( buf );
-
-	//
-	// NOTE: if changing cvars, do it within this block.  This allows them
-	// to be overridden when testing driver fixes, etc. but only sets
-	// them to their default state when the hardware is first installed/run.
-	//
-	if ( Q_stricmp( lastValidRenderer->string, glConfig.renderer_string ) )
-	{
-		glConfig.hardwareType = GLHW_GENERIC;
-
-		ri.Cvar_Set( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST" );
-
-		// VOODOO GRAPHICS w/ 2MB
-		if ( strstr( buf, "voodoo graphics/1 tmu/2 mb" ) )
-		{
-			ri.Cvar_Set( "r_picmip", "2" );
-			ri.Cvar_Get( "r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH );
-		}
-		else
-		{
-			ri.Cvar_Set( "r_picmip", "1" );
-
-			if ( strstr( buf, "rage 128" ) || strstr( buf, "rage128" ) )
-			{
-				ri.Cvar_Set( "r_finish", "0" );
-			}
-			// Savage3D and Savage4 should always have trilinear enabled
-			else if ( strstr( buf, "savage3d" ) || strstr( buf, "s3 savage4" ) )
-			{
-				ri.Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
-			}
-		}
-	}
-	
-	//
-	// this is where hardware specific workarounds that should be
-	// detected/initialized every startup should go.
-	//
-	if ( strstr( buf, "banshee" ) || strstr( buf, "voodoo3" ) )
-	{
-		glConfig.hardwareType = GLHW_3DFX_2D3D;
-	}
-	// VOODOO GRAPHICS w/ 2MB
-	else if ( strstr( buf, "voodoo graphics/1 tmu/2 mb" ) )
-	{
-	}
-	else if ( strstr( buf, "glzicd" ) )
-	{
-	}
-	else if ( strstr( buf, "rage pro" ) || strstr( buf, "Rage Pro" ) || strstr( buf, "ragepro" ) )
-	{
-		glConfig.hardwareType = GLHW_RAGEPRO;
-	}
-	else if ( strstr( buf, "rage 128" ) )
-	{
-	}
-	else if ( strstr( buf, "permedia2" ) )
-	{
-		glConfig.hardwareType = GLHW_PERMEDIA2;
-	}
-	else if ( strstr( buf, "riva 128" ) )
-	{
-		glConfig.hardwareType = GLHW_RIVA128;
-	}
-	else if ( strstr( buf, "riva tnt " ) )
-	{
-	}
+  GL_ResolveHardwareType( );
 
 	ri.Cvar_Set( "r_lastValidRenderer", glConfig.renderer_string );
 

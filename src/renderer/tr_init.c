@@ -175,6 +175,93 @@ static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean sh
 }
 
 
+#define GENERIC_HW_R_PICMIP_DEFAULT				"0"
+#define GENERIC_HW_R_TEXTUREMODE_DEFAULT	"GL_LINEAR_MIPMAP_LINEAR"
+
+/*
+==================
+GL_ResolveHardwareType
+
+Chipset specific configuration
+==================
+*/
+void GL_ResolveHardwareType( void )
+{
+	char		buf[ 1024 ];
+	cvar_t	*lastValidRenderer = ri.Cvar_Get(
+			"r_lastValidRenderer", "(uninitialized)", CVAR_ARCHIVE );
+
+	Q_strncpyz( buf, glConfig.renderer_string, sizeof( buf ) );
+	Q_strlwr( buf );
+
+	// NOTE: if changing cvars, do it within this block.  This allows them
+	// to be overridden when testing driver fixes, etc. but only sets
+	// them to their default state when the hardware is first installed/run.
+	if( Q_stricmp( lastValidRenderer->string, glConfig.renderer_string ) )
+	{
+		glConfig.hardwareType = GLHW_GENERIC;
+
+		ri.Cvar_Set( "r_textureMode", GENERIC_HW_R_TEXTUREMODE_DEFAULT );
+
+		// VOODOO GRAPHICS w/ 2MB
+		if ( strstr( buf, "voodoo graphics/1 tmu/2 mb" ) )
+		{
+			ri.Cvar_Set( "r_picmip", "2" );
+			ri.Cvar_Get( "r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH );
+		}
+		else
+		{
+			ri.Cvar_Set( "r_picmip", GENERIC_HW_R_PICMIP_DEFAULT );
+
+			if ( strstr( buf, "rage 128" ) || strstr( buf, "rage128" ) )
+			{
+				ri.Cvar_Set( "r_finish", "0" );
+			}
+			// Savage3D and Savage4 should always have trilinear enabled
+			else if ( strstr( buf, "savage3d" ) || strstr( buf, "s3 savage4" ) )
+			{
+				ri.Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
+			}
+		}
+	}
+	
+	//
+	// this is where hardware specific workarounds that should be
+	// detected/initialized every startup should go.
+	//
+	if ( strstr( buf, "banshee" ) || strstr( buf, "voodoo3" ) )
+	{
+		glConfig.hardwareType = GLHW_3DFX_2D3D;
+	}
+	// VOODOO GRAPHICS w/ 2MB
+	else if ( strstr( buf, "voodoo graphics/1 tmu/2 mb" ) )
+	{
+	}
+	else if ( strstr( buf, "glzicd" ) )
+	{
+	}
+	else if ( strstr( buf, "rage pro" ) ||
+			strstr( buf, "Rage Pro" ) ||
+			strstr( buf, "ragepro" ) )
+	{
+		glConfig.hardwareType = GLHW_RAGEPRO;
+	}
+	else if ( strstr( buf, "rage 128" ) )
+	{
+	}
+	else if ( strstr( buf, "permedia2" ) )
+	{
+		glConfig.hardwareType = GLHW_PERMEDIA2;
+	}
+	else if ( strstr( buf, "riva 128" ) )
+	{
+		glConfig.hardwareType = GLHW_RIVA128;
+	}
+	else if ( strstr( buf, "riva tnt " ) )
+	{
+	}
+}
+
 /*
 ** InitOpenGL
 **
@@ -904,13 +991,10 @@ void R_Register( void )
 	r_ext_gamma_control = ri.Cvar_Get( "r_ext_gamma_control", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ext_multitexture = ri.Cvar_Get( "r_ext_multitexture", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ext_compiled_vertex_array = ri.Cvar_Get( "r_ext_compiled_vertex_array", "1", CVAR_ARCHIVE | CVAR_LATCH);
-#ifdef __linux__ // broken on linux
 	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "0", CVAR_ARCHIVE | CVAR_LATCH);
-#else
-	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "1", CVAR_ARCHIVE | CVAR_LATCH);
-#endif
 
-	r_picmip = ri.Cvar_Get ("r_picmip", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_picmip = ri.Cvar_Get ("r_picmip", GENERIC_HW_R_PICMIP_DEFAULT,
+			CVAR_ARCHIVE | CVAR_LATCH );
 	r_roundImagesDown = ri.Cvar_Get ("r_roundImagesDown", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_colorMipLevels = ri.Cvar_Get ("r_colorMipLevels", "0", CVAR_LATCH );
 	AssertCvarRange( r_picmip, 0, 16, qtrue );
@@ -918,11 +1002,7 @@ void R_Register( void )
 	r_texturebits = ri.Cvar_Get( "r_texturebits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_colorbits = ri.Cvar_Get( "r_colorbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_stereo = ri.Cvar_Get( "r_stereo", "0", CVAR_ARCHIVE | CVAR_LATCH );
-#ifdef __linux__
-	r_stencilbits = ri.Cvar_Get( "r_stencilbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
-#else
 	r_stencilbits = ri.Cvar_Get( "r_stencilbits", "8", CVAR_ARCHIVE | CVAR_LATCH );
-#endif
 	r_depthbits = ri.Cvar_Get( "r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_overBrightBits = ri.Cvar_Get ("r_overBrightBits", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ignorehwgamma = ri.Cvar_Get( "r_ignorehwgamma", "0", CVAR_ARCHIVE | CVAR_LATCH);
@@ -967,7 +1047,8 @@ void R_Register( void )
 	r_dynamiclight = ri.Cvar_Get( "r_dynamiclight", "1", CVAR_ARCHIVE );
 	r_dlightBacks = ri.Cvar_Get( "r_dlightBacks", "1", CVAR_ARCHIVE );
 	r_finish = ri.Cvar_Get ("r_finish", "0", CVAR_ARCHIVE);
-	r_textureMode = ri.Cvar_Get( "r_textureMode", "GL_LINEAR_MIPMAP_LINEAR", CVAR_ARCHIVE );
+	r_textureMode = ri.Cvar_Get( "r_textureMode",
+			GENERIC_HW_R_TEXTUREMODE_DEFAULT, CVAR_ARCHIVE );
 	r_swapInterval = ri.Cvar_Get( "r_swapInterval", "0", CVAR_ARCHIVE );
 	r_gamma = ri.Cvar_Get( "r_gamma", "1", CVAR_ARCHIVE );
 	r_facePlaneCull = ri.Cvar_Get ("r_facePlaneCull", "1", CVAR_ARCHIVE );
