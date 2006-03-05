@@ -550,7 +550,7 @@ const char *CG_TutorialText( void )
   text[ 0 ] = '\0';
   ps = &cg.snap->ps;
 
-  if( !cg.intermissionStarted )
+  if( !cg.intermissionStarted && !cg.demoPlayback )
   {
     if( ps->persistant[ PERS_TEAM ] == TEAM_SPECTATOR ||
         ps->pm_flags & PMF_FOLLOW )
