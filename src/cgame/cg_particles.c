@@ -2221,6 +2221,9 @@ static void CG_CompactAndSortParticles( void )
   for( i = 0; i < MAX_PARTICLES; i++ )
     sortedParticles[ i ] = &particles[ i ];
 
+  if( !cg_depthSortParticles.integer )
+    return;
+
   for( i = MAX_PARTICLES - 1; i >= 0; i-- )
   {
     if( sortedParticles[ i ]->valid )
@@ -2436,8 +2439,7 @@ void CG_AddParticles( void )
   CG_SpawnNewParticles( );
 
   //sorting
-  if( cg_depthSortParticles.integer )
-    CG_CompactAndSortParticles( );
+  CG_CompactAndSortParticles( );
 
   for( i = 0; i < MAX_PARTICLES; i++ )
   {
