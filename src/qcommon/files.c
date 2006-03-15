@@ -1109,9 +1109,9 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 						}
 					}
 
-					// qagame.qvm	- 13
-					// dTZT`X!di`
-					if (!(pak->referenced & FS_QAGAME_REF) && FS_ShiftedStrStr(filename, "dTZT`X!di`", 13)) {
+					// game.qvm	- 13
+					// ZT`X!di`
+					if (!(pak->referenced & FS_QAGAME_REF) && FS_ShiftedStrStr(filename, "ZT`X!di`", 13)) {
 						pak->referenced |= FS_QAGAME_REF;
 					}
 					// cgame.qvm	- 7
