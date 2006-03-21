@@ -7190,7 +7190,25 @@ Asa
  Kravets -- Manual content, QA, design and balance suggestions
 \layout Standard
 
-'Crylar' -- Concept art
+
+\emph on 
+'Crylar'
+\emph default 
+ -- Concept art
+\layout Standard
+
+Yves 
+\emph on 
+'evillair'
+\emph default 
+ Allaire -- Textures
+\layout Standard
+
+Randy 
+\emph on 
+'ydnar'
+\emph default 
+ Reddig -- Textures
 \layout Standard
 
 Richard 
@@ -7228,8 +7246,7 @@ Also thanks
 
 babyomen, Carc, djbob, Grim, Grytviken, Gumby, heimdall, Hellbringer, Hentai,
  Mighty_Pea, Psylo, Reaper-1, RR2D02, Saig, Smack, T-bone, The GtkRadiant
- people, The inhabitants of Quake3World, ThePyro, TTimo, ValouR, ydnar,
- Yves 'evillair' Allaire
+ people, The inhabitants of Quake3World, ThePyro, TTimo, ValouR
 \layout Standard
 \align center 
 
