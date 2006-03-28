@@ -221,12 +221,7 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
 
         case PMT_STATIC_TRANSFORM:
           if( !CG_AttachmentAxis( &ps->attachment, transform ) )
-          {
-            CG_Printf( S_COLOR_RED "ERROR: a particle with velocityType "
-                "static_transform is not attached to something which can "
-                "provide a transformation\n" );
             return NULL;
-          }
 
           if( bp->velMoveValues.dirType == PMD_POINT )
           {
@@ -2023,12 +2018,7 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
 
     case PMT_STATIC_TRANSFORM:
       if( !CG_AttachmentAxis( &ps->attachment, transform ) )
-      {
-        CG_Printf( S_COLOR_RED "ERROR: a particle with accelerationType "
-            "static_transform is not attached to something which can "
-            "provide a transformation\n" );
         return;
-      }
 
       if( bp->accMoveValues.dirType == PMD_POINT )
       {
