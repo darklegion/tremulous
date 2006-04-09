@@ -44,6 +44,7 @@ vmCvar_t  g_timelimit;
 vmCvar_t  g_suddenDeathTime;
 vmCvar_t  g_capturelimit;
 vmCvar_t  g_friendlyFire;
+vmCvar_t  g_friendlyBuildableFire;
 vmCvar_t  g_password;
 vmCvar_t  g_needpass;
 vmCvar_t  g_maxclients;
@@ -129,6 +130,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
 
   { &g_friendlyFire, "g_friendlyFire", "0", CVAR_ARCHIVE, 0, qtrue  },
+  { &g_friendlyBuildableFire, "g_friendlyBuildableFire", "0", CVAR_ARCHIVE, 0, qtrue  },
 
   { &g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE  },
   { &g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE  },
@@ -413,7 +415,7 @@ void G_UpdateCvars( void )
         cv->modificationCount = cv->vmCvar->modificationCount;
 
         if( cv->trackChange )
-          G_SendCommandFromServer( -1, va( "print \"Server: %s changed to %s\n\"",
+          trap_SendServerCommand( -1, va( "print \"Server: %s changed to %s\n\"",
             cv->cvarName, cv->vmCvar->string ) );
 
         if( cv->teamShader )
@@ -971,12 +973,10 @@ void G_CalculateBuildPoints( void )
     level.alienBuildPoints = 0;
   }
 
-  trap_SetConfigstring( CS_BUILDPOINTS,
-                        va( "%d %d %d %d %d", level.alienBuildPoints,
-                                              localATP,
-                                              level.humanBuildPoints,
-                                              localHTP,
-                                              level.humanBuildPointsPowered ) );
+  trap_SetConfigstring( CS_BUILDPOINTS, va( "%d %d %d %d %d",
+        level.alienBuildPoints, localATP,
+        level.humanBuildPoints, localHTP,
+        level.humanBuildPointsPowered ) );
 
   //may as well pump the stages here too
   {
@@ -1209,26 +1209,6 @@ void CalculateRanks( void )
     }
 
     score = newScore;
-  }
-
-  // set the CS_SCORES1/2 configstrings, which will be visible to everyone
-  if( level.numConnectedClients == 0 )
-  {
-    trap_SetConfigstring( CS_SCORES1, va( "%i", SCORE_NOT_PRESENT ) );
-    trap_SetConfigstring( CS_SCORES2, va( "%i", SCORE_NOT_PRESENT ) );
-  }
-  else if( level.numConnectedClients == 1 )
-  {
-    trap_SetConfigstring( CS_SCORES1, va( "%i",
-          level.clients[ level.sortedClients[ 0 ] ].ps.persistant[ PERS_SCORE ] ) );
-    trap_SetConfigstring( CS_SCORES2, va( "%i", SCORE_NOT_PRESENT ) );
-  }
-  else
-  {
-    trap_SetConfigstring( CS_SCORES1, va( "%i",
-          level.clients[ level.sortedClients[ 0 ] ].ps.persistant[ PERS_SCORE ] ) );
-    trap_SetConfigstring( CS_SCORES2, va( "%i",
-          level.clients[ level.sortedClients[ 1 ] ].ps.persistant[ PERS_SCORE ] ) );
   }
 
   // see if it is time to end the level
@@ -1737,7 +1717,7 @@ void CheckExitRules( void )
     if( level.time - level.startTime >= g_timelimit.integer * 60000 )
     {
       level.lastWin = PTE_NONE;
-      G_SendCommandFromServer( -1, "print \"Timelimit hit\n\"" );
+      trap_SendServerCommand( -1, "print \"Timelimit hit\n\"" );
       LogExit( "Timelimit hit." );
       return;
     }
@@ -1750,7 +1730,7 @@ void CheckExitRules( void )
   {
     //humans win
     level.lastWin = PTE_HUMANS;
-    G_SendCommandFromServer( -1, "print \"Humans win\n\"");
+    trap_SendServerCommand( -1, "print \"Humans win\n\"");
     LogExit( "Humans win." );
   }
   else if( level.uncondAlienWin ||
@@ -1760,7 +1740,7 @@ void CheckExitRules( void )
   {
     //aliens win
     level.lastWin = PTE_ALIENS;
-    G_SendCommandFromServer( -1, "print \"Aliens win\n\"");
+    trap_SendServerCommand( -1, "print \"Aliens win\n\"");
     LogExit( "Aliens win." );
   }
 }
@@ -1805,13 +1785,13 @@ void CheckVote( void )
     if( level.voteYes > level.voteNo )
     {
       // execute the command, then remove the vote
-      G_SendCommandFromServer( -1, "print \"Vote passed\n\"" );
+      trap_SendServerCommand( -1, "print \"Vote passed\n\"" );
       level.voteExecuteTime = level.time + 3000;
     }
     else
     {
       // same behavior as a timeout
-      G_SendCommandFromServer( -1, "print \"Vote failed\n\"" );
+      trap_SendServerCommand( -1, "print \"Vote failed\n\"" );
     }
   }
   else
@@ -1819,13 +1799,13 @@ void CheckVote( void )
     if( level.voteYes > level.numConnectedClients / 2 )
     {
       // execute the command, then remove the vote
-      G_SendCommandFromServer( -1, "print \"Vote passed\n\"" );
+      trap_SendServerCommand( -1, "print \"Vote passed\n\"" );
       level.voteExecuteTime = level.time + 3000;
     }
     else if( level.voteNo >= level.numConnectedClients / 2 )
     {
       // same behavior as a timeout
-      G_SendCommandFromServer( -1, "print \"Vote failed\n\"" );
+      trap_SendServerCommand( -1, "print \"Vote failed\n\"" );
     }
     else
     {
@@ -1860,21 +1840,21 @@ void CheckTeamVote( int team )
 
   if( level.time - level.teamVoteTime[ cs_offset ] >= VOTE_TIME )
   {
-    G_SendCommandFromServer( -1, "print \"Team vote failed\n\"" );
+    trap_SendServerCommand( -1, "print \"Team vote failed\n\"" );
   }
   else
   {
     if( level.teamVoteYes[ cs_offset ] > level.numteamVotingClients[ cs_offset ] / 2 )
     {
       // execute the command, then remove the vote
-      G_SendCommandFromServer( -1, "print \"Team vote passed\n\"" );
+      trap_SendServerCommand( -1, "print \"Team vote passed\n\"" );
       //
       trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.teamVoteString[ cs_offset ] ) );
     }
     else if( level.teamVoteNo[ cs_offset ] >= level.numteamVotingClients[ cs_offset ] / 2 )
     {
       // same behavior as a timeout
-      G_SendCommandFromServer( -1, "print \"Team vote failed\n\"" );
+      trap_SendServerCommand( -1, "print \"Team vote failed\n\"" );
     }
     else
     {
@@ -2089,9 +2069,6 @@ void G_RunFrame( int levelTime )
   G_SpawnClients( PTE_HUMANS );
   G_CalculateAvgPlayers( );
   G_UpdateZaps( msec );
-
-  //send any pending commands
-  G_ProcessCommandQueues( );
 
   // see if it is time to end the level
   CheckExitRules( );

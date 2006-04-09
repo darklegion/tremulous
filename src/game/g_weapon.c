@@ -951,7 +951,7 @@ void poisonCloud( gentity_t *ent )
         humanPlayer->client->ps.stats[ STAT_STATE ] |= SS_POISONCLOUDED;
         humanPlayer->client->lastPoisonCloudedTime = level.time;
         humanPlayer->client->lastPoisonCloudedClient = ent;
-        G_SendCommandFromServer( humanPlayer->client->ps.clientNum, "poisoncloud" );
+        trap_SendServerCommand( humanPlayer->client->ps.clientNum, "poisoncloud" );
       }
     }
   }

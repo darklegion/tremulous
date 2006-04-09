@@ -1022,6 +1022,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
         return;
     }
 
+		// If target is buildable on the same team as the attacking client
+		if( targ->s.eType == ET_BUILDABLE && attacker->client &&
+				targ->biteam == attacker->client->pers.teamSelection )
+		{
+			if( !g_friendlyBuildableFire.integer )
+				return;
+		}
+
     // check for godmode
     if ( targ->flags & FL_GODMODE )
       return;

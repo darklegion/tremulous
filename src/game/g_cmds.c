@@ -74,7 +74,7 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
 
     if( idnum < 0 || idnum >= level.maxclients )
     {
-      G_SendCommandFromServer( to - g_entities, va( "print \"Bad client slot: %i\n\"", idnum ) );
+      trap_SendServerCommand( to - g_entities, va( "print \"Bad client slot: %i\n\"", idnum ) );
       return -1;
     }
 
@@ -82,7 +82,7 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
 
     if( cl->pers.connected != CON_CONNECTED )
     {
-      G_SendCommandFromServer( to - g_entities, va( "print \"Client %i is not active\n\"", idnum ) );
+      trap_SendServerCommand( to - g_entities, va( "print \"Client %i is not active\n\"", idnum ) );
       return -1;
     }
 
@@ -103,7 +103,7 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
       return idnum;
   }
 
-  G_SendCommandFromServer( to - g_entities, va( "print \"User %s is not on the server\n\"", s ) );
+  trap_SendServerCommand( to - g_entities, va( "print \"User %s is not on the server\n\"", s ) );
   return -1;
 }
 
@@ -177,7 +177,7 @@ void ScoreboardMessage( gentity_t *ent )
     stringlength += j;
   }
 
-  G_SendCommandFromServer( ent-g_entities, va( "scores %i %i %i%s", i,
+  trap_SendServerCommand( ent-g_entities, va( "scores %i %i %i%s", i,
     level.alienKills, level.humanKills, string ) );
 }
 
@@ -205,13 +205,13 @@ qboolean CheatsOk( gentity_t *ent )
 {
   if( !g_cheats.integer )
   {
-    G_SendCommandFromServer( ent-g_entities, va( "print \"Cheats are not enabled on this server\n\"" ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"Cheats are not enabled on this server\n\"" ) );
     return qfalse;
   }
 
   if( ent->health <= 0 )
   {
-    G_SendCommandFromServer( ent-g_entities, va( "print \"You must be alive to use this command\n\"" ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"You must be alive to use this command\n\"" ) );
     return qfalse;
   }
 
@@ -325,7 +325,7 @@ void Cmd_God_f( gentity_t *ent )
   else
     msg = "godmode ON\n";
 
-  G_SendCommandFromServer( ent - g_entities, va( "print \"%s\"", msg ) );
+  trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
 
 
@@ -352,7 +352,7 @@ void Cmd_Notarget_f( gentity_t *ent )
   else
     msg = "notarget ON\n";
 
-  G_SendCommandFromServer( ent - g_entities, va( "print \"%s\"", msg ) );
+  trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
 
 
@@ -377,7 +377,7 @@ void Cmd_Noclip_f( gentity_t *ent )
 
   ent->client->noclip = !ent->client->noclip;
 
-  G_SendCommandFromServer( ent - g_entities, va( "print \"%s\"", msg ) );
+  trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
 
 
@@ -397,7 +397,7 @@ void Cmd_LevelShot_f( gentity_t *ent )
     return;
 
   BeginIntermission( );
-  G_SendCommandFromServer( ent - g_entities, "clientLevelShot" );
+  trap_SendServerCommand( ent - g_entities, "clientLevelShot" );
 }
 
 /*
@@ -418,7 +418,7 @@ void Cmd_Kill_f( gentity_t *ent )
 
   if( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"Leave the hovel first (use your destroy key)\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Leave the hovel first (use your destroy key)\n\"" );
     return;
   }
 
@@ -435,12 +435,12 @@ void Cmd_Kill_f( gentity_t *ent )
   {
     if( ent->suicideTime == 0 )
     {
-      G_SendCommandFromServer( ent-g_entities, "print \"You will suicide in 20 seconds\n\"" );
+      trap_SendServerCommand( ent-g_entities, "print \"You will suicide in 20 seconds\n\"" );
       ent->suicideTime = level.time + 20000;
     }
     else if( ent->suicideTime > level.time )
     {
-      G_SendCommandFromServer( ent-g_entities, "print \"Suicide cancelled\n\"" );
+      trap_SendServerCommand( ent-g_entities, "print \"Suicide cancelled\n\"" );
       ent->suicideTime = 0;
     }
   }
@@ -492,7 +492,7 @@ void Cmd_Team_f( gentity_t *ent )
 
   if( !strlen( s ) )
   {
-    G_SendCommandFromServer( ent-g_entities, va("print \"team: %i\n\"", ent->client->pers.teamSelection ) );
+    trap_SendServerCommand( ent-g_entities, va("print \"team: %i\n\"", ent->client->pers.teamSelection ) );
     return;
   }
 
@@ -529,16 +529,16 @@ void Cmd_Team_f( gentity_t *ent )
   }
   else
   {
-    G_SendCommandFromServer( ent-g_entities, va( "print \"Unknown team: %s\n\"", s ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"Unknown team: %s\n\"", s ) );
     return;
   }
 
   G_ChangeTeam( ent, team );
 
   if( team == PTE_ALIENS )
-    G_SendCommandFromServer( -1, va( "print \"%s" S_COLOR_WHITE " joined the aliens\n\"", ent->client->pers.netname ) );
+    trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " joined the aliens\n\"", ent->client->pers.netname ) );
   else if( team == PTE_HUMANS )
-    G_SendCommandFromServer( -1, va( "print \"%s" S_COLOR_WHITE " joined the humans\n\"", ent->client->pers.netname ) );
+    trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " joined the humans\n\"", ent->client->pers.netname ) );
 }
 
 
@@ -564,7 +564,7 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
   if( mode == SAY_TEAM && !OnSameTeam( ent, other ) )
     return;
 
-  G_SendCommandFromServer( other-g_entities, va( "%s \"%s%c%c%s\"",
+  trap_SendServerCommand( other-g_entities, va( "%s \"%s%c%c%s\"",
     mode == SAY_TEAM ? "tchat" : "chat",
     name, Q_COLOR_ESCAPE, color, message ) );
 }
@@ -698,7 +698,7 @@ Cmd_Where_f
 */
 void Cmd_Where_f( gentity_t *ent )
 {
-  G_SendCommandFromServer( ent-g_entities, va( "print \"%s\n\"", vtos( ent->s.origin ) ) );
+  trap_SendServerCommand( ent-g_entities, va( "print \"%s\n\"", vtos( ent->s.origin ) ) );
 }
 
 /*
@@ -714,25 +714,25 @@ void Cmd_CallVote_f( gentity_t *ent )
 
   if( !g_allowVote.integer )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"Voting not allowed here\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Voting not allowed here\n\"" );
     return;
   }
 
   if( level.voteTime )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"A vote is already in progress\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"A vote is already in progress\n\"" );
     return;
   }
 
   if( ent->client->pers.voteCount >= MAX_VOTE_COUNT )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"You have called the maximum number of votes\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"You have called the maximum number of votes\n\"" );
     return;
   }
 
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"Not allowed to call a vote as spectator\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Not allowed to call a vote as spectator\n\"" );
     return;
   }
 
@@ -742,7 +742,7 @@ void Cmd_CallVote_f( gentity_t *ent )
 
   if( strchr( arg1, ';' ) || strchr( arg2, ';' ) )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"Invalid vote string\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
     return;
   }
 
@@ -754,8 +754,8 @@ void Cmd_CallVote_f( gentity_t *ent )
   else if( !Q_stricmp( arg1, "timelimit" ) ) { }
   else
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"Invalid vote string\n\"" );
-    G_SendCommandFromServer( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, "
+    trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, "
                                             "kick <player>, clientkick <clientnum>, "
                                             "timelimit <time>\n\"" );
     return;
@@ -791,7 +791,7 @@ void Cmd_CallVote_f( gentity_t *ent )
 
     if( !*s )
     {
-      G_SendCommandFromServer( ent-g_entities, "print \"nextmap not set\n\"" );
+      trap_SendServerCommand( ent-g_entities, "print \"nextmap not set\n\"" );
       return;
     }
 
@@ -804,7 +804,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
   }
 
-  G_SendCommandFromServer( -1, va( "print \"%s called a vote\n\"", ent->client->pers.netname ) );
+  trap_SendServerCommand( -1, va( "print \"%s called a vote\n\"", ent->client->pers.netname ) );
 
   // start the voting, the caller autoamtically votes yes
   level.voteTime = level.time;
@@ -833,23 +833,23 @@ void Cmd_Vote_f( gentity_t *ent )
 
   if( !level.voteTime )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"No vote in progress\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"No vote in progress\n\"" );
     return;
   }
 
   if( ent->client->ps.eFlags & EF_VOTED )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"Vote already cast\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Vote already cast\n\"" );
     return;
   }
 
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"Not allowed to vote as spectator\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote as spectator\n\"" );
     return;
   }
 
-  G_SendCommandFromServer( ent-g_entities, "print \"Vote cast\n\"" );
+  trap_SendServerCommand( ent-g_entities, "print \"Vote cast\n\"" );
 
   ent->client->ps.eFlags |= EF_VOTED;
 
@@ -892,25 +892,25 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 
   if( !g_allowVote.integer )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"Voting not allowed here\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Voting not allowed here\n\"" );
     return;
   }
 
   if( level.teamVoteTime[ cs_offset ] )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"A team vote is already in progress\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"A team vote is already in progress\n\"" );
     return;
   }
 
   if( ent->client->pers.teamVoteCount >= MAX_VOTE_COUNT )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"You have called the maximum number of team votes\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"You have called the maximum number of team votes\n\"" );
     return;
   }
 
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"Not allowed to call a vote as spectator\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Not allowed to call a vote as spectator\n\"" );
     return;
   }
 
@@ -920,7 +920,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 
   if( strchr( arg1, ';' ) || strchr( arg2, ';' ) )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"Invalid team vote string\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Invalid team vote string\n\"" );
     return;
   }
 
@@ -948,14 +948,14 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 
     if( i >= level.maxclients )
     {
-      G_SendCommandFromServer( ent-g_entities, va( "print \"%s is not a valid player on your team\n\"", arg2 ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"%s is not a valid player on your team\n\"", arg2 ) );
       return;
     }
   }
   else
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"Invalid vote string\n\"" );
-    G_SendCommandFromServer( ent-g_entities, "print \"Team vote commands are: teamkick <player>\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Team vote commands are: teamkick <player>\n\"" );
     return;
   }
 
@@ -968,7 +968,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
       continue;
 
     if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == team )
-      G_SendCommandFromServer( i, va("print \"%s called a team vote\n\"", ent->client->pers.netname ) );
+      trap_SendServerCommand( i, va("print \"%s called a team vote\n\"", ent->client->pers.netname ) );
   }
 
   // start the voting, the caller autoamtically votes yes
@@ -1011,23 +1011,23 @@ void Cmd_TeamVote_f( gentity_t *ent )
 
   if( !level.teamVoteTime[ cs_offset ] )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"No team vote in progress\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"No team vote in progress\n\"" );
     return;
   }
 
   if( ent->client->ps.eFlags & EF_TEAMVOTED )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"Team vote already cast\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Team vote already cast\n\"" );
     return;
   }
 
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
   {
-    G_SendCommandFromServer( ent-g_entities, "print \"Not allowed to vote as spectator\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote as spectator\n\"" );
     return;
   }
 
-  G_SendCommandFromServer( ent-g_entities, "print \"Team vote cast\n\"" );
+  trap_SendServerCommand( ent-g_entities, "print \"Team vote cast\n\"" );
 
   ent->client->ps.eFlags |= EF_TEAMVOTED;
 
@@ -1062,13 +1062,13 @@ void Cmd_SetViewpos_f( gentity_t *ent )
 
   if( !g_cheats.integer )
   {
-    G_SendCommandFromServer( ent-g_entities, va( "print \"Cheats are not enabled on this server\n\"" ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"Cheats are not enabled on this server\n\"" ) );
     return;
   }
 
   if( trap_Argc( ) != 5 )
   {
-    G_SendCommandFromServer( ent-g_entities, va( "print \"usage: setviewpos x y z yaw\n\"" ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"usage: setviewpos x y z yaw\n\"" ) );
     return;
   }
 
@@ -1170,7 +1170,7 @@ void Cmd_Class_f( gentity_t *ent )
             currentClass == PCL_ALIEN_BUILDER0_UPG ) &&
           ent->client->ps.stats[ STAT_MISC ] > 0 )
       {
-        G_SendCommandFromServer( ent-g_entities, va( "print \"Cannot evolve until build timer expires\n\"" ) );
+        trap_SendServerCommand( ent-g_entities, va( "print \"Cannot evolve until build timer expires\n\"" ) );
         return;
       }
 
@@ -1179,7 +1179,7 @@ void Cmd_Class_f( gentity_t *ent )
 
       if( ent->client->pers.classSelection == PCL_NONE )
       {
-        G_SendCommandFromServer( ent-g_entities, va( "print \"Unknown class\n\"" ) );
+        trap_SendServerCommand( ent-g_entities, va( "print \"Unknown class\n\"" ) );
         return;
       }
 
@@ -1237,7 +1237,7 @@ void Cmd_Class_f( gentity_t *ent )
         else
         {
           ent->client->pers.classSelection = PCL_NONE;
-          G_SendCommandFromServer( ent-g_entities,
+          trap_SendServerCommand( ent-g_entities,
                va( "print \"You cannot evolve from your current class\n\"" ) );
           return;
         }
@@ -1269,11 +1269,11 @@ void Cmd_Class_f( gentity_t *ent )
         }
 
         ent->client->pers.classSelection = PCL_NONE;
-        G_SendCommandFromServer( ent-g_entities, va( "print \"You cannot spawn as this class\n\"" ) );
+        trap_SendServerCommand( ent-g_entities, va( "print \"You cannot spawn as this class\n\"" ) );
       }
       else
       {
-        G_SendCommandFromServer( ent-g_entities, va( "print \"Unknown class\n\"" ) );
+        trap_SendServerCommand( ent-g_entities, va( "print \"Unknown class\n\"" ) );
         return;
       }
     }
@@ -1283,7 +1283,7 @@ void Cmd_Class_f( gentity_t *ent )
     //humans cannot use this command whilst alive
     if( ent->client->pers.classSelection != PCL_NONE )
     {
-      G_SendCommandFromServer( ent-g_entities, va( "print \"You must be dead to use the class command\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You must be dead to use the class command\n\"" ) );
       return;
     }
 
@@ -1301,7 +1301,7 @@ void Cmd_Class_f( gentity_t *ent )
     else
     {
       ent->client->pers.classSelection = PCL_NONE;
-      G_SendCommandFromServer( ent-g_entities, va( "print \"Unknown starting item\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"Unknown starting item\n\"" ) );
       return;
     }
 
@@ -1313,7 +1313,7 @@ void Cmd_Class_f( gentity_t *ent )
     ent->client->pers.classSelection = PCL_NONE;
     ent->client->sess.sessionTeam = TEAM_FREE;
     ClientSpawn( ent, NULL, NULL, NULL );
-    G_SendCommandFromServer( ent-g_entities, va( "print \"Join a team first\n\"" ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"Join a team first\n\"" ) );
   }
 }
 
@@ -1391,7 +1391,7 @@ void Cmd_ActivateItem_f( gentity_t *ent )
   else if( weapon != WP_NONE && BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
     G_ForceWeaponChange( ent, weapon );
   else
-    G_SendCommandFromServer( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
 }
 
 
@@ -1419,7 +1419,7 @@ void Cmd_DeActivateItem_f( gentity_t *ent )
   if( BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
     BG_DeactivateUpgrade( upgrade, ent->client->ps.stats );
   else
-    G_SendCommandFromServer( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
 }
 
 
@@ -1476,7 +1476,7 @@ void Cmd_ToggleItem_f( gentity_t *ent )
       BG_ActivateUpgrade( upgrade, ent->client->ps.stats );
   }
   else
-    G_SendCommandFromServer( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
 }
 
 /*
@@ -1523,7 +1523,7 @@ void Cmd_Buy_f( gentity_t *ent )
     if( ( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_REACTOR ) &&
         !G_BuildableRange( ent->client->ps.origin, 100, BA_H_REPEATER ) ) )
     {
-      G_SendCommandFromServer( ent-g_entities, va( "print \"You must be near a reactor or repeater\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You must be near a reactor or repeater\n\"" ) );
       return;
     }
   }
@@ -1532,7 +1532,7 @@ void Cmd_Buy_f( gentity_t *ent )
     //no armoury nearby
     if( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
     {
-      G_SendCommandFromServer( ent-g_entities, va( "print \"You must be near a powered armoury\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You must be near a powered armoury\n\"" ) );
       return;
     }
   }
@@ -1563,21 +1563,21 @@ void Cmd_Buy_f( gentity_t *ent )
     if( BG_FindTeamForWeapon( weapon ) != WUT_HUMANS )
     {
       //shouldn't need a fancy dialog
-      G_SendCommandFromServer( ent-g_entities, va( "print \"You can't buy alien items\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You can't buy alien items\n\"" ) );
       return;
     }
 
     //are we /allowed/ to buy this?
     if( !BG_FindPurchasableForWeapon( weapon ) )
     {
-      G_SendCommandFromServer( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
       return;
     }
 
     //are we /allowed/ to buy this?
     if( !BG_FindStagesForWeapon( weapon, g_humanStage.integer ) || !BG_WeaponIsAllowed( weapon ) )
     {
-      G_SendCommandFromServer( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
       return;
     }
 
@@ -1626,21 +1626,21 @@ void Cmd_Buy_f( gentity_t *ent )
     if( BG_FindTeamForUpgrade( upgrade ) != WUT_HUMANS )
     {
       //shouldn't need a fancy dialog
-      G_SendCommandFromServer( ent-g_entities, va( "print \"You can't buy alien items\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You can't buy alien items\n\"" ) );
       return;
     }
 
     //are we /allowed/ to buy this?
     if( !BG_FindPurchasableForUpgrade( upgrade ) )
     {
-      G_SendCommandFromServer( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
       return;
     }
 
     //are we /allowed/ to buy this?
     if( !BG_FindStagesForUpgrade( upgrade, g_humanStage.integer ) || !BG_UpgradeIsAllowed( upgrade ) )
     {
-      G_SendCommandFromServer( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
       return;
     }
 
@@ -1660,7 +1660,7 @@ void Cmd_Buy_f( gentity_t *ent )
   }
   else
   {
-    G_SendCommandFromServer( ent-g_entities, va( "print \"Unknown item\n\"" ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"Unknown item\n\"" ) );
   }
 
   if( trap_Argc( ) >= 2 )
@@ -1697,7 +1697,7 @@ void Cmd_Sell_f( gentity_t *ent )
   //no armoury nearby
   if( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
   {
-    G_SendCommandFromServer( ent-g_entities, va( "print \"You must be near a powered armoury\n\"" ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"You must be near a powered armoury\n\"" ) );
     return;
   }
 
@@ -1709,7 +1709,7 @@ void Cmd_Sell_f( gentity_t *ent )
     //are we /allowed/ to sell this?
     if( !BG_FindPurchasableForWeapon( weapon ) )
     {
-      G_SendCommandFromServer( ent-g_entities, va( "print \"You can't sell this weapon\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You can't sell this weapon\n\"" ) );
       return;
     }
 
@@ -1720,7 +1720,7 @@ void Cmd_Sell_f( gentity_t *ent )
       if( ( weapon == WP_HBUILD || weapon == WP_HBUILD2 ) &&
           ent->client->ps.stats[ STAT_MISC ] > 0 )
       {
-        G_SendCommandFromServer( ent-g_entities, va( "print \"Cannot sell until build timer expires\n\"" ) );
+        trap_SendServerCommand( ent-g_entities, va( "print \"Cannot sell until build timer expires\n\"" ) );
         return;
       }
 
@@ -1739,7 +1739,7 @@ void Cmd_Sell_f( gentity_t *ent )
     //are we /allowed/ to sell this?
     if( !BG_FindPurchasableForUpgrade( upgrade ) )
     {
-      G_SendCommandFromServer( ent-g_entities, va( "print \"You can't sell this item\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"You can't sell this item\n\"" ) );
       return;
     }
     //remove upgrade if carried
@@ -1762,7 +1762,7 @@ void Cmd_Sell_f( gentity_t *ent )
       if( ( i == WP_HBUILD || i == WP_HBUILD2 ) &&
           ent->client->ps.stats[ STAT_MISC ] > 0 )
       {
-        G_SendCommandFromServer( ent-g_entities, va( "print \"Cannot sell until build timer expires\n\"" ) );
+        trap_SendServerCommand( ent-g_entities, va( "print \"Cannot sell until build timer expires\n\"" ) );
         continue;
       }
 
@@ -1812,7 +1812,7 @@ void Cmd_Sell_f( gentity_t *ent )
     }
   }
   else
-    G_SendCommandFromServer( ent-g_entities, va( "print \"Unknown item\n\"" ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"Unknown item\n\"" ) );
 
   if( trap_Argc( ) >= 2 )
   {
@@ -1907,7 +1907,7 @@ void Cmd_Build_f( gentity_t *ent )
     }
   }
   else
-    G_SendCommandFromServer( ent-g_entities, va( "print \"Cannot build this item\n\"" ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"Cannot build this item\n\"" ) );
 }
 
 
@@ -2120,7 +2120,7 @@ void Cmd_PTRCVerify_f( gentity_t *ent )
 
     // valid code
     if( connection->clientTeam != PTE_NONE )
-      G_SendCommandFromServer( ent->client->ps.clientNum, "ptrcconfirm" );
+      trap_SendServerCommand( ent->client->ps.clientNum, "ptrcconfirm" );
 
     // restore mapping
     ent->client->pers.connection = connection;
@@ -2132,7 +2132,7 @@ void Cmd_PTRCVerify_f( gentity_t *ent )
 
     if( connection )
     {
-      G_SendCommandFromServer( ent->client->ps.clientNum,
+      trap_SendServerCommand( ent->client->ps.clientNum,
         va( "ptrcissue %d", connection->ptrCode ) );
     }
   }
@@ -2162,7 +2162,7 @@ void Cmd_PTRCRestore_f( gentity_t *ent )
   {
     if( ent->client->pers.joinedATeam )
     {
-      G_SendCommandFromServer( ent - g_entities,
+      trap_SendServerCommand( ent - g_entities,
         "print \"You cannot use a PTR code after joining a team\n\"" );
     }
     else
@@ -2183,7 +2183,7 @@ void Cmd_PTRCRestore_f( gentity_t *ent )
   }
   else
   {
-    G_SendCommandFromServer( ent - g_entities,
+    trap_SendServerCommand( ent - g_entities,
       va( "print \"\"%d\" is not a valid PTR code\n\"", code ) );
   }
 }
@@ -2201,7 +2201,7 @@ void Cmd_Test_f( gentity_t *ent )
 /*  ent->client->ps.stats[ STAT_STATE ] |= SS_POISONCLOUDED;
   ent->client->lastPoisonCloudedTime = level.time;
   ent->client->lastPoisonCloudedClient = ent;
-  G_SendCommandFromServer( ent->client->ps.clientNum, "poisoncloud" );*/
+  trap_SendServerCommand( ent->client->ps.clientNum, "poisoncloud" );*/
 
 /*  ent->client->ps.stats[ STAT_STATE ] |= SS_POISONED;
   ent->client->lastPoisonTime = level.time;
@@ -2314,5 +2314,5 @@ void ClientCommand( int clientNum )
   else if( Q_stricmp( cmd, "test" ) == 0 )
     Cmd_Test_f( ent );
   else
-    G_SendCommandFromServer( clientNum, va( "print \"unknown cmd %s\n\"", cmd ) );
+    trap_SendServerCommand( clientNum, va( "print \"unknown cmd %s\n\"", cmd ) );
 }

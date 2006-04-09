@@ -171,6 +171,26 @@ typedef struct client_s {
 	int				oldServerTime;
 } client_t;
 
+typedef struct commandQueueElement_s
+{
+	qboolean											used;
+	struct commandQueueElement_s	*next;
+	char													command[ MAX_TOKEN_CHARS ];
+} commandQueueElement_t;
+
+typedef struct commandQueue_s
+{
+	int									 nextCommandTime; //next time that the queue can be popped
+
+	int									 numElements;
+	commandQueueElement_t *front;
+	commandQueueElement_t *back;
+
+	commandQueueElement_t pool[ MAX_RELIABLE_COMMANDS ];
+} commandQueue_t;
+
+void SV_InitCommandQueue( int clientNum );
+
 //=============================================================================
 
 
@@ -244,6 +264,7 @@ extern	cvar_t	*sv_minPing;
 extern	cvar_t	*sv_maxPing;
 extern	cvar_t	*sv_pure;
 extern	cvar_t	*sv_lanForceRate;
+extern	cvar_t	*sv_dequeuePeriod;
 
 //===========================================================
 

@@ -41,7 +41,7 @@ void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... )
   while( ( p = strchr( msg, '"' ) ) != NULL )
     *p = '\'';
 
-  G_SendCommandFromServer( ( ( ent == NULL ) ? -1 : ent-g_entities ), va( "print \"%s\"", msg ) );
+  trap_SendServerCommand( ( ( ent == NULL ) ? -1 : ent-g_entities ), va( "print \"%s\"", msg ) );
 }
 
 
@@ -211,7 +211,7 @@ void TeamplayInfoMessage( gentity_t *ent )
     }
   }
 
-  G_SendCommandFromServer( ent - g_entities, va( "tinfo %i %s", cnt, string ) );
+  trap_SendServerCommand( ent - g_entities, va( "tinfo %i %s", cnt, string ) );
 }
 
 void CheckTeamStatus( void )

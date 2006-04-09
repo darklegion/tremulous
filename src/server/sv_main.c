@@ -50,6 +50,7 @@ cvar_t	*sv_minPing;
 cvar_t	*sv_maxPing;
 cvar_t	*sv_pure;
 cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
+cvar_t	*sv_dequeuePeriod;
 
 /*
 =============================================================================
@@ -150,6 +151,218 @@ void SV_AddServerCommand( client_t *client, const char *cmd ) {
 	Q_strncpyz( client->reliableCommands[ index ], cmd, sizeof( client->reliableCommands[ index ] ) );
 }
 
+/*
+=============
+SV_ClientIsLagging
+=============
+*/
+qboolean SV_ClientIsLagging( client_t *client )
+{
+	if( client )
+	{
+		if( client->ping >= 999 )
+			return qtrue;
+		else
+			return qfalse;
+	}
+
+	return qfalse; //is a non-existant client lagging? woooo zen
+}
+
+
+static commandQueue_t queuedCommands[ MAX_CLIENTS ];
+
+/*
+===============
+SV_PopCommandQueue
+
+Return the front of a command queue
+Must use immediately or copy to a buffer
+===============
+*/
+static const char *SV_PopCommandQueue( commandQueue_t *cq )
+{
+	if( cq->front )
+	{
+		commandQueueElement_t *cqe = cq->front;
+
+		cq->front = cqe->next;
+
+		// last element in the queue
+		if( cq->front == NULL )
+			cq->back = NULL;
+
+		cq->nextCommandTime = svs.time + sv_dequeuePeriod->integer;
+		cqe->used = qfalse;
+
+		return cqe->command;
+	}
+	else
+		return NULL;
+}
+
+/*
+===============
+SV_PushCommandQueue
+
+Put a command on a command queue
+===============
+*/
+static qboolean SV_PushCommandQueue( commandQueue_t *cq, const char *cmd )
+{
+	int i;
+
+	for( i = 0; i < MAX_RELIABLE_COMMANDS; i++ )
+	{
+		commandQueueElement_t *cqe = &cq->pool[ i ];
+
+		if( !cqe->used )
+		{
+			cqe->used = qtrue;
+			cqe->next = NULL;
+			Q_strncpyz( cqe->command, cmd, MAX_TOKEN_CHARS );
+
+			if( cq->back )
+			{
+				cq->back->next = cqe;
+				cq->back = cqe;
+			}
+			else
+			{
+				cq->front = cqe;
+				cq->back = cqe;
+			}
+
+			return qtrue;
+		}
+	}
+
+	// The queue is full, so the command cannot be queued up.
+	// Consequently, the command must be dropped -- meaning it
+	// is no longer reliable.
+	return qfalse;
+}
+
+/*
+===============
+SV_PrintCommandQueue
+===============
+*/
+#if 0 //quiet compiler
+static void SV_PrintCommandQueue( commandQueue_t *cq )
+{
+	commandQueueElement_t *cqe;
+
+	if( cq->front )
+	{
+		cqe = cq->front;
+
+		do
+		{
+			Com_Printf( "->\"%s\"", cqe->command );
+		} while( ( cqe = cqe->next ) );
+
+		Com_Printf( "\n" );
+	}
+}
+#endif
+
+/*
+===============
+SV_ReadyToDequeue
+===============
+*/
+static qboolean SV_ReadyToDequeue( commandQueue_t *cq )
+{
+	if( !cq )
+		return qfalse;
+
+	return cq->front && cq->nextCommandTime <= svs.time;
+}
+
+/*
+===============
+SV_ProcessCommandQueues
+
+Check for any outstanding commands to be sent
+===============
+*/
+void SV_ProcessCommandQueues( void )
+{
+	int i;
+
+	for( i = 0; i < MAX_CLIENTS; i++ )
+	{
+		client_t				*cl = &svs.clients[ i ];
+		commandQueue_t	*cq = &queuedCommands[ i ];
+
+		if( !SV_ClientIsLagging( cl ) && SV_ReadyToDequeue( cq ) )
+		{
+			const char *command = SV_PopCommandQueue( cq );
+
+			if( command )
+				SV_AddServerCommand( cl, command );
+		}
+	}
+}
+
+/*
+===============
+SV_InitCommandQueue
+===============
+*/
+void SV_InitCommandQueue( int clientNum )
+{
+	int						 i;
+	commandQueue_t	*cq = &queuedCommands[ clientNum ];
+
+	if( clientNum >= 0 && clientNum < MAX_CLIENTS )
+	{
+		cq->front = cq->back = NULL;
+		cq->nextCommandTime = 0;
+
+		for( i = 0; i < MAX_RELIABLE_COMMANDS; i++ )
+		{
+			commandQueueElement_t *cqe = &cq->pool[ i ];
+
+			cqe->used = qfalse;
+		}
+	}
+}
+
+/*
+===============
+SV_EnqueueServerCommand
+
+Sends a command to a client
+===============
+*/
+void SV_EnqueueServerCommand( int clientNum, const char *cmd )
+{
+	commandQueue_t	*cq = &queuedCommands[ clientNum ];
+	client_t				*cl = &svs.clients[ clientNum ];
+
+	if( clientNum < 0 )
+		cq = NULL;
+
+	if( cq )
+	{
+		if( cq->nextCommandTime > svs.time || SV_ClientIsLagging( cl ) )
+		{
+			//can't send yet, so queue the command up
+			if( !SV_PushCommandQueue( cq, cmd ) )
+				SV_DropClient( cl,
+						va( "Failed to enqueue reliable server command (%s)", cmd ) );
+		}
+		else
+		{
+			cq->nextCommandTime = svs.time + sv_dequeuePeriod->integer;
+			SV_AddServerCommand( cl, cmd );
+		}
+	}
+	else //no queue exists for this client
+		SV_AddServerCommand( cl, cmd );
+}
 
 /*
 =================
@@ -179,7 +392,7 @@ void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 	}
 
 	if ( cl != NULL ) {
-		SV_AddServerCommand( cl, (char *)message );
+		SV_EnqueueServerCommand( cl - svs.clients, (char *)message );
 		return;
 	}
 
@@ -193,7 +406,7 @@ void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 		if ( client->state < CS_PRIMED ) {
 			continue;
 		}
-		SV_AddServerCommand( client, (char *)message );
+		SV_EnqueueServerCommand( client - svs.clients, (char *)message );
 	}
 }
 
@@ -870,6 +1083,8 @@ void SV_Frame( int msec ) {
 		// let everything in the world think and move
 		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
 	}
+
+	SV_ProcessCommandQueues( );
 
 	if ( com_speeds->integer ) {
 		time_game = Sys_Milliseconds () - startTime;

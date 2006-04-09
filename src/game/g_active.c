@@ -447,7 +447,7 @@ qboolean ClientInactivityTimer( gclient_t *client )
     if( level.time > client->inactivityTime - 10000 && !client->inactivityWarning )
     {
       client->inactivityWarning = qtrue;
-      G_SendCommandFromServer( client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"" );
+      trap_SendServerCommand( client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"" );
     }
   }
 

@@ -717,30 +717,7 @@ void        AddRemap(const char *oldShader, const char *newShader, float timeOff
 const char  *BuildShaderStateConfig( void );
 
 
-#define MAX_QUEUE_COMMANDS  64 //should be MAX_RELIABLE_COMMANDS/server.h
-
-typedef struct commandQueueElement_s
-{
-  qboolean                      used;
-  struct commandQueueElement_s  *next;
-  char                          command[ MAX_TOKEN_CHARS ];
-} commandQueueElement_t;
-
-typedef struct commandQueue_s
-{
-  int                   nextCommandTime; //next time that the queue can be popped
-
-  int                   numElements;
-  commandQueueElement_t *front;
-  commandQueueElement_t *back;
-
-  commandQueueElement_t pool[ MAX_QUEUE_COMMANDS ];
-} commandQueue_t;
-
 qboolean    G_ClientIsLagging( gclient_t *client );
-void        G_ProcessCommandQueues( void );
-void        G_SendCommandFromServer( int clientNum, const char *cmd );
-void        G_InitCommandQueue( int clientNum );
 
 void        G_TriggerMenu( int clientNum, dynMenu_t menu );
 void        G_CloseMenus( int clientNum );
@@ -1034,6 +1011,7 @@ extern  vmCvar_t  g_minCommandPeriod;
 extern  vmCvar_t  g_timelimit;
 extern  vmCvar_t  g_suddenDeathTime;
 extern  vmCvar_t  g_friendlyFire;
+extern  vmCvar_t  g_friendlyBuildableFire;
 extern  vmCvar_t  g_password;
 extern  vmCvar_t  g_needpass;
 extern  vmCvar_t  g_gravity;

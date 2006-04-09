@@ -32,8 +32,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define DEFAULT_GRAVITY         800
 
-#define SCORE_NOT_PRESENT       -9999 // for the CS_SCORES[12] when only one player is present
-
 #define VOTE_TIME               30000 // 30 seconds before vote times out
 
 #define MINS_Z                  -24
@@ -51,8 +49,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CS_MESSAGE          3   // from the map worldspawn's message field
 #define CS_MOTD             4   // g_motd string for server message of the day
 #define CS_WARMUP           5   // server time when the match will be restarted
-#define CS_SCORES1          6
-#define CS_SCORES2          7
+// 6 UNUSED
+// 7 UNUSED
 #define CS_VOTE_TIME        8
 #define CS_VOTE_STRING      9
 #define CS_VOTE_YES         10

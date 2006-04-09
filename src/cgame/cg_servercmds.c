@@ -152,9 +152,6 @@ Called on load to set the initial values from configure strings
 */
 void CG_SetConfigValues( void )
 {
-  cgs.scores1 = atoi( CG_ConfigString( CS_SCORES1 ) );
-  cgs.scores2 = atoi( CG_ConfigString( CS_SCORES2 ) );
-
   sscanf( CG_ConfigString( CS_BUILDPOINTS ),
           "%d %d %d %d %d", &cgs.alienBuildPoints,
                             &cgs.alienBuildPointsTotal,
@@ -276,10 +273,6 @@ static void CG_ConfigStringModified( void )
     CG_ParseServerinfo( );
   else if( num == CS_WARMUP )
     CG_ParseWarmup( );
-  else if( num == CS_SCORES1 )
-    cgs.scores1 = atoi( str );
-  else if( num == CS_SCORES2 )
-    cgs.scores2 = atoi( str );
   else if( num == CS_BUILDPOINTS )
     sscanf( str, "%d %d %d %d %d", &cgs.alienBuildPoints,
                                    &cgs.alienBuildPointsTotal,

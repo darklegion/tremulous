@@ -85,7 +85,7 @@ void Use_Target_Print( gentity_t *ent, gentity_t *other, gentity_t *activator )
 {
   if( activator->client && ( ent->spawnflags & 4 ) )
   {
-    G_SendCommandFromServer( activator-g_entities, va( "cp \"%s\"", ent->message ) );
+    trap_SendServerCommand( activator-g_entities, va( "cp \"%s\"", ent->message ) );
     return;
   }
 
@@ -99,7 +99,7 @@ void Use_Target_Print( gentity_t *ent, gentity_t *other, gentity_t *activator )
     return;
   }
 
-  G_SendCommandFromServer( -1, va("cp \"%s\"", ent->message ) );
+  trap_SendServerCommand( -1, va("cp \"%s\"", ent->message ) );
 }
 
 void SP_target_print( gentity_t *ent )

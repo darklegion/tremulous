@@ -995,7 +995,7 @@ void ClientUserinfoChanged( int clientNum )
   {
     if( strcmp( oldname, client->pers.netname ) )
     {
-      G_SendCommandFromServer( -1, va( "print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
+      trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
         client->pers.netname ) );
     }
   }
@@ -1164,7 +1164,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot )
 
   // don't do the "xxx connected" messages if they were caried over from previous level
   if( firstTime )
-    G_SendCommandFromServer( -1, va( "print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname ) );
+    trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname ) );
 
   // count current clients and rank for scoreboard
   CalculateRanks( );
@@ -1216,12 +1216,10 @@ void ClientBegin( int clientNum )
 
   ClientSpawn( ent, NULL, NULL, NULL );
 
-  G_InitCommandQueue( clientNum );
-
-  G_SendCommandFromServer( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
+  trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
 
   // request the clients PTR code
-  G_SendCommandFromServer( ent - g_entities, "ptrcrequest" );
+  trap_SendServerCommand( ent - g_entities, "ptrcrequest" );
 
   G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
