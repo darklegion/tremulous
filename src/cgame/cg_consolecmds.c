@@ -100,8 +100,35 @@ qboolean CG_RequestScores( void )
     return qfalse;
 }
 
+extern menuDef_t *menuScoreboard;
+
+static void CG_scrollScoresDown_f( void )
+{
+  if( menuScoreboard && cg.scoreBoardShowing )
+  {
+    Menu_ScrollFeeder( menuScoreboard, FEEDER_ALIENTEAM_LIST, qtrue );
+    Menu_ScrollFeeder( menuScoreboard, FEEDER_HUMANTEAM_LIST, qtrue );
+  }
+}
+
+
+static void CG_scrollScoresUp_f( void )
+{
+  if( menuScoreboard && cg.scoreBoardShowing )
+  {
+    Menu_ScrollFeeder( menuScoreboard, FEEDER_ALIENTEAM_LIST, qfalse );
+    Menu_ScrollFeeder( menuScoreboard, FEEDER_HUMANTEAM_LIST, qfalse );
+  }
+}
+
 static void CG_ScoresDown_f( void )
 {
+  if( !cg.showScores )
+  {
+    Menu_SetFeederSelection( menuScoreboard, FEEDER_ALIENTEAM_LIST, 0, NULL );
+    Menu_SetFeederSelection( menuScoreboard, FEEDER_HUMANTEAM_LIST, 0, NULL );
+  }
+
   if( CG_RequestScores( ) )
   {
     // leave the current scores up if they were already
@@ -179,6 +206,8 @@ static consoleCommand_t commands[ ] =
   { "viewpos", CG_Viewpos_f },
   { "+scores", CG_ScoresDown_f },
   { "-scores", CG_ScoresUp_f },
+  { "scoresUp", CG_scrollScoresUp_f },
+  { "scoresDown", CG_scrollScoresDown_f },
   { "+zoom", CG_ZoomDown_f },
   { "-zoom", CG_ZoomUp_f },
   { "sizeup", CG_SizeUp_f },

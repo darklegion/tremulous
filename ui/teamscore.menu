@@ -181,7 +181,7 @@
     itemDef
     {
       name leftlist
-      rect 14 142 306 222 
+      rect 14 136 306 222 
       forecolor .75 .75 .75 1
       visible 1 
       type ITEM_TYPE_LISTBOX
@@ -204,7 +204,7 @@
     itemDef 
     {
       name rightlist
-      rect 320 142 306 222 	 	     
+      rect 320 136 306 222 	 	     
       forecolor 1 1 1 1
       visible 1 
       type ITEM_TYPE_LISTBOX

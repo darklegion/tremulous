@@ -294,7 +294,7 @@
       outlinecolor  0.1 0.1 0.1 0.5
       visible 1
       columns 4
-        2   40  40  ITEM_ALIGN_LEFT
+        2   40  80  ITEM_ALIGN_LEFT
         375 40  20  ITEM_ALIGN_LEFT
         500 5   10  ITEM_ALIGN_LEFT
         560 20  20  ITEM_ALIGN_LEFT
@@ -411,7 +411,7 @@
       action
       {
         play "sound/misc/menu1.wav"; 
-        uiScript ServerSort 4; 
+        uiScript ServerSort 3; 
       
         setitemcolor grpColumn backcolor 0 0 0 0; 
         setitemcolor pingColumn backcolor 0.3 1 1 0.5
