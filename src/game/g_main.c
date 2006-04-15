@@ -910,11 +910,32 @@ void G_CalculateBuildPoints( void )
   int         localHTP = g_humanBuildPoints.integer,
               localATP = g_alienBuildPoints.integer;
 
-  if( g_suddenDeathTime.integer && !level.warmupTime &&
-    ( level.time - level.startTime >= g_suddenDeathTime.integer * 60000 ) )
+  if( g_suddenDeathTime.integer )
   {
-    localHTP = 0;
-    localATP = 0;
+    if( !level.warmupTime &&
+      ( level.time - level.startTime >= g_suddenDeathTime.integer * 60000 ) )
+    {
+      localHTP = 0;
+      localATP = 0;
+
+      //warn about sudden death
+      if( level.time - level.startTime >= g_suddenDeathTime.integer * 60000 &&
+          level.suddenDeathWarning < TW_PASSED )
+      {
+        trap_SendServerCommand( -1, "cp \"Sudden Death!\"" );
+        level.suddenDeathWarning = TW_PASSED;
+      }
+    }
+    else
+    {
+      //warn about sudden death
+      if( level.time - level.startTime >= ( g_suddenDeathTime.integer - 1 ) * 60000 &&
+          level.suddenDeathWarning < TW_IMMINENT )
+      {
+        trap_SendServerCommand( -1, "cp \"Sudden Death in 1 minute!\"" );
+        level.suddenDeathWarning = TW_IMMINENT;
+      }
+    }
   }
   else
   {
@@ -1720,6 +1741,18 @@ void CheckExitRules( void )
       trap_SendServerCommand( -1, "print \"Timelimit hit\n\"" );
       LogExit( "Timelimit hit." );
       return;
+    }
+    else if( level.time - level.startTime >= ( g_timelimit.integer - 5 ) * 60000 &&
+          level.timelimitWarning < TW_IMMINENT )
+    {
+      trap_SendServerCommand( -1, "cp \"5 minutes remaining!\"" );
+      level.timelimitWarning = TW_IMMINENT;
+    }
+    else if( level.time - level.startTime >= ( g_timelimit.integer - 1 ) * 60000 &&
+          level.timelimitWarning < TW_PASSED )
+    {
+      trap_SendServerCommand( -1, "cp \"1 minute remaining!\"" );
+      level.timelimitWarning = TW_PASSED;
     }
   }
 

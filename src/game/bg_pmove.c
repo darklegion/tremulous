@@ -3021,7 +3021,7 @@ static void PM_Weapon( void )
   if( !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
   {
     //special case for lCanon
-    if( pm->ps->weapon == WP_LUCIFER_CANNON && attack1 )
+    if( pm->ps->weapon == WP_LUCIFER_CANNON && attack1 && !attack2 )
     {
       ammo -= (int)( ceil( ( (float)pm->ps->stats[ STAT_MISC ] / (float)LCANNON_TOTAL_CHARGE ) * 10.0f ) );
 

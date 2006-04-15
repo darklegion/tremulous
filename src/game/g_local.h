@@ -478,6 +478,14 @@ typedef struct armourRegion_s
   qboolean  crouch;
 } armourRegion_t;
 
+//status of the warning of certain events
+typedef enum
+{
+  TW_NOT = 0,
+  TW_IMMINENT,
+  TW_PASSED
+} timeWarning_t;
+
 //
 // this structure is cleared as each map is entered
 //
@@ -592,6 +600,9 @@ typedef struct
   int               humanBaseAttackTimer;
 
   pTeam_t           lastWin;
+
+  timeWarning_t     suddenDeathWarning;
+  timeWarning_t     timelimitWarning;
 
   spawnQueue_t      alienSpawnQueue;
   spawnQueue_t      humanSpawnQueue;
