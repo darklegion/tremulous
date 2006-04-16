@@ -500,7 +500,9 @@ void Cmd_Team_f( gentity_t *ent )
     team = PTE_NONE;
   else if( !Q_stricmp( s, "aliens" ) )
   {
-    if( g_teamForceBalance.integer && level.numAlienClients > level.numHumanClients )
+    if( g_teamForceBalance.integer && ( ( level.numAlienClients > level.numHumanClients ) ||
+        ( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+          level.numAlienClients >= level.numHumanClients ) ) )
     {
       G_TriggerMenu( ent->client->ps.clientNum, MN_A_TEAMFULL );
       return;
@@ -510,7 +512,9 @@ void Cmd_Team_f( gentity_t *ent )
   }
   else if( !Q_stricmp( s, "humans" ) )
   {
-    if( g_teamForceBalance.integer && level.numHumanClients > level.numAlienClients )
+    if( g_teamForceBalance.integer && ( ( level.numHumanClients > level.numAlienClients ) ||
+        ( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
+          level.numHumanClients >= level.numAlienClients ) ) )
     {
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_TEAMFULL );
       return;

@@ -952,8 +952,6 @@ void ClientUserinfoChanged( int clientNum )
   gclient_t *client;
   char      c1[ MAX_INFO_STRING ];
   char      c2[ MAX_INFO_STRING ];
-  char      redTeam[ MAX_INFO_STRING ];
-  char      blueTeam[ MAX_INFO_STRING ];
   char      userinfo[ MAX_INFO_STRING ];
   team_t    team;
 
@@ -1078,8 +1076,6 @@ void ClientUserinfoChanged( int clientNum )
   // colors
   strcpy( c1, Info_ValueForKey( userinfo, "color1" ) );
   strcpy( c2, Info_ValueForKey( userinfo, "color2" ) );
-  strcpy( redTeam, "humans" );
-  strcpy( blueTeam, "aliens" );
 
   if( client->ps.pm_flags & PMF_FOLLOW )
     team = PTE_NONE;
@@ -1088,13 +1084,16 @@ void ClientUserinfoChanged( int clientNum )
 
   // send over a subset of the userinfo keys so other clients can
   // print scoreboards, display models, and play custom sounds
-  s = va( "n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-    client->pers.netname, team, model, model, redTeam, blueTeam, c1, c2,
-    client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
 
-  trap_SetConfigstring( CS_PLAYERS + clientNum, s );
+  Com_sprintf( userinfo, sizeof( userinfo ),
+	  "n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\humans\\g_blueteam\\aliens"
+    "\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
+    client->pers.netname, team, model, model, c1, c2,
+    client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader );
 
-  /*G_LogPrintf( "ClientUserinfoChanged: %i %s\n", clientNum, s );*/
+  trap_SetConfigstring( CS_PLAYERS + clientNum, userinfo );
+
+  /*G_LogPrintf( "ClientUserinfoChanged: %i %s\n", clientNum, userinfo );*/
 }
 
 
