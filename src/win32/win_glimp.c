@@ -58,8 +58,6 @@ typedef enum {
 #define TRY_PFD_FAIL_SOFT	1
 #define TRY_PFD_FAIL_HARD	2
 
-#define	WINDOW_CLASS_NAME	"Tremulous"
-
 static void		GLW_InitExtensions( void );
 static rserr_t	GLW_SetMode( const char *drivername, 
 							 int mode, 
@@ -601,7 +599,7 @@ static qboolean GLW_CreateWindow( const char *drivername, int width, int height,
 		wc.hCursor       = LoadCursor (NULL,IDC_ARROW);
 		wc.hbrBackground = (void *)COLOR_GRAYTEXT;
 		wc.lpszMenuName  = 0;
-		wc.lpszClassName = WINDOW_CLASS_NAME;
+		wc.lpszClassName = CLIENT_WINDOW_TITLE;
 
 		if ( !RegisterClass( &wc ) )
 		{
@@ -670,8 +668,8 @@ static qboolean GLW_CreateWindow( const char *drivername, int width, int height,
 
 		g_wv.hWnd = CreateWindowEx (
 			 exstyle, 
-			 WINDOW_CLASS_NAME,
-			 "Tremulous",
+			 CLIENT_WINDOW_TITLE,
+			 CLIENT_WINDOW_TITLE,
 			 stylebits,
 			 x, y, w, h,
 			 NULL,

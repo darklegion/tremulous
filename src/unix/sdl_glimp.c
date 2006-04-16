@@ -90,9 +90,6 @@ typedef void *QGLContext;
 
 static QGLContext opengl_context;
 
-#define	WINDOW_CLASS_NAME	"Tremulous"
-#define	WINDOW_CLASS_NAME_BRIEF	"Tremulous"
-
 //#define KBD_DBG
 
 typedef enum
@@ -266,7 +263,14 @@ static const char *XLateKey(SDL_keysym *keysym, int *key)
     //else if (ch >= 'A' && ch <= 'Z')
     //  ch = ch - 'A' + 'a';
 
-    buf[0] = ch;
+    // tjw: translate K_BACKSPACE to ctrl-h for MACOS_X (others?)
+    if (ch == K_BACKSPACE)
+    {
+      *key = 'h' - 'a' + 1;
+      buf[0] = *key;
+    }
+    else
+      buf[0] = ch;
   }
 
   return buf;
@@ -633,7 +637,7 @@ static int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
     SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, tstencilbits );
     SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
-    SDL_WM_SetCaption(WINDOW_CLASS_NAME, WINDOW_CLASS_NAME_BRIEF);
+    SDL_WM_SetCaption(CLIENT_WINDOW_TITLE, CLIENT_WINDOW_ICON);
     SDL_ShowCursor(0);
     SDL_EnableUNICODE(1);
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);

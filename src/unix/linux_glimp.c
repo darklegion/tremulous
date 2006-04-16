@@ -82,8 +82,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define HAVE_XF86DGA
 #endif
 
-#define	WINDOW_CLASS_NAME	"Tremulous"
-
 typedef enum
 {
   RSERR_OK,
@@ -120,6 +118,7 @@ static int mouseResetTime = 0;
 
 static cvar_t *in_mouse;
 static cvar_t *in_dgamouse; // user pref for dga mouse
+static cvar_t *in_shiftedKeys; // obey modifiers for certain keys in non-console (comma, numbers, etc)
 cvar_t *in_subframe;
 cvar_t *in_nograb; // this is strictly for developers
 
@@ -202,6 +201,7 @@ static const char *Q_stristr( const char *s, const char *find)
 static char *XLateKey(XKeyEvent *ev, int *key)
 {
   static char buf[64];
+  static char bufnomod[2];
   KeySym keysym;
   int XLookupRet;
 
@@ -211,14 +211,23 @@ static char *XLateKey(XKeyEvent *ev, int *key)
 #ifdef KBD_DBG
   ri.Printf(PRINT_ALL, "XLookupString ret: %d buf: %s keysym: %x\n", XLookupRet, buf, keysym);
 #endif
-  
+
+  if (!in_shiftedKeys->integer) {
+    // also get a buffer without modifiers held
+    ev->state = 0;
+    XLookupRet = XLookupString(ev, bufnomod, sizeof bufnomod, &keysym, 0);
+#ifdef KBD_DBG
+  ri.Printf(PRINT_ALL, "XLookupString (minus modifiers) ret: %d buf: %s keysym: %x\n", XLookupRet, buf, keysym);
+#endif
+  }
+
   switch (keysym)
   {
-  case XK_KP_Page_Up: 
+  case XK_KP_Page_Up:
   case XK_KP_9:  *key = K_KP_PGUP; break;
   case XK_Page_Up:   *key = K_PGUP; break;
 
-  case XK_KP_Page_Down: 
+  case XK_KP_Page_Down:
   case XK_KP_3: *key = K_KP_PGDN; break;
   case XK_Page_Down:   *key = K_PGDN; break;
 
@@ -242,7 +251,7 @@ static char *XLateKey(XKeyEvent *ev, int *key)
   case XK_KP_2:    *key = K_KP_DOWNARROW; break;
   case XK_Down:  *key = K_DOWNARROW; break;
 
-  case XK_KP_Up:   
+  case XK_KP_Up:
   case XK_KP_8:    *key = K_KP_UPARROW; break;
   case XK_Up:    *key = K_UPARROW;   break;
 
@@ -277,7 +286,7 @@ static char *XLateKey(XKeyEvent *ev, int *key)
 
   case XK_F12:    *key = K_F12;      break;
 
-    // bk001206 - from Ryan's Fakk2 
+    // bk001206 - from Ryan's Fakk2
     //case XK_BackSpace: *key = 8; break; // ctrl-h
   case XK_BackSpace: *key = K_BACKSPACE; break; // ctrl-h
 
@@ -290,13 +299,13 @@ static char *XLateKey(XKeyEvent *ev, int *key)
   case XK_Shift_L:
   case XK_Shift_R:  *key = K_SHIFT;   break;
 
-  case XK_Execute: 
-  case XK_Control_L: 
+  case XK_Execute:
+  case XK_Control_L:
   case XK_Control_R:  *key = K_CTRL;  break;
 
-  case XK_Alt_L:  
-  case XK_Meta_L: 
-  case XK_Alt_R:  
+  case XK_Alt_L:
+  case XK_Meta_L:
+  case XK_Alt_R:
   case XK_Meta_R: *key = K_ALT;     break;
 
   case XK_KP_Begin: *key = K_KP_5;  break;
@@ -321,16 +330,16 @@ static char *XLateKey(XKeyEvent *ev, int *key)
   case XK_asterisk: *key = '8'; break;
   case XK_parenleft: *key = '9'; break;
   case XK_parenright: *key = '0'; break;
-  
+
   // weird french keyboards ..
   // NOTE: console toggle is hardcoded in cl_keys.c, can't be unbound
   //   cleaner would be .. using hardware key codes instead of the key syms
   //   could also add a new K_KP_CONSOLE
   case XK_twosuperior: *key = '~'; break;
-		
-	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=472
-	case XK_space:
-	case XK_KP_Space: *key = K_SPACE; break;
+
+  // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=472
+  case XK_space:
+  case XK_KP_Space: *key = K_SPACE; break;
 
   default:
     if (XLookupRet == 0)
@@ -344,16 +353,20 @@ static char *XLateKey(XKeyEvent *ev, int *key)
     else
     {
       // XK_* tests failed, but XLookupString got a buffer, so let's try it
-      *key = *(unsigned char *)buf;
-      if (*key >= 'A' && *key <= 'Z')
-        *key = *key - 'A' + 'a';
-      // if ctrl is pressed, the keys are not between 'A' and 'Z', for instance ctrl-z == 26 ^Z ^C etc.
-      // see https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=19
-      else if (*key >= 1 && *key <= 26)
-     	  *key = *key + 'a' - 1;
+      if (in_shiftedKeys->integer) {
+        *key = *(unsigned char *)buf;
+        if (*key >= 'A' && *key <= 'Z')
+          *key = *key - 'A' + 'a';
+        // if ctrl is pressed, the keys are not between 'A' and 'Z', for instance ctrl-z == 26 ^Z ^C etc.
+        // see https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=19
+        else if (*key >= 1 && *key <= 26)
+          *key = *key + 'a' - 1;
+      } else {
+        *key = bufnomod[0];
+      }
     }
     break;
-  } 
+  }
 
   return buf;
 }
@@ -1151,7 +1164,7 @@ int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
                       0, visinfo->depth, InputOutput,
                       visinfo->visual, mask, &attr);
 
-  XStoreName( dpy, win, WINDOW_CLASS_NAME );
+  XStoreName( dpy, win, CLIENT_WINDOW_TITLE );
 
   /* GH: Don't let the window be resized */
   sizehints.flags = PMinSize | PMaxSize;
@@ -1679,6 +1692,7 @@ void IN_Init(void) {
   // mouse variables
   in_mouse = Cvar_Get ("in_mouse", "1", CVAR_ARCHIVE);
   in_dgamouse = Cvar_Get ("in_dgamouse", "1", CVAR_ARCHIVE);
+  in_shiftedKeys = Cvar_Get ("in_shiftedKeys", "0", CVAR_ARCHIVE);
 	
 	// turn on-off sub-frame timing of X events
 	in_subframe = Cvar_Get ("in_subframe", "1", CVAR_ARCHIVE);

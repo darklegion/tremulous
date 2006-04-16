@@ -12,7 +12,7 @@
 # GNU Make required
 #
 
-COMPILE_PLATFORM=$(shell uname|sed -e s/_.*//|tr A-Z a-z)
+COMPILE_PLATFORM=$(shell uname|sed -e s/_.*//|tr '[:upper:]' '[:lower:]')
 
 ifeq ($(COMPILE_PLATFORM),darwin)
   # Apple does some things a little differently...
@@ -542,7 +542,7 @@ else # ifeq IRIX
 # SETUP AND BUILD -- SunOS
 #############################################################################
 
-ifeq ($(PLATFORM),SunOS)
+ifeq ($(PLATFORM),sunos)
 
   CC=gcc
   INSTALL=ginstall
@@ -612,7 +612,7 @@ ifeq ($(PLATFORM),SunOS)
     LDFLAGS+=-m32
   endif
 
-else # ifeq SunOS
+else # ifeq sunos
 
 #############################################################################
 # SETUP AND BUILD -- GENERIC
@@ -1487,7 +1487,7 @@ $(B)/base/qcommon/%.asm: $(CMDIR)/%.c
 # MISC
 #############################################################################
 
-clean:clean-debug clean-release
+clean: clean-debug clean-release
 	$(MAKE) -C $(MASTERDIR) clean
 
 clean2:
