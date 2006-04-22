@@ -577,9 +577,20 @@ qboolean  ConsoleCommand( void )
       trap_SendServerCommand( -1, va( "print \"server: %s\n\"", ConcatArgs( 1 ) ) );
       return qtrue;
     }
+    else if( !Q_stricmp( cmd, "chat" ) )
+    {
+      trap_SendServerCommand( -1, va( "chat \"%s\" -1 0", ConcatArgs( 1 ) ) );
+      G_Printf( "chat: %s\n", ConcatArgs( 1 ) );
+      return qtrue;
+    }
+    else if( !Q_stricmp( cmd, "cp" ) )
+    {
+      trap_SendServerCommand( -1, va( "cp \"%s\"", ConcatArgs( 1 ) ) );
+      G_Printf( "cp: %s\n", ConcatArgs( 1 ) );
+      return qtrue;
+    }
 
-    // everything else will also be printed as a say command
-    trap_SendServerCommand( -1, va( "print \"server: %s\n\"", ConcatArgs( 0 ) ) );
+    G_Printf( "unknown command: %s\n", cmd );
     return qtrue;
   }
 
