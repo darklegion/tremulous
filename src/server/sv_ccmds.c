@@ -155,7 +155,7 @@ static void SV_Map_f( void ) {
 	}
 
 	cmd = Cmd_Argv(0);
-	if ( !Q_stricmp( cmd, "devmap" ) || !Q_stricmp( cmd, "spdevmap" ) ) {
+	if ( !Q_stricmp( cmd, "devmap" ) ) {
 		cheat = qtrue;
 		killBots = qtrue;
 	} else {
@@ -307,12 +307,12 @@ static void SV_MapRestart_f( void ) {
 
 /*
 ==================
-SV_Kick_f
+SV_KickAll_f
 
-Kick a user off of the server  FIXME: move to game
+Kick all users off of the server  FIXME: move to game
 ==================
 */
-static void SV_Kick_f( void ) {
+static void SV_KickAll_f( void ) {
 	client_t	*cl;
 	int			i;
 
@@ -322,37 +322,41 @@ static void SV_Kick_f( void ) {
 		return;
 	}
 
+	for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
+		if ( !cl->state ) {
+			continue;
+		}
+		if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
+			continue;
+		}
+		SV_DropClient( cl, "was kicked" );
+		cl->lastPacketTime = svs.time;	// in case there is a funny zombie
+	}
+}
+
+/*
+==================
+SV_Kick_f
+
+Kick a user off of the server  FIXME: move to game
+==================
+*/
+static void SV_Kick_f( void ) {
+	client_t	*cl;
+
+	// make sure server is running
+	if ( !com_sv_running->integer ) {
+		Com_Printf( "Server is not running.\n" );
+		return;
+	}
+
 	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: kick <player name>\nkick all = kick everyone\nkick allbots = kick all bots\n");
+		Com_Printf ("Usage: kick <player name>\n");
 		return;
 	}
 
 	cl = SV_GetPlayerByName();
 	if ( !cl ) {
-		if ( !Q_stricmp(Cmd_Argv(1), "all") ) {
-			for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
-				if ( !cl->state ) {
-					continue;
-				}
-				if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
-					continue;
-				}
-				SV_DropClient( cl, "was kicked" );
-				cl->lastPacketTime = svs.time;	// in case there is a funny zombie
-			}
-		}
-		else if ( !Q_stricmp(Cmd_Argv(1), "allbots") ) {
-			for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
-				if ( !cl->state ) {
-					continue;
-				}
-				if( cl->netchan.remoteAddress.type != NA_BOT ) {
-					continue;
-				}
-				SV_DropClient( cl, "was kicked" );
-				cl->lastPacketTime = svs.time;	// in case there is a funny zombie
-			}
-		}
 		return;
 	}
 	if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
@@ -708,6 +712,7 @@ void SV_AddOperatorCommands( void ) {
 
 	Cmd_AddCommand ("heartbeat", SV_Heartbeat_f);
 	Cmd_AddCommand ("kick", SV_Kick_f);
+	Cmd_AddCommand ("kickAll", SV_KickAll_f);
 	Cmd_AddCommand ("banUser", SV_Ban_f);
 	Cmd_AddCommand ("banClient", SV_BanNum_f);
 	Cmd_AddCommand ("clientkick", SV_KickNum_f);
@@ -718,11 +723,7 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand ("map_restart", SV_MapRestart_f);
 	Cmd_AddCommand ("sectorlist", SV_SectorList_f);
 	Cmd_AddCommand ("map", SV_Map_f);
-#ifndef PRE_RELEASE_DEMO
 	Cmd_AddCommand ("devmap", SV_Map_f);
-	Cmd_AddCommand ("spmap", SV_Map_f);
-	Cmd_AddCommand ("spdevmap", SV_Map_f);
-#endif
 	Cmd_AddCommand ("killserver", SV_KillServer_f);
 	if( com_dedicated->integer ) {
 		Cmd_AddCommand ("say", SV_ConSay_f);

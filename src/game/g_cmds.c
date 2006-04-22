@@ -755,13 +755,11 @@ void Cmd_CallVote_f( gentity_t *ent )
   else if( !Q_stricmp( arg1, "map" ) ) { }
   else if( !Q_stricmp( arg1, "kick" ) ) { }
   else if( !Q_stricmp( arg1, "clientkick" ) ) { }
-  else if( !Q_stricmp( arg1, "timelimit" ) ) { }
   else
   {
     trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
     trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, "
-                                            "kick <player>, clientkick <clientnum>, "
-                                            "timelimit <time>\n\"" );
+                                            "kick <player>, clientkick <clientnum>\n\"" );
     return;
   }
 
@@ -808,7 +806,8 @@ void Cmd_CallVote_f( gentity_t *ent )
     Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
   }
 
-  trap_SendServerCommand( -1, va( "print \"%s called a vote\n\"", ent->client->pers.netname ) );
+  trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
+        " called a vote\n\"", ent->client->pers.netname ) );
 
   // start the voting, the caller autoamtically votes yes
   level.voteTime = level.time;
@@ -952,7 +951,8 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 
     if( i >= level.maxclients )
     {
-      trap_SendServerCommand( ent-g_entities, va( "print \"%s is not a valid player on your team\n\"", arg2 ) );
+      trap_SendServerCommand( ent-g_entities, va( "print \"%s "
+            S_COLOR_WHITE "is not a valid player on your team\n\"", arg2 ) );
       return;
     }
   }

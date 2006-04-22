@@ -487,6 +487,10 @@ static void CG_HumanText( char *text, playerState_t *ps )
   Q_strcat( text, MAX_TUTORIAL_TEXT,
       va( "Press %s to use a structure\n",
         CG_KeyNameForCommand( "+button7" ) ) );
+
+  Q_strcat( text, MAX_TUTORIAL_TEXT,
+      va( "Press %s to sprint\n",
+        CG_KeyNameForCommand( "boost" ) ) );
 }
 
 /*
