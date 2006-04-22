@@ -238,7 +238,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     totalDamage += (float)self->credits[ i ];
 
   // if players did more than DAMAGE_FRACTION_FOR_KILL increment the stage counters
-  if( totalDamage >= ( self->client->ps.stats[ STAT_MAX_HEALTH ] * DAMAGE_FRACTION_FOR_KILL ) )
+  if( !OnSameTeam( self, attacker ) && totalDamage >= ( self->client->ps.stats[ STAT_MAX_HEALTH ] * DAMAGE_FRACTION_FOR_KILL ) )
   {
     if( self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
       trap_Cvar_Set( "g_alienKills", va( "%d", g_alienKills.integer + 1 ) );
