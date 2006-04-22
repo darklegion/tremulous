@@ -44,6 +44,8 @@ vmCvar_t  g_timelimit;
 vmCvar_t  g_suddenDeathTime;
 vmCvar_t  g_capturelimit;
 vmCvar_t  g_friendlyFire;
+vmCvar_t  g_friendlyFireAliens;
+vmCvar_t  g_friendlyFireHumans;
 vmCvar_t  g_friendlyBuildableFire;
 vmCvar_t  g_password;
 vmCvar_t  g_needpass;
@@ -130,6 +132,8 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
 
   { &g_friendlyFire, "g_friendlyFire", "0", CVAR_ARCHIVE, 0, qtrue  },
+  { &g_friendlyFireAliens, "g_friendlyFireAliens", "0", CVAR_ARCHIVE, 0, qtrue  },
+  { &g_friendlyFireHumans, "g_friendlyFireHumans", "0", CVAR_ARCHIVE, 0, qtrue  },
   { &g_friendlyBuildableFire, "g_friendlyBuildableFire", "0", CVAR_ARCHIVE, 0, qtrue  },
 
   { &g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE  },

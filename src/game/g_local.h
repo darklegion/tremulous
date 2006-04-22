@@ -1022,6 +1022,8 @@ extern  vmCvar_t  g_minCommandPeriod;
 extern  vmCvar_t  g_timelimit;
 extern  vmCvar_t  g_suddenDeathTime;
 extern  vmCvar_t  g_friendlyFire;
+extern  vmCvar_t  g_friendlyFireHumans;
+extern  vmCvar_t  g_friendlyFireAliens;
 extern  vmCvar_t  g_friendlyBuildableFire;
 extern  vmCvar_t  g_password;
 extern  vmCvar_t  g_needpass;

@@ -1019,7 +1019,18 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     if( targ != attacker && OnSameTeam( targ, attacker ) )
     {
       if( !g_friendlyFire.integer )
-        return;
+      {
+        if( !g_friendlyFireHumans.integer 
+          && targ->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+        {
+          return;
+        }
+        if( !g_friendlyFireAliens.integer 
+          && targ->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+        {
+          return;
+        }
+      }
     }
 
 		// If target is buildable on the same team as the attacking client
