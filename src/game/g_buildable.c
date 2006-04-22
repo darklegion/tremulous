@@ -233,6 +233,7 @@ qboolean G_isPower( vec3_t origin )
 
   dummy.parentNode = NULL;
   dummy.biteam = BIT_HUMANS;
+  dummy.s.modelindex = BA_NONE;
   VectorCopy( origin, dummy.s.origin );
 
   return findPower( &dummy );
@@ -439,6 +440,7 @@ static qboolean isCreep( vec3_t origin )
   memset( &dummy, 0, sizeof( gentity_t ) );
 
   dummy.parentNode = NULL;
+  dummy.s.modelindex = BA_NONE;
   VectorCopy( origin, dummy.s.origin );
 
   return findCreep( &dummy );
