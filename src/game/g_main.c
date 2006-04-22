@@ -119,6 +119,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { NULL, "gamedate", __DATE__ , CVAR_ROM, 0, qfalse  },
   { &g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse  },
   { NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
+  { NULL, "P", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
 
   // latched vars
 
@@ -1143,6 +1144,7 @@ void CalculateRanks( void )
   int       score;
   int       newScore;
   gclient_t *cl;
+  char P[ MAX_CLIENTS + 1 ] = {""};
 
   level.follow1 = -1;
   level.follow2 = -1;
@@ -1160,10 +1162,12 @@ void CalculateRanks( void )
 
   for( i = 0; i < level.maxclients; i++ )
   {
+    P[ i ] = '-';
     if ( level.clients[ i ].pers.connected != CON_DISCONNECTED )
     {
       level.sortedClients[ level.numConnectedClients ] = i;
       level.numConnectedClients++;
+      P[ i ] = (char)'0' + level.clients[ i ].ps.stats[ STAT_PTEAM ];
 
       if( !( level.clients[ i ].ps.pm_flags & PMF_FOLLOW ) )
       {
@@ -1208,6 +1212,8 @@ void CalculateRanks( void )
       }
     }
   }
+  P[ i + 1 ] = '\0';
+  trap_Cvar_Set( "P", P );
 
   qsort( level.sortedClients, level.numConnectedClients,
     sizeof( level.sortedClients[ 0 ] ), SortRanks );
