@@ -321,6 +321,7 @@ void CG_InitConsoleCommands( void )
   trap_AddCommand( "ui_menu" );
   trap_AddCommand( "mapRotation" );
   trap_AddCommand( "stopMapRotation" );
+  trap_AddCommand( "advanceMapRotation" );
   trap_AddCommand( "alienWin" );
   trap_AddCommand( "humanWin" );
 }

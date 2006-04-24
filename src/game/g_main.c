@@ -1388,9 +1388,8 @@ void BeginIntermission( void )
 =============
 ExitLevel
 
-When the intermission has been exited, the server is either killed
-or moved to a new level based on the "nextmap" cvar
-
+When the intermission has been exited, the server is either moved
+to a new map based on the map rotation or the current map restarted
 =============
 */
 void ExitLevel( void )
@@ -1401,7 +1400,7 @@ void ExitLevel( void )
   if( G_MapRotationActive( ) )
     G_AdvanceMapRotation( );
   else
-    trap_SendConsoleCommand( EXEC_APPEND, "vstr nextmap\n" );
+    trap_SendConsoleCommand( EXEC_APPEND, "map_restart\n" );
 
   level.changemap = NULL;
   level.intermissiontime = 0;
@@ -1810,14 +1809,7 @@ void CheckVote( void )
   {
     level.voteExecuteTime = 0;
 
-    //SUPAR HAK
-    if( !Q_stricmp( level.voteString, "vstr nextmap" ) )
-    {
-      level.lastWin = PTE_NONE;
-      LogExit( "Vote for next map." );
-    }
-    else
-      trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
+    trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
   }
 
   if( !level.voteTime )

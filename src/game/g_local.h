@@ -542,6 +542,7 @@ typedef struct
 
   // team voting state
   char              teamVoteString[ 2 ][ MAX_STRING_CHARS ];
+  char              teamVoteDisplayString[ 2 ][ MAX_STRING_CHARS ];
   int               teamVoteTime[ 2 ];            // level.time vote was called
   int               teamVoteYes[ 2 ];
   int               teamVoteNo[ 2 ];

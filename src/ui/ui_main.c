@@ -2134,6 +2134,7 @@ static void UI_BuildPlayerList( void ) {
     if (info[0]) {
       Q_strncpyz( uiInfo.playerNames[uiInfo.playerCount], Info_ValueForKey( info, "n" ), MAX_NAME_LENGTH );
       Q_CleanStr( uiInfo.playerNames[uiInfo.playerCount] );
+      uiInfo.clientNums[uiInfo.playerCount] = n;
       uiInfo.playerCount++;
       team2 = atoi(Info_ValueForKey(info, "t"));
       if (team2 == team) {
@@ -4110,30 +4111,24 @@ static void UI_RunMenuScript(char **args) {
       if (ui_currentNetMap.integer >=0 && ui_currentNetMap.integer < uiInfo.mapCount) {
         trap_Cmd_ExecuteText( EXEC_APPEND, va("callvote map %s\n",uiInfo.mapList[ui_currentNetMap.integer].mapLoadName) );
       }
-    } else if (Q_stricmp(name, "voteKick") == 0) {
-      if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
-        trap_Cmd_ExecuteText( EXEC_APPEND, va("callvote kick %s\n",uiInfo.playerNames[uiInfo.playerIndex]) );
+    }
+    else if( Q_stricmp( name, "voteKick" ) == 0 )
+    {
+      if( uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount )
+      {
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote clientkick %d\n",
+              uiInfo.clientNums[ uiInfo.playerIndex ] ) );
       }
     }
     else if( Q_stricmp( name, "voteTeamKick" ) == 0 )
     {
-      if( uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount )
+      if( uiInfo.teamIndex >= 0 && uiInfo.teamIndex < uiInfo.playerCount )
       {
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote teamkick %s\n", uiInfo.playerNames[ uiInfo.teamIndex ] ) );
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote teamclientkick %d\n",
+              uiInfo.teamClientNums[ uiInfo.teamIndex ] ) );
       }
     }
-    else if (Q_stricmp(name, "voteGame") == 0) {
-      if (ui_netGameType.integer >= 0 && ui_netGameType.integer < uiInfo.numGameTypes) {
-        trap_Cmd_ExecuteText( EXEC_APPEND, va("callvote g_gametype %i\n",uiInfo.gameTypes[ui_netGameType.integer].gtEnum) );
-      }
-    } else if (Q_stricmp(name, "voteLeader") == 0) {
-      if (uiInfo.teamIndex >= 0 && uiInfo.teamIndex < uiInfo.myTeamCount) {
-        trap_Cmd_ExecuteText( EXEC_APPEND, va("callteamvote leader %s\n",uiInfo.teamNames[uiInfo.teamIndex]) );
-      }
-    }
-    else if (Q_stricmp(name, "addBot") == 0) {
-        trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot %s %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
-    } else if (Q_stricmp(name, "addFavorite") == 0) {
+    else if (Q_stricmp(name, "addFavorite") == 0) {
       if (ui_netSource.integer != AS_FAVORITES) {
         char name[MAX_NAME_LENGTH];
         char addr[MAX_NAME_LENGTH];

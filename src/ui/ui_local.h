@@ -820,6 +820,7 @@ typedef struct {
   qboolean teamLeader;
   char playerNames[MAX_CLIENTS][MAX_NAME_LENGTH];
   char teamNames[MAX_CLIENTS][MAX_NAME_LENGTH];
+  int clientNums[MAX_CLIENTS];
   int teamClientNums[MAX_CLIENTS];
 
   int mapCount;

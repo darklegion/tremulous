@@ -110,7 +110,7 @@ void SV_DirectConnect( netadr_t from ) {
 
 	version = atoi( Info_ValueForKey( userinfo, "protocol" ) );
 	if ( version != PROTOCOL_VERSION ) {
-		NET_OutOfBandPrint( NS_SERVER, from, "print\nServer uses protocol version %i.\n", PROTOCOL_VERSION );
+		NET_OutOfBandPrint( NS_SERVER, from, "print\nServer uses protocol version %i", PROTOCOL_VERSION );
 		Com_DPrintf ("    rejected connect from version %i\n", version);
 		return;
 	}
@@ -147,7 +147,7 @@ void SV_DirectConnect( netadr_t from ) {
 			}
 		}
 		if (i == MAX_CHALLENGES) {
-			NET_OutOfBandPrint( NS_SERVER, from, "print\nNo or bad challenge for address.\n" );
+			NET_OutOfBandPrint( NS_SERVER, from, "print\nNo or bad challenge for address" );
 			return;
 		}
 		// force the IP key/value pair so the game can filter based on ip
@@ -161,7 +161,7 @@ void SV_DirectConnect( netadr_t from ) {
 		if ( !Sys_IsLANAddress( from ) ) {
 			if ( sv_minPing->value && ping < sv_minPing->value ) {
 				// don't let them keep trying until they get a big delay
-				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for high pings only\n" );
+				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for high pings only" );
 				Com_DPrintf ("Client %i rejected on a too low ping\n", i);
 				// reset the address otherwise their ping will keep increasing
 				// with each connect message and they'd eventually be able to connect
@@ -169,7 +169,7 @@ void SV_DirectConnect( netadr_t from ) {
 				return;
 			}
 			if ( sv_maxPing->value && ping > sv_maxPing->value ) {
-				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for low pings only\n" );
+				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for low pings only" );
 				Com_DPrintf ("Client %i rejected on a too high ping\n", i);
 				return;
 			}
@@ -251,7 +251,7 @@ void SV_DirectConnect( netadr_t from ) {
 			}
 		}
 		else {
-			NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is full.\n" );
+			NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is full" );
 			Com_DPrintf ("Rejected a connection.\n");
 			return;
 		}
@@ -287,7 +287,7 @@ gotnewcl:
 		// we can't just use VM_ArgPtr, because that is only valid inside a VM_Call
 		char *str = VM_ExplicitArgPtr( gvm, denied );
 
-		NET_OutOfBandPrint( NS_SERVER, from, "print\n%s\n", str );
+		NET_OutOfBandPrint( NS_SERVER, from, "print\n%s", str );
 		Com_DPrintf ("Game rejected a connection: %s.\n", str);
 		return;
 	}

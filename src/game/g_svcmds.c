@@ -542,6 +542,13 @@ qboolean  ConsoleCommand( void )
     return qtrue;
   }
 
+  if( Q_stricmp( cmd, "advanceMapRotation" ) == 0 )
+  {
+    G_AdvanceMapRotation( );
+
+    return qtrue;
+  }
+
   if( Q_stricmp( cmd, "alienWin" ) == 0 )
   {
     int       i;

@@ -750,19 +750,6 @@ void Cmd_CallVote_f( gentity_t *ent )
     return;
   }
 
-  if( !Q_stricmp( arg1, "map_restart" ) ) { }
-  else if( !Q_stricmp( arg1, "nextmap" ) ) { }
-  else if( !Q_stricmp( arg1, "map" ) ) { }
-  else if( !Q_stricmp( arg1, "kick" ) ) { }
-  else if( !Q_stricmp( arg1, "clientkick" ) ) { }
-  else
-  {
-    trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
-    trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, "
-                                            "kick <player>, clientkick <clientnum>\n\"" );
-    return;
-  }
-
   // if there is still a vote to be executed
   if( level.voteExecuteTime )
   {
@@ -770,40 +757,77 @@ void Cmd_CallVote_f( gentity_t *ent )
     trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
   }
 
-  if( !Q_stricmp( arg1, "map" ) )
+  if( !Q_stricmp( arg1, "kick" ) )
   {
-    // special case for map changes, we want to reset the nextmap setting
-    // this allows a player to change maps, but not upset the map rotation
-    char  s[ MAX_STRING_CHARS ];
+    char kickee[ MAX_NETNAME ];
 
-    trap_Cvar_VariableStringBuffer( "nextmap", s, sizeof( s ) );
+    Q_strncpyz( kickee, arg2, sizeof( kickee ) );
+    Q_CleanStr( kickee );
 
-    if( *s )
-      Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s; set nextmap \"%s\"", arg1, arg2, s );
+    Com_sprintf( level.voteString, sizeof( level.voteString ),
+        "%s \"%s\"", arg1, kickee );
+    Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ),
+        "Kick player \'%s\'", kickee );
+  }
+  else if( !Q_stricmp( arg1, "clientkick" ) )
+  {
+    char  kickee[ MAX_NETNAME ];
+    int   clientNum = 0;
+
+    //check arg2 is a number
+    for( i = 0; arg2[ i ]; i++ )
+    {
+      if( arg2[ i ] < '0' || arg2[ i ] > '9' )
+      {
+        clientNum = -1;
+        break;
+      }
+    }
+
+    if( clientNum >= 0 )
+    {
+      clientNum = atoi( arg2 );
+
+      if( level.clients[ clientNum ].pers.connected != CON_DISCONNECTED )
+      {
+        Q_strncpyz( kickee, level.clients[ clientNum ].pers.netname, sizeof( kickee ) );
+        Q_CleanStr( kickee );
+
+        Com_sprintf( level.voteString, sizeof( level.voteString ),
+            "clientkick %d", clientNum );
+        Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ),
+            "Kick player \'%s\'", kickee );
+      }
+      else
+        return;
+    }
     else
-      Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 );
-
-    Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
+      return;
+  }
+  else if( !Q_stricmp( arg1, "map_restart" ) )
+  {
+    Com_sprintf( level.voteString, sizeof( level.voteString ), "%s", arg1 );
+    Com_sprintf( level.voteDisplayString,
+        sizeof( level.voteDisplayString ), "Restart current map" );
+  }
+  else if( !Q_stricmp( arg1, "map" ) )
+  {
+    Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 );
+    Com_sprintf( level.voteDisplayString,
+        sizeof( level.voteDisplayString ), "Change to map \'%s\'", arg2 );
   }
   else if( !Q_stricmp( arg1, "nextmap" ) )
   {
-    char  s[ MAX_STRING_CHARS ];
-
-    trap_Cvar_VariableStringBuffer( "nextmap", s, sizeof( s ) );
-
-    if( !*s )
-    {
-      trap_SendServerCommand( ent-g_entities, "print \"nextmap not set\n\"" );
-      return;
-    }
-
-    Com_sprintf( level.voteString, sizeof( level.voteString ), "vstr nextmap" );
-    Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
+    Com_sprintf( level.voteString, sizeof( level.voteString ), "advanceMapRotation" );
+    Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ),
+        "Skip to next map in rotation" );
   }
   else
   {
-    Com_sprintf( level.voteString, sizeof( level.voteString ), "%s \"%s\"", arg1, arg2 );
-    Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
+    trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Valid vote commands are: map_restart, nextmap, "
+                                            "map <mapname>, kick <player>, clientkick <clientnum>\n\"" );
+    return;
   }
 
   trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
@@ -951,20 +975,73 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 
     if( i >= level.maxclients )
     {
-      trap_SendServerCommand( ent-g_entities, va( "print \"%s "
+      trap_SendServerCommand( ent-g_entities, va( "print \"\'%s\' "
             S_COLOR_WHITE "is not a valid player on your team\n\"", arg2 ) );
       return;
     }
+
+    Com_sprintf( level.teamVoteString[ cs_offset ],
+        sizeof( level.teamVoteString[ cs_offset ] ), "kick \"%s\"", kickee );
+    Com_sprintf( level.teamVoteDisplayString[ cs_offset ],
+        sizeof( level.teamVoteDisplayString[ cs_offset ] ), "Kick player \'%s\'", kickee );
+  }
+  else if( !Q_stricmp( arg1, "teamclientkick" ) )
+  {
+    int   clientNum = 0;
+    char  kickee[ MAX_NETNAME ];
+
+    //check arg2 is a number
+    for( i = 0; arg2[ i ]; i++ )
+    {
+      if( arg2[ i ] < '0' || arg2[ i ] > '9' )
+      {
+        clientNum = -1;
+        break;
+      }
+    }
+
+    if( clientNum >= 0 )
+    {
+      clientNum = atoi( arg2 );
+
+      for( i = 0; i < level.maxclients; i++ )
+      {
+        if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
+          continue;
+
+        if( level.clients[ i ].ps.stats[ STAT_PTEAM ] != team )
+          continue;
+
+        if( level.clients[ i ].ps.clientNum == clientNum )
+          break;
+      }
+
+      if( i >= level.maxclients )
+        clientNum = -1;
+    }
+
+    if( clientNum < 0 )
+    {
+      trap_SendServerCommand( ent-g_entities, va( "print \"client %s "
+            S_COLOR_WHITE "is not a valid player on your team\n\"", arg2 ) );
+      return;
+    }
+
+    Q_strncpyz( kickee, level.clients[ clientNum ].pers.netname, sizeof( kickee ) );
+    Q_CleanStr( kickee );
+
+    Com_sprintf( level.teamVoteString[ cs_offset ],
+        sizeof( level.teamVoteString[ cs_offset ] ), "clientkick %d", clientNum );
+    Com_sprintf( level.teamVoteDisplayString[ cs_offset ],
+        sizeof( level.teamVoteDisplayString[ cs_offset ] ), "Kick player \'%s\'", kickee );
   }
   else
   {
     trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
-    trap_SendServerCommand( ent-g_entities, "print \"Team vote commands are: teamkick <player>\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Valid team vote commands are: teamkick <player>, "
+                                            "teamclientkick <client>\n\"" );
     return;
   }
-
-  Com_sprintf( level.teamVoteString[ cs_offset ],
-               sizeof( level.teamVoteString[ cs_offset ] ), "kick \"%s\"", arg2 );
 
   for( i = 0 ; i < level.maxclients ; i++ )
   {
@@ -972,7 +1049,8 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
       continue;
 
     if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == team )
-      trap_SendServerCommand( i, va("print \"%s called a team vote\n\"", ent->client->pers.netname ) );
+      trap_SendServerCommand( i, va("print \"%s " S_COLOR_WHITE
+            "called a team vote\n\"", ent->client->pers.netname ) );
   }
 
   // start the voting, the caller autoamtically votes yes
@@ -989,7 +1067,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   ent->client->ps.eFlags |= EF_TEAMVOTED;
 
   trap_SetConfigstring( CS_TEAMVOTE_TIME + cs_offset, va( "%i", level.teamVoteTime[ cs_offset ] ) );
-  trap_SetConfigstring( CS_TEAMVOTE_STRING + cs_offset, level.teamVoteString[ cs_offset ] );
+  trap_SetConfigstring( CS_TEAMVOTE_STRING + cs_offset, level.teamVoteDisplayString[ cs_offset ] );
   trap_SetConfigstring( CS_TEAMVOTE_YES + cs_offset, va( "%i", level.teamVoteYes[ cs_offset ] ) );
   trap_SetConfigstring( CS_TEAMVOTE_NO + cs_offset, va( "%i", level.teamVoteNo[ cs_offset ] ) );
 }
@@ -1356,7 +1434,7 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
         return;
       }
 
-      if( !deconstruct )
+      if( !deconstruct && CheatsOk( ent ) )
         G_Damage( traceEnt, ent, ent, forward, tr.endpos, 10000, 0, MOD_SUICIDE );
       else
         G_FreeEntity( traceEnt );
