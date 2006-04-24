@@ -965,7 +965,7 @@ typedef struct mapRotationEntry_s
 {
   char                    name[ MAX_QPATH ];
 
-  char                    postCmds[ MAX_QPATH ][ MAX_MAP_COMMANDS ];
+  char                    postCmds[ MAX_MAP_COMMANDS ][ MAX_STRING_CHARS ];
   int                     numCmds;
 
   mapRotationCondition_t  conditions[ MAX_MAP_ROTATION_CONDS ];
