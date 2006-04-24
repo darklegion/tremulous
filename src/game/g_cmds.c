@@ -728,9 +728,12 @@ void Cmd_CallVote_f( gentity_t *ent )
     return;
   }
 
-  if( ent->client->pers.voteCount >= MAX_VOTE_COUNT )
+  if( g_voteLimit.integer > 0
+    && ent->client->pers.voteCount >= g_voteLimit.integer )
   {
-    trap_SendServerCommand( ent-g_entities, "print \"You have called the maximum number of votes\n\"" );
+    trap_SendServerCommand( ent-g_entities, va(
+      "print \"You have already called the maxium number of votes (%d)\n\"",
+      g_voteLimit.integer ) );
     return;
   }
 
@@ -833,6 +836,8 @@ void Cmd_CallVote_f( gentity_t *ent )
   trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
         " called a vote\n\"", ent->client->pers.netname ) );
 
+  ent->client->pers.voteCount++;
+
   // start the voting, the caller autoamtically votes yes
   level.voteTime = level.time;
   level.voteYes = 1;
@@ -929,9 +934,12 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     return;
   }
 
-  if( ent->client->pers.teamVoteCount >= MAX_VOTE_COUNT )
+  if( g_voteLimit.integer > 0
+    && ent->client->pers.voteCount >= g_voteLimit.integer )
   {
-    trap_SendServerCommand( ent-g_entities, "print \"You have called the maximum number of team votes\n\"" );
+    trap_SendServerCommand( ent-g_entities, va(
+      "print \"You have already called the maxium number of votes (%d)\n\"",
+      g_voteLimit.integer ) );
     return;
   }
 
@@ -1042,6 +1050,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
                                             "teamclientkick <client>\n\"" );
     return;
   }
+  ent->client->pers.voteCount++;
 
   for( i = 0 ; i < level.maxclients ; i++ )
   {

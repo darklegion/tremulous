@@ -298,7 +298,6 @@ typedef struct
 } clientSession_t;
 
 #define MAX_NETNAME       36
-#define MAX_VOTE_COUNT    3
 
 // data to store details of clients that have abnormally disconnected
 typedef struct connectionRecord_s
@@ -325,7 +324,6 @@ typedef struct
   int                 enterTime;          // level.time the client entered the game
   playerTeamState_t   teamState;          // status in teamplay games
   int                 voteCount;          // to prevent people from constantly calling votes
-  int                 teamVoteCount;      // to prevent people from constantly calling votes
   qboolean            teamInfo;           // send team overlay updates?
 
   pClass_t            classSelection;     //TA: player class (copied to ent->client->ps.stats[ STAT_PCLASS ] once spawned)
@@ -1045,6 +1043,7 @@ extern  vmCvar_t  g_warmup;
 extern  vmCvar_t  g_doWarmup;
 extern  vmCvar_t  g_blood;
 extern  vmCvar_t  g_allowVote;
+extern  vmCvar_t  g_voteLimit;
 extern  vmCvar_t  g_teamAutoJoin;
 extern  vmCvar_t  g_teamForceBalance;
 extern  vmCvar_t  g_banIPs;

@@ -75,6 +75,7 @@ vmCvar_t  g_blood;
 vmCvar_t  g_podiumDist;
 vmCvar_t  g_podiumDrop;
 vmCvar_t  g_allowVote;
+vmCvar_t  g_voteLimit;
 vmCvar_t  g_teamAutoJoin;
 vmCvar_t  g_teamForceBalance;
 vmCvar_t  g_banIPs;
@@ -172,6 +173,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse },
 
   { &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse },
+  { &g_voteLimit, "g_voteLimit", "5", CVAR_ARCHIVE, 0, qfalse },
   { &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
   { &g_minCommandPeriod, "g_minCommandPeriod", "500", 0, 0, qfalse},
 
