@@ -9,7 +9,7 @@ this license as listed below.
 The media is licensed under the CREATIVE COMMONS ATTRIBUTION-SHAREALIKE 2.5
 LICENSE. Please read http://creativecommons.org/licenses/by-sa/2.5/ to learn
 more about this license. The full license text is contained in the file named
-CC. Please be aware of the exceptions to this license as listed below.
+CC.
 
 
 ---------------------------------------------------- Code License Exceptions ---
@@ -22,18 +22,3 @@ is contained within the files as listed.
     src/game/bg_lib.c                                            BSD license
     src/client/snd_adpcm.c            Stichting Mathematisch Centrum license
     src/jpeg-6/*                                                JPEG license
-
-
---------------------------------------------------- Media License Exceptions ---
-
-All shaderlab (http://www.shaderlab.com/) textures (by Randy 'ydnar' Reddig)
-are subject to the following license:
-
-  Usage and redistribution policy: Textures may be freely downloaded, modified,
-  and used in free maps, mods or total conversions provided this copyright
-  notice is left intact and a link to Shaderlab is provided in the credits or
-  read-me file. Other non-commercial applications are considered on a
-  case-by-case basis via e-mail. All other usage requires written permission.
-  Bulk redistribution or archival of the textures in any medium, digital or
-  otherwise (except mapping packages for mods) is prohibited.
-                        
