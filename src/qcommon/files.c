@@ -2175,8 +2175,8 @@ int	FS_GetModList( char *listbuf, int bufsize ) {
     if (bDrop) {
       continue;
     }
-    // we drop "base" "." and ".."
-    if (Q_stricmp(name, "base") && Q_stricmpn(name, ".", 1)) {
+    // we drop BASEGAME "." and ".."
+    if (Q_stricmp(name, BASEGAME) && Q_stricmpn(name, ".", 1)) {
       // now we need to find some .pk3 files to validate the mod
       // NOTE TTimo: (actually I'm not sure why .. what if it's a mod under developement with no .pk3?)
       // we didn't keep the information when we merged the directory names, as to what OS Path it was found under
@@ -2550,9 +2550,16 @@ FS_idPak
 */
 qboolean FS_idPak( char *pak, char *base ) {
 	int i;
+	char pakbuf[MAX_QPATH], *pakptr;
+
+	// Chop off filename extension if necessary.
+	Com_sprintf(pakbuf, sizeof(pakbuf), "%s", pak);
+	pakptr = Q_strrchr(pakbuf, '.');
+	if(pakptr)
+		*pakptr = '\0';
 
 	for (i = 0; i < NUM_ID_PAKS; i++) {
-		if ( !FS_FilenameCompare(pak, va("%s/pak%d", base, i)) ) {
+		if ( !FS_FilenameCompare(pakbuf, va("%s/pak%d", base, i)) ) {
 			break;
 		}
 	}
@@ -2605,7 +2612,7 @@ qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
 		havepak = qfalse;
 
 		// never autodownload any of the tremulous paks
-		if ( FS_idPak(fs_serverReferencedPakNames[i], "base") ) {
+		if ( FS_idPak(fs_serverReferencedPakNames[i], BASEGAME) ) {
 			continue;
 		}
 
@@ -3377,7 +3384,7 @@ void	FS_FilenameCompletion( const char *dir, const char *ext,
 		Q_strncpyz( filename, filenames[ i ], MAX_STRING_CHARS );
 
 		if( stripExt ) {
-			COM_StripExtension( filename, filename );
+			COM_StripExtension(filename, filename, sizeof(filename));
 		}
 
 		callback( filename );

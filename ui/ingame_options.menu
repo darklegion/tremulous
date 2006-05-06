@@ -1255,7 +1255,7 @@
       text "Quality:"
       cvar "ui_glCustom"
       cvarFloatList { "High Quality" 0 "Normal" 1 "Fast" 2 "Fastest" 3 "Custom" 4 }
-      rect 96 55 192 15
+      rect 96 50 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1277,7 +1277,7 @@
       text "GL Driver:"
       cvar "r_gldriver"
       //cvarFloatList {  }
-      rect 96 70 192 15
+      rect 96 65 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1294,7 +1294,7 @@
       type ITEM_TYPE_YESNO
       text "GL Extensions:"
       cvar "r_allowExtensions"
-      rect 96 85 192 15
+      rect 96 80 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1318,7 +1318,7 @@
       cvarFloatList { "320x240" 0 "400x300" 1 "512x384" 2 "640x480" 3
                       "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7
                       "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 }
-      rect 96 100 192 15
+      rect 96 95 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1340,7 +1340,7 @@
       text "Color Depth:"
       cvar "r_colorbits"
       cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
-      rect 96 115 192 15
+      rect 96 110 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1362,7 +1362,7 @@
       type ITEM_TYPE_YESNO
       text "Fullscreen:"
       cvar "r_fullscreen"
-      rect 96 130 192 15
+      rect 96 125 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1384,7 +1384,7 @@
       text "Lighting:"
       cvar "r_vertexlight"
       cvarFloatList { "Light Map (high)" 0 "Vertex (low)" 1  }
-      rect 96 145 192 15
+      rect 96 140 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1406,7 +1406,7 @@
       text "Geometric Detail:"
       cvar "r_lodbias"
       cvarFloatList { "High" 0 "Medium" 1 "Low" 2 }
-      rect 96 160 192 15
+      rect 96 155 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1429,7 +1429,7 @@
       text "Texture Detail:"
       cvar "r_picmip"
       cvarFloatList { "Low" 2 "Normal" 1 "High" 0 }
-      rect 96 175 192 15
+      rect 96 170 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1451,7 +1451,7 @@
       text "Texture Quality:"
       cvar "r_texturebits"
       cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
-      rect 96 190 192 15
+      rect 96 185 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1472,7 +1472,28 @@
       text "Texture Filter:"
       cvar "r_texturemode"
       cvarStrList { "Bilinear", "GL_LINEAR_MIPMAP_NEAREST", "Trilinear", "GL_LINEAR_MIPMAP_LINEAR"  }
-      rect 96 205 192 15
+      rect 96 200 192 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 100
+      textaligny 12
+      textscale .25        
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        uiScript glCustom
+      }
+    }
+
+    itemDef
+    {
+      name ghardware
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Anisotropic Filtering:"
+      cvar "r_ext_texture_filter_anisotropic"
+      rect 96 215 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1493,7 +1514,7 @@
       type ITEM_TYPE_YESNO
       text "Compress Textures:"
       cvar "r_ext_compressed_textures "
-      rect 96 220 192 15
+      rect 96 230 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 100
       textaligny 12
@@ -1515,7 +1536,7 @@
       text "APPLY"
       textscale .25
       style WINDOW_STYLE_EMPTY
-      rect 144 240 75 20
+      rect 144 245 75 20
       textalign ITEM_ALIGN_CENTER
       textalignx 37
       textaligny 15

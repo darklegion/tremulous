@@ -340,7 +340,7 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 		return;		// already dropped
 	}
 
-	if ( !drop->gentity || !(drop->gentity->r.svFlags & SVF_BOT) ) {
+	if (drop->netchan.remoteAddress.type != NA_BOT) {
 		// see if we already have a challenge for this ip
 		challenge = &svs.challenges[0];
 
@@ -630,7 +630,7 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 		Com_Printf( "clientDownload: %d : begining \"%s\"\n", cl - svs.clients, cl->downloadName );
 
 		missionPack = FS_idPak(cl->downloadName, "missionpack");
-		idPack = missionPack || FS_idPak(cl->downloadName, "baseq3");
+		idPack = missionPack || FS_idPak(cl->downloadName, BASEGAME);
 
 		if ( !sv_allowDownload->integer || idPack ||
 			( cl->downloadSize = FS_SV_FOpenFileRead( cl->downloadName, &cl->download ) ) <= 0 ) {

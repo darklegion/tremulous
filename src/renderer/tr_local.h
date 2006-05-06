@@ -971,12 +971,14 @@ extern trGlobals_t	tr;
 extern glconfig_t	glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
 extern glstate_t	glState;		// outside of TR since it shouldn't be cleared during ref re-init
 
-
 //
 // cvars
 //
 extern cvar_t	*r_flareSize;
 extern cvar_t	*r_flareFade;
+// coefficient for the flare intensity falloff function.
+#define FLARE_STDCOEFF "150"
+extern cvar_t	*r_flareCoeff;
 
 extern cvar_t	*r_railWidth;
 extern cvar_t	*r_railCoreWidth;
@@ -1038,6 +1040,9 @@ extern cvar_t	*r_ext_texenv_op;
 extern cvar_t	*r_ext_multitexture;
 extern cvar_t	*r_ext_compiled_vertex_array;
 extern cvar_t	*r_ext_texture_env_add;
+
+extern cvar_t	*r_ext_texture_filter_anisotropic;
+extern cvar_t	*r_ext_max_anisotropy;
 
 extern	cvar_t	*r_nobind;						// turns off binding to appropriate textures
 extern	cvar_t	*r_singleShader;				// make most world faces use default shader

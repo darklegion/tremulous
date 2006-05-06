@@ -96,7 +96,7 @@ void R_RemapShader(const char *shaderName, const char *newShaderName, const char
 
 	// remap all the shaders with the given name
 	// even tho they might have different lightmaps
-	COM_StripExtension( shaderName, strippedName );
+	COM_StripExtension(shaderName, strippedName, sizeof(strippedName));
 	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
 	for (sh = hashTable[hash]; sh; sh = sh->next) {
 		if (Q_stricmp(sh->name, strippedName) == 0) {
@@ -2366,7 +2366,7 @@ shader_t *R_FindShaderByName( const char *name ) {
 		return tr.defaultShader;
 	}
 
-	COM_StripExtension( name, strippedName );
+	COM_StripExtension(name, strippedName, sizeof(strippedName));
 
 	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
 
@@ -2434,7 +2434,7 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 		lightmapIndex = LIGHTMAP_BY_VERTEX;
 	}
 
-	COM_StripExtension( name, strippedName );
+	COM_StripExtension(name, strippedName, sizeof(strippedName));
 
 	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
 
@@ -3010,8 +3010,22 @@ static void CreateInternalShaders( void ) {
 
 static void CreateExternalShaders( void ) {
 	tr.projectionShadowShader = R_FindShader( "projectionShadow", LIGHTMAP_NONE, qtrue );
-	//tr.flareShader = R_FindShader( "flareShader", LIGHTMAP_NONE, qtrue );
-	//tr.sunShader = R_FindShader( "sun", LIGHTMAP_NONE, qtrue );
+	tr.flareShader = R_FindShader( "flareShader", LIGHTMAP_NONE, qtrue );
+
+	// Hack to make fogging work correctly on flares. Fog colors are calculated
+	// in tr_flare.c already.
+	if(!tr.flareShader->defaultShader)
+	{
+		int index;
+		
+		for(index = 0; index < tr.flareShader->numUnfoggedPasses; index++)
+		{
+			tr.flareShader->stages[index]->adjustColorsForFog = ACFF_NONE;
+			tr.flareShader->stages[index]->stateBits |= GLS_DEPTHTEST_DISABLE;
+		}
+	}
+
+	tr.sunShader = R_FindShader( "sun", LIGHTMAP_NONE, qtrue );
 }
 
 /*

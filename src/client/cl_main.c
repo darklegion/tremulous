@@ -2012,7 +2012,7 @@ void CL_Frame ( int msec ) {
 			}
 
 			Q_strncpyz( mapName, COM_SkipPath( cl.mapname ), sizeof( cl.mapname ) );
-			COM_StripExtension( mapName, mapName );
+			COM_StripExtension(mapName, mapName, sizeof(mapName));
 
 			Cbuf_ExecuteText( EXEC_NOW,
 					va( "record %s-%s-%s", nowString, serverName, mapName ) );
@@ -2324,6 +2324,28 @@ void CL_StopVideo_f( void )
   CL_CloseAVI( );
 }
 
+static void CL_GenerateQKey(void)
+{
+	int len = 0;
+	unsigned char buff[2048];
+
+	len = FS_ReadFile(QKEY_FILE, NULL);
+	if(len >= (int)sizeof(buff)) {
+		Com_Printf("QKEY found.\n");
+		return;
+	}
+	else {
+		int i;
+		srand(time(0));
+		for(i = 0; i < sizeof(buff) - 1; i++) {
+			buff[i] = (unsigned char)(rand() % 255);
+		}
+		buff[i] = 0;
+		Com_Printf("QKEY generated\n");
+		FS_WriteFile(QKEY_FILE, buff, sizeof(buff));
+	}
+} 
+
 /*
 ====================
 CL_Init
@@ -2472,6 +2494,9 @@ void CL_Init( void ) {
 
 	Cvar_Set( "cl_running", "1" );
 
+	CL_GenerateQKey();	
+	Cvar_Get("cl_guid", Com_MD5File(QKEY_FILE, 0), CVAR_USERINFO | CVAR_ROM);
+
 	Com_Printf( "----- Client Initialization Complete -----\n" );
 }
 
@@ -2484,6 +2509,10 @@ CL_Shutdown
 */
 void CL_Shutdown( void ) {
 	static qboolean recursive = qfalse;
+	
+	// check whether the client is running at all.
+	if(!(com_cl_running && com_cl_running->integer))
+		return;
 	
 	Com_Printf( "----- CL_Shutdown -----\n" );
 

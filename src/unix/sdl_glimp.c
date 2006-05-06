@@ -439,15 +439,35 @@ void IN_DeactivateMouse( void )
 */
 void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] )
 {
-  // NOTE TTimo we get the gamma value from cvar, because we can't work with the s_gammatable
-  //   the API wasn't changed to avoid breaking other OSes
-  float g;
+	Uint16 table[3][256];
+	int i, j;
+//	float g;
 
-  if ( r_ignorehwgamma->integer )
-    return;
+	if(r_ignorehwgamma->integer)
+		return;
 
-  g  = Cvar_Get("r_gamma", "1.0", 0)->value;
-  SDL_SetGamma(g, g, g);
+	// taken from win_gamma.c:
+	for (i = 0; i < 256; i++)
+	{
+		table[0][i] = ( ( ( Uint16 ) red[i] ) << 8 ) | red[i];
+		table[1][i] = ( ( ( Uint16 ) green[i] ) << 8 ) | green[i];
+		table[2][i] = ( ( ( Uint16 ) blue[i] ) << 8 ) | blue[i];
+	}
+
+	// enforce constantly increasing
+	for (j = 0; j < 3; j++)
+	{
+		for (i = 1; i < 256; i++)
+		{
+			if (table[j][i] < table[j][i-1])
+				table[j][i] = table[j][i-1];
+		}
+	}
+
+	SDL_SetGammaRamp(table[0], table[1], table[2]);
+
+//	g  = Cvar_Get("r_gamma", "1.0", 0)->value;
+//	SDL_SetGamma(g, g, g);
 }
 
 /*
@@ -554,7 +574,12 @@ static int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
 
   Uint32 flags = SDL_OPENGL;
   if (fullscreen)
+  {
     flags |= SDL_FULLSCREEN;
+    glConfig.isFullscreen = qtrue;
+  }
+  else
+    glConfig.isFullscreen = qfalse;
 
   if (!r_colorbits->value)
     colorbits = 24;
@@ -626,7 +651,6 @@ static int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
         tstencilbits = 0;
     }
 
-    sdlcolorbits = 4;
     if (tcolorbits == 24)
         sdlcolorbits = 8;
 
@@ -804,6 +828,30 @@ static void GLW_InitExtensions( void )
     ri.Printf( PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n" );
   }
 
+  glConfig.textureFilterAnisotropic = qfalse;
+  if ( strstr( glConfig.extensions_string, "GL_EXT_texture_filter_anisotropic" ) )
+  {
+    if ( r_ext_texture_filter_anisotropic->integer ) {
+      qglGetIntegerv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glConfig.maxAnisotropy );
+      if ( glConfig.maxAnisotropy <= 0 ) {
+        ri.Printf( PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not properly supported!\n" );
+        glConfig.maxAnisotropy = 0;
+      }
+      else
+      {
+        ri.Printf( PRINT_ALL, "...using GL_EXT_texture_filter_anisotropic (max: %i)\n", glConfig.maxAnisotropy );
+        glConfig.textureFilterAnisotropic = qtrue;
+      }
+    }
+    else
+    {
+      ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_filter_anisotropic\n" );
+    }
+  }
+  else
+  {
+    ri.Printf( PRINT_ALL, "...GL_EXT_texture_filter_anisotropic not found\n" );
+  }
 }
 
 static void GLW_InitGamma( void )
