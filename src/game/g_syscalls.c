@@ -229,15 +229,6 @@ qboolean trap_EntityContactCapsule( const vec3_t mins, const vec3_t maxs, const 
 {
   return syscall( G_ENTITY_CONTACTCAPSULE, mins, maxs, ent );
 }
-int trap_BotAllocateClient( void )
-{
-  return syscall( G_BOT_ALLOCATE_CLIENT );
-}
-
-void trap_BotFreeClient( int clientNum )
-{
-  syscall( G_BOT_FREE_CLIENT, clientNum );
-}
 
 void trap_GetUsercmd( int clientNum, usercmd_t *cmd )
 {
@@ -247,16 +238,6 @@ void trap_GetUsercmd( int clientNum, usercmd_t *cmd )
 qboolean trap_GetEntityToken( char *buffer, int bufferSize )
 {
   return syscall( G_GET_ENTITY_TOKEN, buffer, bufferSize );
-}
-
-int trap_DebugPolygonCreate(int color, int numPoints, vec3_t *points)
-{
-  return syscall( G_DEBUG_POLYGON_CREATE, color, numPoints, points );
-}
-
-void trap_DebugPolygonDelete(int id)
-{
-  syscall( G_DEBUG_POLYGON_DELETE, id );
 }
 
 int trap_RealTime( qtime_t *qtime )
@@ -275,3 +256,29 @@ void trap_SendGameStat( const char *data )
   syscall( G_SEND_GAMESTAT, data );
   return;
 }
+
+int trap_Parse_AddGlobalDefine( char *define )
+{
+  return syscall( G_PARSE_ADD_GLOBAL_DEFINE, define );
+}
+
+int trap_Parse_LoadSource( const char *filename )
+{
+  return syscall( G_PARSE_LOAD_SOURCE, filename );
+}
+
+int trap_Parse_FreeSource( int handle )
+{
+  return syscall( G_PARSE_FREE_SOURCE, handle );
+}
+
+int trap_Parse_ReadToken( int handle, pc_token_t *pc_token )
+{
+  return syscall( G_PARSE_READ_TOKEN, handle, pc_token );
+}
+
+int trap_Parse_SourceFileAndLine( int handle, char *filename, int *line )
+{
+  return syscall( G_PARSE_SOURCE_FILE_AND_LINE, handle, filename, line );
+}
+

@@ -1054,7 +1054,7 @@ qboolean CG_Asset_Parse( int handle )
   pc_token_t token;
   const char *tempStr;
 
-  if( !trap_PC_ReadToken( handle, &token ) )
+  if( !trap_Parse_ReadToken( handle, &token ) )
     return qfalse;
 
   if( Q_stricmp( token.string, "{" ) != 0 )
@@ -1062,7 +1062,7 @@ qboolean CG_Asset_Parse( int handle )
 
   while( 1 )
   {
-    if( !trap_PC_ReadToken( handle, &token ) )
+    if( !trap_Parse_ReadToken( handle, &token ) )
       return qfalse;
 
     if( Q_stricmp( token.string, "}" ) == 0 )
@@ -1221,17 +1221,17 @@ void CG_ParseMenu( const char *menuFile )
   pc_token_t  token;
   int         handle;
 
-  handle = trap_PC_LoadSource( menuFile );
+  handle = trap_Parse_LoadSource( menuFile );
 
   if( !handle )
-    handle = trap_PC_LoadSource( "ui/testhud.menu" );
+    handle = trap_Parse_LoadSource( "ui/testhud.menu" );
 
   if( !handle )
     return;
 
   while( 1 )
   {
-    if( !trap_PC_ReadToken( handle, &token ) )
+    if( !trap_Parse_ReadToken( handle, &token ) )
       break;
 
     //if ( Q_stricmp( token, "{" ) ) {
@@ -1263,7 +1263,7 @@ void CG_ParseMenu( const char *menuFile )
     }
   }
 
-  trap_PC_FreeSource( handle );
+  trap_Parse_FreeSource( handle );
 }
 
 qboolean CG_Load_Menu( char **p )

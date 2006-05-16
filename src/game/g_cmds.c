@@ -691,7 +691,7 @@ static void Cmd_Tell_f( gentity_t *ent )
   G_Say( ent, target, SAY_TELL, p );
   // don't tell to the player self if it was already directed to this player
   // also don't send the chat back to a bot
-  if( ent != target && !( ent->r.svFlags & SVF_BOT ) )
+  if( ent != target )
     G_Say( ent, ent, SAY_TELL, p );
 }
 
@@ -2054,7 +2054,6 @@ void G_StopFollowing( gentity_t *ent )
   ent->client->ps.eFlags &= ~EF_WALLCLIMB;
   ent->client->ps.viewangles[ PITCH ] = 0.0f;
 
-  ent->r.svFlags &= ~SVF_BOT;
   ent->client->ps.clientNum = ent - g_entities;
 
   CalculateRanks( );

@@ -876,7 +876,7 @@ void QDECL G_Error( const char *fmt, ... );
 //
 // g_client.c
 //
-char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot );
+char *ClientConnect( int clientNum, qboolean firstTime );
 void ClientUserinfoChanged( int clientNum );
 void ClientDisconnect( int clientNum );
 void ClientBegin( int clientNum );
@@ -1122,9 +1122,6 @@ int       trap_BotAllocateClient( void );
 void      trap_BotFreeClient( int clientNum );
 void      trap_GetUsercmd( int clientNum, usercmd_t *cmd );
 qboolean  trap_GetEntityToken( char *buffer, int bufferSize );
-
-int       trap_DebugPolygonCreate(int color, int numPoints, vec3_t *points);
-void      trap_DebugPolygonDelete(int id);
 
 void      trap_SnapVector( float *v );
 void      trap_SendGameStat( const char *data );

@@ -240,7 +240,7 @@ intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4,
       return 0;
 
     case GAME_CLIENT_CONNECT:
-      return (intptr_t)ClientConnect( arg0, arg1, arg2 );
+      return (intptr_t)ClientConnect( arg0, arg1 );
 
     case GAME_CLIENT_THINK:
       ClientThink( arg0 );
@@ -1197,8 +1197,7 @@ void CalculateRanks( void )
         if( level.clients[ i ].pers.connected == CON_CONNECTED )
         {
           level.numPlayingClients++;
-          if( !(g_entities[ i ].r.svFlags & SVF_BOT) )
-            level.numVotingClients++;
+          level.numVotingClients++;
 
           if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
             level.numteamVotingClients[ 0 ]++;
@@ -1644,9 +1643,6 @@ void CheckIntermissionExit( void )
       continue;
 
     if( cl->ps.stats[ STAT_PTEAM ] == PTE_NONE )
-      continue;
-
-    if( g_entities[ cl->ps.clientNum ].r.svFlags & SVF_BOT )
       continue;
 
     if( cl->readyToExit )

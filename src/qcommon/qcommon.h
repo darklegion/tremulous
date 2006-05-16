@@ -131,7 +131,6 @@ NET
 #define	MAX_RELIABLE_COMMANDS	128			// max string commands buffered for restransmit
 
 typedef enum {
-	NA_BOT,
 	NA_BAD,					// an address lookup failed
 	NA_LOOPBACK,
 	NA_BROADCAST,
@@ -1076,6 +1075,12 @@ void	Huff_offsetReceive (node_t *node, int *ch, byte *fin, int *offset);
 void	Huff_offsetTransmit (huff_t *huff, int ch, byte *fout, int *offset);
 void	Huff_putBit( int bit, byte *fout, int *offset);
 int		Huff_getBit( byte *fout, int *offset);
+
+int		Parse_AddGlobalDefine(char *string);
+int		Parse_LoadSourceHandle(const char *filename);
+int		Parse_FreeSourceHandle(int handle);
+int		Parse_ReadTokenHandle(int handle, pc_token_t *pc_token);
+int		Parse_SourceFileAndLine(int handle, char *filename, int *line);
 
 extern huffman_t clientHuffTables;
 

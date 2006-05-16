@@ -442,11 +442,11 @@ void Controls_SetDefaults( void );
 //for cg_draw.c
 void Item_Text_AutoWrapped_Paint( itemDef_t *item );
 
-int      trap_PC_AddGlobalDefine( char *define );
-int      trap_PC_LoadSource( const char *filename );
-int      trap_PC_FreeSource( int handle );
-int      trap_PC_ReadToken( int handle, pc_token_t *pc_token );
-int      trap_PC_SourceFileAndLine( int handle, char *filename, int *line );
+int      trap_Parse_AddGlobalDefine( char *define );
+int      trap_Parse_LoadSource( const char *filename );
+int      trap_Parse_FreeSource( int handle );
+int      trap_Parse_ReadToken( int handle, pc_token_t *pc_token );
+int      trap_Parse_SourceFileAndLine( int handle, char *filename, int *line );
 
 void    BindingFromName( const char *cvar );
 extern char g_nameBind1[ 32 ];

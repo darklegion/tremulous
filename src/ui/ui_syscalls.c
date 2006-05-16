@@ -316,24 +316,24 @@ int trap_MemoryRemaining( void ) {
   return syscall( UI_MEMORY_REMAINING );
 }
 
-int trap_PC_AddGlobalDefine( char *define ) {
-  return syscall( UI_PC_ADD_GLOBAL_DEFINE, define );
+int trap_Parse_AddGlobalDefine( char *define ) {
+  return syscall( UI_PARSE_ADD_GLOBAL_DEFINE, define );
 }
 
-int trap_PC_LoadSource( const char *filename ) {
-  return syscall( UI_PC_LOAD_SOURCE, filename );
+int trap_Parse_LoadSource( const char *filename ) {
+  return syscall( UI_PARSE_LOAD_SOURCE, filename );
 }
 
-int trap_PC_FreeSource( int handle ) {
-  return syscall( UI_PC_FREE_SOURCE, handle );
+int trap_Parse_FreeSource( int handle ) {
+  return syscall( UI_PARSE_FREE_SOURCE, handle );
 }
 
-int trap_PC_ReadToken( int handle, pc_token_t *pc_token ) {
-  return syscall( UI_PC_READ_TOKEN, handle, pc_token );
+int trap_Parse_ReadToken( int handle, pc_token_t *pc_token ) {
+  return syscall( UI_PARSE_READ_TOKEN, handle, pc_token );
 }
 
-int trap_PC_SourceFileAndLine( int handle, char *filename, int *line ) {
-  return syscall( UI_PC_SOURCE_FILE_AND_LINE, handle, filename, line );
+int trap_Parse_SourceFileAndLine( int handle, char *filename, int *line ) {
+  return syscall( UI_PARSE_SOURCE_FILE_AND_LINE, handle, filename, line );
 }
 
 void trap_S_StopBackgroundTrack( void ) {

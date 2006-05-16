@@ -271,7 +271,7 @@ void PC_SourceWarning(int handle, char *format, ...) {
 
   filename[0] = '\0';
   line = 0;
-  trap_PC_SourceFileAndLine(handle, filename, &line);
+  trap_Parse_SourceFileAndLine(handle, filename, &line);
 
   Com_Printf(S_COLOR_YELLOW "WARNING: %s, line %d: %s\n", filename, line, string);
 }
@@ -293,7 +293,7 @@ void PC_SourceError(int handle, char *format, ...) {
 
   filename[0] = '\0';
   line = 0;
-  trap_PC_SourceFileAndLine(handle, filename, &line);
+  trap_Parse_SourceFileAndLine(handle, filename, &line);
 
   Com_Printf(S_COLOR_RED "ERROR: %s, line %d: %s\n", filename, line, string);
 }
@@ -343,10 +343,10 @@ qboolean PC_Float_Parse(int handle, float *f) {
   pc_token_t token;
   int negative = qfalse;
 
-  if (!trap_PC_ReadToken(handle, &token))
+  if (!trap_Parse_ReadToken(handle, &token))
     return qfalse;
   if (token.string[0] == '-') {
-    if (!trap_PC_ReadToken(handle, &token))
+    if (!trap_Parse_ReadToken(handle, &token))
       return qfalse;
     negative = qtrue;
   }
@@ -423,10 +423,10 @@ qboolean PC_Int_Parse(int handle, int *i) {
   pc_token_t token;
   int negative = qfalse;
 
-  if (!trap_PC_ReadToken(handle, &token))
+  if (!trap_Parse_ReadToken(handle, &token))
     return qfalse;
   if (token.string[0] == '-') {
-    if (!trap_PC_ReadToken(handle, &token))
+    if (!trap_Parse_ReadToken(handle, &token))
       return qfalse;
     negative = qtrue;
   }
@@ -500,7 +500,7 @@ PC_String_Parse
 qboolean PC_String_Parse(int handle, const char **out) {
   pc_token_t token;
 
-  if (!trap_PC_ReadToken(handle, &token))
+  if (!trap_Parse_ReadToken(handle, &token))
     return qfalse;
 
   *(out) = String_Alloc(token.string);
@@ -520,14 +520,14 @@ qboolean PC_Script_Parse(int handle, const char **out) {
   // scripts start with { and have ; separated command lists.. commands are command, arg..
   // basically we want everything between the { } as it will be interpreted at run time
 
-  if (!trap_PC_ReadToken(handle, &token))
+  if (!trap_Parse_ReadToken(handle, &token))
     return qfalse;
   if (Q_stricmp(token.string, "{") != 0) {
       return qfalse;
   }
 
   while ( 1 ) {
-    if (!trap_PC_ReadToken(handle, &token))
+    if (!trap_Parse_ReadToken(handle, &token))
       return qfalse;
 
     if (Q_stricmp(token.string, "}") == 0) {
@@ -5225,7 +5225,7 @@ qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
   multiPtr->count = 0;
   multiPtr->strDef = qtrue;
 
-  if (!trap_PC_ReadToken(handle, &token))
+  if (!trap_Parse_ReadToken(handle, &token))
     return qfalse;
   if (*token.string != '{') {
     return qfalse;
@@ -5233,7 +5233,7 @@ qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
 
   pass = 0;
   while ( 1 ) {
-    if (!trap_PC_ReadToken(handle, &token)) {
+    if (!trap_Parse_ReadToken(handle, &token)) {
       PC_SourceError(handle, "end of file inside menu item\n");
       return qfalse;
     }
@@ -5273,14 +5273,14 @@ qboolean ItemParse_cvarFloatList( itemDef_t *item, int handle ) {
   multiPtr->count = 0;
   multiPtr->strDef = qfalse;
 
-  if (!trap_PC_ReadToken(handle, &token))
+  if (!trap_Parse_ReadToken(handle, &token))
     return qfalse;
   if (*token.string != '{') {
     return qfalse;
   }
 
   while ( 1 ) {
-    if (!trap_PC_ReadToken(handle, &token)) {
+    if (!trap_Parse_ReadToken(handle, &token)) {
       PC_SourceError(handle, "end of file inside menu item\n");
       return qfalse;
     }
@@ -5459,13 +5459,13 @@ qboolean Item_Parse(int handle, itemDef_t *item) {
   keywordHash_t *key;
 
 
-  if (!trap_PC_ReadToken(handle, &token))
+  if (!trap_Parse_ReadToken(handle, &token))
     return qfalse;
   if (*token.string != '{') {
     return qfalse;
   }
   while ( 1 ) {
-    if (!trap_PC_ReadToken(handle, &token)) {
+    if (!trap_Parse_ReadToken(handle, &token)) {
       PC_SourceError(handle, "end of file inside menu item\n");
       return qfalse;
     }
@@ -5860,7 +5860,7 @@ qboolean Menu_Parse(int handle, menuDef_t *menu) {
   pc_token_t token;
   keywordHash_t *key;
 
-  if (!trap_PC_ReadToken(handle, &token))
+  if (!trap_Parse_ReadToken(handle, &token))
     return qfalse;
   if (*token.string != '{') {
     return qfalse;
@@ -5869,7 +5869,7 @@ qboolean Menu_Parse(int handle, menuDef_t *menu) {
   while ( 1 ) {
 
     memset(&token, 0, sizeof(pc_token_t));
-    if (!trap_PC_ReadToken(handle, &token)) {
+    if (!trap_Parse_ReadToken(handle, &token)) {
       PC_SourceError(handle, "end of file inside menu\n");
       return qfalse;
     }

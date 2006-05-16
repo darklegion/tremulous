@@ -502,8 +502,6 @@ const char	*NET_AdrToString (netadr_t a)
 
 	if (a.type == NA_LOOPBACK) {
 		Com_sprintf (s, sizeof(s), "loopback");
-	} else if (a.type == NA_BOT) {
-		Com_sprintf (s, sizeof(s), "bot");
 	} else if (a.type == NA_IP) {
 		Com_sprintf (s, sizeof(s), "%i.%i.%i.%i:%hu",
 			a.ip[0], a.ip[1], a.ip[2], a.ip[3], BigShort(a.port));
@@ -626,9 +624,6 @@ void NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to ) 
 
 	if ( to.type == NA_LOOPBACK ) {
 		NET_SendLoopPacket (sock, length, data, to);
-		return;
-	}
-	if ( to.type == NA_BOT ) {
 		return;
 	}
 	if ( to.type == NA_BAD ) {

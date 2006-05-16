@@ -790,7 +790,7 @@ qboolean Asset_Parse(int handle) {
   pc_token_t token;
   const char *tempStr;
 
-  if (!trap_PC_ReadToken(handle, &token))
+  if (!trap_Parse_ReadToken(handle, &token))
     return qfalse;
   if (Q_stricmp(token.string, "{") != 0) {
     return qfalse;
@@ -800,7 +800,7 @@ qboolean Asset_Parse(int handle) {
 
     memset(&token, 0, sizeof(pc_token_t));
 
-    if (!trap_PC_ReadToken(handle, &token))
+    if (!trap_Parse_ReadToken(handle, &token))
       return qfalse;
 
     if (Q_stricmp(token.string, "}") == 0) {
@@ -958,14 +958,14 @@ void UI_ParseMenu(const char *menuFile) {
 
   /*Com_Printf("Parsing menu file:%s\n", menuFile);*/
 
-  handle = trap_PC_LoadSource(menuFile);
+  handle = trap_Parse_LoadSource(menuFile);
   if (!handle) {
     return;
   }
 
   while ( 1 ) {
     memset(&token, 0, sizeof(pc_token_t));
-    if (!trap_PC_ReadToken( handle, &token )) {
+    if (!trap_Parse_ReadToken( handle, &token )) {
       break;
     }
 
@@ -996,7 +996,7 @@ void UI_ParseMenu(const char *menuFile) {
       Menu_New(handle);
     }
   }
-  trap_PC_FreeSource(handle);
+  trap_Parse_FreeSource(handle);
 }
 
 /*
@@ -1038,14 +1038,14 @@ qboolean UI_LoadInfoPane( int handle )
   {
     memset( &token, 0, sizeof( pc_token_t ) );
 
-    if( !trap_PC_ReadToken( handle, &token ) )
+    if( !trap_Parse_ReadToken( handle, &token ) )
       break;
 
     if( !Q_stricmp( token.string, "name" ) )
     {
       memset( &token, 0, sizeof( pc_token_t ) );
 
-      if( !trap_PC_ReadToken( handle, &token ) )
+      if( !trap_Parse_ReadToken( handle, &token ) )
         break;
 
       uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].name = String_Alloc( token.string );
@@ -1057,7 +1057,7 @@ qboolean UI_LoadInfoPane( int handle )
 
       memset( &token, 0, sizeof( pc_token_t ) );
 
-      if( !trap_PC_ReadToken( handle, &token ) )
+      if( !trap_Parse_ReadToken( handle, &token ) )
         break;
 
       graphic = &uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].numGraphics;
@@ -1075,7 +1075,7 @@ qboolean UI_LoadInfoPane( int handle )
 
       memset( &token, 0, sizeof( pc_token_t ) );
 
-      if( !trap_PC_ReadToken( handle, &token ) )
+      if( !trap_Parse_ReadToken( handle, &token ) )
         break;
 
       if( !Q_stricmp( token.string, "center" ) )
@@ -1085,7 +1085,7 @@ qboolean UI_LoadInfoPane( int handle )
 
       memset( &token, 0, sizeof( pc_token_t ) );
 
-      if( !trap_PC_ReadToken( handle, &token ) )
+      if( !trap_Parse_ReadToken( handle, &token ) )
         break;
 
       uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].graphic =
@@ -1093,14 +1093,14 @@ qboolean UI_LoadInfoPane( int handle )
 
       memset( &token, 0, sizeof( pc_token_t ) );
 
-      if( !trap_PC_ReadToken( handle, &token ) )
+      if( !trap_Parse_ReadToken( handle, &token ) )
         break;
 
       uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].width = token.intvalue;
 
       memset( &token, 0, sizeof( pc_token_t ) );
 
-      if( !trap_PC_ReadToken( handle, &token ) )
+      if( !trap_Parse_ReadToken( handle, &token ) )
         break;
 
       uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].height = token.intvalue;
@@ -1115,7 +1115,7 @@ qboolean UI_LoadInfoPane( int handle )
     {
       memset( &token, 0, sizeof( pc_token_t ) );
 
-      if( !trap_PC_ReadToken( handle, &token ) )
+      if( !trap_Parse_ReadToken( handle, &token ) )
         break;
 
       Q_strcat( uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].text, MAX_INFOPANE_TEXT, token.string );
@@ -1124,7 +1124,7 @@ qboolean UI_LoadInfoPane( int handle )
     {
       memset( &token, 0, sizeof( pc_token_t ) );
 
-      if( !trap_PC_ReadToken( handle, &token ) )
+      if( !trap_Parse_ReadToken( handle, &token ) )
         break;
 
       if( !Q_stricmp( token.string, "left" ) )
@@ -1167,7 +1167,7 @@ void UI_LoadInfoPanes( const char *file )
 
   uiInfo.tremInfoPaneCount = count = 0;
 
-  handle = trap_PC_LoadSource( file );
+  handle = trap_Parse_LoadSource( file );
 
   if( !handle )
   {
@@ -1177,7 +1177,7 @@ void UI_LoadInfoPanes( const char *file )
 
   while( 1 )
   {
-    if( !trap_PC_ReadToken( handle, &token ) )
+    if( !trap_Parse_ReadToken( handle, &token ) )
       break;
 
     if( token.string[ 0 ] == 0 )
@@ -1193,13 +1193,13 @@ void UI_LoadInfoPanes( const char *file )
     }
   }
 
-  trap_PC_FreeSource( handle );
+  trap_Parse_FreeSource( handle );
 }
 
 qboolean Load_Menu(int handle) {
   pc_token_t token;
 
-  if (!trap_PC_ReadToken(handle, &token))
+  if (!trap_Parse_ReadToken(handle, &token))
     return qfalse;
   if (token.string[0] != '{') {
     return qfalse;
@@ -1207,7 +1207,7 @@ qboolean Load_Menu(int handle) {
 
   while ( 1 ) {
 
-    if (!trap_PC_ReadToken(handle, &token))
+    if (!trap_Parse_ReadToken(handle, &token))
       return qfalse;
 
     if ( token.string[0] == 0 ) {
@@ -1230,10 +1230,10 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
 
   start = trap_Milliseconds();
 
-  handle = trap_PC_LoadSource( menuFile );
+  handle = trap_Parse_LoadSource( menuFile );
   if (!handle) {
     trap_Error( va( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile ) );
-    handle = trap_PC_LoadSource( "ui/menus.txt" );
+    handle = trap_Parse_LoadSource( "ui/menus.txt" );
     if (!handle) {
       trap_Error( va( S_COLOR_RED "default menu file not found: ui/menus.txt, unable to continue!\n", menuFile ) );
     }
@@ -1246,7 +1246,7 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
   }
 
   while ( 1 ) {
-    if (!trap_PC_ReadToken(handle, &token))
+    if (!trap_Parse_ReadToken(handle, &token))
       break;
     if( token.string[0] == 0 || token.string[0] == '}') {
       break;
@@ -1267,7 +1267,7 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
 
   Com_Printf("UI menu load time = %d milli seconds\n", trap_Milliseconds() - start);
 
-  trap_PC_FreeSource( handle );
+  trap_Parse_FreeSource( handle );
 }
 
 void UI_Load( void ) {

@@ -217,9 +217,6 @@ void ClientImpacts( gentity_t *ent, pmove_t *pm )
 
     other = &g_entities[ pm->touchents[ i ] ];
 
-    if( ( ent->r.svFlags & SVF_BOT ) && ( ent->touch ) )
-      ent->touch( ent, other, &trace );
-
     //charge attack
     if( ent->client->ps.weapon == WP_ALEVEL4 &&
         ent->client->ps.stats[ STAT_MISC ] > 0 &&
@@ -306,9 +303,6 @@ void  G_TouchTriggers( gentity_t *ent )
 
     if( hit->touch )
       hit->touch( hit, ent, &trace );
-
-    if( ( ent->r.svFlags & SVF_BOT ) && ( ent->touch ) )
-      ent->touch( ent, hit, &trace );
   }
 
   // if we didn't touch a jump pad this pmove frame
@@ -1415,14 +1409,14 @@ void ClientThink( int clientNum )
   // phone jack if they don't get any for a while
   ent->client->lastCmdTime = level.time;
 
-  if( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer )
+  if( !g_synchronousClients.integer )
     ClientThink_real( ent );
 }
 
 
 void G_RunClient( gentity_t *ent )
 {
-  if( !( ent->r.svFlags & SVF_BOT ) && !g_synchronousClients.integer )
+  if( !g_synchronousClients.integer )
     return;
 
   ent->client->pers.cmd.serverTime = level.time;

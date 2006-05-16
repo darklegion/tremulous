@@ -467,29 +467,29 @@ int trap_Key_GetKey( const char *binding )
   return syscall( CG_KEY_GETKEY, binding );
 }
 
-int trap_PC_AddGlobalDefine( char *define )
+int trap_Parse_AddGlobalDefine( char *define )
 {
-  return syscall( CG_PC_ADD_GLOBAL_DEFINE, define );
+  return syscall( CG_PARSE_ADD_GLOBAL_DEFINE, define );
 }
 
-int trap_PC_LoadSource( const char *filename )
+int trap_Parse_LoadSource( const char *filename )
 {
-  return syscall( CG_PC_LOAD_SOURCE, filename );
+  return syscall( CG_PARSE_LOAD_SOURCE, filename );
 }
 
-int trap_PC_FreeSource( int handle )
+int trap_Parse_FreeSource( int handle )
 {
-  return syscall( CG_PC_FREE_SOURCE, handle );
+  return syscall( CG_PARSE_FREE_SOURCE, handle );
 }
 
-int trap_PC_ReadToken( int handle, pc_token_t *pc_token )
+int trap_Parse_ReadToken( int handle, pc_token_t *pc_token )
 {
-  return syscall( CG_PC_READ_TOKEN, handle, pc_token );
+  return syscall( CG_PARSE_READ_TOKEN, handle, pc_token );
 }
 
-int trap_PC_SourceFileAndLine( int handle, char *filename, int *line )
+int trap_Parse_SourceFileAndLine( int handle, char *filename, int *line )
 {
-  return syscall( CG_PC_SOURCE_FILE_AND_LINE, handle, filename, line );
+  return syscall( CG_PARSE_SOURCE_FILE_AND_LINE, handle, filename, line );
 }
 
 void  trap_S_StopBackgroundTrack( void )

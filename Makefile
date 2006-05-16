@@ -125,7 +125,6 @@ UDIR=$(MOUNT_DIR)/unix
 W32DIR=$(MOUNT_DIR)/win32
 GDIR=$(MOUNT_DIR)/game
 CGDIR=$(MOUNT_DIR)/cgame
-BLIBDIR=$(MOUNT_DIR)/botlib
 NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
 JPDIR=$(MOUNT_DIR)/jpeg-6
@@ -782,6 +781,7 @@ Q3OBJ = \
   $(B)/client/msg.o \
   $(B)/client/net_chan.o \
   $(B)/client/huffman.o \
+  $(B)/client/parse.o \
   \
   $(B)/client/snd_adpcm.o \
   $(B)/client/snd_dma.o \
@@ -797,7 +797,6 @@ Q3OBJ = \
   $(B)/client/qal.o \
   $(B)/client/snd_openal.o \
   \
-  $(B)/client/sv_bot.o \
   $(B)/client/sv_ccmds.o \
   $(B)/client/sv_client.o \
   $(B)/client/sv_game.o \
@@ -813,35 +812,6 @@ Q3OBJ = \
   $(B)/client/unzip.o \
   $(B)/client/vm.o \
   $(B)/client/vm_interpreted.o \
-  \
-  $(B)/client/be_aas_bspq3.o \
-  $(B)/client/be_aas_cluster.o \
-  $(B)/client/be_aas_debug.o \
-  $(B)/client/be_aas_entity.o \
-  $(B)/client/be_aas_file.o \
-  $(B)/client/be_aas_main.o \
-  $(B)/client/be_aas_move.o \
-  $(B)/client/be_aas_optimize.o \
-  $(B)/client/be_aas_reach.o \
-  $(B)/client/be_aas_route.o \
-  $(B)/client/be_aas_routealt.o \
-  $(B)/client/be_aas_sample.o \
-  $(B)/client/be_ai_char.o \
-  $(B)/client/be_ai_chat.o \
-  $(B)/client/be_ai_gen.o \
-  $(B)/client/be_ai_goal.o \
-  $(B)/client/be_ai_move.o \
-  $(B)/client/be_ai_weap.o \
-  $(B)/client/be_ai_weight.o \
-  $(B)/client/be_ea.o \
-  $(B)/client/be_interface.o \
-  $(B)/client/l_crc.o \
-  $(B)/client/l_libvar.o \
-  $(B)/client/l_log.o \
-  $(B)/client/l_memory.o \
-  $(B)/client/l_precomp.o \
-  $(B)/client/l_script.o \
-  $(B)/client/l_struct.o \
   \
   $(B)/client/jcapimin.o \
   $(B)/client/jchuff.o   \
@@ -1003,7 +973,6 @@ $(B)/client/snd_codec_ogg.o : $(CDIR)/snd_codec_ogg.c; $(DO_CC)
 $(B)/client/qal.o : $(CDIR)/qal.c; $(DO_CC)
 $(B)/client/snd_openal.o : $(CDIR)/snd_openal.c; $(DO_CC)
 
-$(B)/client/sv_bot.o : $(SDIR)/sv_bot.c; $(DO_CC)
 $(B)/client/sv_client.o : $(SDIR)/sv_client.c; $(DO_CC)
 $(B)/client/sv_ccmds.o : $(SDIR)/sv_ccmds.c; $(DO_CC)
 $(B)/client/sv_game.o : $(SDIR)/sv_game.c; $(DO_CC)
@@ -1026,37 +995,9 @@ $(B)/client/md5.o : $(CMDIR)/md5.c; $(DO_CC)
 $(B)/client/msg.o : $(CMDIR)/msg.c; $(DO_CC)
 $(B)/client/net_chan.o : $(CMDIR)/net_chan.c; $(DO_CC)
 $(B)/client/huffman.o : $(CMDIR)/huffman.c; $(DO_CC)
+$(B)/client/parse.o : $(CMDIR)/parse.c; $(DO_CC)
 $(B)/client/q_shared.o : $(CMDIR)/q_shared.c; $(DO_CC)
 $(B)/client/q_math.o : $(CMDIR)/q_math.c; $(DO_CC)
-
-$(B)/client/be_aas_bspq3.o : $(BLIBDIR)/be_aas_bspq3.c; $(DO_BOT_CC)
-$(B)/client/be_aas_cluster.o : $(BLIBDIR)/be_aas_cluster.c; $(DO_BOT_CC)
-$(B)/client/be_aas_debug.o : $(BLIBDIR)/be_aas_debug.c; $(DO_BOT_CC)
-$(B)/client/be_aas_entity.o : $(BLIBDIR)/be_aas_entity.c; $(DO_BOT_CC)
-$(B)/client/be_aas_file.o : $(BLIBDIR)/be_aas_file.c; $(DO_BOT_CC)
-$(B)/client/be_aas_main.o : $(BLIBDIR)/be_aas_main.c; $(DO_BOT_CC)
-$(B)/client/be_aas_move.o : $(BLIBDIR)/be_aas_move.c; $(DO_BOT_CC)
-$(B)/client/be_aas_optimize.o : $(BLIBDIR)/be_aas_optimize.c; $(DO_BOT_CC)
-$(B)/client/be_aas_reach.o : $(BLIBDIR)/be_aas_reach.c; $(DO_BOT_CC)
-$(B)/client/be_aas_route.o : $(BLIBDIR)/be_aas_route.c; $(DO_BOT_CC)
-$(B)/client/be_aas_routealt.o : $(BLIBDIR)/be_aas_routealt.c; $(DO_BOT_CC)
-$(B)/client/be_aas_sample.o : $(BLIBDIR)/be_aas_sample.c; $(DO_BOT_CC)
-$(B)/client/be_ai_char.o : $(BLIBDIR)/be_ai_char.c; $(DO_BOT_CC)
-$(B)/client/be_ai_chat.o : $(BLIBDIR)/be_ai_chat.c; $(DO_BOT_CC)
-$(B)/client/be_ai_gen.o : $(BLIBDIR)/be_ai_gen.c; $(DO_BOT_CC)
-$(B)/client/be_ai_goal.o : $(BLIBDIR)/be_ai_goal.c; $(DO_BOT_CC)
-$(B)/client/be_ai_move.o : $(BLIBDIR)/be_ai_move.c; $(DO_BOT_CC)
-$(B)/client/be_ai_weap.o : $(BLIBDIR)/be_ai_weap.c; $(DO_BOT_CC)
-$(B)/client/be_ai_weight.o : $(BLIBDIR)/be_ai_weight.c; $(DO_BOT_CC)
-$(B)/client/be_ea.o : $(BLIBDIR)/be_ea.c; $(DO_BOT_CC)
-$(B)/client/be_interface.o : $(BLIBDIR)/be_interface.c; $(DO_BOT_CC)
-$(B)/client/l_crc.o : $(BLIBDIR)/l_crc.c; $(DO_BOT_CC)
-$(B)/client/l_libvar.o : $(BLIBDIR)/l_libvar.c; $(DO_BOT_CC)
-$(B)/client/l_log.o : $(BLIBDIR)/l_log.c; $(DO_BOT_CC)
-$(B)/client/l_memory.o : $(BLIBDIR)/l_memory.c; $(DO_BOT_CC)
-$(B)/client/l_precomp.o : $(BLIBDIR)/l_precomp.c; $(DO_BOT_CC)
-$(B)/client/l_script.o : $(BLIBDIR)/l_script.c; $(DO_BOT_CC)
-$(B)/client/l_struct.o : $(BLIBDIR)/l_struct.c; $(DO_BOT_CC)
 
 $(B)/client/jcapimin.o : $(JPDIR)/jcapimin.c; $(DO_CC)
 $(B)/client/jchuff.o : $(JPDIR)/jchuff.c; $(DO_CC)
@@ -1171,7 +1112,6 @@ $(B)/client/vm_interpreted.o : $(CMDIR)/vm_interpreted.c; $(DO_CC)
 #############################################################################
 
 Q3DOBJ = \
-  $(B)/ded/sv_bot.o \
   $(B)/ded/sv_client.o \
   $(B)/ded/sv_ccmds.o \
   $(B)/ded/sv_game.o \
@@ -1194,6 +1134,7 @@ Q3DOBJ = \
   $(B)/ded/msg.o \
   $(B)/ded/net_chan.o \
   $(B)/ded/huffman.o \
+  $(B)/ded/parse.o \
   \
   $(B)/ded/q_math.o \
   $(B)/ded/q_shared.o \
@@ -1201,35 +1142,6 @@ Q3DOBJ = \
   $(B)/ded/unzip.o \
   $(B)/ded/vm.o \
   $(B)/ded/vm_interpreted.o \
-  \
-  $(B)/ded/be_aas_bspq3.o \
-  $(B)/ded/be_aas_cluster.o \
-  $(B)/ded/be_aas_debug.o \
-  $(B)/ded/be_aas_entity.o \
-  $(B)/ded/be_aas_file.o \
-  $(B)/ded/be_aas_main.o \
-  $(B)/ded/be_aas_move.o \
-  $(B)/ded/be_aas_optimize.o \
-  $(B)/ded/be_aas_reach.o \
-  $(B)/ded/be_aas_route.o \
-  $(B)/ded/be_aas_routealt.o \
-  $(B)/ded/be_aas_sample.o \
-  $(B)/ded/be_ai_char.o \
-  $(B)/ded/be_ai_chat.o \
-  $(B)/ded/be_ai_gen.o \
-  $(B)/ded/be_ai_goal.o \
-  $(B)/ded/be_ai_move.o \
-  $(B)/ded/be_ai_weap.o \
-  $(B)/ded/be_ai_weight.o \
-  $(B)/ded/be_ea.o \
-  $(B)/ded/be_interface.o \
-  $(B)/ded/l_crc.o \
-  $(B)/ded/l_libvar.o \
-  $(B)/ded/l_log.o \
-  $(B)/ded/l_memory.o \
-  $(B)/ded/l_precomp.o \
-  $(B)/ded/l_script.o \
-  $(B)/ded/l_struct.o \
   \
   $(B)/ded/linux_signals.o \
   $(B)/ded/unix_main.o \
@@ -1258,7 +1170,6 @@ endif
 $(B)/tremded.$(ARCH)$(BINEXT): $(Q3DOBJ)
 	$(CC) -o $@ $(Q3DOBJ) $(LDFLAGS)
 
-$(B)/ded/sv_bot.o : $(SDIR)/sv_bot.c; $(DO_DED_CC)
 $(B)/ded/sv_client.o : $(SDIR)/sv_client.c; $(DO_DED_CC)
 $(B)/ded/sv_ccmds.o : $(SDIR)/sv_ccmds.c; $(DO_DED_CC)
 $(B)/ded/sv_game.o : $(SDIR)/sv_game.c; $(DO_DED_CC)
@@ -1280,37 +1191,9 @@ $(B)/ded/md4.o : $(CMDIR)/md4.c; $(DO_DED_CC)
 $(B)/ded/msg.o : $(CMDIR)/msg.c; $(DO_DED_CC)
 $(B)/ded/net_chan.o : $(CMDIR)/net_chan.c; $(DO_DED_CC)
 $(B)/ded/huffman.o : $(CMDIR)/huffman.c; $(DO_DED_CC)
+$(B)/ded/parse.o : $(CMDIR)/parse.c; $(DO_DED_CC)
 $(B)/ded/q_shared.o : $(CMDIR)/q_shared.c; $(DO_DED_CC)
 $(B)/ded/q_math.o : $(CMDIR)/q_math.c; $(DO_DED_CC)
-
-$(B)/ded/be_aas_bspq3.o : $(BLIBDIR)/be_aas_bspq3.c; $(DO_BOT_CC)
-$(B)/ded/be_aas_cluster.o : $(BLIBDIR)/be_aas_cluster.c; $(DO_BOT_CC)
-$(B)/ded/be_aas_debug.o : $(BLIBDIR)/be_aas_debug.c; $(DO_BOT_CC)
-$(B)/ded/be_aas_entity.o : $(BLIBDIR)/be_aas_entity.c; $(DO_BOT_CC)
-$(B)/ded/be_aas_file.o : $(BLIBDIR)/be_aas_file.c; $(DO_BOT_CC)
-$(B)/ded/be_aas_main.o : $(BLIBDIR)/be_aas_main.c; $(DO_BOT_CC)
-$(B)/ded/be_aas_move.o : $(BLIBDIR)/be_aas_move.c; $(DO_BOT_CC)
-$(B)/ded/be_aas_optimize.o : $(BLIBDIR)/be_aas_optimize.c; $(DO_BOT_CC)
-$(B)/ded/be_aas_reach.o : $(BLIBDIR)/be_aas_reach.c; $(DO_BOT_CC)
-$(B)/ded/be_aas_route.o : $(BLIBDIR)/be_aas_route.c; $(DO_BOT_CC)
-$(B)/ded/be_aas_routealt.o : $(BLIBDIR)/be_aas_routealt.c; $(DO_BOT_CC)
-$(B)/ded/be_aas_sample.o : $(BLIBDIR)/be_aas_sample.c; $(DO_BOT_CC)
-$(B)/ded/be_ai_char.o : $(BLIBDIR)/be_ai_char.c; $(DO_BOT_CC)
-$(B)/ded/be_ai_chat.o : $(BLIBDIR)/be_ai_chat.c; $(DO_BOT_CC)
-$(B)/ded/be_ai_gen.o : $(BLIBDIR)/be_ai_gen.c; $(DO_BOT_CC)
-$(B)/ded/be_ai_goal.o : $(BLIBDIR)/be_ai_goal.c; $(DO_BOT_CC)
-$(B)/ded/be_ai_move.o : $(BLIBDIR)/be_ai_move.c; $(DO_BOT_CC)
-$(B)/ded/be_ai_weap.o : $(BLIBDIR)/be_ai_weap.c; $(DO_BOT_CC)
-$(B)/ded/be_ai_weight.o : $(BLIBDIR)/be_ai_weight.c; $(DO_BOT_CC)
-$(B)/ded/be_ea.o : $(BLIBDIR)/be_ea.c; $(DO_BOT_CC)
-$(B)/ded/be_interface.o : $(BLIBDIR)/be_interface.c; $(DO_BOT_CC)
-$(B)/ded/l_crc.o : $(BLIBDIR)/l_crc.c; $(DO_BOT_CC)
-$(B)/ded/l_libvar.o : $(BLIBDIR)/l_libvar.c; $(DO_BOT_CC)
-$(B)/ded/l_log.o : $(BLIBDIR)/l_log.c; $(DO_BOT_CC)
-$(B)/ded/l_memory.o : $(BLIBDIR)/l_memory.c; $(DO_BOT_CC)
-$(B)/ded/l_precomp.o : $(BLIBDIR)/l_precomp.c; $(DO_BOT_CC)
-$(B)/ded/l_script.o : $(BLIBDIR)/l_script.c; $(DO_BOT_CC)
-$(B)/ded/l_struct.o : $(BLIBDIR)/l_struct.c; $(DO_BOT_CC)
 
 $(B)/ded/linux_signals.o : $(UDIR)/linux_signals.c; $(DO_DED_CC)
 $(B)/ded/unix_main.o : $(UDIR)/unix_main.c; $(DO_DED_CC)
