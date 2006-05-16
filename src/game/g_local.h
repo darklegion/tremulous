@@ -122,7 +122,7 @@ struct gentity_s
   gentity_t         *prevTrain;
   vec3_t            pos1, pos2;
   float             rotatorAngle;
-  gentity_t         *clipBrush;   //TA: clipping brush for model doors
+  gentity_t         *clipBrush;     // clipping brush for model doors
 
   char              *message;
 
@@ -137,10 +137,10 @@ struct gentity_s
   gentity_t         *target_ent;
 
   float             speed;
-  float             lastSpeed;  //TA: used by trains that have been restarted
+  float             lastSpeed;      // used by trains that have been restarted
   vec3_t            movedir;
 
-  //TA: acceleration evaluation
+  // acceleration evaluation
   qboolean          evaluateAcceleration;
   vec3_t            oldVelocity;
   vec3_t            acceleration;
@@ -161,7 +161,7 @@ struct gentity_s
   int               last_move_time;
 
   int               health;
-  int               lastHealth; //TA: currently only used for overmind
+  int               lastHealth; // currently only used for overmind
 
   qboolean          takedamage;
 
@@ -192,47 +192,47 @@ struct gentity_s
   pTeam_t           stageTeam;
   stage_t           stageStage;
 
-  int               biteam;       //TA: buildable item team
-  gentity_t         *parentNode;  //TA: for creep and defence/spawn dependencies
-  qboolean          active;       //TA: for power repeater, but could be useful elsewhere
-  qboolean          powered;      //TA: for human buildables
-  int               builtBy;      //TA: clientNum of person that built this
-  gentity_t         *dccNode;     //TA: controlling dcc
-  gentity_t         *overmindNode;//TA: controlling overmind
-  qboolean          dcced;        //TA: controlled by a dcc or not?
-  qboolean          spawned;      //TA: whether or not this buildable has finished spawning
-  int               buildTime;    //TA: when this buildable was built
-  int               time1000;     //TA: timer evaluated every second
+  int               biteam;             // buildable item team
+  gentity_t         *parentNode;        // for creep and defence/spawn dependencies
+  qboolean          active;             // for power repeater, but could be useful elsewhere
+  qboolean          powered;            // for human buildables
+  int               builtBy;            // clientNum of person that built this
+  gentity_t         *dccNode;           // controlling dcc
+  gentity_t         *overmindNode;      // controlling overmind
+  qboolean          dcced;              // controlled by a dcc or not?
+  qboolean          spawned;            // whether or not this buildable has finished spawning
+  int               buildTime;          // when this buildable was built
+  int               time1000;           // timer evaluated every second
   int               overmindAttackTimer;
   int               overmindDyingTimer;
   int               overmindSpawnsTimer;
-  int               nextPhysicsTime; //TA: buildables don't need to check what they're sitting on
-                                     //    every single frame.. so only do it periodically
-  int               clientSpawnTime; //TA: the time until this spawn can spawn a client
-  qboolean          lev1Grabbed;      //TA: for turrets interacting with lev1s
-  int               lev1GrabTime;     //TA: for turrets interacting with lev1s
+  int               nextPhysicsTime;    // buildables don't need to check what they're sitting on
+                                        // every single frame.. so only do it periodically
+  int               clientSpawnTime;    // the time until this spawn can spawn a client
+  qboolean          lev1Grabbed;        // for turrets interacting with lev1s
+  int               lev1GrabTime;       // for turrets interacting with lev1s
 
-  int               credits[ MAX_CLIENTS ]; //TA: human credits for each client
-  qboolean          creditsHash[ MAX_CLIENTS ]; //TA: track who has claimed credit
-  int               killedBy;                   //TA: clientNum of killer
+  int               credits[ MAX_CLIENTS ];     // human credits for each client
+  qboolean          creditsHash[ MAX_CLIENTS ]; // track who has claimed credit
+  int               killedBy;                   // clientNum of killer
 
-  gentity_t         *targeted;    //TA: true if the player is currently a valid target of a turret
-  vec3_t            turretAim;    //TA: aim vector for turrets
+  gentity_t         *targeted;          // true if the player is currently a valid target of a turret
+  vec3_t            turretAim;          // aim vector for turrets
 
-  vec4_t            animation;    //TA: animated map objects
+  vec4_t            animation;          // animated map objects
 
-  gentity_t         *builder;     //TA: occupant of this hovel
+  gentity_t         *builder;           // occupant of this hovel
 
-  qboolean          nonSegModel;  //TA: this entity uses a nonsegmented player model
+  qboolean          nonSegModel;        // this entity uses a nonsegmented player model
 
-  buildable_t       bTriggers[ BA_NUM_BUILDABLES ]; //TA: which buildables are triggers
-  pClass_t          cTriggers[ PCL_NUM_CLASSES ];   //TA: which classes are triggers
-  weapon_t          wTriggers[ WP_NUM_WEAPONS ];    //TA: which weapons are triggers
-  upgrade_t         uTriggers[ UP_NUM_UPGRADES ];   //TA: which upgrades are triggers
+  buildable_t       bTriggers[ BA_NUM_BUILDABLES ]; // which buildables are triggers
+  pClass_t          cTriggers[ PCL_NUM_CLASSES ];   // which classes are triggers
+  weapon_t          wTriggers[ WP_NUM_WEAPONS ];    // which weapons are triggers
+  upgrade_t         uTriggers[ UP_NUM_UPGRADES ];   // which upgrades are triggers
 
-  int               triggerGravity;                 //TA: gravity for this trigger
+  int               triggerGravity;                 // gravity for this trigger
 
-  int               suicideTime;  //TA: when the client will suicide
+  int               suicideTime;                    // when the client will suicide
 
   int               lastDamageTime;
 };
@@ -326,12 +326,13 @@ typedef struct
   int                 voteCount;          // to prevent people from constantly calling votes
   qboolean            teamInfo;           // send team overlay updates?
 
-  pClass_t            classSelection;     //TA: player class (copied to ent->client->ps.stats[ STAT_PCLASS ] once spawned)
+  pClass_t            classSelection;     // player class (copied to ent->client->ps.stats[ STAT_PCLASS ] once spawned)
   float               evolveHealthFraction;
-  weapon_t            humanItemSelection; //TA: humans have a starting item
-  pTeam_t             teamSelection;      //TA: player team (copied to ps.stats[ STAT_PTEAM ])
+  weapon_t            humanItemSelection; // humans have a starting item
+  pTeam_t             teamSelection;      // player team (copied to ps.stats[ STAT_PTEAM ])
 
-  qboolean            joinedATeam;        //TA: used to tell when a PTR code is valid
+  int                 teamChangeTime;     // level.time of last team change
+  qboolean            joinedATeam;        // used to tell when a PTR code is valid
   connectionRecord_t  *connection;
 
   vec3_t              lastDeathLocation;
@@ -392,14 +393,14 @@ struct gclient_s
 
   // timeResidual is used to handle events that happen every second
   // like health / armor countdowns and regeneration
-  //TA: two timers, one every 100 msecs, another every sec
+  // two timers, one every 100 msecs, another every sec
   int                 time100;
   int                 time1000;
   int                 time10000;
 
   char                *areabits;
 
-  gentity_t           *hovel;      //TA: body that is being infested. must be persistant
+  gentity_t           *hovel;
 
   int                 lastPoisonTime;
   int                 poisonImmunityTime;
@@ -413,19 +414,19 @@ struct gclient_s
   int                 lastMedKitTime;
   int                 medKitHealthToRestore;
   int                 medKitIncrementTime;
-  int                 lastCreepSlowTime; //TA: time until creep can be removed
+  int                 lastCreepSlowTime;    // time until creep can be removed
 
-  int                 pouncePayload;    //TA: amount of damage pounce attack will do
+  int                 pouncePayload;        // amount of damage pounce attack will do
   qboolean            allowedToPounce;
 
   qboolean            charging;
 
-  vec3_t              hovelOrigin;      //TA: player origin before entering hovel
+  vec3_t              hovelOrigin;          // player origin before entering hovel
 
-  int                 lastFlameBall;    //TA: s.number of the last flame ball fired
+  int                 lastFlameBall;        // s.number of the last flame ball fired
 
-#define RAM_FRAMES  1                       //TA: number of frames to wait before retriggering
-  int                 retriggerArmouryMenu; //TA: frame number to retrigger the armoury menu
+#define RAM_FRAMES  1                       // number of frames to wait before retriggering
+  int                 retriggerArmouryMenu; // frame number to retrigger the armoury menu
 };
 
 
@@ -451,7 +452,7 @@ int       G_GetPosInSpawnQueue( spawnQueue_t *sq, int clientNum );
 #define MAX_LOCDAMAGE_TEXT    8192
 #define MAX_LOCDAMAGE_REGIONS 16
 
-//TA: store locational damage regions
+// store locational damage regions
 typedef struct damageRegion_s
 {
   float     minHeight, maxHeight;
@@ -465,7 +466,7 @@ typedef struct damageRegion_s
 #define MAX_ARMOUR_TEXT    8192
 #define MAX_ARMOUR_REGIONS 16
 
-//TA: store locational armour regions
+// store locational armour regions
 typedef struct armourRegion_s
 {
   float     minHeight, maxHeight;
@@ -569,7 +570,6 @@ typedef struct
   qboolean          locationLinked;               // target_locations get linked
   gentity_t         *locationHead;                // head of the location list
 
-  //TA: extra stuff:
   int               numAlienSpawns;
   int               numHumanSpawns;
 
@@ -587,8 +587,6 @@ typedef struct
   int               alienBuildPoints;
   int               humanBuildPoints;
   int               humanBuildPointsPowered;
-
-  int               bankCredits[ MAX_CLIENTS ];   //global credits storage
 
   int               alienKills;
   int               humanKills;
@@ -750,7 +748,6 @@ qboolean  G_SelectiveRadiusDamage( vec3_t origin, gentity_t *attacker, float dam
 void      body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
 void      AddScore( gentity_t *ent, int score );
 
-//TA:
 void      G_InitDamageLocations( void );
 
 // damage flags

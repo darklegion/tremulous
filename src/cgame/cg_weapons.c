@@ -1175,7 +1175,7 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
     // first make sure that whatever it selected is actually selectable
     if( cg.weaponSelect <= 32 && !CG_WeaponSelectable( cg.weaponSelect ) )
       CG_NextWeapon_f( );
-    else if( cg.weaponSelect > 32 && !CG_UpgradeSelectable( cg.weaponSelect ) )
+    else if( cg.weaponSelect > 32 && !CG_UpgradeSelectable( cg.weaponSelect - 32 ) )
       CG_NextWeapon_f( );
   }
 

@@ -465,14 +465,35 @@ void G_ChangeTeam( gentity_t *ent, pTeam_t newTeam )
     else if( oldTeam == PTE_HUMANS )
       G_RemoveFromSpawnQueue( &level.humanSpawnQueue, ent->client->ps.clientNum );
 
-    level.bankCredits[ ent->client->ps.clientNum ] = 0;
-    ent->client->ps.persistant[ PERS_CREDIT ] = 0;
-    ent->client->ps.persistant[ PERS_SCORE ] = 0;
+    // Tranfer credits and kills as long as this player has been on the
+    // same team for at least 1 minute. This is done to provide
+    // a penalty for switching teams for reconnaissance.
+    if( ( oldTeam == PTE_HUMANS || oldTeam == PTE_ALIENS )
+      && ( level.time - ent->client->pers.teamChangeTime ) > 60000 )
+    {
+      if( oldTeam == PTE_HUMANS )
+      {
+        ent->client->ps.persistant[ PERS_CREDIT ] *=
+          (float)FREEKILL_ALIEN / FREEKILL_HUMAN;
+      }
+      else if( oldTeam == PTE_ALIENS )
+      {
+        ent->client->ps.persistant[ PERS_CREDIT ] *=
+          (float)FREEKILL_HUMAN / FREEKILL_ALIEN;
+      }
+    }
+    else
+    {
+      ent->client->ps.persistant[ PERS_CREDIT ] = 0;
+      ent->client->ps.persistant[ PERS_SCORE ] = 0;
+    }
+
     ent->client->pers.classSelection = PCL_NONE;
     ClientSpawn( ent, NULL, NULL, NULL );
   }
 
   ent->client->pers.joinedATeam = qtrue;
+  ent->client->pers.teamChangeTime = level.time;
 
   //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum );
@@ -1437,6 +1458,14 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
         ( ( ent->client->ps.weapon >= WP_ABUILD ) &&
           ( ent->client->ps.weapon <= WP_HBUILD ) ) )
     {
+      // Don't allow destruction of buildables that cannot be rebuilt
+      if( g_suddenDeathTime.integer && ( level.time - level.startTime >=
+          g_suddenDeathTime.integer * 60000 ) &&
+          BG_FindBuildPointsForBuildable( traceEnt->s.modelindex ) )
+      {
+        return;
+      }
+
       if( ent->client->ps.stats[ STAT_MISC ] > 0 )
       {
         G_AddEvent( ent, EV_BUILD_DELAY, ent->client->ps.clientNum );

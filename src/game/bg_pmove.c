@@ -920,8 +920,10 @@ static void PM_JetPackMove( void )
 
   if( pm->cmd.upmove > 0.0f )
     wishvel[ 2 ] = JETPACK_FLOAT_SPEED;
-  if( pm->cmd.upmove < 0.0f )
+  else if( pm->cmd.upmove < 0.0f )
     wishvel[ 2 ] = -JETPACK_SINK_SPEED;
+  else
+    wishvel[ 2 ] = 0.0f;
 
   VectorCopy( wishvel, wishdir );
   wishspeed = VectorNormalize( wishdir );

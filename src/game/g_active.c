@@ -1140,7 +1140,7 @@ void ClientThink_real( gentity_t *ent )
 
   memset( &pm, 0, sizeof( pm ) );
 
-  if( !( ucmd->buttons & BUTTON_TALK ) ) //&& client->ps.weaponTime <= 0 ) //TA: erk more server load
+  if( !( ucmd->buttons & BUTTON_TALK ) && !( client->ps.pm_flags & PMF_RESPAWNED ) )
   {
     switch( client->ps.weapon )
     {
