@@ -1216,6 +1216,7 @@ void Cmd_Class_f( gentity_t *ent )
   int       allowedClasses[ PCL_NUM_CLASSES ];
   int       numClasses = 0;
   pClass_t  currentClass = ent->client->ps.stats[ STAT_PCLASS ];
+  pClass_t  newClass;
 
   int       numLevels;
   vec3_t    fromMins, fromMaxs, toMins, toMaxs;
@@ -1249,6 +1250,13 @@ void Cmd_Class_f( gentity_t *ent )
       !( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING ) &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )
   {
+    newClass = BG_FindClassNumForName( s );
+    if( newClass == PCL_NONE )
+    {
+      trap_SendServerCommand( ent-g_entities, va( "print \"Unknown class\n\"" ) );
+      return;
+    }
+
     //if we are not currently spectating, we are attempting evolution
     if( currentClass != PCL_NONE )
     {
@@ -1264,7 +1272,6 @@ void Cmd_Class_f( gentity_t *ent )
         if( ( other->client && other->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) ||
             ( other->s.eType == ET_BUILDABLE && other->biteam == BIT_HUMANS ) )
         {
-          ent->client->pers.classSelection = PCL_NONE;
           G_TriggerMenu( clientNum, MN_A_TOOCLOSE );
           return;
         }
@@ -1272,7 +1279,6 @@ void Cmd_Class_f( gentity_t *ent )
 
       if( !level.overmindPresent )
       {
-        ent->client->pers.classSelection = PCL_NONE;
         G_TriggerMenu( clientNum, MN_A_NOOVMND_EVOLVE );
         return;
       }
@@ -1286,22 +1292,13 @@ void Cmd_Class_f( gentity_t *ent )
         return;
       }
 
-      //evolve now
-      ent->client->pers.classSelection = BG_FindClassNumForName( s );
-
-      if( ent->client->pers.classSelection == PCL_NONE )
-      {
-        trap_SendServerCommand( ent-g_entities, va( "print \"Unknown class\n\"" ) );
-        return;
-      }
-
       numLevels = BG_ClassCanEvolveFromTo( currentClass,
-                                           ent->client->pers.classSelection,
+                                           newClass,
                                            (short)ent->client->ps.persistant[ PERS_CREDIT ], 0 );
 
       BG_FindBBoxForClass( currentClass,
                            fromMins, fromMaxs, NULL, NULL, NULL );
-      BG_FindBBoxForClass( ent->client->pers.classSelection,
+      BG_FindBBoxForClass( newClass,
                            toMins, toMaxs, NULL, NULL, NULL );
 
       VectorCopy( ent->s.pos.trBase, infestOrigin );
@@ -1327,8 +1324,8 @@ void Cmd_Class_f( gentity_t *ent )
       {
         //...check we can evolve to that class
         if( numLevels >= 0 &&
-            BG_FindStagesForClass( ent->client->pers.classSelection, g_alienStage.integer ) && 
-            BG_ClassIsAllowed( ent->client->pers.classSelection ) )
+            BG_FindStagesForClass( newClass, g_alienStage.integer ) && 
+            BG_ClassIsAllowed( newClass ) )
         {
           ent->client->pers.evolveHealthFraction = (float)ent->client->ps.stats[ STAT_HEALTH ] /
             (float)BG_FindHealthForClass( currentClass );
@@ -1340,7 +1337,7 @@ void Cmd_Class_f( gentity_t *ent )
 
           //remove credit
           G_AddCreditToClient( ent->client, -(short)numLevels, qtrue );
-
+          ent->client->pers.classSelection = newClass;
           ClientUserinfoChanged( clientNum );
           VectorCopy( infestOrigin, ent->s.pos.trBase );
           ClientSpawn( ent, ent, ent->s.pos.trBase, ent->s.apos.trBase );
@@ -1348,7 +1345,6 @@ void Cmd_Class_f( gentity_t *ent )
         }
         else
         {
-          ent->client->pers.classSelection = PCL_NONE;
           trap_SendServerCommand( ent-g_entities,
                va( "print \"You cannot evolve from your current class\n\"" ) );
           return;
@@ -1356,7 +1352,6 @@ void Cmd_Class_f( gentity_t *ent )
       }
       else
       {
-        ent->client->pers.classSelection = PCL_NONE;
         G_TriggerMenu( clientNum, MN_A_NOEROOM );
         return;
       }
@@ -1364,30 +1359,20 @@ void Cmd_Class_f( gentity_t *ent )
     else
     {
       //spawning from an egg
-      ent->client->pers.classSelection =
-        ent->client->ps.stats[ STAT_PCLASS ] = BG_FindClassNumForName( s );
-
-      if( ent->client->pers.classSelection != PCL_NONE )
+      for( i = 0; i < numClasses; i++ )
       {
-        for( i = 0; i < numClasses; i++ )
+        if( allowedClasses[ i ] == newClass &&
+            BG_FindStagesForClass( newClass, g_alienStage.integer ) &&
+            BG_ClassIsAllowed( newClass ) )
         {
-          if( allowedClasses[ i ] == ent->client->pers.classSelection &&
-              BG_FindStagesForClass( ent->client->pers.classSelection, g_alienStage.integer ) &&
-              BG_ClassIsAllowed( ent->client->pers.classSelection ) )
-          {
-            G_PushSpawnQueue( &level.alienSpawnQueue, clientNum );
-            return;
-          }
+          ent->client->pers.classSelection =
+            ent->client->ps.stats[ STAT_PCLASS ] = newClass;
+          G_PushSpawnQueue( &level.alienSpawnQueue, clientNum );
+          return;
         }
-
-        ent->client->pers.classSelection = PCL_NONE;
-        trap_SendServerCommand( ent-g_entities, va( "print \"You cannot spawn as this class\n\"" ) );
       }
-      else
-      {
-        trap_SendServerCommand( ent-g_entities, va( "print \"Unknown class\n\"" ) );
-        return;
-      }
+      trap_SendServerCommand( ent-g_entities, va( "print \"You cannot spawn as this class\n\"" ) );
+      return;
     }
   }
   else if( ent->client->pers.teamSelection == PTE_HUMANS )

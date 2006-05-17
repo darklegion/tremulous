@@ -5658,6 +5658,7 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
       }
       Menus_CloseAll();
       Menus_ActivateByName("main");
+      trap_Cvar_Set( "ui_loading", "0" );
       trap_Cvar_VariableStringBuffer("com_errorMessage", buf, sizeof(buf));
       if (strlen(buf)) {
         if (!ui_singlePlayerActive.integer) {
