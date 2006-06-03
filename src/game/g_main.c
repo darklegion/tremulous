@@ -1526,7 +1526,7 @@ void G_SendGameStat( pTeam_t team )
     }
 
     Com_sprintf( entry, MAX_STRING_CHARS,
-      " %s %c %d %d %d",
+      " \"%s\" %c %d %d %d",
       cl->pers.netname,
       teamChar,
       cl->ps.persistant[ PERS_SCORE ],
