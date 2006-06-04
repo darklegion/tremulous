@@ -1443,6 +1443,10 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
         ( ( ent->client->ps.weapon >= WP_ABUILD ) &&
           ( ent->client->ps.weapon <= WP_HBUILD ) ) )
     {
+      // Don't allow destruction of hovel with granger inside
+      if( traceEnt->s.modelindex == BA_A_HOVEL && traceEnt->active )
+        return;
+
       // Don't allow destruction of buildables that cannot be rebuilt
       if( g_suddenDeathTime.integer && ( level.time - level.startTime >=
           g_suddenDeathTime.integer * 60000 ) &&

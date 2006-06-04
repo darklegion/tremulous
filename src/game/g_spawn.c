@@ -134,14 +134,12 @@ field_t fields[ ] =
   {"dmg", FOFS(damage), F_INT},
   {"angles", FOFS(s.angles), F_VECTOR},
   {"angle", FOFS(s.angles), F_ANGLEHACK},
-  //TA
   {"bounce", FOFS(physicsBounce), F_FLOAT},
   {"alpha", FOFS(pos1), F_VECTOR},
   {"radius", FOFS(pos2), F_VECTOR},
   {"acceleration", FOFS(acceleration), F_VECTOR},
   {"animation", FOFS(animation), F_VECTOR4},
   {"rotatorAngle", FOFS(rotatorAngle), F_FLOAT},
-  //TA
   {"targetShaderName", FOFS(targetShaderName), F_LSTRING},
   {"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
 
@@ -159,7 +157,6 @@ void SP_info_player_start( gentity_t *ent );
 void SP_info_player_deathmatch( gentity_t *ent );
 void SP_info_player_intermission( gentity_t *ent );
 
-//TA: extra bits
 void SP_info_alien_intermission( gentity_t *ent );
 void SP_info_human_intermission( gentity_t *ent );
 
@@ -175,8 +172,8 @@ void SP_func_bobbing( gentity_t *ent );
 void SP_func_pendulum( gentity_t *ent );
 void SP_func_button( gentity_t *ent );
 void SP_func_door( gentity_t *ent );
-void SP_func_door_rotating( gentity_t *ent ); //TA
-void SP_func_door_model( gentity_t *ent ); //TA
+void SP_func_door_rotating( gentity_t *ent );
+void SP_func_door_model( gentity_t *ent );
 void SP_func_train( gentity_t *ent );
 void SP_func_timer( gentity_t *self);
 
@@ -208,6 +205,7 @@ void SP_target_push( gentity_t *ent );
 void SP_target_rumble( gentity_t *ent );
 void SP_target_alien_win( gentity_t *ent );
 void SP_target_human_win( gentity_t *ent );
+void SP_target_hurt( gentity_t *ent );
 
 void SP_light( gentity_t *self );
 void SP_info_null( gentity_t *self );
@@ -224,7 +222,6 @@ void SP_shooter_rocket( gentity_t *ent );
 void SP_shooter_plasma( gentity_t *ent );
 void SP_shooter_grenade( gentity_t *ent );
 
-//TA:
 void SP_misc_particle_system( gentity_t *ent );
 void SP_misc_anim_model( gentity_t *ent );
 void SP_misc_light_flare( gentity_t *ent );
@@ -291,6 +288,7 @@ spawn_t spawns[ ] =
   { "target_rumble",            SP_target_rumble },
   { "target_alien_win",         SP_target_alien_win },
   { "target_human_win",         SP_target_human_win },
+  { "target_hurt",              SP_target_hurt },
 
   { "light",                    SP_light },
   { "path_corner",              SP_path_corner },

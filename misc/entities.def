@@ -1008,6 +1008,13 @@ TARGET_* ENTITIES
 
 //=============================================================================
 
+/*QUAKED target_hurt (1 0 0) (-8 -8 -8) (8 8 8)
+When triggered, this hurts the entity that caused the trigger.
+
+-------- KEYS --------
+damage: amount of damage to deal (default: 5)
+*/
+
 /*QUAKED target_rumble (1 0 0) (-8 -8 -8) (8 8 8)
 When triggered, this initiates a level-wide rumble effect. All players are affected.
 
@@ -1131,7 +1138,7 @@ PRIVATE: only the player that activates the target will see the message.
 
 //=============================================================================
 
-/*QUAKED target_push (.5 .5 .5) (-8 -8 -8) (8 8 8) BOUNCEPAD
+/*QUAKED target_push (.5 .5 .5) (-8 -8 -8) (8 8 8) BOUNCEPAD NOSOUND
 This can be used to create jump pads and launch ramps. The direction of push can be set by the "angles" key or pointing to a target_position or info_notnull entity. Unlike trigger_push, this is NOT client side predicted and must be activated by a trigger.
 
 -------- KEYS --------
@@ -1151,6 +1158,7 @@ notsingle: when set to 1, entity will not spawn in Single Player mode (bot play 
 
 -------- SPAWNFLAGS --------
 BOUNCEPAD: if set, trigger will play bounce noise instead of beep noise when activated (recommended).
+NOSOUND:	 if set, no sound is played at all
 
 -------- NOTES --------
 To make a jump pad or launch ramp, create a trigger_multiple where the jump must originate. Place the target_push directly above the trigger_multiple and place the target_position entity at the highest point of the jump. Target the trigger_multiple to the target_push and target the target_push to the target_position/info_notnull (or set the target_push's "angles" key). Note that the "angle" key also works.
@@ -1435,9 +1443,14 @@ NOT THROUGHLY TESTED: please report whether or not this works for you.
 gravity: The gravity within this trigger (default 800).
 */
 
-/*QUAKED trigger_buildable (.5 .5 .5) ?
+/*QUAKED trigger_buildable (.5 .5 .5) ? SPAWN_DISABLED NEGATE
 Triggered by a buildable or subset of buildables. If no buildables key is supplied every buildable will trigger this entity.
+Targetting this entity toggles it.
 NOT THROUGHLY TESTED: please report whether or not this works for you.
+
+-------- SPAWNFLAGS --------
+SPAWN_DISABLED: needs to be triggered (toggle) to activate.
+NEGATE: negate the trigger condition.
 
 -------- KEYS --------
 target: this points to the entity to activate.
@@ -1449,9 +1462,14 @@ wait: time in seconds until trigger becomes re-triggerable after it's been touch
 random: random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).
 */
 
-/*QUAKED trigger_class (.5 .5 .5) ?
+/*QUAKED trigger_class (.5 .5 .5) ? SPAWN_DISABLED NEGATE
 Triggered by a specific class or subset of classes. If no classes key is supplied every class will trigger this entity.
+Targetting this entity toggles it.
 NOT THROUGHLY TESTED: please report whether or not this works for you.
+
+-------- SPAWNFLAGS --------
+SPAWN_DISABLED: needs to be triggered (toggle) to activate.
+NEGATE: negate the trigger condition.
 
 -------- KEYS --------
 target: this points to the entity to activate.
@@ -1463,9 +1481,14 @@ wait: time in seconds until trigger becomes re-triggerable after it's been touch
 random: random time variance in seconds added or subtracted from "wait" delay (default 0 - see Notes).
 */
 
-/*QUAKED trigger_equipment (.5 .5 .5) ?
+/*QUAKED trigger_equipment (.5 .5 .5) ? SPAWN_DISABLED NEGATE
 Triggered by a player carrying some item (weapon or upgrade) or subset of items. If no equipment key is supplied every human will trigger this entity.
+Targetting this entity toggles it.
 NOT THROUGHLY TESTED: please report whether or not this works for you.
+
+-------- SPAWNFLAGS --------
+SPAWN_DISABLED: needs to be triggered (toggle) to activate.
+NEGATE: negate the trigger condition.
 
 -------- KEYS --------
 target: this points to the entity to activate.

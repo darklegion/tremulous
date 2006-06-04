@@ -228,7 +228,7 @@
       textaligny  10
       textscale   0.50
       textstyle   ITEM_TEXTSTYLE_NORMAL
-      text        "Mike 'Veda' McInnerney"
+      text        "Mike 'Veda' McInerney"
       forecolor   1 1 1 1
       backcolor   1 0 0 1
       visible     1

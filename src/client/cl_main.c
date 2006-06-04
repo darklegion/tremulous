@@ -2352,6 +2352,8 @@ CL_Init
 ====================
 */
 void CL_Init( void ) {
+	const char  *playerName;
+
 	Com_Printf( "----- Client Initialization -----\n" );
 
 	Con_Init ();	
@@ -2436,7 +2438,17 @@ void CL_Init( void ) {
 
 
 	// userinfo
-	Cvar_Get ("name", "UnnamedPlayer", CVAR_USERINFO | CVAR_ARCHIVE );
+	playerName = getenv( "USER" ); 				// Unixy stuff
+	if( playerName == NULL )
+	{
+		playerName = getenv( "USERNAME" ); 	// Windows
+		if( playerName == NULL )
+		{
+			playerName = "Newbie"; 						// Default
+		}
+	}
+	Cvar_Get ("name", playerName, CVAR_USERINFO | CVAR_ARCHIVE );
+
 	Cvar_Get ("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("snaps", "20", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("model", "sarge", CVAR_USERINFO | CVAR_ARCHIVE );

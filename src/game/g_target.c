@@ -437,3 +437,36 @@ void SP_target_human_win( gentity_t *self )
 {
   self->use = target_human_win_use;
 }
+
+/*
+===============
+target_hurt_use
+===============
+*/
+void target_hurt_use( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+  // hurt the activator
+  if( !activator->takedamage )
+    return;
+
+  G_Damage( activator, self, self, NULL, NULL, self->damage, 0, MOD_TRIGGER_HURT );
+}
+
+/*
+===============
+SP_target_hurt
+===============
+*/
+void SP_target_hurt( gentity_t *self )
+{
+  if( !self->targetname )
+  {
+    G_Printf( S_COLOR_YELLOW "WARNING: untargeted %s at %s\n", self->classname,
+                                                               vtos( self->s.origin ) );
+  }
+
+  if( !self->damage )
+    self->damage = 5;
+
+  self->use = target_hurt_use;
+}

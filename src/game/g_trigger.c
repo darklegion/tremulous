@@ -238,11 +238,14 @@ void Use_target_push( gentity_t *self, gentity_t *other, gentity_t *activator )
 
   VectorCopy( self->s.origin2, activator->client->ps.velocity );
 
-  // play fly sound every 1.5 seconds
-  if( activator->fly_sound_debounce_time < level.time )
+  if( !( self->spawnflags & 2 ) )
   {
-    activator->fly_sound_debounce_time = level.time + 1500;
-    G_Sound( activator, CHAN_AUTO, self->noise_index );
+    // play fly sound every 1.5 seconds
+    if( activator->fly_sound_debounce_time < level.time )
+    {
+      activator->fly_sound_debounce_time = level.time + 1500;
+      G_Sound( activator, CHAN_AUTO, self->noise_index );
+    }
   }
 }
 
@@ -551,31 +554,53 @@ void SP_trigger_win( gentity_t *self )
 
 /*
 ===============
-trigger_buildable_trigger
+trigger_buildable_match
 ===============
 */
-void trigger_buildable_trigger( gentity_t *self, gentity_t *activator )
+qboolean trigger_buildable_match( gentity_t *self, gentity_t *activator )
 {
   int i = 0;
 
-  self->activator = activator;
-  if( self->nextthink )
-    return;   // can't retrigger until the wait is over
-
   //if there is no buildable list every buildable triggers
   if( self->bTriggers[ i ] == BA_NONE )
-    G_UseTargets( self, activator );
+    return qtrue;
   else
   {
     //otherwise check against the list
     for( i = 0; self->bTriggers[ i ] != BA_NONE; i++ )
     {
       if( activator->s.modelindex == self->bTriggers[ i ] )
-      {
-        G_UseTargets( self, activator );
-        return;
-      }
+        return qtrue;
     }
+  }
+
+  return qfalse;
+}
+
+/*
+===============
+trigger_buildable_trigger
+===============
+*/
+void trigger_buildable_trigger( gentity_t *self, gentity_t *activator )
+{
+  self->activator = activator;
+
+  if( self->s.eFlags & EF_NODRAW )
+    return;
+
+  if( self->nextthink )
+    return;   // can't retrigger until the wait is over
+
+  if( self->s.eFlags & EF_DEAD )
+  {
+    if( !trigger_buildable_match( self, activator ) )
+      G_UseTargets( self, activator );
+  }
+  else
+  {
+    if( trigger_buildable_match( self, activator ) )
+      G_UseTargets( self, activator );
   }
 
   if( self->wait > 0 )
@@ -614,7 +639,7 @@ trigger_buildable_use
 */
 void trigger_buildable_use( gentity_t *ent, gentity_t *other, gentity_t *activator )
 {
-  trigger_buildable_trigger( ent, activator );
+  ent->s.eFlags ^= EF_NODRAW;
 }
 
 /*
@@ -642,10 +667,43 @@ void SP_trigger_buildable( gentity_t *self )
   self->touch = trigger_buildable_touch;
   self->use = trigger_buildable_use;
 
+  // SPAWN_DISABLED
+  if( self->spawnflags & 1 )
+    self->s.eFlags |= EF_NODRAW;
+
+  // NEGATE
+  if( self->spawnflags & 2 )
+    self->s.eFlags |= EF_DEAD;
+
   InitTrigger( self );
   trap_LinkEntity( self );
 }
 
+
+/*
+===============
+trigger_class_match
+===============
+*/
+qboolean trigger_class_match( gentity_t *self, gentity_t *activator )
+{
+  int i = 0;
+
+  //if there is no class list every class triggers (stupid case)
+  if( self->cTriggers[ i ] == PCL_NONE )
+    return qtrue;
+  else
+  {
+    //otherwise check against the list
+    for( i = 0; self->cTriggers[ i ] != PCL_NONE; i++ )
+    {
+      if( activator->client->ps.stats[ STAT_PCLASS ] == self->cTriggers[ i ] )
+        return qtrue;
+    }
+  }
+
+  return qfalse;
+}
 
 /*
 ===============
@@ -654,8 +712,6 @@ trigger_class_trigger
 */
 void trigger_class_trigger( gentity_t *self, gentity_t *activator )
 {
-  int i = 0;
-
   //sanity check
   if( !activator->client )
     return;
@@ -663,24 +719,22 @@ void trigger_class_trigger( gentity_t *self, gentity_t *activator )
   if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
     return;
 
+  if( self->s.eFlags & EF_NODRAW )
+    return;
+
   self->activator = activator;
   if( self->nextthink )
     return;   // can't retrigger until the wait is over
 
-  //if there is no class list every class triggers (stupid case)
-  if( self->cTriggers[ i ] == PCL_NONE )
-    G_UseTargets( self, activator );
+  if( self->s.eFlags & EF_DEAD )
+  {
+    if( !trigger_class_match( self, activator ) )
+      G_UseTargets( self, activator );
+  }
   else
   {
-    //otherwise check against the list
-    for( i = 0; self->cTriggers[ i ] != PCL_NONE; i++ )
-    {
-      if( activator->client->ps.stats[ STAT_PCLASS ] == self->cTriggers[ i ] )
-      {
-        G_UseTargets( self, activator );
-        return;
-      }
-    }
+    if( trigger_class_match( self, activator ) )
+      G_UseTargets( self, activator );
   }
 
   if( self->wait > 0 )
@@ -719,7 +773,7 @@ trigger_class_use
 */
 void trigger_class_use( gentity_t *ent, gentity_t *other, gentity_t *activator )
 {
-  trigger_class_trigger( ent, activator );
+  ent->s.eFlags ^= EF_NODRAW;
 }
 
 /*
@@ -747,10 +801,49 @@ void SP_trigger_class( gentity_t *self )
   self->touch = trigger_class_touch;
   self->use = trigger_class_use;
 
+  // SPAWN_DISABLED
+  if( self->spawnflags & 1 )
+    self->s.eFlags |= EF_NODRAW;
+
+  // NEGATE
+  if( self->spawnflags & 2 )
+    self->s.eFlags |= EF_DEAD;
+
   InitTrigger( self );
   trap_LinkEntity( self );
 }
 
+
+/*
+===============
+trigger_equipment_match
+===============
+*/
+qboolean trigger_equipment_match( gentity_t *self, gentity_t *activator )
+{
+  int i = 0;
+
+  //if there is no equipment list all equipment triggers (stupid case)
+  if( self->wTriggers[ i ] == WP_NONE && self->uTriggers[ i ] == UP_NONE )
+    return qtrue;
+  else
+  {
+    //otherwise check against the lists
+    for( i = 0; self->wTriggers[ i ] != WP_NONE; i++ )
+    {
+      if( BG_InventoryContainsWeapon( self->wTriggers[ i ], activator->client->ps.stats ) )
+        return qtrue;
+    }
+
+    for( i = 0; self->uTriggers[ i ] != UP_NONE; i++ )
+    {
+      if( BG_InventoryContainsUpgrade( self->uTriggers[ i ], activator->client->ps.stats ) )
+        return qtrue;
+    }
+  }
+
+  return qfalse;
+}
 
 /*
 ===============
@@ -759,8 +852,6 @@ trigger_equipment_trigger
 */
 void trigger_equipment_trigger( gentity_t *self, gentity_t *activator )
 {
-  int i = 0;
-
   //sanity check
   if( !activator->client )
     return;
@@ -768,33 +859,22 @@ void trigger_equipment_trigger( gentity_t *self, gentity_t *activator )
   if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
     return;
 
+  if( self->s.eFlags & EF_NODRAW )
+    return;
+
   self->activator = activator;
   if( self->nextthink )
     return;   // can't retrigger until the wait is over
 
-  //if there is no equipment list all equipment triggers (stupid case)
-  if( self->wTriggers[ i ] == WP_NONE && self->wTriggers[ i ] == UP_NONE )
-    G_UseTargets( self, activator );
+  if( self->s.eFlags & EF_DEAD )
+  {
+    if( !trigger_equipment_match( self, activator ) )
+      G_UseTargets( self, activator );
+  }
   else
   {
-    //otherwise check against the lists
-    for( i = 0; self->wTriggers[ i ] != WP_NONE; i++ )
-    {
-      if( BG_InventoryContainsWeapon( self->wTriggers[ i ], activator->client->ps.stats ) )
-      {
-        G_UseTargets( self, activator );
-        return;
-      }
-    }
-
-    for( i = 0; self->uTriggers[ i ] != UP_NONE; i++ )
-    {
-      if( BG_InventoryContainsUpgrade( self->uTriggers[ i ], activator->client->ps.stats ) )
-      {
-        G_UseTargets( self, activator );
-        return;
-      }
-    }
+    if( trigger_equipment_match( self, activator ) )
+      G_UseTargets( self, activator );
   }
 
   if( self->wait > 0 )
@@ -833,7 +913,7 @@ trigger_equipment_use
 */
 void trigger_equipment_use( gentity_t *ent, gentity_t *other, gentity_t *activator )
 {
-  trigger_equipment_trigger( ent, activator );
+  ent->s.eFlags ^= EF_NODRAW;
 }
 
 /*
@@ -861,6 +941,14 @@ void SP_trigger_equipment( gentity_t *self )
 
   self->touch = trigger_equipment_touch;
   self->use = trigger_equipment_use;
+
+  // SPAWN_DISABLED
+  if( self->spawnflags & 1 )
+    self->s.eFlags |= EF_NODRAW;
+
+  // NEGATE
+  if( self->spawnflags & 2 )
+    self->s.eFlags |= EF_DEAD;
 
   InitTrigger( self );
   trap_LinkEntity( self );
