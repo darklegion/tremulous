@@ -5,7 +5,7 @@ ifeq ($(PLATFORM),mingw32)
   BINEXT=.exe
   RELEASE_LDFLAGS=-lwsock32
   DEBUG_LDFLAGS=-lwsock32
-  RM=del
+  RM=rm -f
   MKDIR=mkdir
 else
   BINEXT=
