@@ -5329,78 +5329,6 @@ static void UI_RunCinematicFrame(int handle) {
 }
 
 
-
-/*
-=================
-PlayerModel_BuildList
-=================
-*/
-static void UI_BuildQ3Model_List( void )
-{
-  int   numdirs;
-  int   numfiles;
-  char  dirlist[2048];
-  char  filelist[2048];
-  char  skinname[64];
-  char  scratch[256];
-  char* dirptr;
-  char* fileptr;
-  int   i;
-  int   j, k, dirty;
-  int   dirlen;
-  int   filelen;
-
-  uiInfo.q3HeadCount = 0;
-
-  // iterate directory of all player models
-  numdirs = trap_FS_GetFileList("models/players", "/", dirlist, 2048 );
-  dirptr  = dirlist;
-  for (i=0; i<numdirs && uiInfo.q3HeadCount < MAX_PLAYERMODELS; i++,dirptr+=dirlen+1)
-  {
-    dirlen = strlen(dirptr);
-
-    if (dirlen && dirptr[dirlen-1]=='/') dirptr[dirlen-1]='\0';
-
-    if (!strcmp(dirptr,".") || !strcmp(dirptr,".."))
-      continue;
-
-    // iterate all skin files in directory
-    numfiles = trap_FS_GetFileList( va("models/players/%s",dirptr), "tga", filelist, 2048 );
-    fileptr  = filelist;
-    for (j=0; j<numfiles && uiInfo.q3HeadCount < MAX_PLAYERMODELS;j++,fileptr+=filelen+1)
-    {
-      filelen = strlen(fileptr);
-
-      COM_StripExtension(fileptr,skinname,2048);
-
-      // look for icon_????
-      if (Q_stricmpn(skinname, "icon_", 5) == 0 && !(Q_stricmp(skinname,"icon_blue") == 0 || Q_stricmp(skinname,"icon_red") == 0))
-      {
-        if (Q_stricmp(skinname, "icon_default") == 0) {
-          Com_sprintf( scratch, sizeof(scratch), dirptr);
-        } else {
-          Com_sprintf( scratch, sizeof(scratch), "%s/%s",dirptr, skinname + 5);
-        }
-        dirty = 0;
-        for(k=0;k<uiInfo.q3HeadCount;k++) {
-          if (!Q_stricmp(scratch, uiInfo.q3HeadNames[uiInfo.q3HeadCount])) {
-            dirty = 1;
-            break;
-          }
-        }
-        if (!dirty) {
-          Com_sprintf( uiInfo.q3HeadNames[uiInfo.q3HeadCount], sizeof(uiInfo.q3HeadNames[uiInfo.q3HeadCount]), scratch);
-          uiInfo.q3HeadIcons[uiInfo.q3HeadCount++] = trap_R_RegisterShaderNoMip(va("models/players/%s/%s",dirptr,skinname));
-        }
-      }
-
-    }
-  }
-
-}
-
-
-
 /*
 =================
 UI_Init
@@ -5544,9 +5472,6 @@ void _UI_Init( qboolean inGameLoad ) {
 
   trap_LAN_LoadCachedServers();
   UI_LoadBestScores(uiInfo.mapList[ui_currentMap.integer].mapLoadName, uiInfo.gameTypes[ui_gameType.integer].gtEnum);
-
-  UI_BuildQ3Model_List();
-  /*UI_LoadBots();*/
 
   // sets defaults for ui temp cvars
   uiInfo.effectsColor = gamecodetoui[(int)trap_Cvar_VariableValue("color1")-1];
