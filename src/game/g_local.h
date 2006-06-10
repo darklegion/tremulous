@@ -809,6 +809,7 @@ typedef struct zap_s
   int           numTargets;
 
   int           timeToLive;
+  int           damageUsed;
 
   gentity_t     *effectChannel;
 } zap_t;
@@ -1074,6 +1075,8 @@ extern  vmCvar_t  g_debugMapRotation;
 extern  vmCvar_t  g_currentMapRotation;
 extern  vmCvar_t  g_currentMap;
 extern  vmCvar_t  g_initialMapRotation;
+
+extern  vmCvar_t  g_mapConfigs;
 
 void      trap_Printf( const char *fmt );
 void      trap_Error( const char *fmt );

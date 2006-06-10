@@ -110,6 +110,8 @@ vmCvar_t  g_currentMapRotation;
 vmCvar_t  g_currentMap;
 vmCvar_t  g_initialMapRotation;
 
+vmCvar_t  g_mapConfigs;
+
 static cvarTable_t   gameCvarTable[ ] =
 {
   // don't override the cheat state set by the system
@@ -181,18 +183,18 @@ static cvarTable_t   gameCvarTable[ ] =
   { &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
   { &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
 
-  { &g_humanBuildPoints, "g_humanBuildPoints", "100", 0, 0, qfalse  },
-  { &g_alienBuildPoints, "g_alienBuildPoints", "100", 0, 0, qfalse  },
+  { &g_humanBuildPoints, "g_humanBuildPoints", DEFAULT_HUMAN_BUILDPOINTS, 0, 0, qfalse  },
+  { &g_alienBuildPoints, "g_alienBuildPoints", DEFAULT_ALIEN_BUILDPOINTS, 0, 0, qfalse  },
   { &g_humanStage, "g_humanStage", "0", 0, 0, qfalse  },
   { &g_humanKills, "g_humanKills", "0", 0, 0, qfalse  },
-  { &g_humanMaxStage, "g_humanMaxStage", "2", 0, 0, qfalse  },
-  { &g_humanStage2Threshold, "g_humanStage2Threshold", "20", 0, 0, qfalse  },
-  { &g_humanStage3Threshold, "g_humanStage3Threshold", "40", 0, 0, qfalse  },
+  { &g_humanMaxStage, "g_humanMaxStage", DEFAULT_HUMAN_MAX_STAGE, 0, 0, qfalse  },
+  { &g_humanStage2Threshold, "g_humanStage2Threshold", DEFAULT_HUMAN_STAGE2_THRESH, 0, 0, qfalse  },
+  { &g_humanStage3Threshold, "g_humanStage3Threshold", DEFAULT_HUMAN_STAGE3_THRESH, 0, 0, qfalse  },
   { &g_alienStage, "g_alienStage", "0", 0, 0, qfalse  },
   { &g_alienKills, "g_alienKills", "0", 0, 0, qfalse  },
-  { &g_alienMaxStage, "g_alienMaxStage", "2", 0, 0, qfalse  },
-  { &g_alienStage2Threshold, "g_alienStage2Threshold", "20", 0, 0, qfalse  },
-  { &g_alienStage3Threshold, "g_alienStage3Threshold", "40", 0, 0, qfalse  },
+  { &g_alienMaxStage, "g_alienMaxStage", DEFAULT_ALIEN_MAX_STAGE, 0, 0, qfalse  },
+  { &g_alienStage2Threshold, "g_alienStage2Threshold", DEFAULT_ALIEN_STAGE2_THRESH, 0, 0, qfalse  },
+  { &g_alienStage3Threshold, "g_alienStage3Threshold", DEFAULT_ALIEN_STAGE3_THRESH, 0, 0, qfalse  },
 
   { &g_disabledEquipment, "g_disabledEquipment", "", CVAR_ROM, 0, qfalse  },
   { &g_disabledClasses, "g_disabledClasses", "", CVAR_ROM, 0, qfalse  },
@@ -202,6 +204,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_currentMapRotation, "g_currentMapRotation", "-1", 0, 0, qfalse  }, // -1 = NOT_ROTATING
   { &g_currentMap, "g_currentMap", "0", 0, 0, qfalse  },
   { &g_initialMapRotation, "g_initialMapRotation", "", CVAR_ARCHIVE, 0, qfalse  },
+  { &g_mapConfigs, "g_mapConfigs", "", CVAR_ARCHIVE, 0, qfalse  },
 
   { &g_rankings, "g_rankings", "0", 0, 0, qfalse}
 };
@@ -487,6 +490,18 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   }
   else
     G_Printf( "Not logging to disk\n" );
+
+  if( g_mapConfigs.string[0] )
+  {
+    char map[MAX_QPATH] = {""};
+
+    trap_SendConsoleCommand( EXEC_APPEND,
+      va( "exec \"%s/default.cfg\"\n", g_mapConfigs.string ) );
+
+    trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+    trap_SendConsoleCommand( EXEC_APPEND,
+      va( "exec \"%s/%s.cfg\"\n", g_mapConfigs.string, map ) );
+  }
 
   // initialize all entities for this game
   memset( g_entities, 0, MAX_GENTITIES * sizeof( g_entities[ 0 ] ) );

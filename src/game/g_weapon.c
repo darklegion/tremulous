@@ -1166,13 +1166,20 @@ void G_UpdateZaps( int msec )
           damage = ceil( ( (float)msec / LEVEL2_AREAZAP_TIME ) *
               LEVEL2_AREAZAP_DMG * damageFraction );
 
+          // don't let a high msec value inflate the total damage
+          if( damage + zap->damageUsed > LEVEL2_AREAZAP_DMG )
+		damage = LEVEL2_AREAZAP_DMG - zap->damageUsed;
+
           VectorSubtract( target->s.origin, source->s.origin, forward );
           VectorNormalize( forward );
 
           //do the damage
           if( damage )
+          {
             G_Damage( target, source, zap->creator, forward, target->s.origin,
                     damage, DAMAGE_NO_KNOCKBACK | DAMAGE_NO_LOCDAMAGE, MOD_LEVEL2_ZAP );
+            zap->damageUsed += damage;
+          }
         }
       }
 

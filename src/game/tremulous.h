@@ -578,7 +578,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define FREEKILL_HUMAN              LEVEL0_VALUE
 
 #define DEFAULT_ALIEN_BUILDPOINTS   "100"
+#define DEFAULT_ALIEN_STAGE2_THRESH "20"
+#define DEFAULT_ALIEN_STAGE3_THRESH "40"
+#define DEFAULT_ALIEN_MAX_STAGE     "2"
 #define DEFAULT_HUMAN_BUILDPOINTS   "100"
+#define DEFAULT_HUMAN_STAGE2_THRESH "20"
+#define DEFAULT_HUMAN_STAGE3_THRESH "40"
+#define DEFAULT_HUMAN_MAX_STAGE     "2"
 
 #define DAMAGE_FRACTION_FOR_KILL    0.5f //how much damage players (versus structures) need to
                                          //do to increment the stage kill counters
