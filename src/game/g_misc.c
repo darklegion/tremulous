@@ -235,6 +235,14 @@ void SP_misc_portal_camera( gentity_t *ent )
 ======================================================================
 */
 
+void SP_toggle_particle_system( gentity_t *self )
+{
+  //toggle EF_NODRAW
+  self->s.eFlags ^= EF_NODRAW;
+
+  self->nextthink = 0;
+}
+
 /*
 ===============
 SP_use_particle_system
@@ -244,8 +252,13 @@ Use function for particle_system
 */
 void SP_use_particle_system( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-  //toggle EF_NODRAW
-  self->s.eFlags ^= EF_NODRAW;
+  SP_toggle_particle_system( self );
+
+  if( self->wait > 0.0f )
+  {
+    self->think = SP_toggle_particle_system;
+    self->nextthink = level.time + (int)( self->wait * 1000 );
+  }
 }
 
 /*
@@ -262,6 +275,7 @@ void SP_misc_particle_system( gentity_t *self )
   G_SetOrigin( self, self->s.origin );
 
   G_SpawnString( "psName", "", &s );
+  G_SpawnFloat( "wait", "0", &self->wait );
 
   //add the particle system to the client precache list
   self->s.modelindex = G_ParticleSystemIndex( s );

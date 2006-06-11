@@ -290,6 +290,9 @@ void trigger_teleporter_touch( gentity_t *self, gentity_t *other, trace_t *trace
 {
   gentity_t *dest;
 
+  if( self->s.eFlags & EF_NODRAW )
+    return;
+
   if( !other->client )
     return;
 
@@ -313,8 +316,18 @@ void trigger_teleporter_touch( gentity_t *self, gentity_t *other, trace_t *trace
   TeleportPlayer( other, dest->s.origin, dest->s.angles );
 }
 
+/*
+===============
+trigger_teleport_use
+===============
+*/
+void trigger_teleporter_use( gentity_t *ent, gentity_t *other, gentity_t *activator )
+{
+  ent->s.eFlags ^= EF_NODRAW;
+}
 
-/*QUAKED trigger_teleport (.5 .5 .5) ? SPECTATOR
+
+/*QUAKED trigger_teleport (.5 .5 .5) ? SPECTATOR SPAWN_DISABLED
 Allows client side prediction of teleportation events.
 Must point at a target_position, which will be the teleport destination.
 
@@ -333,11 +346,13 @@ void SP_trigger_teleport( gentity_t *self )
   else
     self->r.svFlags &= ~SVF_NOCLIENT;
 
-  // make sure the client precaches this sound
-  G_SoundIndex( "sound/world/jumppad.wav" );
+  // SPAWN_DISABLED
+  if( self->spawnflags & 2 )
+    self->s.eFlags |= EF_NODRAW;
 
   self->s.eType = ET_TELEPORT_TRIGGER;
   self->touch = trigger_teleporter_touch;
+  self->use = trigger_teleporter_use;
 
   trap_LinkEntity( self );
 }

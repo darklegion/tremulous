@@ -495,8 +495,8 @@ Target this entity with a misc_model to have the model attached to the entity (s
 
 //=============================================================================
 
-/*QUAKED func_plat (0 .5 .8) ?
-Rising platform the player can ride to reach higher places. Plats must always be drawn in the raised position, so they will operate and be lighted correctly but they spawn in the lowered position. The plat will stay in the raised position until the player steps off. There are no proper sounds for this entity, only beep noises. It will spawn in the game and work properly but it sounds silly (see Notes).
+/*QUAKED func_plat (0 .5 .8) ? DONT_WAIT
+Rising platform the player can ride to reach higher places. Plats must always be drawn in the raised position, so they will operate and be lighted correctly but they spawn in the lowered position. The plat will stay in the raised position until the player steps off. There are no proper sounds for this entity, only beep noises. It will spawn in the game and work properly but it sounds silly (see Notes). If DONT_WAIT is set then the platform will not wait for a client to leave before returning to its original position.
 
 -------- KEYS --------
 speed: determines how fast the plat moves (default 150).
@@ -971,6 +971,14 @@ notteam: when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.
 notsingle: when set to 1, entity will not spawn in Single Player mode (bot play mode).
 */
 
+/*QUAKED trigger_teleport (.5 .5 .5) ? SPECTATOR SPAWN_DISABLED
+Allows client side prediction of teleportation events.
+Must point at a target_position, which will be the teleport destination.
+
+If spectator is set, only spectators can use this teleport
+Spectator teleporters are not normally placed in the editor, but are created
+automatically near doors to allow spectators to move through them
+*/
 
 
 

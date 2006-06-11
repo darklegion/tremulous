@@ -1756,6 +1756,10 @@ Don't allow decent if a living player is on it
 */
 void Touch_Plat( gentity_t *ent, gentity_t *other, trace_t *trace )
 {
+  // DONT_WAIT
+  if( ent->spawnflags & 1 )
+    return;
+
   if( !other->client || other->client->ps.stats[ STAT_HEALTH ] <= 0 )
     return;
 
