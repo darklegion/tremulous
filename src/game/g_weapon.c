@@ -1086,6 +1086,7 @@ static void G_CreateNewZap( gentity_t *creator, gentity_t *target )
       zap->used = qtrue;
 
       zap->timeToLive = LEVEL2_AREAZAP_TIME;
+      zap->damageUsed = 0;
 
       zap->creator = creator;
 
