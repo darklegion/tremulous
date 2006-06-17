@@ -86,6 +86,7 @@ vmCvar_t  pmove_msec;
 vmCvar_t  g_rankings;
 vmCvar_t  g_listEntity;
 vmCvar_t  g_minCommandPeriod;
+vmCvar_t  g_minNameChangePeriod;
 
 //TA
 vmCvar_t  g_humanBuildPoints;
@@ -178,6 +179,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_voteLimit, "g_voteLimit", "5", CVAR_ARCHIVE, 0, qfalse },
   { &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
   { &g_minCommandPeriod, "g_minCommandPeriod", "500", 0, 0, qfalse},
+  { &g_minNameChangePeriod, "g_minNameChangePeriod", "5", 0, 0, qfalse},
 
   { &g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
   { &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},

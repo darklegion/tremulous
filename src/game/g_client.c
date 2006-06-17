@@ -949,6 +949,7 @@ void ClientUserinfoChanged( int clientNum )
   char      buffer[ MAX_QPATH ];
   char      filename[ MAX_QPATH ];
   char      oldname[ MAX_STRING_CHARS ];
+  char      newname[ MAX_STRING_CHARS ];
   gclient_t *client;
   char      c1[ MAX_INFO_STRING ];
   char      c2[ MAX_INFO_STRING ];
@@ -981,7 +982,27 @@ void ClientUserinfoChanged( int clientNum )
   // set name
   Q_strncpyz( oldname, client->pers.netname, sizeof( oldname ) );
   s = Info_ValueForKey( userinfo, "name" );
-  ClientCleanName( s, client->pers.netname, sizeof( client->pers.netname ) );
+  ClientCleanName( s, newname, sizeof( newname ) );
+
+  if( strcmp( oldname, newname ) )
+  {
+    // If not connected or time since name change has passed threshold, allow the change
+    if( client->pers.connected != CON_CONNECTED ||
+        ( level.time - client->pers.nameChangeTime ) > ( g_minNameChangePeriod.integer * 1000 ) )
+    {
+      Q_strncpyz( client->pers.netname, newname, sizeof( client->pers.netname ) );
+      client->pers.nameChangeTime = level.time;
+    }
+    else
+    {
+      // Note this leaves the client in a strange state where it has changed its "name" cvar
+      // but the server has refused to honour the change. In this case the client's cvar does
+      // not match the actual client's name any longer. This isn't so bad since really the
+      // only case where the name would be changing so fast is when it was being abused, and
+      // we don't really care if that kind of player screws their client up.
+      // Nevertheless, maybe FIXME this later.
+    }
+  }
 
   if( client->sess.sessionTeam == TEAM_SPECTATOR )
   {
