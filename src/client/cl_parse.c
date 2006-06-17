@@ -256,6 +256,13 @@ void CL_ParseSnapshot( msg_t *msg ) {
 
 	// read areamask
 	len = MSG_ReadByte( msg );
+	
+	if(len > sizeof(newSnap.areamask))
+	{
+		Com_Error (ERR_DROP,"CL_ParseSnapshot: Invalid size %d for areamask.", len);
+		return;
+	}
+	
 	MSG_ReadData( msg, &newSnap.areamask, len);
 
 	// read playerinfo
@@ -476,6 +483,12 @@ void CL_ParseDownload ( msg_t *msg ) {
 	unsigned char data[MAX_MSGLEN];
 	int block;
 
+	if (!*clc.downloadTempName) {
+		Com_Printf("Server sending download, but no download was requested\n");
+		CL_AddReliableCommand( "stopdl" );
+		return;
+	}
+
 	// read the data
 	block = MSG_ReadShort ( msg );
 
@@ -494,8 +507,13 @@ void CL_ParseDownload ( msg_t *msg ) {
 	}
 
 	size = MSG_ReadShort ( msg );
-	if (size > 0)
-		MSG_ReadData( msg, data, size );
+	if (size < 0 || size > sizeof(data))
+	{
+		Com_Error(ERR_DROP, "CL_ParseDownload: Invalid size %d for download chunk.", size);
+		return;
+	}
+	
+	MSG_ReadData(msg, data, size);
 
 	if (clc.downloadBlock != block) {
 		Com_DPrintf( "CL_ParseDownload: Expected block %d, got %d\n", clc.downloadBlock, block);
@@ -505,12 +523,6 @@ void CL_ParseDownload ( msg_t *msg ) {
 	// open the file if not opened yet
 	if (!clc.download)
 	{
-		if (!*clc.downloadTempName) {
-			Com_Printf("Server sending download, but no download was requested\n");
-			CL_AddReliableCommand( "stopdl" );
-			return;
-		}
-
 		clc.download = FS_SV_FOpenFileWrite( clc.downloadTempName );
 
 		if (!clc.download) {

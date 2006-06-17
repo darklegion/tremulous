@@ -1107,7 +1107,7 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 		#endif
 		assertInteger(opStackDepth-1);
 		assertInteger(opStackDepth-2);
-                Inst( "cmp", PPC_CMP, 0, opStackIntRegisters[opStackDepth-2], opStackIntRegisters[opStackDepth-1] );
+                Inst( "cmpl", PPC_CMPL, 0, opStackIntRegisters[opStackDepth-2], opStackIntRegisters[opStackDepth-1] );
 		opStackRegType[opStackDepth-1] = 0;
 		opStackRegType[opStackDepth-2] = 0;
 		opStackLoadInstructionAddr[opStackDepth-1] = 0;
@@ -1131,7 +1131,7 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 		#endif
 		assertInteger(opStackDepth-1);
 		assertInteger(opStackDepth-2);
-                Inst( "cmp", PPC_CMP, 0, opStackIntRegisters[opStackDepth-2], opStackIntRegisters[opStackDepth-1] );
+                Inst( "cmpl", PPC_CMPL, 0, opStackIntRegisters[opStackDepth-2], opStackIntRegisters[opStackDepth-1] );
 		opStackRegType[opStackDepth-1] = 0;
 		opStackRegType[opStackDepth-2] = 0;
 		opStackLoadInstructionAddr[opStackDepth-1] = 0;
@@ -1155,7 +1155,7 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 		#endif
 		assertInteger(opStackDepth-1);
 		assertInteger(opStackDepth-2);
-                Inst( "cmp", PPC_CMP, 0, opStackIntRegisters[opStackDepth-2], opStackIntRegisters[opStackDepth-1] );
+                Inst( "cmpl", PPC_CMPL, 0, opStackIntRegisters[opStackDepth-2], opStackIntRegisters[opStackDepth-1] );
 		opStackRegType[opStackDepth-1] = 0;
 		opStackRegType[opStackDepth-2] = 0;
 		opStackLoadInstructionAddr[opStackDepth-1] = 0;
@@ -1179,7 +1179,7 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 		#endif
 		assertInteger(opStackDepth-1);
 		assertInteger(opStackDepth-2);
-                Inst( "cmp", PPC_CMP, 0, opStackIntRegisters[opStackDepth-2], opStackIntRegisters[opStackDepth-1] );
+                Inst( "cmpl", PPC_CMPL, 0, opStackIntRegisters[opStackDepth-2], opStackIntRegisters[opStackDepth-1] );
 		opStackRegType[opStackDepth-1] = 0;
 		opStackRegType[opStackDepth-2] = 0;
 		opStackLoadInstructionAddr[opStackDepth-1] = 0;

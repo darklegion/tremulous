@@ -1403,7 +1403,7 @@ void CL_NextDownload(void) {
 			*s++ = 0;
 		else
 			s = localName + strlen(localName); // point at the nul byte
-
+		
 		CL_BeginDownload( localName, remoteName );
 
 		clc.downloadRestart = qtrue;

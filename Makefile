@@ -21,12 +21,6 @@ else
   COMPILE_ARCH=$(shell uname -m | sed -e s/i.86/x86/)
 endif
 
-ifeq ($(COMPILE_PLATFORM),mingw32)
-  ifeq ($(COMPILE_ARCH),i386)
-    COMPILE_ARCH=x86
-  endif
-endif
-
 BUILD_CLIENT     =
 BUILD_CLIENT_SMP =
 BUILD_SERVER     =
@@ -268,7 +262,7 @@ ifeq ($(PLATFORM),darwin)
   CC=gcc
 
   # !!! FIXME: calling conventions are still broken! See Bugzilla #2519
-  #VM_PPC=vm_ppc_new
+  VM_PPC=vm_ppc_new
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes
   BASE_CFLAGS += -DMACOS_X -fno-common -pipe
@@ -377,6 +371,8 @@ ifeq ($(PLATFORM),mingw32)
   OPTIMIZE = -O3 -march=i586 -fomit-frame-pointer -ffast-math -falign-loops=2 \
     -funroll-loops -falign-jumps=2 -falign-functions=2 -fstrength-reduce
 
+  HAVE_VM_COMPILED = true
+
   DEBUG_CFLAGS=$(BASE_CFLAGS) -g -O0
 
   RELEASE_CFLAGS=$(BASE_CFLAGS) -DNDEBUG $(OPTIMIZE)
@@ -451,6 +447,7 @@ ifeq ($(PLATFORM),freebsd)
       -march=pentium -fomit-frame-pointer -pipe -ffast-math \
       -falign-loops=2 -falign-jumps=2 -falign-functions=2 \
       -funroll-loops -fstrength-reduce
+    HAVE_VM_COMPILED=true
   else
     BASE_CFLAGS += -DNO_VM_COMPILED
   endif
@@ -873,7 +870,6 @@ Q3OBJ = \
   $(B)/client/tr_world.o \
 
 ifeq ($(ARCH),x86)
-  Q3OBJ += $(B)/client/vm_x86.o
   Q3OBJ += \
     $(B)/client/snd_mixa.o \
     $(B)/client/matha.o \
@@ -881,12 +877,14 @@ ifeq ($(ARCH),x86)
     $(B)/client/snapvectora.o
 endif
 
-ifeq ($(ARCH),x86_64)
-  Q3OBJ += $(B)/client/vm_x86_64.o
-endif
-
-ifeq ($(ARCH),ppc)
-  ifneq ($(VM_PPC),)
+ifeq ($(HAVE_VM_COMPILED),true)
+  ifeq ($(ARCH),x86)
+    Q3OBJ += $(B)/client/vm_x86.o
+  endif
+  ifeq ($(ARCH),x86_64)
+    Q3OBJ += $(B)/client/vm_x86_64.o
+  endif
+  ifeq ($(ARCH),ppc)
     Q3OBJ += $(B)/client/$(VM_PPC).o
   endif
 endif
@@ -1153,16 +1151,20 @@ Q3DOBJ = \
   $(B)/ded/null_snddma.o
 
 ifeq ($(ARCH),x86)
-  Q3DOBJ += $(B)/ded/vm_x86.o $(B)/ded/ftola.o \
-      $(B)/ded/snapvectora.o $(B)/ded/matha.o
+  Q3DOBJ += \
+      $(B)/ded/ftola.o \
+      $(B)/ded/snapvectora.o \
+      $(B)/ded/matha.o
 endif
 
-ifeq ($(ARCH),x86_64)
-  Q3DOBJ += $(B)/ded/vm_x86_64.o
-endif
-
-ifeq ($(ARCH),ppc)
-  ifneq ($(VM_PPC),)
+ifeq ($(HAVE_VM_COMPILED),true)
+  ifeq ($(ARCH),x86)
+    Q3DOBJ += $(B)/ded/vm_x86.o
+  endif
+  ifeq ($(ARCH),x86_64)
+    Q3DOBJ += $(B)/ded/vm_x86_64.o
+  endif
+  ifeq ($(ARCH),ppc)
     Q3DOBJ += $(B)/ded/$(VM_PPC).o
   endif
 endif
