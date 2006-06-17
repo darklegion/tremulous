@@ -420,7 +420,7 @@ void SP_trigger_hurt( gentity_t *self )
   self->noise_index = G_SoundIndex( "sound/misc/electro.wav" );
   self->touch = hurt_touch;
 
-  if( !self->damage )
+  if( self->damage <= 0 )
     self->damage = 5;
 
   self->r.contents = CONTENTS_TRIGGER;
@@ -1067,6 +1067,12 @@ void SP_trigger_heal( gentity_t *self )
 {
   G_SpawnInt( "heal", "5", &self->damage );
 
+  if( self->damage <= 0 )
+  {
+    self->damage = 1;
+    G_Printf( S_COLOR_YELLOW "WARNING: trigger_heal with negative damage key\n" );
+  }
+
   self->touch = trigger_heal_touch;
   self->use = trigger_heal_use;
 
@@ -1139,6 +1145,12 @@ SP_trigger_ammo
 void SP_trigger_ammo( gentity_t *self )
 {
   G_SpawnInt( "ammo", "1", &self->damage );
+
+  if( self->damage <= 0 )
+  {
+    self->damage = 1;
+    G_Printf( S_COLOR_YELLOW "WARNING: trigger_ammo with negative ammo key\n" );
+  }
 
   self->touch = trigger_ammo_touch;
 
