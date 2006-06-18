@@ -557,10 +557,10 @@
       textscale .5
       style WINDOW_STYLE_EMPTY
       type ITEM_TYPE_BUTTON
-      rect 254 424 128 26
+      rect 254 436 128 26
       textalign ITEM_ALIGN_LEFT
       textalignx 10
-      textaligny 32 
+      textaligny 24 
       backcolor .5 .5 .5 .5
       forecolor 1 1 1 1
       visible 1 
