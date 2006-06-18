@@ -208,8 +208,6 @@ static consoleCommand_t commands[ ] =
   { "-scores", CG_ScoresUp_f },
   { "scoresUp", CG_scrollScoresUp_f },
   { "scoresDown", CG_scrollScoresDown_f },
-  { "+zoom", CG_ZoomDown_f },
-  { "-zoom", CG_ZoomUp_f },
   { "sizeup", CG_SizeUp_f },
   { "sizedown", CG_SizeDown_f },
   { "weapnext", CG_NextWeapon_f },

@@ -414,31 +414,10 @@
     {
       name look
       group optionsGrp
-      type ITEM_TYPE_BIND
-      text "ZoomView:"
-      cvar "+zoom"
-      rect 96 145 192 15
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 0
-      action
-      {
-        play "sound/misc/menu1.wav"; 
-      }
-    }
-
-    itemDef
-    {
-      name look
-      group optionsGrp
       type ITEM_TYPE_YESNO
       text "Free Look:"
       cvar "cl_freelook"
-      rect 96 160 192 15
+      rect 96 145 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -459,7 +438,7 @@
       type ITEM_TYPE_SLIDER
       text "Mouse Sensitivity:"
       cvarfloat "sensitivity" 5 1 30
-      rect 96 175 192 20
+      rect 96 160 192 20
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -476,7 +455,7 @@
       type ITEM_TYPE_YESNO
       text "Invert Mouse:"
       cvar "ui_mousePitch"
-      rect 96 195 192 15
+      rect 96 180 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -498,7 +477,7 @@
       type ITEM_TYPE_YESNO
       text "Smooth Mouse:"
       cvar "m_filter"
-      rect 96 210 192 15
+      rect 96 195 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20

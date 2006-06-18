@@ -695,25 +695,6 @@ static void CG_OffsetFirstPersonView( void )
 
 //======================================================================
 
-void CG_ZoomDown_f( void )
-{
-  if( cg.zoomed )
-    return;
-
-  cg.zoomed = qtrue;
-  cg.zoomTime = cg.time;
-}
-
-void CG_ZoomUp_f( void )
-{
-  if( !cg.zoomed )
-    return;
-
-  cg.zoomed = qfalse;
-  cg.zoomTime = cg.time;
-}
-
-
 /*
 ====================
 CG_CalcFov
@@ -728,15 +709,20 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 
 static int CG_CalcFov( void )
 {
-  float x;
-  float phase;
-  float v;
-  int   contents;
-  float fov_x, fov_y;
-  float zoomFov;
-  float f;
-  int   inwater;
-  int   attribFov;
+  float     x;
+  float     phase;
+  float     v;
+  int       contents;
+  float     fov_x, fov_y;
+  float     zoomFov;
+  float     f;
+  int       inwater;
+  int       attribFov;
+  usercmd_t cmd;
+  int       cmdNum;
+
+  cmdNum = trap_GetCurrentCmdNumber( );
+  trap_GetUserCmd( cmdNum, &cmd );
 
   if( cg.predictedPlayerState.pm_type == PM_INTERMISSION ||
       ( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR ) )
@@ -775,7 +761,8 @@ static int CG_CalcFov( void )
     else if ( zoomFov > attribFov )
       zoomFov = attribFov;
 
-    //TA: only do all the zoom stuff if the client CAN zoom
+    // only do all the zoom stuff if the client CAN zoom
+    // FIXME: zoom control is currently hard coded to BUTTON_ATTACK2
     if( BG_WeaponCanZoom( cg.predictedPlayerState.weapon ) )
     {
       if ( cg.zoomed )
@@ -786,6 +773,13 @@ static int CG_CalcFov( void )
           fov_x = zoomFov;
         else
           fov_x = fov_x + f * ( zoomFov - fov_x );
+
+        // BUTTON_ATTACK2 isn't held so unzoom next time
+        if( !( cmd.buttons & BUTTON_ATTACK2 ) )
+        {
+          cg.zoomed   = qfalse;
+          cg.zoomTime = cg.time;
+        }
       }
       else
       {
@@ -795,6 +789,13 @@ static int CG_CalcFov( void )
           fov_x = fov_x;
         else
           fov_x = zoomFov + f * ( fov_x - zoomFov );
+
+        // BUTTON_ATTACK2 is held so zoom next time
+        if( cmd.buttons & BUTTON_ATTACK2 )
+        {
+          cg.zoomed   = qtrue;
+          cg.zoomTime = cg.time;
+        }
       }
     }
   }
