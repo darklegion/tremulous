@@ -621,7 +621,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
 
     case EV_TAUNT:
       DEBUGNAME( "EV_TAUNT" );
-      trap_S_StartSound( NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*taunt.wav" ) );
+      if( !cg_noTaunt.integer )
+        trap_S_StartSound( NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*taunt.wav" ) );
       break;
 
     case EV_WATER_TOUCH:

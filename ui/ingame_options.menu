@@ -161,7 +161,7 @@
       name game				
       group optionsGrp
       type ITEM_TYPE_YESNO
-      text "Taunts Off:"
+      text "Taunts Sounds Off:"
       cvar "cg_noTaunt"
       rect 90 130 192 15
       textalign ITEM_ALIGN_RIGHT
