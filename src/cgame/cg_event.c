@@ -44,6 +44,7 @@ static void CG_Obituary( entityState_t *ent )
   char          className[ 64 ];
   gender_t      gender;
   clientInfo_t  *ci;
+  qboolean      teamKill = qfalse;
 
   target = ent->otherEntityNum;
   attacker = ent->otherEntityNum2;
@@ -60,7 +61,11 @@ static void CG_Obituary( entityState_t *ent )
     attackerInfo = NULL;
   }
   else
+  {
     attackerInfo = CG_ConfigString( CS_PLAYERS + attacker );
+    if( ci && cgs.clientinfo[ attacker ].team == ci->team )
+      teamKill = qtrue;
+  }
 
   targetInfo = CG_ConfigString( CS_PLAYERS + target );
 
@@ -324,8 +329,16 @@ static void CG_Obituary( entityState_t *ent )
 
     if( message )
     {
-      CG_Printf( "%s %s %s%s\n",
-        targetName, message, attackerName, message2 );
+      CG_Printf( "%s %s %s%s%s\n",
+        targetName, message,
+        ( teamKill ) ? S_COLOR_RED "TEAMMATE " S_COLOR_WHITE : "",
+        attackerName, message2 );
+      if( teamKill && attacker == cg.clientNum )
+      {
+        CG_CenterPrint( va ( "You killed " S_COLOR_RED "TEAMMATE "
+          S_COLOR_WHITE "%s", targetName ),
+          SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+      }
       return;
     }
   }

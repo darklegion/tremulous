@@ -865,6 +865,7 @@ void FireWeapon3( gentity_t *ent );
 //
 void ScoreboardMessage( gentity_t *client );
 void MoveClientToIntermission( gentity_t *client );
+void G_MapConfigs( void );
 void CalculateRanks( void );
 void FindIntermissionPoint( void );
 void G_RunThink( gentity_t *ent );

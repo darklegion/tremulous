@@ -207,6 +207,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_currentMap, "g_currentMap", "0", 0, 0, qfalse  },
   { &g_initialMapRotation, "g_initialMapRotation", "", CVAR_ARCHIVE, 0, qfalse  },
   { &g_mapConfigs, "g_mapConfigs", "", CVAR_ARCHIVE, 0, qfalse  },
+  { NULL, "g_mapConfigsLoaded", "0", CVAR_ROM, 0, qfalse  },
 
   { &g_rankings, "g_rankings", "0", 0, 0, qfalse}
 };
@@ -441,6 +442,31 @@ void G_UpdateCvars( void )
 }
 
 /*
+=================
+G_MapConfigs
+=================
+*/
+void G_MapConfigs( )
+{
+  char map[MAX_QPATH] = {""};
+
+  if( !g_mapConfigs.string[0] )
+    return;
+
+  if( trap_Cvar_VariableIntegerValue( "g_mapConfigsLoaded" ) )
+    return;
+
+  trap_SendConsoleCommand( EXEC_APPEND,
+    va( "exec \"%s/default.cfg\"\n", g_mapConfigs.string ) );
+
+  trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+  trap_SendConsoleCommand( EXEC_APPEND,
+    va( "exec \"%s/%s.cfg\"\n", g_mapConfigs.string, map ) );
+
+  trap_Cvar_Set( "g_mapConfigsLoaded", "1" );
+}
+
+/*
 ============
 G_InitGame
 
@@ -493,17 +519,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   else
     G_Printf( "Not logging to disk\n" );
 
-  if( g_mapConfigs.string[0] )
-  {
-    char map[MAX_QPATH] = {""};
-
-    trap_SendConsoleCommand( EXEC_APPEND,
-      va( "exec \"%s/default.cfg\"\n", g_mapConfigs.string ) );
-
-    trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
-    trap_SendConsoleCommand( EXEC_APPEND,
-      va( "exec \"%s/%s.cfg\"\n", g_mapConfigs.string, map ) );
-  }
+  G_MapConfigs( );
+  // we're done with g_mapConfigs, so reset this for the next map
+  trap_Cvar_Set( "g_mapConfigsLoaded", "0" );
 
   // initialize all entities for this game
   memset( g_entities, 0, MAX_GENTITIES * sizeof( g_entities[ 0 ] ) );

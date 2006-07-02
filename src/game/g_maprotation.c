@@ -479,6 +479,9 @@ static void G_IssueMapChange( int rotation )
   trap_SendConsoleCommand( EXEC_APPEND, va( "map %s\n",
     mapRotations.rotations[ rotation ].maps[ map ].name ) );
 
+  // load up map defaults if g_mapConfigs is set
+  G_MapConfigs( );
+
   for( i = 0; i < mapRotations.rotations[ rotation ].maps[ map ].numCmds; i++ )
   {
     Q_strncpyz( cmd, mapRotations.rotations[ rotation ].maps[ map ].postCmds[ i ],
