@@ -762,6 +762,7 @@ void respawn( gentity_t *ent )
   SpawnCorpse( ent );
 
   //TA: Clients can't respawn - they must go thru the class cmd
+  ent->client->pers.classSelection = PCL_NONE;
   ClientSpawn( ent, NULL, NULL, NULL );
 }
 
@@ -1230,6 +1231,7 @@ void ClientBegin( int clientNum )
   // world to the new position
   flags = client->ps.eFlags;
   memset( &client->ps, 0, sizeof( client->ps ) );
+  memset( &client->pmext, 0, sizeof( client->pmext ) );
   client->ps.eFlags = flags;
 
   // locate ent at a spawn point

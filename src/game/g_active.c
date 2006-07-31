@@ -519,13 +519,8 @@ void ClientTimerActions( gentity_t *ent, int msec )
 
       if( !( ucmd->buttons & BUTTON_ATTACK2 ) )
       {
-        if( client->ps.stats[ STAT_MISC ] > 0 )
-        {
+        if( client->pmext.pouncePayload > 0 )
           client->allowedToPounce = qtrue;
-          client->pouncePayload = client->ps.stats[ STAT_MISC ];
-        }
-
-        client->ps.stats[ STAT_MISC ] = 0;
       }
 
       if( client->ps.stats[ STAT_MISC ] > pounceSpeed )
@@ -1137,6 +1132,7 @@ void ClientThink_real( gentity_t *ent )
   }
 
   pm.ps = &client->ps;
+  pm.pmext = &client->pmext;
   pm.cmd = *ucmd;
 
   if( pm.ps->pm_type == PM_DEAD )

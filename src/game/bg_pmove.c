@@ -552,6 +552,9 @@ static qboolean PM_CheckPounce( void )
     pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
   }
 
+  pm->pmext->pouncePayload = pm->ps->stats[ STAT_MISC ];
+  pm->ps->stats[ STAT_MISC ] = 0;
+
   return qtrue;
 }
 

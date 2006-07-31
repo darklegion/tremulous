@@ -347,6 +347,9 @@ struct gclient_s
   // ps MUST be the first element, because the server expects it
   playerState_t       ps;       // communicated by server to clients
 
+  // exported into pmove, but not communicated to clients
+  pmoveExt_t          pmext;
+
   // the rest of the structure is private to game
   clientPersistant_t  pers;
   clientSession_t     sess;
@@ -418,7 +421,6 @@ struct gclient_s
   int                 medKitIncrementTime;
   int                 lastCreepSlowTime;    // time until creep can be removed
 
-  int                 pouncePayload;        // amount of damage pounce attack will do
   qboolean            allowedToPounce;
 
   qboolean            charging;

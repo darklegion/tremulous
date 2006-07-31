@@ -149,12 +149,17 @@ typedef enum
 
 #define PMF_ALL_TIMES (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK|PMF_TIME_WALLJUMP)
 
+typedef struct
+{
+  int pouncePayload;
+} pmoveExt_t;
+
 #define MAXTOUCH  32
 typedef struct
 {
   // state (in / out)
   playerState_t *ps;
-
+  pmoveExt_t *pmext;
   // command (in)
   usercmd_t     cmd;
   int           tracemask;      // collide against these types of surfaces

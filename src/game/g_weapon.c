@@ -579,9 +579,16 @@ void LCChargeFire( gentity_t *ent, qboolean secondary )
   gentity_t *m;
 
   if( secondary )
-    m = fire_luciferCannon( ent, muzzle, forward, LCANNON_SECONDARY_DAMAGE, LCANNON_SECONDARY_RADIUS );
+  {
+    m = fire_luciferCannon( ent, muzzle, forward, LCANNON_SECONDARY_DAMAGE,
+      LCANNON_SECONDARY_RADIUS );
+    ent->client->ps.weaponTime = LCANNON_REPEAT;
+  }
   else
+  {
     m = fire_luciferCannon( ent, muzzle, forward, ent->client->ps.stats[ STAT_MISC ], LCANNON_RADIUS );
+    ent->client->ps.weaponTime = LCANNON_CHARGEREPEAT;
+  }
 
   ent->client->ps.stats[ STAT_MISC ] = 0;
 }
@@ -1260,14 +1267,14 @@ qboolean CheckPounceAttack( gentity_t *ent )
   VectorSet( mins, -LEVEL3_POUNCE_WIDTH, -LEVEL3_POUNCE_WIDTH, -LEVEL3_POUNCE_WIDTH );
   VectorSet( maxs, LEVEL3_POUNCE_WIDTH, LEVEL3_POUNCE_WIDTH, LEVEL3_POUNCE_WIDTH );
 
-  if( !ent->client->allowedToPounce )
-    return qfalse;
-
   if( ent->client->ps.groundEntityNum != ENTITYNUM_NONE )
   {
     ent->client->allowedToPounce = qfalse;
-    return qfalse;
+    ent->client->pmext.pouncePayload = 0;
   }
+
+  if( !ent->client->allowedToPounce )
+    return qfalse;
 
   if( ent->client->ps.weaponTime )
     return qfalse;
@@ -1303,7 +1310,10 @@ qboolean CheckPounceAttack( gentity_t *ent )
   if( !traceEnt->takedamage )
     return qfalse;
 
-  damage = (int)( ( (float)ent->client->pouncePayload / (float)LEVEL3_POUNCE_SPEED ) * LEVEL3_POUNCE_DMG );
+  damage = (int)( ( (float)ent->client->pmext.pouncePayload
+    / (float)LEVEL3_POUNCE_SPEED ) * LEVEL3_POUNCE_DMG );
+
+  ent->client->pmext.pouncePayload = 0;
 
   G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage,
       DAMAGE_NO_KNOCKBACK|DAMAGE_NO_LOCDAMAGE, MOD_LEVEL3_POUNCE );
