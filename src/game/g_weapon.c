@@ -42,7 +42,8 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
   {
     ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
 
-    if( weapon == WP_NONE )
+    if( weapon == WP_NONE 
+      || !BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ))
     {
       //switch to the first non blaster weapon
       for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
@@ -63,6 +64,10 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
     }
     else
       ent->client->ps.persistant[ PERS_NEWWEAPON ] = weapon;
+   
+    // force this here to prevent flamer effect from continuing 
+    ent->client->ps.generic1 = WPM_NOTFIRING;
+
   }
 }
 
