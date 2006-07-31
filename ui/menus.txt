@@ -12,6 +12,7 @@
   loadMenu { "ui/quit.menu" }
   loadMenu { "ui/addfilter.menu" }
   loadMenu { "ui/error.menu" }
+  loadMenu { "ui/drop.menu" }
   loadMenu { "ui/serverinfo.menu" }
   loadMenu { "ui/findplayer.menu" }
   loadMenu { "ui/quitcredit.menu" }

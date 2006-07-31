@@ -5587,7 +5587,10 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
       trap_Cvar_VariableStringBuffer("com_errorMessage", buf, sizeof(buf));
       if (strlen(buf)) {
         if (!ui_singlePlayerActive.integer) {
-          Menus_ActivateByName("error_popmenu");
+          if( trap_Cvar_VariableValue( "com_errorCode" ) == ERR_SERVERDISCONNECT )
+            Menus_ActivateByName("drop_popmenu");
+          else
+            Menus_ActivateByName("error_popmenu");
         } else {
           trap_Cvar_Set("com_errorMessage", "");
         }
