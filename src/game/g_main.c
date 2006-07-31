@@ -112,6 +112,7 @@ vmCvar_t  g_currentMap;
 vmCvar_t  g_initialMapRotation;
 
 vmCvar_t  g_mapConfigs;
+vmCvar_t  g_chatTeamPrefix;
 
 static cvarTable_t   gameCvarTable[ ] =
 {
@@ -201,6 +202,8 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_disabledEquipment, "g_disabledEquipment", "", CVAR_ROM, 0, qfalse  },
   { &g_disabledClasses, "g_disabledClasses", "", CVAR_ROM, 0, qfalse  },
   { &g_disabledBuildables, "g_disabledBuildables", "", CVAR_ROM, 0, qfalse  },
+
+  { &g_chatTeamPrefix, "g_chatTeamPrefix", "0", CVAR_ARCHIVE  },
 
   { &g_debugMapRotation, "g_debugMapRotation", "0", 0, 0, qfalse  },
   { &g_currentMapRotation, "g_currentMapRotation", "-1", 0, 0, qfalse  }, // -1 = NOT_ROTATING

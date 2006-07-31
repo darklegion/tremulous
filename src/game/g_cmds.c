@@ -601,18 +601,37 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
   int     j;
   gentity_t *other;
   int     color;
+  char    prefix[ 5 ];
   char    name[ 64 ];
   // don't let text be too long for malicious reasons
   char    text[ MAX_SAY_TEXT ];
   char    location[ 64 ];
+
+  if (g_chatTeamPrefix.integer)
+    switch( ent->client->pers.teamSelection)
+    {
+      default:
+      case PTE_NONE:
+        Com_sprintf( prefix, sizeof( prefix ), "[S] ");
+        break;
+
+      case PTE_ALIENS:
+        Com_sprintf( prefix, sizeof( prefix ), "[A] ");
+        break;
+
+      case PTE_HUMANS:
+        Com_sprintf( prefix, sizeof( prefix ), "[H] ");
+    }
+  else
+    Com_sprintf( prefix, sizeof( prefix ), "");
 
   switch( mode )
   {
     default:
     case SAY_ALL:
       G_LogPrintf( "say: %s: %s\n", ent->client->pers.netname, chatText );
-      Com_sprintf( name, sizeof( name ), "%s%c%c"EC": ", ent->client->pers.netname,
-                   Q_COLOR_ESCAPE, COLOR_WHITE );
+      Com_sprintf( name, sizeof( name ), "%s%s%c%c"EC": ", prefix,
+                   ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
       color = COLOR_GREEN;
       break;
 
