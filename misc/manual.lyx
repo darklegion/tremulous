@@ -7109,6 +7109,1055 @@ random
 \series default 
  condition simply chooses whether or not to execute the change randomly,
  with each outcome equally likely.
+\layout Subsection
+
+Server Administration System (g_admin)
+\layout Standard
+
+The Tremulous game code has a built-in administration system which can work
+ outside of traditional server console/rcon admin commands.
+ Instead of passwords, administration rights are granted on a unique player
+ identifier called cl_guid.
+ Because of this, day to day administration tasks (like !kick and !mute)
+ can easily be shared among a server's regular players without the risk
+ of giving those players too much power or having to share passwords.
+\layout Standard
+
+Although specific admin rights can be granted to an individual, rights are
+ primarily handed through a level system.
+ By default there are 6 levels defined (0-5).
+ Players with out any admin status are treated as level 0 with various additiona
+l rights added to each following level with level 5 having full rights.
+ You can change what rights each level has by editing the configuration
+ file (see below).
+ Levels are referenced by number, but they can also be given names.
+ There can up to 32 levels defined.
+ The number used to define the level has special significance since rights
+ are handled very heirarchically (e.g.
+ a level 4 admin can not !mute a level 5 admin since his victim has a higher
+ level).
+\layout Standard
+
+Administrator rights can granted with !setlevel command so a server operator
+ need not leave the game, edit files, restart, or even type a password to
+ adjust another player's admin status.
+ However, the configuration for this system is contained in an easy to edit
+ text file that allows a great deal of flexibility in configuring fine-grained
+ access rights for each user and/or access level.
+\layout Subsubsection
+
+Quick Start
+\layout Standard
+
+To get started, you simply need to ensure that the g_admin cvar is set to
+ the name of a writable data file (default is 
+\begin_inset Quotes eld
+\end_inset 
+
+admin.dat
+\begin_inset Quotes erd
+\end_inset 
+
+).
+ Then connect to the server with your Tremulous client, then run the following
+ command in your client console:
+\layout LyX-Code
+
+/rcon YOUR_RCON_PASSORD !setlevel YOUR_NAME 5
+\layout Standard
+
+By default, the level 5 user is a super-user and has access to all '!' commands.
+ From that point you can use the /!help command in your client to familiarize
+ yourself with all the commands.
+\layout Subsubsection
+
+Related Cvars
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="5" columns="2">
+<features islongtable="true">
+<column alignment="left" valignment="top" width="0">
+<column alignment="block" valignment="top" leftline="true" width="5.5cm">
+<row>
+<cell multicolumn="1" alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+g_admin <string>
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Set <string> to the name of the file in the fs_game directory that should
+ contain all admin data such as admin definitions and bans.
+\layout Standard
+
+If set to a blank string 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\begin_inset Quotes erd
+\end_inset 
+
+ admin commands will not be available.
+\layout Standard
+
+Example:
+\layout Standard
+
+set g_admin 
+\begin_inset Quotes eld
+\end_inset 
+
+admin.dat
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+Defaults to 
+\begin_inset Quotes eld
+\end_inset 
+
+admin.dat
+\begin_inset Quotes erd
+\end_inset 
+
+ (off)
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+g_adminLog <string>
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Set <string> to the name of the file in the fs_game directory that will
+ log all '!' commands.
+\layout Standard
+
+Defaults to 
+\begin_inset Quotes eld
+\end_inset 
+
+admin.log
+\begin_inset Quotes erd
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+g_adminParseSay <integer>
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Set this to non-zero if you want the admin system to accept commands in
+ player chat messages.
+\layout Standard
+
+Default is 1 (on)
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+g_adminNameProtect <integer>
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Set this to non-zero if you want the admin system to lock each admin's name
+ to his cl_guid to prevent imporsonation.
+\layout Standard
+
+Default is 1 (on)
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+g_adminTempBan
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Set this to the number of seconds a player should be automatically banned
+ for when he/she is vote kicked or kicked with the !kick command.
+\layout Standard
+
+Default is 120 (two minutes)
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\layout Subsubsection
+
+Data File Format
+\layout Standard
+
+All admin authorization, configuration, and ban information is storedin
+ the file identified with the g_admin cvar.
+ This file is plain text and each of the data elements are seperated by
+ blank lines.
+ The supported data elements are [level], [admin], [ban], and [command].
+ 
+\layout Standard
+
+The [level] block is used to define which admin rights a user of a particular
+ level has.
+ For example:
+\layout LyX-Code
+
+[level]
+\layout LyX-Code
+
+level   = 3
+\layout LyX-Code
+
+name    = Level 3 Admin
+\layout LyX-Code
+
+flags   = i1ahCpPkmy
+\layout Standard
+
+This definition grants all level 3 admins all the commands identified by
+ the characters in the flags string (see flags table below).
+\layout Standard
+
+The [admin] block is used to define all players with administrative rights
+ as identified by their cl_guid.
+ These blocks are created/updated/deleted automatically when the !setlevel
+ command is used.
+ Additionally, these blocks can be used to grant special rights to specific
+ users above or below the rights given to that user's [level] definition.
+ For example:
+\layout LyX-Code
+
+[admin]
+\layout LyX-Code
+
+name    = bill
+\layout LyX-Code
+
+guid    = 1ABABAA74D54C3D25722E5E21121334
+\layout LyX-Code
+
+level   = 3
+\layout LyX-Code
+
+flags   = B-ym
+\layout Standard
+
+This grants the user bill all the rights of a level 3 user, plus the 'B'
+ flag which grants access to the !showbans command.
+ It also takes away from bill the !allready (y) command and the !mute and
+ !unmute (m) commands.
+\layout Standard
+
+The [ban] block is created with the !ban command, and removed with the !unban
+ command (or when it expires).
+ Both the guid and the ip parameters are used for ban enforement.
+ The ip parameter can also be used to crudely widen the scope of the IP
+ ban.
+ For example:
+\layout LyX-Code
+
+[ban]
+\layout LyX-Code
+
+name    = all !nexterholland@
+\layout LyX-Code
+
+guid    = ABCABCABCABCABCABCABCABCABCABCAB
+\layout LyX-Code
+
+ip      = 206.248.131.
+\layout LyX-Code
+
+reason  = banned by admin
+\layout LyX-Code
+
+made    = 04/18/06 19:15:35
+\layout LyX-Code
+
+expires = 0
+\layout LyX-Code
+
+banner  = Fry 
+\layout Standard
+
+This would prevent anyone with an IP address inside of 206.248.131.0/24 or
+ with the cl_guid ABCABCABCABCABCABCABCABCABCABCAB from connecting to the
+ server.
+ The expires field is the UNIX timestamp when the ban is no longer in effect,
+ the special case is 0 which means it never expires.
+\layout Standard
+
+The [command] block can be used to create simple ! commands.
+ The most practial use is to create certain .cfg files which change game
+ settings and allow high ranking admins to load up those settings through
+ a ! command.
+ For example:
+\layout LyX-Code
+
+[command]
+\layout LyX-Code
+
+command = havefun
+\layout LyX-Code
+
+exec = exec fun.cfg
+\layout LyX-Code
+
+desc = Load up some crazy settings/commands levels = 4 5
+\layout Standard
+
+This would allow all level 4 and 5 admins to run the command !havefun which
+ would be similar to running the command 
+\begin_inset Quotes eld
+\end_inset 
+
+exec fun.cfg
+\begin_inset Quotes erd
+\end_inset 
+
+ on the server console.
+\layout Subsubsection
+
+Admin Flags
+\layout Standard
+
+Both the [level] and [admin] blocks have the flags parameter which is a
+ string of characters that grant access rights.
+ The following table shows the flags for built-in COMMANDS:
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="20" columns="2">
+<features islongtable="true">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+FLAG
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+COMMAND
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!admintest
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+y
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!allready
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+b
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!ban/!unban
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+c
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!cancelvote/!passvote
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+h
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!help
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+k
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!kick
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+D
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!listadmins
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+i
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!listplayers
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+m
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!mute/!unmute
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+e
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!namelog
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!nextmap
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+p
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!putteam
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!readconfig
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+N
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!rename
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+r
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!restart
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+s
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!setlevel
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+B
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!showbans
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!spec999
+\end_inset 
+</cell>
+</row>
+<row bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+C
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!time
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\layout Standard
+
+The following table shows the flags for RIGHTS:
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="11" columns="2">
+<features islongtable="true">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+FLAG
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+RIGHT
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+cannot be vote kicked
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+4
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+can see team chat as a spectator
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+can switch teams regardless of balance settings
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+6
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+does not need to specify a reason for kick/ban
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+7
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+can call a vote at any time regardless of g_voteLimit
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+8
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+does not need to specify a duration for a ban
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+9
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+can run commands in team chat
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+inactivity settings do not apply
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+no ! commands can be used on a player with this flag
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+@
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+does not show up as an admin in the output of listplayers
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\layout Standard
+
+In addition, there are 3 special case characters in the flags string:
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="4" columns="2">
+<features islongtable="true">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="block" valignment="top" leftline="true" rightline="true" width="5.5cm">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+FLAG
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+MEANING
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+*
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+signifies ALL commands and rights any flags following this character are
+ negated.
+ The only exceptions are the ! and @ flags which must be given to individual
+ admins explicitly.
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
++
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+any flags following this flag will be ADDED.
+ this is implied at the beginning of any flags string so it's pretty much
+ worthless.
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+-
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+any flags following this flag will be REMOVED.
+ this is particularly useful if you wish to remove a right from an admin
+ that has been given through that admin's [level] definition.
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
 \layout Section
 \pagebreak_top 
 Credits

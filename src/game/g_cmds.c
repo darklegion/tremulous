@@ -32,9 +32,28 @@ Remove case and control characters from a player name
 */
 void G_SanitiseName( char *in, char *out )
 {
+  qboolean skip = qtrue;
+  int spaces = 0;
+
   while( *in )
   {
-    if( *in == 27 )
+    // strip leading white space
+    if( *in == ' ' )
+    {
+      if( skip )
+      {
+        in++;
+        continue;
+      }
+      spaces++;
+    }
+    else
+    {
+      spaces = 0;
+      skip = qfalse;
+    }
+    
+    if( *in == 27 || *in == '^' )
     {
       in += 2;    // skip color code
       continue;
@@ -48,7 +67,7 @@ void G_SanitiseName( char *in, char *out )
 
     *out++ = tolower( *in++ );
   }
-
+  out -= spaces; 
   *out = 0;
 }
 
@@ -105,6 +124,119 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
 
   trap_SendServerCommand( to - g_entities, va( "print \"User %s is not on the server\n\"", s ) );
   return -1;
+}
+
+
+/*
+==================
+G_MatchOnePlayer
+
+This is a companion function to G_ClientNumbersFromString()
+
+returns qtrue if the int array plist only has one client id, false otherwise
+In the case of false, err will be populated with an error message.
+==================
+*/
+qboolean G_MatchOnePlayer( int *plist, char *err, int len )
+{
+  gclient_t *cl;
+  int *p;
+  char line[ MAX_NAME_LENGTH + 10 ] = {""};
+
+  err[ 0 ] = '\0';
+  if( plist[ 0 ] == -1 )
+  {
+    Q_strcat( err, len, "no connected player by that name or slot #" );
+    return qfalse;
+  }
+  if( plist[ 1 ] != -1 )
+  {
+    Q_strcat( err, len, "more than one player name matches. "
+            "be more specific or use the slot #:\n" );
+    for( p = plist; *p != -1; p++ )
+    {
+      cl = &level.clients[ *p ];
+      if( cl->pers.connected == CON_CONNECTED )
+      {
+        Com_sprintf( line, sizeof( line ), "%2i - %s^7\n",
+          *p, cl->pers.netname );
+        if( strlen( err ) + strlen( line ) > len )
+          break;
+        Q_strcat( err, len, line );
+      }
+    }
+    return qfalse;
+  }
+  return qtrue;
+}
+
+/*
+==================
+G_ClientNumbersFromString
+
+Sets plist to an array of integers that represent client numbers that have
+names that are a partial match for s. List is terminated by a -1.
+
+Returns number of matching clientids.
+==================
+*/
+int G_ClientNumbersFromString( char *s, int *plist )
+{
+  gclient_t *p;
+  int i, found = 0;
+  char n2[ MAX_NAME_LENGTH ] = {""}; 
+  char s2[ MAX_NAME_LENGTH ] = {""}; 
+  qboolean is_slot = qtrue;
+
+  *plist = -1;
+
+  // if a number is provided, it might be a slot #
+  for( i = 0; i < (int)strlen( s ); i++ )
+  {
+    if( s[i] < '0' || s[i] > '9' )
+    {
+      is_slot = qfalse;
+      break;
+    }
+  }
+
+  if( is_slot ) {
+    i = atoi( s );
+    if( i >= 0 && i < level.maxclients ) {
+      p = &level.clients[ i ];
+      if( p->pers.connected == CON_CONNECTED ||
+        p->pers.connected == CON_CONNECTING ) 
+      {
+        *plist++ = i;
+        *plist = -1;
+        return 1;
+      }
+    }
+    // we must assume that if only a number is provided, it is a clientNum
+    return 0;
+  }
+  
+  // now look for name matches
+  G_SanitiseName( s, s2 );
+  if( strlen( s2 ) < 1 )
+    return 0;
+  for( i = 0; i < level.maxclients; i++ )
+  {
+    p = &level.clients[ i ];
+    if(p->pers.connected != CON_CONNECTED
+      && p->pers.connected != CON_CONNECTING)
+    {
+      continue;
+    }
+    G_SanitiseName( p->pers.netname, n2 );
+    if( strstr( n2, s2 ) )
+    {
+      *plist++ = i;
+      found++;
+    }
+  }
+  *plist = -1;
+  return found;
 }
 
 /*
@@ -508,6 +640,7 @@ void Cmd_Team_f( gentity_t *ent )
 {
   pTeam_t team;
   char    s[ MAX_TOKEN_CHARS ];
+  qboolean force = G_admin_permission(ent, ADMF_FORCETEAMCHANGE);
 
   trap_Argv( 1, s, sizeof( s ) );
 
@@ -521,7 +654,8 @@ void Cmd_Team_f( gentity_t *ent )
     team = PTE_NONE;
   else if( !Q_stricmp( s, "aliens" ) )
   {
-    if( g_teamForceBalance.integer && ( ( level.numAlienClients > level.numHumanClients ) ||
+    if( !force && g_teamForceBalance.integer
+      && ( ( level.numAlienClients > level.numHumanClients ) ||
         ( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
           level.numAlienClients >= level.numHumanClients ) ) )
     {
@@ -533,7 +667,8 @@ void Cmd_Team_f( gentity_t *ent )
   }
   else if( !Q_stricmp( s, "humans" ) )
   {
-    if( g_teamForceBalance.integer && ( ( level.numHumanClients > level.numAlienClients ) ||
+    if( !force && g_teamForceBalance.integer &&
+      ( ( level.numHumanClients > level.numAlienClients ) ||
         ( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
           level.numHumanClients >= level.numAlienClients ) ) )
     {
@@ -587,7 +722,15 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
     return;
 
   if( mode == SAY_TEAM && !OnSameTeam( ent, other ) )
-    return;
+  {
+    if( other->client->ps.stats[ STAT_PTEAM ] != PTE_NONE )
+      return; 
+
+    if( !G_admin_permission( other, ADMF_SPEC_ALLCHAT ) )
+      return;
+
+    // specs with ADMF_SPEC_ALLCHAT flag can see team chat
+  }
 
   trap_SendServerCommand( other-g_entities, va( "%s \"%s%c%c%s\"",
     mode == SAY_TEAM ? "tchat" : "chat",
@@ -677,6 +820,11 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
     other = &g_entities[ j ];
     G_SayTo( ent, other, mode, color, name, text );
   }
+  
+  if( g_adminParseSay.integer )
+  {
+    G_admin_cmd_check ( ent, qtrue );
+  }
 }
 
 
@@ -688,6 +836,11 @@ Cmd_Say_f
 static void Cmd_Say_f( gentity_t *ent, int mode, qboolean arg0 )
 {
   char    *p;
+
+  if( ent->client->pers.muted )
+  {
+    return;
+  }
 
   if( trap_Argc( ) < 2 && !arg0 )
     return;
@@ -769,7 +922,8 @@ void Cmd_CallVote_f( gentity_t *ent )
   }
 
   if( g_voteLimit.integer > 0
-    && ent->client->pers.voteCount >= g_voteLimit.integer )
+    && ent->client->pers.voteCount >= g_voteLimit.integer 
+    && !G_admin_permission( ent, ADMF_NO_VOTE_LIMIT ) )
   {
     trap_SendServerCommand( ent-g_entities, va(
       "print \"You have already called the maxium number of votes (%d)\n\"",
@@ -802,17 +956,30 @@ void Cmd_CallVote_f( gentity_t *ent )
 
   if( !Q_stricmp( arg1, "kick" ) )
   {
-    char kickee[ MAX_NETNAME ];
-
-    Q_strncpyz( kickee, arg2, sizeof( kickee ) );
-    Q_CleanStr( kickee );
-
-    Com_sprintf( level.voteString, sizeof( level.voteString ),
-        "%s \"%s\"", arg1, kickee );
-    Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ),
-        "Kick player \'%s\'", kickee );
+    int clientNum;
+    int clientNums[ MAX_CLIENTS ] = { -1 };
+    
+    if( G_ClientNumbersFromString( arg2, clientNums ) == 1 )
+    {
+      // there was one partial name match name was clientNum
+      clientNum = clientNums[ 0 ]; 
+    }
+    else
+    {
+      // look for an exact name match before bailing out
+      clientNum = G_ClientNumberFromString( ent, arg2 );
+      if( clientNum == -1 )
+      {
+        trap_SendServerCommand( ent-g_entities,
+          "print \"callvote: invalid player\n\"" );
+        return;
+      }
+    }
+    Q_strncpyz( arg1, "clientkick", sizeof( arg1 ) );
+    Q_strncpyz( arg2, va( "%d", clientNum ), sizeof( arg2 ) );
   }
-  else if( !Q_stricmp( arg1, "clientkick" ) )
+
+  if( !Q_stricmp( arg1, "clientkick" ) )
   {
     char  kickee[ MAX_NETNAME ];
     int   clientNum = 0;
@@ -827,19 +994,34 @@ void Cmd_CallVote_f( gentity_t *ent )
       }
     }
 
-    if( clientNum >= 0 )
+    if( clientNum >= 0 && clientNum < level.maxclients )
     {
       clientNum = atoi( arg2 );
+      if( G_admin_permission( &g_entities[ clientNum ], ADMF_IMMUNITY ) )
+      {
+        trap_SendServerCommand( ent-g_entities,
+          "print \"callvote: admin is immune from vote kick\n\"" );
+        return;
+      }
 
       if( level.clients[ clientNum ].pers.connected != CON_DISCONNECTED )
       {
-        Q_strncpyz( kickee, level.clients[ clientNum ].pers.netname, sizeof( kickee ) );
+        Q_strncpyz( kickee, level.clients[ clientNum ].pers.netname,
+          sizeof( kickee ) );
         Q_CleanStr( kickee );
-
-        Com_sprintf( level.voteString, sizeof( level.voteString ),
+        if( g_admin.string[ 0 ] ) 
+        {
+          // !kick will add a temp ban and a descriptive drop message
+          Com_sprintf( level.voteString, sizeof( level.voteString ),
+            "!kick %d vote kick", clientNum );
+        }
+        else
+        {
+          Com_sprintf( level.voteString, sizeof( level.voteString ),
             "clientkick %d", clientNum );
+        }
         Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ),
-            "Kick player \'%s\'", kickee );
+          "Kick player \'%s\'", kickee );
       }
       else
         return;
@@ -975,7 +1157,8 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   }
 
   if( g_voteLimit.integer > 0
-    && ent->client->pers.voteCount >= g_voteLimit.integer )
+    && ent->client->pers.voteCount >= g_voteLimit.integer 
+    && !G_admin_permission( ent, ADMF_NO_VOTE_LIMIT ) )
   {
     trap_SendServerCommand( ent-g_entities, va(
       "print \"You have already called the maxium number of votes (%d)\n\"",
@@ -1001,39 +1184,30 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 
   if( !Q_stricmp( arg1, "teamkick" ) )
   {
-    char netname[ MAX_NETNAME ], kickee[ MAX_NETNAME ];
-
-    Q_strncpyz( kickee, arg2, sizeof( kickee ) );
-    Q_CleanStr( kickee );
-
-    for( i = 0; i < level.maxclients; i++ )
+    int clientNum;
+    int clientNums[ MAX_CLIENTS ] = { -1 };
+    
+    if( G_ClientNumbersFromString( arg2, clientNums ) == 1 )
     {
-      if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
-        continue;
-
-      if( level.clients[ i ].ps.stats[ STAT_PTEAM ] != team )
-        continue;
-
-      Q_strncpyz( netname, level.clients[ i ].pers.netname, sizeof( netname ) );
-      Q_CleanStr( netname );
-
-      if( !Q_stricmp( netname, kickee ) )
-        break;
+      // there was one partial name match or name was clientNum
+      clientNum = clientNums[ 0 ]; 
     }
-
-    if( i >= level.maxclients )
+    else
     {
-      trap_SendServerCommand( ent-g_entities, va( "print \"\'%s\' "
-            S_COLOR_WHITE "is not a valid player on your team\n\"", arg2 ) );
-      return;
+      // look for an exact name match before bailing out
+      clientNum = G_ClientNumberFromString( ent, arg2 );
+      if( clientNum == -1 )
+      {
+        trap_SendServerCommand( ent-g_entities,
+          "print \"callvote: invalid player\n\"" );
+        return;
+      }
     }
-
-    Com_sprintf( level.teamVoteString[ cs_offset ],
-        sizeof( level.teamVoteString[ cs_offset ] ), "kick \"%s\"", kickee );
-    Com_sprintf( level.teamVoteDisplayString[ cs_offset ],
-        sizeof( level.teamVoteDisplayString[ cs_offset ] ), "Kick player \'%s\'", kickee );
+    Q_strncpyz( arg1, "teamclientkick", sizeof( arg1 ) );
+    Q_strncpyz( arg2, va( "%d", clientNum ), sizeof( arg2 ) );
   }
-  else if( !Q_stricmp( arg1, "teamclientkick" ) )
+  
+  if( !Q_stricmp( arg1, "teamclientkick" ) )
   {
     int   clientNum = 0;
     char  kickee[ MAX_NETNAME ];
@@ -1048,7 +1222,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
       }
     }
 
-    if( clientNum >= 0 )
+    if( clientNum >= 0 && clientNum < level.maxclients )
     {
       clientNum = atoi( arg2 );
 
@@ -1075,13 +1249,33 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
       return;
     }
 
-    Q_strncpyz( kickee, level.clients[ clientNum ].pers.netname, sizeof( kickee ) );
+    if( G_admin_permission( &g_entities[ clientNum ], ADMF_IMMUNITY ) )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callteamvote: admin is immune from vote kick\n\"" );
+      return;
+    }
+
+    Q_strncpyz( kickee, level.clients[ clientNum ].pers.netname,
+      sizeof( kickee ) );
     Q_CleanStr( kickee );
 
-    Com_sprintf( level.teamVoteString[ cs_offset ],
-        sizeof( level.teamVoteString[ cs_offset ] ), "clientkick %d", clientNum );
+    if( g_admin.string[ 0 ] )
+    {
+      // !kick will add a temp ban and a descriptive drop message
+      Com_sprintf( level.teamVoteString[ cs_offset ],
+          sizeof( level.teamVoteString[ cs_offset ] ),
+          "!kick %d team vote kick", clientNum );
+    }
+    else
+    {
+      Com_sprintf( level.teamVoteString[ cs_offset ],
+          sizeof( level.teamVoteString[ cs_offset ] ),
+          "clientkick %d", clientNum );
+    }
     Com_sprintf( level.teamVoteDisplayString[ cs_offset ],
-        sizeof( level.teamVoteDisplayString[ cs_offset ] ), "Kick player \'%s\'", kickee );
+        sizeof( level.teamVoteDisplayString[ cs_offset ] ),
+        "Kick player \'%s\'", kickee );
   }
   else
   {
@@ -2376,6 +2570,9 @@ void ClientCommand( int clientNum )
     return;
   }
 
+  if( G_admin_cmd_check( ent, qfalse ) )
+    return;
+
   // ignore all other commands when at intermission
   if( level.intermissiontime )
     return;
@@ -2442,4 +2639,119 @@ void ClientCommand( int clientNum )
     Cmd_Test_f( ent );
   else
     trap_SendServerCommand( clientNum, va( "print \"unknown cmd %s\n\"", cmd ) );
+}
+
+int G_SayArgc()
+{
+  int c = 1;
+  char *s;
+
+  s = ConcatArgs( 0 );
+  if( !*s )
+     return 0;
+  while( *s )
+  {
+    if( *s == ' ' )
+    {
+      s++; 
+      if( *s != ' ' )
+      {
+        c++;
+        continue;
+      }
+      while( *s && *s == ' ' )
+        s++;
+      c++;
+    }
+    s++;
+  }
+  return c;
+}
+
+qboolean G_SayArgv( int n, char *buffer, int bufferLength )
+{
+  int bc = 1;
+  int c = 0;
+  char *s;
+
+  if( bufferLength < 1 )
+    return qfalse;
+  if(n < 0)
+    return qfalse;
+  *buffer = '\0';
+  s = ConcatArgs( 0 );
+  while( *s )
+  {
+    if( c == n )
+    {
+      while( *s && ( bc < bufferLength ) )
+      {
+        if( *s == ' ' )
+        {
+          *buffer = '\0';
+          return qtrue;
+        }
+        *buffer = *s;
+        buffer++;
+        s++;
+        bc++;
+      }
+      *buffer = '\0';
+      return qtrue;
+    }
+    if( *s == ' ' )
+    {
+      s++;
+      if( *s != ' ' )
+      {
+        c++;
+        continue;
+      }
+      while( *s && *s == ' ' )
+        s++;
+      c++;
+    }
+    s++;
+  }
+  return qfalse;
+}
+
+char *G_SayConcatArgs(int start)
+{
+  char *s;
+  int c = 0;
+
+  s = ConcatArgs( 0 );
+  while( *s ) {
+    if( c == start )
+      return s;
+    if( *s == ' ' )
+    {
+      s++;
+      if( *s != ' ' )
+      {
+        c++;
+        continue;
+      }
+      while( *s && *s == ' ' )
+        s++;
+      c++;
+    }
+    s++;
+  }
+  return s;
+}
+
+void G_DecolorString( char *in, char *out )
+{   
+  while( *in ) {
+    if( *in == 27 || *in == '^' ) {
+      in++;
+      if( *in )
+        in++;
+      continue;
+    }
+    *out++ = *in++;
+  }
+  *out = '\0';
 }

@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
-#define POOLSIZE    (256 * 1024)
+#define  POOLSIZE ( 1024 * 1024 )
 #define  FREEMEMCOOKIE  ((int)0xDEADBE3F)  // Any unlikely to be used value
 #define  ROUNDBITS    31          // Round to 32 bytes
 

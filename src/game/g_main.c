@@ -87,6 +87,7 @@ vmCvar_t  g_rankings;
 vmCvar_t  g_listEntity;
 vmCvar_t  g_minCommandPeriod;
 vmCvar_t  g_minNameChangePeriod;
+vmCvar_t  g_maxNameChanges;
 
 //TA
 vmCvar_t  g_humanBuildPoints;
@@ -113,6 +114,12 @@ vmCvar_t  g_initialMapRotation;
 
 vmCvar_t  g_mapConfigs;
 vmCvar_t  g_chatTeamPrefix;
+
+vmCvar_t  g_admin;
+vmCvar_t  g_adminLog;
+vmCvar_t  g_adminParseSay;
+vmCvar_t  g_adminNameProtect;
+vmCvar_t  g_adminTempBan;
 
 static cvarTable_t   gameCvarTable[ ] =
 {
@@ -181,6 +188,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
   { &g_minCommandPeriod, "g_minCommandPeriod", "500", 0, 0, qfalse},
   { &g_minNameChangePeriod, "g_minNameChangePeriod", "5", 0, 0, qfalse},
+  { &g_maxNameChanges, "g_maxNameChanges", "5", 0, 0, qfalse},
 
   { &g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
   { &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
@@ -212,6 +220,12 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_mapConfigs, "g_mapConfigs", "", CVAR_ARCHIVE, 0, qfalse  },
   { NULL, "g_mapConfigsLoaded", "0", CVAR_ROM, 0, qfalse  },
 
+  { &g_admin, "g_admin", "admin.dat", CVAR_ARCHIVE, 0, qfalse  },
+  { &g_adminLog, "g_adminLog", "admin.log", CVAR_ARCHIVE, 0, qfalse  },
+  { &g_adminParseSay, "g_adminParseSay", "1", CVAR_ARCHIVE, 0, qfalse  },
+  { &g_adminNameProtect, "g_adminNameProtect", "1", CVAR_ARCHIVE, 0, qfalse  },
+  { &g_adminTempBan, "g_adminTempBan", "120", CVAR_ARCHIVE, 0, qfalse  },
+  
   { &g_rankings, "g_rankings", "0", 0, 0, qfalse}
 };
 
@@ -526,6 +540,10 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   // we're done with g_mapConfigs, so reset this for the next map
   trap_Cvar_Set( "g_mapConfigsLoaded", "0" );
 
+  if ( g_admin.string[ 0 ] ) {
+    G_admin_readconfig( NULL, 0 );
+  }
+
   // initialize all entities for this game
   memset( g_entities, 0, MAX_GENTITIES * sizeof( g_entities[ 0 ] ) );
   level.gentities = g_entities;
@@ -606,6 +624,9 @@ void G_ShutdownGame( int restart )
 
   // write all the client session data so we can get it back
   G_WriteSessionData( );
+
+  G_admin_cleanup( );
+  G_admin_namelog_cleanup( );
 }
 
 

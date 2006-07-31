@@ -27,6 +27,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "bg_public.h"
 #include "g_public.h"
 
+typedef struct gentity_s gentity_t;
+typedef struct gclient_s gclient_t;
+
+#include "g_admin.h"
+
 //==================================================================
 
 #define INFINITE      1000000
@@ -70,9 +75,6 @@ typedef enum
 #define SP_PODIUM_MODEL   "models/mapobjects/podium/podium4.md3"
 
 //============================================================================
-
-typedef struct gentity_s gentity_t;
-typedef struct gclient_s gclient_t;
 
 struct gentity_s
 {
@@ -336,8 +338,13 @@ typedef struct
   connectionRecord_t  *connection;
 
   int                 nameChangeTime;
+  int                 nameChanges;
 
   vec3_t              lastDeathLocation;
+  char                guid[ 33 ];
+  char                ip[ 16 ];
+  qboolean            muted;
+  int                 adminLevel;
 } clientPersistant_t;
 
 // this structure is cleared on each ClientSpawn(),
@@ -635,6 +642,14 @@ void      Cmd_Score_f( gentity_t *ent );
 void      G_StopFollowing( gentity_t *ent );
 qboolean  G_FollowNewClient( gentity_t *ent, int dir );
 void      Cmd_Follow_f( gentity_t *ent, qboolean toggle );
+qboolean  G_MatchOnePlayer( int *plist, char *err, int len );
+int       G_ClientNumbersFromString( char *s, int *plist );
+int       G_SayArgc( void );
+qboolean  G_SayArgv( int n, char *buffer, int bufferLength );
+char      *G_SayConcatArgs( int start );
+void      G_DecolorString( char *in, char *out );
+void      G_ChangeTeam( gentity_t *ent, pTeam_t newTeam );
+void      G_SanitiseName( char *in, char *out );
 
 //
 // g_physics.c
@@ -875,6 +890,9 @@ void QDECL G_LogPrintf( const char *fmt, ... );
 void SendScoreboardMessageToAllClients( void );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... );
+void CheckVote( void );
+void CheckTeamVote( int teamnum );
+void LogExit( const char *string );
 
 //
 // g_client.c
@@ -1021,6 +1039,7 @@ extern  vmCvar_t  g_maxGameClients;   // allow this many active
 extern  vmCvar_t  g_restarted;
 extern  vmCvar_t  g_minCommandPeriod;
 extern  vmCvar_t  g_minNameChangePeriod;
+extern  vmCvar_t  g_maxNameChanges;
 
 extern  vmCvar_t  g_timelimit;
 extern  vmCvar_t  g_suddenDeathTime;
@@ -1085,9 +1104,16 @@ extern  vmCvar_t  g_chatTeamPrefix;
 
 extern  vmCvar_t  g_mapConfigs;
 
+extern  vmCvar_t  g_admin;
+extern  vmCvar_t  g_adminLog;
+extern  vmCvar_t  g_adminParseSay;
+extern  vmCvar_t  g_adminNameProtect;
+extern  vmCvar_t  g_adminTempBan;
+
 void      trap_Printf( const char *fmt );
 void      trap_Error( const char *fmt );
 int       trap_Milliseconds( void );
+int       trap_RealTime( qtime_t *qtime );
 int       trap_Argc( void );
 void      trap_Argv( int n, char *buffer, int bufferLength );
 void      trap_Args( char *buffer, int bufferLength );

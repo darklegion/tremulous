@@ -951,6 +951,8 @@ void ClientUserinfoChanged( int clientNum )
   char      filename[ MAX_QPATH ];
   char      oldname[ MAX_STRING_CHARS ];
   char      newname[ MAX_STRING_CHARS ];
+  char      err[ MAX_STRING_CHARS ];
+  qboolean  revertName = qfalse;
   gclient_t *client;
   char      c1[ MAX_INFO_STRING ];
   char      c2[ MAX_INFO_STRING ];
@@ -987,21 +989,49 @@ void ClientUserinfoChanged( int clientNum )
 
   if( strcmp( oldname, newname ) )
   {
-    // If not connected or time since name change has passed threshold, allow the change
-    if( client->pers.connected != CON_CONNECTED ||
-        ( level.time - client->pers.nameChangeTime ) > ( g_minNameChangePeriod.integer * 1000 ) )
+    // in case we need to revert and there's no oldname
+    if( client->pers.connected != CON_CONNECTED )
+        Q_strncpyz( oldname, "UnnamedPlayer", sizeof( oldname ) );
+
+    if( client->pers.nameChangeTime &&
+      ( level.time - client->pers.nameChangeTime )
+      <= ( g_minNameChangePeriod.value * 1000 ) )
     {
-      Q_strncpyz( client->pers.netname, newname, sizeof( client->pers.netname ) );
-      client->pers.nameChangeTime = level.time;
+      trap_SendServerCommand( ent - g_entities, va( 
+        "print \"Name change spam protection (g_minNameChangePeriod = %d)\n\"",
+         g_minNameChangePeriod.integer ) );
+      revertName = qtrue;
+    }
+    else if( g_maxNameChanges.integer > 0
+      && client->pers.nameChanges >= g_maxNameChanges.integer  )
+    {
+      trap_SendServerCommand( ent - g_entities, va( 
+        "print \"Maximum name changes reached (g_maxNameChanges = %d)\n\"",
+         g_maxNameChanges.integer ) );
+      revertName = qtrue;
+    }
+    else if( !G_admin_name_check( ent, newname, err, sizeof( err ) ) )
+    {
+      trap_SendServerCommand( ent - g_entities, va( "print \"%s\n\"", err ) );
+      revertName = qtrue;
+    }
+
+    if( revertName )
+    {
+      Q_strncpyz( client->pers.netname, oldname,
+        sizeof( client->pers.netname ) );
+      Info_SetValueForKey( userinfo, "name", oldname );
+      trap_SetUserinfo( clientNum, userinfo );
     }
     else
     {
-      // Note this leaves the client in a strange state where it has changed its "name" cvar
-      // but the server has refused to honour the change. In this case the client's cvar does
-      // not match the actual client's name any longer. This isn't so bad since really the
-      // only case where the name would be changing so fast is when it was being abused, and
-      // we don't really care if that kind of player screws their client up.
-      // Nevertheless, maybe FIXME this later.
+      Q_strncpyz( client->pers.netname, newname,
+        sizeof( client->pers.netname ) );
+      if( client->pers.connected == CON_CONNECTED )
+      {
+        client->pers.nameChangeTime = level.time;
+        client->pers.nameChanges++;
+      }
     }
   }
 
@@ -1015,8 +1045,11 @@ void ClientUserinfoChanged( int clientNum )
   {
     if( strcmp( oldname, client->pers.netname ) )
     {
-      trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
-        client->pers.netname ) );
+      trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
+        " renamed to %s\n\"", oldname, client->pers.netname ) );
+      G_LogPrintf( "ClientRename: %i [%s] (%s) \"%s\" -> \"%s\"\n", clientNum,
+         client->pers.ip, client->pers.guid, oldname, client->pers.netname );
+      G_admin_namelog_update( client, clientNum );
     }
   }
 
@@ -1145,16 +1178,39 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   gclient_t *client;
   char      userinfo[ MAX_INFO_STRING ];
   gentity_t *ent;
+  char      guid[ 33 ];
+  char      ip[ 16 ] = {""};
+  char      reason[ MAX_STRING_CHARS ] = {""};
+  int       i;
 
   ent = &g_entities[ clientNum ];
 
   trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+
+  value = Info_ValueForKey( userinfo, "cl_guid" );
+  Q_strncpyz( guid, value, sizeof( guid ) );
+  
+  // check for admin ban
+  if( G_admin_ban_check( userinfo, reason, sizeof( reason ) ) )
+  {
+    return va( "%s", reason );
+  }
+
 
   // IP filtering
   // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
   // recommanding PB based IP / GUID banning, the builtin system is pretty limited
   // check to see if they are on the banned IP list
   value = Info_ValueForKey( userinfo, "ip" );
+  i = 0;
+  while( *value && i < sizeof( ip ) - 2 )
+  {
+    if( *value != '.' && ( *value < '0' || *value > '9' ) )
+      break;
+    ip[ i++ ] = *value;
+    value++;
+  }
+  ip[ i ] = '\0';
   if( G_FilterPacket( value ) )
     return "You are banned from this server.";
 
@@ -1171,6 +1227,19 @@ char *ClientConnect( int clientNum, qboolean firstTime )
 
   memset( client, 0, sizeof(*client) );
 
+  // add guid to session so we don't have to keep parsing userinfo everywhere
+  if( !guid[0] )
+  {
+    Q_strncpyz( client->pers.guid, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+      sizeof( client->pers.guid ) );
+  }
+  else
+  {
+    Q_strncpyz( client->pers.guid, guid, sizeof( client->pers.guid ) );
+  }
+  Q_strncpyz( client->pers.ip, ip, sizeof( client->pers.ip ) );
+  client->pers.adminLevel = G_admin_level( ent );
+
   client->pers.connected = CON_CONNECTING;
 
   // read or initialize the session data
@@ -1180,8 +1249,9 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   G_ReadSessionData( client );
 
   // get and distribute relevent paramters
-  G_LogPrintf( "ClientConnect: %i\n", clientNum );
   ClientUserinfoChanged( clientNum );
+  G_LogPrintf( "ClientConnect: %i [%s] (%s) \"%s\"\n", clientNum,
+   client->pers.ip, client->pers.guid, client->pers.netname );
 
   // don't do the "xxx connected" messages if they were caried over from previous level
   if( firstTime )
@@ -1189,7 +1259,7 @@ char *ClientConnect( int clientNum, qboolean firstTime )
 
   // count current clients and rank for scoreboard
   CalculateRanks( );
-
+  G_admin_namelog_update( client, clientNum );
   return NULL;
 }
 
@@ -1239,6 +1309,9 @@ void ClientBegin( int clientNum )
   ClientSpawn( ent, NULL, NULL, NULL );
 
   trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
+
+  // name can change between ClientConnect() and ClientBegin()
+  G_admin_namelog_update( client, clientNum );
 
   // request the clients PTR code
   trap_SendServerCommand( ent - g_entities, "ptrcrequest" );
@@ -1583,6 +1656,8 @@ void ClientDisconnect( int clientNum )
 
   if( !ent->client )
     return;
+  
+  G_admin_namelog_update( ent->client, -1 );
 
   // stop any following clients
   for( i = 0; i < level.maxclients; i++ )
@@ -1604,7 +1679,8 @@ void ClientDisconnect( int clientNum )
     tent->s.clientNum = ent->s.clientNum;
   }
 
-  G_LogPrintf( "ClientDisconnect: %i\n", clientNum );
+  G_LogPrintf( "ClientDisconnect: %i [%s] (%s) \"%s\"\n", clientNum,
+   ent->client->pers.ip, ent->client->pers.guid, ent->client->pers.netname );
 
   trap_UnlinkEntity( ent );
   ent->s.modelindex = 0;

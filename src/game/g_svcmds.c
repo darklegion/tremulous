@@ -576,6 +576,10 @@ qboolean  ConsoleCommand( void )
 
     return qtrue;
   }
+  
+  // see if this is a a admin command
+  if( G_admin_cmd_check( NULL, qfalse ) )
+    return qtrue;
 
   if( g_dedicated.integer )
   {
