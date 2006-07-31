@@ -1459,9 +1459,7 @@ void Cmd_Class_f( gentity_t *ent )
 
   if( ent->client->pers.teamSelection == PTE_ALIENS &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
-      !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) &&
-      !( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING ) &&
-      !( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )
+      !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
   {
     newClass = BG_FindClassNumForName( s );
     if( newClass == PCL_NONE )
@@ -1473,6 +1471,13 @@ void Cmd_Class_f( gentity_t *ent )
     //if we are not currently spectating, we are attempting evolution
     if( currentClass != PCL_NONE )
     {
+      if( ( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING ) ||
+          ( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )
+      {
+        trap_SendServerCommand( ent-g_entities, va( "print \"You cannot evolve while wallwalking\n\"" ) );
+        return;
+      }
+
       //check there are no humans nearby
       VectorAdd( ent->client->ps.origin, range, maxs );
       VectorSubtract( ent->client->ps.origin, range, mins );
@@ -1501,7 +1506,8 @@ void Cmd_Class_f( gentity_t *ent )
             currentClass == PCL_ALIEN_BUILDER0_UPG ) &&
           ent->client->ps.stats[ STAT_MISC ] > 0 )
       {
-        trap_SendServerCommand( ent-g_entities, va( "print \"Cannot evolve until build timer expires\n\"" ) );
+        trap_SendServerCommand( ent-g_entities,
+            va( "print \"You cannot evolve until build timer expires\n\"" ) );
         return;
       }
 
@@ -1537,7 +1543,7 @@ void Cmd_Class_f( gentity_t *ent )
       {
         //...check we can evolve to that class
         if( numLevels >= 0 &&
-            BG_FindStagesForClass( newClass, g_alienStage.integer ) && 
+            BG_FindStagesForClass( newClass, g_alienStage.integer ) &&
             BG_ClassIsAllowed( newClass ) )
         {
           ent->client->pers.evolveHealthFraction = (float)ent->client->ps.stats[ STAT_HEALTH ] /
