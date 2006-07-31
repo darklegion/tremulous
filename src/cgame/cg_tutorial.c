@@ -141,11 +141,12 @@ static const char *CG_KeyNameForCommand( const char *command )
 CG_BuildableInRange
 ===============
 */
-static qboolean CG_BuildableInRange( playerState_t *ps )
+static qboolean CG_BuildableInRange( playerState_t *ps, float *healthFraction )
 {
   vec3_t        view, point;
   trace_t       trace;
   entityState_t *es;
+  int           health;
 
   AngleVectors( cg.refdefViewAngles, view, NULL, NULL );
   VectorMA( cg.refdef.vieworg, 64, view, point );
@@ -153,6 +154,12 @@ static qboolean CG_BuildableInRange( playerState_t *ps )
             point, ps->clientNum, MASK_SHOT );
 
   es = &cg_entities[ trace.entityNum ].currentState;
+
+  if( healthFraction )
+  {
+    health = es->generic1 & ~( B_POWERED_TOGGLEBIT | B_DCCED_TOGGLEBIT | B_SPAWNED_TOGGLEBIT );
+    *healthFraction = (float)health / B_HEALTH_SCALE;
+  }
 
   if( es->eType == ET_BUILDABLE &&
       ps->stats[ STAT_PTEAM ] == BG_FindTeamForBuildable( es->modelindex ) )
@@ -188,7 +195,7 @@ static void CG_AlienBuilderText( char *text, playerState_t *ps )
         va( "Press %s to build a structure\n",
           CG_KeyNameForCommand( "+attack" ) ) );
 
-    if( CG_BuildableInRange( ps ) )
+    if( CG_BuildableInRange( ps, NULL ) )
     {
       Q_strcat( text, MAX_TUTORIAL_TEXT,
           va( "Press %s to destroy this structure\n",
@@ -326,6 +333,7 @@ CG_HumanCkitText
 static void CG_HumanCkitText( char *text, playerState_t *ps )
 {
   buildable_t buildable = ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT;
+  float       health;
 
   if( buildable > BA_NONE )
   {
@@ -345,8 +353,15 @@ static void CG_HumanCkitText( char *text, playerState_t *ps )
         va( "Press %s to build a structure\n",
           CG_KeyNameForCommand( "+attack" ) ) );
 
-    if( CG_BuildableInRange( ps ) )
+    if( CG_BuildableInRange( ps, &health ) )
     {
+      if( health < 1.0f )
+      {
+        Q_strcat( text, MAX_TUTORIAL_TEXT,
+            va( "Hold %s to repair this structure\n",
+              CG_KeyNameForCommand( "+button5" ) ) );
+      }
+
       Q_strcat( text, MAX_TUTORIAL_TEXT,
           va( "Press %s to destroy this structure\n",
             CG_KeyNameForCommand( "deconstruct" ) ) );

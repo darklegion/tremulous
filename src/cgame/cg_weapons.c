@@ -1047,8 +1047,6 @@ void CG_AddViewWeapon( playerState_t *ps )
     return;
 
   // drop gun lower at higher fov
-  //if ( cg_fov.integer > 90 ) {
-  //TA: the client side variable isn't used ( shouldn't iD have done this anyway? )
   if( cg.refdef.fov_y > 90 )
     fovOffset = -0.4 * ( cg.refdef.fov_y - 90 );
   else

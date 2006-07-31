@@ -925,6 +925,13 @@ notteam: when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.
 
 notsingle: when set to 1, entity will not spawn in Single Player mode (bot play mode).
 
+-------- SPAWNFLAGS --------
+SLOWROTATE: makes the portal camera rotate slowly along the roll axis.
+
+FASTROTATE: makes the portal camera rotate faster along the roll axis.
+
+NOROTATE: no rolling at all.
+
 -------- NOTES --------
 Both the setting "angles" key or "targeting a target_position" methods can be used to aim the camera. However, the target_position method is simpler. In both cases, the "roll" key must be used to set the roll angle.
 */
@@ -942,13 +949,6 @@ notfree: when set to 1, entity will not spawn in "Free for all" and "Tournament"
 notteam: when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.
 
 notsingle: when set to 1, entity will not spawn in Single Player mode (bot play mode).
-
--------- SPAWNFLAGS --------
-SLOWROTATE: makes the portal camera rotate slowly along the roll axis.
-
-FASTROTATE: makes the portal camera rotate faster along the roll axis.
-
-NOROTATE: no rolling at all.
 
 -------- NOTES --------
 The entity must be no farther than 64 units away from the portal surface to lock onto it. To make a mirror, apply the common/mirror shader to the surface, place this entity near it but don't target a misc_portal_camera.

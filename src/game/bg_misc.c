@@ -4599,7 +4599,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
   s->weapon = ps->weapon;
   s->groundEntityNum = ps->groundEntityNum;
 
-  //store items held and active items in otherEntityNum
+  //store items held and active items in modelindex and modelindex2
   s->modelindex = 0;
   s->modelindex2 = 0;
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
@@ -4626,6 +4626,8 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
 
   if( s->generic1 <= WPM_NONE || s->generic1 >= WPM_NUM_WEAPONMODES )
     s->generic1 = WPM_PRIMARY;
+
+  s->otherEntityNum = ps->otherEntityNum;
 }
 
 
@@ -4708,7 +4710,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   s->weapon = ps->weapon;
   s->groundEntityNum = ps->groundEntityNum;
 
-  //store items held and active items in otherEntityNum
+  //store items held and active items in modelindex and modelindex2
   s->modelindex = 0;
   s->modelindex2 = 0;
 
@@ -4736,6 +4738,8 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 
   if( s->generic1 <= WPM_NONE || s->generic1 >= WPM_NUM_WEAPONMODES )
     s->generic1 = WPM_PRIMARY;
+
+  s->otherEntityNum = ps->otherEntityNum;
 }
 
 /*

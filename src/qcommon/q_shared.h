@@ -1077,7 +1077,7 @@ typedef struct playerState_s {
 
 	int			generic1;
 	int			loopSound;
-	int			jumppad_ent;	// jumppad entity hit this frame
+	int			otherEntityNum;
 
 	// not communicated over the net at all
 	int			ping;			// server to game info for scoreboard

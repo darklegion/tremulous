@@ -304,13 +304,6 @@ void  G_TouchTriggers( gentity_t *ent )
     if( hit->touch )
       hit->touch( hit, ent, &trace );
   }
-
-  // if we didn't touch a jump pad this pmove frame
-  if( ent->client->ps.jumppad_frame != ent->client->ps.pmove_framecount )
-  {
-    ent->client->ps.jumppad_frame = 0;
-    ent->client->ps.jumppad_ent = 0;
-  }
 }
 
 /*

@@ -1169,7 +1169,7 @@ void G_UpdateZaps( int msec )
 
           // don't let a high msec value inflate the total damage
           if( damage + zap->damageUsed > LEVEL2_AREAZAP_DMG )
-		damage = LEVEL2_AREAZAP_DMG - zap->damageUsed;
+            damage = LEVEL2_AREAZAP_DMG - zap->damageUsed;
 
           VectorSubtract( target->s.origin, source->s.origin, forward );
           VectorNormalize( forward );
