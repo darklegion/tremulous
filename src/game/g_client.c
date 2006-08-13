@@ -997,7 +997,7 @@ void ClientUserinfoChanged( int clientNum )
       ( level.time - client->pers.nameChangeTime )
       <= ( g_minNameChangePeriod.value * 1000 ) )
     {
-      trap_SendServerCommand( ent - g_entities, va( 
+      trap_SendServerCommand( ent - g_entities, va(
         "print \"Name change spam protection (g_minNameChangePeriod = %d)\n\"",
          g_minNameChangePeriod.integer ) );
       revertName = qtrue;
@@ -1005,7 +1005,7 @@ void ClientUserinfoChanged( int clientNum )
     else if( g_maxNameChanges.integer > 0
       && client->pers.nameChanges >= g_maxNameChanges.integer  )
     {
-      trap_SendServerCommand( ent - g_entities, va( 
+      trap_SendServerCommand( ent - g_entities, va(
         "print \"Maximum name changes reached (g_maxNameChanges = %d)\n\"",
          g_maxNameChanges.integer ) );
       revertName = qtrue;
@@ -1141,7 +1141,7 @@ void ClientUserinfoChanged( int clientNum )
   // print scoreboards, display models, and play custom sounds
 
   Com_sprintf( userinfo, sizeof( userinfo ),
-	  "n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\humans\\g_blueteam\\aliens"
+    "n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\humans\\g_blueteam\\aliens"
     "\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
     client->pers.netname, team, model, model, c1, c2,
     client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader );
@@ -1189,7 +1189,7 @@ char *ClientConnect( int clientNum, qboolean firstTime )
 
   value = Info_ValueForKey( userinfo, "cl_guid" );
   Q_strncpyz( guid, value, sizeof( guid ) );
-  
+
   // check for admin ban
   if( G_admin_ban_check( userinfo, reason, sizeof( reason ) ) )
   {
@@ -1656,7 +1656,7 @@ void ClientDisconnect( int clientNum )
 
   if( !ent->client )
     return;
-  
+
   G_admin_namelog_update( ent->client, -1 );
 
   // stop any following clients
