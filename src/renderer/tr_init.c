@@ -511,7 +511,7 @@ void RB_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName 
 	}
 
 	ri.FS_WriteFile( fileName, buffer, 1 );		// create path
-	SaveJPG( fileName, 95, glConfig.vidWidth, glConfig.vidHeight, buffer);
+	SaveJPG( fileName, 90, glConfig.vidWidth, glConfig.vidHeight, buffer);
 
 	ri.Hunk_FreeTempMemory( buffer );
 }
@@ -815,23 +815,23 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 
 	if( cmd->motionJpeg )
 	{
-		frameSize = SaveJPGToBuffer( cmd->encodeBuffer, 95,
+		frameSize = SaveJPGToBuffer( cmd->encodeBuffer, 90,
 				cmd->width, cmd->height, cmd->captureBuffer );
+		ri.CL_WriteAVIVideoFrame( cmd->encodeBuffer, frameSize );
 	}
 	else
 	{
-		frameSize = cmd->width * cmd->height * 4;
+		frameSize = cmd->width * cmd->height;
 
-		// Vertically flip the image
-		for( i = 0; i < cmd->height; i++ )
+		for( i = 0; i < frameSize; i++)    // Pack to 24bpp and swap R and B
 		{
-			Com_Memcpy( &cmd->encodeBuffer[ i * ( cmd->width * 4 ) ],
-					&cmd->captureBuffer[ ( cmd->height - i - 1 ) * ( cmd->width * 4 ) ],
-					cmd->width * 4 );
+			cmd->encodeBuffer[ i*3 ]     = cmd->captureBuffer[ i*4 + 2 ];
+			cmd->encodeBuffer[ i*3 + 1 ] = cmd->captureBuffer[ i*4 + 1 ];
+			cmd->encodeBuffer[ i*3 + 2 ] = cmd->captureBuffer[ i*4 ];
 		}
-	}
 
-	ri.CL_WriteAVIVideoFrame( cmd->encodeBuffer, frameSize );
+		ri.CL_WriteAVIVideoFrame( cmd->encodeBuffer, frameSize * 3 );
+	}
 
 	return (const void *)(cmd + 1);	
 }

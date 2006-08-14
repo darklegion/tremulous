@@ -73,6 +73,8 @@ cvar_t	*cl_inGameVideo;
 cvar_t	*cl_serverStatusResendTime;
 cvar_t	*cl_trn;
 
+cvar_t	*cl_lanForcePackets;
+
 clientActive_t		cl;
 clientConnection_t	clc;
 clientStatic_t		cls;
@@ -230,10 +232,8 @@ CL_DemoFilename
 void CL_DemoFilename( int number, char *fileName ) {
 	int		a,b,c,d;
 
-	if ( number < 0 || number > 9999 ) {
-		Com_sprintf( fileName, MAX_OSPATH, "demo9999.tga" );
-		return;
-	}
+	if(number < 0 || number > 9999)
+		number = 9999;
 
 	a = number / 1000;
 	number -= a*1000;
@@ -301,10 +301,8 @@ void CL_Record_f( void ) {
 			CL_DemoFilename( number, demoName );
 			Com_sprintf (name, sizeof(name), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION );
 
-			len = FS_ReadFile( name, NULL );
-			if ( len <= 0 ) {
+			if (!FS_FileExists(name))
 				break;	// file doesn't exist
-			}
 		}
 	}
 
@@ -2436,6 +2434,7 @@ void CL_Init( void ) {
 
 	Cvar_Get( "cl_maxPing", "800", CVAR_ARCHIVE );
 
+	cl_lanForcePackets = Cvar_Get ("cl_lanForcePackets", "1", CVAR_ARCHIVE);
 
 	// userinfo
 	playerName = getenv( "USER" ); 				// Unixy stuff

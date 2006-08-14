@@ -68,7 +68,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#if USE_SDL_VIDEO
+#include "SDL.h"
+#include "SDL_loadso.h"
+#else
 #include <dlfcn.h>
+#endif
 
 #include "../renderer/tr_local.h"
 #include "../client/client.h"
@@ -555,7 +560,7 @@ static qboolean GLW_StartDriverAndSetMode( const char *drivername,
 static int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
 {
   const char*   glstring; // bk001130 - from cvs1.17 (mkv)
-  int sdlcolorbits = 4;
+  int sdlcolorbits;
   int colorbits, depthbits, stencilbits;
   int tcolorbits, tdepthbits, tstencilbits;
   int i = 0;
@@ -651,6 +656,7 @@ static int GLW_SetMode( const char *drivername, int mode, qboolean fullscreen )
         tstencilbits = 0;
     }
 
+    sdlcolorbits = 4;
     if (tcolorbits == 24)
         sdlcolorbits = 8;
 

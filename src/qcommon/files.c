@@ -2564,6 +2564,23 @@ qboolean FS_idPak( char *pak, char *base ) {
 
 /*
 ================
+FS_idPak
+
+Check whether the string contains stuff like "../" to prevent directory traversal bugs
+and return qtrue if it does.
+================
+*/
+
+qboolean FS_CheckDirTraversal(const char *checkdir)
+{
+	if(strstr(checkdir, "../") || strstr(checkdir, "..\\"))
+		return qtrue;
+	
+	return qfalse;
+}
+
+/*
+================
 FS_ComparePaks
 
 ----------------
@@ -2611,7 +2628,7 @@ qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
 		}
 
 		// Make sure the server cannot make us write to non-quake3 directories.
-		if(strstr(fs_serverReferencedPakNames[i], "../") || strstr(fs_serverReferencedPakNames[i], "..\\"))
+		if(FS_CheckDirTraversal(fs_serverReferencedPakNames[i]))
                 {
 			Com_Printf("WARNING: Invalid download name %s\n", fs_serverReferencedPakNames[i]);
                         continue;
@@ -2802,6 +2819,10 @@ static void FS_Startup( const char *gameName ) {
 	if (fs_basepath->string[0]) {
 		FS_AddGameDirectory( fs_basepath->string, gameName );
 	}
+#ifdef MACOS_X
+	// allow .app bundles to be placed along side base dir
+	FS_AddGameDirectory( ".", gameName );
+#endif
   // fs_homepath is somewhat particular to *nix systems, only add if relevant
   // NOTE: same filtering below for mods and basegame
 	if (fs_basepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {
