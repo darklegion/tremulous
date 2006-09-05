@@ -7480,7 +7480,7 @@ Both the [level] and [admin] blocks have the flags parameter which is a
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="20" columns="2">
+<lyxtabular version="3" rows="22" columns="2">
 <features islongtable="true">
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
@@ -7570,7 +7570,7 @@ c
 
 \layout Standard
 
-!cancelvote/!passvote
+!cancelvote
 \end_inset 
 </cell>
 </row>
@@ -7652,6 +7652,24 @@ i
 
 \layout Standard
 
+K
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!lock/!unlock
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
 m
 \end_inset 
 </cell>
@@ -7697,6 +7715,24 @@ n
 \layout Standard
 
 !nextmap
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+V
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+!passvote
 \end_inset 
 </cell>
 </row>
@@ -7856,7 +7892,7 @@ The following table shows the flags for RIGHTS:
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="11" columns="2">
+<lyxtabular version="3" rows="12" columns="2">
 <features islongtable="true">
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
@@ -7893,6 +7929,24 @@ RIGHT
 \layout Standard
 
 cannot be vote kicked
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+never loses credits/evo for switching teams
 \end_inset 
 </cell>
 </row>
