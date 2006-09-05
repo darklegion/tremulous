@@ -2463,14 +2463,14 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
 
   //can we build at this angle?
   if( !( normal[ 2 ] >= minNormal || ( invert && normal[ 2 ] <= -minNormal ) ) )
-    return IBE_NORMAL;
+    reason = IBE_NORMAL;
 
   if( tr1.entityNum != ENTITYNUM_WORLD )
-    return IBE_NORMAL;
+    reason = IBE_NORMAL;
 
   //check there is enough room to spawn from (presuming this is a spawn)
   if( G_CheckSpawnPoint( -1, origin, normal, buildable, NULL ) != NULL )
-    return IBE_NORMAL;
+    reason = IBE_NORMAL;
 
   contents = trap_PointContents( entity_origin, -1 );
 
