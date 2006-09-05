@@ -597,12 +597,26 @@ void G_ChangeTeam( gentity_t *ent, pTeam_t newTeam )
     else if( oldTeam == PTE_HUMANS )
       G_RemoveFromSpawnQueue( &level.humanSpawnQueue, ent->client->ps.clientNum );
 
-    // Tranfer credits and kills as long as this player has been on the
-    // same team for at least 1 minute. This is done to provide
-    // a penalty for switching teams for reconnaissance.
-    if( ( oldTeam == PTE_HUMANS || oldTeam == PTE_ALIENS )
-      && ( level.time - ent->client->pers.teamChangeTime ) > 60000 )
+    if( G_admin_permission( ent, ADMF_TEAMCHANGEFREE ) )
     {
+      // always save in human credtis
+      if( oldTeam == PTE_ALIENS )
+      {
+        ent->client->ps.persistant[ PERS_CREDIT ] *=
+          (float)FREEKILL_HUMAN / FREEKILL_ALIEN;
+      }
+      if( newTeam == PTE_ALIENS )
+      {
+        ent->client->ps.persistant[ PERS_CREDIT ] *=
+          (float)FREEKILL_ALIEN / FREEKILL_HUMAN;
+      }
+    }
+    else if( ( oldTeam == PTE_HUMANS || oldTeam == PTE_ALIENS )
+      && ( level.time - ent->client->pers.teamChangeTime ) > 60000 ) 
+    {
+      // Tranfer credits and kills as long as this player has been on the
+      // same team for at least 1 minute. This is done to provide
+      // a penalty for switching teams for reconnaissance.
       if( oldTeam == PTE_HUMANS )
       {
         ent->client->ps.persistant[ PERS_CREDIT ] *=
@@ -654,6 +668,19 @@ void Cmd_Team_f( gentity_t *ent )
     team = PTE_NONE;
   else if( !Q_stricmp( s, "aliens" ) )
   {
+    if( level.teamLocked[ PTE_ALIENS ] )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        va( "print \"Alien team has been ^1LOCKED\n\"", s ) );
+      return; 
+    }
+    else if( level.teamLocked[ PTE_HUMANS ] )
+    {
+      // if only one team has been locked, let people join the other
+      // regardless of balance
+      force = qtrue;
+    }
+
     if( !force && g_teamForceBalance.integer
       && ( ( level.numAlienClients > level.numHumanClients ) ||
         ( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
@@ -667,6 +694,19 @@ void Cmd_Team_f( gentity_t *ent )
   }
   else if( !Q_stricmp( s, "humans" ) )
   {
+    if( level.teamLocked[ PTE_HUMANS ] )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        va( "print \"Human team has been ^1LOCKED\n\"", s ) );
+      return; 
+    }
+    else if( level.teamLocked[ PTE_ALIENS ] )
+    {
+      // if only one team has been locked, let people join the other
+      // regardless of balance
+      force = qtrue;
+    }
+
     if( !force && g_teamForceBalance.integer &&
       ( ( level.numHumanClients > level.numAlienClients ) ||
         ( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
@@ -680,12 +720,19 @@ void Cmd_Team_f( gentity_t *ent )
   }
   else if( !Q_stricmp( s, "auto" ) )
   {
-    if( level.numHumanClients > level.numAlienClients )
+    if( level.teamLocked[ PTE_HUMANS ] && level.teamLocked[ PTE_ALIENS ] )
+      team = PTE_NONE;
+    else if( level.numHumanClients > level.numAlienClients )
       team = PTE_ALIENS;
     else if( level.numHumanClients < level.numAlienClients )
       team = PTE_HUMANS;
     else
       team = PTE_ALIENS + ( rand( ) % 2 );
+
+    if( team == PTE_ALIENS && level.teamLocked[ PTE_ALIENS ] )
+      team = PTE_HUMANS;
+    else if( team == PTE_HUMANS && level.teamLocked[ PTE_HUMANS ] )
+      team = PTE_ALIENS;
   }
   else
   {

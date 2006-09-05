@@ -622,6 +622,7 @@ typedef struct
 
   qboolean          uncondAlienWin;
   qboolean          uncondHumanWin;
+  qboolean          teamLocked[ TEAM_NUM_TEAMS ];
 } level_locals_t;
 
 //

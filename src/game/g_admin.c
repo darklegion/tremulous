@@ -50,8 +50,8 @@ g_admin_cmd_t g_admin_cmds[ ] =
 
     {"ban", G_admin_ban, "b",
       "ban a player by IP and GUID with an optional expiration time and reason."
-      "time is seconds or suffix with 'w' - weeks, 'd' - days, 'h' - hours, or "
-      "'m' - minutes",
+      "  time is seconds or suffix with 'w' - weeks, 'd' - days, 'h' - hours, "
+      "or 'm' - minutes",
       "[^3name|slot#|IP^7] (^5time^7) (^5reason^7)"
     },
 
@@ -78,6 +78,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
     {"listplayers", G_admin_listplayers, "i",
       "display a list of players, their client numbers and their levels",
       ""
+    },
+    
+    {"lock", G_admin_lock, "K",
+      "lock a team to prevent anyone from joining it",
+      "[^3a|h^7]"
     },
 
     {"mute", G_admin_mute, "m",
@@ -141,6 +146,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
     {"unban", G_admin_unban, "b",
       "unbans a player specified by the slot as seen in showbans",
       "[^3ban slot#^7]"
+    },
+    
+    {"unlock", G_admin_unlock, "K",
+      "unlock a locked team",
+      "[^3a|h^7]"
     },
 
     {"unmute", G_admin_mute, "m",
@@ -285,6 +295,8 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
 
   for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
   {
+    if( g_admin_admins[ i ]->level < 1 )
+      continue;
     G_SanitiseName( g_admin_admins[ i ]->name, testName );
     if( !Q_stricmp( name2, testName ) &&
       Q_stricmp( ent->client->pers.guid, g_admin_admins[ i ]->guid ) )
@@ -914,9 +926,8 @@ qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
   command[ 0 ] = '\0';
   G_SayArgv( 0, command, sizeof( command ) );
   if( !Q_stricmp( command, "say" ) ||
-       ( G_admin_permission( ent, ADMF_TEAMFTCMD ) &&
-         ( !Q_stricmp( command, "say_team" ) ||
-           !Q_stricmp( command, "say_buddy" ) ) ) )
+       ( G_admin_permission( ent, ADMF_TEAMCHAT_CMD ) &&
+         ( !Q_stricmp( command, "say_team" ) ) ) )
   {
     skip = 1;
     G_SayArgv( 1, command, sizeof( command ) );
@@ -2303,7 +2314,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
         ADMBP( va( "^3!help: ^7help for '!%s':\n",
           g_admin_cmds[ i ].keyword ) );
         ADMBP( va( " ^3Funtion: ^7%s\n", g_admin_cmds[ i ].function ) );
-        ADMBP( va( " ^3Syntax: ^7%s %s\n", g_admin_cmds[ i ].keyword,
+        ADMBP( va( " ^3Syntax: ^7!%s %s\n", g_admin_cmds[ i ].keyword,
                  g_admin_cmds[ i ].syntax ) );
         ADMBP( va( " ^3Flag: ^7'%c'\n", g_admin_cmds[ i ].flag[ 0 ] ) );
         ADMBP_end();
@@ -2324,7 +2335,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
         ADMBP( va( "^3!help: ^7help for '%s':\n",
           g_admin_commands[ i ]->command ) );
         ADMBP( va( " ^3Description: ^7%s\n", g_admin_commands[ i ]->desc ) );
-        ADMBP( va( " ^3Syntax: ^7%s\n", g_admin_commands[ i ]->command ) );
+        ADMBP( va( " ^3Syntax: ^7!%s\n", g_admin_commands[ i ]->command ) );
         ADMBP_end();
         return qtrue;
       }
@@ -2599,6 +2610,72 @@ qboolean G_admin_namelog( gentity_t *ent, int skiparg )
   ADMBP_end();
   return qtrue;
 }
+
+qboolean G_admin_lock( gentity_t *ent, int skiparg )
+{
+  char teamName[2] = {""};
+  pTeam_t team;
+
+  if( G_SayArgc() < 1 + skiparg )
+  {
+    ADMP( "^3!lock: ^7usage: !lock [a|h]\n" );
+    return qfalse;
+  }
+  G_SayArgv( 1 + skiparg, teamName, sizeof( teamName ) );
+  if( teamName[ 0 ] == 'a' || teamName[ 0 ] == 'A' )
+    team = PTE_ALIENS;
+  else if( teamName[ 0 ] == 'h' || teamName[ 0 ] == 'H' )
+    team = PTE_HUMANS;
+  else
+  {
+    ADMP( va( "^3!lock: ^7invalid team\"%c\"\n", teamName[0] ) );
+    return qfalse;
+  }
+  if( level.teamLocked[ team ] )
+  {
+    ADMP( va( "^3!lock: ^7%s team is already locked\n",
+      ( team == PTE_ALIENS ) ? "Alien" : "Human" ) );
+    return qfalse;
+  }
+  level.teamLocked[ team ] = qtrue;
+  AP( va( "print \"^3!lock: ^7%s team has been locked by %s\n\"",
+    ( team == PTE_ALIENS ) ? "Alien" : "Human",
+    ( ent ) ? ent->client->pers.netname : "console" ) );
+  return qtrue;
+} 
+
+qboolean G_admin_unlock( gentity_t *ent, int skiparg )
+{
+  char teamName[2] = {""};
+  pTeam_t team;
+
+  if( G_SayArgc() < 1 + skiparg )
+  {
+    ADMP( "^3!unlock: ^7usage: !unlock [a|h]\n" );
+    return qfalse;
+  }
+  G_SayArgv( 1 + skiparg, teamName, sizeof( teamName ) );
+  if( teamName[ 0 ] == 'a' || teamName[ 0 ] == 'A' )
+    team = PTE_ALIENS;
+  else if( teamName[ 0 ] == 'h' || teamName[ 0 ] == 'H' )
+    team = PTE_HUMANS;
+  else
+  {
+    ADMP( va( "^3!unlock: ^7invalid team\"%c\"\n", teamName[0] ) );
+    return qfalse;
+  }
+  if( !level.teamLocked[ team ] )
+  {
+    ADMP( va( "^3!lock: ^7%s team is not locked\n",
+      ( team == PTE_ALIENS ) ? "Alien" : "Human" ) );
+    return qfalse;
+  }
+  level.teamLocked[ team ] = qfalse;
+  AP( va( "print \"^3!unlock: ^7%s team has been unlocked by %s\n\"",
+    ( team == PTE_ALIENS ) ? "Alien" : "Human",
+    ( ent ) ? ent->client->pers.netname : "console" ) );
+  return qtrue;
+} 
 
 /*
  * This function facilitates the TP define.  ADMP() is similar to CP except that
