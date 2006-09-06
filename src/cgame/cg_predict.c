@@ -453,6 +453,7 @@ void CG_PredictPlayerState( void )
 
   // prepare for pmove
   cg_pmove.ps = &cg.predictedPlayerState;
+  cg_pmove.pmext = &cg.pmext;
   cg_pmove.trace = CG_Trace;
   cg_pmove.pointcontents = CG_PointContents;
   cg_pmove.debugLevel = cg_debugMove.integer;

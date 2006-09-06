@@ -1713,6 +1713,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   // clear everything
   memset( &cgs, 0, sizeof( cgs ) );
   memset( &cg, 0, sizeof( cg ) );
+  memset( &cg.pmext, 0, sizeof( cg.pmext ) );
   memset( cg_entities, 0, sizeof( cg_entities ) );
 
   cg.clientNum = clientNum;
