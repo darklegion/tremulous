@@ -686,7 +686,7 @@ void Cmd_Team_f( gentity_t *ent )
         ( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
           level.numAlienClients >= level.numHumanClients ) ) )
     {
-      G_TriggerMenu( ent->client->ps.clientNum, MN_A_TEAMFULL );
+      G_TriggerMenu( ent - g_entities, MN_A_TEAMFULL );
       return;
     }
 
@@ -712,7 +712,7 @@ void Cmd_Team_f( gentity_t *ent )
         ( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
           level.numHumanClients >= level.numAlienClients ) ) )
     {
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_TEAMFULL );
+      G_TriggerMenu( ent - g_entities, MN_H_TEAMFULL );
       return;
     }
 
@@ -978,7 +978,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     return;
   }
 
-  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
+  if( ent->client->sess.sessionTeam == TEAM_SPECTATOR )
   {
     trap_SendServerCommand( ent-g_entities, "print \"Not allowed to call a vote as spectator\n\"" );
     return;
