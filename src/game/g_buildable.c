@@ -166,7 +166,6 @@ static qboolean findPower( gentity_t *self )
   int       distance = 0;
   int       minDistance = 10000;
   vec3_t    temp_v;
-  qboolean  foundPower = qfalse;
 
   if( self->biteam != BIT_HUMANS )
     return qfalse;
@@ -194,26 +193,22 @@ static qboolean findPower( gentity_t *self )
     {
       VectorSubtract( self->s.origin, ent->s.origin, temp_v );
       distance = VectorLength( temp_v );
-      if( distance < minDistance && ent->powered )
-      {
-        closestPower = ent;
-        minDistance = distance;
-        foundPower = qtrue;
+
+      if( distance < minDistance && ent->powered &&
+          ( ( ent->s.modelindex == BA_H_REACTOR &&
+            distance <= REACTOR_BASESIZE ) ||
+          ( ent->s.modelindex == BA_H_REPEATER &&
+            distance <= REPEATER_BASESIZE ) ) ) {
+
+          closestPower = ent;
+          minDistance = distance;
       }
     }
   }
 
   //if there were no power items nearby give up
-  if( !foundPower )
-    return qfalse;
-
-  //bleh
-  if( ( closestPower->s.modelindex == BA_H_REACTOR && ( minDistance <= REACTOR_BASESIZE ) ) ||
-      ( closestPower->s.modelindex == BA_H_REPEATER && ( minDistance <= REPEATER_BASESIZE ) &&
-        closestPower->powered ) )
-  {
+  if( closestPower ) {
     self->parentNode = closestPower;
-
     return qtrue;
   }
   else
