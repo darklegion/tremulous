@@ -2631,13 +2631,27 @@ qboolean G_admin_lock( gentity_t *ent, int skiparg )
     ADMP( va( "^3!lock: ^7invalid team\"%c\"\n", teamName[0] ) );
     return qfalse;
   }
-  if( level.teamLocked[ team ] )
+
+  if( team == PTE_ALIENS )
   {
-    ADMP( va( "^3!lock: ^7%s team is already locked\n",
-      ( team == PTE_ALIENS ) ? "Alien" : "Human" ) );
-    return qfalse;
+    if( level.alienTeamLocked )
+    {
+      ADMP( "^3!lock: ^7Alien team is already locked\n" );
+      return qfalse;
+    }
+    else
+      level.alienTeamLocked = qtrue;
   }
-  level.teamLocked[ team ] = qtrue;
+  else if( team == PTE_HUMANS ) {
+    if( level.humanTeamLocked )
+    {
+      ADMP( "^3!lock: ^7Human team is already locked\n" );
+      return qfalse;
+    }
+    else
+      level.humanTeamLocked = qtrue;
+  }
+
   AP( va( "print \"^3!lock: ^7%s team has been locked by %s\n\"",
     ( team == PTE_ALIENS ) ? "Alien" : "Human",
     ( ent ) ? ent->client->pers.netname : "console" ) );
@@ -2664,13 +2678,27 @@ qboolean G_admin_unlock( gentity_t *ent, int skiparg )
     ADMP( va( "^3!unlock: ^7invalid team\"%c\"\n", teamName[0] ) );
     return qfalse;
   }
-  if( !level.teamLocked[ team ] )
+  
+  if( team == PTE_ALIENS )
   {
-    ADMP( va( "^3!lock: ^7%s team is not locked\n",
-      ( team == PTE_ALIENS ) ? "Alien" : "Human" ) );
-    return qfalse;
+    if( !level.alienTeamLocked )
+    {
+      ADMP( "^3!unlock: ^7Alien team is not currently locked\n" );
+      return qfalse;
+    }
+    else
+      level.alienTeamLocked = qfalse;
   }
-  level.teamLocked[ team ] = qfalse;
+  else if( team == PTE_HUMANS ) {
+    if( !level.humanTeamLocked )
+    {
+      ADMP( "^3!unlock: ^7Human team is not currently locked\n" );
+      return qfalse;
+    }
+    else
+      level.humanTeamLocked = qfalse;
+  }
+
   AP( va( "print \"^3!unlock: ^7%s team has been unlocked by %s\n\"",
     ( team == PTE_ALIENS ) ? "Alien" : "Human",
     ( ent ) ? ent->client->pers.netname : "console" ) );

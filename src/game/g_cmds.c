@@ -668,13 +668,13 @@ void Cmd_Team_f( gentity_t *ent )
     team = PTE_NONE;
   else if( !Q_stricmp( s, "aliens" ) )
   {
-    if( level.teamLocked[ PTE_ALIENS ] )
+    if( level.alienTeamLocked )
     {
       trap_SendServerCommand( ent-g_entities,
         va( "print \"Alien team has been ^1LOCKED\n\"", s ) );
       return; 
     }
-    else if( level.teamLocked[ PTE_HUMANS ] )
+    else if( level.humanTeamLocked )
     {
       // if only one team has been locked, let people join the other
       // regardless of balance
@@ -694,13 +694,13 @@ void Cmd_Team_f( gentity_t *ent )
   }
   else if( !Q_stricmp( s, "humans" ) )
   {
-    if( level.teamLocked[ PTE_HUMANS ] )
+    if( level.humanTeamLocked )
     {
       trap_SendServerCommand( ent-g_entities,
         va( "print \"Human team has been ^1LOCKED\n\"", s ) );
       return; 
     }
-    else if( level.teamLocked[ PTE_ALIENS ] )
+    else if( level.alienTeamLocked )
     {
       // if only one team has been locked, let people join the other
       // regardless of balance
@@ -720,7 +720,7 @@ void Cmd_Team_f( gentity_t *ent )
   }
   else if( !Q_stricmp( s, "auto" ) )
   {
-    if( level.teamLocked[ PTE_HUMANS ] && level.teamLocked[ PTE_ALIENS ] )
+    if( level.humanTeamLocked && level.alienTeamLocked )
       team = PTE_NONE;
     else if( level.numHumanClients > level.numAlienClients )
       team = PTE_ALIENS;
@@ -729,9 +729,9 @@ void Cmd_Team_f( gentity_t *ent )
     else
       team = PTE_ALIENS + ( rand( ) % 2 );
 
-    if( team == PTE_ALIENS && level.teamLocked[ PTE_ALIENS ] )
+    if( team == PTE_ALIENS && level.alienTeamLocked )
       team = PTE_HUMANS;
-    else if( team == PTE_HUMANS && level.teamLocked[ PTE_HUMANS ] )
+    else if( team == PTE_HUMANS && level.humanTeamLocked )
       team = PTE_ALIENS;
   }
   else
