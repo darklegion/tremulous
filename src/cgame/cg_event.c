@@ -106,7 +106,7 @@ static void CG_Obituary( entityState_t *ent )
       message = "was in the wrong place";
       break;
     case MOD_HSPAWN:
-      message = "should have ran further";
+      message = "should have run further";
       break;
     case MOD_ASPAWN:
       message = "shouldn't have trod in the acid";
