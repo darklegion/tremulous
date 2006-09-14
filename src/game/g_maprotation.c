@@ -480,7 +480,7 @@ static void G_IssueMapChange( int rotation )
     mapRotations.rotations[ rotation ].maps[ map ].name ) );
 
   // load up map defaults if g_mapConfigs is set
-  G_MapConfigs( );
+  G_MapConfigs( mapRotations.rotations[ rotation ].maps[ map ].name );
 
   for( i = 0; i < mapRotations.rotations[ rotation ].maps[ map ].numCmds; i++ )
   {

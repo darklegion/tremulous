@@ -463,9 +463,8 @@ void G_UpdateCvars( void )
 G_MapConfigs
 =================
 */
-void G_MapConfigs( )
+void G_MapConfigs( const char *mapname )
 {
-  char map[MAX_QPATH] = {""};
 
   if( !g_mapConfigs.string[0] )
     return;
@@ -475,10 +474,9 @@ void G_MapConfigs( )
 
   trap_SendConsoleCommand( EXEC_APPEND,
     va( "exec \"%s/default.cfg\"\n", g_mapConfigs.string ) );
-
-  trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+  
   trap_SendConsoleCommand( EXEC_APPEND,
-    va( "exec \"%s/%s.cfg\"\n", g_mapConfigs.string, map ) );
+    va( "exec \"%s/%s.cfg\"\n", g_mapConfigs.string, mapname ) );
 
   trap_Cvar_Set( "g_mapConfigsLoaded", "1" );
 }
@@ -536,7 +534,13 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   else
     G_Printf( "Not logging to disk\n" );
 
-  G_MapConfigs( );
+  {
+    char map[ MAX_CVAR_VALUE_STRING ] = {""};
+
+    trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+    G_MapConfigs( map );
+  }
+
   // we're done with g_mapConfigs, so reset this for the next map
   trap_Cvar_Set( "g_mapConfigsLoaded", "0" );
 
