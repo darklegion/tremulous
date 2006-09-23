@@ -520,6 +520,157 @@ static void cleanUp( int signal )
 	exitNow = qtrue;
 }
 
+#define ADDRESS_LENGTH 16
+static const char *ignoreFile = "ignore.txt";
+
+typedef struct
+{
+	char address[ ADDRESS_LENGTH ]; // Dotted quad
+} ignoreAddress_t;
+
+#define PARSE_INTERVAL		60 // seconds
+
+static time_t							lastParseTime				= 0;
+static int								numIgnoreAddresses	= 0;
+static ignoreAddress_t		*ignoreAddresses		= NULL;
+
+/*
+====================
+parseIgnoreAddress
+====================
+*/
+static qboolean parseIgnoreAddress( void )
+{
+	int		numAllocIgnoreAddresses	= 1;
+	FILE	*f											= NULL;
+	int		i;
+
+	// Only reparse periodically
+	if( crt_time - lastParseTime < PARSE_INTERVAL )
+		return qtrue;
+
+	lastParseTime = time( NULL );
+
+	// Free existing list
+	if( ignoreAddresses != NULL )
+	{
+		free( ignoreAddresses );
+		ignoreAddresses = NULL;
+	}
+
+	numIgnoreAddresses			= 0;
+	ignoreAddresses					= malloc( sizeof( ignoreAddress_t ) * numAllocIgnoreAddresses );
+
+	// Alloc failed, fail parsing
+	if( ignoreAddresses == NULL )
+		return qfalse;
+
+	f = fopen( ignoreFile, "r" );
+
+	if( !f )
+	{
+		free( ignoreAddresses );
+		ignoreAddresses = NULL;
+		return qfalse;
+	}
+
+	while( !feof( f ) )
+	{
+		char	c;
+		char	buffer[ ADDRESS_LENGTH ];
+
+		i = 0;
+
+		// Skip whitespace
+		do
+		{
+			c = fgetc( f );
+		}
+		while( c != EOF && isspace( c ) );
+
+		if( c != EOF )
+		{
+			do
+			{
+				if( i >= ADDRESS_LENGTH )
+				{
+					buffer[ i - 1 ] = '\0';
+					break;
+				}
+
+				buffer[ i ] = c;
+
+				if( isspace( c ) )
+				{
+					buffer[ i ] = '\0';
+					break;
+				}
+
+				i++;
+			} while( ( c = fgetc( f ) ) != EOF );
+
+			strcpy( ignoreAddresses[ numIgnoreAddresses ].address, buffer );
+
+			numIgnoreAddresses++;
+
+			// Make list bigger
+			if( numIgnoreAddresses >= numAllocIgnoreAddresses )
+			{
+				ignoreAddress_t *new;
+
+				numAllocIgnoreAddresses *= 2;
+				new = realloc( ignoreAddresses,
+						sizeof( ignoreAddress_t ) * numAllocIgnoreAddresses );
+
+				// Alloc failed, fail parsing
+				if( new == NULL )
+				{
+					fclose( f );
+					free( ignoreAddresses );
+					ignoreAddresses = NULL;
+					return qfalse;
+				}
+
+				ignoreAddresses = new;
+			}
+		}
+	}
+
+	fclose( f );
+
+	return qtrue;
+}
+
+/*
+====================
+ignoreAddress
+
+Check whether or not to ignore a specific address
+====================
+*/
+static qboolean ignoreAddress( const char *address )
+{
+	int i;
+
+	if( !parseIgnoreAddress( ) )
+	{
+		// Couldn't parse, allow the address
+		return qfalse;
+	}
+
+	for( i = 0; i < numIgnoreAddresses; i++ )
+	{
+		if( strcmp( address, ignoreAddresses[ i ].address ) == 0 )
+			break;
+	}
+
+	// It matched
+	if( i < numIgnoreAddresses )
+		return qtrue;
+
+	return qfalse;
+}
+
 /*
 ====================
 main
@@ -587,6 +738,10 @@ int main (int argc, const char* argv [])
 					  "WARNING: \"recvfrom\" returned %d\n", nb_bytes);
 			continue;
 		}
+
+		// Ignore abusers
+		if( ignoreAddress( inet_ntoa( address.sin_addr ) ) )
+			continue;
 
 		// If we may have to print something, rebuild the peer address buffer
 		if (max_msg_level != MSG_NOPRINT)
