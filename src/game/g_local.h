@@ -340,6 +340,10 @@ typedef struct
   int                 nameChangeTime;
   int                 nameChanges;
 
+  // used to save persistant[] values while in SPECTATOR_FOLLOW mode
+  int                 savedScore;
+  int                 savedCredit;
+
   vec3_t              lastDeathLocation;
   char                guid[ 33 ];
   char                ip[ 16 ];

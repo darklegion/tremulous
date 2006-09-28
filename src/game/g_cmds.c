@@ -586,57 +586,60 @@ G_ChangeTeam
 void G_ChangeTeam( gentity_t *ent, pTeam_t newTeam )
 {
   pTeam_t oldTeam = ent->client->pers.teamSelection;
+ 
+  if( oldTeam == newTeam )
+    return;
 
   ent->client->pers.teamSelection = newTeam;
 
-  if( oldTeam != newTeam )
-  {
-    //if the client is in a queue make sure they are removed from it before changing
-    if( oldTeam == PTE_ALIENS )
-      G_RemoveFromSpawnQueue( &level.alienSpawnQueue, ent->client->ps.clientNum );
-    else if( oldTeam == PTE_HUMANS )
-      G_RemoveFromSpawnQueue( &level.humanSpawnQueue, ent->client->ps.clientNum );
+  if( oldTeam == PTE_ALIENS )
+    G_RemoveFromSpawnQueue( &level.alienSpawnQueue, ent->client->ps.clientNum );
+  else if( oldTeam == PTE_HUMANS )
+    G_RemoveFromSpawnQueue( &level.humanSpawnQueue, ent->client->ps.clientNum );
 
-    if( G_admin_permission( ent, ADMF_TEAMCHANGEFREE ) )
+  // under certain circumstances, clients can keep their kills and credits
+  // when switching teams
+  if( G_admin_permission( ent, ADMF_TEAMCHANGEFREE ) ||
+    ( ( oldTeam == PTE_HUMANS || oldTeam == PTE_ALIENS )
+    && ( level.time - ent->client->pers.teamChangeTime ) > 60000 ) )
+  {
+    if( oldTeam == PTE_NONE )
+    {
+      // ps.persistant[] from a spectator cannot be trusted
+      ent->client->ps.persistant[ PERS_SCORE ] = ent->client->pers.savedScore;
+      ent->client->ps.persistant[ PERS_CREDIT ] = ent->client->pers.savedCredit;
+    }
+    else if( oldTeam == PTE_ALIENS )
     {
       // always save in human credtis
-      if( oldTeam == PTE_ALIENS )
-      {
-        ent->client->ps.persistant[ PERS_CREDIT ] *=
-          (float)FREEKILL_HUMAN / FREEKILL_ALIEN;
-      }
-      if( newTeam == PTE_ALIENS )
-      {
-        ent->client->ps.persistant[ PERS_CREDIT ] *=
-          (float)FREEKILL_ALIEN / FREEKILL_HUMAN;
-      }
-    }
-    else if( ( oldTeam == PTE_HUMANS || oldTeam == PTE_ALIENS )
-      && ( level.time - ent->client->pers.teamChangeTime ) > 60000 ) 
-    {
-      // Tranfer credits and kills as long as this player has been on the
-      // same team for at least 1 minute. This is done to provide
-      // a penalty for switching teams for reconnaissance.
-      if( oldTeam == PTE_HUMANS )
-      {
-        ent->client->ps.persistant[ PERS_CREDIT ] *=
-          (float)FREEKILL_ALIEN / FREEKILL_HUMAN;
-      }
-      else if( oldTeam == PTE_ALIENS )
-      {
-        ent->client->ps.persistant[ PERS_CREDIT ] *=
-          (float)FREEKILL_HUMAN / FREEKILL_ALIEN;
-      }
-    }
-    else
-    {
-      ent->client->ps.persistant[ PERS_CREDIT ] = 0;
-      ent->client->ps.persistant[ PERS_SCORE ] = 0;
+      ent->client->ps.persistant[ PERS_CREDIT ] *=
+        (float)FREEKILL_HUMAN / FREEKILL_ALIEN;
     }
 
-    ent->client->pers.classSelection = PCL_NONE;
-    ClientSpawn( ent, NULL, NULL, NULL );
+    if( newTeam == PTE_NONE )
+    {
+      // save values before the client enters the spectator team and their
+      // ps.persistant[] values become trashed
+      ent->client->pers.savedScore = ent->client->ps.persistant[ PERS_SCORE ];
+      ent->client->pers.savedCredit = ent->client->ps.persistant[ PERS_CREDIT ];
+    }
+    else if( newTeam == PTE_ALIENS )
+    {
+      // convert to alien currency
+      ent->client->ps.persistant[ PERS_CREDIT ] *=
+        (float)FREEKILL_ALIEN / FREEKILL_HUMAN;
+    }
   }
+  else
+  {
+    ent->client->ps.persistant[ PERS_CREDIT ] = 0;
+    ent->client->ps.persistant[ PERS_SCORE ] = 0;
+    ent->client->pers.savedScore = 0;
+    ent->client->pers.savedCredit = 0;
+  }
+
+  ent->client->pers.classSelection = PCL_NONE;
+  ClientSpawn( ent, NULL, NULL, NULL );
 
   ent->client->pers.joinedATeam = qtrue;
   ent->client->pers.teamChangeTime = level.time;
