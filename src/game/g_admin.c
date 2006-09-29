@@ -2616,7 +2616,7 @@ qboolean G_admin_lock( gentity_t *ent, int skiparg )
   char teamName[2] = {""};
   pTeam_t team;
 
-  if( G_SayArgc() < 1 + skiparg )
+  if( G_SayArgc() < 2 + skiparg )
   {
     ADMP( "^3!lock: ^7usage: !lock [a|h]\n" );
     return qfalse;
