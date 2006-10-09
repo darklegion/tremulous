@@ -2331,7 +2331,7 @@ void G_BuildableThink( gentity_t *ent, int msec )
   //pack health, power and dcc
 
   //toggle spawned flag for buildables
-  if( !ent->spawned )
+  if( !ent->spawned && ent->health > 0 )
   {
     if( ent->buildTime + bTime < level.time )
       ent->spawned = qtrue;
@@ -2357,7 +2357,7 @@ void G_BuildableThink( gentity_t *ent, int msec )
   {
     ent->time1000 -= 1000;
 
-    if( !ent->spawned )
+    if( !ent->spawned && ent->health > 0 )
       ent->health += (int)( ceil( (float)bHealth / (float)( bTime * 0.001 ) ) );
     else if( ent->biteam == BIT_ALIENS && ent->health > 0 && ent->health < bHealth &&
         bRegen && ( ent->lastDamageTime + ALIEN_REGEN_DAMAGE_TIME ) < level.time )
@@ -2496,12 +2496,13 @@ itemBuildError_t G_itemFits( gentity_t *ent, buildable_t buildable, int distance
         contents & CONTENTS_NOALIENBUILD || contents & CONTENTS_NOBUILD )
       reason = IBE_PERMISSION;
 
-    //look for a hivemind
+    //look for an Overmind
     for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
     {
       if( tempent->s.eType != ET_BUILDABLE )
         continue;
-      if( tempent->s.modelindex == BA_A_OVERMIND && tempent->spawned )
+      if( tempent->s.modelindex == BA_A_OVERMIND && tempent->spawned &&
+        tempent->health > 0 )
         break;
     }
 
