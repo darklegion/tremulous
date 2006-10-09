@@ -981,7 +981,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     return;
   }
 
-  if( ent->client->sess.sessionTeam == TEAM_SPECTATOR )
+  if( ent->client->pers.teamSelection == PTE_NONE )
   {
     trap_SendServerCommand( ent-g_entities, "print \"Not allowed to call a vote as spectator\n\"" );
     return;
@@ -1147,7 +1147,7 @@ void Cmd_Vote_f( gentity_t *ent )
     return;
   }
 
-  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
+  if( ent->client->pers.teamSelection == PTE_NONE )
   {
     trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote as spectator\n\"" );
     return;
@@ -1216,7 +1216,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     return;
   }
 
-  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
+  if( ent->client->pers.teamSelection == PTE_NONE )
   {
     trap_SendServerCommand( ent-g_entities, "print \"Not allowed to call a vote as spectator\n\"" );
     return;
@@ -1396,7 +1396,7 @@ void Cmd_TeamVote_f( gentity_t *ent )
     return;
   }
 
-  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
+  if( ent->client->pers.teamSelection == PTE_NONE )
   {
     trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote as spectator\n\"" );
     return;
