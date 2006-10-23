@@ -121,6 +121,8 @@ vmCvar_t  g_adminParseSay;
 vmCvar_t  g_adminNameProtect;
 vmCvar_t  g_adminTempBan;
 
+vmCvar_t  g_privateMessages;
+
 static cvarTable_t   gameCvarTable[ ] =
 {
   // don't override the cheat state set by the system
@@ -225,6 +227,8 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_adminParseSay, "g_adminParseSay", "1", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminNameProtect, "g_adminNameProtect", "1", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminTempBan, "g_adminTempBan", "120", CVAR_ARCHIVE, 0, qfalse  },
+  
+  { &g_privateMessages, "g_privateMessages", "1", CVAR_ARCHIVE, 0, qfalse  },
   
   { &g_rankings, "g_rankings", "0", 0, 0, qfalse}
 };

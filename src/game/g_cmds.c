@@ -886,10 +886,26 @@ Cmd_Say_f
 static void Cmd_Say_f( gentity_t *ent, int mode, qboolean arg0 )
 {
   char    *p;
+  char    *args;
 
   if( ent->client->pers.muted )
   {
     return;
+  }
+
+  // support parsing /m out of say text since some people have a hard
+  // time figuring out what the console is.
+  if( g_privateMessages.integer )
+  {
+    args = G_SayConcatArgs(0);
+    if( !Q_stricmpn( args, "say /m ", 7 ) ||
+      !Q_stricmpn( args, "say_team /m ", 12 ) || 
+      !Q_stricmpn( args, "say /mt ", 8 ) || 
+      !Q_stricmpn( args, "say_team /mt ", 13 ) )
+    {
+      G_PrivateMessage( ent );
+      return;
+    }
   }
 
   if( trap_Argc( ) < 2 && !arg0 )
@@ -2619,6 +2635,12 @@ void ClientCommand( int clientNum )
     Cmd_Tell_f( ent );
     return;
   }
+  
+  if( !Q_stricmp( cmd, "m" ) || !Q_stricmp( cmd, "mt" ) )
+  {
+    G_PrivateMessage( ent );
+    return;
+  }
 
   if( Q_stricmp( cmd, "score" ) == 0 )
   {
@@ -2811,3 +2833,104 @@ void G_DecolorString( char *in, char *out )
   }
   *out = '\0';
 }
+
+void G_PrivateMessage( gentity_t *ent )
+{
+  int pids[ MAX_CLIENTS ];
+  char name[ MAX_NAME_LENGTH ];
+  char cmd[ 12 ];
+  char str[ MAX_STRING_CHARS ];
+  char *msg;
+  char color;
+  int pcount, count = 0;
+  int i;
+  int skipargs = 0;
+  qboolean teamonly = qfalse;
+  gentity_t *tmpent;
+
+  if( !g_privateMessages.integer && ent )
+    return;
+
+  G_SayArgv( 0, cmd, sizeof( cmd ) );
+  if( !Q_stricmp( cmd, "say" ) || !Q_stricmp( cmd, "say_team" ) )
+  {
+    skipargs = 1;
+    G_SayArgv( 1, cmd, sizeof( cmd ) );
+  }
+  if( G_SayArgc( ) < 3+skipargs )
+  {
+    ADMP( va( "usage: %s [name|slot#] [message]\n", cmd ) );
+    return;
+  }
+
+  if( !Q_stricmp( cmd, "mt" ) || !Q_stricmp( cmd, "/mt" ) )
+    teamonly = qtrue;
+
+  G_SayArgv( 1+skipargs, name, sizeof( name ) );
+  msg = G_SayConcatArgs( 2+skipargs );
+  pcount = G_ClientNumbersFromString( name, pids );
+
+  if( ent )
+  {
+    if( teamonly )
+    {
+      for( i=0; i < pcount; i++ )
+      {
+        if( !OnSameTeam( ent, &g_entities[ pids[ i ] ] ) )
+          continue;
+        pids[ count ] = pids[ i ];
+        count++;
+      }
+      pcount = count;
+    }
+  }
+
+  color = teamonly ? COLOR_CYAN : COLOR_YELLOW;
+
+  Q_strncpyz( str,
+    va( "^%csent to %i player%s: ^7", color, pcount,
+      ( pcount == 1 ) ? "" : "s" ),
+    sizeof( str ) );
+
+  for( i=0; i < pcount; i++ )
+  {
+    tmpent = &g_entities[ pids[ i ] ];
+
+    if( i > 0 )
+      Q_strcat( str, sizeof( str ), "^7, " );
+    Q_strcat( str, sizeof( str ), tmpent->client->pers.netname );
+    trap_SendServerCommand( pids[ i ], va(
+      "chat \"%s^%c -> ^7%s^7: (%d recipients): ^%c%s^7\" %i",
+      ( ent ) ? ent->client->pers.netname : "console",
+      color,
+      name,
+      pcount,
+      color,
+      msg,
+      ent ? ent-g_entities : -1 ) );
+    if( ent )
+    {
+      trap_SendServerCommand( pids[ i ], va(
+        "print \">> to reply, say: /m %d [your message] <<\n\"",
+        ( ent - g_entities ) ) ); 
+    }
+    trap_SendServerCommand( pids[ i ], va( 
+      "cp \"^%cprivate message from ^7%s^7\"", color,
+      ( ent ) ? ent->client->pers.netname : "console" ) );
+  }
+
+  if( !pcount )
+    ADMP( va( "^3No player matching ^7\'%s^7\' ^3to send message to.\n",
+      name ) );
+  else
+  {
+    ADMP( va( "^%cPrivate message: ^7%s\n", color, msg ) );
+    ADMP( va( "%s\n", str ) );
+
+    G_LogPrintf( "%s: %s^7: %s^7: %s\n",
+      ( teamonly ) ? "tprivmsg" : "privmsg",
+      ( ent ) ? ent->client->pers.netname : "console",
+      name, msg );
+  }
+}
+

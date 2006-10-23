@@ -656,6 +656,7 @@ char      *G_SayConcatArgs( int start );
 void      G_DecolorString( char *in, char *out );
 void      G_ChangeTeam( gentity_t *ent, pTeam_t newTeam );
 void      G_SanitiseName( char *in, char *out );
+void      G_PrivateMessage( gentity_t *ent );
 
 //
 // g_physics.c
@@ -1115,6 +1116,8 @@ extern  vmCvar_t  g_adminLog;
 extern  vmCvar_t  g_adminParseSay;
 extern  vmCvar_t  g_adminNameProtect;
 extern  vmCvar_t  g_adminTempBan;
+
+extern  vmCvar_t  g_privateMessages;
 
 void      trap_Printf( const char *fmt );
 void      trap_Error( const char *fmt );
