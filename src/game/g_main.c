@@ -1430,6 +1430,15 @@ void BeginIntermission( void )
     return;   // already active
 
   level.intermissiontime = level.time;
+
+  // cancel votes
+  level.voteTime = 0;
+  trap_SetConfigstring( CS_VOTE_TIME, "" );
+  level.teamVoteTime[ 0 ] = 0;
+  trap_SetConfigstring( CS_TEAMVOTE_TIME, "" );
+  level.teamVoteTime[ 1 ] = 0;
+  trap_SetConfigstring( CS_TEAMVOTE_TIME + 1, "" );
+
   FindIntermissionPoint( );
 
   // move all clients to the intermission point
