@@ -1060,9 +1060,10 @@ void Cmd_CallVote_f( gentity_t *ent )
       }
     }
 
+    if( clientNum > -1 )
+      clientNum = atoi( arg2 );
     if( clientNum >= 0 && clientNum < level.maxclients )
     {
-      clientNum = atoi( arg2 );
       if( G_admin_permission( &g_entities[ clientNum ], ADMF_IMMUNITY ) )
       {
         trap_SendServerCommand( ent-g_entities,
@@ -1288,24 +1289,14 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
       }
     }
 
+    if( clientNum > -1 )
+      clientNum = atoi( arg2 );
     if( clientNum >= 0 && clientNum < level.maxclients )
     {
-      clientNum = atoi( arg2 );
-
-      for( i = 0; i < level.maxclients; i++ )
-      {
-        if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
-          continue;
-
-        if( level.clients[ i ].ps.stats[ STAT_PTEAM ] != team )
-          continue;
-
-        if( level.clients[ i ].ps.clientNum == clientNum )
-          break;
-      }
-
-      if( i >= level.maxclients )
-        clientNum = -1;
+      if( level.clients[ clientNum ].pers.connected == CON_DISCONNECTED )
+          clientNum = -1;
+      else if( level.clients[ clientNum ].pers.teamSelection != team )
+          clientNum = -1;
     }
 
     if( clientNum < 0 )
