@@ -1309,7 +1309,7 @@ qboolean G_admin_time( gentity_t *ent, int skiparg )
   int t;
 
   t = trap_RealTime( &qt );
-  AP( va( "print \"^3!time: ^7local time is %02i:%02i:%02i\n\"",
+  ADMP( va( "^3!time: ^7local time is %02i:%02i:%02i\n",
     qt.tm_hour, qt.tm_min, qt.tm_sec ) );
   return qtrue;
 }
