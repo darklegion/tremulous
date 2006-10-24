@@ -2663,7 +2663,7 @@ qboolean G_admin_unlock( gentity_t *ent, int skiparg )
   char teamName[2] = {""};
   pTeam_t team;
 
-  if( G_SayArgc() < 1 + skiparg )
+  if( G_SayArgc() < 2 + skiparg )
   {
     ADMP( "^3!unlock: ^7usage: !unlock [a|h]\n" );
     return qfalse;
@@ -2706,9 +2706,13 @@ qboolean G_admin_unlock( gentity_t *ent, int skiparg )
 } 
 
 /*
- * This function facilitates the TP define.  ADMP() is similar to CP except that
- * it prints the message to the server console if ent is not defined.
- */
+================
+ G_admin_print
+
+ This function facilitates the ADMP define.  ADMP() is similar to CP except
+ that it prints the message to the server console if ent is not defined.
+================
+*/
 void G_admin_print( gentity_t *ent, char *m )
 {
 
