@@ -89,9 +89,6 @@ void G_AddCreditToClient( gclient_t *client, short credit, qboolean cap )
   if( !client )
     return;
 
-  if( client->sess.sessionTeam == TEAM_SPECTATOR )
-    return;
-
   //if we're already at the max and trying to add credit then stop
   if( cap )
   {

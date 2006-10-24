@@ -41,9 +41,6 @@ void AddScore( gentity_t *ent, int score )
   if( !ent->client )
     return;
 
-  if( ent->client->sess.sessionTeam == TEAM_SPECTATOR )
-    return;
-
   // no scoring during pre-match warmup
   if( level.warmupTime )
     return;
