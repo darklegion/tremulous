@@ -112,6 +112,8 @@ vmCvar_t  g_currentMapRotation;
 vmCvar_t  g_currentMap;
 vmCvar_t  g_initialMapRotation;
 
+vmCvar_t  g_shove;
+
 vmCvar_t  g_mapConfigs;
 vmCvar_t  g_chatTeamPrefix;
 
@@ -219,6 +221,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_currentMapRotation, "g_currentMapRotation", "-1", 0, 0, qfalse  }, // -1 = NOT_ROTATING
   { &g_currentMap, "g_currentMap", "0", 0, 0, qfalse  },
   { &g_initialMapRotation, "g_initialMapRotation", "", CVAR_ARCHIVE, 0, qfalse  },
+  { &g_shove, "g_shove", "0.0", CVAR_ARCHIVE, 0, qfalse  },
   { &g_mapConfigs, "g_mapConfigs", "", CVAR_ARCHIVE, 0, qfalse  },
   { NULL, "g_mapConfigsLoaded", "0", CVAR_ROM, 0, qfalse  },
 

@@ -191,6 +191,56 @@ void G_SetClientSound( gentity_t *ent )
 
 //==============================================================
 
+static void G_ClientShove( gentity_t *ent, gentity_t *victim )
+{
+  vec3_t  dir, push;
+  int entMass = 200, vicMass = 200;
+
+  // shoving enemies changes gameplay too much
+  if( !OnSameTeam( ent, victim ) )
+    return;
+
+  // alien mass is directly related to their health points
+  // human mass is 200, double for bsuit  
+  if( ent->client->pers.teamSelection == PTE_ALIENS )
+  {
+    entMass = BG_FindHealthForClass( ent->client->pers.classSelection );
+  }
+  else if( ent->client->pers.teamSelection == PTE_HUMANS )
+  {
+    if( BG_InventoryContainsUpgrade( UP_BATTLESUIT, ent->client->ps.stats ) )
+      entMass *= 2;
+  }
+  else
+    return;
+
+  if( victim->client->pers.teamSelection == PTE_ALIENS )
+  {
+    vicMass = BG_FindHealthForClass( victim->client->pers.classSelection );
+  }
+  else if( BG_InventoryContainsUpgrade( UP_BATTLESUIT,
+    victim->client->ps.stats ) )
+  {
+    vicMass *= 2;
+  }
+
+  if( vicMass <= 0 || entMass <= 0 )
+    return;
+
+  VectorSubtract( victim->r.currentOrigin, ent->r.currentOrigin, dir );
+  VectorNormalizeFast( dir );
+
+  // don't break the dretch elevator
+  if( abs( dir[ 2 ] ) > abs( dir[ 0 ] ) && abs( dir[ 2 ] ) > abs( dir[ 1 ] ) )
+    return;
+
+  VectorScale( dir,
+    ( g_shove.value * ( ( float )entMass / ( float )vicMass ) ), push );
+  VectorAdd( victim->client->ps.velocity, push,
+                victim->client->ps.velocity );
+
+}
+
 /*
 ==============
 ClientImpacts
@@ -222,6 +272,9 @@ void ClientImpacts( gentity_t *ent, pmove_t *pm )
         ent->client->ps.stats[ STAT_MISC ] > 0 &&
         ent->client->charging )
       ChargeAttack( ent, other );
+
+    if( ent->client && other->client )
+      G_ClientShove( ent, other );
 
     if( !other->touch )
       continue;
