@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
+// from g_combat.c
+extern char *modNames[ ];
+
 /*
 ================
 G_setBuildableAnim
@@ -628,12 +631,27 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
 
-  if( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  if( attacker && attacker->client )
   {
-    if( self->s.modelindex == BA_A_OVERMIND )
-      G_AddCreditToClient( attacker->client, OVERMIND_VALUE, qtrue );
-    else if( self->s.modelindex == BA_A_SPAWN )
-      G_AddCreditToClient( attacker->client, ASPAWN_VALUE, qtrue );
+    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    {
+      if( self->s.modelindex == BA_A_OVERMIND )
+        G_AddCreditToClient( attacker->client, OVERMIND_VALUE, qtrue );
+      else if( self->s.modelindex == BA_A_SPAWN )
+        G_AddCreditToClient( attacker->client, ASPAWN_VALUE, qtrue );
+    }
+    else
+    {
+      G_TeamCommand( PTE_ALIENS,
+        va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
+          BG_FindHumanNameForBuildable( self->s.modelindex ), 
+          attacker->client->pers.netname ) );
+    }
+    G_LogPrintf( "Decon: %i %i %i: %s^7 destroyed %s by %s\n",
+      attacker->client->ps.clientNum, self->s.modelindex, mod,
+      attacker->client->pers.netname, 
+      BG_FindNameForBuildable( self->s.modelindex ),
+      modNames[ mod ] );
   }
 }
 
@@ -840,6 +858,22 @@ void ABarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
     self->nextthink = level.time + 5000;
   else
     self->nextthink = level.time; //blast immediately
+
+  if( attacker && attacker->client )
+  {
+    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    {
+      G_TeamCommand( PTE_ALIENS,
+        va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
+          BG_FindHumanNameForBuildable( self->s.modelindex ), 
+          attacker->client->pers.netname ) );
+    }
+    G_LogPrintf( "Decon: %i %i %i: %s^7 destroyed %s by %s\n",
+      attacker->client->ps.clientNum, self->s.modelindex, mod,
+      attacker->client->pers.netname, 
+      BG_FindNameForBuildable( self->s.modelindex ),
+      modNames[ mod ] );
+  }
 }
 
 /*
@@ -1252,6 +1286,22 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   self->r.contents = 0;    //stop collisions...
   trap_LinkEntity( self ); //...requires a relink
+
+  if( attacker && attacker->client )
+  {
+    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    {
+      G_TeamCommand( PTE_ALIENS,
+        va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
+          BG_FindHumanNameForBuildable( self->s.modelindex ), 
+          attacker->client->pers.netname ) );
+    }
+    G_LogPrintf( "Decon: %i %i %i: %s^7 destroyed %s by %s\n",
+      attacker->client->ps.clientNum, self->s.modelindex, mod,
+      attacker->client->pers.netname, 
+      BG_FindNameForBuildable( self->s.modelindex ),
+      modNames[ mod ] );
+  }
 }
 
 
@@ -2193,12 +2243,27 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     self->nextthink = level.time; //blast immediately
   }
 
-  if( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  if( attacker && attacker->client )
   {
-    if( self->s.modelindex == BA_H_REACTOR )
-      G_AddCreditToClient( attacker->client, REACTOR_VALUE, qtrue );
-    else if( self->s.modelindex == BA_H_SPAWN )
-      G_AddCreditToClient( attacker->client, HSPAWN_VALUE, qtrue );
+    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    {
+      if( self->s.modelindex == BA_H_REACTOR )
+        G_AddCreditToClient( attacker->client, REACTOR_VALUE, qtrue );
+      else if( self->s.modelindex == BA_H_SPAWN )
+        G_AddCreditToClient( attacker->client, HSPAWN_VALUE, qtrue );
+    }
+    else
+    {
+      G_TeamCommand( PTE_HUMANS,
+        va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
+          BG_FindHumanNameForBuildable( self->s.modelindex ), 
+          attacker->client->pers.netname ) );
+    }
+    G_LogPrintf( "Decon: %i %i %i: %s^7 destroyed %s by %s\n",
+      attacker->client->ps.clientNum, self->s.modelindex, mod,
+      attacker->client->pers.netname, 
+      BG_FindNameForBuildable( self->s.modelindex ),
+      modNames[ mod ] );
   }
 }
 

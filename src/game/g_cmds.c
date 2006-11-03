@@ -1736,6 +1736,18 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
         G_AddEvent( ent, EV_BUILD_DELAY, ent->client->ps.clientNum );
         return;
       }
+      if( traceEnt->health > 0 )
+      {
+        G_TeamCommand( ent->client->pers.teamSelection,
+          va( "print \"%s ^3DECONSTRUCTED^7 by %s^7\n\"",
+            BG_FindHumanNameForBuildable( traceEnt->s.modelindex ), 
+            ent->client->pers.netname ) );
+      }
+      G_LogPrintf( "Decon: %i %i 0: %s^7 deconstructed %s\n",
+        ent->client->ps.clientNum,
+        traceEnt->s.modelindex,
+        ent->client->pers.netname, 
+        BG_FindNameForBuildable( traceEnt->s.modelindex ) );
 
       if( !deconstruct && CheatsOk( ent ) )
         G_Damage( traceEnt, ent, ent, forward, tr.endpos, 10000, 0, MOD_SUICIDE );
