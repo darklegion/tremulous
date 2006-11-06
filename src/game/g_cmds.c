@@ -2481,6 +2481,8 @@ Cmd_FollowCycle_f
 void Cmd_FollowCycle_f( gentity_t *ent, int dir )
 {
   // won't work unless spectating
+  if( ent->client->pers.teamSelection != PTE_NONE )
+    return;
   if( ent->client->sess.spectatorState == SPECTATOR_NOT )
     return;
 
