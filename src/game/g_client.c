@@ -1682,6 +1682,11 @@ void ClientDisconnect( int clientNum )
   G_LogPrintf( "ClientDisconnect: %i [%s] (%s) \"%s\"\n", clientNum,
    ent->client->pers.ip, ent->client->pers.guid, ent->client->pers.netname );
 
+  if( ent->client->pers.teamSelection == PTE_ALIENS )
+    G_RemoveFromSpawnQueue( &level.alienSpawnQueue, ent->client->ps.clientNum );
+  else if( ent->client->pers.teamSelection == PTE_HUMANS )
+    G_RemoveFromSpawnQueue( &level.humanSpawnQueue, ent->client->ps.clientNum );
+
   trap_UnlinkEntity( ent );
   ent->s.modelindex = 0;
   ent->inuse = qfalse;
