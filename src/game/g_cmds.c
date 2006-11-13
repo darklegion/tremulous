@@ -1526,7 +1526,7 @@ void Cmd_Class_f( gentity_t *ent )
     }
 
     //if we are not currently spectating, we are attempting evolution
-    if( currentClass != PCL_NONE )
+    if( ent->client->pers.classSelection != PCL_NONE )
     {
       if( ( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING ) ||
           ( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )
