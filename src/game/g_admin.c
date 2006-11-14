@@ -1334,7 +1334,7 @@ qboolean G_admin_setlevel( gentity_t *ent, int skiparg )
 
   if( G_SayArgc() < 3 + skiparg )
   {
-    ADMP( "^3!setlevel: ^7usage: setlevel [name|slot#] [level]\n" );
+    ADMP( "^3!setlevel: ^7usage: !setlevel [name|slot#] [level]\n" );
     return qfalse;
   }
   G_SayArgv( 1 + skiparg, testname, sizeof( testname ) );
@@ -1569,7 +1569,7 @@ qboolean G_admin_kick( gentity_t *ent, int skiparg )
 
   if( G_SayArgc() < minargc )
   {
-    ADMP( "^3!kick: ^7usage: kick [name] [reason]\n" );
+    ADMP( "^3!kick: ^7usage: !kick [name] [reason]\n" );
     return qfalse;
   }
   G_SayArgv( 1 + skiparg, name, sizeof( name ) );
@@ -1640,7 +1640,7 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
   }
   if( G_SayArgc() < minargc )
   {
-    ADMP( "^3!ban: ^7usage: ban [name|slot|ip] [seconds] [reason]\n" );
+    ADMP( "^3!ban: ^7usage: !ban [name|slot|ip] [seconds] [reason]\n" );
     return qfalse;
   }
   G_SayArgv( 1 + skiparg, search, sizeof( search ) );
@@ -1796,7 +1796,7 @@ qboolean G_admin_unban( gentity_t *ent, int skiparg )
   t = trap_RealTime( &qt );
   if( G_SayArgc() < 2 + skiparg )
   {
-    ADMP( "^3!unban: ^7usage: unban [ban #]\n" );
+    ADMP( "^3!unban: ^7usage: !unban [ban #]\n" );
     return qfalse;
   }
   G_SayArgv( 1 + skiparg, bs, sizeof( bs ) );
@@ -1832,7 +1832,7 @@ qboolean G_admin_putteam( gentity_t *ent, int skiparg )
   G_SayArgv( 2 + skiparg, team, sizeof( team ) );
   if( G_SayArgc() < 3 + skiparg )
   {
-    ADMP( "^3!putteam: ^7usage: putteam [name] [h|a|s]\n" );
+    ADMP( "^3!putteam: ^7usage: !putteam [name] [h|a|s]\n" );
     return qfalse;
   }
 
@@ -1883,7 +1883,7 @@ qboolean G_admin_mute( gentity_t *ent, int skiparg )
 
   if( G_SayArgc() < 2 + skiparg )
   {
-    ADMP( "^3!mute: ^7usage: mute [name|slot#]\n" );
+    ADMP( "^3!mute: ^7usage: !mute [name|slot#]\n" );
     return qfalse;
   }
   G_SayArgv( skiparg, command, sizeof( command ) );
@@ -2033,12 +2033,12 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
     p = &level.clients[ i ];
     Q_strncpyz( t, "S", sizeof( t ) );
     Q_strncpyz( c, S_COLOR_YELLOW, sizeof( c ) );
-    if( p->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    if( p->pers.teamSelection == PTE_HUMANS )
     {
       Q_strncpyz( t, "H", sizeof( t ) );
       Q_strncpyz( c, S_COLOR_BLUE, sizeof( c ) );
     }
-    else if( p->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    else if( p->pers.teamSelection == PTE_ALIENS )
     {
       Q_strncpyz( t, "A", sizeof( t ) );
       Q_strncpyz( c, S_COLOR_RED, sizeof( c ) );
@@ -2406,7 +2406,7 @@ qboolean G_admin_allready( gentity_t *ent, int skiparg )
     if( cl->pers.connected != CON_CONNECTED )
       continue;
 
-    if( cl->ps.stats[ STAT_PTEAM ] == PTE_NONE )
+    if( cl->pers.teamSelection == PTE_NONE )
       continue;
 
     cl->readyToExit = 1;
@@ -2471,6 +2471,8 @@ qboolean G_admin_spec999( gentity_t *ent, int skiparg )
       continue;
     if( vic->client->pers.connected != CON_CONNECTED )
       continue;
+    if( vic->client->pers.teamSelection == PTE_NONE )
+      continue;
     if( vic->client->ps.ping == 999 )
     {
       G_ChangeTeam( vic, PTE_NONE );
@@ -2495,7 +2497,7 @@ qboolean G_admin_rename( gentity_t *ent, int skiparg )
 
   if( G_SayArgc() < 3 + skiparg )
   {
-    ADMP( "^3!rename: ^7usage: rename [name] [newname]\n" );
+    ADMP( "^3!rename: ^7usage: !rename [name] [newname]\n" );
     return qfalse;
   }
   G_SayArgv( 1 + skiparg, name, sizeof( name ) );
