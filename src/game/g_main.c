@@ -1239,7 +1239,7 @@ void CalculateRanks( void )
     {
       level.sortedClients[ level.numConnectedClients ] = i;
       level.numConnectedClients++;
-      P[ i ] = (char)'0' + level.clients[ i ].ps.stats[ STAT_PTEAM ];
+      P[ i ] = (char)'0' + level.clients[ i ].pers.teamSelection;
 
       if( !( level.clients[ i ].ps.pm_flags & PMF_FOLLOW ) )
       {
