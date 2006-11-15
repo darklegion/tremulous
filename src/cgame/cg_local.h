@@ -901,6 +901,8 @@ typedef struct
 
 #define MAX_PREDICTED_EVENTS  16
 
+#define NUM_SAVED_STATES ( CMD_BACKUP + 2 )
+
 typedef struct
 {
   int           clientFrame;                        // incremented each frame
@@ -1128,6 +1130,11 @@ typedef struct
   float         painBlendValue;
   float         painBlendTarget;
   int           lastHealth;
+
+  int           lastPredictedCommand;
+  int           lastServerTime;
+  playerState_t savedPmoveStates[ NUM_SAVED_STATES ];
+  int           stateHead, stateTail;
 } cg_t;
 
 
@@ -1499,6 +1506,8 @@ extern  vmCvar_t    ui_alienTeamVoteActive;
 extern  vmCvar_t    ui_humanTeamVoteActive;
 
 extern  vmCvar_t    cg_debugRandom;
+
+extern  vmCvar_t    cg_optimizePrediction;
 
 //
 // cg_main.c

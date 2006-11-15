@@ -389,6 +389,135 @@ static void CG_TouchTriggerPrediction( void )
   }
 }
 
+static int CG_IsUnacceptableError( playerState_t *ps, playerState_t *pps )
+{
+  vec3_t delta;
+  int i;
+
+  if( pps->pm_type != ps->pm_type ||
+    pps->pm_flags != ps->pm_flags ||
+    pps->pm_time != ps->pm_time )
+  {
+    return 1;
+  }
+
+  VectorSubtract( pps->origin, ps->origin, delta );
+  if( VectorLengthSquared( delta ) > 0.1f * 0.1f )
+  {
+    if( cg_showmiss.integer )
+    {
+      CG_Printf( "origin delta: %.2f  ", VectorLength( delta ) );
+    }
+    return 2;
+  }
+
+  VectorSubtract( pps->velocity, ps->velocity, delta );
+  if( VectorLengthSquared( delta ) > 0.1f * 0.1f )
+  {
+    if( cg_showmiss.integer )
+    {
+      CG_Printf( "velocity delta: %.2f  ", VectorLength( delta ) );
+    }
+    return 3;
+  }
+
+  if( pps->weaponTime != ps->weaponTime ||
+    pps->gravity != ps->gravity ||
+    pps->speed != ps->speed ||
+    pps->delta_angles[ 0 ] != ps->delta_angles[ 0 ] ||
+    pps->delta_angles[ 1 ] != ps->delta_angles[ 1 ] ||
+    pps->delta_angles[ 2 ] != ps->delta_angles[ 2 ] || 
+    pps->groundEntityNum != ps->groundEntityNum )
+  {
+    return 4;
+  }
+
+  if( pps->legsTimer != ps->legsTimer ||
+    pps->legsAnim != ps->legsAnim ||
+    pps->torsoTimer != ps->torsoTimer ||
+    pps->torsoAnim != ps->torsoAnim ||
+    pps->movementDir != ps->movementDir )
+  {
+    return 5;
+  }
+
+  VectorSubtract( pps->grapplePoint, ps->grapplePoint, delta );
+  if( VectorLengthSquared( delta ) > 0.1f * 0.1f )
+    return 6;
+
+  if( pps->eFlags != ps->eFlags )
+    return 7;
+
+  if( pps->eventSequence != ps->eventSequence )
+    return 8;
+
+  for( i = 0; i < MAX_PS_EVENTS; i++ )
+  {
+    if ( pps->events[ i ] != ps->events[ i ] ||
+      pps->eventParms[ i ] != ps->eventParms[ i ] )
+    {
+      return 9;
+    }
+  }
+
+  if( pps->externalEvent != ps->externalEvent ||
+    pps->externalEventParm != ps->externalEventParm ||
+    pps->externalEventTime != ps->externalEventTime )
+  {
+    return 10;
+  }
+
+  if( pps->clientNum != ps->clientNum ||
+    pps->weapon != ps->weapon ||
+    pps->weaponstate != ps->weaponstate )
+  {
+    return 11;
+  }
+
+  if( fabs( AngleDelta( ps->viewangles[ 0 ], pps->viewangles[ 0 ] ) ) > 1.0f ||
+    fabs( AngleDelta( ps->viewangles[ 1 ], pps->viewangles[ 1 ] ) ) > 1.0f ||
+    fabs( AngleDelta( ps->viewangles[ 2 ], pps->viewangles[ 2 ] ) ) > 1.0f ) 
+  {
+    return 12;
+  }
+
+  if( pps->viewheight != ps->viewheight )
+  	return 13;
+
+  if( pps->damageEvent != ps->damageEvent ||
+    pps->damageYaw != ps->damageYaw ||
+    pps->damagePitch != ps->damagePitch ||
+    pps->damageCount != ps->damageCount )
+  {
+    return 14;
+  }
+
+  for( i = 0; i < MAX_STATS; i++ )
+  {
+    if( pps->stats[ i ] != ps->stats[ i ] )
+      return 15;
+  }
+
+  for( i = 0; i < MAX_PERSISTANT; i++ )
+  {
+    if( pps->persistant[ i ] != ps->persistant[ i ] )
+      return 16;
+  }
+
+  for( i = 0; i < MAX_WEAPONS; i++ )
+  {
+    if( pps->ammo[ i ] != ps->ammo[ i ] )
+      return 18;
+  }
+
+  if( pps->generic1 != ps->generic1 ||
+    pps->loopSound != ps->loopSound )
+  {
+    return 19;
+  }
+
+  return 0;
+}
 
 
 /*
@@ -424,6 +553,7 @@ void CG_PredictPlayerState( void )
   qboolean  moved;
   usercmd_t oldestCmd;
   usercmd_t latestCmd;
+  int stateIndex = 0, predictCmd = 0;
 
   cg.hyperspace = qfalse; // will be set if touching a trigger_teleport
 
@@ -513,6 +643,98 @@ void CG_PredictPlayerState( void )
 
   cg_pmove.pmove_fixed = pmove_fixed.integer;// | cg_pmove_fixed.integer;
   cg_pmove.pmove_msec = pmove_msec.integer;
+
+  // Like the comments described above, a player's state is entirely
+  // re-predicted from the last valid snapshot every client frame, which
+  // can be really, really, really slow.  Every old command has to be
+  // run again.  For every client frame that is *not* directly after a
+  // snapshot, this is unnecessary, since we have no new information.
+  // For those, we'll play back the predictions from the last frame and
+  // predict only the newest commands.  Essentially, we'll be doing
+  // an incremental predict instead of a full predict.
+  //
+  // If we have a new snapshot, we can compare its player state's command
+  // time to the command times in the queue to find a match.  If we find
+  // a matching state, and the predicted version has not deviated, we can
+  // use the predicted state as a base - and also do an incremental predict.
+  //
+  // With this method, we get incremental predicts on every client frame
+  // except a frame following a new snapshot in which there was a prediction
+  // error.  This yeilds anywhere from a 15% to 40% performance increase,
+  // depending on how much of a bottleneck the CPU is.
+  if( cg_optimizePrediction.integer )
+  {
+    if( cg.nextFrameTeleport || cg.thisFrameTeleport )
+    {
+      // do a full predict
+      cg.lastPredictedCommand = 0;
+      cg.stateTail = cg.stateHead;
+      predictCmd = current - CMD_BACKUP + 1;
+    }
+    // cg.physicsTime is the current snapshot's serverTime if it's the same
+    // as the last one
+    else if( cg.physicsTime == cg.lastServerTime )
+    {
+      // we have no new information, so do an incremental predict
+      predictCmd = cg.lastPredictedCommand + 1;
+    }
+    else
+    {
+      // we have a new snapshot
+      int i;
+      int errorcode;
+      qboolean error = qtrue;
+
+      // loop through the saved states queue
+      for( i = cg.stateHead; i != cg.stateTail;
+        i = ( i + 1 ) % NUM_SAVED_STATES )
+      {
+        // if we find a predicted state whose commandTime matches the snapshot
+        // player state's commandTime
+        if( cg.savedPmoveStates[ i ].commandTime !=
+          cg.predictedPlayerState.commandTime )
+        {
+          continue;
+        }
+        // make sure the state differences are acceptable
+        errorcode = CG_IsUnacceptableError( &cg.predictedPlayerState,
+          &cg.savedPmoveStates[ i ] );
+  
+        if( errorcode )
+        {
+          if( cg_showmiss.integer )
+            CG_Printf("errorcode %d at %d\n", errorcode, cg.time);
+          break;
+        }
+  
+        // this one is almost exact, so we'll copy it in as the starting point
+        *cg_pmove.ps = cg.savedPmoveStates[ i ];
+        // advance the head
+        cg.stateHead = ( i + 1 ) % NUM_SAVED_STATES;
+  
+        // set the next command to predict
+        predictCmd = cg.lastPredictedCommand + 1;
+  
+        // a saved state matched, so flag it
+        error = qfalse;
+        break;
+      }
+
+      // if no saved states matched
+      if( error )
+      {
+        // do a full predict
+        cg.lastPredictedCommand = 0;
+        cg.stateTail = cg.stateHead;
+        predictCmd = current - CMD_BACKUP + 1;
+      }
+    }
+
+    // keep track of the server time of the last snapshot so we
+    // know when we're starting from a new one in future calls
+    cg.lastServerTime = cg.physicsTime;
+    stateIndex = cg.stateHead;
+  }
 
   // run cmds
   moved = qfalse;
@@ -607,7 +829,32 @@ void CG_PredictPlayerState( void )
       cg_pmove.cmd.serverTime = ( ( cg_pmove.cmd.serverTime + pmove_msec.integer - 1 ) /
                                   pmove_msec.integer ) * pmove_msec.integer;
 
-    Pmove( &cg_pmove );
+    if( !cg_optimizePrediction.integer )
+    {
+      Pmove( &cg_pmove );
+    }
+    else if( cg_optimizePrediction.integer && ( cmdNum >= predictCmd ||
+      ( stateIndex + 1 ) % NUM_SAVED_STATES == cg.stateHead ) )
+    {
+      Pmove( &cg_pmove );
+      // record the last predicted command
+      cg.lastPredictedCommand = cmdNum;
+
+      // if we haven't run out of space in the saved states queue
+      if( ( stateIndex + 1 ) % NUM_SAVED_STATES != cg.stateHead )
+      {
+        // save the state for the false case ( of cmdNum >= predictCmd )
+        // in later calls to this function
+        cg.savedPmoveStates[ stateIndex ] = *cg_pmove.ps;
+        stateIndex = ( stateIndex + 1 ) % NUM_SAVED_STATES;
+        cg.stateTail = stateIndex;
+      }
+    }
+    else
+    {
+      *cg_pmove.ps = cg.savedPmoveStates[ stateIndex ];
+      stateIndex = ( stateIndex + 1 ) % NUM_SAVED_STATES;
+    }
 
     moved = qtrue;
 
@@ -618,37 +865,14 @@ void CG_PredictPlayerState( void )
     //CG_CheckChangedPredictableEvents(&cg.predictedPlayerState);
   }
 
-  if( cg_showmiss.integer > 1 )
-    CG_Printf( "[%i : %i] ", cg_pmove.cmd.serverTime, cg.time );
-
-  if( !moved )
-  {
-    if( cg_showmiss.integer )
-      CG_Printf( "not moved\n" );
-
-    return;
-  }
-
   // adjust for the movement of the groundentity
   CG_AdjustPositionForMover( cg.predictedPlayerState.origin,
     cg.predictedPlayerState.groundEntityNum,
     cg.physicsTime, cg.time, cg.predictedPlayerState.origin );
 
-  if( cg_showmiss.integer )
-  {
-    if( cg.predictedPlayerState.eventSequence > oldPlayerState.eventSequence + MAX_PS_EVENTS )
-      CG_Printf( "WARNING: dropped event\n" );
-  }
 
   // fire events and other transition triggered things
   CG_TransitionPlayerState( &cg.predictedPlayerState, &oldPlayerState );
 
-  if( cg_showmiss.integer )
-  {
-    if( cg.eventSequence > cg.predictedPlayerState.eventSequence )
-    {
-      CG_Printf( "WARNING: double event\n" );
-      cg.eventSequence = cg.predictedPlayerState.eventSequence;
-    }
-  }
+
 }
