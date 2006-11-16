@@ -705,7 +705,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles )
     scale = cg.xyspeed;
 
   // gun angles from bobbing
-  //TA: bob amount is class dependant
+  // bob amount is class dependant
   bob = BG_FindBobForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
 
   if( bob != 0 )
@@ -993,14 +993,14 @@ void CG_AddViewWeapon( playerState_t *ps )
       ( ps->stats[ STAT_STATE ] & SS_HOVELING ) )
     return;
 
-  //TA: no weapon carried - can't draw it
+  // no weapon carried - can't draw it
   if( weapon == WP_NONE )
     return;
 
   if( ps->pm_type == PM_INTERMISSION )
     return;
 
-  //TA: draw a prospective buildable infront of the player
+  // draw a prospective buildable infront of the player
   if( ( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
     CG_GhostBuildable( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT );
 
@@ -1113,7 +1113,7 @@ static qboolean CG_WeaponSelectable( weapon_t weapon )
   //
   //BG_UnpackAmmoArray( i, cg.snap->ps.ammo, cg.snap->ps.powerups, &ammo, &clips );
   //
-  //TA: this is a pain in the ass
+  // this is a pain in the ass
   //if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( i ) )
   //  return qfalse;
 
