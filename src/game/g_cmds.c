@@ -1902,6 +1902,7 @@ void Cmd_Buy_f( gentity_t *ent )
   int       weapon, upgrade, numItems = 0;
   int       maxAmmo, maxClips;
   qboolean  buyingEnergyAmmo = qfalse;
+  qboolean  hasEnergyWeapon = qfalse;
 
   for( i = UP_NONE; i < UP_NUM_UPGRADES; i++ )
   {
@@ -1912,7 +1913,11 @@ void Cmd_Buy_f( gentity_t *ent )
   for( i = WP_NONE; i < WP_NUM_WEAPONS; i++ )
   {
     if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) )
+    {
+      if( BG_FindUsesEnergyForWeapon( i ) )
+        hasEnergyWeapon = qtrue;
       numItems++;
+    }
   }
 
   trap_Argv( 1, s, sizeof( s ) );
@@ -1926,15 +1931,19 @@ void Cmd_Buy_f( gentity_t *ent )
 
   //special case to keep norf happy
   if( weapon == WP_NONE && upgrade == UP_AMMO )
-    buyingEnergyAmmo = BG_FindUsesEnergyForWeapon( ent->client->ps.weapon );
+  {
+    buyingEnergyAmmo = hasEnergyWeapon;
+  }
 
   if( buyingEnergyAmmo )
   {
     //no armoury nearby
-    if( ( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_REACTOR ) &&
-        !G_BuildableRange( ent->client->ps.origin, 100, BA_H_REPEATER ) ) )
+    if( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_REACTOR ) &&
+        !G_BuildableRange( ent->client->ps.origin, 100, BA_H_REPEATER ) &&
+        !G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
     {
-      trap_SendServerCommand( ent-g_entities, va( "print \"You must be near a reactor or repeater\n\"" ) );
+      trap_SendServerCommand( ent-g_entities, va(
+        "print \"You must be near a reactor, repeater or armoury\n\"" ) );
       return;
     }
   }
