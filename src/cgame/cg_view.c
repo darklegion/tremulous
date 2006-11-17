@@ -483,7 +483,7 @@ static void CG_OffsetFirstPersonView( void )
   angles[ ROLL ] -= delta * cg_runroll.value;
 
   // add angles based on bob
-  //TA: bob amount is class dependant
+  // bob amount is class dependant
 
   if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
     bob2 = 0.0f;
@@ -620,12 +620,12 @@ static void CG_OffsetFirstPersonView( void )
     angles[ PITCH ] += pitchFraction * PCLOUD_ROLL_AMPLITUDE / 2.0f;
   }
 
-  //TA: this *feels* more realisitic for humans
+  // this *feels* more realisitic for humans
   if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
     angles[PITCH] += cg.bobfracsin * bob2 * 0.5;
 
-    //TA: heavy breathing effects //FIXME: sound
+    // heavy breathing effects //FIXME: sound
     if( cg.predictedPlayerState.stats[ STAT_STAMINA ] < 0 )
     {
       float deltaBreath = (float)(
@@ -643,7 +643,7 @@ static void CG_OffsetFirstPersonView( void )
 //===================================
 
   // add view height
-  //TA: when wall climbing the viewheight is not straight up
+  // when wall climbing the viewheight is not straight up
   if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBING )
     VectorMA( origin, ps->viewheight, normal, origin );
   else
@@ -663,7 +663,7 @@ static void CG_OffsetFirstPersonView( void )
   if( bob > 6 )
     bob = 6;
 
-  //TA: likewise for bob
+  // likewise for bob
   if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBING )
     VectorMA( origin, bob, normal, origin );
   else
@@ -732,7 +732,7 @@ static int CG_CalcFov( void )
   }
   else
   {
-    //TA: don't lock the fov globally - we need to be able to change it
+    // don't lock the fov globally - we need to be able to change it
     attribFov = BG_FindFovForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
     fov_x = attribFov;
 
