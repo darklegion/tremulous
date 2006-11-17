@@ -429,7 +429,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 {
   char filename[ MAX_QPATH * 2 ];
 
-  //TA: do this first so the nonsegmented property is set
+  // do this first so the nonsegmented property is set
   // load the animations
   Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg", modelName );
   if( !CG_ParseAnimationFile( filename, ci ) )
@@ -706,7 +706,7 @@ static qboolean CG_ScanForExistingClientInfo( clientInfo_t *ci )
     }
   }
 
-  //TA: shouldn't happen
+  // shouldn't happen
   return qfalse;
 }
 
@@ -744,7 +744,7 @@ void CG_PrecacheClientInfo( pClass_t class, char *model, char *skin )
 
   newInfo.infoValid = qtrue;
 
-  //TA: actually register the models
+  // actually register the models
   *ci = newInfo;
   CG_LoadClientInfo( ci );
 }
@@ -1238,7 +1238,7 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t srcAngles,
   }
   else
   {
-    //TA: did use angles2.. now uses time2.. looks a bit funny but time2 isn't used othwise
+    // did use angles2.. now uses time2.. looks a bit funny but time2 isn't used othwise
     dir = cent->currentState.time2;
     if( dir < 0 || dir > 7 )
       CG_Error( "Bad player movement angle" );
@@ -1485,7 +1485,7 @@ static void CG_PlayerNonSegAngles( centity_t *cent, vec3_t srcAngles, vec3_t non
   }
   else
   {
-    //TA: did use angles2.. now uses time2.. looks a bit funny but time2 isn't used othwise
+    // did use angles2.. now uses time2.. looks a bit funny but time2 isn't used othwise
     dir = cent->currentState.time2;
     if( dir < 0 || dir > 7 )
       CG_Error( "Bad player movement angle" );
@@ -1744,7 +1744,7 @@ static void CG_PlayerSprites( centity_t *cent )
 
   if( cent->currentState.eFlags & EF_TALK )
   {
-    //TA: the masses have decreed this to be wrong
+    // the masses have decreed this to be wrong
 /*    CG_PlayerFloatSprite( cent, cgs.media.balloonShader );
     return;*/
   }
@@ -1795,7 +1795,7 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane, pClass_t c
   if( trace.fraction == 1.0 || trace.startsolid || trace.allsolid )
     return qfalse;
 
-  //TA: FIXME: stencil shadows will be broken for walls.
+  // FIXME: stencil shadows will be broken for walls.
   //           Unfortunately there isn't much that can be
   //           done since Q3 references only the Z coord
   //           of the shadowPlane
@@ -2008,8 +2008,8 @@ void CG_Player( centity_t *cent )
 {
   clientInfo_t  *ci;
 
-  //TA: NOTE: legs is used for nonsegmented models
-  //          this helps reduce code to be changed
+  // NOTE: legs is used for nonsegmented models
+  //       this helps reduce code to be changed
   refEntity_t   legs;
   refEntity_t   torso;
   refEntity_t   head;
