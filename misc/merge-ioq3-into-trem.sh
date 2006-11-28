@@ -17,7 +17,7 @@ svn export . $IOQ3VERSION
 cd $IOQ3VERSION
 
 # Remove READMEs and the like
-rm -rf BUGS ChangeLog README COPYING.txt TODO id-readme.txt web/
+rm -rf BUGS ChangeLog README COPYING.txt NOTTODO TODO id-readme.txt web/
 
 # Remove Q3 ui stuff
 rm -rf ui/

@@ -1237,7 +1237,7 @@ void Sys_ANSIColorify( const char *msg, char *buffer, int bufferSize )
     if( msg[ i ] == '\n' )
     {
       Com_sprintf( tempBuffer, 7, "%c[0m\n", 0x1B );
-      strncat( buffer, tempBuffer, bufferSize );
+      strncat( buffer, tempBuffer, bufferSize - 1);
       i++;
     }
     else if( msg[ i ] == Q_COLOR_ESCAPE )
@@ -1259,7 +1259,7 @@ void Sys_ANSIColorify( const char *msg, char *buffer, int bufferSize )
         if( escapeCode )
         {
           Com_sprintf( tempBuffer, 7, "%c[%sm", 0x1B, escapeCode );
-          strncat( buffer, tempBuffer, bufferSize );
+          strncat( buffer, tempBuffer, bufferSize - 1);
         }
 
         i++;
@@ -1268,7 +1268,7 @@ void Sys_ANSIColorify( const char *msg, char *buffer, int bufferSize )
     else
     {
       Com_sprintf( tempBuffer, 7, "%c", msg[ i++ ] );
-      strncat( buffer, tempBuffer, bufferSize );
+      strncat( buffer, tempBuffer, bufferSize - 1);
     }
   }
 }
@@ -1383,8 +1383,42 @@ void Sys_ParseArgs( int argc, char* argv[] ) {
   }
 }
 
+#ifdef MACOS_X
+/* 
+=================
+Sys_EscapeAppBundle
+
+Discovers if passed dir is suffixed with the directory structure of a
+Mac OS X .app bundle.  If it is, the .app directory structure is stripped off
+the end and the result is returned.   If not, dir is returned untouched. 
+
+=================
+*/
+char *Sys_StripAppBundle(char *dir)
+{
+	static char cwd[MAX_OSPATH];
+
+	Q_strncpyz(cwd, dir, sizeof(cwd));
+	if(strcmp(basename(cwd), "MacOS"))
+		return dir;
+	Q_strncpyz(cwd, dirname(cwd), sizeof(cwd));
+	if(strcmp(basename(cwd), "Contents"))
+		return dir;
+	Q_strncpyz(cwd, dirname(cwd), sizeof(cwd));
+	if(!strstr(basename(cwd), ".app"))
+		return dir;
+	Q_strncpyz(cwd, dirname(cwd), sizeof(cwd));
+	return cwd;	
+}
+#endif /* MACOS_X */
+
 #ifndef DEFAULT_BASEDIR
-# define DEFAULT_BASEDIR Sys_DefaultCDPath()
+  #ifdef MACOS_X
+    // if run from an .app bundle, we want to also search its containing dir
+    #define DEFAULT_BASEDIR Sys_StripAppBundle(Sys_DefaultCDPath())
+  #else
+    #define DEFAULT_BASEDIR Sys_DefaultCDPath()
+  #endif
 #endif
 
 #include "../client/client.h"

@@ -1071,7 +1071,8 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 		if (!down) {
 			return;
 		}
-    Con_ToggleConsole_f ();
+		Con_ToggleConsole_f ();
+		Key_ClearStates ();
 		return;
 	}
 

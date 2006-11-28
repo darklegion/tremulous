@@ -462,6 +462,10 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	Com_DPrintf( "Going from CS_PRIMED to CS_ACTIVE for %s\n", client->name );
 	client->state = CS_ACTIVE;
 
+	// resend all configstrings using the cs commands since these are
+	// no longer sent when the client is CS_PRIMED
+	SV_UpdateConfigstrings( client );
+
 	// set up the entity for the client
 	clientNum = client - svs.clients;
 	ent = SV_GentityNum( clientNum );
@@ -643,7 +647,9 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 		}
 
 		// We open the file here
-		if ( !sv_allowDownload->integer || idPack || unreferenced ||
+		if ( !(sv_allowDownload->integer & DLF_ENABLE) ||
+			(sv_allowDownload->integer & DLF_NO_UDP) ||
+			idPack || unreferenced ||
 			( cl->downloadSize = FS_SV_FOpenFileRead( cl->downloadName, &cl->download ) ) <= 0 ) {
 			// cannot auto-download file
 			if(unreferenced)
@@ -660,7 +666,10 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 				else {
 					Com_sprintf(errorMessage, sizeof(errorMessage), "Cannot autodownload id pk3 file \"%s\"", cl->downloadName);
 				}
-			} else if ( !sv_allowDownload->integer ) {
+			}
+			else if ( !(sv_allowDownload->integer & DLF_ENABLE) ||
+				(sv_allowDownload->integer & DLF_NO_UDP) ) {
+
 				Com_Printf("clientDownload: %d : \"%s\" download disabled", cl - svs.clients, cl->downloadName);
 				if (sv_pure->integer) {
 					Com_sprintf(errorMessage, sizeof(errorMessage), "Could not download \"%s\" because autodownloading is disabled on the server.\n\n"

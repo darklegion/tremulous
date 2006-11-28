@@ -220,6 +220,10 @@ void CL_ParseSnapshot( msg_t *msg ) {
 
 	newSnap.serverTime = MSG_ReadLong( msg );
 
+	// if we were just unpaused, we can only *now* really let the
+	// change come into effect or the client hangs.
+	cl_paused->modified = 0;
+
 	newSnap.messageNum = clc.serverMessageSequence;
 
 	deltaNum = MSG_ReadByte( msg );
@@ -411,6 +415,25 @@ void CL_SystemInfoChanged( void ) {
 
 /*
 ==================
+CL_ParseServerInfo
+==================
+*/
+static void CL_ParseServerInfo(void)
+{
+	const char *serverInfo;
+
+	serverInfo = cl.gameState.stringData
+		+ cl.gameState.stringOffsets[ CS_SERVERINFO ];
+
+	clc.sv_allowDownload = atoi(Info_ValueForKey(serverInfo,
+		"sv_allowDownload"));
+	Q_strncpyz(clc.sv_dlURL,
+		Info_ValueForKey(serverInfo, "sv_dlURL"),
+		sizeof(clc.sv_dlURL));
+}
+
+/*
+==================
 CL_ParseGamestate
 ==================
 */
@@ -476,11 +499,18 @@ void CL_ParseGamestate( msg_t *msg ) {
 	// read the checksum feed
 	clc.checksumFeed = MSG_ReadLong( msg );
 
+	// parse useful values out of CS_SERVERINFO
+	CL_ParseServerInfo();
+
 	// parse serverId and other cvars
 	CL_SystemInfoChanged();
 
+	// stop recording now so the demo won't have an unnecessary level load at the end.
+	if(cl_autoRecordDemo->integer && clc.demorecording)
+		CL_StopRecord_f();
+	
 	// reinitialize the filesystem if the game directory has changed
-  FS_ConditionalRestart( clc.checksumFeed );
+	FS_ConditionalRestart( clc.checksumFeed );
 
 	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the
 	// cgame

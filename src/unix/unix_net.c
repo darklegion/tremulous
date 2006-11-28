@@ -649,19 +649,40 @@ char *NET_ErrorString (void)
 // sleeps msec or until net socket is ready
 void NET_Sleep(int msec)
 {
-    struct timeval timeout;
+	struct timeval timeout;
 	fd_set	fdset;
 	extern qboolean stdin_active;
+	int highestfd = 0;
 
-	if (!ip_socket || !com_dedicated->integer)
+	if (!com_dedicated->integer)
 		return; // we're not a server, just run full speed
 
 	FD_ZERO(&fdset);
 	if (stdin_active)
+	{
 		FD_SET(0, &fdset); // stdin is processed too
-	FD_SET(ip_socket, &fdset); // network socket
-	timeout.tv_sec = msec/1000;
-	timeout.tv_usec = (msec%1000)*1000;
-	select(ip_socket+1, &fdset, NULL, NULL, &timeout);
+		highestfd = 1;
+	}
+	if(ip_socket)
+	{
+		FD_SET(ip_socket, &fdset); // network socket
+		if(ip_socket >= highestfd)
+			highestfd = ip_socket + 1;
+	}
+	
+	if(highestfd)
+	{
+		if(msec >= 0)
+		{
+			timeout.tv_sec = msec/1000;
+			timeout.tv_usec = (msec%1000)*1000;
+			select(highestfd, &fdset, NULL, NULL, &timeout);
+		}
+		else
+		{
+			// Block indefinitely
+			select(highestfd, &fdset, NULL, NULL, NULL);
+		}
+	}
 }
 

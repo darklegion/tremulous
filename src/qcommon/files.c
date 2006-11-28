@@ -2706,7 +2706,7 @@ qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
 ================
 FS_Shutdown
 
-Frees all resources and closes all files
+Frees all resources.
 ================
 */
 void FS_Shutdown( qboolean closemfp ) {
@@ -2819,10 +2819,6 @@ static void FS_Startup( const char *gameName ) {
 	if (fs_basepath->string[0]) {
 		FS_AddGameDirectory( fs_basepath->string, gameName );
 	}
-#ifdef MACOS_X
-	// allow .app bundles to be placed along side base dir
-	FS_AddGameDirectory( ".", gameName );
-#endif
   // fs_homepath is somewhat particular to *nix systems, only add if relevant
   // NOTE: same filtering below for mods and basegame
 	if (fs_basepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {

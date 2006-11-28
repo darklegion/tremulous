@@ -29,6 +29,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define VERSION_NUMBER        "1.1.0"
 #define Q3_VERSION            "tremulous " VERSION_NUMBER
+#ifndef SVN_VERSION
+#define SVN_VERSION           Q3_VERSION
+#endif
 #define CLIENT_WINDOW_TITLE   "Tremulous " VERSION_NUMBER
 #define CLIENT_WINDOW_ICON    "Tremulous"
 #define CONSOLE_WINDOW_TITLE  "Tremulous " VERSION_NUMBER " console"

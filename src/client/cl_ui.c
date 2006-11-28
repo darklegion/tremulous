@@ -603,10 +603,10 @@ static void CL_GetGlconfig( glconfig_t *config ) {
 
 /*
 ====================
-GetClipboardData
+CL_GetClipboardData
 ====================
 */
-static void GetClipboardData( char *buf, int buflen ) {
+static void CL_GetClipboardData( char *buf, int buflen ) {
 	char	*cbd;
 
 	cbd = Sys_GetClipboardData();
@@ -836,7 +836,7 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return 0;
 
 	case UI_GETCLIPBOARDDATA:
-		GetClipboardData( VMA(1), args[2] );
+		CL_GetClipboardData( VMA(1), args[2] );
 		return 0;
 
 	case UI_GETCLIENTSTATE:

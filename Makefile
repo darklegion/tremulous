@@ -95,6 +95,18 @@ ifndef USE_OPENAL_DLOPEN
 USE_OPENAL_DLOPEN=0
 endif
 
+ifndef USE_CURL
+USE_CURL=1
+endif
+
+ifndef USE_CURL_DLOPEN
+  ifeq ($(PLATFORM),mingw32)
+    USE_CURL_DLOPEN=0
+  else
+    USE_CURL_DLOPEN=1
+  endif
+endif
+
 ifndef USE_CODEC_VORBIS
 USE_CODEC_VORBIS=0
 endif
@@ -129,13 +141,19 @@ LIBSDIR=$(MOUNT_DIR)/libs
 MASTERDIR=$(MOUNT_DIR)/master
 
 # extract version info
-VERSION=$(shell grep "#define VERSION_NUMBER" $(CMDIR)/q_shared.h | \
+VERSION=$(shell grep "\#define VERSION_NUMBER" $(CMDIR)/q_shared.h | \
   sed -e 's/[^"]*"\(.*\)"/\1/')
 
+USE_SVN=
 ifeq ($(wildcard .svn),.svn)
-  SVN_VERSION=$(VERSION)_SVN$(shell LANG=C svnversion .)
-else
-  SVN_VERSION=$(VERSION)
+  SVN_REV=$(shell LANG=C svnversion .)
+  ifneq ($(SVN_REV),)
+    SVN_VERSION=$(VERSION)_SVN$(SVN_REV)
+    USE_SVN=1
+  endif
+endif
+ifneq ($(USE_SVN),1)
+    SVN_VERSION=$(VERSION)
 endif
 
 
@@ -177,6 +195,13 @@ ifeq ($(PLATFORM),linux)
     BASE_CFLAGS += -DUSE_OPENAL=1
     ifeq ($(USE_OPENAL_DLOPEN),1)
       BASE_CFLAGS += -DUSE_OPENAL_DLOPEN=1
+    endif
+  endif
+  
+  ifeq ($(USE_CURL),1)
+    BASE_CFLAGS += -DUSE_CURL=1
+    ifeq ($(USE_CURL_DLOPEN),1)
+      BASE_CFLAGS += -DUSE_CURL_DLOPEN=1
     endif
   endif
 
@@ -241,6 +266,12 @@ ifeq ($(PLATFORM),linux)
       CLIENT_LDFLAGS += -lopenal
     endif
   endif
+  
+  ifeq ($(USE_CURL),1)
+    ifneq ($(USE_CURL_DLOPEN),1)
+      CLIENT_LDFLAGS += -lcurl
+    endif
+  endif
 
   ifeq ($(USE_CODEC_VORBIS),1)
     CLIENT_LDFLAGS += -lvorbisfile -lvorbis -logg
@@ -294,14 +325,15 @@ ifeq ($(PLATFORM),darwin)
   ifeq ($(BUILD_MACOSX_UB),x86)
     CC=gcc-4.0
     BASE_CFLAGS += -arch i386 -DSMP \
-      -isysroot /Developer/SDKs/MacOSX10.4u.sdk \
       -mmacosx-version-min=10.4 \
       -DMAC_OS_X_VERSION_MIN_REQUIRED=1040 -nostdinc \
       -F/Developer/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks \
       -I/Developer/SDKs/MacOSX10.4u.sdk/usr/lib/gcc/i686-apple-darwin8/4.0.1/include \
       -isystem /Developer/SDKs/MacOSX10.4u.sdk/usr/include
-    LDFLAGS = -mmacosx-version-min=10.4 \
-      -L/Developer/SDKs/MacOSX10.4u.sdk/usr/lib/gcc/i686-apple-darwin8/4.0.1
+    LDFLAGS = -arch i386 -mmacosx-version-min=10.4 \
+      -L/Developer/SDKs/MacOSX10.4u.sdk/usr/lib/gcc/i686-apple-darwin8/4.0.1 \
+      -F/Developer/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks \
+      -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk
     ARCH=x86
     BUILD_SERVER=0
   else
@@ -314,13 +346,13 @@ ifeq ($(PLATFORM),darwin)
   endif
 
   ifeq ($(ARCH),ppc)
-    OPTIMIZE += -faltivec
+    OPTIMIZE += -faltivec -O3
     # Carbon is required on PPC only to make a call to MakeDataExecutable
     # in the PPC vm (should be a better non-Carbon way).
     LDFLAGS += -framework Carbon
   endif
   ifeq ($(ARCH),x86)
-    OPTIMIZE += -msse2
+    OPTIMIZE += -march=prescott -mfpmath=sse
     # x86 vm will crash without -mstackrealign since MMX instructions will be
     # used no matter what and they corrupt the frame pointer in VM calls
     BASE_CFLAGS += -mstackrealign
@@ -337,6 +369,15 @@ ifeq ($(PLATFORM),darwin)
       CLIENT_LDFLAGS += -framework OpenAL
     else
       BASE_CFLAGS += -DUSE_OPENAL_DLOPEN=1
+    endif
+  endif
+  
+  ifeq ($(USE_CURL),1)
+    BASE_CFLAGS += -DUSE_CURL=1
+    ifneq ($(USE_CURL_DLOPEN),1)
+      CLIENT_LDFLAGS += -lcurl
+    else
+      BASE_CFLAGS += -DUSE_CURL_DLOPEN=1
     endif
   endif
 
@@ -360,7 +401,7 @@ ifeq ($(PLATFORM),darwin)
     #CLIENT_LDFLAGS += -L/usr/X11R6/$(LIB) -lX11 -lXext -lXxf86dga -lXxf86vm
   endif
 
-  OPTIMIZE += -O3 -ffast-math -falign-loops=16
+  OPTIMIZE += -ffast-math -falign-loops=16
 
   ifneq ($(HAVE_VM_COMPILED),true)
     BASE_CFLAGS += -DNO_VM_COMPILED
@@ -395,6 +436,13 @@ ifeq ($(PLATFORM),mingw32)
   ifeq ($(USE_OPENAL),1)
     BASE_CFLAGS += -DUSE_OPENAL=1 -DUSE_OPENAL_DLOPEN=1
   endif
+  
+  ifeq ($(USE_CURL),1)
+    BASE_CFLAGS += -DUSE_CURL=1
+    ifneq ($(USE_CURL_DLOPEN),1)
+      BASE_CFLAGS += -DCURL_STATICLIB
+    endif
+  endif
 
   ifeq ($(USE_CODEC_VORBIS),1)
     BASE_CFLAGS += -DUSE_CODEC_VORBIS=1
@@ -418,8 +466,14 @@ ifeq ($(PLATFORM),mingw32)
 
   BINEXT=.exe
 
-  LDFLAGS= -mwindows -lshfolder -lwsock32 -lgdi32 -lwinmm -lole32
+  LDFLAGS= -mwindows -lwsock32 -lgdi32 -lwinmm -lole32
   CLIENT_LDFLAGS=
+
+  ifeq ($(USE_CURL),1)
+    ifneq ($(USE_CURL_DLOPEN),1)
+      CLIENT_LDFLAGS += $(LIBSDIR)/win32/libcurl.a
+    endif
+  endif
 
   ifeq ($(USE_CODEC_VORBIS),1)
     CLIENT_LDFLAGS += -lvorbisfile -lvorbis -logg
@@ -713,6 +767,10 @@ ifeq ($(GENERATE_DEPENDENCIES),1)
   endif
 endif
 
+ifeq ($(USE_SVN),1)
+  BASE_CFLAGS += -DSVN_VERSION=\\\"$(SVN_VERSION)\\\"
+endif
+
 DO_CC=$(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) -o $@ -c $<
 DO_SMP_CC=$(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) -DSMP -o $@ -c $<
 DO_BOT_CC=$(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) $(BOTCFLAGS) -DBOTLIB -o $@ -c $<   # $(SHLIBCFLAGS) # bk001212
@@ -828,6 +886,8 @@ Q3OBJ = \
   \
   $(B)/client/qal.o \
   $(B)/client/snd_openal.o \
+  \
+  $(B)/client/cl_curl.o \
   \
   $(B)/client/sv_ccmds.o \
   $(B)/client/sv_client.o \
@@ -984,6 +1044,9 @@ endif
 $(B)/client/cl_cgame.o : $(CDIR)/cl_cgame.c; $(DO_CC)
 $(B)/client/cl_cin.o : $(CDIR)/cl_cin.c; $(DO_CC)
 $(B)/client/cl_console.o : $(CDIR)/cl_console.c; $(DO_CC)
+ifeq ($(USE_SVN),1)
+  $(B)/client/cl_console.o : .svn/entries
+endif
 $(B)/client/cl_input.o : $(CDIR)/cl_input.c; $(DO_CC)
 $(B)/client/cl_keys.o : $(CDIR)/cl_keys.c; $(DO_CC)
 $(B)/client/cl_main.o : $(CDIR)/cl_main.c; $(DO_CC)
@@ -1006,6 +1069,8 @@ $(B)/client/snd_codec_ogg.o : $(CDIR)/snd_codec_ogg.c; $(DO_CC)
 $(B)/client/qal.o : $(CDIR)/qal.c; $(DO_CC)
 $(B)/client/snd_openal.o : $(CDIR)/snd_openal.c; $(DO_CC)
 
+$(B)/client/cl_curl.o : $(CDIR)/cl_curl.c; $(DO_CC)
+
 $(B)/client/sv_client.o : $(SDIR)/sv_client.c; $(DO_CC)
 $(B)/client/sv_ccmds.o : $(SDIR)/sv_ccmds.c; $(DO_CC)
 $(B)/client/sv_game.o : $(SDIR)/sv_game.c; $(DO_CC)
@@ -1021,6 +1086,9 @@ $(B)/client/cm_patch.o : $(CMDIR)/cm_patch.c; $(DO_CC)
 $(B)/client/cm_polylib.o : $(CMDIR)/cm_polylib.c; $(DO_CC)
 $(B)/client/cmd.o : $(CMDIR)/cmd.c; $(DO_CC)
 $(B)/client/common.o : $(CMDIR)/common.c; $(DO_CC)
+ifeq ($(USE_SVN),1)
+  $(B)/client/common.o : .svn/entries
+endif
 $(B)/client/cvar.o : $(CMDIR)/cvar.c; $(DO_CC)
 $(B)/client/files.o : $(CMDIR)/files.c; $(DO_CC)
 $(B)/client/md4.o : $(CMDIR)/md4.c; $(DO_CC)
@@ -1222,6 +1290,9 @@ $(B)/ded/cm_trace.o : $(CMDIR)/cm_trace.c; $(DO_DED_CC)
 $(B)/ded/cm_patch.o : $(CMDIR)/cm_patch.c; $(DO_DED_CC)
 $(B)/ded/cmd.o : $(CMDIR)/cmd.c; $(DO_DED_CC)
 $(B)/ded/common.o : $(CMDIR)/common.c; $(DO_DED_CC)
+ifeq ($(USE_SVN),1)
+  $(B)/ded/common.o : .svn/entries
+endif
 $(B)/ded/cvar.o : $(CMDIR)/cvar.c; $(DO_DED_CC)
 $(B)/ded/files.o : $(CMDIR)/files.c; $(DO_DED_CC)
 $(B)/ded/md4.o : $(CMDIR)/md4.c; $(DO_DED_CC)

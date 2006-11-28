@@ -481,6 +481,7 @@ void	Cvar_CommandCompletion( void(*callback)(const char *s) );
 // callback with each valid string
 
 void 	Cvar_Reset( const char *var_name );
+void 	Cvar_ForceReset(const char *var_name);
 
 void	Cvar_SetCheatState( void );
 // reset all testing vars to a safe value
@@ -1095,5 +1096,11 @@ extern huffman_t clientHuffTables;
 #define SV_DECODE_START		12
 #define	CL_ENCODE_START		12
 #define CL_DECODE_START		4
+
+// flags for sv_allowDownload and cl_allowDownload
+#define DLF_ENABLE 1
+#define DLF_NO_REDIRECT 2
+#define DLF_NO_UDP 4
+#define DLF_NO_DISCONNECT 8
 
 #endif // _QCOMMON_H_
