@@ -969,6 +969,20 @@ void G_CountSpawns( void )
         level.numAlienSpawns, level.numHumanSpawns ) );
 }
 
+/*
+============
+G_TimeTilSuddenDeath
+============
+*/
+int G_TimeTilSuddenDeath( void )
+{
+  if( !g_suddenDeathTime.integer )
+    return 1; // Always some time away
+
+  return ( g_suddenDeathTime.integer * 60000 ) -
+         ( level.time - level.startTime );
+}
+
 
 #define PLAYER_COUNT_MOD 5.0f
 
@@ -987,17 +1001,15 @@ void G_CalculateBuildPoints( void )
   int         localHTP = g_humanBuildPoints.integer,
               localATP = g_alienBuildPoints.integer;
 
-  if( g_suddenDeathTime.integer )
+  if( g_suddenDeathTime.integer && !level.warmupTime )
   {
-    if( !level.warmupTime &&
-      ( level.time - level.startTime >= g_suddenDeathTime.integer * 60000 ) )
+    if( G_TimeTilSuddenDeath( ) <= 0 )
     {
       localHTP = 0;
       localATP = 0;
 
       //warn about sudden death
-      if( level.time - level.startTime >= g_suddenDeathTime.integer * 60000 &&
-          level.suddenDeathWarning < TW_PASSED )
+      if( level.suddenDeathWarning < TW_PASSED )
       {
         trap_SendServerCommand( -1, "cp \"Sudden Death!\"" );
         level.suddenDeathWarning = TW_PASSED;
@@ -1006,7 +1018,7 @@ void G_CalculateBuildPoints( void )
     else
     {
       //warn about sudden death
-      if( level.time - level.startTime >= ( g_suddenDeathTime.integer - 1 ) * 60000 &&
+      if( G_TimeTilSuddenDeath( ) <= 60000 &&
           level.suddenDeathWarning < TW_IMMINENT )
       {
         trap_SendServerCommand( -1, "cp \"Sudden Death in 1 minute!\"" );

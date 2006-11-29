@@ -1379,8 +1379,7 @@ void ClientThink_real( gentity_t *ent )
   // Give clients some credit periodically
   if( ent->client->lastKillTime + FREEKILL_PERIOD < level.time )
   {
-    if( g_suddenDeathTime.integer &&
-        ( level.time - level.startTime >= g_suddenDeathTime.integer * 60000 ) )
+    if( G_TimeTilSuddenDeath( ) <= 0 )
     {
       //gotta love logic like this eh?
     }

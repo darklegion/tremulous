@@ -900,6 +900,7 @@ void QDECL G_Error( const char *fmt, ... );
 void CheckVote( void );
 void CheckTeamVote( int teamnum );
 void LogExit( const char *string );
+int  G_TimeTilSuddenDeath( void );
 
 //
 // g_client.c

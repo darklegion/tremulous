@@ -1738,8 +1738,7 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
         return;
 
       // Don't allow destruction of buildables that cannot be rebuilt
-      if( g_suddenDeathTime.integer && ( level.time - level.startTime >=
-          g_suddenDeathTime.integer * 60000 ) &&
+      if( G_TimeTilSuddenDeath( ) <= 0 &&
           BG_FindBuildPointsForBuildable( traceEnt->s.modelindex ) )
       {
         return;
