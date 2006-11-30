@@ -1,11 +1,11 @@
 #!/bin/sh
-APPBUNDLE=ioquake3.app
-BINARY=ioquake3.ub
-PKGINFO=APPIOQ3
-ICNS=code/unix/MacSupport/ioquake3.icns
+APPBUNDLE=Tremulous.app
+BINARY=Tremulous.ub
+PKGINFO=APPTREM
+ICNS=src/unix/MacSupport/Tremulous.icns
 DESTDIR=build/release-darwin-ub
 BASEDIR=base
-Q3_VERSION=`grep "\#define Q3_VERSION" code/qcommon/q_shared.h | \
+Q3_VERSION=`grep "\#define Q3_VERSION" src/qcommon/q_shared.h | \
 	sed -e 's/.*".* \([^ ]*\)"/\1/'`;
 
 BIN_OBJ="
@@ -21,14 +21,13 @@ BASE_OBJ="
 	build/release-darwin-x86/$BASEDIR/gamex86.dylib
 "
 if [ ! -f Makefile ]; then
-	echo "This script must be run from the ioquake3 build directory";
+	echo "This script must be run from the Tremulous build directory";
 fi
 
 if [ ! -d /Developer/SDKs/MacOSX10.2.8.sdk ]; then
 	echo "
 /Developer/SDKs/MacOSX10.2.8.sdk/ is missing, this doesn't install by default
-with newer XCode releases, but you should be able to fine the installer at
-/Applications/Installers/Xcode Tools/Packages/"
+with newer XCode releases, but the installers is included"
 	exit 1;
 fi
 
@@ -51,7 +50,7 @@ fi
 if [ ! -d $DESTDIR/$APPBUNDLE/Contents/Resources ]; then
 	mkdir -p $DESTDIR/$APPBUNDLE/Contents/Resources
 fi
-cp $ICNS $DESTDIR/$APPBUNDLE/Contents/Resources/ioquake3.icns || exit 1;
+cp $ICNS $DESTDIR/$APPBUNDLE/Contents/Resources/Tremulous.icns || exit 1;
 echo $PKGINFO > $DESTDIR/$APPBUNDLE/Contents/PkgInfo
 echo "
 	<?xml version=\"1.0\" encoding="UTF-8"?>
@@ -65,15 +64,15 @@ echo "
 		<key>CFBundleExecutable</key>
 		<string>$BINARY</string>
 		<key>CFBundleGetInfoString</key>
-		<string>ioquake3 $Q3_VERSION</string>
+		<string>$Q3_VERSION</string>
 		<key>CFBundleIconFile</key>
-		<string>ioquake3.icns</string>
+		<string>Tremulous.icns</string>
 		<key>CFBundleIdentifier</key>
-		<string>org.icculus.quake3</string>
+		<string>net.tremulous</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
-		<string>ioquake3</string>
+		<string>Tremulous</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
@@ -92,6 +91,5 @@ echo "
 
 lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY $BIN_OBJ
 cp $BASE_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR/
-cp $MPACK_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$MPACKDIR/
-cp code/libs/macosx/*.dylib $DESTDIR/$APPBUNDLE/Contents/MacOS/
+cp src/libs/macosx/*.dylib $DESTDIR/$APPBUNDLE/Contents/MacOS/
 
