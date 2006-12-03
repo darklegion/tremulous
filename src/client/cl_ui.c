@@ -410,7 +410,28 @@ static int LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int
 	res = 0;
 	switch( sortKey ) {
 		case SORT_HOST:
-			res = Q_stricmp( server1->hostName, server2->hostName );
+      {
+        char  hostName1[ MAX_HOSTNAME_LENGTH ];
+        char  hostName2[ MAX_HOSTNAME_LENGTH ];
+        char  *p;
+        int   i;
+
+        for( p = server1->hostName, i = 0; *p != '\0'; p++ )
+        {
+          if( Q_isalpha( *p ) )
+            hostName1[ i++ ] = *p;
+        }
+        hostName1[ i ] = '\0';
+
+        for( p = server2->hostName, i = 0; *p != '\0'; p++ )
+        {
+          if( Q_isalpha( *p ) )
+            hostName2[ i++ ] = *p;
+        }
+        hostName2[ i ] = '\0';
+
+			  res = Q_stricmp( hostName1, hostName2 );
+      }
 			break;
 
 		case SORT_MAP:

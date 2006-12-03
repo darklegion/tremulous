@@ -157,6 +157,7 @@ static void SV_Map_f( void ) {
 	qboolean	killBots, cheat;
 	char		expanded[MAX_QPATH];
 	char		mapname[MAX_QPATH];
+	int			i;
 
 	map = Cmd_Argv(1);
 	if ( !map ) {
@@ -196,6 +197,11 @@ static void SV_Map_f( void ) {
 	} else {
 		Cvar_Set( "sv_cheats", "0" );
 	}
+
+	// This forces the local master server IP address cache
+	// to be updated on sending the next heartbeat
+	for( i = 0; i < MAX_MASTER_SERVERS; i++ )
+		sv_master[ i ]->modified  = qtrue;
 }
 
 /*

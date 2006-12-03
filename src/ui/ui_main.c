@@ -5042,10 +5042,18 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
                       netnames[atoi(Info_ValueForKey(info, "nettype"))] );
               return hostname;
             }
-            else {
+            else
+            {
+              char *text;
+
               Com_sprintf( hostname, sizeof(hostname), "%s", Info_ValueForKey(info, "hostname"));
 
-              return hostname;
+              // Strip leading whitespace
+              text = hostname;
+              while( *text != '\0' && *text == ' ' )
+                text++;
+
+              return text;
             }
           }
         case SORT_MAP :
