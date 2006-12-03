@@ -430,8 +430,8 @@ static int LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int
 				}
 				hostName2[ i ] = '\0';
 
-			  res = Q_stricmp( hostName1, hostName2 );
-      }
+				res = Q_stricmp( hostName1, hostName2 );
+			}
 			break;
 
 		case SORT_MAP:
