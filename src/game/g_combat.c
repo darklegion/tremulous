@@ -443,7 +443,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         ( ( self->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
     }
 
-    G_AddEvent( self, EV_DEATH1 + i, killer );
+    // use own entityid if killed by non-client to prevent uint8_t overflow
+    G_AddEvent( self, EV_DEATH1 + i,
+      ( killer < MAX_CLIENTS ) ? killer : self - g_entities );
 
     // globally cycle through the different death animations
     i = ( i + 1 ) % 3;
