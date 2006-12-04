@@ -743,6 +743,10 @@ void Cmd_Team_f( gentity_t *ent )
     return;
   }
 
+  // stop team join spam
+  if( ent->client->pers.teamSelection == team )
+    return;
+
   //guard against build timer exploit
   if( ent->client->pers.teamSelection != PTE_NONE &&
      ( ent->client->ps.stats[ STAT_PCLASS ] == PCL_ALIEN_BUILDER0 ||
