@@ -1122,6 +1122,13 @@ void Cmd_CallVote_f( gentity_t *ent )
   }
   else if( !Q_stricmp( arg1, "map" ) )
   {
+    if( trap_FS_FOpenFile( va( "maps/%s.bsp", arg2 ), NULL, FS_READ ) == -1 )
+    {
+      trap_SendServerCommand( ent - g_entities, va( "print \"callvote: "
+        "'maps/%s.bsp' could not be found on the server\n\"", arg2 ) );
+      return;
+    }
+
     Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 );
     Com_sprintf( level.voteDisplayString,
         sizeof( level.voteDisplayString ), "Change to map \'%s\'", arg2 );
