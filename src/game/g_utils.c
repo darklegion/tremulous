@@ -639,6 +639,19 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm )
     return;
   }
 
+  // eventParm is converted to int8_t in msg.c, so prevent rollover since
+  // this would never be the intent of game code
+  if( eventParm > 255 )
+  {
+    eventParm = 255;
+    G_Printf( S_COLOR_YELLOW "WARNING: G_AddEvent: eventParm overflow\n" );
+  }
+  else if( eventParm < -255 )
+  {
+    eventParm = -255;
+    G_Printf( S_COLOR_YELLOW "WARNING: G_AddEvent: eventParm underrun\n" );
+  }
+
   // clients need to add the event in playerState_t instead of entityState_t
   if( ent->client )
   {

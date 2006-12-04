@@ -73,7 +73,7 @@ void P_DamageFeedback( gentity_t *player )
   if( ( level.time > player->pain_debounce_time ) && !( player->flags & FL_GODMODE ) )
   {
     player->pain_debounce_time = level.time + 700;
-    G_AddEvent( player, EV_PAIN, player->health );
+    G_AddEvent( player, EV_PAIN, player->health > 255 ? 255 : player->health );
     client->ps.damageEvent++;
   }
 
