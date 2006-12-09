@@ -1258,6 +1258,7 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->timestamp = level.time;
   self->think = ASpawn_Melt;
   self->nextthink = level.time + 500; //wait .5 seconds before damaging others
+  self->die = nullDieFunction;
 
   //if the hovel is occupied free the occupant
   if( self->active )
