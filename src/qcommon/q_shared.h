@@ -426,6 +426,9 @@ void ByteToDir( int b, vec3_t dir );
 #define VectorCopy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2])
 #define	VectorScale(v, s, o)	((o)[0]=(v)[0]*(s),(o)[1]=(v)[1]*(s),(o)[2]=(v)[2]*(s))
 #define	VectorMA(v, s, b, o)	((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s))
+#define VectorLerp( f, s, e, r ) ((r)[0]=(s)[0]+(f)*((e)[0]-(s)[0]),\
+  (r)[1]=(s)[1]+(f)*((e)[1]-(s)[1]),\
+  (r)[2]=(s)[2]+(f)*((e)[2]-(s)[2])) 
 
 #else
 

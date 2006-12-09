@@ -2030,8 +2030,13 @@ the number of snapshots that were dropped before it.
 Pass NULL for a dropped packet.
 ==============
 */
+#define PING_FRAMES 40
 void CG_AddLagometerSnapshotInfo( snapshot_t *snap )
 {
+  static int  previousPings[ PING_FRAMES ];
+  static int  index;
+  int         i;
+
   // dropped packet
   if( !snap )
   {
@@ -2044,6 +2049,19 @@ void CG_AddLagometerSnapshotInfo( snapshot_t *snap )
   lagometer.snapshotSamples[ lagometer.snapshotCount & ( LAG_SAMPLES - 1 ) ] = snap->ping;
   lagometer.snapshotFlags[ lagometer.snapshotCount & ( LAG_SAMPLES - 1 ) ] = snap->snapFlags;
   lagometer.snapshotCount++;
+
+  // now used by cg_projectileNudge, so we need to move this where it will get
+  // called even if cg_lagometer = 0
+  cg.ping = 0;
+  previousPings[ index++ ] = cg.snap->ping;
+  index = index % PING_FRAMES;
+  
+  for( i = 0; i < PING_FRAMES; i++ )
+  {
+	cg.ping += previousPings[ i ];
+  }
+  
+  cg.ping /= PING_FRAMES;
 }
 
 /*
@@ -2088,7 +2106,6 @@ static void CG_DrawDisconnect( void )
 #define MAX_LAGOMETER_PING  900
 #define MAX_LAGOMETER_RANGE 300
 
-#define PING_FRAMES 40
 
 /*
 ==============
@@ -2230,20 +2247,9 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
     CG_Text_Paint( ax, ay, 0.5, white, "snc", 0, 0, ITEM_TEXTSTYLE_NORMAL );
   else
   {
-    static int  previousPings[ PING_FRAMES ];
-    static int  index;
-    int         i, ping = 0;
     char        *s;
 
-    previousPings[ index++ ] = cg.snap->ping;
-    index = index % PING_FRAMES;
-
-    for( i = 0; i < PING_FRAMES; i++ )
-      ping += previousPings[ i ];
-
-    ping /= PING_FRAMES;
-
-    s = va( "%d", ping );
+    s = va( "%d", cg.ping );
     ax = rect->x + ( rect->w / 2.0f ) - ( CG_Text_Width( s, scale, 0 ) / 2.0f ) + text_x;
     ay = rect->y + ( rect->h / 2.0f ) + ( CG_Text_Height( s, scale, 0 ) / 2.0f ) + text_y;
 

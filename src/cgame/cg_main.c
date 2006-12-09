@@ -238,6 +238,7 @@ vmCvar_t  ui_humanTeamVoteActive;
 vmCvar_t  cg_debugRandom;
 
 vmCvar_t  cg_optimizePrediction;
+vmCvar_t  cg_projectileNudge;
 
 
 typedef struct
@@ -354,6 +355,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_debugRandom, "cg_debugRandom", "0", 0 },
   
   { &cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE },
+  { &cg_projectileNudge, "cg_projectileNudge", "1", CVAR_ARCHIVE },
 
   // the following variables are created in other parts of the system,
   // but we also reference them here

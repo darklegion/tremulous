@@ -1135,6 +1135,7 @@ typedef struct
   int           lastServerTime;
   playerState_t savedPmoveStates[ NUM_SAVED_STATES ];
   int           stateHead, stateTail;
+  int           ping;
 } cg_t;
 
 
@@ -1508,6 +1509,7 @@ extern  vmCvar_t    ui_humanTeamVoteActive;
 extern  vmCvar_t    cg_debugRandom;
 
 extern  vmCvar_t    cg_optimizePrediction;
+extern  vmCvar_t    cg_projectileNudge;
 
 //
 // cg_main.c
