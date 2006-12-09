@@ -1122,7 +1122,7 @@ void Cmd_CallVote_f( gentity_t *ent )
   }
   else if( !Q_stricmp( arg1, "map" ) )
   {
-    if( trap_FS_FOpenFile( va( "maps/%s.bsp", arg2 ), NULL, FS_READ ) == -1 )
+    if( !trap_FS_FOpenFile( va( "maps/%s.bsp", arg2 ), NULL, FS_READ ) )
     {
       trap_SendServerCommand( ent - g_entities, va( "print \"callvote: "
         "'maps/%s.bsp' could not be found on the server\n\"", arg2 ) );
