@@ -1412,6 +1412,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   // toggle the teleport bit so the client knows to not lerp
   flags = ent->client->ps.eFlags & ( EF_TELEPORT_BIT | EF_VOTED | EF_TEAMVOTED );
   flags ^= EF_TELEPORT_BIT;
+  G_UnlaggedClear( ent );
 
   // clear everything but the persistant data
 

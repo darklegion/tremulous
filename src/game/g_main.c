@@ -103,6 +103,8 @@ vmCvar_t  g_alienMaxStage;
 vmCvar_t  g_alienStage2Threshold;
 vmCvar_t  g_alienStage3Threshold;
 
+vmCvar_t  g_unlagged;
+
 vmCvar_t  g_disabledEquipment;
 vmCvar_t  g_disabledClasses;
 vmCvar_t  g_disabledBuildables;
@@ -210,6 +212,8 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_alienMaxStage, "g_alienMaxStage", DEFAULT_ALIEN_MAX_STAGE, 0, 0, qfalse  },
   { &g_alienStage2Threshold, "g_alienStage2Threshold", DEFAULT_ALIEN_STAGE2_THRESH, 0, 0, qfalse  },
   { &g_alienStage3Threshold, "g_alienStage3Threshold", DEFAULT_ALIEN_STAGE3_THRESH, 0, 0, qfalse  },
+  
+  { &g_unlagged, "g_unlagged", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse  },
 
   { &g_disabledEquipment, "g_disabledEquipment", "", CVAR_ROM, 0, qfalse  },
   { &g_disabledClasses, "g_disabledClasses", "", CVAR_ROM, 0, qfalse  },
@@ -2138,12 +2142,6 @@ void G_RunFrame( int levelTime )
     if( !ent->r.linked && ent->neverFree )
       continue;
 
-    if( ent->s.eType == ET_MISSILE )
-    {
-      G_RunMissile( ent );
-      continue;
-    }
-
     if( ent->s.eType == ET_BUILDABLE )
     {
       G_BuildableThink( ent, msec );
@@ -2182,6 +2180,25 @@ void G_RunFrame( int levelTime )
     if( ent->inuse )
       ClientEndFrame( ent );
   }
+
+  // save position information for all active clients 
+  G_UnlaggedStore( );
+
+  // for missle impacts, move every active client one server frame time back
+  // to compensate for built-in 50ms lag
+  G_UnlaggedCalc( level.previousTime, NULL );
+  G_UnlaggedOn( NULL, 0.0f );
+  for( i = MAX_CLIENTS; i < level.num_entities ; i++)
+  {
+    ent = &g_entities[ i ];
+    if( !ent->inuse )
+      continue;
+    if( ent->freeAfterEvent )
+      continue;
+    if( ent->s.eType == ET_MISSILE )
+      G_RunMissile( ent );
+  }
+  G_UnlaggedOff( );
 
   end = trap_Milliseconds();
 

@@ -684,6 +684,7 @@ G_CalcDamageModifier
 */
 static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, int class, int dflags )
 {
+  vec3_t  targOrigin;
   vec3_t  bulletPath;
   vec3_t  bulletAngle;
   vec3_t  pMINUSfloor, floor, normal;
@@ -696,6 +697,11 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
   if( point == NULL )
     return 1.0f;
 
+  if( g_unlagged.integer && targ->client && targ->client->unlaggedCalc.used )
+    VectorCopy( targ->client->unlaggedCalc.origin, targOrigin );
+  else
+    VectorCopy( targ->r.currentOrigin, targOrigin );
+
   clientHeight = targ->r.maxs[ 2 ] - targ->r.mins[ 2 ];
 
   if( targ->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING )
@@ -703,7 +709,7 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
   else
     VectorSet( normal, 0, 0, 1 );
 
-  VectorMA( targ->r.currentOrigin, targ->r.mins[ 2 ], normal, floor );
+  VectorMA( targOrigin, targ->r.mins[ 2 ], normal, floor );
   VectorSubtract( point, floor, pMINUSfloor );
 
   hitRelative = DotProduct( normal, pMINUSfloor ) / VectorLength( normal );
@@ -716,7 +722,7 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
 
   hitRatio = hitRelative / clientHeight;
 
-  VectorSubtract( targ->r.currentOrigin, point, bulletPath );
+  VectorSubtract( targOrigin, point, bulletPath );
   vectoangles( bulletPath, bulletAngle );
 
   clientRotation = targ->client->ps.viewangles[ YAW ];

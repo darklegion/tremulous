@@ -1190,6 +1190,7 @@ void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
       //prevent lerping
       activator->client->ps.eFlags ^= EF_TELEPORT_BIT;
       activator->client->ps.eFlags |= EF_NODRAW;
+      G_UnlaggedClear( activator );
 
       activator->client->ps.stats[ STAT_STATE ] |= SS_HOVELING;
       activator->client->hovel = self;
@@ -1276,6 +1277,7 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     //prevent lerping
     builder->client->ps.eFlags ^= EF_TELEPORT_BIT;
     builder->client->ps.eFlags &= ~EF_NODRAW;
+    G_UnlaggedClear( builder );
 
     G_SetOrigin( builder, newOrigin );
     VectorCopy( newOrigin, builder->client->ps.origin );

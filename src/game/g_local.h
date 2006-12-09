@@ -351,6 +351,14 @@ typedef struct
   int                 adminLevel;
 } clientPersistant_t;
 
+#define MAX_UNLAGGED_MARKERS 10
+typedef struct unlagged_s {
+  vec3_t      origin;
+  vec3_t      mins;
+  vec3_t      maxs;
+  qboolean    used;
+} unlagged_t;
+
 // this structure is cleared on each ClientSpawn(),
 // except for 'client->pers' and 'client->sess'
 struct gclient_s
@@ -442,6 +450,12 @@ struct gclient_s
 
 #define RAM_FRAMES  1                       // number of frames to wait before retriggering
   int                 retriggerArmouryMenu; // frame number to retrigger the armoury menu
+
+  unlagged_t          unlaggedHist[ MAX_UNLAGGED_MARKERS ];
+  unlagged_t          unlaggedBackup;
+  unlagged_t          unlaggedCalc;
+  int                 unlaggedTime;
+
 };
 
 
@@ -628,6 +642,9 @@ typedef struct
   qboolean          uncondHumanWin;
   qboolean          alienTeamLocked;
   qboolean          humanTeamLocked;
+
+  int unlaggedIndex;
+  int unlaggedTimes[ MAX_UNLAGGED_MARKERS ];
 } level_locals_t;
 
 //
@@ -914,6 +931,11 @@ void ClientCommand( int clientNum );
 //
 // g_active.c
 //
+void G_UnlaggedStore( void );
+void G_UnlaggedClear( gentity_t *ent );
+void G_UnlaggedCalc( int time, gentity_t *skipEnt );
+void G_UnlaggedOn( vec3_t muzzle, float range );
+void G_UnlaggedOff( void );
 void ClientThink( int clientNum );
 void ClientEndFrame( gentity_t *ent );
 void G_RunClient( gentity_t *ent );
@@ -1099,6 +1121,8 @@ extern  vmCvar_t  g_alienKills;
 extern  vmCvar_t  g_alienMaxStage;
 extern  vmCvar_t  g_alienStage2Threshold;
 extern  vmCvar_t  g_alienStage3Threshold;
+
+extern  vmCvar_t  g_unlagged;
 
 extern  vmCvar_t  g_disabledEquipment;
 extern  vmCvar_t  g_disabledClasses;
