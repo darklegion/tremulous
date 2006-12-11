@@ -659,6 +659,10 @@ void Cmd_Team_f( gentity_t *ent )
   char    s[ MAX_TOKEN_CHARS ];
   qboolean force = G_admin_permission(ent, ADMF_FORCETEAMCHANGE);
 
+  // stop team join spam
+  if( level.time - ent->client->pers.teamChangeTime < 1000 )
+    return;
+
   trap_Argv( 1, s, sizeof( s ) );
 
   if( !strlen( s ) )
