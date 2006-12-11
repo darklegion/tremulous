@@ -1072,7 +1072,7 @@ void G_UnlaggedCalc( int time, gentity_t *rewindEnt )
   for( i = 0; i < level.maxclients; i++ )
   {
     ent = &g_entities[ i ];
-    if( ent->s.number == rewindEnt->s.number )
+    if( ent == rewindEnt )
       continue;
     if( !ent->r.linked || !( ent->r.contents & CONTENTS_BODY ) )
       continue;
