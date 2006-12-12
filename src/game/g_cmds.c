@@ -92,18 +92,12 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
     idnum = atoi( s );
 
     if( idnum < 0 || idnum >= level.maxclients )
-    {
-      trap_SendServerCommand( to - g_entities, va( "print \"Bad client slot: %i\n\"", idnum ) );
       return -1;
-    }
 
     cl = &level.clients[ idnum ];
 
     if( cl->pers.connected != CON_CONNECTED )
-    {
-      trap_SendServerCommand( to - g_entities, va( "print \"Client %i is not active\n\"", idnum ) );
       return -1;
-    }
 
     return idnum;
   }
@@ -122,7 +116,6 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
       return idnum;
   }
 
-  trap_SendServerCommand( to - g_entities, va( "print \"User %s is not on the server\n\"", s ) );
   return -1;
 }
 
@@ -2476,6 +2469,7 @@ Cmd_Follow_f
 void Cmd_Follow_f( gentity_t *ent, qboolean toggle )
 {
   int   i;
+  int   pids[ MAX_CLIENTS ];
   char  arg[ MAX_TOKEN_CHARS ];
 
   if( trap_Argc( ) != 2 || toggle )
@@ -2485,24 +2479,32 @@ void Cmd_Follow_f( gentity_t *ent, qboolean toggle )
     else if( ent->client->sess.spectatorState == SPECTATOR_FREE )
       G_FollowNewClient( ent, 1 );
   }
-  else if( ent->client->sess.spectatorState == SPECTATOR_FREE )
+  else if( ent->client->sess.spectatorState == SPECTATOR_FREE ||
+           ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
   {
     trap_Argv( 1, arg, sizeof( arg ) );
-    i = G_ClientNumberFromString( ent, arg );
+    if( G_ClientNumbersFromString( arg, pids ) == 1 )
+    {
+      i = pids[ 0 ];
+    }
+    else
+    {
+      i = G_ClientNumberFromString( ent, arg );
 
-    if( i == -1 )
-      return;
+      if( i == -1 )
+      {
+        trap_SendServerCommand( ent - g_entities,
+          "print \"follow: invalid player\n\"" );
+        return;
+      }
+    }
 
     // can't follow self
     if( &level.clients[ i ] == ent->client )
       return;
 
     // can't follow another spectator
-    if( level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR )
-      return;
-
-    // first set them to spectator
-    if( ent->client->sess.sessionTeam != TEAM_SPECTATOR )
+    if( ent->client->pers.teamSelection != PTE_NONE )
       return;
 
     ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
