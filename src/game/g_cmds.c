@@ -1093,9 +1093,10 @@ void Cmd_CallVote_f( gentity_t *ent )
         Q_CleanStr( kickee );
         if( g_admin.string[ 0 ] ) 
         {
-          // !kick will add a temp ban and a descriptive drop message
+          // use ip in case this player disconnects before the vote ends
           Com_sprintf( level.voteString, sizeof( level.voteString ),
-            "!kick %d vote kick", clientNum );
+            "!ban %s %d vote kick", level.clients[ clientNum ].pers.ip,
+            g_adminTempBan.integer + 1 );
         }
         else
         {
@@ -1341,10 +1342,11 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 
     if( g_admin.string[ 0 ] )
     {
-      // !kick will add a temp ban and a descriptive drop message
+      // use ip in case this player disconnects before the vote ends
       Com_sprintf( level.teamVoteString[ cs_offset ],
-          sizeof( level.teamVoteString[ cs_offset ] ),
-          "!kick %d team vote kick", clientNum );
+        sizeof( level.teamVoteString[ cs_offset ] ),
+        "!ban %s %d team vote kick", level.clients[ clientNum ].pers.ip,
+        g_adminTempBan.integer + 1 );
     }
     else
     {

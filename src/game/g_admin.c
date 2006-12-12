@@ -1659,7 +1659,8 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
       modifier = 60 * 60;
     else if( secs[ lastchar ] == 'm' )
       modifier = 60;
-    secs[ lastchar ] = '\0';
+    else if( secs[ lastchar ] < '0' || secs[ lastchar ] > '9' )
+      secs[ lastchar ] = '\0';
   }
   seconds = atoi( secs );
   if( seconds > 0 )
