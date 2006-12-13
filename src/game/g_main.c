@@ -89,7 +89,6 @@ vmCvar_t  g_minCommandPeriod;
 vmCvar_t  g_minNameChangePeriod;
 vmCvar_t  g_maxNameChanges;
 
-//TA
 vmCvar_t  g_humanBuildPoints;
 vmCvar_t  g_alienBuildPoints;
 vmCvar_t  g_humanStage;
@@ -109,6 +108,8 @@ vmCvar_t  g_disabledEquipment;
 vmCvar_t  g_disabledClasses;
 vmCvar_t  g_disabledBuildables;
 
+vmCvar_t  g_markDeconstruct;
+
 vmCvar_t  g_debugMapRotation;
 vmCvar_t  g_currentMapRotation;
 vmCvar_t  g_currentMap;
@@ -126,6 +127,8 @@ vmCvar_t  g_adminNameProtect;
 vmCvar_t  g_adminTempBan;
 
 vmCvar_t  g_privateMessages;
+
+vmCvar_t  g_tag;
 
 static cvarTable_t   gameCvarTable[ ] =
 {
@@ -221,6 +224,8 @@ static cvarTable_t   gameCvarTable[ ] =
 
   { &g_chatTeamPrefix, "g_chatTeamPrefix", "0", CVAR_ARCHIVE  },
 
+  { &g_markDeconstruct, "g_markDeconstruct", "1", CVAR_ARCHIVE, 0, qfalse  },
+
   { &g_debugMapRotation, "g_debugMapRotation", "0", 0, 0, qfalse  },
   { &g_currentMapRotation, "g_currentMapRotation", "-1", 0, 0, qfalse  }, // -1 = NOT_ROTATING
   { &g_currentMap, "g_currentMap", "0", 0, 0, qfalse  },
@@ -236,6 +241,8 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_adminTempBan, "g_adminTempBan", "120", CVAR_ARCHIVE, 0, qfalse  },
   
   { &g_privateMessages, "g_privateMessages", "1", CVAR_ARCHIVE, 0, qfalse  },
+  
+  { &g_tag, "g_tag", "main", CVAR_INIT, 0, qfalse },
   
   { &g_rankings, "g_rankings", "0", 0, 0, qfalse}
 };
@@ -1584,13 +1591,15 @@ void G_SendGameStat( pTeam_t team )
   }
 
   Com_sprintf( data, BIG_INFO_STRING,
-      "%s T:%c A:%f H:%f M:%s D:%d AS:%d AS2T:%d AS3T:%d HS:%d HS2T:%d HS3T:%d CL:%d",
+      "%s %s T:%c A:%f H:%f M:%s D:%d SD:%d AS:%d AS2T:%d AS3T:%d HS:%d HS2T:%d HS3T:%d CL:%d",
       Q3_VERSION,
+      g_tag.string,
       teamChar,
       level.averageNumAlienClients,
       level.averageNumHumanClients,
       map,
       level.time - level.startTime,
+      G_TimeTilSuddenDeath( ),
       g_alienStage.integer,
       level.alienStage2Time - level.startTime,
       level.alienStage3Time - level.startTime,
