@@ -1945,6 +1945,79 @@ static void CG_DrawTimer( rectDef_t *rect, float text_x, float text_y,
 }
 
 /*
+=================
+CG_DrawClock
+=================
+*/
+static void CG_DrawClock( rectDef_t *rect, float text_x, float text_y,
+                          float scale, vec4_t color, int align, int textStyle )
+{
+  char    *s;
+  int     i, tx, w, totalWidth, strLength;
+  qtime_t qt;
+  int     t;
+
+  if( !cg_drawClock.integer )
+    return;
+
+  t = trap_RealTime( &qt );
+
+  if( cg_drawClock.integer == 2 )
+  {
+    s = va( "%02d%s%02d", qt.tm_hour, ( qt.tm_sec % 2 ) ? ":" : " ",
+      qt.tm_min );
+  }
+  else
+  {
+    char *pm = "am";
+    int h = qt.tm_hour;
+
+    if( h == 0 )
+      h = 12;
+    else if( h == 12 )
+      pm = "pm";
+    else if( h > 12 )
+    {
+      h -= 12;
+      pm = "pm";
+    }
+
+    s = va( "%d%s%02d%s", h, ( qt.tm_sec % 2 ) ? ":" : " ", qt.tm_min, pm );
+  }
+  w = CG_Text_Width( "0", scale, 0 );
+  strLength = CG_DrawStrlen( s );
+  totalWidth = w * strLength;
+
+  switch( align )
+  {
+    case ITEM_ALIGN_LEFT:
+      tx = rect->x;
+      break;
+
+    case ITEM_ALIGN_RIGHT:
+      tx = rect->x + rect->w - totalWidth;
+      break;
+
+    case ITEM_ALIGN_CENTER:
+      tx = rect->x + ( rect->w / 2.0f ) - ( totalWidth / 2.0f );
+      break;
+
+    default:
+      tx = 0.0f;
+  }
+
+  for( i = 0; i < strLength; i++ )
+  {
+    char c[ 2 ];
+
+    c[ 0 ] = s[ i ];
+    c[ 1 ] = '\0';
+
+    CG_Text_Paint( text_x + tx + i * w, rect->y + text_y, scale, color, c, 0, 0, textStyle );
+  }
+}
+
+/*
 ==================
 CG_DrawSnapshot
 ==================
@@ -2712,6 +2785,9 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       break;
     case CG_TIMER:
       CG_DrawTimer( &rect, text_x, text_y, scale, color, align, textStyle );
+      break;
+    case CG_CLOCK:
+      CG_DrawClock( &rect, text_x, text_y, scale, color, align, textStyle );
       break;
     case CG_TIMER_MINS:
       CG_DrawTimerMins( &rect, color );

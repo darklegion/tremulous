@@ -258,6 +258,7 @@
 
 #define CG_CONSOLE                91
 #define CG_TUTORIAL               119
+#define CG_CLOCK                  120
 
 
 

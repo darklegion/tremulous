@@ -65,7 +65,7 @@
     itemDef
     {
       name "demoRecording"
-      rect 596 100 32 32
+      rect 596 120 32 32
       style WINDOW_STYLE_EMPTY
       visible 1
       decoration
@@ -79,7 +79,7 @@
     itemDef
     {
       name "demoPlayback"
-      rect 596 100 32 32
+      rect 596 120 32 32
       style WINDOW_STYLE_EMPTY
       visible 1
       decoration
@@ -123,6 +123,23 @@
       textscale 0.3
       textstyle ITEM_TEXTSTYLE_NORMAL
       ownerdraw CG_TIMER
+    }   
+    
+    //CLOCK
+    itemDef
+    {
+      name "clock"
+      rect 572 90 56 22
+      style WINDOW_STYLE_EMPTY
+      visible 1
+      decoration
+      forecolor 0.0 0.8 1.0 1
+      align ITEM_ALIGN_RIGHT
+      textalignx 0
+      textaligny 18
+      textscale 0.25
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      ownerdraw CG_CLOCK
     }   
 
     //SNAPSHOT

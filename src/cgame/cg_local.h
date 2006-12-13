@@ -1391,6 +1391,7 @@ extern  vmCvar_t    cg_swingSpeed;
 extern  vmCvar_t    cg_shadows;
 extern  vmCvar_t    cg_gibs;
 extern  vmCvar_t    cg_drawTimer;
+extern  vmCvar_t    cg_drawClock;
 extern  vmCvar_t    cg_drawFPS;
 extern  vmCvar_t    cg_drawDemoState;
 extern  vmCvar_t    cg_drawSnapshot;
@@ -2038,6 +2039,7 @@ void          trap_CIN_DrawCinematic( int handle );
 void          trap_CIN_SetExtents( int handle, int x, int y, int w, int h );
 
 void          trap_SnapVector( float *v );
+int           trap_RealTime( qtime_t *tm );
 
 qboolean      trap_loadCamera( const char *name );
 void          trap_startCamera( int time );

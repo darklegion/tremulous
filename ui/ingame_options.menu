@@ -296,6 +296,27 @@
         play "sound/misc/menu1.wav"; 
       }
     }
+    
+    itemDef
+    {
+      name game
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Show Clock:"
+      cvar "cg_drawClock"
+      cvarFloatList { "No" 0 "12 Hour" 1 "24 Hour" 2 }
+      rect 90 235 192 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 128 
+      textaligny 12
+      textscale .25         
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
+    }
 
 
 //////// CONTROLS
