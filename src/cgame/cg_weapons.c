@@ -1134,7 +1134,7 @@ static qboolean CG_UpgradeSelectable( upgrade_t upgrade )
   if( !BG_InventoryContainsUpgrade( upgrade, cg.snap->ps.stats ) )
     return qfalse;
 
-  return qtrue;
+  return BG_FindUsableForUpgrade( upgrade );
 }
 
 
@@ -1160,6 +1160,8 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
   qboolean      vertical;
   centity_t     *cent;
   playerState_t *ps;
+  
+  int		colinfo[ 64 ];
 
   cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
@@ -1199,6 +1201,18 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
   {
     if( !BG_InventoryContainsWeapon( i, cg.snap->ps.stats ) )
       continue;
+      
+    {
+      int ammo, clips;
+  
+      BG_UnpackAmmoArray( i, cg.snap->ps.ammo, cg.snap->ps.powerups, &ammo, &clips );
+  
+      if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( i ) )
+        colinfo[ numItems ] = 1;
+      else
+        colinfo[ numItems ] = 0;
+    	
+    }
 
     if( i == cg.weaponSelect )
       selectedItem = numItems;
@@ -1212,6 +1226,10 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
   {
     if( !BG_InventoryContainsUpgrade( i, cg.snap->ps.stats ) )
       continue;
+    colinfo[ numItems ] = 0;
+    if( !BG_FindUsableForUpgrade ( i ) )
+      colinfo[ numItems ] = 2;
+    
 
     if( i == cg.weaponSelect - 32 )
       selectedItem = numItems;
@@ -1228,6 +1246,20 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
 
     if( ( item >= 0 ) && ( item < numItems ) )
     {
+      switch( colinfo[ item ] )
+      {
+        case 0:
+          color = colorCyan;
+          break;
+        case 1:
+          color = colorRed;
+          break;
+        case 2:
+          color = colorMdGrey;
+          break;
+      }
+      color[3] = 0.5;
+
       trap_R_SetColor( color );
 
       if( items[ item ] <= 32 )
