@@ -2151,6 +2151,12 @@ void G_RunFrame( int levelTime )
     if( !ent->r.linked && ent->neverFree )
       continue;
 
+    if( ent->s.eType == ET_MISSILE )
+    {
+      G_RunMissile( ent );
+      continue;
+    }
+
     if( ent->s.eType == ET_BUILDABLE )
     {
       G_BuildableThink( ent, msec );
@@ -2192,22 +2198,6 @@ void G_RunFrame( int levelTime )
 
   // save position information for all active clients 
   G_UnlaggedStore( );
-
-  // for missle impacts, move every active client one server frame time back
-  // to compensate for built-in 50ms lag
-  G_UnlaggedCalc( level.previousTime, NULL );
-  G_UnlaggedOn( NULL, 0.0f );
-  for( i = MAX_CLIENTS; i < level.num_entities ; i++)
-  {
-    ent = &g_entities[ i ];
-    if( !ent->inuse )
-      continue;
-    if( ent->freeAfterEvent )
-      continue;
-    if( ent->s.eType == ET_MISSILE )
-      G_RunMissile( ent );
-  }
-  G_UnlaggedOff( );
 
   end = trap_Milliseconds();
 
