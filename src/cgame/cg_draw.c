@@ -2123,18 +2123,19 @@ void CG_AddLagometerSnapshotInfo( snapshot_t *snap )
   lagometer.snapshotFlags[ lagometer.snapshotCount & ( LAG_SAMPLES - 1 ) ] = snap->snapFlags;
   lagometer.snapshotCount++;
 
-  // now used by cg_projectileNudge, so we need to move this where it will get
-  // called even if cg_lagometer = 0
   cg.ping = 0;
-  previousPings[ index++ ] = cg.snap->ping;
-  index = index % PING_FRAMES;
-  
-  for( i = 0; i < PING_FRAMES; i++ )
+  if( cg.snap )
   {
-	cg.ping += previousPings[ i ];
-  }
+    previousPings[ index++ ] = cg.snap->ping;
+    index = index % PING_FRAMES;
   
-  cg.ping /= PING_FRAMES;
+    for( i = 0; i < PING_FRAMES; i++ )
+    {
+      cg.ping += previousPings[ i ];
+    }
+
+    cg.ping /= PING_FRAMES;
+  }
 }
 
 /*
