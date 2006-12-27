@@ -949,8 +949,8 @@ void ClientUserinfoChanged( int clientNum )
   char      model[ MAX_QPATH ];
   char      buffer[ MAX_QPATH ];
   char      filename[ MAX_QPATH ];
-  char      oldname[ MAX_STRING_CHARS ];
-  char      newname[ MAX_STRING_CHARS ];
+  char      oldname[ MAX_NAME_LENGTH ];
+  char      newname[ MAX_NAME_LENGTH ];
   char      err[ MAX_STRING_CHARS ];
   qboolean  revertName = qfalse;
   gclient_t *client;
