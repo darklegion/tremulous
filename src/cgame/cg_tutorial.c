@@ -141,7 +141,7 @@ static const char *CG_KeyNameForCommand( const char *command )
 CG_BuildableInRange
 ===============
 */
-static qboolean CG_BuildableInRange( playerState_t *ps, float *healthFraction )
+static entityState_t *CG_BuildableInRange( playerState_t *ps, float *healthFraction )
 {
   vec3_t        view, point;
   trace_t       trace;
@@ -163,9 +163,9 @@ static qboolean CG_BuildableInRange( playerState_t *ps, float *healthFraction )
 
   if( es->eType == ET_BUILDABLE &&
       ps->stats[ STAT_PTEAM ] == BG_FindTeamForBuildable( es->modelindex ) )
-    return qtrue;
+    return es;
   else
-    return qfalse;
+    return NULL;
 }
 
 /*
@@ -615,12 +615,31 @@ const char *CG_TutorialText( void )
           break;
       }
 
-      if( ps->stats[ STAT_PTEAM ] == PTE_ALIENS &&
-          BG_UpgradeClassAvailable( ps ) )
+      if( ps->stats[ STAT_PTEAM ] == PTE_ALIENS )
       {
-        Q_strcat( text, MAX_TUTORIAL_TEXT,
-            va( "Press %s to evolve\n",
-              CG_KeyNameForCommand( "+button7" ) ) );
+        entityState_t *es = CG_BuildableInRange( ps, NULL );
+
+        if( ps->stats[ STAT_STATE ] & SS_HOVELING )
+        {
+          Q_strcat( text, MAX_TUTORIAL_TEXT,
+              va( "Press %s to exit the hovel\n",
+                CG_KeyNameForCommand( "+button7" ) ) );
+        }
+        else if( es && es->modelindex == BA_A_HOVEL &&
+                 es->generic1 & B_SPAWNED_TOGGLEBIT &&
+                 ( ps->stats[ STAT_PCLASS ] == PCL_ALIEN_BUILDER0 ||
+                   ps->stats[ STAT_PCLASS ] == PCL_ALIEN_BUILDER0_UPG ) )
+        {
+          Q_strcat( text, MAX_TUTORIAL_TEXT,
+              va( "Press %s to enter the hovel\n",
+                CG_KeyNameForCommand( "+button7" ) ) );
+        }
+        else if( BG_UpgradeClassAvailable( ps ) )
+        {
+          Q_strcat( text, MAX_TUTORIAL_TEXT,
+              va( "Press %s to evolve\n",
+                CG_KeyNameForCommand( "+button7" ) ) );
+        }
       }
     }
 
