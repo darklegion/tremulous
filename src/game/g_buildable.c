@@ -2128,7 +2128,8 @@ void HTeslaGen_Think( gentity_t *self )
       enemy = &g_entities[ entityList[ i ] ];
 
       if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
-          enemy->health > 0 )
+          enemy->health > 0 &&
+          Distance( enemy->s.pos.trBase, self->s.pos.trBase ) <= TESLAGEN_RANGE )
       {
         VectorSubtract( enemy->s.pos.trBase, self->s.pos.trBase, dir );
         VectorNormalize( dir );

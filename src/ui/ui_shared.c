@@ -1874,7 +1874,23 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
       return qtrue;
     }
 
-    //TA: invoke the doubleClick handler when enter is pressed
+    // Scroll wheel
+    if (key == K_MWHEELUP) {
+      listPtr->startPos--;
+      if (listPtr->startPos < 0) {
+        listPtr->startPos = 0;
+      }
+      return qtrue;
+    }
+    if (key == K_MWHEELDOWN) {
+      listPtr->startPos++;
+      if (listPtr->startPos > max) {
+        listPtr->startPos = max;
+      }
+      return qtrue;
+    }
+
+    // Invoke the doubleClick handler when enter is pressed
     if( key == K_ENTER )
     {
       if( listPtr->doubleClick )
@@ -2348,7 +2364,6 @@ void Item_StopCapture(itemDef_t *item) {
 qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
   float x, value, width, work;
 
-  //DC->Print("slider handle key\n");
   if (item->window.flags & WINDOW_HASFOCUS && item->cvar && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
     if (key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3) {
       editFieldDef_t *editDef = item->typeData;
@@ -2365,9 +2380,7 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
         testRect.x = x;
         value = (float)SLIDER_THUMB_WIDTH / 2;
         testRect.x -= value;
-        //DC->Print("slider x: %f\n", testRect.x);
         testRect.w = (SLIDER_WIDTH + (float)SLIDER_THUMB_WIDTH / 2);
-        //DC->Print("slider w: %f\n", testRect.w);
         if (Rect_ContainsPoint(&testRect, DC->cursorx, DC->cursory)) {
           work = DC->cursorx - x;
           value = work / width;
@@ -2381,7 +2394,6 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
       }
     }
   }
-  DC->Print("slider handle key exit\n");
   return qfalse;
 }
 
