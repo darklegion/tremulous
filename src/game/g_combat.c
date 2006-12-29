@@ -966,13 +966,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
   knockback = damage;
 
-  // silly hack to give norf his knockbacking teslas
-  if( !strcmp( inflictor->classname, "team_human_tesla" ) )
-    knockback *= 4;
-
-  // ...and for goon pouncing
-  if( mod == MOD_LEVEL3_POUNCE )
-    knockback *= 3;
+  if( inflictor->s.weapon != WP_NONE )
+  {
+    knockback = (int)( (float)knockback *
+      BG_FindKnockbackScaleForWeapon( inflictor->s.weapon ) );
+  }
 
   if( targ->client )
   {

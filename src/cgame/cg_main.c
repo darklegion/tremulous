@@ -167,8 +167,6 @@ vmCvar_t  cg_stereoSeparation;
 vmCvar_t  cg_lagometer;
 vmCvar_t  cg_drawAttacker;
 vmCvar_t  cg_synchronousClients;
-vmCvar_t  cg_teamChatTime;
-vmCvar_t  cg_teamChatHeight;
 vmCvar_t  cg_stats;
 vmCvar_t  cg_buildScript;
 vmCvar_t  cg_forceModel;
@@ -309,8 +307,6 @@ static cvarTable_t cvarTable[ ] =
   { &cg_thirdPersonRange, "cg_thirdPersonRange", "40", CVAR_CHEAT },
   { &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", CVAR_CHEAT },
   { &cg_thirdPerson, "cg_thirdPerson", "0", CVAR_CHEAT },
-  { &cg_teamChatTime, "cg_teamChatTime", "3000", CVAR_ARCHIVE  },
-  { &cg_teamChatHeight, "cg_teamChatHeight", "0", CVAR_ARCHIVE  },
   { &cg_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE  },
   { &cg_predictItems, "cg_predictItems", "1", CVAR_ARCHIVE },
   { &cg_deferPlayers, "cg_deferPlayers", "1", CVAR_ARCHIVE },

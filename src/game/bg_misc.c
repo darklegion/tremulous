@@ -2968,6 +2968,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
+    BLASTER_K_SCALE,      //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -2991,6 +2992,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     RIFLE_RELOAD,         //int       reloadTime;
+    RIFLE_K_SCALE,        //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3014,6 +3016,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     SHOTGUN_RELOAD,       //int       reloadTime;
+    SHOTGUN_K_SCALE,        //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3037,6 +3040,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
+    FLAMER_K_SCALE,       //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3060,6 +3064,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
+    CHAINGUN_K_SCALE,     //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3083,6 +3088,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     MDRIVER_RELOAD,       //int       reloadTime;
+    MDRIVER_K_SCALE,      //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qtrue,                //qboolean  canZoom;
@@ -3106,6 +3112,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     PRIFLE_RELOAD,        //int       reloadTime;
+    PRIFLE_K_SCALE,       //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3129,6 +3136,7 @@ weaponAttributes_t bg_weapons[ ] =
     LCANNON_CHARGEREPEAT, //int       repeatRate2;
     0,                    //int       repeatRate3;
     LCANNON_RELOAD,       //int       reloadTime;
+    LCANNON_K_SCALE,      //float     knockbackScale;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3152,6 +3160,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     LASGUN_RELOAD,        //int       reloadTime;
+    LASGUN_K_SCALE,       //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3175,6 +3184,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
+    PAINSAW_K_SCALE,      //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3198,6 +3208,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
+    GRENADE_K_SCALE,      //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3221,6 +3232,7 @@ weaponAttributes_t bg_weapons[ ] =
     HBUILD_REPEAT,        //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
+    0.0f,                 //float     knockbackScale;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3244,6 +3256,7 @@ weaponAttributes_t bg_weapons[ ] =
     HBUILD2_REPEAT,       //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
+    0.0f,                 //float     knockbackScale;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3267,6 +3280,7 @@ weaponAttributes_t bg_weapons[ ] =
     ABUILDER_BUILD_REPEAT,//int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
+    0.0f,                 //float     knockbackScale;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3290,6 +3304,7 @@ weaponAttributes_t bg_weapons[ ] =
     ABUILDER_CLAW_REPEAT, //int       repeatRate2;
     ABUILDER_BLOB_REPEAT, //int       repeatRate3;
     0,                    //int       reloadTime;
+    ABUILDER_CLAW_K_SCALE,//float     knockbackScale;
     qtrue,                //qboolean  hasAltMode;
     qtrue,                //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3309,10 +3324,11 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    LEVEL0_BITE_REPEAT,  //int       repeatRate1;
+    LEVEL0_BITE_REPEAT,   //int       repeatRate1;
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
+    LEVEL0_BITE_K_SCALE,  //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3336,6 +3352,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
+    LEVEL1_CLAW_K_SCALE,  //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3359,6 +3376,7 @@ weaponAttributes_t bg_weapons[ ] =
     LEVEL1_PCLOUD_REPEAT, //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
+    LEVEL1_CLAW_U_K_SCALE,//float     knockbackScale;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3382,6 +3400,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
+    LEVEL2_CLAW_K_SCALE,        //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3405,6 +3424,7 @@ weaponAttributes_t bg_weapons[ ] =
     LEVEL2_AREAZAP_REPEAT,//int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
+    LEVEL2_CLAW_U_K_SCALE,//float     knockbackScale;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3428,6 +3448,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
+    LEVEL3_CLAW_K_SCALE,  //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3451,6 +3472,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate2;
     LEVEL3_BOUNCEBALL_REPEAT,//int       repeatRate3;
     0,                    //int       reloadTime;
+    LEVEL3_CLAW_U_K_SCALE,//float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qtrue,                //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3470,10 +3492,11 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
-    LEVEL4_CLAW_REPEAT,    //int       repeatRate1;
+    LEVEL4_CLAW_REPEAT,   //int       repeatRate1;
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
+    LEVEL4_CLAW_K_SCALE,  //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3497,6 +3520,7 @@ weaponAttributes_t bg_weapons[ ] =
     500,                  //int       repeatRate2;
     500,                  //int       repeatRate3;
     0,                    //int       reloadTime;
+    LOCKBLOB_K_SCALE,     //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3520,6 +3544,7 @@ weaponAttributes_t bg_weapons[ ] =
     500,                  //int       repeatRate2;
     500,                  //int       repeatRate3;
     0,                    //int       reloadTime;
+    HIVE_K_SCALE,         //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3543,6 +3568,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
+    MGTURRET_K_SCALE,     //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3566,6 +3592,7 @@ weaponAttributes_t bg_weapons[ ] =
     500,                  //int       repeatRate2;
     500,                  //int       repeatRate3;
     0,                    //int       reloadTime;
+    TESLAGEN_K_SCALE,     //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -3834,6 +3861,26 @@ int BG_FindReloadTimeForWeapon( int weapon )
   }
 
   return 1000;
+}
+
+/*
+==============
+BG_FindKnockbackScaleForWeapon
+==============
+*/
+float BG_FindKnockbackScaleForWeapon( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+    {
+      return bg_weapons[ i ].knockbackScale;
+    }
+  }
+
+  return 1.0f;
 }
 
 /*

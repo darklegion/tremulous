@@ -206,9 +206,6 @@
 #define CG_FRAGGED_MSG 43               // painted with old system
 #define CG_PROXMINED_MSG 44             // painted with old system
 #define CG_AREA_FPSINFO 45              // painted with old system
-#define CG_AREA_SYSTEMCHAT 46           // painted with old system
-#define CG_AREA_TEAMCHAT 47             // painted with old system
-#define CG_AREA_CHAT 48                 // painted with old system
 #define CG_GAME_STATUS 49
 #define CG_KILLER 50
 #define CG_PLAYER_ARMOR_ICON2D 51              

@@ -36,9 +36,6 @@ int drawTeamOverlayModificationCount = -1;
 
 int   sortedTeamPlayers[ TEAM_MAXOVERLAY ];
 int   numSortedTeamPlayers;
-char  systemChat[ 256 ];
-char  teamChat1[ 256 ];
-char  teamChat2[ 256 ];
 
 //TA UI
 int CG_Text_Width( const char *text, float scale, int limit )
@@ -522,26 +519,6 @@ static void CG_DrawProgressBar( rectDef_t *rect, vec4_t color, float scale,
 }
 
 //=============== TA: was cg_newdraw.c
-
-void CG_InitTeamChat( void )
-{
-  memset( teamChat1,  0, sizeof( teamChat1 ) );
-  memset( teamChat2,  0, sizeof( teamChat2 ) );
-  memset( systemChat, 0, sizeof( systemChat ) );
-}
-
-void CG_SetPrintString( int type, const char *p )
-{
-  if( type == SYSTEM_PRINT )
-  {
-    strcpy( systemChat, p );
-  }
-  else
-  {
-    strcpy( teamChat2, teamChat1 );
-    strcpy( teamChat1, p );
-  }
-}
 
 #define NO_CREDITS_TIME 2000
 
@@ -1475,21 +1452,6 @@ float CG_GetValue( int ownerDraw )
   }
 
   return -1;
-}
-
-static void CG_DrawAreaSystemChat( rectDef_t *rect, float scale, vec4_t color, qhandle_t shader )
-{
-  CG_Text_Paint( rect->x, rect->y + rect->h, scale, color, systemChat, 0, 0, 0 );
-}
-
-static void CG_DrawAreaTeamChat( rectDef_t *rect, float scale, vec4_t color, qhandle_t shader )
-{
-  CG_Text_Paint( rect->x, rect->y + rect->h, scale, color,teamChat1, 0, 0, 0 );
-}
-
-static void CG_DrawAreaChat(rectDef_t *rect, float scale, vec4_t color, qhandle_t shader)
-{
-  CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, teamChat2, 0, 0, 0);
 }
 
 const char *CG_GetKillerText( )
@@ -2711,15 +2673,6 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       break;
     case CG_PLAYER_USABLE_BUILDABLE:
       CG_DrawUsableBuildable( &rect, shader, color );
-      break;
-    case CG_AREA_SYSTEMCHAT:
-      CG_DrawAreaSystemChat( &rect, scale, color, shader );
-      break;
-    case CG_AREA_TEAMCHAT:
-      CG_DrawAreaTeamChat( &rect, scale, color, shader );
-      break;
-    case CG_AREA_CHAT:
-      CG_DrawAreaChat( &rect, scale, color, shader );
       break;
     case CG_KILLER:
       CG_DrawKiller( &rect, scale, color, shader, textStyle );

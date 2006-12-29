@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ABUILDER_CLAW_RANGE         64.0f
 #define ABUILDER_CLAW_WIDTH         4.0f
 #define ABUILDER_CLAW_REPEAT        1000
+#define ABUILDER_CLAW_K_SCALE       1.0f
 #define ABUILDER_BASE_DELAY         17000
 #define ABUILDER_ADV_DELAY          12000
 #define ABUILDER_BLOB_DMG           ADM(4)
@@ -52,12 +53,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL0_BITE_RANGE           64.0f
 #define LEVEL0_BITE_WIDTH           6.0f
 #define LEVEL0_BITE_REPEAT          500
+#define LEVEL0_BITE_K_SCALE         1.0f
 
 #define LEVEL1_CLAW_DMG             ADM(32)
 #define LEVEL1_CLAW_RANGE           96.0f
 #define LEVEL1_CLAW_WIDTH           10.0f
 #define LEVEL1_CLAW_REPEAT          600
 #define LEVEL1_CLAW_U_REPEAT        500
+#define LEVEL1_CLAW_K_SCALE         1.0f
+#define LEVEL1_CLAW_U_K_SCALE       1.0f
 #define LEVEL1_GRAB_RANGE           64.0f
 #define LEVEL1_GRAB_TIME            300
 #define LEVEL1_GRAB_U_TIME          450
@@ -70,7 +74,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL2_CLAW_RANGE           96.0f
 #define LEVEL2_CLAW_WIDTH           12.0f
 #define LEVEL2_CLAW_REPEAT          500
+#define LEVEL2_CLAW_K_SCALE         1.0f
 #define LEVEL2_CLAW_U_REPEAT        400
+#define LEVEL2_CLAW_U_K_SCALE       1.0f
 #define LEVEL2_AREAZAP_DMG          ADM(80)
 #define LEVEL2_AREAZAP_RANGE        200.0f
 #define LEVEL2_AREAZAP_WIDTH        15.0f
@@ -83,7 +89,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL3_CLAW_RANGE           96.0f
 #define LEVEL3_CLAW_WIDTH           16.0f
 #define LEVEL3_CLAW_REPEAT          700
+#define LEVEL3_CLAW_K_SCALE         1.0f
 #define LEVEL3_CLAW_U_REPEAT        600
+#define LEVEL3_CLAW_U_K_SCALE       1.0f
 #define LEVEL3_POUNCE_DMG           ADM(100)
 #define LEVEL3_POUNCE_RANGE         72.0f
 #define LEVEL3_POUNCE_WIDTH         16.0f
@@ -100,6 +108,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL4_CLAW_RANGE           128.0f
 #define LEVEL4_CLAW_WIDTH           20.0f
 #define LEVEL4_CLAW_REPEAT          750
+#define LEVEL4_CLAW_K_SCALE         1.0f
 #define LEVEL4_REGEN_RANGE          200.0f
 #define LEVEL4_REGEN_MOD            2.0f
 #define LEVEL4_CHARGE_SPEED         2.0f
@@ -250,6 +259,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ACIDTUBE_CREEPSIZE          120
 #define ACIDTUBE_RANGE              300.0f
 #define ACIDTUBE_REPEAT             3000
+#define ACIDTUBE_K_SCALE            1.0f
 
 #define HIVE_BP                     12
 #define HIVE_BT                     20000
@@ -260,6 +270,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define HIVE_CREEPSIZE              120
 #define HIVE_RANGE                  400.0f
 #define HIVE_REPEAT                 5000
+#define HIVE_K_SCALE                1.0f
 #define HIVE_DMG                    50
 #define HIVE_SPEED                  240.0f
 #define HIVE_DIR_CHANGE_PERIOD      500
@@ -273,8 +284,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TRAPPER_CREEPSIZE           30
 #define TRAPPER_RANGE               400
 #define TRAPPER_REPEAT              1000
+#define TRAPPER_K_SCALE             1.0f
 #define LOCKBLOB_SPEED              650.0f
 #define LOCKBLOB_DOT                0.85f // max angle = acos( LOCKBLOB_DOT )
+#define LOCKBLOB_K_SCALE            1.0f
 
 #define OVERMIND_BP                 0
 #define OVERMIND_BT                 30000
@@ -329,6 +342,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define HDM(d)                      ((int)((float)d*HUMAN_WDMG_MODIFIER))
 
 #define BLASTER_REPEAT              600
+#define BLASTER_K_SCALE             1.0f
 #define BLASTER_SPREAD              200
 #define BLASTER_SPEED               1400
 #define BLASTER_DMG                 HDM(9)
@@ -336,6 +350,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RIFLE_CLIPSIZE              30
 #define RIFLE_MAXCLIPS              6
 #define RIFLE_REPEAT                90
+#define RIFLE_K_SCALE               1.0f
 #define RIFLE_RELOAD                2000
 #define RIFLE_PRICE                 0
 #define RIFLE_SPREAD                200
@@ -343,11 +358,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define PAINSAW_PRICE               100
 #define PAINSAW_REPEAT              75
+#define PAINSAW_K_SCALE             1.0f
 #define PAINSAW_DAMAGE              HDM(15)
 #define PAINSAW_RANGE               40.0f
 
 #define GRENADE_PRICE               200
 #define GRENADE_REPEAT              0
+#define GRENADE_K_SCALE             1.0f
 #define GRENADE_DAMAGE              HDM(310)
 #define GRENADE_RANGE               192.0f
 #define GRENADE_SPEED               400.0f
@@ -357,6 +374,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SHOTGUN_PELLETS             8 //used to sync server and client side
 #define SHOTGUN_MAXCLIPS            3
 #define SHOTGUN_REPEAT              1000
+#define SHOTGUN_K_SCALE             1.0f
 #define SHOTGUN_RELOAD              2000
 #define SHOTGUN_SPREAD              900
 #define SHOTGUN_DMG                 HDM(7)
@@ -364,6 +382,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LASGUN_PRICE                250
 #define LASGUN_AMMO                 200
 #define LASGUN_REPEAT               200
+#define LASGUN_K_SCALE              1.0f
 #define LASGUN_RELOAD               2000
 #define LASGUN_DAMAGE               HDM(9)
 
@@ -372,11 +391,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MDRIVER_MAXCLIPS            4
 #define MDRIVER_DMG                 HDM(38)
 #define MDRIVER_REPEAT              1000
+#define MDRIVER_K_SCALE             1.0f
 #define MDRIVER_RELOAD              2000
 
 #define CHAINGUN_PRICE              400
 #define CHAINGUN_BULLETS            300
 #define CHAINGUN_REPEAT             80
+#define CHAINGUN_K_SCALE            1.0f
 #define CHAINGUN_SPREAD             1000
 #define CHAINGUN_DMG                HDM(6)
 
@@ -384,6 +405,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PRIFLE_CLIPS                50
 #define PRIFLE_MAXCLIPS             4
 #define PRIFLE_REPEAT               100
+#define PRIFLE_K_SCALE              1.0f
 #define PRIFLE_RELOAD               2000
 #define PRIFLE_DMG                  HDM(9)
 #define PRIFLE_SPEED                1000
@@ -391,6 +413,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define FLAMER_PRICE                450
 #define FLAMER_GAS                  150
 #define FLAMER_REPEAT               200
+#define FLAMER_K_SCALE              1.0f
 #define FLAMER_DMG                  HDM(20)
 #define FLAMER_RADIUS               50
 #define FLAMER_LIFETIME             800.0f
@@ -400,6 +423,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LCANNON_PRICE               600
 #define LCANNON_AMMO                90
 #define LCANNON_REPEAT              500
+#define LCANNON_K_SCALE             1.0f
 #define LCANNON_CHARGEREPEAT        1000
 #define LCANNON_RELOAD              2000
 #define LCANNON_DAMAGE              HDM(265)
@@ -498,6 +522,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MGTURRET_ACCURACYTOLERANCE  MGTURRET_ANGULARSPEED / 1.5f //angular difference for turret to fire
 #define MGTURRET_VERTICALCAP        30  // +/- maximum pitch
 #define MGTURRET_REPEAT             100
+#define MGTURRET_K_SCALE            1.0f
 #define MGTURRET_RANGE              300.0f
 #define MGTURRET_SPREAD             200
 #define MGTURRET_DMG                HDM(4)
@@ -512,6 +537,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TESLAGEN_SPLASHDAMAGE       50
 #define TESLAGEN_SPLASHRADIUS       100
 #define TESLAGEN_REPEAT             250
+#define TESLAGEN_K_SCALE            4.0f
 #define TESLAGEN_RANGE              250
 #define TESLAGEN_DMG                HDM(9)
 

@@ -70,9 +70,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CHAR_HEIGHT         48
 #define TEXT_ICON_SPACE     4
 
-#define TEAMCHAT_WIDTH      80
-#define TEAMCHAT_HEIGHT     8
-
 // very large characters
 #define GIANT_WIDTH         32
 #define GIANT_HEIGHT        48
@@ -1347,12 +1344,6 @@ typedef struct
   //TA: corpse info
   clientInfo_t  corpseinfo[ MAX_CLIENTS ];
 
-  // teamchat width is *3 because of embedded color codes
-  char          teamChatMsgs[ TEAMCHAT_HEIGHT ][ TEAMCHAT_WIDTH * 3 + 1 ];
-  int           teamChatMsgTimes[ TEAMCHAT_HEIGHT ];
-  int           teamChatPos;
-  int           teamLastChatPos;
-
   int           cursorX;
   int           cursorY;
   qboolean      eventHandling;
@@ -1443,8 +1434,6 @@ extern  vmCvar_t    cg_stereoSeparation;
 extern  vmCvar_t    cg_lagometer;
 extern  vmCvar_t    cg_drawAttacker;
 extern  vmCvar_t    cg_synchronousClients;
-extern  vmCvar_t    cg_teamChatTime;
-extern  vmCvar_t    cg_teamChatHeight;
 extern  vmCvar_t    cg_stats;
 extern  vmCvar_t    cg_forceModel;
 extern  vmCvar_t    cg_buildScript;
@@ -1583,9 +1572,6 @@ qboolean    CG_WorldToScreen( vec3_t point, float *x, float *y );
 //
 extern  int sortedTeamPlayers[ TEAM_MAXOVERLAY ];
 extern  int numSortedTeamPlayers;
-extern  char systemChat[ 256 ];
-extern  char teamChat1[ 256 ];
-extern  char teamChat2[ 256 ];
 
 void        CG_AddLagometerFrameInfo( void );
 void        CG_AddLagometerSnapshotInfo( snapshot_t *snap );
@@ -1600,7 +1586,6 @@ int         CG_Text_Height( const char *text, float scale, int limit );
 float       CG_GetValue(int ownerDraw);
 void        CG_RunMenuScript(char **args);
 void        CG_SetPrintString( int type, const char *p );
-void        CG_InitTeamChat( void );
 void        CG_GetTeamColor( vec4_t *color );
 const char  *CG_GetKillerText( void );
 void        CG_Text_PaintChar( float x, float y, float width, float height, float scale,
@@ -2026,14 +2011,6 @@ int           trap_Key_GetKey( const char *binding );
 void          trap_Key_KeynumToStringBuf( int keynum, char *buf, int buflen );
 void          trap_Key_GetBindingBuf( int keynum, char *buf, int buflen );
 void          trap_Key_SetBinding( int keynum, const char *binding );
-
-typedef enum
-{
-  SYSTEM_PRINT,
-  CHAT_PRINT,
-  TEAMCHAT_PRINT
-} q3print_t;
-
 
 int           trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits );
 e_status      trap_CIN_StopCinematic( int handle );

@@ -1052,6 +1052,7 @@ typedef struct
   int       repeatRate2;
   int       repeatRate3;
   int       reloadTime;
+  float     knockbackScale;
 
   qboolean  hasAltMode;
   qboolean  hasThirdMode;
@@ -1196,6 +1197,7 @@ int       BG_FindRepeatRate1ForWeapon( int weapon );
 int       BG_FindRepeatRate2ForWeapon( int weapon );
 int       BG_FindRepeatRate3ForWeapon( int weapon );
 int       BG_FindReloadTimeForWeapon( int weapon );
+float     BG_FindKnockbackScaleForWeapon( int weapon );
 qboolean  BG_WeaponHasAltMode( int weapon );
 qboolean  BG_WeaponHasThirdMode( int weapon );
 qboolean  BG_WeaponCanZoom( int weapon );

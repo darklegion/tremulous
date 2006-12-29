@@ -1388,6 +1388,9 @@ void CL_BeginDownload( const char *localName, const char *remoteName ) {
 	clc.downloadBlock = 0; // Starting new file
 	clc.downloadCount = 0;
 
+  // Stop any errant looping sounds that may be playing
+  S_ClearLoopingSounds( qtrue );
+
 	CL_AddReliableCommand( va("download %s", remoteName) );
 }
 
