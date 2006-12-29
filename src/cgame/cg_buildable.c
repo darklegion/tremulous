@@ -134,7 +134,7 @@ static void CG_Creep( centity_t *cent )
   VectorScale( temp, -4096, temp );
   VectorAdd( temp, cent->lerpOrigin, temp );
 
-  CG_Trace( &tr, cent->lerpOrigin, NULL, NULL, temp, cent->currentState.number, MASK_SOLID );
+  CG_Trace( &tr, cent->lerpOrigin, NULL, NULL, temp, cent->currentState.number, MASK_PLAYERSOLID );
 
   VectorCopy( tr.endpos, origin );
 
