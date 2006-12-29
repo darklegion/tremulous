@@ -759,7 +759,11 @@ void buildFire( gentity_t *ent, dynMenu_t menu )
 
     if( G_BuildIfValid( ent, ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) )
     {
-      if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS && !G_IsOvermindBuilt( ) )
+      if( g_cheats.integer )
+      {
+        ent->client->ps.stats[ STAT_MISC ] = 0;
+      }
+      else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS && !G_IsOvermindBuilt( ) )
       {
         ent->client->ps.stats[ STAT_MISC ] +=
           BG_FindBuildDelayForWeapon( ent->s.weapon ) * 2;

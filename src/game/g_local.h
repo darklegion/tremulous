@@ -650,6 +650,8 @@ typedef struct
 
   int unlaggedIndex;
   int unlaggedTimes[ MAX_UNLAGGED_MARKERS ];
+
+  char              layout[ MAX_QPATH ];
 } level_locals_t;
 
 //
@@ -734,6 +736,10 @@ void              G_SetBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim
 void              G_SetIdleBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim );
 void              G_SpawnBuildable(gentity_t *ent, buildable_t buildable);
 void              FinishSpawningBuildable( gentity_t *ent );
+void              G_LayoutSave( char *name );
+int               G_LayoutList( const char *map, char *list, int len );
+void              G_LayoutSelect( void );
+void              G_LayoutLoad( void );
 
 //
 // g_utils.c
@@ -1019,6 +1025,7 @@ typedef struct mapRotationEntry_s
   char                    name[ MAX_QPATH ];
 
   char                    postCmds[ MAX_MAP_COMMANDS ][ MAX_STRING_CHARS ];
+  char                    layouts[ MAX_CVAR_VALUE_STRING ];
   int                     numCmds;
 
   mapRotationCondition_t  conditions[ MAX_MAP_ROTATION_CONDS ];
@@ -1143,6 +1150,9 @@ extern  vmCvar_t  g_chatTeamPrefix;
 extern  vmCvar_t  g_shove;
 
 extern  vmCvar_t  g_mapConfigs;
+
+extern  vmCvar_t  g_layouts;
+extern  vmCvar_t  g_layoutAuto;
 
 extern  vmCvar_t  g_admin;
 extern  vmCvar_t  g_adminLog;

@@ -74,6 +74,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "display a list of all server admins and their levels",
       "(^5name|start admin#^7)"
     },
+    
+    {"listlayouts", G_admin_listlayouts, "L",
+      "display a list of all available layouts for a map",
+      "(^5mapname^7)"
+    },
 
     {"listplayers", G_admin_listplayers, "i",
       "display a list of players, their client numbers and their levels",
@@ -83,6 +88,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
     {"lock", G_admin_lock, "K",
       "lock a team to prevent anyone from joining it",
       "[^3a|h^7]"
+    },
+    
+    {"map", G_admin_map, "M",
+      "load a map (and optionally force layout)",
+      "[^3mapname^7] (^5layout^7)"
     },
 
     {"mute", G_admin_mute, "m",
@@ -121,8 +131,8 @@ g_admin_cmd_t g_admin_cmds[ ] =
     },
 
     {"restart", G_admin_restart, "r",
-      "restart the current map",
-      ""
+      "restart the current map (optionally using named layout)",
+      "(^5layout^7)"
     },
 
     {"setlevel", G_admin_setlevel, "s",
@@ -1875,6 +1885,33 @@ qboolean G_admin_putteam( gentity_t *ent, int skiparg )
   return qtrue;
 }
 
+qboolean G_admin_map( gentity_t *ent, int skiparg )
+{
+  char map[ MAX_QPATH ];
+  char layout[ MAX_QPATH ];
+  
+  if( G_SayArgc() < 2 + skiparg )
+  {
+    ADMP( "^3!map: ^7usage: !map [map] (layout)\n" );
+    return qfalse;
+  }
+
+  G_SayArgv( skiparg + 1, map, sizeof( map ) );
+  G_SayArgv( skiparg + 2, layout, sizeof( layout ) );
+
+  if( !trap_FS_FOpenFile( va( "maps/%s.bsp", map ), NULL, FS_READ ) )
+  {
+    ADMP( va( "^3!map: ^7invalid map name '%s'\n", map ) );
+    return qfalse;
+  }
+  trap_Cvar_Set( "g_layouts", layout );
+  trap_SendConsoleCommand( EXEC_APPEND, va( "map %s", map ) );
+  AP( va( "print \"^3!map: ^7map '%s' started by %s %s\n\"", map,
+          ( ent ) ? ent->client->pers.netname : "console",
+          ( layout[ 0 ] ) ? va( "(forcing layout '%s')", layout ) : "" ) );
+  return qtrue;
+}
+
 qboolean G_admin_mute( gentity_t *ent, int skiparg )
 {
   int pids[ MAX_CLIENTS ];
@@ -2008,6 +2045,50 @@ qboolean G_admin_listadmins( gentity_t *ent, int skiparg )
     ADMBP( "\n" );
     ADMBP_end();
   }
+  return qtrue;
+}
+
+qboolean G_admin_listlayouts( gentity_t *ent, int skiparg )
+{
+  char list[ MAX_CVAR_VALUE_STRING ];
+  char map[ MAX_QPATH ];
+  int count = 0;
+  char *s;
+  char layout[ MAX_QPATH ] = { "" };
+  int i = 0;
+  
+  if( G_SayArgc( ) == 2 + skiparg ) 
+    G_SayArgv( 1 +skiparg, map, sizeof( map ) );
+  else
+    trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+  
+  count = G_LayoutList( map, list, sizeof( list ) );
+  if( !count )
+  {
+    ADMP( va( "^3!listlayouts:^7 ^7no layouts found for map '%s'\n", map ) );
+    return qfalse;
+  }
+  ADMBP_begin( );
+  ADMBP( va( "^3!listlayouts:^7 %d layouts found for '%s':\n", count, map ) );
+  s = &list[ 0 ];
+  while( *s )
+  {
+    if( *s == ' ' )
+    {
+      ADMBP( va ( " %s\n", layout ) );
+      layout[ 0 ] = '\0';
+      i = 0;
+    }
+    else if( i < sizeof( layout ) - 2 )
+    {
+      layout[ i++ ] = *s;
+      layout[ i ] = '\0';
+    }
+    s++;
+  }
+  if( layout[ 0 ] )
+    ADMBP( va ( " %s\n", layout ) );
+  ADMBP_end( );
   return qtrue;
 }
 
@@ -2539,12 +2620,14 @@ qboolean G_admin_rename( gentity_t *ent, int skiparg )
 
 qboolean G_admin_restart( gentity_t *ent, int skiparg )
 {
-  char command[ MAX_ADMIN_CMD_LEN ];
+  char layout[ MAX_CVAR_VALUE_STRING ];
 
-  G_SayArgv( skiparg, command, sizeof( command ) );
+  G_SayArgv( skiparg + 1, layout, sizeof( layout ) );
+  trap_Cvar_Set( "g_layouts", layout );
   trap_SendConsoleCommand( EXEC_APPEND, "map_restart" );
-  AP( va( "print \"^3!restart: ^7map restarted by %s\n\"",
-          ( ent ) ? ent->client->pers.netname : "console" ) );
+  AP( va( "print \"^3!restart: ^7map restarted by %s %s\n\"",
+          ( ent ) ? ent->client->pers.netname : "console",
+          ( layout[ 0 ] ) ? va( "(forcing layout '%s')", layout ) : "" ) );
   return qtrue;
 }
 

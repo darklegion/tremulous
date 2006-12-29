@@ -475,7 +475,73 @@ void  Svcmd_ForceTeam_f( void )
   //FIXME: tremulise this
 }
 
+/*
+===================
+Svcmd_LayoutSave_f
+
+layoutsave <name>
+===================
+*/
+void  Svcmd_LayoutSave_f( void )
+{
+  char str[ MAX_QPATH ];
+  char str2[ MAX_QPATH - 4 ];
+  char *s;
+  int i = 0;
+
+  if( trap_Argc( ) != 2 )
+  {
+    G_Printf( "usage: layoutsave LAYOUTNAME\n" );
+    return;
+  }
+  trap_Argv( 1, str, sizeof( str ) );
+
+  // sanitize name
+  s = &str[ 0 ];
+  while( *s && i < sizeof( str2 ) - 1 )
+  {
+    if( ( *s >= '0' && *s <= '9' ) ||
+      ( *s >= 'a' && *s <= 'z' ) ||
+      ( *s >= 'A' && *s <= 'Z' ) )
+    {
+      str2[ i++ ] = *s;
+      str2[ i ] = '\0';
+    }
+    s++;
+  }
+
+  if( !str2[ 0 ] )
+  {
+    G_Printf("layoutsave: invalid name \"%s\"\n", str );
+    return;
+  }
+
+  G_LayoutSave( str2 );
+}
+
 char  *ConcatArgs( int start );
+
+/*
+===================
+Svcmd_LayoutLoad_f
+
+layoutload [<name> [<name2> [<name3 [...]]]]
+
+This is just a silly alias for doing:
+ set g_layouts "name name2 name3"
+ map_restart
+===================
+*/
+void  Svcmd_LayoutLoad_f( void )
+{
+  char layouts[ MAX_CVAR_VALUE_STRING ];
+  char *s;
+
+  s = ConcatArgs( 1 );
+  Q_strncpyz( layouts, s, sizeof( layouts ) );
+  trap_Cvar_Set( "g_layouts", layouts ); 
+  trap_SendConsoleCommand( EXEC_APPEND, "map_restart\n" );
+}
 
 /*
 =================
@@ -574,6 +640,18 @@ qboolean  ConsoleCommand( void )
         G_Damage( e, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
     }
 
+    return qtrue;
+  }
+
+  if( !Q_stricmp( cmd, "layoutsave" ) )
+  {
+    Svcmd_LayoutSave_f( );
+    return qtrue;
+  }
+  
+  if( !Q_stricmp( cmd, "layoutload" ) )
+  {
+    Svcmd_LayoutLoad_f( );
     return qtrue;
   }
   

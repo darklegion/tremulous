@@ -120,6 +120,9 @@ vmCvar_t  g_shove;
 vmCvar_t  g_mapConfigs;
 vmCvar_t  g_chatTeamPrefix;
 
+vmCvar_t  g_layouts;
+vmCvar_t  g_layoutAuto;
+
 vmCvar_t  g_admin;
 vmCvar_t  g_adminLog;
 vmCvar_t  g_adminParseSay;
@@ -233,6 +236,9 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_shove, "g_shove", "0.0", CVAR_ARCHIVE, 0, qfalse  },
   { &g_mapConfigs, "g_mapConfigs", "", CVAR_ARCHIVE, 0, qfalse  },
   { NULL, "g_mapConfigsLoaded", "0", CVAR_ROM, 0, qfalse  },
+
+  { &g_layouts, "g_layouts", "", CVAR_LATCH, 0, qfalse  },
+  { &g_layoutAuto, "g_layoutAuto", "1", CVAR_ARCHIVE, 0, qfalse  },
 
   { &g_admin, "g_admin", "admin.dat", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminLog, "g_adminLog", "admin.log", CVAR_ARCHIVE, 0, qfalse  },
@@ -590,8 +596,14 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
   trap_SetConfigstring( CS_INTERMISSION, "0" );
 
+  // test to see if a custom buildable layout will be loaded
+  G_LayoutSelect( );
+
   // parse the key/value pairs and spawn gentities
   G_SpawnEntitiesFromString( );
+
+  // load up a custom building layout if there is one
+  G_LayoutLoad( );
 
   // the map might disable some things
   BG_InitAllowedGameElements( );

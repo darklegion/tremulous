@@ -1809,8 +1809,9 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
           else
             G_FreeEntity( traceEnt );
 
-          ent->client->ps.stats[ STAT_MISC ] +=
-            BG_FindBuildDelayForWeapon( ent->s.weapon ) >> 2;
+          if( !g_cheats.integer )
+            ent->client->ps.stats[ STAT_MISC ] +=
+              BG_FindBuildDelayForWeapon( ent->s.weapon ) >> 2;
         }
       }
     }

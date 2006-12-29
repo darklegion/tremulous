@@ -327,6 +327,10 @@ qboolean G_CallSpawn( gentity_t *ent )
   //check buildable spawn functions
   if( ( buildable = BG_FindBuildNumForEntityName( ent->classname ) ) != BA_NONE )
   {
+    // don't spawn built-in buildings if we are using a custom layout
+    if( level.layout[ 0 ] )
+      return qtrue;
+
     if( buildable == BA_A_SPAWN || buildable == BA_H_SPAWN )
     {
       ent->s.angles[ YAW ] += 180.0f;

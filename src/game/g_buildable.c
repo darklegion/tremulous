@@ -2925,6 +2925,43 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   built->biteam = built->s.modelindex2 = BG_FindTeamForBuildable( buildable );
 
   BG_FindBBoxForBuildable( buildable, built->r.mins, built->r.maxs );
+
+  // detect the buildable's normal vector
+  if( !builder->client )
+  {
+    // initial base layout created by server
+
+    if( builder->s.origin2[ 0 ]
+      || builder->s.origin2[ 1 ]
+      || builder->s.origin2[ 2 ] )
+    {
+      VectorCopy( builder->s.origin2, normal );
+    }
+    else if( BG_FindTrajectoryForBuildable( buildable ) == TR_BUOYANCY )
+      VectorSet( normal, 0.0f, 0.0f, -1.0f );
+    else 
+      VectorSet( normal, 0.0f, 0.0f, 1.0f );
+  } 
+  else
+  {
+    // in-game building by a player
+
+    if( builder->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING )
+    {
+      if( builder->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
+        VectorSet( normal, 0.0f, 0.0f, -1.0f );
+      else
+        VectorCopy( builder->client->ps.grapplePoint, normal );
+    }
+    else
+      VectorSet( normal, 0.0f, 0.0f, 1.0f );
+  }
+
+  // when building the initial layout, spawn the entity slightly off its
+  // target surface so that it can be "dropped" onto it 
+  if( !builder->client )
+    VectorMA( origin, 1.0f, normal, origin );
+
   built->health = 1;
 
   built->splashDamage = BG_FindSplashDamageForBuildable( buildable );
@@ -2936,6 +2973,14 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   built->takedamage = qtrue;
   built->spawned = qfalse;
   built->buildTime = built->s.time = level.time;
+
+  // build instantly in cheat mode
+  if( builder->client && g_cheats.integer )
+  {
+    built->health = BG_FindHealthForBuildable( buildable );
+    built->buildTime = built->s.time =
+      level.time - BG_FindBuildTimeForBuildable( buildable );
+  }
 
   //things that vary for each buildable that aren't in the dbase
   switch( buildable )
@@ -3052,6 +3097,13 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
     built->builtBy = -1;
 
   G_SetOrigin( built, origin );
+  
+  // gently nudge the buildable onto the surface :)
+  VectorScale( normal, -50.0f, built->s.pos.trDelta );
+
+  // set turret angles
+  VectorCopy( builder->s.angles2, built->s.angles2 );
+
   VectorCopy( angles, built->s.angles );
   built->s.angles[ PITCH ] = 0.0f;
   built->s.angles2[ YAW ] = angles[ YAW ];
@@ -3059,19 +3111,6 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   built->s.pos.trTime = level.time;
   built->physicsBounce = BG_FindBounceForBuildable( buildable );
   built->s.groundEntityNum = -1;
-
-  if( builder->client && builder->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING )
-  {
-    if( builder->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
-      VectorSet( normal, 0.0f, 0.0f, -1.0f );
-    else
-      VectorCopy( builder->client->ps.grapplePoint, normal );
-
-    //gently nudge the buildable onto the surface :)
-    VectorScale( normal, -50.0f, built->s.pos.trDelta );
-  }
-  else
-    VectorSet( normal, 0.0f, 0.0f, 1.0f );
 
   built->s.generic1 = (int)( ( (float)built->health /
         (float)BG_FindHealthForBuildable( buildable ) ) * B_HEALTH_MASK );
@@ -3229,11 +3268,9 @@ static void G_FinishSpawningBuildable( gentity_t *ent )
   built->health = BG_FindHealthForBuildable( buildable );
   built->s.generic1 |= B_SPAWNED_TOGGLEBIT;
 
-  // drop to floor
-  if( buildable != BA_NONE && BG_FindTrajectoryForBuildable( buildable ) == TR_BUOYANCY )
-    VectorSet( dest, built->s.origin[ 0 ], built->s.origin[ 1 ], built->s.origin[ 2 ] + 4096 );
-  else
-    VectorSet( dest, built->s.origin[ 0 ], built->s.origin[ 1 ], built->s.origin[ 2 ] - 4096 );
+  // drop towards normal surface
+  VectorScale( built->s.origin2, -4096.0f, dest );
+  VectorAdd( dest, built->s.origin, dest );
 
   trap_Trace( &tr, built->s.origin, built->r.mins, built->r.maxs, dest, built->s.number, built->clipmask );
 
@@ -3275,3 +3312,257 @@ void G_SpawnBuildable( gentity_t *ent, buildable_t buildable )
   ent->nextthink = level.time + FRAMETIME * 2;
   ent->think = G_FinishSpawningBuildable;
 }
+
+/*
+============
+G_LayoutSave
+
+============
+*/
+void G_LayoutSave( char *name )
+{
+  char map[ MAX_QPATH ];
+  char fileName[ MAX_OSPATH ];
+  fileHandle_t f;
+  int len;
+  int i;
+  gentity_t *ent;
+  char *s;
+
+  trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+  if( !map[ 0 ] )
+  {
+    G_Printf( "LayoutSave( ): no map is loaded\n" );
+    return;
+  }
+  Com_sprintf( fileName, sizeof( fileName ), "layouts/%s/%s.dat", map, name );
+
+  len = trap_FS_FOpenFile( fileName, &f, FS_WRITE );
+  if( len < 0 )
+  {
+    G_Printf( "layoutsave: could not open %s\n", fileName );
+    return;
+  }
+
+  G_Printf("layoutsave: saving layout to %s\n", fileName );
+
+  for( i = MAX_CLIENTS; i < level.num_entities; i++ )
+  {
+    ent = &level.gentities[ i ];
+    if( ent->s.eType != ET_BUILDABLE )
+      continue;
+
+    s = va( "%i %f %f %f %f %f %f %f %f %f %f %f %f\n",
+      ent->s.modelindex,
+      ent->s.pos.trBase[ 0 ],
+      ent->s.pos.trBase[ 1 ],
+      ent->s.pos.trBase[ 2 ],
+      ent->s.angles[ 0 ],
+      ent->s.angles[ 1 ],
+      ent->s.angles[ 2 ],
+      ent->s.origin2[ 0 ],
+      ent->s.origin2[ 1 ],
+      ent->s.origin2[ 2 ],
+      ent->s.angles2[ 0 ],
+      ent->s.angles2[ 1 ],
+      ent->s.angles2[ 2 ] );
+    trap_FS_Write( s, strlen( s ), f );
+  }
+  trap_FS_FCloseFile( f );
+}
+
+int G_LayoutList( const char *map, char *list, int len )
+{
+  // up to 128 single character layout names could fit in layouts
+  char fileList[ ( MAX_CVAR_VALUE_STRING / 2 ) * 5 ] = {""};
+  char layouts[ MAX_CVAR_VALUE_STRING ] = {""};
+  int numFiles, i, fileLen = 0, listLen;
+  int  count = 0;
+  char *filePtr;
+    
+  numFiles = trap_FS_GetFileList( va( "layouts/%s", map ), ".dat",
+    fileList, sizeof( fileList ) );
+  filePtr = fileList;
+  for( i = 0; i < numFiles; i++, filePtr += fileLen + 1 )
+  {
+    fileLen = strlen( filePtr );
+    listLen = strlen( layouts );
+    if( fileLen < 5 )
+      continue; 
+
+    // list is full, stop trying to add to it
+    if( ( listLen + fileLen ) >= sizeof( layouts ) )
+      break;
+
+    Q_strcat( layouts,  sizeof( layouts ), filePtr );
+    listLen = strlen( layouts );
+
+    // strip extension and add space delimiter
+    layouts[ listLen - 4 ] = ' ';
+    layouts[ listLen - 3 ] = '\0';
+    count++;
+  }
+  if( count != numFiles )
+  {
+    G_Printf( S_COLOR_YELLOW "WARNING: layout list was truncated to %d "
+      "layouts, but %d layout files exist in layouts/%s/.\n",
+      count, numFiles, map );
+  }
+  Q_strncpyz( list, layouts, len );
+  return count;
+}
+
+/*
+============
+G_LayoutSelect
+
+set level.layout based on g_layouts or g_layoutAuto
+============
+*/
+void G_LayoutSelect( void )
+{
+  char fileName[ MAX_OSPATH ];
+  char layouts[ MAX_CVAR_VALUE_STRING ];
+  char layouts2[ MAX_CVAR_VALUE_STRING ];
+  char *l; 
+  char map[ MAX_QPATH ];
+  char *s;
+  int cnt = 0;
+  int layoutNum;
+
+  Q_strncpyz( layouts, g_layouts.string, sizeof( layouts ) );
+  trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+
+  // one time use cvar 
+  trap_Cvar_Set( "g_layouts", "" );
+ 
+  // pick an included layout at random if no list has been provided 
+  if( !layouts[ 0 ] && g_layoutAuto.integer )
+  {
+    G_LayoutList( map, layouts, sizeof( layouts ) );
+  }
+
+  if( !layouts[ 0 ] )
+    return;
+
+  Q_strncpyz( layouts2, layouts, sizeof( layouts2 ) );
+  l = &layouts2[ 0 ];
+  layouts[ 0 ] = '\0';
+  s = COM_ParseExt( &l, qfalse );
+  while( *s )
+  {
+    Com_sprintf( fileName, sizeof( fileName ), "layouts/%s/%s.dat", map, s );
+    if( trap_FS_FOpenFile( fileName, NULL, FS_READ ) > 0 )
+    {
+      Q_strcat( layouts, sizeof( layouts ), s );
+      Q_strcat( layouts, sizeof( layouts ), " " );
+      cnt++;
+    }
+    else
+      G_Printf( S_COLOR_YELLOW "WARNING: layout \"%s\" does not exist\n", s );
+    s = COM_ParseExt( &l, qfalse );
+  }
+  if( !cnt )
+  {
+      G_Printf( S_COLOR_RED "ERROR: none of the specified layouts could be "
+        "found, using map default\n" );
+      return;
+  }
+  layoutNum = ( rand( ) & ( cnt - 1 ) ) + 1;
+  cnt = 0;
+
+  Q_strncpyz( layouts2, layouts, sizeof( layouts2 ) );
+  l = &layouts2[ 0 ];
+  s = COM_ParseExt( &l, qfalse );
+  while( *s )
+  {
+    Q_strncpyz( level.layout, s, sizeof( level.layout ) );
+    cnt++;
+    if( cnt >= layoutNum )
+      break;
+    s = COM_ParseExt( &l, qfalse );
+  }
+  G_Printf("using layout \"%s\" from list ( %s)\n", level.layout, layouts ); 
+}
+
+static void G_LayoutBuildItem( buildable_t buildable, vec3_t origin,
+  vec3_t angles, vec3_t origin2, vec3_t angles2 )
+{
+  gentity_t *builder;
+  
+  builder = G_Spawn( );
+  builder->client = 0;
+  VectorCopy( origin, builder->s.pos.trBase );
+  VectorCopy( angles, builder->s.angles );
+  VectorCopy( origin2, builder->s.origin2 );
+  VectorCopy( angles2, builder->s.angles2 );
+  G_SpawnBuildable( builder, buildable );
+}
+
+/*
+============
+G_LayoutLoad
+
+load the layout .dat file indicated by level.layout and spawn buildables
+as if a builder was creating them
+============
+*/
+void G_LayoutLoad( void )
+{
+  fileHandle_t f;
+  int len;
+  char *layout;
+  char map[ MAX_QPATH ];
+  int buildable = BA_NONE;
+  vec3_t origin = { 0.0f, 0.0f, 0.0f };
+  vec3_t angles = { 0.0f, 0.0f, 0.0f };
+  vec3_t origin2 = { 0.0f, 0.0f, 0.0f };
+  vec3_t angles2 = { 0.0f, 0.0f, 0.0f };
+  char line[ MAX_STRING_CHARS ];
+  int i = 0;
+
+  if( !level.layout[ 0 ] )
+    return;
+ 
+  trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+  len = trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, level.layout ),
+    &f, FS_READ );
+  if( len < 0 )
+  {
+    G_Printf( "ERROR: layout %s could not be opened\n", level.layout );
+    return;
+  }
+  layout = G_Alloc( len + 1 );
+  trap_FS_Read( layout, len, f );
+  *( layout + len ) = '\0';
+  trap_FS_FCloseFile( f );
+  while( *layout )
+  {
+    if( i >= sizeof( line ) - 1 )
+    {
+      G_Printf( S_COLOR_RED "ERROR: line overflow in %s before \"%s\"\n",
+       va( "layouts/%s/%s.dat", map, level.layout ), line );
+      return; 
+    }
+    line[ i++ ] = *layout;
+    line[ i ] = '\0';
+    if( *layout == '\n' )
+    {
+      i = 0; 
+      sscanf( line, "%d %f %f %f %f %f %f %f %f %f %f %f %f\n",
+        &buildable,
+        &origin[ 0 ], &origin[ 1 ], &origin[ 2 ],
+        &angles[ 0 ], &angles[ 1 ], &angles[ 2 ],
+        &origin2[ 0 ], &origin2[ 1 ], &origin2[ 2 ],
+        &angles2[ 0 ], &angles2[ 1 ], &angles2[ 2 ] );
+
+      if( buildable > BA_NONE && buildable < BA_NUM_BUILDABLES )
+        G_LayoutBuildItem( buildable, origin, angles, origin2, angles2 );
+      else
+        G_Printf( S_COLOR_YELLOW "WARNING: bad buildable number (%d) in "
+          " layout.  skipping\n", buildable );
+    }
+    layout++;
+  }
+}
+

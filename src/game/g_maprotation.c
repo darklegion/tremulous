@@ -52,6 +52,19 @@ static qboolean G_ParseMapCommandSection( mapRotationEntry_t *mre, char **text_p
     if( !Q_stricmp( token, "}" ) )
       return qtrue; //reached the end of this command section
 
+    if( !Q_stricmp( token, "layouts" ) )
+    {
+      token = COM_ParseExt( text_p, qfalse );
+      mre->layouts[ 0 ] = '\0';
+      while( token && token[ 0 ] != 0 )
+      {
+        Q_strcat( mre->layouts, sizeof( mre->layouts ), token );
+        Q_strcat( mre->layouts, sizeof( mre->layouts ), " " );
+        token = COM_ParseExt( text_p, qfalse );
+      }
+      continue;
+    }
+
     Q_strncpyz( mre->postCmds[ mre->numCmds ], token, sizeof( mre->postCmds[ 0 ] ) );
     Q_strcat( mre->postCmds[ mre->numCmds ], sizeof( mre->postCmds[ 0 ] ), " " );
 
@@ -475,6 +488,14 @@ static void G_IssueMapChange( int rotation )
   int   i;
   int   map = G_GetCurrentMap( rotation );
   char  cmd[ MAX_TOKEN_CHARS ];
+
+  // allow a manually defined g_layouts setting to override the maprotation
+  if( !g_layouts.string[ 0 ] &&
+    mapRotations.rotations[ rotation ].maps[ map ].layouts[ 0 ] )
+  {
+    trap_Cvar_Set( "g_layouts",
+      mapRotations.rotations[ rotation ].maps[ map ].layouts );
+  }
 
   trap_SendConsoleCommand( EXEC_APPEND, va( "map %s\n",
     mapRotations.rotations[ rotation ].maps[ map ].name ) );
