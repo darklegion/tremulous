@@ -224,7 +224,7 @@ static cvarTable_t   gameCvarTable[ ] =
 
   { &g_chatTeamPrefix, "g_chatTeamPrefix", "0", CVAR_ARCHIVE  },
 
-  { &g_markDeconstruct, "g_markDeconstruct", "1", CVAR_ARCHIVE, 0, qfalse  },
+  { &g_markDeconstruct, "g_markDeconstruct", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse  },
 
   { &g_debugMapRotation, "g_debugMapRotation", "0", 0, 0, qfalse  },
   { &g_currentMapRotation, "g_currentMapRotation", "-1", 0, 0, qfalse  }, // -1 = NOT_ROTATING
@@ -2012,16 +2012,38 @@ CheckCvars
 */
 void CheckCvars( void )
 {
-  static int lastMod = -1;
+  static int lastPasswordModCount   = -1;
+  static int lastMarkDeconModCount  = -1;
 
-  if( g_password.modificationCount != lastMod )
+  if( g_password.modificationCount != lastPasswordModCount )
   {
-    lastMod = g_password.modificationCount;
+    lastPasswordModCount = g_password.modificationCount;
 
     if( *g_password.string && Q_stricmp( g_password.string, "none" ) )
       trap_Cvar_Set( "g_needpass", "1" );
     else
       trap_Cvar_Set( "g_needpass", "0" );
+  }
+
+  // Unmark any structures for deconstruction when
+  // the server setting is changed
+  if( g_markDeconstruct.modificationCount != lastMarkDeconModCount )
+  {
+    int       i;
+    gentity_t *ent;
+
+    lastMarkDeconModCount = g_markDeconstruct.modificationCount;
+
+    for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
+    {
+      if( !ent->inuse )
+        continue;
+
+      if( ent->s.eType != ET_BUILDABLE )
+        continue;
+
+      ent->deconstruct = qfalse;
+    }
   }
 }
 

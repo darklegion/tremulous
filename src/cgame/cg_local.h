@@ -1291,11 +1291,10 @@ typedef struct
   qboolean      localServer;            // detected on startup by checking sv_running
 
   // parsed from serverinfo
-  int           dmflags;
-  int           teamflags;
   int           timelimit;
   int           maxclients;
   char          mapname[ MAX_QPATH ];
+  qboolean      markDeconstruct;        // Whether or not buildables are marked
 
   int           voteTime;
   int           voteYes;

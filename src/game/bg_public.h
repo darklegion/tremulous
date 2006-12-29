@@ -454,12 +454,13 @@ typedef enum
   BIT_NUM_TEAMS
 } buildableTeam_t;
 
-#define B_HEALTH_BITS       5
-#define B_HEALTH_SCALE      (float)((1<<B_HEALTH_BITS)-1)
+#define B_HEALTH_BITS       12
+#define B_HEALTH_MASK       ((1<<B_HEALTH_BITS)-1)
 
-#define B_SPAWNED_TOGGLEBIT 0x00000020
-#define B_POWERED_TOGGLEBIT 0x00000040
-#define B_DCCED_TOGGLEBIT   0x00000080
+#define B_MARKED_TOGGLEBIT  0x00001000
+#define B_SPAWNED_TOGGLEBIT 0x00002000
+#define B_POWERED_TOGGLEBIT 0x00004000
+#define B_DCCED_TOGGLEBIT   0x00008000
 
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])

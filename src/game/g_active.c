@@ -674,7 +674,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
           int     dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
           vec3_t  dummy;
 
-          if( G_itemFits( ent, client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT,
+          if( G_CanBuild( ent, client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT,
                           dist, dummy ) == IBE_NONE )
             client->ps.stats[ STAT_BUILDABLE ] |= SB_VALID_TOGGLEBIT;
           else
@@ -1580,7 +1580,7 @@ void ClientThink_real( gentity_t *ent )
         client->ps.stats[ STAT_STATE ] &= ~SS_HOVELING;
 
         //hovel is empty
-        G_setBuildableAnim( hovel, BANIM_ATTACK2, qfalse );
+        G_SetBuildableAnim( hovel, BANIM_ATTACK2, qfalse );
         hovel->active = qfalse;
       }
       else

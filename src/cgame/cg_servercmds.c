@@ -115,6 +115,7 @@ void CG_ParseServerinfo( void )
   info = CG_ConfigString( CS_SERVERINFO );
   cgs.timelimit = atoi( Info_ValueForKey( info, "timelimit" ) );
   cgs.maxclients = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
+  cgs.markDeconstruct = atoi( Info_ValueForKey( info, "g_markDeconstruct" ) );
   mapname = Info_ValueForKey( info, "mapname" );
   Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "maps/%s.bsp", mapname );
 }

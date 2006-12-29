@@ -1141,7 +1141,7 @@ void ClientUserinfoChanged( int clientNum )
   // print scoreboards, display models, and play custom sounds
 
   Com_sprintf( userinfo, sizeof( userinfo ),
-    "n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\humans\\g_blueteam\\aliens"
+    "n\\%s\\t\\%i\\model\\%s\\hmodel\\%s"
     "\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
     client->pers.netname, team, model, model, c1, c2,
     client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader );
@@ -1399,7 +1399,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     if( ent != spawn )
     {
       //start spawn animation on spawnPoint
-      G_setBuildableAnim( spawnPoint, BANIM_SPAWN1, qtrue );
+      G_SetBuildableAnim( spawnPoint, BANIM_SPAWN1, qtrue );
 
       if( spawnPoint->biteam == PTE_ALIENS )
         spawnPoint->clientSpawnTime = ALIEN_SPAWN_REPEAT_TIME;

@@ -205,6 +205,8 @@ struct gentity_s
   qboolean          spawned;            // whether or not this buildable has finished spawning
   int               buildTime;          // when this buildable was built
   int               time1000;           // timer evaluated every second
+  qboolean          deconstruct;        // deconstruct if no BP left
+  int               deconstructTime;    // time at which structure marked
   int               overmindAttackTimer;
   int               overmindDyingTimer;
   int               overmindSpawnsTimer;
@@ -717,17 +719,16 @@ qboolean          AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean 
 gentity_t         *G_CheckSpawnPoint( int spawnNum, vec3_t origin, vec3_t normal,
                     buildable_t spawn, vec3_t spawnOrigin );
 
-qboolean          G_isPower( vec3_t origin );
-qboolean          G_isDCC( void );
-qboolean          G_isOvermind( void );
+qboolean          G_IsPowered( vec3_t origin );
+qboolean          G_IsDCCBuilt( void );
+qboolean          G_IsOvermindBuilt( void );
 
 void              G_BuildableThink( gentity_t *ent, int msec );
 qboolean          G_BuildableRange( vec3_t origin, float r, buildable_t buildable );
-itemBuildError_t  G_itemFits( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin );
-gentity_t         *G_buildItem( gentity_t *builder, buildable_t buildable, vec3_t origin, vec3_t angles );
-qboolean          G_ValidateBuild( gentity_t *ent, buildable_t buildable );
-void              G_setBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim, qboolean force );
-void              G_setIdleBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim );
+itemBuildError_t  G_CanBuild( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin );
+qboolean          G_BuildIfValid( gentity_t *ent, buildable_t buildable );
+void              G_SetBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim, qboolean force );
+void              G_SetIdleBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim );
 void              G_SpawnBuildable(gentity_t *ent, buildable_t buildable);
 void              FinishSpawningBuildable( gentity_t *ent );
 
@@ -1127,6 +1128,8 @@ extern  vmCvar_t  g_unlagged;
 extern  vmCvar_t  g_disabledEquipment;
 extern  vmCvar_t  g_disabledClasses;
 extern  vmCvar_t  g_disabledBuildables;
+
+extern  vmCvar_t  g_markDeconstruct;
 
 extern  vmCvar_t  g_debugMapRotation;
 extern  vmCvar_t  g_currentMapRotation;

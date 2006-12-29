@@ -157,8 +157,8 @@ static entityState_t *CG_BuildableInRange( playerState_t *ps, float *healthFract
 
   if( healthFraction )
   {
-    health = es->generic1 & ~( B_POWERED_TOGGLEBIT | B_DCCED_TOGGLEBIT | B_SPAWNED_TOGGLEBIT );
-    *healthFraction = (float)health / B_HEALTH_SCALE;
+    health = es->generic1 & B_HEALTH_MASK;
+    *healthFraction = (float)health / B_HEALTH_MASK;
   }
 
   if( es->eType == ET_BUILDABLE &&
@@ -175,7 +175,8 @@ CG_AlienBuilderText
 */
 static void CG_AlienBuilderText( char *text, playerState_t *ps )
 {
-  buildable_t buildable = ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT;
+  buildable_t   buildable = ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT;
+  entityState_t *es;
 
   if( buildable > BA_NONE )
   {
@@ -195,11 +196,29 @@ static void CG_AlienBuilderText( char *text, playerState_t *ps )
         va( "Press %s to build a structure\n",
           CG_KeyNameForCommand( "+attack" ) ) );
 
-    if( CG_BuildableInRange( ps, NULL ) )
+    if( ( es = CG_BuildableInRange( ps, NULL ) ) )
     {
-      Q_strcat( text, MAX_TUTORIAL_TEXT,
-          va( "Press %s to destroy this structure\n",
-            CG_KeyNameForCommand( "deconstruct" ) ) );
+      if( cgs.markDeconstruct )
+      {
+        if( es->generic1 & B_MARKED_TOGGLEBIT )
+        {
+          Q_strcat( text, MAX_TUTORIAL_TEXT,
+              va( "Press %s to unmark this structure\n",
+                CG_KeyNameForCommand( "deconstruct" ) ) );
+        }
+        else
+        {
+          Q_strcat( text, MAX_TUTORIAL_TEXT,
+              va( "Press %s to mark this structure\n",
+                CG_KeyNameForCommand( "deconstruct" ) ) );
+        }
+      }
+      else
+      {
+        Q_strcat( text, MAX_TUTORIAL_TEXT,
+            va( "Press %s to destroy this structure\n",
+              CG_KeyNameForCommand( "deconstruct" ) ) );
+      }
     }
   }
 

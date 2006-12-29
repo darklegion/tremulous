@@ -3345,6 +3345,7 @@ static void CG_Draw2D( void )
       Menu_Paint( menu, qtrue );
 
     CG_DrawCrosshair( );
+    CG_DrawBuildableStatus( );
   }
   else if( cg_drawStatus.integer )
     Menu_Paint( defaultMenu, qtrue );

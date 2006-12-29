@@ -1743,6 +1743,30 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
         ( ( ent->client->ps.weapon >= WP_ABUILD ) &&
           ( ent->client->ps.weapon <= WP_HBUILD ) ) )
     {
+      // Cancel deconstruction
+      if( g_markDeconstruct.integer && traceEnt->deconstruct )
+      {
+        traceEnt->deconstruct = qfalse;
+        return;
+      }
+
+      // Prevent destruction of the last spawn
+      if( !g_markDeconstruct.integer )
+      {
+        if( ent->client->pers.teamSelection == PTE_ALIENS &&
+            traceEnt->s.modelindex == BA_A_SPAWN )
+        {
+          if( level.numAlienSpawns <= 1 )
+            return;
+        }
+        else if( ent->client->pers.teamSelection == PTE_HUMANS &&
+                 traceEnt->s.modelindex == BA_H_SPAWN )
+        {
+          if( level.numHumanSpawns <= 1 )
+            return;
+        }
+      }
+
       // Don't allow destruction of hovel with granger inside
       if( traceEnt->s.modelindex == BA_A_HOVEL && traceEnt->active )
         return;
@@ -1759,26 +1783,36 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
         G_AddEvent( ent, EV_BUILD_DELAY, ent->client->ps.clientNum );
         return;
       }
+
       if( traceEnt->health > 0 )
       {
-        G_TeamCommand( ent->client->pers.teamSelection,
-          va( "print \"%s ^3DECONSTRUCTED^7 by %s^7\n\"",
-            BG_FindHumanNameForBuildable( traceEnt->s.modelindex ), 
-            ent->client->pers.netname ) );
+        if( g_markDeconstruct.integer )
+        {
+          traceEnt->deconstruct     = qtrue; // Mark buildable for deconstruction
+          traceEnt->deconstructTime = level.time;
+        }
+        else
+        {
+          G_TeamCommand( ent->client->pers.teamSelection,
+            va( "print \"%s ^3DECONSTRUCTED^7 by %s^7\n\"",
+              BG_FindHumanNameForBuildable( traceEnt->s.modelindex ), 
+              ent->client->pers.netname ) );
+
+          G_LogPrintf( "Decon: %i %i 0: %s^7 deconstructed %s\n",
+            ent->client->ps.clientNum,
+            traceEnt->s.modelindex,
+            ent->client->pers.netname, 
+            BG_FindNameForBuildable( traceEnt->s.modelindex ) );
+
+          if( !deconstruct && CheatsOk( ent ) )
+            G_Damage( traceEnt, ent, ent, forward, tr.endpos, 10000, 0, MOD_SUICIDE );
+          else
+            G_FreeEntity( traceEnt );
+
+          ent->client->ps.stats[ STAT_MISC ] +=
+            BG_FindBuildDelayForWeapon( ent->s.weapon ) >> 2;
+        }
       }
-      G_LogPrintf( "Decon: %i %i 0: %s^7 deconstructed %s\n",
-        ent->client->ps.clientNum,
-        traceEnt->s.modelindex,
-        ent->client->pers.netname, 
-        BG_FindNameForBuildable( traceEnt->s.modelindex ) );
-
-      if( !deconstruct && CheatsOk( ent ) )
-        G_Damage( traceEnt, ent, ent, forward, tr.endpos, 10000, 0, MOD_SUICIDE );
-      else
-        G_FreeEntity( traceEnt );
-
-      ent->client->ps.stats[ STAT_MISC ] +=
-        BG_FindBuildDelayForWeapon( ent->s.weapon ) >> 2;
     }
   }
 }
@@ -2286,7 +2320,7 @@ void Cmd_Build_f( gentity_t *ent )
     dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
 
     //these are the errors displayed when the builder first selects something to use
-    switch( G_itemFits( ent, buildable, dist, origin ) )
+    switch( G_CanBuild( ent, buildable, dist, origin ) )
     {
       case IBE_NONE:
       case IBE_TNODEWARN:

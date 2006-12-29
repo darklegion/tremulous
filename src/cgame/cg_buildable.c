@@ -697,8 +697,8 @@ static void CG_BuildableParticleEffects( centity_t *cent )
 {
   entityState_t   *es = &cent->currentState;
   buildableTeam_t team = BG_FindTeamForBuildable( es->modelindex );
-  int             health = es->generic1 & ~( B_POWERED_TOGGLEBIT | B_DCCED_TOGGLEBIT | B_SPAWNED_TOGGLEBIT );
-  float           healthFrac = (float)health / B_HEALTH_SCALE;
+  int             health = es->generic1 & B_HEALTH_MASK;
+  float           healthFrac = (float)health / B_HEALTH_MASK;
 
   if( !( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
     return;
@@ -736,85 +736,122 @@ static void CG_BuildableParticleEffects( centity_t *cent )
   }
 }
 
-
-#define HEALTH_BAR_WIDTH  50.0f
-#define HEALTH_BAR_HEIGHT 5.0f
+#define STATUS_FADE_TIME      200
+#define STATUS_MAX_VIEW_DIST  600.0f
 
 /*
 ==================
-CG_BuildableHealthBar
+CG_BuildableStatusDisplay
 ==================
 */
-static void CG_BuildableHealthBar( centity_t *cent )
+static void CG_BuildableStatusDisplay( centity_t *cent )
 {
-  vec3_t          origin, origin2, down, right, back, downLength, rightLength;
-  float           rimWidth = HEALTH_BAR_HEIGHT / 15.0f;
-  float           doneWidth, leftWidth, progress;
+  entityState_t   *es = &cent->currentState;
+  vec3_t          origin;
+  float           healthScale;
   int             health;
-  qhandle_t       shader;
-  entityState_t   *es;
-  vec3_t          mins, maxs;
+  float           x, y;
+  char            s[ MAX_STRING_CHARS ] = { 0 };
+  int             w;
+  vec4_t          color = { 1.0f, 1.0f, 1.0f, 1.0f };
+  qboolean        powered, marked;
+  trace_t         tr;
+  float           d;
 
-  es = &cent->currentState;
+  CG_Trace( &tr, cent->lerpOrigin, NULL, NULL, cg.refdef.vieworg,
+            cent->currentState.number, MASK_SOLID );
+  d = Distance( cent->lerpOrigin, cg.refdef.vieworg );
 
-  health = es->generic1 & ~( B_POWERED_TOGGLEBIT | B_DCCED_TOGGLEBIT | B_SPAWNED_TOGGLEBIT );
-  progress = (float)health / B_HEALTH_SCALE;
+  if( ( tr.fraction < 1.0f || d > STATUS_MAX_VIEW_DIST ) &&
+      cent->buildableStatus.visible )
+  {
+    cent->buildableStatus.visible   = qfalse;
+    cent->buildableStatus.lastTime  = cg.time;
+  }
+  else if( ( tr.fraction == 1.0f && d <= STATUS_MAX_VIEW_DIST ) &&
+           !cent->buildableStatus.visible )
+  {
+    cent->buildableStatus.visible   = qtrue;
+    cent->buildableStatus.lastTime  = cg.time;
+  }
 
-  if( progress < 0.0f )
-    progress = 0.0f;
-  else if( progress > 1.0f )
-    progress = 1.0f;
+  // Fade up
+  if( cent->buildableStatus.visible )
+  {
+    if( cent->buildableStatus.lastTime + STATUS_FADE_TIME > cg.time )
+      color[ 3 ] = (float)( cg.time - cent->buildableStatus.lastTime ) / STATUS_FADE_TIME;
+  }
 
-  if( progress < 0.33f )
-    shader = cgs.media.redBuildShader;
-  else
-    shader = cgs.media.greenBuildShader;
+  // Fade down
+  if( !cent->buildableStatus.visible )
+  {
+    if( cent->buildableStatus.lastTime + STATUS_FADE_TIME > cg.time )
+      color[ 3 ] = 1.0f - (float)( cg.time - cent->buildableStatus.lastTime ) / STATUS_FADE_TIME;
+    else
+      return;
+  }
 
-  doneWidth = ( HEALTH_BAR_WIDTH - 2 * rimWidth ) * progress;
-  leftWidth = ( HEALTH_BAR_WIDTH - 2 * rimWidth ) - doneWidth;
+  health = es->generic1 & B_HEALTH_MASK;
+  healthScale = (float)health / B_HEALTH_MASK;
 
-  VectorCopy( cg.refdef.viewaxis[ 2 ], down );
-  VectorInverse( down );
-  VectorCopy( cg.refdef.viewaxis[ 1 ], right );
-  VectorInverse( right );
-  VectorSubtract( cg.refdef.vieworg, cent->lerpOrigin, back );
-  VectorNormalize( back );
+  if( healthScale < 0.0f )
+    healthScale = 0.0f;
+  else if( healthScale > 1.0f )
+    healthScale = 1.0f;
+
   VectorCopy( cent->lerpOrigin, origin );
 
-  BG_FindBBoxForBuildable( es->modelindex, mins, maxs );
-  VectorMA( origin, 48.0f, es->origin2, origin );
-  VectorMA( origin, -HEALTH_BAR_WIDTH / 2.0f, right, origin );
-  VectorMA( origin, maxs[ 0 ] + 8.0f, back, origin );
-
-  VectorCopy( origin, origin2 );
-  VectorScale( right, rimWidth + doneWidth, rightLength );
-  VectorScale( down, HEALTH_BAR_HEIGHT, downLength );
-  CG_DrawPlane( origin2, downLength, rightLength, shader );
-
-  VectorMA( origin, rimWidth + doneWidth, right, origin2 );
-  VectorScale( right, leftWidth, rightLength );
-  VectorScale( down, rimWidth, downLength );
-  CG_DrawPlane( origin2, downLength, rightLength, shader );
-
-  VectorMA( origin, rimWidth + doneWidth, right, origin2 );
-  VectorMA( origin2, HEALTH_BAR_HEIGHT - rimWidth, down, origin2 );
-  VectorScale( right, leftWidth, rightLength );
-  VectorScale( down, rimWidth, downLength );
-  CG_DrawPlane( origin2, downLength, rightLength, shader );
-
-  VectorMA( origin, HEALTH_BAR_WIDTH - rimWidth, right, origin2 );
-  VectorScale( right, rimWidth, rightLength );
-  VectorScale( down, HEALTH_BAR_HEIGHT, downLength );
-  CG_DrawPlane( origin2, downLength, rightLength, shader );
-
-  if( !( es->generic1 & B_POWERED_TOGGLEBIT ) &&
-      BG_FindTeamForBuildable( es->modelindex ) == BIT_HUMANS )
+  if( CG_WorldToScreen( origin, &x, &y ) )
   {
-    VectorMA( origin, 15.0f, right, origin2 );
-    VectorMA( origin2, HEALTH_BAR_HEIGHT + 5.0f, down, origin2 );
-    VectorScale( right, HEALTH_BAR_WIDTH / 2.0f - 5.0f, rightLength );
-    VectorScale( down,  HEALTH_BAR_WIDTH / 2.0f - 5.0f, downLength );
-    CG_DrawPlane( origin2, downLength, rightLength, cgs.media.noPowerShader );
+    powered = es->generic1 & B_POWERED_TOGGLEBIT;
+    marked = es->generic1 & B_MARKED_TOGGLEBIT;
+
+    //FIXME: crappy mock-up for the time being...
+    Com_sprintf( s, MAX_STRING_CHARS, "%d%%", (int)(healthScale * 100) );
+
+    if( BG_FindTeamForBuildable( es->modelindex ) == BIT_HUMANS && !powered )
+      Q_strcat( s, MAX_STRING_CHARS, " P" );
+
+    if( marked )
+      Q_strcat( s, MAX_STRING_CHARS, " X" );
+
+    w = CG_Text_Width( s, 0.5f, 0 );
+
+    CG_Text_Paint( x - w / 2, y, 0.5f, color, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
+  }
+}
+
+/*
+==================
+CG_DrawBuildableStatus
+==================
+*/
+void CG_DrawBuildableStatus( void )
+{
+  int             i;
+  centity_t       *cent;
+  entityState_t   *es;
+
+  switch( cg.predictedPlayerState.weapon )
+  {
+    case WP_ABUILD:
+    case WP_ABUILD2:
+    case WP_HBUILD:
+    case WP_HBUILD2:
+      for( i = 0; i < cg.snap->numEntities; i++ )
+      {
+        cent  = &cg_entities[ cg.snap->entities[ i ].number ];
+        es    = &cent->currentState;
+
+        if( es->eType == ET_BUILDABLE &&
+            BG_FindTeamForBuildable( es->modelindex ) ==
+            BG_FindTeamForWeapon( cg.predictedPlayerState.weapon ) )
+          CG_BuildableStatusDisplay( cent );
+      }
+      break;
+
+    default:
+      break;
   }
 }
 
@@ -993,21 +1030,6 @@ void CG_Buildable( centity_t *cent )
     trap_R_AddRefEntityToScene( &turretTop );
   }
 
-  switch( cg.predictedPlayerState.weapon )
-  {
-    case WP_ABUILD:
-    case WP_ABUILD2:
-    case WP_HBUILD:
-    case WP_HBUILD2:
-      if( BG_FindTeamForBuildable( es->modelindex ) ==
-          BG_FindTeamForWeapon( cg.predictedPlayerState.weapon ) )
-        CG_BuildableHealthBar( cent );
-      break;
-
-    default:
-      break;
-  }
-
   //weapon effects for turrets
   if( es->eFlags & EF_FIRING )
   {
@@ -1036,8 +1058,8 @@ void CG_Buildable( centity_t *cent )
       trap_S_AddLoopingSound( es->number, cent->lerpOrigin, vec3_origin, weapon->readySound );
   }
 
-  health = es->generic1 & ~( B_POWERED_TOGGLEBIT | B_DCCED_TOGGLEBIT | B_SPAWNED_TOGGLEBIT );
-  healthScale = (float)health / B_HEALTH_SCALE;
+  health = es->generic1 & B_HEALTH_MASK;
+  healthScale = (float)health / B_HEALTH_MASK;
 
   if( healthScale < cent->lastBuildableHealthScale && ( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
   {
