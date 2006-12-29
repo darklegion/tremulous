@@ -86,9 +86,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DEFAULT_TEAM_MODEL  "sarge"
 #define DEFAULT_TEAM_HEAD   "sarge"
 
-#define DEFAULT_REDTEAM_NAME    "Stroggs"
-#define DEFAULT_BLUETEAM_NAME   "Pagans"
-
 typedef enum
 {
   FOOTSTEP_NORMAL,
@@ -594,6 +591,12 @@ typedef struct lightFlareStatus_s
   qboolean  status;        //flare is visble?
 } lightFlareStatus_t;
 
+typedef struct buildableStatus_s
+{
+  int       lastTime;      // Last time status was visible
+  qboolean  visible;       // Status is visble?
+} buildableStatus_t;
+
 //=================================================
 
 // centity_t have a direct corespondence with gentity_t in the game, but
@@ -638,6 +641,7 @@ typedef struct centity_s
   buildableAnimNumber_t buildableAnim;    //persistant anim number
   buildableAnimNumber_t oldBuildableAnim; //to detect when new anims are set
   particleSystem_t      *buildablePS;
+  buildableStatus_t     buildableStatus;
   float                 lastBuildableHealthScale;
   int                   lastBuildableDamageSoundTime;
 
@@ -736,8 +740,6 @@ typedef struct
   char        skinName[ MAX_QPATH ];
   char        headModelName[ MAX_QPATH ];
   char        headSkinName[ MAX_QPATH ];
-  char        redTeam[ MAX_TEAMNAME ];
-  char        blueTeam[ MAX_TEAMNAME ];
 
   qboolean    newAnims;                   // true if using the new mission pack animations
   qboolean    fixedlegs;                  // true if legs yaw is always the same as torso yaw
@@ -1574,6 +1576,7 @@ void        CG_GetColorForHealth( int health, int armor, vec4_t hcolor );
 void        CG_DrawRect( float x, float y, float width, float height, float size, const float *color );
 void        CG_DrawSides(float x, float y, float w, float h, float size);
 void        CG_DrawTopBottom(float x, float y, float w, float h, float size);
+qboolean    CG_WorldToScreen( vec3_t point, float *x, float *y );
 
 
 //
@@ -1626,6 +1629,7 @@ qboolean    CG_AtHighestClass( void );
 //
 void        CG_GhostBuildable( buildable_t buildable );
 void        CG_Buildable( centity_t *cent );
+void        CG_DrawBuildableStatus( void );
 void        CG_InitBuildables( void );
 void        CG_HumanBuildableExplosion( vec3_t origin, vec3_t dir );
 void        CG_AlienBuildableExplosion( vec3_t origin, vec3_t dir );

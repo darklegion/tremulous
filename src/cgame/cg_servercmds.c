@@ -113,8 +113,6 @@ void CG_ParseServerinfo( void )
   char  *mapname;
 
   info = CG_ConfigString( CS_SERVERINFO );
-  cgs.dmflags = atoi( Info_ValueForKey( info, "dmflags" ) );
-  cgs.teamflags = atoi( Info_ValueForKey( info, "teamflags" ) );
   cgs.timelimit = atoi( Info_ValueForKey( info, "timelimit" ) );
   cgs.maxclients = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
   mapname = Info_ValueForKey( info, "mapname" );
