@@ -224,9 +224,7 @@ PROTOCOL
 ==============================================================
 */
 
-// 69 is identical in every way to 68 - the change is to avoid
-// confusing connecting Q3 clients
-#define	PROTOCOL_VERSION	69
+#define	PROTOCOL_VERSION	70
 
 // maintain a list of compatible protocols for demo playing
 // NOTE: that stuff only works with two digits protocols
