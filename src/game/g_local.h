@@ -619,6 +619,9 @@ typedef struct
   int               humanBuildPoints;
   int               humanBuildPointsPowered;
 
+  gentity_t         *markedBuildables[ MAX_GENTITIES ];
+  int               numBuildablesForRemoval;
+
   int               alienKills;
   int               humanKills;
 

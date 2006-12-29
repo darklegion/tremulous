@@ -2547,9 +2547,6 @@ static int G_CompareBuildablesForRemoval( const void *a, const void *b )
   return aPrecedence - bPrecedence;
 }
 
-static gentity_t *markedBuildables[ MAX_GENTITIES ];
-static int       numBuildablesForRemoval = 0;
-
 /*
 ===============
 G_FreeMarkedBuildables
@@ -2565,9 +2562,9 @@ void G_FreeMarkedBuildables( void )
   if( !g_markDeconstruct.integer )
     return; // Not enabled, can't deconstruct anything
 
-  for( i = 0; i < numBuildablesForRemoval; i++ )
+  for( i = 0; i < level.numBuildablesForRemoval; i++ )
   {
-    ent = markedBuildables[ i ];
+    ent = level.markedBuildables[ i ];
 
     G_FreeEntity( ent );
   }
@@ -2617,7 +2614,7 @@ static qboolean G_SufficientBPAvailable( buildableTeam_t team,
   // Set buildPoints to the number extra that are required
   buildPoints -= remainingBP;
 
-  numBuildablesForRemoval = 0;
+  level.numBuildablesForRemoval = 0;
 
   // Build a list of buildable entities
   for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
@@ -2647,7 +2644,7 @@ static qboolean G_SufficientBPAvailable( buildableTeam_t team,
       continue;
 
     if( ent->deconstruct )
-      markedBuildables[ numBuildables++ ] = ent;
+      level.markedBuildables[ numBuildables++ ] = ent;
   }
 
   // We still need build points, but have no candidates for removal
@@ -2655,37 +2652,37 @@ static qboolean G_SufficientBPAvailable( buildableTeam_t team,
     return qfalse;
 
   // Sort the list
-  qsort( markedBuildables, numBuildables, sizeof( markedBuildables[ 0 ] ),
+  qsort( level.markedBuildables, numBuildables, sizeof( level.markedBuildables[ 0 ] ),
          G_CompareBuildablesForRemoval );
 
   // Do a pass looking for a buildable of the same type that we're
   // building and mark it (and only it) for destruction if found
   for( i = 0; i < numBuildables; i++ )
   {
-    ent = markedBuildables[ i ];
+    ent = level.markedBuildables[ i ];
 
     if( ent->s.modelindex == buildable )
     {
       // If we're removing what we're building this will always work
-      markedBuildables[ 0 ]   = ent;
-      numBuildablesForRemoval = 1;
+      level.markedBuildables[ 0 ]   = ent;
+      level.numBuildablesForRemoval = 1;
 
       return qtrue;
     }
   }
 
   // Determine if there are enough markees to yield the required BP
-  for( ; pointsYielded < buildPoints && numBuildablesForRemoval < numBuildables;
-       numBuildablesForRemoval++ )
+  for( ; pointsYielded < buildPoints && level.numBuildablesForRemoval < numBuildables;
+       level.numBuildablesForRemoval++ )
   {
-    ent = markedBuildables[ numBuildablesForRemoval ];
+    ent = level.markedBuildables[ level.numBuildablesForRemoval ];
     pointsYielded += BG_FindBuildPointsForBuildable( ent->s.modelindex );
   }
 
   // Not enough points yielded
   if( pointsYielded < buildPoints )
   {
-    numBuildablesForRemoval = 0;
+    level.numBuildablesForRemoval = 0;
     return qfalse;
   }
   else
@@ -3210,13 +3207,13 @@ qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
 
 /*
 ================
-FinishSpawningBuildable
+G_FinishSpawningBuildable
 
 Traces down to find where an item should rest, instead of letting them
 free fall from their spawn points
 ================
 */
-void FinishSpawningBuildable( gentity_t *ent )
+static void G_FinishSpawningBuildable( gentity_t *ent )
 {
   trace_t     tr;
   vec3_t      dest;
@@ -3241,7 +3238,8 @@ void FinishSpawningBuildable( gentity_t *ent )
 
   if( tr.startsolid )
   {
-    G_Printf( S_COLOR_YELLOW "FinishSpawningBuildable: %s startsolid at %s\n", built->classname, vtos( built->s.origin ) );
+    G_Printf( S_COLOR_YELLOW "G_FinishSpawningBuildable: %s startsolid at %s\n",
+              built->classname, vtos( built->s.origin ) );
     G_FreeEntity( built );
     return;
   }
@@ -3274,5 +3272,5 @@ void G_SpawnBuildable( gentity_t *ent, buildable_t buildable )
   // some movers spawn on the second frame, so delay item
   // spawns until the third frame so they can ride trains
   ent->nextthink = level.time + FRAMETIME * 2;
-  ent->think = FinishSpawningBuildable;
+  ent->think = G_FinishSpawningBuildable;
 }
