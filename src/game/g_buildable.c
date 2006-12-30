@@ -88,7 +88,7 @@ gentity_t *G_CheckSpawnPoint( int spawnNum, vec3_t origin, vec3_t normal,
     if( tr.entityNum != ENTITYNUM_NONE )
       return &g_entities[ tr.entityNum ];
 
-    trap_Trace( &tr, localOrigin, cmins, cmaxs, localOrigin, -1, MASK_SHOT );
+    trap_Trace( &tr, localOrigin, cmins, cmaxs, localOrigin, -1, MASK_PLAYERSOLID );
 
     if( tr.entityNum == ENTITYNUM_NONE )
     {
@@ -112,7 +112,7 @@ gentity_t *G_CheckSpawnPoint( int spawnNum, vec3_t origin, vec3_t normal,
     if( tr.entityNum != ENTITYNUM_NONE )
       return &g_entities[ tr.entityNum ];
 
-    trap_Trace( &tr, localOrigin, cmins, cmaxs, localOrigin, -1, MASK_SHOT );
+    trap_Trace( &tr, localOrigin, cmins, cmaxs, localOrigin, -1, MASK_PLAYERSOLID );
 
     if( tr.entityNum == ENTITYNUM_NONE )
     {
