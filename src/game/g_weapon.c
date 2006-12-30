@@ -1325,7 +1325,7 @@ qboolean CheckPounceAttack( gentity_t *ent )
   VectorMA( muzzle, LEVEL3_POUNCE_RANGE, forward, end );
 
   G_UnlaggedOn( muzzle, LEVEL3_POUNCE_RANGE );
-  trap_Trace( &tr, ent->s.origin, mins, maxs, end, ent->s.number, MASK_SHOT );
+  trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
   G_UnlaggedOff( );
 
   //miss
