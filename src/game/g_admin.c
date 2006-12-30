@@ -1888,23 +1888,37 @@ qboolean G_admin_putteam( gentity_t *ent, int skiparg )
 qboolean G_admin_map( gentity_t *ent, int skiparg )
 {
   char map[ MAX_QPATH ];
-  char layout[ MAX_QPATH ];
+  char layout[ MAX_QPATH ] = { "" };
   
-  if( G_SayArgc() < 2 + skiparg )
+  if( G_SayArgc( ) < 2 + skiparg )
   {
     ADMP( "^3!map: ^7usage: !map [map] (layout)\n" );
     return qfalse;
   }
 
   G_SayArgv( skiparg + 1, map, sizeof( map ) );
-  G_SayArgv( skiparg + 2, layout, sizeof( layout ) );
 
   if( !trap_FS_FOpenFile( va( "maps/%s.bsp", map ), NULL, FS_READ ) )
   {
     ADMP( va( "^3!map: ^7invalid map name '%s'\n", map ) );
     return qfalse;
   }
-  trap_Cvar_Set( "g_layouts", layout );
+
+  if( G_SayArgc( ) > 2 + skiparg )
+  {
+    G_SayArgv( skiparg + 2, layout, sizeof( layout ) );
+    if( trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, layout ),
+      NULL, FS_READ ) > 0 )
+    {
+      trap_Cvar_Set( "g_layouts", layout );
+    }
+    else
+    {
+      ADMP( va( "^3!map: ^7invalid layout name '%s'\n", layout ) );
+      return qfalse;
+    }
+  }
+
   trap_SendConsoleCommand( EXEC_APPEND, va( "map %s", map ) );
   AP( va( "print \"^3!map: ^7map '%s' started by %s %s\n\"", map,
           ( ent ) ? ent->client->pers.netname : "console",
@@ -2620,10 +2634,27 @@ qboolean G_admin_rename( gentity_t *ent, int skiparg )
 
 qboolean G_admin_restart( gentity_t *ent, int skiparg )
 {
-  char layout[ MAX_CVAR_VALUE_STRING ];
+  char layout[ MAX_CVAR_VALUE_STRING ] = { "" };
 
-  G_SayArgv( skiparg + 1, layout, sizeof( layout ) );
-  trap_Cvar_Set( "g_layouts", layout );
+  if( G_SayArgc( ) > 1 + skiparg )
+  {
+    char map[ MAX_QPATH ];
+
+    trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+    G_SayArgv( skiparg + 1, layout, sizeof( layout ) );
+
+    if( trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, layout ),
+      NULL, FS_READ ) > 0 )
+    {
+      trap_Cvar_Set( "g_layouts", layout );
+    }
+    else
+    {
+      ADMP( va( "^3!restart: ^7layout '%s' does not exist\n", layout ) );
+      return qfalse;
+    }
+  }
+
   trap_SendConsoleCommand( EXEC_APPEND, "map_restart" );
   AP( va( "print \"^3!restart: ^7map restarted by %s %s\n\"",
           ( ent ) ? ent->client->pers.netname : "console",
