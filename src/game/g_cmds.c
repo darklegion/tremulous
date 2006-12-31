@@ -886,7 +886,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
     G_SayTo( ent, other, mode, color, name, text );
   }
   
-  if( g_adminParseSay.integer )
+  if( g_admin.string[ 0 ] && g_adminParseSay.integer )
   {
     G_admin_cmd_check ( ent, qtrue );
   }
@@ -1091,18 +1091,10 @@ void Cmd_CallVote_f( gentity_t *ent )
         Q_strncpyz( kickee, level.clients[ clientNum ].pers.netname,
           sizeof( kickee ) );
         Q_CleanStr( kickee );
-        if( g_admin.string[ 0 ] ) 
-        {
-          // use ip in case this player disconnects before the vote ends
-          Com_sprintf( level.voteString, sizeof( level.voteString ),
-            "!ban %s %d vote kick", level.clients[ clientNum ].pers.ip,
-            g_adminTempBan.integer + 1 );
-        }
-        else
-        {
-          Com_sprintf( level.voteString, sizeof( level.voteString ),
-            "clientkick %d", clientNum );
-        }
+        // use ip in case this player disconnects before the vote ends
+        Com_sprintf( level.voteString, sizeof( level.voteString ),
+          "!ban %s %d vote kick", level.clients[ clientNum ].pers.ip,
+          g_adminTempBan.integer + 1 );
         Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ),
           "Kick player \'%s\'", kickee );
       }
@@ -1340,20 +1332,11 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
       sizeof( kickee ) );
     Q_CleanStr( kickee );
 
-    if( g_admin.string[ 0 ] )
-    {
-      // use ip in case this player disconnects before the vote ends
-      Com_sprintf( level.teamVoteString[ cs_offset ],
-        sizeof( level.teamVoteString[ cs_offset ] ),
-        "!ban %s %d team vote kick", level.clients[ clientNum ].pers.ip,
-        g_adminTempBan.integer + 1 );
-    }
-    else
-    {
-      Com_sprintf( level.teamVoteString[ cs_offset ],
-          sizeof( level.teamVoteString[ cs_offset ] ),
-          "clientkick %d", clientNum );
-    }
+    // use ip in case this player disconnects before the vote ends
+    Com_sprintf( level.teamVoteString[ cs_offset ],
+      sizeof( level.teamVoteString[ cs_offset ] ),
+      "!ban %s %d team vote kick", level.clients[ clientNum ].pers.ip,
+      g_adminTempBan.integer + 1 );
     Com_sprintf( level.teamVoteDisplayString[ cs_offset ],
         sizeof( level.teamVoteDisplayString[ cs_offset ] ),
         "Kick player \'%s\'", kickee );
@@ -2729,7 +2712,7 @@ void ClientCommand( int clientNum )
     return;
   }
 
-  if( G_admin_cmd_check( ent, qfalse ) )
+  if( g_admin.string[ 0 ] && G_admin_cmd_check( ent, qfalse ) )
     return;
 
   // ignore all other commands when at intermission

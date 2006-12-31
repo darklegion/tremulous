@@ -392,7 +392,11 @@ static void admin_writeconfig( void )
   char levels[ MAX_STRING_CHARS ] = {""};
 
   if( !g_admin.string[ 0 ] )
-    return ;
+  {
+    G_Printf( S_COLOR_YELLOW "WARNING: g_admin is not set. "
+      " configuration will not be saved to a file.\n" );
+    return;
+  }
   t = trap_RealTime( &qt );
   len = trap_FS_FOpenFile( g_admin.string, &f, FS_WRITE );
   if( len < 0 )
@@ -930,9 +934,6 @@ qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
   char *cmd;
   int skip = 0;
 
-  if( g_admin.string[ 0 ] == '\0' )
-    return qfalse;
-
   command[ 0 ] = '\0';
   G_SayArgv( 0, command, sizeof( command ) );
   if( !Q_stricmp( command, "say" ) ||
@@ -1010,8 +1011,6 @@ void G_admin_namelog_update( gclient_t *client, int clientNum )
   char n1[ MAX_NAME_LENGTH ];
   char n2[ MAX_NAME_LENGTH ];
 
-  if( !g_admin.string[0] )
-    return;
   G_SanitiseName( client->pers.netname, n1 );
   for( i = 0; i < MAX_ADMIN_NAMELOGS && g_admin_namelog[ i ]; i++ )
   {
@@ -1065,7 +1064,12 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
   char levels[ MAX_STRING_CHARS ] = {""};
 
   if( !g_admin.string[ 0 ] )
+  {
+    ADMP( "^3!readconfig: g_admin is not set, not loading configuration "
+      "from a file\n" );
     return qfalse;
+  }
+
   len = trap_FS_FOpenFile( g_admin.string, &f, FS_READ ) ;
   if( len < 0 )
   {
