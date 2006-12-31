@@ -1907,8 +1907,9 @@ qboolean G_admin_map( gentity_t *ent, int skiparg )
   if( G_SayArgc( ) > 2 + skiparg )
   {
     G_SayArgv( skiparg + 2, layout, sizeof( layout ) );
-    if( trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, layout ),
-      NULL, FS_READ ) > 0 )
+    if( !Q_stricmp( layout, "*BUILTIN*" ) ||
+      trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, layout ),
+        NULL, FS_READ ) > 0 )
     {
       trap_Cvar_Set( "g_layouts", layout );
     }
@@ -2643,8 +2644,9 @@ qboolean G_admin_restart( gentity_t *ent, int skiparg )
     trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
     G_SayArgv( skiparg + 1, layout, sizeof( layout ) );
 
-    if( trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, layout ),
-      NULL, FS_READ ) > 0 )
+    if( !Q_stricmp( layout, "*BUILTIN*" ) ||
+      trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, layout ),
+        NULL, FS_READ ) > 0 )
     {
       trap_Cvar_Set( "g_layouts", layout );
     }

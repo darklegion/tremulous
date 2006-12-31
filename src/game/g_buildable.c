@@ -3379,7 +3379,8 @@ int G_LayoutList( const char *map, char *list, int len )
   int numFiles, i, fileLen = 0, listLen;
   int  count = 0;
   char *filePtr;
-    
+
+  Q_strcat( layouts, sizeof( layouts ), "*BUILTIN* " );  
   numFiles = trap_FS_GetFileList( va( "layouts/%s", map ), ".dat",
     fileList, sizeof( fileList ) );
   filePtr = fileList;
@@ -3451,6 +3452,15 @@ void G_LayoutSelect( void )
   s = COM_ParseExt( &l, qfalse );
   while( *s )
   {
+    if( !Q_stricmp( s, "*BUILTIN*" ) )
+    {
+      Q_strcat( layouts, sizeof( layouts ), s );
+      Q_strcat( layouts, sizeof( layouts ), " " );
+      cnt++;
+      s = COM_ParseExt( &l, qfalse );
+      continue;
+    }
+    
     Com_sprintf( fileName, sizeof( fileName ), "layouts/%s/%s.dat", map, s );
     if( trap_FS_FOpenFile( fileName, NULL, FS_READ ) > 0 )
     {
@@ -3521,7 +3531,7 @@ void G_LayoutLoad( void )
   char line[ MAX_STRING_CHARS ];
   int i = 0;
 
-  if( !level.layout[ 0 ] )
+  if( !level.layout[ 0 ] || !Q_stricmp( level.layout, "*BUILTIN*" ) )
     return;
  
   trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
