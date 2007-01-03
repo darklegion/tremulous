@@ -300,7 +300,7 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
     }
   }
 
-  if( !g_admin.string[ 0 ] || !g_adminNameProtect.string[ 0 ] )
+  if( !g_adminNameProtect.string[ 0 ] )
     return qtrue;
 
   for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
@@ -401,8 +401,9 @@ static void admin_writeconfig( void )
   len = trap_FS_FOpenFile( g_admin.string, &f, FS_WRITE );
   if( len < 0 )
   {
-    G_Printf( "admin_writeconfig: could not open %s\n",
+    G_Printf( "admin_writeconfig: could not open g_admin file \"%s\"\n",
               g_admin.string );
+    return;
   }
   for( i = 0; i < MAX_ADMIN_LEVELS && g_admin_levels[ i ]; i++ )
   {
@@ -1063,10 +1064,13 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
   qboolean level_open, admin_open, ban_open, command_open;
   char levels[ MAX_STRING_CHARS ] = {""};
 
+  G_admin_cleanup();
+
   if( !g_admin.string[ 0 ] )
   {
     ADMP( "^3!readconfig: g_admin is not set, not loading configuration "
       "from a file\n" );
+    admin_default_levels();
     return qfalse;
   }
 
@@ -1083,8 +1087,6 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
   trap_FS_Read( cnf, len, f );
   *( cnf + len ) = '\0';
   trap_FS_FCloseFile( f );
-
-  G_admin_cleanup();
 
   t = COM_Parse( &cnf );
   level_open = admin_open = ban_open = command_open = qfalse;
@@ -1512,7 +1514,12 @@ qboolean G_admin_setlevel( gentity_t *ent, int skiparg )
     adminname, l, ( ent ) ? ent->client->pers.netname : "console" ) );
   if( vic )
     vic->client->pers.adminLevel = l;
-  admin_writeconfig();
+  
+  if( !g_admin.string[ 0 ] )
+    ADMP( "^3!setlevel: ^7WARNING g_admin not set, not saving admin record "
+      "to a file\n" );
+  else
+    admin_writeconfig();
   return qtrue;
 }
 
@@ -1565,7 +1572,6 @@ static qboolean admin_create_ban( gentity_t *ent,
     return qfalse;
   }
   g_admin_bans[ i ] = b;
-  admin_writeconfig();
   return qtrue;
 }
 
@@ -1608,6 +1614,8 @@ qboolean G_admin_kick( gentity_t *ent, int skiparg )
       vic->client->pers.guid,
       vic->client->pers.ip, g_adminTempBan.integer,
       "automatic temp ban created by kick" );
+    if( g_admin.string[ 0 ] )
+      admin_writeconfig();
   }
   
   trap_SendServerCommand( pids[ 0 ],
@@ -1773,6 +1781,10 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
     g_admin_namelog[ logmatch ]->guid,
     g_admin_namelog[ logmatch ]->ip,
     seconds, reason ); 
+  if( !g_admin.string[ 0 ] )
+    ADMP( "^3!ban: ^7WARNING g_admin not set, not saving ban to a file\n" );
+  else
+    admin_writeconfig();
 
   if(g_admin_namelog[ logmatch ]->slot == -1 ) 
   {
@@ -1831,7 +1843,8 @@ qboolean G_admin_unban( gentity_t *ent, int skiparg )
           bnum,
           g_admin_bans[ bnum - 1 ]->name,
           ( ent ) ? ent->client->pers.netname : "console" ) );
-  admin_writeconfig();
+  if( g_admin.string[ 0 ] )
+    admin_writeconfig();
   return qtrue;
 }
 
@@ -2010,6 +2023,11 @@ qboolean G_admin_listadmins( gentity_t *ent, int skiparg )
       continue;
     found++;
   }
+  if( !found )
+  {
+    ADMP( "^3!listadmins: ^7no admins defined\n" );
+    return qfalse;
+  }
 
   if( G_SayArgc() == 2 + skiparg )
   {
@@ -2037,7 +2055,7 @@ qboolean G_admin_listadmins( gentity_t *ent, int skiparg )
 
   if( start >= found )
   {
-    ADMP( va( "^3!listadmins: ^7there are only %d admins\n", found ) );
+    ADMP( va( "^3!listadmins: ^7listing %d admins\n", found ) );
     return qfalse;
   }
 
@@ -2082,11 +2100,6 @@ qboolean G_admin_listlayouts( gentity_t *ent, int skiparg )
     trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
   
   count = G_LayoutList( map, list, sizeof( list ) );
-  if( !count )
-  {
-    ADMP( va( "^3!listlayouts:^7 ^7no layouts found for map '%s'\n", map ) );
-    return qfalse;
-  }
   ADMBP_begin( );
   ADMBP( va( "^3!listlayouts:^7 %d layouts found for '%s':\n", count, map ) );
   s = &list[ 0 ];

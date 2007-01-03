@@ -3410,7 +3410,7 @@ int G_LayoutList( const char *map, char *list, int len )
       count, numFiles, map );
   }
   Q_strncpyz( list, layouts, len );
-  return count;
+  return count + 1;
 }
 
 /*

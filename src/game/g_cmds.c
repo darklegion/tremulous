@@ -886,7 +886,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
     G_SayTo( ent, other, mode, color, name, text );
   }
   
-  if( g_admin.string[ 0 ] && g_adminParseSay.integer )
+  if( g_adminParseSay.integer )
   {
     G_admin_cmd_check ( ent, qtrue );
   }
@@ -2712,7 +2712,7 @@ void ClientCommand( int clientNum )
     return;
   }
 
-  if( g_admin.string[ 0 ] && G_admin_cmd_check( ent, qfalse ) )
+  if( G_admin_cmd_check( ent, qfalse ) )
     return;
 
   // ignore all other commands when at intermission
