@@ -544,9 +544,16 @@ void HandleMessage (const char* msg, size_t length,
 		HandleGetMotd (msg + strlen (C2M_GETMOTD), address);
 	}
 
-	// If it's a game statistic
+  // If it's a game statistic
   else if( !strncmp( S2M_GAMESTAT, msg, strlen ( S2M_GAMESTAT ) ) )
-	{
-    HandleGameStat( msg + strlen( S2M_GAMESTAT ), address );
+  {
+    server = Sv_GetByAddr(address, qfalse);
+    if (server == NULL)
+	return;
+    if( crt_time - server->lastGameStat > MIN_GAMESTAT_DELAY )
+      HandleGameStat( msg + strlen( S2M_GAMESTAT ), address );
+    else
+      MsgPrint( MSG_NORMAL, "%s flooding GAMESTAT messages\n", peer_address );
+    server->lastGameStat = crt_time;
   }
 }

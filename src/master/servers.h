@@ -38,6 +38,9 @@
 #define CHALLENGE_MIN_LENGTH 9
 #define CHALLENGE_MAX_LENGTH 12
 
+// Minimum number of seconds between gamestat messages per server
+#define MIN_GAMESTAT_DELAY 120
+
 // ---------- Types ---------- //
 
 // Address mapping
@@ -63,6 +66,7 @@ typedef struct server_s
 	time_t challenge_timeout;
 	const struct addrmap_s* addrmap;
 	qboolean active;
+	time_t lastGameStat;
 } server_t;
 
 
