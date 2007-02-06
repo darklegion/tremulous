@@ -1779,6 +1779,13 @@ void CheckIntermissionExit( void )
   if( level.time < level.intermissiontime + 5000 )
     return;
 
+  // never let intermission go on for over 1 minute
+  if( level.time > level.intermissiontime + 60000 )
+  {
+    ExitLevel( );
+    return;
+  }
+
   // if nobody wants to go, clear timer
   if( !ready && numPlayers )
   {
