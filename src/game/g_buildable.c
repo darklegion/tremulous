@@ -753,11 +753,34 @@ void AOvermind_Think( gentity_t *self )
       }
     }
 
+    // just in case an egg finishes building after we tell overmind to stfu
+    if( level.numAlienSpawns > 0 )
+      self->overmindSpawnsTimer = level.time; 
+
     //low on spawns
     if( level.numAlienSpawns <= 0 && level.time > self->overmindSpawnsTimer )
     {
+      qboolean haveBuilder = qfalse;
+      gentity_t *builder;
+
       self->overmindSpawnsTimer = level.time + OVERMIND_SPAWNS_PERIOD;
       G_BroadcastEvent( EV_OVERMIND_SPAWNS, 0 );
+
+      for( i = 0; i < level.numConnectedClients; i++ )
+      {
+        builder = &g_entities[ level.sortedClients[ i ] ];
+        if( builder->spawned &&
+          ( builder->client->pers.classSelection == PCL_ALIEN_BUILDER0 ||
+            builder->client->pers.classSelection == PCL_ALIEN_BUILDER0_UPG ) )
+        {
+          haveBuilder = qtrue;
+          break;
+        }
+      }
+      // aliens now know they have no eggs, but they're screwed, so stfu
+      if( !haveBuilder )
+        self->overmindSpawnsTimer = level.startTime +
+          ( g_timelimit.integer * 60000 );
     }
 
     //overmind dying
