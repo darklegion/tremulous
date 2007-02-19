@@ -2897,6 +2897,16 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
 
           break;
         }
+        if( tempent->s.modelindex == BA_A_HOVEL &&
+            buildable == BA_A_HOVEL &&
+            tempent->active )
+        {
+          reason = IBE_HOVEL;
+        }
+        else if( tempent->s.modelindex == buildable )
+        {
+          level.markedBuildables[ level.numBuildablesForRemoval++ ] = tempent;
+        }
       }
     }
 
@@ -2972,6 +2982,8 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
           reason = IBE_REACTOR;
           break;
         }
+        if( tempent->s.modelindex == buildable )
+          level.markedBuildables[ level.numBuildablesForRemoval++ ] = tempent;	
       }
     }
 
