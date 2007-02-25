@@ -646,6 +646,10 @@ typedef struct centity_s
 
   qboolean              doorState;
 
+  qboolean              animInit;
+  qboolean              animPlaying;
+  qboolean              animLastState;
+
   particleSystem_t      *muzzlePS;
   qboolean              muzzlePsTrigger;
 

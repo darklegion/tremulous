@@ -341,6 +341,10 @@ void SP_misc_anim_model( gentity_t *self )
 
   self->s.eType = ET_ANIMMAPOBJ;
 
+  // spawn with animation stopped
+  if( self->spawnflags & 2 )
+    self->s.eFlags |= EF_MOVER_STOP;
+
   trap_LinkEntity( self );
 }
 
