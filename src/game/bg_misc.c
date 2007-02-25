@@ -2250,26 +2250,34 @@ BG_FindViewheightForClass
 void BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight )
 {
   int i;
+  int vh = 0;
+  int cvh = 0;
 
   for( i = 0; i < bg_numPclasses; i++ )
   {
     if( bg_classList[ i ].classNum == pclass )
     {
-      if( viewheight != NULL )
-        *viewheight = bg_classList[ i ].viewheight;
-
-      if( cViewheight != NULL )
-        *cViewheight = bg_classList[ i ].crouchViewheight;
-
-      return;
+      vh = bg_classList[ i ].viewheight;
+      cvh = bg_classList[ i ].crouchViewheight;
+      break;
     }
   }
+  
+  if( bg_classOverrideList[ pclass ].viewheight != 0 )
+    vh = bg_classOverrideList[ pclass ].viewheight;
+  if( bg_classOverrideList[ pclass ].crouchViewheight != 0 )
+    cvh = bg_classOverrideList[ pclass ].crouchViewheight;
+
+
+  if( vh == 0 )
+    vh = bg_classList[ 0 ].viewheight;
+  if( cvh == 0 )
+    cvh = bg_classList[ 0 ].crouchViewheight;
 
   if( viewheight != NULL )
-    *viewheight = bg_classList[ 0 ].viewheight;
-
+    *viewheight = vh;
   if( cViewheight != NULL )
-    *cViewheight = bg_classList[ 0 ].crouchViewheight;
+    *cViewheight = cvh;
 }
 
 /*
@@ -2894,6 +2902,18 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
         cao->crouchMaxs[ i ] = atof( token );
       }
 
+      continue;
+    }
+    else if( !Q_stricmp( token, "viewheight" ) )
+    {
+      token = COM_Parse( &text_p );
+      cao->viewheight = atoi( token );
+      continue;
+    }
+    else if( !Q_stricmp( token, "crouchViewheight" ) )
+    {
+      token = COM_Parse( &text_p );
+      cao->crouchViewheight = atoi( token );
       continue;
     }
     else if( !Q_stricmp( token, "zOffset" ) )

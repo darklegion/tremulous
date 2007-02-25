@@ -954,6 +954,8 @@ typedef struct
   vec3_t    crouchMaxs;
   vec3_t    deadMins;
   vec3_t    deadMaxs;
+  int       viewheight;
+  int       crouchViewheight;
   float     zOffset;
 } classAttributeOverrides_t;
 
