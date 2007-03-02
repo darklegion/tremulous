@@ -1781,7 +1781,7 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
               BG_FindHumanNameForBuildable( traceEnt->s.modelindex ), 
               ent->client->pers.netname ) );
 
-          G_LogPrintf( "Decon: %i %i 0: %s^7 deconstructed %s\n",
+          G_LogPrintf( "Decon: %i %i 0: %s deconstructed %s\n",
             ent->client->ps.clientNum,
             traceEnt->s.modelindex,
             ent->client->pers.netname, 
@@ -2991,7 +2991,7 @@ void G_PrivateMessage( gentity_t *ent )
     ADMP( va( "^%cPrivate message: ^7%s\n", color, msg ) );
     ADMP( va( "%s\n", str ) );
 
-    G_LogPrintf( "%s: %s^7: %s^7: %s\n",
+    G_LogPrintf( "%s: %s: %s: %s\n",
       ( teamonly ) ? "tprivmsg" : "privmsg",
       ( ent ) ? ent->client->pers.netname : "console",
       name, msg );

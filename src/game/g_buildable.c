@@ -647,7 +647,7 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
           BG_FindHumanNameForBuildable( self->s.modelindex ), 
           attacker->client->pers.netname ) );
     }
-    G_LogPrintf( "Decon: %i %i %i: %s^7 destroyed %s by %s\n",
+    G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
       attacker->client->ps.clientNum, self->s.modelindex, mod,
       attacker->client->pers.netname, 
       BG_FindNameForBuildable( self->s.modelindex ),
@@ -891,7 +891,7 @@ void ABarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
           BG_FindHumanNameForBuildable( self->s.modelindex ), 
           attacker->client->pers.netname ) );
     }
-    G_LogPrintf( "Decon: %i %i %i: %s^7 destroyed %s by %s\n",
+    G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
       attacker->client->ps.clientNum, self->s.modelindex, mod,
       attacker->client->pers.netname, 
       BG_FindNameForBuildable( self->s.modelindex ),
@@ -1322,7 +1322,7 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
           BG_FindHumanNameForBuildable( self->s.modelindex ), 
           attacker->client->pers.netname ) );
     }
-    G_LogPrintf( "Decon: %i %i %i: %s^7 destroyed %s by %s\n",
+    G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
       attacker->client->ps.clientNum, self->s.modelindex, mod,
       attacker->client->pers.netname, 
       BG_FindNameForBuildable( self->s.modelindex ),
@@ -2286,7 +2286,7 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
           BG_FindHumanNameForBuildable( self->s.modelindex ), 
           attacker->client->pers.netname ) );
     }
-    G_LogPrintf( "Decon: %i %i %i: %s^7 destroyed %s by %s\n",
+    G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
       attacker->client->ps.clientNum, self->s.modelindex, mod,
       attacker->client->pers.netname, 
       BG_FindNameForBuildable( self->s.modelindex ),
