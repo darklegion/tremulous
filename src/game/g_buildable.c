@@ -778,7 +778,7 @@ void AOvermind_Think( gentity_t *self )
         }
       }
       // aliens now know they have no eggs, but they're screwed, so stfu
-      if( !haveBuilder )
+      if( !haveBuilder || G_TimeTilSuddenDeath( ) <= 0 )
         self->overmindSpawnsTimer = level.startTime +
           ( g_timelimit.integer * 60000 );
     }
