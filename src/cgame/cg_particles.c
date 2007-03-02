@@ -2101,6 +2101,12 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
   VectorMA( p->velocity, deltaTime, acceleration, p->velocity );
   VectorMA( p->origin, deltaTime, p->velocity, newOrigin );
   p->lastEvalTime = cg.time;
+  
+  if( !cg_bounceParticles.integer )
+  {
+    VectorCopy( newOrigin, p->origin );
+    return;
+  }
 
   CG_Trace( &trace, p->origin, mins, maxs, newOrigin,
       CG_AttachmentCentNum( &ps->attachment ), CONTENTS_SOLID );

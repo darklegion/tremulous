@@ -3769,6 +3769,7 @@ static void UI_Update(const char *name) {
         trap_Cvar_SetValue( "r_inGameVideo", 1 );
         trap_Cvar_SetValue( "cg_shadows", 1 );
         trap_Cvar_SetValue( "cg_brassTime", 2500 );
+        trap_Cvar_SetValue( "cg_bounceParticles", 1 );
         trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
       break;
       case 1: // normal
@@ -3786,6 +3787,7 @@ static void UI_Update(const char *name) {
         trap_Cvar_SetValue( "cg_brassTime", 2500 );
         trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
         trap_Cvar_SetValue( "cg_shadows", 0 );
+        trap_Cvar_SetValue( "cg_bounceParticles", 0 );
       break;
       case 2: // fast
         trap_Cvar_SetValue( "r_fullScreen", 1 );
@@ -3801,6 +3803,7 @@ static void UI_Update(const char *name) {
         trap_Cvar_SetValue( "r_fastSky", 1 );
         trap_Cvar_SetValue( "r_inGameVideo", 0 );
         trap_Cvar_SetValue( "cg_brassTime", 0 );
+        trap_Cvar_SetValue( "cg_bounceParticles", 0 );
         trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_NEAREST" );
       break;
       case 3: // fastest
@@ -3817,6 +3820,7 @@ static void UI_Update(const char *name) {
         trap_Cvar_SetValue( "cg_brassTime", 0 );
         trap_Cvar_SetValue( "r_fastSky", 1 );
         trap_Cvar_SetValue( "r_inGameVideo", 0 );
+        trap_Cvar_SetValue( "cg_bounceParticles", 0 );
         trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_NEAREST" );
       break;
     }
