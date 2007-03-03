@@ -638,7 +638,22 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   G_ResetPTRConnections( );
 }
 
+/*
+==================
+G_ClearVotes
 
+remove all currently active votes
+==================
+*/
+static void G_ClearVotes( void )
+{
+  level.voteTime = 0;
+  trap_SetConfigstring( CS_VOTE_TIME, "" );
+  level.teamVoteTime[ 0 ] = 0;
+  trap_SetConfigstring( CS_TEAMVOTE_TIME, "" );
+  level.teamVoteTime[ 1 ] = 0;
+  trap_SetConfigstring( CS_TEAMVOTE_TIME + 1, "" );
+}
 
 /*
 =================
@@ -647,6 +662,9 @@ G_ShutdownGame
 */
 void G_ShutdownGame( int restart )
 {
+  // in case of a map_restart
+  G_ClearVotes( );
+
   G_Printf( "==== ShutdownGame ====\n" );
 
   if( level.logFile )
@@ -1471,13 +1489,7 @@ void BeginIntermission( void )
 
   level.intermissiontime = level.time;
 
-  // cancel votes
-  level.voteTime = 0;
-  trap_SetConfigstring( CS_VOTE_TIME, "" );
-  level.teamVoteTime[ 0 ] = 0;
-  trap_SetConfigstring( CS_TEAMVOTE_TIME, "" );
-  level.teamVoteTime[ 1 ] = 0;
-  trap_SetConfigstring( CS_TEAMVOTE_TIME + 1, "" );
+  G_ClearVotes( );
 
   FindIntermissionPoint( );
 
