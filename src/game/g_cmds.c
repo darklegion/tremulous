@@ -649,18 +649,27 @@ Cmd_Team_f
 void Cmd_Team_f( gentity_t *ent )
 {
   pTeam_t team;
+  pTeam_t oldteam = ent->client->pers.teamSelection;
   char    s[ MAX_TOKEN_CHARS ];
   qboolean force = G_admin_permission(ent, ADMF_FORCETEAMCHANGE);
+  int     aliens = level.numAlienClients;
+  int     humans = level.numHumanClients;
 
   // stop team join spam
   if( level.time - ent->client->pers.teamChangeTime < 1000 )
     return;
 
+  if( oldteam == PTE_ALIENS )
+    aliens--;
+  else if( oldteam == PTE_HUMANS )
+    humans--;
+
   trap_Argv( 1, s, sizeof( s ) );
 
   if( !strlen( s ) )
   {
-    trap_SendServerCommand( ent-g_entities, va("print \"team: %i\n\"", ent->client->pers.teamSelection ) );
+    trap_SendServerCommand( ent-g_entities, va("print \"team: %i\n\"",
+      oldteam ) );
     return;
   }
 
@@ -681,10 +690,7 @@ void Cmd_Team_f( gentity_t *ent )
       force = qtrue;
     }
 
-    if( !force && g_teamForceBalance.integer
-      && ( ( level.numAlienClients > level.numHumanClients ) ||
-        ( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
-          level.numAlienClients >= level.numHumanClients ) ) )
+    if( !force && g_teamForceBalance.integer && aliens > humans )
     {
       G_TriggerMenu( ent - g_entities, MN_A_TEAMFULL );
       return;
@@ -707,10 +713,7 @@ void Cmd_Team_f( gentity_t *ent )
       force = qtrue;
     }
 
-    if( !force && g_teamForceBalance.integer &&
-      ( ( level.numHumanClients > level.numAlienClients ) ||
-        ( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
-          level.numHumanClients >= level.numAlienClients ) ) )
+    if( !force && g_teamForceBalance.integer && humans > aliens )
     {
       G_TriggerMenu( ent - g_entities, MN_H_TEAMFULL );
       return;
@@ -741,11 +744,11 @@ void Cmd_Team_f( gentity_t *ent )
   }
 
   // stop team join spam
-  if( ent->client->pers.teamSelection == team )
+  if( oldteam == team )
     return;
 
   //guard against build timer exploit
-  if( ent->client->pers.teamSelection != PTE_NONE &&
+  if( oldteam != PTE_NONE &&
      ( ent->client->ps.stats[ STAT_PCLASS ] == PCL_ALIEN_BUILDER0 ||
        ent->client->ps.stats[ STAT_PCLASS ] == PCL_ALIEN_BUILDER0_UPG ||
        BG_InventoryContainsWeapon( WP_HBUILD, ent->client->ps.stats ) ||
