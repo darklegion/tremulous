@@ -3918,6 +3918,27 @@ static void UI_RunMenuScript(char **args) {
     } else if (Q_stricmp(name, "RefreshServers") == 0) {
       UI_StartServerRefresh(qtrue);
       UI_BuildServerDisplayList(qtrue);
+    } else if (Q_stricmp(name, "InitServerList") == 0) {
+      int time = trap_RealTime( NULL );
+      int last;
+      int sortColumn;
+
+      // set up default sorting
+      if(!uiInfo.serverStatus.sorted && Int_Parse(args, &sortColumn))
+      {
+        uiInfo.serverStatus.sortKey = sortColumn;
+	uiInfo.serverStatus.sortDir = 0;
+      }
+
+      // refresh if older than 3 days or if list is empty
+      last = atoi( UI_Cvar_VariableString( va( "ui_lastServerRefresh_%i_time",
+        ui_netSource.integer ) ) );
+      if( trap_LAN_GetServerCount( ui_netSource.integer ) < 1 ||
+        ( time - last ) > 3600 )
+      {
+        UI_StartServerRefresh(qtrue);
+        UI_BuildServerDisplayList(qtrue);
+      }
     } else if (Q_stricmp(name, "RefreshFilter") == 0) {
       UI_StartServerRefresh(qfalse);
       UI_BuildServerDisplayList(qtrue);
@@ -4101,6 +4122,7 @@ static void UI_RunMenuScript(char **args) {
         }
         // make sure we sort again
         UI_ServersSort(sortColumn, qtrue);
+        uiInfo.serverStatus.sorted = qtrue;
       }
     } else if (Q_stricmp(name, "nextSkirmish") == 0) {
       UI_StartSkirmish(qtrue);
@@ -5999,6 +6021,10 @@ vmCvar_t  ui_lastServerRefresh_0;
 vmCvar_t  ui_lastServerRefresh_1;
 vmCvar_t  ui_lastServerRefresh_2;
 vmCvar_t  ui_lastServerRefresh_3;
+vmCvar_t  ui_lastServerRefresh_0_time;
+vmCvar_t  ui_lastServerRefresh_1_time;
+vmCvar_t  ui_lastServerRefresh_2_time;
+vmCvar_t  ui_lastServerRefresh_3_time;
 vmCvar_t  ui_singlePlayerActive;
 vmCvar_t  ui_scoreAccuracy;
 vmCvar_t  ui_scoreImpressives;
@@ -6122,6 +6148,10 @@ static cvarTable_t    cvarTable[] = {
   { &ui_lastServerRefresh_1, "ui_lastServerRefresh_1", "", CVAR_ARCHIVE},
   { &ui_lastServerRefresh_2, "ui_lastServerRefresh_2", "", CVAR_ARCHIVE},
   { &ui_lastServerRefresh_3, "ui_lastServerRefresh_3", "", CVAR_ARCHIVE},
+  { &ui_lastServerRefresh_0, "ui_lastServerRefresh_0_time", "", CVAR_ARCHIVE},
+  { &ui_lastServerRefresh_1, "ui_lastServerRefresh_1_time", "", CVAR_ARCHIVE},
+  { &ui_lastServerRefresh_2, "ui_lastServerRefresh_2_time", "", CVAR_ARCHIVE},
+  { &ui_lastServerRefresh_3, "ui_lastServerRefresh_3_time", "", CVAR_ARCHIVE},
   { &ui_singlePlayerActive, "ui_singlePlayerActive", "0", 0},
   { &ui_scoreAccuracy, "ui_scoreAccuracy", "0", CVAR_ARCHIVE},
   { &ui_scoreImpressives, "ui_scoreImpressives", "0", CVAR_ARCHIVE},
@@ -6266,9 +6296,12 @@ static void UI_StartServerRefresh(qboolean full)
 {
   int   i;
   char  *ptr;
-
+  int   time;
   qtime_t q;
-  trap_RealTime(&q);
+
+  time = trap_RealTime(&q);
+  trap_Cvar_Set( va("ui_lastServerRefresh_%i_time", ui_netSource.integer ),
+                        va( "%i", time ) );
   trap_Cvar_Set( va("ui_lastServerRefresh_%i", ui_netSource.integer),
 			va("%s-%i, %i at %i:%02i", MonthAbbrev[q.tm_mon],q.tm_mday, 1900+q.tm_year,q.tm_hour,q.tm_min));
 

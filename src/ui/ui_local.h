@@ -698,6 +698,7 @@ typedef struct serverStatus_s {
   int    numServers;
   int    sortKey;
   int    sortDir;
+  qboolean sorted;
   int    lastCount;
   qboolean refreshActive;
   int    currentServer;

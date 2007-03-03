@@ -15,12 +15,13 @@
     style 0
     onOpen
     {
-      uiScript UpdateFilter;
+      uiScript InitServerList 3;
       hide accept_alt; 
       show accept;
       hide back_alt;
       show back;
-      hide grpmessage
+      hide grpmessage;
+      uiScript UpdateFilter
     }
     
     onEsc { uiScript closeJoin }
