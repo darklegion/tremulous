@@ -2524,7 +2524,7 @@ void Cmd_Follow_f( gentity_t *ent, qboolean toggle )
       return;
 
     // can't follow another spectator
-    if( ent->client->pers.teamSelection != PTE_NONE )
+    if( level.clients[ i ].pers.teamSelection == PTE_NONE )
       return;
 
     ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
