@@ -541,6 +541,7 @@ void  Svcmd_LayoutLoad_f( void )
   Q_strncpyz( layouts, s, sizeof( layouts ) );
   trap_Cvar_Set( "g_layouts", layouts ); 
   trap_SendConsoleCommand( EXEC_APPEND, "map_restart\n" );
+  level.restarted = qtrue;
 }
 
 /*

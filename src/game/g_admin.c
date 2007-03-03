@@ -1938,6 +1938,7 @@ qboolean G_admin_map( gentity_t *ent, int skiparg )
   }
 
   trap_SendConsoleCommand( EXEC_APPEND, va( "map %s", map ) );
+  level.restarted = qtrue;
   AP( va( "print \"^3!map: ^7map '%s' started by %s %s\n\"", map,
           ( ent ) ? ent->client->pers.netname : "console",
           ( layout[ 0 ] ) ? va( "(forcing layout '%s')", layout ) : "" ) );

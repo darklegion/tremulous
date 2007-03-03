@@ -661,6 +661,8 @@ void G_ShutdownGame( int restart )
 
   G_admin_cleanup( );
   G_admin_namelog_cleanup( );
+
+  level.restarted = qfalse;
 }
 
 
@@ -1517,6 +1519,7 @@ void ExitLevel( void )
   else
     trap_SendConsoleCommand( EXEC_APPEND, "map_restart\n" );
 
+  level.restarted = qtrue;
   level.changemap = NULL;
   level.intermissiontime = 0;
 
@@ -1931,6 +1934,11 @@ void CheckVote( void )
     level.voteExecuteTime = 0;
 
     trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
+    if( !Q_stricmp( level.voteString, "map_restart" ) ||
+        !Q_stricmpn( level.voteString, "map", 3 ) )
+    {
+      level.restarted = qtrue;
+    }
   }
 
   if( !level.voteTime )
