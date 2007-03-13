@@ -1005,16 +1005,26 @@ void G_admin_namelog_cleanup( )
   }
 }
 
-void G_admin_namelog_update( gclient_t *client, int clientNum )
+void G_admin_namelog_update( gclient_t *client, qboolean disconnect )
 {
   int i, j;
   g_admin_namelog_t *namelog;
   char n1[ MAX_NAME_LENGTH ];
   char n2[ MAX_NAME_LENGTH ];
+  int clientNum = ( client - level.clients );
 
   G_SanitiseName( client->pers.netname, n1 );
   for( i = 0; i < MAX_ADMIN_NAMELOGS && g_admin_namelog[ i ]; i++ )
   {
+    if( disconnect && g_admin_namelog[ i ]->slot != clientNum )
+      continue;
+
+    if( !disconnect && !( g_admin_namelog[ i ]->slot == clientNum ||
+                          g_admin_namelog[ i ]->slot == -1 ) )
+    {
+      continue;
+    }
+
     if( !Q_stricmp( client->pers.ip, g_admin_namelog[ i ]->ip )
       && !Q_stricmp( client->pers.guid, g_admin_namelog[ i ]->guid ) )
     {
@@ -1029,7 +1039,7 @@ void G_admin_namelog_update( gclient_t *client, int clientNum )
         j = MAX_ADMIN_NAMELOG_NAMES - 1;
       Q_strncpyz( g_admin_namelog[ i ]->name[ j ], client->pers.netname,
         sizeof( g_admin_namelog[ i ]->name[ j ] ) );
-      g_admin_namelog[ i ]->slot = clientNum;
+      g_admin_namelog[ i ]->slot = ( disconnect ) ? -1 : clientNum;
       return;
     }
   }
@@ -1046,7 +1056,7 @@ void G_admin_namelog_update( gclient_t *client, int clientNum )
   Q_strncpyz( namelog->guid, client->pers.guid, sizeof( namelog->guid ) );
   Q_strncpyz( namelog->name[ 0 ], client->pers.netname,
     sizeof( namelog->name[ 0 ] ) );
-  namelog->slot = clientNum;
+  namelog->slot = ( disconnect ) ? -1 : clientNum;
   g_admin_namelog[ i ] = namelog;
 }
 
@@ -1705,11 +1715,35 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
   {
     reason = G_SayConcatArgs( 3 + skiparg );
   }
- 
+
   for( i = 0; i < MAX_ADMIN_NAMELOGS && g_admin_namelog[ i ]; i++ )
   {
-    if( !Q_stricmp( g_admin_namelog[ i ]->ip, s2 ) 
-      || !Q_stricmp( va( "%d", g_admin_namelog[ i ]->slot ), s2 ) )
+    // skip players in the namelog who have already been banned
+    if( g_admin_namelog[ i ]->banned )
+      continue;
+
+    // skip disconnected players when banning on slot number
+    if( g_admin_namelog[ i ]->slot == -1 )
+      continue;
+
+    if( !Q_stricmp( va( "%d", g_admin_namelog[ i ]->slot ), s2 ) )
+    {
+      logmatches = 1;
+      logmatch = i;
+      exactmatch = qtrue;
+      break;
+    }
+  } 
+
+  for( i = 0;
+       !exactmatch && i < MAX_ADMIN_NAMELOGS && g_admin_namelog[ i ];
+       i++ )
+  {
+    // skip players in the namelog who have already been banned
+    if( g_admin_namelog[ i ]->banned )
+      continue;
+
+    if( !Q_stricmp( g_admin_namelog[ i ]->ip, s2 ) )
     {
       logmatches = 1;
       logmatch = i;
@@ -1781,6 +1815,9 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
     g_admin_namelog[ logmatch ]->guid,
     g_admin_namelog[ logmatch ]->ip,
     seconds, reason ); 
+
+  g_admin_namelog[ logmatch ]->banned = qtrue;
+
   if( !g_admin.string[ 0 ] )
     ADMP( "^3!ban: ^7WARNING g_admin not set, not saving ban to a file\n" );
   else

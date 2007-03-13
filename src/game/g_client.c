@@ -1049,7 +1049,7 @@ void ClientUserinfoChanged( int clientNum )
         " renamed to %s\n\"", oldname, client->pers.netname ) );
       G_LogPrintf( "ClientRename: %i [%s] (%s) \"%s\" -> \"%s\"\n", clientNum,
          client->pers.ip, client->pers.guid, oldname, client->pers.netname );
-      G_admin_namelog_update( client, clientNum );
+      G_admin_namelog_update( client, qfalse );
     }
   }
 
@@ -1259,7 +1259,7 @@ char *ClientConnect( int clientNum, qboolean firstTime )
 
   // count current clients and rank for scoreboard
   CalculateRanks( );
-  G_admin_namelog_update( client, clientNum );
+  G_admin_namelog_update( client, qfalse );
   return NULL;
 }
 
@@ -1311,7 +1311,7 @@ void ClientBegin( int clientNum )
   trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
 
   // name can change between ClientConnect() and ClientBegin()
-  G_admin_namelog_update( client, clientNum );
+  G_admin_namelog_update( client, qfalse );
 
   // request the clients PTR code
   trap_SendServerCommand( ent - g_entities, "ptrcrequest" );
@@ -1658,7 +1658,7 @@ void ClientDisconnect( int clientNum )
   if( !ent->client )
     return;
 
-  G_admin_namelog_update( ent->client, -1 );
+  G_admin_namelog_update( ent->client, qtrue );
 
   // stop any following clients
   for( i = 0; i < level.maxclients; i++ )

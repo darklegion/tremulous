@@ -125,10 +125,11 @@ g_admin_command_t;
 
 typedef struct g_admin_namelog
 {
-  char name[ MAX_ADMIN_NAMELOG_NAMES ][MAX_NAME_LENGTH ];
-  char ip[ 16 ];
-  char guid[ 33 ];
-  int slot;
+  char      name[ MAX_ADMIN_NAMELOG_NAMES ][MAX_NAME_LENGTH ];
+  char      ip[ 16 ];
+  char      guid[ 33 ];
+  int       slot;
+  qboolean  banned;
 }
 g_admin_namelog_t;
 
@@ -137,7 +138,7 @@ qboolean G_admin_cmd_check( gentity_t *ent, qboolean say );
 qboolean G_admin_readconfig( gentity_t *ent, int skiparg );
 qboolean G_admin_permission( gentity_t *ent, char flag );
 qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len );
-void G_admin_namelog_update( gclient_t *ent, int clientNum );
+void G_admin_namelog_update( gclient_t *ent, qboolean disconnect );
 int G_admin_level( gentity_t *ent );
 
 // ! command functions
