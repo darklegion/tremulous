@@ -627,6 +627,7 @@ typedef struct
 
   qboolean          reactorPresent;
   qboolean          overmindPresent;
+  qboolean          overmindMuted;
 
   int               humanBaseAttackTimer;
 

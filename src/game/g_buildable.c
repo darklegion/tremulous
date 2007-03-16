@@ -755,10 +755,11 @@ void AOvermind_Think( gentity_t *self )
 
     // just in case an egg finishes building after we tell overmind to stfu
     if( level.numAlienSpawns > 0 )
-      self->overmindSpawnsTimer = level.time; 
+      level.overmindMuted = qfalse;
 
     //low on spawns
-    if( level.numAlienSpawns <= 0 && level.time > self->overmindSpawnsTimer )
+    if( !level.overmindMuted && level.numAlienSpawns <= 0 &&
+        level.time > self->overmindSpawnsTimer )
     {
       qboolean haveBuilder = qfalse;
       gentity_t *builder;
@@ -779,8 +780,7 @@ void AOvermind_Think( gentity_t *self )
       }
       // aliens now know they have no eggs, but they're screwed, so stfu
       if( !haveBuilder || G_TimeTilSuddenDeath( ) <= 0 )
-        self->overmindSpawnsTimer = level.startTime +
-          ( g_timelimit.integer * 60000 );
+        level.overmindMuted = qtrue;
     }
 
     //overmind dying
