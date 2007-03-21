@@ -138,7 +138,7 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
   vec3_t                  attachmentPoint, attachmentVelocity;
   vec3_t                  transform[ 3 ];
 
-  for( i = 0; i < MAX_PARTICLES; i++ )
+  for( i = 0; i < MAX_PARTICLES - 1 ; i++ )
   {
     p = &particles[ i ];
 
