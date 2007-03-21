@@ -326,6 +326,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 //=====================================================================
 
 int cl_connectedToPureServer;
+int cl_connectedToCheatServer;
 
 /*
 ==================
@@ -356,7 +357,8 @@ void CL_SystemInfoChanged( void ) {
 	}
 
 	s = Info_ValueForKey( systemInfo, "sv_cheats" );
-	if ( atoi(s) == 0 ) {
+	cl_connectedToCheatServer = atoi( s );
+	if ( !cl_connectedToCheatServer ) {
 		Cvar_SetCheatState();
 	}
 

@@ -159,7 +159,7 @@ void		NET_Restart( void );
 void		NET_Config( qboolean enableNetworking );
 void		NET_FlushPacketQueue(void);
 void		NET_SendPacket (netsrc_t sock, int length, const void *data, netadr_t to);
-void		QDECL NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *format, ...);
+void		QDECL NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
 void		QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len );
 
 qboolean	NET_CompareAdr (netadr_t a, netadr_t b);
@@ -715,14 +715,14 @@ void		Info_Print( const char *s );
 
 void		Com_BeginRedirect (char *buffer, int buffersize, void (*flush)(char *));
 void		Com_EndRedirect( void );
-void 		QDECL Com_Printf( const char *fmt, ... );
-void 		QDECL Com_DPrintf( const char *fmt, ... );
-void 		QDECL Com_Error( int code, const char *fmt, ... );
+void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
+void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
+void 		QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 void 		Com_Quit_f( void );
 int			Com_EventLoop( void );
 int			Com_Milliseconds( void );	// will be journaled properly
 unsigned	Com_BlockChecksum( const void *buffer, int length );
-char		*Com_MD5File(const char *filename, int length);
+char		*Com_MD5File(const char *filename, int length, const char *prefix, int prefix_len);
 int			Com_HashKey(char *string, int maxlen);
 int			Com_Filter(char *filter, char *name, int casesensitive);
 int			Com_FilterPath(char *filter, char *name, int casesensitive);
@@ -978,7 +978,7 @@ void	*Sys_GetBotLibAPI( void *parms );
 
 char	*Sys_GetCurrentUser( void );
 
-void	QDECL Sys_Error( const char *error, ...);
+void	QDECL Sys_Error( const char *error, ...) __attribute__ ((format (printf, 1, 2)));
 void	Sys_Quit (void);
 char	*Sys_GetClipboardData( void );	// note that this isn't journaled...
 
@@ -989,6 +989,8 @@ void	Sys_Print( const char *msg );
 int		Sys_Milliseconds (void);
 
 void	Sys_SnapVector( float *v );
+
+qboolean Sys_RandomBytes( byte *string, int len );
 
 // the system console is shown when a dedicated server is running
 void	Sys_DisplaySystemConsole( qboolean show );

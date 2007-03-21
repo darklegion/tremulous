@@ -10,7 +10,7 @@
  *  GPL release of Quake 3.
  *
  * Written by Ryan C. Gordon (icculus@icculus.org). Please refer to
- *    http://icculus.org/quake3/ for the latest version of this code.
+ *    http://ioquake3.org/ for the latest version of this code.
  *
  *  Patches and comments are welcome at the above address.
  *
@@ -226,6 +226,9 @@ static const char *XLateKey(SDL_keysym *keysym, int *key)
   case SDLK_F10:    *key = K_F10;      break;
   case SDLK_F11:    *key = K_F11;      break;
   case SDLK_F12:    *key = K_F12;      break;
+  case SDLK_F13:    *key = K_F13;      break;
+  case SDLK_F14:    *key = K_F14;      break;
+  case SDLK_F15:    *key = K_F15;      break;
 
     // bk001206 - from Ryan's Fakk2 
   case SDLK_BACKSPACE: *key = K_BACKSPACE; break; // ctrl-h
@@ -244,15 +247,35 @@ static const char *XLateKey(SDL_keysym *keysym, int *key)
   case SDLK_RALT:
   case SDLK_LALT: *key = K_ALT;     break;
 
+  case SDLK_LSUPER:
+  case SDLK_RSUPER: *key = K_SUPER; break;
+
   case SDLK_KP5: *key = K_KP_5;  break;
   case SDLK_INSERT:   *key = K_INS; break;
   case SDLK_KP0: *key = K_KP_INS; break;
-  case SDLK_KP_MULTIPLY: *key = '*'; break;
+  case SDLK_KP_MULTIPLY: *key = K_KP_STAR; break;
   case SDLK_KP_PLUS:  *key = K_KP_PLUS; break;
   case SDLK_KP_MINUS: *key = K_KP_MINUS; break;
   case SDLK_KP_DIVIDE: *key = K_KP_SLASH; break;
 
-  default: break;
+  case SDLK_MODE: *key = K_MODE; break;
+  case SDLK_COMPOSE: *key = K_COMPOSE; break;
+  case SDLK_HELP: *key = K_HELP; break;
+  case SDLK_PRINT: *key = K_PRINT; break;
+  case SDLK_SYSREQ: *key = K_SYSREQ; break;
+  case SDLK_BREAK: *key = K_BREAK; break;
+  case SDLK_MENU: *key = K_MENU; break;
+  case SDLK_POWER: *key = K_POWER; break;
+  case SDLK_EURO: *key = K_EURO; break;
+  case SDLK_UNDO: * key = K_UNDO; break;
+  case SDLK_SCROLLOCK: *key = K_SCROLLOCK; break;
+  case SDLK_NUMLOCK: *key = K_KP_NUMLOCK; break;
+  case SDLK_CAPSLOCK: *key = K_CAPSLOCK; break;
+
+  default:
+    if (keysym->sym >= SDLK_WORLD_0 && keysym->sym <= SDLK_WORLD_95)
+        *key = (keysym->sym - SDLK_WORLD_0) + K_WORLD_0;
+    break;
   } 
 
   if( keysym->unicode <= 127 )  // maps to ASCII?
@@ -268,8 +291,8 @@ static const char *XLateKey(SDL_keysym *keysym, int *key)
     //else if (ch >= 'A' && ch <= 'Z')
     //  ch = ch - 'A' + 'a';
 
-    // tjw: translate K_BACKSPACE to ctrl-h for MACOS_X (others?)
-    if (ch == K_BACKSPACE)
+    // translate K_BACKSPACE to ctrl-h for MACOS_X (others?)
+    if (ch == K_BACKSPACE && keysym->sym != SDLK_DELETE)
     {
       *key = 'h' - 'a' + 1;
       buf[0] = *key;

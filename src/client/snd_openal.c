@@ -43,7 +43,6 @@ cvar_t *s_alGraceDistance;
 cvar_t *s_alDriver;
 cvar_t *s_alDevice;
 cvar_t *s_alAvailableDevices;
-cvar_t *s_alMaxSpeakerDistance;
 
 /*
 =================
@@ -531,15 +530,13 @@ Adapt the gain if necessary to get a quicker fadeout when the source is too far 
 static void S_AL_ScaleGain(src_t *chksrc, vec3_t origin)
 {
 	float distance;
-
-	if(chksrc->local)
-		distance = VectorLength(origin);
-	else
+	
+	if(!chksrc->local)
 		distance = Distance(origin, lastListenerOrigin);
-
+		
 	// If we exceed a certain distance, scale the gain linearly until the sound
 	// vanishes into nothingness.
-	if((distance -= s_alMaxDistance->value) > 0)
+	if(!chksrc->local && (distance -= s_alMaxDistance->value) > 0)
 	{
 		float scaleFactor;
 
@@ -897,7 +894,7 @@ static qboolean S_AL_CheckInput(int entityNum, sfxHandle_t sfx)
 
 	if (sfx < 0 || sfx >= numSfx)
 	{
-		Com_Printf(S_COLOR_RED, "ERROR: S_AL_CheckInput: handle %i out of range\n", sfx);
+		Com_Printf(S_COLOR_RED "ERROR: S_AL_CheckInput: handle %i out of range\n", sfx);
                 return qtrue;
         }
 
@@ -914,11 +911,14 @@ Play a local (non-spatialized) sound effect
 static
 void S_AL_StartLocalSound(sfxHandle_t sfx, int channel)
 {
+	srcHandle_t src;
+	
 	if(S_AL_CheckInput(0, sfx))
 		return;
 
 	// Try to grab a source
-	srcHandle_t src = S_AL_SrcAlloc(SRCPRI_LOCAL, -1, channel);
+	src = S_AL_SrcAlloc(SRCPRI_LOCAL, -1, channel);
+	
 	if(src == -1)
 		return;
 
@@ -940,12 +940,13 @@ static
 void S_AL_StartSound( vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx )
 {
 	vec3_t sorigin;
+	srcHandle_t src;
 
 	if(S_AL_CheckInput(origin ? 0 : entnum, sfx))
 		return;
 
 	// Try to grab a source
-	srcHandle_t src = S_AL_SrcAlloc(SRCPRI_ONESHOT, entnum, entchannel);
+	src = S_AL_SrcAlloc(SRCPRI_ONESHOT, entnum, entchannel);
 	if(src == -1)
 		return;
 
@@ -1095,8 +1096,8 @@ void S_AL_AddRealLoopingSound( int entityNum, const vec3_t origin, const vec3_t 
 	// There are certain maps (*cough* Q3:TA mpterra*) that have large quantities
 	// of ET_SPEAKERS in the PVS at any given time. OpenAL can't cope with mixing
 	// large numbers of sounds, so this culls them by distance
-	if( DistanceSquared( origin, lastListenerOrigin ) > 
-			s_alMaxSpeakerDistance->value * s_alMaxSpeakerDistance->value )
+	if( DistanceSquared( origin, lastListenerOrigin ) > (s_alMaxDistance->value + s_alGraceDistance->value) *
+							    (s_alMaxDistance->value + s_alGraceDistance->value) )
 		return;
 
 	S_AL_SrcLoop(SRCPRI_AMBIENT, sfx, origin, velocity, entityNum);
@@ -1882,7 +1883,6 @@ qboolean S_AL_Init( soundInterface_t *si )
 	s_alMaxDistance = Cvar_Get("s_alMaxDistance", "1024", CVAR_CHEAT);
 	s_alRolloff = Cvar_Get( "s_alRolloff", "2", CVAR_CHEAT);
 	s_alGraceDistance = Cvar_Get("s_alGraceDistance", "512", CVAR_CHEAT);
-	s_alMaxSpeakerDistance = Cvar_Get( "s_alMaxSpeakerDistance", "1024", CVAR_ARCHIVE );
 
 	s_alDriver = Cvar_Get( "s_alDriver", ALDRIVER_DEFAULT, CVAR_ARCHIVE );
 

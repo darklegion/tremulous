@@ -398,8 +398,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 		if ( fragmentStart != chan->fragmentLength ) {
 			if ( showdrop->integer || showpackets->integer ) {
 				Com_Printf( "%s:Dropped a message fragment\n"
-				, NET_AdrToString( chan->remoteAddress )
-				, sequence);
+				, NET_AdrToString( chan->remoteAddress ));
 			}
 			// we can still keep the part that we have so far,
 			// so we don't need to clear chan->fragmentLength
@@ -716,7 +715,7 @@ void QDECL NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, const char *format, 
 	string[3] = -1;
 
 	va_start( argptr, format );
-	vsprintf( string+4, format, argptr );
+	Q_vsnprintf( string+4, sizeof(string)-4, format, argptr );
 	va_end( argptr );
 
 	// send the datagram

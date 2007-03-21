@@ -14,7 +14,7 @@
  *  positional audio, compliments of OpenAL...
  *
  * Written by Ryan C. Gordon (icculus@icculus.org). Please refer to
- *    http://icculus.org/quake3/ for the latest version of this code.
+ *    http://ioquake3.org/ for the latest version of this code.
  *
  *  Patches and comments are welcome at the above address.
  *
@@ -187,7 +187,7 @@ static void print_audiospec(const char *str, const SDL_AudioSpec *spec)
 	if( fmt ) {
 		Com_Printf( "  Format:   %s\n", fmt );
 	} else {
-		Com_Printf( "  Format:   " S_COLOR_RED "UNKNOWN\n", fmt );
+		Com_Printf( "  Format:   " S_COLOR_RED "UNKNOWN\n");
 	}
 
 	Com_Printf( "  Freq:     %d\n", (int) spec->freq );

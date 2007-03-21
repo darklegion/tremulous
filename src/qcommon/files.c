@@ -197,12 +197,20 @@ or configs will never get loaded from disk!
 
 */
 
-#define	DEMOGAME			"demota"
-
 // every time a new demo pk3 file is built, this checksum must be updated.
 // the easiest way to get it is to just run the game and see what it spits out
 #define	DEMO_PAK0_CHECKSUM	2985612116u
-#define	PAK0_CHECKSUM				1566731103u
+static const unsigned pak_checksums[] = {
+	1566731103u,
+	298122907u,
+	412165236u,
+	2991495316u,
+	1197932710u,
+	4087071573u,
+	3709064859u,
+	908855077u,
+	977125798u
+};
 
 // if this is defined, the executable positively won't work with any paks other
 // than the demo pak, even if productid is present.  This is only used for our
@@ -2477,7 +2485,6 @@ Sets fs_gamedir, adds the directory to the head of the path,
 then loads the zip headers
 ================
 */
-#define	MAX_PAKFILES	1024
 static void FS_AddGameDirectory( const char *path, const char *dir ) {
 	searchpath_t	*sp;
 	int				i;
@@ -2486,7 +2493,6 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 	char			*pakfile;
 	int				numfiles;
 	char			**pakfiles;
-	char			*sorted[MAX_PAKFILES];
 
 	// this fixes the case where fs_basepath is the same as fs_cdpath
 	// which happens on full installs
@@ -2515,20 +2521,11 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 
 	pakfiles = Sys_ListFiles( pakfile, ".pk3", NULL, &numfiles, qfalse );
 
-	// sort them so that later alphabetic matches override
-	// earlier ones.  This makes pak1.pk3 override pak0.pk3
-	if ( numfiles > MAX_PAKFILES ) {
-		numfiles = MAX_PAKFILES;
-	}
-	for ( i = 0 ; i < numfiles ; i++ ) {
-		sorted[i] = pakfiles[i];
-	}
-
-	qsort( sorted, numfiles, sizeof(char*), paksort );
+	qsort( pakfiles, numfiles, sizeof(char*), paksort );
 
 	for ( i = 0 ; i < numfiles ; i++ ) {
-		pakfile = FS_BuildOSPath( path, dir, sorted[i] );
-		if ( ( pak = FS_LoadZipFile( pakfile, sorted[i] ) ) == 0 )
+		pakfile = FS_BuildOSPath( path, dir, pakfiles[i] );
+		if ( ( pak = FS_LoadZipFile( pakfile, pakfiles[i] ) ) == 0 )
 			continue;
 		// store the game name for downloading
 		strcpy(pak->pakGamename, dir);

@@ -413,10 +413,10 @@ The cgame module is making a system call
 intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	switch( args[0] ) {
 	case CG_PRINT:
-		Com_Printf( "%s", VMA(1) );
+		Com_Printf( "%s", (const char*)VMA(1) );
 		return 0;
 	case CG_ERROR:
-		Com_Error( ERR_DROP, "%s", VMA(1) );
+		Com_Error( ERR_DROP, "%s", (const char*)VMA(1) );
 		return 0;
 	case CG_MILLISECONDS:
 		return Sys_Milliseconds();
@@ -726,7 +726,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 
 	default:
 	        assert(0); // bk010102
-		Com_Error( ERR_DROP, "Bad cgame system trap: %i", args[0] );
+		Com_Error( ERR_DROP, "Bad cgame system trap: %ld", (long int) args[0] );
 	}
 	return 0;
 }
@@ -773,6 +773,10 @@ void CL_InitCGame( void ) {
 	// use the lastExecutedServerCommand instead of the serverCommandSequence
 	// otherwise server commands sent just before a gamestate are dropped
 	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
+
+	// reset any CVAR_CHEAT cvars registered by cgame
+	if ( !cl_connectedToCheatServer )
+		Cvar_SetCheatState();
 
 	// we will send a usercmd this frame, which
 	// will cause the server to send us the first snapshot
