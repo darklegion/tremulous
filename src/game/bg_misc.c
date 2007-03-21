@@ -67,6 +67,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  creepTest;
     ASPAWN_CREEPSIZE,      //int       creepSize;
     qfalse,                //qboolean  dccTest;
+    qfalse,                //qboolean  transparentTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -102,6 +103,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qtrue,                 //qboolean  creepTest;
     BARRICADE_CREEPSIZE,   //int       creepSize;
     qfalse,                //qboolean  dccTest;
+    qfalse,                //qboolean  transparentTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -137,6 +139,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qtrue,                 //qboolean  creepTest;
     BOOSTER_CREEPSIZE,     //int       creepSize;
     qfalse,                //qboolean  dccTest;
+    qtrue,                 //qboolean  transparentTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -172,6 +175,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qtrue,                 //qboolean  creepTest;
     ACIDTUBE_CREEPSIZE,    //int       creepSize;
     qfalse,                //qboolean  dccTest;
+    qfalse,                //qboolean  transparentTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -207,6 +211,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qtrue,                 //qboolean  creepTest;
     HIVE_CREEPSIZE,        //int       creepSize;
     qfalse,                //qboolean  dccTest;
+    qfalse,                //qboolean  transparentTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -242,6 +247,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qtrue,                 //qboolean  creepTest;
     TRAPPER_CREEPSIZE,     //int       creepSize;
     qfalse,                //qboolean  dccTest;
+    qtrue,                 //qboolean  transparentTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -277,6 +283,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  creepTest;
     OVERMIND_CREEPSIZE,    //int       creepSize;
     qfalse,                //qboolean  dccTest;
+    qfalse,                //qboolean  transparentTest;
     qtrue                  //qboolean  reactorTest;
   },
   {
@@ -312,6 +319,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qtrue,                 //qboolean  creepTest;
     HOVEL_CREEPSIZE,       //int       creepSize;
     qfalse,                //qboolean  dccTest;
+    qfalse,                //qboolean  transparentTest;
     qtrue                  //qboolean  reactorTest;
   },
   {
@@ -347,6 +355,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
     qfalse,                //qboolean  dccTest;
+    qtrue,                 //qboolean  transparentTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -382,6 +391,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
     qfalse,                //qboolean  dccTest;
+    qtrue,                 //qboolean  transparentTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -419,6 +429,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
     qfalse,                //qboolean  dccTest;
+    qtrue,                 //qboolean  transparentTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -454,6 +465,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
     qtrue,                 //qboolean  dccTest;
+    qtrue,                 //qboolean  transparentTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -489,6 +501,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
     qfalse,                //qboolean  dccTest;
+    qfalse,                //qboolean  transparentTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -524,6 +537,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
     qfalse,                //qboolean  dccTest;
+    qfalse,                //qboolean  transparentTest;
     qfalse                 //qboolean  reactorTest;
   },
   {
@@ -559,6 +573,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
     qfalse,                //qboolean  dccTest;
+    qfalse,                //qboolean  transparentTest;
     qtrue                  //qboolean  reactorTest;
   },
   {
@@ -594,6 +609,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
     qfalse,                //qboolean  dccTest;
+    qfalse,                //qboolean  transparentTest;
     qfalse                 //qboolean  reactorTest;
   }
 };
@@ -1296,6 +1312,25 @@ BG_FindOverrideForBuildable
 static buildableAttributeOverrides_t *BG_FindOverrideForBuildable( int bclass )
 {
   return &bg_buildableOverrideList[ bclass ];
+}
+
+/*
+==============
+BG_FindTransparentTestForBuildable
+==============
+*/
+qboolean BG_FindTransparentTestForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+    {
+      return bg_buildableList[ i ].transparentTest;
+    }
+  }
+  return qfalse; 
 }
 
 /*

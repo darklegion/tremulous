@@ -788,7 +788,6 @@ static void CG_RegisterGraphics( void )
   //TA: building shaders
   cgs.media.greenBuildShader          = trap_R_RegisterShader("gfx/misc/greenbuild" );
   cgs.media.redBuildShader            = trap_R_RegisterShader("gfx/misc/redbuild" );
-  cgs.media.noPowerShader             = trap_R_RegisterShader("gfx/misc/nopower" );
   cgs.media.humanSpawningShader       = trap_R_RegisterShader("models/buildables/telenode/rep_cyl" );
 
   for( i = 0; i < 8; i++ )
@@ -824,6 +823,9 @@ static void CG_RegisterGraphics( void )
   cgs.media.alienBleedPS              = CG_RegisterParticleSystem( "alienBleedPS" );
   cgs.media.humanBleedPS              = CG_RegisterParticleSystem( "humanBleedPS" );
 
+  CG_BuildableStatusParse( "ui/assets/human/buildstat.cfg", &cgs.humanBuildStat );
+  CG_BuildableStatusParse( "ui/assets/alien/buildstat.cfg", &cgs.alienBuildStat );
+ 
   // register the inline models
   cgs.numInlineModels = trap_CM_NumInlineModels( );
 

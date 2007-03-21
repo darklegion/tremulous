@@ -1177,7 +1177,6 @@ typedef struct
   // buildable shaders
   qhandle_t   greenBuildShader;
   qhandle_t   redBuildShader;
-  qhandle_t   noPowerShader;
   qhandle_t   humanSpawningShader;
 
   // disconnect
@@ -1273,6 +1272,29 @@ typedef struct
   qhandle_t   upgradeClassIconShader;
 } cgMedia_t;
 
+typedef struct
+{
+  qhandle_t     frameShader;
+  qhandle_t     overlayShader;
+  qhandle_t     noPowerShader;
+  qhandle_t     markedShader;
+  vec4_t        healthSevereColor;
+  vec4_t        healthHighColor;
+  vec4_t        healthElevatedColor;
+  vec4_t        healthGuardedColor;
+  vec4_t        healthLowColor;
+  int           frameHeight;
+  int           frameWidth;
+  int           healthPadding;
+  int           overlayHeight;
+  int           overlayWidth;
+  float         verticalMargin;
+  float         horizontalMargin;
+  vec4_t        foreColor;
+  vec4_t        backColor;
+  qboolean      loaded;
+} buildStat_t;
+
 
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
@@ -1355,6 +1377,9 @@ typedef struct
   qboolean      sizingHud;
   void          *capturedItem;
   qhandle_t     activeCursor;
+
+  buildStat_t   alienBuildStat;
+  buildStat_t   humanBuildStat;
 
   // media
   cgMedia_t           media;
@@ -1598,6 +1623,7 @@ void        CG_Text_PaintChar( float x, float y, float width, float height, floa
 void        CG_DrawLoadingScreen( void );
 void        CG_UpdateMediaFraction( float newFract );
 void        CG_ResetPainBlend( void );
+void        CG_DrawField( float x, float y, int width, float cw, float ch, int value );
 
 //
 // cg_players.c
@@ -1618,6 +1644,7 @@ qboolean    CG_AtHighestClass( void );
 //
 void        CG_GhostBuildable( buildable_t buildable );
 void        CG_Buildable( centity_t *cent );
+void        CG_BuildableStatusParse( const char *filename, buildStat_t *bs );
 void        CG_DrawBuildableStatus( void );
 void        CG_InitBuildables( void );
 void        CG_HumanBuildableExplosion( vec3_t origin, vec3_t dir );

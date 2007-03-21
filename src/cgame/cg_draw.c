@@ -376,12 +376,12 @@ CG_DrawField
 Draws large numbers for status bar and powerups
 ==============
 */
-static void CG_DrawField( int x, int y, int width, int cw, int ch, int value )
+void CG_DrawField( float x, float y, int width, float cw, float ch, int value )
 {
   char  num[ 16 ], *ptr;
   int   l;
   int   frame;
-  int   charWidth, charHeight;
+  float charWidth, charHeight;
 
   if( !( charWidth = cw ) )
     charWidth = CHAR_WIDTH;
@@ -3294,11 +3294,11 @@ static void CG_Draw2D( void )
       !( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) && menu &&
       ( cg.snap->ps.stats[ STAT_HEALTH ] > 0 ) )
   {
+    CG_DrawBuildableStatus( );
     if( cg_drawStatus.integer )
       Menu_Paint( menu, qtrue );
 
     CG_DrawCrosshair( );
-    CG_DrawBuildableStatus( );
   }
   else if( cg_drawStatus.integer )
     Menu_Paint( defaultMenu, qtrue );
@@ -3508,5 +3508,6 @@ void CG_DrawActive( stereoFrame_t stereoView )
   // draw status bar and other floating elements
   CG_Draw2D( );
 }
+
 
 

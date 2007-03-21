@@ -1019,6 +1019,7 @@ typedef struct
   int       creepSize;
 
   qboolean  dccTest;
+  qboolean  transparentTest;
   qboolean  reactorTest;
 } buildableAttributes_t;
 
@@ -1146,6 +1147,7 @@ int       BG_FindCreepTestForBuildable( int bclass );
 int       BG_FindCreepSizeForBuildable( int bclass );
 int       BG_FindDCCTestForBuildable( int bclass );
 int       BG_FindUniqueTestForBuildable( int bclass );
+qboolean  BG_FindTransparentTestForBuildable( int bclass );
 void      BG_InitBuildableOverrides( void );
 
 int       BG_FindClassNumForName( char *name );

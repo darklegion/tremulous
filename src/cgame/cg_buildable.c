@@ -736,9 +736,145 @@ static void CG_BuildableParticleEffects( centity_t *cent )
   }
 }
 
-#define STATUS_FADE_TIME      200
-#define STATUS_MAX_VIEW_DIST  600.0f
 
+void CG_BuildableStatusParse( const char *filename, buildStat_t *bs )
+{
+  pc_token_t token;
+  int        handle;
+  const char *s;
+  int        i;
+  float      f;
+  vec4_t     c;
+
+  handle = trap_Parse_LoadSource( filename );
+  if( !handle )
+    return;
+  while( 1 )
+  {
+    if( !trap_Parse_ReadToken( handle, &token ) )
+      break;
+    if( !Q_stricmp( token.string, "frameShader" ) )
+    {
+      if( PC_String_Parse( handle, &s ) )
+        bs->frameShader = trap_R_RegisterShader( s );
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "overlayShader" ) )
+    {
+      if( PC_String_Parse( handle, &s ) )
+        bs->overlayShader = trap_R_RegisterShader( s );
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "noPowerShader" ) )
+    {
+      if( PC_String_Parse( handle, &s ) )
+        bs->noPowerShader = trap_R_RegisterShader( s );
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "markedShader" ) )
+    {
+      if( PC_String_Parse( handle, &s ) )
+        bs->markedShader = trap_R_RegisterShader( s );
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "healthSevereColor" ) )
+    {
+      if( PC_Color_Parse( handle, &c ) )
+        Vector4Copy( c, bs->healthSevereColor );
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "healthHighColor" ) )
+    {
+      if( PC_Color_Parse( handle, &c ) )
+        Vector4Copy( c, bs->healthHighColor );
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "healthElevatedColor" ) )
+    {
+      if( PC_Color_Parse( handle, &c ) )
+        Vector4Copy( c, bs->healthElevatedColor );
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "healthGuardedColor" ) )
+    {
+      if( PC_Color_Parse( handle, &c ) )
+        Vector4Copy( c, bs->healthGuardedColor );
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "healthLowColor" ) )
+    {
+      if( PC_Color_Parse( handle, &c ) )
+        Vector4Copy( c, bs->healthLowColor );
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "foreColor" ) )
+    {
+      if( PC_Color_Parse( handle, &c ) )
+        Vector4Copy( c, bs->foreColor );
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "backColor" ) )
+    {
+      if( PC_Color_Parse( handle, &c ) )
+        Vector4Copy( c, bs->backColor );
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "frameHeight" ) )
+    {
+      if( PC_Int_Parse( handle, &i ) )
+        bs->frameHeight = i;
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "frameWidth" ) )
+    {
+      if( PC_Int_Parse( handle, &i ) )
+        bs->frameWidth = i;
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "healthPadding" ) )
+    {
+      if( PC_Int_Parse( handle, &i ) )
+        bs->healthPadding = i;
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "overlayHeight" ) )
+    {
+      if( PC_Int_Parse( handle, &i ) )
+        bs->overlayHeight = i;
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "overlayWidth" ) )
+    {
+      if( PC_Int_Parse( handle, &i ) )
+        bs->overlayWidth = i;
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "verticalMargin" ) )
+    {
+      if( PC_Float_Parse( handle, &f ) )
+        bs->verticalMargin = f;
+      continue;
+    }
+    else if( !Q_stricmp( token.string, "horizontalMargin" ) )
+    {
+      if( PC_Float_Parse( handle, &f ) )
+        bs->horizontalMargin = f;
+      continue;
+    }
+    else
+    {
+      Com_Printf("CG_BuildableStatusParse: unknown token %s in %s\n",
+        token.string, filename );
+      bs->loaded = qfalse;
+      return;
+    }
+  }
+  bs->loaded = qtrue;
+}
+
+#define STATUS_FADE_TIME      200
+#define STATUS_MAX_VIEW_DIST  900.0f
+#define STATUS_PEEK_DIST      20
 /*
 ==================
 CG_BuildableStatusDisplay
@@ -751,25 +887,104 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
   float           healthScale;
   int             health;
   float           x, y;
-  char            s[ MAX_STRING_CHARS ] = { 0 };
-  int             w;
-  vec4_t          color = { 1.0f, 1.0f, 1.0f, 1.0f };
+  vec4_t          color;
   qboolean        powered, marked;
   trace_t         tr;
   float           d;
+  buildStat_t     *bs;
+  int             i, j;
+  int             entNum;
+  vec3_t          trOrigin;
+  vec3_t          right;
+  qboolean        visible = qfalse;
+  vec3_t          mins, maxs;
+  entityState_t   *hit;
 
-  CG_Trace( &tr, cent->lerpOrigin, NULL, NULL, cg.refdef.vieworg,
-            cent->currentState.number, MASK_SOLID );
+  if( BG_FindTeamForBuildable( es->modelindex ) == BIT_ALIENS )
+    bs = &cgs.alienBuildStat;
+  else
+    bs = &cgs.humanBuildStat;
+
+  if( !bs->loaded )
+    return;
+  
   d = Distance( cent->lerpOrigin, cg.refdef.vieworg );
+  if( d > STATUS_MAX_VIEW_DIST )
+    return;
+ 
+  Vector4Copy( bs->foreColor, color );
 
-  if( ( tr.fraction < 1.0f || d > STATUS_MAX_VIEW_DIST ) &&
-      cent->buildableStatus.visible )
+  // trace for center point 
+  BG_FindBBoxForBuildable( es->modelindex, mins, maxs );
+
+  VectorCopy( cent->lerpOrigin, origin );
+
+  // center point
+  origin[ 2 ] += mins[ 2 ];
+  origin[ 2 ] += ( abs( mins[ 2 ] ) + abs( maxs[ 2 ] ) ) / 2;
+
+  entNum = cg.predictedPlayerState.clientNum;
+
+  // if first try fails, step left, step right
+  for( j = 0; j < 3; j++ )
+  {
+    VectorCopy( cg.refdef.vieworg, trOrigin );
+    switch( j )
+    {
+      case 1:
+        // step right
+        AngleVectors( cg.refdefViewAngles, NULL, right, NULL );
+        VectorMA( trOrigin, STATUS_PEEK_DIST, right, trOrigin );
+        break;
+      case 2:
+        // step left
+        AngleVectors( cg.refdefViewAngles, NULL, right, NULL );
+        VectorMA( trOrigin, -STATUS_PEEK_DIST, right, trOrigin );
+        break;
+      default:
+        break;
+    }
+    // look through up to 3 players and/or transparent buildables
+    for( i = 0; i < 3; i++ )
+    {
+      CG_Trace( &tr, trOrigin, NULL, NULL, origin, entNum, MASK_SHOT );
+      if( tr.entityNum == cent->currentState.number )
+      {
+        visible = qtrue;
+        break;
+      }
+
+      if( tr.entityNum == ENTITYNUM_WORLD )
+        break;
+
+      hit  = &cg_entities[ tr.entityNum ].currentState;
+
+      if( tr.entityNum < MAX_CLIENTS || ( hit->eType == ET_BUILDABLE &&
+          ( !( es->generic1 & B_SPAWNED_TOGGLEBIT ) ||
+            BG_FindTransparentTestForBuildable( hit->modelindex ) ) ) )
+      {
+        entNum = tr.entityNum;
+        VectorCopy( tr.endpos, trOrigin );
+      }
+      else
+        break;
+    }
+  }
+  // hack to make the kit obscure view
+  if( cg_drawGun.integer && visible &&
+      cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+      CG_WorldToScreen( origin, &x, &y ) )
+  {
+    if( x > 450 && y > 290 )
+      visible = qfalse;
+  }
+
+  if( !visible && cent->buildableStatus.visible )
   {
     cent->buildableStatus.visible   = qfalse;
     cent->buildableStatus.lastTime  = cg.time;
   }
-  else if( ( tr.fraction == 1.0f && d <= STATUS_MAX_VIEW_DIST ) &&
-           !cent->buildableStatus.visible )
+  else if( visible && !cent->buildableStatus.visible )
   {
     cent->buildableStatus.visible   = qtrue;
     cent->buildableStatus.lastTime  = cg.time;
@@ -794,31 +1009,150 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
   health = es->generic1 & B_HEALTH_MASK;
   healthScale = (float)health / B_HEALTH_MASK;
 
-  if( healthScale < 0.0f )
+  if( health > 0 && healthScale < 0.01f )
+    healthScale = 0.01f;
+  else if( healthScale < 0.0f )
     healthScale = 0.0f;
   else if( healthScale > 1.0f )
     healthScale = 1.0f;
 
-  VectorCopy( cent->lerpOrigin, origin );
-
   if( CG_WorldToScreen( origin, &x, &y ) )
   {
+    float  picH = bs->frameHeight;
+    float  picW = bs->frameWidth;
+    float  picX = x;
+    float  picY = y;
+    float  scale;
+    float  subH, subY;
+    vec4_t frameColor;
+
+    // this is fudged to get the width/height in the cfg to be more realistic
+    scale = ( picH / d ) * 3;
+
     powered = es->generic1 & B_POWERED_TOGGLEBIT;
     marked = es->generic1 & B_MARKED_TOGGLEBIT;
 
-    //FIXME: crappy mock-up for the time being...
-    Com_sprintf( s, MAX_STRING_CHARS, "%d%%", (int)(healthScale * 100) );
+    picH *= scale;
+    picW *= scale;
+    picX -= ( picW * 0.5f );
+    picY -= ( picH * 0.5f );
 
-    if( BG_FindTeamForBuildable( es->modelindex ) == BIT_HUMANS && !powered )
-      Q_strcat( s, MAX_STRING_CHARS, " P" );
+    // sub-elements such as icons and number
+    subH = picH - ( picH * bs->verticalMargin );
+    subY = picY + ( picH * 0.5f ) - ( subH * 0.5f );
+
+    if( bs->frameShader )
+    {
+      Vector4Copy( bs->backColor, frameColor );
+      frameColor[ 3 ] = color[ 3 ];
+      trap_R_SetColor( frameColor );
+      CG_DrawPic( picX, picY, picW, picH, bs->frameShader );
+      trap_R_SetColor( NULL );
+    }
+
+    if( health > 0 )
+    {
+      float hX, hY, hW, hH;
+      vec4_t healthColor;
+
+      hX = picX + ( bs->healthPadding * scale );
+      hY = picY + ( bs->healthPadding * scale );
+      hH = picH - ( bs->healthPadding * 2.0f * scale );
+      hW = picW * healthScale - ( bs->healthPadding * 2.0f * scale );
+
+      if( healthScale == 1.0f )
+        Vector4Copy( bs->healthLowColor, healthColor );
+      else if( healthScale >= 0.75f )
+        Vector4Copy( bs->healthGuardedColor, healthColor );
+      else if( healthScale >= 0.50f )
+        Vector4Copy( bs->healthElevatedColor, healthColor );
+      else if( healthScale >= 0.25f )
+        Vector4Copy( bs->healthHighColor, healthColor );
+      else
+        Vector4Copy( bs->healthSevereColor, healthColor );
+
+      healthColor[ 3 ] = color[ 3 ];
+      trap_R_SetColor( healthColor );
+     
+      CG_DrawPic( hX, hY, hW, hH, cgs.media.whiteShader );
+      trap_R_SetColor( NULL );
+    }
+
+    if( bs->overlayShader )
+    {
+      float oW = bs->overlayWidth;
+      float oH = bs->overlayHeight;
+      float oX = x;
+      float oY = y;
+
+      oH *= scale;
+      oW *= scale;
+      oX -= ( oW * 0.5f );
+      oY -= ( oH * 0.5f );
+ 
+      trap_R_SetColor( frameColor );
+      CG_DrawPic( oX, oY, oW, oH, bs->overlayShader );
+      trap_R_SetColor( NULL );
+    }
+
+    trap_R_SetColor( color );
+    if( !powered )
+    {
+      float pX;
+
+      pX = picX + ( subH * bs->horizontalMargin );
+      CG_DrawPic( pX, subY, subH, subH, bs->noPowerShader );
+    }
 
     if( marked )
-      Q_strcat( s, MAX_STRING_CHARS, " X" );
+    {
+      float mX;
 
-    w = CG_Text_Width( s, 0.5f, 0 );
+      mX = picX + picW - ( subH * bs->horizontalMargin ) - subH;
+      CG_DrawPic( mX, subY, subH, subH, bs->markedShader );
+    }
 
-    CG_Text_Paint( x - w / 2, y, 0.5f, color, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
+    {
+      float nX;
+      int healthMax;
+      int healthPoints;
+
+      healthMax = BG_FindHealthForBuildable( es->modelindex );
+      healthPoints = (int)( healthScale * healthMax );
+      if( health > 0 && healthPoints < 1 )
+        healthPoints = 1;
+      nX = picX + ( picW * 0.5f ) - 2.0f - ( ( subH * 4 ) * 0.5f ); 
+       
+      if( healthPoints > 999 )
+        nX -= 0.0f;
+      else if( healthPoints > 99 )
+        nX -= subH * 0.5f;
+      else if( healthPoints > 9 )
+        nX -= subH * 1.0f;
+      else
+        nX -= subH * 1.5f;
+     
+      CG_DrawField( nX, subY, 4, subH, subH, healthPoints );
+    }
+    trap_R_SetColor( NULL );
   }
+}
+
+static int QDECL CG_SortDistance( const void *a, const void *b )
+{
+  centity_t    *aent, *bent;
+  float        adist, bdist;
+
+  aent = &cg_entities[ *(int *)a ];
+  bent = &cg_entities[ *(int *)b ];
+  adist = Distance( cg.refdef.vieworg, aent->lerpOrigin );
+  bdist = Distance( cg.refdef.vieworg, bent->lerpOrigin );
+  if( adist > bdist )
+    return -1;
+  else if( adist < bdist )
+    return 1;
+  else
+    return 0;
 }
 
 /*
@@ -831,6 +1165,8 @@ void CG_DrawBuildableStatus( void )
   int             i;
   centity_t       *cent;
   entityState_t   *es;
+  int             buildableList[ MAX_ENTITIES_IN_SNAPSHOT ];
+  int             buildables = 0;
 
   switch( cg.predictedPlayerState.weapon )
   {
@@ -846,8 +1182,11 @@ void CG_DrawBuildableStatus( void )
         if( es->eType == ET_BUILDABLE &&
             BG_FindTeamForBuildable( es->modelindex ) ==
             BG_FindTeamForWeapon( cg.predictedPlayerState.weapon ) )
-          CG_BuildableStatusDisplay( cent );
+          buildableList[ buildables++ ] = cg.snap->entities[ i ].number;
       }
+      qsort( buildableList, buildables, sizeof( int ), CG_SortDistance );
+      for( i = 0; i < buildables; i++ )
+          CG_BuildableStatusDisplay( &cg_entities[ buildableList[ i ] ] );
       break;
 
     default:

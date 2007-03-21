@@ -908,6 +908,9 @@ Think function for Alien Barricade
 */
 void ABarricade_Think( gentity_t *self )
 {
+
+  self->powered = G_IsOvermindBuilt( );
+
   //if there is no creep nearby die
   if( !G_FindCreep( self ) )
   {
@@ -980,6 +983,8 @@ void AAcidTube_Think( gentity_t *self )
   int       i, num;
   gentity_t *enemy;
 
+  self->powered = G_IsOvermindBuilt( );
+
   VectorAdd( self->s.origin, range, maxs );
   VectorSubtract( self->s.origin, range, mins );
 
@@ -1040,6 +1045,8 @@ void AHive_Think( gentity_t *self )
   int       i, num;
   gentity_t *enemy;
   vec3_t    dirToTarget;
+
+  self->powered = G_IsOvermindBuilt( );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 
@@ -1245,6 +1252,7 @@ Think for alien hovel
 */
 void AHovel_Think( gentity_t *self )
 {
+  self->powered = G_IsOvermindBuilt( );
   if( self->spawned )
   {
     if( self->active )
@@ -1516,6 +1524,8 @@ void ATrapper_Think( gentity_t *self )
 {
   int range =     BG_FindRangeForBuildable( self->s.modelindex );
   int firespeed = BG_FindFireSpeedForBuildable( self->s.modelindex );
+
+  self->powered = G_IsOvermindBuilt( );
 
   G_CreepSlow( self );
 
@@ -2305,8 +2315,8 @@ void HSpawn_Think( gentity_t *self )
 {
   gentity_t *ent;
 
-  //make sure we have power
-  self->powered = G_FindPower( self );
+  // spawns work without power
+  self->powered = qtrue;
 
   if( self->spawned )
   {
@@ -3218,7 +3228,12 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   if( built->s.generic1 < 0 )
     built->s.generic1 = 0;
 
-  if( ( built->powered = G_FindPower( built ) ) )
+  if( BG_FindTeamForBuildable( built->s.modelindex ) == PTE_ALIENS )
+  {
+    built->powered = qtrue;
+    built->s.generic1 |= B_POWERED_TOGGLEBIT;
+  }
+  else if( ( built->powered = G_FindPower( built ) ) )
     built->s.generic1 |= B_POWERED_TOGGLEBIT;
 
   if( ( built->dcced = G_FindDCC( built ) ) )
