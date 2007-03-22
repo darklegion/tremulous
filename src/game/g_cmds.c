@@ -680,7 +680,7 @@ void Cmd_Team_f( gentity_t *ent )
     if( level.alienTeamLocked )
     {
       trap_SendServerCommand( ent-g_entities,
-        va( "print \"Alien team has been ^1LOCKED\n\"", s ) );
+        va( "print \"Alien team has been ^1LOCKED\n\"" ) );
       return; 
     }
     else if( level.humanTeamLocked )
@@ -703,7 +703,7 @@ void Cmd_Team_f( gentity_t *ent )
     if( level.humanTeamLocked )
     {
       trap_SendServerCommand( ent-g_entities,
-        va( "print \"Human team has been ^1LOCKED\n\"", s ) );
+        va( "print \"Human team has been ^1LOCKED\n\"" ) );
       return; 
     }
     else if( level.alienTeamLocked )
@@ -834,7 +834,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
         Com_sprintf( prefix, sizeof( prefix ), "[H] ");
     }
   else
-    Com_sprintf( prefix, sizeof( prefix ), "");
+    prefix[ 0 ] = '\0';
 
   switch( mode )
   {
