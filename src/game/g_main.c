@@ -1314,7 +1314,8 @@ void CalculateRanks( void )
         }
       }
 
-      if( level.clients[ i ].sess.sessionTeam != TEAM_SPECTATOR )
+      if( level.clients[ i ].pers.teamSelection == PTE_HUMANS ||
+          level.clients[ i ].pers.teamSelection == PTE_ALIENS )
       {
         level.numNonSpectatorClients++;
 
@@ -1324,9 +1325,9 @@ void CalculateRanks( void )
           level.numPlayingClients++;
           level.numVotingClients++;
 
-          if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+          if( level.clients[ i ].pers.teamSelection == PTE_HUMANS )
             level.numteamVotingClients[ 0 ]++;
-          else if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+          else if( level.clients[ i ].pers.teamSelection == PTE_ALIENS )
             level.numteamVotingClients[ 1 ]++;
 
           if( level.follow1 == -1 )
