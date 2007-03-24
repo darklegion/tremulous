@@ -809,32 +809,34 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
 {
-  int     j;
-  gentity_t *other;
-  int     color;
-  char    prefix[ 5 ];
-  char    name[ 64 ];
+  int         j;
+  gentity_t   *other;
+  int         color;
+  const char  *prefix;
+  char        name[ 64 ];
   // don't let text be too long for malicious reasons
-  char    text[ MAX_SAY_TEXT ];
-  char    location[ 64 ];
+  char        text[ MAX_SAY_TEXT ];
+  char        location[ 64 ];
 
   if (g_chatTeamPrefix.integer)
+  {
     switch( ent->client->pers.teamSelection)
     {
       default:
       case PTE_NONE:
-        Com_sprintf( prefix, sizeof( prefix ), "[S] ");
+        prefix = "[S] ";
         break;
 
       case PTE_ALIENS:
-        Com_sprintf( prefix, sizeof( prefix ), "[A] ");
+        prefix = "[A] ";
         break;
 
       case PTE_HUMANS:
-        Com_sprintf( prefix, sizeof( prefix ), "[H] ");
+        prefix = "[H] ";
     }
+  }
   else
-    prefix[ 0 ] = '\0';
+    prefix = "";
 
   switch( mode )
   {
