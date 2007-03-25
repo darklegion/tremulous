@@ -1607,13 +1607,55 @@ double fabs( double x )
   return x < 0 ? -x : x;
 }
 
+unsigned int _hextoi( const char **stringPtr )
+{
+  unsigned int value;
+  int          c;
+  int          i;
+  const char   *string;
+ 
+  string = *stringPtr;
+ 
+  // skip whitespace
+  while( *string <= ' ' )
+  {
+    if( !*string )
+      return 0;
 
+    string++;
+  }
+
+  value = 0;
+  i = 0;
+  while( i++ < 8 && ( c = *string++ ) )
+  {
+    if ( c >= '0' && c <= '9' )
+    {
+      value = value * 16 + c - '0';
+      continue;
+    }
+    else if ( c >= 'a' && c <= 'f' )
+    {
+      value = value * 16 + 10 + c - 'a';
+      continue;
+    }
+    else if ( c >= 'A' && c <= 'F' )
+    {
+      value = value * 16 + 10 + c - 'A';
+      continue;
+    }
+    else
+      break;
+  }
+  *stringPtr = string;
+  return value;
+}
 
 //=========================================================
 
 
 #define ALT       0x00000001    /* alternate form */
-#define HEXPREFIX 0x00000002    /* add 0x or 0X prefix */
+#define HEX       0x00000002    /* hexadecimal  */
 #define LADJUST   0x00000004    /* left adjustment */
 #define LONGDBL   0x00000008    /* long double */
 #define LONGINT   0x00000010    /* long integer */
@@ -1630,22 +1672,40 @@ void AddInt( char **buf_p, int val, int width, int flags )
 {
   char  text[ 32 ];
   int   digits;
-  int   signedVal;
   char  *buf;
 
   digits = 0;
-  signedVal = val;
-  if( val < 0 )
-    val = -val;
 
-  do
+  if( flags & HEX )
   {
-    text[ digits++ ] = '0' + val % 10;
-    val /= 10;
-  } while( val );
+    char c;
+    int n = 0;
 
-  if( signedVal < 0 )
-    text[ digits++ ] = '-';
+    while( n < 32 )
+    {
+      c = "0123456789abcdef"[ ( val >> n ) & 0xF ];
+      n += 4;
+      if( c == '0' && !digits )
+        continue;    
+      text[ digits++ ] = c;
+    }
+    text[ digits ] = '\0';
+  }
+  else
+  {
+    int   signedVal = val;
+
+    if( val < 0 )
+      val = -val;
+    do
+    {
+      text[ digits++ ] = '0' + val % 10;
+      val /= 10;
+    } while( val );
+
+    if( signedVal < 0 )
+      text[ digits++ ] = '-';
+  }
 
   buf = *buf_p;
 
@@ -1902,6 +1962,12 @@ reswitch:
         AddVec3_t( &buf_p, (vec_t *)*arg, width, prec );
         arg++;
         break;
+      
+      case 'x':
+        flags |= HEX;
+        AddInt( &buf_p, *arg, width, prec );
+        arg++;
+        break;
 
       case '%':
         *buf_p++ = ch;
@@ -1950,6 +2016,9 @@ int sscanf( const char *buffer, const char *fmt, ... )
         break;
       case 'f':
         *(float *)*arg = _atof( &buffer );
+        break;
+      case 'x':
+        **arg = _hextoi( &buffer );
         break;
     }
 
