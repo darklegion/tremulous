@@ -46,14 +46,15 @@ void G_WriteClientSessionData( gclient_t *client )
   const char  *s;
   const char  *var;
 
-  s = va( "%i %i %i %i %i %i %i",
+  s = va( "%i %i %i %i %i %i %i %s",
     client->sess.sessionTeam,
     client->sess.spectatorTime,
     client->sess.spectatorState,
     client->sess.spectatorClient,
     client->sess.wins,
     client->sess.losses,
-    client->sess.teamLeader
+    client->sess.teamLeader,
+    BG_ClientListString( &client->sess.ignoreList )
     );
 
   var = va( "session%i", client - level.clients );
@@ -81,16 +82,19 @@ void G_ReadSessionData( gclient_t *client )
   var = va( "session%i", client - level.clients );
   trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-  sscanf( s, "%i %i %i %i %i %i %i",
+  // FIXME: should be using BG_ClientListParse() for ignoreList, but
+  //        bg_lib.c's sscanf() currently lacks %s
+  sscanf( s, "%i %i %i %i %i %i %i %x%x",
     &sessionTeam,
     &client->sess.spectatorTime,
     &spectatorState,
     &client->sess.spectatorClient,
     &client->sess.wins,
     &client->sess.losses,
-    &teamLeader
+    &teamLeader,
+    &client->sess.ignoreList.hi,
+    &client->sess.ignoreList.lo
     );
-
   // bk001205 - format issues
   client->sess.sessionTeam = (team_t)sessionTeam;
   client->sess.spectatorState = (spectatorState_t)spectatorState;
@@ -131,6 +135,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo )
   sess->spectatorState = SPECTATOR_FREE;
   sess->spectatorTime = level.time;
   sess->spectatorClient = -1;
+  memset( &sess->ignoreList, 0, sizeof( sess->ignoreList ) );
 
   G_WriteClientSessionData( client );
 }

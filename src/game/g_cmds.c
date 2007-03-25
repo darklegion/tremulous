@@ -777,6 +777,8 @@ G_Say
 */
 static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message )
 {
+  qboolean ignore = qfalse;
+
   if( !other )
     return;
 
@@ -800,8 +802,12 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
     // specs with ADMF_SPEC_ALLCHAT flag can see team chat
   }
 
-  trap_SendServerCommand( other-g_entities, va( "%s \"%s%c%c%s\"",
+  if( BG_ClientListTest( &other->client->sess.ignoreList, ent-g_entities ) )
+    ignore = qtrue;
+  
+  trap_SendServerCommand( other-g_entities, va( "%s \"%s%s%c%c%s\"",
     mode == SAY_TEAM ? "tchat" : "chat",
+    ( ignore ) ? "[skipnotify]" : "",
     name, Q_COLOR_ESCAPE, color, message ) );
 }
 
@@ -994,6 +1000,8 @@ void Cmd_CallVote_f( gentity_t *ent )
   int   i;
   char  arg1[ MAX_STRING_TOKENS ];
   char  arg2[ MAX_STRING_TOKENS ];
+  int   clientNum = -1;
+  char  name[ MAX_NETNAME ];
 
   if( !g_allowVote.integer )
   {
@@ -1017,12 +1025,6 @@ void Cmd_CallVote_f( gentity_t *ent )
     return;
   }
 
-  if( ent->client->pers.teamSelection == PTE_NONE )
-  {
-    trap_SendServerCommand( ent-g_entities, "print \"Not allowed to call a vote as spectator\n\"" );
-    return;
-  }
-
   // make sure it is a valid command to vote on
   trap_Argv( 1, arg1, sizeof( arg1 ) );
   trap_Argv( 2, arg2, sizeof( arg2 ) );
@@ -1040,74 +1042,108 @@ void Cmd_CallVote_f( gentity_t *ent )
     trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
   }
 
-  if( !Q_stricmp( arg1, "kick" ) )
+  // detect clientNum for partial name match votes
+  if( !Q_stricmp( arg1, "kick" ) ||
+    !Q_stricmp( arg1, "mute" ) ||
+    !Q_stricmp( arg1, "unmute" ) )
   {
-    int clientNum;
     int clientNums[ MAX_CLIENTS ] = { -1 };
     
     if( G_ClientNumbersFromString( arg2, clientNums ) == 1 )
     {
-      // there was one partial name match name was clientNum
+      // there was only one partial name match
       clientNum = clientNums[ 0 ]; 
     }
     else
     {
-      // look for an exact name match before bailing out
+      // look for an exact name match (sets clientNum to -1 if it fails) 
       clientNum = G_ClientNumberFromString( ent, arg2 );
-      if( clientNum == -1 )
-      {
-        trap_SendServerCommand( ent-g_entities,
-          "print \"callvote: invalid player\n\"" );
-        return;
-      }
     }
-    Q_strncpyz( arg1, "clientkick", sizeof( arg1 ) );
-    Q_strncpyz( arg2, va( "%d", clientNum ), sizeof( arg2 ) );
+
+    if( clientNum != -1 &&
+      level.clients[ clientNum ].pers.connected == CON_DISCONNECTED )
+    {
+      clientNum = -1;
+    }
+
+    if( clientNum != -1 )
+    {
+      Q_strncpyz( name, level.clients[ clientNum ].pers.netname,
+        sizeof( name ) );
+      Q_CleanStr( name );
+    }
   }
-
-  if( !Q_stricmp( arg1, "clientkick" ) )
+ 
+  if( !Q_stricmp( arg1, "kick" ) )
   {
-    char  kickee[ MAX_NETNAME ];
-    int   clientNum = 0;
-
-    //check arg2 is a number
-    for( i = 0; arg2[ i ]; i++ )
+    if( clientNum == -1 )
     {
-      if( arg2[ i ] < '0' || arg2[ i ] > '9' )
-      {
-        clientNum = -1;
-        break;
-      }
-    }
-
-    if( clientNum > -1 )
-      clientNum = atoi( arg2 );
-    if( clientNum >= 0 && clientNum < level.maxclients )
-    {
-      if( G_admin_permission( &g_entities[ clientNum ], ADMF_IMMUNITY ) )
-      {
-        trap_SendServerCommand( ent-g_entities,
-          "print \"callvote: admin is immune from vote kick\n\"" );
-        return;
-      }
-
-      if( level.clients[ clientNum ].pers.connected != CON_DISCONNECTED )
-      {
-        Q_strncpyz( kickee, level.clients[ clientNum ].pers.netname,
-          sizeof( kickee ) );
-        Q_CleanStr( kickee );
-        // use ip in case this player disconnects before the vote ends
-        Com_sprintf( level.voteString, sizeof( level.voteString ),
-          "!ban %s %d vote kick", level.clients[ clientNum ].pers.ip,
-          g_adminTempBan.integer + 1 );
-        Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ),
-          "Kick player \'%s\'", kickee );
-      }
-      else
-        return;
-    }
-    else
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callvote: invalid player\n\"" );
       return;
+    }
+
+    if( G_admin_permission( &g_entities[ clientNum ], ADMF_IMMUNITY ) )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callvote: admin is immune from vote kick\n\"" );
+      return;
+    }
+
+    // use ip in case this player disconnects before the vote ends
+    Com_sprintf( level.voteString, sizeof( level.voteString ),
+      "!ban %s %d vote kick", level.clients[ clientNum ].pers.ip,
+      g_adminTempBan.integer + 1 );
+    Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ),
+      "Kick player \'%s\'", name );
+  }
+  else if( !Q_stricmp( arg1, "mute" ) )
+  {
+  
+    if( clientNum == -1 )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callvote: invalid player\n\"" );
+      return;
+    }
+    
+    if( level.clients[ clientNum ].pers.muted )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callvote: player is already muted\n\"" );
+      return;
+    }
+
+    if( G_admin_permission( &g_entities[ clientNum ], ADMF_IMMUNITY ) )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callvote: admin is immune from vote mute\n\"" );
+      return;
+    }
+    Com_sprintf( level.voteString, sizeof( level.voteString ),
+      "!mute %i", clientNum );
+    Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ),
+      "Mute player \'%s\'", name );
+  }
+  else if( !Q_stricmp( arg1, "unmute" ) )
+  {
+  
+    if( clientNum == -1 )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callvote: invalid player\n\"" );
+      return;
+    }
+    if( !level.clients[ clientNum ].pers.muted )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callvote: player is not currently muted\n\"" );
+      return;
+    }
+    Com_sprintf( level.voteString, sizeof( level.voteString ),
+      "!unmute %i", clientNum );
+    Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ),
+      "Un-Mute player \'%s\'", name );
   }
   else if( !Q_stricmp( arg1, "map_restart" ) )
   {
@@ -1126,19 +1162,19 @@ void Cmd_CallVote_f( gentity_t *ent )
 
     Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 );
     Com_sprintf( level.voteDisplayString,
-        sizeof( level.voteDisplayString ), "Change to map \'%s\'", arg2 );
+        sizeof( level.voteDisplayString ), "Change to map '%s'", arg2 );
   }
-  else if( !Q_stricmp( arg1, "nextmap" ) )
+  else if( !Q_stricmp( arg1, "draw" ) )
   {
-    Com_sprintf( level.voteString, sizeof( level.voteString ), "advanceMapRotation" );
+    Com_sprintf( level.voteString, sizeof( level.voteString ), "evacuation" );
     Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ),
-        "Skip to next map in rotation" );
+        "End match in a draw" );
   }
   else
   {
     trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
-    trap_SendServerCommand( ent-g_entities, "print \"Valid vote commands are: map_restart, nextmap, "
-                                            "map <mapname>, kick <player>, clientkick <clientnum>\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"Valid vote commands are: "
+      "map_restart, draw, kick, mute and unmute\n" );
     return;
   }
 
@@ -1184,12 +1220,6 @@ void Cmd_Vote_f( gentity_t *ent )
     return;
   }
 
-  if( ent->client->pers.teamSelection == PTE_NONE )
-  {
-    trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote as spectator\n\"" );
-    return;
-  }
-
   trap_SendServerCommand( ent-g_entities, "print \"Vote cast\n\"" );
 
   ent->client->ps.eFlags |= EF_VOTED;
@@ -1221,6 +1251,15 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   int   i, team, cs_offset;
   char  arg1[ MAX_STRING_TOKENS ];
   char  arg2[ MAX_STRING_TOKENS ];
+  int   clientNum = -1;
+  char  name[ MAX_NETNAME ];
+  
+  if( ent->client->pers.teamSelection == PTE_NONE )
+  {
+    trap_SendServerCommand( ent-g_entities,
+      "print \"Not allowed to call a team vote as a spectator\n\"" );
+    return;
+  }
 
   team = ent->client->ps.stats[ STAT_PTEAM ];
 
@@ -1253,12 +1292,6 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     return;
   }
 
-  if( ent->client->pers.teamSelection == PTE_NONE )
-  {
-    trap_SendServerCommand( ent-g_entities, "print \"Not allowed to call a vote as spectator\n\"" );
-    return;
-  }
-
   // make sure it is a valid command to vote on
   trap_Argv( 1, arg1, sizeof( arg1 ) );
   trap_Argv( 2, arg2, sizeof( arg2 ) );
@@ -1268,61 +1301,52 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     trap_SendServerCommand( ent-g_entities, "print \"Invalid team vote string\n\"" );
     return;
   }
-
-  if( !Q_stricmp( arg1, "teamkick" ) )
+  
+  // detect clientNum for partial name match votes
+  if( !Q_stricmp( arg1, "kick" ) ||
+    !Q_stricmp( arg1, "denybuild" ) ||
+    !Q_stricmp( arg1, "allowbuild" ) )
   {
-    int clientNum;
     int clientNums[ MAX_CLIENTS ] = { -1 };
     
     if( G_ClientNumbersFromString( arg2, clientNums ) == 1 )
     {
-      // there was one partial name match or name was clientNum
+      // there was only one partial name match
       clientNum = clientNums[ 0 ]; 
     }
     else
     {
-      // look for an exact name match before bailing out
+      // look for an exact name match (sets clientNum to -1 if it fails) 
       clientNum = G_ClientNumberFromString( ent, arg2 );
-      if( clientNum == -1 )
-      {
-        trap_SendServerCommand( ent-g_entities,
-          "print \"callvote: invalid player\n\"" );
-        return;
-      }
     }
-    Q_strncpyz( arg1, "teamclientkick", sizeof( arg1 ) );
-    Q_strncpyz( arg2, va( "%d", clientNum ), sizeof( arg2 ) );
+
+    // make sure this player is on the same team
+    if( clientNum != -1 && level.clients[ clientNum ].pers.teamSelection !=
+      ent->client->pers.teamSelection )
+    {
+      clientNum = -1;
+    }
+      
+    if( clientNum != -1 &&
+      level.clients[ clientNum ].pers.connected == CON_DISCONNECTED )
+    {
+      clientNum = -1;
+    }
+
+    if( clientNum != -1 )
+    {
+      Q_strncpyz( name, level.clients[ clientNum ].pers.netname,
+        sizeof( name ) );
+      Q_CleanStr( name );
+    }
   }
-  
-  if( !Q_stricmp( arg1, "teamclientkick" ) )
+
+  if( !Q_stricmp( arg1, "kick" ) )
   {
-    int   clientNum = 0;
-    char  kickee[ MAX_NETNAME ];
-
-    //check arg2 is a number
-    for( i = 0; arg2[ i ]; i++ )
+    if( clientNum == -1 )
     {
-      if( arg2[ i ] < '0' || arg2[ i ] > '9' )
-      {
-        clientNum = -1;
-        break;
-      }
-    }
-
-    if( clientNum > -1 )
-      clientNum = atoi( arg2 );
-    if( clientNum >= 0 && clientNum < level.maxclients )
-    {
-      if( level.clients[ clientNum ].pers.connected == CON_DISCONNECTED )
-          clientNum = -1;
-      else if( level.clients[ clientNum ].pers.teamSelection != team )
-          clientNum = -1;
-    }
-
-    if( clientNum < 0 )
-    {
-      trap_SendServerCommand( ent-g_entities, va( "print \"client %s "
-            S_COLOR_WHITE "is not a valid player on your team\n\"", arg2 ) );
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callvote: invalid player\n\"" );
       return;
     }
 
@@ -1333,9 +1357,6 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
       return;
     }
 
-    Q_strncpyz( kickee, level.clients[ clientNum ].pers.netname,
-      sizeof( kickee ) );
-    Q_CleanStr( kickee );
 
     // use ip in case this player disconnects before the vote ends
     Com_sprintf( level.teamVoteString[ cs_offset ],
@@ -1344,13 +1365,73 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
       g_adminTempBan.integer + 1 );
     Com_sprintf( level.teamVoteDisplayString[ cs_offset ],
         sizeof( level.teamVoteDisplayString[ cs_offset ] ),
-        "Kick player \'%s\'", kickee );
+        "Kick player '%s'", name );
+  }
+  else if( !Q_stricmp( arg1, "denybuild" ) )
+  {
+    if( clientNum == -1 )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callvote: invalid player\n\"" );
+      return;
+    }
+    
+    if( level.clients[ clientNum ].pers.denyBuild )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callvote: player already lost building rights\n\"" );
+      return;
+    }
+
+    if( G_admin_permission( &g_entities[ clientNum ], ADMF_IMMUNITY ) )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callteamvote: admin is immune from denybuild\n\"" );
+      return;
+    }
+
+    Com_sprintf( level.teamVoteString[ cs_offset ],
+      sizeof( level.teamVoteString[ cs_offset ] ), "!denybuild %i", clientNum );
+    Com_sprintf( level.teamVoteDisplayString[ cs_offset ],
+        sizeof( level.teamVoteDisplayString[ cs_offset ] ),
+        "Take away building rights from '%s'", name );
+  }
+  else if( !Q_stricmp( arg1, "allowbuild" ) )
+  {
+    if( clientNum == -1 )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callvote: invalid player\n\"" );
+      return;
+    }
+    
+    if( !level.clients[ clientNum ].pers.denyBuild )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callvote: player already has building rights\n\"" );
+      return;
+    }
+
+    Com_sprintf( level.teamVoteString[ cs_offset ],
+      sizeof( level.teamVoteString[ cs_offset ] ), "!allowbuild %i", clientNum );
+    Com_sprintf( level.teamVoteDisplayString[ cs_offset ],
+        sizeof( level.teamVoteDisplayString[ cs_offset ] ),
+        "Allow '%s' to build", name );
+  }
+  else if( !Q_stricmp( arg1, "admitdefeat" ) )
+  {
+    Com_sprintf( level.teamVoteString[ cs_offset ],
+      sizeof( level.teamVoteString[ cs_offset ] ), "admitdefeat %i", team );
+    Com_sprintf( level.teamVoteDisplayString[ cs_offset ],
+        sizeof( level.teamVoteDisplayString[ cs_offset ] ),
+        "Admit Defeat" );
   }
   else
   {
     trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
-    trap_SendServerCommand( ent-g_entities, "print \"Valid team vote commands are: teamkick <player>, "
-                                            "teamclientkick <client>\n\"" );
+    trap_SendServerCommand( ent-g_entities,
+       "print \"Valid team vote commands are: "
+       "kick, denybuild, allowbuild and surrender\n\"" );
     return;
   }
   ent->client->pers.voteCount++;
@@ -1713,6 +1794,13 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
   vec3_t      forward, end;
   trace_t     tr;
   gentity_t   *traceEnt;
+
+  if( ent->client->pers.denyBuild )
+  {
+    trap_SendServerCommand( ent-g_entities,
+      "print \"Your building rights have been revoked\n\"" );
+    return;
+  }
 
   if( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
     G_Damage( ent->client->hovel, ent, ent, forward, ent->s.origin, 10000, 0, MOD_SUICIDE );
@@ -2293,6 +2381,13 @@ void Cmd_Build_f( gentity_t *ent )
   vec3_t        origin;
   pTeam_t       team;
 
+  if( ent->client->pers.denyBuild )
+  {
+    trap_SendServerCommand( ent-g_entities,
+      "print \"Your building rights have been revoked\n\"" );
+    return;
+  }
+
   trap_Argv( 1, s, sizeof( s ) );
 
   buildable = BG_FindBuildNumForName( s );
@@ -2670,6 +2765,70 @@ void Cmd_Test_f( gentity_t *ent )
   ent->client->lastPoisonClient = ent;*/
 }
 
+static void Cmd_Ignore_f( gentity_t *ent, qboolean ignore )
+{
+  int pids[ MAX_CLIENTS ];
+  char name[ MAX_NAME_LENGTH ];
+  const char *cmd;
+  int matches = 0;
+  int i;
+
+  cmd = ( ignore ) ? "ignore" : "unignore";
+
+  if( trap_Argc() < 2 )
+  {
+    trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
+      "%s: usage \\%s [clientNum | partial name match]\n\"", cmd, cmd ) );
+    return;
+  }
+
+  Q_strncpyz( name, ConcatArgs( 1 ), sizeof( name ) );
+  matches = G_ClientNumbersFromString( name, pids ); 
+  if( matches < 1 )
+  {
+    trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
+      "%s: no clients match the name '%s'\n\"", cmd, name ) );
+    return;
+  }
+
+  for( i = 0; i < matches; i++ )
+  {
+    if( ignore )
+    {
+      if( !BG_ClientListTest( &ent->client->sess.ignoreList, pids[ i ] ) )
+      {
+        BG_ClientListAdd( &ent->client->sess.ignoreList, pids[ i ] );
+        ClientUserinfoChanged( ent->client->ps.clientNum );
+        trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
+          "ignore: added %s^7 to your ignore list\n\"",
+          level.clients[ pids[ i ] ].pers.netname ) );
+      }
+      else
+      {
+        trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
+          "ignore: %s^7 is already on your ignore list\n\"",
+          level.clients[ pids[ i ] ].pers.netname ) );
+      }
+    }
+    else
+    {
+      if( BG_ClientListTest( &ent->client->sess.ignoreList, pids[ i ] ) )
+      {
+        BG_ClientListRemove( &ent->client->sess.ignoreList, pids[ i ] );
+        ClientUserinfoChanged( ent->client->ps.clientNum );
+        trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
+          "unignore: removed %s^7 from your ignore list\n\"",
+          level.clients[ pids[ i ] ].pers.netname ) );
+      }
+      else
+      {
+        trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
+          "unignore: %s^7 is not on your ignore list\n\"",
+          level.clients[ pids[ i ] ].pers.netname ) );
+      }
+    }
+  }
+}
 
 /*
 =================
@@ -2714,6 +2873,18 @@ void ClientCommand( int clientNum )
   if( Q_stricmp( cmd, "score" ) == 0 )
   {
     Cmd_Score_f( ent );
+    return;
+  }
+
+  if( !Q_stricmp( cmd, "ignore" ) )
+  {
+    Cmd_Ignore_f( ent, qtrue );
+    return;
+  }
+  
+  if( !Q_stricmp( cmd, "unignore" ) )
+  {
+    Cmd_Ignore_f( ent, qfalse );
     return;
   }
 
@@ -2906,12 +3077,13 @@ void G_DecolorString( char *in, char *out )
 void G_PrivateMessage( gentity_t *ent )
 {
   int pids[ MAX_CLIENTS ];
+  int ignoreids[ MAX_CLIENTS ];
   char name[ MAX_NAME_LENGTH ];
   char cmd[ 12 ];
   char str[ MAX_STRING_CHARS ];
   char *msg;
   char color;
-  int pcount, count = 0;
+  int pcount, matches, ignored = 0;
   int i;
   int skipargs = 0;
   qboolean teamonly = qfalse;
@@ -2941,27 +3113,40 @@ void G_PrivateMessage( gentity_t *ent )
 
   if( ent )
   {
-    if( teamonly )
+    int count = 0;
+
+    for( i=0; i < pcount; i++ )
     {
-      for( i=0; i < pcount; i++ )
+      tmpent = &g_entities[ pids[ i ] ];
+
+      if( teamonly && !OnSameTeam( ent, tmpent ) )
+        continue;
+
+      if( BG_ClientListTest( &tmpent->client->sess.ignoreList,
+        ent-g_entities ) )
       {
-        if( !OnSameTeam( ent, &g_entities[ pids[ i ] ] ) )
-          continue;
-        pids[ count ] = pids[ i ];
-        count++;
+        ignoreids[ ignored++ ] = pids[ i ];
+        continue;
       }
-      pcount = count;
+
+      pids[ count ] = pids[ i ];
+      count++;
     }
+    matches = count;
+  }
+  else
+  {
+    matches = pcount;
   }
 
   color = teamonly ? COLOR_CYAN : COLOR_YELLOW;
 
   Q_strncpyz( str,
-    va( "^%csent to %i player%s: ^7", color, pcount,
-      ( pcount == 1 ) ? "" : "s" ),
+    va( "^%csent to %i player%s: ^7", color, matches,
+      ( matches == 1 ) ? "" : "s" ),
     sizeof( str ) );
 
-  for( i=0; i < pcount; i++ )
+  for( i=0; i < matches; i++ )
   {
     tmpent = &g_entities[ pids[ i ] ];
 
@@ -2973,7 +3158,7 @@ void G_PrivateMessage( gentity_t *ent )
       ( ent ) ? ent->client->pers.netname : "console",
       color,
       name,
-      pcount,
+      matches,
       color,
       msg,
       ent ? ent-g_entities : -1 ) );
@@ -2988,7 +3173,7 @@ void G_PrivateMessage( gentity_t *ent )
       ( ent ) ? ent->client->pers.netname : "console" ) );
   }
 
-  if( !pcount )
+  if( !matches )
     ADMP( va( "^3No player matching ^7\'%s^7\' ^3to send message to.\n",
       name ) );
   else
@@ -3000,6 +3185,20 @@ void G_PrivateMessage( gentity_t *ent )
       ( teamonly ) ? "tprivmsg" : "privmsg",
       ( ent ) ? ent->client->pers.netname : "console",
       name, msg );
+  }
+
+  if( ignored )
+  {
+    Q_strncpyz( str, va( "^%cignored by %i player%s: ^7", color, ignored,
+      ( ignored == 1 ) ? "" : "s" ), sizeof( str ) );
+    for( i=0; i < ignored; i++ )
+    {
+      tmpent = &g_entities[ ignoreids[ i ] ];
+      if( i > 0 )
+        Q_strcat( str, sizeof( str ), "^7, " );
+      Q_strcat( str, sizeof( str ), tmpent->client->pers.netname );
+    }
+    ADMP( va( "%s\n", str ) );
   }
 }
 

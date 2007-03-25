@@ -162,7 +162,7 @@ void UI_LoadArenas( void ) {
     strcat(filename, dirptr);
     UI_LoadArenasFromFile(filename);
   }
-  trap_Print( va( "%i arenas parsed\n", ui_numArenas ) );
+  trap_Print( va( "[skipnotify]%i arenas parsed\n", ui_numArenas ) );
   if (UI_OutOfMemory()) {
     trap_Print(S_COLOR_YELLOW"WARNING: not anough memory in pool to load all arenas\n");
   }
@@ -304,4 +304,31 @@ char *UI_GetBotNameByNumber( int num ) {
     return Info_ValueForKey( info, "name" );
   }
   return "Sarge";
+}
+
+void UI_ServerInfo( void )
+{
+  char      info[ MAX_INFO_VALUE ];
+  int       i;
+
+  info[0] = '\0';
+  if( trap_GetConfigString( CS_SERVERINFO, info, sizeof( info ) ) )
+  { 
+    trap_Cvar_Set( "ui_serverinfo_mapname",
+      Info_ValueForKey( info, "mapname" ) );
+    trap_Cvar_Set( "ui_serverinfo_timelimit",
+      Info_ValueForKey( info, "timelimit" ) );
+    trap_Cvar_Set( "ui_serverinfo_sd",
+      Info_ValueForKey( info, "g_suddenDeathTime" ) );
+    trap_Cvar_Set( "ui_serverinfo_hostname",
+      Info_ValueForKey( info, "sv_hostname" ) );
+    trap_Cvar_Set( "ui_serverinfo_maxclients",
+      Info_ValueForKey( info, "sv_maxclients" ) );
+    trap_Cvar_Set( "ui_serverinfo_version",
+      Info_ValueForKey( info, "version" ) );
+    trap_Cvar_Set( "ui_serverinfo_unlagged",
+      Info_ValueForKey( info, "g_unlagged" ) );
+    trap_Cvar_Set( "ui_serverinfo_ff",
+      Info_ValueForKey( info, "ff" ) );
+  }
 }

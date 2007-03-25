@@ -5529,3 +5529,84 @@ qboolean BG_BuildableIsAllowed( buildable_t buildable )
 
   return qtrue;
 }
+
+/*
+============
+BG_ClientListTest
+============
+*/
+qboolean BG_ClientListTest( clientList_t *list, int clientNum )
+{
+  if( clientNum < 0 || clientNum >= MAX_CLIENTS || !list )
+    return qfalse;
+  if( clientNum < 32 )
+    return ( ( list->lo & ( 1 << clientNum ) ) != 0 ); 
+  else
+    return ( ( list->hi & ( 1 << ( clientNum - 32 ) ) ) != 0 ); 
+}
+
+/*
+============
+BG_ClientListAdd
+============
+*/
+void BG_ClientListAdd( clientList_t *list, int clientNum )
+{
+  if( clientNum < 0 || clientNum >= MAX_CLIENTS || !list )
+    return;
+  if( clientNum < 32 )
+    list->lo |= ( 1 << clientNum ); 
+  else
+    list->hi |= ( 1 << ( clientNum - 32 ) );
+}
+
+/*
+============
+BG_ClientListRemove
+============
+*/
+void BG_ClientListRemove( clientList_t *list, int clientNum )
+{
+  if( clientNum < 0 || clientNum >= MAX_CLIENTS || !list )
+    return;
+  if( clientNum < 32 )
+    list->lo &= ~( 1 << clientNum ); 
+  else
+    list->hi &= ~( 1 << ( clientNum - 32 ) );
+}
+
+/*
+============
+BG_ClientListString
+============
+*/
+char *BG_ClientListString( clientList_t *list )
+{
+  static char s[ 17 ];
+
+  s[ 0 ] = '\0';
+  if( !list )
+    return s;
+  Com_sprintf( s, sizeof( s ), "%08x%08x", list->hi, list->lo );
+  return s;
+}
+
+/*
+============
+BG_ClientListParse
+============
+*/
+void BG_ClientListParse( clientList_t *list, const char *s )
+{
+  if( !list )
+    return;
+  list->lo = 0;
+  list->hi = 0;
+  if( !s )
+    return;
+  if( strlen( s ) != 16 )
+    return;
+  sscanf( s, "%x%x", &list->hi, &list->lo );
+}
+
+

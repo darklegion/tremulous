@@ -42,7 +42,7 @@
       text "Game"
       group menuGrp
       style WINDOW_STYLE_EMPTY
-      rect 90 20 64 20
+      rect 80 20 64 20
       type ITEM_TYPE_BUTTON
       textalign ITEM_ALIGN_CENTER 
       textalignx 34
@@ -126,8 +126,9 @@
       style 0
       text "Name:"
       cvar "name"
-      maxchars 26
-      rect 90 85 192 15
+      maxchars 31
+      maxPaintChars 31
+      rect 50 85 220 15
       textalign ITEM_ALIGN_LEFT		
       textalignx 64 
       textaligny 12
@@ -143,7 +144,7 @@
       type ITEM_TYPE_YESNO
       text "Auto Download:"
       cvar "cl_allowDownload"
-      rect 90 115 192 15
+      rect 80 115 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128
       textaligny 12
@@ -163,7 +164,7 @@
       type ITEM_TYPE_YESNO
       text "Taunts Sounds Off:"
       cvar "cg_noTaunt"
-      rect 90 130 192 15
+      rect 80 130 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128
       textaligny 12
@@ -183,7 +184,7 @@
       type ITEM_TYPE_YESNO
       text "Team Chats Only:"
       cvar "cg_teamChatsOnly"
-      rect 90 145 192 15
+      rect 80 145 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128
       textaligny 12
@@ -203,7 +204,7 @@
       type ITEM_TYPE_YESNO
       text "Auto Wallwalk Pitching:"
       cvar "cg_wwFollow"
-      rect 90 160 192 15
+      rect 80 160 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128
       textaligny 12
@@ -224,7 +225,7 @@
       text "Wallwalking Speed:"
       cvarfloat "cg_wwSmoothTime" 300 0 1000
       cvarFloatList { "Medium" 300 "Fast" 150 "Instant" 0 "Slow" 600 }
-      rect 90 175 192 15
+      rect 80 175 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128 
       textaligny 12
@@ -244,7 +245,7 @@
       type ITEM_TYPE_YESNO
       text "Wallwalk Control Toggles:"
       cvar "cg_wwToggle"
-      rect 90 190 192 15
+      rect 80 190 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128
       textaligny 12
@@ -264,7 +265,7 @@
       type ITEM_TYPE_YESNO
       text "Disable Warning Dialogs:"
       cvar "cg_disableWarningDialogs"
-      rect 90 205 192 15
+      rect 80 205 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128 
       textaligny 12
@@ -284,7 +285,7 @@
       type ITEM_TYPE_YESNO
       text "Tutorial Mode:"
       cvar "cg_tutorial"
-      rect 90 220 192 15
+      rect 80 220 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128 
       textaligny 12
@@ -305,7 +306,7 @@
       text "Show Clock:"
       cvar "cg_drawClock"
       cvarFloatList { "No" 0 "12 Hour" 1 "24 Hour" 2 }
-      rect 90 235 192 15
+      rect 80 235 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 128 
       textaligny 12
@@ -1016,7 +1017,7 @@
       type ITEM_TYPE_BIND
       text "Show Scores:"
       cvar "+scores"
-      rect 96 80 192 15
+      rect 96 65 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -1037,7 +1038,7 @@
       type ITEM_TYPE_BIND
       text "Scroll Scores Up:"
       cvar "scoresUp"
-      rect 96 95 192 15
+      rect 96 80 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -1058,7 +1059,7 @@
       type ITEM_TYPE_BIND
       text "Scroll Scores Down:"
       cvar "scoresDown"
-      rect 96 110 192 15
+      rect 96 95 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -1079,7 +1080,7 @@
       type ITEM_TYPE_BIND
       text "Use Structure/Evolve:"
       cvar "+button7"
-      rect 96 125 192 15
+      rect 96 110 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -1100,7 +1101,7 @@
       type ITEM_TYPE_BIND
       text "Deconstruct Structure:"
       cvar "deconstruct"
-      rect 96 140 192 15
+      rect 96 125 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -1121,7 +1122,7 @@
       type ITEM_TYPE_BIND
       text "Gesture:"
       cvar "+button3"
-      rect 96 155 192 15
+      rect 96 140 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -1142,7 +1143,7 @@
       type ITEM_TYPE_BIND
       text "Chat:"
       cvar "messagemode"
-      rect 96 170 192 15
+      rect 96 155 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -1163,7 +1164,7 @@
       type ITEM_TYPE_BIND
       text "Team Chat:"
       cvar "messagemode2"
-      rect 96 185 192 15
+      rect 96 170 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -1184,7 +1185,7 @@
       type ITEM_TYPE_BIND
       text "Target Chat:"
       cvar "messagemode3"
-      rect 96 200 192 15
+      rect 96 185 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
       maxPaintChars 20
@@ -1205,6 +1206,27 @@
       type ITEM_TYPE_BIND
       text "Attack Chat:"
       cvar "messagemode4"
+      rect 96 200 192 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 90
+      maxPaintChars 20
+      textaligny 12
+      textscale .25             
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
+    }
+
+    itemDef
+    {
+      name misc
+      group optionsGrp
+      type ITEM_TYPE_BIND
+      text "Vote Yes:"
+      cvar "vote yes"
       rect 96 215 192 15
       textalign ITEM_ALIGN_RIGHT
       textalignx 90
@@ -1218,6 +1240,71 @@
         play "sound/misc/menu1.wav"; 
       }
     }
+
+    itemDef
+    {
+      name misc
+      group optionsGrp
+      type ITEM_TYPE_BIND
+      text "Vote No:"
+      cvar "vote no"
+      rect 96 230 192 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 90
+      maxPaintChars 20
+      textaligny 12
+      textscale .25             
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
+    }
+
+    itemDef
+    {
+      name misc
+      group optionsGrp
+      type ITEM_TYPE_BIND
+      text "Team Vote Yes:"
+      cvar "teamvote yes"
+      rect 96 245 192 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 90
+      maxPaintChars 20
+      textaligny 12
+      textscale .25             
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
+    }
+
+    itemDef
+    {
+      name misc
+      group optionsGrp
+      type ITEM_TYPE_BIND
+      text "Team Vote No:"
+      cvar "teamvote no"
+      rect 96 260 192 15
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 90
+      maxPaintChars 20
+      textaligny 12
+      textscale .25             
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+      }
+    }
+
+
 
 //////// SYSTEM
 

@@ -1964,6 +1964,28 @@ static void UI_DrawAllMapsSelection(rectDef_t *rect, float scale, vec4_t color, 
   }
 }
 
+static void UI_DrawPlayerListSelection( rectDef_t *rect, float scale,
+  vec4_t color, int textStyle )
+{
+  if( uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount )
+  {
+    Text_Paint(rect->x, rect->y, scale, color,
+      uiInfo.rawPlayerNames[ uiInfo.playerIndex ],
+      0, 0, textStyle);
+  }
+}
+
+static void UI_DrawTeamListSelection( rectDef_t *rect, float scale,
+  vec4_t color, int textStyle )
+{
+  if( uiInfo.teamIndex >= 0 && uiInfo.teamIndex < uiInfo.myTeamCount )
+  {
+    Text_Paint(rect->x, rect->y, scale, color,
+      uiInfo.rawTeamNames[ uiInfo.teamIndex ],
+      0, 0, textStyle);
+  }
+}
+
 static void UI_DrawOpponentName(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
   Text_Paint(rect->x, rect->y, scale, color, UI_Cvar_VariableString("ui_opponentName"), 0, 0, textStyle);
 }
@@ -2064,6 +2086,10 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
       break;
     case UI_ALLMAPS_SELECTION:
       break;
+    case UI_PLAYERLIST_SELECTION:
+      break;
+    case UI_TEAMLIST_SELECTION:
+      break;
     case UI_OPPONENT_NAME:
       break;
     case UI_KEYBINDSTATUS:
@@ -2127,18 +2153,29 @@ static void UI_BuildPlayerList( void ) {
   count = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
   uiInfo.playerCount = 0;
   uiInfo.myTeamCount = 0;
+  uiInfo.myPlayerIndex = 0;
   playerTeamNumber = 0;
   for( n = 0; n < count; n++ ) {
     trap_GetConfigString( CS_PLAYERS + n, info, MAX_INFO_STRING );
 
     if (info[0]) {
-      Q_strncpyz( uiInfo.playerNames[uiInfo.playerCount], Info_ValueForKey( info, "n" ), MAX_NAME_LENGTH );
+      BG_ClientListParse( &uiInfo.ignoreList[ uiInfo.playerCount ],
+        Info_ValueForKey( info, "ig" ) );
+      Q_strncpyz( uiInfo.rawPlayerNames[uiInfo.playerCount],
+        Info_ValueForKey( info, "n" ), MAX_NAME_LENGTH );
+      Q_strncpyz( uiInfo.playerNames[uiInfo.playerCount],
+        Info_ValueForKey( info, "n" ), MAX_NAME_LENGTH );
       Q_CleanStr( uiInfo.playerNames[uiInfo.playerCount] );
       uiInfo.clientNums[uiInfo.playerCount] = n;
+      if( n == uiInfo.playerNumber )
+        uiInfo.myPlayerIndex = uiInfo.playerCount;
       uiInfo.playerCount++;
       team2 = atoi(Info_ValueForKey(info, "t"));
       if (team2 == team) {
-        Q_strncpyz( uiInfo.teamNames[uiInfo.myTeamCount], Info_ValueForKey( info, "n" ), MAX_NAME_LENGTH );
+        Q_strncpyz( uiInfo.rawTeamNames[uiInfo.myTeamCount],
+          Info_ValueForKey( info, "n" ), MAX_NAME_LENGTH );
+        Q_strncpyz( uiInfo.teamNames[uiInfo.myTeamCount],
+          Info_ValueForKey( info, "n" ), MAX_NAME_LENGTH );
         Q_CleanStr( uiInfo.teamNames[uiInfo.myTeamCount] );
         uiInfo.teamClientNums[uiInfo.myTeamCount] = n;
         if (uiInfo.playerNumber == n) {
@@ -2164,11 +2201,19 @@ static void UI_BuildPlayerList( void ) {
 
 
 static void UI_DrawSelectedPlayer(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
+  char name[ MAX_NAME_LENGTH ];
+  char *s;
+
   if (uiInfo.uiDC.realTime > uiInfo.playerRefresh) {
     uiInfo.playerRefresh = uiInfo.uiDC.realTime + 3000;
     UI_BuildPlayerList();
   }
-  Text_Paint(rect->x, rect->y, scale, color, (uiInfo.teamLeader) ? UI_Cvar_VariableString("cg_selectedPlayerName") : UI_Cvar_VariableString("name") , 0, 0, textStyle);
+  if( uiInfo.teamLeader )
+    s = UI_Cvar_VariableString("cg_selectedPlayerName");
+  else
+    s = UI_Cvar_VariableString("name");
+  Q_strncpyz( name, s, sizeof( name ) );
+  Text_Paint(rect->x, rect->y, scale, color, name, 0, 0, textStyle);
 }
 
 static void UI_DrawServerRefreshDate(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
@@ -2477,6 +2522,12 @@ static void UI_OwnerDraw( float x, float y, float w, float h,
       break;
     case UI_MAPS_SELECTION:
       UI_DrawAllMapsSelection(&rect, scale, color, textStyle, qfalse);
+      break;
+    case UI_PLAYERLIST_SELECTION:
+      UI_DrawPlayerListSelection(&rect, scale, color, textStyle);
+      break;
+    case UI_TEAMLIST_SELECTION:
+      UI_DrawTeamListSelection(&rect, scale, color, textStyle);
       break;
     case UI_OPPONENT_NAME:
       UI_DrawOpponentName(&rect, scale, color, textStyle);
@@ -3904,6 +3955,8 @@ static void UI_RunMenuScript(char **args) {
       UI_LoadArenas();
       UI_MapCountByGameType(qfalse);
       Menu_SetFeederSelection(NULL, FEEDER_ALLMAPS, 0, "createserver");
+    } else if (Q_stricmp(name, "loadServerInfo") == 0) {
+      UI_ServerInfo();
     } else if (Q_stricmp(name, "saveControls") == 0) {
       Controls_SetConfig(qtrue);
     } else if (Q_stricmp(name, "loadControls") == 0) {
@@ -4142,15 +4195,47 @@ static void UI_RunMenuScript(char **args) {
     {
       if( uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount )
       {
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote clientkick %d\n",
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote kick %d\n",
+              uiInfo.clientNums[ uiInfo.playerIndex ] ) );
+      }
+    }
+    else if( Q_stricmp( name, "voteMute" ) == 0 )
+    {
+      if( uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount )
+      {
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote mute %d\n",
+              uiInfo.clientNums[ uiInfo.playerIndex ] ) );
+      }
+    }
+    else if( Q_stricmp( name, "voteUnMute" ) == 0 )
+    {
+      if( uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount )
+      {
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote unmute %d\n",
               uiInfo.clientNums[ uiInfo.playerIndex ] ) );
       }
     }
     else if( Q_stricmp( name, "voteTeamKick" ) == 0 )
     {
-      if( uiInfo.teamIndex >= 0 && uiInfo.teamIndex < uiInfo.playerCount )
+      if( uiInfo.teamIndex >= 0 && uiInfo.teamIndex < uiInfo.myTeamCount )
       {
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote teamclientkick %d\n",
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote kick %d\n",
+              uiInfo.teamClientNums[ uiInfo.teamIndex ] ) );
+      }
+    }
+    else if( Q_stricmp( name, "voteTeamDenyBuild" ) == 0 )
+    {
+      if( uiInfo.teamIndex >= 0 && uiInfo.teamIndex < uiInfo.myTeamCount )
+      {
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote denybuild %d\n",
+              uiInfo.teamClientNums[ uiInfo.teamIndex ] ) );
+      }
+    }
+    else if( Q_stricmp( name, "voteTeamAllowBuild" ) == 0 )
+    {
+      if( uiInfo.teamIndex >= 0 && uiInfo.teamIndex < uiInfo.myTeamCount )
+      {
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote allowbuild %d\n",
               uiInfo.teamClientNums[ uiInfo.teamIndex ] ) );
       }
     }
@@ -4271,6 +4356,51 @@ static void UI_RunMenuScript(char **args) {
     } else if (Q_stricmp(name, "update") == 0) {
       if (String_Parse(args, &name2))
         UI_Update(name2);
+    } else if (Q_stricmp(name, "InitIgnoreList") == 0) {
+      UI_BuildPlayerList();
+    } else if (Q_stricmp(name, "ToggleIgnore") == 0) {
+      if( uiInfo.ignoreIndex >= 0 && uiInfo.ignoreIndex < uiInfo.playerCount )
+      {
+        if( BG_ClientListTest( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
+          uiInfo.clientNums[ uiInfo.ignoreIndex ] ) )
+        {
+          BG_ClientListRemove( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
+            uiInfo.clientNums[ uiInfo.ignoreIndex ] );
+          trap_Cmd_ExecuteText( EXEC_NOW, va( "unignore %i\n", 
+            uiInfo.clientNums[ uiInfo.ignoreIndex ] ) );
+        }
+        else
+        {
+          BG_ClientListAdd( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
+            uiInfo.clientNums[ uiInfo.ignoreIndex ] );
+          trap_Cmd_ExecuteText( EXEC_NOW, va( "ignore %i\n", 
+            uiInfo.clientNums[ uiInfo.ignoreIndex ] ) );
+        }
+      }
+    } else if (Q_stricmp(name, "IgnorePlayer") == 0) {
+      if( uiInfo.ignoreIndex >= 0 && uiInfo.ignoreIndex < uiInfo.playerCount )
+      {
+        if( !BG_ClientListTest( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
+          uiInfo.clientNums[ uiInfo.ignoreIndex ] ) )
+        {
+          BG_ClientListAdd( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
+            uiInfo.clientNums[ uiInfo.ignoreIndex ] );
+          trap_Cmd_ExecuteText( EXEC_NOW, va( "ignore %i\n", 
+            uiInfo.clientNums[ uiInfo.ignoreIndex ] ) );
+        }
+      }
+    } else if (Q_stricmp(name, "UnIgnorePlayer") == 0) {
+      if( uiInfo.ignoreIndex >= 0 && uiInfo.ignoreIndex < uiInfo.playerCount )
+      {
+        if( BG_ClientListTest( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
+          uiInfo.clientNums[ uiInfo.ignoreIndex ] ) )
+        {
+          BG_ClientListRemove( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
+            uiInfo.clientNums[ uiInfo.ignoreIndex ] );
+          trap_Cmd_ExecuteText( EXEC_NOW, va( "unignore %i\n", 
+            uiInfo.clientNums[ uiInfo.ignoreIndex ] ) );
+        }
+      }
     } else if (Q_stricmp(name, "setPbClStatus") == 0) {
       int stat;
       if ( Int_Parse( args, &stat ) )
@@ -4917,6 +5047,7 @@ UI_FeederCount
 ==================
 */
 static int UI_FeederCount(float feederID) {
+
   if (feederID == FEEDER_HEADS) {
     return UI_HeadCountByTeam();
   } else if (feederID == FEEDER_Q3HEADS) {
@@ -4943,6 +5074,8 @@ static int UI_FeederCount(float feederID) {
       UI_BuildPlayerList();
     }
     return uiInfo.myTeamCount;
+  } else if (feederID == FEEDER_IGNORE_LIST) {
+    return uiInfo.playerCount;
   } else if (feederID == FEEDER_MODS) {
     return uiInfo.modCount;
   } else if (feederID == FEEDER_DEMOS) {
@@ -5114,6 +5247,22 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
     if (index >= 0 && index < uiInfo.myTeamCount) {
       return uiInfo.teamNames[index];
     }
+  } else if (feederID == FEEDER_IGNORE_LIST) {
+    if (index >= 0 && index < uiInfo.playerCount) {
+      switch( column )
+      {
+        case 1:
+          // am I ignoring him
+          return ( BG_ClientListTest(&uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
+            uiInfo.clientNums[ index ] ) ) ? "X" : "";
+        case 2:
+          // is he ignoring me
+          return ( BG_ClientListTest( &uiInfo.ignoreList[ index ],
+            uiInfo.playerNumber ) ) ? "X" : "";
+        default:
+          return uiInfo.playerNames[index];
+      }
+    }
   } else if (feederID == FEEDER_MODS) {
     if (index >= 0 && index < uiInfo.modCount) {
       if (uiInfo.modList[index].modDescr && *uiInfo.modList[index].modDescr) {
@@ -5277,6 +5426,8 @@ static void UI_FeederSelection(float feederID, int index) {
     uiInfo.playerIndex = index;
   } else if (feederID == FEEDER_TEAM_LIST) {
     uiInfo.teamIndex = index;
+  } else if (feederID == FEEDER_IGNORE_LIST) {
+    uiInfo.ignoreIndex = index;
   } else if (feederID == FEEDER_MODS) {
     uiInfo.modIndex = index;
   } else if (feederID == FEEDER_CINEMATICS) {
@@ -6055,6 +6206,7 @@ vmCvar_t  ui_serverStatusTimeOut;
 
 //TA: bank values
 vmCvar_t  ui_bank;
+vmCvar_t  ui_winner;
 
 
 // bk001129 - made static to avoid aliasing
@@ -6085,6 +6237,7 @@ static cvarTable_t    cvarTable[] = {
   { &ui_spSkill, "g_spSkill", "2", CVAR_ARCHIVE },
 
   { &ui_spSelection, "ui_spSelection", "", CVAR_ROM },
+  { &ui_winner, "ui_winner", "", CVAR_ROM },
 
   { &ui_browserMaster, "ui_browserMaster", "0", CVAR_ARCHIVE },
   { &ui_browserGameType, "ui_browserGameType", "0", CVAR_ARCHIVE },

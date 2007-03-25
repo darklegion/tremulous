@@ -1,0 +1,3206 @@
+#include "ui/menudef.h"
+
+{
+  \\ INGAME GAME BOX \\
+
+  menuDef
+  {
+    name "ingame_game"
+    visible 0
+    fullscreen 0
+    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
+    rect 10 56 292 280
+    focusColor 1 .75 0 1
+    onopen
+    {
+      uiScript InitIgnoreList;
+      uiScript loadArenas;
+      uiScript loadServerInfo;
+      hide gameGrp;
+      show vote;
+      show mapvote;
+
+      setitemcolor voteBtn       forecolor 0.2 0.2 0.2 1.0;
+      setitemcolor ignoreBtn     forecolor 1.0 1.0 1.0 1.0;
+      setitemcolor infoBtn      forecolor 1.0 1.0 1.0 1.0
+    }
+
+    itemDef
+    {
+      name window
+      rect 10 5 292 270
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 1
+      visible 1
+      decoration
+
+      border WINDOW_BORDER_KCGRADIENT
+      borderSize 2.0
+      borderColor 0.5 0.5 0.5 1
+    }
+
+    //Section menus
+    itemDef
+    {
+      name voteBtn
+      text "Vote"
+      group menuGrp
+      style WINDOW_STYLE_EMPTY
+      rect 35 22 40 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15        
+      textscale .35
+      forecolor 1 1 1 1
+      visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show vote;
+        show mapvote;
+        
+        setitemcolor infoBtn      forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor voteBtn  forecolor 0.2 0.2 0.2 1.0;
+        setitemcolor ignoreBtn    forecolor 1.0 1.0 1.0 1.0
+      }
+    }
+
+    itemDef
+    {
+      name ignoreBtn
+      text "Ignore"
+      group menuGrp
+      style WINDOW_STYLE_EMPTY
+      rect 100 22 40 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15        
+      textscale .35
+      forecolor 1 1 1 1
+      visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show ignore;
+        
+        setitemcolor infoBtn      forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor voteBtn  forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor ignoreBtn    forecolor 0.2 0.2 0.2 1.0
+      }
+    }
+    
+    itemDef
+    {
+      name infoBtn
+      text "Info"
+      group menuGrp
+      style WINDOW_STYLE_EMPTY
+      rect 165 22 40 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5 
+      textaligny 15
+      textscale .35
+      forecolor 1 1 1 1
+      visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show info;
+        
+        setitemcolor infoBtn      forecolor 0.2 0.2 0.2 1.0;
+        setitemcolor voteBtn  forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor ignoreBtn    forecolor 1.0 1.0 1.0 1.0
+      }
+    }
+
+
+//////// INFO
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 55 256 20
+      type 4
+      style 0	
+      text "Server Name:"
+      cvar ui_serverinfo_hostname
+      maxPaintChars 32
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0 
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 70 256 20
+      type 4
+      style 0	
+      text "Time Limit:"
+      maxPaintChars 12
+      cvar ui_serverinfo_timelimit
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 85 256 20
+      type 4
+      style 0	
+      text "Sudden Death Time:"
+      cvar ui_serverinfo_sd
+      maxPaintChars 12
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 100 256 20
+      type 4
+      style 0	
+      text "Max Clients:"
+      cvar ui_serverinfo_maxclients 
+      maxPaintChars 12
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 115 256 20
+      type 4
+      style 0	
+      text "Map Name:"
+      cvar ui_serverinfo_mapname 
+      maxPaintChars 12
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 130 256 20
+      type 11
+      style 0	
+      text "Lag Correction:"
+      cvar ui_serverinfo_unlagged
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 145 256 20
+      type ITEM_TYPE_MULTI
+      style 0	
+      text "Friendly Fire:"
+      cvarFloat ui_serverinfo_ff 0 0 7
+      cvarFloatList { "Off" 0 "Humans Only" 1 "Aliens Only" 2 "Both Teams" 3 "Buildables Only" 4 "Humans and Buildables" 5 "Aliens and Buildables" 6 "Both Teams and Buildables" 7 }
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+    
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 160 256 20
+      type 4
+      style 0	
+      text "Version:"
+      cvar ui_serverinfo_version 
+      maxPaintChars 45
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+//////// VOTE
+
+    //Vote menu
+    itemDef
+    {
+      name vote
+      text "Map"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 20 60 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show mapvote;
+        show vote;
+      }
+    }
+
+    itemDef
+    {
+      name vote
+      text "Players"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 20 85 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show playervote;
+        show vote;
+      }
+    }
+    
+    itemDef
+    {
+      name vote
+      text "Team"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 20 110 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show teamvote;
+        show vote;
+      }
+    }
+
+///// Map Vote
+    itemDef
+    {
+      name mapvote 
+      group gameGrp
+      style 0
+      ownerdraw UI_STARTMAPCINEMATIC
+      rect 111 61 80 60
+      border 1
+      bordercolor .5 .5 .5 .5
+      visible 0
+    }
+
+    itemDef
+    {
+      name mapvote 
+      group gameGrp
+      style WINDOW_STYLE_FILLED
+      rect 110 60 82 62
+      border 1
+      bordercolor .5 .5 .5 .5
+      visible 0
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text ""
+      ownerdraw UI_ALLMAPS_SELECTION
+      textscale .225
+      rect 200 80 110 20
+      textalign 0
+      textalignx 0
+      textaligny 16
+      forecolor 1 1 1 1
+      decoration
+      visible 0
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      rect 110 122 150 85
+      type ITEM_TYPE_LISTBOX
+      style WINDOW_STYLE_EMPTY
+      elementwidth 120
+      elementheight 15
+      textscale .225
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_ALLMAPS
+      border 1
+      bordercolor   0.5 0.5 0.5 0.5
+      forecolor     1   1   1   1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      visible 0
+      doubleclick
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteMap;
+        uiScript closeingame
+      }
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text "Load Selected Map"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 210 80 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5 
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteMap;
+        uiScript closeingame
+      }
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text "Restart Current Map"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 230 90 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        exec "cmd callvote map_restart";
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text "End Match In Draw"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 250 110 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        exec "cmd callvote draw";
+        uiScript closeingame
+      }
+    }
+
+///// Player Vote
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      text "Selected Player:"
+      ownerdraw UI_PLAYERLIST_SELECTION
+      textscale .225
+      rect 110 60 110 20
+      textalign 0
+      textalignx 0
+      textaligny 16
+      forecolor 1 1 1 1
+      decoration
+      visible 0
+    }
+
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      rect 110 80 170 85
+      style WINDOW_STYLE_EMPTY
+      type ITEM_TYPE_LISTBOX
+      elementwidth 120
+      elementheight 15
+      textscale .225
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_PLAYER_LIST
+      border 1
+      bordercolor   0.5 0.5 0.5 0.5
+      forecolor     1   1   1   1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      visible 0
+    }
+    
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      text "Kick Selected Player"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 175 90 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteKick;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      text "Mute Selected Player"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 195 90 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteMute;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      text "Un-Mute Selected Player"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 215 100 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteUnMute;
+        uiScript closeingame
+      }
+    }
+
+
+///// Team Vote
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Selected Teammate:"
+      ownerdraw UI_TEAMLIST_SELECTION
+      textscale .225
+      rect 110 60 110 20
+      textalign 0
+      textalignx 0
+      textaligny 16
+      forecolor 1 1 1 1
+      decoration
+      visible 0
+    }
+
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      rect 110 80 170 85
+      style WINDOW_STYLE_EMPTY
+      type ITEM_TYPE_LISTBOX
+      elementwidth 120
+      elementheight 15
+      textscale .225
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_TEAM_LIST
+      border 1
+      bordercolor   0.5 0.5 0.5 0.5
+      forecolor     1   1   1   1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      visible 0
+    }
+    
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Kick Selected Teammate"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 175 100 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteTeamKick;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Deny Building For Selected Teammate"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 195 150 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteTeamDenyBuild;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Allow Building For Selected Teammate"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 215 150 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteTeamAllowBuild;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Admit Defeat"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 235 150 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        exec "cmd callteamvote admitdefeat";
+        uiScript closeingame
+      }
+    }
+
+//////// IGNORE
+    itemDef
+    {
+      name ignore
+      group gameGrp
+      rect 45 70 40 5 
+      text "Player Name"
+      visible 0
+      type ITEM_TYPE_TEXT 
+      textscale .225
+    }
+    itemDef
+    {
+      name ignore
+      group gameGrp
+      rect 190 70 40 5 
+      text "Ignored"
+      visible 0
+      type ITEM_TYPE_TEXT 
+      textscale .225
+    }
+    itemDef
+    {
+      name ignore
+      group gameGrp
+      rect 230 70 40 5 
+      text "Ignoring You"
+      visible 0
+      type ITEM_TYPE_TEXT 
+      textscale .225
+    }
+    itemDef
+    {
+      name ignore
+      group gameGrp
+      rect 35 75 240 130
+      type ITEM_TYPE_LISTBOX
+      style WINDOW_STYLE_EMPTY
+      elementwidth 120
+      elementheight 16
+      textscale .225
+      border 1
+      bordersize 1
+      bordercolor .5 .5 .5 1
+      forecolor 1 1 1 1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_IGNORE_LIST
+      visible 0
+      columns 3
+        2   40  32  ITEM_ALIGN_LEFT
+        150 15  1   ITEM_ALIGN_LEFT
+        190 15  1   ITEM_ALIGN_LEFT
+      doubleClick {
+        play "sound/misc/menu1.wav"; 
+        uiScript ToggleIgnore
+      }
+    }
+
+    itemDef
+    {
+      name ignore 
+      text "Ignore Player"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 60 210 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript IgnorePlayer
+      }
+    }
+    
+    itemDef
+    {
+      name ignore 
+      text "Stop Ignoring Player"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 190 210 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript UnIgnorePlayer
+      }
+    }
+
+  }
+}
+#include "ui/menudef.h"
+
+{
+  \\ INGAME GAME BOX \\
+
+  menuDef
+  {
+    name "ingame_game"
+    visible 0
+    fullscreen 0
+    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
+    rect 10 56 292 280
+    focusColor 1 .75 0 1
+    onopen
+    {
+      uiScript InitIgnoreList;
+      uiScript loadArenas;
+      uiScript loadServerInfo;
+      hide gameGrp;
+      show vote;
+      show mapvote;
+
+      setitemcolor voteBtn       forecolor 0.2 0.2 0.2 1.0;
+      setitemcolor ignoreBtn     forecolor 1.0 1.0 1.0 1.0;
+      setitemcolor infoBtn      forecolor 1.0 1.0 1.0 1.0
+    }
+
+    itemDef
+    {
+      name window
+      rect 10 5 292 270
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 1
+      visible 1
+      decoration
+
+      border WINDOW_BORDER_KCGRADIENT
+      borderSize 2.0
+      borderColor 0.5 0.5 0.5 1
+    }
+
+    //Section menus
+    itemDef
+    {
+      name voteBtn
+      text "Vote"
+      group menuGrp
+      style WINDOW_STYLE_EMPTY
+      rect 35 22 40 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15        
+      textscale .35
+      forecolor 1 1 1 1
+      visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show vote;
+        show mapvote;
+        
+        setitemcolor infoBtn      forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor voteBtn  forecolor 0.2 0.2 0.2 1.0;
+        setitemcolor ignoreBtn    forecolor 1.0 1.0 1.0 1.0
+      }
+    }
+
+    itemDef
+    {
+      name ignoreBtn
+      text "Ignore"
+      group menuGrp
+      style WINDOW_STYLE_EMPTY
+      rect 100 22 40 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15        
+      textscale .35
+      forecolor 1 1 1 1
+      visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show ignore;
+        
+        setitemcolor infoBtn      forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor voteBtn  forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor ignoreBtn    forecolor 0.2 0.2 0.2 1.0
+      }
+    }
+    
+    itemDef
+    {
+      name infoBtn
+      text "Info"
+      group menuGrp
+      style WINDOW_STYLE_EMPTY
+      rect 165 22 40 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5 
+      textaligny 15
+      textscale .35
+      forecolor 1 1 1 1
+      visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show info;
+        
+        setitemcolor infoBtn      forecolor 0.2 0.2 0.2 1.0;
+        setitemcolor voteBtn  forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor ignoreBtn    forecolor 1.0 1.0 1.0 1.0
+      }
+    }
+
+
+//////// INFO
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 55 256 20
+      type 4
+      style 0	
+      text "Server Name:"
+      cvar ui_serverinfo_hostname
+      maxPaintChars 32
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0 
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 70 256 20
+      type 4
+      style 0	
+      text "Time Limit:"
+      maxPaintChars 12
+      cvar ui_serverinfo_timelimit
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 85 256 20
+      type 4
+      style 0	
+      text "Sudden Death Time:"
+      cvar ui_serverinfo_sd
+      maxPaintChars 12
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 100 256 20
+      type 4
+      style 0	
+      text "Max Clients:"
+      cvar ui_serverinfo_maxclients 
+      maxPaintChars 12
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 115 256 20
+      type 4
+      style 0	
+      text "Map Name:"
+      cvar ui_serverinfo_mapname 
+      maxPaintChars 12
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 130 256 20
+      type 11
+      style 0	
+      text "Lag Correction:"
+      cvar ui_serverinfo_unlagged
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 145 256 20
+      type 11
+      style 0	
+      text "Friendly Fire:"
+      cvar ui_serverinfo_ff
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+    
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 160 256 20
+      type 4
+      style 0	
+      text "Version:"
+      cvar version 
+      maxPaintChars 45
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+//////// VOTE
+
+    //Vote menu
+    itemDef
+    {
+      name vote
+      text "Map"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 20 60 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show mapvote;
+        show vote;
+      }
+    }
+
+    itemDef
+    {
+      name vote
+      text "Players"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 20 85 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show playervote;
+        show vote;
+      }
+    }
+    
+    itemDef
+    {
+      name vote
+      text "Team"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 20 110 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show teamvote;
+        show vote;
+      }
+    }
+
+///// Map Vote
+    itemDef
+    {
+      name mapvote 
+      group gameGrp
+      style 0
+      ownerdraw UI_STARTMAPCINEMATIC
+      rect 111 61 80 60
+      border 1
+      bordercolor .5 .5 .5 .5
+      visible 0
+    }
+
+    itemDef
+    {
+      name mapvote 
+      group gameGrp
+      style WINDOW_STYLE_FILLED
+      rect 110 60 82 62
+      border 1
+      bordercolor .5 .5 .5 .5
+      visible 0
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text ""
+      ownerdraw UI_ALLMAPS_SELECTION
+      textscale .225
+      rect 200 80 110 20
+      textalign 0
+      textalignx 0
+      textaligny 16
+      forecolor 1 1 1 1
+      decoration
+      visible 0
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      rect 110 122 150 85
+      type ITEM_TYPE_LISTBOX
+      style WINDOW_STYLE_EMPTY
+      elementwidth 120
+      elementheight 15
+      textscale .225
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_ALLMAPS
+      border 1
+      bordercolor   0.5 0.5 0.5 0.5
+      forecolor     1   1   1   1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      visible 0
+      doubleclick
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteMap;
+        uiScript closeingame
+      }
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text "Load Selected Map"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 210 80 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5 
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteMap;
+        uiScript closeingame
+      }
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text "Restart Current Map"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 230 90 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        exec "cmd callvote map_restart";
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text "End Match In Draw"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 250 110 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        exec "cmd callvote draw";
+        uiScript closeingame
+      }
+    }
+
+///// Player Vote
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      text "Selected Player:"
+      ownerdraw UI_PLAYERLIST_SELECTION
+      textscale .225
+      rect 110 60 110 20
+      textalign 0
+      textalignx 0
+      textaligny 16
+      forecolor 1 1 1 1
+      decoration
+      visible 0
+    }
+
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      rect 110 80 170 85
+      style WINDOW_STYLE_EMPTY
+      type ITEM_TYPE_LISTBOX
+      elementwidth 120
+      elementheight 15
+      textscale .225
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_PLAYER_LIST
+      border 1
+      bordercolor   0.5 0.5 0.5 0.5
+      forecolor     1   1   1   1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      visible 0
+    }
+    
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      text "Kick Selected Player"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 175 90 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteKick;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      text "Mute Selected Player"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 195 90 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteMute;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      text "Un-Mute Selected Player"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 215 100 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteUnMute;
+        uiScript closeingame
+      }
+    }
+
+
+///// Team Vote
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Selected Teammate:"
+      ownerdraw UI_TEAMLIST_SELECTION
+      textscale .225
+      rect 110 60 110 20
+      textalign 0
+      textalignx 0
+      textaligny 16
+      forecolor 1 1 1 1
+      decoration
+      visible 0
+    }
+
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      rect 110 80 170 85
+      style WINDOW_STYLE_EMPTY
+      type ITEM_TYPE_LISTBOX
+      elementwidth 120
+      elementheight 15
+      textscale .225
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_TEAM_LIST
+      border 1
+      bordercolor   0.5 0.5 0.5 0.5
+      forecolor     1   1   1   1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      visible 0
+    }
+    
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Kick Selected Teammate"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 175 100 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteTeamKick;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Deny Building For Selected Teammate"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 195 150 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteTeamDenyBuild;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Allow Building For Selected Teammate"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 215 150 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteTeamAllowBuild;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Admit Defeat"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 235 150 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        exec "cmd callteamvote admitdefeat";
+        uiScript closeingame
+      }
+    }
+
+//////// IGNORE
+    itemDef
+    {
+      name ignore
+      group gameGrp
+      rect 45 70 40 5 
+      text "Player Name"
+      visible 0
+      type ITEM_TYPE_TEXT 
+      textscale .225
+    }
+    itemDef
+    {
+      name ignore
+      group gameGrp
+      rect 190 70 40 5 
+      text "Ignored"
+      visible 0
+      type ITEM_TYPE_TEXT 
+      textscale .225
+    }
+    itemDef
+    {
+      name ignore
+      group gameGrp
+      rect 230 70 40 5 
+      text "Ignoring You"
+      visible 0
+      type ITEM_TYPE_TEXT 
+      textscale .225
+    }
+    itemDef
+    {
+      name ignore
+      group gameGrp
+      rect 35 75 240 130
+      type ITEM_TYPE_LISTBOX
+      style WINDOW_STYLE_EMPTY
+      elementwidth 120
+      elementheight 16
+      textscale .225
+      border 1
+      bordersize 1
+      bordercolor .5 .5 .5 1
+      forecolor 1 1 1 1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_IGNORE_LIST
+      visible 0
+      columns 3
+        2   40  32  ITEM_ALIGN_LEFT
+        150 15  1   ITEM_ALIGN_LEFT
+        190 15  1   ITEM_ALIGN_LEFT
+      doubleClick {
+        play "sound/misc/menu1.wav"; 
+        uiScript ToggleIgnore
+      }
+    }
+
+    itemDef
+    {
+      name ignore 
+      text "Ignore Player"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 60 210 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript IgnorePlayer
+      }
+    }
+    
+    itemDef
+    {
+      name ignore 
+      text "Stop Ignoring Player"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 190 210 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript UnIgnorePlayer
+      }
+    }
+
+  }
+}
+#include "ui/menudef.h"
+
+{
+  \\ INGAME GAME BOX \\
+
+  menuDef
+  {
+    name "ingame_game"
+    visible 0
+    fullscreen 0
+    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
+    rect 10 56 292 280
+    focusColor 1 .75 0 1
+    onopen
+    {
+      uiScript InitIgnoreList;
+      uiScript loadArenas;
+      uiScript loadServerInfo;
+      hide gameGrp;
+      show vote;
+      show mapvote;
+
+      setitemcolor voteBtn       forecolor 0.2 0.2 0.2 1.0;
+      setitemcolor ignoreBtn     forecolor 1.0 1.0 1.0 1.0;
+      setitemcolor infoBtn      forecolor 1.0 1.0 1.0 1.0
+    }
+
+    itemDef
+    {
+      name window
+      rect 10 5 292 270
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 1
+      visible 1
+      decoration
+
+      border WINDOW_BORDER_KCGRADIENT
+      borderSize 2.0
+      borderColor 0.5 0.5 0.5 1
+    }
+
+    //Section menus
+    itemDef
+    {
+      name voteBtn
+      text "Vote"
+      group menuGrp
+      style WINDOW_STYLE_EMPTY
+      rect 35 22 40 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15        
+      textscale .35
+      forecolor 1 1 1 1
+      visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show vote;
+        show mapvote;
+        
+        setitemcolor infoBtn      forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor voteBtn  forecolor 0.2 0.2 0.2 1.0;
+        setitemcolor ignoreBtn    forecolor 1.0 1.0 1.0 1.0
+      }
+    }
+
+    itemDef
+    {
+      name ignoreBtn
+      text "Ignore"
+      group menuGrp
+      style WINDOW_STYLE_EMPTY
+      rect 100 22 40 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15        
+      textscale .35
+      forecolor 1 1 1 1
+      visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show ignore;
+        
+        setitemcolor infoBtn      forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor voteBtn  forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor ignoreBtn    forecolor 0.2 0.2 0.2 1.0
+      }
+    }
+    
+    itemDef
+    {
+      name infoBtn
+      text "Info"
+      group menuGrp
+      style WINDOW_STYLE_EMPTY
+      rect 165 22 40 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5 
+      textaligny 15
+      textscale .35
+      forecolor 1 1 1 1
+      visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show info;
+        
+        setitemcolor infoBtn      forecolor 0.2 0.2 0.2 1.0;
+        setitemcolor voteBtn  forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor ignoreBtn    forecolor 1.0 1.0 1.0 1.0
+      }
+    }
+
+
+//////// INFO
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 55 256 20
+      type 4
+      style 0	
+      text "Server Name:"
+      cvar ui_serverinfo_hostname
+      maxPaintChars 32
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0 
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 70 256 20
+      type 4
+      style 0	
+      text "Time Limit:"
+      maxPaintChars 12
+      cvar ui_serverinfo_timelimit
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 85 256 20
+      type 4
+      style 0	
+      text "Sudden Death Time:"
+      cvar ui_serverinfo_sd
+      maxPaintChars 12
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 100 256 20
+      type 4
+      style 0	
+      text "Max Clients:"
+      cvar ui_serverinfo_maxclients 
+      maxPaintChars 12
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 115 256 20
+      type 4
+      style 0	
+      text "Map Name:"
+      cvar ui_serverinfo_mapname 
+      maxPaintChars 12
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 130 256 20
+      type 11
+      style 0	
+      text "Lag Correction:"
+      cvar ui_serverinfo_unlagged
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 145 256 20
+      type 11
+      style 0	
+      text "Friendly Fire:"
+      cvar ui_serverinfo_ff
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12    
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+    
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 160 256 20
+      type 4
+      style 0	
+      text "Version:"
+      cvar version 
+      maxPaintChars 45
+      textalign ITEM_ALIGN_RIGHT
+      textaligny 12
+      textalignx 75 
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+//////// VOTE
+
+    //Vote menu
+    itemDef
+    {
+      name vote
+      text "Map"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 20 60 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show mapvote;
+        show vote;
+      }
+    }
+
+    itemDef
+    {
+      name vote
+      text "Players"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 20 85 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show playervote;
+        show vote;
+      }
+    }
+    
+    itemDef
+    {
+      name vote
+      text "Team"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 20 110 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show teamvote;
+        show vote;
+      }
+    }
+
+///// Map Vote
+    itemDef
+    {
+      name mapvote 
+      group gameGrp
+      style 0
+      ownerdraw UI_STARTMAPCINEMATIC
+      rect 111 61 80 60
+      border 1
+      bordercolor .5 .5 .5 .5
+      visible 0
+    }
+
+    itemDef
+    {
+      name mapvote 
+      group gameGrp
+      style WINDOW_STYLE_FILLED
+      rect 110 60 82 62
+      border 1
+      bordercolor .5 .5 .5 .5
+      visible 0
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text ""
+      ownerdraw UI_ALLMAPS_SELECTION
+      textscale .225
+      rect 200 80 110 20
+      textalign 0
+      textalignx 0
+      textaligny 16
+      forecolor 1 1 1 1
+      decoration
+      visible 0
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      rect 110 122 150 85
+      type ITEM_TYPE_LISTBOX
+      style WINDOW_STYLE_EMPTY
+      elementwidth 120
+      elementheight 15
+      textscale .225
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_ALLMAPS
+      border 1
+      bordercolor   0.5 0.5 0.5 0.5
+      forecolor     1   1   1   1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      visible 0
+      doubleclick
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteMap;
+        uiScript closeingame
+      }
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text "Load Selected Map"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 210 80 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5 
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteMap;
+        uiScript closeingame
+      }
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text "Restart Current Map"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 230 90 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        exec "cmd callvote map_restart";
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text "End Match In Draw"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 250 110 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        exec "cmd callvote draw";
+        uiScript closeingame
+      }
+    }
+
+///// Player Vote
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      text "Selected Player:"
+      ownerdraw UI_PLAYERLIST_SELECTION
+      textscale .225
+      rect 110 60 110 20
+      textalign 0
+      textalignx 0
+      textaligny 16
+      forecolor 1 1 1 1
+      decoration
+      visible 0
+    }
+
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      rect 110 80 170 85
+      style WINDOW_STYLE_EMPTY
+      type ITEM_TYPE_LISTBOX
+      elementwidth 120
+      elementheight 15
+      textscale .225
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_PLAYER_LIST
+      border 1
+      bordercolor   0.5 0.5 0.5 0.5
+      forecolor     1   1   1   1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      visible 0
+    }
+    
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      text "Kick Selected Player"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 175 90 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteKick;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      text "Mute Selected Player"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 195 90 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteMute;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      text "Un-Mute Selected Player"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 215 100 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteUnMute;
+        uiScript closeingame
+      }
+    }
+
+
+///// Team Vote
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Selected Teammate:"
+      ownerdraw UI_TEAMLIST_SELECTION
+      textscale .225
+      rect 110 60 110 20
+      textalign 0
+      textalignx 0
+      textaligny 16
+      forecolor 1 1 1 1
+      decoration
+      visible 0
+    }
+
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      rect 110 80 170 85
+      style WINDOW_STYLE_EMPTY
+      type ITEM_TYPE_LISTBOX
+      elementwidth 120
+      elementheight 15
+      textscale .225
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_TEAM_LIST
+      border 1
+      bordercolor   0.5 0.5 0.5 0.5
+      forecolor     1   1   1   1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      visible 0
+    }
+    
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Kick Selected Teammate"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 175 100 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteTeamKick;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Deny Building For Selected Teammate"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 195 150 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteTeamDenyBuild;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Allow Building For Selected Teammate"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 215 150 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteTeamAllowBuild;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Admit Defeat"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 235 150 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        exec "cmd callteamvote admitdefeat";
+        uiScript closeingame
+      }
+    }
+
+//////// IGNORE
+    itemDef
+    {
+      name ignore
+      group gameGrp
+      rect 45 70 40 5 
+      text "Player Name"
+      visible 0
+      type ITEM_TYPE_TEXT 
+      textscale .225
+    }
+    itemDef
+    {
+      name ignore
+      group gameGrp
+      rect 190 70 40 5 
+      text "Ignored"
+      visible 0
+      type ITEM_TYPE_TEXT 
+      textscale .225
+    }
+    itemDef
+    {
+      name ignore
+      group gameGrp
+      rect 230 70 40 5 
+      text "Ignoring You"
+      visible 0
+      type ITEM_TYPE_TEXT 
+      textscale .225
+    }
+    itemDef
+    {
+      name ignore
+      group gameGrp
+      rect 35 75 240 130
+      type ITEM_TYPE_LISTBOX
+      style WINDOW_STYLE_EMPTY
+      elementwidth 120
+      elementheight 16
+      textscale .225
+      border 1
+      bordersize 1
+      bordercolor .5 .5 .5 1
+      forecolor 1 1 1 1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_IGNORE_LIST
+      visible 0
+      columns 3
+        2   40  32  ITEM_ALIGN_LEFT
+        150 15  1   ITEM_ALIGN_LEFT
+        190 15  1   ITEM_ALIGN_LEFT
+      doubleClick {
+        play "sound/misc/menu1.wav"; 
+        uiScript ToggleIgnore
+      }
+    }
+
+    itemDef
+    {
+      name ignore 
+      text "Ignore Player"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 60 210 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript IgnorePlayer
+      }
+    }
+    
+    itemDef
+    {
+      name ignore 
+      text "Stop Ignoring Player"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 190 210 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript UnIgnorePlayer
+      }
+    }
+
+  }
+}
+#include "ui/menudef.h"
+
+{
+  \\ INGAME GAME BOX \\
+
+  menuDef
+  {
+    name "ingame_game"
+    visible 0
+    fullscreen 0
+    outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
+    rect 10 56 292 280
+    focusColor 1 .75 0 1
+    onopen
+    {
+      uiScript InitIgnoreList;
+      uiScript loadArenas;
+      uiScript loadServerInfo;
+      hide gameGrp;
+      show vote;
+      show mapvote;
+
+      setitemcolor voteBtn       forecolor 0.2 0.2 0.2 1.0;
+      setitemcolor ignoreBtn     forecolor 1.0 1.0 1.0 1.0;
+      setitemcolor infoBtn      forecolor 1.0 1.0 1.0 1.0
+    }
+
+    itemDef
+    {
+      name window
+      rect 10 5 292 270
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 1
+      visible 1
+      decoration
+
+      border WINDOW_BORDER_KCGRADIENT
+      borderSize 2.0
+      borderColor 0.5 0.5 0.5 1
+    }
+
+    //Section menus
+    itemDef
+    {
+      name voteBtn
+      text "Vote"
+      group menuGrp
+      style WINDOW_STYLE_EMPTY
+      rect 35 22 40 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15        
+      textscale .35
+      forecolor 1 1 1 1
+      visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show vote;
+        show mapvote;
+        
+        setitemcolor infoBtn      forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor voteBtn  forecolor 0.2 0.2 0.2 1.0;
+        setitemcolor ignoreBtn    forecolor 1.0 1.0 1.0 1.0
+      }
+    }
+
+    itemDef
+    {
+      name ignoreBtn
+      text "Ignore"
+      group menuGrp
+      style WINDOW_STYLE_EMPTY
+      rect 100 22 40 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15        
+      textscale .35
+      forecolor 1 1 1 1
+      visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show ignore;
+        
+        setitemcolor infoBtn      forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor voteBtn  forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor ignoreBtn    forecolor 0.2 0.2 0.2 1.0
+      }
+    }
+    
+    itemDef
+    {
+      name infoBtn
+      text "Info"
+      group menuGrp
+      style WINDOW_STYLE_EMPTY
+      rect 165 22 40 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5 
+      textaligny 15
+      textscale .35
+      forecolor 1 1 1 1
+      visible 1 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show info;
+        
+        setitemcolor infoBtn      forecolor 0.2 0.2 0.2 1.0;
+        setitemcolor voteBtn  forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor ignoreBtn    forecolor 1.0 1.0 1.0 1.0
+      }
+    }
+
+
+//////// ABOUT
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 55 256 20
+      type 4
+      style 0	
+      text "Server Name:"
+      cvar ui_serverinfo_hostname
+      maxPaintChars 12
+      textalign ITEM_ALIGN_RIGHT		
+      textalignx 128
+      textaligny 12    
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0 
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 70 256 20
+      type 4
+      style 0	
+      text "Time Limit:"
+      maxPaintChars 12
+      cvar ui_serverinfo_timelimit
+      textalign ITEM_ALIGN_RIGHT		
+      textalignx 128
+      textaligny 12    
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 85 256 20
+      type 4
+      style 0	
+      text "Sudden Death Time:"
+      cvar ui_serverinfo_sd
+      maxPaintChars 12
+      textalign ITEM_ALIGN_RIGHT		
+      textalignx 128
+      textaligny 12    
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 100 256 20
+      type 4
+      style 0	
+      text "Max Clients:"
+      cvar ui_serverinfo_maxclients 
+      maxPaintChars 12
+      textalign ITEM_ALIGN_RIGHT		
+      textalignx 128
+      textaligny 12    
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 115 256 20
+      type 4
+      style 0	
+      text "Map Name:"
+      cvar ui_serverinfo_mapname 
+      maxPaintChars 12
+      textalign ITEM_ALIGN_RIGHT		
+      textalignx 128
+      textaligny 12    
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 130 256 20
+      type 11
+      style 0	
+      text "Lag Correction:"
+      cvar ui_serverinfo_unlagged
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 128
+      textaligny 12    
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 145 256 20
+      type 11
+      style 0	
+      text "Friendly Fire:"
+      cvar ui_serverinfo_ff
+      textalign ITEM_ALIGN_RIGHT		
+      textalignx 128
+      textaligny 12    
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+    
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 30 160 256 20
+      type 4
+      style 0	
+      text "Version:"
+      cvar version 
+      maxPaintChars 45
+      textalign ITEM_ALIGN_LEFT		
+      textalignx 128
+      textaligny 12
+      textalign 1    
+      textscale .25     
+      forecolor 1 1 1 1
+      visible 0
+      decoration
+    }
+
+//////// VOTE
+
+    //Vote menu
+    itemDef
+    {
+      name vote
+      text "Map"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 20 60 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show mapvote;
+        show vote;
+      }
+    }
+
+    itemDef
+    {
+      name vote
+      text "Players"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 20 85 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show playervote;
+        show vote;
+      }
+    }
+    
+    itemDef
+    {
+      name vote
+      text "Team"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 20 110 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav"; 
+        hide gameGrp;
+        show teamvote;
+        show vote;
+      }
+    }
+
+///// Map Vote
+    itemDef
+    {
+      name mapvote 
+      group gameGrp
+      style 0
+      ownerdraw UI_STARTMAPCINEMATIC
+      rect 111 61 80 60
+      border 1
+      bordercolor .5 .5 .5 .5
+      visible 0
+    }
+
+    itemDef
+    {
+      name mapvote 
+      group gameGrp
+      style WINDOW_STYLE_FILLED
+      rect 110 60 82 62
+      border 1
+      bordercolor .5 .5 .5 .5
+      visible 0
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text ""
+      ownerdraw UI_ALLMAPS_SELECTION
+      textscale .225
+      rect 200 80 110 20
+      textalign 0
+      textalignx 0
+      textaligny 16
+      forecolor 1 1 1 1
+      decoration
+      visible 0
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      rect 110 122 150 85
+      type ITEM_TYPE_LISTBOX
+      style WINDOW_STYLE_EMPTY
+      elementwidth 120
+      elementheight 15
+      textscale .225
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_ALLMAPS
+      border 1
+      bordercolor   0.5 0.5 0.5 0.5
+      forecolor     1   1   1   1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      visible 0
+      doubleclick
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteMap;
+        uiScript closeingame
+      }
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text "Load Selected Map"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 210 80 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5 
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteMap;
+        uiScript closeingame
+      }
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text "Restart Current Map"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 230 90 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        exec "cmd callvote map_restart";
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text "End Match In Draw"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 250 110 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        exec "cmd callvote draw";
+        uiScript closeingame
+      }
+    }
+
+///// Player Vote
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      text "Selected Player:"
+      ownerdraw UI_PLAYERLIST_SELECTION
+      textscale .225
+      rect 110 60 110 20
+      textalign 0
+      textalignx 0
+      textaligny 16
+      forecolor 1 1 1 1
+      decoration
+      visible 0
+    }
+
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      rect 110 80 170 85
+      style WINDOW_STYLE_EMPTY
+      type ITEM_TYPE_LISTBOX
+      elementwidth 120
+      elementheight 15
+      textscale .225
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_PLAYER_LIST
+      border 1
+      bordercolor   0.5 0.5 0.5 0.5
+      forecolor     1   1   1   1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      visible 0
+    }
+    
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      text "Kick Selected Player"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 175 90 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteKick;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      text "Mute Selected Player"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 195 90 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteMute;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name playervote
+      group gameGrp
+      text "Un-Mute Selected Player"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 215 100 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteUnMute;
+        uiScript closeingame
+      }
+    }
+
+
+///// Team Vote
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Selected Teammate:"
+      ownerdraw UI_TEAMLIST_SELECTION
+      textscale .225
+      rect 110 60 110 20
+      textalign 0
+      textalignx 0
+      textaligny 16
+      forecolor 1 1 1 1
+      decoration
+      visible 0
+    }
+
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      rect 110 80 170 85
+      style WINDOW_STYLE_EMPTY
+      type ITEM_TYPE_LISTBOX
+      elementwidth 120
+      elementheight 15
+      textscale .225
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_TEAM_LIST
+      border 1
+      bordercolor   0.5 0.5 0.5 0.5
+      forecolor     1   1   1   1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      visible 0
+    }
+    
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Kick Selected Teammate"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 175 100 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteTeamKick;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Deny Building For Selected Teammate"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 195 150 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteTeamDenyBuild;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Allow Building For Selected Teammate"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 215 150 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteTeamAllowBuild;
+        uiScript closeingame
+      }
+    }
+    
+    itemDef
+    {
+      name teamvote
+      group gameGrp
+      text "Admit Defeat"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect 110 235 150 20
+      textalign ITEM_ALIGN_LEFT
+      textalignx 5
+      textaligny 15
+      forecolor 1 1 1 1
+      visible 0
+      action
+      {
+        play "sound/misc/menu1.wav";
+        exec "cmd callteamvote admitdefeat";
+        uiScript closeingame
+      }
+    }
+
+//////// IGNORE
+    itemDef
+    {
+      name ignore
+      group gameGrp
+      rect 45 70 40 5 
+      text "Player Name"
+      visible 0
+      type ITEM_TYPE_TEXT 
+      textscale .225
+    }
+    itemDef
+    {
+      name ignore
+      group gameGrp
+      rect 190 70 40 5 
+      text "Ignored"
+      visible 0
+      type ITEM_TYPE_TEXT 
+      textscale .225
+    }
+    itemDef
+    {
+      name ignore
+      group gameGrp
+      rect 230 70 40 5 
+      text "Ignoring You"
+      visible 0
+      type ITEM_TYPE_TEXT 
+      textscale .225
+    }
+    itemDef
+    {
+      name ignore
+      group gameGrp
+      rect 35 75 240 130
+      type ITEM_TYPE_LISTBOX
+      style WINDOW_STYLE_EMPTY
+      elementwidth 120
+      elementheight 16
+      textscale .225
+      border 1
+      bordersize 1
+      bordercolor .5 .5 .5 1
+      forecolor 1 1 1 1
+      backcolor     0.2 0.2 0.2 1
+      outlinecolor  0.1 0.1 0.1 0.5
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_IGNORE_LIST
+      visible 0
+      columns 3
+        2   40  32  ITEM_ALIGN_LEFT
+        150 15  1   ITEM_ALIGN_LEFT
+        190 15  1   ITEM_ALIGN_LEFT
+      doubleClick {
+        play "sound/misc/menu1.wav"; 
+        uiScript ToggleIgnore
+      }
+    }
+
+    itemDef
+    {
+      name ignore 
+      text "Ignore Player"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 60 210 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript IgnorePlayer
+      }
+    }
+    
+    itemDef
+    {
+      name ignore 
+      text "Stop Ignoring Player"
+      group gameGrp
+      style WINDOW_STYLE_EMPTY
+      rect 190 210 64 20
+      type ITEM_TYPE_BUTTON
+      textalign ITEM_ALIGN_RIGHT
+      textalignx 64
+      textaligny 16
+      textscale .25
+      forecolor 1 1 1 1
+      visible 0 
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript UnIgnorePlayer
+      }
+    }
+
+  }
+}

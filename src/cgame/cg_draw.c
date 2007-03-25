@@ -3048,6 +3048,7 @@ static void CG_DrawVote( void )
   char    *s;
   int     sec;
   vec4_t  white = { 1.0f, 1.0f, 1.0f, 1.0f };
+  char    yeskey[ 32 ], nokey[ 32 ];
 
   if( !cgs.voteTime )
     return;
@@ -3063,8 +3064,10 @@ static void CG_DrawVote( void )
 
   if( sec < 0 )
     sec = 0;
-
-  s = va( "VOTE(%i): \"%s\"  Yes:%i No:%i", sec, cgs.voteString, cgs.voteYes, cgs.voteNo );
+  Q_strncpyz( yeskey, CG_KeyBinding( "vote yes" ), sizeof( yeskey ) ); 
+  Q_strncpyz( nokey, CG_KeyBinding( "vote no" ), sizeof( nokey ) ); 
+  s = va( "VOTE(%i): \"%s\"  [%s]Yes:%i [%s]No:%i", sec, cgs.voteString,
+    yeskey, cgs.voteYes, nokey, cgs.voteNo );
   CG_Text_Paint( 8, 340, 0.3f, white, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
 }
 
@@ -3078,6 +3081,7 @@ static void CG_DrawTeamVote( void )
   char    *s;
   int     sec, cs_offset;
   vec4_t  white = { 1.0f, 1.0f, 1.0f, 1.0f };
+  char    yeskey[ 32 ], nokey[ 32 ];
 
   if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS )
     cs_offset = 0;
@@ -3101,8 +3105,12 @@ static void CG_DrawTeamVote( void )
   if( sec < 0 )
     sec = 0;
 
-  s = va( "TEAMVOTE(%i): \"%s\"  Yes:%i No:%i", sec, cgs.teamVoteString[ cs_offset ],
-              cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[ cs_offset ] );
+  Q_strncpyz( yeskey, CG_KeyBinding( "teamvote yes" ), sizeof( yeskey ) ); 
+  Q_strncpyz( nokey, CG_KeyBinding( "teamvote no" ), sizeof( nokey ) ); 
+  s = va( "TEAMVOTE(%i): \"%s\"  [%s]Yes:%i   [%s]No:%i", sec,
+          cgs.teamVoteString[ cs_offset ],
+          yeskey, cgs.teamVoteYes[cs_offset],
+          nokey, cgs.teamVoteNo[ cs_offset ] );
 
   CG_Text_Paint( 8, 360, 0.3f, white, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
 }

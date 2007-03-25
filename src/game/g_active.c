@@ -762,7 +762,8 @@ void ClientTimerActions( gentity_t *ent, int msec )
     }
 
     //replenish alien health
-    if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
+      level.surrenderTeam != PTE_ALIENS )
     {
       int       entityList[ MAX_GENTITIES ];
       vec3_t    range = { LEVEL4_REGEN_RANGE, LEVEL4_REGEN_RANGE, LEVEL4_REGEN_RANGE };
@@ -800,6 +801,20 @@ void ClientTimerActions( gentity_t *ent, int msec )
 
       if( ent->health > client->ps.stats[ STAT_MAX_HEALTH ] )
         ent->health = client->ps.stats[ STAT_MAX_HEALTH ];
+    }
+   
+    // turn off life support when a team admits defeat 
+    if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
+      level.surrenderTeam == PTE_ALIENS )
+    {
+      G_Damage( ent, NULL, NULL, NULL, NULL,
+        BG_FindRegenRateForClass( client->ps.stats[ STAT_PCLASS ] ),
+        DAMAGE_NO_ARMOR, MOD_SUICIDE );
+    }
+    else if( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+      level.surrenderTeam == PTE_HUMANS )
+    {
+      G_Damage( ent, NULL, NULL, NULL, NULL, 5, DAMAGE_NO_ARMOR, MOD_SUICIDE );
     }
   }
 

@@ -360,6 +360,7 @@ int UI_AdjustTimeByGame(int time);
 void UI_ShowPostGame(qboolean newHigh);
 void UI_ClearScores( void );
 void UI_LoadArenas(void);
+void UI_ServerInfo(void);
 
 //
 // ui_menu.c
@@ -818,11 +819,16 @@ typedef struct {
   int playerRefresh;
   int playerIndex;
   int playerNumber;
+  int myPlayerIndex;
+  int ignoreIndex;
   qboolean teamLeader;
   char playerNames[MAX_CLIENTS][MAX_NAME_LENGTH];
+  char rawPlayerNames[MAX_CLIENTS][MAX_NAME_LENGTH];
   char teamNames[MAX_CLIENTS][MAX_NAME_LENGTH];
+  char rawTeamNames[MAX_CLIENTS][MAX_NAME_LENGTH];
   int clientNums[MAX_CLIENTS];
   int teamClientNums[MAX_CLIENTS];
+  clientList_t ignoreList[MAX_CLIENTS];
 
   int mapCount;
   mapInfo mapList[MAX_MAPS];

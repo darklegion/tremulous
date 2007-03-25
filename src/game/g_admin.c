@@ -42,6 +42,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "display your current admin level",
       ""
     },
+
+    {"allowbuild", G_admin_denybuild, "d",
+      "restore a player's ablity to build",
+      "[^3name|slot#^7]"
+    },
     
     {"allready", G_admin_allready, "y",
       "makes everyone ready in intermission",
@@ -58,6 +63,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
     {"cancelvote", G_admin_cancelvote, "c",
       "cancel a vote taking place",
       ""
+    },
+
+    {"denybuild", G_admin_denybuild, "d",
+      "take away a player's ablity to build",
+      "[^3name|slot#^7]"
     },
 
     {"help", G_admin_help, "h",
@@ -2042,6 +2052,68 @@ qboolean G_admin_mute( gentity_t *ent, int skiparg )
   return qtrue;
 }
 
+qboolean G_admin_denybuild( gentity_t *ent, int skiparg )
+{
+  int pids[ MAX_CLIENTS ];
+  char name[ MAX_NAME_LENGTH ], err[ MAX_STRING_CHARS ];
+  char command[ MAX_ADMIN_CMD_LEN ], *cmd;
+  gentity_t *vic;
+
+  G_SayArgv( skiparg, command, sizeof( command ) );
+  cmd = command;
+  if( cmd && *cmd == '!' )
+    cmd++;
+  if( G_SayArgc() < 2 + skiparg )
+  {
+    ADMP( va( "^3!%s: ^7usage: !%s [name|slot#]\n", cmd, cmd ) );
+    return qfalse;
+  }
+  G_SayArgv( 1 + skiparg, name, sizeof( name ) );
+  if( G_ClientNumbersFromString( name, pids ) != 1 )
+  {
+    G_MatchOnePlayer( pids, err, sizeof( err ) );
+    ADMP( va( "^3!%s: ^7%s\n", cmd, err ) );
+    return qfalse;
+  }
+  if( !admin_higher( ent, &g_entities[ pids[ 0 ] ] ) )
+  {
+    ADMP( va( "^3!%s: ^7sorry, but your intended victim has a higher admin"
+              " level than you\n", cmd ) );
+    return qfalse;
+  }
+  vic = &g_entities[ pids[ 0 ] ];
+  if( vic->client->pers.denyBuild )
+  {
+    if( !Q_stricmp( cmd, "denybuild" ) )
+    {
+      ADMP( "^3!denybuild: ^7player already has no building rights\n" );
+      return qtrue;
+    }
+    vic->client->pers.denyBuild = qfalse;
+    CPx( pids[ 0 ], "cp \"^1You've regained your building rights\"" );
+    AP( va(
+      "print \"^3!allowbuild: ^7building rights for ^7%s^7 restored by %s\n\"",
+      vic->client->pers.netname,
+      ( ent ) ? ent->client->pers.netname : "console" ) );
+  }
+  else
+  {
+    if( !Q_stricmp( cmd, "allowbuild" ) )
+    {
+      ADMP( "^3!allowbuild: ^7player already has building rights\n" );
+      return qtrue;
+    }
+    vic->client->pers.denyBuild = qtrue;
+    CPx( pids[ 0 ], "cp \"^1You've lost your building rights\"" );
+    AP( va(
+      "print \"^3!denybuild: ^7building rights for ^7%s^7 revoked by ^7%s\n\"",
+      vic->client->pers.netname,
+      ( ent ) ? ent->client->pers.netname : "console" ) );
+  }
+  ClientUserinfoChanged( pids[ 0 ] );
+  return qtrue;
+}
+
 qboolean G_admin_listadmins( gentity_t *ent, int skiparg )
 {
   int i, found = 0;
@@ -2724,6 +2796,7 @@ qboolean G_admin_nextmap( gentity_t *ent, int skiparg )
   AP( va( "print \"^3!nextmap: ^7%s^7 decided to load the next map\n\"",
     ( ent ) ? ent->client->pers.netname : "console" ) );
   level.lastWin = PTE_NONE;
+  trap_SetConfigstring( CS_WINNER, "Evacuation" );
   LogExit( va( "nextmap was run by %s",
     ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;

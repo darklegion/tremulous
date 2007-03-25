@@ -13,7 +13,6 @@
     style 0
     border 1
 
-
     // GAMETYPE BAR	//
 
     //	TEAM NAME	//
@@ -282,5 +281,25 @@
       ownerdraw CG_SPECTATORS
       decoration
     }
+    
+    // WINNAR           //
+
+    itemDef
+    {
+      name winner
+      rect 310 400 612 40
+      type 4
+      style 0
+      text ""
+      cvar ui_winner
+      maxPaintChars 24
+      textalign ITEM_ALIGN_CENTER
+      textaligny 20
+      textscale .5
+      forecolor 1 1 1 1
+      visible 1
+      decoration
+    }
+    
   }
 }

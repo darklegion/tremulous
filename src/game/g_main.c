@@ -144,6 +144,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse  },
   { NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
   { NULL, "P", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
+  { NULL, "ff", "0", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
 
   // latched vars
 
@@ -469,8 +470,12 @@ void G_UpdateCvars( void )
         cv->modificationCount = cv->vmCvar->modificationCount;
 
         if( cv->trackChange )
+        {
           trap_SendServerCommand( -1, va( "print \"Server: %s changed to %s\n\"",
             cv->cvarName, cv->vmCvar->string ) );
+          // update serverinfo in case this cvar is passed to clients indirectly
+          CalculateRanks( );
+        }
 
         if( cv->teamShader )
           remapped = qtrue;
@@ -595,6 +600,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
     &level.clients[ 0 ].ps, sizeof( level.clients[ 0 ] ) );
 
   trap_SetConfigstring( CS_INTERMISSION, "0" );
+  trap_SetConfigstring( CS_WINNER, "" );
 
   // test to see if a custom buildable layout will be loaded
   G_LayoutSelect( );
@@ -681,6 +687,7 @@ void G_ShutdownGame( int restart )
   G_admin_namelog_cleanup( );
 
   level.restarted = qfalse;
+  level.surrenderTeam = PTE_NONE;
 }
 
 
@@ -1271,7 +1278,8 @@ void CalculateRanks( void )
   int       score;
   int       newScore;
   gclient_t *cl;
-  char P[ MAX_CLIENTS + 1 ] = {""};
+  char      P[ MAX_CLIENTS + 1 ] = {""};
+  int       ff = 0;
 
   level.follow1 = -1;
   level.follow2 = -1;
@@ -1341,6 +1349,16 @@ void CalculateRanks( void )
   }
   P[ i + 1 ] = '\0';
   trap_Cvar_Set( "P", P );
+
+  if( g_friendlyFire.integer )
+    ff |= ( FFF_HUMANS | FFF_ALIENS );
+  if( g_friendlyFireHumans.integer )
+    ff |=  FFF_HUMANS;
+  if( g_friendlyFireAliens.integer )
+    ff |=  FFF_ALIENS;
+  if( g_friendlyBuildableFire.integer )
+    ff |=  FFF_BUILDABLES;
+  trap_Cvar_Set( "ff", va( "%i", ff ) );
 
   qsort( level.sortedClients, level.numConnectedClients,
     sizeof( level.sortedClients[ 0 ] ), SortRanks );
@@ -1885,6 +1903,7 @@ void CheckExitRules( void )
     {
       level.lastWin = PTE_NONE;
       trap_SendServerCommand( -1, "print \"Timelimit hit\n\"" );
+      trap_SetConfigstring( CS_WINNER, "Stalemate" );
       LogExit( "Timelimit hit." );
       return;
     }
@@ -1910,6 +1929,7 @@ void CheckExitRules( void )
     //humans win
     level.lastWin = PTE_HUMANS;
     trap_SendServerCommand( -1, "print \"Humans win\n\"");
+    trap_SetConfigstring( CS_WINNER, "Humans Win" );
     LogExit( "Humans win." );
   }
   else if( level.uncondAlienWin ||
@@ -1920,6 +1940,7 @@ void CheckExitRules( void )
     //aliens win
     level.lastWin = PTE_ALIENS;
     trap_SendServerCommand( -1, "print \"Aliens win\n\"");
+    trap_SetConfigstring( CS_WINNER, "Aliens Win" );
     LogExit( "Aliens win." );
   }
 }

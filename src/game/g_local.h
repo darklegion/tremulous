@@ -299,6 +299,7 @@ typedef struct
   int               spectatorClient;  // for chasecam and follow mode
   int               wins, losses;     // tournament stats
   qboolean          teamLeader;       // true when this client is a team leader
+  clientList_t      ignoreList;
 } clientSession_t;
 
 #define MAX_NETNAME       36
@@ -350,6 +351,7 @@ typedef struct
   char                guid[ 33 ];
   char                ip[ 16 ];
   qboolean            muted;
+  qboolean            denyBuild;
   int                 adminLevel;
 } clientPersistant_t;
 
@@ -653,6 +655,8 @@ typedef struct
   int unlaggedTimes[ MAX_UNLAGGED_MARKERS ];
 
   char              layout[ MAX_QPATH ];
+
+  pTeam_t           surrenderTeam;
 } level_locals_t;
 
 //
@@ -741,6 +745,7 @@ void              G_LayoutSave( char *name );
 int               G_LayoutList( const char *map, char *list, int len );
 void              G_LayoutSelect( void );
 void              G_LayoutLoad( void );
+void              G_BaseSelfDestruct( pTeam_t team );
 
 //
 // g_utils.c

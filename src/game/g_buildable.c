@@ -3691,3 +3691,23 @@ void G_LayoutLoad( void )
   }
 }
 
+void G_BaseSelfDestruct( pTeam_t team )
+{
+  int       i;
+  gentity_t *ent;
+
+  for( i = MAX_CLIENTS; i < level.num_entities; i++ )
+  {
+    ent = &level.gentities[ i ];
+    if( ent->health <= 0 )
+      continue;
+    if( ent->s.eType != ET_BUILDABLE )
+      continue;
+    if( team == PTE_HUMANS && ent->biteam != BIT_HUMANS )
+      continue;
+    if( team == PTE_ALIENS && ent->biteam != BIT_ALIENS )
+      continue;
+    G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+  }
+}
+

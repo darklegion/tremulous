@@ -544,6 +544,38 @@ void  Svcmd_LayoutLoad_f( void )
   level.restarted = qtrue;
 }
 
+static void Svcmd_AdmitDefeat_f( void )
+{
+  int  team;
+  char teamNum[ 2 ];
+
+  if( trap_Argc( ) != 2 )
+  {
+    G_Printf("admitdefeat: must provide a team\n");
+    return;
+  }
+  trap_Argv( 1, teamNum, sizeof( teamNum ) );
+  team = atoi( teamNum );
+  if( team == PTE_ALIENS || teamNum[ 0 ] == 'a' )
+  {
+    level.surrenderTeam = PTE_ALIENS;
+    G_BaseSelfDestruct( PTE_ALIENS );
+    G_TeamCommand( PTE_ALIENS, "cp \"Hivemind Link Broken\" 1");
+    trap_SendServerCommand( -1, "print \"Alien team has admitted defeat\n\"" );
+  }
+  else if( team == PTE_HUMANS || teamNum[ 0 ] == 'h' )
+  {
+    level.surrenderTeam = PTE_HUMANS;
+    G_BaseSelfDestruct( PTE_HUMANS );
+    G_TeamCommand( PTE_HUMANS, "cp \"Life Support Terminated\" 1");
+    trap_SendServerCommand( -1, "print \"Human team has admitted defeat\n\"" );
+  }
+  else
+  {
+    G_Printf("admitdefeat: invalid team\n");
+  } 
+}
+
 /*
 =================
 ConsoleCommand
@@ -653,6 +685,21 @@ qboolean  ConsoleCommand( void )
   if( !Q_stricmp( cmd, "layoutload" ) )
   {
     Svcmd_LayoutLoad_f( );
+    return qtrue;
+  }
+  
+  if( !Q_stricmp( cmd, "admitdefeat" ) )
+  {
+    Svcmd_AdmitDefeat_f( );
+    return qtrue;
+  }
+
+  if( !Q_stricmp( cmd, "evacuation" ) )
+  {
+    trap_SendServerCommand( -1, "print \"Evacuation ordered\n\"" );
+    level.lastWin = PTE_NONE;
+    trap_SetConfigstring( CS_WINNER, "Evacuation" );
+    LogExit( "Evacuation." );
     return qtrue;
   }
   

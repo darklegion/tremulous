@@ -64,7 +64,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CS_GAME_VERSION     20
 #define CS_LEVEL_START_TIME 21    // so the timer only shows the current level
 #define CS_INTERMISSION     22    // when 1, fraglimit/timelimit has been hit and intermission will start in a second or two
-#define CS_FLAGSTATUS       23    // string indicating flag status in CTF
+#define CS_WINNER           23    // string indicating round winner
 #define CS_SHADERSTATE      24
 #define CS_BOTINFO          25
 #define CS_CLIENTS_READY    26    //TA: following suggestion in STAT_ enum STAT_CLIENTS_READY becomes a configstring
@@ -1294,3 +1294,20 @@ qboolean BG_UpgradeIsAllowed( upgrade_t upgrade );
 qboolean BG_ClassIsAllowed( pClass_t class );
 qboolean BG_BuildableIsAllowed( buildable_t buildable );
 qboolean BG_UpgradeClassAvailable( playerState_t *ps );
+
+typedef struct 
+{
+  unsigned int hi;
+  unsigned int lo;
+} clientList_t;
+qboolean BG_ClientListTest( clientList_t *list, int clientNum );
+void BG_ClientListAdd( clientList_t *list, int clientNum );
+void BG_ClientListRemove( clientList_t *list, int clientNum );
+char *BG_ClientListString( clientList_t *list );
+void BG_ClientListParse( clientList_t *list, const char *s );
+
+// Friendly Fire Flags
+#define FFF_HUMANS         1
+#define FFF_ALIENS         2
+#define FFF_BUILDABLES     4
+

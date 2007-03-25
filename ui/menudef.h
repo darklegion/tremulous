@@ -78,6 +78,7 @@
 #define FEEDER_TREMALIENBUILD           0x16      //alien buildables
 #define FEEDER_TREMHUMANBUILD           0x17      //human buildables
 //TA: tremulous menus
+#define FEEDER_IGNORE_LIST              0x18      //ignored players
 
 // display flags
 #define CG_SHOW_BLUE_TEAM_HAS_REDFLAG     0x00000001
@@ -326,6 +327,9 @@
 #define UI_HSELLINFOPANE      263
 #define UI_ABUILDINFOPANE     264
 #define UI_HBUILDINFOPANE     265
+
+#define UI_PLAYERLIST_SELECTION 266
+#define UI_TEAMLIST_SELECTION 267
 
 #define VOICECHAT_GETFLAG     "getflag"       // command someone to get the flag
 #define VOICECHAT_OFFENSE     "offense"       // command someone to go on offense

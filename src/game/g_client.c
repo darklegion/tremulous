@@ -1141,10 +1141,12 @@ void ClientUserinfoChanged( int clientNum )
   // print scoreboards, display models, and play custom sounds
 
   Com_sprintf( userinfo, sizeof( userinfo ),
-    "n\\%s\\t\\%i\\model\\%s\\hmodel\\%s"
-    "\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
+    "n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\"
+    "hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\"
+    "tl\\%d\\ig\\%16s",
     client->pers.netname, team, model, model, c1, c2,
-    client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader );
+    client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask,
+    teamLeader, BG_ClientListString( &client->sess.ignoreList ) );
 
   trap_SetConfigstring( CS_PLAYERS + clientNum, userinfo );
 
@@ -1663,6 +1665,9 @@ void ClientDisconnect( int clientNum )
   // stop any following clients
   for( i = 0; i < level.maxclients; i++ )
   {
+    // remove any /ignore settings for this clientNum
+    BG_ClientListRemove( &level.clients[ i ].sess.ignoreList, clientNum );
+
     if( level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR &&
         level.clients[ i ].sess.spectatorState == SPECTATOR_FOLLOW &&
         level.clients[ i ].sess.spectatorClient == clientNum )

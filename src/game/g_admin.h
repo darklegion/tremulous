@@ -153,6 +153,7 @@ qboolean G_admin_listlayouts( gentity_t *ent, int skiparg );
 qboolean G_admin_listplayers( gentity_t *ent, int skiparg );
 qboolean G_admin_map( gentity_t *ent, int skiparg );
 qboolean G_admin_mute( gentity_t *ent, int skiparg );
+qboolean G_admin_denybuild( gentity_t *ent, int skiparg );
 qboolean G_admin_showbans( gentity_t *ent, int skiparg );
 qboolean G_admin_help( gentity_t *ent, int skiparg );
 qboolean G_admin_admintest( gentity_t *ent, int skiparg );

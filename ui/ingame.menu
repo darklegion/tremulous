@@ -53,8 +53,8 @@
 
     itemdef
     {
-      name about
-      text "About"  
+      name game 
+      text "Game"  
       rect 35 6 65 40
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
@@ -67,7 +67,7 @@
       action
       {
         play "sound/misc/menu1.wav"; 
-        open ingame_about
+        open ingame_game
       }
     }
 
@@ -93,32 +93,12 @@
 
     itemDef
     {
-      name vote
-      text "Vote"
-      type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_EMPTY
-      ownerdrawflag UI_SHOW_NOTSPECTATING
-      rect 170 6 50 40
-      textalign ITEM_ALIGN_CENTER
-      textalignx 25 
-      textaligny 28 
-      textscale .4
-      forecolor 1 1 1 1
-      visible 1 
-      action
-      {
-        play "sound/misc/menu1.wav"; 
-        open ingame_vote
-      }
-    }
-
-    itemDef
-    {
       name leave
       text "Exit"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
-      rect 220 6 50 40 
+      //rect 220 6 50 40 
+      rect 170 6 50 40 
       textalign ITEM_ALIGN_CENTER
       textalignx 25 
       textaligny 28 
