@@ -600,7 +600,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
     &level.clients[ 0 ].ps, sizeof( level.clients[ 0 ] ) );
 
   trap_SetConfigstring( CS_INTERMISSION, "0" );
-  trap_SetConfigstring( CS_WINNER, "" );
 
   // test to see if a custom buildable layout will be loaded
   G_LayoutSelect( );
@@ -688,6 +687,7 @@ void G_ShutdownGame( int restart )
 
   level.restarted = qfalse;
   level.surrenderTeam = PTE_NONE;
+  trap_SetConfigstring( CS_WINNER, "" );
 }
 
 
