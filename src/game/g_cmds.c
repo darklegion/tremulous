@@ -1254,14 +1254,14 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   int   clientNum = -1;
   char  name[ MAX_NETNAME ];
   
-  if( ent->client->pers.teamSelection == PTE_NONE )
+  team = ent->client->pers.teamSelection;
+
+  if( team == PTE_NONE )
   {
     trap_SendServerCommand( ent-g_entities,
       "print \"Not allowed to call a team vote as a spectator\n\"" );
     return;
   }
-
-  team = ent->client->ps.stats[ STAT_PTEAM ];
 
   if( team == PTE_HUMANS )
     cs_offset = 0;
@@ -1346,7 +1346,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     if( clientNum == -1 )
     {
       trap_SendServerCommand( ent-g_entities,
-        "print \"callvote: invalid player\n\"" );
+        "print \"callteamvote: invalid player\n\"" );
       return;
     }
 
@@ -1372,14 +1372,14 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     if( clientNum == -1 )
     {
       trap_SendServerCommand( ent-g_entities,
-        "print \"callvote: invalid player\n\"" );
+        "print \"callteamvote: invalid player\n\"" );
       return;
     }
     
     if( level.clients[ clientNum ].pers.denyBuild )
     {
       trap_SendServerCommand( ent-g_entities,
-        "print \"callvote: player already lost building rights\n\"" );
+        "print \"callteamvote: player already lost building rights\n\"" );
       return;
     }
 
@@ -1401,14 +1401,14 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     if( clientNum == -1 )
     {
       trap_SendServerCommand( ent-g_entities,
-        "print \"callvote: invalid player\n\"" );
+        "print \"callteamvote: invalid player\n\"" );
       return;
     }
     
     if( !level.clients[ clientNum ].pers.denyBuild )
     {
       trap_SendServerCommand( ent-g_entities,
-        "print \"callvote: player already has building rights\n\"" );
+        "print \"callteamvote: player already has building rights\n\"" );
       return;
     }
 
@@ -1431,7 +1431,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
     trap_SendServerCommand( ent-g_entities,
        "print \"Valid team vote commands are: "
-       "kick, denybuild, allowbuild and surrender\n\"" );
+       "kick, denybuild, allowbuild and admitdefeat\n\"" );
     return;
   }
   ent->client->pers.voteCount++;
