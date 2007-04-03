@@ -309,7 +309,6 @@ char *UI_GetBotNameByNumber( int num ) {
 void UI_ServerInfo( void )
 {
   char      info[ MAX_INFO_VALUE ];
-  int       i;
 
   info[0] = '\0';
   if( trap_GetConfigString( CS_SERVERINFO, info, sizeof( info ) ) )

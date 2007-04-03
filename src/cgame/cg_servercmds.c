@@ -540,6 +540,19 @@ void CG_Menu( int menu )
       cmd       = "menu tremulous_human_dialog\n";
       break;
 
+    case MN_A_TEAMCHANGEBUILDTIMER:
+      longMsg   = "You cannot leave the Alien team until your build timer "
+                  "has expired.";
+      shortMsg  = "You cannot change teams until your build timer expires.\n";
+      cmd       = "menu tremulous_alien_dialog\n";
+      break;
+
+    case MN_H_TEAMCHANGEBUILDTIMER:
+      longMsg   = "You cannot leave the Human team until your build timer "
+                  "has expired.";
+      shortMsg  = "You cannot change teams until your build timer expires.\n";
+      cmd       = "menu tremulous_human_dialog\n";
+      break;
 
     //===============================
 
@@ -634,6 +647,42 @@ void CG_Menu( int menu )
       cmd       = "menu tremulous_human_dialog\n";
       break;
 
+    case MN_H_NOARMOURYHERE:
+      longMsg   = "You must be near a powered Armoury in order to purchase "
+                  "weapons, upgrades or non-energy ammunition.";
+      shortMsg  = "You must be near a powered Armoury\n";
+      cmd       = "menu tremulous_human_dialog\n";
+      break;
+
+    case MN_H_NOENERGYAMMOHERE:
+      longMsg   = "You must be near an Armoury, Reactor or Repeater in order "
+                  "to purchase energy ammunition.";
+      shortMsg  = "You must be near an Armoury, Reactor or Repeater\n";
+      cmd       = "menu tremulous_human_dialog\n";
+      break;
+
+    case MN_H_NOROOMBSUITON:
+      longMsg   = "There is not enough room here to put on a Battle Suit. "
+                  "Make sure you have enough head room to climb in.";
+      shortMsg  = "Not enough room here to put on a Battle Suit\n";
+      cmd       = "menu tremulous_human_dialog\n";
+      break;
+
+    case MN_H_NOROOMBSUITOFF:
+      longMsg   = "There is not enough room here to take off your Battle Suit. "
+                  "Make sure you have enough head room to climb out.";
+      shortMsg  = "Not enough room here to take off your Battle Suit\n";
+      cmd       = "menu tremulous_human_dialog\n";
+      break;
+
+    case MN_H_ARMOURYBUILDTIMER:
+      longMsg   = "You are not allowed to buy or sell weapons until your "
+                  "build timer has expired.";
+      shortMsg  = "You can not buy or sell weapos until your build timer "
+                  "expires\n";
+      cmd       = "menu tremulous_human_dialog\n";
+      break;
+
 
     //===============================
 
@@ -713,6 +762,12 @@ void CG_Menu( int menu )
       longMsg   = "There is no Overmind. An Overmind must be built to allow "
                   "you to upgrade.";
       shortMsg  = "There is no Overmind\n";
+      cmd       = "menu tremulous_alien_dialog\n";
+      break;
+
+    case MN_A_EVOLVEBUILDTIMER:
+      longMsg   = "You cannot Evolve until your build timer has expired.";
+      shortMsg  = "You cannot Evolve until your build timer expires\n";
       cmd       = "menu tremulous_alien_dialog\n";
       break;
 

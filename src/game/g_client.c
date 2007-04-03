@@ -1065,7 +1065,7 @@ void ClientUserinfoChanged( int clientNum )
     client->pers.maxHealth = 0;
 
   // set model
-  if( client->ps.stats[ STAT_PCLASS ] == PCL_HUMAN && BG_InventoryContainsUpgrade( UP_BATTLESUIT, client->ps.stats ) )
+  if( client->ps.stats[ STAT_PCLASS ] == PCL_HUMAN_BSUIT )
   {
     Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( PCL_HUMAN_BSUIT ),
                                               BG_FindSkinNameForClass( PCL_HUMAN_BSUIT ) );

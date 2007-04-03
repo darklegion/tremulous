@@ -1957,19 +1957,44 @@ classAttributes_t bg_classList[ ] =
     0                                               //int     value;
   },
   {
-    //this isn't a real class, but a dummy to force the client to precache the model
-    //FIXME: one day do this in a less hacky fashion
-    PCL_HUMAN_BSUIT, "human_bsuit", "bsuit",
-
-    "keel",
-    1.0f,
-    "default",
-    1.0f,
-
-    "bsuit", ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), { 0, 0, 0 }, { 0, 0, 0, },
-    { 0, 0, 0, }, { 0, 0, 0, }, { 0, 0, 0, }, 0.0f, 0, 0, 0, 0.0f, 0, 0, WP_NONE, 0.0f, 0,
-    0.0f, 1.0f, 0, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 270.0f, 1.0f, { PCL_NONE, PCL_NONE, PCL_NONE }, 0, 0
-  }
+    PCL_HUMAN_BSUIT,                                //int     classnum;
+    "human_bsuit",                                  //char    *classname;
+    "bsuit",                                        //char    *humanname;
+    "keel",                                         //char    *modelname;
+    1.0f,                                           //float   modelScale;
+    "default",                                      //char    *skinname;
+    1.0f,                                           //float   shadowScale;
+    "human_hud",                                    //char    *hudname;
+    ( 1 << S3 ),                                    //int  stages
+    { -15, -15, -38 },                              //vec3_t  mins;
+    { 15, 15, 38 },                                 //vec3_t  maxs;
+    { 15, 15, 38 },                                 //vec3_t  crouchmaxs;
+    { -15, -15, -4 },                               //vec3_t  deadmins;
+    { 15, 15, 4 },                                  //vec3_t  deadmaxs;
+    -16.0f,                                           //float   zOffset
+    35, 35,                                         //int     viewheight, crouchviewheight;
+    100,                                            //int     health;
+    1.0f,                                           //float   fallDamage;
+    0,                                              //int     regenRate;
+    SCA_TAKESFALLDAMAGE|
+      SCA_CANUSELADDERS,                            //int     abilities;
+    WP_NONE, //special-cased in g_client.c          //weapon_t  startWeapon
+    110.0f,                                         //float   buildDist;
+    90,                                             //int     fov;
+    0.002f,                                         //float   bob;
+    1.0f,                                           //float   bobCycle;
+    100,                                            //int     steptime;
+    1.0f,                                           //float   speed;
+    10.0f,                                          //float   acceleration;
+    1.0f,                                           //float   airAcceleration;
+    6.0f,                                           //float   friction;
+    100.0f,                                         //float   stopSpeed;
+    270.0f,                                         //float   jumpMagnitude;
+    1.0f,                                           //float   knockbackScale;
+    { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
+    0,                                              //int     cost;
+    0                                               //int     value;
+  },
 };
 
 int   bg_numPclasses = sizeof( bg_classList ) / sizeof( bg_classList[ 0 ] );
