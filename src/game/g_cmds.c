@@ -1573,6 +1573,7 @@ static qboolean G_RoomForClassChange( gentity_t *ent, pClass_t class,
   vec3_t    temp;
   trace_t   tr, tr2;
   float     nudgeHeight;
+  float     maxHorizGrowth;
   pClass_t  oldClass = ent->client->ps.stats[ STAT_PCLASS ];
 
   BG_FindBBoxForClass( oldClass, fromMins, fromMaxs, NULL, NULL, NULL );
@@ -1580,15 +1581,27 @@ static qboolean G_RoomForClassChange( gentity_t *ent, pClass_t class,
 
   VectorCopy( ent->s.pos.trBase, newOrigin );
 
-  // test by moving the player up the max required on a 60 degree slope
-  if( fabs( toMins[ 0 ] ) > fabs( toMins[ 1 ] ) )
-    nudgeHeight = ( fabs( toMins[ 0 ] ) * 2.0f ) + 1.0f;
-  else 
-    nudgeHeight = ( fabs( toMins[ 1 ] ) * 2.0f ) + 1.0f;
+  // find max x/y diff
+  maxHorizGrowth = toMaxs[ 0 ] - fromMaxs[ 0 ];
+  if( toMaxs[ 1 ] - fromMaxs[ 1 ] > maxHorizGrowth )
+    maxHorizGrowth = toMaxs[ 1 ] - fromMaxs[ 1 ];
+  if( toMins[ 0 ] - fromMins[ 0 ] > -maxHorizGrowth )
+    maxHorizGrowth = -( toMins[ 0 ] - fromMins[ 0 ] );
+  if( toMins[ 1 ] - fromMins[ 1 ] > -maxHorizGrowth )
+    maxHorizGrowth = -( toMins[ 1 ] - fromMins[ 1 ] );
 
-  newOrigin[ 2 ] += fabs( toMins[ 2 ] ) - fabs( fromMins[ 2 ] )
-    + BG_FindZOffsetForClass( class ) - BG_FindZOffsetForClass( oldClass ) 
-    + 1.0f;
+  if( maxHorizGrowth > 0.0f )
+  {
+    // test by moving the player up the max required on a 60 degree slope
+    nudgeHeight = ( maxHorizGrowth * 2.0f ) + 1.0f;
+  }
+  else
+  {
+    // player is shrinking, so there's no need to nudge them upwards
+    nudgeHeight = 1.0f;
+  }
+
+  newOrigin[ 2 ] += fabs( toMins[ 2 ] ) - fabs( fromMins[ 2 ] ) + 1.0f;
   VectorCopy( newOrigin, temp );
   temp[ 2 ] += nudgeHeight;
 
