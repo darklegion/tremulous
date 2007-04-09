@@ -1571,7 +1571,7 @@ static qboolean G_RoomForClassChange( gentity_t *ent, pClass_t class,
   vec3_t    fromMins, fromMaxs;
   vec3_t    toMins, toMaxs;
   vec3_t    temp;
-  trace_t   tr, tr2;
+  trace_t   tr;
   float     nudgeHeight;
   float     maxHorizGrowth;
   pClass_t  oldClass = ent->client->ps.stats[ STAT_PCLASS ];
@@ -1579,7 +1579,7 @@ static qboolean G_RoomForClassChange( gentity_t *ent, pClass_t class,
   BG_FindBBoxForClass( oldClass, fromMins, fromMaxs, NULL, NULL, NULL );
   BG_FindBBoxForClass( class, toMins, toMaxs, NULL, NULL, NULL );
 
-  VectorCopy( ent->s.pos.trBase, newOrigin );
+  VectorCopy( ent->s.origin, newOrigin );
 
   // find max x/y diff
   maxHorizGrowth = toMaxs[ 0 ] - fromMaxs[ 0 ];
@@ -1593,38 +1593,34 @@ static qboolean G_RoomForClassChange( gentity_t *ent, pClass_t class,
   if( maxHorizGrowth > 0.0f )
   {
     // test by moving the player up the max required on a 60 degree slope
-    nudgeHeight = ( maxHorizGrowth * 2.0f ) + 1.0f;
+    nudgeHeight = maxHorizGrowth * 2.0f;
   }
   else
   {
     // player is shrinking, so there's no need to nudge them upwards
-    nudgeHeight = 1.0f;
+    nudgeHeight = 0.0f;
   }
 
-  newOrigin[ 2 ] += fabs( toMins[ 2 ] ) - fabs( fromMins[ 2 ] ) + 1.0f;
-  VectorCopy( newOrigin, temp );
-  temp[ 2 ] += nudgeHeight;
-
-  toMins[ 0 ] += 1.0f;
-  toMins[ 1 ] += 1.0f;
-  toMaxs[ 0 ] -= 1.0f;
-  toMaxs[ 1 ] -= 1.0f; 
+  // find what the new origin would be on a level surface
+  newOrigin[ 2 ] += fabs( toMins[ 2 ] ) - fabs( fromMins[ 2 ] );
 
   //compute a place up in the air to start the real trace
-  trap_Trace( &tr, newOrigin, toMins, toMaxs, temp, ent->s.number, MASK_SHOT );
   VectorCopy( newOrigin, temp );
-  temp[ 2 ] += ( nudgeHeight * tr.fraction ) - 1.0f;
+  temp[ 2 ] += nudgeHeight;
+  trap_Trace( &tr, newOrigin, toMins, toMaxs, temp, ent->s.number, MASK_SHOT );
 
   //trace down to the ground so that we can evolve on slopes
+  VectorCopy( newOrigin, temp );
+  temp[ 2 ] += ( nudgeHeight * tr.fraction );
   trap_Trace( &tr, temp, toMins, toMaxs, newOrigin, ent->s.number, MASK_SHOT );
   VectorCopy( tr.endpos, newOrigin );
 
   //make REALLY sure
-  trap_Trace( &tr2, newOrigin, toMins, toMaxs, newOrigin,
+  trap_Trace( &tr, newOrigin, toMins, toMaxs, newOrigin,
     ent->s.number, MASK_SHOT );
 
   //check there is room to evolve
-  if( !tr.startsolid && tr2.fraction == 1.0f )
+  if( !tr.startsolid && tr.fraction == 1.0f )
     return qtrue;
   else
     return qfalse;
