@@ -3593,7 +3593,7 @@ void G_LayoutSelect( void )
         "found, using map default\n" );
       return;
   }
-  layoutNum = ( rand( ) & ( cnt - 1 ) ) + 1;
+  layoutNum = ( rand( ) % cnt ) + 1;
   cnt = 0;
 
   Q_strncpyz( layouts2, layouts, sizeof( layouts2 ) );
