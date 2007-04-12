@@ -3054,6 +3054,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
+    qtrue,                //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3078,6 +3079,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
+    qtrue,                //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3102,6 +3104,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
+    qtrue,                //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3126,6 +3129,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
+    qtrue,                //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3150,6 +3154,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
+    qtrue,                //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3174,6 +3179,7 @@ weaponAttributes_t bg_weapons[ ] =
     qtrue,                //qboolean  canZoom;
     20.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
+    qtrue,                //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3198,6 +3204,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
+    qtrue,                //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3222,6 +3229,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
+    qtrue,                //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3246,6 +3254,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
+    qtrue,                //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3270,6 +3279,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
+    qfalse,               //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3294,6 +3304,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
+    qfalse,               //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3318,6 +3329,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
+    qfalse,               //qboolean  longRanged;
     HBUILD_DELAY,         //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3342,6 +3354,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
+    qfalse,               //qboolean  longRanged;
     HBUILD2_DELAY,        //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3366,6 +3379,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
+    qfalse,               //qboolean  longRanged;
     ABUILDER_BASE_DELAY,  //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3390,6 +3404,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
+    qfalse,               //qboolean  longRanged;
     ABUILDER_ADV_DELAY,   //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3414,6 +3429,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
+    qfalse,               //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3438,6 +3454,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
+    qfalse,               //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3462,6 +3479,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
+    qtrue,                //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3486,6 +3504,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
+    qfalse,               //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3510,6 +3529,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
+    qfalse,               //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3534,6 +3554,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
+    qfalse,               //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3558,6 +3579,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
+    qtrue,                //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3582,6 +3604,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
+    qfalse,               //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3606,6 +3629,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
+    qfalse,               //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3630,6 +3654,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
+    qfalse,               //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
@@ -3654,6 +3679,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
+    qfalse,               //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
@@ -3678,6 +3704,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //qboolean  canZoom;
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
+    qfalse,               //qboolean  longRanged;
     0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   }
@@ -4057,6 +4084,26 @@ qboolean BG_FindPurchasableForWeapon( int weapon )
     if( bg_weapons[ i ].weaponNum == weapon )
     {
       return bg_weapons[ i ].purchasable;
+    }
+  }
+
+  return qfalse;
+}
+
+/*
+==============
+BG_FindLongRangeForWeapon
+==============
+*/
+qboolean BG_FindLongRangedForWeapon( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+    {
+      return bg_weapons[ i ].longRanged;
     }
   }
 

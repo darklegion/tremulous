@@ -2063,3 +2063,9 @@ qboolean      trap_GetEntityToken( char *buffer, int bufferSize );
 int           trap_GetDemoState( void );
 int           trap_GetDemoPos( void );
 void          trap_GetDemoName( char *buffer, int size );
+
+// cg_drawCrosshair settings
+#define CROSSHAIR_ALWAYSOFF       0
+#define CROSSHAIR_RANGEDONLY      1
+#define CROSSHAIR_ALWAYSON        2
+

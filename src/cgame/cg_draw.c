@@ -2464,8 +2464,14 @@ static void CG_DrawCrosshair( void )
   float         x, y;
   weaponInfo_t  *wi;
 
-  if( !cg_drawCrosshair.integer )
+  if( cg_drawCrosshair.integer == CROSSHAIR_ALWAYSOFF )
     return;
+
+  if( cg_drawCrosshair.integer == CROSSHAIR_RANGEDONLY &&
+      !BG_FindLongRangedForWeapon( cg.snap->ps.weapon ) )
+  {
+    return;
+  } 
 
   if( ( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR ) ||
       ( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) ||
@@ -2546,9 +2552,6 @@ static void CG_DrawCrosshairNames( rectDef_t *rect, float scale, int textStyle )
   float   *color;
   char    *name;
   float   w, x;
-
-  if( !cg_drawCrosshair.integer )
-    return;
 
   if( !cg_drawCrosshairNames.integer )
     return;

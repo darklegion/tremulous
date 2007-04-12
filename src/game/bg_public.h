@@ -1072,6 +1072,7 @@ typedef struct
   float     zoomFov;
 
   qboolean  purchasable;
+  qboolean  longRanged;
 
   int       buildDelay;
 
@@ -1215,6 +1216,7 @@ qboolean  BG_WeaponHasThirdMode( int weapon );
 qboolean  BG_WeaponCanZoom( int weapon );
 float     BG_FindZoomFovForWeapon( int weapon );
 qboolean  BG_FindPurchasableForWeapon( int weapon );
+qboolean  BG_FindLongRangedForWeapon( int weapon );
 int       BG_FindBuildDelayForWeapon( int weapon );
 WUTeam_t  BG_FindTeamForWeapon( int weapon );
 
