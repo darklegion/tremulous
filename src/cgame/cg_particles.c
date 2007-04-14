@@ -2101,10 +2101,16 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
   VectorMA( p->velocity, deltaTime, acceleration, p->velocity );
   VectorMA( p->origin, deltaTime, p->velocity, newOrigin );
   p->lastEvalTime = cg.time;
-  
+
+  // we're not doing particle physics, but at least cull them in solids
   if( !cg_bounceParticles.integer )
   {
-    VectorCopy( newOrigin, p->origin );
+    int contents = trap_CM_PointContents( newOrigin, 0 ); 
+
+    if( ( contents & CONTENTS_SOLID ) || ( contents & CONTENTS_NODROP ) )
+      CG_DestroyParticle( p, NULL );
+    else 
+      VectorCopy( newOrigin, p->origin );
     return;
   }
 
