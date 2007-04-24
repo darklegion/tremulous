@@ -3,7 +3,7 @@
 { 
   loadMenu { "ui/main.menu" }
   loadMenu { "ui/joinserver.menu" }
-  loadMenu { "ui/punkbuster.menu" }
+  loadMenu { "ui/options.menu" }
   loadMenu { "ui/createserver.menu" }
   loadMenu { "ui/mod.menu" }
   loadMenu { "ui/credit.menu" }
@@ -12,6 +12,7 @@
   loadMenu { "ui/quit.menu" }
   loadMenu { "ui/addfilter.menu" }
   loadMenu { "ui/error.menu" }
+  loadMenu { "ui/drop.menu" }
   loadMenu { "ui/serverinfo.menu" }
   loadMenu { "ui/findplayer.menu" }
   loadMenu { "ui/quitcredit.menu" }
