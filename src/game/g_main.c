@@ -1281,8 +1281,6 @@ void CalculateRanks( void )
   char      P[ MAX_CLIENTS + 1 ] = {""};
   int       ff = 0;
 
-  level.follow1 = -1;
-  level.follow2 = -1;
   level.numConnectedClients = 0;
   level.numNonSpectatorClients = 0;
   level.numPlayingClients = 0;
@@ -1301,52 +1299,33 @@ void CalculateRanks( void )
     if ( level.clients[ i ].pers.connected != CON_DISCONNECTED )
     {
       level.sortedClients[ level.numConnectedClients ] = i;
-      level.numConnectedClients++;
       P[ i ] = (char)'0' + level.clients[ i ].pers.teamSelection;
 
-      if( !( level.clients[ i ].ps.pm_flags & PMF_FOLLOW ) )
+      if( level.clients[ i ].pers.connected != CON_CONNECTED )
+        continue;
+      level.numConnectedClients++;
+      if( level.clients[ i ].pers.teamSelection != PTE_NONE )
       {
-        //so we know when the game ends and for team leveling
-        if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+        level.numPlayingClients++;
+        level.numNonSpectatorClients++;
+        if( level.clients[ i ].pers.teamSelection == PTE_ALIENS )
         {
           level.numAlienClients++;
           if( level.clients[ i ].sess.sessionTeam != TEAM_SPECTATOR )
             level.numLiveAlienClients++;
         }
-
-        if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+        else if( level.clients[ i ].pers.teamSelection == PTE_HUMANS )
         {
           level.numHumanClients++;
           if( level.clients[ i ].sess.sessionTeam != TEAM_SPECTATOR )
             level.numLiveHumanClients++;
         }
       }
-
-      if( level.clients[ i ].pers.teamSelection == PTE_HUMANS ||
-          level.clients[ i ].pers.teamSelection == PTE_ALIENS )
-      {
-        level.numNonSpectatorClients++;
-
-        // decide if this should be auto-followed
-        if( level.clients[ i ].pers.connected == CON_CONNECTED )
-        {
-          level.numPlayingClients++;
-          level.numVotingClients++;
-
-          if( level.clients[ i ].pers.teamSelection == PTE_HUMANS )
-            level.numteamVotingClients[ 0 ]++;
-          else if( level.clients[ i ].pers.teamSelection == PTE_ALIENS )
-            level.numteamVotingClients[ 1 ]++;
-
-          if( level.follow1 == -1 )
-            level.follow1 = i;
-          else if( level.follow2 == -1 )
-            level.follow2 = i;
-        }
-
-      }
     }
   }
+  level.numVotingClients = level.numConnectedClients;
+  level.numteamVotingClients[ 0 ] = level.numHumanClients;
+  level.numteamVotingClients[ 1 ] = level.numAlienClients;
   P[ i + 1 ] = '\0';
   trap_Cvar_Set( "P", P );
 
@@ -1994,13 +1973,13 @@ void CheckVote( void )
   }
   else
   {
-    if( level.voteYes > level.numConnectedClients / 2 )
+    if( level.voteYes > level.numVotingClients / 2 )
     {
       // execute the command, then remove the vote
       trap_SendServerCommand( -1, "print \"Vote passed\n\"" );
       level.voteExecuteTime = level.time + 3000;
     }
-    else if( level.voteNo >= level.numConnectedClients / 2 )
+    else if( level.voteNo >= level.numVotingClients / 2 )
     {
       // same behavior as a timeout
       trap_SendServerCommand( -1, "print \"Vote failed\n\"" );
