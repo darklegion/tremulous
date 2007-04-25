@@ -1089,17 +1089,16 @@ void Cmd_CallVote_f( gentity_t *ent )
         sizeof( name ) );
       Q_CleanStr( name );
     }
-  }
- 
-  if( !Q_stricmp( arg1, "kick" ) )
-  {
-    if( clientNum == -1 )
+    else
     {
       trap_SendServerCommand( ent-g_entities,
         "print \"callvote: invalid player\n\"" );
       return;
     }
-
+  }
+ 
+  if( !Q_stricmp( arg1, "kick" ) )
+  {
     if( G_admin_permission( &g_entities[ clientNum ], ADMF_IMMUNITY ) )
     {
       trap_SendServerCommand( ent-g_entities,
@@ -1116,14 +1115,6 @@ void Cmd_CallVote_f( gentity_t *ent )
   }
   else if( !Q_stricmp( arg1, "mute" ) )
   {
-  
-    if( clientNum == -1 )
-    {
-      trap_SendServerCommand( ent-g_entities,
-        "print \"callvote: invalid player\n\"" );
-      return;
-    }
-    
     if( level.clients[ clientNum ].pers.muted )
     {
       trap_SendServerCommand( ent-g_entities,
@@ -1144,13 +1135,6 @@ void Cmd_CallVote_f( gentity_t *ent )
   }
   else if( !Q_stricmp( arg1, "unmute" ) )
   {
-  
-    if( clientNum == -1 )
-    {
-      trap_SendServerCommand( ent-g_entities,
-        "print \"callvote: invalid player\n\"" );
-      return;
-    }
     if( !level.clients[ clientNum ].pers.muted )
     {
       trap_SendServerCommand( ent-g_entities,
@@ -1273,19 +1257,16 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   
   team = ent->client->pers.teamSelection;
 
-  if( team == PTE_NONE )
-  {
-    trap_SendServerCommand( ent-g_entities,
-      "print \"Not allowed to call a team vote as a spectator\n\"" );
-    return;
-  }
-
   if( team == PTE_HUMANS )
     cs_offset = 0;
   else if( team == PTE_ALIENS )
     cs_offset = 1;
   else
+  {
+    trap_SendServerCommand( ent-g_entities,
+      "print \"Not allowed to call a team vote as a spectator\n\"" );
     return;
+  }
 
   if( !g_allowVote.integer )
   {
@@ -1356,17 +1337,16 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
         sizeof( name ) );
       Q_CleanStr( name );
     }
-  }
-
-  if( !Q_stricmp( arg1, "kick" ) )
-  {
-    if( clientNum == -1 )
+    else
     {
       trap_SendServerCommand( ent-g_entities,
         "print \"callteamvote: invalid player\n\"" );
       return;
     }
+  }
 
+  if( !Q_stricmp( arg1, "kick" ) )
+  {
     if( G_admin_permission( &g_entities[ clientNum ], ADMF_IMMUNITY ) )
     {
       trap_SendServerCommand( ent-g_entities,
@@ -1386,13 +1366,6 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   }
   else if( !Q_stricmp( arg1, "denybuild" ) )
   {
-    if( clientNum == -1 )
-    {
-      trap_SendServerCommand( ent-g_entities,
-        "print \"callteamvote: invalid player\n\"" );
-      return;
-    }
-    
     if( level.clients[ clientNum ].pers.denyBuild )
     {
       trap_SendServerCommand( ent-g_entities,
@@ -1415,13 +1388,6 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   }
   else if( !Q_stricmp( arg1, "allowbuild" ) )
   {
-    if( clientNum == -1 )
-    {
-      trap_SendServerCommand( ent-g_entities,
-        "print \"callteamvote: invalid player\n\"" );
-      return;
-    }
-    
     if( !level.clients[ clientNum ].pers.denyBuild )
     {
       trap_SendServerCommand( ent-g_entities,
@@ -1493,13 +1459,16 @@ void Cmd_TeamVote_f( gentity_t *ent )
   int     team, cs_offset;
   char    msg[ 64 ];
 
-  team = ent->client->ps.stats[ STAT_PTEAM ];
+  team = ent->client->pers.teamSelection;
   if( team == PTE_HUMANS )
     cs_offset = 0;
   else if( team == PTE_ALIENS )
     cs_offset = 1;
   else
+  {
+    trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote as spectator\n\"" );
     return;
+  }
 
   if( !level.teamVoteTime[ cs_offset ] )
   {
@@ -1510,12 +1479,6 @@ void Cmd_TeamVote_f( gentity_t *ent )
   if( ent->client->ps.eFlags & EF_TEAMVOTED )
   {
     trap_SendServerCommand( ent-g_entities, "print \"Team vote already cast\n\"" );
-    return;
-  }
-
-  if( ent->client->pers.teamSelection == PTE_NONE )
-  {
-    trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote as spectator\n\"" );
     return;
   }
 
