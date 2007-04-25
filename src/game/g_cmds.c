@@ -725,9 +725,9 @@ void Cmd_Team_f( gentity_t *ent )
   {
     if( level.humanTeamLocked && level.alienTeamLocked )
       team = PTE_NONE;
-    else if( level.numHumanClients > level.numAlienClients )
+    else if( humans > aliens )
       team = PTE_ALIENS;
-    else if( level.numHumanClients < level.numAlienClients )
+    else if( humans < aliens )
       team = PTE_HUMANS;
     else
       team = PTE_ALIENS + ( rand( ) % 2 );
