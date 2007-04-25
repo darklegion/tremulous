@@ -399,30 +399,45 @@ void Cmd_Give_f( gentity_t *ent )
     return;
 
   name = ConcatArgs( 1 );
-
-  if( Q_stricmp( name, "all" ) == 0 )
-    give_all = qtrue;
-  else
-    give_all = qfalse;
+  give_all = !Q_stricmp( name, "all" );
 
   if( give_all || Q_stricmp( name, "health" ) == 0 )
   {
     ent->health = ent->client->ps.stats[ STAT_MAX_HEALTH ];
-    if( !give_all )
-      return;
+    BG_AddUpgradeToInventory( UP_MEDKIT, ent->client->ps.stats );
   }
 
   if( give_all || Q_stricmpn( name, "funds", 5 ) == 0 )
   {
-    int credits = atoi( name + 6 );
+    int credits = give_all ? HUMAN_MAX_CREDITS : atoi( name + 6 );
+    G_AddCreditToClient( ent->client, credits, qtrue );
+  }
 
-    if( !credits )
-      G_AddCreditToClient( ent->client, 1, qtrue );
-    else
-      G_AddCreditToClient( ent->client, credits, qtrue );
+  if( give_all || Q_stricmp( name, "stamina" ) == 0 )
+    ent->client->ps.stats[ STAT_STAMINA ] = MAX_STAMINA;
 
-    if( !give_all )
+  if( Q_stricmp( name, "poison" ) == 0 )
+  {
+    ent->client->ps.stats[ STAT_STATE ] |= SS_BOOSTED;
+    ent->client->lastBoostedTime = level.time;
+  }
+
+  if( give_all || Q_stricmp( name, "ammo" ) == 0 )
+  {
+    int maxAmmo, maxClips;
+    gclient_t *client = ent->client;
+
+    if( client->ps.weapon != WP_ALEVEL3_UPG &&
+        BG_FindInfinteAmmoForWeapon( client->ps.weapon ) )
       return;
+
+    BG_FindAmmoForWeapon( client->ps.weapon, &maxAmmo, &maxClips );
+
+    if( BG_FindUsesEnergyForWeapon( client->ps.weapon ) &&
+        BG_InventoryContainsUpgrade( UP_BATTPACK, client->ps.stats ) )
+      maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
+
+    BG_PackAmmoArray( client->ps.weapon, client->ps.ammo, client->ps.powerups, maxAmmo, maxClips );
   }
 }
 
