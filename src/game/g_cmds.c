@@ -587,6 +587,54 @@ void Cmd_Kill_f( gentity_t *ent )
 }
 
 /*
+==================
+G_LeaveTeam
+==================
+*/
+void G_LeaveTeam( gentity_t *self )
+{
+  pTeam_t   team = self->client->pers.teamSelection;
+  gentity_t *ent;
+  int       i;
+
+  if( team == PTE_ALIENS )
+    G_RemoveFromSpawnQueue( &level.alienSpawnQueue, self->client->ps.clientNum );
+  else if( team == PTE_HUMANS )
+    G_RemoveFromSpawnQueue( &level.humanSpawnQueue, self->client->ps.clientNum );
+  else
+    return;
+
+  for( i = 0; i < level.num_entities; i++ )
+  {
+    ent = &g_entities[ i ];
+    if( !ent->inuse )
+      continue;
+
+    // clean up projectiles
+    if( ent->s.eType == ET_MISSILE && ent->r.ownerNum == self->s.number )
+      G_FreeEntity( ent );
+    if( ent->client && ent->client->pers.connected == CON_CONNECTED )
+    {
+      // stop following clients
+      if( ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
+          ent->client->sess.spectatorState == SPECTATOR_FOLLOW &&
+          ent->client->sess.spectatorClient == self->client->ps.clientNum )
+      {
+        if( !G_FollowNewClient( ent, 1 ) )
+          G_StopFollowing( ent );
+      }
+      // cure poison
+      if( ent->client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED &&
+          ent->client->lastPoisonCloudedClient == self )
+        ent->client->ps.stats[ STAT_STATE ] &= ~SS_POISONCLOUDED;
+      if( ent->client->ps.stats[ STAT_STATE ] & SS_POISONED &&
+          ent->client->lastPoisonClient == self )
+        ent->client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
+    }
+  }
+}
+
+/*
 =================
 G_ChangeTeam
 =================
@@ -598,12 +646,8 @@ void G_ChangeTeam( gentity_t *ent, pTeam_t newTeam )
   if( oldTeam == newTeam )
     return;
 
+  G_LeaveTeam( ent );
   ent->client->pers.teamSelection = newTeam;
-
-  if( oldTeam == PTE_ALIENS )
-    G_RemoveFromSpawnQueue( &level.alienSpawnQueue, ent->client->ps.clientNum );
-  else if( oldTeam == PTE_HUMANS )
-    G_RemoveFromSpawnQueue( &level.humanSpawnQueue, ent->client->ps.clientNum );
 
   // under certain circumstances, clients can keep their kills and credits
   // when switching teams

@@ -682,6 +682,7 @@ int       G_SayArgc( void );
 qboolean  G_SayArgv( int n, char *buffer, int bufferLength );
 char      *G_SayConcatArgs( int start );
 void      G_DecolorString( char *in, char *out );
+void      G_LeaveTeam( gentity_t *self );
 void      G_ChangeTeam( gentity_t *ent, pTeam_t newTeam );
 void      G_SanitiseName( char *in, char *out );
 void      G_PrivateMessage( gentity_t *ent );

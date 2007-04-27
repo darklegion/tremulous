@@ -1661,20 +1661,13 @@ void ClientDisconnect( int clientNum )
     return;
 
   G_admin_namelog_update( ent->client, qtrue );
+  G_LeaveTeam( ent );
 
   // stop any following clients
   for( i = 0; i < level.maxclients; i++ )
   {
     // remove any /ignore settings for this clientNum
     BG_ClientListRemove( &level.clients[ i ].sess.ignoreList, clientNum );
-
-    if( level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR &&
-        level.clients[ i ].sess.spectatorState == SPECTATOR_FOLLOW &&
-        level.clients[ i ].sess.spectatorClient == clientNum )
-    {
-      if( !G_FollowNewClient( &g_entities[ i ], 1 ) )
-        G_StopFollowing( &g_entities[ i ] );
-    }
   }
 
   // send effect if they were completely connected
@@ -1687,11 +1680,6 @@ void ClientDisconnect( int clientNum )
 
   G_LogPrintf( "ClientDisconnect: %i [%s] (%s) \"%s\"\n", clientNum,
    ent->client->pers.ip, ent->client->pers.guid, ent->client->pers.netname );
-
-  if( ent->client->pers.teamSelection == PTE_ALIENS )
-    G_RemoveFromSpawnQueue( &level.alienSpawnQueue, ent->client->ps.clientNum );
-  else if( ent->client->pers.teamSelection == PTE_HUMANS )
-    G_RemoveFromSpawnQueue( &level.humanSpawnQueue, ent->client->ps.clientNum );
 
   trap_UnlinkEntity( ent );
   ent->s.modelindex = 0;
