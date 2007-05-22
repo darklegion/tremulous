@@ -982,17 +982,14 @@ static void Cmd_Say_f( gentity_t *ent, int mode, qboolean arg0 )
 
   // support parsing /m out of say text since some people have a hard
   // time figuring out what the console is.
-  if( g_privateMessages.integer )
-  {
-    args = G_SayConcatArgs(0);
-    if( !Q_stricmpn( args, "say /m ", 7 ) ||
+  args = G_SayConcatArgs(0);
+  if( !Q_stricmpn( args, "say /m ", 7 ) ||
       !Q_stricmpn( args, "say_team /m ", 12 ) || 
       !Q_stricmpn( args, "say /mt ", 8 ) || 
       !Q_stricmpn( args, "say_team /mt ", 13 ) )
-    {
-      G_PrivateMessage( ent );
-      return;
-    }
+  {
+    G_PrivateMessage( ent );
+    return;
   }
 
   if( trap_Argc( ) < 2 && !arg0 )
@@ -3186,7 +3183,10 @@ void G_PrivateMessage( gentity_t *ent )
   gentity_t *tmpent;
 
   if( !g_privateMessages.integer && ent )
+  {
+    ADMP( "Sorry, but private messages have been disabled\n" );
     return;
+  }
 
   G_SayArgv( 0, cmd, sizeof( cmd ) );
   if( !Q_stricmp( cmd, "say" ) || !Q_stricmp( cmd, "say_team" ) )
