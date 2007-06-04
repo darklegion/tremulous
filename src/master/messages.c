@@ -411,7 +411,7 @@ static void HandleGetMotd( const char* msg, const struct sockaddr_in* addr )
 	const char		*motd = ""; //FIXME
 	size_t				packetind;
 	char					*value;
-  char          version[ 1024 ], renderer[ 1024 ];
+	char		version[ 1024 ], renderer[ 1024 ];
 
 	MsgPrint( MSG_DEBUG, "%s ---> getmotd\n", peer_address );
 
@@ -423,19 +423,22 @@ static void HandleGetMotd( const char* msg, const struct sockaddr_in* addr )
 		return;
 	}
 
-	strncpy( challenge, value, MAX_PACKET_SIZE );
+	strncpy( challenge, value, sizeof(challenge)-1 );
+	challenge[sizeof(challenge)-1] = '\0';
 
 	value = SearchInfostring( msg, "renderer" );
 	if( value )
 	{
-    strncpy( renderer, value, 1024 );
+		strncpy( renderer, value, sizeof(renderer)-1 );
+		renderer[sizeof(renderer)-1] = '\0';
 		MsgPrint( MSG_DEBUG, "%s is using renderer %s\n", peer_address, value );
 	}
 
 	value = SearchInfostring( msg, "version" );
 	if( value )
 	{
-    strncpy( version, value, 1024 );
+		strncpy( version, value, sizeof(version)-1 );
+		version[sizeof(version)-1] = '\0';
 		MsgPrint( MSG_DEBUG, "%s is using version %s\n", peer_address, value );
 	}
 
@@ -447,18 +450,22 @@ static void HandleGetMotd( const char* msg, const struct sockaddr_in* addr )
 	packetind = headersize;
 	memcpy( packet, packetheader, headersize );
 
-	strncpy( &packet[ packetind ], CHALLENGE_KEY, MAX_PACKET_SIZE - packetind );
+	strncpy( &packet[ packetind ], CHALLENGE_KEY, MAX_PACKET_SIZE - packetind - 2 );
 	packetind += strlen( CHALLENGE_KEY );
 
-	strncpy( &packet[ packetind ], challenge, MAX_PACKET_SIZE - packetind );
+	strncpy( &packet[ packetind ], challenge, MAX_PACKET_SIZE - packetind - 2 );
 	packetind += strlen( challenge );
 	packet[ packetind++ ] = '\\';
 
-	strncpy( &packet[ packetind ], MOTD_KEY, MAX_PACKET_SIZE - packetind );
+	strncpy( &packet[ packetind ], MOTD_KEY, MAX_PACKET_SIZE - packetind - 2 );
 	packetind += strlen( MOTD_KEY );
 
-	strncpy( &packet[ packetind ], motd, MAX_PACKET_SIZE - packetind );
+	strncpy( &packet[ packetind ], motd, MAX_PACKET_SIZE - packetind - 2 );
 	packetind += strlen( motd );
+
+	if (packetind > MAX_PACKET_SIZE - 2)
+		packetind = MAX_PACKET_SIZE - 2;
+	
 	packet[ packetind++ ] = '\"';
 	packet[ packetind++ ] = '\0';
 
