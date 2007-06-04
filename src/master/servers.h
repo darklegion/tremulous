@@ -28,7 +28,7 @@
 // ---------- Constants ---------- //
 
 // Maximum number of servers in all lists by default
-#define DEFAULT_MAX_NB_SERVERS 256
+#define DEFAULT_MAX_NB_SERVERS 1024
 
 // Address hash size in bits (between 0 and MAX_HASH_SIZE)
 #define DEFAULT_HASH_SIZE	6
