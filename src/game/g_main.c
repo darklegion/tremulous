@@ -1299,15 +1299,19 @@ void CalculateRanks( void )
     if ( level.clients[ i ].pers.connected != CON_DISCONNECTED )
     {
       level.sortedClients[ level.numConnectedClients ] = i;
+      level.numConnectedClients++;
       P[ i ] = (char)'0' + level.clients[ i ].pers.teamSelection;
 
       if( level.clients[ i ].pers.connected != CON_CONNECTED )
         continue;
-      level.numConnectedClients++;
+
+      level.numVotingClients++;
       if( level.clients[ i ].pers.teamSelection != PTE_NONE )
       {
         level.numPlayingClients++;
-        level.numNonSpectatorClients++;
+        if( level.clients[ i ].sess.sessionTeam != TEAM_SPECTATOR )
+          level.numNonSpectatorClients++;
+
         if( level.clients[ i ].pers.teamSelection == PTE_ALIENS )
         {
           level.numAlienClients++;
@@ -1323,7 +1327,6 @@ void CalculateRanks( void )
       }
     }
   }
-  level.numVotingClients = level.numConnectedClients;
   level.numteamVotingClients[ 0 ] = level.numHumanClients;
   level.numteamVotingClients[ 1 ] = level.numAlienClients;
   P[ i + 1 ] = '\0';

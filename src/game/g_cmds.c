@@ -854,8 +854,8 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 
   if( mode == SAY_TEAM && !OnSameTeam( ent, other ) )
   {
-    if( other->client->ps.stats[ STAT_PTEAM ] != PTE_NONE )
-      return; 
+    if( other->client->pers.teamSelection != PTE_NONE )
+      return;
 
     if( !G_admin_permission( other, ADMF_SPEC_ALLCHAT ) )
       return;
@@ -927,8 +927,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
       break;
 
     case SAY_TELL:
-      if( target &&
-          target->client->ps.stats[ STAT_PTEAM ] == ent->client->ps.stats[ STAT_PTEAM ] &&
+      if( target && OnSameTeam( target, ent ) &&
           Team_GetLocationMsg( ent, location, sizeof( location ) ) )
         Com_sprintf( name, sizeof( name ), EC"[%s%c%c"EC"] (%s)"EC": ",
           ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location );
