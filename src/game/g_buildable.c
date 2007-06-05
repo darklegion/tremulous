@@ -2817,7 +2817,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
         reason = IBE_NOROOM;
         break;
       }
-      else if( tent->s.modelindex == BA_A_SPAWN && level.numHumanSpawns <= 1 )
+      else if( tent->s.modelindex == BA_A_SPAWN && level.numAlienSpawns <= 1 )
       {
         reason = IBE_NOROOM;
         break;

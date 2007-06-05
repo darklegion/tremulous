@@ -302,7 +302,7 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
       continue;
 
     G_SanitiseName( client->pers.netname, testName );
-    if( !Q_stricmp( name, testName ) )
+    if( !Q_stricmp( name2, testName ) )
     {
       Q_strncpyz( err, va( "The name '%s^7' is already in use", name ),
         len );
