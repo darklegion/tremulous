@@ -9,8 +9,8 @@ ifeq ($(PLATFORM),mingw32)
   MKDIR=mkdir
 else
   BINEXT=
-  RELEASE_LDFLAGS=-static -ltdb
-  DEBUG_LDFLAGS=-static -ltdb
+  RELEASE_LDFLAGS=-ltdb
+  DEBUG_LDFLAGS=-ltdb
   RM=rm -f
   MKDIR=mkdir
 endif

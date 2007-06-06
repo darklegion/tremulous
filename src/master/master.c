@@ -23,6 +23,7 @@
 
 #include <stdarg.h>
 #include <signal.h>
+#include <ctype.h>
 
 #ifndef WIN32
 # include <pwd.h>
@@ -86,7 +87,8 @@ static const char* low_priv_user = DEFAULT_LOW_PRIV_USER;
 // ---------- Public variables ---------- //
 
 // The master socket
-int sock = -1;
+int inSock = -1;
+int outSock = -1;
 
 // The current time (updated every time we receive a packet)
 time_t crt_time;
@@ -467,8 +469,16 @@ static qboolean SecureInit (void)
 		return qfalse;
 
 	// Open the socket
-	sock = socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	if (sock < 0)
+	inSock = socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	if (inSock < 0)
+	{
+		MsgPrint (MSG_ERROR, "ERROR: socket creation failed (%s)\n",
+				  strerror (errno));
+		return qfalse;
+	}
+
+	outSock = socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	if (outSock < 0)
 	{
 		MsgPrint (MSG_ERROR, "ERROR: socket creation failed (%s)\n",
 				  strerror (errno));
@@ -486,20 +496,37 @@ static qboolean SecureInit (void)
 	}
 	else
 		address.sin_addr.s_addr = htonl (INADDR_ANY);
+
 	address.sin_port = htons (master_port);
-	if (bind (sock, (struct sockaddr*)&address, sizeof (address)) != 0)
+	if (bind (inSock, (struct sockaddr*)&address, sizeof (address)) != 0)
 	{
 		MsgPrint (MSG_ERROR, "ERROR: socket binding failed (%s)\n",
 				  strerror (errno));
 #ifdef WIN32
-		closesocket (sock);
+		closesocket (inSock);
 #else
-		close (sock);
+		close (inSock);
 #endif
 		return qfalse;
 	}
 	MsgPrint (MSG_NORMAL, "Listening on UDP port %hu\n",
 			  ntohs (address.sin_port));
+
+	// Deliberately use a different port for outgoing traffic in order
+	// to confuse NAT UDP "connection" tracking and thus delist servers
+	// hidden by NAT
+	address.sin_port = htons (master_port+1);
+	if (bind (outSock, (struct sockaddr*)&address, sizeof (address)) != 0)
+	{
+		MsgPrint (MSG_ERROR, "ERROR: socket binding failed (%s)\n",
+				  strerror (errno));
+#ifdef WIN32
+		closesocket (outSock);
+#else
+		close (outSock);
+#endif
+		return qfalse;
+	}
 
 	return qtrue;
 }
@@ -673,6 +700,18 @@ static qboolean ignoreAddress( const char *address )
 
 /*
 ====================
+max
+
+Maximum of two ints
+====================
+*/
+static inline int max( int a, int b )
+{
+	return a > b ? a : b;
+}
+
+/*
+====================
 main
 
 Main function
@@ -683,6 +722,7 @@ int main (int argc, const char* argv [])
 	struct sockaddr_in address;
 	socklen_t addrlen;
 	int nb_bytes;
+	int sock;
 	char packet [MAX_PACKET_SIZE + 1];  // "+ 1" because we append a '\0'
 	qboolean valid_options;
 	fd_set rfds;
@@ -714,19 +754,27 @@ int main (int argc, const char* argv [])
 	while( !exitNow )
 	{
 		FD_ZERO( &rfds );
-		FD_SET( sock, &rfds );
+		FD_SET( inSock, &rfds );
+		FD_SET( outSock, &rfds );
 		tv.tv_sec = tv.tv_usec = 0;
 
 		// Check for new data every 100ms
-		if( select( sock + 1, &rfds, NULL, NULL, &tv ) <= 0 )
+		if( select( max( inSock, outSock ) + 1, &rfds, NULL, NULL, &tv ) <= 0 )
 		{
 #ifdef _WIN32
-      Sleep( 100 );
+			Sleep( 100 );
 #else
 			usleep( 100000 );
 #endif
 			continue;
 		}
+
+		if( FD_ISSET( inSock, &rfds ) )
+			sock = inSock;
+		else if( FD_ISSET( outSock, &rfds ) )
+			sock = outSock;
+		else
+			continue;
 
 		// Get the next valid message
 		addrlen = sizeof (address);
@@ -772,7 +820,7 @@ int main (int argc, const char* argv [])
 					  peer_address);
 			continue;
 		}
-		if (! ntohs (address.sin_port))
+		if( ntohs( address.sin_port ) < 1024 )
 		{
 			MsgPrint (MSG_WARNING,
 					  "WARNING: rejected packet from %s (source port = 0)\n",

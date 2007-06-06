@@ -185,7 +185,7 @@ static void SendGetInfo (server_t* server)
 	}
 
 	strncat (msg, server->challenge, sizeof (msg) - strlen (msg) - 1);
-	sendto (sock, msg, strlen (msg), 0,
+	sendto (outSock, msg, strlen (msg), 0,
 			(const struct sockaddr*)&server->address,
 			sizeof (server->address));
 
@@ -245,7 +245,7 @@ static void HandleGetServers (const char* msg, const struct sockaddr_in* addr)
 			packetind += 6;
 
 			// Send the packet to the client
-			sendto (sock, packet, packetind, 0, (const struct sockaddr*)addr,
+			sendto (inSock, packet, packetind, 0, (const struct sockaddr*)addr,
 					sizeof (*addr));
 
 			MsgPrint (MSG_DEBUG, "%s <--- getserversResponse (%u servers)\n",
@@ -472,7 +472,7 @@ static void HandleGetMotd( const char* msg, const struct sockaddr_in* addr )
 	MsgPrint( MSG_DEBUG, "%s <--- motd\n", peer_address );
 
 	// Send the packet to the client
-	sendto( sock, packet, packetind, 0, (const struct sockaddr*)addr,
+	sendto( inSock, packet, packetind, 0, (const struct sockaddr*)addr,
 			sizeof( *addr ) );
 }
 

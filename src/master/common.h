@@ -62,7 +62,8 @@ typedef enum
 // ---------- Public variables ---------- //
 
 // The master socket
-extern int sock;
+extern int inSock;
+extern int outSock;
 
 // The current time (updated every time we receive a packet)
 extern time_t crt_time;
