@@ -309,43 +309,6 @@ void ScoreboardMessage( gentity_t *ent )
 
 /*
 ==================
-Cmd_Score_f
-
-Request current scoreboard information
-==================
-*/
-void Cmd_Score_f( gentity_t *ent )
-{
-  ScoreboardMessage( ent );
-}
-
-
-
-/*
-==================
-CheatsOk
-==================
-*/
-qboolean CheatsOk( gentity_t *ent )
-{
-  if( !g_cheats.integer )
-  {
-    trap_SendServerCommand( ent-g_entities, va( "print \"Cheats are not enabled on this server\n\"" ) );
-    return qfalse;
-  }
-
-  if( ent->health <= 0 )
-  {
-    trap_SendServerCommand( ent-g_entities, va( "print \"You must be alive to use this command\n\"" ) );
-    return qfalse;
-  }
-
-  return qtrue;
-}
-
-
-/*
-==================
 ConcatArgs
 ==================
 */
@@ -393,13 +356,11 @@ Give items to a client
 void Cmd_Give_f( gentity_t *ent )
 {
   char      *name;
-  qboolean  give_all;
-
-  if( !CheatsOk( ent ) )
-    return;
+  qboolean  give_all = qfalse;
 
   name = ConcatArgs( 1 );
-  give_all = !Q_stricmp( name, "all" );
+  if( Q_stricmp( name, "all" ) == 0 )
+    give_all = qtrue;
 
   if( give_all || Q_stricmp( name, "health" ) == 0 )
   {
@@ -455,9 +416,6 @@ void Cmd_God_f( gentity_t *ent )
 {
   char  *msg;
 
-  if( !CheatsOk( ent ) )
-    return;
-
   ent->flags ^= FL_GODMODE;
 
   if( !( ent->flags & FL_GODMODE ) )
@@ -482,9 +440,6 @@ void Cmd_Notarget_f( gentity_t *ent )
 {
   char  *msg;
 
-  if( !CheatsOk( ent ) )
-    return;
-
   ent->flags ^= FL_NOTARGET;
 
   if( !( ent->flags & FL_NOTARGET ) )
@@ -506,9 +461,6 @@ argv(0) noclip
 void Cmd_Noclip_f( gentity_t *ent )
 {
   char  *msg;
-
-  if( !CheatsOk( ent ) )
-    return;
 
   if( ent->client->noclip )
     msg = "noclip OFF\n";
@@ -533,9 +485,6 @@ hide the scoreboard, and take a special screenshot
 */
 void Cmd_LevelShot_f( gentity_t *ent )
 {
-  if( !CheatsOk( ent ) )
-    return;
-
   BeginIntermission( );
   trap_SendServerCommand( ent - g_entities, "clientLevelShot" );
 }
@@ -969,19 +918,18 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
 Cmd_Say_f
 ==================
 */
-static void Cmd_Say_f( gentity_t *ent, int mode, qboolean arg0 )
+static void Cmd_Say_f( gentity_t *ent )
 {
   char    *p;
   char    *args;
+  int     mode = SAY_ALL;
 
-  if( ent->client->pers.muted )
-  {
-    return;
-  }
+  args = G_SayConcatArgs( 0 );
+  if( Q_stricmpn( args, "say_team ", 9 ) == 0 )
+    mode = SAY_TEAM;
 
   // support parsing /m out of say text since some people have a hard
   // time figuring out what the console is.
-  args = G_SayConcatArgs(0);
   if( !Q_stricmpn( args, "say /m ", 7 ) ||
       !Q_stricmpn( args, "say_team /m ", 12 ) || 
       !Q_stricmpn( args, "say /mt ", 8 ) || 
@@ -991,13 +939,10 @@ static void Cmd_Say_f( gentity_t *ent, int mode, qboolean arg0 )
     return;
   }
 
-  if( trap_Argc( ) < 2 && !arg0 )
+  if( trap_Argc( ) < 2 )
     return;
 
-  if( arg0 )
-    p = ConcatArgs( 0 );
-  else
-    p = ConcatArgs( 1 );
+  p = ConcatArgs( 1 );
 
   G_Say( ent, NULL, mode, p );
 }
@@ -1289,7 +1234,7 @@ Cmd_CallTeamVote_f
 */
 void Cmd_CallTeamVote_f( gentity_t *ent )
 {
-  int   i, team, cs_offset;
+  int   i, team, cs_offset = 0;
   char  arg1[ MAX_STRING_TOKENS ];
   char  arg2[ MAX_STRING_TOKENS ];
   int   clientNum = -1;
@@ -1297,16 +1242,8 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   
   team = ent->client->pers.teamSelection;
 
-  if( team == PTE_HUMANS )
-    cs_offset = 0;
-  else if( team == PTE_ALIENS )
+  if( team == PTE_ALIENS )
     cs_offset = 1;
-  else
-  {
-    trap_SendServerCommand( ent-g_entities,
-      "print \"Not allowed to call a team vote as a spectator\n\"" );
-    return;
-  }
 
   if( !g_allowVote.integer )
   {
@@ -1496,19 +1433,12 @@ Cmd_TeamVote_f
 */
 void Cmd_TeamVote_f( gentity_t *ent )
 {
-  int     team, cs_offset;
+  int     team, cs_offset = 0;
   char    msg[ 64 ];
 
   team = ent->client->pers.teamSelection;
-  if( team == PTE_HUMANS )
-    cs_offset = 0;
-  else if( team == PTE_ALIENS )
+  if( team == PTE_ALIENS )
     cs_offset = 1;
-  else
-  {
-    trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote as spectator\n\"" );
-    return;
-  }
 
   if( !level.teamVoteTime[ cs_offset ] )
   {
@@ -1554,12 +1484,6 @@ void Cmd_SetViewpos_f( gentity_t *ent )
   vec3_t  origin, angles;
   char    buffer[ MAX_TOKEN_CHARS ];
   int     i;
-
-  if( !g_cheats.integer )
-  {
-    trap_SendServerCommand( ent-g_entities, va( "print \"Cheats are not enabled on this server\n\"" ) );
-    return;
-  }
 
   if( trap_Argc( ) != 5 )
   {
@@ -1823,14 +1747,6 @@ void Cmd_Class_f( gentity_t *ent )
 
     G_PushSpawnQueue( &level.humanSpawnQueue, clientNum );
   }
-  else if( ent->client->pers.teamSelection == PTE_NONE )
-  {
-    //can't use this command unless on a team
-    ent->client->pers.classSelection = PCL_NONE;
-    ent->client->sess.sessionTeam = TEAM_FREE;
-    ClientSpawn( ent, NULL, NULL, NULL );
-    trap_SendServerCommand( ent-g_entities, va( "print \"Join a team first\n\"" ) );
-  }
 }
 
 
@@ -1839,11 +1755,13 @@ void Cmd_Class_f( gentity_t *ent )
 Cmd_Destroy_f
 =================
 */
-void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
+void Cmd_Destroy_f( gentity_t *ent )
 {
   vec3_t      forward, end;
   trace_t     tr;
   gentity_t   *traceEnt;
+  char        *cmd;
+  qboolean    deconstruct = qtrue;
 
   if( ent->client->pers.denyBuild )
   {
@@ -1851,6 +1769,10 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
       "print \"Your building rights have been revoked\n\"" );
     return;
   }
+
+  trap_Argv( 0, cmd, sizeof( cmd ) );
+  if( Q_stricmp( cmd, "destroy" ) == 0 )
+    deconstruct = qfalse;
 
   if( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
     G_Damage( ent->client->hovel, ent, ent, forward, ent->s.origin, 10000, 0, MOD_SUICIDE );
@@ -1930,7 +1852,7 @@ void Cmd_Destroy_f( gentity_t *ent, qboolean deconstruct )
             ent->client->pers.netname, 
             BG_FindNameForBuildable( traceEnt->s.modelindex ) );
 
-          if( !deconstruct && CheatsOk( ent ) )
+          if( !deconstruct )
             G_Damage( traceEnt, ent, ent, forward, tr.endpos, 10000, 0, MOD_SUICIDE );
           else
             G_FreeEntity( traceEnt );
@@ -2675,21 +2597,31 @@ qboolean G_FollowNewClient( gentity_t *ent, int dir )
 
 /*
 =================
+G_ToggleFollow
+=================
+*/
+void G_ToggleFollow( gentity_t *ent )
+{
+  if( ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
+    G_StopFollowing( ent );
+  else if( ent->client->sess.spectatorState == SPECTATOR_FREE )
+    G_FollowNewClient( ent, 1 );
+}
+
+/*
+=================
 Cmd_Follow_f
 =================
 */
-void Cmd_Follow_f( gentity_t *ent, qboolean toggle )
+void Cmd_Follow_f( gentity_t *ent )
 {
   int   i;
   int   pids[ MAX_CLIENTS ];
   char  arg[ MAX_TOKEN_CHARS ];
 
-  if( trap_Argc( ) != 2 || toggle )
+  if( trap_Argc( ) != 2 )
   {
-    if( ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
-      G_StopFollowing( ent );
-    else if( ent->client->sess.spectatorState == SPECTATOR_FREE )
-      G_FollowNewClient( ent, 1 );
+    G_ToggleFollow( ent );
   }
   else if( ent->client->sess.spectatorState == SPECTATOR_FREE ||
            ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
@@ -2729,16 +2661,18 @@ void Cmd_Follow_f( gentity_t *ent, qboolean toggle )
 Cmd_FollowCycle_f
 =================
 */
-void Cmd_FollowCycle_f( gentity_t *ent, int dir )
+void Cmd_FollowCycle_f( gentity_t *ent )
 {
+  char args[ 11 ];
+  int  dir = 1;
+
+  trap_Argv( 0, args, sizeof( args ) );
+  if( Q_stricmp( args, "followprev" ) == 0 )
+    dir = -1;
+
   // won't work unless spectating
-  if( ent->client->pers.teamSelection != PTE_NONE )
-    return;
   if( ent->client->sess.spectatorState == SPECTATOR_NOT )
     return;
-
-  if( dir != 1 && dir != -1 )
-    G_Error( "Cmd_FollowCycle_f: bad dir %i", dir );
 
   G_FollowNewClient( ent, dir );
 }
@@ -2837,35 +2771,18 @@ void Cmd_PTRCRestore_f( gentity_t *ent )
   }
 }
 
-/*
-=================
-Cmd_Test_f
-=================
-*/
-void Cmd_Test_f( gentity_t *ent )
-{
-  if( !CheatsOk( ent ) )
-    return;
-
-/*  ent->client->ps.stats[ STAT_STATE ] |= SS_POISONCLOUDED;
-  ent->client->lastPoisonCloudedTime = level.time;
-  ent->client->lastPoisonCloudedClient = ent;
-  trap_SendServerCommand( ent->client->ps.clientNum, "poisoncloud" );*/
-
-/*  ent->client->ps.stats[ STAT_STATE ] |= SS_POISONED;
-  ent->client->lastPoisonTime = level.time;
-  ent->client->lastPoisonClient = ent;*/
-}
-
-static void Cmd_Ignore_f( gentity_t *ent, qboolean ignore )
+static void Cmd_Ignore_f( gentity_t *ent )
 {
   int pids[ MAX_CLIENTS ];
   char name[ MAX_NAME_LENGTH ];
-  const char *cmd;
+  char cmd[ 9 ];
   int matches = 0;
   int i;
+  qboolean ignore = qfalse;
 
-  cmd = ( ignore ) ? "ignore" : "unignore";
+  trap_Argv( 0, cmd, sizeof( cmd ) );
+  if( Q_stricmp( cmd, "ignore" ) == 0 )
+    ignore = qtrue;
 
   if( trap_Argc() < 2 )
   {
@@ -2922,6 +2839,61 @@ static void Cmd_Ignore_f( gentity_t *ent, qboolean ignore )
   }
 }
 
+commands_t cmds[ ] = {
+  // normal commands
+  { "team", 0, Cmd_Team_f },
+  { "vote", 0, Cmd_Vote_f },
+  { "ignore", 0, Cmd_Ignore_f },
+  { "unignore", 0, Cmd_Ignore_f },
+
+  // communication commands
+  { "tell", CMD_MESSAGE, Cmd_Tell_f },
+  { "callvote", CMD_MESSAGE, Cmd_CallVote_f },
+  { "callteamvote", CMD_MESSAGE|CMD_TEAM, Cmd_CallTeamVote_f },
+  // can be used even during intermission
+  { "say", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Say_f },
+  { "say_team", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Say_f },
+  { "m", CMD_MESSAGE|CMD_INTERMISSION, G_PrivateMessage },
+  { "mt", CMD_MESSAGE|CMD_INTERMISSION, G_PrivateMessage },
+
+  { "score", CMD_INTERMISSION, ScoreboardMessage },
+
+  // cheats
+  { "give", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_Give_f },
+  { "god", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_God_f },
+  { "notarget", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_Notarget_f },
+  { "noclip", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_Noclip_f },
+  { "levelshot", CMD_CHEAT, Cmd_LevelShot_f },
+  { "setviewpos", CMD_CHEAT, Cmd_SetViewpos_f },
+  { "destroy", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_Destroy_f },
+
+  { "kill", CMD_TEAM|CMD_LIVING, Cmd_Kill_f },
+
+  // game commands
+  { "ptrcverify", 0, Cmd_PTRCVerify_f },
+  { "ptrcrestore", 0, Cmd_PTRCRestore_f },
+
+  { "follow", CMD_NOTEAM, Cmd_Follow_f },
+  { "follownext", CMD_NOTEAM, Cmd_FollowCycle_f },
+  { "followprev", CMD_NOTEAM, Cmd_FollowCycle_f },
+
+  { "where", CMD_TEAM, Cmd_Where_f },
+  { "teamvote", CMD_TEAM, Cmd_TeamVote_f },
+  { "class", CMD_TEAM, Cmd_Class_f },
+
+  { "build", CMD_TEAM|CMD_LIVING, Cmd_Build_f },
+  { "deconstruct", CMD_TEAM|CMD_LIVING, Cmd_Destroy_f },
+
+  { "buy", CMD_HUMAN, Cmd_Buy_f },
+  { "sell", CMD_HUMAN, Cmd_Sell_f },
+  { "itemact", CMD_HUMAN, Cmd_ActivateItem_f },
+  { "itemdeact", CMD_HUMAN, Cmd_DeActivateItem_f },
+  { "itemtoggle", CMD_HUMAN, Cmd_ToggleItem_f },
+  { "reload", CMD_HUMAN, Cmd_Reload_f },
+  { "boost", CMD_HUMAN, Cmd_Boost_f }
+};
+static int numCmds = sizeof( cmds ) / sizeof( cmds[ 0 ] );
+
 /*
 =================
 ClientCommand
@@ -2931,6 +2903,7 @@ void ClientCommand( int clientNum )
 {
   gentity_t *ent;
   char      cmd[ MAX_TOKEN_CHARS ];
+  int       i;
 
   ent = g_entities + clientNum;
   if( !ent->client )
@@ -2938,117 +2911,76 @@ void ClientCommand( int clientNum )
 
   trap_Argv( 0, cmd, sizeof( cmd ) );
 
-  if( Q_stricmp( cmd, "say" ) == 0 )
+  for( i = 0; i < numCmds; i++ )
   {
-    Cmd_Say_f( ent, SAY_ALL, qfalse );
+    if( Q_stricmp( cmd, cmds[ i ].cmdName ) == 0 )
+      break;
+  }
+
+  if( i == numCmds )
+  {
+    if( !G_admin_cmd_check( ent, qfalse ) )
+      trap_SendServerCommand( clientNum,
+        va( "print \"Unknown command %s\n\"", cmd ) );
     return;
   }
 
-  if( Q_stricmp( cmd, "say_team" ) == 0 )
+  // do tests here to reduce the amount of repeated code
+
+  if( !( cmds[ i ].cmdFlags & CMD_INTERMISSION ) && level.intermissiontime )
+    return;
+
+  if( cmds[ i ].cmdFlags & CMD_CHEAT && !g_cheats.integer )
   {
-    Cmd_Say_f( ent, SAY_TEAM, qfalse );
+    trap_SendServerCommand( clientNum,
+      "print \"Cheats are not enabled on this server\n\"" );
     return;
   }
 
-  if( Q_stricmp( cmd, "tell" ) == 0 )
-  {
-    Cmd_Tell_f( ent );
+  if( cmds[ i ].cmdFlags & CMD_MESSAGE && ent->client->pers.muted )
     return;
-  }
-  
-  if( !Q_stricmp( cmd, "m" ) || !Q_stricmp( cmd, "mt" ) )
+
+  if( cmds[ i ].cmdFlags & CMD_TEAM &&
+      ent->client->pers.teamSelection == PTE_NONE )
   {
-    G_PrivateMessage( ent );
+    trap_SendServerCommand( clientNum, "print \"Join a team first\n\"" );
     return;
   }
 
-  if( Q_stricmp( cmd, "score" ) == 0 )
+  if( cmds[ i ].cmdFlags & CMD_NOTEAM &&
+      ent->client->pers.teamSelection != PTE_NONE )
   {
-    Cmd_Score_f( ent );
+    trap_SendServerCommand( clientNum,
+      "print \"Cannot use this command when on a team\n\"" );
     return;
   }
 
-  if( !Q_stricmp( cmd, "ignore" ) )
+  if( cmds[ i ].cmdFlags & CMD_ALIEN &&
+      ent->client->pers.teamSelection != PTE_ALIENS )
   {
-    Cmd_Ignore_f( ent, qtrue );
-    return;
-  }
-  
-  if( !Q_stricmp( cmd, "unignore" ) )
-  {
-    Cmd_Ignore_f( ent, qfalse );
+    trap_SendServerCommand( clientNum,
+      "print \"Must be alien to use this command\n\"" );
     return;
   }
 
-  if( G_admin_cmd_check( ent, qfalse ) )
+  if( cmds[ i ].cmdFlags & CMD_HUMAN &&
+      ent->client->pers.teamSelection != PTE_HUMANS )
+  {
+    trap_SendServerCommand( clientNum,
+      "print \"Must be human to use this command\n\"" );
     return;
+  }
 
-  // ignore all other commands when at intermission
-  if( level.intermissiontime )
+  if( cmds[ i ].cmdFlags & CMD_LIVING &&
+    ( ent->client->ps.stats[ STAT_HEALTH ] <= 0 ||
+      ent->client->sess.sessionTeam == TEAM_SPECTATOR ) )
+  {
+    trap_SendServerCommand( clientNum,
+      "print \"Must be living to use this command\n\"" );
     return;
+  }
 
-  if( Q_stricmp( cmd, "give" ) == 0 )
-    Cmd_Give_f( ent );
-  else if( Q_stricmp( cmd, "god" ) == 0 )
-    Cmd_God_f( ent );
-  else if( Q_stricmp( cmd, "notarget" ) == 0 )
-    Cmd_Notarget_f( ent );
-  else if( Q_stricmp( cmd, "noclip" ) == 0 )
-    Cmd_Noclip_f( ent );
-  else if( Q_stricmp( cmd, "kill" ) == 0 )
-    Cmd_Kill_f( ent );
-  else if( Q_stricmp( cmd, "levelshot" ) == 0 )
-    Cmd_LevelShot_f( ent );
-  else if( Q_stricmp( cmd, "team" ) == 0 )
-    Cmd_Team_f( ent );
-  else if( Q_stricmp( cmd, "class" ) == 0 )
-    Cmd_Class_f( ent );
-  else if( Q_stricmp( cmd, "build" ) == 0 )
-    Cmd_Build_f( ent );
-  else if( Q_stricmp( cmd, "buy" ) == 0 )
-    Cmd_Buy_f( ent );
-  else if( Q_stricmp( cmd, "sell" ) == 0 )
-    Cmd_Sell_f( ent );
-  else if( Q_stricmp( cmd, "itemact" ) == 0 )
-    Cmd_ActivateItem_f( ent );
-  else if( Q_stricmp( cmd, "itemdeact" ) == 0 )
-    Cmd_DeActivateItem_f( ent );
-  else if( Q_stricmp( cmd, "itemtoggle" ) == 0 )
-    Cmd_ToggleItem_f( ent );
-  else if( Q_stricmp( cmd, "destroy" ) == 0 )
-    Cmd_Destroy_f( ent, qfalse );
-  else if( Q_stricmp( cmd, "deconstruct" ) == 0 )
-    Cmd_Destroy_f( ent, qtrue );
-  else if( Q_stricmp( cmd, "reload" ) == 0 )
-    Cmd_Reload_f( ent );
-  else if( Q_stricmp( cmd, "boost" ) == 0 )
-    Cmd_Boost_f( ent );
-  else if( Q_stricmp( cmd, "where" ) == 0 )
-    Cmd_Where_f( ent );
-  else if( Q_stricmp( cmd, "callvote" ) == 0 )
-    Cmd_CallVote_f( ent );
-  else if( Q_stricmp( cmd, "vote" ) == 0 )
-    Cmd_Vote_f( ent );
-  else if( Q_stricmp( cmd, "callteamvote" ) == 0 )
-    Cmd_CallTeamVote_f( ent );
-  else if( Q_stricmp( cmd, "follow" ) == 0 )
-    Cmd_Follow_f( ent, qfalse );
-  else if( Q_stricmp (cmd, "follownext") == 0)
-    Cmd_FollowCycle_f( ent, 1 );
-  else if( Q_stricmp( cmd, "followprev" ) == 0 )
-    Cmd_FollowCycle_f( ent, -1 );
-  else if( Q_stricmp( cmd, "teamvote" ) == 0 )
-    Cmd_TeamVote_f( ent );
-  else if( Q_stricmp( cmd, "setviewpos" ) == 0 )
-    Cmd_SetViewpos_f( ent );
-  else if( Q_stricmp( cmd, "ptrcverify" ) == 0 )
-    Cmd_PTRCVerify_f( ent );
-  else if( Q_stricmp( cmd, "ptrcrestore" ) == 0 )
-    Cmd_PTRCRestore_f( ent );
-  else if( Q_stricmp( cmd, "test" ) == 0 )
-    Cmd_Test_f( ent );
-  else
-    trap_SendServerCommand( clientNum, va( "print \"unknown cmd %s\n\"", cmd ) );
+  cmds[ i ].cmdHandler( ent );
 }
 
 int G_SayArgc()

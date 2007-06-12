@@ -352,7 +352,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     }
   }
 
-  Cmd_Score_f( self );    // show scores
+  ScoreboardMessage( self );    // show scores
 
   // send updated scores to any clients that are following this one,
   // or they would get stale scoreboards
@@ -368,7 +368,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       continue;
 
     if( client->sess.spectatorClient == self->s.number )
-      Cmd_Score_f( g_entities + i );
+      ScoreboardMessage( g_entities + i );
   }
 
   self->client->pers.classSelection = PCL_NONE; //TA: reset the classtype

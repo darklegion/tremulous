@@ -658,6 +658,22 @@ typedef struct
   pTeam_t           surrenderTeam;
 } level_locals_t;
 
+#define CMD_CHEAT         0x01
+#define CMD_MESSAGE       0x02 // sends message to others (skip when muted)
+#define CMD_TEAM          0x04 // must be on a team
+#define CMD_NOTEAM        0x08 // must not be on a team
+#define CMD_ALIEN         0x10
+#define CMD_HUMAN         0x20
+#define CMD_LIVING        0x40
+#define CMD_INTERMISSION  0x80 // valid during intermission
+
+typedef struct
+{
+  char *cmdName;
+  int  cmdFlags;
+  void ( *cmdHandler )( gentity_t *ent );
+} commands_t;
+
 //
 // g_spawn.c
 //
@@ -675,7 +691,7 @@ char      *G_NewString( const char *string );
 void      Cmd_Score_f( gentity_t *ent );
 void      G_StopFollowing( gentity_t *ent );
 qboolean  G_FollowNewClient( gentity_t *ent, int dir );
-void      Cmd_Follow_f( gentity_t *ent, qboolean toggle );
+void      G_ToggleFollow( gentity_t *ent );
 qboolean  G_MatchOnePlayer( int *plist, char *err, int len );
 int       G_ClientNumbersFromString( char *s, int *plist );
 int       G_SayArgc( void );
