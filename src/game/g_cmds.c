@@ -1760,7 +1760,7 @@ void Cmd_Destroy_f( gentity_t *ent )
   vec3_t      forward, end;
   trace_t     tr;
   gentity_t   *traceEnt;
-  char        *cmd;
+  char        cmd[ 12 ];
   qboolean    deconstruct = qtrue;
 
   if( ent->client->pers.denyBuild )
