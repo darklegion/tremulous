@@ -1941,6 +1941,8 @@ qboolean G_admin_putteam( gentity_t *ent, int skiparg )
     ADMP( va( "^3!putteam: ^7unknown team %c\n", team[ 0 ] ) );
     return qfalse;
   }
+  if( vic->client->pers.teamSelection == teamnum )
+    return qfalse;
   G_ChangeTeam( vic, teamnum );
 
   AP( va( "print \"^3!putteam: ^7%s^7 put %s^7 on to the %s team\n\"",
@@ -2104,6 +2106,7 @@ qboolean G_admin_denybuild( gentity_t *ent, int skiparg )
       return qtrue;
     }
     vic->client->pers.denyBuild = qtrue;
+    ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
     CPx( pids[ 0 ], "cp \"^1You've lost your building rights\"" );
     AP( va(
       "print \"^3!denybuild: ^7building rights for ^7%s^7 revoked by ^7%s\n\"",
