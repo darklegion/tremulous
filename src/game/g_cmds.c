@@ -1160,7 +1160,7 @@ void Cmd_CallVote_f( gentity_t *ent )
   {
     trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
     trap_SendServerCommand( ent-g_entities, "print \"Valid vote commands are: "
-      "map_restart, draw, kick, mute and unmute\n" );
+      "map, map_restart, draw, kick, mute and unmute\n" );
     return;
   }
 
