@@ -1294,7 +1294,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     if( !arg2[ 0 ] )
     {
       trap_SendServerCommand( ent-g_entities,
-        "print \"callvote: no target\n\"" );
+        "print \"callteamvote: no target\n\"" );
       return;
     }
 

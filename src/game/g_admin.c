@@ -2656,10 +2656,10 @@ qboolean G_admin_cancelvote( gentity_t *ent, int skiparg )
   CheckVote( );
   level.teamVoteNo[ 0 ] = level.numConnectedClients;
   level.teamVoteYes[ 0 ] = 0;
-  CheckTeamVote( 0 );
+  CheckTeamVote( PTE_HUMANS );
   level.teamVoteNo[ 1 ] = level.numConnectedClients;
   level.teamVoteYes[ 1 ] = 0;
-  CheckTeamVote( 1 );
+  CheckTeamVote( PTE_ALIENS );
   AP( va( "print \"^3!cancelvote: ^7%s^7 decided that everyone voted No\n\"",
           ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
@@ -2677,10 +2677,10 @@ qboolean G_admin_passvote( gentity_t *ent, int skiparg )
   CheckVote( );
   level.teamVoteYes[ 0 ] = level.numConnectedClients;
   level.teamVoteNo[ 0 ] = 0;
-  CheckTeamVote( 0 );
+  CheckTeamVote( PTE_HUMANS );
   level.teamVoteYes[ 1 ] = level.numConnectedClients;
   level.teamVoteNo[ 1 ] = 0;
-  CheckTeamVote( 1 );
+  CheckTeamVote( PTE_ALIENS );
   AP( va( "print \"^3!passvote: ^7%s^7 decided that everyone voted Yes\n\"",
           ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
