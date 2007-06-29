@@ -1050,7 +1050,14 @@ void Cmd_CallVote_f( gentity_t *ent )
     !Q_stricmp( arg1, "unmute" ) )
   {
     int clientNums[ MAX_CLIENTS ] = { -1 };
-    
+
+    if( !arg2[ 0 ] )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callvote: no target\n\"" );
+      return;
+    }
+
     if( G_ClientNumbersFromString( arg2, clientNums ) == 1 )
     {
       // there was only one partial name match
@@ -1283,7 +1290,14 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     !Q_stricmp( arg1, "allowbuild" ) )
   {
     int clientNums[ MAX_CLIENTS ] = { -1 };
-    
+
+    if( !arg2[ 0 ] )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callvote: no target\n\"" );
+      return;
+    }
+
     if( G_ClientNumbersFromString( arg2, clientNums ) == 1 )
     {
       // there was only one partial name match

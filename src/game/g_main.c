@@ -1290,9 +1290,6 @@ void CalculateRanks( void )
   level.numLiveAlienClients = 0;
   level.numLiveHumanClients = 0;
 
-  for( i = 0; i < TEAM_NUM_TEAMS; i++ )
-    level.numteamVotingClients[ i ] = 0;
-
   for( i = 0; i < level.maxclients; i++ )
   {
     P[ i ] = '-';
