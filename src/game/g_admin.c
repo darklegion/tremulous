@@ -2106,7 +2106,7 @@ qboolean G_admin_denybuild( gentity_t *ent, int skiparg )
       return qtrue;
     }
     vic->client->pers.denyBuild = qtrue;
-    ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
+    vic->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
     CPx( pids[ 0 ], "cp \"^1You've lost your building rights\"" );
     AP( va(
       "print \"^3!denybuild: ^7building rights for ^7%s^7 revoked by ^7%s\n\"",
