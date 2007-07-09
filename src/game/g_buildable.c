@@ -1770,6 +1770,14 @@ void HMedistat_Think( gentity_t *self )
   //make sure we have power
   if( !( self->powered = G_FindPower( self ) ) )
   {
+    if( self->active )
+    {
+      G_SetBuildableAnim( self, BANIM_CONSTRUCT2, qtrue );
+      G_SetIdleBuildableAnim( self, BANIM_IDLE1 );
+      self->active = qfalse;
+      self->enemy = NULL;
+    }
+
     self->nextthink = level.time + POWER_REFRESH_TIME;
     return;
   }
