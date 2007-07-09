@@ -975,31 +975,31 @@ qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
     {
       trap_SendConsoleCommand( EXEC_APPEND, g_admin_commands[ i ]->exec );
       admin_log( ent, cmd, skip );
-      return qtrue;
     }
     else
     {
       ADMP( va( "^3!%s: ^7permission denied\n", g_admin_commands[ i ]->command ) );
       admin_log( ent, "attempted", skip - 1 );
-      return qfalse;
     }
+    return qtrue;
   }
 
   for( i = 0; i < adminNumCmds; i++ )
   {
     if( Q_stricmp( cmd, g_admin_cmds[ i ].keyword ) )
       continue;
+
     if( G_admin_permission( ent, g_admin_cmds[ i ].flag[ 0 ] ) )
     {
       g_admin_cmds[ i ].handler( ent, skip );
       admin_log( ent, cmd, skip );
-      return qtrue;
     }
     else
     {
       ADMP( va( "^3!%s: ^7permission denied\n", g_admin_cmds[ i ].keyword ) );
       admin_log( ent, "attempted", skip - 1 );
     }
+    return qtrue;
   }
   return qfalse;
 }
@@ -2536,6 +2536,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
         {
           ADMBP( va( "^3!help: ^7you have no permission to use '%s'\n",
                    g_admin_cmds[ i ].keyword ) );
+          ADMBP_end();
           return qfalse;
         }
         ADMBP( va( "^3!help: ^7help for '!%s':\n",
