@@ -1,7 +1,7 @@
 #!/bin/sh
 APPBUNDLE=Tremulous.app
 BINARY=Tremulous.ub
-PKGINFO=APPTREM
+PKGINFO=APPLTREM
 ICNS=src/unix/MacSupport/Tremulous.icns
 DESTDIR=build/release-darwin-ub
 BASEDIR=base

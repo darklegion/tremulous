@@ -1082,7 +1082,7 @@ void CL_InitUI( void ) {
 	}
 
 	// reset any CVAR_CHEAT cvars registered by ui
-	if ( !cl_connectedToCheatServer ) 
+	if ( !clc.demoplaying && !cl_connectedToCheatServer ) 
 		Cvar_SetCheatState();
 }
 

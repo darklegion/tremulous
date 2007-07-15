@@ -43,15 +43,19 @@ static FILE* qdasmout;
 static void VM_Destroy_Compiled(vm_t* self);
 
 /*
+ 
+  |=====================|
+  ^       dataMask      ^- programStack rdi
+  |
+  +- r8
 
   eax	scratch
   ebx	scratch
   ecx	scratch (required for shifts)
   edx	scratch (required for divisions)
-  rsi	stack pointer
-  rdi	program frame pointer
-  r8    pointer to begin of real stack memory
-  r9    return address to real program
+  rsi	stack pointer (opStack)
+  rdi	program frame pointer (programStack)
+  r8    pointer data (vm->dataBase)
   r10   start of generated code
 */
 
@@ -266,6 +270,15 @@ static unsigned char op_argsize[256] =
 #if 1
 #define RANGECHECK(reg) \
 	emit("andl $0x%x, %%" #reg, vm->dataMask);
+#elif 0
+#define RANGECHECK(reg) \
+	emit("pushl %%" #reg); \
+	emit("andl $0x%x, %%" #reg, ~vm->dataMask); \
+	emit("jz rangecheck_ok_i_%08x", instruction); \
+	emit("int3"); \
+	emit("rangecheck_ok_i_%08x:", instruction); \
+	emit("popl %%" #reg); \
+	emit("andl $0x%x, %%" #reg, vm->dataMask);
 #else
 #define RANGECHECK(reg)
 #endif
@@ -412,10 +425,17 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 
 	Com_Printf("compiling %s\n", vm->name);
 
+#ifdef DEBUG_VM
+	snprintf(fn_s, sizeof(fn_s), "%.63s.s", vm->name);
+	snprintf(fn_o, sizeof(fn_o), "%.63s.o", vm->name);
+	fd_s = open(fn_s, O_CREAT|O_WRONLY, 0644);
+	fd_o = open(fn_o, O_CREAT|O_WRONLY, 0644);
+#else
 	snprintf(fn_s, sizeof(fn_s), "/tmp/%.63s.s_XXXXXX", vm->name);
 	snprintf(fn_o, sizeof(fn_o), "/tmp/%.63s.o_XXXXXX", vm->name);
 	fd_s = mkstemp(fn_s);
 	fd_o = mkstemp(fn_o);
+#endif
 	if(fd_s == -1 || fd_o == -1)
 	{
 		if(fd_s != -1) close(fd_s);
@@ -451,8 +471,6 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 	emit("or %%r8, %%r8"); // check whether to set up instruction pointers
 	emit("jnz main");
 	emit("jmp setupinstructionpointers");
-	emit("exit:");
-	emit("jmp *%%r9");
 
 	emit("main:");
 
@@ -502,16 +520,7 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 				break;
 			case OP_LEAVE:
 				emit("addl $%d, %%edi", iarg);          // get rid of stack frame
-				RANGECHECK(edi);
-				emit("movl 0(%%r8, %%rdi, 1), %%eax");  // get return address
-				emit("movq $%lu, %%rbx", (unsigned long)vm->instructionPointers);
-				emit("cmp $-1, %%eax");
-				emit("je jumptoexit%d", instruction);
-				emit("movl (%%rbx, %%rax, 4), %%eax"); // load new relative jump address
-				emit("addq %%r10, %%rax");
-				emit("jmp *%%rax");
-				emit("jumptoexit%d:", instruction);
-				emit("jmp exit");
+				emit("ret");
 				break;
 			case OP_CALL:
 				emit("movl 0(%%rsi), %%eax");  // get instr from stack
@@ -522,7 +531,8 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 				emit("movq $%lu, %%rbx", (unsigned long)vm->instructionPointers);
 				emit("movl (%%rbx, %%rax, 4), %%eax"); // load new relative jump address
 				emit("addq %%r10, %%rax");
-				emit("jmp *%%rax");
+				emit("callq *%%rax");
+				emit("jmp i_%08x", instruction+1);
 				emit("callSyscall%d:", instruction);
 //				emit("fnsave 4(%%rsi)");
 				emit("push %%rsi");
@@ -530,14 +540,19 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 				emit("push %%r8");
 				emit("push %%r9");
 				emit("push %%r10");
-				emit("push %%r10"); // align!
+				emit("movq %%rsp, %%rbx"); // we need to align the stack pointer
+				emit("subq $8, %%rbx");    //   |
+				emit("andq $127, %%rbx");  //   |
+				emit("subq %%rbx, %%rsp"); // <-+
+				emit("push %%rbx");
 				emit("negl %%eax");        // convert to actual number
 				emit("decl %%eax");
 				                           // first argument already in rdi
 				emit("movq %%rax, %%rsi"); // second argument in rsi
 				emit("movq $%lu, %%rax", (unsigned long)callAsmCall);
 				emit("callq *%%rax");
-				emit("pop %%r10");
+				emit("pop %%rbx");
+				emit("addq %%rbx, %%rsp");
 				emit("pop %%r10");
 				emit("pop %%r9");
 				emit("pop %%r8");
@@ -545,7 +560,7 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 				emit("pop %%rsi");
 //				emit("frstor 4(%%rsi)");
 				emit("addq $4, %%rsi");
-				emit("movl %%eax, (%%rsi)");
+				emit("movl %%eax, (%%rsi)"); // store return value
 				break;
 			case OP_PUSH:
 				emit("addq $4, %%rsi");
@@ -634,21 +649,21 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 				XJ("jb");
 				break;
 			case OP_LOAD1:
-				emit("movl 0(%%rsi), %%eax"); // get pointer from stack
+				emit("movl 0(%%rsi), %%eax"); // get value from stack
 				RANGECHECK(eax);
 				emit("movb 0(%%r8, %%rax, 1), %%al"); // deref into eax
 				emit("andq $255, %%rax");
 				emit("movl %%eax, 0(%%rsi)"); // store on stack
 				break;
 			case OP_LOAD2:
-				emit("movl 0(%%rsi), %%eax"); // get pointer from stack
+				emit("movl 0(%%rsi), %%eax"); // get value from stack
 				RANGECHECK(eax);
-				emit("movw 0(%%r8, %%rax, 1), %%rax"); // deref into eax
+				emit("movw 0(%%r8, %%rax, 1), %%ax"); // deref into eax
 				emit("movl %%eax, 0(%%rsi)"); // store on stack
 				break;
 			case OP_LOAD4:
-				emit("movl 0(%%rsi), %%eax"); // get pointer from stack
-				RANGECHECK(eax);
+				emit("movl 0(%%rsi), %%eax"); // get value from stack
+				RANGECHECK(eax); // not a pointer!?
 				emit("movl 0(%%r8, %%rax, 1), %%eax"); // deref into eax
 				emit("movl %%eax, 0(%%rsi)"); // store on stack
 				break;
@@ -664,7 +679,7 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 				emit("movl 0(%%rsi), %%eax"); // get value from stack
 				emit("movl -4(%%rsi), %%ebx"); // get pointer from stack
 				RANGECHECK(ebx);
-				emit("movw %%rax, 0(%%r8, %%rbx, 1)"); // store in memory
+				emit("movw %%ax, 0(%%r8, %%rbx, 1)"); // store in memory
 				emit("subq $8, %%rsi");
 				break;
 			case OP_STORE4:
@@ -703,14 +718,14 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 
 				break;
 			case OP_SEX8:
-				emit("movw 0(%%rsi), %%rax");
+				emit("movw 0(%%rsi), %%ax");
 				emit("andq $255, %%rax");
 				emit("cbw");
 				emit("cwde");
 				emit("movl %%eax, 0(%%rsi)");
 				break;
 			case OP_SEX16:
-				emit("movw 0(%%rsi), %%rax");
+				emit("movw 0(%%rsi), %%ax");
 				emit("cwde");
 				emit("movl %%eax, 0(%%rsi)");
 				break;
@@ -741,14 +756,15 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 				emit("subq $4, %%rsi");
 				emit("movl 0(%%rsi), %%eax");
 				emit("xorl %%edx, %%edx");
-				emit("divl 4(%%rsi)");
+				emit("cdq");
+				emit("idivl 4(%%rsi)");
 				emit("movl %%edx, 0(%%rsi)");
 				break;
 			case OP_MODU:
 				emit("subq $4, %%rsi");
 				emit("movl 0(%%rsi), %%eax");
 				emit("xorl %%edx, %%edx");
-				emit("idivl 4(%%rsi)");
+				emit("divl 4(%%rsi)");
 				emit("movl %%edx, 0(%%rsi)");
 				break;
 			case OP_MULI:
@@ -847,7 +863,7 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 	{
 		emit("movl $i_%08x-start, %d(%%rax)", instruction, instruction*4);
 	}
-	emit("jmp exit");
+	emit("ret");
 
 	emit("debugger:");
 	if(1);
@@ -883,28 +899,30 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 	// call code with r8 set to zero to set up instruction pointers
 	__asm__ __volatile__ (
 		"	xorq %%r8,%%r8		\r\n" \
-		"	movq $doneinit,%%r9	\r\n" \
 		"	movq %0,%%r10		\r\n" \
-		"	jmp *%%r10		\r\n" \
-		"doneinit:			\r\n" \
+		"	callq *%%r10		\r\n" \
 		:
 		: "m" (entryPoint)
-		: "%r8", "%r9", "%r10", "%rax"
+		: "%r8", "%r10", "%rax"
 	);
 
 #ifdef DEBUG_VM
 	fflush(qdasmout);
+	fclose(qdasmout);
 #endif
 
 	Com_Printf( "VM file %s compiled to %i bytes of code (%p - %p)\n", vm->name, vm->codeLength, vm->codeBase, vm->codeBase+vm->codeLength );
 
 out:
 	close(fd_o);
+
+#ifndef DEBUG_VM
 	if(!com_developer->integer)
 	{
 		unlink(fn_o);
 		unlink(fn_s);
 	}
+#endif
 }
 
 
@@ -978,16 +996,16 @@ int	VM_CallCompiled( vm_t *vm, int *args ) {
 	__asm__ __volatile__ (
 		"	movq %5,%%rsi		\r\n" \
 		"	movl %4,%%edi		\r\n" \
-		"	movq $done,%%r9		\r\n" \
 		"	movq %2,%%r10		\r\n" \
 		"	movq %3,%%r8		\r\n" \
-		"	jmp *%%r10		\r\n" \
-		"done:				\r\n" \
+		"       subq $24, %%rsp # fix alignment as call pushes one value \r\n" \
+		"	callq *%%r10		\r\n" \
+		"       addq $24, %%rsp          \r\n" \
 		"	movl %%edi, %0		\r\n" \
 		"	movq %%rsi, %1		\r\n" \
 		: "=m" (programStack), "=m" (opStack)
 		: "m" (entryPoint), "m" (vm->dataBase), "m" (programStack), "m" (opStack)
-		: "%rsi", "%rdi", "%rax", "%rbx", "%rcx", "%rdx", "%r8", "%r9", "%r10", "%r15", "%xmm0"
+		: "%rsi", "%rdi", "%rax", "%rbx", "%rcx", "%rdx", "%r8", "%r10", "%r15", "%xmm0"
 	);
 
 	if ( opStack != &stack[1] ) {
