@@ -162,8 +162,10 @@ void G_TeamCommand( pTeam_t team, char *cmd )
   {
     if( level.clients[ i ].pers.connected == CON_CONNECTED )
     {
-      if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == team )
-        trap_SendServerCommand( i, va( "%s", cmd ) );
+      if( level.clients[ i ].pers.teamSelection == team ||
+        ( level.clients[ i ].pers.teamSelection == PTE_NONE &&
+          G_admin_permission( &g_entities[ i ], ADMF_SPEC_ALLCHAT ) ) )
+        trap_SendServerCommand( i, cmd );
     }
   }
 }

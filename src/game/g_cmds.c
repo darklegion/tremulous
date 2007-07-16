@@ -496,12 +496,6 @@ Cmd_Kill_f
 */
 void Cmd_Kill_f( gentity_t *ent )
 {
-  if( ent->client->sess.sessionTeam == TEAM_SPECTATOR )
-    return;
-
-  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_NONE )
-    return;
-
   if( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING )
     return;
 
@@ -510,9 +504,6 @@ void Cmd_Kill_f( gentity_t *ent )
     trap_SendServerCommand( ent-g_entities, "print \"Leave the hovel first (use your destroy key)\n\"" );
     return;
   }
-
-  if( ent->health <= 0 )
-    return;
 
   if( g_cheats.integer )
   {
@@ -529,7 +520,7 @@ void Cmd_Kill_f( gentity_t *ent )
     }
     else if( ent->suicideTime > level.time )
     {
-      trap_SendServerCommand( ent-g_entities, "print \"Suicide cancelled\n\"" );
+      trap_SendServerCommand( ent-g_entities, "print \"Suicide canceled\n\"" );
       ent->suicideTime = 0;
     }
   }
@@ -1022,7 +1013,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     && !G_admin_permission( ent, ADMF_NO_VOTE_LIMIT ) )
   {
     trap_SendServerCommand( ent-g_entities, va(
-      "print \"You have already called the maxium number of votes (%d)\n\"",
+      "print \"You have already called the maximum number of votes (%d)\n\"",
       g_voteLimit.integer ) );
     return;
   }
@@ -1269,7 +1260,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     && !G_admin_permission( ent, ADMF_NO_VOTE_LIMIT ) )
   {
     trap_SendServerCommand( ent-g_entities, va(
-      "print \"You have already called the maxium number of votes (%d)\n\"",
+      "print \"You have already called the maximum number of votes (%d)\n\"",
       g_voteLimit.integer ) );
     return;
   }
@@ -1311,7 +1302,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 
     // make sure this player is on the same team
     if( clientNum != -1 && level.clients[ clientNum ].pers.teamSelection !=
-      ent->client->pers.teamSelection )
+      team )
     {
       clientNum = -1;
     }
@@ -1447,11 +1438,10 @@ Cmd_TeamVote_f
 */
 void Cmd_TeamVote_f( gentity_t *ent )
 {
-  int     team, cs_offset = 0;
+  int     cs_offset = 0;
   char    msg[ 64 ];
 
-  team = ent->client->pers.teamSelection;
-  if( team == PTE_ALIENS )
+  if( ent->client->pers.teamSelection == PTE_ALIENS )
     cs_offset = 1;
 
   if( !level.teamVoteTime[ cs_offset ] )
@@ -1897,12 +1887,6 @@ void Cmd_ActivateItem_f( gentity_t *ent )
   upgrade = BG_FindUpgradeNumForName( s );
   weapon = BG_FindWeaponNumForName( s );
 
-  if( ent->client->pers.teamSelection != PTE_HUMANS )
-    return;
-
-  if( ent->client->pers.classSelection == PCL_NONE )
-    return;
-
   if( upgrade != UP_NONE && BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
     BG_ActivateUpgrade( upgrade, ent->client->ps.stats );
   else if( weapon != WP_NONE && BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
@@ -1927,12 +1911,6 @@ void Cmd_DeActivateItem_f( gentity_t *ent )
   trap_Argv( 1, s, sizeof( s ) );
   upgrade = BG_FindUpgradeNumForName( s );
 
-  if( ent->client->pers.teamSelection != PTE_HUMANS )
-    return;
-
-  if( ent->client->pers.classSelection == PCL_NONE )
-    return;
-
   if( BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
     BG_DeactivateUpgrade( upgrade, ent->client->ps.stats );
   else
@@ -1953,9 +1931,6 @@ void Cmd_ToggleItem_f( gentity_t *ent )
   trap_Argv( 1, s, sizeof( s ) );
   upgrade = BG_FindUpgradeNumForName( s );
   weapon = BG_FindWeaponNumForName( s );
-
-  if( ent->client->pers.teamSelection != PTE_HUMANS )
-    return;
 
   if( weapon != WP_NONE )
   {
@@ -2027,10 +2002,6 @@ void Cmd_Buy_f( gentity_t *ent )
   }
 
   trap_Argv( 1, s, sizeof( s ) );
-
-  //aliens don't buy stuff
-  if( ent->client->pers.teamSelection != PTE_HUMANS )
-    return;
 
   weapon = BG_FindWeaponNumForName( s );
   upgrade = BG_FindUpgradeNumForName( s );
@@ -2227,10 +2198,6 @@ void Cmd_Sell_f( gentity_t *ent )
   int       weapon, upgrade;
 
   trap_Argv( 1, s, sizeof( s ) );
-
-  //aliens don't sell stuff
-  if( ent->client->pers.teamSelection != PTE_HUMANS )
-    return;
 
   //no armoury nearby
   if( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
@@ -2500,8 +2467,7 @@ void Cmd_Boost_f( gentity_t *ent )
   if( ent->client->pers.cmd.buttons & BUTTON_WALKING )
     return;
 
-  if( ( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) &&
-      ( ent->client->ps.stats[ STAT_STAMINA ] > 0 ) )
+  if( ent->client->ps.stats[ STAT_STAMINA ] > 0 )
     ent->client->ps.stats[ STAT_STATE ] |= SS_SPEEDBOOST;
 }
 
@@ -2898,13 +2864,13 @@ commands_t cmds[ ] = {
   { "build", CMD_TEAM|CMD_LIVING, Cmd_Build_f },
   { "deconstruct", CMD_TEAM|CMD_LIVING, Cmd_Destroy_f },
 
-  { "buy", CMD_HUMAN, Cmd_Buy_f },
-  { "sell", CMD_HUMAN, Cmd_Sell_f },
-  { "itemact", CMD_HUMAN, Cmd_ActivateItem_f },
-  { "itemdeact", CMD_HUMAN, Cmd_DeActivateItem_f },
-  { "itemtoggle", CMD_HUMAN, Cmd_ToggleItem_f },
-  { "reload", CMD_HUMAN, Cmd_Reload_f },
-  { "boost", CMD_HUMAN, Cmd_Boost_f }
+  { "buy", CMD_HUMAN|CMD_LIVING, Cmd_Buy_f },
+  { "sell", CMD_HUMAN|CMD_LIVING, Cmd_Sell_f },
+  { "itemact", CMD_HUMAN|CMD_LIVING, Cmd_ActivateItem_f },
+  { "itemdeact", CMD_HUMAN|CMD_LIVING, Cmd_DeActivateItem_f },
+  { "itemtoggle", CMD_HUMAN|CMD_LIVING, Cmd_ToggleItem_f },
+  { "reload", CMD_HUMAN|CMD_LIVING, Cmd_Reload_f },
+  { "boost", CMD_HUMAN|CMD_LIVING, Cmd_Boost_f }
 };
 static int numCmds = sizeof( cmds ) / sizeof( cmds[ 0 ] );
 

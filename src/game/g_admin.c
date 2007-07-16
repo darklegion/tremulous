@@ -44,7 +44,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
     },
 
     {"allowbuild", G_admin_denybuild, "d",
-      "restore a player's ablity to build",
+      "restore a player's ability to build",
       "[^3name|slot#^7]"
     },
     
@@ -66,7 +66,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
     },
 
     {"denybuild", G_admin_denybuild, "d",
-      "take away a player's ablity to build",
+      "take away a player's ability to build",
       "[^3name|slot#^7]"
     },
 
@@ -2248,7 +2248,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
   char lname[ MAX_NAME_LENGTH ];
   char lname2[ MAX_NAME_LENGTH ];
   char guid_stub[ 9 ];
-  char muted[ 2 ];
+  char muted[ 2 ], denied[ 2 ];
   int l;
   char lname_fmt[ 5 ];
 
@@ -2289,6 +2289,11 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
     if( p->pers.muted )
     {
       Q_strncpyz( muted, "M", sizeof( muted ) );
+    }
+    denied[ 0 ] = '\0';
+    if( p->pers.denyBuild )
+    {
+      Q_strncpyz( denied, "B", sizeof( denied ) );
     }
 
     l = 0;
@@ -2332,7 +2337,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
 
     }
 
-    ADMBP( va( "%2i %s%s^7 %-2i %s^7 (*%s) ^1%1s^7 %s^7 %s%s^7%s\n",
+    ADMBP( va( "%2i %s%s^7 %-2i %s^7 (*%s) ^1%1s%1s^7 %s^7 %s%s^7%s\n",
              i,
              c,
              t,
@@ -2340,6 +2345,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
              ( *lname ) ? lname2 : "", 
              guid_stub,
              muted,
+             denied,
              p->pers.netname,
              ( *n ) ? "(a.k.a. " : "",
              n,
@@ -2541,7 +2547,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
         }
         ADMBP( va( "^3!help: ^7help for '!%s':\n",
           g_admin_cmds[ i ].keyword ) );
-        ADMBP( va( " ^3Funtion: ^7%s\n", g_admin_cmds[ i ].function ) );
+        ADMBP( va( " ^3Function: ^7%s\n", g_admin_cmds[ i ].function ) );
         ADMBP( va( " ^3Syntax: ^7!%s %s\n", g_admin_cmds[ i ].keyword,
                  g_admin_cmds[ i ].syntax ) );
         ADMBP( va( " ^3Flag: ^7'%c'\n", g_admin_cmds[ i ].flag[ 0 ] ) );
