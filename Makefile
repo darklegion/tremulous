@@ -135,7 +135,6 @@ NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
 JPDIR=$(MOUNT_DIR)/jpeg-6
 TOOLSDIR=$(MOUNT_DIR)/tools
-LOKISETUPDIR=$(UDIR)/setup
 SDLHDIR=$(MOUNT_DIR)/SDL12
 LIBSDIR=$(MOUNT_DIR)/libs
 MASTERDIR=$(MOUNT_DIR)/master
@@ -1388,9 +1387,6 @@ toolsclean:
 distclean: clean toolsclean
 	@rm -rf $(BUILD_DIR)
 
-installer: release
-	@$(MAKE) VERSION=$(VERSION) -C $(LOKISETUPDIR)
-
 dist:
 	rm -rf tremulous-$(SVN_VERSION)
 	svn export . tremulous-$(SVN_VERSION)
@@ -1407,6 +1403,6 @@ ifneq ($(strip $(D_FILES)),)
   include $(D_FILES)
 endif
 
-.PHONY: all clean clean2 clean-debug clean-release copyfiles \
-	debug default dist distclean installer makedirs release \
+.PHONY: all clean clean2 clean-debug clean-release \
+	debug default dist distclean makedirs release \
 	targets tools toolsclean
