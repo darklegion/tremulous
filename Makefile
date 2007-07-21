@@ -338,9 +338,6 @@ ifeq ($(PLATFORM),darwin)
 
   ifeq ($(ARCH),ppc)
     OPTIMIZE += -faltivec -O3
-    # Carbon is required on PPC only to make a call to MakeDataExecutable
-    # in the PPC vm (should be a better non-Carbon way).
-    LDFLAGS += -framework Carbon
   endif
   ifeq ($(ARCH),x86)
     OPTIMIZE += -march=prescott -mfpmath=sse
@@ -612,6 +609,7 @@ else # ifeq IRIX
 
 ifeq ($(PLATFORM),sunos)
 
+  CC=gcc
   INSTALL=ginstall
   MKDIR=gmkdir
   COPYDIR="/usr/local/share/games/tremulous"
@@ -725,8 +723,7 @@ ifneq ($(BUILD_GAME_QVM),0)
     TARGETS += \
       $(B)/base/vm/cgame.qvm \
       $(B)/base/vm/game.qvm \
-      $(B)/base/vm/ui.qvm \
-      qvmdeps
+      $(B)/base/vm/ui.qvm
   endif
 endif
 
@@ -743,55 +740,93 @@ ifeq ($(USE_LOCAL_HEADERS),1)
 endif
 
 ifeq ($(GENERATE_DEPENDENCIES),1)
-  DEPEND_CFLAGS=-MMD
+  BASE_CFLAGS += -MMD
 endif
 
 ifeq ($(USE_SVN),1)
   BASE_CFLAGS += -DSVN_VERSION=\\\"$(SVN_VERSION)\\\"
 endif
 
-DO_CC       = @echo "CC $<"; \
-              $(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) -o $@ -c $<
-DO_SMP_CC   = @echo "SMP_CC $<"; \
-              $(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) -DSMP -o $@ -c $<
-DO_BOT_CC   = @echo "BOT_CC $<"; \
-              $(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) $(BOTCFLAGS) -DBOTLIB -o $@ -c $<
-DO_SHLIB_CC = @echo "SHLIB_CC $<"; \
-              $(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
-DO_AS       = @echo "AS $<"; \
-              $(CC) $(CFLAGS) -DELF -x assembler-with-cpp -o $@ -c $<
-DO_DED_CC   = @echo "DED_CC $<"; \
-              $(CC) $(NOTSHLIBCFLAGS) -DDEDICATED $(CFLAGS) -o $@ -c $<
-DO_WINDRES  = @echo "WINDRES $<"; \
-              $(WINDRES) -i $< -o $@
+define DO_CC       
+@echo "CC $<"
+@$(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) -o $@ -c $<
+endef
+
+define DO_SMP_CC
+@echo "SMP_CC $<"
+@$(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) -DSMP -o $@ -c $<
+endef
+
+define DO_BOT_CC
+@echo "BOT_CC $<"
+@$(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) $(BOTCFLAGS) -DBOTLIB -o $@ -c $<
+endef
+
+ifeq ($(GENERATE_DEPENDENCIES),1)
+  DO_QVM_DEP=cat $(@:%.o=%.d) | sed -e 's/\.o/\.asm/g' >> $(@:%.o=%.d)
+endif
+
+define DO_SHLIB_CC
+@echo "SHLIB_CC $<"
+@$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+@$(DO_QVM_DEP)
+endef
+
+define DO_AS
+@echo "AS $<"
+@$(CC) $(CFLAGS) -DELF -x assembler-with-cpp -o $@ -c $<
+endef
+
+define DO_DED_CC
+@echo "DED_CC $<"
+@$(CC) $(NOTSHLIBCFLAGS) -DDEDICATED $(CFLAGS) -o $@ -c $<
+endef
+
+define DO_WINDRES
+@echo "WINDRES $<"
+@$(WINDRES) -i $< -o $@
+endef
+
 
 #############################################################################
 # MAIN TARGETS
 #############################################################################
 
-default: build_release
+default: release
+all: debug release
 
-debug: build_debug
-release: build_release
-
-build_debug: tools
-	$(MAKE) makedirs targets B=$(BD) \
-		CFLAGS="$(CFLAGS) $(DEBUG_CFLAGS) $(DEPEND_CFLAGS)"
+debug:
+	@$(MAKE) targets B=$(BD) CFLAGS="$(CFLAGS) $(DEBUG_CFLAGS)"
 ifeq ($(BUILD_MASTER_SERVER),1)
 	$(MAKE) -C $(MASTERDIR) debug
 endif
 
-build_release: tools
-	$(MAKE) makedirs targets B=$(BR) \
-		CFLAGS="$(CFLAGS) $(RELEASE_CFLAGS) $(DEPEND_CFLAGS)"
+release:
+	@$(MAKE) targets B=$(BR) CFLAGS="$(CFLAGS) $(RELEASE_CFLAGS)"
 ifeq ($(BUILD_MASTER_SERVER),1)
 	$(MAKE) -C $(MASTERDIR) release
 endif
 
-# Build both debug and release builds
-all: build_debug build_release
-
-targets: $(TARGETS)
+# Create the build directories and tools, print out
+# an informational message, then start building
+targets: makedirs tools
+	@echo ""
+	@echo "Building Tremulous in $(B):"
+	@echo "  CC: $(CC)"
+	@echo ""
+	@echo "  CFLAGS:"
+	@for i in $(CFLAGS); \
+	do \
+		echo "    $$i"; \
+	done
+	@echo ""
+	@echo "  Output:"
+	@for i in $(TARGETS); \
+	do \
+		echo "    $$i"; \
+	done
+	@echo ""
+	@$(MAKE) $(TARGETS)
 
 makedirs:
 	@if [ ! -d $(BUILD_DIR) ];then $(MKDIR) $(BUILD_DIR);fi
@@ -822,8 +857,10 @@ tools:
 	$(MAKE) -C $(TOOLSDIR)/asm install
 endif
 
-DO_Q3LCC    = @echo "Q3LCC $<"; \
-              $(Q3LCC) -o $@ $<
+define DO_Q3LCC
+@echo "Q3LCC $<"
+@$(Q3LCC) -o $@ $<
+endef
 
 #############################################################################
 # CLIENT/SERVER
@@ -1339,10 +1376,10 @@ clean2:
 	@rm -f $(TARGETS)
 
 clean-debug:
-	@$(MAKE) clean2 B=$(BD) CFLAGS="$(DEBUG_CFLAGS)"
+	@$(MAKE) clean2 B=$(BD)
 
 clean-release:
-	@$(MAKE) clean2 B=$(BR) CFLAGS="$(RELEASE_CFLAGS)"
+	@$(MAKE) clean2 B=$(BR)
 
 toolsclean:
 	@$(MAKE) -C $(TOOLSDIR)/asm clean uninstall
@@ -1351,7 +1388,7 @@ toolsclean:
 distclean: clean toolsclean
 	@rm -rf $(BUILD_DIR)
 
-installer: build_release
+installer: release
 	@$(MAKE) VERSION=$(VERSION) -C $(LOKISETUPDIR)
 
 dist:
@@ -1366,13 +1403,10 @@ dist:
 
 D_FILES=$(shell find . -name '*.d')
 
-$(B)/base/vm/vm.d: $(GOBJ) $(CGOBJ) $(UIOBJ)
-	@cat $(^:%.o=%.d) | sed -e 's/\.o/\.asm/g' > $@
-
-qvmdeps: $(B)/base/vm/vm.d
-
 ifneq ($(strip $(D_FILES)),)
   include $(D_FILES)
 endif
 
-.PHONY: release debug clean distclean copyfiles installer dist
+.PHONY: all clean clean2 clean-debug clean-release copyfiles \
+	debug default dist distclean installer makedirs release \
+	targets tools toolsclean
