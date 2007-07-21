@@ -706,7 +706,7 @@ endif
 ifneq ($(BUILD_CLIENT),0)
   TARGETS += $(B)/tremulous.$(ARCH)$(BINEXT)
   ifneq ($(BUILD_CLIENT_SMP),0)
-    TARGETS += $(B)/tremulous.$(ARCH)$(BINEXT)
+    TARGETS += $(B)/tremulous-smp.$(ARCH)$(BINEXT)
   endif
 endif
 
