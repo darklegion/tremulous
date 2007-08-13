@@ -246,11 +246,7 @@ void SV_MasterHeartbeat( void ) {
 	
 			Com_Printf( "Resolving %s\n", sv_master[i]->string );
 			if ( !NET_StringToAdr( sv_master[i]->string, &adr[i] ) ) {
-				// if the address failed to resolve, clear it
-				// so we don't take repeated dns hits
 				Com_Printf( "Couldn't resolve address: %s\n", sv_master[i]->string );
-				Cvar_Set( sv_master[i]->name, "" );
-				sv_master[i]->modified = qfalse;
 				continue;
 			}
 			if ( !strchr( sv_master[i]->string, ':' ) ) {
