@@ -86,4 +86,4 @@ void CL_StartHunkUsers( void ) {
 }
 
 // bk001119 - added new dummy for sv_init.c
-void CL_ShutdownAll(void) {};
+void CL_ShutdownAll(void) {}

@@ -1154,7 +1154,7 @@ struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, vec3_t *p
 
 	if ( width <= 2 || height <= 2 || !points ) {
 		Com_Error( ERR_DROP, "CM_GeneratePatchFacets: bad parameters: (%i, %i, %p)",
-			width, height, points );
+			width, height, (void *)points );
 	}
 
 	if ( !(width & 1) || !(height & 1) ) {
@@ -1386,6 +1386,11 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 #ifndef BSPC
 	static cvar_t *cv;
 #endif //BSPC
+
+	if ( !BoundsIntersect( tw->bounds[0], tw->bounds[1],
+				pc->bounds[0], pc->bounds[1] ) ) {
+		return;
+	}
 
 	if (tw->isPoint) {
 		CM_TracePointThroughPatchCollide( tw, pc );
