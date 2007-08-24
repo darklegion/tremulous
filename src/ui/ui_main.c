@@ -2219,12 +2219,16 @@ static void UI_DrawSelectedPlayer(rectDef_t *rect, float scale, vec4_t color, in
 static void UI_DrawServerRefreshDate(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
   if (uiInfo.serverStatus.refreshActive) {
     vec4_t lowLight, newColor;
+    int numServers = trap_LAN_GetServerCount( ui_netSource.integer );
+
     lowLight[0] = 0.8 * color[0];
     lowLight[1] = 0.8 * color[1];
     lowLight[2] = 0.8 * color[2];
     lowLight[3] = 0.8 * color[3];
     LerpColor(color,lowLight,newColor,0.5+0.5*sin(uiInfo.uiDC.realTime / PULSE_DIVISOR));
-    Text_Paint(rect->x, rect->y, scale, newColor, va("Getting info for %d servers (ESC to cancel)", trap_LAN_GetServerCount(ui_netSource.integer)), 0, 0, textStyle);
+    Text_Paint(rect->x, rect->y, scale, newColor,
+        numServers < 0 ? "Waiting for response..." :
+        va("Getting info for %d servers (ESC to cancel)", numServers), 0, 0, textStyle);
   } else {
     char buff[64];
     Q_strncpyz(buff, UI_Cvar_VariableString(va("ui_lastServerRefresh_%i", ui_netSource.integer)), 64);
@@ -5759,7 +5763,7 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
 
       return;
     case UIMENU_MAIN:
-      //trap_Cvar_Set( "sv_killserver", "1" );
+      trap_Cvar_Set( "sv_killserver", "1" );
       trap_Key_SetCatcher( KEYCATCH_UI );
       //trap_S_StartLocalSound( trap_S_RegisterSound("sound/misc/menu_background.wav", qfalse) , CHAN_LOCAL_SOUND );
       //trap_S_StartBackgroundTrack("sound/misc/menu_background.wav", NULL);
@@ -5786,7 +5790,7 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
       Menus_ActivateByName("team");
       return;
     case UIMENU_POSTGAME:
-      //trap_Cvar_Set( "sv_killserver", "1" );
+      trap_Cvar_Set( "sv_killserver", "1" );
       trap_Key_SetCatcher( KEYCATCH_UI );
       if (uiInfo.inGameLoad) {
         UI_LoadNonIngame();
