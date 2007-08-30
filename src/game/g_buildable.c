@@ -770,7 +770,7 @@ void AOvermind_Think( gentity_t *self )
       for( i = 0; i < level.numConnectedClients; i++ )
       {
         builder = &g_entities[ level.sortedClients[ i ] ];
-        if( builder->spawned &&
+        if( builder->health > 0 &&
           ( builder->client->pers.classSelection == PCL_ALIEN_BUILDER0 ||
             builder->client->pers.classSelection == PCL_ALIEN_BUILDER0_UPG ) )
         {
