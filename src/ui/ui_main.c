@@ -1232,11 +1232,7 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
 
   handle = trap_Parse_LoadSource( menuFile );
   if (!handle) {
-    trap_Error( va( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile ) );
-    handle = trap_Parse_LoadSource( "ui/menus.txt" );
-    if (!handle) {
-      trap_Error( va( S_COLOR_RED "default menu file not found: ui/menus.txt, unable to continue!\n" ) );
-    }
+    trap_Error( va( S_COLOR_RED "default menu file not found: ui/menus.txt, unable to continue!\n" ) );
   }
 
   ui_new.integer = 1;
@@ -1273,20 +1269,13 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
 void UI_Load( void ) {
   char lastName[1024];
   menuDef_t *menu = Menu_GetFocused();
-  char *menuSet = UI_Cvar_VariableString("ui_menuFiles");
   if (menu && menu->window.name) {
     strcpy(lastName, menu->window.name);
-  }
-  if (menuSet == NULL || menuSet[0] == '\0') {
-    menuSet = "ui/menus.txt";
   }
 
   String_Init();
 
-/*  UI_ParseGameInfo("gameinfo.txt");
-  UI_LoadArenas();*/
-
-  UI_LoadMenus(menuSet, qtrue);
+  UI_LoadMenus("ui/menus.txt", qtrue);
   Menus_CloseAll();
   Menus_ActivateByName(lastName);
 
@@ -5524,7 +5513,6 @@ UI_Init
 =================
 */
 void _UI_Init( qboolean inGameLoad ) {
-  const char *menuSet;
   int start;
 
   BG_InitClassOverrides( );
@@ -5617,22 +5605,7 @@ void _UI_Init( qboolean inGameLoad ) {
   uiInfo.characterCount = 0;
   uiInfo.aliasCount = 0;
 
-/*  UI_ParseTeamInfo("teaminfo.txt");
-  UI_LoadTeams();
-  UI_ParseGameInfo("gameinfo.txt");*/
-
-  menuSet = UI_Cvar_VariableString("ui_menuFiles");
-  if (menuSet == NULL || menuSet[0] == '\0') {
-    menuSet = "ui/menus.txt";
-  }
-
-#if 0
-  if (uiInfo.inGameLoad) {
-    UI_LoadMenus("ui/ingame.txt", qtrue);
-  } else { // bk010222: left this: UI_LoadMenus(menuSet, qtrue);
-  }
-#else
-  UI_LoadMenus(menuSet, qtrue);
+  UI_LoadMenus("ui/menus.txt", qtrue);
   UI_LoadMenus("ui/ingame.txt", qfalse);
   UI_LoadMenus("ui/tremulous.txt", qfalse);
 
@@ -5655,7 +5628,6 @@ void _UI_Init( qboolean inGameLoad ) {
                                                     uiInfo.tremInfoPanes[ i ].graphics[ j ].height );
     }
   }
-#endif
 
   Menus_CloseAll();
 
@@ -5738,11 +5710,7 @@ void _UI_MouseEvent( int dx, int dy )
 }
 
 void UI_LoadNonIngame( void ) {
-  const char *menuSet = UI_Cvar_VariableString("ui_menuFiles");
-  if (menuSet == NULL || menuSet[0] == '\0') {
-    menuSet = "ui/menus.txt";
-  }
-  UI_LoadMenus(menuSet, qfalse);
+  UI_LoadMenus("ui/menus.txt", qfalse);
   uiInfo.inGameLoad = qfalse;
 }
 

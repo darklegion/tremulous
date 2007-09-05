@@ -1,13 +1,17 @@
 //Microsoft Developer Studio generated resource script.
 //
-#include "resource.h"
+#include "win_resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
+#ifndef __MINGW32__
+#include "winres.h"
+#else
 #include <winresrc.h>
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS

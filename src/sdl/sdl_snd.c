@@ -1,50 +1,21 @@
-#if USE_SDL_SOUND
-
 /*
- * SDL implementation for Quake 3: Arena's GPL source release.
- *
- * This is a replacement of the Linux/OpenSoundSystem code with
- *  an SDL backend, since it allows us to trivially point just about any
- *  existing 2D audio backend known to man on any platform at the code,
- *  plus it benefits from all of SDL's tapdancing to support buggy drivers,
- *  etc, and gets us free ALSA support, too.
- *
- * This is the best idea for a direct modernization of the Linux sound code
- *  in Quake 3. However, it would be nice to replace this with true 3D
- *  positional audio, compliments of OpenAL...
- *
- * Written by Ryan C. Gordon (icculus@icculus.org). Please refer to
- *    http://ioquake3.org/ for the latest version of this code.
- *
- *  Patches and comments are welcome at the above address.
- *
- * I cut-and-pasted this from linux_snd.c, and moved it to SDL line-by-line.
- *  There is probably some cruft that could be removed here.
- *
- * You should define USE_SDL=1 and then add this to the makefile.
- *  USE_SDL will disable the Open Sound System target.
- */
-
-/*
-Original copyright on Q3A sources:
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2000-2006 Tim Angus
 
-This file is part of Tremulous.
+This file is part of Quake III Arena source code.
 
-Tremulous is free software; you can redistribute it
+Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Tremulous is distributed in the hope that it will be
+Quake III Arena source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Tremulous; if not, write to the Free Software
+along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
@@ -65,55 +36,16 @@ cvar_t *s_sdlChannels;
 cvar_t *s_sdlDevSamps;
 cvar_t *s_sdlMixSamps;
 
-static qboolean use_custom_memset = qfalse;
-
-/*
-===============
-Snd_Memset
-
-https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=371
-
-<TTimo> some shitty mess with DMA buffers
-<TTimo> the mmap'ing permissions were write only
-<TTimo> and glibc optimized for mmx would do memcpy with a prefetch and a read
-<TTimo> causing segfaults
-<TTimo> some other systems would not let you mmap the DMA with read permissions
-<TTimo> so I think I ended up attempting opening with read/write, then try write only
-<TTimo> and use my own copy instead of the glibc crap
-===============
-*/
-
-#ifdef Snd_Memset
-#undef Snd_Memset
-#endif
-void Snd_Memset (void* dest, const int val, const size_t count)
-{
-	int *pDest;
-	int i, iterate;
-
-	if (!use_custom_memset)
-	{
-		Com_Memset(dest,val,count);
-		return;
-	}
-	iterate = count / sizeof(int);
-	pDest = (int*)dest;
-	for(i=0; i<iterate; i++)
-	{
-		pDest[i] = val;
-	}
-}
-
 /* The audio callback. All the magic happens here. */
 static int dmapos = 0;
 static int dmasize = 0;
 
 /*
 ===============
-sdl_audio_callback
+SNDDMA_AudioCallback
 ===============
 */
-static void sdl_audio_callback(void *userdata, Uint8 *stream, int len)
+static void SNDDMA_AudioCallback(void *userdata, Uint8 *stream, int len)
 {
 	int pos = (dmapos * (dma.samplebits/8));
 	if (pos >= dmasize)
@@ -168,10 +100,10 @@ static int formatToStringTableSize =
 
 /*
 ===============
-print_audiospec
+SNDDMA_PrintAudiospec
 ===============
 */
-static void print_audiospec(const char *str, const SDL_AudioSpec *spec)
+static void SNDDMA_PrintAudiospec(const char *str, const SDL_AudioSpec *spec)
 {
 	int		i;
 	char	*fmt = NULL;
@@ -210,8 +142,6 @@ qboolean SNDDMA_Init(void)
 	if (snd_inited)
 		return qtrue;
 
-	Com_Printf("Initializing SDL audio driver...\n");
-
 	if (!s_sdlBits) {
 		s_sdlBits = Cvar_Get("s_sdlBits", "16", CVAR_ARCHIVE);
 		s_sdlSpeed = Cvar_Get("s_sdlSpeed", "0", CVAR_ARCHIVE);
@@ -220,14 +150,18 @@ qboolean SNDDMA_Init(void)
 		s_sdlMixSamps = Cvar_Get("s_sdlMixSamps", "0", CVAR_ARCHIVE);
 	}
 
+	Com_Printf( "SDL_Init( SDL_INIT_AUDIO )... " );
+
 	if (!SDL_WasInit(SDL_INIT_AUDIO))
 	{
 		if (SDL_Init(SDL_INIT_AUDIO) == -1)
 		{
-			Com_Printf("SDL_Init(SDL_INIT_AUDIO) failed: %s\n", SDL_GetError());
+			Com_Printf( "FAILED (%s)\n", SDL_GetError( ) );
 			return qfalse;
 		}
 	}
+
+	Com_Printf( "OK\n" );
 
 	if (SDL_AudioDriverName(drivername, sizeof (drivername)) == NULL)
 		strcpy(drivername, "(UNKNOWN)");
@@ -262,16 +196,16 @@ qboolean SNDDMA_Init(void)
 	}
 
 	desired.channels = (int) s_sdlChannels->value;
-	desired.callback = sdl_audio_callback;
+	desired.callback = SNDDMA_AudioCallback;
 
 	if (SDL_OpenAudio(&desired, &obtained) == -1)
 	{
 		Com_Printf("SDL_OpenAudio() failed: %s\n", SDL_GetError());
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
 		return qfalse;
-	} // if
+	}
 
-	print_audiospec("SDL_AudioSpec", &obtained);
+	SNDDMA_PrintAudiospec("SDL_AudioSpec", &obtained);
 
 	// dma.samples needs to be big, or id's mixer will just refuse to
 	//  work at all; we need to keep it significantly bigger than the
@@ -359,5 +293,3 @@ void SNDDMA_BeginPainting (void)
 {
 	SDL_LockAudio();
 }
-
-#endif  // USE_SDL_SOUND

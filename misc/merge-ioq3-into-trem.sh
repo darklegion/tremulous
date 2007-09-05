@@ -17,7 +17,7 @@ svn export . $IOQ3VERSION
 cd $IOQ3VERSION
 
 # Remove READMEs and the like
-rm -rf BUGS ChangeLog README COPYING.txt NOTTODO TODO id-readme.txt web/
+rm -rf BUGS ChangeLog README COPYING.txt NOTTODO TODO id-readme.txt misc/
 
 # Remove Q3 ui stuff
 rm -rf ui/
@@ -32,14 +32,6 @@ rm -f `find -iname "*.q3asm"`
 rm -f `find -iname "*.mak"`
 rm -f `find -iname "*.ico"`
 rm -f `find -iname "*.bmp"`
-rm -f code/tools/lcc/makefile.nt
-rm -rf code/win32/msvc/
-
-# Remove Linux docs
-rm -rf code/unix/LinuxSupport/
-rm -rf code/unix/setup/
-rm -f code/unix/README.*
-rm -f code/unix/quake3.*
 
 # Remove game code
 rm -rf code/cgame/ code/game/ code/ui/ code/q3_ui/

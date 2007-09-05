@@ -2,7 +2,7 @@
 APPBUNDLE=Tremulous.app
 BINARY=Tremulous.ub
 PKGINFO=APPLTREM
-ICNS=src/unix/MacSupport/Tremulous.icns
+ICNS=misc/Tremulous.icns
 DESTDIR=build/release-darwin-ub
 BASEDIR=base
 Q3_VERSION=`grep "\#define Q3_VERSION" src/qcommon/q_shared.h | \

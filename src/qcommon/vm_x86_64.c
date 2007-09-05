@@ -110,7 +110,7 @@ static long callAsmCall(long callProgramStack, long callSyscallNum)
 	return ret;
 }
 
-#ifdef DEBUG_VM // bk001204
+#ifdef DEBUG_VM
 static char	*opnames[256] = {
 	"OP_UNDEF", 
 

@@ -44,6 +44,7 @@ cvar_t	*cl_freezeDemo;
 cvar_t	*cl_shownet;
 cvar_t	*cl_showSend;
 cvar_t	*cl_timedemo;
+cvar_t	*cl_timedemoLog;
 cvar_t	*cl_autoRecordDemo;
 cvar_t	*cl_aviFrameRate;
 cvar_t	*cl_aviMotionJpeg;
@@ -394,17 +395,94 @@ CLIENT SIDE DEMO PLAYBACK
 
 /*
 =================
+CL_DemoFrameDurationSDev
+=================
+*/
+static float CL_DemoFrameDurationSDev( void )
+{
+	int i;
+	int numFrames;
+	float mean = 0.0f;
+	float variance = 0.0f;
+
+	if( ( clc.timeDemoFrames - 1 ) > MAX_TIMEDEMO_DURATIONS )
+		numFrames = MAX_TIMEDEMO_DURATIONS;
+	else
+		numFrames = clc.timeDemoFrames - 1;
+
+	for( i = 0; i < numFrames; i++ )
+		mean += clc.timeDemoDurations[ i ];
+	mean /= numFrames;
+
+	for( i = 0; i < numFrames; i++ )
+	{
+		float x = clc.timeDemoDurations[ i ];
+
+		variance += ( ( x - mean ) * ( x - mean ) );
+	}
+	variance /= numFrames;
+
+	return sqrt( variance );
+}
+
+/*
+=================
 CL_DemoCompleted
 =================
 */
-void CL_DemoCompleted( void ) {
-	if (cl_timedemo && cl_timedemo->integer) {
+void CL_DemoCompleted( void )
+{
+	char buffer[ MAX_STRING_CHARS ];
+
+	if( cl_timedemo && cl_timedemo->integer )
+	{
 		int	time;
 		
 		time = Sys_Milliseconds() - clc.timeDemoStart;
-		if ( time > 0 ) {
-			Com_Printf ("%i frames, %3.1f seconds: %3.1f fps\n", clc.timeDemoFrames,
-			time/1000.0, clc.timeDemoFrames*1000.0 / time);
+		if( time > 0 )
+		{
+			// Millisecond times are frame durations:
+			// minimum/average/maximum/std deviation
+			Com_sprintf( buffer, sizeof( buffer ),
+					"%i frames %3.1f seconds %3.1f fps %d.0/%.1f/%d.0/%.1f ms\n",
+					clc.timeDemoFrames,
+					time/1000.0,
+					clc.timeDemoFrames*1000.0 / time,
+					clc.timeDemoMinDuration,
+					time / (float)clc.timeDemoFrames,
+					clc.timeDemoMaxDuration,
+					CL_DemoFrameDurationSDev( ) );
+			Com_Printf( buffer );
+
+			// Write a log of all the frame durations
+			if( cl_timedemoLog && strlen( cl_timedemoLog->string ) > 0 )
+			{
+				int i;
+				int numFrames;
+				fileHandle_t f;
+
+				if( ( clc.timeDemoFrames - 1 ) > MAX_TIMEDEMO_DURATIONS )
+					numFrames = MAX_TIMEDEMO_DURATIONS;
+				else
+					numFrames = clc.timeDemoFrames - 1;
+
+				f = FS_FOpenFileWrite( cl_timedemoLog->string );
+				if( f )
+				{
+					FS_Printf( f, "# %s", buffer );
+
+					for( i = 0; i < numFrames; i++ )
+						FS_Printf( f, "%d\n", clc.timeDemoDurations[ i ] );
+
+					FS_FCloseFile( f );
+					Com_Printf( "%s written\n", cl_timedemoLog->string );
+				}
+				else
+				{
+					Com_Printf( "Couldn't open %s for writing\n",
+							cl_timedemoLog->string );
+				}
+			}
 		}
 	}
 
@@ -705,7 +783,7 @@ void CL_FlushMemory( void ) {
 		Hunk_ClearToMark();
 	}
 
-	CL_StartHunkUsers();
+	CL_StartHunkUsers( qfalse );
 }
 
 /*
@@ -718,6 +796,12 @@ memory on the hunk from cgame, ui, and renderer
 =====================
 */
 void CL_MapLoading( void ) {
+	if ( com_dedicated->integer ) {
+		cls.state = CA_DISCONNECTED;
+		cls.keyCatchers = KEYCATCH_CONSOLE;
+		return;
+	}
+
 	if ( !com_cl_running->integer ) {
 		return;
 	}
@@ -875,7 +959,7 @@ void CL_ForwardCommandToServer( const char *string ) {
 	}
 
 	if ( clc.demoplaying || cls.state < CA_CONNECTED || cmd[0] == '+' ) {
-		Com_Printf ("Unknown command \"%s\"\n", cmd);
+		Com_Printf ("Unknown command \"%s" S_COLOR_WHITE "\"\n", cmd);
 		return;
 	}
 
@@ -1236,7 +1320,7 @@ void CL_Vid_Restart_f( void ) {
 	CL_InitRef();
 
 	// startup all the client stuff
-	CL_StartHunkUsers();
+	CL_StartHunkUsers( qfalse );
 
 	// start the cgame if connected
 	if ( cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC ) {
@@ -2265,7 +2349,7 @@ After the server has cleared the hunk, these will need to be restarted
 This is the only place that any of these functions are called from
 ============================
 */
-void CL_StartHunkUsers( void ) {
+void CL_StartHunkUsers( qboolean rendererOnly ) {
 	if (!com_cl_running) {
 		return;
 	}
@@ -2277,6 +2361,10 @@ void CL_StartHunkUsers( void ) {
 	if ( !cls.rendererStarted ) {
 		cls.rendererStarted = qtrue;
 		CL_InitRenderer();
+	}
+
+	if ( rendererOnly ) {
+		return;
 	}
 
 	if ( !cls.soundStarted ) {
@@ -2541,6 +2629,7 @@ void CL_Init( void ) {
 	cl_activeAction = Cvar_Get( "activeAction", "", CVAR_TEMP );
 
 	cl_timedemo = Cvar_Get ("timedemo", "0", 0);
+	cl_timedemoLog = Cvar_Get ("cl_timedemoLog", "", CVAR_ARCHIVE);
 	cl_autoRecordDemo = Cvar_Get ("cl_autoRecordDemo", "0", CVAR_ARCHIVE);
 	cl_aviFrameRate = Cvar_Get ("cl_aviFrameRate", "25", CVAR_ARCHIVE);
 	cl_aviMotionJpeg = Cvar_Get ("cl_aviMotionJpeg", "1", CVAR_ARCHIVE);
@@ -2823,12 +2912,6 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 				case NA_IP:
 					str = "udp";
 					type = 1;
-					break;
-
-				case NA_IPX:
-				case NA_BROADCAST_IPX:
-					str = "ipx";
-					type = 2;
 					break;
 
 				default:
@@ -3116,9 +3199,6 @@ void CL_LocalServers_f( void ) {
 			to.port = BigShort( (short)(PORT_SERVER + j) );
 
 			to.type = NA_BROADCAST;
-			NET_SendPacket( NS_CLIENT, strlen( message ), message, to );
-
-			to.type = NA_BROADCAST_IPX;
 			NET_SendPacket( NS_CLIENT, strlen( message ), message, to );
 		}
 	}

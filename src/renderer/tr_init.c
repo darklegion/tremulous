@@ -99,7 +99,6 @@ cvar_t	*r_primitives;
 cvar_t	*r_texturebits;
 
 cvar_t	*r_drawBuffer;
-cvar_t  *r_glDriver;
 cvar_t	*r_lightmap;
 cvar_t	*r_vertexLight;
 cvar_t	*r_uiFullScreen;
@@ -149,8 +148,6 @@ cvar_t	*r_debugLight;
 cvar_t	*r_debugSort;
 cvar_t	*r_printShaders;
 cvar_t	*r_saveFontData;
-
-cvar_t	*r_GLlibCoolDownMsec;
 
 cvar_t	*r_maxpolys;
 int		max_polys;
@@ -285,7 +282,6 @@ static void InitOpenGL( void )
 	//
 	// GLimp_Init directly or indirectly references the following cvars:
 	//		- r_fullscreen
-	//		- r_glDriver
 	//		- r_mode
 	//		- r_(color|depth|stencil)bits
 	//		- r_ignorehwgamma
@@ -993,7 +989,6 @@ void R_Register( void )
 	//
 	// latched and archived variables
 	//
-	r_glDriver = ri.Cvar_Get( "r_glDriver", OPENGL_DRIVER_NAME, CVAR_ARCHIVE | CVAR_LATCH );
 	r_allowExtensions = ri.Cvar_Get( "r_allowExtensions", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ext_compressed_textures = ri.Cvar_Get( "r_ext_compressed_textures", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ext_gamma_control = ri.Cvar_Get( "r_ext_gamma_control", "1", CVAR_ARCHIVE | CVAR_LATCH );
@@ -1019,11 +1014,7 @@ void R_Register( void )
 	r_overBrightBits = ri.Cvar_Get ("r_overBrightBits", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ignorehwgamma = ri.Cvar_Get( "r_ignorehwgamma", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_mode = ri.Cvar_Get( "r_mode", "3", CVAR_ARCHIVE | CVAR_LATCH );
-#if USE_SDL_VIDEO
 	r_fullscreen = ri.Cvar_Get( "r_fullscreen", "1", CVAR_ARCHIVE );
-#else
-	r_fullscreen = ri.Cvar_Get( "r_fullscreen", "1", CVAR_ARCHIVE | CVAR_LATCH );
-#endif
 	r_customwidth = ri.Cvar_Get( "r_customwidth", "1600", CVAR_ARCHIVE | CVAR_LATCH );
 	r_customheight = ri.Cvar_Get( "r_customheight", "1024", CVAR_ARCHIVE | CVAR_LATCH );
 	r_customPixelAspect = ri.Cvar_Get( "r_customPixelAspect", "1", CVAR_ARCHIVE | CVAR_LATCH );
@@ -1061,12 +1052,8 @@ void R_Register( void )
 	r_finish = ri.Cvar_Get ("r_finish", "0", CVAR_ARCHIVE);
 	r_textureMode = ri.Cvar_Get( "r_textureMode",
 			GENERIC_HW_R_TEXTUREMODE_DEFAULT, CVAR_ARCHIVE );
-#if USE_SDL_VIDEO
 	r_swapInterval = ri.Cvar_Get( "r_swapInterval", "0",
 					CVAR_ARCHIVE | CVAR_LATCH );
-#else
-	r_swapInterval = ri.Cvar_Get( "r_swapInterval", "0", CVAR_ARCHIVE );
-#endif
 	r_gamma = ri.Cvar_Get( "r_gamma", "1", CVAR_ARCHIVE );
 	r_facePlaneCull = ri.Cvar_Get ("r_facePlaneCull", "1", CVAR_ARCHIVE );
 
@@ -1128,8 +1115,6 @@ void R_Register( void )
 	r_maxpolys = ri.Cvar_Get( "r_maxpolys", va("%d", MAX_POLYS), 0);
 	r_maxpolyverts = ri.Cvar_Get( "r_maxpolyverts", va("%d", MAX_POLYVERTS), 0);
 
-	r_GLlibCoolDownMsec = ri.Cvar_Get( "r_GLlibCoolDownMsec", "0", CVAR_ARCHIVE );
-  
 	// make sure all the commands added here are also
 	// removed in R_Shutdown
 	ri.Cmd_AddCommand( "imagelist", R_ImageList_f );
