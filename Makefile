@@ -1,14 +1,6 @@
 #
 # Tremulous Makefile
 #
-# Nov '98 by Zoid <zoid@idsoftware.com>
-#
-# Loki Hacking by Bernd Kreimeier
-#  and a little more by Ryan C. Gordon.
-#  and a little more by Rafael Barrero
-#  and a little more by the ioq3 cr3w
-#  and a little more by Tim Angus
-#
 # GNU Make required
 #
 
@@ -141,14 +133,14 @@ LIBSDIR=$(MOUNT_DIR)/libs
 MASTERDIR=$(MOUNT_DIR)/master
 
 # extract version info
-VERSION=$(shell grep "\#define VERSION_NUMBER" $(CMDIR)/q_shared.h | \
+VERSION=$(shell grep "\#define *PRODUCT_VERSION" $(CMDIR)/q_shared.h | \
   sed -e 's/[^"]*"\(.*\)"/\1/')
 
 USE_SVN=
 ifeq ($(wildcard .svn),.svn)
   SVN_REV=$(shell LANG=C svnversion .)
   ifneq ($(SVN_REV),)
-    SVN_VERSION=$(SVN_REV)
+    SVN_VERSION=$(VERSION)_SVN$(SVN_REV)
     USE_SVN=1
   endif
 endif
@@ -433,8 +425,8 @@ endif
 
   BINEXT=.exe
 
-  LDFLAGS= -mwindows -lwsock32 -lgdi32 -lwinmm -lole32 -lopengl32
-  CLIENT_LDFLAGS=
+  LDFLAGS= -mwindows -lwsock32 -lwinmm
+  CLIENT_LDFLAGS = -lgdi32 -lole32 -lopengl32
 
   ifeq ($(USE_CURL),1)
     ifneq ($(USE_CURL_DLOPEN),1)
@@ -460,7 +452,6 @@ endif
                     $(LIBSDIR)/win32/libSDLmain.a \
                     $(LIBSDIR)/win32/libSDL.dll.a
 
-  BUILD_SERVER = 0
   BUILD_CLIENT_SMP = 0
 
 else # ifeq mingw32
@@ -729,7 +720,7 @@ echo_cmd=@echo
 Q=@
 endif
 
-define DO_CC       
+define DO_CC
 $(echo_cmd) "CC $<"
 $(Q)$(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) -o $@ -c $<
 endef
@@ -791,7 +782,7 @@ endif
 
 # Create the build directories and tools, print out
 # an informational message, then start building
-targets: makedirs tools
+targets: makedirs tools libversioncheck
 	@echo ""
 	@echo "Building Tremulous in $(B):"
 	@echo "  PLATFORM: $(PLATFORM)"
@@ -847,6 +838,28 @@ define DO_Q3LCC
 $(echo_cmd) "Q3LCC $<"
 $(Q)$(Q3LCC) -o $@ $<
 endef
+
+
+#############################################################################
+# LIBRARY VERSION CHECKS
+#############################################################################
+
+MINSDL_MAJOR  = 1
+MINSDL_MINOR  = 2
+MINSDL_PATCH  = 7
+
+BASE_CFLAGS += -DMINSDL_MAJOR=$(MINSDL_MAJOR) \
+               -DMINSDL_MINOR=$(MINSDL_MINOR) \
+               -DMINSDL_PATCH=$(MINSDL_PATCH)
+
+libversioncheck:
+	@echo "#include \"SDL_version.h\"\n" \
+		"#if SDL_VERSION_ATLEAST(" \
+		"$(MINSDL_MAJOR),$(MINSDL_MINOR),$(MINSDL_PATCH)" \
+		")\nMINSDL_PASSED\n#endif" | \
+		$(CC) $(BASE_CFLAGS) -E - | grep -q MINSDL_PASSED || \
+		( echo "SDL version $(MINSDL_MAJOR).$(MINSDL_MINOR).$(MINSDL_PATCH)" \
+		"or greater required" && exit 1 )
 
 
 #############################################################################
@@ -1078,9 +1091,6 @@ Q3DOBJ = \
   $(B)/ded/null_input.o \
   $(B)/ded/null_snddma.o \
   \
-  $(B)/ded/tty_console.o \
-  $(B)/ded/sys_unix.o \
-  \
   $(B)/ded/sys_main.o
 
 ifeq ($(ARCH),x86)
@@ -1100,6 +1110,17 @@ ifeq ($(HAVE_VM_COMPILED),true)
   ifeq ($(ARCH),ppc)
     Q3DOBJ += $(B)/ded/vm_ppc.o
   endif
+endif
+
+ifeq ($(PLATFORM),mingw32)
+  Q3DOBJ += \
+    $(B)/ded/win_resource.o \
+    $(B)/ded/sys_win32.o \
+    $(B)/ded/con_win32.o
+else
+  Q3DOBJ += \
+    $(B)/ded/sys_unix.o \
+    $(B)/ded/con_tty.o
 endif
 
 $(B)/tremded.$(ARCH)$(BINEXT): $(Q3DOBJ)
@@ -1285,6 +1306,9 @@ $(B)/ded/%.o: $(BLIBDIR)/%.c
 
 $(B)/ded/%.o: $(SYSDIR)/%.c
 	$(DO_DED_CC)
+
+$(B)/ded/%.o: $(SYSDIR)/%.rc
+	$(DO_WINDRES)
 
 $(B)/ded/%.o: $(NDIR)/%.c
 	$(DO_DED_CC)

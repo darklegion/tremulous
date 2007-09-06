@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifndef DEDICATED
 #include "SDL.h"
+#include "SDL_cpuinfo.h"
 #endif
 
 #include "sys_local.h"
@@ -112,7 +113,7 @@ Start the console input subsystem
 void Sys_ConsoleInputInit( void )
 {
 #ifdef DEDICATED
-	TTY_Init( );
+	CON_Init( );
 #endif
 }
 
@@ -126,7 +127,7 @@ Shutdown the console input subsystem
 void Sys_ConsoleInputShutdown( void )
 {
 #ifdef DEDICATED
-	TTY_Shutdown( );
+	CON_Shutdown( );
 #endif
 }
 
@@ -140,7 +141,7 @@ Handle new console input
 char *Sys_ConsoleInput(void)
 {
 #ifdef DEDICATED
-	return TTY_ConsoleInput( );
+	return CON_ConsoleInput( );
 #endif
 
 	return NULL;
@@ -223,7 +224,7 @@ static struct Q3ToAnsiColorTable_s
 {
 	char Q3color;
 	char *ANSIcolor;
-} TTY_colorTable[ ] =
+} CON_colorTable[ ] =
 {
 	{ COLOR_BLACK,    "30" },
 	{ COLOR_RED,      "31" },
@@ -235,8 +236,8 @@ static struct Q3ToAnsiColorTable_s
 	{ COLOR_WHITE,    "0" }
 };
 
-static int TTY_colorTableSize =
-	sizeof( TTY_colorTable ) / sizeof( TTY_colorTable[ 0 ] );
+static int CON_colorTableSize =
+	sizeof( CON_colorTable ) / sizeof( CON_colorTable[ 0 ] );
 
 /*
 =================
@@ -275,11 +276,11 @@ static void Sys_ANSIColorify( const char *msg, char *buffer, int bufferSize )
 			if( i < msgLength )
 			{
 				escapeCode = NULL;
-				for( j = 0; j < TTY_colorTableSize; j++ )
+				for( j = 0; j < CON_colorTableSize; j++ )
 				{
-					if( msg[ i ] == TTY_colorTable[ j ].Q3color )
+					if( msg[ i ] == CON_colorTable[ j ].Q3color )
 					{
-						escapeCode = TTY_colorTable[ j ].ANSIcolor;
+						escapeCode = CON_colorTable[ j ].ANSIcolor;
 						break;
 					}
 				}
@@ -309,7 +310,7 @@ Sys_Print
 void Sys_Print( const char *msg )
 {
 #ifdef DEDICATED
-	TTY_Hide();
+	CON_Hide();
 #endif
 
 	if( com_ansiColor && com_ansiColor->integer )
@@ -322,7 +323,7 @@ void Sys_Print( const char *msg )
 		fputs(msg, stderr);
 
 #ifdef DEDICATED
-	TTY_Show();
+	CON_Show();
 #endif
 }
 
@@ -337,7 +338,7 @@ void Sys_Error( const char *error, ... )
 	char    string[1024];
 
 #ifdef DEDICATED
-	TTY_Hide();
+	CON_Hide();
 #endif
 
 	CL_Shutdown ();
@@ -365,13 +366,13 @@ void Sys_Warn( char *warning, ... )
 	va_end (argptr);
 
 #ifdef DEDICATED
-	TTY_Hide();
+	CON_Hide();
 #endif
 
 	fprintf(stderr, "Warning: %s", string);
 
 #ifdef DEDICATED
-	TTY_Show();
+	CON_Show();
 #endif
 }
 
@@ -603,6 +604,24 @@ int main( int argc, char **argv )
 {
 	int   i;
 	char  commandLine[ MAX_STRING_CHARS ] = { 0 };
+
+#ifndef DEDICATED
+  const SDL_version *ver = SDL_Linked_Version( );
+
+#define STRING(s) #s
+#define XSTRING(s) STRING(s)
+#define MINSDL_VERSION \
+  XSTRING(MINSDL_MAJOR) "." \
+  XSTRING(MINSDL_MINOR) "." \
+  XSTRING(MINSDL_PATCH)
+
+  if( SDL_VERSIONNUM( ver->major, ver->minor, ver->patch ) <
+      SDL_VERSIONNUM( MINSDL_MAJOR, MINSDL_MINOR, MINSDL_PATCH ) )
+  {
+    Sys_Print( "SDL version " MINSDL_VERSION " or greater required\n" );
+    Sys_Exit( 1 );
+  }
+#endif
 
 	Sys_ParseArgs( argc, argv );
 	Sys_SetBinaryPath( Sys_Dirname( argv[ 0 ] ) );

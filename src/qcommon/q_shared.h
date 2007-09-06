@@ -27,15 +27,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define VERSION_NUMBER            "1.1.0"
-#define Q3_VERSION_BASE           "tremulous " VERSION_NUMBER
+#define PRODUCT_NAME            "tremulous"
+#define PRODUCT_VERSION         "1.1.0"
+
 #ifdef SVN_VERSION
-# define Q3_VERSION               Q3_VERSION_BASE "_SVN" SVN_VERSION
+# define Q3_VERSION PRODUCT_NAME " " SVN_VERSION
 #else
-# define Q3_VERSION               Q3_VERSION_BASE
+# define Q3_VERSION PRODUCT_NAME " " PRODUCT_VERSION
 #endif
 
-#define CLIENT_WINDOW_TITLE       "Tremulous " VERSION_NUMBER
+#define CLIENT_WINDOW_TITLE       "Tremulous " PRODUCT_VERSION
 #define CLIENT_WINDOW_MIN_TITLE   "Tremulous"
 
 #define MAX_TEAMNAME 32

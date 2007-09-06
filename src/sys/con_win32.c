@@ -23,18 +23,48 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
-// Input subsystem
-void IN_Init (void);
-void IN_Frame (void);
-void IN_Shutdown (void);
+/*
+==================
+CON_Hide
+==================
+*/
+void CON_Hide( void )
+{
+}
 
-// Console
-void CON_Hide( void );
-void CON_Show( void );
-void CON_Shutdown( void );
-void CON_Init( void );
-char *CON_ConsoleInput(void);
+/*
+==================
+CON_Show
+==================
+*/
+void CON_Show( void )
+{
+}
 
-#ifdef MACOS_X
-char *Sys_StripAppBundle( char *pwd );
-#endif
+/*
+==================
+CON_Shutdown
+==================
+*/
+void CON_Shutdown( void )
+{
+}
+
+/*
+==================
+CON_Init
+==================
+*/
+void CON_Init( void )
+{
+}
+
+/*
+==================
+CON_ConsoleInput
+==================
+*/
+char *CON_ConsoleInput( void )
+{
+  return NULL;
+}
