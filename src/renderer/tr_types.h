@@ -176,7 +176,7 @@ typedef struct {
 	char					extensions_string[BIG_INFO_STRING];
 
 	int						maxTextureSize;			// queried from GL
-	int						maxActiveTextures;		// multitexture ability
+	int						numTextureUnits;		// multitexture ability
 
 	int						colorBits, depthBits, stencilBits;
 

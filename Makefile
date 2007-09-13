@@ -74,11 +74,6 @@ ifndef GENERATE_DEPENDENCIES
 GENERATE_DEPENDENCIES=1
 endif
 
-ifndef USE_CCACHE
-USE_CCACHE=0
-endif
-export USE_CCACHE
-
 ifndef USE_OPENAL
 USE_OPENAL=1
 endif
@@ -127,10 +122,15 @@ CGDIR=$(MOUNT_DIR)/cgame
 NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
 JPDIR=$(MOUNT_DIR)/jpeg-6
-TOOLSDIR=$(MOUNT_DIR)/tools
+Q3ASMDIR=$(MOUNT_DIR)/tools/asm
+LBURGDIR=$(MOUNT_DIR)/tools/lcc/lburg
+Q3CPPDIR=$(MOUNT_DIR)/tools/lcc/cpp
+Q3LCCETCDIR=$(MOUNT_DIR)/tools/lcc/etc
+Q3LCCSRCDIR=$(MOUNT_DIR)/tools/lcc/src
 SDLHDIR=$(MOUNT_DIR)/SDL12
 LIBSDIR=$(MOUNT_DIR)/libs
 MASTERDIR=$(MOUNT_DIR)/master
+TEMPDIR=/tmp
 
 # extract version info
 VERSION=$(shell grep "\#define *PRODUCT_VERSION" $(CMDIR)/q_shared.h | \
@@ -380,6 +380,8 @@ ifeq ($(PLATFORM),darwin)
 
   NOTSHLIBCFLAGS=-mdynamic-no-pic
 
+  TOOLS_CFLAGS += -DMACOS_X
+
 else # ifeq darwin
 
 
@@ -425,8 +427,8 @@ endif
 
   BINEXT=.exe
 
-  LDFLAGS= -mwindows -lwsock32 -lwinmm
-  CLIENT_LDFLAGS = -lgdi32 -lole32 -lopengl32
+  LDFLAGS= -lwsock32 -lwinmm
+  CLIENT_LDFLAGS = -mwindows -lgdi32 -lole32 -lopengl32
 
   ifeq ($(USE_CURL),1)
     ifneq ($(USE_CURL_DLOPEN),1)
@@ -692,10 +694,6 @@ ifneq ($(BUILD_GAME_QVM),0)
   endif
 endif
 
-ifeq ($(USE_CCACHE),1)
-  CC := ccache $(CC)
-endif
-
 ifdef DEFAULT_BASEDIR
   BASE_CFLAGS += -DDEFAULT_BASEDIR=\\\"$(DEFAULT_BASEDIR)\\\"
 endif
@@ -780,9 +778,9 @@ ifeq ($(BUILD_MASTER_SERVER),1)
 	$(MAKE) -C $(MASTERDIR) release
 endif
 
-# Create the build directories and tools, print out
+# Create the build directories, check libraries and print out
 # an informational message, then start building
-targets: makedirs tools libversioncheck
+targets: makedirs libversioncheck
 	@echo ""
 	@echo "Building Tremulous in $(B):"
 	@echo "  PLATFORM: $(PLATFORM)"
@@ -817,27 +815,142 @@ makedirs:
 	@if [ ! -d $(B)/base/ui ];then $(MKDIR) $(B)/base/ui;fi
 	@if [ ! -d $(B)/base/qcommon ];then $(MKDIR) $(B)/base/qcommon;fi
 	@if [ ! -d $(B)/base/vm ];then $(MKDIR) $(B)/base/vm;fi
+	@if [ ! -d $(B)/tools ];then $(MKDIR) $(B)/tools;fi
+	@if [ ! -d $(B)/tools/asm ];then $(MKDIR) $(B)/tools/asm;fi
+	@if [ ! -d $(B)/tools/etc ];then $(MKDIR) $(B)/tools/etc;fi
+	@if [ ! -d $(B)/tools/rcc ];then $(MKDIR) $(B)/tools/rcc;fi
+	@if [ ! -d $(B)/tools/cpp ];then $(MKDIR) $(B)/tools/cpp;fi
+	@if [ ! -d $(B)/tools/lburg ];then $(MKDIR) $(B)/tools/lburg;fi
 
 #############################################################################
 # QVM BUILD TOOLS
 #############################################################################
 
-Q3LCC=$(TOOLSDIR)/q3lcc$(BINEXT)
-Q3ASM=$(TOOLSDIR)/q3asm$(BINEXT)
+TOOLS_CFLAGS = -O2 -Wall -Werror -fno-strict-aliasing -MMD \
+               -DTEMPDIR=\"$(TEMPDIR)\" -DSYSTEM=\"\" \
+               -I$(Q3LCCSRCDIR) \
+               -I$(LBURGDIR)
+TOOLS_LDFLAGS =
 
-ifeq ($(CROSS_COMPILING),1)
-tools:
-	@echo QVM tools not built when cross-compiling
-else
-tools:
-	$(MAKE) -C $(TOOLSDIR)/lcc install
-	$(MAKE) -C $(TOOLSDIR)/asm install
-endif
+define DO_TOOLS_CC
+$(echo_cmd) "TOOLS_CC $<"
+$(Q)$(CC) $(TOOLS_CFLAGS) -o $@ -c $<
+endef
+
+define DO_TOOLS_CC_DAGCHECK
+$(echo_cmd) "TOOLS_CC_DAGCHECK $<"
+$(Q)$(CC) $(TOOLS_CFLAGS) -Wno-unused -o $@ -c $<
+endef
+
+LBURG       = $(B)/tools/lburg/lburg$(BINEXT)
+DAGCHECK_C  = $(B)/tools/rcc/dagcheck.c
+Q3RCC       = $(B)/tools/q3rcc$(BINEXT)
+Q3CPP       = $(B)/tools/q3cpp$(BINEXT)
+Q3LCC       = $(B)/tools/q3lcc$(BINEXT)
+Q3ASM       = $(B)/tools/q3asm$(BINEXT)
+
+LBURGOBJ= \
+	$(B)/tools/lburg/lburg.o \
+	$(B)/tools/lburg/gram.o
+
+$(B)/tools/lburg/%.o: $(LBURGDIR)/%.c
+	$(DO_TOOLS_CC)
+
+$(LBURG): $(LBURGOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(TOOLS_LDFLAGS) -o $@ $^
+
+Q3RCCOBJ = \
+  $(B)/tools/rcc/alloc.o \
+  $(B)/tools/rcc/bind.o \
+  $(B)/tools/rcc/bytecode.o \
+  $(B)/tools/rcc/dag.o \
+  $(B)/tools/rcc/dagcheck.o \
+  $(B)/tools/rcc/decl.o \
+  $(B)/tools/rcc/enode.o \
+  $(B)/tools/rcc/error.o \
+  $(B)/tools/rcc/event.o \
+  $(B)/tools/rcc/expr.o \
+  $(B)/tools/rcc/gen.o \
+  $(B)/tools/rcc/init.o \
+  $(B)/tools/rcc/inits.o \
+  $(B)/tools/rcc/input.o \
+  $(B)/tools/rcc/lex.o \
+  $(B)/tools/rcc/list.o \
+  $(B)/tools/rcc/main.o \
+  $(B)/tools/rcc/null.o \
+  $(B)/tools/rcc/output.o \
+  $(B)/tools/rcc/prof.o \
+  $(B)/tools/rcc/profio.o \
+  $(B)/tools/rcc/simp.o \
+  $(B)/tools/rcc/stmt.o \
+  $(B)/tools/rcc/string.o \
+  $(B)/tools/rcc/sym.o \
+  $(B)/tools/rcc/symbolic.o \
+  $(B)/tools/rcc/trace.o \
+  $(B)/tools/rcc/tree.o \
+  $(B)/tools/rcc/types.o
+
+$(DAGCHECK_C): $(LBURG) $(Q3LCCSRCDIR)/dagcheck.md
+	$(echo_cmd) "LBURG $(Q3LCCSRCDIR)/dagcheck.md"
+	$(Q)$(LBURG) $(Q3LCCSRCDIR)/dagcheck.md $@
+
+$(B)/tools/rcc/dagcheck.o: $(DAGCHECK_C)
+	$(DO_TOOLS_CC_DAGCHECK)
+
+$(B)/tools/rcc/%.o: $(Q3LCCSRCDIR)/%.c
+	$(DO_TOOLS_CC)
+
+$(Q3RCC): $(Q3RCCOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(TOOLS_LDFLAGS) -o $@ $^
+
+Q3CPPOBJ = \
+	$(B)/tools/cpp/cpp.o \
+	$(B)/tools/cpp/lex.o \
+	$(B)/tools/cpp/nlist.o \
+	$(B)/tools/cpp/tokens.o \
+	$(B)/tools/cpp/macro.o \
+	$(B)/tools/cpp/eval.o \
+	$(B)/tools/cpp/include.o \
+	$(B)/tools/cpp/hideset.o \
+	$(B)/tools/cpp/getopt.o \
+	$(B)/tools/cpp/unix.o
+
+$(B)/tools/cpp/%.o: $(Q3CPPDIR)/%.c
+	$(DO_TOOLS_CC)
+
+$(Q3CPP): $(Q3CPPOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(TOOLS_LDFLAGS) -o $@ $^
+
+Q3LCCOBJ = \
+	$(B)/tools/etc/lcc.o \
+	$(B)/tools/etc/bytecode.o
+
+$(B)/tools/etc/%.o: $(Q3LCCETCDIR)/%.c
+	$(DO_TOOLS_CC)
+
+$(Q3LCC): $(Q3LCCOBJ) $(Q3RCC) $(Q3CPP)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(TOOLS_LDFLAGS) -o $@ $(Q3LCCOBJ)
 
 define DO_Q3LCC
 $(echo_cmd) "Q3LCC $<"
 $(Q)$(Q3LCC) -o $@ $<
 endef
+
+
+Q3ASMOBJ = \
+  $(B)/tools/asm/q3asm.o \
+  $(B)/tools/asm/cmdlib.o
+
+$(B)/tools/asm/%.o: $(Q3ASMDIR)/%.c
+	$(DO_TOOLS_CC)
+
+$(Q3ASM): $(Q3ASMOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(TOOLS_LDFLAGS) -o $@ $^
 
 
 #############################################################################
@@ -1170,11 +1283,11 @@ CGOBJ_ = \
 CGOBJ = $(CGOBJ_) $(B)/base/cgame/cg_syscalls.o
 CGVMOBJ = $(CGOBJ_:%.o=%.asm) $(B)/base/game/bg_lib.asm
 
-$(B)/base/cgame$(ARCH).$(SHLIBEXT) : $(CGOBJ)
+$(B)/base/cgame$(ARCH).$(SHLIBEXT): $(CGOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(SHLIBLDFLAGS) -o $@ $(CGOBJ)
 
-$(B)/base/vm/cgame.qvm: $(CGVMOBJ) $(CGDIR)/cg_syscalls.asm
+$(B)/base/vm/cgame.qvm: $(CGVMOBJ) $(CGDIR)/cg_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
 	$(Q)$(Q3ASM) -o $@ $(CGVMOBJ) $(CGDIR)/cg_syscalls.asm
 
@@ -1217,11 +1330,11 @@ GOBJ_ = \
 GOBJ = $(GOBJ_) $(B)/base/game/g_syscalls.o
 GVMOBJ = $(GOBJ_:%.o=%.asm) $(B)/base/game/bg_lib.asm
 
-$(B)/base/game$(ARCH).$(SHLIBEXT) : $(GOBJ)
+$(B)/base/game$(ARCH).$(SHLIBEXT): $(GOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(SHLIBLDFLAGS) -o $@ $(GOBJ)
 
-$(B)/base/vm/game.qvm: $(GVMOBJ) $(GDIR)/g_syscalls.asm
+$(B)/base/vm/game.qvm: $(GVMOBJ) $(GDIR)/g_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
 	$(Q)$(Q3ASM) -o $@ $(GVMOBJ) $(GDIR)/g_syscalls.asm
 
@@ -1245,11 +1358,11 @@ UIOBJ_ = \
 UIOBJ = $(UIOBJ_) $(B)/base/ui/ui_syscalls.o
 UIVMOBJ = $(UIOBJ_:%.o=%.asm) $(B)/base/game/bg_lib.asm
 
-$(B)/base/ui$(ARCH).$(SHLIBEXT) : $(UIOBJ)
+$(B)/base/ui$(ARCH).$(SHLIBEXT): $(UIOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(UIOBJ)
 
-$(B)/base/vm/ui.qvm: $(UIVMOBJ) $(UIDIR)/ui_syscalls.asm
+$(B)/base/vm/ui.qvm: $(UIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
 	$(Q)$(Q3ASM) -o $@ $(UIVMOBJ) $(UIDIR)/ui_syscalls.asm
 
@@ -1329,28 +1442,28 @@ endif
 $(B)/base/cgame/%.o: $(CGDIR)/%.c
 	$(DO_SHLIB_CC)
 
-$(B)/base/cgame/%.asm: $(CGDIR)/%.c
+$(B)/base/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
 	$(DO_Q3LCC)
 
 
 $(B)/base/game/%.o: $(GDIR)/%.c
 	$(DO_SHLIB_CC)
 
-$(B)/base/game/%.asm: $(GDIR)/%.c
+$(B)/base/game/%.asm: $(GDIR)/%.c $(Q3LCC)
 	$(DO_Q3LCC)
 
 
 $(B)/base/ui/%.o: $(UIDIR)/%.c
 	$(DO_SHLIB_CC)
 
-$(B)/base/ui/%.asm: $(UIDIR)/%.c
+$(B)/base/ui/%.asm: $(UIDIR)/%.c $(Q3LCC)
 	$(DO_Q3LCC)
 
 
 $(B)/base/qcommon/%.o: $(CMDIR)/%.c
 	$(DO_SHLIB_CC)
 
-$(B)/base/qcommon/%.asm: $(CMDIR)/%.c
+$(B)/base/qcommon/%.asm: $(CMDIR)/%.c $(Q3LCC)
 	$(DO_Q3LCC)
 
 
@@ -1358,16 +1471,14 @@ $(B)/base/qcommon/%.asm: $(CMDIR)/%.c
 # MISC
 #############################################################################
 
+OBJ = $(Q3OBJ) $(Q3POBJ) $(Q3POBJ_SMP) $(Q3DOBJ) \
+  $(GOBJ) $(CGOBJ) $(UIOBJ) \
+  $(GVMOBJ) $(CGVMOBJ) $(UIVMOBJ)
+TOOLSOBJ = $(LBURGOBJ) $(Q3CPPOBJ) $(Q3RCCOBJ) $(Q3LCCOBJ) $(Q3ASMOBJ)
+
+
 clean: clean-debug clean-release
 	@$(MAKE) -C $(MASTERDIR) clean
-
-clean2:
-	@echo "CLEAN $(B)"
-	@if [ -d $(B) ];then (find $(B) -name '*.d' -exec rm {} \;)fi
-	@rm -f $(Q3OBJ) $(Q3POBJ) $(Q3POBJ_SMP) $(Q3DOBJ) \
-		$(GOBJ) $(CGOBJ) $(UIOBJ) \
-		$(GVMOBJ) $(CGVMOBJ) $(UIVMOBJ)
-	@rm -f $(TARGETS)
 
 clean-debug:
 	@$(MAKE) clean2 B=$(BD)
@@ -1375,9 +1486,25 @@ clean-debug:
 clean-release:
 	@$(MAKE) clean2 B=$(BR)
 
-toolsclean:
-	@$(MAKE) -C $(TOOLSDIR)/asm clean uninstall
-	@$(MAKE) -C $(TOOLSDIR)/lcc clean uninstall
+clean2:
+	@echo "CLEAN $(B)"
+	@rm -f $(OBJ)
+	@rm -f $(OBJ_D_FILES)
+	@rm -f $(TARGETS)
+
+toolsclean: toolsclean-debug toolsclean-release
+
+toolsclean-debug:
+	@$(MAKE) toolsclean2 B=$(BD)
+
+toolsclean-release:
+	@$(MAKE) toolsclean2 B=$(BR)
+
+toolsclean2:
+	@echo "TOOLS_CLEAN $(B)"
+	@rm -f $(TOOLSOBJ)
+	@rm -f $(TOOLSOBJ_D_FILES)
+	@rm -f $(LBURG) $(DAGCHECK_C) $(Q3RCC) $(Q3CPP) $(Q3LCC) $(Q3ASM)
 
 distclean: clean toolsclean
 	@rm -rf $(BUILD_DIR)
@@ -1392,12 +1519,11 @@ dist:
 # DEPENDENCIES
 #############################################################################
 
-D_FILES=$(shell find . -name '*.d')
+OBJ_D_FILES=$(filter %.d,$(OBJ:%.o=%.d))
+TOOLSOBJ_D_FILES=$(filter %.d,$(TOOLSOBJ:%.o=%.d))
+-include $(OBJ_D_FILES) $(TOOLSOBJ_D_FILES)
 
-ifneq ($(strip $(D_FILES)),)
-  include $(D_FILES)
-endif
-
-.PHONY: all clean clean2 clean-debug clean-release \
-	debug default dist distclean libversioncheck makedirs release \
-	targets tools toolsclean
+.PHONY: all clean clean2 clean-debug clean-release copyfiles \
+	debug default dist distclean libversioncheck makedirs \
+	release targets \
+	toolsclean toolsclean2 toolsclean-debug toolsclean-release

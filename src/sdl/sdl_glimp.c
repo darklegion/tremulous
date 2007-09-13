@@ -70,12 +70,12 @@ static SDL_Surface *screen = NULL;
 
 cvar_t *r_allowSoftwareGL; // Don't abort out if a hardware visual can't be obtained
 
-PFNGLMULTITEXCOORD2FARBPROC qglMultiTexCoord2fARB;
-PFNGLACTIVETEXTUREARBPROC qglActiveTextureARB;
-PFNGLCLIENTACTIVETEXTUREARBPROC qglClientActiveTextureARB;
+void (APIENTRYP qglActiveTextureARB) (GLenum texture);
+void (APIENTRYP qglClientActiveTextureARB) (GLenum texture);
+void (APIENTRYP qglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 
-PFNGLLOCKARRAYSEXTPROC qglLockArraysEXT;
-PFNGLUNLOCKARRAYSEXTPROC qglUnlockArraysEXT;
+void (APIENTRYP qglLockArraysEXT) (GLint first, GLsizei count);
+void (APIENTRYP qglUnlockArraysEXT) (void);
 
 /*
 ===============
@@ -89,8 +89,8 @@ void GLimp_Shutdown( void )
 	SDL_QuitSubSystem( SDL_INIT_VIDEO );
 	screen = NULL;
 
-	memset( &glConfig, 0, sizeof( glConfig ) );
-	memset( &glState, 0, sizeof( glState ) );
+	Com_Memset( &glConfig, 0, sizeof( glConfig ) );
+	Com_Memset( &glState, 0, sizeof( glState ) );
 }
 
 /*
@@ -396,8 +396,8 @@ static void GLimp_InitExtensions( void )
 			{
 				GLint glint = 0;
 				qglGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &glint );
-				glConfig.maxActiveTextures = (int) glint;
-				if ( glConfig.maxActiveTextures > 1 )
+				glConfig.numTextureUnits = (int) glint;
+				if ( glConfig.numTextureUnits > 1 )
 				{
 					ri.Printf( PRINT_ALL, "...using GL_ARB_multitexture\n" );
 				}
@@ -490,7 +490,7 @@ void GLimp_Init( void )
 	{
 		if( r_mode->integer != R_MODE_FALLBACK )
 		{
-			ri.Printf( PRINT_ALL, "Setting r_mode %d failed, falling back on r_mode %d",
+			ri.Printf( PRINT_ALL, "Setting r_mode %d failed, falling back on r_mode %d\n",
 					r_mode->integer, R_MODE_FALLBACK );
 			if( !GLimp_StartDriverAndSetMode( R_MODE_FALLBACK, r_fullscreen->integer ) )
 				success = qfalse;
