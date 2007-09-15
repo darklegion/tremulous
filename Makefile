@@ -703,7 +703,9 @@ ifeq ($(USE_LOCAL_HEADERS),1)
 endif
 
 ifeq ($(GENERATE_DEPENDENCIES),1)
-  BASE_CFLAGS += -MMD
+  DEPEND_CFLAGS = -MMD
+else
+  DEPEND_CFLAGS =
 endif
 
 ifeq ($(USE_SVN),1)
@@ -767,13 +769,15 @@ default: release
 all: debug release
 
 debug:
-	@$(MAKE) targets B=$(BD) CFLAGS="$(CFLAGS) $(DEBUG_CFLAGS)" V=$(V)
+	@$(MAKE) targets B=$(BD) CFLAGS="$(CFLAGS) $(DEPEND_CFLAGS) \
+		$(DEBUG_CFLAGS)" V=$(V)
 ifeq ($(BUILD_MASTER_SERVER),1)
 	$(MAKE) -C $(MASTERDIR) debug
 endif
 
 release:
-	@$(MAKE) targets B=$(BR) CFLAGS="$(CFLAGS) $(RELEASE_CFLAGS)" V=$(V)
+	@$(MAKE) targets B=$(BR) CFLAGS="$(CFLAGS) $(DEPEND_CFLAGS) \
+		$(RELEASE_CFLAGS)" V=$(V)
 ifeq ($(BUILD_MASTER_SERVER),1)
 	$(MAKE) -C $(MASTERDIR) release
 endif
@@ -826,7 +830,7 @@ makedirs:
 # QVM BUILD TOOLS
 #############################################################################
 
-TOOLS_CFLAGS = -O2 -Wall -Werror -fno-strict-aliasing -MMD \
+TOOLS_CFLAGS = -O2 -Wall -fno-strict-aliasing -MMD \
                -DTEMPDIR=\"$(TEMPDIR)\" -DSYSTEM=\"\" \
                -I$(Q3LCCSRCDIR) \
                -I$(LBURGDIR)
