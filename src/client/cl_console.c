@@ -639,6 +639,10 @@ Scroll it up or down
 ==================
 */
 void Con_RunConsole (void) {
+	// Don't allow any key states at all when keycatching
+	if ( cls.keyCatchers != 0 )
+		Key_ClearStates( );
+
 	// decide on the destination height of the console
 	if ( cls.keyCatchers & KEYCATCH_CONSOLE )
 		con.finalFrac = 0.5;		// half screen
