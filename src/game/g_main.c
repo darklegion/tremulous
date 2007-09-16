@@ -1970,7 +1970,7 @@ void G_Vote( gentity_t *ent, qboolean voting )
 G_TeamVote
 ==================
 */
-void G_CountTeamVote( gentity_t *ent, qboolean voting )
+void G_TeamVote( gentity_t *ent, qboolean voting )
 {
   int cs_offset;
 
