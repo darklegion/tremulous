@@ -1924,6 +1924,98 @@ void CheckExitRules( void )
   }
 }
 
+/*
+==================
+G_Vote
+==================
+*/
+void G_Vote( gentity_t *ent, qboolean voting )
+{
+  if( !level.voteTime )
+    return;
+
+  if( voting )
+  {
+    if( ent->client->ps.eFlags & EF_VOTED )
+      return;
+    ent->client->ps.eFlags |= EF_VOTED;
+  }
+  else
+  {
+    if( !( ent->client->ps.eFlags & EF_VOTED ) )
+      return;
+    ent->client->ps.eFlags &= ~EF_VOTED;
+  }
+
+  if( ent->client->pers.vote )
+  {
+    if( voting )
+      level.voteYes++;
+    else
+      level.voteYes--;
+    trap_SetConfigstring( CS_VOTE_YES, va( "%d", level.voteYes ) );
+  }
+  else
+  {
+    if( voting )
+      level.voteNo++;
+    else
+      level.voteNo--;
+    trap_SetConfigstring( CS_VOTE_NO, va( "%d", level.voteNo ) );
+  }
+}
+
+/*
+==================
+G_TeamVote
+==================
+*/
+void G_CountTeamVote( gentity_t *ent, qboolean voting )
+{
+  int cs_offset;
+
+  if( ent->client->pers.teamSelection == PTE_HUMANS )
+    cs_offset = 0;
+  else if( ent->client->pers.teamSelection == PTE_ALIENS )
+    cs_offset = 1;
+  else
+    return;
+
+  if( !level.teamVoteTime[ cs_offset ] )
+    return;
+
+  if( voting )
+  {
+    if( ent->client->ps.eFlags & EF_TEAMVOTED )
+      return;
+    ent->client->ps.eFlags |= EF_TEAMVOTED;
+  }
+  else
+  {
+    if( !( ent->client->ps.eFlags & EF_TEAMVOTED ) )
+      return;
+    ent->client->ps.eFlags &= ~EF_TEAMVOTED;
+  }
+
+  if( ent->client->pers.teamVote )
+  {
+    if( voting )
+      level.teamVoteYes[ cs_offset ]++;
+    else
+      level.teamVoteYes[ cs_offset ]--;
+    trap_SetConfigstring( CS_TEAMVOTE_YES + cs_offset,
+      va( "%d", level.teamVoteYes[ cs_offset ] ) );
+  }
+  else
+  {
+    if( voting )
+      level.teamVoteNo[ cs_offset ]++;
+    else
+      level.teamVoteNo[ cs_offset ]--;
+    trap_SetConfigstring( CS_TEAMVOTE_NO + cs_offset,
+      va( "%d", level.teamVoteNo[ cs_offset ] ) );
+  }
+}
 
 
 /*
@@ -1979,7 +2071,7 @@ void CheckVote( void )
       trap_SendServerCommand( -1, "print \"Vote passed\n\"" );
       level.voteExecuteTime = level.time + 3000;
     }
-    else if( level.voteNo >= level.numVotingClients / 2 )
+    else if( level.voteNo >= ceil( (float)level.numVotingClients / 2 ) )
     {
       // same behavior as a timeout
       trap_SendServerCommand( -1, "print \"Vote failed\n\"" );

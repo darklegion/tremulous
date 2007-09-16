@@ -544,6 +544,8 @@ void G_LeaveTeam( gentity_t *self )
   else
     return;
 
+  G_TeamVote( self, qfalse );
+
   for( i = 0; i < level.num_entities; i++ )
   {
     ent = &g_entities[ i ];
@@ -1171,6 +1173,7 @@ void Cmd_CallVote_f( gentity_t *ent )
   level.voteTime = level.time;
   level.voteYes = 1;
   level.voteNo = 0;
+  ent->client->pers.vote = qtrue;
 
   for( i = 0 ; i < level.maxclients ; i++ )
     level.clients[i].ps.eFlags &= ~EF_VOTED;
@@ -1179,8 +1182,8 @@ void Cmd_CallVote_f( gentity_t *ent )
 
   trap_SetConfigstring( CS_VOTE_TIME, va( "%i", level.voteTime ) );
   trap_SetConfigstring( CS_VOTE_STRING, level.voteDisplayString );
-  trap_SetConfigstring( CS_VOTE_YES, va( "%i", level.voteYes ) );
-  trap_SetConfigstring( CS_VOTE_NO, va( "%i", level.voteNo ) );
+  trap_SetConfigstring( CS_VOTE_YES, "1" ) );
+  trap_SetConfigstring( CS_VOTE_NO, "0" );
 }
 
 /*
@@ -1206,22 +1209,11 @@ void Cmd_Vote_f( gentity_t *ent )
 
   trap_SendServerCommand( ent-g_entities, "print \"Vote cast\n\"" );
 
-  ent->client->ps.eFlags |= EF_VOTED;
-
   trap_Argv( 1, msg, sizeof( msg ) );
+  ent->client->pers.vote = ( tolower( msg[ 0 ] ) == 'y' || msg[ 0 ] == '1' );
+  G_Vote( ent, qtrue );
 
-  if( msg[ 0 ] == 'y' || msg[ 1 ] == 'Y' || msg[ 1 ] == '1' )
-  {
-    level.voteYes++;
-    trap_SetConfigstring( CS_VOTE_YES, va( "%i", level.voteYes ) );
-  }
-  else
-  {
-    level.voteNo++;
-    trap_SetConfigstring( CS_VOTE_NO, va( "%i", level.voteNo ) );
-  }
-
-  // a majority will be determined in G_CheckVote, which will also account
+  // a majority will be determined in CheckVote, which will also account
   // for players entering or leaving
 }
 
@@ -1415,6 +1407,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   level.teamVoteTime[ cs_offset ] = level.time;
   level.teamVoteYes[ cs_offset ] = 1;
   level.teamVoteNo[ cs_offset ] = 0;
+  ent->client->pers.teamVote = qtrue;
 
   for( i = 0 ; i < level.maxclients ; i++ )
   {
@@ -1424,10 +1417,12 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 
   ent->client->ps.eFlags |= EF_TEAMVOTED;
 
-  trap_SetConfigstring( CS_TEAMVOTE_TIME + cs_offset, va( "%i", level.teamVoteTime[ cs_offset ] ) );
-  trap_SetConfigstring( CS_TEAMVOTE_STRING + cs_offset, level.teamVoteDisplayString[ cs_offset ] );
-  trap_SetConfigstring( CS_TEAMVOTE_YES + cs_offset, va( "%i", level.teamVoteYes[ cs_offset ] ) );
-  trap_SetConfigstring( CS_TEAMVOTE_NO + cs_offset, va( "%i", level.teamVoteNo[ cs_offset ] ) );
+  trap_SetConfigstring( CS_TEAMVOTE_TIME + cs_offset,
+    va( "%i", level.teamVoteTime[ cs_offset ] ) );
+  trap_SetConfigstring( CS_TEAMVOTE_STRING + cs_offset,
+    level.teamVoteDisplayString[ cs_offset ] );
+  trap_SetConfigstring( CS_TEAMVOTE_YES + cs_offset, "1" );
+  trap_SetConfigstring( CS_TEAMVOTE_NO + cs_offset, "0" );
 }
 
 
@@ -1458,22 +1453,11 @@ void Cmd_TeamVote_f( gentity_t *ent )
 
   trap_SendServerCommand( ent-g_entities, "print \"Team vote cast\n\"" );
 
-  ent->client->ps.eFlags |= EF_TEAMVOTED;
-
   trap_Argv( 1, msg, sizeof( msg ) );
+  ent->client->pers.teamVote = ( tolower( msg[ 0 ] ) == 'y' || msg[ 0 ] == '1' );
+  G_TeamVote( ent, qtrue );
 
-  if( msg[ 0 ] == 'y' || msg[ 1 ] == 'Y' || msg[ 1 ] == '1' )
-  {
-    level.teamVoteYes[ cs_offset ]++;
-    trap_SetConfigstring( CS_TEAMVOTE_YES + cs_offset, va( "%i", level.teamVoteYes[ cs_offset ] ) );
-  }
-  else
-  {
-    level.teamVoteNo[ cs_offset ]++;
-    trap_SetConfigstring( CS_TEAMVOTE_NO + cs_offset, va( "%i", level.teamVoteNo[ cs_offset ] ) );
-  }
-
-  // a majority will be determined in TeamCheckVote, which will also account
+  // a majority will be determined in CheckTeamVote, which will also account
   // for players entering or leaving
 }
 

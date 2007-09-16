@@ -347,6 +347,10 @@ typedef struct
   int                 savedScore;
   int                 savedCredit;
 
+  // votes
+  qboolean            vote;
+  qboolean            teamVote;
+
   vec3_t              lastDeathLocation;
   char                guid[ 33 ];
   char                ip[ 16 ];
@@ -946,6 +950,8 @@ void QDECL G_LogPrintf( const char *fmt, ... );
 void SendScoreboardMessageToAllClients( void );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... );
+void G_Vote( gentity_t *ent, qboolean voting );
+void G_TeamVote( gentity_t *ent, qboolean voting );
 void CheckVote( void );
 void CheckTeamVote( int teamnum );
 void LogExit( const char *string );

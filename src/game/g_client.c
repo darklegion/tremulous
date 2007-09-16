@@ -1662,6 +1662,7 @@ void ClientDisconnect( int clientNum )
 
   G_admin_namelog_update( ent->client, qtrue );
   G_LeaveTeam( ent );
+  G_Vote( ent, qfalse );
 
   // stop any following clients
   for( i = 0; i < level.maxclients; i++ )
