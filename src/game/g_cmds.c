@@ -1182,7 +1182,7 @@ void Cmd_CallVote_f( gentity_t *ent )
 
   trap_SetConfigstring( CS_VOTE_TIME, va( "%i", level.voteTime ) );
   trap_SetConfigstring( CS_VOTE_STRING, level.voteDisplayString );
-  trap_SetConfigstring( CS_VOTE_YES, "1" ) );
+  trap_SetConfigstring( CS_VOTE_YES, "1" );
   trap_SetConfigstring( CS_VOTE_NO, "0" );
 }
 
