@@ -1050,6 +1050,11 @@ void G_admin_namelog_update( gclient_t *client, qboolean disconnect )
       Q_strncpyz( g_admin_namelog[ i ]->name[ j ], client->pers.netname,
         sizeof( g_admin_namelog[ i ]->name[ j ] ) );
       g_admin_namelog[ i ]->slot = ( disconnect ) ? -1 : clientNum;
+
+      // if this player is connecting, they are no longer banned
+      if( !disconnect )
+        g_admin_namelog[ i ]->banned = qfalse;
+
       return;
     }
   }
