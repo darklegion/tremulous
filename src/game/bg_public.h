@@ -217,7 +217,6 @@ typedef enum
   STAT_STATE,     //TA: client states e.g. wall climbing
   STAT_MISC,      //TA: for uh...misc stuff
   STAT_BUILDABLE, //TA: which ghost model to display for building
-  STAT_BOOSTTIME, //TA: time left for boost (alien only)
   STAT_FALLDIST,  //TA: the distance the player fell
   STAT_VIEWLOCK   //TA: direction to lock the view in
 } statIndex_t;

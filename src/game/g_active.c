@@ -1375,8 +1375,6 @@ void ClientThink_real( gentity_t *ent )
       client->lastSlowTime + ABUILDER_BLOB_TIME < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_SLOWLOCKED;
 
-  client->ps.stats[ STAT_BOOSTTIME ] = level.time - client->lastBoostedTime;
-
   if( client->ps.stats[ STAT_STATE ] & SS_BOOSTED &&
       client->lastBoostedTime + BOOST_TIME < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_BOOSTED;

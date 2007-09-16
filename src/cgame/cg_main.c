@@ -1757,6 +1757,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   CG_LoadHudMenu( );      // load new hud stuff
 
   cg.weaponSelect = WP_NONE;
+  cg.boostedTime = -1;
 
   // old servers
 

@@ -476,13 +476,13 @@ static int CG_IsUnacceptableError( playerState_t *ps, playerState_t *pps )
 
   if( fabs( AngleDelta( ps->viewangles[ 0 ], pps->viewangles[ 0 ] ) ) > 1.0f ||
     fabs( AngleDelta( ps->viewangles[ 1 ], pps->viewangles[ 1 ] ) ) > 1.0f ||
-    fabs( AngleDelta( ps->viewangles[ 2 ], pps->viewangles[ 2 ] ) ) > 1.0f ) 
+    fabs( AngleDelta( ps->viewangles[ 2 ], pps->viewangles[ 2 ] ) ) > 1.0f )
   {
     return 12;
   }
 
   if( pps->viewheight != ps->viewheight )
-  	return 13;
+    return 13;
 
   if( pps->damageEvent != ps->damageEvent ||
     pps->damageYaw != ps->damageYaw ||
@@ -699,22 +699,22 @@ void CG_PredictPlayerState( void )
         // make sure the state differences are acceptable
         errorcode = CG_IsUnacceptableError( &cg.predictedPlayerState,
           &cg.savedPmoveStates[ i ] );
-  
+
         if( errorcode )
         {
           if( cg_showmiss.integer )
             CG_Printf("errorcode %d at %d\n", errorcode, cg.time);
           break;
         }
-  
+
         // this one is almost exact, so we'll copy it in as the starting point
         *cg_pmove.ps = cg.savedPmoveStates[ i ];
         // advance the head
         cg.stateHead = ( i + 1 ) % NUM_SAVED_STATES;
-  
+
         // set the next command to predict
         predictCmd = cg.lastPredictedCommand + 1;
-  
+
         // a saved state matched, so flag it
         error = qfalse;
         break;

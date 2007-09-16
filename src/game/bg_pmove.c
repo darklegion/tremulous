@@ -2856,26 +2856,38 @@ static void PM_Weapon( void )
     case WP_LUCIFER_CANNON:
       attack1 = pm->cmd.buttons & BUTTON_ATTACK;
       attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
-      attack3 = pm->cmd.buttons & BUTTON_USE_HOLDABLE;
+      attack3 = qfalse;
 
-      if( ( attack1 || pm->ps->stats[ STAT_MISC ] == 0 ) && !attack2 && !attack3 )
+      if( attack1 )
       {
+        attack2 = qfalse;
+
         if( pm->ps->stats[ STAT_MISC ] < LCANNON_TOTAL_CHARGE )
         {
+          // Charging
           pm->ps->weaponTime = 0;
           pm->ps->weaponstate = WEAPON_READY;
           return;
         }
-        else
-          attack1 = !attack1;
       }
 
-      //erp this looks confusing
       if( pm->ps->stats[ STAT_MISC ] > LCANNON_MIN_CHARGE )
-        attack1 = !attack1;
+      {
+        // Fire primary attack
+        attack1 = qtrue;
+        attack2 = qfalse;
+      }
       else if( pm->ps->stats[ STAT_MISC ] > 0 )
       {
+        // Not enough charge
         pm->ps->stats[ STAT_MISC ] = 0;
+        pm->ps->weaponTime = 0;
+        pm->ps->weaponstate = WEAPON_READY;
+        return;
+      }
+      else if( !attack2 )
+      {
+        // Idle
         pm->ps->weaponTime = 0;
         pm->ps->weaponstate = WEAPON_READY;
         return;
@@ -3034,7 +3046,7 @@ static void PM_Weapon( void )
   // take an ammo away if not infinite
   if( !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
   {
-    //special case for lCanon
+    //special case for lcannon
     if( pm->ps->weapon == WP_LUCIFER_CANNON && attack1 && !attack2 )
     {
       ammo -= (int)( ceil( ( (float)pm->ps->stats[ STAT_MISC ] / (float)LCANNON_TOTAL_CHARGE ) * 10.0f ) );

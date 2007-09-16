@@ -1107,6 +1107,7 @@ typedef struct
   qboolean      weapon2Firing;
   qboolean      weapon3Firing;
 
+  int           boostedTime;
   int           poisonedTime;
 
   vec3_t        lastNormal;                         //TA: view smoothage
