@@ -290,7 +290,7 @@ int Text_Height(const char *text, float scale, int limit) {
   float max;
   glyphInfo_t *glyph;
   float useScale;
-  const char *s = text; // bk001206 - unsigned
+  const char *s = text;
   fontInfo_t *font = &uiInfo.uiDC.Assets.textFont;
   if (scale <= ui_smallFont.value) {
     font = &uiInfo.uiDC.Assets.smallFont;
@@ -343,7 +343,7 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
   }
   useScale = scale * font->glyphScale;
   if (text) {
-    const char *s = text; // bk001206 - unsigned
+    const char *s = text;
     trap_R_SetColor( color );
     memcpy(&newColor[0], &color[0], sizeof(vec4_t));
     len = strlen(text);
@@ -469,7 +469,7 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
   }
   useScale = scale * font->glyphScale;
   if (text) {
-    const char *s = text; // bk001206 - unsigned
+    const char *s = text;
     trap_R_SetColor( color );
     memcpy(&newColor[0], &color[0], sizeof(vec4_t));
     len = strlen(text);
@@ -477,7 +477,7 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
       len = limit;
     }
     count = 0;
-    glyph2 = &font->glyphs[ (int) cursor]; // bk001206 - possible signed char
+    glyph2 = &font->glyphs[ (int) cursor];
     while (s && *s && count < len) {
       glyph = &font->glyphs[(int)*s];
       if ( Q_IsColorString( s ) ) {
@@ -616,7 +616,7 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t 
   vec4_t newColor;
   glyphInfo_t *glyph;
   if (text) {
-    const char *s = text; // bk001206 - unsigned
+    const char *s = text;
     float max = *maxX;
     float useScale;
     fontInfo_t *font = &uiInfo.uiDC.Assets.textFont;
@@ -736,7 +736,7 @@ void _UI_Refresh( int realtime )
   // draw cursor
   UI_SetColor( NULL );
 
-  //TA: don't draw the cursor whilst loading
+  // don't draw the cursor whilst loading
   if( Menu_Count( ) > 0 && !trap_Cvar_VariableValue( "ui_loading" ) )
     UI_DrawHandlePic( uiInfo.uiDC.cursorx-16, uiInfo.uiDC.cursory-16, 32, 32, uiInfo.uiDC.Assets.cursor);
 
@@ -2285,7 +2285,6 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color) {
 }
 
 static void UI_DrawKeyBindStatus(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
-//  int ofs = 0; TTimo: unused
   if (Display_KeyBindPending()) {
     Text_Paint(rect->x, rect->y, scale, color, "Waiting for new key... Press ESCAPE to cancel", 0, 0, textStyle);
   } else {
@@ -2304,7 +2303,6 @@ static void UI_DrawGLInfo(rectDef_t *rect, float scale, vec4_t color, int textSt
   Text_Paint(rect->x + 2, rect->y + 30, scale, color, va ("PIXELFORMAT: color(%d-bits) Z(%d-bits) stencil(%d-bits)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits), 0, 30, textStyle);
 
   // build null terminated extension strings
-  // TTimo: https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=399
   // in TA this was not directly crashing, but displaying a nasty broken shader right in the middle
   // brought down the string size to 1024, there's not much that can be shown on the screen anyway
   Q_strncpyz(buff, uiInfo.uiDC.glconfig.extensions_string, 1024);
@@ -3999,8 +3997,6 @@ static void UI_RunMenuScript(char **args) {
     } else if (Q_stricmp(name, "LoadMods") == 0) {
       UI_LoadMods();
     }
-
-//TA: tremulous menus
     else if( Q_stricmp( name, "LoadTeams" ) == 0 )
       UI_LoadTremTeams( );
     else if( Q_stricmp( name, "JoinTeam" ) == 0 )
@@ -4084,8 +4080,6 @@ static void UI_RunMenuScript(char **args) {
         trap_Cmd_ExecuteText( EXEC_APPEND, command );
       }
     }
-//TA: tremulous menus
-
     else if (Q_stricmp(name, "playMovie") == 0) {
       if (uiInfo.previewMovie >= 0) {
         trap_CIN_StopCinematic(uiInfo.previewMovie);
@@ -4593,7 +4587,6 @@ UI_BuildServerDisplayList
 static void UI_BuildServerDisplayList(qboolean force) {
   int i, count, clients, maxClients, ping, game, len, visible;
   char info[MAX_STRING_CHARS];
-//  qboolean startRefresh = qtrue; TTimo: unused
   static int numinvisible;
 
   if (!(force || uiInfo.uiDC.realTime > uiInfo.serverStatus.nextDisplayRefresh)) {
@@ -5074,8 +5067,6 @@ static int UI_FeederCount(float feederID) {
   } else if (feederID == FEEDER_DEMOS) {
     return uiInfo.demoCount;
   }
-
-//TA: tremulous menus
   else if( feederID == FEEDER_TREMTEAMS )
     return uiInfo.tremTeamCount;
   else if( feederID == FEEDER_TREMHUMANITEMS )
@@ -5092,7 +5083,6 @@ static int UI_FeederCount(float feederID) {
     return uiInfo.tremAlienBuildCount;
   else if( feederID == FEEDER_TREMHUMANBUILD )
     return uiInfo.tremHumanBuildCount;
-//TA: tremulous menus
 
   return 0;
 }
@@ -5273,8 +5263,6 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
       return uiInfo.demoList[index];
     }
   }
-
-//TA: tremulous menus
   else if( feederID == FEEDER_TREMTEAMS )
   {
     if( index >= 0 && index < uiInfo.tremTeamCount )
@@ -5315,7 +5303,6 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
     if( index >= 0 && index < uiInfo.tremHumanBuildCount )
       return uiInfo.tremHumanBuildList[ index ].text;
   }
-//TA: tremulous menus
 
   return "";
 }
@@ -5432,8 +5419,6 @@ static void UI_FeederSelection(float feederID, int index) {
   } else if (feederID == FEEDER_DEMOS) {
     uiInfo.demoIndex = index;
   }
-
-//TA: tremulous menus
   else if( feederID == FEEDER_TREMTEAMS )
     uiInfo.tremTeamIndex = index;
   else if( feederID == FEEDER_TREMHUMANITEMS )
@@ -5450,7 +5435,6 @@ static void UI_FeederSelection(float feederID, int index) {
     uiInfo.tremAlienBuildIndex = index;
   else if( feederID == FEEDER_TREMHUMANBUILD )
     uiInfo.tremHumanBuildIndex = index;
-//TA: tremulous menus
 }
 
 static void UI_Pause(qboolean b) {
@@ -6176,12 +6160,8 @@ vmCvar_t  ui_realCaptureLimit;
 vmCvar_t  ui_realWarmUp;
 vmCvar_t  ui_serverStatusTimeOut;
 
-//TA: bank values
-vmCvar_t  ui_bank;
 vmCvar_t  ui_winner;
 
-
-// bk001129 - made static to avoid aliasing
 static cvarTable_t    cvarTable[] = {
   { &ui_ffa_fraglimit, "ui_ffa_fraglimit", "20", CVAR_ARCHIVE },
   { &ui_ffa_timelimit, "ui_ffa_timelimit", "0", CVAR_ARCHIVE },
@@ -6305,12 +6285,8 @@ static cvarTable_t    cvarTable[] = {
   { &ui_realWarmUp, "g_warmup", "20", CVAR_ARCHIVE},
   { &ui_realCaptureLimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART},
   { &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
-
-  { &ui_bank, "ui_bank", "0", 0 },
-
 };
 
-// bk001129 - made static to avoid aliasing
 static int    cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);
 
 

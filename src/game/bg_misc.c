@@ -4604,7 +4604,7 @@ char *eventnames[ ] =
   "EV_FIRE_WEAPON2",
   "EV_FIRE_WEAPON3",
 
-  "EV_PLAYER_RESPAWN", //TA: for fovwarp effects
+  "EV_PLAYER_RESPAWN", // for fovwarp effects
   "EV_PLAYER_TELEPORT_IN",
   "EV_PLAYER_TELEPORT_OUT",
 
@@ -4636,11 +4636,11 @@ char *eventnames[ ] =
 
   "EV_GIB_PLAYER",      // gib a previously living player
 
-  "EV_BUILD_CONSTRUCT", //TA
-  "EV_BUILD_DESTROY",   //TA
-  "EV_BUILD_DELAY",     //TA: can't build yet
-  "EV_BUILD_REPAIR",    //TA: repairing buildable
-  "EV_BUILD_REPAIRED",  //TA: buildable has full health
+  "EV_BUILD_CONSTRUCT",
+  "EV_BUILD_DESTROY",
+  "EV_BUILD_DELAY",     // can't build yet
+  "EV_BUILD_REPAIR",    // repairing buildable
+  "EV_BUILD_REPAIRED",  // buildable has full health
   "EV_HUMAN_BUILDABLE_EXPLOSION",
   "EV_ALIEN_BUILDABLE_EXPLOSION",
   "EV_ALIEN_ACIDTUBE",
@@ -4654,13 +4654,13 @@ char *eventnames[ ] =
   "EV_STOPLOOPINGSOUND",
   "EV_TAUNT",
 
-  "EV_OVERMIND_ATTACK", //TA: overmind under attack
-  "EV_OVERMIND_DYING",  //TA: overmind close to death
-  "EV_OVERMIND_SPAWNS", //TA: overmind needs spawns
+  "EV_OVERMIND_ATTACK", // overmind under attack
+  "EV_OVERMIND_DYING",  // overmind close to death
+  "EV_OVERMIND_SPAWNS", // overmind needs spawns
 
-  "EV_DCC_ATTACK",      //TA: dcc under attack
+  "EV_DCC_ATTACK",      // dcc under attack
 
-  "EV_RPTUSE_SOUND"     //TA: trigger a sound
+  "EV_RPTUSE_SOUND"     // trigger a sound
 };
 
 /*
@@ -4734,8 +4734,6 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
   if( snap )
     SnapVector( s->apos.trBase );
 
-  //TA: i need for other things :)
-  //s->angles2[YAW] = ps->movementDir;
   s->time2 = ps->movementDir;
   s->legsAnim = ps->legsAnim;
   s->torsoAnim = ps->torsoAnim;
@@ -4787,10 +4785,10 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
     }
   }
 
-  //TA: use powerups field to store team/class info:
+  // use powerups field to store team/class info:
   s->powerups = ps->stats[ STAT_PTEAM ] | ( ps->stats[ STAT_PCLASS ] << 8 );
 
-  //TA: have to get the surfNormal thru somehow...
+  // have to get the surfNormal through somehow...
   VectorCopy( ps->grapplePoint, s->angles2 );
   if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
     s->eFlags |= EF_WALLCLIMBCEILING;
@@ -4844,8 +4842,6 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   if( snap )
     SnapVector( s->apos.trBase );
 
-  //TA: i need for other things :)
-  //s->angles2[YAW] = ps->movementDir;
   s->time2 = ps->movementDir;
   s->legsAnim = ps->legsAnim;
   s->torsoAnim = ps->torsoAnim;
@@ -4899,10 +4895,10 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
     }
   }
 
-  //TA: use powerups field to store team/class info:
+  // use powerups field to store team/class info:
   s->powerups = ps->stats[ STAT_PTEAM ] | ( ps->stats[ STAT_PCLASS ] << 8 );
 
-  //TA: have to get the surfNormal thru somehow...
+  // have to get the surfNormal through somehow...
   VectorCopy( ps->grapplePoint, s->angles2 );
   if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
     s->eFlags |= EF_WALLCLIMBCEILING;

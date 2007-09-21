@@ -70,7 +70,6 @@ static const char rcsid[] =
   "$Id$";
 #endif /* LIBC_SCCS and not lint */
 
-// bk001127 - needed for DLL's
 #if !defined( Q3_VM )
 typedef int    cmp_t(const void *, const void *);
 #endif
@@ -217,7 +216,6 @@ loop: SWAPINIT(a, es);
 
 // this file is excluded from release builds because of intrinsics
 
-// bk001211 - gcc errors on compiling strcpy:  parse error before `__extension__'
 #if defined ( Q3_VM )
 
 size_t strlen( const char *string )
@@ -272,7 +270,6 @@ int strcmp( const char *string1, const char *string2 )
   return *string1 - *string2;
 }
 
-//TA:
 char *strrchr( const char *string, int c )
 {
   int   i, length = strlen( string );
@@ -321,7 +318,7 @@ char *strstr( const char *string, const char *strCharSet )
   return (char *)0;
 }
 
-#endif // bk001211
+#endif
 
 #if defined ( Q3_VM )
 
@@ -830,8 +827,6 @@ double rint( double v )
     return floor( v );
 }
 
-// bk001127 - guarded this tan replacement
-// ld: undefined versioned symbol name tan@@GLIBC_2.0
 double tan( double x )
 {
   return sin( x ) / cos( x );
@@ -1414,7 +1409,7 @@ double _atof( const char **stringPtr )
   const char  *string;
   float sign;
   float value;
-  int   c = '0'; // bk001211 - uninitialized use possible
+  int   c = '0';
 
   string = *stringPtr;
 

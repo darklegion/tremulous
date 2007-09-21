@@ -41,7 +41,7 @@ typedef struct scrollInfo_s {
 
 static scrollInfo_t scrollInfo;
 
-//TA: hack to prevent compiler warnings
+// prevent compiler warnings
 void voidFunction( void *var ) { return; }
 qboolean voidFunction2( itemDef_t *var1, int var2 ) { return qfalse; }
 
@@ -83,7 +83,6 @@ static qboolean Menu_OverActiveItem(menuDef_t *menu, float x, float y);
 #define MEM_POOL_SIZE  1024 * 1024
 #endif
 
-//TA: hacked variable name to avoid conflict with new cgame Alloc
 static char   UI_memoryPool[MEM_POOL_SIZE];
 static int    allocPoint, outOfMemory;
 
@@ -542,7 +541,7 @@ qboolean PC_Script_Parse(int handle, const char **out) {
     }
     Q_strcat(script, 1024, " ");
   }
-  return qfalse;  // bk001105 - LCC   missing return value
+  return qfalse;
 }
 
 // display, window, menu, item code
@@ -1352,13 +1351,12 @@ qboolean Item_SetFocus(itemDef_t *item, float x, float y) {
   itemDef_t *oldFocus;
   sfxHandle_t *sfx = &DC->Assets.itemFocusSound;
   qboolean playSound = qfalse;
-  menuDef_t *parent; // bk001206: = (menuDef_t*)item->parent;
+  menuDef_t *parent;
   // sanity check, non-null, not a decoration and does not already have the focus
   if (item == NULL || item->window.flags & WINDOW_DECORATION || item->window.flags & WINDOW_HASFOCUS || !(item->window.flags & WINDOW_VISIBLE)) {
     return qfalse;
   }
 
-  // bk001206 - this can be NULL.
   parent = (menuDef_t*)item->parent;
 
   // items can be enabled and disabled based on cvars
@@ -2406,7 +2404,6 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
     captureFunc = voidFunction;
     captureData = NULL;
   } else {
-    // bk001206 - parentheses
     if ( down && ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3 ) ) {
       Item_StartCapture(item, key);
     }
@@ -2661,7 +2658,6 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
     // see if the mouse is within the window bounds and if so is this a mouse click
   if (down && !(menu->window.flags & WINDOW_POPUP) && !Rect_ContainsPoint(&menu->window.rect, DC->cursorx, DC->cursory)) {
     static qboolean inHandleKey = qfalse;
-    // bk001206 - parentheses
     if (!inHandleKey && ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3 ) ) {
       inHandleKey = qtrue;
       Menus_HandleOOBClick(menu, key, down);
@@ -2841,12 +2837,6 @@ void Item_TextColor(itemDef_t *item, vec4_t *newColor) {
   Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, qtrue, parent->fadeAmount);
 
   if (item->window.flags & WINDOW_HASFOCUS) {
-/*    lowLight[0] = 0.8 * parent->focusColor[0];
-    lowLight[1] = 0.8 * parent->focusColor[1];
-    lowLight[2] = 0.8 * parent->focusColor[2];
-    lowLight[3] = 0.8 * parent->focusColor[3];
-    LerpColor(parent->focusColor,lowLight,*newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));*/
-    //TA:
     memcpy(newColor, &parent->focusColor, sizeof(vec4_t));
   } else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime/BLINK_DIVISOR) & 1)) {
     lowLight[0] = 0.8 * item->window.foreColor[0];
@@ -2908,7 +2898,7 @@ int Item_Text_AutoWrapped_Lines( itemDef_t *item )
       newLinePtr = p + 1;
     }
 
-    //TA: forceably split lines that are too long (where normal splitage has failed)
+    // forceably split lines that are too long (where normal splitage has failed)
     if( textWidth > item->window.rect.w && newLine == 0 && *p != '\n' )
     {
       newLine = len;
@@ -3085,7 +3075,7 @@ void Item_Text_AutoWrapped_Paint( itemDef_t *item )
           forwardColor = qtrue;
       }
 
-      //TA: forceably split lines that are too long (where normal splitage has failed)
+      // forceably split lines that are too long (where normal splitage has failed)
       if( textWidth > item->window.rect.w && newLine == 0 && *p != '\n' )
       {
         newLine = len;
@@ -3299,12 +3289,6 @@ void Item_TextField_Paint(itemDef_t *item) {
   parent = (menuDef_t*)item->parent;
 
   if (item->window.flags & WINDOW_HASFOCUS) {
-/*    lowLight[0] = 0.8 * parent->focusColor[0];
-    lowLight[1] = 0.8 * parent->focusColor[1];
-    lowLight[2] = 0.8 * parent->focusColor[2];
-    lowLight[3] = 0.8 * parent->focusColor[3];
-    LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));*/
-    //TA:
     memcpy(newColor, &parent->focusColor, sizeof(vec4_t));
   } else {
     memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
@@ -3328,12 +3312,6 @@ void Item_YesNo_Paint(itemDef_t *item) {
   value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
   if (item->window.flags & WINDOW_HASFOCUS) {
-/*    lowLight[0] = 0.8 * parent->focusColor[0];
-    lowLight[1] = 0.8 * parent->focusColor[1];
-    lowLight[2] = 0.8 * parent->focusColor[2];
-    lowLight[3] = 0.8 * parent->focusColor[3];
-    LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));*/
-    //TA:
     memcpy(newColor, &parent->focusColor, sizeof(vec4_t));
   } else {
     memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
@@ -3353,12 +3331,6 @@ void Item_Multi_Paint(itemDef_t *item) {
   menuDef_t *parent = (menuDef_t*)item->parent;
 
   if (item->window.flags & WINDOW_HASFOCUS) {
-/*    lowLight[0] = 0.8 * parent->focusColor[0];
-    lowLight[1] = 0.8 * parent->focusColor[1];
-    lowLight[2] = 0.8 * parent->focusColor[2];
-    lowLight[3] = 0.8 * parent->focusColor[3];
-    LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));*/
-    //TA:
     memcpy(newColor, &parent->focusColor, sizeof(vec4_t));
   } else {
     memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
@@ -3397,7 +3369,7 @@ static bind_t g_bindings[] =
   { "+scores",      K_TAB,         -1, -1, -1 },
   { "+button2",     K_ENTER,       -1, -1, -1 },
   { "+speed",       K_SHIFT,       -1, -1, -1 },
-  { "boost",        'x',           -1, -1, -1 }, //TA: human sprinting
+  { "boost",        'x',           -1, -1, -1 }, // human sprinting
   { "+forward",     K_UPARROW,     -1, -1, -1 },
   { "+back",        K_DOWNARROW,   -1, -1, -1 },
   { "+moveleft",    ',',           -1, -1, -1 },
@@ -3426,12 +3398,12 @@ static bind_t g_bindings[] =
   { "weapon 12",    -1,            -1, -1, -1 },
   { "weapon 13",    -1,            -1, -1, -1 },
   { "+attack",      K_MOUSE1,      -1, -1, -1 },
-  { "+button5",     K_MOUSE2,      -1, -1, -1 }, //TA: secondary attack
-  { "reload",       'r',           -1, -1, -1 }, //TA: reload
-  { "buy ammo",     'b',           -1, -1, -1 }, //TA: buy ammo
-  { "itemact medkit", 'm',         -1, -1, -1 }, //TA: use medkit
-  { "+button7",     'q',           -1, -1, -1 }, //TA: buildable use
-  { "deconstruct",  'e',           -1, -1, -1 }, //TA: buildable destroy
+  { "+button5",     K_MOUSE2,      -1, -1, -1 }, // secondary attack
+  { "reload",       'r',           -1, -1, -1 }, // reload
+  { "buy ammo",     'b',           -1, -1, -1 }, // buy ammo
+  { "itemact medkit", 'm',         -1, -1, -1 }, // use medkit
+  { "+button7",     'q',           -1, -1, -1 }, // buildable use
+  { "deconstruct",  'e',           -1, -1, -1 }, // buildable destroy
   { "weapprev",     '[',           -1, -1, -1 },
   { "weapnext",     ']',           -1, -1, -1 },
   { "+button3",     K_MOUSE3,      -1, -1, -1 },
@@ -3442,7 +3414,6 @@ static bind_t g_bindings[] =
   { "teamvote no",  K_F4,          -1, -1, -1 },
   { "scoresUp",      K_KP_PGUP,    -1, -1, -1 },
   { "scoresDown",    K_KP_PGDN,    -1, -1, -1 },
-  // bk001205 - this one below was:  '-1'
   { "messagemode",  -1,            -1, -1, -1 },
   { "messagemode2", -1,            -1, -1, -1 },
   { "messagemode3", -1,            -1, -1, -1 },
@@ -3625,12 +3596,6 @@ void Item_Slider_Paint(itemDef_t *item) {
   value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
   if (item->window.flags & WINDOW_HASFOCUS) {
-/*    lowLight[0] = 0.8 * parent->focusColor[0];
-    lowLight[1] = 0.8 * parent->focusColor[1];
-    lowLight[2] = 0.8 * parent->focusColor[2];
-    lowLight[3] = 0.8 * parent->focusColor[3];
-    LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));*/
-    //TA:
     memcpy(newColor, &parent->focusColor, sizeof(vec4_t));
   } else {
     memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
@@ -3675,8 +3640,7 @@ void Item_Bind_Paint(itemDef_t *item) {
       lowLight[2] = 0.8f * parent->focusColor[2];
       lowLight[3] = 0.8f * parent->focusColor[3];
     }
-    /*LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));*/
-    //TA:
+
     memcpy(newColor, &parent->focusColor, sizeof(vec4_t));
   } else {
     memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
@@ -4015,7 +3979,6 @@ void Item_ListBox_Paint(itemDef_t *item) {
             if (optionalImage >= 0) {
               DC->drawHandlePic(x + 4 + listPtr->columnInfo[j].pos, y - 1 + listPtr->elementHeight / 2, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
             } else if (text) {
-              //TA:
               int alignOffset = 0.0f, tw;
 
               tw = DC->textWidth( text, item->textscale, 0 );
@@ -4068,7 +4031,7 @@ void Item_ListBox_Paint(itemDef_t *item) {
     }
   }
 
-  //TA: FIXME: hacky fix to off-by-one bug
+  // FIXME: hacky fix to off-by-one bug
   listPtr->endPos--;
 }
 
@@ -4099,12 +4062,6 @@ void Item_OwnerDraw_Paint(itemDef_t *item) {
     }
 
     if (item->window.flags & WINDOW_HASFOCUS) {
-/*      lowLight[0] = 0.8 * parent->focusColor[0];
-      lowLight[1] = 0.8 * parent->focusColor[1];
-      lowLight[2] = 0.8 * parent->focusColor[2];
-      lowLight[3] = 0.8 * parent->focusColor[3];
-      LerpColor(parent->focusColor,lowLight,color,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));*/
-      //TA:
       memcpy(color, &parent->focusColor, sizeof(vec4_t));
     } else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime/BLINK_DIVISOR) & 1)) {
       lowLight[0] = 0.8 * item->window.foreColor[0];
@@ -4115,7 +4072,7 @@ void Item_OwnerDraw_Paint(itemDef_t *item) {
     }
 
     if (item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(item, CVAR_ENABLE)) {
-      memcpy(color, parent->disableColor, sizeof(vec4_t)); // bk001207 - FIXME: Com_Memcpy
+      Com_Memcpy(color, parent->disableColor, sizeof(vec4_t));
     }
 
     if (item->text) {
@@ -4417,9 +4374,9 @@ menuDef_t *Menus_ActivateByName(const char *p) {
     if (Q_stricmp(Menus[i].window.name, p) == 0) {
       m = &Menus[i];
       Menus_Activate(m);
-      Menu_HandleMouseMove( m, DC->cursorx, DC->cursory ); //TA: force the item under the cursor to focus
+      Menu_HandleMouseMove( m, DC->cursorx, DC->cursory ); // force the item under the cursor to focus
 
-      for( j = 0; j < m->itemCount; j++ ) //TA: reset selection in listboxes when opened
+      for( j = 0; j < m->itemCount; j++ ) // reset selection in listboxes when opened
       {
         if( m->items[ j ]->type == ITEM_TYPE_LISTBOX )
         {
@@ -5256,7 +5213,7 @@ qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
     }
 
   }
-  return qfalse;  // bk001205 - LCC missing return value
+  return qfalse;
 }
 
 qboolean ItemParse_cvarFloatList( itemDef_t *item, int handle ) {
@@ -5301,7 +5258,7 @@ qboolean ItemParse_cvarFloatList( itemDef_t *item, int handle ) {
     }
 
   }
-  return qfalse;  // bk001205 - LCC missing return value
+  return qfalse;
 }
 
 
@@ -5481,7 +5438,7 @@ qboolean Item_Parse(int handle, itemDef_t *item) {
       return qfalse;
     }
   }
-  return qfalse;  // bk001205 - LCC missing return value
+  return qfalse;
 }
 
 
@@ -5535,7 +5492,7 @@ qboolean MenuParse_name( itemDef_t *item, int handle ) {
 
 qboolean MenuParse_fullscreen( itemDef_t *item, int handle ) {
   menuDef_t *menu = (menuDef_t*)item;
-  if (!PC_Int_Parse(handle, (int*) &menu->fullScreen)) { // bk001206 - cast qboolean
+  if (!PC_Int_Parse(handle, (int*) &menu->fullScreen)) {
     return qfalse;
   }
   return qtrue;
@@ -5885,7 +5842,7 @@ qboolean Menu_Parse(int handle, menuDef_t *menu) {
       return qfalse;
     }
   }
-  return qfalse;  // bk001205 - LCC missing return value
+  return qfalse;
 }
 
 /*

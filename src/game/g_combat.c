@@ -191,10 +191,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     killer, self->s.number, meansOfDeath, killerName,
     self->client->pers.netname, obit );
 
-  //TA: close any menus the client has open
+  // close any menus the client has open
   G_CloseMenus( self->client->ps.clientNum );
 
-  //TA: deactivate all upgrades
+  // deactivate all upgrades
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
     BG_DeactivateUpgrade( i, self->client->ps.stats );
 
@@ -371,7 +371,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       ScoreboardMessage( g_entities + i );
   }
 
-  self->client->pers.classSelection = PCL_NONE; //TA: reset the classtype
+  self->client->pers.classSelection = PCL_NONE; // reset the classtype
   VectorCopy( self->s.origin, self->client->pers.lastDeathLocation );
 
   self->takedamage = qfalse; // can still be gibbed
@@ -453,9 +453,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   trap_LinkEntity( self );
 }
-
-
-////////TA: locdamage
 
 /*
 ===============
@@ -883,8 +880,6 @@ void G_InitDamageLocations( void )
   }
 }
 
-////////TA: locdamage
-
 
 /*
 ============
@@ -910,7 +905,7 @@ dflags    these flags are used to control how T_Damage works
 ============
 */
 
-//TA: team is the team that is immune to this damage
+// team is the team that is immune to this damage
 void G_SelectiveDamage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
          vec3_t dir, vec3_t point, int damage, int dflags, int mod, int team )
 {
@@ -1131,7 +1126,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
     targ->lastDamageTime = level.time;
 
-    //TA: add to the attackers "account" on the target
+    // add to the attackers "account" on the target
     if( targ->client && attacker->client )
     {
       if( attacker != targ && !OnSameTeam( targ, attacker ) )
@@ -1213,8 +1208,6 @@ qboolean CanDamage( gentity_t *targ, vec3_t origin )
   return qfalse;
 }
 
-
-//TA:
 /*
 ============
 G_SelectiveRadiusDamage

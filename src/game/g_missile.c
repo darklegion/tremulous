@@ -82,7 +82,6 @@ void G_ExplodeMissile( gentity_t *ent )
 
   ent->s.eType = ET_GENERAL;
 
-  //TA: tired... can't be fucked... hack
   if( ent->s.weapon != WP_LOCKBLOB_LAUNCHER &&
       ent->s.weapon != WP_FLAMER )
     G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );

@@ -101,8 +101,6 @@ cg_t        cg;
 cgs_t       cgs;
 centity_t   cg_entities[ MAX_GENTITIES ];
 
-//TA: weapons limit expanded:
-//weaponInfo_t    cg_weapons[MAX_WEAPONS];
 weaponInfo_t    cg_weapons[ 32 ];
 upgradeInfo_t   cg_upgrades[ 32 ];
 
@@ -225,7 +223,6 @@ vmCvar_t  cg_painBlendMax;
 vmCvar_t  cg_painBlendScale;
 vmCvar_t  cg_painBlendZoom;
 
-//TA: hack to get class and carriage through to UI module
 vmCvar_t  ui_currentClass;
 vmCvar_t  ui_carriage;
 vmCvar_t  ui_stages;
@@ -785,7 +782,7 @@ static void CG_RegisterGraphics( void )
   cgs.media.backTileShader            = trap_R_RegisterShader( "console" );
 
 
-  //TA: building shaders
+  // building shaders
   cgs.media.greenBuildShader          = trap_R_RegisterShader("gfx/misc/greenbuild" );
   cgs.media.redBuildShader            = trap_R_RegisterShader("gfx/misc/redbuild" );
   cgs.media.humanSpawningShader       = trap_R_RegisterShader("models/buildables/telenode/rep_cyl" );
@@ -1221,7 +1218,7 @@ qboolean CG_Asset_Parse( int handle )
     }
   }
 
-  return qfalse; // bk001204 - why not?
+  return qfalse;
 }
 
 void CG_ParseMenu( const char *menuFile )
@@ -1614,7 +1611,7 @@ static void CG_RunCinematicFrame( int handle )
   trap_CIN_RunCinematic( handle );
 }
 
-//TA: hack to prevent warning
+// hack to prevent warning
 static qboolean CG_OwnerDrawVisible( int parameter )
 {
   return qfalse;
@@ -1737,24 +1734,22 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   //inform UI to repress cursor whilst loading
   trap_Cvar_Set( "ui_loading", "1" );
 
-  //TA: load overrides
+  // load overrides
   BG_InitClassOverrides( );
   BG_InitBuildableOverrides( );
   BG_InitAllowedGameElements( );
 
-  //TA: dyn memory
+  // Dynamic memory
   CG_InitMemory( );
 
   CG_RegisterCvars( );
 
   CG_InitConsoleCommands( );
 
-  //TA: moved up for LoadHudMenu
   String_Init( );
 
-  //TA: TA UI
   CG_AssetCache( );
-  CG_LoadHudMenu( );      // load new hud stuff
+  CG_LoadHudMenu( );
 
   cg.weaponSelect = WP_NONE;
   cg.boostedTime = -1;
@@ -1803,7 +1798,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   CG_InitUpgrades( );
   CG_UpdateMediaFraction( 1.0f );
 
-  //TA:
   CG_InitBuildables( );
 
   CG_RegisterClients( );   // if low on memory, some clients will be deferred

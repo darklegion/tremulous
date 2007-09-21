@@ -616,7 +616,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   // general initialization
   G_FindTeams( );
 
-  //TA:
   BG_InitClassOverrides( );
   BG_InitBuildableOverrides( );
   G_InitDamageLocations( );
@@ -637,7 +636,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
   G_RemapTeamShaders( );
 
-  //TA: so the server counts the spawns without a client attached
+  // so the server counts the spawns without a client attached
   G_CountSpawns( );
 
   G_ResetPTRConnections( );
@@ -2249,7 +2248,7 @@ void G_RunFrame( int levelTime )
   level.time = levelTime;
   msec = level.time - level.previousTime;
 
-  //TA: seed the rng
+  // seed the rng
   srand( level.framenum );
 
   // get any cvar changes
@@ -2298,7 +2297,7 @@ void G_RunFrame( int levelTime )
     if( ent->freeAfterEvent )
       continue;
 
-    //TA: calculate the acceleration of this entity
+    // calculate the acceleration of this entity
     if( ent->evaluateAcceleration )
       G_EvaluateAcceleration( ent, msec );
 
@@ -2355,7 +2354,6 @@ void G_RunFrame( int levelTime )
 
   end = trap_Milliseconds();
 
-  //TA:
   G_CountSpawns( );
   G_CalculateBuildPoints( );
   G_CalculateStages( );

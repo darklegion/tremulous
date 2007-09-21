@@ -761,7 +761,7 @@ void respawn( gentity_t *ent )
 {
   SpawnCorpse( ent );
 
-  //TA: Clients can't respawn - they must go thru the class cmd
+  // Clients can't respawn - they must go through the class cmd
   ent->client->pers.classSelection = PCL_NONE;
   ClientSpawn( ent, NULL, NULL, NULL );
 }
@@ -1358,7 +1358,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
 
   teamLocal = client->pers.teamSelection;
 
-  //TA: only start client if chosen a class and joined a team
+  // only start client if chosen a class and joined a team
   if( client->pers.classSelection == PCL_NONE && teamLocal == PTE_NONE )
   {
     client->sess.sessionTeam = TEAM_SPECTATOR;
@@ -1461,7 +1461,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   ent->watertype = 0;
   ent->flags = 0;
 
-  //TA: calculate each client's acceleration
+  // calculate each client's acceleration
   ent->evaluateAcceleration = qtrue;
 
   client->ps.stats[ STAT_WEAPONS ] = 0;
@@ -1626,7 +1626,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     trap_LinkEntity( ent );
   }
 
-  //TA: must do this here so the number of active clients is calculated
+  // must do this here so the number of active clients is calculated
   CalculateRanks( );
 
   // run the presend to set anything else

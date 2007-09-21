@@ -234,7 +234,7 @@ static void PM_Friction( void )
 
   vel = pm->ps->velocity;
 
-  //TA: make sure vertical velocity is NOT set to zero when wall climbing
+  // make sure vertical velocity is NOT set to zero when wall climbing
   VectorCopy( vel, vec );
   if( pml.walking && !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
     vec[ 2 ] = 0; // ignore slope movement
@@ -705,13 +705,13 @@ static qboolean PM_CheckJump( void )
   pml.walking = qfalse;
   pm->ps->pm_flags |= PMF_JUMP_HELD;
 
-  //TA: take some stamina off
+  // take some stamina off
   if( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS )
     pm->ps->stats[ STAT_STAMINA ] -= 500;
 
   pm->ps->groundEntityNum = ENTITYNUM_NONE;
 
-  //TA: jump away from wall
+  // jump away from wall
   if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
   {
     vec3_t normal = { 0, 0, -1 };
@@ -1468,7 +1468,6 @@ Returns an event number apropriate for the groundsurface
 */
 static int PM_FootstepForSurface( void )
 {
-  //TA:
   if( pm->ps->stats[ STAT_STATE ] & SS_CREEPSLOWED )
     return EV_FOOTSTEP_SQUELCH;
 
@@ -1717,8 +1716,8 @@ static void PM_GroundClimbTrace( void )
   float     ldDOTtCs, d;
   vec3_t    abc;
 
-  //TA: If we're on the ceiling then grapplePoint is a rotation normal.. otherwise its a surface normal.
-  //    would have been nice if Carmack had left a few random variables in the ps struct for mod makers
+  // If we're on the ceiling then grapplePoint is a rotation normal.. otherwise its a surface normal.
+  // would have been nice if Carmack had left a few random variables in the ps struct for mod makers
   if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
     VectorCopy( ceilingNormal, surfNormal );
   else
@@ -2280,7 +2279,6 @@ static void PM_CheckDuck (void)
   BG_FindBBoxForClass( pm->ps->stats[ STAT_PCLASS ], PCmins, PCmaxs, PCcmaxs, NULL, NULL );
   BG_FindViewheightForClass( pm->ps->stats[ STAT_PCLASS ], &PCvh, &PCcvh );
 
-  //TA: iD bug? you can still crouch when you're a spectator
   if( pm->ps->persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
     PCcvh = PCvh;
 
@@ -2299,7 +2297,7 @@ static void PM_CheckDuck (void)
     return;
   }
 
-  //TA: If the standing and crouching viewheights are the same the class can't crouch
+  // If the standing and crouching viewheights are the same the class can't crouch
   if( ( pm->cmd.upmove < 0 ) && ( PCvh != PCcvh ) &&
       pm->ps->pm_type != PM_JETPACK &&
       !BG_InventoryContainsUpgrade( UP_BATTLESUIT, pm->ps->stats ) )
@@ -2354,7 +2352,7 @@ static void PM_Footsteps( void )
   //
   if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) && ( pml.groundPlane ) )
   {
-    //TA: FIXME: yes yes i know this is wrong
+    // FIXME: yes yes i know this is wrong
     pm->xyspeed = sqrt( pm->ps->velocity[ 0 ] * pm->ps->velocity[ 0 ]
                       + pm->ps->velocity[ 1 ] * pm->ps->velocity[ 1 ]
                       + pm->ps->velocity[ 2 ] * pm->ps->velocity[ 2 ] );
@@ -2707,7 +2705,7 @@ static void PM_Weapon( void )
   // again if lowering or raising
   if( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING )
   {
-    //TA: must press use to switch weapons
+    // must press use to switch weapons
     if( pm->cmd.buttons & BUTTON_USE_HOLDABLE )
     {
       if( !( pm->ps->pm_flags & PMF_USE_ITEM_HELD ) )
@@ -2921,7 +2919,7 @@ static void PM_Weapon( void )
       break;
   }
 
-  //TA: fire events for non auto weapons
+  // fire events for non auto weapons
   if( attack3 )
   {
     if( BG_WeaponHasThirdMode( pm->ps->weapon ) )
@@ -2969,7 +2967,7 @@ static void PM_Weapon( void )
     addTime = BG_FindRepeatRate1ForWeapon( pm->ps->weapon );
   }
 
-  //TA: fire events for autohit weapons
+  // fire events for autohit weapons
   if( pm->autoWeaponHit[ pm->ps->weapon ] )
   {
     switch( pm->ps->weapon )
@@ -3434,7 +3432,7 @@ void PmoveSingle( pmove_t *pmove )
   {
     if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) &&
         ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
-      PM_ClimbMove( ); //TA: walking on any surface
+      PM_ClimbMove( ); // walking on any surface
     else
       PM_WalkMove( ); // walking on ground
   }
@@ -3445,7 +3443,7 @@ void PmoveSingle( pmove_t *pmove )
 
   // set groundentity, watertype, and waterlevel
   PM_GroundTrace( );
-  //TA: must update after every GroundTrace() - yet more clock cycles down the drain :( (14 vec rotations/frame)
+
   // update the viewangles
   PM_UpdateViewAngles( pm->ps, &pm->cmd );
 

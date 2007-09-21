@@ -51,7 +51,7 @@ If 1 (the default), then ip addresses matching the current list will be prohibit
 
 If 0, then only addresses matching the list will be allowed.  This lets you easily set up a private game, or a game that only allows players from your local network.
 
-TTimo NOTE: for persistence, bans are stored in g_banIPs cvar MAX_CVAR_VALUE_STRING
+For persistence, bans are stored in g_banIPs cvar MAX_CVAR_VALUE_STRING
 The size of the cvar string buffer is limiting the banning to around 20 masks
 this could be improved by putting some g_banIPs2 g_banIps3 etc. maybe
 still, you should rely on PB for banning instead

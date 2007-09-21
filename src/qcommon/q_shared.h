@@ -1152,7 +1152,7 @@ typedef enum {
 	TR_LINEAR_STOP,
 	TR_SINE,					// value = base + sin( time / duration ) * delta
 	TR_GRAVITY,
-	TR_BUOYANCY //TA: what the hell is this doing in here anyway?
+	TR_BUOYANCY
 } trType_t;
 
 typedef struct {
@@ -1276,7 +1276,7 @@ typedef struct qtime_s {
 
 
 // server browser sources
-// TTimo: AS_MPLAYER is no longer used
+// AS_MPLAYER is no longer used
 #define AS_GLOBAL			0
 #define AS_MPLAYER		1
 #define AS_LOCAL			2

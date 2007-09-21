@@ -127,10 +127,8 @@ extern vmCvar_t  ui_scoreShutoutBonus;
 extern vmCvar_t  ui_scoreTime;
 extern vmCvar_t  ui_smallFont;
 extern vmCvar_t  ui_bigFont;
-extern vmCvar_t ui_serverStatusTimeOut;
+extern vmCvar_t  ui_serverStatusTimeOut;
 
-//TA: bank values
-extern vmCvar_t  ui_bank;
 
 
 //
@@ -746,7 +744,6 @@ typedef struct {
   const char *modDescr;
 } modInfo_t;
 
-//TA: tremulous menus
 #define MAX_INFOPANE_TEXT     4096
 #define MAX_INFOPANE_GRAPHICS 16
 #define MAX_INFOPANES         128
@@ -785,7 +782,6 @@ typedef struct
   const char      *cmd;
   tremInfoPane_t  *infopane;
 } tremMenuItem_t;
-//TA: tremulous menus
 
 typedef struct {
   displayContextDef_t uiDC;
@@ -855,7 +851,6 @@ typedef struct {
   tremInfoPane_t  tremInfoPanes[ MAX_INFOPANES ];
   int             tremInfoPaneCount;
 
-//TA: tremulous menus
   tremMenuItem_t  tremTeamList[ 4 ];
   int             tremTeamCount;
   int             tremTeamIndex;
@@ -887,7 +882,6 @@ typedef struct {
   tremMenuItem_t  tremHumanBuildList[ 32 ];
   int             tremHumanBuildCount;
   int             tremHumanBuildIndex;
-//TA: tremulous menus
 
   serverStatus_t serverStatus;
 

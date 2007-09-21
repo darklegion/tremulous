@@ -60,7 +60,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CONTENTS_TRIGGER		0x40000000
 #define	CONTENTS_NODROP			0x80000000	// don't leave bodies or items (death fog, lava)
 
-//TA: custominfoparms below
+// custominfoparms below
 #define	CONTENTS_NOALIENBUILD			0x1000	//disallow alien building
 #define	CONTENTS_NOHUMANBUILD			0x2000	//disallow alien building
 #define	CONTENTS_NOBUILD					0x4000	//disallow alien building
@@ -85,7 +85,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	SURF_NODLIGHT			0x20000	// don't dlight even if solid (solid lava, skies)
 #define SURF_DUST				0x40000 // leave a dust trail when walking on this surface
 
-//TA: custominfoparms below
+// custominfoparms below
 #define	SURF_NOALIENBUILD	0x80000  //disallow alien building
 #define	SURF_NOHUMANBUILD	0x100000 //disallow alien building
 #define	SURF_NOBUILD			0x200000 //disallow alien building

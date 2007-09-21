@@ -60,7 +60,7 @@ void CG_UpdateEntityPositions( void )
 
     if( cent->currentState.eType == ET_BUILDABLE )
     {
-      //TA: add to list of item positions (for creep)
+      // add to list of item positions (for creep)
       if( cent->currentState.modelindex2 == BIT_ALIENS )
       {
         VectorCopy( cent->lerpOrigin, entityPositions.alienBuildablePos[

@@ -234,7 +234,6 @@ spawn_t spawns[ ] =
   { "info_player_deathmatch",   SP_info_player_deathmatch },
   { "info_player_intermission", SP_info_player_intermission },
 
-  //TA: extra bits
   { "info_alien_intermission",  SP_info_alien_intermission },
   { "info_human_intermission",  SP_info_human_intermission },
 

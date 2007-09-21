@@ -73,8 +73,6 @@ void G_ReadSessionData( gclient_t *client )
 {
   char  s[ MAX_STRING_CHARS ];
   const char  *var;
-
-  // bk001205 - format
   int teamLeader;
   int spectatorState;
   int sessionTeam;
@@ -95,7 +93,7 @@ void G_ReadSessionData( gclient_t *client )
     &client->sess.ignoreList.hi,
     &client->sess.ignoreList.lo
     );
-  // bk001205 - format issues
+
   client->sess.sessionTeam = (team_t)sessionTeam;
   client->sess.spectatorState = (spectatorState_t)spectatorState;
   client->sess.teamLeader = (qboolean)teamLeader;
@@ -151,7 +149,7 @@ void G_WriteSessionData( void )
 {
   int    i;
 
-  //TA: ?
+  //FIXME: What's this for?
   trap_Cvar_Set( "session", va( "%i", 0 ) );
 
   for( i = 0 ; i < level.maxclients ; i++ )

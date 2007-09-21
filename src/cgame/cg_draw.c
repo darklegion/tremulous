@@ -74,8 +74,6 @@ int CG_Text_Width( const char *text, float scale, int limit )
       else
       {
         glyph = &font->glyphs[ (int)*s ];
-        //TTimo: FIXME: getting nasty warnings without the cast,
-        //hopefully this doesn't break the VM build
         out += glyph->xSkip;
         s++;
         count++;
@@ -92,8 +90,6 @@ int CG_Text_Height( const char *text, float scale, int limit )
   float       max;
   glyphInfo_t *glyph;
   float       useScale;
-// TTimo: FIXME
-//  const unsigned char *s = text;
   const char  *s = text;
   fontInfo_t  *font = &cgDC.Assets.textFont;
 
@@ -122,8 +118,6 @@ int CG_Text_Height( const char *text, float scale, int limit )
       else
       {
         glyph = &font->glyphs[ (int)*s ];
-        //TTimo: FIXME: getting nasty warnings without the cast,
-        //hopefully this doesn't break the VM build
         if( max < glyph->height )
           max = glyph->height;
 
@@ -163,8 +157,7 @@ void CG_Text_Paint( float x, float y, float scale, vec4_t color, const char *tex
   useScale = scale * font->glyphScale;
   if( text )
   {
-// TTimo: FIXME
-//    const unsigned char *s = text;
+
     const char *s = text;
 
     trap_R_SetColor( color );
@@ -178,8 +171,6 @@ void CG_Text_Paint( float x, float y, float scale, vec4_t color, const char *tex
     while( s && *s && count < len )
     {
       glyph = &font->glyphs[ (int)*s ];
-      //TTimo: FIXME: getting nasty warnings without the cast,
-      //hopefully this doesn't break the VM build
 
       if( Q_IsColorString( s ) )
       {
@@ -1481,8 +1472,6 @@ static void CG_Text_Paint_Limit( float *maxX, float x, float y, float scale,
 
   if( text )
   {
-// TTimo: FIXME
-//    const unsigned char *s = text; // bk001206 - unsigned
     const char *s = text;
     float max = *maxX;
     float useScale;
@@ -1505,8 +1494,6 @@ static void CG_Text_Paint_Limit( float *maxX, float x, float y, float scale,
     while( s && *s && count < len )
     {
       glyph = &font->glyphs[ (int)*s ];
-      //TTimo: FIXME: getting nasty warnings without the cast,
-      //hopefully this doesn't break the VM build
 
       if( Q_IsColorString( s ) )
       {
@@ -1574,7 +1561,7 @@ static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, vec4_t color, q
       {
         if( cg.spectatorOffset < cg.spectatorLen )
         {
-          //TA: skip colour directives
+          // skip colour directives
           if( Q_IsColorString( &cg.spectatorList[ cg.spectatorOffset ] ) )
             cg.spectatorOffset += 2;
           else
@@ -1704,7 +1691,6 @@ static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
 CG_DrawFPS
 ==================
 */
-//TA: personally i think this should be longer - it should really be a cvar
 #define FPS_FRAMES  20
 #define FPS_STRING  "fps"
 static void CG_DrawFPS( rectDef_t *rect, float text_x, float text_y,
@@ -3282,7 +3268,6 @@ static void CG_Draw2D( void )
     return;
   }
 
-  //TA: draw the lighting effects e.g. nvg
   CG_DrawLighting( );
 
 

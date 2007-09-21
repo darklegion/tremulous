@@ -551,7 +551,7 @@ typedef struct trailBeam_s
 // because corpses after respawn are outside the normal
 // client numbering range
 
-//TA: smoothing of view and model for WW transitions
+// smoothing of view and model for WW transitions
 #define   MAXSMOOTHS          32
 
 typedef struct
@@ -634,7 +634,6 @@ typedef struct centity_s
 
   lerpFrame_t           lerpFrame;
 
-  //TA:
   buildableAnimNumber_t buildableAnim;    //persistant anim number
   buildableAnimNumber_t oldBuildableAnim; //to detect when new anims are set
   particleSystem_t      *buildablePS;
@@ -869,7 +868,6 @@ typedef struct
 
 //======================================================================
 
-//TA:
 typedef struct
 {
   vec3_t    alienBuildablePos[ MAX_GENTITIES ];
@@ -1099,10 +1097,10 @@ typedef struct
   char          testModelBarrelName[MAX_QPATH];
   qboolean      testGun;
 
-  int           spawnTime;                          //TA: fovwarp
-  int           weapon1Time;                        //TA: time when BUTTON_ATTACK went t->f f->t
-  int           weapon2Time;                        //TA: time when BUTTON_ATTACK2 went t->f f->t
-  int           weapon3Time;                        //TA: time when BUTTON_USE_HOLDABLE went t->f f->t
+  int           spawnTime;                          // fovwarp
+  int           weapon1Time;                        // time when BUTTON_ATTACK went t->f f->t
+  int           weapon2Time;                        // time when BUTTON_ATTACK2 went t->f f->t
+  int           weapon3Time;                        // time when BUTTON_USE_HOLDABLE went t->f f->t
   qboolean      weapon1Firing;
   qboolean      weapon2Firing;
   qboolean      weapon3Firing;
@@ -1110,15 +1108,15 @@ typedef struct
   int           boostedTime;
   int           poisonedTime;
 
-  vec3_t        lastNormal;                         //TA: view smoothage
-  vec3_t        lastVangles;                        //TA: view smoothage
-  smooth_t      sList[ MAXSMOOTHS ];                //TA: WW smoothing
+  vec3_t        lastNormal;                         // view smoothage
+  vec3_t        lastVangles;                        // view smoothage
+  smooth_t      sList[ MAXSMOOTHS ];                // WW smoothing
 
-  int           forwardMoveTime;                    //TA: for struggling
+  int           forwardMoveTime;                    // for struggling
   int           rightMoveTime;
   int           upMoveTime;
 
-  float         charModelFraction;                  //TA: loading percentages
+  float         charModelFraction;                  // loading percentages
   float         mediaFraction;
   float         buildablesFraction;
 
@@ -1368,7 +1366,7 @@ typedef struct
 
   clientInfo_t  clientinfo[ MAX_CLIENTS ];
 
-  //TA: corpse info
+  // corpse info
   clientInfo_t  corpseinfo[ MAX_CLIENTS ];
 
   int           cursorX;
@@ -1392,13 +1390,9 @@ extern  cgs_t     cgs;
 extern  cg_t      cg;
 extern  centity_t cg_entities[ MAX_GENTITIES ];
 
-//TA: weapon limit expanded:
-//extern  weaponInfo_t  cg_weapons[MAX_WEAPONS];
 extern  weaponInfo_t    cg_weapons[ 32 ];
-//TA: upgrade infos:
 extern  upgradeInfo_t   cg_upgrades[ 32 ];
 
-//TA: buildable infos:
 extern  buildableInfo_t cg_buildables[ BA_NUM_BUILDABLES ];
 
 extern  markPoly_t      cg_markPolys[ MAX_MARK_POLYS ];
@@ -1518,7 +1512,6 @@ extern  vmCvar_t    cg_painBlendMax;
 extern  vmCvar_t    cg_painBlendScale;
 extern  vmCvar_t    cg_painBlendZoom;
 
-//TA: hack to get class an carriage through to UI module
 extern  vmCvar_t    ui_currentClass;
 extern  vmCvar_t    ui_carriage;
 extern  vmCvar_t    ui_stages;

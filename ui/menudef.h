@@ -68,7 +68,6 @@
 #define FEEDER_FINDPLAYER               0x0e      // find player
 #define FEEDER_CINEMATICS               0x0f      // cinematics
 
-//TA: tremulous menus
 #define FEEDER_TREMTEAMS                0x10      //teams
 #define FEEDER_TREMALIENCLASSES         0x11      //alien classes
 #define FEEDER_TREMHUMANITEMS           0x12      //human items
@@ -77,7 +76,6 @@
 #define FEEDER_TREMALIENUPGRADE         0x15      //alien upgrade
 #define FEEDER_TREMALIENBUILD           0x16      //alien buildables
 #define FEEDER_TREMHUMANBUILD           0x17      //human buildables
-//TA: tremulous menus
 #define FEEDER_IGNORE_LIST              0x18      //ignored players
 
 // display flags
@@ -229,7 +227,7 @@
 #define CG_2NDPLACE 68
 #define CG_CAPTURES 69
 
-//TA: loading screen
+// loading screen
 #define CG_LOAD_LEVELSHOT         76
 #define CG_LOAD_MEDIA             77
 #define CG_LOAD_MEDIA_LABEL       78
@@ -317,7 +315,6 @@
 #define UI_STARTMAPCINEMATIC  255
 #define UI_MAPS_SELECTION     256
 
-//TA:
 //#define UI_DIALOG             257
 #define UI_TEAMINFOPANE       258
 #define UI_ACLASSINFOPANE     259

@@ -122,13 +122,11 @@ int G_FindConfigstringIndex( char *name, int start, int max, qboolean create )
   return i;
 }
 
-//TA: added ParticleSystemIndex
 int G_ParticleSystemIndex( char *name )
 {
   return G_FindConfigstringIndex( name, CS_PARTICLE_SYSTEMS, MAX_GAME_PARTICLE_SYSTEMS, qtrue );
 }
 
-//TA: added ShaderIndex
 int G_ShaderIndex( char *name )
 {
   return G_FindConfigstringIndex( name, CS_SHADERS, MAX_GAME_SHADERS, qtrue );
@@ -593,7 +591,7 @@ void G_KillBox( gentity_t *ent )
     if( !hit->client )
       continue;
 
-    //TA: impossible to telefrag self
+    // impossible to telefrag self
     if( ent == hit )
       continue;
 
@@ -737,10 +735,10 @@ void G_SetOrigin( gentity_t *ent, vec3_t origin )
   VectorClear( ent->s.pos.trDelta );
 
   VectorCopy( origin, ent->r.currentOrigin );
-  VectorCopy( origin, ent->s.origin ); //TA: if shit breaks - blame this line
+  VectorCopy( origin, ent->s.origin );
 }
 
-//TA: from quakestyle.telefragged.com
+// from quakestyle.telefragged.com
 // (NOBODY): Code helper function
 //
 gentity_t *G_FindRadius( gentity_t *from, vec3_t org, float rad )

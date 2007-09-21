@@ -91,7 +91,6 @@ qboolean CG_RequestScores( void )
     // the scores are more than two seconds out of data,
     // so request new ones
     cg.scoresRequestTime = cg.time;
-    //TA: added \n SendClientCommand doesn't call flush( )?
     trap_SendClientCommand( "score\n" );
 
     return qtrue;
@@ -239,7 +238,7 @@ qboolean CG_ConsoleCommand( void )
 
   cmd = CG_Argv( 0 );
 
-  //TA: ugly hacky special case
+  // ugly hacky special case
   if( !Q_stricmp( cmd, "ui_menu" ) )
   {
     arg1 = CG_Argv( 1 );
