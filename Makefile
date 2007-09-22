@@ -181,21 +181,21 @@ ifeq ($(PLATFORM),linux)
     -pipe -DUSE_ICON $(shell sdl-config --cflags)
 
   ifeq ($(USE_OPENAL),1)
-    BASE_CFLAGS += -DUSE_OPENAL=1
+    BASE_CFLAGS += -DUSE_OPENAL
     ifeq ($(USE_OPENAL_DLOPEN),1)
-      BASE_CFLAGS += -DUSE_OPENAL_DLOPEN=1
+      BASE_CFLAGS += -DUSE_OPENAL_DLOPEN
     endif
   endif
 
   ifeq ($(USE_CURL),1)
-    BASE_CFLAGS += -DUSE_CURL=1
+    BASE_CFLAGS += -DUSE_CURL
     ifeq ($(USE_CURL_DLOPEN),1)
-      BASE_CFLAGS += -DUSE_CURL_DLOPEN=1
+      BASE_CFLAGS += -DUSE_CURL_DLOPEN
     endif
   endif
 
   ifeq ($(USE_CODEC_VORBIS),1)
-    BASE_CFLAGS += -DUSE_CODEC_VORBIS=1
+    BASE_CFLAGS += -DUSE_CODEC_VORBIS
   endif
 
   OPTIMIZE = -O3 -ffast-math -funroll-loops -fomit-frame-pointer
@@ -334,25 +334,25 @@ ifeq ($(PLATFORM),darwin)
   BASE_CFLAGS += -gfull
 
   ifeq ($(USE_OPENAL),1)
-    BASE_CFLAGS += -DUSE_OPENAL=1
+    BASE_CFLAGS += -DUSE_OPENAL
     ifneq ($(USE_OPENAL_DLOPEN),1)
       CLIENT_LDFLAGS += -framework OpenAL
     else
-      BASE_CFLAGS += -DUSE_OPENAL_DLOPEN=1
+      BASE_CFLAGS += -DUSE_OPENAL_DLOPEN
     endif
   endif
 
   ifeq ($(USE_CURL),1)
-    BASE_CFLAGS += -DUSE_CURL=1
+    BASE_CFLAGS += -DUSE_CURL
     ifneq ($(USE_CURL_DLOPEN),1)
       CLIENT_LDFLAGS += -lcurl
     else
-      BASE_CFLAGS += -DUSE_CURL_DLOPEN=1
+      BASE_CFLAGS += -DUSE_CURL_DLOPEN
     endif
   endif
 
   ifeq ($(USE_CODEC_VORBIS),1)
-    BASE_CFLAGS += -DUSE_CODEC_VORBIS=1
+    BASE_CFLAGS += -DUSE_CODEC_VORBIS
     CLIENT_LDFLAGS += -lvorbisfile -lvorbis -logg
   endif
 
@@ -401,18 +401,18 @@ endif
     -DUSE_ICON -I$(SDLHDIR)/include
 
   ifeq ($(USE_OPENAL),1)
-    BASE_CFLAGS += -DUSE_OPENAL=1 -DUSE_OPENAL_DLOPEN=1
+    BASE_CFLAGS += -DUSE_OPENAL=1 -DUSE_OPENAL_DLOPEN
   endif
 
   ifeq ($(USE_CURL),1)
-    BASE_CFLAGS += -DUSE_CURL=1
+    BASE_CFLAGS += -DUSE_CURL
     ifneq ($(USE_CURL_DLOPEN),1)
       BASE_CFLAGS += -DCURL_STATICLIB
     endif
   endif
 
   ifeq ($(USE_CODEC_VORBIS),1)
-    BASE_CFLAGS += -DUSE_CODEC_VORBIS=1
+    BASE_CFLAGS += -DUSE_CODEC_VORBIS
   endif
 
   OPTIMIZE = -O3 -march=i586 -fno-omit-frame-pointer -ffast-math \
@@ -475,14 +475,14 @@ ifeq ($(PLATFORM),freebsd)
     -DUSE_ICON $(shell sdl-config --cflags)
 
   ifeq ($(USE_OPENAL),1)
-    BASE_CFLAGS += -DUSE_OPENAL=1
+    BASE_CFLAGS += -DUSE_OPENAL
     ifeq ($(USE_OPENAL_DLOPEN),1)
-      BASE_CFLAGS += -DUSE_OPENAL_DLOPEN=1
+      BASE_CFLAGS += -DUSE_OPENAL_DLOPEN
     endif
   endif
 
   ifeq ($(USE_CODEC_VORBIS),1)
-    BASE_CFLAGS += -DUSE_CODEC_VORBIS=1
+    BASE_CFLAGS += -DUSE_CODEC_VORBIS
   endif
 
   ifeq ($(ARCH),axp)
@@ -699,7 +699,7 @@ ifdef DEFAULT_BASEDIR
 endif
 
 ifeq ($(USE_LOCAL_HEADERS),1)
-  BASE_CFLAGS += -DUSE_LOCAL_HEADERS=1
+  BASE_CFLAGS += -DUSE_LOCAL_HEADERS
 endif
 
 ifeq ($(GENERATE_DEPENDENCIES),1)
@@ -1256,6 +1256,7 @@ CGOBJ_ = \
   $(B)/base/game/bg_misc.o \
   $(B)/base/game/bg_pmove.o \
   $(B)/base/game/bg_slidemove.o \
+  $(B)/base/game/bg_lib.o \
   $(B)/base/cgame/cg_consolecmds.o \
   $(B)/base/cgame/cg_buildable.o \
   $(B)/base/cgame/cg_animation.o \
@@ -1285,7 +1286,7 @@ CGOBJ_ = \
   $(B)/base/qcommon/q_shared.o
 
 CGOBJ = $(CGOBJ_) $(B)/base/cgame/cg_syscalls.o
-CGVMOBJ = $(CGOBJ_:%.o=%.asm) $(B)/base/game/bg_lib.asm
+CGVMOBJ = $(CGOBJ_:%.o=%.asm)
 
 $(B)/base/cgame$(ARCH).$(SHLIBEXT): $(CGOBJ)
 	$(echo_cmd) "LD $@"
@@ -1306,6 +1307,7 @@ GOBJ_ = \
   $(B)/base/game/bg_misc.o \
   $(B)/base/game/bg_pmove.o \
   $(B)/base/game/bg_slidemove.o \
+  $(B)/base/game/bg_lib.o \
   $(B)/base/game/g_mem.o \
   $(B)/base/game/g_active.o \
   $(B)/base/game/g_client.o \
@@ -1332,7 +1334,7 @@ GOBJ_ = \
   $(B)/base/qcommon/q_shared.o
 
 GOBJ = $(GOBJ_) $(B)/base/game/g_syscalls.o
-GVMOBJ = $(GOBJ_:%.o=%.asm) $(B)/base/game/bg_lib.asm
+GVMOBJ = $(GOBJ_:%.o=%.asm)
 
 $(B)/base/game$(ARCH).$(SHLIBEXT): $(GOBJ)
 	$(echo_cmd) "LD $@"
@@ -1356,11 +1358,12 @@ UIOBJ_ = \
   $(B)/base/ui/ui_gameinfo.o \
   \
   $(B)/base/game/bg_misc.o \
+  $(B)/base/game/bg_lib.o \
   $(B)/base/qcommon/q_math.o \
   $(B)/base/qcommon/q_shared.o
 
 UIOBJ = $(UIOBJ_) $(B)/base/ui/ui_syscalls.o
-UIVMOBJ = $(UIOBJ_:%.o=%.asm) $(B)/base/game/bg_lib.asm
+UIVMOBJ = $(UIOBJ_:%.o=%.asm)
 
 $(B)/base/ui$(ARCH).$(SHLIBEXT): $(UIOBJ)
 	$(echo_cmd) "LD $@"

@@ -464,7 +464,7 @@ void Con_DrawInput (void) {
 	SCR_DrawSmallChar( con.xadjust + 1 * SMALLCHAR_WIDTH, y, ']' );
 
 	Field_Draw( &g_consoleField, con.xadjust + 2 * SMALLCHAR_WIDTH, y,
-		SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue );
+		SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue );
 }
 
 /*
@@ -520,7 +520,6 @@ void Con_DrawSolidConsole( float frac ) {
 	for (x=0 ; x<i ; x++) {
 
 		SCR_DrawSmallChar( cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH, 
-
 			(lines-(SMALLCHAR_HEIGHT+SMALLCHAR_HEIGHT/2)), Q3_VERSION[x] );
 
 	}
@@ -615,17 +614,17 @@ void Con_DrawConsole( void ) {
 
 		if( chat_team )
 		{
-			SCR_DrawBigString( 8, 232, "Team Say:", 1.0f );
+			SCR_DrawBigString( 8, 232, "Team Say:", 1.0f, qfalse );
 			skip = 11;
 		}
 		else
 		{ 
-			SCR_DrawBigString( 8, 232, "Say:", 1.0f );
+			SCR_DrawBigString( 8, 232, "Say:", 1.0f, qfalse );
 			skip = 5;
 		}
 
 		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, 232,
-				SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, qtrue );
+				SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, qtrue, qtrue );
 	}
 }
 

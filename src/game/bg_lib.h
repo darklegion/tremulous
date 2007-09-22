@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // compiled for the virtual machine
 
 // This file is NOT included on native builds
-#ifndef BG_LIB_H
+#if !defined( BG_LIB_H ) && defined( Q3_VM )
 #define BG_LIB_H
 
 #ifndef NULL
@@ -54,6 +54,22 @@ typedef char *  va_list;
 #define LONG_MIN    (-2147483647L - 1) /* minimum (signed) long value */
 #define LONG_MAX      2147483647L   /* maximum (signed) long value */
 #define ULONG_MAX     0xffffffffUL  /* maximum unsigned long value */
+
+#define isalnum(c)  (isalpha(c) || isdigit(c))
+#define isalpha(c)  (isupper(c) || islower(c))
+#define isascii(c)  ((c) > 0 && (c) <= 0x7f)
+#define iscntrl(c)  (((c) >= 0) && (((c) <= 0x1f) || ((c) == 0x7f)))
+#define isdigit(c)  ((c) >= '0' && (c) <= '9')
+#define isgraph(c)  ((c) != ' ' && isprint(c)
+#define islower(c)  ((c) >=  'a' && (c) <= 'z')
+#define isprint(c)  ((c) >= ' ' && (c) <= '~')
+#define ispunct(c)  (((c) > ' ' && (c) <= '~') && !isalnum(c))
+#define isspace(c)  ((c) ==  ' ' || (c) == '\f' || (c) == '\n' || (c) == '\r' || \
+                     (c) == '\t' || (c) == '\v')
+#define isupper(c)  ((c) >=  'A' && (c) <= 'Z')
+#define isxdigit(c) (isxupper(c) || isxlower(c))
+#define isxlower(c) (isdigit(c) || (c >= 'a' && c <= 'f'))
+#define isxupper(c) (isdigit(c) || (c >= 'A' && c <= 'F')) 
 
 // Misc functions
 typedef int cmp_t( const void *, const void * );

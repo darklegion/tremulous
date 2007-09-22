@@ -103,7 +103,7 @@ void S_CodecInit()
 {
 	codecs = NULL;
 	S_CodecRegister(&wav_codec);
-#if USE_CODEC_VORBIS
+#ifdef USE_CODEC_VORBIS
 	S_CodecRegister(&ogg_codec);
 #endif
 }
