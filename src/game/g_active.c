@@ -788,7 +788,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
         }
         else if( boostEntity->s.eType == ET_BUILDABLE &&
             boostEntity->s.modelindex == BA_A_BOOSTER &&
-            boostEntity->spawned )
+            boostEntity->spawned && boostEntity->health > 0)
         {
           modifier = BOOSTER_REGEN_MOD;
           break;

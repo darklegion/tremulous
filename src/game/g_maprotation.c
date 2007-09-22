@@ -29,6 +29,26 @@ static mapRotations_t mapRotations;
 
 /*
 ===============
+G_MapExists
+
+Check if a map exists
+===============
+*/
+static qboolean G_MapExists( char *name )
+{
+  fileHandle_t  f;
+
+  if( trap_FS_FOpenFile( va( "maps/%s.bsp", name ), &f, FS_READ ) > 0 )
+  {
+    trap_FS_FCloseFile( f );
+    return qtrue;
+  }
+  else
+    return qfalse;
+}
+
+/*
+===============
 G_ParseCommandSection
 
 Parse a map rotation command section
@@ -141,6 +161,12 @@ static qboolean G_ParseMapRotation( mapRotation_t *mr, char **text_p )
 
       mrc = &mre->conditions[ mre->numConditions ];
       mrc->unconditional = qtrue;
+
+      if( !G_MapExists( token ) )
+      {
+        G_Printf( S_COLOR_RED "ERROR: map \"%s\" doesn't exist\n", token );
+        return qfalse;
+      }
       Q_strncpyz( mrc->dest, token, sizeof( mrc->dest ) );
 
       if( mre->numConditions == MAX_MAP_ROTATION_CONDS )
@@ -251,6 +277,12 @@ static qboolean G_ParseMapRotation( mapRotation_t *mr, char **text_p )
     else
       mr->numMaps++;
 
+    if( !G_MapExists( token ) )
+    {
+      G_Printf( S_COLOR_RED "ERROR: map \"%s\" doesn't exist\n", token );
+      return qfalse;
+    }
+
     Q_strncpyz( mre->name, token, sizeof( mre->name ) );
     mnSet = qtrue;
   }
@@ -327,7 +359,7 @@ static qboolean G_ParseMapRotationFile( const char *fileName )
           return qfalse;
         }
 
-        //start parsing particle systems again
+        //start parsing map rotations again
         mrNameSet = qfalse;
 
         if( mapRotations.numRotations == MAX_MAP_ROTATIONS )

@@ -1355,7 +1355,7 @@ void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 {
   gclient_t *client = other->client;
 
-  if( !self->spawned )
+  if( !self->spawned || self->health <= 0 )
     return;
 
   if( !G_FindOvermind( self ) )

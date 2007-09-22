@@ -39,8 +39,8 @@ static void CG_Obituary( entityState_t *ent )
   char          *message2;
   const char    *targetInfo;
   const char    *attackerInfo;
-  char          targetName[ 32 ];
-  char          attackerName[ 32 ];
+  char          targetName[ MAX_NAME_LENGTH ];
+  char          attackerName[ MAX_NAME_LENGTH ];
   char          className[ 64 ];
   gender_t      gender;
   clientInfo_t  *ci;
@@ -72,8 +72,7 @@ static void CG_Obituary( entityState_t *ent )
   if( !targetInfo )
     return;
 
-  Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof( targetName ) - 2 );
-  strcat( targetName, S_COLOR_WHITE );
+  Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof( targetName ));
 
   message2 = "";
 
@@ -182,7 +181,7 @@ static void CG_Obituary( entityState_t *ent )
 
   if( message )
   {
-    CG_Printf( "%s %s.\n", targetName, message );
+    CG_Printf( "%s" S_COLOR_WHITE " %s.\n", targetName, message );
     return;
   }
 
@@ -194,8 +193,7 @@ static void CG_Obituary( entityState_t *ent )
   }
   else
   {
-    Q_strncpyz( attackerName, Info_ValueForKey( attackerInfo, "n" ), sizeof( attackerName ) - 2);
-    strcat( attackerName, S_COLOR_WHITE );
+    Q_strncpyz( attackerName, Info_ValueForKey( attackerInfo, "n" ), sizeof( attackerName ));
     // check for kill messages about the current clientNum
     if( target == cg.snap->ps.clientNum )
       Q_strncpyz( cg.killerName, attackerName, sizeof( cg.killerName ) );
@@ -329,7 +327,7 @@ static void CG_Obituary( entityState_t *ent )
 
     if( message )
     {
-      CG_Printf( "%s %s %s%s%s\n",
+      CG_Printf( "%s" S_COLOR_WHITE " %s %s%s%s\n",
         targetName, message,
         ( teamKill ) ? S_COLOR_RED "TEAMMATE " S_COLOR_WHITE : "",
         attackerName, message2 );

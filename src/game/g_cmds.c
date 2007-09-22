@@ -880,7 +880,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
       break;
   }
 
-  Q_strncpyz( text, chatText, sizeof( text ) );
+  Com_sprintf( text, sizeof( text ), "%s^7", chatText );
 
   if( target )
   {
