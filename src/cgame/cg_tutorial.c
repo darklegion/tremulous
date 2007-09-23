@@ -195,30 +195,30 @@ static void CG_AlienBuilderText( char *text, playerState_t *ps )
     Q_strcat( text, MAX_TUTORIAL_TEXT,
         va( "Press %s to build a structure\n",
           CG_KeyNameForCommand( "+attack" ) ) );
+  }
 
-    if( ( es = CG_BuildableInRange( ps, NULL ) ) )
+  if( ( es = CG_BuildableInRange( ps, NULL ) ) )
+  {
+    if( cgs.markDeconstruct )
     {
-      if( cgs.markDeconstruct )
+      if( es->generic1 & B_MARKED_TOGGLEBIT )
       {
-        if( es->generic1 & B_MARKED_TOGGLEBIT )
-        {
-          Q_strcat( text, MAX_TUTORIAL_TEXT,
-              va( "Press %s to unmark this structure\n",
-                CG_KeyNameForCommand( "deconstruct" ) ) );
-        }
-        else
-        {
-          Q_strcat( text, MAX_TUTORIAL_TEXT,
-              va( "Press %s to mark this structure\n",
-                CG_KeyNameForCommand( "deconstruct" ) ) );
-        }
+        Q_strcat( text, MAX_TUTORIAL_TEXT,
+            va( "Press %s to unmark this structure\n",
+              CG_KeyNameForCommand( "deconstruct" ) ) );
       }
       else
       {
         Q_strcat( text, MAX_TUTORIAL_TEXT,
-            va( "Press %s to destroy this structure\n",
+            va( "Press %s to mark this structure\n",
               CG_KeyNameForCommand( "deconstruct" ) ) );
       }
+    }
+    else
+    {
+      Q_strcat( text, MAX_TUTORIAL_TEXT,
+          va( "Press %s to destroy this structure\n",
+            CG_KeyNameForCommand( "deconstruct" ) ) );
     }
   }
 

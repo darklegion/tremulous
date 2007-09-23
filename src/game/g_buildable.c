@@ -2533,11 +2533,37 @@ qboolean G_BuildableRange( vec3_t origin, float r, buildable_t buildable )
 
 /*
 ===============
+G_BuildablesIntersect
+
+Test if two buildables intersect each other
+===============
+*/
+static qboolean G_BuildablesIntersect( buildable_t a, vec3_t originA,
+                                       buildable_t b, vec3_t originB )
+{
+  vec3_t minsA, maxsA;
+  vec3_t minsB, maxsB;
+
+  BG_FindBBoxForBuildable( a, minsA, maxsA );
+  VectorAdd( minsA, originA, minsA );
+  VectorAdd( maxsA, originA, maxsA );
+
+  BG_FindBBoxForBuildable( b, minsB, maxsB );
+  VectorAdd( minsB, originB, minsB );
+  VectorAdd( maxsB, originB, maxsB );
+
+  return BoundsIntersect( minsA, maxsA, minsB, maxsB );
+}
+
+/*
+===============
 G_CompareBuildablesForRemoval
 
 qsort comparison function for a buildable removal list
 ===============
 */
+static buildable_t  cmpBuildable;
+static vec3_t       cmpOrigin;
 static int G_CompareBuildablesForRemoval( const void *a, const void *b )
 {
   int       precedence[ ] =
@@ -2566,14 +2592,35 @@ static int G_CompareBuildablesForRemoval( const void *a, const void *b )
   gentity_t *buildableA, *buildableB;
   int       i;
   int       aPrecedence = 0, bPrecedence = 0;
+  qboolean  aCollides = qfalse, bCollides = qfalse;
+  qboolean  aMatches = qfalse, bMatches = qfalse;
 
   buildableA = *(gentity_t **)a;
   buildableB = *(gentity_t **)b;
+
+  // Prefer the one that collides with the thing we're building
+  aCollides = G_BuildablesIntersect( cmpBuildable, cmpOrigin,
+      buildableA->s.modelindex, buildableA->s.origin );
+  bCollides = G_BuildablesIntersect( cmpBuildable, cmpOrigin,
+      buildableB->s.modelindex, buildableB->s.origin );
+  if( aCollides && !bCollides )
+    return -1;
+  else if( !aCollides && bCollides )
+    return 1;
+
+  // If one matches the thing we're building, prefer it
+  aMatches = ( buildableA->s.modelindex == cmpBuildable );
+  bMatches = ( buildableB->s.modelindex == cmpBuildable );
+  if( aMatches && !bMatches )
+    return -1;
+  else if( !aMatches && bMatches )
+    return 1;
 
   // If they're the same type then pick the one marked earliest
   if( buildableA->s.modelindex == buildableB->s.modelindex )
     return buildableA->deconstructTime - buildableB->deconstructTime;
 
+  // Resort to preference list
   for( i = 0; i < sizeof( precedence ) / sizeof( precedence[ 0 ] ); i++ )
   {
     if( buildableA->s.modelindex == precedence[ i ] )
@@ -2614,41 +2661,45 @@ void G_FreeMarkedBuildables( void )
 G_SufficientBPAvailable
 
 Determine if enough build points can be released for the buildable
-and list the buildables that much be destroyed if this is the case
+and list the buildables that must be destroyed if this is the case
 ===============
 */
-static qboolean G_SufficientBPAvailable( buildableTeam_t team,
-                                         int             buildPoints,
-                                         buildable_t     buildable )
+static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
+                                                 vec3_t          origin )
 {
-  int       i;
-  int       numBuildables = level.numBuildablesForRemoval;
-  int       pointsYielded = 0;
-  gentity_t *ent;
-  qboolean  unique = BG_FindUniqueTestForBuildable( buildable );
-  int       remainingBP, remainingSpawns;
-  int       numBuildablesInTheWay = level.numBuildablesForRemoval;
+  int               i;
+  int               numBuildables = 0;
+  int               pointsYielded = 0;
+  gentity_t         *ent;
+  buildableTeam_t   team = BG_FindTeamForBuildable( buildable );
+  int               buildPoints = BG_FindBuildPointsForBuildable( buildable );
+  int               remainingBP, remainingSpawns;
+  qboolean          collision = qfalse;
+  int               collisionCount = 0;
+  itemBuildError_t  bpError;
 
   if( team == BIT_ALIENS )
   {
     remainingBP     = level.alienBuildPoints;
     remainingSpawns = level.numAlienSpawns;
+    bpError         = IBE_NOASSERT;
   }
   else if( team == BIT_HUMANS )
   {
     remainingBP     = level.humanBuildPoints;
     remainingSpawns = level.numHumanSpawns;
+    bpError         = IBE_NOPOWER;
   }
   else
-    return qfalse;
+    Com_Error( ERR_FATAL, "team is %d\n", team );
 
   // Simple non-marking case
   if( !g_markDeconstruct.integer )
   {
     if( remainingBP - buildPoints < 0 )
-      return qfalse;
+      return bpError;
     else
-      return qtrue;
+      return IBE_NONE;
   }
 
   // Set buildPoints to the number extra that are required
@@ -2659,6 +2710,10 @@ static qboolean G_SufficientBPAvailable( buildableTeam_t team,
   // Build a list of buildable entities
   for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
+    if( ( collision = G_BuildablesIntersect( buildable, origin,
+            ent->s.modelindex, ent->s.origin ) ) )
+      collisionCount++;
+
     if( !ent->inuse )
       continue;
 
@@ -2680,42 +2735,39 @@ static qboolean G_SufficientBPAvailable( buildableTeam_t team,
     }
 
     // If it's a unique buildable, it can only be replaced by the same type
-    if( unique && ent->s.modelindex != buildable )
+    if( BG_FindUniqueTestForBuildable( ent->s.modelindex ) &&
+        ent->s.modelindex != buildable )
       continue;
 
     if( ent->deconstruct )
+    {
       level.markedBuildables[ numBuildables++ ] = ent;
+
+      // Collided with something, so we definitely have to remove it
+      // It will always end up at the front of the removal list, so
+      // incrementing numBuildablesForRemoval is sufficient
+      if( collision )
+      {
+        collisionCount--;
+        pointsYielded += BG_FindBuildPointsForBuildable( ent->s.modelindex );
+        level.numBuildablesForRemoval++;
+      }
+    }
   }
 
   // We still need build points, but have no candidates for removal
   if( buildPoints > 0 && numBuildables == 0 )
-    return qfalse;
+    return bpError;
 
-  // Sort everything that was added to the list, but leave what was already 
-  // there in the front (those buildings are blocking the new buildable)
-  qsort( level.markedBuildables + numBuildablesInTheWay,
-    numBuildables - numBuildablesInTheWay,
-    sizeof( level.markedBuildables[ 0 ] ), G_CompareBuildablesForRemoval );
+  // Collided with something we can't remove
+  if( collisionCount > 0 )
+    return IBE_NOROOM;
 
-  // if any buildings are in the way of what we're building
-  // we must force them to be deconned regardless of bp, so this won't work
-  if( numBuildablesInTheWay == 0 )
-  {
-    // Do a pass looking for a buildable of the same type that we're
-    // building and mark it (and only it) for destruction if found
-    for( i = 0; i < numBuildables; i++ )
-    {
-      ent = level.markedBuildables[ i ];
-
-      if( ent->s.modelindex == buildable )
-      {
-        // If we're removing what we're building this will always work
-        level.markedBuildables[ 0 ]   = ent;
-        level.numBuildablesForRemoval = 1;
-        return qtrue;
-      }
-    }
-  }
+  // Sort the list 
+  cmpBuildable = buildable;
+  VectorCopy( origin, cmpOrigin );
+  qsort( level.markedBuildables, numBuildables, sizeof( level.markedBuildables[ 0 ] ),
+         G_CompareBuildablesForRemoval );
 
   // Determine if there are enough markees to yield the required BP
   for( ; pointsYielded < buildPoints && level.numBuildablesForRemoval < numBuildables;
@@ -2725,20 +2777,15 @@ static qboolean G_SufficientBPAvailable( buildableTeam_t team,
     pointsYielded += BG_FindBuildPointsForBuildable( ent->s.modelindex );
   }
 
-  if( level.numBuildablesForRemoval < numBuildablesInTheWay )
-  {
-    level.numBuildablesForRemoval = numBuildablesInTheWay;
-  }
-
   // Not enough points yielded
   if( pointsYielded < buildPoints )
   {
     level.numBuildablesForRemoval = 0;
-    return qfalse;
+    return bpError;
   }
   else
   {
-    return qtrue;
+    return IBE_NONE;
   }
 }
 
@@ -2753,12 +2800,10 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
 {
   vec3_t            angles;
   vec3_t            entity_origin, normal;
-  vec3_t            mins, maxs, mins1, maxs1;
-  int               num;
-  int               entitylist[ MAX_GENTITIES ];
+  vec3_t            mins, maxs;
   trace_t           tr1, tr2, tr3;
   int               i;
-  itemBuildError_t  reason = IBE_NONE;
+  itemBuildError_t  reason = IBE_NONE, tempReason;
   gentity_t         *tempent;
   float             minNormal;
   qboolean          invert;
@@ -2769,9 +2814,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
   BG_FindBBoxForBuildable( buildable, mins, maxs );
 
   BG_PositionBuildableRelativeToPlayer( ps, mins, maxs, trap_Trace, entity_origin, angles, &tr1 );
-  VectorAdd( entity_origin, mins, mins1 );
-  VectorAdd( entity_origin, maxs, maxs1 );
-  num = trap_EntitiesInBox( mins1, maxs1, entitylist, MAX_GENTITIES );
+
   trap_Trace( &tr2, entity_origin, mins, maxs, entity_origin, ent->s.number, MASK_DEADSOLID );
   trap_Trace( &tr3, ps->origin, NULL, NULL, entity_origin, ent->s.number, MASK_DEADSOLID );
 
@@ -2795,55 +2838,6 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
   contents = trap_PointContents( entity_origin, -1 );
   buildPoints = BG_FindBuildPointsForBuildable( buildable );
 
-  //force buildings that are blocking the current building to be
-  //deconstructed before other marked buildings
-  level.numBuildablesForRemoval = 0;
-  for(i = 0; i < num; i++)
-  {
-    gentity_t *tent = &g_entities[ entitylist[ i ] ];
-    if( tent->s.eType == ET_PLAYER )
-    {
-      reason = IBE_NOROOM;
-      break;
-    }
-    else if( tent->biteam != ent->client->ps.stats[ STAT_PTEAM ] )
-    {
-      reason = IBE_NOROOM;
-    }
-    else if( tent->s.eType == ET_BUILDABLE && !tent->deconstruct )
-    {
-      reason = IBE_NOROOM;
-      break;
-    }
-    else
-    {
-      if( tent->s.modelindex == BA_H_SPAWN && level.numHumanSpawns <= 1 )
-      {
-        reason = IBE_NOROOM;
-        break;
-      }
-      else if( tent->s.modelindex == BA_A_SPAWN && level.numAlienSpawns <= 1 )
-      {
-        reason = IBE_NOROOM;
-        break;
-      }
-      else if( tent->s.modelindex == BA_H_REACTOR && buildable != BA_H_REACTOR )
-      {
-        reason = IBE_NOROOM;
-        break;
-      }
-      else if( tent->s.modelindex == BA_A_OVERMIND && buildable != BA_A_OVERMIND )
-      {
-        reason = IBE_NOROOM;
-        break;
-      }
-      level.markedBuildables[ level.numBuildablesForRemoval++ ] = tent;
-    }
-  }
-  if( reason != IBE_NONE )
-  {
-    level.numBuildablesForRemoval = 0;
-  }
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     //alien criteria
@@ -2912,21 +2906,8 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
 
           break;
         }
-        if( tempent->s.modelindex == BA_A_HOVEL &&
-            buildable == BA_A_HOVEL &&
-            tempent->active )
-        {
-          reason = IBE_HOVEL;
-        }
-        else if( tempent->s.modelindex == buildable )
-        {
-          level.markedBuildables[ level.numBuildablesForRemoval++ ] = tempent;
-        }
       }
     }
-
-    if( !G_SufficientBPAvailable( BIT_ALIENS, buildPoints, buildable ) )
-      reason = IBE_NOASSERT;
   }
   else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
@@ -2997,14 +2978,12 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
           reason = IBE_REACTOR;
           break;
         }
-        if( tempent->s.modelindex == buildable )
-          level.markedBuildables[ level.numBuildablesForRemoval++ ] = tempent;	
       }
     }
-
-    if( !G_SufficientBPAvailable( BIT_HUMANS, buildPoints, buildable ) )
-      reason = IBE_NOPOWER;
   }
+
+  if( ( tempReason = G_SufficientBPAvailable( buildable, origin ) ) != IBE_NONE )
+    reason = tempReason;
 
   //this item does not fit here
   if( reason == IBE_NONE && ( tr2.fraction < 1.0 || tr3.fraction < 1.0 ) )
@@ -3436,7 +3415,6 @@ void G_SpawnBuildable( gentity_t *ent, buildable_t buildable )
 /*
 ============
 G_LayoutSave
-
 ============
 */
 void G_LayoutSave( char *name )
@@ -3491,6 +3469,11 @@ void G_LayoutSave( char *name )
   trap_FS_FCloseFile( f );
 }
 
+/*
+============
+G_LayoutList
+============
+*/
 int G_LayoutList( const char *map, char *list, int len )
 {
   // up to 128 single character layout names could fit in layouts
@@ -3615,6 +3598,11 @@ void G_LayoutSelect( void )
   G_Printf("using layout \"%s\" from list ( %s)\n", level.layout, layouts ); 
 }
 
+/*
+============
+G_LayoutBuildItem
+============
+*/
 static void G_LayoutBuildItem( buildable_t buildable, vec3_t origin,
   vec3_t angles, vec3_t origin2, vec3_t angles2 )
 {
@@ -3696,6 +3684,11 @@ void G_LayoutLoad( void )
   }
 }
 
+/*
+============
+G_BaseSelfDestruct
+============
+*/
 void G_BaseSelfDestruct( pTeam_t team )
 {
   int       i;
