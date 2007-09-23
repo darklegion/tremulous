@@ -1208,7 +1208,7 @@ void G_UnlaggedOn( vec3_t muzzle, float range )
  the current time, but only updates other player's positions up to the
  postition sent in the most recent snapshot.
 
- This allows player X to essentially "move through" the position of player Y 
+ This allows player X to essentially "move through" the position of player Y
  when player X's cmd is processed with Pmove() on the server.  This is because
  player Y was clipping player X's Pmove() on his client, but when the same
  cmd is processed with Pmove on the server it is not clipped.
@@ -1251,7 +1251,7 @@ static void G_UnlaggedDetectCollisions( gentity_t *ent )
   trap_Trace(&tr, ent->client->oldOrigin, ent->r.mins, ent->r.maxs,
     ent->client->ps.origin, ent->s.number,  MASK_PLAYERSOLID );
   if( tr.entityNum >= 0 && tr.entityNum < MAX_CLIENTS )
-    g_entities[ tr.entityNum ].client->unlaggedCalc.used = qfalse; 
+    g_entities[ tr.entityNum ].client->unlaggedCalc.used = qfalse;
 
   G_UnlaggedOff( );
 }
@@ -1345,7 +1345,7 @@ void ClientThink_real( gentity_t *ent )
   if( !ClientInactivityTimer( client ) )
     return;
 
-  // calculate where ent is currently seeing all the other active clients 
+  // calculate where ent is currently seeing all the other active clients
   G_UnlaggedCalc( ent->client->unlaggedTime, ent );
 
   if( client->noclip )
@@ -1550,7 +1550,7 @@ void ClientThink_real( gentity_t *ent )
 
   // touch other objects
   ClientImpacts( ent, &pm );
-  
+
   // execute client events
   ClientEvents( ent, oldEventSequence );
 
@@ -1564,6 +1564,10 @@ void ClientThink_real( gentity_t *ent )
   // save results of triggers and client events
   if( ent->client->ps.eventSequence != oldEventSequence )
     ent->eventTime = level.time;
+
+  // Don't think anymore if dead
+  if( client->ps.stats[ STAT_HEALTH ] <= 0 )
+    return;
 
   // swap and latch button actions
   client->oldbuttons = client->buttons;
@@ -1656,29 +1660,6 @@ void ClientThink_real( gentity_t *ent )
     }
   }
 
-  // check for respawning
-  if( client->ps.stats[ STAT_HEALTH ] <= 0 )
-  {
-    // wait for the attack button to be pressed
-    if( level.time > client->respawnTime )
-    {
-      // forcerespawn is to prevent users from waiting out powerups
-      if( g_forcerespawn.integer > 0 &&
-        ( level.time - client->respawnTime ) > 0 )
-      {
-        respawn( ent );
-        return;
-      }
-
-      // pressing attack or use is the normal respawn method
-      if( ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) )
-      {
-        respawn( ent );
-      }
-    }
-    return;
-  }
-
   if( level.framenum > client->retriggerArmouryMenu && client->retriggerArmouryMenu )
   {
     G_TriggerMenu( client->ps.clientNum, MN_H_ARMOURY );
@@ -1703,7 +1684,7 @@ void ClientThink_real( gentity_t *ent )
 
   // perform once-a-second actions
   ClientTimerActions( ent, msec );
-  
+
   if( ent->suicideTime > 0 && ent->suicideTime < level.time )
   {
     ent->flags &= ~FL_GODMODE;
@@ -1820,6 +1801,10 @@ void ClientEndFrame( gentity_t *ent )
     ent->s.eFlags &= ~EF_CONNECTION;
 
   ent->client->ps.stats[ STAT_HEALTH ] = ent->health; // FIXME: get rid of ent->health...
+
+  // respawn if dead
+  if( ent->client->ps.stats[ STAT_HEALTH ] <= 0 && level.time >= ent->client->respawnTime )
+    respawn( ent );
 
   G_SetClientSound( ent );
 

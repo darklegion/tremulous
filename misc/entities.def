@@ -1022,7 +1022,7 @@ TARGET_* ENTITIES
 When triggered, this hurts the entity that caused the trigger.
 
 -------- KEYS --------
-damage: amount of damage to deal (default: 5)
+dmg: amount of damage to deal (default: 5)
 */
 
 /*QUAKED target_rumble (1 0 0) (-8 -8 -8) (8 8 8)

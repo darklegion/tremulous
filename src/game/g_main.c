@@ -57,7 +57,6 @@ vmCvar_t  g_gravity;
 vmCvar_t  g_cheats;
 vmCvar_t  g_knockback;
 vmCvar_t  g_quadfactor;
-vmCvar_t  g_forcerespawn;
 vmCvar_t  g_inactivity;
 vmCvar_t  g_debugMove;
 vmCvar_t  g_debugDamage;
@@ -185,7 +184,6 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_quadfactor, "g_quadfactor", "3", 0, 0, qtrue  },
   { &g_weaponRespawn, "g_weaponrespawn", "5", 0, 0, qtrue  },
   { &g_weaponTeamRespawn, "g_weaponTeamRespawn", "30", 0, 0, qtrue },
-  { &g_forcerespawn, "g_forcerespawn", "20", 0, 0, qtrue },
   { &g_inactivity, "g_inactivity", "0", 0, 0, qtrue },
   { &g_debugMove, "g_debugMove", "0", 0, 0, qfalse },
   { &g_debugDamage, "g_debugDamage", "0", 0, 0, qfalse },
