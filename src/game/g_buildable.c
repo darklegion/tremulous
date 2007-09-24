@@ -2434,6 +2434,7 @@ void G_BuildableThink( gentity_t *ent, int msec )
   int bHealth = BG_FindHealthForBuildable( ent->s.modelindex );
   int bRegen = BG_FindRegenRateForBuildable( ent->s.modelindex );
   int bTime = BG_FindBuildTimeForBuildable( ent->s.modelindex );
+  int i;
 
   //pack health, power and dcc
 
@@ -2460,6 +2461,15 @@ void G_BuildableThink( gentity_t *ent, int msec )
 
   if( ent->deconstruct )
     ent->s.generic1 |= B_MARKED_TOGGLEBIT;
+
+  for( i = 0; i < level.numBuildablesForRemoval; i++ )
+  {
+    if( ent->s.number == level.markedBuildables[ i ]->s.number )
+    {
+      ent->s.generic1 |= B_REMOVED_TOGGLEBIT;
+      break;
+    }
+  }
 
   ent->time1000 += msec;
 

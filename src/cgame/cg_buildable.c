@@ -736,7 +736,11 @@ static void CG_BuildableParticleEffects( centity_t *cent )
   }
 }
 
-
+/*
+==================
+CG_BuildableStatusParse
+==================
+*/
 void CG_BuildableStatusParse( const char *filename, buildStat_t *bs )
 {
   pc_token_t token;
@@ -907,14 +911,14 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
 
   if( !bs->loaded )
     return;
-  
+
   d = Distance( cent->lerpOrigin, cg.refdef.vieworg );
   if( d > STATUS_MAX_VIEW_DIST )
     return;
- 
+
   Vector4Copy( bs->foreColor, color );
 
-  // trace for center point 
+  // trace for center point
   BG_FindBBoxForBuildable( es->modelindex, mins, maxs );
 
   VectorCopy( cent->lerpOrigin, origin );
@@ -1073,7 +1077,7 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
 
       healthColor[ 3 ] = color[ 3 ];
       trap_R_SetColor( healthColor );
-     
+
       CG_DrawPic( hX, hY, hW, hH, cgs.media.whiteShader );
       trap_R_SetColor( NULL );
     }
@@ -1089,7 +1093,7 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
       oW *= scale;
       oX -= ( oW * 0.5f );
       oY -= ( oH * 0.5f );
- 
+
       trap_R_SetColor( frameColor );
       CG_DrawPic( oX, oY, oW, oH, bs->overlayShader );
       trap_R_SetColor( NULL );
@@ -1121,8 +1125,8 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
       healthPoints = (int)( healthScale * healthMax );
       if( health > 0 && healthPoints < 1 )
         healthPoints = 1;
-      nX = picX + ( picW * 0.5f ) - 2.0f - ( ( subH * 4 ) * 0.5f ); 
-       
+      nX = picX + ( picW * 0.5f ) - 2.0f - ( ( subH * 4 ) * 0.5f );
+
       if( healthPoints > 999 )
         nX -= 0.0f;
       else if( healthPoints > 99 )
@@ -1131,14 +1135,19 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
         nX -= subH * 1.0f;
       else
         nX -= subH * 1.5f;
-     
+
       CG_DrawField( nX, subY, 4, subH, subH, healthPoints );
     }
     trap_R_SetColor( NULL );
   }
 }
 
-static int QDECL CG_SortDistance( const void *a, const void *b )
+/*
+==================
+CG_SortDistance
+==================
+*/
+static int CG_SortDistance( const void *a, const void *b )
 {
   centity_t    *aent, *bent;
   float        adist, bdist;
@@ -1157,6 +1166,26 @@ static int QDECL CG_SortDistance( const void *a, const void *b )
 
 /*
 ==================
+CG_PlayerIsBuilder
+==================
+*/
+static qboolean CG_PlayerIsBuilder( void )
+{
+  switch( cg.predictedPlayerState.weapon )
+  {
+    case WP_ABUILD:
+    case WP_ABUILD2:
+    case WP_HBUILD:
+    case WP_HBUILD2:
+      return qtrue;
+
+    default:
+      return qfalse;
+  }
+}
+
+/*
+==================
 CG_DrawBuildableStatus
 ==================
 */
@@ -1168,29 +1197,21 @@ void CG_DrawBuildableStatus( void )
   int             buildableList[ MAX_ENTITIES_IN_SNAPSHOT ];
   int             buildables = 0;
 
-  switch( cg.predictedPlayerState.weapon )
+  if( CG_PlayerIsBuilder( ) )
   {
-    case WP_ABUILD:
-    case WP_ABUILD2:
-    case WP_HBUILD:
-    case WP_HBUILD2:
-      for( i = 0; i < cg.snap->numEntities; i++ )
-      {
-        cent  = &cg_entities[ cg.snap->entities[ i ].number ];
-        es    = &cent->currentState;
+    for( i = 0; i < cg.snap->numEntities; i++ )
+    {
+      cent  = &cg_entities[ cg.snap->entities[ i ].number ];
+      es    = &cent->currentState;
 
-        if( es->eType == ET_BUILDABLE &&
-            BG_FindTeamForBuildable( es->modelindex ) ==
-            BG_FindTeamForWeapon( cg.predictedPlayerState.weapon ) )
-          buildableList[ buildables++ ] = cg.snap->entities[ i ].number;
-      }
-      qsort( buildableList, buildables, sizeof( int ), CG_SortDistance );
-      for( i = 0; i < buildables; i++ )
-          CG_BuildableStatusDisplay( &cg_entities[ buildableList[ i ] ] );
-      break;
-
-    default:
-      break;
+      if( es->eType == ET_BUILDABLE &&
+          BG_FindTeamForBuildable( es->modelindex ) ==
+          BG_FindTeamForWeapon( cg.predictedPlayerState.weapon ) )
+        buildableList[ buildables++ ] = cg.snap->entities[ i ].number;
+    }
+    qsort( buildableList, buildables, sizeof( int ), CG_SortDistance );
+    for( i = 0; i < buildables; i++ )
+      CG_BuildableStatusDisplay( &cg_entities[ buildableList[ i ] ] );
   }
 }
 
@@ -1281,6 +1302,8 @@ void CG_Buildable( centity_t *cent )
   else
     ent.nonNormalizedAxes = qfalse;
 
+  if( CG_PlayerIsBuilder( ) && ( es->generic1 & B_REMOVED_TOGGLEBIT ) )
+    ent.customShader = cgs.media.redBuildShader;
 
   //add to refresh list
   trap_R_AddRefEntityToScene( &ent );
@@ -1324,6 +1347,9 @@ void CG_Buildable( centity_t *cent )
     else
       turretBarrel.nonNormalizedAxes = qfalse;
 
+    if( CG_PlayerIsBuilder( ) && ( es->generic1 & B_REMOVED_TOGGLEBIT ) )
+      turretBarrel.customShader = cgs.media.redBuildShader;
+
     trap_R_AddRefEntityToScene( &turretBarrel );
   }
 
@@ -1365,6 +1391,9 @@ void CG_Buildable( centity_t *cent )
     }
     else
       turretTop.nonNormalizedAxes = qfalse;
+
+    if( CG_PlayerIsBuilder( ) && ( es->generic1 & B_REMOVED_TOGGLEBIT ) )
+      turretTop.customShader = cgs.media.redBuildShader;
 
     trap_R_AddRefEntityToScene( &turretTop );
   }
