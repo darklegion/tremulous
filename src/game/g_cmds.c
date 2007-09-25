@@ -96,7 +96,7 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
 
     cl = &level.clients[ idnum ];
 
-    if( cl->pers.connected != CON_CONNECTED )
+    if( cl->pers.connected == CON_DISCONNECTED )
       return -1;
 
     return idnum;
@@ -107,7 +107,7 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
 
   for( idnum = 0, cl = level.clients; idnum < level.maxclients; idnum++, cl++ )
   {
-    if( cl->pers.connected != CON_CONNECTED )
+    if( cl->pers.connected == CON_DISCONNECTED )
       continue;
 
     G_SanitiseName( cl->pers.netname, n2 );
