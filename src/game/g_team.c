@@ -195,10 +195,9 @@ void TeamplayInfoMessage( gentity_t *ent )
         h = 0;
 
       Com_sprintf( entry, sizeof( entry ),
-        " %i %i %i %i %i %i",
-//        level.sortedClients[i], player->client->pers.teamState.location, h, a,
+        " %i %i %i %i %i",
         i, player->client->pers.teamState.location, h, a,
-        player->client->ps.weapon, player->s.misc );
+        player->client->ps.weapon );
 
       j = strlen( entry );
 

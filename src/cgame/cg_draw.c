@@ -284,7 +284,7 @@ void CG_Text_Paint( float x, float y, float scale, vec4_t color, const char *tex
 ==============
 CG_DrawFieldPadded
 
-Draws large numbers for status bar and powerups
+Draws large numbers for status bar
 ==============
 */
 static void CG_DrawFieldPadded( int x, int y, int width, int cw, int ch, int value )
@@ -364,7 +364,7 @@ static void CG_DrawFieldPadded( int x, int y, int width, int cw, int ch, int val
 ==============
 CG_DrawField
 
-Draws large numbers for status bar and powerups
+Draws large numbers for status bar
 ==============
 */
 void CG_DrawField( float x, float y, int width, float cw, float ch, int value )

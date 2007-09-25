@@ -65,7 +65,6 @@ static void CG_ParseScores( void )
       cg.scores[ i ].client = 0;
 
     cgs.clientinfo[ cg.scores[ i ].client ].score = cg.scores[ i ].score;
-    cgs.clientinfo[ cg.scores[ i ].client ].powerups = 0;
 
     cg.scores[ i ].team = cgs.clientinfo[ cg.scores[ i ].client ].team;
   }
@@ -86,15 +85,14 @@ static void CG_ParseTeamInfo( void )
 
   for( i = 0; i < numSortedTeamPlayers; i++ )
   {
-    client = atoi( CG_Argv( i * 6 + 2 ) );
+    client = atoi( CG_Argv( i * 5 + 2 ) );
 
     sortedTeamPlayers[ i ] = client;
 
-    cgs.clientinfo[ client ].location = atoi( CG_Argv( i * 6 + 3 ) );
-    cgs.clientinfo[ client ].health = atoi( CG_Argv( i * 6 + 4 ) );
-    cgs.clientinfo[ client ].armor = atoi( CG_Argv( i * 6 + 5 ) );
-    cgs.clientinfo[ client ].curWeapon = atoi( CG_Argv( i * 6 + 6 ) );
-    cgs.clientinfo[ client ].powerups = atoi( CG_Argv( i * 6 + 7 ) );
+    cgs.clientinfo[ client ].location = atoi( CG_Argv( i * 5 + 3 ) );
+    cgs.clientinfo[ client ].health = atoi( CG_Argv( i * 5 + 4 ) );
+    cgs.clientinfo[ client ].armor = atoi( CG_Argv( i * 5 + 5 ) );
+    cgs.clientinfo[ client ].curWeapon = atoi( CG_Argv( i * 5 + 6 ) );
   }
 }
 

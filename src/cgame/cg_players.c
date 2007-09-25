@@ -2379,7 +2379,6 @@ void CG_Corpse( centity_t *cent )
     legs.nonNormalizedAxes = qtrue;
   }
 
-  //CG_AddRefEntityWithPowerups( &legs, es->misc, ci->team );
   trap_R_AddRefEntityToScene( &legs );
 
   // if the model failed, allow the default nullmodel to be displayed
@@ -2404,7 +2403,6 @@ void CG_Corpse( centity_t *cent )
     torso.shadowPlane = shadowPlane;
     torso.renderfx = renderfx;
 
-    //CG_AddRefEntityWithPowerups( &torso, es->misc, ci->team );
     trap_R_AddRefEntityToScene( &torso );
 
     //
@@ -2423,7 +2421,6 @@ void CG_Corpse( centity_t *cent )
     head.shadowPlane = shadowPlane;
     head.renderfx = renderfx;
 
-    //CG_AddRefEntityWithPowerups( &head, es->misc, ci->team );
     trap_R_AddRefEntityToScene( &head );
   }
 }

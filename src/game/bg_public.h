@@ -295,24 +295,6 @@ typedef enum
 
 typedef enum
 {
-  PW_NONE,
-
-  PW_QUAD,
-  PW_BATTLESUIT,
-  PW_HASTE,
-  PW_INVIS,
-  PW_REGEN,
-  PW_FLIGHT,
-
-  PW_REDFLAG,
-  PW_BLUEFLAG,
-  PW_BALL,
-
-  PW_NUM_POWERUPS
-} powerup_t;
-
-typedef enum
-{
   HI_NONE,
 
   HI_TELEPORTER,
