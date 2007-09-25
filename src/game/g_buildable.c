@@ -2434,7 +2434,6 @@ void G_BuildableThink( gentity_t *ent, int msec )
   int bHealth = BG_FindHealthForBuildable( ent->s.modelindex );
   int bRegen = BG_FindRegenRateForBuildable( ent->s.modelindex );
   int bTime = BG_FindBuildTimeForBuildable( ent->s.modelindex );
-  int i;
 
   //pack health, power and dcc
 
@@ -2696,7 +2695,10 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     spawn           = BA_H_SPAWN;
   }
   else
+  {
     Com_Error( ERR_FATAL, "team is %d\n", team );
+    return IBE_NONE;
+  }
 
   // Simple non-marking case
   if( !g_markDeconstruct.integer )
