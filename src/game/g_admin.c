@@ -699,7 +699,7 @@ static void admin_log( gentity_t *admin, char *cmd, int skiparg )
   if( G_SayArgc() > 1 + skiparg )
   {
     G_SayArgv( 1 + skiparg, name, sizeof( name ) );
-    if( G_ClientNumbersFromString( name, pids ) == 1 )
+    if( G_ClientNumbersFromString( name, pids, MAX_CLIENTS ) == 1 )
     {
       victim = &g_entities[ pids[ 0 ] ];
     }
@@ -1603,7 +1603,7 @@ static qboolean admin_create_ban( gentity_t *ent,
 
 qboolean G_admin_kick( gentity_t *ent, int skiparg )
 {
-  int pids[ MAX_CLIENTS ];
+  int pids[ MAX_CLIENTS ], found;
   char name[ MAX_NAME_LENGTH ], *reason, err[ MAX_STRING_CHARS ];
   int minargc;
   gentity_t *vic;
@@ -1619,9 +1619,9 @@ qboolean G_admin_kick( gentity_t *ent, int skiparg )
   }
   G_SayArgv( 1 + skiparg, name, sizeof( name ) );
   reason = G_SayConcatArgs( 2 + skiparg );
-  if( G_ClientNumbersFromString( name, pids ) != 1 )
+  if( ( found = G_ClientNumbersFromString( name, pids, MAX_CLIENTS ) ) != 1 )
   {
-    G_MatchOnePlayer( pids, err, sizeof( err ) );
+    G_MatchOnePlayer( pids, found, err, sizeof( err ) );
     ADMP( va( "^3!kick: ^7%s\n", err ) );
     return qfalse;
   }
@@ -1902,7 +1902,7 @@ qboolean G_admin_unban( gentity_t *ent, int skiparg )
 
 qboolean G_admin_putteam( gentity_t *ent, int skiparg )
 {
-  int pids[ MAX_CLIENTS ];
+  int pids[ MAX_CLIENTS ], found;
   char name[ MAX_NAME_LENGTH ], team[ 7 ], err[ MAX_STRING_CHARS ];
   gentity_t *vic;
   pTeam_t teamnum = PTE_NONE;
@@ -1916,9 +1916,9 @@ qboolean G_admin_putteam( gentity_t *ent, int skiparg )
     return qfalse;
   }
 
-  if( G_ClientNumbersFromString( name, pids ) != 1 )
+  if( ( found = G_ClientNumbersFromString( name, pids, MAX_CLIENTS ) ) != 1 )
   {
-    G_MatchOnePlayer( pids, err, sizeof( err ) );
+    G_MatchOnePlayer( pids, found, err, sizeof( err ) );
     ADMP( va( "^3!putteam: ^7%s\n", err ) );
     return qfalse;
   }
@@ -2001,7 +2001,7 @@ qboolean G_admin_map( gentity_t *ent, int skiparg )
 
 qboolean G_admin_mute( gentity_t *ent, int skiparg )
 {
-  int pids[ MAX_CLIENTS ];
+  int pids[ MAX_CLIENTS ], found;
   char name[ MAX_NAME_LENGTH ], err[ MAX_STRING_CHARS ];
   char command[ MAX_ADMIN_CMD_LEN ], *cmd;
   gentity_t *vic;
@@ -2016,9 +2016,9 @@ qboolean G_admin_mute( gentity_t *ent, int skiparg )
   if( cmd && *cmd == '!' )
     cmd++;
   G_SayArgv( 1 + skiparg, name, sizeof( name ) );
-  if( G_ClientNumbersFromString( name, pids ) != 1 )
+  if( ( found = G_ClientNumbersFromString( name, pids, MAX_CLIENTS ) ) != 1 )
   {
-    G_MatchOnePlayer( pids, err, sizeof( err ) );
+    G_MatchOnePlayer( pids, found, err, sizeof( err ) );
     ADMP( va( "^3!mute: ^7%s\n", err ) );
     return qfalse;
   }
@@ -2061,7 +2061,7 @@ qboolean G_admin_mute( gentity_t *ent, int skiparg )
 
 qboolean G_admin_denybuild( gentity_t *ent, int skiparg )
 {
-  int pids[ MAX_CLIENTS ];
+  int pids[ MAX_CLIENTS ], found;
   char name[ MAX_NAME_LENGTH ], err[ MAX_STRING_CHARS ];
   char command[ MAX_ADMIN_CMD_LEN ], *cmd;
   gentity_t *vic;
@@ -2076,9 +2076,9 @@ qboolean G_admin_denybuild( gentity_t *ent, int skiparg )
     return qfalse;
   }
   G_SayArgv( 1 + skiparg, name, sizeof( name ) );
-  if( G_ClientNumbersFromString( name, pids ) != 1 )
+  if( ( found = G_ClientNumbersFromString( name, pids, MAX_CLIENTS ) ) != 1 )
   {
-    G_MatchOnePlayer( pids, err, sizeof( err ) );
+    G_MatchOnePlayer( pids, found, err, sizeof( err ) );
     ADMP( va( "^3!%s: ^7%s\n", cmd, err ) );
     return qfalse;
   }
@@ -2725,7 +2725,7 @@ qboolean G_admin_spec999( gentity_t *ent, int skiparg )
 
 qboolean G_admin_rename( gentity_t *ent, int skiparg )
 {
-  int pids[ MAX_CLIENTS ];
+  int pids[ MAX_CLIENTS ], found;
   char name[ MAX_NAME_LENGTH ];
   char newname[ MAX_NAME_LENGTH ];
   char oldname[ MAX_NAME_LENGTH ];
@@ -2742,9 +2742,9 @@ qboolean G_admin_rename( gentity_t *ent, int skiparg )
   G_SayArgv( 1 + skiparg, name, sizeof( name ) );
   s = G_SayConcatArgs( 2 + skiparg );
   Q_strncpyz( newname, s, sizeof( newname ) );
-  if( G_ClientNumbersFromString( name, pids ) != 1 )
+  if( ( found = G_ClientNumbersFromString( name, pids, MAX_CLIENTS ) ) != 1 )
   {
-    G_MatchOnePlayer( pids, err, sizeof( err ) );
+    G_MatchOnePlayer( pids, found, err, sizeof( err ) );
     ADMP( va( "^3!rename: ^7%s\n", err ) );
     return qfalse;
   }

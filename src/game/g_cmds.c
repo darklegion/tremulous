@@ -126,41 +126,36 @@ G_MatchOnePlayer
 
 This is a companion function to G_ClientNumbersFromString()
 
-returns qtrue if the int array plist only has one client id, false otherwise
-In the case of false, err will be populated with an error message.
+err will be populated with an error message.
 ==================
 */
-qboolean G_MatchOnePlayer( int *plist, char *err, int len )
+void G_MatchOnePlayer( int *plist, int num, char *err, int len )
 {
   gclient_t *cl;
-  int *p;
+  int i;
   char line[ MAX_NAME_LENGTH + 10 ] = {""};
 
   err[ 0 ] = '\0';
-  if( plist[ 0 ] == -1 )
+  if( num == 0 )
   {
     Q_strcat( err, len, "no connected player by that name or slot #" );
-    return qfalse;
   }
-  if( plist[ 1 ] != -1 )
+  else if( num > 1 )
   {
     Q_strcat( err, len, "more than one player name matches. "
             "be more specific or use the slot #:\n" );
-    for( p = plist; *p != -1; p++ )
+    for( i = 0; i < num; i++ )
     {
-      cl = &level.clients[ *p ];
-      if( cl->pers.connected == CON_CONNECTED )
-      {
-        Com_sprintf( line, sizeof( line ), "%2i - %s^7\n",
-          *p, cl->pers.netname );
-        if( strlen( err ) + strlen( line ) > len )
-          break;
-        Q_strcat( err, len, line );
-      }
+      cl = &level.clients[ plist[ i ] ];
+      if( cl->pers.connected == CON_DISCONNECTED )
+        continue;
+      Com_sprintf( line, sizeof( line ), "%2i - %s^7\n",
+        plist[ i ], cl->pers.netname );
+      if( strlen( err ) + strlen( line ) > len )
+        break;
+      Q_strcat( err, len, line );
     }
-    return qfalse;
   }
-  return qtrue;
 }
 
 /*
@@ -168,40 +163,29 @@ qboolean G_MatchOnePlayer( int *plist, char *err, int len )
 G_ClientNumbersFromString
 
 Sets plist to an array of integers that represent client numbers that have
-names that are a partial match for s. List is terminated by a -1.
+names that are a partial match for s.
 
-Returns number of matching clientids.
+Returns number of matching clientids up to max.
 ==================
 */
-int G_ClientNumbersFromString( char *s, int *plist )
+int G_ClientNumbersFromString( char *s, int *plist, int max )
 {
   gclient_t *p;
   int i, found = 0;
-  char n2[ MAX_NAME_LENGTH ] = {""}; 
-  char s2[ MAX_NAME_LENGTH ] = {""}; 
-  qboolean is_slot = qtrue;
-
-  *plist = -1;
+  char n2[ MAX_NAME_LENGTH ] = {""};
+  char s2[ MAX_NAME_LENGTH ] = {""};
 
   // if a number is provided, it might be a slot #
-  for( i = 0; i < (int)strlen( s ); i++ )
+  for( i = 0; s[ i ] && isdigit( s[ i ] ); i++ );
+  if( !s[ i ] )
   {
-    if( s[i] < '0' || s[i] > '9' )
-    {
-      is_slot = qfalse;
-      break;
-    }
-  }
-
-  if( is_slot ) {
     i = atoi( s );
-    if( i >= 0 && i < level.maxclients ) {
+    if( i >= 0 && i < level.maxclients )
+    {
       p = &level.clients[ i ];
-      if( p->pers.connected == CON_CONNECTED ||
-        p->pers.connected == CON_CONNECTING ) 
+      if( p->pers.connected != CON_DISCONNECTED )
       {
-        *plist++ = i;
-        *plist = -1;
+        *plist = i;
         return 1;
       }
     }
@@ -213,11 +197,10 @@ int G_ClientNumbersFromString( char *s, int *plist )
   G_SanitiseName( s, s2 );
   if( strlen( s2 ) < 1 )
     return 0;
-  for( i = 0; i < level.maxclients; i++ )
+  for( i = 0; i < level.maxclients && found <= max; i++ )
   {
     p = &level.clients[ i ];
-    if(p->pers.connected != CON_CONNECTED
-      && p->pers.connected != CON_CONNECTING)
+    if( p->pers.connected == CON_DISCONNECTED )
     {
       continue;
     }
@@ -228,7 +211,6 @@ int G_ClientNumbersFromString( char *s, int *plist )
       found++;
     }
   }
-  *plist = -1;
   return found;
 }
 
@@ -676,6 +658,14 @@ void Cmd_Team_f( gentity_t *ent )
 
   if( !Q_stricmp( s, "spectate" ) )
     team = PTE_NONE;
+  else if( !force && oldteam == PTE_NONE && g_maxGameClients.integer &&
+           level.numPlayingClients >= g_maxGameClients.integer )
+  {
+    trap_SendServerCommand( ent-g_entities, va( "print \"The maximum number of "
+      "playing clients has been reached (g_maxGameClients = %d)\n\"",
+      g_maxGameClients.integer ) );
+    return;
+  }
   else if( !Q_stricmp( s, "aliens" ) )
   {
     if( level.alienTeamLocked )
@@ -1051,7 +1041,7 @@ void Cmd_CallVote_f( gentity_t *ent )
       return;
     }
 
-    if( G_ClientNumbersFromString( arg2, clientNums ) == 1 )
+    if( G_ClientNumbersFromString( arg2, clientNums, MAX_CLIENTS ) == 1 )
     {
       // there was only one partial name match
       clientNum = clientNums[ 0 ]; 
@@ -1281,7 +1271,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
       return;
     }
 
-    if( G_ClientNumbersFromString( arg2, clientNums ) == 1 )
+    if( G_ClientNumbersFromString( arg2, clientNums, MAX_CLIENTS ) == 1 )
     {
       // there was only one partial name match
       clientNum = clientNums[ 0 ]; 
@@ -1393,15 +1383,8 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   }
   ent->client->pers.voteCount++;
 
-  for( i = 0 ; i < level.maxclients ; i++ )
-  {
-    if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
-      continue;
-
-    if( level.clients[ i ].ps.stats[ STAT_PTEAM ] == team )
-      trap_SendServerCommand( i, va("print \"%s " S_COLOR_WHITE
-            "called a team vote\n\"", ent->client->pers.netname ) );
-  }
+  G_TeamCommand( team, va( "print \"%s " S_COLOR_WHITE "called a team vote\n\"",
+    ent->client->pers.netname ) );
 
   // start the voting, the caller autoamtically votes yes
   level.teamVoteTime[ cs_offset ] = level.time;
@@ -2593,7 +2576,7 @@ void Cmd_Follow_f( gentity_t *ent )
            ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
   {
     trap_Argv( 1, arg, sizeof( arg ) );
-    if( G_ClientNumbersFromString( arg, pids ) == 1 )
+    if( G_ClientNumbersFromString( arg, pids, MAX_CLIENTS ) == 1 )
     {
       i = pids[ 0 ];
     }
@@ -2758,7 +2741,7 @@ static void Cmd_Ignore_f( gentity_t *ent )
   }
 
   Q_strncpyz( name, ConcatArgs( 1 ), sizeof( name ) );
-  matches = G_ClientNumbersFromString( name, pids ); 
+  matches = G_ClientNumbersFromString( name, pids, MAX_CLIENTS ); 
   if( matches < 1 )
   {
     trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
@@ -3102,7 +3085,7 @@ void G_PrivateMessage( gentity_t *ent )
 
   G_SayArgv( 1+skipargs, name, sizeof( name ) );
   msg = G_SayConcatArgs( 2+skipargs );
-  pcount = G_ClientNumbersFromString( name, pids );
+  pcount = G_ClientNumbersFromString( name, pids, MAX_CLIENTS );
 
   if( ent )
   {

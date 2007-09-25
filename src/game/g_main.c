@@ -148,9 +148,10 @@ static cvarTable_t   gameCvarTable[ ] =
   // latched vars
 
   { &g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
-  { &g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
 
   // change anytime vars
+  { &g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse  },
+
   { &g_timelimit, "timelimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
   { &g_suddenDeathTime, "g_suddenDeathTime", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
@@ -2106,21 +2107,20 @@ void CheckTeamVote( int team )
 
   if( level.time - level.teamVoteTime[ cs_offset ] >= VOTE_TIME )
   {
-    trap_SendServerCommand( -1, "print \"Team vote failed\n\"" );
+    G_TeamCommand( team, "print \"Team vote failed\n\"" );
   }
   else
   {
     if( level.teamVoteYes[ cs_offset ] > level.numteamVotingClients[ cs_offset ] / 2 )
     {
       // execute the command, then remove the vote
-      trap_SendServerCommand( -1, "print \"Team vote passed\n\"" );
-      //
+      G_TeamCommand( team, "print \"Team vote passed\n\"" );
       trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.teamVoteString[ cs_offset ] ) );
     }
     else if( level.teamVoteNo[ cs_offset ] >= level.numteamVotingClients[ cs_offset ] / 2 )
     {
       // same behavior as a timeout
-      trap_SendServerCommand( -1, "print \"Team vote failed\n\"" );
+      G_TeamCommand( team, "print \"Team vote failed\n\"" );
     }
     else
     {
