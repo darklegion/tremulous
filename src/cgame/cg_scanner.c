@@ -82,7 +82,7 @@ void CG_UpdateEntityPositions( void )
     }
     else if( cent->currentState.eType == ET_PLAYER )
     {
-      int team = cent->currentState.powerups & 0x00FF;
+      int team = cent->currentState.misc & 0x00FF;
 
       if( team == PTE_ALIENS )
       {

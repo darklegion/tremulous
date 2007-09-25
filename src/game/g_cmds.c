@@ -52,7 +52,7 @@ void G_SanitiseName( char *in, char *out )
       spaces = 0;
       skip = qfalse;
     }
-    
+
     if( *in == 27 || *in == '^' )
     {
       in += 2;    // skip color code
@@ -67,7 +67,7 @@ void G_SanitiseName( char *in, char *out )
 
     *out++ = tolower( *in++ );
   }
-  out -= spaces; 
+  out -= spaces;
   *out = 0;
 }
 
@@ -380,7 +380,8 @@ void Cmd_Give_f( gentity_t *ent )
         BG_InventoryContainsUpgrade( UP_BATTPACK, client->ps.stats ) )
       maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
 
-    BG_PackAmmoArray( client->ps.weapon, client->ps.ammo, client->ps.powerups, maxAmmo, maxClips );
+    client->ps.ammo = maxAmmo;
+    client->ps.clips = maxClips;
   }
 }
 
@@ -2052,8 +2053,8 @@ void Cmd_Buy_f( gentity_t *ent )
         BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
       maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
 
-    BG_PackAmmoArray( weapon, ent->client->ps.ammo, ent->client->ps.powerups,
-                      maxAmmo, maxClips );
+    ent->client->ps.ammo = maxAmmo;
+    ent->client->ps.clips = maxClips;
 
     G_ForceWeaponChange( ent, weapon );
 
@@ -2305,7 +2306,8 @@ void Cmd_Sell_f( gentity_t *ent )
                 BG_FindUsesEnergyForWeapon( j ) &&
                 !BG_FindInfinteAmmoForWeapon( j ) )
             {
-              BG_PackAmmoArray( j, ent->client->ps.ammo, ent->client->ps.powerups, 0, 0 );
+              ent->client->ps.ammo = 0;
+              ent->client->ps.clips = 0;
             }
           }
         }

@@ -823,7 +823,7 @@ netField_t	entityStateFields[] =
 { NETF(origin[1]), 0 },
 { NETF(origin[2]), 0 },
 { NETF(solid), 24 },
-{ NETF(powerups), MAX_POWERUPS },
+{ NETF(misc), MAX_MISC },
 { NETF(modelindex), 8 },
 { NETF(otherEntityNum2), GENTITYNUM_BITS },
 { NETF(loopSound), 8 },
@@ -1143,6 +1143,8 @@ netField_t	playerStateFields[] =
 { PSF(damageYaw), 8 },
 { PSF(damagePitch), 8 },
 { PSF(damageCount), 8 },
+{ PSF(ammo), 12 },
+{ PSF(clips), 4 },
 { PSF(generic1), 16 },
 { PSF(pm_type), 8 },					
 { PSF(delta_angles[0]), 16 },
@@ -1171,8 +1173,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	playerState_t	dummy;
 	int				statsbits;
 	int				persistantbits;
-	int				ammobits;
-	int				powerupbits;
+	int				miscbits;
 	int				numFields;
 	int				c;
 	netField_t		*field;
@@ -1252,20 +1253,14 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 			persistantbits |= 1<<i;
 		}
 	}
-	ammobits = 0;
-	for (i=0 ; i<MAX_WEAPONS ; i++) {
-		if (to->ammo[i] != from->ammo[i]) {
-			ammobits |= 1<<i;
-		}
-	}
-	powerupbits = 0;
-	for (i=0 ; i<MAX_POWERUPS ; i++) {
-		if (to->powerups[i] != from->powerups[i]) {
-			powerupbits |= 1<<i;
+	miscbits = 0;
+	for (i=0 ; i<MAX_MISC ; i++) {
+		if (to->misc[i] != from->misc[i]) {
+			miscbits |= 1<<i;
 		}
 	}
 
-	if (!statsbits && !persistantbits && !ammobits && !powerupbits) {
+	if (!statsbits && !persistantbits && !miscbits) {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 		oldsize += 4;
 		return;
@@ -1294,23 +1289,12 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	}
 
 
-	if ( ammobits ) {
+	if ( miscbits ) {
 		MSG_WriteBits( msg, 1, 1 );	// changed
-		MSG_WriteBits( msg, ammobits, MAX_WEAPONS );
-		for (i=0 ; i<MAX_WEAPONS ; i++)
-			if (ammobits & (1<<i) )
-				MSG_WriteShort (msg, to->ammo[i]);
-	} else {
-		MSG_WriteBits( msg, 0, 1 );	// no change
-	}
-
-
-	if ( powerupbits ) {
-		MSG_WriteBits( msg, 1, 1 );	// changed
-		MSG_WriteBits( msg, powerupbits, MAX_POWERUPS );
-		for (i=0 ; i<MAX_POWERUPS ; i++)
-			if (powerupbits & (1<<i) )
-				MSG_WriteLong( msg, to->powerups[i] );
+		MSG_WriteBits( msg, miscbits, MAX_MISC );
+		for (i=0 ; i<MAX_MISC ; i++)
+			if (miscbits & (1<<i) )
+				MSG_WriteLong( msg, to->misc[i] );
 	} else {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 	}
@@ -1424,24 +1408,13 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 			}
 		}
 
-		// parse ammo
+		// parse misc data
 		if ( MSG_ReadBits( msg, 1 ) ) {
-			LOG("PS_AMMO");
-			bits = MSG_ReadBits (msg, MAX_WEAPONS);
-			for (i=0 ; i<MAX_WEAPONS ; i++) {
+			LOG("PS_MISC");
+			bits = MSG_ReadBits (msg, MAX_MISC);
+			for (i=0 ; i<MAX_MISC ; i++) {
 				if (bits & (1<<i) ) {
-					to->ammo[i] = MSG_ReadShort(msg);
-				}
-			}
-		}
-
-		// parse powerups
-		if ( MSG_ReadBits( msg, 1 ) ) {
-			LOG("PS_POWERUPS");
-			bits = MSG_ReadBits (msg, MAX_POWERUPS);
-			for (i=0 ; i<MAX_POWERUPS ; i++) {
-				if (bits & (1<<i) ) {
-					to->powerups[i] = MSG_ReadLong(msg);
+					to->misc[i] = MSG_ReadLong(msg);
 				}
 			}
 		}

@@ -2012,7 +2012,7 @@ void CG_Player( centity_t *cent )
   qboolean      shadow = qfalse;
   float         shadowPlane;
   entityState_t *es = &cent->currentState;
-  pClass_t      class = ( es->powerups >> 8 ) & 0xFF;
+  pClass_t      class = ( es->misc >> 8 ) & 0xFF;
   float         scale;
   vec3_t        tempAxis[ 3 ], tempAxis2[ 3 ];
   vec3_t        angles;
@@ -2379,7 +2379,7 @@ void CG_Corpse( centity_t *cent )
     legs.nonNormalizedAxes = qtrue;
   }
 
-  //CG_AddRefEntityWithPowerups( &legs, es->powerups, ci->team );
+  //CG_AddRefEntityWithPowerups( &legs, es->misc, ci->team );
   trap_R_AddRefEntityToScene( &legs );
 
   // if the model failed, allow the default nullmodel to be displayed
@@ -2404,7 +2404,7 @@ void CG_Corpse( centity_t *cent )
     torso.shadowPlane = shadowPlane;
     torso.renderfx = renderfx;
 
-    //CG_AddRefEntityWithPowerups( &torso, es->powerups, ci->team );
+    //CG_AddRefEntityWithPowerups( &torso, es->misc, ci->team );
     trap_R_AddRefEntityToScene( &torso );
 
     //
@@ -2423,7 +2423,7 @@ void CG_Corpse( centity_t *cent )
     head.shadowPlane = shadowPlane;
     head.renderfx = renderfx;
 
-    //CG_AddRefEntityWithPowerups( &head, es->powerups, ci->team );
+    //CG_AddRefEntityWithPowerups( &head, es->misc, ci->team );
     trap_R_AddRefEntityToScene( &head );
   }
 }

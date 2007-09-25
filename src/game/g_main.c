@@ -1421,7 +1421,7 @@ void MoveClientToIntermission( gentity_t *ent )
   ent->client->ps.pm_type = PM_INTERMISSION;
 
   // clean up powerup info
-  memset( ent->client->ps.powerups, 0, sizeof( ent->client->ps.powerups ) );
+  memset( ent->client->ps.misc, 0, sizeof( ent->client->ps.misc ) );
 
   ent->client->ps.eFlags = 0;
   ent->s.eFlags = 0;

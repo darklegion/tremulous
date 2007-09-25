@@ -582,7 +582,7 @@ void BodySink( gentity_t *ent )
     ent->active = qtrue;
 
     //sinking bodies can't be infested
-    ent->killedBy = ent->s.powerups = MAX_CLIENTS;
+    ent->killedBy = ent->s.misc = MAX_CLIENTS;
     ent->timestamp = level.time;
   }
 
@@ -656,7 +656,7 @@ void SpawnCorpse( gentity_t *ent )
   else
     body->classname = "alienCorpse";
 
-  body->s.powerups = MAX_CLIENTS;
+  body->s.misc = MAX_CLIENTS;
 
   body->think = BodySink;
   body->nextthink = level.time + 20000;
@@ -1493,7 +1493,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
 
   BG_FindAmmoForWeapon( weapon, &maxAmmo, &maxClips );
   BG_AddWeaponToInventory( weapon, client->ps.stats );
-  BG_PackAmmoArray( weapon, client->ps.ammo, client->ps.powerups, maxAmmo, maxClips );
+  client->ps.ammo = maxAmmo;
+  client->ps.clips = maxClips;
 
   ent->client->ps.stats[ STAT_PCLASS ] = ent->client->pers.classSelection;
   ent->client->ps.stats[ STAT_PTEAM ] = ent->client->pers.teamSelection;

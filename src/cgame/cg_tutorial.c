@@ -396,7 +396,6 @@ CG_HumanText
 static void CG_HumanText( char *text, playerState_t *ps )
 {
   char      *name;
-  int       ammo, clips;
   upgrade_t upgrade = UP_NONE;
 
   if( cg.weaponSelect <= 32 )
@@ -407,9 +406,7 @@ static void CG_HumanText( char *text, playerState_t *ps )
     upgrade = cg.weaponSelect - 32;
   }
 
-  BG_UnpackAmmoArray( ps->weapon, ps->ammo, ps->powerups, &ammo, &clips );
-
-  if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( ps->weapon ) )
+  if( !ps->ammo && !ps->clips && !BG_FindInfinteAmmoForWeapon( ps->weapon ) )
   {
     //no ammo
     switch( ps->weapon )

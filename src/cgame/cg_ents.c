@@ -581,7 +581,7 @@ static void CG_Portal( centity_t *cent )
 
   CrossProduct( ent.axis[ 0 ], ent.axis[ 1 ], ent.axis[ 2 ] );
   ent.reType = RT_PORTALSURFACE;
-  ent.oldframe = s1->powerups;
+  ent.oldframe = s1->misc;
   ent.frame = s1->frame;    // rotation speed
   ent.skinNum = s1->clientNum / 256.0 * 360;  // roll offset
 
@@ -799,7 +799,7 @@ static void CG_Lev2ZapChain( centity_t *cent )
         if( es->time <= 0 )
           continue;
 
-        source = &cg_entities[ es->powerups ];
+        source = &cg_entities[ es->misc ];
         target = &cg_entities[ es->time ];
         break;
 

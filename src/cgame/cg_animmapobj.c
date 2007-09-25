@@ -75,7 +75,7 @@ void CG_ModelDoor( centity_t *cent )
   ent.nonNormalizedAxes = qtrue;
 
   //setup animation
-  anim.firstFrame   = es->powerups;
+  anim.firstFrame   = es->misc;
   anim.numFrames    = es->weapon;
   anim.reversed     = !es->legsAnim;
   anim.flipflop     = qfalse;
@@ -168,7 +168,7 @@ void CG_AnimMapObj( centity_t *cent )
   }
 
   //setup animation
-  anim.firstFrame = es->powerups;
+  anim.firstFrame = es->misc;
   anim.numFrames = es->weapon;
   anim.reversed = qfalse;
   anim.flipflop = qfalse;

@@ -2670,7 +2670,7 @@ Generates weapon events and modifes the weapon counter
 static void PM_Weapon( void )
 {
   int           addTime = 200; //default addTime - should never be used
-  int           ammo, clips, maxClips;
+  int           maxClips;
   qboolean      attack1 = qfalse;
   qboolean      attack2 = qfalse;
   qboolean      attack3 = qfalse;
@@ -2768,11 +2768,10 @@ static void PM_Weapon( void )
 
   // start the animation even if out of ammo
 
-  BG_UnpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips );
   BG_FindAmmoForWeapon( pm->ps->weapon, NULL, &maxClips );
 
   // check for out of ammo
-  if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
+  if( !pm->ps->ammo && !pm->ps->clips && !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
   {
     PM_AddEvent( EV_NOAMMO );
     pm->ps->weaponTime += 200;
@@ -2788,15 +2787,13 @@ static void PM_Weapon( void )
   {
     if( maxClips > 0 )
     {
-      clips--;
-      BG_FindAmmoForWeapon( pm->ps->weapon, &ammo, NULL );
+      pm->ps->clips--;
+      BG_FindAmmoForWeapon( pm->ps->weapon, &pm->ps->ammo, NULL );
     }
 
     if( BG_FindUsesEnergyForWeapon( pm->ps->weapon ) &&
         BG_InventoryContainsUpgrade( UP_BATTPACK, pm->ps->stats ) )
-      ammo = (int)( (float)ammo * BATTPACK_MODIFIER );
-
-    BG_PackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips );
+      pm->ps->ammo = (int)( (float)pm->ps->ammo * BATTPACK_MODIFIER );
 
     //allow some time for the weapon to be raised
     pm->ps->weaponstate = WEAPON_RAISING;
@@ -2806,7 +2803,7 @@ static void PM_Weapon( void )
   }
 
   // check for end of clip
-  if( ( !ammo || pm->ps->pm_flags & PMF_WEAPON_RELOAD ) && clips )
+  if( ( !pm->ps->ammo || pm->ps->pm_flags & PMF_WEAPON_RELOAD ) && pm->ps->clips )
   {
     pm->ps->pm_flags &= ~PMF_WEAPON_RELOAD;
 
@@ -2925,7 +2922,7 @@ static void PM_Weapon( void )
     if( BG_WeaponHasThirdMode( pm->ps->weapon ) )
     {
       //hacky special case for slowblob
-      if( pm->ps->weapon == WP_ALEVEL3_UPG && !ammo )
+      if( pm->ps->weapon == WP_ALEVEL3_UPG && !pm->ps->ammo )
       {
         PM_AddEvent( EV_NOAMMO );
         pm->ps->weaponTime += 200;
@@ -3047,22 +3044,19 @@ static void PM_Weapon( void )
     //special case for lcannon
     if( pm->ps->weapon == WP_LUCIFER_CANNON && attack1 && !attack2 )
     {
-      ammo -= (int)( ceil( ( (float)pm->ps->stats[ STAT_MISC ] / (float)LCANNON_TOTAL_CHARGE ) * 10.0f ) );
+      pm->ps->ammo -= (int)( ceil( ( (float)pm->ps->stats[ STAT_MISC ] / (float)LCANNON_TOTAL_CHARGE ) * 10.0f ) );
 
       //stay on the safe side
-      if( ammo < 0 )
-        ammo = 0;
+      if( pm->ps->ammo < 0 )
+        pm->ps->ammo = 0;
     }
     else
-      ammo--;
-
-    BG_PackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips );
+      pm->ps->ammo--;
   }
   else if( pm->ps->weapon == WP_ALEVEL3_UPG && attack3 )
   {
     //special case for slowblob
-    ammo--;
-    BG_PackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, ammo, clips );
+    pm->ps->ammo--;
   }
 
   //FIXME: predicted angles miss a problem??
@@ -3264,11 +3258,7 @@ void trap_SnapVector( float *v );
 
 void PmoveSingle( pmove_t *pmove )
 {
-  int ammo, clips;
-
   pm = pmove;
-
-  BG_UnpackAmmoArray( pm->ps->weapon, pm->ps->ammo, pm->ps->powerups, &ammo, &clips );
 
   // this counter lets us debug movement problems with a journal
   // by setting a conditional breakpoint fot the previous frame
@@ -3296,7 +3286,7 @@ void PmoveSingle( pmove_t *pmove )
   // set the firing flag for continuous beam weapons
   if( !(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION &&
       ( pm->cmd.buttons & BUTTON_ATTACK ) &&
-      ( ( ammo > 0 || clips > 0 ) || BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) ) )
+      ( ( pm->ps->ammo > 0 || pm->ps->clips > 0 ) || BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) ) )
     pm->ps->eFlags |= EF_FIRING;
   else
     pm->ps->eFlags &= ~EF_FIRING;
@@ -3304,7 +3294,7 @@ void PmoveSingle( pmove_t *pmove )
   // set the firing flag for continuous beam weapons
   if( !(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION &&
       ( pm->cmd.buttons & BUTTON_ATTACK2 ) &&
-      ( ( ammo > 0 || clips > 0 ) || BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) ) )
+      ( ( pm->ps->ammo > 0 || pm->ps->clips > 0 ) || BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) ) )
     pm->ps->eFlags |= EF_FIRING2;
   else
     pm->ps->eFlags &= ~EF_FIRING2;
@@ -3312,7 +3302,7 @@ void PmoveSingle( pmove_t *pmove )
   // set the firing flag for continuous beam weapons
   if( !(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION &&
       ( pm->cmd.buttons & BUTTON_USE_HOLDABLE ) &&
-      ( ( ammo > 0 || clips > 0 ) || BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) ) )
+      ( ( pm->ps->ammo > 0 || pm->ps->clips > 0 ) || BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) ) )
     pm->ps->eFlags |= EF_FIRING3;
   else
     pm->ps->eFlags &= ~EF_FIRING3;

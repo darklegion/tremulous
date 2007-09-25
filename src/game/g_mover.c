@@ -1707,8 +1707,8 @@ void SP_func_door_model( gentity_t *ent )
   ent->s.apos.trDuration = 0;
   VectorClear( ent->s.apos.trDelta );
 
-  ent->s.powerups  = (int)ent->animation[ 0 ];                  //first frame
-  ent->s.weapon    = abs( (int)ent->animation[ 1 ] );           //number of frames
+  ent->s.misc   = (int)ent->animation[ 0 ];                  //first frame
+  ent->s.weapon = abs( (int)ent->animation[ 1 ] );           //number of frames
 
   //must be at least one frame -- mapper has forgotten animation key
   if( ent->s.weapon == 0 )

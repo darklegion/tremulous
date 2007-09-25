@@ -93,7 +93,7 @@ void G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo )
     if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
         weaponType && !BG_FindInfinteAmmoForWeapon( i ) &&
         !BG_WeaponIsFull( i, ent->client->ps.stats,
-          ent->client->ps.ammo, ent->client->ps.powerups ) )
+          ent->client->ps.ammo, ent->client->ps.clips ) )
     {
       BG_FindAmmoForWeapon( i, &maxAmmo, &maxClips );
 
@@ -105,8 +105,8 @@ void G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo )
           maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
       }
 
-      BG_PackAmmoArray( i, ent->client->ps.ammo, ent->client->ps.powerups,
-                        maxAmmo, maxClips );
+      ent->client->ps.ammo = maxAmmo;
+      ent->client->ps.clips = maxClips;
 
       restoredAmmo = qtrue;
     }
@@ -1090,7 +1090,7 @@ static void G_UpdateZapEffect( zap_t *zap )
   effect->s.eType = ET_LEV2_ZAP_CHAIN;
   effect->classname = "lev2zapchain";
   G_SetOrigin( effect, zap->creator->s.origin );
-  effect->s.powerups = zap->creator->s.number;
+  effect->s.misc = zap->creator->s.number;
 
   effect->s.time = effect->s.time2 = effect->s.constantLight = -1;
 

@@ -1109,14 +1109,6 @@ CG_WeaponSelectable
 */
 static qboolean CG_WeaponSelectable( weapon_t weapon )
 {
-  //int ammo, clips;
-  //
-  //BG_UnpackAmmoArray( i, cg.snap->ps.ammo, cg.snap->ps.powerups, &ammo, &clips );
-  //
-  // this is a pain in the ass
-  //if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( i ) )
-  //  return qfalse;
-
   if( !BG_InventoryContainsWeapon( weapon, cg.snap->ps.stats ) )
     return qfalse;
 
@@ -1201,18 +1193,11 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
   {
     if( !BG_InventoryContainsWeapon( i, cg.snap->ps.stats ) )
       continue;
-      
-    {
-      int ammo, clips;
-  
-      BG_UnpackAmmoArray( i, cg.snap->ps.ammo, cg.snap->ps.powerups, &ammo, &clips );
-  
-      if( !ammo && !clips && !BG_FindInfinteAmmoForWeapon( i ) )
-        colinfo[ numItems ] = 1;
-      else
-        colinfo[ numItems ] = 0;
-    	
-    }
+
+    if( !ps->ammo && !ps->clips && !BG_FindInfinteAmmoForWeapon( i ) )
+      colinfo[ numItems ] = 1;
+    else
+      colinfo[ numItems ] = 0;
 
     if( i == cg.weaponSelect )
       selectedItem = numItems;
@@ -1229,7 +1214,7 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
     colinfo[ numItems ] = 0;
     if( !BG_FindUsableForUpgrade ( i ) )
       colinfo[ numItems ] = 2;
-    
+
 
     if( i == cg.weaponSelect - 32 )
       selectedItem = numItems;

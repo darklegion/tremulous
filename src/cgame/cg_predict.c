@@ -138,7 +138,7 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins,
       bmaxs[ 2 ] = zu;
 
       if( i == cg_numSolidEntities )
-        BG_FindBBoxForClass( ( ent->powerups >> 8 ) & 0xFF, bmins, bmaxs, NULL, NULL, NULL );
+        BG_FindBBoxForClass( ( ent->misc >> 8 ) & 0xFF, bmins, bmaxs, NULL, NULL, NULL );
 
       cmodel = trap_CM_TempBoxModel( bmins, bmaxs );
       VectorCopy( vec3_origin, angles );
@@ -502,12 +502,6 @@ static int CG_IsUnacceptableError( playerState_t *ps, playerState_t *pps )
   {
     if( pps->persistant[ i ] != ps->persistant[ i ] )
       return 16;
-  }
-
-  for( i = 0; i < MAX_WEAPONS; i++ )
-  {
-    if( pps->ammo[ i ] != ps->ammo[ i ] )
-      return 18;
   }
 
   if( pps->generic1 != ps->generic1 ||

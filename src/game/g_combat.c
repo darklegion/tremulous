@@ -394,8 +394,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   // g_forcerespawn may force spawning at some later time
   self->client->respawnTime = level.time + 1700;
 
-  // remove powerups
-  memset( self->client->ps.powerups, 0, sizeof( self->client->ps.powerups ) );
+  // clear misc
+  memset( self->client->ps.misc, 0, sizeof( self->client->ps.misc ) );
 
   {
     // normal death
