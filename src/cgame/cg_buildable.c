@@ -1169,7 +1169,7 @@ static int CG_SortDistance( const void *a, const void *b )
 CG_PlayerIsBuilder
 ==================
 */
-static qboolean CG_PlayerIsBuilder( void )
+static qboolean CG_PlayerIsBuilder( buildable_t buildable )
 {
   switch( cg.predictedPlayerState.weapon )
   {
@@ -1177,11 +1177,34 @@ static qboolean CG_PlayerIsBuilder( void )
     case WP_ABUILD2:
     case WP_HBUILD:
     case WP_HBUILD2:
-      return qtrue;
+      return BG_FindTeamForBuildable( buildable ) ==
+             BG_FindTeamForWeapon( cg.predictedPlayerState.weapon );
 
     default:
       return qfalse;
   }
+}
+
+/*
+==================
+CG_BuildableRemovalPending
+==================
+*/
+static qboolean CG_BuildableRemovalPending( int entityNum )
+{
+  int           i;
+  playerState_t *ps = &cg.snap->ps;
+
+  if( !( ps->stats[ STAT_BUILDABLE ] & SB_VALID_TOGGLEBIT ) )
+    return qfalse;
+
+  for( i = 0; i < MAX_MISC; i++ )
+  {
+    if( ps->misc[ i ] == entityNum )
+      return qtrue;
+  }
+
+  return qfalse;
 }
 
 /*
@@ -1197,22 +1220,18 @@ void CG_DrawBuildableStatus( void )
   int             buildableList[ MAX_ENTITIES_IN_SNAPSHOT ];
   int             buildables = 0;
 
-  if( CG_PlayerIsBuilder( ) )
+  for( i = 0; i < cg.snap->numEntities; i++ )
   {
-    for( i = 0; i < cg.snap->numEntities; i++ )
-    {
-      cent  = &cg_entities[ cg.snap->entities[ i ].number ];
-      es    = &cent->currentState;
+    cent  = &cg_entities[ cg.snap->entities[ i ].number ];
+    es    = &cent->currentState;
 
-      if( es->eType == ET_BUILDABLE &&
-          BG_FindTeamForBuildable( es->modelindex ) ==
-          BG_FindTeamForWeapon( cg.predictedPlayerState.weapon ) )
-        buildableList[ buildables++ ] = cg.snap->entities[ i ].number;
-    }
-    qsort( buildableList, buildables, sizeof( int ), CG_SortDistance );
-    for( i = 0; i < buildables; i++ )
-      CG_BuildableStatusDisplay( &cg_entities[ buildableList[ i ] ] );
+    if( es->eType == ET_BUILDABLE && CG_PlayerIsBuilder( es->modelindex ) )
+      buildableList[ buildables++ ] = cg.snap->entities[ i ].number;
   }
+
+  qsort( buildableList, buildables, sizeof( int ), CG_SortDistance );
+  for( i = 0; i < buildables; i++ )
+    CG_BuildableStatusDisplay( &cg_entities[ buildableList[ i ] ] );
 }
 
 #define BUILDABLE_SOUND_PERIOD  500
@@ -1302,7 +1321,7 @@ void CG_Buildable( centity_t *cent )
   else
     ent.nonNormalizedAxes = qfalse;
 
-  if( CG_PlayerIsBuilder( ) && ( es->generic1 & B_REMOVED_TOGGLEBIT ) )
+  if( CG_PlayerIsBuilder( es->modelindex ) && CG_BuildableRemovalPending( es->number ) )
     ent.customShader = cgs.media.redBuildShader;
 
   //add to refresh list
@@ -1347,7 +1366,7 @@ void CG_Buildable( centity_t *cent )
     else
       turretBarrel.nonNormalizedAxes = qfalse;
 
-    if( CG_PlayerIsBuilder( ) && ( es->generic1 & B_REMOVED_TOGGLEBIT ) )
+    if( CG_PlayerIsBuilder( es->modelindex ) && CG_BuildableRemovalPending( es->number ) )
       turretBarrel.customShader = cgs.media.redBuildShader;
 
     trap_R_AddRefEntityToScene( &turretBarrel );
@@ -1392,7 +1411,7 @@ void CG_Buildable( centity_t *cent )
     else
       turretTop.nonNormalizedAxes = qfalse;
 
-    if( CG_PlayerIsBuilder( ) && ( es->generic1 & B_REMOVED_TOGGLEBIT ) )
+    if( CG_PlayerIsBuilder( es->modelindex ) && CG_BuildableRemovalPending( es->number ) )
       turretTop.customShader = cgs.media.redBuildShader;
 
     trap_R_AddRefEntityToScene( &turretTop );

@@ -513,6 +513,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
   gclient_t *client;
   usercmd_t *ucmd;
   int       aForward, aRight;
+  int       i;
 
   ucmd = &ent->client->pers.cmd;
 
@@ -675,6 +676,20 @@ void ClientTimerActions( gentity_t *ent, int msec )
             client->ps.stats[ STAT_BUILDABLE ] |= SB_VALID_TOGGLEBIT;
           else
             client->ps.stats[ STAT_BUILDABLE ] &= ~SB_VALID_TOGGLEBIT;
+
+          // Let the client know which buildables will be removed by building
+          for( i = 0; i < MAX_MISC; i++ )
+          {
+            if( i < level.numBuildablesForRemoval )
+              client->ps.misc[ i ] = level.markedBuildables[ i ]->s.number;
+            else
+              client->ps.misc[ i ] = 0;
+          }
+        }
+        else
+        {
+          for( i = 0; i < MAX_MISC; i++ )
+            client->ps.misc[ i ] = 0;
         }
 
         //update build timer

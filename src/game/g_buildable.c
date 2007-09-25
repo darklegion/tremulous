@@ -2462,15 +2462,6 @@ void G_BuildableThink( gentity_t *ent, int msec )
   if( ent->deconstruct )
     ent->s.generic1 |= B_MARKED_TOGGLEBIT;
 
-  for( i = 0; i < level.numBuildablesForRemoval; i++ )
-  {
-    if( ent->s.number == level.markedBuildables[ i ]->s.number )
-    {
-      ent->s.generic1 |= B_REMOVED_TOGGLEBIT;
-      break;
-    }
-  }
-
   ent->time1000 += msec;
 
   if( ent->time1000 >= 1000 )
@@ -2687,18 +2678,22 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   qboolean          collision = qfalse;
   int               collisionCount = 0;
   itemBuildError_t  bpError;
+  buildable_t       spawn;
+  int               spawnCount = 0;
 
   if( team == BIT_ALIENS )
   {
     remainingBP     = level.alienBuildPoints;
     remainingSpawns = level.numAlienSpawns;
     bpError         = IBE_NOASSERT;
+    spawn           = BA_A_SPAWN;
   }
   else if( team == BIT_HUMANS )
   {
     remainingBP     = level.humanBuildPoints;
     remainingSpawns = level.numHumanSpawns;
     bpError         = IBE_NOPOWER;
+    spawn           = BA_H_SPAWN;
   }
   else
     Com_Error( ERR_FATAL, "team is %d\n", team );
@@ -2708,8 +2703,18 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   {
     if( remainingBP - buildPoints < 0 )
       return bpError;
-    else
-      return IBE_NONE;
+
+    // Check for buildable<->buildable collisions
+    for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+    {
+      if( ent->s.eType != ET_BUILDABLE )
+        continue;
+
+      if( G_BuildablesIntersect( buildable, origin, ent->s.modelindex, ent->s.origin ) )
+        return IBE_NOROOM;
+    }
+
+    return IBE_NONE;
   }
 
   // Set buildPoints to the number extra that are required
@@ -2720,9 +2725,25 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   // Build a list of buildable entities
   for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
-    if( ( collision = G_BuildablesIntersect( buildable, origin,
-            ent->s.modelindex, ent->s.origin ) ) )
+    if( ent->s.eType != ET_BUILDABLE )
+      continue;
+
+    collision = G_BuildablesIntersect( buildable, origin, ent->s.modelindex, ent->s.origin );
+
+    if( collision )
+    {
+      // Don't allow replacements at all
+      if( g_markDeconstruct.integer == 1 )
+        return IBE_NOROOM;
+
+      // Only allow replacements of the same type
+      if( g_markDeconstruct.integer == 2 && ent->s.modelindex != buildable )
+        return IBE_NOROOM;
+
+      // Any other setting means anything goes
+      
       collisionCount++;
+    }
 
     if( !ent->inuse )
       continue;
@@ -2737,13 +2758,6 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     if( ent->biteam != team )
       continue;
 
-    // Prevent destruction of the last spawn
-    if( remainingSpawns <= 1 )
-    {
-      if( ent->s.modelindex == BA_A_SPAWN || ent->s.modelindex == BA_H_SPAWN )
-        continue;
-    }
-
     // If it's a unique buildable, it can only be replaced by the same type
     if( BG_FindUniqueTestForBuildable( ent->s.modelindex ) &&
         ent->s.modelindex != buildable )
@@ -2753,12 +2767,17 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     {
       level.markedBuildables[ numBuildables++ ] = ent;
 
-      // Collided with something, so we definitely have to remove it
-      // It will always end up at the front of the removal list, so
-      // incrementing numBuildablesForRemoval is sufficient
       if( collision )
       {
+        // Collided with something, so we definitely have to remove it
+        // It will always end up at the front of the removal list, so
+        // incrementing numBuildablesForRemoval is sufficient
         collisionCount--;
+        pointsYielded += BG_FindBuildPointsForBuildable( ent->s.modelindex );
+        level.numBuildablesForRemoval++;
+      }
+      else if( BG_FindUniqueTestForBuildable( ent->s.modelindex ) )
+      {
         pointsYielded += BG_FindBuildPointsForBuildable( ent->s.modelindex );
         level.numBuildablesForRemoval++;
       }
@@ -2787,15 +2806,44 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     pointsYielded += BG_FindBuildPointsForBuildable( ent->s.modelindex );
   }
 
+  for( i = 0; i < level.numBuildablesForRemoval; i++ )
+  {
+    if( level.markedBuildables[ i ]->s.modelindex == spawn )
+      spawnCount++;
+  }
+
+  // Make sure we're not removing the last spawn
+  if( ( remainingSpawns - spawnCount ) < 1 )
+    return bpError;
+
   // Not enough points yielded
   if( pointsYielded < buildPoints )
-  {
-    level.numBuildablesForRemoval = 0;
     return bpError;
-  }
   else
-  {
     return IBE_NONE;
+}
+
+/*
+================
+G_SetBuildableLinkState
+
+Links or unlinks all the buildable entities
+================
+*/
+static void G_SetBuildableLinkState( qboolean link )
+{
+  int       i;
+  gentity_t *ent;
+
+  for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  {
+    if( ent->s.eType != ET_BUILDABLE )
+      continue;
+
+    if( link )
+      trap_LinkEntity( ent );
+    else
+      trap_UnlinkEntity( ent );
   }
 }
 
@@ -2821,12 +2869,14 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
   playerState_t     *ps = &ent->client->ps;
   int               buildPoints;
 
+  // Stop all buildables from interacting with traces
+  G_SetBuildableLinkState( qfalse );
+
   BG_FindBBoxForBuildable( buildable, mins, maxs );
 
   BG_PositionBuildableRelativeToPlayer( ps, mins, maxs, trap_Trace, entity_origin, angles, &tr1 );
-
-  trap_Trace( &tr2, entity_origin, mins, maxs, entity_origin, ent->s.number, MASK_DEADSOLID );
-  trap_Trace( &tr3, ps->origin, NULL, NULL, entity_origin, ent->s.number, MASK_DEADSOLID );
+  trap_Trace( &tr2, entity_origin, mins, maxs, entity_origin, ent->s.number, MASK_PLAYERSOLID );
+  trap_Trace( &tr3, ps->origin, NULL, NULL, entity_origin, ent->s.number, MASK_PLAYERSOLID );
 
   VectorCopy( entity_origin, origin );
 
@@ -2997,7 +3047,13 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
 
   //this item does not fit here
   if( reason == IBE_NONE && ( tr2.fraction < 1.0 || tr3.fraction < 1.0 ) )
-    return IBE_NOROOM;
+    reason = IBE_NOROOM;
+
+  if( reason != IBE_NONE )
+    level.numBuildablesForRemoval = 0;
+
+  // Relink buildables
+  G_SetBuildableLinkState( qtrue );
 
   return reason;
 }

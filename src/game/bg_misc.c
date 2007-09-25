@@ -5166,6 +5166,7 @@ void BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
   //so buildings drop to floor
   VectorMA( targetOrigin, -128, playerNormal, targetOrigin );
 
+  // The mask is MASK_DEADSOLID on purpose to avoid collisions with other entities
   (*trace)( tr, entityOrigin, mins, maxs, targetOrigin, ps->clientNum, MASK_DEADSOLID );
   VectorCopy( tr->endpos, entityOrigin );
   VectorMA( entityOrigin, 0.1f, playerNormal, outOrigin );

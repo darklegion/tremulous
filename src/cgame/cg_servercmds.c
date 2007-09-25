@@ -950,18 +950,6 @@ static void CG_ServerCommand( void )
     return;
   }
 
-  if( !strcmp( cmd, "weaponswitch" ) )
-  {
-    CG_Printf( "client weaponswitch\n" );
-    if( trap_Argc( ) == 2 )
-    {
-      cg.weaponSelect = atoi( CG_Argv( 1 ) );
-      cg.weaponSelectTime = cg.time;
-    }
-
-    return;
-  }
-
   // server requests a ptrc
   if( !strcmp( cmd, "ptrcrequest" ) )
   {

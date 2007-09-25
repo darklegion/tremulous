@@ -433,10 +433,9 @@ typedef enum
   BIT_NUM_TEAMS
 } buildableTeam_t;
 
-#define B_HEALTH_BITS       11
+#define B_HEALTH_BITS       12
 #define B_HEALTH_MASK       ((1<<B_HEALTH_BITS)-1)
 
-#define B_REMOVED_TOGGLEBIT 0x00000800
 #define B_MARKED_TOGGLEBIT  0x00001000
 #define B_SPAWNED_TOGGLEBIT 0x00002000
 #define B_POWERED_TOGGLEBIT 0x00004000
