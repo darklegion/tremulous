@@ -62,9 +62,6 @@ static void G_Bounce( gentity_t *ent, trace_t *trace )
   if( VectorLength( ent->s.pos.trDelta ) < 10 )
   {
     VectorMA( trace->endpos, 0.5f, trace->plane.normal, trace->endpos ); // make sure it is off ground
-    // Never allow origin to be snapped lower (buildables fall through map bug)
-    trace->endpos[2] = (float)ceil(trace->endpos[2]);
-    SnapVector( trace->endpos );
     G_SetOrigin( ent, trace->endpos );
     ent->s.groundEntityNum = trace->entityNum;
     VectorCopy( trace->plane.normal, ent->s.origin2 );

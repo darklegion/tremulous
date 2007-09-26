@@ -95,6 +95,7 @@ void CG_HumanBuildableExplosion( vec3_t origin, vec3_t dir )
 
 
 #define CREEP_SIZE            64.0f
+#define CREEP_DISTANCE        64.0f
 
 /*
 ==================
@@ -131,7 +132,7 @@ static void CG_Creep( centity_t *cent )
   }
 
   VectorCopy( cent->currentState.origin2, temp );
-  VectorScale( temp, -4096, temp );
+  VectorScale( temp, -CREEP_DISTANCE, temp );
   VectorAdd( temp, cent->lerpOrigin, temp );
 
   CG_Trace( &tr, cent->lerpOrigin, NULL, NULL, temp, cent->currentState.number, MASK_PLAYERSOLID );
@@ -140,7 +141,7 @@ static void CG_Creep( centity_t *cent )
 
   size = CREEP_SIZE * frac;
 
-  if( size > 0.0f )
+  if( size > 0.0f && tr.fraction < 1.0f )
     CG_ImpactMark( cgs.media.creepShader, origin, cent->currentState.origin2,
                    0.0f, 1.0f, 1.0f, 1.0f, 1.0f, qfalse, size, qtrue );
 }
