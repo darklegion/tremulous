@@ -644,12 +644,12 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     {
       G_TeamCommand( PTE_ALIENS,
         va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
-          BG_FindHumanNameForBuildable( self->s.modelindex ), 
+          BG_FindHumanNameForBuildable( self->s.modelindex ),
           attacker->client->pers.netname ) );
     }
     G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
       attacker->client->ps.clientNum, self->s.modelindex, mod,
-      attacker->client->pers.netname, 
+      attacker->client->pers.netname,
       BG_FindNameForBuildable( self->s.modelindex ),
       modNames[ mod ] );
   }
@@ -888,12 +888,12 @@ void ABarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
     {
       G_TeamCommand( PTE_ALIENS,
         va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
-          BG_FindHumanNameForBuildable( self->s.modelindex ), 
+          BG_FindHumanNameForBuildable( self->s.modelindex ),
           attacker->client->pers.netname ) );
     }
     G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
       attacker->client->ps.clientNum, self->s.modelindex, mod,
-      attacker->client->pers.netname, 
+      attacker->client->pers.netname,
       BG_FindNameForBuildable( self->s.modelindex ),
       modNames[ mod ] );
   }
@@ -1324,12 +1324,12 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     {
       G_TeamCommand( PTE_ALIENS,
         va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
-          BG_FindHumanNameForBuildable( self->s.modelindex ), 
+          BG_FindHumanNameForBuildable( self->s.modelindex ),
           attacker->client->pers.netname ) );
     }
     G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
       attacker->client->ps.clientNum, self->s.modelindex, mod,
-      attacker->client->pers.netname, 
+      attacker->client->pers.netname,
       BG_FindNameForBuildable( self->s.modelindex ),
       modNames[ mod ] );
   }
@@ -2298,12 +2298,12 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     {
       G_TeamCommand( PTE_HUMANS,
         va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
-          BG_FindHumanNameForBuildable( self->s.modelindex ), 
+          BG_FindHumanNameForBuildable( self->s.modelindex ),
           attacker->client->pers.netname ) );
     }
     G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
       attacker->client->ps.clientNum, self->s.modelindex, mod,
-      attacker->client->pers.netname, 
+      attacker->client->pers.netname,
       BG_FindNameForBuildable( self->s.modelindex ),
       modNames[ mod ] );
   }
@@ -2678,6 +2678,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   int               collisionCount = 0;
   itemBuildError_t  bpError;
   buildable_t       spawn;
+  buildable_t       core;
   int               spawnCount = 0;
 
   if( team == BIT_ALIENS )
@@ -2686,6 +2687,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     remainingSpawns = level.numAlienSpawns;
     bpError         = IBE_NOASSERT;
     spawn           = BA_A_SPAWN;
+    core            = BA_A_OVERMIND;
   }
   else if( team == BIT_HUMANS )
   {
@@ -2693,6 +2695,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     remainingSpawns = level.numHumanSpawns;
     bpError         = IBE_NOPOWER;
     spawn           = BA_H_SPAWN;
+    core            = BA_H_REACTOR;
   }
   else
   {
@@ -2743,7 +2746,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
         return IBE_NOROOM;
 
       // Any other setting means anything goes
-      
+
       collisionCount++;
     }
 
@@ -2753,16 +2756,16 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     if( ent->health <= 0 )
       continue;
 
+    if( ent->biteam != team )
+      continue;
+
     // Don't allow destruction of hovel with granger inside
     if( ent->s.modelindex == BA_A_HOVEL && ent->active )
       continue;
 
-    if( ent->biteam != team )
-      continue;
-
-    // If it's a unique buildable, it can only be replaced by the same type
-    if( BG_FindUniqueTestForBuildable( ent->s.modelindex ) &&
-        ent->s.modelindex != buildable )
+    // Explicitly disallow replacement of the core buildable with anything
+    // other than the core buildable
+    if( ent->s.modelindex == core && buildable != core )
       continue;
 
     if( ent->deconstruct )
@@ -2778,8 +2781,10 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
         pointsYielded += BG_FindBuildPointsForBuildable( ent->s.modelindex );
         level.numBuildablesForRemoval++;
       }
-      else if( BG_FindUniqueTestForBuildable( ent->s.modelindex ) )
+      else if( BG_FindUniqueTestForBuildable( ent->s.modelindex ) &&
+               ent->s.modelindex == buildable )
       {
+        // If it's a unique buildable, it must be replaced by the same type
         pointsYielded += BG_FindBuildPointsForBuildable( ent->s.modelindex );
         level.numBuildablesForRemoval++;
       }
@@ -2794,7 +2799,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   if( collisionCount > 0 )
     return IBE_NOROOM;
 
-  // Sort the list 
+  // Sort the list
   cmpBuildable = buildable;
   VectorCopy( origin, cmpOrigin );
   qsort( level.markedBuildables, numBuildables, sizeof( level.markedBuildables[ 0 ] ),
@@ -3101,9 +3106,9 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
     }
     else if( BG_FindTrajectoryForBuildable( buildable ) == TR_BUOYANCY )
       VectorSet( normal, 0.0f, 0.0f, -1.0f );
-    else 
+    else
       VectorSet( normal, 0.0f, 0.0f, 1.0f );
-  } 
+  }
   else
   {
     // in-game building by a player
@@ -3120,7 +3125,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   }
 
   // when building the initial layout, spawn the entity slightly off its
-  // target surface so that it can be "dropped" onto it 
+  // target surface so that it can be "dropped" onto it
   if( !builder->client )
     VectorMA( origin, 1.0f, normal, origin );
 
@@ -3259,7 +3264,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
     built->builtBy = -1;
 
   G_SetOrigin( built, origin );
-  
+
   // gently nudge the buildable onto the surface :)
   VectorScale( normal, -50.0f, built->s.pos.trDelta );
 
@@ -3551,7 +3556,7 @@ int G_LayoutList( const char *map, char *list, int len )
   int  count = 0;
   char *filePtr;
 
-  Q_strcat( layouts, sizeof( layouts ), "*BUILTIN* " );  
+  Q_strcat( layouts, sizeof( layouts ), "*BUILTIN* " );
   numFiles = trap_FS_GetFileList( va( "layouts/%s", map ), ".dat",
     fileList, sizeof( fileList ) );
   filePtr = fileList;
@@ -3560,7 +3565,7 @@ int G_LayoutList( const char *map, char *list, int len )
     fileLen = strlen( filePtr );
     listLen = strlen( layouts );
     if( fileLen < 5 )
-      continue; 
+      continue;
 
     // list is full, stop trying to add to it
     if( ( listLen + fileLen ) >= sizeof( layouts ) )
@@ -3596,7 +3601,7 @@ void G_LayoutSelect( void )
   char fileName[ MAX_OSPATH ];
   char layouts[ MAX_CVAR_VALUE_STRING ];
   char layouts2[ MAX_CVAR_VALUE_STRING ];
-  char *l; 
+  char *l;
   char map[ MAX_QPATH ];
   char *s;
   int cnt = 0;
@@ -3605,10 +3610,10 @@ void G_LayoutSelect( void )
   Q_strncpyz( layouts, g_layouts.string, sizeof( layouts ) );
   trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
 
-  // one time use cvar 
+  // one time use cvar
   trap_Cvar_Set( "g_layouts", "" );
- 
-  // pick an included layout at random if no list has been provided 
+
+  // pick an included layout at random if no list has been provided
   if( !layouts[ 0 ] && g_layoutAuto.integer )
   {
     G_LayoutList( map, layouts, sizeof( layouts ) );
@@ -3631,7 +3636,7 @@ void G_LayoutSelect( void )
       s = COM_ParseExt( &l, qfalse );
       continue;
     }
-    
+
     Com_sprintf( fileName, sizeof( fileName ), "layouts/%s/%s.dat", map, s );
     if( trap_FS_FOpenFile( fileName, NULL, FS_READ ) > 0 )
     {
@@ -3663,7 +3668,7 @@ void G_LayoutSelect( void )
       break;
     s = COM_ParseExt( &l, qfalse );
   }
-  G_Printf("using layout \"%s\" from list ( %s)\n", level.layout, layouts ); 
+  G_Printf("using layout \"%s\" from list ( %s)\n", level.layout, layouts );
 }
 
 /*
@@ -3675,7 +3680,7 @@ static void G_LayoutBuildItem( buildable_t buildable, vec3_t origin,
   vec3_t angles, vec3_t origin2, vec3_t angles2 )
 {
   gentity_t *builder;
-  
+
   builder = G_Spawn( );
   builder->client = 0;
   VectorCopy( origin, builder->s.pos.trBase );
@@ -3709,7 +3714,7 @@ void G_LayoutLoad( void )
 
   if( !level.layout[ 0 ] || !Q_stricmp( level.layout, "*BUILTIN*" ) )
     return;
- 
+
   trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
   len = trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, level.layout ),
     &f, FS_READ );
@@ -3728,13 +3733,13 @@ void G_LayoutLoad( void )
     {
       G_Printf( S_COLOR_RED "ERROR: line overflow in %s before \"%s\"\n",
        va( "layouts/%s/%s.dat", map, level.layout ), line );
-      return; 
+      return;
     }
     line[ i++ ] = *layout;
     line[ i ] = '\0';
     if( *layout == '\n' )
     {
-      i = 0; 
+      i = 0;
       sscanf( line, "%d %f %f %f %f %f %f %f %f %f %f %f %f\n",
         &buildable,
         &origin[ 0 ], &origin[ 1 ], &origin[ 2 ],

@@ -164,7 +164,7 @@ typedef struct
   int           tracemask;      // collide against these types of surfaces
   int           debugLevel;     // if set, diagnostic output will be printed
   qboolean      noFootsteps;    // if the game is setup for no footsteps by the server
-  qboolean      autoWeaponHit[ 32 ]; //FIXME: TA: remind myself later this might be a problem
+  qboolean      autoWeaponHit[ 32 ];
 
   int           framecount;
 
@@ -279,8 +279,8 @@ typedef enum
 #define EF_BOUNCE           0x00000008    // for missiles
 #define EF_BOUNCE_HALF      0x00000010    // for missiles
 #define EF_NO_BOUNCE_SOUND  0x00000020    // for missiles
-#define EF_WALLCLIMB        0x00000040    // TA: wall walking
-#define EF_WALLCLIMBCEILING 0x00000080    // TA: wall walking ceiling hack
+#define EF_WALLCLIMB        0x00000040    // wall walking
+#define EF_WALLCLIMBCEILING 0x00000080    // wall walking ceiling hack
 #define EF_NODRAW           0x00000100    // may have an event, but no model (unspawned items)
 #define EF_FIRING           0x00000200    // for lightning gun
 #define EF_FIRING2          0x00000400    // alt fire
@@ -290,8 +290,8 @@ typedef enum
 #define EF_CONNECTION       0x00004000    // draw a connection trouble sprite
 #define EF_VOTED            0x00008000    // already cast a vote
 #define EF_TEAMVOTED        0x00010000    // already cast a vote
-#define EF_BLOBLOCKED       0x00020000    // TA: caught by a trapper
-#define EF_REAL_LIGHT       0x00040000    // TA: light sprites according to ambient light
+#define EF_BLOBLOCKED       0x00020000    // caught by a trapper
+#define EF_REAL_LIGHT       0x00040000    // light sprites according to ambient light
 
 typedef enum
 {
