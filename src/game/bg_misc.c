@@ -5123,6 +5123,26 @@ qboolean BG_RotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
 
 /*
 ===============
+BG_GetClientNormal
+
+Get the normal for the surface the client is walking on
+===============
+*/
+void BG_GetClientNormal( const playerState_t *ps, vec3_t normal )
+{
+  if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
+  {
+    if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
+      VectorSet( normal, 0.0f, 0.0f, -1.0f );
+    else
+      VectorCopy( ps->grapplePoint, normal );
+  }
+  else
+    VectorSet( normal, 0.0f, 0.0f, 1.0f );
+}
+
+/*
+===============
 BG_PositionBuildableRelativeToPlayer
 
 Find a place to build a buildable
@@ -5138,15 +5158,7 @@ void BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
   vec3_t  angles, playerOrigin, playerNormal;
   float   buildDist;
 
-  if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
-  {
-    if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
-      VectorSet( playerNormal, 0.0f, 0.0f, -1.0f );
-    else
-      VectorCopy( ps->grapplePoint, playerNormal );
-  }
-  else
-    VectorSet( playerNormal, 0.0f, 0.0f, 1.0f );
+  BG_GetClientNormal( ps, playerNormal );
 
   VectorCopy( ps->viewangles, angles );
   VectorCopy( ps->origin, playerOrigin );

@@ -185,7 +185,7 @@ static qboolean G_FindPower( gentity_t *self )
   self->parentNode = NULL;
 
   //iterate through entities
-  for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
     if( ent->s.eType != ET_BUILDABLE )
       continue;
@@ -197,20 +197,25 @@ static qboolean G_FindPower( gentity_t *self )
       VectorSubtract( self->s.origin, ent->s.origin, temp_v );
       distance = VectorLength( temp_v );
 
-      if( distance < minDistance && ent->powered &&
-          ( ( ent->s.modelindex == BA_H_REACTOR &&
-            distance <= REACTOR_BASESIZE ) ||
-          ( ent->s.modelindex == BA_H_REPEATER &&
-            distance <= REPEATER_BASESIZE ) ) ) {
-
-          closestPower = ent;
-          minDistance = distance;
+      // Always prefer a reactor if there is one in range
+      if( ent->s.modelindex == BA_H_REACTOR &&
+          distance <= REACTOR_BASESIZE )
+      {
+        self->parentNode = ent;
+        return qtrue;
+      }
+      else if( distance < minDistance && ent->powered &&
+               distance <= REPEATER_BASESIZE )
+      {
+        closestPower = ent;
+        minDistance = distance;
       }
     }
   }
 
   //if there were no power items nearby give up
-  if( closestPower ) {
+  if( closestPower )
+  {
     self->parentNode = closestPower;
     return qtrue;
   }
@@ -220,12 +225,13 @@ static qboolean G_FindPower( gentity_t *self )
 
 /*
 ================
-G_IsPowered
+G_PowerEntityForPoint
 
-Simple wrapper to G_FindPower to check if a location has power
+Simple wrapper to G_FindPower to find the entity providing
+power for the specified point
 ================
 */
-qboolean G_IsPowered( vec3_t origin )
+static gentity_t *G_PowerEntityForPoint( vec3_t origin )
 {
   gentity_t dummy;
 
@@ -234,7 +240,28 @@ qboolean G_IsPowered( vec3_t origin )
   dummy.s.modelindex = BA_NONE;
   VectorCopy( origin, dummy.s.origin );
 
-  return G_FindPower( &dummy );
+  if( G_FindPower( &dummy ) )
+    return dummy.parentNode;
+  else
+    return NULL;
+}
+
+/*
+================
+G_IsPowered
+
+Check if a location has power, returning the entity type
+that is providing it
+================
+*/
+buildable_t G_IsPowered( vec3_t origin )
+{
+  gentity_t *ent = G_PowerEntityForPoint( origin );
+
+  if( ent )
+    return ent->s.modelindex;
+  else
+    return BA_NONE;
 }
 
 /*
@@ -1848,9 +1875,6 @@ void HMedistat_Think( gentity_t *self )
       if( self->enemy->client && self->enemy->client->ps.stats[ STAT_STATE ] & SS_POISONED )
         self->enemy->client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
 
-      if( self->enemy->client && self->enemy->client->ps.stats[ STAT_STATE ] & SS_MEDKIT_ACTIVE )
-        self->enemy->client->ps.stats[ STAT_STATE ] &= ~SS_MEDKIT_ACTIVE;
-
       self->enemy->health++;
 
       //if they're completely healed, give them a medkit
@@ -2532,6 +2556,30 @@ qboolean G_BuildableRange( vec3_t origin, float r, buildable_t buildable )
 }
 
 /*
+================
+G_FindBuildable
+
+Finds a buildable of the specified type
+================
+*/
+static gentity_t *G_FindBuildable( buildable_t buildable )
+{
+  int       i;
+  gentity_t *ent;
+
+  for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  {
+    if( ent->s.eType != ET_BUILDABLE )
+      continue;
+
+    if( ent->s.modelindex == buildable )
+      return ent;
+  }
+
+  return NULL;
+}
+
+/*
 ===============
 G_BuildablesIntersect
 
@@ -2592,20 +2640,19 @@ static int G_CompareBuildablesForRemoval( const void *a, const void *b )
   gentity_t *buildableA, *buildableB;
   int       i;
   int       aPrecedence = 0, bPrecedence = 0;
-  qboolean  aCollides = qfalse, bCollides = qfalse;
   qboolean  aMatches = qfalse, bMatches = qfalse;
 
   buildableA = *(gentity_t **)a;
   buildableB = *(gentity_t **)b;
 
   // Prefer the one that collides with the thing we're building
-  aCollides = G_BuildablesIntersect( cmpBuildable, cmpOrigin,
+  aMatches = G_BuildablesIntersect( cmpBuildable, cmpOrigin,
       buildableA->s.modelindex, buildableA->s.origin );
-  bCollides = G_BuildablesIntersect( cmpBuildable, cmpOrigin,
+  bMatches = G_BuildablesIntersect( cmpBuildable, cmpOrigin,
       buildableB->s.modelindex, buildableB->s.origin );
-  if( aCollides && !bCollides )
+  if( aMatches && !bMatches )
     return -1;
-  else if( !aCollides && bCollides )
+  else if( !aMatches && bMatches )
     return 1;
 
   // If one matches the thing we're building, prefer it
@@ -2616,9 +2663,22 @@ static int G_CompareBuildablesForRemoval( const void *a, const void *b )
   else if( !aMatches && bMatches )
     return 1;
 
-  // If they're the same type then pick the one marked earliest
+  // They're the same type
   if( buildableA->s.modelindex == buildableB->s.modelindex )
+  {
+    gentity_t *powerEntity = G_PowerEntityForPoint( cmpOrigin );
+
+    // Prefer the entity that is providing power for this point
+    aMatches = ( powerEntity == buildableA );
+    bMatches = ( powerEntity == buildableB );
+    if( aMatches && !bMatches )
+      return -1;
+    else if( !aMatches && bMatches )
+      return 1;
+
+    // Pick the one marked earliest
     return buildableA->deconstructTime - buildableB->deconstructTime;
+  }
 
   // Resort to preference list
   for( i = 0; i < sizeof( precedence ) / sizeof( precedence[ 0 ] ); i++ )
@@ -2676,6 +2736,8 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   int               remainingBP, remainingSpawns;
   qboolean          collision = qfalse;
   int               collisionCount = 0;
+  qboolean          repeaterInRange = qfalse;
+  int               repeaterInRangeCount = 0;
   itemBuildError_t  bpError;
   buildable_t       spawn;
   buildable_t       core;
@@ -2750,6 +2812,17 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
       collisionCount++;
     }
 
+    // Check if this is a repeater and it's in range
+    if( buildable == BA_H_REPEATER &&
+        buildable == ent->s.modelindex &&
+        Distance( ent->s.origin, origin ) < REPEATER_BASESIZE )
+    {
+      repeaterInRange = qtrue;
+      repeaterInRangeCount++;
+    }
+    else
+      repeaterInRange = qfalse;
+
     if( !ent->inuse )
       continue;
 
@@ -2772,12 +2845,20 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     {
       level.markedBuildables[ numBuildables++ ] = ent;
 
-      if( collision )
+      // Buildables that are marked here will always end up at the front of the
+      // removal list, so just incrementing numBuildablesForRemoval is sufficient
+      if( collision || repeaterInRange )
       {
-        // Collided with something, so we definitely have to remove it
-        // It will always end up at the front of the removal list, so
-        // incrementing numBuildablesForRemoval is sufficient
-        collisionCount--;
+        // Collided with something, so we definitely have to remove it or
+        // it's a repeater that intersects the new repeater's power area,
+        // so it must be removed
+
+        if( collision )
+          collisionCount--;
+
+        if( repeaterInRange )
+          repeaterInRangeCount--;
+
         pointsYielded += BG_FindBuildPointsForBuildable( ent->s.modelindex );
         level.numBuildablesForRemoval++;
       }
@@ -2798,6 +2879,10 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   // Collided with something we can't remove
   if( collisionCount > 0 )
     return IBE_NOROOM;
+
+  // There are one or more repeaters we can't remove
+  if( repeaterInRangeCount > 0 )
+    return IBE_RPTWARN2;
 
   // Sort the list
   cmpBuildable = buildable;
@@ -2867,7 +2952,6 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
   vec3_t            entity_origin, normal;
   vec3_t            mins, maxs;
   trace_t           tr1, tr2, tr3;
-  int               i;
   itemBuildError_t  reason = IBE_NONE, tempReason;
   gentity_t         *tempent;
   float             minNormal;
@@ -2909,6 +2993,22 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
   {
     //alien criteria
 
+    // Check there is an Overmind
+    if( buildable != BA_A_OVERMIND )
+    {
+        tempent = G_FindBuildable( BA_A_OVERMIND );
+
+        if( tempent == NULL || !tempent->spawned || tempent->health <= 0 )
+          reason = IBE_OVERMIND;
+    }
+
+    //check there is creep near by for building on
+    if( BG_FindCreepTestForBuildable( buildable ) )
+    {
+      if( !G_IsCreepHere( entity_origin ) )
+        reason = IBE_NOCREEP;
+    }
+
     if( buildable == BA_A_HOVEL )
     {
       vec3_t    builderMins, builderMaxs;
@@ -2920,66 +3020,16 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
         reason = IBE_HOVELEXIT;
     }
 
-    //check there is creep near by for building on
-    if( BG_FindCreepTestForBuildable( buildable ) )
-    {
-      if( !G_IsCreepHere( entity_origin ) )
-        reason = IBE_NOCREEP;
-    }
-
-    //check permission to build here
-    if( tr1.surfaceFlags & SURF_NOALIENBUILD || tr1.surfaceFlags & SURF_NOBUILD ||
-        contents & CONTENTS_NOALIENBUILD || contents & CONTENTS_NOBUILD )
+    // Check permission to build here
+    if( tr1.surfaceFlags & SURF_NOALIENBUILD || contents & CONTENTS_NOALIENBUILD )
       reason = IBE_PERMISSION;
-
-    //look for an Overmind
-    for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
-    {
-      if( tempent->s.eType != ET_BUILDABLE )
-        continue;
-      if( tempent->s.modelindex == BA_A_OVERMIND && tempent->spawned &&
-        tempent->health > 0 )
-        break;
-    }
-
-    //if none found...
-    if( i >= level.num_entities && buildable != BA_A_OVERMIND )
-      reason = IBE_NOOVERMIND;
-
-    //can we only have one of these?
-    if( BG_FindUniqueTestForBuildable( buildable ) )
-    {
-      for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
-      {
-        if( tempent->s.eType != ET_BUILDABLE )
-          continue;
-
-        if( tempent->s.modelindex == buildable && !tempent->deconstruct )
-        {
-          switch( buildable )
-          {
-            case BA_A_OVERMIND:
-              reason = IBE_OVERMIND;
-              break;
-
-            case BA_A_HOVEL:
-              reason = IBE_HOVEL;
-              break;
-
-            default:
-              Com_Error( ERR_FATAL, "No reason for denying build of %d\n", buildable );
-              break;
-          }
-
-          break;
-        }
-      }
-    }
   }
   else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
     //human criteria
-    if( !G_IsPowered( entity_origin ) )
+
+    // Check for power
+    if( G_IsPowered( entity_origin ) == BA_NONE )
     {
       //tell player to build a repeater to provide power
       if( buildable != BA_H_REACTOR && buildable != BA_H_REPEATER )
@@ -2993,58 +3043,48 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
     //check that there is a parent reactor when building a repeater
     if( buildable == BA_H_REPEATER )
     {
-      for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
-      {
-        if( tempent->s.eType != ET_BUILDABLE )
-          continue;
+      tempent = G_FindBuildable( BA_H_REACTOR );
 
-        if( tempent->s.modelindex == BA_H_REACTOR )
-          break;
-      }
-
-      if( i >= level.num_entities )
-      {
-        //no reactor present
-
-        //check for other nearby repeaters
-        for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
-        {
-          if( tempent->s.eType != ET_BUILDABLE )
-            continue;
-
-          if( tempent->s.modelindex == BA_H_REPEATER &&
-              Distance( tempent->s.origin, entity_origin ) < REPEATER_BASESIZE )
-          {
-            reason = IBE_RPTWARN2;
-            break;
-          }
-        }
-
-        if( reason == IBE_NONE )
-          reason = IBE_RPTWARN;
-      }
-      else if( G_IsPowered( entity_origin ) )
+      if( tempent == NULL ) // No reactor
+        reason = IBE_RPTWARN;
+      else if( g_markDeconstruct.integer && G_IsPowered( entity_origin ) == BA_H_REACTOR )
+        reason = IBE_RPTWARN2;
+      else if( !g_markDeconstruct.integer && G_IsPowered( entity_origin ) )
         reason = IBE_RPTWARN2;
     }
 
-    //check permission to build here
-    if( tr1.surfaceFlags & SURF_NOHUMANBUILD || tr1.surfaceFlags & SURF_NOBUILD ||
-        contents & CONTENTS_NOHUMANBUILD || contents & CONTENTS_NOBUILD )
+    // Check permission to build here
+    if( tr1.surfaceFlags & SURF_NOHUMANBUILD || contents & CONTENTS_NOHUMANBUILD )
       reason = IBE_PERMISSION;
+  }
 
-    //can we only build one of these?
-    if( BG_FindUniqueTestForBuildable( buildable ) )
+  // Check permission to build here
+  if( tr1.surfaceFlags & SURF_NOBUILD || contents & CONTENTS_NOBUILD )
+    reason = IBE_PERMISSION;
+
+  // Can we only have one of these?
+  if( BG_FindUniqueTestForBuildable( buildable ) )
+  {
+    tempent = G_FindBuildable( buildable );
+    if( tempent && !tempent->deconstruct )
     {
-      for ( i = 1, tempent = g_entities + i; i < level.num_entities; i++, tempent++ )
+      switch( buildable )
       {
-        if( tempent->s.eType != ET_BUILDABLE )
-          continue;
+        case BA_A_OVERMIND:
+          reason = IBE_OVERMIND;
+          break;
 
-        if( tempent->s.modelindex == BA_H_REACTOR && !tempent->deconstruct )
-        {
+        case BA_A_HOVEL:
+          reason = IBE_HOVEL;
+          break;
+
+        case BA_H_REACTOR:
           reason = IBE_REACTOR;
           break;
-        }
+
+        default:
+          Com_Error( ERR_FATAL, "No reason for denying build of %d\n", buildable );
+          break;
       }
     }
   }
@@ -3112,16 +3152,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   else
   {
     // in-game building by a player
-
-    if( builder->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING )
-    {
-      if( builder->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
-        VectorSet( normal, 0.0f, 0.0f, -1.0f );
-      else
-        VectorCopy( builder->client->ps.grapplePoint, normal );
-    }
-    else
-      VectorSet( normal, 0.0f, 0.0f, 1.0f );
+    BG_GetClientNormal( &builder->client->ps, normal );
   }
 
   // when building the initial layout, spawn the entity slightly off its

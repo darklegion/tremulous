@@ -749,7 +749,7 @@ qboolean          AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean 
 gentity_t         *G_CheckSpawnPoint( int spawnNum, vec3_t origin, vec3_t normal,
                     buildable_t spawn, vec3_t spawnOrigin );
 
-qboolean          G_IsPowered( vec3_t origin );
+buildable_t       G_IsPowered( vec3_t origin );
 qboolean          G_IsDCCBuilt( void );
 qboolean          G_IsOvermindBuilt( void );
 

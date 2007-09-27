@@ -701,10 +701,7 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
 
   clientHeight = targ->r.maxs[ 2 ] - targ->r.mins[ 2 ];
 
-  if( targ->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING )
-    VectorCopy( targ->client->ps.grapplePoint, normal );
-  else
-    VectorSet( normal, 0, 0, 1 );
+  BG_GetClientNormal( &targ->client->ps, normal );
 
   VectorMA( targOrigin, targ->r.mins[ 2 ], normal, floor );
   VectorSubtract( point, floor, pMINUSfloor );

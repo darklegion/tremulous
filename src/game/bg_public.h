@@ -1091,6 +1091,7 @@ void      BG_DeactivateUpgrade( int item, int stats[ ] );
 qboolean  BG_UpgradeIsActive( int item, int stats[ ] );
 qboolean  BG_RotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
                          vec3_t outAxis[ 3 ], qboolean inverse, qboolean ceiling );
+void      BG_GetClientNormal( const playerState_t *ps, vec3_t normal );
 void      BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
                                                 const vec3_t mins, const vec3_t maxs,
                                                 void (*trace)( trace_t *, const vec3_t, const vec3_t,

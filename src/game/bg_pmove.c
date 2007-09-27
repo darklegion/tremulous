@@ -658,6 +658,8 @@ PM_CheckJump
 */
 static qboolean PM_CheckJump( void )
 {
+  vec3_t normal;
+
   if( BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ) == 0.0f )
     return qfalse;
 
@@ -712,18 +714,10 @@ static qboolean PM_CheckJump( void )
   pm->ps->groundEntityNum = ENTITYNUM_NONE;
 
   // jump away from wall
-  if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
-  {
-    vec3_t normal = { 0, 0, -1 };
+  BG_GetClientNormal( pm->ps, normal );
 
-    if( !( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )
-      VectorCopy( pm->ps->grapplePoint, normal );
-
-    VectorMA( pm->ps->velocity, BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ),
-              normal, pm->ps->velocity );
-  }
-  else
-    pm->ps->velocity[ 2 ] = BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] );
+  VectorMA( pm->ps->velocity, BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ),
+            normal, pm->ps->velocity );
 
   PM_AddEvent( EV_JUMP );
 
@@ -1716,12 +1710,7 @@ static void PM_GroundClimbTrace( void )
   float     ldDOTtCs, d;
   vec3_t    abc;
 
-  // If we're on the ceiling then grapplePoint is a rotation normal.. otherwise its a surface normal.
-  // would have been nice if Carmack had left a few random variables in the ps struct for mod makers
-  if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
-    VectorCopy( ceilingNormal, surfNormal );
-  else
-    VectorCopy( pm->ps->grapplePoint, surfNormal );
+  BG_GetClientNormal( pm->ps, surfNormal );
 
   //construct a vector which reflects the direction the player is looking wrt the surface normal
   ProjectPointOnPlane( movedir, pml.forward, surfNormal );

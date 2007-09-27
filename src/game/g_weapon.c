@@ -768,8 +768,9 @@ void buildFire( gentity_t *ent, dynMenu_t menu )
         ent->client->ps.stats[ STAT_MISC ] +=
           BG_FindBuildDelayForWeapon( ent->s.weapon ) * 2;
       }
-      else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS && !G_IsPowered( muzzle ) &&
-          ( ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) != BA_H_REPEATER ) //hack
+      else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+               G_IsPowered( muzzle ) == BA_NONE &&
+               ( ent->client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) != BA_H_REPEATER ) //hack
       {
         ent->client->ps.stats[ STAT_MISC ] +=
           BG_FindBuildDelayForWeapon( ent->s.weapon ) * 2;
@@ -1430,10 +1431,12 @@ set muzzle location relative to pivoting eye
 */
 void CalcMuzzlePoint( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint )
 {
+  vec3_t normal;
+
   VectorCopy( ent->s.pos.trBase, muzzlePoint );
-  muzzlePoint[ 2 ] += ent->client->ps.viewheight;
+  BG_GetClientNormal( &ent->client->ps, normal );
+  VectorMA( muzzlePoint, ent->client->ps.viewheight, normal, muzzlePoint );
   VectorMA( muzzlePoint, 1, forward, muzzlePoint );
-  VectorMA( muzzlePoint, 1, right, muzzlePoint );
   // snap to integer coordinates for more efficient network bandwidth usage
   SnapVector( muzzlePoint );
 }

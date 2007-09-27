@@ -278,15 +278,7 @@ static void CG_OffsetThirdPersonView( void )
   float         forwardScale, sideScale;
   vec3_t        surfNormal;
 
-  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBING )
-  {
-    if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
-      VectorSet( surfNormal, 0.0f, 0.0f, -1.0f );
-    else
-      VectorCopy( cg.predictedPlayerState.grapplePoint, surfNormal );
-  }
-  else
-    VectorSet( surfNormal, 0.0f, 0.0f, 1.0f );
+  BG_GetClientNormal( &cg.predictedPlayerState, surfNormal );
 
   VectorMA( cg.refdef.vieworg, cg.predictedPlayerState.viewheight, surfNormal, cg.refdef.vieworg );
 
@@ -355,19 +347,11 @@ static void CG_OffsetThirdPersonView( void )
 static void CG_StepOffset( void )
 {
   float         steptime;
-  int            timeDelta;
+  int           timeDelta;
   vec3_t        normal;
   playerState_t *ps = &cg.predictedPlayerState;
 
-  if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
-  {
-    if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
-      VectorSet( normal, 0.0f, 0.0f, -1.0f );
-    else
-      VectorCopy( ps->grapplePoint, normal );
-  }
-  else
-    VectorSet( normal, 0.0f, 0.0f, 1.0f );
+  BG_GetClientNormal( ps, normal );
 
   steptime = BG_FindSteptimeForClass( ps->stats[ STAT_PCLASS ] );
 
@@ -378,10 +362,7 @@ static void CG_StepOffset( void )
     float stepChange = cg.stepChange
       * (steptime - timeDelta) / steptime;
 
-    if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
-      VectorMA( cg.refdef.vieworg, -stepChange, normal, cg.refdef.vieworg );
-    else
-      cg.refdef.vieworg[ 2 ] -= stepChange;
+    VectorMA( cg.refdef.vieworg, -stepChange, normal, cg.refdef.vieworg );
   }
 }
 
@@ -412,16 +393,7 @@ static void CG_OffsetFirstPersonView( void )
   vec3_t        normal, baseOrigin;
   playerState_t *ps = &cg.predictedPlayerState;
 
-  if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
-  {
-    if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
-      VectorSet( normal, 0.0f, 0.0f, -1.0f );
-    else
-      VectorCopy( ps->grapplePoint, normal );
-  }
-  else
-    VectorSet( normal, 0.0f, 0.0f, 1.0f );
-
+  BG_GetClientNormal( ps, normal );
 
   if( cg.snap->ps.pm_type == PM_INTERMISSION )
     return;
@@ -643,11 +615,7 @@ static void CG_OffsetFirstPersonView( void )
 //===================================
 
   // add view height
-  // when wall climbing the viewheight is not straight up
-  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBING )
-    VectorMA( origin, ps->viewheight, normal, origin );
-  else
-    origin[ 2 ] += cg.predictedPlayerState.viewheight;
+  VectorMA( origin, ps->viewheight, normal, origin );
 
   // smooth out duck height changes
   timeDelta = cg.time - cg.duckTime;
@@ -663,12 +631,7 @@ static void CG_OffsetFirstPersonView( void )
   if( bob > 6 )
     bob = 6;
 
-  // likewise for bob
-  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_WALLCLIMBING )
-    VectorMA( origin, bob, normal, origin );
-  else
-    origin[ 2 ] += bob;
-
+  VectorMA( origin, bob, normal, origin );
 
   // add fall height
   delta = cg.time - cg.landTime;
@@ -943,10 +906,7 @@ static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t o
   }
 
   //set surfNormal
-  if( !( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )
-    VectorCopy( ps->grapplePoint, surfNormal );
-  else
-    VectorCopy( ceilingNormal, surfNormal );
+  BG_GetClientNormal( ps, surfNormal );
 
   AnglesToAxis( in, inAxis );
 

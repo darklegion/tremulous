@@ -183,15 +183,7 @@ static void CG_DrawDir( rectDef_t *rect, vec3_t origin, vec4_t colour )
   float   angle;
   playerState_t *ps = &cg.snap->ps;
 
-  if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
-  {
-    if( ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
-      VectorSet( normal, 0.0f, 0.0f, -1.0f );
-    else
-      VectorCopy( ps->grapplePoint, normal );
-  }
-  else
-    VectorSet( normal, 0.0f, 0.0f, 1.0f );
+  BG_GetClientNormal( ps, normal );
 
   AngleVectors( entityPositions.vangles, view, NULL, NULL );
 
