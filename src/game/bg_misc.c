@@ -38,6 +38,9 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_A_SPAWN,            //int       buildNum;
     "eggpod",              //char      *buildName;
     "Egg",                 //char      *humanName;
+    "The most basic alien structure. It allows aliens to spawn "
+      "and protect the Overmind. Without any of these, the Overmind "
+      "is left nearly defenseless and defeat is imminent.",
     "team_alien_spawn",    //char      *entityName;
     { "models/buildables/eggpod/eggpod.md3", 0, 0, 0 },
     1.0f,                  //float     modelScale;
@@ -74,6 +77,8 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_A_BARRICADE,        //int       buildNum;
     "barricade",           //char      *buildName;
     "Barricade",           //char      *humanName;
+    "Used to obstruct corridors and doorways, hindering humans from "
+      "threatening the spawns and Overmind.",
     "team_alien_barricade",//char      *entityName;
     { "models/buildables/barricade/barricade.md3", 0, 0, 0 },
     1.0f,                  //float     modelScale;
@@ -110,6 +115,11 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_A_BOOSTER,          //int       buildNum;
     "booster",             //char      *buildName;
     "Booster",             //char      *humanName;
+    "Provides any alien with a poison ability on all its "
+      "attacks. In addition to the default attack damage, the victim loses "
+      "health over time unless they heal themselves with a medkit."
+      "The booster also increases the rate of health regeneration for "
+      "any nearby aliens.",
     "team_alien_booster",  //char      *entityName;
     { "models/buildables/booster/booster.md3", 0, 0, 0 },
     1.0f,                  //float     modelScale;
@@ -146,6 +156,9 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_A_ACIDTUBE,         //int       buildNum;
     "acid_tube",           //char      *buildName;
     "Acid Tube",           //char      *humanName;
+    "Ejects lethal poisonous acid at an approaching human. These "
+      "are highly effective when used in conjunction with a trapper "
+      "to hold the victim in place.",
     "team_alien_acid_tube",//char      *entityName;
     { "models/buildables/acid_tube/acid_tube.md3", 0, 0, 0 },
     1.0f,                  //float     modelScale;
@@ -182,6 +195,8 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_A_HIVE,             //int       buildNum;
     "hive",                //char      *buildName;
     "Hive",                //char      *humanName;
+    "Houses millions of tiny insectoid aliens. When a human "
+      "approaches this structure, the insectoids attack.",
     "team_alien_hive",     //char      *entityName;
     { "models/buildables/acid_tube/acid_tube.md3", 0, 0, 0 },
     1.0f,                  //float     modelScale;
@@ -218,6 +233,9 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_A_TRAPPER,          //int       buildNum;
     "trapper",             //char      *buildName;
     "Trapper",             //char      *humanName;
+    "Fires a blob of adhesive spit at any non-alien in its line of "
+      "sight. This hinders their movement, making them an easy target "
+      "for other defensive structures or aliens.",
     "team_alien_trapper",  //char      *entityName;
     { "models/buildables/trapper/trapper.md3", 0, 0, 0 },
     1.0f,                  //float     modelScale;
@@ -254,6 +272,9 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_A_OVERMIND,         //int       buildNum;
     "overmind",            //char      *buildName;
     "Overmind",            //char      *humanName;
+    "A collective consciousness that controls all the alien structures "
+      "in its vicinity. It must be protected at all costs, since its "
+      "death will render alien structures defenseless.",
     "team_alien_overmind", //char      *entityName;
     { "models/buildables/overmind/overmind.md3", 0, 0, 0 },
     1.0f,                  //float     modelScale;
@@ -290,6 +311,9 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_A_HOVEL,            //int       buildNum;
     "hovel",               //char      *buildName;
     "Hovel",               //char      *humanName;
+    "An armoured shell used by the builder class to hide in, while "
+      "the alien base is under attack. It may be entered or "
+      "exited at any time.",
     "team_alien_hovel",    //char      *entityName;
     { "models/buildables/hovel/hovel.md3", 0, 0, 0 },
     1.0f,                  //float     modelScale;
@@ -326,6 +350,9 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_SPAWN,            //int       buildNum;
     "telenode",            //char      *buildName;
     "Telenode",            //char      *humanName;
+    "The most basic human structure. It provides a means for humans "
+      "to enter the battle arena. Without any of these the humans "
+      "cannot spawn and defeat is imminent.",
     "team_human_spawn",    //char      *entityName;
     { "models/buildables/telenode/telenode.md3", 0, 0, 0 },
     1.0f,                  //float     modelScale;
@@ -362,6 +389,9 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_MEDISTAT,         //int       buildNum;
     "medistat",            //char      *buildName;
     "Medistation",         //char      *humanName;
+    "A structure providing an automated healing energy that restores "
+      "the health of any human that stands inside it. It may only be used "
+      "by one person at a time.",
     "team_human_medistat", //char      *entityName;
     { "models/buildables/medistat/medistat.md3", 0, 0, 0 },
     1.0f,                  //float     modelScale;
@@ -398,6 +428,9 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_MGTURRET,         //int       buildNum;
     "mgturret",            //char      *buildName;
     "Machinegun Turret",   //char      *humanName;
+    "Automated base defense that is effective against fast moving targets, "
+      "but does not cause much damage on its own and should always be "
+      "backed up by physical support.",
     "team_human_mgturret", //char      *entityName;
     { "models/buildables/mgturret/turret_base.md3",
       "models/buildables/mgturret/turret_barrel.md3",
@@ -436,6 +469,9 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_TESLAGEN,         //int       buildNum;
     "tesla",               //char      *buildName;
     "Tesla Generator",     //char      *humanName;
+    "A structure equipped with a strong electrical attack that always "
+      "hits its target. It is useful against larger aliens "
+      "and for consolidating basic defense.",
     "team_human_tesla",    //char      *entityName;
     { "models/buildables/tesla/tesla.md3", 0, 0, 0 },
     1.0f,                  //float     modelScale;
@@ -472,6 +508,9 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_DCC,              //int       buildNum;
     "dcc",                 //char      *buildName;
     "Defence Computer",    //char      *humanName;
+    "A structure coordinating the action of base defense so that "
+      "defense is distributed evenly among the enemy. This structure "
+      "is required for building the Tesla Generator.",
     "team_human_dcc",      //char      *entityName;
     { "models/buildables/dcc/dcc.md3", 0, 0, 0 },
     1.0f,                  //float     modelScale;
@@ -508,6 +547,9 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_ARMOURY,          //int       buildNum;
     "arm",                 //char      *buildName;
     "Armoury",             //char      *humanName;
+    "An essential part of the human base, providing a means "
+      "to upgrade the basic human. A range of upgrades and weapons are "
+      "available from the armoury, each with a price.",
     "team_human_armoury",  //char      *entityName;
     { "models/buildables/arm/arm.md3", 0, 0, 0 },
     1.0f,                  //float     modelScale;
@@ -544,6 +586,9 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_REACTOR,          //int       buildNum;
     "reactor",             //char      *buildName;
     "Reactor",             //char      *humanName;
+    "All structures except the telenode rely on a reactor to operate."
+      "The reactor provides power for all the human structures either "
+      "directly or via repeaters. There can only be a single reactor.",
     "team_human_reactor",  //char      *entityName;
     { "models/buildables/reactor/reactor.md3", 0, 0, 0 },
     1.0f,                  //float     modelScale;
@@ -580,6 +625,9 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_REPEATER,         //int       buildNum;
     "repeater",            //char      *buildName;
     "Repeater",            //char      *humanName;
+    "A power distributor that transmits power from the reactor "
+      "to remote locations, so that bases may be built far "
+      "from the reactor.",
     "team_human_repeater", //char      *entityName;
     { "models/buildables/repeater/repeater.md3", 0, 0, 0 },
     1.0f,                  //float     modelScale;
@@ -689,6 +737,25 @@ char *BG_FindHumanNameForBuildable( int bclass )
   {
     if( bg_buildableList[ i ].buildNum == bclass )
       return bg_buildableList[ i ].humanName;
+  }
+
+  //wimp out
+  return 0;
+}
+
+/*
+==============
+BG_FindInfoForBuildable
+==============
+*/
+char *BG_FindInfoForBuildable( int bclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numBuildables; i++ )
+  {
+    if( bg_buildableList[ i ].buildNum == bclass )
+      return bg_buildableList[ i ].info;
   }
 
   //wimp out
@@ -1495,6 +1562,7 @@ classAttributes_t bg_classList[ ] =
     PCL_NONE,                                       //int     classnum;
     "spectator",                                    //char    *className;
     "Spectator",                                    //char    *humanName;
+    "",
     "",                                             //char    *modelname;
     1.0f,                                           //float   modelScale;
     "",                                             //char    *skinname;
@@ -1533,6 +1601,7 @@ classAttributes_t bg_classList[ ] =
     PCL_ALIEN_BUILDER0,                             //int     classnum;
     "builder",                                      //char    *className;
     "Builder",                                      //char    *humanName;
+    "Responsible for building and maintaining all the alien structures.",
     "builder",                                      //char    *modelname;
     1.0f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
@@ -1571,6 +1640,9 @@ classAttributes_t bg_classList[ ] =
     PCL_ALIEN_BUILDER0_UPG,                         //int     classnum;
     "builderupg",                                   //char    *classname;
     "Advanced Builder",                             //char    *humanname;
+    "Similar to the base Granger, except that in addition to "
+      "being able to build structures it has a melee attack "
+      "and the ability to crawl on walls.",
     "builder",                                      //char    *modelname;
     1.0f,                                           //float   modelScale;
     "advanced",                                     //char    *skinname;
@@ -1609,6 +1681,7 @@ classAttributes_t bg_classList[ ] =
     PCL_ALIEN_LEVEL0,                               //int     classnum;
     "level0",                                       //char    *classname;
     "Soldier",                                      //char    *humanname;
+    "Has a lethal bite and the ability to crawl on walls and ceilings.",
     "jumper",                                       //char    *modelname;
     0.2f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
@@ -1648,6 +1721,8 @@ classAttributes_t bg_classList[ ] =
     PCL_ALIEN_LEVEL1,                               //int     classnum;
     "level1",                                       //char    *classname;
     "Hydra",                                        //char    *humanname;
+    "Able to crawl on walls and ceilings. Its melee attack is most "
+      "effective when combined with the ability to grab its foe.",
     "spitter",                                      //char    *modelname;
     0.6f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
@@ -1687,6 +1762,9 @@ classAttributes_t bg_classList[ ] =
     PCL_ALIEN_LEVEL1_UPG,                           //int     classnum;
     "level1upg",                                    //char    *classname;
     "Hydra Upgrade",                                //char    *humanname;
+    "In addition to the basic Basilisk abilities, the Advanced "
+      "Basilisk sprays a poisonous gas which disorientaits any "
+      "nearby humans.",
     "spitter",                                      //char    *modelname;
     0.7f,                                           //float   modelScale;
     "blue",                                         //char    *skinname;
@@ -1726,6 +1804,8 @@ classAttributes_t bg_classList[ ] =
     PCL_ALIEN_LEVEL2,                               //int     classnum;
     "level2",                                       //char    *classname;
     "Chimera",                                      //char    *humanname;
+    "Has a melee attack and the ability to jump off walls. This "
+      "allows the Marauder to gather great speed in enclosed areas.",
     "tarantula",                                    //char    *modelname;
     0.75f,                                          //float   modelScale;
     "default",                                      //char    *skinname;
@@ -1765,6 +1845,8 @@ classAttributes_t bg_classList[ ] =
     PCL_ALIEN_LEVEL2_UPG,                           //int     classnum;
     "level2upg",                                    //char    *classname;
     "Chimera Upgrade",                              //char    *humanname;
+    "The Advanced Marauder has all the abilities of the base Marauder "
+      "including an area effect electric shock attack.",
     "tarantula",                                    //char    *modelname;
     0.9f,                                           //float   modelScale;
     "red",                                          //char    *skinname;
@@ -1804,6 +1886,9 @@ classAttributes_t bg_classList[ ] =
     PCL_ALIEN_LEVEL3,                               //int     classnum;
     "level3",                                       //char    *classname;
     "Dragoon",                                      //char    *humanname;
+    "Possesses a melee attack and the pounce ability, which may "
+      "be used as an attack, or a means to reach a remote "
+      "location inaccessible from the ground.",
     "prowl",                                        //char    *modelname;
     1.0f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
@@ -1843,6 +1928,9 @@ classAttributes_t bg_classList[ ] =
     PCL_ALIEN_LEVEL3_UPG,                           //int     classnum;
     "level3upg",                                    //char    *classname;
     "Dragoon Upgrade",                              //char    *humanname;
+    "In addition to the basic Dragoon abilities, the Dragoon "
+      "Upgrade has 3 barbs which may be used to attack humans "
+      "from a distance.",
     "prowl",                                        //char    *modelname;
     1.0f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
@@ -1882,6 +1970,9 @@ classAttributes_t bg_classList[ ] =
     PCL_ALIEN_LEVEL4,                               //int     classnum;
     "level4",                                       //char    *classname;
     "Big Mofo",                                     //char    *humanname;
+    "Provides a healing aura in which nearby aliens regenerate health "
+      "faster than usual. As well as a melee attack, this class can charge "
+      "at enemy humans and structures, inflicting great damage.",
     "mofo",                                         //char    *modelname;
     1.0f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
@@ -1921,6 +2012,7 @@ classAttributes_t bg_classList[ ] =
     PCL_HUMAN,                                      //int     classnum;
     "human_base",                                   //char    *classname;
     "Human",                                        //char    *humanname;
+    "",
     "sarge",                                        //char    *modelname;
     1.0f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
@@ -1959,7 +2051,8 @@ classAttributes_t bg_classList[ ] =
   {
     PCL_HUMAN_BSUIT,                                //int     classnum;
     "human_bsuit",                                  //char    *classname;
-    "bsuit",                                        //char    *humanname;
+    "Battlesuit",                                   //char    *humanname;
+    "",
     "keel",                                         //char    *modelname;
     1.0f,                                           //float   modelScale;
     "default",                                      //char    *skinname;
@@ -2060,6 +2153,26 @@ char *BG_FindHumanNameForClassNum( int pclass )
   }
 
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindHumanNameForClassNum\n" );
+  //wimp out
+  return 0;
+}
+
+/*
+==============
+BG_FindInfoForClassNum
+==============
+*/
+char *BG_FindInfoForClassNum( int pclass )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+      return bg_classList[ i ].info;
+  }
+
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindInfoForClassNum\n" );
   //wimp out
   return 0;
 }
@@ -3040,6 +3153,7 @@ weaponAttributes_t bg_weapons[ ] =
     0,                    //int       slots;
     "blaster",            //char      *weaponName;
     "Blaster",            //char      *weaponHumanName;
+    "",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3065,6 +3179,8 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "rifle",              //char      *weaponName;
     "Rifle",              //char      *weaponHumanName;
+    "Basic weapon. Cased projectile weapon, with a slow clip based "
+      "reload system.",
     RIFLE_CLIPSIZE,       //int       maxAmmo;
     RIFLE_MAXCLIPS,       //int       maxClips;
     qfalse,               //int       infiniteAmmo;
@@ -3090,6 +3206,9 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "shotgun",            //char      *weaponName;
     "Shotgun",            //char      *weaponHumanName;
+    "Close range weapon that is useful against larger foes. "
+      "It has a slow repeat rate, but can be devastatingly "
+      "effective.",
     SHOTGUN_SHELLS,       //int       maxAmmo;
     SHOTGUN_MAXCLIPS,     //int       maxClips;
     qfalse,               //int       infiniteAmmo;
@@ -3115,6 +3234,9 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "flamer",             //char      *weaponName;
     "Flame Thrower",      //char      *weaponHumanName;
+    "Sprays fire at its target. It is powered by compressed "
+      "gas. The relatively low rate of fire means this weapon is most "
+      "effective against static targets.",
     FLAMER_GAS,           //int       maxAmmo;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
@@ -3140,6 +3262,9 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "chaingun",           //char      *weaponName;
     "Chaingun",           //char      *weaponHumanName;
+    "Belt drive, cased projectile weapon. It has a high repeat "
+      "rate but a wide firing angle and is therefore relatively "
+      "inaccurate.",
     CHAINGUN_BULLETS,     //int       maxAmmo;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
@@ -3165,6 +3290,9 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "mdriver",            //char      *weaponName;
     "Mass Driver",        //char      *weaponHumanName;
+    "A portable particle accelerator which causes minor nuclear "
+      "reactions at the point of impact. It has a very large "
+      "payload, but fires slowly.",
     MDRIVER_CLIPSIZE,     //int       maxAmmo;
     MDRIVER_MAXCLIPS,     //int       maxClips;
     qfalse,               //int       infiniteAmmo;
@@ -3190,6 +3318,8 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "prifle",             //char      *weaponName;
     "Pulse Rifle",        //char      *weaponHumanName;
+    "An energy weapon that fires pulses of concentrated energy "
+      "at a fast rate. It requires re-energising every 50 pulses.",
     PRIFLE_CLIPS,         //int       maxAmmo;
     PRIFLE_MAXCLIPS,      //int       maxClips;
     qfalse,               //int       infiniteAmmo;
@@ -3215,6 +3345,9 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "lcannon",            //char      *weaponName;
     "Lucifer Cannon",     //char      *weaponHumanName;
+    "Similar to the pulse rifle, but more powerful. Additionally, "
+      "it has a secondary attack where energy can be charged "
+      "up to shoot a devastating ball of energy.",
     LCANNON_AMMO,         //int       maxAmmo;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
@@ -3240,6 +3373,8 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "lgun",               //char      *weaponName;
     "Las Gun",            //char      *weaponHumanName;
+    "Slightly more powerful than the basic rifle, but "
+      "instead of bullets it fires small packets of energy.",
     LASGUN_AMMO,          //int       maxAmmo;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
@@ -3265,6 +3400,9 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "psaw",               //char      *weaponName;
     "Pain Saw",           //char      *weaponHumanName;
+    "Similar to a chainsaw, but instead of a chain it has an "
+      "electric arc capable of dealing a great deal of damage at "
+      "close range.",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3290,6 +3428,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_NONE,            //int       slots;
     "grenade",            //char      *weaponName;
     "Grenade",            //char      *weaponHumanName;
+    "",
     1,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qfalse,               //int       infiniteAmmo;
@@ -3315,6 +3454,8 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "ckit",               //char      *weaponName;
     "Construction Kit",   //char      *weaponHumanName;
+    "Used for building all basic structures. This includes "
+      "spawns, power and basic defense.",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3340,6 +3481,8 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "ackit",              //char      *weaponName;
     "Adv Construction Kit",//char      *weaponHumanName;
+    "Used for building advanced structures. This includes "
+      "combat computers and advanced defense.",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3365,6 +3508,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "abuild",             //char      *weaponName;
     "Alien build weapon", //char      *weaponHumanName;
+    "",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3390,6 +3534,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "abuildupg",          //char      *weaponName;
     "Alien build weapon2",//char      *weaponHumanName;
+    "",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3415,6 +3560,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "level0",             //char      *weaponName;
     "Bite",               //char      *weaponHumanName;
+    "",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3440,6 +3586,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "level1",             //char      *weaponName;
     "Claws",              //char      *weaponHumanName;
+    "",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3465,6 +3612,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "level1upg",          //char      *weaponName;
     "Claws Upgrade",      //char      *weaponHumanName;
+    "",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3490,6 +3638,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "level2",             //char      *weaponName;
     "Bite",               //char      *weaponHumanName;
+    "",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3515,6 +3664,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "level2upg",          //char      *weaponName;
     "Zap",                //char      *weaponHumanName;
+    "",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3540,6 +3690,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "level3",             //char      *weaponName;
     "Pounce",             //char      *weaponHumanName;
+    "",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3565,6 +3716,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "level3upg",          //char      *weaponName;
     "Pounce (upgrade)",   //char      *weaponHumanName;
+    "",
     3,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3590,6 +3742,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "level4",             //char      *weaponName;
     "Charge",             //char      *weaponHumanName;
+    "",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3615,6 +3768,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "lockblob",           //char      *weaponName;
     "Lock Blob",          //char      *weaponHumanName;
+    "",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3640,6 +3794,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "hive",               //char      *weaponName;
     "Hive",               //char      *weaponHumanName;
+    "",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3665,6 +3820,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "mgturret",           //char      *weaponName;
     "Machinegun Turret",  //char      *weaponHumanName;
+    "",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3690,6 +3846,7 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "teslagen",           //char      *weaponName;
     "Tesla Generator",    //char      *weaponHumanName;
+    "",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3826,6 +3983,25 @@ char *BG_FindHumanNameForWeapon( int weapon )
   {
     if( bg_weapons[ i ].weaponNum == weapon )
       return bg_weapons[ i ].weaponHumanName;
+  }
+
+  //wimp out
+  return 0;
+}
+
+/*
+==============
+BG_FindInfoForWeapon
+==============
+*/
+char *BG_FindInfoForWeapon( int weapon )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+      return bg_weapons[ i ].info;
   }
 
   //wimp out
@@ -4161,6 +4337,8 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_TORSO|SLOT_ARMS|SLOT_LEGS, //int   slots;
     "larmour",              //char  *upgradeName;
     "Light Armour",         //char  *upgradeHumanName;
+    "Protective armour that helps to defend against light alien melee "
+      "attacks.",
     "icons/iconu_larmour",
     qtrue,                  //qboolean purchasable
     qfalse,                 //qboolean usable
@@ -4173,6 +4351,9 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_HEAD,              //int   slots;
     "helmet",               //char  *upgradeName;
     "Helmet",               //char  *upgradeHumanName;
+    "In addition to protecting your head, the helmet provides a "
+      "scanner indicating the presence of any non-human lifeforms in your "
+      "immediate vicinity.",
     "icons/iconu_helmet",
     qtrue,                  //qboolean purchasable
     qfalse,                 //qboolean usable
@@ -4185,6 +4366,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_NONE,              //int   slots;
     "medkit",               //char  *upgradeName;
     "Medkit",               //char  *upgradeHumanName;
+    "",
     "icons/iconu_atoxin",
     qfalse,                 //qboolean purchasable
     qtrue,                  //qboolean usable
@@ -4197,6 +4379,8 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_BACKPACK,          //int   slots;
     "battpack",             //char  *upgradeName;
     "Battery Pack",         //char  *upgradeHumanName;
+    "Back-mounted battery pack that permits storage of one and a half "
+      "times the normal energy capacity for energy weapons.",
     "icons/iconu_battpack",
     qtrue,                  //qboolean purchasable
     qfalse,                 //qboolean usable
@@ -4209,6 +4393,9 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_BACKPACK,          //int   slots;
     "jetpack",              //char  *upgradeName;
     "Jet Pack",             //char  *upgradeHumanName;
+    "Back-mounted jet pack that enables the user to fly to remote "
+      "locations. It is very useful against alien spawns in hard "
+      "to reach spots.",
     "icons/iconu_jetpack",
     qtrue,                  //qboolean purchasable
     qtrue,                  //qboolean usable
@@ -4221,6 +4408,9 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS|SLOT_BACKPACK, //int   slots;
     "bsuit",                //char  *upgradeName;
     "Battlesuit",           //char  *upgradeHumanName;
+    "A full body armour that is highly effective at repelling alien attacks. "
+      "It allows the user to enter hostile situations with a greater degree "
+      "of confidence.",
     "icons/iconu_bsuit",
     qtrue,                  //qboolean purchasable
     qfalse,                 //qboolean usable
@@ -4233,6 +4423,8 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_NONE,              //int   slots;
     "gren",                 //char  *upgradeName;
     "Grenade",              //char  *upgradeHumanName;
+    "A small incendinary device ideal for damaging tightly packed "
+      "alien structures. Has a five second timer.",
     0,
     qtrue,                  //qboolean purchasable
     qtrue,                  //qboolean usable
@@ -4245,6 +4437,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     SLOT_NONE,              //int   slots;
     "ammo",                 //char  *upgradeName;
     "Ammunition",           //char  *upgradeHumanName;
+    "Ammunition for the currently held weapon.",
     0,
     qtrue,                  //qboolean purchasable
     qfalse,                 //qboolean usable
@@ -4368,6 +4561,25 @@ char *BG_FindHumanNameForUpgrade( int upgrade )
   {
     if( bg_upgrades[ i ].upgradeNum == upgrade )
       return bg_upgrades[ i ].upgradeHumanName;
+  }
+
+  //wimp out
+  return 0;
+}
+
+/*
+==============
+BG_FindInfoForUpgrade
+==============
+*/
+char *BG_FindInfoForUpgrade( int upgrade )
+{
+  int i;
+
+  for( i = 0; i < bg_numUpgrades; i++ )
+  {
+    if( bg_upgrades[ i ].upgradeNum == upgrade )
+      return bg_upgrades[ i ].info;
   }
 
   //wimp out

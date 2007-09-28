@@ -744,44 +744,29 @@ typedef struct {
   const char *modDescr;
 } modInfo_t;
 
-#define MAX_INFOPANE_TEXT     4096
-#define MAX_INFOPANE_GRAPHICS 16
-#define MAX_INFOPANES         128
-
 typedef enum
 {
-  INFOPANE_TOP,
-  INFOPANE_BOTTOM,
-  INFOPANE_LEFT,
-  INFOPANE_RIGHT
-} tremIPSide_t;
+  INFOTYPE_TEXT,
+  INFOTYPE_BUILDABLE,
+  INFOTYPE_CLASS,
+  INFOTYPE_WEAPON,
+  INFOTYPE_UPGRADE
+} infoType_t;
 
 typedef struct
 {
-  qhandle_t     graphic;
-
-  tremIPSide_t  side;
-  int           offset;
-
-  int           width, height;
-} tremIPGraphic_t;
-
-typedef struct
-{
-  const char      *name;
-  char            text[ MAX_INFOPANE_TEXT ];
-  int             align;
-
-  tremIPGraphic_t graphics[ MAX_INFOPANE_GRAPHICS ];
-  int             numGraphics;
-} tremInfoPane_t;
-
-typedef struct
-{
-  const char      *text;
-  const char      *cmd;
-  tremInfoPane_t  *infopane;
-} tremMenuItem_t;
+  const char    *text;
+  const char    *cmd;
+  infoType_t    type;
+  union
+  {
+    const char  *text;
+    buildable_t buildable;
+    pClass_t    pclass;
+    weapon_t    weapon;
+    upgrade_t   upgrade;
+  } v;
+} menuItem_t;
 
 typedef struct {
   displayContextDef_t uiDC;
@@ -848,40 +833,37 @@ typedef struct {
   int movieIndex;
   int previewMovie;
 
-  tremInfoPane_t  tremInfoPanes[ MAX_INFOPANES ];
-  int             tremInfoPaneCount;
+  menuItem_t  tremTeamList[ 4 ];
+  int         tremTeamCount;
+  int         tremTeamIndex;
 
-  tremMenuItem_t  tremTeamList[ 4 ];
-  int             tremTeamCount;
-  int             tremTeamIndex;
+  menuItem_t  alienClassList[ 3 ];
+  int         alienClassCount;
+  int         alienClassIndex;
 
-  tremMenuItem_t  tremAlienClassList[ 3 ];
-  int             tremAlienClassCount;
-  int             tremAlienClassIndex;
+  menuItem_t  humanItemList[ 3 ];
+  int         humanItemCount;
+  int         humanItemIndex;
 
-  tremMenuItem_t  tremHumanItemList[ 3 ];
-  int             tremHumanItemCount;
-  int             tremHumanItemIndex;
+  menuItem_t  humanArmouryBuyList[ 32 ];
+  int         humanArmouryBuyCount;
+  int         humanArmouryBuyIndex;
 
-  tremMenuItem_t  tremHumanArmouryBuyList[ 32 ];
-  int             tremHumanArmouryBuyCount;
-  int             tremHumanArmouryBuyIndex;
+  menuItem_t  humanArmourySellList[ 32 ];
+  int         humanArmourySellCount;
+  int         humanArmourySellIndex;
 
-  tremMenuItem_t  tremHumanArmourySellList[ 32 ];
-  int             tremHumanArmourySellCount;
-  int             tremHumanArmourySellIndex;
+  menuItem_t  alienUpgradeList[ 16 ];
+  int         alienUpgradeCount;
+  int         alienUpgradeIndex;
 
-  tremMenuItem_t  tremAlienUpgradeList[ 16 ];
-  int             tremAlienUpgradeCount;
-  int             tremAlienUpgradeIndex;
+  menuItem_t  alienBuildList[ 32 ];
+  int         alienBuildCount;
+  int         alienBuildIndex;
 
-  tremMenuItem_t  tremAlienBuildList[ 32 ];
-  int             tremAlienBuildCount;
-  int             tremAlienBuildIndex;
-
-  tremMenuItem_t  tremHumanBuildList[ 32 ];
-  int             tremHumanBuildCount;
-  int             tremHumanBuildIndex;
+  menuItem_t  humanBuildList[ 32 ];
+  int         humanBuildCount;
+  int         humanBuildIndex;
 
   serverStatus_t serverStatus;
 

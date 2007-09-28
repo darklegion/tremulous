@@ -999,203 +999,6 @@ void UI_ParseMenu(const char *menuFile) {
   trap_Parse_FreeSource(handle);
 }
 
-/*
-===============
-UI_FindInfoPaneByName
-===============
-*/
-tremInfoPane_t *UI_FindInfoPaneByName( const char *name )
-{
-  int i;
-
-  for( i = 0; i < uiInfo.tremInfoPaneCount; i++ )
-  {
-    if( !Q_stricmp( uiInfo.tremInfoPanes[ i ].name, name ) )
-      return &uiInfo.tremInfoPanes[ i ];
-  }
-
-  //create a dummy infopane demanding the user write the infopane
-  uiInfo.tremInfoPanes[ i ].name = String_Alloc( name );
-  strncpy( uiInfo.tremInfoPanes[ i ].text, "Not implemented.\n\nui/infopanes.def\n", MAX_INFOPANE_TEXT );
-  Q_strcat( uiInfo.tremInfoPanes[ i ].text, MAX_INFOPANE_TEXT, String_Alloc( name ) );
-
-  uiInfo.tremInfoPaneCount++;
-
-  return &uiInfo.tremInfoPanes[ i ];
-}
-
-/*
-===============
-UI_LoadInfoPane
-===============
-*/
-qboolean UI_LoadInfoPane( int handle )
-{
-  pc_token_t  token;
-  qboolean    valid = qfalse;
-
-  while( 1 )
-  {
-    memset( &token, 0, sizeof( pc_token_t ) );
-
-    if( !trap_Parse_ReadToken( handle, &token ) )
-      break;
-
-    if( !Q_stricmp( token.string, "name" ) )
-    {
-      memset( &token, 0, sizeof( pc_token_t ) );
-
-      if( !trap_Parse_ReadToken( handle, &token ) )
-        break;
-
-      uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].name = String_Alloc( token.string );
-      valid = qtrue;
-    }
-    else if( !Q_stricmp( token.string, "graphic" ) )
-    {
-      int *graphic;
-
-      memset( &token, 0, sizeof( pc_token_t ) );
-
-      if( !trap_Parse_ReadToken( handle, &token ) )
-        break;
-
-      graphic = &uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].numGraphics;
-
-      if( !Q_stricmp( token.string, "top" ) )
-        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].side = INFOPANE_TOP;
-      else if( !Q_stricmp( token.string, "bottom" ) )
-        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].side = INFOPANE_BOTTOM;
-      else if( !Q_stricmp( token.string, "left" ) )
-        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].side = INFOPANE_LEFT;
-      else if( !Q_stricmp( token.string, "right" ) )
-        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].side = INFOPANE_RIGHT;
-      else
-        break;
-
-      memset( &token, 0, sizeof( pc_token_t ) );
-
-      if( !trap_Parse_ReadToken( handle, &token ) )
-        break;
-
-      if( !Q_stricmp( token.string, "center" ) )
-        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].offset = -1;
-      else
-        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].offset = token.intvalue;
-
-      memset( &token, 0, sizeof( pc_token_t ) );
-
-      if( !trap_Parse_ReadToken( handle, &token ) )
-        break;
-
-      uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].graphic =
-        trap_R_RegisterShaderNoMip( token.string );
-
-      memset( &token, 0, sizeof( pc_token_t ) );
-
-      if( !trap_Parse_ReadToken( handle, &token ) )
-        break;
-
-      uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].width = token.intvalue;
-
-      memset( &token, 0, sizeof( pc_token_t ) );
-
-      if( !trap_Parse_ReadToken( handle, &token ) )
-        break;
-
-      uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].graphics[ *graphic ].height = token.intvalue;
-
-      //increment graphics
-      (*graphic)++;
-
-      if( *graphic == MAX_INFOPANE_GRAPHICS )
-        break;
-    }
-    else if( !Q_stricmp( token.string, "text" ) )
-    {
-      memset( &token, 0, sizeof( pc_token_t ) );
-
-      if( !trap_Parse_ReadToken( handle, &token ) )
-        break;
-
-      Q_strcat( uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].text, MAX_INFOPANE_TEXT, token.string );
-    }
-    else if( !Q_stricmp( token.string, "align" ) )
-    {
-      memset( &token, 0, sizeof( pc_token_t ) );
-
-      if( !trap_Parse_ReadToken( handle, &token ) )
-        break;
-
-      if( !Q_stricmp( token.string, "left" ) )
-        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].align = ITEM_ALIGN_LEFT;
-      else if( !Q_stricmp( token.string, "right" ) )
-        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].align = ITEM_ALIGN_RIGHT;
-      else if( !Q_stricmp( token.string, "center" ) )
-        uiInfo.tremInfoPanes[ uiInfo.tremInfoPaneCount ].align = ITEM_ALIGN_CENTER;
-    }
-    else if( token.string[ 0 ] == '}' )
-    {
-      //reached the end, break
-      break;
-    }
-    else
-      break;
-  }
-
-  if( valid )
-  {
-    uiInfo.tremInfoPaneCount++;
-    return qtrue;
-  }
-  else
-  {
-    return qfalse;
-  }
-}
-
-/*
-===============
-UI_LoadInfoPanes
-===============
-*/
-void UI_LoadInfoPanes( const char *file )
-{
-  pc_token_t token;
-  int handle;
-  int count;
-
-  uiInfo.tremInfoPaneCount = count = 0;
-
-  handle = trap_Parse_LoadSource( file );
-
-  if( !handle )
-  {
-    trap_Error( va( S_COLOR_YELLOW "infopane file not found: %s\n", file ) );
-    return;
-  }
-
-  while( 1 )
-  {
-    if( !trap_Parse_ReadToken( handle, &token ) )
-      break;
-
-    if( token.string[ 0 ] == 0 )
-      break;
-
-    if( token.string[ 0 ] == '{' )
-    {
-      if( UI_LoadInfoPane( handle ) )
-        count++;
-
-      if( count == MAX_INFOPANES )
-        break;
-    }
-  }
-
-  trap_Parse_FreeSource( handle );
-}
-
 qboolean Load_Menu(int handle) {
   pc_token_t token;
 
@@ -1405,81 +1208,26 @@ static void UI_DrawPreviewCinematic(rectDef_t *rect, float scale, vec4_t color) 
 }
 
 
-#define GRAPHIC_BWIDTH  8.0f
 /*
 ===============
 UI_DrawInfoPane
 ===============
 */
-static void UI_DrawInfoPane( tremInfoPane_t *pane, rectDef_t *rect, float text_x, float text_y,
+static void UI_DrawInfoPane( menuItem_t *item, rectDef_t *rect, float text_x, float text_y,
                              float scale, vec4_t color, int textStyle )
 {
-  int       i;
   float     maxLeft = 0, maxTop = 0;
   float     maxRight = 0, maxBottom = 0;
   float     x = rect->x - text_x, y = rect->y - text_y, w, h;
-  float     xoffset = 0, yoffset = 0;
   menuDef_t dummyParent;
   itemDef_t textItem;
+  int       value = 0;
+  char      *string = "";
+  int       class, credits;
+  char      ui_currentClass[ MAX_STRING_CHARS ];
 
-  //iterate through graphics
-  for( i = 0; i < pane->numGraphics; i++ )
-  {
-    float width         = pane->graphics[ i ].width;
-    float height        = pane->graphics[ i ].height;
-    qhandle_t graphic = pane->graphics[ i ].graphic;
-
-    if( pane->graphics[ i ].side == INFOPANE_TOP || pane->graphics[ i ].side == INFOPANE_BOTTOM )
-    {
-      //set horizontal offset of graphic
-      if( pane->graphics[ i ].offset < 0 )
-        xoffset = ( rect->w / 2 ) - ( pane->graphics[ i ].width / 2 );
-      else
-        xoffset = pane->graphics[ i ].offset + GRAPHIC_BWIDTH;
-    }
-    else if( pane->graphics[ i ].side == INFOPANE_LEFT || pane->graphics[ i ].side == INFOPANE_RIGHT )
-    {
-      //set vertical offset of graphic
-      if( pane->graphics[ i ].offset < 0 )
-        yoffset = ( rect->h / 2 ) - ( pane->graphics[ i ].height / 2 );
-      else
-        yoffset = pane->graphics[ i ].offset + GRAPHIC_BWIDTH;
-    }
-
-    if( pane->graphics[ i ].side == INFOPANE_LEFT )
-    {
-      //set the horizontal offset of the text
-      if( pane->graphics[ i ].width > maxLeft )
-        maxLeft = pane->graphics[ i ].width + GRAPHIC_BWIDTH;
-
-      xoffset = GRAPHIC_BWIDTH;
-    }
-    else if( pane->graphics[ i ].side == INFOPANE_RIGHT )
-    {
-      if( pane->graphics[ i ].width > maxRight )
-        maxRight = pane->graphics[ i ].width + GRAPHIC_BWIDTH;
-
-      xoffset = rect->w - width - GRAPHIC_BWIDTH;
-    }
-    else if( pane->graphics[ i ].side == INFOPANE_TOP )
-    {
-      //set the vertical offset of the text
-      if( pane->graphics[ i ].height > maxTop )
-        maxTop = pane->graphics[ i ].height + GRAPHIC_BWIDTH;
-
-      yoffset = GRAPHIC_BWIDTH;
-    }
-    else if( pane->graphics[ i ].side == INFOPANE_BOTTOM )
-    {
-      if( pane->graphics[ i ].height > maxBottom )
-        maxBottom = pane->graphics[ i ].height + GRAPHIC_BWIDTH;
-
-      yoffset = rect->h - height - GRAPHIC_BWIDTH;
-    }
-
-    //draw the graphic
-    UI_DrawHandlePic( x + xoffset, y + yoffset, width, height, graphic );
-  }
+  trap_Cvar_VariableStringBuffer( "ui_currentClass", ui_currentClass, MAX_STRING_CHARS );
+  sscanf( ui_currentClass, "%d %d", &class, &credits );
 
   //offset the text
   x = rect->x + maxLeft;
@@ -1487,31 +1235,93 @@ static void UI_DrawInfoPane( tremInfoPane_t *pane, rectDef_t *rect, float text_x
   w = rect->w - ( maxLeft + maxRight + 16 + ( 2 * text_x ) ); //16 to ensure text within frame
   h = rect->h - ( maxTop + maxBottom );
 
-  textItem.text = pane->text;
+  switch( item->type )
+  {
+    case INFOTYPE_TEXT:
+      textItem.text = item->v.text;
+      break;
+
+    case INFOTYPE_CLASS:
+      value = BG_ClassCanEvolveFromTo( class, item->v.pclass, credits, 0 );
+      if( value < 1 )
+      {
+        textItem.text = va( "%s\n\n%s",
+            BG_FindHumanNameForClassNum( item->v.pclass ),
+            BG_FindInfoForClassNum( item->v.pclass ) );
+      }
+      else
+      {
+        textItem.text = va( "%s\n\n%s\n\nKills: %d",
+            BG_FindHumanNameForClassNum( item->v.pclass ),
+            BG_FindInfoForClassNum( item->v.pclass ),
+            value );
+      }
+      break;
+
+    case INFOTYPE_WEAPON:
+      value = BG_FindPriceForWeapon( item->v.weapon );
+      if( value == 0 )
+      {
+        textItem.text = va( "%s\n\n%s\n\nCredits: Free",
+            BG_FindHumanNameForWeapon( item->v.weapon ),
+            BG_FindInfoForWeapon( item->v.weapon ) );
+      }
+      else
+      {
+        textItem.text = va( "%s\n\n%s\n\nCredits: %d",
+            BG_FindHumanNameForWeapon( item->v.weapon ),
+            BG_FindInfoForWeapon( item->v.weapon ),
+            value );
+      }
+      break;
+
+    case INFOTYPE_UPGRADE:
+      value = BG_FindPriceForUpgrade( item->v.upgrade );
+      if( value == 0 )
+      {
+        textItem.text = va( "%s\n\n%s\n\nCredits: Free",
+            BG_FindHumanNameForUpgrade( item->v.upgrade ),
+            BG_FindInfoForUpgrade( item->v.upgrade ) );
+      }
+      else
+      {
+        textItem.text = va( "%s\n\n%s\n\nCredits: %d",
+            BG_FindHumanNameForUpgrade( item->v.upgrade ),
+            BG_FindInfoForUpgrade( item->v.upgrade ),
+            value );
+      }
+      break;
+
+    case INFOTYPE_BUILDABLE:
+      value = BG_FindBuildPointsForBuildable( item->v.buildable );
+      switch( BG_FindTeamForBuildable( item->v.buildable ) )
+      {
+        case BIT_ALIENS: string = "Sentience"; break;
+        case BIT_HUMANS: string = "Power"; break;
+        default: break;
+      }
+
+      if( value == 0 )
+      {
+        textItem.text = va( "%s\n\n%s",
+            BG_FindHumanNameForBuildable( item->v.buildable ),
+            BG_FindInfoForBuildable( item->v.buildable ) );
+      }
+      else
+      {
+        textItem.text = va( "%s\n\n%s\n\n%s: %d",
+            BG_FindHumanNameForBuildable( item->v.buildable ),
+            BG_FindInfoForBuildable( item->v.buildable ),
+            string, value );
+      }
+      break;
+  }
 
   textItem.parent = &dummyParent;
   memcpy( textItem.window.foreColor, color, sizeof( vec4_t ) );
   textItem.window.flags = 0;
 
-  switch( pane->align )
-  {
-    case ITEM_ALIGN_LEFT:
-      textItem.window.rect.x = x;
-      break;
-
-    case ITEM_ALIGN_RIGHT:
-      textItem.window.rect.x = x + w;
-      break;
-
-    case ITEM_ALIGN_CENTER:
-      textItem.window.rect.x = x + ( w / 2 );
-      break;
-
-    default:
-      textItem.window.rect.x = x;
-      break;
-  }
-
+  textItem.window.rect.x = x;
   textItem.window.rect.y = y;
   textItem.window.rect.w = w;
   textItem.window.rect.h = h;
@@ -1520,7 +1330,7 @@ static void UI_DrawInfoPane( tremInfoPane_t *pane, rectDef_t *rect, float text_x
   textItem.textRect.y = 0;
   textItem.textRect.w = 0;
   textItem.textRect.h = 0;
-  textItem.textalignment = pane->align;
+  textItem.textalignment = ITEM_ALIGN_LEFT;
   textItem.textalignx = text_x;
   textItem.textaligny = text_y;
   textItem.textscale = scale;
@@ -2346,7 +2156,6 @@ static void UI_OwnerDraw( float x, float y, float w, float h,
                           float scale, vec4_t color, qhandle_t shader, int textStyle )
 {
   rectDef_t       rect;
-  tremInfoPane_t  *pane = NULL;
 
   rect.x = x + text_x;
   rect.y = y + text_y;
@@ -2356,43 +2165,43 @@ static void UI_OwnerDraw( float x, float y, float w, float h,
   switch( ownerDraw )
   {
     case UI_TEAMINFOPANE:
-      if( ( pane = uiInfo.tremTeamList[ uiInfo.tremTeamIndex ].infopane ) )
-        UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
+        UI_DrawInfoPane( &uiInfo.tremTeamList[ uiInfo.tremTeamIndex ],
+          &rect, text_x, text_y, scale, color, textStyle );
       break;
 
     case UI_ACLASSINFOPANE:
-      if( ( pane = uiInfo.tremAlienClassList[ uiInfo.tremAlienClassIndex ].infopane ) )
-        UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
+        UI_DrawInfoPane( &uiInfo.alienClassList[ uiInfo.alienClassIndex ],
+          &rect, text_x, text_y, scale, color, textStyle );
       break;
 
     case UI_AUPGRADEINFOPANE:
-      if( ( pane = uiInfo.tremAlienUpgradeList[ uiInfo.tremAlienUpgradeIndex ].infopane ) )
-        UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
+        UI_DrawInfoPane( &uiInfo.alienUpgradeList[ uiInfo.alienUpgradeIndex ],
+          &rect, text_x, text_y, scale, color, textStyle );
       break;
 
     case UI_HITEMINFOPANE:
-      if( ( pane = uiInfo.tremHumanItemList[ uiInfo.tremHumanItemIndex ].infopane ) )
-        UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
+        UI_DrawInfoPane( &uiInfo.humanItemList[ uiInfo.humanItemIndex ],
+          &rect, text_x, text_y, scale, color, textStyle );
       break;
 
     case UI_HBUYINFOPANE:
-      if( ( pane = uiInfo.tremHumanArmouryBuyList[ uiInfo.tremHumanArmouryBuyIndex ].infopane ) )
-        UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
+        UI_DrawInfoPane( &uiInfo.humanArmouryBuyList[ uiInfo.humanArmouryBuyIndex ],
+          &rect, text_x, text_y, scale, color, textStyle );
       break;
 
     case UI_HSELLINFOPANE:
-      if( ( pane = uiInfo.tremHumanArmourySellList[ uiInfo.tremHumanArmourySellIndex ].infopane ) )
-        UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
+        UI_DrawInfoPane( &uiInfo.humanArmourySellList[ uiInfo.humanArmourySellIndex ],
+          &rect, text_x, text_y, scale, color, textStyle );
       break;
 
     case UI_ABUILDINFOPANE:
-      if( ( pane = uiInfo.tremAlienBuildList[ uiInfo.tremAlienBuildIndex ].infopane ) )
-        UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
+        UI_DrawInfoPane( &uiInfo.alienBuildList[ uiInfo.alienBuildIndex ],
+          &rect, text_x, text_y, scale, color, textStyle );
       break;
 
     case UI_HBUILDINFOPANE:
-      if( ( pane = uiInfo.tremHumanBuildList[ uiInfo.tremHumanBuildIndex ].infopane ) )
-        UI_DrawInfoPane( pane, &rect, text_x, text_y, scale, color, textStyle );
+        UI_DrawInfoPane( &uiInfo.humanBuildList[ uiInfo.humanBuildIndex ],
+          &rect, text_x, text_y, scale, color, textStyle );
       break;
 
     case UI_HANDICAP:
@@ -3171,28 +2980,43 @@ static stage_t UI_GetCurrentHumanStage( void )
 
 /*
 ===============
-UI_LoadTremTeams
+UI_LoadTeams
 ===============
 */
-static void UI_LoadTremTeams( void )
+static void UI_LoadTeams( void )
 {
   uiInfo.tremTeamCount = 4;
 
   uiInfo.tremTeamList[ 0 ].text = String_Alloc( "Aliens" );
   uiInfo.tremTeamList[ 0 ].cmd = String_Alloc( "cmd team aliens\n" );
-  uiInfo.tremTeamList[ 0 ].infopane = UI_FindInfoPaneByName( "alienteam" );
+  uiInfo.tremTeamList[ 0 ].type = INFOTYPE_TEXT;
+  uiInfo.tremTeamList[ 0 ].v.text =
+    "The Alien Team\n\n"
+    "The Aliens' strengths are in movement and the ability to "
+    "quickly construct new bases quickly. They possess a range "
+    "of abilities including basic melee attacks, movement-"
+    "crippling poisons and more.";
 
   uiInfo.tremTeamList[ 1 ].text = String_Alloc( "Humans" );
   uiInfo.tremTeamList[ 1 ].cmd = String_Alloc( "cmd team humans\n" );
-  uiInfo.tremTeamList[ 1 ].infopane = UI_FindInfoPaneByName( "humanteam" );
+  uiInfo.tremTeamList[ 1 ].type = INFOTYPE_TEXT;
+  uiInfo.tremTeamList[ 1 ].v.text =
+     "The Human Team\n\n"
+     "The humans are the masters of technology. Although their "
+     "bases take long to construct, their automated defense "
+     "ensures they stay built. A wide range of upgrades and "
+     "weapons are available to the humans, each contributing "
+     "to eradicate the alien threat.";
 
   uiInfo.tremTeamList[ 2 ].text = String_Alloc( "Spectate" );
   uiInfo.tremTeamList[ 2 ].cmd = String_Alloc( "cmd team spectate\n" );
-  uiInfo.tremTeamList[ 2 ].infopane = UI_FindInfoPaneByName( "spectateteam" );
+  uiInfo.tremTeamList[ 2 ].type = INFOTYPE_TEXT;
+  uiInfo.tremTeamList[ 2 ].v.text = "Watch the game without playing.";
 
   uiInfo.tremTeamList[ 3 ].text = String_Alloc( "Auto select" );
   uiInfo.tremTeamList[ 3 ].cmd = String_Alloc( "cmd team auto\n" );
-  uiInfo.tremTeamList[ 3 ].infopane = UI_FindInfoPaneByName( "autoteam" );
+  uiInfo.tremTeamList[ 3 ].type = INFOTYPE_TEXT;
+  uiInfo.tremTeamList[ 3 ].v.text = "Join the team with the least players.";
 }
 
 /*
@@ -3202,24 +3026,24 @@ UI_AddClass
 */
 static void UI_AddClass( pClass_t class )
 {
-  uiInfo.tremAlienClassList[ uiInfo.tremAlienClassCount ].text =
+  uiInfo.alienClassList[ uiInfo.alienClassCount ].text =
     String_Alloc( BG_FindHumanNameForClassNum( class ) );
-  uiInfo.tremAlienClassList[ uiInfo.tremAlienClassCount ].cmd =
+  uiInfo.alienClassList[ uiInfo.alienClassCount ].cmd =
     String_Alloc( va( "cmd class %s\n", BG_FindNameForClassNum( class ) ) );
-  uiInfo.tremAlienClassList[ uiInfo.tremAlienClassCount ].infopane =
-    UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( class ) ) );
+  uiInfo.alienClassList[ uiInfo.alienClassCount ].type = INFOTYPE_CLASS;
+  uiInfo.alienClassList[ uiInfo.alienClassCount ].v.pclass = class;
 
-  uiInfo.tremAlienClassCount++;
+  uiInfo.alienClassCount++;
 }
 
 /*
 ===============
-UI_LoadTremAlienClasses
+UI_LoadAlienClasses
 ===============
 */
-static void UI_LoadTremAlienClasses( void )
+static void UI_LoadAlienClasses( void )
 {
-  uiInfo.tremAlienClassCount = 0;
+  uiInfo.alienClassCount = 0;
 
   if( BG_ClassIsAllowed( PCL_ALIEN_LEVEL0 ) )
     UI_AddClass( PCL_ALIEN_LEVEL0 );
@@ -3238,24 +3062,24 @@ UI_AddItem
 */
 static void UI_AddItem( weapon_t weapon )
 {
-  uiInfo.tremHumanItemList[ uiInfo.tremHumanItemCount ].text =
+  uiInfo.humanItemList[ uiInfo.humanItemCount ].text =
     String_Alloc( BG_FindHumanNameForWeapon( weapon ) );
-  uiInfo.tremHumanItemList[ uiInfo.tremHumanItemCount ].cmd =
+  uiInfo.humanItemList[ uiInfo.humanItemCount ].cmd =
     String_Alloc( va( "cmd class %s\n", BG_FindNameForWeapon( weapon ) ) );
-  uiInfo.tremHumanItemList[ uiInfo.tremHumanItemCount ].infopane =
-    UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( weapon ) ) );
+  uiInfo.humanItemList[ uiInfo.humanItemCount ].type = INFOTYPE_WEAPON;
+  uiInfo.humanItemList[ uiInfo.humanItemCount ].v.weapon = weapon;
 
-  uiInfo.tremHumanItemCount++;
+  uiInfo.humanItemCount++;
 }
 
 /*
 ===============
-UI_LoadTremHumanItems
+UI_LoadHumanItems
 ===============
 */
-static void UI_LoadTremHumanItems( void )
+static void UI_LoadHumanItems( void )
 {
-  uiInfo.tremHumanItemCount = 0;
+  uiInfo.humanItemCount = 0;
 
   if( BG_WeaponIsAllowed( WP_MACHINEGUN ) )
     UI_AddItem( WP_MACHINEGUN );
@@ -3329,10 +3153,10 @@ static void UI_ParseCarriageList( int *weapons, int *upgrades )
 
 /*
 ===============
-UI_LoadTremHumanArmouryBuys
+UI_LoadHumanArmouryBuys
 ===============
 */
-static void UI_LoadTremHumanArmouryBuys( void )
+static void UI_LoadHumanArmouryBuys( void )
 {
   int i, j = 0;
   stage_t stage = UI_GetCurrentHumanStage( );
@@ -3353,7 +3177,7 @@ static void UI_LoadTremHumanArmouryBuys( void )
       slots |= BG_FindSlotsForUpgrade( i );
   }
 
-  uiInfo.tremHumanArmouryBuyCount = 0;
+  uiInfo.humanArmouryBuyCount = 0;
 
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
@@ -3364,16 +3188,16 @@ static void UI_LoadTremHumanArmouryBuys( void )
         !( BG_FindSlotsForWeapon( i ) & slots ) &&
         !( weapons & ( 1 << i ) ) )
     {
-      uiInfo.tremHumanArmouryBuyList[ j ].text =
+      uiInfo.humanArmouryBuyList[ j ].text =
         String_Alloc( BG_FindHumanNameForWeapon( i ) );
-      uiInfo.tremHumanArmouryBuyList[ j ].cmd =
+      uiInfo.humanArmouryBuyList[ j ].cmd =
         String_Alloc( va( "cmd buy %s retrigger\n", BG_FindNameForWeapon( i ) ) );
-      uiInfo.tremHumanArmouryBuyList[ j ].infopane =
-        UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( i ) ) );
+      uiInfo.humanArmouryBuyList[ j ].type = INFOTYPE_WEAPON;
+      uiInfo.humanArmouryBuyList[ j ].v.weapon = i;
 
       j++;
 
-      uiInfo.tremHumanArmouryBuyCount++;
+      uiInfo.humanArmouryBuyCount++;
     }
   }
 
@@ -3386,46 +3210,46 @@ static void UI_LoadTremHumanArmouryBuys( void )
         !( BG_FindSlotsForUpgrade( i ) & slots ) &&
         !( upgrades & ( 1 << i ) ) )
     {
-      uiInfo.tremHumanArmouryBuyList[ j ].text =
+      uiInfo.humanArmouryBuyList[ j ].text =
         String_Alloc( BG_FindHumanNameForUpgrade( i ) );
-      uiInfo.tremHumanArmouryBuyList[ j ].cmd =
+      uiInfo.humanArmouryBuyList[ j ].cmd =
         String_Alloc( va( "cmd buy %s retrigger\n", BG_FindNameForUpgrade( i ) ) );
-      uiInfo.tremHumanArmouryBuyList[ j ].infopane =
-        UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForUpgrade( i ) ) );
+      uiInfo.humanArmouryBuyList[ j ].type = INFOTYPE_UPGRADE;
+      uiInfo.humanArmouryBuyList[ j ].v.upgrade = i;
 
       j++;
 
-      uiInfo.tremHumanArmouryBuyCount++;
+      uiInfo.humanArmouryBuyCount++;
     }
   }
 }
 
 /*
 ===============
-UI_LoadTremHumanArmourySells
+UI_LoadHumanArmourySells
 ===============
 */
-static void UI_LoadTremHumanArmourySells( void )
+static void UI_LoadHumanArmourySells( void )
 {
   int weapons, upgrades;
   int i, j = 0;
 
-  uiInfo.tremHumanArmourySellCount = 0;
+  uiInfo.humanArmourySellCount = 0;
   UI_ParseCarriageList( &weapons, &upgrades );
 
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
     if( weapons & ( 1 << i ) )
     {
-      uiInfo.tremHumanArmourySellList[ j ].text = String_Alloc( BG_FindHumanNameForWeapon( i ) );
-      uiInfo.tremHumanArmourySellList[ j ].cmd =
+      uiInfo.humanArmourySellList[ j ].text = String_Alloc( BG_FindHumanNameForWeapon( i ) );
+      uiInfo.humanArmourySellList[ j ].cmd =
         String_Alloc( va( "cmd sell %s retrigger\n", BG_FindNameForWeapon( i ) ) );
-      uiInfo.tremHumanArmourySellList[ j ].infopane =
-        UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForWeapon( i ) ) );
+      uiInfo.humanArmourySellList[ j ].type = INFOTYPE_WEAPON;
+      uiInfo.humanArmourySellList[ j ].v.weapon = i;
 
       j++;
 
-      uiInfo.tremHumanArmourySellCount++;
+      uiInfo.humanArmourySellCount++;
     }
   }
 
@@ -3433,25 +3257,25 @@ static void UI_LoadTremHumanArmourySells( void )
   {
     if( upgrades & ( 1 << i ) )
     {
-      uiInfo.tremHumanArmourySellList[ j ].text = String_Alloc( BG_FindHumanNameForUpgrade( i ) );
-      uiInfo.tremHumanArmourySellList[ j ].cmd =
+      uiInfo.humanArmourySellList[ j ].text = String_Alloc( BG_FindHumanNameForUpgrade( i ) );
+      uiInfo.humanArmourySellList[ j ].cmd =
         String_Alloc( va( "cmd sell %s retrigger\n", BG_FindNameForUpgrade( i ) ) );
-      uiInfo.tremHumanArmourySellList[ j ].infopane =
-        UI_FindInfoPaneByName( va( "%sitem", BG_FindNameForUpgrade( i ) ) );
+      uiInfo.humanArmourySellList[ j ].type = INFOTYPE_UPGRADE;
+      uiInfo.humanArmourySellList[ j ].v.upgrade = i;
 
       j++;
 
-      uiInfo.tremHumanArmourySellCount++;
+      uiInfo.humanArmourySellCount++;
     }
   }
 }
 
 /*
 ===============
-UI_LoadTremAlienUpgrades
+UI_LoadAlienUpgrades
 ===============
 */
-static void UI_LoadTremAlienUpgrades( void )
+static void UI_LoadAlienUpgrades( void )
 {
   int     i, j = 0;
   int     class, credits;
@@ -3461,7 +3285,7 @@ static void UI_LoadTremAlienUpgrades( void )
   trap_Cvar_VariableStringBuffer( "ui_currentClass", ui_currentClass, MAX_STRING_CHARS );
   sscanf( ui_currentClass, "%d %d", &class, &credits );
 
-  uiInfo.tremAlienUpgradeCount = 0;
+  uiInfo.alienUpgradeCount = 0;
 
   for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
   {
@@ -3469,25 +3293,25 @@ static void UI_LoadTremAlienUpgrades( void )
         BG_FindStagesForClass( i, stage ) &&
         BG_ClassIsAllowed( i ) )
     {
-      uiInfo.tremAlienUpgradeList[ j ].text = String_Alloc( BG_FindHumanNameForClassNum( i ) );
-      uiInfo.tremAlienUpgradeList[ j ].cmd =
+      uiInfo.alienUpgradeList[ j ].text = String_Alloc( BG_FindHumanNameForClassNum( i ) );
+      uiInfo.alienUpgradeList[ j ].cmd =
         String_Alloc( va( "cmd class %s\n", BG_FindNameForClassNum( i ) ) );
-      uiInfo.tremAlienUpgradeList[ j ].infopane =
-        UI_FindInfoPaneByName( va( "%sclass", BG_FindNameForClassNum( i ) ) );
+      uiInfo.alienUpgradeList[ j ].type = INFOTYPE_CLASS;
+      uiInfo.alienUpgradeList[ j ].v.pclass = i;
 
       j++;
 
-      uiInfo.tremAlienUpgradeCount++;
+      uiInfo.alienUpgradeCount++;
     }
   }
 }
 
 /*
 ===============
-UI_LoadTremAlienBuilds
+UI_LoadAlienBuilds
 ===============
 */
-static void UI_LoadTremAlienBuilds( void )
+static void UI_LoadAlienBuilds( void )
 {
   int     weapons;
   int     i, j = 0;
@@ -3496,7 +3320,7 @@ static void UI_LoadTremAlienBuilds( void )
   UI_ParseCarriageList( &weapons, NULL );
   stage = UI_GetCurrentAlienStage( );
 
-  uiInfo.tremAlienBuildCount = 0;
+  uiInfo.alienBuildCount = 0;
 
   for( i = BA_NONE +1; i < BA_NUM_BUILDABLES; i++ )
   {
@@ -3505,26 +3329,26 @@ static void UI_LoadTremAlienBuilds( void )
         BG_FindStagesForBuildable( i, stage ) &&
         BG_BuildableIsAllowed( i ) )
     {
-      uiInfo.tremAlienBuildList[ j ].text =
+      uiInfo.alienBuildList[ j ].text =
         String_Alloc( BG_FindHumanNameForBuildable( i ) );
-      uiInfo.tremAlienBuildList[ j ].cmd =
+      uiInfo.alienBuildList[ j ].cmd =
         String_Alloc( va( "cmd build %s\n", BG_FindNameForBuildable( i ) ) );
-      uiInfo.tremAlienBuildList[ j ].infopane =
-        UI_FindInfoPaneByName( va( "%sbuild", BG_FindNameForBuildable( i ) ) );
+      uiInfo.alienBuildList[ j ].type = INFOTYPE_BUILDABLE;
+      uiInfo.alienBuildList[ j ].v.buildable = i;
 
       j++;
 
-      uiInfo.tremAlienBuildCount++;
+      uiInfo.alienBuildCount++;
     }
   }
 }
 
 /*
 ===============
-UI_LoadTremHumanBuilds
+UI_LoadHumanBuilds
 ===============
 */
-static void UI_LoadTremHumanBuilds( void )
+static void UI_LoadHumanBuilds( void )
 {
   int     weapons;
   int     i, j = 0;
@@ -3533,7 +3357,7 @@ static void UI_LoadTremHumanBuilds( void )
   UI_ParseCarriageList( &weapons, NULL );
   stage = UI_GetCurrentHumanStage( );
 
-  uiInfo.tremHumanBuildCount = 0;
+  uiInfo.humanBuildCount = 0;
 
   for( i = BA_NONE +1; i < BA_NUM_BUILDABLES; i++ )
   {
@@ -3542,16 +3366,16 @@ static void UI_LoadTremHumanBuilds( void )
         BG_FindStagesForBuildable( i, stage ) &&
         BG_BuildableIsAllowed( i ) )
     {
-      uiInfo.tremHumanBuildList[ j ].text =
+      uiInfo.humanBuildList[ j ].text =
         String_Alloc( BG_FindHumanNameForBuildable( i ) );
-      uiInfo.tremHumanBuildList[ j ].cmd =
+      uiInfo.humanBuildList[ j ].cmd =
         String_Alloc( va( "cmd build %s\n", BG_FindNameForBuildable( i ) ) );
-      uiInfo.tremHumanBuildList[ j ].infopane =
-        UI_FindInfoPaneByName( va( "%sbuild", BG_FindNameForBuildable( i ) ) );
+      uiInfo.humanBuildList[ j ].type = INFOTYPE_BUILDABLE;
+      uiInfo.humanBuildList[ j ].v.buildable = i;
 
       j++;
 
-      uiInfo.tremHumanBuildCount++;
+      uiInfo.humanBuildCount++;
     }
   }
 }
@@ -3998,65 +3822,65 @@ static void UI_RunMenuScript(char **args) {
       UI_LoadMods();
     }
     else if( Q_stricmp( name, "LoadTeams" ) == 0 )
-      UI_LoadTremTeams( );
+      UI_LoadTeams( );
     else if( Q_stricmp( name, "JoinTeam" ) == 0 )
     {
       if( ( cmd = uiInfo.tremTeamList[ uiInfo.tremTeamIndex ].cmd ) )
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
     else if( Q_stricmp( name, "LoadHumanItems" ) == 0 )
-      UI_LoadTremHumanItems( );
+      UI_LoadHumanItems( );
     else if( Q_stricmp( name, "SpawnWithHumanItem" ) == 0 )
     {
-      if( ( cmd = uiInfo.tremHumanItemList[ uiInfo.tremHumanItemIndex ].cmd ) )
+      if( ( cmd = uiInfo.humanItemList[ uiInfo.humanItemIndex ].cmd ) )
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
     else if( Q_stricmp( name, "LoadAlienClasses" ) == 0 )
-      UI_LoadTremAlienClasses( );
+      UI_LoadAlienClasses( );
     else if( Q_stricmp( name, "SpawnAsAlienClass" ) == 0 )
     {
-      if( ( cmd = uiInfo.tremAlienClassList[ uiInfo.tremAlienClassIndex ].cmd ) )
+      if( ( cmd = uiInfo.alienClassList[ uiInfo.alienClassIndex ].cmd ) )
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
     else if( Q_stricmp( name, "LoadHumanArmouryBuys" ) == 0 )
-      UI_LoadTremHumanArmouryBuys( );
+      UI_LoadHumanArmouryBuys( );
     else if( Q_stricmp( name, "BuyFromArmoury" ) == 0 )
     {
-      if( ( cmd = uiInfo.tremHumanArmouryBuyList[ uiInfo.tremHumanArmouryBuyIndex ].cmd ) )
+      if( ( cmd = uiInfo.humanArmouryBuyList[ uiInfo.humanArmouryBuyIndex ].cmd ) )
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
     else if( Q_stricmp( name, "LoadHumanArmourySells" ) == 0 )
-      UI_LoadTremHumanArmourySells( );
+      UI_LoadHumanArmourySells( );
     else if( Q_stricmp( name, "SellToArmoury" ) == 0 )
     {
-      if( ( cmd = uiInfo.tremHumanArmourySellList[ uiInfo.tremHumanArmourySellIndex ].cmd ) )
+      if( ( cmd = uiInfo.humanArmourySellList[ uiInfo.humanArmourySellIndex ].cmd ) )
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
     else if( Q_stricmp( name, "LoadAlienUpgrades" ) == 0 )
     {
-      UI_LoadTremAlienUpgrades( );
+      UI_LoadAlienUpgrades( );
 
       //disallow the menu if it would be empty
-      if( uiInfo.tremAlienUpgradeCount <= 0 )
+      if( uiInfo.alienUpgradeCount <= 0 )
         Menus_CloseAll( );
     }
     else if( Q_stricmp( name, "UpgradeToNewClass" ) == 0 )
     {
-      if( ( cmd = uiInfo.tremAlienUpgradeList[ uiInfo.tremAlienUpgradeIndex ].cmd ) )
+      if( ( cmd = uiInfo.alienUpgradeList[ uiInfo.alienUpgradeIndex ].cmd ) )
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
     else if( Q_stricmp( name, "LoadAlienBuilds" ) == 0 )
-      UI_LoadTremAlienBuilds( );
+      UI_LoadAlienBuilds( );
     else if( Q_stricmp( name, "BuildAlienBuildable" ) == 0 )
     {
-      if( ( cmd = uiInfo.tremAlienBuildList[ uiInfo.tremAlienBuildIndex ].cmd ) )
+      if( ( cmd = uiInfo.alienBuildList[ uiInfo.alienBuildIndex ].cmd ) )
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
     else if( Q_stricmp( name, "LoadHumanBuilds" ) == 0 )
-      UI_LoadTremHumanBuilds( );
+      UI_LoadHumanBuilds( );
     else if( Q_stricmp( name, "BuildHumanBuildable" ) == 0 )
     {
-      if( ( cmd = uiInfo.tremHumanBuildList[ uiInfo.tremHumanBuildIndex ].cmd ) )
+      if( ( cmd = uiInfo.humanBuildList[ uiInfo.humanBuildIndex ].cmd ) )
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
     else if( Q_stricmp( name, "PTRCRestore" ) == 0 )
@@ -5070,19 +4894,19 @@ static int UI_FeederCount(float feederID) {
   else if( feederID == FEEDER_TREMTEAMS )
     return uiInfo.tremTeamCount;
   else if( feederID == FEEDER_TREMHUMANITEMS )
-    return uiInfo.tremHumanItemCount;
+    return uiInfo.humanItemCount;
   else if( feederID == FEEDER_TREMALIENCLASSES )
-    return uiInfo.tremAlienClassCount;
+    return uiInfo.alienClassCount;
   else if( feederID == FEEDER_TREMHUMANARMOURYBUY )
-    return uiInfo.tremHumanArmouryBuyCount;
+    return uiInfo.humanArmouryBuyCount;
   else if( feederID == FEEDER_TREMHUMANARMOURYSELL )
-    return uiInfo.tremHumanArmourySellCount;
+    return uiInfo.humanArmourySellCount;
   else if( feederID == FEEDER_TREMALIENUPGRADE )
-    return uiInfo.tremAlienUpgradeCount;
+    return uiInfo.alienUpgradeCount;
   else if( feederID == FEEDER_TREMALIENBUILD )
-    return uiInfo.tremAlienBuildCount;
+    return uiInfo.alienBuildCount;
   else if( feederID == FEEDER_TREMHUMANBUILD )
-    return uiInfo.tremHumanBuildCount;
+    return uiInfo.humanBuildCount;
 
   return 0;
 }
@@ -5270,38 +5094,38 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
   }
   else if( feederID == FEEDER_TREMHUMANITEMS )
   {
-    if( index >= 0 && index < uiInfo.tremHumanItemCount )
-      return uiInfo.tremHumanItemList[ index ].text;
+    if( index >= 0 && index < uiInfo.humanItemCount )
+      return uiInfo.humanItemList[ index ].text;
   }
   else if( feederID == FEEDER_TREMALIENCLASSES )
   {
-    if( index >= 0 && index < uiInfo.tremAlienClassCount )
-      return uiInfo.tremAlienClassList[ index ].text;
+    if( index >= 0 && index < uiInfo.alienClassCount )
+      return uiInfo.alienClassList[ index ].text;
   }
   else if( feederID == FEEDER_TREMHUMANARMOURYBUY )
   {
-    if( index >= 0 && index < uiInfo.tremHumanArmouryBuyCount )
-      return uiInfo.tremHumanArmouryBuyList[ index ].text;
+    if( index >= 0 && index < uiInfo.humanArmouryBuyCount )
+      return uiInfo.humanArmouryBuyList[ index ].text;
   }
   else if( feederID == FEEDER_TREMHUMANARMOURYSELL )
   {
-    if( index >= 0 && index < uiInfo.tremHumanArmourySellCount )
-      return uiInfo.tremHumanArmourySellList[ index ].text;
+    if( index >= 0 && index < uiInfo.humanArmourySellCount )
+      return uiInfo.humanArmourySellList[ index ].text;
   }
   else if( feederID == FEEDER_TREMALIENUPGRADE )
   {
-    if( index >= 0 && index < uiInfo.tremAlienUpgradeCount )
-      return uiInfo.tremAlienUpgradeList[ index ].text;
+    if( index >= 0 && index < uiInfo.alienUpgradeCount )
+      return uiInfo.alienUpgradeList[ index ].text;
   }
   else if( feederID == FEEDER_TREMALIENBUILD )
   {
-    if( index >= 0 && index < uiInfo.tremAlienBuildCount )
-      return uiInfo.tremAlienBuildList[ index ].text;
+    if( index >= 0 && index < uiInfo.alienBuildCount )
+      return uiInfo.alienBuildList[ index ].text;
   }
   else if( feederID == FEEDER_TREMHUMANBUILD )
   {
-    if( index >= 0 && index < uiInfo.tremHumanBuildCount )
-      return uiInfo.tremHumanBuildList[ index ].text;
+    if( index >= 0 && index < uiInfo.humanBuildCount )
+      return uiInfo.humanBuildList[ index ].text;
   }
 
   return "";
@@ -5422,19 +5246,19 @@ static void UI_FeederSelection(float feederID, int index) {
   else if( feederID == FEEDER_TREMTEAMS )
     uiInfo.tremTeamIndex = index;
   else if( feederID == FEEDER_TREMHUMANITEMS )
-    uiInfo.tremHumanItemIndex = index;
+    uiInfo.humanItemIndex = index;
   else if( feederID == FEEDER_TREMALIENCLASSES )
-    uiInfo.tremAlienClassIndex = index;
+    uiInfo.alienClassIndex = index;
   else if( feederID == FEEDER_TREMHUMANARMOURYBUY )
-    uiInfo.tremHumanArmouryBuyIndex = index;
+    uiInfo.humanArmouryBuyIndex = index;
   else if( feederID == FEEDER_TREMHUMANARMOURYSELL )
-    uiInfo.tremHumanArmourySellIndex = index;
+    uiInfo.humanArmourySellIndex = index;
   else if( feederID == FEEDER_TREMALIENUPGRADE )
-    uiInfo.tremAlienUpgradeIndex = index;
+    uiInfo.alienUpgradeIndex = index;
   else if( feederID == FEEDER_TREMALIENBUILD )
-    uiInfo.tremAlienBuildIndex = index;
+    uiInfo.alienBuildIndex = index;
   else if( feederID == FEEDER_TREMHUMANBUILD )
-    uiInfo.tremHumanBuildIndex = index;
+    uiInfo.humanBuildIndex = index;
 }
 
 static void UI_Pause(qboolean b) {
@@ -5592,26 +5416,6 @@ void _UI_Init( qboolean inGameLoad ) {
   UI_LoadMenus("ui/menus.txt", qtrue);
   UI_LoadMenus("ui/ingame.txt", qfalse);
   UI_LoadMenus("ui/tremulous.txt", qfalse);
-
-  UI_LoadInfoPanes( "ui/infopanes.def" );
-
-  if( uiInfo.uiDC.debug )
-  {
-    int i, j;
-
-    for( i = 0; i < uiInfo.tremInfoPaneCount; i++ )
-    {
-      Com_Printf( "name: %s\n", uiInfo.tremInfoPanes[ i ].name );
-
-      Com_Printf( "text: %s\n", uiInfo.tremInfoPanes[ i ].text );
-
-      for( j = 0; j < uiInfo.tremInfoPanes[ i ].numGraphics; j++ )
-        Com_Printf( "graphic %d: %d %d %d %d\n", j, uiInfo.tremInfoPanes[ i ].graphics[ j ].side,
-                                                    uiInfo.tremInfoPanes[ i ].graphics[ j ].offset,
-                                                    uiInfo.tremInfoPanes[ i ].graphics[ j ].width,
-                                                    uiInfo.tremInfoPanes[ i ].graphics[ j ].height );
-    }
-  }
 
   Menus_CloseAll();
 
