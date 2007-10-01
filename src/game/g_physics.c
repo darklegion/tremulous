@@ -111,7 +111,7 @@ void G_Physics( gentity_t *ent, int msec )
   if( ent->clipmask )
     mask = ent->clipmask;
   else
-    mask = MASK_PLAYERSOLID & ~CONTENTS_BODY;//MASK_SOLID;
+    mask = MASK_DEADSOLID;
 
   if( ent->s.pos.trType == TR_STATIONARY )
   {

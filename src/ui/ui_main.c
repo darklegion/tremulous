@@ -4689,10 +4689,11 @@ UI_BuildFindPlayerList
 */
 static void UI_BuildFindPlayerList(qboolean force) {
   static int numFound, numTimeOuts;
-  int i, j, resend;
+  int i, j, k, resend;
   serverStatusInfo_t info;
   char name[MAX_NAME_LENGTH+2];
   char infoString[MAX_STRING_CHARS];
+  qboolean duplicate;
 
   if (!force) {
     if (!uiInfo.nextFindPlayerRefresh || uiInfo.nextFindPlayerRefresh > uiInfo.uiDC.realTime) {
@@ -4742,8 +4743,18 @@ static void UI_BuildFindPlayerList(qboolean force) {
           // clean string first
           Q_strncpyz(name, info.lines[j][3], sizeof(name));
           Q_CleanStr(name);
+
+          duplicate = qfalse;
+          for( k = 0; k < uiInfo.numFoundPlayerServers - 1; k++ )
+          {
+              if( Q_strncmp( uiInfo.foundPlayerServerAddresses[ k ],
+                             uiInfo.pendingServerStatus.server[ i ].adrstr,
+                             MAX_ADDRESSLENGTH ) == 0 )
+                duplicate = qtrue;
+          }
+
           // if the player name is a substring
-          if (stristr(name, uiInfo.findPlayerName)) {
+          if( stristr( name, uiInfo.findPlayerName ) && !duplicate ) {
             // add to found server list if we have space (always leave space for a line with the number found)
             if (uiInfo.numFoundPlayerServers < MAX_FOUNDPLAYER_SERVERS-1) {
               //
@@ -4763,7 +4774,7 @@ static void UI_BuildFindPlayerList(qboolean force) {
         }
         Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1],
                 sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1]),
-                  "searching %d/%d...", uiInfo.pendingServerStatus.num, numFound);
+                  "searching %d/%d...", numFound, uiInfo.pendingServerStatus.num );
         // retrieved the server status so reuse this spot
         uiInfo.pendingServerStatus.server[i].valid = qfalse;
       }
@@ -4789,7 +4800,7 @@ static void UI_BuildFindPlayerList(qboolean force) {
         uiInfo.pendingServerStatus.num++;
         Com_sprintf(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1],
                 sizeof(uiInfo.foundPlayerServerNames[uiInfo.numFoundPlayerServers-1]),
-                  "searching %d/%d...", uiInfo.pendingServerStatus.num, numFound);
+                  "searching %d/%d...", numFound, uiInfo.pendingServerStatus.num );
       }
     }
   }

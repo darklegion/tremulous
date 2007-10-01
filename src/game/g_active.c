@@ -400,7 +400,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
     memset( &pm, 0, sizeof( pm ) );
     pm.ps = &client->ps;
     pm.cmd = *ucmd;
-    pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY; // spectators can fly through bodies
+    pm.tracemask = MASK_DEADSOLID; // spectators can fly through bodies
     pm.trace = trap_Trace;
     pm.pointcontents = trap_PointContents;
 
@@ -513,12 +513,28 @@ void ClientTimerActions( gentity_t *ent, int msec )
   gclient_t *client;
   usercmd_t *ucmd;
   int       aForward, aRight;
+  qboolean  walking = qfalse, stopped = qfalse,
+            crouched = qfalse, jumping = qfalse,
+            strafing = qfalse;
   int       i;
 
   ucmd = &ent->client->pers.cmd;
 
   aForward  = abs( ucmd->forwardmove );
   aRight    = abs( ucmd->rightmove );
+
+  if( aForward == 0 && aRight == 0 )
+    stopped = qtrue;
+  else if( aForward <= 64 && aRight <= 64 )
+    walking = qtrue;
+
+  if( aRight > 0 )
+    strafing = qtrue;
+
+  if( ucmd->upmove > 0 )
+    jumping = qtrue;
+  else if( ucmd->upmove < 0 )
+    crouched = qtrue;
 
   client = ent->client;
   client->time100 += msec;
@@ -530,13 +546,13 @@ void ClientTimerActions( gentity_t *ent, int msec )
     client->time100 -= 100;
 
     //if not trying to run then not trying to sprint
-    if( aForward <= 64 )
+    if( walking || stopped )
       client->ps.stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
 
     if( BG_InventoryContainsUpgrade( UP_JETPACK, client->ps.stats ) && BG_UpgradeIsActive( UP_JETPACK, client->ps.stats ) )
       client->ps.stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
 
-    if( ( client->ps.stats[ STAT_STATE ] & SS_SPEEDBOOST ) &&  ucmd->upmove >= 0 )
+    if( ( client->ps.stats[ STAT_STATE ] & SS_SPEEDBOOST ) && !crouched )
     {
       //subtract stamina
       if( BG_InventoryContainsUpgrade( UP_LIGHTARMOUR, client->ps.stats ) )
@@ -548,7 +564,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
         client->ps.stats[ STAT_STAMINA ] = -MAX_STAMINA;
     }
 
-    if( ( aForward <= 64 && aForward > 5 ) || ( aRight <= 64 && aRight > 5 ) )
+    if( walking || crouched )
     {
       //restore stamina
       client->ps.stats[ STAT_STAMINA ] += STAMINA_WALK_RESTORE;
@@ -556,7 +572,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
       if( client->ps.stats[ STAT_STAMINA ] > MAX_STAMINA )
         client->ps.stats[ STAT_STAMINA ] = MAX_STAMINA;
     }
-    else if( aForward <= 5 && aRight <= 5 )
+    else if( stopped )
     {
       //restore stamina faster
       client->ps.stats[ STAT_STAMINA ] += STAMINA_STOP_RESTORE;
@@ -626,7 +642,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
           client->ps.stats[ STAT_STATE ] |= SS_CHARGING;
 
           //if the charger has stopped moving take a chunk of charge away
-          if( VectorLength( client->ps.velocity ) < 64.0f || aRight )
+          if( VectorLength( client->ps.velocity ) < 64.0f || strafing )
             client->ps.stats[ STAT_MISC ] = client->ps.stats[ STAT_MISC ] / 2;
 
           //can't charge backwards
@@ -1503,11 +1519,11 @@ void ClientThink_real( gentity_t *ent )
   pm.cmd = *ucmd;
 
   if( pm.ps->pm_type == PM_DEAD )
-    pm.tracemask = MASK_PLAYERSOLID; // & ~CONTENTS_BODY;
+    pm.tracemask = MASK_DEADSOLID;
 
   if( pm.ps->stats[ STAT_STATE ] & SS_INFESTING ||
       pm.ps->stats[ STAT_STATE ] & SS_HOVELING )
-    pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
+    pm.tracemask = MASK_DEADSOLID;
   else
     pm.tracemask = MASK_PLAYERSOLID;
 
