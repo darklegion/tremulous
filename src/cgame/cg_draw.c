@@ -2802,7 +2802,7 @@ CG_ShowTeamMenus
 */
 void CG_ShowTeamMenu( void )
 {
-  Menus_OpenByName( "teamMenu" );
+  Menus_ActivateByName( "teamMenu" );
 }
 
 /*

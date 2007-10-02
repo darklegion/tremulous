@@ -15,8 +15,8 @@
     popup
     onEsc
     {
-      close simple_options;
-      open main
+      play "sound/misc/menu1.wav"; 
+      close simple_options
     }
 
     itemDef
@@ -264,7 +264,7 @@
       action
       {
         play "sound/misc/menu1.wav";
-        close simple_options;
+        close simple_options
       }
     }
 

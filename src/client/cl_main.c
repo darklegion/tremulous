@@ -653,7 +653,7 @@ Closing the main menu will restart the demo loop
 void CL_StartDemoLoop( void ) {
 	// start the demo loop again
 	Cbuf_AddText ("d1\n");
-	cls.keyCatchers = 0;
+	Key_SetCatcher( 0 );
 }
 
 /*
@@ -798,7 +798,7 @@ memory on the hunk from cgame, ui, and renderer
 void CL_MapLoading( void ) {
 	if ( com_dedicated->integer ) {
 		cls.state = CA_DISCONNECTED;
-		cls.keyCatchers = KEYCATCH_CONSOLE;
+		Key_SetCatcher( KEYCATCH_CONSOLE );
 		return;
 	}
 
@@ -807,7 +807,7 @@ void CL_MapLoading( void ) {
 	}
 
 	Con_Close();
-	cls.keyCatchers = 0;
+	Key_SetCatcher( 0 );
 
 	// if we are already connected to the local host, stay connected
 	if ( cls.state >= CA_CONNECTED && !Q_stricmp( cls.servername, "localhost" ) ) {
@@ -821,7 +821,7 @@ void CL_MapLoading( void ) {
 		CL_Disconnect( qtrue );
 		Q_strncpyz( cls.servername, "localhost", sizeof(cls.servername) );
 		cls.state = CA_CHALLENGING;		// so the connect screen is drawn
-		cls.keyCatchers = 0;
+		Key_SetCatcher( 0 );
 		SCR_UpdateScreen();
 		clc.connectTime = -RETRANSMIT_TIMEOUT;
 		NET_StringToAdr( cls.servername, &clc.serverAddress);
@@ -1169,7 +1169,7 @@ void CL_Connect_f( void ) {
 		cls.state = CA_CONNECTING;
 	}
 
-	cls.keyCatchers = 0;
+	Key_SetCatcher( 0 );
 	clc.connectTime = -99999;	// CL_CheckForResend() will fire immediately
 	clc.connectPacketCount = 0;
 
@@ -2181,7 +2181,7 @@ void CL_Frame ( int msec ) {
 	}
 #endif
 
-	if ( cls.state == CA_DISCONNECTED && !( cls.keyCatchers & KEYCATCH_UI )
+	if ( cls.state == CA_DISCONNECTED && !( Key_GetCatcher( ) & KEYCATCH_UI )
 		&& !com_sv_running->integer ) {
 		// if disconnected, bring up the menu
 		S_StopAllSounds();
@@ -2598,8 +2598,6 @@ CL_Init
 ====================
 */
 void CL_Init( void ) {
-	const char  *playerName;
-
 	Com_Printf( "----- Client Initialization -----\n" );
 
 	Con_Init ();	
@@ -2691,32 +2689,16 @@ void CL_Init( void ) {
 	cl_guidServerUniq = Cvar_Get ("cl_guidServerUniq", "1", CVAR_ARCHIVE);
 
 	// userinfo
-	playerName = getenv( "USER" ); 				// Unixy stuff
-	if( playerName == NULL )
-	{
-		playerName = getenv( "USERNAME" ); 	// Windows
-		if( playerName == NULL )
-		{
-			playerName = "Newbie"; 						// Default
-		}
-	}
-	Cvar_Get ("name", playerName, CVAR_USERINFO | CVAR_ARCHIVE );
+	Cvar_Get ("name", Sys_GetCurrentUser( ), CVAR_USERINFO | CVAR_ARCHIVE );
 
 	Cvar_Get ("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("snaps", "20", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("model", "sarge", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("headmodel", "sarge", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("team_model", "james", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("team_headmodel", "*james", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("color1",  "4", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("color2", "5", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("handicap", "100", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("teamtask", "0", CVAR_USERINFO );
 	Cvar_Get ("sex", "male", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("cl_anonymous", "0", CVAR_USERINFO | CVAR_ARCHIVE );
 
 	Cvar_Get ("password", "", CVAR_USERINFO);
-	Cvar_Get ("cg_predictItems", "1", CVAR_USERINFO | CVAR_ARCHIVE );
 
 
 	// cgame might not be initialized before menu is used
@@ -2820,6 +2802,7 @@ void CL_Shutdown( void ) {
 	recursive = qfalse;
 
 	Com_Memset( &cls, 0, sizeof( cls ) );
+	Key_SetCatcher( 0 );
 
 	Com_Printf( "-----------------------\n" );
 

@@ -944,7 +944,7 @@ if desired.
 void ClientUserinfoChanged( int clientNum )
 {
   gentity_t *ent;
-  int       teamTask, teamLeader, health;
+  int       health;
   char      *s;
   char      model[ MAX_QPATH ];
   char      buffer[ MAX_QPATH ];
@@ -973,14 +973,6 @@ void ClientUserinfoChanged( int clientNum )
 
   if( !strcmp( s, "localhost" ) )
     client->pers.localClient = qtrue;
-
-  // check the item prediction
-  s = Info_ValueForKey( userinfo, "cg_predictItems" );
-
-  if( !atoi( s ) )
-    client->pers.predictItemPickup = qfalse;
-  else
-    client->pers.predictItemPickup = qtrue;
 
   // set name
   Q_strncpyz( oldname, client->pers.netname, sizeof( oldname ) );
@@ -1118,15 +1110,10 @@ void ClientUserinfoChanged( int clientNum )
   // teamInfo
   s = Info_ValueForKey( userinfo, "teamoverlay" );
 
-  if( ! *s || atoi( s ) != 0 )
+  if( !*s || atoi( s ) != 0 )
     client->pers.teamInfo = qtrue;
   else
     client->pers.teamInfo = qfalse;
-
-  // team task (0 = none, 1 = offence, 2 = defence)
-  teamTask = atoi( Info_ValueForKey( userinfo, "teamtask" ) );
-  // team Leader (1 = leader, 0 is normal player)
-  teamLeader = client->sess.teamLeader;
 
   // colors
   strcpy( c1, Info_ValueForKey( userinfo, "color1" ) );
@@ -1141,12 +1128,10 @@ void ClientUserinfoChanged( int clientNum )
   // print scoreboards, display models, and play custom sounds
 
   Com_sprintf( userinfo, sizeof( userinfo ),
-    "n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\"
-    "hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\"
-    "tl\\%d\\ig\\%16s",
-    client->pers.netname, team, model, model, c1, c2,
-    client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask,
-    teamLeader, BG_ClientListString( &client->sess.ignoreList ) );
+    "n\\%s\\t\\%i\\model\\%s\\c1\\%s\\c2\\%s\\"
+    "hc\\%i\\ig\\%16s",
+    client->pers.netname, team, model, c1, c2,
+    client->pers.maxHealth, BG_ClientListString( &client->sess.ignoreList ) );
 
   trap_SetConfigstring( CS_PLAYERS + clientNum, userinfo );
 

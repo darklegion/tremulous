@@ -1612,7 +1612,7 @@ static const char *UI_AIFromName(const char *name) {
       return uiInfo.aliasList[j].ai;
     }
   }
-  return "James";
+  return "";
 }
 
 static qboolean updateOpponentModel = qtrue;
@@ -3926,7 +3926,7 @@ static void UI_RunMenuScript(char **args) {
         UI_BuildServerDisplayList(qtrue);
       } else {
         Menus_CloseByName("joinserver");
-        Menus_OpenByName("main");
+        Menus_ActivateByName("main");
       }
     } else if (Q_stricmp(name, "StopRefresh") == 0) {
       UI_StopServerRefresh();
@@ -6092,7 +6092,7 @@ static cvarTable_t    cvarTable[] = {
   { &ui_captureLimit, "ui_captureLimit", "5", 0},
   { &ui_smallFont, "ui_smallFont", "0.2", CVAR_ARCHIVE},
   { &ui_bigFont, "ui_bigFont", "0.5", CVAR_ARCHIVE},
-  { &ui_findPlayer, "ui_findPlayer", "Sarge", CVAR_ARCHIVE},
+  { &ui_findPlayer, "ui_findPlayer", "", CVAR_ARCHIVE},
   { &ui_Q3Model, "ui_q3model", "0", CVAR_ARCHIVE},
   { &ui_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
   { &ui_recordSPDemo, "ui_recordSPDemo", "0", CVAR_ARCHIVE},

@@ -191,13 +191,13 @@
       feeder FEEDER_ALIENTEAM_LIST
       notselectable
       columns 7
-        5   15  1   ITEM_ALIGN_LEFT
-        21  15  1   ITEM_ALIGN_LEFT
-        7   30  5   ITEM_ALIGN_LEFT
-        45  100 24  ITEM_ALIGN_LEFT
-        172 20  4   ITEM_ALIGN_RIGHT
-        209 20  4   ITEM_ALIGN_RIGHT
-        247 20  4   ITEM_ALIGN_RIGHT
+        5   15  ITEM_ALIGN_LEFT
+        21  15  ITEM_ALIGN_LEFT
+        7   30  ITEM_ALIGN_LEFT
+        45  100 ITEM_ALIGN_LEFT
+        172 20  ITEM_ALIGN_RIGHT
+        209 20  ITEM_ALIGN_RIGHT
+        247 20  ITEM_ALIGN_RIGHT
     }
 
     itemDef 
@@ -214,13 +214,13 @@
       feeder FEEDER_HUMANTEAM_LIST
       notselectable
       columns 7
-        5   15  1   ITEM_ALIGN_LEFT
-        21  15  1   ITEM_ALIGN_LEFT
-        7   30  5   ITEM_ALIGN_LEFT
-        45  100 24  ITEM_ALIGN_LEFT
-        172 20  4   ITEM_ALIGN_RIGHT
-        209 20  4   ITEM_ALIGN_RIGHT
-        247 20  4   ITEM_ALIGN_RIGHT
+        5   15  ITEM_ALIGN_LEFT
+        21  15  ITEM_ALIGN_LEFT
+        7   30  ITEM_ALIGN_LEFT
+        45  100 ITEM_ALIGN_LEFT
+        172 20  ITEM_ALIGN_RIGHT
+        209 20  ITEM_ALIGN_RIGHT
+        247 20  ITEM_ALIGN_RIGHT
     }
 
 

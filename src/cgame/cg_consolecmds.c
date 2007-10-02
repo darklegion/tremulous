@@ -282,13 +282,6 @@ void CG_InitConsoleCommands( void )
   trap_AddCommand( "say" );
   trap_AddCommand( "say_team" );
   trap_AddCommand( "tell" );
-  trap_AddCommand( "vsay" );
-  trap_AddCommand( "vsay_team" );
-  trap_AddCommand( "vtell" );
-  trap_AddCommand( "vtaunt" );
-  trap_AddCommand( "vosay" );
-  trap_AddCommand( "vosay_team" );
-  trap_AddCommand( "votell" );
   trap_AddCommand( "give" );
   trap_AddCommand( "god" );
   trap_AddCommand( "notarget" );
@@ -303,7 +296,6 @@ void CG_InitConsoleCommands( void )
   trap_AddCommand( "callteamvote" );
   trap_AddCommand( "teamvote" );
   trap_AddCommand( "stats" );
-  trap_AddCommand( "teamtask" );
   trap_AddCommand( "class" );
   trap_AddCommand( "build" );
   trap_AddCommand( "buy" );

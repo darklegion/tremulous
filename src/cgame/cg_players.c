@@ -484,15 +484,6 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
     return qfalse;
   }
 
-  //FIXME: skins do not load without icon present. do we want icons anyway?
-/*  Com_sprintf( filename, sizeof( filename ), "models/players/%s/icon_%s.tga", modelName, skinName );
-  ci->modelIcon = trap_R_RegisterShaderNoMip( filename );
-  if( !ci->modelIcon )
-  {
-    Com_Printf( "Failed to load icon file: %s\n", filename );
-    return qfalse;
-  }*/
-
   return qtrue;
 }
 
@@ -535,24 +526,16 @@ Load it now, taking the disk hits
 */
 static void CG_LoadClientInfo( clientInfo_t *ci )
 {
-  const char  *dir, *fallback;
+  const char  *dir;
   int         i;
   const char  *s;
   int         clientNum;
 
   if( !CG_RegisterClientModelname( ci, ci->modelName, ci->skinName ) )
-  {
-    if( cg_buildScript.integer )
-      CG_Error( "CG_RegisterClientModelname( %s, %s ) failed", ci->modelName, ci->skinName );
-
-    // fall back
-    if( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, "default" ) )
-      CG_Error( "DEFAULT_MODEL (%s) failed to register", DEFAULT_MODEL );
-  }
+    CG_Error( "CG_RegisterClientModelname( %s, %s ) failed", ci->modelName, ci->skinName );
 
   // sounds
   dir = ci->modelName;
-  fallback = DEFAULT_MODEL;
 
   for( i = 0; i < MAX_CUSTOM_SOUNDS; i++ )
   {
@@ -578,15 +561,11 @@ static void CG_LoadClientInfo( clientInfo_t *ci )
           s = cg_customSoundNames[ 0 ]; //death1
 
         ci->sounds[ i ] = trap_S_RegisterSound( va( "sound/player/%s/%s", dir, s + 1 ), qfalse );
-        if( !ci->sounds[ i ] )
-          ci->sounds[ i ] = trap_S_RegisterSound( va( "sound/player/%s/%s", fallback, s + 1 ), qfalse );
       }
     }
     else
     {
       ci->sounds[ i ] = trap_S_RegisterSound( va( "sound/player/%s/%s", dir, s + 1 ), qfalse );
-      if( !ci->sounds[ i ] )
-        ci->sounds[ i ] = trap_S_RegisterSound( va( "sound/player/%s/%s", fallback, s + 1 ), qfalse );
     }
   }
 
@@ -728,19 +707,12 @@ void CG_PrecacheClientInfo( pClass_t class, char *model, char *skin )
 
   // model
   Q_strncpyz( newInfo.modelName, model, sizeof( newInfo.modelName ) );
-  Q_strncpyz( newInfo.headModelName, model, sizeof( newInfo.headModelName ) );
 
-  // modelName didn not include a skin name
+  // modelName did not include a skin name
   if( !skin )
-  {
     Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
-    Q_strncpyz( newInfo.headSkinName, "default", sizeof( newInfo.headSkinName ) );
-  }
   else
-  {
     Q_strncpyz( newInfo.skinName, skin, sizeof( newInfo.skinName ) );
-    Q_strncpyz( newInfo.headSkinName, skin, sizeof( newInfo.headSkinName ) );
-  }
 
   newInfo.infoValid = qtrue;
 
@@ -786,33 +758,13 @@ void CG_NewClientInfo( int clientNum )
   v = Info_ValueForKey( configstring, "c2" );
   CG_ColorFromString( v, newInfo.color2 );
 
-  // bot skill
-  v = Info_ValueForKey( configstring, "skill" );
-  newInfo.botSkill = atoi( v );
-
   // handicap
   v = Info_ValueForKey( configstring, "hc" );
   newInfo.handicap = atoi( v );
 
-  // wins
-  v = Info_ValueForKey( configstring, "w" );
-  newInfo.wins = atoi( v );
-
-  // losses
-  v = Info_ValueForKey( configstring, "l" );
-  newInfo.losses = atoi( v );
-
   // team
   v = Info_ValueForKey( configstring, "t" );
   newInfo.team = atoi( v );
-
-  // team task
-  v = Info_ValueForKey( configstring, "tt" );
-  newInfo.teamTask = atoi( v );
-
-  // team leader
-  v = Info_ValueForKey( configstring, "tl" );
-  newInfo.teamLeader = atoi( v );
 
   // model
   v = Info_ValueForKey( configstring, "model" );
@@ -828,26 +780,6 @@ void CG_NewClientInfo( int clientNum )
   else
   {
     Q_strncpyz( newInfo.skinName, slash + 1, sizeof( newInfo.skinName ) );
-    // truncate modelName
-    *slash = 0;
-  }
-
-  //CG_Printf( "NCI: %s\n", v );
-
-  // head model
-  v = Info_ValueForKey( configstring, "hmodel" );
-  Q_strncpyz( newInfo.headModelName, v, sizeof( newInfo.headModelName ) );
-
-  slash = strchr( newInfo.headModelName, '/' );
-
-  if( !slash )
-  {
-    // modelName didn not include a skin name
-    Q_strncpyz( newInfo.headSkinName, "default", sizeof( newInfo.headSkinName ) );
-  }
-  else
-  {
-    Q_strncpyz( newInfo.headSkinName, slash + 1, sizeof( newInfo.headSkinName ) );
     // truncate modelName
     *slash = 0;
   }

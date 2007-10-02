@@ -646,6 +646,7 @@ const char *CG_TutorialText( void )
           break;
 
         case PCL_HUMAN:
+        case PCL_HUMAN_BSUIT:
           CG_HumanText( text, ps );
           break;
 

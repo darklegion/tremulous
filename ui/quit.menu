@@ -16,8 +16,7 @@
     onESC
     {
       play "sound/misc/menu1.wav"; 
-      close quit_popmenu;
-      open main
+      close quit_popmenu
     }
 
     
@@ -70,8 +69,6 @@
       action
       { 
         play "sound/misc/menu4.wav"; 
-        close main;
-        close quit_popmenu; 
         open quitCredit
       }
     }
@@ -92,8 +89,7 @@
       action
       {
         play "sound/misc/menu1.wav"; 
-        close quit_popmenu;
-        open main
+        close quit_popmenu
       }
     }
   }

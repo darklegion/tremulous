@@ -79,10 +79,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TEAM_OVERLAY_MAXNAME_WIDTH  12
 #define TEAM_OVERLAY_MAXLOCATION_WIDTH  16
 
-#define DEFAULT_MODEL       "sarge"
-#define DEFAULT_TEAM_MODEL  "sarge"
-#define DEFAULT_TEAM_HEAD   "sarge"
-
 typedef enum
 {
   FOOTSTEP_NORMAL,
@@ -708,8 +704,6 @@ typedef struct
   char        name[ MAX_QPATH ];
   pTeam_t     team;
 
-  int         botSkill;                   // 0 = not bot, 1-5 = bot
-
   vec3_t      color1;
   vec3_t      color2;
 
@@ -720,10 +714,6 @@ typedef struct
   int         curWeapon;
 
   int         handicap;
-  int         wins, losses;               // in tourney mode
-
-  int         teamTask;                   // task in teamplay (offence/defence)
-  qboolean    teamLeader;                 // true when this is a team leader
 
   int         medkitUsageTime;
   int         invulnerabilityStartTime;
@@ -736,8 +726,6 @@ typedef struct
   // gameplay
   char        modelName[ MAX_QPATH ];
   char        skinName[ MAX_QPATH ];
-  char        headModelName[ MAX_QPATH ];
-  char        headSkinName[ MAX_QPATH ];
 
   qboolean    newAnims;                   // true if using the new mission pack animations
   qboolean    fixedlegs;                  // true if legs yaw is always the same as torso yaw
@@ -1461,7 +1449,6 @@ extern  vmCvar_t    cg_forceModel;
 extern  vmCvar_t    cg_buildScript;
 extern  vmCvar_t    cg_paused;
 extern  vmCvar_t    cg_blood;
-extern  vmCvar_t    cg_predictItems;
 extern  vmCvar_t    cg_deferPlayers;
 extern  vmCvar_t    cg_drawFriend;
 extern  vmCvar_t    cg_teamChatsOnly;
@@ -1471,7 +1458,6 @@ extern  vmCvar_t    cg_scorePlum;
 extern  vmCvar_t    cg_smoothClients;
 extern  vmCvar_t    pmove_fixed;
 extern  vmCvar_t    pmove_msec;
-//extern  vmCvar_t    cg_pmove_fixed;
 extern  vmCvar_t    cg_cameraOrbit;
 extern  vmCvar_t    cg_cameraOrbitDelay;
 extern  vmCvar_t    cg_timescaleFadeEnd;
@@ -1486,7 +1472,6 @@ extern  vmCvar_t    cg_oldRail;
 extern  vmCvar_t    cg_oldRocket;
 extern  vmCvar_t    cg_oldPlasma;
 extern  vmCvar_t    cg_trueLightning;
-extern  vmCvar_t    cg_creepRes;
 extern  vmCvar_t    cg_drawSurfNormal;
 extern  vmCvar_t    cg_drawBBOX;
 extern  vmCvar_t    cg_debugAlloc;

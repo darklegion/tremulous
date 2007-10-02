@@ -19,14 +19,12 @@
       hide accept_alt;
       show accept;
       hide back_alt;
-      show back;
-      hide grpmessage
+      show back
     }
     
     onEsc
     {
-      close createserver;
-      open joinserver
+      close createserver
     }
     
     itemDef
@@ -108,7 +106,7 @@
       outlinecolor  0.1 0.1 0.1 0.5
       visible 1
       columns 1
-        2 190 25 ITEM_ALIGN_LEFT
+        2 190 ITEM_ALIGN_LEFT
     }
 
 
@@ -415,8 +413,7 @@
       action
       {
         play "sound/misc/menu4.wav"; 
-        close createserver;
-        open joinserver
+        close createserver
       }
       
       mouseEnter
@@ -452,8 +449,7 @@
       action
       {
         play "sound/misc/menu4.wav"; 
-        close createserver;
-        open joinserver
+        close createserver
       }   
     }
 

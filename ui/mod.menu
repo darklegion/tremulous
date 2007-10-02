@@ -15,8 +15,7 @@
     popup
     onEsc
     {
-      close mod;
-      open main
+      close mod
     }
     onOpen
     {
@@ -98,8 +97,7 @@
       action
       { 
         play "sound/misc/menu3.wav";
-        close mod;
-        open main
+        close mod
       }
     }
   }

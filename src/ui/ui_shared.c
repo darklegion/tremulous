@@ -1014,17 +1014,6 @@ menuDef_t *Menus_FindByName(const char *p) {
   return NULL;
 }
 
-void Menus_ShowByName(const char *p) {
-  menuDef_t *menu = Menus_FindByName(p);
-  if (menu) {
-    Menus_Activate(menu);
-  }
-}
-
-void Menus_OpenByName(const char *p) {
-  Menus_ActivateByName(p);
-}
-
 static void Menu_RunCloseScript(menuDef_t *menu) {
   if (menu && menu->window.flags & WINDOW_VISIBLE && menu->onClose) {
     itemDef_t item;
@@ -1033,20 +1022,29 @@ static void Menu_RunCloseScript(menuDef_t *menu) {
   }
 }
 
-void Menus_CloseByName(const char *p) {
-  menuDef_t *menu = Menus_FindByName(p);
+static void Menus_Close( menuDef_t *menu )
+{
   if (menu != NULL) {
     Menu_RunCloseScript(menu);
     menu->window.flags &= ~(WINDOW_VISIBLE | WINDOW_HASFOCUS);
+
+    openMenuCount--;
+    if( openMenuCount > 0 )
+      Menus_Activate( menuStack[ openMenuCount - 1 ] );
   }
+}
+
+void Menus_CloseByName(const char *p) {
+  Menus_Close( Menus_FindByName(p) );
 }
 
 void Menus_CloseAll( void ) {
   int i;
   for (i = 0; i < menuCount; i++) {
-    Menu_RunCloseScript(&Menus[i]);
-    Menus[i].window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
+    Menus_Close(&Menus[i]);
   }
+
+  openMenuCount = 0;
 }
 
 
@@ -1083,7 +1081,7 @@ void Script_FadeOut(itemDef_t *item, char **args) {
 void Script_Open(itemDef_t *item, char **args) {
   const char *name;
   if (String_Parse(args, &name)) {
-    Menus_OpenByName(name);
+    Menus_ActivateByName(name);
   }
 }
 
@@ -1096,9 +1094,9 @@ void Script_ConditionalOpen(itemDef_t *item, char **args) {
   if ( String_Parse(args, &cvar) && String_Parse(args, &name1) && String_Parse(args, &name2) ) {
     val = DC->getCVarValue( cvar );
     if ( val == 0.f ) {
-      Menus_OpenByName(name2);
+      Menus_ActivateByName(name2);
     } else {
-      Menus_OpenByName(name1);
+      Menus_ActivateByName(name1);
     }
   }
 }
@@ -2549,21 +2547,47 @@ static void Display_CloseCinematics( void ) {
   }
 }
 
-void  Menus_Activate(menuDef_t *menu) {
+void  Menus_Activate( menuDef_t *menu )
+{
+  int i;
+  qboolean onTopOfMenuStack = qfalse;
+
+  if( openMenuCount > 0 && menuStack[ openMenuCount - 1 ] == menu )
+    onTopOfMenuStack = qtrue;
+
   menu->window.flags |= (WINDOW_HASFOCUS | WINDOW_VISIBLE);
-  if (menu->onOpen) {
-    itemDef_t item;
-    item.parent = menu;
-    Item_RunScript(&item, menu->onOpen);
+
+  // If being opened for the first time
+  if( !onTopOfMenuStack )
+  {
+    if( menu->onOpen )
+    {
+      itemDef_t item;
+      item.parent = menu;
+      Item_RunScript( &item, menu->onOpen );
+    }
+
+    if( menu->soundName && *menu->soundName )
+      DC->startBackgroundTrack(menu->soundName, menu->soundName);
+
+    Display_CloseCinematics( );
+
+    Menu_HandleMouseMove( menu, DC->cursorx, DC->cursory ); // force the item under the cursor to focus
+
+    for( i = 0; i < menu->itemCount; i++ ) // reset selection in listboxes when opened
+    {
+      if( menu->items[ i ]->type == ITEM_TYPE_LISTBOX )
+      {
+        listBoxDef_t *listPtr = (listBoxDef_t*)menu->items[ i ]->typeData;
+        menu->items[ i ]->cursorPos = 0;
+        listPtr->startPos = 0;
+        DC->feederSelection( menu->items[ i ]->special, 0 );
+      }
+    }
+
+    if( openMenuCount < MAX_OPEN_MENUS )
+      menuStack[ openMenuCount++ ] = menu;
   }
-
-  if (menu->soundName && *menu->soundName) {
-//    DC->stopBackgroundTrack();          // you don't want to do this since it will reset s_rawend
-    DC->startBackgroundTrack(menu->soundName, menu->soundName);
-  }
-
-  Display_CloseCinematics();
-
 }
 
 int Display_VisibleMenuCount( void ) {
@@ -2584,14 +2608,12 @@ void Menus_HandleOOBClick(menuDef_t *menu, int key, qboolean down) {
     // the cursor is within any of them.. if not close them otherwise activate them and pass the
     // key on.. force a mouse move to activate focus and script stuff
     if (down && menu->window.flags & WINDOW_OOB_CLICK) {
-      Menu_RunCloseScript(menu);
-      menu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
+      Menus_Close( menu );
     }
 
     for (i = 0; i < menuCount; i++) {
       if (Menu_OverActiveItem(&Menus[i], DC->cursorx, DC->cursory)) {
-        Menu_RunCloseScript(menu);
-        menu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
+        Menus_Close( menu );
         Menus_Activate(&Menus[i]);
         Menu_HandleMouseMove(&Menus[i], DC->cursorx, DC->cursory);
         Menu_HandleKey(&Menus[i], key, down);
@@ -3968,20 +3990,27 @@ void Item_ListBox_Paint(itemDef_t *item) {
       x = item->window.rect.x + 1;
       y = item->window.rect.y + 1;
       for (i = listPtr->startPos; i < count; i++) {
-        const char *text;
+        char text[ MAX_STRING_CHARS ];
         // always draw at least one
         // which may overdraw the box if it is too small for the element
 
         if (listPtr->numColumns > 0) {
           int j;
           for (j = 0; j < listPtr->numColumns; j++) {
-            text = DC->feederItemText(item->special, i, j, &optionalImage);
+            Q_strncpyz( text, DC->feederItemText(item->special, i, j, &optionalImage), sizeof( text ) );
             if (optionalImage >= 0) {
               DC->drawHandlePic(x + 4 + listPtr->columnInfo[j].pos, y - 1 + listPtr->elementHeight / 2, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
             } else if (text) {
               int alignOffset = 0.0f, tw;
 
               tw = DC->textWidth( text, item->textscale, 0 );
+
+              // Shorten the string if it's too long
+              while( tw > listPtr->columnInfo[ j ].width )
+              {
+                text[ strlen( text ) - 1 ] = '\0';
+                tw = DC->textWidth( text, item->textscale, 0 );
+              }
 
               switch( listPtr->columnInfo[ j ].align )
               {
@@ -4003,11 +4032,11 @@ void Item_ListBox_Paint(itemDef_t *item) {
 
               DC->drawText( x + 4 + listPtr->columnInfo[j].pos + alignOffset, y + listPtr->elementHeight,
                             item->textscale, item->window.foreColor, text, 0,
-                            listPtr->columnInfo[j].maxChars, item->textStyle );
+                            0, item->textStyle );
             }
           }
         } else {
-          text = DC->feederItemText(item->special, i, 0, &optionalImage);
+          Q_strncpyz( text, DC->feederItemText(item->special, i, 0, &optionalImage), sizeof( text ) );
           if (optionalImage >= 0) {
             //DC->drawHandlePic(x + 4 + listPtr->elementHeight, y, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
           } else if (text) {
@@ -4366,35 +4395,25 @@ qboolean Menus_AnyFullScreenVisible( void ) {
 }
 
 menuDef_t *Menus_ActivateByName(const char *p) {
-  int i, j;
+  int i;
   menuDef_t *m = NULL;
-  menuDef_t *focus = Menu_GetFocused();
 
+  // Activate one menu
   for (i = 0; i < menuCount; i++) {
     if (Q_stricmp(Menus[i].window.name, p) == 0) {
       m = &Menus[i];
       Menus_Activate(m);
-      Menu_HandleMouseMove( m, DC->cursorx, DC->cursory ); // force the item under the cursor to focus
+      break;
+    }
+  }
 
-      for( j = 0; j < m->itemCount; j++ ) // reset selection in listboxes when opened
-      {
-        if( m->items[ j ]->type == ITEM_TYPE_LISTBOX )
-        {
-          listBoxDef_t *listPtr = (listBoxDef_t*)m->items[ j ]->typeData;
-          m->items[ j ]->cursorPos = 0;
-          listPtr->startPos = 0;
-          DC->feederSelection( m->items[ j ]->special, 0 );
-        }
-      }
-
-      if (openMenuCount < MAX_OPEN_MENUS && focus != NULL) {
-        menuStack[openMenuCount++] = focus;
-      }
-    } else {
+  // Defocus the others
+  for (i = 0; i < menuCount; i++) {
+    if (Q_stricmp(Menus[i].window.name, p) != 0) {
       Menus[i].window.flags &= ~WINDOW_HASFOCUS;
     }
   }
-  Display_CloseCinematics();
+
   return m;
 }
 
@@ -4861,16 +4880,14 @@ qboolean ItemParse_columns( itemDef_t *item, int handle ) {
     }
     listPtr->numColumns = num;
     for (i = 0; i < num; i++) {
-      int pos, width, maxChars, align;
+      int pos, width, align;
 
       if( PC_Int_Parse( handle, &pos ) &&
           PC_Int_Parse( handle, &width ) &&
-          PC_Int_Parse( handle, &maxChars ) &&
           PC_Int_Parse( handle, &align ) )
       {
         listPtr->columnInfo[i].pos = pos;
         listPtr->columnInfo[i].width = width;
-        listPtr->columnInfo[i].maxChars = maxChars;
         listPtr->columnInfo[i].align = align;
       } else {
         return qfalse;
