@@ -327,7 +327,7 @@ static void CG_Obituary( entityState_t *ent )
 
     if( message )
     {
-      CG_Printf( "%s" S_COLOR_WHITE " %s %s%s%s\n",
+      CG_Printf( "%s" S_COLOR_WHITE " %s %s%s" S_COLOR_WHITE "%s\n",
         targetName, message,
         ( teamKill ) ? S_COLOR_RED "TEAMMATE " S_COLOR_WHITE : "",
         attackerName, message2 );
