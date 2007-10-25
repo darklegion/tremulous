@@ -1054,7 +1054,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 						}
 					}
 
-					if (!(pak->referenced & FS_QAGAME_REF) && strstr(filename, "qagame.qvm")) {
+					if (!(pak->referenced & FS_QAGAME_REF) && strstr(filename, "game.qvm")) {
 						pak->referenced |= FS_QAGAME_REF;
 					}
 					if (!(pak->referenced & FS_CGAME_REF) && strstr(filename, "cgame.qvm")) {
@@ -2095,7 +2095,7 @@ int	FS_GetModList( char *listbuf, int bufsize ) {
 		if (bDrop) {
 			continue;
 		}
-		// we drop "baseq3" "." and ".."
+		// we drop BASEGAME "." and ".."
 		if (Q_stricmp(name, BASEGAME) && Q_stricmpn(name, ".", 1)) {
 			// now we need to find some .pk3 files to validate the mod
 			// NOTE TTimo: (actually I'm not sure why .. what if it's a mod under developement with no .pk3?)
@@ -2767,7 +2767,7 @@ static void FS_Startup( const char *gameName )
 =====================
 FS_GamePureChecksum
 
-Returns the checksum of the pk3 from which the server loaded the qagame.qvm
+Returns the checksum of the pk3 from which the server loaded the game.qvm
 =====================
 */
 const char *FS_GamePureChecksum( void ) {
