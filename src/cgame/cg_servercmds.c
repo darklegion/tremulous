@@ -450,41 +450,6 @@ static void CG_RemoveChatEscapeChar( char *text )
 }
 
 /*
-===============
-CG_SetUIVars
-
-Set some cvars used by the UI
-===============
-*/
-static void CG_SetUIVars( void )
-{
-  int   i;
-  char  carriageCvar[ MAX_TOKEN_CHARS ];
-
-  *carriageCvar = 0;
-
-  //determine what the player is carrying
-  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
-  {
-    if( BG_InventoryContainsWeapon( i, cg.snap->ps.stats ) &&
-        BG_FindPurchasableForWeapon( i ) )
-      strcat( carriageCvar, va( "W%d ", i ) );
-  }
-  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
-  {
-    if( BG_InventoryContainsUpgrade( i, cg.snap->ps.stats ) &&
-        BG_FindPurchasableForUpgrade( i ) )
-      strcat( carriageCvar, va( "U%d ", i ) );
-  }
-  strcat( carriageCvar, "$" );
-
-  trap_Cvar_Set( "ui_carriage", carriageCvar );
-
-  trap_Cvar_Set( "ui_stages", va( "%d %d", cgs.alienStage, cgs.humanStage ) );
-}
-
-
-/*
 ==============
 CG_Menu
 ==============
@@ -494,10 +459,7 @@ void CG_Menu( int menu )
   const char *cmd = NULL;	// command to send
   const char *longMsg   = NULL;	// command parameter
   const char *shortMsg  = NULL;	// non-modal version of message
-  CG_SetUIVars( );
 
-  // string literals have static storage duration, this is safe,
-  // cleaner and much more readable.
   switch( menu )
   {
     case MN_TEAM:

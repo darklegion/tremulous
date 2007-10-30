@@ -427,6 +427,42 @@ static void CG_ForceModelChange( void )
   }
 }
 
+/*
+===============
+CG_SetUIVars
+
+Set some cvars used by the UI
+===============
+*/
+static void CG_SetUIVars( void )
+{
+  int   i;
+  char  carriageCvar[ MAX_TOKEN_CHARS ];
+
+  if( !cg.snap )
+    return;
+
+  *carriageCvar = 0;
+
+  //determine what the player is carrying
+  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+  {
+    if( BG_InventoryContainsWeapon( i, cg.snap->ps.stats ) &&
+        BG_FindPurchasableForWeapon( i ) )
+      strcat( carriageCvar, va( "W%d ", i ) );
+  }
+  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
+  {
+    if( BG_InventoryContainsUpgrade( i, cg.snap->ps.stats ) &&
+        BG_FindPurchasableForUpgrade( i ) )
+      strcat( carriageCvar, va( "U%d ", i ) );
+  }
+  strcat( carriageCvar, "$" );
+
+  trap_Cvar_Set( "ui_carriage", carriageCvar );
+
+  trap_Cvar_Set( "ui_stages", va( "%d %d", cgs.alienStage, cgs.humanStage ) );
+}
 
 /*
 =================
@@ -449,6 +485,8 @@ void CG_UpdateCvars( void )
     forceModelModificationCount = cg_forceModel.modificationCount;
     CG_ForceModelChange( );
   }
+
+  CG_SetUIVars( );
 }
 
 
@@ -1518,7 +1556,7 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
 
       case 6:
         if( sp->ping == -1 )
-          return "connecting";
+          return "";
 
         return va( "%4d", sp->ping );
         break;
@@ -1622,6 +1660,8 @@ void CG_LoadHudMenu( void )
   cgDC.drawText             = &CG_Text_Paint;
   cgDC.textWidth            = &CG_Text_Width;
   cgDC.textHeight           = &CG_Text_Height;
+  cgDC.textEmWidth          = &CG_Text_EmWidth;
+  cgDC.textEmHeight         = &CG_Text_EmHeight;
   cgDC.registerModel        = &trap_R_RegisterModel;
   cgDC.modelBounds          = &trap_R_ModelBounds;
   cgDC.fillRect             = &CG_FillRect;
@@ -1641,8 +1681,8 @@ void CG_LoadHudMenu( void )
   cgDC.getCVarString        = trap_Cvar_VariableStringBuffer;
   cgDC.getCVarValue         = CG_Cvar_Get;
   cgDC.drawTextWithCursor   = &CG_Text_PaintWithCursor;
-  //cgDC.setOverstrikeMode    = &trap_Key_SetOverstrikeMode;
-  //cgDC.getOverstrikeMode    = &trap_Key_GetOverstrikeMode;
+  cgDC.setOverstrikeMode    = &trap_Key_SetOverstrikeMode;
+  cgDC.getOverstrikeMode    = &trap_Key_GetOverstrikeMode;
   cgDC.startLocalSound      = &trap_S_StartLocalSound;
   cgDC.ownerDrawHandleKey   = &CG_OwnerDrawHandleKey;
   cgDC.feederCount          = &CG_FeederCount;
@@ -1656,6 +1696,7 @@ void CG_LoadHudMenu( void )
   cgDC.Error                = &Com_Error;
   cgDC.Print                = &Com_Printf;
   cgDC.ownerDrawWidth       = &CG_OwnerDrawWidth;
+  //cgDC.ownerDrawText        = &CG_OwnerDrawText;
   //cgDC.Pause                = &CG_Pause;
   cgDC.registerSound        = &trap_S_RegisterSound;
   cgDC.startBackgroundTrack = &trap_S_StartBackgroundTrack;

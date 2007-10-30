@@ -3,30 +3,42 @@
 {
   // PTRC POPUP MENU //
 
+#define W         280
+#define H         140
+#define BORDER    10
+
+#define BUTT_H    25
+#define BUTT_W    45
+
+#define INFO_W    (W-(2*BORDER))
+#define INFO_H    (H-((3*BORDER)+BUTT_H))
+#define INFO_X    BORDER
+#define INFO_Y    BORDER
+
   menuDef
   {
     name "ptrc_popmenu"
-    visible 0
-    fullscreen 0
-    rect 140 170 360 140
+    visible MENU_FALSE
+    fullscreen MENU_FALSE
+    rect (320-(W/2)) (240-(H/2)) W H
     focusColor 1 .75 0 1
-    style 1
-    border 1
+    style WINDOW_STYLE_FILLED
+    border WINDOW_BORDER_FULL
     popup
     onESC
     {
-      play "sound/misc/menu1.wav"; 
+      play "sound/misc/menu1.wav";
       close ptrc_popmenu
     }
 
-    
+
     itemDef
     {
       name window
-      rect 0 0 360 140
+      rect 0 0 W H
       style WINDOW_STYLE_FILLED
       backcolor 0 0 0 1
-      visible 1
+      visible MENU_TRUE
       decoration
 
       border WINDOW_BORDER_FULL
@@ -40,68 +52,53 @@
     itemDef
     {
       name confirm
-      text "It seems that you disconnected during this game."
-      style 0
-      textscale .4 
-      textstyle 3
-      rect 180 40 0 0
+      text "It seems that you disconnected during this game. Would you like to be restored to your previous state?"
+      style WINDOW_STYLE_EMPTY
+      textscale .4
+      textstyle WINDOW_STYLE_SHADER
+      rect INFO_X INFO_Y INFO_W INFO_H
       textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
       decoration
+      wrapped
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
     }
-
-    itemDef
-    {
-      name confirm
-      text "Would you like to be restored to your previous state?"
-      style 0
-      textscale .4 
-      textstyle 3
-      rect 180 65 0 0
-      textalign ITEM_ALIGN_CENTER
-      decoration
-      forecolor 1 1 1 1
-      visible 1
-    }
-
 
     itemDef
     {
       name yes
       text "YES"
-      type 1
-      textscale .25
-      rect 80 96 20 20
+      type ITEM_TYPE_BUTTON
+      textscale .4
+      rect (W-((2*BORDER)+(2*BUTT_W))) (H-(BORDER+BUTT_H)) BUTT_W BUTT_H
       textalign ITEM_ALIGN_CENTER
-      textalignx 10
-      textaligny 14
+      textvalign ITEM_VALIGN_CENTER
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
       action
-      { 
-        play "sound/misc/menu4.wav"; 
+      {
+        play "sound/misc/menu4.wav";
         uiScript PTRCRestore;
-        close ptrc_popmenu 
+        close ptrc_popmenu
       }
     }
-    
+
 
     itemDef
     {
       name no
       text "NO"
-      type 1
-      textscale .25
-      rect 260 96 20 20
+      type ITEM_TYPE_BUTTON
+      textscale .4
+      rect (W-(BORDER+BUTT_W)) (H-(BORDER+BUTT_H)) BUTT_W BUTT_H
       textalign ITEM_ALIGN_CENTER
-      textalignx 10
-      textaligny 14
+      textvalign ITEM_VALIGN_CENTER
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         close ptrc_popmenu
       }
     }

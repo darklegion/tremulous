@@ -3,13 +3,36 @@
 {
   \\ INGAME OPTIONS BOX \\
 
+#define W             320
+#define H             290
+#define X             10
+#define Y             60
+#define BORDER        10
+
+#define TOPBUTT_W     80
+#define TOPBUTT_H     30
+
+#define CONTENT_X     BORDER
+#define CONTENT_Y     ((2*BORDER)+TOPBUTT_H)
+#define CONTENT_W     (W-(2*BORDER))
+#define CONTENT_OFF   (0-(CONTENT_W/2))
+
+#define SIDEBUTT_W    65
+#define SIDEBUTT_H    25
+#define SCONTENT_X    (SIDEBUTT_W+BORDER)
+#define SCONTENT_Y    CONTENT_Y
+#define SCONTENT_W    (W-(SIDEBUTT_W+(2*BORDER)))
+#define SCONTENT_OFF  (0-(SCONTENT_W/2))
+
+#define ELEM_H        16
+
   menuDef
   {
     name "ingame_options"
-    visible 0
-    fullscreen 0
+    visible MENU_FALSE
+    fullscreen MENU_FALSE
     outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
-    rect 10 56 292 280
+    rect X Y W H
     focusColor 1 .75 0 1
     onopen
     {
@@ -24,14 +47,14 @@
     itemDef
     {
       name window
-      rect 10 5 292 270
+      rect 0 0 W H
       style WINDOW_STYLE_FILLED
       backcolor 0 0 0 1
-      visible 1
+      visible MENU_TRUE
       decoration
 
-      border WINDOW_BORDER_KCGRADIENT
-      borderSize 2.0
+      border WINDOW_BORDER_FULL
+      borderSize 1.0
       borderColor 0.5 0.5 0.5 1
     }
 
@@ -42,20 +65,19 @@
       text "Game"
       group menuGrp
       style WINDOW_STYLE_EMPTY
-      rect 80 20 64 20
+      rect (W-((3*TOPBUTT_W)+BORDER)) BORDER TOPBUTT_W TOPBUTT_H
       type ITEM_TYPE_BUTTON
-      textalign ITEM_ALIGN_CENTER 
-      textalignx 34
-      textaligny 18
+      textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
       textscale .35
       forecolor 1 1 1 1
-      visible 1 
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         hide optionsGrp;
         show game;
-        
+
         setitemcolor gameBtn      forecolor 0.2 0.2 0.2 1.0;
         setitemcolor controlsBtn  forecolor 1.0 1.0 1.0 1.0;
         setitemcolor systemBtn    forecolor 1.0 1.0 1.0 1.0
@@ -68,21 +90,20 @@
       text "Controls"
       group menuGrp
       style WINDOW_STYLE_EMPTY
-      rect 160 20 64 20
+      rect (W-((2*TOPBUTT_W)+BORDER)) BORDER TOPBUTT_W TOPBUTT_H
       type ITEM_TYPE_BUTTON
-      textalign ITEM_ALIGN_CENTER 
-      textalignx 34
-      textaligny 18        
+      textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
       textscale .35
       forecolor 1 1 1 1
-      visible 1 
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         hide optionsGrp;
         show controls;
         show look;
-        
+
         setitemcolor gameBtn      forecolor 1.0 1.0 1.0 1.0;
         setitemcolor controlsBtn  forecolor 0.2 0.2 0.2 1.0;
         setitemcolor systemBtn    forecolor 1.0 1.0 1.0 1.0
@@ -95,21 +116,20 @@
       text "System"
       group menuGrp
       style WINDOW_STYLE_EMPTY
-      rect 230 20 64 20
+      rect (W-((1*TOPBUTT_W)+BORDER)) BORDER TOPBUTT_W TOPBUTT_H
       type ITEM_TYPE_BUTTON
-      textalign ITEM_ALIGN_CENTER 
-      textalignx 34
-      textaligny 18        
+      textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
       textscale .35
       forecolor 1 1 1 1
-      visible 1 
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         hide optionsGrp;
         show system;
         show ghardware;
-        
+
         setitemcolor gameBtn      forecolor 1.0 1.0 1.0 1.0;
         setitemcolor controlsBtn  forecolor 1.0 1.0 1.0 1.0;
         setitemcolor systemBtn    forecolor 0.2 0.2 0.2 1.0
@@ -123,20 +143,19 @@
       name game
       group optionsGrp
       type ITEM_TYPE_EDITFIELD
-      style 0
+      style WINDOW_STYLE_EMPTY
       text "Name:"
       cvar "name"
-      maxchars 31
-      maxPaintChars 31
-      rect 50 85 220 15
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 64 
-      textaligny 12
-      textscale .25        
+      maxchars 40
+      rect CONTENT_X (CONTENT_Y+(0*ELEM_H)) CONTENT_W ELEM_H
+      textalign ITEM_ALIGN_RIGHT
+      textvalign ITEM_VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
     }
-    
+
     itemDef
     {
       name game
@@ -144,76 +163,76 @@
       type ITEM_TYPE_YESNO
       text "Auto Download:"
       cvar "cl_allowDownload"
-      rect 80 115 192 15
+      rect CONTENT_X (CONTENT_Y+(1*ELEM_H)) CONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
     itemDef
     {
-      name game				
+      name game
       group optionsGrp
       type ITEM_TYPE_YESNO
       text "Taunts Sounds Off:"
       cvar "cg_noTaunt"
-      rect 80 130 192 15
+      rect CONTENT_X (CONTENT_Y+(2*ELEM_H)) CONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
     itemDef
     {
-      name game				
+      name game
       group optionsGrp
       type ITEM_TYPE_YESNO
       text "Team Chats Only:"
       cvar "cg_teamChatsOnly"
-      rect 80 145 192 15
+      rect CONTENT_X (CONTENT_Y+(3*ELEM_H)) CONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
     itemDef
     {
-      name game				
+      name game
       group optionsGrp
       type ITEM_TYPE_YESNO
       text "Auto Wallwalk Pitching:"
       cvar "cg_wwFollow"
-      rect 80 160 192 15
+      rect CONTENT_X (CONTENT_Y+(4*ELEM_H)) CONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -225,36 +244,36 @@
       text "Wallwalking Speed:"
       cvarfloat "cg_wwSmoothTime" 300 0 1000
       cvarFloatList { "Medium" 300 "Fast" 150 "Instant" 0 "Slow" 600 }
-      rect 80 175 192 15
+      rect CONTENT_X (CONTENT_Y+(5*ELEM_H)) CONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128 
-      textaligny 12
-      textscale .25         
+      textvalign ITEM_VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-    
+
     itemDef
     {
-      name game				
+      name game
       group optionsGrp
       type ITEM_TYPE_YESNO
       text "Wallwalk Control Toggles:"
       cvar "cg_wwToggle"
-      rect 80 190 192 15
+      rect CONTENT_X (CONTENT_Y+(6*ELEM_H)) CONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -265,16 +284,16 @@
       type ITEM_TYPE_YESNO
       text "Disable Warning Dialogs:"
       cvar "cg_disableWarningDialogs"
-      rect 80 205 192 15
+      rect CONTENT_X (CONTENT_Y+(7*ELEM_H)) CONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128 
-      textaligny 12
-      textscale .25         
+      textvalign ITEM_VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -285,19 +304,19 @@
       type ITEM_TYPE_YESNO
       text "Tutorial Mode:"
       cvar "cg_tutorial"
-      rect 80 220 192 15
+      rect CONTENT_X (CONTENT_Y+(8*ELEM_H)) CONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128 
-      textaligny 12
-      textscale .25         
+      textvalign ITEM_VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-    
+
     itemDef
     {
       name game
@@ -306,16 +325,16 @@
       text "Show Clock:"
       cvar "cg_drawClock"
       cvarFloatList { "No" 0 "12 Hour" 1 "24 Hour" 2 }
-      rect 80 235 192 15
+      rect CONTENT_X (CONTENT_Y+(9*ELEM_H)) CONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128 
-      textaligny 12
-      textscale .25         
+      textvalign ITEM_VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -327,16 +346,16 @@
       text "Draw Crosshair:"
       cvar "cg_drawCrosshair"
       cvarFloatList { "Never" 0 "Ranged Weapons Only" 1 "Always" 2 }
-      rect 80 250 192 15
+      rect CONTENT_X (CONTENT_Y+(10*ELEM_H)) CONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128 
-      textaligny 12
-      textscale .25         
+      textvalign ITEM_VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -349,17 +368,16 @@
       text "Look"
       group optionsGrp
       style WINDOW_STYLE_EMPTY
-      rect 20 60 64 20
+      rect 0 ((2*BORDER)+TOPBUTT_H+(0*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
       type ITEM_TYPE_BUTTON
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 16
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         hide optionsGrp;
         show controls;
         show look
@@ -375,17 +393,16 @@
       type ITEM_TYPE_BIND
       text "Lookup:"
       cvar "+lookup"
-      rect 96 85 192 15 
+      rect SCONTENT_X (SCONTENT_Y+(0*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12   
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -396,17 +413,16 @@
       type ITEM_TYPE_BIND
       text "Look Down:"
       cvar "+lookdown"
-      rect 96 100 192 15 
+      rect SCONTENT_X (SCONTENT_Y+(1*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -417,20 +433,19 @@
       type ITEM_TYPE_BIND
       text "Mouse Look:"
       cvar "+mlook"
-      rect 96 115 192 15
+      rect SCONTENT_X (SCONTENT_Y+(2*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-  
+
     itemDef
     {
       name look
@@ -438,17 +453,16 @@
       type ITEM_TYPE_BIND
       text "Centerview:"
       cvar "centerview"
-      rect 96 130 192 15
+      rect SCONTENT_X (SCONTENT_Y+(3*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -459,17 +473,16 @@
       type ITEM_TYPE_YESNO
       text "Free Look:"
       cvar "cl_freelook"
-      rect 96 145 192 15
+      rect SCONTENT_X (SCONTENT_Y+(4*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -480,14 +493,13 @@
       type ITEM_TYPE_SLIDER
       text "Mouse Sensitivity:"
       cvarfloat "sensitivity" 5 1 30
-      rect 96 160 192 20
+      rect SCONTENT_X (SCONTENT_Y+(5*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 15
-      textscale .25          
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
     }
 
     itemDef
@@ -497,17 +509,16 @@
       type ITEM_TYPE_YESNO
       text "Invert Mouse:"
       cvar "ui_mousePitch"
-      rect 96 180 192 15
+      rect SCONTENT_X (SCONTENT_Y+(6*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25               
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
-      action 
+      visible MENU_FALSE
+      action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         uiScript update ui_mousePitch
       }
     }
@@ -519,20 +530,19 @@
       type ITEM_TYPE_YESNO
       text "Smooth Mouse:"
       cvar "m_filter"
-      rect 96 195 192 15
+      rect SCONTENT_X (SCONTENT_Y+(7*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25             
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
-      action 
+      visible MENU_FALSE
+      action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-        
+
 //////// MOVE
 
     itemDef
@@ -541,17 +551,16 @@
       text "Move"
       group optionsGrp
       style WINDOW_STYLE_EMPTY
-      rect 20 80 64 20
+      rect 0 ((2*BORDER)+TOPBUTT_H+(1*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
       type ITEM_TYPE_BUTTON
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 16
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         hide optionsGrp;
         show controls;
         show move
@@ -565,20 +574,19 @@
       type ITEM_TYPE_YESNO
       text "Always Run:"
       cvar "cl_run"
-      rect 96 65 192 15
+      rect SCONTENT_X (SCONTENT_Y+(0*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-    
+
     itemDef
     {
       name move
@@ -586,17 +594,16 @@
       type ITEM_TYPE_BIND
       text "Run / Walk:"
       cvar "+speed"
-      rect 96 80 192 15
+      rect SCONTENT_X (SCONTENT_Y+(1*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -607,17 +614,16 @@
       type ITEM_TYPE_BIND
       text "Sprint:"
       cvar "boost"
-      rect 96 95 192 15
+      rect SCONTENT_X (SCONTENT_Y+(2*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -628,17 +634,16 @@
       type ITEM_TYPE_BIND
       text "Forward:"
       cvar "+forward"
-      rect 96 110 192 15
+      rect SCONTENT_X (SCONTENT_Y+(3*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -649,20 +654,19 @@
       type ITEM_TYPE_BIND
       text "Backpedal:"
       cvar "+back"
-      rect 96 125 192 15
+      rect SCONTENT_X (SCONTENT_Y+(4*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-  
+
     itemDef
     {
       name move
@@ -670,17 +674,16 @@
       type ITEM_TYPE_BIND
       text "Move Left:"
       cvar "+moveleft"
-      rect 96 140 192 15
+      rect SCONTENT_X (SCONTENT_Y+(5*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -691,17 +694,16 @@
       type ITEM_TYPE_BIND
       text "Move Right:"
       cvar "+moveright"
-      rect 96 155 192 15
+      rect SCONTENT_X (SCONTENT_Y+(6*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -712,17 +714,16 @@
       type ITEM_TYPE_BIND
       text "Jump:"
       cvar "+moveup"
-      rect 96 170 192 15
+      rect SCONTENT_X (SCONTENT_Y+(7*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -733,17 +734,16 @@
       type ITEM_TYPE_BIND
       text "Crouch:"
       cvar "+movedown"
-      rect 96 185 192 15
+      rect SCONTENT_X (SCONTENT_Y+(8*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -754,17 +754,16 @@
       type ITEM_TYPE_BIND
       text "Turn Left:"
       cvar "+left"
-      rect 96 200 192 15
+      rect SCONTENT_X (SCONTENT_Y+(9*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -775,20 +774,19 @@
       type ITEM_TYPE_BIND
       text "Turn Right:"
       cvar "+right"
-      rect 96 215 192 15
+      rect SCONTENT_X (SCONTENT_Y+(10*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-  
+
     itemDef
     {
       name move
@@ -796,17 +794,16 @@
       type ITEM_TYPE_BIND
       text "Strafe:"
       cvar "+strafe"
-      rect 96 230 192 15
+      rect SCONTENT_X (SCONTENT_Y+(11*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -820,17 +817,16 @@
       text "Upgrades"
       group optionsGrp
       style WINDOW_STYLE_EMPTY
-      rect 20 100 64 20
+      rect 0 ((2*BORDER)+TOPBUTT_H+(2*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
       type ITEM_TYPE_BUTTON
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 16
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         hide optionsGrp;
         show controls;
         show upgrades
@@ -839,43 +835,41 @@
 
     itemDef
     {
-      name upgrades        
+      name upgrades
       group optionsGrp
       type ITEM_TYPE_BIND
       text "Primary Attack:"
       cvar "+attack"
-      rect 96 90 192 15
+      rect SCONTENT_X (SCONTENT_Y+(0*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
     itemDef
     {
-      name upgrades        
+      name upgrades
       group optionsGrp
       type ITEM_TYPE_BIND
       text "Secondary Attack:"
       cvar "+button5"
-      rect 96 105 192 15
+      rect SCONTENT_X (SCONTENT_Y+(1*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -886,17 +880,16 @@
       type ITEM_TYPE_BIND
       text "Previous Upgrade:"
       cvar "weapprev"
-      rect 96 120 192 15
+      rect SCONTENT_X (SCONTENT_Y+(2*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -907,20 +900,19 @@
       type ITEM_TYPE_BIND
       text "Next Upgrade:"
       cvar "weapnext"
-      rect 96 135 192 15
+      rect SCONTENT_X (SCONTENT_Y+(3*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25       
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-    
+
     itemDef
     {
       name upgrades
@@ -928,20 +920,19 @@
       type ITEM_TYPE_BIND
       text "Activate Upgrade:"
       cvar "+button2"
-      rect 96 150 192 15
+      rect SCONTENT_X (SCONTENT_Y+(4*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25       
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-    
+
     itemDef
     {
       name upgrades
@@ -949,20 +940,19 @@
       type ITEM_TYPE_BIND
       text "Reload:"
       cvar "reload"
-      rect 96 165 192 15
+      rect SCONTENT_X (SCONTENT_Y+(5*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25       
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-    
+
     itemDef
     {
       name upgrades
@@ -970,20 +960,19 @@
       type ITEM_TYPE_BIND
       text "Buy Ammo:"
       cvar "buy ammo"
-      rect 96 180 192 15
+      rect SCONTENT_X (SCONTENT_Y+(6*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25       
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-    
+
     itemDef
     {
       name upgrades
@@ -991,20 +980,19 @@
       type ITEM_TYPE_BIND
       text "Use Medkit:"
       cvar "itemact medkit"
-      rect 96 195 192 15
+      rect SCONTENT_X (SCONTENT_Y+(7*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25       
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-    
+
 //////// MISC
 
     itemDef
@@ -1013,17 +1001,16 @@
       text "Misc"
       group optionsGrp
       style WINDOW_STYLE_EMPTY
-      rect 20 120 64 20
+      rect 0 ((2*BORDER)+TOPBUTT_H+(3*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
       type ITEM_TYPE_BUTTON
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 16
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         hide optionsGrp;
         show controls;
         show misc
@@ -1037,20 +1024,19 @@
       type ITEM_TYPE_BIND
       text "Show Scores:"
       cvar "+scores"
-      rect 96 65 192 15
+      rect SCONTENT_X (SCONTENT_Y+(0*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25                  
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-  
+
     itemDef
     {
       name misc
@@ -1058,20 +1044,19 @@
       type ITEM_TYPE_BIND
       text "Scroll Scores Up:"
       cvar "scoresUp"
-      rect 96 80 192 15
+      rect SCONTENT_X (SCONTENT_Y+(1*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25               
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-    
+
     itemDef
     {
       name misc
@@ -1079,17 +1064,16 @@
       type ITEM_TYPE_BIND
       text "Scroll Scores Down:"
       cvar "scoresDown"
-      rect 96 95 192 15
+      rect SCONTENT_X (SCONTENT_Y+(2*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25               
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -1100,20 +1084,19 @@
       type ITEM_TYPE_BIND
       text "Use Structure/Evolve:"
       cvar "+button7"
-      rect 96 110 192 15
+      rect SCONTENT_X (SCONTENT_Y+(3*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25             
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-        
+
     itemDef
     {
       name misc
@@ -1121,20 +1104,19 @@
       type ITEM_TYPE_BIND
       text "Deconstruct Structure:"
       cvar "deconstruct"
-      rect 96 125 192 15
+      rect SCONTENT_X (SCONTENT_Y+(4*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25             
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-        
+
     itemDef
     {
       name misc
@@ -1142,20 +1124,19 @@
       type ITEM_TYPE_BIND
       text "Gesture:"
       cvar "+button3"
-      rect 96 140 192 15
+      rect SCONTENT_X (SCONTENT_Y+(5*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25           
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-  
+
     itemDef
     {
       name misc
@@ -1163,17 +1144,16 @@
       type ITEM_TYPE_BIND
       text "Chat:"
       cvar "messagemode"
-      rect 96 155 192 15
+      rect SCONTENT_X (SCONTENT_Y+(6*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25             
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -1184,17 +1164,16 @@
       type ITEM_TYPE_BIND
       text "Team Chat:"
       cvar "messagemode2"
-      rect 96 170 192 15
+      rect SCONTENT_X (SCONTENT_Y+(7*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25            
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -1205,17 +1184,16 @@
       type ITEM_TYPE_BIND
       text "Target Chat:"
       cvar "messagemode3"
-      rect 96 185 192 15
+      rect SCONTENT_X (SCONTENT_Y+(8*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25              
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -1226,17 +1204,16 @@
       type ITEM_TYPE_BIND
       text "Attack Chat:"
       cvar "messagemode4"
-      rect 96 200 192 15
+      rect SCONTENT_X (SCONTENT_Y+(9*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25             
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -1247,17 +1224,16 @@
       type ITEM_TYPE_BIND
       text "Vote Yes:"
       cvar "vote yes"
-      rect 96 215 192 15
+      rect SCONTENT_X (SCONTENT_Y+(10*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25             
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -1268,17 +1244,16 @@
       type ITEM_TYPE_BIND
       text "Vote No:"
       cvar "vote no"
-      rect 96 230 192 15
+      rect SCONTENT_X (SCONTENT_Y+(11*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25             
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -1289,17 +1264,16 @@
       type ITEM_TYPE_BIND
       text "Team Vote Yes:"
       cvar "teamvote yes"
-      rect 96 245 192 15
+      rect SCONTENT_X (SCONTENT_Y+(12*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25             
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -1310,17 +1284,16 @@
       type ITEM_TYPE_BIND
       text "Team Vote No:"
       cvar "teamvote no"
-      rect 96 260 192 15
+      rect SCONTENT_X (SCONTENT_Y+(13*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      maxPaintChars 20
-      textaligny 12
-      textscale .25             
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -1335,17 +1308,16 @@
       text "GFX Hardware"
       group optionsGrp
       style WINDOW_STYLE_EMPTY
-      rect 20 60 64 20
+      rect 0 ((2*BORDER)+TOPBUTT_H+(0*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
       type ITEM_TYPE_BUTTON
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 16
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         hide optionsGrp;
         show system;
         show ghardware
@@ -1356,42 +1328,24 @@
 
     itemDef
     {
-      name ghardware       
+      name ghardware
       group optionsGrp
       type ITEM_TYPE_MULTI
       text "Quality:"
       cvar "ui_glCustom"
       cvarFloatList { "High Quality" 0 "Normal" 1 "Fast" 2 "Fastest" 3 "Custom" 4 }
-      rect 96 50 192 15
+      rect SCONTENT_X (SCONTENT_Y+(0*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25         
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         uiScript update "ui_glCustom"
       }
-    }
-
-    itemDef
-    {
-      name ghardware
-      group optionsGrp
-      type ITEM_TYPE_EDITFIELD
-      text "GL Driver:"
-      cvar "r_gldriver"
-      //cvarFloatList {  }
-      rect 96 65 192 15
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 0 
-      decoration
     }
 
     itemDef
@@ -1401,20 +1355,20 @@
       type ITEM_TYPE_YESNO
       text "GL Extensions:"
       cvar "r_allowExtensions"
-      rect 96 80 192 15
+      rect SCONTENT_X (SCONTENT_Y+(1*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         uiScript glCuston
       }
     }
-  
+
     itemDef
     {
       name ghardware
@@ -1425,16 +1379,16 @@
       cvarFloatList { "320x240" 0 "400x300" 1 "512x384" 2 "640x480" 3
                       "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7
                       "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 }
-      rect 96 95 192 15
+      rect SCONTENT_X (SCONTENT_Y+(2*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         uiScript glCustom
       }
     }
@@ -1447,16 +1401,16 @@
       text "Color Depth:"
       cvar "r_colorbits"
       cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
-      rect 96 110 192 15
+      rect SCONTENT_X (SCONTENT_Y+(3*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         uiScript glCustom;
         uiScript update "r_colorbits"
       }
@@ -1469,16 +1423,16 @@
       type ITEM_TYPE_YESNO
       text "Fullscreen:"
       cvar "r_fullscreen"
-      rect 96 125 192 15
+      rect SCONTENT_X (SCONTENT_Y+(4*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         uiScript glCustom
       }
     }
@@ -1491,16 +1445,16 @@
       text "Lighting:"
       cvar "r_vertexlight"
       cvarFloatList { "Light Map (high)" 0 "Vertex (low)" 1  }
-      rect 96 140 192 15
+      rect SCONTENT_X (SCONTENT_Y+(5*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         uiScript glCustom
       }
     }
@@ -1513,16 +1467,16 @@
       text "Geometric Detail:"
       cvar "r_lodbias"
       cvarFloatList { "High" 0 "Medium" 1 "Low" 2 }
-      rect 96 155 192 15
+      rect SCONTENT_X (SCONTENT_Y+(6*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         uiScript glCustom;
         uiScript update "r_lodbias"
       }
@@ -1536,20 +1490,20 @@
       text "Texture Detail:"
       cvar "r_picmip"
       cvarFloatList { "Low" 2 "Normal" 1 "High" 0 }
-      rect 96 170 192 15
+      rect SCONTENT_X (SCONTENT_Y+(7*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         uiScript glCustom
       }
     }
-  
+
     itemDef
     {
       name ghardware
@@ -1558,16 +1512,16 @@
       text "Texture Quality:"
       cvar "r_texturebits"
       cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
-      rect 96 185 192 15
+      rect SCONTENT_X (SCONTENT_Y+(8*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -1579,16 +1533,16 @@
       text "Texture Filter:"
       cvar "r_texturemode"
       cvarStrList { "Bilinear", "GL_LINEAR_MIPMAP_NEAREST", "Trilinear", "GL_LINEAR_MIPMAP_LINEAR"  }
-      rect 96 200 192 15
+      rect SCONTENT_X (SCONTENT_Y+(9*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         uiScript glCustom
       }
     }
@@ -1600,16 +1554,16 @@
       type ITEM_TYPE_YESNO
       text "Anisotropic Filtering:"
       cvar "r_ext_texture_filter_anisotropic"
-      rect 96 215 192 15
+      rect SCONTENT_X (SCONTENT_Y+(10*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         uiScript glCustom
       }
     }
@@ -1621,16 +1575,16 @@
       type ITEM_TYPE_YESNO
       text "Compress Textures:"
       cvar "r_ext_compressed_textures "
-      rect 96 230 192 15
+      rect SCONTENT_X (SCONTENT_Y+(11*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         uiScript glCustom
       }
     }
@@ -1643,15 +1597,14 @@
       text "APPLY"
       textscale .25
       style WINDOW_STYLE_EMPTY
-      rect 144 245 75 20
+      rect SCONTENT_X (SCONTENT_Y+(13*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_CENTER
-      textalignx 37
-      textaligny 15
+      textvalign ITEM_VALIGN_CENTER
       forecolor 1 1 1 1
-      visible 0
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         exec "vid_restart"
       }
     }
@@ -1664,17 +1617,16 @@
       text "GFX Software"
       group optionsGrp
       style WINDOW_STYLE_EMPTY
-      rect 20 80 64 20
+      rect 0 ((2*BORDER)+TOPBUTT_H+(1*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
       type ITEM_TYPE_BUTTON
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 16
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         hide optionsGrp;
         show system;
         show gsoftware
@@ -1688,13 +1640,13 @@
       type ITEM_TYPE_SLIDER
       text "Brightness:"
       cvarfloat "r_gamma" 1 .5 2
-      rect 96 60 192 20
+      rect SCONTENT_X (SCONTENT_Y+(0*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 80
-      textaligny 17
-      textscale .25         
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
     }
 
     itemDef
@@ -1704,34 +1656,13 @@
       type ITEM_TYPE_SLIDER
       text "Screen Size:"
       cvarfloat "cg_viewsize" 100 30 100
-      //cvarFloatList {  }
-      rect 96 80 192 20
+      rect SCONTENT_X (SCONTENT_Y+(1*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 80
-      textaligny 17
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
-    }
-
-    itemDef
-    {
-      name gsoftware
-      group optionsGrp
-      type ITEM_TYPE_YESNO
-      text "Simple Items:"
-      cvar "cg_simpleItems"
-      rect 96 100 192 15
-      textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
-      forecolor 1 1 1 1
-      visible 1 
-      action
-      {
-        play "sound/misc/menu1.wav"; 
-      }
+      visible MENU_FALSE
     }
 
     itemDef
@@ -1741,19 +1672,19 @@
       type ITEM_TYPE_YESNO
       text "Marks On Walls:"
       cvar "cg_marks"
-      rect 96 115 192 15
+      rect SCONTENT_X (SCONTENT_Y+(2*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 1 
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
-        
+
     itemDef
     {
       name gsoftware
@@ -1761,16 +1692,16 @@
       type ITEM_TYPE_YESNO
       text "Dynamic Lights:"
       cvar "r_dynamiclight"
-      rect 96 130 192 15
+      rect SCONTENT_X (SCONTENT_Y+(3*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 1 
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -1781,16 +1712,16 @@
       type ITEM_TYPE_YESNO
       text "Draw Gun:"
       cvar "cg_drawGun"
-      rect 96 145 192 15
+      rect SCONTENT_X (SCONTENT_Y+(4*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 1 
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -1801,16 +1732,16 @@
       type ITEM_TYPE_YESNO
       text "Low Quality Sky:"
       cvar "r_fastsky"
-      rect 96 160 192 15
+      rect SCONTENT_X (SCONTENT_Y+(5*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 1 
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -1820,17 +1751,17 @@
       group optionsGrp
       type ITEM_TYPE_YESNO
       text "Sync Every Frame:"
-      cvar "weapon 5"
-      rect 96 175 192 15
+      cvar "r_finish"
+      rect SCONTENT_X (SCONTENT_Y+(6*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 1 
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -1841,98 +1772,98 @@
       type ITEM_TYPE_YESNO
       text "Show Time:"
       cvar "cg_drawTimer"
-      rect 96 190 192 15
+      rect SCONTENT_X (SCONTENT_Y+(7*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 1 
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
     itemDef
     {
-      name gsoftware        
+      name gsoftware
       group optionsGrp
       type ITEM_TYPE_YESNO
       text "In Game Videos:"
       cvar "r_inGameVideo"
-      rect 96 205 192 15
+      rect SCONTENT_X (SCONTENT_Y+(8*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 1 
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
     itemDef
     {
-      name gsoftware        
+      name gsoftware
       group optionsGrp
       type ITEM_TYPE_YESNO
       text "Depth Sort Particles:"
       cvar "cg_depthSortParticles"
-      rect 96 220 192 15
+      rect SCONTENT_X (SCONTENT_Y+(9*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 1 
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
     itemDef
     {
-      name gsoftware        
+      name gsoftware
       group optionsGrp
       type ITEM_TYPE_MULTI
       text "Particle Physics:"
       cvar "cg_bounceParticles"
       cvarFloatList { "Low Quality" 0 "High Quality" 1 }
-      rect 96 235 192 15
+      rect SCONTENT_X (SCONTENT_Y+(10*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 1 
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
     itemDef
     {
-      name gsoftware        
+      name gsoftware
       group optionsGrp
       type ITEM_TYPE_MULTI
       text "Light Flares:"
       cvar "cg_lightFlare"
       cvarFloatList { "Off" 0 "No Fade" 1 "Timed Fade" 2 "Real Fade" 3 }
-      rect 96 250 192 15
+      rect SCONTENT_X (SCONTENT_Y+(11*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 1 
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -1941,20 +1872,19 @@
     itemDef
     {
       name system
-      text "GL Info"
+      text "OpenGL Info"
       group optionsGrp
       style WINDOW_STYLE_EMPTY
-      rect 20 100 64 20
+      rect 0 ((2*BORDER)+TOPBUTT_H+(2*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
       type ITEM_TYPE_BUTTON
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 16
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         hide optionsGrp;
         show system;
         show glinfo
@@ -1965,36 +1895,36 @@
     {
       name glinfo
       group optionsGrp
-      rect 104 35 230 230 
-      ownerdraw UI_GLINFO 
-      textalign 1
-      textscale .15
-      textalignx 0
-      textaligny 17
+      rect SCONTENT_X SCONTENT_Y SCONTENT_W (H-(SCONTENT_Y+BORDER))
+      ownerdraw UI_GLINFO
+      textscale .25
+      textalign ITEM_ALIGN_LEFT
+      textvalign ITEM_VALIGN_TOP
+      textalignx 4
+      textaligny 4
       forecolor 1 1 1 1
-      visible 0
+      visible MENU_FALSE
       decoration
     }
 
 //////// NET & SOUND
-  
+
     itemDef
     {
       name system
       text "Net & Sound"
       group optionsGrp
       style WINDOW_STYLE_EMPTY
-      rect 20 120 64 20
+      rect 0 ((2*BORDER)+TOPBUTT_H+(3*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
       type ITEM_TYPE_BUTTON
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 16
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         hide optionsGrp;
         show system;
         show netsound
@@ -2003,21 +1933,20 @@
 
     itemDef
     {
-      name netsound      
+      name netsound
       group optionsGrp
-      style 1
+      style WINDOW_STYLE_FILLED
       text "Sound"
-      rect 96 50 192 20
+      rect SCONTENT_X (SCONTENT_Y+(0*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_CENTER
-      textalignx 80
-      textaligny 17
-      textscale .25         
+      textvalign ITEM_VALIGN_CENTER
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       decoration
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -2028,15 +1957,15 @@
       type ITEM_TYPE_SLIDER
       text "Effects Volume:"
       cvarfloat "s_volume" 0.7 0 1
-      rect 96 70 192 20
+      rect SCONTENT_X (SCONTENT_Y+(1*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      textaligny 17
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
     }
-  
+
     itemDef
     {
       name netsound
@@ -2044,32 +1973,32 @@
       type ITEM_TYPE_SLIDER
       text "Music Volume:"
       cvarfloat "s_musicvolume" 0.25 0 1
-      rect 96 90 192 20
+      rect SCONTENT_X (SCONTENT_Y+(2*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 90
-      textaligny 17
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
     }
 
     itemDef
     {
       name netsound
       group optionsGrp
-      type ITEM_TYPE_YESNO  
+      type ITEM_TYPE_YESNO
       text "OpenAL:"
       cvar "s_useOpenAL"
-      rect 96 120 192 15
+      rect SCONTENT_X (SCONTENT_Y+(3*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -2077,20 +2006,20 @@
     {
       name netsound
       group optionsGrp
-      type ITEM_TYPE_MULTI  
+      type ITEM_TYPE_MULTI
       text "Sound Quality:"
       cvar "s_khz"
       cvarFloatList { "44 khz (very high)" 44 "22 khz (high)" 22 "11 khz (low)" 11 }
-      rect 96 135 192 15
+      rect SCONTENT_X (SCONTENT_Y+(4*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -2098,19 +2027,19 @@
     {
       name netsound
       group optionsGrp
-      type ITEM_TYPE_YESNO  
+      type ITEM_TYPE_YESNO
       text "Doppler Sound:"
       cvar "s_doppler"
-      rect 96 150 192 15
+      rect SCONTENT_X (SCONTENT_Y+(5*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 12
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -2118,41 +2047,18 @@
     {
       name netsound
       group optionsGrp
-      type ITEM_TYPE_BUTTON
-      text "APPLY"
-      textscale .25
-      style WINDOW_STYLE_EMPTY
-      rect 155 170 75 20
-      textalign ITEM_ALIGN_CENTER
-      textalignx 37
-      textaligny 15
-      forecolor 1 1 1 1
-      visible 0
-      action
-      {
-        play "sound/misc/menu1.wav"; 
-        exec "snd_restart"
-      }
-    }
-  
-
-    itemDef
-    {
-      name netsound      
-      group optionsGrp
-      style 1
+      style WINDOW_STYLE_FILLED
       text "Network"
-      rect 96 200 192 20
+      rect SCONTENT_X (SCONTENT_Y+(7*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_CENTER
-      textalignx 80
-      textaligny 17
-      textscale .25         
+      textvalign ITEM_VALIGN_CENTER
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       decoration
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
       }
     }
 
@@ -2164,16 +2070,36 @@
       text "Net Data Rate:"
       cvar "rate"
       cvarFloatList { "<=28.8k" 2500 "33.6k" 3000 "56k" 4000 "ISDN" 5000 "LAN/CABLE/xDSl" 25000  }
-      rect 96 220 192 20
+      rect SCONTENT_X (SCONTENT_Y+(8*ELEM_H)) SCONTENT_W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 100
-      textaligny 17
-      textscale .25        
+      textvalign ITEM_VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
       forecolor 1 1 1 1
-      visible 0 
+      visible MENU_FALSE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name netsound
+      group optionsGrp
+      type ITEM_TYPE_BUTTON
+      text "APPLY"
+      textscale .25
+      style WINDOW_STYLE_EMPTY
+      rect SCONTENT_X (SCONTENT_Y+(10*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+        exec "snd_restart"
       }
     }
   }

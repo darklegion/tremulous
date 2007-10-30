@@ -38,14 +38,12 @@ int   sortedTeamPlayers[ TEAM_MAXOVERLAY ];
 int   numSortedTeamPlayers;
 
 //TA UI
-int CG_Text_Width( const char *text, float scale, int limit )
+float CG_Text_Width( const char *text, float scale, int limit )
 {
   int         count,len;
   float       out;
   glyphInfo_t *glyph;
   float       useScale;
-// FIXME: see ui_main.c, same problem
-//  const unsigned char *s = text;
   const char  *s = text;
   fontInfo_t  *font = &cgDC.Assets.textFont;
 
@@ -84,7 +82,7 @@ int CG_Text_Width( const char *text, float scale, int limit )
   return out * useScale;
 }
 
-int CG_Text_Height( const char *text, float scale, int limit )
+float CG_Text_Height( const char *text, float scale, int limit )
 {
   int         len, count;
   float       max;
@@ -128,6 +126,68 @@ int CG_Text_Height( const char *text, float scale, int limit )
   }
 
   return max * useScale;
+}
+
+float CG_Text_EmWidth( float scale )
+{
+  return CG_Text_Width( "M", scale, 0 );
+}
+
+float CG_Text_EmHeight( float scale )
+{
+  return CG_Text_Height( "M", scale, 0 );
+}
+
+static void CG_AlignText( rectDef_t *rect, const char *text, float scale,
+                          float w, float h,
+                          int align, int valign,
+                          float *x, float *y )
+{
+  float tx, ty;
+
+  if( scale > 0.0f )
+  {
+    w = CG_Text_Width( text, scale, 0 );
+    h = CG_Text_Height( text, scale, 0 );
+  }
+
+  switch( align )
+  {
+    default:
+    case ITEM_ALIGN_LEFT:
+      tx = 0.0f;
+      break;
+
+    case ITEM_ALIGN_RIGHT:
+      tx = rect->w - w;
+      break;
+
+    case ITEM_ALIGN_CENTER:
+      tx = ( rect->w - w ) / 2.0f;
+      break;
+  }
+
+  switch( valign )
+  {
+    default:
+    case ITEM_VALIGN_BOTTOM:
+      ty = rect->h;
+      break;
+
+    case ITEM_VALIGN_TOP:
+      ty = h;
+      break;
+
+    case ITEM_VALIGN_CENTER:
+      ty = h + ( ( rect->h - h ) / 2.0f );
+      break;
+  }
+
+  if( x )
+    *x = rect->x + tx;
+
+  if( y )
+    *y = rect->y + ty;
 }
 
 void CG_Text_PaintChar( float x, float y, float width, float height, float scale,
@@ -431,11 +491,12 @@ void CG_DrawField( float x, float y, int width, float cw, float ch, int value )
 }
 
 static void CG_DrawProgressBar( rectDef_t *rect, vec4_t color, float scale,
-                                int align, int textStyle, int special, float progress )
+                                int align, int textalign, int textStyle,
+                                int special, float progress )
 {
   float   rimWidth = rect->h / 20.0f;
   float   doneWidth, leftWidth;
-  float   tx, ty, tw, th;
+  float   tx, ty;
   char    textBuffer[ 8 ];
 
   if( rimWidth < 0.6f )
@@ -481,29 +542,7 @@ static void CG_DrawProgressBar( rectDef_t *rect, vec4_t color, float scale,
   if( scale > 0.0 )
   {
     Com_sprintf( textBuffer, sizeof( textBuffer ), "%d%%", (int)( progress * 100 ) );
-    tw = CG_Text_Width( textBuffer, scale, 0 );
-    th = scale * 40.0f;
-
-    switch( align )
-    {
-      case ITEM_ALIGN_LEFT:
-        tx = rect->x + ( rect->w / 10.0f );
-        ty = rect->y + ( rect->h / 2.0f ) + ( th / 2.0f );
-        break;
-
-      case ITEM_ALIGN_RIGHT:
-        tx = rect->x + rect->w - ( rect->w / 10.0f ) - tw;
-        ty = rect->y + ( rect->h / 2.0f ) + ( th / 2.0f );
-        break;
-
-      case ITEM_ALIGN_CENTER:
-        tx = rect->x + ( rect->w / 2.0f ) - ( tw / 2.0f );
-        ty = rect->y + ( rect->h / 2.0f ) + ( th / 2.0f );
-        break;
-
-      default:
-        tx = ty = 0.0f;
-    }
+    CG_AlignText( rect, textBuffer, scale, 0.0f, 0.0f, textalign, ITEM_VALIGN_CENTER, &tx, &ty );
 
     CG_Text_Paint( tx, ty, scale, color, textBuffer, 0, 0, textStyle );
   }
@@ -890,16 +929,6 @@ static void CG_DrawPlayerWallclimbing( rectDef_t *rect, vec4_t color, qhandle_t 
   trap_R_SetColor( NULL );
 }
 
-static void CG_DrawPlayerStamina( rectDef_t *rect, vec4_t color, float scale,
-                                  int align, int textStyle, int special )
-{
-  playerState_t *ps = &cg.snap->ps;
-  int           stamina = ps->stats[ STAT_STAMINA ];
-  float         progress = ( (float)stamina + (float)MAX_STAMINA ) / ( (float)MAX_STAMINA * 2.0f );
-
-  CG_DrawProgressBar( rect, color, scale, align, textStyle, special, progress );
-}
-
 static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
 {
   int           value;
@@ -1112,18 +1141,6 @@ static void CG_DrawPlayerHealthValue( rectDef_t *rect, vec4_t color )
   trap_R_SetColor( NULL );
 }
 
-static void CG_DrawPlayerHealthBar( rectDef_t *rect, vec4_t color, float scale,
-                                    int align, int textStyle, int special )
-{
-  playerState_t *ps;
-  float total;
-
-  ps = &cg.snap->ps;
-
-  total = ( (float)ps->stats[ STAT_HEALTH ] / (float)ps->stats[ STAT_MAX_HEALTH ] );
-  CG_DrawProgressBar( rect, color, scale, align, textStyle, special, total );
-}
-
 /*
 ==============
 CG_DrawPlayerHealthCross
@@ -1146,80 +1163,68 @@ static void CG_DrawPlayerHealthCross( rectDef_t *rect, vec4_t color, qhandle_t s
 }
 
 static void CG_DrawProgressLabel( rectDef_t *rect, float text_x, float text_y, vec4_t color,
-                                  float scale, int align, const char *s, float fraction )
+                                  float scale, int textalign, int textvalign,
+                                  const char *s, float fraction )
 {
   vec4_t white = { 1.0f, 1.0f, 1.0f, 1.0f };
-  float tx, tw = CG_Text_Width( s, scale, 0 );
+  float tx, ty;
 
-  switch( align )
-  {
-    case ITEM_ALIGN_LEFT:
-      tx = 0.0f;
-      break;
-
-    case ITEM_ALIGN_RIGHT:
-      tx = rect->w - tw;
-      break;
-
-    case ITEM_ALIGN_CENTER:
-      tx = ( rect->w / 2.0f ) - ( tw / 2.0f );
-      break;
-
-    default:
-      tx = 0.0f;
-  }
+  CG_AlignText( rect, s, scale, 0.0f, 0.0f, textalign, textvalign, &tx, &ty );
 
   if( fraction < 1.0f )
-    CG_Text_Paint( rect->x + text_x + tx, rect->y + text_y, scale, white,
+    CG_Text_Paint( text_x + tx, text_y + ty, scale, white,
       s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
   else
-    CG_Text_Paint( rect->x + text_x + tx, rect->y + text_y, scale, color,
+    CG_Text_Paint( text_x + tx, text_y + ty, scale, color,
       s, 0, 0, ITEM_TEXTSTYLE_NEON );
 }
 
 static void CG_DrawMediaProgress( rectDef_t *rect, vec4_t color, float scale,
-                                  int align, int textStyle, int special )
+                                  int align, int textalign, int textStyle, int special )
 {
-  CG_DrawProgressBar( rect, color, scale, align, textStyle, special, cg.mediaFraction );
+  CG_DrawProgressBar( rect, color, scale, align, textalign, textStyle, special, cg.mediaFraction );
 }
 
 static void CG_DrawMediaProgressLabel( rectDef_t *rect, float text_x, float text_y,
-                                       vec4_t color, float scale, int align )
+                                       vec4_t color, float scale, int textalign, int textvalign )
 {
-  CG_DrawProgressLabel( rect, text_x, text_y, color, scale, align, "Map and Textures", cg.mediaFraction );
+  CG_DrawProgressLabel( rect, text_x, text_y, color, scale, textalign, textvalign,
+                        "Map and Textures", cg.mediaFraction );
 }
 
 static void CG_DrawBuildablesProgress( rectDef_t *rect, vec4_t color, float scale,
-                                       int align, int textStyle, int special )
+                                       int align, int textalign, int textStyle, int special )
 {
-  CG_DrawProgressBar( rect, color, scale, align, textStyle, special, cg.buildablesFraction );
+  CG_DrawProgressBar( rect, color, scale, align, textalign, textStyle, special, cg.buildablesFraction );
 }
 
 static void CG_DrawBuildablesProgressLabel( rectDef_t *rect, float text_x, float text_y,
-                                            vec4_t color, float scale, int align )
+                                            vec4_t color, float scale, int textalign, int textvalign )
 {
-  CG_DrawProgressLabel( rect, text_x, text_y, color, scale, align, "Buildable Models", cg.buildablesFraction );
+  CG_DrawProgressLabel( rect, text_x, text_y, color, scale, textalign, textvalign,
+                        "Buildable Models", cg.buildablesFraction );
 }
 
 static void CG_DrawCharModelProgress( rectDef_t *rect, vec4_t color, float scale,
-                                      int align, int textStyle, int special )
+                                      int align, int textalign, int textStyle, int special )
 {
-  CG_DrawProgressBar( rect, color, scale, align, textStyle, special, cg.charModelFraction );
+  CG_DrawProgressBar( rect, color, scale, align, textalign, textStyle, special, cg.charModelFraction );
 }
 
 static void CG_DrawCharModelProgressLabel( rectDef_t *rect, float text_x, float text_y,
-                                           vec4_t color, float scale, int align )
+                                           vec4_t color, float scale, int textalign, int textvalign )
 {
-  CG_DrawProgressLabel( rect, text_x, text_y, color, scale, align, "Character Models", cg.charModelFraction );
+  CG_DrawProgressLabel( rect, text_x, text_y, color, scale, textalign, textvalign,
+                        "Character Models", cg.charModelFraction );
 }
 
 static void CG_DrawOverallProgress( rectDef_t *rect, vec4_t color, float scale,
-                                    int align, int textStyle, int special )
+                                    int align, int textalign, int textStyle, int special )
 {
   float total;
 
   total = ( cg.charModelFraction + cg.buildablesFraction + cg.mediaFraction ) / 3.0f;
-  CG_DrawProgressBar( rect, color, scale, align, textStyle, special, total );
+  CG_DrawProgressBar( rect, color, scale, align, textalign, textStyle, special, total );
 }
 
 static void CG_DrawLevelShot( rectDef_t *rect )
@@ -1244,87 +1249,31 @@ static void CG_DrawLevelShot( rectDef_t *rect )
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, detail );
 }
 
-static void CG_DrawLoadingString( rectDef_t *rect, float text_x, float text_y, vec4_t color,
-                                  float scale, int align, int textStyle, const char *s )
-{
-  float tw, th, tx;
-  int   pos, i;
-  char  buffer[ 1024 ];
-  char  *end;
-
-  if( !s[ 0 ] )
-    return;
-
-  strcpy( buffer, s );
-  tw = CG_Text_Width( s, scale, 0 );
-  th = scale * 40.0f;
-
-  pos = i = 0;
-
-  while( pos < strlen( s ) )
-  {
-    strcpy( buffer, &s[ pos ] );
-    tw = CG_Text_Width( buffer, scale, 0 );
-
-    while( tw > rect->w )
-    {
-      end = strrchr( buffer, ' ' );
-
-      if( end == NULL )
-        break;
-
-      *end = '\0';
-      tw = CG_Text_Width( buffer, scale, 0 );
-    }
-
-    switch( align )
-    {
-      case ITEM_ALIGN_LEFT:
-        tx = rect->x;
-        break;
-
-      case ITEM_ALIGN_RIGHT:
-        tx = rect->x + rect->w - tw;
-        break;
-
-      case ITEM_ALIGN_CENTER:
-        tx = rect->x + ( rect->w / 2.0f ) - ( tw / 2.0f );
-        break;
-
-      default:
-        tx = 0.0f;
-    }
-
-    CG_Text_Paint( tx + text_x, rect->y + text_y + i * ( th + 3 ), scale, color,
-      buffer, 0, 0, textStyle );
-
-    pos += strlen( buffer ) + 1;
-    i++;
-  }
-}
-
 static void CG_DrawLevelName( rectDef_t *rect, float text_x, float text_y,
-                              vec4_t color, float scale, int align, int textStyle )
+                              vec4_t color, float scale,
+                              int textalign, int textvalign, int textStyle )
 {
   const char  *s;
 
   s = CG_ConfigString( CS_MESSAGE );
 
-  CG_DrawLoadingString( rect, text_x, text_y, color, scale, align, textStyle, s );
+  UI_DrawTextBlock( rect, text_x, text_y, color, scale, textalign, textvalign, textStyle, s );
 }
 
 static void CG_DrawMOTD( rectDef_t *rect, float text_x, float text_y,
-                         vec4_t color, float scale, int align, int textStyle )
+                         vec4_t color, float scale,
+                         int textalign, int textvalign, int textStyle )
 {
   const char  *s;
 
   s = CG_ConfigString( CS_MOTD );
 
-  CG_DrawLoadingString( rect, text_x, text_y, color, scale, align, textStyle, s );
+  UI_DrawTextBlock( rect, text_x, text_y, color, scale, textalign, textvalign, textStyle, s );
 }
 
 static void CG_DrawHostname( rectDef_t *rect, float text_x, float text_y,
-                             vec4_t color, float scale, int align, int textStyle )
+                             vec4_t color, float scale,
+                             int textalign, int textvalign, int textStyle )
 {
   char buffer[ 1024 ];
   const char  *info;
@@ -1334,7 +1283,7 @@ static void CG_DrawHostname( rectDef_t *rect, float text_x, float text_y,
   Q_strncpyz( buffer, Info_ValueForKey( info, "sv_hostname" ), 1024 );
   Q_CleanStr( buffer );
 
-  CG_DrawLoadingString( rect, text_x, text_y, color, scale, align, textStyle, buffer );
+  UI_DrawTextBlock( rect, text_x, text_y, color, scale, textalign, textvalign, textStyle, buffer );
 }
 
 /*
@@ -1519,8 +1468,10 @@ static void CG_Text_Paint_Limit( float *maxX, float x, float y, float scale,
   }
 }
 
-static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, vec4_t color, qhandle_t shader )
+static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, int textvalign, vec4_t color, qhandle_t shader )
 {
+  float y;
+
   if( cg.spectatorLen )
   {
     float maxX;
@@ -1578,14 +1529,16 @@ static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, vec4_t color, q
     }
 
     maxX = rect->x + rect->w - 2;
+    CG_AlignText( rect, NULL, 0.0f, 0.0f, CG_Text_EmHeight( scale ),
+                  ITEM_ALIGN_LEFT, textvalign, NULL, &y );
 
-    CG_Text_Paint_Limit( &maxX, cg.spectatorPaintX, rect->y + rect->h - 3, scale, color,
+    CG_Text_Paint_Limit( &maxX, cg.spectatorPaintX, y, scale, color,
                          &cg.spectatorList[ cg.spectatorOffset ], 0, 0 );
 
     if( cg.spectatorPaintX2 >= 0 )
     {
       float maxX2 = rect->x + rect->w - 2;
-      CG_Text_Paint_Limit( &maxX2, cg.spectatorPaintX2, rect->y + rect->h - 3, scale,
+      CG_Text_Paint_Limit( &maxX2, cg.spectatorPaintX2, y, scale,
                            color, cg.spectatorList, 0, cg.spectatorOffset );
     }
 
@@ -1602,27 +1555,73 @@ static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, vec4_t color, q
 
 /*
 ==================
+CG_DrawTeamLabel
+==================
+*/
+static void CG_DrawTeamLabel( rectDef_t *rect, pTeam_t team, float text_x, float text_y,
+    vec4_t color, float scale, int textalign, int textvalign, int textStyle )
+{
+  char  *t;
+  char  stage[ MAX_TOKEN_CHARS ];
+  char  *s;
+  float tx, ty;
+
+  stage[ 0 ] = '\0';
+
+  switch( team )
+  {
+    case PTE_ALIENS:
+      t = "Aliens";
+      if( cg.intermissionStarted )
+        Com_sprintf( stage, MAX_TOKEN_CHARS, "(Stage %d)", cgs.alienStage + 1 );
+      break;
+
+    case PTE_HUMANS:
+      t = "Humans";
+      if( cg.intermissionStarted )
+        Com_sprintf( stage, MAX_TOKEN_CHARS, "(Stage %d)", cgs.humanStage + 1 );
+      break;
+
+    default:
+      t = "";
+      break;
+  }
+
+  switch( textalign )
+  {
+    default:
+    case ITEM_ALIGN_LEFT:
+      s = va( "%s %s", t, stage );
+      break;
+
+    case ITEM_ALIGN_RIGHT:
+      s = va( "%s %s", stage, t );
+      break;
+  }
+
+  CG_AlignText( rect, s, scale, 0.0f, 0.0f, textalign, textvalign, &tx, &ty );
+  CG_Text_Paint( text_x + tx, text_y + ty, scale, color, s, 0, 0, textStyle );
+}
+
+/*
+==================
 CG_DrawStageReport
 ==================
 */
 static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
-    vec4_t color, float scale, int align, int textStyle )
+    vec4_t color, float scale, int textalign, int textvalign, int textStyle )
 {
   char  s[ MAX_TOKEN_CHARS ];
-  int   tx, w, kills;
-
-  if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_NONE && !cg.intermissionStarted )
-    return;
+  float tx, ty;
+  int kills;
 
   if( cg.intermissionStarted )
-  {
-    Com_sprintf( s, MAX_TOKEN_CHARS,
-        "Stage %d" //PH34R MY MAD-LEET CODING SKILLZ
-        "                                                       "
-        "Stage %d",
-        cgs.alienStage + 1, cgs.humanStage + 1 );
-  }
-  else if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    return;
+
+  if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_NONE )
+    return;
+
+  if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     kills = cgs.alienNextStageThreshold - cgs.alienKills;
 
@@ -1649,27 +1648,9 @@ static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
           cgs.humanStage + 1, kills );
   }
 
-  w = CG_Text_Width( s, scale, 0 );
+  CG_AlignText( rect, s, scale, 0.0f, 0.0f, textalign, textvalign, &tx, &ty );
 
-  switch( align )
-  {
-    case ITEM_ALIGN_LEFT:
-      tx = rect->x;
-      break;
-
-    case ITEM_ALIGN_RIGHT:
-      tx = rect->x + rect->w - w;
-      break;
-
-    case ITEM_ALIGN_CENTER:
-      tx = rect->x + ( rect->w / 2.0f ) - ( w / 2.0f );
-      break;
-
-    default:
-      tx = 0.0f;
-  }
-
-  CG_Text_Paint( text_x + tx, rect->y + text_y, scale, color, s, 0, 0, textStyle );
+  CG_Text_Paint( text_x + tx, text_y + ty, scale, color, s, 0, 0, textStyle );
 }
 
 /*
@@ -1680,11 +1661,14 @@ CG_DrawFPS
 #define FPS_FRAMES  20
 #define FPS_STRING  "fps"
 static void CG_DrawFPS( rectDef_t *rect, float text_x, float text_y,
-                        float scale, vec4_t color, int align, int textStyle,
+                        float scale, vec4_t color,
+                        int textalign, int textvalign, int textStyle,
                         qboolean scalableText )
 {
   char        *s;
-  int         tx, w, totalWidth, strLength;
+  float       tx, ty;
+  float       w, h, totalWidth;
+  int         strLength;
   static int  previousTimes[ FPS_FRAMES ];
   static int  index;
   int         i, total;
@@ -1719,26 +1703,11 @@ static void CG_DrawFPS( rectDef_t *rect, float text_x, float text_y,
 
     s = va( "%d", fps );
     w = CG_Text_Width( "0", scale, 0 );
+    h = CG_Text_Height( "0", scale, 0 );
     strLength = CG_DrawStrlen( s );
     totalWidth = CG_Text_Width( FPS_STRING, scale, 0 ) + w * strLength;
 
-    switch( align )
-    {
-      case ITEM_ALIGN_LEFT:
-        tx = rect->x;
-        break;
-
-      case ITEM_ALIGN_RIGHT:
-        tx = rect->x + rect->w - totalWidth;
-        break;
-
-      case ITEM_ALIGN_CENTER:
-        tx = rect->x + ( rect->w / 2.0f ) - ( totalWidth / 2.0f );
-        break;
-
-      default:
-        tx = 0.0f;
-    }
+    CG_AlignText( rect, s, 0.0f, totalWidth, h, textalign, textvalign, &tx, &ty );
 
     if( scalableText )
     {
@@ -1749,8 +1718,10 @@ static void CG_DrawFPS( rectDef_t *rect, float text_x, float text_y,
         c[ 0 ] = s[ i ];
         c[ 1 ] = '\0';
 
-        CG_Text_Paint( text_x + tx + i * w, rect->y + text_y, scale, color, c, 0, 0, textStyle );
+        CG_Text_Paint( text_x + tx + i * w, text_y + ty, scale, color, c, 0, 0, textStyle );
       }
+
+      CG_Text_Paint( text_x + tx + i * w, text_y + ty, scale, color, FPS_STRING, 0, 0, textStyle );
     }
     else
     {
@@ -1758,9 +1729,6 @@ static void CG_DrawFPS( rectDef_t *rect, float text_x, float text_y,
       CG_DrawField( rect->x, rect->y, 3, rect->w / 3, rect->h, fps );
       trap_R_SetColor( NULL );
     }
-
-    if( scalableText )
-      CG_Text_Paint( text_x + tx + i * w, rect->y + text_y, scale, color, FPS_STRING, 0, 0, textStyle );
   }
 }
 
@@ -1821,10 +1789,13 @@ CG_DrawTimer
 =================
 */
 static void CG_DrawTimer( rectDef_t *rect, float text_x, float text_y,
-                          float scale, vec4_t color, int align, int textStyle )
+                          float scale, vec4_t color,
+                          int textalign, int textvalign, int textStyle )
 {
   char    *s;
-  int     i, tx, w, totalWidth, strLength;
+  float   tx, ty;
+  int     i, strLength;
+  float   w, h, totalWidth;
   int     mins, seconds, tens;
   int     msec;
 
@@ -1841,26 +1812,11 @@ static void CG_DrawTimer( rectDef_t *rect, float text_x, float text_y,
 
   s = va( "%d:%d%d", mins, tens, seconds );
   w = CG_Text_Width( "0", scale, 0 );
+  h = CG_Text_Height( "0", scale, 0 );
   strLength = CG_DrawStrlen( s );
   totalWidth = w * strLength;
 
-  switch( align )
-  {
-    case ITEM_ALIGN_LEFT:
-      tx = rect->x;
-      break;
-
-    case ITEM_ALIGN_RIGHT:
-      tx = rect->x + rect->w - totalWidth;
-      break;
-
-    case ITEM_ALIGN_CENTER:
-      tx = rect->x + ( rect->w / 2.0f ) - ( totalWidth / 2.0f );
-      break;
-
-    default:
-      tx = 0.0f;
-  }
+  CG_AlignText( rect, s, 0.0f, totalWidth, h, textalign, textvalign, &tx, &ty );
 
   for( i = 0; i < strLength; i++ )
   {
@@ -1869,7 +1825,7 @@ static void CG_DrawTimer( rectDef_t *rect, float text_x, float text_y,
     c[ 0 ] = s[ i ];
     c[ 1 ] = '\0';
 
-    CG_Text_Paint( text_x + tx + i * w, rect->y + text_y, scale, color, c, 0, 0, textStyle );
+    CG_Text_Paint( text_x + tx + i * w, text_y + ty, scale, color, c, 0, 0, textStyle );
   }
 }
 
@@ -1879,10 +1835,13 @@ CG_DrawClock
 =================
 */
 static void CG_DrawClock( rectDef_t *rect, float text_x, float text_y,
-                          float scale, vec4_t color, int align, int textStyle )
+                          float scale, vec4_t color,
+                          int textalign, int textvalign, int textStyle )
 {
   char    *s;
-  int     i, tx, w, totalWidth, strLength;
+  float   tx, ty;
+  int     i, strLength;
+  float   w, h, totalWidth;
   qtime_t qt;
   int     t;
 
@@ -1914,26 +1873,11 @@ static void CG_DrawClock( rectDef_t *rect, float text_x, float text_y,
     s = va( "%d%s%02d%s", h, ( qt.tm_sec % 2 ) ? ":" : " ", qt.tm_min, pm );
   }
   w = CG_Text_Width( "0", scale, 0 );
+  h = CG_Text_Height( "0", scale, 0 );
   strLength = CG_DrawStrlen( s );
   totalWidth = w * strLength;
 
-  switch( align )
-  {
-    case ITEM_ALIGN_LEFT:
-      tx = rect->x;
-      break;
-
-    case ITEM_ALIGN_RIGHT:
-      tx = rect->x + rect->w - totalWidth;
-      break;
-
-    case ITEM_ALIGN_CENTER:
-      tx = rect->x + ( rect->w / 2.0f ) - ( totalWidth / 2.0f );
-      break;
-
-    default:
-      tx = 0.0f;
-  }
+  CG_AlignText( rect, s, 0.0f, totalWidth, h, textalign, textvalign, &tx, &ty );
 
   for( i = 0; i < strLength; i++ )
   {
@@ -1942,7 +1886,7 @@ static void CG_DrawClock( rectDef_t *rect, float text_x, float text_y,
     c[ 0 ] = s[ i ];
     c[ 1 ] = '\0';
 
-    CG_Text_Paint( text_x + tx + i * w, rect->y + text_y, scale, color, c, 0, 0, textStyle );
+    CG_Text_Paint( text_x + tx + i * w, text_y + ty, scale, color, c, 0, 0, textStyle );
   }
 }
 
@@ -1952,37 +1896,21 @@ CG_DrawSnapshot
 ==================
 */
 static void CG_DrawSnapshot( rectDef_t *rect, float text_x, float text_y,
-                             float scale, vec4_t color, int align, int textStyle )
+                             float scale, vec4_t color,
+                             int textalign, int textvalign, int textStyle )
 {
   char    *s;
-  int     w, tx;
+  float   tx, ty;
 
   if( !cg_drawSnapshot.integer )
     return;
 
   s = va( "time:%d snap:%d cmd:%d", cg.snap->serverTime,
     cg.latestSnapshotNum, cgs.serverCommandSequence );
-  w = CG_Text_Width( s, scale, 0 );
 
-  switch( align )
-  {
-    case ITEM_ALIGN_LEFT:
-      tx = rect->x;
-      break;
+  CG_AlignText( rect, s, scale, 0.0f, 0.0f, textalign, textvalign, &tx, &ty );
 
-    case ITEM_ALIGN_RIGHT:
-      tx = rect->x + rect->w - w;
-      break;
-
-    case ITEM_ALIGN_CENTER:
-      tx = rect->x + ( rect->w / 2.0f ) - ( w / 2.0f );
-      break;
-
-    default:
-      tx = 0.0f;
-  }
-
-  CG_Text_Paint( text_x + tx, rect->y + text_y, scale, color, s, 0, 0, textStyle );
+  CG_Text_Paint( text_x + tx, text_y + ty, scale, color, s, 0, 0, textStyle );
 }
 
 /*
@@ -2265,78 +2193,14 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
 }
 
 /*
-==============
-CG_DrawTextBlock
-==============
-*/
-static void CG_DrawTextBlock( rectDef_t *rect, float text_x, float text_y, vec4_t color,
-                            float scale, int align, int textStyle, const char *text,
-                            menuDef_t *parent, itemDef_t *textItem )
-{
-  float     x, y, w, h;
-
-  //offset the text
-  x = rect->x;
-  y = rect->y;
-  w = rect->w - ( 16 + ( 2 * text_x ) ); //16 to ensure text within frame
-  h = rect->h;
-
-  textItem->text = text;
-
-  textItem->parent = parent;
-  memcpy( textItem->window.foreColor, color, sizeof( vec4_t ) );
-  textItem->window.flags = 0;
-
-  switch( align )
-  {
-    case ITEM_ALIGN_LEFT:
-      textItem->window.rect.x = x;
-      break;
-
-    case ITEM_ALIGN_RIGHT:
-      textItem->window.rect.x = x + w;
-      break;
-
-    case ITEM_ALIGN_CENTER:
-      textItem->window.rect.x = x + ( w / 2 );
-      break;
-
-    default:
-      textItem->window.rect.x = x;
-      break;
-  }
-
-  textItem->window.rect.y = y;
-  textItem->window.rect.w = w;
-  textItem->window.rect.h = h;
-  textItem->window.borderSize = 0;
-  textItem->textRect.x = 0;
-  textItem->textRect.y = 0;
-  textItem->textRect.w = 0;
-  textItem->textRect.h = 0;
-  textItem->textalignment = align;
-  textItem->textalignx = text_x;
-  textItem->textaligny = text_y;
-  textItem->textscale = scale;
-  textItem->textStyle = textStyle;
-
-  //hack to utilise existing autowrap code
-  Item_Text_AutoWrapped_Paint( textItem );
-}
-
-/*
 ===================
 CG_DrawConsole
 ===================
 */
 static void CG_DrawConsole( rectDef_t *rect, float text_x, float text_y, vec4_t color,
-                            float scale, int align, int textStyle )
+                            float scale, int textalign, int textvalign, int textStyle )
 {
-  static menuDef_t dummyParent;
-  static itemDef_t textItem;
-
-  CG_DrawTextBlock( rect, text_x, text_y, color, scale, align, textStyle,
-      cg.consoleText, &dummyParent, &textItem );
+  UI_DrawTextBlock( rect, text_x, text_y, color, scale, textalign, textvalign, textStyle, cg.consoleText );
 }
 
 /*
@@ -2345,16 +2209,12 @@ CG_DrawTutorial
 ===================
 */
 static void CG_DrawTutorial( rectDef_t *rect, float text_x, float text_y, vec4_t color,
-                            float scale, int align, int textStyle )
+                            float scale, int textalign, int textvalign, int textStyle )
 {
-  static menuDef_t dummyParent;
-  static itemDef_t textItem;
-
   if( !cg_tutorial.integer )
     return;
 
-  CG_DrawTextBlock( rect, text_x, text_y, color, scale, align, textStyle,
-      CG_TutorialText( ), &dummyParent, &textItem );
+  UI_DrawTextBlock( rect, text_x, text_y, color, scale, textalign, textvalign, textStyle, CG_TutorialText( ) );
 }
 
 /*
@@ -2553,7 +2413,8 @@ Draw an owner drawn item
 */
 void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
                    float text_y, int ownerDraw, int ownerDrawFlags,
-                   int align, float special, float scale, vec4_t color,
+                   int align, int textalign, int textvalign, float special,
+                   float scale, vec4_t color,
                    qhandle_t shader, int textStyle )
 {
   rectDef_t rect;
@@ -2579,9 +2440,6 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       break;
     case CG_PLAYER_BANK_VALUE_NOPAD:
       CG_DrawPlayerBankValue( &rect, color, qfalse );
-      break;
-    case CG_PLAYER_STAMINA:
-      CG_DrawPlayerStamina( &rect, color, scale, align, textStyle, special );
       break;
     case CG_PLAYER_STAMINA_1:
       CG_DrawPlayerStamina1( &rect, color, shader );
@@ -2609,9 +2467,6 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       break;
     case CG_PLAYER_HEALTH:
       CG_DrawPlayerHealthValue( &rect, color );
-      break;
-    case CG_PLAYER_HEALTH_BAR:
-      CG_DrawPlayerHealthBar( &rect, color, scale, align, textStyle, special );
       break;
     case CG_PLAYER_HEALTH_CROSS:
       CG_DrawPlayerHealthCross( &rect, color, shader );
@@ -2656,13 +2511,19 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawItemSelectText( &rect, scale, textStyle );
       break;
     case CG_SPECTATORS:
-      CG_DrawTeamSpectators( &rect, scale, color, shader );
+      CG_DrawTeamSpectators( &rect, scale, textvalign, color, shader );
       break;
     case CG_PLAYER_CROSSHAIRNAMES:
       CG_DrawCrosshairNames( &rect, scale, textStyle );
       break;
     case CG_STAGE_REPORT_TEXT:
-      CG_DrawStageReport( &rect, text_x, text_y, color, scale, align, textStyle );
+      CG_DrawStageReport( &rect, text_x, text_y, color, scale, textalign, textvalign, textStyle );
+      break;
+    case CG_ALIENS_SCORE_LABEL:
+      CG_DrawTeamLabel( &rect, PTE_ALIENS, text_x, text_y, color, scale, textalign, textvalign, textStyle );
+      break;
+    case CG_HUMANS_SCORE_LABEL:
+      CG_DrawTeamLabel( &rect, PTE_HUMANS, text_x, text_y, color, scale, textalign, textvalign, textStyle );
       break;
 
     //loading screen
@@ -2670,47 +2531,47 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawLevelShot( &rect );
       break;
     case CG_LOAD_MEDIA:
-      CG_DrawMediaProgress( &rect, color, scale, align, textStyle, special );
+      CG_DrawMediaProgress( &rect, color, scale, align, textalign, textStyle, special );
       break;
     case CG_LOAD_MEDIA_LABEL:
-      CG_DrawMediaProgressLabel( &rect, text_x, text_y, color, scale, align );
+      CG_DrawMediaProgressLabel( &rect, text_x, text_y, color, scale, textalign, textvalign );
       break;
     case CG_LOAD_BUILDABLES:
-      CG_DrawBuildablesProgress( &rect, color, scale, align, textStyle, special );
+      CG_DrawBuildablesProgress( &rect, color, scale, align, textalign, textStyle, special );
       break;
     case CG_LOAD_BUILDABLES_LABEL:
-      CG_DrawBuildablesProgressLabel( &rect, text_x, text_y, color, scale, align );
+      CG_DrawBuildablesProgressLabel( &rect, text_x, text_y, color, scale, textalign, textvalign );
       break;
     case CG_LOAD_CHARMODEL:
-      CG_DrawCharModelProgress( &rect, color, scale, align, textStyle, special );
+      CG_DrawCharModelProgress( &rect, color, scale, align, textalign, textStyle, special );
       break;
     case CG_LOAD_CHARMODEL_LABEL:
-      CG_DrawCharModelProgressLabel( &rect, text_x, text_y, color, scale, align );
+      CG_DrawCharModelProgressLabel( &rect, text_x, text_y, color, scale, textalign, textvalign );
       break;
     case CG_LOAD_OVERALL:
-      CG_DrawOverallProgress( &rect, color, scale, align, textStyle, special );
+      CG_DrawOverallProgress( &rect, color, scale, align, textalign, textStyle, special );
       break;
     case CG_LOAD_LEVELNAME:
-      CG_DrawLevelName( &rect, text_x, text_y, color, scale, align, textStyle );
+      CG_DrawLevelName( &rect, text_x, text_y, color, scale, textalign, textvalign, textStyle );
       break;
     case CG_LOAD_MOTD:
-      CG_DrawMOTD( &rect, text_x, text_y, color, scale, align, textStyle );
+      CG_DrawMOTD( &rect, text_x, text_y, color, scale, textalign, textvalign, textStyle );
       break;
     case CG_LOAD_HOSTNAME:
-      CG_DrawHostname( &rect, text_x, text_y, color, scale, align, textStyle );
+      CG_DrawHostname( &rect, text_x, text_y, color, scale, textalign, textvalign, textStyle );
       break;
 
     case CG_FPS:
-      CG_DrawFPS( &rect, text_x, text_y, scale, color, align, textStyle, qtrue );
+      CG_DrawFPS( &rect, text_x, text_y, scale, color, textalign, textvalign, textStyle, qtrue );
       break;
     case CG_FPS_FIXED:
-      CG_DrawFPS( &rect, text_x, text_y, scale, color, align, textStyle, qfalse );
+      CG_DrawFPS( &rect, text_x, text_y, scale, color, textalign, textvalign, textStyle, qfalse );
       break;
     case CG_TIMER:
-      CG_DrawTimer( &rect, text_x, text_y, scale, color, align, textStyle );
+      CG_DrawTimer( &rect, text_x, text_y, scale, color, textalign, textvalign, textStyle );
       break;
     case CG_CLOCK:
-      CG_DrawClock( &rect, text_x, text_y, scale, color, align, textStyle );
+      CG_DrawClock( &rect, text_x, text_y, scale, color, textalign, textvalign, textStyle );
       break;
     case CG_TIMER_MINS:
       CG_DrawTimerMins( &rect, color );
@@ -2719,7 +2580,7 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawTimerSecs( &rect, color );
       break;
     case CG_SNAPSHOT:
-      CG_DrawSnapshot( &rect, text_x, text_y, scale, color, align, textStyle );
+      CG_DrawSnapshot( &rect, text_x, text_y, scale, color, textalign, textvalign, textStyle );
       break;
     case CG_LAGOMETER:
       CG_DrawLagometer( &rect, text_x, text_y, scale, color );
@@ -2733,11 +2594,11 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       break;
 
     case CG_CONSOLE:
-      CG_DrawConsole( &rect, text_x, text_y, color, scale, align, textStyle );
+      CG_DrawConsole( &rect, text_x, text_y, color, scale, textalign, textvalign, textStyle );
       break;
 
     case CG_TUTORIAL:
-      CG_DrawTutorial( &rect, text_x, text_y, color, scale, align, textStyle );
+      CG_DrawTutorial( &rect, text_x, text_y, color, scale, textalign, textvalign, textStyle );
       break;
 
     default:

@@ -654,6 +654,12 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	case CG_PARSE_SOURCE_FILE_AND_LINE:
 		return Parse_SourceFileAndLine( args[1], VMA(2), VMA(3) );
 
+	case CG_KEY_SETOVERSTRIKEMODE:
+		Key_SetOverstrikeMode( args[1] );
+    return 0;
+	case CG_KEY_GETOVERSTRIKEMODE:
+		return Key_GetOverstrikeMode( );
+
 	case CG_MEMSET:
 		Com_Memset( VMA(1), args[2], args[3] );
 		return 0;

@@ -3,30 +3,33 @@
 {
   \\ QUIT POPUP MENU \\
 
+#define W       120
+#define H       120
+
   menuDef
   {
     name "quit_popmenu"
-    visible 0
-    fullscreen 0
-    rect 204 122 235 235
+    visible MENU_FALSE
+    fullscreen MENU_FALSE
+    rect (320-(W/2)) (240-(H/2)) W H
     focusColor 1 .75 0 1
-    style 1
-    border 1
+    style WINDOW_STYLE_FILLED
+    border WINDOW_BORDER_FULL
     popup
     onESC
     {
-      play "sound/misc/menu1.wav"; 
+      play "sound/misc/menu1.wav";
       close quit_popmenu
     }
 
-    
+
     itemDef
     {
       name window
-      rect 47 47 144 144
+      rect 0 0 W H
       style WINDOW_STYLE_FILLED
       backcolor 0 0 0 1
-      visible 1
+      visible MENU_TRUE
       decoration
 
       border WINDOW_BORDER_FULL
@@ -41,16 +44,15 @@
     {
       name confirm
       text "Quit Tremulous?"
-      style 0
-      textscale .3 
-      textstyle 3
-      rect 0 90 110 20
-      textalign 1
-      textalignx 117
-      textaligny 16
+      style WINDOW_STYLE_EMPTY
+      textscale .3
+      textstyle WINDOW_STYLE_SHADER
+      rect 0 0 W ((2*H)/3)
+      textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
       decoration
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
     }
 
 
@@ -58,37 +60,35 @@
     {
       name yes
       text "YES"
-      type 1
+      type ITEM_TYPE_BUTTON
       textscale .25
-      rect 75 120 30 26
-      textalign 1
-      textalignx 15
-      textaligny 20
+      rect 0 (H/3) (W/2) ((2*H)/3)
+      textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
       action
-      { 
-        play "sound/misc/menu4.wav"; 
+      {
+        play "sound/misc/menu4.wav";
         open quitCredit
       }
     }
-    
+
 
     itemDef
     {
       name no
       text "NO"
-      type 1
+      type ITEM_TYPE_BUTTON
       textscale .25
-      rect 128 120 30 26
-      textalign 1
-      textalignx 15
-      textaligny 20
+      rect (W/2) (H/3) (W/2) ((2*H)/3)
+      textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         close quit_popmenu
       }
     }

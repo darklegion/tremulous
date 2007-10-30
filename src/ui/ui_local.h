@@ -865,6 +865,9 @@ typedef struct {
   int         humanBuildCount;
   int         humanBuildIndex;
 
+  int         weapons;
+  int         upgrades;
+
   serverStatus_t serverStatus;
 
   // for the showing the status of a server

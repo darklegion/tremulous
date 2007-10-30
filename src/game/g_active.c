@@ -1683,13 +1683,6 @@ void ClientThink_real( gentity_t *ent )
     }
   }
 
-  if( level.framenum > client->retriggerArmouryMenu && client->retriggerArmouryMenu )
-  {
-    G_TriggerMenu( client->ps.clientNum, MN_H_ARMOURY );
-
-    client->retriggerArmouryMenu = 0;
-  }
-
   // Give clients some credit periodically
   if( ent->client->lastKillTime + FREEKILL_PERIOD < level.time )
   {

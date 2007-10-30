@@ -3,29 +3,38 @@
 {
   \\ FRONT END OPTIONS BOX \\
 
+#define X       0
+#define Y       20
+#define W       250
+#define H       280
+#define TOFF_X  (0-(W/2))
+#define ELEM_H  16
+#define BUTT_W  35
+#define BUTT_H  35
+
   menuDef
   {
     name "simple_options"
-    visible 0
-    fullscreen 0
-    rect 200 80 240 320
+    visible MENU_FALSE
+    fullscreen MENU_FALSE
+    rect (320-(W/2)) (240-(H/2)) W H
     focusColor 1 .75 0 1
-    style 1
-    border 1
+    style WINDOW_STYLE_FILLED
+    border WINDOW_BORDER_FULL
     popup
     onEsc
     {
-      play "sound/misc/menu1.wav"; 
+      play "sound/misc/menu1.wav";
       close simple_options
     }
 
     itemDef
     {
       name window
-      rect 0 0 240 320
+      rect 0 0 W H
       style WINDOW_STYLE_FILLED
       backcolor 0 0 0 1
-      visible 1
+      visible MENU_TRUE
       decoration
 
       border WINDOW_BORDER_FULL
@@ -38,17 +47,17 @@
     itemDef
     {
       type ITEM_TYPE_EDITFIELD
-      style 0
+      style WINDOW_STYLE_EMPTY
       text "Name:"
       cvar "name"
       maxchars 26
-      rect 50 20 192 15
+      rect X Y W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 12
+      textalignx TOFF_X
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
     }
 
     itemDef
@@ -57,13 +66,13 @@
       text "Video Quality:"
       cvar "ui_glCustom"
       cvarFloatList { "High Quality" 0 "Normal" 1 "Fast" 2 "Fastest" 3 "Custom" 4 }
-      rect 50 45 192 15
+      rect X (Y+ELEM_H) W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 12
+      textalignx TOFF_X
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
       action
       {
         play "sound/misc/menu1.wav";
@@ -76,16 +85,16 @@
       type ITEM_TYPE_MULTI
       text "Video Mode:"
       cvar "r_mode"
-      cvarFloatList { "320x240" 0 "400x300" 1 "512x384" 2 "640x480" 3
+      cvarFloatList { "Custom" -1 "320x240" 0 "400x300" 1 "512x384" 2 "640x480" 3
                       "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7
                       "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 }
-      rect 50 60 192 15
+      rect X (Y+(2*ELEM_H)) W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 12
+      textalignx TOFF_X
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
       action
       {
         play "sound/misc/menu1.wav";
@@ -98,13 +107,13 @@
       type ITEM_TYPE_SLIDER
       text "Video Brightness:"
       cvarfloat "r_gamma" 1 .5 2
-      rect 50 75 192 20
+      rect X (Y+(3*ELEM_H)) W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 12
+      textalignx TOFF_X
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
     }
 
 
@@ -114,13 +123,13 @@
       type ITEM_TYPE_SLIDER
       text "Effects Volume:"
       cvarfloat "s_volume" 0.7 0 1
-      rect 50 110 192 20
+      rect X (Y+(4*ELEM_H)) W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 12
+      textalignx TOFF_X
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
     }
 
     itemDef
@@ -128,13 +137,13 @@
       type ITEM_TYPE_SLIDER
       text "Music Volume:"
       cvarfloat "s_musicvolume" 0.25 0 1
-      rect 50 130 192 20
+      rect X (Y+(5*ELEM_H)) W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 12
+      textalignx TOFF_X
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
     }
 
     itemDef
@@ -142,13 +151,13 @@
       type ITEM_TYPE_YESNO
       text "OpenAL Sound:"
       cvar "s_useOpenAL"
-      rect 50 145 192 15
+      rect X (Y+(6*ELEM_H)) W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 12
+      textalignx TOFF_X
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
       action
       {
         play "sound/misc/menu1.wav";
@@ -162,13 +171,13 @@
       type ITEM_TYPE_SLIDER
       text "Mouse Sensitivity:"
       cvarfloat "sensitivity" 5 1 30
-      rect 50 175 192 20
+      rect X (Y+(7*ELEM_H)) W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 12
+      textalignx TOFF_X
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
     }
 
     itemDef
@@ -176,13 +185,13 @@
       type ITEM_TYPE_YESNO
       text "Invert Mouse:"
       cvar "ui_mousePitch"
-      rect 50 190 192 15
+      rect X (Y+(8*ELEM_H)) W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 12
+      textalignx TOFF_X
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
       action
       {
         play "sound/misc/menu1.wav";
@@ -197,14 +206,14 @@
       type ITEM_TYPE_MULTI
       text "Network Connection:"
       cvar "rate"
-      cvarFloatList { "<=28.8k" 2500 "33.6k" 3000 "56k" 4000 "ISDN" 5000 "LAN/CABLE/xDSl" 25000  }
-      rect 50 220 192 20
+      cvarFloatList { "<=28.8k" 2500 "33.6k" 3000 "56k" 4000 "ISDN" 5000 "LAN/CABLE/xDSL" 25000  }
+      rect X (Y+(9*ELEM_H)) W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 12
+      textalignx TOFF_X
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
       action
       {
         play "sound/misc/menu1.wav";
@@ -216,13 +225,13 @@
       type ITEM_TYPE_YESNO
       text "Allow Auto Download:"
       cvar "cl_allowDownload"
-      rect 50 235 192 15
+      rect X (Y+(10*ELEM_H)) W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 64
-      textaligny 12
+      textalignx TOFF_X
+      textvalign ITEM_VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
       action
       {
         play "sound/misc/menu1.wav";
@@ -232,16 +241,30 @@
 
     itemDef
     {
+      text "For further options please use the in-game options menu"
+      style WINDOW_STYLE_EMPTY
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      textscale .25
+      rect 0 (H-60) W 10
+      textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
+      forecolor 1 1 1 1
+      visible MENU_TRUE
+      decoration
+    }
+
+
+    itemDef
+    {
       text "APPLY"
       type ITEM_TYPE_BUTTON
       textscale .25
       style WINDOW_STYLE_EMPTY
-      rect 95 255 30 20
+      rect (W-(2*BUTT_W)) (H-BUTT_H) BUTT_W BUTT_H
       textalign ITEM_ALIGN_CENTER
-      textalignx 15
-      textaligny 15
+      textvalign ITEM_VALIGN_CENTER
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
       action
       {
         play "sound/misc/menu1.wav";
@@ -255,33 +278,16 @@
       type ITEM_TYPE_BUTTON
       textscale .25
       style WINDOW_STYLE_EMPTY
-      rect 125 255 20 20
+      rect (W-BUTT_W) (H-BUTT_H) BUTT_W BUTT_H
       textalign ITEM_ALIGN_CENTER
-      textalignx 10
-      textaligny 15
+      textvalign ITEM_VALIGN_CENTER
       forecolor 1 1 1 1
-      visible 1
+      visible MENU_TRUE
       action
       {
         play "sound/misc/menu1.wav";
         close simple_options
       }
-    }
-
-
-    itemDef
-    {
-      text "For further options please use the in-game options menu"
-      style WINDOW_STYLE_EMPTY
-      textstyle ITEM_TEXTSTYLE_NORMAL
-      textscale .25
-      rect 0 300 240 40
-      textalign ITEM_ALIGN_CENTER
-      textaligny 0
-      textalignx 120
-      forecolor 1 1 1 1
-      visible 1
-      decoration
     }
   }
 }

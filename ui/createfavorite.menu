@@ -1,31 +1,37 @@
 #include "ui/menudef.h"
 
 {
-\\ CREATE FAVORITE POPUP MENU \\
+  \\ CREATE FAVORITE POPUP MENU \\
+
+#define BUTT_W  45
+#define BUTT_H  35
+#define BORDER  10
+#define INPUT_H 20
+#define W       250
+#define H       ((3*BORDER)+(2*INPUT_H)+BUTT_H)
 
   menuDef
   {
     name "createfavorite_popmenu"
-    visible 0
-    fullscreen 0
-    rect 204 122 235 235
+    visible MENU_FALSE
+    fullscreen MENU_FALSE
+    rect (320-(W/2)) (240-(H/2)) W H
     focusColor 1 .75 0 1
-    style 1
-    border 1
+    style WINDOW_STYLE_FILLED
+    border WINDOW_BORDER_FULL
     popup
     onESC
     {
-      close createfavorite_popmenu;
-      open joinserver
+      close createfavorite_popmenu
     }
 
     itemDef
     {
       name window
-      rect 47 47 144 144
+      rect 0 0 W H
       style WINDOW_STYLE_FILLED
       backcolor 0 0 0 1
-      visible 1
+      visible MENU_TRUE
       decoration
 
       border WINDOW_BORDER_FULL
@@ -33,96 +39,76 @@
       borderColor 0.5 0.5 0.5 1
     }
 
-    // ENTER NAME AND ADDRESS	//
-    
-    itemDef
-    {
-      name name
-      text "Name"
-      style 0
-      decoration
-      textscale .3
-      rect 0 61 110 20
-      textalign 1
-      textalignx 117
-      textaligny 16
-      forecolor 1 1 1 1
-      visible 1
-    }
-    
+    // ENTER NAME AND ADDRESS  //
+
     itemDef
     {
       name nameEntry
-      style 1
-      maxchars 15
-      text ""
-      textscale .25
-      TYPE 4
+      style WINDOW_STYLE_EMPTY
+      maxchars 40
+      text "Name:"
+      textscale .4
+      type ITEM_TYPE_EDITFIELD
       cvar "ui_favoriteName"
-      rect 60 81 120 20
-      textalign 0
-      textalignx 10
-      textaligny 16
+      rect BORDER BORDER (W-(2*BORDER)) INPUT_H
+      textalign ITEM_ALIGN_LEFT
+      textvalign ITEM_VALIGN_CENTER
       forecolor 1 1 1 1
-      backcolor .2 .2 .2 .5
-      visible 1
+      visible MENU_TRUE
     }
 
     itemDef
     {
-      name address
-      text "IP Address"
-      style 0
-      decoration
-      textscale .3
-      rect 0 111 110 20
-      textalign 1
-      textalignx 117
-      textaligny 16
-      forecolor 1 1 1 1
-      visible 1
-    }
-    
-    itemDef
-    {
       name addressEntry
-      style 1
-      maxchars 20
-      maxPaintChars 12
-      text ""
-      textscale .25
-      TYPE 4
-      maxchars 21
+      style WINDOW_STYLE_EMPTY
+      maxchars 40
+      text "Address:"
+      textscale .4
+      type ITEM_TYPE_EDITFIELD
       cvar "ui_favoriteAddress"
-      rect 60 131 120 20
-      textalign 0
-      textalignx 10
-      textaligny 16
+      rect BORDER ((2*BORDER)+INPUT_H) (W-(2*BORDER)) INPUT_H
+      textalign ITEM_ALIGN_LEFT
+      textvalign ITEM_VALIGN_CENTER
       forecolor 1 1 1 1
-      backcolor .2 .2 .2 .5
-      visible 1
+      visible MENU_TRUE
     }
 
     itemDef
     {
       name yes
-      text "Ok"
-      type 1
+      text "OK"
+      type ITEM_TYPE_BUTTON
       textscale .25
       style WINDOW_STYLE_EMPTY
-      rect 103 158 30 26
-      textalign 1
-      textalignx 15
-      textaligny 20
+      rect (W-(2*BUTT_W)) (H-BUTT_H) BUTT_W BUTT_H
+      textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
       forecolor 1 1 1 1
-      backcolor .37 .1 .1 1 
-      visible 1
+      visible MENU_TRUE
       action
       {
         play "sound/misc/menu1.wav";
         uiScript CreateFavorite;
-        close createfavorite_popmenu;
-        open joinserver
+        close createfavorite_popmenu
+      }
+    }
+
+    itemDef
+    {
+      name yes
+      text "Cancel"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      style WINDOW_STYLE_EMPTY
+      rect (W-BUTT_W) (H-BUTT_H) BUTT_W BUTT_H
+      textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
+      forecolor 1 1 1 1
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu1.wav";
+        close createfavorite_popmenu
       }
     }
   }

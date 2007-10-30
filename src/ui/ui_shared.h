@@ -59,8 +59,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define WINDOW_LB_PGDN        0x00008000  // mouse is over page down
 #define WINDOW_ORBITING        0x00010000  // item is in orbit
 #define WINDOW_OOB_CLICK      0x00020000  // close on out of bounds click
-#define WINDOW_WRAPPED        0x00040000  // manually wrap text
-#define WINDOW_AUTOWRAPPED      0x00080000  // auto wrap text
+#define WINDOW_WRAPPED        0x00080000  // wrap text
 #define WINDOW_FORCED          0x00100000  // forced open
 #define WINDOW_POPUP          0x00200000  // popup
 #define WINDOW_BACKCOLORSET    0x00400000  // backcolor was explicitly set
@@ -81,6 +80,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_SCRIPT_ARGS 12
 #define MAX_EDITFIELD 256
+#define ITEM_VALUE_OFFSET 8
 
 #define ART_FX_BASE      "menu/art/fx_base"
 #define ART_FX_BLUE      "menu/art/fx_blue"
@@ -105,7 +105,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SLIDER_HEIGHT 16.0
 #define SLIDER_THUMB_WIDTH 12.0
 #define SLIDER_THUMB_HEIGHT 20.0
-#define  NUM_CROSSHAIRS      10
+#define NUM_CROSSHAIRS      10
 
 typedef struct {
   const char *command;
@@ -194,6 +194,7 @@ typedef struct editFieldDef_s {
   float range;                   //
   int maxChars;                  // for edit fields
   int maxPaintChars;             // for edit fields
+  int maxFieldWidth;             // for edit fields
   int paintOffset;               //
 } editFieldDef_t;
 
@@ -226,6 +227,7 @@ typedef struct itemDef_s {
   int type;                      // text, button, radiobutton, checkbox, textfield, listbox, combo
   int alignment;                 // left center right
   int textalignment;             // ( optional ) alignment for text within rect based on text width
+  int textvalignment;            // ( optional ) alignment for text within rect based on text width
   float textalignx;              // ( optional ) text alignment x coord
   float textaligny;              // ( optional ) text alignment x coord
   float textscale;               // scale percentage from 72pts
@@ -318,8 +320,10 @@ typedef struct {
   void (*drawHandlePic) (float x, float y, float w, float h, qhandle_t asset);
   void (*drawStretchPic) (float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
   void (*drawText) (float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style );
-  int (*textWidth) (const char *text, float scale, int limit);
-  int (*textHeight) (const char *text, float scale, int limit);
+  float (*textWidth) (const char *text, float scale, int limit);
+  float (*textHeight) (const char *text, float scale, int limit);
+  float (*textEmWidth) (float scale);
+  float (*textEmHeight) (float scale);
   qhandle_t (*registerModel) (const char *p);
   void (*modelBounds) (qhandle_t model, vec3_t min, vec3_t max);
   void (*fillRect) ( float x, float y, float w, float h, const vec4_t color);
@@ -330,7 +334,7 @@ typedef struct {
   void (*addRefEntityToScene) (const refEntity_t *re );
   void (*renderScene) ( const refdef_t *fd );
   void (*registerFont) (const char *pFontname, int pointSize, fontInfo_t *font);
-  void (*ownerDrawItem) (float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle);
+  void (*ownerDrawItem) (float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, int textalign, int textvalign, float special, float scale, vec4_t color, qhandle_t shader, int textStyle);
   float (*getValue) (int ownerDraw);
   qboolean (*ownerDrawVisible) (int flags);
   void (*runScript)(char **p);
@@ -355,6 +359,7 @@ typedef struct {
   void (*Print)(const char *msg, ...);
   void (*Pause)(qboolean b);
   int (*ownerDrawWidth)(int ownerDraw, float scale);
+  const char *(*ownerDrawText)(int ownerDraw);
   sfxHandle_t (*registerSound)(const char *name, qboolean compressed);
   void (*startBackgroundTrack)( const char *intro, const char *loop);
   void (*stopBackgroundTrack)( void );
@@ -428,6 +433,11 @@ void Menu_Paint(menuDef_t *menu, qboolean forcePaint);
 void Menu_SetFeederSelection(menuDef_t *menu, int feeder, int index, const char *name);
 void Display_CacheAll( void );
 
+typedef void (CaptureFunc) (void *p);
+
+void UI_InstallCaptureFunc( CaptureFunc *f, void *data, int timeout );
+void UI_RemoveCaptureFunc( void );
+
 void *UI_Alloc( int size );
 void UI_InitMemory( void );
 qboolean UI_OutOfMemory( void );
@@ -437,7 +447,10 @@ void Controls_SetConfig(qboolean restart);
 void Controls_SetDefaults( void );
 
 //for cg_draw.c
-void Item_Text_AutoWrapped_Paint( itemDef_t *item );
+void Item_Text_Wrapped_Paint( itemDef_t *item );
+void UI_DrawTextBlock( rectDef_t *rect, float text_x, float text_y, vec4_t color,
+                       float scale, int textalign, int textvalign,
+                       int textStyle, const char *text );
 
 int      trap_Parse_AddGlobalDefine( char *define );
 int      trap_Parse_LoadSource( const char *filename );

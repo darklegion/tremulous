@@ -3,15 +3,25 @@
 {
   \\ SERVER INFO POPUP MENU \\
 
+#define W       400
+#define H       300
+#define BUTT_W  45
+#define BUTT_H  35
+#define BORDER  10
+#define LIST_W  (W-(2*BORDER))
+#define LIST_DW (LIST_W-40)
+#define LEFT_C  0.13
+#define RIGHT_C 0.61
+
   menuDef
   {
     name "serverinfo_popmenu"
-    visible 0
-    fullscreen 0
-    rect 158 80 320 340
+    visible MENU_FALSE
+    fullscreen MENU_FALSE
+    rect (320-(W/2)) (240-(H/2)) W H
     focusColor 1 .75 0 1
-    style 1
-    border 1
+    style WINDOW_STYLE_FILLED
+    border WINDOW_BORDER_FULL
     popup
     onClose { }
     onOpen { uiScript ServerStatus }
@@ -23,10 +33,10 @@
     itemDef
     {
       name window
-      rect 10 15 300 320
-      style 1
+      rect 0 0 W H
+      style WINDOW_STYLE_FILLED
       backcolor 0 0 0 1
-      visible 1
+      visible MENU_TRUE
       decoration
 
       border WINDOW_BORDER_FULL
@@ -37,102 +47,65 @@
     itemDef
     {
       name serverinfo
-      rect 0 20 320 20  
-      text "Server Information" 
-      textstyle 3
-      textalign 1
-      textscale .333
-      textalignx 160
-      textaligny 20
-      forecolor 1 1 1 1
-      visible 1
-      decoration
-    }
-
-
-    itemDef
-    {
-      name serverinfo
-      rect 20 55 280 230
+      rect BORDER BORDER LIST_W (H-(BUTT_H+BORDER))
       type ITEM_TYPE_LISTBOX
-      style WINDOW_STYLE_FILLED
+      style WINDOW_STYLE_EMPTY
       elementwidth 120
       elementheight 16
-      textscale .225
-      backcolor 0 0 0 1
-      border 1
+      textscale .25
+      border WINDOW_BORDER_FULL
       bordersize 1
       bordercolor .5 .5 .5 1
       elementtype LISTBOX_TEXT
       feeder FEEDER_SERVERSTATUS
       notselectable
-      visible 1
+      visible MENU_TRUE
       columns 4
-        2   90  ITEM_ALIGN_LEFT
-        34  40  ITEM_ALIGN_LEFT
-        66  40  ITEM_ALIGN_LEFT
-        100 150 ITEM_ALIGN_LEFT
-    }
-
-    itemDef
-    {
-      name window
-      rect 20 55 264 230
-      style 1
-      backcolor 0 0 0 0
-      forecolor 0 0 0 0
-      border 1
-      bordersize 1
-      bordercolor .5 .5 .5 1
-      visible 1
-      decoration
+        0                     ((2*LEFT_C)*LIST_DW) ITEM_ALIGN_LEFT
+        (LEFT_C*LIST_DW)      (LEFT_C*LIST_DW)     ITEM_ALIGN_LEFT
+        ((2*LEFT_C)*LIST_DW)  (LEFT_C*LIST_DW)     ITEM_ALIGN_LEFT
+        ((1-RIGHT_C)*LIST_DW) (RIGHT_C*LIST_DW)    ITEM_ALIGN_LEFT
     }
 
     //  BUTTON  //
 
     itemDef
     {
-      name exit
-      text "Exit"
-      type 1
-      textscale .23
-      group grpControlbutton
+      name refresh
+      text "Refresh"
+      type ITEM_TYPE_BUTTON
+      textscale .25
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
-      rect 95 295 45 26
-      textalign 1
-      textalignx 23
-      textaligny 20
+      rect (W-(2*BUTT_W)) (H-BUTT_H) BUTT_W BUTT_H
+      textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
       forecolor 1 1 1 1
-      backcolor .37 .1 .1 1
-      visible 1
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
-        close serverinfo_popmenu
+        play "sound/misc/menu1.wav";
+        uiScript ServerStatus
       }
     }
 
     itemDef
     {
-      name refresh
-      text "Refresh"
-      type 1
-      textscale .23
-      group grpControlbutton
+      name close
+      text "Close"
+      type ITEM_TYPE_BUTTON
+      textscale .25
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
-      rect 180 295 45 26
-      textalign 1
-      textalignx 23
-      textaligny 20
+      rect (W-BUTT_W) (H-BUTT_H) BUTT_W BUTT_H
+      textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
       forecolor 1 1 1 1
-      backcolor .37 .1 .1 1
-      visible 1
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
-        uiScript ServerStatus
+        play "sound/misc/menu1.wav";
+        close serverinfo_popmenu
       }
     }
   }

@@ -6,17 +6,17 @@
     font "fonts/font" 26        // font
     smallFont "fonts/smallfont" 20        // font
     bigFont "fonts/bigfont" 34        // font
-    cursor "ui/assets/3_cursor3"      // cursor 
+    cursor "ui/assets/3_cursor3"      // cursor
     gradientBar "ui/assets/gradientbar2.tga"  // gradient bar
     itemFocusSound "sound/misc/menu2.wav"   // sound for item getting focus (via keyboard or mouse )
-  
+
     fadeClamp 1.0         // sets the fadeup alpha
     fadeCycle 1         // how often fade happens in milliseconds
     fadeAmount 0.1          // amount to adjust alpha per cycle
 
     shadowColor 0.1 0.1 0.1 0.25      // shadow color
   }
-                 
+
 
 
 
@@ -24,24 +24,14 @@
   menuDef
   {
     name main
-    fullScreen MENU_TRUE        
+    fullScreen MENU_TRUE
     rect 0 0 640 480        // Size and position of the menu
     visible MENU_TRUE       // Visible on open
     focusColor 1 .75 0 1        // Menu focus color for text and items
+    background "ui/assets/mainmenu.jpg"
 
-    onOpen { uiScript stopRefresh ; playlooped "sound/ui/heartbeat.wav" }	
+    onOpen { uiScript stopRefresh ; playlooped "sound/ui/heartbeat.wav" }
     onESC { open quit_popmenu }
-  
-    itemDef
-    {
-      name background
-      rect 0 0 640 480
-      style WINDOW_STYLE_SHADER
-      backcolor 0 0 0 1
-      visible 1
-      decoration
-      background "ui/assets/mainmenu.jpg"
-    }
 
     itemDef
     {
@@ -53,9 +43,14 @@
       model_fovx 32.0
       model_fovy 24.0
       model_angle 180
-      visible 1
+      visible MENU_TRUE
       decoration
     }
+
+#define X      536
+#define Y      20
+#define W      64
+#define ELEM_H 20
 
     itemDef
     {
@@ -63,17 +58,15 @@
       text "Play"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
-      textstyle ITEM_TEXTSTYLE_NORMAL 
-      rect 472 20 128 20 
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      rect X Y W ELEM_H
       textalign ITEM_ALIGN_RIGHT
-      textalignx 128 
-      textaligny 20 
       textscale .416
-      forecolor 1 1 1 1 
-      visible 1 
+      forecolor 1 1 1 1
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         open joinserver
       }
     }
@@ -83,19 +76,17 @@
       name mainmenu
       text "Options"
       type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_EMPTY 
+      style WINDOW_STYLE_EMPTY
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale .416
-      rect 472 40 128 20 
-      textalignx 128 
-      textaligny 20 
-      textalign ITEM_ALIGN_RIGHT   
+      rect X (Y+ELEM_H) W ELEM_H
+      textalign ITEM_ALIGN_RIGHT
       backcolor 0 0 0 0
       forecolor 1 1 1 1
-      visible 1 
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         open simple_options
       }
     }
@@ -105,19 +96,17 @@
       name mainmenu
       text "Mods"
       type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_EMPTY 
+      style WINDOW_STYLE_EMPTY
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale .416
-      rect 472 60 128 20 
-      textalignx 128 
-      textaligny 20 
-      textalign ITEM_ALIGN_RIGHT   
+      rect X (Y+(2*ELEM_H)) W ELEM_H
+      textalign ITEM_ALIGN_RIGHT
       backcolor 0 0 0 0
       forecolor 1 1 1 1
-      visible 1 
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         open mod
       }
     }
@@ -129,13 +118,11 @@
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       textstyle ITEM_TEXTSTYLE_NORMAL
-      rect 472 80 128 20
-      textalignx 128 
-      textaligny 20 
+      rect X (Y+(3*ELEM_H)) W ELEM_H
       textscale .416
-      textalign ITEM_ALIGN_RIGHT   
+      textalign ITEM_ALIGN_RIGHT
       forecolor 1 1 1 1
-      visible 1 
+      visible MENU_TRUE
       action
       {
         play "sound/misc/menu1.wav";
@@ -146,17 +133,15 @@
     itemDef
     {
       name copyright
-      text "Tremulous (C) 2005-2006 darklegion development"
+      text "Tremulous (C) 2005-2007 darklegion development"
       style WINDOW_STYLE_EMPTY
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale .25
-      rect 0 440 640 40
-      textalign 1 
-      textaligny 32
-      textalignx 320 
+      rect 0 450 640 10
+      textalign ITEM_ALIGN_CENTER
       forecolor .75 .75 .75 .75
-      visible 1 
-      decoration 
+      visible MENU_TRUE
+      decoration
     }
   }
 }

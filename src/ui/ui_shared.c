@@ -45,7 +45,8 @@ static scrollInfo_t scrollInfo;
 void voidFunction( void *var ) { return; }
 qboolean voidFunction2( itemDef_t *var1, int var2 ) { return qfalse; }
 
-static void (*captureFunc) (void *p) = voidFunction;
+static CaptureFunc *captureFunc = voidFunction;
+static int captureFuncExpiry = 0;
 static void *captureData = NULL;
 static itemDef_t *itemCapture = NULL;   // item that has the mouse captured ( if any )
 
@@ -76,6 +77,34 @@ qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down);
 itemDef_t *Menu_SetPrevCursorItem(menuDef_t *menu);
 itemDef_t *Menu_SetNextCursorItem(menuDef_t *menu);
 static qboolean Menu_OverActiveItem(menuDef_t *menu, float x, float y);
+
+/*
+===============
+UI_InstallCaptureFunc
+===============
+*/
+void UI_InstallCaptureFunc( CaptureFunc *f, void *data, int timeout )
+{
+  captureFunc = f;
+  captureData = data;
+
+  if( timeout > 0 )
+    captureFuncExpiry = DC->realTime + timeout;
+  else
+    captureFuncExpiry = 0;
+}
+
+/*
+===============
+UI_RemoveCaptureFunc
+===============
+*/
+void UI_RemoveCaptureFunc( void )
+{
+  captureFunc = voidFunction;
+  captureData = NULL;
+  captureFuncExpiry = 0;
+}
 
 #ifdef CGAME
 #define MEM_POOL_SIZE  128 * 1024
@@ -333,6 +362,238 @@ qboolean Float_Parse(char **p, float *f) {
   }
 }
 
+#define MAX_EXPR_ELEMENTS 32
+
+typedef enum
+{
+  EXPR_OPERATOR,
+  EXPR_VALUE
+} exprType_t;
+
+typedef struct exprToken_s
+{
+  exprType_t  type;
+  union
+  {
+    char  op;
+    float val;
+  } u;
+} exprToken_t;
+
+typedef struct exprList_s
+{
+  exprToken_t l[ MAX_EXPR_ELEMENTS ];
+  int f, b;
+} exprList_t;
+
+/*
+=================
+OpPrec
+
+Return a value reflecting operator precedence
+=================
+*/
+static ID_INLINE int OpPrec( char op )
+{
+  switch( op )
+  {
+    case '*': return 4;
+    case '/': return 3;
+    case '+': return 2;
+    case '-': return 1;
+    case '(': return 0;
+    default:  return -1;
+  }
+}
+
+/*
+=================
+PC_Expression_Parse
+=================
+*/
+static qboolean PC_Expression_Parse( int handle, float *f )
+{
+  pc_token_t  token;
+  int         unmatchedParentheses = 0;
+  exprList_t  stack, fifo;
+  exprToken_t value;
+  qboolean    expectingNumber = qtrue;
+
+#define FULL( a ) ( a.b >= ( MAX_EXPR_ELEMENTS - 1 ) )
+#define EMPTY( a ) ( a.f > a.b )
+
+#define PUSH_VAL( a, v ) \
+  { \
+    if( FULL( a ) ) \
+      return qfalse; \
+    a.b++; \
+    a.l[ a.b ].type = EXPR_VALUE; \
+    a.l[ a.b ].u.val = v; \
+  }
+
+#define PUSH_OP( a, o ) \
+  { \
+    if( FULL( a ) ) \
+      return qfalse; \
+    a.b++; \
+    a.l[ a.b ].type = EXPR_OPERATOR; \
+    a.l[ a.b ].u.op = o; \
+  }
+
+#define POP_STACK( a ) \
+  { \
+    if( EMPTY( a ) ) \
+      return qfalse; \
+    value = a.l[ a.b ]; \
+    a.b--; \
+  }
+
+#define PEEK_STACK_OP( a )  ( a.l[ a.b ].u.op )
+#define PEEK_STACK_VAL( a ) ( a.l[ a.b ].u.val )
+
+#define POP_FIFO( a ) \
+  { \
+    if( EMPTY( a ) ) \
+      return qfalse; \
+    value = a.l[ a.f ]; \
+    a.f++; \
+  }
+
+  stack.f = fifo.f = 0;
+  stack.b = fifo.b = -1;
+
+  while( trap_Parse_ReadToken( handle, &token ) )
+  {
+    if( !unmatchedParentheses && token.string[ 0 ] == ')' )
+      break;
+
+    // Special case to catch negative numbers
+    if( expectingNumber && token.string[ 0 ] == '-' )
+    {
+      if( !trap_Parse_ReadToken( handle, &token ) )
+        return qfalse;
+
+      token.floatvalue = -token.floatvalue;
+    }
+
+    if( token.type == TT_NUMBER )
+    {
+      if( !expectingNumber )
+        return qfalse;
+      expectingNumber = !expectingNumber;
+
+      PUSH_VAL( fifo, token.floatvalue );
+    }
+    else
+    {
+      switch( token.string[ 0 ] )
+      {
+        case '(':
+          unmatchedParentheses++;
+          PUSH_OP( stack, '(' );
+          break;
+
+        case ')':
+          unmatchedParentheses--;
+          if( unmatchedParentheses < 0 )
+            return qfalse;
+
+          while( !EMPTY( stack ) && PEEK_STACK_OP( stack ) != '(' )
+          {
+            POP_STACK( stack );
+            PUSH_OP( fifo, value.u.op );
+          }
+
+          // Pop the '('
+          POP_STACK( stack );
+          break;
+
+        case '*':
+        case '/':
+        case '+':
+        case '-':
+          if( expectingNumber )
+            return qfalse;
+          expectingNumber = !expectingNumber;
+
+          if( EMPTY( stack ) )
+          {
+            PUSH_OP( stack, token.string[ 0 ] );
+          }
+          else
+          {
+            while( !EMPTY( stack ) && OpPrec( token.string[ 0 ] ) < OpPrec( PEEK_STACK_OP( stack ) ) )
+            {
+              POP_STACK( stack );
+              PUSH_OP( fifo, value.u.op );
+            }
+
+            PUSH_OP( stack, token.string[ 0 ] );
+          }
+          break;
+
+        default:
+          // Unknown token
+          return qfalse;
+      }
+    }
+  }
+
+  while( !EMPTY( stack ) )
+  {
+    POP_STACK( stack );
+    PUSH_OP( fifo, value.u.op );
+  }
+
+  while( !EMPTY( fifo ) )
+  {
+    POP_FIFO( fifo );
+
+    if( value.type == EXPR_VALUE )
+    {
+      PUSH_VAL( stack, value.u.val );
+    }
+    else if( value.type == EXPR_OPERATOR )
+    {
+      char op = value.u.op;
+      float operand1, operand2, result;
+
+      POP_STACK( stack );
+      operand2 = value.u.val;
+      POP_STACK( stack );
+      operand1 = value.u.val;
+
+      switch( op )
+      {
+        case '*': result = operand1 * operand2; break;
+        case '/': result = operand1 / operand2; break;
+        case '+': result = operand1 + operand2; break;
+        case '-': result = operand1 - operand2; break;
+        default:
+          Com_Error( ERR_FATAL, "Unknown operator '%c' in postfix string", op );
+          return qfalse;
+      }
+
+      PUSH_VAL( stack, result );
+    }
+  }
+
+  POP_STACK( stack );
+
+  *f = value.u.val;
+
+  return qtrue;
+
+#undef FULL
+#undef EMPTY
+#undef PUSH_VAL
+#undef PUSH_OP
+#undef POP_STACK
+#undef PEEK_STACK_OP
+#undef PEEK_STACK_VAL
+#undef POP_FIFO
+}
+
 /*
 =================
 PC_Float_Parse
@@ -344,6 +605,10 @@ qboolean PC_Float_Parse(int handle, float *f) {
 
   if (!trap_Parse_ReadToken(handle, &token))
     return qfalse;
+
+  if( token.string[ 0 ] == '(' )
+    return PC_Expression_Parse( handle, f );
+
   if (token.string[0] == '-') {
     if (!trap_Parse_ReadToken(handle, &token))
       return qfalse;
@@ -424,6 +689,20 @@ qboolean PC_Int_Parse(int handle, int *i) {
 
   if (!trap_Parse_ReadToken(handle, &token))
     return qfalse;
+
+  if( token.string[ 0 ] == '(' )
+  {
+    float f;
+
+    if( PC_Expression_Parse( handle, &f ) )
+    {
+      *i = (int)f;
+      return qtrue;
+    }
+    else
+      return qfalse;
+  }
+
   if (token.string[0] == '-') {
     if (!trap_Parse_ReadToken(handle, &token))
       return qfalse;
@@ -611,8 +890,7 @@ void Fade(int *flags, float *f, float clamp, int *nextTime, int offsetTime, qboo
 
 
 
-void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle) {
-  //float bordersize = 0;
+static void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle) {
   vec4_t color;
   rectDef_t fillRect = w->rect;
 
@@ -669,6 +947,14 @@ void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle)
       DC->drawCinematic(w->cinematic, fillRect.x, fillRect.y, fillRect.w, fillRect.h);
     }
   }
+}
+
+static void Border_Paint(Window *w) {
+  vec4_t color;
+
+  if (w == NULL || (w->style == 0 && w->border == 0)) {
+    return;
+  }
 
   if (w->border == WINDOW_BORDER_FULL) {
     // full
@@ -706,7 +992,6 @@ void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle)
     r.y = w->rect.y + w->rect.h - 1;
     GradientBar_Paint(&r, w->borderColor);
   }
-
 }
 
 
@@ -1490,7 +1775,7 @@ float Item_Slider_ThumbPosition(itemDef_t *item) {
   editFieldDef_t *editDef = item->typeData;
 
   if (item->text) {
-    x = item->textRect.x + item->textRect.w + 8;
+    x = item->textRect.x + item->textRect.w + ITEM_VALUE_OFFSET;
   } else {
     x = item->window.rect.x;
   }
@@ -1510,21 +1795,29 @@ float Item_Slider_ThumbPosition(itemDef_t *item) {
   range = editDef->maxVal - editDef->minVal;
   value -= editDef->minVal;
   value /= range;
-  //value /= (editDef->maxVal - editDef->minVal);
   value *= SLIDER_WIDTH;
   x += value;
-  // vm fuckage
-  //x = x + (((float)value / editDef->maxVal) * SLIDER_WIDTH);
+
   return x;
+}
+
+static float Item_Slider_VScale( itemDef_t *item )
+{
+  if( SLIDER_THUMB_HEIGHT > item->window.rect.h )
+    return item->window.rect.h / SLIDER_THUMB_HEIGHT;
+  else
+    return 1.0f;
 }
 
 int Item_Slider_OverSlider(itemDef_t *item, float x, float y) {
   rectDef_t r;
+  float vScale = Item_Slider_VScale( item );
 
   r.x = Item_Slider_ThumbPosition(item) - (SLIDER_THUMB_WIDTH / 2);
-  r.y = item->window.rect.y - 2;
+  r.y = item->textRect.y - item->textRect.h +
+    ( ( item->textRect.h - ( SLIDER_THUMB_HEIGHT * vScale ) ) / 2.0f );
   r.w = SLIDER_THUMB_WIDTH;
-  r.h = SLIDER_THUMB_HEIGHT;
+  r.h = SLIDER_THUMB_HEIGHT * vScale;
 
   if (Rect_ContainsPoint(&r, x, y)) {
     return WINDOW_LB_THUMB;
@@ -2058,148 +2351,182 @@ qboolean Item_Multi_HandleKey(itemDef_t *item, int key) {
   return qfalse;
 }
 
-qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
+#define MIN_FIELD_WIDTH   10
+#define EDIT_CURSOR_WIDTH 10
+
+static void Item_TextField_CalcPaintOffset( itemDef_t *item, char *buff )
+{
+  editFieldDef_t  *editPtr = (editFieldDef_t*)item->typeData;
+
+  if( item->cursorPos < editPtr->paintOffset )
+  {
+    editPtr->paintOffset = item->cursorPos;
+  }
+  else
+  {
+    // If there is a maximum field width
+    if( editPtr->maxFieldWidth > 0 )
+    {
+      // If the cursor is at the end of the string, maximise the amount of the
+      // string that's visible
+      if( buff[ item->cursorPos + 1 ] == '\0' )
+      {
+        while( DC->textWidth( &buff[ editPtr->paintOffset ], item->textscale, 0 ) <=
+               ( editPtr->maxFieldWidth - EDIT_CURSOR_WIDTH ) && editPtr->paintOffset > 0 )
+          editPtr->paintOffset--;
+      }
+
+      buff[ item->cursorPos + 1 ] = '\0';
+
+      // Shift paintOffset so that the cursor is visible
+      while( DC->textWidth( &buff[ editPtr->paintOffset ], item->textscale, 0 ) >
+             ( editPtr->maxFieldWidth - EDIT_CURSOR_WIDTH ) )
+        editPtr->paintOffset++;
+    }
+  }
+}
+
+qboolean Item_TextField_HandleKey(itemDef_t *item, int key)
+{
   char buff[1024];
   int len;
   itemDef_t *newItem = NULL;
   editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
+  qboolean releaseFocus = qtrue;
 
-  if (item->cvar) {
+  if( item->cvar )
+  {
+    Com_Memset( buff, 0, sizeof( buff ) );
+    DC->getCVarString( item->cvar, buff, sizeof( buff ) );
+    len = strlen( buff );
 
-    memset(buff, 0, sizeof(buff));
-    DC->getCVarString(item->cvar, buff, sizeof(buff));
-    len = strlen(buff);
-    if (editPtr->maxChars && len > editPtr->maxChars) {
+    if( editPtr->maxChars && len > editPtr->maxChars )
       len = editPtr->maxChars;
-    }
-    if ( key & K_CHAR_FLAG ) {
+
+    if( key & K_CHAR_FLAG )
+    {
       key &= ~K_CHAR_FLAG;
 
-
-      if (key == 'h' - 'a' + 1 )  { // ctrl-h is backspace
-        if ( item->cursorPos > 0 ) {
+      if( key == 'h' - 'a' + 1 )
+      {
+        // ctrl-h is backspace
+        if ( item->cursorPos > 0 )
+        {
           memmove( &buff[item->cursorPos - 1], &buff[item->cursorPos], len + 1 - item->cursorPos);
           item->cursorPos--;
-          if (item->cursorPos < editPtr->paintOffset) {
-            editPtr->paintOffset--;
-          }
         }
+
         DC->setCVar(item->cvar, buff);
-          return qtrue;
       }
-
-
-      //
-      // ignore any non printable chars
-      //
-      if ( key < 32 || !item->cvar) {
-          return qtrue;
-        }
-
-      if (item->type == ITEM_TYPE_NUMERICFIELD) {
-        if (key < '0' || key > '9') {
-          return qfalse;
-        }
-      }
-
-      if (!DC->getOverstrikeMode()) {
-        if (( len == MAX_EDITFIELD - 1 ) || (editPtr->maxChars && len >= editPtr->maxChars)) {
-          return qtrue;
-        }
-        memmove( &buff[item->cursorPos + 1], &buff[item->cursorPos], len + 1 - item->cursorPos );
-      } else {
-        if (editPtr->maxChars && item->cursorPos >= editPtr->maxChars) {
-          return qtrue;
-        }
-      }
-
-      buff[item->cursorPos] = key;
-
-      DC->setCVar(item->cvar, buff);
-
-      if (item->cursorPos < len + 1) {
-        item->cursorPos++;
-        if (editPtr->maxPaintChars && item->cursorPos > editPtr->maxPaintChars) {
-          editPtr->paintOffset++;
-        }
-      }
-
-    } else {
-
-      if ( key == K_DEL || key == K_KP_DEL ) {
-        if ( item->cursorPos < len ) {
-          memmove( buff + item->cursorPos, buff + item->cursorPos + 1, len - item->cursorPos);
-          DC->setCVar(item->cvar, buff);
-        }
-        return qtrue;
-      }
-
-      if ( key == K_RIGHTARROW || key == K_KP_RIGHTARROW )
+      else if( key < 32 || !item->cvar )
       {
-        if (editPtr->maxPaintChars && item->cursorPos >= editPtr->maxPaintChars && item->cursorPos < len) {
-          item->cursorPos++;
-          editPtr->paintOffset++;
-          return qtrue;
-        }
-        if (item->cursorPos < len) {
-          item->cursorPos++;
-        }
-        return qtrue;
+        // Ignore any non printable chars
+        releaseFocus = qfalse;
+        goto exit;
       }
-
-      if ( key == K_LEFTARROW || key == K_KP_LEFTARROW )
+      else if( item->type == ITEM_TYPE_NUMERICFIELD && ( key < '0' || key > '9' ) )
       {
-        if ( item->cursorPos > 0 ) {
-          item->cursorPos--;
+        // Ignore non-numeric characters
+        releaseFocus = qfalse;
+        goto exit;
+      }
+      else
+      {
+        if (!DC->getOverstrikeMode())
+        {
+          if (( len == MAX_EDITFIELD - 1 ) || (editPtr->maxChars && len >= editPtr->maxChars))
+          {
+            // Reached maximum field length
+            releaseFocus = qfalse;
+            goto exit;
+          }
+
+          memmove( &buff[item->cursorPos + 1], &buff[item->cursorPos], len + 1 - item->cursorPos );
         }
-        if (item->cursorPos < editPtr->paintOffset) {
-          editPtr->paintOffset--;
+        else
+        {
+          // Reached maximum field length
+          if (editPtr->maxChars && item->cursorPos >= editPtr->maxChars)
+            releaseFocus = qfalse;
+            goto exit;
         }
-        return qtrue;
-      }
 
-      if ( key == K_HOME || key == K_KP_HOME) {// || ( tolower(key) == 'a' && trap_Key_IsDown( K_CTRL ) ) ) {
-        item->cursorPos = 0;
-        editPtr->paintOffset = 0;
-        return qtrue;
-      }
+        buff[ item->cursorPos ] = key;
 
-      if ( key == K_END || key == K_KP_END)  {// ( tolower(key) == 'e' && trap_Key_IsDown( K_CTRL ) ) ) {
-        item->cursorPos = len;
-        if(item->cursorPos > editPtr->maxPaintChars) {
-          editPtr->paintOffset = len - editPtr->maxPaintChars;
-        }
-        return qtrue;
-      }
+        DC->setCVar( item->cvar, buff );
 
-      if ( key == K_INS || key == K_KP_INS ) {
-        DC->setOverstrikeMode(!DC->getOverstrikeMode());
-        return qtrue;
+        if( item->cursorPos < len + 1 )
+          item->cursorPos++;
+      }
+    }
+    else
+    {
+      switch( key )
+      {
+        case K_DEL:
+        case K_KP_DEL:
+          if( item->cursorPos < len )
+          {
+            memmove( buff + item->cursorPos, buff + item->cursorPos + 1, len - item->cursorPos);
+            DC->setCVar(item->cvar, buff);
+          }
+          break;
+
+        case K_RIGHTARROW:
+        case K_KP_RIGHTARROW:
+          if( item->cursorPos < len )
+            item->cursorPos++;
+          break;
+
+        case K_LEFTARROW:
+        case K_KP_LEFTARROW:
+          if( item->cursorPos > 0 )
+            item->cursorPos--;
+          break;
+
+        case K_HOME:
+        case K_KP_HOME:
+          item->cursorPos = 0;
+          break;
+
+        case K_END:
+        case K_KP_END:
+          item->cursorPos = len;
+          break;
+
+        case K_INS:
+        case K_KP_INS:
+          DC->setOverstrikeMode(!DC->getOverstrikeMode());
+          break;
+
+        case K_TAB:
+        case K_DOWNARROW:
+        case K_KP_DOWNARROW:
+        case K_UPARROW:
+        case K_KP_UPARROW:
+          newItem = Menu_SetNextCursorItem(item->parent);
+          if( newItem && ( newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD ) )
+            g_editItem = newItem;
+          break;
+
+        case K_ENTER:
+        case K_KP_ENTER:
+        case K_ESCAPE:
+          releaseFocus = qtrue;
+          goto exit;
+
+        default:
+          break;
       }
     }
 
-    if (key == K_TAB || key == K_DOWNARROW || key == K_KP_DOWNARROW) {
-      newItem = Menu_SetNextCursorItem(item->parent);
-      if (newItem && (newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD)) {
-        g_editItem = newItem;
-      }
-    }
-
-    if (key == K_UPARROW || key == K_KP_UPARROW) {
-      newItem = Menu_SetPrevCursorItem(item->parent);
-      if (newItem && (newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD)) {
-        g_editItem = newItem;
-      }
-    }
-
-    if ( key == K_ENTER || key == K_KP_ENTER || key == K_ESCAPE)  {
-      return qfalse;
-    }
-
-    return qtrue;
+    releaseFocus = qfalse;
   }
-  return qfalse;
 
+exit:
+  Item_TextField_CalcPaintOffset( item, buff );
+
+  return !releaseFocus;
 }
 
 static void Scroll_ListBox_AutoFunc(void *p) {
@@ -2287,7 +2614,7 @@ static void Scroll_Slider_ThumbFunc(void *p) {
   editFieldDef_t *editDef = si->item->typeData;
 
   if (si->item->text) {
-    x = si->item->textRect.x + si->item->textRect.w + 8;
+    x = si->item->textRect.x + si->item->textRect.w + ITEM_VALUE_OFFSET;
   } else {
     x = si->item->window.rect.x;
   }
@@ -2308,6 +2635,11 @@ static void Scroll_Slider_ThumbFunc(void *p) {
 
 void Item_StartCapture(itemDef_t *item, int key) {
   int flags;
+
+  // Don't allow captureFunc to be overridden
+  if( captureFunc != voidFunction )
+    return;
+
   switch (item->type) {
     case ITEM_TYPE_EDITFIELD:
     case ITEM_TYPE_NUMERICFIELD:
@@ -2322,16 +2654,14 @@ void Item_StartCapture(itemDef_t *item, int key) {
         scrollInfo.scrollKey = key;
         scrollInfo.scrollDir = (flags & WINDOW_LB_LEFTARROW) ? qtrue : qfalse;
         scrollInfo.item = item;
-        captureData = &scrollInfo;
-        captureFunc = &Scroll_ListBox_AutoFunc;
+        UI_InstallCaptureFunc( Scroll_ListBox_AutoFunc, &scrollInfo, 0 );
         itemCapture = item;
       } else if (flags & WINDOW_LB_THUMB) {
         scrollInfo.scrollKey = key;
         scrollInfo.item = item;
         scrollInfo.xStart = DC->cursorx;
         scrollInfo.yStart = DC->cursory;
-        captureData = &scrollInfo;
-        captureFunc = &Scroll_ListBox_ThumbFunc;
+        UI_InstallCaptureFunc( Scroll_ListBox_ThumbFunc, &scrollInfo, 0 );
         itemCapture = item;
       }
       break;
@@ -2344,8 +2674,7 @@ void Item_StartCapture(itemDef_t *item, int key) {
         scrollInfo.item = item;
         scrollInfo.xStart = DC->cursorx;
         scrollInfo.yStart = DC->cursory;
-        captureData = &scrollInfo;
-        captureFunc = &Scroll_Slider_ThumbFunc;
+        UI_InstallCaptureFunc( Scroll_Slider_ThumbFunc, &scrollInfo, 0 );
         itemCapture = item;
       }
       break;
@@ -2367,7 +2696,7 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
         rectDef_t testRect;
         width = SLIDER_WIDTH;
         if (item->text) {
-          x = item->textRect.x + item->textRect.w + 8;
+          x = item->textRect.x + item->textRect.w + ITEM_VALUE_OFFSET;
         } else {
           x = item->window.rect.x;
         }
@@ -2399,8 +2728,7 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
   if (itemCapture) {
     Item_StopCapture(itemCapture);
     itemCapture = NULL;
-    captureFunc = voidFunction;
-    captureData = NULL;
+    UI_RemoveCaptureFunc( );
   } else {
     if ( down && ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3 ) ) {
       Item_StartCapture(item, key);
@@ -2750,10 +3078,15 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
           }
         } else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD) {
           if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
-            item->cursorPos = 0;
+            char buffer[ MAX_STRING_CHARS ] = { 0 };
+
+            if( item->cvar )
+              DC->getCVarString( item->cvar, buffer, sizeof( buffer ) );
+
+            item->cursorPos = strlen( buffer );
+            Item_TextField_CalcPaintOffset( item, buffer );
             g_editingField = qtrue;
             g_editItem = item;
-            DC->setOverstrikeMode(qtrue);
           }
         } else {
           if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
@@ -2788,10 +3121,15 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
     case K_ENTER:
       if (item) {
         if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD) {
-          item->cursorPos = 0;
+          char buffer[ MAX_STRING_CHARS ] = { 0 };
+
+          if( item->cvar )
+            DC->getCVarString( item->cvar, buffer, sizeof( buffer ) );
+
+          item->cursorPos = strlen( buffer );
+          Item_TextField_CalcPaintOffset( item, buffer );
           g_editingField = qtrue;
           g_editItem = item;
-          DC->setOverstrikeMode(qtrue);
         } else {
             Item_Action(item);
         }
@@ -2826,26 +3164,37 @@ void Item_SetTextExtents(itemDef_t *item, int *width, int *height, const char *t
 
   // keeps us from computing the widths and heights more than once
   if (*width == 0 || (item->type == ITEM_TYPE_OWNERDRAW && item->textalignment == ITEM_ALIGN_CENTER)) {
-    int originalWidth = DC->textWidth(item->text, item->textscale, 0);
+    int originalWidth;
 
-    if (item->type == ITEM_TYPE_OWNERDRAW && (item->textalignment == ITEM_ALIGN_CENTER || item->textalignment == ITEM_ALIGN_RIGHT)) {
-      originalWidth += DC->ownerDrawWidth(item->window.ownerDraw, item->textscale);
-    } else if (item->type == ITEM_TYPE_EDITFIELD && item->textalignment == ITEM_ALIGN_CENTER && item->cvar) {
+    if (item->type == ITEM_TYPE_EDITFIELD && item->textalignment == ITEM_ALIGN_CENTER && item->cvar) {
+      //FIXME: this will only be called once?
       char buff[256];
       DC->getCVarString(item->cvar, buff, 256);
-      originalWidth += DC->textWidth(buff, item->textscale, 0);
+      originalWidth = DC->textWidth(item->text, item->textscale, 0) +
+                      DC->textWidth(buff, item->textscale, 0);
+    } else {
+      originalWidth = DC->textWidth(item->text, item->textscale, 0);
     }
 
     *width = DC->textWidth(textPtr, item->textscale, 0);
     *height = DC->textHeight(textPtr, item->textscale, 0);
     item->textRect.w = *width;
     item->textRect.h = *height;
-    item->textRect.x = item->textalignx;
-    item->textRect.y = item->textaligny;
-    if (item->textalignment == ITEM_ALIGN_RIGHT) {
-      item->textRect.x = item->textalignx - originalWidth;
+
+    if (item->textvalignment == ITEM_VALIGN_BOTTOM) {
+      item->textRect.y = item->textaligny + item->window.rect.h;
+    } else if (item->textvalignment == ITEM_VALIGN_CENTER) {
+      item->textRect.y = item->textaligny + ( ( *height + item->window.rect.h ) / 2.0f );
+    } else if (item->textvalignment == ITEM_VALIGN_TOP) {
+      item->textRect.y = item->textaligny + *height;
+    }
+
+    if (item->textalignment == ITEM_ALIGN_LEFT) {
+      item->textRect.x = item->textalignx;
     } else if (item->textalignment == ITEM_ALIGN_CENTER) {
-      item->textRect.x = item->textalignx - originalWidth / 2;
+      item->textRect.x = item->textalignx + ( ( item->window.rect.w - originalWidth ) / 2.0f );
+    } else if (item->textalignment == ITEM_ALIGN_RIGHT) {
+      item->textRect.x = item->textalignx + item->window.rect.w - originalWidth;
     }
 
     ToWindowCoords(&item->textRect.x, &item->textRect.y, &item->window);
@@ -2878,140 +3227,215 @@ void Item_TextColor(itemDef_t *item, vec4_t *newColor) {
   }
 }
 
-int Item_Text_AutoWrapped_Lines( itemDef_t *item )
+static const char *Item_Text_Wrap( const char *text, float scale, float width )
 {
-  char        text[ 1024 ];
-  const char  *p, *textPtr, *newLinePtr;
-  char        buff[ 1024 ];
-  int         len, textWidth, newLine;
-  int         lines = 0;
+  static char   out[ 8192 ];
+  char          *paint = out;
+  char          c[ 3 ];
+  const char    *p = text;
+  const char    *eol;
+  const char    *q = NULL, *qMinus1 = NULL;
+  unsigned int  testLength;
+  unsigned int  i;
 
-  textWidth = 0;
-  newLinePtr = NULL;
+  if( strlen( text ) >= sizeof( out ) )
+      return NULL;
 
-  if( item->text == NULL )
+  *paint = '\0';
+
+  while( *p )
   {
-    if( item->cvar == NULL )
-      return 0;
-    else
+    Com_Memset( c, 0, sizeof( c ) );
+
+    // Skip leading whitespace
+    while( *p )
     {
-      DC->getCVarString( item->cvar, text, sizeof( text ) );
-      textPtr = text;
-    }
-  }
-  else
-    textPtr = item->text;
-
-  if( *textPtr == '\0' )
-    return 0;
-
-  len = 0;
-  buff[ 0 ] = '\0';
-  newLine = 0;
-  p = textPtr;
-
-  while( p )
-  {
-    textWidth = DC->textWidth( buff, item->textscale, 0 );
-
-    if( *p == ' ' || *p == '\t' || *p == '\n' || *p == '\0' )
-    {
-      newLine = len;
-      newLinePtr = p + 1;
-    }
-
-    // forceably split lines that are too long (where normal splitage has failed)
-    if( textWidth > item->window.rect.w && newLine == 0 && *p != '\n' )
-    {
-      newLine = len;
-      newLinePtr = p;
-    }
-
-    if( ( newLine && textWidth > item->window.rect.w ) || *p == '\n' || *p == '\0' )
-    {
-      if( len )
-        buff[ newLine ] = '\0';
-
-      if( !( *p == '\n' && !*( p + 1 ) ) )
-        lines++;
-
-      if( *p == '\0' )
+      if( Q_IsColorString( p ) )
+      {
+        c[ 0 ] = p[ 0 ];
+        c[ 1 ] = p[ 1 ];
+        p += 2;
+      }
+      else if( *p != '\n' && isspace( *p ) )
+        p++;
+      else
         break;
-
-      //
-      p = newLinePtr;
-      len = 0;
-      newLine = 0;
-
-      continue;
     }
 
-    buff[ len++ ] = *p++;
-    buff[ len ] = '\0';
+    if( !*p )
+      break;
+
+    testLength = 1;
+    eol = p;
+
+    while( DC->textWidth( p, scale, testLength ) < width )
+    {
+      if( testLength >= strlen( p ) )
+      {
+        eol = p + strlen( p );
+        break;
+      }
+
+      // Point q at the end of the current testLength
+      q = p;
+      for( i = 0; i < testLength; )
+      {
+        // Skip color escapes
+        while( Q_IsColorString( q ) )
+        {
+          q += 2;
+          continue;
+        }
+
+        qMinus1 = q;
+        q++;
+        i++;
+      }
+
+      // Some color escapes might still be present
+      while( Q_IsColorString( q ) )
+        q += 2;
+
+      // Manual line break
+      if( *q == '\n' )
+      {
+        eol = q + 1;
+        break;
+      }
+
+      if( !isspace( *qMinus1 ) && isspace( *q ) )
+        eol = q;
+
+      testLength++;
+    }
+
+    // No split has taken place, so just split mid-word
+    if( eol == p )
+      eol = q;
+
+    // Add colour code (might be empty)
+    Q_strcat( out, sizeof( out ), c );
+    paint = out + strlen( out );
+
+    // Copy text
+    strncpy( paint, p, eol - p );
+    paint[ eol - p ] = '\0';
+
+    // Add a \n if it's not there already
+    if( out[ strlen( out ) - 1 ] != '\n' )
+      Q_strcat( out, sizeof( out ), "\n" );
+
+    paint = out + strlen( out );
+    p = eol;
   }
 
-  return lines;
+  return out;
 }
 
-#define MAX_AUTOWRAP_CACHE  16
-#define MAX_AUTOWRAP_LINES  32
-#define MAX_AUTOWRAP_TEXT   512
+#define MAX_WRAP_CACHE  16
+#define MAX_WRAP_LINES  32
+#define MAX_WRAP_TEXT   512
 
 typedef struct
 {
-  //this is used purely for checking for cache hits
-  char      text[ MAX_AUTOWRAP_TEXT * MAX_AUTOWRAP_LINES ];
+  char      text[ MAX_WRAP_TEXT * MAX_WRAP_LINES ]; //FIXME: augment with hash?
   rectDef_t rect;
-  int       textWidth, textHeight;
-  char      lines[ MAX_AUTOWRAP_LINES ][ MAX_AUTOWRAP_TEXT ];
-  int       lineOffsets[ MAX_AUTOWRAP_LINES ][ 2 ];
+  float     scale;
+  char      lines[ MAX_WRAP_LINES ][ MAX_WRAP_TEXT ];
+  float     lineCoords[ MAX_WRAP_LINES ][ 2 ];
   int       numLines;
-} autoWrapCache_t;
+} wrapCache_t;
 
-static int              cacheIndex = 0;
-static autoWrapCache_t  awc[ MAX_AUTOWRAP_CACHE ];
+static wrapCache_t  wrapCache[ MAX_WRAP_CACHE ];
+static int          cacheWriteIndex   = 0;
+static int          cacheReadIndex    = 0;
+static int          cacheReadLineNum  = 0;
 
-static int checkCache( const char *text, rectDef_t *rect, int width, int height )
+static void UI_CreateCacheEntry( const char *text, rectDef_t *rect, float scale )
+{
+  wrapCache_t *cacheEntry = &wrapCache[ cacheWriteIndex ];
+
+  Q_strncpyz( cacheEntry->text, text, sizeof( cacheEntry->text ) );
+  cacheEntry->rect.x    = rect->x;
+  cacheEntry->rect.y    = rect->y;
+  cacheEntry->rect.w    = rect->w;
+  cacheEntry->rect.h    = rect->h;
+  cacheEntry->scale     = scale;
+  cacheEntry->numLines  = 0;
+}
+
+static void UI_AddCacheEntryLine( const char *text, float x, float y )
+{
+  wrapCache_t *cacheEntry = &wrapCache[ cacheWriteIndex ];
+
+  if( cacheEntry->numLines >= MAX_WRAP_LINES )
+    return;
+
+  Q_strncpyz( cacheEntry->lines[ cacheEntry->numLines ], text,
+              sizeof( cacheEntry->lines[ 0 ] ) );
+  cacheEntry->lineCoords[ cacheEntry->numLines ][ 0 ] = x;
+  cacheEntry->lineCoords[ cacheEntry->numLines ][ 1 ] = y;
+
+  cacheEntry->numLines++;
+}
+
+static void UI_FinishCacheEntry( void )
+{
+  cacheWriteIndex = ( cacheWriteIndex + 1 ) % MAX_WRAP_CACHE;
+}
+
+static qboolean UI_CheckWrapCache( const char *text, rectDef_t *rect, float scale )
 {
   int i;
 
-  for( i = 0; i < MAX_AUTOWRAP_CACHE; i++ )
+  for( i = 0; i < MAX_WRAP_CACHE; i++ )
   {
-    if( Q_stricmp( text, awc[ i ].text ) )
+    wrapCache_t *cacheEntry = &wrapCache[ i ];
+
+    if( Q_stricmp( text, cacheEntry->text ) )
       continue;
 
-    if( rect->x != awc[ i ].rect.x ||
-        rect->y != awc[ i ].rect.y ||
-        rect->w != awc[ i ].rect.w ||
-        rect->h != awc[ i ].rect.h )
+    if( rect->x != cacheEntry->rect.x ||
+        rect->y != cacheEntry->rect.y ||
+        rect->w != cacheEntry->rect.w ||
+        rect->h != cacheEntry->rect.h )
       continue;
 
-    if( awc[ i ].textWidth != width || awc[ i ].textHeight != height )
+    if( cacheEntry->scale != scale )
       continue;
 
-    //this is a match
-    return i;
+    // This is a match
+    cacheReadIndex = i;
+    cacheReadLineNum = 0;
+    return qtrue;
   }
 
-  //no match - autowrap isn't cached
-  return -1;
+  // No match - wrap isn't cached
+  return qfalse;
 }
 
-void Item_Text_AutoWrapped_Paint( itemDef_t *item )
+static qboolean UI_NextWrapLine( const char **text, float *x, float *y )
+{
+  wrapCache_t *cacheEntry = &wrapCache[ cacheReadIndex ];
+
+  if( cacheReadLineNum >= cacheEntry->numLines )
+    return qfalse;
+
+  *text = cacheEntry->lines[ cacheReadLineNum ];
+  *x    = cacheEntry->lineCoords[ cacheReadLineNum ][ 0 ];
+  *y    = cacheEntry->lineCoords[ cacheReadLineNum ][ 1 ];
+
+  cacheReadLineNum++;
+
+  return qtrue;
+}
+
+void Item_Text_Wrapped_Paint( itemDef_t *item )
 {
   char        text[ 1024 ];
-  const char  *p, *textPtr, *newLinePtr;
-  char        buff[ 1024 ];
-  char        lastCMod[ 2 ] = { 0, 0 };
-  qboolean    forwardColor = qfalse;
-  int         width, height, len, textWidth, newLine, newLineWidth;
-  int         skipLines, totalLines, lineNum = 0;
-  float       y, totalY, diffY;
+  const char  *p, *textPtr;
+  float       x, y, w, h;
   vec4_t      color;
-  int         cache, i;
-
-  textWidth = 0;
-  newLinePtr = NULL;
 
   if( item->text == NULL )
   {
@@ -3030,192 +3454,164 @@ void Item_Text_AutoWrapped_Paint( itemDef_t *item )
     return;
 
   Item_TextColor( item, &color );
-  Item_SetTextExtents( item, &width, &height, textPtr );
 
-  //check if this block is cached
-  cache = checkCache( textPtr, &item->window.rect, width, height );
-  if( cache >= 0 )
+  // Check if this block is cached
+  if( (qboolean)DC->getCVarValue( "ui_textWrapCache" ) &&
+      UI_CheckWrapCache( textPtr, &item->window.rect, item->textscale ) )
   {
-    lineNum = awc[ cache ].numLines;
-
-    for( i = 0; i < lineNum; i++ )
+    while( UI_NextWrapLine( &p, &x, &y ) )
     {
-      item->textRect.x = awc[ cache ].lineOffsets[ i ][ 0 ];
-      item->textRect.y = awc[ cache ].lineOffsets[ i ][ 1 ];
-
-      DC->drawText( item->textRect.x, item->textRect.y, item->textscale, color,
-                    awc[ cache ].lines[ i ], 0, 0, item->textStyle );
+      DC->drawText( x, y, item->textscale, color,
+                    p, 0, 0, item->textStyle );
     }
   }
   else
   {
-    y = item->textaligny;
-    len = 0;
-    buff[ 0 ] = '\0';
-    newLine = 0;
-    newLineWidth = 0;
-    p = textPtr;
+    char        buff[ 1024 ];
+    float       fontHeight    = DC->textEmHeight( item->textscale );
+    const float lineSpacing   = fontHeight * 0.4f;
+    float       lineHeight    = fontHeight + lineSpacing;
+    float       textHeight;
+    int         textLength;
+    int         paintLines, totalLines, lineNum = 0;
+    float       paintY;
+    int         i;
 
-    totalLines = Item_Text_AutoWrapped_Lines( item );
+    UI_CreateCacheEntry( textPtr, &item->window.rect, item->textscale );
 
-    totalY = totalLines * ( height + 5 );
-    diffY = totalY - item->window.rect.h;
+    x = item->window.rect.x + item->textalignx;
+    y = item->window.rect.y + item->textaligny;
+    w = item->window.rect.w - ( 2.0f * item->textalignx );
+    h = item->window.rect.h - ( 2.0f * item->textaligny );
 
-    if( diffY > 0.0f )
-      skipLines = (int)( diffY / ( (float)height + 5.0f ) );
-    else
-      skipLines = 0;
+    textPtr = Item_Text_Wrap( textPtr, item->textscale, w );
+    textLength = strlen( textPtr );
 
-    //set up a cache entry
-    strcpy( awc[ cacheIndex ].text, textPtr );
-    awc[ cacheIndex ].rect.x = item->window.rect.x;
-    awc[ cacheIndex ].rect.y = item->window.rect.y;
-    awc[ cacheIndex ].rect.w = item->window.rect.w;
-    awc[ cacheIndex ].rect.h = item->window.rect.h;
-    awc[ cacheIndex ].textWidth = width;
-    awc[ cacheIndex ].textHeight = height;
-
-    while( p )
+    // Count lines
+    totalLines = 0;
+    for( i = 0; i < textLength; i++ )
     {
-      textWidth = DC->textWidth( buff, item->textscale, 0 );
-
-      if( *p == '^' )
-      {
-        lastCMod[ 0 ] = p[ 0 ];
-        lastCMod[ 1 ] = p[ 1 ];
-      }
-
-      if( *p == ' ' || *p == '\t' || *p == '\n' || *p == '\0' )
-      {
-        newLine = len;
-        newLinePtr = p+1;
-        newLineWidth = textWidth;
-
-        if( *p == '\n' ) //don't forward colours past deilberate \n's
-          lastCMod[ 0 ] = lastCMod[ 1 ] = 0;
-        else
-          forwardColor = qtrue;
-      }
-
-      // forceably split lines that are too long (where normal splitage has failed)
-      if( textWidth > item->window.rect.w && newLine == 0 && *p != '\n' )
-      {
-        newLine = len;
-        newLinePtr = p;
-        newLineWidth = textWidth;
-
-        forwardColor = qtrue;
-      }
-
-      if( ( newLine && textWidth > item->window.rect.w ) || *p == '\n' || *p == '\0' )
-      {
-        if( len )
-        {
-          if( item->textalignment == ITEM_ALIGN_LEFT )
-            item->textRect.x = item->textalignx;
-          else if( item->textalignment == ITEM_ALIGN_RIGHT )
-            item->textRect.x = item->textalignx - newLineWidth;
-          else if( item->textalignment == ITEM_ALIGN_CENTER )
-            item->textRect.x = item->textalignx - newLineWidth / 2;
-
-          item->textRect.y = y;
-          ToWindowCoords( &item->textRect.x, &item->textRect.y, &item->window );
-          //
-          buff[ newLine ] = '\0';
-
-          if( !skipLines )
-          {
-            DC->drawText( item->textRect.x, item->textRect.y, item->textscale, color, buff, 0, 0, item->textStyle );
-
-            strcpy( awc[ cacheIndex ].lines[ lineNum ], buff );
-            awc[ cacheIndex ].lineOffsets[ lineNum ][ 0 ] = item->textRect.x;
-            awc[ cacheIndex ].lineOffsets[ lineNum ][ 1 ] = item->textRect.y;
-
-            lineNum++;
-          }
-        }
-        if( *p == '\0' )
-          break;
-
-        //
-        if( !skipLines )
-          y += height + 5;
-
-        if( skipLines )
-          skipLines--;
-
-        p = newLinePtr;
-        len = 0;
-        newLine = 0;
-        newLineWidth = 0;
-
-        if( forwardColor && lastCMod[ 0 ] != 0 )
-        {
-          buff[ len++ ] = lastCMod[ 0 ];
-          buff[ len++ ] = lastCMod[ 1 ];
-          buff[ len ] = '\0';
-
-          forwardColor = qfalse;
-        }
-
-        continue;
-      }
-
-      buff[ len++ ] = *p++;
-      buff[ len ] = '\0';
+      if( textPtr[ i ] == '\n' )
+        totalLines++;
     }
 
-    //mark the end of the lines list
-    awc[ cacheIndex ].numLines = lineNum;
+    paintLines = (int)floor( ( h + lineSpacing ) / lineHeight );
+    if( paintLines > totalLines )
+      paintLines = totalLines;
 
-    //increment cacheIndex
-    cacheIndex = ( cacheIndex + 1 ) % MAX_AUTOWRAP_CACHE;
+    textHeight = ( paintLines * lineHeight ) - lineSpacing;
+
+    switch( item->textvalignment )
+    {
+      default:
+      case ITEM_VALIGN_BOTTOM:
+        paintY = y + ( h - textHeight );
+        break;
+
+      case ITEM_VALIGN_CENTER:
+        paintY = y + ( ( h - textHeight ) / 2.0f );
+        break;
+
+      case ITEM_VALIGN_TOP:
+        paintY = y;
+        break;
+    }
+
+    p = textPtr;
+    for( i = 0, lineNum = 0; i < textLength && lineNum < paintLines; i++ )
+    {
+      int lineLength = &textPtr[ i ] - p;
+
+      if( lineLength >= sizeof( buff ) - 1 )
+        break;
+
+      if( textPtr[ i ] == '\n' || textPtr[ i ] == '\0' )
+      {
+        itemDef_t   lineItem;
+        int         width, height;
+
+        strncpy( buff, p, lineLength );
+        buff[ lineLength ] = '\0';
+        p = &textPtr[ i + 1 ];
+
+        lineItem.type               = ITEM_TYPE_TEXT;
+        lineItem.textscale          = item->textscale;
+        lineItem.textStyle          = item->textStyle;
+        lineItem.text               = buff;
+        lineItem.textalignment      = item->textalignment;
+        lineItem.textvalignment     = ITEM_VALIGN_TOP;
+        lineItem.textalignx         = 0.0f;
+        lineItem.textaligny         = 0.0f;
+
+        lineItem.textRect.w         = 0.0f;
+        lineItem.textRect.h         = 0.0f;
+        lineItem.window.rect.x      = x;
+        lineItem.window.rect.y      = paintY + ( lineNum * lineHeight );
+        lineItem.window.rect.w      = w;
+        lineItem.window.rect.h      = lineHeight;
+        lineItem.window.border      = item->window.border;
+        lineItem.window.borderSize  = item->window.borderSize;
+
+        if( debugMode )
+        {
+          vec4_t color;
+          color[ 0 ] = color[ 2 ] = color[ 3 ] = 1.0f;
+          color[ 1 ] = 0.0f;
+          DC->drawRect( lineItem.window.rect.x, lineItem.window.rect.y,
+                        lineItem.window.rect.w, lineItem.window.rect.h, 1, color );
+        }
+
+        Item_SetTextExtents( &lineItem, &width, &height, buff );
+        DC->drawText( lineItem.textRect.x, lineItem.textRect.y,
+                      lineItem.textscale, color, buff, 0, 0,
+                      lineItem.textStyle );
+        UI_AddCacheEntryLine( buff, lineItem.textRect.x, lineItem.textRect.y );
+
+        lineNum++;
+      }
+    }
+
+    UI_FinishCacheEntry( );
   }
 }
 
-void Item_Text_Wrapped_Paint(itemDef_t *item) {
-  char text[1024];
-  const char *p, *start, *textPtr;
-  char buff[1024];
-  int width, height;
-  float x, y;
-  vec4_t color;
+/*
+==============
+UI_DrawTextBlock
+==============
+*/
+void UI_DrawTextBlock( rectDef_t *rect, float text_x, float text_y, vec4_t color,
+                       float scale, int textalign, int textvalign,
+                       int textStyle, const char *text )
+{
+  static menuDef_t  dummyParent;
+  static itemDef_t  textItem;
 
-  // now paint the text and/or any optional images
-  // default to left
+  textItem.text = text;
 
-  if (item->text == NULL) {
-    if (item->cvar == NULL) {
-      return;
-    }
-    else {
-      DC->getCVarString(item->cvar, text, sizeof(text));
-      textPtr = text;
-    }
-  }
-  else {
-    textPtr = item->text;
-  }
-  if (*textPtr == '\0') {
-    return;
-  }
+  textItem.parent = &dummyParent;
+  memcpy( textItem.window.foreColor, color, sizeof( vec4_t ) );
+  textItem.window.flags = 0;
 
-  Item_TextColor(item, &color);
-  Item_SetTextExtents(item, &width, &height, textPtr);
+  textItem.window.rect.x = rect->x;
+  textItem.window.rect.y = rect->y;
+  textItem.window.rect.w = rect->w;
+  textItem.window.rect.h = rect->h;
+  textItem.window.border = 0;
+  textItem.window.borderSize = 0.0f;
+  textItem.textRect.x = 0.0f;
+  textItem.textRect.y = 0.0f;
+  textItem.textRect.w = 0.0f;
+  textItem.textRect.h = 0.0f;
+  textItem.textalignment = textalign;
+  textItem.textvalignment = textvalign;
+  textItem.textalignx = text_x;
+  textItem.textaligny = text_y;
+  textItem.textscale = scale;
+  textItem.textStyle = textStyle;
 
-  x = item->textRect.x;
-  y = item->textRect.y;
-  start = textPtr;
-  p = strchr(textPtr, '\r');
-  while (p && *p) {
-    strncpy(buff, start, p-start+1);
-    buff[p-start] = '\0';
-    DC->drawText(x, y, item->textscale, color, buff, 0, 0, item->textStyle);
-    y += height + 5;
-    start += p - start + 1;
-    p = strchr(p+1, '\r');
-  }
-  DC->drawText(x, y, item->textscale, color, start, 0, 0, item->textStyle);
+  // Utilise existing wrap code
+  Item_Text_Wrapped_Paint( &textItem );
 }
 
 void Item_Text_Paint(itemDef_t *item) {
@@ -3226,10 +3622,6 @@ void Item_Text_Paint(itemDef_t *item) {
 
   if (item->window.flags & WINDOW_WRAPPED) {
     Item_Text_Wrapped_Paint(item);
-    return;
-  }
-  if (item->window.flags & WINDOW_AUTOWRAPPED) {
-    Item_Text_AutoWrapped_Paint(item);
     return;
   }
 
@@ -3290,38 +3682,64 @@ void Item_Text_Paint(itemDef_t *item) {
 
 
 
-//float     trap_Cvar_VariableValue( const char *var_name );
-//void      trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
+void Item_TextField_Paint(itemDef_t *item)
+{
+  char            buff[1024];
+  vec4_t          newColor;
+  int             offset = (item->text && *item->text) ? ITEM_VALUE_OFFSET : 0;
+  menuDef_t       *parent = (menuDef_t*)item->parent;
+  editFieldDef_t  *editPtr = (editFieldDef_t*)item->typeData;
+  char            cursor = DC->getOverstrikeMode() ? '|' : '_';
+  qboolean        editing = ( item->window.flags & WINDOW_HASFOCUS && g_editingField );
+  const int       cursorWidth = editing ? EDIT_CURSOR_WIDTH : 0;
 
-void Item_TextField_Paint(itemDef_t *item) {
-  char buff[1024];
-  vec4_t newColor;
-  int offset;
-  menuDef_t *parent = (menuDef_t*)item->parent;
-  editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
-
+  //FIXME: causes duplicate printing if item->text is not set (NULL)
   Item_Text_Paint(item);
 
   buff[0] = '\0';
 
-  if (item->cvar) {
+  if (item->cvar)
     DC->getCVarString(item->cvar, buff, sizeof(buff));
+
+  // maxFieldWidth hasn't been set, so use the item's rect
+  if( editPtr->maxFieldWidth == 0 )
+  {
+    editPtr->maxFieldWidth = item->window.rect.w -
+      ( item->textRect.w + offset + ( item->textRect.x - item->window.rect.x ) );
+
+    if( editPtr->maxFieldWidth < MIN_FIELD_WIDTH )
+      editPtr->maxFieldWidth = MIN_FIELD_WIDTH;
   }
+
+  if( !editing )
+    editPtr->paintOffset = 0;
+
+  // Shorten string to max viewable
+  while( DC->textWidth( buff + editPtr->paintOffset, item->textscale, 0 ) >
+         ( editPtr->maxFieldWidth - cursorWidth ) && strlen( buff ) > 0 )
+    buff[ strlen( buff ) - 1 ] = '\0';
 
   parent = (menuDef_t*)item->parent;
 
-  if (item->window.flags & WINDOW_HASFOCUS) {
+  if (item->window.flags & WINDOW_HASFOCUS)
     memcpy(newColor, &parent->focusColor, sizeof(vec4_t));
-  } else {
+  else
     memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
-  }
 
-  offset = (item->text && *item->text) ? 8 : 0;
-  if (item->window.flags & WINDOW_HASFOCUS && g_editingField) {
-    char cursor = DC->getOverstrikeMode() ? '_' : '|';
-    DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset , cursor, editPtr->maxPaintChars, item->textStyle);
-  } else {
-    DC->drawText(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset, 0, editPtr->maxPaintChars, item->textStyle);
+  if( editing )
+  {
+    DC->drawTextWithCursor( item->textRect.x + item->textRect.w + offset,
+                            item->textRect.y, item->textscale, newColor,
+                            buff + editPtr->paintOffset,
+                            item->cursorPos - editPtr->paintOffset,
+                            cursor, editPtr->maxPaintChars, item->textStyle );
+  }
+  else
+  {
+    DC->drawText( item->textRect.x + item->textRect.w + offset,
+                  item->textRect.y, item->textscale, newColor,
+                  buff + editPtr->paintOffset, 0,
+                  editPtr->maxPaintChars, item->textStyle );
   }
 
 }
@@ -3329,6 +3747,7 @@ void Item_TextField_Paint(itemDef_t *item) {
 void Item_YesNo_Paint(itemDef_t *item) {
   vec4_t newColor;
   float value;
+  int offset;
   menuDef_t *parent = (menuDef_t*)item->parent;
 
   value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
@@ -3339,9 +3758,10 @@ void Item_YesNo_Paint(itemDef_t *item) {
     memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
   }
 
+  offset = (item->text && *item->text) ? ITEM_VALUE_OFFSET : 0;
   if (item->text) {
     Item_Text_Paint(item);
-    DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, newColor, (value != 0) ? "Yes" : "No", 0, 0, item->textStyle);
+    DC->drawText(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, (value != 0) ? "Yes" : "No", 0, 0, item->textStyle);
   } else {
     DC->drawText(item->textRect.x, item->textRect.y, item->textscale, newColor, (value != 0) ? "Yes" : "No", 0, 0, item->textStyle);
   }
@@ -3362,7 +3782,7 @@ void Item_Multi_Paint(itemDef_t *item) {
 
   if (item->text) {
     Item_Text_Paint(item);
-    DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, newColor, text, 0, 0, item->textStyle);
+    DC->drawText(item->textRect.x + item->textRect.w + ITEM_VALUE_OFFSET, item->textRect.y, item->textscale, newColor, text, 0, 0, item->textStyle);
   } else {
     DC->drawText(item->textRect.x, item->textRect.y, item->textscale, newColor, text, 0, 0, item->textStyle);
   }
@@ -3614,6 +4034,7 @@ void Item_Slider_Paint(itemDef_t *item) {
   vec4_t newColor;
   float x, y, value;
   menuDef_t *parent = (menuDef_t*)item->parent;
+  float vScale = Item_Slider_VScale( item );
 
   value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
@@ -3623,18 +4044,25 @@ void Item_Slider_Paint(itemDef_t *item) {
     memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
   }
 
-  y = item->window.rect.y;
   if (item->text) {
     Item_Text_Paint(item);
-    x = item->textRect.x + item->textRect.w + 8;
+    x = item->textRect.x + item->textRect.w + ITEM_VALUE_OFFSET;
+    y = item->textRect.y - item->textRect.h +
+      ( ( item->textRect.h - ( SLIDER_HEIGHT * vScale ) ) / 2.0f );
   } else {
     x = item->window.rect.x;
+    y = item->window.rect.y;
   }
+
   DC->setColor(newColor);
-  DC->drawHandlePic( x, y, SLIDER_WIDTH, SLIDER_HEIGHT, DC->Assets.sliderBar );
+  DC->drawHandlePic( x, y, SLIDER_WIDTH, SLIDER_HEIGHT * vScale, DC->Assets.sliderBar );
+
+  y = item->textRect.y - item->textRect.h +
+    ( ( item->textRect.h - ( SLIDER_THUMB_HEIGHT * vScale ) ) / 2.0f );
 
   x = Item_Slider_ThumbPosition(item);
-  DC->drawHandlePic( x - (SLIDER_THUMB_WIDTH / 2), y - 2, SLIDER_THUMB_WIDTH, SLIDER_THUMB_HEIGHT, DC->Assets.sliderThumb );
+  DC->drawHandlePic( x - (SLIDER_THUMB_WIDTH / 2), y,
+      SLIDER_THUMB_WIDTH, SLIDER_THUMB_HEIGHT * vScale, DC->Assets.sliderThumb );
 
 }
 
@@ -3671,7 +4099,7 @@ void Item_Bind_Paint(itemDef_t *item) {
   if (item->text) {
     Item_Text_Paint(item);
     BindingFromName(item->cvar);
-    DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, newColor, g_nameBind1, 0, maxChars, item->textStyle);
+    DC->drawText(item->textRect.x + item->textRect.w + ITEM_VALUE_OFFSET, item->textRect.y, item->textscale, newColor, g_nameBind1, 0, maxChars, item->textStyle);
   } else {
     DC->drawText(item->textRect.x, item->textRect.y, item->textscale, newColor, (value != 0) ? "FIXME" : "FIXME", 0, maxChars, item->textStyle);
   }
@@ -3891,24 +4319,28 @@ void Item_ListBox_Paint(itemDef_t *item) {
   count = DC->feederCount(item->special);
   // default is vertical if horizontal flag is not here
   if (item->window.flags & WINDOW_HORIZONTAL) {
-    // draw scrollbar in bottom of the window
-    // bar
-    x = item->window.rect.x + 1;
-    y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE - 1;
-    DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowLeft);
-    x += SCROLLBAR_SIZE - 1;
-    size = item->window.rect.w - (SCROLLBAR_SIZE * 2);
-    DC->drawHandlePic(x, y, size+1, SCROLLBAR_SIZE, DC->Assets.scrollBar);
-    x += size - 1;
-    DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowRight);
-    // thumb
-    thumb = Item_ListBox_ThumbDrawPosition(item);//Item_ListBox_ThumbPosition(item);
-    if (thumb > x - SCROLLBAR_SIZE - 1) {
-      thumb = x - SCROLLBAR_SIZE - 1;
+    if( !listPtr->notselectable )
+    {
+      // draw scrollbar in bottom of the window
+      // bar
+      x = item->window.rect.x + 1;
+      y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE - 1;
+      DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowLeft);
+      x += SCROLLBAR_SIZE - 1;
+      size = item->window.rect.w - (SCROLLBAR_SIZE * 2);
+      DC->drawHandlePic(x, y, size+1, SCROLLBAR_SIZE, DC->Assets.scrollBar);
+      x += size - 1;
+      DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowRight);
+      // thumb
+      thumb = Item_ListBox_ThumbDrawPosition(item);//Item_ListBox_ThumbPosition(item);
+      if (thumb > x - SCROLLBAR_SIZE - 1) {
+        thumb = x - SCROLLBAR_SIZE - 1;
+      }
+      DC->drawHandlePic(thumb, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
+      //
+      listPtr->endPos = listPtr->startPos;
     }
-    DC->drawHandlePic(thumb, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
-    //
-    listPtr->endPos = listPtr->startPos;
+
     size = item->window.rect.w - 2;
     // items
     // size contains max available space
@@ -3941,23 +4373,26 @@ void Item_ListBox_Paint(itemDef_t *item) {
       //
     }
   } else {
-    // draw scrollbar to right side of the window
-    x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE - 1;
-    y = item->window.rect.y + 1;
-    DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowUp);
-    y += SCROLLBAR_SIZE - 1;
+    if( !listPtr->notselectable )
+    {
+      // draw scrollbar to right side of the window
+      x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE - 1;
+      y = item->window.rect.y + 1;
+      DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowUp);
+      y += SCROLLBAR_SIZE - 1;
 
-    listPtr->endPos = listPtr->startPos;
-    size = item->window.rect.h - (SCROLLBAR_SIZE * 2);
-    DC->drawHandlePic(x, y, SCROLLBAR_SIZE, size+1, DC->Assets.scrollBar);
-    y += size - 1;
-    DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowDown);
-    // thumb
-    thumb = Item_ListBox_ThumbDrawPosition(item);//Item_ListBox_ThumbPosition(item);
-    if (thumb > y - SCROLLBAR_SIZE - 1) {
-      thumb = y - SCROLLBAR_SIZE - 1;
+      listPtr->endPos = listPtr->startPos;
+      size = item->window.rect.h - (SCROLLBAR_SIZE * 2);
+      DC->drawHandlePic(x, y, SCROLLBAR_SIZE, size+1, DC->Assets.scrollBar);
+      y += size - 1;
+      DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowDown);
+      // thumb
+      thumb = Item_ListBox_ThumbDrawPosition(item);//Item_ListBox_ThumbPosition(item);
+      if (thumb > y - SCROLLBAR_SIZE - 1) {
+        thumb = y - SCROLLBAR_SIZE - 1;
+      }
+      DC->drawHandlePic(x, thumb, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
     }
-    DC->drawHandlePic(x, thumb, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
 
     // adjust size for item painting
     size = item->window.rect.h - 2;
@@ -3987,6 +4422,7 @@ void Item_ListBox_Paint(itemDef_t *item) {
         // fit++;
       }
     } else {
+      float m = DC->textEmHeight( item->textscale );
       x = item->window.rect.x + 1;
       y = item->window.rect.y + 1;
       for (i = listPtr->startPos; i < count; i++) {
@@ -3999,14 +4435,16 @@ void Item_ListBox_Paint(itemDef_t *item) {
           for (j = 0; j < listPtr->numColumns; j++) {
             Q_strncpyz( text, DC->feederItemText(item->special, i, j, &optionalImage), sizeof( text ) );
             if (optionalImage >= 0) {
-              DC->drawHandlePic(x + 4 + listPtr->columnInfo[j].pos, y - 1 + listPtr->elementHeight / 2, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
+              DC->drawHandlePic(x + 4 + listPtr->columnInfo[j].pos,
+                  y + ( ( listPtr->elementHeight - listPtr->columnInfo[ j ].width ) / 2.0f ),
+                  listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
             } else if (text) {
               int alignOffset = 0.0f, tw;
 
               tw = DC->textWidth( text, item->textscale, 0 );
 
               // Shorten the string if it's too long
-              while( tw > listPtr->columnInfo[ j ].width )
+              while( tw > listPtr->columnInfo[ j ].width && strlen( text ) > 0 )
               {
                 text[ strlen( text ) - 1 ] = '\0';
                 tw = DC->textWidth( text, item->textscale, 0 );
@@ -4030,7 +4468,8 @@ void Item_ListBox_Paint(itemDef_t *item) {
                   alignOffset = 0.0f;
               }
 
-              DC->drawText( x + 4 + listPtr->columnInfo[j].pos + alignOffset, y + listPtr->elementHeight,
+              DC->drawText( x + 4 + listPtr->columnInfo[j].pos + alignOffset,
+                            y + m + ( ( listPtr->elementHeight - m ) / 2.0f ),
                             item->textscale, item->window.foreColor, text, 0,
                             0, item->textStyle );
             }
@@ -4038,14 +4477,17 @@ void Item_ListBox_Paint(itemDef_t *item) {
         } else {
           Q_strncpyz( text, DC->feederItemText(item->special, i, 0, &optionalImage), sizeof( text ) );
           if (optionalImage >= 0) {
-            //DC->drawHandlePic(x + 4 + listPtr->elementHeight, y, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
+            DC->drawHandlePic(x + 4, y, listPtr->elementHeight, listPtr->elementHeight, optionalImage);
           } else if (text) {
-            DC->drawText(x + 4, y + listPtr->elementHeight, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle);
+            DC->drawText( x + 4, y + m + ( ( listPtr->elementHeight - m ) / 2.0f ),
+                          item->textscale, item->window.foreColor, text, 0,
+                          0, item->textStyle );
           }
         }
 
         if (i == item->cursorPos) {
-          DC->fillRect(x + 2, y + 2, item->window.rect.w - SCROLLBAR_SIZE - 4, listPtr->elementHeight, item->window.outlineColor);
+          DC->fillRect( x, y, item->window.rect.w - SCROLLBAR_SIZE - ( 2 * item->window.borderSize ),
+                        listPtr->elementHeight, item->window.outlineColor);
         }
 
         listPtr->endPos++;
@@ -4067,6 +4509,7 @@ void Item_ListBox_Paint(itemDef_t *item) {
 
 void Item_OwnerDraw_Paint(itemDef_t *item) {
   menuDef_t *parent;
+  const char *text;
 
   if (item == NULL) {
     return;
@@ -4104,16 +4547,26 @@ void Item_OwnerDraw_Paint(itemDef_t *item) {
       Com_Memcpy(color, parent->disableColor, sizeof(vec4_t));
     }
 
-    if (item->text) {
-      Item_Text_Paint(item);
-        if (item->text[0]) {
-          // +8 is an offset kludge to properly align owner draw items that have text combined with them
-          DC->ownerDrawItem(item->textRect.x + item->textRect.w + 8, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, color, item->window.background, item->textStyle );
-        } else {
-          DC->ownerDrawItem(item->textRect.x + item->textRect.w, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, color, item->window.background, item->textStyle );
-        }
+    if( DC->ownerDrawText && ( text = DC->ownerDrawText( item->window.ownerDraw ) ) ) {
+      if (item->text && *item->text) {
+        Item_Text_Paint(item);
+
+        DC->drawText(item->textRect.x + item->textRect.w + ITEM_VALUE_OFFSET,
+                     item->textRect.y, item->textscale,
+                     color, text, 0, 0, item->textStyle);
       } else {
-      DC->ownerDrawItem(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, item->textalignx, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->textscale, color, item->window.background, item->textStyle );
+        item->text = text;
+        Item_Text_Paint(item);
+        item->text = NULL;
+      }
+    } else {
+      DC->ownerDrawItem(item->window.rect.x, item->window.rect.y,
+                        item->window.rect.w, item->window.rect.h,
+                        item->textalignx, item->textaligny,
+                        item->window.ownerDraw, item->window.ownerDrawFlags,
+                        item->alignment, item->textalignment, item->textvalignment,
+                        item->special, item->textscale, color,
+                        item->window.background, item->textStyle );
     }
   }
 }
@@ -4255,7 +4708,6 @@ void Item_Paint(itemDef_t *item) {
     return;
   }
 
-  // paint the rect first..
   Window_Paint(&item->window, parent->fadeAmount , parent->fadeClamp, parent->fadeCycle);
 
   if (debugMode) {
@@ -4265,8 +4717,6 @@ void Item_Paint(itemDef_t *item) {
     color[0] = color[2] = 0;
     DC->drawRect(r->x, r->y, r->w, r->h, 1, color);
   }
-
-  //DC->drawRect(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 1, red);
 
   switch (item->type) {
     case ITEM_TYPE_OWNERDRAW:
@@ -4311,6 +4761,7 @@ void Item_Paint(itemDef_t *item) {
       break;
   }
 
+  Border_Paint(&item->window);
 }
 
 void Menu_Init(menuDef_t *menu) {
@@ -4521,13 +4972,11 @@ void Menu_Paint(menuDef_t *menu, qboolean forcePaint) {
     // implies a background shader
     // FIXME: make sure we have a default shader if fullscreen is set with no background
     DC->drawHandlePic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, menu->window.background );
-  } else if (menu->window.background) {
-    // this allows a background shader without being full screen
-    //UI_DrawHandlePic(menu->window.rect.x, menu->window.rect.y, menu->window.rect.w, menu->window.rect.h, menu->backgroundShader);
   }
 
   // paint the background and or border
   Window_Paint(&menu->window, menu->fadeAmount, menu->fadeClamp, menu->fadeCycle );
+  Border_Paint(&menu->window);
 
   for (i = 0; i < menu->itemCount; i++) {
     Item_Paint(menu->items[i]);
@@ -4788,15 +5237,9 @@ qboolean ItemParse_notselectable( itemDef_t *item, int handle ) {
   return qtrue;
 }
 
-// manually wrapped
+// auto wrapped
 qboolean ItemParse_wrapped( itemDef_t *item, int handle ) {
   item->window.flags |= WINDOW_WRAPPED;
-  return qtrue;
-}
-
-// auto wrapped
-qboolean ItemParse_autowrapped( itemDef_t *item, int handle ) {
-  item->window.flags |= WINDOW_AUTOWRAPPED;
   return qtrue;
 }
 
@@ -4942,6 +5385,13 @@ qboolean ItemParse_align( itemDef_t *item, int handle ) {
 
 qboolean ItemParse_textalign( itemDef_t *item, int handle ) {
   if (!PC_Int_Parse(handle, &item->textalignment)) {
+    return qfalse;
+  }
+  return qtrue;
+}
+
+qboolean ItemParse_textvalign( itemDef_t *item, int handle ) {
+  if (!PC_Int_Parse(handle, &item->textvalignment)) {
     return qfalse;
   }
   return qtrue;
@@ -5166,6 +5616,27 @@ qboolean ItemParse_maxPaintChars( itemDef_t *item, int handle ) {
   return qtrue;
 }
 
+qboolean ItemParse_maxFieldWidth( itemDef_t *item, int handle ) {
+  editFieldDef_t *editPtr;
+  int maxFieldWidth;
+
+  Item_ValidateTypeData(item);
+  if (!item->typeData)
+    return qfalse;
+
+  if (!PC_Int_Parse(handle, &maxFieldWidth)) {
+    return qfalse;
+  }
+  editPtr = (editFieldDef_t*)item->typeData;
+
+  if( maxFieldWidth < MIN_FIELD_WIDTH )
+    editPtr->maxFieldWidth = MIN_FIELD_WIDTH;
+  else
+    editPtr->maxFieldWidth = maxFieldWidth;
+
+  return qtrue;
+}
+
 
 
 qboolean ItemParse_cvarFloat( itemDef_t *item, int handle ) {
@@ -5353,7 +5824,6 @@ keywordHash_t itemParseKeywords[] = {
   {"decoration", ItemParse_decoration, NULL},
   {"notselectable", ItemParse_notselectable, NULL},
   {"wrapped", ItemParse_wrapped, NULL},
-  {"autowrapped", ItemParse_autowrapped, NULL},
   {"horizontalscroll", ItemParse_horizontalscroll, NULL},
   {"type", ItemParse_type, NULL},
   {"elementwidth", ItemParse_elementwidth, NULL},
@@ -5367,6 +5837,7 @@ keywordHash_t itemParseKeywords[] = {
   {"ownerdraw", ItemParse_ownerdraw, NULL},
   {"align", ItemParse_align, NULL},
   {"textalign", ItemParse_textalign, NULL},
+  {"textvalign", ItemParse_textvalign, NULL},
   {"textalignx", ItemParse_textalignx, NULL},
   {"textaligny", ItemParse_textaligny, NULL},
   {"textscale", ItemParse_textscale, NULL},
@@ -5387,6 +5858,7 @@ keywordHash_t itemParseKeywords[] = {
   {"cvar", ItemParse_cvar, NULL},
   {"maxChars", ItemParse_maxChars, NULL},
   {"maxPaintChars", ItemParse_maxPaintChars, NULL},
+  {"maxFieldWidth", ItemParse_maxFieldWidth, NULL},
   {"focusSound", ItemParse_focusSound, NULL},
   {"cvarFloat", ItemParse_cvarFloat, NULL},
   {"cvarStrList", ItemParse_cvarStrList, NULL},
@@ -5885,8 +6357,12 @@ int Menu_Count( void ) {
 
 void Menu_PaintAll( void ) {
   int i;
-  if (captureFunc) {
-    captureFunc(captureData);
+  if ( captureFunc != voidFunction ) {
+    if( captureFuncExpiry > 0 && DC->realTime > captureFuncExpiry ) {
+      UI_RemoveCaptureFunc( );
+    } else {
+      captureFunc(captureData);
+    }
   }
 
   for (i = 0; i < Menu_Count(); i++) {

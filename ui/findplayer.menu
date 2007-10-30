@@ -3,15 +3,27 @@
 {
   \\ FIND PLAYER POPUP MENU \\
 
+#define W         400
+#define H         400
+#define BUTT_W    45
+#define BUTT_H    35
+#define BORDER    10
+#define LIST_W    (W-(2*BORDER))
+#define LIST_DW   (LIST_W-40)
+#define LEFT_C    0.13
+#define RIGHT_C   0.61
+#define SEARCH_H  30
+#define SERVERS_H 105
+
   menuDef
   {
     name "findplayer_popmenu"
-    visible 0
-    fullscreen 0
-    rect 158 80 320 340
+    visible MENU_FALSE
+    fullscreen MENU_FALSE
+    rect (320-(W/2)) (240-(H/2)) W H
     focusColor 1 .75 0 1
-    style 1
-    border 1
+    style WINDOW_STYLE_FILLED
+    border WINDOW_BORDER_FULL
     popup
     onClose { }
     onOpen
@@ -19,225 +31,142 @@
       uiScript FindPlayer;
       setfocus namefield
     }
-    
+
     onESC
     {
-      close findplayer_popmenu;
-      open joinserver
-    }
-    
-    itemDef
-    {
-      name window
-      rect 10 15 320 340
-      style 1
-      backcolor 0 0 0 .25
-      forecolor 0 0 0 1
-      visible 1
-      decoration
+      close findplayer_popmenu
     }
 
     itemDef
     {
       name window
-      rect 10 15 300 320
+      rect 0 0 W H
       style WINDOW_STYLE_FILLED
       backcolor 0 0 0 1
-      visible 1
+      visible MENU_TRUE
       decoration
 
       border WINDOW_BORDER_FULL
       borderSize 1.0
       borderColor 0.5 0.5 0.5 1
     }
-       
-    itemDef
-    {
-      name findplayer
-      rect 0 20 320 20	
-      text "Find a Friend" 
-      textalign 1
-      textstyle 3
-      textscale .333
-      textalignx 155
-      textaligny 23
-      forecolor 1 1 1 1
-      visible 1
-      decoration
-    }
-    
-    itemDef
-    {
-      name window
-      rect 55 53 245 20
-      style WINDOW_STYLE_FILLED
-      backcolor .2 .2 .2 .5
-      visible 1
-      decoration
-    }
 
     itemDef
     {
       name namefield
-      group "playersettinggroup"
       type ITEM_TYPE_EDITFIELD
-      style 0
+      style WINDOW_STYLE_EMPTY
       text "Name:"
       cvar "ui_findplayer"
       maxChars 20
-      rect 20 48 215 32 
-      textalign ITEM_ALIGN_LEFT		
-      textalignx 5
-      textaligny 21 
-      textscale .3        
+      rect BORDER BORDER (W-((2*BORDER)+BUTT_W)) SEARCH_H
+      textalign ITEM_ALIGN_LEFT
+      textvalign ITEM_VALIGN_CENTER
+      textscale .3
       outlinecolor .2 .2 .2 .5
       backcolor 0 0 0 0
       forecolor 1 1 1 1
-      border 0
+      border WINDOW_BORDER_NONE
       bordercolor 0 0 0 0
       action { ui_script FindPlayer }
-      visible 1 
+      visible MENU_TRUE
     }
 
-
-    itemDef
-    {
-      name serverNameList		//LIST OF SERVER NAMES//
-      rect 20 75 280 80
-      type ITEM_TYPE_LISTBOX
-      style WINDOW_STYLE_FILLED
-      elementwidth 120
-      elementheight 16
-      textscale .225
-      backcolor 0 0 0 1
-      outlinecolor .2 .2 .2 .5
-      border 1
-      bordersize 1
-      bordercolor .5 .5 .5 1
-      elementtype LISTBOX_TEXT
-      feeder FEEDER_FINDPLAYER
-      visible 1
-    }
-
-    itemDef
-    {
-      name serverNamewindow 
-      rect 20 75 264 80
-      style 1
-      backcolor 0 0 0 0
-      forecolor 0 0 0 0
-      border 1
-      bordersize 1
-      bordercolor .5 .5 .5 1
-      visible 1
-      decoration
-    }
-
-    itemDef
-    {
-      name serverInfoList		//LIST OF SERVER STATUS INFORMATION//
-      rect 20 175 280 110
-      type ITEM_TYPE_LISTBOX
-      style WINDOW_STYLE_FILLED
-      elementwidth 120
-      elementheight 16
-      textscale .225
-      backcolor 0 0 0 1
-      border 1
-      bordersize 1
-      bordercolor .5 .5 .5 1
-      elementtype LISTBOX_TEXT
-      feeder FEEDER_SERVERSTATUS
-      notselectable
-      visible 1
-      columns 4
-        2   90  ITEM_ALIGN_LEFT
-        34  40  ITEM_ALIGN_LEFT
-        66  40  ITEM_ALIGN_LEFT
-        100 150 ITEM_ALIGN_LEFT
-    }
-
-    itemDef
-    {
-      name serverInfowindow 
-      rect 20 175 264 110
-      style 1
-      backcolor 0 0 0 0
-      forecolor 0 0 0 0
-      border 1
-      bordersize 1
-      bordercolor .5 .5 .5 1
-      visible 1
-      decoration
-    }
-
-
-    //	BUTTON	//
-
-    itemDef
-    {
-      name exit
-      text "Exit"
-      type 1
-      textscale .25
-      group grpControlbutton
-      type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_EMPTY
-      rect 38 295 45 26
-      textalign 1
-      textalignx 22
-      textaligny 20
-      forecolor 1 1 1 1
-      backcolor .37 .1 .1 1
-      visible 1
-      action
-      {
-        play "sound/misc/menu1.wav";
-        close findplayer_popmenu;
-        open joinserver
-      }
-    }
-    
     itemDef
     {
       name search
       text "Search"
-      type 1
       textscale .25
-      group grpControlbutton
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
-      rect 131 295 60 26
-      textalign 1
-      textalignx 30
-      textaligny 20
+      rect (W-(BORDER+BUTT_W)) BORDER BUTT_W SEARCH_H
+      textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
       forecolor 1 1 1 1
-      backcolor .37 .1 .1 1
-      visible 1
+      visible MENU_TRUE
       action
       {
         play "sound/misc/menu1.wav";
         ui_script FindPlayer
       }
     }
-    
+
+
+    itemDef
+    {
+      name serverNameList
+      rect BORDER ((2*BORDER)+SEARCH_H) LIST_W SERVERS_H
+      type ITEM_TYPE_LISTBOX
+      style WINDOW_STYLE_EMPTY
+      elementwidth 120
+      elementheight 16
+      textscale .25
+      outlinecolor .2 .2 .2 .5
+      border WINDOW_BORDER_FULL
+      bordersize 1
+      bordercolor .5 .5 .5 1
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_FINDPLAYER
+      visible MENU_TRUE
+    }
+
+    itemDef
+    {
+      name serverInfoList
+      rect BORDER ((3*BORDER)+SEARCH_H+SERVERS_H) LIST_W (H-(SEARCH_H+SERVERS_H+BUTT_H+(3*BORDER)))
+      type ITEM_TYPE_LISTBOX
+      style WINDOW_STYLE_EMPTY
+      elementwidth 120
+      elementheight 16
+      textscale .25
+      border WINDOW_BORDER_FULL
+      bordersize 1
+      bordercolor .5 .5 .5 1
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_SERVERSTATUS
+      notselectable
+      visible MENU_TRUE
+      columns 4
+        0                     ((2*LEFT_C)*LIST_DW) ITEM_ALIGN_LEFT
+        (LEFT_C*LIST_DW)      (LEFT_C*LIST_DW)     ITEM_ALIGN_LEFT
+        ((2*LEFT_C)*LIST_DW)  (LEFT_C*LIST_DW)     ITEM_ALIGN_LEFT
+        ((1-RIGHT_C)*LIST_DW) (RIGHT_C*LIST_DW)    ITEM_ALIGN_LEFT
+    }
+
+    //  BUTTON  //
+
     itemDef
     {
       name join
       text "Join"
-      type 1
       textscale .25
-      group grpControlbutton
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
-      rect 238 295 45 26
-      textalign 1
-      textalignx 22
-      textaligny 20
+      rect (W-(2*BUTT_W)) (H-BUTT_H) BUTT_W BUTT_H
+      textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
       forecolor 1 1 1 1
-      backcolor .37 .1 .1 1
-      visible 1
+      visible MENU_TRUE
       action { ui_script FoundPlayerJoinServer }
+    }
+
+    itemDef
+    {
+      name close
+      text "Close"
+      textscale .25
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_EMPTY
+      rect (W-BUTT_W) (H-BUTT_H) BUTT_W BUTT_H
+      textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
+      forecolor 1 1 1 1
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu1.wav";
+        close findplayer_popmenu
+      }
     }
   }
 }

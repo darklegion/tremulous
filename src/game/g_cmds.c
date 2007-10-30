@@ -2141,15 +2141,6 @@ void Cmd_Buy_f( gentity_t *ent )
     trap_SendServerCommand( ent-g_entities, va( "print \"Unknown item\n\"" ) );
   }
 
-  if( trap_Argc( ) >= 2 )
-  {
-    trap_Argv( 2, s, sizeof( s ) );
-
-    //retrigger the armoury menu
-    if( !Q_stricmp( s, "retrigger" ) )
-      ent->client->retriggerArmouryMenu = level.framenum + RAM_FRAMES;
-  }
-
   //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum );
 }
@@ -2319,15 +2310,6 @@ void Cmd_Sell_f( gentity_t *ent )
   }
   else
     trap_SendServerCommand( ent-g_entities, va( "print \"Unknown item\n\"" ) );
-
-  if( trap_Argc( ) >= 2 )
-  {
-    trap_Argv( 2, s, sizeof( s ) );
-
-    //retrigger the armoury menu
-    if( !Q_stricmp( s, "retrigger" ) )
-      ent->client->retriggerArmouryMenu = level.framenum + RAM_FRAMES;
-  }
 
   //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum );

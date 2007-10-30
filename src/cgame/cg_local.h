@@ -1585,12 +1585,16 @@ void        CG_AddLagometerFrameInfo( void );
 void        CG_AddLagometerSnapshotInfo( snapshot_t *snap );
 void        CG_CenterPrint( const char *str, int y, int charWidth );
 void        CG_DrawActive( stereoFrame_t stereoView );
-void        CG_OwnerDraw( float x, float y, float w, float h, float text_x, float text_y,
-                          int ownerDraw, int ownerDrawFlags, int align, float special,
-                          float scale, vec4_t color, qhandle_t shader, int textStyle);
+void        CG_OwnerDraw( float x, float y, float w, float h, float text_x,
+                          float text_y, int ownerDraw, int ownerDrawFlags,
+                          int align, int textalign, int textvalign, float special,
+                          float scale, vec4_t color,
+                          qhandle_t shader, int textStyle );
 void        CG_Text_Paint( float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style );
-int         CG_Text_Width( const char *text, float scale, int limit );
-int         CG_Text_Height( const char *text, float scale, int limit );
+float       CG_Text_Width( const char *text, float scale, int limit );
+float       CG_Text_Height( const char *text, float scale, int limit );
+float       CG_Text_EmWidth( float scale );
+float       CG_Text_EmHeight( float scale );
 float       CG_GetValue(int ownerDraw);
 void        CG_RunMenuScript(char **args);
 void        CG_SetPrintString( int type, const char *p );
@@ -2020,6 +2024,8 @@ int           trap_Key_GetKey( const char *binding );
 void          trap_Key_KeynumToStringBuf( int keynum, char *buf, int buflen );
 void          trap_Key_GetBindingBuf( int keynum, char *buf, int buflen );
 void          trap_Key_SetBinding( int keynum, const char *binding );
+void          trap_Key_SetOverstrikeMode( qboolean state );
+qboolean      trap_Key_GetOverstrikeMode( void );
 
 int           trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits );
 e_status      trap_CIN_StopCinematic( int handle );

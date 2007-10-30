@@ -1,15 +1,38 @@
 #include "ui/menudef.h"
 
 {
+
+#define W         550
+#define H         250
+#define BORDER    10
+#define LIST_W    140
+#define LIST_H    (H-(2*BORDER))
+#define LIST_LX   BORDER
+#define LIST_LY   BORDER
+#define LIST_RX   (W-(BORDER+LIST_W))
+#define LIST_RY   BORDER
+
+#define BUTT_H    25
+#define BUTT_Y    (H-(BORDER+BUTT_H))
+
+#define INFO_W    (W-((4*BORDER)+(2*LIST_W)))
+#define INFO_H    (H-((3*BORDER)+BUTT_H))
+#define INFO_X    ((2*BORDER)+LIST_W)
+#define INFO_Y    BORDER
+#define INFO_TOFF 6
+
+#define BUTT_X    INFO_X
+#define BUTT_W    (INFO_W/3)
+
   menuDef
   {
     name "tremulous_humanarmoury"
-    visible 0
-    fullscreen 0
+    visible MENU_FALSE
+    fullscreen MENU_FALSE
     outOfBoundsClick
-    rect 44 111 544 247
+    rect (320-(W/2)) (240-(H/2)) W H
     focusColor 1 .75 0 1
-    style 1
+    style WINDOW_STYLE_FILLED
     popup
     onOpen
     {
@@ -21,21 +44,21 @@
     itemDef
     {
       name window
-      rect 0 0 544 247
+      rect 0 0 W H
       style WINDOW_STYLE_FILLED
       backcolor 0 0 0 1
-      visible 1
+      visible MENU_TRUE
       decoration
 
       border WINDOW_BORDER_FULL
       borderSize 1.0
       borderColor 0.5 0.5 0.5 1
     }
-    
+
     itemDef
     {
       name "buylist"
-      rect 8 8 136 231
+      rect LIST_LX LIST_LY LIST_W LIST_H
       type ITEM_TYPE_LISTBOX
       style WINDOW_STYLE_EMPTY
       elementwidth 120
@@ -43,23 +66,23 @@
       textscale .33
       elementtype LISTBOX_TEXT
       feeder FEEDER_TREMHUMANARMOURYBUY
-      border 1
+      border WINDOW_BORDER_FULL
       bordercolor   0.5 0.5 0.5 0.5
       forecolor     1   1   1   1
       backcolor     0.2 0.2 0.2 1
       outlinecolor  0.1 0.1 0.1 0.5
-      visible 1
+      visible MENU_TRUE
       doubleclick
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         uiScript BuyFromArmoury
       }
     }
-    
+
     itemDef
     {
       name "selllist"
-      rect 400 8 136 231
+      rect LIST_RX LIST_RY LIST_W LIST_H
       type ITEM_TYPE_LISTBOX
       style WINDOW_STYLE_EMPTY
       elementwidth 120
@@ -67,98 +90,97 @@
       textscale .33
       elementtype LISTBOX_TEXT
       feeder FEEDER_TREMHUMANARMOURYSELL
-      border 1
+      border WINDOW_BORDER_FULL
       bordercolor   0.5 0.5 0.5 0.5
       forecolor     1   1   1   1
       backcolor     0.2 0.2 0.2 1
       outlinecolor  0.1 0.1 0.1 0.5
-      visible 1
+      visible MENU_TRUE
       doubleclick
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         uiScript SellToArmoury
       }
     }
-    
+
     itemDef
     {
       name infopane
       ownerdraw UI_HBUYINFOPANE
       textstyle ITEM_TEXTSTYLE_NORMAL
       style WINDOW_STYLE_EMPTY
-      rect 152 8 240 204
+      rect INFO_X INFO_Y INFO_W INFO_H
       textscale .33
-      textalignx 6
-      textaligny 12
-      border 1
+      textalign ITEM_ALIGN_LEFT
+      textvalign ITEM_VALIGN_TOP
+      textalignx INFO_TOFF
+      textaligny INFO_TOFF
+      border WINDOW_BORDER_FULL
       bordercolor   0.5 0.5 0.5 0.5
       forecolor     1   1   1   1
       backcolor     0.2 0.2 0.2 1
       outlinecolor  0.1 0.1 0.1 0.5
-      visible 1 
+      visible MENU_TRUE
       decoration
     }
-    
-    itemDef
-    {
-      name "Close"
-      text "Close"
-      type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_EMPTY
-      rect 254 218 50 21
-      textalign ITEM_ALIGN_LEFT
-      textalignx 3
-      textaligny 18
-      textscale .4
-      forecolor 1 1 1 1
-      backcolor .5 0 0 .25
-      visible 1
-      action
-      {
-        play "sound/misc/menu4.wav"; 
-        close tremulous_humanarmoury
-      }
-    }
-    
-    itemDef
-    {
-      name "Buy"
-      text "Buy >"
-      type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_EMPTY
-      rect 152 218 50 21
-      textalign ITEM_ALIGN_LEFT
-      textalignx 12.5
-      textaligny 18
-      textscale .4
-      forecolor 1 1 1 1
-      backcolor .5 0 0 .25
-      visible 1
-      action
-      {
-        play "sound/misc/menu1.wav"; 
-        uiScript BuyFromArmoury
-      }
-    }
-    
+
     itemDef
     {
       name "Sell"
       text "< Sell"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
-      rect 344 218 50 21
+      rect BUTT_X BUTT_Y BUTT_W BUTT_H
       textalign ITEM_ALIGN_LEFT
-      textalignx 3.8
-      textaligny 18
+      textvalign ITEM_VALIGN_CENTER
       textscale .4
       forecolor 1 1 1 1
       backcolor .5 0 0 .25
-      visible 1 
+      visible MENU_TRUE
       action
       {
-        play "sound/misc/menu1.wav"; 
+        play "sound/misc/menu1.wav";
         uiScript SellToArmoury
+      }
+    }
+
+    itemDef
+    {
+      name "Close"
+      text "Close"
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_EMPTY
+      rect (BUTT_X+BUTT_W) BUTT_Y BUTT_W BUTT_H
+      textalign ITEM_ALIGN_CENTER
+      textvalign ITEM_VALIGN_CENTER
+      textscale .4
+      forecolor 1 1 1 1
+      backcolor .5 0 0 .25
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu4.wav";
+        close tremulous_humanarmoury
+      }
+    }
+
+    itemDef
+    {
+      name "Buy"
+      text "Buy >"
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_EMPTY
+      rect (BUTT_X+(2*BUTT_W)) BUTT_Y BUTT_W BUTT_H
+      textalign ITEM_ALIGN_RIGHT
+      textvalign ITEM_VALIGN_CENTER
+      textscale .4
+      forecolor 1 1 1 1
+      backcolor .5 0 0 .25
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript BuyFromArmoury
       }
     }
   }

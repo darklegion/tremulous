@@ -455,9 +455,6 @@ struct gclient_s
 
   int                 lastFlameBall;        // s.number of the last flame ball fired
 
-#define RAM_FRAMES  1                       // number of frames to wait before retriggering
-  int                 retriggerArmouryMenu; // frame number to retrigger the armoury menu
-
   unlagged_t          unlaggedHist[ MAX_UNLAGGED_MARKERS ];
   unlagged_t          unlaggedBackup;
   unlagged_t          unlaggedCalc;
