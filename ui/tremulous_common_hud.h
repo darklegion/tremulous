@@ -134,7 +134,7 @@ itemDef
 itemDef
 {
   name "snapshot"
-  rect BORDER 196 MAIN_W STAT_H
+  rect BORDER (H-(BORDER+STAT_H)) MAIN_W STAT_H
   style WINDOW_STYLE_EMPTY
   visible MENU_TRUE
   decoration

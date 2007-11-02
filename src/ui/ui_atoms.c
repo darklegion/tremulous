@@ -52,8 +52,6 @@ void QDECL Com_Printf( const char *msg, ... ) {
   trap_Print( va("%s", text) );
 }
 
-qboolean newUI = qfalse;
-
 
 /*
 =================
@@ -298,6 +296,8 @@ static void UI_CalcPostGameStats( void ) {
 /*
 =================
 UI_ConsoleCommand
+
+FIXME: lookup table
 =================
 */
 qboolean UI_ConsoleCommand( int realTime )
@@ -350,6 +350,30 @@ qboolean UI_ConsoleCommand( int realTime )
 
   if ( Q_stricmp (cmd, "ui_teamOrders") == 0 ) {
     //UI_TeamOrdersMenu_f();
+    return qtrue;
+  }
+
+  if ( Q_strncmp( cmd, "messagemode", 11 ) == 0 ) {
+    trap_Cvar_Set( "ui_sayBuffer", "" );
+
+    switch( cmd[ 11 ] )
+    {
+      default:
+      case '\0':
+        // Global
+        uiInfo.chatTeam             = qfalse;
+        uiInfo.chatTargetClientNum  = -1;
+        break;
+
+      case '2':
+        // Team
+        uiInfo.chatTeam             = qtrue;
+        uiInfo.chatTargetClientNum  = -1;
+        break;
+    }
+
+    trap_Key_SetCatcher( KEYCATCH_UI );
+    Menus_ActivateByName( "say" );
     return qtrue;
   }
 

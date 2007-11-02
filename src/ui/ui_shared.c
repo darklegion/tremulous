@@ -64,8 +64,6 @@ int menuCount = 0;               // how many
 menuDef_t *menuStack[MAX_OPEN_MENUS];
 int openMenuCount = 0;
 
-static qboolean debugMode = qfalse;
-
 #define DOUBLE_CLICK_DELAY 300
 static int lastListBoxClickTime = 0;
 
@@ -895,7 +893,7 @@ static void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fad
   rectDef_t fillRect = w->rect;
 
 
-  if (debugMode) {
+  if ( DC->getCVarValue( "ui_developer" ) ) {
     color[0] = color[1] = color[2] = color[3] = 1;
     DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, 1, color);
   }
@@ -1467,12 +1465,19 @@ void Script_SetFocus(itemDef_t *item, char **args) {
 
   if (String_Parse(args, &name)) {
     focusItem = Menu_FindItemByName(item->parent, name);
-    if (focusItem && !(focusItem->window.flags & WINDOW_DECORATION) && !(focusItem->window.flags & WINDOW_HASFOCUS)) {
+    if (focusItem && !(focusItem->window.flags & WINDOW_DECORATION)) {
       Menu_ClearFocus(item->parent);
       focusItem->window.flags |= WINDOW_HASFOCUS;
       if (focusItem->onFocus) {
         Item_RunScript(focusItem, focusItem->onFocus);
       }
+
+      // Edit fields get activated too
+      if ( focusItem->type == ITEM_TYPE_EDITFIELD || focusItem->type == ITEM_TYPE_NUMERICFIELD) {
+        g_editingField = qtrue;
+        g_editItem = focusItem;
+      }
+
       if (DC->Assets.itemFocusSound) {
         DC->startLocalSound( DC->Assets.itemFocusSound, CHAN_LOCAL_SOUND );
       }
@@ -2400,6 +2405,9 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key)
     DC->getCVarString( item->cvar, buff, sizeof( buff ) );
     len = strlen( buff );
 
+    if( len < item->cursorPos )
+      item->cursorPos = len;
+
     if( editPtr->maxChars && len > editPtr->maxChars )
       len = editPtr->maxChars;
 
@@ -2988,11 +2996,13 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
   if (g_editingField && down) {
     if (!Item_TextField_HandleKey(g_editItem, key)) {
       g_editingField = qfalse;
+      Item_RunScript( g_editItem, g_editItem->onTextEntry );
       g_editItem = NULL;
       inHandler = qfalse;
       return;
     } else if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3) {
       g_editingField = qfalse;
+      Item_RunScript( g_editItem, g_editItem->onTextEntry );
       g_editItem = NULL;
       Display_MouseMove(NULL, DC->cursorx, DC->cursory);
     } else if (key == K_TAB || key == K_UPARROW || key == K_DOWNARROW) {
@@ -3039,12 +3049,6 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 
   // default handling
   switch ( key ) {
-
-    case K_F11:
-      if (DC->getCVarValue("developer")) {
-        debugMode ^= 1;
-      }
-      break;
 
     case K_F12:
       if (DC->getCVarValue("developer")) {
@@ -3552,7 +3556,7 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
         lineItem.window.border      = item->window.border;
         lineItem.window.borderSize  = item->window.borderSize;
 
-        if( debugMode )
+        if( DC->getCVarValue( "ui_developer" ) )
         {
           vec4_t color;
           color[ 0 ] = color[ 2 ] = color[ 3 ] = 1.0f;
@@ -3949,7 +3953,7 @@ void Controls_SetConfig(qboolean restart)
   //if ( s_controls.invertmouse.curvalue )
   //  DC->setCVar("m_pitch", va("%f),-fabs( DC->getCVarValue( "m_pitch" ) ) );
   //else
-  //  trap_Cvar_SetValue( "m_pitch", fabs( trap_Cvar_VariableValue( "m_pitch" ) ) );
+  //  trap_Cvar_SetValue( "m_pitch", fabs( DC->getCVarValue( "m_pitch" ) ) );
 
   //trap_Cvar_SetValue( "m_filter", s_controls.smoothmouse.curvalue );
   //trap_Cvar_SetValue( "cl_run", s_controls.alwaysrun.curvalue );
@@ -4080,26 +4084,34 @@ void Item_Bind_Paint(itemDef_t *item) {
 
   if (item->window.flags & WINDOW_HASFOCUS) {
     if (g_bindItem == item) {
-      lowLight[0] = 0.8f * 1.0f;
-      lowLight[1] = 0.8f * 0.0f;
-      lowLight[2] = 0.8f * 0.0f;
-      lowLight[3] = 0.8f * 1.0f;
-    } else {
       lowLight[0] = 0.8f * parent->focusColor[0];
       lowLight[1] = 0.8f * parent->focusColor[1];
       lowLight[2] = 0.8f * parent->focusColor[2];
       lowLight[3] = 0.8f * parent->focusColor[3];
-    }
 
-    memcpy(newColor, &parent->focusColor, sizeof(vec4_t));
+      LerpColor( parent->focusColor, lowLight, newColor,
+                 0.5 + 0.5 * sin( DC->realTime / PULSE_DIVISOR ) );
+    } else {
+      memcpy(&newColor, &parent->focusColor, sizeof(vec4_t));
+    }
   } else {
     memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
   }
 
   if (item->text) {
     Item_Text_Paint(item);
-    BindingFromName(item->cvar);
-    DC->drawText(item->textRect.x + item->textRect.w + ITEM_VALUE_OFFSET, item->textRect.y, item->textscale, newColor, g_nameBind1, 0, maxChars, item->textStyle);
+
+    if( g_bindItem == item && g_waitingForKey )
+    {
+      DC->drawText( item->textRect.x + item->textRect.w + ITEM_VALUE_OFFSET, item->textRect.y,
+                    item->textscale, newColor, "Press key", 0, maxChars, item->textStyle);
+    }
+    else
+    {
+      BindingFromName(item->cvar);
+      DC->drawText( item->textRect.x + item->textRect.w + ITEM_VALUE_OFFSET, item->textRect.y,
+                    item->textscale, newColor, g_nameBind1, 0, maxChars, item->textStyle);
+    }
   } else {
     DC->drawText(item->textRect.x, item->textRect.y, item->textscale, newColor, (value != 0) ? "FIXME" : "FIXME", 0, maxChars, item->textStyle);
   }
@@ -4710,7 +4722,7 @@ void Item_Paint(itemDef_t *item) {
 
   Window_Paint(&item->window, parent->fadeAmount , parent->fadeClamp, parent->fadeCycle);
 
-  if (debugMode) {
+  if (DC->getCVarValue( "ui_developer" )) {
     vec4_t color;
     rectDef_t *r = Item_CorrectedTextRect(item);
     color[1] = color[3] = 1;
@@ -4982,7 +4994,7 @@ void Menu_Paint(menuDef_t *menu, qboolean forcePaint) {
     Item_Paint(menu->items[i]);
   }
 
-  if (debugMode) {
+  if (DC->getCVarValue( "ui_developer" )) {
     vec4_t color;
     color[0] = color[2] = color[3] = 1;
     color[1] = 0;
@@ -5547,6 +5559,13 @@ qboolean ItemParse_mouseExitText( itemDef_t *item, int handle ) {
   return qtrue;
 }
 
+qboolean ItemParse_onTextEntry( itemDef_t *item, int handle ) {
+  if (!PC_Script_Parse(handle, &item->onTextEntry)) {
+    return qfalse;
+  }
+  return qtrue;
+}
+
 qboolean ItemParse_action( itemDef_t *item, int handle ) {
   if (!PC_Script_Parse(handle, &item->action)) {
     return qfalse;
@@ -5853,6 +5872,7 @@ keywordHash_t itemParseKeywords[] = {
   {"mouseExit", ItemParse_mouseExit, NULL},
   {"mouseEnterText", ItemParse_mouseEnterText, NULL},
   {"mouseExitText", ItemParse_mouseExitText, NULL},
+  {"onTextEntry", ItemParse_onTextEntry, NULL},
   {"action", ItemParse_action, NULL},
   {"special", ItemParse_special, NULL},
   {"cvar", ItemParse_cvar, NULL},
@@ -6357,6 +6377,12 @@ int Menu_Count( void ) {
 
 void Menu_PaintAll( void ) {
   int i;
+
+  if( g_editingField || g_waitingForKey )
+    DC->setCVar( "ui_hideCursor", "1" );
+  else
+    DC->setCVar( "ui_hideCursor", "0" );
+
   if ( captureFunc != voidFunction ) {
     if( captureFuncExpiry > 0 && DC->realTime > captureFuncExpiry ) {
       UI_RemoveCaptureFunc( );
@@ -6369,7 +6395,7 @@ void Menu_PaintAll( void ) {
     Menu_Paint(&Menus[i], qfalse);
   }
 
-  if (debugMode) {
+  if (DC->getCVarValue( "ui_developer" )) {
     vec4_t v = {1, 1, 1, 1};
     DC->drawText(5, 25, .5, v, va("fps: %f", DC->FPS), 0, 0, 0);
   }

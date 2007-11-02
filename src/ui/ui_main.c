@@ -29,9 +29,6 @@ USER INTERFACE MAIN
 =======================================================================
 */
 
-// use this to get a demo build without an explicit demo build, i.e. to get the demo ui files to build
-//#define PRE_RELEASE_TADEMO
-
 #include "ui_local.h"
 
 uiInfo_t uiInfo;
@@ -681,7 +678,7 @@ void _UI_Refresh( int realtime )
   UI_SetColor( NULL );
 
   // don't draw the cursor whilst loading
-  if( Menu_Count( ) > 0 && !trap_Cvar_VariableValue( "ui_loading" ) )
+  if( Menu_Count( ) > 0 && !trap_Cvar_VariableValue( "ui_hideCursor" ) )
     UI_DrawHandlePic( uiInfo.uiDC.cursorx-16, uiInfo.uiDC.cursory-16, 32, 32, uiInfo.uiDC.Assets.cursor);
 
 #ifndef NDEBUG
@@ -3518,6 +3515,7 @@ static void UI_Update(const char *name) {
   }
 }
 
+//FIXME: lookup table
 static void UI_RunMenuScript(char **args) {
   const char *name, *name2;
   char buff[1024];
@@ -3726,6 +3724,18 @@ static void UI_RunMenuScript(char **args) {
 
         trap_Cmd_ExecuteText( EXEC_APPEND, command );
       }
+    }
+    else if( Q_stricmp( name, "Say" ) == 0 )
+    {
+      char buffer[ MAX_CVAR_VALUE_STRING ];
+      trap_Cvar_VariableStringBuffer( "ui_sayBuffer", buffer, sizeof( buffer ) );
+
+      if( uiInfo.chatTargetClientNum != -1 )
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "tell %i \"%s\"\n", uiInfo.chatTargetClientNum, buffer  ) );
+      else if( uiInfo.chatTeam )
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "say_team \"%s\"\n", buffer ) );
+      else
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "say \"%s\"\n", buffer ) );
     }
     else if (Q_stricmp(name, "playMovie") == 0) {
       if (uiInfo.previewMovie >= 0) {
@@ -5365,7 +5375,6 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
       }
       Menus_CloseAll();
       Menus_ActivateByName("main");
-      trap_Cvar_Set( "ui_loading", "0" );
       trap_Cvar_VariableStringBuffer("com_errorMessage", buf, sizeof(buf));
       if (strlen(buf)) {
         if (!ui_singlePlayerActive.integer) {
@@ -5801,6 +5810,7 @@ vmCvar_t  ui_realCaptureLimit;
 vmCvar_t  ui_realWarmUp;
 vmCvar_t  ui_serverStatusTimeOut;
 vmCvar_t  ui_textWrapCache;
+vmCvar_t  ui_developer;
 
 vmCvar_t  ui_winner;
 
@@ -5928,6 +5938,7 @@ static cvarTable_t    cvarTable[] = {
   { &ui_realCaptureLimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART},
   { &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
   { &ui_textWrapCache, "ui_textWrapCache", "1", CVAR_ARCHIVE },
+  { &ui_developer, "ui_developer", "0", CVAR_ARCHIVE | CVAR_CHEAT },
 };
 
 static int    cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);

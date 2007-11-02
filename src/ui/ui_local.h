@@ -128,6 +128,8 @@ extern vmCvar_t  ui_scoreTime;
 extern vmCvar_t  ui_smallFont;
 extern vmCvar_t  ui_bigFont;
 extern vmCvar_t  ui_serverStatusTimeOut;
+extern vmCvar_t  ui_textWrapCache;
+extern vmCvar_t  ui_developer;
 
 
 
@@ -896,6 +898,9 @@ typedef struct {
   int effectsColor;
 
   qboolean inGameLoad;
+
+  qboolean  chatTeam;
+  int       chatTargetClientNum;
 }  uiInfo_t;
 
 extern uiInfo_t uiInfo;

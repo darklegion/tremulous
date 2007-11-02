@@ -242,6 +242,7 @@ typedef struct itemDef_s {
   const char *action;            // select script
   const char *onFocus;           // select script
   const char *leaveFocus;        // select script
+  const char *onTextEntry;       // called when text entered
   const char *cvar;              // associated cvar
   const char *cvarTest;          // associated cvar for enable actions
   const char *enableCvar;         // enable, disable, show, or hide based on value, this can contain a list

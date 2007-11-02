@@ -68,12 +68,6 @@ intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3,
       CG_DrawActiveFrame( arg0, arg1, arg2 );
       return 0;
 
-    case CG_CROSSHAIR_PLAYER:
-      return CG_CrosshairPlayer( );
-
-    case CG_LAST_ATTACKER:
-      return CG_LastAttacker( );
-
     case CG_KEY_EVENT:
       CG_KeyEvent( arg0, arg1 );
       return 0;
@@ -224,7 +218,6 @@ vmCvar_t  ui_currentClass;
 vmCvar_t  ui_carriage;
 vmCvar_t  ui_stages;
 vmCvar_t  ui_dialog;
-vmCvar_t  ui_loading;
 vmCvar_t  ui_voteActive;
 vmCvar_t  ui_alienTeamVoteActive;
 vmCvar_t  ui_humanTeamVoteActive;
@@ -339,7 +332,6 @@ static cvarTable_t cvarTable[ ] =
   { &ui_carriage, "ui_carriage", "", 0 },
   { &ui_stages, "ui_stages", "0 0", 0 },
   { &ui_dialog, "ui_dialog", "Text not set", 0 },
-  { &ui_loading, "ui_loading", "0", 0 },
   { &ui_voteActive, "ui_voteActive", "0", 0 },
   { &ui_humanTeamVoteActive, "ui_humanTeamVoteActive", "0", 0 },
   { &ui_alienTeamVoteActive, "ui_alienTeamVoteActive", "0", 0 },
@@ -506,6 +498,7 @@ int CG_LastAttacker( void )
 
   return cg.snap->ps.persistant[ PERS_ATTACKER ];
 }
+
 
 /*
 =================
@@ -1760,9 +1753,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   cgs.media.charsetShader   = trap_R_RegisterShader( "gfx/2d/bigchars" );
   cgs.media.outlineShader   = trap_R_RegisterShader( "outline" );
 
-  //inform UI to repress cursor whilst loading
-  trap_Cvar_Set( "ui_loading", "1" );
-
   // load overrides
   BG_InitClassOverrides( );
   BG_InitBuildableOverrides( );
@@ -1846,8 +1836,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   CG_ShaderStateChanged( );
 
   trap_S_ClearLoopingSounds( qtrue );
-
-  trap_Cvar_Set( "ui_loading", "0" );
 }
 
 /*
