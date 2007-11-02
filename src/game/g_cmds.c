@@ -82,19 +82,20 @@ Returns -1 if invalid
 int G_ClientNumberFromString( gentity_t *to, char *s )
 {
   gclient_t *cl;
-  int       idnum;
+  int       i;
   char      s2[ MAX_STRING_CHARS ];
   char      n2[ MAX_STRING_CHARS ];
 
   // numeric values are just slot numbers
-  if( s[ 0 ] >= '0' && s[ 0 ] <= '9' )
+  for( i = 0; s[ i ] && isdigit( s[ i ] ); i++ );
+  if( !s[ i ] )
   {
-    idnum = atoi( s );
+    i = atoi( s );
 
-    if( idnum < 0 || idnum >= level.maxclients )
+    if( i < 0 || i >= level.maxclients )
       return -1;
 
-    cl = &level.clients[ idnum ];
+    cl = &level.clients[ i ];
 
     if( cl->pers.connected == CON_DISCONNECTED )
       return -1;
@@ -105,7 +106,7 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
   // check for a name match
   G_SanitiseName( s, s2 );
 
-  for( idnum = 0, cl = level.clients; idnum < level.maxclients; idnum++, cl++ )
+  for( i = 0, cl = level.clients; i < level.maxclients; i++, cl++ )
   {
     if( cl->pers.connected == CON_DISCONNECTED )
       continue;
