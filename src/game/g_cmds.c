@@ -100,7 +100,7 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
     if( cl->pers.connected == CON_DISCONNECTED )
       return -1;
 
-    return idnum;
+    return i;
   }
 
   // check for a name match
@@ -114,7 +114,7 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
     G_SanitiseName( cl->pers.netname, n2 );
 
     if( !strcmp( n2, s2 ) )
-      return idnum;
+      return i;
   }
 
   return -1;
