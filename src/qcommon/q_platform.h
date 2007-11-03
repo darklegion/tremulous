@@ -123,6 +123,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef __linux__
 
+#include <endian.h>
+
 #define OS_STRING "linux"
 #define ID_INLINE inline
 #define PATH_SEP '/'
@@ -171,6 +173,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef __FreeBSD__
 
+#include <sys/types.h>
 #include <machine/endian.h>
 
 #define OS_STRING "freebsd"
@@ -193,11 +196,37 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #endif
 
+//=============================================================== OpenBSD ===
+
+#ifdef __OpenBSD__
+
+#include <sys/types.h>
+#include <machine/endian.h>
+
+#define OS_STRING "openbsd"
+#define ID_INLINE inline
+#define PATH_SEP '/'
+
+#ifdef __i386__
+#define ARCH_STRING "i386"
+#endif
+
+#if BYTE_ORDER == BIG_ENDIAN
+#define Q3_BIG_ENDIAN
+#else
+#define Q3_LITTLE_ENDIAN
+#endif
+
+#define DLL_EXT ".so"
+
+#endif
+
 //================================================================ NetBSD ===
 
 // This is very much like the FreeBSD one and can probably be merged
 #ifdef __NetBSD__
 
+#include <sys/types.h>
 #include <machine/endian.h>
 
 #define OS_STRING "netbsd"

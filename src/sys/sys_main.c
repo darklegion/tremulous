@@ -19,13 +19,11 @@ along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-#include <unistd.h>
+
 #include <signal.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <sys/time.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -34,8 +32,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <errno.h>
 
 #ifndef DEDICATED
-#include "SDL.h"
-#include "SDL_cpuinfo.h"
+#ifdef USE_LOCAL_HEADERS
+#	include "SDL.h"
+#	include "SDL_cpuinfo.h"
+#else
+#	include <SDL.h>
+#	include <SDL_cpuinfo.h>
+#endif
 #endif
 
 #include "sys_local.h"
@@ -163,10 +166,7 @@ void Sys_Exit( int ex )
 #endif
 
 #ifdef NDEBUG
-	// _exit is called instead of exit since there are rumours of
-	// GL libraries installing atexit calls that we don't want to call
-	// FIXME: get some testing done with plain exit
-	_exit(ex);
+	exit(ex);
 #else
 	// Cause a backtrace on error exits
 	assert( ex == 0 );
@@ -220,85 +220,72 @@ void Sys_Init(void)
 	Cvar_Set( "username", Sys_GetCurrentUser( ) );
 }
 
-static struct Q3ToAnsiColorTable_s
-{
-	char Q3color;
-	char *ANSIcolor;
-} CON_colorTable[ ] =
-{
-	{ COLOR_BLACK,    "30" },
-	{ COLOR_RED,      "31" },
-	{ COLOR_GREEN,    "32" },
-	{ COLOR_YELLOW,   "33" },
-	{ COLOR_BLUE,     "34" },
-	{ COLOR_CYAN,     "36" },
-	{ COLOR_MAGENTA,  "35" },
-	{ COLOR_WHITE,    "0" }
-};
-
-static int CON_colorTableSize =
-	sizeof( CON_colorTable ) / sizeof( CON_colorTable[ 0 ] );
-
 /*
 =================
-Sys_ANSIColorify
+Sys_AnsiColorPrint
 
 Transform Q3 colour codes to ANSI escape sequences
 =================
 */
-static void Sys_ANSIColorify( const char *msg, char *buffer, int bufferSize )
+static void Sys_AnsiColorPrint( const char *msg )
 {
-	int   msgLength, pos;
-	int   i, j;
-	char  *escapeCode;
-	char  tempBuffer[ 7 ];
-
-	if( !msg || !buffer )
-		return;
-
-	msgLength = strlen( msg );
-	pos = 0;
-	i = 0;
-	buffer[ 0 ] = '\0';
-
-	while( i < msgLength )
+	static char buffer[ MAXPRINTMSG ];
+	int         length = 0;
+	static int  q3ToAnsi[ 8 ] =
 	{
-		if( msg[ i ] == '\n' )
-		{
-			Com_sprintf( tempBuffer, 7, "%c[0m\n", 0x1B );
-			strncat( buffer, tempBuffer, bufferSize );
-			i++;
-		}
-		else if( msg[ i ] == Q_COLOR_ESCAPE )
-		{
-			i++;
+		30, // COLOR_BLACK
+		31, // COLOR_RED
+		32, // COLOR_GREEN
+		33, // COLOR_YELLOW
+		34, // COLOR_BLUE
+		36, // COLOR_CYAN
+		35, // COLOR_MAGENTA
+		0   // COLOR_WHITE
+	};
 
-			if( i < msgLength )
+	while( *msg )
+	{
+		if( Q_IsColorString( msg ) || *msg == '\n' )
+		{
+			// First empty the buffer
+			if( length > 0 )
 			{
-				escapeCode = NULL;
-				for( j = 0; j < CON_colorTableSize; j++ )
-				{
-					if( msg[ i ] == CON_colorTable[ j ].Q3color )
-					{
-						escapeCode = CON_colorTable[ j ].ANSIcolor;
-						break;
-					}
-				}
+				buffer[ length ] = '\0';
+				fputs( buffer, stderr );
+				length = 0;
+			}
 
-				if( escapeCode )
-				{
-					Com_sprintf( tempBuffer, 7, "%c[%sm", 0x1B, escapeCode );
-					strncat( buffer, tempBuffer, bufferSize );
-				}
-
-				i++;
+			if( *msg == '\n' )
+			{
+				// Issue a reset and then the newline
+				fputs( "\033[0m\n", stderr );
+				msg++;
+			}
+			else
+			{
+				// Print the color code
+				Com_sprintf( buffer, sizeof( buffer ), "\033[%dm",
+						q3ToAnsi[ ColorIndex( *( msg + 1 ) ) ] );
+				fputs( buffer, stderr );
+				msg += 2;
 			}
 		}
 		else
 		{
-			Com_sprintf( tempBuffer, 7, "%c", msg[ i++ ] );
-			strncat( buffer, tempBuffer, bufferSize );
+			if( length >= MAXPRINTMSG - 1 )
+				break;
+
+			buffer[ length ] = *msg;
+			length++;
+			msg++;
 		}
+	}
+
+	// Empty anything still left in the buffer
+	if( length > 0 )
+	{
+		buffer[ length ] = '\0';
+		fputs( buffer, stderr );
 	}
 }
 
@@ -314,11 +301,7 @@ void Sys_Print( const char *msg )
 #endif
 
 	if( com_ansiColor && com_ansiColor->integer )
-	{
-		char ansiColorString[ MAXPRINTMSG ];
-		Sys_ANSIColorify( msg, ansiColorString, MAXPRINTMSG );
-		fputs( ansiColorString, stderr );
-	}
+		Sys_AnsiColorPrint( msg );
 	else
 		fputs(msg, stderr);
 
@@ -453,7 +436,6 @@ void *Sys_LoadDll( const char *name, char *fqpath ,
 {
 	void  *libHandle;
 	void  (*dllEntry)( intptr_t (*syscallptr)(intptr_t, ...) );
-	char  curpath[MAX_OSPATH];
 	char  fname[MAX_OSPATH];
 	char  *basepath;
 	char  *homepath;
@@ -462,7 +444,6 @@ void *Sys_LoadDll( const char *name, char *fqpath ,
 
 	assert( name );
 
-	getcwd(curpath, sizeof(curpath));
 	Q_snprintf (fname, sizeof(fname), "%s" ARCH_STRING DLL_EXT, name);
 
 	// TODO: use fs_searchpaths from files.c

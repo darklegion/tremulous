@@ -38,12 +38,12 @@ PLATFORM=$(COMPILE_PLATFORM)
 endif
 export PLATFORM
 
-ifndef ARCH
-ARCH=$(COMPILE_ARCH)
+ifeq ($(COMPILE_ARCH),powerpc)
+  COMPILE_ARCH=ppc
 endif
 
-ifeq ($(ARCH),powerpc)
-  ARCH=ppc
+ifndef ARCH
+ARCH=$(COMPILE_ARCH)
 endif
 export ARCH
 
@@ -253,6 +253,11 @@ ifeq ($(PLATFORM),linux)
     # linux32 make ...
     BASE_CFLAGS += -m32
     LDFLAGS+=-m32
+  else
+  ifeq ($(ARCH),ppc64)
+    BASE_CFLAGS += -m64
+    LDFLAGS += -m64
+  endif
   endif
 
   DEBUG_CFLAGS = $(BASE_CFLAGS) -g -O0
@@ -356,7 +361,12 @@ ifeq ($(PLATFORM),darwin)
     CLIENT_LDFLAGS += -lvorbisfile -lvorbis -logg
   endif
 
-  BASE_CFLAGS += -D_THREAD_SAFE=1 -I$(SDLHDIR)/include
+  BASE_CFLAGS += -D_THREAD_SAFE=1
+
+  ifeq ($(USE_LOCAL_HEADERS),1)
+    BASE_CFLAGS += -I$(SDLHDIR)/include
+  endif
+
   # We copy sdlmain before ranlib'ing it so that subversion doesn't think
   #  the file has been modified by each build.
   LIBSDLMAIN=$(B)/libSDLmain.a
@@ -398,7 +408,11 @@ endif
   ARCH=x86
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
-    -DUSE_ICON -I$(SDLHDIR)/include
+    -DUSE_ICON
+
+  ifeq ($(USE_LOCAL_HEADERS),1)
+    BASE_CFLAGS += -I$(SDLHDIR)/include
+  endif
 
   ifeq ($(USE_OPENAL),1)
     BASE_CFLAGS += -DUSE_OPENAL=1 -DUSE_OPENAL_DLOPEN
@@ -527,6 +541,63 @@ ifeq ($(PLATFORM),freebsd)
 
 
 else # ifeq freebsd
+
+#############################################################################
+# SETUP AND BUILD -- OPENBSD
+#############################################################################
+
+ifeq ($(PLATFORM),openbsd)
+
+  #default to i386, no tests done on anything else
+  ARCH=i386
+
+
+  BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
+    -DUSE_ICON $(shell sdl-config --cflags)
+
+  ifeq ($(USE_OPENAL),1)
+    BASE_CFLAGS += -DUSE_OPENAL
+    ifeq ($(USE_OPENAL_DLOPEN),1)
+      BASE_CFLAGS += -DUSE_OPENAL_DLOPEN
+    endif
+  endif
+
+  ifeq ($(USE_CODEC_VORBIS),1)
+    BASE_CFLAGS += -DUSE_CODEC_VORBIS
+  endif
+
+  BASE_CFLAGS += -DNO_VM_COMPILED -I/usr/X11R6/include -I/usr/local/include
+  RELEASE_CFLAGS=$(BASE_CFLAGS) -DNDEBUG -O3 \
+    -march=pentium -fomit-frame-pointer -pipe -ffast-math \
+    -falign-loops=2 -falign-jumps=2 -falign-functions=2 \
+    -funroll-loops -fstrength-reduce
+  HAVE_VM_COMPILED=false
+
+  DEBUG_CFLAGS=$(BASE_CFLAGS) -g
+
+  SHLIBEXT=so
+  SHLIBCFLAGS=-fPIC
+  SHLIBLDFLAGS=-shared $(LDFLAGS)
+
+  THREAD_LDFLAGS=-lpthread
+  LDFLAGS=-lm
+
+  CLIENT_LDFLAGS =
+
+  CLIENT_LDFLAGS += $(shell sdl-config --libs) -lGL
+
+  ifeq ($(USE_OPENAL),1)
+    ifneq ($(USE_OPENAL_DLOPEN),1)
+      CLIENT_LDFLAGS += $(THREAD_LDFLAGS) -lopenal
+    endif
+  endif
+
+  ifeq ($(USE_CODEC_VORBIS),1)
+    CLIENT_LDFLAGS += -lvorbisfile -lvorbis -logg
+  endif
+
+
+else # ifeq openbsd
 
 #############################################################################
 # SETUP AND BUILD -- NETBSD
@@ -661,6 +732,7 @@ endif #Linux
 endif #darwin
 endif #mingw32
 endif #FreeBSD
+endif #OpenBSD
 endif #NetBSD
 endif #IRIX
 endif #SunOS
@@ -830,11 +902,16 @@ makedirs:
 # QVM BUILD TOOLS
 #############################################################################
 
-TOOLS_CFLAGS = -O2 -Wall -fno-strict-aliasing -MMD \
+TOOLS_OPTIMIZE = -g -O2 -Wall -fno-strict-aliasing
+TOOLS_CFLAGS = $(TOOLS_OPTIMIZE) \
                -DTEMPDIR=\"$(TEMPDIR)\" -DSYSTEM=\"\" \
                -I$(Q3LCCSRCDIR) \
                -I$(LBURGDIR)
 TOOLS_LDFLAGS =
+
+ifeq ($(GENERATE_DEPENDENCIES),1)
+	TOOLS_CFLAGS += -MMD
+endif
 
 define DO_TOOLS_CC
 $(echo_cmd) "TOOLS_CC $<"

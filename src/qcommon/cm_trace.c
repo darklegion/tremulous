@@ -847,7 +847,7 @@ void CM_TraceThroughLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
 
 		b->collided = qfalse;
 
-		if ( !BoundsIntersect( tw->bounds[0], tw->bounds[1],
+		if ( !CM_BoundsIntersect( tw->bounds[0], tw->bounds[1],
 					b->bounds[0], b->bounds[1] ) ) {
 			continue;
 		}
