@@ -16,13 +16,14 @@
 #define ITEM_TYPE_MULTI 12                // multiple list setting, enumerated
 #define ITEM_TYPE_BIND 13                 // multiple list setting, enumerated
 
-#define ITEM_ALIGN_LEFT 0                 // left alignment
-#define ITEM_ALIGN_CENTER 1               // center alignment
-#define ITEM_ALIGN_RIGHT 2                // right alignment
+#define ALIGN_LEFT 0                      // left alignment
+#define ALIGN_CENTER 1                    // center alignment
+#define ALIGN_RIGHT 2                     // right alignment
+#define ASPECT_NONE 3                     // no aspect compensation
 
-#define ITEM_VALIGN_BOTTOM 0              // bottom alignment
-#define ITEM_VALIGN_CENTER 1              // center alignment
-#define ITEM_VALIGN_TOP 2                 // top alignment
+#define VALIGN_BOTTOM 0                   // bottom alignment
+#define VALIGN_CENTER 1                   // center alignment
+#define VALIGN_TOP 2                      // top alignment
 
 #define ITEM_TEXTSTYLE_NORMAL 0           // normal text
 #define ITEM_TEXTSTYLE_BLINK 1            // fast blinking

@@ -244,370 +244,6 @@ void _UI_DrawRect( float x, float y, float width, float height, float size, cons
   trap_R_SetColor( NULL );
 }
 
-
-
-
-float Text_Width(const char *text, float scale, int limit) {
-  int count,len;
-  float out;
-  glyphInfo_t *glyph;
-  float useScale;
-  const char *s = text;
-  fontInfo_t *font = &uiInfo.uiDC.Assets.textFont;
-  if (scale <= ui_smallFont.value) {
-    font = &uiInfo.uiDC.Assets.smallFont;
-  } else if (scale >= ui_bigFont.value) {
-    font = &uiInfo.uiDC.Assets.bigFont;
-  }
-  useScale = scale * font->glyphScale;
-  out = 0;
-  if (text) {
-    len = Q_PrintStrlen( text );
-    if (limit > 0 && len > limit) {
-      len = limit;
-    }
-    count = 0;
-    while (s && *s && count < len) {
-      if ( Q_IsColorString(s) ) {
-        s += 2;
-        continue;
-      } else {
-        glyph = &font->glyphs[(int)*s];
-        out += glyph->xSkip;
-        s++;
-        count++;
-      }
-    }
-  }
-  return out * useScale;
-}
-
-float Text_Height(const char *text, float scale, int limit) {
-  int len, count;
-  float max;
-  glyphInfo_t *glyph;
-  float useScale;
-  const char *s = text;
-  fontInfo_t *font = &uiInfo.uiDC.Assets.textFont;
-  if (scale <= ui_smallFont.value) {
-    font = &uiInfo.uiDC.Assets.smallFont;
-  } else if (scale >= ui_bigFont.value) {
-    font = &uiInfo.uiDC.Assets.bigFont;
-  }
-  useScale = scale * font->glyphScale;
-  max = 0;
-  if (text) {
-    len = strlen(text);
-    if (limit > 0 && len > limit) {
-      len = limit;
-    }
-    count = 0;
-    while (s && *s && count < len) {
-      if ( Q_IsColorString(s) ) {
-        s += 2;
-        continue;
-      } else {
-        glyph = &font->glyphs[(int)*s];
-        if (max < glyph->height) {
-          max = glyph->height;
-        }
-        s++;
-        count++;
-      }
-    }
-  }
-  return max * useScale;
-}
-
-float Text_EmWidth( float scale )
-{
-  return Text_Width( "M", scale, 0 );
-}
-
-float Text_EmHeight( float scale )
-{
-  return Text_Height( "M", scale, 0 );
-}
-
-void Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2, qhandle_t hShader) {
-  float w, h;
-  w = width * scale;
-  h = height * scale;
-  UI_AdjustFrom640( &x, &y, &w, &h );
-  trap_R_DrawStretchPic( x, y, w, h, s, t, s2, t2, hShader );
-}
-
-void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style) {
-  int len, count;
-  vec4_t newColor;
-  glyphInfo_t *glyph;
-  float useScale;
-  fontInfo_t *font = &uiInfo.uiDC.Assets.textFont;
-  if (scale <= ui_smallFont.value) {
-    font = &uiInfo.uiDC.Assets.smallFont;
-  } else if (scale >= ui_bigFont.value) {
-    font = &uiInfo.uiDC.Assets.bigFont;
-  }
-  useScale = scale * font->glyphScale;
-  if (text) {
-    const char *s = text;
-    trap_R_SetColor( color );
-    memcpy(&newColor[0], &color[0], sizeof(vec4_t));
-    len = strlen(text);
-    if (limit > 0 && len > limit) {
-      len = limit;
-    }
-    count = 0;
-    while (s && *s && count < len) {
-      glyph = &font->glyphs[(int)*s];
-      if ( Q_IsColorString( s ) ) {
-        memcpy( newColor, g_color_table[ColorIndex(*(s+1))], sizeof( newColor ) );
-        newColor[3] = color[3];
-        trap_R_SetColor( newColor );
-        s += 2;
-        continue;
-      } else {
-        float yadj = useScale * glyph->top;
-        if (style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE) {
-          int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
-          colorBlack[3] = newColor[3];
-          trap_R_SetColor( colorBlack );
-          Text_PaintChar(x + ofs, y - yadj + ofs,
-                            glyph->imageWidth,
-                            glyph->imageHeight,
-                            useScale,
-                            glyph->s,
-                            glyph->t,
-                            glyph->s2,
-                            glyph->t2,
-                            glyph->glyph);
-          trap_R_SetColor( newColor );
-          colorBlack[3] = 1.0;
-        }
-        else if( style == ITEM_TEXTSTYLE_NEON )
-        {
-          vec4_t glow, outer, inner, white;
-
-          glow[ 0 ] = newColor[ 0 ] * 0.5;
-          glow[ 1 ] = newColor[ 1 ] * 0.5;
-          glow[ 2 ] = newColor[ 2 ] * 0.5;
-          glow[ 3 ] = newColor[ 3 ] * 0.2;
-
-          outer[ 0 ] = newColor[ 0 ];
-          outer[ 1 ] = newColor[ 1 ];
-          outer[ 2 ] = newColor[ 2 ];
-          outer[ 3 ] = newColor[ 3 ];
-
-          inner[ 0 ] = newColor[ 0 ] * 1.5 > 1.0f ? 1.0f : newColor[ 0 ] * 1.5;
-          inner[ 1 ] = newColor[ 1 ] * 1.5 > 1.0f ? 1.0f : newColor[ 1 ] * 1.5;
-          inner[ 2 ] = newColor[ 2 ] * 1.5 > 1.0f ? 1.0f : newColor[ 2 ] * 1.5;
-          inner[ 3 ] = newColor[ 3 ];
-
-          white[ 0 ] = white[ 1 ] = white[ 2 ] = white[ 3 ] = 1.0f;
-
-          trap_R_SetColor( glow );
-          Text_PaintChar( x - 1.5, y - yadj - 1.5,
-                          glyph->imageWidth + 3,
-                          glyph->imageHeight + 3,
-                          useScale,
-                          glyph->s,
-                          glyph->t,
-                          glyph->s2,
-                          glyph->t2,
-                          glyph->glyph );
-
-          trap_R_SetColor( outer );
-          Text_PaintChar( x - 1, y - yadj - 1,
-                          glyph->imageWidth + 2,
-                          glyph->imageHeight + 2,
-                          useScale,
-                          glyph->s,
-                          glyph->t,
-                          glyph->s2,
-                          glyph->t2,
-                          glyph->glyph );
-
-          trap_R_SetColor( inner );
-          Text_PaintChar( x - 0.5, y - yadj - 0.5,
-                          glyph->imageWidth + 1,
-                          glyph->imageHeight + 1,
-                          useScale,
-                          glyph->s,
-                          glyph->t,
-                          glyph->s2,
-                          glyph->t2,
-                          glyph->glyph );
-
-          trap_R_SetColor( white );
-        }
-
-        Text_PaintChar(x, y - yadj,
-                          glyph->imageWidth,
-                          glyph->imageHeight,
-                          useScale,
-                          glyph->s,
-                          glyph->t,
-                          glyph->s2,
-                          glyph->t2,
-                          glyph->glyph);
-
-        x += (glyph->xSkip * useScale) + adjust;
-        s++;
-        count++;
-      }
-    }
-    trap_R_SetColor( NULL );
-  }
-}
-
-//FIXME: merge this with Text_Paint, somehow
-void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style) {
-  int len, count;
-  vec4_t newColor;
-  glyphInfo_t *glyph, *glyph2;
-  float yadj;
-  float useScale;
-  fontInfo_t *font = &uiInfo.uiDC.Assets.textFont;
-  if (scale <= ui_smallFont.value) {
-    font = &uiInfo.uiDC.Assets.smallFont;
-  } else if (scale >= ui_bigFont.value) {
-    font = &uiInfo.uiDC.Assets.bigFont;
-  }
-  useScale = scale * font->glyphScale;
-  if (text) {
-    const char *s = text;
-    trap_R_SetColor( color );
-    memcpy(&newColor[0], &color[0], sizeof(vec4_t));
-    len = strlen(text);
-    if (limit > 0 && len > limit) {
-      len = limit;
-    }
-    count = 0;
-    glyph2 = &font->glyphs[ (int) cursor];
-    while (s && *s && count < len) {
-      glyph = &font->glyphs[(int)*s];
-      yadj = useScale * glyph->top;
-      if (style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE) {
-        int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
-        colorBlack[3] = newColor[3];
-        trap_R_SetColor( colorBlack );
-        Text_PaintChar(x + ofs, y - yadj + ofs,
-                          glyph->imageWidth,
-                          glyph->imageHeight,
-                          useScale,
-                          glyph->s,
-                          glyph->t,
-                          glyph->s2,
-                          glyph->t2,
-                          glyph->glyph);
-        colorBlack[3] = 1.0;
-        trap_R_SetColor( newColor );
-      }
-      else if( style == ITEM_TEXTSTYLE_NEON )
-      {
-        vec4_t glow, outer, inner, white;
-
-        glow[ 0 ] = newColor[ 0 ] * 0.5;
-        glow[ 1 ] = newColor[ 1 ] * 0.5;
-        glow[ 2 ] = newColor[ 2 ] * 0.5;
-        glow[ 3 ] = newColor[ 3 ] * 0.2;
-
-        outer[ 0 ] = newColor[ 0 ];
-        outer[ 1 ] = newColor[ 1 ];
-        outer[ 2 ] = newColor[ 2 ];
-        outer[ 3 ] = newColor[ 3 ];
-
-        inner[ 0 ] = newColor[ 0 ] * 1.5 > 1.0f ? 1.0f : newColor[ 0 ] * 1.5;
-        inner[ 1 ] = newColor[ 1 ] * 1.5 > 1.0f ? 1.0f : newColor[ 1 ] * 1.5;
-        inner[ 2 ] = newColor[ 2 ] * 1.5 > 1.0f ? 1.0f : newColor[ 2 ] * 1.5;
-        inner[ 3 ] = newColor[ 3 ];
-
-        white[ 0 ] = white[ 1 ] = white[ 2 ] = white[ 3 ] = 1.0f;
-
-        trap_R_SetColor( glow );
-        Text_PaintChar( x - 1.5, y - yadj - 1.5,
-                        glyph->imageWidth + 3,
-                        glyph->imageHeight + 3,
-                        useScale,
-                        glyph->s,
-                        glyph->t,
-                        glyph->s2,
-                        glyph->t2,
-                        glyph->glyph );
-
-        trap_R_SetColor( outer );
-        Text_PaintChar( x - 1, y - yadj - 1,
-                        glyph->imageWidth + 2,
-                        glyph->imageHeight + 2,
-                        useScale,
-                        glyph->s,
-                        glyph->t,
-                        glyph->s2,
-                        glyph->t2,
-                        glyph->glyph );
-
-        trap_R_SetColor( inner );
-        Text_PaintChar( x - 0.5, y - yadj - 0.5,
-                        glyph->imageWidth + 1,
-                        glyph->imageHeight + 1,
-                        useScale,
-                        glyph->s,
-                        glyph->t,
-                        glyph->s2,
-                        glyph->t2,
-                        glyph->glyph );
-
-        trap_R_SetColor( white );
-      }
-
-      Text_PaintChar(x, y - yadj,
-                        glyph->imageWidth,
-                        glyph->imageHeight,
-                        useScale,
-                        glyph->s,
-                        glyph->t,
-                        glyph->s2,
-                        glyph->t2,
-                        glyph->glyph);
-
-      yadj = useScale * glyph2->top;
-      if (count == cursorPos && !((uiInfo.uiDC.realTime/BLINK_DIVISOR) & 1)) {
-        Text_PaintChar(x, y - yadj,
-                          glyph2->imageWidth,
-                          glyph2->imageHeight,
-                          useScale,
-                          glyph2->s,
-                          glyph2->t,
-                          glyph2->s2,
-                          glyph2->t2,
-                          glyph2->glyph);
-      }
-
-      x += (glyph->xSkip * useScale);
-      s++;
-      count++;
-    }
-    // need to paint cursor at end of text
-    if (cursorPos == len && !((uiInfo.uiDC.realTime/BLINK_DIVISOR) & 1)) {
-        yadj = useScale * glyph2->top;
-        Text_PaintChar(x, y - yadj,
-                          glyph2->imageWidth,
-                          glyph2->imageHeight,
-                          useScale,
-                          glyph2->s,
-                          glyph2->t,
-                          glyph2->s2,
-                          glyph2->t2,
-                          glyph2->glyph);
-
-    }
-
-
-    trap_R_SetColor( NULL );
-  }
-}
-
-
 void UI_ShowPostGame(qboolean newHigh) {
   trap_Cvar_Set ("cg_cameraOrbit", "0");
   trap_Cvar_Set("cg_thirdPerson", "0");
@@ -676,20 +312,11 @@ void _UI_Refresh( int realtime )
 
   // draw cursor
   UI_SetColor( NULL );
-
-  // don't draw the cursor whilst loading
   if( Menu_Count( ) > 0 && !trap_Cvar_VariableValue( "ui_hideCursor" ) )
-    UI_DrawHandlePic( uiInfo.uiDC.cursorx-16, uiInfo.uiDC.cursory-16, 32, 32, uiInfo.uiDC.Assets.cursor);
-
-#ifndef NDEBUG
-  if (uiInfo.uiDC.debug)
   {
-    // cursor coordinates
-    //FIXME
-    //UI_DrawString( 0, 0, va("(%d,%d)",uis.cursorx,uis.cursory), UI_LEFT|UI_SMALLFONT, colorRed );
+    UI_DrawHandlePic( uiInfo.uiDC.cursorx - ( 16.0f * uiInfo.uiDC.aspectScale ), uiInfo.uiDC.cursory - 16.0f,
+                      32.0f * uiInfo.uiDC.aspectScale, 32.0f, uiInfo.uiDC.Assets.cursor);
   }
-#endif
-
 }
 
 /*
@@ -1035,11 +662,11 @@ static void UI_DrawHandicap(rectDef_t *rect, float scale, vec4_t color, int text
   h = Com_Clamp( 5, 100, trap_Cvar_VariableValue("handicap") );
   i = 20 - h / 5;
 
-  Text_Paint(rect->x, rect->y, scale, color, handicapValues[i], 0, 0, textStyle);
+  UI_Text_Paint(rect->x, rect->y, scale, color, handicapValues[i], 0, 0, textStyle);
 }
 
 static void UI_DrawClanName(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
-  Text_Paint(rect->x, rect->y, scale, color, UI_Cvar_VariableString("ui_teamName"), 0, 0, textStyle);
+  UI_Text_Paint(rect->x, rect->y, scale, color, UI_Cvar_VariableString("ui_teamName"), 0, 0, textStyle);
 }
 
 
@@ -1056,7 +683,7 @@ static void UI_SetCapFragLimits(qboolean uiVars) {
 }
 // ui_gameType assumes gametype 0 is -1 ALL and will not show
 static void UI_DrawGameType(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
-  Text_Paint(rect->x, rect->y, scale, color, uiInfo.gameTypes[ui_gameType.integer].gameType, 0, 0, textStyle);
+  UI_Text_Paint(rect->x, rect->y, scale, color, uiInfo.gameTypes[ui_gameType.integer].gameType, 0, 0, textStyle);
 }
 
 static void UI_DrawNetGameType(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
@@ -1064,14 +691,14 @@ static void UI_DrawNetGameType(rectDef_t *rect, float scale, vec4_t color, int t
     trap_Cvar_Set("ui_netGameType", "0");
     trap_Cvar_Set("ui_actualNetGameType", "0");
   }
-  Text_Paint(rect->x, rect->y, scale, color, uiInfo.gameTypes[ui_netGameType.integer].gameType , 0, 0, textStyle);
+  UI_Text_Paint(rect->x, rect->y, scale, color, uiInfo.gameTypes[ui_netGameType.integer].gameType , 0, 0, textStyle);
 }
 
 static void UI_DrawJoinGameType(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
   if (ui_joinGameType.integer < 0 || ui_joinGameType.integer > uiInfo.numJoinGameTypes) {
     trap_Cvar_Set("ui_joinGameType", "0");
   }
-  Text_Paint(rect->x, rect->y, scale, color, uiInfo.joinGameTypes[ui_joinGameType.integer].gameType , 0, 0, textStyle);
+  UI_Text_Paint(rect->x, rect->y, scale, color, uiInfo.joinGameTypes[ui_joinGameType.integer].gameType , 0, 0, textStyle);
 }
 
 
@@ -1261,7 +888,7 @@ static void UI_DrawSkill(rectDef_t *rect, float scale, vec4_t color, int textSty
   if (i < 1 || i > numSkillLevels) {
     i = 1;
   }
-  Text_Paint(rect->x, rect->y, scale, color, skillLevels[i-1],0, 0, textStyle);
+  UI_Text_Paint(rect->x, rect->y, scale, color, skillLevels[i-1],0, 0, textStyle);
 }
 
 
@@ -1269,7 +896,7 @@ static void UI_DrawTeamName(rectDef_t *rect, float scale, vec4_t color, qboolean
   int i;
   i = UI_TeamIndexFromName(UI_Cvar_VariableString((blue) ? "ui_blueTeam" : "ui_redTeam"));
   if (i >= 0 && i < uiInfo.teamCount) {
-    Text_Paint(rect->x, rect->y, scale, color, va("%s: %s", (blue) ? "Blue" : "Red", uiInfo.teamList[i].teamName),0, 0, textStyle);
+    UI_Text_Paint(rect->x, rect->y, scale, color, va("%s: %s", (blue) ? "Blue" : "Red", uiInfo.teamList[i].teamName),0, 0, textStyle);
   }
 }
 
@@ -1291,7 +918,7 @@ static void UI_DrawTeamMember(rectDef_t *rect, float scale, vec4_t color, qboole
 
     text = UI_GetBotNameByNumber(value);
   }
-  Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
+  UI_Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
 }
 
 static void UI_DrawMapPreview(rectDef_t *rect, float scale, vec4_t color, qboolean net) {
@@ -1331,7 +958,7 @@ static void UI_DrawMapTimeToBeat(rectDef_t *rect, float scale, vec4_t color, int
   minutes = time / 60;
   seconds = time % 60;
 
-  Text_Paint(rect->x, rect->y, scale, color, va("%02i:%02i", minutes, seconds), 0, 0, textStyle);
+  UI_Text_Paint(rect->x, rect->y, scale, color, va("%02i:%02i", minutes, seconds), 0, 0, textStyle);
 }
 
 
@@ -1445,7 +1072,7 @@ static void UI_DrawTier(rectDef_t *rect, float scale, vec4_t color, int textStyl
   if (i < 0 || i >= uiInfo.tierCount) {
     i = 0;
   }
-  Text_Paint(rect->x, rect->y, scale, color, va("Tier: %s", uiInfo.tierList[i].tierName),0, 0, textStyle);
+  UI_Text_Paint(rect->x, rect->y, scale, color, va("Tier: %s", uiInfo.tierList[i].tierName),0, 0, textStyle);
 }
 
 static void UI_DrawTierMap(rectDef_t *rect, int index) {
@@ -1483,7 +1110,7 @@ static void UI_DrawTierMapName(rectDef_t *rect, float scale, vec4_t color, int t
     j = 0;
   }
 
-  Text_Paint(rect->x, rect->y, scale, color, UI_EnglishMapName(uiInfo.tierList[i].maps[j]), 0, 0, textStyle);
+  UI_Text_Paint(rect->x, rect->y, scale, color, UI_EnglishMapName(uiInfo.tierList[i].maps[j]), 0, 0, textStyle);
 }
 
 static void UI_DrawTierGameType(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
@@ -1497,7 +1124,7 @@ static void UI_DrawTierGameType(rectDef_t *rect, float scale, vec4_t color, int 
     j = 0;
   }
 
-  Text_Paint(rect->x, rect->y, scale, color, uiInfo.gameTypes[uiInfo.tierList[i].gameTypes[j]].gameType , 0, 0, textStyle);
+  UI_Text_Paint(rect->x, rect->y, scale, color, uiInfo.gameTypes[uiInfo.tierList[i].gameTypes[j]].gameType , 0, 0, textStyle);
 }
 
 
@@ -1655,7 +1282,7 @@ static void UI_DrawOpponentLogoName(rectDef_t *rect, vec3_t color) {
 static void UI_DrawAllMapsSelection(rectDef_t *rect, float scale, vec4_t color, int textStyle, qboolean net) {
   int map = (net) ? ui_currentNetMap.integer : ui_currentMap.integer;
   if (map >= 0 && map < uiInfo.mapCount) {
-    Text_Paint(rect->x, rect->y, scale, color, uiInfo.mapList[map].mapName, 0, 0, textStyle);
+    UI_Text_Paint(rect->x, rect->y, scale, color, uiInfo.mapList[map].mapName, 0, 0, textStyle);
   }
 }
 
@@ -1664,7 +1291,7 @@ static void UI_DrawPlayerListSelection( rectDef_t *rect, float scale,
 {
   if( uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount )
   {
-    Text_Paint(rect->x, rect->y, scale, color,
+    UI_Text_Paint(rect->x, rect->y, scale, color,
       uiInfo.rawPlayerNames[ uiInfo.playerIndex ],
       0, 0, textStyle);
   }
@@ -1675,14 +1302,14 @@ static void UI_DrawTeamListSelection( rectDef_t *rect, float scale,
 {
   if( uiInfo.teamIndex >= 0 && uiInfo.teamIndex < uiInfo.myTeamCount )
   {
-    Text_Paint(rect->x, rect->y, scale, color,
+    UI_Text_Paint(rect->x, rect->y, scale, color,
       uiInfo.rawTeamNames[ uiInfo.teamIndex ],
       0, 0, textStyle);
   }
 }
 
 static void UI_DrawOpponentName(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
-  Text_Paint(rect->x, rect->y, scale, color, UI_Cvar_VariableString("ui_opponentName"), 0, 0, textStyle);
+  UI_Text_Paint(rect->x, rect->y, scale, color, UI_Cvar_VariableString("ui_opponentName"), 0, 0, textStyle);
 }
 
 static const char *UI_OwnerDrawText(int ownerDraw) {
@@ -1844,7 +1471,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
   }
 
   if (s) {
-    return Text_Width(s, scale, 0);
+    return UI_Text_Width(s, scale, 0);
   }
   return 0;
 }
@@ -1858,17 +1485,17 @@ static void UI_DrawBotName(rectDef_t *rect, float scale, vec4_t color, int textS
 
   text = UI_GetBotNameByNumber( value );
 
-  Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
+  UI_Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
 }
 
 static void UI_DrawBotSkill(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
   if (uiInfo.skillIndex >= 0 && uiInfo.skillIndex < numSkillLevels) {
-    Text_Paint(rect->x, rect->y, scale, color, skillLevels[uiInfo.skillIndex], 0, 0, textStyle);
+    UI_Text_Paint(rect->x, rect->y, scale, color, skillLevels[uiInfo.skillIndex], 0, 0, textStyle);
   }
 }
 
 static void UI_DrawRedBlue(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
-  Text_Paint(rect->x, rect->y, scale, color, (uiInfo.redBlue == 0) ? "Red" : "Blue", 0, 0, textStyle);
+  UI_Text_Paint(rect->x, rect->y, scale, color, (uiInfo.redBlue == 0) ? "Red" : "Blue", 0, 0, textStyle);
 }
 
 /*
@@ -1950,7 +1577,7 @@ static void UI_DrawSelectedPlayer(rectDef_t *rect, float scale, vec4_t color, in
   else
     s = UI_Cvar_VariableString("name");
   Q_strncpyz( name, s, sizeof( name ) );
-  Text_Paint(rect->x, rect->y, scale, color, name, 0, 0, textStyle);
+  UI_Text_Paint(rect->x, rect->y, scale, color, name, 0, 0, textStyle);
 }
 
 static void UI_DrawGLInfo( rectDef_t *rect, float scale, int textalign, int textvalign,
@@ -5179,28 +4806,17 @@ void _UI_Init( qboolean inGameLoad ) {
   trap_GetGlconfig( &uiInfo.uiDC.glconfig );
 
   // for 640x480 virtualized screen
-  uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * (1.0/480.0);
-  uiInfo.uiDC.xscale = uiInfo.uiDC.glconfig.vidWidth * (1.0/640.0);
-  if ( uiInfo.uiDC.glconfig.vidWidth * 480 > uiInfo.uiDC.glconfig.vidHeight * 640 ) {
-    // wide screen
-    uiInfo.uiDC.bias = 0.5 * ( uiInfo.uiDC.glconfig.vidWidth - ( uiInfo.uiDC.glconfig.vidHeight * (640.0/480.0) ) );
-  }
-  else {
-    // no wide screen
-    uiInfo.uiDC.bias = 0;
-  }
+  uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * ( 1.0f / 480.0f );
+  uiInfo.uiDC.xscale = uiInfo.uiDC.glconfig.vidWidth * ( 1.0f / 640.0f );
 
+  // wide screen
+  uiInfo.uiDC.aspectScale = ( ( 640.0f * uiInfo.uiDC.glconfig.vidHeight ) /
+                              ( 480.0f * uiInfo.uiDC.glconfig.vidWidth ) );
 
-  //UI_Load();
   uiInfo.uiDC.registerShaderNoMip = &trap_R_RegisterShaderNoMip;
   uiInfo.uiDC.setColor = &UI_SetColor;
   uiInfo.uiDC.drawHandlePic = &UI_DrawHandlePic;
   uiInfo.uiDC.drawStretchPic = &trap_R_DrawStretchPic;
-  uiInfo.uiDC.drawText = &Text_Paint;
-  uiInfo.uiDC.textWidth = &Text_Width;
-  uiInfo.uiDC.textHeight = &Text_Height;
-  uiInfo.uiDC.textEmWidth = &Text_EmWidth;
-  uiInfo.uiDC.textEmHeight = &Text_EmHeight;
   uiInfo.uiDC.registerModel = &trap_R_RegisterModel;
   uiInfo.uiDC.modelBounds = &trap_R_ModelBounds;
   uiInfo.uiDC.fillRect = &UI_FillRect;
@@ -5220,7 +4836,6 @@ void _UI_Init( qboolean inGameLoad ) {
   uiInfo.uiDC.setCVar = trap_Cvar_Set;
   uiInfo.uiDC.getCVarString = trap_Cvar_VariableStringBuffer;
   uiInfo.uiDC.getCVarValue = trap_Cvar_VariableValue;
-  uiInfo.uiDC.drawTextWithCursor = &Text_PaintWithCursor;
   uiInfo.uiDC.setOverstrikeMode = &trap_Key_SetOverstrikeMode;
   uiInfo.uiDC.getOverstrikeMode = &trap_Key_GetOverstrikeMode;
   uiInfo.uiDC.startLocalSound = &trap_S_StartLocalSound;
@@ -5324,7 +4939,7 @@ UI_MouseEvent
 void _UI_MouseEvent( int dx, int dy )
 {
   // update mouse screen position
-  uiInfo.uiDC.cursorx += dx;
+  uiInfo.uiDC.cursorx += ( dx * uiInfo.uiDC.aspectScale );
   if (uiInfo.uiDC.cursorx < 0)
     uiInfo.uiDC.cursorx = 0;
   else if (uiInfo.uiDC.cursorx > SCREEN_WIDTH)
@@ -5451,8 +5066,8 @@ static void UI_PrintTime ( char *buf, int bufsize, int time ) {
 }
 
 void Text_PaintCenter(float x, float y, float scale, vec4_t color, const char *text, float adjust) {
-  int len = Text_Width(text, scale, 0);
-  Text_Paint(x - len / 2, y, scale, color, text, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+  int len = UI_Text_Width(text, scale, 0);
+  UI_Text_Paint(x - len / 2, y, scale, color, text, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 }
 
 void Text_PaintCenter_AutoWrapped(float x, float y, float xmax, float ystep, float scale, vec4_t color, const char *str, float adjust) {
@@ -5473,7 +5088,7 @@ void Text_PaintCenter_AutoWrapped(float x, float y, float xmax, float ystep, flo
     } while (*s3!=' ' && *s3!='\0');
     c_bcp = *s3;
     *s3 = '\0';
-    width = Text_Width(s1, scale, 0);
+    width = UI_Text_Width(s1, scale, 0);
     *s3 = c_bcp;
     if (width > xmax) {
       if (s1==s2)

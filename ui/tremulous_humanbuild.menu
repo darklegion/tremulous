@@ -79,8 +79,8 @@
       style WINDOW_STYLE_EMPTY
       rect INFO_X INFO_Y INFO_W INFO_H
       textscale .33
-      textalign ITEM_ALIGN_LEFT
-      textvalign ITEM_VALIGN_TOP
+      textalign ALIGN_LEFT
+      textvalign VALIGN_TOP
       textalignx INFO_TOFF
       textaligny INFO_TOFF
       border WINDOW_BORDER_FULL
@@ -98,8 +98,8 @@
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       rect (W-((2*BORDER)+(2*BUTT_W))) (H-(BORDER+BUTT_H)) BUTT_W BUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .4
       forecolor 1 1 1 1
       backcolor .5 0 0 .25
@@ -119,8 +119,8 @@
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       rect (W-(BORDER+BUTT_W)) (H-(BORDER+BUTT_H)) BUTT_W BUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .4
       forecolor 1 1 1 1
       backcolor .5 0 0 .25

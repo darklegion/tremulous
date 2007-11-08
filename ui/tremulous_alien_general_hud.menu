@@ -11,6 +11,7 @@
     fullScreen MENU_FALSE
     visible MENU_TRUE
     rect 0 0 W H
+    aspectBias ASPECT_NONE
 
 #include "ui/tremulous_alien_common_hud.h"
 #include "ui/tremulous_common_hud.h"
@@ -20,6 +21,7 @@
     {
       name "blob"
       rect 479 419 57 18
+      aspectBias ALIGN_RIGHT
       visible MENU_TRUE
       forecolor 1.0 0.0 0.0 0.5
       background "ui/assets/alien/tremublob.tga"

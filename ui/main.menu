@@ -29,6 +29,7 @@
     visible MENU_TRUE       // Visible on open
     focusColor 1 .75 0 1        // Menu focus color for text and items
     background "ui/assets/mainmenu.jpg"
+    aspectBias ASPECT_NONE
 
     onOpen { uiScript stopRefresh ; playlooped "sound/ui/heartbeat.wav" }
     onESC { open quit_popmenu }
@@ -60,7 +61,7 @@
       style WINDOW_STYLE_EMPTY
       textstyle ITEM_TEXTSTYLE_NORMAL
       rect X Y W ELEM_H
-      textalign ITEM_ALIGN_RIGHT
+      textalign ALIGN_RIGHT
       textscale .416
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -80,7 +81,7 @@
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale .416
       rect X (Y+ELEM_H) W ELEM_H
-      textalign ITEM_ALIGN_RIGHT
+      textalign ALIGN_RIGHT
       backcolor 0 0 0 0
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -100,7 +101,7 @@
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale .416
       rect X (Y+(2*ELEM_H)) W ELEM_H
-      textalign ITEM_ALIGN_RIGHT
+      textalign ALIGN_RIGHT
       backcolor 0 0 0 0
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -120,7 +121,7 @@
       textstyle ITEM_TEXTSTYLE_NORMAL
       rect X (Y+(3*ELEM_H)) W ELEM_H
       textscale .416
-      textalign ITEM_ALIGN_RIGHT
+      textalign ALIGN_RIGHT
       forecolor 1 1 1 1
       visible MENU_TRUE
       action
@@ -138,7 +139,7 @@
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale .25
       rect 0 450 640 10
-      textalign ITEM_ALIGN_CENTER
+      textalign ALIGN_CENTER
       forecolor .75 .75 .75 .75
       visible MENU_TRUE
       decoration

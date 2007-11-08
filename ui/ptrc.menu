@@ -57,8 +57,8 @@
       textscale .4
       textstyle WINDOW_STYLE_SHADER
       rect INFO_X INFO_Y INFO_W INFO_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       decoration
       wrapped
       forecolor 1 1 1 1
@@ -72,8 +72,8 @@
       type ITEM_TYPE_BUTTON
       textscale .4
       rect (W-((2*BORDER)+(2*BUTT_W))) (H-(BORDER+BUTT_H)) BUTT_W BUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_TRUE
       action
@@ -92,8 +92,8 @@
       type ITEM_TYPE_BUTTON
       textscale .4
       rect (W-(BORDER+BUTT_W)) (H-(BORDER+BUTT_H)) BUTT_W BUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_TRUE
       action

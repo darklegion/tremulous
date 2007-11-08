@@ -11,6 +11,7 @@
     fullScreen MENU_FALSE
     visible MENU_TRUE
     rect 0 0 W H
+    aspectBias ASPECT_NONE
 
 #define COMMON_HUD_R 1.0
 #define COMMON_HUD_G 1.0

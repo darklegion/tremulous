@@ -11,6 +11,7 @@
     fullScreen MENU_FALSE
     visible MENU_TRUE
     rect 0 0 W H
+    aspectBias ASPECT_NONE
 
 #define COMMON_HUD_R 0.0
 #define COMMON_HUD_G 0.8
@@ -26,6 +27,7 @@
     {
       name "left-circle"
       rect 35 417.5 25 25
+      aspectBias ALIGN_LEFT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.25
@@ -38,6 +40,7 @@
     {
       name "left-arm"
       rect 68.25 420 94.5 35
+      aspectBias ALIGN_LEFT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.25
@@ -50,6 +53,7 @@
     {
       name "credits-label"
       rect 508 403 7 7.5
+      aspectBias ALIGN_RIGHT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
@@ -62,6 +66,7 @@
     {
       name "right-circle"
       rect 580 417.5 25 25
+      aspectBias ALIGN_RIGHT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.25
@@ -74,6 +79,7 @@
     {
       name "right-arm"
       rect 477.25 420 94.5 35
+      aspectBias ALIGN_RIGHT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.25
@@ -86,6 +92,7 @@
     {
       name "right-cap"
       rect 500 400 80 15
+      aspectBias ALIGN_RIGHT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.25
@@ -102,6 +109,7 @@
     {
       name "bolt"
       rect 40 420 15 20
+      aspectBias ALIGN_LEFT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
@@ -114,6 +122,7 @@
     {
       name "cross"
       rect 137.5 430 15 15
+      aspectBias ALIGN_LEFT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
@@ -126,6 +135,7 @@
     {
       name "stamina1"
       rect 34.5 403.5 9 11.5
+      aspectBias ALIGN_LEFT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
@@ -138,6 +148,7 @@
     {
       name "stamina2"
       rect 24 410.75 11.5 10.5
+      aspectBias ALIGN_LEFT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
@@ -150,6 +161,7 @@
     {
       name "stamina3"
       rect 20.75 423.5 10.5 7
+      aspectBias ALIGN_LEFT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
@@ -162,6 +174,7 @@
     {
       name "stamina4"
       rect 21 402.5 54 55
+      aspectBias ALIGN_LEFT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
@@ -175,6 +188,7 @@
       name "ring"
       //rect 20 402.5 55 55  // Guide for Stamina alignment
       rect 565 402.5 55 55
+      aspectBias ALIGN_RIGHT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
@@ -187,6 +201,7 @@
     {
       name "credits"
       rect 515 402 45 11.25
+      aspectBias ALIGN_RIGHT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
@@ -198,6 +213,7 @@
     {
       name "health"
       rect 67 430 60 15
+      aspectBias ALIGN_LEFT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B .5
@@ -209,6 +225,7 @@
     {
       name "weapon"
       rect 482.5 425 25 25
+      aspectBias ALIGN_RIGHT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
@@ -220,6 +237,7 @@
     {
       name "selecttext"
       rect 200 300 240 25
+      aspectBias ALIGN_CENTER
       visible MENU_TRUE
       decoration
       textScale .5
@@ -231,6 +249,7 @@
     {
       name "ammo"
       rect 494 430 60 15
+      aspectBias ALIGN_RIGHT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B .5
@@ -242,6 +261,7 @@
     {
       name "clips"
       rect 538 423 60 15
+      aspectBias ALIGN_RIGHT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B .5
@@ -253,6 +273,7 @@
     {
       name "buildtimer"
       rect 580 417.5 25 25
+      aspectBias ALIGN_RIGHT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B .5
@@ -264,6 +285,7 @@
     {
       name "usable"
       rect 307.5 380 25 25
+      aspectBias ALIGN_CENTER
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B .5
@@ -276,6 +298,7 @@
     {
       name "scanner"
       rect 164 340 312 72
+      aspectBias ALIGN_CENTER
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B .5
@@ -288,6 +311,7 @@
     {
       name "inventory"
       rect 232.5 425 175 25
+      aspectBias ALIGN_CENTER
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
@@ -299,6 +323,7 @@
     {
       name "selected"
       rect 306 424 27 27
+      aspectBias ALIGN_CENTER
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.25

@@ -53,6 +53,7 @@
     name "Loading"
     rect 0 0 W H
     fullScreen MENU_TRUE
+    aspectBias ASPECT_NONE
 
     itemDef
     {
@@ -71,8 +72,8 @@
       visible MENU_TRUE
       decoration
       forecolor 1 1 1 1
-      textalign ITEM_ALIGN_LEFT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale 0.4
       ownerdraw CG_LOAD_LEVELNAME
@@ -85,8 +86,8 @@
       visible MENU_TRUE
       decoration
       forecolor 1 1 1 1
-      textalign ITEM_ALIGN_LEFT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale 0.4
       ownerdraw CG_LOAD_HOSTNAME
@@ -99,8 +100,8 @@
       visible MENU_TRUE
       decoration
       forecolor 1 1 1 1
-      textalign ITEM_ALIGN_LEFT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale 0.4
       ownerdraw CG_LOAD_MOTD
@@ -128,7 +129,7 @@
       decoration
       forecolor 0.0 0.8 1 1
       ownerdraw CG_LOAD_MEDIA
-      textalign ITEM_ALIGN_CENTER
+      textalign ALIGN_CENTER
       textstyle ITEM_TEXTSTYLE_NEON
       textscale 0.5
       special 1.0
@@ -140,8 +141,8 @@
       style WINDOW_STYLE_EMPTY
       textscale 0.6
       rect LABEL_X MEDIA_Y LABEL_W BAR_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       forecolor 0.0 0.8 1 1
       visible MENU_TRUE
       decoration
@@ -157,7 +158,7 @@
       decoration
       forecolor 0.0 0.8 1 1
       ownerdraw CG_LOAD_BUILDABLES
-      textalign ITEM_ALIGN_CENTER
+      textalign ALIGN_CENTER
       textstyle ITEM_TEXTSTYLE_NEON
       textscale 0.5
       special 1.0
@@ -169,8 +170,8 @@
       style WINDOW_STYLE_EMPTY
       textscale 0.6
       rect LABEL_X BUILD_Y LABEL_W BAR_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       forecolor 0.0 0.8 1 1
       visible MENU_TRUE
       decoration
@@ -185,7 +186,7 @@
       decoration
       forecolor 0.0 0.8 1 1
       ownerdraw CG_LOAD_CHARMODEL
-      textalign ITEM_ALIGN_CENTER
+      textalign ALIGN_CENTER
       textstyle ITEM_TEXTSTYLE_NEON
       textscale 0.5
       special 1.0
@@ -197,8 +198,8 @@
       style WINDOW_STYLE_EMPTY
       textscale 0.6
       rect LABEL_X CHAR_Y LABEL_W BAR_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       forecolor 0.0 0.8 1 1
       visible MENU_TRUE
       decoration
@@ -213,7 +214,7 @@
       decoration
       forecolor 0.0 0.8 1 1
       ownerdraw CG_LOAD_OVERALL
-      textalign ITEM_ALIGN_CENTER
+      textalign ALIGN_CENTER
       textstyle ITEM_TEXTSTYLE_NEON
       textscale 0.5
       special 1.0

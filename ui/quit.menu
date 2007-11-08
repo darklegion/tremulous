@@ -48,8 +48,8 @@
       textscale .3
       textstyle WINDOW_STYLE_SHADER
       rect 0 0 W ((2*H)/3)
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       decoration
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -63,8 +63,8 @@
       type ITEM_TYPE_BUTTON
       textscale .25
       rect 0 (H/3) (W/2) ((2*H)/3)
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_TRUE
       action
@@ -82,8 +82,8 @@
       type ITEM_TYPE_BUTTON
       textscale .25
       rect (W/2) (H/3) (W/2) ((2*H)/3)
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_TRUE
       action

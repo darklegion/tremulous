@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-static entityPos_t   entityPositions;
+static entityPos_t entityPositions;
 
 #define HUMAN_SCANNER_UPDATE_PERIOD 700
 
@@ -104,8 +104,8 @@ void CG_UpdateEntityPositions( void )
   }
 }
 
-#define STALKWIDTH  2.0f
-#define BLIPX       16.0f
+#define STALKWIDTH  (2.0f * cgDC.aspectScale)
+#define BLIPX       (16.0f * cgDC.aspectScale)
 #define BLIPY       8.0f
 #define FAR_ALPHA   0.8f
 #define NEAR_ALPHA  1.2f
@@ -162,7 +162,7 @@ static void CG_DrawBlips( rectDef_t *rect, vec3_t origin, vec4_t colour )
   trap_R_SetColor( NULL );
 }
 
-#define BLIPX2  24.0f
+#define BLIPX2  (24.0f * cgDC.aspectScale)
 #define BLIPY2  24.0f
 
 /*

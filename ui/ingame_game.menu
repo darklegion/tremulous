@@ -65,6 +65,7 @@
     outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
     rect X Y W H
     focusColor 1 .75 0 1
+    aspectBias ALIGN_LEFT
     onopen
     {
       uiScript InitIgnoreList;
@@ -102,8 +103,8 @@
       style WINDOW_STYLE_EMPTY
       rect (W-((3*TOPBUTT_W)+BORDER)) BORDER TOPBUTT_W TOPBUTT_H
       type ITEM_TYPE_BUTTON
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .35
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -128,8 +129,8 @@
       style WINDOW_STYLE_EMPTY
       rect (W-((2*TOPBUTT_W)+BORDER)) BORDER TOPBUTT_W TOPBUTT_H
       type ITEM_TYPE_BUTTON
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .35
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -153,8 +154,8 @@
       style WINDOW_STYLE_EMPTY
       rect (W-((1*TOPBUTT_W)+BORDER)) BORDER TOPBUTT_W TOPBUTT_H
       type ITEM_TYPE_BUTTON
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .35
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -182,8 +183,8 @@
       style WINDOW_STYLE_EMPTY
       rect 0 ((2*BORDER)+TOPBUTT_H) SIDEBUTT_W SIDEBUTT_H
       type ITEM_TYPE_BUTTON
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_FALSE
@@ -204,8 +205,8 @@
       style WINDOW_STYLE_EMPTY
       rect 0 ((2*BORDER)+TOPBUTT_H+SIDEBUTT_H) SIDEBUTT_W SIDEBUTT_H
       type ITEM_TYPE_BUTTON
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_FALSE
@@ -226,8 +227,8 @@
       style WINDOW_STYLE_EMPTY
       rect 0 ((2*BORDER)+TOPBUTT_H+(2*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
       type ITEM_TYPE_BUTTON
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_FALSE
@@ -287,8 +288,8 @@
       type ITEM_TYPE_BUTTON
       textscale .25
       rect MAPBUTT_X MAPBUTT_Y MAPBUTT_W MAPBUTT_H
-      textalign ITEM_ALIGN_LEFT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_FALSE
       action
@@ -307,8 +308,8 @@
       type ITEM_TYPE_BUTTON
       textscale .25
       rect MAPBUTT_X (MAPBUTT_Y+MAPBUTT_H) MAPBUTT_W MAPBUTT_H
-      textalign ITEM_ALIGN_LEFT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_FALSE
       action
@@ -327,8 +328,8 @@
       type ITEM_TYPE_BUTTON
       textscale .25
       rect MAPBUTT_X (MAPBUTT_Y+(2*MAPBUTT_H)) MAPBUTT_W MAPBUTT_H
-      textalign ITEM_ALIGN_LEFT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_FALSE
       action
@@ -368,8 +369,8 @@
       type ITEM_TYPE_BUTTON
       textscale .25
       rect PBUTT_X PBUTT_Y (PBUTT_W/2) PBUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_FALSE
       action
@@ -388,8 +389,8 @@
       type ITEM_TYPE_BUTTON
       textscale .25
       rect (PBUTT_X+(PBUTT_W/2)) PBUTT_Y (PBUTT_W/2) PBUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_FALSE
       action
@@ -408,8 +409,8 @@
       type ITEM_TYPE_BUTTON
       textscale .25
       rect PBUTT_X (PBUTT_Y+PBUTT_H) PBUTT_W PBUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_FALSE
       action
@@ -450,8 +451,8 @@
       type ITEM_TYPE_BUTTON
       textscale .25
       rect PBUTT_X PBUTT_Y (PBUTT_W/2) PBUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_FALSE
       action
@@ -470,8 +471,8 @@
       type ITEM_TYPE_BUTTON
       textscale .25
       rect (PBUTT_X+(PBUTT_W/2)) PBUTT_Y (PBUTT_W/2) PBUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_FALSE
       action
@@ -491,8 +492,8 @@
       textscale .25
       rect 110 215 150 20
       rect PBUTT_X (PBUTT_Y+PBUTT_H) (PBUTT_W/2) PBUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_FALSE
       action
@@ -511,8 +512,8 @@
       type ITEM_TYPE_BUTTON
       textscale .25
       rect (PBUTT_X+(PBUTT_W/2)) (PBUTT_Y+PBUTT_H) (PBUTT_W/2) PBUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_FALSE
       action
@@ -530,8 +531,8 @@
       group gameGrp
       rect IGNORE_X IGNHEAD_Y (PLAYER_C*IGNORE_W2) IGNHEAD_H
       text "Player Name"
-      textalign ITEM_ALIGN_LEFT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
       textalignx IGNORE_TOFF
       visible MENU_FALSE
       type ITEM_TYPE_TEXT
@@ -543,8 +544,8 @@
       group gameGrp
       rect (IGNORE_X+(PLAYER_C*IGNORE_W2)) IGNHEAD_Y (IGN_C*IGNORE_W2) IGNHEAD_H
       text "Ignored"
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       visible MENU_FALSE
       type ITEM_TYPE_TEXT
       textscale .225
@@ -555,8 +556,8 @@
       group gameGrp
       rect (IGNORE_X+((PLAYER_C+IGN_C)*IGNORE_W2)) IGNHEAD_Y (IGNY_C*IGNORE_W2) IGNHEAD_H
       text "Ignoring You"
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       visible MENU_FALSE
       type ITEM_TYPE_TEXT
       textscale .225
@@ -581,9 +582,9 @@
       feeder FEEDER_IGNORE_LIST
       visible MENU_FALSE
       columns 3
-        IGNORE_TOFF                               ((PLAYER_C*IGNORE_W)-(3*IGNORE_TOFF)) ITEM_ALIGN_LEFT
-        (IGNORE_TOFF+((PLAYER_C)*IGNORE_W))       ((IGN_C*IGNORE_W)-(3*IGNORE_TOFF))    ITEM_ALIGN_CENTER
-        (IGNORE_TOFF+((PLAYER_C+IGN_C)*IGNORE_W)) ((IGNY_C*IGNORE_W)-(3*IGNORE_TOFF))   ITEM_ALIGN_CENTER
+        IGNORE_TOFF                               ((PLAYER_C*IGNORE_W)-(3*IGNORE_TOFF)) ALIGN_LEFT
+        (IGNORE_TOFF+((PLAYER_C)*IGNORE_W))       ((IGN_C*IGNORE_W)-(3*IGNORE_TOFF))    ALIGN_CENTER
+        (IGNORE_TOFF+((PLAYER_C+IGN_C)*IGNORE_W)) ((IGNY_C*IGNORE_W)-(3*IGNORE_TOFF))   ALIGN_CENTER
       doubleClick
       {
         play "sound/misc/menu1.wav";
@@ -599,8 +600,8 @@
       style WINDOW_STYLE_EMPTY
       rect IGNBUTT_X IGNBUTT_Y IGNBUTT_W IGNBUTT_H
       type ITEM_TYPE_BUTTON
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_FALSE
@@ -619,8 +620,8 @@
       style WINDOW_STYLE_EMPTY
       rect (IGNBUTT_X+IGNBUTT_W) IGNBUTT_Y IGNBUTT_W IGNBUTT_H
       type ITEM_TYPE_BUTTON
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_FALSE
@@ -642,8 +643,8 @@
       style WINDOW_STYLE_EMPTY
       text "Server Name:"
       cvar ui_serverinfo_hostname
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx INFO_OFF
       textscale .25
       forecolor 1 1 1 1
@@ -660,8 +661,8 @@
       style WINDOW_STYLE_EMPTY
       text "Time Limit:"
       cvar ui_serverinfo_timelimit
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx INFO_OFF
       textscale .25
       forecolor 1 1 1 1
@@ -678,8 +679,8 @@
       style WINDOW_STYLE_EMPTY
       text "Sudden Death Time:"
       cvar ui_serverinfo_sd
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx INFO_OFF
       textscale .25
       forecolor 1 1 1 1
@@ -696,8 +697,8 @@
       style WINDOW_STYLE_EMPTY
       text "Max Clients:"
       cvar ui_serverinfo_maxclients
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx INFO_OFF
       textscale .25
       forecolor 1 1 1 1
@@ -714,8 +715,8 @@
       style WINDOW_STYLE_EMPTY
       text "Map Name:"
       cvar ui_serverinfo_mapname
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx INFO_OFF
       textscale .25
       forecolor 1 1 1 1
@@ -732,8 +733,8 @@
       style WINDOW_STYLE_EMPTY
       text "Lag Correction:"
       cvar ui_serverinfo_unlagged
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx INFO_OFF
       textscale .25
       forecolor 1 1 1 1
@@ -751,8 +752,8 @@
       text "Friendly Fire:"
       cvarFloat ui_serverinfo_ff 0 0 7
       cvarFloatList { "Off" 0 "Humans Only" 1 "Aliens Only" 2 "Both Teams" 3 "Buildables Only" 4 "Humans and Buildables" 5 "Aliens and Buildables" 6 "Both Teams and Buildables" 7 }
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx INFO_OFF
       textscale .25
       forecolor 1 1 1 1
@@ -769,8 +770,8 @@
       style WINDOW_STYLE_EMPTY
       text "Version:"
       cvar ui_serverinfo_version
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx INFO_OFF
       textscale .25
       forecolor 1 1 1 1

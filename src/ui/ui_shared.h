@@ -100,11 +100,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ASSET_SCROLL_THUMB          "ui/assets/scrollbar_thumb.tga"
 #define ASSET_SLIDER_BAR            "ui/assets/slider2.tga"
 #define ASSET_SLIDER_THUMB          "ui/assets/sliderbutt_1.tga"
-#define SCROLLBAR_SIZE 16.0
-#define SLIDER_WIDTH 96.0
-#define SLIDER_HEIGHT 16.0
-#define SLIDER_THUMB_WIDTH 12.0
-#define SLIDER_THUMB_HEIGHT 20.0
+#define SCROLLBAR_SIZE 16.0f
+#define SCROLLBAR_WIDTH (SCROLLBAR_SIZE*DC->aspectScale)
+#define SCROLLBAR_HEIGHT SCROLLBAR_SIZE
+#define SLIDER_WIDTH (96.0f*DC->aspectScale)
+#define SLIDER_HEIGHT 16.0f
+#define SLIDER_THUMB_WIDTH (12.0f*DC->aspectScale)
+#define SLIDER_THUMB_HEIGHT 20.0f
 #define NUM_CROSSHAIRS      10
 
 typedef struct {
@@ -125,6 +127,7 @@ typedef rectDef_t Rectangle;
 // FIXME: do something to separate text vs window stuff
 typedef struct {
   Rectangle rect;                 // client coord rectangle
+  int aspectBias;                 // direction in which to aspect compensate
   Rectangle rectClient;           // screen coord rectangle
   const char *name;               //
   const char *group;              // if it belongs to a group
@@ -133,7 +136,7 @@ typedef struct {
   int style;                      //
   int border;                     //
   int ownerDraw;                  // ownerDraw style
-  int ownerDrawFlags;              // show flags for ownerdraw items
+  int ownerDrawFlags;             // show flags for ownerdraw items
   float borderSize;               //
   int flags;                      // visible, focus, mouseover, cursor
   Rectangle rectEffects;          // for various effects
@@ -320,11 +323,6 @@ typedef struct {
   void (*setColor) (const vec4_t v);
   void (*drawHandlePic) (float x, float y, float w, float h, qhandle_t asset);
   void (*drawStretchPic) (float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
-  void (*drawText) (float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style );
-  float (*textWidth) (const char *text, float scale, int limit);
-  float (*textHeight) (const char *text, float scale, int limit);
-  float (*textEmWidth) (float scale);
-  float (*textEmHeight) (float scale);
   qhandle_t (*registerModel) (const char *p);
   void (*modelBounds) (qhandle_t model, vec3_t min, vec3_t max);
   void (*fillRect) ( float x, float y, float w, float h, const vec4_t color);
@@ -371,11 +369,11 @@ typedef struct {
 
   float      yscale;
   float      xscale;
-  float      bias;
+  float      aspectScale;
   int        realTime;
   int        frameTime;
-  int        cursorx;
-  int        cursory;
+  float      cursorx;
+  float      cursory;
   qboolean  debug;
 
   cachedAssets_t Assets;
@@ -422,7 +420,7 @@ void  Menus_Activate(menuDef_t *menu);
 
 displayContextDef_t *Display_GetContext( void );
 void *Display_CaptureItem(int x, int y);
-qboolean Display_MouseMove(void *p, int x, int y);
+qboolean Display_MouseMove(void *p, float x, float y);
 int Display_CursorType(int x, int y);
 qboolean Display_KeyBindPending( void );
 menuDef_t *Menus_FindByName(const char *p);
@@ -452,6 +450,13 @@ void Item_Text_Wrapped_Paint( itemDef_t *item );
 void UI_DrawTextBlock( rectDef_t *rect, float text_x, float text_y, vec4_t color,
                        float scale, int textalign, int textvalign,
                        int textStyle, const char *text );
+void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style);
+void UI_Text_Paint_Limit( float *maxX, float x, float y, float scale,
+                          vec4_t color, const char* text, float adjust, int limit );
+float UI_Text_Width(const char *text, float scale, int limit);
+float UI_Text_Height(const char *text, float scale, int limit);
+float UI_Text_EmWidth( float scale );
+float UI_Text_EmHeight( float scale );
 
 int      trap_Parse_AddGlobalDefine( char *define );
 int      trap_Parse_LoadSource( const char *filename );

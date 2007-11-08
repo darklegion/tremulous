@@ -25,6 +25,7 @@
     outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
     rect X Y W H
     focusColor 1 .75 0 1
+    aspectBias ALIGN_LEFT
     onOpen
     {
       show grpMenu;
@@ -53,8 +54,8 @@
       group grpMenu
       style WINDOW_STYLE_EMPTY
       rect L1_X L1_Y L1_W L1_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -74,8 +75,8 @@
       text "Quit"
       style WINDOW_STYLE_EMPTY
       rect L2_X L2_Y L2_W L2_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor  1 1 1 1
       visible MENU_TRUE
@@ -98,8 +99,8 @@
       group grpConfirm
       style WINDOW_STYLE_EMPTY
       rect L1_X L1_Y L1_W L1_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       decoration
       forecolor 1 1 1 1
@@ -115,8 +116,8 @@
       textscale .25
       style WINDOW_STYLE_EMPTY
       rect L2_X L2_Y (L2_W/2) L2_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_TRUE
       action
@@ -135,8 +136,8 @@
       textscale .25
       style WINDOW_STYLE_EMPTY
       rect (L2_X+(L2_W/2)) L2_Y (L2_W/2) L2_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_TRUE
       action
@@ -154,8 +155,8 @@
       group grpConfirm
       style WINDOW_STYLE_EMPTY
       rect L1_X L1_Y L1_W L1_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       decoration
@@ -171,8 +172,8 @@
       textscale .25
       style WINDOW_STYLE_EMPTY
       rect L2_X L2_Y (L2_W/2) L2_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_TRUE
       action
@@ -191,8 +192,8 @@
       textscale .25
       style WINDOW_STYLE_EMPTY
       rect (L2_X+(L2_W/2)) L2_Y (L2_W/2) L2_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_TRUE
       action

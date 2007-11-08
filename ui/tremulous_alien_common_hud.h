@@ -11,6 +11,7 @@ itemDef
 {
   name "left-ring-circle"
   rect 47.5 410 25 25
+  aspectBias ALIGN_LEFT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.25
@@ -23,6 +24,7 @@ itemDef
 {
   name "left-arm"
   rect 77 404.75 104 52.5
+  aspectBias ALIGN_LEFT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.25
@@ -35,6 +37,7 @@ itemDef
 {
   name "left-arm-circle"
   rect 150 417.5 25 25
+  aspectBias ALIGN_LEFT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.25
@@ -47,6 +50,7 @@ itemDef
 {
   name "right-ring-circle"
   rect 567 410 25 25
+  aspectBias ALIGN_RIGHT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.25
@@ -59,6 +63,7 @@ itemDef
 {
   name "right-arm"
   rect 459 404.75 104 52.5
+  aspectBias ALIGN_RIGHT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.25
@@ -75,6 +80,7 @@ itemDef
 {
   name "bolt"
   rect 52.5 412.5 15 20
+  aspectBias ALIGN_LEFT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
@@ -87,6 +93,7 @@ itemDef
 {
   name "cross"
   rect 155 422.5 15 15
+  aspectBias ALIGN_LEFT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
@@ -99,6 +106,7 @@ itemDef
 {
   name "left-ring"
   rect 7.25 369.5 90.5 106
+  aspectBias ALIGN_LEFT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
@@ -111,6 +119,7 @@ itemDef
 {
   name "left-spikes"
   rect 18.5 381 59 83
+  aspectBias ALIGN_LEFT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 1.0
@@ -123,6 +132,7 @@ itemDef
 {
   name "right-ring"
   rect 542.25 369.5 90.5 106
+  aspectBias ALIGN_RIGHT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
@@ -135,6 +145,7 @@ itemDef
 {
   name "right-spikes"
   rect 562.5 381 59 83
+  aspectBias ALIGN_RIGHT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 1.0
@@ -147,6 +158,7 @@ itemDef
 {
   name "health"
   rect 78.5 421.5 60 15
+  aspectBias ALIGN_LEFT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B .5
@@ -158,6 +170,7 @@ itemDef
 {
   name "alien-icon"
   rect 465 417.5 25 25
+  aspectBias ALIGN_RIGHT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.6
@@ -169,6 +182,7 @@ itemDef
 {
   name "organs"
   rect 570.5 415.95 15 15
+  aspectBias ALIGN_RIGHT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B .5

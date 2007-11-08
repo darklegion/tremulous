@@ -9,5 +9,6 @@
     fullScreen MENU_FALSE
     visible MENU_FALSE
     style WINDOW_STYLE_SHADER
+    aspectBias ASPECT_NONE
   }
 }

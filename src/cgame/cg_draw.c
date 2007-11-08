@@ -28,115 +28,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 #include "../ui/ui_shared.h"
 
-// used for scoreboard
-extern    displayContextDef_t cgDC;
 menuDef_t *menuScoreboard = NULL;
 
 int drawTeamOverlayModificationCount = -1;
 
 int   sortedTeamPlayers[ TEAM_MAXOVERLAY ];
 int   numSortedTeamPlayers;
-
-//TA UI
-float CG_Text_Width( const char *text, float scale, int limit )
-{
-  int         count,len;
-  float       out;
-  glyphInfo_t *glyph;
-  float       useScale;
-  const char  *s = text;
-  fontInfo_t  *font = &cgDC.Assets.textFont;
-
-  if( scale <= cg_smallFont.value )
-    font = &cgDC.Assets.smallFont;
-  else if( scale > cg_bigFont.value )
-    font = &cgDC.Assets.bigFont;
-
-  useScale = scale * font->glyphScale;
-  out = 0;
-
-  if( text )
-  {
-    len = strlen( text );
-    if( limit > 0 && len > limit )
-      len = limit;
-
-    count = 0;
-    while( s && *s && count < len )
-    {
-      if( Q_IsColorString( s ) )
-      {
-        s += 2;
-        continue;
-      }
-      else
-      {
-        glyph = &font->glyphs[ (int)*s ];
-        out += glyph->xSkip;
-        s++;
-        count++;
-      }
-    }
-  }
-
-  return out * useScale;
-}
-
-float CG_Text_Height( const char *text, float scale, int limit )
-{
-  int         len, count;
-  float       max;
-  glyphInfo_t *glyph;
-  float       useScale;
-  const char  *s = text;
-  fontInfo_t  *font = &cgDC.Assets.textFont;
-
-  if( scale <= cg_smallFont.value )
-    font = &cgDC.Assets.smallFont;
-  else if( scale > cg_bigFont.value )
-    font = &cgDC.Assets.bigFont;
-
-  useScale = scale * font->glyphScale;
-  max = 0;
-
-  if( text )
-  {
-    len = strlen( text );
-    if( limit > 0 && len > limit )
-      len = limit;
-
-    count = 0;
-    while( s && *s && count < len )
-    {
-      if( Q_IsColorString( s ) )
-      {
-        s += 2;
-        continue;
-      }
-      else
-      {
-        glyph = &font->glyphs[ (int)*s ];
-        if( max < glyph->height )
-          max = glyph->height;
-
-        s++;
-        count++;
-      }
-    }
-  }
-
-  return max * useScale;
-}
-
-float CG_Text_EmWidth( float scale )
-{
-  return CG_Text_Width( "M", scale, 0 );
-}
-
-float CG_Text_EmHeight( float scale )
-{
-  return CG_Text_Height( "M", scale, 0 );
-}
 
 static void CG_AlignText( rectDef_t *rect, const char *text, float scale,
                           float w, float h,
@@ -147,22 +44,22 @@ static void CG_AlignText( rectDef_t *rect, const char *text, float scale,
 
   if( scale > 0.0f )
   {
-    w = CG_Text_Width( text, scale, 0 );
-    h = CG_Text_Height( text, scale, 0 );
+    w = UI_Text_Width( text, scale, 0 );
+    h = UI_Text_Height( text, scale, 0 );
   }
 
   switch( align )
   {
     default:
-    case ITEM_ALIGN_LEFT:
+    case ALIGN_LEFT:
       tx = 0.0f;
       break;
 
-    case ITEM_ALIGN_RIGHT:
+    case ALIGN_RIGHT:
       tx = rect->w - w;
       break;
 
-    case ITEM_ALIGN_CENTER:
+    case ALIGN_CENTER:
       tx = ( rect->w - w ) / 2.0f;
       break;
   }
@@ -170,15 +67,15 @@ static void CG_AlignText( rectDef_t *rect, const char *text, float scale,
   switch( valign )
   {
     default:
-    case ITEM_VALIGN_BOTTOM:
+    case VALIGN_BOTTOM:
       ty = rect->h;
       break;
 
-    case ITEM_VALIGN_TOP:
+    case VALIGN_TOP:
       ty = h;
       break;
 
-    case ITEM_VALIGN_CENTER:
+    case VALIGN_CENTER:
       ty = h + ( ( rect->h - h ) / 2.0f );
       break;
   }
@@ -188,156 +85,6 @@ static void CG_AlignText( rectDef_t *rect, const char *text, float scale,
 
   if( y )
     *y = rect->y + ty;
-}
-
-void CG_Text_PaintChar( float x, float y, float width, float height, float scale,
-                        float s, float t, float s2, float t2, qhandle_t hShader )
-{
-  float w, h;
-  w = width * scale;
-  h = height * scale;
-  CG_AdjustFrom640( &x, &y, &w, &h );
-  trap_R_DrawStretchPic( x, y, w, h, s, t, s2, t2, hShader );
-}
-
-void CG_Text_Paint( float x, float y, float scale, vec4_t color, const char *text,
-                    float adjust, int limit, int style )
-{
-  int         len, count;
-  vec4_t      newColor;
-  glyphInfo_t *glyph;
-  float       useScale;
-  fontInfo_t  *font = &cgDC.Assets.textFont;
-
-  if( scale <= cg_smallFont.value )
-    font = &cgDC.Assets.smallFont;
-  else if( scale > cg_bigFont.value )
-    font = &cgDC.Assets.bigFont;
-
-  useScale = scale * font->glyphScale;
-  if( text )
-  {
-
-    const char *s = text;
-
-    trap_R_SetColor( color );
-    memcpy( &newColor[ 0 ], &color[ 0 ], sizeof( vec4_t ) );
-    len = strlen( text );
-
-    if( limit > 0 && len > limit )
-      len = limit;
-
-    count = 0;
-    while( s && *s && count < len )
-    {
-      glyph = &font->glyphs[ (int)*s ];
-
-      if( Q_IsColorString( s ) )
-      {
-        memcpy( newColor, g_color_table[ ColorIndex( *( s + 1 ) ) ], sizeof( newColor ) );
-        newColor[ 3 ] = color[ 3 ];
-        trap_R_SetColor( newColor );
-        s += 2;
-        continue;
-      }
-      else
-      {
-        float yadj = useScale * glyph->top;
-        if( style == ITEM_TEXTSTYLE_SHADOWED ||
-            style == ITEM_TEXTSTYLE_SHADOWEDMORE )
-        {
-          int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
-          colorBlack[ 3 ] = newColor[ 3 ];
-          trap_R_SetColor( colorBlack );
-          CG_Text_PaintChar( x + ofs, y - yadj + ofs,
-                             glyph->imageWidth,
-                             glyph->imageHeight,
-                             useScale,
-                             glyph->s,
-                             glyph->t,
-                             glyph->s2,
-                             glyph->t2,
-                             glyph->glyph );
-
-          colorBlack[ 3 ] = 1.0;
-          trap_R_SetColor( newColor );
-        }
-        else if( style == ITEM_TEXTSTYLE_NEON )
-        {
-          vec4_t glow, outer, inner, white;
-
-          glow[ 0 ] = newColor[ 0 ] * 0.5;
-          glow[ 1 ] = newColor[ 1 ] * 0.5;
-          glow[ 2 ] = newColor[ 2 ] * 0.5;
-          glow[ 3 ] = newColor[ 3 ] * 0.2;
-
-          outer[ 0 ] = newColor[ 0 ];
-          outer[ 1 ] = newColor[ 1 ];
-          outer[ 2 ] = newColor[ 2 ];
-          outer[ 3 ] = newColor[ 3 ];
-
-          inner[ 0 ] = newColor[ 0 ] * 1.5 > 1.0f ? 1.0f : newColor[ 0 ] * 1.5;
-          inner[ 1 ] = newColor[ 1 ] * 1.5 > 1.0f ? 1.0f : newColor[ 1 ] * 1.5;
-          inner[ 2 ] = newColor[ 2 ] * 1.5 > 1.0f ? 1.0f : newColor[ 2 ] * 1.5;
-          inner[ 3 ] = newColor[ 3 ];
-
-          white[ 0 ] = white[ 1 ] = white[ 2 ] = white[ 3 ] = 1.0f;
-
-          trap_R_SetColor( glow );
-          CG_Text_PaintChar(  x - 3, y - yadj - 3,
-                              glyph->imageWidth + 6,
-                              glyph->imageHeight + 6,
-                              useScale,
-                              glyph->s,
-                              glyph->t,
-                              glyph->s2,
-                              glyph->t2,
-                              glyph->glyph );
-
-          trap_R_SetColor( outer );
-          CG_Text_PaintChar(  x - 1, y - yadj - 1,
-                              glyph->imageWidth + 2,
-                              glyph->imageHeight + 2,
-                              useScale,
-                              glyph->s,
-                              glyph->t,
-                              glyph->s2,
-                              glyph->t2,
-                              glyph->glyph );
-
-          trap_R_SetColor( inner );
-          CG_Text_PaintChar(  x - 0.5, y - yadj - 0.5,
-                              glyph->imageWidth + 1,
-                              glyph->imageHeight + 1,
-                              useScale,
-                              glyph->s,
-                              glyph->t,
-                              glyph->s2,
-                              glyph->t2,
-                              glyph->glyph );
-
-          trap_R_SetColor( white );
-        }
-
-
-        CG_Text_PaintChar( x, y - yadj,
-                           glyph->imageWidth,
-                           glyph->imageHeight,
-                           useScale,
-                           glyph->s,
-                           glyph->t,
-                           glyph->s2,
-                           glyph->t2,
-                           glyph->glyph );
-
-        x += ( glyph->xSkip * useScale ) + adjust;
-        s++;
-        count++;
-      }
-    }
-
-    trap_R_SetColor( NULL );
-  }
 }
 
 /*
@@ -358,7 +105,7 @@ static void CG_DrawFieldPadded( int x, int y, int width, int cw, int ch, int val
     charWidth = CHAR_WIDTH;
 
   if( !( charHeight = ch ) )
-    charWidth = CHAR_HEIGHT;
+    charHeight = CHAR_HEIGHT;
 
   if( width < 1 )
     return;
@@ -395,7 +142,7 @@ static void CG_DrawFieldPadded( int x, int y, int width, int cw, int ch, int val
 
   orgL = l;
 
-  x += 2;
+  x += ( 2.0f * cgDC.aspectScale );
 
   ptr = num;
   while( *ptr && l )
@@ -438,7 +185,7 @@ void CG_DrawField( float x, float y, int width, float cw, float ch, int value )
     charWidth = CHAR_WIDTH;
 
   if( !( charHeight = ch ) )
-    charWidth = CHAR_HEIGHT;
+    charHeight = CHAR_HEIGHT;
 
   if( width < 1 )
     return;
@@ -473,7 +220,7 @@ void CG_DrawField( float x, float y, int width, float cw, float ch, int value )
   if( l > width )
     l = width;
 
-  x += 2 + charWidth * ( width - l );
+  x += ( 2.0f * cgDC.aspectScale ) + charWidth * ( width - l );
 
   ptr = num;
   while( *ptr && l )
@@ -516,7 +263,7 @@ static void CG_DrawProgressBar( rectDef_t *rect, vec4_t color, float scale,
   trap_R_SetColor( color );
 
   //draw rim and bar
-  if( align == ITEM_ALIGN_RIGHT )
+  if( align == ALIGN_RIGHT )
   {
     CG_DrawPic( rect->x, rect->y, rimWidth, rect->h, cgs.media.whiteShader );
     CG_DrawPic( rect->x + rimWidth, rect->y,
@@ -542,9 +289,9 @@ static void CG_DrawProgressBar( rectDef_t *rect, vec4_t color, float scale,
   if( scale > 0.0 )
   {
     Com_sprintf( textBuffer, sizeof( textBuffer ), "%d%%", (int)( progress * 100 ) );
-    CG_AlignText( rect, textBuffer, scale, 0.0f, 0.0f, textalign, ITEM_VALIGN_CENTER, &tx, &ty );
+    CG_AlignText( rect, textBuffer, scale, 0.0f, 0.0f, textalign, VALIGN_CENTER, &tx, &ty );
 
-    CG_Text_Paint( tx, ty, scale, color, textBuffer, 0, 0, textStyle );
+    UI_Text_Paint( tx, ty, scale, color, textBuffer, 0, 0, textStyle );
   }
 }
 
@@ -1172,10 +919,10 @@ static void CG_DrawProgressLabel( rectDef_t *rect, float text_x, float text_y, v
   CG_AlignText( rect, s, scale, 0.0f, 0.0f, textalign, textvalign, &tx, &ty );
 
   if( fraction < 1.0f )
-    CG_Text_Paint( text_x + tx, text_y + ty, scale, white,
+    UI_Text_Paint( text_x + tx, text_y + ty, scale, white,
       s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
   else
-    CG_Text_Paint( text_x + tx, text_y + ty, scale, color,
+    UI_Text_Paint( text_x + tx, text_y + ty, scale, color,
       s, 0, 0, ITEM_TEXTSTYLE_NEON );
 }
 
@@ -1392,81 +1139,11 @@ static void CG_DrawKiller( rectDef_t *rect, float scale, vec4_t color,
  if( cg.killerName[ 0 ] )
  {
    int x = rect->x + rect->w / 2;
-   CG_Text_Paint( x - CG_Text_Width( CG_GetKillerText( ), scale, 0 ) / 2,
+   UI_Text_Paint( x - UI_Text_Width( CG_GetKillerText( ), scale, 0 ) / 2,
      rect->y + rect->h, scale, color, CG_GetKillerText( ), 0, 0, textStyle );
   }
 }
 
-
-static void CG_Text_Paint_Limit( float *maxX, float x, float y, float scale,
-                                 vec4_t color, const char* text, float adjust, int limit )
-{
-  int         len, count;
-  vec4_t      newColor;
-  glyphInfo_t *glyph;
-
-  if( text )
-  {
-    const char *s = text;
-    float max = *maxX;
-    float useScale;
-    fontInfo_t *font = &cgDC.Assets.textFont;
-
-    if( scale <= cg_smallFont.value )
-      font = &cgDC.Assets.smallFont;
-    else if( scale > cg_bigFont.value )
-      font = &cgDC.Assets.bigFont;
-
-    useScale = scale * font->glyphScale;
-    trap_R_SetColor( color );
-    len = strlen( text );
-
-    if( limit > 0 && len > limit )
-      len = limit;
-
-    count = 0;
-
-    while( s && *s && count < len )
-    {
-      glyph = &font->glyphs[ (int)*s ];
-
-      if( Q_IsColorString( s ) )
-      {
-        memcpy( newColor, g_color_table[ ColorIndex( *(s+1) ) ], sizeof( newColor ) );
-        newColor[ 3 ] = color[ 3 ];
-        trap_R_SetColor( newColor );
-        s += 2;
-        continue;
-      }
-      else
-      {
-        float yadj = useScale * glyph->top;
-
-        if( CG_Text_Width( s, useScale, 1 ) + x > max )
-        {
-          *maxX = 0;
-          break;
-        }
-
-        CG_Text_PaintChar( x, y - yadj,
-                           glyph->imageWidth,
-                           glyph->imageHeight,
-                           useScale,
-                           glyph->s,
-                           glyph->t,
-                           glyph->s2,
-                           glyph->t2,
-                           glyph->glyph );
-        x += ( glyph->xSkip * useScale ) + adjust;
-        *maxX = x;
-        count++;
-        s++;
-      }
-    }
-
-    trap_R_SetColor( NULL );
-  }
-}
 
 static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, int textvalign, vec4_t color, qhandle_t shader )
 {
@@ -1503,7 +1180,7 @@ static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, int textvalign,
             cg.spectatorOffset += 2;
           else
           {
-            cg.spectatorPaintX += CG_Text_Width( &cg.spectatorList[ cg.spectatorOffset ], scale, 1 ) - 1;
+            cg.spectatorPaintX += UI_Text_Width( &cg.spectatorList[ cg.spectatorOffset ], scale, 1 ) - 1;
             cg.spectatorOffset++;
           }
         }
@@ -1529,16 +1206,16 @@ static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, int textvalign,
     }
 
     maxX = rect->x + rect->w - 2;
-    CG_AlignText( rect, NULL, 0.0f, 0.0f, CG_Text_EmHeight( scale ),
-                  ITEM_ALIGN_LEFT, textvalign, NULL, &y );
+    CG_AlignText( rect, NULL, 0.0f, 0.0f, UI_Text_EmHeight( scale ),
+                  ALIGN_LEFT, textvalign, NULL, &y );
 
-    CG_Text_Paint_Limit( &maxX, cg.spectatorPaintX, y, scale, color,
+    UI_Text_Paint_Limit( &maxX, cg.spectatorPaintX, y, scale, color,
                          &cg.spectatorList[ cg.spectatorOffset ], 0, 0 );
 
     if( cg.spectatorPaintX2 >= 0 )
     {
       float maxX2 = rect->x + rect->w - 2;
-      CG_Text_Paint_Limit( &maxX2, cg.spectatorPaintX2, y, scale,
+      UI_Text_Paint_Limit( &maxX2, cg.spectatorPaintX2, y, scale,
                            color, cg.spectatorList, 0, cg.spectatorOffset );
     }
 
@@ -1590,17 +1267,17 @@ static void CG_DrawTeamLabel( rectDef_t *rect, pTeam_t team, float text_x, float
   switch( textalign )
   {
     default:
-    case ITEM_ALIGN_LEFT:
+    case ALIGN_LEFT:
       s = va( "%s %s", t, stage );
       break;
 
-    case ITEM_ALIGN_RIGHT:
+    case ALIGN_RIGHT:
       s = va( "%s %s", stage, t );
       break;
   }
 
   CG_AlignText( rect, s, scale, 0.0f, 0.0f, textalign, textvalign, &tx, &ty );
-  CG_Text_Paint( text_x + tx, text_y + ty, scale, color, s, 0, 0, textStyle );
+  UI_Text_Paint( text_x + tx, text_y + ty, scale, color, s, 0, 0, textStyle );
 }
 
 /*
@@ -1650,7 +1327,7 @@ static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
 
   CG_AlignText( rect, s, scale, 0.0f, 0.0f, textalign, textvalign, &tx, &ty );
 
-  CG_Text_Paint( text_x + tx, text_y + ty, scale, color, s, 0, 0, textStyle );
+  UI_Text_Paint( text_x + tx, text_y + ty, scale, color, s, 0, 0, textStyle );
 }
 
 /*
@@ -1702,10 +1379,10 @@ static void CG_DrawFPS( rectDef_t *rect, float text_x, float text_y,
     fps = 1000 * FPS_FRAMES / total;
 
     s = va( "%d", fps );
-    w = CG_Text_Width( "0", scale, 0 );
-    h = CG_Text_Height( "0", scale, 0 );
+    w = UI_Text_Width( "0", scale, 0 );
+    h = UI_Text_Height( "0", scale, 0 );
     strLength = CG_DrawStrlen( s );
-    totalWidth = CG_Text_Width( FPS_STRING, scale, 0 ) + w * strLength;
+    totalWidth = UI_Text_Width( FPS_STRING, scale, 0 ) + w * strLength;
 
     CG_AlignText( rect, s, 0.0f, totalWidth, h, textalign, textvalign, &tx, &ty );
 
@@ -1718,10 +1395,10 @@ static void CG_DrawFPS( rectDef_t *rect, float text_x, float text_y,
         c[ 0 ] = s[ i ];
         c[ 1 ] = '\0';
 
-        CG_Text_Paint( text_x + tx + i * w, text_y + ty, scale, color, c, 0, 0, textStyle );
+        UI_Text_Paint( text_x + tx + i * w, text_y + ty, scale, color, c, 0, 0, textStyle );
       }
 
-      CG_Text_Paint( text_x + tx + i * w, text_y + ty, scale, color, FPS_STRING, 0, 0, textStyle );
+      UI_Text_Paint( text_x + tx + i * w, text_y + ty, scale, color, FPS_STRING, 0, 0, textStyle );
     }
     else
     {
@@ -1811,8 +1488,8 @@ static void CG_DrawTimer( rectDef_t *rect, float text_x, float text_y,
   seconds -= tens * 10;
 
   s = va( "%d:%d%d", mins, tens, seconds );
-  w = CG_Text_Width( "0", scale, 0 );
-  h = CG_Text_Height( "0", scale, 0 );
+  w = UI_Text_Width( "0", scale, 0 );
+  h = UI_Text_Height( "0", scale, 0 );
   strLength = CG_DrawStrlen( s );
   totalWidth = w * strLength;
 
@@ -1825,7 +1502,7 @@ static void CG_DrawTimer( rectDef_t *rect, float text_x, float text_y,
     c[ 0 ] = s[ i ];
     c[ 1 ] = '\0';
 
-    CG_Text_Paint( text_x + tx + i * w, text_y + ty, scale, color, c, 0, 0, textStyle );
+    UI_Text_Paint( text_x + tx + i * w, text_y + ty, scale, color, c, 0, 0, textStyle );
   }
 }
 
@@ -1872,8 +1549,8 @@ static void CG_DrawClock( rectDef_t *rect, float text_x, float text_y,
 
     s = va( "%d%s%02d%s", h, ( qt.tm_sec % 2 ) ? ":" : " ", qt.tm_min, pm );
   }
-  w = CG_Text_Width( "0", scale, 0 );
-  h = CG_Text_Height( "0", scale, 0 );
+  w = UI_Text_Width( "0", scale, 0 );
+  h = UI_Text_Height( "0", scale, 0 );
   strLength = CG_DrawStrlen( s );
   totalWidth = w * strLength;
 
@@ -1886,7 +1563,7 @@ static void CG_DrawClock( rectDef_t *rect, float text_x, float text_y,
     c[ 0 ] = s[ i ];
     c[ 1 ] = '\0';
 
-    CG_Text_Paint( text_x + tx + i * w, text_y + ty, scale, color, c, 0, 0, textStyle );
+    UI_Text_Paint( text_x + tx + i * w, text_y + ty, scale, color, c, 0, 0, textStyle );
   }
 }
 
@@ -1910,7 +1587,7 @@ static void CG_DrawSnapshot( rectDef_t *rect, float text_x, float text_y,
 
   CG_AlignText( rect, s, scale, 0.0f, 0.0f, textalign, textvalign, &tx, &ty );
 
-  CG_Text_Paint( text_x + tx, text_y + ty, scale, color, s, 0, 0, textStyle );
+  UI_Text_Paint( text_x + tx, text_y + ty, scale, color, s, 0, 0, textStyle );
 }
 
 /*
@@ -2021,8 +1698,8 @@ static void CG_DrawDisconnect( void )
 
   // also add text in center of screen
   s = "Connection Interrupted";
-  w = CG_Text_Width( s, 0.7f, 0 );
-  CG_Text_Paint( 320 - w / 2, 100, 0.7f, color, s, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
+  w = UI_Text_Width( s, 0.7f, 0 );
+  UI_Text_Paint( 320 - w / 2, 100, 0.7f, color, s, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 
   // blink the icon
   if( ( cg.time >> 9 ) & 1 )
@@ -2175,18 +1852,18 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
   trap_R_SetColor( NULL );
 
   if( cg_nopredict.integer || cg_synchronousClients.integer )
-    CG_Text_Paint( ax, ay, 0.5, white, "snc", 0, 0, ITEM_TEXTSTYLE_NORMAL );
+    UI_Text_Paint( ax, ay, 0.5, white, "snc", 0, 0, ITEM_TEXTSTYLE_NORMAL );
   else
   {
     char        *s;
 
     s = va( "%d", cg.ping );
-    ax = rect->x + ( rect->w / 2.0f ) - ( CG_Text_Width( s, scale, 0 ) / 2.0f ) + text_x;
-    ay = rect->y + ( rect->h / 2.0f ) + ( CG_Text_Height( s, scale, 0 ) / 2.0f ) + text_y;
+    ax = rect->x + ( rect->w / 2.0f ) - ( UI_Text_Width( s, scale, 0 ) / 2.0f ) + text_x;
+    ay = rect->y + ( rect->h / 2.0f ) + ( UI_Text_Height( s, scale, 0 ) / 2.0f ) + text_y;
 
     Vector4Copy( textColor, adjustedColor );
     adjustedColor[ 3 ] = 0.5f;
-    CG_Text_Paint( ax, ay, scale, adjustedColor, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
+    UI_Text_Paint( ax, ay, scale, adjustedColor, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
   }
 
   CG_DrawDisconnect( );
@@ -2311,6 +1988,8 @@ static void CG_DrawCrosshair( void )
 
   w = h = wi->crossHairSize;
 
+  w *= cgDC.aspectScale;
+
   x = cg_crosshairX.integer;
   y = cg_crosshairY.integer;
   CG_AdjustFrom640( &x, &y, &w, &h );
@@ -2397,9 +2076,9 @@ static void CG_DrawCrosshairNames( rectDef_t *rect, float scale, int textStyle )
   }
 
   name = cgs.clientinfo[ cg.crosshairClientNum ].name;
-  w = CG_Text_Width( name, scale, 0 );
+  w = UI_Text_Width( name, scale, 0 );
   x = rect->x + rect->w / 2;
-  CG_Text_Paint( x - w / 2, rect->y + rect->h, scale, color, name, 0, 0, textStyle );
+  UI_Text_Paint( x - w / 2, rect->y + rect->h, scale, color, name, 0, 0, textStyle );
   trap_R_SetColor( NULL );
 }
 
@@ -2842,10 +2521,10 @@ static void CG_DrawCenterString( void )
 
     linebuffer[ l ] = 0;
 
-    w = CG_Text_Width( linebuffer, 0.5, 0 );
-    h = CG_Text_Height( linebuffer, 0.5, 0 );
+    w = UI_Text_Width( linebuffer, 0.5, 0 );
+    h = UI_Text_Height( linebuffer, 0.5, 0 );
     x = ( SCREEN_WIDTH - w ) / 2;
-    CG_Text_Paint( x, y + h, 0.5, color, linebuffer, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
+    UI_Text_Paint( x, y + h, 0.5, color, linebuffer, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
     y += h + 6;
 
     while( *start && ( *start != '\n' ) )
@@ -2898,7 +2577,7 @@ static void CG_DrawVote( void )
   Q_strncpyz( nokey, CG_KeyBinding( "vote no" ), sizeof( nokey ) ); 
   s = va( "VOTE(%i): \"%s\"  [%s]Yes:%i [%s]No:%i", sec, cgs.voteString,
     yeskey, cgs.voteYes, nokey, cgs.voteNo );
-  CG_Text_Paint( 8, 340, 0.3f, white, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
+  UI_Text_Paint( 8, 340, 0.3f, white, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
 }
 
 /*
@@ -2942,7 +2621,7 @@ static void CG_DrawTeamVote( void )
           yeskey, cgs.teamVoteYes[cs_offset],
           nokey, cgs.teamVoteNo[ cs_offset ] );
 
-  CG_Text_Paint( 8, 360, 0.3f, white, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
+  UI_Text_Paint( 8, 360, 0.3f, white, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
 }
 
 
@@ -3031,8 +2710,8 @@ static qboolean CG_DrawFollow( void )
   strcpy( buffer, FOLLOWING_STRING );
   strcat( buffer, cgs.clientinfo[ cg.snap->ps.clientNum ].name );
 
-  w = CG_Text_Width( buffer, 0.7f, 0 );
-  CG_Text_Paint( 320 - w / 2, 400, 0.7f, color, buffer, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
+  w = UI_Text_Width( buffer, 0.7f, 0 );
+  UI_Text_Paint( 320 - w / 2, 400, 0.7f, color, buffer, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 
   return qtrue;
 }
@@ -3059,8 +2738,8 @@ static qboolean CG_DrawQueue( void )
   Com_sprintf( buffer, MAX_STRING_CHARS, "You are in position %d of the spawn queue.",
                cg.snap->ps.persistant[ PERS_QUEUEPOS ] + 1 );
 
-  w = CG_Text_Width( buffer, 0.7f, 0 );
-  CG_Text_Paint( 320 - w / 2, 360, 0.7f, color, buffer, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
+  w = UI_Text_Width( buffer, 0.7f, 0 );
+  UI_Text_Paint( 320 - w / 2, 360, 0.7f, color, buffer, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 
   if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
@@ -3079,8 +2758,8 @@ static qboolean CG_DrawQueue( void )
                    cgs.numHumanSpawns );
   }
 
-  w = CG_Text_Width( buffer, 0.7f, 0 );
-  CG_Text_Paint( 320 - w / 2, 400, 0.7f, color, buffer, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
+  w = UI_Text_Width( buffer, 0.7f, 0 );
+  UI_Text_Paint( 320 - w / 2, 400, 0.7f, color, buffer, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 
   return qtrue;
 }
@@ -3121,8 +2800,8 @@ static void CG_Draw2D( void )
 
   if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
   {
-    w = CG_Text_Width( SPECTATOR_STRING, 0.7f, 0 );
-    CG_Text_Paint( 320 - w / 2, 440, 0.7f, color, SPECTATOR_STRING, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
+    w = UI_Text_Width( SPECTATOR_STRING, 0.7f, 0 );
+    UI_Text_Paint( 320 - w / 2, 440, 0.7f, color, SPECTATOR_STRING, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
   }
   else
     menu = Menus_FindByName( BG_FindHudNameForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] ) );

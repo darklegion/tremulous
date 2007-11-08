@@ -15,6 +15,7 @@
     fullScreen MENU_FALSE
     visible MENU_TRUE
     rect X Y W H
+    aspectBias ALIGN_LEFT
     focusColor 1 1 1 1
     style WINDOW_STYLE_EMPTY
     onOpen
@@ -31,8 +32,8 @@
       cvar "ui_sayBuffer"
       maxchars 128
       rect 0 0 W H
-      textalign ITEM_ALIGN_LEFT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
       textscale .5
       forecolor 1 1 1 1
       visible MENU_TRUE

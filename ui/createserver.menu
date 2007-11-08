@@ -41,6 +41,7 @@
     focusColor 1 .75 0 1
     outOfBoundsClick
     style WINDOW_STYLE_EMPTY
+    aspectBias ASPECT_NONE
 
     onOpen
     {
@@ -97,7 +98,7 @@
       outlinecolor  0.1 0.1 0.1 0.5
       visible MENU_TRUE
       columns 1
-        2 190 ITEM_ALIGN_LEFT
+        2 190 ALIGN_LEFT
     }
 
 
@@ -125,8 +126,8 @@
       cvar "sv_hostname"
       maxChars 40
       rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(0*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx ELEM_OFF_X
       textscale .36
       forecolor 1 1 1 1
@@ -140,8 +141,8 @@
       text "Time Limit:"
       cvar "timelimit"
       rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(1*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx ELEM_OFF_X
       maxchars 4
       textscale .36
@@ -156,8 +157,8 @@
       text "Maximum Players:"
       cvar "sv_maxclients"
       rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(2*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx ELEM_OFF_X
       maxchars 4
       textscale .36
@@ -172,8 +173,8 @@
       text "Require Password:"
       cvar "g_needpassword"
       rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(3*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx ELEM_OFF_X
       textscale .36
       forecolor 1 1 1 1
@@ -192,8 +193,8 @@
       cvar "g_password"
       rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(4*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
       maxchars 10
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx ELEM_OFF_X
       textscale .36
       forecolor 1 1 1 1
@@ -209,8 +210,8 @@
       text "Pure Server:"
       cvar "sv_pure"
       rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(6*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx ELEM_OFF_X
       textscale .36
       forecolor 1 1 1 1
@@ -231,8 +232,8 @@
       cvar "ui_dedicated"
       cvarFloatList { "No" 0 "LAN" 1 "Internet" 2 }
       rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(7*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx ELEM_OFF_X
       textscale .36
       forecolor 1 1 1 1
@@ -250,8 +251,8 @@
       text "Auto Download:"
       cvar "sv_allowdownload"
       rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(8*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx ELEM_OFF_X
       textscale .36
       forecolor 1 1 1 1
@@ -269,8 +270,8 @@
       text "Enable Voting:"
       cvar "g_allowvote"
       rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(9*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx ELEM_OFF_X
       textscale .36
       forecolor 1 1 1 1
@@ -290,8 +291,8 @@
       text "Minimum Ping:"
       cvar "sv_minping"
       rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(11*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx ELEM_OFF_X
       maxchars 4
       textscale .36
@@ -306,8 +307,8 @@
       text "Maximum Ping:"
       cvar "sv_maxping"
       rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(12*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx ELEM_OFF_X
       maxchars 4
       textscale .36
@@ -322,8 +323,8 @@
       text "Synchronous Client:"
       cvar "g_synchronousclients"
       rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(13*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx ELEM_OFF_X
       textscale .36
       forecolor 1 1 1 1
@@ -341,8 +342,8 @@
       text "Max Rate:"
       cvar "sv_maxrate"
       rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(14*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx ELEM_OFF_X
       maxchars 4
       textscale .36
@@ -358,8 +359,8 @@
       cvar "sv_zombietime"
       rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(15*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
       maxchars 4
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx ELEM_OFF_X
       textscale .36
       forecolor 1 1 1 1
@@ -374,8 +375,8 @@
       cvar "sv_reconnectlimit"
       maxchars 4
       rect (OPTIONS_X+BORDER) (OPTIONS_Y+ELEM_OFF_Y+(16*ELEM_H)) (OPTIONS_W-(2*BORDER)) ELEM_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx ELEM_OFF_X
       textscale .36
       forecolor 1 1 1 1
@@ -392,6 +393,7 @@
       style WINDOW_STYLE_SHADER
       background "ui/assets/backarrow.tga"
       rect BC_X BC_Y ARROW_H ARROW_W
+      aspectBias ALIGN_LEFT
       visible MENU_TRUE
       action
       {
@@ -412,14 +414,15 @@
       style WINDOW_STYLE_SHADER
       background "ui/assets/backarrow_alt.tga"
       rect BC_X BC_Y ARROW_H ARROW_W
+      aspectBias ALIGN_LEFT
       backcolor 0 0 0 0
       forecolor 1 1 1 1
       visible MENU_FALSE
       type ITEM_TYPE_BUTTON
 
       text "Back"
-      textalign ITEM_ALIGN_LEFT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
       textalignx ARROW_W
       textscale .6
 
@@ -444,6 +447,7 @@
       name accept
       style WINDOW_STYLE_SHADER
       rect ((BC_X+BC_W)-ARROW_W) BC_Y ARROW_H ARROW_W
+      aspectBias ALIGN_RIGHT
       background "ui/assets/forwardarrow.tga"
       backcolor 0 0 0 0
       forecolor 1 1 1 1
@@ -466,6 +470,7 @@
       name accept_alt
       style WINDOW_STYLE_SHADER
       rect ((BC_X+BC_W)-ARROW_W) BC_Y ARROW_H ARROW_W
+      aspectBias ALIGN_RIGHT
       background "ui/assets/forwardarrow_alt.tga"
       backcolor 0 0 0 0
       type ITEM_TYPE_BUTTON
@@ -474,8 +479,8 @@
       type ITEM_TYPE_BUTTON
 
       text "Create"
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx -ARROW_W
       textscale .6
 

@@ -39,6 +39,7 @@
     focusColor 1 .75 0 1
     disableColor .5 .5 .5 1
     backColor 0 0 0 1
+    aspectBias ALIGN_LEFT
 
     onEsc
     {
@@ -67,8 +68,8 @@
       rect BUTT_BAR_X BUTT_BAR_Y BUTT_W BUTT_H
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textalignx -BUTT_TEXT_S
       textscale .4
       forecolor 1 1 1 1
@@ -87,8 +88,8 @@
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       rect (BUTT_BAR_X+BUTT_W) BUTT_BAR_Y BUTT_W BUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .4
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -106,8 +107,8 @@
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       rect (BUTT_BAR_X+(2*BUTT_W)) BUTT_BAR_Y BUTT_W BUTT_H
-      textalign ITEM_ALIGN_LEFT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
       textalignx BUTT_TEXT_S
       textscale .4
       forecolor 1 1 1 1

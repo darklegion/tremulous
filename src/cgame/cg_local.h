@@ -1375,6 +1375,7 @@ typedef struct
 extern  cgs_t     cgs;
 extern  cg_t      cg;
 extern  centity_t cg_entities[ MAX_GENTITIES ];
+extern  displayContextDef_t  cgDC;
 
 extern  weaponInfo_t    cg_weapons[ 32 ];
 extern  upgradeInfo_t   cg_upgrades[ 32 ];
@@ -1589,11 +1590,6 @@ void        CG_OwnerDraw( float x, float y, float w, float h, float text_x,
                           int align, int textalign, int textvalign, float special,
                           float scale, vec4_t color,
                           qhandle_t shader, int textStyle );
-void        CG_Text_Paint( float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style );
-float       CG_Text_Width( const char *text, float scale, int limit );
-float       CG_Text_Height( const char *text, float scale, int limit );
-float       CG_Text_EmWidth( float scale );
-float       CG_Text_EmHeight( float scale );
 float       CG_GetValue(int ownerDraw);
 void        CG_RunMenuScript(char **args);
 void        CG_SetPrintString( int type, const char *p );

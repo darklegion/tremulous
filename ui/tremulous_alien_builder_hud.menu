@@ -11,6 +11,7 @@
     fullScreen MENU_FALSE
     visible MENU_TRUE
     rect 0 0 W H
+    aspectBias ASPECT_NONE
 
 #include "ui/tremulous_alien_common_hud.h"
 #include "ui/tremulous_common_hud.h"
@@ -20,6 +21,7 @@
     {
       name "buildtimer"
       rect 567 410 25 25
+      aspectBias ALIGN_RIGHT
       visible MENU_TRUE
       decoration
       forecolor 1.0 0.0 0.0 .5
@@ -31,6 +33,7 @@
     {
       name "build-points"
       rect 483.5 421.5 60 15
+      aspectBias ALIGN_RIGHT
       visible MENU_TRUE
       decoration
       forecolor 1.0 0.0 0.0 .5

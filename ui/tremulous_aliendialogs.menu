@@ -47,8 +47,8 @@
       textstyle ITEM_TEXTSTYLE_NORMAL
       style WINDOW_STYLE_EMPTY
       rect BORDER BORDER INFO_W BUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .4
       forecolor 1 1 1 1
       backcolor .5 0 0 .25
@@ -64,8 +64,8 @@
       rect INFO_X INFO_Y INFO_W INFO_H
       cvar "ui_dialog"
       wrapped
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .33
       forecolor 1 1 1 1
       backcolor .5 0 0 .25
@@ -80,8 +80,8 @@
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       rect (W-(BORDER+BUTT_W)) (H-(BORDER+BUTT_H)) BUTT_W BUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .4
       forecolor 1 1 1 1
       backcolor .5 0 0 .25

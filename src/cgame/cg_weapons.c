@@ -1140,11 +1140,12 @@ CG_DrawItemSelect
 void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
 {
   int           i;
-  int           x = rect->x;
-  int           y = rect->y;
-  int           width = rect->w;
-  int           height = rect->h;
-  int           iconsize;
+  float         x = rect->x;
+  float         y = rect->y;
+  float         width = rect->w;
+  float         height = rect->h;
+  float         iconWidth;
+  float         iconHeight;
   int           items[ 64 ];
   int           numItems = 0, selectedItem = 0;
   int           length;
@@ -1177,14 +1178,16 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
   if( height > width )
   {
     vertical = qtrue;
-    iconsize = width;
-    length = height / width;
+    iconWidth = width * cgDC.aspectScale;
+    iconHeight = width;
+    length = height / ( width * cgDC.aspectScale );
   }
   else if( height <= width )
   {
     vertical = qfalse;
-    iconsize = height;
-    length = width / height;
+    iconWidth = height * cgDC.aspectScale;
+    iconHeight = height;
+    length = width / ( height * cgDC.aspectScale );
   }
 
   selectWindow = length / 2;
@@ -1248,17 +1251,17 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
       trap_R_SetColor( color );
 
       if( items[ item ] <= 32 )
-        CG_DrawPic( x, y, iconsize, iconsize, cg_weapons[ items[ item ] ].weaponIcon );
+        CG_DrawPic( x, y, iconWidth, iconHeight, cg_weapons[ items[ item ] ].weaponIcon );
       else if( items[ item ] > 32 )
-        CG_DrawPic( x, y, iconsize, iconsize, cg_upgrades[ items[ item ] - 32 ].upgradeIcon );
+        CG_DrawPic( x, y, iconWidth, iconHeight, cg_upgrades[ items[ item ] - 32 ].upgradeIcon );
 
       trap_R_SetColor( NULL );
     }
 
     if( vertical )
-      y += iconsize;
+      y += iconHeight;
     else
-      x += iconsize;
+      x += iconWidth;
   }
 }
 
@@ -1288,9 +1291,9 @@ void CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
     {
       if( ( name = cg_weapons[ cg.weaponSelect ].humanName ) )
       {
-        w = CG_Text_Width( name, scale, 0 );
+        w = UI_Text_Width( name, scale, 0 );
         x = rect->x + rect->w / 2;
-        CG_Text_Paint( x - w / 2, rect->y + rect->h, scale, color, name, 0, 0, textStyle );
+        UI_Text_Paint( x - w / 2, rect->y + rect->h, scale, color, name, 0, 0, textStyle );
       }
     }
   }
@@ -1301,9 +1304,9 @@ void CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
     {
       if( ( name = cg_upgrades[ cg.weaponSelect - 32 ].humanName ) )
       {
-        w = CG_Text_Width( name, scale, 0 );
+        w = UI_Text_Width( name, scale, 0 );
         x = rect->x + rect->w / 2;
-        CG_Text_Paint( x - w / 2, rect->y + rect->h, scale, color, name, 0, 0, textStyle );
+        UI_Text_Paint( x - w / 2, rect->y + rect->h, scale, color, name, 0, 0, textStyle );
       }
     }
   }

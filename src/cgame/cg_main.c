@@ -1594,7 +1594,7 @@ static float CG_Cvar_Get( const char *cvar )
 void CG_Text_PaintWithCursor( float x, float y, float scale, vec4_t color, const char *text,
                               int cursorPos, char cursor, int limit, int style )
 {
-  CG_Text_Paint( x, y, scale, color, text, 0, limit, style );
+  UI_Text_Paint( x, y, scale, color, text, 0, limit, style );
 }
 
 static int CG_OwnerDrawWidth( int ownerDraw, float scale )
@@ -1602,7 +1602,7 @@ static int CG_OwnerDrawWidth( int ownerDraw, float scale )
   switch( ownerDraw )
   {
     case CG_KILLER:
-      return CG_Text_Width( CG_GetKillerText( ), scale, 0 );
+      return UI_Text_Width( CG_GetKillerText( ), scale, 0 );
       break;
   }
 
@@ -1646,15 +1646,15 @@ void CG_LoadHudMenu( void )
   char        buff[ 1024 ];
   const char  *hudSet;
 
+  cgDC.aspectScale = ( ( 640.0f * cgs.glconfig.vidHeight ) /
+                       ( 480.0f * cgs.glconfig.vidWidth ) );
+  cgDC.xscale = cgs.glconfig.vidWidth / 640.0f;
+  cgDC.yscale = cgs.glconfig.vidHeight / 480.0f;
+
   cgDC.registerShaderNoMip  = &trap_R_RegisterShaderNoMip;
   cgDC.setColor             = &trap_R_SetColor;
   cgDC.drawHandlePic        = &CG_DrawPic;
   cgDC.drawStretchPic       = &trap_R_DrawStretchPic;
-  cgDC.drawText             = &CG_Text_Paint;
-  cgDC.textWidth            = &CG_Text_Width;
-  cgDC.textHeight           = &CG_Text_Height;
-  cgDC.textEmWidth          = &CG_Text_EmWidth;
-  cgDC.textEmHeight         = &CG_Text_EmHeight;
   cgDC.registerModel        = &trap_R_RegisterModel;
   cgDC.modelBounds          = &trap_R_ModelBounds;
   cgDC.fillRect             = &CG_FillRect;
@@ -1673,7 +1673,6 @@ void CG_LoadHudMenu( void )
   cgDC.setCVar              = trap_Cvar_Set;
   cgDC.getCVarString        = trap_Cvar_VariableStringBuffer;
   cgDC.getCVarValue         = CG_Cvar_Get;
-  cgDC.drawTextWithCursor   = &CG_Text_PaintWithCursor;
   cgDC.setOverstrikeMode    = &trap_Key_SetOverstrikeMode;
   cgDC.getOverstrikeMode    = &trap_Key_GetOverstrikeMode;
   cgDC.startLocalSound      = &trap_S_StartLocalSound;
@@ -1748,6 +1747,11 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   cgs.processedSnapshotNum = serverMessageNum;
   cgs.serverCommandSequence = serverCommandSequence;
 
+  // get the rendering configuration from the client system
+  trap_GetGlconfig( &cgs.glconfig );
+  cgs.screenXScale = cgs.glconfig.vidWidth / 640.0f;
+  cgs.screenYScale = cgs.glconfig.vidHeight / 480.0f;
+
   // load a few needed things before we do any screen updates
   cgs.media.whiteShader     = trap_R_RegisterShader( "white" );
   cgs.media.charsetShader   = trap_R_RegisterShader( "gfx/2d/bigchars" );
@@ -1774,11 +1778,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   cg.boostedTime = -1;
 
   // old servers
-
-  // get the rendering configuration from the client system
-  trap_GetGlconfig( &cgs.glconfig );
-  cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
-  cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
 
   // get the gamestate from the client system
   trap_GetGameState( &cgs.gameState );

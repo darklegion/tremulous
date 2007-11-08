@@ -52,9 +52,9 @@
       cvar "name"
       maxchars 26
       rect X Y W ELEM_H
-      textalign ITEM_ALIGN_RIGHT
+      textalign ALIGN_RIGHT
       textalignx TOFF_X
-      textvalign ITEM_VALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -67,9 +67,9 @@
       cvar "ui_glCustom"
       cvarFloatList { "High Quality" 0 "Normal" 1 "Fast" 2 "Fastest" 3 "Custom" 4 }
       rect X (Y+ELEM_H) W ELEM_H
-      textalign ITEM_ALIGN_RIGHT
+      textalign ALIGN_RIGHT
       textalignx TOFF_X
-      textvalign ITEM_VALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -89,9 +89,9 @@
                       "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7
                       "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 }
       rect X (Y+(2*ELEM_H)) W ELEM_H
-      textalign ITEM_ALIGN_RIGHT
+      textalign ALIGN_RIGHT
       textalignx TOFF_X
-      textvalign ITEM_VALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -108,9 +108,9 @@
       text "Video Brightness:"
       cvarfloat "r_gamma" 1 .5 2
       rect X (Y+(3*ELEM_H)) W ELEM_H
-      textalign ITEM_ALIGN_RIGHT
+      textalign ALIGN_RIGHT
       textalignx TOFF_X
-      textvalign ITEM_VALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -124,9 +124,9 @@
       text "Effects Volume:"
       cvarfloat "s_volume" 0.7 0 1
       rect X (Y+(4*ELEM_H)) W ELEM_H
-      textalign ITEM_ALIGN_RIGHT
+      textalign ALIGN_RIGHT
       textalignx TOFF_X
-      textvalign ITEM_VALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -138,9 +138,9 @@
       text "Music Volume:"
       cvarfloat "s_musicvolume" 0.25 0 1
       rect X (Y+(5*ELEM_H)) W ELEM_H
-      textalign ITEM_ALIGN_RIGHT
+      textalign ALIGN_RIGHT
       textalignx TOFF_X
-      textvalign ITEM_VALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -152,9 +152,9 @@
       text "OpenAL Sound:"
       cvar "s_useOpenAL"
       rect X (Y+(6*ELEM_H)) W ELEM_H
-      textalign ITEM_ALIGN_RIGHT
+      textalign ALIGN_RIGHT
       textalignx TOFF_X
-      textvalign ITEM_VALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -172,9 +172,9 @@
       text "Mouse Sensitivity:"
       cvarfloat "sensitivity" 5 1 30
       rect X (Y+(7*ELEM_H)) W ELEM_H
-      textalign ITEM_ALIGN_RIGHT
+      textalign ALIGN_RIGHT
       textalignx TOFF_X
-      textvalign ITEM_VALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -186,9 +186,9 @@
       text "Invert Mouse:"
       cvar "ui_mousePitch"
       rect X (Y+(8*ELEM_H)) W ELEM_H
-      textalign ITEM_ALIGN_RIGHT
+      textalign ALIGN_RIGHT
       textalignx TOFF_X
-      textvalign ITEM_VALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -208,9 +208,9 @@
       cvar "rate"
       cvarFloatList { "<=28.8k" 2500 "33.6k" 3000 "56k" 4000 "ISDN" 5000 "LAN/CABLE/xDSL" 25000  }
       rect X (Y+(9*ELEM_H)) W ELEM_H
-      textalign ITEM_ALIGN_RIGHT
+      textalign ALIGN_RIGHT
       textalignx TOFF_X
-      textvalign ITEM_VALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -226,9 +226,9 @@
       text "Allow Auto Download:"
       cvar "cl_allowDownload"
       rect X (Y+(10*ELEM_H)) W ELEM_H
-      textalign ITEM_ALIGN_RIGHT
+      textalign ALIGN_RIGHT
       textalignx TOFF_X
-      textvalign ITEM_VALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .25
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -246,8 +246,8 @@
       textstyle ITEM_TEXTSTYLE_NORMAL
       textscale .25
       rect 0 (H-60) W 10
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_TRUE
       decoration
@@ -261,8 +261,8 @@
       textscale .25
       style WINDOW_STYLE_EMPTY
       rect (W-(2*BUTT_W)) (H-BUTT_H) BUTT_W BUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_TRUE
       action
@@ -279,8 +279,8 @@
       textscale .25
       style WINDOW_STYLE_EMPTY
       rect (W-BUTT_W) (H-BUTT_H) BUTT_W BUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       forecolor 1 1 1 1
       visible MENU_TRUE
       action

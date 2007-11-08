@@ -75,7 +75,9 @@
       doubleclick
       {
         play "sound/misc/menu1.wav";
-        uiScript BuyFromArmoury
+        uiScript BuyFromArmoury;
+        reset selllist;
+        reset buylist;
       }
     }
 
@@ -99,7 +101,9 @@
       doubleclick
       {
         play "sound/misc/menu1.wav";
-        uiScript SellToArmoury
+        uiScript SellToArmoury;
+        reset selllist;
+        reset buylist;
       }
     }
 
@@ -111,8 +115,8 @@
       style WINDOW_STYLE_EMPTY
       rect INFO_X INFO_Y INFO_W INFO_H
       textscale .33
-      textalign ITEM_ALIGN_LEFT
-      textvalign ITEM_VALIGN_TOP
+      textalign ALIGN_LEFT
+      textvalign VALIGN_TOP
       textalignx INFO_TOFF
       textaligny INFO_TOFF
       border WINDOW_BORDER_FULL
@@ -126,13 +130,13 @@
 
     itemDef
     {
-      name "Sell"
-      text "< Sell"
+      name "Buy"
+      text "Buy >"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       rect BUTT_X BUTT_Y BUTT_W BUTT_H
-      textalign ITEM_ALIGN_LEFT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
       textscale .4
       forecolor 1 1 1 1
       backcolor .5 0 0 .25
@@ -140,7 +144,9 @@
       action
       {
         play "sound/misc/menu1.wav";
-        uiScript SellToArmoury
+        uiScript BuyFromArmoury;
+        reset selllist;
+        reset buylist;
       }
     }
 
@@ -151,8 +157,8 @@
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       rect (BUTT_X+BUTT_W) BUTT_Y BUTT_W BUTT_H
-      textalign ITEM_ALIGN_CENTER
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
       textscale .4
       forecolor 1 1 1 1
       backcolor .5 0 0 .25
@@ -166,13 +172,13 @@
 
     itemDef
     {
-      name "Buy"
-      text "Buy >"
+      name "Sell"
+      text "< Sell"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       rect (BUTT_X+(2*BUTT_W)) BUTT_Y BUTT_W BUTT_H
-      textalign ITEM_ALIGN_RIGHT
-      textvalign ITEM_VALIGN_CENTER
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
       textscale .4
       forecolor 1 1 1 1
       backcolor .5 0 0 .25
@@ -180,7 +186,9 @@
       action
       {
         play "sound/misc/menu1.wav";
-        uiScript BuyFromArmoury
+        uiScript SellToArmoury;
+        reset selllist;
+        reset buylist;
       }
     }
   }
