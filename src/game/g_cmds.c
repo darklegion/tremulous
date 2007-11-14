@@ -1522,17 +1522,17 @@ static qboolean G_RoomForClassChange( gentity_t *ent, pClass_t class,
   //compute a place up in the air to start the real trace
   VectorCopy( newOrigin, temp );
   temp[ 2 ] += nudgeHeight;
-  trap_Trace( &tr, newOrigin, toMins, toMaxs, temp, ent->s.number, MASK_SHOT );
+  trap_Trace( &tr, newOrigin, toMins, toMaxs, temp, ent->s.number, MASK_PLAYERSOLID );
 
   //trace down to the ground so that we can evolve on slopes
   VectorCopy( newOrigin, temp );
   temp[ 2 ] += ( nudgeHeight * tr.fraction );
-  trap_Trace( &tr, temp, toMins, toMaxs, newOrigin, ent->s.number, MASK_SHOT );
+  trap_Trace( &tr, temp, toMins, toMaxs, newOrigin, ent->s.number, MASK_PLAYERSOLID );
   VectorCopy( tr.endpos, newOrigin );
 
   //make REALLY sure
   trap_Trace( &tr, newOrigin, toMins, toMaxs, newOrigin,
-    ent->s.number, MASK_SHOT );
+    ent->s.number, MASK_PLAYERSOLID );
 
   //check there is room to evolve
   if( !tr.startsolid && tr.fraction == 1.0f )
