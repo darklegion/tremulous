@@ -928,11 +928,6 @@ static void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fad
     }
     DC->drawHandlePic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background);
     DC->setColor(NULL);
-  } else if (w->style == WINDOW_STYLE_TEAMCOLOR) {
-    if (DC->getTeamColor) {
-      DC->getTeamColor(&color);
-      DC->fillRect(fillRect.x, fillRect.y, fillRect.w, fillRect.h, color);
-    }
   } else if (w->style == WINDOW_STYLE_CINEMATIC) {
     if (w->cinematic == -1) {
       w->cinematic = DC->playCinematic(w->cinematicName, fillRect.x, fillRect.y, fillRect.w, fillRect.h);
@@ -948,30 +943,13 @@ static void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fad
 }
 
 static void Border_Paint(Window *w) {
-  vec4_t color;
-
   if (w == NULL || (w->style == 0 && w->border == 0)) {
     return;
   }
 
   if (w->border == WINDOW_BORDER_FULL) {
     // full
-    // HACK HACK HACK
-    if (w->style == WINDOW_STYLE_TEAMCOLOR) {
-      if (color[0] > 0) {
-        // red
-        color[0] = 1;
-        color[1] = color[2] = .5;
-
-      } else {
-        color[2] = 1;
-        color[0] = color[1] = .5;
-      }
-      color[3] = 1;
-      DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, color);
-    } else {
-      DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, w->borderColor);
-    }
+    DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, w->borderColor);
   } else if (w->border == WINDOW_BORDER_HORZ) {
     // top/bottom
     DC->setColor(w->borderColor);
@@ -1249,17 +1227,6 @@ itemDef_t *Menu_FindItemByName(menuDef_t *menu, const char *p) {
   }
 
   return NULL;
-}
-
-void Script_SetTeamColor(itemDef_t *item, char **args) {
-  if (DC->getTeamColor) {
-    int i;
-    vec4_t color;
-    DC->getTeamColor(&color);
-    for (i = 0; i < 4; i++) {
-      item->window.backColor[i] = color[i];
-    }
-  }
 }
 
 void Script_SetItemColor(itemDef_t *item, char **args) {
@@ -2079,7 +2046,6 @@ commandDef_t commandList[] =
   {"setasset", &Script_SetAsset},               // works on this
   {"setbackground", &Script_SetBackground},     // works on this
   {"setitemcolor", &Script_SetItemColor},       // group/name
-  {"setteamcolor", &Script_SetTeamColor},       // sets this background color to team color
   {"setfocus", &Script_SetFocus},               // sets this background color to team color
   {"reset", &Script_Reset},                     // resets the state of the item argument
   {"setplayermodel", &Script_SetPlayerModel},   // sets this background color to team color
@@ -4901,7 +4867,7 @@ void Item_ListBox_Paint(itemDef_t *item) {
   // default is vertical if horizontal flag is not here
   if (item->window.flags & WINDOW_HORIZONTAL) {
     //FIXME: unmaintained cruft?
-    if( !listPtr->notselectable )
+    if( !listPtr->noscrollbar )
     {
       // draw scrollbar in bottom of the window
       // bar
@@ -4955,7 +4921,7 @@ void Item_ListBox_Paint(itemDef_t *item) {
       //
     }
   } else {
-    if( !listPtr->notselectable )
+    if( !listPtr->noscrollbar )
     {
       // draw scrollbar to right side of the window
       x = item->window.rect.x + item->window.rect.w - SCROLLBAR_WIDTH - one;
@@ -5852,6 +5818,17 @@ qboolean ItemParse_notselectable( itemDef_t *item, int handle ) {
   return qtrue;
 }
 
+// noscrollbar
+qboolean ItemParse_noscrollbar( itemDef_t *item, int handle ) {
+  listBoxDef_t *listPtr;
+  Item_ValidateTypeData(item);
+  listPtr = (listBoxDef_t*)item->typeData;
+  if (item->type == ITEM_TYPE_LISTBOX && listPtr) {
+    listPtr->noscrollbar = qtrue;
+  }
+  return qtrue;
+}
+
 // auto wrapped
 qboolean ItemParse_wrapped( itemDef_t *item, int handle ) {
   item->window.flags |= WINDOW_WRAPPED;
@@ -6446,6 +6423,7 @@ keywordHash_t itemParseKeywords[] = {
   {"style", ItemParse_style, NULL},
   {"decoration", ItemParse_decoration, NULL},
   {"notselectable", ItemParse_notselectable, NULL},
+  {"noscrollbar", ItemParse_noscrollbar, NULL},
   {"wrapped", ItemParse_wrapped, NULL},
   {"horizontalscroll", ItemParse_horizontalscroll, NULL},
   {"type", ItemParse_type, NULL},

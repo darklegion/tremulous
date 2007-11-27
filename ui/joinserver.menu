@@ -17,7 +17,7 @@
 #define TOPBUTT_W   (TOP_W/3)
 #define TOPBUTT_H   (TOP_H/2)
 #define TOP_TOFF_X  20
-#define TOP_TOFF_Y  10
+#define TOP_TOFF_Y  0
 
 #define BCJ_W       (W-(2*BORDER))
 #define BCJ_H       50
@@ -38,9 +38,9 @@
 #define PLAYERS_C   0.1
 #define PING_C      0.1
 #define LIST_W      (W-(2*BORDER))
-#define LIST_H      (H-((2*BORDER)+TOP_H+BOT_H+BCJ_H))
+#define LIST_H      (H-((3*BORDER)+TOP_H+BOT_H+BCJ_H))
 #define LIST_X      BORDER
-#define LIST_Y      (BORDER+TOP_H)
+#define LIST_Y      ((2*BORDER)+TOP_H)
 #define LIST_TOFF   5
 #define HEADFOOT_H  25
 
@@ -87,7 +87,7 @@
       ownerdraw UI_NETSOURCE
       rect TOP_X TOP_Y TOPBUTT_W TOPBUTT_H
       textalign ALIGN_LEFT
-      textvalign VALIGN_TOP
+      textvalign VALIGN_CENTER
       textalignx TOP_TOFF_X
       textaligny TOP_TOFF_Y
       textscale .4
@@ -111,7 +111,7 @@
       style WINDOW_STYLE_EMPTY
       rect (TOP_X+TOPBUTT_W) TOP_Y TOPBUTT_W TOPBUTT_H
       textalign ALIGN_LEFT
-      textvalign VALIGN_TOP
+      textvalign VALIGN_CENTER
       textalignx TOP_TOFF_X
       textaligny TOP_TOFF_Y
       backcolor .5 .5 .5 .5
@@ -133,7 +133,7 @@
       type ITEM_TYPE_BUTTON
       rect (TOP_X+(2*TOPBUTT_W)) TOP_Y TOPBUTT_W TOPBUTT_H
       textalign ALIGN_LEFT
-      textvalign VALIGN_TOP
+      textvalign VALIGN_CENTER
       textalignx TOP_TOFF_X
       textaligny TOP_TOFF_Y
       backcolor .5 .5 .5 .5
@@ -156,7 +156,7 @@
       textscale .4
       rect TOP_X (TOP_Y+TOPBUTT_H) TOPBUTT_W TOPBUTT_H
       textalign ALIGN_LEFT
-      textvalign VALIGN_TOP
+      textvalign VALIGN_CENTER
       textalignx TOP_TOFF_X
       textaligny TOP_TOFF_Y
       forecolor 1 1 1 1
@@ -179,7 +179,7 @@
       textscale .4
       rect (TOP_X+TOPBUTT_W) (TOP_Y+TOPBUTT_H) TOPBUTT_W TOPBUTT_H
       textalign ALIGN_LEFT
-      textvalign VALIGN_TOP
+      textvalign VALIGN_CENTER
       textalignx TOP_TOFF_X
       textaligny TOP_TOFF_Y
       forecolor 1 1 1 1
@@ -199,7 +199,7 @@
     {
       name mappreview
       style WINDOW_STYLE_EMPTY
-      ownerdraw UI_NETMAPCINEMATIC
+      ownerdraw UI_NETMAPPREVIEW
       rect (W-(PREVIEW_W+BORDER)) BORDER PREVIEW_W PREVIEW_H
       border WINDOW_BORDER_FULL
       bordercolor .5 .5 .5 1

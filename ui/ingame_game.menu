@@ -247,7 +247,7 @@
       name mapvote
       group gameGrp
       style WINDOW_STYLE_EMPTY
-      ownerdraw UI_STARTMAPCINEMATIC
+      ownerdraw UI_SELECTEDMAPPREVIEW
       rect MAP_X MAP_Y MAP_W MAP_H
       border WINDOW_BORDER_FULL
       bordercolor .5 .5 .5 .5
@@ -265,7 +265,7 @@
       elementheight 15
       textscale .225
       elementtype LISTBOX_TEXT
-      feeder FEEDER_ALLMAPS
+      feeder FEEDER_MAPS
       border WINDOW_BORDER_FULL
       bordercolor   0.5 0.5 0.5 0.5
       forecolor     1   1   1   1

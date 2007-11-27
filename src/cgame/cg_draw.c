@@ -2406,14 +2406,6 @@ int CG_ClientNumFromName( const char *p )
 void CG_RunMenuScript( char **args )
 {
 }
-
-
-void CG_GetTeamColor( vec4_t *color )
-{
-  (*color)[ 0 ] = (*color)[ 2 ] = 0.0f;
-  (*color)[ 1 ] = 0.17f;
-  (*color)[ 3 ] = 0.25f;
-}
 //END TA UI
 
 

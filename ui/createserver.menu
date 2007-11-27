@@ -73,7 +73,7 @@
     {
       name mappreview
       style WINDOW_STYLE_EMPTY
-      ownerdraw UI_STARTMAPCINEMATIC
+      ownerdraw UI_SELECTEDMAPPREVIEW
       rect PREVIEW_X PREVIEW_Y PREVIEW_W PREVIEW_H
       border WINDOW_BORDER_FULL
       bordercolor .5 .5 .5 1
@@ -90,7 +90,7 @@
       elementheight 20
       textscale .33
       elementtype LISTBOX_TEXT
-      feeder FEEDER_ALLMAPS
+      feeder FEEDER_MAPS
       border WINDOW_BORDER_FULL
       bordercolor   0.5 0.5 0.5 1
       forecolor     1   1   1   1

@@ -173,11 +173,6 @@ void UI_LoadArenas( void ) {
     type = Info_ValueForKey( ui_arenaInfos[ n ], "type" );
     // if no type specified, it will be treated as "ffa"
 
-    if( *type && strstr( type, "tremulous" ) )
-      uiInfo.mapList[ uiInfo.mapCount ].typeBits |= ( 1 << 0 );
-    else
-      continue; //not a trem map
-
     uiInfo.mapList[uiInfo.mapCount].cinematic = -1;
     uiInfo.mapList[uiInfo.mapCount].mapLoadName = String_Alloc(Info_ValueForKey(ui_arenaInfos[n], "map"));
     uiInfo.mapList[uiInfo.mapCount].mapName = String_Alloc(Info_ValueForKey(ui_arenaInfos[n], "longname"));
@@ -293,7 +288,7 @@ char *UI_GetBotInfoByName( const char *name ) {
   return NULL;
 }
 
-int UI_GetNumBots() {
+int UI_GetNumBots( void ) {
   return ui_numBots;
 }
 

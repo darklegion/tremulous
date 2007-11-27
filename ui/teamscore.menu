@@ -273,6 +273,7 @@
       elementtype LISTBOX_TEXT
       feeder FEEDER_ALIENTEAM_LIST
       notselectable
+      noscrollbar
       columns 7
         5             15            ALIGN_LEFT
         21            15            ALIGN_LEFT
@@ -301,6 +302,7 @@
       elementtype LISTBOX_TEXT
       feeder FEEDER_HUMANTEAM_LIST
       notselectable
+      noscrollbar
       columns 7
         5             15            ALIGN_LEFT
         21            15            ALIGN_LEFT

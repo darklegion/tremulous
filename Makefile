@@ -1430,7 +1430,6 @@ $(B)/base/vm/game.qvm: $(GVMOBJ) $(GDIR)/g_syscalls.asm $(Q3ASM)
 UIOBJ_ = \
   $(B)/base/ui/ui_main.o \
   $(B)/base/ui/ui_atoms.o \
-  $(B)/base/ui/ui_players.o \
   $(B)/base/ui/ui_shared.o \
   $(B)/base/ui/ui_gameinfo.o \
   \

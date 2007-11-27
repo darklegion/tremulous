@@ -188,6 +188,7 @@ typedef struct listBoxDef_s {
   columnInfo_t columnInfo[MAX_LB_COLUMNS];
   const char *doubleClick;
   qboolean notselectable;
+  qboolean noscrollbar;
 } listBoxDef_t;
 
 typedef struct editFieldDef_s {
@@ -337,7 +338,6 @@ typedef struct {
   float (*getValue) (int ownerDraw);
   qboolean (*ownerDrawVisible) (int flags);
   void (*runScript)(char **p);
-  void (*getTeamColor)(vec4_t *color);
   void (*getCVarString)(const char *cvar, char *buffer, int bufsize);
   float (*getCVarValue)(const char *cvar);
   void (*setCVar)(const char *cvar, const char *value);

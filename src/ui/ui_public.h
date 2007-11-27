@@ -21,8 +21,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UI_PUBLIC_H__
-#define __UI_PUBLIC_H__
+#ifndef UI_PUBLIC_H
+#define UI_PUBLIC_H
 
 #define UI_API_VERSION  6
 
@@ -138,9 +138,7 @@ typedef enum {
 typedef enum {
   UIMENU_NONE,
   UIMENU_MAIN,
-  UIMENU_INGAME,
-  UIMENU_TEAM,
-  UIMENU_POSTGAME
+  UIMENU_INGAME
 } uiMenuCommand_t;
 
 typedef enum
