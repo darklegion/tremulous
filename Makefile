@@ -6,8 +6,8 @@
 
 COMPILE_PLATFORM=$(shell uname|sed -e s/_.*//|tr '[:upper:]' '[:lower:]')
 
-ifeq ($(COMPILE_PLATFORM),darwin)
-  # Apple does some things a little differently...
+ifeq ($(COMPILE_PLATFORM),sunos)
+  # Solaris uname and GNU uname differ
   COMPILE_ARCH=$(shell uname -p | sed -e s/i.86/x86/)
 else
   COMPILE_ARCH=$(shell uname -m | sed -e s/i.86/x86/)
@@ -632,12 +632,15 @@ else # ifeq netbsd
 # SETUP AND BUILD -- IRIX
 #############################################################################
 
-ifeq ($(PLATFORM),irix)
+ifeq ($(PLATFORM),irix64)
 
   ARCH=mips  #default to MIPS
 
-  BASE_CFLAGS=-Dstricmp=strcasecmp -Xcpluscomm -woff 1185 -mips3 \
-    -nostdinc -I. -I$(ROOT)/usr/include -DNO_VM_COMPILED
+  CC = c99
+  MKDIR = mkdir -p
+
+  BASE_CFLAGS=-Dstricmp=strcasecmp -Xcpluscomm -woff 1185 \
+    -I. $(shell sdl-config --cflags) -I$(ROOT)/usr/include -DNO_VM_COMPILED
   RELEASE_CFLAGS=$(BASE_CFLAGS) -O3
   DEBUG_CFLAGS=$(BASE_CFLAGS) -g
 
@@ -645,8 +648,10 @@ ifeq ($(PLATFORM),irix)
   SHLIBCFLAGS=
   SHLIBLDFLAGS=-shared
 
-  LDFLAGS=-ldl -lm
-  CLIENT_LDFLAGS=-L/usr/X11/$(LIB) -lGL -lX11 -lXext -lm
+  LDFLAGS=-ldl -lm -lgen
+  # FIXME: The X libraries probably aren't necessary?
+  CLIENT_LDFLAGS=-L/usr/X11/$(LIB) $(shell sdl-config --libs) -lGL \
+    -lX11 -lXext -lm
 
 else # ifeq IRIX
 
@@ -819,7 +824,7 @@ endef
 
 define DO_AS
 $(echo_cmd) "AS $<"
-$(Q)$(CC) $(CFLAGS) -DELF -x assembler-with-cpp -o $@ -c $<
+$(Q)$(CC) $(CFLAGS) -x assembler-with-cpp -o $@ -c $<
 endef
 
 define DO_DED_CC
@@ -856,7 +861,7 @@ endif
 
 # Create the build directories, check libraries and print out
 # an informational message, then start building
-targets: makedirs libversioncheck
+targets: makedirs
 	@echo ""
 	@echo "Building Tremulous in $(B):"
 	@echo "  PLATFORM: $(PLATFORM)"
@@ -1032,29 +1037,6 @@ $(B)/tools/asm/%.o: $(Q3ASMDIR)/%.c
 $(Q3ASM): $(Q3ASMOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(TOOLS_LDFLAGS) -o $@ $^
-
-
-#############################################################################
-# LIBRARY VERSION CHECKS
-#############################################################################
-
-MINSDL_MAJOR  = 1
-MINSDL_MINOR  = 2
-MINSDL_PATCH  = 7
-
-BASE_CFLAGS += -DMINSDL_MAJOR=$(MINSDL_MAJOR) \
-               -DMINSDL_MINOR=$(MINSDL_MINOR) \
-               -DMINSDL_PATCH=$(MINSDL_PATCH)
-
-libversioncheck:
-	@/bin/echo -e "#include \"SDL_version.h\"\n" \
-		"#if SDL_VERSION_ATLEAST(" \
-		"$(MINSDL_MAJOR),$(MINSDL_MINOR),$(MINSDL_PATCH)" \
-		")\nMINSDL_PASSED\n#endif" | \
-		$(CC) $(BASE_CFLAGS) -E - | grep -q MINSDL_PASSED || \
-		( /bin/echo "SDL version" \
-		"$(MINSDL_MAJOR).$(MINSDL_MINOR).$(MINSDL_PATCH)" \
-		"or greater required" && exit 1 )
 
 
 #############################################################################
@@ -1607,6 +1589,6 @@ TOOLSOBJ_D_FILES=$(filter %.d,$(TOOLSOBJ:%.o=%.d))
 -include $(OBJ_D_FILES) $(TOOLSOBJ_D_FILES)
 
 .PHONY: all clean clean2 clean-debug clean-release copyfiles \
-	debug default dist distclean libversioncheck makedirs \
+	debug default dist distclean makedirs \
 	release targets \
 	toolsclean toolsclean2 toolsclean-debug toolsclean-release

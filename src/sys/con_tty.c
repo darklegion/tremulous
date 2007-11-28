@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <signal.h>
 #include <termios.h>
 #include <fcntl.h>
+#include <sys/time.h>
 
 /*
 =============================================================
@@ -169,7 +170,7 @@ void CON_Shutdown( void )
 	}
 
   // Restore blocking to stdin reads
-  fcntl( 0, F_SETFL, fcntl( 0, F_GETFL, 0 ) & ~O_NDELAY );
+  fcntl( 0, F_SETFL, fcntl( 0, F_GETFL, 0 ) & ~O_NONBLOCK );
 }
 
 /*
@@ -257,7 +258,7 @@ void CON_Init( void )
 	signal(SIGTTOU, SIG_IGN);
 
 	// Make stdin reads non-blocking
-	fcntl( 0, F_SETFL, fcntl( 0, F_GETFL, 0 ) | O_NDELAY );
+	fcntl( 0, F_SETFL, fcntl( 0, F_GETFL, 0 ) | O_NONBLOCK );
 
 	if (isatty(STDIN_FILENO)!=1)
 	{
