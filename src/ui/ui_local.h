@@ -2,19 +2,19 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2006 Tim Angus
-
+ 
 This file is part of Tremulous.
-
+ 
 Tremulous is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
-
+ 
 Tremulous is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-
+ 
 You should have received a copy of the GNU General Public License
 along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -36,11 +36,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 void UI_Report( void );
 void UI_Load( void );
-void UI_LoadMenus(const char *menuFile, qboolean reset);
-int UI_AdjustTimeByGame(int time);
+void UI_LoadMenus( const char *menuFile, qboolean reset );
+int UI_AdjustTimeByGame( int time );
 void UI_ClearScores( void );
-void UI_LoadArenas(void);
-void UI_ServerInfo(void);
+void UI_LoadArenas( void );
+void UI_ServerInfo( void );
 
 void UI_RegisterCvars( void );
 void UI_UpdateCvars( void );
@@ -58,26 +58,33 @@ void UI_DrawConnectScreen( qboolean overlay );
 #define MAX_DEMOS 256
 #define MAX_MOVIES 256
 
-typedef struct {
+typedef struct
+{
   const char *mapName;
   const char *mapLoadName;
   const char *imageName;
   int cinematic;
   qhandle_t levelShot;
-} mapInfo;
+}
+mapInfo;
 
-typedef struct serverFilter_s {
+typedef struct serverFilter_s
+{
   const char *description;
   const char *basedir;
-} serverFilter_t;
+}
+serverFilter_t;
 
-typedef struct {
+typedef struct
+{
   char  adrstr[MAX_ADDRESSLENGTH];
   int    start;
-} pinglist_t;
+}
+pinglist_t;
 
 
-typedef struct serverStatus_s {
+typedef struct serverStatus_s
+{
   pinglist_t pingList[MAX_PINGREQUESTS];
   int    numqueriedservers;
   int    currentping;
@@ -105,34 +112,43 @@ typedef struct serverStatus_s {
   int    motdOffset;
   int    motdTime;
   char  motd[MAX_STRING_CHARS];
-} serverStatus_t;
+}
+serverStatus_t;
 
 
-typedef struct {
+typedef struct
+{
   char    adrstr[MAX_ADDRESSLENGTH];
   char    name[MAX_ADDRESSLENGTH];
   int      startTime;
   int      serverNum;
   qboolean  valid;
-} pendingServer_t;
+}
+pendingServer_t;
 
-typedef struct {
+typedef struct
+{
   int num;
   pendingServer_t server[MAX_SERVERSTATUSREQUESTS];
-} pendingServerStatus_t;
+}
+pendingServerStatus_t;
 
-typedef struct {
+typedef struct
+{
   char address[MAX_ADDRESSLENGTH];
   char *lines[MAX_SERVERSTATUS_LINES][4];
   char text[MAX_SERVERSTATUS_TEXT];
   char pings[MAX_CLIENTS * 3];
   int numLines;
-} serverStatusInfo_t;
+}
+serverStatusInfo_t;
 
-typedef struct {
+typedef struct
+{
   const char *modName;
   const char *modDescr;
-} modInfo_t;
+}
+modInfo_t;
 
 typedef enum
 {
@@ -156,9 +172,11 @@ typedef struct
     weapon_t    weapon;
     upgrade_t   upgrade;
   } v;
-} menuItem_t;
+}
+menuItem_t;
 
-typedef struct {
+typedef struct
+{
   displayContextDef_t uiDC;
 
   int playerCount;
@@ -248,7 +266,8 @@ typedef struct {
 
   qboolean  chatTeam;
   int       chatTargetClientNum;
-}  uiInfo_t;
+}
+uiInfo_t;
 
 extern uiInfo_t uiInfo;
 
@@ -323,24 +342,24 @@ void      trap_LAN_GetPing( int n, char *buf, int buflen, int *pingtime );
 void      trap_LAN_GetPingInfo( int n, char *buf, int buflen );
 void      trap_LAN_LoadCachedServers( void );
 void      trap_LAN_SaveCachedServers( void );
-void      trap_LAN_MarkServerVisible(int source, int n, qboolean visible);
-int        trap_LAN_ServerIsVisible( int source, int n);
+void      trap_LAN_MarkServerVisible( int source, int n, qboolean visible );
+int        trap_LAN_ServerIsVisible( int source, int n );
 qboolean    trap_LAN_UpdateVisiblePings( int source );
-int        trap_LAN_AddServer(int source, const char *name, const char *addr);
-void      trap_LAN_RemoveServer(int source, const char *addr);
-void      trap_LAN_ResetPings(int n);
+int        trap_LAN_AddServer( int source, const char *name, const char *addr );
+void      trap_LAN_RemoveServer( int source, const char *addr );
+void      trap_LAN_ResetPings( int n );
 int        trap_LAN_ServerStatus( const char *serverAddress, char *serverStatus, int maxLen );
 int        trap_LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int s2 );
 int        trap_MemoryRemaining( void );
-void      trap_R_RegisterFont(const char *pFontname, int pointSize, fontInfo_t *font);
+void      trap_R_RegisterFont( const char *pFontname, int pointSize, fontInfo_t *font );
 void      trap_S_StopBackgroundTrack( void );
-void      trap_S_StartBackgroundTrack( const char *intro, const char *loop);
-int        trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits);
-e_status    trap_CIN_StopCinematic(int handle);
-e_status    trap_CIN_RunCinematic (int handle);
-void      trap_CIN_DrawCinematic (int handle);
-void      trap_CIN_SetExtents (int handle, int x, int y, int w, int h);
-int        trap_RealTime(qtime_t *qtime);
+void      trap_S_StartBackgroundTrack( const char *intro, const char *loop );
+int        trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits );
+e_status    trap_CIN_StopCinematic( int handle );
+e_status    trap_CIN_RunCinematic ( int handle );
+void      trap_CIN_DrawCinematic ( int handle );
+void      trap_CIN_SetExtents ( int handle, int x, int y, int w, int h );
+int        trap_RealTime( qtime_t *qtime );
 void      trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
 
 void      trap_SetPbClStatus( int status );
