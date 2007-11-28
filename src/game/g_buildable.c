@@ -2905,7 +2905,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   }
 
   // Make sure we're not removing the last spawn
-  if( ( remainingSpawns - spawnCount ) < 1 )
+  if( !g_cheats.integer && remainingSpawns > 0 && ( remainingSpawns - spawnCount ) < 1 )
     return bpError;
 
   // Not enough points yielded
