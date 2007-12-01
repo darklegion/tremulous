@@ -1246,6 +1246,9 @@ void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
       activator->client->ps.eFlags |= EF_NODRAW;
       G_UnlaggedClear( activator );
 
+      // Cancel pending suicides
+      activator->suicideTime = 0;
+
       activator->client->ps.stats[ STAT_STATE ] |= SS_HOVELING;
       activator->client->hovel = self;
       self->builder = activator;
