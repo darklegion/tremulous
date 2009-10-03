@@ -1039,7 +1039,12 @@ typedef struct {
 #define	MAX_STATS				16
 #define	MAX_PERSISTANT			16
 #define	MAX_MISC    			16
+<<<<<<<
 #define	MAX_WEAPONS				16		
+|||||||
+=======
+#define MAX_WEAPONS				16		
+>>>>>>>
 
 #define	MAX_PS_EVENTS			2
 
