@@ -1816,7 +1816,25 @@ void CG_MissileHitEntity( weapon_t weaponNum, weaponMode_t weaponMode,
     weaponMode = WPM_PRIMARY;
 
   if( weapon->wim[ weaponMode ].alwaysImpact )
-    CG_MissileHitWall( weaponNum, weaponMode, 0, origin, dir, IMPACTSOUND_FLESH, charge );
+  {
+    int sound;
+
+    if( cg_entities[ entityNum ].currentState.eType == ET_PLAYER )
+    {
+      // Players
+      sound = IMPACTSOUND_FLESH;
+    }
+    else if( cg_entities[ entityNum ].currentState.eType == ET_BUILDABLE &&
+             BG_Buildable( cg_entities[ entityNum ].currentState.modelindex )->team == TEAM_ALIENS )
+    {
+      // Alien buildables
+      sound = IMPACTSOUND_FLESH;
+    }
+    else
+      sound = IMPACTSOUND_DEFAULT;
+          
+    CG_MissileHitWall( weaponNum, weaponMode, 0, origin, dir, sound, charge );
+  }
 }
 
 

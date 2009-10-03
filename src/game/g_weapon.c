@@ -252,7 +252,7 @@ static void BloodSpurt( gentity_t *attacker, gentity_t *victim, trace_t *tr )
   tent->s.eventParm = DirToByte( tr->plane.normal );
   tent->s.weapon = attacker->s.weapon;
   tent->s.generic1 = attacker->s.generic1; // weaponMode
-  }
+}
 
 /*
 ===============
