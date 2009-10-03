@@ -87,7 +87,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
 
     {"kick", G_admin_kick, "k",
       "kick a player with an optional reason",
-      "(^5reason^7)"
+      "[^3name|slot#^7] (^5reason^7)"
     },
 
     {"listadmins", G_admin_listadmins, "D",
