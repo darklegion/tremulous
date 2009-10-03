@@ -535,12 +535,12 @@ static void admin_default_levels( void )
 
   for( i = 0; i < MAX_ADMIN_LEVELS && g_admin_levels[ i ]; i++ )
   {
-    G_Free( g_admin_levels[ i ] );
+    BG_Free( g_admin_levels[ i ] );
     g_admin_levels[ i ] = NULL;
   }
   for( i = 0; i <= 5; i++ )
   {
-    l = G_Alloc( sizeof( g_admin_level_t ) );
+    l = BG_Alloc( sizeof( g_admin_level_t ) );
     l->level = i;
     *l->name = '\0';
     *l->flags = '\0';
@@ -991,7 +991,7 @@ void G_admin_namelog_cleanup( )
 
   for( i = 0; i < MAX_ADMIN_NAMELOGS && g_admin_namelog[ i ]; i++ )
   {
-    G_Free( g_admin_namelog[ i ] );
+    BG_Free( g_admin_namelog[ i ] );
     g_admin_namelog[ i ] = NULL;
   }
 }
@@ -1044,7 +1044,7 @@ void G_admin_namelog_update( gclient_t *client, qboolean disconnect )
     G_Printf( "G_admin_namelog_update: warning, g_admin_namelogs overflow\n" );
     return;
   }
-  namelog = G_Alloc( sizeof( g_admin_namelog_t ) );
+  namelog = BG_Alloc( sizeof( g_admin_namelog_t ) );
   memset( namelog, 0, sizeof( namelog ) );
   for( j = 0; j < MAX_ADMIN_NAMELOG_NAMES; j++ )
     namelog->name[ j ][ 0 ] = '\0';
@@ -1088,7 +1088,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
     admin_default_levels();
     return qfalse;
   }
-  cnf = G_Alloc( len + 1 );
+  cnf = BG_Alloc( len + 1 );
   cnf2 = cnf;
   trap_FS_Read( cnf, len, f );
   *( cnf + len ) = '\0';
@@ -1250,7 +1250,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
     {
       if( lc >= MAX_ADMIN_LEVELS )
         return qfalse;
-      l = G_Alloc( sizeof( g_admin_level_t ) );
+      l = BG_Alloc( sizeof( g_admin_level_t ) );
       l->level = 0;
       *l->name = '\0';
       *l->flags = '\0';
@@ -1260,7 +1260,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
     {
       if( ac >= MAX_ADMIN_ADMINS )
         return qfalse;
-      a = G_Alloc( sizeof( g_admin_admin_t ) );
+      a = BG_Alloc( sizeof( g_admin_admin_t ) );
       *a->name = '\0';
       *a->guid = '\0';
       a->level = 0;
@@ -1271,7 +1271,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
     {
       if( bc >= MAX_ADMIN_BANS )
         return qfalse;
-      b = G_Alloc( sizeof( g_admin_ban_t ) );
+      b = BG_Alloc( sizeof( g_admin_ban_t ) );
       *b->name = '\0';
       *b->guid = '\0';
       *b->ip = '\0';
@@ -1284,7 +1284,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
     {
       if( cc >= MAX_ADMIN_COMMANDS )
         return qfalse;
-      c = G_Alloc( sizeof( g_admin_command_t ) );
+      c = BG_Alloc( sizeof( g_admin_command_t ) );
       *c->command = '\0';
       *c->exec = '\0';
       *c->desc = '\0';
@@ -1301,7 +1301,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
     g_admin_bans[ bc++ ] = b;
   if( command_open )
     g_admin_commands[ cc++ ] = c;
-  G_Free( cnf2 );
+  BG_Free( cnf2 );
   ADMP( va( "^3!readconfig: ^7loaded %d levels, %d admins, %d bans, %d commands\n",
           lc, ac, bc, cc ) );
   if( lc == 0 )
@@ -1502,7 +1502,7 @@ qboolean G_admin_setlevel( gentity_t *ent, int skiparg )
       ADMP( "^3!setlevel: ^7too many admins\n" );
       return qfalse;
     }
-    a = G_Alloc( sizeof( g_admin_admin_t ) );
+    a = BG_Alloc( sizeof( g_admin_admin_t ) );
     a->level = l;
     Q_strncpyz( a->name, adminname, sizeof( a->name ) );
     Q_strncpyz( a->guid, guid, sizeof( a->guid ) );
@@ -1537,7 +1537,7 @@ static qboolean admin_create_ban( gentity_t *ent,
   int i;
 
   t = trap_RealTime( &qt );
-  b = G_Alloc( sizeof( g_admin_ban_t ) );
+  b = BG_Alloc( sizeof( g_admin_ban_t ) );
 
   if( !b )
     return qfalse;
@@ -1569,7 +1569,7 @@ static qboolean admin_create_ban( gentity_t *ent,
   if( i == MAX_ADMIN_BANS )
   {
     ADMP( "^3!ban: ^7too many bans\n" );
-    G_Free( b );
+    BG_Free( b );
     return qfalse;
   }
   g_admin_bans[ i ] = b;
@@ -2997,22 +2997,22 @@ void G_admin_cleanup()
 
   for( i = 0; i < MAX_ADMIN_LEVELS && g_admin_levels[ i ]; i++ )
   {
-    G_Free( g_admin_levels[ i ] );
+    BG_Free( g_admin_levels[ i ] );
     g_admin_levels[ i ] = NULL;
   }
   for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
   {
-    G_Free( g_admin_admins[ i ] );
+    BG_Free( g_admin_admins[ i ] );
     g_admin_admins[ i ] = NULL;
   }
   for( i = 0; i < MAX_ADMIN_BANS && g_admin_bans[ i ]; i++ )
   {
-    G_Free( g_admin_bans[ i ] );
+    BG_Free( g_admin_bans[ i ] );
     g_admin_bans[ i ] = NULL;
   }
   for( i = 0; i < MAX_ADMIN_COMMANDS && g_admin_commands[ i ]; i++ )
   {
-    G_Free( g_admin_commands[ i ] );
+    BG_Free( g_admin_commands[ i ] );
     g_admin_commands[ i ] = NULL;
   }
 }

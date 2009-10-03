@@ -1794,14 +1794,6 @@ void          CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops );
 void          CG_CheckChangedPredictableEvents( playerState_t *ps );
 
 //
-// cg_mem.c
-//
-void          CG_InitMemory( void );
-void          *CG_Alloc( int size );
-void          CG_Free( void *ptr );
-void          CG_DefragmentMemory( void );
-
-//
 // cg_attachment.c
 //
 qboolean    CG_AttachmentPoint( attachment_t *a, vec3_t v );

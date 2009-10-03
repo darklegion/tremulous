@@ -600,12 +600,6 @@ qboolean  ConsoleCommand( void )
     return qtrue;
   }
 
-  if( Q_stricmp( cmd, "game_memory" ) == 0 )
-  {
-    Svcmd_GameMem_f( );
-    return qtrue;
-  }
-
   if( Q_stricmp( cmd, "addip" ) == 0 )
   {
     Svcmd_AddIP_f( );

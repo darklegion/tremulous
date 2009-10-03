@@ -1332,6 +1332,7 @@ CGOBJ_ = \
   $(B)/base/cgame/bg_pmove.o \
   $(B)/base/cgame/bg_slidemove.o \
   $(B)/base/cgame/bg_lib.o \
+  $(B)/base/cgame/bg_alloc.o \
   $(B)/base/cgame/cg_consolecmds.o \
   $(B)/base/cgame/cg_buildable.o \
   $(B)/base/cgame/cg_animation.o \
@@ -1348,7 +1349,6 @@ CGOBJ_ = \
   $(B)/base/cgame/cg_snapshot.o \
   $(B)/base/cgame/cg_view.o \
   $(B)/base/cgame/cg_weapons.o \
-  $(B)/base/cgame/cg_mem.o \
   $(B)/base/cgame/cg_scanner.o \
   $(B)/base/cgame/cg_attachment.o \
   $(B)/base/cgame/cg_trails.o \
@@ -1383,7 +1383,7 @@ GOBJ_ = \
   $(B)/base/game/bg_pmove.o \
   $(B)/base/game/bg_slidemove.o \
   $(B)/base/game/bg_lib.o \
-  $(B)/base/game/g_mem.o \
+  $(B)/base/game/bg_alloc.o \
   $(B)/base/game/g_active.o \
   $(B)/base/game/g_client.o \
   $(B)/base/game/g_cmds.o \

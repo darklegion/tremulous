@@ -60,7 +60,6 @@ vmCvar_t  g_quadfactor;
 vmCvar_t  g_inactivity;
 vmCvar_t  g_debugMove;
 vmCvar_t  g_debugDamage;
-vmCvar_t  g_debugAlloc;
 vmCvar_t  g_weaponRespawn;
 vmCvar_t  g_weaponTeamRespawn;
 vmCvar_t  g_motd;
@@ -190,7 +189,6 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_inactivity, "g_inactivity", "0", 0, 0, qtrue },
   { &g_debugMove, "g_debugMove", "0", 0, 0, qfalse },
   { &g_debugDamage, "g_debugDamage", "0", 0, 0, qfalse },
-  { &g_debugAlloc, "g_debugAlloc", "0", 0, 0, qfalse },
   { &g_motd, "g_motd", "", 0, 0, qfalse },
   { &g_blood, "com_blood", "1", 0, 0, qfalse },
 
@@ -533,7 +531,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
   G_ProcessIPBans( );
 
-  G_InitMemory( );
+  BG_InitMemory( );
 
   // set some level globals
   memset( &level, 0, sizeof( level ) );

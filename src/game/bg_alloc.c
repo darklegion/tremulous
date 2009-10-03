@@ -21,29 +21,35 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include "g_local.h"
+#include "../qcommon/q_shared.h"
+#include "bg_public.h"
 
-#define  POOLSIZE ( 1024 * 1024 )
+#ifdef GAME
+# define  POOLSIZE ( 1024 * 1024 )
+#else
+# define  POOLSIZE ( 256 * 1024 )
+#endif
+
 #define  FREEMEMCOOKIE  ((int)0xDEADBE3F)  // Any unlikely to be used value
 #define  ROUNDBITS    31          // Round to 32 bytes
 
-struct freememnode
+typedef struct freeMemNode_s
 {
   // Size of ROUNDBITS
   int cookie, size;        // Size includes node (obviously)
-  struct freememnode *prev, *next;
-};
+  struct freeMemNode_s *prev, *next;
+} freeMemNode_t;
 
-static char    memoryPool[POOLSIZE];
-static struct freememnode *freehead;
-static int    freemem;
+static char           memoryPool[POOLSIZE];
+static freeMemNode_t  *freeHead;
+static int            freeMem;
 
-void *G_Alloc( int size )
+void *BG_Alloc( int size )
 {
   // Find a free block and allocate.
   // Does two passes, attempts to fill same-sized free slot first.
 
-  struct freememnode *fmn, *prev, *next, *smallest;
+  freeMemNode_t *fmn, *prev, *next, *smallest;
   int allocsize, smallestsize;
   char *endptr;
   int *ptr;
@@ -53,10 +59,10 @@ void *G_Alloc( int size )
 
   smallest = NULL;
   smallestsize = POOLSIZE + 1;    // Guaranteed not to miss any slots :)
-  for( fmn = freehead; fmn; fmn = fmn->next )
+  for( fmn = freeHead; fmn; fmn = fmn->next )
   {
     if( fmn->cookie != FREEMEMCOOKIE )
-      G_Error( "G_Alloc: Memory corruption detected!\n" );
+      Com_Error( ERR_DROP, "BG_Alloc: Memory corruption detected!\n" );
 
     if( fmn->size >= allocsize )
     {
@@ -71,8 +77,8 @@ void *G_Alloc( int size )
           prev->next = next;      // Point previous node to next
         if( next )
           next->prev = prev;      // Point next node to previous
-        if( fmn == freehead )
-          freehead = next;      // Set head pointer to next
+        if( fmn == freeHead )
+          freeHead = next;      // Set head pointer to next
         ptr = (int *) fmn;
         break;              // Stop the loop, this is fine
       }
@@ -98,34 +104,30 @@ void *G_Alloc( int size )
 
   if( ptr )
   {
-    freemem -= allocsize;
-    if( g_debugAlloc.integer )
-      G_Printf( "G_Alloc of %i bytes (%i left)\n", allocsize, freemem );
+    freeMem -= allocsize;
     memset( ptr, 0, allocsize );
     *ptr++ = allocsize;        // Store a copy of size for deallocation
     return( (void *) ptr );
   }
 
-  G_Error( "G_Alloc: failed on allocation of %i bytes\n", size );
+  Com_Error( ERR_DROP, "BG_Alloc: failed on allocation of %i bytes\n", size );
   return( NULL );
 }
 
-void G_Free( void *ptr )
+void BG_Free( void *ptr )
 {
   // Release allocated memory, add it to the free list.
 
-  struct freememnode *fmn;
+  freeMemNode_t *fmn;
   char *freeend;
   int *freeptr;
 
   freeptr = ptr;
   freeptr--;
 
-  freemem += *freeptr;
-  if( g_debugAlloc.integer )
-    G_Printf( "G_Free of %i bytes (%i left)\n", *freeptr, freemem );
+  freeMem += *freeptr;
 
-  for( fmn = freehead; fmn; fmn = fmn->next )
+  for( fmn = freeHead; fmn; fmn = fmn->next )
   {
     freeend = ((char *) fmn) + fmn->size;
     if( freeend == (char *) freeptr )
@@ -138,42 +140,42 @@ void G_Free( void *ptr )
   }
   // No merging, add to head of list
 
-  fmn = (struct freememnode *) freeptr;
+  fmn = (freeMemNode_t *) freeptr;
   fmn->size = *freeptr;        // Set this first to avoid corrupting *freeptr
   fmn->cookie = FREEMEMCOOKIE;
   fmn->prev = NULL;
-  fmn->next = freehead;
-  freehead->prev = fmn;
-  freehead = fmn;
+  fmn->next = freeHead;
+  freeHead->prev = fmn;
+  freeHead = fmn;
 }
 
-void G_InitMemory( void )
+void BG_InitMemory( void )
 {
   // Set up the initial node
 
-  freehead = (struct freememnode *)memoryPool;
-  freehead->cookie = FREEMEMCOOKIE;
-  freehead->size = POOLSIZE;
-  freehead->next = NULL;
-  freehead->prev = NULL;
-  freemem = sizeof( memoryPool );
+  freeHead = (freeMemNode_t *)memoryPool;
+  freeHead->cookie = FREEMEMCOOKIE;
+  freeHead->size = POOLSIZE;
+  freeHead->next = NULL;
+  freeHead->prev = NULL;
+  freeMem = sizeof( memoryPool );
 }
 
-void G_DefragmentMemory( void )
+void BG_DefragmentMemory( void )
 {
   // If there's a frenzy of deallocation and we want to
   // allocate something big, this is useful. Otherwise...
   // not much use.
 
-  struct freememnode *startfmn, *endfmn, *fmn;
+  freeMemNode_t *startfmn, *endfmn, *fmn;
 
-  for( startfmn = freehead; startfmn; )
+  for( startfmn = freeHead; startfmn; )
   {
-    endfmn = (struct freememnode *)(((char *) startfmn) + startfmn->size);
-    for( fmn = freehead; fmn; )
+    endfmn = (freeMemNode_t *)(((char *) startfmn) + startfmn->size);
+    for( fmn = freeHead; fmn; )
     {
       if( fmn->cookie != FREEMEMCOOKIE )
-        G_Error( "G_DefragmentMemory: Memory corruption detected!\n" );
+        Com_Error( ERR_DROP, "BG_DefragmentMemory: Memory corruption detected!\n" );
 
       if( fmn == endfmn )
       {
@@ -184,12 +186,12 @@ void G_DefragmentMemory( void )
         if( fmn->next )
         {
           if( !(fmn->next->prev = fmn->prev) )
-            freehead = fmn->next;  // We're removing the head node
+            freeHead = fmn->next;  // We're removing the head node
         }
         startfmn->size += fmn->size;
-        memset( fmn, 0, sizeof(struct freememnode) );  // A redundant call, really.
+        memset( fmn, 0, sizeof(freeMemNode_t) );  // A redundant call, really.
 
-        startfmn = freehead;
+        startfmn = freeHead;
         endfmn = fmn = NULL;        // Break out of current loop
       }
       else
@@ -200,17 +202,3 @@ void G_DefragmentMemory( void )
       startfmn = startfmn->next;    // endfmn acts as a 'restart' flag here
   }
 }
-
-void Svcmd_GameMem_f( void )
-{
-  // Give a breakdown of memory
-
-  struct freememnode *fmn;
-
-  G_Printf( "Game memory status: %i out of %i bytes allocated\n", POOLSIZE - freemem, POOLSIZE );
-
-  for( fmn = freehead; fmn; fmn = fmn->next )
-    G_Printf( "  %dd: %d bytes free.\n", fmn, fmn->size );
-  G_Printf( "Status complete.\n" );
-}
-

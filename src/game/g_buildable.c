@@ -3728,7 +3728,7 @@ void G_LayoutLoad( void )
     G_Printf( "ERROR: layout %s could not be opened\n", level.layout );
     return;
   }
-  layout = G_Alloc( len + 1 );
+  layout = BG_Alloc( len + 1 );
   trap_FS_Read( layout, len, f );
   *( layout + len ) = '\0';
   trap_FS_FCloseFile( f );
