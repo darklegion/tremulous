@@ -599,16 +599,19 @@ static qboolean PM_CheckWallJump( void )
   vec3_t point, dir, forward, right;
   float magnitude;
   int i;
+  qboolean minijump;
 
-  // don't allow jump until all buttons are up
+  // Don't allow jump until all buttons are up
   if( pm->ps->pm_flags & PMF_RESPAWNED )
     return qfalse;
 
-  // not holding jump
-  if( pm->cmd.upmove < 10 )
+  // Not holding jump or minijump
+  minijump = pm->ps->stats[ STAT_PTEAM ] == PTE_ALIENS &&
+             ( pm->cmd.buttons & BUTTON_DODGE );
+  if( pm->cmd.upmove < 10 && !minijump )
     return qfalse;
 
-  // walljump timeout
+  // Walljump timeout
   if( pm->ps->pm_flags & PMF_TIME_WALLJUMP )
     return qfalse;
 
@@ -665,7 +668,7 @@ static qboolean PM_CheckWallJump( void )
   pml.walking = qfalse;
   
   pm->ps->pm_flags |= PMF_TIME_WALLJUMP | PMF_JUMP_HELD;
-  pm->ps->pm_time = 200;
+  pm->ps->pm_time = LEVEL2_WALLJUMP_REPEAT;
   pm->ps->groundEntityNum = ENTITYNUM_NONE;
 
   ProjectPointOnPlane( forward, pml.forward, pm->ps->grapplePoint );
@@ -677,12 +680,11 @@ static qboolean PM_CheckWallJump( void )
 
   // Give the player some velocity
   magnitude = BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] );
-  if( ( pm->cmd.buttons & BUTTON_DODGE ) &&
-      pm->ps->stats[ STAT_PTEAM ] == PTE_ALIENS )
+  if( minijump )
     magnitude *= ALIEN_MINI_JUMP_SCALE;
   VectorMA( pm->ps->velocity, magnitude, dir, pm->ps->velocity );
 
-  //for a long run of wall jumps the velocity can get pretty large, this caps it
+  // Cap velocity
   if( VectorLength( pm->ps->velocity ) > LEVEL2_WALLJUMP_MAXSPEED )
   {
     VectorNormalize( pm->ps->velocity );
@@ -691,6 +693,7 @@ static qboolean PM_CheckWallJump( void )
 
   PM_AddEvent( EV_JUMP );
 
+  // Set jumping animation
   if( pm->cmd.forwardmove >= 0 )
   {
     if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
@@ -722,72 +725,74 @@ static qboolean PM_CheckJump( void )
 {
   vec3_t normal;
   float magnitude;
+  qboolean minijump;
 
-  // don't rejump after a dodge or jump
+  // Don't rejump after a dodge or jump
   if( pm->ps->pm_flags & PMF_TIME_LAND )
     return qfalse;
 
-  magnitude = BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] );
-  if( magnitude == 0.0f )
-    return qfalse;
-
-  //can't jump and pounce at the same time
+  // Can't jump and pounce at the same time
   if( ( pm->ps->weapon == WP_ALEVEL3 ||
         pm->ps->weapon == WP_ALEVEL3_UPG ) &&
       pm->ps->stats[ STAT_MISC ] > 0 )
     return qfalse;
 
-  //can't jump and charge at the same time
+  // Can't jump and charge at the same time
   if( ( pm->ps->weapon == WP_ALEVEL4 ) &&
       pm->ps->stats[ STAT_MISC ] > 0 )
     return qfalse;
 
+  // Can't jump without stamina
   if( ( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS ) &&
       ( pm->ps->stats[ STAT_STAMINA ] < 0 ) )
     return qfalse;
 
+  // Don't allow jump until all buttons are up
   if( pm->ps->pm_flags & PMF_RESPAWNED )
-    return qfalse;    // don't allow jump until all buttons are up
+    return qfalse;
 
-  if( pm->cmd.upmove < 10 )
+  // Not holding jump or dodge
+  minijump = pm->ps->stats[ STAT_PTEAM ] == PTE_ALIENS &&
+             ( pm->cmd.buttons & BUTTON_DODGE );
+  if( pm->cmd.upmove < 10 && !minijump )
     // not holding jump
     return qfalse;
 
-  //can't jump whilst grabbed
-  if( pm->ps->pm_type == PM_GRABBED )
+  // Can't jump while grabbed or without releasing jump
+  if( pm->ps->pm_type == PM_GRABBED ||
+      ( pm->ps->pm_flags & PMF_JUMP_HELD ) )
   {
+    // Clear upmove so cmdscale doesn't lower running speed
     pm->cmd.upmove = 0;
     return qfalse;
   }
 
-  // must wait for jump to be released
-  if( pm->ps->pm_flags & PMF_JUMP_HELD )
-  {
-    // clear upmove so cmdscale doesn't lower running speed
-    pm->cmd.upmove = 0;
+  // Have to be able to jump
+  magnitude = BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] );
+  if( magnitude == 0.0f )
     return qfalse;
-  }
 
   pml.groundPlane = qfalse;
   pml.walking = qfalse;
   pm->ps->pm_flags |= PMF_JUMP_HELD;
 
-  // take some stamina off
+  // Take some stamina off
   if( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS )
     pm->ps->stats[ STAT_STAMINA ] -= STAMINA_JUMP_TAKE;
 
   pm->ps->groundEntityNum = ENTITYNUM_NONE;
 
-  // jump away from wall
+  // Jump away from walls
   BG_GetClientNormal( pm->ps, normal );
 
-  if( ( pm->cmd.buttons & BUTTON_DODGE ) &&
-      pm->ps->stats[ STAT_PTEAM ] == PTE_ALIENS )
+  // Give player some velocity
+  if( minijump )
     magnitude *= ALIEN_MINI_JUMP_SCALE;
   VectorMA( pm->ps->velocity, magnitude, normal, pm->ps->velocity );
 
   PM_AddEvent( EV_JUMP );
 
+  // Set jumping animation
   if( pm->cmd.forwardmove >= 0 )
   {
     if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
@@ -3568,9 +3573,11 @@ void PmoveSingle( pmove_t *pmove )
 
   AngleVectors( pm->ps->viewangles, pml.forward, pml.right, pml.up );
 
-  if( pm->cmd.upmove < 10 )
+  if( pm->cmd.upmove < 10 &&
+      ( !( pm->cmd.buttons & BUTTON_DODGE ) ||
+        pm->ps->stats[ STAT_PTEAM ] != PTE_ALIENS ) )
   {
-    // not holding jump
+    // not holding jump or minijump
     pm->ps->pm_flags &= ~PMF_JUMP_HELD;
   }
 

@@ -83,9 +83,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL2_AREAZAP_REPEAT       500
 #define LEVEL2_AREAZAP_MAX_TARGETS  3
 #define LEVEL2_WALLJUMP_MAXSPEED    1000.0f
-#define LEVEL2_WALLJUMP_NORMAL      0.375f   // magnitude scale from surface
-#define LEVEL2_WALLJUMP_FORWARD     0.250f   // magnitude scale in view direction
-#define LEVEL2_WALLJUMP_UP          0.375f   // magnitude scale up
+#define LEVEL2_WALLJUMP_NORMAL      0.3f     // magnitude scale from surface
+#define LEVEL2_WALLJUMP_FORWARD     0.4f     // magnitude scale in view direction
+#define LEVEL2_WALLJUMP_UP          0.3f     // magnitude scale up
+#define LEVEL2_WALLJUMP_REPEAT      200      // msec before new jump
 
 #define LEVEL3_CLAW_DMG             ADM(80)
 #define LEVEL3_CLAW_UPG_RANGE       96.0f
