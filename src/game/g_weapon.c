@@ -157,12 +157,17 @@ static void G_WideTrace( trace_t *tr, gentity_t *ent, float range,
   VectorMA( muzzle, range, forward, end );
 
   G_UnlaggedOn( ent, muzzle, range );
+
   //prefer the target in the crosshairs
   trap_Trace( tr, muzzle, NULL, NULL, end, ent->s.number, CONTENTS_BODY );
 
   // Trace against entities
   if( tr->entityNum == ENTITYNUM_NONE )
     trap_Trace( tr, muzzle, mins, maxs, end, ent->s.number, CONTENTS_BODY );
+  else
+    //if the first trace hit, we need to set width to 0 to avoid
+    //"missing" in some rare cases
+    width = 0;
 
   // If we started in a solid that means someone is within our muzzle box,
   // the trace didn't give us the entity number though so do a trace
@@ -174,7 +179,6 @@ static void G_WideTrace( trace_t *tr, gentity_t *ent, float range,
     if( tr->entityNum != ENTITYNUM_NONE )
       *target = &g_entities[ tr->entityNum ];
   }
-
   else if( tr->entityNum != ENTITYNUM_NONE )
   {
     *target = &g_entities[ tr->entityNum ];
