@@ -2095,20 +2095,6 @@ void Cmd_Buy_f( gentity_t *ent )
       return;
     }
 
-    //can afford this?
-    if( BG_Weapon( weapon )->price > (short)ent->client->ps.persistant[ PERS_CREDIT ] )
-    {
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOFUNDS );
-      return;
-    }
-
-    //have space to carry this?
-    if( BG_Weapon( weapon )->slots & ent->client->ps.stats[ STAT_SLOTS ] )
-    {
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOSLOTS );
-      return;
-    }
-
     // Only humans can buy stuff
     if( BG_Weapon( weapon )->team != TEAM_HUMANS )
     {
@@ -2129,7 +2115,21 @@ void Cmd_Buy_f( gentity_t *ent )
       trap_SendServerCommand( ent-g_entities, "print \"You can't buy this item\n\"" );
       return;
     }
-    
+
+    //can afford this?
+    if( BG_Weapon( weapon )->price > (short)ent->client->ps.persistant[ PERS_CREDIT ] )
+    {
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOFUNDS );
+      return;
+    }
+
+    //have space to carry this?
+    if( BG_Weapon( weapon )->slots & ent->client->ps.stats[ STAT_SLOTS ] )
+    {
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOSLOTS );
+      return;
+    }
+
     // In some instances, weapons can't be changed
     if( !BG_PlayerCanChangeWeapon( &ent->client->ps ) )
       return;

@@ -639,8 +639,12 @@ void CG_Menu( int menu, int arg )
     //===============================
 
     case MN_H_NOBP:
-      longMsg   = "There is no power remaining. Free up power by deconstructing "
-                  "existing buildable objects.";
+      if( cgs.markDeconstruct )
+        longMsg   = "There is no power remaining. Free up power by marking "
+                    "existing buildable objects.";
+      else
+        longMsg   = "There is no power remaining. Free up power by deconstructing "
+                    "existing buildable objects.";
       shortMsg  = "There is no power remaining";
       type      = DT_BUILD;
       break;
