@@ -790,7 +790,6 @@ static qboolean PM_CheckJump( void )
   if( pm->ps->pm_type == PM_GRABBED )
   {
     pm->cmd.upmove = 0;
-    // not holding jump
     return qfalse;
   }
 
@@ -3681,7 +3680,7 @@ void PmoveSingle( pmove_t *pmove )
 
   if( pm->cmd.upmove < 10 )
   {
-    // not holding jump or minijump
+    // not holding jump
     pm->ps->pm_flags &= ~PMF_JUMP_HELD;
   }
 

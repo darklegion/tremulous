@@ -318,11 +318,6 @@ typedef struct
   int                 nameChangeTime;
   int                 nameChanges;
 
-  // used to save playerState_t values while in SPECTATOR_FOLLOW mode
-  int                 score;
-  int                 credit;
-  int                 ping;
-
   // used to save persistant[] values while in SPECTATOR_FOLLOW mode
   int                 savedCredit;
 
@@ -1073,8 +1068,10 @@ qboolean  G_MapExists( char *name );
 //
 void                G_UpdatePTRConnection( gclient_t *client );
 connectionRecord_t  *G_GenerateNewConnection( gclient_t *client );
+qboolean            G_VerifyPTRC( int code );
 void                G_ResetPTRConnections( void );
 connectionRecord_t  *G_FindConnectionForCode( int code );
+void                G_DeletePTRConnection( connectionRecord_t *connection );
 
 
 //some maxs

@@ -5163,9 +5163,7 @@ static bind_t g_bindings[] =
     { "scoresUp",      K_KP_PGUP,    -1, -1, -1 },
     { "scoresDown",    K_KP_PGDN,    -1, -1, -1 },
     { "messagemode",  -1,            -1, -1, -1 },
-    { "messagemode2", -1,            -1, -1, -1 },
-    { "messagemode3", -1,            -1, -1, -1 },
-    { "messagemode4", -1,            -1, -1, -1 },
+    { "messagemode2", -1,            -1, -1, -1 }
   };
 
 
@@ -5979,7 +5977,7 @@ void Item_OwnerDraw_Paint( itemDef_t *item )
           item->textalignx, item->textaligny,
           item->window.ownerDraw, item->window.ownerDrawFlags,
           item->alignment, item->textalignment, item->textvalignment,
-          item->special, item->textscale, color,
+          item->special, item->textscale, color, item->window.backColor,
           item->window.background, item->textStyle );
     }
   }

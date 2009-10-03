@@ -1366,12 +1366,20 @@ CG_DrawItemSelect
 */
 void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
 {
+  int           i;
+  float         x = rect->x;
+  float         y = rect->y;
+  float         width = rect->w;
+  float         height = rect->h;
+  float         iconWidth;
+  float         iconHeight;
+  int           items[ 64 ];
+  int           colinfo[ 64 ];
+  int           numItems = 0, selectedItem = 0;
+  int           length;
+  qboolean      vertical;
   centity_t *cent;
   playerState_t *ps;
-  float x = rect->x, y = rect->y, width = rect->w, height = rect->h,
-        iconWidth, iconHeight;
-  int i, items[ 64 ], colinfo[ 64 ], numItems = 0, selectedItem = 0, length;
-  qboolean vertical;
 
   cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;

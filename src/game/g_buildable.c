@@ -594,7 +594,7 @@ void AGeneric_Blast( gentity_t *self )
                            TEAM_ALIENS );
 
   //pretty events and item cleanup
-  self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
+  self->s.eFlags |= EF_NODRAW; //don't draw the model once it's destroyed
   G_AddEvent( self, EV_ALIEN_BUILDABLE_EXPLOSION, DirToByte( dir ) );
   self->timestamp = level.time;
   self->think = AGeneric_CreepRecede;
@@ -2367,7 +2367,7 @@ void HSpawn_Think( gentity_t *self )
         // If it's part of the map, kill self. 
         if( ent->s.eType == ET_BUILDABLE )
         {
-          G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+          G_Damage( ent, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
           G_SetBuildableAnim( self, BANIM_SPAWN1, qtrue );
         }
         else if( ent->s.number == ENTITYNUM_WORLD || ent->s.eType == ET_MOVER )

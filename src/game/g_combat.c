@@ -993,6 +993,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     // if the attacker was on the same team
     if( targ != attacker && OnSameTeam( targ, attacker ) )
     {
+      // don't do friendly fire on movement attacks
+      if( mod == MOD_LEVEL4_TRAMPLE || mod == MOD_LEVEL3_POUNCE ||
+          mod == MOD_LEVEL4_CRUSH )
+        return;
+
       // if dretchpunt is enabled and this is a dretch, do dretchpunt instead of damage
       if( g_dretchPunt.integer &&
           targ->client->ps.stats[ STAT_CLASS ] == PCL_ALIEN_LEVEL0 )
@@ -1006,30 +1011,16 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
         VectorAdd( targ->client->ps.velocity, push, targ->client->ps.velocity );
         return;
       }
-      // don't do friendly fire on movement attacks
-      else if( mod == MOD_LEVEL4_TRAMPLE || mod == MOD_LEVEL3_POUNCE ||
-          mod == MOD_LEVEL4_CRUSH )
-        return;
 
-      if( g_dretchPunt.integer &&
-        targ->client->ps.stats[ STAT_CLASS ] == PCL_ALIEN_LEVEL0 )
-      {
-        vec3_t dir, push;
-
-        VectorSubtract( targ->r.currentOrigin, attacker->r.currentOrigin, dir );
-        VectorNormalizeFast( dir );
-        VectorScale( dir, ( damage * 10.0f ), push );
-        push[2] = 64.0f;
-        VectorAdd( targ->client->ps.velocity, push, targ->client->ps.velocity );
-        return;
-      }
-      else if( !g_friendlyFire.integer )
+      // check if friendly fire has been disabled
+      if( !g_friendlyFire.integer )
       {
         if( !g_friendlyFireHumans.integer &&
             targ->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
         {
           return;
         }
+
         if( !g_friendlyFireAliens.integer &&
              targ->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
         {

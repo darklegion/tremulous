@@ -95,7 +95,6 @@ void G_LeaveTeam( gentity_t *self )
     G_RemoveFromSpawnQueue( &level.humanSpawnQueue, self->client->ps.clientNum );
   else
   {
-    // might have been following somone so reset
     if( self->client->sess.spectatorState == SPECTATOR_FOLLOW )
       G_StopFollowing( self );
     return;
@@ -163,8 +162,6 @@ void G_ChangeTeam( gentity_t *ent, team_t newTeam )
       (int)( ent->client->ps.persistant[ PERS_CREDIT ] *
              HUMAN_MAX_CREDITS / ALIEN_MAX_CREDITS + 0.5f );
   }
-
-  ent->client->pers.credit = ent->client->ps.persistant[ PERS_CREDIT ];
 
   if( newTeam == TEAM_NONE )
   {

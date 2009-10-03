@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../renderer/tr_types.h"
 #include "../client/keycodes.h"
 
-#include "../../ui/menudef.h"
+#include "../../assets/ui/menudef.h"
 
 #define MAX_MENUNAME 32
 #define MAX_ITEMTEXT 64
@@ -379,7 +379,11 @@ typedef struct
   void ( *addRefEntityToScene ) ( const refEntity_t *re );
   void ( *renderScene ) ( const refdef_t *fd );
   void ( *registerFont ) ( const char *pFontname, int pointSize, fontInfo_t *font );
-  void ( *ownerDrawItem ) ( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, int textalign, int textvalign, float special, float scale, vec4_t color, qhandle_t shader, int textStyle );
+  void ( *ownerDrawItem ) ( float x, float y, float w, float h, float text_x,
+                            float text_y, int ownerDraw, int ownerDrawFlags,
+                            int align, int textalign, int textvalign,
+                            float special, float scale, vec4_t foreColor,
+                            vec4_t backColor, qhandle_t shader, int textStyle );
   float ( *getValue ) ( int ownerDraw );
   qboolean ( *ownerDrawVisible ) ( int flags );
   void ( *runScript )( char **p );

@@ -53,7 +53,7 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
       !BG_InventoryContainsWeapon( weapon, ps->stats ) )
   {
     // switch to the first non blaster weapon
-    ent->client->ps.persistant[ PERS_NEWWEAPON ] =
+    ps->persistant[ PERS_NEWWEAPON ] =
       BG_PrimaryWeapon( ent->client->ps.stats );
   }
   else
@@ -927,9 +927,6 @@ qboolean CheckVenomAttack( gentity_t *ent )
 
   if( !traceEnt->takedamage )
     return qfalse;
-
-  if( traceEnt->health <= 0 )
-      return qfalse;
 
   if( traceEnt->health <= 0 )
       return qfalse;

@@ -91,19 +91,15 @@ void G_AddCreditToClient( gclient_t *client, short credit, qboolean cap )
   if( !client )
     return;
 
-  client->pers.credit += credit;
-  capAmount = client->pers.teamSelection == TEAM_ALIENS ?
-               ALIEN_MAX_FRAGS * ALIEN_CREDITS_PER_FRAG : HUMAN_MAX_CREDITS;
+  client->ps.persistant[ PERS_CREDIT ] += credit;
+  capAmount = client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS ?
+               ALIEN_MAX_CREDITS : HUMAN_MAX_CREDITS;
 
-  if( cap && client->pers.credit > capAmount )
-    client->pers.credit = capAmount;
+  if( cap && client->ps.persistant[ PERS_CREDIT ] > capAmount )
+    client->ps.persistant[ PERS_CREDIT ] = capAmount;
 
-  if( client->pers.credit < 0 )
-    client->pers.credit = 0;
-
-  // keep PERS_CREDIT in sync if not following 
-  if( client->sess.spectatorState != SPECTATOR_FOLLOW )
-    client->ps.persistant[ PERS_CREDIT ] = client->pers.credit;
+  if( client->ps.persistant[ PERS_CREDIT ] < 0 )
+    client->ps.persistant[ PERS_CREDIT ] = 0;
 }
 
 
@@ -1454,10 +1450,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   // increment the spawncount so the client will detect the respawn
   client->ps.persistant[ PERS_SPAWN_COUNT ]++;
   client->ps.persistant[ PERS_SPECSTATE ] = client->sess.spectatorState;
-
-  // restore really persistant things
-  client->ps.persistant[ PERS_SCORE ] = client->pers.score;
-  client->ps.persistant[ PERS_CREDIT ] = client->pers.credit;
 
   client->airOutTime = level.time + 12000;
 

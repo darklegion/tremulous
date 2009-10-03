@@ -760,9 +760,9 @@ int QDECL SortRanks( const void *a, const void *b )
   cb = &level.clients[ *(int *)b ];
 
   // then sort by score
-  if( ca->pers.score > cb->pers.score )
+  if( ca->ps.persistant[ PERS_SCORE ] > cb->ps.persistant[ PERS_SCORE ] )
     return -1;
-  else if( ca->pers.score < cb->pers.score )
+  if( ca->ps.persistant[ PERS_SCORE ] < cb->ps.persistant[ PERS_SCORE ] )
     return 1;
   else
     return 0;

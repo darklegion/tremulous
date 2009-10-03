@@ -2055,10 +2055,9 @@ static const weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "mdriver",            //char      *weaponName;
     "Mass Driver",        //char      *humanName;
-    "A portable magnetic accelerator capable of launching "
-      "metallic slugs at extremely high velocity. Damage is dealt to "
-      "all targets in the line of fire until the slug comes to a halt "
-      "within a wall.",
+    "A portable particle accelerator which causes minor nuclear "
+      "reactions at the point of impact. It has a very large "
+      "payload, but fires slowly.",
     MDRIVER_CLIPSIZE,     //int       maxAmmo;
     MDRIVER_MAXCLIPS,     //int       maxClips;
     qfalse,               //int       infiniteAmmo;
@@ -3096,7 +3095,7 @@ qboolean BG_WeaponIsFull( weapon_t weapon, int stats[ ], int ammo, int clips )
   maxClips = BG_Weapon( weapon )->maxClips;
 
   if( BG_InventoryContainsUpgrade( UP_BATTPACK, stats ) )
-    maxAmmo *= BATTPACK_MODIFIER;
+    maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
 
   return ( maxAmmo == ammo ) && ( maxClips == clips );
 }
@@ -3418,9 +3417,9 @@ Only needs to be used for human weapons.
 */
 weapon_t BG_GetPlayerWeapon( playerState_t *ps )
 {
-  if( ps->persistant[ PERS_NEWWEAPON ] &&
-      ps->persistant[ PERS_NEWWEAPON ] != ps->weapon )
+  if( ps->persistant[ PERS_NEWWEAPON ] )
     return ps->persistant[ PERS_NEWWEAPON ];
+
   return ps->weapon;
 }
 

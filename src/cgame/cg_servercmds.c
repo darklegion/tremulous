@@ -658,7 +658,7 @@ void CG_Menu( int menu, int arg )
 
     case MN_H_NOPOWERHERE:
       longMsg   = "There is no power here. If available, a Repeater may be used to "
-                  "transmit power, to this location.";
+                  "transmit power to this location.";
       shortMsg  = "There is no power here";
       type      = DT_BUILD;
       break;
@@ -828,8 +828,10 @@ void CG_Menu( int menu, int arg )
       break;
 
     case MN_A_INFEST:
-      trap_Cvar_Set( "ui_currentClass", va( "%d %d",  cg.snap->ps.stats[ STAT_CLASS ],
-                                                      cg.snap->ps.persistant[ PERS_CREDIT ] ) );
+      trap_Cvar_Set( "ui_currentClass",
+         va( "%d %d", cg.snap->ps.stats[ STAT_CLASS ],
+                      cg.snap->ps.persistant[ PERS_CREDIT ] ) );
+
       cmd       = "menu tremulous_alienupgrade\n";
       type      = DT_INTERACTIVE;
       break;
@@ -1149,11 +1151,13 @@ CG_ServerMenu_f
 */
 static void CG_ServerMenu_f( void )
 {
-  if( trap_Argc( ) == 2 && !cg.demoPlayback )
-    CG_Menu( atoi( CG_Argv( 1 ) ), 0 );
-
-  if( trap_Argc( ) == 3 && !cg.demoPlayback )
-    CG_Menu( atoi( CG_Argv( 1 ) ), atoi( CG_Argv( 2 ) ) );
+  if( !cg.demoPlayback )
+  {
+    if( trap_Argc( ) == 2 )
+      CG_Menu( atoi( CG_Argv( 1 ) ), 0 );
+    else if( trap_Argc( ) == 3 )
+      CG_Menu( atoi( CG_Argv( 1 ) ), atoi( CG_Argv( 2 ) ) );
+  }
 }
 
 /*

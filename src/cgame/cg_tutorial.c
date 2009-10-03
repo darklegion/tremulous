@@ -221,7 +221,8 @@ static void CG_AlienBuilderText( char *text, playerState_t *ps )
     }
   }
 
-  if( ps->stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0_UPG )
+  if( ps->stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0 ||
+      ps->stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0_UPG )
   {
     if( ( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) == BA_NONE )
     {

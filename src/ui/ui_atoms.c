@@ -128,7 +128,6 @@ static void UI_MessageMode_f( void )
   char *arg = UI_Argv( 0 );
 
   trap_Cvar_Set( "ui_sayBuffer", "" );
-    uiInfo.chatTeam = qfalse;
 
   switch( arg[ 11 ] )
   {
@@ -189,8 +188,8 @@ qboolean UI_ConsoleCommand( int realTime )
     if( Q_stricmp( commands[ i ].cmd, cmd ) == 0 )
     {
       commands[ i ].function( );
-    }
-    return qtrue;    
+      return qtrue;
+    }    
   }
 
   return qfalse;

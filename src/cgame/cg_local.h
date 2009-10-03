@@ -572,8 +572,6 @@ typedef struct
   lerpFrame_t legs, torso, nonseg, weapon;
   int         painTime;
   int         painDirection;  // flip from 0 to 1
-  
-  qboolean    squadMarked;    // player has been marked as a squadmember
 
   // machinegun spinning
   float       barrelAngle;
@@ -1636,9 +1634,9 @@ void        CG_CenterPrint( const char *str, int y, int charWidth );
 void        CG_DrawActive( stereoFrame_t stereoView );
 void        CG_OwnerDraw( float x, float y, float w, float h, float text_x,
                           float text_y, int ownerDraw, int ownerDrawFlags,
-                          int align, int textalign, int textvalign, float special,
-                          float scale, vec4_t color,
-                          qhandle_t shader, int textStyle );
+                          int align, int textalign, int textvalign,
+                          float special, float scale, vec4_t foreColor,
+                          vec4_t backColor, qhandle_t shader, int textStyle );
 float       CG_GetValue(int ownerDraw);
 void        CG_RunMenuScript(char **args);
 void        CG_SetPrintString( int type, const char *p );

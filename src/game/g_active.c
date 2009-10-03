@@ -198,7 +198,7 @@ ClientShove
 */
 static int GetClientMass( gentity_t *ent )
 {
-  int entMass = 75;
+  int entMass = 100;
 
   if( ent->client->pers.teamSelection == TEAM_ALIENS )
     entMass = BG_Class( ent->client->pers.classSelection )->health;
@@ -459,10 +459,11 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
       client->ps.pm_type = PM_FREEZE;
     else if( client->noclip )
       client->ps.pm_type = PM_NOCLIP;
-    else if( queued )
-      client->ps.pm_flags |= PMF_QUEUED;
-
+    else
       client->ps.pm_type = PM_SPECTATOR;
+
+    if( queued )
+      client->ps.pm_flags |= PMF_QUEUED;
 
     client->ps.speed = client->pers.flySpeed;
     client->ps.stats[ STAT_STAMINA ] = 0;
@@ -760,11 +761,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
   // Regenerate Adv. Dragoon barbs
   if( client->ps.weapon == WP_ALEVEL3_UPG )
   {
-    int maxAmmo;
-
-    maxAmmo = BG_Weapon( WP_ALEVEL3_UPG )->maxAmmo;
- 
-    if( client->ps.ammo < maxAmmo )
+    if( client->ps.ammo < BG_Weapon( WP_ALEVEL3_UPG )->maxAmmo )
     {
       if( ent->timestamp + LEVEL3_BOUNCEBALL_REGEN < level.time )
       {
@@ -1271,19 +1268,6 @@ void ClientThink_real( gentity_t *ent )
     ucmd->serverTime = level.time - 1000;
 //    G_Printf("serverTime >>>>>\n" );
   }
-
-  // ucmd->serverTime is a client predicted value, but it works for making a
-  // replacement for client->ps.ping when in SPECTATOR_FOLLOW
-  client->pers.ping = level.time - ucmd->serverTime;
-
-  // account for the one frame of delay on client side
-  client->pers.ping -= level.time - level.previousTime;
-
-  // account for the time that's elapsed since the last ClientEndFrame()
-  client->pers.ping += trap_Milliseconds() - level.frameMsec;
-
-  if( client->pers.ping < 0 )
-    client->pers.ping = 0;
 
   msec = ucmd->serverTime - client->ps.commandTime;
   // following others may result in bad times, but we still want
@@ -1840,24 +1824,20 @@ void SpectatorClientEndFrame( gentity_t *ent )
       cl = &level.clients[ clientNum ];
       if( cl->pers.connected == CON_CONNECTED )
       {
-        if( cl->sess.spectatorState == SPECTATOR_NOT ) 
-        {
-          // Save
-          flags = ( cl->ps.eFlags & ~( EF_VOTED | EF_TEAMVOTED ) ) |
-                  ( ent->client->ps.eFlags & ( EF_VOTED | EF_TEAMVOTED ) );
-          score = ent->client->ps.persistant[ PERS_SCORE ];
-          ping = ent->client->ps.ping;
+        // Save
+        flags = ( cl->ps.eFlags & ~( EF_VOTED | EF_TEAMVOTED ) ) |
+                ( ent->client->ps.eFlags & ( EF_VOTED | EF_TEAMVOTED ) );
+        score = ent->client->ps.persistant[ PERS_SCORE ];
+        ping = ent->client->ps.ping;
 
-          // Copy
-          ent->client->ps = cl->ps;
+        // Copy
+        ent->client->ps = cl->ps;
 
-          // Restore
-          ent->client->ps.eFlags = flags;
-          ent->client->ps.persistant[ PERS_SCORE ] = score;
-          ent->client->ps.ping = ping;
-        }
+        // Restore
+        ent->client->ps.eFlags = flags;
+        ent->client->ps.persistant[ PERS_SCORE ] = score;
+        ent->client->ps.ping = ping;
 
-        ent->client->ps.clientNum = clientNum;
         ent->client->ps.pm_flags |= PMF_FOLLOW;
         ent->client->ps.pm_flags &= ~PMF_QUEUED;
       }
@@ -1885,10 +1865,6 @@ void ClientEndFrame( gentity_t *ent )
   }
 
   pers = &ent->client->pers;
-
-  // save a copy of certain playerState values in case of SPECTATOR_FOLLOW 
-  pers->score = ent->client->ps.persistant[ PERS_SCORE ];
-  pers->credit = ent->client->ps.persistant[ PERS_CREDIT ];
 
   //
   // If the end of unit layout is displayed, don't give

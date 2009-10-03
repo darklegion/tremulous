@@ -252,8 +252,6 @@ void ScoreboardMessage( gentity_t *ent )
 
     if( cl->pers.connected == CON_CONNECTING )
       ping = -1;
-    else if( cl->sess.spectatorState == SPECTATOR_FOLLOW )
-      ping = cl->pers.ping < 999 ? cl->pers.ping : 999;
     else
       ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
 
@@ -283,7 +281,7 @@ void ScoreboardMessage( gentity_t *ent )
     }
 
     Com_sprintf( entry, sizeof( entry ),
-      " %d %d %d %d %d %d", level.sortedClients[ i ], cl->pers.score,
+      " %d %d %d %d %d %d", level.sortedClients[ i ], cl->ps.persistant[ PERS_SCORE ],
       ping, ( level.time - cl->pers.enterTime ) / 60000, weapon, upgrade );
 
     j = strlen( entry );
@@ -397,22 +395,18 @@ void Cmd_Give_f( gentity_t *ent )
 
   if( give_all || Q_stricmp( name, "ammo" ) == 0 )
   {
-    int maxAmmo, maxClips;
     gclient_t *client = ent->client;
 
     if( client->ps.weapon != WP_ALEVEL3_UPG &&
         BG_Weapon( client->ps.weapon )->infiniteAmmo )
       return;
 
-    maxAmmo = BG_Weapon( client->ps.weapon )->maxAmmo;
-    maxClips = BG_Weapon( client->ps.weapon )->maxClips;
+    client->ps.ammo = BG_Weapon( client->ps.weapon )->maxAmmo;
+    client->ps.clips = BG_Weapon( client->ps.weapon )->maxClips;
 
     if( BG_Weapon( client->ps.weapon )->usesEnergy &&
         BG_InventoryContainsUpgrade( UP_BATTPACK, client->ps.stats ) )
-      maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
-
-    client->ps.ammo = maxAmmo;
-    client->ps.clips = maxClips;
+      client->ps.ammo = (int)( (float)client->ps.ammo * BATTPACK_MODIFIER );
   }
 }
 
@@ -1648,7 +1642,8 @@ void Cmd_SetViewpos_f( gentity_t *ent )
 
 #define AS_OVER_RT3         ((ALIENSENSE_RANGE*0.5f)/M_ROOT3)
 
-static qboolean G_RoomForClassChange( gentity_t *ent, class_t class, vec3_t newOrigin )
+static qboolean G_RoomForClassChange( gentity_t *ent, class_t class,
+                                      vec3_t newOrigin )
 {
   vec3_t    fromMins, fromMaxs;
   vec3_t    toMins, toMaxs;
@@ -2005,7 +2000,7 @@ void Cmd_Destroy_f( gentity_t *ent )
       if( !g_cheats.integer )
       {
         ent->client->ps.stats[ STAT_MISC ] +=
-          BG_Buildable( traceEnt->s.modelindex )->buildTime;
+          BG_Buildable( traceEnt->s.modelindex )->buildTime / 4;
       }
     }
   }
@@ -2122,7 +2117,7 @@ void Cmd_Buy_f( gentity_t *ent )
 {
   char s[ MAX_TOKEN_CHARS ];
   weapon_t  weapon;
-  upgrade_t upgrade, maxAmmo, maxClips;
+  upgrade_t upgrade;
   qboolean  energyOnly;
 
   trap_Argv( 1, s, sizeof( s ) );
@@ -2197,15 +2192,12 @@ void Cmd_Buy_f( gentity_t *ent )
       return;
 
     ent->client->ps.stats[ STAT_WEAPON ] = weapon;
-    maxAmmo = BG_Weapon( weapon )->maxAmmo;
-    maxClips = BG_Weapon( weapon )->maxClips;
+    ent->client->ps.ammo = BG_Weapon( weapon )->maxAmmo;
+    ent->client->ps.clips = BG_Weapon( weapon )->maxClips;
 
     if( BG_Weapon( weapon )->usesEnergy &&
         BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
-      maxAmmo *= BATTPACK_MODIFIER;
-      
-    ent->client->ps.ammo = maxAmmo;
-    ent->client->ps.clips = maxClips;
+      ent->client->ps.ammo *= BATTPACK_MODIFIER;
 
     G_ForceWeaponChange( ent, weapon );
 
@@ -2634,8 +2626,6 @@ to free floating spectator mode
 */
 void G_StopFollowing( gentity_t *ent )
 {
-   ent->client->sess.spectatorState =
-     ent->client->ps.persistant[ PERS_SPECSTATE ] = SPECTATOR_FREE;
   ent->client->ps.stats[ STAT_TEAM ] = ent->client->pers.teamSelection;
 
   if( ent->client->pers.teamSelection == TEAM_NONE )
@@ -2747,7 +2737,7 @@ qboolean G_FollowNewClient( gentity_t *ent, int dir )
       clientnum = level.maxclients - 1;
 
     // can't follow self
-    if( level.clients[ clientnum ].pers.connected != CON_CONNECTED )
+    if( &g_entities[ clientnum ] == ent )
       continue;
 
     // avoid selecting existing follow target
@@ -2889,9 +2879,6 @@ void Cmd_PTRCVerify_f( gentity_t *ent )
   char                s[ MAX_TOKEN_CHARS ] = { 0 };
   int                 code;
 
-  if( ent->client->pers.connection )
-    return;
-
   trap_Argv( 1, s, sizeof( s ) );
 
   if( !s[ 0 ] )
@@ -2899,16 +2886,16 @@ void Cmd_PTRCVerify_f( gentity_t *ent )
 
   code = atoi( s );
 
-  connection = G_FindConnectionForCode( code );
-  if( connection && connection->clientNum == -1 )
+  if( G_VerifyPTRC( code ) )
   {
+    connection = G_FindConnectionForCode( code );
+
     // valid code
     if( connection->clientTeam != TEAM_NONE )
       trap_SendServerCommand( ent->client->ps.clientNum, "ptrcconfirm" );
 
     // restore mapping
     ent->client->pers.connection = connection;
-    connection->clientNum = ent->client->ps.clientNum;
   }
   else
   {
@@ -2936,13 +2923,6 @@ void Cmd_PTRCRestore_f( gentity_t *ent )
   int                 code;
   connectionRecord_t  *connection;
 
-  if( ent->client->pers.joinedATeam )
-  {
-    trap_SendServerCommand( ent - g_entities,
-      "print \"You cannot use a PTR code after joining a team\n\"" );
-    return;
-  }
-
   trap_Argv( 1, s, sizeof( s ) );
 
   if( !s[ 0 ] )
@@ -2950,15 +2930,28 @@ void Cmd_PTRCRestore_f( gentity_t *ent )
 
   code = atoi( s );
 
-  connection = ent->client->pers.connection;
-  if( connection && connection->ptrCode == code )
+  if( G_VerifyPTRC( code ) )
   {
-    // set the correct team
-    G_ChangeTeam( ent, connection->clientTeam );
+    if( ent->client->pers.joinedATeam )
+    {
+      trap_SendServerCommand( ent - g_entities,
+        "print \"You cannot use a PTR code after joining a team\n\"" );
+    }
+    else
+    {
+      // valid code
+      connection = G_FindConnectionForCode( code );
 
-    // set the correct credit
-    ent->client->ps.persistant[ PERS_CREDIT ] = 0;
-    G_AddCreditToClient( ent->client, connection->clientCredit, qtrue );
+      if( connection )
+      {
+        // set the correct team
+        G_ChangeTeam( ent, connection->clientTeam );
+
+        // set the correct credit
+        ent->client->ps.persistant[ PERS_CREDIT ] = 0;
+        G_AddCreditToClient( ent->client, connection->clientCredit, qtrue );
+      }
+    }
   }
   else
   {
@@ -3042,11 +3035,6 @@ Cmd_Test_f
 */
 void Cmd_Test_f( gentity_t *humanPlayer )
 {
-      humanPlayer->client->ps.eFlags |= EF_POISONCLOUDED;
-      humanPlayer->client->lastPoisonCloudedTime = level.time;
-
-      trap_SendServerCommand( humanPlayer->client->ps.clientNum,
-                              "poisoncloud" );
 }
 
 /*
