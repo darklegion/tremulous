@@ -3376,11 +3376,15 @@ BG_PlayerCanChangeWeapon
 */
 qboolean BG_PlayerCanChangeWeapon( playerState_t *ps )
 {
+  // Can always change from ckit
+  if( ps->weapon == WP_HBUILD )
+    return qtrue;
+
   // Do not allow Lucifer Cannon "canceling" via weapon switch
   if( ps->weapon == WP_LUCIFER_CANNON &&
       ps->stats[ STAT_MISC ] > LCANNON_CHARGE_TIME_MIN )
     return qfalse;
-    
+
   return ps->weaponTime <= 0 || ps->weaponstate != WEAPON_FIRING;
 }
 
