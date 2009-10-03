@@ -1173,14 +1173,14 @@ void G_CalculateBuildPoints( void )
 
     if( g_alienStage.integer < g_alienMaxStage.integer ||
         g_humanStage.integer > S1 )
-      alienNextStageThreshold = (int)( ceil( (float)g_alienStageThreshold.integer * (g_alienStage.integer + 1) * alienPlayerCountMod ) );
+      alienNextStageThreshold = (int)( ceil( (float)level.alienStagedownCredits + g_alienStageThreshold.integer * alienPlayerCountMod ) );
     else
       alienNextStageThreshold = -1;
 
 
     if( g_humanStage.integer < g_humanMaxStage.integer ||
          g_alienStage.integer > S1 )
-    humanNextStageThreshold = (int)( ceil( (float)g_humanStageThreshold.integer * (g_humanStage.integer + 1) * humanPlayerCountMod ) );
+    humanNextStageThreshold = (int)( ceil( (float)level.humanStagedownCredits + g_humanStageThreshold.integer * humanPlayerCountMod ) );
     else
       humanNextStageThreshold = -1;
 
@@ -1226,6 +1226,12 @@ void G_CalculateStages( void )
     lastAlienStageModCount = g_alienMaxReachedStage.modificationCount;
     if( g_humanStage.integer == S3 )
       level.humanStagedownCredits = g_humanCredits.integer;
+    G_LogPrintf( "stagedownlog: aliens s2, humans s%d; %d %d %d %d\n", 
+                 g_humanStage.integer + 1,
+                 g_humanCredits.integer,
+                 level.humanStagedownCredits,
+                 g_alienCredits.integer,
+                 level.alienStagedownCredits );
   }
 
   if( g_alienCredits.integer >=
@@ -1237,6 +1243,12 @@ void G_CalculateStages( void )
     lastAlienStageModCount = g_alienMaxReachedStage.modificationCount;
     if( g_humanStage.integer > S1 )
       level.alienStagedownCredits = g_alienCredits.integer;
+    G_LogPrintf( "stagedownlog: aliens s3, humans s%d; %d %d %d %d\n", 
+                 g_humanStage.integer + 1,
+                 g_humanCredits.integer,
+                 level.humanStagedownCredits,
+                 g_alienCredits.integer,
+                 level.alienStagedownCredits );
   }
 
   if( g_humanCredits.integer >=
@@ -1249,7 +1261,14 @@ void G_CalculateStages( void )
     lastHumanStageModCount = g_humanMaxReachedStage.modificationCount;
     if( g_alienStage.integer == S3 )
       level.alienStagedownCredits = g_alienCredits.integer;
+        G_LogPrintf( "stagedownlog: humans s2, aliens s%d; %d %d %d %d\n", 
+                 g_alienStage.integer + 1,
+                 g_humanCredits.integer,
+                 level.humanStagedownCredits,
+                 g_alienCredits.integer,
+                 level.alienStagedownCredits );
   }
+
 
 
   if( g_humanCredits.integer >=
@@ -1261,14 +1280,27 @@ void G_CalculateStages( void )
     lastHumanStageModCount = g_humanMaxReachedStage.modificationCount;
     if( g_alienStage.integer > S1 )
       level.humanStagedownCredits = g_humanCredits.integer;
-    //trap_Cvar_Update( g_humanStage );
+    G_LogPrintf( "stagedownlog: humans s3, aliens s%d; %d %d %d %d\n", 
+                 g_alienStage.integer + 1,
+                 g_humanCredits.integer,
+                 level.humanStagedownCredits,
+                 g_alienCredits.integer,
+                 level.alienStagedownCredits );
   }
   if( g_alienStage.integer > S1 &&
       g_humanStage.integer == S3 &&
       g_humanCredits.integer - level.humanStagedownCredits >= 
       (int) ceil( g_humanStageThreshold.integer * humanPlayerCountMod ) )
   {
-    
+    G_LogPrintf( "stagedownlog: aliens staging down\n"
+                 "stagedownlog: before: %d %d %d %d %d %d",
+                 g_humanStage.integer,
+                 g_humanCredits.integer,
+                 level.humanStagedownCredits,
+                 g_alienStage.integer,
+                 g_alienCredits.integer,
+                 level.alienStagedownCredits);
+                 
     if( g_alienStage.integer == S3 )
       level.alienStage3Time = level.startTime;
     if( g_alienStage.integer == S2 )
@@ -1277,13 +1309,28 @@ void G_CalculateStages( void )
     trap_Cvar_Set( "g_alienStage", va( "%d", g_alienStage.integer - 1 ) );
     trap_Cvar_Set( "g_alienCredits", va( "%d", (int)ceil(g_alienCredits.integer - g_alienStageThreshold.integer * alienPlayerCountMod) ) );
     trap_Cvar_Set( "g_humanCredits", va( "%d", (int)ceil(g_humanCredits.integer - g_humanStageThreshold.integer * humanPlayerCountMod) ) );
-    //stageDown = qtrue;
+    G_LogPrintf( "stagedownlog: after: %d %d %d %d %d %d",
+                 trap_Cvar_VariableIntegerValue( "g_humanStage" ),
+                 trap_Cvar_VariableIntegerValue( "g_humanCredits" ),
+                 level.humanStagedownCredits,
+                 trap_Cvar_VariableIntegerValue( "g_alienStage" ),
+                 trap_Cvar_VariableIntegerValue( "g_alienCredits" ),
+                 level.alienStagedownCredits);
+
   }
   if( g_humanStage.integer > S1 &&
       g_alienStage.integer == S3 &&
       g_alienCredits.integer - level.alienStagedownCredits >= 
       (int) ceil( g_alienStageThreshold.integer * alienPlayerCountMod ) )
   {
+    G_LogPrintf( "stagedownlog: humans staging down\n"
+                 "stagedownlog: before: %d %d %d %d %d %d",
+                 g_humanStage.integer,
+                 g_humanCredits.integer,
+                 level.humanStagedownCredits,
+                 g_alienStage.integer,
+                 g_alienCredits.integer,
+                 level.alienStagedownCredits);
 
     if( g_humanStage.integer == S3 )
       level.humanStage3Time = level.startTime;
@@ -1293,6 +1340,13 @@ void G_CalculateStages( void )
     trap_Cvar_Set( "g_humanStage", va( "%d", g_humanStage.integer - 1 ) );    
     trap_Cvar_Set( "g_humanCredits", va( "%d", (int)ceil(g_humanCredits.integer - g_humanStageThreshold.integer * humanPlayerCountMod) ) );
     trap_Cvar_Set( "g_alienCredits", va( "%d", (int)ceil(g_alienCredits.integer - g_alienStageThreshold.integer * alienPlayerCountMod) ) );
+    G_LogPrintf( "stagedownlog: after: %d %d %d %d %d %d",
+                 trap_Cvar_VariableIntegerValue( "g_humanStage" ),
+                 trap_Cvar_VariableIntegerValue( "g_humanCredits" ),
+                 level.humanStagedownCredits,
+                 trap_Cvar_VariableIntegerValue( "g_alienStage" ),
+                 trap_Cvar_VariableIntegerValue( "g_alienCredits" ),
+                 level.alienStagedownCredits);
   }
   
   if( g_alienMaxReachedStage.modificationCount > lastAlienStageModCount )
