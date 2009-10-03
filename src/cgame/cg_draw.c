@@ -925,14 +925,19 @@ static float CG_ChargeProgress( void )
     min = LCANNON_CHARGE_TIME_MIN;
     max = LCANNON_CHARGE_TIME_MAX;
   }
-  if( max - min < 0.0f )
+
+  if( max - min <= 0.0f )
     return 0.0f;
+
   progress = ( (float)cg.predictedPlayerState.stats[ STAT_MISC ] - min ) /
              ( max - min );
+
   if( progress > 1.0f )
     return 1.0f;
+
   if( progress < 0.0f )
     return 0.0f;
+
   return progress;
 }
 
