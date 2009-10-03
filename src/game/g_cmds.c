@@ -924,7 +924,12 @@ Cmd_Where_f
 */
 void Cmd_Where_f( gentity_t *ent )
 {
-  trap_SendServerCommand( ent-g_entities, va( "print \"%s\n\"", vtos( ent->s.origin ) ) );
+  if( !ent->client )
+    return;
+  trap_SendServerCommand( ent - g_entities,
+                          va( "print \"origin: %f %f %f\n\"",
+                              ent->s.origin[ 0 ], ent->s.origin[ 1 ],
+                              ent->s.origin[ 2 ] ) );
 }
 
 /*
