@@ -1766,6 +1766,7 @@ void Cmd_Destroy_f( gentity_t *ent )
     // Always let the builder prevent the explosion 
     if( traceEnt->health <= 0 )
     {
+      G_QueueBuildPoints( traceEnt );
       G_FreeEntity( traceEnt );
       return;
     }

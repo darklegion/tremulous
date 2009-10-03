@@ -89,6 +89,8 @@ vmCvar_t  g_maxNameChanges;
 
 vmCvar_t  g_humanBuildPoints;
 vmCvar_t  g_alienBuildPoints;
+vmCvar_t  g_humanBuildQueueTime;
+vmCvar_t  g_alienBuildQueueTime;
 vmCvar_t  g_humanStage;
 vmCvar_t  g_humanCredits;
 vmCvar_t  g_humanMaxStage;
@@ -218,6 +220,8 @@ static cvarTable_t   gameCvarTable[ ] =
 
   { &g_humanBuildPoints, "g_humanBuildPoints", DEFAULT_HUMAN_BUILDPOINTS, 0, 0, qfalse  },
   { &g_alienBuildPoints, "g_alienBuildPoints", DEFAULT_ALIEN_BUILDPOINTS, 0, 0, qfalse  },
+  { &g_humanBuildQueueTime, "g_humanBuildQueueTime", DEFAULT_HUMAN_QUEUE_TIME, 0, 0, qfalse  },
+  { &g_alienBuildQueueTime, "g_alienBuildQueueTime", DEFAULT_ALIEN_QUEUE_TIME, 0, 0, qfalse  },
   { &g_humanStage, "g_humanStage", "0", 0, 0, qfalse  },
   { &g_humanCredits, "g_humanCredits", "0", 0, 0, qfalse  },
   { &g_humanMaxStage, "g_humanMaxStage", DEFAULT_HUMAN_MAX_STAGE, 0, 0, qfalse  },
@@ -1065,8 +1069,22 @@ void G_CalculateBuildPoints( void )
   int         i;
   buildable_t buildable;
   gentity_t   *ent;
-  int         localHTP = g_humanBuildPoints.integer,
-              localATP = g_alienBuildPoints.integer;
+  int         localHTP = level.humanBuildPoints = g_humanBuildPoints.integer,
+              localATP = level.alienBuildPoints = g_alienBuildPoints.integer;
+
+  while( level.alienBuildPointQueue > 0 &&
+         level.alienNextQueueTime < level.time )
+  {
+    level.alienBuildPointQueue--;
+    level.alienNextQueueTime += g_alienBuildQueueTime.integer;
+  }
+
+  while( level.humanBuildPointQueue > 0 &&
+         level.humanNextQueueTime < level.time )
+  {
+    level.humanBuildPointQueue--;
+    level.humanNextQueueTime += g_alienBuildQueueTime.integer;
+  }
 
   if( g_suddenDeathTime.integer && !level.warmupTime )
   {
@@ -1099,8 +1117,8 @@ void G_CalculateBuildPoints( void )
     localATP = g_alienBuildPoints.integer;
   }
 
-  level.humanBuildPoints = level.humanBuildPointsPowered = localHTP;
-  level.alienBuildPoints = localATP;
+  level.humanBuildPoints = localHTP - level.humanBuildPointQueue;
+  level.alienBuildPoints = localATP - level.alienBuildPointQueue;
 
   level.reactorPresent = qfalse;
   level.overmindPresent = qfalse;
@@ -1111,6 +1129,9 @@ void G_CalculateBuildPoints( void )
       continue;
 
     if( ent->s.eType != ET_BUILDABLE )
+      continue;
+
+    if( ent->s.eFlags & EF_DEAD )
       continue;
 
     buildable = ent->s.modelindex;
@@ -1126,11 +1147,8 @@ void G_CalculateBuildPoints( void )
       if( BG_Buildable( buildable )->team == TEAM_HUMANS )
       {
         level.humanBuildPoints -= BG_Buildable( buildable )->buildPoints;
-
-        if( ent->powered )
-          level.humanBuildPointsPowered -= BG_Buildable( buildable )->buildPoints;
       }
-      else
+      else if( BG_Buildable( buildable )->team == TEAM_ALIENS )
       {
         level.alienBuildPoints -= BG_Buildable( buildable )->buildPoints;
       }
@@ -1140,7 +1158,6 @@ void G_CalculateBuildPoints( void )
   if( level.humanBuildPoints < 0 )
   {
     localHTP -= level.humanBuildPoints;
-    level.humanBuildPointsPowered -= level.humanBuildPoints;
     level.humanBuildPoints = 0;
   }
 
@@ -1150,10 +1167,9 @@ void G_CalculateBuildPoints( void )
     level.alienBuildPoints = 0;
   }
 
-  trap_SetConfigstring( CS_BUILDPOINTS, va( "%d %d %d %d %d",
+  trap_SetConfigstring( CS_BUILDPOINTS, va( "%d %d %d %d",
         level.alienBuildPoints, localATP,
-        level.humanBuildPoints, localHTP,
-        level.humanBuildPointsPowered ) );
+        level.humanBuildPoints, localHTP ) );
 
   //may as well pump the stages here too
   {

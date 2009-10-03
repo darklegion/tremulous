@@ -588,8 +588,11 @@ typedef struct
   int               numLiveHumanClients;
 
   int               alienBuildPoints;
+  int               alienBuildPointQueue;
+  int               alienNextQueueTime;
   int               humanBuildPoints;
-  int               humanBuildPointsPowered;
+  int               humanBuildPointQueue;
+  int               humanNextQueueTime;
 
   gentity_t         *markedBuildables[ MAX_GENTITIES ];
   int               numBuildablesForRemoval;
@@ -744,6 +747,7 @@ int               G_LayoutList( const char *map, char *list, int len );
 void              G_LayoutSelect( void );
 void              G_LayoutLoad( void );
 void              G_BaseSelfDestruct( team_t team );
+void              G_QueueBuildPoints( gentity_t *self );
 
 //
 // g_utils.c
@@ -1123,6 +1127,8 @@ extern  vmCvar_t  g_singlePlayer;
 
 extern  vmCvar_t  g_humanBuildPoints;
 extern  vmCvar_t  g_alienBuildPoints;
+extern  vmCvar_t  g_humanBuildQueueTime;
+extern  vmCvar_t  g_alienBuildQueueTime;
 extern  vmCvar_t  g_humanStage;
 extern  vmCvar_t  g_humanCredits;
 extern  vmCvar_t  g_humanMaxStage;
