@@ -741,6 +741,20 @@ void ClientTimerActions( gentity_t *ent, int msec )
       client->voiceEnthusiasm -= VOICE_ENTHUSIASM_DECAY;
     else
       client->voiceEnthusiasm = 0.0f;
+
+    client->pers.aliveSeconds++;
+    if( g_freeFundPeriod.integer > 0 &&
+        client->pers.aliveSeconds % g_freeFundPeriod.integer == 0 )
+    {
+      // Give clients some credit periodically
+      if( G_TimeTilSuddenDeath( ) > 0 )
+      {
+        if( client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
+          G_AddCreditToClient( client, FREEKILL_ALIEN, qtrue );
+        else if( client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
+          G_AddCreditToClient( client, FREEKILL_HUMAN, qtrue );
+      }
+    }
   }
 
   while( client->time10000 >= 10000 )
@@ -1747,21 +1761,6 @@ void ClientThink_real( gentity_t *ent )
 
   if( client->ps.persistant[ PERS_BP ] < 0 )
     client->ps.persistant[ PERS_BP ] = 0;
-
-  // Give clients some credit periodically
-  if( ent->client->lastKillTime + g_freeKillPeriod.integer < level.time )
-  {
-    if( G_TimeTilSuddenDeath( ) <= 0 )
-    {
-      //gotta love logic like this eh?
-    }
-    else if( ent->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
-      G_AddCreditToClient( ent->client, FREEKILL_ALIEN, qtrue );
-    else if( ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
-      G_AddCreditToClient( ent->client, FREEKILL_HUMAN, qtrue );
-
-    ent->client->lastKillTime = level.time;
-  }
 
   // perform once-a-second actions
   ClientTimerActions( ent, msec );

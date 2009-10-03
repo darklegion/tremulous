@@ -318,6 +318,8 @@ typedef struct
   qboolean            joinedATeam;        // used to tell when a PTR code is valid
   connectionRecord_t  *connection;
 
+  int                 aliveSeconds;       // time player has been alive in seconds
+
   int                 nameChangeTime;
   int                 nameChanges;
 
@@ -398,8 +400,6 @@ struct gclient_s
   int                 boostedTime;      // last time we touched a booster
 
   int                 airOutTime;
-
-  int                 lastKillTime;     // for multiple kill rewards
 
   qboolean            fireHeld;         // used for hook
   qboolean            fire2Held;        // used for alt fire
@@ -1097,7 +1097,7 @@ extern  vmCvar_t  g_alienCredits;
 extern  vmCvar_t  g_alienMaxStage;
 extern  vmCvar_t  g_alienStage2Threshold;
 extern  vmCvar_t  g_alienStage3Threshold;
-extern  vmCvar_t  g_freeKillPeriod;
+extern  vmCvar_t  g_freeFundPeriod;
 
 extern  vmCvar_t  g_unlagged;
 
