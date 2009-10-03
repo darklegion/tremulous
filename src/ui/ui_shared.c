@@ -1628,7 +1628,7 @@ void Script_ConditionalOpen( itemDef_t *item, char **args )
   {
     val = DC->getCVarValue( cvar );
 
-    if( val == 0.f )
+    if( val == 0.0f )
       Menus_ActivateByName( name2 );
     else
       Menus_ActivateByName( name1 );

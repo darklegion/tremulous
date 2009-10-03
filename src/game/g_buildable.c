@@ -940,7 +940,7 @@ void ABarricade_Shrink( gentity_t *self, qboolean shrink )
 
     trap_Trace( &tr, self->s.origin, self->r.mins, self->r.maxs,
                 self->s.origin, self->s.number, MASK_PLAYERSOLID );
-    if ( tr.startsolid || tr.fraction < 1.f )
+    if ( tr.startsolid || tr.fraction < 1.0f )
     {
       self->r.maxs[ 2 ] = (int)( self->r.maxs[ 2 ] * BARRICADE_SHRINKPROP );
       return;
@@ -3178,7 +3178,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
   }
 
   //this item does not fit here
-  if( reason == IBE_NONE && ( tr2.fraction < 1.0 || tr3.fraction < 1.0 ) )
+  if( reason == IBE_NONE && ( tr2.fraction < 1.0f || tr3.fraction < 1.0f ) )
     reason = IBE_NOROOM;
 
   if( reason != IBE_NONE )

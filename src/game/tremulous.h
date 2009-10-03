@@ -389,8 +389,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PAINSAW_K_SCALE             1.0f
 #define PAINSAW_DAMAGE              HDM(11)
 #define PAINSAW_RANGE               64.0f
-#define PAINSAW_WIDTH               0.f
-#define PAINSAW_HEIGHT              8.f
+#define PAINSAW_WIDTH               0.0f
+#define PAINSAW_HEIGHT              8.0f
 
 #define GRENADE_PRICE               200
 #define GRENADE_REPEAT              0
@@ -628,7 +628,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define HUMAN_DODGE_SIDE_MODIFIER   2.9f
 #define HUMAN_DODGE_UP_MODIFIER     0.5f
 #define HUMAN_DODGE_TIMEOUT         500
-#define HUMAN_LAND_FRICTION         3.f
+#define HUMAN_LAND_FRICTION         3.0f
 
 #define STAMINA_STOP_RESTORE        25
 #define STAMINA_WALK_RESTORE        15

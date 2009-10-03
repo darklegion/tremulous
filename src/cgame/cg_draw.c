@@ -400,7 +400,7 @@ static void CG_DrawPlayerStaminaBolt( rectDef_t *rect, vec4_t backColor,
   if( stamina < 0 )
     Vector4Copy( backColor, color );
   else if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_SPEEDBOOST )
-    Vector4Lerp( ( sin( cg.time / 150.f ) + 1 ) / 2,
+    Vector4Lerp( ( sin( cg.time / 150.0f ) + 1 ) / 2,
                  backColor, foreColor, color );
   else
     Vector4Copy( foreColor, color );
@@ -814,10 +814,10 @@ static void CG_DrawPlayerHealthCross( rectDef_t *rect, vec4_t ref_color )
   // Fade the icon during transition
   if( cg.lastHealthCross != shader )
   {
-    cg.healthCrossFade += cg.frametime / 500.f;
-    if( cg.healthCrossFade > 1.f )
+    cg.healthCrossFade += cg.frametime / 500.0f;
+    if( cg.healthCrossFade > 1.0f )
     {
-      cg.healthCrossFade = 0.f;
+      cg.healthCrossFade = 0.0f;
       cg.lastHealthCross = shader;
     }
     else
@@ -826,7 +826,7 @@ static void CG_DrawPlayerHealthCross( rectDef_t *rect, vec4_t ref_color )
       color[ 3 ] = ref_alpha * cg.healthCrossFade;
       trap_R_SetColor( color );
       CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
-      color[ 3 ] = ref_alpha * ( 1.f - cg.healthCrossFade );
+      color[ 3 ] = ref_alpha * ( 1.0f - cg.healthCrossFade );
       trap_R_SetColor( color );
       CG_DrawPic( rect->x, rect->y, rect->w, rect->h, cg.lastHealthCross );
       trap_R_SetColor( NULL );

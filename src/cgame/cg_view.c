@@ -1334,8 +1334,8 @@ static int CG_CalcViewValues( void )
     ps->velocity[ 1 ] * ps->velocity[ 1 ] );
 
   // the bob velocity should't get too fast to avoid jerking
-  if( cg.xyspeed > 300.f )
-    cg.xyspeed = 300.f;
+  if( cg.xyspeed > 300.0f )
+    cg.xyspeed = 300.0f;
 
   VectorCopy( ps->origin, cg.refdef.vieworg );
 

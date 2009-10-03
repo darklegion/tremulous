@@ -685,7 +685,7 @@ Returns the damage region given an angle and a height proportion
 static float GetPointDamageModifier( gentity_t *targ, damageRegion_t *regions,
                                      int len, float angle, float height )
 {
-  float modifier = 1.f;
+  float modifier = 1.0f;
   int i;
 
   for( i = 0; i < len; i++ )

@@ -144,54 +144,46 @@ static void G_WideTrace( trace_t *tr, gentity_t *ent, float range,
   vec3_t    mins, maxs;
   vec3_t    end;
 
-  VectorSet( mins, -width, -width, -width );
+  VectorSet( mins, -width, -width, -height );
   VectorSet( maxs, width, width, width );
-  mins[ 2 ] -= height - width;
 
   *target = NULL;
 
   if( !ent->client )
     return;
 
-  // Set aiming directions
-  VectorMA( muzzle, range, forward, end );
+  // Try a linear trace first
+  VectorMA( muzzle, range + width, forward, end );
 
-  G_UnlaggedOn( ent, muzzle, range );
+  G_UnlaggedOn( ent, muzzle, range + width );
 
-  //prefer the target in the crosshairs
-  trap_Trace( tr, muzzle, NULL, NULL, end, ent->s.number, CONTENTS_BODY );
-
-  // Trace against entities
-  if( tr->entityNum == ENTITYNUM_NONE )
-    trap_Trace( tr, muzzle, mins, maxs, end, ent->s.number, CONTENTS_BODY );
-  else
-    //if the first trace hit, we need to set width to 0 to avoid
-    //"missing" in some rare cases
-    width = 0;
-
-  // If we started in a solid that means someone is within our muzzle box,
-  // the trace didn't give us the entity number though so do a trace
-  // from the entity origin to the muzzle
-  if( tr->startsolid )
+  trap_Trace( tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+  if( tr->entityNum != ENTITYNUM_NONE )
   {
-    trap_Trace( tr, ent->client->ps.origin, mins, maxs, muzzle,
-                ent->s.number, CONTENTS_BODY );
-    if( tr->entityNum != ENTITYNUM_NONE )
-      *target = &g_entities[ tr->entityNum ];
-  }
-  else if( tr->entityNum != ENTITYNUM_NONE )
-  {
+    // We hit something with the linear trace
     *target = &g_entities[ tr->entityNum ];
-
-    // Set range to the trace length plus the width, so that the end of the
-    // LOS trace is close to the exterior of the target's bounding box
-    range = Distance( muzzle, tr->endpos ) + width;
+  }
+  else
+  {
+    // The linear trace didn't hit anything, so retry with a wide trace
     VectorMA( muzzle, range, forward, end );
 
-    // Trace for line of sight against the world
-    trap_Trace( tr, muzzle, NULL, NULL, end, 0, CONTENTS_SOLID );
-    if( tr->fraction < 1.0f )
-      *target = NULL;
+    // Trace against entities
+    trap_Trace( tr, muzzle, mins, maxs, end, ent->s.number, CONTENTS_BODY );
+    if( tr->entityNum != ENTITYNUM_NONE )
+    {
+      *target = &g_entities[ tr->entityNum ];
+
+      // Set range to the trace length plus the width, so that the end of the
+      // LOS trace is close to the exterior of the target's bounding box
+      range = Distance( muzzle, tr->endpos ) + width;
+      VectorMA( muzzle, range, forward, end );
+
+      // Trace for line of sight against the world
+      trap_Trace( tr, muzzle, NULL, NULL, end, 0, CONTENTS_SOLID );
+      if( tr->fraction < 1.0f )
+        *target = NULL;
+    }
   }
 
   G_UnlaggedOff( );
