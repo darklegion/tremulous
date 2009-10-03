@@ -1602,7 +1602,7 @@ Print to the logfile with a time stamp if it is open
 void QDECL G_LogPrintf( const char *fmt, ... )
 {
   va_list argptr;
-  char    string[ 1024 ];
+  char    string[ 1024 ], decolored[ 1024 ];
   int     min, tens, sec;
 
   sec = level.time / 1000;
@@ -1624,7 +1624,8 @@ void QDECL G_LogPrintf( const char *fmt, ... )
   if( !level.logFile )
     return;
 
-  trap_FS_Write( string, strlen( string ), level.logFile );
+  G_DecolorString( string, decolored, sizeof( decolored ) );
+  trap_FS_Write( decolored, strlen( decolored ), level.logFile );
 }
 
 /*

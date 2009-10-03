@@ -246,7 +246,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   else
     obit = modNames[ meansOfDeath ];
 
-  G_LogPrintf("Kill: %i %i %i: %s killed %s by %s\n",
+  G_LogPrintf("Kill: %i %i %i: %s^7 killed %s^7 by %s\n",
     killer, self->s.number, meansOfDeath, killerName,
     self->client->pers.netname, obit );
 
@@ -1334,4 +1334,43 @@ qboolean G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage,
   }
 
   return hitClient;
+}
+
+/*
+================
+G_LogDestruction
+
+Log deconstruct/destroy events
+================
+*/
+void G_LogDestruction( gentity_t *self, gentity_t *actor, int mod )
+{
+  if( !actor || !actor->client )
+    return;
+
+  if( actor->client->ps.stats[ STAT_TEAM ] ==
+    BG_Buildable( self->s.modelindex )->team )
+  {
+    G_TeamCommand( actor->client->ps.stats[ STAT_TEAM ],
+      va( "print \"%s ^3%s^7 by %s\n\"",
+        BG_Buildable( self->s.modelindex )->humanName,
+        mod == MOD_UNKNOWN ? "DECONSTRUCTED" : "DESTROYED",
+        actor->client->pers.netname ) );
+  }
+
+  if( mod == MOD_UNKNOWN )
+    G_LogPrintf( "Decon: %d %d %d: %s^7 deconstructed %s\n",
+      actor->client->ps.clientNum,
+      self->s.modelindex,
+      mod,
+      actor->client->pers.netname,
+      BG_Buildable( self->s.modelindex )->name );
+  else
+    G_LogPrintf( "Decon: %d %d %d: %s^7 destroyed %s by %s\n",
+      actor->client->ps.clientNum,
+      self->s.modelindex,
+      mod,
+      actor->client->pers.netname,
+      BG_Buildable( self->s.modelindex )->name,
+      modNames[ mod ] );
 }

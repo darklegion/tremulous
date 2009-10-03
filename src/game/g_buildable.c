@@ -23,9 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
-// from g_combat.c
-extern char *modNames[ ];
-
 /*
 ================
 G_SetBuildableAnim
@@ -82,23 +79,6 @@ gentity_t *G_CheckSpawnPoint( int spawnNum, vec3_t origin, vec3_t normal,
 
     displacement = ( maxs[ 2 ] + MAX_ALIEN_BBOX ) * M_ROOT3;
     VectorMA( origin, displacement, normal, localOrigin );
-
-    trap_Trace( &tr, origin, NULL, NULL, localOrigin, spawnNum, MASK_SHOT );
-
-    if( tr.entityNum != ENTITYNUM_NONE )
-      return &g_entities[ tr.entityNum ];
-
-    trap_Trace( &tr, localOrigin, cmins, cmaxs, localOrigin, -1, MASK_PLAYERSOLID );
-
-    if( tr.entityNum == ENTITYNUM_NONE )
-    {
-      if( spawnOrigin != NULL )
-        VectorCopy( localOrigin, spawnOrigin );
-
-      return NULL;
-    }
-    else
-      return &g_entities[ tr.entityNum ];
   }
   else if( spawn == BA_H_SPAWN )
   {
@@ -106,24 +86,22 @@ gentity_t *G_CheckSpawnPoint( int spawnNum, vec3_t origin, vec3_t normal,
 
     VectorCopy( origin, localOrigin );
     localOrigin[ 2 ] += maxs[ 2 ] + fabs( cmins[ 2 ] ) + 1.0f;
-
-    trap_Trace( &tr, origin, NULL, NULL, localOrigin, spawnNum, MASK_SHOT );
-
-    if( tr.entityNum != ENTITYNUM_NONE )
-      return &g_entities[ tr.entityNum ];
-
-    trap_Trace( &tr, localOrigin, cmins, cmaxs, localOrigin, -1, MASK_PLAYERSOLID );
-
-    if( tr.entityNum == ENTITYNUM_NONE )
-    {
-      if( spawnOrigin != NULL )
-        VectorCopy( localOrigin, spawnOrigin );
-
-      return NULL;
-    }
-    else
-      return &g_entities[ tr.entityNum ];
   }
+  else
+    return NULL;
+
+  trap_Trace( &tr, origin, NULL, NULL, localOrigin, spawnNum, MASK_SHOT );
+
+  if( tr.entityNum != ENTITYNUM_NONE )
+    return &g_entities[ tr.entityNum ];
+
+  trap_Trace( &tr, localOrigin, cmins, cmaxs, localOrigin, -1, MASK_PLAYERSOLID );
+
+  if( tr.entityNum != ENTITYNUM_NONE )
+    return &g_entities[ tr.entityNum ];
+
+  if( spawnOrigin != NULL )
+    VectorCopy( localOrigin, spawnOrigin );
 
   return NULL;
 }
@@ -603,20 +581,7 @@ void AGeneric_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, i
   else
     self->nextthink = level.time; //blast immediately
 
-  if( attacker && attacker->client )
-  {
-    if( attacker->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS &&
-        !self->deconstruct )
-      G_TeamCommand( TEAM_ALIENS,
-        va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
-          BG_Buildable( self->s.modelindex )->humanName,
-          attacker->client->pers.netname ) );
-    G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
-      attacker->client->ps.clientNum, self->s.modelindex, mod,
-      attacker->client->pers.netname,
-      BG_Buildable( self->s.modelindex )->name,
-      modNames[ mod ] );
-  }
+  G_LogDestruction( self, attacker, mod );
 }
 
 /*
@@ -2314,20 +2279,7 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     self->nextthink = level.time; //blast immediately
   }
 
-  if( attacker && attacker->client )
-  {
-    if( attacker->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS &&
-        !self->deconstruct )
-      G_TeamCommand( TEAM_HUMANS,
-        va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
-          BG_Buildable( self->s.modelindex )->humanName,
-          attacker->client->pers.netname ) );
-    G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
-      attacker->client->ps.clientNum, self->s.modelindex, mod,
-      attacker->client->pers.netname,
-      BG_Buildable( self->s.modelindex )->name,
-      modNames[ mod ] );
-  }
+  G_LogDestruction( self, attacker, mod );
 }
 
 /*

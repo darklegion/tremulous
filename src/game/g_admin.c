@@ -2348,6 +2348,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
 qboolean G_admin_showbans( gentity_t *ent, int skiparg )
 {
   int i, found = 0;
+  int max = 0, count;
   int t;
   char duration[ 32 ];
   char name_fmt[ 32 ] = { "%s" };
@@ -2372,47 +2373,65 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
       continue;
     }
     found++;
+    max = i;
   }
 
-  if( G_SayArgc() < 3 + skiparg )
+  if( G_SayArgc() == 2 + skiparg )
   {
     G_SayArgv( 1 + skiparg, skip, sizeof( skip ) );
     start = atoi( skip );
     // showbans 1 means start with ban 0
     if( start > 0 )
-      start -= 1;
+      start--;
     else if( start < 0 )
-      start = found + start;
+    {
+      for( i = max, count = 0; i > 0 && count < -start; i-- )
+      {
+        if( g_admin_bans[ i ]->expires == 0 ||
+          ( g_admin_bans[ i ]->expires - t ) > 0 )
+          count++;
+      }
+
+      start = i;
+    }
   }
 
   if( start >= MAX_ADMIN_BANS || start < 0 )
     start = 0;
 
-  for( i = start; i < MAX_ADMIN_BANS && g_admin_bans[ i ] &&
-     ( i - start ) < MAX_ADMIN_SHOWBANS; i++ )
-  {
-    G_DecolorString( g_admin_bans[ i ]->name, n1, sizeof( n1 ) );
-    G_DecolorString( g_admin_bans[ i ]->banner, n2, sizeof( n2 ) );
-    if( strlen( n1 ) > max_name )
-    {
-      max_name = strlen( n1 );
-    }
-    if( strlen( n2 ) > max_banner )
-      max_banner = strlen( n2 );
-  }
-
-  if( start >= found )
-  {
-    ADMP( va( "^3!showbans: ^7there are %d active bans\n", found ) );
-    return qfalse;
-  }
-  ADMBP_begin();
-  for( i = start; i < MAX_ADMIN_BANS && g_admin_bans[ i ] &&
-     ( i - start ) < MAX_ADMIN_SHOWBANS; i++ )
+  for( i = start, count = 0; i < MAX_ADMIN_BANS && g_admin_bans[ i ] &&
+     count < MAX_ADMIN_SHOWBANS; i++ )
   {
     if( g_admin_bans[ i ]->expires != 0 &&
       ( g_admin_bans[ i ]->expires - t ) < 1 )
       continue;
+
+    count++;
+
+    G_DecolorString( g_admin_bans[ i ]->name, n1, sizeof( n1 ) );
+    G_DecolorString( g_admin_bans[ i ]->banner, n2, sizeof( n2 ) );
+
+    if( strlen( n1 ) > max_name )
+      max_name = strlen( n1 );
+
+    if( strlen( n2 ) > max_banner )
+      max_banner = strlen( n2 );
+  }
+
+  if( start > max )
+  {
+    ADMP( va( "^3!showbans: ^7%d is the last valid ban\n", max + 1 ) );
+    return qfalse;
+  }
+  ADMBP_begin();
+  for( i = start, count = 0; i < MAX_ADMIN_BANS && g_admin_bans[ i ] &&
+     count < MAX_ADMIN_SHOWBANS; i++ )
+  {
+    if( g_admin_bans[ i ]->expires != 0 &&
+      ( g_admin_bans[ i ]->expires - t ) < 1 )
+      continue;
+
+    count++;
 
     // only print out the the date part of made
     date[ 0 ] = '\0';
@@ -2451,16 +2470,13 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
              g_admin_bans[ i ]->reason ) );
   }
 
-  ADMBP( va( "^3!showbans:^7 showing bans %d - %d of %d.  ",
+  ADMBP( va( "^3!showbans:^7 showing bans %d - %d of %d (%d total).",
            ( found ) ? ( start + 1 ) : 0,
-           ( ( start + MAX_ADMIN_SHOWBANS ) > found ) ?
-           found : ( start + MAX_ADMIN_SHOWBANS ),
+           i,
+           max + 1,
            found ) );
-  if( ( start + MAX_ADMIN_SHOWBANS ) < found )
-  {
-    ADMBP( va( "run !showbans %d to see more",
-             ( start + MAX_ADMIN_SHOWBANS + 1 ) ) );
-  }
+  if( i + MAX_ADMIN_SHOWBANS < max )
+    ADMBP( va( "  run !showbans %d to see more", i + 1 ) );
   ADMBP( "\n" );
   ADMBP_end();
   return qtrue;
