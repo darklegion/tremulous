@@ -673,7 +673,6 @@
       type ITEM_TYPE_BUTTON
       forecolor 1 1 1 1
       visible MENU_FALSE
-      type ITEM_TYPE_BUTTON
 
       text "Join"
       textalign ALIGN_RIGHT

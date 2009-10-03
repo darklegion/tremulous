@@ -243,7 +243,7 @@
       group optionsGrp
       type ITEM_TYPE_MULTI
       text "Wallwalking Speed:"
-      cvarfloat "cg_wwSmoothTime" 300 0 1000
+      cvar "cg_wwSmoothTime"
       cvarFloatList { "Medium" 300 "Fast" 150 "Instant" 0 "Slow" 600 }
       rect CONTENT_X (CONTENT_Y+(5*ELEM_H)) CONTENT_W ELEM_H
       textalign ALIGN_RIGHT

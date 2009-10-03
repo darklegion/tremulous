@@ -476,7 +476,6 @@
       type ITEM_TYPE_BUTTON
       forecolor 1 1 1 1
       visible MENU_FALSE
-      type ITEM_TYPE_BUTTON
 
       text "Create"
       textalign ALIGN_RIGHT

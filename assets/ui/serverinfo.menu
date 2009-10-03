@@ -75,7 +75,6 @@
       text "Refresh"
       type ITEM_TYPE_BUTTON
       textscale .25
-      type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       rect (W-(2*BUTT_W)) (H-BUTT_H) BUTT_W BUTT_H
       textalign ALIGN_CENTER
@@ -95,7 +94,6 @@
       text "Close"
       type ITEM_TYPE_BUTTON
       textscale .25
-      type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       rect (W-BUTT_W) (H-BUTT_H) BUTT_W BUTT_H
       textalign ALIGN_CENTER

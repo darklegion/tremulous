@@ -44,11 +44,11 @@
     itemDef
     {
       name nameEntry
+      type ITEM_TYPE_EDITFIELD
       style WINDOW_STYLE_EMPTY
       maxchars 40
       text "Name:"
       textscale .4
-      type ITEM_TYPE_EDITFIELD
       cvar "ui_favoriteName"
       rect BORDER BORDER (W-(2*BORDER)) INPUT_H
       textalign ALIGN_LEFT
@@ -60,11 +60,11 @@
     itemDef
     {
       name addressEntry
+      type ITEM_TYPE_EDITFIELD
       style WINDOW_STYLE_EMPTY
       maxchars 40
       text "Address:"
       textscale .4
-      type ITEM_TYPE_EDITFIELD
       cvar "ui_favoriteAddress"
       rect BORDER ((2*BORDER)+INPUT_H) (W-(2*BORDER)) INPUT_H
       textalign ALIGN_LEFT
