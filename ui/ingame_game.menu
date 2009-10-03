@@ -729,7 +729,7 @@
       name info
       group gameGrp
       rect 0 (INFO_Y+(5*INFOELEM_H)) W INFOELEM_H
-      type ITEM_TYPE_BUTTON
+      type ITEM_TYPE_YESNO
       style WINDOW_STYLE_EMPTY
       text "Lag Correction:"
       cvar ui_serverinfo_unlagged
