@@ -1763,6 +1763,25 @@ void ATrapper_Think( gentity_t *self )
 
 
 
+static void G_SuicideIfNoPower( gentity_t *self )
+{
+  if( self->buildableTeam != TEAM_HUMANS )
+    return;
+
+  if( G_Reactor( ) && !self->parentNode )
+  {
+    // If no parent for x seconds then disappear
+    if( self->count < 0 )
+      self->count = level.time;
+    else if( self->count > 0 && ( ( level.time - self->count ) > HUMAN_BUILDABLE_INACTIVE_TIME ) )
+      G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
+  }
+  else
+  {
+    self->count = -1;
+  }
+}
+
 void HSpawn_Blast( gentity_t *ent );
 void HSpawn_Disappear( gentity_t *ent );
 
@@ -1996,6 +2015,8 @@ void HArmoury_Think( gentity_t *self )
   self->nextthink = level.time + POWER_REFRESH_TIME;
 
   self->powered = G_FindPower( self );
+
+  G_SuicideIfNoPower( self );
 }
 
 
@@ -2020,6 +2041,8 @@ void HDCC_Think( gentity_t *self )
   self->nextthink = level.time + POWER_REFRESH_TIME;
 
   self->powered = G_FindPower( self );
+
+  G_SuicideIfNoPower( self );
 }
 
 
@@ -2063,6 +2086,8 @@ void HMedistat_Think( gentity_t *self )
   qboolean  occupied = qfalse;
 
   self->nextthink = level.time + BG_Buildable( self->s.modelindex )->nextthink;
+
+  G_SuicideIfNoPower( self );
 
   //clear target's healing flag
   if( self->enemy && self->enemy->client )
@@ -2332,6 +2357,8 @@ void HMGTurret_Think( gentity_t *self )
   // Turn off client side muzzle flashes
   self->s.eFlags &= ~EF_FIRING;
 
+  G_SuicideIfNoPower( self );
+
   // If not powered or spawned don't do anything
   if( !( self->powered = G_FindPower( self ) ) )
   {
@@ -2401,6 +2428,8 @@ Think function for Tesla Generator
 void HTeslaGen_Think( gentity_t *self )
 {
   self->nextthink = level.time + BG_Buildable( self->s.modelindex )->nextthink;
+
+  G_SuicideIfNoPower( self );
 
   //if not powered don't do anything and check again for power next think
   if( !( self->powered = G_FindPower( self ) ) )
@@ -2548,6 +2577,8 @@ void HSpawn_Think( gentity_t *self )
 
   // spawns work without power
   self->powered = qtrue;
+
+  G_SuicideIfNoPower( self );
 
   // set parentNode
   G_FindPower( self );

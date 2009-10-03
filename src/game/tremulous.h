@@ -614,7 +614,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define REPEATER_HEALTH             HBHM(250)
 #define REPEATER_SPLASHDAMAGE       50
 #define REPEATER_SPLASHRADIUS       100
-#define REPEATER_INACTIVE_TIME      90000
 #define REPEATER_VALUE              HBVM(2)
 
 /*
@@ -646,6 +645,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define HUMAN_BUILDER_SCOREINC      50       // builders receive this many points every 10 seconds
 #define ALIEN_BUILDER_SCOREINC      AVM(50)  // builders receive this many points every 10 seconds
+
+#define HUMAN_BUILDABLE_INACTIVE_TIME 90000
 
 /*
  * Misc
