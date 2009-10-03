@@ -795,8 +795,11 @@ int G_GetSpawnQueueLength( spawnQueue_t *sq )
 {
   int length = sq->back - sq->front + 1;
 
-  if( length < 0 )
+  while( length < 0 )
     length += MAX_CLIENTS;
+
+  while( length >= MAX_CLIENTS )
+    length -= MAX_CLIENTS;
 
   return length;
 }
