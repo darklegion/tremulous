@@ -1848,7 +1848,7 @@ void Cmd_Class_f( gentity_t *ent )
       }
 
       cost = BG_ClassCanEvolveFromTo( currentClass, newClass,
-                                      ent->client->ps.persistant[ PERS_CREDIT ],
+                                      ent->client->pers.credit,
                                       g_alienStage.integer, 0 );
 
       if( G_RoomForClassChange( ent, newClass, infestOrigin ) )
@@ -2186,7 +2186,7 @@ void Cmd_Buy_f( gentity_t *ent )
     }
 
     //can afford this?
-    if( BG_Weapon( weapon )->price > (short)ent->client->ps.persistant[ PERS_CREDIT ] )
+    if( BG_Weapon( weapon )->price > (short)ent->client->pers.credit )
     {
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOFUNDS );
       return;
@@ -2229,7 +2229,7 @@ void Cmd_Buy_f( gentity_t *ent )
     }
 
     //can afford this?
-    if( BG_Upgrade( upgrade )->price > (short)ent->client->ps.persistant[ PERS_CREDIT ] )
+    if( BG_Upgrade( upgrade )->price > (short)ent->client->pers.credit )
     {
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOFUNDS );
       return;
@@ -2679,6 +2679,7 @@ void G_StopFollowing( gentity_t *ent )
   ent->client->ps.eFlags &= ~( EF_WALLCLIMB | EF_WALLCLIMBCEILING );
   ent->client->ps.viewangles[ PITCH ] = 0.0f;
   ent->client->ps.clientNum = ent - g_entities;
+  ent->client->ps.persistant[ PERS_CREDIT ] = ent->client->pers.credit;
 
   CalculateRanks( );
 }

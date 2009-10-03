@@ -1735,7 +1735,7 @@ void ClientThink_real( gentity_t *ent )
         if( i == num && client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
         {
           if( BG_AlienCanEvolve( client->ps.stats[ STAT_CLASS ],
-                                 client->ps.persistant[ PERS_CREDIT ],
+                                 client->pers.credit,
                                  g_alienStage.integer ) )
           {
             //no nearby objects and alien - show class menu
