@@ -536,8 +536,6 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
   fileHandle_t  f;
   weaponMode_t  weaponMode = WPM_NONE;
 
-  Com_Memset( wi, 0, sizeof( weaponInfo_t ) );
-
   // load the file
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
   if( len < 0 )
