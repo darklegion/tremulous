@@ -1680,7 +1680,7 @@ void Cmd_Class_f( gentity_t *ent )
 
           ClientSpawn( ent, ent, ent->s.pos.trBase, ent->s.apos.trBase );
 
-          if( oldBoostedTime > 0 )
+          if( oldBoostTime > 0 )
           {
             ent->client->boostedTime = oldBoostTime;
             ent->client->ps.stats[ STAT_STATE ] |= SS_BOOSTED;

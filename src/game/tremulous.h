@@ -105,7 +105,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL3_BOUNCEBALL_DMG       ADM(110)
 #define LEVEL3_BOUNCEBALL_REPEAT    1500
 #define LEVEL3_BOUNCEBALL_SPEED     1000.0f
-#define LEVEL3_BOUNCEBALL_RADIUS    100
+#define LEVEL3_BOUNCEBALL_RADIUS    75
 #define LEVEL3_BOUNCEBALL_REGEN     15000    // msec until new barb
 
 #define LEVEL4_CLAW_DMG             ADM(100)
@@ -371,7 +371,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define BLASTER_SPREAD              200
 #define BLASTER_SPEED               1400
 #define BLASTER_DMG                 HDM(10)
-#define BLASTER_SIZE                4
+#define BLASTER_SIZE                5
 
 #define RIFLE_CLIPSIZE              30
 #define RIFLE_MAXCLIPS              6
@@ -439,7 +439,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PRIFLE_RELOAD               2000
 #define PRIFLE_DMG                  HDM(9)
 #define PRIFLE_SPEED                1200
-#define PRIFLE_SIZE                 4
+#define PRIFLE_SIZE                 5
 
 #define FLAMER_PRICE                450
 #define FLAMER_GAS                  150
@@ -462,7 +462,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LCANNON_SIZE                8        // bounding box radius for full charge
 #define LCANNON_SECONDARY_DAMAGE    HDM(30)
 #define LCANNON_SECONDARY_RADIUS    75       // secondary splash damage radius
-#define LCANNON_SECONDARY_SIZE      4        // bounding box radius
+#define LCANNON_SECONDARY_SIZE      5        // bounding box radius
 #define LCANNON_SECONDARY_SPEED     1400
 #define LCANNON_SECONDARY_RELOAD    2000
 #define LCANNON_SECONDARY_REPEAT    1000
