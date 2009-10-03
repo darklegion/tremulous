@@ -1565,7 +1565,7 @@ void Cmd_Class_f( gentity_t *ent )
       {
         trap_SendServerCommand( ent-g_entities,
           va( "print \"Class %s not allowed at stage %d\n\"",
-              s, g_alienStage.integer ) );
+              s, g_alienStage.integer + 1 ) );
         return;
       }
 

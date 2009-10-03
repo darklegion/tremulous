@@ -437,6 +437,8 @@ MASS DRIVER
 ======================================================================
 */
 
+#ifdef MDRIVER_SHOOT_THROUGH
+
 void massDriverFire( gentity_t *ent )
 {
   trace_t tr;
@@ -491,6 +493,51 @@ void massDriverFire( gentity_t *ent )
   }
   G_UnlaggedOff( );
 }
+
+#else
+
+void massDriverFire( gentity_t *ent )
+{
+  trace_t   tr;
+  vec3_t    end;
+  gentity_t *tent;
+  gentity_t *traceEnt;
+
+  VectorMA( muzzle, 8192 * 16, forward, end );
+
+  G_UnlaggedOn( muzzle, 8192 * 16 );
+  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+  G_UnlaggedOff( );
+
+  if( tr.surfaceFlags & SURF_NOIMPACT )
+    return;
+
+  traceEnt = &g_entities[ tr.entityNum ];
+
+  // snap the endpos to integers, but nudged towards the line
+  SnapVectorTowards( tr.endpos, muzzle );
+
+  // send impact
+  if( traceEnt->takedamage && traceEnt->client )
+  {
+    BloodSpurt( ent, traceEnt, &tr );
+  }
+  else
+  {
+    tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
+    tent->s.eventParm = DirToByte( tr.plane.normal );
+    tent->s.weapon = ent->s.weapon;
+    tent->s.generic1 = ent->s.generic1; //weaponMode
+  }
+
+  if( traceEnt->takedamage )
+  {
+    G_Damage( traceEnt, ent, ent, forward, tr.endpos,
+      MDRIVER_DMG, 0, MOD_MDRIVER );
+  }
+}
+
+#endif
 
 /*
 ======================================================================

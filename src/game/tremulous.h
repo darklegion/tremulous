@@ -275,11 +275,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ACIDTUBE_BT                 15000
 #define ACIDTUBE_HEALTH             ABHM(125)
 #define ACIDTUBE_REGEN              10
-#define ACIDTUBE_SPLASHDAMAGE       6
-#define ACIDTUBE_SPLASHRADIUS       300
+#define ACIDTUBE_SPLASHDAMAGE       50
+#define ACIDTUBE_SPLASHRADIUS       50
 #define ACIDTUBE_CREEPSIZE          120
+#define ACIDTUBE_DAMAGE             6
 #define ACIDTUBE_RANGE              300.0f
-#define ACIDTUBE_REPEAT             3000
+#define ACIDTUBE_REPEAT             300
+#define ACIDTUBE_REPEAT_ANIM        2000
 #define ACIDTUBE_K_SCALE            1.0f
 
 #define HIVE_BP                     12
@@ -420,6 +422,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MDRIVER_REPEAT              1000
 #define MDRIVER_K_SCALE             1.0f
 #define MDRIVER_RELOAD              2000
+#define MDRIVER_SHOOT_THROUGH       // uncomment to enable MD shooting through entities
 
 #define CHAINGUN_PRICE              400
 #define CHAINGUN_BULLETS            300

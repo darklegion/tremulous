@@ -173,7 +173,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ACIDTUBE_REGEN,        //int       regenRate;
     ACIDTUBE_SPLASHDAMAGE, //int       splashDamage;
     ACIDTUBE_SPLASHRADIUS, //int       splashRadius;
-    MOD_ATUBE,             //int       meansOfDeath;
+    MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
     ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;

@@ -765,10 +765,14 @@ void AOvermind_Think( gentity_t *self )
         G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
       }
     }
-
+    
     // just in case an egg finishes building after we tell overmind to stfu
     if( level.numAlienSpawns > 0 )
       level.overmindMuted = qfalse;
+
+    // shut up during intermission
+    if( level.intermissiontime )
+      level.overmindMuted = qtrue;
 
     //low on spawns
     if( !level.overmindMuted && level.numAlienSpawns <= 0 &&
@@ -1104,30 +1108,25 @@ Damage function for Alien Acid Tube
 */
 void AAcidTube_Damage( gentity_t *self )
 {
-  if( self->spawned )
+  if( !self->spawned || self->health <= 0 )
   {
-    if( !( self->s.eFlags & EF_FIRING ) )
-    {
-      self->s.eFlags |= EF_FIRING;
-      G_AddEvent( self, EV_ALIEN_ACIDTUBE, DirToByte( self->s.origin2 ) );
-    }
-
-    if( ( self->timestamp + ACIDTUBE_REPEAT ) > level.time )
-      self->think = AAcidTube_Damage;
-    else
-    {
-      self->think = AAcidTube_Think;
-      self->s.eFlags &= ~EF_FIRING;
-    }
-
-    //do some damage
-    G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
-      self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
+    AAcidTube_Think( self );
+    return;
   }
 
+  if( level.time >= self->timestamp + ACIDTUBE_REPEAT_ANIM )
+  {
+    self->timestamp = level.time;
+    G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
+    G_AddEvent( self, EV_ALIEN_ACIDTUBE, DirToByte( self->s.origin2 ) );
+  }
+  G_SelectiveRadiusDamage( self->s.pos.trBase, self, ACIDTUBE_DAMAGE,
+                           ACIDTUBE_RANGE, self, MOD_ATUBE, PTE_ALIENS );
+                           
   G_CreepSlow( self );
-
-  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
+                           
+  self->think = AAcidTube_Think;
+  self->nextthink = level.time + ACIDTUBE_REPEAT;
 }
 
 /*
@@ -1159,7 +1158,6 @@ void AAcidTube_Think( gentity_t *self )
 
   if( self->spawned && G_FindOvermind( self ) )
   {
-    //do some damage
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
     for( i = 0; i < num; i++ )
     {
@@ -1170,11 +1168,8 @@ void AAcidTube_Think( gentity_t *self )
 
       if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
       {
-        self->timestamp = level.time;
         self->think = AAcidTube_Damage;
-        self->nextthink = level.time + 100;
-        G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
-        return;
+        break;
       }
     }
   }
