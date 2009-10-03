@@ -670,10 +670,13 @@ static void G_ClearVotes( void )
 {
   level.voteTime = 0;
   trap_SetConfigstring( CS_VOTE_TIME, "" );
+  trap_SetConfigstring( CS_VOTE_STRING, "" );
   level.teamVoteTime[ 0 ] = 0;
   trap_SetConfigstring( CS_TEAMVOTE_TIME, "" );
+  trap_SetConfigstring( CS_TEAMVOTE_STRING, "" );
   level.teamVoteTime[ 1 ] = 0;
   trap_SetConfigstring( CS_TEAMVOTE_TIME + 1, "" );
+  trap_SetConfigstring( CS_TEAMVOTE_STRING + 1, "" );
 }
 
 /*
@@ -2247,6 +2250,7 @@ void CheckVote( void )
 
   level.voteTime = 0;
   trap_SetConfigstring( CS_VOTE_TIME, "" );
+  trap_SetConfigstring( CS_VOTE_STRING, "" );
 }
 
 
@@ -2295,6 +2299,7 @@ void CheckTeamVote( team_t team )
 
   level.teamVoteTime[ cs_offset ] = 0;
   trap_SetConfigstring( CS_TEAMVOTE_TIME + cs_offset, "" );
+  trap_SetConfigstring( CS_TEAMVOTE_STRING + cs_offset, "" );
 }
 
 

@@ -1788,6 +1788,15 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   // get the gamestate from the client system
   trap_GetGameState( &cgs.gameState );
 
+  // copy vote display strings so they don't show up blank if we see 
+  // the same one directly after connecting
+  Q_strncpyz( cgs.voteString, CG_ConfigString( CS_VOTE_STRING ), 
+      sizeof( cgs.voteString ) );
+  Q_strncpyz( cgs.teamVoteString[ 0 ], CG_ConfigString( CS_TEAMVOTE_STRING + 0 ), 
+      sizeof( cgs.teamVoteString[ 0 ] ) );
+  Q_strncpyz( cgs.teamVoteString[ 1 ], CG_ConfigString( CS_TEAMVOTE_STRING + 1 ),
+      sizeof( cgs.teamVoteString[ 1 ] ) );
+
   // check version
   s = CG_ConfigString( CS_GAME_VERSION );
 
