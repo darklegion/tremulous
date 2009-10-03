@@ -411,6 +411,7 @@ struct gclient_s
 
   int                 time100;          // timer for 100ms interval events
   int                 time1000;         // timer for one second interval events
+  int                 time10000;        // timer for ten second interval events
 
   char                *areabits;
 
