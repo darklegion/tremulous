@@ -400,15 +400,17 @@ qboolean G_FindCreep( gentity_t *self )
     return qtrue;
 
   //if self does not have a parentNode or it's parentNode is invalid find a new one
-  if( self->client || ( self->parentNode == NULL ) || !self->parentNode->inuse )
+  if( self->client || self->parentNode == NULL || !self->parentNode->inuse ||
+      self->parentNode->health <= 0 )
   {
     for ( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
     {
       if( ent->s.eType != ET_BUILDABLE )
         continue;
 
-      if( ( ent->s.modelindex == BA_A_SPAWN || ent->s.modelindex == BA_A_OVERMIND ) &&
-          ent->spawned )
+      if( ( ent->s.modelindex == BA_A_SPAWN || 
+            ent->s.modelindex == BA_A_OVERMIND ) &&
+          ent->spawned && ent->health > 0 )
       {
         VectorSubtract( self->s.origin, ent->s.origin, temp_v );
         distance = VectorLength( temp_v );
@@ -523,12 +525,12 @@ static void freeBuildable( gentity_t *self )
 
 /*
 ================
-A_CreepRecede
+AGeneric_CreepRecede
 
 Called when an alien spawn dies
 ================
 */
-void A_CreepRecede( gentity_t *self )
+void AGeneric_CreepRecede( gentity_t *self )
 {
   //if the creep just died begin the recession
   if( !( self->s.eFlags & EF_DEAD ) )
@@ -552,6 +554,128 @@ void A_CreepRecede( gentity_t *self )
     G_FreeEntity( self );
 }
 
+/*
+================
+AGeneric_Blast
+
+Called when an Alien buildable explodes after dead state
+================
+*/
+void AGeneric_Blast( gentity_t *self )
+{
+  vec3_t dir;
+
+  VectorCopy( self->s.origin2, dir );
+
+  //do a bit of radius damage
+  G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
+                           self->splashRadius, self, self->splashMethodOfDeath,
+                           PTE_ALIENS );
+
+  //pretty events and item cleanup
+  self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
+  G_AddEvent( self, EV_ALIEN_BUILDABLE_EXPLOSION, DirToByte( dir ) );
+  self->timestamp = level.time;
+  self->think = AGeneric_CreepRecede;
+  self->nextthink = level.time + 500;
+
+  self->r.contents = 0;    //stop collisions...
+  trap_LinkEntity( self ); //...requires a relink
+}
+
+/*
+================
+AGeneric_Die
+
+Called when an Alien buildable is killed and enters a brief dead state prior to
+exploding.
+================
+*/
+void AGeneric_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
+{
+  G_RewardAttackers( self );
+  G_SetBuildableAnim( self, BANIM_DESTROY1, qtrue );
+  G_SetIdleBuildableAnim( self, BANIM_DESTROYED );
+
+  self->die = nullDieFunction;
+  self->think = AGeneric_Blast;
+  self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
+
+  if( self->spawned )
+    self->nextthink = level.time + 5000;
+  else
+    self->nextthink = level.time; //blast immediately
+
+  if( attacker && attacker->client )
+  {
+    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    {
+      G_TeamCommand( PTE_ALIENS,
+        va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
+          BG_FindHumanNameForBuildable( self->s.modelindex ),
+          attacker->client->pers.netname ) );
+    }
+    G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
+      attacker->client->ps.clientNum, self->s.modelindex, mod,
+      attacker->client->pers.netname,
+      BG_FindNameForBuildable( self->s.modelindex ),
+      modNames[ mod ] );
+  }
+}
+
+/*
+================
+AGeneric_CreepCheck
+
+Tests for creep and kills the buildable if there is none
+================
+*/
+void AGeneric_CreepCheck( gentity_t *self )
+{
+  gentity_t *spawn;
+
+  spawn = self->parentNode;
+  if( !G_FindCreep( self ) )
+  {
+    if( spawn->inuse && spawn->enemy )
+      G_Damage( self, NULL, spawn->enemy, NULL, NULL, self->health, 0,
+                MOD_SUICIDE );
+    else
+      G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+    return;
+  }
+  G_CreepSlow( self );
+}
+
+/*
+================
+AGeneric_Think
+
+A generic think function for Alien buildables
+================
+*/
+void AGeneric_Think( gentity_t *self )
+{
+  self->powered = G_IsOvermindBuilt( );
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
+  AGeneric_CreepCheck( self );
+}
+
+/*
+================
+AGeneric_Pain
+
+A generic pain function for Alien buildables
+================
+*/
+void AGeneric_Pain( gentity_t *self, gentity_t *attacker, int damage )
+{
+  if( rand( ) % 1 )
+    G_SetBuildableAnim( self, BANIM_PAIN1, qfalse );
+  else
+    G_SetBuildableAnim( self, BANIM_PAIN2, qfalse );
+}
+
 
 
 
@@ -559,68 +683,6 @@ void A_CreepRecede( gentity_t *self )
 
 
 
-
-/*
-================
-ASpawn_Melt
-
-Called when an alien spawn dies
-================
-*/
-void ASpawn_Melt( gentity_t *self )
-{
-  G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
-    self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
-
-  //start creep recession
-  if( !( self->s.eFlags & EF_DEAD ) )
-  {
-    self->s.eFlags |= EF_DEAD;
-    G_AddEvent( self, EV_BUILD_DESTROY, 0 );
-
-    if( self->spawned )
-      self->s.time = -level.time;
-    else
-      self->s.time = -( level.time -
-          (int)( (float)CREEP_SCALEDOWN_TIME *
-                 ( 1.0f - ( (float)( level.time - self->buildTime ) /
-                            (float)BG_FindBuildTimeForBuildable( self->s.modelindex ) ) ) ) );
-  }
-
-  //not dead yet
-  if( ( self->timestamp + 10000 ) > level.time )
-    self->nextthink = level.time + 500;
-  else //dead now
-    G_FreeEntity( self );
-}
-
-/*
-================
-ASpawn_Blast
-
-Called when an alien spawn dies
-================
-*/
-void ASpawn_Blast( gentity_t *self )
-{
-  vec3_t  dir;
-
-  VectorCopy( self->s.origin2, dir );
-
-  //do a bit of radius damage
-  G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
-    self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
-
-  //pretty events and item cleanup
-  self->s.eFlags |= EF_NODRAW; //don't draw the model once it's destroyed
-  G_AddEvent( self, EV_ALIEN_BUILDABLE_EXPLOSION, DirToByte( dir ) );
-  self->timestamp = level.time;
-  self->think = ASpawn_Melt;
-  self->nextthink = level.time + 500; //wait .5 seconds before damaging others
-
-  self->r.contents = 0;    //stop collisions...
-  trap_LinkEntity( self ); //...requires a relink
-}
 
 /*
 ================
@@ -636,7 +698,7 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   G_SetIdleBuildableAnim( self, BANIM_DESTROYED );
 
   self->die = nullDieFunction;
-  self->think = ASpawn_Blast;
+  self->think = AGeneric_Blast;
 
   if( self->spawned )
     self->nextthink = level.time + 5000;
@@ -823,124 +885,6 @@ void AOvermind_Think( gentity_t *self )
 
 
 
-
-//==================================================================================
-
-
-
-
-
-
-/*
-================
-AGeneric_Blast
-
-Called when an Alien buildable explodes after dead state
-================
-*/
-void AGeneric_Blast( gentity_t *self )
-{
-  vec3_t  dir;
-
-  VectorCopy( self->s.origin2, dir );
-
-  //do a bit of radius damage
-  G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
-    self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
-
-  //pretty events and item cleanup
-  self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
-  G_AddEvent( self, EV_ALIEN_BUILDABLE_EXPLOSION, DirToByte( dir ) );
-  self->timestamp = level.time;
-  self->think = A_CreepRecede;
-  self->nextthink = level.time + 500; //wait .5 seconds before damaging others
-
-  self->r.contents = 0;    //stop collisions...
-  trap_LinkEntity( self ); //...requires a relink
-}
-
-/*
-================
-AGeneric_Die
-
-Called when an Alien buildable is killed and enters a brief dead state prior to
-exploding.
-================
-*/
-void AGeneric_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
-{
-  G_RewardAttackers( self );
-  G_SetBuildableAnim( self, BANIM_DESTROY1, qtrue );
-  G_SetIdleBuildableAnim( self, BANIM_DESTROYED );
-
-  self->die = nullDieFunction;
-  self->think = AGeneric_Blast;
-  self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
-
-  if( self->spawned )
-    self->nextthink = level.time + 5000;
-  else
-    self->nextthink = level.time; //blast immediately
-
-  if( attacker && attacker->client )
-  {
-    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-    {
-      G_TeamCommand( PTE_ALIENS,
-        va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
-          BG_FindHumanNameForBuildable( self->s.modelindex ),
-          attacker->client->pers.netname ) );
-    }
-    G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
-      attacker->client->ps.clientNum, self->s.modelindex, mod,
-      attacker->client->pers.netname,
-      BG_FindNameForBuildable( self->s.modelindex ),
-      modNames[ mod ] );
-  }
-}
-
-/*
-================
-AGeneric_Think
-
-A generic think function for Alien buildables
-================
-*/
-void AGeneric_Think( gentity_t *self )
-{
-
-  self->powered = G_IsOvermindBuilt( );
-
-  //if there is no creep nearby die
-  if( !G_FindCreep( self ) )
-  {
-    G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
-    return;
-  }
-
-  G_CreepSlow( self );
-
-  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
-}
-
-/*
-================
-AGeneric_Pain
-
-A generic pain function for Alien buildables
-================
-*/
-void AGeneric_Pain( gentity_t *self, gentity_t *attacker, int damage )
-{
-  if( rand( ) % 1 )
-    G_SetBuildableAnim( self, BANIM_PAIN1, qfalse );
-  else
-    G_SetBuildableAnim( self, BANIM_PAIN2, qfalse );
-}
-
-
-
-
 //==================================================================================
 
 
@@ -1093,8 +1037,6 @@ void ABarricade_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 
 
-void AAcidTube_Think( gentity_t *self );
-
 /*
 ================
 AAcidTube_Think
@@ -1111,21 +1053,15 @@ void AAcidTube_Think( gentity_t *self )
   gentity_t *enemy;
 
   self->powered = G_IsOvermindBuilt( );
+  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 
   VectorAdd( self->s.origin, range, maxs );
   VectorSubtract( self->s.origin, range, mins );
 
-  //if there is no creep nearby die
-  if( !G_FindCreep( self ) )
-  {
-    G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
-    return;
-  }
-
-  G_CreepSlow( self );
+  AGeneric_CreepCheck( self );
 
   // attack nearby humans
-  if( self->spawned && self->health && G_FindOvermind( self ) )
+  if( self->spawned && self->health > 0 && G_FindOvermind( self ) )
   {
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
     for( i = 0; i < num; i++ )
@@ -1152,8 +1088,6 @@ void AAcidTube_Think( gentity_t *self )
       }
     }
   }
-
-  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
 
 
@@ -1181,18 +1115,12 @@ void AHive_Think( gentity_t *self )
   vec3_t    dirToTarget;
 
   self->powered = G_IsOvermindBuilt( );
-
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 
   VectorAdd( self->s.origin, range, maxs );
   VectorSubtract( self->s.origin, range, mins );
 
-  //if there is no creep nearby die
-  if( !G_FindCreep( self ) )
-  {
-    G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
-    return;
-  }
+  AGeneric_CreepCheck( self );
 
   if( self->timestamp < level.time )
     self->active = qfalse; //nothing has returned in HIVE_REPEAT seconds, forget about it
@@ -1228,8 +1156,6 @@ void AHive_Think( gentity_t *self )
       }
     }
   }
-
-  G_CreepSlow( self );
 }
 
 /*
@@ -1442,6 +1368,10 @@ Think for alien hovel
 void AHovel_Think( gentity_t *self )
 {
   self->powered = G_IsOvermindBuilt( );
+  self->nextthink = level.time + 200;
+
+  AGeneric_CreepCheck( self );
+
   if( self->spawned )
   {
     if( self->active )
@@ -1449,10 +1379,6 @@ void AHovel_Think( gentity_t *self )
     else
       G_SetIdleBuildableAnim( self, BANIM_IDLE1 );
   }
-
-  G_CreepSlow( self );
-
-  self->nextthink = level.time + 200;
 }
 
 /*
@@ -1464,25 +1390,6 @@ Die for alien hovel
 */
 void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
 {
-  vec3_t  dir;
-
-  G_RewardAttackers( self );
-
-  VectorCopy( self->s.origin2, dir );
-
-  //do a bit of radius damage
-  G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
-    self->splashRadius, self, self->splashMethodOfDeath, PTE_ALIENS );
-
-  //pretty events and item cleanup
-  self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
-  G_AddEvent( self, EV_ALIEN_BUILDABLE_EXPLOSION, DirToByte( dir ) );
-  self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
-  self->timestamp = level.time;
-  self->think = ASpawn_Melt;
-  self->nextthink = level.time + 500; //wait .5 seconds before damaging others
-  self->die = nullDieFunction;
-
   //if the hovel is occupied free the occupant
   if( self->active )
   {
@@ -1508,25 +1415,9 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     //client leaves hovel
     builder->client->ps.stats[ STAT_STATE ] &= ~SS_HOVELING;
   }
-
-  self->r.contents = 0;    //stop collisions...
-  trap_LinkEntity( self ); //...requires a relink
-
-  if( attacker && attacker->client )
-  {
-    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-    {
-      G_TeamCommand( PTE_ALIENS,
-        va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
-          BG_FindHumanNameForBuildable( self->s.modelindex ),
-          attacker->client->pers.netname ) );
-    }
-    G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
-      attacker->client->ps.clientNum, self->s.modelindex, mod,
-      attacker->client->pers.netname,
-      BG_FindNameForBuildable( self->s.modelindex ),
-      modNames[ mod ] );
-  }
+  
+  AGeneric_Die( self, inflictor, attacker, damage, mod );
+  self->nextthink = level.time;
 }
 
 
@@ -1710,17 +1601,9 @@ void ATrapper_Think( gentity_t *self )
   int firespeed = BG_FindFireSpeedForBuildable( self->s.modelindex );
 
   self->powered = G_IsOvermindBuilt( );
-
-  G_CreepSlow( self );
-
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 
-  //if there is no creep nearby die
-  if( !G_FindCreep( self ) )
-  {
-    G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
-    return;
-  }
+  AGeneric_CreepCheck( self );
 
   if( self->spawned && G_FindOvermind( self ) )
   {
@@ -1949,6 +1832,9 @@ void HDCC_Think( gentity_t *self )
 
 
 //==================================================================================
+
+void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
+                 int damage, int mod );
 
 /*
 ================

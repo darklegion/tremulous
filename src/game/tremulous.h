@@ -244,7 +244,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ASPAWN_HEALTH               ABHM(250)
 #define ASPAWN_REGEN                8
 #define ASPAWN_SPLASHDAMAGE         50
-#define ASPAWN_SPLASHRADIUS         50
+#define ASPAWN_SPLASHRADIUS         100
 #define ASPAWN_CREEPSIZE            120
 #define ASPAWN_VALUE                100
 
@@ -253,7 +253,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define BARRICADE_HEALTH            ABHM(300)
 #define BARRICADE_REGEN             14
 #define BARRICADE_SPLASHDAMAGE      50
-#define BARRICADE_SPLASHRADIUS      50
+#define BARRICADE_SPLASHRADIUS      100
 #define BARRICADE_CREEPSIZE         120
 #define BARRICADE_SHRINKPROP        0.25f
 #define BARRICADE_SHRINKTIMEOUT     500
@@ -264,7 +264,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define BOOSTER_HEALTH              ABHM(150)
 #define BOOSTER_REGEN               8
 #define BOOSTER_SPLASHDAMAGE        50
-#define BOOSTER_SPLASHRADIUS        50
+#define BOOSTER_SPLASHRADIUS        100
 #define BOOSTER_CREEPSIZE           120
 #define BOOSTER_REGEN_MOD           3.0f
 #define BOOSTER_VALUE               120
@@ -275,7 +275,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ACIDTUBE_HEALTH             ABHM(125)
 #define ACIDTUBE_REGEN              10
 #define ACIDTUBE_SPLASHDAMAGE       50
-#define ACIDTUBE_SPLASHRADIUS       50
+#define ACIDTUBE_SPLASHRADIUS       100
 #define ACIDTUBE_CREEPSIZE          120
 #define ACIDTUBE_DAMAGE             8
 #define ACIDTUBE_RANGE              300.0f

@@ -9,7 +9,7 @@
     "We can also be reached on Freenode IRC:\n"
     "#mercenariesguild"
   }
-  "Release Notes r86"
+  "Release Notes r87"
   {
     "* Help menu (you're looking at it!)\n"
     "* UI health cross icon shows regen speed\n"
@@ -17,6 +17,7 @@
     "* Human item list wider and won't hide items\n"
     "* Regular Basilik benefits from booster\n"
     "* Lucifer Cannon overcharge heard by others\n"
+    "* Credits for de-creeping buildables\n"
   }
   "Alien Healing"
   {
@@ -94,8 +95,10 @@
     "MGDev is developed and hosted by the Mercenaries Guild. "
     "Contributing developers:\n\n"
     "Norfenstein\n"
-    "Benmachine\n"
-    "Lakitu7\n"
-    "Michael Levin <risujin@risujin.org>"
+    "Tony J. White\n"
+    "Ben ''Benmachine'' Millwood\n"
+    "Michael ''Risujin'' Levin\n"
+    "Chris ''Lakitu7'' Schwarz\n"
+    "Roman ''Kevlarman'' Tetelman\n"
   }
 }
