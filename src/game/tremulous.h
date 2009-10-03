@@ -609,7 +609,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define REACTOR_ATTACK_DCC_DAMAGE   40
 #define REACTOR_VALUE               HBVM(30)
 
-#define REPEATER_BP                 2
+#define REPEATER_BP                 4
 #define REPEATER_BT                 10000
 #define REPEATER_HEALTH             HBHM(250)
 #define REPEATER_SPLASHDAMAGE       50

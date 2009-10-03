@@ -1970,10 +1970,15 @@ void Cmd_Destroy_f( gentity_t *ent )
     if( G_TimeTilSuddenDeath( ) <= 0 )
       return;
 
-    if( !g_markDeconstruct.integer && ent->client->ps.stats[ STAT_MISC ] > 0 )
+    if( !g_markDeconstruct.integer ||
+        ( ent->client->pers.teamSelection == TEAM_HUMANS &&
+          !G_FindPower( traceEnt ) ) )
     {
-      G_AddEvent( ent, EV_BUILD_DELAY, ent->client->ps.clientNum );
-      return;
+      if( ent->client->ps.stats[ STAT_MISC ] > 0 )
+      {
+        G_AddEvent( ent, EV_BUILD_DELAY, ent->client->ps.clientNum );
+        return;
+      }
     }
 
     if( traceEnt->health > 0 )
@@ -1983,7 +1988,9 @@ void Cmd_Destroy_f( gentity_t *ent )
         G_Damage( traceEnt, ent, ent, forward, tr.endpos,
                   traceEnt->health, 0, MOD_SUICIDE );
       }
-      else if( g_markDeconstruct.integer )
+      else if( g_markDeconstruct.integer &&
+               ( ent->client->pers.teamSelection != TEAM_HUMANS ||
+                 G_FindPower( traceEnt ) ) )
       {
         traceEnt->deconstruct     = qtrue; // Mark buildable for deconstruction
         traceEnt->deconstructTime = level.time;

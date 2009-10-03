@@ -111,30 +111,6 @@ gentity_t *G_CheckSpawnPoint( int spawnNum, vec3_t origin, vec3_t normal,
   return NULL;
 }
 
-/*
-================
-G_NumberOfDependants
-
-Return number of entities that depend on this one
-================
-*/
-static int G_NumberOfDependants( gentity_t *self )
-{
-  int       i, n = 0;
-  gentity_t *ent;
-
-  for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
-  {
-    if( ent->s.eType != ET_BUILDABLE )
-      continue;
-
-    if( ent->parentNode == self )
-      n++;
-  }
-
-  return n;
-}
-
 #define POWER_REFRESH_TIME  2000
 
 /*
@@ -144,7 +120,7 @@ G_FindPower
 attempt to find power for self, return qtrue if successful
 ================
 */
-static qboolean G_FindPower( gentity_t *self )
+qboolean G_FindPower( gentity_t *self )
 {
   int       i, j;
   gentity_t *ent, *ent2;
@@ -158,7 +134,27 @@ static qboolean G_FindPower( gentity_t *self )
 
   // Reactor is always powered
   if( self->s.modelindex == BA_H_REACTOR )
+  {
+    self->parentNode = self;
+
     return qtrue;
+  }
+
+  // Handle repeaters
+  if( self->s.modelindex == BA_H_REPEATER )
+  {
+    if( level.reactorPresent )
+    {
+      G_FindReactor( self );
+      self->parentNode = self->reactorNode;
+
+      return qtrue;
+    }
+
+    self->parentNode = NULL;
+
+    return qfalse;
+  }
 
   // Reset parent
   self->parentNode = NULL;
@@ -593,6 +589,45 @@ qboolean G_FindOvermind( gentity_t *self )
     if( ent->s.modelindex == BA_A_OVERMIND && ent->spawned && ent->health > 0 )
     {
       self->overmindNode = ent;
+      return qtrue;
+    }
+  }
+
+  return qfalse;
+}
+
+/*
+================
+G_FindReactor
+
+Attempt to find a reactor for self
+================
+*/
+qboolean G_FindReactor( gentity_t *self )
+{
+  int       i;
+  gentity_t *ent;
+
+  if( self->buildableTeam != TEAM_HUMANS )
+    return qfalse;
+
+  // If this already has reactor then stop now
+  if( self->reactorNode && self->reactorNode->health > 0 )
+    return qtrue;
+
+  // Reset parent
+  self->reactorNode = NULL;
+
+  // Iterate through entities
+  for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  {
+    if( ent->s.eType != ET_BUILDABLE )
+      continue;
+
+    // If entity is an overmind calculate the distance to it
+    if( ent->s.modelindex == BA_H_REACTOR && ent->spawned && ent->health > 0 )
+    {
+      self->reactorNode = ent;
       return qtrue;
     }
   }
@@ -1881,19 +1916,6 @@ void HRepeater_Think( gentity_t *self )
       if( ent->s.modelindex == BA_H_REACTOR && ent->spawned )
         reactor = qtrue;
     }
-  }
-
-  if( G_NumberOfDependants( self ) == 0 )
-  {
-    // If no dependants for x seconds then disappear
-    if( self->count < 0 )
-      self->count = level.time;
-    else if( self->count > 0 && ( ( level.time - self->count ) > REPEATER_INACTIVE_TIME ) )
-      G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
-  }
-  else
-  {
-    self->count = -1;
   }
 
   if( G_InPowerZone( self ) )
@@ -3219,11 +3241,11 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     if( ent->s.modelindex == core && buildable != core )
       continue;
 
-    // Don't allow a power source to be replaced by a non-power source
+    // Don't allow a power source to be replaced by a dependant
     if( team == TEAM_HUMANS &&
-        buildable != BA_H_REACTOR &&
+        G_PowerEntityForPoint( origin ) != ent &&
         buildable != BA_H_REPEATER &&
-        !( ent->s.modelindex == BA_H_REACTOR || ent->s.modelindex == BA_H_REPEATER ) )
+        buildable != core )
       continue;
 
     if( ent->deconstruct )
