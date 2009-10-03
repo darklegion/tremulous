@@ -47,10 +47,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ABUILDER_BLOB_SPEED_MOD     0.5f
 #define ABUILDER_BLOB_TIME          5000
 
-#define LEVEL0_BITE_DMG             ADM(48)
+#define LEVEL0_BITE_DMG             ADM(24)
 #define LEVEL0_BITE_RANGE           64.0f
 #define LEVEL0_BITE_WIDTH           6.0f
-#define LEVEL0_BITE_REPEAT          1000
+#define LEVEL0_BITE_REPEAT          500
 #define LEVEL0_BITE_K_SCALE         1.0f
 
 #define LEVEL1_CLAW_DMG             ADM(32)
@@ -71,7 +71,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL1_UPG_REGEN_MOD        3.0f
 
 #define LEVEL2_CLAW_DMG             ADM(40)
-#define LEVEL2_CLAW_RANGE           72.0f
+#define LEVEL2_CLAW_RANGE           80.0f
 #define LEVEL2_CLAW_WIDTH           14.0f
 #define LEVEL2_CLAW_REPEAT          500
 #define LEVEL2_CLAW_K_SCALE         1.0f
@@ -103,7 +103,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL3_POUNCE_JUMP_MAG      700      // Dragoon pounce jump power
 #define LEVEL3_POUNCE_JUMP_MAG_UPG  800      // Adv. Dragoon pounce jump power
 #define LEVEL3_BOUNCEBALL_DMG       ADM(110)
-#define LEVEL3_BOUNCEBALL_REPEAT    1500
+#define LEVEL3_BOUNCEBALL_REPEAT    1200
 #define LEVEL3_BOUNCEBALL_SPEED     1000.0f
 #define LEVEL3_BOUNCEBALL_RADIUS    75
 #define LEVEL3_BOUNCEBALL_REGEN     15000    // msec until new barb
