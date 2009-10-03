@@ -6863,7 +6863,11 @@ qboolean ItemParse_columns( itemDef_t *item, int handle )
     return qfalse;
 
   if( item->typeData.list->numColumns > MAX_LB_COLUMNS )
-    item->typeData.list->numColumns = MAX_LB_COLUMNS;
+  {
+    PC_SourceError( handle, "exceeded maximum allowed columns (%d)",
+                    MAX_LB_COLUMNS );
+    return qfalse;
+  }
 
   for( i = 0; i < item->typeData.list->numColumns; i++ )
   {
@@ -7174,7 +7178,11 @@ qboolean ItemParse_maxFieldWidth( itemDef_t *item, int handle )
     return qfalse;
 
   if( item->typeData.edit->maxFieldWidth < MIN_FIELD_WIDTH )
-    item->typeData.edit->maxFieldWidth = MIN_FIELD_WIDTH;
+  {
+    PC_SourceError( handle, "max field width must be at least %d",
+                    MIN_FIELD_WIDTH );
+    return qfalse;
+  }
 
   return qtrue;
 }
@@ -7241,7 +7249,11 @@ qboolean ItemParse_cvarStrList( itemDef_t *item, int handle )
       multiPtr->count++;
 
       if( multiPtr->count >= MAX_MULTI_CVARS )
+      {
+        PC_SourceError( handle, "cvar string list may not exceed %d cvars",
+                        MAX_MULTI_CVARS );
         return qfalse;
+      }
     }
 
   }
@@ -7291,8 +7303,11 @@ qboolean ItemParse_cvarFloatList( itemDef_t *item, int handle )
     multiPtr->count++;
 
     if( multiPtr->count >= MAX_MULTI_CVARS )
+    {
+      PC_SourceError( handle, "cvar string list may not exceed %d cvars",
+                      MAX_MULTI_CVARS );
       return qfalse;
-
+    }
   }
 
   return qfalse;
@@ -7312,6 +7327,12 @@ qboolean ItemParse_addColorRange( itemDef_t *item, int handle )
     {
       memcpy( &item->colorRanges[item->numColors], &color, sizeof( color ) );
       item->numColors++;
+    }
+    else
+    {
+      PC_SourceError( handle, "may not exceed %d color ranges",
+                      MAX_COLOR_RANGES );
+      return qfalse;
     }
 
     return qtrue;
@@ -7883,6 +7904,12 @@ qboolean MenuParse_itemDef( itemDef_t *item, int handle )
 
     Item_InitControls( menu->items[menu->itemCount] );
     menu->items[menu->itemCount++]->parent = menu;
+  }
+  else
+  {
+    PC_SourceError( handle, "itemDefs per menu may not exceed %d",
+                    MAX_MENUITEMS );
+    return qfalse;
   }
 
   return qtrue;
