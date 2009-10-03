@@ -313,12 +313,7 @@ models/weapons/flamer/muzzlePS
       velocityMagnitude 300
       velocity          0 0 0 ~0
 
-      accelerationType      static
-      accelerationDir       linear
-      accelerationMagnitude 50
-      acceleration          0 0 1 ~0
-      
-      physicsRadius 8
+      physicsRadius 15
 
       radius 0 4.0 40.0
       alpha  0 1.0 1.0

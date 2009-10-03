@@ -1500,6 +1500,9 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   client->ps.ammo = maxAmmo;
   client->ps.clips = maxClips;
 
+  // We just spawned, not changing weapons
+  client->ps.persistant[ PERS_NEWWEAPON ] = 0;
+
   ent->client->ps.stats[ STAT_PCLASS ] = ent->client->pers.classSelection;
   ent->client->ps.stats[ STAT_PTEAM ] = ent->client->pers.teamSelection;
 
@@ -1571,9 +1574,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   trap_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
   G_SetClientViewAngle( ent, spawn_angles );
 
-  if( !( client->sess.sessionTeam == TEAM_SPECTATOR ) )
+  if( client->sess.sessionTeam != TEAM_SPECTATOR )
   {
-    /*G_KillBox( ent );*/ //blame this if a newly spawned client gets stuck in another
     trap_LinkEntity( ent );
 
     // force the base weapon up

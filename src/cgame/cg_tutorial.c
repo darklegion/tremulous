@@ -201,7 +201,7 @@ static void CG_AlienBuilderText( char *text, playerState_t *ps )
   {
     if( cgs.markDeconstruct )
     {
-      if( es->generic1 & B_MARKED_TOGGLEBIT )
+      if( es->eFlags & EF_B_MARKED )
       {
         Q_strcat( text, MAX_TUTORIAL_TEXT,
             va( "Press %s to unmark this structure\n",
@@ -388,7 +388,7 @@ static void CG_HumanCkitText( char *text, playerState_t *ps )
   {
     if( cgs.markDeconstruct )
     {
-      if( es->generic1 & B_MARKED_TOGGLEBIT )
+      if( es->eFlags & EF_B_MARKED )
       {
         Q_strcat( text, MAX_TUTORIAL_TEXT,
             va( "Press %s to unmark this structure\n",
@@ -670,7 +670,7 @@ const char *CG_TutorialText( void )
                 CG_KeyNameForCommand( "+button7" ) ) );
         }
         else if( es && es->modelindex == BA_A_HOVEL &&
-                 es->generic1 & B_SPAWNED_TOGGLEBIT &&
+                 ( es->eFlags & EF_B_SPAWNED ) &&
                  ( ps->stats[ STAT_PCLASS ] == PCL_ALIEN_BUILDER0 ||
                    ps->stats[ STAT_PCLASS ] == PCL_ALIEN_BUILDER0_UPG ) )
         {

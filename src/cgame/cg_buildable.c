@@ -548,7 +548,7 @@ static void CG_BuildableAnimation( centity_t *cent, int *old, int *now, float *b
     cent->buildableAnim = es->torsoAnim;
 
   //display the first frame of the construction anim if not yet spawned
-  if( !( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
+  if( !( es->eFlags & EF_B_SPAWNED ) )
   {
     animation_t *anim = &cg_buildables[ es->modelindex ].animations[ BANIM_CONSTRUCT1 ];
 
@@ -701,7 +701,7 @@ static void CG_BuildableParticleEffects( centity_t *cent )
   int             health = es->generic1 & B_HEALTH_MASK;
   float           healthFrac = (float)health / B_HEALTH_MASK;
 
-  if( !( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
+  if( !( es->eFlags & EF_B_SPAWNED ) )
     return;
 
   if( team == BIT_HUMANS )
@@ -926,7 +926,7 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
   // hack for shrunken barricades
   anim = es->torsoAnim & ~( ANIM_FORCEBIT | ANIM_TOGGLEBIT );
   if( es->modelindex == BA_A_BARRICADE &&
-      ( anim == BANIM_DESTROYED || !( es->generic1 & B_SPAWNED_TOGGLEBIT ) ) )
+      ( anim == BANIM_DESTROYED || !( es->eFlags & EF_B_SPAWNED ) ) )
     maxs[ 2 ] = (int)( maxs[ 2 ] * BARRICADE_SHRINKPROP );
 
   VectorCopy( cent->lerpOrigin, origin );
@@ -972,7 +972,7 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
       hit  = &cg_entities[ tr.entityNum ].currentState;
 
       if( tr.entityNum < MAX_CLIENTS || ( hit->eType == ET_BUILDABLE &&
-          ( !( es->generic1 & B_SPAWNED_TOGGLEBIT ) ||
+          ( !( es->eFlags & EF_B_SPAWNED ) ||
             BG_FindTransparentTestForBuildable( hit->modelindex ) ) ) )
       {
         entNum = tr.entityNum;
@@ -1041,8 +1041,8 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
     // this is fudged to get the width/height in the cfg to be more realistic
     scale = ( picH / d ) * 3;
 
-    powered = es->generic1 & B_POWERED_TOGGLEBIT;
-    marked = es->generic1 & B_MARKED_TOGGLEBIT;
+    powered = es->eFlags & EF_B_POWERED;
+    marked = es->eFlags & EF_B_MARKED;
 
     picH *= scale;
     picW *= scale;
@@ -1297,7 +1297,7 @@ void CG_Buildable( centity_t *cent )
 
   ent.hModel = cg_buildables[ es->modelindex ].models[ 0 ];
 
-  if( !( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
+  if( !( es->eFlags & EF_B_SPAWNED ) )
   {
     sfxHandle_t prebuildSound = cgs.media.humanBuildablePrebuild;
 
@@ -1455,7 +1455,8 @@ void CG_Buildable( centity_t *cent )
   health = es->generic1 & B_HEALTH_MASK;
   healthScale = (float)health / B_HEALTH_MASK;
 
-  if( healthScale < cent->lastBuildableHealthScale && ( es->generic1 & B_SPAWNED_TOGGLEBIT ) )
+  if( healthScale < cent->lastBuildableHealthScale &&
+      ( es->eFlags & EF_B_SPAWNED ) )
   {
     if( cent->lastBuildableDamageSoundTime + BUILDABLE_SOUND_PERIOD < cg.time )
     {

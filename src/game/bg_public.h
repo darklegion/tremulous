@@ -285,6 +285,9 @@ typedef enum
 #define EF_BOUNCE           0x00000008    // for missiles
 #define EF_BOUNCE_HALF      0x00000010    // for missiles
 #define EF_NO_BOUNCE_SOUND  0x00000020    // for missiles
+#define EF_B_SPAWNED        0x00000008    // buildable has spawned
+#define EF_B_POWERED        0x00000010    // buildable is powered
+#define EF_B_MARKED         0x00000020    // buildable is marked for deconstruction
 #define EF_WALLCLIMB        0x00000040    // wall walking
 #define EF_WALLCLIMBCEILING 0x00000080    // wall walking ceiling hack
 #define EF_NODRAW           0x00000100    // may have an event, but no model (unspawned items)
@@ -440,12 +443,6 @@ typedef enum
 
 #define B_HEALTH_BITS       12
 #define B_HEALTH_MASK       ((1<<B_HEALTH_BITS)-1)
-
-#define B_MARKED_TOGGLEBIT  0x00001000
-#define B_SPAWNED_TOGGLEBIT 0x00002000
-#define B_POWERED_TOGGLEBIT 0x00004000
-#define B_DCCED_TOGGLEBIT   0x00008000
-
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
 #define PLAYEREVENT_DENIEDREWARD      0x0001

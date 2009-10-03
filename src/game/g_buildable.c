@@ -2182,13 +2182,6 @@ Think function for Tesla Generator
 */
 void HTeslaGen_Think( gentity_t *self )
 {
-  int       entityList[ MAX_GENTITIES ];
-  vec3_t    range;
-  vec3_t    mins, maxs;
-  vec3_t    dir;
-  int       i, num;
-  gentity_t *enemy;
-
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 
   //if not powered don't do anything and check again for power next think
@@ -2201,31 +2194,28 @@ void HTeslaGen_Think( gentity_t *self )
 
   if( self->spawned && self->count < level.time )
   {
-    //used to mark client side effects
+    vec3_t range, mins, maxs, dir;
+    int entityList[ MAX_GENTITIES ], i, num;
+
+    // Communicates firing state to client
     self->s.eFlags &= ~EF_FIRING;
 
     VectorSet( range, TESLAGEN_RANGE, TESLAGEN_RANGE, TESLAGEN_RANGE );
     VectorAdd( self->s.origin, range, maxs );
     VectorSubtract( self->s.origin, range, mins );
 
-    //find aliens
+    // Attack nearby Aliens
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
     for( i = 0; i < num; i++ )
     {
-      enemy = &g_entities[ entityList[ i ] ];
-
-      if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
-          enemy->health > 0 &&
-          Distance( enemy->s.pos.trBase, self->s.pos.trBase ) <= TESLAGEN_RANGE )
-      {
-        VectorSubtract( enemy->s.pos.trBase, self->s.pos.trBase, dir );
-        VectorNormalize( dir );
-        vectoangles( dir, self->turretAim );
-
-        //fire at target
+      self->enemy = &g_entities[ entityList[ i ] ];
+      if( self->enemy->client && self->enemy->health > 0 &&
+          self->enemy->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
+          Distance( self->enemy->s.pos.trBase,
+                    self->s.pos.trBase ) <= TESLAGEN_RANGE )
         FireWeapon( self );
-      }
     }
+    self->enemy = NULL;
 
     if( self->s.eFlags & EF_FIRING )
     {
@@ -2473,28 +2463,8 @@ void G_BuildableThink( gentity_t *ent, int msec )
       ent->spawned = qtrue;
   }
 
-  // pack health, power and dcc
-  ent->dcc = ( ent->biteam != BIT_HUMANS ) ? 0 : G_FindDCC( ent );
-  ent->s.generic1 = (int)( ( ent->health + bHealth / B_HEALTH_MASK - 1 ) *
-                           B_HEALTH_MASK / bHealth );
-
-  if( ent->s.generic1 < 0 )
-    ent->s.generic1 = 0;
-
-  if( ent->powered )
-    ent->s.generic1 |= B_POWERED_TOGGLEBIT;
-
-  if( ent->dcc )
-    ent->s.generic1 |= B_DCCED_TOGGLEBIT;
-
-  if( ent->spawned )
-    ent->s.generic1 |= B_SPAWNED_TOGGLEBIT;
-
-  if( ent->deconstruct )
-    ent->s.generic1 |= B_MARKED_TOGGLEBIT;
-
+  // Timer actions
   ent->time1000 += msec;
-
   if( ent->time1000 >= 1000 )
   {
     ent->time1000 -= 1000;
@@ -2527,6 +2497,27 @@ void G_BuildableThink( gentity_t *ent, int msec )
 
   if( ent->clientSpawnTime < 0 )
     ent->clientSpawnTime = 0;
+
+  // Pack health
+  ent->dcc = ( ent->biteam != BIT_HUMANS ) ? 0 : G_FindDCC( ent );
+  if( ent->health > 0 )
+  {
+    ent->s.generic1 = (int)( ( ent->health + bHealth / B_HEALTH_MASK - 1 ) *
+                             B_HEALTH_MASK / bHealth );
+  }
+  else
+    ent->s.generic1 = 0;
+    
+  // Set flags
+  ent->s.eFlags &= ~( EF_B_POWERED | EF_B_SPAWNED | EF_B_MARKED );
+  if( ent->powered )
+    ent->s.eFlags |= EF_B_POWERED;
+
+  if( ent->spawned )
+    ent->s.eFlags |= EF_B_SPAWNED;
+
+  if( ent->deconstruct )
+    ent->s.eFlags |= EF_B_MARKED;
 
   //check if this buildable is touching any triggers
   G_BuildableTouchTriggers( ent );
@@ -3338,12 +3329,12 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   if( BG_FindTeamForBuildable( built->s.modelindex ) == PTE_ALIENS )
   {
     built->powered = qtrue;
-    built->s.generic1 |= B_POWERED_TOGGLEBIT;
+    built->s.eFlags |= EF_B_POWERED;
   }
   else if( ( built->powered = G_FindPower( built ) ) )
-    built->s.generic1 |= B_POWERED_TOGGLEBIT;
+    built->s.eFlags |= EF_B_POWERED;
 
-  built->s.generic1 &= ~B_SPAWNED_TOGGLEBIT;
+  built->s.eFlags &= ~EF_B_SPAWNED;
 
   VectorCopy( normal, built->s.origin2 );
 
@@ -3461,7 +3452,7 @@ static void G_FinishSpawningBuildable( gentity_t *ent )
   built->takedamage = qtrue;
   built->spawned = qtrue; //map entities are already spawned
   built->health = BG_FindHealthForBuildable( buildable );
-  built->s.generic1 |= B_SPAWNED_TOGGLEBIT;
+  built->s.eFlags |= EF_B_SPAWNED;
 
   // drop towards normal surface
   VectorScale( built->s.origin2, -4096.0f, dest );

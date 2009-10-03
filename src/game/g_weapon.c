@@ -593,11 +593,12 @@ HIVE
 
 void hiveFire( gentity_t *ent )
 {
-  gentity_t *m;
+  vec3_t origin;
 
-  m = fire_hive( ent, muzzle, forward );
-
-//  VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );  // "real" physics
+  // Fire from the hive tip, not the center
+  VectorMA( muzzle, ent->r.maxs[ 2 ], ent->s.origin2, origin );
+  
+  fire_hive( ent, origin, forward );
 }
 
 /*
@@ -644,9 +645,15 @@ FLAME THROWER
 
 void flamerFire( gentity_t *ent )
 {
-  gentity_t *m;
+  vec3_t origin;
 
-  m = fire_flamer( ent, muzzle, forward );
+  // Correct muzzle so that the missile does not start in the ceiling 
+  VectorMA( muzzle, -7.0f, up, origin );
+
+  // Correct muzzle so that the missile fires from the player's hand
+  VectorMA( origin, 4.5f, right, origin );
+
+  fire_flamer( ent, origin, forward );
 }
 
 /*
@@ -792,49 +799,44 @@ TESLA GENERATOR
 */
 
 
-void teslaFire( gentity_t *ent )
+void teslaFire( gentity_t *self )
 {
-  trace_t   tr;
-  vec3_t    end;
-  gentity_t *traceEnt, *tent;
-
-  VectorMA( muzzle, TESLAGEN_RANGE, forward, end );
-
-  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
-
-  if( tr.entityNum == ENTITYNUM_NONE )
+  trace_t tr;
+  vec3_t origin, target;
+  gentity_t *tent;
+  
+  if( !self->enemy )
     return;
 
-  traceEnt = &g_entities[ tr.entityNum ];
+  // Move the muzzle from the entity origin up a bit to fire over turrets
+  VectorMA( muzzle, self->r.maxs[ 2 ], self->s.origin2, origin );
 
-  if( !traceEnt->client )
+  // Don't aim for the center, aim at the top of the bounding box
+  VectorCopy( self->enemy->s.origin, target );
+  target[ 2 ] += self->enemy->r.maxs[ 2 ];
+
+  // Trace to the target entity
+  trap_Trace( &tr, origin, NULL, NULL, target, self->s.number, MASK_SHOT );
+  if( tr.entityNum != self->enemy->s.number )
     return;
 
-  if( traceEnt->client && traceEnt->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
-    return;
+  // Client side firing effect
+  self->s.eFlags |= EF_FIRING;
 
-  //so the client side knows
-  ent->s.eFlags |= EF_FIRING;
-
-  if( traceEnt->takedamage )
+  // Deal damage
+  if( self->enemy->takedamage )
   {
-    G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-      TESLAGEN_DMG, 0, MOD_TESLAGEN );
+    vec3_t dir;
+    
+    VectorSubtract( target, origin, dir );
+    G_Damage( self->enemy, self, self, dir, tr.endpos,
+              TESLAGEN_DMG, 0, MOD_TESLAGEN );
   }
 
-  // snap the endpos to integers to save net bandwidth, but nudged towards the line
-  SnapVectorTowards( tr.endpos, muzzle );
-
-  // send railgun beam effect
+  // Send tesla zap trail
   tent = G_TempEntity( tr.endpos, EV_TESLATRAIL );
-
-  VectorCopy( muzzle, tent->s.origin2 );
-
-  tent->s.generic1 = ent->s.number; //src
-  tent->s.clientNum = traceEnt->s.number; //dest
-
-  // move origin a bit to come closer to the drawn gun muzzle
-  VectorMA( tent->s.origin2, 28, up, tent->s.origin2 );
+  tent->s.generic1 = self->s.number; // src
+  tent->s.clientNum = self->enemy->s.number; // dest
 }
 
 
@@ -1532,20 +1534,12 @@ void FireWeapon( gentity_t *ent )
   {
     // set aiming directions
     AngleVectors( ent->client->ps.viewangles, forward, right, up );
-    CalcMuzzlePoint( ent, forward, right, up, muzzle );
+    CalcMuzzlePoint( ent, forward, right, up, muzzle );    
   }
   else
   {
     AngleVectors( ent->turretAim, forward, right, up );
     VectorCopy( ent->s.pos.trBase, muzzle );
-    
-    // Hive muzzle point is on the tip
-    if( ent->s.eType == ET_BUILDABLE && ent->s.modelindex == BA_A_HIVE )
-      VectorMA( muzzle, ent->r.maxs[ 2 ], ent->s.origin2, muzzle );
-
-    // Tesla generator muzzle point is offset too
-    if( ent->s.eType == ET_BUILDABLE && ent->s.modelindex == BA_H_TESLAGEN )
-      VectorMA( muzzle, 28.0f, ent->s.origin2, muzzle );
   }
 
   // fire the specific weapon
