@@ -291,11 +291,16 @@ static void CG_OffsetThirdPersonView( void )
   trap_GetUserCmd( cmdNum, &cmd );
   trap_GetUserCmd( cmdNum - 1, &oldcmd );
 
-  if( !cg_thirdPerson.integer && ( cg.snap->ps.pm_flags & PMF_FOLLOW ) && cg.predictedPlayerState.stats[ STAT_HEALTH ] > 0 )
+  // unless in demo, PLAYING in third person, or in dead-third-person cam, control camera position 
+  // offsets using the mouse position
+  if( cg.demoPlayback || 
+    ( ( cg.snap->ps.pm_flags & PMF_FOLLOW ) && 
+      ( cg.predictedPlayerState.stats[ STAT_HEALTH ] > 0 ) ) )
   {
+    // Get our yaw offset
     yaw = -1.0f * SHORT2ANGLE(cmd.angles[ YAW ]);
 
-    // Get our pitch offset.
+    // Get our pitch offset
     // Don't let it exceed 90 or -90 and prevent wrapping by cmd.angles from mucking this up.
     deltaPitch = SHORT2ANGLE( cmd.angles[ PITCH ] ) - SHORT2ANGLE ( oldcmd.angles[ PITCH ] );
     if( fabs(deltaPitch) < 200.0f )
@@ -304,12 +309,11 @@ static void CG_OffsetThirdPersonView( void )
       else if( pitch + deltaPitch < 1.0f ) pitch = 1.0f;
       else pitch += deltaPitch;
     }
-
   }
-  else
+  else 
   {
-    yaw = 90;
-    pitch = 85;
+    yaw = 90.0f;
+    pitch = 85.0f;
   }
 
   range = cg_thirdPersonRange.value;
@@ -317,9 +321,21 @@ static void CG_OffsetThirdPersonView( void )
   if( range < 30.0f ) range = 30.0f;
 
   // calculate the camera position by moving to the appropriate position on a
-  // sphere around the player with radius 'range'
+  // sphere around the player relative to where he is looking, and with radius 'range'
+
+  // if player is dead, we want the player to be between us and the killer
+  // so pretend that the player was looking at the killer, then place cam behind them
+  // FIXME: Still fails to see killer when killer is above/below or killer moves 
+  // out of view (relative to the dead player)
+  if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
+    cg.refdefViewAngles[ YAW ] = cg.predictedPlayerState.stats[ STAT_VIEWLOCK ];
+
+  // if we're following a live player, don't move with their pitch 
+  // because it's really jerky to watch and causes problems when our 
+  // angle relative to theirs causes angles to wrap and views flip out
   if( cg.snap->ps.pm_flags & PMF_FOLLOW )
-    cg.refdefViewAngles[ PITCH ] = 0.0f; //don't follow the player's pitch
+    cg.refdefViewAngles[ PITCH ] = 0.0f; 
+
   AngleVectors( cg.refdefViewAngles, forward, right, up );
   sideScale = sin( DEG2RAD( pitch ) ) * cos( DEG2RAD( yaw ) );
   forwardScale = sin( DEG2RAD( pitch ) ) * sin( DEG2RAD( yaw ) );
@@ -332,7 +348,6 @@ static void CG_OffsetThirdPersonView( void )
 
   // trace a ray from the origin to the viewpoint to make sure the view isn't
   // in a solid block.  Use an 8 by 8 block to prevent the view from near clipping anything
-
   if( !cg_cameraMode.integer )
   {
     CG_Trace( &trace, cg.refdef.vieworg, mins, maxs, view, cg.predictedPlayerState.clientNum, MASK_SOLID );
@@ -352,17 +367,9 @@ static void CG_OffsetThirdPersonView( void )
   // set the camera position to what we calculated
   VectorCopy( view, cg.refdef.vieworg );
 
-  if( cg.predictedPlayerState.stats[ STAT_HEALTH ] > 0 )
-  {
-    // from the camera position, look at the player
-    VectorSubtract( focusPoint, cg.refdef.vieworg, focusPoint );
-    vectoangles( focusPoint, cg.refdefViewAngles );
-  }
-  else
-  {
-    // if dead, look at killer
-    cg.refdefViewAngles[ YAW ] = cg.predictedPlayerState.stats[ STAT_VIEWLOCK ];
-  }
+  // from the camera position, look at the target
+  VectorSubtract( focusPoint, cg.refdef.vieworg, focusPoint );
+  vectoangles( focusPoint, cg.refdefViewAngles );
 }
 
 // this causes a compiler bug on mac MrC compiler
