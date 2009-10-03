@@ -357,12 +357,12 @@ void CG_OffsetThirdPersonView( void )
     // that's really annoying.
     // However, when we're not on the floor or ceiling (wallwalk) pitch 
     // may not be pitch, so just let it go.
-    if( surfNormal[ 2 ] > 0.5 || surfNormal[ 2 ] < -0.5 ) 
+    if( surfNormal[ 2 ] > 0.5f || surfNormal[ 2 ] < -0.5f ) 
     {
-      if( rotationAngles[ PITCH ] > 85 )
-        rotationAngles[ PITCH ] = 85;
-      else if( rotationAngles[ PITCH ] < -85 )
-        rotationAngles[ PITCH ] = 85;
+      if( rotationAngles[ PITCH ] > 85.0f )
+        rotationAngles[ PITCH ] = 85.0f;
+      else if( rotationAngles[ PITCH ] < -85.0f )
+        rotationAngles[ PITCH ] = -85.0f;
     }
 
     // Perform the rotations specified by rotationAngles.
