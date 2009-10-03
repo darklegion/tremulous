@@ -1149,7 +1149,7 @@ static gentity_t *G_FindNewZapTarget( gentity_t *ent )
     }
   }
 
-  return NULL;
+  return &g_entities[ ENTITYNUM_NONE ];
 }
 
 /*
@@ -1161,27 +1161,20 @@ static void G_UpdateZapEffect( zap_t *zap )
 {
   int       j;
   gentity_t *effect = zap->effectChannel;
+  int       targets[MAX_ZAP_TARGETS + 1];
 
   effect->s.eType = ET_LEV2_ZAP_CHAIN;
   effect->classname = "lev2zapchain";
   G_SetOrigin( effect, zap->creator->s.origin );
-  effect->s.misc = zap->creator->s.number;
-
-  effect->s.time = effect->s.time2 = effect->s.constantLight = -1;
+  targets[ 0 ] = zap->creator->s.number;
 
   for( j = 0; j < zap->numTargets; j++ )
   {
     int number = zap->targets[ j ]->s.number;
-
-    switch( j )
-    {
-      case 0: effect->s.time = number;          break;
-      case 1: effect->s.time2 = number;         break;
-      case 2: effect->s.constantLight = number; break;
-      default:                                  break;
-    }
+    targets[ j + 1 ] = number;
   }
 
+  BG_PackZapTargets( &effect->s, targets, zap->numTargets  );
   trap_LinkEntity( effect );
 }
 
