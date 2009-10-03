@@ -352,7 +352,6 @@ static void CG_HumanCkitText( char *text, playerState_t *ps )
 {
   buildable_t   buildable = ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT;
   entityState_t *es;
-  float         health;
 
   if( buildable > BA_NONE )
   {
@@ -371,16 +370,6 @@ static void CG_HumanCkitText( char *text, playerState_t *ps )
     Q_strcat( text, MAX_TUTORIAL_TEXT,
         va( "Press %s to build a structure\n",
           CG_KeyNameForCommand( "+attack" ) ) );
-
-    if( CG_BuildableInRange( ps, &health ) )
-    {
-      if( health < 1.0f )
-      {
-        Q_strcat( text, MAX_TUTORIAL_TEXT,
-            va( "Hold %s to repair this structure\n",
-              CG_KeyNameForCommand( "+button5" ) ) );
-      }
-    }
   }
 
   if( ( es = CG_BuildableInRange( ps, NULL ) ) )
