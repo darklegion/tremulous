@@ -1051,7 +1051,7 @@ static void UI_StartServerRefresh( qboolean full )
 
   if( ui_netSource.integer == AS_LOCAL )
   {
-    trap_Cmd_ExecuteText( EXEC_NOW, "localservers\n" );
+    trap_Cmd_ExecuteText( EXEC_APPEND, "localservers\n" );
     uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 1000;
     return;
   }
@@ -1068,10 +1068,10 @@ static void UI_StartServerRefresh( qboolean full )
     ptr = UI_Cvar_VariableString( "debug_protocol" );
 
     if( strlen( ptr ) )
-      trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %s full empty\n", i, ptr ) );
+      trap_Cmd_ExecuteText( EXEC_APPEND, va( "globalservers %d %s full empty\n", i, ptr ) );
     else
     {
-      trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %d full empty\n", i,
+      trap_Cmd_ExecuteText( EXEC_APPEND, va( "globalservers %d %d full empty\n", i,
                             (int)trap_Cvar_VariableValue( "protocol" ) ) );
     }
   }
@@ -3087,7 +3087,7 @@ static void UI_RunMenuScript( char **args )
       }
     }
     else if( Q_stricmp( name, "Quit" ) == 0 )
-      trap_Cmd_ExecuteText( EXEC_NOW, "quit" );
+      trap_Cmd_ExecuteText( EXEC_APPEND, "quit" );
     else if( Q_stricmp( name, "Leave" ) == 0 )
     {
       trap_Cmd_ExecuteText( EXEC_APPEND, "disconnect\n" );
@@ -3279,14 +3279,14 @@ static void UI_RunMenuScript( char **args )
         {
           BG_ClientListRemove( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
                                uiInfo.clientNums[ uiInfo.ignoreIndex ] );
-          trap_Cmd_ExecuteText( EXEC_NOW, va( "unignore %i\n",
+          trap_Cmd_ExecuteText( EXEC_APPEND, va( "unignore %i\n",
                                               uiInfo.clientNums[ uiInfo.ignoreIndex ] ) );
         }
         else
         {
           BG_ClientListAdd( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
                             uiInfo.clientNums[ uiInfo.ignoreIndex ] );
-          trap_Cmd_ExecuteText( EXEC_NOW, va( "ignore %i\n",
+          trap_Cmd_ExecuteText( EXEC_APPEND, va( "ignore %i\n",
                                               uiInfo.clientNums[ uiInfo.ignoreIndex ] ) );
         }
       }
@@ -3300,7 +3300,7 @@ static void UI_RunMenuScript( char **args )
         {
           BG_ClientListAdd( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
                             uiInfo.clientNums[ uiInfo.ignoreIndex ] );
-          trap_Cmd_ExecuteText( EXEC_NOW, va( "ignore %i\n",
+          trap_Cmd_ExecuteText( EXEC_APPEND, va( "ignore %i\n",
                                               uiInfo.clientNums[ uiInfo.ignoreIndex ] ) );
         }
       }
@@ -3314,7 +3314,7 @@ static void UI_RunMenuScript( char **args )
         {
           BG_ClientListRemove( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
                                uiInfo.clientNums[ uiInfo.ignoreIndex ] );
-          trap_Cmd_ExecuteText( EXEC_NOW, va( "unignore %i\n",
+          trap_Cmd_ExecuteText( EXEC_APPEND, va( "unignore %i\n",
                                               uiInfo.clientNums[ uiInfo.ignoreIndex ] ) );
         }
       }

@@ -533,8 +533,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   G_Printf( "gamename: %s\n", GAME_VERSION );
   G_Printf( "gamedate: %s\n", __DATE__ );
 
-  G_ProcessIPBans( );
-
   BG_InitMemory( );
 
   // set some level globals

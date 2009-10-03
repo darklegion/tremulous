@@ -1216,8 +1216,6 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   // check to see if they are on the banned IP list
   value = Info_ValueForKey( userinfo, "ip" );
   Q_strncpyz( client->pers.ip, value, sizeof( client->pers.ip ) );
-  if( G_FilterPacket( value ) )
-    return "You are banned from this server.";
 
   // check for a password
   value = Info_ValueForKey( userinfo, "password" );
