@@ -1537,10 +1537,10 @@ void SV_UserVoip( client_t *cl, msg_t *msg ) {
 			continue;  // not addressed to this player.
 
 		// this is not really the best way to do this
-		else if (Info_ValueForKey(svs.clients[sender].userinfo,
-			"cg_voipTeamOnly") && 
-			Info_ValueForKey(svs.clients[sender].userinfo, "t") !=
-			Info_ValueForKey(svs.clients[i].userinfo, "t"))
+		else if (atoi(Info_ValueForKey(svs.clients[sender].userinfo,
+			"cg_voipTeamOnly")) && 
+			atoi(Info_ValueForKey(svs.clients[sender].userinfo, "t")) !=
+			atoi(Info_ValueForKey(svs.clients[i].userinfo, "t")))
 			continue;
 
 		// Transmit this packet to the client.
