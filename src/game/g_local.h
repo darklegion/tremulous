@@ -323,6 +323,9 @@ typedef struct
   int                 credit;
   int                 ping;
 
+  // used to save persistant[] values while in SPECTATOR_FOLLOW mode
+  int                 savedCredit;
+
   // votes
   qboolean            vote;
   qboolean            teamVote;
