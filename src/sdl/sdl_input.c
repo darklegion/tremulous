@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #ifdef MACOS_X_ACCELERATION_HACK
+#include <IOKit/IOTypes.h>
 #include <IOKit/hidsystem/IOHIDLib.h>
 #include <IOKit/hidsystem/IOHIDParameter.h>
 #include <IOKit/hidsystem/event_status_driver.h>
@@ -135,7 +136,8 @@ static const char *IN_TranslateSDLToQ3Key(SDL_keysym *keysym, int *key)
 			case SDLK_RCTRL:        *key = K_CTRL;          break;
 
 			case SDLK_RMETA:
-			case SDLK_LMETA:
+			case SDLK_LMETA:        *key = K_COMMAND;       break;
+
 			case SDLK_RALT:
 			case SDLK_LALT:         *key = K_ALT;           break;
 
@@ -218,7 +220,7 @@ static void IN_PrintKey(const SDL_Event* event)
 IN_GetIOHandle
 ===============
 */
-static io_connect_t IN_GetIOHandle() // mac os x mouse accel hack
+static io_connect_t IN_GetIOHandle(void) // mac os x mouse accel hack
 {
 	io_connect_t iohandle = MACH_PORT_NULL;
 	kern_return_t status;
@@ -287,18 +289,17 @@ static void IN_ActivateMouse( void )
 
 	if( !mouseActive )
 	{
-		SDL_WM_GrabInput( SDL_GRAB_ON );
 		SDL_ShowCursor( 0 );
-
 #ifdef MACOS_X_CURSOR_HACK
 		// This is a bug in the current SDL/macosx...have to toggle it a few
 		//  times to get the cursor to hide.
 		SDL_ShowCursor( 1 );
 		SDL_ShowCursor( 0 );
 #endif
+		SDL_WM_GrabInput( SDL_GRAB_ON );
 	}
 
-	// in_nograb makes no sense unless fullscreen
+	// in_nograb makes no sense in fullscreen mode
 	if( !r_fullscreen->integer )
 	{
 		if( in_nograb->modified || !mouseActive )
@@ -346,8 +347,9 @@ static void IN_DeactivateMouse( void )
 
 	if( mouseActive )
 	{
-		SDL_ShowCursor( 1 );
 		SDL_WM_GrabInput( SDL_GRAB_OFF );
+		SDL_WarpMouse( glConfig.vidWidth >> 1, glConfig.vidHeight >> 1 );
+		SDL_ShowCursor( 1 );
 
 		mouseActive = qfalse;
 	}
@@ -651,6 +653,7 @@ static void IN_ProcessEvents( void )
 	SDL_Event e;
 	const char *p = NULL;
 	int key = 0;
+	int mx = 0, my = 0;
 
 	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
 			return;
@@ -691,7 +694,10 @@ static void IN_ProcessEvents( void )
 
 			case SDL_MOUSEMOTION:
 				if (mouseActive)
-					Com_QueueEvent( 0, SE_MOUSE, e.motion.xrel, e.motion.yrel, 0, NULL );
+				{
+					mx += e.motion.xrel;
+					my += e.motion.yrel;
+				}
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
@@ -714,6 +720,15 @@ static void IN_ProcessEvents( void )
 				}
 				break;
 
+			case SDL_ACTIVEEVENT:
+				if( e.active.state == SDL_APPINPUTFOCUS ) {
+					if( e.active.gain )
+						IN_ActivateMouse();
+					else
+						IN_DeactivateMouse();
+				}
+				break;
+
 			case SDL_QUIT:
 				Sys_Quit();
 				break;
@@ -722,6 +737,9 @@ static void IN_ProcessEvents( void )
 				break;
 		}
 	}
+
+	if(mx || my)
+		Com_QueueEvent( 0, SE_MOUSE, mx, my, 0, NULL );
 }
 
 /*
@@ -733,8 +751,10 @@ void IN_Frame (void)
 {
 	IN_JoyMove( );
 
-	// Release the mouse if the console if down and we're windowed
-	if( ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) && !r_fullscreen->integer )
+	// Release the mouse if the console is down in windowed mode
+	// or if the window loses focus due to task switching
+	if( ( ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) && !r_fullscreen->integer ) ||
+	    !( SDL_GetAppState() & SDL_APPINPUTFOCUS ) )
 		IN_DeactivateMouse( );
 	else
 		IN_ActivateMouse( );

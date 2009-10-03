@@ -53,6 +53,10 @@ kbutton_t	in_lookup, in_lookdown, in_moveleft, in_moveright;
 kbutton_t	in_strafe, in_speed;
 kbutton_t	in_up, in_down;
 
+#ifdef USE_VOIP
+kbutton_t	in_voiprecord;
+#endif
+
 kbutton_t	in_buttons[16];
 
 
@@ -216,6 +220,20 @@ void IN_SpeedDown(void) {IN_KeyDown(&in_speed);}
 void IN_SpeedUp(void) {IN_KeyUp(&in_speed);}
 void IN_StrafeDown(void) {IN_KeyDown(&in_strafe);}
 void IN_StrafeUp(void) {IN_KeyUp(&in_strafe);}
+
+#ifdef USE_VOIP
+void IN_VoipRecordDown(void)
+{
+	IN_KeyDown(&in_voiprecord);
+	Cvar_Set("cl_voipSend", "1");
+}
+
+void IN_VoipRecordUp(void)
+{
+	IN_KeyUp(&in_voiprecord);
+	Cvar_Set("cl_voipSend", "0");
+}
+#endif
 
 void IN_Button0Down(void) {IN_KeyDown(&in_buttons[0]);}
 void IN_Button0Up(void) {IN_KeyUp(&in_buttons[0]);}
@@ -741,6 +759,91 @@ void CL_WritePacket( void ) {
 		count = MAX_PACKET_USERCMDS;
 		Com_Printf("MAX_PACKET_USERCMDS\n");
 	}
+
+#ifdef USE_VOIP
+	if (clc.voipOutgoingDataSize > 0) {  // only send if data.
+		// Move cl_voipSendTarget from a string to the bitmasks if needed.
+		if (cl_voipSendTarget->modified) {
+			char buffer[32];
+			const char *target = cl_voipSendTarget->string;
+
+			if (Q_stricmp(target, "attacker") == 0) {
+				int player = VM_Call( cgvm, CG_LAST_ATTACKER );
+				Com_sprintf(buffer, sizeof (buffer), "%d", player);
+				target = buffer;
+			} else if (Q_stricmp(target, "crosshair") == 0) {
+				int player = VM_Call( cgvm, CG_CROSSHAIR_PLAYER );
+				Com_sprintf(buffer, sizeof (buffer), "%d", player);
+				target = buffer;
+			}
+
+			if ((*target == '\0') || (Q_stricmp(target, "all") == 0)) {
+				const int all = 0x7FFFFFFF;
+				clc.voipTarget1 = clc.voipTarget2 = clc.voipTarget3 = all;
+			} else if (Q_stricmp(target, "none") == 0) {
+				clc.voipTarget1 = clc.voipTarget2 = clc.voipTarget3 = 0;
+			} else {
+				clc.voipTarget1 = clc.voipTarget2 = clc.voipTarget3 = 0;
+				const char *ptr = target;
+				do {
+					if ((*ptr == ',') || (*ptr == '\0')) {
+						const int val = atoi(target);
+						target = ptr + 1;
+						if ((val >= 0) && (val < 31)) {
+							clc.voipTarget1 |= (1 << (val-0));
+						} else if ((val >= 31) && (val < 62)) {
+							clc.voipTarget2 |= (1 << (val-31));
+						} else if ((val >= 62) && (val < 93)) {
+							clc.voipTarget3 |= (1 << (val-62));
+						}
+					}
+				} while (*(ptr++));
+			}
+			cl_voipSendTarget->modified = qfalse;
+		}
+
+		MSG_WriteByte (&buf, clc_EOF);  // placate legacy servers.
+		MSG_WriteByte (&buf, clc_extension);
+		MSG_WriteByte (&buf, clc_voip);
+		MSG_WriteByte (&buf, clc.voipOutgoingGeneration);
+		MSG_WriteLong (&buf, clc.voipOutgoingSequence);
+		MSG_WriteByte (&buf, clc.voipOutgoingDataFrames);
+		MSG_WriteLong (&buf, clc.voipTarget1);
+		MSG_WriteLong (&buf, clc.voipTarget2);
+		MSG_WriteLong (&buf, clc.voipTarget3);
+		MSG_WriteShort (&buf, clc.voipOutgoingDataSize);
+		MSG_WriteData (&buf, clc.voipOutgoingData, clc.voipOutgoingDataSize);
+
+		// If we're recording a demo, we have to fake a server packet with
+		//  this VoIP data so it gets to disk; the server doesn't send it
+		//  back to us, and we might as well eliminate concerns about dropped
+		//  and misordered packets here.
+		if ( clc.demorecording && !clc.demowaiting ) {
+			const int voipSize = clc.voipOutgoingDataSize;
+			msg_t fakemsg;
+			byte fakedata[MAX_MSGLEN];
+			MSG_Init (&fakemsg, fakedata, sizeof (fakedata));
+			MSG_Bitstream (&fakemsg);
+			MSG_WriteLong (&fakemsg, clc.reliableAcknowledge);
+			MSG_WriteByte (&fakemsg, svc_EOF);
+			MSG_WriteByte (&fakemsg, svc_extension);
+			MSG_WriteByte (&fakemsg, svc_voip);
+			MSG_WriteShort (&fakemsg, clc.clientNum);
+			MSG_WriteByte (&fakemsg, clc.voipOutgoingGeneration);
+			MSG_WriteLong (&fakemsg, clc.voipOutgoingSequence);
+			MSG_WriteByte (&fakemsg, clc.voipOutgoingDataFrames);
+			MSG_WriteShort (&fakemsg, clc.voipOutgoingDataSize );
+			MSG_WriteData (&fakemsg, clc.voipOutgoingData, voipSize);
+			MSG_WriteByte (&fakemsg, svc_EOF);
+			CL_WriteDemoMessage (&fakemsg, 0);
+		}
+
+		clc.voipOutgoingSequence += clc.voipOutgoingDataFrames;
+		clc.voipOutgoingDataSize = 0;
+		clc.voipOutgoingDataFrames = 0;
+	} else
+#endif
+
 	if ( count >= 1 ) {
 		if ( cl_showSend->integer ) {
 			Com_Printf( "(%i)", count );
@@ -897,6 +1000,11 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand ("-button14", IN_Button14Up);
 	Cmd_AddCommand ("+mlook", IN_MLookDown);
 	Cmd_AddCommand ("-mlook", IN_MLookUp);
+
+#ifdef USE_VOIP
+	Cmd_AddCommand ("+voiprecord", IN_VoipRecordDown);
+	Cmd_AddCommand ("-voiprecord", IN_VoipRecordUp);
+#endif
 
 	cl_nodelta = Cvar_Get ("cl_nodelta", "0", 0);
 	cl_debugMove = Cvar_Get ("cl_debugMove", "0", 0);

@@ -1433,7 +1433,6 @@ static qboolean ParseShader( char **text )
 		// stage definition
 		else if ( token[0] == '{' )
 		{
-			// 20051019 misantropia -- fix buffer overrun.
 			if ( s >= MAX_SHADER_STAGES ) {
 				ri.Printf( PRINT_WARNING, "WARNING: too many stages in shader %s\n", shader.name );
 				return qfalse;
@@ -2153,7 +2152,7 @@ static shader_t *FinishShader( void ) {
 	//
 	// set appropriate stage information
 	//
-	for ( stage = 0; stage < MAX_SHADER_STAGES; stage++ ) {
+	for ( stage = 0; stage < MAX_SHADER_STAGES; ) {
 		shaderStage_t *pStage = &stages[stage];
 
 		if ( !pStage->active ) {
@@ -2164,17 +2163,33 @@ static shader_t *FinishShader( void ) {
 		if ( !pStage->bundle[0].image[0] ) {
 			ri.Printf( PRINT_WARNING, "Shader %s has a stage with no image\n", shader.name );
 			pStage->active = qfalse;
+			stage++;
 			continue;
 		}
 
 		//
 		// ditch this stage if it's detail and detail textures are disabled
 		//
-		if ( pStage->isDetail && !r_detailTextures->integer ) {
-			if ( stage < ( MAX_SHADER_STAGES - 1 ) ) {
-				memmove( pStage, pStage + 1, sizeof( *pStage ) * ( MAX_SHADER_STAGES - stage - 1 ) );
-				Com_Memset(  pStage + 1, 0, sizeof( *pStage ) );
+		if ( pStage->isDetail && !r_detailTextures->integer )
+		{
+			int index;
+			
+			for(index = stage + 1; index < MAX_SHADER_STAGES; index++)
+			{
+				if(!stages[index].active)
+					break;
 			}
+			
+			if(index < MAX_SHADER_STAGES)
+				memmove(pStage, pStage + 1, sizeof(*pStage) * (index - stage));
+			else
+			{
+				if(stage + 1 < MAX_SHADER_STAGES)
+					memmove(pStage, pStage + 1, sizeof(*pStage) * (index - stage - 1));
+				
+				Com_Memset(&stages[index - 1], 0, sizeof(*stages));
+			}
+			
 			continue;
 		}
 
@@ -2243,6 +2258,8 @@ static shader_t *FinishShader( void ) {
 				}
 			}
 		}
+		
+		stage++;
 	}
 
 	// there are times when you will need to manually apply a sort to
@@ -2430,6 +2447,10 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 	// lightmaps
 	if ( lightmapIndex >= 0 && lightmapIndex >= tr.numLightmaps ) {
 		lightmapIndex = LIGHTMAP_BY_VERTEX;
+	} else if ( lightmapIndex < LIGHTMAP_2D ) {
+		// negative lightmap indexes cause stray pointers (think tr.lightmaps[lightmapIndex])
+		ri.Printf( PRINT_WARNING, "WARNING: shader '%s' has invalid lightmap index of %d\n", name, lightmapIndex  );
+		lightmapIndex = LIGHTMAP_BY_VERTEX;
 	}
 
 	COM_StripExtension(name, strippedName, sizeof(strippedName));
@@ -2564,7 +2585,7 @@ qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_
 
 	hash = generateHashValue(name, FILE_HASH_SIZE);
 
-	// 20051020 misantropia -- probably not necessary since this function
+	// probably not necessary since this function
 	// only gets called from tr_font.c with lightmapIndex == LIGHTMAP_2D
 	// but better safe than sorry.
 	if ( lightmapIndex >= tr.numLightmaps ) {
@@ -2869,7 +2890,7 @@ static void ScanAndLoadShaderFiles( void )
 	char *oldp, *token, *hashMem;
 	int shaderTextHashTableSizes[MAX_SHADERTEXT_HASH], hash, size;
 
-	long sum = 0;
+	long sum = 0, summand;
 	// scan for shader files
 	shaderFiles = ri.FS_ListFiles( "scripts", ".shader", &numShaderFiles );
 
@@ -2890,10 +2911,38 @@ static void ScanAndLoadShaderFiles( void )
 
 		Com_sprintf( filename, sizeof( filename ), "scripts/%s", shaderFiles[i] );
 		ri.Printf( PRINT_DEVELOPER, "...loading '%s'\n", filename );
-		sum += ri.FS_ReadFile( filename, (void **)&buffers[i] );
-		if ( !buffers[i] ) {
+		summand = ri.FS_ReadFile( filename, (void **)&buffers[i] );
+		
+		if ( !buffers[i] )
 			ri.Error( ERR_DROP, "Couldn't load %s", filename );
+		
+		// Do a simple check on the shader structure in that file to make sure one bad shader file cannot fuck up all other shaders.
+		p = buffers[i];
+		while(1)
+		{
+			token = COM_ParseExt(&p, qtrue);
+			
+			if(!*token)
+				break;
+			
+			oldp = p;
+			
+			token = COM_ParseExt(&p, qtrue);
+			if(token[0] != '{' && token[1] != '\0')
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: Bad shader file %s has incorrect syntax.\n", filename);
+				ri.FS_FreeFile(buffers[i]);
+				buffers[i] = NULL;
+				break;
+			}
+
+			SkipBracedSection(&oldp);
+			p = oldp;
 		}
+			
+		
+		if (buffers[i])
+			sum += summand;		
 	}
 
 	// build single large buffer
@@ -2901,12 +2950,16 @@ static void ScanAndLoadShaderFiles( void )
 	s_shaderText[ 0 ] = '\0';
 
 	// free in reverse order, so the temp files are all dumped
-	for ( i = numShaderFiles - 1; i >= 0 ; i-- ) {
-		p = &s_shaderText[strlen(s_shaderText)];
-		strcat( s_shaderText, buffers[i] );
-		ri.FS_FreeFile( buffers[i] );
-		COM_Compress(p);
-		strcat( s_shaderText, "\n" );
+	for ( i = numShaderFiles - 1; i >= 0 ; i-- )
+	{
+		if(buffers[i])
+		{
+			p = &s_shaderText[strlen(s_shaderText)];
+			strcat( s_shaderText, buffers[i] );
+			ri.FS_FreeFile( buffers[i] );
+			COM_Compress(p);
+			strcat( s_shaderText, "\n" );
+		}
 	}
 
 	// free up memory

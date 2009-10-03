@@ -35,6 +35,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cl_curl.h"
 #endif /* USE_CURL */
 
+#ifdef USE_VOIP
+#include "speex/speex.h"
+#include "speex/speex_preprocess.h"
+#endif
+
 // file full of random crap that gets used to create cl_guid
 #define QKEY_FILE "qkey"
 #define QKEY_SIZE 2048
@@ -226,6 +231,36 @@ typedef struct {
 	int			timeDemoMaxDuration;	// maximum frame duration
 	unsigned char	timeDemoDurations[ MAX_TIMEDEMO_DURATIONS ];	// log of frame durations
 
+#ifdef USE_VOIP
+	qboolean speexInitialized;
+	int speexFrameSize;
+	int speexSampleRate;
+
+	// incoming data...
+	// !!! FIXME: convert from parallel arrays to array of a struct.
+	SpeexBits speexDecoderBits[MAX_CLIENTS];
+	void *speexDecoder[MAX_CLIENTS];
+	byte voipIncomingGeneration[MAX_CLIENTS];
+	int voipIncomingSequence[MAX_CLIENTS];
+	float voipGain[MAX_CLIENTS];
+	qboolean voipIgnore[MAX_CLIENTS];
+	qboolean voipMuteAll;
+
+	// outgoing data...
+	int voipTarget1;  // these three ints make up a bit mask of 92 bits.
+	int voipTarget2;  //  the bits say who a VoIP pack is addressed to:
+	int voipTarget3;  //  (1 << clientnum). See cl_voipSendTarget cvar.
+	SpeexPreprocessState *speexPreprocessor;
+	SpeexBits speexEncoderBits;
+	void *speexEncoder;
+	int voipOutgoingDataSize;
+	int voipOutgoingDataFrames;
+	int voipOutgoingSequence;
+	byte voipOutgoingGeneration;
+	byte voipOutgoingData[1024];
+	float voipPower;
+#endif
+
 	// big stuff at end of structure so most offsets are 15 bits or less
 	netchan_t	netchan;
 } clientConnection_t;
@@ -264,11 +299,6 @@ typedef struct {
 } serverInfo_t;
 
 typedef struct {
-	byte	ip[4];
-	unsigned short	port;
-} serverAddress_t;
-
-typedef struct {
 	connstate_t	state;				// connection status
 
 	qboolean	cddialog;			// bring up the cd needed dialog next frame
@@ -295,17 +325,12 @@ typedef struct {
 	serverInfo_t  globalServers[MAX_GLOBAL_SERVERS];
 	// additional global servers
 	int			numGlobalServerAddresses;
-	serverAddress_t		globalServerAddresses[MAX_GLOBAL_SERVERS];
+	netadr_t		globalServerAddresses[MAX_GLOBAL_SERVERS];
 
 	int			numfavoriteservers;
 	serverInfo_t	favoriteServers[MAX_OTHER_SERVERS];
 
-	int			nummplayerservers;
-	serverInfo_t	mplayerServers[MAX_OTHER_SERVERS];
-
 	int pingUpdateSource;		// source currently pinging or updating
-
-	int masterNum;
 
 	// update server info
 	netadr_t	updateServer;
@@ -377,6 +402,25 @@ extern	cvar_t	*cl_inGameVideo;
 extern	cvar_t	*cl_lanForcePackets;
 extern	cvar_t	*cl_autoRecordDemo;
 
+#ifdef USE_MUMBLE
+extern	cvar_t	*cl_useMumble;
+extern	cvar_t	*cl_mumbleScale;
+#endif
+
+#ifdef USE_VOIP
+// cl_voipSendTarget is a string: "all" to broadcast to everyone, "none" to
+//  send to no one, or a comma-separated list of client numbers:
+//  "0,7,2,23" ... an empty string is treated like "all".
+extern	cvar_t	*cl_voipUseVAD;
+extern	cvar_t	*cl_voipVADThreshold;
+extern	cvar_t	*cl_voipSend;
+extern	cvar_t	*cl_voipSendTarget;
+extern	cvar_t	*cl_voipGainDuringCapture;
+extern	cvar_t	*cl_voipCaptureMult;
+extern	cvar_t	*cl_voipShowMeter;
+extern	cvar_t	*cl_voip;
+#endif
+
 //=================================================
 
 //
@@ -431,6 +475,10 @@ extern	kbutton_t	in_mlook, in_klook;
 extern 	kbutton_t 	in_strafe;
 extern 	kbutton_t 	in_speed;
 
+#ifdef USE_VOIP
+extern 	kbutton_t 	in_voiprecord;
+#endif
+
 void CL_InitInput (void);
 void CL_SendCmd (void);
 void CL_ClearState (void);
@@ -451,6 +499,11 @@ void Key_SetCatcher( int catcher );
 //
 extern int cl_connectedToPureServer;
 extern int cl_connectedToCheatServer;
+
+#ifdef USE_VOIP
+extern int cl_connectedToVoipServer;
+void CL_Voip_f( void );
+#endif
 
 void CL_SystemInfoChanged( void );
 void CL_ParseServerMessage( msg_t *msg );
@@ -565,3 +618,9 @@ void CL_WriteAVIVideoFrame( const byte *imageBuffer, int size );
 void CL_WriteAVIAudioFrame( const byte *pcmBuffer, int size );
 qboolean CL_CloseAVI( void );
 qboolean CL_VideoRecording( void );
+
+//
+// cl_main.c
+//
+void CL_WriteDemoMessage ( msg_t *msg, int headerBytes );
+

@@ -91,7 +91,7 @@ char	*MSG_ReadBigString (msg_t *sb);
 char	*MSG_ReadStringLine (msg_t *sb);
 float	MSG_ReadAngle16 (msg_t *sb);
 void	MSG_ReadData (msg_t *sb, void *buffer, int size);
-
+int		MSG_LookaheadByte (msg_t *msg);
 
 void MSG_WriteDeltaUsercmd( msg_t *msg, struct usercmd_s *from, struct usercmd_s *to );
 void MSG_ReadDeltaUsercmd( msg_t *msg, struct usercmd_s *from, struct usercmd_s *to );
@@ -134,7 +134,10 @@ typedef enum {
 	NA_BAD,					// an address lookup failed
 	NA_LOOPBACK,
 	NA_BROADCAST,
-	NA_IP
+	NA_IP,
+	NA_IP6,
+	NA_MULTICAST6,
+	NA_UNSPEC
 } netadrtype_t;
 
 typedef enum {
@@ -142,10 +145,12 @@ typedef enum {
 	NS_SERVER
 } netsrc_t;
 
+#define NET_ADDRSTRMAXLEN 48	// maximum length of an IPv6 address string including trailing '\0'
 typedef struct {
 	netadrtype_t	type;
 
 	byte	ip[4];
+	byte	ip6[16];
 
 	unsigned short	port;
 } netadr_t;
@@ -163,8 +168,11 @@ qboolean	NET_CompareAdr (netadr_t a, netadr_t b);
 qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b);
 qboolean	NET_IsLocalAddress (netadr_t adr);
 const char	*NET_AdrToString (netadr_t a);
-qboolean	NET_StringToAdr ( const char *s, netadr_t *a);
+const char      *NET_AdrToStringwPort (netadr_t a);
+int		NET_StringToAdr ( const char *s, netadr_t *a, netadrtype_t family);
 qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message);
+void		NET_JoinMulticast6(void);
+void		NET_LeaveMulticast6(void);
 void		NET_Sleep(int msec);
 
 
@@ -252,7 +260,12 @@ enum svc_ops_e {
 	svc_serverCommand,			// [string] to be executed by client game module
 	svc_download,				// [short] size [size bytes]
 	svc_snapshot,
-	svc_EOF
+	svc_EOF,
+
+	// svc_extension follows a svc_EOF, followed by another svc_* ...
+	//  this keeps legacy clients compatible.
+	svc_extension,
+	svc_voip,     // not wrapped in USE_VOIP, so this value is reserved.
 };
 
 
@@ -265,7 +278,12 @@ enum clc_ops_e {
 	clc_move,				// [[usercmd_t]
 	clc_moveNoDelta,		// [[usercmd_t]
 	clc_clientCommand,		// [string] message
-	clc_EOF
+	clc_EOF,
+
+	// clc_extension follows a clc_EOF, followed by another clc_* ...
+	//  this keeps legacy servers compatible.
+	clc_extension,
+	clc_voip,   // not wrapped in USE_VOIP, so this value is reserved.
 };
 
 /*
@@ -309,6 +327,8 @@ vm_t	*VM_Create( const char *module, intptr_t (*systemCalls)(intptr_t *),
 
 void	VM_Free( vm_t *vm );
 void	VM_Clear(void);
+void	VM_Forced_Unload_Start(void);
+void	VM_Forced_Unload_Done(void);
 vm_t	*VM_Restart( vm_t *vm );
 
 intptr_t		QDECL VM_Call( vm_t *vm, int callNum, ... );
@@ -497,6 +517,7 @@ char	*Cvar_InfoString_Big( int bit );
 // returns an info string containing all the cvars that have the given bit set
 // in their flags ( CVAR_USERINFO, CVAR_SERVERINFO, CVAR_SYSTEMINFO, etc )
 void	Cvar_InfoStringBuffer( int bit, char *buff, int buffsize );
+void Cvar_CheckRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral );
 
 void	Cvar_Restart_f( void );
 
@@ -564,6 +585,7 @@ int		FS_GetFileList(  const char *path, const char *extension, char *listbuf, in
 int		FS_GetModList(  char *listbuf, int bufsize );
 
 fileHandle_t	FS_FOpenFileWrite( const char *qpath );
+fileHandle_t	FS_FOpenFileAppend( const char *filename );
 // will properly create any needed paths and deal with seperater character issues
 
 int		FS_filelength( fileHandle_t f );
@@ -662,6 +684,7 @@ void FS_HomeRemove( const char *homePath );
 
 void	FS_FilenameCompletion( const char *dir, const char *ext,
 		qboolean stripExt, void(*callback)(const char *s) );
+
 /*
 ==============================================================
 
@@ -688,16 +711,6 @@ MISC
 
 ==============================================================
 */
-
-// vsnprintf is ISO/IEC 9899:1999
-// abstracting this to make it portable
-#ifdef _WIN32
-#define Q_vsnprintf _vsnprintf
-#define Q_snprintf _snprintf
-#else
-#define Q_vsnprintf vsnprintf
-#define Q_snprintf snprintf
-#endif
 
 // returned by Sys_GetProcessorFeatures
 typedef enum
@@ -1014,7 +1027,7 @@ void	Sys_SetErrorText( const char *text );
 void	Sys_SendPacket( int length, const void *data, netadr_t to );
 qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message );
 
-qboolean	Sys_StringToAdr( const char *s, netadr_t *a );
+qboolean	Sys_StringToAdr( const char *s, netadr_t *a, netadrtype_t family );
 //Does NOT parse port numbers, only base addresses.
 
 qboolean	Sys_IsLANAddress (netadr_t adr);
@@ -1088,13 +1101,17 @@ void	Huff_offsetTransmit (huff_t *huff, int ch, byte *fout, int *offset);
 void	Huff_putBit( int bit, byte *fout, int *offset);
 int		Huff_getBit( byte *fout, int *offset);
 
+// don't use if you don't know what you're doing.
+int		Huff_getBloc(void);
+void	Huff_setBloc(int _bloc);
+
+extern huffman_t clientHuffTables;
+
 int		Parse_AddGlobalDefine(char *string);
 int		Parse_LoadSourceHandle(const char *filename);
 int		Parse_FreeSourceHandle(int handle);
 int		Parse_ReadTokenHandle(int handle, pc_token_t *pc_token);
 int		Parse_SourceFileAndLine(int handle, char *filename, int *line);
-
-extern huffman_t clientHuffTables;
 
 #define	SV_ENCODE_START		4
 #define SV_DECODE_START		12

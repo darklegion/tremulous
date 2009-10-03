@@ -17,6 +17,9 @@ ifeq ($(COMPILE_PLATFORM),darwin)
   COMPILE_ARCH=$(shell uname -p | sed -e s/i.86/x86/)
 endif
 
+ifndef BUILD_STANDALONE
+  BUILD_STANDALONE =
+endif
 ifndef BUILD_CLIENT
   BUILD_CLIENT     =
 endif
@@ -93,7 +96,11 @@ USE_OPENAL=1
 endif
 
 ifndef USE_OPENAL_DLOPEN
-USE_OPENAL_DLOPEN=0
+  ifeq ($(PLATFORM),mingw32)
+    USE_OPENAL_DLOPEN=1
+  else
+    USE_OPENAL_DLOPEN=0
+  endif
 endif
 
 ifndef USE_CURL
@@ -110,6 +117,18 @@ endif
 
 ifndef USE_CODEC_VORBIS
 USE_CODEC_VORBIS=0
+endif
+
+ifndef USE_MUMBLE
+USE_MUMBLE=1
+endif
+
+ifndef USE_VOIP
+USE_VOIP=1
+endif
+
+ifndef USE_INTERNAL_SPEEX
+USE_INTERNAL_SPEEX=1
 endif
 
 ifndef USE_LOCAL_HEADERS
@@ -136,30 +155,40 @@ CGDIR=$(MOUNT_DIR)/cgame
 NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
 JPDIR=$(MOUNT_DIR)/jpeg-6
+SPEEXDIR=$(MOUNT_DIR)/libspeex
 Q3ASMDIR=$(MOUNT_DIR)/tools/asm
 LBURGDIR=$(MOUNT_DIR)/tools/lcc/lburg
 Q3CPPDIR=$(MOUNT_DIR)/tools/lcc/cpp
 Q3LCCETCDIR=$(MOUNT_DIR)/tools/lcc/etc
 Q3LCCSRCDIR=$(MOUNT_DIR)/tools/lcc/src
+NSISDIR=misc/nsis
 SDLHDIR=$(MOUNT_DIR)/SDL12
 LIBSDIR=$(MOUNT_DIR)/libs
 MASTERDIR=$(MOUNT_DIR)/master
 TEMPDIR=/tmp
 
-# extract version info
-VERSION=$(shell grep "\#define *PRODUCT_VERSION" $(CMDIR)/q_shared.h | \
-  sed -e 's/[^"]*"\(.*\)"/\1/')
+# set PKG_CONFIG_PATH to influence this, e.g.
+# PKG_CONFIG_PATH=/opt/cross/i386-mingw32msvc/lib/pkgconfig
+ifeq ($(shell which pkg-config > /dev/null; echo $$?),0)
+  CURL_CFLAGS=$(shell pkg-config --cflags libcurl)
+  CURL_LIBS=$(shell pkg-config --libs libcurl)
+  OPENAL_CFLAGS=$(shell pkg-config --cflags openal)
+  OPENAL_LIBS=$(shell pkg-config --libs openal)
+  # FIXME: introduce CLIENT_CFLAGS
+  SDL_CFLAGS=$(shell pkg-config --cflags sdl|sed 's/-Dmain=SDL_main//')
+  SDL_LIBS=$(shell pkg-config --libs sdl)
+endif
+
+# version info
+VERSION=1.1.0
 
 USE_SVN=
 ifeq ($(wildcard .svn),.svn)
   SVN_REV=$(shell LANG=C svnversion .)
   ifneq ($(SVN_REV),)
-    SVN_VERSION=$(VERSION)_SVN$(SVN_REV)
+    VERSION:=$(VERSION)_SVN$(SVN_REV)
     USE_SVN=1
   endif
-endif
-ifneq ($(USE_SVN),1)
-    SVN_VERSION=$(VERSION)
 endif
 
 
@@ -263,6 +292,14 @@ ifeq ($(PLATFORM),linux)
     CLIENT_LDFLAGS += -lvorbisfile -lvorbis -logg
   endif
 
+  ifeq ($(USE_MUMBLE),1)
+    CLIENT_LDFLAGS += -lrt
+  endif
+
+  ifeq ($(USE_LOCAL_HEADERS),1)
+    BASE_CFLAGS += -I$(SDLHDIR)/include
+  endif
+
   ifeq ($(ARCH),x86)
     # linux32 make ...
     BASE_CFLAGS += -m32
@@ -288,13 +325,11 @@ ifeq ($(PLATFORM),darwin)
   CLIENT_LDFLAGS=
   OPTIMIZE=
 
-  # building the QVMs on MacOSX is broken, atm.
-  BUILD_GAME_QVM=0
-  
   BASE_CFLAGS = -Wall -Wimplicit -Wstrict-prototypes
 
   ifeq ($(ARCH),ppc)
-    OPTIMIZE += -faltivec -O3
+    BASE_CFLAGS += -faltivec
+    OPTIMIZE += -O3
   endif
   ifeq ($(ARCH),x86)
     OPTIMIZE += -march=prescott -mfpmath=sse
@@ -368,27 +403,25 @@ else # ifeq darwin
 
 ifeq ($(PLATFORM),mingw32)
 
-ifndef WINDRES
-WINDRES=windres
-endif
+  ifndef WINDRES
+    WINDRES=windres
+  endif
 
   ARCH=x86
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
     -DUSE_ICON
 
-  ifeq ($(USE_LOCAL_HEADERS),1)
-    BASE_CFLAGS += -I$(SDLHDIR)/include
-  endif
+  # Require Windows XP or later
+  BASE_CFLAGS += -DWINVER=0x501
 
   ifeq ($(USE_OPENAL),1)
-    BASE_CFLAGS += -DUSE_OPENAL=1 -DUSE_OPENAL_DLOPEN
-  endif
-
-  ifeq ($(USE_CURL),1)
-    BASE_CFLAGS += -DUSE_CURL
-    ifneq ($(USE_CURL_DLOPEN),1)
-      BASE_CFLAGS += -DCURL_STATICLIB
+    BASE_CFLAGS += -DUSE_OPENAL
+    BASE_CFLAGS += $(OPENAL_CFLAGS)
+    ifeq ($(USE_OPENAL_DLOPEN),1)
+      BASE_CFLAGS += -DUSE_OPENAL_DLOPEN
+    else
+      CLIENT_LDFLAGS += $(OPENAL_LDFLAGS)
     endif
   endif
 
@@ -408,12 +441,19 @@ endif
 
   BINEXT=.exe
 
-  LDFLAGS= -lwsock32 -lwinmm
+  LDFLAGS= -lws2_32 -lwinmm
   CLIENT_LDFLAGS = -mwindows -lgdi32 -lole32 -lopengl32
 
   ifeq ($(USE_CURL),1)
+    BASE_CFLAGS += -DUSE_CURL
+    BASE_CFLAGS += $(CURL_CFLAGS)
     ifneq ($(USE_CURL_DLOPEN),1)
-      CLIENT_LDFLAGS += $(LIBSDIR)/win32/libcurl.a
+      ifeq ($(USE_LOCAL_HEADERS),1)
+        BASE_CFLAGS += -DCURL_STATICLIB
+        CLIENT_LDFLAGS += $(LIBSDIR)/win32/libcurl.a
+      else
+        CLIENT_LDFLAGS += $(CURL_LIBS)
+      endif
     endif
   endif
 
@@ -431,9 +471,17 @@ endif
   RELEASE_CFLAGS=$(BASE_CFLAGS) -DNDEBUG $(OPTIMIZE)
 
   # libmingw32 must be linked before libSDLmain
-  CLIENT_LDFLAGS += -lmingw32 \
-                    $(LIBSDIR)/win32/libSDLmain.a \
-                    $(LIBSDIR)/win32/libSDL.dll.a
+  CLIENT_LDFLAGS += -lmingw32
+  ifeq ($(USE_LOCAL_HEADERS),1)
+    BASE_CFLAGS += -I$(SDLHDIR)/include
+    CLIENT_LDFLAGS += $(LIBSDIR)/win32/libSDLmain.a \
+                      $(LIBSDIR)/win32/libSDL.dll.a
+  else
+    BASE_CFLAGS += $(SDL_CFLAGS)
+    CLIENT_LDFLAGS += $(SDL_LIBS)
+  endif
+
+
 
   BUILD_CLIENT_SMP = 0
 
@@ -506,7 +554,6 @@ ifeq ($(PLATFORM),freebsd)
     CLIENT_LDFLAGS += -lvorbisfile -lvorbis -logg
   endif
 
-
 else # ifeq freebsd
 
 #############################################################################
@@ -555,14 +602,13 @@ ifeq ($(PLATFORM),openbsd)
 
   ifeq ($(USE_OPENAL),1)
     ifneq ($(USE_OPENAL_DLOPEN),1)
-      CLIENT_LDFLAGS += $(THREAD_LDFLAGS) -lopenal
+      CLIENT_LDFLAGS += $(THREAD_LDFLAGS) -lossaudio -lopenal
     endif
   endif
 
   ifeq ($(USE_CODEC_VORBIS),1)
     CLIENT_LDFLAGS += -lvorbisfile -lvorbis -logg
   endif
-
 
 else # ifeq openbsd
 
@@ -652,10 +698,10 @@ ifeq ($(PLATFORM),sunos)
   OPTIMIZE = -O3 -ffast-math -funroll-loops
 
   ifeq ($(ARCH),sparc)
-    OPTIMIZE = -O3 -ffast-math -falign-loops=2 \
-      -falign-jumps=2 -falign-functions=2 -fstrength-reduce \
-      -mtune=ultrasparc -mv8plus -mno-faster-structs \
-      -funroll-loops
+    OPTIMIZE = -O3 -ffast-math \
+      -fstrength-reduce -falign-functions=2 \
+      -mtune=ultrasparc3 -mv8plus -mno-faster-structs \
+      -funroll-loops #-mv8plus
   else
   ifeq ($(ARCH),x86)
     OPTIMIZE = -O3 -march=i586 -fomit-frame-pointer -ffast-math \
@@ -739,6 +785,19 @@ ifneq ($(BUILD_GAME_QVM),0)
   endif
 endif
 
+ifeq ($(USE_MUMBLE),1)
+  BASE_CFLAGS += -DUSE_MUMBLE
+endif
+
+ifeq ($(USE_VOIP),1)
+  BASE_CFLAGS += -DUSE_VOIP
+  ifeq ($(USE_INTERNAL_SPEEX),1)
+    BASE_CFLAGS += -DFLOATING_POINT -DUSE_ALLOCA -I$(SPEEXDIR)/include
+  else
+    CLIENT_LDFLAGS += -lspeex
+  endif
+endif
+
 ifdef DEFAULT_BASEDIR
   BASE_CFLAGS += -DDEFAULT_BASEDIR=\\\"$(DEFAULT_BASEDIR)\\\"
 endif
@@ -747,15 +806,17 @@ ifeq ($(USE_LOCAL_HEADERS),1)
   BASE_CFLAGS += -DUSE_LOCAL_HEADERS
 endif
 
+ifeq ($(BUILD_STANDALONE),1)
+  BASE_CFLAGS += -DSTANDALONE
+endif
+
 ifeq ($(GENERATE_DEPENDENCIES),1)
   DEPEND_CFLAGS = -MMD
 else
   DEPEND_CFLAGS =
 endif
 
-ifeq ($(USE_SVN),1)
-  BASE_CFLAGS += -DSVN_VERSION=\\\"$(SVN_VERSION)\\\"
-endif
+BASE_CFLAGS += -DPRODUCT_VERSION=\\\"$(VERSION)\\\"
 
 ifeq ($(V),1)
 echo_cmd=@:
@@ -852,6 +913,7 @@ targets: makedirs
 	@echo "Building Tremulous in $(B):"
 	@echo "  PLATFORM: $(PLATFORM)"
 	@echo "  ARCH: $(ARCH)"
+	@echo "  VERSION: $(VERSION)"
 	@echo "  COMPILE_PLATFORM: $(COMPILE_PLATFORM)"
 	@echo "  COMPILE_ARCH: $(COMPILE_ARCH)"
 	@echo "  CC: $(CC)"
@@ -874,7 +936,9 @@ targets: makedirs
 		echo "    $$i"; \
 	done
 	@echo ""
+ifneq ($(TARGETS),)
 	@$(MAKE) $(TARGETS) V=$(V)
+endif
 
 makedirs:
 	@if [ ! -d $(BUILD_DIR) ];then $(MKDIR) $(BUILD_DIR);fi
@@ -1020,17 +1084,17 @@ endef
 
 define DO_CGAME_Q3LCC
 $(echo_cmd) "CGAME_Q3LCC $<"
-$(Q)$(Q3LCC) -DCGAME -o $@ $<
+$(Q)$(Q3LCC) -DPRODUCT_VERSION=\"$(VERSION)\" -DCGAME -o $@ $<
 endef
 
 define DO_GAME_Q3LCC
 $(echo_cmd) "GAME_Q3LCC $<"
-$(Q)$(Q3LCC) -DGAME -o $@ $<
+$(Q)$(Q3LCC) -DPRODUCT_VERSION=\"$(VERSION)\" -DGAME -o $@ $<
 endef
 
 define DO_UI_Q3LCC
 $(echo_cmd) "UI_Q3LCC $<"
-$(Q)$(Q3LCC) -DUI -o $@ $<
+$(Q)$(Q3LCC) -DPRODUCT_VERSION=\"$(VERSION)\" -DUI -o $@ $<
 endef
 
 
@@ -1195,6 +1259,51 @@ ifeq ($(ARCH),x86)
     $(B)/client/snapvectora.o
 endif
 
+ifeq ($(USE_INTERNAL_SPEEX),1)
+Q3OBJ += \
+  $(B)/client/bits.o \
+  $(B)/client/buffer.o \
+  $(B)/client/cb_search.o \
+  $(B)/client/exc_10_16_table.o \
+  $(B)/client/exc_10_32_table.o \
+  $(B)/client/exc_20_32_table.o \
+  $(B)/client/exc_5_256_table.o \
+  $(B)/client/exc_5_64_table.o \
+  $(B)/client/exc_8_128_table.o \
+  $(B)/client/fftwrap.o \
+  $(B)/client/filterbank.o \
+  $(B)/client/filters.o \
+  $(B)/client/gain_table.o \
+  $(B)/client/gain_table_lbr.o \
+  $(B)/client/hexc_10_32_table.o \
+  $(B)/client/hexc_table.o \
+  $(B)/client/high_lsp_tables.o \
+  $(B)/client/jitter.o \
+  $(B)/client/kiss_fft.o \
+  $(B)/client/kiss_fftr.o \
+  $(B)/client/lpc.o \
+  $(B)/client/lsp.o \
+  $(B)/client/lsp_tables_nb.o \
+  $(B)/client/ltp.o \
+  $(B)/client/mdf.o \
+  $(B)/client/modes.o \
+  $(B)/client/modes_wb.o \
+  $(B)/client/nb_celp.o \
+  $(B)/client/preprocess.o \
+  $(B)/client/quant_lsp.o \
+  $(B)/client/resample.o \
+  $(B)/client/sb_celp.o \
+  $(B)/client/smallft.o \
+  $(B)/client/speex.o \
+  $(B)/client/speex_callbacks.o \
+  $(B)/client/speex_header.o \
+  $(B)/client/stereo.o \
+  $(B)/client/vbr.o \
+  $(B)/client/vq.o \
+  $(B)/client/window.o
+endif
+
+
 ifeq ($(HAVE_VM_COMPILED),true)
   ifeq ($(ARCH),x86)
     Q3OBJ += $(B)/client/vm_x86.o
@@ -1214,6 +1323,11 @@ ifeq ($(PLATFORM),mingw32)
 else
   Q3OBJ += \
     $(B)/client/sys_unix.o
+endif
+
+ifeq ($(USE_MUMBLE),1)
+  Q3OBJ += \
+    $(B)/client/libmumblelink.o
 endif
 
 Q3POBJ += \
@@ -1471,6 +1585,9 @@ $(B)/client/%.o: $(BLIBDIR)/%.c
 	$(DO_BOT_CC)
 
 $(B)/client/%.o: $(JPDIR)/%.c
+	$(DO_CC)
+
+$(B)/client/%.o: $(SPEEXDIR)/%.c
 	$(DO_CC)
 
 $(B)/client/%.o: $(RDIR)/%.c

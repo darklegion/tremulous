@@ -6,8 +6,7 @@ PKGINFO=APPLTREM
 ICNS=misc/Tremulous.icns
 DESTDIR=build/release-darwin-ub
 BASEDIR=base
-Q3_VERSION=`grep "\#define Q3_VERSION" src/qcommon/q_shared.h | \
-	sed -e 's/.*".* \([^ ]*\)"/\1/'`;
+Q3_VERSION=`grep '^VERSION=' Makefile | sed -e 's/.*=\(.*\)/\1/'`
 
 BIN_OBJ="
 	build/release-darwin-ppc/tremulous.ppc
@@ -29,10 +28,10 @@ if [ ! -f Makefile ]; then
 	echo "This script must be run from the Tremulous build directory";
 fi
 
-TIGERHOST=0
-if uname -r | grep ^8. > /dev/null; then
-	TIGERHOST=1
-fi
+# We only care if we're >= 10.4, not if we're specifically Tiger.
+# "8" is the Darwin major kernel version.
+#TIGERHOST=`uname -r | grep ^8.`
+TIGERHOST=`uname -r |perl -w -p -e 's/\A(\d+)\..*\Z/$1/; $_ = (($_ >= 8) ? "1" : "0");'`
 
 # we want to use the oldest available SDK for max compatiblity
 unset PPC_CLIENT_SDK
@@ -142,6 +141,9 @@ if [ ! -d $DESTDIR ]; then
 	mkdir -p $DESTDIR
 fi
 
+# For parallel make on multicore boxes...
+NCPU=`sysctl -n hw.ncpu`
+
 # ppc dedicated server
 echo "Building Dedicated Server using $PPC_SERVER_SDK"
 sleep 2
@@ -149,7 +151,7 @@ if [ -d build/release-darwin-ppc ]; then
 	rm -r build/release-darwin-ppc
 fi
 (ARCH=ppc BUILD_CLIENT_SMP=0 BUILD_CLIENT=0 BUILD_GAME_VM=0 BUILD_GAME_SO=0 \
-	CFLAGS=$PPC_SERVER_CFLAGS LDFLAGS=$PPC_SERVER_LDFLAGS make) || exit 1;
+	CFLAGS=$PPC_SERVER_CFLAGS LDFLAGS=$PPC_SERVER_LDFLAGS make -j$NCPU) || exit 1;
 cp build/release-darwin-ppc/tremded.ppc $DESTDIR
 
 # ppc client
@@ -157,13 +159,13 @@ if [ -d build/release-darwin-ppc ]; then
 	rm -r build/release-darwin-ppc
 fi
 (ARCH=ppc USE_OPENAL_DLOPEN=1 BUILD_SERVER=0 CC=$PPC_CLIENT_CC \
-	CFLAGS=$PPC_CLIENT_CFLAGS LDFLAGS=$PPC_CLIENT_LDFLAGS make) || exit 1;
+	CFLAGS=$PPC_CLIENT_CFLAGS LDFLAGS=$PPC_CLIENT_LDFLAGS make -j$NCPU) || exit 1;
 
 # intel client and server
 if [ -d build/release-darwin-x86 ]; then
 	rm -r build/release-darwin-x86
 fi
-(ARCH=x86 CFLAGS=$X86_CFLAGS LDFLAGS=$X86_LDFLAGS make) || exit 1;
+(ARCH=x86 CFLAGS=$X86_CFLAGS LDFLAGS=$X86_LDFLAGS make -j$NCPU) || exit 1;
 
 echo "Creating .app bundle $DESTDIR/$APPBUNDLE"
 if [ ! -d $DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR ]; then
@@ -178,7 +180,7 @@ fi
 cp $ICNS $DESTDIR/$APPBUNDLE/Contents/Resources/Tremulous.icns || exit 1;
 echo $PKGINFO > $DESTDIR/$APPBUNDLE/Contents/PkgInfo
 echo "
-	<?xml version=\"1.0\" encoding="UTF-8"?>
+	<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 	<!DOCTYPE plist
 		PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\"
 		\"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">

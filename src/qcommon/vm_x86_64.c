@@ -235,7 +235,7 @@ void emit(const char* fmt, ...)
 	va_list ap;
 	char line[4096];
 	va_start(ap, fmt);
-	vsnprintf(line, sizeof(line), fmt, ap);
+	Q_vsnprintf(line, sizeof(line), fmt, ap);
 	va_end(ap);
 	assemble_line(line, strlen(line));
 }
@@ -1070,7 +1070,6 @@ int	VM_CallCompiled( vm_t *vm, int *args ) {
 
 	currentVM = vm;
 
-	++vm->callLevel;
 //	Com_Printf("entering %s level %d, call %d, arg1 = 0x%x\n", vm->name, vm->callLevel, args[0], args[1]);
 
 	// interpret the code
@@ -1132,7 +1131,6 @@ int	VM_CallCompiled( vm_t *vm, int *args ) {
 	}
 
 //	Com_Printf("exiting %s level %d\n", vm->name, vm->callLevel);
-	--vm->callLevel;
 	vm->programStack = stackOnEntry;
 
 	return *(int *)opStack;

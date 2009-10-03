@@ -41,6 +41,9 @@ vm_t	*currentVM = NULL;
 vm_t	*lastVM    = NULL;
 int		vm_debugLevel;
 
+// used by Com_Error to get rid of running vm's before longjmp
+static int forced_unload;
+
 #define	MAX_VM		3
 vm_t	vmTable[MAX_VM];
 
@@ -609,6 +612,19 @@ VM_Free
 */
 void VM_Free( vm_t *vm ) {
 
+	if(!vm) {
+		return;
+	}
+
+	if(vm->callLevel) {
+		if(!forced_unload) {
+			Com_Error( ERR_FATAL, "VM_Free(%s) on running vm", vm->name );
+			return;
+		} else {
+			Com_Printf( "forcefully unloading %s vm\n", vm->name );
+		}
+	}
+
 	if(vm->destroy)
 		vm->destroy(vm);
 
@@ -636,13 +652,16 @@ void VM_Free( vm_t *vm ) {
 void VM_Clear(void) {
 	int i;
 	for (i=0;i<MAX_VM; i++) {
-		if ( vmTable[i].dllHandle ) {
-			Sys_UnloadDll( vmTable[i].dllHandle );
-		}
-		Com_Memset( &vmTable[i], 0, sizeof( vm_t ) );
+		VM_Free(&vmTable[i]);
 	}
-	currentVM = NULL;
-	lastVM = NULL;
+}
+
+void VM_Forced_Unload_Start(void) {
+	forced_unload = 1;
+}
+
+void VM_Forced_Unload_Done(void) {
+	forced_unload = 0;
 }
 
 void *VM_ArgPtr( intptr_t intValue ) {
@@ -723,6 +742,7 @@ intptr_t	QDECL VM_Call( vm_t *vm, int callnum, ... ) {
 	  Com_Printf( "VM_Call( %d )\n", callnum );
 	}
 
+	++vm->callLevel;
 	// if we have a dll loaded, call it directly
 	if ( vm->entryPoint ) {
 		//rcg010207 -  see dissertation at top of VM_DllSyscall() in this file.
@@ -766,6 +786,7 @@ intptr_t	QDECL VM_Call( vm_t *vm, int callnum, ... ) {
 			r = VM_CallInterpreted( vm, &a.callnum );
 #endif
 	}
+	--vm->callLevel;
 
 	if ( oldVM != NULL )
 	  currentVM = oldVM;
