@@ -86,5 +86,3 @@ qboolean  PM_SlideMove( qboolean gravity );
 void      PM_StepEvent( vec3_t from, vec3_t to, vec3_t normal );
 qboolean  PM_StepSlideMove( qboolean gravity, qboolean predictive );
 qboolean  PM_PredictStepMove( void );
-
-void PM_StartTorsoAnim( int anim );

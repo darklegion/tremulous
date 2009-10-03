@@ -135,7 +135,7 @@ Returns the total damage dealt.
 */
 float G_RewardAttackers( gentity_t *self )
 {
-  float value, totalDamage;
+  float value, totalDamage = 0;
   int team, i;
 
   // Total up all the damage done by every client
@@ -185,10 +185,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   gentity_t *ent;
   int       anim;
   int       killer;
-  int       i, j;
+  int       i;
   char      *killerName, *obit;
   float     totalDamage = 0.0f;
-  gentity_t *player;
 
   if( self->client->ps.pm_type == PM_DEAD )
     return;

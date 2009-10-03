@@ -37,22 +37,23 @@ G_ForceWeaponChange
 void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
 {
   int i;
+  playerState_t *ps = &ent->client->ps;
 
   if( !ent )
     return;
 
   // stop a reload in progress
-  if( ent->client->ps.weaponstate == WEAPON_RELOADING )
+  if( ps->weaponstate == WEAPON_RELOADING )
   {
-    PM_StartTorsoAnim( TORSO_RAISE );
-    ent->client->ps.weaponTime = 250;
-    ent->client->ps.weaponstate = WEAPON_READY;
+    ps->torsoAnim = ( ( ps->torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | TORSO_RAISE;
+    ps->weaponTime = 250;
+    ps->weaponstate = WEAPON_READY;
   }
   
-  ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
+  ps->pm_flags |= PMF_WEAPON_SWITCH;
 
   if( weapon == WP_NONE ||
-      !BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
+      !BG_InventoryContainsWeapon( weapon, ps->stats ) )
   {
     // switch to the first non blaster weapon
     for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
@@ -60,24 +61,24 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
       if( i == WP_BLASTER )
         continue;
 
-      if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) )
+      if( BG_InventoryContainsWeapon( i, ps->stats ) )
       {
-        ent->client->ps.persistant[ PERS_NEWWEAPON ] = i;
+        ps->persistant[ PERS_NEWWEAPON ] = i;
         break;
       }
     }
 
     // only got the blaster to switch to
     if( i == WP_NUM_WEAPONS )
-      ent->client->ps.persistant[ PERS_NEWWEAPON ] = WP_BLASTER;
+      ps->persistant[ PERS_NEWWEAPON ] = WP_BLASTER;
   }
   else
-    ent->client->ps.persistant[ PERS_NEWWEAPON ] = weapon;
+    ps->persistant[ PERS_NEWWEAPON ] = weapon;
 
   // force this here to prevent flamer effect from continuing
-  ent->client->ps.generic1 = WPM_NOTFIRING;
+  ps->generic1 = WPM_NOTFIRING;
 
-  ent->client->ps.weapon = ent->client->ps.persistant[ PERS_NEWWEAPON ];
+  ps->weapon = ent->client->ps.persistant[ PERS_NEWWEAPON ];
 }
 
 /*

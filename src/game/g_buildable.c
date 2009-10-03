@@ -2090,7 +2090,6 @@ qboolean HMGTurret_CheckTarget( gentity_t *self, gentity_t *target,
                                 qboolean los_check )
 {
   trace_t   tr;
-  gentity_t *traceEnt;
   vec3_t    dir, end;
 
   if( !target || target->health <= 0 || !target->client ||
