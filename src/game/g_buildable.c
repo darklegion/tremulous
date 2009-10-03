@@ -2504,6 +2504,7 @@ void HSpawn_Disappear( gentity_t *self )
 
   self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
   self->timestamp = level.time;
+  G_QueueBuildPoints( self );
 
   G_FreeEntity( self );
 }
