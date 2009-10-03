@@ -151,7 +151,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ALIEN_HLTH_MODIFIER         1.0f
 #define AHM(h)                      ((int)((float)h*ALIEN_HLTH_MODIFIER))
 
-#define ALIEN_VALUE_MODIFIER        1.0f
+#define ALIEN_VALUE_MODIFIER        1.2f
 #define AVM(h)                      ((int)((float)h*ALIEN_VALUE_MODIFIER))
 
 #define ABUILDER_SPEED              0.65f
