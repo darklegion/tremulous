@@ -523,7 +523,7 @@ void CG_Menu( int menu )
       cmd       = "menu tremulous_human_dialog\n";
       break;
 
-    case MN_H_NOPOWER:
+    case MN_H_NOBP:
       longMsg   = "There is no power remaining. Free up power by destroying "
                   "existing buildable objects.";
       shortMsg  = "There is no power remaining\n";
@@ -545,14 +545,14 @@ void CG_Menu( int menu )
       cmd       = "menu tremulous_human_dialog\n";
       break;
 
-    case MN_H_REACTOR:
+    case MN_H_ONEREACTOR:
       longMsg   = "There can only be one Reactor. Destroy the existing one if you "
                   "wish to move it.";
       shortMsg  = "There can only be one Reactor\n";
       cmd       = "menu tremulous_human_dialog\n";
       break;
 
-    case MN_H_REPEATER:
+    case MN_H_NOPOWERHERE:
       longMsg   = "There is no power here. If available, a Repeater may be used to "
                   "transmit power to this location.";
       shortMsg  = "There is no power here\n";
@@ -573,14 +573,14 @@ void CG_Menu( int menu )
       cmd       = "menu tremulous_human_dialog\n";
       break;
 
-    case MN_H_RPTWARN:
+    case MN_H_RPTNOREAC:
       longMsg   = "WARNING: This Repeater will not be powered as there is no parent "
                   "Reactor providing power. Build a Reactor.";
       shortMsg  = "This Repeater will not be powered\n";
       cmd       = "menu tremulous_human_dialog\n";
       break;
 
-    case MN_H_RPTWARN2:
+    case MN_H_RPTPOWERHERE:
       longMsg   = "This area already has power. A Repeater is not required here.";
       shortMsg  = "This area already has power\n";
       cmd       = "menu tremulous_human_dialog\n";
@@ -667,21 +667,21 @@ void CG_Menu( int menu )
       cmd       = "menu tremulous_alien_dialog\n";
       break;
 
-    case MN_A_OVERMIND:
+    case MN_A_ONEOVERMIND:
       longMsg   = "There can only be one Overmind. Destroy the existing one if you "
                   "wish to move it.";
       shortMsg  = "There can only be one Overmind\n";
       cmd       = "menu tremulous_alien_dialog\n";
       break;
 
-    case MN_A_HOVEL:
+    case MN_A_ONEHOVEL:
       longMsg   = "There can only be one Hovel. Destroy the existing one if you "
                   "wish to move it.";
       shortMsg  = "There can only be one Hovel\n";
       cmd       = "menu tremulous_alien_dialog\n";
       break;
 
-    case MN_A_NOASSERT:
+    case MN_A_NOBP:
       longMsg   = "The Overmind cannot control any more structures. Destroy existing "
                   "structures to build more.";
       shortMsg  = "The Overmind cannot control any more structures\n";

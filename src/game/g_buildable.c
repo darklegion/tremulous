@@ -2806,7 +2806,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   {
     remainingBP     = level.alienBuildPoints;
     remainingSpawns = level.numAlienSpawns;
-    bpError         = IBE_NOASSERT;
+    bpError         = IBE_NOALIENBP;
     spawn           = BA_A_SPAWN;
     core            = BA_A_OVERMIND;
   }
@@ -2814,7 +2814,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   {
     remainingBP     = level.humanBuildPoints;
     remainingSpawns = level.numHumanSpawns;
-    bpError         = IBE_NOPOWER;
+    bpError         = IBE_NOHUMANBP;
     spawn           = BA_H_SPAWN;
     core            = BA_H_REACTOR;
   }
@@ -2941,7 +2941,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
 
   // There are one or more repeaters we can't remove
   if( repeaterInRangeCount > 0 )
-    return IBE_RPTWARN2;
+    return IBE_RPTPOWERHERE;
 
   // Sort the list
   cmpBuildable = buildable;
@@ -3092,7 +3092,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
     {
       //tell player to build a repeater to provide power
       if( buildable != BA_H_REACTOR && buildable != BA_H_REPEATER )
-        reason = IBE_REPEATER;
+        reason = IBE_NOPOWERHERE;
     }
 
     //this buildable requires a DCC
@@ -3105,11 +3105,11 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
       tempent = G_FindBuildable( BA_H_REACTOR );
 
       if( tempent == NULL ) // No reactor
-        reason = IBE_RPTWARN;
+        reason = IBE_RPTNOREAC;
       else if( g_markDeconstruct.integer && G_IsPowered( entity_origin ) == BA_H_REACTOR )
-        reason = IBE_RPTWARN2;
+        reason = IBE_RPTPOWERHERE;
       else if( !g_markDeconstruct.integer && G_IsPowered( entity_origin ) )
-        reason = IBE_RPTWARN2;
+        reason = IBE_RPTPOWERHERE;
     }
 
     // Check permission to build here
@@ -3130,15 +3130,15 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
       switch( buildable )
       {
         case BA_A_OVERMIND:
-          reason = IBE_OVERMIND;
+          reason = IBE_ONEOVERMIND;
           break;
 
         case BA_A_HOVEL:
-          reason = IBE_HOVEL;
+          reason = IBE_ONEHOVEL;
           break;
 
         case BA_H_REACTOR:
-          reason = IBE_REACTOR;
+          reason = IBE_ONEREACTOR;
           break;
 
         default:
@@ -3420,8 +3420,8 @@ qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
       G_Build( ent, buildable, origin, ent->s.apos.trBase );
       return qtrue;
 
-    case IBE_NOASSERT:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOASSERT );
+    case IBE_NOALIENBP:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOBP );
       return qfalse;
 
     case IBE_NOOVERMIND:
@@ -3432,12 +3432,12 @@ qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
       G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOCREEP );
       return qfalse;
 
-    case IBE_OVERMIND:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_A_OVERMIND );
+    case IBE_ONEOVERMIND:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_A_ONEOVERMIND );
       return qfalse;
 
-    case IBE_HOVEL:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_A_HOVEL );
+    case IBE_ONEHOVEL:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_A_ONEHOVEL );
       return qfalse;
 
     case IBE_HOVELEXIT:
@@ -3458,12 +3458,12 @@ qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
         G_TriggerMenu( ent->client->ps.clientNum, MN_A_NORMAL );
       return qfalse;
 
-    case IBE_REACTOR:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_REACTOR );
+    case IBE_ONEREACTOR:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_ONEREACTOR );
       return qfalse;
 
-    case IBE_REPEATER:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_REPEATER );
+    case IBE_NOPOWERHERE:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOPOWERHERE );
       return qfalse;
 
     case IBE_NOROOM:
@@ -3473,8 +3473,8 @@ qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
         G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOROOM );
       return qfalse;
 
-    case IBE_NOPOWER:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOPOWER );
+    case IBE_NOHUMANBP:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOBP);
       return qfalse;
 
     case IBE_NODCC:
@@ -3491,13 +3491,13 @@ qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
       G_Build( ent, buildable, origin, ent->s.apos.trBase );
       return qtrue;
 
-    case IBE_RPTWARN:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPTWARN );
+    case IBE_RPTNOREAC:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPTNOREAC );
       G_Build( ent, buildable, origin, ent->s.apos.trBase );
       return qtrue;
 
-    case IBE_RPTWARN2:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPTWARN2 );
+    case IBE_RPTPOWERHERE:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPTPOWERHERE );
       return qfalse;
 
     default:
