@@ -5117,7 +5117,8 @@ static bind_t g_bindings[] =
     { "+scores",      K_TAB,         -1, -1, -1 },
     { "+button2",     K_ENTER,       -1, -1, -1 },
     { "+speed",       K_SHIFT,       -1, -1, -1 },
-    { "+button6",     'x',           -1, -1, -1 }, // human sprinting
+    { "+button6",     'z',           -1, -1, -1 }, // human dodging
+    { "+button8",     'x',           -1, -1, -1 },
     { "+forward",     K_UPARROW,     -1, -1, -1 },
     { "+back",        K_DOWNARROW,   -1, -1, -1 },
     { "+moveleft",    ',',           -1, -1, -1 },
