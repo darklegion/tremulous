@@ -532,7 +532,7 @@ void G_LeaveTeam( gentity_t *self )
   else
   {
     // might have been following somone so reset
-    if( ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
+    if( self->client->sess.spectatorState == SPECTATOR_FOLLOW )
       G_StopFollowing( self );
     return;
   }
