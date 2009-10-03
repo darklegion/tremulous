@@ -191,11 +191,11 @@ static void CG_TellAttacker_f( void )
 static void CG_SquadMark_f( void )
 {
   centity_t *cent;
-  vec3_t start, end;
+  vec3_t end;
   trace_t trace;
   
   // Find the player we are looking at
-  VectorMA( cg.refdef.vieworg, 4096, cg.refdef.viewaxis[ 0 ], end );
+  VectorMA( cg.refdef.vieworg, 131072, cg.refdef.viewaxis[ 0 ], end );
   CG_Trace( &trace, cg.refdef.vieworg, NULL, NULL, end,
             cg.snap->ps.clientNum, CONTENTS_SOLID | CONTENTS_BODY );
   if( trace.entityNum >= MAX_CLIENTS )

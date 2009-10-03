@@ -357,7 +357,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ALIEN_CREDITS_PER_FRAG      400
 #define ALIEN_TK_SUICIDE_PENALTY    350
 
-#define ALIEN_MINI_JUMP_SCALE       0.667f // scales jump magnitude for a mini-jump
+#define ALIEN_MINI_JUMP_SCALE       0.71f // scales jump magnitude for a mini-jump
 
 // Uncomment to allow Aliens to wallwalk on any entity (buildables, players, etc)
 //#define ALIEN_WALLWALK_ENTITIES

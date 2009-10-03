@@ -2274,11 +2274,11 @@ CG_DrawSquadMarkers
 static void CG_DrawSquadMarkers( vec4_t color )
 {
   centity_t *cent;
-  vec3_t origin, maxs;
+  vec3_t origin;
   qhandle_t shader;
   float x, y, w, h, distance, scale, u1 = 0.0f, v1 = 0.0f, u2 = 1.0f, v2 = 1.0f;
-  int i, class;
-  qboolean vertical = qfalse, flip = qfalse;
+  int i;
+  qboolean vertical, flip;
   
   if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
     return;
@@ -2313,6 +2313,8 @@ static void CG_DrawSquadMarkers( vec4_t color )
       scale = 0.25f;
     
     // Don't let the marker go off-screen
+    vertical = qfalse;
+    flip = qfalse;
     if( x < SQUAD_MARKER_BORDER )
     {
       x = SQUAD_MARKER_BORDER;

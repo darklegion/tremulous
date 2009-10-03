@@ -1298,6 +1298,7 @@ void CG_Buildable( centity_t *cent )
       VectorCopy( cent->buildableCache.axis[ 0 ], ent.axis[ 0 ] );
       VectorCopy( cent->buildableCache.axis[ 1 ], ent.axis[ 1 ] );
       VectorCopy( cent->buildableCache.axis[ 2 ], ent.axis[ 2 ] );
+      VectorCopy( cent->buildableCache.origin, ent.origin );
     }
     else
     {
@@ -1307,6 +1308,7 @@ void CG_Buildable( centity_t *cent )
       VectorCopy( ent.axis[ 0 ], cent->buildableCache.axis[ 0 ] );
       VectorCopy( ent.axis[ 1 ], cent->buildableCache.axis[ 1 ] );
       VectorCopy( ent.axis[ 2 ], cent->buildableCache.axis[ 2 ] );
+      VectorCopy( ent.origin, cent->buildableCache.origin );
       VectorCopy( cent->lerpOrigin, cent->buildableCache.cachedOrigin );
       VectorCopy( surfNormal, cent->buildableCache.cachedNormal );
     }
