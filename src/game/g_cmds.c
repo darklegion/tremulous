@@ -2824,6 +2824,54 @@ static void Cmd_Ignore_f( gentity_t *ent )
   }
 }
 
+/*
+=================
+Cmd_Test_f
+=================
+*/
+static void Cmd_Test_f( gentity_t *ent )
+{
+}
+
+/*
+=================
+Cmd_Damage_f
+
+Deals damage to you (for testing), arguments: [damage] [dx] [dy] [dz]
+The dx/dy arguments describe the damage point's offset from the entity origin
+=================
+*/
+void Cmd_Damage_f( gentity_t *ent )
+{
+  vec3_t point;
+  char arg[ 16 ];
+  float dx = 0.f, dy = 0.f, dz = 100.f;
+  int damage = 100, angle = 180;
+  qboolean nonloc = qtrue;
+
+  if( trap_Argc() > 1 )
+  {
+    trap_Argv( 1, arg, sizeof( arg ) );
+    damage = atoi( arg );
+  }
+  if( trap_Argc() > 4 )
+  {
+    trap_Argv( 2, arg, sizeof( arg ) );
+    dx = atof( arg );
+    trap_Argv( 3, arg, sizeof( arg ) );
+    dy = atof( arg );
+    trap_Argv( 4, arg, sizeof( arg ) );
+    dz = atof( arg );
+    nonloc = qfalse;
+  }
+  VectorCopy( ent->s.origin, point );
+  point[ 0 ] += dx;
+  point[ 1 ] += dy;
+  point[ 2 ] += dz;
+  G_Damage( ent, NULL, NULL, NULL, point, damage,
+            ( nonloc ? DAMAGE_NO_LOCDAMAGE : 0 ), MOD_TARGET_LASER );
+}
+
 commands_t cmds[ ] = {
   // normal commands
   { "team", 0, Cmd_Team_f },
@@ -2851,8 +2899,8 @@ commands_t cmds[ ] = {
   { "levelshot", CMD_CHEAT, Cmd_LevelShot_f },
   { "setviewpos", CMD_CHEAT, Cmd_SetViewpos_f },
   { "destroy", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_Destroy_f },
-
-  { "kill", CMD_TEAM|CMD_LIVING, Cmd_Kill_f },
+  { "test", CMD_CHEAT, Cmd_Test_f },
+  { "damage", CMD_CHEAT|CMD_LIVING, Cmd_Damage_f },
 
   // game commands
   { "ptrcverify", 0, Cmd_PTRCVerify_f },
@@ -2865,6 +2913,7 @@ commands_t cmds[ ] = {
   { "where", CMD_TEAM, Cmd_Where_f },
   { "teamvote", CMD_TEAM, Cmd_TeamVote_f },
   { "class", CMD_TEAM, Cmd_Class_f },
+  { "kill", CMD_TEAM|CMD_LIVING, Cmd_Kill_f },
 
   { "build", CMD_TEAM|CMD_LIVING, Cmd_Build_f },
   { "deconstruct", CMD_TEAM|CMD_LIVING, Cmd_Destroy_f },
@@ -2875,8 +2924,6 @@ commands_t cmds[ ] = {
   { "itemdeact", CMD_HUMAN|CMD_LIVING, Cmd_DeActivateItem_f },
   { "itemtoggle", CMD_HUMAN|CMD_LIVING, Cmd_ToggleItem_f },
   { "reload", CMD_HUMAN|CMD_LIVING, Cmd_Reload_f },
-
-  { "test", 0, Cmd_Test_f }
 };
 static int numCmds = sizeof( cmds ) / sizeof( cmds[ 0 ] );
 
@@ -3215,7 +3262,3 @@ void G_PrivateMessage( gentity_t *ent )
   }
 }
 
-void Cmd_Test_f( gentity_t *ent )
-{
-	G_Printf("%d\n", ent->client->pers.score);
-}

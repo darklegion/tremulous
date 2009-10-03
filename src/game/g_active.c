@@ -573,13 +573,15 @@ void ClientTimerActions( gentity_t *ent, int msec )
     client->time100 -= 100;
 
     // Restore or subtract stamina
-    if( client->ps.stats[ STAT_STATE ] & SS_SPEEDBOOST )
+    if( stopped || client->ps.pm_type == PM_JETPACK )
+      client->ps.stats[ STAT_STAMINA ] += STAMINA_STOP_RESTORE;
+    else if( client->ps.stats[ STAT_STATE ] & SS_SPEEDBOOST )
       client->ps.stats[ STAT_STAMINA ] -= STAMINA_SPRINT_TAKE;
     else if( walking || crouched )
       client->ps.stats[ STAT_STAMINA ] += STAMINA_WALK_RESTORE;
-    else if( stopped )
-      client->ps.stats[ STAT_STAMINA ] += STAMINA_STOP_RESTORE;
 
+    
+    // Check stamina limits
     if( client->ps.stats[ STAT_STAMINA ] > MAX_STAMINA )
       client->ps.stats[ STAT_STAMINA ] = MAX_STAMINA;
     else if( client->ps.stats[ STAT_STAMINA ] < -MAX_STAMINA )

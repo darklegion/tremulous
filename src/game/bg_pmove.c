@@ -821,7 +821,7 @@ static qboolean PM_CheckWaterJump( void )
 ==================
 PM_CheckDodge
 
-Starts a human dodge or sprint
+Checks the dodge key and starts a human dodge or sprint
 ==================
 */
 static qboolean PM_CheckDodge( void )
@@ -1306,7 +1306,7 @@ static void PM_WalkMove( void )
     return;
   }
 
-  if( PM_CheckJump( ) || PM_CheckPounce( ) || PM_CheckDodge( ) )
+  if( PM_CheckJump( ) || PM_CheckPounce( ) )
   {
     // jumped away
     if( pm->waterlevel > 1 )
@@ -3532,6 +3532,7 @@ void PmoveSingle( pmove_t *pmove )
     PM_DeadMove( );
 
   PM_DropTimers( );
+  PM_CheckDodge( );
 
   if( pm->ps->pm_type == PM_JETPACK )
     PM_JetPackMove( );

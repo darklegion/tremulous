@@ -513,17 +513,6 @@ typedef struct damageRegion_s
 #define MAX_ARMOUR_TEXT    8192
 #define MAX_ARMOUR_REGIONS 16
 
-// store locational armour regions
-typedef struct armourRegion_s
-{
-  float     minHeight, maxHeight;
-  int       minAngle, maxAngle;
-
-  float     modifier;
-
-  qboolean  crouch;
-} armourRegion_t;
-
 //status of the warning of certain events
 typedef enum
 {

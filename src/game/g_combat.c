@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 damageRegion_t  g_damageRegions[ PCL_NUM_CLASSES ][ MAX_LOCDAMAGE_REGIONS ];
 int             g_numDamageRegions[ PCL_NUM_CLASSES ];
 
-armourRegion_t  g_armourRegions[ UP_NUM_UPGRADES ][ MAX_ARMOUR_REGIONS ];
+damageRegion_t  g_armourRegions[ UP_NUM_UPGRADES ][ MAX_ARMOUR_REGIONS ];
 int             g_numArmourRegions[ UP_NUM_UPGRADES ];
 
 /*
@@ -664,6 +664,99 @@ void G_ParseDmgScript( char *buf, int class )
   }
 }
 
+/*
+============
+GetNonLocDamageModifier
+
+Returns the non-locational damage modifier for a set of regions. The method
+to calculate the damage in effect stretches every region across the entire
+body, diluting the modifier, and then returns the modifier as if the damage
+had hit through all the regions in turn.
+============
+*/
+static float GetNonLocDamageModifier( gentity_t *targ,
+                                      damageRegion_t *regions, int len )
+{
+  float modifier = 1.;
+  int i;
+  
+  for( i = 0; i < len; i++ )
+  {
+    float angleSpan, heightSpan;
+    
+    if( regions[ i ].crouch != ( targ->client->ps.pm_flags & PMF_DUCKED ) )
+      continue;
+          
+    // Angle portion covered
+    if( regions[ i ].minAngle < regions[ i ].maxAngle )
+      angleSpan = regions[ i ].maxAngle - regions[ i ].minAngle;
+    else
+      angleSpan = 360 - regions[ i ].minAngle + regions[ i ].maxAngle;
+
+    if( angleSpan < 0.f )
+      angleSpan = 0.f;
+
+    if( angleSpan > 360.f )
+      angleSpan = 360.f;
+
+    angleSpan /= 360.f;
+          
+    // Height portion covered
+    heightSpan = regions[ i ].maxHeight - regions[ i ].minHeight;
+
+    if( heightSpan < 0.f )
+      heightSpan = -heightSpan;
+
+    if( heightSpan > 1.f )
+      heightSpan = 1.f;
+            
+    modifier += ( regions[ i ].modifier - modifier ) * angleSpan * heightSpan;
+  }
+  
+  if( g_debugDamage.integer )
+    G_Printf( "GetNonLocDamageModifier(): %f\n", modifier );
+      
+  return modifier;
+}
+
+/*
+============
+GetDamageRegionModifier
+
+Returns the damage region given an angle and a height proportion
+============
+*/
+static float GetDamageRegionModifier( gentity_t *targ, damageRegion_t *regions,
+                                      int len, float angle, float height )
+{
+  float modifier = 1.f;
+  int i;
+
+  for( i = 0; i < len; i++ )
+  {
+    // Angle must be within range
+    if( ( regions[ i ].minAngle <= regions[ i ].maxAngle &&
+          ( angle < regions[ i ].minAngle || angle > regions[ i ].maxAngle ) ||
+        ( regions[ i ].minAngle > regions[ i ].maxAngle &&
+          angle > regions[ i ].maxAngle && angle < regions[ i ].minAngle ) ) )
+      continue;
+    
+    // Height must be within range
+    if( height < regions[ i ].minHeight || height > regions[ i ].maxHeight )
+      continue;
+      
+    // Crouch state must match
+    if( regions[ i ].crouch != ( targ->client->ps.pm_flags & PMF_DUCKED ) )
+      continue;
+      
+    modifier *= regions[ i ].modifier;
+  }
+
+  if( g_debugDamage.integer )
+    G_Printf( "GetDamageRegionModifier(): %f\n", modifier );
+
+  return modifier;
+}
 
 /*
 ============
@@ -672,132 +765,67 @@ G_CalcDamageModifier
 */
 static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *attacker, int class, int dflags )
 {
-  vec3_t  targOrigin;
-  vec3_t  bulletPath;
-  vec3_t  bulletAngle;
-  vec3_t  pMINUSfloor, floor, normal;
-
-  float   clientHeight, hitRelative, hitRatio;
-  int     bulletRotation, clientRotation, hitRotation;
-  float   modifier = 1.0f;
-  int     i, j;
+  vec3_t  targOrigin, bulletPath, bulletAngle, pMINUSfloor, floor, normal;
+  float   clientHeight, hitRelative, hitRatio, modifier;
+  int     hitRotation, i, j;
 
   if( point == NULL )
     return 1.0f;
 
+  // Get the point location relative to the floor under the target
   if( g_unlagged.integer && targ->client && targ->client->unlaggedCalc.used )
     VectorCopy( targ->client->unlaggedCalc.origin, targOrigin );
   else
     VectorCopy( targ->r.currentOrigin, targOrigin );
-
-  clientHeight = targ->r.maxs[ 2 ] - targ->r.mins[ 2 ];
-
   BG_GetClientNormal( &targ->client->ps, normal );
-
   VectorMA( targOrigin, targ->r.mins[ 2 ], normal, floor );
   VectorSubtract( point, floor, pMINUSfloor );
 
+  // Get the proportion of the target height where the hit landed
+  clientHeight = targ->r.maxs[ 2 ] - targ->r.mins[ 2 ];
   hitRelative = DotProduct( normal, pMINUSfloor ) / VectorLength( normal );
-
   if( hitRelative < 0.0f )
     hitRelative = 0.0f;
-
   if( hitRelative > clientHeight )
     hitRelative = clientHeight;
-
   hitRatio = hitRelative / clientHeight;
 
+  // Get the yaw of the attack relative to the target's view yaw
   VectorSubtract( targOrigin, point, bulletPath );
   vectoangles( bulletPath, bulletAngle );
+  hitRotation = targ->client->ps.viewangles[ YAW ] - bulletAngle[ YAW ];
+  if( hitRotation < 0.f )
+    hitRotation += 360.f;
 
-  clientRotation = targ->client->ps.viewangles[ YAW ];
-  bulletRotation = bulletAngle[ YAW ];
-
-  hitRotation = abs( clientRotation - bulletRotation );
-
-  hitRotation = hitRotation % 360; // Keep it in the 0-359 range
-
+  // Get modifiers from the target's armour and damage regions
   if( dflags & DAMAGE_NO_LOCDAMAGE )
   {
+    modifier = GetNonLocDamageModifier( targ, g_damageRegions[ class ],
+                                         g_numDamageRegions[ class ] );
     for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
     {
-      float totalModifier = 0.0f;
-      float averageModifier = 1.0f;
-
-      //average all of this upgrade's armour regions together
       if( BG_InventoryContainsUpgrade( i, targ->client->ps.stats ) )
       {
-        for( j = 0; j < g_numArmourRegions[ i ]; j++ )
-          totalModifier += g_armourRegions[ i ][ j ].modifier;
-
-        if( g_numArmourRegions[ i ] )
-          averageModifier = totalModifier / g_numArmourRegions[ i ];
-        else
-          averageModifier = 1.0f;
+        modifier *= GetNonLocDamageModifier( targ, g_armourRegions[ i ],
+                                             g_numArmourRegions[ i ] );
       }
-
-      modifier *= averageModifier;
     }
   }
   else
   {
-    for( i = 0; i < g_numDamageRegions[ class ]; i++ )
-    {
-      qboolean rotationBound;
-
-      if( g_damageRegions[ class ][ i ].minAngle >
-          g_damageRegions[ class ][ i ].maxAngle )
-      {
-        rotationBound = ( hitRotation >= g_damageRegions[ class ][ i ].minAngle &&
-                          hitRotation <= 360 ) || ( hitRotation >= 0 &&
-                          hitRotation <= g_damageRegions[ class ][ i ].maxAngle );
-      }
-      else
-      {
-        rotationBound = ( hitRotation >= g_damageRegions[ class ][ i ].minAngle &&
-                          hitRotation <= g_damageRegions[ class ][ i ].maxAngle );
-      }
-
-      if( rotationBound &&
-          hitRatio >= g_damageRegions[ class ][ i ].minHeight &&
-          hitRatio <= g_damageRegions[ class ][ i ].maxHeight &&
-          ( g_damageRegions[ class ][ i ].crouch ==
-            ( targ->client->ps.pm_flags & PMF_DUCKED ) ) )
-        modifier *= g_damageRegions[ class ][ i ].modifier;
-    }
-
+    modifier = GetDamageRegionModifier( targ, g_damageRegions[ class ],
+                                         g_numDamageRegions[ class ],
+                                         hitRotation, hitRatio );
     for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
     {
       if( BG_InventoryContainsUpgrade( i, targ->client->ps.stats ) )
       {
-        for( j = 0; j < g_numArmourRegions[ i ]; j++ )
-        {
-          qboolean rotationBound;
-
-          if( g_armourRegions[ i ][ j ].minAngle >
-              g_armourRegions[ i ][ j ].maxAngle )
-          {
-            rotationBound = ( hitRotation >= g_armourRegions[ i ][ j ].minAngle &&
-                              hitRotation <= 360 ) || ( hitRotation >= 0 &&
-                              hitRotation <= g_armourRegions[ i ][ j ].maxAngle );
-          }
-          else
-          {
-            rotationBound = ( hitRotation >= g_armourRegions[ i ][ j ].minAngle &&
-                              hitRotation <= g_armourRegions[ i ][ j ].maxAngle );
-          }
-
-          if( rotationBound &&
-              hitRatio >= g_armourRegions[ i ][ j ].minHeight &&
-              hitRatio <= g_armourRegions[ i ][ j ].maxHeight &&
-              ( g_armourRegions[ i ][ j ].crouch ==
-                ( targ->client->ps.pm_flags & PMF_DUCKED ) ) )
-            modifier *= g_armourRegions[ i ][ j ].modifier;
-        }
+        modifier *= GetDamageRegionModifier( targ, g_armourRegions[ i ],
+                                             g_numArmourRegions[ i ],
+                                             hitRotation, hitRatio );
       }
     }
   }
-
   return modifier;
 }
 
@@ -1111,8 +1139,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     // set the last client who damaged the target
     targ->client->lasthurt_client = attacker->s.number;
     targ->client->lasthurt_mod = mod;
-    take = (int)( (float)take * G_CalcDamageModifier( point, targ, attacker,
-                                                      client->ps.stats[ STAT_PCLASS ], dflags ) );
+    take = (int)( take * G_CalcDamageModifier( point, targ, attacker,
+                                               client->ps.stats[ STAT_PCLASS ],
+                                               dflags ) + 0.5f );
 
     //if boosted poison every attack
     if( attacker->client && attacker->client->ps.stats[ STAT_STATE ] & SS_BOOSTED )
