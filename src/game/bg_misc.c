@@ -2890,9 +2890,8 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
   s->pos.trType = TR_INTERPOLATE;
   VectorCopy( ps->origin, s->pos.trBase );
 
-  // Snapping player origins causes more problems than it solves
-  //if( snap )
-  //  SnapVector( s->pos.trBase );
+  if( snap )
+    SnapVector( s->pos.trBase );
 
   //set the trDelta for flag direction
   VectorCopy( ps->velocity, s->pos.trDelta );
@@ -2995,9 +2994,8 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
   s->pos.trType = TR_LINEAR_STOP;
   VectorCopy( ps->origin, s->pos.trBase );
 
-  // Snapping player origins causes more problems than it solves
-  //if( snap )
-  //  SnapVector( s->pos.trBase );
+  if( snap )
+    SnapVector( s->pos.trBase );
 
   // set the trDelta for flag direction and linear prediction
   VectorCopy( ps->velocity, s->pos.trDelta );
