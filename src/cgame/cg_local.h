@@ -569,7 +569,7 @@ typedef struct
 
 typedef struct
 {
-  lerpFrame_t legs, torso, flag, nonseg;
+  lerpFrame_t legs, torso, nonseg, weapon;
   int         painTime;
   int         painDirection;  // flip from 0 to 1
   
@@ -824,6 +824,9 @@ typedef struct weaponInfo_s
   qhandle_t         weaponModel;
   qhandle_t         barrelModel;
   qhandle_t         flashModel;
+
+  animation_t       animations[ MAX_WEAPON_ANIMATIONS ];
+  qboolean          noDrift;
 
   vec3_t            weaponMidpoint;   // so it will rotate centered instead of by tag
 
@@ -1669,7 +1672,7 @@ void        CG_AlienBuildableExplosion( vec3_t origin, vec3_t dir );
 //
 // cg_animation.c
 //
-void        CG_RunLerpFrame( lerpFrame_t *lf );
+void        CG_RunLerpFrame( lerpFrame_t *lf, float scale );
 
 //
 // cg_animmapobj.c

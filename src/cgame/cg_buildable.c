@@ -427,18 +427,9 @@ cg.time should be between oldFrameTime and frameTime after exit
 */
 static void CG_RunBuildableLerpFrame( centity_t *cent )
 {
-  int                   f, numFrames;
   buildable_t           buildable = cent->currentState.modelindex;
   lerpFrame_t           *lf = &cent->lerpFrame;
-  animation_t           *anim;
   buildableAnimNumber_t newAnimation = cent->buildableAnim & ~( ANIM_TOGGLEBIT|ANIM_FORCEBIT );
-
-  // debugging tool to get no animations
-  if( cg_animSpeed.integer == 0 )
-  {
-    lf->oldFrame = lf->frame = lf->backlerp = 0;
-    return;
-  }
 
   // see if the animation sequence is switching
   if( newAnimation != lf->animationNumber || !lf->animation )
@@ -466,72 +457,11 @@ static void CG_RunBuildableLerpFrame( centity_t *cent )
     trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
       cg_buildables[ buildable ].sounds[ lf->animationNumber ].sound );
 
-  // if we have passed the current frame, move it to
-  // oldFrame and calculate a new frame
-  if( cg.time >= lf->frameTime )
-  {
-    lf->oldFrame = lf->frame;
-    lf->oldFrameTime = lf->frameTime;
+  CG_RunLerpFrame( lf, 1.0f );
 
-    // get the next frame based on the animation
-    anim = lf->animation;
-    if( !anim->frameLerp )
-      return;   // shouldn't happen
-
-    if ( cg.time < lf->animationTime )
-      lf->frameTime = lf->animationTime;    // initial lerp
-    else
-      lf->frameTime = lf->oldFrameTime + anim->frameLerp;
-
-    f = ( lf->frameTime - lf->animationTime ) / anim->frameLerp;
-    numFrames = anim->numFrames;
-    if(anim->flipflop)
-      numFrames *= 2;
-
-    if( f >= numFrames )
-    {
-      f -= numFrames;
-      if( anim->loopFrames )
-      {
-        f %= anim->loopFrames;
-        f += anim->numFrames - anim->loopFrames;
-      }
-      else
-      {
-        f = numFrames - 1;
-        // the animation is stuck at the end, so it
-        // can immediately transition to another sequence
-        lf->frameTime = cg.time;
-        cent->buildableAnim = cent->currentState.torsoAnim;
-      }
-    }
-
-    if( anim->reversed )
-      lf->frame = anim->firstFrame + anim->numFrames - 1 - f;
-    else if( anim->flipflop && f >= anim->numFrames )
-      lf->frame = anim->firstFrame + anim->numFrames - 1 - ( f % anim->numFrames );
-    else
-      lf->frame = anim->firstFrame + f;
-
-    if( cg.time > lf->frameTime )
-    {
-      lf->frameTime = cg.time;
-      if( cg_debugAnim.integer )
-        CG_Printf( "Clamp lf->frameTime\n");
-    }
-  }
-
-  if( lf->frameTime > cg.time + 200 )
-    lf->frameTime = cg.time;
-
-  if( lf->oldFrameTime > cg.time )
-    lf->oldFrameTime = cg.time;
-
-  // calculate current lerp value
-  if( lf->frameTime == lf->oldFrameTime )
-    lf->backlerp = 0;
-  else
-    lf->backlerp = 1.0 - (float)( cg.time - lf->oldFrameTime ) / ( lf->frameTime - lf->oldFrameTime );
+  // animation ended
+  if( lf->frameTime == cg.time )
+    cent->buildableAnim = cent->currentState.torsoAnim;
 }
 
 /*

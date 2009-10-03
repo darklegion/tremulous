@@ -80,6 +80,104 @@ void CG_InitUpgrades( void )
 
 
 /*
+======================
+CG_ParseWeaponAnimationFile
+
+Read a configuration file containing animation counts and rates
+models/weapons/rifle/animation.cfg, etc
+======================
+*/
+static qboolean CG_ParseWeaponAnimationFile( const char *filename, weaponInfo_t *weapon )
+{
+  char          *text_p;
+  int           len;
+  int           i;
+  char          *token;
+  float         fps;
+  char          text[ 20000 ];
+  fileHandle_t  f;
+  animation_t   *animations;
+
+  animations = weapon->animations;
+
+  // load the file
+  len = trap_FS_FOpenFile( filename, &f, FS_READ );
+  if( len <= 0 )
+    return qfalse;
+
+  if( len >= sizeof( text ) - 1 )
+  {
+    CG_Printf( "File %s too long\n", filename );
+    return qfalse;
+  }
+
+  trap_FS_Read( text, len, f );
+  text[ len ] = 0;
+  trap_FS_FCloseFile( f );
+
+  // parse the text
+  text_p = text;
+
+  // read information for each frame
+  for( i = WANIM_NONE + 1; i < MAX_WEAPON_ANIMATIONS; i++ )
+  {
+
+    token = COM_Parse( &text_p );
+    if( !*token )
+      break;
+
+    if( !Q_stricmp( token, "noDrift" ) )
+    {
+      weapon->noDrift = qtrue;
+      continue;
+    }
+
+    animations[ i ].firstFrame = atoi( token );
+
+    token = COM_Parse( &text_p );
+    if( !*token )
+      break;
+
+    animations[ i ].numFrames = atoi( token );
+    animations[ i ].reversed = qfalse;
+    animations[ i ].flipflop = qfalse;
+
+    // if numFrames is negative the animation is reversed
+    if( animations[ i ].numFrames < 0 )
+    {
+      animations[ i ].numFrames = -animations[ i ].numFrames;
+      animations[ i ].reversed = qtrue;
+    }
+
+    token = COM_Parse( &text_p );
+    if ( !*token )
+      break;
+
+    animations[i].loopFrames = atoi( token );
+
+    token = COM_Parse( &text_p );
+    if( !*token )
+      break;
+
+    fps = atof( token );
+    if( fps == 0 )
+      fps = 1;
+
+    animations[ i ].frameLerp = 1000 / fps;
+    animations[ i ].initialLerp = 1000 / fps;
+  }
+
+  if( i != MAX_WEAPON_ANIMATIONS )
+  {
+    CG_Printf( "Error parsing animation file: %s\n", filename );
+    return qfalse;
+  }
+
+  return qtrue;
+}
+
+
+/*
 ===============
 CG_ParseWeaponModeSection
 
@@ -627,6 +725,11 @@ void CG_RegisterWeapon( int weaponNum )
   if( !CG_ParseWeaponFile( path, weaponInfo ) )
     Com_Printf( S_COLOR_RED "ERROR: failed to parse %s\n", path );
 
+  Com_sprintf( path, MAX_QPATH, "models/weapons/%s/animation.cfg", BG_FindNameForWeapon( weaponNum ) );
+
+  if( !CG_ParseWeaponAnimationFile( path, weaponInfo ) )
+    Com_Printf( S_COLOR_RED "ERROR: failed to parse %s\n", path );
+
   // calc midpoint for rotation
   trap_R_ModelBounds( weaponInfo->weaponModel, mins, maxs );
   for( i = 0 ; i < 3 ; i++ )
@@ -666,6 +769,53 @@ VIEW WEAPON
 */
 
 /*
+===============
+CG_SetWeaponLerpFrameAnimation
+
+may include ANIM_TOGGLEBIT
+===============
+*/
+static void CG_SetWeaponLerpFrameAnimation( weapon_t weapon, lerpFrame_t *lf, int newAnimation )
+{
+  animation_t *anim;
+
+  lf->animationNumber = newAnimation;
+  newAnimation &= ~ANIM_TOGGLEBIT;
+
+  if( newAnimation < 0 || newAnimation >= MAX_WEAPON_ANIMATIONS )
+    CG_Error( "Bad animation number: %i", newAnimation );
+
+  anim = &cg_weapons[ weapon ].animations[ newAnimation ];
+
+  lf->animation = anim;
+  lf->animationTime = lf->frameTime + anim->initialLerp;
+
+  if( cg_debugAnim.integer )
+    CG_Printf( "Anim: %i\n", newAnimation );
+}
+
+/*
+===============
+CG_WeaponAnimation
+===============
+*/
+static void CG_WeaponAnimation( centity_t *cent, int *old, int *now, float *backLerp )
+{
+  lerpFrame_t   *lf = &cent->pe.weapon;
+  entityState_t *es = &cent->currentState;
+
+  // see if the animation sequence is switching
+  if( es->weaponAnim != lf->animationNumber || !lf->animation )
+    CG_SetWeaponLerpFrameAnimation( es->weapon, lf, es->weaponAnim );
+
+  CG_RunLerpFrame( lf, 1.0f );
+
+  *old      = lf->oldFrame;
+  *now      = lf->frame;
+  *backLerp = lf->backlerp;
+}
+
+/*
 =================
 CG_MapTorsoToWeaponFrame
 
@@ -700,10 +850,13 @@ CG_CalculateWeaponPosition
 */
 static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles )
 {
-  float scale;
-  int   delta;
-  float fracsin;
-  float bob;
+  float         scale;
+  int           delta;
+  float         fracsin;
+  float         bob;
+  weaponInfo_t  *weapon;
+
+  weapon = &cg_weapons[ cg.predictedPlayerState.weapon ];
 
   VectorCopy( cg.refdef.vieworg, origin );
   VectorCopy( cg.refdefViewAngles, angles );
@@ -726,7 +879,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles )
   }
 
   // drop the weapon when landing
-  if( !BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_PCLASS ], SCA_NOWEAPONDRIFT ) )
+  if( weapon->noDrift )
   {
     delta = cg.time - cg.landTime;
     if( delta < LAND_DEFLECT_TIME )
@@ -880,6 +1033,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
   if( !noGunModel )
   {
+    CG_WeaponAnimation( cent, &gun.oldframe, &gun.frame, &gun.backlerp );
     CG_PositionEntityOnTag( &gun, parent, parent->hModel, "tag_weapon" );
 
     trap_R_AddRefEntityToScene( &gun );

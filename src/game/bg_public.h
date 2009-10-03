@@ -225,11 +225,10 @@ typedef enum
 #define SCA_WALLCLIMBER         0x00000001
 #define SCA_TAKESFALLDAMAGE     0x00000002
 #define SCA_CANZOOM             0x00000004
-#define SCA_NOWEAPONDRIFT       0x00000008
-#define SCA_FOVWARPS            0x00000010
-#define SCA_ALIENSENSE          0x00000020
-#define SCA_CANUSELADDERS       0x00000040
-#define SCA_WALLJUMPER          0x00000080
+#define SCA_FOVWARPS            0x00000008
+#define SCA_ALIENSENSE          0x00000010
+#define SCA_CANUSELADDERS       0x00000020
+#define SCA_WALLJUMPER          0x00000040
 
 #define SS_WALLCLIMBING         0x00000001
 #define SS_WALLCLIMBINGCEILING  0x00000002
@@ -769,6 +768,23 @@ typedef enum
 
   MAX_BUILDABLE_ANIMATIONS
 } buildableAnimNumber_t;
+
+typedef enum
+{
+  WANIM_NONE,
+
+  WANIM_IDLE,
+
+  WANIM_DROP,
+  WANIM_RELOAD,
+  WANIM_RAISE,
+
+  WANIM_ATTACK1,
+  WANIM_ATTACK2,
+  WANIM_ATTACK3,
+
+  MAX_WEAPON_ANIMATIONS
+} weaponAnimNumber_t;
 
 typedef struct animation_s
 {

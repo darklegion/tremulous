@@ -103,6 +103,20 @@ void PM_StartTorsoAnim( int anim )
 
 /*
 ===================
+PM_StartWeaponAnim
+===================
+*/
+static void PM_StartWeaponAnim( int anim )
+{
+  if( pm->ps->pm_type >= PM_DEAD )
+    return;
+
+  pm->ps->weaponAnim = ( ( pm->ps->torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
+    | anim;
+}
+
+/*
+===================
 PM_StartLegsAnim
 ===================
 */
@@ -166,6 +180,19 @@ static void PM_ContinueTorsoAnim( int anim )
     return;   // a high priority animation is running
 
   PM_StartTorsoAnim( anim );
+}
+
+/*
+===================
+PM_ContinueWeaponAnim
+===================
+*/
+static void PM_ContinueWeaponAnim( int anim )
+{
+  if( ( pm->ps->weaponAnim & ~ANIM_TOGGLEBIT ) == anim )
+    return;
+
+  PM_StartWeaponAnim( anim );
 }
 
 /*
@@ -2716,7 +2743,10 @@ static void PM_BeginWeaponChange( int weapon )
   pm->ps->stats[ STAT_BUILDABLE ] = BA_NONE;
 
   if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+  {
     PM_StartTorsoAnim( TORSO_DROP );
+    PM_StartWeaponAnim( WANIM_DROP );
+  }
 }
 
 
@@ -2741,7 +2771,10 @@ static void PM_FinishWeaponChange( void )
   pm->ps->weaponTime += 250;
 
   if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+  {
     PM_StartTorsoAnim( TORSO_RAISE );
+    PM_StartWeaponAnim( WANIM_RAISE );
+  }
 }
 
 
@@ -2753,15 +2786,17 @@ PM_TorsoAnimation
 */
 static void PM_TorsoAnimation( void )
 {
-  if( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL )
-    return;
-
   if( pm->ps->weaponstate == WEAPON_READY )
   {
-    if( pm->ps->weapon == WP_BLASTER )
-      PM_ContinueTorsoAnim( TORSO_STAND2 );
-    else
-      PM_ContinueTorsoAnim( TORSO_STAND );
+    if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
+    {
+      if( pm->ps->weapon == WP_BLASTER )
+        PM_ContinueTorsoAnim( TORSO_STAND2 );
+      else
+        PM_ContinueTorsoAnim( TORSO_STAND );
+    }
+
+    PM_ContinueWeaponAnim( WANIM_IDLE );
   }
 }
 
@@ -2969,6 +3004,8 @@ static void PM_Weapon( void )
         PM_ContinueTorsoAnim( TORSO_STAND );
     }
 
+    PM_ContinueWeaponAnim( WANIM_IDLE );
+
     return;
   }
 
@@ -3010,7 +3047,6 @@ static void PM_Weapon( void )
 
     //allow some time for the weapon to be raised
     pm->ps->weaponstate = WEAPON_RAISING;
-    PM_StartTorsoAnim( TORSO_RAISE );
     pm->ps->weaponTime += 250;
     return;
   }
@@ -3023,6 +3059,7 @@ static void PM_Weapon( void )
 
     //drop the weapon
     PM_StartTorsoAnim( TORSO_DROP );
+    PM_StartWeaponAnim( WANIM_RELOAD );
 
     pm->ps->weaponTime += BG_FindReloadTimeForWeapon( pm->ps->weapon );
     return;
@@ -3207,15 +3244,18 @@ static void PM_Weapon( void )
         if( pm->ps->weaponstate == WEAPON_READY )
         {
           PM_StartTorsoAnim( TORSO_ATTACK );
+          PM_StartWeaponAnim( WANIM_ATTACK1 );
         }
         break;
 
       case WP_BLASTER:
         PM_StartTorsoAnim( TORSO_ATTACK2 );
+        PM_StartWeaponAnim( WANIM_ATTACK1 );
         break;
 
       default:
         PM_StartTorsoAnim( TORSO_ATTACK );
+        PM_StartWeaponAnim( WANIM_ATTACK1 );
         break;
     }
   }
@@ -3227,20 +3267,38 @@ static void PM_Weapon( void )
       int num = abs( pm->ps->commandTime ) % 3;
 
       if( num == 0 )
+      {
         PM_ForceLegsAnim( NSPA_ATTACK1 );
+        PM_StartWeaponAnim( WANIM_ATTACK1 );
+      }
       else if( num == 1 )
+      {
         PM_ForceLegsAnim( NSPA_ATTACK2 );
+        PM_StartWeaponAnim( WANIM_ATTACK2 );
+      }
       else if( num == 2 )
+      {
         PM_ForceLegsAnim( NSPA_ATTACK3 );
+        PM_StartWeaponAnim( WANIM_ATTACK3 );
+      }
     }
     else
     {
       if( attack1 )
+      {
         PM_ForceLegsAnim( NSPA_ATTACK1 );
+        PM_StartWeaponAnim( WANIM_ATTACK1 );
+      }
       else if( attack2 )
+      {
         PM_ForceLegsAnim( NSPA_ATTACK2 );
+        PM_StartWeaponAnim( WANIM_ATTACK2 );
+      }
       else if( attack3 )
+      {
         PM_ForceLegsAnim( NSPA_ATTACK3 );
+        PM_StartWeaponAnim( WANIM_ATTACK3 );
+      }
     }
 
     pm->ps->torsoTimer = TIMER_ATTACK;
