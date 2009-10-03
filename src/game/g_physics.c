@@ -45,8 +45,8 @@ static void G_Bounce( gentity_t *ent, trace_t *trace )
 
   if( ent->s.eType == ET_BUILDABLE )
   {
-    minNormal = BG_FindMinNormalForBuildable( ent->s.modelindex );
-    invert = BG_FindInvertNormalForBuildable( ent->s.modelindex );
+    minNormal = BG_Buildable( ent->s.modelindex )->minNormal;
+    invert = BG_Buildable( ent->s.modelindex )->invertNormal;
   }
   else
     minNormal = 0.707f;
@@ -94,9 +94,9 @@ void G_Physics( gentity_t *ent, int msec )
   {
     if( ent->s.eType == ET_BUILDABLE )
     {
-      if( ent->s.pos.trType != BG_FindTrajectoryForBuildable( ent->s.modelindex ) )
+      if( ent->s.pos.trType != BG_Buildable( ent->s.modelindex )->turretProjType )
       {
-        ent->s.pos.trType = BG_FindTrajectoryForBuildable( ent->s.modelindex );
+        ent->s.pos.trType = BG_Buildable( ent->s.modelindex )->turretProjType;
         ent->s.pos.trTime = level.time;
       }
     }

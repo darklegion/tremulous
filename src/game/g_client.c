@@ -316,7 +316,7 @@ gentity_t *G_SelectAlienSpawnPoint( vec3_t preference )
   spot = NULL;
 
   while( ( spot = G_Find( spot, FOFS( classname ),
-    BG_FindEntityNameForBuildable( BA_A_SPAWN ) ) ) != NULL )
+    BG_Buildable( BA_A_SPAWN )->entityName ) ) != NULL )
   {
     if( !spot->spawned )
       continue;
@@ -365,7 +365,7 @@ gentity_t *G_SelectHumanSpawnPoint( vec3_t preference )
   spot = NULL;
 
   while( ( spot = G_Find( spot, FOFS( classname ),
-    BG_FindEntityNameForBuildable( BA_H_SPAWN ) ) ) != NULL )
+    BG_Buildable( BA_H_SPAWN )->entityName ) ) != NULL )
   {
     if( !spot->spawned )
       continue;
@@ -688,7 +688,7 @@ void SpawnCorpse( gentity_t *ent )
   ent->health = 0;
 
   //change body dimensions
-  BG_FindBBoxForClass( ent->client->ps.stats[ STAT_CLASS ], NULL, NULL, NULL, body->r.mins, body->r.maxs );
+  BG_ClassBoundingBox( ent->client->ps.stats[ STAT_CLASS ], NULL, NULL, NULL, body->r.mins, body->r.maxs );
   vDiff = body->r.mins[ 2 ] - ent->r.mins[ 2 ];
 
   //drop down to match the *model* origins of ent and body
@@ -1021,8 +1021,8 @@ void ClientUserinfoChanged( int clientNum )
   // set model
   if( client->ps.stats[ STAT_CLASS ] == PCL_HUMAN_BSUIT )
   {
-    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( PCL_HUMAN_BSUIT ),
-                                              BG_FindSkinNameForClass( PCL_HUMAN_BSUIT ) );
+    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_ClassConfig( PCL_HUMAN_BSUIT )->modelName,
+                                              BG_ClassConfig( PCL_HUMAN_BSUIT )->skinName );
   }
   else if( client->pers.classSelection == PCL_NONE )
   {
@@ -1030,13 +1030,13 @@ void ClientUserinfoChanged( int clientNum )
     //model details to that of the spawning class or the info change will not be
     //registered and an axis appears instead of the player model. There is zero chance
     //the player can spawn with the battlesuit, hence this choice.
-    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( PCL_HUMAN_BSUIT ),
-                                              BG_FindSkinNameForClass( PCL_HUMAN_BSUIT ) );
+    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_ClassConfig( PCL_HUMAN_BSUIT )->modelName,
+                                              BG_ClassConfig( PCL_HUMAN_BSUIT )->skinName );
   }
   else
   {
-    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( client->pers.classSelection ),
-                                              BG_FindSkinNameForClass( client->pers.classSelection ) );
+    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_ClassConfig( client->pers.classSelection )->modelName,
+                                              BG_ClassConfig( client->pers.classSelection )->skinName );
   }
   Q_strncpyz( model, buffer, sizeof( model ) );
 
@@ -1045,7 +1045,7 @@ void ClientUserinfoChanged( int clientNum )
   {
     //model segmentation
     Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg",
-                 BG_FindModelNameForClass( client->pers.classSelection ) );
+                 BG_ClassConfig( client->pers.classSelection )->modelName );
 
     if( G_NonSegModel( filename ) )
       client->ps.persistant[ PERS_STATE ] |= PS_NONSEGMODEL;
@@ -1428,11 +1428,11 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   client->ps.eFlags = flags;
   client->ps.clientNum = index;
 
-  BG_FindBBoxForClass( ent->client->pers.classSelection, ent->r.mins, ent->r.maxs, NULL, NULL, NULL );
+  BG_ClassBoundingBox( ent->client->pers.classSelection, ent->r.mins, ent->r.maxs, NULL, NULL, NULL );
 
   if( client->sess.spectatorState == SPECTATOR_NOT )
     client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] =
-      BG_FindHealthForClass( ent->client->pers.classSelection );
+      BG_Class( ent->client->pers.classSelection )->health;
   else
     client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] = 100;
 
@@ -1444,11 +1444,12 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     weapon = client->pers.humanItemSelection;
   }
   else if( client->sess.spectatorState == SPECTATOR_NOT )
-    weapon = BG_FindStartWeaponForClass( ent->client->pers.classSelection );
+    weapon = BG_Class( ent->client->pers.classSelection )->startWeapon;
   else
     weapon = WP_NONE;
 
-  BG_FindAmmoForWeapon( weapon, &maxAmmo, &maxClips );
+  maxAmmo = BG_Weapon( weapon )->maxAmmo;
+  maxClips = BG_Weapon( weapon )->maxClips;
   BG_AddWeaponToInventory( weapon, client->ps.stats );
   client->ps.ammo = maxAmmo;
   client->ps.clips = maxClips;

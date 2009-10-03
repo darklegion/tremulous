@@ -530,7 +530,7 @@ static void CG_DrawPlayerClipsRing( rectDef_t *rect, vec4_t color, qhandle_t sha
     default:
       if( ps->weaponstate == WEAPON_RELOADING )
       {
-        maxDelay = (float)BG_FindReloadTimeForWeapon( cent->currentState.weapon );
+        maxDelay = (float)BG_Weapon( cent->currentState.weapon )->reloadTime;
         progress = ( maxDelay - (float)ps->weaponTime ) / maxDelay;
 
         color[ 3 ] = HH_MIN_ALPHA + ( progress * HH_ALPHA_DIFF );
@@ -756,13 +756,13 @@ static void CG_DrawUsableBuildable( rectDef_t *rect, qhandle_t shader, vec4_t co
 
   es = &cg_entities[ trace.entityNum ].currentState;
 
-  if( es->eType == ET_BUILDABLE && BG_FindUsableForBuildable( es->modelindex ) &&
-      cg.predictedPlayerState.stats[ STAT_TEAM ] == BG_FindTeamForBuildable( es->modelindex ) )
+  if( es->eType == ET_BUILDABLE && BG_Buildable( es->modelindex )->usable &&
+      cg.predictedPlayerState.stats[ STAT_TEAM ] == BG_Buildable( es->modelindex )->team )
   {
     //hack to prevent showing the usable buildable when you aren't carrying an energy weapon
     if( ( es->modelindex == BA_H_REACTOR || es->modelindex == BA_H_REPEATER ) &&
-        ( !BG_FindUsesEnergyForWeapon( cg.snap->ps.weapon ) ||
-          BG_FindInfinteAmmoForWeapon( cg.snap->ps.weapon ) ) )
+        ( !BG_Weapon( cg.snap->ps.weapon )->usesEnergy ||
+          BG_Weapon( cg.snap->ps.weapon )->infiniteAmmo ) )
       return;
 
     trap_R_SetColor( color );
@@ -2092,7 +2092,7 @@ void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
   ps = &cg.snap->ps;
   weapon = BG_GetPlayerWeapon( ps );
 
-  BG_FindAmmoForWeapon( weapon, &maxAmmo, NULL );
+  maxAmmo = BG_Weapon( weapon )->maxAmmo;
 
   // don't display if dead
   if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
@@ -2103,7 +2103,7 @@ void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
 
   CG_RegisterWeapon( weapon );
 
-  if( ps->clips == 0 && !BG_FindInfinteAmmoForWeapon( weapon ) )
+  if( ps->clips == 0 && !BG_Weapon( weapon )->infiniteAmmo )
   {
     float ammoPercent = (float)ps->ammo / (float)maxAmmo;
 
@@ -2161,7 +2161,7 @@ static void CG_DrawCrosshair( void )
     return;
 
   if( cg_drawCrosshair.integer == CROSSHAIR_RANGEDONLY &&
-      !BG_FindLongRangedForWeapon( weapon ) )
+      !BG_Weapon( weapon )->longRanged )
     return;
 
   if( ( cg.snap->ps.persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT ) ||
@@ -2990,7 +2990,7 @@ static void CG_Draw2D( void )
     UI_Text_Paint( 320 - w / 2, 440, 0.7f, color, SPECTATOR_STRING, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
   }
   else
-    menu = Menus_FindByName( BG_FindHudNameForClass( cg.predictedPlayerState.stats[ STAT_CLASS ] ) );
+    menu = Menus_FindByName( BG_ClassConfig( cg.predictedPlayerState.stats[ STAT_CLASS ] )->hudName );
 
   if( !( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
       !( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) && menu &&

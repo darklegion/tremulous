@@ -903,30 +903,12 @@ typedef enum
 // player class record
 typedef struct
 {
-  int       classNum;
+  class_t   number;
 
-  char      *className;
-  char      *humanName;
+  char      *name;
   char      *info;
 
-  char      *modelName;
-  float     modelScale;
-  char      *skinName;
-  float     shadowScale;
-
-  char      *hudName;
-
   int       stages;
-
-  vec3_t    mins;
-  vec3_t    maxs;
-  vec3_t    crouchMaxs;
-  vec3_t    deadMins;
-  vec3_t    deadMaxs;
-  float     zOffset;
-
-  int       viewheight;
-  int       crouchViewheight;
 
   int       health;
   float     fallDamage;
@@ -973,7 +955,7 @@ typedef struct
   int       viewheight;
   int       crouchViewheight;
   float     zOffset;
-} classAttributeOverrides_t;
+} classConfig_t;
 
 //stages
 typedef enum
@@ -988,56 +970,49 @@ typedef enum
 // buildable item record
 typedef struct
 {
-  int       buildNum;
+  buildable_t   number;
 
-  char      *buildName;
-  char      *humanName;
-  char      *info;
-  char      *entityName;
+  char          *name;
+  char          *humanName;
+  char          *info;
+  char          *entityName;
 
-  char      *models[ MAX_BUILDABLE_MODELS ];
-  float     modelScale;
+  trType_t      traj;
+  float         bounce;
 
-  vec3_t    mins;
-  vec3_t    maxs;
-  float     zOffset;
+  int           buildPoints;
+  int           stages;
 
-  trType_t  traj;
-  float     bounce;
+  int           health;
+  int           regenRate;
 
-  int       buildPoints;
-  int       stages;
+  int           splashDamage;
+  int           splashRadius;
 
-  int       health;
-  int       regenRate;
+  int           meansOfDeath;
 
-  int       splashDamage;
-  int       splashRadius;
+  team_t        team;
+  weapon_t      buildWeapon;
 
-  int       meansOfDeath;
+  int           idleAnim;
 
-  int       team;
-  weapon_t  buildWeapon;
+  int           nextthink;
+  int           buildTime;
+  qboolean      usable;
 
-  int       idleAnim;
+  int           turretRange;
+  int           turretFireSpeed;
+  weapon_t      turretProjType;
 
-  int       nextthink;
-  int       buildTime;
-  qboolean  usable;
+  float         minNormal;
+  qboolean      invertNormal;
 
-  int       turretRange;
-  int       turretFireSpeed;
-  weapon_t  turretProjType;
+  qboolean      creepTest;
+  int           creepSize;
 
-  float     minNormal;
-  qboolean  invertNormal;
-
-  qboolean  creepTest;
-  int       creepSize;
-
-  qboolean  dccTest;
-  qboolean  transparentTest;
-  qboolean  reactorTest;
+  qboolean      dccTest;
+  qboolean      transparentTest;
+  qboolean      uniqueTest;
   
   int       value;
 } buildableAttributes_t;
@@ -1050,20 +1025,20 @@ typedef struct
   vec3_t    mins;
   vec3_t    maxs;
   float     zOffset;
-} buildableAttributeOverrides_t;
+} buildableConfig_t;
 
 // weapon record
 typedef struct
 {
-  int       weaponNum;
+  weapon_t  number;
 
   int       price;
   int       stages;
 
   int       slots;
 
-  char      *weaponName;
-  char      *weaponHumanName;
+  char      *name;
+  char      *humanName;
   char      *info;
 
   int       maxAmmo;
@@ -1092,15 +1067,15 @@ typedef struct
 // upgrade record
 typedef struct
 {
-  int       upgradeNum;
+  upgrade_t number;
 
   int       price;
   int       stages;
 
   int       slots;
 
-  char      *upgradeName;
-  char      *upgradeHumanName;
+  char      *name;
+  char      *humanName;
   char      *info;
 
   char      *icon;
@@ -1135,119 +1110,44 @@ int       BG_PlayerPoisonCloudTime( playerState_t *ps );
 weapon_t  BG_GetPlayerWeapon( playerState_t *ps );
 qboolean  BG_HasEnergyWeapon( playerState_t *ps );
 
-int       BG_FindValueOfBuildable( int bclass );
-int       BG_FindBuildNumForName( char *name );
-int       BG_FindBuildNumForEntityName( char *name );
-char      *BG_FindNameForBuildable( int bclass );
-char      *BG_FindHumanNameForBuildable( int bclass );
-char      *BG_FindEntityNameForBuildable( int bclass );
-char      *BG_FindInfoForBuildable( int bclass );
-char      *BG_FindModelsForBuildable( int bclass, int modelNum );
-float     BG_FindModelScaleForBuildable( int bclass );
-void      BG_FindBBoxForBuildable( int bclass, vec3_t mins, vec3_t maxs );
-float     BG_FindZOffsetForBuildable( int pclass );
-int       BG_FindHealthForBuildable( int bclass );
-int       BG_FindRegenRateForBuildable( int bclass );
-trType_t  BG_FindTrajectoryForBuildable( int bclass );
-float     BG_FindBounceForBuildable( int bclass );
-int       BG_FindBuildPointsForBuildable( int bclass );
-qboolean  BG_FindStagesForBuildable( int bclass, stage_t stage );
-int       BG_FindSplashDamageForBuildable( int bclass );
-int       BG_FindSplashRadiusForBuildable( int bclass );
-int       BG_FindMODForBuildable( int bclass );
-int       BG_FindTeamForBuildable( int bclass );
-weapon_t  BG_FindBuildWeaponForBuildable( int bclass );
-int       BG_FindAnimForBuildable( int bclass );
-int       BG_FindNextThinkForBuildable( int bclass );
-int       BG_FindBuildTimeForBuildable( int bclass );
-qboolean  BG_FindUsableForBuildable( int bclass );
-int       BG_FindRangeForBuildable( int bclass );
-int       BG_FindFireSpeedForBuildable( int bclass );
-weapon_t  BG_FindProjTypeForBuildable( int bclass );
-float     BG_FindMinNormalForBuildable( int bclass );
-qboolean  BG_FindInvertNormalForBuildable( int bclass );
-int       BG_FindCreepTestForBuildable( int bclass );
-int       BG_FindCreepSizeForBuildable( int bclass );
-int       BG_FindDCCTestForBuildable( int bclass );
-int       BG_FindUniqueTestForBuildable( int bclass );
-qboolean  BG_FindTransparentTestForBuildable( int bclass );
-void      BG_InitBuildableOverrides( void );
+const buildableAttributes_t *BG_BuildableByName( const char *name );
+const buildableAttributes_t *BG_BuildableByEntityName( const char *name );
+const buildableAttributes_t *BG_Buildable( buildable_t buildable );
+qboolean                    BG_BuildableAllowedInStage( buildable_t buildable,
+                                                        stage_t stage );
 
-int       BG_FindClassNumForName( char *name );
-char      *BG_FindNameForClassNum( int pclass );
-char      *BG_FindHumanNameForClassNum( int pclass );
-char      *BG_FindInfoForClassNum( int pclass );
-char      *BG_FindModelNameForClass( int pclass );
-float     BG_FindModelScaleForClass( int pclass );
-char      *BG_FindSkinNameForClass( int pclass );
-float     BG_FindShadowScaleForClass( int pclass );
-char      *BG_FindHudNameForClass( int pclass );
-qboolean  BG_FindStagesForClass( int pclass, stage_t stage );
-void      BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, vec3_t dmins, vec3_t dmaxs );
-float     BG_FindZOffsetForClass( int pclass );
-void      BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight );
-int       BG_FindHealthForClass( int pclass );
-float     BG_FindFallDamageForClass( int pclass );
-int       BG_FindRegenRateForClass( int pclass );
-int       BG_FindFovForClass( int pclass );
-float     BG_FindBobForClass( int pclass );
-float     BG_FindBobCycleForClass( int pclass );
-float     BG_FindSpeedForClass( int pclass );
-float     BG_FindAccelerationForClass( int pclass );
-float     BG_FindAirAccelerationForClass( int pclass );
-float     BG_FindFrictionForClass( int pclass );
-float     BG_FindStopSpeedForClass( int pclass );
-float     BG_FindJumpMagnitudeForClass( int pclass );
-float     BG_FindKnockbackScaleForClass( int pclass );
-int       BG_FindSteptimeForClass( int pclass );
-qboolean  BG_ClassHasAbility( int pclass, int ability );
-weapon_t  BG_FindStartWeaponForClass( int pclass );
-float     BG_FindBuildDistForClass( int pclass );
-int       BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int alienStage, int num );
-qboolean  BG_AlienCanEvolve( int pclass, int credits, int alienStage );
-int       BG_FindCostOfClass( int pclass );
-int       BG_FindValueOfClass( int pclass );
-void      BG_InitClassOverrides( void );
+buildableConfig_t           *BG_BuildableConfig( buildable_t buildable );
+void                        BG_BuildableBoundingBox( buildable_t buildable,
+                                                     vec3_t mins, vec3_t maxs );
+void                        BG_InitBuildableConfigs( void );
 
-int       BG_FindPriceForWeapon( int weapon );
-qboolean  BG_FindStagesForWeapon( int weapon, stage_t stage );
-int       BG_FindSlotsForWeapon( int weapon );
-char      *BG_FindNameForWeapon( int weapon );
-int       BG_FindWeaponNumForName( char *name );
-char      *BG_FindHumanNameForWeapon( int weapon );
-char      *BG_FindInfoForWeapon( int weapon );
-char      *BG_FindModelsForWeapon( int weapon, int modelNum );
-char      *BG_FindIconForWeapon( int weapon );
-char      *BG_FindCrosshairForWeapon( int weapon );
-int       BG_FindCrosshairSizeForWeapon( int weapon );
-void      BG_FindAmmoForWeapon( int weapon, int *maxAmmo, int *maxClips );
-qboolean  BG_FindInfinteAmmoForWeapon( int weapon );
-qboolean  BG_FindUsesEnergyForWeapon( int weapon );
-int       BG_FindRepeatRate1ForWeapon( int weapon );
-int       BG_FindRepeatRate2ForWeapon( int weapon );
-int       BG_FindRepeatRate3ForWeapon( int weapon );
-int       BG_FindReloadTimeForWeapon( int weapon );
-float     BG_FindKnockbackScaleForWeapon( int weapon );
-qboolean  BG_WeaponHasAltMode( int weapon );
-qboolean  BG_WeaponHasThirdMode( int weapon );
-qboolean  BG_WeaponCanZoom( int weapon );
-float     BG_FindZoomFovForWeapon( int weapon );
-qboolean  BG_FindPurchasableForWeapon( int weapon );
-qboolean  BG_FindLongRangedForWeapon( int weapon );
-int       BG_FindBuildDelayForWeapon( int weapon );
-team_t    BG_FindTeamForWeapon( int weapon );
+const classAttributes_t     *BG_ClassByName( const char *name );
+const classAttributes_t     *BG_Class( class_t class );
+qboolean                    BG_ClassAllowedInStage( class_t class,
+                                                    stage_t stage );
 
-int       BG_FindPriceForUpgrade( int upgrade );
-qboolean  BG_FindStagesForUpgrade( int upgrade, stage_t stage );
-int       BG_FindSlotsForUpgrade( int upgrade );
-char      *BG_FindNameForUpgrade( int upgrade );
-int       BG_FindUpgradeNumForName( char *name );
-char      *BG_FindHumanNameForUpgrade( int upgrade );
-char      *BG_FindInfoForUpgrade( int upgrade );
-char      *BG_FindIconForUpgrade( int upgrade );
-qboolean  BG_FindPurchasableForUpgrade( int upgrade );
-qboolean  BG_FindUsableForUpgrade( int upgrade );
-team_t    BG_FindTeamForUpgrade( int upgrade );
+classConfig_t               *BG_ClassConfig( class_t class );
+
+void                        BG_ClassBoundingBox( class_t class, vec3_t mins,
+                                                 vec3_t maxs, vec3_t cmaxs,
+                                                 vec3_t dmins, vec3_t dmaxs );
+qboolean                    BG_ClassHasAbility( class_t class, int ability );
+int                         BG_ClassCanEvolveFromTo( class_t fclass,
+                                                     class_t tclass,
+                                                     int credits, int alienStage, int num );
+qboolean                    BG_AlienCanEvolve( class_t class, int credits, int alienStage );
+
+void                        BG_InitClassConfigs( void );
+
+const weaponAttributes_t    *BG_WeaponByName( const char *name );
+const weaponAttributes_t    *BG_Weapon( weapon_t weapon );
+qboolean                    BG_WeaponAllowedInStage( weapon_t weapon,
+                                                     stage_t stage );
+
+const upgradeAttributes_t   *BG_UpgradeByName( const char *name );
+const upgradeAttributes_t   *BG_Upgrade( upgrade_t upgrade );
+qboolean                    BG_UpgradeAllowedInStage( upgrade_t upgrade,
+                                                      stage_t stage );
 
 // content masks
 #define MASK_ALL          (-1)

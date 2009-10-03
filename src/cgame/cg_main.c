@@ -465,13 +465,13 @@ static void CG_SetUIVars( void )
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
     if( BG_InventoryContainsWeapon( i, cg.snap->ps.stats ) &&
-        BG_FindPurchasableForWeapon( i ) )
+        BG_Weapon( i )->purchasable )
       strcat( carriageCvar, va( "W%d ", i ) );
   }
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
     if( BG_InventoryContainsUpgrade( i, cg.snap->ps.stats ) &&
-        BG_FindPurchasableForUpgrade( i ) )
+        BG_Upgrade( i )->purchasable )
       strcat( carriageCvar, va( "U%d ", i ) );
   }
   strcat( carriageCvar, "$" );
@@ -984,8 +984,8 @@ static void CG_RegisterClients( void )
   //precache all the models/sounds/etc
   for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES;  i++ )
   {
-    CG_PrecacheClientInfo( i, BG_FindModelNameForClass( i ),
-                              BG_FindSkinNameForClass( i ) );
+    CG_PrecacheClientInfo( i, BG_ClassConfig( i )->modelName,
+                              BG_ClassConfig( i )->skinName );
 
     cg.charModelFraction = (float)i / (float)PCL_NUM_CLASSES;
     trap_UpdateScreen( );
@@ -1792,8 +1792,8 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   cgs.media.outlineShader   = trap_R_RegisterShader( "outline" );
 
   // load overrides
-  BG_InitClassOverrides( );
-  BG_InitBuildableOverrides( );
+  BG_InitClassConfigs( );
+  BG_InitBuildableConfigs( );
   BG_InitAllowedGameElements( );
 
   // Dynamic memory

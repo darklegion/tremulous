@@ -276,49 +276,49 @@ static void CG_Obituary( entityState_t *ent )
       case MOD_LEVEL1_CLAW:
         message = "was swiped by";
         Com_sprintf( className, 64, "'s %s",
-            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL1 ) );
+            BG_ClassConfig( PCL_ALIEN_LEVEL1 )->humanName );
         message2 = className;
         break;
       case MOD_LEVEL2_CLAW:
         message = "was clawed by";
         Com_sprintf( className, 64, "'s %s",
-            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL2 ) );
+            BG_ClassConfig( PCL_ALIEN_LEVEL2 )->humanName );
         message2 = className;
         break;
       case MOD_LEVEL2_ZAP:
         message = "was zapped by";
         Com_sprintf( className, 64, "'s %s",
-            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL2 ) );
+            BG_ClassConfig( PCL_ALIEN_LEVEL2 )->humanName );
         message2 = className;
         break;
       case MOD_LEVEL3_CLAW:
         message = "was chomped by";
         Com_sprintf( className, 64, "'s %s",
-            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL3 ) );
+            BG_ClassConfig( PCL_ALIEN_LEVEL3 )->humanName );
         message2 = className;
         break;
       case MOD_LEVEL3_POUNCE:
         message = "was pounced upon by";
         Com_sprintf( className, 64, "'s %s",
-            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL3 ) );
+            BG_ClassConfig( PCL_ALIEN_LEVEL3 )->humanName );
         message2 = className;
         break;
       case MOD_LEVEL3_BOUNCEBALL:
         message = "was sniped by";
         Com_sprintf( className, 64, "'s %s",
-            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL3 ) );
+            BG_ClassConfig( PCL_ALIEN_LEVEL3 )->humanName );
         message2 = className;
         break;
       case MOD_LEVEL4_CLAW:
         message = "was mauled by";
         Com_sprintf( className, 64, "'s %s",
-            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL4 ) );
+            BG_ClassConfig( PCL_ALIEN_LEVEL4 )->humanName );
         message2 = className;
         break;
       case MOD_LEVEL4_TRAMPLE:
         message = "should have gotten out of the way of";
         Com_sprintf( className, 64, "'s %s",
-            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL4 ) );
+            BG_ClassConfig( PCL_ALIEN_LEVEL4 )->humanName );
         message2 = className;
         break;
       case MOD_LEVEL4_CRUSH:
@@ -333,7 +333,7 @@ static void CG_Obituary( entityState_t *ent )
       case MOD_LEVEL1_PCLOUD:
         message = "was gassed by";
         Com_sprintf( className, 64, "'s %s",
-            BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL1 ) );
+            BG_ClassConfig( PCL_ALIEN_LEVEL1 )->humanName );
         message2 = className;
         break;
 
@@ -477,7 +477,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
   if( cg.snap->ps.persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT )
     steptime = 200;
   else
-    steptime = BG_FindSteptimeForClass( cg.snap->ps.stats[ STAT_CLASS ] );
+    steptime = BG_Class( cg.snap->ps.stats[ STAT_CLASS ] )->steptime;
 
   es = &cent->currentState;
   event = es->event & ~EV_EVENT_BITS;

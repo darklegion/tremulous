@@ -1087,10 +1087,10 @@ void trigger_ammo_touch( gentity_t *self, gentity_t *other, trace_t *trace )
   if( other->client->ps.weaponstate != WEAPON_READY )
     return;
 
-  if( BG_FindUsesEnergyForWeapon( other->client->ps.weapon ) && self->spawnflags & 2 )
+  if( BG_Weapon( other->client->ps.weapon )->usesEnergy && self->spawnflags & 2 )
     return;
 
-  if( !BG_FindUsesEnergyForWeapon( other->client->ps.weapon ) && self->spawnflags & 4 )
+  if( !BG_Weapon( other->client->ps.weapon )->usesEnergy && self->spawnflags & 4 )
     return;
 
   if( self->spawnflags & 1 )
@@ -1098,7 +1098,8 @@ void trigger_ammo_touch( gentity_t *self, gentity_t *other, trace_t *trace )
   else
     self->timestamp = level.time + FRAMETIME;
 
-  BG_FindAmmoForWeapon( other->client->ps.weapon, &maxAmmo, &maxClips );
+  maxAmmo = BG_Weapon( other->client->ps.weapon )->maxAmmo;
+  maxClips = BG_Weapon( other->client->ps.weapon )->maxClips;
 
   if( ( other->client->ps.ammo + self->damage ) > maxAmmo )
   {

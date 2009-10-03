@@ -615,8 +615,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   // general initialization
   G_FindTeams( );
 
-  BG_InitClassOverrides( );
-  BG_InitBuildableOverrides( );
+  BG_InitClassConfigs( );
+  BG_InitBuildableConfigs( );
   G_InitDamageLocations( );
   G_InitMapRotations( );
   G_InitSpawnQueue( &level.alienSpawnQueue );
@@ -1125,16 +1125,16 @@ void G_CalculateBuildPoints( void )
       if( buildable == BA_A_OVERMIND && ent->spawned && ent->health > 0 )
         level.overmindPresent = qtrue;
 
-      if( BG_FindTeamForBuildable( buildable ) == TEAM_HUMANS )
+      if( BG_Buildable( buildable )->team == TEAM_HUMANS )
       {
-        level.humanBuildPoints -= BG_FindBuildPointsForBuildable( buildable );
+        level.humanBuildPoints -= BG_Buildable( buildable )->buildPoints;
 
         if( ent->powered )
-          level.humanBuildPointsPowered -= BG_FindBuildPointsForBuildable( buildable );
+          level.humanBuildPointsPowered -= BG_Buildable( buildable )->buildPoints;
       }
       else
       {
-        level.alienBuildPoints -= BG_FindBuildPointsForBuildable( buildable );
+        level.alienBuildPoints -= BG_Buildable( buildable )->buildPoints;
       }
     }
   }

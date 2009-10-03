@@ -1549,61 +1549,61 @@ static void UI_DrawInfoPane( menuItem_t *item, rectDef_t *rect, float text_x, fl
       if( value < 1 )
       {
         s = va( "%s\n\n%s",
-                BG_FindHumanNameForClassNum( item->v.pclass ),
-                BG_FindInfoForClassNum( item->v.pclass ) );
+                BG_ClassConfig( item->v.pclass )->humanName,
+                BG_Class( item->v.pclass )->info );
       }
       else
       {
         s = va( "%s\n\n%s\n\nFrags: %d",
-                BG_FindHumanNameForClassNum( item->v.pclass ),
-                BG_FindInfoForClassNum( item->v.pclass ),
+                BG_ClassConfig( item->v.pclass )->humanName,
+                BG_Class( item->v.pclass )->info,
                 value );
       }
 
       break;
 
     case INFOTYPE_WEAPON:
-      value = BG_FindPriceForWeapon( item->v.weapon );
+      value = BG_Weapon( item->v.weapon )->price;
 
       if( value == 0 )
       {
         s = va( "%s\n\n%s\n\nCredits: Free",
-                BG_FindHumanNameForWeapon( item->v.weapon ),
-                BG_FindInfoForWeapon( item->v.weapon ) );
+                BG_Weapon( item->v.weapon )->humanName,
+                BG_Weapon( item->v.weapon )->info );
       }
       else
       {
         s = va( "%s\n\n%s\n\nCredits: %d",
-                BG_FindHumanNameForWeapon( item->v.weapon ),
-                BG_FindInfoForWeapon( item->v.weapon ),
+                BG_Weapon( item->v.weapon )->humanName,
+                BG_Weapon( item->v.weapon )->info,
                 value );
       }
 
       break;
 
     case INFOTYPE_UPGRADE:
-      value = BG_FindPriceForUpgrade( item->v.upgrade );
+      value = BG_Upgrade( item->v.upgrade )->price;
 
       if( value == 0 )
       {
         s = va( "%s\n\n%s\n\nCredits: Free",
-                BG_FindHumanNameForUpgrade( item->v.upgrade ),
-                BG_FindInfoForUpgrade( item->v.upgrade ) );
+                BG_Upgrade( item->v.upgrade )->humanName,
+                BG_Upgrade( item->v.upgrade )->info );
       }
       else
       {
         s = va( "%s\n\n%s\n\nCredits: %d",
-                BG_FindHumanNameForUpgrade( item->v.upgrade ),
-                BG_FindInfoForUpgrade( item->v.upgrade ),
+                BG_Upgrade( item->v.upgrade )->humanName,
+                BG_Upgrade( item->v.upgrade )->info,
                 value );
       }
 
       break;
 
     case INFOTYPE_BUILDABLE:
-      value = BG_FindBuildPointsForBuildable( item->v.buildable );
+      value = BG_Buildable( item->v.buildable )->buildPoints;
 
-      switch( BG_FindTeamForBuildable( item->v.buildable ) )
+      switch( BG_Buildable( item->v.buildable )->team )
       {
         case TEAM_ALIENS:
           string = "Sentience";
@@ -1620,14 +1620,14 @@ static void UI_DrawInfoPane( menuItem_t *item, rectDef_t *rect, float text_x, fl
       if( value == 0 )
       {
         s = va( "%s\n\n%s",
-                BG_FindHumanNameForBuildable( item->v.buildable ),
-                BG_FindInfoForBuildable( item->v.buildable ) );
+                BG_Buildable( item->v.buildable )->humanName,
+                BG_Buildable( item->v.buildable )->info );
       }
       else
       {
         s = va( "%s\n\n%s\n\n%s: %d",
-                BG_FindHumanNameForBuildable( item->v.buildable ),
-                BG_FindInfoForBuildable( item->v.buildable ),
+                BG_Buildable( item->v.buildable )->humanName,
+                BG_Buildable( item->v.buildable )->info,
                 string, value );
       }
 
@@ -2166,10 +2166,10 @@ static void UI_AddClass( class_t class )
 {
   uiInfo.alienClassList[ uiInfo.alienClassCount ].text =
 
-    String_Alloc( BG_FindHumanNameForClassNum( class ) );
+    String_Alloc( BG_ClassConfig( class )->humanName );
   uiInfo.alienClassList[ uiInfo.alienClassCount ].cmd =
 
-    String_Alloc( va( "cmd class %s\n", BG_FindNameForClassNum( class ) ) );
+    String_Alloc( va( "cmd class %s\n", BG_Class( class )->name ) );
   uiInfo.alienClassList[ uiInfo.alienClassCount ].type = INFOTYPE_CLASS;
 
   uiInfo.alienClassList[ uiInfo.alienClassCount ].v.pclass = class;
@@ -2190,7 +2190,7 @@ static void UI_LoadAlienClasses( void )
     UI_AddClass( PCL_ALIEN_LEVEL0 );
 
   if( BG_ClassIsAllowed( PCL_ALIEN_BUILDER0_UPG ) &&
-      BG_FindStagesForClass( PCL_ALIEN_BUILDER0_UPG, UI_GetCurrentAlienStage( ) ) )
+      BG_ClassAllowedInStage( PCL_ALIEN_BUILDER0_UPG, UI_GetCurrentAlienStage( ) ) )
     UI_AddClass( PCL_ALIEN_BUILDER0_UPG );
   else if( BG_ClassIsAllowed( PCL_ALIEN_BUILDER0 ) )
     UI_AddClass( PCL_ALIEN_BUILDER0 );
@@ -2204,9 +2204,9 @@ UI_AddItem
 static void UI_AddItem( weapon_t weapon )
 {
   uiInfo.humanItemList[ uiInfo.humanItemCount ].text =
-    String_Alloc( BG_FindHumanNameForWeapon( weapon ) );
+    String_Alloc( BG_Weapon( weapon )->humanName );
   uiInfo.humanItemList[ uiInfo.humanItemCount ].cmd =
-    String_Alloc( va( "cmd class %s\n", BG_FindNameForWeapon( weapon ) ) );
+    String_Alloc( va( "cmd class %s\n", BG_Weapon( weapon )->name ) );
   uiInfo.humanItemList[ uiInfo.humanItemCount ].type = INFOTYPE_WEAPON;
   uiInfo.humanItemList[ uiInfo.humanItemCount ].v.weapon = weapon;
 
@@ -2224,6 +2224,7 @@ static void UI_LoadHumanItems( void )
 
   if( BG_WeaponIsAllowed( WP_MACHINEGUN ) )
     UI_AddItem( WP_MACHINEGUN );
+
   if( BG_WeaponIsAllowed( WP_HBUILD ) )
     UI_AddItem( WP_HBUILD );
 }
@@ -2300,30 +2301,30 @@ static void UI_LoadHumanArmouryBuys( void )
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
     if( uiInfo.weapons & ( 1 << i ) )
-      slots |= BG_FindSlotsForWeapon( i );
+      slots |= BG_Weapon( i )->slots;
   }
 
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
     if( uiInfo.upgrades & ( 1 << i ) )
-      slots |= BG_FindSlotsForUpgrade( i );
+      slots |= BG_Upgrade( i )->slots;
   }
 
   uiInfo.humanArmouryBuyCount = 0;
 
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
-    if( BG_FindTeamForWeapon( i ) == TEAM_HUMANS &&
-        BG_FindPurchasableForWeapon( i ) &&
-        BG_FindStagesForWeapon( i, stage ) &&
+    if( BG_Weapon( i )->team == TEAM_HUMANS &&
+        BG_Weapon( i )->purchasable &&
+        BG_WeaponAllowedInStage( i, stage ) &&
         BG_WeaponIsAllowed( i ) &&
-        !( BG_FindSlotsForWeapon( i ) & slots ) &&
+        !( BG_Weapon( i )->slots & slots ) &&
         !( uiInfo.weapons & ( 1 << i ) ) )
     {
       uiInfo.humanArmouryBuyList[ j ].text =
-        String_Alloc( BG_FindHumanNameForWeapon( i ) );
+        String_Alloc( BG_Weapon( i )->humanName );
       uiInfo.humanArmouryBuyList[ j ].cmd =
-        String_Alloc( va( "cmd buy %s\n", BG_FindNameForWeapon( i ) ) );
+        String_Alloc( va( "cmd buy %s\n", BG_Weapon( i )->name ) );
       uiInfo.humanArmouryBuyList[ j ].type = INFOTYPE_WEAPON;
       uiInfo.humanArmouryBuyList[ j ].v.weapon = i;
 
@@ -2335,17 +2336,17 @@ static void UI_LoadHumanArmouryBuys( void )
 
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
-    if( BG_FindTeamForUpgrade( i ) == TEAM_HUMANS &&
-        BG_FindPurchasableForUpgrade( i ) &&
-        BG_FindStagesForUpgrade( i, stage ) &&
+    if( BG_Upgrade( i )->team == TEAM_HUMANS &&
+        BG_Upgrade( i )->purchasable &&
+        BG_UpgradeAllowedInStage( i, stage ) &&
         BG_UpgradeIsAllowed( i ) &&
-        !( BG_FindSlotsForUpgrade( i ) & slots ) &&
+        !( BG_Upgrade( i )->slots & slots ) &&
         !( uiInfo.upgrades & ( 1 << i ) ) )
     {
       uiInfo.humanArmouryBuyList[ j ].text =
-        String_Alloc( BG_FindHumanNameForUpgrade( i ) );
+        String_Alloc( BG_Upgrade( i )->humanName );
       uiInfo.humanArmouryBuyList[ j ].cmd =
-        String_Alloc( va( "cmd buy %s\n", BG_FindNameForUpgrade( i ) ) );
+        String_Alloc( va( "cmd buy %s\n", BG_Upgrade( i )->name ) );
       uiInfo.humanArmouryBuyList[ j ].type = INFOTYPE_UPGRADE;
       uiInfo.humanArmouryBuyList[ j ].v.upgrade = i;
 
@@ -2372,9 +2373,9 @@ static void UI_LoadHumanArmourySells( void )
   {
     if( uiInfo.weapons & ( 1 << i ) )
     {
-      uiInfo.humanArmourySellList[ j ].text = String_Alloc( BG_FindHumanNameForWeapon( i ) );
+      uiInfo.humanArmourySellList[ j ].text = String_Alloc( BG_Weapon( i )->humanName );
       uiInfo.humanArmourySellList[ j ].cmd =
-        String_Alloc( va( "cmd sell %s\n", BG_FindNameForWeapon( i ) ) );
+        String_Alloc( va( "cmd sell %s\n", BG_Weapon( i )->name ) );
       uiInfo.humanArmourySellList[ j ].type = INFOTYPE_WEAPON;
       uiInfo.humanArmourySellList[ j ].v.weapon = i;
 
@@ -2388,9 +2389,9 @@ static void UI_LoadHumanArmourySells( void )
   {
     if( uiInfo.upgrades & ( 1 << i ) )
     {
-      uiInfo.humanArmourySellList[ j ].text = String_Alloc( BG_FindHumanNameForUpgrade( i ) );
+      uiInfo.humanArmourySellList[ j ].text = String_Alloc( BG_Upgrade( i )->humanName );
       uiInfo.humanArmourySellList[ j ].cmd =
-        String_Alloc( va( "cmd sell %s\n", BG_FindNameForUpgrade( i ) ) );
+        String_Alloc( va( "cmd sell %s\n", BG_Upgrade( i )->name ) );
       uiInfo.humanArmourySellList[ j ].type = INFOTYPE_UPGRADE;
       uiInfo.humanArmourySellList[ j ].v.upgrade = i;
 
@@ -2444,9 +2445,9 @@ static void UI_LoadAlienUpgrades( void )
   {
     if( BG_ClassCanEvolveFromTo( class, i, credits, stage, 0 ) >= 0 )
     {
-      uiInfo.alienUpgradeList[ j ].text = String_Alloc( BG_FindHumanNameForClassNum( i ) );
+      uiInfo.alienUpgradeList[ j ].text = String_Alloc( BG_ClassConfig( i )->humanName );
       uiInfo.alienUpgradeList[ j ].cmd =
-        String_Alloc( va( "cmd class %s\n", BG_FindNameForClassNum( i ) ) );
+        String_Alloc( va( "cmd class %s\n", BG_Class( i )->name ) );
       uiInfo.alienUpgradeList[ j ].type = INFOTYPE_CLASS;
       uiInfo.alienUpgradeList[ j ].v.pclass = i;
 
@@ -2474,15 +2475,15 @@ static void UI_LoadAlienBuilds( void )
 
   for( i = BA_NONE + 1; i < BA_NUM_BUILDABLES; i++ )
   {
-    if( BG_FindTeamForBuildable( i ) == TEAM_ALIENS &&
-        BG_FindBuildWeaponForBuildable( i ) & uiInfo.weapons &&
-        BG_FindStagesForBuildable( i, stage ) &&
+    if( BG_Buildable( i )->team == TEAM_ALIENS &&
+        BG_Buildable( i )->buildWeapon & uiInfo.weapons &&
+        BG_BuildableAllowedInStage( i, stage ) &&
         BG_BuildableIsAllowed( i ) )
     {
       uiInfo.alienBuildList[ j ].text =
-        String_Alloc( BG_FindHumanNameForBuildable( i ) );
+        String_Alloc( BG_Buildable( i )->humanName );
       uiInfo.alienBuildList[ j ].cmd =
-        String_Alloc( va( "cmd build %s\n", BG_FindNameForBuildable( i ) ) );
+        String_Alloc( va( "cmd build %s\n", BG_Buildable( i )->name ) );
       uiInfo.alienBuildList[ j ].type = INFOTYPE_BUILDABLE;
       uiInfo.alienBuildList[ j ].v.buildable = i;
 
@@ -2510,15 +2511,15 @@ static void UI_LoadHumanBuilds( void )
 
   for( i = BA_NONE + 1; i < BA_NUM_BUILDABLES; i++ )
   {
-    if( BG_FindTeamForBuildable( i ) == TEAM_HUMANS &&
-        BG_FindBuildWeaponForBuildable( i ) & uiInfo.weapons &&
-        BG_FindStagesForBuildable( i, stage ) &&
+    if( BG_Buildable( i )->team == TEAM_HUMANS &&
+        BG_Buildable( i )->buildWeapon & uiInfo.weapons &&
+        BG_BuildableAllowedInStage( i, stage ) &&
         BG_BuildableIsAllowed( i ) )
     {
       uiInfo.humanBuildList[ j ].text =
-        String_Alloc( BG_FindHumanNameForBuildable( i ) );
+        String_Alloc( BG_Buildable( i )->humanName );
       uiInfo.humanBuildList[ j ].cmd =
-        String_Alloc( va( "cmd build %s\n", BG_FindNameForBuildable( i ) ) );
+        String_Alloc( va( "cmd build %s\n", BG_Buildable( i )->name ) );
       uiInfo.humanBuildList[ j ].type = INFOTYPE_BUILDABLE;
       uiInfo.humanBuildList[ j ].v.buildable = i;
 
@@ -3845,7 +3846,7 @@ void UI_Init( qboolean inGameLoad )
 {
   int start;
 
-  BG_InitClassOverrides( );
+  BG_InitClassConfigs( );
   BG_InitAllowedGameElements( );
 
   uiInfo.inGameLoad = inGameLoad;

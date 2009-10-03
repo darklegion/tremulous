@@ -286,8 +286,8 @@ static void PM_Friction( void )
       // if getting knocked back, no friction
       if( !( pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) )
       {
-        float stopSpeed = BG_FindStopSpeedForClass( pm->ps->stats[ STAT_CLASS ] );
-        float friction = BG_FindFrictionForClass( pm->ps->stats[ STAT_CLASS ] );
+        float stopSpeed = BG_Class( pm->ps->stats[ STAT_CLASS ] )->stopSpeed;
+        float friction = BG_Class( pm->ps->stats[ STAT_CLASS ] )->friction;
 
         // when landing a dodge, extra friction
         if( pm->ps->pm_flags & PMF_TIME_LAND )
@@ -449,7 +449,7 @@ static float PM_CmdScale( usercmd_t *cmd )
 
   if( pm->ps->pm_type != PM_SPECTATOR && pm->ps->pm_type != PM_NOCLIP )
   {
-    if( BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_CLASS ] ) == 0.0f )
+    if( BG_Class( pm->ps->stats[ STAT_CLASS ] )->jumpMagnitude == 0.0f )
       cmd->upmove = 0;
 
     //prevent speed distortions for non ducking classes
@@ -675,7 +675,7 @@ static qboolean PM_CheckWallJump( void )
   VectorMA( dir, upFraction, refNormal, dir );
   VectorNormalize( dir );
 
-  VectorMA( pm->ps->velocity, BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_CLASS ] ),
+  VectorMA( pm->ps->velocity, BG_Class( pm->ps->stats[ STAT_CLASS ] )->jumpMagnitude,
             dir, pm->ps->velocity );
 
   //for a long run of wall jumps the velocity can get pretty large, this caps it
@@ -713,7 +713,7 @@ static qboolean PM_CheckJump( void )
 {
   vec3_t normal;
 
-  if( BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_CLASS ] ) == 0.0f )
+  if( BG_Class( pm->ps->stats[ STAT_CLASS ] )->jumpMagnitude == 0.0f )
     return qfalse;
 
   if( BG_ClassHasAbility( pm->ps->stats[ STAT_CLASS ], SCA_WALLJUMPER ) )
@@ -770,7 +770,7 @@ static qboolean PM_CheckJump( void )
   // jump away from wall
   BG_GetClientNormal( pm->ps, normal );
 
-  VectorMA( pm->ps->velocity, BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_CLASS ] ),
+  VectorMA( pm->ps->velocity, BG_Class( pm->ps->stats[ STAT_CLASS ] )->jumpMagnitude,
             normal, pm->ps->velocity );
 
   PM_AddEvent( EV_JUMP );
@@ -903,7 +903,7 @@ static qboolean PM_CheckDodge( void )
   forward[ 2 ] = 0.0f;
 
   // Dodge magnitude is based on the jump magnitude scaled by the modifiers
-  jump = BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_CLASS ] );
+  jump = BG_Class( pm->ps->stats[ STAT_CLASS ] )->jumpMagnitude;
   if( pm->cmd.rightmove && pm->cmd.forwardmove )
     jump *= ( 0.5f * M_SQRT2 );
 
@@ -1183,7 +1183,7 @@ static void PM_AirMove( void )
 
   // not on ground, so little effect on velocity
   PM_Accelerate( wishdir, wishspeed,
-    BG_FindAirAccelerationForClass( pm->ps->stats[ STAT_CLASS ] ) );
+    BG_Class( pm->ps->stats[ STAT_CLASS ] )->airAcceleration );
 
   // we may have a ground plane that is very steep, even
   // though we don't have a groundentity
@@ -1281,9 +1281,9 @@ static void PM_ClimbMove( void )
   // when a player gets hit, they temporarily lose
   // full control, which allows them to be moved a bit
   if( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK )
-    accelerate = BG_FindAirAccelerationForClass( pm->ps->stats[ STAT_CLASS ] );
+    accelerate = BG_Class( pm->ps->stats[ STAT_CLASS ] )->airAcceleration;
   else
-    accelerate = BG_FindAccelerationForClass( pm->ps->stats[ STAT_CLASS ] );
+    accelerate = BG_Class( pm->ps->stats[ STAT_CLASS ] )->acceleration;
 
   PM_Accelerate( wishdir, wishspeed, accelerate );
 
@@ -1399,9 +1399,9 @@ static void PM_WalkMove( void )
   // when a player gets hit, they temporarily lose
   // full control, which allows them to be moved a bit
   if( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK )
-    accelerate = BG_FindAirAccelerationForClass( pm->ps->stats[ STAT_CLASS ] );
+    accelerate = BG_Class( pm->ps->stats[ STAT_CLASS ] )->airAcceleration;
   else
-    accelerate = BG_FindAccelerationForClass( pm->ps->stats[ STAT_CLASS ] );
+    accelerate = BG_Class( pm->ps->stats[ STAT_CLASS ] )->acceleration;
 
   PM_Accelerate( wishdir, wishspeed, accelerate );
 
@@ -2410,8 +2410,9 @@ static void PM_CheckDuck (void)
   vec3_t PCmins, PCmaxs, PCcmaxs;
   int PCvh, PCcvh;
 
-  BG_FindBBoxForClass( pm->ps->stats[ STAT_CLASS ], PCmins, PCmaxs, PCcmaxs, NULL, NULL );
-  BG_FindViewheightForClass( pm->ps->stats[ STAT_CLASS ], &PCvh, &PCcvh );
+  BG_ClassBoundingBox( pm->ps->stats[ STAT_CLASS ], PCmins, PCmaxs, PCcmaxs, NULL, NULL );
+  PCvh = BG_ClassConfig( pm->ps->stats[ STAT_CLASS ] )->viewheight;
+  PCcvh = BG_ClassConfig( pm->ps->stats[ STAT_CLASS ] )->crouchViewheight;
 
   if( pm->ps->persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT )
     PCcvh = PCvh;
@@ -2644,7 +2645,7 @@ static void PM_Footsteps( void )
     }
   }
 
-  bobmove *= BG_FindBobCycleForClass( pm->ps->stats[ STAT_CLASS ] );
+  bobmove *= BG_Class( pm->ps->stats[ STAT_CLASS ] )->bobCycle;
 
   if( pm->ps->stats[ STAT_STATE ] & SS_SPEEDBOOST )
     bobmove *= HUMAN_SPRINT_MODIFIER;
@@ -3010,15 +3011,15 @@ static void PM_Weapon( void )
     return;
   }
 
-  BG_FindAmmoForWeapon( pm->ps->weapon, NULL, &maxClips );
+  maxClips = BG_Weapon( pm->ps->weapon )->maxClips;
 
   // check for out of ammo
-  if( !pm->ps->ammo && !pm->ps->clips && !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
+  if( !pm->ps->ammo && !pm->ps->clips && !BG_Weapon( pm->ps->weapon )->infiniteAmmo )
   {
     if( ( pm->cmd.buttons & BUTTON_ATTACK ) ||
-        ( BG_WeaponHasAltMode( pm->ps->weapon ) &&
+        ( BG_Weapon( pm->ps->weapon )->hasAltMode &&
           ( pm->cmd.buttons & BUTTON_ATTACK2 ) ) ||
-        ( BG_WeaponHasThirdMode( pm->ps->weapon ) &&
+        ( BG_Weapon( pm->ps->weapon )->hasThirdMode &&
           ( pm->cmd.buttons & BUTTON_USE_HOLDABLE ) ) )
     {
       PM_AddEvent( EV_NOAMMO );
@@ -3039,10 +3040,10 @@ static void PM_Weapon( void )
     if( maxClips > 0 )
     {
       pm->ps->clips--;
-      BG_FindAmmoForWeapon( pm->ps->weapon, &pm->ps->ammo, NULL );
+      pm->ps->ammo = BG_Weapon( pm->ps->weapon )->maxAmmo;
     }
 
-    if( BG_FindUsesEnergyForWeapon( pm->ps->weapon ) &&
+    if( BG_Weapon( pm->ps->weapon )->usesEnergy &&
         BG_InventoryContainsUpgrade( UP_BATTPACK, pm->ps->stats ) )
       pm->ps->ammo *= BATTPACK_MODIFIER;
 
@@ -3062,7 +3063,7 @@ static void PM_Weapon( void )
     PM_StartTorsoAnim( TORSO_DROP );
     PM_StartWeaponAnim( WANIM_RELOAD );
 
-    pm->ps->weaponTime += BG_FindReloadTimeForWeapon( pm->ps->weapon );
+    pm->ps->weaponTime += BG_Weapon( pm->ps->weapon )->reloadTime;
     return;
   }
 
@@ -3169,7 +3170,7 @@ static void PM_Weapon( void )
   // fire events for non auto weapons
   if( attack3 )
   {
-    if( BG_WeaponHasThirdMode( pm->ps->weapon ) )
+    if( BG_Weapon( pm->ps->weapon )->hasThirdMode )
     {
       //hacky special case for slowblob
       if( pm->ps->weapon == WP_ALEVEL3_UPG && !pm->ps->ammo )
@@ -3180,7 +3181,7 @@ static void PM_Weapon( void )
 
       pm->ps->generic1 = WPM_TERTIARY;
       PM_AddEvent( EV_FIRE_WEAPON3 );
-      addTime = BG_FindRepeatRate3ForWeapon( pm->ps->weapon );
+      addTime = BG_Weapon( pm->ps->weapon )->repeatRate3;
     }
     else
     {
@@ -3192,11 +3193,11 @@ static void PM_Weapon( void )
   }
   else if( attack2 )
   {
-    if( BG_WeaponHasAltMode( pm->ps->weapon ) )
+    if( BG_Weapon( pm->ps->weapon )->hasAltMode )
     {
       pm->ps->generic1 = WPM_SECONDARY;
       PM_AddEvent( EV_FIRE_WEAPON2 );
-      addTime = BG_FindRepeatRate2ForWeapon( pm->ps->weapon );
+      addTime = BG_Weapon( pm->ps->weapon )->repeatRate2;
     }
     else
     {
@@ -3210,7 +3211,7 @@ static void PM_Weapon( void )
   {
     pm->ps->generic1 = WPM_PRIMARY;
     PM_AddEvent( EV_FIRE_WEAPON );
-    addTime = BG_FindRepeatRate1ForWeapon( pm->ps->weapon );
+    addTime = BG_Weapon( pm->ps->weapon )->repeatRate1;
   }
 
   // fire events for autohit weapons
@@ -3221,14 +3222,14 @@ static void PM_Weapon( void )
       case WP_ALEVEL0:
         pm->ps->generic1 = WPM_PRIMARY;
         PM_AddEvent( EV_FIRE_WEAPON );
-        addTime = BG_FindRepeatRate1ForWeapon( pm->ps->weapon );
+        addTime = BG_Weapon( pm->ps->weapon )->repeatRate1;
         break;
 
       case WP_ALEVEL3:
       case WP_ALEVEL3_UPG:
         pm->ps->generic1 = WPM_SECONDARY;
         PM_AddEvent( EV_FIRE_WEAPON2 );
-        addTime = BG_FindRepeatRate2ForWeapon( pm->ps->weapon );
+        addTime = BG_Weapon( pm->ps->weapon )->repeatRate2;
         break;
 
       default:
@@ -3325,7 +3326,7 @@ static void PM_Weapon( void )
     pm->ps->weaponstate = WEAPON_FIRING;
 
   // take an ammo away if not infinite
-  if( !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) ||
+  if( !BG_Weapon( pm->ps->weapon )->infiniteAmmo ||
       ( pm->ps->weapon == WP_ALEVEL3_UPG && attack3 ) )
   {
     // Special case for lcannon
@@ -3567,7 +3568,7 @@ void PmoveSingle( pmove_t *pmove )
   // set the firing flag for continuous beam weapons
   if( !(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION &&
       ( pm->cmd.buttons & BUTTON_ATTACK ) &&
-      ( ( pm->ps->ammo > 0 || pm->ps->clips > 0 ) || BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) ) )
+      ( ( pm->ps->ammo > 0 || pm->ps->clips > 0 ) || BG_Weapon( pm->ps->weapon )->infiniteAmmo ) )
     pm->ps->eFlags |= EF_FIRING;
   else
     pm->ps->eFlags &= ~EF_FIRING;
@@ -3575,7 +3576,7 @@ void PmoveSingle( pmove_t *pmove )
   // set the firing flag for continuous beam weapons
   if( !(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION &&
       ( pm->cmd.buttons & BUTTON_ATTACK2 ) &&
-      ( ( pm->ps->ammo > 0 || pm->ps->clips > 0 ) || BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) ) )
+      ( ( pm->ps->ammo > 0 || pm->ps->clips > 0 ) || BG_Weapon( pm->ps->weapon )->infiniteAmmo ) )
     pm->ps->eFlags |= EF_FIRING2;
   else
     pm->ps->eFlags &= ~EF_FIRING2;
@@ -3583,7 +3584,7 @@ void PmoveSingle( pmove_t *pmove )
   // set the firing flag for continuous beam weapons
   if( !(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION &&
       ( pm->cmd.buttons & BUTTON_USE_HOLDABLE ) &&
-      ( ( pm->ps->ammo > 0 || pm->ps->clips > 0 ) || BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) ) )
+      ( ( pm->ps->ammo > 0 || pm->ps->clips > 0 ) || BG_Weapon( pm->ps->weapon )->infiniteAmmo ) )
     pm->ps->eFlags |= EF_FIRING3;
   else
     pm->ps->eFlags &= ~EF_FIRING3;

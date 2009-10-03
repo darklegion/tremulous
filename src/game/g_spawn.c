@@ -324,7 +324,8 @@ qboolean G_CallSpawn( gentity_t *ent )
   }
 
   //check buildable spawn functions
-  if( ( buildable = BG_FindBuildNumForEntityName( ent->classname ) ) != BA_NONE )
+  buildable = BG_BuildableByEntityName( ent->classname )->number;
+  if( buildable != BA_NONE )
   {
     // don't spawn built-in buildings if we are using a custom layout
     if( level.layout[ 0 ] && Q_stricmp( level.layout, "*BUILTIN*" ) )

@@ -162,7 +162,7 @@ static entityState_t *CG_BuildableInRange( playerState_t *ps, float *healthFract
   }
 
   if( es->eType == ET_BUILDABLE &&
-      ps->stats[ STAT_TEAM ] == BG_FindTeamForBuildable( es->modelindex ) )
+      ps->stats[ STAT_TEAM ] == BG_Buildable( es->modelindex )->team )
     return es;
   else
     return NULL;
@@ -183,12 +183,12 @@ static void CG_AlienBuilderText( char *text, playerState_t *ps )
     Q_strcat( text, MAX_TUTORIAL_TEXT,
         va( "Press %s to place the %s\n",
           CG_KeyNameForCommand( "+attack" ),
-          BG_FindHumanNameForBuildable( buildable ) ) );
+          BG_Buildable( buildable )->humanName ) );
 
     Q_strcat( text, MAX_TUTORIAL_TEXT,
         va( "Press %s to cancel placing the %s\n",
           CG_KeyNameForCommand( "+button5" ),
-          BG_FindHumanNameForBuildable( buildable ) ) );
+          BG_Buildable( buildable )->humanName ) );
   }
   else
   {
@@ -360,12 +360,12 @@ static void CG_HumanCkitText( char *text, playerState_t *ps )
     Q_strcat( text, MAX_TUTORIAL_TEXT,
         va( "Press %s to place the %s\n",
           CG_KeyNameForCommand( "+attack" ),
-          BG_FindHumanNameForBuildable( buildable ) ) );
+          BG_Buildable( buildable )->humanName ) );
 
     Q_strcat( text, MAX_TUTORIAL_TEXT,
         va( "Press %s to cancel placing the %s\n",
           CG_KeyNameForCommand( "+button5" ),
-          BG_FindHumanNameForBuildable( buildable ) ) );
+          BG_Buildable( buildable )->humanName ) );
   }
   else
   {
@@ -428,7 +428,7 @@ static void CG_HumanText( char *text, playerState_t *ps )
     upgrade = cg.weaponSelect - 32;
   }
 
-  if( !ps->ammo && !ps->clips && !BG_FindInfinteAmmoForWeapon( ps->weapon ) )
+  if( !ps->ammo && !ps->clips && !BG_Weapon( ps->weapon )->infiniteAmmo )
   {
     //no ammo
     switch( ps->weapon )
@@ -469,14 +469,14 @@ static void CG_HumanText( char *text, playerState_t *ps )
         Q_strcat( text, MAX_TUTORIAL_TEXT,
             va( "Press %s to fire the %s\n",
               CG_KeyNameForCommand( "+attack" ),
-              BG_FindHumanNameForWeapon( ps->weapon ) ) );
+              BG_Weapon( ps->weapon )->humanName ) );
         break;
 
       case WP_MASS_DRIVER:
         Q_strcat( text, MAX_TUTORIAL_TEXT,
             va( "Press %s to fire the %s\n",
               CG_KeyNameForCommand( "+attack" ),
-              BG_FindHumanNameForWeapon( ps->weapon ) ) );
+              BG_Weapon( ps->weapon )->humanName ) );
 
         Q_strcat( text, MAX_TUTORIAL_TEXT,
             va( "Hold %s to zoom\n",
@@ -487,7 +487,7 @@ static void CG_HumanText( char *text, playerState_t *ps )
         Q_strcat( text, MAX_TUTORIAL_TEXT,
             va( "Hold %s to activate the %s\n",
               CG_KeyNameForCommand( "+attack" ),
-              BG_FindHumanNameForWeapon( ps->weapon ) ) );
+              BG_Weapon( ps->weapon )->humanName ) );
         break;
 
       case WP_LUCIFER_CANNON:
@@ -498,7 +498,7 @@ static void CG_HumanText( char *text, playerState_t *ps )
         Q_strcat( text, MAX_TUTORIAL_TEXT,
             va( "Press %s to fire the %s\n",
               CG_KeyNameForCommand( "+button5" ),
-              BG_FindHumanNameForWeapon( ps->weapon ) ) );
+              BG_Weapon( ps->weapon )->humanName ) );
         break;
 
       case WP_HBUILD:
@@ -518,7 +518,7 @@ static void CG_HumanText( char *text, playerState_t *ps )
           CG_KeyNameForCommand( "weapnext" ) ) );
 
   if( upgrade == UP_NONE ||
-      ( upgrade > UP_NONE && BG_FindUsableForUpgrade( upgrade ) ) )
+      ( upgrade > UP_NONE && BG_Upgrade( upgrade )->usable ) )
   {
     Q_strcat( text, MAX_TUTORIAL_TEXT,
         va( "Press %s to use the %s\n",
@@ -532,7 +532,7 @@ static void CG_HumanText( char *text, playerState_t *ps )
     Q_strcat( text, MAX_TUTORIAL_TEXT,
         va( "Press %s to use your %s\n",
           CG_KeyNameForCommand( "itemact medkit" ),
-          BG_FindHumanNameForUpgrade( UP_MEDKIT ) ) );
+          BG_Upgrade( UP_MEDKIT )->humanName ) );
   }
 
   Q_strcat( text, MAX_TUTORIAL_TEXT,

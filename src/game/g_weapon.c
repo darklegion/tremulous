@@ -94,15 +94,16 @@ void G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo )
   {
     qboolean energyWeapon;
   
-    energyWeapon = BG_FindUsesEnergyForWeapon( i );
+    energyWeapon = BG_Weapon( i )->usesEnergy;
     if( !BG_InventoryContainsWeapon( i, ent->client->ps.stats ) ||
-        BG_FindInfinteAmmoForWeapon( i ) ||
+        BG_Weapon( i )->infiniteAmmo ||
         BG_WeaponIsFull( i, ent->client->ps.stats,
                          ent->client->ps.ammo, ent->client->ps.clips ) ||
         ( buyingEnergyAmmo && !energyWeapon ) )
       continue;
       
-    BG_FindAmmoForWeapon( i, &maxAmmo, &maxClips );
+    maxAmmo = BG_Weapon( i )->maxAmmo;
+    maxClips = BG_Weapon( i )->maxClips;
     
     // Apply battery pack modifier
     if( energyWeapon &&
@@ -825,7 +826,7 @@ void cancelBuildFire( gentity_t *ent )
         return;
       }
 
-      bHealth = BG_FindHealthForBuildable( traceEnt->s.modelindex );
+      bHealth = BG_Buildable( traceEnt->s.modelindex )->health;
       traceEnt->health += HBUILD_HEALRATE;
       if( traceEnt->health >= bHealth )
       {
@@ -867,7 +868,7 @@ void buildFire( gentity_t *ent, dynMenu_t menu )
       if( !g_cheats.integer )
       {
         ent->client->ps.stats[ STAT_MISC ] +=
-          BG_FindBuildTimeForBuildable( buildable );
+          BG_Buildable( buildable )->buildTime;
       }
 
       ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
@@ -1131,7 +1132,7 @@ void G_UpdateZaps( gentity_t *ent )
     if( ( ( enemy->client &&
             enemy->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ) ||
         ( enemy->s.eType == ET_BUILDABLE &&
-          BG_FindTeamForBuildable( enemy->s.modelindex ) == TEAM_HUMANS ) ) &&
+          BG_Buildable( enemy->s.modelindex )->team == TEAM_HUMANS ) ) &&
         enemy->health > 0 )
     {
 
@@ -1340,7 +1341,7 @@ void G_CrushAttack( gentity_t *ent, gentity_t *victim )
     return;
 
   // Deal velocity based damage to target
-  jump = BG_FindJumpMagnitudeForClass( ent->client->ps.stats[ STAT_CLASS ] );
+  jump = BG_Class( ent->client->ps.stats[ STAT_CLASS ] )->jumpMagnitude;
   damage = ( ent->client->pmext.fallVelocity + jump ) *
            -LEVEL4_CRUSH_DAMAGE_PER_V;
 

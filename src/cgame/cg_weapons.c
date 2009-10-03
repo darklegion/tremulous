@@ -49,15 +49,15 @@ void CG_RegisterUpgrade( int upgradeNum )
   memset( upgradeInfo, 0, sizeof( *upgradeInfo ) );
   upgradeInfo->registered = qtrue;
 
-  if( !BG_FindNameForUpgrade( upgradeNum ) )
+  if( strlen( BG_Upgrade( upgradeNum )->name ) <= 0 )
     CG_Error( "Couldn't find upgrade %i", upgradeNum );
 
-  upgradeInfo->humanName = BG_FindHumanNameForUpgrade( upgradeNum );
+  upgradeInfo->humanName = BG_Upgrade( upgradeNum )->humanName;
 
   //la la la la la, i'm not listening!
   if( upgradeNum == UP_GRENADE )
     upgradeInfo->upgradeIcon = cg_weapons[ WP_GRENADE ].weaponIcon;
-  else if( ( icon = BG_FindIconForUpgrade( upgradeNum ) ) )
+  else if( ( icon = BG_Upgrade( upgradeNum )->icon ) )
     upgradeInfo->upgradeIcon = trap_R_RegisterShader( icon );
 }
 
@@ -714,17 +714,17 @@ void CG_RegisterWeapon( int weaponNum )
   memset( weaponInfo, 0, sizeof( *weaponInfo ) );
   weaponInfo->registered = qtrue;
 
-  if( !BG_FindNameForWeapon( weaponNum ) )
+  if( strlen( BG_Weapon( weaponNum )->name ) <= 0 )
     CG_Error( "Couldn't find weapon %i", weaponNum );
 
-  Com_sprintf( path, MAX_QPATH, "models/weapons/%s/weapon.cfg", BG_FindNameForWeapon( weaponNum ) );
+  Com_sprintf( path, MAX_QPATH, "models/weapons/%s/weapon.cfg", BG_Weapon( weaponNum )->name );
 
-  weaponInfo->humanName = BG_FindHumanNameForWeapon( weaponNum );
+  weaponInfo->humanName = BG_Weapon( weaponNum )->humanName;
 
   if( !CG_ParseWeaponFile( path, weaponInfo ) )
     Com_Printf( S_COLOR_RED "ERROR: failed to parse %s\n", path );
 
-  Com_sprintf( path, MAX_QPATH, "models/weapons/%s/animation.cfg", BG_FindNameForWeapon( weaponNum ) );
+  Com_sprintf( path, MAX_QPATH, "models/weapons/%s/animation.cfg", BG_Weapon( weaponNum )->name );
 
   if( !CG_ParseWeaponAnimationFile( path, weaponInfo ) )
     Com_Printf( S_COLOR_RED "ERROR: failed to parse %s\n", path );
@@ -868,7 +868,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles )
 
   // gun angles from bobbing
   // bob amount is class dependant
-  bob = BG_FindBobForClass( cg.predictedPlayerState.stats[ STAT_CLASS ] );
+  bob = BG_Class( cg.predictedPlayerState.stats[ STAT_CLASS ] )->bob;
 
   if( bob != 0 )
   {
@@ -1299,7 +1299,7 @@ static qboolean CG_UpgradeSelectable( upgrade_t upgrade )
   if( !BG_InventoryContainsUpgrade( upgrade, cg.snap->ps.stats ) )
     return qfalse;
 
-  return BG_FindUsableForUpgrade( upgrade );
+  return BG_Upgrade( upgrade )->usable;
 }
 
 
@@ -1344,7 +1344,7 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
     if( !BG_InventoryContainsWeapon( i, cg.snap->ps.stats ) )
       continue;
 
-    if( !ps->ammo && !ps->clips && !BG_FindInfinteAmmoForWeapon( i ) )
+    if( !ps->ammo && !ps->clips && !BG_Weapon( i )->infiniteAmmo )
       colinfo[ numItems ] = 1;
     else
       colinfo[ numItems ] = 0;
@@ -1363,7 +1363,7 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
     if( !BG_InventoryContainsUpgrade( i, cg.snap->ps.stats ) )
       continue;
     colinfo[ numItems ] = 0;
-    if( !BG_FindUsableForUpgrade ( i ) )
+    if( !BG_Upgrade( i )->usable )
       colinfo[ numItems ] = 2;
 
     if( i == cg.weaponSelect - 32 )

@@ -353,7 +353,7 @@ static void CG_StepOffset( void )
 
   BG_GetClientNormal( ps, normal );
 
-  steptime = BG_FindSteptimeForClass( ps->stats[ STAT_CLASS ] );
+  steptime = BG_Class( ps->stats[ STAT_CLASS ] )->steptime;
 
   // smooth out stair climbing
   timeDelta = cg.time - cg.stepTime;
@@ -460,7 +460,7 @@ static void CG_OffsetFirstPersonView( void )
   if( cg.snap->ps.persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT )
     bob2 = 0.0f;
   else
-    bob2 = BG_FindBobForClass( cg.predictedPlayerState.stats[ STAT_CLASS ] );
+    bob2 = BG_Class( cg.predictedPlayerState.stats[ STAT_CLASS ] )->bob;
 
 
 #define LEVEL4_FEEDBACK  10.0f
@@ -699,7 +699,7 @@ static int CG_CalcFov( void )
   else
   {
     // don't lock the fov globally - we need to be able to change it
-    attribFov = BG_FindFovForClass( cg.predictedPlayerState.stats[ STAT_CLASS ] );
+    attribFov = BG_Class( cg.predictedPlayerState.stats[ STAT_CLASS ] )->fov;
     fov_x = attribFov;
 
     if ( fov_x < 1 )
@@ -721,7 +721,7 @@ static int CG_CalcFov( void )
     }
 
     // account for zooms
-    zoomFov = BG_FindZoomFovForWeapon( cg.predictedPlayerState.weapon );
+    zoomFov = BG_Weapon( cg.predictedPlayerState.weapon )->zoomFov;
     if ( zoomFov < 1 )
       zoomFov = 1;
     else if ( zoomFov > attribFov )
@@ -729,7 +729,7 @@ static int CG_CalcFov( void )
 
     // only do all the zoom stuff if the client CAN zoom
     // FIXME: zoom control is currently hard coded to BUTTON_ATTACK2
-    if( BG_WeaponCanZoom( cg.predictedPlayerState.weapon ) )
+    if( BG_Weapon( cg.predictedPlayerState.weapon )->canZoom )
     {
       if ( cg.zoomed )
       {

@@ -155,13 +155,13 @@ float G_RewardAttackers( gentity_t *self )
   }
   else if( self->s.eType == ET_BUILDABLE )
   {
-    value = BG_FindValueOfBuildable( self->s.modelindex );
+    value = BG_Buildable( self->s.modelindex )->value;
 
     // only give partial credits for a buildable not yet completed
     if( !self->spawned )
     {
       value *= (float)( level.time - self->buildTime ) /
-          BG_FindBuildTimeForBuildable( self->s.modelindex );
+          BG_Buildable( self->s.modelindex )->buildTime;
     }
 
     team = self->buildableTeam;
@@ -782,7 +782,7 @@ void G_InitDamageLocations( void )
 
   for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
   {
-    modelName = BG_FindModelNameForClass( i );
+    modelName = BG_ClassConfig( i )->modelName;
     Com_sprintf( filename, sizeof( filename ),
                  "models/players/%s/locdamage.cfg", modelName );
 
@@ -810,7 +810,7 @@ void G_InitDamageLocations( void )
 
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
-    modelName = BG_FindNameForUpgrade( i );
+    modelName = BG_Upgrade( i )->name;
     Com_sprintf( filename, sizeof( filename ), "armour/%s.armour", modelName );
 
     len = trap_FS_FOpenFile( filename, &fileHandle, FS_READ );
@@ -911,13 +911,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   if( inflictor->s.weapon != WP_NONE )
   {
     knockback = (int)( (float)knockback *
-      BG_FindKnockbackScaleForWeapon( inflictor->s.weapon ) );
+      BG_Weapon( inflictor->s.weapon )->knockbackScale );
   }
 
   if( targ->client )
   {
     knockback = (int)( (float)knockback *
-      BG_FindKnockbackScaleForClass( targ->client->ps.stats[ STAT_CLASS ] ) );
+      BG_Class( targ->client->ps.stats[ STAT_CLASS ] )->knockbackScale );
   }
 
   if( knockback > 200 )
