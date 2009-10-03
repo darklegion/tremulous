@@ -2371,7 +2371,7 @@ static const weaponAttributes_t bg_weapons[ ] =
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
     HBUILD_REPEAT,        //int       repeatRate1;
-    HBUILD_REPEAT,        //int       repeatRate2;
+    0,                    //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     0.0f,                 //float     knockbackScale;
