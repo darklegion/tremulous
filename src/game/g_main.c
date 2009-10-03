@@ -41,6 +41,7 @@ gclient_t   g_clients[ MAX_CLIENTS ];
 vmCvar_t  g_fraglimit;
 vmCvar_t  g_timelimit;
 vmCvar_t  g_suddenDeathTime;
+vmCvar_t  g_suddenDeath;
 vmCvar_t  g_capturelimit;
 vmCvar_t  g_friendlyFire;
 vmCvar_t  g_friendlyFireAliens;
@@ -74,6 +75,8 @@ vmCvar_t  g_podiumDist;
 vmCvar_t  g_podiumDrop;
 vmCvar_t  g_allowVote;
 vmCvar_t  g_voteLimit;
+vmCvar_t  g_suddenDeathVotePercent;
+vmCvar_t  g_suddenDeathVoteDelay;
 vmCvar_t  g_teamAutoJoin;
 vmCvar_t  g_teamForceBalance;
 vmCvar_t  g_banIPs;
@@ -166,6 +169,7 @@ static cvarTable_t   gameCvarTable[ ] =
 
   { &g_timelimit, "timelimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
   { &g_suddenDeathTime, "g_suddenDeathTime", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+  { &g_suddenDeath, "g_suddenDeath", "0", CVAR_SERVERINFO | CVAR_NORESTART, 0, qtrue },
 
   { &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
 
@@ -209,6 +213,8 @@ static cvarTable_t   gameCvarTable[ ] =
 
   { &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse },
   { &g_voteLimit, "g_voteLimit", "5", CVAR_ARCHIVE, 0, qfalse },
+  { &g_suddenDeathVotePercent, "g_suddenDeathVotePercent", "74", CVAR_ARCHIVE, 0, qfalse },
+  { &g_suddenDeathVoteDelay, "g_suddenDeathVoteDelay", "180", CVAR_ARCHIVE, 0, qfalse },
   { &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
   { &g_minCommandPeriod, "g_minCommandPeriod", "500", 0, 0, qfalse},
   { &g_minNameChangePeriod, "g_minNameChangePeriod", "5", 0, 0, qfalse},
@@ -637,6 +643,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   trap_Cvar_Set( "g_humanStage", va( "%d", S1 ) );
   trap_Cvar_Set( "g_alienCredits", 0 );
   trap_Cvar_Set( "g_humanCredits", 0 );
+  trap_Cvar_Set( "g_suddenDeath", 0 );
+  level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
 
   G_Printf( "-----------------------------------\n" );
 
@@ -1045,11 +1053,11 @@ G_TimeTilSuddenDeath
 */
 int G_TimeTilSuddenDeath( void )
 {
-  if( !g_suddenDeathTime.integer )
+  if( ( !g_suddenDeathTime.integer && level.suddenDeathBeginTime==0 ) || 
+      ( level.suddenDeathBeginTime < 0 ) )
     return 1; // Always some time away
 
-  return ( g_suddenDeathTime.integer * 60000 ) -
-         ( level.time - level.startTime );
+  return ( ( level.suddenDeathBeginTime ) - ( level.time - level.startTime ) );
 }
 
 
@@ -1070,6 +1078,7 @@ void G_CalculateBuildPoints( void )
   int         localHTP = level.humanBuildPoints = g_humanBuildPoints.integer,
               localATP = level.alienBuildPoints = g_alienBuildPoints.integer;
 
+  // BP queue updates
   while( level.alienBuildPointQueue > 0 &&
          level.alienNextQueueTime < level.time )
   {
@@ -1084,35 +1093,63 @@ void G_CalculateBuildPoints( void )
     level.humanNextQueueTime += g_alienBuildQueueTime.integer;
   }
 
-  if( g_suddenDeathTime.integer && !level.warmupTime )
+  // Sudden Death checks
+
+  // Note: g_suddenDeath sets what is going on and level.suddenDeath 
+  // trails it to run stuff here. They're only inconsistent for as long 
+  // as it takes this function to run once and update
+
+  // reset if SD was on, but now it's off
+  if( !g_suddenDeath.integer && level.suddenDeath )
   {
-    if( G_TimeTilSuddenDeath( ) <= 0 )
+    level.suddenDeath = qfalse;
+    level.suddenDeathWarning = 0;
+    level.suddenDeathBeginTime = -1;
+    if( ( level.time - level.startTime ) < ( g_suddenDeathTime.integer * 60000 ) )
+      level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
+    else
+      level.suddenDeathBeginTime = -1;
+  }
+
+  // SD checks and warnings 
+  if( !level.suddenDeath )
+  {
+    // check conditions to enter sudden death
+    if( !level.warmupTime &&
+        ( g_suddenDeath.integer || G_TimeTilSuddenDeath( ) <= 0 ) )
     {
+      // begin sudden death
       localHTP = 0;
       localATP = 0;
 
-      //warn about sudden death
       if( level.suddenDeathWarning < TW_PASSED )
       {
+        G_LogPrintf( "Beginning Sudden Death\n" );
         trap_SendServerCommand( -1, "cp \"Sudden Death!\"" );
+
+        level.suddenDeathBeginTime = level.time;
+        level.suddenDeath=qtrue;
+        trap_Cvar_Set( "g_suddenDeath", "1" );
+
         level.suddenDeathWarning = TW_PASSED;
       }
     }
     else
     {
-      //warn about sudden death
+      // warn about sudden death
       if( G_TimeTilSuddenDeath( ) <= 60000 &&
           level.suddenDeathWarning < TW_IMMINENT )
       {
-        trap_SendServerCommand( -1, "cp \"Sudden Death in 1 minute!\"" );
+        trap_SendServerCommand( -1, va( "cp \"Sudden Death in %d seconds!\"", 
+              (int)(G_TimeTilSuddenDeath() / 1000 ) ) );
         level.suddenDeathWarning = TW_IMMINENT;
       }
     }
   }
-  else
+  else // it is SD already
   {
-    localHTP = g_humanBuildPoints.integer;
-    localATP = g_alienBuildPoints.integer;
+    localHTP = 0;
+    localATP = 0;
   }
 
   level.humanBuildPoints = localHTP - level.humanBuildPointQueue;
@@ -2119,6 +2156,9 @@ CheckVote
 */
 void CheckVote( void )
 {
+  int votePassThreshold = level.votePassThreshold;
+  int voteYesPercent;
+
   if( level.voteExecuteTime && level.voteExecuteTime < level.time )
   {
     level.voteExecuteTime = 0;
@@ -2129,37 +2169,63 @@ void CheckVote( void )
     {
       level.restarted = qtrue;
     }
+
+    if( !Q_stricmp( level.voteString, "suddendeath" ) )
+    {
+      level.suddenDeathBeginTime = level.time + 
+            ( 1000 * g_suddenDeathVoteDelay.integer ) - level.startTime;
+      level.voteString[0] = '\0';
+
+      if( g_suddenDeathVoteDelay.integer )
+        trap_SendServerCommand( -1, va("cp \"Sudden Death will begin in %d seconds\n\"", g_suddenDeathVoteDelay.integer  ) );
+    }
   }
 
   if( !level.voteTime )
     return;
 
-  if( level.time - level.voteTime >= VOTE_TIME )
+  if( level.voteYes + level.voteNo > 0 )
+    voteYesPercent = (int)( 100 * ( level.voteYes ) / ( level.voteYes + level.voteNo ) );
+  else
+    voteYesPercent = 0; 
+  
+  if( ( level.time - level.voteTime >= VOTE_TIME ) || 
+      ( level.voteYes + level.voteNo == level.numConnectedClients ) )
   {
-    if( level.voteYes > level.voteNo )
+    if( voteYesPercent> votePassThreshold || level.voteNo == 0 )
     {
       // execute the command, then remove the vote
-      trap_SendServerCommand( -1, "print \"Vote passed\n\"" );
+      trap_SendServerCommand( -1, va("print \"Vote passed (%d - %d)\n\"", 
+            level.voteYes, level.voteNo ) );
+      G_LogPrintf( "Vote: Vote passed (%d-%d)\n", level.voteYes, level.voteNo );
       level.voteExecuteTime = level.time + 3000;
     }
     else
     {
       // same behavior as a timeout
-      trap_SendServerCommand( -1, "print \"Vote failed\n\"" );
+      trap_SendServerCommand( -1, va("print \"Vote failed (%d - %d)\n\"",
+            level.voteYes, level.voteNo ) );
+      G_LogPrintf( "Vote: Vote failed (%d - %d)\n", level.voteYes, level.voteNo );
     }
   }
   else
   {
-    if( level.voteYes > level.numVotingClients / 2 )
+    if( level.voteYes > (int)( (double) level.numConnectedClients * 
+                                 ( (double) votePassThreshold/100.0 ) ) )
     {
       // execute the command, then remove the vote
-      trap_SendServerCommand( -1, "print \"Vote passed\n\"" );
+      trap_SendServerCommand( -1, va("print \"Vote passed (%d - %d)\n\"",
+            level.voteYes, level.voteNo ) );
+      G_LogPrintf( "Vote: Vote passed (%d - %d)\n", level.voteYes, level.voteNo );
       level.voteExecuteTime = level.time + 3000;
     }
-    else if( level.voteNo >= ceil( (float)level.numVotingClients / 2 ) )
+    else if( level.voteNo > (int)( (double) level.numConnectedClients * 
+                                     ( (double) ( 100.0-votePassThreshold )/ 100.0 ) ) )
     {
       // same behavior as a timeout
-      trap_SendServerCommand( -1, "print \"Vote failed\n\"" );
+      trap_SendServerCommand( -1, va("print \"Vote failed (%d - %d)\n\"",
+            level.voteYes, level.voteNo ) );
+      G_LogPrintf("Vote failed\n");
     }
     else
     {
@@ -2230,6 +2296,7 @@ void CheckCvars( void )
 {
   static int lastPasswordModCount   = -1;
   static int lastMarkDeconModCount  = -1;
+  static int lastSDTimeModCount = -1;
 
   if( g_password.modificationCount != lastPasswordModCount )
   {
@@ -2261,6 +2328,16 @@ void CheckCvars( void )
       ent->deconstruct = qfalse;
     }
   }
+
+  // If we change g_suddenDeathTime during a map, we need to update 
+  // when sd will begin 
+  if( g_suddenDeathTime.modificationCount != lastSDTimeModCount )
+  {
+    lastSDTimeModCount = g_suddenDeathTime.modificationCount;
+    level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
+  }
+
+  level.frameMsec = trap_Milliseconds( );
 }
 
 /*

@@ -537,6 +537,7 @@ typedef struct
   char              voteString[MAX_STRING_CHARS];
   char              voteDisplayString[MAX_STRING_CHARS];
   int               voteTime;                     // level.time vote was called
+  int               votePassThreshold;            // need at least this percent to pass
   int               voteExecuteTime;              // time the vote is executed
   int               voteYes;
   int               voteNo;
@@ -608,6 +609,8 @@ typedef struct
 
   team_t            lastWin;
 
+  qboolean          suddenDeath;
+  int               suddenDeathBeginTime;
   timeWarning_t     suddenDeathWarning;
   timeWarning_t     timelimitWarning;
 
@@ -1088,6 +1091,7 @@ extern  vmCvar_t  g_maxNameChanges;
 
 extern  vmCvar_t  g_timelimit;
 extern  vmCvar_t  g_suddenDeathTime;
+extern  vmCvar_t  g_suddenDeath;
 extern  vmCvar_t  g_friendlyFire;
 extern  vmCvar_t  g_friendlyFireHumans;
 extern  vmCvar_t  g_friendlyFireAliens;
@@ -1111,6 +1115,8 @@ extern  vmCvar_t  g_doWarmup;
 extern  vmCvar_t  g_blood;
 extern  vmCvar_t  g_allowVote;
 extern  vmCvar_t  g_voteLimit;
+extern  vmCvar_t  g_suddenDeathVotePercent;
+extern  vmCvar_t  g_suddenDeathVoteDelay;
 extern  vmCvar_t  g_teamAutoJoin;
 extern  vmCvar_t  g_teamForceBalance;
 extern  vmCvar_t  g_banIPs;

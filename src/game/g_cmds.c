@@ -1035,6 +1035,8 @@ void Cmd_CallVote_f( gentity_t *ent )
     trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
   }
 
+  level.votePassThreshold = 50;
+
   // detect clientNum for partial name match votes
   if( !Q_stricmp( arg1, "kick" ) ||
     !Q_stricmp( arg1, "mute" ) ||
@@ -1154,12 +1156,52 @@ void Cmd_CallVote_f( gentity_t *ent )
     Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ),
         "End match in a draw" );
   }
+  else if( !Q_stricmp( arg1, "sudden_death" ) ||
+    !Q_stricmp( arg1, "suddendeath" ) )
+  {
+    if(!g_suddenDeathVotePercent.integer)
+    {
+      trap_SendServerCommand( ent-g_entities, 
+            "print \"Sudden Death votes have been disabled\n\"" );
+      return;
+    } 
+    else if( g_suddenDeath.integer ) 
+    {
+      trap_SendServerCommand( ent - g_entities, 
+            va( "print \"callvote: Sudden Death has already begun\n\"") );
+      return;
+    }
+    else if( G_TimeTilSuddenDeath() <= g_suddenDeathVoteDelay.integer * 1000 )
+    {
+      trap_SendServerCommand( ent - g_entities, 
+            va( "print \"callvote: Sudden Death is already immenent\n\"") );
+      return;
+    }
+    else 
+    {
+      level.votePassThreshold = g_suddenDeathVotePercent.integer;
+      Com_sprintf( level.voteString, sizeof( level.voteString ), "suddendeath" );
+      Com_sprintf( level.voteDisplayString,
+          sizeof( level.voteDisplayString ), "Begin sudden death" );
+
+      if( g_suddenDeathVoteDelay.integer )
+        Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ),
+                  va( " in %d seconds", g_suddenDeathVoteDelay.integer ) );
+
+    }
+  }
   else
   {
     trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
     trap_SendServerCommand( ent-g_entities, "print \"Valid vote commands are: "
-      "map, map_restart, draw, kick, mute and unmute\n" );
+      "map, map_restart, sudden_death, draw, kick, mute and unmute\n" );
     return;
+  }
+
+  if( level.votePassThreshold != 50 )
+  {
+    Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), 
+              va( " (Needs > %d percent)", level.votePassThreshold ) );
   }
 
   trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
