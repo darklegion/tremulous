@@ -1270,7 +1270,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
     // max printable name length for formatting
     for( i = 0; i < MAX_ADMIN_LEVELS && g_admin_levels[ i ]; i++ )
     {
-      len = Q_PrintStrlen( l->name );
+      len = Q_PrintStrlen( g_admin_levels[ i ]->name );
       if( len > admin_level_maxname )
         admin_level_maxname = len;
     }
