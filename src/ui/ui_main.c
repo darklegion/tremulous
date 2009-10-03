@@ -51,7 +51,7 @@ static const char *netSources[ ] =
 
 static const int numNetSources = sizeof( netSources ) / sizeof( const char* );
 
-static const char* netnames[ ] =
+static const char *netnames[ ] =
 {
   "???",
   "UDP",
@@ -389,7 +389,7 @@ UI_GetServerStatusInfo
 */
 static int UI_GetServerStatusInfo( const char *serverAddress, serverStatusInfo_t *info )
 {
-  char * p, *score, *ping, *name;
+  char *p, *score, *ping, *name;
   int i, len;
 
   if( !info )
@@ -462,7 +462,7 @@ static int UI_GetServerStatusInfo( const char *serverAddress, serverStatusInfo_t
       while( p && *p )
       {
         if( *p == '\\' )
-          * p++ = '\0';
+          *p++ = '\0';
 
         if( !p )
           break;
@@ -1701,7 +1701,7 @@ static void UI_DrawSelectedMapName( rectDef_t *rect, float scale, vec4_t color, 
 
 static const char *UI_OwnerDrawText( int ownerDraw )
 {
-  const char * s = NULL;
+  const char *s = NULL;
 
   switch( ownerDraw )
   {
@@ -1755,7 +1755,7 @@ static const char *UI_OwnerDrawText( int ownerDraw )
 
 static int UI_OwnerDrawWidth( int ownerDraw, float scale )
 {
-  const char * s = NULL;
+  const char *s = NULL;
 
   switch( ownerDraw )
   {
@@ -2258,7 +2258,7 @@ static void UI_ParseCarriageList( void )
       iterator++;
 
       while( iterator[ 0 ] != ' ' )
-        * bufPointer++ = *iterator++;
+        *bufPointer++ = *iterator++;
 
       *bufPointer++ = '\n';
 
@@ -2271,7 +2271,7 @@ static void UI_ParseCarriageList( void )
       iterator++;
 
       while( iterator[ 0 ] != ' ' )
-        * bufPointer++ = *iterator++;
+        *bufPointer++ = *iterator++;
 
       *bufPointer++ = '\n';
 
@@ -2785,7 +2785,7 @@ static void UI_Update( const char *name )
 //FIXME: lookup table
 static void UI_RunMenuScript( char **args )
 {
-  const char * name, *name2;
+  const char *name, *name2;
   char buff[1024];
   const char *cmd;
 
@@ -3644,7 +3644,7 @@ static void UI_FeederSelection( float feederID, int index )
   }
   else if( feederID == FEEDER_SERVERS )
   {
-    const char * mapName = NULL;
+    const char *mapName = NULL;
     uiInfo.serverStatus.currentServer = index;
     trap_LAN_GetServerInfo( ui_netSource.integer, uiInfo.serverStatus.displayServers[index],
                             info, MAX_STRING_CHARS );
@@ -3951,7 +3951,7 @@ void UI_KeyEvent( int key, qboolean down )
 {
   if( Menu_Count() > 0 )
   {
-    menuDef_t * menu = Menu_GetFocused();
+    menuDef_t *menu = Menu_GetFocused();
 
     if( menu )
     {
@@ -4259,7 +4259,7 @@ UI_DrawConnectScreen
 */
 void UI_DrawConnectScreen( qboolean overlay )
 {
-  char      * s;
+  char      *s;
   uiClientState_t cstate;
   char      info[MAX_INFO_VALUE];
   char text[256];
