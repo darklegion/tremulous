@@ -2984,6 +2984,10 @@ static void CG_Draw2D( void )
   if( cg.levelShot )
     return;
 
+  // fading to black if stamina runs out
+  // (only 2D that can't be disabled)
+  CG_DrawLighting( );
+
   if( cg_draw2D.integer == 0 )
     return;
 
@@ -2993,24 +2997,22 @@ static void CG_Draw2D( void )
     return;
   }
 
-  CG_DrawLighting( );
-
-  if( cg.snap->ps.persistant[ PERS_SPECSTATE ] == SPECTATOR_NOT )
+  if( cg.snap->ps.persistant[ PERS_SPECSTATE ] == SPECTATOR_NOT &&
+      !( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) &&
+      cg.snap->ps.stats[ STAT_HEALTH ] > 0 )
   {
     menu = Menus_FindByName( BG_ClassConfig(
       cg.predictedPlayerState.stats[ STAT_CLASS ] )->hudName );
+
+    CG_DrawBuildableStatus( );
   }
 
   if( !menu )
+  {
     menu = Menus_FindByName( "default_hud" );
 
-  if( !menu ) // still couldn't find it
-    CG_Error( "Default HUD could not be found" );
-
-  if( !( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) &&
-      ( cg.snap->ps.stats[ STAT_HEALTH ] > 0 ) )
-  {
-    CG_DrawBuildableStatus( );
+    if( !menu ) // still couldn't find it
+      CG_Error( "Default HUD could not be found" );
   }
 
   Menu_Paint( menu, qtrue );
