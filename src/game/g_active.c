@@ -1471,6 +1471,11 @@ void ClientThink_real( gentity_t *ent )
       }
       ent->nextRegenTime += 1000 / ( regenRate * modifier );
     }
+    else
+    {
+      ent->health -= 1;
+      ent->nextRegenTime += 1000 / regenRate;
+    }
   }
 
   if( BG_InventoryContainsUpgrade( UP_GRENADE, client->ps.stats ) &&
