@@ -142,6 +142,7 @@ vmCvar_t  cg_tracerWidth;
 vmCvar_t  cg_tracerLength;
 vmCvar_t  cg_autoswitch;
 vmCvar_t  cg_thirdPerson;
+vmCvar_t  cg_thirdPersonShoulderView;
 vmCvar_t  cg_thirdPersonRange;
 vmCvar_t  cg_stereoSeparation;
 vmCvar_t  cg_lagometer;
@@ -264,6 +265,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_tracerWidth, "cg_tracerwidth", "1", CVAR_CHEAT },
   { &cg_tracerLength, "cg_tracerlength", "100", CVAR_CHEAT },
   { &cg_thirdPersonRange, "cg_thirdPersonRange", "75", CVAR_ARCHIVE },
+  { &cg_thirdPersonShoulderView, "cg_thirdPersonShoulderView", "0", CVAR_ARCHIVE },
   { &cg_thirdPerson, "cg_thirdPerson", "0", CVAR_CHEAT },
   { &cg_stats, "cg_stats", "0", 0 },
   { &cg_drawFriend, "cg_drawFriend", "1", CVAR_ARCHIVE },

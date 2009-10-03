@@ -574,9 +574,9 @@ static void CG_SpectatorText( char *text, playerState_t *ps )
 
   if( ps->pm_flags & PMF_FOLLOW )
   {
-    if( !cg.thirdPersonFollow )
+    if( !cg.chaseFollow )
       Q_strcat( text, MAX_TUTORIAL_TEXT,
-                va( "Press %s to switch to third-person spectator mode\n",
+                va( "Press %s to switch to chase-cam spectator mode\n",
                     CG_KeyNameForCommand( "+button2" ) ) );
     else
       Q_strcat( text, MAX_TUTORIAL_TEXT,

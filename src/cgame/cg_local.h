@@ -1100,8 +1100,7 @@ typedef struct
   vec3_t        kick_angles;                        // weapon kicks
   vec3_t        kick_origin;
 
-
-  qboolean      thirdPersonFollow;               
+  qboolean      chaseFollow;               
 
   // temp working variables for player view
   float         bobfracsin;
@@ -1486,6 +1485,7 @@ extern  vmCvar_t    cg_tracerLength;
 extern  vmCvar_t    cg_autoswitch;
 extern  vmCvar_t    cg_thirdPerson;
 extern  vmCvar_t    cg_thirdPersonRange;
+extern  vmCvar_t    cg_thirdPersonShoulderView;
 extern  vmCvar_t    cg_stereoSeparation;
 extern  vmCvar_t    cg_lagometer;
 extern  vmCvar_t    cg_synchronousClients;
@@ -1593,6 +1593,9 @@ void        CG_TestModelNextSkin_f( void );
 void        CG_TestModelPrevSkin_f( void );
 void        CG_AddBufferedSound( sfxHandle_t sfx );
 void        CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback );
+void        CG_OffsetFirstPersonView( void );
+void        CG_OffsetThirdPersonView( void );
+void        CG_OffsetShoulderView( void );
 
 
 //

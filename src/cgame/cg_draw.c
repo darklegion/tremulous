@@ -2931,7 +2931,8 @@ static void CG_DrawIntermission( void )
   cg.scoreBoardShowing = CG_DrawScoreboard( );
 }
 
-#define FOLLOWING_STRING "following "
+#define FOLLOWING_STRING "Following: "
+#define CHASING_STRING "Chasing: "
 
 /*
 =================
@@ -2952,7 +2953,10 @@ static qboolean CG_DrawFollow( void )
   color[ 2 ] = 1;
   color[ 3 ] = 1;
 
-  strcpy( buffer, FOLLOWING_STRING );
+  if( !cg.chaseFollow ) 
+    strcpy( buffer, FOLLOWING_STRING );
+  else 
+    strcpy( buffer, CHASING_STRING );
   strcat( buffer, cgs.clientinfo[ cg.snap->ps.clientNum ].name );
 
   w = UI_Text_Width( buffer, 0.7f, 0 );
