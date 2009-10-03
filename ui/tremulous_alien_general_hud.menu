@@ -14,7 +14,6 @@
     aspectBias ASPECT_NONE
 
 #include "ui/tremulous_alien_common_hud.h"
-#include "ui/tremulous_common_hud.h"
 
     //BLOB
     itemDef

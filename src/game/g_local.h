@@ -678,9 +678,9 @@ qboolean  G_SayArgv( int n, char *buffer, int bufferLength );
 char      *G_SayConcatArgs( int start );
 void      G_DecolorString( char *in, char *out, int len );
 void      G_SanitiseString( char *in, char *out, int len );
-void      G_PrivateMessage( gentity_t *ent );
+void      Cmd_PrivateMessage_f( gentity_t *ent );
 void      Cmd_Test_f( gentity_t *ent );
-void      G_AdminMessage( gentity_t *ent );
+void      Cmd_AdminMessage_f( gentity_t *ent );
 qboolean  G_FloodLimited( gentity_t *ent );
 
 //
@@ -927,7 +927,7 @@ void G_MapConfigs( const char *mapname );
 void CalculateRanks( void );
 void FindIntermissionPoint( void );
 void G_RunThink( gentity_t *ent );
-void QDECL G_AdminsPrintf( const char *prefix, const char *fmt, ... );
+void QDECL G_AdminMessage( const char *prefix, const char *fmt, ... );
 void QDECL G_LogPrintf( const char *fmt, ... );
 void SendScoreboardMessageToAllClients( void );
 void QDECL G_Printf( const char *fmt, ... );

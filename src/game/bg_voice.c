@@ -314,7 +314,7 @@ static voiceTrack_t *BG_VoiceParseCommand( int handle )
       voiceTracks = voiceTracks->next;
     }
     
-    if( !trap_FS_FOpenFile( va( "%s", token.string ), NULL, FS_READ ) )
+    if( !trap_FS_FOpenFile( token.string, NULL, FS_READ ) )
     {
         int line;
         char filename[ MAX_QPATH ];

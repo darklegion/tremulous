@@ -784,7 +784,7 @@ static void Cmd_Say_f( gentity_t *ent )
       !Q_stricmpn( args, "say /mt ", 8 ) ||
       !Q_stricmpn( args, "say_team /mt ", 13 ) )
   {
-    G_PrivateMessage( ent );
+    Cmd_PrivateMessage_f( ent );
     return;
   }
 
@@ -792,7 +792,7 @@ static void Cmd_Say_f( gentity_t *ent )
   if( !Q_stricmpn( args, "say /a ", 7 ) ||
       !Q_stricmpn( args, "say_team /a ", 12 ) ) 
   {
-    G_AdminMessage( ent );
+    Cmd_AdminMessage_f( ent );
     return;
   }
 
@@ -2409,6 +2409,17 @@ Cmd_Reload_f
 */
 void Cmd_Reload_f( gentity_t *ent )
 {
+  playerState_t *ps = &ent->client->ps;
+
+  // weapon doesn't ever need reloading
+  if( BG_Weapon( ps->weapon )->infiniteAmmo )
+    return;
+
+  // don't reload when full
+  if( ps->ammo == BG_Weapon( ps->weapon )->maxAmmo )
+    return;
+
+  // the animation, ammo refilling etc. is handled by PM_Weapon
   if( ent->client->ps.weaponstate != WEAPON_RELOADING )
     ent->client->ps.pm_flags |= PMF_WEAPON_RELOAD;
 }
@@ -2954,9 +2965,9 @@ commands_t cmds[ ] = {
   { "vsay", CMD_MESSAGE|CMD_INTERMISSION, Cmd_VSay_f },
   { "vsay_team", CMD_MESSAGE|CMD_INTERMISSION, Cmd_VSay_f },
   { "vsay_local", CMD_MESSAGE|CMD_INTERMISSION, Cmd_VSay_f },
-  { "m", CMD_MESSAGE|CMD_INTERMISSION, G_PrivateMessage },
-  { "mt", CMD_MESSAGE|CMD_INTERMISSION, G_PrivateMessage },
-  { "a", CMD_MESSAGE|CMD_INTERMISSION, G_AdminMessage },
+  { "m", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
+  { "mt", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
+  { "a", CMD_MESSAGE|CMD_INTERMISSION, Cmd_AdminMessage_f },
 
   { "score", CMD_INTERMISSION, ScoreboardMessage },
 
@@ -3166,7 +3177,7 @@ void G_DecolorString( char *in, char *out, int len )
   *out = '\0';
 }
 
-void G_PrivateMessage( gentity_t *ent )
+void Cmd_PrivateMessage_f( gentity_t *ent )
 {
   int pids[ MAX_CLIENTS ];
   int ignoreids[ MAX_CLIENTS ];
@@ -3298,14 +3309,14 @@ void G_PrivateMessage( gentity_t *ent )
 
 /*
 =================
-G_AdminMessage
+Cmd_AdminMessage_f
 
 Send a message to all active admins
 =================
 */
-void G_AdminMessage( gentity_t *ent )
+void Cmd_AdminMessage_f( gentity_t *ent )
 {
-  char cmd[ 12 ];
+  char cmd[ sizeof( "say_team" ) ];
   char prefix[ 50 ];
   char *msg;
   int skiparg = 0;
@@ -3324,16 +3335,19 @@ void G_AdminMessage( gentity_t *ent )
     }
     else
     {
-      Com_sprintf( prefix, sizeof( prefix ), "[PLAYER]%s" S_COLOR_WHITE ":", ent->client->pers.netname );
-      ADMP( "Your message has been sent to any available admins and to the server logs.\n" );
+      Com_sprintf( prefix, sizeof( prefix ), "[PLAYER] %s" S_COLOR_WHITE ":",
+                   ent->client->pers.netname );
+      ADMP( "Your message has been sent to any available admins "
+            "and to the server logs.\n" );
     }
   }
   else
   {
-    Com_sprintf( prefix, sizeof( prefix ), "[ADMIN]%s" S_COLOR_WHITE ":", ent->client->pers.netname );
+    Com_sprintf( prefix, sizeof( prefix ), "[ADMIN] %s" S_COLOR_WHITE ":",
+                 ent->client->pers.netname );
   }
 
-  // Parse out say/say_team if this was used from one of those 
+  // Skip say/say_team if this was used from one of those 
   G_SayArgv( 0, cmd, sizeof( cmd ) );
   if( !Q_stricmp( cmd, "say" ) || !Q_stricmp( cmd, "say_team" ) )
   {
@@ -3349,7 +3363,6 @@ void G_AdminMessage( gentity_t *ent )
   msg = G_SayConcatArgs( 1 + skiparg );
 
   // Send it
-  G_AdminsPrintf( prefix, "%s\n", msg );
-
+  G_AdminMessage( prefix, "%s", msg );
 }
 

@@ -745,9 +745,17 @@ static int admin_listadmins( gentity_t *ent, int start, char *search )
     {
       if( g_admin_levels[ j ]->level == l )
       {
-        Com_sprintf( lname, sizeof( lname ), va( "%%%is",
-          Q_PrintStrlen( g_admin_levels[ j ]->name ) - admin_level_maxname -
-          strlen( g_admin_levels[ j ]->name ) ), g_admin_levels[ j ]->name );
+        int k, colorlen;
+
+        for( colorlen = k = 0; g_admin_levels[ j ]->name[ k ]; k++ )
+        {
+          if( Q_IsColorString( &g_admin_levels[ j ]->name[ k ] ) )
+            colorlen += 2;
+        }
+
+        Com_sprintf( lname, sizeof( lname ), "%*s",
+                     admin_level_maxname + colorlen,
+                     g_admin_levels[ j ]->name );
         break;
       }
     }
@@ -797,9 +805,17 @@ static int admin_listadmins( gentity_t *ent, int start, char *search )
     {
       if( g_admin_levels[ j ]->level == g_admin_admins[ i ]->level )
       {
-        Com_sprintf( lname, sizeof( lname ), va( "%%%is",
-          Q_PrintStrlen( g_admin_levels[ j ]->name ) - admin_level_maxname -
-          strlen( g_admin_levels[ j ]->name ) ), g_admin_levels[ j ]->name );
+        int k, colorlen;
+
+        for( colorlen = k = 0; g_admin_levels[ j ]->name[ k ]; k++ )
+        {
+          if( Q_IsColorString( &g_admin_levels[ j ]->name[ k ] ) )
+            colorlen += 2;
+        }
+
+        Com_sprintf( lname, sizeof( lname ), "%*s",
+                     admin_level_maxname + colorlen,
+                     g_admin_levels[ j ]->name );
         break;
       }
     }
@@ -1518,10 +1534,8 @@ int G_admin_parse_time( const char *time )
     if( !isdigit( *time ) )
       return -1;
     while( isdigit( *time ) )
-    {
       num = num * 10 + *time++ - '0';
-      continue;
-    }
+
     if( !*time )
       break;
     switch( *time++ )
@@ -1645,7 +1659,7 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
     }
     else
     {
-      ADMP( "^3!ban: ^7ban duration must be positive\n" );
+      ADMP( "^3!ban: ^7you may not issue permanent bans\n" );
       return qfalse;
     }
     reason = G_SayConcatArgs( 2 + skiparg );
@@ -1784,7 +1798,7 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
       "admin:\n%s^7\nduration:\n%s\nreason:\n%s\"",
       ( ent ) ? ent->client->pers.netname : "console",
       duration,
-      ( *reason ) ? reason : "kicked by admin" ) );
+      ( *reason ) ? reason : "banned by admin" ) );
 
   trap_DropClient(  g_admin_namelog[ logmatch ]->slot,
     va( "has been banned by %s^7, duration: %s, reason: %s",
@@ -2250,11 +2264,9 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
   char n2[ MAX_NAME_LENGTH ] = {""};
   char n3[ MAX_NAME_LENGTH ] = {""};
   char lname[ MAX_NAME_LENGTH ];
-  char lname2[ MAX_NAME_LENGTH ];
   char guid_stub[ 9 ];
   char muted[ 2 ], denied[ 2 ];
   int l;
-  char lname_fmt[ 5 ];
 
   ADMBP_begin();
   ADMBP( va( "^3!listplayers: ^7%d players connected:\n",
@@ -2322,22 +2334,23 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
       }
     }
     lname[ 0 ] = '\0';
-    Q_strncpyz( lname_fmt, "%s", sizeof( lname_fmt ) );
     for( j = 0; j < MAX_ADMIN_LEVELS && g_admin_levels[ j ]; j++ )
     {
       if( g_admin_levels[ j ]->level == l )
       {
-        Q_strncpyz( lname, g_admin_levels[ j ]->name, sizeof( lname ) );
-        if( *lname )
+        int k, colorlen;
+
+        for( colorlen = k = 0; g_admin_levels[ j ]->name[ k ]; k++ )
         {
-          G_DecolorString( lname, lname2, sizeof( lname2 ) );
-          Com_sprintf( lname_fmt, sizeof( lname_fmt ), "%%%is",
-            ( admin_level_maxname + strlen( lname ) - strlen( lname2 ) ) );
-          Com_sprintf( lname2, sizeof( lname2 ), lname_fmt, lname );
+          if( Q_IsColorString( &g_admin_levels[ j ]->name[ k ] ) )
+            colorlen += 2;
         }
+
+        Com_sprintf( lname, sizeof( lname ), "%*s",
+                     admin_level_maxname + colorlen,
+                     g_admin_levels[ j ]->name );
         break;
       }
-
     }
 
     if( G_admin_permission( ent, ADMF_SEESFULLLISTPLAYERS ) )
@@ -2347,7 +2360,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
                 c,
                 t,
                 l,
-                ( *lname ) ? lname2 : "",
+                lname,
                 guid_stub,
                 muted,
                 denied,
@@ -2377,14 +2390,14 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
   int max = -1, count;
   int t;
   char duration[ 32 ];
-  int max_name = 1, max_banner = 1;
+  int max_name = 1, max_banner = 1, colorlen;
   int len;
   int secs;
   int start = 0;
   char skip[ 11 ];
   char date[ 11 ];
   char *made;
-  int j;
+  int j, k;
   char n1[ MAX_NAME_LENGTH ] = {""};
   char n2[ MAX_NAME_LENGTH ] = {""};
 
@@ -2399,6 +2412,12 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
     }
     found++;
     max = i;
+  }
+
+  if( max < 0 )
+  {
+    ADMP( "^3!showbans: ^7no bans to display\n" );
+    return qfalse;
   }
 
   if( G_SayArgc() == 2 + skiparg )
@@ -2473,12 +2492,23 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
     secs = ( g_admin_bans[ i ]->expires - t );
     G_admin_duration( secs, duration, sizeof( duration ) );
 
-    Com_sprintf( n1, sizeof( n1 ), va( "%%%is",
-      Q_PrintStrlen( g_admin_bans[ i ]->name ) - max_name -
-      strlen( g_admin_bans[ i ]->name ) ), g_admin_bans[ i ]->name );
-    Com_sprintf( n2, sizeof( n2 ), va( "%%%is",
-      Q_PrintStrlen( g_admin_bans[ i ]->banner ) - max_banner -
-      strlen( g_admin_bans[ i ]->banner ) ), g_admin_bans[ i ]->banner );
+    for( colorlen = k = 0; g_admin_bans[ i ]->name[ k ]; k++ )
+    {
+      if( Q_IsColorString( &g_admin_bans[ i ]->name[ k ] ) )
+        colorlen += 2;
+    }
+
+    Com_sprintf( n1, sizeof( n1 ), "%*s", max_name + colorlen,
+                 g_admin_bans[ i ]->name );
+
+    for( colorlen = k = 0; g_admin_bans[ i ]->banner[ k ]; k++ )
+    {
+      if( Q_IsColorString( &g_admin_bans[ i ]->banner[ k ] ) )
+        colorlen += 2;
+    }
+
+    Com_sprintf( n2, sizeof( n2 ), "%*s", max_banner + colorlen,
+                 g_admin_bans[ i ]->banner );
 
     ADMBP( va( "%4i %s^7 %-15s %-8s %s^7 %-10s\n     \\__ %s\n",
              ( i + 1 ),

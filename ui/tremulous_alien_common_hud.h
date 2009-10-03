@@ -1,6 +1,7 @@
 #define COMMON_HUD_R 1.0
 #define COMMON_HUD_G 0.0
 #define COMMON_HUD_B 0.0
+#include "ui/tremulous_common_hud.h"
 
 //////////////////
 //STATIC OBJECTS//

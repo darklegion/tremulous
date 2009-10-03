@@ -2750,6 +2750,11 @@ static void PM_BeginWeaponChange( int weapon )
   if( pm->ps->weaponstate == WEAPON_DROPPING )
     return;
 
+  // cancel a reload
+  pm->ps->pm_flags &= ~PMF_WEAPON_RELOAD;
+  if( pm->ps->weaponstate == WEAPON_RELOADING )
+    pm->ps->weaponTime = 0;
+
   //special case to prevent storing a charged up lcannon
   if( pm->ps->weapon == WP_LUCIFER_CANNON )
     pm->ps->stats[ STAT_MISC ] = 0;
@@ -3087,7 +3092,9 @@ static void PM_Weapon( void )
   }
 
   // check for end of clip
-  if( ( !pm->ps->ammo || ( pm->ps->pm_flags & PMF_WEAPON_RELOAD ) ) && pm->ps->clips )
+  if( !BG_Weapon( pm->ps->weapon )->infiniteAmmo &&
+      ( pm->ps->ammo <= 0 || ( pm->ps->pm_flags & PMF_WEAPON_RELOAD ) ) &&
+      pm->ps->clips > 0 )
   {
     pm->ps->pm_flags &= ~PMF_WEAPON_RELOAD;
     pm->ps->weaponstate = WEAPON_RELOADING;

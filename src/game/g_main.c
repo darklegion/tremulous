@@ -1624,44 +1624,44 @@ void ExitLevel( void )
 
 /*
 =================
-G_AdminsPrintf
+G_AdminMessage
 
 Print to all active server admins, and to the logfile, and to the server console
 Prepend *prefix, or '[SERVER]' if no *prefix is given
 =================
 */
-void QDECL G_AdminsPrintf( const char *prefix, const char *fmt, ... )
+void QDECL G_AdminMessage( const char *prefix, const char *fmt, ... )
 {
   va_list argptr;
   char    string[ 1024 ];
   char    outstring[ 1024 ];
-  int i;
+  int     i;
 
   // Format the text
   va_start( argptr, fmt );
   Q_vsnprintf( string, sizeof( string ), fmt, argptr );
   va_end( argptr );
 
-  // If there is no prefix, assume that this function was called directly and we should add one
+  // If there is no prefix, assume that this function was called directly
+  // and we should add one
   if( !prefix || !prefix[ 0 ] )
   {
     prefix = "[SERVER]:";
   }
 
   // Create the final string
-  Com_sprintf( outstring, sizeof( outstring ), "%s " S_COLOR_MAGENTA "%s", prefix, string );
+  Com_sprintf( outstring, sizeof( outstring ), "%s " S_COLOR_MAGENTA "%s",
+               prefix, string );
 
   // Send to all appropriate clients
   for( i = 0; i < level.maxclients; i++ )
   {
     if( G_admin_permission( &g_entities[ i ], ADMF_ADMINCHAT ) ) 
-    {
        trap_SendServerCommand( i, va( "chat \"%s\"", outstring ) ); 
-    }
   }
   
   // Send to the logfile and server console
-  G_LogPrintf("adminmsg: %s", outstring );
+  G_LogPrintf("adminmsg: %s\n", outstring );
 }
 
 

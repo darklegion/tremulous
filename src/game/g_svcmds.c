@@ -722,12 +722,12 @@ qboolean  ConsoleCommand( void )
     }
     else if( !Q_stricmp( cmd, "m" ) )
     {
-      G_PrivateMessage( NULL );
+      Cmd_PrivateMessage_f( NULL );
       return qtrue;
     }
     else if( !Q_stricmp( cmd, "a" ) )
     {
-      G_AdminMessage( NULL );
+      Cmd_AdminMessage_f( NULL );
       return qtrue;
     }
     G_Printf( "unknown command: %s\n", cmd );
