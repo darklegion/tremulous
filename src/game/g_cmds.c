@@ -2522,32 +2522,51 @@ void Cmd_Build_f( gentity_t *ent )
       case IBE_NOROOM:
       case IBE_NOOVERMIND:
       case IBE_NOPOWERHERE:
+      case IBE_RPWCAUSEOVRL:
         ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
         break;
 
       // more serious errors just pop a menu
       case IBE_NOALIENBP:
-        G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOBP );
+        if( ent->client->pers.disableBlueprintErrors )
+          ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
+        else
+          G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOBP );
         break;
 
       case IBE_ONEOVERMIND:
-        G_TriggerMenu( ent->client->ps.clientNum, MN_A_ONEOVERMIND );
+        if( ent->client->pers.disableBlueprintErrors )
+          ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
+        else
+          G_TriggerMenu( ent->client->ps.clientNum, MN_A_ONEOVERMIND );
         break;
 
       case IBE_ONEHOVEL:
-        G_TriggerMenu( ent->client->ps.clientNum, MN_A_ONEHOVEL );
+        if( ent->client->pers.disableBlueprintErrors )
+          ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
+        else
+          G_TriggerMenu( ent->client->ps.clientNum, MN_A_ONEHOVEL );
         break;
 
       case IBE_ONEREACTOR:
-        G_TriggerMenu( ent->client->ps.clientNum, MN_H_ONEREACTOR );
+        if( ent->client->pers.disableBlueprintErrors )
+          ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
+        else
+          G_TriggerMenu( ent->client->ps.clientNum, MN_H_ONEREACTOR );
         break;
 
       case IBE_NOHUMANBP:
-        G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOBP);
+        if( ent->client->pers.disableBlueprintErrors )
+          ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
+        else
+          G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOBP);
         break;
 
       case IBE_NODCC:
-        G_TriggerMenu( ent->client->ps.clientNum, MN_H_NODCC );
+        if( ent->client->pers.disableBlueprintErrors )
+          ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
+        else
+          G_TriggerMenu( ent->client->ps.clientNum, MN_H_NODCC );
         break;
 
       default:

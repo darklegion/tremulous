@@ -3490,7 +3490,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
         reason = IBE_RPTPOWERHERE;
       else if( !g_markDeconstruct.integer && G_IsPowered( entity_origin ) )
         reason = IBE_RPTPOWERHERE;
-      else if( !g_humanRepeaterAllowOverlap.integer )
+      else if( !REPEATER_ALLOWOVERLAP )
       {
         tempent = G_RepeaterWouldOverlap( entity_origin );
 

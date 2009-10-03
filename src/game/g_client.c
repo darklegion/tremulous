@@ -1134,6 +1134,14 @@ void ClientUserinfoChanged( int clientNum )
   else
     client->pers.flySpeed = BG_Class( PCL_NONE )->speed;
 
+  // disable blueprint errors
+  s = Info_ValueForKey( userinfo, "cg_disableBlueprintErrors" );
+
+  if( atoi( s ) )
+    client->pers.disableBlueprintErrors = qtrue;
+  else
+    client->pers.disableBlueprintErrors = qfalse;
+
   // teamInfo
   s = Info_ValueForKey( userinfo, "teamoverlay" );
 

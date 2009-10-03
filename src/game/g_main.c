@@ -93,7 +93,6 @@ vmCvar_t  g_humanBuildPoints;
 vmCvar_t  g_humanBuildQueueTime;
 vmCvar_t  g_humanRepeaterBuildPoints;
 vmCvar_t  g_humanRepeaterBuildQueueTime;
-vmCvar_t  g_humanRepeaterAllowOverlap;
 vmCvar_t  g_humanRepeaterMaxZones;
 vmCvar_t  g_humanStage;
 vmCvar_t  g_humanCredits;
@@ -233,7 +232,6 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_humanRepeaterBuildPoints, "g_humanRepeaterBuildPoints", DEFAULT_HUMAN_REPEATER_BUILDPOINTS, 0, 0, qfalse  },
   { &g_humanRepeaterMaxZones, "g_humanRepeaterMaxZones", DEFAULT_HUMAN_REPEATER_MAX_ZONES, 0, 0, qfalse  },
   { &g_humanRepeaterBuildQueueTime, "g_humanRepeaterBuildQueueTime", DEFAULT_HUMAN_REPEATER_QUEUE_TIME, 0, 0, qfalse  },
-  { &g_humanRepeaterAllowOverlap, "g_humanRepeaterAllowOverlap", DEFAULT_HUMAN_REPEATER_ALLOW_OVERLAP, 0, 0, qfalse  },
   { &g_humanStage, "g_humanStage", "0", 0, 0, qfalse  },
   { &g_humanCredits, "g_humanCredits", "0", 0, 0, qfalse  },
   { &g_humanMaxStage, "g_humanMaxStage", DEFAULT_HUMAN_MAX_STAGE, 0, 0, qfalse  },

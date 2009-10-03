@@ -308,6 +308,7 @@ typedef struct
   int                 voteCount;          // to prevent people from constantly calling votes
   qboolean            teamInfo;           // send team overlay updates?
   float               flySpeed;           // for spectator/noclip moves
+  qboolean            disableBlueprintErrors; // should the buildable blueprint never be hidden from the players?
 
   class_t             classSelection;     // player class (copied to ent->client->ps.stats[ STAT_CLASS ] once spawned)
   float               evolveHealthFraction;
@@ -1087,7 +1088,6 @@ extern  vmCvar_t  g_humanBuildQueueTime;
 extern  vmCvar_t  g_humanRepeaterBuildPoints;
 extern  vmCvar_t  g_humanRepeaterBuildQueueTime;
 extern  vmCvar_t  g_humanRepeaterMaxZones;
-extern  vmCvar_t  g_humanRepeaterAllowOverlap;
 extern  vmCvar_t  g_humanStage;
 extern  vmCvar_t  g_humanCredits;
 extern  vmCvar_t  g_humanMaxStage;
