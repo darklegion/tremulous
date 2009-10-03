@@ -132,26 +132,25 @@ typedef enum
 } weaponstate_t;
 
 // pmove->pm_flags
-#define PMF_DUCKED          1
-#define PMF_JUMP_HELD       2
-#define PMF_CROUCH_HELD     4
-#define PMF_BACKWARDS_JUMP  8       // go into backwards land
-#define PMF_BACKWARDS_RUN   16      // coast down to backwards run
-#define PMF_TIME_LAND       32      // pm_time is time before rejump
-#define PMF_TIME_KNOCKBACK  64      // pm_time is an air-accelerate only time
-#define PMF_TIME_KNOCKOFF   128     // pm_time is no-wallwalk time
-#define PMF_TIME_WATERJUMP  256     // pm_time is waterjump
-#define PMF_RESPAWNED       512     // clear after attack and jump buttons come up
-#define PMF_USE_ITEM_HELD   1024
-#define PMF_WEAPON_RELOAD   2048    // force a weapon switch
-#define PMF_FOLLOW          4096    // spectate following another player
-#define PMF_QUEUED          8192    // player is queued
-#define PMF_TIME_WALLJUMP   16384   // for limiting wall jumping
-#define PMF_CHARGE          32768   // keep track of pouncing
-#define PMF_WEAPON_SWITCH   65536   // force a weapon switch
+#define PMF_DUCKED          0x0001
+#define PMF_JUMP_HELD       0x0002
+#define PMF_CROUCH_HELD     0x0004
+#define PMF_BACKWARDS_JUMP  0x0008 // go into backwards land
+#define PMF_BACKWARDS_RUN   0x0010 // coast down to backwards run
+#define PMF_TIME_LAND       0x0020 // pm_time is time before rejump
+#define PMF_TIME_KNOCKBACK  0x0040 // pm_time is an air-accelerate only time
+#define PMF_TIME_WATERJUMP  0x0080 // pm_time is waterjump
+#define PMF_RESPAWNED       0x0100 // clear after attack and jump buttons come up
+#define PMF_USE_ITEM_HELD   0x0200
+#define PMF_WEAPON_RELOAD   0x0400 // force a weapon switch
+#define PMF_FOLLOW          0x0800 // spectate following another player
+#define PMF_QUEUED          0x1000 // player is queued
+#define PMF_TIME_WALLJUMP   0x2000 // for limiting wall jumping
+#define PMF_CHARGE          0x4000 // keep track of pouncing
+#define PMF_WEAPON_SWITCH   0x8000 // force a weapon switch
 
 
-#define PMF_ALL_TIMES (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK|PMF_TIME_KNOCKOFF|PMF_TIME_WALLJUMP)
+#define PMF_ALL_TIMES (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK|PMF_TIME_WALLJUMP)
 
 typedef struct
 {

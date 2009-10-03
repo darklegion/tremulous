@@ -258,11 +258,6 @@ static void ClientShove( gentity_t *ent, gentity_t *victim )
       time = 200;
     victim->client->ps.pm_time = time;
     victim->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
-
-    // Knock victim off if they are wallwalking on us
-    if( ( victim->client->ps.groundEntityNum == ent - g_entities ) &&
-        ( victim->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
-      victim->client->ps.pm_flags |= PMF_TIME_KNOCKOFF;
   }
 }
 
