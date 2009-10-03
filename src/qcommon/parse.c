@@ -1235,13 +1235,22 @@ static int Parse_ReadSourceToken(source_t *source, token_t *token)
 {
   token_t *t;
   script_t *script;
-  int type, skip;
+  int type, skip, lines;
 
+  lines = 0;
   //if there's no token already available
   while(!source->tokens)
   {
     //if there's a token to read from the script
-    if (Parse_ReadScriptToken(source->scriptstack, token)) return qtrue;
+    if( Parse_ReadScriptToken( source->scriptstack, token ) )
+    {
+      token->linescrossed += lines;
+      return qtrue;
+    }
+
+    // if lines were crossed before the end of the script, count them
+    lines += source->scriptstack->line - source->scriptstack->lastline;
+
     //if at the end of the script
     if (Parse_EndOfScript(source->scriptstack))
     {
