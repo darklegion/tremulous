@@ -14,10 +14,10 @@
     "* Help menu (you're looking at it!)\n"
     "* UI health cross icon shows regen speed\n"
     "* Human UI health cross glows from medkit\n"
-    "* Human item list wider and won't hide items\n"
-    "* Regular Basilik benefits from booster\n"
-    "* Lucifer Cannon overcharge heard by others\n"
-    "* Credits for de-creeping buildables\n"
+    "* Human item list is wider and won't hide items\n"
+    "* Regular Basilik benefits from booster regen\n"
+    "* Lucifer Cannon overcharge can be heard by others\n"
+    "* You are awarded credits for de-creeping buildables\n"
   }
   "Alien Healing"
   {
@@ -49,10 +49,11 @@
   {
     "The Tyrant is now a weaker class as its health has been lowered and "
     "turret damage is greater. To counter this, Tyrants can charge for longer "
-    "periods of time and can crush any Humans they land on top of. Remember "
-    "that because trample takes longer to charge, you need to let go early "
-    "for a quick charge. The Tyrant's healing aura has been removed, find a "
-    "booster or a basilisk to heal faster."
+    "periods of time, hit targets multiple times in a single charge, "
+    "and crush any Humans they land on top of. Remember that because trample "
+    "takes longer to charge, you need to let go early for a quick charge. "
+    "The Tyrant's healing aura has been removed, find a booster or a basilisk "
+    "to heal faster."
   }
   "Sprint / Dodge"
   {
@@ -96,7 +97,7 @@
     "Contributing developers:\n\n"
     "Norfenstein\n"
     "Tony J. White\n"
-    "Ben ''Benmachine'' Millwood\n"
+    "Ben Millwood (''benmachine'')\n"
     "Michael ''Risujin'' Levin\n"
     "Chris ''Lakitu7'' Schwarz\n"
     "Roman ''Kevlarman'' Tetelman\n"
