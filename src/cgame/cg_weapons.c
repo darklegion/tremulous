@@ -1799,10 +1799,10 @@ void CG_MissileHitWall( weapon_t weaponNum, weaponMode_t weaponMode, int clientN
 
 /*
 =================
-CG_MissileHitPlayer
+CG_MissileHitEntity
 =================
 */
-void CG_MissileHitPlayer( weapon_t weaponNum, weaponMode_t weaponMode,
+void CG_MissileHitEntity( weapon_t weaponNum, weaponMode_t weaponMode,
     vec3_t origin, vec3_t dir, int entityNum, int charge )
 {
   vec3_t        normal;
@@ -2025,8 +2025,9 @@ static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, int othe
 
     if( !( tr.surfaceFlags & SURF_NOIMPACT ) )
     {
-      if( cg_entities[ tr.entityNum ].currentState.eType == ET_PLAYER )
-        CG_MissileHitPlayer( WP_SHOTGUN, WPM_PRIMARY, tr.endpos, tr.plane.normal, tr.entityNum, 0 );
+      if( cg_entities[ tr.entityNum ].currentState.eType == ET_PLAYER ||
+          cg_entities[ tr.entityNum ].currentState.eType == ET_BUILDABLE )
+        CG_MissileHitEntity( WP_SHOTGUN, WPM_PRIMARY, tr.endpos, tr.plane.normal, tr.entityNum, 0 );
       else if( tr.surfaceFlags & SURF_METALSTEPS )
         CG_MissileHitWall( WP_SHOTGUN, WPM_PRIMARY, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, 0 );
       else
@@ -2050,5 +2051,55 @@ void CG_ShotgunFire( entityState_t *es )
   VectorAdd( es->pos.trBase, v, v );
 
   CG_ShotgunPattern( es->pos.trBase, es->origin2, es->eventParm, es->otherEntityNum );
+}
+
+/*
+=================
+CG_Bleed
+
+This is the spurt of blood when a character gets hit
+=================
+*/
+void CG_Bleed( vec3_t origin, vec3_t normal, int entityNum )
+{
+  team_t            team;
+  qhandle_t         bleedPS;
+  particleSystem_t  *ps;
+
+  if( !cg_blood.integer )
+    return;
+
+  if( cg_entities[ entityNum ].currentState.eType == ET_PLAYER )
+  {
+    team = cgs.clientinfo[ entityNum ].team;
+    if( team == TEAM_ALIENS )
+      bleedPS = cgs.media.alienBleedPS;
+    else if( team == TEAM_HUMANS )
+      bleedPS = cgs.media.humanBleedPS;
+    else
+      return;
+  }
+  else if( cg_entities[ entityNum ].currentState.eType == ET_BUILDABLE )
+  {
+    //ew
+    team = BG_Buildable( cg_entities[ entityNum ].currentState.modelindex )->team;
+    if( team == TEAM_ALIENS )
+      bleedPS = cgs.media.alienBuildableBleedPS;
+    else if( team == TEAM_HUMANS )
+      bleedPS = cgs.media.humanBuildableBleedPS;
+  }
+  else
+    return;
+
+  ps = CG_SpawnNewParticleSystem( bleedPS );
+
+  if( CG_IsParticleSystemValid( &ps ) )
+  {
+    CG_SetAttachmentPoint( &ps->attachment, origin );
+    CG_SetAttachmentCent( &ps->attachment, &cg_entities[ entityNum ] );
+    CG_AttachToPoint( &ps->attachment );
+
+    CG_SetParticleSystemNormal( ps, normal );
+  }
 }
 

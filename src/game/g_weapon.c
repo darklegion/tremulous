@@ -362,7 +362,9 @@ void bulletFire( gentity_t *ent, float spread, int damage, int mod )
   SnapVectorTowards( tr.endpos, muzzle );
 
   // send bullet impact
-  if( traceEnt->takedamage && traceEnt->client )
+  if( traceEnt->takedamage &&
+      (traceEnt->s.eType == ET_PLAYER ||
+       traceEnt->s.eType == ET_BUILDABLE ) )
   {
     tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
     tent->s.eventParm = traceEnt->s.number;

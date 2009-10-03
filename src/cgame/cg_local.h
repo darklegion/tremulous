@@ -1288,6 +1288,9 @@ typedef struct
 
   qhandle_t   alienBleedPS;
   qhandle_t   humanBleedPS;
+  qhandle_t   alienBuildableBleedPS;
+  qhandle_t   humanBuildableBleedPS;
+
 
   qhandle_t   teslaZapTS;
 
@@ -1723,7 +1726,8 @@ void        CG_RegisterWeapon( int weaponNum );
 void        CG_FireWeapon( centity_t *cent, weaponMode_t weaponMode );
 void        CG_MissileHitWall( weapon_t weapon, weaponMode_t weaponMode, int clientNum,
                                vec3_t origin, vec3_t dir, impactSound_t soundType, int charge );
-void        CG_MissileHitPlayer( weapon_t weapon, weaponMode_t weaponMode, vec3_t origin, vec3_t dir, int entityNum, int charge );
+void        CG_MissileHitEntity( weapon_t weaponNum, weaponMode_t weaponMode,
+                                 vec3_t origin, vec3_t dir, int entityNum, int charge );
 void        CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 void        CG_ShotgunFire( entityState_t *es );
 

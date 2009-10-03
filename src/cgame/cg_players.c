@@ -2369,38 +2369,3 @@ void CG_PlayerDisconnect( vec3_t org )
   }
 }
 
-/*
-=================
-CG_Bleed
-
-This is the spurt of blood when a character gets hit
-=================
-*/
-void CG_Bleed( vec3_t origin, vec3_t normal, int entityNum )
-{
-  team_t            team = cgs.clientinfo[ entityNum ].team;
-  qhandle_t         bleedPS;
-  particleSystem_t  *ps;
-
-  if( !cg_blood.integer )
-    return;
-
-  if( team == TEAM_ALIENS )
-    bleedPS = cgs.media.alienBleedPS;
-  else if( team == TEAM_HUMANS )
-    bleedPS = cgs.media.humanBleedPS;
-  else
-    return;
-
-  ps = CG_SpawnNewParticleSystem( bleedPS );
-
-  if( CG_IsParticleSystemValid( &ps ) )
-  {
-    CG_SetAttachmentPoint( &ps->attachment, origin );
-    CG_SetAttachmentCent( &ps->attachment, &cg_entities[ entityNum ] );
-    CG_AttachToPoint( &ps->attachment );
-
-    CG_SetParticleSystemNormal( ps, normal );
-  }
-}
-

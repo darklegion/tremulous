@@ -805,7 +805,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     case EV_MISSILE_HIT:
       DEBUGNAME( "EV_MISSILE_HIT" );
       ByteToDir( es->eventParm, dir );
-      CG_MissileHitPlayer( es->weapon, es->generic1, position, dir, es->otherEntityNum, es->torsoAnim );
+      CG_MissileHitEntity( es->weapon, es->generic1, position, dir, es->otherEntityNum, es->torsoAnim );
       break;
 
     case EV_MISSILE_MISS:
