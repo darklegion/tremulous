@@ -2423,10 +2423,9 @@ void CheckCvars( void )
     size_t newsize = g_humanRepeaterMaxZones.integer * sizeof( zone_t );
     size_t oldsize = lastNumZones * sizeof( zone_t );
     newZones = BG_Alloc( newsize );
-    Com_Memset( &newZones[ lastNumZones ], 0, newsize - oldsize );
     if( level.powerZones )
     {
-      Com_Memcpy( newZones, level.powerZones, oldsize );
+      Com_Memcpy( newZones, level.powerZones, MIN( oldsize, newsize ) );
       BG_Free( level.powerZones );
     }
     level.powerZones = newZones;
