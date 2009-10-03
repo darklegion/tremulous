@@ -78,10 +78,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL2_CLAW_U_REPEAT        400
 #define LEVEL2_CLAW_U_K_SCALE       1.0f
 #define LEVEL2_AREAZAP_DMG          ADM(50)
-#define LEVEL2_AREAZAP_RANGE        90.0f
-#define LEVEL2_AREAZAP_CUTOFF       350.0f
+#define LEVEL2_AREAZAP_RANGE        120.0f
+#define LEVEL2_AREAZAP_CUTOFF       300.0f
 #define LEVEL2_AREAZAP_REPEAT       500
-#define LEVEL2_AREAZAP_MAX_TARGETS  3
+#define LEVEL2_AREAZAP_MAX_TARGETS  5
 #define LEVEL2_WALLJUMP_MAXSPEED    1000.0f
 
 #define LEVEL3_CLAW_DMG             ADM(80)
@@ -106,7 +106,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL3_BOUNCEBALL_REPEAT    1000
 #define LEVEL3_BOUNCEBALL_SPEED     1000.0f
 #define LEVEL3_BOUNCEBALL_RADIUS    100
-#define LEVEL3_BOUNCEBALL_REGEN     10000    // msec until new barb
+#define LEVEL3_BOUNCEBALL_REGEN     15000    // msec until new barb
 
 #define LEVEL4_CLAW_DMG             ADM(100)
 #define LEVEL4_CLAW_RANGE           116.0f
@@ -116,7 +116,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL4_CLAW_K_SCALE         1.0f
 #define LEVEL4_REGEN_RANGE          200.0f
 
-#define LEVEL4_TRAMPLE_DMG             ADM(110)
+#define LEVEL4_TRAMPLE_DMG             ADM(111)
 #define LEVEL4_TRAMPLE_SPEED           2.0f
 #define LEVEL4_TRAMPLE_CHARGE_MIN      375   // minimum msec to start a charge
 #define LEVEL4_TRAMPLE_CHARGE_MAX      1000  // msec to maximum charge stored
