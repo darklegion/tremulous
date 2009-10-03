@@ -2258,14 +2258,17 @@ static void CG_ScanForCrosshairEntity( void )
 CG_DrawLocation
 =====================
 */
-static void CG_DrawLocation( rectDef_t *rect, float scale, vec4_t color )
+static void CG_DrawLocation( rectDef_t *rect, float scale, int textalign, vec4_t color )
 {
   const char    *location;
   float         maxX;
+  float         tx = rect->x, ty = rect->y;
   maxX = rect->x + rect->w;
   location = CG_ConfigString( CS_LOCATIONS + cgs.clientinfo[ cg.clientNum ].location );
+  if( UI_Text_Width( location, scale, 0 ) < maxX ) 
+    CG_AlignText( rect, location, scale, 0.0f, 0.0f, textalign, VALIGN_CENTER, &tx, &ty );
 
-  UI_Text_Paint_Limit( &maxX, rect->x, rect->y, scale, color, location, 0, 0 );
+  UI_Text_Paint_Limit( &maxX, tx, ty, scale, color, location, 0, 0 );
   trap_R_SetColor( NULL );
 }
 
@@ -2420,7 +2423,7 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawTeamSpectators( &rect, scale, textvalign, color, shader );
       break;
     case CG_PLAYER_LOCATION:
-      CG_DrawLocation( &rect, scale, color );
+      CG_DrawLocation( &rect, scale, textalign, color );
       break;
     case CG_PLAYER_CROSSHAIRNAMES:
       CG_DrawCrosshairNames( &rect, scale, textStyle );
