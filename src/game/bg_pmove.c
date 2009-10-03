@@ -925,7 +925,7 @@ static qboolean PM_CheckDodge( void )
 
   // Reasons why we can't start a dodge or sprint
   if( pm->ps->pm_type != PM_NORMAL || pm->ps->stats[ STAT_STAMINA ] < 0 ||
-      ( pm->ps->pm_flags & PMF_CROUCH_HELD ) )
+      ( pm->ps->pm_flags & PMF_DUCKED ) )
     return qfalse;
 
   // Can't dodge forward
