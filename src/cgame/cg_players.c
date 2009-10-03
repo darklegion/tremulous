@@ -2374,7 +2374,6 @@ centity_t *CG_GetLocation( centity_t *cent )
   centity_t   *eloc, *best;
   float       bestlen, len;
   vec3_t      origin;
-  trace_t     tr;
 
   best = NULL;
   bestlen = 3.0f * 8192.0f * 8192.0f;

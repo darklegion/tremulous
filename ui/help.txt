@@ -9,7 +9,7 @@
     "We can also be reached on Freenode IRC:\n"
     "#mercenariesguild"
   }
-  "^3Release Notes r201^7"
+  "^3Release Notes r276^7"
   {
     "See source.mercenariesguild.net for details."
   }
@@ -44,7 +44,7 @@
   "Human Buildables"
   {
     "While turrets now have a small spin up delay before firing, they have "
-    "increased damage output.\n\n"
+    "increased range and damage output.\n\n"
     "To protect against small Aliens getting inside "
     "the base, build Tesla Generators at Stage 3. Tesla Generators no longer "
     "require the Defense Computer to function. Instead, the Defense Computer "
@@ -53,21 +53,22 @@
   }
   "Human Weapons"
   {
+    "Most of the human projeciles have a small volume now, making them more "
+    "effective against smaller targets.\n"
     "The Lucifer Cannon projectile can be fired faster but now takes longer "
     "to charge. You will be able to hear your teammates overcharge "
     "their Lucifer Cannon.\n\n"
     "The Flamer projectile now gains more of the velocity of its wielder, "
     "making it easier to chase down aliens without burning yourself to a "
-    "crisp"
+    "crisp."
   }
   "Lag Correction"
   {
     "While the Tremulous implementation of Neil Toronto's unlagged is "
     "becoming widely accepted, MGDev also implements client-side improvements "
-    "not possible in 1.1 servers. Because attacking is more "
-    "accurate on account of lag correction, Humans no longer need to lead "
-    "their weapons and Alien ranges and attack widths have generally been "
-    "decreased."
+    "not possible in 1.1 servers. For those who insist on leading their "
+    "attacks, setting cg_unlagged to 0 will disable backward reconcilliation "
+    "on your hitscan weapons."
   }
   "Marauder"
   {
@@ -124,6 +125,6 @@
     "Michael ''Risujin'' Levin\n"
     "Ben Millwood (''benmachine'')\n"
     "Chris ''Lakitu7'' Schwarz\n"
-    "Roman ''Kevlarman'' Tetelman\n"
+    "Roman ''kevlarman'' Tetelman\n"
   }
 }
