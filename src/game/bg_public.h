@@ -916,7 +916,7 @@ typedef struct
 
   int       health;
   float     fallDamage;
-  int       regenRate;
+  float     regenRate;
 
   int       abilities;
 

@@ -1399,28 +1399,26 @@ void ClientThink_real( gentity_t *ent )
   }
 
   // Replenish alien health
-  while( ent->nextRegenTime < level.time )
+  if( level.surrenderTeam != client->pers.teamSelection &&
+      ent->nextRegenTime >= 0 && ent->nextRegenTime < level.time )
   {
-    int regenRate = BG_Class( ent->client->ps.stats[ STAT_CLASS ] )->regenRate;
+    float regenRate =
+        BG_Class( ent->client->ps.stats[ STAT_CLASS ] )->regenRate;
 
-    if( !ent->client || ent->health <= 0 || ent->nextRegenTime < 0 ||
-        regenRate == 0 )
-    {
-      ent->nextRegenTime = -1;
-      break; // no regen
-    }
-
-    if( level.surrenderTeam != ent->client->pers.teamSelection )
+    if( ent->health <= 0 || ent->nextRegenTime < 0 || regenRate == 0 )
+      ent->nextRegenTime = -1; // no regen
+    else
     {
       int       entityList[ MAX_GENTITIES ];
       int       i, num;
+      int       count, interval;
       vec3_t    range, mins, maxs;
       float     modifier = 1.0f;
 
       VectorSet( range, REGEN_BOOST_RANGE, REGEN_BOOST_RANGE,
                  REGEN_BOOST_RANGE );
-      VectorAdd( ent->client->ps.origin, range, maxs );
-      VectorSubtract( ent->client->ps.origin, range, mins );
+      VectorAdd( client->ps.origin, range, maxs );
+      VectorSubtract( client->ps.origin, range, mins );
 
       num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
       for( i = 0; i < num; i++ )
@@ -1449,32 +1447,32 @@ void ClientThink_real( gentity_t *ent )
       }
 
       // Transmit heal rate to the client so it can be displayed on the HUD
-      ent->client->ps.stats[ STAT_STATE ] |= SS_HEALING_ACTIVE;
-      ent->client->ps.stats[ STAT_STATE ] &= ~( SS_HEALING_2X | SS_HEALING_3X );
+      client->ps.stats[ STAT_STATE ] |= SS_HEALING_ACTIVE;
+      client->ps.stats[ STAT_STATE ] &= ~( SS_HEALING_2X | SS_HEALING_3X );
       if( modifier == 1.0f && !G_FindCreep( ent ) )
       {
-        ent->client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_ACTIVE;
-        modifier /= 3.0f;
+        client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_ACTIVE;
+        modifier *= ALIEN_REGEN_NOCREEP_MOD;
       }
       else if( modifier >= 3.0f )
-        ent->client->ps.stats[ STAT_STATE ] |= SS_HEALING_3X;
+        client->ps.stats[ STAT_STATE ] |= SS_HEALING_3X;
       else if( modifier >= 2.0f )
-        ent->client->ps.stats[ STAT_STATE ] |= SS_HEALING_2X;
+        client->ps.stats[ STAT_STATE ] |= SS_HEALING_2X;
 
-      ent->health += 1;
+      interval = 1000 / ( regenRate * modifier );
+      // if recovery interval is less than frametime, compensate
+      count = 1 + ( level.time - ent->nextRegenTime ) / interval;
+
+      ent->health += count;
+      ent->nextRegenTime += count * interval;
+
       // if at max health, clear damage counters
-      if( ent->health >= ent->client->ps.stats[ STAT_MAX_HEALTH ] )
+      if( ent->health >= client->ps.stats[ STAT_MAX_HEALTH ] )
       {
-        ent->health = ent->client->ps.stats[ STAT_MAX_HEALTH ];
+        ent->health = client->ps.stats[ STAT_MAX_HEALTH ];
         for( i = 0; i < MAX_CLIENTS; i++ )
           ent->credits[ i ] = 0;
       }
-      ent->nextRegenTime += 1000 / ( regenRate * modifier );
-    }
-    else
-    {
-      ent->health -= 1;
-      ent->nextRegenTime += 1000 / regenRate;
     }
   }
 
