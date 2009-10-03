@@ -23,8 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
-zone_t zones[ MAX_ZONES ];
-
 /*
 ================
 G_SetBuildableAnim
@@ -322,9 +320,9 @@ int G_GetBuildPoints( const vec3_t pos, team_t team, int dist )
       }
       else if( ent->s.modelindex == BA_H_REPEATER && distance <= REPEATER_BASESIZE + dist )
       {
-        if( ent->usesZone && zones[ent->zone].active )
+        if( ent->usesZone && level.powerZones[ent->zone].active )
         {
-          zone_t *zone = &zones[ent->zone];
+          zone_t *zone = &level.powerZones[ent->zone];
 
           buildPoints += zone->totalBuildPoints - zone->queuedBuildPoints;
         }
@@ -1684,7 +1682,7 @@ static void HRepeater_Die( gentity_t *self, gentity_t *inflictor, gentity_t *att
 
   if( self->usesZone )
   {
-    zone_t *zone = &zones[self->zone];
+    zone_t *zone = &level.powerZones[self->zone];
 
     zone->active = qfalse;
     self->usesZone = qfalse;
@@ -1732,12 +1730,12 @@ void HRepeater_Think( gentity_t *self )
   self->powered = reactor;
 
   // Initialise the zone once the repeater has spawned
-  if( self->spawned && ( !self->usesZone || !zones[ self->zone ].active ) )
+  if( self->spawned && ( !self->usesZone || !level.powerZones[ self->zone ].active ) )
   {
     // See if a free zone exists
-    for( i = 0; i < MIN( g_humanRepeaterMaxZones.integer, MAX_ZONES ); i++ )
+    for( i = 0; i < g_humanRepeaterMaxZones.integer; i++ )
     {
-      zone = &zones[ i ];
+      zone = &level.powerZones[ i ];
 
       if( !zone->active )
       {
@@ -1746,7 +1744,7 @@ void HRepeater_Think( gentity_t *self )
         zone->nextQueueTime = level.time;
         zone->active = qtrue;
 
-        self->zone = zone - zones;
+        self->zone = zone - level.powerZones;
         self->usesZone = qtrue;
 
         break;
@@ -2532,9 +2530,9 @@ void G_QueueBuildPoints( gentity_t *self )
             break;
 
           case BA_H_REPEATER:
-            if( powerEntity->usesZone && zones[powerEntity->zone].active )
+            if( powerEntity->usesZone && level.powerZones[powerEntity->zone].active )
             {
-              zone_t *zone = &zones[powerEntity->zone];
+              zone_t *zone = &level.powerZones[powerEntity->zone];
 
               if( !zone->queuedBuildPoints )
                 zone->nextQueueTime = level.time + g_humanRepeaterBuildQueueTime.integer;

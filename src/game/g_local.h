@@ -471,6 +471,16 @@ void      G_PrintSpawnQueue( spawnQueue_t *sq );
 #define MAX_DAMAGE_REGION_TEXT    8192
 #define MAX_DAMAGE_REGIONS 16
 
+// power zone
+typedef struct
+{
+  int active;
+
+  int totalBuildPoints;
+  int queuedBuildPoints;
+  int nextQueueTime;
+} zone_t;
+
 // store locational damage regions
 typedef struct damageRegion_s
 {
@@ -595,6 +605,8 @@ typedef struct
   int               humanBuildPointQueue;
   int               humanNextQueueTime;
 
+  zone_t            *powerZones;
+
   gentity_t         *markedBuildables[ MAX_GENTITIES ];
   int               numBuildablesForRemoval;
 
@@ -701,8 +713,6 @@ void G_Physics( gentity_t *ent, int msec );
 
 #define MAX_ALIEN_BBOX  25
 
-#define MAX_ZONES       1024
-
 typedef enum
 {
   IBE_NONE,
@@ -730,17 +740,6 @@ typedef enum
 
   IBE_MAXERRORS
 } itemBuildError_t;
-
-typedef struct
-{
-  int active;
-
-  int totalBuildPoints;
-  int queuedBuildPoints;
-  int nextQueueTime;
-} zone_t;
-
-extern zone_t zones[MAX_ZONES];
 
 qboolean          AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideExit );
 gentity_t         *G_CheckSpawnPoint( int spawnNum, vec3_t origin, vec3_t normal,

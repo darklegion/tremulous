@@ -1151,14 +1151,14 @@ void G_CalculateBuildPoints( void )
   level.numAlienSpawns = 0;
   level.numHumanSpawns = 0;
 
-  // Deactivate any unowned zones
-  for( i = 0; i < MIN( g_humanRepeaterMaxZones.integer, MAX_ZONES ); i++ )
+  // Deactivate any unused zones
+  for( i = 0; i < g_humanRepeaterMaxZones.integer; i++ )
   {
     qboolean inUse = qfalse;
-    zone_t *zone = &zones[ i ];
+    zone_t *zone = &level.powerZones[ i ];
 
     if( zone->active )
-	{
+    {
       for( j = MAX_CLIENTS, ent = g_entities + j ; j < level.num_entities ; j++, ent++ )
       {
         if( ent->s.eType != ET_BUILDABLE )
@@ -1191,9 +1191,9 @@ void G_CalculateBuildPoints( void )
     if( ent->s.modelindex != BA_H_REPEATER )
       continue;
 
-    if( ent->usesZone && zones[ ent->zone ].active )
+    if( ent->usesZone && level.powerZones[ ent->zone ].active )
     {
-      zone_t *zone = &zones[ ent->zone ];
+      zone_t *zone = &level.powerZones[ ent->zone ];
 
       zone->totalBuildPoints = g_humanRepeaterBuildPoints.integer;
     }
@@ -1240,9 +1240,9 @@ void G_CalculateBuildPoints( void )
               break;
 
             case BA_H_REPEATER:
-              if( powerEntity->usesZone && zones[powerEntity->zone].active )
+              if( powerEntity->usesZone && level.powerZones[powerEntity->zone].active )
               {
-                zone_t *zone = &zones[powerEntity->zone];
+                zone_t *zone = &level.powerZones[powerEntity->zone];
 
                 zone->totalBuildPoints -= BG_Buildable( buildable )->buildPoints;
                 powerEntity->s.misc = zone->totalBuildPoints - zone->queuedBuildPoints;
@@ -1261,9 +1261,9 @@ void G_CalculateBuildPoints( void )
 
         if( buildable == BA_H_REPEATER )
         {
-          if( ent->usesZone && zones[ ent->zone ].active )
+          if( ent->usesZone && level.powerZones[ ent->zone ].active )
           {
-            zone = &zones[ ent->zone ];
+            zone = &level.powerZones[ ent->zone ];
 
             if( !level.suddenDeath )
             {
@@ -2375,6 +2375,7 @@ void CheckCvars( void )
   static int lastPasswordModCount   = -1;
   static int lastMarkDeconModCount  = -1;
   static int lastSDTimeModCount = -1;
+  static int lastNumZones = 0;
 
   if( g_password.modificationCount != lastPasswordModCount )
   {
@@ -2413,6 +2414,23 @@ void CheckCvars( void )
   {
     lastSDTimeModCount = g_suddenDeathTime.modificationCount;
     level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
+  }
+
+  // If the number of zones changes, we need a new array
+  if( g_humanRepeaterMaxZones.modificationCount != lastNumZones )
+  {
+    zone_t *newZones;
+    size_t newsize = g_humanRepeaterMaxZones.integer * sizeof( zone_t );
+    size_t oldsize = lastNumZones * sizeof( zone_t );
+    newZones = BG_Alloc( newsize );
+    Com_Memset( &newZones[ lastNumZones ], 0, newsize - oldsize );
+    if( level.powerZones )
+    {
+      Com_Memcpy( newZones, level.powerZones, oldsize );
+      BG_Free( level.powerZones );
+    }
+    level.powerZones = newZones;
+    lastNumZones = g_humanRepeaterMaxZones.integer;
   }
 
   level.frameMsec = trap_Milliseconds( );
@@ -2489,6 +2507,7 @@ void G_RunFrame( int levelTime )
 
   // get any cvar changes
   G_UpdateCvars( );
+  CheckCvars( );
 
   //
   // go through all allocated objects
@@ -2603,9 +2622,6 @@ void G_RunFrame( int levelTime )
   // check team votes
   CheckTeamVote( TEAM_HUMANS );
   CheckTeamVote( TEAM_ALIENS );
-
-  // for tracking changes
-  CheckCvars( );
 
   level.frameMsec = trap_Milliseconds();
 }
