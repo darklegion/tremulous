@@ -1346,9 +1346,8 @@ qboolean G_admin_setlevel( gentity_t *ent, int skiparg )
   char lstr[ 11 ]; // 10 is max strlen() for 32-bit int
   char adminname[ MAX_NAME_LENGTH ] = {""};
   char testname[ MAX_NAME_LENGTH ] = {""};
-  char testname2[ MAX_NAME_LENGTH ] = {""};
   char guid[ 33 ];
-  int l, i, j;
+  int l, i;
   gentity_t *vic = NULL;
   qboolean updated = qfalse;
   g_admin_admin_t *a;
@@ -1407,7 +1406,7 @@ qboolean G_admin_setlevel( gentity_t *ent, int skiparg )
   if( numeric && id >= 0 && id < level.maxclients )
     vic = &g_entities[ id ];
 
-  if( vic && vic->client && vic->client->pers.connected == CON_CONNECTED )
+  if( vic && vic->client && vic->client->pers.connected != CON_DISCONNECTED )
   {
     Q_strncpyz( adminname, vic->client->pers.netname, sizeof( adminname ) );
     Q_strncpyz( guid, vic->client->pers.guid, sizeof( guid ) );
@@ -1424,51 +1423,37 @@ qboolean G_admin_setlevel( gentity_t *ent, int skiparg )
   }
   else
   {
-    for( i = 0; i < level.maxclients && matches < 2; i++ )
-    {
-      if( level.clients[ i ].pers.connected != CON_CONNECTED )
-        continue;
-
-      G_SanitiseName( level.clients[ i ].pers.netname, testname );
-      if( strstr( testname, name ) )
-      {
-        vic = &g_entities[ i ];
-        matches++;
-        Q_strncpyz( adminname, vic->client->pers.netname, sizeof( adminname ) );
-        Q_strncpyz( guid, vic->client->pers.guid, sizeof( guid ) );
-      }
-    }
-
-    for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ] && matches < 2; i++)
+    for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ] && matches < 2; i++ )
     {
       G_SanitiseName( g_admin_admins[ i ]->name, testname );
       if( strstr( testname, name ) )
       {
-        qboolean dup = qfalse;
-
-        // verify we don't have the same guid/name pair in connected players
-        for( j = 0; j < level.maxclients; j++ )
-        {
-          if( level.clients[ j ].pers.connected != CON_CONNECTED )
-            continue;
-
-          G_SanitiseName( level.clients[ j ].pers.netname, testname2 );
-          if( !Q_stricmp( level.clients[ j ].pers.guid,
-            g_admin_admins[ i ]->guid ) && strstr( testname2, name ) )
-          {
-            dup = qtrue;
-            break;
-          }
-        }
-
-        if( dup )
-          continue;
-
         Q_strncpyz( adminname, g_admin_admins[ i ]->name, sizeof( adminname ) );
         Q_strncpyz( guid, g_admin_admins[ i ]->guid, sizeof( guid ) );
         matches++;
       }
     }
+
+    for( i = 0; i < level.maxclients && matches < 2; i++ )
+    {
+      if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
+        continue;
+      if( matches && !Q_stricmp( level.clients[ i ].pers.guid, guid ) )
+      {
+        vic = &g_entities[ i ];
+        continue;
+
+      }
+      G_SanitiseName( level.clients[ i ].pers.netname, testname );
+      if( strstr( testname, name ) )
+      {
+        vic = &g_entities[ i ];
+        matches++;
+        Q_strncpyz( guid, vic->client->pers.guid, sizeof( guid ) );
+      }
+    }
+    if( vic )
+      Q_strncpyz( adminname, vic->client->pers.netname, sizeof( adminname ) );
   }
 
   if( matches == 0 )
