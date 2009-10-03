@@ -166,6 +166,8 @@ qboolean UI_ConsoleCommand( int realTime )
     uiInfo.chatTeam = qfalse;
 
     trap_Key_SetCatcher( KEYCATCH_UI );
+    Menus_CloseByName( "say" );
+    Menus_CloseByName( "say_team" );
     Menus_ActivateByName( "say" );
     return qtrue;
   }
@@ -177,6 +179,8 @@ qboolean UI_ConsoleCommand( int realTime )
     uiInfo.chatTeam = qtrue;
 
     trap_Key_SetCatcher( KEYCATCH_UI );
+    Menus_CloseByName( "say" );
+    Menus_CloseByName( "say_team" );
     Menus_ActivateByName( "say_team" );
     return qtrue;
   }

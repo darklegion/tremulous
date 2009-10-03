@@ -355,7 +355,7 @@ void Cmd_Give_f( gentity_t *ent )
 
   if( give_all || Q_stricmpn( name, "funds", 5 ) == 0 )
   {
-    int credits = give_all ? HUMAN_MAX_CREDITS : atoi( name + 6 );
+    int credits = give_all ? ALIEN_MAX_CREDITS : atoi( name + 6 );
     G_AddCreditToClient( ent->client, credits, qtrue );
   }
 
@@ -565,38 +565,26 @@ G_ChangeTeam
 void G_ChangeTeam( gentity_t *ent, pTeam_t newTeam )
 {
   pTeam_t oldTeam = ent->client->pers.teamSelection;
- 
+
   if( oldTeam == newTeam )
     return;
 
   G_LeaveTeam( ent );
   ent->client->pers.teamSelection = newTeam;
-
-  // under certain circumstances, clients can keep their kills and credits
-  // when switching teams
-  if( G_admin_permission( ent, ADMF_TEAMCHANGEFREE ) ||
-    ( ( oldTeam == PTE_HUMANS || oldTeam == PTE_ALIENS )
-    && ( level.time - ent->client->pers.teamChangeTime ) > 60000 ) )
-  {
-    if( oldTeam == PTE_ALIENS )
-      ent->client->pers.credit *= (float)FREEKILL_HUMAN / FREEKILL_ALIEN;
-    else if( newTeam == PTE_ALIENS )
-      ent->client->pers.credit *= (float)FREEKILL_ALIEN / FREEKILL_HUMAN;
-    }
-  else
-  {
-    ent->client->pers.credit = 0;
-    ent->client->pers.score = 0;
-  }
-
   ent->client->pers.classSelection = PCL_NONE;
   ClientSpawn( ent, NULL, NULL, NULL );
-
   ent->client->pers.joinedATeam = qtrue;
   ent->client->pers.teamChangeTime = level.time;
-
-  //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum );
+  
+  // Convert between Alien and Human credits, specs use Alien credits
+  if( oldTeam == PTE_HUMANS )
+    ent->client->pers.credit = (int)( ent->client->pers.credit *
+                                      ALIEN_MAX_CREDITS / HUMAN_MAX_CREDITS + 0.5f );
+  if( newTeam == PTE_HUMANS )
+    ent->client->pers.credit = (int)( ent->client->ps.persistant[ PERS_CREDIT ] *
+                                      HUMAN_MAX_CREDITS / ALIEN_MAX_CREDITS + 0.5f );
+  ent->client->ps.persistant[ PERS_CREDIT ] = ent->client->pers.credit;
 }
 
 /*

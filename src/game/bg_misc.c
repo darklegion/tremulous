@@ -674,7 +674,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  dccTest;
     qfalse,                //qboolean  transparentTest;
     qfalse,                //qboolean  reactorTest;
-    REACTOR_VALUE,         //int       value;
+    REPEATER_VALUE,        //int       value;
   }
 };
 

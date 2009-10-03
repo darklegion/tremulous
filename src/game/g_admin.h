@@ -44,7 +44,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /*
  * 1 - cannot be vote kicked, vote muted
  * 2 - cannot be censored or flood protected TODO
- * 3 - never loses credits for changing teams
  * 4 - can see team chat as a spectator
  * 5 - can switch teams any time, regardless of balance
  * 6 - does not need to specify a reason for a kick/ban
@@ -59,7 +58,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #define ADMF_IMMUNITY '1'
 #define ADMF_NOCENSORFLOOD '2' /* TODO */
-#define ADMF_TEAMCHANGEFREE '3'
 #define ADMF_SPEC_ALLCHAT '4'
 #define ADMF_FORCETEAMCHANGE '5'
 #define ADMF_UNACCOUNTABLE '6'

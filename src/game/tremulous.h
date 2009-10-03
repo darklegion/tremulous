@@ -353,6 +353,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ALIEN_REGEN_NOCREEP_TIME    3000 //msec between regen off creep
 
 #define ALIEN_MAX_FRAGS             9
+#define ALIEN_MAX_CREDITS           (ALIEN_MAX_FRAGS*ALIEN_CREDITS_PER_FRAG)
 #define ALIEN_CREDITS_PER_FRAG      400
 #define ALIEN_TK_SUICIDE_PENALTY    350
 
