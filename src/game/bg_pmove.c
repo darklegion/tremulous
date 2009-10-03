@@ -2905,8 +2905,11 @@ static void PM_Weapon( void )
     // Discharging
     else
     {
-      pm->ps->stats[ STAT_MISC ] -= pml.msec;
-      
+      if( pm->ps->stats[ STAT_MISC ] < LEVEL4_TRAMPLE_CHARGE_MIN )
+        pm->ps->stats[ STAT_MISC ] = 0;
+      else
+        pm->ps->stats[ STAT_MISC ] -= pml.msec;
+
       // If the charger has stopped moving take a chunk of charge away
       if( VectorLength( pm->ps->velocity ) < 64.0f || pm->cmd.rightmove )
         pm->ps->stats[ STAT_MISC ] -= LEVEL4_TRAMPLE_STOP_PENALTY * pml.msec;
