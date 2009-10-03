@@ -58,6 +58,7 @@ itemDef
   textstyle ITEM_TEXTSTYLE_NORMAL
   ownerdraw CG_FPS
 }
+
 //TIMER
 itemDef
 {
@@ -74,6 +75,7 @@ itemDef
   textstyle ITEM_TEXTSTYLE_NORMAL
   ownerdraw CG_TIMER
 }
+
 //LAGOMETER
 itemDef
 {
@@ -87,6 +89,7 @@ itemDef
   textscale 0.3
   ownerdraw CG_LAGOMETER
 }
+
 //CLOCK
 itemDef
 {
@@ -103,11 +106,24 @@ itemDef
   textstyle ITEM_TEXTSTYLE_NORMAL
   ownerdraw CG_CLOCK
 }
+
+//LOCATION
+itemDef
+{
+  name "location"
+  rect (STAT_X-20) ((4*BORDER)+(5*STAT_H)) (STAT_W+25) STAT_H
+  visible MENU_TRUE
+  decoration
+  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 1
+  textscale 0.3
+  ownerdraw CG_PLAYER_LOCATION
+}
+
 //DEMO STATE
 itemDef
 {
   name "demoRecording"
-  rect (STAT_X+(STAT_W-32)) ((5*BORDER)+(4*STAT_H)) 32 32
+  rect (STAT_X+(STAT_W-32)) ((7*BORDER)+(4*STAT_H)) 32 32
   aspectBias ALIGN_RIGHT
   style WINDOW_STYLE_EMPTY
   visible MENU_TRUE
@@ -120,7 +136,7 @@ itemDef
 itemDef
 {
   name "demoPlayback"
-  rect (STAT_X+(STAT_W-32)) ((5*BORDER)+(4*STAT_H)) 32 32
+  rect (STAT_X+(STAT_W-32)) ((7*BORDER)+(4*STAT_H)) 32 32
   aspectBias ALIGN_RIGHT
   style WINDOW_STYLE_EMPTY
   visible MENU_TRUE
@@ -162,7 +178,6 @@ itemDef
 }
 
 //CROSSHAIR
-
 itemDef
 {
   name "crosshair"
@@ -171,3 +186,4 @@ itemDef
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B .35
   ownerdraw CG_PLAYER_CROSSHAIR
 }
+
