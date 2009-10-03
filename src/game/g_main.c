@@ -704,6 +704,8 @@ void G_ShutdownGame( int restart )
   G_admin_cleanup( );
   G_admin_namelog_cleanup( );
 
+  G_ShutdownMapRotations( );
+
   level.restarted = qfalse;
   level.surrenderTeam = TEAM_NONE;
   trap_SetConfigstring( CS_WINNER, "" );
