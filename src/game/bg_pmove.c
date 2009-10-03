@@ -111,7 +111,7 @@ static void PM_StartWeaponAnim( int anim )
   if( pm->ps->pm_type >= PM_DEAD )
     return;
 
-  pm->ps->weaponAnim = ( ( pm->ps->torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
+  pm->ps->weaponAnim = ( ( pm->ps->weaponAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
     | anim;
 }
 
@@ -3261,44 +3261,50 @@ static void PM_Weapon( void )
   }
   else
   {
-    if( pm->ps->weapon == WP_ALEVEL4 )
-    {
-      //hack to get random attack animations
-      int num = abs( pm->ps->commandTime ) % 3;
+    int num = abs( pm->ps->weaponTime );
 
-      if( num == 0 )
-      {
-        PM_ForceLegsAnim( NSPA_ATTACK1 );
-        PM_StartWeaponAnim( WANIM_ATTACK1 );
-      }
-      else if( num == 1 )
-      {
-        PM_ForceLegsAnim( NSPA_ATTACK2 );
-        PM_StartWeaponAnim( WANIM_ATTACK2 );
-      }
-      else if( num == 2 )
-      {
-        PM_ForceLegsAnim( NSPA_ATTACK3 );
-        PM_StartWeaponAnim( WANIM_ATTACK3 );
-      }
-    }
-    else
+    //FIXME: it would be nice to have these hard coded policies in
+    //       weapon.cfg
+    switch( pm->ps->weapon )
     {
-      if( attack1 )
-      {
-        PM_ForceLegsAnim( NSPA_ATTACK1 );
-        PM_StartWeaponAnim( WANIM_ATTACK1 );
-      }
-      else if( attack2 )
-      {
-        PM_ForceLegsAnim( NSPA_ATTACK2 );
-        PM_StartWeaponAnim( WANIM_ATTACK2 );
-      }
-      else if( attack3 )
-      {
-        PM_ForceLegsAnim( NSPA_ATTACK3 );
-        PM_StartWeaponAnim( WANIM_ATTACK3 );
-      }
+      case WP_ALEVEL2_UPG:
+        if( attack2 )
+        {
+          PM_ForceLegsAnim( NSPA_ATTACK2 );
+          PM_StartWeaponAnim( WANIM_ATTACK7 );
+        }
+      case WP_ALEVEL2:
+        if( attack1 )
+        {
+          num %= 6;
+          PM_ForceLegsAnim( NSPA_ATTACK1 );
+          PM_StartWeaponAnim( WANIM_ATTACK1 + num );
+        }
+        break;
+
+      case WP_ALEVEL4:
+        num %= 3;
+        PM_ForceLegsAnim( NSPA_ATTACK1 + num );
+        PM_StartWeaponAnim( WANIM_ATTACK1 + num );
+        break;
+
+      default:
+        if( attack1 )
+        {
+          PM_ForceLegsAnim( NSPA_ATTACK1 );
+          PM_StartWeaponAnim( WANIM_ATTACK1 );
+        }
+        else if( attack2 )
+        {
+          PM_ForceLegsAnim( NSPA_ATTACK2 );
+          PM_StartWeaponAnim( WANIM_ATTACK2 );
+        }
+        else if( attack3 )
+        {
+          PM_ForceLegsAnim( NSPA_ATTACK3 );
+          PM_StartWeaponAnim( WANIM_ATTACK3 );
+        }
+        break;
     }
 
     pm->ps->torsoTimer = TIMER_ATTACK;

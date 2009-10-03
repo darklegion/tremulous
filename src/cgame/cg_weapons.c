@@ -625,9 +625,6 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
       strcat( path, "_hand.md3" );
       wi->handsModel = trap_R_RegisterModel( path );
 
-      if( !wi->handsModel )
-        wi->handsModel = trap_R_RegisterModel( "models/weapons2/shotgun/shotgun_hand.md3" );
-
       continue;
     }
     else if( !Q_stricmp( token, "idleSound" ) )
