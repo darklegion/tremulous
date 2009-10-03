@@ -674,42 +674,36 @@ static void CG_DrawPlayerWallclimbing( rectDef_t *rect, vec4_t color, qhandle_t 
 
 static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
 {
-  int           value;
-  centity_t     *cent;
-  playerState_t *ps;
-  weapon_t      weapon;
+  int value;
 
-  cent = &cg_entities[ cg.snap->ps.clientNum ];
-  ps = &cg.snap->ps;
-  weapon = BG_GetPlayerWeapon( ps );
-
-  if( weapon )
+  switch( BG_PrimaryWeapon( cg.snap->ps.stats ) )
   {
-    switch( weapon )
-    {
-      case WP_ABUILD:
-      case WP_ABUILD2:
-        value = cgs.alienBuildPoints;
-        break;
+    case WP_NONE:
+    case WP_BLASTER:
+      return;
 
-      case WP_HBUILD:
-        value = cgs.humanBuildPoints;
-        break;
+    case WP_ABUILD:
+    case WP_ABUILD2:
+      value = cgs.alienBuildPoints;
+      break;
 
-      default:
-        value = ps->ammo;
-        break;
-    }
+    case WP_HBUILD:
+      value = cgs.humanBuildPoints;
+      break;
 
-    if( value > 999 )
-      value = 999;
+    default:
+      value = cg.snap->ps.ammo;
+      break;
+  }
 
-    if( value > -1 )
-    {
-      trap_R_SetColor( color );
-      CG_DrawField( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
-      trap_R_SetColor( NULL );
-    }
+  if( value > 999 )
+    value = 999;
+
+  if( value > -1 )
+  {
+    trap_R_SetColor( color );
+    CG_DrawField( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
+    trap_R_SetColor( NULL );
   }
 }
 
@@ -777,13 +771,11 @@ static void CG_DrawUsableBuildable( rectDef_t *rect, qhandle_t shader, vec4_t co
 static void CG_DrawPlayerBuildTimer( rectDef_t *rect, vec4_t color )
 {
   int           index;
-  centity_t     *cent;
   playerState_t *ps;
   weapon_t      weapon;
 
-  cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
-  weapon = BG_GetPlayerWeapon( ps );
+  weapon = BG_PrimaryWeapon( ps->stats );
 
   if( ( weapon != WP_ABUILD && weapon != WP_ABUILD2 && weapon != WP_HBUILD ) ||
       ps->stats[ STAT_MISC ] <= 0 )
@@ -812,20 +804,19 @@ static void CG_DrawPlayerBuildTimer( rectDef_t *rect, vec4_t color )
 static void CG_DrawPlayerClipsValue( rectDef_t *rect, vec4_t color )
 {
   int           value;
-  centity_t     *cent;
   playerState_t *ps;
   weapon_t      weapon;
 
-  cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
-  weapon = BG_GetPlayerWeapon( ps );
+  weapon = BG_PrimaryWeapon( ps->stats );
 
   switch( weapon )
   {
+    case WP_NONE:
+    case WP_BLASTER:
     case WP_ABUILD:
     case WP_ABUILD2:
     case WP_HBUILD:
-    case 0:
       break;
 
     default:
@@ -843,15 +834,9 @@ static void CG_DrawPlayerClipsValue( rectDef_t *rect, vec4_t color )
 
 static void CG_DrawPlayerHealthValue( rectDef_t *rect, vec4_t color )
 {
-  playerState_t *ps;
-  int value;
-
-  ps = &cg.snap->ps;
-
-  value = ps->stats[ STAT_HEALTH ];
-
   trap_R_SetColor( color );
-  CG_DrawField( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
+  CG_DrawField( rect->x, rect->y, 4, rect->w / 4, rect->h,
+                cg.snap->ps.stats[ STAT_HEALTH ] );
   trap_R_SetColor( NULL );
 }
 

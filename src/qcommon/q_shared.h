@@ -462,10 +462,6 @@ typedef struct {
 #define Vector4Copy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
 #define Vector4Add(a,b,c)    ((c)[0]=(a)[0]+(b)[0],(c)[1]=(a)[1]+(b)[1],(c)[2]=(a)[2]+(b)[2],(c)[3]=(a)[3]+(b)[3])
 
-// DO NOT USE: Snaps differently depending on whether number is positive or 
-// negative! -0.5 and 0.5 both snapped to zero!
-//#define	SnapVector(v) {v[0]=((int)(v[0]));v[1]=((int)(v[1]));v[2]=((int)(v[2]));}
-
 // Snaps the vector to the floor value always, ignoring any weirdness from
 // snapping negative versus positive numbers
 #define Floor(fl) ((fl) >= 0.0f ? (int)(fl) : -(int)(-(fl)))
