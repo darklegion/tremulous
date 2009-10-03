@@ -2627,23 +2627,35 @@ void G_QueueBuildPoints( gentity_t *self )
 
       if( powerEntity )
       {
+        int nqt;
         switch( powerEntity->s.modelindex )
         {
           case BA_H_REACTOR:
-            if( !level.humanBuildPointQueue )
-              level.humanNextQueueTime = level.time + g_humanBuildQueueTime.integer;
+            nqt = G_NextQueueTime( level.humanBuildPointQueue,
+                                   g_humanBuildPoints.integer,
+                                   g_humanBuildQueueTime.integer );
+            if( !level.humanBuildPointQueue ||
+                level.time + nqt < level.humanNextQueueTime )
+              level.humanNextQueueTime = level.time + nqt;
 
             level.humanBuildPointQueue +=
                 BG_Buildable( self->s.modelindex )->buildPoints;
             break;
 
           case BA_H_REPEATER:
-            if( powerEntity->usesZone && level.powerZones[powerEntity->zone].active )
+            if( powerEntity->usesZone &&
+                level.powerZones[ powerEntity->zone ].active )
             {
-              zone_t *zone = &level.powerZones[powerEntity->zone];
+              zone_t *zone = &level.powerZones[ powerEntity->zone ];
 
-              if( !zone->queuedBuildPoints )
-                zone->nextQueueTime = level.time + g_humanRepeaterBuildQueueTime.integer;
+              nqt = G_NextQueueTime( zone->queuedBuildPoints,
+                                     zone->totalBuildPoints,
+                                     g_humanRepeaterBuildQueueTime.integer );
+
+              if( !zone->queuedBuildPoints ||
+                  level.time + nqt < zone->nextQueueTime )
+                zone->nextQueueTime = level.time + nqt;
+
               zone->queuedBuildPoints +=
                 BG_Buildable( self->s.modelindex )->buildPoints;
             }
@@ -2662,6 +2674,22 @@ void G_QueueBuildPoints( gentity_t *self )
             BG_Buildable( self->s.modelindex )->buildPoints;
       }
   }
+}
+
+/*
+============
+G_NextQueueTime
+============
+*/
+int G_NextQueueTime( int queuedBP, int totalBP, int queueBaseRate )
+{
+  float fractionQueued;
+
+  if( totalBP == 0 )
+    return 0;
+
+  fractionQueued = queuedBP / (float)totalBP;
+  return ( 1.0f - fractionQueued ) * queueBaseRate;
 }
 
 /*

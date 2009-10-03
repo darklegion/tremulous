@@ -1078,16 +1078,18 @@ void G_CalculateBuildPoints( void )
          level.alienNextQueueTime < level.time )
   {
     level.alienBuildPointQueue--;
-    level.alienNextQueueTime += (int)( g_alienBuildQueueTime.integer *
-      ( 1.0f - ( (float)level.alienBuildPointQueue / level.alienBuildPoints ) ) );
+    level.alienNextQueueTime += G_NextQueueTime( level.alienBuildPointQueue,
+                                               g_alienBuildPoints.integer,
+                                               g_alienBuildQueueTime.integer );
   }
 
   while( level.humanBuildPointQueue > 0 &&
          level.humanNextQueueTime < level.time )
   {
     level.humanBuildPointQueue--;
-    level.humanNextQueueTime += (int)( g_humanBuildQueueTime.integer  *
-      ( 1.0f - ( (float)level.humanBuildPointQueue / level.humanBuildPoints ) ) );
+    level.humanNextQueueTime += G_NextQueueTime( level.humanBuildPointQueue,
+                                               g_humanBuildPoints.integer,
+                                               g_humanBuildQueueTime.integer );
   }
 
   // Sudden Death checks
@@ -1220,20 +1222,14 @@ void G_CalculateBuildPoints( void )
         while( zone->queuedBuildPoints > 0 &&
                zone->nextQueueTime < level.time )
         {
-          float queued;
-
-          zone->queuedBuildPoints--;
-          queued = zone->queuedBuildPoints / (float)zone->totalBuildPoints;
-
-          // It is possible for queued BP to be great than total BP,
-          // in which case, treat it as if the leftover BP is positive
-          zone->nextQueueTime += abs( g_humanRepeaterBuildQueueTime.integer * 
-                                      ( 1 - queued ) );
+          zone->nextQueueTime += G_NextQueueTime( zone->queuedBuildPoints,
+                                     zone->totalBuildPoints,
+                                     g_humanRepeaterBuildQueueTime.integer );
         }
       }
       else
       {
-          zone->totalBuildPoints = zone->queuedBuildPoints = 0;
+        zone->totalBuildPoints = zone->queuedBuildPoints = 0;
       }
     }
   }

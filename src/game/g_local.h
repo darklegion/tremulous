@@ -763,6 +763,7 @@ int               G_LayoutList( const char *map, char *list, int len );
 void              G_LayoutSelect( void );
 void              G_LayoutLoad( void );
 void              G_BaseSelfDestruct( team_t team );
+int               G_NextQueueTime( int queuedBP, int totalBP, int queueBaseRate );
 void              G_QueueBuildPoints( gentity_t *self );
 int               G_GetBuildPoints( const vec3_t pos, team_t team, int dist );
 qboolean          G_FindPower( gentity_t *self );
