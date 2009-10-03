@@ -2081,6 +2081,38 @@ void HMedistat_Think( gentity_t *self )
 
 /*
 ================
+HMGTurret_CheckTarget
+
+Used by HMGTurret_Think to check enemies for validity
+================
+*/
+qboolean HMGTurret_CheckTarget( gentity_t *self, gentity_t *target,
+                                qboolean los_check )
+{
+  trace_t   tr;
+  gentity_t *traceEnt;
+  vec3_t    dir, end;
+
+  if( !target || target->health <= 0 || !target->client ||
+      target->client->pers.teamSelection != PTE_ALIENS ||
+      ( target->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
+    return qfalse;
+    
+  if( !los_check )
+    return qtrue;
+
+  // Accept target if we can line-trace to it
+  VectorSubtract( target->s.pos.trBase, self->s.pos.trBase, dir );
+  VectorNormalize( dir );
+  VectorMA( self->s.pos.trBase, MGTURRET_RANGE, dir, end );
+  trap_Trace( &tr, self->s.pos.trBase, NULL, NULL, end,
+              self->s.number, MASK_SHOT );
+  return tr.entityNum == target - g_entities;
+}
+
+
+/*
+================
 HMGTurret_TrackEnemy
 
 Used by HMGTurret_Think to track enemy location
@@ -2088,19 +2120,15 @@ Used by HMGTurret_Think to track enemy location
 */
 qboolean HMGTurret_TrackEnemy( gentity_t *self )
 {
-  vec3_t  dirToTarget, dttAdjusted, angleToTarget, angularDiff, xNormal;
+  trace_t tr;
+  vec3_t  dirToTarget, dttAdjusted, angleToTarget, angularDiff, xNormal, end;
   vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
-  float   temp, rotAngle;
-  float   accuracyTolerance, angularSpeed;
+  float   temp, rotAngle, angularSpeed;
 
-  accuracyTolerance = MGTURRET_ACCURACYTOLERANCE;
-  if( self->locked )
-    angularSpeed = MGTURRET_ANGULARSPEED_LOCKED;
-  else
-    angularSpeed = MGTURRET_ANGULARSPEED;
+  angularSpeed = self->lev1Grabbed ? MGTURRET_ANGULARSPEED_GRAB :
+                                     MGTURRET_ANGULARSPEED;
 
   VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
-
   VectorNormalize( dirToTarget );
 
   CrossProduct( self->s.origin2, refNormal, xNormal );
@@ -2141,63 +2169,11 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
   RotatePointAroundVector( dirToTarget, xNormal, dttAdjusted, -rotAngle );
   vectoangles( dirToTarget, self->turretAim );
 
-  //if pointing at our target return true
-  if( abs( angleToTarget[ YAW ] - self->s.angles2[ YAW ] ) <= accuracyTolerance &&
-      abs( angleToTarget[ PITCH ] - self->s.angles2[ PITCH ] ) <= accuracyTolerance )
-    return qtrue;
-
-  return qfalse;
-}
-
-
-/*
-================
-HMGTurret_CheckTarget
-
-Used by HMGTurret_Think to check enemies for validity
-================
-*/
-qboolean HMGTurret_CheckTarget( gentity_t *self, gentity_t *target )
-{
-  trace_t   trace;
-  gentity_t *traceEnt;
-
-  if( !target )
-    return qfalse;
-
-  if( !target->client )
-    return qfalse;
-
-  if( target->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
-    return qfalse;
-
-  if( target->health <= 0 )
-    return qfalse;
-
-  if( Distance( self->s.origin, target->s.pos.trBase ) > MGTURRET_RANGE )
-    return qfalse;
-
-  trap_Trace( &trace, self->s.pos.trBase, NULL, NULL, target->s.pos.trBase, self->s.number, MASK_SHOT );
-
-  traceEnt = &g_entities[ trace.entityNum ];
-
-  if( !traceEnt->client )
-    return qfalse;
-
-  if( traceEnt->client && traceEnt->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
-    return qfalse;
-
-  trap_Trace( &trace, self->s.pos.trBase, NULL, NULL, target->s.pos.trBase, self->s.number, MASK_SHOT );
-
-  traceEnt = &g_entities[ trace.entityNum ];
-
-  if( !traceEnt->client )
-    return qfalse;
-
-  if( traceEnt->client && traceEnt->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
-    return qfalse;
-
-  return qtrue;
+  //if pointing at a valid target (not necessarily the original) return true
+  VectorMA( self->s.pos.trBase, MGTURRET_RANGE, dirToTarget, end );
+  trap_Trace( &tr, self->s.pos.trBase, NULL, NULL, end,
+              self->s.number, MASK_SHOT );
+  return HMGTurret_CheckTarget( self, g_entities + tr.entityNum, qfalse );
 }
 
 
@@ -2216,29 +2192,26 @@ void HMGTurret_FindEnemy( gentity_t *self )
   int       i, num;
   gentity_t *target;
 
+  if( self->enemy )
+    self->enemy->targeted = NULL;
+
+  self->enemy = NULL;
+    
+  // Look for targets in a box around the turret
   VectorSet( range, MGTURRET_RANGE, MGTURRET_RANGE, MGTURRET_RANGE );
   VectorAdd( self->s.origin, range, maxs );
   VectorSubtract( self->s.origin, range, mins );
-
-  //find aliens
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
   {
     target = &g_entities[ entityList[ i ] ];
+    if( !HMGTurret_CheckTarget( self, target, qtrue ) )
+      continue;
 
-    if( target->client && target->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-    {
-      //if target is not valid keep searching
-      if( !HMGTurret_CheckTarget( self, target ) )
-        continue;
-
-      //we found a target
-      self->enemy = target;
-      return;
-    }
+    self->enemy = target;
+    self->enemy->targeted = self;
+    return;
   }
-  //couldn't find a target
-  self->enemy = NULL;
 }
 
 
@@ -2251,77 +2224,76 @@ Think function for MG turret
 */
 void HMGTurret_Think( gentity_t *self )
 {
-  int firespeed = BG_FindFireSpeedForBuildable( self->s.modelindex );
+  self->nextthink = level.time + 
+                    BG_FindNextThinkForBuildable( self->s.modelindex );
 
-  self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
-
-  //used for client side muzzle flashes
+  // Turn off client side muzzle flashes
   self->s.eFlags &= ~EF_FIRING;
 
-  //if not powered don't do anything and check again for power next think
+  // If not powered or spawned don't do anything
   if( !( self->powered = G_FindPower( self ) ) )
   {
     self->nextthink = level.time + POWER_REFRESH_TIME;
     return;
   }
-
-  if( self->spawned )
+  if( !self->spawned )
+    return;
+    
+  // If the current target is not valid find a new enemy
+  if( !HMGTurret_CheckTarget( self, self->enemy, qtrue ) )
   {
-    //if the current target is not valid find a new one
-    if( !HMGTurret_CheckTarget( self, self->enemy ) )
-    {
-      self->locked = qfalse;
-      if( self->enemy )
-        self->enemy->targeted = NULL;
+    self->active = qfalse;
+    HMGTurret_FindEnemy( self );
+  }
+  if( !self->enemy )
+    return;
 
-      HMGTurret_FindEnemy( self );
+  // Track until we can hit the target
+  if( !HMGTurret_TrackEnemy( self ) )
+  {
+    self->active = qfalse;
+    return;
+  }
+
+  // Update spin state
+  if( !self->active && self->count < level.time )
+  {
+    int spinTime;
+    
+    self->active = qtrue;
+    spinTime = level.time - self->turretSpinupTime - MGTURRET_SPIN_DURATION;
+
+    if( spinTime <= 0 )
+    {
+        // Still has residual spin
+        self->turretSpinupTime = level.time;
     }
-
-    //if a new target cannot be found don't do anything
-    if( !self->enemy )
-      return;
-
-    self->enemy->targeted = self;
-
-    if( self->active )
+    else if( spinTime < MGTURRET_SPINDOWN_TIME )
     {
-      qboolean canFire = HMGTurret_TrackEnemy( self );
-
-      if( self->turretSpinupTime < level.time )
-      {
-        if( canFire )
-        {
-          if( !self->locked )
-          {
-            self->active = qfalse;
-          }
-          else if( self->count < level.time )
-          {
-            //fire at target
-            FireWeapon( self );
-            self->s.eFlags |= EF_FIRING;
-            G_AddEvent( self, EV_FIRE_WEAPON, 0 );
-            G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
-            self->count = level.time + firespeed;
-          }
-        }
-        else
-        {
-          self->locked = qfalse;
-        }
-      }
-      return;
+        // Hasn't completely spun-down
+        self->turretSpinupTime = level.time + spinTime;
     }
-
-    //if we are pointing at our target, start spinning up 
-    if( HMGTurret_TrackEnemy( self ) && self->count < level.time )
+    else
     {
-      self->active = qtrue;
-      self->locked = qtrue;
+      // Needs a full spin-up
       self->turretSpinupTime = level.time + MGTURRET_SPINUP_TIME;
-      G_AddEvent( self, EV_MGTURRET_SPINUP, 0 );
+              G_AddEvent( self, EV_MGTURRET_SPINUP, 0 );
     }
   }
+
+  // Not firing or haven't spun up yet
+  if( !self->active || self->turretSpinupTime > level.time )
+    return;
+    
+  // Fire repeat delay
+  if( self->count > level.time )
+    return;
+
+  FireWeapon( self );
+  self->s.eFlags |= EF_FIRING;
+  self->count = level.time + BG_FindFireSpeedForBuildable( self->s.modelindex );
+  G_AddEvent( self, EV_FIRE_WEAPON, 0 );
+  G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
 }
 
 

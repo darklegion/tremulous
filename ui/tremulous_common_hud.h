@@ -37,7 +37,7 @@ itemDef
   forecolor 1 1 1 0.35
   textalign ALIGN_LEFT
   textvalign VALIGN_TOP
-  textscale 0.4
+  textscale 0.3
   textstyle ITEM_TEXTSTYLE_NORMAL
   ownerdraw CG_TUTORIAL
 }

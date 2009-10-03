@@ -4716,7 +4716,7 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
           buff[ lineLength + 2 ] = '\0';
         }
         else
-        {
+          {
           strncpy( buff, p, lineLength );
           buff[ lineLength ] = '\0';
         }
@@ -4984,7 +4984,7 @@ static bind_t g_bindings[] =
     { "+scores",      K_TAB,         -1, -1, -1 },
     { "+button2",     K_ENTER,       -1, -1, -1 },
     { "+speed",       K_SHIFT,       -1, -1, -1 },
-    { "boost",        'x',           -1, -1, -1 }, // human sprinting
+    { "+button6",     'x',           -1, -1, -1 }, // human sprinting
     { "+forward",     K_UPARROW,     -1, -1, -1 },
     { "+back",        K_DOWNARROW,   -1, -1, -1 },
     { "+moveleft",    ',',           -1, -1, -1 },
