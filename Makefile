@@ -17,11 +17,21 @@ ifeq ($(COMPILE_PLATFORM),darwin)
   COMPILE_ARCH=$(shell uname -p | sed -e s/i.86/x86/)
 endif
 
-BUILD_CLIENT     =
-BUILD_CLIENT_SMP =
-BUILD_SERVER     =
-BUILD_GAME_SO    =
-BUILD_GAME_QVM   =
+ifndef BUILD_CLIENT
+  BUILD_CLIENT     =
+endif
+ifndef BUILD_CLIENT_SMP
+  BUILD_CLIENT_SMP =
+endif
+ifndef BUILD_SERVER
+  BUILD_SERVER     =
+endif
+ifndef BUILD_GAME_SO
+  BUILD_GAME_SO    =
+endif
+ifndef BUILD_GAME_QVM
+  BUILD_GAME_QVM   =
+endif
 
 ifneq ($(PLATFORM),darwin)
   BUILD_CLIENT_SMP = 0
@@ -275,57 +285,13 @@ else # ifeq Linux
 
 ifeq ($(PLATFORM),darwin)
   HAVE_VM_COMPILED=true
-  BASE_CFLAGS=
   CLIENT_LDFLAGS=
-  LDFLAGS=
   OPTIMIZE=
-
-  ifndef MACOSX_SDK_DIR
-    MACOSX_SDK_DIR="/Developer/SDKs/MacOSX10.5.sdk"
-  endif
 
   # building the QVMs on MacOSX is broken, atm.
   BUILD_GAME_QVM=0
-
-  ifeq ($(BUILD_MACOSX_UB),ppc)
-    CC=gcc-4.0
-    BASE_CFLAGS += -arch ppc -DSMP \
-      -DMAC_OS_X_VERSION_MIN_REQUIRED=1020 -nostdinc \
-      -F"$(MACOSX_SDK_DIR)"/System/Library/Frameworks \
-      -I"$(MACOSX_SDK_DIR)"/usr/lib/gcc/i686-apple-darwin9/4.0.1/include \
-      -isystem "$(MACOSX_SDK_DIR)"/usr/include
-    LDFLAGS += -arch ppc \
-      -L"$(MACOSX_SDK_DIR)"/usr/lib/gcc/darwin/4.0 \
-      -F"$(MACOSX_SDK_DIR)"/System/Library/Frameworks \
-      -Wl,-syslibroot,"$(MACOSX_SDK_DIR)"
-    ARCH=ppc
-
-    # OS X 10.2 sdk lacks dlopen() so ded would need libSDL anyway
-#   BUILD_SERVER=0
-
-  else
-  ifeq ($(BUILD_MACOSX_UB),x86)
-    CC=gcc-4.0
-    BASE_CFLAGS += -arch i386 -DSMP \
-      -mmacosx-version-min=10.4 \
-      -DMAC_OS_X_VERSION_MIN_REQUIRED=1040 -nostdinc \
-      -F"$(MACOSX_SDK_DIR)"/System/Library/Frameworks \
-      -I"$(MACOSX_SDK_DIR)"/usr/lib/gcc/i686-apple-darwin9/4.0.1/include \
-      -isystem "$(MACOSX_SDK_DIR)"/usr/include
-    LDFLAGS = -arch i386 -mmacosx-version-min=10.4 \
-      -L"$(MACOSX_SDK_DIR)"/usr/lib/gcc/i686-apple-darwin9/4.0.1 \
-      -F"$(MACOSX_SDK_DIR)"/System/Library/Frameworks \
-      -Wl,-syslibroot,"$(MACOSX_SDK_DIR)"
-    ARCH=x86
-#    BUILD_SERVER=0
-  else
-    # for whatever reason using the headers in the MacOSX SDKs tend to throw
-    # errors even though they are identical to the system ones which don't
-    # therefore we shut up warning flags when running the universal build
-    # script as much as possible.
-    BASE_CFLAGS += -Wall -Wimplicit -Wstrict-prototypes
-  endif
-  endif
+  
+  BASE_CFLAGS = -Wall -Wimplicit -Wstrict-prototypes
 
   ifeq ($(ARCH),ppc)
     OPTIMIZE += -faltivec -O3
@@ -874,6 +840,12 @@ targets: makedirs
 	@echo ""
 	@echo "  CFLAGS:"
 	@for i in $(CFLAGS); \
+	do \
+		echo "    $$i"; \
+	done
+	@echo ""
+	@echo "  LDFLAGS:"
+	@for i in $(LDFLAGS); \
 	do \
 		echo "    $$i"; \
 	done
