@@ -616,10 +616,6 @@ typedef struct
   int               humanStage2Time;
   int               humanStage3Time;
 
-  int               alienStagedownCredits;    // Credits at the time the opposing team 
-  int               humanStagedownCredits;    // became vulnerable to a stage-down
-
-
   qboolean          uncondAlienWin;
   qboolean          uncondHumanWin;
   qboolean          alienTeamLocked;
@@ -1129,13 +1125,13 @@ extern  vmCvar_t  g_alienBuildPoints;
 extern  vmCvar_t  g_humanStage;
 extern  vmCvar_t  g_humanCredits;
 extern  vmCvar_t  g_humanMaxStage;
-extern  vmCvar_t  g_humanMaxReachedStage;
-extern  vmCvar_t  g_humanStageThreshold;
+extern  vmCvar_t  g_humanStage2Threshold;
+extern  vmCvar_t  g_humanStage3Threshold;
 extern  vmCvar_t  g_alienStage;
 extern  vmCvar_t  g_alienCredits;
 extern  vmCvar_t  g_alienMaxStage;
-extern  vmCvar_t  g_alienMaxReachedStage;
-extern  vmCvar_t  g_alienStageThreshold;
+extern  vmCvar_t  g_alienStage2Threshold;
+extern  vmCvar_t  g_alienStage3Threshold;
 
 extern  vmCvar_t  g_unlagged;
 
