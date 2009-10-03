@@ -44,6 +44,43 @@ void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... )
   trap_SendServerCommand( ( ( ent == NULL ) ? -1 : ent-g_entities ), va( "print \"%s\"", msg ) );
 }
 
+/*
+================
+G_TeamFromString
+
+Return the team referenced by a string
+================
+*/
+team_t G_TeamFromString( char *str )
+{
+  switch( tolower( *str ) )
+  {
+    case '0': case 's': return TEAM_NONE;
+    case '1': case 'a': return TEAM_ALIENS;
+    case '2': case 'h': return TEAM_HUMANS;
+    default: return NUM_TEAMS;
+  }
+}
+
+/*
+================
+G_TeamName
+================
+*/
+char *G_TeamName( team_t team )
+{
+  switch( team )
+  {
+    case TEAM_NONE:
+      return "spectator";
+    case TEAM_ALIENS:
+      return "alien";
+    case TEAM_HUMANS:
+      return "human";
+    default:
+      return "unknown";
+  }
+}
 
 /*
 ==============
@@ -59,6 +96,104 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 )
     return qtrue;
 
   return qfalse;
+}
+
+/*
+==================
+G_LeaveTeam
+==================
+*/
+void G_LeaveTeam( gentity_t *self )
+{
+  team_t    team = self->client->pers.teamSelection;
+  gentity_t *ent;
+  int       i;
+
+  if( team == TEAM_ALIENS )
+    G_RemoveFromSpawnQueue( &level.alienSpawnQueue, self->client->ps.clientNum );
+  else if( team == TEAM_HUMANS )
+    G_RemoveFromSpawnQueue( &level.humanSpawnQueue, self->client->ps.clientNum );
+  else
+  {
+    // might have been following somone so reset
+    if( self->client->sess.spectatorState == SPECTATOR_FOLLOW )
+      G_StopFollowing( self );
+    return;
+  }
+
+  // stop any following clients
+  G_StopFromFollowing( self );
+
+  G_TeamVote( self, qfalse );
+  self->suicideTime = 0;
+
+  for( i = 0; i < level.num_entities; i++ )
+  {
+    ent = &g_entities[ i ];
+    if( !ent->inuse )
+      continue;
+
+    if( ent->client && ent->client->pers.connected == CON_CONNECTED )
+    {
+      // cure poison
+      if( ent->client->ps.stats[ STAT_STATE ] & SS_POISONED &&
+          ent->client->lastPoisonClient == self )
+        ent->client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
+    }
+    else if( ent->s.eType == ET_MISSILE && ent->r.ownerNum == self->s.number )
+      G_FreeEntity( ent );
+  }
+}
+
+/*
+=================
+G_ChangeTeam
+=================
+*/
+void G_ChangeTeam( gentity_t *ent, team_t newTeam )
+{
+  team_t  oldTeam = ent->client->pers.teamSelection;
+
+  if( oldTeam == newTeam )
+    return;
+
+  G_LeaveTeam( ent );
+  ent->client->pers.teamSelection = newTeam;
+  ent->client->pers.classSelection = PCL_NONE;
+  ClientSpawn( ent, NULL, NULL, NULL );
+  ent->client->pers.joinedATeam = qtrue;
+  ent->client->pers.teamChangeTime = level.time;
+
+  if( oldTeam == TEAM_NONE )
+  {
+    // ps.persistant[] from a spectator cannot be trusted
+    ent->client->ps.persistant[ PERS_CREDIT ] = ent->client->pers.savedCredit;
+  }
+  else if( oldTeam == TEAM_HUMANS && newTeam == TEAM_ALIENS )
+  {
+    // Convert from human to alien credits
+    ent->client->ps.persistant[ PERS_CREDIT ] =
+      (int)( ent->client->ps.persistant[ PERS_CREDIT ] *
+             ALIEN_MAX_CREDITS / HUMAN_MAX_CREDITS + 0.5f );
+  }
+  else if( oldTeam == TEAM_ALIENS && newTeam == TEAM_HUMANS )
+  {
+    // Convert from alien to human credits
+    ent->client->ps.persistant[ PERS_CREDIT ] =
+      (int)( ent->client->ps.persistant[ PERS_CREDIT ] *
+             HUMAN_MAX_CREDITS / ALIEN_MAX_CREDITS + 0.5f );
+  }
+
+  ent->client->pers.credit = ent->client->ps.persistant[ PERS_CREDIT ];
+
+  if( newTeam == TEAM_NONE )
+  {
+    // save values before the client enters the spectator team and their
+    // ps.persistant[] values become trashed
+    ent->client->pers.savedCredit = ent->client->ps.persistant[ PERS_CREDIT ];
+  }
+
+  ClientUserinfoChanged( ent->client->ps.clientNum );
 }
 
 /*

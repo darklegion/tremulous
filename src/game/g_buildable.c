@@ -3755,9 +3755,7 @@ void G_BaseSelfDestruct( team_t team )
       continue;
     if( ent->s.eType != ET_BUILDABLE )
       continue;
-    if( team == TEAM_HUMANS && ent->buildableTeam != TEAM_HUMANS )
-      continue;
-    if( team == TEAM_ALIENS && ent->buildableTeam != TEAM_ALIENS )
+    if( ent->buildableTeam != team )
       continue;
     G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
   }
