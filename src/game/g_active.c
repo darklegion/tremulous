@@ -407,7 +407,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
             !( client->oldbuttons & BUTTON_USE_HOLDABLE );
    
   // We are in following mode only if we are following a non-spectating client           
-  following = client->sess.spectatorState != SPECTATOR_FOLLOW;
+  following = client->sess.spectatorState == SPECTATOR_FOLLOW;
   if( following )
   {
     clientNum = client->sess.spectatorClient;

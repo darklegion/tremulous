@@ -2063,8 +2063,7 @@ void Cmd_Buy_f( gentity_t *ent )
   weapon = BG_WeaponByName( s )->number;
   upgrade = BG_UpgradeByName( s )->number;
 
-  // Seems odd to let people 'buy ammo' from a Reactor but allow this
-  // and make sure we only give energy ammo in this case
+  // Only give energy from reactors or repeaters
   if( G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
     energyOnly = qfalse;
   else if( upgrade == UP_AMMO && BG_HasEnergyWeapon( &ent->client->ps ) &&
