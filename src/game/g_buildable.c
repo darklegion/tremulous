@@ -2674,7 +2674,7 @@ void G_QueueBuildPoints( gentity_t *self )
       killer->client->ps.stats[ STAT_TEAM ] == self->buildableTeam )
   {
     // Don't take away build points if killed by a teammate
-    // This mostly happens due to MOD_NOCREEP
+    // deconstructing an egg/overmind (MOD_NOCREEP)
     return;
   }
       
