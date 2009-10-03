@@ -157,7 +157,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ABUILDER_UPG_REGEN          3
 #define ABUILDER_UPG_COST           0
 
-#define LEVEL0_SPEED                1.3f
+#define LEVEL0_SPEED                1.4f
 #define LEVEL0_VALUE                AVM(150)
 #define LEVEL0_HEALTH               AHM(20)
 #define LEVEL0_REGEN                1
