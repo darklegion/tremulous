@@ -618,7 +618,7 @@ static void SV_ConSay_f(void) {
 		return;
 	}
 
-	strcpy (text, "console: ");
+	strcpy (text, "console: ^2");
 	p = Cmd_Args();
 
 	if ( *p == '"' ) {
@@ -628,7 +628,7 @@ static void SV_ConSay_f(void) {
 
 	strcat(text, p);
 
-	SV_SendServerCommand(NULL, "chat \"%s\n\"", text);
+	SV_SendServerCommand(NULL, "chat \"%s^7\"", text);
 }
 
 
