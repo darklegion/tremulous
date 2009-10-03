@@ -95,6 +95,7 @@ gfx/2d/crosshair-flamer_s
 }
 gfx/2d/crosshair-psaw
 {
+	nopicmip
 	{
 		map gfx/2d/crosshair-psaw.tga
 		blendfunc blend
