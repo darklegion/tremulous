@@ -801,7 +801,6 @@ ClientCheckName
 static void ClientCleanName( const char *in, char *out, int outSize )
 {
   int   len, colorlessLen;
-  char  ch;
   char  *p;
   int   spaces;
 
@@ -814,42 +813,33 @@ static void ClientCleanName( const char *in, char *out, int outSize )
   *p = 0;
   spaces = 0;
 
-  while( 1 )
+  for( ; *in; in++ )
   {
-    ch = *in++;
-    if( !ch )
-      break;
-
     // don't allow leading spaces
-    if( !*p && ch == ' ' )
+    if( colorlessLen == 0 && *in == ' ' )
       continue;
 
     // check colors
-    if( ch == Q_COLOR_ESCAPE )
+    if( Q_IsColorString( in ) )
     {
-      // solo trailing carat is not a color prefix
-      if( !*in )
-        break;
+      in++;
 
       // don't allow black in a name, period
       if( ColorIndex( *in ) == 0 )
-      {
-        in++;
         continue;
-      }
 
       // make sure room in dest for both chars
       if( len > outSize - 2 )
         break;
 
-      *out++ = ch;
-      *out++ = *in++;
+      *out++ = Q_COLOR_ESCAPE;
+      *out++ = *in;
       len += 2;
       continue;
     }
 
     // don't allow too many consecutive spaces
-    if( ch == ' ' )
+    if( *in == ' ' )
     {
       spaces++;
       if( spaces > 3 )
@@ -861,7 +851,7 @@ static void ClientCleanName( const char *in, char *out, int outSize )
     if( len > outSize - 1 )
       break;
 
-    *out++ = ch;
+    *out++ = *in;
     colorlessLen++;
     len++;
   }

@@ -286,7 +286,7 @@ void ClientImpacts( gentity_t *ent, pmove_t *pm )
 
     // see G_UnlaggedDetectCollisions(), this is the inverse of that.
     // if our movement is blocked by another player's real position,
-    // don't use the unlagged position for them because they are 
+    // don't use the unlagged position for them because they are
     // blocking or server-side Pmove() from reaching it
     if( other->client && other->client->unlaggedCalc.used )
       other->client->unlaggedCalc.used = qfalse;
@@ -973,8 +973,8 @@ void SendPendingPredictableEvents( playerState_t *ps )
 ==============
  G_UnlaggedStore
 
- Called on every server frame.  Stores position data for the client at that 
- into client->unlaggedHist[] and the time into level.unlaggedTimes[].  
+ Called on every server frame.  Stores position data for the client at that
+ into client->unlaggedHist[] and the time into level.unlaggedTimes[].
  This data is used by G_UnlaggedCalc()
 ==============
 */
@@ -983,24 +983,24 @@ void G_UnlaggedStore( void )
   int i = 0;
   gentity_t *ent;
   unlagged_t *save;
-  
+
   if( !g_unlagged.integer )
     return;
-  level.unlaggedIndex++; 
+  level.unlaggedIndex++;
   if( level.unlaggedIndex >= MAX_UNLAGGED_MARKERS )
     level.unlaggedIndex = 0;
 
   level.unlaggedTimes[ level.unlaggedIndex ] = level.time;
- 
+
   for( i = 0; i < level.maxclients; i++ )
   {
     ent = &g_entities[ i ];
     save = &ent->client->unlaggedHist[ level.unlaggedIndex ];
-    save->used = qfalse; 
+    save->used = qfalse;
     if( !ent->r.linked || !( ent->r.contents & CONTENTS_BODY ) )
       continue;
     if( ent->client->pers.connected != CON_CONNECTED )
-      continue; 
+      continue;
     VectorCopy( ent->r.mins, save->mins );
     VectorCopy( ent->r.maxs, save->maxs );
     VectorCopy( ent->s.pos.trBase, save->origin );
@@ -1011,7 +1011,7 @@ void G_UnlaggedStore( void )
 /*
 ==============
  G_UnlaggedClear
- 
+
  Mark all unlaggedHist[] markers for this client invalid.  Useful for
  preventing teleporting and death.
 ==============
@@ -1043,7 +1043,7 @@ void G_UnlaggedCalc( int time, gentity_t *rewindEnt )
 
   if( !g_unlagged.integer )
     return;
- 
+
   // clear any calculated values from a previous run
   for( i = 0; i < level.maxclients; i++ )
   {
@@ -1075,10 +1075,10 @@ void G_UnlaggedCalc( int time, gentity_t *rewindEnt )
     level.unlaggedTimes[ startIndex ];
   if( frameMsec > 0 )
   {
-    lerp = ( float )( time - level.unlaggedTimes[ startIndex ] )
-      / ( float )frameMsec; 
+    lerp = ( float )( time - level.unlaggedTimes[ startIndex ] ) /
+      ( float )frameMsec;
   }
-  
+
   for( i = 0; i < level.maxclients; i++ )
   {
     ent = &g_entities[ i ];
@@ -1119,10 +1119,10 @@ void G_UnlaggedOff( void )
 {
   int i = 0;
   gentity_t *ent;
-  
+
   if( !g_unlagged.integer )
     return;
-  
+
   for( i = 0; i < level.maxclients; i++ )
   {
     ent = &g_entities[ i ];
@@ -1155,10 +1155,10 @@ void G_UnlaggedOn( vec3_t muzzle, float range )
   int i = 0;
   gentity_t *ent;
   unlagged_t *calc;
-  
+
   if( !g_unlagged.integer )
     return;
-  
+
   for( i = 0; i < level.maxclients; i++ )
   {
     ent = &g_entities[ i ];
@@ -1179,7 +1179,7 @@ void G_UnlaggedOn( vec3_t muzzle, float range )
       float maxRadius = ( r1 > r2 ) ? r1 : r2;
 
       if( Distance( muzzle, calc->origin ) > range + maxRadius )
-        continue; 
+        continue;
     }
 
     // create a backup of the real positions
@@ -1796,6 +1796,7 @@ void SpectatorClientEndFrame( gentity_t *ent )
 {
   gclient_t *cl;
   int       clientNum, flags;
+  int       score, ping;
 
   // if we are doing a chase cam or a remote view, grab the latest info
   if( ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
@@ -1808,10 +1809,19 @@ void SpectatorClientEndFrame( gentity_t *ent )
       {
         if( cl->sess.sessionTeam != TEAM_SPECTATOR ) 
         {
+          // Save
           flags = ( cl->ps.eFlags & ~( EF_VOTED | EF_TEAMVOTED ) ) |
                   ( ent->client->ps.eFlags & ( EF_VOTED | EF_TEAMVOTED ) );
+          score = ent->client->ps.persistant[ PERS_SCORE ];
+          ping = ent->client->ps.ping;
+
+          // Copy
           ent->client->ps = cl->ps;
+
+          // Restore
           ent->client->ps.eFlags = flags;
+          ent->client->ps.persistant[ PERS_SCORE ] = score;
+          ent->client->ps.ping = ping;
         }
 
         ent->client->ps.clientNum = clientNum;

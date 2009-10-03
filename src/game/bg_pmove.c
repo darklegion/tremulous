@@ -2694,10 +2694,10 @@ PM_BeginWeaponChange
 */
 static void PM_BeginWeaponChange( int weapon )
 {
-  if( weapon < WP_NONE || weapon >= WP_NUM_WEAPONS )
+  if( weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS )
     return;
 
-  if( !BG_InventoryContainsWeapon( weapon, pm->ps->stats ) && weapon != WP_NONE )
+  if( !BG_InventoryContainsWeapon( weapon, pm->ps->stats ) )
     return;
 
   if( pm->ps->weaponstate == WEAPON_DROPPING )

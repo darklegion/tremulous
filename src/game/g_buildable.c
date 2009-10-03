@@ -140,7 +140,7 @@ static int G_NumberOfDependants( gentity_t *self )
   int       i, n = 0;
   gentity_t *ent;
 
-  for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
     if( ent->s.eType != ET_BUILDABLE )
       continue;
@@ -167,7 +167,7 @@ static qboolean G_FindPower( gentity_t *self )
   gentity_t *ent;
   gentity_t *closestPower = NULL;
   int       distance = 0;
-  int       minDistance = 10000;
+  int       minDistance = REPEATER_BASESIZE + 1;
   vec3_t    temp_v;
 
   if( self->biteam != BIT_HUMANS )
@@ -185,27 +185,25 @@ static qboolean G_FindPower( gentity_t *self )
   self->parentNode = NULL;
 
   //iterate through entities
-  for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
     if( ent->s.eType != ET_BUILDABLE )
       continue;
 
     //if entity is a power item calculate the distance to it
     if( ( ent->s.modelindex == BA_H_REACTOR || ent->s.modelindex == BA_H_REPEATER ) &&
-        ent->spawned && ent->health > 0 )
+        ent->spawned && ent->powered && ent->health > 0 )
     {
       VectorSubtract( self->s.origin, ent->s.origin, temp_v );
       distance = VectorLength( temp_v );
 
       // Always prefer a reactor if there is one in range
-      if( ent->s.modelindex == BA_H_REACTOR && ent->powered &&
-          distance <= REACTOR_BASESIZE )
+      if( ent->s.modelindex == BA_H_REACTOR && distance <= REACTOR_BASESIZE )
       {
         self->parentNode = ent;
         return qtrue;
       }
-      else if( distance < minDistance && ent->powered &&
-               distance <= REPEATER_BASESIZE )
+      else if( distance < minDistance )
       {
         closestPower = ent;
         minDistance = distance;
@@ -283,7 +281,7 @@ int G_FindDCC( gentity_t *self )
     return 0;
 
   //iterate through entities
-  for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
     if( ent->s.eType != ET_BUILDABLE )
       continue;
@@ -344,7 +342,7 @@ static qboolean G_FindOvermind( gentity_t *self )
   self->overmindNode = NULL;
 
   //iterate through entities
-  for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
     if( ent->s.eType != ET_BUILDABLE )
       continue;
@@ -403,7 +401,7 @@ qboolean G_FindCreep( gentity_t *self )
   if( self->client || self->parentNode == NULL || !self->parentNode->inuse ||
       self->parentNode->health <= 0 )
   {
-    for ( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+    for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
     {
       if( ent->s.eType != ET_BUILDABLE )
         continue;
@@ -769,11 +767,9 @@ Think function for Alien Overmind
 */
 void AOvermind_Think( gentity_t *self )
 {
-  int       entityList[ MAX_GENTITIES ];
-  vec3_t    range = { OVERMIND_ATTACK_RANGE, OVERMIND_ATTACK_RANGE, OVERMIND_ATTACK_RANGE };
-  vec3_t    mins, maxs;
-  int       i, num;
-  gentity_t *enemy;
+  vec3_t range = { OVERMIND_ATTACK_RANGE, OVERMIND_ATTACK_RANGE, OVERMIND_ATTACK_RANGE };
+  vec3_t mins, maxs;
+  int    i;
 
   VectorAdd( self->s.origin, range, maxs );
   VectorSubtract( self->s.origin, range, mins );
@@ -781,20 +777,11 @@ void AOvermind_Think( gentity_t *self )
   if( self->spawned && ( self->health > 0 ) )
   {
     //do some damage
-    num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
-    for( i = 0; i < num; i++ )
+    if( G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
+          self->splashRadius, self, MOD_OVERMIND, PTE_ALIENS ) )
     {
-      enemy = &g_entities[ entityList[ i ] ];
-
-      if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-      {
-        self->timestamp = level.time;
-        G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
-          self->splashRadius, self, MOD_OVERMIND, PTE_ALIENS );
-        G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
-
-        break;
-      }
+      self->timestamp = level.time;
+      G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
     }
     
     // just in case an egg finishes building after we tell overmind to stfu
@@ -1252,10 +1239,7 @@ qboolean AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideEx
     G_SetClientViewAngle( player, angles );
   }
 
-  if( tr.fraction < 1.0f )
-    return qtrue;
-  else
-    return qfalse;
+  return tr.fraction < 1.0f;
 }
 
 /*
@@ -2782,7 +2766,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
       return bpError;
 
     // Check for buildable<->buildable collisions
-    for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+    for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
     {
       if( ent->s.eType != ET_BUILDABLE )
         continue;
@@ -2800,7 +2784,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   level.numBuildablesForRemoval = 0;
 
   // Build a list of buildable entities
-  for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
     if( ent->s.eType != ET_BUILDABLE )
       continue;
@@ -3145,9 +3129,9 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   {
     // initial base layout created by server
 
-    if( builder->s.origin2[ 0 ]
-      || builder->s.origin2[ 1 ]
-      || builder->s.origin2[ 2 ] )
+    if( builder->s.origin2[ 0 ] ||
+        builder->s.origin2[ 1 ] ||
+        builder->s.origin2[ 2 ] )
     {
       VectorCopy( builder->s.origin2, normal );
     }
@@ -3533,7 +3517,7 @@ void G_LayoutSave( char *name )
     return;
   }
 
-  G_Printf("layoutsave: saving layout to %s\n", fileName );
+  G_Printf( "layoutsave: saving layout to %s\n", fileName );
 
   for( i = MAX_CLIENTS; i < level.num_entities; i++ )
   {
@@ -3643,15 +3627,17 @@ void G_LayoutSelect( void )
   Q_strncpyz( layouts2, layouts, sizeof( layouts2 ) );
   l = &layouts2[ 0 ];
   layouts[ 0 ] = '\0';
-  s = COM_ParseExt( &l, qfalse );
-  while( *s )
+  while( 1 )
   {
+    s = COM_ParseExt( &l, qfalse );
+    if( !*s )
+      break;
+
     if( !Q_stricmp( s, "*BUILTIN*" ) )
     {
       Q_strcat( layouts, sizeof( layouts ), s );
       Q_strcat( layouts, sizeof( layouts ), " " );
       cnt++;
-      s = COM_ParseExt( &l, qfalse );
       continue;
     }
 
@@ -3664,7 +3650,6 @@ void G_LayoutSelect( void )
     }
     else
       G_Printf( S_COLOR_YELLOW "WARNING: layout \"%s\" does not exist\n", s );
-    s = COM_ParseExt( &l, qfalse );
   }
   if( !cnt )
   {
@@ -3677,16 +3662,18 @@ void G_LayoutSelect( void )
 
   Q_strncpyz( layouts2, layouts, sizeof( layouts2 ) );
   l = &layouts2[ 0 ];
-  s = COM_ParseExt( &l, qfalse );
-  while( *s )
+  while( 1 )
   {
+    s = COM_ParseExt( &l, qfalse );
+    if( !*s )
+      break;
+
     Q_strncpyz( level.layout, s, sizeof( level.layout ) );
     cnt++;
     if( cnt >= layoutNum )
       break;
-    s = COM_ParseExt( &l, qfalse );
   }
-  G_Printf("using layout \"%s\" from list ( %s)\n", level.layout, layouts );
+  G_Printf( "using layout \"%s\" from list (%s)\n", level.layout, layouts );
 }
 
 /*

@@ -987,13 +987,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       }
       else if( !g_friendlyFire.integer )
       {
-        if( !g_friendlyFireHumans.integer 
-          && targ->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+        if( !g_friendlyFireHumans.integer &&
+            targ->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
         {
           return;
         }
-        if( !g_friendlyFireAliens.integer 
-          && targ->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+        if( !g_friendlyFireAliens.integer &&
+             targ->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
         {
           return;
         }
@@ -1238,14 +1238,16 @@ qboolean G_SelectiveRadiusDamage( vec3_t origin, gentity_t *attacker, float dama
 
     points = damage * ( 1.0 - dist / radius );
 
-    if( CanDamage( ent, origin ) )
+    if( CanDamage( ent, origin ) && ent->client &&
+        ent->client->ps.stats[ STAT_PTEAM ] != team )
     {
       VectorSubtract( ent->r.currentOrigin, origin, dir );
       // push the center of mass higher than the origin so players
       // get knocked into the air more
       dir[ 2 ] += 24;
-      G_SelectiveDamage( ent, NULL, attacker, dir, origin,
-          (int)points, DAMAGE_RADIUS|DAMAGE_NO_LOCDAMAGE, mod, team );
+      hitClient = qtrue;
+      G_Damage( ent, NULL, attacker, dir, origin,
+          (int)points, DAMAGE_RADIUS|DAMAGE_NO_LOCDAMAGE, mod );
     }
   }
 
@@ -1315,6 +1317,7 @@ qboolean G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage,
       // push the center of mass higher than the origin so players
       // get knocked into the air more
       dir[ 2 ] += 24;
+      hitClient = qtrue;
       G_Damage( ent, NULL, attacker, dir, origin,
           (int)points, DAMAGE_RADIUS|DAMAGE_NO_LOCDAMAGE, mod );
     }

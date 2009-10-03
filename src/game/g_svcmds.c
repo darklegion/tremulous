@@ -344,9 +344,9 @@ void  Svcmd_EntityList_f( void )
   int       e;
   gentity_t *check;
 
-  check = g_entities + 1;
+  check = g_entities;
 
-  for( e = 1; e < level.num_entities; e++, check++ )
+  for( e = 0; e < level.num_entities; e++, check++ )
   {
     if( !check->inuse )
       continue;
