@@ -983,75 +983,6 @@ void G_WriteSessionData( void );
 //
 // g_maprotation.c
 //
-#define MAX_MAP_ROTATIONS       16
-#define MAX_MAP_ROTATION_MAPS   64
-#define MAX_MAP_COMMANDS        16
-#define MAX_MAP_ROTATION_CONDS  4
-
-#define NOT_ROTATING          -1
-
-typedef enum
-{
-  MCV_ERR,
-  MCV_RANDOM,
-  MCV_NUMCLIENTS,
-  MCV_LASTWIN
-} mapConditionVariable_t;
-
-typedef enum
-{
-  MCO_LT,
-  MCO_EQ,
-  MCO_GT
-} mapConditionOperator_t;
-
-typedef enum
-{
-  MCT_ERR,
-  MCT_MAP,
-  MCT_ROTATION
-} mapConditionType_t;
-
-typedef struct mapRotationCondition_s
-{
-  char                    dest[ MAX_QPATH ];
-
-  qboolean                unconditional;
-
-  mapConditionVariable_t  lhs;
-  mapConditionOperator_t  op;
-
-  int                     numClients;
-  team_t                  lastWin;
-} mapRotationCondition_t;
-
-typedef struct mapRotationEntry_s
-{
-  char                    name[ MAX_QPATH ];
-
-  char                    postCmds[ MAX_MAP_COMMANDS ][ MAX_STRING_CHARS ];
-  char                    layouts[ MAX_CVAR_VALUE_STRING ];
-  int                     numCmds;
-
-  mapRotationCondition_t  conditions[ MAX_MAP_ROTATION_CONDS ];
-  int                     numConditions;
-} mapRotationEntry_t;
-
-typedef struct mapRotation_s
-{
-  char                name[ MAX_QPATH ];
-
-  mapRotationEntry_t  maps[ MAX_MAP_ROTATION_MAPS ];
-  int                 numMaps;
-  int                 currentMap;
-} mapRotation_t;
-
-typedef struct mapRotations_s
-{
-  mapRotation_t   rotations[ MAX_MAP_ROTATIONS ];
-  int             numRotations;
-} mapRotations_t;
-
 void      G_PrintRotations( void );
 void      G_AdvanceMapRotation( void );
 qboolean  G_StartMapRotation( char *name, qboolean changeMap );
@@ -1151,7 +1082,7 @@ extern  vmCvar_t  g_markDeconstruct;
 
 extern  vmCvar_t  g_debugMapRotation;
 extern  vmCvar_t  g_currentMapRotation;
-extern  vmCvar_t  g_currentMap;
+extern  vmCvar_t  g_currentNode;
 extern  vmCvar_t  g_nextMap;
 extern  vmCvar_t  g_initialMapRotation;
 extern  vmCvar_t  g_chatTeamPrefix;
