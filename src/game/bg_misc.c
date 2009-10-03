@@ -5445,6 +5445,25 @@ qboolean BG_PlayerCanChangeWeapon( playerState_t *ps )
 }
 
 /*
+=================
+BG_PlayerPoisonCloudTime
+=================
+*/
+int BG_PlayerPoisonCloudTime( playerState_t *ps )
+{
+  int time = LEVEL1_PCLOUD_TIME;
+
+  if( BG_InventoryContainsUpgrade( UP_BATTLESUIT, ps->stats ) )
+    time -= BSUIT_PCLOUD_PROTECTION;
+  if( BG_InventoryContainsUpgrade( UP_HELMET, ps->stats ) )
+    time -= HELMET_PCLOUD_PROTECTION;
+  if( BG_InventoryContainsUpgrade( UP_LIGHTARMOUR, ps->stats ) )
+    time -= LIGHTARMOUR_PCLOUD_PROTECTION;
+    
+  return time;
+}
+
+/*
 ===============
 atof_neg
 

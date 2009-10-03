@@ -1105,22 +1105,21 @@ void poisonCloud( gentity_t *ent )
   {
     humanPlayer = &g_entities[ entityList[ i ] ];
 
-    if( humanPlayer->client && humanPlayer->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    if( humanPlayer->client &&
+        humanPlayer->client->pers.teamSelection == PTE_HUMANS )
     {
-      trap_Trace( &tr, muzzle, NULL, NULL, humanPlayer->s.origin, humanPlayer->s.number, MASK_SHOT );
+      trap_Trace( &tr, muzzle, NULL, NULL, humanPlayer->s.origin,
+                  humanPlayer->s.number, CONTENTS_SOLID );
 
       //can't see target from here
       if( tr.entityNum == ENTITYNUM_WORLD )
         continue;
 
-      if( !( humanPlayer->client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED ) )
-      {
-        humanPlayer->client->ps.stats[ STAT_STATE ] |= SS_POISONCLOUDED;
-        humanPlayer->client->lastPoisonCloudedTime = level.time;
-        humanPlayer->client->lastPoisonCloudedClient = ent;
+      humanPlayer->client->ps.eFlags |= EF_POISONCLOUDED;
+      humanPlayer->client->lastPoisonCloudedTime = level.time;
 
-        trap_SendServerCommand( humanPlayer->client->ps.clientNum, "poisoncloud" );
-      }
+      trap_SendServerCommand( humanPlayer->client->ps.clientNum,
+                              "poisoncloud" );
     }
   }
   G_UnlaggedOff( );

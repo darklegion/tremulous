@@ -225,6 +225,7 @@ vmCvar_t  cg_painBlendScale;
 vmCvar_t  cg_painBlendZoom;
 
 vmCvar_t  cg_stickySpec;
+vmCvar_t  cg_alwaysSprint;
 
 vmCvar_t  ui_currentClass;
 vmCvar_t  ui_carriage;
@@ -326,6 +327,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_wwFollow, "cg_wwFollow", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_wwToggle, "cg_wwToggle", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_stickySpec, "cg_stickySpec", "1", CVAR_ARCHIVE|CVAR_USERINFO },
+  { &cg_alwaysSprint, "cg_alwaysSprint", "0", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_depthSortParticles, "cg_depthSortParticles", "1", CVAR_ARCHIVE },
   { &cg_bounceParticles, "cg_bounceParticles", "0", CVAR_ARCHIVE },
   { &cg_consoleLatency, "cg_consoleLatency", "3000", CVAR_ARCHIVE },
@@ -853,6 +855,7 @@ static void CG_RegisterGraphics( void )
   cgs.media.wakeMarkShader            = trap_R_RegisterShader( "gfx/marks/wake" );
 
   cgs.media.poisonCloudPS             = CG_RegisterParticleSystem( "firstPersonPoisonCloudPS" );
+  cgs.media.poisonCloudedPS           = CG_RegisterParticleSystem( "poisonCloudedPS" );
   cgs.media.alienEvolvePS             = CG_RegisterParticleSystem( "alienEvolvePS" );
   cgs.media.alienAcidTubePS           = CG_RegisterParticleSystem( "alienAcidTubePS" );
 

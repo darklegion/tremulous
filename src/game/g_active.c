@@ -705,7 +705,6 @@ void ClientTimerActions( gentity_t *ent, int msec )
   {
     client->time1000 -= 1000;
 
-
     //client is poisoned
     if( client->ps.stats[ STAT_STATE ] & SS_POISONED )
     {
@@ -837,7 +836,6 @@ ClientIntermissionThink
 */
 void ClientIntermissionThink( gclient_t *client )
 {
-  client->ps.eFlags &= ~EF_TALK;
   client->ps.eFlags &= ~EF_FIRING;
   client->ps.eFlags &= ~EF_FIRING2;
 
@@ -1415,21 +1413,11 @@ void ClientThink_real( gentity_t *ent )
       level.time - client->boostedTime >= BOOST_TIME )
     client->ps.stats[ STAT_STATE ] &= ~SS_BOOSTED;
 
-  if( client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED )
-  {
-    int timeLeft = LEVEL1_PCLOUD_TIME -
-      ( level.time - client->lastPoisonCloudedTime );
-
-    if( BG_InventoryContainsUpgrade( UP_BATTLESUIT, client->ps.stats ) )
-      timeLeft -= BSUIT_PCLOUD_PROTECTION;
-    if( BG_InventoryContainsUpgrade( UP_HELMET, client->ps.stats ) )
-      timeLeft -= HELMET_PCLOUD_PROTECTION;
-    if( BG_InventoryContainsUpgrade( UP_LIGHTARMOUR, client->ps.stats ) )
-      timeLeft -= LIGHTARMOUR_PCLOUD_PROTECTION;
-
-    if( timeLeft <= 0 )
-    client->ps.stats[ STAT_STATE ] &= ~SS_POISONCLOUDED;
-  }
+  // Check if poison cloud has worn off
+  if( ( client->ps.eFlags & EF_POISONCLOUDED ) &&
+      BG_PlayerPoisonCloudTime( &client->ps ) - level.time +
+      client->lastPoisonCloudedTime <= 0 )
+    client->ps.eFlags &= ~EF_POISONCLOUDED;
 
   if( client->ps.stats[ STAT_STATE ] & SS_POISONED &&
       client->lastPoisonTime + ALIEN_POISON_TIME < level.time )

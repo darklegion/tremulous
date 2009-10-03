@@ -1110,6 +1110,14 @@ void ClientUserinfoChanged( int clientNum )
   else
     client->ps.persistant[ PERS_STATE ] &= ~PS_WALLCLIMBINGTOGGLE;
 
+  // always sprint
+  s = Info_ValueForKey( userinfo, "cg_alwaysSprint" );
+
+  if( atoi( s ) )
+    client->ps.persistant[ PERS_STATE ] |= PS_ALWAYSSPRINT;
+  else
+    client->ps.persistant[ PERS_STATE ] &= ~PS_ALWAYSSPRINT;
+
   // teamInfo
   s = Info_ValueForKey( userinfo, "teamoverlay" );
 

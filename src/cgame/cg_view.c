@@ -577,14 +577,18 @@ static void CG_OffsetFirstPersonView( void )
       cg.upMoveTime = cg.time;
   }
 
-  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_POISONCLOUDED &&
+  if( ( cg.predictedPlayerEntity.currentState.eFlags & EF_POISONCLOUDED ) &&
       !( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
   {
-    float fraction = sin( ( (float)cg.time / 1000.0f ) * M_PI * 2 * PCLOUD_ROLL_FREQUENCY );
-    float pitchFraction = sin( ( (float)cg.time / 1000.0f ) * M_PI * 5 * PCLOUD_ROLL_FREQUENCY );
-
-    fraction *= 1.0f - ( ( cg.time - cg.poisonedTime ) / (float)LEVEL1_PCLOUD_TIME );
-    pitchFraction *= 1.0f - ( ( cg.time - cg.poisonedTime ) / (float)LEVEL1_PCLOUD_TIME );
+    float scale, fraction, pitchFraction;
+    
+    scale = 1.0f - (float)( cg.time - cg.poisonedTime ) /
+            BG_PlayerPoisonCloudTime( &cg.predictedPlayerState );
+    if( scale < 0.0f )
+      scale = 0.0f;
+    fraction = sin( cg.time / 500.0f * M_PI * PCLOUD_ROLL_FREQUENCY ) * scale;
+    pitchFraction = sin( cg.time / 200.0f * M_PI * PCLOUD_ROLL_FREQUENCY ) *
+                    scale;
 
     angles[ ROLL ] += fraction * PCLOUD_ROLL_AMPLITUDE;
     angles[ YAW ] += fraction * PCLOUD_ROLL_AMPLITUDE;
@@ -780,13 +784,15 @@ static int CG_CalcFov( void )
   else
     inwater = qfalse;
 
-  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_POISONCLOUDED &&
+  if( ( cg.predictedPlayerEntity.currentState.eFlags & EF_POISONCLOUDED ) &&
       cg.predictedPlayerState.stats[ STAT_HEALTH ] > 0 &&
       !( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
   {
+    float scale = 1.0f - (float)( cg.time - cg.poisonedTime ) /
+                  BG_PlayerPoisonCloudTime( &cg.predictedPlayerState );
+      
     phase = cg.time / 1000.0 * PCLOUD_ZOOM_FREQUENCY * M_PI * 2;
-    v = PCLOUD_ZOOM_AMPLITUDE * sin( phase );
-    v *= 1.0f - ( ( cg.time - cg.poisonedTime ) / (float)LEVEL1_PCLOUD_TIME );
+    v = PCLOUD_ZOOM_AMPLITUDE * sin( phase ) * scale;
     fov_x += v;
     fov_y += v;
   }

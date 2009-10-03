@@ -243,7 +243,7 @@ typedef enum
 #define SS_HOVELING             0x00000100
 #define SS_BOOSTED              0x00000200
 #define SS_SLOWLOCKED           0x00000400
-#define SS_POISONCLOUDED        0x00000800
+//#define SS_POISONCLOUDED      0x00000800 // unused
 #define SS_CHARGING             0x00001000
 #define SS_HEALING_ACTIVE       0x00002000 // medkit for Humans, creep for Aliens
 #define SS_HEALING_2X           0x00004000 // double healing rate (for HUD)
@@ -276,6 +276,7 @@ typedef enum
 #define PS_WALLCLIMBINGFOLLOW   0x00000001
 #define PS_WALLCLIMBINGTOGGLE   0x00000002
 #define PS_NONSEGMODEL          0x00000004
+#define PS_ALWAYSSPRINT         0x00000008
 
 // entityState_t->eFlags
 #define EF_DEAD             0x00000001    // don't draw a foe marker over players with EF_DEAD
@@ -291,7 +292,7 @@ typedef enum
 #define EF_FIRING2          0x00000400    // alt fire
 #define EF_FIRING3          0x00000800    // third fire
 #define EF_MOVER_STOP       0x00001000    // will push otherwise
-#define EF_TALK             0x00002000    // draw a talk balloon
+#define EF_POISONCLOUDED    0x00002000    // player hit with basilisk gas
 #define EF_CONNECTION       0x00004000    // draw a connection trouble sprite
 #define EF_VOTED            0x00008000    // already cast a vote
 #define EF_TEAMVOTED        0x00010000    // already cast a vote
@@ -1131,6 +1132,7 @@ void      BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
                                                 vec3_t outOrigin, vec3_t outAngles, trace_t *tr );
 int       BG_GetValueOfPlayer( playerState_t *ps );
 qboolean  BG_PlayerCanChangeWeapon( playerState_t *ps );
+int       BG_PlayerPoisonCloudTime( playerState_t *ps );
 
 int       BG_FindValueOfBuildable( int bclass );
 int       BG_FindBuildNumForName( char *name );

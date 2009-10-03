@@ -450,7 +450,6 @@ struct gclient_s
   int                 poisonImmunityTime;
   gentity_t           *lastPoisonClient;
   int                 lastPoisonCloudedTime;
-  gentity_t           *lastPoisonCloudedClient;
   int                 grabExpiryTime;
   int                 lastLockTime;
   int                 lastSlowTime;

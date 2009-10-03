@@ -554,9 +554,6 @@ void G_LeaveTeam( gentity_t *self )
     if( ent->client && ent->client->pers.connected == CON_CONNECTED )
     {
       // cure poison
-      if( ent->client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED &&
-          ent->client->lastPoisonCloudedClient == self )
-        ent->client->ps.stats[ STAT_STATE ] &= ~SS_POISONCLOUDED;
       if( ent->client->ps.stats[ STAT_STATE ] & SS_POISONED &&
           ent->client->lastPoisonClient == self )
         ent->client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
@@ -2865,9 +2862,13 @@ static void Cmd_Ignore_f( gentity_t *ent )
 Cmd_Test_f
 =================
 */
-void Cmd_Test_f( gentity_t *ent )
+void Cmd_Test_f( gentity_t *humanPlayer )
 {
-  G_CloseMenus( ent - g_entities );
+      humanPlayer->client->ps.eFlags |= EF_POISONCLOUDED;
+      humanPlayer->client->lastPoisonCloudedTime = level.time;
+
+      trap_SendServerCommand( humanPlayer->client->ps.clientNum,
+                              "poisoncloud" );
 }
 
 /*

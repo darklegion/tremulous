@@ -393,7 +393,7 @@ static float PM_CmdScale( usercmd_t *cmd )
       else
         modifier *= CREEP_MODIFIER;
     }
-    if( pm->ps->stats[ STAT_STATE ] & SS_POISONCLOUDED )
+    if( pm->ps->eFlags & EF_POISONCLOUDED )
     {
       if( BG_InventoryContainsUpgrade( UP_LIGHTARMOUR, pm->ps->stats ) ||
           BG_InventoryContainsUpgrade( UP_BATTLESUIT, pm->ps->stats ) )
@@ -853,14 +853,14 @@ static qboolean PM_CheckDodge( void )
     pm->ps->stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
 
   // Reasons why we can't start a dodge or sprint
-  if( !( pm->cmd.buttons & BUTTON_DODGE ) ||
-      pm->ps->pm_type != PM_NORMAL ||
-      ( pm->ps->pm_flags & PMF_CROUCH_HELD ) ||
-      pm->ps->stats[ STAT_STAMINA ] < 0 )
+  if( pm->ps->pm_type != PM_NORMAL || pm->ps->stats[ STAT_STAMINA ] < 0 ||
+      ( pm->ps->pm_flags & PMF_CROUCH_HELD ) )
     return qfalse;
 
   // Start a sprint instead of forward leaps
-  if( pm->cmd.forwardmove > 0 )
+  if( pm->cmd.forwardmove > 0 &&
+      ( ( pm->cmd.buttons & BUTTON_DODGE ) ||
+        ( pm->ps->persistant[ PERS_STATE ] & PS_ALWAYSSPRINT ) ) )
   {
     if( pm->cmd.buttons & BUTTON_WALKING )
       return qfalse;
@@ -870,7 +870,8 @@ static qboolean PM_CheckDodge( void )
 
   // Reasons why we can't start a dodge only
   if( pm->ps->pm_flags & ( PMF_TIME_LAND | PMF_CHARGE ) ||
-      pm->ps->groundEntityNum == ENTITYNUM_NONE )
+      pm->ps->groundEntityNum == ENTITYNUM_NONE ||
+      !( pm->cmd.buttons & BUTTON_DODGE ) )
     return qfalse;
 
   // Dodge direction specified with movement keys
@@ -3507,12 +3508,6 @@ void PmoveSingle( pmove_t *pmove )
   // proxy no-footsteps cheats
   if( abs( pm->cmd.forwardmove ) > 64 || abs( pm->cmd.rightmove ) > 64 )
     pm->cmd.buttons &= ~BUTTON_WALKING;
-
-  // set the talk balloon flag
-  if( pm->cmd.buttons & BUTTON_TALK )
-    pm->ps->eFlags |= EF_TALK;
-  else
-    pm->ps->eFlags &= ~EF_TALK;
 
   // set the firing flag for continuous beam weapons
   if( !(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION &&

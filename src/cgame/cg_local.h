@@ -657,6 +657,8 @@ typedef struct centity_s
   particleSystem_t      *jetPackPS;
   jetPackState_t        jetPackState;
 
+  particleSystem_t      *poisonCloudedPS;
+
   particleSystem_t      *entityPS;
   qboolean              entityPSMissing;
 
@@ -1122,6 +1124,7 @@ typedef struct
   int           numConsoleLines;
 
   particleSystem_t  *poisonCloudPS;
+  particleSystem_t  *poisonCloudedPS;
 
   float         painBlendValue;
   float         painBlendTarget;
@@ -1252,6 +1255,7 @@ typedef struct
   sfxHandle_t buildableRepairedSound;
 
   qhandle_t   poisonCloudPS;
+  qhandle_t   poisonCloudedPS;
   qhandle_t   alienEvolvePS;
   qhandle_t   alienAcidTubePS;
 
@@ -1514,6 +1518,7 @@ extern  vmCvar_t    cg_painBlendScale;
 extern  vmCvar_t    cg_painBlendZoom;
 
 extern  vmCvar_t    cg_stickySpec;
+extern  vmCvar_t    cg_alwaysSprint;
 
 extern  vmCvar_t    ui_currentClass;
 extern  vmCvar_t    ui_carriage;

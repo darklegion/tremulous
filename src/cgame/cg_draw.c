@@ -487,6 +487,8 @@ static void CG_DrawPlayerStaminaBolt( rectDef_t *rect, vec4_t color, qhandle_t s
 
   if( stamina < 0 )
     color[ 3 ] = HH_MIN_ALPHA;
+  else if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_SPEEDBOOST )
+    color[ 3 ] = 1.0f;
   else
     color[ 3 ] = HH_MAX_ALPHA;
 
