@@ -2049,7 +2049,7 @@ void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
 
   cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
-  weapon = BG_GetPlayerWeapon( ps );
+  weapon = ps->weapon;
 
   maxAmmo = BG_Weapon( weapon )->maxAmmo;
 
