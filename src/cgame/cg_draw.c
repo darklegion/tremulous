@@ -642,7 +642,7 @@ static void CG_DrawPlayerPoisonBarbs( rectDef_t *rect, vec4_t color, qhandle_t s
   else
   {
     vertical = qfalse;
-    iconsize = height * cgDC.aspectScale;
+    iconsize = height;
     if( maxBarbs != 1 )
       diff = ( width - iconsize ) / (float)( maxBarbs - 1 );
     else
