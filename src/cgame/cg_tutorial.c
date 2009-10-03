@@ -409,9 +409,9 @@ static void CG_HumanText( char *text, playerState_t *ps )
   char      *name;
   upgrade_t upgrade = UP_NONE;
 
-  if( cg.weaponSelect <= 32 )
+  if( cg.weaponSelect < 32 )
     name = cg_weapons[ cg.weaponSelect ].humanName;
-  else if( cg.weaponSelect > 32 )
+  else
   {
     name = cg_upgrades[ cg.weaponSelect - 32 ].humanName;
     upgrade = cg.weaponSelect - 32;

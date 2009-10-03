@@ -1391,10 +1391,16 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
   if( !( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
   {
     // first make sure that whatever it selected is actually selectable
-    if( cg.weaponSelect <= 32 && !CG_WeaponSelectable( cg.weaponSelect ) )
-      CG_NextWeapon_f( );
-    else if( cg.weaponSelect > 32 && !CG_UpgradeSelectable( cg.weaponSelect - 32 ) )
-      CG_NextWeapon_f( );
+    if( cg.weaponSelect < 32 )
+    {
+      if( !CG_WeaponSelectable( cg.weaponSelect ) )
+        CG_NextWeapon_f( );
+    }
+    else
+    {
+      if( !CG_UpgradeSelectable( cg.weaponSelect - 32 ) )
+        CG_NextWeapon_f( );
+    }
   }
 
   // showing weapon select clears pickup item display, but not the blend blob
@@ -1477,10 +1483,10 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
       color[3] = 0.5;
       trap_R_SetColor( color );
 
-      if( items[ item ] <= 32 )
+      if( items[ item ] < 32 )
         CG_DrawPic( x, y, iconWidth, iconHeight,
                     cg_weapons[ items[ item ] ].weaponIcon );
-      else if( items[ item ] > 32 )
+      else
         CG_DrawPic( x, y, iconWidth, iconHeight,
                     cg_upgrades[ items[ item ] - 32 ].upgradeIcon );
     }
@@ -1511,7 +1517,7 @@ void CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
   trap_R_SetColor( color );
 
   // draw the selected name
-  if( cg.weaponSelect <= 32 )
+  if( cg.weaponSelect < 32 )
   {
     if( cg_weapons[ cg.weaponSelect ].registered &&
         BG_InventoryContainsWeapon( cg.weaponSelect, cg.snap->ps.stats ) )
@@ -1524,7 +1530,7 @@ void CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
       }
     }
   }
-  else if( cg.weaponSelect > 32 )
+  else
   {
     if( cg_upgrades[ cg.weaponSelect - 32 ].registered &&
         BG_InventoryContainsUpgrade( cg.weaponSelect - 32, cg.snap->ps.stats ) )
@@ -1570,12 +1576,12 @@ void CG_NextWeapon_f( void )
     if( cg.weaponSelect == 64 )
       cg.weaponSelect = 0;
 
-    if( cg.weaponSelect <= 32 )
+    if( cg.weaponSelect < 32 )
     {
       if( CG_WeaponSelectable( cg.weaponSelect ) )
         break;
     }
-    else if( cg.weaponSelect > 32 )
+    else
     {
       if( CG_UpgradeSelectable( cg.weaponSelect - 32 ) )
         break;
@@ -1614,12 +1620,12 @@ void CG_PrevWeapon_f( void )
     if( cg.weaponSelect == -1 )
       cg.weaponSelect = 63;
 
-    if( cg.weaponSelect <= 32 )
+    if( cg.weaponSelect < 32 )
     {
       if( CG_WeaponSelectable( cg.weaponSelect ) )
         break;
     }
-    else if( cg.weaponSelect > 32 )
+    else
     {
       if( CG_UpgradeSelectable( cg.weaponSelect - 32 ) )
         break;
