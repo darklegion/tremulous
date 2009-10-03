@@ -9,9 +9,9 @@
     "We can also be reached on Freenode IRC:\n"
     "#mercenariesguild"
   }
-  "^3Release Notes r148^7"
+  "^3Release Notes r201^7"
   {
-    "See svn.mercenariesguild.net for details."
+    "See source.mercenariesguild.net for details."
   }
   "Alien Healing"
   {
@@ -35,7 +35,7 @@
   "Barricades"
   {
     "Nearly useless in 1.1, Barricades now have more health, are cheaper to "
-    "build, and will shrink to allow Aliens to pass through them. Acid tubes "
+    "build, and will shrink to allow Aliens to pass over them. Acid tubes "
     "will fire from behind barricades, providing a formidable defense. "
     "Experiment with blocking off hallways and building staged defenses, but "
     "keep in mind that low ceilings will prevent Tyrants from returning inside "
@@ -54,11 +54,11 @@
   "Human Weapons"
   {
     "The Lucifer Cannon projectile can be fired faster but now takes longer "
-    "to charge. You will be able to hear other players overcharge "
+    "to charge. You will be able to hear your teammates overcharge "
     "their Lucifer Cannon.\n\n"
-    "The Mass Driver can now fire through players and buildables. The same "
-    "amount of damage is dealt to all targets along the path. Keep in mind "
-    "that you cannot shoot through friendly targets if friendly fire is off."
+    "The Flamer projectile now gains more of the velocity of its wielder, "
+    "making it easier to chase down aliens without burning yourself to a "
+    "crisp"
   }
   "Lag Correction"
   {
@@ -74,10 +74,6 @@
     "The Adv. Marauder now has a simpler, area-effect electric shock attack "
     "that does not need to be aimed. Use this to attack large groups of Humans "
     "or Human bases.\n\n"
-    "The Marauder's walljump mechanics have changed subtly. To walljump, "
-    "jump at a wall, look in the direction you wish to push and press jump "
-    "again. You can use the new walljump to gain speed in hallways, climb, "
-    "and swoop down on Humans."
   }
   "Mark Deconstruction"
   {
@@ -97,6 +93,11 @@
     "press the dodge key to start a sprint. The sprint will last until you let "
     "go of the forward key."
   }
+  "Dretch"
+  {
+    "The dretch bounding box and model have both slightly changed to line up "
+    "more closely."
+  }
   "Tyrant"
   {
     "The Tyrant is now a weaker class as its health has been lowered and "
@@ -106,6 +107,11 @@
     "instantly release when full but can be held for two seconds. "
     "The Tyrant's healing aura has been removed, find a booster or a basilisk "
     "to heal faster."
+  }
+  "Headshots"
+  {
+    "Headshots on unarmored humans only cause 150% damage, battlesuit and "
+    "helmet protection have been reduced so headshot damage remains the same."
   }
   "^3Credits^7"
   {
