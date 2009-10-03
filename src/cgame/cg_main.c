@@ -1437,28 +1437,11 @@ static clientInfo_t * CG_InfoFromScoreIndex( int index, int team, int *scoreInde
 
 static qboolean CG_ClientIsReady( int clientNum )
 {
-  // CS_CLIENTS_READY is a hex string, each character of which is 4 bits
-  // the highest bit of the first char is a toggle for client 0, the second
-  // highest for client 1, etc.
-  // there are exactly four bits of information in each character
-  int val;
-  const char *s = CG_ConfigString( CS_CLIENTS_READY );
+  clientList_t ready;
 
-  // select the appropriate character without passing the end of the string
-  for( val = clientNum / 4; *s && val > 0; s++, val-- );
+  BG_ClientListParse( &ready, CG_ConfigString( CS_CLIENTS_READY ) );
 
-  // convert hex -> int
-  if( isdigit( *s ) )
-    val = *s - '0';
-  else if( *s >= 'a' && *s <= 'f' )
-    val = 10 + *s - 'a';
-  else if( *s >= 'A' && *s <= 'F' )
-    val = 10 + *s - 'A';
-  else
-    return qfalse;
-
-  // select appropriate bit
-  return ( ( val & 1 << ( 3 - clientNum % 4 ) ) != 0 );
+  return BG_ClientListTest( &ready, clientNum );
 }
 
 static const char *CG_FeederItemText( float feederID, int index, int column, qhandle_t *handle )

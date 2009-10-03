@@ -1624,11 +1624,9 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
         G_SanitiseString( g_admin_namelog[ i ]->name[ j ], n2, sizeof( n2 ) );
         if( strstr( n2, s2 ) )
         {
-          if( g_admin_namelog[ i ]->slot > -1 )
-            ADMBP( "^3" );
-          ADMBP( va( "%-2s (*%s) %15s ^7'%s^7'\n",
+          ADMBP( va( "%s (*%s) %15s ^7'%s^7'\n",
            ( g_admin_namelog[ i ]->slot > -1 ) ?
-             va( "%d", g_admin_namelog[ i ]->slot ) : "-",
+             va( "^3%-2d", g_admin_namelog[ i ]->slot ) : "- ",
            g_admin_namelog[ i ]->guid + 24,
            g_admin_namelog[ i ]->ip,
            g_admin_namelog[ i ]->name[ j ] ) );
@@ -2789,7 +2787,7 @@ qboolean G_admin_namelog( gentity_t *ent, int skiparg )
     printed++;
     ADMBP( va( "%s (*%s) %15s^7",
       ( g_admin_namelog[ i ]->slot > -1 ) ?
-        va( "^3%-2d", g_admin_namelog[ i ]->slot ) : "-",
+        va( "^3%-2d", g_admin_namelog[ i ]->slot ) : "- ",
       g_admin_namelog[ i ]->guid + 24, g_admin_namelog[ i ]->ip ) );
     for( j = 0; j < MAX_ADMIN_NAMELOG_NAMES &&
       g_admin_namelog[ i ]->name[ j ][ 0 ]; j++ )

@@ -70,21 +70,20 @@ void G_ReadSessionData( gclient_t *client )
   char  s[ MAX_STRING_CHARS ];
   const char  *var;
   int spectatorState;
+  char ignorelist[ 17 ];
 
   var = va( "session%i", client - level.clients );
   trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-  // FIXME: should be using BG_ClientListParse() for ignoreList, but
-  //        bg_lib.c's sscanf() currently lacks %s
-  sscanf( s, "%i %i %i %x%x",
+  sscanf( s, "%i %i %i %16s",
     &client->sess.spectatorTime,
     &spectatorState,
     &client->sess.spectatorClient,
-    &client->sess.ignoreList.hi,
-    &client->sess.ignoreList.lo
+    ignorelist
     );
 
   client->sess.spectatorState = (spectatorState_t)spectatorState;
+  BG_ClientListParse( &client->sess.ignoreList, ignorelist );
 }
 
 
