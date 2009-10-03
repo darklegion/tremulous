@@ -873,7 +873,6 @@ typedef struct zap_s
   int           numTargets;
 
   int           timeToLive;
-  int           damageUsed;
 
   gentity_t     *effectChannel;
 } zap_t;
