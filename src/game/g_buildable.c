@@ -2465,12 +2465,6 @@ think function
 */
 void HSpawn_Disappear( gentity_t *self )
 {
-  vec3_t  dir;
-
-  // we don't have a valid direction, so just point straight up
-  dir[ 0 ] = dir[ 1 ] = 0;
-  dir[ 2 ] = 1;
-
   self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
   self->timestamp = level.time;
   G_QueueBuildPoints( self );
@@ -2868,7 +2862,8 @@ static gentity_t *G_FindBuildable( buildable_t buildable )
   int       i;
   gentity_t *ent;
 
-  for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  for( i = MAX_CLIENTS, ent = g_entities + i;
+       i < level.num_entities; i++, ent++ )
   {
     if( ent->s.eType != ET_BUILDABLE )
       continue;

@@ -1069,9 +1069,8 @@ Recalculate the quantity of building points available to the teams
 */
 void G_CalculateBuildPoints( void )
 {
-  int         i, j;
+  int         i;
   buildable_t buildable;
-  gentity_t   *ent;
   zone_t      *zone;
 
   // BP queue updates
@@ -1145,157 +1144,96 @@ void G_CalculateBuildPoints( void )
   level.humanBuildPoints = g_humanBuildPoints.integer - level.humanBuildPointQueue;
   level.alienBuildPoints = g_alienBuildPoints.integer - level.alienBuildPointQueue;
 
-  // Deactivate any unused zones
+  // Reset powerZones
   for( i = 0; i < g_humanRepeaterMaxZones.integer; i++ )
   {
-    qboolean inUse = qfalse;
     zone_t *zone = &level.powerZones[ i ];
 
-    if( zone->active )
-    {
-      for( j = MAX_CLIENTS, ent = g_entities + j ; j < level.num_entities ; j++, ent++ )
-      {
-        if( ent->s.eType != ET_BUILDABLE )
-          continue;
-
-        if( ent->s.eType != ET_BUILDABLE )
-          continue;
-
-        if( ent->s.eFlags & EF_DEAD )
-          continue;
-
-        if( ent->usesZone && ent->zone == i )
-          inUse = qtrue;
-      }
-
-      if( !inUse )
-        zone->active = qfalse;
-    }
-  }
-
-  // First reset repeater zone BP
-  for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
-  {
-    if( ent->s.eType != ET_BUILDABLE )
-      continue;
-
-    if( ent->s.eFlags & EF_DEAD )
-      continue;
-
-    if( ent->s.modelindex != BA_H_REPEATER )
-      continue;
-
-    if( ent->usesZone && level.powerZones[ ent->zone ].active )
-    {
-      zone_t *zone = &level.powerZones[ ent->zone ];
-
-      zone->totalBuildPoints = g_humanRepeaterBuildPoints.integer;
-    }
+    zone->active = qfalse;
+    zone->totalBuildPoints = g_humanRepeaterBuildPoints.integer;
   }
 
   // Iterate through entities
-  for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
+  for( i = MAX_CLIENTS; i < level.num_entities; i++ )
   {
-    if( !ent->inuse )
+    gentity_t   *ent = &g_entities[ i ];
+    zone_t      *zone;
+    buildable_t buildable;
+    int         cost;
+
+    if( ent->s.eType != ET_BUILDABLE || ent->s.eFlags & EF_DEAD )
       continue;
 
-    if( ent->s.eType != ET_BUILDABLE )
-      continue;
-
-    if( ent->s.eFlags & EF_DEAD )
-      continue;
-
-    buildable = ent->s.modelindex;
-
-    if( buildable != BA_NONE )
+    // mark a zone as active
+    if( ent->usesZone )
     {
-      if( ent->spawned && ent->health > 0 )
+      assert( ent->zone >= 0 && ent->zone < g_humanRepeaterMaxZones.integer );
+
+      zone = &level.powerZones[ ent->zone ];
+      zone->active = qtrue;
+    }
+
+    // Subtract the BP from the appropriate pool
+    buildable = ent->s.modelindex;
+    cost = BG_Buildable( buildable )->buildPoints;
+
+    if( ent->buildableTeam == TEAM_ALIENS )
+      level.alienBuildPoints -= cost;
+    if( buildable == BA_H_REPEATER )
+      level.humanBuildPoints -= cost;
+    else if( buildable != BA_H_REACTOR )
+    {
+      gentity_t *power = G_PowerEntityForEntity( ent );
+
+      if( power )
       {
-        if( buildable == BA_H_SPAWN )
-          level.numHumanSpawns++;
-        else if( buildable == BA_A_SPAWN )
-          level.numAlienSpawns++;
-      }
-
-      if( BG_Buildable( buildable )->team == TEAM_HUMANS )
-      {
-        if( buildable == BA_H_REACTOR || buildable == BA_H_REPEATER )
-        {
-          level.humanBuildPoints -= BG_Buildable( buildable )->buildPoints;
-        }
-        else
-        {
-          gentity_t *powerEntity = G_PowerEntityForEntity( ent );
-
-          if( powerEntity )
-          {
-            switch( powerEntity->s.modelindex )
-            {
-              case BA_H_REACTOR:
-                level.humanBuildPoints -= BG_Buildable( buildable )->buildPoints;
-                break;
-
-              case BA_H_REPEATER:
-                if( powerEntity->usesZone && level.powerZones[ powerEntity->zone ].active )
-                {
-                  zone_t *zone = &level.powerZones[ powerEntity->zone ];
-
-                  zone->totalBuildPoints -= BG_Buildable( buildable )->buildPoints;
-                }
-
-                break;
-
-              default:
-                break;
-            }
-          }
-        }
-      }
-      else if( BG_Buildable( buildable )->team == TEAM_ALIENS )
-      {
-        level.alienBuildPoints -= BG_Buildable( buildable )->buildPoints;
+        if( power->s.modelindex == BA_H_REACTOR )
+          level.humanBuildPoints -= cost;
+        else if( power->s.modelindex == BA_H_REPEATER && power->usesZone )
+          level.powerZones[ power->zone ].totalBuildPoints -= cost;
       }
     }
   }
 
   // Finally, update repeater zones and their queues
   // note that this has to be done after the used BP is calculated
-  for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
+  for( i = MAX_CLIENTS; i < level.num_entities; i++ )
   {
-    if( !ent->inuse )
-      continue;
+    gentity_t *ent = &g_entities[ i ];
 
-    if( ent->s.eType != ET_BUILDABLE )
-      continue;
-
-    if( ent->s.eFlags & EF_DEAD )
+    if( ent->s.eType != ET_BUILDABLE || ent->s.eFlags & EF_DEAD ||
+        ent->buildableTeam != TEAM_HUMANS )
       continue;
 
     buildable = ent->s.modelindex;
 
-    if( BG_Buildable( buildable )->team == TEAM_HUMANS )
-    {
-      if( buildable == BA_H_REPEATER )
-      {
-        if( ent->usesZone && level.powerZones[ ent->zone ].active )
-        {
-          zone = &level.powerZones[ ent->zone ];
+    if( buildable != BA_H_REPEATER )
+      continue;
 
-          if( !level.suddenDeath )
-          {
-            // BP queue updates
-            while( zone->queuedBuildPoints > 0 &&
-                   zone->nextQueueTime < level.time )
-            {
-              zone->queuedBuildPoints--;
-              zone->nextQueueTime += abs( (int)g_humanRepeaterBuildQueueTime.integer * (float)( 1 -  ( (float)zone->queuedBuildPoints ) / zone->totalBuildPoints ) );  // it is possible for queued BP to be great than total BP, in which case, treat it as if the leftover BP is positive
-            }
-          }
-          else
-          {
-              zone->totalBuildPoints = zone->queuedBuildPoints = 0;
-          }
+    if( ent->usesZone && level.powerZones[ ent->zone ].active )
+    {
+      zone = &level.powerZones[ ent->zone ];
+
+      if( !level.suddenDeath )
+      {
+        // BP queue updates
+        while( zone->queuedBuildPoints > 0 &&
+               zone->nextQueueTime < level.time )
+        {
+          float queued;
+
+          zone->queuedBuildPoints--;
+          queued = zone->queuedBuildPoints / (float)zone->totalBuildPoints;
+
+          // It is possible for queued BP to be great than total BP,
+          // in which case, treat it as if the leftover BP is positive
+          zone->nextQueueTime += abs( g_humanRepeaterBuildQueueTime.integer * 
+                                      ( 1 - queued ) );
         }
+      }
+      else
+      {
+          zone->totalBuildPoints = zone->queuedBuildPoints = 0;
       }
     }
   }
