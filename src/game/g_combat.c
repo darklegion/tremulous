@@ -982,14 +982,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       if( g_dretchPunt.integer &&
           targ->client->ps.stats[ STAT_CLASS ] == PCL_ALIEN_LEVEL0 )
       {
-          vec3_t dir, push;
+        vec3_t dir, push;
 
-          VectorSubtract( targ->r.currentOrigin, attacker->r.currentOrigin, dir );
-          VectorNormalizeFast( dir );
-          VectorScale( dir, ( damage * 10.0f ), push );
-          push[2] = 64.0f;
-          VectorAdd( targ->client->ps.velocity, push, targ->client->ps.velocity );
-          return;
+        VectorSubtract( targ->r.currentOrigin, attacker->r.currentOrigin, dir );
+        VectorNormalizeFast( dir );
+        VectorScale( dir, ( damage * 10.0f ), push );
+        push[2] = 64.0f;
+        VectorAdd( targ->client->ps.velocity, push, targ->client->ps.velocity );
+        return;
       }
       // don't do friendly fire on movement attacks
       else if( mod == MOD_LEVEL4_TRAMPLE || mod == MOD_LEVEL3_POUNCE ||
