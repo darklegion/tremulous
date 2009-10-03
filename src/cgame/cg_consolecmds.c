@@ -173,6 +173,41 @@ static void CG_TellAttacker_f( void )
   trap_SendClientCommand( command );
 }
 
+void CG_ClientList_f( void )
+{
+  clientInfo_t *ci;
+  int i;
+  int count = 0;
+
+  for( i = 0; i < MAX_CLIENTS; i++ ) 
+  {
+    ci = &cgs.clientinfo[ i ];
+    if( !ci->infoValid ) 
+      continue;
+
+    switch( ci->team ) 
+    {
+      case TEAM_ALIENS:
+        Com_Printf( "%2d ^1A   ^7%s^7\n", i, ci->name );
+        break;
+
+      case TEAM_HUMANS:
+        Com_Printf( "%2d ^4H   ^7%s^7\n", i, ci->name );
+        break;
+
+      default:
+      case TEAM_NONE:
+      case NUM_TEAMS:
+        Com_Printf( "%2d ^3S   ^7%s^7\n", i, ci->name );
+        break;
+    }
+
+    count++;
+  }
+
+  Com_Printf( "Listed %2d clients\n", count );
+}
+
 static void CG_UIMenu_f( void )
 {
   trap_SendConsoleCommand( va( "menu %s\n", CG_Argv( 1 ) ) );
@@ -203,6 +238,7 @@ static consoleCommand_t commands[ ] =
   { "destroyTestPS", CG_DestroyTestPS_f },
   { "testTS", CG_TestTS_f },
   { "destroyTestTS", CG_DestroyTestTS_f },
+  { "clientlist", CG_ClientList_f },
 };
 
 

@@ -555,11 +555,11 @@ static void admin_default_levels( void )
 
   Q_strncpyz( g_admin_levels[ 3 ]->name, "^2Junior Admin",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 3 ]->flags, "iahCpPkm$?", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 3 ]->flags, "iahCpPkm?", sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 4 ]->name, "^3Senior Admin",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 4 ]->flags, "iahCpPkmBbe$?", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 4 ]->flags, "iahCpPkmBbe?", sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 5 ]->name, "^1Server Operator",
     sizeof( l->name ) );
@@ -2356,32 +2356,19 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
       }
     }
 
-    if( G_admin_permission( ent, ADMF_SEESFULLLISTPLAYERS ) )
-    {
-      ADMBP( va( "%2i %s%s^7 %-2i %s^7 (*%s) ^1%1s%1s^7 %s^7 %s%s^7%s\n",
-                i,
-                c,
-                t,
-                l,
-                lname,
-                guid_stub,
-                muted,
-                denied,
-                p->pers.netname,
-                ( *n ) ? "(a.k.a. " : "",
-                n,
-                ( *n ) ? ")" : "" ) );
-    }
-    else
-    {
-      ADMBP( va( "%2i %s%s^7 ^1%1s%1s^7 %s^7\n",
-                i,
-                c,
-                t,
-                muted,
-                denied,
-                p->pers.netname ) );
-    }
+    ADMBP( va( "%2i %s%s^7 %-2i %s^7 (*%s) ^1%1s%1s^7 %s^7 %s%s^7%s\n",
+              i,
+              c,
+              t,
+              l,
+              lname,
+              guid_stub,
+              muted,
+              denied,
+              p->pers.netname,
+              ( *n ) ? "(a.k.a. " : "",
+              n,
+              ( *n ) ? ")" : "" ) );
   }
   ADMBP_end();
   return qtrue;
