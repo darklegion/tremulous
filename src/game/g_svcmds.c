@@ -725,7 +725,11 @@ qboolean  ConsoleCommand( void )
       G_PrivateMessage( NULL );
       return qtrue;
     }
-
+    else if( !Q_stricmp( cmd, "a" ) )
+    {
+      G_AdminMessage( NULL );
+      return qtrue;
+    }
     G_Printf( "unknown command: %s\n", cmd );
     return qtrue;
   }

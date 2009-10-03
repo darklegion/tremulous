@@ -55,6 +55,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * ! - admin commands cannot be used on them
  * @ - does not show up as an admin in !listplayers
  * $ - sees all information in !listplayers 
+ * ? - receieves and can send /a admin messages
  */
 #define ADMF_IMMUNITY '1'
 #define ADMF_NOCENSORFLOOD '2' /* TODO */
@@ -69,6 +70,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ADMF_IMMUTABLE '!'
 #define ADMF_INCOGNITO '@'
 #define ADMF_SEESFULLLISTPLAYERS '$'
+#define ADMF_ADMINCHAT '?'
 
 #define MAX_ADMIN_LISTITEMS 20
 #define MAX_ADMIN_SHOWBANS 10
