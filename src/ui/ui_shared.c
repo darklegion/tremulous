@@ -4543,7 +4543,7 @@ static const char *Item_Text_Wrap( const char *text, float scale, float width )
   char          c[ 2 ] = { 0 };
   const char    *thisline = text;
   size_t        outlen = 0, testlen;
-  int           eol = -1;
+  int           eol;
 
   if( strlen( text ) >= sizeof( out ) )
     return NULL;
@@ -4551,7 +4551,7 @@ static const char *Item_Text_Wrap( const char *text, float scale, float width )
   while( *thisline )
   {
     // strip leading space and collapse colours
-    while( 1 )
+    while( *thisline )
     {
       while( isspace( *thisline ) && *thisline != '\n' )
         thisline++;
@@ -4574,8 +4574,8 @@ static const char *Item_Text_Wrap( const char *text, float scale, float width )
       outlen += 2;
     }
 
-    for( testlen = 1; thisline[ testlen ] &&
-        outlen + testlen + 1 < sizeof( out ) &&
+    for( testlen = 1, eol = 0; thisline[ testlen ] &&
+        outlen + testlen + 2 < sizeof( out ) &&
         UI_Text_Width( thisline, scale, testlen ) < width; testlen++ )
     {
       // set an eol marker in the last whitespace
@@ -4583,9 +4583,6 @@ static const char *Item_Text_Wrap( const char *text, float scale, float width )
       {
         if( thisline[ eol = testlen ] == '\n' )
           break;
-        // place the eol at the first whitespace, not spaces that follow
-        while( isspace( thisline[ testlen ] ) && thisline[ testlen ] != '\n' )
-          testlen++;
       }
 
       // save colour codes for restoration next line
@@ -4598,8 +4595,12 @@ static const char *Item_Text_Wrap( const char *text, float scale, float width )
     }
 
     // if we couldn't place a whitespace eol then just put it at the end
-    if( !thisline[ testlen ] || outlen + testlen + 1 == sizeof( out ) )
+    if( eol == 0 )
       eol = testlen;
+
+    // place a space at the beginning of wrapped lines to prevent silly things
+    if( thisline[ eol ] != '\n' )
+      out[ outlen++ ] = ' ';
 
     // copy up the the line break
     Com_Memcpy( &out[ outlen ], thisline, eol );
@@ -4608,12 +4609,15 @@ static const char *Item_Text_Wrap( const char *text, float scale, float width )
     if( outlen + 1 < sizeof( out ) )
       out[ outlen++ ] = '\n';
 
-    // continue colour codes on the next line if there is one
-    if( c[ 0 ] && thisline[ eol ] && thisline[ eol + 1 ] && 
-        outlen + 3 < sizeof( out ) )
+    // if there is another line, continue colour codes on it (else die)
+    if( thisline[ eol ] && thisline[ eol + 1 ] && 
+        outlen + 1 < sizeof( out ) )
     {
-      Com_Memcpy( &out[ outlen ], c, 2 );
-      outlen += 2;
+      if( c[ 0 ] && outlen + 3 < sizeof( out ) )
+      { 
+        Com_Memcpy( &out[ outlen ], c, 2 );
+        outlen += 2;
+      }
     }
     else
       break;
