@@ -2438,7 +2438,7 @@ void CheckCvars( void )
   }
 
   // If the number of zones changes, we need a new array
-  if( g_humanRepeaterMaxZones.modificationCount != lastNumZones )
+  if( g_humanRepeaterMaxZones.integer != lastNumZones )
   {
     zone_t *newZones;
     size_t newsize = g_humanRepeaterMaxZones.integer * sizeof( zone_t );
