@@ -1796,7 +1796,6 @@ void CheckIntermissionExit( void )
   gclient_t *cl;
   byte      readyMasks[ ( MAX_CLIENTS + 7 ) / 8 ];
   char      readyString[ 2 * sizeof( readyMasks ) + 1 ];
-  int       index;
 
   //if no clients are connected, just exit
   if( !level.numConnectedClients )
@@ -1822,6 +1821,7 @@ void CheckIntermissionExit( void )
     if( cl->readyToExit )
     {
       ready++;
+      // the nth bit of readyMasks is for client (n - 1)
       readyMasks[ i / 8 ] |= 1 << ( 7 - ( i % 8 ) );
     }
     else
@@ -1830,7 +1830,10 @@ void CheckIntermissionExit( void )
     numPlayers++;
   }
 
-  for( i = 0; i < sizeof( readyMasks ); i++ )
+  // this is hex because we can convert bits to a hex string in pieces, 
+  // whereas a decimal string would have to all be written at once 
+  // (and we can't fit a number that large in an int)
+  for( i = 0; i < ( g_maxclients.integer + 7 ) / 8; i++ )
     Com_sprintf( &readyString[ i * 2 ], sizeof( readyString ) - i * 2,
                  "%2.2x", readyMasks[ i ] );
 

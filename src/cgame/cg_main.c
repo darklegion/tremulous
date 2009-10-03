@@ -1425,14 +1425,18 @@ static clientInfo_t * CG_InfoFromScoreIndex( int index, int team, int *scoreInde
 
 static qboolean CG_ClientIsReady( int clientNum )
 {
+  // each character of the hex string corresponds to 4 bits, which correspond
+  // to readiness for client (0, 1, 2, 3...) i.e. the highest order bit
+  // corresponds to the lowest clientnum
+  // because of this 1:4 ratio we only need one character for a given client
   int val = clientNum / 4;
   const char *s = CG_ConfigString( CS_CLIENTS_READY );
-  while( *s && val-- )
+  while( *s && val-- > 0 )
     s++;
   if( !*s )
     return qfalse;
   sscanf( s, "%1x", &val );
-  return ( ( val & ( clientNum % 4 ) ) != 0 );
+  return ( ( val & 1 << ( 3 - clientNum % 4 ) ) != 0 );
 }
 
 static const char *CG_FeederItemText( float feederID, int index, int column, qhandle_t *handle )
