@@ -1231,7 +1231,11 @@ void G_CalculateBuildPoints( void )
 
       if( BG_Buildable( buildable )->team == TEAM_HUMANS )
       {
-        if( buildable != BA_H_REACTOR && buildable != BA_H_REPEATER )
+        if( buildable == BA_H_REACTOR || buildable == BA_H_REPEATER )
+        {
+          level.humanBuildPoints -= BG_Buildable( buildable )->buildPoints;
+        }
+        else
         {
           gentity_t *powerEntity = G_PowerEntityForEntity( ent );
 

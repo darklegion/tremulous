@@ -3152,7 +3152,11 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   }
   else if( team == TEAM_HUMANS )
   {
-    remainingBP     = G_GetBuildPoints( origin, team, 0 );
+    if( buildable == BA_H_REACTOR || buildable == BA_H_REPEATER )
+      remainingBP   = level.humanBuildPoints;
+    else
+      remainingBP   = G_GetBuildPoints( origin, team, 0 );
+
     remainingSpawns = level.numHumanSpawns;
     bpError         = IBE_NOHUMANBP;
     spawn           = BA_H_SPAWN;
