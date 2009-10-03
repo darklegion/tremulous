@@ -203,8 +203,13 @@ typedef struct listBoxDef_s
   qboolean notselectable;
   qboolean noscrollbar;
 }
-
 listBoxDef_t;
+
+typedef struct comboBoxDef_s
+{
+  int cursorPos;
+}
+comboBoxDef_t;
 
 typedef struct editFieldDef_s
 {
@@ -380,6 +385,7 @@ typedef struct
   const char *( *feederItemText )( float feederID, int index, int column, qhandle_t *handle );
   qhandle_t ( *feederItemImage )( float feederID, int index );
   void ( *feederSelection )( float feederID, int index );
+  int ( *feederInitialise )( float feederID );
   void ( *keynumToStringBuf )( int keynum, char *buf, int buflen );
   void ( *getBindingBuf )( int keynum, char *buf, int buflen );
   void ( *setBinding )( int keynum, const char *binding );

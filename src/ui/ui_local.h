@@ -58,6 +58,7 @@ void UI_DrawConnectScreen( qboolean overlay );
 #define MAX_DEMOS 256
 #define MAX_MOVIES 256
 #define MAX_HELP_INFOPANES 32
+#define MAX_RESOLUTIONS 32
 
 typedef struct
 {
@@ -178,6 +179,13 @@ menuItem_t;
 
 typedef struct
 {
+  int w;
+  int h;
+}
+resolution_t;
+
+typedef struct
+{
   displayContextDef_t uiDC;
 
   int playerCount;
@@ -266,6 +274,9 @@ typedef struct
   int currentFoundPlayerServer;
   int numFoundPlayerServers;
   int nextFindPlayerRefresh;
+
+  resolution_t  resolutions[ MAX_RESOLUTIONS ];
+  int numResolutions;
 
   qboolean inGameLoad;
 

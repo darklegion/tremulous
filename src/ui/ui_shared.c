@@ -3320,23 +3320,70 @@ const char *Item_Multi_Setting( itemDef_t *item )
   return "";
 }
 
+qboolean Item_Combobox_HandleKey( itemDef_t *item, int key )
+{
+  comboBoxDef_t *comboPtr = (comboBoxDef_t *)item->typeData;
+  qboolean mouseOver = Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory );
+  int count = DC->feederCount( item->special );
+
+  if( comboPtr )
+  {
+    if( item->window.flags & WINDOW_HASFOCUS )
+    {
+      if( ( mouseOver && key == K_MOUSE1 ) ||
+          key == K_ENTER || key == K_RIGHTARROW || key == K_DOWNARROW )
+      {
+        if( count > 0 )
+          comboPtr->cursorPos = ( comboPtr->cursorPos + 1 ) % count;
+
+        DC->feederSelection( item->special, comboPtr->cursorPos );
+
+        return qtrue;
+      }
+      else if( ( mouseOver && key == K_MOUSE2 ) ||
+               key == K_LEFTARROW || key == K_UPARROW )
+      {
+        if( count > 0 )
+          comboPtr->cursorPos = ( count + comboPtr->cursorPos - 1 ) % count;
+
+        DC->feederSelection( item->special, comboPtr->cursorPos );
+
+        return qtrue;
+      }
+    }
+  }
+
+  return qfalse;
+}
+
 qboolean Item_Multi_HandleKey( itemDef_t *item, int key )
 {
   multiDef_t * multiPtr = ( multiDef_t* )item->typeData;
+  qboolean mouseOver = Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory );
+  int max = Item_Multi_CountSettings( item );
+  qboolean changed = qfalse;
 
   if( multiPtr )
   {
-    if( Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) &&
-        item->window.flags & WINDOW_HASFOCUS && item->cvar )
+    if( item->window.flags & WINDOW_HASFOCUS && item->cvar && max > 0 )
     {
-      if( key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3 )
+      int current;
+
+      if( ( mouseOver && key == K_MOUSE1 ) ||
+          key == K_ENTER || key == K_RIGHTARROW || key == K_DOWNARROW )
       {
-        int current = Item_Multi_FindCvarByValue( item ) + 1;
-        int max = Item_Multi_CountSettings( item );
+        current = ( Item_Multi_FindCvarByValue( item ) + 1 ) % max;
+        changed = qtrue;
+      }
+      else if( ( mouseOver && key == K_MOUSE2 ) ||
+               key == K_LEFTARROW || key == K_UPARROW )
+      {
+        current = ( Item_Multi_FindCvarByValue( item ) + max - 1 ) % max;
+        changed = qtrue;
+      }
 
-        if( current < 0 || current >= max )
-          current = 0;
-
+      if( changed )
+      {
         if( multiPtr->strDef )
           DC->setCVar( item->cvar, multiPtr->cvarStr[current] );
         else
@@ -3820,7 +3867,7 @@ qboolean Item_HandleKey( itemDef_t *item, int key, qboolean down )
       break;
 
     case ITEM_TYPE_COMBO:
-      return qfalse;
+      return Item_Combobox_HandleKey( item, key );
       break;
 
     case ITEM_TYPE_LISTBOX:
@@ -4002,6 +4049,12 @@ void  Menus_Activate( menuDef_t *menu )
         menu->items[ i ]->cursorPos = 0;
         listPtr->startPos = 0;
         DC->feederSelection( menu->items[ i ]->special, 0 );
+      }
+      else if( menu->items[ i ]->type == ITEM_TYPE_COMBO )
+      {
+        comboBoxDef_t *comboPtr = (comboBoxDef_t *)menu->items[ i ]->typeData;
+
+        comboPtr->cursorPos = DC->feederInitialise( menu->items[ i ]->special );
       }
 
     }
@@ -4947,6 +5000,31 @@ void Item_Multi_Paint( itemDef_t *item )
     memcpy( &newColor, &item->window.foreColor, sizeof( vec4_t ) );
 
   text = Item_Multi_Setting( item );
+
+  if( item->text )
+  {
+    Item_Text_Paint( item );
+    UI_Text_Paint( item->textRect.x + item->textRect.w + ITEM_VALUE_OFFSET, item->textRect.y,
+                   item->textscale, newColor, text, 0, 0, item->textStyle );
+  }
+  else
+    UI_Text_Paint( item->textRect.x, item->textRect.y, item->textscale, newColor, text, 0, 0, item->textStyle );
+}
+
+void Item_Combobox_Paint( itemDef_t *item )
+{
+  vec4_t newColor;
+  const char *text = "";
+  menuDef_t *parent = (menuDef_t *)item->parent;
+  comboBoxDef_t *comboPtr = (comboBoxDef_t *)item->typeData;
+
+  if( item->window.flags & WINDOW_HASFOCUS )
+    memcpy( newColor, &parent->focusColor, sizeof( vec4_t ) );
+  else
+    memcpy( &newColor, &item->window.foreColor, sizeof( vec4_t ) );
+
+  if( comboPtr )
+    text = DC->feederItemText( item->special, comboPtr->cursorPos, 0, NULL );
 
   if( item->text )
   {
@@ -6064,6 +6142,7 @@ void Item_Paint( itemDef_t *item )
       break;
 
     case ITEM_TYPE_COMBO:
+      Item_Combobox_Paint( item );
       break;
 
     case ITEM_TYPE_LISTBOX:
@@ -6378,6 +6457,11 @@ void Item_ValidateTypeData( itemDef_t *item )
   {
     item->typeData = UI_Alloc( sizeof( listBoxDef_t ) );
     memset( item->typeData, 0, sizeof( listBoxDef_t ) );
+  }
+  else if( item->type == ITEM_TYPE_COMBO )
+  {
+    item->typeData = UI_Alloc( sizeof( comboBoxDef_t ) );
+    memset( item->typeData, 0, sizeof( comboBoxDef_t ) );
   }
   else if( item->type == ITEM_TYPE_EDITFIELD ||
            item->type == ITEM_TYPE_NUMERICFIELD ||

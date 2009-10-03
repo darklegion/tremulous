@@ -1028,7 +1028,10 @@ extern	cvar_t	*r_facePlaneCull;		// enables culling of planar surfaces with back
 extern	cvar_t	*r_nocurves;
 extern	cvar_t	*r_showcluster;
 
-extern cvar_t	*r_mode;				// video mode
+extern cvar_t	*r_width;
+extern cvar_t	*r_height;
+extern cvar_t	*r_pixelAspect;
+
 extern cvar_t	*r_fullscreen;
 extern cvar_t	*r_gamma;
 extern cvar_t	*r_displayRefresh;		// optional display refresh option
@@ -1197,9 +1200,8 @@ model_t		*R_AllocModel( void );
 void    	R_Init( void );
 image_t		*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode );
 
-image_t		*R_CreateImage( const char *name, const byte *pic, int width, int height, qboolean mipmap
-					, qboolean allowPicmip, int wrapClampMode );
-qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
+image_t		*R_CreateImage( const char *name, const byte *pic, int width, int height, qboolean mipmap,
+            qboolean allowPicmip, int wrapClampMode );
 
 void		R_SetColorMappings( void );
 void		R_GammaCorrect( byte *buffer, int bufSize );

@@ -3353,6 +3353,8 @@ static int UI_FeederCount( float feederID )
     return uiInfo.alienBuildCount;
   else if( feederID == FEEDER_TREMHUMANBUILD )
     return uiInfo.humanBuildCount;
+  else if( feederID == FEEDER_RESOLUTIONS )
+    return uiInfo.numResolutions;
 
   return 0;
 }
@@ -3382,9 +3384,12 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
   static char info[MAX_STRING_CHARS];
   static char hostname[1024];
   static char clientBuff[32];
+  static char resolution[MAX_STRING_CHARS];
   static int lastColumn = -1;
   static int lastTime = 0;
-  *handle = -1;
+
+  if( handle )
+    *handle = -1;
 
   if( feederID == FEEDER_MAPS )
   {
@@ -3571,6 +3576,24 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
     if( index >= 0 && index < uiInfo.humanBuildCount )
       return uiInfo.humanBuildList[ index ].text;
   }
+  else if( feederID == FEEDER_RESOLUTIONS )
+  {
+    int i;
+    int w = trap_Cvar_VariableValue( "r_width" );
+    int h = trap_Cvar_VariableValue( "r_height" );
+
+    for( i = 0; i < uiInfo.numResolutions; i++ )
+    {
+      if( w == uiInfo.resolutions[ i ].w && h == uiInfo.resolutions[ i ].h )
+      {
+        Com_sprintf( resolution, sizeof( resolution ), "%dx%d", w, h );
+        return resolution;
+      }
+    }
+
+    Com_sprintf( resolution, sizeof( resolution ), "Custom (%dx%d)", w, h );
+    return resolution;
+  }
 
   return "";
 }
@@ -3697,6 +3720,29 @@ static void UI_FeederSelection( float feederID, int index )
     uiInfo.alienBuildIndex = index;
   else if( feederID == FEEDER_TREMHUMANBUILD )
     uiInfo.humanBuildIndex = index;
+  else if( feederID == FEEDER_RESOLUTIONS )
+  {
+    trap_Cvar_Set( "r_width", va( "%d", uiInfo.resolutions[ index ].w ) );
+    trap_Cvar_Set( "r_height", va( "%d", uiInfo.resolutions[ index ].h ) );
+  }
+}
+
+static int UI_FeederInitialise( float feederID )
+{
+  if( feederID == FEEDER_RESOLUTIONS )
+  {
+    int i;
+    int w = trap_Cvar_VariableValue( "r_width" );
+    int h = trap_Cvar_VariableValue( "r_height" );
+
+    for( i = 0; i < uiInfo.numResolutions; i++ )
+    {
+      if( w == uiInfo.resolutions[ i ].w && h == uiInfo.resolutions[ i ].h )
+        return i;
+    }
+  }
+
+  return 0;
 }
 
 static void UI_Pause( qboolean b )
@@ -3756,6 +3802,38 @@ static float UI_GetValue( int ownerDraw )
   return 0.0f;
 }
 
+/*
+=================
+UI_ParseResolutions
+=================
+*/
+void UI_ParseResolutions( void )
+{
+  char        buf[ MAX_STRING_CHARS ];
+  char        w[ 16 ], h[ 16 ];
+  char        *p;
+  const char  *out;
+  char        *s = NULL;
+
+  trap_Cvar_VariableStringBuffer( "r_availableModes", buf, sizeof( buf ) );
+  p = buf;
+  uiInfo.numResolutions = 0;
+
+  while( String_Parse( &p, &out ) )
+  {
+    Q_strncpyz( w, out, sizeof( w ) );
+    s = strchr( w, 'x' );
+    if( !s )
+      return;
+
+    *s++ = '\0';
+    Q_strncpyz( h, s, sizeof( h ) );
+
+    uiInfo.resolutions[ uiInfo.numResolutions ].w = atoi( w );
+    uiInfo.resolutions[ uiInfo.numResolutions ].h = atoi( h );
+    uiInfo.numResolutions++;
+  }
+}
 
 /*
 =================
@@ -3815,6 +3893,7 @@ void UI_Init( qboolean inGameLoad )
   uiInfo.uiDC.feederItemImage = &UI_FeederItemImage;
   uiInfo.uiDC.feederItemText = &UI_FeederItemText;
   uiInfo.uiDC.feederSelection = &UI_FeederSelection;
+  uiInfo.uiDC.feederInitialise = &UI_FeederInitialise;
   uiInfo.uiDC.setBinding = &trap_Key_SetBinding;
   uiInfo.uiDC.getBindingBuf = &trap_Key_GetBindingBuf;
   uiInfo.uiDC.keynumToStringBuf = &trap_Key_KeynumToStringBuf;
@@ -3858,6 +3937,8 @@ void UI_Init( qboolean inGameLoad )
   uiInfo.previewMovie = -1;
 
   trap_Cvar_Register( NULL, "debug_protocol", "", 0 );
+
+  UI_ParseResolutions( );
 }
 
 
