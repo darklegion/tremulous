@@ -1285,6 +1285,7 @@ void G_CalculateStages( void )
     trap_Cvar_Set( "g_alienStage", va( "%d", S2 ) );
     level.alienStage2Time = level.time;
     lastAlienStageModCount = g_alienStage.modificationCount;
+    G_LogPrintf("Stage: A 2: Aliens reached Stage 2\n");
   }
 
   if( g_alienCredits.integer >=
@@ -1294,6 +1295,7 @@ void G_CalculateStages( void )
     trap_Cvar_Set( "g_alienStage", va( "%d", S3 ) );
     level.alienStage3Time = level.time;
     lastAlienStageModCount = g_alienStage.modificationCount;
+    G_LogPrintf("Stage: A 3: Aliens reached Stage 3\n");
   }
 
   if( g_humanCredits.integer >=
@@ -1303,6 +1305,7 @@ void G_CalculateStages( void )
     trap_Cvar_Set( "g_humanStage", va( "%d", S2 ) );
     level.humanStage2Time = level.time;
     lastHumanStageModCount = g_humanStage.modificationCount;
+    G_LogPrintf("Stage: H 2: Humans reached Stage 2\n");
   }
 
   if( g_humanCredits.integer >=
@@ -1312,6 +1315,7 @@ void G_CalculateStages( void )
     trap_Cvar_Set( "g_humanStage", va( "%d", S3 ) );
     level.humanStage3Time = level.time;
     lastHumanStageModCount = g_humanStage.modificationCount;
+    G_LogPrintf("Stage: H 3: Humans reached Stage 3\n");
   }
 
   if( g_alienStage.modificationCount > lastAlienStageModCount )
