@@ -1101,36 +1101,6 @@ void AAcidTube_Think( gentity_t *self );
 
 /*
 ================
-AAcidTube_Damage
-
-Damage function for Alien Acid Tube
-================
-*/
-void AAcidTube_Damage( gentity_t *self )
-{
-  if( !self->spawned || self->health <= 0 )
-  {
-    AAcidTube_Think( self );
-    return;
-  }
-
-  if( level.time >= self->timestamp + ACIDTUBE_REPEAT_ANIM )
-  {
-    self->timestamp = level.time;
-    G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
-    G_AddEvent( self, EV_ALIEN_ACIDTUBE, DirToByte( self->s.origin2 ) );
-  }
-  G_SelectiveRadiusDamage( self->s.pos.trBase, self, ACIDTUBE_DAMAGE,
-                           ACIDTUBE_RANGE, self, MOD_ATUBE, PTE_ALIENS );
-                           
-  G_CreepSlow( self );
-                           
-  self->think = AAcidTube_Think;
-  self->nextthink = level.time + ACIDTUBE_REPEAT;
-}
-
-/*
-================
 AAcidTube_Think
 
 Think function for Alien Acid Tube
@@ -1156,7 +1126,10 @@ void AAcidTube_Think( gentity_t *self )
     return;
   }
 
-  if( self->spawned && G_FindOvermind( self ) )
+  G_CreepSlow( self );
+
+  // attack nearby humans
+  if( self->spawned && self->health && G_FindOvermind( self ) )
   {
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
     for( i = 0; i < num; i++ )
@@ -1168,13 +1141,21 @@ void AAcidTube_Think( gentity_t *self )
 
       if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
       {
-        self->think = AAcidTube_Damage;
-        break;
+        // start the attack animation
+        if( level.time >= self->timestamp + ACIDTUBE_REPEAT_ANIM )
+        {
+          self->timestamp = level.time;
+          G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
+          G_AddEvent( self, EV_ALIEN_ACIDTUBE, DirToByte( self->s.origin2 ) );
+        }
+        
+        G_SelectiveRadiusDamage( self->s.pos.trBase, self, ACIDTUBE_DAMAGE,
+                                 ACIDTUBE_RANGE, self, MOD_ATUBE, PTE_ALIENS );                           
+        self->nextthink = level.time + ACIDTUBE_REPEAT;
+        return;
       }
     }
   }
-
-  G_CreepSlow( self );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 }
