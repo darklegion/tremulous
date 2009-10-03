@@ -1,5 +1,6 @@
 gfx/2d/crosshair-alien_s
 {
+	nopicmip
 	{
 		map gfx/2d/crosshair-alien.tga
 		blendfunc blend
@@ -10,6 +11,7 @@ gfx/2d/crosshair-alien_s
 
 gfx/2d/crosshair-rifle_s
 {
+	nopicmip
 	{
 		map gfx/2d/crosshair-rifle.tga
 		blendfunc blend
@@ -20,6 +22,7 @@ gfx/2d/crosshair-rifle_s
 
 gfx/2d/crosshair-prifle_s
 {
+	nopicmip
 	{
 		map gfx/2d/crosshair-prifle.tga
 		blendfunc blend
@@ -30,6 +33,7 @@ gfx/2d/crosshair-prifle_s
 
 gfx/2d/crosshair-chaingun_s
 {
+	nopicmip
 	{
 		map gfx/2d/crosshair-chaingun.tga
 		blendfunc blend
@@ -40,6 +44,7 @@ gfx/2d/crosshair-chaingun_s
 
 gfx/2d/crosshair-mdriver_s
 {
+	nopicmip
 	{
 		map gfx/2d/crosshair-mdriver.tga
 		blendfunc blend
@@ -50,6 +55,7 @@ gfx/2d/crosshair-mdriver_s
 
 gfx/2d/crosshair-lcannon_s
 {
+	nopicmip
 	{
 		map gfx/2d/crosshair-lcannon.tga
 		blendfunc blend
@@ -60,6 +66,7 @@ gfx/2d/crosshair-lcannon_s
 
 gfx/2d/crosshair-lgun_s
 {
+	nopicmip
 	{
 		map gfx/2d/crosshair-lgun.tga
 		blendfunc blend
@@ -70,6 +77,7 @@ gfx/2d/crosshair-lgun_s
 
 gfx/2d/crosshair-flamer_s
 {
+	nopicmip
 	{
 		clampmap gfx/2d/crosshair-flamer1.tga
 		blendfunc blend
@@ -281,8 +289,10 @@ gfx/2d/crosshair-flamer_s
 		tcmod rotate -5
 	}
 }
+
 gfx/2d/crosshair-psaw
 {
+	nopicmip
 	{
 		map gfx/2d/crosshair-psaw.tga
 		blendfunc blend
@@ -290,4 +300,3 @@ gfx/2d/crosshair-psaw
 		alphagen const 0.35
 	}
 }
-

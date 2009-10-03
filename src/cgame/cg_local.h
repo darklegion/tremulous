@@ -572,6 +572,8 @@ typedef struct
   lerpFrame_t legs, torso, flag, nonseg;
   int         painTime;
   int         painDirection;  // flip from 0 to 1
+  
+  qboolean    squadMarked;    // player has been marked as a squadmember
 
   // machinegun spinning
   float       barrelAngle;
@@ -713,7 +715,7 @@ typedef struct
 
   char        name[ MAX_QPATH ];
   pTeam_t     team;
-
+  
   vec3_t      color1;
   vec3_t      color2;
 
@@ -724,12 +726,6 @@ typedef struct
   int         curWeapon;
 
   int         handicap;
-
-  int         medkitUsageTime;
-  int         invulnerabilityStartTime;
-  int         invulnerabilityStopTime;
-
-  int         breathPuffTime;
 
   // when clientinfo is changed, the loading of models/skins/sounds
   // can be deferred until you are dead, to prevent hitches in
@@ -900,6 +896,9 @@ typedef struct
 #define MAX_PREDICTED_EVENTS  16
 
 #define NUM_SAVED_STATES ( CMD_BACKUP + 2 )
+
+// After this many msec the crosshair name fades out completely
+#define CROSSHAIR_CLIENT_TIMEOUT 1000
 
 typedef struct
 {
@@ -1284,6 +1283,9 @@ typedef struct
   qhandle_t   healthCross3X;
   qhandle_t   healthCrossMedkit;
   qhandle_t   healthCrossPoisoned;
+  
+  qhandle_t   squadMarkerH;
+  qhandle_t   squadMarkerV;
 } cgMedia_t;
 
 typedef struct
@@ -1606,6 +1608,7 @@ void        CG_DrawRect( float x, float y, float width, float height, float size
 void        CG_DrawSides(float x, float y, float w, float h, float size);
 void        CG_DrawTopBottom(float x, float y, float w, float h, float size);
 qboolean    CG_WorldToScreen( vec3_t point, float *x, float *y );
+qboolean    CG_WorldToScreenWrap( vec3_t point, float *x, float *y );
 char        *CG_KeyBinding( const char *bind );
 
 

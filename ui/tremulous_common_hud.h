@@ -160,3 +160,13 @@ itemDef
   ownerdraw CG_PLAYER_CROSSHAIRNAMES
   textstyle ITEM_TEXTSTYLE_SHADOWED
 }
+
+//SQUAD MARKERS
+itemDef
+{
+  name "squad-markers"
+  visible MENU_TRUE
+  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
+  ownerdraw CG_SQUAD_MARKERS
+}
+

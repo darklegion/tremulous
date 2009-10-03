@@ -177,5 +177,6 @@
 
 #define CG_PLAYER_CHARGE_BAR_BG           76
 #define CG_PLAYER_CHARGE_BAR              77
+#define CG_SQUAD_MARKERS                  78
 
 #endif

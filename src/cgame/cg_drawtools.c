@@ -349,6 +349,59 @@ qboolean CG_WorldToScreen( vec3_t point, float *x, float *y )
 
 /*
 ================
+CG_WorldToScreenWrap
+================
+*/
+qboolean CG_WorldToScreenWrap( vec3_t point, float *x, float *y )
+{
+  vec3_t trans;
+  float px, py, dotForward, dotRight, dotUp, distance, propX, propY;
+
+  px = tan( cg.refdef.fov_x * M_PI / 360.0f );
+  py = tan( cg.refdef.fov_y * M_PI / 360.0f );
+  
+  VectorSubtract( point, cg.refdef.vieworg, trans );
+
+  dotForward = DotProduct( trans, cg.refdef.viewaxis[ 0 ] );
+  dotRight = DotProduct( trans, cg.refdef.viewaxis[ 1 ] );
+  dotUp = DotProduct( trans, cg.refdef.viewaxis[ 2 ] );
+
+  distance = abs( dotForward );
+  propX = dotRight / ( distance * px );
+  propY = dotUp / ( distance * py );
+
+  // The distance along the forward axis does not make sense once the point
+  // moves off-screen so we need to use either the side or the up axis instead
+  if( propX < -1.0f || propX > 1.0f )
+  {
+    distance = abs( dotRight ) / px;
+    propY = dotUp / ( distance * py );
+  }
+  if( propY < -1.0f || propY > 1.0f )
+  {
+    distance = abs( dotUp ) / py;
+    propX = dotRight / ( distance * px );
+  }  
+    
+  if( x )
+    *x = 320 - propX * 320;
+  if( y )
+    *y = 240 - propY * 240;
+    
+  // Snap to the edge of the screen when the point is behind us
+  if( dotForward < 0.f && *x > 0 && *x < 640 && *y > 0 && *y < 480 )
+  {
+    if( abs( *x - 320 ) > abs( *y - 240 ) )
+      *x = *x <= 320 ? 0.0f : 640;
+    else
+      *y = *y <= 240 ? 0.0f : 480;
+  }
+
+  return qtrue;
+}
+
+/*
+================
 CG_KeyBinding
 ================
 */

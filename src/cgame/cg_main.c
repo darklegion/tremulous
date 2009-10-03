@@ -852,6 +852,10 @@ static void CG_RegisterGraphics( void )
   cgs.media.healthCross3X             = trap_R_RegisterShader( "ui/assets/neutral/cross3.tga" );
   cgs.media.healthCrossMedkit         = trap_R_RegisterShader( "ui/assets/neutral/cross_medkit.tga" );
   cgs.media.healthCrossPoisoned       = trap_R_RegisterShader( "ui/assets/neutral/cross_poison.tga" );
+  
+  // squad markers
+  cgs.media.squadMarkerH              = trap_R_RegisterShader( "ui/assets/neutral/squad_h" );
+  cgs.media.squadMarkerV              = trap_R_RegisterShader( "ui/assets/neutral/squad_v" );
 
   cgs.media.upgradeClassIconShader    = trap_R_RegisterShader( "icons/icona_upgrade.tga" );
   
