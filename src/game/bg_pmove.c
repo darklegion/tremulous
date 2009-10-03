@@ -3090,6 +3090,7 @@ static void PM_Weapon( void )
 
     //allow some time for the weapon to be raised
     pm->ps->weaponstate = WEAPON_RAISING;
+    PM_StartTorsoAnim( TORSO_RAISE );
     pm->ps->weaponTime += 250;
     return;
   }

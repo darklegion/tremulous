@@ -506,6 +506,10 @@ int G_ParseDmgScript( damageRegion_t *regions, char *buf )
       {
         regions[ count ].crouch = qtrue;
       }
+      else
+      {
+        G_Printf("WARNING: unknown token \"%s\" in damage script\n", token);
+      }
     }
     
     // Angle portion covered

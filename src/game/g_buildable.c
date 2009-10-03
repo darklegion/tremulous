@@ -603,7 +603,7 @@ G_IsCreepHere
 simple wrapper to G_FindCreep to check if a location has creep
 ================
 */
-qboolean G_IsCreepHere( vec3_t origin )
+static qboolean G_IsCreepHere( vec3_t origin )
 {
   gentity_t dummy;
 

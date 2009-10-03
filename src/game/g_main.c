@@ -302,6 +302,7 @@ void G_RunFrame( int levelTime );
 void G_ShutdownGame( int restart );
 void CheckExitRules( void );
 
+void G_CountSpawns( void );
 void G_CalculateBuildPoints( void );
 
 /*
@@ -665,6 +666,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
 
   G_Printf( "-----------------------------------\n" );
+  
+  // So the server counts the spawns without a client attached
+  G_CountSpawns( );
 
   G_ResetPTRConnections( );
 }
@@ -1041,6 +1045,33 @@ void G_SpawnClients( team_t team )
       ClientUserinfoChanged( clientNum );
       ClientSpawn( ent, spawn, spawn_origin, spawn_angles );
     }
+  }
+}
+
+/*
+============
+G_CountSpawns
+ 
+Counts the number of spawns for each team
+============
+*/
+void G_CountSpawns( void )
+{
+  int i;
+  gentity_t *ent;
+
+  level.numAlienSpawns = 0;
+  level.numHumanSpawns = 0;
+  for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
+  {
+    if( !ent->inuse || ent->s.eType != ET_BUILDABLE || ent->health <= 0 )
+      continue;
+
+    if( ent->s.modelindex == BA_A_SPAWN )
+      level.numAlienSpawns++;
+
+    if( ent->s.modelindex == BA_H_SPAWN )
+      level.numHumanSpawns++;
   }
 }
 
@@ -2553,6 +2584,7 @@ void G_RunFrame( int levelTime )
   // save position information for all active clients
   G_UnlaggedStore( );
 
+  G_CountSpawns( );
   G_CalculateBuildPoints( );
   G_CalculateStages( );
   G_SpawnClients( TEAM_ALIENS );
