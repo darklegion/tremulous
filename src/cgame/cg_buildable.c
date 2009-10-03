@@ -622,12 +622,14 @@ static void CG_PositionAndOrientateBuildable( const vec3_t angles, const vec3_t 
 
   VectorMA( inOrigin, -TRACE_DEPTH, normal, end );
   VectorMA( inOrigin, 1.0f, normal, start );
-  CG_CapTrace( &tr, start, mins, maxs, end, skipNumber, MASK_PLAYERSOLID );
+  CG_CapTrace( &tr, start, mins, maxs, end, skipNumber,
+               CONTENTS_SOLID | CONTENTS_PLAYERCLIP );
 
   if( tr.fraction == 1.0f )
   {
     //erm we missed completely - try again with a box trace
-    CG_Trace( &tr, start, mins, maxs, end, skipNumber, MASK_PLAYERSOLID );
+    CG_Trace( &tr, start, mins, maxs, end, skipNumber,
+              CONTENTS_SOLID | CONTENTS_PLAYERCLIP );
   }
 
   VectorMA( inOrigin, tr.fraction * -TRACE_DEPTH, normal, outOrigin );
@@ -1286,8 +1288,29 @@ void CG_Buildable( centity_t *cent )
   BG_FindBBoxForBuildable( es->modelindex, mins, maxs );
 
   if( es->pos.trType == TR_STATIONARY )
-    CG_PositionAndOrientateBuildable( angles, ent.origin, surfNormal, es->number,
-                                      mins, maxs, ent.axis, ent.origin );
+  {
+    // Positioning a buildable involves potentially up to two traces, and
+    // seeing as buildables rarely move, we cache the results and recalculate
+    // only if the buildable moves or changes orientation
+    if( VectorCompare( cent->buildableCache.cachedOrigin, cent->lerpOrigin ) &&
+        VectorCompare( cent->buildableCache.cachedNormal, surfNormal ) )
+    {
+      VectorCopy( cent->buildableCache.axis[ 0 ], ent.axis[ 0 ] );
+      VectorCopy( cent->buildableCache.axis[ 1 ], ent.axis[ 1 ] );
+      VectorCopy( cent->buildableCache.axis[ 2 ], ent.axis[ 2 ] );
+    }
+    else
+    {
+      CG_PositionAndOrientateBuildable( angles, ent.origin, surfNormal,
+                                        es->number, mins, maxs, ent.axis,
+                                        ent.origin );
+      VectorCopy( ent.axis[ 0 ], cent->buildableCache.axis[ 0 ] );
+      VectorCopy( ent.axis[ 1 ], cent->buildableCache.axis[ 1 ] );
+      VectorCopy( ent.axis[ 2 ], cent->buildableCache.axis[ 2 ] );
+      VectorCopy( cent->lerpOrigin, cent->buildableCache.cachedOrigin );
+      VectorCopy( surfNormal, cent->buildableCache.cachedNormal );
+    }
+  }
 
   //offset on the Z axis if required
   VectorMA( ent.origin, BG_FindZOffsetForBuildable( es->modelindex ), surfNormal, ent.origin );

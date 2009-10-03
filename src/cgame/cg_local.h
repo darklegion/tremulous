@@ -599,6 +599,14 @@ typedef struct buildableStatus_s
   qboolean  visible;       // Status is visble?
 } buildableStatus_t;
 
+typedef struct buildableCache_s
+{
+  vec3_t   cachedOrigin;   // If either the cached entity origin or the
+  vec3_t   cachedNormal;   // cached surfNormal change the cache is invalid
+  vec3_t   axis[ 3 ];
+  vec3_t   origin;
+} buildableCache_t;
+
 //=================================================
 
 // centity_t have a direct corespondence with gentity_t in the game, but
@@ -643,6 +651,7 @@ typedef struct centity_s
   buildableAnimNumber_t oldBuildableAnim; //to detect when new anims are set
   particleSystem_t      *buildablePS;
   buildableStatus_t     buildableStatus;
+  buildableCache_t      buildableCache;   // so we don't recalculate things
   float                 lastBuildableHealthScale;
   int                   lastBuildableDamageSoundTime;
 
@@ -672,7 +681,7 @@ typedef struct centity_s
   int                   muzzleTSDeathTime;
 
   qboolean              valid;
-  qboolean              oldValid;
+  qboolean              oldValid;  
 } centity_t;
 
 

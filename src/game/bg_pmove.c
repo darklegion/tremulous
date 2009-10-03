@@ -595,60 +595,92 @@ PM_CheckWallJump
 */
 static qboolean PM_CheckWallJump( void )
 {
-  vec3_t  dir, forward, right;
-  vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
-  float   normalFraction = 1.5f;
-  float   cmdFraction = 1.0f;
-  float   upFraction = 1.5f;
+  trace_t trace;
+  vec3_t point, dir, forward, right;
+  float magnitude;
+  int i;
 
+  // don't allow jump until all buttons are up
   if( pm->ps->pm_flags & PMF_RESPAWNED )
-    return qfalse;    // don't allow jump until all buttons are up
-
-  if( pm->cmd.upmove < 10 )
-    // not holding jump
     return qfalse;
 
+  // not holding jump
+  if( pm->cmd.upmove < 10 )
+    return qfalse;
+
+  // walljump timeout
   if( pm->ps->pm_flags & PMF_TIME_WALLJUMP )
     return qfalse;
 
   // must wait for jump to be released
-  if( pm->ps->pm_flags & PMF_JUMP_HELD &&
-      pm->ps->grapplePoint[ 2 ] == 1.0f )
+  if( pm->ps->pm_flags & PMF_JUMP_HELD )
   {
     // clear upmove so cmdscale doesn't lower running speed
     pm->cmd.upmove = 0;
     return qfalse;
   }
 
-  pm->ps->pm_flags |= PMF_TIME_WALLJUMP;
-  pm->ps->pm_time = 200;
-
-  pml.groundPlane = qfalse;   // jumping away
-  pml.walking = qfalse;
-  pm->ps->pm_flags |= PMF_JUMP_HELD;
-
-  pm->ps->groundEntityNum = ENTITYNUM_NONE;
-
   ProjectPointOnPlane( forward, pml.forward, pm->ps->grapplePoint );
   ProjectPointOnPlane( right, pml.right, pm->ps->grapplePoint );
 
-  VectorScale( pm->ps->grapplePoint, normalFraction, dir );
+  // Trace to find a suitable wall
+  for( i = 0; ; i++)
+  {
+    switch( i )
+    {
+      // Forward
+      case 0:
+        VectorMA( pm->ps->origin, 0.25f, forward, point );
+        break;
 
-  if( pm->cmd.forwardmove > 0 )
-    VectorMA( dir, cmdFraction, forward, dir );
-  else if( pm->cmd.forwardmove < 0 )
-    VectorMA( dir, -cmdFraction, forward, dir );
+      // Right
+      case 1:
+        VectorMA( pm->ps->origin, 0.25f, right, point );
+        break;
 
-  if( pm->cmd.rightmove > 0 )
-    VectorMA( dir, cmdFraction, right, dir );
-  else if( pm->cmd.rightmove < 0 )
-    VectorMA( dir, -cmdFraction, right, dir );
+      // Left
+      case 2:
+        VectorMA( pm->ps->origin, -0.25f, right, point );
+        break;
 
-  VectorMA( dir, upFraction, refNormal, dir );
-  VectorNormalize( dir );
+      // Back
+      case 3:
+        VectorMA( pm->ps->origin, -0.25f, forward, point );
+        break;
 
-  VectorMA( pm->ps->velocity, BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ),
-            dir, pm->ps->velocity );
+      // Give up
+      default:
+        return qfalse;
+    }
+    pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point,
+               pm->ps->clientNum, pm->tracemask );
+    if( trace.fraction < 1.0f &&
+        !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) )
+      break;
+  }
+
+  VectorCopy( trace.plane.normal, pm->ps->grapplePoint );
+
+  pml.groundPlane = qfalse;
+  pml.walking = qfalse;
+  
+  pm->ps->pm_flags |= PMF_TIME_WALLJUMP | PMF_JUMP_HELD;
+  pm->ps->pm_time = 200;
+  pm->ps->groundEntityNum = ENTITYNUM_NONE;
+
+  ProjectPointOnPlane( forward, pml.forward, pm->ps->grapplePoint );
+
+  // Add all the jump components
+  VectorScale( pm->ps->grapplePoint, LEVEL2_WALLJUMP_NORMAL, dir );
+  VectorMA( dir, LEVEL2_WALLJUMP_FORWARD, forward, dir );
+  dir[ 2 ] += LEVEL2_WALLJUMP_UP;
+
+  // Give the player some velocity
+  magnitude = BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] );
+  if( ( pm->cmd.buttons & BUTTON_DODGE ) &&
+      pm->ps->stats[ STAT_PTEAM ] == PTE_ALIENS )
+    magnitude *= ALIEN_MINI_JUMP_SCALE;
+  VectorMA( pm->ps->velocity, magnitude, dir, pm->ps->velocity );
 
   //for a long run of wall jumps the velocity can get pretty large, this caps it
   if( VectorLength( pm->ps->velocity ) > LEVEL2_WALLJUMP_MAXSPEED )
@@ -689,16 +721,15 @@ PM_CheckJump
 static qboolean PM_CheckJump( void )
 {
   vec3_t normal;
+  float magnitude;
 
   // don't rejump after a dodge or jump
   if( pm->ps->pm_flags & PMF_TIME_LAND )
     return qfalse;
 
-  if( BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ) == 0.0f )
+  magnitude = BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] );
+  if( magnitude == 0.0f )
     return qfalse;
-
-  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
-    return PM_CheckWallJump( );
 
   //can't jump and pounce at the same time
   if( ( pm->ps->weapon == WP_ALEVEL3 ||
@@ -737,7 +768,7 @@ static qboolean PM_CheckJump( void )
     return qfalse;
   }
 
-  pml.groundPlane = qfalse;   // jumping away
+  pml.groundPlane = qfalse;
   pml.walking = qfalse;
   pm->ps->pm_flags |= PMF_JUMP_HELD;
 
@@ -750,8 +781,10 @@ static qboolean PM_CheckJump( void )
   // jump away from wall
   BG_GetClientNormal( pm->ps, normal );
 
-  VectorMA( pm->ps->velocity, BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ),
-            normal, pm->ps->velocity );
+  if( ( pm->cmd.buttons & BUTTON_DODGE ) &&
+      pm->ps->stats[ STAT_PTEAM ] == PTE_ALIENS )
+    magnitude *= ALIEN_MINI_JUMP_SCALE;
+  VectorMA( pm->ps->velocity, magnitude, normal, pm->ps->velocity );
 
   PM_AddEvent( EV_JUMP );
 
@@ -2118,7 +2151,6 @@ PM_GroundTrace
 static void PM_GroundTrace( void )
 {
   vec3_t      point;
-  vec3_t      movedir;
   vec3_t      refNormal = { 0.0f, 0.0f, 1.0f };
   trace_t     trace;
 
@@ -2220,37 +2252,7 @@ static void PM_GroundTrace( void )
       pml.groundPlane = qfalse;
       pml.walking = qfalse;
 
-      if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
-      {
-        ProjectPointOnPlane( movedir, pml.forward, refNormal );
-        VectorNormalize( movedir );
-
-        if( pm->cmd.forwardmove < 0 )
-          VectorNegate( movedir, movedir );
-
-        //allow strafe transitions
-        if( pm->cmd.rightmove )
-        {
-          VectorCopy( pml.right, movedir );
-
-          if( pm->cmd.rightmove < 0 )
-            VectorNegate( movedir, movedir );
-        }
-
-        //trace into direction we are moving
-        VectorMA( pm->ps->origin, 0.25f, movedir, point );
-        pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
-
-        if( trace.fraction < 1.0f && !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) )
-        {
-          if( !VectorCompare( trace.plane.normal, pm->ps->grapplePoint ) )
-          {
-            VectorCopy( trace.plane.normal, pm->ps->grapplePoint );
-            PM_CheckWallJump( );
-          }
-        }
-      }
-
+      PM_CheckWallJump( );
       return;
     }
   }

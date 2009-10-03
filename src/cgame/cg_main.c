@@ -1589,7 +1589,7 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
         break;
 
       case 4:
-        return va( "%d", info->score );
+        return va( "%d", sp->score );
         break;
 
       case 5:
