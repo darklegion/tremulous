@@ -1273,6 +1273,7 @@ APropHovel_Blocked
 Wrapper to test a hovel placement for validity
 ================
 */
+/*
 static qboolean APropHovel_Blocked( vec3_t origin, vec3_t angles, vec3_t normal,
                                     gentity_t *player )
 {
@@ -1284,6 +1285,7 @@ static qboolean APropHovel_Blocked( vec3_t origin, vec3_t angles, vec3_t normal,
 
   return AHovel_Blocked( &hovel, player, qfalse );
 }
+*/
 
 /*
 ================
