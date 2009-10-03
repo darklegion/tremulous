@@ -1354,11 +1354,11 @@ void G_LogDestruction( gentity_t *self, gentity_t *actor, int mod )
     G_TeamCommand( actor->client->ps.stats[ STAT_TEAM ],
       va( "print \"%s ^3%s^7 by %s\n\"",
         BG_Buildable( self->s.modelindex )->humanName,
-        mod == MOD_UNKNOWN ? "DECONSTRUCTED" : "DESTROYED",
+        mod == MOD_DECONSTRUCT ? "DECONSTRUCTED" : "DESTROYED",
         actor->client->pers.netname ) );
   }
 
-  if( mod == MOD_UNKNOWN )
+  if( mod == MOD_DECONSTRUCT )
     G_LogPrintf( "Decon: %d %d %d: %s^7 deconstructed %s\n",
       actor->client->ps.clientNum,
       self->s.modelindex,

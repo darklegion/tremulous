@@ -1954,7 +1954,7 @@ void Cmd_Destroy_f( gentity_t *ent )
         }
         else
         {
-          G_LogDestruction( traceEnt, ent, MOD_UNKNOWN );
+          G_LogDestruction( traceEnt, ent, MOD_DECONSTRUCT );
           G_FreeEntity( traceEnt );
         }
 
