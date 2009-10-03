@@ -102,6 +102,7 @@ typedef struct serverStatus_s
   int    currentServer;
   int    displayServers[MAX_DISPLAY_SERVERS];
   int    numDisplayServers;
+  int    numFeaturedServers;
   int    numPlayersOnServers;
   int    nextDisplayRefresh;
   int    nextSortTime;

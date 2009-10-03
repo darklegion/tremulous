@@ -2240,6 +2240,7 @@ void CL_InitServerInfo( serverInfo_t *server, netadr_t *address ) {
 	server->clients = 0;
 	server->hostName[0] = '\0';
 	server->mapName[0] = '\0';
+	server->label = NULL;
 	server->maxClients = 0;
 	server->maxPing = 0;
 	server->minPing = 0;
@@ -2247,6 +2248,102 @@ void CL_InitServerInfo( serverInfo_t *server, netadr_t *address ) {
 	server->game[0] = '\0';
 	server->gameType = 0;
 	server->netType = 0;
+}
+
+/*
+===================
+CL_GSRSequenceInformation
+
+Parses this packet's index and the number of packets from a master server's
+response. Updates the packet count and returns the index. Advances the data
+pointer as appropriate (but only when parsing was successful)
+
+The sequencing information isn't terribly useful at present (we can skip
+duplicate packets, but we don't bother to make sure we've got all of them).
+===================
+*/
+int CL_GSRSequenceInformation( byte **data )
+{
+	char *p = (char *)*data, *e;
+	int ind, num;
+	// '\0'-delimited fields: this packet's index, total number of packets
+	if( *p++ != '\0' )
+		return -1;
+
+	ind = strtol( p, (char **)&e, 10 );
+	if( *e++ != '\0' )
+		return -1;
+
+	num = strtol( e, (char **)&p, 10 );
+	if( *p++ != '\0' )
+		return -1;
+
+	if( num <= 0 || ind <= 0 || ind > num )
+		return -1; // nonsensical response
+
+	if( cls.numMasterPackets > 0 && num != cls.numMasterPackets )
+	{
+		// Assume we sent two getservers and somehow they changed in
+		// between - only use the results that arrive later
+		Com_DPrintf( "Master changed its mind about packet count!\n" );
+		cls.receivedMasterPackets = 0;
+		cls.numglobalservers = 0;
+		cls.numGlobalServerAddresses = 0;
+	}
+	cls.numMasterPackets = num;
+
+	// successfully parsed
+	*data = (byte *)p;
+	return ind;
+}
+
+/*
+===================
+CL_GSRFeaturedLabel
+
+Parses from the data an arbitrary text string labelling the servers in the
+following getserversresponse packet.
+Either this matches an existing label, or it is copied into a new one.
+The relevant buffer, or NULL, is returned, and *data is advanced as appropriate
+===================
+*/
+char *CL_GSRFeaturedLabel( byte **data )
+{
+	char label[ MAX_FEATLABEL_CHARS ] = { 0 }, *l = label;
+	int  i;
+
+	// copy until '\0' which indicates field break
+	// or slash which indicates beginning of server list
+	while( **data && **data != '\\' && **data != '/' )
+	{
+		if( l < &label[ sizeof( label ) - 1 ] )
+			*l = **data;
+		else if( l == &label[ sizeof( label ) - 1 ] )
+			Com_DPrintf( S_COLOR_YELLOW "Warning: "
+				"CL_GSRFeaturedLabel: overflow\n" );
+		l++, (*data)++;
+	}
+
+	if( !label[ 0 ] )
+		return NULL;
+
+	// find the label in the stored array
+	for( i = 0; i < cls.numFeaturedServerLabels; i++ )
+	{
+		l = cls.featuredServerLabels[ i ];
+		if( strcmp( label, l ) == 0 )
+			return l;
+	}
+	if( i == MAX_FEATURED_LABELS )
+	{
+		Com_DPrintf( S_COLOR_YELLOW "Warning: CL_GSRFeaturedLabel: "
+			"ran out of label space, dropping %s\n", label );
+		return NULL;
+	}
+	if( i == 0 )
+		l = cls.featuredServerLabels[ 0 ];
+	Q_strncpyz( l, label, sizeof( *cls.featuredServerLabels ) );
+	return l;
 }
 
 #define MAX_SERVERSPERPACKET	256
@@ -2262,13 +2359,18 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
 	int				numservers;
 	byte*			buffptr;
 	byte*			buffend;
+	char			*label = NULL;
 	
-	Com_Printf("CL_ServersResponsePacket\n");
+	Com_DPrintf("CL_ServersResponsePacket%s\n",
+		(extended) ? " (extended)" : "");
 
 	if (cls.numglobalservers == -1) {
 		// state to detect lack of servers or lack of response
 		cls.numglobalservers = 0;
 		cls.numGlobalServerAddresses = 0;
+		cls.numMasterPackets = 0;
+		cls.receivedMasterPackets = 0;
+		cls.numFeaturedServerLabels = 0;
 	}
 
 	// parse through server response string
@@ -2276,14 +2378,47 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
 	buffptr    = msg->data;
 	buffend    = buffptr + msg->cursize;
 
+	// skip header
+	buffptr += 4;
+
 	// advance to initial token
-	do
+	// I considered using strchr for this but I don't feel like relying
+	// on its behaviour with '\0'
+	while( *buffptr && *buffptr != '\\' && *buffptr != '/' )
 	{
-		if(*buffptr == '\\' || (extended && *buffptr == '/'))
-			break;
-		
 		buffptr++;
-	} while (buffptr < buffend);
+
+		if( buffptr >= buffend )
+			break;
+	}
+
+	if( *buffptr == '\0' )
+	{
+		int ind = CL_GSRSequenceInformation( &buffptr );
+		if( ind >= 0 )
+		{
+			// this denotes the start of new-syntax stuff
+			// have we already received this packet?
+			if( cls.receivedMasterPackets & ( 1 << ( ind - 1 ) ) )
+			{
+				Com_DPrintf( "CL_ServersResponsePacket: "
+					"received packet %d again, ignoring\n",
+					ind );
+				return;
+			}
+			// TODO: detect dropped packets and make another
+			// request
+			Com_DPrintf( "CL_ServersResponsePacket: packet "
+				"%d of %d\n", ind, cls.numMasterPackets );
+			cls.receivedMasterPackets |= ( 1 << ( ind - 1 ) );
+
+			label = CL_GSRFeaturedLabel( &buffptr );
+			Com_DPrintf( "CL_GSRFeaturedLabel: %s\n", label );
+		}
+		// now skip to the server list
+		for(; buffptr < buffend && *buffptr != '\\' && *buffptr != '/';
+			buffptr++ );
+	}
 
 	while (buffptr + 1 < buffend)
 	{
@@ -2339,6 +2474,7 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
 		serverInfo_t *server = &cls.globalServers[count];
 
 		CL_InitServerInfo( server, &addresses[i] );
+		server->label = label;
 		// advance to next slot
 		count++;
 	}
@@ -3725,7 +3861,6 @@ void CL_GlobalServers_f( void ) {
 	netadr_t	to;
 	int			count, i, masterNum;
 	char		command[1024], *masteraddress;
-	char		*cmdname;
 	
 	if ((count = Cmd_Argc()) < 3 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > 4)
 	{
@@ -3760,17 +3895,10 @@ void CL_GlobalServers_f( void ) {
 	cls.numglobalservers = -1;
 	cls.pingUpdateSource = AS_GLOBAL;
 
-	// Use the extended query for IPv6 masters
-	if (to.type == NA_IP6 || to.type == NA_MULTICAST6)
-	{
-		cmdname = "getserversExt " GAMENAME_FOR_MASTER;
-
-		// TODO: test if we only have an IPv6 connection. If it's the case,
-		//       request IPv6 servers only by appending " ipv6" to the command
-	}
-	else
-		cmdname = "getservers";
-	Com_sprintf( command, sizeof(command), "%s %s", cmdname, Cmd_Argv(2) );
+	// TODO: test if we only have an IPv6 connection. If it's the case,
+	//       request IPv6 servers only by appending " ipv6" to the command
+	Com_sprintf( command, sizeof(command), "getserversExt "
+		GAMENAME_FOR_MASTER " %s", Cmd_Argv(2) );
 
 	for (i=3; i < count; i++)
 	{

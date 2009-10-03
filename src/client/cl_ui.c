@@ -285,6 +285,8 @@ static void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 		buf[0] = '\0';
 		Info_SetValueForKey( info, "hostname", server->hostName);
 		Info_SetValueForKey( info, "mapname", server->mapName);
+		if( server->label )
+			Info_SetValueForKey( info, "label", server->label);
 		Info_SetValueForKey( info, "clients", va("%i",server->clients));
 		Info_SetValueForKey( info, "sv_maxclients", va("%i",server->maxClients));
 		Info_SetValueForKey( info, "ping", va("%i",server->ping));
@@ -374,6 +376,15 @@ static int LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int
 	if (!server1 || !server2) {
 		return 0;
 	}
+
+	// featured servers on top
+	// this is not so that they are more noticeable but that codewise it
+	// makes it much simpler to have them contiguous in the list
+	// so changing this also requires changing the feederID counting and
+	// similar code that depends on them coming first
+	res = Q_stricmpn( server1->label, server2->label, MAX_FEATLABEL_CHARS );
+	if( res )
+		return -res;
 
 	res = 0;
 	switch( sortKey ) {

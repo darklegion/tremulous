@@ -907,6 +907,8 @@ static void UI_BuildServerDisplayList( qboolean force )
       if( ping > 0 )
       {
         trap_LAN_MarkServerVisible( ui_netSource.integer, i, qfalse );
+        if( Info_ValueForKey( info, "label" )[0] )
+          uiInfo.serverStatus.numFeaturedServers++;
         numinvisible++;
       }
     }
@@ -1043,6 +1045,7 @@ static void UI_StartServerRefresh( qboolean full )
   uiInfo.serverStatus.nextDisplayRefresh = uiInfo.uiDC.realTime + 1000;
   // clear number of displayed servers
   uiInfo.serverStatus.numDisplayServers = 0;
+  uiInfo.serverStatus.numFeaturedServers = 0;
   uiInfo.serverStatus.numPlayersOnServers = 0;
   // mark all servers as visible so we store ping updates for them
   trap_LAN_MarkServerVisible( ui_netSource.integer, -1, qtrue );
@@ -3342,7 +3345,10 @@ static int UI_FeederCount( float feederID )
   else if( feederID == FEEDER_MAPS )
     return uiInfo.mapCount;
   else if( feederID == FEEDER_SERVERS )
-    return uiInfo.serverStatus.numDisplayServers;
+    return uiInfo.serverStatus.numDisplayServers -
+           uiInfo.serverStatus.numFeaturedServers;
+  else if( feederID == FEEDER_FEATURED )
+    return uiInfo.serverStatus.numFeaturedServers;
   else if( feederID == FEEDER_SERVERSTATUS )
     return uiInfo.serverStatusInfo.numLines;
   else if( feederID == FEEDER_FINDPLAYER )
@@ -3434,11 +3440,14 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
     int actual;
     return UI_SelectedMap( index, &actual );
   }
-  else if( feederID == FEEDER_SERVERS )
+  else if( feederID == FEEDER_SERVERS || feederID == FEEDER_FEATURED )
   {
-    if( index >= 0 && index < uiInfo.serverStatus.numDisplayServers )
+    if( index >= 0 && index < UI_FeederCount( feederID ) )
     {
       int ping;
+
+      if( feederID == FEEDER_SERVERS )
+        index += UI_FeederCount( FEEDER_FEATURED );
 
       if( lastColumn != column || lastTime > uiInfo.uiDC.realTime + 5000 )
       {
