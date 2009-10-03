@@ -625,6 +625,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define HUMAN_BACK_MODIFIER         0.8f
 #define HUMAN_SIDE_MODIFIER         0.9f
 #define HUMAN_DODGE_SIDE_MODIFIER   2.9f
+#define HUMAN_DODGE_SLOWED_MODIFIER 1.0f //changeme norf
 #define HUMAN_DODGE_UP_MODIFIER     0.5f
 #define HUMAN_DODGE_TIMEOUT         500
 #define HUMAN_LAND_FRICTION         3.0f

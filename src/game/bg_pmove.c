@@ -909,7 +909,7 @@ Checks the dodge key and starts a human dodge or sprint
 static qboolean PM_CheckDodge( void )
 {
   vec3_t right, forward, velocity = { 0.0f, 0.0f, 0.0f };
-  float jump;
+  float jump, sideModifier;
   int i;
   
   if( pm->ps->stats[ STAT_TEAM ] != TEAM_HUMANS )
@@ -951,20 +951,30 @@ static qboolean PM_CheckDodge( void )
   jump = BG_Class( pm->ps->stats[ STAT_CLASS ] )->jumpMagnitude;
   if( pm->cmd.rightmove && pm->cmd.forwardmove )
     jump *= ( 0.5f * M_SQRT2 );
+  
+  // Weaken dodge if slowed
+  if( ( pm->ps->stats[ STAT_STATE ] & SS_SLOWLOCKED )  ||
+      ( pm->ps->stats[ STAT_STATE ] & SS_CREEPSLOWED ) ||
+      ( pm->ps->eFlags & EF_POISONCLOUDED ) )
+    sideModifier = HUMAN_DODGE_SLOWED_MODIFIER;
+  else
+    sideModifier = HUMAN_DODGE_SIDE_MODIFIER;
 
   // The dodge sets minimum velocity
   if( pm->cmd.rightmove )
   {
     if( pm->cmd.rightmove < 0 )
       VectorNegate( right, right );
-    VectorMA( velocity, jump * HUMAN_DODGE_SIDE_MODIFIER, right, velocity );
+    VectorMA( velocity, jump * sideModifier, right, velocity );
   }
+
   if( pm->cmd.forwardmove )
   {
     if( pm->cmd.forwardmove < 0 )
       VectorNegate( forward, forward );
-    VectorMA( velocity, jump * HUMAN_DODGE_SIDE_MODIFIER, forward, velocity );
+    VectorMA( velocity, jump * sideModifier, forward, velocity );
   }
+
   velocity[ 2 ] = jump * HUMAN_DODGE_UP_MODIFIER;
 
   // Make sure client has minimum velocity
