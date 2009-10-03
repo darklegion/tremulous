@@ -763,9 +763,6 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
   VectorSubtract( targOrigin, point, bulletPath );
   vectoangles( bulletPath, bulletAngle );
 
-  if( hitRotation < 0.0f )
-    hitRotation += 360.0f;
-
   hitRotation = AngleNormalize360( targ->client->ps.viewangles[ YAW ] -
                                    bulletAngle[ YAW ] );
 
@@ -773,6 +770,7 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
   modifier = GetPointDamageModifier( targ, g_damageRegions[ class ],
                                      g_numDamageRegions[ class ],
                                      hitRotation, hitRatio );
+
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
     if( BG_InventoryContainsUpgrade( i, targ->client->ps.stats ) )
