@@ -3025,6 +3025,41 @@ void Cmd_Damage_f( gentity_t *ent )
             ( nonloc ? DAMAGE_NO_LOCDAMAGE : 0 ), MOD_TARGET_LASER );
 }
 
+/*
+==================
+G_FloodLimited
+
+Determine whether a user is flood limited, and adjust their flood demerits
+Notify them if this is the first time they were over the limit
+==================
+*/
+qboolean G_FloodLimited( gentity_t *ent )
+{
+  int deltatime = level.time - ent->client->pers.floodTime;
+  int flooding;
+
+  if( g_floodMinTime.integer <= 0 )
+    return qfalse;
+
+  if( G_admin_permission( ent, ADMF_NOCENSORFLOOD ) )
+    return qfalse;
+
+  ent->client->pers.floodDemerits += g_floodMinTime.integer - deltatime;
+  if( ent->client->pers.floodDemerits < 0 )
+    ent->client->pers.floodDemerits = 0;
+  ent->client->pers.floodTime = level.time;
+
+  flooding = ent->client->pers.floodDemerits - g_floodMaxDemerits.integer;
+  if( flooding <= 0 )
+    return qfalse;
+  // seconds (rounded up)
+  flooding = ( flooding + 999 ) / 1000;
+  trap_SendServerCommand( ent - g_entities, va( "print \"You are flooding: "
+                          "please wait %d second%s before trying again\n",
+                          flooding, ( flooding != 1 ) ? "s" : "" ) );
+  return qtrue;
+}
+
 commands_t cmds[ ] = {
   // normal commands
   { "team", 0, Cmd_Team_f },
@@ -3125,7 +3160,8 @@ void ClientCommand( int clientNum )
     return;
   }
 
-  if( cmds[ i ].cmdFlags & CMD_MESSAGE && ent->client->pers.muted )
+  if( cmds[ i ].cmdFlags & CMD_MESSAGE && ( ent->client->pers.muted ||
+      G_FloodLimited( ent ) ) )
     return;
 
   if( cmds[ i ].cmdFlags & CMD_TEAM &&
