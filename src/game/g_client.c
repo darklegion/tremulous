@@ -1250,8 +1250,6 @@ void ClientBegin( int clientNum )
 
   client->pers.connected = CON_CONNECTED;
   client->pers.enterTime = level.time;
-  client->pers.teamState.state = TEAM_BEGIN;
-  client->pers.classSelection = PCL_NONE;
 
   // save eflags around this, because changing teams will
   // cause this to happen with a valid entity, and we
@@ -1365,7 +1363,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
         spawnPoint->clientSpawnTime = HUMAN_SPAWN_REPEAT_TIME;
     }
   }
-  client->pers.teamState.state = TEAM_ACTIVE;
 
   // toggle the teleport bit so the client knows to not lerp
   flags = ent->client->ps.eFlags & ( EF_TELEPORT_BIT | EF_VOTED | EF_TEAMVOTED );

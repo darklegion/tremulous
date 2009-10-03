@@ -196,7 +196,7 @@ void TeamplayInfoMessage( gentity_t *ent )
 
       Com_sprintf( entry, sizeof( entry ),
         " %i %i %i %i %i",
-        i, player->client->pers.teamState.location, h, a,
+        i, player->client->pers.location, h, a,
         player->client->ps.weapon );
 
       j = strlen( entry );
@@ -235,9 +235,9 @@ void CheckTeamStatus( void )
         loc = Team_GetLocation( ent );
 
         if( loc )
-          ent->client->pers.teamState.location = loc->health;
+          ent->client->pers.location = loc->health;
         else
-          ent->client->pers.teamState.location = 0;
+          ent->client->pers.location = 0;
       }
     }
 

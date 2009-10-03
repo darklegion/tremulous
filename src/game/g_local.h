@@ -258,31 +258,6 @@ typedef enum
   CON_CONNECTED
 } clientConnected_t;
 
-typedef enum
-{
-  TEAM_BEGIN,   // Beginning a team game, spawn at base
-  TEAM_ACTIVE   // Now actively playing
-} playerTeamStateState_t;
-
-typedef struct
-{
-  playerTeamStateState_t  state;
-
-  int     location;
-
-  int     captures;
-  int     basedefense;
-  int     carrierdefense;
-  int     flagrecovery;
-  int     fragcarrier;
-  int     assists;
-
-  float   lasthurtcarrier;
-  float   lastreturnedflag;
-  float   flagsince;
-  float   lastfraggedcarrier;
-} playerTeamState_t;
-
 // the auto following clients don't follow a specific client
 // number, but instead follow the first two active players
 #define FOLLOW_ACTIVE1  -1
@@ -325,7 +300,7 @@ typedef struct
   char                netname[ MAX_NETNAME ];
   int                 maxHealth;          // for handicapping
   int                 enterTime;          // level.time the client entered the game
-  playerTeamState_t   teamState;          // status in teamplay games
+  int                 location;           // player locations
   int                 voteCount;          // to prevent people from constantly calling votes
   qboolean            teamInfo;           // send team overlay updates?
 

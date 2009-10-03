@@ -30,8 +30,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // display context for new ui stuff
 displayContextDef_t cgDC;
 
-int forceModelModificationCount = -1;
-
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum );
 void CG_Shutdown( void );
 
@@ -107,28 +105,19 @@ upgradeInfo_t   cg_upgrades[ 32 ];
 buildableInfo_t cg_buildables[ BA_NUM_BUILDABLES ];
 
 vmCvar_t  cg_teslaTrailTime;
-vmCvar_t  cg_railTrailTime;
 vmCvar_t  cg_centertime;
 vmCvar_t  cg_runpitch;
 vmCvar_t  cg_runroll;
-vmCvar_t  cg_bobup;
-vmCvar_t  cg_bobpitch;
-vmCvar_t  cg_bobroll;
 vmCvar_t  cg_swingSpeed;
 vmCvar_t  cg_shadows;
-vmCvar_t  cg_gibs;
 vmCvar_t  cg_drawTimer;
 vmCvar_t  cg_drawClock;
 vmCvar_t  cg_drawFPS;
 vmCvar_t  cg_drawDemoState;
 vmCvar_t  cg_drawSnapshot;
-vmCvar_t  cg_draw3dIcons;
-vmCvar_t  cg_drawIcons;
-vmCvar_t  cg_drawAmmoWarning;
 vmCvar_t  cg_drawChargeBar;
 vmCvar_t  cg_drawCrosshair;
 vmCvar_t  cg_drawCrosshairNames;
-vmCvar_t  cg_drawRewards;
 vmCvar_t  cg_crosshairX;
 vmCvar_t  cg_crosshairY;
 vmCvar_t  cg_crosshairSize;
@@ -156,25 +145,15 @@ vmCvar_t  cg_tracerChance;
 vmCvar_t  cg_tracerWidth;
 vmCvar_t  cg_tracerLength;
 vmCvar_t  cg_autoswitch;
-vmCvar_t  cg_ignore;
-vmCvar_t  cg_simpleItems;
-vmCvar_t  cg_fov;
-vmCvar_t  cg_zoomFov;
 vmCvar_t  cg_thirdPerson;
 vmCvar_t  cg_thirdPersonRange;
 vmCvar_t  cg_thirdPersonAngle;
 vmCvar_t  cg_stereoSeparation;
 vmCvar_t  cg_lagometer;
-vmCvar_t  cg_drawAttacker;
 vmCvar_t  cg_synchronousClients;
 vmCvar_t  cg_stats;
-vmCvar_t  cg_buildScript;
-vmCvar_t  cg_forceModel;
 vmCvar_t  cg_paused;
 vmCvar_t  cg_blood;
-vmCvar_t  cg_deferPlayers;
-vmCvar_t  cg_drawTeamOverlay;
-vmCvar_t  cg_teamOverlayUserinfo;
 vmCvar_t  cg_drawFriend;
 vmCvar_t  cg_teamChatsOnly;
 vmCvar_t  cg_noPrintDuplicate;
@@ -182,28 +161,16 @@ vmCvar_t  cg_noVoiceChats;
 vmCvar_t  cg_noVoiceText;
 vmCvar_t  cg_hudFiles;
 vmCvar_t  cg_hudFilesEnable;
-vmCvar_t  cg_scorePlum;
 vmCvar_t  cg_smoothClients;
 vmCvar_t  pmove_fixed;
 vmCvar_t  pmove_msec;
-vmCvar_t  cg_pmove_msec;
 vmCvar_t  cg_cameraMode;
-vmCvar_t  cg_cameraOrbit;
-vmCvar_t  cg_cameraOrbitDelay;
 vmCvar_t  cg_timescaleFadeEnd;
 vmCvar_t  cg_timescaleFadeSpeed;
 vmCvar_t  cg_timescale;
-vmCvar_t  cg_smallFont;
-vmCvar_t  cg_bigFont;
 vmCvar_t  cg_noTaunt;
-vmCvar_t  cg_noProjectileTrail;
-vmCvar_t  cg_oldRail;
-vmCvar_t  cg_oldRocket;
-vmCvar_t  cg_oldPlasma;
-vmCvar_t  cg_trueLightning;
 vmCvar_t  cg_drawSurfNormal;
 vmCvar_t  cg_drawBBOX;
-vmCvar_t  cg_debugAlloc;
 vmCvar_t  cg_wwSmoothTime;
 vmCvar_t  cg_wwFollow;
 vmCvar_t  cg_wwToggle;
@@ -258,15 +225,11 @@ typedef struct
 
 static cvarTable_t cvarTable[ ] =
 {
-  { &cg_ignore, "cg_ignore", "0", 0 },  // used for debugging
   { &cg_autoswitch, "cg_autoswitch", "1", CVAR_ARCHIVE },
   { &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
-  { &cg_zoomFov, "cg_zoomfov", "22.5", CVAR_ARCHIVE },
-  { &cg_fov, "cg_fov", "90", CVAR_ARCHIVE },
   { &cg_viewsize, "cg_viewsize", "100", CVAR_ARCHIVE },
   { &cg_stereoSeparation, "cg_stereoSeparation", "0.4", CVAR_ARCHIVE  },
   { &cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE  },
-  { &cg_gibs, "cg_gibs", "1", CVAR_ARCHIVE  },
   { &cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE  },
   { &cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE  },
   { &cg_drawTimer, "cg_drawTimer", "1", CVAR_ARCHIVE  },
@@ -274,32 +237,22 @@ static cvarTable_t cvarTable[ ] =
   { &cg_drawFPS, "cg_drawFPS", "1", CVAR_ARCHIVE  },
   { &cg_drawDemoState, "cg_drawDemoState", "1", CVAR_ARCHIVE  },
   { &cg_drawSnapshot, "cg_drawSnapshot", "0", CVAR_ARCHIVE  },
-  { &cg_draw3dIcons, "cg_draw3dIcons", "1", CVAR_ARCHIVE  },
-  { &cg_drawIcons, "cg_drawIcons", "1", CVAR_ARCHIVE  },
-  { &cg_drawAmmoWarning, "cg_drawAmmoWarning", "1", CVAR_ARCHIVE  },
   { &cg_drawChargeBar, "cg_drawChargeBar", "1", CVAR_ARCHIVE  },
-  { &cg_drawAttacker, "cg_drawAttacker", "1", CVAR_ARCHIVE  },
   { &cg_drawCrosshair, "cg_drawCrosshair", "1", CVAR_ARCHIVE },
   { &cg_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
-  { &cg_drawRewards, "cg_drawRewards", "1", CVAR_ARCHIVE },
   { &cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE },
   { &cg_crosshairY, "cg_crosshairY", "0", CVAR_ARCHIVE },
   { &cg_crosshairSize, "cg_crosshairSize", "1", CVAR_ARCHIVE },
   { &cg_brassTime, "cg_brassTime", "2500", CVAR_ARCHIVE },
-  { &cg_simpleItems, "cg_simpleItems", "0", CVAR_ARCHIVE },
   { &cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE },
   { &cg_lagometer, "cg_lagometer", "0", CVAR_ARCHIVE },
   { &cg_teslaTrailTime, "cg_teslaTrailTime", "250", CVAR_ARCHIVE  },
-  { &cg_railTrailTime, "cg_railTrailTime", "400", CVAR_ARCHIVE  },
   { &cg_gun_x, "cg_gunX", "0", CVAR_CHEAT },
   { &cg_gun_y, "cg_gunY", "0", CVAR_CHEAT },
   { &cg_gun_z, "cg_gunZ", "0", CVAR_CHEAT },
   { &cg_centertime, "cg_centertime", "3", CVAR_CHEAT },
   { &cg_runpitch, "cg_runpitch", "0.002", CVAR_ARCHIVE},
   { &cg_runroll, "cg_runroll", "0.005", CVAR_ARCHIVE },
-  { &cg_bobup , "cg_bobup", "0.005", CVAR_CHEAT },
-  { &cg_bobpitch, "cg_bobpitch", "0.002", CVAR_ARCHIVE },
-  { &cg_bobroll, "cg_bobroll", "0.002", CVAR_ARCHIVE },
   { &cg_swingSpeed, "cg_swingSpeed", "0.3", CVAR_CHEAT },
   { &cg_animSpeed, "cg_animspeed", "1", CVAR_CHEAT },
   { &cg_debugAnim, "cg_debuganim", "0", CVAR_CHEAT },
@@ -317,10 +270,6 @@ static cvarTable_t cvarTable[ ] =
   { &cg_thirdPersonRange, "cg_thirdPersonRange", "40", CVAR_CHEAT },
   { &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", CVAR_CHEAT },
   { &cg_thirdPerson, "cg_thirdPerson", "0", CVAR_CHEAT },
-  { &cg_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE  },
-  { &cg_deferPlayers, "cg_deferPlayers", "1", CVAR_ARCHIVE },
-  { &cg_drawTeamOverlay, "cg_drawTeamOverlay", "0", CVAR_ARCHIVE },
-  { &cg_teamOverlayUserinfo, "teamoverlay", "0", CVAR_ROM | CVAR_USERINFO },
   { &cg_stats, "cg_stats", "0", 0 },
   { &cg_drawFriend, "cg_drawFriend", "1", CVAR_ARCHIVE },
   { &cg_teamChatsOnly, "cg_teamChatsOnly", "0", CVAR_ARCHIVE },
@@ -329,7 +278,6 @@ static cvarTable_t cvarTable[ ] =
   { &cg_noVoiceText, "cg_noVoiceText", "0", CVAR_ARCHIVE },
   { &cg_drawSurfNormal, "cg_drawSurfNormal", "0", CVAR_CHEAT },
   { &cg_drawBBOX, "cg_drawBBOX", "0", CVAR_CHEAT },
-  { &cg_debugAlloc, "cg_debugAlloc", "0", 0 },
   { &cg_wwSmoothTime, "cg_wwSmoothTime", "300", CVAR_ARCHIVE },
   { &cg_wwFollow, "cg_wwFollow", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_wwToggle, "cg_wwToggle", "1", CVAR_ARCHIVE|CVAR_USERINFO },
@@ -375,12 +323,9 @@ static cvarTable_t cvarTable[ ] =
   // the following variables are created in other parts of the system,
   // but we also reference them here
 
-  { &cg_buildScript, "com_buildScript", "0", 0 }, // force loading of all possible data amd error on failures
   { &cg_paused, "cl_paused", "0", CVAR_ROM },
   { &cg_blood, "com_blood", "1", CVAR_ARCHIVE },
   { &cg_synchronousClients, "g_synchronousClients", "0", 0 }, // communicated by systeminfo
-  { &cg_cameraOrbit, "cg_cameraOrbit", "0", CVAR_CHEAT},
-  { &cg_cameraOrbitDelay, "cg_cameraOrbitDelay", "50", CVAR_ARCHIVE},
   { &cg_timescaleFadeEnd, "cg_timescaleFadeEnd", "1", 0},
   { &cg_timescaleFadeSpeed, "cg_timescaleFadeSpeed", "0", 0},
   { &cg_timescale, "timescale", "1", 0},
@@ -390,13 +335,6 @@ static cvarTable_t cvarTable[ ] =
   { &pmove_fixed, "pmove_fixed", "0", 0},
   { &pmove_msec, "pmove_msec", "8", 0},
   { &cg_noTaunt, "cg_noTaunt", "0", CVAR_ARCHIVE},
-  { &cg_noProjectileTrail, "cg_noProjectileTrail", "0", CVAR_ARCHIVE},
-  { &cg_smallFont, "ui_smallFont", "0.2", CVAR_ARCHIVE},
-  { &cg_bigFont, "ui_bigFont", "0.5", CVAR_ARCHIVE},
-  { &cg_oldRail, "cg_oldRail", "1", CVAR_ARCHIVE},
-  { &cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
-  { &cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
-  { &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
   
   { &cg_voice, "voice", "default", CVAR_USERINFO|CVAR_ARCHIVE}
 };
@@ -426,31 +364,8 @@ void CG_RegisterCvars( void )
   // see if we are also running the server on this machine
   trap_Cvar_VariableStringBuffer( "sv_running", var, sizeof( var ) );
   cgs.localServer = atoi( var );
-  forceModelModificationCount = cg_forceModel.modificationCount;
 }
 
-
-/*
-===================
-CG_ForceModelChange
-===================
-*/
-static void CG_ForceModelChange( void )
-{
-  int   i;
-
-  for( i = 0; i < MAX_CLIENTS; i++ )
-  {
-    const char    *clientInfo;
-
-    clientInfo = CG_ConfigString( CS_PLAYERS + i );
-
-    if( !clientInfo[ 0 ] )
-      continue;
-
-    CG_NewClientInfo( i );
-  }
-}
 
 /*
 ===============
@@ -503,13 +418,6 @@ void CG_UpdateCvars( void )
     trap_Cvar_Update( cv->vmCvar );
 
   // check for modications here
-
-  // if force model changed
-  if( forceModelModificationCount != cg_forceModel.modificationCount )
-  {
-    forceModelModificationCount = cg_forceModel.modificationCount;
-    CG_ForceModelChange( );
-  }
 
   CG_SetUIVars( );
 }
