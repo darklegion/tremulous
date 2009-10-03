@@ -3495,10 +3495,21 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
   // circularly clamp the angles with deltas
   for( i = 0; i < 3; i++ )
   {
-    if( i != ROLL ) 
-      temp[ i ] = cmd->angles[ i ] + ps->delta_angles[ i ];
-    else // currently, nothing can roll
+    if( i == ROLL ) 
+    {
+      // Guard against speed hack
       temp[ i ] = ps->delta_angles[ i ];
+
+#ifdef CGAME
+      // Assert here so that if cmd->angles[ i ] becomes non-zero
+      // for a legitimate reason we can tell where and why it's
+      // being ignored
+      assert( cmd->angles[ i ] == 0 );
+#endif
+
+    }
+    else
+      temp[ i ] = cmd->angles[ i ] + ps->delta_angles[ i ];
 
     if( i == PITCH )
     {
