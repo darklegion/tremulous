@@ -1049,13 +1049,13 @@ void G_CountSpawns( void )
 
   for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
   {
-    if( !ent->inuse )
+    if( !ent->inuse || ent->s.eType != ET_BUILDABLE || ent->health <= 0 )
       continue;
 
-    if( ent->s.modelindex == BA_A_SPAWN && ent->health > 0 )
+    if( ent->s.modelindex == BA_A_SPAWN )
       level.numAlienSpawns++;
 
-    if( ent->s.modelindex == BA_H_SPAWN && ent->health > 0 )
+    if( ent->s.modelindex == BA_H_SPAWN )
       level.numHumanSpawns++;
   }
 }
