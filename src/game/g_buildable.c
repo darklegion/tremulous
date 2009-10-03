@@ -413,25 +413,6 @@ qboolean G_FindOvermind( gentity_t *self )
 
 /*
 ================
-G_IsOvermindBuilt
-
-Simple wrapper to G_FindOvermind to check if a location has an overmind
-================
-*/
-static qboolean G_IsOvermindBuilt( void )
-{
-  gentity_t dummy;
-
-  memset( &dummy, 0, sizeof( gentity_t ) );
-
-  dummy.overmindNode = NULL;
-  dummy.buildableTeam = TEAM_ALIENS;
-
-  return G_FindOvermind( &dummy );
-}
-
-/*
-================
 G_FindCreep
 
 attempt to find creep for self, return qtrue if successful
@@ -1606,7 +1587,7 @@ void ATrapper_Think( gentity_t *self )
   int range =     BG_Buildable( self->s.modelindex )->turretRange;
   int firespeed = BG_Buildable( self->s.modelindex )->turretFireSpeed;
 
-  self->powered = G_IsOvermindBuilt( );
+  self->powered = level.overmindPresent;
   self->nextthink = level.time + BG_Buildable( self->s.modelindex )->nextthink;
 
   AGeneric_CreepCheck( self );
@@ -3053,8 +3034,8 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
     // Check there is an Overmind
     if( buildable != BA_A_OVERMIND )
     {
-        if( level.overmindPresent )
-          reason = IBE_NOOVERMIND;
+      if( !level.overmindPresent )
+        reason = IBE_NOOVERMIND;
     }
 
     //check there is creep near by for building on
