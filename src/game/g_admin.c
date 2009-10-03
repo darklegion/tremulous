@@ -681,7 +681,8 @@ static void admin_log( gentity_t *admin, char *cmd, int skiparg )
                  tens,
                  sec,
                  ( admin ) ? admin->s.clientNum : -1,
-                 admin->client->pers.guid,
+                 ( admin ) ? admin->client->pers.guid
+                 : "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
                  ( admin ) ? admin->client->pers.netname : "console",
                  flags,
                  cmd,
@@ -697,7 +698,8 @@ static void admin_log( gentity_t *admin, char *cmd, int skiparg )
                  tens,
                  sec,
                  ( admin ) ? admin->s.clientNum : -1,
-                 admin->client->pers.guid,
+                 ( admin ) ? admin->client->pers.guid
+                 : "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
                  ( admin ) ? admin->client->pers.netname : "console",
                  flags,
                  cmd,
