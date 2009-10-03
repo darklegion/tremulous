@@ -4440,6 +4440,15 @@ void Rect_ToWindowCoords( rectDef_t *rect, windowDef_t *window )
 void Item_SetTextExtents( itemDef_t *item, int *width, int *height, const char *text )
 {
   const char *textPtr = ( text ) ? text : item->text;
+  qboolean cvarContent;
+
+  // It's hard to make a policy on what should be aligned statically and what
+  // should be aligned dynamically; there are reasonable cases for both. If
+  // it continues to be a problem then there should probably be an item keyword
+  // for it; but for the moment only adjusting the alignment of ITEM_TYPE_TEXT
+  // seems to suffice.
+  cvarContent = ( item->cvar && item->textalignment != ALIGN_LEFT &&
+                  item->type == ITEM_TYPE_TEXT );
 
   if( textPtr == NULL )
     return;
@@ -4449,15 +4458,15 @@ void Item_SetTextExtents( itemDef_t *item, int *width, int *height, const char *
 
   // as long as the item isn't dynamic content (ownerdraw or cvar), this
   // keeps us from computing the widths and heights more than once
-  if( *width == 0 || item->cvar || ( item->type == ITEM_TYPE_OWNERDRAW &&
+  if( *width == 0 || cvarContent || ( item->type == ITEM_TYPE_OWNERDRAW &&
       item->textalignment != ALIGN_LEFT ) )
   {
     int originalWidth;
 
-    if( item->cvar && item->textalignment != ALIGN_LEFT )
+    if( cvarContent )
     {
-      char buff[256];
-      DC->getCVarString( item->cvar, buff, 256 );
+      char buff[ MAX_CVAR_VALUE_STRING ];
+      DC->getCVarString( item->cvar, buff, sizeof( buff ) );
       originalWidth = UI_Text_Width( item->text, item->textscale, 0 ) +
                       UI_Text_Width( buff, item->textscale, 0 );
     }
