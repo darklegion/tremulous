@@ -1018,7 +1018,7 @@ void ClientUserinfoChanged( int clientNum )
     if( strcmp( oldname, client->pers.netname ) )
     {
       trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
-        " renamed to %s\n\"", oldname, client->pers.netname ) );
+        " renamed to %s" S_COLOR_WHITE "\n\"", oldname, client->pers.netname ) );
       G_LogPrintf( "ClientRename: %i [%s] (%s) \"%s\" -> \"%s\"\n", clientNum,
          client->pers.ip, client->pers.guid, oldname, client->pers.netname );
       G_admin_namelog_update( client, qfalse );

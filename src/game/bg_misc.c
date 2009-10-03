@@ -318,7 +318,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_A_HOVEL,            //int       buildNum;
     "hovel",               //char      *buildName;
     "Hovel",               //char      *humanName;
-    "An armoured shell used by the builder class to hide in, while "
+    "An armoured shell used by the Grangers to hide in, while "
       "the alien base is under attack. It may be entered or "
       "exited at any time.",
     "team_alien_hovel",    //char      *entityName;
