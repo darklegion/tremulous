@@ -560,7 +560,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MGTURRET_SPLASHDAMAGE       100
 #define MGTURRET_SPLASHRADIUS       100
 #define MGTURRET_ANGULARSPEED       12
-#define MGTURRET_ANGULARSPEED_GRAB  8
 #define MGTURRET_ACCURACY_TO_FIRE   0
 #define MGTURRET_VERTICALCAP        30  // +/- maximum pitch
 #define MGTURRET_REPEAT             150

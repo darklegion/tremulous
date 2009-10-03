@@ -2255,10 +2255,7 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
 {
   vec3_t  dirToTarget, dttAdjusted, angleToTarget, angularDiff, xNormal;
   vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
-  float   temp, rotAngle, angularSpeed;
-
-  angularSpeed = self->lev1Grabbed ? MGTURRET_ANGULARSPEED_GRAB :
-                                     MGTURRET_ANGULARSPEED;
+  float   temp, rotAngle;
 
   VectorSubtract( self->enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
   VectorNormalize( dirToTarget );
@@ -2274,10 +2271,10 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
   angularDiff[ YAW ] = AngleSubtract( self->s.angles2[ YAW ], angleToTarget[ YAW ] );
 
   //if not pointing at our target then move accordingly
-  if( angularDiff[ PITCH ] < 0 && angularDiff[ PITCH ] < (-angularSpeed) )
-    self->s.angles2[ PITCH ] += angularSpeed;
-  else if( angularDiff[ PITCH ] > 0 && angularDiff[ PITCH ] > angularSpeed )
-    self->s.angles2[ PITCH ] -= angularSpeed;
+  if( angularDiff[ PITCH ] < 0 && angularDiff[ PITCH ] < (-MGTURRET_ANGULARSPEED) )
+    self->s.angles2[ PITCH ] += MGTURRET_ANGULARSPEED;
+  else if( angularDiff[ PITCH ] > 0 && angularDiff[ PITCH ] > MGTURRET_ANGULARSPEED )
+    self->s.angles2[ PITCH ] -= MGTURRET_ANGULARSPEED;
   else
     self->s.angles2[ PITCH ] = angleToTarget[ PITCH ];
 
@@ -2290,10 +2287,10 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
     self->s.angles2[ PITCH ] = (-360) + MGTURRET_VERTICALCAP;
 
   //if not pointing at our target then move accordingly
-  if( angularDiff[ YAW ] < 0 && angularDiff[ YAW ] < ( -angularSpeed ) )
-    self->s.angles2[ YAW ] += angularSpeed;
-  else if( angularDiff[ YAW ] > 0 && angularDiff[ YAW ] > angularSpeed )
-    self->s.angles2[ YAW ] -= angularSpeed;
+  if( angularDiff[ YAW ] < 0 && angularDiff[ YAW ] < ( -MGTURRET_ANGULARSPEED ) )
+    self->s.angles2[ YAW ] += MGTURRET_ANGULARSPEED;
+  else if( angularDiff[ YAW ] > 0 && angularDiff[ YAW ] > MGTURRET_ANGULARSPEED )
+    self->s.angles2[ YAW ] -= MGTURRET_ANGULARSPEED;
   else
     self->s.angles2[ YAW ] = angleToTarget[ YAW ];
 
@@ -2302,9 +2299,9 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
   vectoangles( dirToTarget, self->turretAim );
 
   //fire if target is within accuracy
-  return ( abs( angularDiff[ YAW ] ) - angularSpeed <=
+  return ( abs( angularDiff[ YAW ] ) - MGTURRET_ANGULARSPEED <=
            MGTURRET_ACCURACY_TO_FIRE ) &&
-         ( abs( angularDiff[ PITCH ] ) - angularSpeed <=
+         ( abs( angularDiff[ PITCH ] ) - MGTURRET_ANGULARSPEED <=
            MGTURRET_ACCURACY_TO_FIRE );
 }
 
