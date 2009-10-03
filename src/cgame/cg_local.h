@@ -1030,7 +1030,8 @@ typedef struct
   // kill timers for carnage reward
   int           lastKillTime;
 
-  // crosshair client ID
+  // targeted entity
+  int           crosshairBuildable;
   int           crosshairClientNum;
   int           crosshairClientTime;
 

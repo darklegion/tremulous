@@ -2140,6 +2140,14 @@ CROSSHAIR
 */
 
 
+const vec4_t crosshairColours[ ] =
+{
+  { 1.0f, 0.0f, 0.0f, 0.35f }, // alien normal
+  { 0.5f, 0.0f, 0.0f, 0.35f }, // alien team
+  { 0.0f, 0.8f, 1.0f, 0.35f }, // human normal
+  { 0.0f, 0.4f, 0.5f, 0.35f }  // human team
+};
+
 /*
 =================
 CG_DrawCrosshair
@@ -2175,17 +2183,23 @@ static void CG_DrawCrosshair( void )
   w = h = wi->crossHairSize * cg_crosshairSize.value;
   w *= cgDC.aspectScale;
 
-  x = cg_crosshairX.integer;
-  y = cg_crosshairY.integer;
-  CG_AdjustFrom640( &x, &y, &w, &h );
+  x = 320 + cg_crosshairX.integer - ( w / 2 );
+  y = 240 + cg_crosshairY.integer - ( h / 2 );
 
   hShader = wi->crossHair;
 
   if( hShader != 0 )
   {
-    trap_R_DrawStretchPic( x + cg.refdef.x + 0.5 * ( cg.refdef.width - w ),
-      y + cg.refdef.y + 0.5 * ( cg.refdef.height - h ),
-      w, h, 0, 0, 1, 1, hShader );
+    int colour = 0;
+    if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
+      colour += 2;
+
+    if( cg.time == cg.crosshairClientTime || cg.crosshairBuildable >= 0 )
+      colour += 1;
+
+    trap_R_SetColor( crosshairColours[ colour ] );
+    CG_DrawPic( x, y, w, h, hShader );
+    trap_R_SetColor( NULL );
   }
 }
 
@@ -2209,13 +2223,22 @@ static void CG_ScanForCrosshairEntity( void )
   CG_Trace( &trace, start, vec3_origin, vec3_origin, end,
     cg.snap->ps.clientNum, CONTENTS_SOLID|CONTENTS_BODY );
 
-  if( trace.entityNum >= MAX_CLIENTS )
-    return;
-
   // if the player is in fog, don't show it
   content = trap_CM_PointContents( trace.endpos, 0 );
   if( content & CONTENTS_FOG )
     return;
+
+  if( trace.entityNum >= MAX_CLIENTS )
+  {
+    entityState_t *s = &cg_entities[ trace.entityNum ].currentState;
+    if( s->eType == ET_BUILDABLE && BG_Buildable( s->modelindex )->team ==
+        cg.snap->ps.stats[ STAT_TEAM ] )
+      cg.crosshairBuildable = trace.entityNum;
+    else
+      cg.crosshairBuildable = -1;
+
+    return;
+  }
 
   team = cgs.clientinfo[ trace.entityNum ].team;
 
