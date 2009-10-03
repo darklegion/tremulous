@@ -2501,7 +2501,10 @@ void Cmd_Build_f( gentity_t *ent )
       ( ( team == TEAM_ALIENS && BG_BuildableAllowedInStage( buildable, g_alienStage.integer ) ) ||
         ( team == TEAM_HUMANS && BG_BuildableAllowedInStage( buildable, g_humanStage.integer ) ) ) )
   {
+    dynMenu_t err;
     dist = BG_Class( ent->client->ps.stats[ STAT_CLASS ] )->buildDist;
+
+    ent->client->ps.stats[ STAT_BUILDABLE ] = 0;
 
     //these are the errors displayed when the builder first selects something to use
     switch( G_CanBuild( ent, buildable, dist, origin ) )
@@ -2512,7 +2515,9 @@ void Cmd_Build_f( gentity_t *ent )
       case IBE_RPTNOREAC:
       case IBE_RPTPOWERHERE:
       case IBE_SPWNWARN:
-        ent->client->ps.stats[ STAT_BUILDABLE ] = ( buildable | SB_VALID_TOGGLEBIT );
+        err = MN_NONE;
+        // we OR-in the selected builable later
+        ent->client->ps.stats[ STAT_BUILDABLE ] = SB_VALID_TOGGLEBIT;
         break;
 
       // can't place yet but maybe soon: start with valid togglebit off
@@ -2523,55 +2528,42 @@ void Cmd_Build_f( gentity_t *ent )
       case IBE_NOOVERMIND:
       case IBE_NOPOWERHERE:
       case IBE_RPWCAUSEOVRL:
-        ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
+        err = MN_NONE;
         break;
 
       // more serious errors just pop a menu
       case IBE_NOALIENBP:
-        if( ent->client->pers.disableBlueprintErrors )
-          ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
-        else
-          G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOBP );
+        err = MN_A_NOBP;
         break;
 
       case IBE_ONEOVERMIND:
-        if( ent->client->pers.disableBlueprintErrors )
-          ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
-        else
-          G_TriggerMenu( ent->client->ps.clientNum, MN_A_ONEOVERMIND );
+        err = MN_A_ONEOVERMIND;
         break;
 
       case IBE_ONEHOVEL:
-        if( ent->client->pers.disableBlueprintErrors )
-          ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
-        else
-          G_TriggerMenu( ent->client->ps.clientNum, MN_A_ONEHOVEL );
+        err = MN_A_ONEHOVEL;
         break;
 
       case IBE_ONEREACTOR:
-        if( ent->client->pers.disableBlueprintErrors )
-          ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
-        else
-          G_TriggerMenu( ent->client->ps.clientNum, MN_H_ONEREACTOR );
+        err = MN_H_ONEREACTOR;
         break;
 
       case IBE_NOHUMANBP:
-        if( ent->client->pers.disableBlueprintErrors )
-          ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
-        else
-          G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOBP);
+        err = MN_H_NOBP;
         break;
 
       case IBE_NODCC:
-        if( ent->client->pers.disableBlueprintErrors )
-          ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
-        else
-          G_TriggerMenu( ent->client->ps.clientNum, MN_H_NODCC );
+        err = MN_H_NODCC;
         break;
 
       default:
         break;
     }
+
+    if( err == MN_NONE || ent->client->pers.disableBlueprintErrors )
+      ent->client->ps.stats[ STAT_BUILDABLE ] |= buildable;
+    else
+      G_TriggerMenu( ent->client->ps.clientNum, err );
   }
   else
     G_TriggerMenu( ent->client->ps.clientNum, MN_B_CANNOT );

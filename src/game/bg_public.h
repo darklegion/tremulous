@@ -549,6 +549,8 @@ typedef enum
 
 typedef enum
 {
+  MN_NONE,
+
   MN_TEAM,
   MN_A_TEAMFULL,
   MN_H_TEAMFULL,
