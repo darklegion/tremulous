@@ -1198,8 +1198,11 @@ void G_CalculateBuildPoints( void )
       humanNextStageThreshold = -1;
 
     // save a lot of bandwidth by rounding thresholds up to the nearest 100
-	alienNextStageThreshold = ceil( (float)alienNextStageThreshold / 100 ) * 100;
-	humanNextStageThreshold = ceil( (float)humanNextStageThreshold / 100 ) * 100;
+    if( alienNextStageThreshold > 0 )
+      alienNextStageThreshold = ceil( (float)alienNextStageThreshold / 100 ) * 100;
+
+    if( humanNextStageThreshold > 0 )
+      humanNextStageThreshold = ceil( (float)humanNextStageThreshold / 100 ) * 100;
 
     trap_SetConfigstring( CS_STAGES, va( "%d %d %d %d %d %d",
           g_alienStage.integer, g_humanStage.integer,
