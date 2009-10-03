@@ -320,6 +320,9 @@ char *ConcatArgs( int start )
     memcpy( line + len, arg, tlen );
     len += tlen;
 
+    if( len == MAX_STRING_CHARS - 1 )
+      break;
+
     if( i != c - 1 )
     {
       line[ len ] = ' ';
@@ -3139,104 +3142,77 @@ void ClientCommand( int clientNum )
   cmds[ i ].cmdHandler( ent );
 }
 
-int G_SayArgc()
+int G_SayArgc( void )
 {
-  int c = 1;
+  int c = 0;
   char *s;
 
   s = ConcatArgs( 0 );
-  if( !*s )
-     return 0;
-  while( *s )
+  while( 1 )
   {
-    if( *s == ' ' )
-    {
+    while( *s == ' ' )
       s++;
-      if( *s != ' ' )
-      {
-        c++;
-        continue;
-      }
-      while( *s && *s == ' ' )
-        s++;
-      c++;
-    }
-    s++;
+    if( !*s )
+      break;
+    c++;
+    while( *s && *s != ' ' )
+      s++;
   }
   return c;
 }
 
 qboolean G_SayArgv( int n, char *buffer, int bufferLength )
 {
-  int bc = 1;
+  int bc = 0;
   int c = 0;
   char *s;
 
   if( bufferLength < 1 )
     return qfalse;
-  if(n < 0)
+  if( n < 0 )
     return qfalse;
-  *buffer = '\0';
   s = ConcatArgs( 0 );
-  while( *s )
+  while( c < n )
   {
-    if( c == n )
-    {
-      while( *s && ( bc < bufferLength ) )
-      {
-        if( *s == ' ' )
-        {
-          *buffer = '\0';
-          return qtrue;
-        }
-        *buffer = *s;
-        buffer++;
-        s++;
-        bc++;
-      }
-      *buffer = '\0';
-      return qtrue;
-    }
-    if( *s == ' ' )
-    {
+    while( *s == ' ' )
       s++;
-      if( *s != ' ' )
-      {
-        c++;
-        continue;
-      }
-      while( *s && *s == ' ' )
-        s++;
-      c++;
-    }
-    s++;
+    if( !*s )
+      break;
+    c++;
+    while( *s && *s != ' ' )
+      s++;
   }
-  return qfalse;
+  if( c < n )
+    return qfalse;
+  while( *s == ' ' )
+    s++;
+  if( !*s )
+    return qfalse;
+  //memccpy( buffer, s, ' ', bufferLength );
+  while( bc < bufferLength - 1 && *s && *s != ' ' )
+    buffer[ bc++ ] = *s++;
+  buffer[ bc ] = 0;
+  return qtrue;
 }
 
-char *G_SayConcatArgs(int start)
+char *G_SayConcatArgs( int start )
 {
   char *s;
   int c = 0;
 
   s = ConcatArgs( 0 );
-  while( *s ) {
-    if( c == start )
-      return s;
-    if( *s == ' ' )
-    {
+  while( c < start )
+  {
+    while( *s == ' ' )
       s++;
-      if( *s != ' ' )
-      {
-        c++;
-        continue;
-      }
-      while( *s && *s == ' ' )
-        s++;
-      c++;
-    }
-    s++;
+    if( !*s )
+      break;
+    c++;
+    while( *s && *s != ' ' )
+      s++;
   }
+  while( *s == ' ' )
+    s++;
   return s;
 }
 
