@@ -94,9 +94,9 @@ void G_Physics( gentity_t *ent, int msec )
   {
     if( ent->s.eType == ET_BUILDABLE )
     {
-      if( ent->s.pos.trType != BG_Buildable( ent->s.modelindex )->turretProjType )
+      if( ent->s.pos.trType != BG_Buildable( ent->s.modelindex )->traj )
       {
-        ent->s.pos.trType = BG_Buildable( ent->s.modelindex )->turretProjType;
+        ent->s.pos.trType = BG_Buildable( ent->s.modelindex )->traj;
         ent->s.pos.trTime = level.time;
       }
     }
