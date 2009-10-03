@@ -179,6 +179,7 @@ vmCvar_t  cg_teamChatsOnly;
 vmCvar_t  cg_noVoiceChats;
 vmCvar_t  cg_noVoiceText;
 vmCvar_t  cg_hudFiles;
+vmCvar_t  cg_hudFilesEnable;
 vmCvar_t  cg_scorePlum;
 vmCvar_t  cg_smoothClients;
 vmCvar_t  pmove_fixed;
@@ -329,6 +330,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_disableScannerPlane, "cg_disableScannerPlane", "0", CVAR_ARCHIVE },
   { &cg_tutorial, "cg_tutorial", "1", CVAR_ARCHIVE },
   { &cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
+  { &cg_hudFilesEnable, "cg_hudFilesEnable", "0", CVAR_ARCHIVE},
 
   { &cg_painBlendUpRate, "cg_painBlendUpRate", "10.0", 0 },
   { &cg_painBlendDownRate, "cg_painBlendDownRate", "0.5", 0 },
@@ -1713,7 +1715,7 @@ void CG_LoadHudMenu( void )
   trap_Cvar_VariableStringBuffer( "cg_hudFiles", buff, sizeof( buff ) );
   hudSet = buff;
 
-  if( hudSet[ 0 ] == '\0' )
+  if( !cg_hudFilesEnable.integer || hudSet[ 0 ] == '\0' )
     hudSet = "ui/hud.txt";
 
   CG_LoadMenus( hudSet );

@@ -1606,13 +1606,6 @@ void ClientThink_real( gentity_t *ent )
   if( !ent->client->noclip )
     G_TouchTriggers( ent );
 
-  // Tyrant crush
-  pm.pmext->fallVelocity = 0;
-  if( ent->client->forceCrouchTime + 500 > level.time )
-    client->ps.pm_flags |= PMF_FORCE_CROUCH;
-  else
-    client->ps.pm_flags &= ~PMF_FORCE_CROUCH;
-
   Pmove( &pm );
 
   G_UnlaggedDetectCollisions( ent );

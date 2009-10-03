@@ -1411,18 +1411,6 @@ void G_CrushAttack( gentity_t *ent, gentity_t *victim, float sec )
         victim->client->ps.groundEntityNum == ENTITYNUM_NONE ) )
     return;
 
-  // Force target to crouch first if they can
-  if( victim->client &&
-      !BG_InventoryContainsUpgrade( UP_BATTLESUIT, victim->client->ps.stats ) &&
-      victim->client->ps.pm_type != PM_JETPACK &&
-      victim->client->pers.cmd.upmove >= 0 &&
-      !( victim->client->ps.pm_flags &
-         ( PMF_CROUCH_HELD | PMF_FORCE_CROUCH ) ) )
-  {
-    victim->client->forceCrouchTime = level.time;
-    return;
-  }
-
   // Deal velocity based damage to target
   jump = BG_FindJumpMagnitudeForClass( ent->client->ps.stats[ STAT_PCLASS ] );
   damage = ( ent->client->pmext.fallVelocity + jump ) *
@@ -1430,14 +1418,15 @@ void G_CrushAttack( gentity_t *ent, gentity_t *victim, float sec )
 
   if( damage < 0 )
     damage = 0;
-
+    
+  // Players also get damaged periodically
   if( victim->client &&
       ent->client->lastCrushTime + LEVEL4_CRUSH_REPEAT < level.time )
   {
     ent->client->lastCrushTime = level.time;
     damage += LEVEL4_CRUSH_DAMAGE;
   }
-
+  
   if( damage < 1 )
     return;
 

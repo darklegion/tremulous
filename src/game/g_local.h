@@ -470,9 +470,7 @@ struct gclient_s
 
   int                 lcannonStartTime;
 
-  // Tyrant crush
-  int                 forceCrouchTime;
-  int                 lastCrushTime;
+  int                 lastCrushTime;        // Tyrant crush
 };
 
 

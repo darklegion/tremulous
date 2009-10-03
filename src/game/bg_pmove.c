@@ -3620,10 +3620,6 @@ void Pmove( pmove_t *pmove )
         msec = 66;
     }
 
-    // force crouch
-    if( pmove->ps->pm_flags & PMF_FORCE_CROUCH )
-      pmove->cmd.upmove = -127;
-
     pmove->cmd.serverTime = pmove->ps->commandTime + msec;
     PmoveSingle( pmove );
 
