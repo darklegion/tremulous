@@ -320,13 +320,15 @@ static qboolean admin_higher_guid( char *admin_guid, char *victim_guid )
       break;
     }
   }
+
   for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
   {
     if( !Q_stricmp( victim_guid, g_admin_admins[ i ]->guid ) )
     {
       if( alevel < g_admin_admins[ i ]->level )
         return qfalse;
-      return !admin_permission( g_admin_admins[ i ]->flags, ADMF_IMMUTABLE,
+
+      return !admin_permission( g_admin_admins[ i ]->flags, ADMF_IMMUNITY,
          &perm ) || !perm;
     }
   }
