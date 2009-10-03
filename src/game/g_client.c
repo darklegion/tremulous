@@ -1388,6 +1388,10 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   else if( client->pers.classSelection == PCL_NONE )
     client->sess.spectatorState = SPECTATOR_LOCKED;
 
+  // if client is dead and following teammate, stop following before spawning
+  if( ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
+    G_StopFollowing( ent );
+
   if( origin != NULL )
     VectorCopy( origin, spawn_origin );
 
