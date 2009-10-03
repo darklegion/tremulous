@@ -4539,154 +4539,96 @@ void Item_TextColor( itemDef_t *item, vec4_t *newColor )
 
 static const char *Item_Text_Wrap( const char *text, float scale, float width )
 {
-  static char   out[ 8192 ];
-  char          *paint = out;
-  char          startcolour[ 3 ], endcolour[ 3 ];
-  const char    *p = text;
-  const char    *eol;
-  const char    *q = NULL, *qMinus1 = NULL;
-  unsigned int  testLength;
-  unsigned int  i;
-  int           emoticonLen;
-  qboolean      emoticonEscaped;
+  static char   out[ 8192 ] = { 0 };
+  char          c[ 2 ] = { 0 };
+  const char    *thisline = text;
+  size_t        outlen = 0, testlen;
+  int           eol = -1;
 
   if( strlen( text ) >= sizeof( out ) )
     return NULL;
 
-  *paint = '\0';
-
-  while( *p )
+  while( *thisline )
   {
-    Com_Memset( startcolour, 0, sizeof( startcolour ) );
-    Com_Memset( endcolour, 0, sizeof( endcolour ) );
-
-    // Skip leading whitespace
-
-    while( *p )
+    // strip leading space and collapse colours
+    while( 1 )
     {
-      if( Q_IsColorString( p ) )
+      while( isspace( *thisline ) && *thisline != '\n' )
+        thisline++;
+
+      if( Q_IsColorString( thisline ) )
       {
-        startcolour[ 0 ] = p[ 0 ];
-        startcolour[ 1 ] = p[ 1 ];
-        p += 2;
+        Com_Memcpy( c, thisline, 2 );
+        thisline += 2;
       }
-      else if( *p != '\n' && isspace( *p ) )
-        p++;
       else
         break;
     }
 
-    if( !*p )
+    if( !*thisline || outlen + 1 >= sizeof( out ) )
       break;
 
-    testLength = 1;
-
-    eol = p;
-
-    q = p;
-
-    while( Q_IsColorString( q ) )
+    if( c[ 0 ] && outlen < sizeof( out ) - 3 )
     {
-      startcolour[ 0 ] = q[ 0 ];
-      startcolour[ 1 ] = q[ 1 ];
-      q += 2;
+      Com_Memcpy( &out[ outlen ], c, 2 );
+      outlen += 2;
     }
 
-    q++;
-
-    while( Q_IsColorString( q ) )
+    for( testlen = 1; thisline[ testlen ] &&
+        outlen + testlen + 1 < sizeof( out ) &&
+        UI_Text_Width( thisline, scale, testlen ) < width; testlen++ )
     {
-      startcolour[ 0 ] = q[ 0 ];
-      startcolour[ 1 ] = q[ 1 ];
-      q += 2;
+      // set an eol marker in the last whitespace
+      if( isspace( thisline[ testlen ] ) )
+      {
+        if( thisline[ eol = testlen ] == '\n' )
+          break;
+        // place the eol at the first whitespace, not spaces that follow
+        while( isspace( thisline[ testlen ] ) && thisline[ testlen ] != '\n' )
+          testlen++;
+      }
+
+      // save colour codes for restoration next line
+      if( Q_IsColorString( &thisline[ testlen ] ) )
+      {
+        Com_Memcpy( c, &thisline[ testlen ], 2 );
+        testlen++;
+        continue;
+      }
     }
 
-    while( UI_Text_Width( p, scale, testLength ) < width )
+    // if we couldn't place a whitespace eol then just put it at the end
+    if( !thisline[ testlen ] || outlen + testlen + 1 == sizeof( out ) )
+      eol = testlen;
+
+    // copy up the the line break
+    Com_Memcpy( &out[ outlen ], thisline, eol );
+    outlen += eol;
+
+    if( outlen + 1 < sizeof( out ) )
+      out[ outlen++ ] = '\n';
+
+    // continue colour codes on the next line if there is one
+    if( c[ 0 ] && thisline[ eol ] && thisline[ eol + 1 ] && 
+        outlen + 3 < sizeof( out ) )
     {
-      if( testLength >= strlen( p ) )
-      {
-        eol = p + strlen( p );
-        break;
-      }
-
-      // Point q at the end of the current testLength
-      q = p;
-
-      for( i = 0; i < testLength; )
-      {
-        // Skip color escapes
-        while( Q_IsColorString( q ) )
-        {
-          endcolour[ 0 ] = q[ 0 ];
-          endcolour[ 1 ] = q[ 1 ];
-          q += 2;
-        }
-        while( UI_Text_Emoticon( q, &emoticonEscaped, &emoticonLen, NULL, NULL ) )
-        {
-          if( emoticonEscaped )
-            q++;
-          else
-            q += emoticonLen;
-        }
-
-        qMinus1 = q;
-        q++;
-        i++;
-      }
-
-      // Some color escapes might still be present
-      while( Q_IsColorString( q ) )
-      {
-        endcolour[ 0 ] = q[ 0 ];
-        endcolour[ 1 ] = q[ 1 ];
-        q += 2;
-      }
-      while( UI_Text_Emoticon( q, &emoticonEscaped, &emoticonLen, NULL, NULL ) )
-      {
-        if( emoticonEscaped )
-          q++;
-        else
-          q += emoticonLen;
-      }
-
-      // Manual line break
-      if( *q == '\n' )
-      {
-        eol = q + 1;
-        break;
-      }
-
-      if( !isspace( *qMinus1 ) && isspace( *q ) )
-        eol = q;
-
-      testLength++;
+      Com_Memcpy( &out[ outlen ], c, 2 );
+      outlen += 2;
     }
+    else
+      break;
 
-    // No split has taken place, so just split mid-word
-    if( eol == p )
-      eol = q;
+    thisline += eol;
 
-    // Add colour code (might be empty)
-    Q_strcat( out, sizeof( out ), startcolour );
-
-    paint = out + strlen( out );
-
-    // Copy text
-    strncpy( paint, p, eol - p );
-
-    paint[ eol - p ] = '\0';
-
-    // Add a \n if it's not there already
-    if( out[ strlen( out ) - 1 ] != '\n' )
-    {
-      Q_strcat( out, sizeof( out ), "\n " );
-      Q_strcat( out, sizeof( out ), endcolour );
-    }
-
-    paint = out + strlen( out );
-
-    p = eol;
+    if( *thisline == '\n' )
+      thisline++;
   }
+
+  // definitely put a newline on the end
+  if( out[ outlen - 1 ] != '\n' )
+    out[ outlen++ ] = '\n';
+
+  out[ outlen ] = '\0';
 
   return out;
 }
