@@ -364,6 +364,14 @@ static void HandleInfoResponse (server_t* server, const char* msg)
 				  peer_address, value);
 		return;
 	}
+	// some people enjoy making it hard to find them
+	value = SearchInfostring (msg, "hostname");
+	if (!value || !value[0])
+	{
+		MsgPrint (MSG_ERROR, "ERROR: no hostname from %s\n",
+				  peer_address, value);
+		return;
+	}
 
 	// Check and save the values of "protocol" and "maxclients"
 	value = SearchInfostring (msg, "protocol");
