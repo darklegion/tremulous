@@ -976,7 +976,6 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   gun.shadowPlane = parent->shadowPlane;
   gun.renderfx = parent->renderfx;
 
-  // set custom shading for railgun refire rate
   if( ps )
   {
     gun.shaderRGBA[ 0 ] = 255;
@@ -1032,8 +1031,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
   if( !noGunModel )
   {
-    CG_WeaponAnimation( cent, &gun.oldframe, &gun.frame, &gun.backlerp );
     CG_PositionEntityOnTag( &gun, parent, parent->hModel, "tag_weapon" );
+    CG_WeaponAnimation( cent, &gun.oldframe, &gun.frame, &gun.backlerp );
 
     trap_R_AddRefEntityToScene( &gun );
 

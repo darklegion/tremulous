@@ -3267,6 +3267,16 @@ static void PM_Weapon( void )
     //       weapon.cfg
     switch( pm->ps->weapon )
     {
+      case WP_ALEVEL1_UPG:
+      case WP_ALEVEL1:
+        if( attack1 )
+        {
+          num %= 6;
+          PM_ForceLegsAnim( NSPA_ATTACK1 );
+          PM_StartWeaponAnim( WANIM_ATTACK1 + num );
+        }
+        break;
+
       case WP_ALEVEL2_UPG:
         if( attack2 )
         {
