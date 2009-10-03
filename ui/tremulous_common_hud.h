@@ -111,10 +111,12 @@ itemDef
 itemDef
 {
   name "location"
-  rect (STAT_X-20) ((4*BORDER)+(5*STAT_H)) (STAT_W+25) STAT_H
+  rect (STAT_X-55) ((4*BORDER)+(5*STAT_H)) (STAT_W+60) STAT_H
+  aspectBias ALIGN_RIGHT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 1
+  textalign ALIGN_RIGHT
   textscale 0.3
   ownerdraw CG_PLAYER_LOCATION
 }

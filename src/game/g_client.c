@@ -1110,7 +1110,7 @@ void ClientUserinfoChanged( int clientNum )
   // teamInfo
   s = Info_ValueForKey( userinfo, "teamoverlay" );
 
-  if( !*s || atoi( s ) != 0 )
+  if( atoi( s ) != 0 )
     client->pers.teamInfo = qtrue;
   else
     client->pers.teamInfo = qfalse;
