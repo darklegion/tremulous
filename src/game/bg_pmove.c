@@ -630,6 +630,9 @@ static qboolean PM_CheckWallJump( void )
   float   upFraction = 1.5f;
   trace_t trace;
 
+  if( !( BG_Class( pm->ps->stats[ STAT_CLASS ] )->abilities & SCA_WALLJUMPER ) )
+    return qfalse;
+
   ProjectPointOnPlane( movedir, pml.forward, refNormal );
   VectorNormalize( movedir );
   
