@@ -34,7 +34,7 @@ G_MapExists
 Check if a map exists
 ===============
 */
-static qboolean G_MapExists( char *name )
+qboolean G_MapExists( char *name )
 {
   return trap_FS_FOpenFile( va( "maps/%s.bsp", name ), NULL, FS_READ );
 }
