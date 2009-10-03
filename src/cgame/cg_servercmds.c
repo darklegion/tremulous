@@ -446,27 +446,6 @@ static void CG_MapRestart( void )
 }
 
 /*
-=================
-CG_RemoveChatEscapeChar
-=================
-*/
-static void CG_RemoveChatEscapeChar( char *text )
-{
-  int i, l;
-
-  l = 0;
-  for( i = 0; text[ i ]; i++ )
-  {
-    if( text[ i ] == '\x19' )
-      continue;
-
-    text[ l++ ] = text[ i ];
-  }
-
-  text[ l ] = '\0';
-}
-
-/*
 ==============
 CG_Menu
 ==============
@@ -943,7 +922,6 @@ static void CG_Say( int clientNum, char *text )
     "%s: " S_COLOR_WHITE S_COLOR_GREEN "%s" S_COLOR_WHITE "\n",
     ci->name, text );
   
-  CG_RemoveChatEscapeChar( sayText );
   if( BG_ClientListTest( &cgs.ignoreList, clientNum ) )
     CG_Printf( "[skipnotify]%s", sayText );
   else
@@ -959,17 +937,15 @@ static void CG_SayTeam( int clientNum, char *text )
 {
   clientInfo_t *ci;
   char sayText[ MAX_SAY_TEXT ] = {""};
-  
+
   if( clientNum < 0 || clientNum >= MAX_CLIENTS )
     return;
-  
 
   ci = &cgs.clientinfo[ clientNum ];
   Com_sprintf( sayText, sizeof( sayText ),
-    "%s: " S_COLOR_WHITE S_COLOR_CYAN "%s" S_COLOR_WHITE "\n",
+    "%s: " S_COLOR_CYAN "%s" S_COLOR_WHITE "\n",
     ci->name, text );
-  
-  CG_RemoveChatEscapeChar( sayText );
+
   if( BG_ClientListTest( &cgs.ignoreList, clientNum ) )
     CG_Printf( "[skipnotify]%s", sayText );
   else
@@ -1160,7 +1136,6 @@ static void CG_Chat_f( void )
       trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
   }
 
-  CG_RemoveChatEscapeChar( text );
   CG_Printf( "%s\n", text );
 }
 

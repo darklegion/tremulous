@@ -55,7 +55,7 @@ void G_SanitiseString( char *in, char *out, int len )
       skip = qfalse;
     }
 
-    if( *in == 27 || Q_IsColorString( in ) )
+    if( Q_IsColorString( in ) )
     {
       in += 2;    // skip color code
       continue;
@@ -688,8 +688,6 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
     name, Q_COLOR_ESCAPE, color, message, S_COLOR_WHITE ) );
 }
 
-#define EC    "\x19"
-
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
 {
   int         j;
@@ -714,30 +712,30 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
     default:
     case SAY_ALL:
       G_LogPrintf( "say: %s^7: %s\n", ent->client->pers.netname, chatText );
-      Com_sprintf( name, sizeof( name ), "%s%s%c%c"EC": ", prefix,
-                   ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+      Com_sprintf( name, sizeof( name ), "%s%s" S_COLOR_WHITE ": ", prefix,
+                   ent->client->pers.netname );
       color = COLOR_GREEN;
       break;
 
     case SAY_TEAM:
       G_LogPrintf( "sayteam: %s^7: %s\n", ent->client->pers.netname, chatText );
       if( Team_GetLocationMsg( ent, location, sizeof( location ) ) )
-        Com_sprintf( name, sizeof( name ), EC"(%s%c%c"EC") (%s)"EC": ",
-          ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location );
+        Com_sprintf( name, sizeof( name ), "(%s" S_COLOR_WHITE ") (%s): ",
+          ent->client->pers.netname, location );
       else
-        Com_sprintf( name, sizeof( name ), EC"(%s%c%c"EC")"EC": ",
-          ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+        Com_sprintf( name, sizeof( name ), "(%s" S_COLOR_WHITE "): ",
+          ent->client->pers.netname );
       color = COLOR_CYAN;
       break;
 
     case SAY_TELL:
       if( target && OnSameTeam( target, ent ) &&
           Team_GetLocationMsg( ent, location, sizeof( location ) ) )
-        Com_sprintf( name, sizeof( name ), EC"[%s%c%c"EC"] (%s)"EC": ",
-          ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location );
+        Com_sprintf( name, sizeof( name ), "[%s" S_COLOR_WHITE "] (%s): ",
+          ent->client->pers.netname, location );
       else
-        Com_sprintf( name, sizeof( name ), EC"[%s%c%c"EC"]"EC": ",
-          ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+        Com_sprintf( name, sizeof( name ), "[%s" S_COLOR_WHITE "]: ",
+          ent->client->pers.netname );
       color = COLOR_MAGENTA;
       break;
   }
@@ -3156,7 +3154,7 @@ void G_DecolorString( char *in, char *out, int len )
   len--;
 
   while( *in && len > 0 ) {
-    if( *in == 27 || Q_IsColorString( in ) ) {
+    if( Q_IsColorString( in ) ) {
       in++;
       if( *in )
         in++;
