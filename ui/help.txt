@@ -9,7 +9,7 @@
     "We can also be reached on Freenode IRC:\n"
     "#mercenariesguild"
   }
-  "^3Release Notes r147^7"
+  "^3Release Notes r148^7"
   {
     "See svn.mercenariesguild.net for details."
   }
