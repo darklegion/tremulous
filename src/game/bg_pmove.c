@@ -2839,7 +2839,6 @@ Generates weapon events and modifes the weapon counter
 static void PM_Weapon( void )
 {
   int           addTime = 200; //default addTime - should never be used
-  int           maxClips;
   qboolean      attack1 = pm->cmd.buttons & BUTTON_ATTACK;
   qboolean      attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
   qboolean      attack3 = pm->cmd.buttons & BUTTON_USE_HOLDABLE;
@@ -3063,8 +3062,6 @@ static void PM_Weapon( void )
     return;
   }
 
-  maxClips = BG_Weapon( pm->ps->weapon )->maxClips;
-
   // check for out of ammo
   if( !pm->ps->ammo && !pm->ps->clips && !BG_Weapon( pm->ps->weapon )->infiniteAmmo )
   {
@@ -3085,11 +3082,8 @@ static void PM_Weapon( void )
   //done reloading so give em some ammo
   if( pm->ps->weaponstate == WEAPON_RELOADING )
   {
-    if( maxClips > 0 )
-    {
-      pm->ps->clips--;
-      pm->ps->ammo = BG_Weapon( pm->ps->weapon )->maxAmmo;
-    }
+    pm->ps->clips--;
+    pm->ps->ammo = BG_Weapon( pm->ps->weapon )->maxAmmo;
 
     if( BG_Weapon( pm->ps->weapon )->usesEnergy &&
         BG_InventoryContainsUpgrade( UP_BATTPACK, pm->ps->stats ) )
