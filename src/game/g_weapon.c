@@ -1262,8 +1262,6 @@ qboolean CheckPounceAttack( gentity_t *ent )
   G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage,
             DAMAGE_NO_LOCDAMAGE, MOD_LEVEL3_POUNCE );
 
-  ent->client->ps.weaponTime += LEVEL3_POUNCE_REPEAT;
-
   return qtrue;
 }
 

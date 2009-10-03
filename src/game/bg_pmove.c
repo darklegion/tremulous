@@ -559,6 +559,7 @@ static qboolean PM_CheckPounce( void )
       ( pm->ps->pm_flags & PMF_CHARGE ) )
   {
     pm->ps->pm_flags &= ~PMF_CHARGE;
+	pm->ps->weaponTime += LEVEL3_POUNCE_REPEAT;
     return qfalse;
   }
 
