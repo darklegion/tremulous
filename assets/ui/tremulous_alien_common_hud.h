@@ -185,7 +185,7 @@ itemDef
   aspectBias ALIGN_RIGHT
   visible MENU_TRUE
   decoration
-  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B .5
+  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 1
   ownerdraw CG_PLAYER_CREDITS_VALUE_NOPAD
 }
 
@@ -197,7 +197,7 @@ itemDef
   aspectBias ALIGN_RIGHT
   visible MENU_TRUE
   decoration
-  forecolor 0.375 0 0 0.375
+  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.25
   background "ui/assets/neutral/circle.tga"
   ownerdraw CG_PLAYER_CREDITS_FRACTION
 }

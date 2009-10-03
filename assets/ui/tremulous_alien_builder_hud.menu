@@ -35,7 +35,7 @@
       aspectBias ALIGN_RIGHT
       visible MENU_TRUE
       decoration
-      forecolor 1.0 0.0 0.0 .5
+      forecolor 1.0 0.0 0.0 1.0
       ownerdraw CG_PLAYER_AMMO_VALUE
     }
   }
