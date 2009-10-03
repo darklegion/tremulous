@@ -142,8 +142,13 @@ vmCvar_t  cg_tracerWidth;
 vmCvar_t  cg_tracerLength;
 vmCvar_t  cg_autoswitch;
 vmCvar_t  cg_thirdPerson;
-vmCvar_t  cg_thirdPersonShoulderView;
+vmCvar_t  cg_thirdPersonShoulderViewMode;
+vmCvar_t  cg_thirdPersonPitchFollow;
 vmCvar_t  cg_thirdPersonRange;
+vmCvar_t  cg_shoulderViewOverride;
+vmCvar_t  cg_shoulderViewUp;
+vmCvar_t  cg_shoulderViewRight;
+vmCvar_t  cg_shoulderViewForward;
 vmCvar_t  cg_stereoSeparation;
 vmCvar_t  cg_lagometer;
 vmCvar_t  cg_synchronousClients;
@@ -263,8 +268,13 @@ static cvarTable_t cvarTable[ ] =
   { &cg_tracerWidth, "cg_tracerwidth", "1", CVAR_CHEAT },
   { &cg_tracerLength, "cg_tracerlength", "100", CVAR_CHEAT },
   { &cg_thirdPersonRange, "cg_thirdPersonRange", "75", CVAR_ARCHIVE },
-  { &cg_thirdPersonShoulderView, "cg_thirdPersonShoulderView", "0", CVAR_ARCHIVE },
   { &cg_thirdPerson, "cg_thirdPerson", "0", CVAR_CHEAT },
+  { &cg_thirdPersonPitchFollow, "cg_thirdPersonPitchFollow", "0", 0 },
+  { &cg_thirdPersonShoulderViewMode, "cg_thirdPersonShoulderViewMode", "1", CVAR_ARCHIVE },
+  { &cg_shoulderViewOverride, "cg_shoulderViewOverride", "0", 0 },
+  { &cg_shoulderViewUp, "cg_shoulderViewUp", "0", 0 },
+  { &cg_shoulderViewRight, "cg_shoulderViewRight", "0", 0 },
+  { &cg_shoulderViewForward, "cg_shoulderViewForward", "0", 0 },
   { &cg_stats, "cg_stats", "0", 0 },
   { &cg_drawFriend, "cg_drawFriend", "1", CVAR_ARCHIVE },
   { &cg_teamChatsOnly, "cg_teamChatsOnly", "0", CVAR_ARCHIVE },
