@@ -1657,9 +1657,9 @@ classAttributes_t bg_classList[ ] =
     0.0f,                                           //float   zOffset
     0, 0,                                           //int     viewheight, crouchviewheight;
     ABUILDER_UPG_HEALTH,                            //int     health;
-    0.0f,                                           //float   fallDamage;
+    0.2f,                                           //float   fallDamage;
     ABUILDER_UPG_REGEN,                             //int     regenRate;
-    SCA_FOVWARPS|SCA_WALLCLIMBER|SCA_ALIENSENSE,    //int     abilities;
+    SCA_TAKESFALLDAMAGE|SCA_FOVWARPS|SCA_WALLCLIMBER|SCA_ALIENSENSE,    //int     abilities;
     WP_ABUILD2,                                     //weapon_t  startWeapon
     105.0f,                                         //float   buildDist;
     110,                                            //int     fov;

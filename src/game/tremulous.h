@@ -64,7 +64,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL1_CLAW_U_K_SCALE       1.0f
 #define LEVEL1_GRAB_RANGE           96.0f
 #define LEVEL1_GRAB_TIME            300
-#define LEVEL1_GRAB_U_TIME          500
+#define LEVEL1_GRAB_U_TIME          300
 #define LEVEL1_PCLOUD_DMG           ADM(4)
 #define LEVEL1_PCLOUD_RANGE         150.0f
 #define LEVEL1_PCLOUD_REPEAT        2500
@@ -425,7 +425,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CHAINGUN_BULLETS            300
 #define CHAINGUN_REPEAT             80
 #define CHAINGUN_K_SCALE            1.0f
-#define CHAINGUN_SPREAD             1000
+#define CHAINGUN_SPREAD             900
 #define CHAINGUN_DMG                HDM(5)
 
 #define PRIFLE_PRICE                400
@@ -435,8 +435,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PRIFLE_K_SCALE              1.0f
 #define PRIFLE_RELOAD               2000
 #define PRIFLE_DMG                  HDM(9)
-#define PRIFLE_SPLASH_RADIUS        16
-#define PRIFLE_SPEED                1000
+#define PRIFLE_SPLASH_RADIUS        0
+#define PRIFLE_SPEED                1200
 
 #define FLAMER_PRICE                450
 #define FLAMER_GAS                  150
