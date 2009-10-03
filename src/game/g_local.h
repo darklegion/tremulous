@@ -249,6 +249,8 @@ struct gentity_s
   float             zapDmg;                         // keep track of damage
 
   qboolean          ownerClear;                     // used for missle tracking
+
+  qboolean          pointAgainstWorld;              // don't use the bbox for map collisions
 };
 
 typedef enum
