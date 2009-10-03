@@ -1157,6 +1157,7 @@ extern  vmCvar_t  g_currentMapRotation;
 extern  vmCvar_t  g_currentMap;
 extern  vmCvar_t  g_initialMapRotation;
 extern  vmCvar_t  g_chatTeamPrefix;
+extern  vmCvar_t  g_sayAreaRange;
 
 extern  vmCvar_t  g_debugVoices;
 extern  vmCvar_t  g_voiceChats;

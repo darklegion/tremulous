@@ -770,6 +770,50 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
   }
 }
 
+static void Cmd_SayArea_f( gentity_t *ent )
+{
+  int    entityList[ MAX_GENTITIES ];
+  int    num, i;
+  int    color = COLOR_BLUE;
+  const char  *prefix;
+  vec3_t range = { 1000.0f, 1000.0f, 1000.0f };
+  vec3_t mins, maxs;
+  char   *msg = ConcatArgs( 1 );
+  char   name[ 64 ];
+
+  for(i = 0; i < 3; i++ )
+    range[ i ] = g_sayAreaRange.value;
+  
+  if( g_chatTeamPrefix.integer )
+  {
+    prefix = BG_TeamName( ent->client->pers.teamSelection );
+    prefix = va( "[%c] ", toupper( *prefix ) );
+  }
+  else
+    prefix = "";
+
+  G_LogPrintf( "sayarea: %s%s^7: %s\n", prefix, ent->client->pers.netname, msg );
+  Com_sprintf( name, sizeof( name ), "%s<%s%c%c> ",
+    prefix, ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+
+  VectorAdd( ent->s.origin, range, maxs );
+  VectorSubtract( ent->s.origin, range, mins );
+
+  num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+  for( i = 0; i < num; i++ )
+    G_SayTo( ent, &g_entities[ entityList[ i ] ], SAY_TEAM, color, name, msg );
+  
+  //Send to ADMF_SPEC_ALLCHAT candidates
+  for( i = 0; i < level.maxclients; i++ )
+  {
+    if( (&g_entities[ i ])->client->pers.teamSelection == TEAM_NONE  &&
+        G_admin_permission( &g_entities[ i ], ADMF_SPEC_ALLCHAT ) )
+    {
+      G_SayTo( ent, &g_entities[ i ], SAY_TEAM, color, name, msg );   
+    }
+  }
+}
+
 
 /*
 ==================
@@ -3023,6 +3067,7 @@ commands_t cmds[ ] = {
   { "tell", CMD_MESSAGE, Cmd_Tell_f },
   { "callvote", CMD_MESSAGE, Cmd_CallVote_f },
   { "callteamvote", CMD_MESSAGE|CMD_TEAM, Cmd_CallTeamVote_f },
+  { "say_area", CMD_MESSAGE|CMD_TEAM, Cmd_SayArea_f },
   // can be used even during intermission
   { "say", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Say_f },
   { "say_team", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Say_f },
