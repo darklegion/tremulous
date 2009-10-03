@@ -1114,6 +1114,12 @@ void ClientUserinfoChanged( int clientNum )
     client->pers.teamInfo = qtrue;
   else
     client->pers.teamInfo = qfalse;
+  
+  s = Info_ValueForKey( userinfo, "cg_unlagged" );
+  if( !s[0] || atoi( s ) != 0 )
+    client->useUnlagged = qtrue;
+  else
+    client->useUnlagged = qfalse;
 
   // colors
   strcpy( c1, Info_ValueForKey( userinfo, "color1" ) );

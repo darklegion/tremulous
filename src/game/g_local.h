@@ -433,6 +433,7 @@ struct gclient_s
   unlagged_t          unlaggedBackup;
   unlagged_t          unlaggedCalc;
   int                 unlaggedTime;
+  qboolean            useUnlagged;  
  
   float               voiceEnthusiasm;
   char                lastVoiceCmd[ MAX_VOICE_CMD_LEN ];
@@ -949,7 +950,7 @@ void ClientCommand( int clientNum );
 void G_UnlaggedStore( void );
 void G_UnlaggedClear( gentity_t *ent );
 void G_UnlaggedCalc( int time, gentity_t *skipEnt );
-void G_UnlaggedOn( vec3_t muzzle, float range );
+void G_UnlaggedOn( gentity_t *attacker, vec3_t muzzle, float range );
 void G_UnlaggedOff( void );
 void ClientThink( int clientNum );
 void ClientEndFrame( gentity_t *ent );

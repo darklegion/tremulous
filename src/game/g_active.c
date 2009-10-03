@@ -1162,13 +1162,16 @@ void G_UnlaggedOff( void )
 ==============
 */
 
-void G_UnlaggedOn( vec3_t muzzle, float range )
+void G_UnlaggedOn( gentity_t *attacker, vec3_t muzzle, float range )
 {
   int i = 0;
   gentity_t *ent;
   unlagged_t *calc;
 
   if( !g_unlagged.integer )
+    return;
+
+  if( !attacker->client->useUnlagged )
     return;
 
   for( i = 0; i < level.maxclients; i++ )
@@ -1239,6 +1242,9 @@ static void G_UnlaggedDetectCollisions( gentity_t *ent )
   if( !g_unlagged.integer )
     return;
 
+  if( !ent->client->useUnlagged )
+    return;
+
   calc = &ent->client->unlaggedCalc;
 
   // if the client isn't moving, this is not necessary
@@ -1253,7 +1259,7 @@ static void G_UnlaggedDetectCollisions( gentity_t *ent )
   r2 = Distance( calc->origin, calc->maxs );
   range += ( r1 > r2 ) ? r1 : r2;
 
-  G_UnlaggedOn( ent->client->oldOrigin, range );
+  G_UnlaggedOn( ent, ent->client->oldOrigin, range );
 
   trap_Trace(&tr, ent->client->oldOrigin, ent->r.mins, ent->r.maxs,
     ent->client->ps.origin, ent->s.number,  MASK_PLAYERSOLID );
