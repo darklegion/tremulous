@@ -644,6 +644,7 @@ void CG_InitWeapons( void )
     CG_RegisterWeapon( i );
 
   cgs.media.level2ZapTS = CG_RegisterTrailSystem( "models/weapons/lev2zap/lightning" );
+  cgs.media.massDriverTS = CG_RegisterTrailSystem( "models/weapons/mdriver/fireTS" );
 }
 
 
@@ -1612,6 +1613,28 @@ void CG_MissileHitPlayer( weapon_t weaponNum, weaponMode_t weaponMode,
 
   if( weapon->wim[ weaponMode ].alwaysImpact )
     CG_MissileHitWall( weaponNum, weaponMode, 0, origin, dir, IMPACTSOUND_FLESH );
+}
+
+/*
+==============
+CG_MassDriverFire
+
+Draws the mass driver trail
+==============
+*/
+
+void CG_MassDriverFire( entityState_t *es )
+{
+  trailSystem_t *ts;
+
+  ts = CG_SpawnNewTrailSystem( cgs.media.massDriverTS );
+  if( CG_IsTrailSystemValid( &ts ) )
+  {
+    CG_SetAttachmentPoint( &ts->frontAttachment, es->origin2 );
+    CG_SetAttachmentPoint( &ts->backAttachment, es->pos.trBase );
+    CG_AttachToPoint( &ts->frontAttachment );
+    CG_AttachToPoint( &ts->backAttachment );
+  }
 }
 
 

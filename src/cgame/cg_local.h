@@ -459,7 +459,7 @@ typedef struct baseTrailBeam_s
 
   // the time it takes for a beam to fade out (double attached only)
   int                     fadeOutTime;
-
+  
   char                    shaderName[ MAX_QPATH ];
   qhandle_t               shader;
 
@@ -488,6 +488,7 @@ typedef struct baseTrailSystem_s
   baseTrailBeam_t *beams[ MAX_BEAMS_PER_SYSTEM ];
   int             numBeams;
 
+  int             lifeTime;
   qboolean        thirdPersonOnly;
   qboolean        registered; //whether or not the assets for this trail have been loaded
 } baseTrailSystem_t;
@@ -499,6 +500,7 @@ typedef struct trailSystem_s
   attachment_t        frontAttachment;
   attachment_t        backAttachment;
 
+  int                 birthTime;
   int                 destroyTime;
   qboolean            valid;
 } trailSystem_t;
@@ -1252,6 +1254,7 @@ typedef struct
   qhandle_t   humanBleedPS;
 
   qhandle_t   teslaZapTS;
+  qhandle_t   massDriverTS;
 
   sfxHandle_t lCannonWarningSound;
 
@@ -1700,6 +1703,7 @@ void        CG_MissileHitWall( weapon_t weapon, weaponMode_t weaponMode, int cli
 void        CG_MissileHitPlayer( weapon_t weapon, weaponMode_t weaponMode, vec3_t origin, vec3_t dir, int entityNum );
 void        CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 void        CG_ShotgunFire( entityState_t *es );
+void        CG_MassDriverFire( entityState_t *es );
 
 void        CG_AddViewWeapon (playerState_t *ps);
 void        CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent );

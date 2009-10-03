@@ -1009,6 +1009,15 @@ static qboolean CG_ParseTrailSystem( baseTrailSystem_t *bts, char **text_p, cons
     }
     else if( !Q_stricmp( token, "thirdPersonOnly" ) )
       bts->thirdPersonOnly = qtrue;
+    else if( !Q_stricmp( token, "lifeTime" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !Q_stricmp( token, "" ) )
+        break;
+
+      bts->lifeTime = atoi_neg( token, qfalse );
+      continue;
+    }
     else if( !Q_stricmp( token, "beam" ) ) //acceptable text
       continue;
     else if( !Q_stricmp( token, "}" ) )
@@ -1291,7 +1300,8 @@ trailSystem_t *CG_SpawnNewTrailSystem( qhandle_t psHandle )
 
       ts->valid = qtrue;
       ts->destroyTime = -1;
-
+      ts->birthTime = cg.time;
+      
       for( j = 0; j < bts->numBeams; j++ )
         CG_SpawnNewTrailBeam( bts->beams[ j ], ts );
 
@@ -1404,6 +1414,19 @@ static void CG_GarbageCollectTrailSystems( void )
 
       if( !cg_entities[ centNum ].valid )
         CG_DestroyTrailSystem( &tempTS );
+    }
+
+    // lifetime expired
+    if( ts->destroyTime <= 0 && ts->class->lifeTime &&
+        ts->birthTime + ts->class->lifeTime < cg.time )
+    {
+      trailSystem_t *tempTS = ts;
+
+      CG_DestroyTrailSystem( &tempTS );
+      if( cg_debugTrails.integer >= 1 )
+        CG_Printf( "TS %s expired (born %d, lives %d, now %d)\n",
+                   ts->class->name, ts->birthTime, ts->class->lifeTime,
+                   cg.time );
     }
 
     if( cg_debugTrails.integer >= 1 && !ts->valid )

@@ -438,19 +438,23 @@ MASS DRIVER
 */
 
 #ifdef MDRIVER_SHOOT_THROUGH
+#define MDRIVER_MAX_HITS 16
 
 void massDriverFire( gentity_t *ent )
 {
   trace_t tr;
-  vec3_t end;
-  gentity_t *tent, *traceEnt;
-  int i, skipent;
+  vec3_t hitPoints[ MDRIVER_MAX_HITS ], hitNormals[ MDRIVER_MAX_HITS ],
+         origin, originToEnd, muzzleToOrigin, end;
+  gentity_t *traceEnts[ MDRIVER_MAX_HITS ], *traceEnt, *tent;
+  float length_offset;
+  int i, hits = 0, skipent;
 
-  VectorMA( muzzle, 8192 * 16, forward, end );
+  // loop through all entities hit by a line trace
   G_UnlaggedOn( muzzle, 8192 * 16 );
+  VectorMA( muzzle, 8192 * 16, forward, end );
   VectorCopy( muzzle, tr.endpos );
   skipent = ent->s.number;
-  for( i = 0; i < 64 && skipent != ENTITYNUM_NONE; i++ )
+  for( i = 0; i < MDRIVER_MAX_HITS && skipent != ENTITYNUM_NONE; i++ )
   {
     trap_Trace( &tr, tr.endpos, NULL, NULL, end, skipent, MASK_SHOT );
     if( tr.surfaceFlags & SURF_NOIMPACT )
@@ -473,24 +477,71 @@ void massDriverFire( gentity_t *ent )
         !g_friendlyBuildableFire.integer )
       skipent = ENTITYNUM_NONE;
 
-    // snap the endpos to integers, but nudged towards the line
-    SnapVectorTowards( tr.endpos, muzzle );
+    // save the hit entity, position, and normal
+    VectorCopy( tr.endpos, hitPoints[ hits ] );
+    VectorCopy( tr.plane.normal, hitNormals[ hits ] );
+    SnapVectorTowards( hitPoints[ hits ], muzzle );
+    traceEnts[ hits++ ] = traceEnt;
+  }
+  if( !hits )
+    return;
+
+  // originate trail line from the gun tip, not the head!  
+  VectorCopy( muzzle, origin );
+  VectorMA( origin, -8, up, origin );
+  VectorMA( origin, 6, right, origin );
+  VectorMA( origin, 48, forward, origin );
+  
+  // save the final position
+  VectorCopy( tr.endpos, end );
+  VectorSubtract( end, origin, originToEnd );
+  VectorNormalize( originToEnd );
+  
+  // origin is further in front than muzzle, need to adjust length
+  VectorSubtract( origin, muzzle, muzzleToOrigin );
+  length_offset = VectorLength( muzzleToOrigin );
+
+  // now that the trace is finished, we know where we stopped and can generate
+  // visually correct impact locations
+  for( i = 0; i < hits; i++ )
+  {
+    vec3_t muzzleToPos;
+    float length;
+    
+    // restore saved values
+    VectorCopy( hitPoints[ i ], tr.endpos );
+    VectorCopy( hitNormals[ i ], tr.plane.normal );
+    traceEnt = traceEnts[ i ];
+    
+    // compute the visually correct impact point
+    VectorSubtract( tr.endpos, muzzle, muzzleToPos );
+    length = VectorLength( muzzleToPos ) - length_offset;
+    VectorMA( origin, length, originToEnd, tr.endpos );
 
     // send impact
     if( traceEnt->takedamage && traceEnt->client )
       BloodSpurt( ent, traceEnt, &tr );
-    else
+    else if( i < hits - 1 )
     {
       tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
       tent->s.eventParm = DirToByte( tr.plane.normal );
       tent->s.weapon = ent->s.weapon;
-      tent->s.generic1 = ent->s.generic1; //weaponMode
+      tent->s.generic1 = ent->s.generic1; // weaponMode
     }
-
+    
     if( traceEnt->takedamage )
       G_Damage( traceEnt, ent, ent, forward, tr.endpos,
                 MDRIVER_DMG, 0, MOD_MDRIVER );    
   }
+
+  // create an event entity for the trail, doubles as an impact event
+  SnapVectorTowards( end, muzzle );
+  tent = G_TempEntity( end, EV_MASS_DRIVER );
+  tent->s.eventParm = DirToByte( tr.plane.normal );
+  tent->s.weapon = ent->s.weapon;
+  tent->s.generic1 = ent->s.generic1; // weaponMode
+  VectorCopy( origin, tent->s.origin2 );
+  
   G_UnlaggedOff( );
 }
 

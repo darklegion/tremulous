@@ -1840,35 +1840,38 @@ void HReactor_Think( gentity_t *self )
 
   if( self->spawned && ( self->health > 0 ) )
   {
-    //do some damage
+    qboolean fired = qfalse;
+  
+    // Creates a tesla trail for every target
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
     for( i = 0; i < num; i++ )
     {
       enemy = &g_entities[ entityList[ i ] ];
+      if( !enemy->client ||
+          enemy->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
+        continue;
 
-      if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-      {
-        self->timestamp = level.time;
-        if( self->dcc )
-        {
-          G_SelectiveRadiusDamage( self->s.pos.trBase, self,
-            REACTOR_ATTACK_DCC_DAMAGE, REACTOR_ATTACK_DCC_RANGE, self,
-            MOD_REACTOR, PTE_HUMANS );
-        }
-        else
-        {
-          G_SelectiveRadiusDamage( self->s.pos.trBase, self,
-            REACTOR_ATTACK_DAMAGE, REACTOR_ATTACK_RANGE, self,
-            MOD_REACTOR, PTE_HUMANS );
-        }
+      tent = G_TempEntity( enemy->s.pos.trBase, EV_TESLATRAIL );
+      tent->s.generic1 = self->s.number; //src
+      tent->s.clientNum = enemy->s.number; //dest
+      VectorCopy( self->s.pos.trBase, tent->s.origin2 );
+      fired = qtrue;
+    }
 
-        tent = G_TempEntity( enemy->s.pos.trBase, EV_TESLATRAIL );
-
-        VectorCopy( self->s.pos.trBase, tent->s.origin2 );
-
-        tent->s.generic1 = self->s.number; //src
-        tent->s.clientNum = enemy->s.number; //dest
-      }
+    // Actual damage is done by radius
+    if( fired )
+    {
+      self->timestamp = level.time;
+      if( self->dcc )
+        G_SelectiveRadiusDamage( self->s.pos.trBase, self,
+                                 REACTOR_ATTACK_DCC_DAMAGE,
+                                 REACTOR_ATTACK_DCC_RANGE, self,
+                                 MOD_REACTOR, PTE_HUMANS );
+      else
+        G_SelectiveRadiusDamage( self->s.pos.trBase, self,
+                                 REACTOR_ATTACK_DAMAGE,
+                                 REACTOR_ATTACK_RANGE, self,
+                                 MOD_REACTOR, PTE_HUMANS );
     }
   }
 
