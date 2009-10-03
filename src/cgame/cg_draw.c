@@ -615,38 +615,49 @@ CG_DrawPlayerPoisonBarbs
 */
 static void CG_DrawPlayerPoisonBarbs( rectDef_t *rect, vec4_t color, qhandle_t shader )
 {
-  playerState_t *ps = &cg.snap->ps;
-  int           x = rect->x;
-  int           y = rect->y;
-  int           width = rect->w;
-  int           height = rect->h;
-  qboolean      vertical;
-  int           iconsize, numBarbs, i;
+  qboolean vertical;
+  float    x = rect->x, y = rect->y;
+  float    width = rect->w, height = rect->h;
+  float    diff;
+  int      iconsize, numBarbs, maxBarbs;
 
-  numBarbs = ps->ammo;
+  maxBarbs = BG_Weapon( cg.snap->ps.weapon )->maxAmmo;
+  numBarbs = cg.snap->ps.ammo;
+  if( maxBarbs <= 0 || numBarbs <= 0 )
+    return;
+
+  // adjust these first to ensure the aspect ratio of the barb image is
+  // preserved
+  CG_AdjustFrom640( &x, &y, &width, &height );
 
   if( height > width )
   {
     vertical = qtrue;
     iconsize = width;
+    if( maxBarbs != 1 ) // avoid division by zero
+      diff = ( height - iconsize ) / (float)( maxBarbs - 1 );
+    else
+      diff = 0; // doesn't matter, won't be used
   }
-  else if( height <= width )
+  else
   {
     vertical = qfalse;
     iconsize = height * cgDC.aspectScale;
+    if( maxBarbs != 1 )
+      diff = ( width - iconsize ) / (float)( maxBarbs - 1 );
+    else
+      diff = 0;
   }
 
-  if( color[ 3 ] != 0.0 )
-    trap_R_SetColor( color );
+  trap_R_SetColor( color );
 
-  for( i = 0; i < numBarbs; i ++ )
+  for( ; numBarbs > 0; numBarbs-- )
   {
+    trap_R_DrawStretchPic( x, y, iconsize, iconsize, 0, 0, 1, 1, shader );
     if( vertical )
-      y += iconsize;
+      y += diff;
     else
-      x += iconsize;
-
-    CG_DrawPic( x, y, iconsize, iconsize, shader );
+      x += diff;
   }
 
   trap_R_SetColor( NULL );

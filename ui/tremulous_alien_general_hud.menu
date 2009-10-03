@@ -19,7 +19,7 @@
     itemDef
     {
       name "blob"
-      rect 479 419 57 18
+      rect 497 419 52 18
       aspectBias ALIGN_RIGHT
       visible MENU_TRUE
       forecolor 1.0 0.0 0.0 0.5
