@@ -408,8 +408,8 @@ gentity_t *fire_pulseRifle( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
   bolt->damage = PRIFLE_DMG;
-  bolt->splashDamage = PRIFLE_DMG;
-  bolt->splashRadius = PRIFLE_SPLASH_RADIUS;
+  bolt->splashDamage = 0;
+  bolt->splashRadius = 0;
   bolt->methodOfDeath = MOD_PRIFLE;
   bolt->splashMethodOfDeath = MOD_PRIFLE;
   bolt->clipmask = MASK_SHOT;
