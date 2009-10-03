@@ -2387,7 +2387,21 @@ G_QueueBuildPoints
 */
 void G_QueueBuildPoints( gentity_t *self )
 {
+  gentity_t *killer = NULL;
+
   G_Printf( "G_QueueBuildPoints( %s )\n", BG_TeamName( self->buildableTeam ) );
+
+  if( self->killedBy != ENTITYNUM_NONE )
+    killer = &g_entities[ self->killedBy ];
+
+  if( killer && killer->client &&
+      killer->client->ps.stats[ STAT_TEAM ] == self->buildableTeam )
+  {
+    // Don't take away build points if killed by a teammate
+    // This mostly happens due to MOD_NOCREEP
+    return;
+  }
+      
   switch( self->buildableTeam )
   {
     default:
