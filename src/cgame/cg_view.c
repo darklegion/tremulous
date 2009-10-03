@@ -503,26 +503,24 @@ static void CG_OffsetFirstPersonView( void )
 #define LEVEL3_FEEDBACK  20.0f
 
   //provide some feedback for pouncing
-  if( cg.predictedPlayerState.weapon == WP_ALEVEL3 ||
-      cg.predictedPlayerState.weapon == WP_ALEVEL3_UPG )
+  if( ( cg.predictedPlayerState.weapon == WP_ALEVEL3 ||
+        cg.predictedPlayerState.weapon == WP_ALEVEL3_UPG ) &&
+      cg.predictedPlayerState.stats[ STAT_MISC ] > 0 )
   {
-    if( cg.predictedPlayerState.stats[ STAT_MISC ] > 0 )
-    {
-      float   fraction1, fraction2;
-      vec3_t  forward;
+    float fraction1, fraction2;
+    vec3_t forward;
 
-      AngleVectors( angles, forward, NULL, NULL );
-      VectorNormalize( forward );
+    AngleVectors( angles, forward, NULL, NULL );
+    VectorNormalize( forward );
 
-      fraction1 = (float)( cg.time - cg.weapon2Time ) / (float)LEVEL3_POUNCE_CHARGE_TIME;
+    fraction1 = (float)cg.predictedPlayerState.stats[ STAT_MISC ] /
+                LEVEL3_POUNCE_TIME_UPG;
+    if( fraction1 > 1.0f )
+      fraction1 = 1.0f;
 
-      if( fraction1 > 1.0f )
-        fraction1 = 1.0f;
+    fraction2 = -sin( fraction1 * M_PI / 2 );
 
-      fraction2 = -sin( fraction1 * M_PI / 2 );
-
-      VectorMA( origin, LEVEL3_FEEDBACK * fraction2, forward, origin );
-    }
+    VectorMA( origin, LEVEL3_FEEDBACK * fraction2, forward, origin );
   }
 
 #define STRUGGLE_DIST 5.0f

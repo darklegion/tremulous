@@ -587,23 +587,6 @@ void ClientTimerActions( gentity_t *ent, int msec )
     else if( client->ps.stats[ STAT_STAMINA ] < -MAX_STAMINA )
       client->ps.stats[ STAT_STAMINA ] = -MAX_STAMINA;
 
-    //client is charging up for a pounce
-    if( client->ps.weapon == WP_ALEVEL3 || client->ps.weapon == WP_ALEVEL3_UPG )
-    {
-      int pounceSpeed = 0;
-
-      if( client->ps.weapon == WP_ALEVEL3 )
-        pounceSpeed = LEVEL3_POUNCE_SPEED;
-      else if( client->ps.weapon == WP_ALEVEL3_UPG )
-        pounceSpeed = LEVEL3_POUNCE_UPG_SPEED;
-
-      if( client->ps.stats[ STAT_MISC ] < pounceSpeed && ucmd->buttons & BUTTON_ATTACK2 )
-        client->ps.stats[ STAT_MISC ] += ( 100.0f / (float)LEVEL3_POUNCE_CHARGE_TIME ) * pounceSpeed;
-
-      if( client->ps.stats[ STAT_MISC ] > pounceSpeed )
-        client->ps.stats[ STAT_MISC ] = pounceSpeed;
-    }
-
     //client is charging up for a... charge
     if( client->ps.weapon == WP_ALEVEL4 )
     {

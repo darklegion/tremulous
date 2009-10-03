@@ -1296,19 +1296,18 @@ CheckPounceAttack
 */
 qboolean CheckPounceAttack( gentity_t *ent )
 {
-  trace_t   tr;
+  trace_t tr;
   gentity_t *traceEnt;
-  int       damage;
-  int       payload;
+  int damage, timeMax, payload;
 
   if( ent->client->pmext.pouncePayload <= 0 )
     return qfalse;
 
-  // in case the goon lands on his target, he get's one shot after landing
+  // In case the goon lands on his target, he get's one shot after landing
   payload = ent->client->pmext.pouncePayload;
   if( !( ent->client->ps.pm_flags & PMF_CHARGE ) )
     ent->client->pmext.pouncePayload = 0;
-
+    
   if( ent->client->ps.weaponTime > 0 )
     return qfalse;
 
@@ -1316,28 +1315,28 @@ qboolean CheckPounceAttack( gentity_t *ent )
   AngleVectors( ent->client->ps.viewangles, forward, right, up );
   CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
+  // Trace from muzzle to see what we hit
   G_WideTrace( &tr, ent, LEVEL3_POUNCE_RANGE, LEVEL3_POUNCE_WIDTH,
                LEVEL3_POUNCE_WIDTH, &traceEnt );
-
   if( traceEnt == NULL )
     return qfalse;
 
-  // send blood impact
+  // Send blood impact
   if( traceEnt->takedamage )
     WideBloodSpurt( ent, traceEnt, &tr );
 
   if( !traceEnt->takedamage )
     return qfalse;
-
-  damage = (int)( ( (float)payload / (float)LEVEL3_POUNCE_SPEED )
-    * LEVEL3_POUNCE_DMG );
-
+    
+  // Deal damage
+  timeMax = ent->client->ps.weapon == WP_ALEVEL3 ? LEVEL3_POUNCE_TIME :
+                                                   LEVEL3_POUNCE_TIME_UPG;
+  damage = payload * LEVEL3_POUNCE_DMG / timeMax;
   ent->client->pmext.pouncePayload = 0;
-
   G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage,
-      DAMAGE_NO_LOCDAMAGE, MOD_LEVEL3_POUNCE );
+            DAMAGE_NO_LOCDAMAGE, MOD_LEVEL3_POUNCE );
 
-  ent->client->ps.weaponTime += LEVEL3_POUNCE_TIME;
+  ent->client->ps.weaponTime += LEVEL3_POUNCE_REPEAT;
 
   return qtrue;
 }

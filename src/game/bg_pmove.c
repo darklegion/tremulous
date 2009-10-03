@@ -520,11 +520,13 @@ PM_CheckPounce
 */
 static qboolean PM_CheckPounce( void )
 {
+  int jumpMagnitude;
+
   if( pm->ps->weapon != WP_ALEVEL3 &&
       pm->ps->weapon != WP_ALEVEL3_UPG )
     return qfalse;
 
-  // we were pouncing, but we've landed
+  // We were pouncing, but we've landed
   if( pm->ps->groundEntityNum != ENTITYNUM_NONE &&
       ( pm->ps->pm_flags & PMF_CHARGE ) )
   {
@@ -532,31 +534,34 @@ static qboolean PM_CheckPounce( void )
     return qfalse;
   }
 
-  // we're building up for a pounce
+  // We're building up for a pounce
   if( pm->cmd.buttons & BUTTON_ATTACK2 )
   {
     pm->ps->pm_flags &= ~PMF_CHARGE;
     return qfalse;
   }
 
-  // already a pounce in progress
-  if( pm->ps->pm_flags & PMF_CHARGE )
+  // Can't start a pounce
+  if( ( pm->ps->pm_flags & PMF_CHARGE ) ||
+      pm->ps->stats[ STAT_MISC ] < LEVEL3_POUNCE_TIME_MIN ||
+      pm->ps->groundEntityNum == ENTITYNUM_NONE )
     return qfalse;
 
-  if( pm->ps->stats[ STAT_MISC ] == 0 )
-    return qfalse;
-
-  pml.groundPlane = qfalse;   // jumping away
+  // Give the player forward velocity and simulate a jump
+  pml.groundPlane = qfalse;
   pml.walking = qfalse;
-
   pm->ps->pm_flags |= PMF_CHARGE;
-
   pm->ps->groundEntityNum = ENTITYNUM_NONE;
-
-  VectorMA( pm->ps->velocity, pm->ps->stats[ STAT_MISC ], pml.forward, pm->ps->velocity );
-
+  if( pm->ps->weapon == WP_ALEVEL3 )
+    jumpMagnitude = pm->ps->stats[ STAT_MISC ] *
+                    LEVEL3_POUNCE_JUMP_MAG / LEVEL3_POUNCE_TIME;
+  else
+    jumpMagnitude = pm->ps->stats[ STAT_MISC ] *
+                    LEVEL3_POUNCE_JUMP_MAG_UPG / LEVEL3_POUNCE_TIME_UPG;
+  VectorMA( pm->ps->velocity, jumpMagnitude, pml.forward, pm->ps->velocity );
   PM_AddEvent( EV_JUMP );
 
+  // Play jumping animation
   if( pm->cmd.forwardmove >= 0 )
   {
     if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
@@ -2782,6 +2787,24 @@ static void PM_Weapon( void )
   qboolean      attack1 = qfalse;
   qboolean      attack2 = qfalse;
   qboolean      attack3 = qfalse;
+
+  // Charging for a pounce or canceling a pounce
+  if( pm->ps->weapon == WP_ALEVEL3 || pm->ps->weapon == WP_ALEVEL3_UPG )
+  {
+    int max;
+    
+    max = pm->ps->weapon == WP_ALEVEL3 ? LEVEL3_POUNCE_TIME :
+                                         LEVEL3_POUNCE_TIME_UPG;
+    if( pm->cmd.buttons & BUTTON_ATTACK2 )
+      pm->ps->stats[ STAT_MISC ] += pml.msec;
+    else
+      pm->ps->stats[ STAT_MISC ] -= pml.msec;
+
+    if( pm->ps->stats[ STAT_MISC ] > max )
+      pm->ps->stats[ STAT_MISC ] = max;
+    else if( pm->ps->stats[ STAT_MISC ] < 0 )
+      pm->ps->stats[ STAT_MISC ] = 0;
+  }
 
   // Set overcharging flag so other players can hear warning  	 	 
   pm->ps->eFlags &= ~EF_WARN_CHARGE;

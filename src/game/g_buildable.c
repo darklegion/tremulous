@@ -2077,11 +2077,11 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
   RotatePointAroundVector( dirToTarget, xNormal, dttAdjusted, -rotAngle );
   vectoangles( dirToTarget, self->turretAim );
 
-  //if pointing at a valid target (not necessarily the original) return true
-  VectorMA( self->s.pos.trBase, MGTURRET_RANGE, dirToTarget, end );
-  trap_Trace( &tr, self->s.pos.trBase, NULL, NULL, end,
-              self->s.number, MASK_SHOT );
-  return HMGTurret_CheckTarget( self, g_entities + tr.entityNum, qfalse );
+  //fire if target is within accuracy
+  return ( abs( angularDiff[ YAW ] ) - angularSpeed <=
+           MGTURRET_ACCURACY_TO_FIRE ) &&
+         ( abs( angularDiff[ PITCH ] ) - angularSpeed <=
+           MGTURRET_ACCURACY_TO_FIRE );
 }
 
 

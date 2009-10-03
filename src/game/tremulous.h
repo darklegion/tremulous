@@ -97,12 +97,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL3_POUNCE_DMG           ADM(100)
 #define LEVEL3_POUNCE_RANGE         64.0f
 #define LEVEL3_POUNCE_WIDTH         14.0f
-#define LEVEL3_POUNCE_SPEED         700
-#define LEVEL3_POUNCE_UPG_SPEED     800
-#define LEVEL3_POUNCE_SPEED_MOD     0.75f
-#define LEVEL3_POUNCE_CHARGE_TIME   700
-#define LEVEL3_POUNCE_CHARGE_MIN    400
-#define LEVEL3_POUNCE_TIME          400
+#define LEVEL3_POUNCE_TIME          700      // msec for full Dragoon pounce
+#define LEVEL3_POUNCE_TIME_UPG      600      // msec for full Adv. Dragoon pounce
+#define LEVEL3_POUNCE_TIME_MIN      200      // msec before which pounce cancels  
+#define LEVEL3_POUNCE_REPEAT        400      // msec before a new pounce starts
+#define LEVEL3_POUNCE_SPEED_MOD     0.75f    // walking speed modifier for pounce charging
+#define LEVEL3_POUNCE_JUMP_MAG      700      // Dragoon pounce jump power
+#define LEVEL3_POUNCE_JUMP_MAG_UPG  800      // Adv. Dragoon pounce jump power
 #define LEVEL3_BOUNCEBALL_DMG       ADM(110)
 #define LEVEL3_BOUNCEBALL_REPEAT    1000
 #define LEVEL3_BOUNCEBALL_SPEED     1000.0f
@@ -560,6 +561,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MGTURRET_SPLASHRADIUS       100
 #define MGTURRET_ANGULARSPEED       12
 #define MGTURRET_ANGULARSPEED_GRAB  8
+#define MGTURRET_ACCURACY_TO_FIRE   0
 #define MGTURRET_VERTICALCAP        30  // +/- maximum pitch
 #define MGTURRET_REPEAT             150
 #define MGTURRET_K_SCALE            1.0f

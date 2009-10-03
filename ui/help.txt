@@ -9,7 +9,7 @@
     "We can also be reached on Freenode IRC:\n"
     "#mercenariesguild"
   }
-  "Release Notes r87"
+  "Release Notes r88"
   {
     "* Help menu (you're looking at it!)\n"
     "* UI health cross icon shows regen speed\n"
@@ -95,7 +95,7 @@
   {
     "MGDev is developed and hosted by the Mercenaries Guild. "
     "Contributing developers:\n\n"
-    "Norfenstein\n"
+    "Asa ''Norfenstein'' Kravets\n"
     "Tony J. White\n"
     "Ben Millwood (''benmachine'')\n"
     "Michael ''Risujin'' Levin\n"
