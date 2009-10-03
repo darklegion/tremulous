@@ -160,10 +160,6 @@ static qboolean G_FindPower( gentity_t *self )
   if( self->s.modelindex == BA_H_REACTOR )
     return qtrue;
 
-  // If this already has power then stop now
-  if( self->parentNode && self->parentNode->powered )
-    return qtrue;
-
   // Reset parent
   self->parentNode = NULL;
 
@@ -207,19 +203,9 @@ static qboolean G_FindPower( gentity_t *self )
             }
           }
 
+          buildPoints -= level.humanBuildPointQueue;
+
           buildPoints -= BG_Buildable( self->s.modelindex )->buildPoints;
-
-          if( buildPoints >= 0 )
-          {
-            closestPower = ent;
-            minDistance = distance;
-          }
-          else
-          {
-            // a buildable can still be built if it shares BP from two zones
-
-            // TODO: handle combined power zones here
-          }
 
           if( buildPoints >= 0 )
           {
@@ -244,7 +230,7 @@ static qboolean G_FindPower( gentity_t *self )
       else if( distance < minDistance )
       {
         // It's a repeater, so check that enough BP will be available to power
-        // another buildable but only if self is a real buildable
+        // the buildable but only if self is a real buildable
 
         if( self->s.modelindex != BA_NONE )
         {
@@ -268,6 +254,9 @@ static qboolean G_FindPower( gentity_t *self )
               buildPoints -= BG_Buildable( ent2->s.modelindex )->buildPoints;
             }
           }
+
+          if( self->usesZone && level.powerZones[ ent->zone ].active )
+            buildPoints -= level.powerZones[ ent->zone ].queuedBuildPoints;
 
           buildPoints -= BG_Buildable( self->s.modelindex )->buildPoints;
 
@@ -2652,6 +2641,9 @@ void HSpawn_Think( gentity_t *self )
 
   // spawns work without power
   self->powered = qtrue;
+
+  // set parentNode
+  G_FindPower( self );
 
   if( self->spawned )
   {
