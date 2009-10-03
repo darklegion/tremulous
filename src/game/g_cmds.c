@@ -1176,6 +1176,12 @@ void Cmd_CallVote_f( gentity_t *ent )
         "print \"callvote: admin is immune from vote kick\n\"" );
       return;
     }
+    if( level.clients[ clientNum ].pers.localClient )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callvote: host is immute from vote kick\n\"" );
+      return;
+    }
 
     // use ip in case this player disconnects before the vote ends
     Com_sprintf( level.voteString, sizeof( level.voteString ),
@@ -1415,7 +1421,12 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
         "print \"callteamvote: admin is immune from vote kick\n\"" );
       return;
     }
-
+    if( level.clients[ clientNum ].pers.localClient )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callteamvote: host is immune from vote kick\n\"" );
+      return;
+    }
 
     // use ip in case this player disconnects before the vote ends
     Com_sprintf( level.teamVoteString[ cs_offset ],

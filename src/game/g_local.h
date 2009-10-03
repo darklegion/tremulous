@@ -329,7 +329,7 @@ typedef struct
 
   vec3_t              lastDeathLocation;
   char                guid[ 33 ];
-  char                ip[ 16 ];
+  char                ip[ 40 ];
   qboolean            muted;
   qboolean            denyBuild;
   int                 adminLevel;
