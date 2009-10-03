@@ -984,6 +984,7 @@ static int CG_CalcFov( void )
     inwater = qfalse;
 
   if( ( cg.predictedPlayerEntity.currentState.eFlags & EF_POISONCLOUDED ) &&
+      ( cg.time - cg.poisonedTime < PCLOUD_DISORIENT_DURATION) &&
       cg.predictedPlayerState.stats[ STAT_HEALTH ] > 0 &&
       !( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
   {
