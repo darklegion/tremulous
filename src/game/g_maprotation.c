@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_MAP_ROTATIONS       16
 #define MAX_MAP_ROTATION_MAPS   64
-#define MAX_MAP_COMMANDS        16
 
 #define NOT_ROTATING            -1
 
@@ -69,10 +68,7 @@ typedef struct condition_s
 typedef struct map_s
 {
   char  name[ MAX_QPATH ];
-
-  char  postCmds[ MAX_MAP_COMMANDS ][ MAX_STRING_CHARS ];
-  int   numCmds;
-
+  char  postCommand[ MAX_STRING_CHARS ];
   char  layouts[ MAX_CVAR_VALUE_STRING ];
 } map_t;
 
@@ -144,7 +140,7 @@ static qboolean G_RotationExists( char *name )
 
 /*
 ===============
-G_ParseCommandSection
+G_ParseMapCommandSection
 
 Parse a map rotation command section
 ===============
@@ -153,6 +149,7 @@ static qboolean G_ParseMapCommandSection( node_t *node, char **text_p )
 {
   char  *token;
   map_t *map = &node->u.map;
+  int   commandLength = 0;
 
   // read optional parameters
   while( 1 )
@@ -166,7 +163,15 @@ static qboolean G_ParseMapCommandSection( node_t *node, char **text_p )
       return qfalse;
 
     if( !Q_stricmp( token, "}" ) )
+    {
+      if( commandLength > 0 )
+      {
+        // Replace last ; with \n
+        map->postCommand[ commandLength - 1 ] = '\n';
+      }
+
       return qtrue; //reached the end of this command section
+    }
 
     if( !Q_stricmp( token, "layouts" ) )
     {
@@ -183,25 +188,21 @@ static qboolean G_ParseMapCommandSection( node_t *node, char **text_p )
       continue;
     }
 
-    if( map->numCmds == MAX_MAP_COMMANDS )
-    {
-      G_Printf( S_COLOR_RED "ERROR: maximum number of map commands (%d) reached\n",
-                MAX_MAP_COMMANDS );
-      return qfalse;
-    }
-
-    Q_strncpyz( map->postCmds[ map->numCmds ], token, sizeof( map->postCmds[ 0 ] ) );
-    Q_strcat( map->postCmds[ map->numCmds ], sizeof( map->postCmds[ 0 ] ), " " );
+    // Parse the rest of the line into map->postCommand
+    Q_strcat( map->postCommand, sizeof( map->postCommand ), token );
+    Q_strcat( map->postCommand, sizeof( map->postCommand ), " " );
 
     token = COM_ParseExt( text_p, qfalse );
 
     while( token[ 0 ] != 0 )
     {
-      Q_strcat( map->postCmds[ map->numCmds ], sizeof( map->postCmds[ 0 ] ), token );
-      Q_strcat( map->postCmds[ map->numCmds ], sizeof( map->postCmds[ 0 ] ), " " );
+      Q_strcat( map->postCommand, sizeof( map->postCommand ), token );
+      Q_strcat( map->postCommand, sizeof( map->postCommand ), " " );
       token = COM_ParseExt( text_p, qfalse );
     }
-    map->numCmds++;
+
+    commandLength = strlen( map->postCommand );
+    map->postCommand[ commandLength - 1 ] = ';';
   }
 
   return qfalse;
@@ -231,8 +232,6 @@ static qboolean G_ParseMapRotation( mapRotation_t *mr, char **text_p )
     if( !Q_stricmp( token, "" ) )
       return qfalse;
 
-    node = &mr->nodes[ mr->numNodes ];
-
     if( !Q_stricmp( token, "{" ) )
     {
       if( !mnSet )
@@ -250,7 +249,10 @@ static qboolean G_ParseMapRotation( mapRotation_t *mr, char **text_p )
       mnSet = qfalse;
       continue;
     }
-    else if( !Q_stricmp( token, "goto" ) )
+
+    node = &mr->nodes[ mr->numNodes ];
+
+    if( !Q_stricmp( token, "goto" ) )
     {
       condition_t *condition = &node->u.condition;
 
@@ -353,6 +355,8 @@ static qboolean G_ParseMapRotation( mapRotation_t *mr, char **text_p )
     }
 
     Q_strncpyz( node->u.map.name, token, sizeof( node->u.map.name ) );
+    node->u.map.postCommand[ 0 ] = '\0';
+
     mnSet = qtrue;
 
     node->type = NT_MAP;
@@ -508,7 +512,7 @@ Print the parsed map rotations
 */
 void G_PrintRotations( void )
 {
-  int i, j, k;
+  int i, j;
 
   G_Printf( "Map rotations as parsed:\n\n" );
 
@@ -525,15 +529,10 @@ void G_PrintRotations( void )
         case NT_MAP:
           G_Printf( "  map: %s\n", node->u.map.name );
 
-          if( node->u.map.numCmds > 0 )
+          if( strlen( node->u.map.postCommand ) > 0 )
           {
             G_Printf( "  {\n" );
-
-            for( k = 0; k < node->u.map.numCmds; k++ )
-            {
-              G_Printf( "    command: %s\n", node->u.map.postCmds[ k ] );
-            }
-
+            G_Printf( "    command: %s", node->u.map.postCommand );
             G_Printf( "  }\n" );
           }
           break;
@@ -629,9 +628,7 @@ Send commands to the server to actually change the map
 */
 static void G_IssueMapChange( int rotation )
 {
-  int     i;
   int     node = G_GetCurrentNode( rotation );
-  char    cmd[ MAX_TOKEN_CHARS ];
   map_t   *map = &mapRotations.rotations[ rotation ].nodes[ node ].u.map;
 
   // allow a manually defined g_layouts setting to override the maprotation
@@ -645,12 +642,7 @@ static void G_IssueMapChange( int rotation )
   // Load up map defaults if g_mapConfigs is set
   G_MapConfigs( map->name );
 
-  for( i = 0; i < map->numCmds; i++ )
-  {
-    Q_strncpyz( cmd, map->postCmds[ i ], sizeof( cmd ) );
-    Q_strcat( cmd, sizeof( cmd ), "\n" );
-    trap_SendConsoleCommand( EXEC_APPEND, cmd );
-  }
+  trap_SendConsoleCommand( EXEC_APPEND, map->postCommand );
 }
 
 /*
