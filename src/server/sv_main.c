@@ -299,28 +299,29 @@ SV_MasterGameStat
 */
 void SV_MasterGameStat( const char *data )
 {
-	static netadr_t	adr;
+  netadr_t adr;
 
-	if( !com_dedicated || com_dedicated->integer != 2 )
-		return;		// only dedicated servers send stats
+  if( !com_dedicated || com_dedicated->integer != 2 )
+    return; // only dedicated servers send stats
 
   Com_Printf( "Resolving %s\n", MASTER_SERVER_NAME );
-  if( !NET_StringToAdr( MASTER_SERVER_NAME, &adr, NA_IP ) )
+
+  switch( NET_StringToAdr( MASTER_SERVER_NAME, &adr, NA_UNSPEC ) )
   {
-    Com_Printf( "Couldn't resolve address: %s\n", MASTER_SERVER_NAME );
-    return;
-  }
-  else
-  {
-    if( !strstr( ":", MASTER_SERVER_NAME ) )
+    case 0:
+      Com_Printf( "Couldn't resolve master address: %s\n", MASTER_SERVER_NAME );
+      return;
+
+    case 2:
       adr.port = BigShort( PORT_MASTER );
-
-    Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", MASTER_SERVER_NAME,
-      adr.ip[0], adr.ip[1], adr.ip[2], adr.ip[3],
-      BigShort( adr.port ) );
+    default:
+      break;
   }
 
-  Com_Printf ("Sending gamestat to %s\n", MASTER_SERVER_NAME );
+  Com_Printf( "%s resolved to %s\n", MASTER_SERVER_NAME,
+              NET_AdrToStringwPort( adr ) );
+
+  Com_Printf( "Sending gamestat to %s\n", MASTER_SERVER_NAME );
   NET_OutOfBandPrint( NS_SERVER, adr, "gamestat %s", data );
 }
 

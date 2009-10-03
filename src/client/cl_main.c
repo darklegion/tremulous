@@ -1336,15 +1336,22 @@ void CL_RequestMotd( void ) {
 		return;
 	}
 	Com_Printf( "Resolving %s\n", MASTER_SERVER_NAME );
-	if ( !NET_StringToAdr( MASTER_SERVER_NAME, &cls.updateServer, NA_IP  ) ) {
-		Com_Printf( "Couldn't resolve address\n" );
-		return;
+
+	switch( NET_StringToAdr( MASTER_SERVER_NAME, &cls.updateServer,
+	                         NA_UNSPEC ) )
+	{
+		case 0:
+			Com_Printf( "Couldn't resolve master address\n" );
+			return;
+
+		case 2:
+			cls.updateServer.port = BigShort( PORT_MASTER );
+		default:
+			break;
 	}
-	cls.updateServer.port = BigShort( PORT_MASTER );
-	Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", MASTER_SERVER_NAME,
-		cls.updateServer.ip[0], cls.updateServer.ip[1],
-		cls.updateServer.ip[2], cls.updateServer.ip[3],
-		BigShort( cls.updateServer.port ) );
+
+	Com_Printf( "%s resolved to %s\n", MASTER_SERVER_NAME,
+	            NET_AdrToStringwPort( cls.updateServer ) );
 
 	info[0] = 0;
   // NOTE TTimo xoring against Com_Milliseconds, otherwise we may not have a true randomization
@@ -2197,16 +2204,23 @@ CL_MotdPacket
 ===================
 */
 void CL_MotdPacket( netadr_t from, const char *info ) {
-	char	*v;
+	const char *v;
 
 	// if not from our server, ignore it
 	if ( !NET_CompareAdr( from, cls.updateServer ) ) {
+		Com_DPrintf( "MOTD packet from unexpected source\n" );
 		return;
 	}
+
+	Com_DPrintf( "MOTD packet: %s\n", info );
+	while( *info != '\\' )
+		info++;
 
 	// check challenge
 	v = Info_ValueForKey( info, "challenge" );
 	if ( strcmp( v, cls.updateChallenge ) ) {
+		Com_DPrintf( "MOTD packet mismatched challenge: "
+		             "'%s' != '%s'\n", v, cls.updateChallenge );
 		return;
 	}
 
@@ -2438,7 +2452,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
 	// global MOTD from trem master
 	if ( !Q_stricmp(c, "motd") ) {
-		CL_MotdPacket( from, arg1 );
+		CL_MotdPacket( from, s );
 		return;
 	}
 
