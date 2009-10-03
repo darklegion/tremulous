@@ -496,22 +496,17 @@ qboolean  G_RemoveFromSpawnQueue( spawnQueue_t *sq, int clientNum );
 int       G_GetPosInSpawnQueue( spawnQueue_t *sq, int clientNum );
 
 
-#define MAX_LOCDAMAGE_TEXT    8192
-#define MAX_LOCDAMAGE_REGIONS 16
+#define MAX_DAMAGE_REGION_TEXT    8192
+#define MAX_DAMAGE_REGIONS 16
 
 // store locational damage regions
 typedef struct damageRegion_s
 {
-  float     minHeight, maxHeight;
+  char      name[ 32 ];
+  float     area, modifier, minHeight, maxHeight;
   int       minAngle, maxAngle;
-
-  float     modifier;
-
   qboolean  crouch;
 } damageRegion_t;
-
-#define MAX_ARMOUR_TEXT    8192
-#define MAX_ARMOUR_REGIONS 16
 
 //status of the warning of certain events
 typedef enum

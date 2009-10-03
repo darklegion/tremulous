@@ -1,5 +1,6 @@
-// chest
+
 {
+  name "larmour chest"
   minHeight 0.5
   maxHeight 0.8
   minAngle  310
@@ -7,8 +8,8 @@
   modifier  0.35
 }
 
-// left arm
 {
+  name "larmour left arm"
   minHeight 0.5
   maxHeight 0.8
   minAngle  50
@@ -16,8 +17,8 @@
   modifier  0.3
 }
 
-// back
 {
+  name "larmour back"
   minHeight 0.5
   maxHeight 0.8
   minAngle  130
@@ -25,8 +26,8 @@
   modifier  0.4
 }
 
-// right arm
 {
+  name "larmour right arm"
   minHeight 0.5
   maxHeight 0.8
   minAngle  230
@@ -34,8 +35,8 @@
   modifier  0.3
 }
 
-// legs
 {
+  name "larmour legs"
   minHeight 0.0
   maxHeight 0.5
   minAngle  0
@@ -43,8 +44,8 @@
   modifier  0.3
 }
 
-// chest, crouching
 {
+  name "larmour chest crouch"
   minHeight 0.3
   maxHeight 0.72
   minAngle  310
@@ -53,8 +54,8 @@
   crouch
 }
 
-// left arm, crouching
 {
+  name "larmour left arm crouch"
   minHeight 0.3
   maxHeight 0.72
   minAngle  50
@@ -63,8 +64,8 @@
   crouch
 }
 
-// back, crouching
 {
+  name "larmour back crouch"
   minHeight 0.3
   maxHeight 0.72
   minAngle  130
@@ -73,8 +74,8 @@
   crouch
 }
 
-// right arm, crouching
 {
+  name "larmour right arm crouch"
   minHeight 0.3
   maxHeight 0.72
   minAngle  230
@@ -83,8 +84,8 @@
   crouch
 }
 
-// legs, crouching
 {
+  name "larmour legs crouch"
   minHeight 0.0
   maxHeight 0.3
   minAngle  0

@@ -1,5 +1,6 @@
-// head
+
 {
+  name "helmet"
   minHeight 0.8
   maxHeight 1.0
   minAngle  0
@@ -7,8 +8,8 @@
   modifier  0.4
 }
 
-// head, crouched
 {
+  name "helmet crouch"
   minHeight 0.72
   maxHeight 1.0
   minAngle  0

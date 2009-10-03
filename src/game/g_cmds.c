@@ -2829,7 +2829,7 @@ static void Cmd_Ignore_f( gentity_t *ent )
 Cmd_Test_f
 =================
 */
-static void Cmd_Test_f( gentity_t *ent )
+void Cmd_Test_f( gentity_t *ent )
 {
 }
 
@@ -2846,7 +2846,7 @@ void Cmd_Damage_f( gentity_t *ent )
   vec3_t point;
   char arg[ 16 ];
   float dx = 0.f, dy = 0.f, dz = 100.f;
-  int damage = 100, angle = 180;
+  int damage = 100;
   qboolean nonloc = qtrue;
 
   if( trap_Argc() > 1 )

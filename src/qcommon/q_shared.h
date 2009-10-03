@@ -636,11 +636,11 @@ vec_t DistanceBetweenLineSegments(
     float *s, float *t );
 
 #ifndef MAX
-#define MAX(x,y) (x)>(y)?(x):(y)
+#define MAX(x,y) ((x)>(y)?(x):(y))
 #endif
 
 #ifndef MIN
-#define MIN(x,y) (x)<(y)?(x):(y)
+#define MIN(x,y) ((x)<(y)?(x):(y))
 #endif
 
 //=============================================
