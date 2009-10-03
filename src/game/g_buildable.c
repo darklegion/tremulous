@@ -2799,6 +2799,8 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   buildable_t       core;
   int               spawnCount = 0;
 
+  level.numBuildablesForRemoval = 0;
+
   if( team == TEAM_ALIENS )
   {
     remainingBP     = level.alienBuildPoints;
@@ -2842,8 +2844,6 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
 
   // Set buildPoints to the number extra that are required
   buildPoints -= remainingBP;
-
-  level.numBuildablesForRemoval = 0;
 
   // Build a list of buildable entities
   for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
@@ -2988,6 +2988,21 @@ static void G_SetBuildableLinkState( qboolean link )
     if( ent->s.eType != ET_BUILDABLE )
       continue;
 
+    if( link )
+      trap_LinkEntity( ent );
+    else
+      trap_UnlinkEntity( ent );
+  }
+}
+
+static void G_SetBuildableMarkedLinkState( qboolean link )
+{
+  int       i;
+  gentity_t *ent;
+
+  for( i = 0; i < level.numBuildablesForRemoval; i++ )
+  {
+    ent = level.markedBuildables[ i ];
     if( link )
       trap_LinkEntity( ent );
     else
@@ -3144,8 +3159,13 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
   G_SetBuildableLinkState( qtrue );
 
   //check there is enough room to spawn from (presuming this is a spawn)
-  if( G_CheckSpawnPoint( ENTITYNUM_NONE, origin, normal, buildable, NULL ) != NULL )
-    reason = IBE_NORMAL;
+  if( reason == IBE_NONE )
+  {
+    G_SetBuildableMarkedLinkState( qfalse );
+    if( G_CheckSpawnPoint( ENTITYNUM_NONE, origin, normal, buildable, NULL ) != NULL )
+      reason = IBE_NORMAL;
+    G_SetBuildableMarkedLinkState( qtrue );
+  }
 
   //this item does not fit here
   if( reason == IBE_NONE && ( tr2.fraction < 1.0 || tr3.fraction < 1.0 ) )
