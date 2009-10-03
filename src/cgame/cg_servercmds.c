@@ -839,7 +839,7 @@ void CG_Menu( int menu, int arg )
       break;
 
     case MN_A_CANTEVOLVE:
-      shortMsg  = va( "You cannot evolve to %s", 
+      shortMsg  = va( "You cannot evolve into a %s", 
                       BG_ClassConfig( arg )->humanName );
       type      = DT_ARMOURYEVOLVE;
       break;
@@ -855,19 +855,19 @@ void CG_Menu( int menu, int arg )
       break;
       
     case MN_A_CLASSNOTSPAWN:
-      shortMsg  = va( "You cannot spawn as %s", 
+      shortMsg  = va( "You cannot spawn as a %s", 
                       BG_ClassConfig( arg )->humanName );
       type      = DT_ARMOURYEVOLVE;
       break;
     
     case MN_A_CLASSNOTALLOWED:
-      shortMsg  = va( "%s is not allowed",
+      shortMsg  = va( "The %s is not allowed",
                       BG_ClassConfig( arg )->humanName );
       type      = DT_ARMOURYEVOLVE;
       break;
 
     case MN_A_CLASSNOTATSTAGE:
-      shortMsg  = va( "%s is not allowed at Stage %d",
+      shortMsg  = va( "The %s is not allowed at Stage %d",
                       BG_ClassConfig( arg )->humanName,
                       cgs.alienStage + 1 );
       type      = DT_ARMOURYEVOLVE;
