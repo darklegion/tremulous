@@ -156,6 +156,14 @@ float G_RewardAttackers( gentity_t *self )
   else if( self->s.eType == ET_BUILDABLE )
   {
     value = BG_FindValueOfBuildable( self->s.modelindex );
+
+    // only give partial credits for a buildable not yet completed
+    if( !self->spawned )
+    {
+      value *= (float)( level.time - self->buildTime ) /
+          BG_FindBuildTimeForBuildable( self->s.modelindex );
+    }
+
     team = self->biteam;
   }
   else
