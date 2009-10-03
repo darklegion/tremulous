@@ -316,9 +316,9 @@ static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color, qboolean p
   value = ps->persistant[ PERS_CREDIT ];
   if( value > -1 )
   {
-    if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    if( cg.predictedPlayerState.stats[ STAT_TEAM ] == TEAM_ALIENS )
     {
-      if( !BG_AlienCanEvolve( cg.predictedPlayerState.stats[ STAT_PCLASS ],
+      if( !BG_AlienCanEvolve( cg.predictedPlayerState.stats[ STAT_CLASS ],
                               value, cgs.alienStage ) &&
           cg.time - cg.lastEvolveAttempt <= NO_CREDITS_TIME &&
           ( ( cg.time - cg.lastEvolveAttempt ) / 300 ) & 1 )
@@ -721,7 +721,7 @@ CG_DrawAlienSense
 */
 static void CG_DrawAlienSense( rectDef_t *rect )
 {
-  if( BG_ClassHasAbility( cg.snap->ps.stats[ STAT_PCLASS ], SCA_ALIENSENSE ) )
+  if( BG_ClassHasAbility( cg.snap->ps.stats[ STAT_CLASS ], SCA_ALIENSENSE ) )
     CG_AlienSense( rect );
 }
 
@@ -757,7 +757,7 @@ static void CG_DrawUsableBuildable( rectDef_t *rect, qhandle_t shader, vec4_t co
   es = &cg_entities[ trace.entityNum ].currentState;
 
   if( es->eType == ET_BUILDABLE && BG_FindUsableForBuildable( es->modelindex ) &&
-      cg.predictedPlayerState.stats[ STAT_PTEAM ] == BG_FindTeamForBuildable( es->modelindex ) )
+      cg.predictedPlayerState.stats[ STAT_TEAM ] == BG_FindTeamForBuildable( es->modelindex ) )
   {
     //hack to prevent showing the usable buildable when you aren't carrying an energy weapon
     if( ( es->modelindex == BA_H_REACTOR || es->modelindex == BA_H_REPEATER ) &&
@@ -872,7 +872,7 @@ static void CG_DrawPlayerHealthCross( rectDef_t *rect, vec4_t ref_color )
     shader = cgs.media.healthCross3X;
   else if( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_2X )
   {
-    if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
       shader = cgs.media.healthCross2X;
     else
       shader = cgs.media.healthCrossMedkit;
@@ -882,7 +882,7 @@ static void CG_DrawPlayerHealthCross( rectDef_t *rect, vec4_t ref_color )
 
   // Pick the alpha value
   Vector4Copy( ref_color, color );
-  if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+  if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_HUMANS &&
       cg.snap->ps.stats[ STAT_HEALTH ] < 10 )
   {
     color[ 0 ] = 1.0f;
@@ -1411,7 +1411,7 @@ static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, int textvalign,
 CG_DrawTeamLabel
 ==================
 */
-static void CG_DrawTeamLabel( rectDef_t *rect, pTeam_t team, float text_x, float text_y,
+static void CG_DrawTeamLabel( rectDef_t *rect, team_t team, float text_x, float text_y,
     vec4_t color, float scale, int textalign, int textvalign, int textStyle )
 {
   char  *t;
@@ -1423,13 +1423,13 @@ static void CG_DrawTeamLabel( rectDef_t *rect, pTeam_t team, float text_x, float
 
   switch( team )
   {
-    case PTE_ALIENS:
+    case TEAM_ALIENS:
       t = "Aliens";
       if( cg.intermissionStarted )
         Com_sprintf( stage, MAX_TOKEN_CHARS, "(Stage %d)", cgs.alienStage + 1 );
       break;
 
-    case PTE_HUMANS:
+    case TEAM_HUMANS:
       t = "Humans";
       if( cg.intermissionStarted )
         Com_sprintf( stage, MAX_TOKEN_CHARS, "(Stage %d)", cgs.humanStage + 1 );
@@ -1470,10 +1470,10 @@ static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
   if( cg.intermissionStarted )
     return;
 
-  if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_NONE )
+  if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_NONE )
     return;
 
-  if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
   {
     int kills = ceil( (float)(cgs.alienNextStageThreshold - cgs.alienCredits) / ALIEN_CREDITS_PER_FRAG );
     if( kills < 0 )
@@ -1488,7 +1488,7 @@ static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
       Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, %d kills for next stage",
           cgs.alienStage + 1, kills );
   }
-  else if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  else if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
   {
     int credits = cgs.humanNextStageThreshold - cgs.humanCredits;
     //having credits to next stage constantly increasing feels wrong, so
@@ -2114,8 +2114,8 @@ void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
     }
   }
 
-  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS &&
-      !BG_AlienCanEvolve( cg.predictedPlayerState.stats[ STAT_PCLASS ],
+  if( cg.predictedPlayerState.stats[ STAT_TEAM ] == TEAM_ALIENS &&
+      !BG_AlienCanEvolve( cg.predictedPlayerState.stats[ STAT_CLASS ],
                           ps->persistant[ PERS_CREDIT ], cgs.alienStage ) )
   {
     if( cg.time - cg.lastEvolveAttempt <= NO_CREDITS_TIME )
@@ -2164,7 +2164,7 @@ static void CG_DrawCrosshair( void )
       !BG_FindLongRangedForWeapon( weapon ) )
     return;
 
-  if( ( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR ) ||
+  if( ( cg.snap->ps.persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT ) ||
       ( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) ||
       ( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
     return;
@@ -2203,7 +2203,7 @@ static void CG_ScanForCrosshairEntity( void )
   trace_t   trace;
   vec3_t    start, end;
   int       content;
-  pTeam_t   team;
+  team_t    team;
 
   VectorCopy( cg.refdef.vieworg, start );
   VectorMA( start, 131072, cg.refdef.viewaxis[ 0 ], end );
@@ -2221,10 +2221,10 @@ static void CG_ScanForCrosshairEntity( void )
 
   team = cgs.clientinfo[ trace.entityNum ].team;
 
-  if( cg.snap->ps.persistant[ PERS_TEAM ] != TEAM_SPECTATOR )
+  if( cg.snap->ps.persistant[ PERS_SPECSTATE ] == SPECTATOR_NOT )
   {
     //only display team names of those on the same team as this player
-    if( team != cg.snap->ps.stats[ STAT_PTEAM ] )
+    if( team != cg.snap->ps.stats[ STAT_TEAM ] )
       return;
   }
 
@@ -2391,10 +2391,10 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawStageReport( &rect, text_x, text_y, color, scale, textalign, textvalign, textStyle );
       break;
     case CG_ALIENS_SCORE_LABEL:
-      CG_DrawTeamLabel( &rect, PTE_ALIENS, text_x, text_y, color, scale, textalign, textvalign, textStyle );
+      CG_DrawTeamLabel( &rect, TEAM_ALIENS, text_x, text_y, color, scale, textalign, textvalign, textStyle );
       break;
     case CG_HUMANS_SCORE_LABEL:
-      CG_DrawTeamLabel( &rect, PTE_HUMANS, text_x, text_y, color, scale, textalign, textvalign, textStyle );
+      CG_DrawTeamLabel( &rect, TEAM_HUMANS, text_x, text_y, color, scale, textalign, textvalign, textStyle );
       break;
 
     //loading screen
@@ -2615,7 +2615,7 @@ static void CG_DrawLighting( void )
 
   //fade to black if stamina is low
   if( ( cg.snap->ps.stats[ STAT_STAMINA ] < -800 ) &&
-      ( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) )
+      ( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ) )
   {
     vec4_t black = { 0, 0, 0, 0 };
     black[ 3 ] = 1.0 - ( (float)( cg.snap->ps.stats[ STAT_STAMINA ] + 1000 ) / 200.0f );
@@ -2776,9 +2776,9 @@ static void CG_DrawTeamVote( void )
   vec4_t  white = { 1.0f, 1.0f, 1.0f, 1.0f };
   char    yeskey[ 32 ], nokey[ 32 ];
 
-  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  if( cg.predictedPlayerState.stats[ STAT_TEAM ] == TEAM_HUMANS )
     cs_offset = 0;
-  else if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  else if( cg.predictedPlayerState.stats[ STAT_TEAM ] == TEAM_ALIENS )
     cs_offset = 1;
   else
     return;
@@ -2984,13 +2984,13 @@ static void CG_Draw2D( void )
 
   defaultMenu = Menus_FindByName( "default_hud" );
 
-  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
+  if( cg.snap->ps.persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT )
   {
     w = UI_Text_Width( SPECTATOR_STRING, 0.7f, 0 );
     UI_Text_Paint( 320 - w / 2, 440, 0.7f, color, SPECTATOR_STRING, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
   }
   else
-    menu = Menus_FindByName( BG_FindHudNameForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] ) );
+    menu = Menus_FindByName( BG_FindHudNameForClass( cg.predictedPlayerState.stats[ STAT_CLASS ] ) );
 
   if( !( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
       !( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) && menu &&
@@ -3056,7 +3056,7 @@ static void CG_PainBlend( void )
   float       x, y, w, h;
   float       s1, t1, s2, t2;
 
-  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR || cg.intermissionStarted )
+  if( cg.snap->ps.persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT || cg.intermissionStarted )
     return;
 
   damage = cg.lastHealth - cg.snap->ps.stats[ STAT_HEALTH ];
@@ -3083,9 +3083,9 @@ static void CG_PainBlend( void )
     return;
   }
 
-  if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
     VectorSet( color, 0.43f, 0.8f, 0.37f );
-  else if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  else if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
     VectorSet( color, 0.8f, 0.0f, 0.0f );
 
   if( cg.painBlendValue > cg.painBlendTarget )

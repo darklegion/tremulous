@@ -684,7 +684,7 @@ void G_ShutdownGame( int restart )
   G_admin_namelog_cleanup( );
 
   level.restarted = qfalse;
-  level.surrenderTeam = PTE_NONE;
+  level.surrenderTeam = TEAM_NONE;
   trap_SetConfigstring( CS_WINNER, "" );
 }
 
@@ -968,7 +968,7 @@ G_SpawnClients
 Spawn queued clients
 ============
 */
-void G_SpawnClients( pTeam_t team )
+void G_SpawnClients( team_t team )
 {
   int           clientNum;
   gentity_t     *ent, *spawn;
@@ -976,12 +976,12 @@ void G_SpawnClients( pTeam_t team )
   spawnQueue_t  *sq = NULL;
   int           numSpawns = 0;
 
-  if( team == PTE_ALIENS )
+  if( team == TEAM_ALIENS )
   {
     sq = &level.alienSpawnQueue;
     numSpawns = level.numAlienSpawns;
   }
-  else if( team == PTE_HUMANS )
+  else if( team == TEAM_HUMANS )
   {
     sq = &level.humanSpawnQueue;
     numSpawns = level.numHumanSpawns;
@@ -1003,7 +1003,7 @@ void G_SpawnClients( pTeam_t team )
 
       ent = &g_entities[ clientNum ];
 
-      ent->client->sess.sessionTeam = TEAM_FREE;
+      ent->client->sess.spectatorState = SPECTATOR_NOT;
       ClientUserinfoChanged( clientNum );
       ClientSpawn( ent, spawn, spawn_origin, spawn_angles );
     }
@@ -1125,7 +1125,7 @@ void G_CalculateBuildPoints( void )
       if( buildable == BA_A_OVERMIND && ent->spawned && ent->health > 0 )
         level.overmindPresent = qtrue;
 
-      if( BG_FindTeamForBuildable( buildable ) == BIT_HUMANS )
+      if( BG_FindTeamForBuildable( buildable ) == TEAM_HUMANS )
       {
         level.humanBuildPoints -= BG_FindBuildPointsForBuildable( buildable );
 
@@ -1212,7 +1212,7 @@ void G_CalculateStages( void )
       (int)( ceil( (float)g_alienStage2Threshold.integer * alienPlayerCountMod ) ) &&
       g_alienStage.integer == S1 && g_alienMaxStage.integer > S1 )
   {
-    G_Checktrigger_stages( PTE_ALIENS, S2 );
+    G_Checktrigger_stages( TEAM_ALIENS, S2 );
     trap_Cvar_Set( "g_alienStage", va( "%d", S2 ) );
     level.alienStage2Time = level.time;
     lastAlienStageModCount = g_alienStage.modificationCount;
@@ -1222,7 +1222,7 @@ void G_CalculateStages( void )
       (int)( ceil( (float)g_alienStage3Threshold.integer * alienPlayerCountMod ) ) &&
       g_alienStage.integer == S2 && g_alienMaxStage.integer > S2 )
   {
-    G_Checktrigger_stages( PTE_ALIENS, S3 );
+    G_Checktrigger_stages( TEAM_ALIENS, S3 );
     trap_Cvar_Set( "g_alienStage", va( "%d", S3 ) );
     level.alienStage3Time = level.time;
     lastAlienStageModCount = g_alienStage.modificationCount;
@@ -1232,7 +1232,7 @@ void G_CalculateStages( void )
       (int)( ceil( (float)g_humanStage2Threshold.integer * humanPlayerCountMod ) ) &&
       g_humanStage.integer == S1 && g_humanMaxStage.integer > S1 )
   {
-    G_Checktrigger_stages( PTE_HUMANS, S2 );
+    G_Checktrigger_stages( TEAM_HUMANS, S2 );
     trap_Cvar_Set( "g_humanStage", va( "%d", S2 ) );
     level.humanStage2Time = level.time;
     lastHumanStageModCount = g_humanStage.modificationCount;
@@ -1242,7 +1242,7 @@ void G_CalculateStages( void )
       (int)( ceil( (float)g_humanStage3Threshold.integer * humanPlayerCountMod ) ) &&
       g_humanStage.integer == S2 && g_humanMaxStage.integer > S2 )
   {
-    G_Checktrigger_stages( PTE_HUMANS, S3 );
+    G_Checktrigger_stages( TEAM_HUMANS, S3 );
     trap_Cvar_Set( "g_humanStage", va( "%d", S3 ) );
     level.humanStage3Time = level.time;
     lastHumanStageModCount = g_humanStage.modificationCount;
@@ -1250,7 +1250,7 @@ void G_CalculateStages( void )
 
   if( g_alienStage.modificationCount > lastAlienStageModCount )
   {
-    G_Checktrigger_stages( PTE_ALIENS, g_alienStage.integer );
+    G_Checktrigger_stages( TEAM_ALIENS, g_alienStage.integer );
 
     if( g_alienStage.integer == S2 )
       level.alienStage2Time = level.time;
@@ -1262,7 +1262,7 @@ void G_CalculateStages( void )
 
   if( g_humanStage.modificationCount > lastHumanStageModCount )
   {
-    G_Checktrigger_stages( PTE_HUMANS, g_humanStage.integer );
+    G_Checktrigger_stages( TEAM_HUMANS, g_humanStage.integer );
 
     if( g_humanStage.integer == S2 )
       level.humanStage2Time = level.time;
@@ -1347,19 +1347,19 @@ void CalculateRanks( void )
         continue;
 
       level.numVotingClients++;
-      if( level.clients[ i ].pers.teamSelection != PTE_NONE )
+      if( level.clients[ i ].pers.teamSelection != TEAM_NONE )
       {
         level.numPlayingClients++;
-        if( level.clients[ i ].pers.teamSelection == PTE_ALIENS )
+        if( level.clients[ i ].pers.teamSelection == TEAM_ALIENS )
         {
           level.numAlienClients++;
-          if( level.clients[ i ].sess.sessionTeam != TEAM_SPECTATOR )
+          if( level.clients[ i ].sess.spectatorState == SPECTATOR_NOT )
             level.numLiveAlienClients++;
         }
-        else if( level.clients[ i ].pers.teamSelection == PTE_HUMANS )
+        else if( level.clients[ i ].pers.teamSelection == TEAM_HUMANS )
         {
           level.numHumanClients++;
-          if( level.clients[ i ].sess.sessionTeam != TEAM_SPECTATOR )
+          if( level.clients[ i ].sess.spectatorState == SPECTATOR_NOT )
             level.numLiveHumanClients++;
         }
       }
@@ -1615,7 +1615,7 @@ void QDECL G_LogPrintf( const char *fmt, ... )
 G_SendGameStat
 =================
 */
-void G_SendGameStat( pTeam_t team )
+void G_SendGameStat( team_t team )
 {
   char      map[ MAX_STRING_CHARS ];
   char      teamChar;
@@ -1628,9 +1628,9 @@ void G_SendGameStat( pTeam_t team )
 
   switch( team )
   {
-    case PTE_ALIENS:  teamChar = 'A'; break;
-    case PTE_HUMANS:  teamChar = 'H'; break;
-    case PTE_NONE:    teamChar = 'L'; break;
+    case TEAM_ALIENS: teamChar = 'A'; break;
+    case TEAM_HUMANS: teamChar = 'H'; break;
+    case TEAM_NONE:   teamChar = 'L'; break;
     default: return;
   }
 
@@ -1665,11 +1665,11 @@ void G_SendGameStat( pTeam_t team )
     else
       ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
 
-    switch( cl->ps.stats[ STAT_PTEAM ] )
+    switch( cl->ps.stats[ STAT_TEAM ] )
     {
-      case PTE_ALIENS:  teamChar = 'A'; break;
-      case PTE_HUMANS:  teamChar = 'H'; break;
-      case PTE_NONE:    teamChar = 'S'; break;
+      case TEAM_ALIENS: teamChar = 'A'; break;
+      case TEAM_HUMANS: teamChar = 'H'; break;
+      case TEAM_NONE:   teamChar = 'S'; break;
       default: return;
     }
 
@@ -1725,7 +1725,7 @@ void LogExit( const char *string )
 
     cl = &level.clients[ level.sortedClients[ i ] ];
 
-    if( cl->ps.stats[ STAT_PTEAM ] == PTE_NONE )
+    if( cl->ps.stats[ STAT_TEAM ] == TEAM_NONE )
       continue;
 
     if( cl->pers.connected == CON_CONNECTING )
@@ -1790,7 +1790,7 @@ void CheckIntermissionExit( void )
     if( cl->pers.connected != CON_CONNECTED )
       continue;
 
-    if( cl->ps.stats[ STAT_PTEAM ] == PTE_NONE )
+    if( cl->ps.stats[ STAT_TEAM ] == TEAM_NONE )
       continue;
 
     if( cl->readyToExit )
@@ -1899,7 +1899,7 @@ void CheckExitRules( void )
   {
     if( level.time - level.startTime >= g_timelimit.integer * 60000 )
     {
-      level.lastWin = PTE_NONE;
+      level.lastWin = TEAM_NONE;
       trap_SendServerCommand( -1, "print \"Timelimit hit\n\"" );
       trap_SetConfigstring( CS_WINNER, "Stalemate" );
       LogExit( "Timelimit hit." );
@@ -1925,7 +1925,7 @@ void CheckExitRules( void )
         ( level.numLiveAlienClients == 0 ) ) )
   {
     //humans win
-    level.lastWin = PTE_HUMANS;
+    level.lastWin = TEAM_HUMANS;
     trap_SendServerCommand( -1, "print \"Humans win\n\"");
     trap_SetConfigstring( CS_WINNER, "Humans Win" );
     LogExit( "Humans win." );
@@ -1936,7 +1936,7 @@ void CheckExitRules( void )
              ( level.numLiveHumanClients == 0 ) ) )
   {
     //aliens win
-    level.lastWin = PTE_ALIENS;
+    level.lastWin = TEAM_ALIENS;
     trap_SendServerCommand( -1, "print \"Aliens win\n\"");
     trap_SetConfigstring( CS_WINNER, "Aliens Win" );
     LogExit( "Aliens win." );
@@ -1993,9 +1993,9 @@ void G_TeamVote( gentity_t *ent, qboolean voting )
 {
   int cs_offset;
 
-  if( ent->client->pers.teamSelection == PTE_HUMANS )
+  if( ent->client->pers.teamSelection == TEAM_HUMANS )
     cs_offset = 0;
-  else if( ent->client->pers.teamSelection == PTE_ALIENS )
+  else if( ent->client->pers.teamSelection == TEAM_ALIENS )
     cs_offset = 1;
   else
     return;
@@ -2116,9 +2116,9 @@ void CheckTeamVote( int team )
 {
   int cs_offset;
 
-  if ( team == PTE_HUMANS )
+  if ( team == TEAM_HUMANS )
     cs_offset = 0;
-  else if ( team == PTE_ALIENS )
+  else if ( team == TEAM_ALIENS )
     cs_offset = 1;
   else
     return;
@@ -2376,8 +2376,8 @@ void G_RunFrame( int levelTime )
   G_CountSpawns( );
   G_CalculateBuildPoints( );
   G_CalculateStages( );
-  G_SpawnClients( PTE_ALIENS );
-  G_SpawnClients( PTE_HUMANS );
+  G_SpawnClients( TEAM_ALIENS );
+  G_SpawnClients( TEAM_HUMANS );
   G_CalculateAvgPlayers( );
 
   // see if it is time to end the level
@@ -2390,8 +2390,8 @@ void G_RunFrame( int levelTime )
   CheckVote( );
 
   // check team votes
-  CheckTeamVote( PTE_HUMANS );
-  CheckTeamVote( PTE_ALIENS );
+  CheckTeamVote( TEAM_HUMANS );
+  CheckTeamVote( TEAM_ALIENS );
 
   // for tracking changes
   CheckCvars( );

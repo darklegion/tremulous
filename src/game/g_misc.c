@@ -92,7 +92,7 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles )
   G_SetClientViewAngle( player, angles );
 
   // kill anything at the destination
-  if( player->client->sess.sessionTeam != TEAM_SPECTATOR )
+  if( player->client->sess.spectatorState == SPECTATOR_NOT )
     G_KillBox( player );
 
   // save results of pmove
@@ -101,7 +101,7 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles )
   // use the precise origin for linking
   VectorCopy( player->client->ps.origin, player->r.currentOrigin );
 
-  if( player->client->sess.sessionTeam != TEAM_SPECTATOR )
+  if( player->client->sess.spectatorState == SPECTATOR_NOT )
     trap_LinkEntity (player);
 }
 

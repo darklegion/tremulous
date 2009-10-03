@@ -587,7 +587,7 @@ void CG_PredictPlayerState( void )
   else
     cg_pmove.tracemask = MASK_PLAYERSOLID;
 
-  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
+  if( cg.snap->ps.persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT )
     cg_pmove.tracemask = MASK_DEADSOLID; // spectators can fly through bodies
 
   cg_pmove.noFootsteps = 0;

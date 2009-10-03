@@ -286,8 +286,8 @@ static void PM_Friction( void )
       // if getting knocked back, no friction
       if( !( pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) )
       {
-        float stopSpeed = BG_FindStopSpeedForClass( pm->ps->stats[ STAT_PCLASS ] );
-        float friction = BG_FindFrictionForClass( pm->ps->stats[ STAT_PCLASS ] );
+        float stopSpeed = BG_FindStopSpeedForClass( pm->ps->stats[ STAT_CLASS ] );
+        float friction = BG_FindFrictionForClass( pm->ps->stats[ STAT_CLASS ] );
 
         // when landing a dodge, extra friction
         if( pm->ps->pm_flags & PMF_TIME_LAND )
@@ -386,7 +386,7 @@ static float PM_CmdScale( usercmd_t *cmd )
   float       scale;
   float       modifier = 1.0f;
 
-  if( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS && pm->ps->pm_type == PM_NORMAL )
+  if( pm->ps->stats[ STAT_TEAM ] == TEAM_HUMANS && pm->ps->pm_type == PM_NORMAL )
   {
     if( pm->ps->stats[ STAT_STATE ] & SS_SPEEDBOOST )
       modifier *= HUMAN_SPRINT_MODIFIER;
@@ -449,7 +449,7 @@ static float PM_CmdScale( usercmd_t *cmd )
 
   if( pm->ps->pm_type != PM_SPECTATOR && pm->ps->pm_type != PM_NOCLIP )
   {
-    if( BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ) == 0.0f )
+    if( BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_CLASS ] ) == 0.0f )
       cmd->upmove = 0;
 
     //prevent speed distortions for non ducking classes
@@ -675,7 +675,7 @@ static qboolean PM_CheckWallJump( void )
   VectorMA( dir, upFraction, refNormal, dir );
   VectorNormalize( dir );
 
-  VectorMA( pm->ps->velocity, BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ),
+  VectorMA( pm->ps->velocity, BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_CLASS ] ),
             dir, pm->ps->velocity );
 
   //for a long run of wall jumps the velocity can get pretty large, this caps it
@@ -713,10 +713,10 @@ static qboolean PM_CheckJump( void )
 {
   vec3_t normal;
 
-  if( BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ) == 0.0f )
+  if( BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_CLASS ] ) == 0.0f )
     return qfalse;
 
-  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
+  if( BG_ClassHasAbility( pm->ps->stats[ STAT_CLASS ], SCA_WALLJUMPER ) )
     return PM_CheckWallJump( );
 
   //can't jump and pounce at the same time
@@ -730,7 +730,7 @@ static qboolean PM_CheckJump( void )
       pm->ps->stats[ STAT_MISC ] > 0 )
     return qfalse;
 
-  if( ( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS ) &&
+  if( ( pm->ps->stats[ STAT_TEAM ] == TEAM_HUMANS ) &&
       ( pm->ps->stats[ STAT_STAMINA ] < 0 ) )
     return qfalse;
 
@@ -762,7 +762,7 @@ static qboolean PM_CheckJump( void )
   pm->ps->pm_flags |= PMF_JUMP_HELD;
 
   // take some stamina off
-  if( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS )
+  if( pm->ps->stats[ STAT_TEAM ] == TEAM_HUMANS )
     pm->ps->stats[ STAT_STAMINA ] -= STAMINA_JUMP_TAKE;
 
   pm->ps->groundEntityNum = ENTITYNUM_NONE;
@@ -770,7 +770,7 @@ static qboolean PM_CheckJump( void )
   // jump away from wall
   BG_GetClientNormal( pm->ps, normal );
 
-  VectorMA( pm->ps->velocity, BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ),
+  VectorMA( pm->ps->velocity, BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_CLASS ] ),
             normal, pm->ps->velocity );
 
   PM_AddEvent( EV_JUMP );
@@ -856,7 +856,7 @@ static qboolean PM_CheckDodge( void )
   float jump;
   int i;
   
-  if( pm->ps->stats[ STAT_PTEAM ] != PTE_HUMANS )
+  if( pm->ps->stats[ STAT_TEAM ] != TEAM_HUMANS )
     return qfalse;
 
   // Landed a dodge
@@ -903,7 +903,7 @@ static qboolean PM_CheckDodge( void )
   forward[ 2 ] = 0.0f;
 
   // Dodge magnitude is based on the jump magnitude scaled by the modifiers
-  jump = BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] );
+  jump = BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_CLASS ] );
   if( pm->cmd.rightmove && pm->cmd.forwardmove )
     jump *= ( 0.5f * M_SQRT2 );
 
@@ -1183,7 +1183,7 @@ static void PM_AirMove( void )
 
   // not on ground, so little effect on velocity
   PM_Accelerate( wishdir, wishspeed,
-    BG_FindAirAccelerationForClass( pm->ps->stats[ STAT_PCLASS ] ) );
+    BG_FindAirAccelerationForClass( pm->ps->stats[ STAT_CLASS ] ) );
 
   // we may have a ground plane that is very steep, even
   // though we don't have a groundentity
@@ -1281,9 +1281,9 @@ static void PM_ClimbMove( void )
   // when a player gets hit, they temporarily lose
   // full control, which allows them to be moved a bit
   if( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK )
-    accelerate = BG_FindAirAccelerationForClass( pm->ps->stats[ STAT_PCLASS ] );
+    accelerate = BG_FindAirAccelerationForClass( pm->ps->stats[ STAT_CLASS ] );
   else
-    accelerate = BG_FindAccelerationForClass( pm->ps->stats[ STAT_PCLASS ] );
+    accelerate = BG_FindAccelerationForClass( pm->ps->stats[ STAT_CLASS ] );
 
   PM_Accelerate( wishdir, wishspeed, accelerate );
 
@@ -1399,9 +1399,9 @@ static void PM_WalkMove( void )
   // when a player gets hit, they temporarily lose
   // full control, which allows them to be moved a bit
   if( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK )
-    accelerate = BG_FindAirAccelerationForClass( pm->ps->stats[ STAT_PCLASS ] );
+    accelerate = BG_FindAirAccelerationForClass( pm->ps->stats[ STAT_CLASS ] );
   else
-    accelerate = BG_FindAccelerationForClass( pm->ps->stats[ STAT_PCLASS ] );
+    accelerate = BG_FindAccelerationForClass( pm->ps->stats[ STAT_CLASS ] );
 
   PM_Accelerate( wishdir, wishspeed, accelerate );
 
@@ -1494,7 +1494,7 @@ static void PM_CheckLadder( void )
   trace_t trace;
 
   //test if class can use ladders
-  if( !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_CANUSELADDERS ) )
+  if( !BG_ClassHasAbility( pm->ps->stats[ STAT_CLASS ], SCA_CANUSELADDERS ) )
   {
     pml.ladder = qfalse;
     return;
@@ -1825,7 +1825,7 @@ static void PM_GroundTraceMissed( void )
     }
   }
 
-  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_TAKESFALLDAMAGE ) )
+  if( BG_ClassHasAbility( pm->ps->stats[ STAT_CLASS ], SCA_TAKESFALLDAMAGE ) )
   {
     if( pm->ps->velocity[ 2 ] < FALLING_THRESHOLD && pml.previous_velocity[ 2 ] >= FALLING_THRESHOLD )
       PM_AddEvent( EV_FALLING );
@@ -2138,7 +2138,7 @@ static void PM_GroundTrace( void )
   vec3_t      refNormal = { 0.0f, 0.0f, 1.0f };
   trace_t     trace;
 
-  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) )
+  if( BG_ClassHasAbility( pm->ps->stats[ STAT_CLASS ], SCA_WALLCLIMBER ) )
   {
     if( pm->ps->persistant[ PERS_STATE ] & PS_WALLCLIMBINGTOGGLE )
     {
@@ -2236,7 +2236,7 @@ static void PM_GroundTrace( void )
       pml.groundPlane = qfalse;
       pml.walking = qfalse;
 
-      if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
+      if( BG_ClassHasAbility( pm->ps->stats[ STAT_CLASS ], SCA_WALLJUMPER ) )
       {
         ProjectPointOnPlane( movedir, pml.forward, refNormal );
         VectorNormalize( movedir );
@@ -2337,7 +2337,7 @@ static void PM_GroundTrace( void )
     // communicate the fall velocity to the server
     pm->pmext->fallVelocity = pml.previous_velocity[ 2 ];
 
-    if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_TAKESFALLDAMAGE ) )
+    if( BG_ClassHasAbility( pm->ps->stats[ STAT_CLASS ], SCA_TAKESFALLDAMAGE ) )
       PM_CrashLand( );
   }
 
@@ -2410,10 +2410,10 @@ static void PM_CheckDuck (void)
   vec3_t PCmins, PCmaxs, PCcmaxs;
   int PCvh, PCcvh;
 
-  BG_FindBBoxForClass( pm->ps->stats[ STAT_PCLASS ], PCmins, PCmaxs, PCcmaxs, NULL, NULL );
-  BG_FindViewheightForClass( pm->ps->stats[ STAT_PCLASS ], &PCvh, &PCcvh );
+  BG_FindBBoxForClass( pm->ps->stats[ STAT_CLASS ], PCmins, PCmaxs, PCcmaxs, NULL, NULL );
+  BG_FindViewheightForClass( pm->ps->stats[ STAT_CLASS ], &PCvh, &PCcvh );
 
-  if( pm->ps->persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
+  if( pm->ps->persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT )
     PCcvh = PCvh;
 
   pm->mins[ 0 ] = PCmins[ 0 ];
@@ -2484,7 +2484,7 @@ static void PM_Footsteps( void )
   // calculate speed and cycle to be used for
   // all cyclic walking effects
   //
-  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) && ( pml.groundPlane ) )
+  if( BG_ClassHasAbility( pm->ps->stats[ STAT_CLASS ], SCA_WALLCLIMBER ) && ( pml.groundPlane ) )
   {
     // FIXME: yes yes i know this is wrong
     pm->xyspeed = sqrt( pm->ps->velocity[ 0 ] * pm->ps->velocity[ 0 ]
@@ -2644,7 +2644,7 @@ static void PM_Footsteps( void )
     }
   }
 
-  bobmove *= BG_FindBobCycleForClass( pm->ps->stats[ STAT_PCLASS ] );
+  bobmove *= BG_FindBobCycleForClass( pm->ps->stats[ STAT_CLASS ] );
 
   if( pm->ps->stats[ STAT_STATE ] & SS_SPEEDBOOST )
     bobmove *= HUMAN_SPRINT_MODIFIER;
@@ -2818,7 +2818,7 @@ static void PM_Weapon( void )
   qboolean      attack3 = qfalse;
 
   // Ignore weapons in some cases
-  if( pm->ps->persistant[ PERS_TEAM ] == TEAM_SPECTATOR || 
+  if( pm->ps->persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT || 
       ( pm->ps->stats[ STAT_STATE ] & ( SS_INFESTING | SS_HOVELING ) ) )
     return;
 
@@ -3704,7 +3704,7 @@ void PmoveSingle( pmove_t *pmove )
     PM_LadderMove( );
   else if( pml.walking )
   {
-    if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) &&
+    if( BG_ClassHasAbility( pm->ps->stats[ STAT_CLASS ], SCA_WALLCLIMBER ) &&
         ( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
       PM_ClimbMove( ); // walking on any surface
     else

@@ -868,7 +868,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles )
 
   // gun angles from bobbing
   // bob amount is class dependant
-  bob = BG_FindBobForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
+  bob = BG_FindBobForClass( cg.predictedPlayerState.stats[ STAT_CLASS ] );
 
   if( bob != 0 )
   {
@@ -1022,7 +1022,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   // Lucifer cannon charge warning beep
   if( weaponNum == WP_LUCIFER_CANNON &&
       ( cent->currentState.eFlags & EF_WARN_CHARGE ) &&
-      cg.snap->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
+      cg.snap->ps.stats[ STAT_TEAM ] != TEAM_ALIENS )
   {
     trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
                             vec3_origin, ps ? cgs.media.lCannonWarningSound :
@@ -1163,7 +1163,7 @@ void CG_AddViewWeapon( playerState_t *ps )
   wi = &cg_weapons[ weapon ];
   cent = &cg.predictedPlayerEntity; // &cg_entities[cg.snap->ps.clientNum];
 
-  if( ( ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) ||
+  if( ( ps->persistant[PERS_SPECSTATE] != SPECTATOR_NOT ) ||
       ( ps->stats[ STAT_STATE ] & SS_INFESTING ) ||
       ( ps->stats[ STAT_STATE ] & SS_HOVELING ) )
     return;

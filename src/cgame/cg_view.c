@@ -353,7 +353,7 @@ static void CG_StepOffset( void )
 
   BG_GetClientNormal( ps, normal );
 
-  steptime = BG_FindSteptimeForClass( ps->stats[ STAT_PCLASS ] );
+  steptime = BG_FindSteptimeForClass( ps->stats[ STAT_CLASS ] );
 
   // smooth out stair climbing
   timeDelta = cg.time - cg.stepTime;
@@ -457,10 +457,10 @@ static void CG_OffsetFirstPersonView( void )
   // add angles based on bob
   // bob amount is class dependant
 
-  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
+  if( cg.snap->ps.persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT )
     bob2 = 0.0f;
   else
-    bob2 = BG_FindBobForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
+    bob2 = BG_FindBobForClass( cg.predictedPlayerState.stats[ STAT_CLASS ] );
 
 
 #define LEVEL4_FEEDBACK  10.0f
@@ -596,7 +596,7 @@ static void CG_OffsetFirstPersonView( void )
   }
 
   // this *feels* more realisitic for humans
-  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+  if( cg.predictedPlayerState.stats[ STAT_TEAM ] == TEAM_HUMANS &&
       ( cg.predictedPlayerState.pm_type == PM_NORMAL ||
         cg.predictedPlayerState.pm_type == PM_JETPACK ) )
   {
@@ -691,7 +691,7 @@ static int CG_CalcFov( void )
   trap_GetUserCmd( cmdNum, &cmd );
 
   if( cg.predictedPlayerState.pm_type == PM_INTERMISSION ||
-      ( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR ) )
+      ( cg.snap->ps.persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT ) )
   {
     // if in intermission, use a fixed value
     fov_x = 90;
@@ -699,7 +699,7 @@ static int CG_CalcFov( void )
   else
   {
     // don't lock the fov globally - we need to be able to change it
-    attribFov = BG_FindFovForClass( cg.predictedPlayerState.stats[ STAT_PCLASS ] );
+    attribFov = BG_FindFovForClass( cg.predictedPlayerState.stats[ STAT_CLASS ] );
     fov_x = attribFov;
 
     if ( fov_x < 1 )
@@ -708,7 +708,7 @@ static int CG_CalcFov( void )
       fov_x = 160;
 
     if( cg.spawnTime > ( cg.time - FOVWARPTIME ) &&
-        BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_PCLASS ], SCA_FOVWARPS ) )
+        BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_CLASS ], SCA_FOVWARPS ) )
     {
       float temp, temp2;
 
@@ -1079,16 +1079,16 @@ static int CG_CalcViewValues( void )
 
   VectorCopy( ps->origin, cg.refdef.vieworg );
 
-  if( BG_ClassHasAbility( ps->stats[ STAT_PCLASS ], SCA_WALLCLIMBER ) )
+  if( BG_ClassHasAbility( ps->stats[ STAT_CLASS ], SCA_WALLCLIMBER ) )
     CG_smoothWWTransitions( ps, ps->viewangles, cg.refdefViewAngles );
-  else if( BG_ClassHasAbility( ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
+  else if( BG_ClassHasAbility( ps->stats[ STAT_CLASS ], SCA_WALLJUMPER ) )
     CG_smoothWJTransitions( ps, ps->viewangles, cg.refdefViewAngles );
   else
     VectorCopy( ps->viewangles, cg.refdefViewAngles );
 
   //clumsy logic, but it needs to be this way round because the CS propogation
   //delay screws things up otherwise
-  if( !BG_ClassHasAbility( ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
+  if( !BG_ClassHasAbility( ps->stats[ STAT_CLASS ], SCA_WALLJUMPER ) )
   {
     if( !( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
       VectorSet( cg.lastNormal, 0.0f, 0.0f, 1.0f );

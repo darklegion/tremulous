@@ -54,11 +54,11 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
   if( activator->client )
   {
     if( ( ent->spawnflags & 1 ) &&
-        activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
+        activator->client->ps.stats[ STAT_TEAM ] != TEAM_HUMANS )
       return;
 
     if( ( ent->spawnflags & 2 ) &&
-        activator->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
+        activator->client->ps.stats[ STAT_TEAM ] != TEAM_ALIENS )
       return;
   }
 
@@ -283,7 +283,7 @@ void trigger_teleporter_touch( gentity_t *self, gentity_t *other, trace_t *trace
 
   // Spectators only?
   if( ( self->spawnflags & 1 ) &&
-      other->client->sess.sessionTeam != TEAM_SPECTATOR )
+      other->client->sess.spectatorState == SPECTATOR_NOT )
     return;
 
 
@@ -489,7 +489,7 @@ G_Checktrigger_stages
 Called when stages change
 ===============
 */
-void G_Checktrigger_stages( pTeam_t team, stage_t stage )
+void G_Checktrigger_stages( team_t team, stage_t stage )
 {
   int i;
   gentity_t *ent;
@@ -694,7 +694,7 @@ qboolean trigger_class_match( gentity_t *self, gentity_t *activator )
     //otherwise check against the list
     for( i = 0; self->cTriggers[ i ] != PCL_NONE; i++ )
     {
-      if( activator->client->ps.stats[ STAT_PCLASS ] == self->cTriggers[ i ] )
+      if( activator->client->ps.stats[ STAT_CLASS ] == self->cTriggers[ i ] )
         return qtrue;
     }
   }
@@ -713,7 +713,7 @@ void trigger_class_trigger( gentity_t *self, gentity_t *activator )
   if( !activator->client )
     return;
 
-  if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
+  if( activator->client->ps.stats[ STAT_TEAM ] != TEAM_ALIENS )
     return;
 
   if( self->s.eFlags & EF_NODRAW )
@@ -853,7 +853,7 @@ void trigger_equipment_trigger( gentity_t *self, gentity_t *activator )
   if( !activator->client )
     return;
 
-  if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
+  if( activator->client->ps.stats[ STAT_TEAM ] != TEAM_HUMANS )
     return;
 
   if( self->s.eFlags & EF_NODRAW )
@@ -1078,7 +1078,7 @@ void trigger_ammo_touch( gentity_t *self, gentity_t *other, trace_t *trace )
   if( !other->client )
     return;
 
-  if( other->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
+  if( other->client->ps.stats[ STAT_TEAM ] != TEAM_HUMANS )
     return;
 
   if( self->timestamp > level.time )

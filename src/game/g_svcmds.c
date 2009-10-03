@@ -556,18 +556,18 @@ static void Svcmd_AdmitDefeat_f( void )
   }
   trap_Argv( 1, teamNum, sizeof( teamNum ) );
   team = atoi( teamNum );
-  if( team == PTE_ALIENS || teamNum[ 0 ] == 'a' )
+  if( team == TEAM_ALIENS || teamNum[ 0 ] == 'a' )
   {
-    level.surrenderTeam = PTE_ALIENS;
-    G_BaseSelfDestruct( PTE_ALIENS );
-    G_TeamCommand( PTE_ALIENS, "cp \"Hivemind Link Broken\" 1");
+    level.surrenderTeam = TEAM_ALIENS;
+    G_BaseSelfDestruct( TEAM_ALIENS );
+    G_TeamCommand( TEAM_ALIENS, "cp \"Hivemind Link Broken\" 1");
     trap_SendServerCommand( -1, "print \"Alien team has admitted defeat\n\"" );
   }
-  else if( team == PTE_HUMANS || teamNum[ 0 ] == 'h' )
+  else if( team == TEAM_HUMANS || teamNum[ 0 ] == 'h' )
   {
-    level.surrenderTeam = PTE_HUMANS;
-    G_BaseSelfDestruct( PTE_HUMANS );
-    G_TeamCommand( PTE_HUMANS, "cp \"Life Support Terminated\" 1");
+    level.surrenderTeam = TEAM_HUMANS;
+    G_BaseSelfDestruct( TEAM_HUMANS );
+    G_TeamCommand( TEAM_HUMANS, "cp \"Life Support Terminated\" 1");
     trap_SendServerCommand( -1, "print \"Human team has admitted defeat\n\"" );
   }
   else
@@ -691,7 +691,7 @@ qboolean  ConsoleCommand( void )
   if( !Q_stricmp( cmd, "evacuation" ) )
   {
     trap_SendServerCommand( -1, "print \"Evacuation ordered\n\"" );
-    level.lastWin = PTE_NONE;
+    level.lastWin = TEAM_NONE;
     trap_SetConfigstring( CS_WINNER, "Evacuation" );
     LogExit( "Evacuation." );
     return qtrue;

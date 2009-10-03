@@ -152,7 +152,7 @@ G_TeamCommand
 Broadcasts a command to only a specific team
 ================
 */
-void G_TeamCommand( pTeam_t team, char *cmd )
+void G_TeamCommand( team_t team, char *cmd )
 {
   int   i;
 
@@ -161,7 +161,7 @@ void G_TeamCommand( pTeam_t team, char *cmd )
     if( level.clients[ i ].pers.connected == CON_CONNECTED )
     {
       if( level.clients[ i ].pers.teamSelection == team ||
-        ( level.clients[ i ].pers.teamSelection == PTE_NONE &&
+        ( level.clients[ i ].pers.teamSelection == TEAM_NONE &&
           G_admin_permission( &g_entities[ i ], ADMF_SPEC_ALLCHAT ) ) )
         trap_SendServerCommand( i, cmd );
     }

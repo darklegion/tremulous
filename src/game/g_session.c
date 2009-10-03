@@ -46,14 +46,10 @@ void G_WriteClientSessionData( gclient_t *client )
   const char  *s;
   const char  *var;
 
-  s = va( "%i %i %i %i %i %i %i %s",
-    client->sess.sessionTeam,
+  s = va( "%i %i %i %s",
     client->sess.spectatorTime,
     client->sess.spectatorState,
     client->sess.spectatorClient,
-    client->sess.wins,
-    client->sess.losses,
-    client->sess.teamLeader,
     BG_ClientListString( &client->sess.ignoreList )
     );
 
@@ -73,30 +69,22 @@ void G_ReadSessionData( gclient_t *client )
 {
   char  s[ MAX_STRING_CHARS ];
   const char  *var;
-  int teamLeader;
   int spectatorState;
-  int sessionTeam;
 
   var = va( "session%i", client - level.clients );
   trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
   // FIXME: should be using BG_ClientListParse() for ignoreList, but
   //        bg_lib.c's sscanf() currently lacks %s
-  sscanf( s, "%i %i %i %i %i %i %i %x%x",
-    &sessionTeam,
+  sscanf( s, "%i %i %i %x%x",
     &client->sess.spectatorTime,
     &spectatorState,
     &client->sess.spectatorClient,
-    &client->sess.wins,
-    &client->sess.losses,
-    &teamLeader,
     &client->sess.ignoreList.hi,
     &client->sess.ignoreList.lo
     );
 
-  client->sess.sessionTeam = (team_t)sessionTeam;
   client->sess.spectatorState = (spectatorState_t)spectatorState;
-  client->sess.teamLeader = (qboolean)teamLeader;
 }
 
 
@@ -119,15 +107,15 @@ void G_InitSessionData( gclient_t *client, char *userinfo )
   if( value[ 0 ] == 's' )
   {
     // a willing spectator, not a waiting-in-line
-    sess->sessionTeam = TEAM_SPECTATOR;
+    sess->spectatorState = SPECTATOR_FREE;
   }
   else
   {
     if( g_maxGameClients.integer > 0 &&
       level.numNonSpectatorClients >= g_maxGameClients.integer )
-      sess->sessionTeam = TEAM_SPECTATOR;
+      sess->spectatorState = SPECTATOR_FREE;
     else
-      sess->sessionTeam = TEAM_FREE;
+      sess->spectatorState = SPECTATOR_NOT;
   }
 
   sess->spectatorState = SPECTATOR_FREE;

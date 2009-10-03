@@ -164,7 +164,7 @@ float G_RewardAttackers( gentity_t *self )
           BG_FindBuildTimeForBuildable( self->s.modelindex );
     }
 
-    team = self->biteam;
+    team = self->buildableTeam;
   }
   else
     return totalDamage;
@@ -176,14 +176,14 @@ float G_RewardAttackers( gentity_t *self )
     short num = value * self->credits[ i ] / totalDamage;
 
     if( !player->client || !self->credits[ i ] ||
-        player->client->ps.stats[ STAT_PTEAM ] == team )
+        player->client->ps.stats[ STAT_TEAM ] == team )
       continue;
     G_AddCreditToClient( player->client, num, qtrue );
 
     // add to stage counters
-    if( player->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    if( player->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
       trap_Cvar_Set( "g_alienCredits", va( "%d", g_alienCredits.integer + num ) );
-    else if( player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    else if( player->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
       trap_Cvar_Set( "g_humanCredits", va( "%d", g_humanCredits.integer + num ) );
 
     self->credits[ i ] = 0;
@@ -271,9 +271,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       AddScore( attacker, -1 );
 
       //punish team kills and suicides
-      if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      if( attacker->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
         G_AddCreditToClient( attacker->client, -ALIEN_TK_SUICIDE_PENALTY, qtrue );
-      else if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+      else if( attacker->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
         G_AddCreditToClient( attacker->client, -HUMAN_TK_SUICIDE_PENALTY, qtrue );
     }
     else
@@ -301,7 +301,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     if( client->pers.connected != CON_CONNECTED )
       continue;
 
-    if( client->sess.sessionTeam != TEAM_SPECTATOR )
+    if( client->sess.spectatorState == SPECTATOR_NOT )
       continue;
 
     if( client->sess.spectatorClient == self->s.number )
@@ -864,7 +864,7 @@ dflags    these flags are used to control how T_Damage works
 void G_SelectiveDamage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
          vec3_t dir, vec3_t point, int damage, int dflags, int mod, int team )
 {
-  if( targ->client && ( team != targ->client->ps.stats[ STAT_PTEAM ] ) )
+  if( targ->client && ( team != targ->client->ps.stats[ STAT_TEAM ] ) )
     G_Damage( targ, inflictor, attacker, dir, point, damage, dflags, mod );
 }
 
@@ -917,7 +917,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   if( targ->client )
   {
     knockback = (int)( (float)knockback *
-      BG_FindKnockbackScaleForClass( targ->client->ps.stats[ STAT_PCLASS ] ) );
+      BG_FindKnockbackScaleForClass( targ->client->ps.stats[ STAT_CLASS ] ) );
   }
 
   if( knockback > 200 )
@@ -961,7 +961,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   // don't do friendly fire on movement attacks
   if( ( mod == MOD_LEVEL4_TRAMPLE || mod == MOD_LEVEL3_POUNCE ||
         mod == MOD_LEVEL4_CRUSH ) &&
-      targ->s.eType == ET_BUILDABLE && targ->biteam == BIT_ALIENS )
+      targ->s.eType == ET_BUILDABLE && targ->buildableTeam == TEAM_ALIENS )
   {
     return;
   }
@@ -980,7 +980,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
         return;
 
       if( g_dretchPunt.integer &&
-        targ->client->ps.stats[ STAT_PCLASS ] == PCL_ALIEN_LEVEL0 )
+        targ->client->ps.stats[ STAT_CLASS ] == PCL_ALIEN_LEVEL0 )
       {
         vec3_t dir, push;
 
@@ -994,12 +994,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       else if( !g_friendlyFire.integer )
       {
         if( !g_friendlyFireHumans.integer &&
-            targ->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+            targ->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
         {
           return;
         }
         if( !g_friendlyFireAliens.integer &&
-             targ->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+             targ->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
         {
           return;
         }
@@ -1008,14 +1008,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
     if( targ->s.eType == ET_BUILDABLE && attacker->client )
     {
-      if( targ->biteam == attacker->client->pers.teamSelection )
+      if( targ->buildableTeam == attacker->client->pers.teamSelection )
       {
         if( !g_friendlyBuildableFire.integer )
           return;
       }
 
       // base is under attack warning if DCC'd
-      if( targ->biteam == BIT_HUMANS && G_FindDCC( targ ) &&
+      if( targ->buildableTeam == TEAM_HUMANS && G_FindDCC( targ ) &&
           level.time > level.humanBaseAttackTimer &&
           mod != MOD_DECONSTRUCT && mod != MOD_SUICIDE )
       {
@@ -1072,13 +1072,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     targ->client->lasthurt_client = attacker->s.number;
     targ->client->lasthurt_mod = mod;
     take = (int)( take * G_CalcDamageModifier( point, targ, attacker,
-                                               client->ps.stats[ STAT_PCLASS ],
+                                               client->ps.stats[ STAT_CLASS ],
                                                dflags ) + 0.5f );
 
     //if boosted poison every attack
     if( attacker->client && attacker->client->ps.stats[ STAT_STATE ] & SS_BOOSTED )
     {
-      if( targ->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+      if( targ->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS &&
           mod != MOD_LEVEL2_ZAP && mod != MOD_POISON &&
           mod != MOD_LEVEL1_PCLOUD &&
           targ->client->poisonImmunityTime < level.time )
@@ -1245,7 +1245,7 @@ qboolean G_SelectiveRadiusDamage( vec3_t origin, gentity_t *attacker, float dama
     points = damage * ( 1.0 - dist / radius );
 
     if( CanDamage( ent, origin ) && ent->client &&
-        ent->client->ps.stats[ STAT_PTEAM ] != team )
+        ent->client->ps.stats[ STAT_TEAM ] != team )
     {
       VectorSubtract( ent->r.currentOrigin, origin, dir );
       // push the center of mass higher than the origin so players

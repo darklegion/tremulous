@@ -170,7 +170,7 @@ static qboolean G_FindPower( gentity_t *self )
   int       minDistance = REPEATER_BASESIZE + 1;
   vec3_t    temp_v;
 
-  if( self->biteam != BIT_HUMANS )
+  if( self->buildableTeam != TEAM_HUMANS )
     return qfalse;
 
   //reactor is always powered
@@ -234,7 +234,7 @@ static gentity_t *G_PowerEntityForPoint( vec3_t origin )
   gentity_t dummy;
 
   dummy.parentNode = NULL;
-  dummy.biteam = BIT_HUMANS;
+  dummy.buildableTeam = TEAM_HUMANS;
   dummy.s.modelindex = BA_NONE;
   VectorCopy( origin, dummy.s.origin );
 
@@ -277,7 +277,7 @@ int G_FindDCC( gentity_t *self )
   vec3_t    temp_v;
   int       foundDCC = 0;
 
-  if( self->biteam != BIT_HUMANS )
+  if( self->buildableTeam != TEAM_HUMANS )
     return 0;
 
   //iterate through entities
@@ -314,7 +314,7 @@ qboolean G_IsDCCBuilt( void )
 
   memset( &dummy, 0, sizeof( gentity_t ) );
 
-  dummy.biteam = BIT_HUMANS;
+  dummy.buildableTeam = TEAM_HUMANS;
 
   return G_FindDCC( &dummy );
 }
@@ -331,7 +331,7 @@ static qboolean G_FindOvermind( gentity_t *self )
   int       i;
   gentity_t *ent;
 
-  if( self->biteam != BIT_ALIENS )
+  if( self->buildableTeam != TEAM_ALIENS )
     return qfalse;
 
   //if this already has overmind then stop now
@@ -372,7 +372,7 @@ qboolean G_IsOvermindBuilt( void )
   memset( &dummy, 0, sizeof( gentity_t ) );
 
   dummy.overmindNode = NULL;
-  dummy.biteam = BIT_ALIENS;
+  dummy.buildableTeam = TEAM_ALIENS;
 
   return G_FindOvermind( &dummy );
 }
@@ -485,7 +485,7 @@ static void G_CreepSlow( gentity_t *self )
   {
     enemy = &g_entities[ entityList[ i ] ];
 
-    if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+    if( enemy->client && enemy->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS &&
         enemy->client->ps.groundEntityNum != ENTITYNUM_NONE )
     {
       enemy->client->ps.stats[ STAT_STATE ] |= SS_CREEPSLOWED;
@@ -567,7 +567,7 @@ void AGeneric_Blast( gentity_t *self )
   //do a bit of radius damage
   G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
                            self->splashRadius, self, self->splashMethodOfDeath,
-                           PTE_ALIENS );
+                           TEAM_ALIENS );
 
   //pretty events and item cleanup
   self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
@@ -605,9 +605,9 @@ void AGeneric_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, i
 
   if( attacker && attacker->client )
   {
-    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
+    if( attacker->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS &&
         !self->deconstruct )
-      G_TeamCommand( PTE_ALIENS,
+      G_TeamCommand( TEAM_ALIENS,
         va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
           BG_FindHumanNameForBuildable( self->s.modelindex ),
           attacker->client->pers.netname ) );
@@ -778,7 +778,7 @@ void AOvermind_Think( gentity_t *self )
   {
     //do some damage
     if( G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
-          self->splashRadius, self, MOD_OVERMIND, PTE_ALIENS ) )
+          self->splashRadius, self, MOD_OVERMIND, TEAM_ALIENS ) )
     {
       self->timestamp = level.time;
       G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
@@ -983,7 +983,7 @@ void ABarricade_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
   gclient_t *client = other->client;
   int client_z, min_z;
 
-  if( !client || client->pers.teamSelection != PTE_ALIENS )
+  if( !client || client->pers.teamSelection != TEAM_ALIENS )
     return;
 
   // Client must be high enough to pass over. Note that STEPSIZE (18) is
@@ -1035,7 +1035,7 @@ void AAcidTube_Think( gentity_t *self )
       if( !G_Visible( self, enemy, CONTENTS_SOLID ) )
         continue;
 
-      if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+      if( enemy->client && enemy->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
       {
         // start the attack animation
         if( level.time >= self->timestamp + ACIDTUBE_REPEAT_ANIM )
@@ -1046,7 +1046,7 @@ void AAcidTube_Think( gentity_t *self )
         }
         
         G_SelectiveRadiusDamage( self->s.pos.trBase, self, ACIDTUBE_DAMAGE,
-                                 ACIDTUBE_RANGE, self, MOD_ATUBE, PTE_ALIENS );                           
+                                 ACIDTUBE_RANGE, self, MOD_ATUBE, TEAM_ALIENS );                           
         self->nextthink = level.time + ACIDTUBE_REPEAT;
         return;
       }
@@ -1073,7 +1073,7 @@ static qboolean AHive_CheckTarget( gentity_t *self, gentity_t *enemy )
 
   // Check if this is a valid target
   if( enemy->health <= 0 || !enemy->client ||
-      enemy->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
+      enemy->client->ps.stats[ STAT_TEAM ] != TEAM_HUMANS )
     return qfalse;
 
   // Check if the tip of the hive can see the target
@@ -1162,7 +1162,7 @@ pain function for Alien Hive
 */
 void AHive_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
 {
-  if( attacker && attacker->client && attacker->biteam == BIT_HUMANS &&
+  if( attacker && attacker->client && attacker->buildableTeam == TEAM_HUMANS &&
       self->spawned && !self->active && G_FindOvermind( self ) )
   {
     vec3_t dirToTarget;
@@ -1205,7 +1205,7 @@ qboolean AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideEx
   trace_t   tr;
 
   BG_FindBBoxForBuildable( BA_A_HOVEL, NULL, hovelMaxs );
-  BG_FindBBoxForClass( player->client->ps.stats[ STAT_PCLASS ],
+  BG_FindBBoxForClass( player->client->ps.stats[ STAT_CLASS ],
                        mins, maxs, NULL, NULL, NULL );
 
   VectorCopy( hovel->s.origin2, normal );
@@ -1279,8 +1279,8 @@ void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
       //this hovel is in use
       G_TriggerMenu( activator->client->ps.clientNum, MN_A_HOVEL_OCCUPIED );
     }
-    else if( ( ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_ALIEN_BUILDER0 ) ||
-               ( activator->client->ps.stats[ STAT_PCLASS ] == PCL_ALIEN_BUILDER0_UPG ) ) &&
+    else if( ( ( activator->client->ps.stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0 ) ||
+               ( activator->client->ps.stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0_UPG ) ) &&
              activator->health > 0 && self->health > 0 )
     {
       if( AHovel_Blocked( self, activator, qfalse ) )
@@ -1413,7 +1413,7 @@ void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
   if( !client )
     return;
 
-  if( client && client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  if( client && client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
     return;
 
   client->ps.stats[ STAT_STATE ] |= SS_BOOSTED;
@@ -1443,7 +1443,7 @@ void ATrapper_FireOnEnemy( gentity_t *self, int firespeed, float range )
   int       lowMsec = 0;
   int       highMsec = (int)( (
     ( ( distanceToTarget * LOCKBLOB_SPEED ) +
-      ( distanceToTarget * BG_FindSpeedForClass( enemy->client->ps.stats[ STAT_PCLASS ] ) ) ) /
+      ( distanceToTarget * BG_FindSpeedForClass( enemy->client->ps.stats[ STAT_CLASS ] ) ) ) /
     ( LOCKBLOB_SPEED * LOCKBLOB_SPEED ) ) * 1000.0f );
 
   VectorScale( enemy->acceleration, 1.0f / 2.0f, halfAcceleration );
@@ -1500,9 +1500,9 @@ qboolean ATrapper_CheckTarget( gentity_t *self, gentity_t *target, int range )
     return qfalse;
   if( !target->client ) // is the target a bot or player?
     return qfalse;
-  if( target->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS ) // one of us?
+  if( target->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS ) // one of us?
     return qfalse;
-  if( target->client->sess.sessionTeam == TEAM_SPECTATOR ) // is the target alive?
+  if( target->client->sess.spectatorState != SPECTATOR_NOT ) // is the target alive?
     return qfalse;
   if( target->health <= 0 ) // is the target still alive?
     return qfalse;
@@ -1690,7 +1690,7 @@ void HReactor_Think( gentity_t *self )
     {
       enemy = &g_entities[ entityList[ i ] ];
       if( !enemy->client ||
-          enemy->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
+          enemy->client->ps.stats[ STAT_TEAM ] != TEAM_ALIENS )
         continue;
 
       tent = G_TempEntity( enemy->s.pos.trBase, EV_TESLATRAIL );
@@ -1708,12 +1708,12 @@ void HReactor_Think( gentity_t *self )
         G_SelectiveRadiusDamage( self->s.pos.trBase, self,
                                  REACTOR_ATTACK_DCC_DAMAGE,
                                  REACTOR_ATTACK_DCC_RANGE, self,
-                                 MOD_REACTOR, PTE_HUMANS );
+                                 MOD_REACTOR, TEAM_HUMANS );
       else
         G_SelectiveRadiusDamage( self->s.pos.trBase, self,
                                  REACTOR_ATTACK_DAMAGE,
                                  REACTOR_ATTACK_RANGE, self,
-                                 MOD_REACTOR, PTE_HUMANS );
+                                 MOD_REACTOR, TEAM_HUMANS );
     }
   }
 
@@ -1739,7 +1739,7 @@ void HArmoury_Activate( gentity_t *self, gentity_t *other, gentity_t *activator 
   if( self->spawned )
   {
     //only humans can activate this
-    if( activator->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
+    if( activator->client->ps.stats[ STAT_TEAM ] != TEAM_HUMANS )
       return;
 
     //if this is powered then call the armoury menu
@@ -1869,7 +1869,7 @@ void HMedistat_Think( gentity_t *self )
       player = &g_entities[ entityList[ i ] ];
 
       if( self->enemy == player && player->client &&
-          player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+          player->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS &&
           player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] &&
           player->client->ps.pm_type != PM_DEAD )
       {
@@ -1887,7 +1887,7 @@ void HMedistat_Think( gentity_t *self )
       {
         player = &g_entities[ entityList[ i ] ];
 
-        if( player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+        if( player->client && player->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
         {
           if( ( player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] ||
                 player->client->ps.stats[ STAT_STAMINA ] < MAX_STAMINA ) &&
@@ -1963,7 +1963,7 @@ qboolean HMGTurret_CheckTarget( gentity_t *self, gentity_t *target,
   vec3_t    dir, end;
 
   if( !target || target->health <= 0 || !target->client ||
-      target->client->pers.teamSelection != PTE_ALIENS ||
+      target->client->pers.teamSelection != TEAM_ALIENS ||
       ( target->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
     return qfalse;
     
@@ -2194,7 +2194,7 @@ void HTeslaGen_Think( gentity_t *self )
     {
       self->enemy = &g_entities[ entityList[ i ] ];
       if( self->enemy->client && self->enemy->health > 0 &&
-          self->enemy->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
+          self->enemy->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS &&
           Distance( self->enemy->s.pos.trBase,
                     self->s.pos.trBase ) <= TESLAGEN_RANGE )
         FireWeapon( self );
@@ -2310,9 +2310,9 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   if( attacker && attacker->client )
   {
-    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+    if( attacker->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS &&
         !self->deconstruct )
-      G_TeamCommand( PTE_HUMANS,
+      G_TeamCommand( TEAM_HUMANS,
         va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
           BG_FindHumanNameForBuildable( self->s.modelindex ),
           attacker->client->pers.netname ) );
@@ -2457,12 +2457,12 @@ void G_BuildableThink( gentity_t *ent, int msec )
       ent->health += (int)( ceil( (float)bHealth / (float)( bTime * 0.001 ) ) );
     else if( ent->health > 0 && ent->health < bHealth )
     {
-      if( ent->biteam == BIT_ALIENS && bRegen &&
+      if( ent->buildableTeam == TEAM_ALIENS && bRegen &&
         ( ent->lastDamageTime + ALIEN_REGEN_DAMAGE_TIME ) < level.time )
       {
         ent->health += bRegen;
       }
-      else if( ent->biteam == BIT_HUMANS && ent->dcc &&
+      else if( ent->buildableTeam == TEAM_HUMANS && ent->dcc &&
         ( ent->lastDamageTime + HUMAN_REGEN_DAMAGE_TIME ) < level.time )
       {
         ent->health += DC_HEALRATE * ent->dcc;
@@ -2483,7 +2483,7 @@ void G_BuildableThink( gentity_t *ent, int msec )
     ent->clientSpawnTime = 0;
 
   // Pack health
-  ent->dcc = ( ent->biteam != BIT_HUMANS ) ? 0 : G_FindDCC( ent );
+  ent->dcc = ( ent->buildableTeam != TEAM_HUMANS ) ? 0 : G_FindDCC( ent );
   if( ent->health > 0 )
   {
     ent->s.generic1 = (int)( ( ent->health + bHealth / B_HEALTH_MASK - 1 ) *
@@ -2538,7 +2538,7 @@ qboolean G_BuildableRange( vec3_t origin, float r, buildable_t buildable )
     if( ent->s.eType != ET_BUILDABLE )
       continue;
 
-    if( ent->biteam == BIT_HUMANS && !ent->powered )
+    if( ent->buildableTeam == TEAM_HUMANS && !ent->powered )
       continue;
 
     if( ent->s.modelindex == buildable && ent->spawned )
@@ -2725,7 +2725,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   int               numBuildables = 0;
   int               pointsYielded = 0;
   gentity_t         *ent;
-  buildableTeam_t   team = BG_FindTeamForBuildable( buildable );
+  team_t            team = BG_FindTeamForBuildable( buildable );
   int               buildPoints = BG_FindBuildPointsForBuildable( buildable );
   int               remainingBP, remainingSpawns;
   qboolean          collision = qfalse;
@@ -2737,7 +2737,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   buildable_t       core;
   int               spawnCount = 0;
 
-  if( team == BIT_ALIENS )
+  if( team == TEAM_ALIENS )
   {
     remainingBP     = level.alienBuildPoints;
     remainingSpawns = level.numAlienSpawns;
@@ -2745,7 +2745,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     spawn           = BA_A_SPAWN;
     core            = BA_A_OVERMIND;
   }
-  else if( team == BIT_HUMANS )
+  else if( team == TEAM_HUMANS )
   {
     remainingBP     = level.humanBuildPoints;
     remainingSpawns = level.numHumanSpawns;
@@ -2823,7 +2823,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     if( ent->health <= 0 )
       continue;
 
-    if( ent->biteam != team )
+    if( ent->buildableTeam != team )
       continue;
 
     // Don't allow destruction of hovel with granger inside
@@ -2983,7 +2983,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
   contents = trap_PointContents( entity_origin, -1 );
   buildPoints = BG_FindBuildPointsForBuildable( buildable );
 
-  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  if( ent->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
   {
     //alien criteria
 
@@ -3018,7 +3018,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
     if( tr1.surfaceFlags & SURF_NOALIENBUILD || contents & CONTENTS_NOALIENBUILD )
       reason = IBE_PERMISSION;
   }
-  else if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  else if( ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
   {
     //human criteria
 
@@ -3121,7 +3121,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   built->killedBy = ENTITYNUM_NONE;
   built->classname = BG_FindEntityNameForBuildable( buildable );
   built->s.modelindex = buildable;
-  built->biteam = built->s.modelindex2 = BG_FindTeamForBuildable( buildable );
+  built->buildableTeam = built->s.modelindex2 = BG_FindTeamForBuildable( buildable );
   BG_FindBBoxForBuildable( buildable, built->r.mins, built->r.maxs );
 
   // detect the buildable's normal vector
@@ -3310,7 +3310,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   if( built->s.generic1 < 0 )
     built->s.generic1 = 0;
 
-  if( BG_FindTeamForBuildable( built->s.modelindex ) == PTE_ALIENS )
+  if( BG_FindTeamForBuildable( built->s.modelindex ) == TEAM_ALIENS )
   {
     built->powered = qtrue;
     built->s.eFlags |= EF_B_POWERED;
@@ -3344,7 +3344,7 @@ qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
   float         dist;
   vec3_t        origin;
 
-  dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
+  dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_CLASS ] );
 
   switch( G_CanBuild( ent, buildable, dist, origin ) )
   {
@@ -3767,7 +3767,7 @@ void G_LayoutLoad( void )
 G_BaseSelfDestruct
 ============
 */
-void G_BaseSelfDestruct( pTeam_t team )
+void G_BaseSelfDestruct( team_t team )
 {
   int       i;
   gentity_t *ent;
@@ -3779,9 +3779,9 @@ void G_BaseSelfDestruct( pTeam_t team )
       continue;
     if( ent->s.eType != ET_BUILDABLE )
       continue;
-    if( team == PTE_HUMANS && ent->biteam != BIT_HUMANS )
+    if( team == TEAM_HUMANS && ent->buildableTeam != TEAM_HUMANS )
       continue;
-    if( team == PTE_ALIENS && ent->biteam != BIT_ALIENS )
+    if( team == TEAM_ALIENS && ent->buildableTeam != TEAM_ALIENS )
       continue;
     G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
   }

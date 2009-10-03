@@ -373,7 +373,7 @@ void CG_InitBuildables( void )
         else
         {
           //file doesn't exist - use default
-          if( BG_FindTeamForBuildable( i ) == BIT_ALIENS )
+          if( BG_FindTeamForBuildable( i ) == TEAM_ALIENS )
             cg_buildables[ i ].sounds[ j ].sound = defaultAlienSounds[ j ];
           else
             cg_buildables[ i ].sounds[ j ].sound = defaultHumanSounds[ j ];
@@ -629,14 +629,14 @@ CG_BuildableParticleEffects
 static void CG_BuildableParticleEffects( centity_t *cent )
 {
   entityState_t   *es = &cent->currentState;
-  buildableTeam_t team = BG_FindTeamForBuildable( es->modelindex );
+  team_t          team = BG_FindTeamForBuildable( es->modelindex );
   int             health = es->generic1 & B_HEALTH_MASK;
   float           healthFrac = (float)health / B_HEALTH_MASK;
 
   if( !( es->eFlags & EF_B_SPAWNED ) )
     return;
 
-  if( team == BIT_HUMANS )
+  if( team == TEAM_HUMANS )
   {
     if( healthFrac < 0.33f && !CG_IsParticleSystemValid( &cent->buildablePS ) )
     {
@@ -651,7 +651,7 @@ static void CG_BuildableParticleEffects( centity_t *cent )
     else if( healthFrac >= 0.33f && CG_IsParticleSystemValid( &cent->buildablePS ) )
       CG_DestroyParticleSystem( &cent->buildablePS );
   }
-  else if( team == BIT_ALIENS )
+  else if( team == TEAM_ALIENS )
   {
     if( healthFrac < 0.33f && !CG_IsParticleSystemValid( &cent->buildablePS ) )
     {
@@ -838,7 +838,7 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
   entityState_t   *hit;
   int             anim;
 
-  if( BG_FindTeamForBuildable( es->modelindex ) == BIT_ALIENS )
+  if( BG_FindTeamForBuildable( es->modelindex ) == TEAM_ALIENS )
     bs = &cgs.alienBuildStat;
   else
     bs = &cgs.humanBuildStat;
@@ -916,7 +916,7 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
   }
   // hack to make the kit obscure view
   if( cg_drawGun.integer && visible &&
-      cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+      cg.predictedPlayerState.stats[ STAT_TEAM ] == TEAM_HUMANS &&
       CG_WorldToScreen( origin, &x, &y ) )
   {
     if( x > 450 && y > 290 )
@@ -1188,13 +1188,13 @@ void CG_Buildable( centity_t *cent )
   vec3_t          surfNormal, xNormal, mins, maxs;
   vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
   float           rotAngle;
-  buildableTeam_t team = BG_FindTeamForBuildable( es->modelindex );
+  team_t          team = BG_FindTeamForBuildable( es->modelindex );
   float           scale;
   int             health;
   float           healthScale;
 
   //must be before EF_NODRAW check
-  if( team == BIT_ALIENS )
+  if( team == TEAM_ALIENS )
     CG_Creep( cent );
 
   // if set to invisible, skip
@@ -1256,12 +1256,12 @@ void CG_Buildable( centity_t *cent )
   {
     sfxHandle_t prebuildSound = cgs.media.humanBuildablePrebuild;
 
-    if( team == BIT_HUMANS )
+    if( team == TEAM_HUMANS )
     {
       ent.customShader = cgs.media.humanSpawningShader;
       prebuildSound = cgs.media.humanBuildablePrebuild;
     }
-    else if( team == BIT_ALIENS )
+    else if( team == TEAM_ALIENS )
       prebuildSound = cgs.media.alienBuildablePrebuild;
 
     trap_S_AddLoopingSound( es->number, cent->lerpOrigin, vec3_origin, prebuildSound );
@@ -1415,12 +1415,12 @@ void CG_Buildable( centity_t *cent )
   {
     if( cent->lastBuildableDamageSoundTime + BUILDABLE_SOUND_PERIOD < cg.time )
     {
-      if( team == BIT_HUMANS )
+      if( team == TEAM_HUMANS )
       {
         int i = rand( ) % 4;
         trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.humanBuildableDamage[ i ] );
       }
-      else if( team == BIT_ALIENS )
+      else if( team == TEAM_ALIENS )
         trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.alienBuildableDamage );
 
       cent->lastBuildableDamageSoundTime = cg.time;

@@ -170,8 +170,8 @@ void TeamplayInfoMessage( gentity_t *ent )
   {
     player = g_entities + level.sortedClients[ i ];
 
-    if( player->inuse && player->client->sess.sessionTeam ==
-        ent->client->sess.sessionTeam )
+    if( player->inuse && player->client->ps.stats[ STAT_TEAM ] ==
+        ent->client->ps.stats[ STAT_TEAM ] )
       clients[ cnt++ ] = level.sortedClients[ i ];
   }
 
@@ -186,8 +186,8 @@ void TeamplayInfoMessage( gentity_t *ent )
   {
     player = g_entities + i;
 
-    if( player->inuse && player->client->sess.sessionTeam ==
-        ent->client->sess.sessionTeam )
+    if( player->inuse && player->client->ps.stats[ STAT_TEAM ] ==
+        ent->client->ps.stats[ STAT_TEAM ] )
     {
       h = player->client->ps.stats[ STAT_HEALTH ];
 
@@ -228,8 +228,8 @@ void CheckTeamStatus( void )
       if( ent->client->pers.connected != CON_CONNECTED )
         continue;
 
-      if( ent->inuse && ( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ||
-                          ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS ) )
+      if( ent->inuse && ( ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ||
+                          ent->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS ) )
       {
 
         loc = Team_GetLocation( ent );
@@ -247,8 +247,8 @@ void CheckTeamStatus( void )
       if( ent->client->pers.connected != CON_CONNECTED )
         continue;
 
-      if( ent->inuse && ( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ||
-                          ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS ) )
+      if( ent->inuse && ( ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ||
+                          ent->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS ) )
         TeamplayInfoMessage( ent );
     }
   }

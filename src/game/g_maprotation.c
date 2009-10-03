@@ -233,9 +233,9 @@ static qboolean G_ParseMapRotation( mapRotation_t *mr, char **text_p )
           break;
 
         if( !Q_stricmp( token, "aliens" ) )
-          mrc->lastWin = PTE_ALIENS;
+          mrc->lastWin = TEAM_ALIENS;
         else if( !Q_stricmp( token, "humans" ) )
-          mrc->lastWin = PTE_HUMANS;
+          mrc->lastWin = TEAM_HUMANS;
         else
         {
           G_Printf( S_COLOR_RED "ERROR: invalid right hand side in expression: %s\n", token );

@@ -1878,7 +1878,7 @@ qboolean G_admin_putteam( gentity_t *ent, int skiparg )
   int pids[ MAX_CLIENTS ], found;
   char name[ MAX_NAME_LENGTH ], team[ 7 ], err[ MAX_STRING_CHARS ];
   gentity_t *vic;
-  pTeam_t teamnum = PTE_NONE;
+  team_t teamnum = TEAM_NONE;
   char teamdesc[ 32 ] = {"spectators"};
 
   G_SayArgv( 1 + skiparg, name, sizeof( name ) );
@@ -1905,15 +1905,15 @@ qboolean G_admin_putteam( gentity_t *ent, int skiparg )
   switch( team[ 0 ] )
   {
   case 'a':
-    teamnum = PTE_ALIENS;
+    teamnum = TEAM_ALIENS;
     Q_strncpyz( teamdesc, "aliens", sizeof( teamdesc ) );
     break;
   case 'h':
-    teamnum = PTE_HUMANS;
+    teamnum = TEAM_HUMANS;
     Q_strncpyz( teamdesc, "humans", sizeof( teamdesc ) );
     break;
   case 's':
-    teamnum = PTE_NONE;
+    teamnum = TEAM_NONE;
     break;
   default:
     ADMP( va( "^3!putteam: ^7unknown team %c\n", team[ 0 ] ) );
@@ -2232,12 +2232,12 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
     p = &level.clients[ i ];
     Q_strncpyz( t, "S", sizeof( t ) );
     Q_strncpyz( c, S_COLOR_YELLOW, sizeof( c ) );
-    if( p->pers.teamSelection == PTE_HUMANS )
+    if( p->pers.teamSelection == TEAM_HUMANS )
     {
       Q_strncpyz( t, "H", sizeof( t ) );
       Q_strncpyz( c, S_COLOR_BLUE, sizeof( c ) );
     }
-    else if( p->pers.teamSelection == PTE_ALIENS )
+    else if( p->pers.teamSelection == TEAM_ALIENS )
     {
       Q_strncpyz( t, "A", sizeof( t ) );
       Q_strncpyz( c, S_COLOR_RED, sizeof( c ) );
@@ -2622,7 +2622,7 @@ qboolean G_admin_allready( gentity_t *ent, int skiparg )
     if( cl->pers.connected != CON_CONNECTED )
       continue;
 
-    if( cl->pers.teamSelection == PTE_NONE )
+    if( cl->pers.teamSelection == TEAM_NONE )
       continue;
 
     cl->readyToExit = 1;
@@ -2645,10 +2645,10 @@ qboolean G_admin_cancelvote( gentity_t *ent, int skiparg )
   CheckVote( );
   level.teamVoteNo[ 0 ] = level.numConnectedClients;
   level.teamVoteYes[ 0 ] = 0;
-  CheckTeamVote( PTE_HUMANS );
+  CheckTeamVote( TEAM_HUMANS );
   level.teamVoteNo[ 1 ] = level.numConnectedClients;
   level.teamVoteYes[ 1 ] = 0;
-  CheckTeamVote( PTE_ALIENS );
+  CheckTeamVote( TEAM_ALIENS );
   AP( va( "print \"^3!cancelvote: ^7%s^7 decided that everyone voted No\n\"",
           ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
@@ -2666,10 +2666,10 @@ qboolean G_admin_passvote( gentity_t *ent, int skiparg )
   CheckVote( );
   level.teamVoteYes[ 0 ] = level.numConnectedClients;
   level.teamVoteNo[ 0 ] = 0;
-  CheckTeamVote( PTE_HUMANS );
+  CheckTeamVote( TEAM_HUMANS );
   level.teamVoteYes[ 1 ] = level.numConnectedClients;
   level.teamVoteNo[ 1 ] = 0;
-  CheckTeamVote( PTE_ALIENS );
+  CheckTeamVote( TEAM_ALIENS );
   AP( va( "print \"^3!passvote: ^7%s^7 decided that everyone voted Yes\n\"",
           ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
@@ -2687,11 +2687,11 @@ qboolean G_admin_spec999( gentity_t *ent, int skiparg )
       continue;
     if( vic->client->pers.connected != CON_CONNECTED )
       continue;
-    if( vic->client->pers.teamSelection == PTE_NONE )
+    if( vic->client->pers.teamSelection == TEAM_NONE )
       continue;
     if( vic->client->ps.ping == 999 )
     {
-      G_ChangeTeam( vic, PTE_NONE );
+      G_ChangeTeam( vic, TEAM_NONE );
       AP( va( "print \"^3!spec999: ^7%s^7 moved ^7%s^7 to spectators\n\"",
         ( ent ) ? ent->client->pers.netname : "console",
         vic->client->pers.netname ) );
@@ -2787,7 +2787,7 @@ qboolean G_admin_nextmap( gentity_t *ent, int skiparg )
 {
   AP( va( "print \"^3!nextmap: ^7%s^7 decided to load the next map\n\"",
     ( ent ) ? ent->client->pers.netname : "console" ) );
-  level.lastWin = PTE_NONE;
+  level.lastWin = TEAM_NONE;
   trap_SetConfigstring( CS_WINNER, "Evacuation" );
   LogExit( va( "nextmap was run by %s",
     ( ent ) ? ent->client->pers.netname : "console" ) );
@@ -2853,7 +2853,7 @@ qboolean G_admin_namelog( gentity_t *ent, int skiparg )
 qboolean G_admin_lock( gentity_t *ent, int skiparg )
 {
   char teamName[2] = {""};
-  pTeam_t team;
+  team_t team;
 
   if( G_SayArgc() < 2 + skiparg )
   {
@@ -2862,16 +2862,16 @@ qboolean G_admin_lock( gentity_t *ent, int skiparg )
   }
   G_SayArgv( 1 + skiparg, teamName, sizeof( teamName ) );
   if( teamName[ 0 ] == 'a' || teamName[ 0 ] == 'A' )
-    team = PTE_ALIENS;
+    team = TEAM_ALIENS;
   else if( teamName[ 0 ] == 'h' || teamName[ 0 ] == 'H' )
-    team = PTE_HUMANS;
+    team = TEAM_HUMANS;
   else
   {
     ADMP( va( "^3!lock: ^7invalid team\"%c\"\n", teamName[0] ) );
     return qfalse;
   }
 
-  if( team == PTE_ALIENS )
+  if( team == TEAM_ALIENS )
   {
     if( level.alienTeamLocked )
     {
@@ -2881,7 +2881,7 @@ qboolean G_admin_lock( gentity_t *ent, int skiparg )
     else
       level.alienTeamLocked = qtrue;
   }
-  else if( team == PTE_HUMANS ) {
+  else if( team == TEAM_HUMANS ) {
     if( level.humanTeamLocked )
     {
       ADMP( "^3!lock: ^7Human team is already locked\n" );
@@ -2892,7 +2892,7 @@ qboolean G_admin_lock( gentity_t *ent, int skiparg )
   }
 
   AP( va( "print \"^3!lock: ^7%s team has been locked by %s\n\"",
-    ( team == PTE_ALIENS ) ? "Alien" : "Human",
+    ( team == TEAM_ALIENS ) ? "Alien" : "Human",
     ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
 }
@@ -2900,7 +2900,7 @@ qboolean G_admin_lock( gentity_t *ent, int skiparg )
 qboolean G_admin_unlock( gentity_t *ent, int skiparg )
 {
   char teamName[2] = {""};
-  pTeam_t team;
+  team_t team;
 
   if( G_SayArgc() < 2 + skiparg )
   {
@@ -2909,16 +2909,16 @@ qboolean G_admin_unlock( gentity_t *ent, int skiparg )
   }
   G_SayArgv( 1 + skiparg, teamName, sizeof( teamName ) );
   if( teamName[ 0 ] == 'a' || teamName[ 0 ] == 'A' )
-    team = PTE_ALIENS;
+    team = TEAM_ALIENS;
   else if( teamName[ 0 ] == 'h' || teamName[ 0 ] == 'H' )
-    team = PTE_HUMANS;
+    team = TEAM_HUMANS;
   else
   {
     ADMP( va( "^3!unlock: ^7invalid team\"%c\"\n", teamName[0] ) );
     return qfalse;
   }
 
-  if( team == PTE_ALIENS )
+  if( team == TEAM_ALIENS )
   {
     if( !level.alienTeamLocked )
     {
@@ -2928,7 +2928,7 @@ qboolean G_admin_unlock( gentity_t *ent, int skiparg )
     else
       level.alienTeamLocked = qfalse;
   }
-  else if( team == PTE_HUMANS ) {
+  else if( team == TEAM_HUMANS ) {
     if( !level.humanTeamLocked )
     {
       ADMP( "^3!unlock: ^7Human team is not currently locked\n" );
@@ -2939,7 +2939,7 @@ qboolean G_admin_unlock( gentity_t *ent, int skiparg )
   }
 
   AP( va( "print \"^3!unlock: ^7%s team has been unlocked by %s\n\"",
-    ( team == PTE_ALIENS ) ? "Alien" : "Human",
+    ( team == TEAM_ALIENS ) ? "Alien" : "Human",
     ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
 }

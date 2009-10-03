@@ -1605,11 +1605,11 @@ static void UI_DrawInfoPane( menuItem_t *item, rectDef_t *rect, float text_x, fl
 
       switch( BG_FindTeamForBuildable( item->v.buildable ) )
       {
-        case BIT_ALIENS:
+        case TEAM_ALIENS:
           string = "Sentience";
           break;
 
-        case BIT_HUMANS:
+        case TEAM_HUMANS:
           string = "Power";
           break;
 
@@ -1941,7 +1941,7 @@ static qboolean UI_OwnerDrawVisible( int flags )
 {
   qboolean vis = qtrue;
   uiClientState_t cs;
-  pTeam_t         team;
+  team_t          team;
   char            info[ MAX_INFO_STRING ];
 
   trap_GetClientState( &cs );
@@ -1953,7 +1953,7 @@ static qboolean UI_OwnerDrawVisible( int flags )
   {
     if( flags & UI_SHOW_NOTSPECTATING )
     {
-      if( team == PTE_NONE )
+      if( team == TEAM_NONE )
         vis = qfalse;
 
       flags &= ~UI_SHOW_NOTSPECTATING;
@@ -1977,12 +1977,12 @@ static qboolean UI_OwnerDrawVisible( int flags )
 
     if( flags & UI_SHOW_TEAMVOTEACTIVE )
     {
-      if( team == PTE_ALIENS )
+      if( team == TEAM_ALIENS )
       {
         if( !trap_Cvar_VariableValue( "ui_alienTeamVoteActive" ) )
           vis = qfalse;
       }
-      else if( team == PTE_HUMANS )
+      else if( team == TEAM_HUMANS )
       {
         if( !trap_Cvar_VariableValue( "ui_humanTeamVoteActive" ) )
           vis = qfalse;
@@ -1993,12 +1993,12 @@ static qboolean UI_OwnerDrawVisible( int flags )
 
     if( flags & UI_SHOW_CANTEAMVOTE )
     {
-      if( team == PTE_ALIENS )
+      if( team == TEAM_ALIENS )
       {
         if( trap_Cvar_VariableValue( "ui_alienTeamVoteActive" ) )
           vis = qfalse;
       }
-      else if( team == PTE_HUMANS )
+      else if( team == TEAM_HUMANS )
       {
         if( trap_Cvar_VariableValue( "ui_humanTeamVoteActive" ) )
           vis = qfalse;
@@ -2162,7 +2162,7 @@ UI_AddClass
 ===============
 */
 
-static void UI_AddClass( pClass_t class )
+static void UI_AddClass( class_t class )
 {
   uiInfo.alienClassList[ uiInfo.alienClassCount ].text =
 
@@ -2313,7 +2313,7 @@ static void UI_LoadHumanArmouryBuys( void )
 
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
-    if( BG_FindTeamForWeapon( i ) == WUT_HUMANS &&
+    if( BG_FindTeamForWeapon( i ) == TEAM_HUMANS &&
         BG_FindPurchasableForWeapon( i ) &&
         BG_FindStagesForWeapon( i, stage ) &&
         BG_WeaponIsAllowed( i ) &&
@@ -2335,7 +2335,7 @@ static void UI_LoadHumanArmouryBuys( void )
 
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
-    if( BG_FindTeamForUpgrade( i ) == WUT_HUMANS &&
+    if( BG_FindTeamForUpgrade( i ) == TEAM_HUMANS &&
         BG_FindPurchasableForUpgrade( i ) &&
         BG_FindStagesForUpgrade( i, stage ) &&
         BG_UpgradeIsAllowed( i ) &&
@@ -2474,7 +2474,7 @@ static void UI_LoadAlienBuilds( void )
 
   for( i = BA_NONE + 1; i < BA_NUM_BUILDABLES; i++ )
   {
-    if( BG_FindTeamForBuildable( i ) == BIT_ALIENS &&
+    if( BG_FindTeamForBuildable( i ) == TEAM_ALIENS &&
         BG_FindBuildWeaponForBuildable( i ) & uiInfo.weapons &&
         BG_FindStagesForBuildable( i, stage ) &&
         BG_BuildableIsAllowed( i ) )
@@ -2510,7 +2510,7 @@ static void UI_LoadHumanBuilds( void )
 
   for( i = BA_NONE + 1; i < BA_NUM_BUILDABLES; i++ )
   {
-    if( BG_FindTeamForBuildable( i ) == BIT_HUMANS &&
+    if( BG_FindTeamForBuildable( i ) == TEAM_HUMANS &&
         BG_FindBuildWeaponForBuildable( i ) & uiInfo.weapons &&
         BG_FindStagesForBuildable( i, stage ) &&
         BG_BuildableIsAllowed( i ) )

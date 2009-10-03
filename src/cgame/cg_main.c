@@ -954,7 +954,7 @@ void CG_BuildSpectatorString( void )
 
   for( i = 0; i < MAX_CLIENTS; i++ )
   {
-    if( cgs.clientinfo[ i ].infoValid && cgs.clientinfo[ i ].team == PTE_NONE )
+    if( cgs.clientinfo[ i ].infoValid && cgs.clientinfo[ i ].team == TEAM_NONE )
       Q_strcat( cg.spectatorList, sizeof( cg.spectatorList ), va( "%s     " S_COLOR_WHITE, cgs.clientinfo[ i ].name ) );
   }
 
@@ -1066,8 +1066,8 @@ int CG_PlayerCount( void )
 
   for( i = 0; i < cg.numScores; i++ )
   {
-    if( cg.scores[ i ].team == PTE_ALIENS ||
-        cg.scores[ i ].team == PTE_HUMANS )
+    if( cg.scores[ i ].team == TEAM_ALIENS ||
+        cg.scores[ i ].team == TEAM_HUMANS )
       count++;
   }
 
@@ -1428,7 +1428,7 @@ static int CG_FeederCount( float feederID )
   {
     for( i = 0; i < cg.numScores; i++ )
     {
-      if( cg.scores[ i ].team == PTE_ALIENS )
+      if( cg.scores[ i ].team == TEAM_ALIENS )
         count++;
     }
   }
@@ -1436,7 +1436,7 @@ static int CG_FeederCount( float feederID )
   {
     for( i = 0; i < cg.numScores; i++ )
     {
-      if( cg.scores[ i ].team == PTE_HUMANS )
+      if( cg.scores[ i ].team == TEAM_HUMANS )
         count++;
     }
   }
@@ -1456,9 +1456,9 @@ void CG_SetScoreSelection( void *p )
 
   for( i = 0; i < cg.numScores; i++ )
   {
-    if( cg.scores[ i ].team == PTE_ALIENS )
+    if( cg.scores[ i ].team == TEAM_ALIENS )
       alien++;
-    else if( cg.scores[ i ].team == PTE_HUMANS )
+    else if( cg.scores[ i ].team == TEAM_HUMANS )
       human++;
 
     if( ps->clientNum == cg.scores[ i ].client )
@@ -1472,7 +1472,7 @@ void CG_SetScoreSelection( void *p )
   feeder = FEEDER_ALIENTEAM_LIST;
   i = alien;
 
-  if( cg.scores[ cg.selectedScore ].team == PTE_HUMANS )
+  if( cg.scores[ cg.selectedScore ].team == TEAM_HUMANS )
   {
     feeder = FEEDER_HUMANTEAM_LIST;
     i = human;
@@ -1515,9 +1515,9 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
   *handle = -1;
 
   if( feederID == FEEDER_ALIENTEAM_LIST )
-    team = PTE_ALIENS;
+    team = TEAM_ALIENS;
   else if( feederID == FEEDER_HUMANTEAM_LIST )
-    team = PTE_HUMANS;
+    team = TEAM_HUMANS;
 
   info = CG_InfoFromScoreIndex( index, team, &scoreIndex );
   sp = &cg.scores[ scoreIndex ];
@@ -1526,7 +1526,7 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
       cg.intermissionStarted )
     showIcons = qfalse;
   else if( cg.snap->ps.pm_type == PM_SPECTATOR || cg.snap->ps.pm_flags & PMF_FOLLOW ||
-    team == cg.snap->ps.stats[ STAT_PTEAM ] || cg.intermissionStarted )
+    team == cg.snap->ps.stats[ STAT_TEAM ] || cg.intermissionStarted )
     showIcons = qtrue;
 
   if( info && info->infoValid )
@@ -1544,9 +1544,9 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
       case 1:
         if( showIcons )
         {
-          if( sp->team == PTE_HUMANS && sp->upgrade != UP_NONE )
+          if( sp->team == TEAM_HUMANS && sp->upgrade != UP_NONE )
             *handle = cg_upgrades[ sp->upgrade ].upgradeIcon;
-          else if( sp->team == PTE_ALIENS )
+          else if( sp->team == TEAM_ALIENS )
           {
             switch( sp->weapon )
             {
@@ -1602,7 +1602,7 @@ static qhandle_t CG_FeederItemImage( float feederID, int index )
 static void CG_FeederSelection( float feederID, int index )
 {
   int i, count;
-  int team = ( feederID == FEEDER_ALIENTEAM_LIST ) ? PTE_ALIENS : PTE_HUMANS;
+  int team = ( feederID == FEEDER_ALIENTEAM_LIST ) ? TEAM_ALIENS : TEAM_HUMANS;
   count = 0;
 
   for( i = 0; i < cg.numScores; i++ )

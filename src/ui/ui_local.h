@@ -170,7 +170,7 @@ typedef struct
   {
     const char  *text;
     buildable_t buildable;
-    pClass_t    pclass;
+    class_t     pclass;
     weapon_t    weapon;
     upgrade_t   upgrade;
   } v;

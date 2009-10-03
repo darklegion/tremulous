@@ -139,7 +139,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
   }
   else if( !strcmp( ent->classname, "lockblob" ) )
   {
-    if( other->client && other->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    if( other->client && other->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
     {
       other->client->ps.stats[ STAT_STATE ] |= SS_BLOBLOCKED;
       other->client->lastLockTime = level.time;
@@ -149,7 +149,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
   }
   else if( !strcmp( ent->classname, "slowblob" ) )
   {
-    if( other->client && other->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    if( other->client && other->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
     {
       other->client->ps.stats[ STAT_STATE ] |= SS_SLOWLOCKED;
       other->client->lastSlowTime = level.time;
@@ -178,7 +178,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
       ent->nextthink = level.time + FRAMETIME;
 
       //only damage humans
-      if( other->client && other->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+      if( other->client && other->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
         returnAfterDamage = qtrue;
       else
         return;

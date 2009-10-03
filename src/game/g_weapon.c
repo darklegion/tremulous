@@ -807,7 +807,7 @@ void cancelBuildFire( gentity_t *ent )
   }
 
   // Construction kit repair
-  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  if( ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
   {
     AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
     VectorMA( ent->client->ps.origin, 100, forward, end );
@@ -817,7 +817,7 @@ void cancelBuildFire( gentity_t *ent )
     traceEnt = &g_entities[ tr.entityNum ];
 
     if( tr.fraction < 1.0f && traceEnt->spawned && traceEnt->health > 0 &&
-        traceEnt->s.eType == ET_BUILDABLE && traceEnt->biteam == BIT_HUMANS )
+        traceEnt->s.eType == ET_BUILDABLE && traceEnt->buildableTeam == TEAM_HUMANS )
     {
       if( ent->client->ps.stats[ STAT_MISC ] > 0 )
       {
@@ -933,13 +933,13 @@ qboolean CheckVenomAttack( gentity_t *ent )
     if( traceEnt->spawned )
       return qfalse;
 
-    if( traceEnt->biteam == BIT_ALIENS )
+    if( traceEnt->buildableTeam == TEAM_ALIENS )
       return qfalse;
   }
 
   if( traceEnt->client )
   {
-    if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    if( traceEnt->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
       return qfalse;
     if( traceEnt->client->ps.stats[ STAT_HEALTH ] <= 0 )
       return qfalse;
@@ -990,7 +990,7 @@ void CheckGrabAttack( gentity_t *ent )
 
   if( traceEnt->client )
   {
-    if( traceEnt->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    if( traceEnt->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
       return;
 
     if( traceEnt->client->ps.stats[ STAT_HEALTH ] <= 0 )
@@ -1047,7 +1047,7 @@ void poisonCloud( gentity_t *ent )
     humanPlayer = &g_entities[ entityList[ i ] ];
 
     if( humanPlayer->client &&
-        humanPlayer->client->pers.teamSelection == PTE_HUMANS )
+        humanPlayer->client->pers.teamSelection == TEAM_HUMANS )
     {
       trap_Trace( &tr, muzzle, NULL, NULL, humanPlayer->s.origin,
                   humanPlayer->s.number, CONTENTS_SOLID );
@@ -1129,9 +1129,9 @@ void G_UpdateZaps( gentity_t *ent )
     enemy = &g_entities[ entityList[ i ] ];
 
     if( ( ( enemy->client &&
-            enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) ||
+            enemy->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ) ||
         ( enemy->s.eType == ET_BUILDABLE &&
-          BG_FindTeamForBuildable( enemy->s.modelindex ) == BIT_HUMANS ) ) &&
+          BG_FindTeamForBuildable( enemy->s.modelindex ) == TEAM_HUMANS ) ) &&
         enemy->health > 0 )
     {
 
@@ -1340,7 +1340,7 @@ void G_CrushAttack( gentity_t *ent, gentity_t *victim )
     return;
 
   // Deal velocity based damage to target
-  jump = BG_FindJumpMagnitudeForClass( ent->client->ps.stats[ STAT_PCLASS ] );
+  jump = BG_FindJumpMagnitudeForClass( ent->client->ps.stats[ STAT_CLASS ] );
   damage = ( ent->client->pmext.fallVelocity + jump ) *
            -LEVEL4_CRUSH_DAMAGE_PER_V;
 

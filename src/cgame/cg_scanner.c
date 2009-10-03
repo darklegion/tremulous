@@ -39,7 +39,7 @@ void CG_UpdateEntityPositions( void )
   centity_t *cent = NULL;
   int       i;
 
-  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  if( cg.predictedPlayerState.stats[ STAT_TEAM ] == TEAM_HUMANS )
   {
     if( entityPositions.lastUpdateTime + HUMAN_SCANNER_UPDATE_PERIOD > cg.time )
       return;
@@ -61,7 +61,7 @@ void CG_UpdateEntityPositions( void )
     if( cent->currentState.eType == ET_BUILDABLE )
     {
       // add to list of item positions (for creep)
-      if( cent->currentState.modelindex2 == BIT_ALIENS )
+      if( cent->currentState.modelindex2 == TEAM_ALIENS )
       {
         VectorCopy( cent->lerpOrigin, entityPositions.alienBuildablePos[
             entityPositions.numAlienBuildables ] );
@@ -71,7 +71,7 @@ void CG_UpdateEntityPositions( void )
         if( entityPositions.numAlienBuildables < MAX_GENTITIES )
           entityPositions.numAlienBuildables++;
       }
-      else if( cent->currentState.modelindex2 == BIT_HUMANS )
+      else if( cent->currentState.modelindex2 == TEAM_HUMANS )
       {
         VectorCopy( cent->lerpOrigin, entityPositions.humanBuildablePos[
             entityPositions.numHumanBuildables ] );
@@ -84,7 +84,7 @@ void CG_UpdateEntityPositions( void )
     {
       int team = cent->currentState.misc & 0x00FF;
 
-      if( team == PTE_ALIENS )
+      if( team == TEAM_ALIENS )
       {
         VectorCopy( cent->lerpOrigin, entityPositions.alienClientPos[
             entityPositions.numAlienClients ] );
@@ -92,7 +92,7 @@ void CG_UpdateEntityPositions( void )
         if( entityPositions.numAlienClients < MAX_CLIENTS )
           entityPositions.numAlienClients++;
       }
-      else if( team == PTE_HUMANS )
+      else if( team == TEAM_HUMANS )
       {
         VectorCopy( cent->lerpOrigin, entityPositions.humanClientPos[
             entityPositions.numHumanClients ] );

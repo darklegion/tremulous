@@ -92,7 +92,7 @@ void G_AddCreditToClient( gclient_t *client, short credit, qboolean cap )
     return;
 
   client->pers.credit += credit;
-  capAmount = client->pers.teamSelection == PTE_ALIENS ?
+  capAmount = client->pers.teamSelection == TEAM_ALIENS ?
                ALIEN_MAX_FRAGS * ALIEN_CREDITS_PER_FRAG : HUMAN_MAX_CREDITS;
 
   if( cap && client->pers.credit > capAmount )
@@ -414,22 +414,22 @@ G_SelectTremulousSpawnPoint
 Chooses a player start, deathmatch start, etc
 ============
 */
-gentity_t *G_SelectTremulousSpawnPoint( pTeam_t team, vec3_t preference, vec3_t origin, vec3_t angles )
+gentity_t *G_SelectTremulousSpawnPoint( team_t team, vec3_t preference, vec3_t origin, vec3_t angles )
 {
   gentity_t *spot = NULL;
 
-  if( team == PTE_ALIENS )
+  if( team == TEAM_ALIENS )
     spot = G_SelectAlienSpawnPoint( preference );
-  else if( team == PTE_HUMANS )
+  else if( team == TEAM_HUMANS )
     spot = G_SelectHumanSpawnPoint( preference );
 
   //no available spots
   if( !spot )
     return NULL;
 
-  if( team == PTE_ALIENS )
+  if( team == TEAM_ALIENS )
     G_CheckSpawnPoint( spot->s.number, spot->s.origin, spot->s.origin2, BA_A_SPAWN, origin );
-  else if( team == PTE_HUMANS )
+  else if( team == TEAM_HUMANS )
     G_CheckSpawnPoint( spot->s.number, spot->s.origin, spot->s.origin2, BA_H_SPAWN, origin );
 
   VectorCopy( spot->s.angles, angles );
@@ -628,10 +628,10 @@ void SpawnCorpse( gentity_t *ent )
   body->timestamp = level.time;
   body->s.event = 0;
   body->r.contents = CONTENTS_CORPSE;
-  body->s.clientNum = ent->client->ps.stats[ STAT_PCLASS ];
+  body->s.clientNum = ent->client->ps.stats[ STAT_CLASS ];
   body->nonSegModel = ent->client->ps.persistant[ PERS_STATE ] & PS_NONSEGMODEL;
 
-  if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  if( ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
     body->classname = "humanCorpse";
   else
     body->classname = "alienCorpse";
@@ -688,7 +688,7 @@ void SpawnCorpse( gentity_t *ent )
   ent->health = 0;
 
   //change body dimensions
-  BG_FindBBoxForClass( ent->client->ps.stats[ STAT_PCLASS ], NULL, NULL, NULL, body->r.mins, body->r.maxs );
+  BG_FindBBoxForClass( ent->client->ps.stats[ STAT_CLASS ], NULL, NULL, NULL, body->r.mins, body->r.maxs );
   vDiff = body->r.mins[ 2 ] - ent->r.mins[ 2 ];
 
   //drop down to match the *model* origins of ent and body
@@ -750,8 +750,7 @@ void respawn( gentity_t *ent )
   // stop any following clients that don't have sticky spec on
   for( i = 0; i < level.maxclients; i++ )
   {
-    if( level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR &&
-        level.clients[ i ].sess.spectatorState == SPECTATOR_FOLLOW &&
+    if( level.clients[ i ].sess.spectatorState == SPECTATOR_FOLLOW &&
         level.clients[ i ].sess.spectatorClient == ent - g_entities )
     {
       if( !( level.clients[ i ].pers.stickySpec ) )
@@ -764,34 +763,6 @@ void respawn( gentity_t *ent )
     }
   }
 }
-
-/*
-================
-TeamCount
-
-Returns number of players on a team
-================
-*/
-team_t TeamCount( int ignoreClientNum, int team )
-{
-  int   i;
-  int   count = 0;
-
-  for( i = 0 ; i < level.maxclients ; i++ )
-  {
-    if( i == ignoreClientNum )
-      continue;
-
-    if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
-      continue;
-
-    if( level.clients[ i ].sess.sessionTeam == team )
-      count++;
-  }
-
-  return count;
-}
-
 
 /*
 ===========
@@ -1021,11 +992,8 @@ void ClientUserinfoChanged( int clientNum )
     }
   }
 
-  if( client->sess.sessionTeam == TEAM_SPECTATOR )
-  {
-    if( client->sess.spectatorState == SPECTATOR_SCOREBOARD )
-      Q_strncpyz( client->pers.netname, "scoreboard", sizeof( client->pers.netname ) );
-  }
+  if( client->sess.spectatorState == SPECTATOR_SCOREBOARD )
+    Q_strncpyz( client->pers.netname, "scoreboard", sizeof( client->pers.netname ) );
 
   if( client->pers.connected == CON_CONNECTED )
   {
@@ -1051,7 +1019,7 @@ void ClientUserinfoChanged( int clientNum )
     client->pers.maxHealth = 0;
 
   // set model
-  if( client->ps.stats[ STAT_PCLASS ] == PCL_HUMAN_BSUIT )
+  if( client->ps.stats[ STAT_CLASS ] == PCL_HUMAN_BSUIT )
   {
     Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_FindModelNameForClass( PCL_HUMAN_BSUIT ),
                                               BG_FindSkinNameForClass( PCL_HUMAN_BSUIT ) );
@@ -1349,16 +1317,10 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   }
 
   // only start client if chosen a class and joined a team
-  if( client->pers.classSelection == PCL_NONE && teamLocal == PTE_NONE )
-  {
-    client->sess.sessionTeam = TEAM_SPECTATOR;
+  if( client->pers.classSelection == PCL_NONE && teamLocal == TEAM_NONE )
     client->sess.spectatorState = SPECTATOR_FREE;
-  }
   else if( client->pers.classSelection == PCL_NONE )
-  {
-    client->sess.sessionTeam = TEAM_SPECTATOR;
     client->sess.spectatorState = SPECTATOR_LOCKED;
-  }
 
   if( origin != NULL )
     VectorCopy( origin, spawn_origin );
@@ -1369,13 +1331,13 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   // find a spawn point
   // do it before setting health back up, so farthest
   // ranging doesn't count this client
-  if( client->sess.sessionTeam == TEAM_SPECTATOR )
+  if( client->sess.spectatorState != SPECTATOR_NOT )
   {
-    if( teamLocal == PTE_NONE )
+    if( teamLocal == TEAM_NONE )
       spawnPoint = G_SelectSpectatorSpawnPoint( spawn_origin, spawn_angles );
-    else if( teamLocal == PTE_ALIENS )
+    else if( teamLocal == TEAM_ALIENS )
       spawnPoint = G_SelectAlienLockSpawnPoint( spawn_origin, spawn_angles );
-    else if( teamLocal == PTE_HUMANS )
+    else if( teamLocal == TEAM_HUMANS )
       spawnPoint = G_SelectHumanLockSpawnPoint( spawn_origin, spawn_angles );
   }
   else
@@ -1393,9 +1355,9 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
       //start spawn animation on spawnPoint
       G_SetBuildableAnim( spawnPoint, BANIM_SPAWN1, qtrue );
 
-      if( spawnPoint->biteam == PTE_ALIENS )
+      if( spawnPoint->buildableTeam == TEAM_ALIENS )
         spawnPoint->clientSpawnTime = ALIEN_SPAWN_REPEAT_TIME;
-      else if( spawnPoint->biteam == PTE_HUMANS )
+      else if( spawnPoint->buildableTeam == TEAM_HUMANS )
         spawnPoint->clientSpawnTime = HUMAN_SPAWN_REPEAT_TIME;
     }
   }
@@ -1430,7 +1392,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
 
   // increment the spawncount so the client will detect the respawn
   client->ps.persistant[ PERS_SPAWN_COUNT ]++;
-  client->ps.persistant[ PERS_TEAM ] = client->sess.sessionTeam;
+  client->ps.persistant[ PERS_SPECSTATE ] = client->sess.spectatorState;
 
   // restore really persistant things
   client->ps.persistant[ PERS_SCORE ] = client->pers.score;
@@ -1468,7 +1430,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
 
   BG_FindBBoxForClass( ent->client->pers.classSelection, ent->r.mins, ent->r.maxs, NULL, NULL, NULL );
 
-  if( client->sess.sessionTeam != TEAM_SPECTATOR )
+  if( client->sess.spectatorState == SPECTATOR_NOT )
     client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] =
       BG_FindHealthForClass( ent->client->pers.classSelection );
   else
@@ -1481,7 +1443,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     BG_AddUpgradeToInventory( UP_MEDKIT, client->ps.stats );
     weapon = client->pers.humanItemSelection;
   }
-  else if( client->sess.sessionTeam != TEAM_SPECTATOR )
+  else if( client->sess.spectatorState == SPECTATOR_NOT )
     weapon = BG_FindStartWeaponForClass( ent->client->pers.classSelection );
   else
     weapon = WP_NONE;
@@ -1494,8 +1456,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   // We just spawned, not changing weapons
   client->ps.persistant[ PERS_NEWWEAPON ] = 0;
 
-  ent->client->ps.stats[ STAT_PCLASS ] = ent->client->pers.classSelection;
-  ent->client->ps.stats[ STAT_PTEAM ] = ent->client->pers.teamSelection;
+  ent->client->ps.stats[ STAT_CLASS ] = ent->client->pers.classSelection;
+  ent->client->ps.stats[ STAT_TEAM ] = ent->client->pers.teamSelection;
 
   ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
   ent->client->ps.stats[ STAT_STATE ] = 0;
@@ -1524,8 +1486,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
 #define F_VEL   50.0f
 
   //give aliens some spawn velocity
-  if( client->sess.sessionTeam != TEAM_SPECTATOR &&
-      client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+  if( client->sess.spectatorState == SPECTATOR_NOT &&
+      client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
   {
     if( ent == spawn )
     {
@@ -1552,8 +1514,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
       G_AddPredictableEvent( ent, EV_PLAYER_RESPAWN, 0 );
     }
   }
-  else if( client->sess.sessionTeam != TEAM_SPECTATOR &&
-           client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  else if( client->sess.spectatorState == SPECTATOR_NOT &&
+           client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
   {
     spawn_angles[ YAW ] += 180.0f;
     AngleNormalize360( spawn_angles[ YAW ] );
@@ -1565,7 +1527,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   trap_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
   G_SetClientViewAngle( ent, spawn_angles );
 
-  if( client->sess.sessionTeam != TEAM_SPECTATOR )
+  if( client->sess.spectatorState == SPECTATOR_NOT )
   {
     trap_LinkEntity( ent );
 
@@ -1617,7 +1579,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   ClientThink( ent-g_entities );
 
   // positively link the client, even if the command times are weird
-  if( client->sess.sessionTeam != TEAM_SPECTATOR )
+  if( client->sess.spectatorState == SPECTATOR_NOT )
   {
     BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
     VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
@@ -1671,7 +1633,7 @@ void ClientDisconnect( int clientNum )
 
   // send effect if they were completely connected
   if( ent->client->pers.connected == CON_CONNECTED &&
-      ent->client->sess.sessionTeam != TEAM_SPECTATOR )
+      ent->client->sess.spectatorState == SPECTATOR_NOT )
   {
     tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_OUT );
     tent->s.clientNum = ent->s.clientNum;
@@ -1688,8 +1650,8 @@ void ClientDisconnect( int clientNum )
   ent->inuse = qfalse;
   ent->classname = "disconnected";
   ent->client->pers.connected = CON_DISCONNECTED;
-  ent->client->ps.persistant[ PERS_TEAM ] = TEAM_FREE;
-  ent->client->sess.sessionTeam = TEAM_FREE;
+  ent->client->sess.spectatorState =
+      ent->client->ps.persistant[ PERS_SPECSTATE ] = SPECTATOR_NOT;
 
   trap_SetConfigstring( CS_PLAYERS + clientNum, "");
 

@@ -474,10 +474,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
   clientInfo_t  *ci;
   int           steptime;
 
-  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
+  if( cg.snap->ps.persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT )
     steptime = 200;
   else
-    steptime = BG_FindSteptimeForClass( cg.snap->ps.stats[ STAT_PCLASS ] );
+    steptime = BG_FindSteptimeForClass( cg.snap->ps.stats[ STAT_CLASS ] );
 
   es = &cent->currentState;
   event = es->event & ~EV_EVENT_BITS;
@@ -663,7 +663,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       DEBUGNAME( "EV_JUMP" );
       trap_S_StartSound( NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*jump1.wav" ) );
 
-      if( BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
+      if( BG_ClassHasAbility( cg.predictedPlayerState.stats[ STAT_CLASS ], SCA_WALLJUMPER ) )
       {
         vec3_t  surfNormal, refNormal = { 0.0f, 0.0f, 1.0f };
         vec3_t  rotAxis;
@@ -954,7 +954,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
 
     case EV_OVERMIND_ATTACK:
       DEBUGNAME( "EV_OVERMIND_ATTACK" );
-      if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      if( cg.predictedPlayerState.stats[ STAT_TEAM ] == TEAM_ALIENS )
       {
         trap_S_StartLocalSound( cgs.media.alienOvermindAttack, CHAN_ANNOUNCER );
         CG_CenterPrint( "The Overmind is under attack!", 200, GIANTCHAR_WIDTH * 4 );
@@ -963,7 +963,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
 
     case EV_OVERMIND_DYING:
       DEBUGNAME( "EV_OVERMIND_DYING" );
-      if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      if( cg.predictedPlayerState.stats[ STAT_TEAM ] == TEAM_ALIENS )
       {
         trap_S_StartLocalSound( cgs.media.alienOvermindDying, CHAN_ANNOUNCER );
         CG_CenterPrint( "The Overmind is dying!", 200, GIANTCHAR_WIDTH * 4 );
@@ -972,7 +972,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
 
     case EV_DCC_ATTACK:
       DEBUGNAME( "EV_DCC_ATTACK" );
-      if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS )
+      if( cg.predictedPlayerState.stats[ STAT_TEAM ] == TEAM_HUMANS )
       {
         //trap_S_StartLocalSound( cgs.media.humanDCCAttack, CHAN_ANNOUNCER );
         CG_CenterPrint( "Our base is under attack!", 200, GIANTCHAR_WIDTH * 4 );
@@ -986,7 +986,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
 
     case EV_OVERMIND_SPAWNS:
       DEBUGNAME( "EV_OVERMIND_SPAWNS" );
-      if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      if( cg.predictedPlayerState.stats[ STAT_TEAM ] == TEAM_ALIENS )
       {
         trap_S_StartLocalSound( cgs.media.alienOvermindSpawns, CHAN_ANNOUNCER );
         CG_CenterPrint( "The Overmind needs spawns!", 200, GIANTCHAR_WIDTH * 4 );

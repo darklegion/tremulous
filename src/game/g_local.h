@@ -190,10 +190,10 @@ struct gentity_s
   float             wait;
   float             random;
 
-  pTeam_t           stageTeam;
+  team_t            stageTeam;
   stage_t           stageStage;
 
-  int               biteam;             // buildable item team
+  team_t            buildableTeam;      // buildable item team
   gentity_t         *parentNode;        // for creep and defence/spawn dependencies
   qboolean          active;             // for power repeater, but could be useful elsewhere
   qboolean          locked;             // used for turret tracking
@@ -232,7 +232,7 @@ struct gentity_s
   qboolean          nonSegModel;        // this entity uses a nonsegmented player model
 
   buildable_t       bTriggers[ BA_NUM_BUILDABLES ]; // which buildables are triggers
-  pClass_t          cTriggers[ PCL_NUM_CLASSES ];   // which classes are triggers
+  class_t           cTriggers[ PCL_NUM_CLASSES ];   // which classes are triggers
   weapon_t          wTriggers[ WP_NUM_WEAPONS ];    // which weapons are triggers
   upgrade_t         uTriggers[ UP_NUM_UPGRADES ];   // which upgrades are triggers
 
@@ -257,15 +257,6 @@ typedef enum
   CON_CONNECTING,
   CON_CONNECTED
 } clientConnected_t;
-
-typedef enum
-{
-  SPECTATOR_NOT,
-  SPECTATOR_FREE,
-  SPECTATOR_LOCKED,
-  SPECTATOR_FOLLOW,
-  SPECTATOR_SCOREBOARD
-} spectatorState_t;
 
 typedef enum
 {
@@ -303,12 +294,9 @@ typedef struct
 // MUST be dealt with in G_InitSessionData() / G_ReadSessionData() / G_WriteSessionData()
 typedef struct
 {
-  team_t            sessionTeam;
   int               spectatorTime;    // for determining next-in-line to play
   spectatorState_t  spectatorState;
   int               spectatorClient;  // for chasecam and follow mode
-  int               wins, losses;     // tournament stats
-  qboolean          teamLeader;       // true when this client is a team leader
   clientList_t      ignoreList;
 } clientSession_t;
 
@@ -318,7 +306,7 @@ typedef struct
 typedef struct connectionRecord_s
 {
   int       clientNum;
-  pTeam_t   clientTeam;
+  team_t    clientTeam;
   int       clientCredit;
 
   int       ptrCode;
@@ -341,10 +329,10 @@ typedef struct
   int                 voteCount;          // to prevent people from constantly calling votes
   qboolean            teamInfo;           // send team overlay updates?
 
-  pClass_t            classSelection;     // player class (copied to ent->client->ps.stats[ STAT_PCLASS ] once spawned)
+  class_t             classSelection;     // player class (copied to ent->client->ps.stats[ STAT_CLASS ] once spawned)
   float               evolveHealthFraction;
   weapon_t            humanItemSelection; // humans have a starting item
-  pTeam_t             teamSelection;      // player team (copied to ps.stats[ STAT_PTEAM ])
+  team_t              teamSelection;      // player team (copied to ps.stats[ STAT_TEAM ])
 
   int                 teamChangeTime;     // level.time of last team change
   qboolean            joinedATeam;        // used to tell when a PTR code is valid
@@ -539,7 +527,7 @@ typedef struct
 
   int               startTime;                    // level.time the map was started
 
-  int               teamScores[ TEAM_NUM_TEAMS ];
+  int               teamScores[ NUM_TEAMS ];
   int               lastTeamLocationTime;         // last time of client team location update
 
   qboolean          newSession;                   // don't use any old session data, because
@@ -626,7 +614,7 @@ typedef struct
 
   int               humanBaseAttackTimer;
 
-  pTeam_t           lastWin;
+  team_t            lastWin;
 
   timeWarning_t     suddenDeathWarning;
   timeWarning_t     timelimitWarning;
@@ -649,7 +637,7 @@ typedef struct
 
   char              layout[ MAX_QPATH ];
 
-  pTeam_t           surrenderTeam;
+  team_t            surrenderTeam;
 } level_locals_t;
 
 #define CMD_CHEAT         0x01
@@ -695,7 +683,7 @@ qboolean  G_SayArgv( int n, char *buffer, int bufferLength );
 char      *G_SayConcatArgs( int start );
 void      G_DecolorString( char *in, char *out );
 void      G_LeaveTeam( gentity_t *self );
-void      G_ChangeTeam( gentity_t *ent, pTeam_t newTeam );
+void      G_ChangeTeam( gentity_t *ent, team_t newTeam );
 void      G_SanitiseName( char *in, char *out );
 void      G_PrivateMessage( gentity_t *ent );
 void      Cmd_Test_f( gentity_t *ent );
@@ -761,7 +749,7 @@ void              G_LayoutSave( char *name );
 int               G_LayoutList( const char *map, char *list, int len );
 void              G_LayoutSelect( void );
 void              G_LayoutLoad( void );
-void              G_BaseSelfDestruct( pTeam_t team );
+void              G_BaseSelfDestruct( team_t team );
 
 //
 // g_utils.c
@@ -770,7 +758,7 @@ int         G_ParticleSystemIndex( char *name );
 int         G_ShaderIndex( char *name );
 int         G_ModelIndex( char *name );
 int         G_SoundIndex( char *name );
-void        G_TeamCommand( pTeam_t team, char *cmd );
+void        G_TeamCommand( team_t team, char *cmd );
 void        G_KillBox (gentity_t *ent);
 gentity_t   *G_Find (gentity_t *from, int fieldofs, const char *match);
 gentity_t   *G_PickTarget (char *targetname);
@@ -862,7 +850,7 @@ void manualTriggerSpectator( gentity_t *trigger, gentity_t *player );
 // g_trigger.c
 //
 void trigger_teleporter_touch( gentity_t *self, gentity_t *other, trace_t *trace );
-void G_Checktrigger_stages( pTeam_t team, stage_t stage );
+void G_Checktrigger_stages( team_t team, stage_t stage );
 
 
 //
@@ -909,7 +897,7 @@ void      G_UpdateZaps( gentity_t *ent );
 void      G_AddCreditToClient( gclient_t *client, short credit, qboolean cap );
 team_t    TeamCount( int ignoreClientNum, int team );
 void      G_SetClientViewAngle( gentity_t *ent, vec3_t angle );
-gentity_t *G_SelectTremulousSpawnPoint( pTeam_t team, vec3_t preference, vec3_t origin, vec3_t angles );
+gentity_t *G_SelectTremulousSpawnPoint( team_t team, vec3_t preference, vec3_t origin, vec3_t angles );
 gentity_t *G_SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
 gentity_t *G_SelectAlienLockSpawnPoint( vec3_t origin, vec3_t angles );
 gentity_t *G_SelectHumanLockSpawnPoint( vec3_t origin, vec3_t angles );
@@ -1037,7 +1025,7 @@ typedef struct mapRotationCondition_s
   mapConditionOperator_t  op;
 
   int                     numClients;
-  pTeam_t                 lastWin;
+  team_t                  lastWin;
 } mapRotationCondition_t;
 
 typedef struct mapRotationEntry_s

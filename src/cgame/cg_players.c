@@ -628,7 +628,7 @@ static void CG_CopyClientInfoModel( clientInfo_t *from, clientInfo_t *to )
 CG_GetCorpseNum
 ======================
 */
-static int CG_GetCorpseNum( pClass_t class )
+static int CG_GetCorpseNum( class_t class )
 {
   int           i;
   clientInfo_t  *match;
@@ -695,7 +695,7 @@ static qboolean CG_ScanForExistingClientInfo( clientInfo_t *ci )
 CG_PrecacheClientInfo
 ======================
 */
-void CG_PrecacheClientInfo( pClass_t class, char *model, char *skin )
+void CG_PrecacheClientInfo( class_t class, char *model, char *skin )
 {
   clientInfo_t  *ci;
   clientInfo_t  newInfo;
@@ -1600,7 +1600,7 @@ Returns the Z component of the surface being shadowed
 ===============
 */
 #define SHADOW_DISTANCE   128
-static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane, pClass_t class )
+static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane, class_t class )
 {
   vec3_t        end, mins, maxs;
   trace_t       trace;
@@ -1667,7 +1667,7 @@ CG_PlayerSplash
 Draw a mark at the water surface
 ===============
 */
-static void CG_PlayerSplash( centity_t *cent, pClass_t class )
+static void CG_PlayerSplash( centity_t *cent, class_t class )
 {
   vec3_t      start, end;
   vec3_t      mins, maxs;
@@ -1858,7 +1858,7 @@ void CG_Player( centity_t *cent )
   qboolean      shadow = qfalse;
   float         shadowPlane;
   entityState_t *es = &cent->currentState;
-  pClass_t      class = ( es->misc >> 8 ) & 0xFF;
+  class_t       class = ( es->misc >> 8 ) & 0xFF;
   float         scale;
   vec3_t        tempAxis[ 3 ], tempAxis2[ 3 ];
   vec3_t        angles;
@@ -2367,16 +2367,16 @@ This is the spurt of blood when a character gets hit
 */
 void CG_Bleed( vec3_t origin, vec3_t normal, int entityNum )
 {
-  pTeam_t           team = cgs.clientinfo[ entityNum ].team;
+  team_t            team = cgs.clientinfo[ entityNum ].team;
   qhandle_t         bleedPS;
   particleSystem_t  *ps;
 
   if( !cg_blood.integer )
     return;
 
-  if( team == PTE_ALIENS )
+  if( team == TEAM_ALIENS )
     bleedPS = cgs.media.alienBleedPS;
-  else if( team == PTE_HUMANS )
+  else if( team == TEAM_HUMANS )
     bleedPS = cgs.media.humanBleedPS;
   else
     return;
