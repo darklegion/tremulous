@@ -43,6 +43,7 @@
     {
       name downloadinfo
       rect 0 50 320 20
+      type ITEM_TYPE_TEXT
       text "Download"
       textalign ALIGN_CENTER
       textstyle ITEM_TEXTSTYLE_SHADOWEDMORE

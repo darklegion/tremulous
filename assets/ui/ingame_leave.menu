@@ -95,6 +95,7 @@
     itemDef
     {
       name leaveConfirm
+      type ITEM_TYPE_TEXT
       text "Return To Main Menu?"
       group grpConfirm
       style WINDOW_STYLE_EMPTY
@@ -151,6 +152,7 @@
     itemDef
     {
       name quitConfirm
+      type ITEM_TYPE_TEXT
       text "Want To Quit Game?"
       group grpConfirm
       style WINDOW_STYLE_EMPTY

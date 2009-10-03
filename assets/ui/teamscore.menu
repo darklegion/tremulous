@@ -117,6 +117,7 @@
 
     itemDef
     {
+      type ITEM_TYPE_TEXT
       text "Status"
       textscale .33
       style WINDOW_STYLE_EMPTY
@@ -131,6 +132,7 @@
 
     itemDef
     {
+      type ITEM_TYPE_TEXT
       text "Name"
       textscale .33
       style WINDOW_STYLE_EMPTY
@@ -145,6 +147,7 @@
 
     itemDef
     {
+      type ITEM_TYPE_TEXT
       text "Score"
       textscale .33
       style WINDOW_STYLE_EMPTY
@@ -159,6 +162,7 @@
 
     itemDef
     {
+      type ITEM_TYPE_TEXT
       text "Time"
       textscale .33
       style WINDOW_STYLE_EMPTY
@@ -173,6 +177,7 @@
 
     itemDef
     {
+      type ITEM_TYPE_TEXT
       text "Ping"
       textscale .33
       style WINDOW_STYLE_EMPTY
@@ -187,6 +192,7 @@
 
     itemDef
     {
+      type ITEM_TYPE_TEXT
       text "Status"
       textscale .33
       style WINDOW_STYLE_EMPTY
@@ -201,6 +207,7 @@
 
     itemDef
     {
+      type ITEM_TYPE_TEXT
       text "Name"
       textscale .33
       style WINDOW_STYLE_EMPTY
@@ -215,6 +222,7 @@
 
     itemDef
     {
+      type ITEM_TYPE_TEXT
       text "Score"
       textscale .33
       style WINDOW_STYLE_EMPTY
@@ -229,6 +237,7 @@
 
     itemDef
     {
+      type ITEM_TYPE_TEXT
       text "Time"
       textscale .33
       style WINDOW_STYLE_EMPTY
@@ -243,6 +252,7 @@
 
     itemDef
     {
+      type ITEM_TYPE_TEXT
       text "Ping"
       textscale .33
       style WINDOW_STYLE_EMPTY

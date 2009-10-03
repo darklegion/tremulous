@@ -52,6 +52,7 @@
     itemDef
     {
       name confirm
+      type ITEM_TYPE_TEXT
       text "It seems that you disconnected during this game. Would you like to be restored to your previous state?"
       style WINDOW_STYLE_EMPTY
       textscale .4

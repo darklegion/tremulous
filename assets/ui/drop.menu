@@ -51,6 +51,7 @@
     {
       name dropinfo
       rect BORDER BORDER INFO_W BUTT_H
+      type ITEM_TYPE_TEXT
       text "Disconnected"
       textalign ALIGN_CENTER
       textvalign VALIGN_CENTER
