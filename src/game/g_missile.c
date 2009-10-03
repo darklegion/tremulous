@@ -597,7 +597,7 @@ void AHive_SearchAndDestroy( gentity_t *self )
   int       i;
   float     d, nearest;
 
-  if( self->timestamp > level.time )
+  if( level.time > self->timestamp )
   {
     VectorCopy( self->r.currentOrigin, self->s.pos.trBase );
     self->s.pos.trType = TR_STATIONARY;
