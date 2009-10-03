@@ -809,25 +809,29 @@ static void CG_Lev2ZapChain( centity_t *cent )
 {
   int           i;
   entityState_t *es;
-  centity_t     *source = NULL, *target = NULL, *attacker = NULL;
-  int           targets[ LEVEL2_AREAZAP_MAX_TARGETS ], creator;
+  centity_t     *source = NULL, *target = NULL;
+  int           entityNums[ LEVEL2_AREAZAP_MAX_TARGETS + 1 ];
+  int           count;
 
   es = &cent->currentState;
 
-  BG_UnpackZapTargets( es, &creator, targets, LEVEL2_AREAZAP_MAX_TARGETS + 1 );
-  attacker = &cg_entities[ creator ];
+  count = BG_UnpackEntityNumbers( es, entityNums, LEVEL2_AREAZAP_MAX_TARGETS + 1 );
 
-  for( i = 0; i < LEVEL2_AREAZAP_MAX_TARGETS; i++ )
+  for( i = 1; i < count; i++ )
   {
-    if( i == 0 )
-      source = attacker;
+    if( i == 1 )
+    {
+      // First entity is the attacker
+      source = &cg_entities[ entityNums[ 0 ] ];
+    }
     else
-      source = &cg_entities[ targets[ 0 ] ];
+    {
+      // Subsequent zaps come from the first target
+      source = &cg_entities[ entityNums[ 1 ] ];
+    }
 
-    if( targets[ i ] == ENTITYNUM_NONE )
-      continue;
+    target = &cg_entities[ entityNums[ i ] ];
 
-    target = &cg_entities[ targets[ i ] ];
     if( !CG_IsTrailSystemValid( &cent->level2ZapTS[ i ] ) )
       cent->level2ZapTS[ i ] = CG_SpawnNewTrailSystem( cgs.media.level2ZapTS );
 

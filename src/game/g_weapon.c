@@ -1156,21 +1156,22 @@ G_UpdateZapEffect
 */
 static void G_UpdateZapEffect( zap_t *zap )
 {
-  int       j;
+  int       i;
   gentity_t *effect = zap->effectChannel;
-  int       targets[MAX_ZAP_TARGETS];
+  int       entityNums[ LEVEL2_AREAZAP_MAX_TARGETS + 1 ];
 
   effect->s.eType = ET_LEV2_ZAP_CHAIN;
   effect->classname = "lev2zapchain";
   G_SetOrigin( effect, zap->creator->s.origin );
 
-  for( j = 0; j < zap->numTargets; j++ )
+  entityNums[ 0 ] = zap->creator->s.number;
+
+  for( i = 0; i < zap->numTargets; i++ )
   {
-    int number = zap->targets[ j ]->s.number;
-    targets[ j ] = number;
+    entityNums[ i + 1 ] = zap->targets[ i ]->s.number;
   }
 
-  BG_PackZapTargets( &effect->s, zap->creator->s.number, targets, zap->numTargets);
+  BG_PackEntityNumbers( &effect->s, entityNums, zap->numTargets + 1 );
   trap_LinkEntity( effect );
 }
 
@@ -1190,26 +1191,29 @@ static void G_CreateNewZap( gentity_t *creator, gentity_t *target )
 
     if( !zap->used )
     {
+      G_Damage( target, creator, creator, forward, target->s.origin,
+                LEVEL2_AREAZAP_DMG, DAMAGE_NO_KNOCKBACK | DAMAGE_NO_LOCDAMAGE,
+                MOD_LEVEL2_ZAP );        
+
       zap->used = qtrue;
 
       zap->timeToLive = LEVEL2_AREAZAP_TIME;
-      zap->damageUsed = 0;
 
       zap->creator = creator;
 
       zap->targets[ 0 ] = target;
       zap->numTargets = 1;
-      G_Damage( target, creator , zap->creator, forward, target->s.origin,
-                LEVEL2_AREAZAP_DMG, DAMAGE_NO_KNOCKBACK | DAMAGE_NO_LOCDAMAGE, MOD_LEVEL2_ZAP );        
-      for( j = 1; j < MAX_ZAP_TARGETS; j++ )
+
+      for( j = 1; j < LEVEL2_AREAZAP_MAX_TARGETS; j++ )
       {
-        zap->targets[ j ] = G_FindNewZapTarget( zap->targets[ 0 ] );
+        zap->targets[ j ] = G_FindNewZapTarget( target );
 
         if( zap->targets[ j ] )
         {
           zap->numTargets++;
-          G_Damage( zap->targets[ j ], zap->targets[ 0 ] , zap->creator, forward, target->s.origin,
-                    LEVEL2_AREAZAP_DMG, DAMAGE_NO_KNOCKBACK | DAMAGE_NO_LOCDAMAGE, MOD_LEVEL2_ZAP );        
+          G_Damage( zap->targets[ j ], target, zap->creator, forward,
+                    target->s.origin, LEVEL2_AREAZAP_DMG,
+                    DAMAGE_NO_KNOCKBACK | DAMAGE_NO_LOCDAMAGE, MOD_LEVEL2_ZAP );        
         }
       }
 

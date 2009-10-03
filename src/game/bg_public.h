@@ -1117,8 +1117,8 @@ int       BG_PlayerPoisonCloudTime( playerState_t *ps );
 weapon_t  BG_GetPlayerWeapon( playerState_t *ps );
 qboolean  BG_HasEnergyWeapon( playerState_t *ps );
 
-void BG_PackZapTargets( entityState_t *es, int creator, const int *entityNums, int count );
-void BG_UnpackZapTargets( entityState_t *es, int *creator, int *entityNums, int count );
+void      BG_PackEntityNumbers( entityState_t *es, const int *entityNums, int count );
+int       BG_UnpackEntityNumbers( entityState_t *es, int *entityNums, int count );
 
 const buildableAttributes_t *BG_BuildableByName( const char *name );
 const buildableAttributes_t *BG_BuildableByEntityName( const char *name );

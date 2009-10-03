@@ -1011,7 +1011,6 @@ typedef enum {
 #define	GENTITYNUM_BITS		10		// don't need to send any more
 #define	MAX_GENTITIES		(1<<GENTITYNUM_BITS)
 #define GENTITYNUM_MASK		(MAX_GENTITIES - 1)
-#define MAX_GENTITYNUM_PACK	10
 
 // entitynums are communicated with GENTITY_BITS, so any reserved
 // values that are going to be communcated over the net need to

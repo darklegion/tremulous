@@ -3461,118 +3461,101 @@ int atoi_neg( char *token, qboolean allowNegative )
   return value;
 }
 
+#define MAX_NUM_PACKED_ENTITY_NUMS 10
+
 /*
 ===============
-BG_PackZapTargets
+BG_PackEntityNumbers
 
-pack up to 12 targets into an entityState_t
+Pack entity numbers into an entityState_t
 ===============
 */
-//FIXME: magic - 1 and count makes no sense
-void BG_PackZapTargets( entityState_t *es, int creator, const int *targets, int count )
+void BG_PackEntityNumbers( entityState_t *es, const int *entityNums, int count )
 {
   int i;
-  es->misc = es->time = es->time2 = es->constantLight = 0;
-  for( i = 0; i < MAX_GENTITYNUM_PACK; i++ )
-  {
-    int entityNum = ENTITYNUM_NONE;
-    if( i < count )
-    {
-      if( i == 0 )
-        entityNum = creator;
-      else
-        entityNum = targets[ i - 1 ];
-    }
 
-    if( entityNum & ~(GENTITYNUM_MASK) )
-    {
-      Com_Printf("Warning: BG_PackZapTargets: targets[%d] (%d) doesn't fit in %d bits, using ENTITYNUM_NONE\n",
-                 i, targets[i], GENTITYNUM_BITS);
+  if( count > MAX_NUM_PACKED_ENTITY_NUMS )
+  {
+    count = MAX_NUM_PACKED_ENTITY_NUMS;
+    Com_Printf( S_COLOR_YELLOW "WARNING: A maximum of %d entity numbers can be "
+      "packed, but BG_PackEntityNumbers was passed %d entities",
+      MAX_NUM_PACKED_ENTITY_NUMS, count );
+  }
+
+  es->misc = es->time = es->time2 = es->constantLight = 0;
+
+  for( i = 0; i < MAX_NUM_PACKED_ENTITY_NUMS; i++ )
+  {
+    int entityNum;
+
+    if( i < count )
+      entityNum = entityNums[ i ];
+    else
       entityNum = ENTITYNUM_NONE;
+
+    if( entityNum & ~GENTITYNUM_MASK )
+    {
+      Com_Error( ERR_FATAL, "BG_PackEntityNumbers passed an entity number (%d) which "
+        "exceeds %d bits", entityNum, GENTITYNUM_BITS );
     }
 
     switch( i )
     {
-      case 0:
-        es->misc |= entityNum;
-        break;
-      case 1:
-        es->time |= entityNum;
-        break;
-      case 2:
-        es->time |= entityNum << GENTITYNUM_BITS;
-        break;
-      case 3:
-        es->time |= entityNum << (GENTITYNUM_BITS * 2);
-        break;
-      case 4:
-        es->time2 |= entityNum;
-        break;
-      case 5:
-        es->time2 |= entityNum << GENTITYNUM_BITS;
-        break;
-      case 6:
-        es->time2 |= entityNum << (GENTITYNUM_BITS * 2);
-        break;
-      case 7:
-        es->constantLight |= entityNum;
-        break;
-      case 8:
-        es->constantLight |= entityNum << GENTITYNUM_BITS;
-        break;
-      case 9:
-        es->constantLight |= entityNum << (GENTITYNUM_BITS * 2);
+      case 0: es->misc |= entityNum;                                       break;
+      case 1: es->time |= entityNum;                                       break;
+      case 2: es->time |= entityNum << GENTITYNUM_BITS;                    break;
+      case 3: es->time |= entityNum << (GENTITYNUM_BITS * 2);              break;
+      case 4: es->time2 |= entityNum;                                      break;
+      case 5: es->time2 |= entityNum << GENTITYNUM_BITS;                   break;
+      case 6: es->time2 |= entityNum << (GENTITYNUM_BITS * 2);             break;
+      case 7: es->constantLight |= entityNum;                              break;
+      case 8: es->constantLight |= entityNum << GENTITYNUM_BITS;           break;
+      case 9: es->constantLight |= entityNum << (GENTITYNUM_BITS * 2);     break;
+      default: Com_Error( ERR_FATAL, "Entity index %d not handled", i );   break;
     }
   }
 }
 
 /*
 ===============
-BG_UnpackZapTargets
+BG_UnpackEntityNumbers
 
-unpacks the 12 targets in an entityState_t
+Unpack entity numbers from an entityState_t
 ===============
 */
-void BG_UnpackZapTargets( entityState_t *es, int *creator, int *targets, int count )
+int BG_UnpackEntityNumbers( entityState_t *es, int *entityNums, int count )
 {
   int i;
+
+  if( count > MAX_NUM_PACKED_ENTITY_NUMS )
+    count = MAX_NUM_PACKED_ENTITY_NUMS;
+
   for( i = 0; i < count; i++ )
   {
+    int *entityNum = &entityNums[ i ];
+
     switch( i )
     {
-      case 0:
-        if(creator)
-          *creator = es->misc & GENTITYNUM_MASK;
-        break;
-      case 1:
-        targets[ i - 1 ] = es->time & GENTITYNUM_MASK;
-        break;
-      case 2:
-        targets[ i - 1 ] = (es->time >> GENTITYNUM_BITS) & GENTITYNUM_MASK;
-        break;
-      case 3:
-        targets[ i - 1 ] = (es->time >> (GENTITYNUM_BITS * 2)) & GENTITYNUM_MASK;
-        break;
-      case 4:
-        targets[ i - 1 ] = es->time2 & GENTITYNUM_MASK;
-        break;
-      case 5:
-        targets[ i - 1 ] = (es->time2 >> GENTITYNUM_BITS) & GENTITYNUM_MASK;
-        break;
-      case 6:
-        targets[ i - 1 ] = (es->time2 >> (GENTITYNUM_BITS * 2)) & GENTITYNUM_MASK;
-        break;
-      case 7:
-        targets[ i - 1 ] = es->constantLight & GENTITYNUM_MASK;
-        break;
-      case 8:
-        targets[ i - 1 ] = (es->constantLight >> GENTITYNUM_BITS) & GENTITYNUM_MASK;
-        break;
-      case 9:
-        targets[ i - 1 ] = (es->constantLight >> (GENTITYNUM_BITS * 2)) & GENTITYNUM_MASK;
-        break;
+      case 0: *entityNum = es->misc;                                      break;
+      case 1: *entityNum = es->time;                                      break;
+      case 2: *entityNum = (es->time >> GENTITYNUM_BITS);                 break;
+      case 3: *entityNum = (es->time >> (GENTITYNUM_BITS * 2));           break;
+      case 4: *entityNum = es->time2;                                     break;
+      case 5: *entityNum = (es->time2 >> GENTITYNUM_BITS);                break;
+      case 6: *entityNum = (es->time2 >> (GENTITYNUM_BITS * 2));          break;
+      case 7: *entityNum = es->constantLight;                             break;
+      case 8: *entityNum = (es->constantLight >> GENTITYNUM_BITS);        break;
+      case 9: *entityNum = (es->constantLight >> (GENTITYNUM_BITS * 2));  break;
+      default: Com_Error( ERR_FATAL, "Entity index %d not handled", i );  break;
     }
+
+    *entityNum &= GENTITYNUM_MASK;
+
+    if( *entityNum == ENTITYNUM_NONE )
+      break;
   }
+
+  return i;
 }
 
 /*

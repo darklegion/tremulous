@@ -864,14 +864,12 @@ void ShineTorch( gentity_t *self );
 // g_weapon.c
 //
 
-#define MAX_ZAP_TARGETS LEVEL2_AREAZAP_MAX_TARGETS
-
 typedef struct zap_s
 {
   qboolean      used;
 
   gentity_t     *creator;
-  gentity_t     *targets[ MAX_ZAP_TARGETS ];
+  gentity_t     *targets[ LEVEL2_AREAZAP_MAX_TARGETS ];
   int           numTargets;
 
   int           timeToLive;
