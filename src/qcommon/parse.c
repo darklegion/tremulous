@@ -900,10 +900,10 @@ static int Parse_ReadPrimitive(script_t *script, token_t *token)
 
 /*
 ===============
-Parse_ReadSciptToken
+Parse_ReadScriptToken
 ===============
 */
-static int Parse_ReadSciptToken(script_t *script, token_t *token)
+static int Parse_ReadScriptToken(script_t *script, token_t *token)
 {
   //if there is a token available (from UnreadToken)
   if (script->tokenavailable)
@@ -1259,7 +1259,7 @@ static int Parse_ReadSourceToken(source_t *source, token_t *token)
   while(!source->tokens)
   {
     //if there's a token to read from the script
-    if (Parse_ReadSciptToken(source->scriptstack, token)) return qtrue;
+    if (Parse_ReadScriptToken(source->scriptstack, token)) return qtrue;
     //if at the end of the script
     if (Parse_EndOfScript(source->scriptstack))
     {
