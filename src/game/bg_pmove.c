@@ -919,7 +919,7 @@ static qboolean PM_CheckDodge( void )
 
   // Reasons to stop a sprint
   if( pm->cmd.forwardmove <= 0 || pm->cmd.upmove < 0 ||
-      pm->ps->pm_type != PM_NORMAL )
+      pm->ps->pm_type != PM_NORMAL || pm->cmd.buttons & BUTTON_WALKING )
     pm->ps->stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
 
   // Reasons why we can't start a dodge or sprint
