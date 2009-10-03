@@ -338,6 +338,8 @@ void CG_OffsetThirdPersonView( void )
     mouseInputAngles[ ROLL ] = 0.0f;
 
     // Set the rotation angles to be the view angles offset by the mouse input
+    // Ignore the original pitch though, it's buggy
+    cg.refdefViewAngles[ PITCH ] = 0.0f;
     for( i = 0; i < 3; i++ )
     {
       rotationAngles[ i ] = cg.refdefViewAngles[ i ] + mouseInputAngles[ i ];
@@ -481,7 +483,7 @@ void CG_OffsetShoulderView( void )
     else pitch += deltaPitch;
   }
   rotationAngles[ PITCH ] = pitch;
-  rotationAngles[ YAW ] = -1.0f * SHORT2ANGLE( cmd.angles[ YAW ] ); // yaw is inverted
+  rotationAngles[ YAW ] = SHORT2ANGLE( cmd.angles[ YAW ] ) + cg.refdefViewAngles[ YAW ]; 
   rotationAngles[ ROLL ] = 0.0f;
 
   // convert viewangles -> axis
