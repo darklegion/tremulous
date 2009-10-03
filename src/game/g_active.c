@@ -259,7 +259,7 @@ ClientImpacts
 */
 void ClientImpacts( gentity_t *ent, pmove_t *pm )
 {
-  int       i, j;
+  int       i;
   trace_t   trace;
   gentity_t *other;
 

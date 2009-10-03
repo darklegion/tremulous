@@ -456,9 +456,22 @@ CG_Menu
 */
 void CG_Menu( int menu )
 {
-  const char *cmd = NULL;	// command to send
-  const char *longMsg   = NULL;	// command parameter
-  const char *shortMsg  = NULL;	// non-modal version of message
+  const char *cmd       = NULL; // command to send
+  const char *longMsg   = NULL; // command parameter
+  const char *shortMsg  = NULL; // non-modal version of message
+
+  const char *dialog;
+  switch( cg.snap->ps.stats[ STAT_PTEAM ] )
+  {
+    case PTE_ALIENS:
+      dialog = "menu tremulous_alien_dialog\n";
+      break;
+    case PTE_HUMANS:
+      dialog = "menu tremulous_human_dialog\n";
+      break;
+    default:
+      dialog = "menu tremulous_default_dialog\n";
+  }
 
   switch( menu )
   {
@@ -489,266 +502,299 @@ void CG_Menu( int menu )
     case MN_A_TEAMFULL:
       longMsg   = "The alien team has too many players. Please wait until slots "
                   "become available or join the human team.";
-      shortMsg  = "The alien team has too many players\n";
-      cmd       = "menu tremulous_alien_dialog\n";
+      shortMsg  = "The alien team has too many players";
+      cmd       = dialog;
       break;
 
     case MN_H_TEAMFULL:
       longMsg   = "The human team has too many players. Please wait until slots "
                   "become available or join the alien team.";
-      shortMsg  = "The human team has too many players\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "The human team has too many players";
+      cmd       = dialog;
       break;
 
     case MN_A_TEAMCHANGEBUILDTIMER:
       longMsg   = "You cannot leave the Alien team until your build timer "
                   "has expired.";
-      shortMsg  = "You cannot change teams until your build timer expires.\n";
-      cmd       = "menu tremulous_alien_dialog\n";
+      shortMsg  = "You cannot change teams until your build timer expires.";
+      cmd       = dialog;
       break;
 
     case MN_H_TEAMCHANGEBUILDTIMER:
       longMsg   = "You cannot leave the Human team until your build timer "
                   "has expired.";
-      shortMsg  = "You cannot change teams until your build timer expires.\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "You cannot change teams until your build timer expires.";
+      cmd       = dialog;
       break;
 
     //===============================
 
-    case MN_H_NOROOM:
-      longMsg   = "There is no room to build here. Move until the buildable turns "
-                  "translucent green indicating a valid build location.";
-      shortMsg  = "There is no room to build here\n";
-      cmd       = "menu tremulous_human_dialog\n";
+    // Since cheating commands have no default binds, they will often be done
+    // via console. In light of this, perhaps opening a menu is 
+    // counterintuitive
+    case MN_CMD_CHEAT:
+      longMsg   = "This action is considered cheating. It can only be used "
+                  "in cheat mode, which is not enabled on this server.";
+      shortMsg  = "Cheats are not enabled on this server";
+      cmd       = dialog;
       break;
+
+    case MN_CMD_TEAM:
+      longMsg   = "You must be on a team to perform this action. Join the alien"
+                  "or human team and try again.";
+      shortMsg  = "Join a team first";
+      cmd       = dialog;
+      break;
+
+    case MN_CMD_SPEC:
+      longMsg   = "You may not perform this action while on a team. Become a "
+                  "spectator before trying again.";
+      shortMsg  = "You can only use this command when spectating";
+      cmd       = dialog;
+      break;
+
+    case MN_CMD_ALIEN:
+      longMsg   = "You must be on the alien team to perform this action.";
+      shortMsg  = "Must be alien to use this command";
+      cmd       = dialog;
+      break;
+
+    case MN_CMD_HUMAN:
+      longMsg   = "You must be on the human team to perform this action.";
+      shortMsg  = "Must be human to use this command";
+      cmd       = dialog;
+      break;
+
+    case MN_CMD_LIVING:
+      longMsg   = "You must be living to perform this action.";
+      shortMsg  = "Must be living to use this command";
+      cmd       = dialog;
+      break;
+
+
+    //===============================
+    
+    case MN_B_NOROOM:
+      longMsg   = "There is no room to build here. Move until the structure turns "
+                  "translucent green indicating a valid build location.";
+      shortMsg  = "There is no room to build here";
+      cmd       = dialog;
+      break;
+
+    case MN_B_NORMAL:
+      longMsg   = "Cannot build on this surface. The surface is too steep or "
+                  "unsuitable to build on. Please choose another site for this "
+                  "structure.";
+      shortMsg  = "Cannot build on this surface";
+      cmd       = dialog;
+      break;
+
+
+    //===============================
 
     case MN_H_NOBP:
       longMsg   = "There is no power remaining. Free up power by destroying "
                   "existing buildable objects.";
-      shortMsg  = "There is no power remaining\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "There is no power remaining";
+      cmd       = dialog;
       break;
 
     case MN_H_NOTPOWERED:
       longMsg   = "This buildable is not powered. Build a Reactor and/or Repeater "
                   "in order to power it.";
-      shortMsg  = "This buildable is not powered\n";
-      cmd       = "menu tremulous_human_dialog\n";
-      break;
-
-    case MN_H_NORMAL:
-      longMsg   = "Cannot build on this surface. The surface is too steep or "
-                  "unsuitable to build on. Please choose another site for this "
-	                "structure.";
-      shortMsg  = "Cannot build on this surface\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "This buildable is not powered";
+      cmd       = dialog;
       break;
 
     case MN_H_ONEREACTOR:
       longMsg   = "There can only be one Reactor. Destroy the existing one if you "
                   "wish to move it.";
-      shortMsg  = "There can only be one Reactor\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "There can only be one Reactor";
+      cmd       = dialog;
       break;
 
     case MN_H_NOPOWERHERE:
       longMsg   = "There is no power here. If available, a Repeater may be used to "
                   "transmit power to this location.";
-      shortMsg  = "There is no power here\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "There is no power here";
+      cmd       = dialog;
       break;
 
     case MN_H_NODCC:
       longMsg   = "There is no Defense Computer. A Defense Computer is needed to "
                   "build this.";
-      shortMsg  = "There is no Defense Computer\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "There is no Defense Computer";
+      cmd       = dialog;
       break;
 
     case MN_H_TNODEWARN:
       longMsg   = "WARNING: This Telenode will not be powered. Build near a power "
                   "structure to prevent seeing this message again.";
-      shortMsg  = "This Telenode will not be powered\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "This Telenode will not be powered";
+      cmd       = dialog;
       break;
 
     case MN_H_RPTNOREAC:
       longMsg   = "WARNING: This Repeater will not be powered as there is no parent "
                   "Reactor providing power. Build a Reactor.";
-      shortMsg  = "This Repeater will not be powered\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "This Repeater will not be powered";
+      cmd       = dialog;
       break;
 
     case MN_H_RPTPOWERHERE:
       longMsg   = "This area already has power. A Repeater is not required here.";
-      shortMsg  = "This area already has power\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "This area already has power";
+      cmd       = dialog;
       break;
 
     case MN_H_NOSLOTS:
       longMsg   = "You have no room to carry this. Please sell any conflicting "
                   "upgrades before purchasing this item.";
-      shortMsg  = "You have no room to carry this\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "You have no room to carry this";
+      cmd       = dialog;
       break;
 
     case MN_H_NOFUNDS:
       longMsg   = "Insufficient funds. You do not have enough credits to perform "
                   "this action.";
-      shortMsg  = "Insufficient funds\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "Insufficient funds";
+      cmd       = dialog;
       break;
 
     case MN_H_ITEMHELD:
       longMsg   = "You already hold this item. It is not possible to carry multiple "
                   "items of the same type.";
-      shortMsg  = "You already hold this item\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "You already hold this item";
+      cmd       = dialog;
       break;
 
     case MN_H_NOARMOURYHERE:
       longMsg   = "You must be near a powered Armoury in order to purchase "
                   "weapons, upgrades or non-energy ammunition.";
-      shortMsg  = "You must be near a powered Armoury\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "You must be near a powered Armoury";
+      cmd       = dialog;
       break;
 
     case MN_H_NOENERGYAMMOHERE:
       longMsg   = "You must be near an Armoury, Reactor or Repeater in order "
                   "to purchase energy ammunition.";
-      shortMsg  = "You must be near an Armoury, Reactor or Repeater\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "You must be near an Armoury, Reactor or Repeater";
+      cmd       = dialog;
       break;
 
     case MN_H_NOROOMBSUITON:
       longMsg   = "There is not enough room here to put on a Battle Suit. "
                   "Make sure you have enough head room to climb in.";
-      shortMsg  = "Not enough room here to put on a Battle Suit\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "Not enough room here to put on a Battle Suit";
+      cmd       = dialog;
       break;
 
     case MN_H_NOROOMBSUITOFF:
       longMsg   = "There is not enough room here to take off your Battle Suit. "
                   "Make sure you have enough head room to climb out.";
-      shortMsg  = "Not enough room here to take off your Battle Suit\n";
-      cmd       = "menu tremulous_human_dialog\n";
+      shortMsg  = "Not enough room here to take off your Battle Suit";
+      cmd       = dialog;
       break;
 
     case MN_H_ARMOURYBUILDTIMER:
       longMsg   = "You are not allowed to buy or sell weapons until your "
                   "build timer has expired.";
       shortMsg  = "You can not buy or sell weapos until your build timer "
-                  "expires\n";
-      cmd       = "menu tremulous_human_dialog\n";
+                  "expires";
+      cmd       = dialog;
       break;
 
 
     //===============================
 
-    case MN_A_NOROOM:
-      longMsg   = "There is no room to build here. Move until the structure turns "
-                  "translucent green indicating a valid build location.";
-      shortMsg  = "There is no room to build here\n";
-      cmd       = "menu tremulous_alien_dialog\n";
-      break;
-
     case MN_A_NOCREEP:
       longMsg   = "There is no creep here. You must build near existing Eggs or "
                   "the Overmind. Alien structures will not support themselves.";
-      shortMsg  = "There is no creep here\n";
-      cmd       = "menu tremulous_alien_dialog\n";
+      shortMsg  = "There is no creep here";
+      cmd       = dialog;
       break;
 
     case MN_A_NOOVMND:
       longMsg   = "There is no Overmind. An Overmind must be built to control "
                   "the structure you tried to place";
-      shortMsg  = "There is no Overmind\n";
-      cmd       = "menu tremulous_alien_dialog\n";
+      shortMsg  = "There is no Overmind";
+      cmd       = dialog;
       break;
 
     case MN_A_ONEOVERMIND:
       longMsg   = "There can only be one Overmind. Destroy the existing one if you "
                   "wish to move it.";
-      shortMsg  = "There can only be one Overmind\n";
-      cmd       = "menu tremulous_alien_dialog\n";
+      shortMsg  = "There can only be one Overmind";
+      cmd       = dialog;
       break;
 
     case MN_A_ONEHOVEL:
       longMsg   = "There can only be one Hovel. Destroy the existing one if you "
                   "wish to move it.";
-      shortMsg  = "There can only be one Hovel\n";
-      cmd       = "menu tremulous_alien_dialog\n";
+      shortMsg  = "There can only be one Hovel";
+      cmd       = dialog;
       break;
 
     case MN_A_NOBP:
       longMsg   = "The Overmind cannot control any more structures. Destroy existing "
                   "structures to build more.";
-      shortMsg  = "The Overmind cannot control any more structures\n";
-      cmd       = "menu tremulous_alien_dialog\n";
+      shortMsg  = "The Overmind cannot control any more structures";
+      cmd       = dialog;
       break;
 
     case MN_A_SPWNWARN:
       longMsg   = "WARNING: This spawn will not be controlled by an Overmind. "
                   "Build an Overmind to prevent seeing this message again.";
-      shortMsg  = "This spawn will not be controlled by an Overmind\n";
-      cmd       = "menu tremulous_alien_dialog\n";
-      break;
-
-    case MN_A_NORMAL:
-      longMsg   = "Cannot build on this surface. This surface is too steep or "
-                  "unsuitable to build on. Please choose another site for this "
-	                "structure.";
-      shortMsg  = "Cannot build on this surface\n";
-      cmd       = "menu tremulous_alien_dialog\n";
+      shortMsg  = "This spawn will not be controlled by an Overmind";
+      cmd       = dialog;
       break;
 
     case MN_A_NOEROOM:
       longMsg   = "There is no room to evolve here. Move away from walls or other "
                    "nearby objects and try again.";
-      cmd       = "menu tremulous_alien_dialog\n";
-      shortMsg  = "There is no room to evolve here\n";
+      cmd       = dialog;
+      shortMsg  = "There is no room to evolve here";
       break;
 
     case MN_A_TOOCLOSE:
       longMsg   = "This location is too close to the enemy to evolve. Move away "
                   "until you are no longer aware of the enemy's presence and try "
-	                "again.";
-      shortMsg  = "This location is too close to the enemy to evolve\n";
-      cmd       = "menu tremulous_alien_dialog\n";
+                  "again.";
+      shortMsg  = "This location is too close to the enemy to evolve";
+      cmd       = dialog;
       break;
 
     case MN_A_NOOVMND_EVOLVE:
       longMsg   = "There is no Overmind. An Overmind must be built to allow "
                   "you to upgrade.";
-      shortMsg  = "There is no Overmind\n";
-      cmd       = "menu tremulous_alien_dialog\n";
+      shortMsg  = "There is no Overmind";
+      cmd       = dialog;
       break;
 
     case MN_A_EVOLVEBUILDTIMER:
       longMsg   = "You cannot Evolve until your build timer has expired.";
-      shortMsg  = "You cannot Evolve until your build timer expires\n";
-      cmd       = "menu tremulous_alien_dialog\n";
+      shortMsg  = "You cannot Evolve until your build timer expires";
+      cmd       = dialog;
       break;
 
     case MN_A_HOVEL_OCCUPIED:
       longMsg   = "This Hovel is already occupied by another builder.";
-      shortMsg  = "This Hovel is already occupied by another builder\n";
-      cmd       = "menu tremulous_alien_dialog\n";
+      shortMsg  = "This Hovel is already occupied by another builder";
+      cmd       = dialog;
       break;
 
     case MN_A_HOVEL_BLOCKED:
       longMsg   = "The exit to this Hovel is currently blocked. Please wait until it "
                   "becomes clear then try again.";
-      shortMsg  = "The exit to this Hovel is currently blocked\n";
-      cmd       = "menu tremulous_alien_dialog\n";
+      shortMsg  = "The exit to this Hovel is currently blocked";
+      cmd       = dialog;
       break;
 
     case MN_A_HOVEL_EXIT:
       longMsg   = "The exit to this Hovel would always be blocked. Please choose "
                   "a more suitable location.";
-      shortMsg  = "The exit to this Hovel would always be blocked\n";
-      cmd       = "menu tremulous_alien_dialog\n";
+      shortMsg  = "The exit to this Hovel would always be blocked";
+      cmd       = dialog;
       break;
 
     case MN_A_INFEST:
@@ -761,22 +807,23 @@ void CG_Menu( int menu )
       Com_Printf( "cgame: debug: no such menu %d\n", menu );
   }
 
-	if( !cg_disableWarningDialogs.integer || !shortMsg )
+  if( cg_disableWarningDialogs.integer == 0 &&
+      !shortMsg )
   {
-		// Player either wants dialog window or there's no short message
-		if( cmd )
+    // Player either wants dialog window or there's no short message
+    if( cmd )
     {
-			if( longMsg )
-				trap_Cvar_Set( "ui_dialog", longMsg );
+      if( longMsg )
+        trap_Cvar_Set( "ui_dialog", longMsg );
 
-			trap_SendConsoleCommand( cmd );
-		}
-	}
-  else
+      trap_SendConsoleCommand( cmd );
+    }
+  }
+  else if( cg_disableWarningDialogs.integer == 1 )
   {
-		// There is short message and player wants it
-		CG_Printf( shortMsg );
-	}
+    // There is short message and player wants it
+    CG_Printf( "%s\n", shortMsg );
+  }
 }
 
 /*

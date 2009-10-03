@@ -2964,8 +2964,7 @@ void ClientCommand( int clientNum )
 
   if( cmds[ i ].cmdFlags & CMD_CHEAT && !g_cheats.integer )
   {
-    trap_SendServerCommand( clientNum,
-      "print \"Cheats are not enabled on this server\n\"" );
+    G_TriggerMenu( clientNum, MN_CMD_CHEAT );
     return;
   }
 
@@ -2975,31 +2974,28 @@ void ClientCommand( int clientNum )
   if( cmds[ i ].cmdFlags & CMD_TEAM &&
       ent->client->pers.teamSelection == PTE_NONE )
   {
-    trap_SendServerCommand( clientNum, "print \"Join a team first\n\"" );
+    G_TriggerMenu( clientNum, MN_CMD_TEAM );
     return;
   }
 
   if( cmds[ i ].cmdFlags & CMD_SPEC &&
       ent->client->sess.sessionTeam != TEAM_SPECTATOR )
   {
-    trap_SendServerCommand( clientNum,
-      "print \"You can only use this command when spectating\n\"" );
+    G_TriggerMenu( clientNum, MN_CMD_SPEC );
     return;
   }
 
   if( cmds[ i ].cmdFlags & CMD_ALIEN &&
       ent->client->pers.teamSelection != PTE_ALIENS )
   {
-    trap_SendServerCommand( clientNum,
-      "print \"Must be alien to use this command\n\"" );
+    G_TriggerMenu( clientNum, MN_CMD_ALIEN );
     return;
   }
 
   if( cmds[ i ].cmdFlags & CMD_HUMAN &&
       ent->client->pers.teamSelection != PTE_HUMANS )
   {
-    trap_SendServerCommand( clientNum,
-      "print \"Must be human to use this command\n\"" );
+    G_TriggerMenu( clientNum, MN_CMD_HUMAN );
     return;
   }
 
@@ -3007,8 +3003,7 @@ void ClientCommand( int clientNum )
     ( ent->client->ps.stats[ STAT_HEALTH ] <= 0 ||
       ent->client->sess.sessionTeam == TEAM_SPECTATOR ) )
   {
-    trap_SendServerCommand( clientNum,
-      "print \"Must be living to use this command\n\"" );
+    G_TriggerMenu( clientNum, MN_CMD_LIVING );
     return;
   }
 

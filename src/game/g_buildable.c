@@ -2042,8 +2042,7 @@ Used by HMGTurret_Think to track enemy location
 */
 qboolean HMGTurret_TrackEnemy( gentity_t *self )
 {
-  trace_t tr;
-  vec3_t  dirToTarget, dttAdjusted, angleToTarget, angularDiff, xNormal, end;
+  vec3_t  dirToTarget, dttAdjusted, angleToTarget, angularDiff, xNormal;
   vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
   float   temp, rotAngle, angularSpeed;
 
@@ -3455,17 +3454,11 @@ qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
       return qfalse;
 
     case IBE_NORMAL:
-      if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-        G_TriggerMenu( ent->client->ps.clientNum, MN_H_NORMAL );
-      else
-        G_TriggerMenu( ent->client->ps.clientNum, MN_A_NORMAL );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_B_NORMAL );
       return qfalse;
 
     case IBE_PERMISSION:
-      if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-        G_TriggerMenu( ent->client->ps.clientNum, MN_H_NORMAL );
-      else
-        G_TriggerMenu( ent->client->ps.clientNum, MN_A_NORMAL );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_B_NORMAL );
       return qfalse;
 
     case IBE_ONEREACTOR:
@@ -3477,10 +3470,7 @@ qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
       return qfalse;
 
     case IBE_NOROOM:
-      if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-        G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOROOM );
-      else
-        G_TriggerMenu( ent->client->ps.clientNum, MN_A_NOROOM );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_B_NOROOM );
       return qfalse;
 
     case IBE_NOHUMANBP:

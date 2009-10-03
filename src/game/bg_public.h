@@ -574,6 +574,14 @@ typedef enum
   MN_A_TEAMFULL,
   MN_H_TEAMFULL,
 
+  // cmd stuff
+  MN_CMD_CHEAT,
+  MN_CMD_TEAM,
+  MN_CMD_SPEC,
+  MN_CMD_ALIEN,
+  MN_CMD_HUMAN,
+  MN_CMD_LIVING,
+
   //alien stuff
   MN_A_CLASS,
   MN_A_BUILD,
@@ -584,14 +592,16 @@ typedef enum
   MN_A_TOOCLOSE,
   MN_A_NOOVMND_EVOLVE,
 
+  //shared build
+  MN_B_NOROOM,
+  MN_B_NORMAL,
+
   //alien build
   MN_A_SPWNWARN, // not currently used
   MN_A_ONEOVERMIND,
   MN_A_NOBP,
   MN_A_NOCREEP,
   MN_A_NOOVMND,
-  MN_A_NOROOM,
-  MN_A_NORMAL, // too steep
   MN_A_ONEHOVEL,
   MN_A_HOVEL_EXIT,
   MN_A_TEAMCHANGEBUILDTIMER,
@@ -615,8 +625,6 @@ typedef enum
   MN_H_NOTPOWERED,
   MN_H_NODCC,
   MN_H_ONEREACTOR,
-  MN_H_NOROOM,
-  MN_H_NORMAL, // too steep
   MN_H_TNODEWARN, // not currently used
   MN_H_RPTNOREAC,
   MN_H_RPTPOWERHERE,
