@@ -633,7 +633,7 @@ static void CG_DrawPlayerPoisonBarbs( rectDef_t *rect, vec4_t color, qhandle_t s
   else if( height <= width )
   {
     vertical = qfalse;
-    iconsize = height;
+    iconsize = height * cgDC.aspectScale;
   }
 
   if( color[ 3 ] != 0.0 )
