@@ -3495,7 +3495,10 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
   // circularly clamp the angles with deltas
   for( i = 0; i < 3; i++ )
   {
-    temp[ i ] = cmd->angles[ i ] + ps->delta_angles[ i ];
+    if( i != ROLL ) 
+      temp[ i ] = cmd->angles[ i ] + ps->delta_angles[ i ];
+    else // currently, nothing can roll
+      temp[ i ] = ps->delta_angles[ i ];
 
     if( i == PITCH )
     {
