@@ -2224,11 +2224,7 @@ static void UI_LoadHumanItems( void )
 
   if( BG_WeaponIsAllowed( WP_MACHINEGUN ) )
     UI_AddItem( WP_MACHINEGUN );
-
-  if( BG_WeaponIsAllowed( WP_HBUILD2 ) &&
-      BG_FindStagesForWeapon( WP_HBUILD2, UI_GetCurrentHumanStage( ) ) )
-    UI_AddItem( WP_HBUILD2 );
-  else if( BG_WeaponIsAllowed( WP_HBUILD ) )
+  if( BG_WeaponIsAllowed( WP_HBUILD ) )
     UI_AddItem( WP_HBUILD );
 }
 

@@ -1566,7 +1566,12 @@ void Menus_CloseAll( qboolean force )
   }
 
   if( force )
+  {
     openMenuCount = 0;
+    g_editingField = qfalse;
+    g_waitingForKey = qfalse;
+    g_editItem = NULL;
+  }
 }
 
 
@@ -4074,9 +4079,6 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down )
   int i;
   itemDef_t *item = NULL;
   qboolean inHandler = qfalse;
-
-  if( inHandler )
-    return;
 
   inHandler = qtrue;
 

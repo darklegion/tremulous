@@ -354,7 +354,6 @@ typedef enum
   //build weapons must remain in a block
   WP_ABUILD,
   WP_ABUILD2,
-  WP_HBUILD2,
   WP_HBUILD,
   //ok?
 
@@ -1086,8 +1085,6 @@ typedef struct
 
   qboolean  purchasable;
   qboolean  longRanged;
-
-  int       buildDelay;
 
   WUTeam_t  team;
 } weaponAttributes_t;

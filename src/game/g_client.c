@@ -1462,6 +1462,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   client->ps.stats[ STAT_WEAPONS ] = 0;
   client->ps.stats[ STAT_WEAPONS2 ] = 0;
   client->ps.stats[ STAT_SLOTS ] = 0;
+  client->ps.stats[ STAT_MISC ] = 0;
 
   client->ps.eFlags = flags;
   client->ps.clientNum = index;

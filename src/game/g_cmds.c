@@ -705,8 +705,7 @@ void Cmd_Team_f( gentity_t *ent )
   if( oldteam != PTE_NONE && ent->client->sess.sessionTeam != TEAM_SPECTATOR &&
      ( ent->client->ps.stats[ STAT_PCLASS ] == PCL_ALIEN_BUILDER0 ||
        ent->client->ps.stats[ STAT_PCLASS ] == PCL_ALIEN_BUILDER0_UPG ||
-       BG_InventoryContainsWeapon( WP_HBUILD, ent->client->ps.stats ) ||
-       BG_InventoryContainsWeapon( WP_HBUILD2, ent->client->ps.stats ) ) &&
+       BG_InventoryContainsWeapon( WP_HBUILD, ent->client->ps.stats ) ) &&
       ent->client->ps.stats[ STAT_MISC ] > 0 )
   {
     if( ent->client->pers.teamSelection == PTE_ALIENS )
@@ -1577,12 +1576,6 @@ void Cmd_Class_f( gentity_t *ent )
       {
         ent->client->pers.humanItemSelection = WP_HBUILD;
       }
-      else if( !Q_stricmp( s, BG_FindNameForWeapon( WP_HBUILD2 ) ) &&
-               BG_WeaponIsAllowed( WP_HBUILD2 ) &&
-               BG_FindStagesForWeapon( WP_HBUILD2, g_humanStage.integer ) )
-      {
-        ent->client->pers.humanItemSelection = WP_HBUILD2;
-      }
       else
       {
         G_TriggerMenu( ent->client->ps.clientNum, MN_H_UNKNOWNSPAWNITEM );
@@ -2182,8 +2175,7 @@ void Cmd_Sell_f( gentity_t *ent )
     if( BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
     {
       //guard against selling the HBUILD weapons exploit
-      if( ( weapon == WP_HBUILD || weapon == WP_HBUILD2 ) &&
-          ent->client->ps.stats[ STAT_MISC ] > 0 )
+      if( weapon == WP_HBUILD && ent->client->ps.stats[ STAT_MISC ] > 0 )
       {
         G_TriggerMenu( ent->client->ps.clientNum, MN_H_ARMOURYBUILDTIMER );
         return;
@@ -2240,8 +2232,7 @@ void Cmd_Sell_f( gentity_t *ent )
     for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
     {
       //guard against selling the HBUILD weapons exploit
-      if( ( i == WP_HBUILD || i == WP_HBUILD2 ) &&
-          ent->client->ps.stats[ STAT_MISC ] > 0 )
+      if( i == WP_HBUILD && ent->client->ps.stats[ STAT_MISC ] > 0 )
       {
         G_TriggerMenu( ent->client->ps.clientNum, MN_H_ARMOURYBUILDTIMER );
         continue;

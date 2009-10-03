@@ -41,8 +41,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ABUILDER_CLAW_WIDTH         4.0f
 #define ABUILDER_CLAW_REPEAT        1000
 #define ABUILDER_CLAW_K_SCALE       1.0f
-#define ABUILDER_BASE_DELAY         17000
-#define ABUILDER_ADV_DELAY          12000
 #define ABUILDER_BLOB_DMG           ADM(4)
 #define ABUILDER_BLOB_REPEAT        1000
 #define ABUILDER_BLOB_SPEED         800.0f
@@ -477,12 +475,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define HBUILD_PRICE                0
 #define HBUILD_REPEAT               1000
-#define HBUILD_DELAY                17500
 #define HBUILD_HEALRATE             18
-
-#define HBUILD2_PRICE               0
-#define HBUILD2_REPEAT              1000
-#define HBUILD2_DELAY               15000
 
 /*
  * HUMAN upgrades
@@ -675,3 +668,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define DAMAGE_FRACTION_FOR_KILL    0.5f //how much damage players (versus structures) need to
                                          //do to increment the stage kill counters
+                                         
+#define MAXIMUM_BUILD_TIME          20000 // used for pie timer
+

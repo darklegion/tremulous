@@ -176,6 +176,7 @@ vmCvar_t  cg_drawTeamOverlay;
 vmCvar_t  cg_teamOverlayUserinfo;
 vmCvar_t  cg_drawFriend;
 vmCvar_t  cg_teamChatsOnly;
+vmCvar_t  cg_printDuplicate;
 vmCvar_t  cg_noVoiceChats;
 vmCvar_t  cg_noVoiceText;
 vmCvar_t  cg_hudFiles;
@@ -313,6 +314,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_stats, "cg_stats", "0", 0 },
   { &cg_drawFriend, "cg_drawFriend", "1", CVAR_ARCHIVE },
   { &cg_teamChatsOnly, "cg_teamChatsOnly", "0", CVAR_ARCHIVE },
+  { &cg_printDuplicate, "cg_printDuplicate", "0", CVAR_ARCHIVE },
   { &cg_noVoiceChats, "cg_noVoiceChats", "0", CVAR_ARCHIVE },
   { &cg_noVoiceText, "cg_noVoiceText", "0", CVAR_ARCHIVE },
   { &cg_drawSurfNormal, "cg_drawSurfNormal", "0", CVAR_CHEAT },
@@ -547,6 +549,7 @@ CG_AddNotifyText
 void CG_AddNotifyText( void )
 {
   char buffer[ BIG_INFO_STRING ];
+  int bufferLen, textLen;
 
   trap_LiteralArgs( buffer, BIG_INFO_STRING );
 
@@ -557,12 +560,20 @@ void CG_AddNotifyText( void )
     return;
   }
 
+  bufferLen = strlen( buffer );
+  textLen = strlen( cg.consoleText );
+  
+  // Ignore console messages that were just printed
+  if( !cg_printDuplicate.integer && textLen >= bufferLen &&
+      !strcmp( cg.consoleText + textLen - bufferLen, buffer ) )
+    return;
+      
   if( cg.numConsoleLines == MAX_CONSOLE_LINES )
     CG_RemoveNotifyLine( );
 
   Q_strcat( cg.consoleText, MAX_CONSOLE_TEXT, buffer );
   cg.consoleLines[ cg.numConsoleLines ].time = cg.time;
-  cg.consoleLines[ cg.numConsoleLines ].length = strlen( buffer );
+  cg.consoleLines[ cg.numConsoleLines ].length = bufferLen;
   cg.numConsoleLines++;
 }
 

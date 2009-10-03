@@ -515,13 +515,9 @@ static void CG_DrawPlayerClipsRing( rectDef_t *rect, vec4_t color, qhandle_t sha
     case WP_ABUILD:
     case WP_ABUILD2:
     case WP_HBUILD:
-    case WP_HBUILD2:
-      maxDelay = (float)BG_FindBuildDelayForWeapon( cent->currentState.weapon );
-
-      if( buildTime > maxDelay )
-        buildTime = maxDelay;
-
-      progress = ( maxDelay - buildTime ) / maxDelay;
+      if( buildTime > MAXIMUM_BUILD_TIME )
+        buildTime = MAXIMUM_BUILD_TIME;
+      progress = ( MAXIMUM_BUILD_TIME - buildTime ) / MAXIMUM_BUILD_TIME;
 
       color[ 3 ] = HH_MIN_ALPHA + ( progress * HH_ALPHA_DIFF );
       break;
@@ -553,16 +549,13 @@ static void CG_DrawPlayerBuildTimerRing( rectDef_t *rect, vec4_t color, qhandle_
   centity_t     *cent;
   float         buildTime = ps->stats[ STAT_MISC ];
   float         progress;
-  float         maxDelay;
 
   cent = &cg_entities[ cg.snap->ps.clientNum ];
 
-  maxDelay = (float)BG_FindBuildDelayForWeapon( cent->currentState.weapon );
+  if( buildTime > MAXIMUM_BUILD_TIME )
+    buildTime = MAXIMUM_BUILD_TIME;
 
-  if( buildTime > maxDelay )
-    buildTime = maxDelay;
-
-  progress = ( maxDelay - buildTime ) / maxDelay;
+  progress = ( MAXIMUM_BUILD_TIME - buildTime ) / MAXIMUM_BUILD_TIME;
 
   color[ 3 ] = AH_MIN_ALPHA + ( progress * AH_ALPHA_DIFF );
 
@@ -700,7 +693,6 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
         break;
 
       case WP_HBUILD:
-      case WP_HBUILD2:
         //percentage of BP remaining
         value = cgs.humanBuildPoints;
         break;
@@ -785,7 +777,6 @@ static void CG_DrawUsableBuildable( rectDef_t *rect, qhandle_t shader, vec4_t co
 
 static void CG_DrawPlayerBuildTimer( rectDef_t *rect, vec4_t color )
 {
-  float         progress;
   int           index;
   centity_t     *cent;
   playerState_t *ps;
@@ -793,56 +784,30 @@ static void CG_DrawPlayerBuildTimer( rectDef_t *rect, vec4_t color )
   cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
 
-  if( cent->currentState.weapon )
+  if( ( cent->currentState.weapon != WP_ABUILD &&
+        cent->currentState.weapon != WP_ABUILD2 &&
+        cent->currentState.weapon != WP_HBUILD ) ||
+      ps->stats[ STAT_MISC ] <= 0 )
+    return;
+
+  index = 8 * ( ps->stats[ STAT_MISC ] - 1 ) / MAXIMUM_BUILD_TIME;
+  if( index > 7 )
+    index = 7;
+  else if( index < 0 )
+    index = 0;
+
+  if( cg.time - cg.lastBuildAttempt <= BUILD_DELAY_TIME &&
+      ( ( cg.time - cg.lastBuildAttempt ) / 300 ) % 2 )
   {
-    switch( cent->currentState.weapon )
-    {
-      case WP_ABUILD:
-        progress = (float)ps->stats[ STAT_MISC ] / (float)ABUILDER_BASE_DELAY;
-        break;
-
-      case WP_ABUILD2:
-        progress = (float)ps->stats[ STAT_MISC ] / (float)ABUILDER_ADV_DELAY;
-        break;
-
-      case WP_HBUILD:
-        progress = (float)ps->stats[ STAT_MISC ] / (float)HBUILD_DELAY;
-        break;
-
-      case WP_HBUILD2:
-        progress = (float)ps->stats[ STAT_MISC ] / (float)HBUILD2_DELAY;
-        break;
-
-      default:
-        return;
-        break;
-    }
-
-    if( !ps->stats[ STAT_MISC ] )
-      return;
-
-    index = (int)( progress * 8.0f );
-
-    if( index > 7 )
-      index = 7;
-    else if( index < 0 )
-      index = 0;
-
-    if( cg.time - cg.lastBuildAttempt <= BUILD_DELAY_TIME )
-    {
-      if( ( ( cg.time - cg.lastBuildAttempt ) / 300 ) % 2 )
-      {
-        color[ 0 ] = 1.0f;
-        color[ 1 ] = color[ 2 ] = 0.0f;
-        color[ 3 ] = 1.0f;
-      }
-    }
-
-    trap_R_SetColor( color );
-    CG_DrawPic( rect->x, rect->y, rect->w, rect->h,
-      cgs.media.buildWeaponTimerPie[ index ] );
-    trap_R_SetColor( NULL );
+    color[ 0 ] = 1.0f;
+    color[ 1 ] = color[ 2 ] = 0.0f;
+    color[ 3 ] = 1.0f;
   }
+
+  trap_R_SetColor( color );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h,
+              cgs.media.buildWeaponTimerPie[ index ] );
+  trap_R_SetColor( NULL );
 }
 
 static void CG_DrawPlayerClipsValue( rectDef_t *rect, vec4_t color )
@@ -861,7 +826,6 @@ static void CG_DrawPlayerClipsValue( rectDef_t *rect, vec4_t color )
       case WP_ABUILD:
       case WP_ABUILD2:
       case WP_HBUILD:
-      case WP_HBUILD2:
         break;
 
       default:
@@ -2005,9 +1969,7 @@ static void CG_DrawCrosshair( void )
 
   if( cg_drawCrosshair.integer == CROSSHAIR_RANGEDONLY &&
       !BG_FindLongRangedForWeapon( cg.snap->ps.weapon ) )
-  {
     return;
-  } 
 
   if( ( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR ) ||
       ( cg.snap->ps.stats[ STAT_STATE ] & SS_INFESTING ) ||

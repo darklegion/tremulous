@@ -418,11 +418,12 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
   }
   
   // Check to see if we are in the spawn queue
-  queued = qfalse;
   if( client->pers.teamSelection == PTE_ALIENS )
     queued = G_SearchSpawnQueue( &level.alienSpawnQueue, ent - g_entities );
   else if( client->pers.teamSelection == PTE_HUMANS )
     queued = G_SearchSpawnQueue( &level.humanSpawnQueue, ent - g_entities );
+  else
+    queued = qfalse;
 
   // Wants to get out of spawn queue
   if( attack1 && queued )
@@ -438,8 +439,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
     client->ps.pm_flags &= ~PMF_QUEUED;
     queued = qfalse;
   }
-  else if( attack1 && client->pers.teamSelection != PTE_NONE &&
-           client->pers.classSelection == PCL_NONE )
+  else if( attack1 )
   {
     // Wants to get into spawn queue
     if( client->sess.spectatorState == SPECTATOR_FOLLOW )
@@ -692,8 +692,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
     }
 
     if( client->ps.weapon == WP_ABUILD || client->ps.weapon == WP_ABUILD2 ||
-      BG_InventoryContainsWeapon( WP_HBUILD, client->ps.stats ) ||
-      BG_InventoryContainsWeapon( WP_HBUILD2, client->ps.stats ) )
+        BG_InventoryContainsWeapon( WP_HBUILD, client->ps.stats ) )
     {
         //update build timer
         if( client->ps.stats[ STAT_MISC ] > 0 )
@@ -708,7 +707,6 @@ void ClientTimerActions( gentity_t *ent, int msec )
       case WP_ABUILD:
       case WP_ABUILD2:
       case WP_HBUILD:
-      case WP_HBUILD2:
         //set validity bit on buildable
         if( ( client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
         {

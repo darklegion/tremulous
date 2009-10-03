@@ -863,27 +863,25 @@ void cancelBuildFire( gentity_t *ent )
   gentity_t   *traceEnt;
   int         bHealth;
 
+  // Cancel ghost buildable
   if( ent->client->ps.stats[ STAT_BUILDABLE ] != BA_NONE )
   {
     ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
     return;
   }
 
-  //repair buildable
+  // Construction kit repair
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
     AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
     VectorMA( ent->client->ps.origin, 100, forward, end );
-
-    trap_Trace( &tr, ent->client->ps.origin, NULL, NULL, end, ent->s.number, MASK_PLAYERSOLID );
+    
+    trap_Trace( &tr, ent->client->ps.origin, NULL, NULL, end, ent->s.number,
+                MASK_PLAYERSOLID );
     traceEnt = &g_entities[ tr.entityNum ];
 
-    if( tr.fraction < 1.0 &&
-        ( traceEnt->s.eType == ET_BUILDABLE ) &&
-        ( traceEnt->biteam == ent->client->ps.stats[ STAT_PTEAM ] ) &&
-        ( ( ent->client->ps.weapon >= WP_HBUILD2 ) &&
-          ( ent->client->ps.weapon <= WP_HBUILD ) ) &&
-        traceEnt->spawned && traceEnt->health > 0 )
+    if( tr.fraction < 1.0f && traceEnt->spawned && traceEnt->health > 0 &&
+        traceEnt->s.eType == ET_BUILDABLE && traceEnt->biteam == BIT_HUMANS )
     {
       if( ent->client->ps.stats[ STAT_MISC ] > 0 )
       {
@@ -892,20 +890,20 @@ void cancelBuildFire( gentity_t *ent )
       }
 
       bHealth = BG_FindHealthForBuildable( traceEnt->s.modelindex );
-
       traceEnt->health += HBUILD_HEALRATE;
-
-      if( traceEnt->health > bHealth )
+      if( traceEnt->health >= bHealth )
+      {
         traceEnt->health = bHealth;
-
-      if( traceEnt->health == bHealth )
         G_AddEvent( ent, EV_BUILD_REPAIRED, 0 );
+      }
       else
         G_AddEvent( ent, EV_BUILD_REPAIR, 0 );
     }
   }
+  
+  // Granger slash
   else if( ent->client->ps.weapon == WP_ABUILD ||
-		  ent->client->ps.weapon == WP_ABUILD2 )
+           ent->client->ps.weapon == WP_ABUILD2 )
     meleeAttack( ent, ABUILDER_CLAW_RANGE, ABUILDER_CLAW_WIDTH,
                  ABUILDER_CLAW_WIDTH, ABUILDER_CLAW_DMG, MOD_ABUILDER_CLAW );
 }
@@ -930,22 +928,15 @@ void buildFire( gentity_t *ent, dynMenu_t menu )
 
     if( G_BuildIfValid( ent, buildable ) )
     {
-      if( g_cheats.integer )
-      {
-        ent->client->ps.stats[ STAT_MISC ] = 0;
-      }
-      else
+      if( !g_cheats.integer )
       {
         ent->client->ps.stats[ STAT_MISC ] +=
           BG_FindBuildTimeForBuildable( buildable );
       }
 
       ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
-
-      // don't want it bigger than 32k
-      if( ent->client->ps.stats[ STAT_MISC ] > 30000 )
-        ent->client->ps.stats[ STAT_MISC ] = 30000;
     }
+
     return;
   }
 
@@ -1525,7 +1516,6 @@ void FireWeapon2( gentity_t *ent )
     case WP_ABUILD:
     case WP_ABUILD2:
     case WP_HBUILD:
-    case WP_HBUILD2:
       cancelBuildFire( ent );
       break;
     default:
@@ -1633,7 +1623,6 @@ void FireWeapon( gentity_t *ent )
       buildFire( ent, MN_A_BUILD );
       break;
     case WP_HBUILD:
-    case WP_HBUILD2:
       buildFire( ent, MN_H_BUILD );
       break;
     default:

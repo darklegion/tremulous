@@ -138,7 +138,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BOOSTER_SPLASHRADIUS,  //int       splashRadius;
     MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
-    ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
+    ( 1 << WP_ABUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     BOOSTER_BT,            //int       buildTime;
@@ -217,7 +217,7 @@ buildableAttributes_t bg_buildableList[ ] =
     HIVE_SPLASHRADIUS,     //int       splashRadius;
     MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
-    ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
+    ( 1 << WP_ABUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     500,                   //int       nextthink;
     HIVE_BT,               //int       buildTime;
@@ -257,7 +257,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TRAPPER_SPLASHRADIUS,  //int       splashRadius;
     MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
-    ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
+    ( 1 << WP_ABUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     TRAPPER_BT,            //int       buildTime;
@@ -337,7 +337,7 @@ buildableAttributes_t bg_buildableList[ ] =
     HOVEL_SPLASHRADIUS,    //int       splashRadius;
     MOD_ASPAWN,            //int       meansOfDeath;
     BIT_ALIENS,            //int       team;
-    ( 1 << WP_ABUILD )|( 1 << WP_ABUILD2 ),    //weapon_t  buildWeapon;
+    ( 1 << WP_ABUILD2 ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     150,                   //int       nextthink;
     HOVEL_BT,              //int       buildTime;
@@ -377,7 +377,7 @@ buildableAttributes_t bg_buildableList[ ] =
     HSPAWN_SPLASHRADIUS,   //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     HSPAWN_BT,             //int       buildTime;
@@ -418,7 +418,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MEDISTAT_SPLASHRADIUS, //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     MEDISTAT_BT,           //int       buildTime;
@@ -460,7 +460,7 @@ buildableAttributes_t bg_buildableList[ ] =
     MGTURRET_SPLASHRADIUS, //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD ),   //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     50,                    //int       nextthink;
     MGTURRET_BT,           //int       buildTime;
@@ -500,7 +500,7 @@ buildableAttributes_t bg_buildableList[ ] =
     TESLAGEN_SPLASHRADIUS, //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     150,                   //int       nextthink;
     TESLAGEN_BT,           //int       buildTime;
@@ -540,7 +540,7 @@ buildableAttributes_t bg_buildableList[ ] =
     DC_SPLASHRADIUS,       //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD2 ),   //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     DC_BT,                 //int       buildTime;
@@ -580,7 +580,7 @@ buildableAttributes_t bg_buildableList[ ] =
     ARMOURY_SPLASHRADIUS,  //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     ARMOURY_BT,            //int       buildTime;
@@ -620,7 +620,7 @@ buildableAttributes_t bg_buildableList[ ] =
     REACTOR_SPLASHRADIUS,  //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     REACTOR_ATTACK_DCC_REPEAT, //int       nextthink;
     REACTOR_BT,            //int       buildTime;
@@ -660,7 +660,7 @@ buildableAttributes_t bg_buildableList[ ] =
     REPEATER_SPLASHRADIUS, //int       splashRadius;
     MOD_HSPAWN,            //int       meansOfDeath;
     BIT_HUMANS,            //int       team;
-    ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
+    ( 1 << WP_HBUILD ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
     100,                   //int       nextthink;
     REPEATER_BT,           //int       buildTime;
@@ -3244,7 +3244,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
     qtrue,                //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -3271,7 +3270,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
     qtrue,                //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -3299,7 +3297,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
     qtrue,                //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -3327,7 +3324,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
     qtrue,                //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -3355,7 +3351,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
     qtrue,                //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -3384,7 +3379,6 @@ weaponAttributes_t bg_weapons[ ] =
     20.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
     qtrue,                //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -3410,7 +3404,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
     qtrue,                //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -3438,7 +3431,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
     qtrue,                //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -3465,7 +3457,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
     qtrue,                //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -3493,7 +3484,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
     qfalse,               //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -3519,7 +3509,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
     qfalse,               //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -3529,8 +3518,9 @@ weaponAttributes_t bg_weapons[ ] =
     SLOT_WEAPON,          //int       slots;
     "ckit",               //char      *weaponName;
     "Construction Kit",   //char      *weaponHumanName;
-    "Used for building basic structures. This includes "
-      "spawns, power and basic defense.",
+    "Used for building structures. This includes "
+      "spawns, power and basic defense. More structures become "
+      "available with new stages.",
     0,                    //int       maxAmmo;
     0,                    //int       maxClips;
     qtrue,                //int       infiniteAmmo;
@@ -3546,35 +3536,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
     qfalse,               //qboolean  longRanged;
-    HBUILD_DELAY,         //int       buildDelay;
-    WUT_HUMANS            //WUTeam_t  team;
-  },
-  {
-    WP_HBUILD2,           //int       weaponNum;
-    HBUILD2_PRICE,        //int       price;
-    ( 1 << S2 )|( 1 << S3 ), //int  stages
-    SLOT_WEAPON,          //int       slots;
-    "ackit",              //char      *weaponName;
-    "Adv Construction Kit",//char      *weaponHumanName;
-    "Used for building basic and advanced structures. "
-      "Advanced structures include Defense Computers "
-      "and Tesla Generators.",
-    0,                    //int       maxAmmo;
-    0,                    //int       maxClips;
-    qtrue,                //int       infiniteAmmo;
-    qfalse,               //int       usesEnergy;
-    HBUILD2_REPEAT,       //int       repeatRate1;
-    HBUILD2_REPEAT,       //int       repeatRate2;
-    0,                    //int       repeatRate3;
-    0,                    //int       reloadTime;
-    0.0f,                 //float     knockbackScale;
-    qtrue,                //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
-    90.0f,                //float     zoomFov;
-    qtrue,                //qboolean  purchasable;
-    qfalse,               //qboolean  longRanged;
-    HBUILD2_DELAY,        //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -3600,7 +3561,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
     qfalse,               //qboolean  longRanged;
-    ABUILDER_BASE_DELAY,  //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
@@ -3626,7 +3586,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qtrue,                //qboolean  purchasable;
     qfalse,               //qboolean  longRanged;
-    ABUILDER_ADV_DELAY,   //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
@@ -3652,7 +3611,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
     qfalse,               //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
@@ -3678,7 +3636,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
     qfalse,               //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
@@ -3704,7 +3661,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
     qtrue,                //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
@@ -3730,7 +3686,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
     qfalse,               //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
@@ -3756,7 +3711,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
     qfalse,               //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
@@ -3782,7 +3736,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
     qfalse,               //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
@@ -3808,7 +3761,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
     qtrue,                //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
@@ -3834,7 +3786,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
     qfalse,               //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
@@ -3860,7 +3811,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
     qfalse,               //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
@@ -3886,7 +3836,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
     qfalse,               //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_ALIENS            //WUTeam_t  team;
   },
   {
@@ -3912,7 +3861,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
     qfalse,               //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   },
   {
@@ -3938,7 +3886,6 @@ weaponAttributes_t bg_weapons[ ] =
     90.0f,                //float     zoomFov;
     qfalse,               //qboolean  purchasable;
     qfalse,               //qboolean  longRanged;
-    0,                    //int       buildDelay;
     WUT_HUMANS            //WUTeam_t  team;
   }
 };
@@ -4360,26 +4307,6 @@ qboolean BG_FindLongRangedForWeapon( int weapon )
   }
 
   return qfalse;
-}
-
-/*
-==============
-BG_FindBuildDelayForWeapon
-==============
-*/
-int BG_FindBuildDelayForWeapon( int weapon )
-{
-  int i;
-
-  for( i = 0; i < bg_numWeapons; i++ )
-  {
-    if( bg_weapons[ i ].weaponNum == weapon )
-    {
-      return bg_weapons[ i ].buildDelay;
-    }
-  }
-
-  return 0;
 }
 
 /*

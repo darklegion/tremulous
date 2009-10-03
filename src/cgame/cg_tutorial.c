@@ -502,7 +502,6 @@ static void CG_HumanText( char *text, playerState_t *ps )
         break;
 
       case WP_HBUILD:
-      case WP_HBUILD2:
         CG_HumanCkitText( text, ps );
         break;
 
