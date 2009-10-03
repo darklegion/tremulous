@@ -723,6 +723,16 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
   else
     prefix = "";
 
+  // check if blocked by g_specChat 0
+  if( ( !g_specChat.integer ) && ( mode != SAY_TEAM ) &&
+      ( ent ) && ( ent->client->pers.teamSelection == TEAM_NONE ) && 
+      ( !G_admin_permission( ent, ADMF_NOCENSORFLOOD ) ) ) 
+  {
+    trap_SendServerCommand( ent-g_entities, va( "print \"Global chatting for "
+      "spectators has been disabled. You may only use team chat.\n\"") );
+    return;
+  }
+
   switch( mode )
   {
     default:
