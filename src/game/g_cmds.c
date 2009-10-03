@@ -2570,6 +2570,14 @@ void Cmd_Build_f( gentity_t *ent )
         err = MN_H_NODCC;
         break;
 
+      case IBE_PERMISSION:
+        err = MN_B_CANNOT;
+        break;
+
+      case IBE_LASTSPAWN:
+        err = MN_B_LASTSPAWN;
+        break;
+
       default:
         err = -1; // stop uninitialised warning
         break;
