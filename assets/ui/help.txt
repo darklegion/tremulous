@@ -86,15 +86,20 @@
     "be removed automatically. Buildables that are about to be removed by "
     "constructing the selected buildable glow red."
   }
-  "Sprint / Dodge"
+  "Sprint"
   {
-    "Human players will find their old binds for sprinting will no longer "
-    "work. Sprinting has been merged with a new Human ability, dodging. You "
-    "can bind a key for Sprint and Dodge via the Options menu or bind a "
-    "key (\\bind shift +button6). When you are strafing or walking backwards, "
-    "press the dodge key to make a quick sideways jump. When running forward, "
-    "press the dodge key to start a sprint. The sprint will last until you let "
-    "go of the forward key."
+    "The sprint bind has changed from \"boost\" to \"+button8\"; you can bind it "
+    "in the options menu or in the console (\\bind shift +button8). Now, instead "
+    "of tapping the button while moving to start sprinting, just hold it down "
+    "and let go to stop."
+  }
+  "Dodge"
+  {
+    "Humans have a new movement ability: dodge. You can bind it in the "
+    "options menu or the console (\\bind shift +button6). When strafing or "
+    "walking backwards, press the dodge key to make a quick, low jump. You "
+    "can bind this to the same key as sprint in the console with \\bind shift "
+    "\"+button8; +button6\""
   }
   "Dretch"
   {
