@@ -46,7 +46,7 @@ void CG_RegisterUpgrade( int upgradeNum )
   if( upgradeInfo->registered )
     return;
 
-  memset( upgradeInfo, 0, sizeof( *upgradeInfo ) );
+  Com_Memset( upgradeInfo, 0, sizeof( *upgradeInfo ) );
   upgradeInfo->registered = qtrue;
 
   if( strlen( BG_Upgrade( upgradeNum )->name ) <= 0 )
@@ -72,7 +72,7 @@ void CG_InitUpgrades( void )
 {
   int   i;
 
-  memset( cg_upgrades, 0, sizeof( cg_upgrades ) );
+  Com_Memset( cg_upgrades, 0, sizeof( cg_upgrades ) );
 
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
     CG_RegisterUpgrade( i );
@@ -536,6 +536,8 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
   fileHandle_t  f;
   weaponMode_t  weaponMode = WPM_NONE;
 
+  Com_Memset( wi, 0, sizeof( weaponInfo_t ) );
+
   // load the file
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
   if( len < 0 )
@@ -629,6 +631,34 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
 
       continue;
     }
+    else if( !Q_stricmp( token, "weaponModel3rdPerson" ) )
+    {
+      char path[ MAX_QPATH ];
+
+      token = COM_Parse( &text_p );
+      if( !token )
+        break;
+
+      wi->weaponModel3rdPerson = trap_R_RegisterModel( token );
+
+      if( !wi->weaponModel3rdPerson )
+      {
+        CG_Printf( S_COLOR_RED "ERROR: 3rd person weapon "
+            "model not found %s\n", token );
+      }
+
+      strcpy( path, token );
+      COM_StripExtension( path, path, MAX_QPATH );
+      strcat( path, "_flash.md3" );
+      wi->flashModel3rdPerson = trap_R_RegisterModel( path );
+
+      strcpy( path, token );
+      COM_StripExtension( path, path, MAX_QPATH );
+      strcat( path, "_barrel.md3" );
+      wi->barrelModel3rdPerson = trap_R_RegisterModel( path );
+
+      continue;
+    }
     else if( !Q_stricmp( token, "idleSound" ) )
     {
       token = COM_Parse( &text_p );
@@ -711,7 +741,7 @@ void CG_RegisterWeapon( int weaponNum )
   if( weaponInfo->registered )
     return;
 
-  memset( weaponInfo, 0, sizeof( *weaponInfo ) );
+  Com_Memset( weaponInfo, 0, sizeof( *weaponInfo ) );
   weaponInfo->registered = qtrue;
 
   if( strlen( BG_Weapon( weaponNum )->name ) <= 0 )
@@ -750,7 +780,7 @@ void CG_InitWeapons( void )
 {
   int   i;
 
-  memset( cg_weapons, 0, sizeof( cg_weapons ) );
+  Com_Memset( cg_weapons, 0, sizeof( cg_weapons ) );
 
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
     CG_RegisterWeapon( i );
@@ -971,7 +1001,10 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   weapon = &cg_weapons[ weaponNum ];
 
   // add the weapon
-  memset( &gun, 0, sizeof( gun ) );
+  Com_Memset( &gun, 0, sizeof( gun ) );
+  Com_Memset( &barrel, 0, sizeof( barrel ) );
+  Com_Memset( &flash, 0, sizeof( flash ) );
+
   VectorCopy( parent->lightingOrigin, gun.lightingOrigin );
   gun.shadowPlane = parent->shadowPlane;
   gun.renderfx = parent->renderfx;
@@ -1003,7 +1036,15 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
     }
   }
 
-  gun.hModel = weapon->weaponModel;
+  if( !ps )
+  {
+    gun.hModel = weapon->weaponModel3rdPerson;
+
+    if( !gun.hModel )
+      gun.hModel = weapon->weaponModel;
+  }
+  else
+    gun.hModel = weapon->weaponModel;
 
   noGunModel = ( ( !ps || cg.renderingThirdPerson ) && weapon->disableIn3rdPerson ) || !gun.hModel;
 
@@ -1036,21 +1077,29 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
     trap_R_AddRefEntityToScene( &gun );
 
-    // add the spinning barrel
-    if( weapon->barrelModel )
+    if( !ps )
     {
-      memset( &barrel, 0, sizeof( barrel ) );
+      barrel.hModel = weapon->barrelModel3rdPerson;
+
+      if( !barrel.hModel )
+        barrel.hModel = weapon->barrelModel;
+    }
+    else
+      barrel.hModel = weapon->barrelModel;
+
+    // add the spinning barrel
+    if( barrel.hModel )
+    {
       VectorCopy( parent->lightingOrigin, barrel.lightingOrigin );
       barrel.shadowPlane = parent->shadowPlane;
       barrel.renderfx = parent->renderfx;
 
-      barrel.hModel = weapon->barrelModel;
       angles[ YAW ] = 0;
       angles[ PITCH ] = 0;
       angles[ ROLL ] = CG_MachinegunSpinAngle( cent, firing );
       AnglesToAxis( angles, barrel.axis );
 
-      CG_PositionRotatedEntityOnTag( &barrel, &gun, weapon->weaponModel, "tag_barrel" );
+      CG_PositionRotatedEntityOnTag( &barrel, &gun, gun.hModel, "tag_barrel" );
 
       trap_R_AddRefEntityToScene( &barrel );
     }
@@ -1064,7 +1113,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
       if( noGunModel )
         CG_SetAttachmentTag( &cent->muzzlePS->attachment, *parent, parent->hModel, "tag_weapon" );
       else
-        CG_SetAttachmentTag( &cent->muzzlePS->attachment, gun, weapon->weaponModel, "tag_flash" );
+        CG_SetAttachmentTag( &cent->muzzlePS->attachment, gun, gun.hModel, "tag_flash" );
     }
 
     //if the PS is infinite disable it when not firing
@@ -1080,12 +1129,20 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
       return;
   }
 
-  memset( &flash, 0, sizeof( flash ) );
   VectorCopy( parent->lightingOrigin, flash.lightingOrigin );
   flash.shadowPlane = parent->shadowPlane;
   flash.renderfx = parent->renderfx;
 
-  flash.hModel = weapon->flashModel;
+  if( !ps )
+  {
+    flash.hModel = weapon->flashModel3rdPerson;
+
+    if( !flash.hModel )
+      flash.hModel = weapon->flashModel;
+  }
+  else
+    flash.hModel = weapon->flashModel;
+
   if( flash.hModel )
   {
     angles[ YAW ] = 0;
@@ -1096,7 +1153,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
     if( noGunModel )
       CG_PositionRotatedEntityOnTag( &flash, parent, parent->hModel, "tag_weapon" );
     else
-      CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash" );
+      CG_PositionRotatedEntityOnTag( &flash, &gun, gun.hModel, "tag_flash" );
 
     trap_R_AddRefEntityToScene( &flash );
   }
@@ -1113,7 +1170,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
         if( noGunModel )
           CG_SetAttachmentTag( &cent->muzzlePS->attachment, *parent, parent->hModel, "tag_weapon" );
         else
-          CG_SetAttachmentTag( &cent->muzzlePS->attachment, gun, weapon->weaponModel, "tag_flash" );
+          CG_SetAttachmentTag( &cent->muzzlePS->attachment, gun, gun.hModel, "tag_flash" );
 
         CG_SetAttachmentCent( &cent->muzzlePS->attachment, cent );
         CG_AttachToTag( &cent->muzzlePS->attachment );
@@ -1221,7 +1278,7 @@ void CG_AddViewWeapon( playerState_t *ps )
   else
     fovOffset = 0;
 
-  memset( &hand, 0, sizeof( hand ) );
+  Com_Memset( &hand, 0, sizeof( hand ) );
 
   // set up gun position
   CG_CalculateWeaponPosition( hand.origin, angles );

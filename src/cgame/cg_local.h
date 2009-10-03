@@ -828,6 +828,10 @@ typedef struct weaponInfo_s
   qhandle_t         barrelModel;
   qhandle_t         flashModel;
 
+  qhandle_t         weaponModel3rdPerson;
+  qhandle_t         barrelModel3rdPerson;
+  qhandle_t         flashModel3rdPerson;
+
   animation_t       animations[ MAX_WEAPON_ANIMATIONS ];
   qboolean          noDrift;
 
