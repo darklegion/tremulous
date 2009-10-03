@@ -38,9 +38,6 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
 {
   playerState_t *ps = &ent->client->ps;
 
-  if( !ent )
-    return;
-
   // stop a reload in progress
   if( ps->weaponstate == WEAPON_RELOADING )
   {
