@@ -9,7 +9,7 @@
     "We can also be reached on Freenode IRC:\n"
     "#mercenariesguild"
   }
-  "Release Notes r88"
+  "Release Notes r90"
   {
     "* Help menu (you're looking at it!)\n"
     "* UI health cross icon shows regen speed\n"
