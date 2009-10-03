@@ -341,7 +341,9 @@ typedef struct
   vec4_t shadowColor;
   float shadowFadeClamp;
   qboolean fontRegistered;
-
+  char emoticons[ MAX_EMOTICONS ][ MAX_EMOTICON_NAME_LEN ];
+  qhandle_t emoticonShaders[ MAX_EMOTICONS ];
+  int emoticonCount;
 }
 cachedAssets_t;
 

@@ -31,6 +31,7 @@ void trap_FS_Read( void *buffer, int len, fileHandle_t f );
 void trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 void trap_FS_FCloseFile( fileHandle_t f );
 void trap_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin ); // fsOrigin_t
+int  trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
 
 static const buildableAttributes_t bg_buildableList[ ] =
 {
@@ -3853,5 +3854,65 @@ weapon_t BG_PrimaryWeapon( int stats[ ] )
     return WP_BLASTER;
 
   return WP_NONE;
+}
+
+/*
+============
+BG_LoadEmoticons
+============
+*/
+int BG_LoadEmoticons( char names[ ][ MAX_EMOTICON_NAME_LEN ] )
+{
+  int numFiles;
+  char fileList[ MAX_EMOTICONS * ( MAX_EMOTICON_NAME_LEN + 5 ) ] = {""};
+  int i;
+  char *filePtr;
+  int fileLen;
+  char emoticon[ MAX_EMOTICON_NAME_LEN + 5 ] = {""};
+  int loaded = 0;
+  int count;
+
+  numFiles = trap_FS_GetFileList( "emoticons", ".tga", fileList,
+    sizeof( fileList ) );
+
+  if( numFiles < 1 )
+    return 0;
+
+  filePtr = fileList;
+  fileLen = 0;
+  count = 0;
+  for( i = 0; i < numFiles; i++, filePtr += fileLen + 1 )
+  {
+    if( count >= MAX_EMOTICONS )
+    {
+      count++;
+      continue;
+    }
+
+    fileLen = strlen( filePtr );
+    if( fileLen > MAX_EMOTICON_NAME_LEN + 5 )
+    {
+      Com_Printf( S_COLOR_YELLOW "WARNING: MAX_EMOTICON_NAME_LEN is %d. "
+        "skipping \"%s\", filename too long", MAX_EMOTICON_NAME_LEN, filePtr );
+      continue;
+    }
+    if( !trap_FS_FOpenFile( va( "emoticons/%s", filePtr ), NULL, FS_READ ) )
+    {
+      Com_Printf( S_COLOR_YELLOW "WARNING: BG_LoadEmoticons(): detected "
+        " an unreadable .tga file name \"emoticons/%s\" in emoticon detection",
+        filePtr );
+      break;
+    }
+    Q_strncpyz( emoticon, filePtr, sizeof( emoticon ) );
+    emoticon[ fileLen - 4 ] = '\0';
+
+    Q_strncpyz( names[ count ], emoticon, sizeof( names[ count ] ) );
+    count++;
+    loaded = count;
+  }
+
+  Com_Printf( "Loaded %d of %d emoticons (MAX_EMOTICONS is %d)\n",
+    loaded, count, MAX_EMOTICONS );
+  return loaded;
 }
 

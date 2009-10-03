@@ -1298,3 +1298,4 @@ voiceTrack_t *BG_VoiceTrackFind( voiceTrack_t *head, team_t team,
                                  class_t class, weapon_t weapon,
                                  int enthusiasm, int *trackNum );
 
+int BG_LoadEmoticons( char names[ ][ MAX_EMOTICON_NAME_LEN ] );

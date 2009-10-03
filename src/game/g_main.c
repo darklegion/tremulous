@@ -124,6 +124,8 @@ vmCvar_t  g_chatTeamPrefix;
 vmCvar_t  g_layouts;
 vmCvar_t  g_layoutAuto;
 
+vmCvar_t  g_emoticonsAllowedInNames;
+
 vmCvar_t  g_admin;
 vmCvar_t  g_adminLog;
 vmCvar_t  g_adminParseSay;
@@ -244,6 +246,8 @@ static cvarTable_t   gameCvarTable[ ] =
 
   { &g_layouts, "g_layouts", "", CVAR_LATCH, 0, qfalse  },
   { &g_layoutAuto, "g_layoutAuto", "1", CVAR_ARCHIVE, 0, qfalse  },
+  
+  { &g_emoticonsAllowedInNames, "g_emoticonsAllowedInNames", "1", CVAR_LATCH|CVAR_ARCHIVE, 0, qfalse  },
 
   { &g_admin, "g_admin", "admin.dat", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminLog, "g_adminLog", "admin.log", CVAR_ARCHIVE, 0, qfalse  },
@@ -602,6 +606,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   // let the server system know where the entites are
   trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
     &level.clients[ 0 ].ps, sizeof( level.clients[ 0 ] ) );
+
+  level.emoticonCount = BG_LoadEmoticons( level.emoticons );
 
   trap_SetConfigstring( CS_INTERMISSION, "0" );
 

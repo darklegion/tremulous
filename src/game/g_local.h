@@ -619,6 +619,9 @@ typedef struct
   team_t            surrenderTeam;
 
   voice_t           *voices;
+
+  char              emoticons[ MAX_EMOTICONS ][ MAX_EMOTICON_NAME_LEN ];
+  int               emoticonCount;
 } level_locals_t;
 
 #define CMD_CHEAT         0x01
@@ -1141,6 +1144,8 @@ extern  vmCvar_t  g_mapConfigs;
 
 extern  vmCvar_t  g_layouts;
 extern  vmCvar_t  g_layoutAuto;
+
+extern  vmCvar_t  g_emoticonsAllowedInNames;
 
 extern  vmCvar_t  g_admin;
 extern  vmCvar_t  g_adminLog;

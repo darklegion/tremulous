@@ -764,16 +764,54 @@ void respawn( gentity_t *ent )
   }
 }
 
+static qboolean G_IsEmoticon( const char *s, qboolean *escaped )
+{
+  int i, j;
+  const char *p = s;
+  char emoticon[ MAX_EMOTICON_NAME_LEN ] = {""};
+  qboolean escape = qfalse;
+
+  if( *p != '[' )
+    return qfalse;
+  p++;
+  if( *p == '[' )
+  {
+    escape = qtrue;
+    p++;
+  }
+  i = 0;
+  while( *p && i < ( MAX_EMOTICON_NAME_LEN - 1 ) )
+  {
+    if( *p == ']' )
+    {
+      for( j = 0; j < level.emoticonCount; j++ )
+      {
+        if( !Q_stricmp( emoticon, level.emoticons[ j ] ) )
+        {
+          *escaped = escape;
+          return qtrue;
+        }
+      }
+      return qfalse;
+    }
+    emoticon[ i++ ] = *p;
+    emoticon[ i ] = '\0';
+    p++;
+  }
+  return qfalse;
+}
+
 /*
 ===========
-ClientCleanName
+G_ClientCleanName
 ============
 */
-static void ClientCleanName( const char *in, char *out, int outSize )
+static void G_ClientCleanName( const char *in, char *out, int outSize )
 {
   int   len, colorlessLen;
   char  *p;
   int   spaces;
+  qboolean escaped;
 
   //save room for trailing null byte
   outSize--;
@@ -806,6 +844,19 @@ static void ClientCleanName( const char *in, char *out, int outSize )
       *out++ = Q_COLOR_ESCAPE;
       *out++ = *in;
       len += 2;
+      continue;
+    }
+    else if( !g_emoticonsAllowedInNames.integer && G_IsEmoticon( in, &escaped ) )
+    {
+      // make sure room in dest for both chars
+      if( len > outSize - 2 )
+        break;
+
+      *out++ = '['; 
+      *out++ = '['; 
+      len += 2;
+      if( escaped )
+        in++;
       continue;
     }
 
@@ -942,7 +993,7 @@ void ClientUserinfoChanged( int clientNum )
   // set name
   Q_strncpyz( oldname, client->pers.netname, sizeof( oldname ) );
   s = Info_ValueForKey( userinfo, "name" );
-  ClientCleanName( s, newname, sizeof( newname ) );
+  G_ClientCleanName( s, newname, sizeof( newname ) );
 
   if( strcmp( oldname, newname ) )
   {

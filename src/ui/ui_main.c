@@ -98,6 +98,8 @@ vmCvar_t  ui_developer;
 
 vmCvar_t  ui_winner;
 
+vmCvar_t  ui_emoticons;
+
 static cvarTable_t    cvarTable[ ] =
 {
   { &ui_browserShowFull, "ui_browserShowFull", "1", CVAR_ARCHIVE },
@@ -120,6 +122,7 @@ static cvarTable_t    cvarTable[ ] =
   { &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
   { &ui_textWrapCache, "ui_textWrapCache", "1", CVAR_ARCHIVE },
   { &ui_developer, "ui_developer", "0", CVAR_ARCHIVE | CVAR_CHEAT },
+  { &ui_emoticons, "ui_emoticons", "1", CVAR_LATCH | CVAR_ARCHIVE },
 };
 
 static int    cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
@@ -190,6 +193,8 @@ intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3,
 
 void AssetCache( void )
 {
+  int i;
+
   uiInfo.uiDC.Assets.gradientBar = trap_R_RegisterShaderNoMip( ASSET_GRADIENTBAR );
   uiInfo.uiDC.Assets.scrollBar = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR );
   uiInfo.uiDC.Assets.scrollBarArrowDown = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
@@ -199,6 +204,17 @@ void AssetCache( void )
   uiInfo.uiDC.Assets.scrollBarThumb = trap_R_RegisterShaderNoMip( ASSET_SCROLL_THUMB );
   uiInfo.uiDC.Assets.sliderBar = trap_R_RegisterShaderNoMip( ASSET_SLIDER_BAR );
   uiInfo.uiDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
+
+  if( ui_emoticons.integer ) 
+    uiInfo.uiDC.Assets.emoticonCount = BG_LoadEmoticons( uiInfo.uiDC.Assets.emoticons );
+  else
+    uiInfo.uiDC.Assets.emoticonCount = 0;
+
+  for( i = 0; i < uiInfo.uiDC.Assets.emoticonCount; i++ )
+  {
+    uiInfo.uiDC.Assets.emoticonShaders[ i ] = trap_R_RegisterShaderNoMip( 
+      va( "emoticons/%s.tga", uiInfo.uiDC.Assets.emoticons[ i ] ) );
+  }
 }
 
 void UI_DrawSides( float x, float y, float w, float h, float size )

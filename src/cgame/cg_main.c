@@ -214,6 +214,8 @@ vmCvar_t  cg_projectileNudge;
 
 vmCvar_t  cg_voice;
 
+vmCvar_t  cg_emoticons;
+
 
 typedef struct
 {
@@ -336,7 +338,9 @@ static cvarTable_t cvarTable[ ] =
   { &pmove_msec, "pmove_msec", "8", 0},
   { &cg_noTaunt, "cg_noTaunt", "0", CVAR_ARCHIVE},
   
-  { &cg_voice, "voice", "default", CVAR_USERINFO|CVAR_ARCHIVE}
+  { &cg_voice, "voice", "default", CVAR_USERINFO|CVAR_ARCHIVE},
+
+  { &cg_emoticons, "cg_emoticons", "1", CVAR_LATCH|CVAR_ARCHIVE}
 };
 
 static int   cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
@@ -1663,6 +1667,8 @@ void CG_LoadHudMenu( void )
 
 void CG_AssetCache( void )
 {
+  int i;
+
   cgDC.Assets.gradientBar         = trap_R_RegisterShaderNoMip( ASSET_GRADIENTBAR );
   cgDC.Assets.scrollBar           = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR );
   cgDC.Assets.scrollBarArrowDown  = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
@@ -1672,6 +1678,17 @@ void CG_AssetCache( void )
   cgDC.Assets.scrollBarThumb      = trap_R_RegisterShaderNoMip( ASSET_SCROLL_THUMB );
   cgDC.Assets.sliderBar           = trap_R_RegisterShaderNoMip( ASSET_SLIDER_BAR );
   cgDC.Assets.sliderThumb         = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
+
+  if( cg_emoticons.integer )
+    cgDC.Assets.emoticonCount = BG_LoadEmoticons( cgDC.Assets.emoticons );
+  else
+    cgDC.Assets.emoticonCount = 0;
+
+  for( i = 0; i < cgDC.Assets.emoticonCount; i++ )
+  {
+    cgDC.Assets.emoticonShaders[ i ] = trap_R_RegisterShaderNoMip(
+      va( "emoticons/%s.tga", cgDC.Assets.emoticons[ i ] ) );
+  }
 }
 
 /*
