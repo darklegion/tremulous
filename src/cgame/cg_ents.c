@@ -396,6 +396,7 @@ static void CG_LaunchMissile( centity_t *cent )
     {
       CG_SetAttachmentCent( &ps->attachment, cent );
       CG_AttachToCent( &ps->attachment );
+      ps->charge = es->torsoAnim;
     }
   }
 
@@ -466,7 +467,8 @@ static void CG_Missile( centity_t *cent )
   if( wim->usesSpriteMissle )
   {
     ent.reType = RT_SPRITE;
-    ent.radius = wim->missileSpriteSize;
+    ent.radius = wim->missileSpriteSize +
+                 wim->missileSpriteCharge * es->torsoAnim;
     ent.rotation = 0;
     ent.customShader = wim->missileSprite;
     ent.shaderRGBA[ 0 ] = 0xFF;

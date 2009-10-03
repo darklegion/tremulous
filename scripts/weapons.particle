@@ -388,6 +388,27 @@ models/weapons/blaster/missilePS
   }
 }
 
+models/weapons/prifle/impactPS
+{
+  ejector
+  {
+    particle
+    {
+      shader sync gfx/prifle/red_blob
+      
+      radius 0 3.0 6.0
+      alpha  70 1.0 0.0
+      rotation 0 ~360 -
+
+      lifeTime 140
+    }
+
+    count 1
+    delay 0
+    period 0 - ~0%
+  }
+}
+
 models/weapons/prifle/missilePS
 {
   ejector
@@ -493,8 +514,53 @@ models/weapons/lcannon/missilePS
   }
 }
 
+models/weapons/lcannon/secondaryMissilePS
+{
+  ejector
+  {
+    particle
+    {
+      shader sync gfx/blaster/orange_particle
+
+      displacement 0 0 0 ~3.0
+
+      parentVelocityFraction  0.5
+
+      radius 0 2.0 0.0
+      alpha  0 1.0 0.0
+      bounce 0.1
+
+      lifeTime 400
+    }
+
+    count infinite
+    delay 0
+    period 25 - ~0%
+  }
+}
+
 models/weapons/lcannon/impactPS
 {
+  ejector
+  {
+    particle
+    {
+      shader sync gfx/blaster/orange_particle
+      
+      radius 0 8.0 16.0
+      alpha  0 1.0 0.0
+      rotation 0 ~360 -
+      
+      scaleWithCharge 0.1
+
+      lifeTime 250
+    }
+
+    count 1
+    delay 0
+    period 0 - ~0%
+  }
+
   ejector
   {
     particle
@@ -548,10 +614,12 @@ models/weapons/lcannon/impactPS
       accelerationMagnitude 150
       acceleration          0 0 -1 0
 
-      radius 0 25.0 0.0
+      radius 0 1.0 0.0
       alpha  0 1.0 0.0
       rotation 0 ~360 -
       bounce 1.0
+      
+      scaleWithCharge 0.1
 
       lifeTime 1000~1000
     }
@@ -564,6 +632,24 @@ models/weapons/lcannon/impactPS
 
 models/weapons/lcannon/secondaryImpactPS
 {
+  ejector
+  {
+    particle
+    {
+      shader sync gfx/blaster/orange_particle
+      
+      radius 0 8.0 16.0
+      alpha  0 1.0 0.0
+      rotation 0 ~360 -
+
+      lifeTime 250
+    }
+
+    count 1
+    delay 0
+    period 0 - ~0%
+  }
+
   ejector
   {
     particle

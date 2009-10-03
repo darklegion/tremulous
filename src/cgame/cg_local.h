@@ -313,6 +313,8 @@ typedef struct baseParticle_s
   qboolean        overdrawProtection;
   qboolean        realLight;
   qboolean        cullOnStartSolid;
+  
+  float           scaleWithCharge;
 } baseParticle_t;
 
 
@@ -354,6 +356,8 @@ typedef struct particleSystem_s
   //for PMT_NORMAL
   qboolean              normalValid;
   vec3_t                normal;
+  
+  int                   charge;
 } particleSystem_t;
 
 
@@ -777,6 +781,7 @@ typedef struct weaponInfoMode_s
   qboolean    usesSpriteMissle;
   qhandle_t   missileSprite;
   int         missileSpriteSize;
+  float       missileSpriteCharge;
   qhandle_t   missileParticleSystem;
   qhandle_t   missileTrailSystem;
   qboolean    missileRotates;
@@ -1698,8 +1703,8 @@ void        CG_RegisterWeapon( int weaponNum );
 
 void        CG_FireWeapon( centity_t *cent, weaponMode_t weaponMode );
 void        CG_MissileHitWall( weapon_t weapon, weaponMode_t weaponMode, int clientNum,
-                               vec3_t origin, vec3_t dir, impactSound_t soundType );
-void        CG_MissileHitPlayer( weapon_t weapon, weaponMode_t weaponMode, vec3_t origin, vec3_t dir, int entityNum );
+                               vec3_t origin, vec3_t dir, impactSound_t soundType, int charge );
+void        CG_MissileHitPlayer( weapon_t weapon, weaponMode_t weaponMode, vec3_t origin, vec3_t dir, int entityNum, int charge );
 void        CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 void        CG_ShotgunFire( entityState_t *es );
 void        CG_MassDriverFire( entityState_t *es );

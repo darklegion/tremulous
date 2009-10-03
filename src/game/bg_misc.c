@@ -5079,7 +5079,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
   if( s->generic1 <= WPM_NONE || s->generic1 >= WPM_NUM_WEAPONMODES )
     s->generic1 = WPM_PRIMARY;
 
-  s->otherEntityNum = ps->otherEntityNum;
+  s->otherEntityNum = ps->otherEntityNum;  
 }
 
 

@@ -294,7 +294,7 @@ typedef enum
 #define EF_VOTED            0x00008000    // already cast a vote
 #define EF_TEAMVOTED        0x00010000    // already cast a vote
 #define EF_BLOBLOCKED       0x00020000    // caught by a trapper
-#define EF_REAL_LIGHT       0x00040000    // light sprites according to ambient light
+#define EF_WARN_CHARGE      0x00040000    // Lucifer Cannon is about to overcharge
 
 typedef enum
 {

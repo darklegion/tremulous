@@ -157,6 +157,8 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
       p->radius.delay = (int)CG_RandomiseValue( (float)bp->radius.delay, bp->radius.delayRandFrac );
       p->radius.initial = CG_RandomiseValue( bp->radius.initial, bp->radius.initialRandFrac );
       p->radius.final = CG_RandomiseValue( bp->radius.final, bp->radius.finalRandFrac );
+      
+      p->radius.initial += bp->scaleWithCharge * pe->parent->charge;
 
       p->alpha.delay = (int)CG_RandomiseValue( (float)bp->alpha.delay, bp->alpha.delayRandFrac );
       p->alpha.initial = CG_RandomiseValue( bp->alpha.initial, bp->alpha.initialRandFrac );
@@ -1346,6 +1348,16 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         break;
 
       Q_strncpyz( bp->childTrailSystemName, token, MAX_QPATH );
+
+      continue;
+    }
+    else if( !Q_stricmp( token, "scaleWithCharge" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      bp->scaleWithCharge = atof( token );
 
       continue;
     }

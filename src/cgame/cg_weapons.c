@@ -141,6 +141,16 @@ static qboolean CG_ParseWeaponModeSection( weaponInfoMode_t *wim, char **text_p 
 
       continue;
     }
+    else if( !Q_stricmp( token, "missileSpriteCharge" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+
+      wim->missileSpriteCharge = atof( token );
+
+      continue;
+    }
     else if( !Q_stricmp( token, "missileRotates" ) )
     {
       wim->missileRotates = qtrue;
@@ -859,6 +869,12 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
       trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound );
   }
 
+  // Lucifer cannon charge warning beep
+  if( weaponNum == WP_LUCIFER_CANNON && 
+      ( cent->currentState.eFlags & EF_WARN_CHARGE ) )
+    trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
+                            vec3_origin, cgs.media.lCannonWarningSound );
+
   if( !noGunModel )
   {
     CG_PositionEntityOnTag( &gun, parent, parent->hModel, "tag_weapon" );
@@ -1004,12 +1020,6 @@ void CG_AddViewWeapon( playerState_t *ps )
   // draw a prospective buildable infront of the player
   if( ( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
     CG_GhostBuildable( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT );
-
-  if( weapon == WP_LUCIFER_CANNON && ps->stats[ STAT_MISC ] > 0 )
-  {
-    if( ps->stats[ STAT_MISC ] > ( LCANNON_TOTAL_CHARGE - ( LCANNON_TOTAL_CHARGE / 3 ) ) )
-      trap_S_AddLoopingSound( ps->clientNum, ps->origin, vec3_origin, cgs.media.lCannonWarningSound );
-  }
 
   // no gun if in third person view
   if( cg.renderingThirdPerson )
@@ -1523,7 +1533,7 @@ Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 =================
 */
 void CG_MissileHitWall( weapon_t weaponNum, weaponMode_t weaponMode, int clientNum,
-                        vec3_t origin, vec3_t dir, impactSound_t soundType )
+                        vec3_t origin, vec3_t dir, impactSound_t soundType, int charge )
 {
   qhandle_t           mark = 0;
   qhandle_t           ps = 0;
@@ -1581,6 +1591,7 @@ void CG_MissileHitWall( weapon_t weaponNum, weaponMode_t weaponMode, int clientN
       CG_SetAttachmentPoint( &partSystem->attachment, origin );
       CG_SetParticleSystemNormal( partSystem, dir );
       CG_AttachToPoint( &partSystem->attachment );
+      partSystem->charge = charge;
     }
   }
 
@@ -1598,7 +1609,7 @@ CG_MissileHitPlayer
 =================
 */
 void CG_MissileHitPlayer( weapon_t weaponNum, weaponMode_t weaponMode,
-    vec3_t origin, vec3_t dir, int entityNum )
+    vec3_t origin, vec3_t dir, int entityNum, int charge )
 {
   vec3_t        normal;
   weaponInfo_t  *weapon = &cg_weapons[ weaponNum ];
@@ -1612,7 +1623,7 @@ void CG_MissileHitPlayer( weapon_t weaponNum, weaponMode_t weaponMode,
     weaponMode = WPM_PRIMARY;
 
   if( weapon->wim[ weaponMode ].alwaysImpact )
-    CG_MissileHitWall( weaponNum, weaponMode, 0, origin, dir, IMPACTSOUND_FLESH );
+    CG_MissileHitWall( weaponNum, weaponMode, 0, origin, dir, IMPACTSOUND_FLESH, charge );
 }
 
 /*
@@ -1811,7 +1822,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
   if( flesh )
     CG_Bleed( end, normal, fleshEntityNum );
   else
-    CG_MissileHitWall( WP_MACHINEGUN, WPM_PRIMARY, 0, end, normal, IMPACTSOUND_DEFAULT );
+    CG_MissileHitWall( WP_MACHINEGUN, WPM_PRIMARY, 0, end, normal, IMPACTSOUND_DEFAULT, 0 );
 }
 
 /*
@@ -1858,11 +1869,11 @@ static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, int othe
     if( !( tr.surfaceFlags & SURF_NOIMPACT ) )
     {
       if( cg_entities[ tr.entityNum ].currentState.eType == ET_PLAYER )
-        CG_MissileHitPlayer( WP_SHOTGUN, WPM_PRIMARY, tr.endpos, tr.plane.normal, tr.entityNum );
+        CG_MissileHitPlayer( WP_SHOTGUN, WPM_PRIMARY, tr.endpos, tr.plane.normal, tr.entityNum, 0 );
       else if( tr.surfaceFlags & SURF_METALSTEPS )
-        CG_MissileHitWall( WP_SHOTGUN, WPM_PRIMARY, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL );
+        CG_MissileHitWall( WP_SHOTGUN, WPM_PRIMARY, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, 0 );
       else
-        CG_MissileHitWall( WP_SHOTGUN, WPM_PRIMARY, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT );
+        CG_MissileHitWall( WP_SHOTGUN, WPM_PRIMARY, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT, 0 );
     }
   }
 }
