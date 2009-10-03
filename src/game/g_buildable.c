@@ -2701,14 +2701,6 @@ void G_QueueBuildPoints( gentity_t *self )
             break;
         }
       }
-      else
-      {
-        if( !level.humanBuildPointQueue )
-          level.humanNextQueueTime = level.time + g_humanBuildQueueTime.integer;
-
-        level.humanBuildPointQueue +=
-            BG_Buildable( self->s.modelindex )->buildPoints;
-      }
   }
 }
 
