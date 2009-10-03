@@ -1142,8 +1142,8 @@ void G_CalculateBuildPoints( void )
     }
   }
 
-  level.humanBuildPoints = g_humanBuildPoints.integer;
-  level.alienBuildPoints = g_alienBuildPoints.integer;
+  level.humanBuildPoints = g_humanBuildPoints.integer - level.humanBuildPointQueue;
+  level.alienBuildPoints = g_alienBuildPoints.integer - level.humanBuildPointQueue;
 
   level.reactorPresent = qfalse;
   level.overmindPresent = qfalse;

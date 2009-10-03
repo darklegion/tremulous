@@ -2520,7 +2520,6 @@ void G_QueueBuildPoints( gentity_t *self )
 	  {
         switch( powerEntity->s.modelindex )
 	    {
-          default:
           case BA_H_REACTOR:
             if( !level.humanBuildPointQueue )
               level.humanNextQueueTime = level.time + g_humanBuildQueueTime.integer;
@@ -2540,9 +2539,19 @@ void G_QueueBuildPoints( gentity_t *self )
                 BG_Buildable( self->s.modelindex )->buildPoints;
             }
             break;
+
+          default:
+            break;
         }
       }
-      break;
+      else
+      {
+        if( !level.humanBuildPointQueue )
+          level.humanNextQueueTime = level.time + g_humanBuildQueueTime.integer;
+
+        level.humanBuildPointQueue +=
+            BG_Buildable( self->s.modelindex )->buildPoints;
+      }
   }
 }
 
