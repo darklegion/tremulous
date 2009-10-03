@@ -1171,16 +1171,18 @@ void G_CalculateBuildPoints( void )
     if( humanPlayerCountMod < 0.1f )
       humanPlayerCountMod = 0.1f;
 
-    if( g_alienStage.integer < g_alienMaxStage.integer ||
-        g_humanStage.integer > S1 )
+    if( g_alienStage.integer < g_alienMaxStage.integer )
+      alienNextStageThreshold = (int)( ceil( (float)g_alienStageThreshold.integer * (g_alienStage.integer + 1) * alienPlayerCountMod ) );
+    else if( g_humanStage.integer > S1 )
       alienNextStageThreshold = (int)( ceil( (float)level.alienStagedownCredits + g_alienStageThreshold.integer * alienPlayerCountMod ) );
     else
       alienNextStageThreshold = -1;
 
 
-    if( g_humanStage.integer < g_humanMaxStage.integer ||
-         g_alienStage.integer > S1 )
-    humanNextStageThreshold = (int)( ceil( (float)level.humanStagedownCredits + g_humanStageThreshold.integer * humanPlayerCountMod ) );
+    if( g_humanStage.integer < g_humanMaxStage.integer )
+      humanNextStageThreshold = (int)( ceil( (float)g_humanStageThreshold.integer * (g_humanStage.integer + 1) * humanPlayerCountMod ) );
+    else if( g_alienStage.integer > S1 )
+      humanNextStageThreshold = (int)( ceil( (float)level.humanStagedownCredits + g_humanStageThreshold.integer * humanPlayerCountMod ) );
     else
       humanNextStageThreshold = -1;
 
