@@ -2475,8 +2475,14 @@ void G_BuildableThink( gentity_t *ent, int msec )
       }
     }
 
-    if( ent->health > bHealth )
+    if( ent->health >= bHealth )
+    {
+      int i;
       ent->health = bHealth;
+      for( i = 0; i < MAX_CLIENTS; i++ )
+        ent->credits[ i ] = 0;
+    }
+    
   }
 
   if( ent->lev1Grabbed && ent->lev1GrabTime + LEVEL1_GRAB_TIME < level.time )

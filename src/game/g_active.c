@@ -795,8 +795,14 @@ void ClientTimerActions( gentity_t *ent, int msec )
         }
       }
 
-      if( ent->health > client->ps.stats[ STAT_MAX_HEALTH ] )
+      if( ent->health >= client->ps.stats[ STAT_MAX_HEALTH ] )
+      {
+        int i;
         ent->health = client->ps.stats[ STAT_MAX_HEALTH ];
+        for( i = 0; i < MAX_CLIENTS; i++ )
+          ent->credits[ i ] = 0;
+      }
+      
     }
 
     // turn off life support when a team admits defeat
