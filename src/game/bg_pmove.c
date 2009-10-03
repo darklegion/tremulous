@@ -774,6 +774,11 @@ static qboolean PM_CheckJump( void )
       ( pm->ps->stats[ STAT_STAMINA ] < 0 ) )
     return qfalse;
 
+  //no bunny hopping off a dodge
+  if( pm->ps->stats[ STAT_TEAM ] == TEAM_HUMANS && 
+      pm->ps->pm_time )
+    return qfalse;
+
   if( pm->ps->pm_flags & PMF_RESPAWNED )
     return qfalse;    // don't allow jump until all buttons are up
 
