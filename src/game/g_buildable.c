@@ -2392,7 +2392,7 @@ void HMGTurret_Think( gentity_t *self )
   }
 
   // Update spin state
-  if( !self->active && self->count < level.time )
+  if( !self->active && self->timestamp < level.time )
   {
     self->active = qtrue;
 
@@ -2405,12 +2405,12 @@ void HMGTurret_Think( gentity_t *self )
     return;
     
   // Fire repeat delay
-  if( self->count > level.time )
+  if( self->timestamp > level.time )
     return;
 
   FireWeapon( self );
   self->s.eFlags |= EF_FIRING;
-  self->count = level.time + BG_Buildable( self->s.modelindex )->turretFireSpeed;
+  self->timestamp = level.time + BG_Buildable( self->s.modelindex )->turretFireSpeed;
   G_AddEvent( self, EV_FIRE_WEAPON, 0 );
   G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
 }
