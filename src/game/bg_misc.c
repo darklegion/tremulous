@@ -1440,20 +1440,21 @@ static qboolean BG_ParseClassFile( const char *filename, classConfig_t *cc )
   int           defined = 0;
   enum
   {
-      MODEL         = 1 << 0,
-      SKIN          = 1 << 1,
-      HUD           = 1 << 2,
-      MODELSCALE    = 1 << 3,
-      SHADOWSCALE   = 1 << 4,
-      MINS          = 1 << 5,
-      MAXS          = 1 << 6,
-      DEADMINS      = 1 << 7,
-      DEADMAXS      = 1 << 8,
-      CROUCHMAXS    = 1 << 9,
-      VIEWHEIGHT    = 1 << 10,
-      CVIEWHEIGHT   = 1 << 11,
-      ZOFFSET       = 1 << 12,
-      NAME          = 1 << 13
+      MODEL           = 1 << 0,
+      SKIN            = 1 << 1,
+      HUD             = 1 << 2,
+      MODELSCALE      = 1 << 3,
+      SHADOWSCALE     = 1 << 4,
+      MINS            = 1 << 5,
+      MAXS            = 1 << 6,
+      DEADMINS        = 1 << 7,
+      DEADMAXS        = 1 << 8,
+      CROUCHMAXS      = 1 << 9,
+      VIEWHEIGHT      = 1 << 10,
+      CVIEWHEIGHT     = 1 << 11,
+      ZOFFSET         = 1 << 12,
+      NAME            = 1 << 13,
+      SHOULDEROFFSETS = 1 << 14
   };
 
   // load the file
@@ -1662,27 +1663,41 @@ static qboolean BG_ParseClassFile( const char *filename, classConfig_t *cc )
       defined |= NAME;
       continue;
     }
+    else if( !Q_stricmp( token, "shoulderOffsets" ) )
+    {
+      for( i = 0; i <= 2; i++ )
+      {
+        token = COM_Parse( &text_p );
+        if( !token )
+          break;
 
+        cc->shoulderOffsets[ i ] = atof( token );
+      }
+
+      defined |= SHOULDEROFFSETS;
+      continue;
+    }
 
     Com_Printf( S_COLOR_RED "ERROR: unknown token '%s'\n", token );
     return qfalse;
   }
 
-  if(      !( defined & MODEL       ) ) token = "model";
-  else if( !( defined & SKIN        ) ) token = "skin";
-  else if( !( defined & HUD         ) ) token = "hud";
-  else if( !( defined & MODELSCALE  ) ) token = "modelScale";
-  else if( !( defined & SHADOWSCALE ) ) token = "shadowScale";
-  else if( !( defined & MINS        ) ) token = "mins";
-  else if( !( defined & MAXS        ) ) token = "maxs";
-  else if( !( defined & DEADMINS    ) ) token = "deadMins";
-  else if( !( defined & DEADMAXS    ) ) token = "deadMaxs";
-  else if( !( defined & CROUCHMAXS  ) ) token = "crouchMaxs";
-  else if( !( defined & VIEWHEIGHT  ) ) token = "viewheight";
-  else if( !( defined & CVIEWHEIGHT ) ) token = "crouchViewheight";
-  else if( !( defined & ZOFFSET     ) ) token = "zOffset";
-  else if( !( defined & NAME        ) ) token = "name";
-  else                                  token = "";
+  if(      !( defined & MODEL           ) ) token = "model";
+  else if( !( defined & SKIN            ) ) token = "skin";
+  else if( !( defined & HUD             ) ) token = "hud";
+  else if( !( defined & MODELSCALE      ) ) token = "modelScale";
+  else if( !( defined & SHADOWSCALE     ) ) token = "shadowScale";
+  else if( !( defined & MINS            ) ) token = "mins";
+  else if( !( defined & MAXS            ) ) token = "maxs";
+  else if( !( defined & DEADMINS        ) ) token = "deadMins";
+  else if( !( defined & DEADMAXS        ) ) token = "deadMaxs";
+  else if( !( defined & CROUCHMAXS      ) ) token = "crouchMaxs";
+  else if( !( defined & VIEWHEIGHT      ) ) token = "viewheight";
+  else if( !( defined & CVIEWHEIGHT     ) ) token = "crouchViewheight";
+  else if( !( defined & ZOFFSET         ) ) token = "zOffset";
+  else if( !( defined & NAME            ) ) token = "name";
+  else if( !( defined & SHOULDEROFFSETS ) ) token = "shoulderOffsets";
+  else                                      token = "";
 
   if( strlen( token ) > 0 )
   {

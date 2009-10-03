@@ -402,6 +402,8 @@ void CG_OffsetThirdPersonView( void )
     }
   }
 
+  rotationAngles[ YAW ] -= cg_thirdPersonAngle.value;
+
   // Move the camera range distance back.
   AngleVectors( rotationAngles, forward, right, up );
   VectorCopy( cg.refdef.vieworg, view );
@@ -449,87 +451,26 @@ CG_OffsetShoulderView
 */
 void CG_OffsetShoulderView( void )
 {
-  int i;
-  int           cmdNum;
-  usercmd_t     cmd, oldCmd;
-  vec3_t        rotationAngles;
-  vec3_t        axis[ 3 ], rotaxis[ 3 ];
-  float         deltaMousePitch;
-  static float  mousePitch;
-  vec3_t        forward, right, up;
-  float         classFwdOffset = 0.0f, classUpOffset = 0.0f, classRightOffset = 0.0f;
+  int            i;
+  int            cmdNum;
+  usercmd_t      cmd, oldCmd;
+  vec3_t         rotationAngles;
+  vec3_t         axis[ 3 ], rotaxis[ 3 ];
+  float          deltaMousePitch;
+  static float   mousePitch;
+  vec3_t         forward, right, up;
+  classConfig_t* classConfig;
+
+  // Ignore following pitch; it's too jerky otherwise.
+  if( !cg_thirdPersonPitchFollow.integer ) 
+    cg.refdefViewAngles[ PITCH ] = 0.0f;
     
   AngleVectors( cg.refdefViewAngles, forward, right, up );
 
-  // Set a nice view by offsetting from vieworigin to get to the "shoulder"
-  // for each class.
-  // FIXME: These need to not be hard-coded so hackishly
-  switch( cg.snap->ps.stats[ STAT_CLASS ] )
-  {
-    case PCL_ALIEN_BUILDER0:
-    case PCL_ALIEN_BUILDER0_UPG:
-      classFwdOffset = -8.0f;
-      classRightOffset = 15.0f;
-      classUpOffset = 13.0f;
-      break;
-    case PCL_ALIEN_LEVEL0:
-      classFwdOffset = -5.0f;
-      classRightOffset = 0.0f;
-      classUpOffset = 17.0f;
-      break;
-    case PCL_ALIEN_LEVEL1:
-    case PCL_ALIEN_LEVEL1_UPG:
-      classFwdOffset = -10.0f;
-      classRightOffset = 0.0f;
-      classUpOffset = 18.0f;
-      break;
-    case PCL_ALIEN_LEVEL2: 
-    case PCL_ALIEN_LEVEL2_UPG: 
-      classFwdOffset = 0.0f;
-      classRightOffset = 12.0f;
-      classUpOffset = 5.0f;
-      break;
-    case PCL_ALIEN_LEVEL3:
-      classFwdOffset = -10.0f;
-      classRightOffset = 15.0f;
-      classUpOffset = 8.0f;
-      break;
-    case PCL_ALIEN_LEVEL3_UPG:
-      classFwdOffset = -10.0f;
-      classRightOffset = 17.0f;
-      classUpOffset = 12.0f;
-      break;
-    case PCL_ALIEN_LEVEL4:
-      classFwdOffset = -20.0f;
-      classRightOffset = -25.0f;
-      classUpOffset = 30.0f;
-      break;
-    case PCL_HUMAN:
-      classFwdOffset = -10.0f;
-      classRightOffset = 15.0f;
-      classUpOffset = 0.0f;
-      break;
-    case PCL_HUMAN_BSUIT:
-      classFwdOffset = -30.0f;
-      classRightOffset = 25.0f;
-      classUpOffset = -2.0f;
-      break;
-  }
-
-  // The override is temporary so that people can help find good offset positions for me.
-  // It will not remain in final code.
-  if( !cg_shoulderViewOverride.integer )
-  {
-    VectorMA( cg.refdef.vieworg, classFwdOffset, forward, cg.refdef.vieworg );
-    VectorMA( cg.refdef.vieworg, classUpOffset, up, cg.refdef.vieworg );
-    VectorMA( cg.refdef.vieworg, classRightOffset, right, cg.refdef.vieworg );
-  }
-  else
-  {
-    VectorMA( cg.refdef.vieworg, cg_shoulderViewForward.value, forward, cg.refdef.vieworg );
-    VectorMA( cg.refdef.vieworg, cg_shoulderViewUp.value, up, cg.refdef.vieworg );
-    VectorMA( cg.refdef.vieworg, cg_shoulderViewRight.value, right, cg.refdef.vieworg );
-  }
+  classConfig = BG_ClassConfig( cg.snap->ps.stats[ STAT_CLASS ] );
+  VectorMA( cg.refdef.vieworg, classConfig->shoulderOffsets[ 0 ], forward, cg.refdef.vieworg );
+  VectorMA( cg.refdef.vieworg, classConfig->shoulderOffsets[ 1 ], right, cg.refdef.vieworg );
+  VectorMA( cg.refdef.vieworg, classConfig->shoulderOffsets[ 2 ], up, cg.refdef.vieworg );
 
   // If someone is playing like this, the rest is already taken care of
   // so just get the firstperson effects and leave.
@@ -554,11 +495,7 @@ void CG_OffsetShoulderView( void )
   // Handle pitch.
   rotationAngles[ PITCH ] = mousePitch;
 
-  // Ignore following pitch; it's too jerky otherwise.
-  if( cg_thirdPersonPitchFollow.integer ) 
-    mousePitch += cg.refdefViewAngles[ PITCH ];
-
-  rotationAngles[ PITCH ] = AngleNormalize180( rotationAngles[ PITCH ] );
+  rotationAngles[ PITCH ] = AngleNormalize180( rotationAngles[ PITCH ] + AngleNormalize180( cg.refdefViewAngles[ PITCH ] ) );
   if( rotationAngles [ PITCH ] < -90.0f ) rotationAngles [ PITCH ] = -90.0f;
   if( rotationAngles [ PITCH ] > 90.0f ) rotationAngles [ PITCH ] = 90.0f;
 
