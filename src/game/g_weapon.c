@@ -796,7 +796,8 @@ void CheckCkitRepair( gentity_t *ent )
   gentity_t   *traceEnt;
   int         bHealth;
 
-  if( ent->client->ps.weaponTime )
+  if( ent->client->ps.weaponTime > 0 ||
+      ent->client->ps.stats[ STAT_MISC ] > 0 )
 	return;
 
   // Construction kit repair
@@ -810,12 +811,6 @@ void CheckCkitRepair( gentity_t *ent )
   if( tr.fraction < 1.0f && traceEnt->spawned && traceEnt->health > 0 &&
       traceEnt->s.eType == ET_BUILDABLE && traceEnt->buildableTeam == TEAM_HUMANS )
   {
-    if( ent->client->ps.stats[ STAT_MISC ] > 0 )
-    {
-      G_AddEvent( ent, EV_BUILD_DELAY, ent->client->ps.clientNum );
-      return;
-    }
-    
     bHealth = BG_Buildable( traceEnt->s.modelindex )->health;
     if( traceEnt->health < bHealth )
     {
