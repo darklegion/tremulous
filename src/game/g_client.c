@@ -812,6 +812,7 @@ static void G_ClientCleanName( const char *in, char *out, int outSize )
   char  *p;
   int   spaces;
   qboolean escaped;
+  qboolean invalid = qfalse;
 
   //save room for trailing null byte
   outSize--;
@@ -828,21 +829,27 @@ static void G_ClientCleanName( const char *in, char *out, int outSize )
     if( colorlessLen == 0 && *in == ' ' )
       continue;
 
+    // don't allow nonprinting characters or (dead) console keys
+    if( *in < ' ' || *in > '}' || *in == '`' )
+      continue;
+
     // check colors
     if( Q_IsColorString( in ) )
     {
       in++;
-
-      // don't allow black in a name, period
-      if( ColorIndex( *in ) == 0 )
-        continue;
 
       // make sure room in dest for both chars
       if( len > outSize - 2 )
         break;
 
       *out++ = Q_COLOR_ESCAPE;
-      *out++ = *in;
+
+      // don't allow black in a name, period
+      if( ColorIndex( *in ) == 0 )
+        *out++ = COLOR_WHITE;
+      else
+        *out++ = *in;
+
       len += 2;
       continue;
     }
@@ -880,8 +887,20 @@ static void G_ClientCleanName( const char *in, char *out, int outSize )
 
   *out = 0;
 
+  // don't allow names beginning with "[skipnotify]" because it messes up /ignore-related code
+  if( !Q_stricmpn( p, "[skipnotify]", 12 ) )
+    invalid = qtrue;
+
+  // don't allow comment-beginning strings because it messes up various parsers
+  if( strstr( p, "//" ) || strstr( p, "/*" ) )
+    invalid = qtrue;
+
   // don't allow empty names
   if( *p == 0 || colorlessLen == 0 )
+    invalid = qtrue;
+
+  // if something made the name bad, put them back to UnnamedPlayer
+  if( invalid )
     Q_strncpyz( p, "UnnamedPlayer", outSize );
 }
 
