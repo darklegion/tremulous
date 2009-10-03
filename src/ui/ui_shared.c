@@ -4839,7 +4839,6 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
     int         paintLines, totalLines, lineNum = 0;
     float       paintY;
     int         i;
-    char        lastCode = 0, newCode = 0;
 
     UI_CreateCacheEntry( textPtr, &item->window.rect, item->textscale );
 
@@ -4890,10 +4889,6 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
     {
       int lineLength = &textPtr[ i ] - p;
 
-      // track any color escape sequences
-      if( i && Q_IsColorString( textPtr + i - 1 ) )
-        newCode = textPtr[ i ];
-
       if( lineLength >= sizeof( buff ) - 1 )
         break;
 
@@ -4902,24 +4897,9 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
         itemDef_t   lineItem;
         int         width, height;
 
-        // if there was a color escape before we need to insert it on the
-        // start of every line again, otherwise don't insert a color escape
-        // in order to preserve the item's assigned color
-        if( lastCode )
-        {
-          buff[ 0 ] = Q_COLOR_ESCAPE;
-          buff[ 1 ] = lastCode;
-          strncpy( buff + 2, p, lineLength );
-          buff[ lineLength + 2 ] = '\0';
-        }
-        else
-          {
-          strncpy( buff, p, lineLength );
-          buff[ lineLength ] = '\0';
-        }
-
-        lastCode = newCode;
-
+        memset( &lineItem, 0, sizeof( itemDef_t ) );
+        strncpy( buff, p, lineLength );
+        buff[ lineLength ] = '\0';
         p = &textPtr[ i + 1 ];
 
         lineItem.type               = ITEM_TYPE_TEXT;
