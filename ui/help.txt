@@ -96,7 +96,9 @@
   "Dretch"
   {
     "The dretch bounding box and model have both slightly changed to line up "
-    "more closely."
+    "more closely.\nDretches can now damage any human structure while it "
+    "is still building, but can no longer damage turrets and teslas that "
+    "have been completed."
   }
   "Tyrant"
   {
