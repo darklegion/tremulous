@@ -1256,9 +1256,11 @@ void Cmd_CallVote_f( gentity_t *ent )
   }
 
   trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
-        " called a vote\n\"", ent->client->pers.netname ) );
-  G_Printf( "'%s' called a vote for '%s'\n", ent->client->pers.netname, 
-    level.voteString ) ;
+        " called a vote: %s^7\n\"", ent->client->pers.netname, 
+        level.voteDisplayString ) );
+
+  G_LogPrintf("Vote: %s^7 called a vote: %s^7\n", 
+      ent->client->pers.netname, level.voteDisplayString );
 
   ent->client->pers.voteCount++;
 
@@ -1491,11 +1493,12 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   }
   ent->client->pers.voteCount++;
 
-  G_TeamCommand( team, va( "print \"%s " S_COLOR_WHITE "called a team vote\n\"",
-    ent->client->pers.netname ) );
+  G_TeamCommand( team, va( "print \"%s " S_COLOR_WHITE "called a team vote: %s\n\"",
+    ent->client->pers.netname, level.teamVoteDisplayString[ cs_offset ] ) );
 
-  G_Printf( "'%s' called a teamvote for '%s'\n", ent->client->pers.netname, 
-    level.teamVoteString[ cs_offset ] ) ;
+  G_LogPrintf( "Teamvote: %s^7 called a teamvote (%s): %s\n", 
+      ent->client->pers.netname, BG_TeamName(team), 
+      level.teamVoteDisplayString[ cs_offset ] );
 
   // start the voting, the caller autoamtically votes yes
   level.teamVoteTime[ cs_offset ] = level.time;
