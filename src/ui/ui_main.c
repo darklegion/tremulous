@@ -139,6 +139,8 @@ void UI_Init( qboolean );
 void UI_Shutdown( void );
 void UI_KeyEvent( int key, qboolean down );
 void UI_MouseEvent( int dx, int dy );
+int UI_MousePosition( void );
+void UI_SetMousePosition( int x, int y );
 void UI_Refresh( int realtime );
 qboolean UI_IsFullscreen( void );
 void UI_SetActiveMenu( uiMenuCommand_t menu );
@@ -165,6 +167,13 @@ intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3,
 
     case UI_MOUSE_EVENT:
       UI_MouseEvent( arg0, arg1 );
+      return 0;
+
+    case UI_MOUSE_POSITION:
+      return UI_MousePosition( );
+
+    case UI_SET_MOUSE_POSITION:
+      UI_SetMousePosition( arg0, arg1 );
       return 0;
 
     case UI_REFRESH:
@@ -4014,7 +4023,32 @@ void UI_MouseEvent( int dx, int dy )
   else if( uiInfo.uiDC.cursory > SCREEN_HEIGHT )
     uiInfo.uiDC.cursory = SCREEN_HEIGHT;
 
-  if( Menu_Count() > 0 )
+  if( Menu_Count( ) > 0 )
+    Display_MouseMove( NULL, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory );
+}
+
+/*
+=================
+UI_MousePosition
+=================
+*/
+int UI_MousePosition( void )
+{
+  return (int)rint( uiInfo.uiDC.cursorx ) |
+         (int)rint( uiInfo.uiDC.cursory ) << 16;
+}
+
+/*
+=================
+UI_SetMousePosition
+=================
+*/
+void UI_SetMousePosition( int x, int y )
+{
+  uiInfo.uiDC.cursorx = x;
+  uiInfo.uiDC.cursory = y;
+
+  if( Menu_Count( ) > 0 )
     Display_MouseMove( NULL, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory );
 }
 

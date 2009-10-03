@@ -1124,7 +1124,7 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 	}
 
 	// console key is hardcoded, so the user can never unbind it
-	if (key == '`' || key == '~' ||
+	if (key == K_CONSOLE ||
 		( key == K_ESCAPE && keys[K_SHIFT].down ) ) {
 		if (!down) {
 			return;
@@ -1259,11 +1259,6 @@ Normal keyboard characters, already shifted / capslocked / etc
 ===================
 */
 void CL_CharEvent( int key ) {
-	// the console key should never be used as a char
-	if ( key == '`' || key == '~' ) {
-		return;
-	}
-
 	// delete is not a printable character and is
 	// otherwise handled by Field_KeyDownEvent
 	if ( key == 127 ) {

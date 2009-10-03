@@ -172,6 +172,12 @@ typedef enum
   UI_MOUSE_EVENT,
   //  void  UI_MouseEvent( int dx, int dy );
 
+  UI_MOUSE_POSITION,
+  //  int   UI_MousePosition( void );
+
+  UI_SET_MOUSE_POSITION,
+  //  void  UI_SetMousePosition( int x, int y );
+
   UI_REFRESH,
   //  void  UI_Refresh( int time );
 
