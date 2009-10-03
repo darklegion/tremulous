@@ -1867,7 +1867,7 @@ void CG_Player( centity_t *cent )
   int           clientNum;
   int           renderfx;
   qboolean      shadow = qfalse;
-  float         shadowPlane;
+  float         shadowPlane = 0.0f;
   entityState_t *es = &cent->currentState;
   class_t       class = ( es->misc >> 8 ) & 0xFF;
   float         scale;

@@ -122,9 +122,8 @@ static const char *CG_KeyNameForCommand( const char *command )
       }
       else
       {
-        Q_strncpyz( buffer, va( "\"%s\"", bindings[ i ].humanName ),
-            MAX_STRING_CHARS );
-        Q_strcat( buffer, MAX_STRING_CHARS, " (unbound)" );
+        Com_sprintf( buffer, MAX_STRING_CHARS, "\"%s\" (unbound)",
+          bindings[ i ].humanName );
       }
 
       return buffer;

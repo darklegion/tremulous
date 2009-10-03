@@ -4320,7 +4320,7 @@ void UI_DrawConnectScreen( qboolean overlay )
     Text_PaintCenter( centerPoint, yStart + 48, scale, colorWhite, va( "Starting up..." ), ITEM_TEXTSTYLE_SHADOWEDMORE );
   else
   {
-    strcpy( text, va( "Connecting to %s", cstate.servername ) );
+    Com_sprintf( text, sizeof( text ), "Connecting to %s", cstate.servername );
     Text_PaintCenter( centerPoint, yStart + 48, scale, colorWhite, text , ITEM_TEXTSTYLE_SHADOWEDMORE );
   }
 

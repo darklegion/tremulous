@@ -287,8 +287,7 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
     G_SanitiseName( client->pers.netname, testName );
     if( !Q_stricmp( name2, testName ) )
     {
-      Q_strncpyz( err, va( "The name '%s^7' is already in use", name ),
-        len );
+      Com_sprintf( err, len, "The name '%s^7' is already in use", name );
       return qfalse;
     }
   }
@@ -304,8 +303,8 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
     if( !Q_stricmp( name2, testName ) &&
       Q_stricmp( ent->client->pers.guid, g_admin_admins[ i ]->guid ) )
     {
-      Q_strncpyz( err, va( "The name '%s^7' belongs to an admin, "
-        "please use another name", name ), len );
+      Com_sprintf( err, len, "The name '%s^7' belongs to an admin, "
+        "please use another name", name );
       return qfalse;
     }
   }
@@ -1544,10 +1543,9 @@ static qboolean admin_create_ban( gentity_t *ent,
   Q_strncpyz( b->ip, ip, sizeof( b->ip ) );
 
   //strftime( b->made, sizeof( b->made ), "%m/%d/%y %H:%M:%S", lt );
-  Q_strncpyz( b->made, va( "%02i/%02i/%02i %02i:%02i:%02i",
-    (qt.tm_mon + 1), qt.tm_mday, (qt.tm_year - 100),
-    qt.tm_hour, qt.tm_min, qt.tm_sec ),
-    sizeof( b->made ) );
+  Com_sprintf( b->made, sizeof( b->made ), "%02i/%02i/%02i %02i:%02i:%02i",
+    qt.tm_mon + 1, qt.tm_mday, qt.tm_year % 100,
+    qt.tm_hour, qt.tm_min, qt.tm_sec );
 
   if( ent )
     Q_strncpyz( b->banner, ent->client->pers.netname, sizeof( b->banner ) );

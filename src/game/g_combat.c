@@ -789,7 +789,7 @@ void G_InitDamageLocations( void )
     len = trap_FS_FOpenFile( filename, &fileHandle, FS_READ );
     if ( !fileHandle )
     {
-      G_Printf( va( S_COLOR_RED "file not found: %s\n", filename ) );
+      G_Printf( S_COLOR_RED "file not found: %s\n", filename );
       continue;
     }
 

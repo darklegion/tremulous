@@ -802,7 +802,8 @@ gentity_t *G_ClosestEnt( vec3_t origin, gentity_t **entities, int numEntities )
   {
     gentity_t *ent = entities[ i ];
 
-    if( ( nd = Distance( origin, ent->s.origin ) ) < d )
+    nd = DistanceSquared( origin, ent->s.origin );
+    if( i == 0 || nd < d )
     {
       d = nd;
       closestEnt = ent;

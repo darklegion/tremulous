@@ -79,7 +79,7 @@ Returns a player number for either a number or name string
 Returns -1 if invalid
 ==================
 */
-int G_ClientNumberFromString( gentity_t *to, char *s )
+int G_ClientNumberFromString( char *s )
 {
   gclient_t *cl;
   int       i;
@@ -1141,7 +1141,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     else
     {
       // look for an exact name match (sets clientNum to -1 if it fails)
-      clientNum = G_ClientNumberFromString( ent, arg2 );
+      clientNum = G_ClientNumberFromString( arg2 );
     }
 
     if( clientNum != -1 &&
@@ -1373,7 +1373,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     else
     {
       // look for an exact name match (sets clientNum to -1 if it fails)
-      clientNum = G_ClientNumberFromString( ent, arg2 );
+      clientNum = G_ClientNumberFromString( arg2 );
     }
 
     // make sure this player is on the same team
@@ -2737,7 +2737,7 @@ void Cmd_Follow_f( gentity_t *ent )
     }
     else
     {
-      i = G_ClientNumberFromString( ent, arg );
+      i = G_ClientNumberFromString( arg );
 
       if( i == -1 )
       {
@@ -3300,10 +3300,8 @@ void G_PrivateMessage( gentity_t *ent )
 
   color = teamonly ? COLOR_CYAN : COLOR_YELLOW;
 
-  Q_strncpyz( str,
-    va( "^%csent to %i player%s: ^7", color, matches,
-      ( matches == 1 ) ? "" : "s" ),
-    sizeof( str ) );
+  Com_sprintf( str, sizeof( str ), "^%csent to %i player%s: ^7", color, matches,
+    ( matches == 1 ) ? "" : "s" );
 
   for( i=0; i < matches; i++ )
   {
@@ -3313,11 +3311,12 @@ void G_PrivateMessage( gentity_t *ent )
       Q_strcat( str, sizeof( str ), "^7, " );
     Q_strcat( str, sizeof( str ), tmpent->client->pers.netname );
     trap_SendServerCommand( pids[ i ], va(
-      "chat \"%s^%c -> ^7%s^7: (%d recipients): ^%c%s^7\" %i",
+      "chat \"%s^%c -> ^7%s^7: (%d recipient%s): ^%c%s^7\" %i",
       ( ent ) ? ent->client->pers.netname : "console",
       color,
       name,
       matches,
+      ( matches == 1 ) ? "" : "s",
       color,
       msg,
       ent ? ent-g_entities : -1 ) );
@@ -3348,8 +3347,8 @@ void G_PrivateMessage( gentity_t *ent )
 
   if( ignored )
   {
-    Q_strncpyz( str, va( "^%cignored by %i player%s: ^7", color, ignored,
-      ( ignored == 1 ) ? "" : "s" ), sizeof( str ) );
+    Com_sprintf( str, sizeof( str ), "^%cignored by %i player%s: ^7", color,
+      ignored, ( ignored == 1 ) ? "" : "s" );
     for( i=0; i < ignored; i++ )
     {
       tmpent = &g_entities[ ignoreids[ i ] ];
