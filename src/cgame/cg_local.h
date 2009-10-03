@@ -1564,7 +1564,7 @@ void        CG_AddNotifyText( void );
 //
 // cg_view.c
 //
-void        CG_addSmoothOp( vec3_t rotAxis, float rotAngle, float timeMod ); //TA
+void        CG_addSmoothOp( vec3_t rotAxis, float rotAngle, float timeMod );
 void        CG_TestModel_f( void );
 void        CG_TestGun_f( void );
 void        CG_TestModelNextFrame_f( void );

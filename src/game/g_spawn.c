@@ -98,7 +98,7 @@ typedef enum
   F_LSTRING,      // string on disk, pointer in memory, TAG_LEVEL
   F_GSTRING,      // string on disk, pointer in memory, TAG_GAME
   F_VECTOR,
-  F_VECTOR4,    //TA
+  F_VECTOR4,
   F_ANGLEHACK,
   F_ENTITY,     // index on disk, pointer in memory
   F_ITEM,       // index on disk, pointer in memory
@@ -243,8 +243,8 @@ spawn_t spawns[ ] =
   { "func_plat",                SP_func_plat },
   { "func_button",              SP_func_button },
   { "func_door",                SP_func_door },
-  { "func_door_rotating",       SP_func_door_rotating }, //TA
-  { "func_door_model",          SP_func_door_model }, //TA
+  { "func_door_rotating",       SP_func_door_rotating },
+  { "func_door_model",          SP_func_door_model },
   { "func_static",              SP_func_static },
   { "func_rotating",            SP_func_rotating },
   { "func_bobbing",             SP_func_bobbing },
