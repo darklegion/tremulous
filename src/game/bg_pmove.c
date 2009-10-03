@@ -2971,6 +2971,14 @@ static void PM_Weapon( void )
       attack1 = pm->cmd.buttons & BUTTON_ATTACK;
       attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
       attack3 = qfalse;
+      
+      // Prevent firing of the Lucifer Cannon after an overcharge
+      if( pm->ps->weaponstate == WEAPON_NEEDS_RESET )
+      {
+        if( attack1 )
+          return;
+        pm->ps->weaponstate = WEAPON_READY;
+      }
 
       if( attack1 || pm->ps->stats[ STAT_MISC ] > 0 )
         attack2 = qfalse;
@@ -2984,6 +2992,12 @@ static void PM_Weapon( void )
           pm->ps->weaponTime = 0;
           pm->ps->weaponstate = WEAPON_READY;
           return;
+        }
+        else
+        {
+          // Overcharge
+          pm->ps->weaponTime = 0;
+          pm->ps->weaponstate = WEAPON_NEEDS_RESET;
         }
       }
 
@@ -3157,7 +3171,8 @@ static void PM_Weapon( void )
     pm->ps->torsoTimer = TIMER_ATTACK;
   }
 
-  pm->ps->weaponstate = WEAPON_FIRING;
+  if( pm->ps->weaponstate != WEAPON_NEEDS_RESET )
+    pm->ps->weaponstate = WEAPON_FIRING;
 
   // take an ammo away if not infinite
   if( !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )

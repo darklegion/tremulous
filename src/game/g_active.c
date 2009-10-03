@@ -666,8 +666,11 @@ void ClientTimerActions( gentity_t *ent, int msec )
     //client is charging up an lcannon
     if( client->ps.weapon == WP_LUCIFER_CANNON &&
         ( ucmd->buttons & BUTTON_ATTACK ) &&
-        client->ps.stats[ STAT_MISC2 ] <= 0 )
+        client->ps.stats[ STAT_MISC2 ] <= 0 &&
+        client->ps.weaponstate != WEAPON_NEEDS_RESET )
     {
+      int ammo;
+
       if( client->ps.stats[ STAT_MISC ] <= 0 )
         client->lcannonStartTime = level.time;
 
