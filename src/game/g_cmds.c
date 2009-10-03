@@ -2135,7 +2135,7 @@ void Cmd_Buy_f( gentity_t *ent )
   }
   else
   {
-    trap_SendServerCommand( ent-g_entities, va( "print \"Unknown item\n\"" ) );
+    G_TriggerMenu( ent->client->ps.clientNum, MN_H_UNKNOWNITEM );
   }
 
   //update ClientInfo

@@ -1508,6 +1508,9 @@ extern  vmCvar_t    cg_debugParticles;
 extern  vmCvar_t    cg_debugTrails;
 extern  vmCvar_t    cg_debugPVS;
 extern  vmCvar_t    cg_disableWarningDialogs;
+extern  vmCvar_t    cg_disableUpgradeDialogs;
+extern  vmCvar_t    cg_disableBuildDialogs;
+extern  vmCvar_t    cg_disableCommandDialogs;
 extern  vmCvar_t    cg_disableScannerPlane;
 extern  vmCvar_t    cg_tutorial;
 
@@ -2070,3 +2073,12 @@ void          trap_GetDemoName( char *buffer, int size );
 #define CROSSHAIR_RANGEDONLY      1
 #define CROSSHAIR_ALWAYSON        2
 
+// menu types for cg_disable*Dialogs
+typedef enum
+{
+  DT_INTERACTIVE, // team, class, armoury
+  DT_ARMOURYEVOLVE, // Insufficient funds et al
+  DT_BUILD, // build errors
+  DT_COMMAND, // You must be living/human/spec etc.
+
+} dialogType_t;
