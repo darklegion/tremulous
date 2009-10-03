@@ -47,10 +47,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ABUILDER_BLOB_SPEED_MOD     0.5f
 #define ABUILDER_BLOB_TIME          5000
 
-#define LEVEL0_BITE_DMG             ADM(24)
+#define LEVEL0_BITE_DMG             ADM(36)
 #define LEVEL0_BITE_RANGE           64.0f
 #define LEVEL0_BITE_WIDTH           6.0f
-#define LEVEL0_BITE_REPEAT          500
+#define LEVEL0_BITE_REPEAT          700
 #define LEVEL0_BITE_K_SCALE         1.0f
 
 #define LEVEL1_CLAW_DMG             ADM(32)
@@ -158,7 +158,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ABUILDER_UPG_COST           0
 
 #define LEVEL0_SPEED                1.3f
-#define LEVEL0_VALUE                AVM(175)
+#define LEVEL0_VALUE                AVM(150)
 #define LEVEL0_HEALTH               AHM(20)
 #define LEVEL0_REGEN                1
 #define LEVEL0_COST                 0
