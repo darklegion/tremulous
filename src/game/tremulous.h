@@ -86,14 +86,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define LEVEL3_CLAW_DMG             ADM(80)
 #define LEVEL3_CLAW_RANGE           72.0f
-#define LEVEL3_CLAW_UPG_RANGE       LEVEL3_CLAW_RANGE + 8.0f          
+#define LEVEL3_CLAW_UPG_RANGE       LEVEL3_CLAW_RANGE + 6.0f          
 #define LEVEL3_CLAW_WIDTH           12.0f
 #define LEVEL3_CLAW_REPEAT          700
 #define LEVEL3_CLAW_K_SCALE         1.0f
 #define LEVEL3_CLAW_U_REPEAT        600
 #define LEVEL3_CLAW_U_K_SCALE       1.0f
 #define LEVEL3_POUNCE_DMG           ADM(100)
-#define LEVEL3_POUNCE_RANGE         64.0f
+#define LEVEL3_POUNCE_RANGE         54.0f
+#define LEVEL3_POUNCE_UPG_RANGE     LEVEL3_POUNCE_RANGE + 6.0f
 #define LEVEL3_POUNCE_WIDTH         14.0f
 #define LEVEL3_POUNCE_TIME          700      // msec for full Dragoon pounce
 #define LEVEL3_POUNCE_TIME_UPG      700      // msec for full Adv. Dragoon pounce
@@ -280,7 +281,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define HIVE_BP                     12
 #define HIVE_BT                     20000
-#define HIVE_HEALTH                 ABHM(125)
+#define HIVE_HEALTH                 ABHM(175)
 #define HIVE_REGEN                  10
 #define HIVE_SPLASHDAMAGE           30
 #define HIVE_SPLASHRADIUS           200

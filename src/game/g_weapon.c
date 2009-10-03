@@ -1234,7 +1234,7 @@ qboolean CheckPounceAttack( gentity_t *ent )
 {
   trace_t tr;
   gentity_t *traceEnt;
-  int damage, timeMax, payload;
+  int damage, timeMax, pounceRange, payload;
 
   if( ent->client->pmext.pouncePayload <= 0 )
     return qfalse;
@@ -1252,7 +1252,9 @@ qboolean CheckPounceAttack( gentity_t *ent )
   CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
   // Trace from muzzle to see what we hit
-  G_WideTrace( &tr, ent, LEVEL3_POUNCE_RANGE, LEVEL3_POUNCE_WIDTH,
+  pounceRange = ent->client->ps.weapon == WP_ALEVEL3 ? LEVEL3_POUNCE_RANGE :
+                                                       LEVEL3_POUNCE_UPG_RANGE;
+  G_WideTrace( &tr, ent, pounceRange, LEVEL3_POUNCE_WIDTH,
                LEVEL3_POUNCE_WIDTH, &traceEnt );
   if( traceEnt == NULL )
     return qfalse;
