@@ -438,6 +438,7 @@ gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir,
   int damage, int radius, int speed )
 {
   gentity_t *bolt;
+  float charge;
 
   VectorNormalize( dir );
 
@@ -464,9 +465,15 @@ gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir,
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = NULL;
   
+  // Give the missile a small bounding box
+  charge = (float)( damage - LCANNON_SECONDARY_DAMAGE ) / LCANNON_DAMAGE;
+  bolt->r.mins[ 0 ] = bolt->r.mins[ 1 ] = bolt->r.mins[ 2 ] =
+    -LCANNON_SECONDARY_SIZE - charge * LCANNON_SIZE;
+  bolt->r.maxs[ 0 ] = bolt->r.maxs[ 1 ] = bolt->r.maxs[ 2 ] =
+    -bolt->r.mins[ 0 ];
+  
   // Pass the missile charge through
-  bolt->s.torsoAnim = ( damage - LCANNON_SECONDARY_DAMAGE ) *
-                      255 / LCANNON_DAMAGE;
+  bolt->s.torsoAnim = charge * 255;
   if( bolt->s.torsoAnim < 0 )
     bolt->s.torsoAnim = 0;
 
