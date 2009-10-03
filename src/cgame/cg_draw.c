@@ -2861,7 +2861,7 @@ static qboolean CG_DrawQueue( void )
 {
   float       w;
   vec4_t      color;
-  int         position, remainder;
+  int         position;
   char        *ordinal, buffer[ MAX_STRING_CHARS ];
 
   if( !( cg.snap->ps.pm_flags & PMF_QUEUED ) )
@@ -2875,14 +2875,15 @@ static qboolean CG_DrawQueue( void )
   position = cg.snap->ps.persistant[ PERS_QUEUEPOS ] + 1;
   if( position < 1 )
     return qfalse;
-  remainder = position % 10;
-  ordinal = "th";
-  if( remainder == 1 )
-    ordinal = "st";
-  else if( remainder == 2 )
-    ordinal = "nd";
-  else if( remainder == 3 )
-    ordinal = "rd";
+
+  switch( position )
+  {
+    case 1:  ordinal = "st"; break;
+    case 2:  ordinal = "nd"; break;
+    case 3:  ordinal = "rd"; break;
+    default: ordinal = "th"; break;
+  }
+
   Com_sprintf( buffer, MAX_STRING_CHARS, "You are %d%s in the spawn queue",
                position, ordinal );
 
