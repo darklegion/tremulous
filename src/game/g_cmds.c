@@ -1094,6 +1094,8 @@ void Cmd_CallVote_f( gentity_t *ent )
     !Q_stricmp( arg1, "unmute" ) )
   {
     int clientNums[ MAX_CLIENTS ];
+    int matches = 0;
+    char err[ MAX_STRING_CHARS ] = "";
 
     if( !arg2[ 0 ] )
     {
@@ -1102,7 +1104,8 @@ void Cmd_CallVote_f( gentity_t *ent )
       return;
     }
 
-    if( G_ClientNumbersFromString( arg2, clientNums, MAX_CLIENTS ) == 1 )
+    matches = G_ClientNumbersFromString( arg2, clientNums, MAX_CLIENTS );
+    if( matches == 1 )
     {
       // there was only one partial name match
       clientNum = clientNums[ 0 ];
@@ -1118,6 +1121,12 @@ void Cmd_CallVote_f( gentity_t *ent )
       Q_strncpyz( name, level.clients[ clientNum ].pers.netname,
         sizeof( name ) );
       Q_CleanStr( name );
+    }
+    else if( matches > 1 )
+    {
+      G_MatchOnePlayer( clientNums, matches, err, sizeof( err ) );
+      ADMP( va( "^3callvote: ^7%s\n", err ) );
+      return;
     }
     else
     {
@@ -1368,6 +1377,8 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     !Q_stricmp( arg1, "allowbuild" ) )
   {
     int clientNums[ MAX_CLIENTS ];
+    int matches = 0;
+    char err[ MAX_STRING_CHARS ] = "";
 
     if( !arg2[ 0 ] )
     {
@@ -1376,7 +1387,8 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
       return;
     }
 
-    if( G_ClientNumbersFromString( arg2, clientNums, MAX_CLIENTS ) == 1 )
+    matches = G_ClientNumbersFromString( arg2, clientNums, MAX_CLIENTS ) ;
+    if( matches == 1 )
     {
       // there was only one partial name match
       clientNum = clientNums[ 0 ];
@@ -1399,6 +1411,12 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
       Q_strncpyz( name, level.clients[ clientNum ].pers.netname,
         sizeof( name ) );
       Q_CleanStr( name );
+    }
+    else if( matches > 1 )
+    {
+      G_MatchOnePlayer( clientNums, matches, err, sizeof( err ) );
+      ADMP( va( "^3callteamvote: ^7%s\n", err ) );
+      return;
     }
     else
     {
