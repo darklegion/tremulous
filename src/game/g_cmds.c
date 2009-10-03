@@ -1749,10 +1749,11 @@ void Cmd_Class_f( gentity_t *ent )
     if( ent->client->pers.classSelection != PCL_NONE )
     {
       int cost;
-    
-      if( ent->client->ps.eFlags & EF_WALLCLIMB )
+
+      //check that we have an overmind
+      if( !level.overmindPresent )
       {
-        G_TriggerMenu( clientNum, MN_A_EVOLVEWALLWALK );
+        G_TriggerMenu( clientNum, MN_A_NOOVMND_EVOLVE );
         return;
       }
 
@@ -1772,10 +1773,11 @@ void Cmd_Class_f( gentity_t *ent )
           return;
         }
       }
-
-      if( !level.overmindPresent )
+      
+      //check that we are not wallwalking
+      if( ent->client->ps.eFlags & EF_WALLCLIMB )
       {
-        G_TriggerMenu( clientNum, MN_A_NOOVMND_EVOLVE );
+        G_TriggerMenu( clientNum, MN_A_EVOLVEWALLWALK );
         return;
       }
 
