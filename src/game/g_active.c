@@ -505,10 +505,6 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
       }
     }
   }
-  
-  // Tertiary fire or use button toggles following mode
-  if( attack3 )
-    G_ToggleFollow( ent );
 }
 
 

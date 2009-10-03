@@ -574,9 +574,14 @@ static void CG_SpectatorText( char *text, playerState_t *ps )
 
   if( ps->pm_flags & PMF_FOLLOW )
   {
-    Q_strcat( text, MAX_TUTORIAL_TEXT,
-        va( "Press %s to stop following\n",
-          CG_KeyNameForCommand( "+button2" ) ) );
+    if( !cg.thirdPersonFollow )
+      Q_strcat( text, MAX_TUTORIAL_TEXT,
+                va( "Press %s to switch to third-person spectator mode\n",
+                    CG_KeyNameForCommand( "+button2" ) ) );
+    else
+      Q_strcat( text, MAX_TUTORIAL_TEXT,
+                va( "Press %s to return to free spectator mode\n",
+                    CG_KeyNameForCommand( "+button2" ) ) );
 
       Q_strcat( text, MAX_TUTORIAL_TEXT,
           va( "Press %s or ",

@@ -277,12 +277,19 @@ static void CG_OffsetThirdPersonView( void )
   float         focusDist;
   float         forwardScale, sideScale;
   vec3_t        surfNormal;
+  float         angleOffsets[3];
+  usercmd_t     cmd;
+  int           cmdNum;
+  int           i;
 
   BG_GetClientNormal( &cg.predictedPlayerState, surfNormal );
 
   VectorMA( cg.refdef.vieworg, cg.predictedPlayerState.viewheight, surfNormal, cg.refdef.vieworg );
 
   VectorCopy( cg.refdefViewAngles, focusAngles );
+
+  cmdNum = trap_GetCurrentCmdNumber();
+  trap_GetUserCmd( cmdNum, &cmd );
 
   // if dead, look at killer
   if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
@@ -306,8 +313,24 @@ static void CG_OffsetThirdPersonView( void )
 
   AngleVectors( cg.refdefViewAngles, forward, right, up );
 
-  forwardScale = cos( cg_thirdPersonAngle.value / 180 * M_PI );
-  sideScale = sin( cg_thirdPersonAngle.value / 180 * M_PI );
+  for( i = 0; i < 3; i++ )
+  {
+    if ( cg.snap->ps.pm_flags & PMF_FOLLOW )
+      angleOffsets[ i ] = SHORT2ANGLE(cmd.angles[ i ]);
+    else
+      angleOffsets[ i ] = 0;
+
+    if( i == YAW )
+      angleOffsets[ i ] += cg_thirdPersonAngle.value;
+    
+    while( angleOffsets[ i ] > 180.0f )
+      angleOffsets[ i ] -= 360.0f;
+    while( angleOffsets[ i ] < -180.0f )
+      angleOffsets[ i ] += 360.0f;
+  }
+
+  forwardScale = cos( angleOffsets[ YAW ] / 180 * M_PI );
+  sideScale = sin( angleOffsets[ YAW ] / 180 * M_PI );
   VectorMA( view, -cg_thirdPersonRange.value * forwardScale, forward, view );
   VectorMA( view, -cg_thirdPersonRange.value * sideScale, right, view );
 
@@ -338,8 +361,11 @@ static void CG_OffsetThirdPersonView( void )
   if ( focusDist < 1 ) {
     focusDist = 1;  // should never happen
   }
-  cg.refdefViewAngles[ PITCH ] = -180 / M_PI * atan2( focusPoint[ 2 ], focusDist );
-  cg.refdefViewAngles[ YAW ] -= cg_thirdPersonAngle.value;
+
+  cg.refdefViewAngles[ PITCH ] = -180 / M_PI * atan2( focusPoint[ 2 ], focusDist ) + 
+                                   angleOffsets[ PITCH ];
+
+  cg.refdefViewAngles[ YAW ] -= angleOffsets[ YAW ];
 }
 
 
@@ -685,10 +711,29 @@ static int CG_CalcFov( void )
   int       inwater;
   int       attribFov;
   usercmd_t cmd;
+  usercmd_t oldcmd;
   int       cmdNum;
 
   cmdNum = trap_GetCurrentCmdNumber( );
   trap_GetUserCmd( cmdNum, &cmd );
+  trap_GetUserCmd( cmdNum - 1, &oldcmd );
+
+  // switch follow modes if necessary: cycle between free -> follow -> third-person follow
+  if( cmd.buttons & BUTTON_USE_HOLDABLE && !( oldcmd.buttons & BUTTON_USE_HOLDABLE ) )
+  {
+    if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) 
+    {
+      if( !cg.thirdPersonFollow )
+        cg.thirdPersonFollow = qtrue;
+      else
+      {
+        cg.thirdPersonFollow = qfalse;
+        trap_SendClientCommand( "follow\n" );
+      }
+    }
+    else if ( cg.snap->ps.persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT )
+      trap_SendClientCommand( "follow\n" );
+  }
 
   if( cg.predictedPlayerState.pm_type == PM_INTERMISSION ||
       ( cg.snap->ps.persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT ) )
@@ -1232,7 +1277,8 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
   CG_PredictPlayerState( );
 
   // decide on third person view
-  cg.renderingThirdPerson = cg_thirdPerson.integer || ( cg.snap->ps.stats[ STAT_HEALTH ] <= 0 );
+  cg.renderingThirdPerson = ( cg_thirdPerson.integer || ( cg.snap->ps.stats[ STAT_HEALTH ] <= 0 ) || 
+                            ( cg.thirdPersonFollow ) );
 
   // build cg.refdef
   inwater = CG_CalcViewValues( );

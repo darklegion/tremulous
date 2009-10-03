@@ -1100,6 +1100,9 @@ typedef struct
   vec3_t        kick_angles;                        // weapon kicks
   vec3_t        kick_origin;
 
+
+  qboolean      thirdPersonFollow;               
+
   // temp working variables for player view
   float         bobfracsin;
   int           bobcycle;
