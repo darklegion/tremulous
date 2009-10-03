@@ -2810,7 +2810,10 @@ char *eventnames[ ] =
 
   "EV_DCC_ATTACK",      // dcc under attack
 
-  "EV_RPTUSE_SOUND"     // trigger a sound
+  "EV_MGTURRET_SPINUP", // trigger a sound
+
+  "EV_RPTUSE_SOUND",    // trigger a sound
+  "EV_LEV2_ZAP"
 };
 
 /*
