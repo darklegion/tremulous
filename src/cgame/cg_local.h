@@ -771,6 +771,9 @@ typedef struct
 
   sfxHandle_t customFootsteps[ 4 ];
   sfxHandle_t customMetalFootsteps[ 4 ];
+
+  char        voice[ MAX_VOICE_NAME_LEN ];
+  int         voiceTime;
 } clientInfo_t;
 
 
@@ -1037,7 +1040,6 @@ typedef struct
 
   // attacking player
   int           attackerTime;
-  int           voiceTime;
 
   // reward medals
   int           rewardStack;
@@ -1404,6 +1406,9 @@ typedef struct
 
   // media
   cgMedia_t           media;
+
+  voice_t       *voices;
+  clientList_t  ignoreList;
 } cgs_t;
 
 //==============================================================================
@@ -1540,6 +1545,8 @@ extern  vmCvar_t    cg_painBlendZoom;
 extern  vmCvar_t    cg_stickySpec;
 extern  vmCvar_t    cg_alwaysSprint;
 
+extern  vmCvar_t    cg_debugVoices;
+
 extern  vmCvar_t    ui_currentClass;
 extern  vmCvar_t    ui_carriage;
 extern  vmCvar_t    ui_stages;
@@ -1552,6 +1559,8 @@ extern  vmCvar_t    cg_debugRandom;
 
 extern  vmCvar_t    cg_optimizePrediction;
 extern  vmCvar_t    cg_projectileNudge;
+
+extern  vmCvar_t    cg_voice;
 
 //
 // cg_main.c

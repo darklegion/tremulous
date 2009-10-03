@@ -230,6 +230,8 @@ vmCvar_t  cg_painBlendZoom;
 vmCvar_t  cg_stickySpec;
 vmCvar_t  cg_alwaysSprint;
 
+vmCvar_t  cg_debugVoices;
+
 vmCvar_t  ui_currentClass;
 vmCvar_t  ui_carriage;
 vmCvar_t  ui_stages;
@@ -242,6 +244,8 @@ vmCvar_t  cg_debugRandom;
 
 vmCvar_t  cg_optimizePrediction;
 vmCvar_t  cg_projectileNudge;
+
+vmCvar_t  cg_voice;
 
 
 typedef struct
@@ -352,6 +356,8 @@ static cvarTable_t cvarTable[ ] =
   { &cg_painBlendMax, "cg_painBlendMax", "0.7", 0 },
   { &cg_painBlendScale, "cg_painBlendScale", "7.0", 0 },
   { &cg_painBlendZoom, "cg_painBlendZoom", "0.65", 0 },
+  
+  { &cg_debugVoices, "cg_debugVoices", "0", 0 },
 
   { &ui_currentClass, "ui_currentClass", "0", 0 },
   { &ui_carriage, "ui_carriage", "", 0 },
@@ -390,7 +396,9 @@ static cvarTable_t cvarTable[ ] =
   { &cg_oldRail, "cg_oldRail", "1", CVAR_ARCHIVE},
   { &cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
   { &cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
-  { &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE}
+  { &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
+  
+  { &cg_voice, "voice", "default", CVAR_USERINFO|CVAR_ARCHIVE}
 };
 
 static int   cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
@@ -1850,6 +1858,9 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   CG_UpdateMediaFraction( 1.0f );
 
   CG_InitBuildables( );
+ 
+  cgs.voices = BG_VoiceInit( );
+  BG_PrintVoices( cgs.voices, cg_debugVoices.integer );
 
   CG_RegisterClients( );   // if low on memory, some clients will be deferred
 

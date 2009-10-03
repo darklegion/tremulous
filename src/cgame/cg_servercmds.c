@@ -903,6 +903,193 @@ void CG_Menu( int menu, int arg )
 
 /*
 =================
+CG_Say
+=================
+*/
+static void CG_Say( int clientNum, char *text )
+{
+  clientInfo_t *ci;
+  char sayText[ MAX_SAY_TEXT ] = {""};
+  
+  if( clientNum < 0 || clientNum >= MAX_CLIENTS )
+    return;
+
+  ci = &cgs.clientinfo[ clientNum ];
+  Com_sprintf( sayText, sizeof( sayText ),
+    "%s: " S_COLOR_WHITE S_COLOR_GREEN "%s" S_COLOR_WHITE "\n",
+    ci->name, text );
+  
+  CG_RemoveChatEscapeChar( sayText );
+  if( BG_ClientListTest( &cgs.ignoreList, clientNum ) )
+    CG_Printf( "[skipnotify]%s", sayText );
+  else
+    CG_Printf( "%s", sayText );
+}
+
+/*
+=================
+CG_SayTeam
+=================
+*/
+static void CG_SayTeam( int clientNum, char *text )
+{
+  clientInfo_t *ci;
+  char sayText[ MAX_SAY_TEXT ] = {""};
+  
+  if( clientNum < 0 || clientNum >= MAX_CLIENTS )
+    return;
+  
+
+  ci = &cgs.clientinfo[ clientNum ];
+  Com_sprintf( sayText, sizeof( sayText ),
+    "%s: " S_COLOR_WHITE S_COLOR_CYAN "%s" S_COLOR_WHITE "\n",
+    ci->name, text );
+  
+  CG_RemoveChatEscapeChar( sayText );
+  if( BG_ClientListTest( &cgs.ignoreList, clientNum ) )
+    CG_Printf( "[skipnotify]%s", sayText );
+  else
+    CG_Printf( "%s", sayText );
+}
+
+/*
+=================
+CG_VoiceTrack
+
+return the voice indexed voice track or print errors quietly to console
+in case someone is on an unpure server and wants to know which voice pak
+is missing or incomplete
+=================
+*/
+static voiceTrack_t *CG_VoiceTrack( char *voice, int cmd, int track )
+{
+  voice_t *v;
+  voiceCmd_t *c;
+  voiceTrack_t *t;
+
+  v = BG_VoiceByName( cgs.voices, voice );
+  if( !v )
+  {
+    CG_Printf( "[skipnotify]WARNING: could not find voice \"%s\"\n", voice );
+    return NULL;
+  }
+  c = BG_VoiceCmdByNum( v->cmds, cmd );
+  if( !c )
+  {
+    CG_Printf( "[skipnotify]WARNING: could not find command %d "
+      "in voice \"%s\"\n", cmd, voice );
+    return NULL;
+  }
+  t = BG_VoiceTrackByNum( c->tracks, track );
+  if( !t )
+  {
+    CG_Printf( "[skipnotify]WARNING: could not find track %d for command %d in "
+      "voice \"%s\"\n", track, cmd, voice );
+    return NULL;
+  }
+  return t;
+}
+
+/*
+=================
+CG_ParseVoice
+
+voice clientNum vChan cmdNum trackNum [sayText]
+=================
+*/
+static void CG_ParseVoice( void )
+{
+  int clientNum;
+  voiceChannel_t vChan;
+  char sayText[ MAX_SAY_TEXT] = {""};
+  voiceTrack_t *track;
+  clientInfo_t *ci;
+
+  if( trap_Argc() < 5 || trap_Argc() > 6 )
+    return;
+
+  if( trap_Argc() == 6 )
+    Q_strncpyz( sayText, CG_Argv( 5 ), sizeof( sayText ) );
+
+  clientNum = atoi( CG_Argv( 1 ) );
+  if( clientNum < 0 || clientNum >= MAX_CLIENTS )
+    return;
+
+  vChan = atoi( CG_Argv( 2 ) );
+  if( vChan < 0 || vChan >= VOICE_CHAN_NUM_CHANS )
+    return;
+
+  if( cg_teamChatsOnly.integer && vChan != VOICE_CHAN_TEAM )
+    return;
+
+  ci = &cgs.clientinfo[ clientNum ];
+
+  // this joker is still talking
+  if( ci->voiceTime > cg.time )
+    return;
+
+  track = CG_VoiceTrack( ci->voice, atoi( CG_Argv( 3 ) ), atoi( CG_Argv( 4 ) ) );
+
+  // keep track of how long the player will be speaking
+  // assume it takes 3s to say "*unintelligible gibberish*" 
+  if( track )
+    ci->voiceTime = cg.time + track->duration;
+  else
+    ci->voiceTime = cg.time + 3000;
+
+  if( !sayText[ 0 ] )
+  {
+    if( track )
+      Q_strncpyz( sayText, track->text, sizeof( sayText ) );
+    else
+      Q_strncpyz( sayText, "*unintelligible gibberish*", sizeof( sayText ) );
+  }
+ 
+  if( !cg_noVoiceText.integer ) 
+  {
+    switch( vChan )
+    {
+      case VOICE_CHAN_ALL:
+        CG_Say( clientNum, sayText );
+        break;
+      case VOICE_CHAN_TEAM:
+        CG_SayTeam( clientNum, sayText );
+        break;
+      default:
+        break;
+    }
+  }
+
+  // playing voice audio tracks disabled
+  if( cg_noVoiceChats.integer )
+    return;
+
+  // no audio track to play
+  if( !track )
+    return;
+
+  // don't play audio track for lamers
+  if( BG_ClientListTest( &cgs.ignoreList, clientNum ) )
+    return;
+
+  switch( vChan )
+  {
+    case VOICE_CHAN_ALL:
+      trap_S_StartLocalSound( track->track, CHAN_VOICE );
+      break;
+    case VOICE_CHAN_TEAM:
+      trap_S_StartLocalSound( track->track, CHAN_VOICE );
+      break;
+    case VOICE_CHAN_LOCAL:
+      trap_S_StartSound( NULL, clientNum, CHAN_VOICE, track->track );
+      break;
+    default:
+        break;
+  } 
+}
+
+/*
+=================
 CG_ServerCommand
 
 The string has been tokenized and can be retrieved with
@@ -969,6 +1156,12 @@ static void CG_ServerCommand( void )
     CG_RemoveChatEscapeChar( text );
     CG_Printf( "%s\n", text );
     return;
+  }
+  
+  if( !strcmp( cmd, "voice" ) )
+  {
+    CG_ParseVoice( );
+    return; 
   }
 
   if( !strcmp( cmd, "scores" ) )

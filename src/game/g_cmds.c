@@ -931,6 +931,126 @@ static void Cmd_Tell_f( gentity_t *ent )
 
 /*
 ==================
+Cmd_VSay_f
+==================
+*/
+void Cmd_VSay_f( gentity_t *ent )
+{
+  char            arg[MAX_TOKEN_CHARS];
+  voiceChannel_t  vchan;
+  voice_t         *voice;
+  voiceCmd_t      *cmd;
+  voiceTrack_t    *track;
+  int             cmdNum = 0;
+  int             trackNum = 0;
+  char            voiceName[ MAX_VOICE_NAME_LEN ] = {"default"};
+  char            voiceCmd[ MAX_VOICE_CMD_LEN ] = {""};
+  char            vsay[ 12 ] = {""};
+  weapon_t        weapon;
+
+  if( !ent || !ent->client )
+    Com_Error( ERR_FATAL, "Cmd_VSay_f() called by non-client entity\n" );
+
+  trap_Argv( 0, arg, sizeof( arg ) );
+  if( trap_Argc( ) < 2 )
+  {
+    trap_SendServerCommand( ent-g_entities, va( 
+      "print \"usage: %s command [text] \n\"", arg ) );
+    return;
+  }
+  if( !level.voices )
+  {
+    trap_SendServerCommand( ent-g_entities, va(
+      "print \"%s: voice system is not installed on this server\n\"", arg ) );
+    return;
+  }
+  if( !g_voiceChats.integer )
+  {
+    trap_SendServerCommand( ent-g_entities, va( 
+      "print \"%s: voice system administratively disabled on this server\n\"",
+      arg ) );
+    return;
+  }
+  if( !Q_stricmp( arg, "vsay" ) )
+    vchan = VOICE_CHAN_ALL;
+  else if( !Q_stricmp( arg, "vsay_team" ) )
+    vchan = VOICE_CHAN_TEAM;
+  else if( !Q_stricmp( arg, "vsay_local" ) )
+    vchan = VOICE_CHAN_LOCAL;
+  else
+    return;
+  Q_strncpyz( vsay, arg, sizeof( vsay ) );
+ 
+  if( ent->client->pers.voice[ 0 ] )
+    Q_strncpyz( voiceName, ent->client->pers.voice, sizeof( voiceName ) );
+  voice = BG_VoiceByName( level.voices, voiceName );
+  if( !voice )
+  {
+    trap_SendServerCommand( ent-g_entities, va( 
+      "print \"%s: voice '%s' not found\n\"", vsay, voiceName ) );
+    return;
+  }
+  
+  trap_Argv( 1, voiceCmd, sizeof( voiceCmd ) ) ;
+  cmd = BG_VoiceCmdFind( voice->cmds, voiceCmd, &cmdNum );
+  if( !cmd )
+  {
+    trap_SendServerCommand( ent-g_entities, va( 
+     "print \"%s: command '%s' not found in voice '%s'\n\"",
+      vsay, voiceCmd, voiceName ) );
+    return;
+  }
+
+  // filter non-spec humans by their primary weapon as well
+  weapon = WP_NONE;
+  if( ent->client->sess.spectatorState == SPECTATOR_NOT )
+  {
+    weapon = BG_PrimaryWeapon( ent->client->ps.stats );
+  }
+
+  track = BG_VoiceTrackFind( cmd->tracks, ent->client->pers.teamSelection,
+    ent->client->pers.classSelection, weapon, (int)ent->client->voiceEnthusiasm,
+    &trackNum );
+  if( !track )
+  {
+    trap_SendServerCommand( ent-g_entities, va( 
+      "print \"%s: no available track for command '%s', team %d, "
+      "class %d, weapon %d, and enthusiasm %d in voice '%s'\n\"",
+      vsay, voiceCmd, ent->client->pers.teamSelection,
+      ent->client->pers.classSelection, weapon,
+      (int)ent->client->voiceEnthusiasm, voiceName ) );
+    return; 
+  }
+
+  if( !Q_stricmp( ent->client->lastVoiceCmd, cmd->cmd ) )
+    ent->client->voiceEnthusiasm++;
+
+  Q_strncpyz( ent->client->lastVoiceCmd, cmd->cmd,
+    sizeof( ent->client->lastVoiceCmd ) ); 
+
+  // optional user supplied text
+  trap_Argv( 2, arg, sizeof( arg ) );
+
+  switch( vchan )
+  {
+    case VOICE_CHAN_ALL:
+    case VOICE_CHAN_LOCAL:
+      trap_SendServerCommand( -1, va(
+        "voice %d %d %d %d \"%s\"\n",
+        ent-g_entities, vchan, cmdNum, trackNum, arg ) );
+      break;
+    case VOICE_CHAN_TEAM:
+      G_TeamCommand( ent->client->pers.teamSelection, va(
+        "voice %d %d %d %d \"%s\"\n",
+        ent-g_entities, vchan, cmdNum, trackNum, arg ) );
+      break;
+    default:
+      break;
+  } 
+}
+
+/*
+==================
 Cmd_Where_f
 ==================
 */
@@ -2890,6 +3010,9 @@ commands_t cmds[ ] = {
   // can be used even during intermission
   { "say", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Say_f },
   { "say_team", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Say_f },
+  { "vsay", CMD_MESSAGE|CMD_INTERMISSION, Cmd_VSay_f },
+  { "vsay_team", CMD_MESSAGE|CMD_INTERMISSION, Cmd_VSay_f },
+  { "vsay_local", CMD_MESSAGE|CMD_INTERMISSION, Cmd_VSay_f },
   { "m", CMD_MESSAGE|CMD_INTERMISSION, G_PrivateMessage },
   { "mt", CMD_MESSAGE|CMD_INTERMISSION, G_PrivateMessage },
 

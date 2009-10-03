@@ -1091,14 +1091,18 @@ void ClientUserinfoChanged( int clientNum )
 
   team = client->pers.teamSelection;
 
+  Q_strncpyz( client->pers.voice, Info_ValueForKey( userinfo, "voice" ),
+    sizeof( client->pers.voice ) );
+
   // send over a subset of the userinfo keys so other clients can
   // print scoreboards, display models, and play custom sounds
 
   Com_sprintf( userinfo, sizeof( userinfo ),
     "n\\%s\\t\\%i\\model\\%s\\c1\\%s\\c2\\%s\\"
-    "hc\\%i\\ig\\%16s",
+    "hc\\%i\\ig\\%16s\\v\\%s",
     client->pers.netname, team, model, c1, c2,
-    client->pers.maxHealth, BG_ClientListString( &client->sess.ignoreList ) );
+    client->pers.maxHealth, BG_ClientListString( &client->sess.ignoreList ),
+    client->pers.voice );
 
   trap_SetConfigstring( CS_PLAYERS + clientNum, userinfo );
 

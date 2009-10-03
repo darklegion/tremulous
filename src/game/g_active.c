@@ -812,6 +812,12 @@ void ClientTimerActions( gentity_t *ent, int msec )
     {
       G_Damage( ent, NULL, NULL, NULL, NULL, 5, DAMAGE_NO_ARMOR, MOD_SUICIDE );
     }
+
+    // lose some voice enthusiasm
+    if( client->voiceEnthusiasm > 0.0f )
+      client->voiceEnthusiasm -= VOICE_ENTHUSIASM_DECAY;
+    else
+      client->voiceEnthusiasm = 0.0f;
   }
 
   // Regenerate Adv. Dragoon barbs

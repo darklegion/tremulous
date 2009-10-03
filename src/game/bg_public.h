@@ -1225,6 +1225,7 @@ qboolean BG_WeaponIsAllowed( weapon_t weapon );
 qboolean BG_UpgradeIsAllowed( upgrade_t upgrade );
 qboolean BG_ClassIsAllowed( class_t class );
 qboolean BG_BuildableIsAllowed( buildable_t buildable );
+weapon_t BG_PrimaryWeapon( int stats[ ] );
 
 typedef struct 
 {
@@ -1241,4 +1242,59 @@ void BG_ClientListParse( clientList_t *list, const char *s );
 #define FFF_HUMANS         1
 #define FFF_ALIENS         2
 #define FFF_BUILDABLES     4
+
+// bg_voice.c
+#define MAX_VOICES                8
+#define MAX_VOICE_NAME_LEN        16
+#define MAX_VOICE_CMD_LEN         16
+#define VOICE_ENTHUSIASM_DECAY    0.5f // enthusiasm lost per second
+
+typedef enum
+{
+  VOICE_CHAN_ALL,
+  VOICE_CHAN_TEAM ,
+  VOICE_CHAN_LOCAL,
+
+  VOICE_CHAN_NUM_CHANS
+} voiceChannel_t;
+
+typedef struct voiceTrack_s
+{
+#ifdef CGAME
+  sfxHandle_t            track;
+  int                    duration;
+#endif
+  char                   *text;
+  int                    enthusiasm;
+  int                    team;
+  int                    class;
+  int                    weapon;
+  struct voiceTrack_s    *next;
+} voiceTrack_t;
+
+
+typedef struct voiceCmd_s
+{
+  char              cmd[ MAX_VOICE_CMD_LEN ];
+  voiceTrack_t      *tracks;
+  struct voiceCmd_s *next;
+} voiceCmd_t;
+
+typedef struct voice_s
+{
+  char             name[ MAX_VOICE_NAME_LEN ];
+  voiceCmd_t       *cmds;
+  struct voice_s   *next;
+} voice_t;
+
+voice_t *BG_VoiceInit( void );
+void BG_PrintVoices( voice_t *voices, int debugLevel );
+
+voice_t *BG_VoiceByName( voice_t *head, char *name );
+voiceCmd_t *BG_VoiceCmdFind( voiceCmd_t *head, char *name, int *cmdNum );
+voiceCmd_t *BG_VoiceCmdByNum( voiceCmd_t *head, int num);
+voiceTrack_t *BG_VoiceTrackByNum( voiceTrack_t *head, int num );
+voiceTrack_t *BG_VoiceTrackFind( voiceTrack_t *head, team_t team,
+                                 class_t class, weapon_t weapon,
+                                 int enthusiasm, int *trackNum );
 

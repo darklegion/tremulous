@@ -746,6 +746,13 @@ void CG_NewClientInfo( int clientNum )
 
   // the old value
   memset( &newInfo, 0, sizeof( newInfo ) );
+ 
+  // grab our own ignoreList 
+  if( clientNum == cg.predictedPlayerState.clientNum )
+  {
+    v = Info_ValueForKey( configstring, "ig" );
+    BG_ClientListParse( &cgs.ignoreList, v );
+  }
 
   // isolate the player's name
   v = Info_ValueForKey( configstring, "n" );
@@ -783,6 +790,10 @@ void CG_NewClientInfo( int clientNum )
     // truncate modelName
     *slash = 0;
   }
+
+  // voice
+  v = Info_ValueForKey( configstring, "v" );
+  Q_strncpyz( newInfo.voice, v, sizeof( newInfo.voice ) );
 
   // replace whatever was there with the new one
   newInfo.infoValid = qtrue;

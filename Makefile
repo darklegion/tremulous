@@ -1333,6 +1333,7 @@ CGOBJ_ = \
   $(B)/base/cgame/bg_slidemove.o \
   $(B)/base/cgame/bg_lib.o \
   $(B)/base/cgame/bg_alloc.o \
+  $(B)/base/cgame/bg_voice.o \
   $(B)/base/cgame/cg_consolecmds.o \
   $(B)/base/cgame/cg_buildable.o \
   $(B)/base/cgame/cg_animation.o \
@@ -1384,6 +1385,7 @@ GOBJ_ = \
   $(B)/base/game/bg_slidemove.o \
   $(B)/base/game/bg_lib.o \
   $(B)/base/game/bg_alloc.o \
+  $(B)/base/game/bg_voice.o \
   $(B)/base/game/g_active.o \
   $(B)/base/game/g_client.o \
   $(B)/base/game/g_cmds.o \
