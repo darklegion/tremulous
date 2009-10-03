@@ -500,9 +500,6 @@ Cmd_Kill_f
 */
 void Cmd_Kill_f( gentity_t *ent )
 {
-  if( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING )
-    return;
-
   if( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
   {
     trap_SendServerCommand( ent-g_entities, "print \"Leave the hovel first (use your destroy key)\n\"" );
@@ -1626,7 +1623,6 @@ void Cmd_Class_f( gentity_t *ent )
     return;
 
   if( ent->client->pers.teamSelection == TEAM_ALIENS &&
-      !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
   {
     if( newClass == PCL_NONE )
@@ -1640,8 +1636,7 @@ void Cmd_Class_f( gentity_t *ent )
     {
       int cost;
     
-      if( ( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING ) ||
-          ( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )
+      if( ent->client->ps.eFlags & EF_WALLCLIMB )
       {
         G_TriggerMenu( clientNum, MN_A_EVOLVEWALLWALK );
         return;
@@ -1753,20 +1748,18 @@ void Cmd_Destroy_f( gentity_t *ent )
   if( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
     G_Damage( ent->client->hovel, ent, ent, forward, ent->s.origin, 10000, 0, MOD_SUICIDE );
 
-  if( !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) )
+  AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
+  VectorMA( ent->client->ps.origin, 100, forward, end );
+
+  trap_Trace( &tr, ent->client->ps.origin, NULL, NULL, end, ent->s.number, MASK_PLAYERSOLID );
+  traceEnt = &g_entities[ tr.entityNum ];
+
+  if( tr.fraction < 1.0f &&
+      ( traceEnt->s.eType == ET_BUILDABLE ) &&
+      ( traceEnt->buildableTeam == ent->client->pers.teamSelection ) &&
+      ( ( ent->client->ps.weapon >= WP_ABUILD ) &&
+        ( ent->client->ps.weapon <= WP_HBUILD ) ) )
   {
-    AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
-    VectorMA( ent->client->ps.origin, 100, forward, end );
-
-    trap_Trace( &tr, ent->client->ps.origin, NULL, NULL, end, ent->s.number, MASK_PLAYERSOLID );
-    traceEnt = &g_entities[ tr.entityNum ];
-
-    if( tr.fraction < 1.0f &&
-        ( traceEnt->s.eType == ET_BUILDABLE ) &&
-        ( traceEnt->buildableTeam == ent->client->pers.teamSelection ) &&
-        ( ( ent->client->ps.weapon >= WP_ABUILD ) &&
-          ( ent->client->ps.weapon <= WP_HBUILD ) ) )
-    {
       // Always let the builder prevent the explosion 
       if( traceEnt->health <= 0 )
       {
@@ -1774,70 +1767,69 @@ void Cmd_Destroy_f( gentity_t *ent )
         return;
       }
 
-      // Cancel deconstruction
-      if( g_markDeconstruct.integer && traceEnt->deconstruct )
-      {
-        traceEnt->deconstruct = qfalse;
-        return;
-      }
+    // Cancel deconstruction
+    if( g_markDeconstruct.integer && traceEnt->deconstruct )
+    {
+      traceEnt->deconstruct = qfalse;
+      return;
+    }
 
-      // Prevent destruction of the last spawn
-      if( !g_markDeconstruct.integer && !g_cheats.integer )
+    // Prevent destruction of the last spawn
+    if( !g_markDeconstruct.integer && !g_cheats.integer )
+    {
+      if( ent->client->pers.teamSelection == TEAM_ALIENS &&
+          traceEnt->s.modelindex == BA_A_SPAWN )
       {
-        if( ent->client->pers.teamSelection == TEAM_ALIENS &&
-            traceEnt->s.modelindex == BA_A_SPAWN )
-        {
-          if( level.numAlienSpawns <= 1 )
+        if( level.numAlienSpawns <= 1 )
           {
             G_TriggerMenu( ent->client->ps.clientNum, MN_B_LASTSPAWN );
-            return;
+          return;
           }
-        }
-        else if( ent->client->pers.teamSelection == TEAM_HUMANS &&
-                 traceEnt->s.modelindex == BA_H_SPAWN )
-        {
-          if( level.numHumanSpawns <= 1 )
+      }
+      else if( ent->client->pers.teamSelection == TEAM_HUMANS &&
+               traceEnt->s.modelindex == BA_H_SPAWN )
+      {
+        if( level.numHumanSpawns <= 1 )
           {
             G_TriggerMenu( ent->client->ps.clientNum, MN_B_LASTSPAWN );
-            return;
+          return;
           }
-        }
+      }
+    }
+
+    // Don't allow destruction of hovel with granger inside
+    if( traceEnt->s.modelindex == BA_A_HOVEL && traceEnt->active )
+      return;
+
+    // Don't allow destruction of buildables that cannot be rebuilt
+    if( G_TimeTilSuddenDeath( ) <= 0 )
+      return;
+
+    if( !g_markDeconstruct.integer && ent->client->ps.stats[ STAT_MISC ] > 0 )
+    {
+      G_AddEvent( ent, EV_BUILD_DELAY, ent->client->ps.clientNum );
+      return;
+    }
+
+    if( g_markDeconstruct.integer )
+    {
+      if( !deconstruct )
+          G_Damage( traceEnt, ent, ent, forward, tr.endpos, ent->health, 0, MOD_SUICIDE );
+      else if( g_markDeconstruct.integer )
+      {
+        traceEnt->deconstruct     = qtrue; // Mark buildable for deconstruction
+        traceEnt->deconstructTime = level.time;
+      }
+      else
+      {
+        G_LogDestruction( traceEnt, ent, MOD_DECONSTRUCT );
+        G_FreeEntity( traceEnt );
       }
 
-      // Don't allow destruction of hovel with granger inside
-      if( traceEnt->s.modelindex == BA_A_HOVEL && traceEnt->active )
-        return;
-
-      // Don't allow destruction of buildables that cannot be rebuilt
-      if( G_TimeTilSuddenDeath( ) <= 0 )
-        return;
-
-      if( !g_markDeconstruct.integer && ent->client->ps.stats[ STAT_MISC ] > 0 )
+      if( !g_cheats.integer )
       {
-        G_AddEvent( ent, EV_BUILD_DELAY, ent->client->ps.clientNum );
-        return;
-      }
-
-      if( g_markDeconstruct.integer )
-      {
-        if( !deconstruct )
-            G_Damage( traceEnt, ent, ent, forward, tr.endpos, ent->health, 0, MOD_SUICIDE );
-        else if( g_markDeconstruct.integer )
-        {
-          traceEnt->deconstruct     = qtrue; // Mark buildable for deconstruction
-          traceEnt->deconstructTime = level.time;
-        }
-        else
-        {
-          G_LogDestruction( traceEnt, ent, MOD_DECONSTRUCT );
-          G_FreeEntity( traceEnt );
-        }
-
-        if( !g_cheats.integer )
-        {
-          ent->client->ps.stats[ STAT_MISC ] +=
-            BG_Buildable( traceEnt->s.modelindex )->buildTime;
-        }
+        ent->client->ps.stats[ STAT_MISC ] +=
+          BG_Buildable( traceEnt->s.modelindex )->buildTime;
       }
     }
   }
@@ -2339,7 +2331,6 @@ void Cmd_Build_f( gentity_t *ent )
 
   if( buildable != BA_NONE &&
       ( ( 1 << ent->client->ps.weapon ) & BG_Buildable( buildable )->buildWeapon ) &&
-      !( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) &&
       !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) &&
       BG_BuildableIsAllowed( buildable ) &&
       ( ( team == TEAM_ALIENS && BG_BuildableAllowedInStage( buildable, g_alienStage.integer ) ) ||
@@ -2410,13 +2401,23 @@ Cmd_Reload_f
 void Cmd_Reload_f( gentity_t *ent )
 {
   playerState_t *ps = &ent->client->ps;
+  int ammo;
 
   // weapon doesn't ever need reloading
   if( BG_Weapon( ps->weapon )->infiniteAmmo )
     return;
 
+  if( ps->clips <= 0 )
+    return;
+
+  if( BG_Weapon( ps->weapon )->usesEnergy &&
+      BG_InventoryContainsUpgrade( UP_BATTPACK, ps->stats ) )
+    ammo = BG_Weapon( ps->weapon )->maxAmmo * BATTPACK_MODIFIER;
+  else
+    ammo = BG_Weapon( ps->weapon )->maxAmmo;
+
   // don't reload when full
-  if( ps->ammo == BG_Weapon( ps->weapon )->maxAmmo )
+  if( ps->ammo >= ammo )
     return;
 
   // the animation, ammo refilling etc. is handled by PM_Weapon
@@ -2485,9 +2486,8 @@ void G_StopFollowing( gentity_t *ent )
   ent->client->sess.spectatorClient = -1;
   ent->client->ps.pm_flags &= ~PMF_FOLLOW;
   ent->client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
-  ent->client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
   ent->client->ps.stats[ STAT_VIEWLOCK ] = 0;
-  ent->client->ps.eFlags &= ~EF_WALLCLIMB;
+  ent->client->ps.eFlags &= ~( EF_WALLCLIMB | EF_WALLCLIMBCEILING );
   ent->client->ps.viewangles[ PITCH ] = 0.0f;
   ent->client->ps.clientNum = ent - g_entities;
 
@@ -2514,9 +2514,8 @@ void G_FollowLockView( gentity_t *ent )
   ent->client->ps.pm_flags &= ~PMF_FOLLOW;
   ent->client->ps.stats[ STAT_TEAM ] = ent->client->pers.teamSelection;
   ent->client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
-  ent->client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
   ent->client->ps.stats[ STAT_VIEWLOCK ] = 0;
-  ent->client->ps.eFlags &= ~EF_WALLCLIMB;
+  ent->client->ps.eFlags &= ~( EF_WALLCLIMB | EF_WALLCLIMBCEILING );
   ent->client->ps.eFlags ^= EF_TELEPORT_BIT;
   ent->client->ps.viewangles[ PITCH ] = 0.0f;
 

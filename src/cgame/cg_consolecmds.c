@@ -29,21 +29,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 
-void CG_TargetCommand_f( void )
-{
-  int   targetNum;
-  char  test[ 4 ];
-
-  targetNum = CG_CrosshairPlayer( );
-  if( !targetNum )
-    return;
-
-  trap_Argv( 1, test, 4 );
-  trap_SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
-}
-
-
-
 /*
 =================
 CG_SizeUp_f
@@ -214,7 +199,6 @@ static consoleCommand_t commands[ ] =
   { "weapon", CG_Weapon_f },
   { "tell_target", CG_TellTarget_f },
   { "tell_attacker", CG_TellAttacker_f },
-  { "tcmd", CG_TargetCommand_f },
   { "testPS", CG_TestPS_f },
   { "destroyTestPS", CG_DestroyTestPS_f },
   { "testTS", CG_TestTS_f },

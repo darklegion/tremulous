@@ -360,7 +360,6 @@ void  G_TouchTriggers( gentity_t *ent )
 
     // ignore most entities if a spectator
     if( ( ent->client->sess.spectatorState != SPECTATOR_NOT ) ||
-        ( ent->client->ps.stats[ STAT_STATE ] & SS_INFESTING ) ||
         ( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
     {
       if( hit->s.eType != ET_TELEPORT_TRIGGER &&
@@ -1406,8 +1405,7 @@ void ClientThink_real( gentity_t *ent )
     client->ps.pm_type = PM_NOCLIP;
   else if( client->ps.stats[ STAT_HEALTH ] <= 0 )
     client->ps.pm_type = PM_DEAD;
-  else if( client->ps.stats[ STAT_STATE ] & SS_INFESTING ||
-           client->ps.stats[ STAT_STATE ] & SS_HOVELING )
+  else if( client->ps.stats[ STAT_STATE ] & SS_HOVELING )
     client->ps.pm_type = PM_FREEZE;
   else if( client->ps.stats[ STAT_STATE ] & SS_BLOBLOCKED ||
            client->ps.stats[ STAT_STATE ] & SS_GRABBED )
@@ -1538,8 +1536,7 @@ void ClientThink_real( gentity_t *ent )
   if( pm.ps->pm_type == PM_DEAD )
     pm.tracemask = MASK_DEADSOLID;
 
-  if( pm.ps->stats[ STAT_STATE ] & SS_INFESTING ||
-      pm.ps->stats[ STAT_STATE ] & SS_HOVELING )
+  if( pm.ps->stats[ STAT_STATE ] & SS_HOVELING )
     pm.tracemask = MASK_DEADSOLID;
   else
     pm.tracemask = MASK_PLAYERSOLID;

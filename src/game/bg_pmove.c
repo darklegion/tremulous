@@ -88,13 +88,25 @@ void PM_AddTouchEnt( int entityNum )
 }
 
 /*
+===============
+PM_Paralyzed
+===============
+*/
+qboolean PM_Paralyzed( playerState_t *ps )
+{
+  return ( ps->pm_type == PM_DEAD ||
+      ps->pm_type == PM_FREEZE ||
+      ps->pm_type == PM_INTERMISSION );
+}
+
+/*
 ===================
 PM_StartTorsoAnim
 ===================
 */
 void PM_StartTorsoAnim( int anim )
 {
-  if( pm->ps->pm_type >= PM_DEAD )
+  if( PM_Paralyzed( pm->ps ) )
     return;
 
   pm->ps->torsoAnim = ( ( pm->ps->torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
@@ -108,7 +120,7 @@ PM_StartWeaponAnim
 */
 static void PM_StartWeaponAnim( int anim )
 {
-  if( pm->ps->pm_type >= PM_DEAD )
+  if( PM_Paralyzed( pm->ps ) )
     return;
 
   pm->ps->weaponAnim = ( ( pm->ps->weaponAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
@@ -122,7 +134,7 @@ PM_StartLegsAnim
 */
 static void PM_StartLegsAnim( int anim )
 {
-  if( pm->ps->pm_type >= PM_DEAD )
+  if( PM_Paralyzed( pm->ps ) )
     return;
 
   //legsTimer is clamped too tightly for nonsegmented models
@@ -2093,7 +2105,7 @@ static void PM_GroundClimbTrace( void )
         {
           CrossProduct( surfNormal, trace.plane.normal, pm->ps->grapplePoint );
           VectorNormalize( pm->ps->grapplePoint );
-          pm->ps->stats[ STAT_STATE ] |= SS_WALLCLIMBINGCEILING;
+          pm->ps->eFlags |= EF_WALLCLIMBCEILING;
         }
 
         //transition from ceiling to wall
@@ -2117,7 +2129,7 @@ static void PM_GroundClimbTrace( void )
       {
         //so we know what surface we're stuck to
         VectorCopy( trace.plane.normal, pm->ps->grapplePoint );
-        pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
+        pm->ps->eFlags &= ~EF_WALLCLIMBCEILING;
       }
 
       //IMPORTANT: break out of the for loop if we've hit something
@@ -2140,7 +2152,7 @@ static void PM_GroundClimbTrace( void )
     pm->ps->eFlags &= ~EF_WALLCLIMB;
 
     //just transided from ceiling to floor... apply delta correction
-    if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
+    if( pm->ps->eFlags & EF_WALLCLIMBCEILING )
     {
       vec3_t  forward, rotated, angles;
 
@@ -2152,7 +2164,7 @@ static void PM_GroundClimbTrace( void )
       pm->ps->delta_angles[ YAW ] -= ANGLE2SHORT( angles[ YAW ] - pm->ps->viewangles[ YAW ] );
     }
 
-    pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
+    pm->ps->eFlags &= ~EF_WALLCLIMBCEILING;
 
     //we get very bizarre effects if we don't do this :0
     VectorCopy( refNormal, pm->ps->grapplePoint );
@@ -2224,7 +2236,7 @@ static void PM_GroundTrace( void )
     }
 
     //just transided from ceiling to floor... apply delta correction
-    if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING )
+    if( pm->ps->eFlags & EF_WALLCLIMBCEILING )
     {
       vec3_t  forward, rotated, angles;
 
@@ -2238,8 +2250,7 @@ static void PM_GroundTrace( void )
   }
 
   pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
-  pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
-  pm->ps->eFlags &= ~EF_WALLCLIMB;
+  pm->ps->eFlags &= ~( EF_WALLCLIMB | EF_WALLCLIMBCEILING );
 
   point[ 0 ] = pm->ps->origin[ 0 ];
   point[ 1 ] = pm->ps->origin[ 1 ];
@@ -2842,8 +2853,8 @@ static void PM_Weapon( void )
   qboolean      attack3 = qfalse;
 
   // Ignore weapons in some cases
-  if( pm->ps->persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT || 
-      ( pm->ps->stats[ STAT_STATE ] & ( SS_INFESTING | SS_HOVELING ) ) )
+  if( pm->ps->persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT ||
+      ( pm->ps->stats[ STAT_STATE ] & SS_HOVELING ) )
     return;
 
   // Check for dead player
@@ -3407,6 +3418,9 @@ PM_Animate
 */
 static void PM_Animate( void )
 {
+  if( PM_Paralyzed( pm->ps ) )
+    return;
+
   if( pm->cmd.buttons & BUTTON_GESTURE )
   {
     if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
@@ -3492,7 +3506,7 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
   vec3_t  axis[ 3 ], rotaxis[ 3 ];
   vec3_t  tempang;
 
-  if( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPINTERMISSION )
+  if( ps->pm_type == PM_INTERMISSION )
     return;   // no view changes at all
 
   if( ps->pm_type != PM_SPECTATOR && ps->stats[ STAT_HEALTH ] <= 0 )
@@ -3525,7 +3539,7 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd )
 
   if( !( ps->stats[ STAT_STATE ] & SS_WALLCLIMBING ) ||
       !BG_RotateAxis( ps->grapplePoint, axis, rotaxis, qfalse,
-                      ps->stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )
+                      ps->eFlags & EF_WALLCLIMBCEILING ) )
     AxisCopy( axis, rotaxis );
 
   //convert the new axis back to angles
@@ -3683,7 +3697,7 @@ void PmoveSingle( pmove_t *pmove )
   else if( pm->cmd.forwardmove > 0 || ( pm->cmd.forwardmove == 0 && pm->cmd.rightmove ) )
     pm->ps->pm_flags &= ~PMF_BACKWARDS_RUN;
 
-  if( pm->ps->pm_type >= PM_DEAD )
+  if( PM_Paralyzed( pm->ps ) )
   {
     pm->cmd.forwardmove = 0;
     pm->cmd.rightmove = 0;
@@ -3711,7 +3725,7 @@ void PmoveSingle( pmove_t *pmove )
   if( pm->ps->pm_type == PM_FREEZE)
     return;   // no movement at all
 
-  if( pm->ps->pm_type == PM_INTERMISSION || pm->ps->pm_type == PM_SPINTERMISSION )
+  if( pm->ps->pm_type == PM_INTERMISSION )
     return;   // no movement at all
 
   // set watertype, and waterlevel

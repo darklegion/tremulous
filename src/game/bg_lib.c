@@ -76,7 +76,7 @@ static char* med3(char *, char *, char *, cmp_t *);
 static void  swapfunc(char *, char *, int, int);
 
 #ifndef min
-#define min(a, b) (a) < (b) ? a : b
+#define min(a, b) ((a) < (b) ? a : b)
 #endif
 
 /*
