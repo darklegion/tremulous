@@ -1390,7 +1390,7 @@ void CalculateRanks( void )
     level.numLiveHumanClients;
   level.numteamVotingClients[ 0 ] = level.numHumanClients;
   level.numteamVotingClients[ 1 ] = level.numAlienClients;
-  P[ i + 1 ] = '\0';
+  P[ i ] = '\0';
   trap_Cvar_Set( "P", P );
 
   if( g_friendlyFire.integer )
