@@ -1465,6 +1465,7 @@ static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
     vec4_t color, float scale, int textalign, int textvalign, int textStyle )
 {
   char  s[ MAX_TOKEN_CHARS ];
+  char *reward;
   float tx, ty;
 
   if( cg.intermissionStarted )
@@ -1479,14 +1480,19 @@ static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
     if( kills < 0 )
       kills = 0;
 
+    if( cgs.alienStage < S3 )
+      reward = "next stage";
+    else
+      reward = "enemy stagedown";
+
     if( cgs.alienNextStageThreshold < 0 )
       Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d", cgs.alienStage + 1 );
     else if( kills == 1 )
-      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, 1 kill for next stage",
-          cgs.alienStage + 1 );
+      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, 1 kill for %s",
+                   cgs.alienStage + 1, reward );
     else
-      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, %d kills for next stage",
-          cgs.alienStage + 1, kills );
+      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, %d kills for %s",
+                   cgs.alienStage + 1, kills, reward );
   }
   else if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
   {
@@ -1495,14 +1501,19 @@ static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
     if( credits < 0 )
       credits = 0;
 
+    if( cgs.humanStage < S3 )
+      reward = "next stage";
+    else
+      reward = "enemy stagedown";
+
     if( cgs.humanNextStageThreshold < 0 )
       Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d", cgs.humanStage + 1 );
     else if( credits == 1 )
-      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, 1 credit for next stage",
-          cgs.humanStage + 1 );
+      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, 1 credit for %s",
+                   cgs.humanStage + 1, reward );
     else
-      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, %d credits for next stage",
-          cgs.humanStage + 1, credits );
+      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, %d credits for %s",
+                   cgs.humanStage + 1, credits, reward );
   }
 
   CG_AlignText( rect, s, scale, 0.0f, 0.0f, textalign, textvalign, &tx, &ty );

@@ -236,7 +236,11 @@ static void CG_AnnounceAlienStageTransistion( stage_t from, stage_t to )
     return;
 
   trap_S_StartLocalSound( cgs.media.alienStageTransition, CHAN_ANNOUNCER );
-  CG_CenterPrint( "We have evolved!", 200, GIANTCHAR_WIDTH * 4 );
+  if( to > from )
+    CG_CenterPrint( "We have evolved!", 200, GIANTCHAR_WIDTH * 4 );
+  else 
+    CG_CenterPrint( "We have devolved!", 200, GIANTCHAR_WIDTH * 4 );
+
 }
 
 /*
@@ -250,7 +254,12 @@ static void CG_AnnounceHumanStageTransistion( stage_t from, stage_t to )
     return;
 
   trap_S_StartLocalSound( cgs.media.humanStageTransition, CHAN_ANNOUNCER );
-  CG_CenterPrint( "Reinforcements have arrived!", 200, GIANTCHAR_WIDTH * 4 );
+  
+  if( to > from )
+    CG_CenterPrint( "Reinforcements have arrived!", 200, GIANTCHAR_WIDTH * 4 );
+  else 
+    CG_CenterPrint( "Reinforcements have been withdrawn!", 200, GIANTCHAR_WIDTH * 4 );
+
 }
 
 /*
