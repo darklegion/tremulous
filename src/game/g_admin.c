@@ -379,8 +379,7 @@ static void admin_writeconfig_int( int v, fileHandle_t f )
   char buf[ 32 ];
 
   Com_sprintf( buf, sizeof(buf), "%d", v );
-  if( buf[ 0 ] )
-    trap_FS_Write( buf, strlen( buf ), f );
+  trap_FS_Write( buf, strlen( buf ), f );
   trap_FS_Write( "\n", 1, f );
 }
 
@@ -486,28 +485,20 @@ static void admin_readconfig_string( char **cnf, char *s, int size )
 
   //COM_MatchToken(cnf, "=");
   t = COM_ParseExt( cnf, qfalse );
-  if( !strcmp( t, "=" ) )
+  if( strcmp( t, "=" ) )
   {
-    t = COM_ParseExt( cnf, qfalse );
-  }
-  else
-  {
-    G_Printf( "readconfig: warning missing = before "
-              "\"%s\" on line %d\n",
-              t,
-              COM_GetCurrentParseLine() );
+    COM_ParseWarning( "expected '=' before \"%s\"", t );
   }
   s[ 0 ] = '\0';
-  while( t[ 0 ] )
+  while( 1 )
   {
-    if( ( s[ 0 ] == '\0' && strlen( t ) <= size ) ||
-        ( strlen( t ) + strlen( s ) < size ) )
-    {
-
-      Q_strcat( s, size, t );
-      Q_strcat( s, size, " " );
-    }
     t = COM_ParseExt( cnf, qfalse );
+    if( !*t )
+      break;
+    if( strlen( t ) + strlen( s ) >= size )
+      break;
+    Q_strcat( s, size, t );
+    Q_strcat( s, size, " " );
   }
   // trim the trailing space
   if( strlen( s ) > 0 && s[ strlen( s ) - 1 ] == ' ' )
@@ -526,10 +517,7 @@ static void admin_readconfig_int( char **cnf, int *v )
   }
   else
   {
-    G_Printf( "readconfig: warning missing = before "
-              "\"%s\" on line %d\n",
-              t,
-              COM_GetCurrentParseLine() );
+    COM_ParseWarning( "expected '=' before \"%s\"", t );
   }
   *v = atoi( t );
 }
@@ -583,7 +571,6 @@ static void admin_default_levels( void )
 int G_admin_level( gentity_t *ent )
 {
   int i;
-  qboolean found = qfalse;
 
   if( !ent )
   {
@@ -593,16 +580,7 @@ int G_admin_level( gentity_t *ent )
   for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
   {
     if( !Q_stricmp( g_admin_admins[ i ]->guid, ent->client->pers.guid ) )
-    {
-
-      found = qtrue;
-      break;
-    }
-  }
-
-  if( found )
-  {
-    return g_admin_admins[ i ]->level;
+      return g_admin_admins[ i ]->level;
   }
 
   return 0;
@@ -1073,7 +1051,6 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
   char *cnf, *cnf2;
   char *t;
   qboolean level_open, admin_open, ban_open, command_open;
-  char levels[ MAX_STRING_CHARS ] = {""};
   int i;
 
   G_admin_cleanup();
@@ -1089,8 +1066,8 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
   len = trap_FS_FOpenFile( g_admin.string, &f, FS_READ );
   if( len < 0 )
   {
-    ADMP( va( "^3!readconfig: ^7could not open admin config file %s\n",
-            g_admin.string ) );
+    G_Printf( "^3!readconfig: ^7could not open admin config file %s\n",
+            g_admin.string );
     admin_default_levels();
     return qfalse;
   }
@@ -1100,29 +1077,52 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
   *( cnf + len ) = '\0';
   trap_FS_FCloseFile( f );
 
-  t = COM_Parse( &cnf );
   level_open = admin_open = ban_open = command_open = qfalse;
-  while( *t )
+  COM_BeginParseSession( g_admin.string );
+  while( 1 )
   {
-    if( !Q_stricmp( t, "[level]" ) ||
-         !Q_stricmp( t, "[admin]" ) ||
-         !Q_stricmp( t, "[ban]" ) ||
-         !Q_stricmp( t, "[command]" ) )
+    t = COM_Parse( &cnf );
+    if( !*t )
+      break;
+
+    if( !Q_stricmp( t, "[level]" ) )
     {
-
-      if( level_open )
-        g_admin_levels[ lc++ ] = l;
-      else if( admin_open )
-        g_admin_admins[ ac++ ] = a;
-      else if( ban_open )
-        g_admin_bans[ bc++ ] = b;
-      else if( command_open )
-        g_admin_commands[ cc++ ] = c;
-      level_open = admin_open =
-                     ban_open = command_open = qfalse;
+      if( lc >= MAX_ADMIN_LEVELS )
+        return qfalse;
+      l = BG_Alloc( sizeof( g_admin_level_t ) );
+      g_admin_levels[ lc++ ] = l;
+      level_open = qtrue;
+      admin_open = ban_open = command_open = qfalse;
     }
-
-    if( level_open )
+    else if( !Q_stricmp( t, "[admin]" ) )
+    {
+      if( ac >= MAX_ADMIN_ADMINS )
+        return qfalse;
+      a = BG_Alloc( sizeof( g_admin_admin_t ) );
+      g_admin_admins[ ac++ ] = a;
+      admin_open = qtrue;
+      level_open = ban_open = command_open = qfalse;
+    }
+    else if( !Q_stricmp( t, "[ban]" ) )
+    {
+      if( bc >= MAX_ADMIN_BANS )
+        return qfalse;
+      b = BG_Alloc( sizeof( g_admin_ban_t ) );
+      g_admin_bans[ bc++ ] = b;
+      ban_open = qtrue;
+      level_open = admin_open = command_open = qfalse;
+    }
+    else if( !Q_stricmp( t, "[command]" ) )
+    {
+      if( cc >= MAX_ADMIN_COMMANDS )
+        return qfalse;
+      c = BG_Alloc( sizeof( g_admin_command_t ) );
+      g_admin_commands[ cc++ ] = c;
+      c->levels[ 0 ] = -1;
+      command_open = qtrue;
+      level_open = admin_open = ban_open = qfalse;
+    }
+    else if( level_open )
     {
       if( !Q_stricmp( t, "level" ) )
       {
@@ -1138,9 +1138,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
       }
       else
       {
-        ADMP( va( "^3!readconfig: ^7[level] parse error near %s on line %d\n",
-                t,
-                COM_GetCurrentParseLine() ) );
+        COM_ParseError( "[level] unrecognized token \"%s\"", t );
       }
     }
     else if( admin_open )
@@ -1163,9 +1161,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
       }
       else
       {
-        ADMP( va( "^3!readconfig: ^7[admin] parse error near %s on line %d\n",
-                t,
-                COM_GetCurrentParseLine() ) );
+        COM_ParseError( "[admin] unrecognized token \"%s\"", t );
       }
 
     }
@@ -1201,9 +1197,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
       }
       else
       {
-        ADMP( va( "^3!readconfig: ^7[ban] parse error near %s on line %d\n",
-                t,
-                COM_GetCurrentParseLine() ) );
+        COM_ParseError( "[ban] unrecognized token \"%s\"", t );
       }
     }
     else if( command_open )
@@ -1222,91 +1216,32 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
       }
       else if( !Q_stricmp( t, "levels" ) )
       {
-        char level[ 4 ] = {""};
-        char *lp = levels;
+        char levels[ MAX_STRING_CHARS ] = {""};
+        char *level = levels;
+        char *lp;
         int cmdlevel = 0;
 
         admin_readconfig_string( &cnf, levels, sizeof( levels ) );
-        while( *lp )
+        while( cmdlevel < MAX_ADMIN_LEVELS )
         {
-          if( *lp == ' ' )
-          {
-            c->levels[ cmdlevel++ ] = atoi( level );
-            level[ 0 ] = '\0';
-            lp++;
-            continue;
-          }
-          Q_strcat( level, sizeof( level ), va( "%c", *lp ) );
-          lp++;
+          lp = COM_Parse( &level );
+          if( !*lp )
+            break;
+          c->levels[ cmdlevel++ ] = atoi( lp );
         }
-        if( level[ 0 ] )
-          c->levels[ cmdlevel++ ] = atoi( level );
         // ensure the list is -1 terminated
-        c->levels[ MAX_ADMIN_LEVELS ] = -1;
+        c->levels[ cmdlevel ] = -1;
       }
       else
       {
-        ADMP( va( "^3!readconfig: ^7[command] parse error near %s on line %d\n",
-                t,
-                COM_GetCurrentParseLine() ) );
+        COM_ParseError( "[command] unrecognized token \"%s\"", t );
       }
     }
-
-    if( !Q_stricmp( t, "[level]" ) )
+    else
     {
-      if( lc >= MAX_ADMIN_LEVELS )
-        return qfalse;
-      l = BG_Alloc( sizeof( g_admin_level_t ) );
-      l->level = 0;
-      *l->name = '\0';
-      *l->flags = '\0';
-      level_open = qtrue;
+      COM_ParseError( "unexpected token \"%s\"", t );
     }
-    else if( !Q_stricmp( t, "[admin]" ) )
-    {
-      if( ac >= MAX_ADMIN_ADMINS )
-        return qfalse;
-      a = BG_Alloc( sizeof( g_admin_admin_t ) );
-      *a->name = '\0';
-      *a->guid = '\0';
-      a->level = 0;
-      *a->flags = '\0';
-      admin_open = qtrue;
-    }
-    else if( !Q_stricmp( t, "[ban]" ) )
-    {
-      if( bc >= MAX_ADMIN_BANS )
-        return qfalse;
-      b = BG_Alloc( sizeof( g_admin_ban_t ) );
-      *b->name = '\0';
-      *b->guid = '\0';
-      *b->ip = '\0';
-      *b->made = '\0';
-      b->expires = 0;
-      *b->reason = '\0';
-      ban_open = qtrue;
-    }
-    else if( !Q_stricmp( t, "[command]" ) )
-    {
-      if( cc >= MAX_ADMIN_COMMANDS )
-        return qfalse;
-      c = BG_Alloc( sizeof( g_admin_command_t ) );
-      *c->command = '\0';
-      *c->exec = '\0';
-      *c->desc = '\0';
-      memset( c->levels, -1, sizeof( c->levels ) );
-      command_open = qtrue;
-    }
-    t = COM_Parse( &cnf );
   }
-  if( level_open )
-    g_admin_levels[ lc++ ] = l;
-  if( admin_open )
-    g_admin_admins[ ac++ ] = a;
-  if( ban_open )
-    g_admin_bans[ bc++ ] = b;
-  if( command_open )
-    g_admin_commands[ cc++ ] = c;
   BG_Free( cnf2 );
   ADMP( va( "^3!readconfig: ^7loaded %d levels, %d admins, %d bans, %d commands\n",
           lc, ac, bc, cc ) );

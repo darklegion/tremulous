@@ -142,6 +142,7 @@ qboolean G_admin_permission( gentity_t *ent, char flag );
 qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len );
 void G_admin_namelog_update( gclient_t *ent, qboolean disconnect );
 int G_admin_level( gentity_t *ent );
+int G_admin_parse_time( const char *time );
 
 // ! command functions
 qboolean G_admin_time( gentity_t *ent, int skiparg );

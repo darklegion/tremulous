@@ -3253,8 +3253,11 @@ qboolean G_SayArgv( int n, char *buffer, int bufferLength )
   if( n > 0 )
     return qfalse;
   //memccpy( buffer, s, ' ', bufferLength );
-  while( bufferLength > 1 && *s && *s != ' ' )
+  while( *s && *s != ' ' && bufferLength > 1 )
+  {
     *buffer++ = *s++;
+    bufferLength--;
+  }
   *buffer = 0;
   return qtrue;
 }
