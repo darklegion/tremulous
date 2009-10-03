@@ -89,7 +89,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL3_CLAW_DMG             ADM(80)
 #define LEVEL3_CLAW_UPG_RANGE       96.0f
 #define LEVEL3_CLAW_RANGE           72.0f
-//#define LEVEL3_CLAW_WIDTH           16.0f
 #define LEVEL3_CLAW_WIDTH           12.0f
 #define LEVEL3_CLAW_REPEAT          700
 #define LEVEL3_CLAW_K_SCALE         1.0f
@@ -214,8 +213,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL4_REGEN                9
 #define LEVEL4_COST                 2
 
-
-
 /*
  * ALIEN buildables
  *
@@ -249,7 +246,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ASPAWN_SPLASHDAMAGE         50
 #define ASPAWN_SPLASHRADIUS         50
 #define ASPAWN_CREEPSIZE            120
-#define ASPAWN_VALUE                150
+#define ASPAWN_VALUE                100
 
 #define BARRICADE_BP                8
 #define BARRICADE_BT                20000
@@ -260,6 +257,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define BARRICADE_CREEPSIZE         120
 #define BARRICADE_SHRINKPROP        0.25f
 #define BARRICADE_SHRINKTIMEOUT     500
+#define BARRICADE_VALUE             80
 
 #define BOOSTER_BP                  12
 #define BOOSTER_BT                  15000
@@ -269,6 +267,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define BOOSTER_SPLASHRADIUS        50
 #define BOOSTER_CREEPSIZE           120
 #define BOOSTER_REGEN_MOD           3.0f
+#define BOOSTER_VALUE               120
 #define BOOST_TIME                  20000
 
 #define ACIDTUBE_BP                 8
@@ -282,7 +281,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ACIDTUBE_RANGE              300.0f
 #define ACIDTUBE_REPEAT             300
 #define ACIDTUBE_REPEAT_ANIM        2000
-#define ACIDTUBE_K_SCALE            1.0f
+#define ACIDTUBE_VALUE              80
 
 #define HIVE_BP                     12
 #define HIVE_BT                     20000
@@ -298,6 +297,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define HIVE_DMG                    50
 #define HIVE_SPEED                  240.0f
 #define HIVE_DIR_CHANGE_PERIOD      500
+#define HIVE_VALUE                  120
 
 #define TRAPPER_BP                  8
 #define TRAPPER_BT                  12000
@@ -308,7 +308,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TRAPPER_CREEPSIZE           30
 #define TRAPPER_RANGE               400
 #define TRAPPER_REPEAT              1000
-#define TRAPPER_K_SCALE             1.0f
+#define TRAPPER_VALUE               80
 #define LOCKBLOB_SPEED              650.0f
 #define LOCKBLOB_LOCKTIME           5000
 #define LOCKBLOB_DOT                0.85f // max angle = acos( LOCKBLOB_DOT )
@@ -332,8 +332,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define HOVEL_SPLASHDAMAGE          20
 #define HOVEL_SPLASHRADIUS          200
 #define HOVEL_CREEPSIZE             120
-
-
+#define HOVEL_VALUE                 80
 
 /*
  * ALIEN misc
@@ -480,8 +479,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define HBUILD2_REPEAT              1000
 #define HBUILD2_DELAY               15000
 
-
-
 /*
  * HUMAN upgrades
  */
@@ -520,7 +517,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MEDKIT_STARTUP_TIME         4000
 #define MEDKIT_STARTUP_SPEED        5
 
-
 /*
  * HUMAN buildables
  *
@@ -547,13 +543,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define HSPAWN_HEALTH               HBHM(310)
 #define HSPAWN_SPLASHDAMAGE         50
 #define HSPAWN_SPLASHRADIUS         100
-#define HSPAWN_VALUE                1
+#define HSPAWN_VALUE                400
 
 #define MEDISTAT_BP                 8
 #define MEDISTAT_BT                 10000
 #define MEDISTAT_HEALTH             HBHM(190)
 #define MEDISTAT_SPLASHDAMAGE       50
 #define MEDISTAT_SPLASHRADIUS       100
+#define MEDISTAT_VALUE              320
 
 #define MGTURRET_BP                 8
 #define MGTURRET_BT                 10000
@@ -570,6 +567,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MGTURRET_SPREAD             200
 #define MGTURRET_DMG                HDM(8)
 #define MGTURRET_SPINUP_TIME        750 // time between target sighted and fire
+#define MGTURRET_VALUE              320
 
 #define TESLAGEN_BP                 10
 #define TESLAGEN_BT                 15000
@@ -580,6 +578,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TESLAGEN_K_SCALE            4.0f
 #define TESLAGEN_RANGE              150
 #define TESLAGEN_DMG                HDM(10)
+#define TESLAGEN_VALUE              400
 
 #define DC_BP                       8
 #define DC_BT                       10000
@@ -589,12 +588,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DC_ATTACK_PERIOD            10000 // how often to spam "under attack"
 #define DC_HEALRATE                 3
 #define DC_RANGE                    10000
+#define DC_VALUE                    320
 
 #define ARMOURY_BP                  10
 #define ARMOURY_BT                  10000
 #define ARMOURY_HEALTH              HBHM(420)
 #define ARMOURY_SPLASHDAMAGE        50
 #define ARMOURY_SPLASHRADIUS        100
+#define ARMOURY_VALUE               400
 
 #define REACTOR_BP                  0
 #define REACTOR_BT                  20000
@@ -607,7 +608,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define REACTOR_ATTACK_DCC_REPEAT   1000
 #define REACTOR_ATTACK_DCC_RANGE    150.0f
 #define REACTOR_ATTACK_DCC_DAMAGE   40
-#define REACTOR_VALUE               2
+#define REACTOR_VALUE               1200
 
 #define REPEATER_BP                 0
 #define REPEATER_BT                 10000
@@ -615,6 +616,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define REPEATER_SPLASHDAMAGE       50
 #define REPEATER_SPLASHRADIUS       100
 #define REPEATER_INACTIVE_TIME      90000
+#define REPEATER_VALUE              80
 
 /*
  * HUMAN misc

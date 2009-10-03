@@ -631,6 +631,7 @@ Called when an alien spawn dies
 */
 void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
 {
+  G_RewardAttackers( self );
   G_SetBuildableAnim( self, BANIM_DESTROY1, qtrue );
   G_SetIdleBuildableAnim( self, BANIM_DESTROYED );
 
@@ -646,20 +647,14 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   if( attacker && attacker->client )
   {
-    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-    {
-      if( self->s.modelindex == BA_A_OVERMIND )
-        G_AddCreditToClient( attacker->client, OVERMIND_VALUE, qtrue );
-      else if( self->s.modelindex == BA_A_SPAWN )
-        G_AddCreditToClient( attacker->client, ASPAWN_VALUE, qtrue );
-    }
-    else
+    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
     {
       G_TeamCommand( PTE_ALIENS,
         va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
           BG_FindHumanNameForBuildable( self->s.modelindex ),
           attacker->client->pers.netname ) );
     }
+
     G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
       attacker->client->ps.clientNum, self->s.modelindex, mod,
       attacker->client->pers.netname,
@@ -874,6 +869,7 @@ exploding.
 */
 void AGeneric_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
 {
+  G_RewardAttackers( self );
   G_SetBuildableAnim( self, BANIM_DESTROY1, qtrue );
   G_SetIdleBuildableAnim( self, BANIM_DESTROYED );
 
@@ -1469,6 +1465,8 @@ Die for alien hovel
 void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
 {
   vec3_t  dir;
+
+  G_RewardAttackers( self );
 
   VectorCopy( self->s.origin2, dir );
 
@@ -2476,7 +2474,7 @@ Called when a human spawn dies
 */
 void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
 {
-  //pretty events and cleanup
+  G_RewardAttackers( self );
   G_SetBuildableAnim( self, BANIM_DESTROY1, qtrue );
   G_SetIdleBuildableAnim( self, BANIM_DESTROYED );
 
@@ -2497,20 +2495,14 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   if( attacker && attacker->client )
   {
-    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-    {
-      if( self->s.modelindex == BA_H_REACTOR )
-        G_AddCreditToClient( attacker->client, REACTOR_VALUE, qtrue );
-      else if( self->s.modelindex == BA_H_SPAWN )
-        G_AddCreditToClient( attacker->client, HSPAWN_VALUE, qtrue );
-    }
-    else
+    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
     {
       G_TeamCommand( PTE_HUMANS,
         va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
           BG_FindHumanNameForBuildable( self->s.modelindex ),
           attacker->client->pers.netname ) );
     }
+
     G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
       attacker->client->ps.clientNum, self->s.modelindex, mod,
       attacker->client->pers.netname,

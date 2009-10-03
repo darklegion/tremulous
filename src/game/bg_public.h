@@ -1018,7 +1018,8 @@ typedef struct
   qboolean  dccTest;
   qboolean  transparentTest;
   qboolean  reactorTest;
-  qboolean  replaceable;
+  
+  int       value;
 } buildableAttributes_t;
 
 typedef struct
@@ -1112,6 +1113,7 @@ void      BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
                                                 vec3_t outOrigin, vec3_t outAngles, trace_t *tr );
 int       BG_GetValueOfPlayer( playerState_t *ps );
 
+int       BG_FindValueOfBuildable( int bclass );
 int       BG_FindBuildNumForName( char *name );
 int       BG_FindBuildNumForEntityName( char *name );
 char      *BG_FindNameForBuildable( int bclass );

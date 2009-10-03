@@ -127,6 +127,56 @@ char *modNames[ ] =
 
 /*
 ==================
+G_RewardAttackers
+
+Function to distribute rewards to entities that killed this one.
+Returns the total damage dealt.
+==================
+*/
+float G_RewardAttackers( gentity_t *self )
+{
+  float value, totalDamage;
+  int team, i;
+
+  // Total up all the damage done by every client
+  for( i = 0; i < MAX_CLIENTS; i++ )
+    totalDamage += (float)self->credits[ i ];
+
+  if( totalDamage <= 0.0f )
+    return 0.0f;
+
+  // Only give credits for killing players and buildables
+  if( self->client )
+  {
+    value = BG_GetValueOfPlayer( &self->client->ps );
+    team = self->client->pers.teamSelection;
+  }
+  else if( self->s.eType == ET_BUILDABLE )
+  {
+    value = BG_FindValueOfBuildable( self->s.modelindex );
+    team = self->biteam;
+  }
+  else
+    return totalDamage;
+
+  // Give credits and empty the array
+  for( i = 0; i < MAX_CLIENTS; i++ )
+  {
+    gentity_t *player = g_entities + i;
+
+    if( !player->client || !self->credits[ i ] ||
+        player->client->ps.stats[ STAT_PTEAM ] == team )
+      continue;
+    G_AddCreditToClient( player->client,
+                         value * self->credits[ i ] / totalDamage, qtrue );
+    self->credits[ i ] = 0;
+  }
+  
+  return totalDamage;
+}
+
+/*
+==================
 player_die
 ==================
 */
@@ -197,7 +247,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   ent->r.svFlags = SVF_BROADCAST; // send to everyone
 
   self->enemy = attacker;
-
   self->client->ps.persistant[ PERS_KILLED ]++;
 
   if( attacker && attacker->client )
@@ -224,9 +273,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   else if( attacker->s.eType != ET_BUILDABLE )
     AddScore( self, -1 );
 
-  //total up all the damage done by every client
-  for( i = 0; i < MAX_CLIENTS; i++ )
-    totalDamage += (float)self->credits[ i ];
+  // give credits for killing this player
+  totalDamage = G_RewardAttackers( self );
 
   // if players did more than DAMAGE_FRACTION_FOR_KILL increment the stage counters
   if( !OnSameTeam( self, attacker ) && totalDamage >= ( self->client->ps.stats[ STAT_MAX_HEALTH ] * DAMAGE_FRACTION_FOR_KILL ) )
@@ -235,30 +283,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       trap_Cvar_Set( "g_alienKills", va( "%d", g_alienKills.integer + 1 ) );
     else if( self->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
       trap_Cvar_Set( "g_humanKills", va( "%d", g_humanKills.integer + 1 ) );
-  }
-
-  // distribute rewards for the kill by fraction of damage dealt
-  if( totalDamage > 0.0f )
-  {
-    float value = BG_GetValueOfPlayer( &self->client->ps );
-
-    for( i = 0; i < MAX_CLIENTS; i++ )
-    {
-      player = g_entities + i;
-
-      if( !player->client )
-        continue;
-
-      if( player->client->ps.stats[ STAT_PTEAM ] ==
-          self->client->ps.stats[ STAT_PTEAM ] )
-        continue;
-
-      if( !self->credits[ i ] )
-        continue;
-
-      G_AddCreditToClient( player->client,
-                           value * self->credits[ i ] / totalDamage, qtrue );
-    }
   }
 
   ScoreboardMessage( self );    // show scores
@@ -1089,11 +1113,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     targ->lastDamageTime = level.time;
 
     // add to the attackers "account" on the target
-    if( targ->client && attacker->client )
-    {
-      if( attacker != targ && !OnSameTeam( targ, attacker ) )
-        targ->credits[ attacker->client->ps.clientNum ] += take;
-    }
+    if( attacker->client && attacker != targ && !OnSameTeam( targ, attacker ) )
+      targ->credits[ attacker->client->ps.clientNum ] += take;
 
     if( targ->health <= 0 )
     {

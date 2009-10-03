@@ -472,20 +472,21 @@ void massDriverFire( gentity_t *ent )
       break;
     traceEnt = &g_entities[ tr.entityNum ];
     skipent = tr.entityNum;
-
-    // don't travel through walls and movers
-    if( !( traceEnt->r.contents & CONTENTS_BODY ) )
-      skipent = ENTITYNUM_NONE;
-      
-    // don't travel through teammates with FF off
-    if( OnSameTeam(ent, traceEnt) &&
-        ( !g_friendlyFire.integer || !g_friendlyFireHumans.integer ) )
-      skipent = ENTITYNUM_NONE;
-      
-    // don't travel through team buildables with FF off
-    if( traceEnt->s.eType == ET_BUILDABLE &&
-        traceEnt->biteam == ent->client->pers.teamSelection &&
-        !g_friendlyBuildableFire.integer )
+    if( traceEnt->s.eType == ET_PLAYER )
+    {
+      // don't travel through teammates with FF off
+      if( OnSameTeam( ent, traceEnt ) &&
+          ( !g_friendlyFire.integer || !g_friendlyFireHumans.integer ) )
+        skipent = ENTITYNUM_NONE;
+    }
+    else if( traceEnt->s.eType == ET_BUILDABLE )
+    {
+      // don't travel through team buildables with FF off
+      if( traceEnt->biteam == ent->client->pers.teamSelection &&
+          !g_friendlyBuildableFire.integer )
+        skipent = ENTITYNUM_NONE;
+    }
+    else
       skipent = ENTITYNUM_NONE;
 
     // save the hit entity, position, and normal
