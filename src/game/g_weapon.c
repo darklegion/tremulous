@@ -439,43 +439,57 @@ MASS DRIVER
 
 void massDriverFire( gentity_t *ent )
 {
-  trace_t   tr;
-  vec3_t    end;
-  gentity_t *tent;
-  gentity_t *traceEnt;
+  trace_t tr;
+  vec3_t end;
+  gentity_t *tent, *traceEnt;
+  int i, skipent;
 
   VectorMA( muzzle, 8192 * 16, forward, end );
-
   G_UnlaggedOn( muzzle, 8192 * 16 );
-  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
+  VectorCopy( muzzle, tr.endpos );
+  skipent = ent->s.number;
+  for( i = 0; i < 64 && skipent != ENTITYNUM_NONE; i++ )
+  {
+    trap_Trace( &tr, tr.endpos, NULL, NULL, end, skipent, MASK_SHOT );
+    if( tr.surfaceFlags & SURF_NOIMPACT )
+      break;
+    traceEnt = &g_entities[ tr.entityNum ];
+    skipent = tr.entityNum;
+
+    // don't travel through walls and movers
+    if( !( traceEnt->r.contents & CONTENTS_BODY ) )
+      skipent = ENTITYNUM_NONE;
+      
+    // don't travel through teammates with FF off
+    if( OnSameTeam(ent, traceEnt) &&
+        ( !g_friendlyFire.integer || !g_friendlyFireHumans.integer ) )
+      skipent = ENTITYNUM_NONE;
+      
+    // don't travel through team buildables with FF off
+    if( traceEnt->s.eType == ET_BUILDABLE &&
+        traceEnt->biteam == ent->client->pers.teamSelection &&
+        !g_friendlyBuildableFire.integer )
+      skipent = ENTITYNUM_NONE;
+
+    // snap the endpos to integers, but nudged towards the line
+    SnapVectorTowards( tr.endpos, muzzle );
+
+    // send impact
+    if( traceEnt->takedamage && traceEnt->client )
+      BloodSpurt( ent, traceEnt, &tr );
+    else
+    {
+      tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
+      tent->s.eventParm = DirToByte( tr.plane.normal );
+      tent->s.weapon = ent->s.weapon;
+      tent->s.generic1 = ent->s.generic1; //weaponMode
+    }
+
+    if( traceEnt->takedamage )
+      G_Damage( traceEnt, ent, ent, forward, tr.endpos,
+                MDRIVER_DMG, 0, MOD_MDRIVER );    
+  }
   G_UnlaggedOff( );
-
-  if( tr.surfaceFlags & SURF_NOIMPACT )
-    return;
-
-  traceEnt = &g_entities[ tr.entityNum ];
-
-  // snap the endpos to integers, but nudged towards the line
-  SnapVectorTowards( tr.endpos, muzzle );
-
-  // send impact
-  if( traceEnt->takedamage && traceEnt->client )
-  {
-    BloodSpurt( ent, traceEnt, &tr );
-  }
-  else
-  {
-    tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
-    tent->s.eventParm = DirToByte( tr.plane.normal );
-    tent->s.weapon = ent->s.weapon;
-    tent->s.generic1 = ent->s.generic1; //weaponMode
-  }
-
-  if( traceEnt->takedamage )
-  {
-    G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-      MDRIVER_DMG, 0, MOD_MDRIVER );
-  }
 }
 
 /*
