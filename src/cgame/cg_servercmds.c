@@ -511,17 +511,38 @@ void CG_Menu( int menu, int arg )
       type      = DT_COMMAND;
       break;
 
+    case MN_A_TEAMLOCKED:
+      longMsg   = "The alien team is locked. You cannot join the aliens "
+                  "at this time.";
+      shortMsg  = "The alien team is locked";
+      type      = DT_COMMAND;
+      break;
+
+    case MN_H_TEAMLOCKED:
+      longMsg   = "The human team is locked. You cannot join the humans "
+                  "at this time.";
+      shortMsg  = "The human team is locked";
+      type      = DT_COMMAND;
+      break;
+
+    case MN_PLAYERLIMIT:
+      longMsg   = "The maximum number of playing clients has been reached. "
+                  "Please wait until slots become available.";
+      shortMsg  = "No free player slots";
+      type      = DT_COMMAND;
+      break;
+
     case MN_A_TEAMCHANGEBUILDTIMER:
       longMsg   = "You cannot leave the Alien team until your build timer "
                   "has expired.";
-      shortMsg  = "You cannot change teams until your build timer expires.";
+      shortMsg  = "You cannot change teams until your build timer expires";
       type      = DT_COMMAND;
       break;
 
     case MN_H_TEAMCHANGEBUILDTIMER:
       longMsg   = "You cannot leave the Human team until your build timer "
                   "has expired.";
-      shortMsg  = "You cannot change teams until your build timer expires.";
+      shortMsg  = "You cannot change teams until your build timer expires";
       type      = DT_COMMAND;
       break;
 

@@ -525,7 +525,7 @@ void Cmd_Kill_f( gentity_t *ent )
     }
     else if( ent->suicideTime > level.time )
     {
-      trap_SendServerCommand( ent-g_entities, "print \"Suicide canceled\n\"" );
+      trap_SendServerCommand( ent-g_entities, "print \"Suicide cancelled\n\"" );
       ent->suicideTime = 0;
     }
   }
@@ -584,8 +584,7 @@ void Cmd_Team_f( gentity_t *ent )
     case TEAM_ALIENS:
       if( level.alienTeamLocked )
       {
-        trap_SendServerCommand( ent-g_entities,
-          "print \"Alien team has been ^1LOCKED\n\"" );
+        G_TriggerMenu( ent - g_entities, MN_A_TEAMLOCKED );
         return;
       }
       else if( level.humanTeamLocked )
@@ -603,8 +602,7 @@ void Cmd_Team_f( gentity_t *ent )
     case TEAM_HUMANS:
       if( level.humanTeamLocked )
       {
-        trap_SendServerCommand( ent-g_entities,
-          "print \"Human team has been ^1LOCKED\n\"" );
+        G_TriggerMenu( ent - g_entities, MN_H_TEAMLOCKED );
         return;
       }
       else if( level.alienTeamLocked )
@@ -632,9 +630,7 @@ void Cmd_Team_f( gentity_t *ent )
   if( team != TEAM_NONE && g_maxGameClients.integer &&
     level.numPlayingClients >= g_maxGameClients.integer )
   {
-    trap_SendServerCommand( ent-g_entities, va( "print \"The maximum number of "
-      "playing clients has been reached (g_maxGameClients = %d)\n\"",
-      g_maxGameClients.integer ) );
+    G_TriggerMenu( ent - g_entities, MN_PLAYERLIMIT );
     return;
   }
 
