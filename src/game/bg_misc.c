@@ -3861,18 +3861,19 @@ weapon_t BG_PrimaryWeapon( int stats[ ] )
 BG_LoadEmoticons
 ============
 */
-int BG_LoadEmoticons( char names[ ][ MAX_EMOTICON_NAME_LEN ] )
+int BG_LoadEmoticons( char names[ ][ MAX_EMOTICON_NAME_LEN ], int widths[ ] )
 {
   int numFiles;
-  char fileList[ MAX_EMOTICONS * ( MAX_EMOTICON_NAME_LEN + 5 ) ] = {""};
+  char fileList[ MAX_EMOTICONS * ( MAX_EMOTICON_NAME_LEN + 9 ) ] = {""};
   int i;
   char *filePtr;
   int fileLen;
-  char emoticon[ MAX_EMOTICON_NAME_LEN + 5 ] = {""};
+  char emoticon[ MAX_EMOTICON_NAME_LEN + 9 ] = {""};
   int loaded = 0;
   int count;
+  int width = 0;
 
-  numFiles = trap_FS_GetFileList( "emoticons", ".tga", fileList,
+  numFiles = trap_FS_GetFileList( "emoticons", "x1.tga", fileList,
     sizeof( fileList ) );
 
   if( numFiles < 1 )
@@ -3890,10 +3891,16 @@ int BG_LoadEmoticons( char names[ ][ MAX_EMOTICON_NAME_LEN ] )
     }
 
     fileLen = strlen( filePtr );
-    if( fileLen > MAX_EMOTICON_NAME_LEN + 5 )
+    if( fileLen > MAX_EMOTICON_NAME_LEN + 8 )
     {
       Com_Printf( S_COLOR_YELLOW "WARNING: MAX_EMOTICON_NAME_LEN is %d. "
         "skipping \"%s\", filename too long", MAX_EMOTICON_NAME_LEN, filePtr );
+      continue;
+    }
+    if( fileLen < 9 )
+    {
+      Com_Printf( S_COLOR_YELLOW "WARNING: skipping \"%s\", filename too short",
+        filePtr );
       continue;
     }
     if( !trap_FS_FOpenFile( va( "emoticons/%s", filePtr ), NULL, FS_READ ) )
@@ -3903,10 +3910,30 @@ int BG_LoadEmoticons( char names[ ][ MAX_EMOTICON_NAME_LEN ] )
         filePtr );
       break;
     }
+
     Q_strncpyz( emoticon, filePtr, sizeof( emoticon ) );
-    emoticon[ fileLen - 4 ] = '\0';
+
+    if( emoticon[ fileLen - 8 ] != '_' )
+    {
+      Com_Printf( S_COLOR_YELLOW "WARNING: skipping \"%s\", filename invalid",
+        filePtr );
+      continue;
+    }
+
+    width = atoi( va( "%c", emoticon[ fileLen - 7 ] ) );
+
+    if( width < 1 || width > 9 )
+    {
+      Com_Printf( S_COLOR_YELLOW "WARNING: skipping \"%s\", invalid width",
+        filePtr );
+      continue;
+    }
+
+    emoticon[ fileLen - 8 ] = '\0';
 
     Q_strncpyz( names[ count ], emoticon, sizeof( names[ count ] ) );
+    if( widths )
+      widths[ count ] = width;
     count++;
     loaded = count;
   }

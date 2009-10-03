@@ -206,14 +206,19 @@ void AssetCache( void )
   uiInfo.uiDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
 
   if( ui_emoticons.integer ) 
-    uiInfo.uiDC.Assets.emoticonCount = BG_LoadEmoticons( uiInfo.uiDC.Assets.emoticons );
+  {
+    uiInfo.uiDC.Assets.emoticonCount = BG_LoadEmoticons(
+      uiInfo.uiDC.Assets.emoticons,
+      uiInfo.uiDC.Assets.emoticonWidths );
+  }
   else
     uiInfo.uiDC.Assets.emoticonCount = 0;
 
   for( i = 0; i < uiInfo.uiDC.Assets.emoticonCount; i++ )
   {
     uiInfo.uiDC.Assets.emoticonShaders[ i ] = trap_R_RegisterShaderNoMip( 
-      va( "emoticons/%s.tga", uiInfo.uiDC.Assets.emoticons[ i ] ) );
+      va( "emoticons/%s_%dx1.tga", uiInfo.uiDC.Assets.emoticons[ i ],
+          uiInfo.uiDC.Assets.emoticonWidths[ i ] ) );
   }
 }
 

@@ -1680,14 +1680,18 @@ void CG_AssetCache( void )
   cgDC.Assets.sliderThumb         = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
 
   if( cg_emoticons.integer )
-    cgDC.Assets.emoticonCount = BG_LoadEmoticons( cgDC.Assets.emoticons );
+  {
+    cgDC.Assets.emoticonCount = BG_LoadEmoticons( cgDC.Assets.emoticons,
+      cgDC.Assets.emoticonWidths );
+  }
   else
     cgDC.Assets.emoticonCount = 0;
 
   for( i = 0; i < cgDC.Assets.emoticonCount; i++ )
   {
     cgDC.Assets.emoticonShaders[ i ] = trap_R_RegisterShaderNoMip(
-      va( "emoticons/%s.tga", cgDC.Assets.emoticons[ i ] ) );
+      va( "emoticons/%s_%dx1.tga", cgDC.Assets.emoticons[ i ],
+          cgDC.Assets.emoticonWidths[ i ] ) );
   }
 }
 

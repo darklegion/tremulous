@@ -343,6 +343,7 @@ typedef struct
   qboolean fontRegistered;
   char emoticons[ MAX_EMOTICONS ][ MAX_EMOTICON_NAME_LEN ];
   qhandle_t emoticonShaders[ MAX_EMOTICONS ];
+  int emoticonWidths[ MAX_EMOTICONS ];
   int emoticonCount;
 }
 cachedAssets_t;

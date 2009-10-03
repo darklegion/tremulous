@@ -1834,7 +1834,8 @@ void Script_playLooped( itemDef_t *item, char **args )
   }
 }
 
-static qboolean UI_Text_Emoticon( const char *s, qboolean *escaped, int *length, qhandle_t *h )
+static qboolean UI_Text_Emoticon( const char *s, qboolean *escaped,
+                                  int *length, qhandle_t *h, int *width )
 {
   char name[ MAX_EMOTICON_NAME_LEN ] = {""};
   const char *p = s;
@@ -1867,6 +1868,8 @@ static qboolean UI_Text_Emoticon( const char *s, qboolean *escaped, int *length,
           }
           if( h )
             *h = DC->Assets.emoticonShaders[ j ];
+          if( width )
+            *width = DC->Assets.emoticonWidths[ j ];
           *length = i + 2;
           return qtrue;
         }
@@ -1891,7 +1894,7 @@ float UI_Text_Width( const char *text, float scale, int limit )
   fontInfo_t *font = &DC->Assets.textFont;
   int emoticonLen;
   qboolean emoticonEscaped;
-  float emoticonWidth;
+  float emoticonW;
   int emoticons = 0;
 
   if( scale <= DC->getCVarValue( "ui_smallFont" ) )
@@ -1900,7 +1903,7 @@ float UI_Text_Width( const char *text, float scale, int limit )
     font = &DC->Assets.bigFont;
 
   useScale = scale * font->glyphScale;
-  emoticonWidth = UI_Text_Height( "[", scale, 0 ) * DC->aspectScale;
+  emoticonW = UI_Text_Height( "[", scale, 0 ) * DC->aspectScale;
   out = 0;
 
   if( text )
@@ -1921,7 +1924,7 @@ float UI_Text_Width( const char *text, float scale, int limit )
         s += 2;
         continue;
       }
-      else if ( UI_Text_Emoticon( s, &emoticonEscaped, &emoticonLen, NULL ) )
+      else if ( UI_Text_Emoticon( s, &emoticonEscaped, &emoticonLen, NULL, NULL ) )
       {
         if( emoticonEscaped )
         {
@@ -1940,7 +1943,7 @@ float UI_Text_Width( const char *text, float scale, int limit )
     }
   }
 
-  return ( out * useScale ) + ( emoticons * emoticonWidth );
+  return ( out * useScale ) + ( emoticons * emoticonW );
 }
 
 float UI_Text_Height( const char *text, float scale, int limit )
@@ -2038,6 +2041,7 @@ void UI_Text_Paint_Limit( float *maxX, float x, float y, float scale,
   qhandle_t emoticonHandle = 0;
   float emoticonH, emoticonW;
   qboolean emoticonEscaped;
+  int emoticonWidth;
 
   emoticonH = UI_Text_Height( "[", scale, 0 );
   emoticonW = emoticonH * DC->aspectScale;
@@ -2085,7 +2089,8 @@ void UI_Text_Paint_Limit( float *maxX, float x, float y, float scale,
         s += 2;
         continue;
       }
-      else if( UI_Text_Emoticon( s, &emoticonEscaped, &emoticonLen, &emoticonHandle ) )
+      else if( UI_Text_Emoticon( s, &emoticonEscaped, &emoticonLen,
+               &emoticonHandle, &emoticonWidth ) )
       {
         if( emoticonEscaped )
         {
@@ -2095,9 +2100,10 @@ void UI_Text_Paint_Limit( float *maxX, float x, float y, float scale,
         {
           s += emoticonLen;
           DC->setColor( NULL );
-          DC->drawHandlePic( x, y - yadj, emoticonW, emoticonH, emoticonHandle );
+          DC->drawHandlePic( x, y - yadj, ( emoticonW * emoticonWidth ),
+            emoticonH, emoticonHandle );
           DC->setColor( newColor );
-          x += emoticonW;
+          x += ( emoticonW * emoticonWidth );
           continue;
         }
       }
@@ -2139,6 +2145,7 @@ void UI_Text_Paint( float x, float y, float scale, vec4_t color, const char *tex
   qhandle_t emoticonHandle = 0;
   float emoticonH, emoticonW;
   qboolean emoticonEscaped;
+  int emoticonWidth;
 
   if( scale <= DC->getCVarValue( "ui_smallFont" ) )
     font = &DC->Assets.smallFont;
@@ -2179,7 +2186,8 @@ void UI_Text_Paint( float x, float y, float scale, vec4_t color, const char *tex
         s += 2;
         continue;
       }
-      else if( UI_Text_Emoticon( s, &emoticonEscaped, &emoticonLen, &emoticonHandle ) )
+      else if( UI_Text_Emoticon( s, &emoticonEscaped, &emoticonLen,
+                                 &emoticonHandle, &emoticonWidth ) )
       {
         if( emoticonEscaped )
         {
@@ -2188,9 +2196,10 @@ void UI_Text_Paint( float x, float y, float scale, vec4_t color, const char *tex
         else
         {
           DC->setColor( NULL );
-          DC->drawHandlePic( x, y - yadj, emoticonW, emoticonH, emoticonHandle );
+          DC->drawHandlePic( x, y - yadj, ( emoticonW * emoticonWidth ),
+            emoticonH, emoticonHandle );
           DC->setColor( newColor );
-          x += emoticonW;
+          x += ( emoticonW * emoticonWidth );
           s += emoticonLen;
           continue;
         }
@@ -4611,7 +4620,7 @@ static const char *Item_Text_Wrap( const char *text, float scale, float width )
           c[ 1 ] = q[ 1 ];
           q += 2;
         }
-        while( UI_Text_Emoticon( q, &emoticonEscaped, &emoticonLen, NULL ) )
+        while( UI_Text_Emoticon( q, &emoticonEscaped, &emoticonLen, NULL, NULL ) )
         {
           if( emoticonEscaped )
             q++;
@@ -4631,7 +4640,7 @@ static const char *Item_Text_Wrap( const char *text, float scale, float width )
         c[ 1 ] = q[ 1 ];
         q += 2;
       }
-      while( UI_Text_Emoticon( q, &emoticonEscaped, &emoticonLen, NULL ) )
+      while( UI_Text_Emoticon( q, &emoticonEscaped, &emoticonLen, NULL, NULL ) )
       {
         if( emoticonEscaped )
           q++;

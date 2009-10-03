@@ -607,7 +607,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
     &level.clients[ 0 ].ps, sizeof( level.clients[ 0 ] ) );
 
-  level.emoticonCount = BG_LoadEmoticons( level.emoticons );
+  level.emoticonCount = BG_LoadEmoticons( level.emoticons, NULL );
 
   trap_SetConfigstring( CS_INTERMISSION, "0" );
 
