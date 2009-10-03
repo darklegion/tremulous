@@ -164,7 +164,7 @@ qboolean UI_ConsoleCommand( int realTime )
   {
     trap_Cvar_Set( "ui_sayBuffer", "" );
 
-    switch( cmd[ strlen(cmd) ] )
+    switch( cmd[ 14 ] )
     {
       default:
       case '\0':
