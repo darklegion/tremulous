@@ -83,10 +83,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL2_AREAZAP_REPEAT       500
 #define LEVEL2_AREAZAP_MAX_TARGETS  3
 #define LEVEL2_WALLJUMP_MAXSPEED    1000.0f
-#define LEVEL2_WALLJUMP_NORMAL      0.3f     // magnitude scale from surface
-#define LEVEL2_WALLJUMP_FORWARD     0.4f     // magnitude scale in view direction
-#define LEVEL2_WALLJUMP_UP          0.3f     // magnitude scale up
-#define LEVEL2_WALLJUMP_REPEAT      200      // msec before new jump
+#define LEVEL2_WALLJUMP_NORMAL      1.0f     // magnitude scale from surface
+#define LEVEL2_WALLJUMP_FORWARD     1.5f     // magnitude scale in view direction
+#define LEVEL2_WALLJUMP_UP          0.0f     // magnitude scale up
+#define LEVEL2_WALLJUMP_REPEAT      400      // msec before new jump
+#define LEVEL2_WALLJUMP_RANGE       8.0f     // how far away the wall can be
 
 #define LEVEL3_CLAW_DMG             ADM(80)
 #define LEVEL3_CLAW_UPG_RANGE       96.0f
@@ -169,13 +170,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define LEVEL1_SPEED                1.25f
 #define LEVEL1_VALUE                AVM(225)
-#define LEVEL1_HEALTH               AHM(75)
+#define LEVEL1_HEALTH               AHM(60)
 #define LEVEL1_REGEN                2
 #define LEVEL1_COST                 1
 
 #define LEVEL1_UPG_SPEED            1.25f
 #define LEVEL1_UPG_VALUE            AVM(275)
-#define LEVEL1_UPG_HEALTH           AHM(100)
+#define LEVEL1_UPG_HEALTH           AHM(80)
 #define LEVEL1_UPG_REGEN            3
 #define LEVEL1_UPG_COST             1
 

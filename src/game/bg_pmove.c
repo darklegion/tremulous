@@ -596,10 +596,14 @@ PM_CheckWallJump
 static qboolean PM_CheckWallJump( void )
 {
   trace_t trace;
-  vec3_t point, dir, forward, right;
-  float magnitude;
+  vec3_t mins, point, dir;
+  float magnitude, towardSurf;
   int i;
   qboolean minijump;
+  
+  // Has to be able to walljump
+  if( !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
+    return qfalse;
 
   // Don't allow jump until all buttons are up
   if( pm->ps->pm_flags & PMF_RESPAWNED )
@@ -623,39 +627,35 @@ static qboolean PM_CheckWallJump( void )
     return qfalse;
   }
 
-  ProjectPointOnPlane( forward, pml.forward, pm->ps->grapplePoint );
-  ProjectPointOnPlane( right, pml.right, pm->ps->grapplePoint );
+  // We don't want to hit the floor so adjust the mins
+  VectorCopy( pm->mins, mins );
+  mins[ 2 ] += STEPSIZE;
 
   // Trace to find a suitable wall
   for( i = 0; ; i++)
   {
+    VectorCopy( pm->ps->origin, point );
+
     switch( i )
     {
-      // Forward
       case 0:
-        VectorMA( pm->ps->origin, 0.25f, forward, point );
+        point[ 0 ] += LEVEL2_WALLJUMP_RANGE; // +x
         break;
-
-      // Right
       case 1:
-        VectorMA( pm->ps->origin, 0.25f, right, point );
+        point[ 0 ] -= LEVEL2_WALLJUMP_RANGE; // -x  
         break;
-
-      // Left
       case 2:
-        VectorMA( pm->ps->origin, -0.25f, right, point );
+        point[ 1 ] += LEVEL2_WALLJUMP_RANGE; // +y  
         break;
-
-      // Back
       case 3:
-        VectorMA( pm->ps->origin, -0.25f, forward, point );
+        point[ 1 ] -= LEVEL2_WALLJUMP_RANGE; // -y  
         break;
 
       // Give up
       default:
         return qfalse;
     }
-    pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point,
+    pm->trace( &trace, pm->ps->origin, mins, pm->maxs, point,
                pm->ps->clientNum, pm->tracemask );
     if( trace.fraction < 1.0f &&
         !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) )
@@ -671,19 +671,37 @@ static qboolean PM_CheckWallJump( void )
   pm->ps->pm_time = LEVEL2_WALLJUMP_REPEAT;
   pm->ps->groundEntityNum = ENTITYNUM_NONE;
 
-  ProjectPointOnPlane( forward, pml.forward, pm->ps->grapplePoint );
-
-  // Add all the jump components
-  VectorScale( pm->ps->grapplePoint, LEVEL2_WALLJUMP_NORMAL, dir );
-  VectorMA( dir, LEVEL2_WALLJUMP_FORWARD, forward, dir );
-  dir[ 2 ] += LEVEL2_WALLJUMP_UP;
-
-  // Give the player some velocity
+  // Jump magnitude is modulated for minijumps
   magnitude = BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] );
   if( minijump )
     magnitude *= ALIEN_MINI_JUMP_SCALE;
-  VectorMA( pm->ps->velocity, magnitude, dir, pm->ps->velocity );
 
+  // Remove the velocity component toward the surface
+  towardSurf = -DotProduct( pm->ps->velocity, pm->ps->grapplePoint );
+  if( towardSurf <= 0 )
+    towardSurf = 0;
+  VectorMA( pm->ps->velocity, towardSurf, pm->ps->grapplePoint,
+            pm->ps->velocity );
+
+  // Compute horizontal view component, subtracting normal
+  VectorScale( pml.forward, LEVEL2_WALLJUMP_FORWARD, dir );
+  dir[ 2 ] += LEVEL2_WALLJUMP_UP;
+  towardSurf = -DotProduct( dir, pm->ps->grapplePoint );
+  if( towardSurf > 0 )
+    VectorMA( dir, towardSurf, pm->ps->grapplePoint, dir );
+    
+  // Add normal component and normalize
+  VectorMA( dir, LEVEL2_WALLJUMP_NORMAL, pm->ps->grapplePoint, dir );
+  VectorNormalize( dir );
+            
+  // Apply jump impulse to velocity
+  VectorMA( pm->ps->velocity, magnitude, dir, pm->ps->velocity );
+  
+  if( pm->debugLevel )
+    Com_Printf( "%i: walljump velocity { %f, %f, %f }\n", c_pmove,
+                pm->ps->velocity[ 0 ], pm->ps->velocity[ 1 ],
+                pm->ps->velocity[ 2 ] );
+  
   // Cap velocity
   if( VectorLength( pm->ps->velocity ) > LEVEL2_WALLJUMP_MAXSPEED )
   {
@@ -726,6 +744,10 @@ static qboolean PM_CheckJump( void )
   vec3_t normal;
   float magnitude;
   qboolean minijump;
+  
+  // Can't jump in the air
+  if( pm->ps->groundEntityNum == ENTITYNUM_NONE )
+    return qfalse;
 
   // Don't rejump after a dodge or jump
   if( pm->ps->pm_flags & PMF_TIME_LAND )
@@ -1173,6 +1195,7 @@ static void PM_AirMove( void )
   float     scale;
   usercmd_t cmd;
 
+  PM_CheckWallJump( );
   PM_Friction( );
 
   fmove = pm->cmd.forwardmove;
@@ -2256,8 +2279,6 @@ static void PM_GroundTrace( void )
       PM_GroundTraceMissed( );
       pml.groundPlane = qfalse;
       pml.walking = qfalse;
-
-      PM_CheckWallJump( );
       return;
     }
   }
