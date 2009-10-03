@@ -9,15 +9,13 @@
     "We can also be reached on Freenode IRC:\n"
     "#mercenariesguild"
   }
-  "Release Notes r90"
+  "Release Notes r137"
   {
-    "* Help menu (you're looking at it!)\n"
-    "* UI health cross icon shows regen speed\n"
-    "* Human UI health cross glows from medkit\n"
-    "* Human item list is wider and won't hide items\n"
-    "* Regular Basilik benefits from booster regen\n"
-    "* Lucifer Cannon overcharge can be heard by others\n"
-    "* You are awarded credits for de-creeping buildables\n"
+    "* Charge bar for pounce/trample/Luci\n"
+    "* Squad member marking (Options -> Misc)\n"
+    "* Gassed humans have a cloud around head\n"
+    "* Hive attacks humans that hurt it\n"
+    "* Build timer slices are 5 seconds each\n"
   }
   "Alien Healing"
   {
@@ -25,8 +23,8 @@
     "rate is slower away from creep. To counter this, healing near Boosters "
     "and Basilisks is greatly accelerated. Watch the health cross icon on your "
     "HUD to see what your healing rate is. If the icon glows, you are on "
-    "creep. If you are near a booster or basilisk, you will see multiple "
-    "crosses."
+    "creep. If you are near a booster or basilisk, you will see two "
+    "(2X healing) or four (3X healing) barbs around the cross."
   }
   "Barricades"
   {
@@ -80,7 +78,23 @@
     "increased damage output. To protect against small Aliens getting inside "
     "the base, build Tesla Generators at Stage 3. Tesla Generators no longer "
     "require the Defense Computer to function. Instead, the Defense Computer "
-    "will automatically repair Human buildables."
+    "will automatically repair Human buildables. Tesla Generators can fire "
+    "over turrets."
+  }
+  "Mark Deconstruction"
+  {
+    "The deconstruction method has changed. Buildables are no longer instantly "
+    "deconstructed. Instead, a deconstruct mark appears on the health bar. "
+    "Go ahead and build a new buildable somewhere else and the old one will "
+    "be removed automatically. Buildables that are about to be removed by "
+    "constructing the selected buildable glow red."
+  }
+  "Squad Marking"
+  {
+    "Want to keep track of certain teammates? Mark them as members of your "
+    "squad. Bind a key to 'Toggle Squad Mark' (Options -> Misc), walk up to "
+    "the target player and press that key. A triangle will appear above them "
+    "marking them as a squad member."
   }
   "Lag Correction"
   {
@@ -97,8 +111,8 @@
     "Contributing developers:\n\n"
     "Asa ''Norfenstein'' Kravets\n"
     "Tony J. White\n"
-    "Ben Millwood (''benmachine'')\n"
     "Michael ''Risujin'' Levin\n"
+    "Ben Millwood (''benmachine'')\n"
     "Chris ''Lakitu7'' Schwarz\n"
     "Roman ''Kevlarman'' Tetelman\n"
   }
