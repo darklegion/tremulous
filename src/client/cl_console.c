@@ -233,6 +233,17 @@ void Con_CheckResize (void)
 	con.display = con.current;
 }
 
+/*
+==================
+Cmd_CompleteTxtName
+==================
+*/
+void Cmd_CompleteTxtName( char *args, int argNum ) {
+	if( argNum == 2 ) {
+		Field_CompleteFilename( "", "txt", qfalse );
+	}
+}
+
 
 /*
 ================
@@ -255,6 +266,7 @@ void Con_Init (void) {
 	Cmd_AddCommand ("toggleconsole", Con_ToggleConsole_f);
 	Cmd_AddCommand ("clear", Con_Clear_f);
 	Cmd_AddCommand ("condump", Con_Dump_f);
+	Cmd_SetCommandCompletionFunc( "condump", Cmd_CompleteTxtName );
 }
 
 
@@ -431,7 +443,7 @@ void Con_DrawSolidConsole( float frac ) {
 	SCR_AdjustFrom640( &con.xadjust, NULL, NULL, NULL );
 
 	// draw the background
-	y = frac * SCREEN_HEIGHT - 2;
+	y = frac * SCREEN_HEIGHT;
 	if ( y < 1 ) {
 		y = 0;
 	}
@@ -453,10 +465,8 @@ void Con_DrawSolidConsole( float frac ) {
 	i = strlen( Q3_VERSION );
 
 	for (x=0 ; x<i ; x++) {
-
-		SCR_DrawSmallChar( cls.glconfig.vidWidth - ( i - x ) * SMALLCHAR_WIDTH, 
-			(lines-(SMALLCHAR_HEIGHT+SMALLCHAR_HEIGHT/2)), Q3_VERSION[x] );
-
+		SCR_DrawSmallChar( cls.glconfig.vidWidth - ( i - x + 1 ) * SMALLCHAR_WIDTH,
+			lines - SMALLCHAR_HEIGHT, Q3_VERSION[x] );
 	}
 
 

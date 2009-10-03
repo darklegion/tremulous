@@ -2495,6 +2495,7 @@ void Com_Init( char *commandLine ) {
 	Cmd_AddCommand ("quit", Com_Quit_f);
 	Cmd_AddCommand ("changeVectors", MSG_ReportChangeVectors_f );
 	Cmd_AddCommand ("writeconfig", Com_WriteConfig_f );
+	Cmd_SetCommandCompletionFunc( "writeconfig", Cmd_CompleteCfgName );
 
 	s = va("%s %s %s", Q3_VERSION, PLATFORM_STRING, __DATE__ );
 	com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );
@@ -2993,7 +2994,7 @@ static qboolean Field_Complete( void )
 	int completionOffset;
 
 	if( matchCount == 0 )
-		return qfalse;
+		return qtrue;
 
 	completionOffset = strlen( completionField->buffer ) - strlen( completionString );
 
@@ -3020,7 +3021,7 @@ static qboolean Field_Complete( void )
 Field_CompleteKeyname
 ===============
 */
-static void Field_CompleteKeyname( void )
+void Field_CompleteKeyname( void )
 {
 	matchCount = 0;
 	shortestMatch[ 0 ] = 0;
@@ -3037,7 +3038,7 @@ static void Field_CompleteKeyname( void )
 Field_CompleteFilename
 ===============
 */
-static void Field_CompleteFilename( const char *dir,
+void Field_CompleteFilename( const char *dir,
 		const char *ext, qboolean stripExt )
 {
 	matchCount = 0;
@@ -3054,11 +3055,10 @@ static void Field_CompleteFilename( const char *dir,
 Field_CompleteCommand
 ===============
 */
-static void Field_CompleteCommand( char *cmd,
+void Field_CompleteCommand( char *cmd,
 		qboolean doCommands, qboolean doCvars )
 {
 	int		completionArgument = 0;
-	char	*p;
 
 	// Skip leading whitespace and quotes
 	cmd = Com_SkipCharset( cmd, " \"" );
@@ -3100,6 +3100,7 @@ static void Field_CompleteCommand( char *cmd,
 	if( completionArgument > 1 )
 	{
 		const char *baseCmd = Cmd_Argv( 0 );
+		char *p;
 
 #ifndef DEDICATED
 		// This should always be true
@@ -3108,92 +3109,9 @@ static void Field_CompleteCommand( char *cmd,
 #endif
 
 		if( ( p = Field_FindFirstSeparator( cmd ) ) )
-		{
-			// Compound command
-			Field_CompleteCommand( p + 1, qtrue, qtrue );
-		}
+			Field_CompleteCommand( p + 1, qtrue, qtrue ); // Compound command
 		else
-		{
-			// FIXME: all this junk should really be associated with the respective
-			// commands, instead of being hard coded here
-			if( ( !Q_stricmp( baseCmd, "map" ) ||
-						!Q_stricmp( baseCmd, "devmap" ) ||
-						!Q_stricmp( baseCmd, "spmap" ) ||
-						!Q_stricmp( baseCmd, "spdevmap" ) ) &&
-					completionArgument == 2 )
-			{
-				Field_CompleteFilename( "maps", "bsp", qtrue );
-			}
-			else if( ( !Q_stricmp( baseCmd, "exec" ) ||
-						!Q_stricmp( baseCmd, "writeconfig" ) ) &&
-					completionArgument == 2 )
-			{
-				Field_CompleteFilename( "", "cfg", qfalse );
-			}
-			else if( !Q_stricmp( baseCmd, "condump" ) &&
-					completionArgument == 2 )
-			{
-				Field_CompleteFilename( "", "txt", qfalse );
-			}
-			else if( ( !Q_stricmp( baseCmd, "toggle" ) ||
-						!Q_stricmp( baseCmd, "vstr" ) ||
-						!Q_stricmp( baseCmd, "set" ) ||
-						!Q_stricmp( baseCmd, "seta" ) ||
-						!Q_stricmp( baseCmd, "setu" ) ||
-						!Q_stricmp( baseCmd, "sets" ) ) &&
-					completionArgument == 2 )
-			{
-				// Skip "<cmd> "
-				p = Com_SkipTokens( cmd, 1, " " );
-
-				if( p > cmd )
-					Field_CompleteCommand( p, qfalse, qtrue );
-			}
-#ifndef DEDICATED
-			else if( !Q_stricmp( baseCmd, "demo" ) && completionArgument == 2 )
-			{
-				char demoExt[ 16 ];
-
-				Com_sprintf( demoExt, sizeof( demoExt ), ".dm_%d", PROTOCOL_VERSION );
-				Field_CompleteFilename( "demos", demoExt, qtrue );
-			}
-			else if( !Q_stricmp( baseCmd, "rcon" ) && completionArgument == 2 )
-			{
-				// Skip "rcon "
-				p = Com_SkipTokens( cmd, 1, " " );
-
-				if( p > cmd )
-					Field_CompleteCommand( p, qtrue, qtrue );
-			}
-			else if( !Q_stricmp( baseCmd, "bind" ) )
-			{
-				if( completionArgument == 2 )
-				{
-					// Skip "bind "
-					p = Com_SkipTokens( cmd, 1, " " );
-
-					if( p > cmd )
-						Field_CompleteKeyname( );
-				}
-				else if( completionArgument >= 3 )
-				{
-					// Skip "bind <key> "
-					p = Com_SkipTokens( cmd, 2, " " );
-
-					if( p > cmd )
-						Field_CompleteCommand( p, qtrue, qtrue );
-				}
-			}
-			else if( !Q_stricmp( baseCmd, "unbind" ) && completionArgument == 2 )
-			{
-				// Skip "unbind "
-				p = Com_SkipTokens( cmd, 1, " " );
-
-				if( p > cmd )
-					Field_CompleteKeyname( );
-			}
-#endif
-		}
+			Cmd_CompleteArgument( baseCmd, cmd, completionArgument ); 
 	}
 	else
 	{

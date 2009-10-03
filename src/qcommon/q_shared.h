@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define PRODUCT_NAME            "tremulous"
+#define PRODUCT_NAME              "tremulous"
 
 #ifdef _MSC_VER
 # define PRODUCT_VERSION          "1.1.0"
@@ -36,6 +36,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CLIENT_WINDOW_TITLE       "Tremulous " PRODUCT_VERSION
 #define CLIENT_WINDOW_MIN_TITLE   "Tremulous"
 #define Q3_VERSION                 PRODUCT_NAME " " PRODUCT_VERSION
+
+#define GAMENAME_FOR_MASTER       "Tremulous"
 
 #define MAX_TEAMNAME 32
 
@@ -141,6 +143,12 @@ typedef int intptr_t;
 typedef unsigned char 		byte;
 
 typedef enum {qfalse, qtrue}	qboolean;
+
+typedef union {
+	float f;
+	int i;
+	unsigned int ui;
+} floatint_t;
 
 typedef int		qhandle_t;
 typedef int		sfxHandle_t;
@@ -704,6 +712,7 @@ void SkipRestOfLine ( char **data );
 void Parse1DMatrix (char **buf_p, int x, float *m);
 void Parse2DMatrix (char **buf_p, int y, int x, float *m);
 void Parse3DMatrix (char **buf_p, int z, int y, int x, float *m);
+int Com_HexStrToInt( const char *str );
 
 void	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
 
