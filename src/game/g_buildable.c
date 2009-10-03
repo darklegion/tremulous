@@ -1702,7 +1702,11 @@ void ATrapper_Think( gentity_t *self )
 
 
 
+
 //==================================================================================
+
+
+
 
 /*
 ================
@@ -1730,8 +1734,147 @@ static void G_SuicideIfNoPower( gentity_t *self )
   }
 }
 
-void HSpawn_Blast( gentity_t *ent );
-void HSpawn_Disappear( gentity_t *ent );
+
+
+
+//==================================================================================
+
+
+
+
+/*
+================
+HSpawn_Disappear
+
+Called when a human spawn is destroyed before it is spawned
+think function
+================
+*/
+void HSpawn_Disappear( gentity_t *self )
+{
+  self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
+  self->timestamp = level.time;
+  G_QueueBuildPoints( self );
+
+  G_FreeEntity( self );
+}
+
+
+/*
+================
+HSpawn_blast
+
+Called when a human spawn explodes
+think function
+================
+*/
+void HSpawn_Blast( gentity_t *self )
+{
+  vec3_t  dir;
+
+  // we don't have a valid direction, so just point straight up
+  dir[ 0 ] = dir[ 1 ] = 0;
+  dir[ 2 ] = 1;
+
+  self->timestamp = level.time;
+
+  //do some radius damage
+  G_RadiusDamage( self->s.pos.trBase, self, self->splashDamage,
+    self->splashRadius, self, self->splashMethodOfDeath );
+
+  // begin freeing build points
+  G_QueueBuildPoints( self );
+  // turn into an explosion
+  self->s.eType = ET_EVENTS + EV_HUMAN_BUILDABLE_EXPLOSION;
+  self->freeAfterEvent = qtrue;
+  G_AddEvent( self, EV_HUMAN_BUILDABLE_EXPLOSION, DirToByte( dir ) );
+}
+
+
+/*
+================
+HSpawn_die
+
+Called when a human spawn dies
+================
+*/
+void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
+{
+  G_RewardAttackers( self );
+  G_SetBuildableAnim( self, BANIM_DESTROY1, qtrue );
+  G_SetIdleBuildableAnim( self, BANIM_DESTROYED );
+
+  self->die = nullDieFunction;
+  self->powered = qfalse; //free up power
+  self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
+
+  if( self->spawned )
+  {
+    self->think = HSpawn_Blast;
+    self->nextthink = level.time + HUMAN_DETONATION_DELAY;
+  }
+  else
+  {
+    self->think = HSpawn_Disappear;
+    self->nextthink = level.time; //blast immediately
+  }
+
+  G_LogDestruction( self, attacker, mod );
+}
+
+/*
+================
+HSpawn_Think
+
+Think for human spawn
+================
+*/
+void HSpawn_Think( gentity_t *self )
+{
+  gentity_t *ent;
+
+  G_SuicideIfNoPower( self );
+
+  // set parentNode
+  self->powered = G_FindPower( self );
+
+  if( self->spawned )
+  {
+    //only suicide if at rest
+    if( self->s.groundEntityNum )
+    {
+      if( ( ent = G_CheckSpawnPoint( self->s.number, self->s.origin,
+              self->s.origin2, BA_H_SPAWN, NULL ) ) != NULL )
+      {
+        // If the thing blocking the spawn is a buildable, kill it. 
+        // If it's part of the map, kill self. 
+        if( ent->s.eType == ET_BUILDABLE )
+        {
+          G_Damage( ent, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
+          G_SetBuildableAnim( self, BANIM_SPAWN1, qtrue );
+        }
+        else if( ent->s.number == ENTITYNUM_WORLD || ent->s.eType == ET_MOVER )
+        {
+          G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
+          return;
+        }
+
+        if( ent->s.eType == ET_CORPSE )
+          G_FreeEntity( ent ); //quietly remove
+      }
+    }
+  }
+
+  self->nextthink = level.time + BG_Buildable( self->s.modelindex )->nextthink;
+}
+
+
+
+
+//==================================================================================
+
+
+
 
 /*
 ================
@@ -1998,8 +2141,8 @@ void HDCC_Think( gentity_t *self )
 
 //==================================================================================
 
-void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
-                 int damage, int mod );
+
+
 
 /*
 ================
@@ -2428,137 +2571,6 @@ void HTeslaGen_Think( gentity_t *self )
 
 
 
-
-/*
-================
-HSpawn_Disappear
-
-Called when a human spawn is destroyed before it is spawned
-think function
-================
-*/
-void HSpawn_Disappear( gentity_t *self )
-{
-  self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
-  self->timestamp = level.time;
-  G_QueueBuildPoints( self );
-
-  G_FreeEntity( self );
-}
-
-
-/*
-================
-HSpawn_blast
-
-Called when a human spawn explodes
-think function
-================
-*/
-void HSpawn_Blast( gentity_t *self )
-{
-  vec3_t  dir;
-
-  // we don't have a valid direction, so just point straight up
-  dir[ 0 ] = dir[ 1 ] = 0;
-  dir[ 2 ] = 1;
-
-  self->timestamp = level.time;
-
-  //do some radius damage
-  G_RadiusDamage( self->s.pos.trBase, self, self->splashDamage,
-    self->splashRadius, self, self->splashMethodOfDeath );
-
-  // begin freeing build points
-  G_QueueBuildPoints( self );
-  // turn into an explosion
-  self->s.eType = ET_EVENTS + EV_HUMAN_BUILDABLE_EXPLOSION;
-  self->freeAfterEvent = qtrue;
-  G_AddEvent( self, EV_HUMAN_BUILDABLE_EXPLOSION, DirToByte( dir ) );
-}
-
-
-/*
-================
-HSpawn_die
-
-Called when a human spawn dies
-================
-*/
-void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
-{
-  G_RewardAttackers( self );
-  G_SetBuildableAnim( self, BANIM_DESTROY1, qtrue );
-  G_SetIdleBuildableAnim( self, BANIM_DESTROYED );
-
-  self->die = nullDieFunction;
-  self->powered = qfalse; //free up power
-  self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
-
-  if( self->spawned )
-  {
-    self->think = HSpawn_Blast;
-    self->nextthink = level.time + HUMAN_DETONATION_DELAY;
-  }
-  else
-  {
-    self->think = HSpawn_Disappear;
-    self->nextthink = level.time; //blast immediately
-  }
-
-  G_LogDestruction( self, attacker, mod );
-}
-
-/*
-================
-HSpawn_Think
-
-Think for human spawn
-================
-*/
-void HSpawn_Think( gentity_t *self )
-{
-  gentity_t *ent;
-
-  G_SuicideIfNoPower( self );
-
-  // set parentNode
-  self->powered = G_FindPower( self );
-
-  if( self->spawned )
-  {
-    //only suicide if at rest
-    if( self->s.groundEntityNum )
-    {
-      if( ( ent = G_CheckSpawnPoint( self->s.number, self->s.origin,
-              self->s.origin2, BA_H_SPAWN, NULL ) ) != NULL )
-      {
-        // If the thing blocking the spawn is a buildable, kill it. 
-        // If it's part of the map, kill self. 
-        if( ent->s.eType == ET_BUILDABLE )
-        {
-          G_Damage( ent, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
-          G_SetBuildableAnim( self, BANIM_SPAWN1, qtrue );
-        }
-        else if( ent->s.number == ENTITYNUM_WORLD || ent->s.eType == ET_MOVER )
-        {
-          G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
-          return;
-        }
-
-        if( ent->s.eType == ET_CORPSE )
-          G_FreeEntity( ent ); //quietly remove
-      }
-    }
-  }
-
-  self->nextthink = level.time + BG_Buildable( self->s.modelindex )->nextthink;
-}
-
-
-
-
-//==================================================================================
 
 /*
 ============
