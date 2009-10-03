@@ -174,7 +174,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
       //prevent collision with the client when returning
       ent->r.ownerNum = other->s.number;
 
-      ent->think = AHive_ReturnToHive;
+      ent->think = G_ExplodeMissile;
       ent->nextthink = level.time + FRAMETIME;
 
       //only damage humans
@@ -198,7 +198,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
         velocity[ 2 ] = 1;  // stepped on a grenade
 
       G_Damage( other, ent, attacker, velocity, ent->s.origin, ent->damage,
-        0, ent->methodOfDeath );
+        DAMAGE_NO_LOCDAMAGE, ent->methodOfDeath );
     }
   }
 
@@ -580,55 +580,7 @@ gentity_t *launch_grenade( gentity_t *self, vec3_t start, vec3_t dir )
 }
 //=============================================================================
 
-/*
-================
-AHive_ReturnToHive
 
-Adjust the trajectory to point towards the hive
-================
-*/
-void AHive_ReturnToHive( gentity_t *self )
-{
-  vec3_t  dir;
-  trace_t tr;
-
-  if( !self->parent )
-  {
-    G_Printf( S_COLOR_YELLOW "WARNING: AHive_ReturnToHive called with no self->parent\n" );
-    return;
-  }
-
-  trap_UnlinkEntity( self->parent );
-  trap_Trace( &tr, self->r.currentOrigin, self->r.mins, self->r.maxs,
-              self->parent->r.currentOrigin, self->r.ownerNum, self->clipmask );
-  trap_LinkEntity( self->parent );
-
-  if( tr.fraction < 1.0f )
-  {
-    //if can't see hive then disperse
-    VectorCopy( self->r.currentOrigin, self->s.pos.trBase );
-    self->s.pos.trType = TR_STATIONARY;
-    self->s.pos.trTime = level.time;
-
-    self->think = G_ExplodeMissile;
-    self->nextthink = level.time + 2000;
-    self->parent->active = qfalse; //allow the parent to start again
-  }
-  else
-  {
-    VectorSubtract( self->parent->r.currentOrigin, self->r.currentOrigin, dir );
-    VectorNormalize( dir );
-
-    //change direction towards the hive
-    VectorScale( dir, HIVE_SPEED, self->s.pos.trDelta );
-    SnapVector( self->s.pos.trDelta );      // save net bandwidth
-    VectorCopy( self->r.currentOrigin, self->s.pos.trBase );
-    self->s.pos.trTime = level.time;
-
-    self->think = G_ExplodeMissile;
-    self->nextthink = level.time + 15000;
-  }
-}
 
 /*
 ================
@@ -639,24 +591,43 @@ Adjust the trajectory to point towards the target
 */
 void AHive_SearchAndDestroy( gentity_t *self )
 {
-  vec3_t dir;
-  trace_t tr;
+  vec3_t    dir;
+  trace_t   tr;
+  gentity_t *ent;
+  int       i;
+  float     d, nearest;
 
-  trap_Trace( &tr, self->r.currentOrigin, self->r.mins, self->r.maxs,
-              self->target_ent->r.currentOrigin, self->r.ownerNum, self->clipmask );
-
-  //if there is no LOS or the parent hive is too far away or the target is dead, return
-  if( tr.entityNum == ENTITYNUM_WORLD ||
-      Distance( self->r.currentOrigin, self->parent->r.currentOrigin ) > HIVE_RANGE ||
-      self->target_ent->health <= 0 )
+  if( self->timestamp > level.time )
   {
-    self->r.ownerNum = ENTITYNUM_WORLD;
+    VectorCopy( self->r.currentOrigin, self->s.pos.trBase );
+    self->s.pos.trType = TR_STATIONARY;
+    self->s.pos.trTime = level.time;
 
-    self->think = AHive_ReturnToHive;
-    self->nextthink = level.time + FRAMETIME;
+    self->think = G_ExplodeMissile;
+    self->nextthink = level.time + 50;
+    self->parent->active = qfalse; //allow the parent to start again
+    return;
   }
-  else
+
+  nearest = DistanceSquared( self->r.currentOrigin, self->target_ent->r.currentOrigin );
+  //find the closest human
+  for( i = 0; i < MAX_CLIENTS; i++ )
   {
+    ent = &g_entities[ i ];
+    if( ent->client &&
+        ent->health > 0 &&   
+        ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS &&
+        nearest > (d = DistanceSquared( ent->r.currentOrigin, self->r.currentOrigin ) ) )
+    {
+      trap_Trace( &tr, self->r.currentOrigin, self->r.mins, self->r.maxs,
+                  ent->r.currentOrigin, self->r.ownerNum, self->clipmask );
+      if( tr.entityNum != ENTITYNUM_WORLD )
+      {
+        nearest = d;
+        self->target_ent = ent;
+      }
+    }
+  }
     VectorSubtract( self->target_ent->r.currentOrigin, self->r.currentOrigin, dir );
     VectorNormalize( dir );
 
@@ -667,7 +638,6 @@ void AHive_SearchAndDestroy( gentity_t *self )
     self->s.pos.trTime = level.time;
 
     self->nextthink = level.time + HIVE_DIR_CHANGE_PERIOD;
-  }
 }
 
 /*
@@ -699,6 +669,7 @@ gentity_t *fire_hive( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->methodOfDeath = MOD_SWARM;
   bolt->clipmask = MASK_SHOT;
   bolt->target_ent = self->target_ent;
+  bolt->timestamp = level.time + HIVE_LIFETIME;
 
   bolt->s.pos.trType = TR_LINEAR;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
