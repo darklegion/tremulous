@@ -2662,6 +2662,10 @@ qboolean G_FollowNewClient( gentity_t *ent, int dir )
     if( clientnum < 0 )
       clientnum = level.maxclients - 1;
 
+    // can't follow self
+    if( level.clients[ clientnum ].pers.connected != CON_CONNECTED )
+      continue;
+
     // avoid selecting existing follow target
     if( clientnum == original && !selectAny )
       continue; //effectively break;
@@ -2685,10 +2689,6 @@ qboolean G_FollowNewClient( gentity_t *ent, int dir )
           ent->client->pers.teamSelection ) )
       continue;
     
-    // can't follow dead client
-    if( level.clients[ clientnum ].ps.stats[ STAT_HEALTH ] <= 0 )
-      continue;
-
     // this is good, we can use it
     ent->client->sess.spectatorClient = clientnum;
     ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
