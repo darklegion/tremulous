@@ -145,29 +145,22 @@ void G_ChangeTeam( gentity_t *ent, team_t newTeam )
 
   if( oldTeam == TEAM_NONE )
   {
-    // ps.persistant[] from a spectator cannot be trusted
-    ent->client->ps.persistant[ PERS_CREDIT ] = ent->client->pers.savedCredit;
+    // Copy credits to ps for the client
+    ent->client->ps.persistant[ PERS_CREDIT ] = ent->client->pers.credit;
   }
   else if( oldTeam == TEAM_HUMANS && newTeam == TEAM_ALIENS )
   {
     // Convert from human to alien credits
-    ent->client->ps.persistant[ PERS_CREDIT ] =
-      (int)( ent->client->ps.persistant[ PERS_CREDIT ] *
+    ent->client->pers.credit =
+      (int)( ent->client->pers.credit *
              ALIEN_MAX_CREDITS / HUMAN_MAX_CREDITS + 0.5f );
   }
   else if( oldTeam == TEAM_ALIENS && newTeam == TEAM_HUMANS )
   {
     // Convert from alien to human credits
-    ent->client->ps.persistant[ PERS_CREDIT ] =
-      (int)( ent->client->ps.persistant[ PERS_CREDIT ] *
+    ent->client->pers.credit =
+      (int)( ent->client->pers.credit *
              HUMAN_MAX_CREDITS / ALIEN_MAX_CREDITS + 0.5f );
-  }
-
-  if( newTeam == TEAM_NONE )
-  {
-    // save values before the client enters the spectator team and their
-    // ps.persistant[] values become trashed
-    ent->client->pers.savedCredit = ent->client->ps.persistant[ PERS_CREDIT ];
   }
 
   ClientUserinfoChanged( ent->client->ps.clientNum );

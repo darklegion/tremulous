@@ -91,15 +91,18 @@ void G_AddCreditToClient( gclient_t *client, short credit, qboolean cap )
   if( !client )
     return;
 
-  client->ps.persistant[ PERS_CREDIT ] += credit;
-  capAmount = client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS ?
+  client->pers.credit += credit;
+  capAmount = client->pers.teamSelection == TEAM_ALIENS ?
                ALIEN_MAX_CREDITS : HUMAN_MAX_CREDITS;
 
-  if( cap && client->ps.persistant[ PERS_CREDIT ] > capAmount )
-    client->ps.persistant[ PERS_CREDIT ] = capAmount;
+  if( cap && client->pers.credit > capAmount )
+    client->pers.credit = capAmount;
 
-  if( client->ps.persistant[ PERS_CREDIT ] < 0 )
-    client->ps.persistant[ PERS_CREDIT ] = 0;
+  if( client->pers.credit < 0 )
+    client->pers.credit = 0;
+
+  // Copy to ps so the client can access it
+  client->ps.persistant[ PERS_CREDIT ] = client->pers.credit;
 }
 
 

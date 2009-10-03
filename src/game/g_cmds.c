@@ -2975,7 +2975,7 @@ void Cmd_PTRCRestore_f( gentity_t *ent )
         G_ChangeTeam( ent, connection->clientTeam );
 
         // set the correct credit
-        ent->client->ps.persistant[ PERS_CREDIT ] = 0;
+        ent->client->pers.credit = 0;
         G_AddCreditToClient( ent->client, connection->clientCredit, qtrue );
       }
     }
