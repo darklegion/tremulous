@@ -2730,7 +2730,7 @@ static qboolean CG_DrawFollow( void )
   vec4_t      color;
   char        buffer[ MAX_STRING_CHARS ];
 
-  if( !( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
+  if( cg.snap->ps.clientNum == cg.clientNum )
     return qfalse;
 
   color[ 0 ] = 1;
@@ -2756,7 +2756,8 @@ static qboolean CG_DrawQueue( void )
 {
   float       w;
   vec4_t      color;
-  char        buffer[ MAX_STRING_CHARS ];
+  int         position, remainder;
+  char        *ordinal, buffer[ MAX_STRING_CHARS ];
 
   if( !( cg.snap->ps.pm_flags & PMF_QUEUED ) )
     return qfalse;
@@ -2766,28 +2767,28 @@ static qboolean CG_DrawQueue( void )
   color[ 2 ] = 1;
   color[ 3 ] = 1;
 
-  Com_sprintf( buffer, MAX_STRING_CHARS, "You are in position %d of the spawn queue.",
-               cg.snap->ps.persistant[ PERS_QUEUEPOS ] + 1 );
+  position = cg.snap->ps.persistant[ PERS_QUEUEPOS ] + 1;
+  if( position < 1 )
+    return qfalse;
+  remainder = position % 10;
+  ordinal = "th";
+  if( remainder == 1 )
+    ordinal = "st";
+  else if( remainder == 2 )
+    ordinal = "nd";
+  else if( remainder == 3 )
+    ordinal = "rd";
+  Com_sprintf( buffer, MAX_STRING_CHARS, "You are %d%s in the spawn queue",
+               position, ordinal );
 
   w = UI_Text_Width( buffer, 0.7f, 0 );
   UI_Text_Paint( 320 - w / 2, 360, 0.7f, color, buffer, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 
-  if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-  {
-    if( cgs.numAlienSpawns == 1 )
-      Com_sprintf( buffer, MAX_STRING_CHARS, "There is 1 spawn remaining." );
-    else
-      Com_sprintf( buffer, MAX_STRING_CHARS, "There are %d spawns remaining.",
-                   cgs.numAlienSpawns );
-  }
-  else if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-  {
-    if( cgs.numHumanSpawns == 1 )
-      Com_sprintf( buffer, MAX_STRING_CHARS, "There is 1 spawn remaining." );
-    else
-      Com_sprintf( buffer, MAX_STRING_CHARS, "There are %d spawns remaining.",
-                   cgs.numHumanSpawns );
-  }
+  if( cg.snap->ps.persistant[ PERS_SPAWNS ] == 1 )
+    Com_sprintf( buffer, MAX_STRING_CHARS, "There is 1 spawn remaining" );
+  else
+    Com_sprintf( buffer, MAX_STRING_CHARS, "There are %d spawns remaining",
+                 cg.snap->ps.persistant[ PERS_SPAWNS ] );
 
   w = UI_Text_Width( buffer, 0.7f, 0 );
   UI_Text_Paint( 320 - w / 2, 400, 0.7f, color, buffer, 0, 0, ITEM_TEXTSTYLE_SHADOWED );

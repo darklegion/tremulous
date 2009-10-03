@@ -1346,9 +1346,6 @@ typedef struct
   int           alienNextStageThreshold;
   int           humanNextStageThreshold;
 
-  int           numAlienSpawns;
-  int           numHumanSpawns;
-
   //
   // locally derived information from gamestate
   //
@@ -1507,6 +1504,8 @@ extern  vmCvar_t    cg_painBlendDownRate;
 extern  vmCvar_t    cg_painBlendMax;
 extern  vmCvar_t    cg_painBlendScale;
 extern  vmCvar_t    cg_painBlendZoom;
+
+extern  vmCvar_t    cg_stickySpec;
 
 extern  vmCvar_t    ui_currentClass;
 extern  vmCvar_t    ui_carriage;

@@ -558,9 +558,14 @@ static void CG_SpectatorText( char *text, playerState_t *ps )
 {
   if( cgs.clientinfo[ cg.clientNum ].team != PTE_NONE )
   {
-    Q_strcat( text, MAX_TUTORIAL_TEXT,
-        va( "Press %s to spawn\n",
-          CG_KeyNameForCommand( "+attack" ) ) );
+    if( ps->pm_flags & PMF_QUEUED )
+      Q_strcat( text, MAX_TUTORIAL_TEXT,
+                va( "Press %s to leave spawn queue\n",
+                    CG_KeyNameForCommand( "+attack" ) ) );
+    else
+      Q_strcat( text, MAX_TUTORIAL_TEXT,
+                va( "Press %s to spawn\n",
+                    CG_KeyNameForCommand( "+attack" ) ) );
   }
   else 
   {

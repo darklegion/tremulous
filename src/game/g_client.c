@@ -739,11 +739,30 @@ respawn
 */
 void respawn( gentity_t *ent )
 {
+  int i;
+
   SpawnCorpse( ent );
 
   // Clients can't respawn - they must go through the class cmd
   ent->client->pers.classSelection = PCL_NONE;
   ClientSpawn( ent, NULL, NULL, NULL );
+
+  // stop any following clients that don't have sticky spec on
+  for( i = 0; i < level.maxclients; i++ )
+  {
+    if( level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR &&
+        level.clients[ i ].sess.spectatorState == SPECTATOR_FOLLOW &&
+        level.clients[ i ].sess.spectatorClient == ent - g_entities )
+    {
+      if( !( level.clients[ i ].pers.stickySpec ) )
+      {
+        if( !G_FollowNewClient( &g_entities[ i ], 1 ) )
+          G_StopFollowing( &g_entities[ i ] );
+      }
+      else
+        G_FollowLockView( &g_entities[ i ] );
+    }
+  }
 }
 
 /*
@@ -953,6 +972,10 @@ void ClientUserinfoChanged( int clientNum )
 
   if( !strcmp( s, "localhost" ) )
     client->pers.localClient = qtrue;
+
+  // stickyspec toggle
+  s = Info_ValueForKey( userinfo, "cg_stickySpec" );  
+  client->pers.stickySpec = atoi( s ) != 0;
 
   // set name
   Q_strncpyz( oldname, client->pers.netname, sizeof( oldname ) );
@@ -1319,6 +1342,13 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
 
   teamLocal = client->pers.teamSelection;
 
+  //if client is dead and following teammate, stop following before spawning
+  if( client->sess.spectatorClient != -1 )
+  {
+    client->sess.spectatorClient = -1;
+    client->sess.spectatorState = SPECTATOR_FREE;
+  }
+
   // only start client if chosen a class and joined a team
   if( client->pers.classSelection == PCL_NONE && teamLocal == PTE_NONE )
   {
@@ -1330,7 +1360,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     client->sess.sessionTeam = TEAM_SPECTATOR;
     client->sess.spectatorState = SPECTATOR_LOCKED;
   }
-
+  
   if( origin != NULL )
     VectorCopy( origin, spawn_origin );
 

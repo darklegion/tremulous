@@ -1041,10 +1041,6 @@ void G_CountSpawns( void )
     if( ent->s.modelindex == BA_H_SPAWN && ent->health > 0 )
       level.numHumanSpawns++;
   }
-
-  //let the client know how many spawns there are
-  trap_SetConfigstring( CS_SPAWNS, va( "%d %d",
-        level.numAlienSpawns, level.numHumanSpawns ) );
 }
 
 /*

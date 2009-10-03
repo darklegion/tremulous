@@ -393,43 +393,85 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
 {
   pmove_t pm;
   gclient_t *client;
-  qboolean attack1, attack3;
+  int clientNum;
+  qboolean attack1, attack3, following, queued;
 
   client = ent->client;
 
   client->oldbuttons = client->buttons;
   client->buttons = ucmd->buttons;
 
-  attack1 = ( ( client->buttons & BUTTON_ATTACK ) &&
-              !( client->oldbuttons & BUTTON_ATTACK ) );
-  attack3 = ( ( client->buttons & BUTTON_USE_HOLDABLE ) &&
-              !( client->oldbuttons & BUTTON_USE_HOLDABLE ) );
-
-  if( client->sess.spectatorState != SPECTATOR_FOLLOW )
+  attack1 = ( client->buttons & BUTTON_ATTACK ) &&
+            !( client->oldbuttons & BUTTON_ATTACK );
+  attack3 = ( client->buttons & BUTTON_USE_HOLDABLE ) &&
+            !( client->oldbuttons & BUTTON_USE_HOLDABLE );
+   
+  // We are in following mode only if we are following a non-spectating client           
+  following = client->sess.spectatorState != SPECTATOR_FOLLOW;
+  if( following )
   {
-    if( client->sess.spectatorState == SPECTATOR_LOCKED )
+    clientNum = client->sess.spectatorClient;
+    if( clientNum < 0 || clientNum > level.maxclients ||
+        !g_entities[ clientNum ].client ||
+        !g_entities[ clientNum ].client->sess.sessionTeam == TEAM_SPECTATOR )
+      following = qfalse;
+  }
+  
+  // Check to see if we are in the spawn queue
+  queued = qfalse;
+  if( client->pers.teamSelection == PTE_ALIENS )
+    queued = G_SearchSpawnQueue( &level.alienSpawnQueue, ent - g_entities );
+  else if( client->pers.teamSelection == PTE_HUMANS )
+    queued = G_SearchSpawnQueue( &level.humanSpawnQueue, ent - g_entities );
+
+  // Wants to get out of spawn queue
+  if( attack1 && queued )
+  {
+    if( client->sess.spectatorState == SPECTATOR_FOLLOW )
+      G_StopFollowing( ent );
+    if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      G_RemoveFromSpawnQueue( &level.alienSpawnQueue, client->ps.clientNum );
+    else if( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+      G_RemoveFromSpawnQueue( &level.humanSpawnQueue, client->ps.clientNum );
+    client->pers.classSelection = PCL_NONE;
+    client->ps.stats[ STAT_PCLASS ] = PCL_NONE;
+    client->ps.pm_flags &= ~PMF_QUEUED;
+    queued = qfalse;
+  }
+  else if( attack1 && client->pers.teamSelection != PTE_NONE &&
+           client->pers.classSelection == PCL_NONE )
+  {
+    // Wants to get into spawn queue
+    if( client->sess.spectatorState == SPECTATOR_FOLLOW )
+      G_StopFollowing( ent );
+    if( client->pers.teamSelection == PTE_NONE )
+      G_TriggerMenu( client->ps.clientNum, MN_TEAM );
+    else if( client->pers.teamSelection == PTE_ALIENS )
+      G_TriggerMenu( client->ps.clientNum, MN_A_CLASS );
+    else if( client->pers.teamSelection == PTE_HUMANS )
+      G_TriggerMenu( client->ps.clientNum, MN_H_SPAWN );
+  }
+
+  // We are either not following anyone or following a spectator
+  if( !following )
+  {
+    if( client->sess.spectatorState == SPECTATOR_LOCKED ||
+        client->sess.spectatorState == SPECTATOR_FOLLOW )
       client->ps.pm_type = PM_FREEZE;
     else
       client->ps.pm_type = PM_SPECTATOR;
 
-    // in case the client entered the queue while following a teammate
-    if( ( client->pers.teamSelection == PTE_ALIENS &&
-          G_SearchSpawnQueue( &level.alienSpawnQueue, ent-g_entities ) ) ||
-        ( client->pers.teamSelection == PTE_HUMANS &&
-          G_SearchSpawnQueue( &level.alienSpawnQueue, ent-g_entities ) ) )
-    {
+    if( queued )
       client->ps.pm_flags |= PMF_QUEUED;
-    }
 
     client->ps.speed = BG_FindSpeedForClass( client->ps.stats[ STAT_PCLASS ] );
-
     client->ps.stats[ STAT_STAMINA ] = 0;
     client->ps.stats[ STAT_MISC ] = 0;
     client->ps.stats[ STAT_BUILDABLE ] = 0;
     client->ps.stats[ STAT_PCLASS ] = PCL_NONE;
     client->ps.weapon = WP_NONE;
 
-    // set up for pmove
+    // Set up for pmove
     memset( &pm, 0, sizeof( pm ) );
     pm.ps = &client->ps;
     pm.cmd = *ucmd;
@@ -437,67 +479,36 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
     pm.trace = trap_Trace;
     pm.pointcontents = trap_PointContents;
 
-    // perform a pmove
+    // Perform a pmove
     Pmove( &pm );
 
-    // save results of pmove
+    // Save results of pmove
     VectorCopy( client->ps.origin, ent->s.origin );
 
     G_TouchTriggers( ent );
     trap_UnlinkEntity( ent );
 
-    if( ( attack1 || attack3 ) && ( client->ps.pm_flags & PMF_QUEUED ) )
-    {
-      if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-        G_RemoveFromSpawnQueue( &level.alienSpawnQueue, client->ps.clientNum );
-      else if( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-        G_RemoveFromSpawnQueue( &level.humanSpawnQueue, client->ps.clientNum );
-
-      client->pers.classSelection = PCL_NONE;
-      client->ps.stats[ STAT_PCLASS ] = PCL_NONE;
-    }
-
-    if( attack1 && client->pers.classSelection == PCL_NONE )
-    {
-      if( client->pers.teamSelection == PTE_NONE )
-        G_TriggerMenu( client->ps.clientNum, MN_TEAM );
-      else if( client->pers.teamSelection == PTE_ALIENS )
-        G_TriggerMenu( client->ps.clientNum, MN_A_CLASS );
-      else if( client->pers.teamSelection == PTE_HUMANS )
-        G_TriggerMenu( client->ps.clientNum, MN_H_SPAWN );
-    }
-
-    //set the queue position for the client side
+    // Set the queue position and spawn count for the client side
     if( client->ps.pm_flags & PMF_QUEUED )
     {
       if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
       {
         client->ps.persistant[ PERS_QUEUEPOS ] =
           G_GetPosInSpawnQueue( &level.alienSpawnQueue, client->ps.clientNum );
+        client->ps.persistant[ PERS_SPAWNS ] = level.numAlienSpawns;
       }
       else if( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
       {
         client->ps.persistant[ PERS_QUEUEPOS ] =
           G_GetPosInSpawnQueue( &level.humanSpawnQueue, client->ps.clientNum );
+        client->ps.persistant[ PERS_SPAWNS ] = level.numHumanSpawns;
       }
     }
   }
-  else if( attack1 && ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
-  {
-    G_StopFollowing( ent );
-    client->pers.classSelection = PCL_NONE;
-    if( client->pers.teamSelection == PTE_NONE )
-      G_TriggerMenu( ent-g_entities, MN_TEAM );
-    else if( client->pers.teamSelection == PTE_ALIENS )
-      G_TriggerMenu( ent-g_entities, MN_A_CLASS );
-    else if( client->pers.teamSelection == PTE_HUMANS )
-      G_TriggerMenu( ent-g_entities, MN_H_SPAWN );
-  }
-
+  
+  // Tertiary fire or use button toggles following mode
   if( attack3 )
-  {
     G_ToggleFollow( ent );
-  }
 }
 
 
@@ -592,11 +603,10 @@ void ClientTimerActions( gentity_t *ent, int msec )
     if( stopped || client->ps.pm_type == PM_JETPACK )
       client->ps.stats[ STAT_STAMINA ] += STAMINA_STOP_RESTORE;
     else if( client->ps.stats[ STAT_STATE ] & SS_SPEEDBOOST )
-      client->ps.stats[ STAT_STAMINA ] -= STAMINA_SPRINT_TAKE;
+        client->ps.stats[ STAT_STAMINA ] -= STAMINA_SPRINT_TAKE;
     else if( walking || crouched )
       client->ps.stats[ STAT_STAMINA ] += STAMINA_WALK_RESTORE;
-
-    
+      
     // Check stamina limits
     if( client->ps.stats[ STAT_STAMINA ] > MAX_STAMINA )
       client->ps.stats[ STAT_STAMINA ] = MAX_STAMINA;
@@ -623,6 +633,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
         }
         else
           client->ps.stats[ STAT_MISC ] = 0;
+
       }
 
       if( !( ucmd->buttons & BUTTON_ATTACK2 ) || client->charging ||
@@ -645,7 +656,6 @@ void ClientTimerActions( gentity_t *ent, int msec )
           //can't charge backwards
           if( ucmd->forwardmove < 0 )
             client->ps.stats[ STAT_MISC ] = 0;
-
           if( client->ps.stats[ STAT_MISC ] > LEVEL4_TRAMPLE_CHARGE_MAX )
             client->ps.stats[ STAT_MISC ] = LEVEL4_TRAMPLE_CHARGE_MAX;
         }
@@ -838,11 +848,10 @@ void ClientTimerActions( gentity_t *ent, int msec )
       if( modifier >= 3.0f )
         client->ps.stats[ STAT_STATE ] |= SS_HEALING_3X;
       else if( modifier >= 2.0f )
-
         client->ps.stats[ STAT_STATE ] |= SS_HEALING_2X;
       if( creep || modifier != 1.0f )
         client->ps.stats[ STAT_STATE ] |= SS_HEALING_ACTIVE;
-        else
+      else
         client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_ACTIVE;
 
       if( ent->health > 0 &&
@@ -1493,15 +1502,13 @@ void ClientThink_real( gentity_t *ent )
 
     if( BG_InventoryContainsUpgrade( UP_BATTLESUIT, client->ps.stats ) )
       timeLeft -= BSUIT_PCLOUD_PROTECTION;
-
     if( BG_InventoryContainsUpgrade( UP_HELMET, client->ps.stats ) )
       timeLeft -= HELMET_PCLOUD_PROTECTION;
-
     if( BG_InventoryContainsUpgrade( UP_LIGHTARMOUR, client->ps.stats ) )
       timeLeft -= LIGHTARMOUR_PCLOUD_PROTECTION;
 
     if( timeLeft <= 0 )
-      client->ps.stats[ STAT_STATE ] &= ~SS_POISONCLOUDED;
+    client->ps.stats[ STAT_STATE ] &= ~SS_POISONCLOUDED;
   }
 
   if( client->ps.stats[ STAT_STATE ] & SS_POISONED &&
@@ -1872,18 +1879,23 @@ void SpectatorClientEndFrame( gentity_t *ent )
   if( ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
   {
     clientNum = ent->client->sess.spectatorClient;
-
-    if( clientNum >= 0 )
+    if( clientNum >= 0 && clientNum < level.maxclients )
     {
       cl = &level.clients[ clientNum ];
-
-      if( cl->pers.connected == CON_CONNECTED && cl->sess.sessionTeam != TEAM_SPECTATOR )
+      if( cl->pers.connected == CON_CONNECTED )
       {
-        flags = ( cl->ps.eFlags & ~( EF_VOTED | EF_TEAMVOTED ) ) |
-          ( ent->client->ps.eFlags & ( EF_VOTED | EF_TEAMVOTED ) );
-        ent->client->ps = cl->ps;
-        ent->client->ps.pm_flags |= PMF_FOLLOW;
-        ent->client->ps.eFlags = flags;
+        if( cl->sess.sessionTeam != TEAM_SPECTATOR ) 
+        {
+          flags = ( cl->ps.eFlags & ~( EF_VOTED | EF_TEAMVOTED ) ) |
+                  ( ent->client->ps.eFlags & ( EF_VOTED | EF_TEAMVOTED ) );
+          ent->client->ps = cl->ps;
+          ent->client->ps.eFlags = flags;
+          ent->client->ps.pm_flags |= PMF_FOLLOW;
+        }
+        else
+          ent->client->ps.pm_flags &= ~PMF_FOLLOW;
+        ent->client->ps.clientNum = clientNum;
+        ent->client->ps.pm_flags &= ~PMF_QUEUED;
       }
     }
   }
@@ -1910,7 +1922,7 @@ void ClientEndFrame( gentity_t *ent )
 
   pers = &ent->client->pers;
 
-  // save a copy of things from playerState in case of SPECTATOR_FOLLOW
+  // save a copy of certain playerState values in case of SPECTATOR_FOLLOW 
   pers->score = ent->client->ps.persistant[ PERS_SCORE ];
   pers->credit = ent->client->ps.persistant[ PERS_CREDIT ];
 

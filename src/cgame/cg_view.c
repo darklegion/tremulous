@@ -1052,7 +1052,8 @@ static int CG_CalcViewValues( void )
   ps = &cg.predictedPlayerState;
 
   // intermission view
-  if( ps->pm_type == PM_INTERMISSION )
+  if( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_FREEZE ||
+      ps->pm_type == PM_SPECTATOR )
   {
     VectorCopy( ps->origin, cg.refdef.vieworg );
     VectorCopy( ps->viewangles, cg.refdefViewAngles );

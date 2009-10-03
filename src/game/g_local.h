@@ -332,6 +332,7 @@ typedef struct
   usercmd_t           cmd;                // we would lose angles if not persistant
   qboolean            localClient;        // true if "ip" info key is "localhost"
   qboolean            initialSpawn;       // the first spawn should be at a cool location
+  qboolean            stickySpec;         // don't stop spectating a player after they get killed
   qboolean            pmoveFixed;         //
   char                netname[ MAX_NETNAME ];
   int                 maxHealth;          // for handicapping
@@ -688,6 +689,7 @@ char      *G_NewString( const char *string );
 void      Cmd_Score_f( gentity_t *ent );
 void      G_StopFromFollowing( gentity_t *ent );
 void      G_StopFollowing( gentity_t *ent );
+void      G_FollowLockView( gentity_t *ent );
 qboolean  G_FollowNewClient( gentity_t *ent, int dir );
 void      G_ToggleFollow( gentity_t *ent );
 void      G_MatchOnePlayer( int *plist, int num, char *err, int len );

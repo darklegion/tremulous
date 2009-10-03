@@ -251,7 +251,9 @@ void ScoreboardMessage( gentity_t *ent )
     else
       ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
 
-    if( cl->sess.sessionTeam != TEAM_SPECTATOR )
+    if( cl->sess.sessionTeam != TEAM_SPECTATOR &&
+        ( ent->client->pers.teamSelection == PTE_NONE ||
+          cl->pers.teamSelection == ent->client->pers.teamSelection ) )
     {
       weapon = cl->ps.weapon;
 
@@ -528,7 +530,12 @@ void G_LeaveTeam( gentity_t *self )
   else if( team == PTE_HUMANS )
     G_RemoveFromSpawnQueue( &level.humanSpawnQueue, self->client->ps.clientNum );
   else
+  {
+    // might have been following somone so reset
+    if( ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
+      G_StopFollowing( self );
     return;
+  }
 
   // stop any following clients
   G_StopFromFollowing( self );
@@ -2466,7 +2473,7 @@ void G_StopFollowing( gentity_t *ent )
   }
   else
   {
-    vec3_t   spawn_origin, spawn_angles;
+    vec3_t spawn_origin, spawn_angles;
 
     ent->client->sess.spectatorState = SPECTATOR_LOCKED;
 
@@ -2481,15 +2488,50 @@ void G_StopFollowing( gentity_t *ent )
   }
   ent->client->sess.spectatorClient = -1;
   ent->client->ps.pm_flags &= ~PMF_FOLLOW;
-
   ent->client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
   ent->client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
+  ent->client->ps.stats[ STAT_VIEWLOCK ] = 0;
   ent->client->ps.eFlags &= ~EF_WALLCLIMB;
   ent->client->ps.viewangles[ PITCH ] = 0.0f;
-
   ent->client->ps.clientNum = ent - g_entities;
 
   CalculateRanks( );
+}
+
+/*
+=================
+G_FollowLockView
+
+Client is still following a player, but that player has gone to spectator
+mode and cannot be followed for the moment
+=================
+*/
+void G_FollowLockView( gentity_t *ent )
+{
+  vec3_t spawn_origin, spawn_angles;
+  int clientNum;
+  
+  ent->client->sess.sessionTeam = TEAM_SPECTATOR;
+  ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+  ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
+  ent->client->ps.pm_flags &= ~PMF_FOLLOW;
+  ent->client->ps.stats[ STAT_PTEAM ] = ent->client->pers.teamSelection;
+  ent->client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
+  ent->client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
+  ent->client->ps.stats[ STAT_VIEWLOCK ] = 0;
+  ent->client->ps.eFlags &= ~EF_WALLCLIMB;
+  ent->client->ps.viewangles[ PITCH ] = 0.0f;
+  clientNum = ent->client->ps.clientNum = ent->client->sess.spectatorClient;
+
+  // Put the view at the team spectator lock position
+  if( level.clients[ clientNum ].pers.teamSelection == PTE_ALIENS )
+    G_SelectAlienLockSpawnPoint( spawn_origin, spawn_angles );
+  else if( level.clients[ clientNum ].pers.teamSelection == PTE_HUMANS )
+    G_SelectHumanLockSpawnPoint( spawn_origin, spawn_angles );
+
+  G_SetOrigin( ent, spawn_origin );
+  VectorCopy( spawn_origin, ent->client->ps.origin );
+  G_SetClientViewAngle( ent, spawn_angles );
 }
 
 /*
@@ -2544,18 +2586,21 @@ qboolean G_FollowNewClient( gentity_t *ent, int dir )
     if( level.clients[ clientnum ].pers.connected != CON_CONNECTED )
       continue;
 
-    // can't follow another spectator
-    if( level.clients[ clientnum ].sess.sessionTeam == TEAM_SPECTATOR )
+    // can't follow a spectator
+    if( level.clients[ clientnum ].pers.teamSelection == PTE_NONE )
       continue;
-
+    
+    // if stickyspec is disabled, can't follow someone in queue either
+    if( !ent->client->pers.stickySpec &&
+        level.clients[ clientnum ].sess.sessionTeam == TEAM_SPECTATOR )
+      continue;
+    
     // can only follow teammates when dead and on a team
-    if( ent->client->pers.teamSelection != PTE_NONE &&
-        ( level.clients[ clientnum ].pers.teamSelection !=
+    if( ent->client->pers.teamSelection != PTE_NONE && 
+        ( level.clients[ clientnum ].pers.teamSelection != 
           ent->client->pers.teamSelection ) )
-    {
       continue;
-    }
-
+    
     // this is good, we can use it
     ent->client->sess.spectatorClient = clientnum;
     ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
@@ -2575,7 +2620,7 @@ void G_ToggleFollow( gentity_t *ent )
 {
   if( ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
     G_StopFollowing( ent );
-  else if( ent->client->sess.spectatorState == SPECTATOR_FREE )
+  else
     G_FollowNewClient( ent, 1 );
 }
 
@@ -2617,17 +2662,16 @@ void Cmd_Follow_f( gentity_t *ent )
     if( &level.clients[ i ] == ent->client )
       return;
 
-    // can't follow another spectator
-    if( level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR )
+    // can't follow another spectator if sticky spec is off
+    if( !ent->client->pers.stickySpec &&
+        level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR )
       return;
 
     // can only follow teammates when dead and on a team
     if( ent->client->pers.teamSelection != PTE_NONE && 
         ( level.clients[ i ].pers.teamSelection != 
           ent->client->pers.teamSelection ) )
-    {
       return;
-    }
 
     ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
     ent->client->sess.spectatorClient = i;
@@ -2902,9 +2946,9 @@ commands_t cmds[ ] = {
   { "ptrcverify", 0, Cmd_PTRCVerify_f },
   { "ptrcrestore", 0, Cmd_PTRCRestore_f },
 
-  { "follow", CMD_SPEC, Cmd_Follow_f },
-  { "follownext", CMD_SPEC, Cmd_FollowCycle_f },
-  { "followprev", CMD_SPEC, Cmd_FollowCycle_f },
+  { "follow", 0, Cmd_Follow_f },
+  { "follownext", 0, Cmd_FollowCycle_f },
+  { "followprev", 0, Cmd_FollowCycle_f },
 
   { "where", CMD_TEAM, Cmd_Where_f },
   { "teamvote", CMD_TEAM, Cmd_TeamVote_f },
