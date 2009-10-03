@@ -9,9 +9,9 @@
     "We can also be reached on Freenode IRC:\n"
     "#mercenariesguild"
   }
-  "^3Release Notes r276^7"
+  "^3Release Notes r2009-3-7^7"
   {
-    "See source.mercenariesguild.net for details."
+    "See projects.mercenariesguild.net for details."
   }
   "Alien Healing"
   {
@@ -72,9 +72,11 @@
   }
   "Marauder"
   {
-    "The Adv. Marauder now has a simpler, area-effect electric shock attack "
-    "that does not need to be aimed. Use this to attack large groups of Humans "
-    "or Human bases.\n\n"
+    "The Adv. Marauder's electric shock damage is no longer split between its "
+    "targets, making it more effective against large groups of humans and "
+    "buildables. Targets are now chosen slightly differently: instead of "
+    "each new chain section originating from the previous target, it will "
+    "originate from the first target."
   }
   "Mark Deconstruction"
   {
@@ -96,8 +98,7 @@
   }
   "Dretch"
   {
-    "The dretch bounding box and model have both slightly changed to line up "
-    "more closely.\nDretches can now damage any human structure while it "
+    "Dretches are slightly faster and can now damage any human structure while it "
     "is still building, but can no longer damage turrets and teslas that "
     "have been completed."
   }
