@@ -2563,6 +2563,7 @@ void Cmd_Build_f( gentity_t *ent )
         break;
 
       default:
+        err = -1; // stop uninitialised warning
         break;
     }
 
