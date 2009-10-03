@@ -466,6 +466,7 @@ qboolean  G_SearchSpawnQueue( spawnQueue_t *sq, int clientNum );
 qboolean  G_PushSpawnQueue( spawnQueue_t *sq, int clientNum );
 qboolean  G_RemoveFromSpawnQueue( spawnQueue_t *sq, int clientNum );
 int       G_GetPosInSpawnQueue( spawnQueue_t *sq, int clientNum );
+void      G_PrintSpawnQueue( spawnQueue_t *sq );
 
 
 #define MAX_DAMAGE_REGION_TEXT    8192
