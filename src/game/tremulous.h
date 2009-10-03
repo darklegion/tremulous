@@ -152,13 +152,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ALIEN_VALUE_MODIFIER        1.2f
 #define AVM(h)                      ((int)((float)h*ALIEN_VALUE_MODIFIER))
 
-#define ABUILDER_SPEED              0.65f
+#define ABUILDER_SPEED              0.7f
 #define ABUILDER_VALUE              AVM(200)
 #define ABUILDER_HEALTH             AHM(50)
 #define ABUILDER_REGEN              2
 #define ABUILDER_COST               0
 
-#define ABUILDER_UPG_SPEED          0.65f
+#define ABUILDER_UPG_SPEED          0.7f
 #define ABUILDER_UPG_VALUE          AVM(250)
 #define ABUILDER_UPG_HEALTH         AHM(75)
 #define ABUILDER_UPG_REGEN          3
