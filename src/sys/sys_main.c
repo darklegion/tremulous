@@ -112,8 +112,7 @@ Restart the input subsystem
 */
 void Sys_In_Restart_f( void )
 {
-	IN_Shutdown();
-	IN_Init();
+	IN_Restart( );
 }
 
 /*
@@ -441,42 +440,6 @@ void *Sys_LoadDll( const char *name, char *fqpath ,
 
 /*
 =================
-Sys_Idle
-=================
-*/
-static void Sys_Idle( void )
-{
-#ifndef DEDICATED
-	int appState = SDL_GetAppState( );
-	int sleep = 0;
-
-	// If we have no input focus at all, sleep a bit
-	if( !( appState & ( SDL_APPMOUSEFOCUS | SDL_APPINPUTFOCUS ) ) )
-	{
-		Cvar_SetValue( "com_unfocused", 1 );
-		sleep += 16;
-	}
-	else
-		Cvar_SetValue( "com_unfocused", 0 );
-
-	// If we're minimised, sleep a bit more
-	if( !( appState & SDL_APPACTIVE ) )
-	{
-		Cvar_SetValue( "com_minimized", 1 );
-		sleep += 32;
-	}
-	else
-		Cvar_SetValue( "com_minimized", 0 );
-
-	if( !com_dedicated->integer && sleep )
-		SDL_Delay( sleep );
-#else
-	// Dedicated server idles via NET_Sleep
-#endif
-}
-
-/*
-=================
 Sys_ParseArgs
 =================
 */
@@ -569,6 +532,8 @@ int main( int argc, char **argv )
 	}
 #endif
 
+	Sys_PlatformInit( );
+
 	Sys_ParseArgs( argc, argv );
 	Sys_SetBinaryPath( Sys_Dirname( argv[ 0 ] ) );
 	Sys_SetDefaultInstallPath( DEFAULT_BASEDIR );
@@ -585,16 +550,6 @@ int main( int argc, char **argv )
 
 	CON_Init( );
 
-#ifndef _WIN32
-	// Windows doesn't have these signals
-	// see CON_CtrlHandler() in con_win32.c
-	signal( SIGHUP, Sys_SigHandler );
-	signal( SIGQUIT, Sys_SigHandler );
-	signal( SIGTRAP, Sys_SigHandler );
-	signal( SIGIOT, Sys_SigHandler );
-	signal( SIGBUS, Sys_SigHandler );
-#endif
-
 	signal( SIGILL, Sys_SigHandler );
 	signal( SIGFPE, Sys_SigHandler );
 	signal( SIGSEGV, Sys_SigHandler );
@@ -602,7 +557,13 @@ int main( int argc, char **argv )
 
 	while( 1 )
 	{
-		Sys_Idle( );
+#ifndef DEDICATED
+		int appState = SDL_GetAppState( );
+
+		Cvar_SetValue( "com_unfocused",	!( appState & SDL_APPINPUTFOCUS ) );
+		Cvar_SetValue( "com_minimized", !( appState & SDL_APPACTIVE ) );
+#endif
+
 		IN_Frame( );
 		Com_Frame( );
 	}

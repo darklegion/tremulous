@@ -321,9 +321,13 @@ int	SCR_GetBigStringWidth( const char *str ) {
 
 //===============================================================================
 
+
+#ifdef USE_VOIP
 /*
 =================
 SCR_DrawVoipMeter
+
+FIXME: inherited from ioq3, move to cgame/ui
 =================
 */
 void SCR_DrawVoipMeter( void ) {
@@ -357,6 +361,7 @@ void SCR_DrawVoipMeter( void ) {
 	sprintf( string, "VoIP: [%s]", buffer );
 	SCR_DrawStringExt( 320 - strlen( string ) * 4, 10, 8, string, g_color_table[7], qtrue, qfalse );
 }
+#endif
 
 
 

@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 #include "sys_local.h"
 
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -463,6 +464,9 @@ void Sys_Sleep( int msec )
 {
 	fd_set fdset;
 
+	if( msec == 0 )
+		return;
+
 	FD_ZERO(&fdset);
 	FD_SET(fileno(stdin), &fdset);
 	if( msec < 0 )
@@ -507,4 +511,32 @@ void Sys_ErrorDialog( const char *error )
 		FS_Write( buffer, size, f );
 
 	FS_FCloseFile( f );
+}
+
+/*
+==============
+Sys_GLimpInit
+
+Unix specific GL implementation initialisation
+==============
+*/
+void Sys_GLimpInit( void )
+{
+	// NOP
+}
+
+/*
+==============
+Sys_PlatformInit
+
+Unix specific initialisation
+==============
+*/
+void Sys_PlatformInit( void )
+{
+	signal( SIGHUP, Sys_SigHandler );
+	signal( SIGQUIT, Sys_SigHandler );
+	signal( SIGTRAP, Sys_SigHandler );
+	signal( SIGIOT, Sys_SigHandler );
+	signal( SIGBUS, Sys_SigHandler );
 }

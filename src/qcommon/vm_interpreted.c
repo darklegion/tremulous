@@ -481,7 +481,7 @@ nextInstruction2:
 		case OP_BLOCK_COPY:
 			{
 				int		*src, *dest;
-				int		i, count, srci, desti;
+				int		count, srci, desti;
 
 				count = r2;
 				// MrE: copy range check
@@ -490,16 +490,10 @@ nextInstruction2:
 				count = ((srci + count) & dataMask) - srci;
 				count = ((desti + count) & dataMask) - desti;
 
-				src = (int *)&image[ r0&dataMask ];
-				dest = (int *)&image[ r1&dataMask ];
-				if ( ( (intptr_t)src | (intptr_t)dest | count ) & 3 ) {
-					// happens in westernq3
-					Com_Printf( S_COLOR_YELLOW "Warning: OP_BLOCK_COPY not dword aligned\n");
-				}
-				count >>= 2;
-				for ( i = count-1 ; i>= 0 ; i-- ) {
-					dest[i] = src[i];
-				}
+				src = (int *)&image[ srci ];
+				dest = (int *)&image[ desti ];
+				
+				memcpy(dest, src, count);
 				programCounter += 4;
 				opStack -= 2;
 			}

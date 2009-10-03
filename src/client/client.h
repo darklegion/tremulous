@@ -376,7 +376,6 @@ extern	cvar_t	*cl_run;
 extern	cvar_t	*cl_anglespeedkey;
 
 extern	cvar_t	*cl_sensitivity;
-extern	cvar_t	*cl_platformSensitivity;
 extern	cvar_t	*cl_freelook;
 
 extern	cvar_t	*cl_mouseAccel;
@@ -491,8 +490,6 @@ void CL_VerifyCode( void );
 
 float CL_KeyState (kbutton_t *key);
 char *Key_KeynumToString (int keynum);
-int Key_GetCatcher( void );
-void Key_SetCatcher( int catcher );
 
 //
 // cl_parse.c

@@ -1992,7 +1992,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 
 	// New console variables
 	s_alPrecache = Cvar_Get( "s_alPrecache", "1", CVAR_ARCHIVE );
-	s_alGain = Cvar_Get( "s_alGain", "0.4", CVAR_ARCHIVE );
+	s_alGain = Cvar_Get( "s_alGain", "1.0", CVAR_ARCHIVE );
 	s_alSources = Cvar_Get( "s_alSources", "96", CVAR_ARCHIVE );
 	s_alDopplerFactor = Cvar_Get( "s_alDopplerFactor", "1.0", CVAR_ARCHIVE );
 	s_alDopplerSpeed = Cvar_Get( "s_alDopplerSpeed", "2200", CVAR_ARCHIVE );
@@ -2095,22 +2095,33 @@ qboolean S_AL_Init( soundInterface_t *si )
 	// !!! FIXME: add support for capture device enumeration.
 	// !!! FIXME: add some better error reporting.
 	s_alCapture = Cvar_Get( "s_alCapture", "1", CVAR_ARCHIVE | CVAR_LATCH );
-	if (!s_alCapture->integer) {
+	if (!s_alCapture->integer)
+	{
 		Com_Printf("OpenAL capture support disabled by user ('+set s_alCapture 1' to enable)\n");
+	}
 #if USE_MUMBLE
-	} else if (cl_useMumble->integer) {
+	else if (cl_useMumble->integer)
+	{
 		Com_Printf("OpenAL capture support disabled for Mumble support\n");
+	}
 #endif
-	} else {
+	else
+	{
+#ifdef MACOS_X
 		// !!! FIXME: Apple has a 1.1-compliant OpenAL, which includes
 		// !!! FIXME:  capture support, but they don't list it in the
 		// !!! FIXME:  extension string. We need to check the version string,
 		// !!! FIXME:  then the extension string, but that's too much trouble,
 		// !!! FIXME:  so we'll just check the function pointer for now.
-		//if (qalcIsExtensionPresent(NULL, "ALC_EXT_capture")) {
-		if (qalcCaptureOpenDevice == NULL) {
+		if (qalcCaptureOpenDevice == NULL)
+#else
+		if (!qalcIsExtensionPresent(NULL, "ALC_EXT_capture"))
+#endif
+		{
 			Com_Printf("No ALC_EXT_capture support, can't record audio.\n");
-		} else {
+		}
+		else
+		{
 			// !!! FIXME: 8000Hz is what Speex narrowband mode needs, but we
 			// !!! FIXME:  should probably open the capture device after
 			// !!! FIXME:  initializing Speex so we can change to wideband

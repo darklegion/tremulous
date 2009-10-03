@@ -35,6 +35,9 @@ endif
 ifndef BUILD_GAME_QVM
   BUILD_GAME_QVM   =
 endif
+ifndef BUILD_MISSIONPACK
+  BUILD_MISSIONPACK=
+endif
 
 ifneq ($(PLATFORM),darwin)
   BUILD_CLIENT_SMP = 0
@@ -154,7 +157,7 @@ GDIR=$(MOUNT_DIR)/game
 CGDIR=$(MOUNT_DIR)/cgame
 NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
-JPDIR=$(MOUNT_DIR)/jpeg-6
+JPDIR=$(MOUNT_DIR)/jpeg-6b
 SPEEXDIR=$(MOUNT_DIR)/libspeex
 Q3ASMDIR=$(MOUNT_DIR)/tools/asm
 LBURGDIR=$(MOUNT_DIR)/tools/lcc/lburg
@@ -188,6 +191,13 @@ ifeq ($(wildcard .svn),.svn)
     VERSION:=$(VERSION)_SVN$(SVN_REV)
     USE_SVN=1
   endif
+else
+ifeq ($(wildcard .git/svn/.metadata),.git/svn/.metadata)
+  SVN_REV=$(shell LANG=C git-svn info | awk '$$1 == "Revision:" {print $$2; exit 0}')
+  ifneq ($(SVN_REV),)
+    VERSION:=$(VERSION)_SVN$(SVN_REV)
+  endif
+endif
 endif
 
 
@@ -411,8 +421,10 @@ ifeq ($(PLATFORM),mingw32)
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
     -DUSE_ICON
 
-  # Require Windows XP or later
-  BASE_CFLAGS += -DWINVER=0x501
+  # In the absence of wspiapi.h, require Windows XP or later
+  ifeq ($(shell test -e $(CMDIR)/wspiapi.h; echo $$?),1)
+    BASE_CFLAGS += -DWINVER=0x501
+  endif
 
   ifeq ($(USE_OPENAL),1)
     BASE_CFLAGS += -DUSE_OPENAL
@@ -1174,18 +1186,17 @@ Q3OBJ = \
   \
   $(B)/client/jcapimin.o \
   $(B)/client/jcapistd.o \
-  $(B)/client/jchuff.o   \
-  $(B)/client/jcinit.o \
   $(B)/client/jccoefct.o  \
   $(B)/client/jccolor.o \
-  $(B)/client/jfdctflt.o \
   $(B)/client/jcdctmgr.o \
-  $(B)/client/jcphuff.o \
+  $(B)/client/jchuff.o   \
+  $(B)/client/jcinit.o \
   $(B)/client/jcmainct.o \
   $(B)/client/jcmarker.o \
   $(B)/client/jcmaster.o \
   $(B)/client/jcomapi.o \
   $(B)/client/jcparam.o \
+  $(B)/client/jcphuff.o \
   $(B)/client/jcprepct.o \
   $(B)/client/jcsample.o \
   $(B)/client/jdapimin.o \
@@ -1203,6 +1214,7 @@ Q3OBJ = \
   $(B)/client/jdsample.o \
   $(B)/client/jdtrans.o \
   $(B)/client/jerror.o \
+  $(B)/client/jfdctflt.o \
   $(B)/client/jidctflt.o \
   $(B)/client/jmemmgr.o \
   $(B)/client/jmemnobs.o \
@@ -1253,6 +1265,7 @@ ifeq ($(ARCH),x86)
     $(B)/client/snapvectora.o
 endif
 
+ifeq ($(USE_VOIP),1)
 ifeq ($(USE_INTERNAL_SPEEX),1)
 Q3OBJ += \
   $(B)/client/bits.o \
@@ -1295,6 +1308,7 @@ Q3OBJ += \
   $(B)/client/vbr.o \
   $(B)/client/vq.o \
   $(B)/client/window.o
+endif
 endif
 
 

@@ -76,8 +76,10 @@ typedef enum
 } rserr_t;
 
 static SDL_Surface *screen = NULL;
+static const SDL_VideoInfo *videoInfo = NULL;
 
 cvar_t *r_allowSoftwareGL; // Don't abort out if a hardware visual can't be obtained
+cvar_t *r_sdlDriver;
 
 void (APIENTRYP qglActiveTextureARB) (GLenum texture);
 void (APIENTRYP qglClientActiveTextureARB) (GLenum texture);
@@ -152,8 +154,16 @@ static void GLimp_DetectAvailableModes(void)
 	SDL_Rect **modes;
 	int numModes;
 	int i;
+	SDL_PixelFormat *format = NULL;
 
-	modes = SDL_ListModes( NULL, SDL_OPENGL | SDL_FULLSCREEN );
+#if SDL_VERSION_ATLEAST(1, 2, 10)
+	format = videoInfo->vfmt;
+#	if MINSDL_PATCH >= 10
+#		error Ifdeffery no longer necessary, please remove
+#	endif
+#endif
+
+	modes = SDL_ListModes( format, SDL_OPENGL | SDL_FULLSCREEN );
 
 	if( !modes )
 	{
@@ -207,27 +217,37 @@ static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen )
 	int i = 0;
 	SDL_Surface *vidscreen = NULL;
 	Uint32 flags = SDL_OPENGL;
-	const SDL_VideoInfo *videoInfo;
 
 	ri.Printf( PRINT_ALL, "Initializing OpenGL display\n");
 
-	if( glConfig.displayAspect == 0.0f )
-	{
 #if !SDL_VERSION_ATLEAST(1, 2, 10)
-		// 1.2.10 is needed to get the desktop resolution
-		glConfig.displayAspect = 4.0f / 3.0f;
+  // 1.2.10 is needed to get the desktop resolution
+  glConfig.displayAspect = 4.0f / 3.0f;
 #elif MINSDL_PATCH >= 10
 #	error Ifdeffery no longer necessary, please remove
 #else
+	if( videoInfo == NULL )
+	{
+		static SDL_VideoInfo sVideoInfo;
+		static SDL_PixelFormat sPixelFormat;
+
+		videoInfo = SDL_GetVideoInfo( );
+
+		// Take a copy of the videoInfo
+		Com_Memcpy( &sPixelFormat, videoInfo->vfmt, sizeof( SDL_PixelFormat ) );
+		sPixelFormat.palette = NULL; // Should already be the case
+		Com_Memcpy( &sVideoInfo, videoInfo, sizeof( SDL_VideoInfo ) );
+		sVideoInfo.vfmt = &sPixelFormat;
+		videoInfo = &sVideoInfo;
+
 		// Guess the display aspect ratio through the desktop resolution
 		// by assuming (relatively safely) that it is set at or close to
 		// the display's native aspect ratio
-		videoInfo = SDL_GetVideoInfo( );
 		glConfig.displayAspect = (float)videoInfo->current_w / (float)videoInfo->current_h;
-#endif
 
 		ri.Printf( PRINT_ALL, "Estimated display aspect: %.3f\n", glConfig.displayAspect );
 	}
+#endif
 
 	if( !failSafe )
 	{
@@ -431,13 +451,18 @@ static qboolean GLimp_StartDriverAndSetMode( qboolean failSafe, qboolean fullscr
 
 	if (!SDL_WasInit(SDL_INIT_VIDEO))
 	{
-		ri.Printf( PRINT_ALL, "SDL_Init( SDL_INIT_VIDEO )... ");
+		char driverName[ 64 ];
+
 		if (SDL_Init(SDL_INIT_VIDEO) == -1)
 		{
-			ri.Printf( PRINT_ALL, "FAILED (%s)\n", SDL_GetError());
+			ri.Printf( PRINT_ALL, "SDL_Init( SDL_INIT_VIDEO ) FAILED (%s)\n",
+					SDL_GetError());
 			return qfalse;
 		}
-		ri.Printf( PRINT_ALL, "OK\n");
+
+		SDL_VideoDriverName( driverName, sizeof( driverName ) - 1 );
+		ri.Printf( PRINT_ALL, "SDL using driver \"%s\"\n", driverName );
+		Cvar_Set( "r_sdlDriver", driverName );
 	}
 
 	if (fullscreen && Cvar_VariableIntegerValue( "in_nograb" ) )
@@ -655,6 +680,9 @@ void GLimp_Init( void )
 	qboolean success = qtrue;
 
 	r_allowSoftwareGL = ri.Cvar_Get( "r_allowSoftwareGL", "0", CVAR_LATCH );
+	r_sdlDriver = ri.Cvar_Get( "r_sdlDriver", "", CVAR_ROM );
+
+	Sys_GLimpInit( );
 
 	// create the window and set up the context
 	if( !GLimp_StartDriverAndSetMode( qfalse, r_fullscreen->integer ) )
@@ -686,8 +714,6 @@ void GLimp_Init( void )
 
 	// This depends on SDL_INIT_VIDEO, hence having it here
 	IN_Init( );
-
-	return;
 }
 
 
@@ -709,18 +735,16 @@ void GLimp_EndFrame( void )
 	if( r_fullscreen->modified )
 	{
 		qboolean    fullscreen;
+		qboolean    needToToggle = qtrue;
 		qboolean    sdlToggled = qfalse;
 		SDL_Surface *s = SDL_GetVideoSurface( );
 
 		if( s )
 		{
 			// Find out the current state
-			if( s->flags & SDL_FULLSCREEN )
-				fullscreen = qtrue;
-			else
-				fullscreen = qfalse;
+			fullscreen = !!( s->flags & SDL_FULLSCREEN );
 				
-			if (r_fullscreen->integer && Cvar_VariableIntegerValue( "in_nograb" ))
+			if( r_fullscreen->integer && Cvar_VariableIntegerValue( "in_nograb" ) )
 			{
 				ri.Printf( PRINT_ALL, "Fullscreen not allowed with in_nograb 1\n");
 				ri.Cvar_Set( "r_fullscreen", "0" );
@@ -728,15 +752,20 @@ void GLimp_EndFrame( void )
 			}
 
 			// Is the state we want different from the current state?
-			if( !!r_fullscreen->integer != fullscreen )
+			needToToggle = !!r_fullscreen->integer != fullscreen;
+
+			if( needToToggle )
 				sdlToggled = SDL_WM_ToggleFullScreen( s );
-			else
-				sdlToggled = qtrue;
 		}
 
-		// SDL_WM_ToggleFullScreen didn't work, so do it the slow way
-		if( !sdlToggled )
-			Cbuf_AddText( "vid_restart" );
+		if( needToToggle )
+		{
+			// SDL_WM_ToggleFullScreen didn't work, so do it the slow way
+			if( !sdlToggled )
+				Cbuf_AddText( "vid_restart" );
+
+			IN_Restart( );
+		}
 
 		r_fullscreen->modified = qfalse;
 	}

@@ -588,7 +588,6 @@ fileHandle_t	FS_FOpenFileWrite( const char *qpath );
 fileHandle_t	FS_FOpenFileAppend( const char *filename );
 // will properly create any needed paths and deal with seperater character issues
 
-int		FS_filelength( fileHandle_t f );
 fileHandle_t FS_SV_FOpenFileWrite( const char *filename );
 int		FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp );
 void	FS_SV_Rename( const char *from, const char *to );
@@ -790,7 +789,9 @@ extern	cvar_t	*com_journal;
 extern	cvar_t	*com_cameraMode;
 extern	cvar_t	*com_ansiColor;
 extern	cvar_t	*com_unfocused;
+extern	cvar_t	*com_maxfpsUnfocused;
 extern	cvar_t	*com_minimized;
+extern	cvar_t	*com_maxfpsMinimized;
 extern	cvar_t	*com_altivec;
 
 // both client and server must agree to pause

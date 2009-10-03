@@ -514,15 +514,26 @@ void Sys_FreeFileList( char **list )
 ==============
 Sys_Sleep
 
-Block execution for msec or until input is recieved.
+Block execution for msec or until input is received.
 ==============
 */
 void Sys_Sleep( int msec )
 {
+	if( msec == 0 )
+		return;
+
+#ifdef DEDICATED
 	if( msec < 0 )
 		WaitForSingleObject( GetStdHandle( STD_INPUT_HANDLE ), INFINITE );
 	else
 		WaitForSingleObject( GetStdHandle( STD_INPUT_HANDLE ), msec );
+#else
+	// Client Sys_Sleep doesn't support waiting on stdin
+	if( msec < 0 )
+		return;
+
+	Sleep( msec );
+#endif
 }
 
 /*
@@ -564,4 +575,61 @@ void Sys_ErrorDialog( const char *error )
 			CloseClipboard( );
 		}
 	}
+}
+
+#ifndef DEDICATED
+static qboolean SDL_VIDEODRIVER_externallySet = qfalse;
+#endif
+
+/*
+==============
+Sys_GLimpInit
+
+Windows specific GL implementation initialisation
+==============
+*/
+void Sys_GLimpInit( void )
+{
+#ifndef DEDICATED
+	if( !SDL_VIDEODRIVER_externallySet )
+	{
+		// It's a little bit weird having in_mouse control the
+		// video driver, but from ioq3's point of view they're
+		// virtually the same except for the mouse input anyway
+		if( Cvar_VariableIntegerValue( "in_mouse" ) == -1 )
+		{
+			// Use the windib SDL backend, which is closest to
+			// the behaviour of idq3 with in_mouse set to -1
+			_putenv( "SDL_VIDEODRIVER=windib" );
+		}
+		else
+		{
+			// Use the DirectX SDL backend
+			_putenv( "SDL_VIDEODRIVER=directx" );
+		}
+	}
+#endif
+}
+
+/*
+==============
+Sys_PlatformInit
+
+Windows specific initialisation
+==============
+*/
+void Sys_PlatformInit( void )
+{
+#ifndef DEDICATED
+	const char *SDL_VIDEODRIVER = getenv( "SDL_VIDEODRIVER" );
+
+	if( SDL_VIDEODRIVER )
+	{
+		Com_Printf( "SDL_VIDEODRIVER is externally set to \"%s\", "
+				"in_mouse -1 will have no effect\n", SDL_VIDEODRIVER );
+		SDL_VIDEODRIVER_externallySet = qtrue;
+	}
+	else
+		SDL_VIDEODRIVER_externallySet = qfalse;
+#endif
 }

@@ -39,7 +39,6 @@ void S_SoundList_f(void);
 void S_Music_f(void);
 
 void S_Update_( void );
-void S_UpdateBackgroundTrack( void );
 void S_Base_StopAllSounds(void);
 void S_Base_StopBackgroundTrack( void );
 
