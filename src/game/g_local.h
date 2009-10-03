@@ -731,7 +731,6 @@ typedef enum
   IBE_TNODEWARN, // not currently used
   IBE_RPTNOREAC,
   IBE_RPTPOWERHERE,
-  IBE_RPWCAUSEOVRL,
   IBE_NOHUMANBP,
   IBE_NODCC,
 

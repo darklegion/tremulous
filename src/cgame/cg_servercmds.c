@@ -686,12 +686,6 @@ void CG_Menu( int menu, int arg )
       type      = DT_BUILD;
       break;
 
-    case MN_H_RPWCAUSEOVRL:
-      longMsg   = "This repeater would cause a power zone to overlap.";
-      shortMsg  = "This repeater would cause a power zone to overlap";
-      type      = DT_BUILD;
-      break;
-
     case MN_H_NOSLOTS:
       longMsg   = "You have no room to carry this. Please sell any conflicting "
                   "upgrades before purchasing this item.";

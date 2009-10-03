@@ -616,7 +616,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define REPEATER_SPLASHRADIUS       100
 #define REPEATER_INACTIVE_TIME      90000
 #define REPEATER_VALUE              HBVM(2)
-#define REPEATER_ALLOWOVERLAP       qtrue
 
 /*
  * HUMAN misc

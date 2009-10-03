@@ -2527,7 +2527,6 @@ void Cmd_Build_f( gentity_t *ent )
       case IBE_NOROOM:
       case IBE_NOOVERMIND:
       case IBE_NOPOWERHERE:
-      case IBE_RPWCAUSEOVRL:
         err = MN_NONE;
         break;
 

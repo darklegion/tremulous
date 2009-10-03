@@ -348,48 +348,6 @@ buildable_t G_IsPowered( vec3_t origin )
     return BA_NONE;
 }
 
-/*
-================
-G_RepeaterWouldOverlap
-
-Check if a repeater would create an overlapping power zone
-================
-*/
-static gentity_t *G_RepeaterWouldOverlap( vec3_t origin )
-{
-  int       i;
-  gentity_t *ent;
-  int       distance;
-  vec3_t    temp_v;
-
-  // Iterate through entities
-  for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
-  {
-    if( ent->s.eType != ET_BUILDABLE )
-      continue;
-
-    // If entity is a power item calculate the distance to it
-    if( ( ent->s.modelindex == BA_H_REACTOR || ent->s.modelindex == BA_H_REPEATER ) &&
-        ent->spawned && ent->powered )
-    {
-      VectorSubtract( origin, ent->s.origin, temp_v );
-      distance = VectorLength( temp_v );
-
-      if( ent->s.modelindex == BA_H_REACTOR )
-      {
-        if( distance <= REACTOR_BASESIZE + REPEATER_BASESIZE )
-          return ent;
-      }
-      else if( ent->s.modelindex == BA_H_REPEATER )
-      {
-        if( distance <= REPEATER_BASESIZE + REPEATER_BASESIZE )
-          return ent;
-      }
-    }
-  }
-
-  return NULL;
-}
 
 /*
 ==================
@@ -3490,20 +3448,6 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
         reason = IBE_RPTPOWERHERE;
       else if( !g_markDeconstruct.integer && G_IsPowered( entity_origin ) )
         reason = IBE_RPTPOWERHERE;
-      else if( !REPEATER_ALLOWOVERLAP )
-      {
-        tempent = G_RepeaterWouldOverlap( entity_origin );
-
-        if( tempent )
-        {
-          // If mark deconstruct is enabled, allow the marked repeater to be moved and replaced
-          if( !( g_markDeconstruct.integer > 1 &&
-                 tempent->s.modelindex == BA_H_REPEATER && tempent->deconstruct ) )
-          {
-            reason = IBE_RPWCAUSEOVRL;
-          }
-        }
-      }
     }
 
     // Check permission to build here
@@ -3871,10 +3815,6 @@ qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
 
     case IBE_RPTPOWERHERE:
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPTPOWERHERE );
-      return qfalse;
-
-    case IBE_RPWCAUSEOVRL:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPWCAUSEOVRL );
       return qfalse;
 
     case IBE_LASTSPAWN:
