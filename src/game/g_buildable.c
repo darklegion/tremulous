@@ -421,6 +421,9 @@ int G_GetBuildPoints( const vec3_t pos, team_t team, int extraDistance )
       return level.powerZones[ powerPoint->zone ].totalBuildPoints -
              level.powerZones[ powerPoint->zone ].queuedBuildPoints;
     }
+
+    // Return the BP of the main zone by default
+    return level.humanBuildPoints;
   }
 
   return 0;
@@ -432,6 +435,7 @@ int G_GetBuildPoints( const vec3_t pos, team_t team, int extraDistance )
   int         distance = 0;
   vec3_t      temp_v;
   int         buildPoints = 0;
+  qboolean    zoneFound = qfalse;
 
   if( level.suddenDeath )
   {
@@ -450,6 +454,8 @@ int G_GetBuildPoints( const vec3_t pos, team_t team, int extraDistance )
       if( ent->s.modelindex == BA_H_REACTOR && distance <= REACTOR_BASESIZE + extraDistance )
       {
         // Reactor is in range
+        zoneFound = qtrue;
+
         buildPoints += level.humanBuildPoints;
       }
       else if( ent->s.modelindex == BA_H_REPEATER && distance <= REPEATER_BASESIZE + extraDistance )
@@ -457,6 +463,8 @@ int G_GetBuildPoints( const vec3_t pos, team_t team, int extraDistance )
         if( ent->usesZone && level.powerZones[ent->zone].active )
         {
           zone_t *zone = &level.powerZones[ent->zone];
+
+          zoneFound = qtrue;
 
           buildPoints += zone->totalBuildPoints - zone->queuedBuildPoints;
         }
@@ -470,6 +478,9 @@ int G_GetBuildPoints( const vec3_t pos, team_t team, int extraDistance )
 
   if( buildPoints < 0 )
     buildPoints = 0;
+
+  if( !zoneFound )
+    buildPoints = level.humanBuildPoints;  // if the player isn't in a zone, show the number of BP of the main zone
 
   return buildPoints;
 #endif
