@@ -985,12 +985,13 @@ void G_WriteSessionData( void );
 //
 void      G_PrintRotations( void );
 void      G_AdvanceMapRotation( void );
-qboolean  G_StartMapRotation( char *name, qboolean changeMap );
+qboolean  G_StartMapRotation( char *name, qboolean advance, qboolean putOnStack );
 void      G_StopMapRotation( void );
 qboolean  G_MapRotationActive( void );
 void      G_InitMapRotations( void );
 void      G_ShutdownMapRotations( void );
 qboolean  G_MapExists( char *name );
+void      G_ClearRotationStack( void );
 
 //
 // g_ptr.c
@@ -1083,7 +1084,8 @@ extern  vmCvar_t  g_markDeconstruct;
 
 extern  vmCvar_t  g_debugMapRotation;
 extern  vmCvar_t  g_currentMapRotation;
-extern  vmCvar_t  g_currentNode;
+extern  vmCvar_t  g_mapRotationNodes;
+extern  vmCvar_t  g_mapRotationStack;
 extern  vmCvar_t  g_nextMap;
 extern  vmCvar_t  g_initialMapRotation;
 extern  vmCvar_t  g_chatTeamPrefix;

@@ -112,7 +112,8 @@ vmCvar_t  g_markDeconstruct;
 
 vmCvar_t  g_debugMapRotation;
 vmCvar_t  g_currentMapRotation;
-vmCvar_t  g_currentNode;
+vmCvar_t  g_mapRotationNodes;
+vmCvar_t  g_mapRotationStack;
 vmCvar_t  g_nextMap;
 vmCvar_t  g_initialMapRotation;
 
@@ -252,7 +253,8 @@ static cvarTable_t   gameCvarTable[ ] =
 
   { &g_debugMapRotation, "g_debugMapRotation", "0", 0, 0, qfalse  },
   { &g_currentMapRotation, "g_currentMapRotation", "-1", 0, 0, qfalse  }, // -1 = NOT_ROTATING
-  { &g_currentNode, "g_currentNode", "0", 0, 0, qfalse  },
+  { &g_mapRotationNodes, "g_mapRotationNodes", "", CVAR_ROM, 0, qfalse  },
+  { &g_mapRotationStack, "g_mapRotationStack", "", CVAR_ROM, 0, qfalse  },
   { &g_nextMap, "g_nextMap", "", 0 , 0, qtrue  },
   { &g_initialMapRotation, "g_initialMapRotation", "", CVAR_ARCHIVE, 0, qfalse  },
   { &g_debugVoices, "g_debugVoices", "0", 0, 0, qfalse  },

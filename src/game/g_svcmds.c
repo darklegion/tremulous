@@ -344,8 +344,10 @@ static void Svcmd_MapRotation_f( void )
     return;
   }
 
+  G_ClearRotationStack( );
+
   trap_Argv( 1, rotationName, sizeof( rotationName ) );
-  if( !G_StartMapRotation( rotationName, qfalse ) )
+  if( !G_StartMapRotation( rotationName, qfalse, qtrue ) )
     G_Printf( "maprotation: invalid map rotation \"%s\"\n", rotationName );
 }
 

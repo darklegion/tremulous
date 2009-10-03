@@ -74,7 +74,8 @@ typedef struct destination_s
 typedef enum
 {
   NT_DESTINATION,
-  NT_CONDITION
+  NT_CONDITION,
+  NT_RETURN
 } nodeType_t;
 
 typedef struct node_s
@@ -305,8 +306,12 @@ static qboolean G_ParseNode( node_t **node, char *token, char **text_p )
 
     condition->target = G_AllocateNode( );
     *node = condition->target;
-    if( !G_ParseNode( node, token, text_p ) )
-      return qfalse;
+
+    return G_ParseNode( node, token, text_p );
+  }
+  else if( !Q_stricmp( token, "return" ) )
+  {
+    (*node)->type = NT_RETURN;
   }
   else
   {
@@ -500,6 +505,8 @@ static qboolean G_ParseMapRotationFile( const char *fileName )
 
       if( node->type == NT_DESTINATION )
         destinationCount++;
+      else if( node->type == NT_RETURN )
+        continue;
       else while( node->type == NT_CONDITION )
         node = node->u.condition.target;
 
@@ -577,11 +584,23 @@ void G_PrintRotations( void )
       }
 
       G_PrintSpaces( indentation );
-      G_Printf( "  %s\n", node->u.destination.name );
 
-      if( strlen( node->u.destination.postCommand ) > 0 )
+      switch( node->type )
       {
-        G_Printf( "    command: %s", node->u.destination.postCommand );
+        case NT_DESTINATION:
+          G_Printf( "  %s\n", node->u.destination.name );
+
+          if( strlen( node->u.destination.postCommand ) > 0 )
+            G_Printf( "    command: %s", node->u.destination.postCommand );
+
+          break;
+
+        case NT_RETURN:
+          G_Printf( "  return\n" );
+          break;
+
+        default:
+          break;
       }
     }
 
@@ -589,6 +608,91 @@ void G_PrintRotations( void )
   }
 
   G_Printf( "Total memory used: %d bytes\n", size );
+}
+
+/*
+===============
+G_ClearRotationStack
+
+Clear the rotation stack
+===============
+*/
+void G_ClearRotationStack( void )
+{
+  trap_Cvar_Set( "g_mapRotationStack", "" );
+  trap_Cvar_Update( &g_mapRotationStack );
+}
+
+/*
+===============
+G_PushRotationStack
+
+Push the rotation stack
+===============
+*/
+static void G_PushRotationStack( int rotation )
+{
+  char text[ MAX_CVAR_VALUE_STRING ];
+
+  Q_strncpyz( text, g_mapRotationStack.string, sizeof( text ) );
+  Q_strcat( text, sizeof( text ), va( "%d ", rotation ) );
+
+  trap_Cvar_Set( "g_mapRotationStack", text );
+  trap_Cvar_Update( &g_mapRotationStack );
+}
+
+/*
+===============
+G_PopRotationStack
+
+Pop the rotation stack
+===============
+*/
+static int G_PopRotationStack( void )
+{
+  int   values[ MAX_MAP_ROTATIONS ];
+  int   i, count = 0;
+  char  text[ MAX_CVAR_VALUE_STRING ];
+  char  *text_p, *token;
+
+  Q_strncpyz( text, g_mapRotationStack.string, sizeof( text ) );
+
+  text_p = text;
+
+  while( count < MAX_MAP_ROTATIONS )
+  {
+    token = COM_Parse( &text_p );
+
+    if( !*token )
+      break;
+
+    if( !Q_stricmp( token, "" ) )
+      break;
+
+    values[ count++ ] = atoi( token );
+  }
+
+  G_ClearRotationStack( );
+
+  for( i = 0; i < count - 1; i++ )
+    G_PushRotationStack( values[ i ] );
+
+  if( count > 0 )
+    return values[ count - 1 ];
+  else
+    return -1;
+}
+
+/*
+===============
+G_RotationNameByIndex
+
+Returns the name of a rotation by its index
+===============
+*/
+static char *G_RotationNameByIndex( int index )
+{
+  return mapRotations.rotations[ index ].name;
 }
 
 /*
@@ -605,7 +709,7 @@ static int *G_CurrentNodeIndexArray( void )
   char        text[ MAX_MAP_ROTATIONS * 2 ];
   char        *text_p, *token;
 
-  Q_strncpyz( text, g_currentNode.string, sizeof( text ) );
+  Q_strncpyz( text, g_mapRotationNodes.string, sizeof( text ) );
 
   text_p = text;
 
@@ -643,8 +747,8 @@ static void G_SetCurrentNodeByIndex( int currentNode, int rotation )
   for( i = 0; i < mapRotations.numRotations; i++ )
     Q_strcat( text, sizeof( text ), va( "%d ", p[ i ] ) );
 
-  trap_Cvar_Set( "g_currentNode", text );
-  trap_Cvar_Update( &g_currentNode );
+  trap_Cvar_Set( "g_mapRotationNodes", text );
+  trap_Cvar_Update( &g_mapRotationNodes );
 }
 
 /*
@@ -714,7 +818,7 @@ static void G_GotoDestination( int currentRotation, char *name )
   G_Printf( "G_GotoDestination( %s )\n", name );
 
   // Search the rotation names...
-  if( G_StartMapRotation( name, qtrue ) )
+  if( G_StartMapRotation( name, qtrue, qtrue ) )
     return;
 
   // ...then try maps in the current rotation
@@ -808,7 +912,7 @@ void G_AdvanceMapRotation( void )
 {
   node_t        *node;
   condition_t   *condition;
-  int           rotation, nodeIndex;
+  int           rotation, returnRotation, nodeIndex;
 
   if( ( rotation = g_currentMapRotation.integer ) == NOT_ROTATING )
     return;
@@ -816,24 +920,43 @@ void G_AdvanceMapRotation( void )
   nodeIndex = G_CurrentNodeIndex( rotation );
   node = G_NodeByIndex( nodeIndex, rotation );
 
-  while( node->type == NT_CONDITION )
+  while( 1 )
   {
-    condition = &node->u.condition;
+    switch( node->type )
+    {
+      case NT_CONDITION:
+        condition = &node->u.condition;
 
-    if( G_EvaluateMapCondition( &condition ) )
-    {
-      node = condition->target;
+        if( G_EvaluateMapCondition( &condition ) )
+        {
+          node = condition->target;
+          continue;
+        }
+        break;
+
+      case NT_RETURN:
+        returnRotation = G_PopRotationStack( );
+        if( returnRotation >= 0 )
+        {
+          G_StartMapRotation( G_RotationNameByIndex( returnRotation ),
+            qtrue, qfalse );
+          G_SetCurrentNodeByIndex(
+            G_NodeIndexAfter( nodeIndex, rotation ), rotation );
+          return;
+        }
+        break;
+
+      case NT_DESTINATION:
+        G_GotoDestination( rotation, node->u.destination.name );
+        G_SetCurrentNodeByIndex(
+          G_NodeIndexAfter( nodeIndex, rotation ), rotation );
+        return;
     }
-    else
-    {
-      nodeIndex = G_NodeIndexAfter( nodeIndex, rotation );
-      node = G_NodeByIndex( nodeIndex, rotation );
-    }
+
+    // Move on to the next node
+    nodeIndex = G_NodeIndexAfter( nodeIndex, rotation );
+    node = G_NodeByIndex( nodeIndex, rotation );
   }
-
-  G_GotoDestination( rotation, node->u.destination.name );
-  G_SetCurrentNodeByIndex(
-    G_NodeIndexAfter( nodeIndex, rotation ), rotation );
 }
 
 /*
@@ -843,23 +966,24 @@ G_StartMapRotation
 Switch to a new map rotation
 ===============
 */
-qboolean G_StartMapRotation( char *name, qboolean changeMap )
+qboolean G_StartMapRotation( char *name, qboolean advance, qboolean putOnStack )
 {
   int i;
+  int currentRotation = g_currentMapRotation.integer;
 
   for( i = 0; i < mapRotations.numRotations; i++ )
   {
     if( !Q_stricmp( mapRotations.rotations[ i ].name, name ) )
     {
+      if( putOnStack && currentRotation >= 0 )
+        G_PushRotationStack( currentRotation );
+
       trap_Cvar_Set( "g_currentMapRotation", va( "%d", i ) );
       trap_Cvar_Update( &g_currentMapRotation );
 
-      if( changeMap )
-      {
-        G_IssueMapChange( 0, i );
-        G_SetCurrentNodeByIndex( G_NodeIndexAfter(
-          G_CurrentNodeIndex( i ), i ), i );
-      }
+      if( advance )
+        G_AdvanceMapRotation( );
+
       break;
     }
   }
@@ -919,7 +1043,7 @@ void G_InitMapRotations( void )
   {
     if( g_initialMapRotation.string[ 0 ] != 0 )
     {
-      G_StartMapRotation( g_initialMapRotation.string, qfalse );
+      G_StartMapRotation( g_initialMapRotation.string, qfalse, qtrue );
 
       trap_Cvar_Set( "g_initialMapRotation", "" );
       trap_Cvar_Update( &g_initialMapRotation );
