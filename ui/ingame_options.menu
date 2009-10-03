@@ -1320,26 +1320,6 @@
       }
     }
 
-    itemDef
-    {
-      name misc
-      group optionsGrp
-      type ITEM_TYPE_BIND
-      text "Toggle Squad Mark:"
-      cvar "squadmark"
-      rect SCONTENT_X (SCONTENT_Y+(12*ELEM_H)) SCONTENT_W ELEM_H
-      textalign ALIGN_RIGHT
-      textvalign VALIGN_CENTER
-      textalignx SCONTENT_OFF
-      textscale .25
-      forecolor 1 1 1 1
-      visible MENU_FALSE
-      action
-      {
-        play "sound/misc/menu1.wav";
-      }
-    }
-
 //////// SYSTEM
 
     //System menu

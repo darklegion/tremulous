@@ -188,29 +188,6 @@ static void CG_TellAttacker_f( void )
   trap_SendClientCommand( command );
 }
 
-static void CG_SquadMark_f( void )
-{
-  centity_t *cent;
-  vec3_t end;
-  trace_t trace;
-  
-  // Find the player we are looking at
-  VectorMA( cg.refdef.vieworg, 131072, cg.refdef.viewaxis[ 0 ], end );
-  CG_Trace( &trace, cg.refdef.vieworg, NULL, NULL, end,
-            cg.snap->ps.clientNum, CONTENTS_SOLID | CONTENTS_BODY );
-  if( trace.entityNum >= MAX_CLIENTS )
-    return;
-
-  // Only mark teammates
-  cent = cg_entities + trace.entityNum;
-  if( cent->currentState.eType != ET_PLAYER ||
-      cgs.clientinfo[ trace.entityNum ].team !=
-      cg.snap->ps.stats[ STAT_PTEAM ] )
-    return;
-
-  cent->pe.squadMarked = !cent->pe.squadMarked;
-}
-
 typedef struct
 {
   char  *cmd;
@@ -242,7 +219,6 @@ static consoleCommand_t commands[ ] =
   { "destroyTestPS", CG_DestroyTestPS_f },
   { "testTS", CG_TestTS_f },
   { "destroyTestTS", CG_DestroyTestTS_f },
-  { "squadmark", CG_SquadMark_f },
 };
 
 

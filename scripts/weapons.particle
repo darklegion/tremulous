@@ -436,47 +436,30 @@ models/weapons/mdriver/impactPS
     particle
     {
       shader sync gfx/mdriver/green_particle
-      
-      radius 0 4.0 6.0
-      alpha  70 1.0 0.0
-      rotation 0 ~360 -
-
-      lifeTime 140
-    }
-
-    count 1
-    delay 0
-    period 0 - ~0%
-  }
-
-  ejector
-  {
-    particle
-    {
-      shader sync gfx/mdriver/green_particle
 
       displacement 0 0 0 ~2.0
-      normalDisplacement  7.0
+
+      normalDisplacement 10.0
 
       velocityType      normal
       velocityDir       linear
-      velocityMagnitude 200
-      velocity          0 0 0 ~90
+      velocityMagnitude 400
+      velocity          0 0 0 ~80
 
-      accelerationType      static
+      accelerationType      normal
       accelerationDir       linear
-      accelerationMagnitude 300
-      acceleration          0 0 -1 ~10
+      accelerationMagnitude 200
+      acceleration          0 0 1 ~360
 
-      radius 0 2.0~1.0 0.0
-      alpha  0 1.0 1.0
+      radius 0 6.0 4.0
+      alpha  0 1.0 0.0
       rotation 0 ~360 -
       bounce 0.5
 
-      lifeTime 500
+      lifeTime 1000
     }
 
-    count 3
+    count 10
     delay 0
     period 0 - ~0%
   }

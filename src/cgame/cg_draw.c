@@ -2265,120 +2265,6 @@ static void CG_DrawCrosshairNames( rectDef_t *rect, float scale, int textStyle )
 
 /*
 ===============
-CG_DrawSquadMarkers
-===============
-*/
-#define SQUAD_MARKER_W        16.0f
-#define SQUAD_MARKER_H        8.0f
-#define SQUAD_MARKER_BORDER   8.0f
-static void CG_DrawSquadMarkers( vec4_t color )
-{
-  centity_t *cent;
-  vec3_t origin;
-  qhandle_t shader;
-  float x, y, w, h, distance, scale, u1 = 0.0f, v1 = 0.0f, u2 = 1.0f, v2 = 1.0f;
-  int i;
-  qboolean vertical, flip;
-  
-  if( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
-    return;
-
-  trap_R_SetColor( color );
-  for( i = 0; i < cg.snap->numEntities; i++ )
-  {
-    cent = cg_entities + cg.snap->entities[ i ].number;
-    if( cent->currentState.eType != ET_PLAYER ||
-        cgs.clientinfo[ cg.snap->entities[ i ].number ].team !=
-        cg.snap->ps.stats[ STAT_PTEAM ] ||
-        !cent->pe.squadMarked )
-      continue;
-    
-    // Find where on screen the player is
-    VectorCopy( cent->lerpOrigin, origin );
-    origin[ 2 ] += ( ( cent->currentState.solid >> 16 ) & 255 ) - 30;
-    if( !CG_WorldToScreenWrap( origin, &x, &y ) )
-      continue;
-            
-    // Scale the size of the marker with distance
-    distance = Distance( cent->lerpOrigin, cg.refdef.vieworg );
-    if( !distance )
-      continue;
-
-    scale = 200.0f / distance;
-
-    if( scale > 1.0f )
-      scale = 1.0f;
-
-    if( scale < 0.25f )
-      scale = 0.25f;
-    
-    // Don't let the marker go off-screen
-    vertical = qfalse;
-    flip = qfalse;
-    if( x < SQUAD_MARKER_BORDER )
-    {
-      x = SQUAD_MARKER_BORDER;
-      vertical = qtrue;
-      flip = qfalse;
-    }
-    else if( x > 640.0f - SQUAD_MARKER_BORDER )
-    {
-      x = 640.0f - SQUAD_MARKER_BORDER;
-      vertical = qtrue;
-      flip = qtrue;
-    }
-
-    if( y < SQUAD_MARKER_BORDER )
-    {
-      y = SQUAD_MARKER_BORDER;
-      vertical = qfalse;
-      flip = qtrue;
-    }
-    else if( y > 480.0f - SQUAD_MARKER_BORDER )
-    {
-      y = 480.0f - SQUAD_MARKER_BORDER;
-      vertical = qfalse;
-      flip = qfalse;
-    }
-    
-	  // Draw the marker
-    if( vertical )
-    {
-      shader = cgs.media.squadMarkerV;
-
-      if( flip )
-      {
-        u1 = 1.0f;
-        u2 = 0.0f;
-      }
-
-      w = SQUAD_MARKER_H * scale;
-      h = SQUAD_MARKER_W * scale;
-    }
-    else
-    {
-      shader = cgs.media.squadMarkerH;
-
-      if( flip )
-      {
-        v1 = 1.0f;
-        v2 = 0.0f;
-      }
-
-      w = SQUAD_MARKER_W * scale;
-      h = SQUAD_MARKER_H * scale;
-    } 
-
-    CG_AdjustFrom640( &x, &y, &w, &h );
-    trap_R_DrawStretchPic( x - w / 2, y - h / 2, w, h, u1, v1, u2, v2,
-                           shader );
-  }
-
-  trap_R_SetColor( NULL );
-}
-
-/*
-===============
 CG_OwnerDraw
 
 Draw an owner drawn item
@@ -2503,9 +2389,6 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       break;
     case CG_HUMANS_SCORE_LABEL:
       CG_DrawTeamLabel( &rect, PTE_HUMANS, text_x, text_y, color, scale, textalign, textvalign, textStyle );
-      break;
-    case CG_SQUAD_MARKERS:
-      CG_DrawSquadMarkers( color );
       break;
 
     //loading screen

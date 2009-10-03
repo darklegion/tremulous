@@ -462,108 +462,47 @@ MASS DRIVER
 
 void massDriverFire( gentity_t *ent )
 {
-  trace_t tr;
-  vec3_t hitPoints[ MDRIVER_MAX_HITS ], hitNormals[ MDRIVER_MAX_HITS ],
-         origin, originToEnd, muzzleToEnd, muzzleToOrigin, end;
-  gentity_t *traceEnts[ MDRIVER_MAX_HITS ], *traceEnt, *tent;
-  float length_offset;
-  int i, hits = 0, skipent;
+  trace_t   tr;
+  vec3_t    end;
+  gentity_t *tent;
+  gentity_t *traceEnt;
 
-  // loop through all entities hit by a line trace
-  G_UnlaggedOn( muzzle, 8192 * 16 );
   VectorMA( muzzle, 8192 * 16, forward, end );
-  VectorCopy( muzzle, tr.endpos );
-  skipent = ent->s.number;
-  for( i = 0; i < MDRIVER_MAX_HITS && skipent != ENTITYNUM_NONE; i++ )
-  {
-    trap_Trace( &tr, tr.endpos, NULL, NULL, end, skipent, MASK_SHOT );
-    if( tr.surfaceFlags & SURF_NOIMPACT )
-      break;
-    traceEnt = &g_entities[ tr.entityNum ];
-    skipent = tr.entityNum;
-    if( traceEnt->s.eType == ET_PLAYER )
-    {
-      // don't travel through teammates with FF off
-      if( OnSameTeam( ent, traceEnt ) &&
-          ( !g_friendlyFire.integer || !g_friendlyFireHumans.integer ) )
-        skipent = ENTITYNUM_NONE;
-    }
-    else if( traceEnt->s.eType == ET_BUILDABLE )
-    {
-      // don't travel through team buildables with FF off
-      if( traceEnt->biteam == ent->client->pers.teamSelection &&
-          !g_friendlyBuildableFire.integer )
-        skipent = ENTITYNUM_NONE;
-    }
-    else
-      skipent = ENTITYNUM_NONE;
 
-    // save the hit entity, position, and normal
-    VectorCopy( tr.endpos, hitPoints[ hits ] );
-    VectorCopy( tr.plane.normal, hitNormals[ hits ] );
-    SnapVectorNormal( hitPoints[ hits ], tr.plane.normal );
-    traceEnts[ hits++ ] = traceEnt;
-  }
-
-  // originate trail line from the gun tip, not the head!  
-  VectorCopy( muzzle, origin );
-  VectorMA( origin, -6, up, origin );
-  VectorMA( origin, 4, right, origin );
-  VectorMA( origin, 24, forward, origin );
-  
-  // save the final position
-  VectorCopy( tr.endpos, end );
-  VectorSubtract( end, origin, originToEnd );
-  VectorNormalize( originToEnd );
-  
-  // origin is further in front than muzzle, need to adjust length
-  VectorSubtract( origin, muzzle, muzzleToOrigin );
-  VectorSubtract( end, muzzle, muzzleToEnd );
-  VectorNormalize( muzzleToEnd );
-  length_offset = DotProduct( muzzleToEnd, muzzleToOrigin );
-
-  // now that the trace is finished, we know where we stopped and can generate
-  // visually correct impact locations
-  for( i = 0; i < hits; i++ )
-  {
-    vec3_t muzzleToPos;
-    float length;
-    
-    // restore saved values
-    VectorCopy( hitPoints[ i ], tr.endpos );
-    VectorCopy( hitNormals[ i ], tr.plane.normal );
-    traceEnt = traceEnts[ i ];
-    
-    // compute the visually correct impact point
-    VectorSubtract( tr.endpos, muzzle, muzzleToPos );
-    length = VectorLength( muzzleToPos ) - length_offset;
-    VectorMA( origin, length, originToEnd, tr.endpos );
-
-    // send impact
-    if( traceEnt->takedamage && traceEnt->client )
-      BloodSpurt( ent, traceEnt, &tr );
-    else if( i < hits - 1 )
-    {
-      tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
-      tent->s.eventParm = DirToByte( tr.plane.normal );
-      tent->s.weapon = ent->s.weapon;
-      tent->s.generic1 = ent->s.generic1; // weaponMode
-    }
-    
-    if( traceEnt->takedamage )
-      G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-                MDRIVER_DMG, 0, MOD_MDRIVER );    
-  }
-
-  // create an event entity for the trail, doubles as an impact event
-  SnapVectorNormal( end, tr.plane.normal );
-  tent = G_TempEntity( end, EV_MASS_DRIVER );
-  tent->s.eventParm = DirToByte( tr.plane.normal );
-  tent->s.weapon = ent->s.weapon;
-  tent->s.generic1 = ent->s.generic1; // weaponMode
-  VectorCopy( origin, tent->s.origin2 );
-  
+  G_UnlaggedOn( muzzle, 8192 * 16 );
+  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
   G_UnlaggedOff( );
+
+  if( tr.surfaceFlags & SURF_NOIMPACT )
+    return;
+
+  traceEnt = &g_entities[ tr.entityNum ];
+
+  // snap the endpos to integers, but nudged towards the line
+  SnapVectorTowards( tr.endpos, muzzle );
+
+  // send impact
+  if( traceEnt->takedamage && traceEnt->client )
+  {
+    tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
+    tent->s.otherEntityNum = traceEnt->s.number;
+    tent->s.eventParm = DirToByte( tr.plane.normal );
+    tent->s.weapon = ent->s.weapon;
+    tent->s.generic1 = ent->s.generic1; //weaponMode
+  }
+  else
+  {
+    tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
+    tent->s.eventParm = DirToByte( tr.plane.normal );
+    tent->s.weapon = ent->s.weapon;
+    tent->s.generic1 = ent->s.generic1; //weaponMode
+  }
+
+  if( traceEnt->takedamage )
+  {
+    G_Damage( traceEnt, ent, ent, forward, tr.endpos,
+      MDRIVER_DMG, 0, MOD_MDRIVER );
+  }
 }
 
 /*

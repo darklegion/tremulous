@@ -595,114 +595,62 @@ PM_CheckWallJump
 */
 static qboolean PM_CheckWallJump( void )
 {
-  trace_t trace;
-  vec3_t mins, point, dir;
-  float magnitude, towardSurf;
-  int i;
-  qboolean minijump;
-  
-  // Has to be able to walljump
-  if( !BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
-    return qfalse;
+  vec3_t  dir, forward, right;
+  vec3_t  refNormal = { 0.0f, 0.0f, 1.0f };
+  float   normalFraction = 1.5f;
+  float   cmdFraction = 1.0f;
+  float   upFraction = 1.5f;
 
-  // Don't allow jump until all buttons are up
   if( pm->ps->pm_flags & PMF_RESPAWNED )
+    return qfalse;    // don't allow jump until all buttons are up
+
+  if( pm->cmd.upmove < 10 )
+    // not holding jump
     return qfalse;
 
-  // Not holding jump or minijump
-  minijump = pm->ps->stats[ STAT_PTEAM ] == PTE_ALIENS &&
-             ( pm->cmd.buttons & BUTTON_DODGE );
-  if( pm->cmd.upmove < 10 && !minijump )
-    return qfalse;
-
-  // Walljump timeout
   if( pm->ps->pm_flags & PMF_TIME_WALLJUMP )
     return qfalse;
 
   // must wait for jump to be released
-  if( pm->ps->pm_flags & PMF_JUMP_HELD )
+  if( pm->ps->pm_flags & PMF_JUMP_HELD &&
+      pm->ps->grapplePoint[ 2 ] == 1.0f )
   {
     // clear upmove so cmdscale doesn't lower running speed
     pm->cmd.upmove = 0;
     return qfalse;
   }
 
-  // We don't want to hit the floor so adjust the mins
-  VectorCopy( pm->mins, mins );
-  mins[ 2 ] += STEPSIZE;
+  pm->ps->pm_flags |= PMF_TIME_WALLJUMP;
+  pm->ps->pm_time = 200;
 
-  // Trace to find a suitable wall
-  for( i = 0; ; i++)
-  {
-    VectorCopy( pm->ps->origin, point );
-
-    switch( i )
-    {
-      case 0:
-        point[ 0 ] += LEVEL2_WALLJUMP_RANGE; // +x
-        break;
-      case 1:
-        point[ 0 ] -= LEVEL2_WALLJUMP_RANGE; // -x  
-        break;
-      case 2:
-        point[ 1 ] += LEVEL2_WALLJUMP_RANGE; // +y  
-        break;
-      case 3:
-        point[ 1 ] -= LEVEL2_WALLJUMP_RANGE; // -y  
-        break;
-
-      // Give up
-      default:
-        return qfalse;
-    }
-    pm->trace( &trace, pm->ps->origin, mins, pm->maxs, point,
-               pm->ps->clientNum, pm->tracemask );
-    if( trace.fraction < 1.0f &&
-        !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) )
-      break;
-  }
-
-  VectorCopy( trace.plane.normal, pm->ps->grapplePoint );
-
-  pml.groundPlane = qfalse;
+  pml.groundPlane = qfalse;   // jumping away
   pml.walking = qfalse;
-  
-  pm->ps->pm_flags |= PMF_TIME_WALLJUMP | PMF_JUMP_HELD;
-  pm->ps->pm_time = LEVEL2_WALLJUMP_REPEAT;
+  pm->ps->pm_flags |= PMF_JUMP_HELD;
+
   pm->ps->groundEntityNum = ENTITYNUM_NONE;
 
-  // Jump magnitude is modulated for minijumps
-  magnitude = BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] );
-  if( minijump )
-    magnitude *= ALIEN_MINI_JUMP_SCALE;
+  ProjectPointOnPlane( forward, pml.forward, pm->ps->grapplePoint );
+  ProjectPointOnPlane( right, pml.right, pm->ps->grapplePoint );
 
-  // Remove the velocity component toward the surface
-  towardSurf = -DotProduct( pm->ps->velocity, pm->ps->grapplePoint );
-  if( towardSurf <= 0 )
-    towardSurf = 0;
-  VectorMA( pm->ps->velocity, towardSurf, pm->ps->grapplePoint,
-            pm->ps->velocity );
+  VectorScale( pm->ps->grapplePoint, normalFraction, dir );
 
-  // Compute horizontal view component, subtracting normal
-  VectorScale( pml.forward, LEVEL2_WALLJUMP_FORWARD, dir );
-  dir[ 2 ] += LEVEL2_WALLJUMP_UP;
-  towardSurf = -DotProduct( dir, pm->ps->grapplePoint );
-  if( towardSurf > 0 )
-    VectorMA( dir, towardSurf, pm->ps->grapplePoint, dir );
-    
-  // Add normal component and normalize
-  VectorMA( dir, LEVEL2_WALLJUMP_NORMAL, pm->ps->grapplePoint, dir );
+  if( pm->cmd.forwardmove > 0 )
+    VectorMA( dir, cmdFraction, forward, dir );
+  else if( pm->cmd.forwardmove < 0 )
+    VectorMA( dir, -cmdFraction, forward, dir );
+
+  if( pm->cmd.rightmove > 0 )
+    VectorMA( dir, cmdFraction, right, dir );
+  else if( pm->cmd.rightmove < 0 )
+    VectorMA( dir, -cmdFraction, right, dir );
+
+  VectorMA( dir, upFraction, refNormal, dir );
   VectorNormalize( dir );
-            
-  // Apply jump impulse to velocity
-  VectorMA( pm->ps->velocity, magnitude, dir, pm->ps->velocity );
-  
-  if( pm->debugLevel )
-    Com_Printf( "%i: walljump velocity { %f, %f, %f }\n", c_pmove,
-                pm->ps->velocity[ 0 ], pm->ps->velocity[ 1 ],
-                pm->ps->velocity[ 2 ] );
-  
-  // Cap velocity
+
+  VectorMA( pm->ps->velocity, BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ),
+            dir, pm->ps->velocity );
+
+  //for a long run of wall jumps the velocity can get pretty large, this caps it
   if( VectorLength( pm->ps->velocity ) > LEVEL2_WALLJUMP_MAXSPEED )
   {
     VectorNormalize( pm->ps->velocity );
@@ -711,7 +659,6 @@ static qboolean PM_CheckWallJump( void )
 
   PM_AddEvent( EV_JUMP );
 
-  // Set jumping animation
   if( pm->cmd.forwardmove >= 0 )
   {
     if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
@@ -734,87 +681,72 @@ static qboolean PM_CheckWallJump( void )
   return qtrue;
 }
 
-/*
-=============
-PM_CheckJump
-=============
-*/
 static qboolean PM_CheckJump( void )
 {
   vec3_t normal;
-  float magnitude;
-  qboolean minijump;
-  
-  // Can't jump in the air
-  if( pm->ps->groundEntityNum == ENTITYNUM_NONE )
+
+  if( BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ) == 0.0f )
     return qfalse;
 
-  // Don't rejump after a dodge or jump
-  if( pm->ps->pm_flags & PMF_TIME_LAND )
-    return qfalse;
+  if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
+    return PM_CheckWallJump( );
 
-  // Can't jump and pounce at the same time
+  //can't jump and pounce at the same time
   if( ( pm->ps->weapon == WP_ALEVEL3 ||
         pm->ps->weapon == WP_ALEVEL3_UPG ) &&
       pm->ps->stats[ STAT_MISC ] > 0 )
     return qfalse;
 
-  // Can't jump and charge at the same time
+  //can't jump and charge at the same time
   if( ( pm->ps->weapon == WP_ALEVEL4 ) &&
       pm->ps->stats[ STAT_MISC ] > 0 )
     return qfalse;
 
-  // Can't jump without stamina
   if( ( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS ) &&
       ( pm->ps->stats[ STAT_STAMINA ] < 0 ) )
     return qfalse;
 
-  // Don't allow jump until all buttons are up
   if( pm->ps->pm_flags & PMF_RESPAWNED )
-    return qfalse;
+    return qfalse;    // don't allow jump until all buttons are up
 
-  // Not holding jump or dodge
-  minijump = pm->ps->stats[ STAT_PTEAM ] == PTE_ALIENS &&
-             ( pm->cmd.buttons & BUTTON_DODGE );
-  if( pm->cmd.upmove < 10 && !minijump )
+  if( pm->cmd.upmove < 10 )
     // not holding jump
     return qfalse;
 
-  // Can't jump while grabbed or without releasing jump
-  if( pm->ps->pm_type == PM_GRABBED ||
-      ( pm->ps->pm_flags & PMF_JUMP_HELD ) )
+  //can't jump whilst grabbed
+  if( pm->ps->pm_type == PM_GRABBED )
   {
-    // Clear upmove so cmdscale doesn't lower running speed
+    pm->cmd.upmove = 0;
+    // not holding jump
+    return qfalse;
+  }
+
+  // must wait for jump to be released
+  if( pm->ps->pm_flags & PMF_JUMP_HELD )
+  {
+    // clear upmove so cmdscale doesn't lower running speed
     pm->cmd.upmove = 0;
     return qfalse;
   }
 
-  // Have to be able to jump
-  magnitude = BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] );
-  if( magnitude == 0.0f )
-    return qfalse;
-
-  pml.groundPlane = qfalse;
+  pml.groundPlane = qfalse;   // jumping away
   pml.walking = qfalse;
   pm->ps->pm_flags |= PMF_JUMP_HELD;
 
-  // Take some stamina off
+  // take some stamina off
   if( pm->ps->stats[ STAT_PTEAM ] == PTE_HUMANS )
     pm->ps->stats[ STAT_STAMINA ] -= STAMINA_JUMP_TAKE;
 
   pm->ps->groundEntityNum = ENTITYNUM_NONE;
 
-  // Jump away from walls
+  // jump away from wall
   BG_GetClientNormal( pm->ps, normal );
 
-  // Give player some velocity
-  if( minijump )
-    magnitude *= ALIEN_MINI_JUMP_SCALE;
-  VectorMA( pm->ps->velocity, magnitude, normal, pm->ps->velocity );
+  VectorMA( pm->ps->velocity, BG_FindJumpMagnitudeForClass( pm->ps->stats[ STAT_PCLASS ] ),
+            normal, pm->ps->velocity );
 
   PM_AddEvent( EV_JUMP );
 
-  // Set jumping animation
   if( pm->cmd.forwardmove >= 0 )
   {
     if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
@@ -1195,7 +1127,6 @@ static void PM_AirMove( void )
   float     scale;
   usercmd_t cmd;
 
-  PM_CheckWallJump( );
   PM_Friction( );
 
   fmove = pm->cmd.forwardmove;
@@ -1974,11 +1905,7 @@ static void PM_GroundClimbTrace( void )
 
     //if we hit something
     if( trace.fraction < 1.0f && !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) )
-#ifdef ALIEN_WALLWALK_ENTITIES
-      )
-#else
-      && !( trace.entityNum != ENTITYNUM_WORLD && i != 4 ) )
-#endif
+        && !( trace.entityNum != ENTITYNUM_WORLD && i != 4 ) )
     {
       if( i == 2 || i == 3 )
       {
@@ -2179,6 +2106,7 @@ PM_GroundTrace
 static void PM_GroundTrace( void )
 {
   vec3_t      point;
+  vec3_t      movedir;
   vec3_t      refNormal = { 0.0f, 0.0f, 1.0f };
   trace_t     trace;
 
@@ -2279,6 +2207,39 @@ static void PM_GroundTrace( void )
       PM_GroundTraceMissed( );
       pml.groundPlane = qfalse;
       pml.walking = qfalse;
+
+      if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_WALLJUMPER ) )
+      {
+        ProjectPointOnPlane( movedir, pml.forward, refNormal );
+        VectorNormalize( movedir );
+
+        if( pm->cmd.forwardmove < 0 )
+          VectorNegate( movedir, movedir );
+
+        //allow strafe transitions
+        if( pm->cmd.rightmove )
+        {
+          VectorCopy( pml.right, movedir );
+
+          if( pm->cmd.rightmove < 0 )
+            VectorNegate( movedir, movedir );
+        }
+
+        //trace into direction we are moving
+        VectorMA( pm->ps->origin, 0.25f, movedir, point );
+        pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
+
+        if( trace.fraction < 1.0f && !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) &&
+            ( trace.entityNum == ENTITYNUM_WORLD ) )
+        {
+          if( !VectorCompare( trace.plane.normal, pm->ps->grapplePoint ) )
+          {
+            VectorCopy( trace.plane.normal, pm->ps->grapplePoint );
+            PM_CheckWallJump( );
+          }
+        }
+      }
+      
       return;
     }
   }
@@ -3594,9 +3555,7 @@ void PmoveSingle( pmove_t *pmove )
 
   AngleVectors( pm->ps->viewangles, pml.forward, pml.right, pml.up );
 
-  if( pm->cmd.upmove < 10 &&
-      ( !( pm->cmd.buttons & BUTTON_DODGE ) ||
-        pm->ps->stats[ STAT_PTEAM ] != PTE_ALIENS ) )
+  if( pm->cmd.upmove < 10 )
   {
     // not holding jump or minijump
     pm->ps->pm_flags &= ~PMF_JUMP_HELD;

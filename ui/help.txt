@@ -9,11 +9,9 @@
     "We can also be reached on Freenode IRC:\n"
     "#mercenariesguild"
   }
-  "^3Release Notes r144^7"
+  "^3Release Notes r147^7"
   {
-    "* New view-directed Marauder walljump\n"
-    "* Dodge key is mini-jump for Aliens\n"
-    "\nSee svn.mercenariesguild.net for details."
+    "See svn.mercenariesguild.net for details."
   }
   "Alien Healing"
   {
@@ -24,13 +22,6 @@
     "HUD to see what your healing rate is. If the icon glows, you are on "
     "creep. If you are near a booster or basilisk, you will see two "
     "(2X healing) or four (3X healing) barbs around the health cross."
-  }
-  "Alien Mini-Jump"
-  {
-    "The sprint / dodge key can be used by Aliens as a jump key that "
-    "produces a weaker, half-height jump. This is especially useful for "
-    "Alien classes that have high jumps, such as the Marauder. The mini-jump "
-    "is also useful for cornering and building speed in tight hallways."
   }
   "Anti-Camping"
   {
@@ -105,14 +96,6 @@
     "press the dodge key to make a quick sideways jump. When running forward, "
     "press the dodge key to start a sprint. The sprint will last until you let "
     "go of the forward key."
-  }
-  "Squad Marking"
-  {
-    "Want to keep track of certain teammates? Mark them as members of your "
-    "squad. Bind a key to 'Toggle Squad Mark' (Options -> Misc), walk up to "
-    "the target player and press that key. A triangle will appear above them "
-    "marking them as a squad member. The triangle will stay on screen as long "
-    "as the player is around you."
   }
   "Tyrant"
   {

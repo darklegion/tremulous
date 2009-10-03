@@ -83,11 +83,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL2_AREAZAP_REPEAT       500
 #define LEVEL2_AREAZAP_MAX_TARGETS  3
 #define LEVEL2_WALLJUMP_MAXSPEED    1000.0f
-#define LEVEL2_WALLJUMP_NORMAL      1.0f     // magnitude scale from surface
-#define LEVEL2_WALLJUMP_FORWARD     1.5f     // magnitude scale in view direction
-#define LEVEL2_WALLJUMP_UP          0.0f     // magnitude scale up
-#define LEVEL2_WALLJUMP_REPEAT      400      // msec before new jump
-#define LEVEL2_WALLJUMP_RANGE       8.0f     // how far away the wall can be
 
 #define LEVEL3_CLAW_DMG             ADM(80)
 #define LEVEL3_CLAW_UPG_RANGE       96.0f
@@ -356,11 +351,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ALIEN_MAX_CREDITS           (ALIEN_MAX_FRAGS*ALIEN_CREDITS_PER_FRAG)
 #define ALIEN_CREDITS_PER_FRAG      400
 #define ALIEN_TK_SUICIDE_PENALTY    350
-
-#define ALIEN_MINI_JUMP_SCALE       0.71f // scales jump magnitude for a mini-jump
-
-// Uncomment to allow Aliens to wallwalk on any entity (buildables, players, etc)
-//#define ALIEN_WALLWALK_ENTITIES
 
 /*
  * HUMAN weapons
