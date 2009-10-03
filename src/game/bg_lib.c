@@ -2391,10 +2391,11 @@ int Q_snprintf(char *str, size_t length, const char *fmt, ...)
 int sscanf( const char *buffer, const char *fmt, ... )
 {
   int cmd;
-  int **arg;
+  va_list ap;
   int count;
+  size_t len;
 
-  arg = (int **)&fmt + 1;
+  va_start( ap, fmt );
   count = 0;
 
   while( *fmt )
@@ -2405,27 +2406,47 @@ int sscanf( const char *buffer, const char *fmt, ... )
       continue;
     }
 
-    cmd = fmt[ 1 ];
-    fmt += 2;
+    fmt++;
+    cmd = *fmt;
+
+    if( isdigit( cmd ) )
+    {
+      len = (size_t)_atoi( &fmt );
+      cmd = *( fmt - 1 );
+    }
+    else
+    {
+      len = MAX_STRING_CHARS - 1;
+      fmt++;
+    }
 
     switch( cmd )
     {
       case 'i':
       case 'd':
       case 'u':
-        **arg = _atoi( &buffer );
+        *( va_arg( ap, int * ) ) = _atoi( &buffer );
         break;
       case 'f':
-        *(float *)*arg = _atof( &buffer );
+        *( va_arg( ap, float * ) ) = _atof( &buffer );
         break;
       case 'x':
-        **arg = _hextoi( &buffer );
+        *( va_arg( ap, unsigned int * ) ) = _hextoi( &buffer );
         break;
+      case 's':
+      {
+        char *s = va_arg( ap, char * );
+        while( isspace( *buffer ) )
+          buffer++;
+        while( *buffer && !isspace( *buffer) && len-- > 0 )
+          *s++ = *buffer++;
+        *s++ = '\0';
+        break;
+      }
     }
-
-    arg++;
   }
 
+  va_end( ap );
   return count;
 }
 

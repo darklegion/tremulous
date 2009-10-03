@@ -806,10 +806,12 @@ void CG_BuildableStatusParse( const char *filename, buildStat_t *bs )
       Com_Printf("CG_BuildableStatusParse: unknown token %s in %s\n",
         token.string, filename );
       bs->loaded = qfalse;
+      trap_Parse_FreeSource( handle );
       return;
     }
   }
   bs->loaded = qtrue;
+  trap_Parse_FreeSource( handle );
 }
 
 #define STATUS_FADE_TIME      200

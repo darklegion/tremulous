@@ -3314,20 +3314,9 @@ qboolean G_SayArgv( int n, char *buffer, int bufferLength )
     return qfalse;
   if( n < 0 )
     return qfalse;
-  s = ConcatArgs( 0 );
-  while( 1 )
-  {
-    while( *s == ' ' )
-      s++;
-    if( !*s || n == 0 )
-      break;
-    n--;
-    while( *s && *s != ' ' )
-      s++;
-  }
-  if( n > 0 )
+  s = G_SayConcatArgs( n );
+  if( !*s )
     return qfalse;
-  //memccpy( buffer, s, ' ', bufferLength );
   while( *s && *s != ' ' && bufferLength > 1 )
   {
     *buffer++ = *s++;
@@ -3361,9 +3350,7 @@ void G_DecolorString( char *in, char *out, int len )
 
   while( *in && len > 0 ) {
     if( Q_IsColorString( in ) ) {
-      in++;
-      if( *in )
-        in++;
+      in += 2;
       continue;
     }
     *out++ = *in++;
