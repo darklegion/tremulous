@@ -1280,7 +1280,6 @@ typedef struct
   qhandle_t   humanBleedPS;
 
   qhandle_t   teslaZapTS;
-  qhandle_t   massDriverTS;
 
   sfxHandle_t lCannonWarningSound;
   sfxHandle_t lCannonWarningSound2;
@@ -1292,9 +1291,6 @@ typedef struct
   qhandle_t   healthCross3X;
   qhandle_t   healthCrossMedkit;
   qhandle_t   healthCrossPoisoned;
-  
-  qhandle_t   squadMarkerH;
-  qhandle_t   squadMarkerV;
 } cgMedia_t;
 
 typedef struct
@@ -1741,7 +1737,6 @@ void        CG_MissileHitWall( weapon_t weapon, weaponMode_t weaponMode, int cli
 void        CG_MissileHitPlayer( weapon_t weapon, weaponMode_t weaponMode, vec3_t origin, vec3_t dir, int entityNum, int charge );
 void        CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
 void        CG_ShotgunFire( entityState_t *es );
-void        CG_MassDriverFire( entityState_t *es );
 
 void        CG_AddViewWeapon (playerState_t *ps);
 void        CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent );
