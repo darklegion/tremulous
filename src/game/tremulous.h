@@ -433,8 +433,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CHAINGUN_DMG                HDM(5)
 
 #define PRIFLE_PRICE                400
-#define PRIFLE_CLIPS                50
-#define PRIFLE_MAXCLIPS             4
+#define PRIFLE_CLIPS                40
+#define PRIFLE_MAXCLIPS             5
 #define PRIFLE_REPEAT               100
 #define PRIFLE_K_SCALE              1.0f
 #define PRIFLE_RELOAD               2000
