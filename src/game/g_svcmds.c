@@ -304,9 +304,19 @@ static void Svcmd_AdmitDefeat_f( void )
 
 static void Svcmd_TeamWin_f( void )
 {
+  // this is largely made redundant by admitdefeat <team>
   char cmd[ 6 ];
   trap_Argv( 0, cmd, sizeof( cmd ) );
-  G_BaseSelfDestruct( G_TeamFromString( cmd ) );
+
+  switch( G_TeamFromString( cmd ) )
+  {
+    case TEAM_ALIENS:
+      G_BaseSelfDestruct( TEAM_HUMANS );
+      break;
+    case TEAM_HUMANS:
+      G_BaseSelfDestruct( TEAM_ALIENS );
+      break;
+  }
 }
 
 static void Svcmd_Evacuation_f( void )
