@@ -367,5 +367,7 @@ void UI_ServerInfo( void )
                    Info_ValueForKey( info, "g_unlagged" ) );
     trap_Cvar_Set( "ui_serverinfo_ff",
                    Info_ValueForKey( info, "ff" ) );
+    trap_Cvar_Set( "ui_serverinfo_allowdl",
+                   Info_ValueForKey( info, "sv_allowdownload" ) );
   }
 }

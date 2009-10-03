@@ -2849,15 +2849,18 @@ static void UI_RunMenuScript( char **args )
       Controls_SetConfig( qtrue );
     else if( Q_stricmp( name, "loadControls" ) == 0 )
       Controls_GetConfig();
-    else if( Q_stricmp( name, "clearError" ) == 0 )
-      trap_Cvar_Set( "com_errorMessage", "" );
-    else if( Q_stricmp( name, "RefreshServers" ) == 0 )
-    {
-      UI_StartServerRefresh( qtrue );
-      UI_BuildServerDisplayList( qtrue );
-    }
-    else if( Q_stricmp( name, "InitServerList" ) == 0 )
-    {
+    else if (Q_stricmp(name, "clearError") == 0) {
+      trap_Cvar_Set("com_errorMessage", "");
+    } else if (Q_stricmp(name, "downloadIgnore") == 0) {
+      trap_Cvar_Set("com_downloadPrompt", va("%d", DLP_IGNORE));
+    } else if (Q_stricmp(name, "downloadCURL") == 0) {
+      trap_Cvar_Set("com_downloadPrompt", va("%d", DLP_CURL));
+    } else if (Q_stricmp(name, "downloadUDP") == 0) {
+      trap_Cvar_Set("com_downloadPrompt", va("%d", DLP_UDP));
+    } else if (Q_stricmp(name, "RefreshServers") == 0) {
+      UI_StartServerRefresh(qtrue);
+      UI_BuildServerDisplayList(qtrue);
+    } else if (Q_stricmp(name, "InitServerList") == 0) {
       int time = trap_RealTime( NULL );
       int last;
       int sortColumn;
@@ -4387,7 +4390,15 @@ void UI_DrawConnectScreen( qboolean overlay )
     case CA_CONNECTED:
       {
         char downloadName[MAX_INFO_VALUE];
-
+        int prompt = trap_Cvar_VariableValue( "com_downloadPrompt" );
+        
+        if( prompt & DLP_SHOW ) {
+          Com_Printf("Opening download prompt...\n");
+          trap_Key_SetCatcher( KEYCATCH_UI );
+          Menus_ActivateByName("download_popmenu");
+          trap_Cvar_Set( "com_downloadPrompt", "0" );
+        }
+        
         trap_Cvar_VariableStringBuffer( "cl_downloadName", downloadName, sizeof( downloadName ) );
 
         if( *downloadName )
