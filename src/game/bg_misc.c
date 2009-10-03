@@ -5472,6 +5472,28 @@ weapon_t BG_GetPlayerWeapon( playerState_t *ps )
 }
 
 /*
+=================
+BG_HasEnergyWeapon
+
+Returns true if the player has an energy weapon.
+=================
+*/
+qboolean BG_HasEnergyWeapon( playerState_t *ps )
+{
+  int i;
+  
+  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+  {
+    if( !BG_InventoryContainsWeapon( i, ps->stats ) ||
+        !BG_FindUsesEnergyForWeapon( i ) )
+      continue;
+
+    return qtrue;
+  }
+  return qfalse;
+}
+
+/*
 ===============
 atof_neg
 

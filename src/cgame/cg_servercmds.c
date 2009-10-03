@@ -693,6 +693,13 @@ void CG_Menu( int menu, int arg )
       type      = DT_ARMOURYEVOLVE;
       break;
 
+    case MN_H_NOENERGYAMMOHERE:
+      longMsg   = "You must be near a Reactor or a powered Armoury or Repeater "
+                  "in order to purchase energy ammunition.";
+      shortMsg  = "You must be near a Reactor or a powered Armoury or Repeater";
+      type      = DT_ARMOURYEVOLVE;
+      break;
+
     case MN_H_NOROOMBSUITON:
       longMsg   = "There is not enough room here to put on a Battle Suit. "
                   "Make sure you have enough head room to climb in.";

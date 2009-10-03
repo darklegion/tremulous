@@ -1962,12 +1962,17 @@ void Cmd_Buy_f( gentity_t *ent )
   // and make sure we only give energy ammo in this case
   if( G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
     energyOnly = qfalse;
-  else if( G_BuildableRange( ent->client->ps.origin, 100, BA_H_REACTOR ) ||
-           G_BuildableRange( ent->client->ps.origin, 100, BA_H_REPEATER ) )
+  else if( upgrade == UP_AMMO && BG_HasEnergyWeapon( &ent->client->ps ) &&
+           ( G_BuildableRange( ent->client->ps.origin, 100, BA_H_REACTOR ) ||
+             G_BuildableRange( ent->client->ps.origin, 100, BA_H_REPEATER ) ) )
     energyOnly = qtrue;
   else
   {
-    G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOARMOURYHERE );
+    if( upgrade == UP_AMMO &&
+        BG_FindUsesEnergyForWeapon( ent->client->ps.weapon ) )
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOENERGYAMMOHERE );
+    else
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOARMOURYHERE );
     return;
   }
   
@@ -2083,7 +2088,7 @@ void Cmd_Buy_f( gentity_t *ent )
     }
 
     if( upgrade == UP_AMMO )
-      G_GiveClientMaxAmmo( ent, qfalse );
+      G_GiveClientMaxAmmo( ent, energyOnly );
     else
     {
       if( upgrade == UP_BATTLESUIT )
