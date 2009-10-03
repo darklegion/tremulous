@@ -807,7 +807,7 @@ void CG_Menu( int menu )
       Com_Printf( "cgame: debug: no such menu %d\n", menu );
   }
 
-  if( cg_disableWarningDialogs.integer == 0 &&
+  if( cg_disableWarningDialogs.integer == 0 ||
       !shortMsg )
   {
     // Player either wants dialog window or there's no short message
