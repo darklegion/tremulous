@@ -1225,6 +1225,8 @@ void G_CalculateBuildPoints( void )
           zone->nextQueueTime += G_NextQueueTime( zone->queuedBuildPoints,
                                      zone->totalBuildPoints,
                                      g_humanRepeaterBuildQueueTime.integer );
+
+          zone->queuedBuildPoints--;
         }
       }
       else
