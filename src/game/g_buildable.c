@@ -183,8 +183,63 @@ static qboolean G_FindPower( gentity_t *self )
       // Always prefer a reactor if there is one in range
       if( ent->s.modelindex == BA_H_REACTOR && distance <= REACTOR_BASESIZE )
       {
-        self->parentNode = ent;
-        return qtrue;
+        // Only power as much BP as the reactor can hold
+        if( self->s.modelindex != BA_NONE )
+        {
+          int buildPoints = g_humanBuildPoints.integer;
+
+          // Scan the buildables in the reactor zone
+          for( j = MAX_CLIENTS, ent2 = g_entities + j; j < level.num_entities; j++, ent2++ )
+          {
+            gentity_t *powerEntity;
+
+            if( ent2->s.eType != ET_BUILDABLE )
+              continue;
+
+            if( ent2 == self )
+              continue;
+
+            powerEntity = ent2->parentNode;
+
+            if( powerEntity && powerEntity->s.modelindex == BA_H_REACTOR && ( powerEntity == ent ) )
+            {
+              buildPoints -= BG_Buildable( ent2->s.modelindex )->buildPoints;
+            }
+          }
+
+          buildPoints -= BG_Buildable( self->s.modelindex )->buildPoints;
+
+          if( buildPoints >= 0 )
+          {
+            closestPower = ent;
+            minDistance = distance;
+          }
+          else
+          {
+            // a buildable can still be built if it shares BP from two zones
+
+            // TODO: handle combined power zones here
+          }
+
+          if( buildPoints >= 0 )
+          {
+            self->parentNode = ent;
+            return qtrue;
+          }
+          else
+          {
+            // a buildable can still be built if it shares BP from two zones
+
+            // TODO: handle combined power zones here
+          }
+        }
+
+        // Dummy buildables don't need to look for zones
+        else
+        {
+          self->parentNode = ent;
+          return qtrue;
+        }
       }
       else if( distance < minDistance )
       {
@@ -3170,7 +3225,6 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     if( team == TEAM_HUMANS &&
         buildable != BA_H_REACTOR &&
         buildable != BA_H_REPEATER &&
-        G_PowerEntityForPoint( ent->s.origin ) &&
         G_PowerEntityForPoint( ent->s.origin ) != G_PowerEntityForPoint( origin ) )
       continue;
 
