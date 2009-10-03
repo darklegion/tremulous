@@ -2389,8 +2389,6 @@ void G_QueueBuildPoints( gentity_t *self )
 {
   gentity_t *killer = NULL;
 
-  G_Printf( "G_QueueBuildPoints( %s )\n", BG_TeamName( self->buildableTeam ) );
-
   if( self->killedBy != ENTITYNUM_NONE )
     killer = &g_entities[ self->killedBy ];
 

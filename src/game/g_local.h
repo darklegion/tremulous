@@ -242,7 +242,7 @@ struct gentity_s
   int               suicideTime;                    // when the client will suicide
 
   int               lastDamageTime;
-  int               lastRegenTime;
+  int               nextRegenTime;
 
   qboolean          zapping;                        // adv maurader is zapping
   qboolean          wasZapping;                     // adv maurader was zapping

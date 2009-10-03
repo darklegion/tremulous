@@ -1581,6 +1581,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
 
   client->respawnTime = level.time;
   client->lastKillTime = level.time;
+  ent->nextRegenTime = level.time;
 
   client->inactivityTime = level.time + g_inactivity.integer * 1000;
   client->latched_buttons = 0;

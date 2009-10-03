@@ -115,7 +115,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL4_CLAW_HEIGHT          20.0f
 #define LEVEL4_CLAW_REPEAT          750
 #define LEVEL4_CLAW_K_SCALE         1.0f
-#define LEVEL4_REGEN_RANGE          200.0f
 
 #define LEVEL4_TRAMPLE_DMG             ADM(111)
 #define LEVEL4_TRAMPLE_SPEED           2.0f
@@ -338,6 +337,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #define ALIENSENSE_RANGE            1000.0f
+#define REGEN_BOOST_RANGE           200.0f
 
 #define ALIEN_POISON_TIME           10000
 #define ALIEN_POISON_DMG            5
@@ -345,7 +345,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define ALIEN_SPAWN_REPEAT_TIME     10000
 
-#define ALIEN_REGEN_DAMAGE_TIME     2000 //msec since damage that regen starts again
+#define ALIEN_REGEN_DAMAGE_TIME     1500 //msec since damage that regen starts again
 #define ALIEN_REGEN_NOCREEP_TIME    3000 //msec between regen off creep
 
 #define ALIEN_MAX_FRAGS             9

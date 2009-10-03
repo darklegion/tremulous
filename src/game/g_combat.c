@@ -1125,6 +1125,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       targ->client->ps.stats[ STAT_HEALTH ] = targ->health;
 
     targ->lastDamageTime = level.time;
+    targ->nextRegenTime = level.time + ALIEN_REGEN_DAMAGE_TIME;
 
     // add to the attackers "account" on the target
     if( attacker->client && attacker != targ && !OnSameTeam( targ, attacker ) )
