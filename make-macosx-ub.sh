@@ -150,7 +150,7 @@ if [ -d build/release-darwin-ppc ]; then
 fi
 (ARCH=ppc BUILD_CLIENT_SMP=0 BUILD_CLIENT=0 BUILD_GAME_VM=0 BUILD_GAME_SO=0 \
 	CFLAGS=$PPC_SERVER_CFLAGS LDFLAGS=$PPC_SERVER_LDFLAGS make) || exit 1;
-cp build/release-darwin-ppc/ioq3ded.ppc $DESTDIR
+cp build/release-darwin-ppc/tremded.ppc $DESTDIR
 
 # ppc client
 if [ -d build/release-darwin-ppc ]; then
@@ -216,7 +216,7 @@ echo "
 
 lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY $BIN_OBJ
 lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN $BIN_DEDOBJ
-rm $DESTDIR/ioq3ded.ppc
-cp $BASE_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR/
+rm $DESTDIR/tremded.ppc
+cp $BASE_OBJ $DESTDIR/$BASEDIR/
 cp src/libs/macosx/*.dylib $DESTDIR/$APPBUNDLE/Contents/MacOS/
 
