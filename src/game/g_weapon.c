@@ -789,46 +789,36 @@ BUILD GUN
 
 ======================================================================
 */
-
-/*
-===============
-cancelBuildFire
-===============
-*/
-void cancelBuildFire( gentity_t *ent )
+void CheckCkitRepair( gentity_t *ent )
 {
   vec3_t      forward, end;
   trace_t     tr;
   gentity_t   *traceEnt;
   int         bHealth;
 
-  // Cancel ghost buildable
-  if( ent->client->ps.stats[ STAT_BUILDABLE ] != BA_NONE )
-  {
-    ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
-    return;
-  }
+  if( ent->client->ps.weaponTime )
+	return;
 
   // Construction kit repair
-  if( ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
+  AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
+  VectorMA( ent->client->ps.origin, 100, forward, end );
+  
+  trap_Trace( &tr, ent->client->ps.origin, NULL, NULL, end, ent->s.number,
+              MASK_PLAYERSOLID );
+  traceEnt = &g_entities[ tr.entityNum ];
+  
+  if( tr.fraction < 1.0f && traceEnt->spawned && traceEnt->health > 0 &&
+      traceEnt->s.eType == ET_BUILDABLE && traceEnt->buildableTeam == TEAM_HUMANS )
   {
-    AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
-    VectorMA( ent->client->ps.origin, 100, forward, end );
-    
-    trap_Trace( &tr, ent->client->ps.origin, NULL, NULL, end, ent->s.number,
-                MASK_PLAYERSOLID );
-    traceEnt = &g_entities[ tr.entityNum ];
-
-    if( tr.fraction < 1.0f && traceEnt->spawned && traceEnt->health > 0 &&
-        traceEnt->s.eType == ET_BUILDABLE && traceEnt->buildableTeam == TEAM_HUMANS )
+    if( ent->client->ps.stats[ STAT_MISC ] > 0 )
     {
-      if( ent->client->ps.stats[ STAT_MISC ] > 0 )
-      {
-        G_AddEvent( ent, EV_BUILD_DELAY, ent->client->ps.clientNum );
-        return;
-      }
-
-      bHealth = BG_Buildable( traceEnt->s.modelindex )->health;
+      G_AddEvent( ent, EV_BUILD_DELAY, ent->client->ps.clientNum );
+      return;
+    }
+    
+    bHealth = BG_Buildable( traceEnt->s.modelindex )->health;
+    if( traceEnt->health < bHealth )
+    {
       traceEnt->health += HBUILD_HEALRATE;
       if( traceEnt->health >= bHealth )
       {
@@ -837,12 +827,28 @@ void cancelBuildFire( gentity_t *ent )
       }
       else
         G_AddEvent( ent, EV_BUILD_REPAIR, 0 );
+
+      ent->client->ps.weaponTime += BG_Weapon( ent->client->ps.weapon )->repeatRate2;
     }
   }
-  
-  // Granger slash
-  else if( ent->client->ps.weapon == WP_ABUILD ||
-           ent->client->ps.weapon == WP_ABUILD2 )
+}
+
+/*
+===============
+cancelBuildFire
+===============
+*/
+void cancelBuildFire( gentity_t *ent )
+{
+  // Cancel ghost buildable
+  if( ent->client->ps.stats[ STAT_BUILDABLE ] != BA_NONE )
+  {
+    ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
+    return;
+  }
+
+  if( ent->client->ps.weapon == WP_ABUILD ||
+      ent->client->ps.weapon == WP_ABUILD2 )
     meleeAttack( ent, ABUILDER_CLAW_RANGE, ABUILDER_CLAW_WIDTH,
                  ABUILDER_CLAW_WIDTH, ABUILDER_CLAW_DMG, MOD_ABUILDER_CLAW );
 }
