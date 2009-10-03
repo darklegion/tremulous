@@ -1491,6 +1491,9 @@ static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
   else if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
     int credits = cgs.humanNextStageThreshold - cgs.humanCredits;
+    //having credits to next stage constantly increasing feels wrong, so
+    //we round up to the nearest 100
+    credits = (int) (ceil(credits / 100.0f) * 100);
     if( credits < 0 )
       credits = 0;
 
