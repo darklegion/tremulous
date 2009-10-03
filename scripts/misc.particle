@@ -160,6 +160,69 @@ alienBleedPS
   thirdPersonOnly
 }
 
+alienBuildableBleedPS
+{
+  ejector
+  {
+    particle
+    {
+      shader sync gfx/damage/blood.tga
+      displacement          0 0 0 0
+
+      velocityType          normal
+
+      velocityDir           linear
+
+      velocityMagnitude     15
+      velocity              0 0 0 ~35
+
+      accelerationType      static
+      accelerationDir       linear
+      acceleration          0 0 -1 ~5
+      accelerationMagnitude 25
+
+      radius                0 5 8
+      alpha                 250 .85 0
+      rotation              0 ~-15 ~15
+      bounce                0.0
+      color                 0 { 1.0 1.0 0.6 } -
+
+      lifeTime              400~100
+    }
+
+    particle
+    {
+      shader sync gfx/damage/blood.tga
+      displacement          0 0 0 0
+
+      velocityType          normal
+
+      velocityDir           linear
+
+      velocityMagnitude     15
+      velocity              0 0 0 ~35
+
+      accelerationType      static
+      accelerationDir       linear
+      acceleration          0 0 -1 ~5
+      accelerationMagnitude 25
+
+      radius                0 5 8
+      alpha                 250 .85 0
+      rotation              0 ~165 ~195
+      bounce                0.0
+      color                 0 { 1.0 1.0 0.6 } -
+
+      lifeTime              400~100
+    }
+
+    count   2
+    delay   0
+    period  0 - 0
+  }
+}
+
+
 humanBleedPS
 {
   ejector
@@ -251,7 +314,7 @@ humanBuildableBleedPS
       bounce                0.0
       color                 0 { 0.8 0.2 0.2 } -
 
-      lifeTime              400~100
+      lifeTime              200~50
     }
 
     particle
@@ -277,7 +340,7 @@ humanBuildableBleedPS
       bounce                0.0
       color                 0 { 0.8 0.2 0.2 } -
 
-      lifeTime              400~100
+      lifeTime              200~50
     }
 
     count   2
