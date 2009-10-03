@@ -52,7 +52,7 @@ void AddScore( gentity_t *ent, int score )
   }
 
   // scale values down to fit the scoreboard better
-  score = rint( (double)score / 10.0 );
+  score = rint( (double)score / 50.0 );
 
   ent->client->ps.persistant[ PERS_SCORE ] += score;
   CalculateRanks( );
