@@ -121,13 +121,39 @@
     itemDef
     {
       name "cross"
-      rect 137.5 430 15 15
+      rect 135 427.5 20 20
       aspectBias ALIGN_LEFT
       visible MENU_TRUE
       decoration
       forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
       background "ui/assets/neutral/cross.tga"
       ownerdraw CG_PLAYER_HEALTH_CROSS
+    }
+
+    //CROSS 2X
+    itemDef
+    {
+      name "cross"
+      rect 135 427.5 20 20
+      aspectBias ALIGN_LEFT
+      visible MENU_TRUE
+      decoration
+      forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
+      background "ui/assets/neutral/cross2.tga"
+      ownerdraw CG_PLAYER_HEALTH_CROSS2
+    }
+
+    //CROSS 3X
+    itemDef
+    {
+      name "cross"
+      rect 135 427.5 20 20
+      aspectBias ALIGN_LEFT
+      visible MENU_TRUE
+      decoration
+      forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
+      background "ui/assets/neutral/cross3.tga"
+      ownerdraw CG_PLAYER_HEALTH_CROSS3
     }
 
     //STAMINA 1
@@ -311,7 +337,7 @@
     itemDef
     {
       name "inventory"
-      rect 232.5 425 175 25
+      rect 182.5 425 275 25
       aspectBias ALIGN_CENTER
       visible MENU_TRUE
       decoration

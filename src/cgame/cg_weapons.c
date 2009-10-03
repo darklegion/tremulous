@@ -869,6 +869,12 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
       trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound );
   }
 
+  // Lucifer cannon charge warning beep  	 	 
+  if( weaponNum == WP_LUCIFER_CANNON && 		 
+      ( cent->currentState.eFlags & EF_WARN_CHARGE ) ) 		 
+    trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, 		 
+                            vec3_origin, cgs.media.lCannonWarningSound );
+
   if( !noGunModel )
   {
     CG_PositionEntityOnTag( &gun, parent, parent->hModel, "tag_weapon" );
@@ -1015,12 +1021,6 @@ void CG_AddViewWeapon( playerState_t *ps )
   if( ( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
     CG_GhostBuildable( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT );
 
-  // Lucifer cannon charge warning beep
-  if( weapon == WP_LUCIFER_CANNON && 
-      ps->stats[ STAT_MISC ] > LCANNON_TOTAL_CHARGE * 2 / 3 )
-    trap_S_AddLoopingSound( ps->clientNum, ps->origin, vec3_origin,
-                            cgs.media.lCannonWarningSound );
-
   // no gun if in third person view
   if( cg.renderingThirdPerson )
     return;
@@ -1165,22 +1165,12 @@ CG_DrawItemSelect
 */
 void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
 {
-  int           i;
-  float         x = rect->x;
-  float         y = rect->y;
-  float         width = rect->w;
-  float         height = rect->h;
-  float         iconWidth;
-  float         iconHeight;
-  int           items[ 64 ];
-  int           numItems = 0, selectedItem = 0;
-  int           length;
-  int           selectWindow;
-  qboolean      vertical;
-  centity_t     *cent;
+  centity_t *cent;
   playerState_t *ps;
-  
-  int		colinfo[ 64 ];
+  float x = rect->x, y = rect->y, width = rect->w, height = rect->h,
+        iconWidth, iconHeight;
+  int i, items[ 64 ], colinfo[ 64 ], numItems = 0, selectedItem = 0, length;
+  qboolean vertical;
 
   cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
@@ -1201,23 +1191,7 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
   // showing weapon select clears pickup item display, but not the blend blob
   cg.itemPickupTime = 0;
 
-  if( height > width )
-  {
-    vertical = qtrue;
-    iconWidth = width * cgDC.aspectScale;
-    iconHeight = width;
-    length = height / ( width * cgDC.aspectScale );
-  }
-  else if( height <= width )
-  {
-    vertical = qfalse;
-    iconWidth = height * cgDC.aspectScale;
-    iconHeight = height;
-    length = width / ( height * cgDC.aspectScale );
-  }
-
-  selectWindow = length / 2;
-
+  // put all weapons in the items list
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
     if( !BG_InventoryContainsWeapon( i, cg.snap->ps.stats ) )
@@ -1236,6 +1210,7 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
     numItems++;
   }
 
+  // put all upgrades in the weapons list
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
     if( !BG_InventoryContainsUpgrade( i, cg.snap->ps.stats ) )
@@ -1243,7 +1218,6 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
     colinfo[ numItems ] = 0;
     if( !BG_FindUsableForUpgrade ( i ) )
       colinfo[ numItems ] = 2;
-
 
     if( i == cg.weaponSelect - 32 )
       selectedItem = numItems;
@@ -1253,42 +1227,60 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
     numItems++;
   }
 
+  // compute the length of the display window and determine orientation
+  vertical = height > width;
+  if( vertical )
+  {
+    iconWidth = width * cgDC.aspectScale;
+    iconHeight = width;
+    length = height / ( width * cgDC.aspectScale );
+  }
+  else
+  {
+    iconWidth = height * cgDC.aspectScale;
+    iconHeight = height;
+    length = width / ( height * cgDC.aspectScale );
+  }
+
+  // render icon ring
   for( i = 0; i < length; i++ )
   {
-    int displacement = i - selectWindow;
-    int item = displacement + selectedItem;
+    int item = i - length / 2 + selectedItem;
 
-    if( ( item >= 0 ) && ( item < numItems ) )
+    if( item < 0 )
+      item += length;
+    else if( item >= length )
+      item -= length;
+    if( item >= 0 && item < numItems )
     {
       switch( colinfo[ item ] )
       {
-        case 0:
-          color = colorCyan;
-          break;
-        case 1:
-          color = colorRed;
-          break;
-        case 2:
-          color = colorMdGrey;
-          break;
+       case 0:
+         color = colorCyan;
+         break;
+       case 1:
+         color = colorRed;
+         break;
+       case 2:
+         color = colorMdGrey;
+         break;
       }
       color[3] = 0.5;
-
       trap_R_SetColor( color );
 
       if( items[ item ] <= 32 )
-        CG_DrawPic( x, y, iconWidth, iconHeight, cg_weapons[ items[ item ] ].weaponIcon );
+        CG_DrawPic( x, y, iconWidth, iconHeight,
+                    cg_weapons[ items[ item ] ].weaponIcon );
       else if( items[ item ] > 32 )
-        CG_DrawPic( x, y, iconWidth, iconHeight, cg_upgrades[ items[ item ] - 32 ].upgradeIcon );
-
-      trap_R_SetColor( NULL );
+        CG_DrawPic( x, y, iconWidth, iconHeight,
+                    cg_upgrades[ items[ item ] - 32 ].upgradeIcon );
     }
-
     if( vertical )
       y += iconHeight;
     else
       x += iconWidth;
   }
+  trap_R_SetColor( NULL );
 }
 
 

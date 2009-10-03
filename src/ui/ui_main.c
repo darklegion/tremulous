@@ -1376,7 +1376,7 @@ void UI_LoadMenus( const char *menuFile, qboolean reset )
   handle = trap_Parse_LoadSource( menuFile );
 
   if( !handle )
-    trap_Error( va( S_COLOR_RED "default menu file not found: ui/menus.txt, unable to continue!\n" ) );
+    trap_Error( va( S_COLOR_RED "menu list '%s' not found, unable to continue!\n", menuFile ) );
 
   if( reset )
     Menu_Reset();
@@ -1401,9 +1401,68 @@ void UI_LoadMenus( const char *menuFile, qboolean reset )
     }
   }
 
-  Com_Printf( "UI menu load time = %d milli seconds\n", trap_Milliseconds() - start );
+  Com_Printf( "UI menu file '%s' loaded in %d msec\n", menuFile, trap_Milliseconds() - start );
 
   trap_Parse_FreeSource( handle );
+}
+
+void UI_LoadHelp( const char *helpFile )
+{
+  pc_token_t token;
+  int handle, start;
+  char title[ 32 ], buffer[ 1024 ];
+
+  start = trap_Milliseconds();
+  
+  handle = trap_Parse_LoadSource( helpFile );
+  if( !handle )
+  {
+    Com_Printf( S_COLOR_YELLOW "WARNING: help file '%s' not found!\n",
+                helpFile );
+    return;
+  }
+
+  if( !trap_Parse_ReadToken( handle, &token ) ||
+      token.string[0] == 0 || token.string[0] != '{' )
+  {
+    Com_Printf( S_COLOR_YELLOW "WARNING: help file '%s' does not start with "
+                "'{'\n", helpFile );
+    return;
+  }
+
+  uiInfo.helpCount = 0;
+  title[ 0 ] = 0;
+  while( 1 )
+  {
+    if( !trap_Parse_ReadToken( handle, &token ) ||
+        token.string[0] == 0 || token.string[0] == '}' )
+      break;
+      
+    if( token.string[0] == '{' )
+    {
+      buffer[ 0 ] = 0;
+      Q_strcat( buffer, sizeof( buffer ), title );
+      Q_strcat( buffer, sizeof( buffer ), "\n\n" );
+      while( trap_Parse_ReadToken( handle, &token ) &&
+             token.string[0] != 0 && token.string[0] != '}' )
+      {
+        Q_strcat( buffer, sizeof( buffer ), token.string );
+      }
+
+      uiInfo.helpList[ uiInfo.helpCount ].text = String_Alloc( title );
+      uiInfo.helpList[ uiInfo.helpCount ].v.text = String_Alloc( buffer );
+      uiInfo.helpList[ uiInfo.helpCount ].type = INFOTYPE_TEXT;
+      uiInfo.helpCount++;
+      title[ 0 ] = 0;
+    }
+    else
+      Q_strcat( title, sizeof( title ), token.string );
+  }
+
+  trap_Parse_FreeSource( handle );
+
+  Com_Printf( "UI help file '%s' loaded in %d msec (%d infopanes)\n",
+              helpFile, trap_Milliseconds() - start, uiInfo.helpCount );                   
 }
 
 void UI_Load( void )
@@ -1419,6 +1478,7 @@ void UI_Load( void )
   UI_LoadMenus( "ui/menus.txt", qtrue );
   UI_LoadMenus( "ui/ingame.txt", qfalse );
   UI_LoadMenus( "ui/tremulous.txt", qfalse );
+  UI_LoadHelp( "ui/help.txt" );
   Menus_CloseAll( qtrue );
   Menus_ActivateByName( lastName );
 
@@ -1847,6 +1907,11 @@ static void UI_OwnerDraw( float x, float y, float w, float h,
 
     case UI_HBUILDINFOPANE:
       UI_DrawInfoPane( &uiInfo.humanBuildList[ uiInfo.humanBuildIndex ],
+                       &rect, text_x, text_y, scale, textalign, textvalign, color, textStyle );
+      break;
+
+    case UI_HELPINFOPANE:
+      UI_DrawInfoPane( &uiInfo.helpList[ uiInfo.helpIndex ],
                        &rect, text_x, text_y, scale, textalign, textvalign, color, textStyle );
       break;
 
@@ -3270,6 +3335,8 @@ static int UI_FeederCount( float feederID )
   }
   else if( feederID == FEEDER_IGNORE_LIST )
     return uiInfo.playerCount;
+  else if( feederID == FEEDER_HELP_LIST )
+    return uiInfo.helpCount;
   else if( feederID == FEEDER_MODS )
     return uiInfo.modCount;
   else if( feederID == FEEDER_DEMOS )
@@ -3443,6 +3510,11 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
       }
     }
   }
+  else if( feederID == FEEDER_HELP_LIST )
+  {
+    if( index >= 0 && index < uiInfo.helpCount )
+      return uiInfo.helpList[ index ].text;
+  }
   else if( feederID == FEEDER_MODS )
   {
     if( index >= 0 && index < uiInfo.modCount )
@@ -3598,6 +3670,8 @@ static void UI_FeederSelection( float feederID, int index )
     uiInfo.teamPlayerIndex = index;
   else if( feederID == FEEDER_IGNORE_LIST )
     uiInfo.ignoreIndex = index;
+  else if( feederID == FEEDER_HELP_LIST )
+    uiInfo.helpIndex = index;
   else if( feederID == FEEDER_MODS )
     uiInfo.modIndex = index;
   else if( feederID == FEEDER_CINEMATICS )
@@ -3775,6 +3849,7 @@ void UI_Init( qboolean inGameLoad )
   UI_LoadMenus( "ui/menus.txt", qtrue );
   UI_LoadMenus( "ui/ingame.txt", qfalse );
   UI_LoadMenus( "ui/tremulous.txt", qfalse );
+  UI_LoadHelp( "ui/help.txt" );
 
   Menus_CloseAll( qtrue );
 

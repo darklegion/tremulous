@@ -1952,6 +1952,23 @@ void HDCC_Think( gentity_t *self )
 
 /*
 ================
+HMedistat_Die
+
+Die function for Human Medistation
+================
+*/
+void HMedistat_Die( gentity_t *self, gentity_t *inflictor,
+                    gentity_t *attacker, int damage, int mod )
+{
+  //clear target's healing flag
+  if( self->enemy && self->enemy->client )
+    self->enemy->client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_3X;
+
+  HSpawn_Die( self, inflictor, attacker, damage, mod );
+}
+
+/*
+================
 HMedistat_Think
 
 think function for Human Medistation
@@ -1966,6 +1983,10 @@ void HMedistat_Think( gentity_t *self )
   qboolean  occupied = qfalse;
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
+
+  //clear target's healing flag
+  if( self->enemy && self->enemy->client )
+    self->enemy->client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_3X;
 
   //make sure we have power
   if( !( self->powered = G_FindPower( self ) ) )
@@ -1993,19 +2014,20 @@ void HMedistat_Think( gentity_t *self )
     //if active use the healing idle
     if( self->active )
       G_SetIdleBuildableAnim( self, BANIM_IDLE2 );
-
+      
     //check if a previous occupier is still here
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
     for( i = 0; i < num; i++ )
     {
       player = &g_entities[ entityList[ i ] ];
 
-      if( player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+      if( self->enemy == player && player->client &&
+          player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+          player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] &&
+          player->client->ps.pm_type != PM_DEAD )
       {
-        if( player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] &&
-            player->client->ps.pm_type != PM_DEAD &&
-            self->enemy == player )
-          occupied = qtrue;
+        occupied = qtrue;
+        player->client->ps.stats[ STAT_STATE ] |= SS_HEALING_3X;
       }
     }
 
@@ -2031,6 +2053,7 @@ void HMedistat_Think( gentity_t *self )
             {
               G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
               self->active = qtrue;
+              player->client->ps.stats[ STAT_STATE ] |= SS_HEALING_3X;
             }
           }
           else if( !BG_InventoryContainsUpgrade( UP_MEDKIT, player->client->ps.stats ) )
@@ -3414,7 +3437,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
 
     case BA_H_MEDISTAT:
       built->think = HMedistat_Think;
-      built->die = HSpawn_Die;
+      built->die = HMedistat_Die;
       break;
 
     case BA_H_REACTOR:

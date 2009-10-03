@@ -92,13 +92,39 @@ itemDef
 itemDef
 {
   name "cross"
-  rect 155 422.5 15 15
+  rect 152.5 420.5 20 20
   aspectBias ALIGN_LEFT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
-  style WINDOW_STYLE_SHADER
   background "ui/assets/neutral/cross.tga"
+  ownerdraw CG_PLAYER_HEALTH_CROSS
+}
+
+//CROSS 2X
+itemDef
+{
+  name "cross"
+  rect 152.5 420.5 20 20
+  aspectBias ALIGN_LEFT
+  visible MENU_TRUE
+  decoration
+  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
+  background "ui/assets/neutral/cross2.tga"
+  ownerdraw CG_PLAYER_HEALTH_CROSS2
+}
+
+//CROSS 3X
+itemDef
+{
+  name "cross"
+  rect 152.5 420.5 20 20
+  aspectBias ALIGN_LEFT
+  visible MENU_TRUE
+  decoration
+  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
+  background "ui/assets/neutral/cross3.tga"
+  ownerdraw CG_PLAYER_HEALTH_CROSS3
 }
 
 //LEFT RING

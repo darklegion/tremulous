@@ -244,8 +244,10 @@ typedef enum
 #define SS_BOOSTED              0x00000200
 #define SS_SLOWLOCKED           0x00000400
 #define SS_POISONCLOUDED        0x00000800
-#define SS_MEDKIT_ACTIVE        0x00001000
-#define SS_CHARGING             0x00002000
+#define SS_CHARGING             0x00001000
+#define SS_HEALING_ACTIVE       0x00002000 // medkit for Humans, creep for Aliens
+#define SS_HEALING_2X           0x00004000 // double healing rate (for HUD)
+#define SS_HEALING_3X           0x00008000 // triple healing rate (for HUD)
 
 #define SB_VALID_TOGGLEBIT      0x00004000
 

@@ -1,0 +1,101 @@
+{
+  "Welcome to MGDev!"
+  {
+    "This mod is under ongoing development. It is probably buggy and new "
+    "features will come and go, please be patient and report any bugs you "
+    "find!\n\n"
+    "Please visit the Mercenaries Guild at:\n"
+    "http://www.mercenariesguild.net/\n\n"
+    "We can also be reached on Freenode IRC:\n"
+    "#mercenariesguild"
+  }
+  "Release Notes r86"
+  {
+    "* Help menu (you're looking at it!)\n"
+    "* UI health cross icon shows regen speed\n"
+    "* Human UI health cross glows from medkit\n"
+    "* Human item list wider and won't hide items\n"
+    "* Regular Basilik benefits from booster\n"
+    "* Lucifer Cannon overcharge heard by others\n"
+  }
+  "Alien Healing"
+  {
+    "The most important change for Alien players to know is that their healing "
+    "rate is slower away from creep. To counter this, healing near Boosters "
+    "and Basilisks is greatly accelerated. Watch the health cross icon on your "
+    "HUD to see what your healing rate is. If the icon glows, you are on "
+    "creep. If you are near a booster or basilisk, you will see multiple "
+    "crosses."
+  }
+  "Barricades"
+  {
+    "Nearly useless in 1.1, Barricades now have more health, are cheaper to "
+    "build, and will shrink to allow Aliens to pass through them. Acid tubes "
+    "will fire from behind barricades, providing a formidable defense. "
+    "Experiment with blocking off hallways and building staged defenses, but "
+    "keep in mind that low ceilings will prevent Tyrants from returning inside "
+    "the base."
+  }
+  "Anti-Camping"
+  {
+    "Aliens will no longer be as frustrated by camping Human players because "
+    "the Adv. Dragoon is now available at Stage 2. The Adv. "
+    "Dragoon snipe attack has slight splash damage. Also, because Human turrets "
+    "have a slight spinup delay, skillful Dretches can run inside the Human "
+    "base and get a few kills before being shot by turrets."
+  }
+  "Tyrant"
+  {
+    "The Tyrant is now a weaker class as its health has been lowered and "
+    "turret damage is greater. To counter this, Tyrants can charge for longer "
+    "periods of time and can crush any Humans they land on top of. Remember "
+    "that because trample takes longer to charge, you need to let go early "
+    "for a quick charge. The Tyrant's healing aura has been removed, find a "
+    "booster or a basilisk to heal faster."
+  }
+  "Sprint / Dodge"
+  {
+    "Human players will find their old binds for sprinting will no longer "
+    "work. Sprinting has been merged with a new Human ability, dodging. You "
+    "can bind a key for Sprint and Dodge via the Options menu or bind a "
+    "key (\\bind shift +button6). When you are strafing or walking backwards, "
+    "press the dodge key to make a quick sideways jump. When running forward, "
+    "press the dodge key to start a sprint. The sprint will last until you let "
+    "go of the forward key."
+  }
+  "Human Weapons"
+  {
+    "The Lucifer Cannon projectile can be fired faster but now takes longer "
+    "to charge. You will be able to hear other players overcharge "
+    "their Lucifer Cannon.\n\n"
+    "The Mass Driver can now fire through players and buildables. The same "
+    "amount of damage is dealt to all targets along the path. Keep in mind "
+    "that you cannot shoot through friendly targets if friendly fire is off."
+  }
+  "Human Buildables"
+  {
+    "While turrets now have a small spin up delay before firing, they have "
+    "increased damage output. To protect against small Aliens getting inside "
+    "the base, build Tesla Generators at Stage 3. Tesla Generators no longer "
+    "require the Defense Computer to function. Instead, the Defense Computer "
+    "will automatically repair Human buildables."
+  }
+  "Lag Correction"
+  {
+    "While the Tremulous implementation of Neil Toronto's unlagged is "
+    "becoming widely accepted, MGDev also implements client-side improvements "
+    "not possible in 1.1 servers. Because attacking is more "
+    "accurate on account of lag correction, Humans no longer need to lead "
+    "their weapons and Alien ranges and attack widths have generally been "
+    "decreased."
+  }
+  "Credits"
+  {
+    "MGDev is developed and hosted by the Mercenaries Guild. "
+    "Contributing developers:\n\n"
+    "Norfenstein\n"
+    "Benmachine\n"
+    "Lakitu7\n"
+    "Michael Levin <risujin@risujin.org>"
+  }
+}

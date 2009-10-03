@@ -438,8 +438,8 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_MGTURRET,         //int       buildNum;
     "mgturret",            //char      *buildName;
     "Machinegun Turret",   //char      *humanName;
-    "Automated base defense that is effective against fast moving targets, "
-      "but does not cause much damage on its own and should always be "
+    "Automated base defense that is effective against large targets, "
+      "but is slow to begin firing and should always be "
       "backed up by physical support.",
     "team_human_mgturret", //char      *entityName;
     { "models/buildables/mgturret/turret_base.md3",
@@ -480,9 +480,9 @@ buildableAttributes_t bg_buildableList[ ] =
     BA_H_TESLAGEN,         //int       buildNum;
     "tesla",               //char      *buildName;
     "Tesla Generator",     //char      *humanName;
-    "A structure equipped with a strong electrical attack that always "
-      "hits its target. It is useful against larger aliens "
-      "and for consolidating basic defense.",
+    "A structure equipped with a strong electrical attack that fires "
+      "instantly and always hits its target. It is effective against smaller "
+      "aliens and for consolidating basic defense.",
     "team_human_tesla",    //char      *entityName;
     { "models/buildables/tesla/tesla.md3", 0, 0, 0 },
     1.0f,                  //float     modelScale;

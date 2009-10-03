@@ -57,6 +57,7 @@ void UI_DrawConnectScreen( qboolean overlay );
 #define MAX_MODS 64
 #define MAX_DEMOS 256
 #define MAX_MOVIES 256
+#define MAX_HELP_INFOPANES 32
 
 typedef struct
 {
@@ -242,6 +243,10 @@ typedef struct
   menuItem_t  humanBuildList[ 32 ];
   int         humanBuildCount;
   int         humanBuildIndex;
+
+  menuItem_t  helpList[ MAX_HELP_INFOPANES ];
+  int         helpCount;
+  int         helpIndex;
 
   int         weapons;
   int         upgrades;

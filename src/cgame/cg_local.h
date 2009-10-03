@@ -1125,6 +1125,7 @@ typedef struct
 
   float         painBlendValue;
   float         painBlendTarget;
+  float         healBlendValue;
   int           lastHealth;
 
   int           lastPredictedCommand;

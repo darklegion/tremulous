@@ -79,6 +79,7 @@
 #define FEEDER_TREMALIENBUILD             18    // alien buildables
 #define FEEDER_TREMHUMANBUILD             19    // human buildables
 #define FEEDER_IGNORE_LIST                20    // ignored players
+#define FEEDER_HELP_LIST                  21    // help topics
 
 // display flags
 #define UI_SHOW_FAVORITESERVERS           0x00000001
@@ -171,5 +172,9 @@
 #define UI_HSELLINFOPANE                  72
 #define UI_ABUILDINFOPANE                 73
 #define UI_HBUILDINFOPANE                 74
+#define UI_HELPINFOPANE                   75
+
+#define CG_PLAYER_HEALTH_CROSS2           76
+#define CG_PLAYER_HEALTH_CROSS3           77
 
 #endif

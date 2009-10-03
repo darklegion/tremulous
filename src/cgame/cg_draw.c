@@ -899,15 +899,42 @@ CG_DrawPlayerHealthCross
 */
 static void CG_DrawPlayerHealthCross( rectDef_t *rect, vec4_t color, qhandle_t shader )
 {
-  playerState_t *ps = &cg.snap->ps;
-  int           health = ps->stats[ STAT_HEALTH ];
-
-  if( health < 10 )
+  if( ( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_2X ) ||
+      ( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_3X ) )
+    return;
+  if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+      cg.snap->ps.stats[ STAT_HEALTH ] < 10 )
   {
     color[ 0 ] = 1.0f;
     color[ 1 ] = color[ 2 ] = 0.0f;
   }
+  if( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_ACTIVE )
+    color[ 3 ] = 1.0f;
+  
+  trap_R_SetColor( color );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
+}
 
+static void CG_DrawPlayerHealthCross2( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  if( !( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_2X ) )
+    return;
+  if( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_ACTIVE )
+    color[ 3 ] = 1.0f;
+  
+  trap_R_SetColor( color );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
+}
+
+static void CG_DrawPlayerHealthCross3( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  if( !( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_3X ) )
+    return;
+  if( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_ACTIVE )
+    color[ 3 ] = 1.0f;
+  
   trap_R_SetColor( color );
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
   trap_R_SetColor( NULL );
@@ -2156,6 +2183,12 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
     case CG_PLAYER_HEALTH_CROSS:
       CG_DrawPlayerHealthCross( &rect, color, shader );
       break;
+    case CG_PLAYER_HEALTH_CROSS2:
+      CG_DrawPlayerHealthCross2( &rect, color, shader );
+      break;
+    case CG_PLAYER_HEALTH_CROSS3:
+      CG_DrawPlayerHealthCross3( &rect, color, shader );
+      break;
     case CG_PLAYER_CLIPS_RING:
       CG_DrawPlayerClipsRing( &rect, color, shader );
       break;
@@ -2872,7 +2905,6 @@ static void CG_PainBlend( void )
     return;
 
   damage = cg.lastHealth - cg.snap->ps.stats[ STAT_HEALTH ];
-
   if( damage < 0 )
     damage = 0;
 
