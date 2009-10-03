@@ -132,7 +132,7 @@
       textalign ALIGN_CENTER
       textstyle ITEM_TEXTSTYLE_NEON
       textscale 0.5
-      special 1.0
+      borderSize 1.0
     }
 
     itemDef
@@ -161,7 +161,7 @@
       textalign ALIGN_CENTER
       textstyle ITEM_TEXTSTYLE_NEON
       textscale 0.5
-      special 1.0
+      borderSize 1.0
     }
 
     itemDef
@@ -189,7 +189,7 @@
       textalign ALIGN_CENTER
       textstyle ITEM_TEXTSTYLE_NEON
       textscale 0.5
-      special 1.0
+      borderSize 1.0
     }
 
     itemDef
@@ -217,7 +217,7 @@
       textalign ALIGN_CENTER
       textstyle ITEM_TEXTSTYLE_NEON
       textscale 0.5
-      special 1.0
+      borderSize 1.0
     }
   }
 }

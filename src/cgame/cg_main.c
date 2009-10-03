@@ -1347,7 +1347,7 @@ void CG_LoadMenus( const char *menuFile )
 
 
 
-static qboolean CG_OwnerDrawHandleKey( int ownerDraw, int flags, float *special, int key )
+static qboolean CG_OwnerDrawHandleKey( int ownerDraw, int key )
 {
   return qfalse;
 }

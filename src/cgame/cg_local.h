@@ -1630,7 +1630,7 @@ void        CG_DrawActive( stereoFrame_t stereoView );
 void        CG_OwnerDraw( float x, float y, float w, float h, float text_x,
                           float text_y, int ownerDraw, int ownerDrawFlags,
                           int align, int textalign, int textvalign,
-                          float special, float scale, vec4_t foreColor,
+                          float borderSize, float scale, vec4_t foreColor,
                           vec4_t backColor, qhandle_t shader, int textStyle );
 float       CG_GetValue(int ownerDraw);
 void        CG_RunMenuScript(char **args);
