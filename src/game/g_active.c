@@ -1591,6 +1591,9 @@ void ClientThink_real( gentity_t *ent )
     ent->flags &= ~FL_FORCE_GESTURE;
     ent->client->pers.cmd.buttons |= BUTTON_GESTURE;
   }
+  
+  // clear fall velocity before every pmove
+  client->pmext.fallVelocity = 0.0f;
 
   pm.ps = &client->ps;
   pm.pmext = &client->pmext;
