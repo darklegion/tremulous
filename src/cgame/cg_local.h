@@ -1663,7 +1663,7 @@ void        CG_PrecacheClientInfo( class_t class, char *model, char *skin );
 sfxHandle_t CG_CustomSound( int clientNum, const char *soundName );
 void        CG_PlayerDisconnect( vec3_t org );
 void        CG_Bleed( vec3_t origin, vec3_t normal, int entityNum );
-centity_t   *CG_GetLocation( centity_t *cent );
+centity_t   *CG_GetPlayerLocation( void );
 
 //
 // cg_buildable.c

@@ -2261,7 +2261,7 @@ static void CG_DrawLocation( rectDef_t *rect, float scale, int textalign, vec4_t
   float         tx = rect->x, ty = rect->y;
   maxX = rect->x + rect->w;
 
-  locent = CG_GetLocation( &cg_entities[ cg.clientNum ] );
+  locent = CG_GetPlayerLocation( );
   if( locent )
     location = CG_ConfigString( CS_LOCATIONS + locent->currentState.generic1 );
   else

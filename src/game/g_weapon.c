@@ -247,6 +247,10 @@ static void BloodSpurt( gentity_t *attacker, gentity_t *victim, trace_t *tr )
 
   if( !attacker->client )
     return;
+
+  if( victim->health <= 0 )
+    return;
+
   tent = G_TempEntity( tr->endpos, EV_MISSILE_HIT );
   tent->s.otherEntityNum = victim->s.number;
   tent->s.eventParm = DirToByte( tr->plane.normal );
@@ -268,6 +272,9 @@ static void WideBloodSpurt( gentity_t *attacker, gentity_t *victim, trace_t *tr 
   float mag, radius;
 
   if( !attacker->client )
+    return;
+
+  if( victim->health <= 0 )
     return;
 
   if( tr )
