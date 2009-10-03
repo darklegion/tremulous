@@ -4598,10 +4598,6 @@ static const char *Item_Text_Wrap( const char *text, float scale, float width )
     if( eol == 0 )
       eol = testlen;
 
-    // place a space at the beginning of wrapped lines to prevent silly things
-    if( thisline[ eol ] != '\n' )
-      out[ outlen++ ] = ' ';
-
     // copy up the the line break
     Com_Memcpy( &out[ outlen ], thisline, eol );
     outlen += eol;
@@ -4609,10 +4605,15 @@ static const char *Item_Text_Wrap( const char *text, float scale, float width )
     if( outlen + 1 < sizeof( out ) )
       out[ outlen++ ] = '\n';
 
-    // if there is another line, continue colour codes on it (else die)
+    // if there is another line, continue colour codes
+    // if it is a wrapped line then add a space to prevent it masquerading as
+    // another server message
     if( thisline[ eol ] && thisline[ eol + 1 ] && 
         outlen + 1 < sizeof( out ) )
     {
+      if( thisline[ eol ] != '\n' && outlen + 2 < sizeof( out ) )
+        out[ outlen++ ] = ' ';
+
       if( c[ 0 ] && outlen + 3 < sizeof( out ) )
       { 
         Com_Memcpy( &out[ outlen ], c, 2 );
@@ -4629,6 +4630,7 @@ static const char *Item_Text_Wrap( const char *text, float scale, float width )
   }
 
   // definitely put a newline on the end
+  assert( out[ outlen - 1 ] == '\n' );
   if( out[ outlen - 1 ] != '\n' )
     out[ outlen++ ] = '\n';
 
