@@ -1622,12 +1622,14 @@ static qboolean CG_ParseParticleFile( const char *fileName )
 
   // load the file
   len = trap_FS_FOpenFile( fileName, &f, FS_READ );
-  if( len <= 0 )
+  if( len < 0 )
     return qfalse;
 
-  if( len >= sizeof( text ) - 1 )
+  if( len == 0 || len >= sizeof( text ) - 1 )
   {
-    CG_Printf( S_COLOR_RED "ERROR: particle file %s too long\n", fileName );
+    trap_FS_FCloseFile( f );
+    CG_Printf( S_COLOR_RED "ERROR: particle file %s is %s\n", fileName,
+      len == 0 ? "empty" : "too long" );
     return qfalse;
   }
 

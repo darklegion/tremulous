@@ -1455,12 +1455,14 @@ static qboolean BG_ParseBuildableFile( const char *filename, buildableAttributeO
 
   // load the file
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
-  if( len <= 0 )
+  if( len < 0 )
     return qfalse;
 
-  if( len >= sizeof( text ) - 1 )
+  if( len == 0 || len >= sizeof( text ) - 1 )
   {
-    Com_Printf( S_COLOR_RED "ERROR: Buildable file %s too long\n", filename );
+    trap_FS_FCloseFile( f );
+    Com_Printf( S_COLOR_RED "ERROR: Buildable file %s is %s\n", filename,
+      len == 0 ? "empty" : "too long" );
     return qfalse;
   }
 
@@ -2991,12 +2993,14 @@ static qboolean BG_ParseClassFile( const char *filename, classAttributeOverrides
 
   // load the file
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
-  if( len <= 0 )
+  if( len < 0 )
     return qfalse;
 
-  if( len >= sizeof( text ) - 1 )
+  if( len == 0 || len >= sizeof( text ) - 1 )
   {
-    Com_Printf( S_COLOR_RED "ERROR: Class file %s too long\n", filename );
+    trap_FS_FCloseFile( f );
+    Com_Printf( S_COLOR_RED "ERROR: Class file %s is %s\n", filename,
+      len == 0 ? "empty" : "too long" );
     return qfalse;
   }
 

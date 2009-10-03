@@ -766,7 +766,7 @@ void respawn( gentity_t *ent )
 
 /*
 ===========
-ClientCheckName
+ClientCleanName
 ============
 */
 static void ClientCleanName( const char *in, char *out, int outSize )
