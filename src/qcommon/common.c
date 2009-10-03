@@ -3154,6 +3154,8 @@ static void Field_CompleteCommand( char *cmd,
 	}
 	else
 	{
+		int completionOffset;
+
 		if( completionString[0] == '\\' || completionString[0] == '/' )
 			completionString++;
 
@@ -3172,9 +3174,10 @@ static void Field_CompleteCommand( char *cmd,
 		if( matchCount == 0 )
 			return; // no matches
 
-		Q_strncpyz( &completionField->buffer[ strlen( completionField->buffer ) -
-			strlen( completionString ) ], shortestMatch,
-			sizeof( completionField->buffer ) );
+		completionOffset = strlen( completionField->buffer ) - strlen( completionString );
+
+		Q_strncpyz( &completionField->buffer[ completionOffset ], shortestMatch,
+			sizeof( completionField->buffer ) - completionOffset );
 
 		completionField->cursor = strlen( completionField->buffer );
 

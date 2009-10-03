@@ -44,6 +44,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "../renderer/tr_local.h"
 #include "../client/client.h"
@@ -92,12 +93,15 @@ GLimp_Shutdown
 */
 void GLimp_Shutdown( void )
 {
+	float oldDisplayAspect = glConfig.displayAspect;
+
 	IN_Shutdown();
 
 	SDL_QuitSubSystem( SDL_INIT_VIDEO );
 	screen = NULL;
 
 	Com_Memset( &glConfig, 0, sizeof( glConfig ) );
+	glConfig.displayAspect = oldDisplayAspect;
 	Com_Memset( &glState, 0, sizeof( glState ) );
 }
 
@@ -108,6 +112,81 @@ GLimp_LogComment
 */
 void GLimp_LogComment( char *comment )
 {
+}
+
+/*
+===============
+GLimp_CompareModes
+===============
+*/
+static int GLimp_CompareModes( const void *a, const void *b )
+{
+	const float ASPECT_EPSILON = 0.001f;
+	SDL_Rect *modeA = *(SDL_Rect **)a;
+	SDL_Rect *modeB = *(SDL_Rect **)b;
+	float aspectDiffA = fabs( ( (float)modeA->w / (float)modeA->h ) - glConfig.displayAspect );
+	float aspectDiffB = fabs( ( (float)modeB->w / (float)modeB->h ) - glConfig.displayAspect );
+	float aspectDiffsDiff = aspectDiffA - aspectDiffB;
+
+	if( aspectDiffsDiff > ASPECT_EPSILON )
+		return 1;
+	else if( aspectDiffsDiff < -ASPECT_EPSILON )
+		return -1;
+	else
+	{
+		if( modeA->w == modeB->w )
+			return modeA->h - modeB->h;
+		else
+			return modeA->w - modeB->w;
+	}
+}
+
+/*
+===============
+GLimp_DetectAvailableModes
+===============
+*/
+static void GLimp_DetectAvailableModes(void)
+{
+	char buf[ MAX_STRING_CHARS ] = { 0 };
+	SDL_Rect **modes;
+	int numModes;
+	int i;
+
+	modes = SDL_ListModes( NULL, SDL_OPENGL | SDL_FULLSCREEN );
+
+	if( !modes )
+	{
+		ri.Printf( PRINT_WARNING, "Can't get list of available modes\n" );
+		return;
+	}
+
+	if( modes == (SDL_Rect **)-1 )
+	{
+		ri.Printf( PRINT_ALL, "Display supports any resolution\n" );
+		return; // can set any resolution
+	}
+
+	for( numModes = 0; modes[ numModes ]; numModes++ );
+
+	qsort( modes, numModes, sizeof( SDL_Rect* ), GLimp_CompareModes );
+
+	for( i = 0; i < numModes; i++ )
+	{
+		const char *newModeString = va( "%ux%u ", modes[ i ]->w, modes[ i ]->h );
+
+		if( strlen( newModeString ) < (int)sizeof( buf ) - strlen( buf ) )
+			Q_strcat( buf, sizeof( buf ), newModeString );
+		else
+			ri.Printf( PRINT_WARNING, "Skipping mode %ux%x, buffer too small\n", modes[i]->w, modes[i]->h );
+	}
+
+	if( *buf )
+	{
+		buf[ strlen( buf ) - 1 ] = 0;
+		ri.Printf( PRINT_ALL, "Available modes: '%s'\n", buf );
+		ri.Cvar_Set( "r_availableModes", buf );
+	}
 }
 
 /*
@@ -124,8 +203,27 @@ static int GLimp_SetMode( int mode, qboolean fullscreen )
 	int i = 0;
 	SDL_Surface *vidscreen = NULL;
 	Uint32 flags = SDL_OPENGL;
+	const SDL_VideoInfo *videoInfo;
 
 	ri.Printf( PRINT_ALL, "Initializing OpenGL display\n");
+
+	if( glConfig.displayAspect == 0.0f )
+	{
+#if !SDL_VERSION_ATLEAST(1, 2, 10)
+		// 1.2.10 is needed to get the desktop resolution
+		glConfig.displayAspect = 4.0f / 3.0f;
+#elif MINSDL_PATCH >= 10
+#	error Ifdeffery no longer necessary, please remove
+#else
+		// Guess the display aspect ratio through the desktop resolution
+		// by assuming (relatively safely) that it is set at or close to
+		// the display's native aspect ratio
+		videoInfo = SDL_GetVideoInfo( );
+		glConfig.displayAspect = (float)videoInfo->current_w / (float)videoInfo->current_h;
+#endif
+
+		ri.Printf( PRINT_ALL, "Estimated display aspect: %.3f\n", glConfig.displayAspect );
+	}
 
 	ri.Printf (PRINT_ALL, "...setting mode %d:", mode );
 
@@ -274,6 +372,8 @@ static int GLimp_SetMode( int mode, qboolean fullscreen )
 		glConfig.stencilBits = tstencilbits;
 		break;
 	}
+
+	GLimp_DetectAvailableModes();
 
 	if (!vidscreen)
 	{
@@ -525,6 +625,8 @@ void GLimp_Init( void )
 
 	// initialize extensions
 	GLimp_InitExtensions( );
+
+	ri.Cvar_Get( "r_availableModes", "", CVAR_ROM );
 
 	// This depends on SDL_INIT_VIDEO, hence having it here
 	IN_Init( );

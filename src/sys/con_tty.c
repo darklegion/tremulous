@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
+#include "sys_local.h"
 
 #include <unistd.h>
 #include <signal.h>
@@ -102,7 +103,7 @@ Clear the display of the line currently edited
 bring cursor back to beginning of line
 ==================
 */
-void CON_Hide( void )
+static void CON_Hide( void )
 {
 	if( ttycon_on )
 	{
@@ -132,7 +133,7 @@ Show the current line
 FIXME need to position the cursor if needed?
 ==================
 */
-void CON_Show( void )
+static void CON_Show( void )
 {
 	if( ttycon_on )
 	{
@@ -297,10 +298,10 @@ void CON_Init( void )
 
 /*
 ==================
-CON_ConsoleInput
+CON_Input
 ==================
 */
-char *CON_ConsoleInput( void )
+char *CON_Input( void )
 {
 	// we use this when sending back commands
 	static char text[256];
@@ -439,4 +440,21 @@ char *CON_ConsoleInput( void )
 
 		return text;
 	}
+}
+
+/*
+==================
+CON_Print
+==================
+*/
+void CON_Print( const char *msg )
+{
+	CON_Hide( );
+
+	if( com_ansiColor && com_ansiColor->integer )
+		Sys_AnsiColorPrint( msg );
+	else
+		fputs( msg, stderr );
+
+	CON_Show( );
 }

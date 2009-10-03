@@ -6,11 +6,15 @@
 
 COMPILE_PLATFORM=$(shell uname|sed -e s/_.*//|tr '[:upper:]' '[:lower:]')
 
+COMPILE_ARCH=$(shell uname -m | sed -e s/i.86/x86/)
+
 ifeq ($(COMPILE_PLATFORM),sunos)
   # Solaris uname and GNU uname differ
   COMPILE_ARCH=$(shell uname -p | sed -e s/i.86/x86/)
-else
-  COMPILE_ARCH=$(shell uname -m | sed -e s/i.86/x86/)
+endif
+ifeq ($(COMPILE_PLATFORM),darwin)
+  # Apple does some things a little differently...
+  COMPILE_ARCH=$(shell uname -p | sed -e s/i.86/x86/)
 endif
 
 BUILD_CLIENT     =
@@ -698,6 +702,7 @@ ifeq ($(PLATFORM),sunos)
     BASE_CFLAGS += -m32
     LDFLAGS += -m32
     BASE_CFLAGS += -I/usr/X11/include/NVIDIA
+    CLIENT_LDFLAGS += -L/usr/X11/lib/NVIDIA -R/usr/X11/lib/NVIDIA
   endif
   endif
 
@@ -718,7 +723,7 @@ ifeq ($(PLATFORM),sunos)
 
   BOTCFLAGS=-O0
 
-  CLIENT_LDFLAGS=$(shell sdl-config --libs) -lGL
+  CLIENT_LDFLAGS +=$(shell sdl-config --libs) -lGL
 
 else # ifeq sunos
 
@@ -1170,6 +1175,8 @@ Q3OBJ = \
   $(B)/client/sdl_input.o \
   $(B)/client/sdl_snd.o \
   \
+  $(B)/client/con_passive.o \
+  $(B)/client/con_log.o \
   $(B)/client/sys_main.o
 
 ifeq ($(ARCH),x86)
@@ -1268,6 +1275,7 @@ Q3DOBJ = \
   $(B)/ded/null_input.o \
   $(B)/ded/null_snddma.o \
   \
+  $(B)/ded/con_log.o \
   $(B)/ded/sys_main.o
 
 ifeq ($(ARCH),x86)
