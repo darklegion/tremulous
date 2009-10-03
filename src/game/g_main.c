@@ -1197,8 +1197,10 @@ G_CalculateStages
 */
 void G_CalculateStages( void )
 {
-  float alienPlayerCountMod = level.averageNumAlienClients / PLAYER_COUNT_MOD;
-  float humanPlayerCountMod = level.averageNumHumanClients / PLAYER_COUNT_MOD;
+  float         alienPlayerCountMod     = level.averageNumAlienClients / PLAYER_COUNT_MOD;
+  float         humanPlayerCountMod     = level.averageNumHumanClients / PLAYER_COUNT_MOD;
+  static int    lastAlienStageModCount  = 1;
+  static int    lastHumanStageModCount  = 1;
 
   if( alienPlayerCountMod < 0.1f )
     alienPlayerCountMod = 0.1f;
@@ -1213,6 +1215,7 @@ void G_CalculateStages( void )
     G_Checktrigger_stages( PTE_ALIENS, S2 );
     trap_Cvar_Set( "g_alienStage", va( "%d", S2 ) );
     level.alienStage2Time = level.time;
+    lastAlienStageModCount = g_alienStage.modificationCount;
   }
 
   if( g_alienCredits.integer >=
@@ -1222,6 +1225,7 @@ void G_CalculateStages( void )
     G_Checktrigger_stages( PTE_ALIENS, S3 );
     trap_Cvar_Set( "g_alienStage", va( "%d", S3 ) );
     level.alienStage3Time = level.time;
+    lastAlienStageModCount = g_alienStage.modificationCount;
   }
 
   if( g_humanCredits.integer >=
@@ -1231,6 +1235,7 @@ void G_CalculateStages( void )
     G_Checktrigger_stages( PTE_HUMANS, S2 );
     trap_Cvar_Set( "g_humanStage", va( "%d", S2 ) );
     level.humanStage2Time = level.time;
+    lastHumanStageModCount = g_humanStage.modificationCount;
   }
 
   if( g_humanCredits.integer >=
@@ -1240,6 +1245,31 @@ void G_CalculateStages( void )
     G_Checktrigger_stages( PTE_HUMANS, S3 );
     trap_Cvar_Set( "g_humanStage", va( "%d", S3 ) );
     level.humanStage3Time = level.time;
+    lastHumanStageModCount = g_humanStage.modificationCount;
+  }
+
+  if( g_alienStage.modificationCount > lastAlienStageModCount )
+  {
+    G_Checktrigger_stages( PTE_ALIENS, g_alienStage.integer );
+
+    if( g_alienStage.integer == S2 )
+      level.alienStage2Time = level.time;
+    else if( g_alienStage.integer == S3 )
+      level.alienStage3Time = level.time;
+
+    lastAlienStageModCount = g_alienStage.modificationCount;
+  }
+
+  if( g_humanStage.modificationCount > lastHumanStageModCount )
+  {
+    G_Checktrigger_stages( PTE_HUMANS, g_humanStage.integer );
+
+    if( g_humanStage.integer == S2 )
+      level.humanStage2Time = level.time;
+    else if( g_humanStage.integer == S3 )
+      level.humanStage3Time = level.time;
+
+    lastHumanStageModCount = g_humanStage.modificationCount;
   }
 }
 
