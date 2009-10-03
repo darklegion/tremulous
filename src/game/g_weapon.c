@@ -466,20 +466,13 @@ MASS DRIVER
 void massDriverFire( gentity_t *ent )
 {
   trace_t   tr;
-  vec3_t    end;
   gentity_t *tent;
   gentity_t *traceEnt;
 
-  VectorMA( muzzle, 8192 * 16, forward, end );
-
-  G_UnlaggedOn( ent, muzzle, 8192 * 16 );
-  trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
-  G_UnlaggedOff( );
+  G_WideTrace( &tr, ent, 8192.0f * 16.0f, MDRIVER_WIDTH, MDRIVER_WIDTH, &traceEnt );
 
   if( tr.surfaceFlags & SURF_NOIMPACT )
     return;
-
-  traceEnt = &g_entities[ tr.entityNum ];
 
   // snap the endpos to integers, but nudged towards the line
   SnapVectorTowards( tr.endpos, muzzle );
@@ -489,10 +482,15 @@ void massDriverFire( gentity_t *ent )
       (traceEnt->s.eType == ET_BUILDABLE || 
        traceEnt->s.eType == ET_PLAYER ) )
   {
-    BloodSpurt( ent, traceEnt, &tr );
+    WideBloodSpurt( ent, traceEnt, &tr );
   }
   else
   {
+    // If we missed, G_WideTrace hasn't traced against the world
+    // so we need to do another trace to find the endpoint
+    vec3_t end;
+    VectorMA( muzzle, 8192.0f * 16.0f, forward, end );
+    trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, CONTENTS_SOLID );
     tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
     tent->s.eventParm = DirToByte( tr.plane.normal );
     tent->s.weapon = ent->s.weapon;

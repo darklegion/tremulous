@@ -2767,6 +2767,7 @@ char *eventnames[ ] =
   "EV_BULLET_HIT_WALL",
 
   "EV_SHOTGUN",
+  "EV_MASS_DRIVER",
 
   "EV_MISSILE_HIT",
   "EV_MISSILE_MISS",
