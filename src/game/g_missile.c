@@ -208,7 +208,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
   // is it cheaper in bandwidth to just remove this ent and create a new
   // one, rather than changing the missile into the explosion?
 
-  if( other->takedamage && other->client )
+  if( other->takedamage && 
+      ( other->s.eType == ET_PLAYER || other->s.eType == ET_BUILDABLE ) )
   {
     G_AddEvent( ent, EV_MISSILE_HIT, DirToByte( trace->plane.normal ) );
     ent->s.otherEntityNum = other->s.number;

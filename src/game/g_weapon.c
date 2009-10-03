@@ -241,7 +241,7 @@ static void BloodSpurt( gentity_t *attacker, gentity_t *victim, trace_t *tr )
 {
   gentity_t *tent;
 
-  if( !attacker->client || !victim->client )
+  if( !attacker->client )
     return;
   tent = G_TempEntity( tr->endpos, EV_MISSILE_HIT );
   tent->s.otherEntityNum = victim->s.number;
@@ -263,7 +263,7 @@ static void WideBloodSpurt( gentity_t *attacker, gentity_t *victim, trace_t *tr 
   vec3_t normal, origin;
   float mag, radius;
 
-  if( !attacker->client || !victim->client )
+  if( !attacker->client )
     return;
 
   if( tr )
@@ -474,13 +474,11 @@ void massDriverFire( gentity_t *ent )
   SnapVectorTowards( tr.endpos, muzzle );
 
   // send impact
-  if( traceEnt->takedamage && traceEnt->client )
+  if( traceEnt->takedamage && 
+      (traceEnt->s.eType == ET_BUILDABLE || 
+       traceEnt->s.eType == ET_PLAYER ) )
   {
-    tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
-    tent->s.otherEntityNum = traceEnt->s.number;
-    tent->s.eventParm = DirToByte( tr.plane.normal );
-    tent->s.weapon = ent->s.weapon;
-    tent->s.generic1 = ent->s.generic1; //weaponMode
+    BloodSpurt( ent, traceEnt, &tr );
   }
   else
   {
@@ -637,7 +635,9 @@ void lasGunFire( gentity_t *ent )
   SnapVectorTowards( tr.endpos, muzzle );
 
   // send impact
-  if( traceEnt->takedamage && traceEnt->client )
+  if( traceEnt->takedamage && 
+      (traceEnt->s.eType == ET_BUILDABLE || 
+       traceEnt->s.eType == ET_PLAYER ) )
   {
     BloodSpurt( ent, traceEnt, &tr );
   }
@@ -676,7 +676,7 @@ void painSawFire( gentity_t *ent )
   tr.endpos[ 2 ] -= 5.0f;
 
   // send blood impact
-  if( traceEnt->client )
+  if( traceEnt->s.eType == ET_PLAYER || traceEnt->s.eType == ET_BUILDABLE )
   {
       BloodSpurt( ent, traceEnt, &tr );
   }
