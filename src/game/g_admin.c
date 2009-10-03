@@ -2584,7 +2584,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
       {
         if( !G_admin_permission( ent, g_admin_cmds[ i ].flag[ 0 ] ) )
         {
-          ADMBP( va( "^3!help: ^7you have no permission to use '%s'\n",
+          ADMBP( va( "^3!help: ^7you do not have permission to use '%s'\n",
                    g_admin_cmds[ i ].keyword ) );
           ADMBP_end();
           return qfalse;
@@ -2605,7 +2605,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
       {
         if( !admin_command_permission( ent, g_admin_commands[ i ]->command ) )
         {
-          ADMBP( va( "^3!help: ^7you have no permission to use '%s'\n",
+          ADMBP( va( "^3!help: ^7you do not have permission to use '%s'\n",
                    g_admin_commands[ i ]->command ) );
           ADMBP_end();
           return qfalse;
