@@ -439,7 +439,7 @@ static qboolean CG_ParseWeaponFile( const char *filename, weaponInfo_t *wi )
 
   // load the file
   len = trap_FS_FOpenFile( filename, &f, FS_READ );
-  if( len <= 0 )
+  if( len < 0 )
     return qfalse;
 
   if( len >= sizeof( text ) - 1 )

@@ -2940,12 +2940,13 @@ static void UI_RunMenuScript( char **args )
       {
         trap_FS_Read( text, len, f );
         text[ len ] = 0;
-        trap_FS_FCloseFile( f );
 
         Com_sprintf( command, 32, "ptrcrestore %s", text );
 
         trap_Cmd_ExecuteText( EXEC_APPEND, command );
       }
+      if( len > -1 )
+        trap_FS_FCloseFile( f );
     }
     else if( Q_stricmp( name, "Say" ) == 0 )
     {

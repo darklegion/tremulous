@@ -887,7 +887,7 @@ static qboolean G_NonSegModel( const char *filename )
     return qfalse;
   }
 
-  if( len <= 0 )
+  if( len < 0 )
     return qfalse;
 
   if( len >= sizeof( text ) - 1 )

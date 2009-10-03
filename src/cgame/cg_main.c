@@ -662,17 +662,7 @@ Test if a specific file exists or not
 */
 qboolean CG_FileExists( char *filename )
 {
-  fileHandle_t  f;
-
-  if( trap_FS_FOpenFile( filename, &f, FS_READ ) > 0 )
-  {
-    //file exists so close it
-    trap_FS_FCloseFile( f );
-
-    return qtrue;
-  }
-  else
-    return qfalse;
+  return trap_FS_FOpenFile( filename, NULL, FS_READ );
 }
 
 /*

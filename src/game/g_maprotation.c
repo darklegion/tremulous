@@ -310,7 +310,7 @@ static qboolean G_ParseMapRotationFile( const char *fileName )
 
   // load the file
   len = trap_FS_FOpenFile( fileName, &f, FS_READ );
-  if( len <= 0 )
+  if( len < 0 )
     return qfalse;
 
   if( len >= sizeof( text ) - 1 )
@@ -773,13 +773,10 @@ Load and intialise the map rotations
 void G_InitMapRotations( void )
 {
   const char    *fileName = "maprotation.cfg";
-  fileHandle_t  f;
 
   //load the file if it exists
-  if( trap_FS_FOpenFile( fileName, &f, FS_READ ) > 0 )
+  if( trap_FS_FOpenFile( fileName, NULL, FS_READ ) )
   {
-    trap_FS_FCloseFile( f );
-
     if( !G_ParseMapRotationFile( fileName ) )
       G_Printf( S_COLOR_RED "ERROR: failed to parse %s file\n", fileName );
   }
