@@ -1196,8 +1196,8 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   gclient_t *client;
   char      userinfo[ MAX_INFO_STRING ];
   gentity_t *ent;
-  char      guid[ 33 ];
   char      reason[ MAX_STRING_CHARS ] = {""};
+  int       i;
 
   ent = &g_entities[ clientNum ];
   client = &level.clients[ clientNum ];
@@ -1207,7 +1207,7 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
   value = Info_ValueForKey( userinfo, "cl_guid" );
-  Q_strncpyz( guid, value, sizeof( guid ) );
+  Q_strncpyz( client->pers.guid, value, sizeof( client->pers.guid ) );
 
   // check for admin ban
   if( G_admin_ban_check( userinfo, reason, sizeof( reason ) ) )
@@ -1215,11 +1215,6 @@ char *ClientConnect( int clientNum, qboolean firstTime )
     return va( "%s", reason );
   }
 
-
-  // IP filtering
-  // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
-  // recommanding PB based IP / GUID banning, the builtin system is pretty limited
-  // check to see if they are on the banned IP list
   value = Info_ValueForKey( userinfo, "ip" );
   Q_strncpyz( client->pers.ip, value, sizeof( client->pers.ip ) );
 
@@ -1231,15 +1226,28 @@ char *ClientConnect( int clientNum, qboolean firstTime )
     return "Invalid password";
 
   // add guid to session so we don't have to keep parsing userinfo everywhere
-  if( !guid[0] )
+  for( i = 0; i < sizeof( client->pers.guid ) - 1 &&
+              isxdigit( client->pers.guid[ i ] ); i++ );
+
+  if( i < sizeof( client->pers.guid ) - 1 )
+    return "Invalid GUID";
+
+  for( i = 0; i < level.maxclients; i++ )
   {
-    Q_strncpyz( client->pers.guid, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-      sizeof( client->pers.guid ) );
+    if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
+      continue;
+
+    if( !Q_stricmp( client->pers.guid, level.clients[ i ].pers.guid ) )
+    {
+      if( !G_ClientIsLagging( level.clients + i ) )
+      {
+        trap_SendServerCommand( i, "cp \"Your GUID is not secure\"" );
+        return "Duplicate GUID";
+      }
+      trap_DropClient( i, "Ghost" );
+    }
   }
-  else
-  {
-    Q_strncpyz( client->pers.guid, guid, sizeof( client->pers.guid ) );
-  }
+
   // check for local client
   if( !strcmp( client->pers.ip, "localhost" ) )
     client->pers.localClient = qtrue;

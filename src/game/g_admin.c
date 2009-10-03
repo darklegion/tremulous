@@ -681,8 +681,7 @@ static void admin_log( gentity_t *admin, char *cmd, int skiparg )
                  tens,
                  sec,
                  ( admin ) ? admin->s.clientNum : -1,
-                 ( admin ) ? admin->client->pers.guid
-                 : "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+                 admin->client->pers.guid,
                  ( admin ) ? admin->client->pers.netname : "console",
                  flags,
                  cmd,
@@ -698,8 +697,7 @@ static void admin_log( gentity_t *admin, char *cmd, int skiparg )
                  tens,
                  sec,
                  ( admin ) ? admin->s.clientNum : -1,
-                 ( admin ) ? admin->client->pers.guid
-                 : "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+                 admin->client->pers.guid,
                  ( admin ) ? admin->client->pers.netname : "console",
                  flags,
                  cmd,
@@ -1427,11 +1425,6 @@ qboolean G_admin_setlevel( gentity_t *ent, int skiparg )
     return qfalse;
   }
 
-  if( !Q_stricmp( guid, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" ) )
-  {
-    ADMP( va( "^3!setlevel: ^7%s does not have a valid GUID\n", adminname ) );
-    return qfalse;
-  }
   if( ent && !admin_higher_guid( ent->client->pers.guid, guid ) )
   {
     ADMP( "^3!setlevel: ^7sorry, but your intended victim has a higher"
