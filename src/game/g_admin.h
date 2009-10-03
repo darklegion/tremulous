@@ -161,15 +161,13 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg );
 qboolean G_admin_help( gentity_t *ent, int skiparg );
 qboolean G_admin_admintest( gentity_t *ent, int skiparg );
 qboolean G_admin_allready( gentity_t *ent, int skiparg );
-qboolean G_admin_cancelvote( gentity_t *ent, int skiparg );
-qboolean G_admin_passvote( gentity_t *ent, int skiparg );
+qboolean G_admin_endvote( gentity_t *ent, int skiparg );
 qboolean G_admin_spec999( gentity_t *ent, int skiparg );
 qboolean G_admin_rename( gentity_t *ent, int skiparg );
 qboolean G_admin_restart( gentity_t *ent, int skiparg );
 qboolean G_admin_nextmap( gentity_t *ent, int skiparg );
 qboolean G_admin_namelog( gentity_t *ent, int skiparg );
 qboolean G_admin_lock( gentity_t *ent, int skiparg );
-qboolean G_admin_unlock( gentity_t *ent, int skiparg );
 
 void G_admin_print( gentity_t *ent, char *m );
 void G_admin_buffer_print( gentity_t *ent, char *m );
