@@ -557,7 +557,7 @@ void G_LeaveTeam( gentity_t *self )
   G_StopFromFollowing( self );
 
   G_TeamVote( self, qfalse );
-  ent->suicideTime = 0;
+  self->suicideTime = 0;
 
   for( i = 0; i < level.num_entities; i++ )
   {
