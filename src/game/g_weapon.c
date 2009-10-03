@@ -36,7 +36,6 @@ G_ForceWeaponChange
 */
 void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
 {
-  int i;
   playerState_t *ps = &ent->client->ps;
 
   if( !ent )
@@ -54,21 +53,8 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
       !BG_InventoryContainsWeapon( weapon, ps->stats ) )
   {
     // switch to the first non blaster weapon
-    for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
-    {
-      if( i == WP_BLASTER )
-        continue;
-
-      if( BG_InventoryContainsWeapon( i, ps->stats ) )
-      {
-        ps->persistant[ PERS_NEWWEAPON ] = i;
-        break;
-      }
-    }
-
-    // only got the blaster to switch to
-    if( i == WP_NUM_WEAPONS )
-      ps->persistant[ PERS_NEWWEAPON ] = WP_BLASTER;
+    ent->client->ps.persistant[ PERS_NEWWEAPON ] =
+      BG_PrimaryWeapon( ent->client->ps.stats );
   }
   else
     ps->persistant[ PERS_NEWWEAPON ] = weapon;
