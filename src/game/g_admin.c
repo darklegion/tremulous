@@ -1069,6 +1069,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
   char *t;
   qboolean level_open, admin_open, ban_open, command_open;
   char levels[ MAX_STRING_CHARS ] = {""};
+  int i;
 
   G_admin_cleanup();
 
@@ -1309,7 +1310,6 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
   else
   {
     char n[ MAX_NAME_LENGTH ] = {""};
-    int i = 0;
 
     // max printable name length for formatting
     for( i = 0; i < MAX_ADMIN_LEVELS && g_admin_levels[ i ]; i++ )
@@ -1319,6 +1319,14 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
         admin_level_maxname = strlen( n );
     }
   }
+
+  // reset adminLevel
+  for( i = 0; i < level.maxclients; i++ )
+  {
+    if( level.clients[ i ].pers.connected != CON_DISCONNECTED )
+      level.clients[ i ].pers.adminLevel = G_admin_level( &g_entities[ i ] );
+  }
+
   return qtrue;
 }
 
@@ -1418,17 +1426,19 @@ qboolean G_admin_setlevel( gentity_t *ent, int skiparg )
   {
     for( i = 0; i < level.maxclients && matches < 2; i++ )
     {
-      vic = &g_entities[ i ];
-      if( !vic->client || vic->client->pers.connected != CON_CONNECTED )
+      if( level.clients[ i ].pers.connected != CON_CONNECTED )
         continue;
-      G_SanitiseName( vic->client->pers.netname, testname );
+
+      G_SanitiseName( level.clients[ i ].pers.netname, testname );
       if( strstr( testname, name ) )
       {
+        vic = &g_entities[ i ];
         matches++;
         Q_strncpyz( adminname, vic->client->pers.netname, sizeof( adminname ) );
         Q_strncpyz( guid, vic->client->pers.guid, sizeof( guid ) );
       }
     }
+
     for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ] && matches < 2; i++)
     {
       G_SanitiseName( g_admin_admins[ i ]->name, testname );
@@ -1439,19 +1449,21 @@ qboolean G_admin_setlevel( gentity_t *ent, int skiparg )
         // verify we don't have the same guid/name pair in connected players
         for( j = 0; j < level.maxclients; j++ )
         {
-          vic = &g_entities[ j ];
-          if( !vic->client || vic->client->pers.connected != CON_CONNECTED )
+          if( level.clients[ j ].pers.connected != CON_CONNECTED )
             continue;
-          G_SanitiseName(  vic->client->pers.netname, testname2 );
-          if( !Q_stricmp( vic->client->pers.guid, g_admin_admins[ i ]->guid ) &&
-            strstr( testname2, name ) )
+
+          G_SanitiseName( level.clients[ j ].pers.netname, testname2 );
+          if( !Q_stricmp( level.clients[ j ].pers.guid,
+            g_admin_admins[ i ]->guid ) && strstr( testname2, name ) )
           {
             dup = qtrue;
             break;
           }
         }
+
         if( dup )
           continue;
+
         Q_strncpyz( adminname, g_admin_admins[ i ]->name, sizeof( adminname ) );
         Q_strncpyz( guid, g_admin_admins[ i ]->guid, sizeof( guid ) );
         matches++;
@@ -1979,26 +1991,26 @@ qboolean G_admin_mute( gentity_t *ent, int skiparg )
   char command[ MAX_ADMIN_CMD_LEN ], *cmd;
   gentity_t *vic;
 
-  if( G_SayArgc() < 2 + skiparg )
-  {
-    ADMP( "^3!mute: ^7usage: !mute [name|slot#]\n" );
-    return qfalse;
-  }
   G_SayArgv( skiparg, command, sizeof( command ) );
   cmd = command;
   if( cmd && *cmd == '!' )
     cmd++;
+  if( G_SayArgc() < 2 + skiparg )
+  {
+    ADMP( va( "^3!%s: ^7usage: !%s [name|slot#]\n", cmd, cmd ) );
+    return qfalse;
+  }
   G_SayArgv( 1 + skiparg, name, sizeof( name ) );
   if( ( found = G_ClientNumbersFromString( name, pids, MAX_CLIENTS ) ) != 1 )
   {
     G_MatchOnePlayer( pids, found, err, sizeof( err ) );
-    ADMP( va( "^3!mute: ^7%s\n", err ) );
+    ADMP( va( "^3!%s: ^7%s\n", cmd, err ) );
     return qfalse;
   }
   if( !admin_higher( ent, &g_entities[ pids[ 0 ] ] ) )
   {
-    ADMP( "^3!mute: ^7sorry, but your intended victim has a higher admin"
-        " level than you\n" );
+    ADMP( va( "^3!%s: ^7sorry, but your intended victim has a higher admin"
+        " level than you\n", cmd ) );
     return qfalse;
   }
   vic = &g_entities[ pids[ 0 ] ];

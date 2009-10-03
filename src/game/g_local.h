@@ -923,7 +923,7 @@ void QDECL G_Error( const char *fmt, ... );
 void G_Vote( gentity_t *ent, qboolean voting );
 void G_TeamVote( gentity_t *ent, qboolean voting );
 void CheckVote( void );
-void CheckTeamVote( int teamnum );
+void CheckTeamVote( team_t teamnum );
 void LogExit( const char *string );
 int  G_TimeTilSuddenDeath( void );
 

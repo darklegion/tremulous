@@ -1014,17 +1014,7 @@ void ClientUserinfoChanged( int clientNum )
   if( client->pers.maxHealth < 1 || client->pers.maxHealth > 100 )
     client->pers.maxHealth = 100;
 
-  //hack to force a client update if the config string does not change between spawning
   if( client->pers.classSelection == PCL_NONE )
-    client->pers.maxHealth = 0;
-
-  // set model
-  if( client->ps.stats[ STAT_CLASS ] == PCL_HUMAN_BSUIT )
-  {
-    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_ClassConfig( PCL_HUMAN_BSUIT )->modelName,
-                                              BG_ClassConfig( PCL_HUMAN_BSUIT )->skinName );
-  }
-  else if( client->pers.classSelection == PCL_NONE )
   {
     //This looks hacky and frankly it is. The clientInfo string needs to hold different
     //model details to that of the spawning class or the info change will not be
@@ -1037,12 +1027,7 @@ void ClientUserinfoChanged( int clientNum )
   {
     Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_ClassConfig( client->pers.classSelection )->modelName,
                                               BG_ClassConfig( client->pers.classSelection )->skinName );
-  }
-  Q_strncpyz( model, buffer, sizeof( model ) );
 
-  //don't bother setting model type if spectating
-  if( client->pers.classSelection != PCL_NONE )
-  {
     //model segmentation
     Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg",
                  BG_ClassConfig( client->pers.classSelection )->modelName );
@@ -1052,6 +1037,7 @@ void ClientUserinfoChanged( int clientNum )
     else
       client->ps.persistant[ PERS_STATE ] &= ~PS_NONSEGMODEL;
   }
+  Q_strncpyz( model, buffer, sizeof( model ) );
 
   // wallwalk follow
   s = Info_ValueForKey( userinfo, "cg_wwFollow" );
