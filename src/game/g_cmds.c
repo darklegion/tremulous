@@ -2918,34 +2918,35 @@ void Cmd_Damage_f( gentity_t *ent )
 G_FloodLimited
 
 Determine whether a user is flood limited, and adjust their flood demerits
-Notify them if this is the first time they were over the limit
+Print them a warning message if they are over the limit
+Return is time in msec until the user can speak again
 ==================
 */
-qboolean G_FloodLimited( gentity_t *ent )
+int G_FloodLimited( gentity_t *ent )
 {
-  int deltatime = level.time - ent->client->pers.floodTime;
-  int flooding;
+  int deltatime, ms;
 
   if( g_floodMinTime.integer <= 0 )
-    return qfalse;
+    return 0;
 
+  // handles !ent
   if( G_admin_permission( ent, ADMF_NOCENSORFLOOD ) )
-    return qfalse;
+    return 0;
+
+  deltatime = level.time - ent->client->pers.floodTime;
 
   ent->client->pers.floodDemerits += g_floodMinTime.integer - deltatime;
   if( ent->client->pers.floodDemerits < 0 )
     ent->client->pers.floodDemerits = 0;
   ent->client->pers.floodTime = level.time;
 
-  flooding = ent->client->pers.floodDemerits - g_floodMaxDemerits.integer;
-  if( flooding <= 0 )
-    return qfalse;
-  // seconds (rounded up)
-  flooding = ( flooding + 999 ) / 1000;
+  ms = ent->client->pers.floodDemerits - g_floodMaxDemerits.integer;
+  if( ms <= 0 )
+    return 0;
   trap_SendServerCommand( ent - g_entities, va( "print \"You are flooding: "
                           "please wait %d second%s before trying again\n",
-                          flooding, ( flooding != 1 ) ? "s" : "" ) );
-  return qtrue;
+                          ( ms + 999 ) / 1000, ( ms > 1000 ) ? "s" : "" ) );
+  return ms;
 }
 
 commands_t cmds[ ] = {
@@ -3092,6 +3093,16 @@ void ClientCommand( int clientNum )
   cmds[ i ].cmdHandler( ent );
 }
 
+/*
+=================
+G_SayArgc
+G_SayArgv
+G_SayConcatArgs
+
+trap_Argc, trap_Argv, and ConcatArgs consider say text as a single argument
+These functions assemble the text and re-parse it on word boundaries
+=================
+*/
 int G_SayArgc( void )
 {
   int c = 0;

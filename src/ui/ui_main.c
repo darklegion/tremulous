@@ -4351,7 +4351,8 @@ void UI_DrawConnectScreen( qboolean overlay )
     Text_PaintCenter( centerPoint, yStart, scale, colorWhite, va( "Loading %s", Info_ValueForKey( info, "mapname" ) ), 0 );
 
   if( !Q_stricmp( cstate.servername, "localhost" ) )
-    Text_PaintCenter( centerPoint, yStart + 48, scale, colorWhite, va( "Starting up..." ), ITEM_TEXTSTYLE_SHADOWEDMORE );
+    Text_PaintCenter( centerPoint, yStart + 48, scale, colorWhite,
+                      "Starting up...", ITEM_TEXTSTYLE_SHADOWEDMORE );
   else
   {
     Com_sprintf( text, sizeof( text ), "Connecting to %s", cstate.servername );

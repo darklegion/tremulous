@@ -947,7 +947,7 @@ qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
     if( admin_command_permission( ent, cmd ) )
     {
       // flooding say will have already been accounted for in ClientCommand
-      if( ent && !say && G_FloodLimited( ent ) )
+      if( !say && G_FloodLimited( ent ) )
         return qtrue;
       trap_SendConsoleCommand( EXEC_APPEND, g_admin_commands[ i ]->exec );
       admin_log( ent, cmd, skip );
@@ -968,7 +968,7 @@ qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
     if( G_admin_permission( ent, g_admin_cmds[ i ].flag[ 0 ] ) )
     {
       // flooding say will have already been accounted for in ClientCommand
-      if( ent && !say && G_FloodLimited( ent ) )
+      if( !say && G_FloodLimited( ent ) )
         return qtrue;
       g_admin_cmds[ i ].handler( ent, skip );
       admin_log( ent, cmd, skip );

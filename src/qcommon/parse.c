@@ -316,8 +316,6 @@ punctuation_t default_punctuations[] =
   {NULL, 0}
 };
 
-char basefolder[MAX_QPATH];
-
 /*
 ===============
 Parse_CreatePunctuationTable
@@ -1007,16 +1005,11 @@ Parse_LoadScriptFile
 static script_t *Parse_LoadScriptFile(const char *filename)
 {
   fileHandle_t fp;
-  char pathname[MAX_QPATH];
   int length;
   void *buffer;
   script_t *script;
 
-  if (strlen(basefolder))
-    Com_sprintf(pathname, sizeof(pathname), "%s/%s", basefolder, filename);
-  else
-    Com_sprintf(pathname, sizeof(pathname), "%s", filename);
-  length = FS_FOpenFileRead( pathname, &fp, qfalse );
+  length = FS_FOpenFileRead( filename, &fp, qfalse );
   if (!fp) return NULL;
 
   buffer = Z_Malloc(sizeof(script_t) + length + 1);
@@ -1096,16 +1089,6 @@ static void Parse_FreeScript(script_t *script)
 {
   if (script->punctuationtable) Z_Free(script->punctuationtable);
   Z_Free(script);
-}
-
-/*
-===============
-Parse_SetBaseFolder
-===============
-*/
-static void Parse_SetBaseFolder(char *path)
-{
-  Com_sprintf(basefolder, sizeof(basefolder), path);
 }
 
 /*
@@ -3508,7 +3491,6 @@ int Parse_LoadSourceHandle(const char *filename)
   }
   if (i >= MAX_SOURCEFILES)
     return 0;
-  Parse_SetBaseFolder("");
   source = Parse_LoadSourceFile(filename);
   if (!source)
     return 0;

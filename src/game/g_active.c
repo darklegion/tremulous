@@ -587,7 +587,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
 
   if( ucmd->upmove > 0 )
     jumping = qtrue;
-  else if( ucmd->upmove < 0 )
+  else if( ent->client->ps.pm_flags & PMF_DUCKED )
     crouched = qtrue;
 
   client = ent->client;
