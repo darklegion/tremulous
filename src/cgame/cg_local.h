@@ -1508,8 +1508,6 @@ extern  vmCvar_t    cg_noTaunt;
 extern  vmCvar_t    cg_drawSurfNormal;
 extern  vmCvar_t    cg_drawBBOX;
 extern  vmCvar_t    cg_wwSmoothTime;
-extern  vmCvar_t    cg_wwFollow;
-extern  vmCvar_t    cg_wwToggle;
 extern  vmCvar_t    cg_depthSortParticles;
 extern  vmCvar_t    cg_bounceParticles;
 extern  vmCvar_t    cg_consoleLatency;

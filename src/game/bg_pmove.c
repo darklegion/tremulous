@@ -88,25 +88,13 @@ void PM_AddTouchEnt( int entityNum )
 }
 
 /*
-===============
-PM_Paralyzed
-===============
-*/
-qboolean PM_Paralyzed( playerState_t *ps )
-{
-  return ( ps->pm_type == PM_DEAD ||
-      ps->pm_type == PM_FREEZE ||
-      ps->pm_type == PM_INTERMISSION );
-}
-
-/*
 ===================
 PM_StartTorsoAnim
 ===================
 */
 void PM_StartTorsoAnim( int anim )
 {
-  if( PM_Paralyzed( pm->ps ) )
+  if( PM_Paralyzed( pm->ps->pm_type ) )
     return;
 
   pm->ps->torsoAnim = ( ( pm->ps->torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
@@ -120,7 +108,7 @@ PM_StartWeaponAnim
 */
 static void PM_StartWeaponAnim( int anim )
 {
-  if( PM_Paralyzed( pm->ps ) )
+  if( PM_Paralyzed( pm->ps->pm_type ) )
     return;
 
   pm->ps->weaponAnim = ( ( pm->ps->weaponAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )
@@ -134,7 +122,7 @@ PM_StartLegsAnim
 */
 static void PM_StartLegsAnim( int anim )
 {
-  if( PM_Paralyzed( pm->ps ) )
+  if( PM_Paralyzed( pm->ps->pm_type ) )
     return;
 
   //legsTimer is clamped too tightly for nonsegmented models
@@ -1619,8 +1607,6 @@ static void PM_NoclipMove( void )
   float   wishspeed;
   float   scale;
 
-  pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
-
   // friction
 
   speed = VectorLength( pm->ps->velocity );
@@ -2428,23 +2414,29 @@ static void PM_SetWaterLevel( void )
 
 /*
 ==============
+PM_SetViewheight
+==============
+*/
+static void PM_SetViewheight( void )
+{
+  pm->ps->viewheight = ( pm->ps->pm_flags & PMF_DUCKED )
+      ? BG_ClassConfig( pm->ps->stats[ STAT_CLASS ] )->crouchViewheight
+      : BG_ClassConfig( pm->ps->stats[ STAT_CLASS ] )->viewheight;
+}
+
+/*
+==============
 PM_CheckDuck
 
-Sets mins, maxs, and pm->ps->viewheight
+Sets mins and maxs, and calls PM_SetViewheight
 ==============
 */
 static void PM_CheckDuck (void)
 {
   trace_t trace;
   vec3_t PCmins, PCmaxs, PCcmaxs;
-  int PCvh, PCcvh;
 
   BG_ClassBoundingBox( pm->ps->stats[ STAT_CLASS ], PCmins, PCmaxs, PCcmaxs, NULL, NULL );
-  PCvh = BG_ClassConfig( pm->ps->stats[ STAT_CLASS ] )->viewheight;
-  PCcvh = BG_ClassConfig( pm->ps->stats[ STAT_CLASS ] )->crouchViewheight;
-
-  if( pm->ps->persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT )
-    PCcvh = PCvh;
 
   pm->mins[ 0 ] = PCmins[ 0 ];
   pm->mins[ 1 ] = PCmins[ 1 ];
@@ -2461,10 +2453,9 @@ static void PM_CheckDuck (void)
     return;
   }
 
-  // If the standing and crouching viewheights are the same the class can't crouch
-  if( ( pm->cmd.upmove < 0 ) && ( PCvh != PCcvh ) &&
-      pm->ps->pm_type != PM_JETPACK &&
-      !BG_InventoryContainsUpgrade( UP_BATTLESUIT, pm->ps->stats ) )
+  // If the standing and crouching bboxes are the same the class can't crouch
+  if( ( pm->cmd.upmove < 0 ) && !VectorCompare( PCmaxs, PCcmaxs ) &&
+      pm->ps->pm_type != PM_JETPACK )
   {
     // duck
     pm->ps->pm_flags |= PMF_DUCKED;
@@ -2483,15 +2474,11 @@ static void PM_CheckDuck (void)
   }
 
   if( pm->ps->pm_flags & PMF_DUCKED )
-  {
     pm->maxs[ 2 ] = PCcmaxs[ 2 ];
-    pm->ps->viewheight = PCcvh;
-  }
   else
-  {
     pm->maxs[ 2 ] = PCmaxs[ 2 ];
-    pm->ps->viewheight = PCvh;
-  }
+
+  PM_SetViewheight( );
 }
 
 
@@ -3418,7 +3405,7 @@ PM_Animate
 */
 static void PM_Animate( void )
 {
-  if( PM_Paralyzed( pm->ps ) )
+  if( PM_Paralyzed( pm->ps->pm_type ) )
     return;
 
   if( pm->cmd.buttons & BUTTON_GESTURE )
@@ -3697,7 +3684,7 @@ void PmoveSingle( pmove_t *pmove )
   else if( pm->cmd.forwardmove > 0 || ( pm->cmd.forwardmove == 0 && pm->cmd.rightmove ) )
     pm->ps->pm_flags &= ~PMF_BACKWARDS_RUN;
 
-  if( PM_Paralyzed( pm->ps ) )
+  if( PM_Paralyzed( pm->ps->pm_type ) )
   {
     pm->cmd.forwardmove = 0;
     pm->cmd.rightmove = 0;
@@ -3718,6 +3705,8 @@ void PmoveSingle( pmove_t *pmove )
   {
     PM_UpdateViewAngles( pm->ps, &pm->cmd );
     PM_NoclipMove( );
+    PM_SetViewheight( );
+    PM_Weapon( );
     PM_DropTimers( );
     return;
   }

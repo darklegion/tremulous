@@ -168,8 +168,6 @@ vmCvar_t  cg_noTaunt;
 vmCvar_t  cg_drawSurfNormal;
 vmCvar_t  cg_drawBBOX;
 vmCvar_t  cg_wwSmoothTime;
-vmCvar_t  cg_wwFollow;
-vmCvar_t  cg_wwToggle;
 vmCvar_t  cg_depthSortParticles;
 vmCvar_t  cg_bounceParticles;
 vmCvar_t  cg_consoleLatency;
@@ -276,11 +274,12 @@ static cvarTable_t cvarTable[ ] =
   { &cg_drawSurfNormal, "cg_drawSurfNormal", "0", CVAR_CHEAT },
   { &cg_drawBBOX, "cg_drawBBOX", "0", CVAR_CHEAT },
   { &cg_wwSmoothTime, "cg_wwSmoothTime", "300", CVAR_ARCHIVE },
-  { &cg_wwFollow, "cg_wwFollow", "1", CVAR_ARCHIVE|CVAR_USERINFO },
-  { &cg_wwToggle, "cg_wwToggle", "1", CVAR_ARCHIVE|CVAR_USERINFO },
+  { NULL, "cg_wwFollow", "1", CVAR_ARCHIVE|CVAR_USERINFO },
+  { NULL, "cg_wwToggle", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_stickySpec, "cg_stickySpec", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_alwaysSprint, "cg_alwaysSprint", "0", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_unlagged, "cg_unlagged", "1", CVAR_ARCHIVE|CVAR_USERINFO },
+  { NULL, "cg_flySpeed", "600", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_depthSortParticles, "cg_depthSortParticles", "1", CVAR_ARCHIVE },
   { &cg_bounceParticles, "cg_bounceParticles", "0", CVAR_ARCHIVE },
   { &cg_consoleLatency, "cg_consoleLatency", "3000", CVAR_ARCHIVE },
@@ -415,7 +414,8 @@ void CG_UpdateCvars( void )
   cvarTable_t *cv;
 
   for( i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++ )
-    trap_Cvar_Update( cv->vmCvar );
+    if( cv->vmCvar )
+      trap_Cvar_Update( cv->vmCvar );
 
   // check for modications here
 
