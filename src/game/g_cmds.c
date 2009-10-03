@@ -695,7 +695,7 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
     // specs with ADMF_SPEC_ALLCHAT flag can see team chat
   }
 
-  if( BG_ClientListTest( &other->client->sess.ignoreList, ent-g_entities ) )
+  if( ent && BG_ClientListTest( &other->client->sess.ignoreList, ent-g_entities ) )
     ignore = qtrue;
 
   trap_SendServerCommand( other-g_entities, va( "%s \"%s%s%c%c%s%s\"",
@@ -715,7 +715,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
   char        text[ MAX_SAY_TEXT ];
   char        location[ 64 ];
 
-  if( g_chatTeamPrefix.integer )
+  if( ent && g_chatTeamPrefix.integer )
   {
     prefix = BG_TeamName( ent->client->pers.teamSelection );
     prefix = va( "[%c] ", toupper( *prefix ) );
@@ -727,14 +727,20 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
   {
     default:
     case SAY_ALL:
-      G_LogPrintf( "say: %s^7: %s\n", ent->client->pers.netname, chatText );
+      G_LogPrintf( "say: %s%s^7: " S_COLOR_GREEN "%s\n", prefix, 
+        ( ent ) ? ent->client->pers.netname : "console", chatText );
       Com_sprintf( name, sizeof( name ), "%s%s" S_COLOR_WHITE ": ", prefix,
-                   ent->client->pers.netname );
+        ( ent ) ? ent->client->pers.netname : "console" );
       color = COLOR_GREEN;
       break;
 
     case SAY_TEAM:
-      G_LogPrintf( "sayteam: %s^7: %s\n", ent->client->pers.netname, chatText );
+      // console say_team is handled in g_svscmds, not here
+      if( !ent || !ent->client )
+        Com_Error( ERR_FATAL, "SAY_TEAM by non-client entity\n" );
+
+      G_LogPrintf( "sayteam: %s%s^7: " S_COLOR_CYAN "%s\n", prefix, 
+        ent->client->pers.netname, chatText );
       if( Team_GetLocationMsg( ent, location, sizeof( location ) ) )
         Com_sprintf( name, sizeof( name ), "(%s" S_COLOR_WHITE ") (%s): ",
           ent->client->pers.netname, location );
@@ -748,10 +754,10 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
       if( target && OnSameTeam( target, ent ) &&
           Team_GetLocationMsg( ent, location, sizeof( location ) ) )
         Com_sprintf( name, sizeof( name ), "[%s" S_COLOR_WHITE "] (%s): ",
-          ent->client->pers.netname, location );
+          ( ent ) ? ent->client->pers.netname : "console", location );
       else
         Com_sprintf( name, sizeof( name ), "[%s" S_COLOR_WHITE "]: ",
-          ent->client->pers.netname );
+          ( ent ) ? ent->client->pers.netname : "console" );
       color = COLOR_MAGENTA;
       break;
   }

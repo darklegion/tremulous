@@ -313,9 +313,13 @@ static void Svcmd_TeamWin_f( void )
     case TEAM_ALIENS:
       G_BaseSelfDestruct( TEAM_HUMANS );
       break;
+
     case TEAM_HUMANS:
       G_BaseSelfDestruct( TEAM_ALIENS );
       break;
+
+    default:
+      return;
   }
 }
 
@@ -345,6 +349,7 @@ static void Svcmd_MapRotation_f( void )
 static void Svcmd_TeamMessage_f( void )
 {
   char   teamNum[ 2 ];
+  const char*   prefix;
   team_t team;
 
   if( trap_Argc( ) < 3 )
@@ -362,21 +367,11 @@ static void Svcmd_TeamMessage_f( void )
     return;
   }
 
-  G_TeamCommand( team, va( "tchat \"console: ^5%s\"", ConcatArgs( 2 ) ) );
-}
+  prefix = BG_TeamName( team );
+  prefix = va( "[%c] ", toupper( *prefix ) );
 
-static void Svcmd_SendMessage( void )
-{
-  char cmd[ 5 ];
-  trap_Argv( 1, cmd, sizeof( cmd ) );
-
-  if( trap_Argc( ) < 2 )
-  {
-    G_Printf( "usage: %s <message>\n", cmd );
-    return;
-  }
-
-  trap_SendServerCommand( -1, va( "chat \"console: ^2%s\"", ConcatArgs( 1 ) ) );
+  G_TeamCommand( team, va( "tchat \"(console): " S_COLOR_CYAN "%s\"", ConcatArgs( 2 ) ) );
+  G_LogPrintf( "sayteam: %sconsole: " S_COLOR_CYAN "%s\n", prefix, ConcatArgs( 2 ) );
 }
 
 static void Svcmd_CenterPrint_f( void )
@@ -488,15 +483,24 @@ static void Svcmd_PrintQueue_f( void )
   }
 }
 
-// dumb wrapper for "a" and "m"
+static void Svcmd_Chat_f( void )
+{
+  trap_SendServerCommand( -1, va( "chat \"%s\"", ConcatArgs( 1 ) ) );
+  G_LogPrintf("chat: %s\n", ConcatArgs( 1 ) );
+}
+
+// dumb wrapper for "a" and "m" and "say"
 static void Svcmd_MessageWrapper( void )
 {
-  char cmd[ 2 ];
+  char cmd[ 5 ];
   trap_Argv( 0, cmd, sizeof( cmd ) );
+
   if( !Q_stricmp( cmd, "a" ) )
     Cmd_AdminMessage_f( NULL );
-  else
+  else if( !Q_stricmp( cmd, "m" ) )
     Cmd_PrivateMessage_f( NULL );
+  else if( !Q_stricmp( cmd, "say" ) )
+    G_Say( NULL, NULL, SAY_ALL, ConcatArgs( 1 ) );
 }
 
 struct
@@ -521,10 +525,10 @@ struct
   { "evacuation", qfalse, Svcmd_Evacuation_f },
   { "printqueue", qfalse, Svcmd_PrintQueue_f },
   // don't handle communication commands unless dedicated
-  { "say_team", qtrue, Svcmd_TeamMessage_f },
-  { "say", qtrue, Svcmd_SendMessage },
-  { "chat", qtrue, Svcmd_SendMessage },
   { "cp", qtrue, Svcmd_CenterPrint_f },
+  { "say_team", qtrue, Svcmd_TeamMessage_f },
+  { "say", qtrue, Svcmd_MessageWrapper },
+  { "chat", qtrue, Svcmd_Chat_f },
   { "m", qtrue, Svcmd_MessageWrapper },
   { "a", qtrue, Svcmd_MessageWrapper }
 };
