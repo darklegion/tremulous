@@ -621,6 +621,12 @@ void CG_Menu( int menu, int arg )
       type      = DT_BUILD;
       break;
 
+    case MN_B_SURRENDER:
+      longMsg   = "Your team has decided to admit defeat and concede the game:"
+                  "traitors and cowards are not allowed to build.";
+                  // too harsh?
+      shortMsg  = "Building is denied to traitorous cowards";
+      break;
 
     //===============================
 
