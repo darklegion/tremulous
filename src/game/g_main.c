@@ -224,12 +224,12 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_humanCredits, "g_humanCredits", "0", 0, 0, qfalse  },
   { &g_humanMaxStage, "g_humanMaxStage", DEFAULT_HUMAN_MAX_STAGE, 0, 0, qfalse  },
   { &g_humanMaxReachedStage, "g_humanMaxReachedStage", "0", 0, 0, qfalse },
-  { &g_humanStageThreshold, "g_humanStageThreshold", DEFAULT_HUMAN_STAGE2_THRESH, 0, 0, qfalse  },
+  { &g_humanStageThreshold, "g_humanStageThreshold", DEFAULT_HUMAN_STAGE_THRESH, 0, 0, qfalse  },
   { &g_alienStage, "g_alienStage", "0", 0, 0, qfalse  },
   { &g_alienCredits, "g_alienCredits", "0", 0, 0, qfalse  },
   { &g_alienMaxStage, "g_alienMaxStage", DEFAULT_ALIEN_MAX_STAGE, 0, 0, qfalse  },
   { &g_alienMaxReachedStage, "g_alienMaxReachedStage", "0", 0, 0, qfalse },
-  { &g_alienStageThreshold, "g_alienStageThreshold", DEFAULT_ALIEN_STAGE2_THRESH, 0, 0, qfalse  },
+  { &g_alienStageThreshold, "g_alienStageThreshold", DEFAULT_ALIEN_STAGE_THRESH, 0, 0, qfalse  },
 
   { &g_unlagged, "g_unlagged", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse  },
 

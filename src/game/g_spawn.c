@@ -626,23 +626,28 @@ void SP_worldspawn( void )
   G_SpawnString( "humanMaxStage", DEFAULT_HUMAN_MAX_STAGE, &s );
   trap_Cvar_Set( "g_humanMaxStage", s );
 
-  G_SpawnString( "humanStage2Threshold", DEFAULT_HUMAN_STAGE2_THRESH, &s );
-  trap_Cvar_Set( "g_humanStage2Threshold", s );
-
-  G_SpawnString( "humanStage3Threshold", DEFAULT_HUMAN_STAGE3_THRESH, &s );
-  trap_Cvar_Set( "g_humanStage3Threshold", s );
-
+  //for compatibility with 1.1 maps
+  if( G_SpawnString( "humanStage2Threshold", DEFAULT_HUMAN_STAGE_THRESH, &s ) )
+    trap_Cvar_Set( "g_humanStageThreshold", s );
+  else
+  {
+    //proper way
+    G_SpawnString( "humanStageThreshold", DEFAULT_HUMAN_STAGE_THRESH, &s );
+    trap_Cvar_Set( "g_humanStageThreshold", s );
+  }
   G_SpawnString( "alienBuildPoints", DEFAULT_ALIEN_BUILDPOINTS, &s );
   trap_Cvar_Set( "g_alienBuildPoints", s );
 
   G_SpawnString( "alienMaxStage", DEFAULT_ALIEN_MAX_STAGE, &s );
   trap_Cvar_Set( "g_alienMaxStage", s );
 
-  G_SpawnString( "alienStage2Threshold", DEFAULT_ALIEN_STAGE2_THRESH, &s );
-  trap_Cvar_Set( "g_alienStage2Threshold", s );
-
-  G_SpawnString( "alienStage3Threshold", DEFAULT_ALIEN_STAGE3_THRESH, &s );
-  trap_Cvar_Set( "g_alienStage3Threshold", s );
+  if( G_SpawnString( "alienStage2Threshold", DEFAULT_ALIEN_STAGE_THRESH, &s ) )
+    trap_Cvar_Set( "g_alienStageThreshold", s );
+  else
+  {
+    G_SpawnString( "alienStage2Threshold", DEFAULT_ALIEN_STAGE_THRESH, &s );
+    trap_Cvar_Set( "g_alienStageThreshold", s );
+  }
 
   G_SpawnString( "enableDust", "0", &s );
   trap_Cvar_Set( "g_enableDust", s );
