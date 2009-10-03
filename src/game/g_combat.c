@@ -165,12 +165,19 @@ float G_RewardAttackers( gentity_t *self )
   for( i = 0; i < MAX_CLIENTS; i++ )
   {
     gentity_t *player = g_entities + i;
+    short num = value * self->credits[ i ] / totalDamage;
 
     if( !player->client || !self->credits[ i ] ||
         player->client->ps.stats[ STAT_PTEAM ] == team )
       continue;
-    G_AddCreditToClient( player->client,
-                         value * self->credits[ i ] / totalDamage, qtrue );
+    G_AddCreditToClient( player->client, num, qtrue );
+
+    // add to stage counters
+    if( player->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      trap_Cvar_Set( "g_alienCredits", va( "%d", g_alienCredits.integer + num ) );
+    else if( player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+      trap_Cvar_Set( "g_humanCredits", va( "%d", g_humanCredits.integer + num ) );
+
     self->credits[ i ] = 0;
   }
   
@@ -273,15 +280,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   // give credits for killing this player
   totalDamage = G_RewardAttackers( self );
-
-  // if players did more than DAMAGE_FRACTION_FOR_KILL increment the stage counters
-  if( !OnSameTeam( self, attacker ) && totalDamage >= ( self->client->ps.stats[ STAT_MAX_HEALTH ] * DAMAGE_FRACTION_FOR_KILL ) )
-  {
-    if( self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-      trap_Cvar_Set( "g_alienKills", va( "%d", g_alienKills.integer + 1 ) );
-    else if( self->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-      trap_Cvar_Set( "g_humanKills", va( "%d", g_humanKills.integer + 1 ) );
-  }
 
   ScoreboardMessage( self );    // show scores
 

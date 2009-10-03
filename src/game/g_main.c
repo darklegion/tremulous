@@ -91,12 +91,12 @@ vmCvar_t  g_maxNameChanges;
 vmCvar_t  g_humanBuildPoints;
 vmCvar_t  g_alienBuildPoints;
 vmCvar_t  g_humanStage;
-vmCvar_t  g_humanKills;
+vmCvar_t  g_humanCredits;
 vmCvar_t  g_humanMaxStage;
 vmCvar_t  g_humanStage2Threshold;
 vmCvar_t  g_humanStage3Threshold;
 vmCvar_t  g_alienStage;
-vmCvar_t  g_alienKills;
+vmCvar_t  g_alienCredits;
 vmCvar_t  g_alienMaxStage;
 vmCvar_t  g_alienStage2Threshold;
 vmCvar_t  g_alienStage3Threshold;
@@ -211,12 +211,12 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_humanBuildPoints, "g_humanBuildPoints", DEFAULT_HUMAN_BUILDPOINTS, 0, 0, qfalse  },
   { &g_alienBuildPoints, "g_alienBuildPoints", DEFAULT_ALIEN_BUILDPOINTS, 0, 0, qfalse  },
   { &g_humanStage, "g_humanStage", "0", 0, 0, qfalse  },
-  { &g_humanKills, "g_humanKills", "0", 0, 0, qfalse  },
+  { &g_humanCredits, "g_humanCredits", "0", 0, 0, qfalse  },
   { &g_humanMaxStage, "g_humanMaxStage", DEFAULT_HUMAN_MAX_STAGE, 0, 0, qfalse  },
   { &g_humanStage2Threshold, "g_humanStage2Threshold", DEFAULT_HUMAN_STAGE2_THRESH, 0, 0, qfalse  },
   { &g_humanStage3Threshold, "g_humanStage3Threshold", DEFAULT_HUMAN_STAGE3_THRESH, 0, 0, qfalse  },
   { &g_alienStage, "g_alienStage", "0", 0, 0, qfalse  },
-  { &g_alienKills, "g_alienKills", "0", 0, 0, qfalse  },
+  { &g_alienCredits, "g_alienCredits", "0", 0, 0, qfalse  },
   { &g_alienMaxStage, "g_alienMaxStage", DEFAULT_ALIEN_MAX_STAGE, 0, 0, qfalse  },
   { &g_alienStage2Threshold, "g_alienStage2Threshold", DEFAULT_ALIEN_STAGE2_THRESH, 0, 0, qfalse  },
   { &g_alienStage3Threshold, "g_alienStage3Threshold", DEFAULT_ALIEN_STAGE3_THRESH, 0, 0, qfalse  },
@@ -630,8 +630,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   //reset stages
   trap_Cvar_Set( "g_alienStage", va( "%d", S1 ) );
   trap_Cvar_Set( "g_humanStage", va( "%d", S1 ) );
-  trap_Cvar_Set( "g_alienKills", 0 );
-  trap_Cvar_Set( "g_humanKills", 0 );
+  trap_Cvar_Set( "g_alienCredits", 0 );
+  trap_Cvar_Set( "g_humanCredits", 0 );
 
   G_Printf( "-----------------------------------\n" );
 
@@ -1187,7 +1187,7 @@ void G_CalculateBuildPoints( void )
 
     trap_SetConfigstring( CS_STAGES, va( "%d %d %d %d %d %d",
           g_alienStage.integer, g_humanStage.integer,
-          g_alienKills.integer, g_humanKills.integer,
+          g_alienCredits.integer, g_humanCredits.integer,
           alienNextStageThreshold, humanNextStageThreshold ) );
   }
 }
@@ -1208,7 +1208,7 @@ void G_CalculateStages( void )
   if( humanPlayerCountMod < 0.1f )
     humanPlayerCountMod = 0.1f;
 
-  if( g_alienKills.integer >=
+  if( g_alienCredits.integer >=
       (int)( ceil( (float)g_alienStage2Threshold.integer * alienPlayerCountMod ) ) &&
       g_alienStage.integer == S1 && g_alienMaxStage.integer > S1 )
   {
@@ -1217,7 +1217,7 @@ void G_CalculateStages( void )
     level.alienStage2Time = level.time;
   }
 
-  if( g_alienKills.integer >=
+  if( g_alienCredits.integer >=
       (int)( ceil( (float)g_alienStage3Threshold.integer * alienPlayerCountMod ) ) &&
       g_alienStage.integer == S2 && g_alienMaxStage.integer > S2 )
   {
@@ -1226,7 +1226,7 @@ void G_CalculateStages( void )
     level.alienStage3Time = level.time;
   }
 
-  if( g_humanKills.integer >=
+  if( g_humanCredits.integer >=
       (int)( ceil( (float)g_humanStage2Threshold.integer * humanPlayerCountMod ) ) &&
       g_humanStage.integer == S1 && g_humanMaxStage.integer > S1 )
   {
@@ -1235,7 +1235,7 @@ void G_CalculateStages( void )
     level.humanStage2Time = level.time;
   }
 
-  if( g_humanKills.integer >=
+  if( g_humanCredits.integer >=
       (int)( ceil( (float)g_humanStage3Threshold.integer * humanPlayerCountMod ) ) &&
       g_humanStage.integer == S2 && g_humanMaxStage.integer > S2 )
   {
@@ -1260,13 +1260,13 @@ void G_CalculateAvgPlayers( void )
   if( !level.numAlienClients )
   {
     level.numAlienSamples = 0;
-    trap_Cvar_Set( "g_alienKills", "0" );
+    trap_Cvar_Set( "g_alienCredits", "0" );
   }
 
   if( !level.numHumanClients )
   {
     level.numHumanSamples = 0;
-    trap_Cvar_Set( "g_humanKills", "0" );
+    trap_Cvar_Set( "g_humanCredits", "0" );
   }
 
   //calculate average number of clients for stats

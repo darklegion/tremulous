@@ -157,7 +157,7 @@ void CG_SetConfigValues( void )
                             &cgs.humanBuildPointsPowered );
 
   sscanf( CG_ConfigString( CS_STAGES ), "%d %d %d %d %d %d", &cgs.alienStage, &cgs.humanStage,
-      &cgs.alienKills, &cgs.humanKills, &cgs.alienNextStageThreshold, &cgs.humanNextStageThreshold );
+      &cgs.alienCredits, &cgs.humanCredits, &cgs.alienNextStageThreshold, &cgs.humanNextStageThreshold );
 
   cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
   cg.warmup = atoi( CG_ConfigString( CS_WARMUP ) );
@@ -282,7 +282,7 @@ static void CG_ConfigStringModified( void )
 
     sscanf( str, "%d %d %d %d %d %d",
         &cgs.alienStage, &cgs.humanStage,
-        &cgs.alienKills, &cgs.humanKills,
+        &cgs.alienCredits, &cgs.humanCredits,
         &cgs.alienNextStageThreshold, &cgs.humanNextStageThreshold );
 
     if( cgs.alienStage != oldAlienStage )

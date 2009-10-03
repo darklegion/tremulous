@@ -1466,7 +1466,6 @@ static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
 {
   char  s[ MAX_TOKEN_CHARS ];
   float tx, ty;
-  int kills;
 
   if( cg.intermissionStarted )
     return;
@@ -1476,29 +1475,33 @@ static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
 
   if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
-    kills = cgs.alienNextStageThreshold - cgs.alienKills;
+    int kills = ceil( (float)(cgs.alienNextStageThreshold - cgs.alienCredits) / ALIEN_CREDITS_PER_FRAG );
+    if( kills < 0 )
+      kills = 0;
 
     if( cgs.alienNextStageThreshold < 0 )
       Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d", cgs.alienStage + 1 );
     else if( kills == 1 )
-      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, %d kill for next stage",
-          cgs.alienStage + 1, kills );
+      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, 1 kill for next stage",
+          cgs.alienStage + 1 );
     else
       Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, %d kills for next stage",
           cgs.alienStage + 1, kills );
   }
   else if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
-    kills = cgs.humanNextStageThreshold - cgs.humanKills;
+    int credits = cgs.humanNextStageThreshold - cgs.humanCredits;
+    if( credits < 0 )
+      credits = 0;
 
     if( cgs.humanNextStageThreshold < 0 )
       Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d", cgs.humanStage + 1 );
-    else if( kills == 1 )
-      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, %d kill for next stage",
-          cgs.humanStage + 1, kills );
+    else if( credits == 1 )
+      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, 1 credit for next stage",
+          cgs.humanStage + 1 );
     else
-      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, %d kills for next stage",
-          cgs.humanStage + 1, kills );
+      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, %d credits for next stage",
+          cgs.humanStage + 1, credits );
   }
 
   CG_AlignText( rect, s, scale, 0.0f, 0.0f, textalign, textvalign, &tx, &ty );
