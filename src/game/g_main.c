@@ -1145,12 +1145,6 @@ void G_CalculateBuildPoints( void )
   level.humanBuildPoints = g_humanBuildPoints.integer - level.humanBuildPointQueue;
   level.alienBuildPoints = g_alienBuildPoints.integer - level.alienBuildPointQueue;
 
-  level.reactorPresent = qfalse;
-  level.overmindPresent = qfalse;
-
-  level.numAlienSpawns = 0;
-  level.numHumanSpawns = 0;
-
   // Deactivate any unused zones
   for( i = 0; i < g_humanRepeaterMaxZones.integer; i++ )
   {
@@ -1217,11 +1211,7 @@ void G_CalculateBuildPoints( void )
     {
       if( ent->spawned && ent->health > 0 )
       {
-        if( buildable == BA_H_REACTOR )
-          level.reactorPresent = qtrue;
-        else if( buildable == BA_A_OVERMIND )
-          level.overmindPresent = qtrue;
-        else if( buildable == BA_H_SPAWN )
+        if( buildable == BA_H_SPAWN )
           level.numHumanSpawns++;
         else if( buildable == BA_A_SPAWN )
           level.numAlienSpawns++;

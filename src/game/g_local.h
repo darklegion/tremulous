@@ -199,8 +199,6 @@ struct gentity_s
   qboolean          locked;             // used for turret tracking
   qboolean          powered;            // for human buildables
   int               builtBy;            // clientNum of person that built this
-  gentity_t         *overmindNode;      // controlling overmind
-  gentity_t         *reactorNode;       // reactor
   int               dcc;                // number of controlling dccs
   qboolean          spawned;            // whether or not this buildable has finished spawning
   int               shrunkTime;         // time when a barricade shrunk or zero
@@ -615,8 +613,6 @@ typedef struct
   int               alienKills;
   int               humanKills;
 
-  qboolean          reactorPresent;
-  qboolean          overmindPresent;
   qboolean          overmindMuted;
 
   int               humanBaseAttackTimer;
@@ -750,8 +746,8 @@ gentity_t         *G_CheckSpawnPoint( int spawnNum, vec3_t origin, vec3_t normal
 buildable_t       G_IsPowered( vec3_t origin );
 qboolean          G_IsDCCBuilt( void );
 int               G_FindDCC( gentity_t *self );
-qboolean          G_FindOvermind( gentity_t *self );
-qboolean          G_FindReactor( gentity_t *self );
+gentity_t         *G_Reactor( void );
+gentity_t         *G_Overmind( void );
 qboolean          G_FindCreep( gentity_t *self );
 
 void              G_BuildableThink( gentity_t *ent, int msec );

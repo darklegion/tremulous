@@ -143,17 +143,9 @@ qboolean G_FindPower( gentity_t *self )
   // Handle repeaters
   if( self->s.modelindex == BA_H_REPEATER )
   {
-    if( level.reactorPresent )
-    {
-      G_FindReactor( self );
-      self->parentNode = self->reactorNode;
+    self->parentNode = G_Reactor( );
 
-      return qtrue;
-    }
-
-    self->parentNode = NULL;
-
-    return qfalse;
+    return self->parentNode != NULL;
   }
 
   // Reset parent
@@ -559,80 +551,46 @@ qboolean G_IsDCCBuilt( void )
 
 /*
 ================
-G_FindOvermind
+G_Reactor
+G_Overmind
 
-Attempt to find an overmind for self
+Since there's only one of these and we quite often want to find them, cache the
+results, but check them for validity each time
+
+The code here will break if more than one reactor or overmind is allowed, even
+if one of them is dead/unspawned
 ================
 */
-qboolean G_FindOvermind( gentity_t *self )
+static gentity_t *G_FindBuildable( buildable_t buildable ); 
+
+gentity_t *G_Reactor( void )
 {
-  int       i;
-  gentity_t *ent;
+  static gentity_t *rc;
 
-  if( self->buildableTeam != TEAM_ALIENS )
-    return qfalse;
+  // If cache becomes invalid renew it
+  if( !rc || rc->s.eType != ET_BUILDABLE || rc->s.modelindex == BA_H_REACTOR )
+    rc = G_FindBuildable( BA_H_REACTOR );
 
-  //if this already has overmind then stop now
-  if( self->overmindNode && self->overmindNode->health > 0 )
-    return qtrue;
+  // If we found it and it's alive, return it
+  if( rc && rc->spawned && rc->health > 0 )
+    return rc;
 
-  //reset parent
-  self->overmindNode = NULL;
-
-  //iterate through entities
-  for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
-  {
-    if( ent->s.eType != ET_BUILDABLE )
-      continue;
-
-    //if entity is an overmind calculate the distance to it
-    if( ent->s.modelindex == BA_A_OVERMIND && ent->spawned && ent->health > 0 )
-    {
-      self->overmindNode = ent;
-      return qtrue;
-    }
-  }
-
-  return qfalse;
+  return NULL;
 }
 
-/*
-================
-G_FindReactor
-
-Attempt to find a reactor for self
-================
-*/
-qboolean G_FindReactor( gentity_t *self )
+gentity_t *G_Overmind( void )
 {
-  int       i;
-  gentity_t *ent;
+  static gentity_t *om;
 
-  if( self->buildableTeam != TEAM_HUMANS )
-    return qfalse;
+  // If cache becomes invalid renew it
+  if( !om || om->s.eType != ET_BUILDABLE || om->s.modelindex == BA_A_OVERMIND )
+    om = G_FindBuildable( BA_A_OVERMIND );
 
-  // If this already has reactor then stop now
-  if( self->reactorNode && self->reactorNode->health > 0 )
-    return qtrue;
+  // If we found it and it's alive, return it
+  if( om && om->spawned && om->health > 0 )
+    return om;
 
-  // Reset parent
-  self->reactorNode = NULL;
-
-  // Iterate through entities
-  for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
-  {
-    if( ent->s.eType != ET_BUILDABLE )
-      continue;
-
-    // If entity is an overmind calculate the distance to it
-    if( ent->s.modelindex == BA_H_REACTOR && ent->spawned && ent->health > 0 )
-    {
-      self->reactorNode = ent;
-      return qtrue;
-    }
-  }
-
-  return qfalse;
+  return NULL;
 }
 
 /*
@@ -888,7 +846,7 @@ A generic think function for Alien buildables
 */
 void AGeneric_Think( gentity_t *self )
 {
-  self->powered = level.overmindPresent;
+  self->powered = G_Overmind( ) != NULL;
   self->nextthink = level.time + BG_Buildable( self->s.modelindex )->nextthink;
   AGeneric_CreepCheck( self );
 }
@@ -1210,7 +1168,9 @@ Think function for Alien Barricade
 void ABarricade_Think( gentity_t *self )
 {
   AGeneric_Think( self );
-  ABarricade_Shrink( self, !G_FindOvermind( self ) );
+
+  // Shrink if unpowered
+  ABarricade_Shrink( self, !self->powered );
 }
 
 /*
@@ -1260,16 +1220,13 @@ void AAcidTube_Think( gentity_t *self )
   int       i, num;
   gentity_t *enemy;
 
-  self->powered = level.overmindPresent;
-  self->nextthink = level.time + BG_Buildable( self->s.modelindex )->nextthink;
+  AGeneric_Think( self );
 
   VectorAdd( self->s.origin, range, maxs );
   VectorSubtract( self->s.origin, range, mins );
 
-  AGeneric_CreepCheck( self );
-
   // attack nearby humans
-  if( self->spawned && self->health > 0 && G_FindOvermind( self ) )
+  if( self->spawned && self->health > 0 && self->powered )
   {
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
     for( i = 0; i < num; i++ )
@@ -1351,17 +1308,14 @@ Think function for Alien Hive
 */
 void AHive_Think( gentity_t *self )
 {
-  self->powered = level.overmindPresent;
-  self->nextthink = level.time + BG_Buildable( self->s.modelindex )->nextthink;
-
-  AGeneric_CreepCheck( self );
+  AGeneric_Think( self );
 
   // Hive missile hasn't returned in HIVE_REPEAT seconds, forget about it
   if( self->timestamp < level.time )
     self->active = qfalse;
 
   // Find a target to attack
-  if( self->spawned && !self->active && G_FindOvermind( self ) )
+  if( self->spawned && !self->active && self->powered )
   {
     int i, num, entityList[ MAX_GENTITIES ];
     vec3_t mins, maxs,
@@ -1499,7 +1453,7 @@ void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
   vec3_t  hovelOrigin, hovelAngles, inverseNormal;
 
-  if( self->spawned && G_FindOvermind( self ) )
+  if( self->spawned && self->powered )
   {
     if( self->active )
     {
@@ -1558,10 +1512,7 @@ Think for alien hovel
 */
 void AHovel_Think( gentity_t *self )
 {
-  self->powered = level.overmindPresent;
-  self->nextthink = level.time + 200;
-
-  AGeneric_CreepCheck( self );
+  AGeneric_Think( self );
 
   if( self->spawned )
   {
@@ -1631,10 +1582,7 @@ void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 {
   gclient_t *client = other->client;
 
-  if( !self->spawned || self->health <= 0 )
-    return;
-
-  if( !G_FindOvermind( self ) )
+  if( !self->spawned || !self->powered || self->health <= 0 )
     return;
 
   if( !client )
@@ -1791,12 +1739,9 @@ void ATrapper_Think( gentity_t *self )
   int range =     BG_Buildable( self->s.modelindex )->turretRange;
   int firespeed = BG_Buildable( self->s.modelindex )->turretFireSpeed;
 
-  self->powered = level.overmindPresent;
-  self->nextthink = level.time + BG_Buildable( self->s.modelindex )->nextthink;
+  AGeneric_Think( self );
 
-  AGeneric_CreepCheck( self );
-
-  if( self->spawned && G_FindOvermind( self ) )
+  if( self->spawned && self->powered )
   {
     //if the current target is not valid find a new one
     if( !ATrapper_CheckTarget( self, self->enemy, range ) )
@@ -3386,7 +3331,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
     // Check there is an Overmind
     if( buildable != BA_A_OVERMIND )
     {
-      if( !level.overmindPresent )
+      if( !G_Overmind( ) )
         reason = IBE_NOOVERMIND;
     }
 

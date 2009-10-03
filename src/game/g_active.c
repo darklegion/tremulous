@@ -1427,7 +1427,7 @@ void ClientThink_real( gentity_t *ent )
 
         if( modifier < BOOSTER_REGEN_MOD && boost->s.eType == ET_BUILDABLE &&
             boost->s.modelindex == BA_A_BOOSTER && boost->spawned &&
-            boost->health > 0 && level.overmindPresent )
+            boost->health > 0 && boost->powered )
         {
           modifier = BOOSTER_REGEN_MOD;
           continue;
@@ -1512,7 +1512,7 @@ void ClientThink_real( gentity_t *ent )
     }
 
     //switch jetpack off if no reactor
-    if( !level.reactorPresent )
+    if( !G_Reactor( ) )
       BG_DeactivateUpgrade( UP_JETPACK, client->ps.stats );
   }
 

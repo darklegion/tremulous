@@ -1798,7 +1798,7 @@ void Cmd_Class_f( gentity_t *ent )
       int cost;
 
       //check that we have an overmind
-      if( !level.overmindPresent )
+      if( !G_Overmind( ) )
       {
         G_TriggerMenu( clientNum, MN_A_NOOVMND_EVOLVE );
         return;
