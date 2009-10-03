@@ -289,11 +289,6 @@ static void PM_Friction( void )
         float stopSpeed = BG_Class( pm->ps->stats[ STAT_CLASS ] )->stopSpeed;
         float friction = BG_Class( pm->ps->stats[ STAT_CLASS ] )->friction;
 
-        // when landing a dodge, extra friction
-        if( pm->ps->pm_flags & PMF_TIME_LAND )
-          friction *= 1.0f + HUMAN_LAND_FRICTION *
-                             pm->ps->pm_time / HUMAN_DODGE_TIMEOUT;
-
         control = speed < stopSpeed ? stopSpeed : speed;
         drop += control * friction * pml.frametime;
       }
