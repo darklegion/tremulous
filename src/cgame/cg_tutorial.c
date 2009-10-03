@@ -654,7 +654,7 @@ const char *CG_TutorialText( void )
 
       if( ps->stats[ STAT_TEAM ] == TEAM_ALIENS )
       {
-        /*entityState_t *es = CG_BuildableInRange( ps, NULL );
+        entityState_t *es = CG_BuildableInRange( ps, NULL );
 
         if( ps->stats[ STAT_STATE ] & SS_HOVELING )
         {
@@ -671,8 +671,7 @@ const char *CG_TutorialText( void )
               va( "Press %s to enter the hovel\n",
                 CG_KeyNameForCommand( "+button7" ) ) );
         }
-        else*/
-        if( BG_AlienCanEvolve( ps->stats[ STAT_CLASS ],
+        else if( BG_AlienCanEvolve( ps->stats[ STAT_CLASS ],
                                     ps->persistant[ PERS_CREDIT ],
                                     cgs.alienStage ) )
         {

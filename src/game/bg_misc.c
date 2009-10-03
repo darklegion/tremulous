@@ -280,7 +280,7 @@ static const buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  uniqueTest;
     HIVE_VALUE,            //int       value;
   },
-  /*{
+  {
     BA_A_HOVEL,            //int       buildNum;
     "hovel",               //char      *buildName;
     "Hovel",               //char      *humanName;
@@ -291,7 +291,7 @@ static const buildableAttributes_t bg_buildableList[ ] =
     TR_GRAVITY,            //trType_t  traj;
     0.0,                   //float     bounce;
     HOVEL_BP,              //int       buildPoints;
-    ( 1 << S3 ),           //int  stages
+    0,  //can't build it   //int  stages
     HOVEL_HEALTH,          //int       health;
     HOVEL_REGEN,           //int       regenRate;
     HOVEL_SPLASHDAMAGE,    //int       splashDamage;
@@ -314,7 +314,7 @@ static const buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  transparentTest;
     qtrue,                 //qboolean  uniqueTest;
     HOVEL_VALUE,           //int       value;
-    },*/
+  },
   {
     BA_H_SPAWN,            //int       buildNum;
     "telenode",            //char      *buildName;
