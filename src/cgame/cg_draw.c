@@ -2265,7 +2265,7 @@ static void CG_DrawLocation( rectDef_t *rect, float scale, int textalign, vec4_t
   float         tx = rect->x, ty = rect->y;
   maxX = rect->x + rect->w;
   location = CG_ConfigString( CS_LOCATIONS + cgs.clientinfo[ cg.clientNum ].location );
-  if( UI_Text_Width( location, scale, 0 ) < maxX ) 
+  if( UI_Text_Width( location, scale, 0 ) < rect->w ) 
     CG_AlignText( rect, location, scale, 0.0f, 0.0f, textalign, VALIGN_CENTER, &tx, &ty );
 
   UI_Text_Paint_Limit( &maxX, tx, ty, scale, color, location, 0, 0 );
