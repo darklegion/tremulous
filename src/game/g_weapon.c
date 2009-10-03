@@ -267,10 +267,10 @@ static void WideBloodSpurt( gentity_t *attacker, gentity_t *victim, trace_t *tr 
     return;
 
   if( tr )
-    VectorSubtract( tr->endpos, victim->client->ps.origin, normal );
+    VectorSubtract( tr->endpos, victim->s.origin, normal );
   else
     VectorSubtract( attacker->client->ps.origin,
-                    victim->client->ps.origin, normal );
+                    victim->s.origin, normal );
 
   // Normalize the horizontal components of the vector difference to the
   // "radius" of the bounding box
@@ -288,7 +288,7 @@ static void WideBloodSpurt( gentity_t *attacker, gentity_t *victim, trace_t *tr 
   if( normal[ 2 ] < victim->r.mins[ 2 ] )
     normal[ 2 ] = victim->r.mins[ 2 ];
 
-  VectorAdd( victim->client->ps.origin, normal, origin );
+  VectorAdd( victim->s.origin, normal, origin );
   VectorNegate( normal, normal );
   VectorNormalize( normal );
 
