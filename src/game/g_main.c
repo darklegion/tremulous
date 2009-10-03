@@ -1862,7 +1862,7 @@ void CheckIntermissionExit( void )
   int       i;
   gclient_t *cl;
   byte      readyMasks[ ( MAX_CLIENTS + 7 ) / 8 ];
-  char      readyString[ 2 * sizeof( readyMasks ) + 1 ];
+  char      readyString[ 2 * sizeof( readyMasks ) + 1 ]; // a byte is 00 - ff
 
   //if no clients are connected, just exit
   if( !level.numConnectedClients )

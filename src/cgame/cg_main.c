@@ -1428,14 +1428,25 @@ static qboolean CG_ClientIsReady( int clientNum )
   // each character of the hex string corresponds to 4 bits, which correspond
   // to readiness for client (0, 1, 2, 3...) i.e. the highest order bit
   // corresponds to the lowest clientnum
-  // because of this 1:4 ratio we only need one character for a given client
+  // so we only need one character for a given client
   int val = clientNum / 4;
   const char *s = CG_ConfigString( CS_CLIENTS_READY );
-  while( *s && val-- > 0 )
-    s++;
+
+  while( *s && val > 0 )
+    s++, val--;
+
   if( !*s )
     return qfalse;
-  sscanf( s, "%1x", &val );
+
+  if( isdigit( *s ) )
+    val = *s - '0';
+  else if( isxlower( *s ) )
+    val = 10 + *s - 'a';
+  else if( isxupper( *s ) )
+    val = 10 + *s - 'A';
+  else
+    return qfalse;
+
   return ( ( val & 1 << ( 3 - clientNum % 4 ) ) != 0 );
 }
 
