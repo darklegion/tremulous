@@ -2194,7 +2194,7 @@ void HTeslaGen_Think( gentity_t *self )
 
   if( self->spawned && self->count < level.time )
   {
-    vec3_t range, mins, maxs, dir;
+    vec3_t range, mins, maxs;
     int entityList[ MAX_GENTITIES ], i, num;
 
     // Communicates firing state to client

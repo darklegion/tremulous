@@ -1950,7 +1950,7 @@ Cmd_Buy_f
 void Cmd_Buy_f( gentity_t *ent )
 {
   char s[ MAX_TOKEN_CHARS ];
-  int i, weapon, upgrade, maxAmmo, maxClips;
+  int weapon, upgrade, maxAmmo, maxClips;
   qboolean energyOnly;
 
   trap_Argv( 1, s, sizeof( s ) );
