@@ -691,8 +691,14 @@ void ASpawn_Think( gentity_t *self )
       if( ( ent = G_CheckSpawnPoint( self->s.number, self->s.origin,
               self->s.origin2, BA_A_SPAWN, NULL ) ) != NULL )
       {
-        if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD ||
-            ent->s.eType == ET_MOVER )
+        // If the thing blocking the spawn is a buildable, kill it. 
+        // If it's part of the map, kill self. 
+        if( ent->s.eType == ET_BUILDABLE )
+        {
+          G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+          G_SetBuildableAnim( self, BANIM_SPAWN1, qtrue );
+        }
+        else if( ent->s.number == ENTITYNUM_WORLD || ent->s.eType == ET_MOVER )
         {
           G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
           return;
@@ -2304,8 +2310,14 @@ void HSpawn_Think( gentity_t *self )
       if( ( ent = G_CheckSpawnPoint( self->s.number, self->s.origin,
               self->s.origin2, BA_H_SPAWN, NULL ) ) != NULL )
       {
-        if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD ||
-            ent->s.eType == ET_MOVER )
+        // If the thing blocking the spawn is a buildable, kill it. 
+        // If it's part of the map, kill self. 
+        if( ent->s.eType == ET_BUILDABLE )
+        {
+          G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+          G_SetBuildableAnim( self, BANIM_SPAWN1, qtrue );
+        }
+        else if( ent->s.number == ENTITYNUM_WORLD || ent->s.eType == ET_MOVER )
         {
           G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
           return;
@@ -2940,10 +2952,6 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
   if( tr1.entityNum != ENTITYNUM_WORLD )
     reason = IBE_NORMAL;
 
-  //check there is enough room to spawn from (presuming this is a spawn)
-  if( G_CheckSpawnPoint( -1, origin, normal, buildable, NULL ) != NULL )
-    reason = IBE_NORMAL;
-
   contents = trap_PointContents( entity_origin, -1 );
   buildPoints = BG_Buildable( buildable )->buildPoints;
 
@@ -3050,15 +3058,19 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
   if( ( tempReason = G_SufficientBPAvailable( buildable, origin ) ) != IBE_NONE )
     reason = tempReason;
 
+  // Relink buildables
+  G_SetBuildableLinkState( qtrue );
+
+  //check there is enough room to spawn from (presuming this is a spawn)
+  if( G_CheckSpawnPoint( ENTITYNUM_NONE, origin, normal, buildable, NULL ) != NULL )
+    reason = IBE_NORMAL;
+
   //this item does not fit here
   if( reason == IBE_NONE && ( tr2.fraction < 1.0 || tr3.fraction < 1.0 ) )
     reason = IBE_NOROOM;
 
   if( reason != IBE_NONE )
     level.numBuildablesForRemoval = 0;
-
-  // Relink buildables
-  G_SetBuildableLinkState( qtrue );
 
   return reason;
 }
