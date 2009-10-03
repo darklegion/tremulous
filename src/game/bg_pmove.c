@@ -809,6 +809,9 @@ static qboolean PM_CheckJump( void )
 
   // jump away from wall
   BG_GetClientNormal( pm->ps, normal );
+  
+  if( pm->ps->velocity[ 2 ] < 0 )
+    pm->ps->velocity[ 2 ] = 0;
 
   VectorMA( pm->ps->velocity, BG_Class( pm->ps->stats[ STAT_CLASS ] )->jumpMagnitude,
             normal, pm->ps->velocity );
