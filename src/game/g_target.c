@@ -324,6 +324,7 @@ void SP_target_location( gentity_t *self )
   self->think = target_location_linkup;
   self->nextthink = level.time + 200;  // Let them all spawn first
   self->s.eType = ET_LOCATION;
+  self->r.svFlags = SVF_BROADCAST;
   trap_LinkEntity( self ); // make the server send them to the clients
   G_SetOrigin( self, self->s.origin );
 }
