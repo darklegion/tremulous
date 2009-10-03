@@ -364,7 +364,7 @@ void Cmd_Give_f( gentity_t *ent )
 
   if( give_all || Q_stricmpn( name, "funds", 5 ) == 0 )
   {
-    int credits = atoi( name + 6 );
+    float credits = atof( name + 6 );
 
     if( ent->client->pers.teamSelection == TEAM_ALIENS )
       credits *= ALIEN_CREDITS_PER_KILL;
