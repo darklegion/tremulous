@@ -1278,7 +1278,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 
   // decide on third person view
   cg.renderingThirdPerson = ( cg_thirdPerson.integer || ( cg.snap->ps.stats[ STAT_HEALTH ] <= 0 ) || 
-                            ( cg.thirdPersonFollow ) );
+                            ( cg.thirdPersonFollow && cg.snap->ps.pm_flags && PMF_FOLLOW) );
 
   // build cg.refdef
   inwater = CG_CalcViewValues( );
