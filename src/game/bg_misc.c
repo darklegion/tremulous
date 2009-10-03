@@ -3903,7 +3903,7 @@ int BG_LoadEmoticons( char names[ ][ MAX_EMOTICON_NAME_LEN ], int widths[ ] )
       continue;
     }
 
-    width = atoi( va( "%c", emoticon[ fileLen - 7 ] ) );
+    width = emoticon[ fileLen - 7 ] - '0';
 
     if( width < 1 || width > 9 )
     {

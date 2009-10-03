@@ -302,7 +302,7 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
     }
   }
 
-  if( !g_adminNameProtect.string[ 0 ] )
+  if( !g_adminNameProtect.integer )
     return qtrue;
 
   for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
@@ -418,7 +418,7 @@ static void admin_writeconfig( void )
   for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
   {
     // don't write level 0 users
-    if( g_admin_admins[ i ]->level < 1 )
+    if( g_admin_admins[ i ]->level == 0 )
       continue;
 
     trap_FS_Write( "[admin]\n", 8, f );
@@ -564,6 +564,7 @@ static void admin_default_levels( void )
   Q_strncpyz( g_admin_levels[ 5 ]->name, "^1Server Operator",
     sizeof( l->name ) );
   Q_strncpyz( g_admin_levels[ 5 ]->flags, "*", sizeof( l->flags ) );
+  admin_level_maxname = 15;
 }
 
 //  return a level for a player entity.
@@ -1091,6 +1092,8 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
   trap_FS_Read( cnf, len, f );
   *( cnf + len ) = '\0';
   trap_FS_FCloseFile( f );
+
+  admin_level_maxname = 0;
 
   level_open = admin_open = ban_open = command_open = qfalse;
   COM_BeginParseSession( g_admin.string );
@@ -2429,14 +2432,14 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
       start--;
     else if( start < 0 )
     {
-      for( i = max, count = 0; i > 0 && count < -start; i-- )
+      for( i = max, count = 0; i >= 0 && count < -start; i-- )
       {
         if( g_admin_bans[ i ]->expires == 0 ||
           ( g_admin_bans[ i ]->expires - t ) > 0 )
           count++;
       }
 
-      start = i;
+      start = i + 1;
     }
   }
 

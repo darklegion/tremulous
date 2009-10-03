@@ -2790,7 +2790,7 @@ void Cmd_PTRCRestore_f( gentity_t *ent )
   else
   {
     trap_SendServerCommand( ent - g_entities,
-      va( "print \"\"%d\" is not a valid PTR code\n\"", code ) );
+      va( "print \"'%d' is not a valid PTR code\n\"", code ) );
   }
 }
 
