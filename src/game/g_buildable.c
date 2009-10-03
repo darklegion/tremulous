@@ -144,7 +144,7 @@ G_FindPower
 attempt to find power for self, return qtrue if successful
 ================
 */
-static qboolean G_FindPower( gentity_t *self, qboolean building )
+static qboolean G_FindPower( gentity_t *self )
 {
   int       i, j;
   gentity_t *ent, *ent2;
@@ -188,11 +188,10 @@ static qboolean G_FindPower( gentity_t *self, qboolean building )
       }
       else if( distance < minDistance )
       {
-        // If it's a repeater, check that enough BP will be available to power
-        // another buildable
-        // but only if self is a real buildable
+        // It's a repeater, so check that enough BP will be available to power
+        // another buildable but only if self is a real buildable
 
-        if( self->parentNode )
+        if( self->s.modelindex != BA_NONE )
         {
           int buildPoints = g_humanRepeaterBuildPoints.integer;
 
@@ -201,28 +200,37 @@ static qboolean G_FindPower( gentity_t *self, qboolean building )
           {
             gentity_t *powerEntity;
 
-            if( ent->s.eType != ET_BUILDABLE )
+            if( ent2->s.eType != ET_BUILDABLE )
               continue;
 
-            powerEntity = ent2->parentNode;  // FIXME: this assumes that parentNode is always the power source, if it exists
+            if( ent2 == self )
+              continue;
 
-            if( powerEntity && powerEntity->s.modelindex == BA_H_REPEATER && powerEntity == self->parentNode )
+            powerEntity = ent2->parentNode;
+
+            if( powerEntity && powerEntity->s.modelindex == BA_H_REPEATER && ( powerEntity == ent ) )
             {
               buildPoints -= BG_Buildable( ent2->s.modelindex )->buildPoints;
             }
           }
 
-          if( building )
-            buildPoints -= BG_Buildable( self->s.modelindex )->buildPoints;
+          buildPoints -= BG_Buildable( self->s.modelindex )->buildPoints;
 
           if( buildPoints >= 0 )
           {
             closestPower = ent;
             minDistance = distance;
           }
-        }
+          else
+          {
+            // a buildable can still be built if it shares BP from two zones
+
+            // TODO: handle combined power zones here
+          }
+        }      
         else
         {
+          // Dummy buildables don't need to look for zones
           closestPower = ent;
           minDistance = distance;
         }
@@ -248,7 +256,7 @@ Simple wrapper to G_FindPower to find the entity providing
 power for the specified point
 ================
 */
-gentity_t *G_PowerEntityForPoint( vec3_t origin )
+gentity_t *G_PowerEntityForPoint( const vec3_t origin )
 {
   gentity_t dummy;
 
@@ -257,7 +265,7 @@ gentity_t *G_PowerEntityForPoint( vec3_t origin )
   dummy.s.modelindex = BA_NONE;
   VectorCopy( origin, dummy.s.origin );
 
-  if( G_FindPower( &dummy, qfalse ) )
+  if( G_FindPower( &dummy ) )
     return dummy.parentNode;
   else
     return NULL;
@@ -273,7 +281,7 @@ power for the specified entity
 */
 gentity_t *G_PowerEntityForEntity( gentity_t *ent )
 {
-  if( G_FindPower( ent, qfalse ) )
+  if( G_FindPower( ent ) )
     return ent->parentNode;
   return NULL;
 }
@@ -346,8 +354,19 @@ G_GetBuildPoints
 Get the number of build points from a position
 ==================
 */
-int G_GetBuildPoints( const vec3_t pos, team_t team, int dist )
+int G_GetBuildPoints( const vec3_t pos, team_t team, int extraDistance )
 {
+  gentity_t *powerPoint = G_PowerEntityForPoint( pos );
+
+  if( powerPoint && powerPoint->s.modelindex == BA_H_REACTOR )
+    return level.humanBuildPoints;
+  if( powerPoint && powerPoint->s.modelindex == BA_H_REPEATER && powerPoint->usesZone && level.powerZones[ powerPoint->zone ].active )
+    return level.powerZones[ powerPoint->zone ].totalBuildPoints - level.powerZones[ powerPoint->zone ].queuedBuildPoints;
+
+  return 0;
+
+// TODO: handle combined power zones in G_FindPower.  Until then, use the closest zone and prefer the reactor
+#if 0
   int         i;
   gentity_t   *ent;
   int         distance = 0;
@@ -364,12 +383,12 @@ int G_GetBuildPoints( const vec3_t pos, team_t team, int dist )
       VectorSubtract( pos, ent->s.origin, temp_v );
       distance = VectorLength( temp_v );
 
-      if( ent->s.modelindex == BA_H_REACTOR && distance <= REACTOR_BASESIZE + dist )
+      if( ent->s.modelindex == BA_H_REACTOR && distance <= REACTOR_BASESIZE + extraDistance )
       {
         // Reactor is in range
         buildPoints += level.humanBuildPoints;
       }
-      else if( ent->s.modelindex == BA_H_REPEATER && distance <= REPEATER_BASESIZE + dist )
+      else if( ent->s.modelindex == BA_H_REPEATER && distance <= REPEATER_BASESIZE + extraDistance )
       {
         if( ent->usesZone && level.powerZones[ent->zone].active )
         {
@@ -389,6 +408,7 @@ int G_GetBuildPoints( const vec3_t pos, team_t team, int dist )
     buildPoints = 0;
 
   return buildPoints;
+#endif
 }
 
 /*
@@ -2006,7 +2026,7 @@ void HArmoury_Think( gentity_t *self )
   //make sure we have power
   self->nextthink = level.time + POWER_REFRESH_TIME;
 
-  self->powered = G_FindPower( self, qfalse );
+  self->powered = G_FindPower( self );
 }
 
 
@@ -2030,7 +2050,7 @@ void HDCC_Think( gentity_t *self )
   //make sure we have power
   self->nextthink = level.time + POWER_REFRESH_TIME;
 
-  self->powered = G_FindPower( self, qfalse );
+  self->powered = G_FindPower( self );
 }
 
 
@@ -2080,7 +2100,7 @@ void HMedistat_Think( gentity_t *self )
     self->enemy->client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_ACTIVE;
 
   //make sure we have power
-  if( !( self->powered = G_FindPower( self, qfalse ) ) )
+  if( !( self->powered = G_FindPower( self ) ) )
   {
     if( self->active )
     {
@@ -2344,7 +2364,7 @@ void HMGTurret_Think( gentity_t *self )
   self->s.eFlags &= ~EF_FIRING;
 
   // If not powered or spawned don't do anything
-  if( !( self->powered = G_FindPower( self, qfalse ) ) )
+  if( !( self->powered = G_FindPower( self ) ) )
   {
     self->nextthink = level.time + POWER_REFRESH_TIME;
     return;
@@ -2414,7 +2434,7 @@ void HTeslaGen_Think( gentity_t *self )
   self->nextthink = level.time + BG_Buildable( self->s.modelindex )->nextthink;
 
   //if not powered don't do anything and check again for power next think
-  if( !( self->powered = G_FindPower( self, qfalse ) ) )
+  if( !( self->powered = G_FindPower( self ) ) )
   {
     self->s.eFlags &= ~EF_FIRING;
     self->nextthink = level.time + POWER_REFRESH_TIME;
@@ -3159,7 +3179,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
 
     // Don't allow a power source to be replaced by a non-power source
     if( buildable != BA_H_REACTOR && buildable != BA_H_REPEATER &&
-        ( ent->s.modelindex == BA_H_REACTOR || ent->s.modelindex == BA_H_REPEATER ) )
+        !( ent->s.modelindex == BA_H_REACTOR || ent->s.modelindex == BA_H_REPEATER ) )
       continue;
 
     if( ent->deconstruct )
@@ -3202,7 +3222,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     return IBE_NOROOM;
 
   // There are one or more repeaters we can't remove
-  if( repeaterInRangeCount > 0 && buildable != BA_H_REPEATER )
+  if( repeaterInRangeCount > 0 )
     return IBE_RPTPOWERHERE;
 
   // Sort the list
@@ -3674,7 +3694,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
     built->powered = qtrue;
     built->s.eFlags |= EF_B_POWERED;
   }
-  else if( ( built->powered = G_FindPower( built, qtrue ) ) )
+  else if( ( built->powered = G_FindPower( built ) ) )
     built->s.eFlags |= EF_B_POWERED;
 
   built->s.eFlags &= ~EF_B_SPAWNED;

@@ -1247,17 +1247,8 @@ void G_CalculateBuildPoints( void )
                 if( powerEntity->usesZone && level.powerZones[ powerEntity->zone ].active )
                 {
                   zone_t *zone = &level.powerZones[ powerEntity->zone ];
-                  // Only power as much as a repeater can power
-                  if( zone->totalBuildPoints < 0 || zone->queuedBuildPoints > zone->totalBuildPoints )
-                  {
-                    // Don't unpower spawns
-                    if( buildable != BA_H_SPAWN )
-                      ent->powered = qfalse;
-                  }
-                  else
-                  {
-                    zone->totalBuildPoints -= BG_Buildable( buildable )->buildPoints;
-                  }
+
+                  zone->totalBuildPoints -= BG_Buildable( buildable )->buildPoints;
                 }
 
                 break;

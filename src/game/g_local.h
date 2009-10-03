@@ -767,7 +767,7 @@ void              G_LayoutLoad( void );
 void              G_BaseSelfDestruct( team_t team );
 void              G_QueueBuildPoints( gentity_t *self );
 int               G_GetBuildPoints( const vec3_t pos, team_t team, int dist );
-gentity_t         *G_PowerEntityForPoint( vec3_t origin );
+gentity_t         *G_PowerEntityForPoint( const vec3_t origin );
 gentity_t         *G_PowerEntityForEntity( gentity_t *ent );
 gentity_t         *G_RepeaterEntityForPoint( vec3_t origin );
 qboolean          G_InPowerZone( gentity_t *self );
