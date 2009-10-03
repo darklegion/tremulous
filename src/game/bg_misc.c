@@ -923,7 +923,7 @@ static const classAttributes_t bg_classList[ ] =
     SCA_TAKESFALLDAMAGE|SCA_FOVWARPS|SCA_ALIENSENSE,//int     abilities;
     WP_ABUILD,                                      //weapon_t  startWeapon
     95.0f,                                          //float   buildDist;
-    80,                                             //int     fov;
+    110,                                            //int     fov;
     0.001f,                                         //float   bob;
     2.0f,                                           //float   bobCycle;
     150,                                            //int     steptime;
