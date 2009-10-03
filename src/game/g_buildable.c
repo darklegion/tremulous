@@ -845,6 +845,7 @@ void AGeneric_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, i
   self->die = nullDieFunction;
   self->think = AGeneric_Blast;
   self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
+  self->powered = qfalse;
 
   if( self->spawned )
     self->nextthink = level.time + 5000;
@@ -1387,43 +1388,11 @@ pain function for Alien Hive
 */
 void AHive_Pain( gentity_t *self, gentity_t *attacker, int damage )
 {
-  if( self->health <= 0 || !level.overmindPresent )
-    return;
-
-  if( !self->active )
+  if( self->powered && !self->active )
     AHive_CheckTarget( self, attacker );
 
   G_SetBuildableAnim( self, BANIM_PAIN1, qfalse );
 }
-
-/*
-================
-AHive_Die
-
-pain function for Alien Hive
-================
-*/
-void AHive_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
-{
-  if( attacker && attacker->client && attacker->buildableTeam == TEAM_HUMANS &&
-      self->spawned && !self->active && G_FindOvermind( self ) )
-  {
-    vec3_t dirToTarget;
-
-    self->active = qtrue;
-    self->target_ent = attacker;
-    self->timestamp = level.time + HIVE_REPEAT;
-
-    VectorSubtract( attacker->s.pos.trBase, self->s.pos.trBase, dirToTarget );
-    VectorNormalize( dirToTarget );
-    vectoangles( dirToTarget, self->turretAim );
-
-    //fire at target
-    FireWeapon( self );
-  }
-  AGeneric_Die( self, inflictor, attacker, damage, mod );
-}
-
 
 
 //==================================================================================
@@ -3634,7 +3603,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
       break;
 
     case BA_A_HIVE:
-      built->die = AHive_Die;
+      built->die = AGeneric_Die;
       built->think = AHive_Think;
       built->pain = AHive_Pain;
       break;
