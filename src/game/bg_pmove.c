@@ -3025,8 +3025,6 @@ static void PM_Weapon( void )
       PM_AddEvent( EV_NOAMMO );
       pm->ps->weaponTime += 500;
     }
-    else
-      pm->ps->weaponTime += 50;
 
     if( pm->ps->weaponstate == WEAPON_FIRING )
       pm->ps->weaponstate = WEAPON_READY;
