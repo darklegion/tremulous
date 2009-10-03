@@ -229,6 +229,76 @@ static gentity_t *G_PowerEntityForPoint( vec3_t origin )
 
 /*
 ================
+G_FindRepeater
+
+attempt to find a repeater in range of self, return qtrue if successful
+================
+*/
+static qboolean G_FindRepeater( gentity_t *self )
+{
+  int       i;
+  gentity_t *ent;
+  gentity_t *closestPower = NULL;
+  int       distance = 0;
+  int       minDistance = REPEATER_BASESIZE + 1;
+  vec3_t    temp_v;
+
+  if( self->buildableTeam != TEAM_HUMANS )
+    return qfalse;
+
+  //iterate through entities
+  for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  {
+    if( ent->s.eType != ET_BUILDABLE )
+      continue;
+
+    //if entity is a power item calculate the distance to it
+    if(  ent->s.modelindex == BA_H_REPEATER &&
+        ent->spawned && ent->powered )
+    {
+      VectorSubtract( self->s.origin, ent->s.origin, temp_v );
+      distance = VectorLength( temp_v );
+
+      if( distance < minDistance )
+      {
+        closestPower = ent;
+        minDistance = distance;
+      }
+    }
+  }
+
+  //if there were no power items nearby give up
+  if( closestPower )
+  {
+    self->parentNode = closestPower;
+    return qtrue;
+  }
+  return qfalse;
+}
+/*
+================
+G_RepeaterEntityForPoint
+
+Simple wrapper to G_FindRepeater to find a  repeater providing
+power for the specified point
+================
+*/
+static gentity_t *G_RepeaterEntityForPoint( vec3_t origin )
+{
+  gentity_t dummy;
+
+  dummy.parentNode = NULL;
+  dummy.buildableTeam = TEAM_HUMANS;
+  dummy.s.modelindex = BA_NONE;
+  VectorCopy( origin, dummy.s.origin );
+
+  if( G_FindRepeater( &dummy ) )
+    return dummy.parentNode;
+  else
+    return NULL;
+}
+/*
+================
 G_IsPowered
 
 Check if a location has power, returning the entity type
@@ -3018,9 +3088,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
 
       if( tempent == NULL ) // No reactor
         reason = IBE_RPTNOREAC;
-      else if( g_markDeconstruct.integer && G_IsPowered( entity_origin ) == BA_H_REACTOR )
-        reason = IBE_RPTPOWERHERE;
-      else if( !g_markDeconstruct.integer && G_IsPowered( entity_origin ) )
+      else if( !g_markDeconstruct.integer && G_RepeaterEntityForPoint( entity_origin ) )
         reason = IBE_RPTPOWERHERE;
     }
 
