@@ -108,7 +108,8 @@ char *modNames[ ] =
   "MOD_LEVEL2_CLAW",
   "MOD_LEVEL2_ZAP",
   "MOD_LEVEL4_CLAW",
-  "MOD_LEVEL4_CHARGE",
+  "MOD_LEVEL4_TRAMPLE",
+  "MOD_LEVEL4_CRUSH",
 
   "MOD_SLOWBLOB",
   "MOD_POISON",
@@ -139,7 +140,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   float     totalDamage = 0.0f;
   gentity_t *player;
 
-
   if( self->client->ps.pm_type == PM_DEAD )
     return;
 
@@ -147,16 +147,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     return;
 
   // stop any following clients
-  for( i = 0; i < level.maxclients; i++ )
-  {
-    if( level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR &&
-        level.clients[ i ].sess.spectatorState == SPECTATOR_FOLLOW &&
-        level.clients[ i ].sess.spectatorClient == self->client->ps.clientNum )
-    {
-      if( !G_FollowNewClient( &g_entities[ i ], 1 ) )
-        G_StopFollowing( &g_entities[ i ] );
-    }
-  }
+  G_StopFromFollowing( self );
 
   self->client->ps.pm_type = PM_DEAD;
   self->suicideTime = 0;
@@ -1008,6 +999,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     }
   }
 
+  // don't do friendly fire on movement attacks
+  if( ( mod == MOD_LEVEL4_TRAMPLE || mod == MOD_LEVEL3_POUNCE ||
+        mod == MOD_LEVEL4_CRUSH ) &&
+      targ->s.eType == ET_BUILDABLE && targ->biteam == BIT_ALIENS )
+  {
+    return;
+  }
+
   // check for completely getting out of the damage
   if( !( dflags & DAMAGE_NO_PROTECTION ) )
   {
@@ -1016,7 +1015,24 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     // if the attacker was on the same team
     if( targ != attacker && OnSameTeam( targ, attacker ) )
     {
-      if( !g_friendlyFire.integer )
+      // don't do friendly fire on movement attacks
+      if( mod == MOD_LEVEL4_TRAMPLE || mod == MOD_LEVEL3_POUNCE ||
+          mod == MOD_LEVEL4_CRUSH )
+        return;
+
+      if( g_dretchPunt.integer &&
+        targ->client->ps.stats[ STAT_PCLASS ] == PCL_ALIEN_LEVEL0 )
+      {
+        vec3_t dir, push;
+
+        VectorSubtract( targ->r.currentOrigin, attacker->r.currentOrigin, dir );
+        VectorNormalizeFast( dir );
+        VectorScale( dir, ( damage * 10.0f ), push );
+        push[2] = 64.0f;
+        VectorAdd( targ->client->ps.velocity, push, targ->client->ps.velocity );
+        return;
+      }
+      else if( !g_friendlyFire.integer )
       {
         if( !g_friendlyFireHumans.integer 
           && targ->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
@@ -1031,13 +1047,22 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       }
     }
 
-		// If target is buildable on the same team as the attacking client
-		if( targ->s.eType == ET_BUILDABLE && attacker->client &&
-				targ->biteam == attacker->client->pers.teamSelection )
-		{
-			if( !g_friendlyBuildableFire.integer )
-				return;
-		}
+    if( targ->s.eType == ET_BUILDABLE && attacker->client )
+    {
+      if( targ->biteam == attacker->client->pers.teamSelection )
+      {
+        if( !g_friendlyBuildableFire.integer )
+          return;
+      }
+
+      // base is under attack warning if DCC'd
+      if( targ->biteam == BIT_HUMANS && G_FindDCC( targ ) &&
+          level.time > level.humanBaseAttackTimer )
+      {
+        level.humanBaseAttackTimer = level.time + DC_ATTACK_PERIOD;
+        G_BroadcastEvent( EV_DCC_ATTACK, 0 );
+      }
+    }
 
     // check for godmode
     if ( targ->flags & FL_GODMODE )
@@ -1092,9 +1117,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     //if boosted poison every attack
     if( attacker->client && attacker->client->ps.stats[ STAT_STATE ] & SS_BOOSTED )
     {
-      if( !( targ->client->ps.stats[ STAT_STATE ] & SS_POISONED ) &&
-          !BG_InventoryContainsUpgrade( UP_BATTLESUIT, targ->client->ps.stats ) &&
-          mod != MOD_LEVEL2_ZAP &&
+      if( targ->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+          mod != MOD_LEVEL2_ZAP && mod != MOD_POISON &&
+          mod != MOD_LEVEL1_PCLOUD &&
           targ->client->poisonImmunityTime < level.time )
       {
         targ->client->ps.stats[ STAT_STATE ] |= SS_POISONED;

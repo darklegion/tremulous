@@ -172,7 +172,6 @@ struct gentity_s
   int               splashRadius;
   int               methodOfDeath;
   int               splashMethodOfDeath;
-  int               chargeRepeat;
 
   int               count;
 
@@ -197,12 +196,13 @@ struct gentity_s
   int               biteam;             // buildable item team
   gentity_t         *parentNode;        // for creep and defence/spawn dependencies
   qboolean          active;             // for power repeater, but could be useful elsewhere
+  qboolean          locked;             // used for turret tracking
   qboolean          powered;            // for human buildables
   int               builtBy;            // clientNum of person that built this
-  gentity_t         *dccNode;           // controlling dcc
   gentity_t         *overmindNode;      // controlling overmind
-  qboolean          dcced;              // controlled by a dcc or not?
+  int               dcc;                // number of controlling dccs
   qboolean          spawned;            // whether or not this buildable has finished spawning
+  int               shrunkTime;         // time when a barricade shrunk or zero
   int               buildTime;          // when this buildable was built
   int               time1000;           // timer evaluated every second
   qboolean          deconstruct;        // deconstruct if no BP left
@@ -222,6 +222,8 @@ struct gentity_s
 
   gentity_t         *targeted;          // true if the player is currently a valid target of a turret
   vec3_t            turretAim;          // aim vector for turrets
+  vec3_t            turretAimRate;      // track turn speed for norfenturrets
+  int               turretSpinupTime;   // spinup delay for norfenturrets
 
   vec4_t            animation;          // animated map objects
 
@@ -239,6 +241,14 @@ struct gentity_s
   int               suicideTime;                    // when the client will suicide
 
   int               lastDamageTime;
+  int               lastRegenTime;
+
+  qboolean          zapping;                        // adv maurader is zapping
+  qboolean          wasZapping;                     // adv maurader was zapping
+  int               zapTargets[ LEVEL2_AREAZAP_MAX_TARGETS ];
+  float             zapDmg;                         // keep track of damage
+
+  qboolean          ownerClear;                     // used for missle tracking
 };
 
 typedef enum
@@ -342,9 +352,10 @@ typedef struct
   int                 nameChangeTime;
   int                 nameChanges;
 
-  // used to save persistant[] values while in SPECTATOR_FOLLOW mode
-  int                 savedScore;
-  int                 savedCredit;
+  // used to save playerState_t values while in SPECTATOR_FOLLOW mode
+  int                 score;
+  int                 credit;
+  int                 ping;
 
   // votes
   qboolean            vote;
@@ -441,13 +452,10 @@ struct gclient_s
   int                 grabExpiryTime;
   int                 lastLockTime;
   int                 lastSlowTime;
-  int                 lastBoostedTime;
   int                 lastMedKitTime;
   int                 medKitHealthToRestore;
   int                 medKitIncrementTime;
   int                 lastCreepSlowTime;    // time until creep can be removed
-
-  qboolean            allowedToPounce;
 
   qboolean            charging;
 
@@ -460,6 +468,11 @@ struct gclient_s
   unlagged_t          unlaggedCalc;
   int                 unlaggedTime;
 
+  int                 lcannonStartTime;
+
+  // Tyrant crush
+  int                 forceCrouchTime;
+  int                 lastCrushTime;
 };
 
 
@@ -477,7 +490,8 @@ void      G_InitSpawnQueue( spawnQueue_t *sq );
 int       G_GetSpawnQueueLength( spawnQueue_t *sq );
 int       G_PopSpawnQueue( spawnQueue_t *sq );
 int       G_PeekSpawnQueue( spawnQueue_t *sq );
-void      G_PushSpawnQueue( spawnQueue_t *sq, int clientNum );
+qboolean  G_SearchSpawnQueue( spawnQueue_t *sq, int clientNum );
+qboolean  G_PushSpawnQueue( spawnQueue_t *sq, int clientNum );
 qboolean  G_RemoveFromSpawnQueue( spawnQueue_t *sq, int clientNum );
 int       G_GetPosInSpawnQueue( spawnQueue_t *sq, int clientNum );
 
@@ -542,6 +556,7 @@ typedef struct
   int               framenum;
   int               time;                         // in msec
   int               previousTime;                 // so movers can back up when blocked
+  int               frameMsec;                    // trap_Milliseconds() at end frame
 
   int               startTime;                    // level.time the map was started
 
@@ -661,7 +676,7 @@ typedef struct
 #define CMD_CHEAT         0x01
 #define CMD_MESSAGE       0x02 // sends message to others (skip when muted)
 #define CMD_TEAM          0x04 // must be on a team
-#define CMD_NOTEAM        0x08 // must not be on a team
+#define CMD_SPEC          0x08 // must be in spectator mode
 #define CMD_ALIEN         0x10
 #define CMD_HUMAN         0x20
 #define CMD_LIVING        0x40
@@ -689,6 +704,7 @@ char      *G_NewString( const char *string );
 // g_cmds.c
 //
 void      Cmd_Score_f( gentity_t *ent );
+void      G_StopFromFollowing( gentity_t *ent );
 void      G_StopFollowing( gentity_t *ent );
 qboolean  G_FollowNewClient( gentity_t *ent, int dir );
 void      G_ToggleFollow( gentity_t *ent );
@@ -702,6 +718,7 @@ void      G_LeaveTeam( gentity_t *self );
 void      G_ChangeTeam( gentity_t *ent, pTeam_t newTeam );
 void      G_SanitiseName( char *in, char *out );
 void      G_PrivateMessage( gentity_t *ent );
+void      Cmd_Test_f( gentity_t *ent );
 
 //
 // g_physics.c
@@ -747,7 +764,9 @@ gentity_t         *G_CheckSpawnPoint( int spawnNum, vec3_t origin, vec3_t normal
 
 buildable_t       G_IsPowered( vec3_t origin );
 qboolean          G_IsDCCBuilt( void );
+int               G_FindDCC( gentity_t *self );
 qboolean          G_IsOvermindBuilt( void );
+qboolean          G_FindCreep( gentity_t *self );
 
 void              G_BuildableThink( gentity_t *ent, int msec );
 qboolean          G_BuildableRange( vec3_t origin, float r, buildable_t buildable );
@@ -840,7 +859,7 @@ void      G_RunMissile( gentity_t *ent );
 gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t aimdir );
 gentity_t *fire_blaster( gentity_t *self, vec3_t start, vec3_t dir );
 gentity_t *fire_pulseRifle( gentity_t *self, vec3_t start, vec3_t dir );
-gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int damage, int radius );
+gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int damage, int radius, int speed );
 gentity_t *fire_lockblob( gentity_t *self, vec3_t start, vec3_t dir );
 gentity_t *fire_paraLockBlob( gentity_t *self, vec3_t start, vec3_t dir );
 gentity_t *fire_slowBlob( gentity_t *self, vec3_t start, vec3_t dir );
@@ -896,8 +915,9 @@ void      SnapVectorTowards( vec3_t v, vec3_t to );
 qboolean  CheckVenomAttack( gentity_t *ent );
 void      CheckGrabAttack( gentity_t *ent );
 qboolean  CheckPounceAttack( gentity_t *ent );
-void      ChargeAttack( gentity_t *ent, gentity_t *victim );
-void      G_UpdateZaps( int msec );
+void      G_ChargeAttack( gentity_t *ent, gentity_t *victim );
+void      G_CrushAttack( gentity_t *ent, gentity_t *victim, float sec );
+void      G_UpdateZaps( gentity_t *ent );
 
 
 //
@@ -905,9 +925,11 @@ void      G_UpdateZaps( int msec );
 //
 void      G_AddCreditToClient( gclient_t *client, short credit, qboolean cap );
 team_t    TeamCount( int ignoreClientNum, int team );
-void      SetClientViewAngle( gentity_t *ent, vec3_t angle );
-gentity_t *SelectTremulousSpawnPoint( pTeam_t team, vec3_t preference, vec3_t origin, vec3_t angles );
-gentity_t *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
+void      G_SetClientViewAngle( gentity_t *ent, vec3_t angle );
+gentity_t *G_SelectTremulousSpawnPoint( pTeam_t team, vec3_t preference, vec3_t origin, vec3_t angles );
+gentity_t *G_SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
+gentity_t *G_SelectAlienLockSpawnPoint( vec3_t origin, vec3_t angles );
+gentity_t *G_SelectHumanLockSpawnPoint( vec3_t origin, vec3_t angles );
 void      SpawnCorpse( gentity_t *ent );
 void      respawn( gentity_t *ent );
 void      BeginIntermission( void );
@@ -1182,6 +1204,8 @@ extern  vmCvar_t  g_adminLog;
 extern  vmCvar_t  g_adminParseSay;
 extern  vmCvar_t  g_adminNameProtect;
 extern  vmCvar_t  g_adminTempBan;
+
+extern  vmCvar_t  g_dretchPunt;
 
 extern  vmCvar_t  g_privateMessages;
 

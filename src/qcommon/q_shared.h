@@ -1109,7 +1109,7 @@ typedef struct playerState_s {
 //
 #define	BUTTON_ATTACK		1
 #define	BUTTON_TALK			2			// displays talk balloon and disables actions
-#define	BUTTON_USE_HOLDABLE	4
+#define BUTTON_USE_HOLDABLE 4           // activate upgrade
 #define	BUTTON_GESTURE		8
 #define	BUTTON_WALKING		16			// walking can't just be infered from MOVE_RUN
 										// because a key pressed late in the frame will
@@ -1117,12 +1117,8 @@ typedef struct playerState_s {
 										// walking will use different animations and
 										// won't generate footsteps
 #define BUTTON_ATTACK2	32
-#define	BUTTON_NEGATIVE		64
-
-#define BUTTON_GETFLAG		128
-#define BUTTON_GUARDBASE	256
-#define BUTTON_PATROL		512
-#define BUTTON_FOLLOWME		1024
+#define BUTTON_DODGE        64          // start a dodge or sprint motion
+#define BUTTON_USE_EVOLVE   128         // use target or open evolve menu
 
 #define	BUTTON_ANY			2048			// any key whatsoever
 

@@ -470,7 +470,8 @@ static void CG_OffsetFirstPersonView( void )
   {
     if( ps->stats[ STAT_MISC ] > 0 )
     {
-      float fraction = (float)ps->stats[ STAT_MISC ] / (float)LEVEL4_CHARGE_TIME;
+      float fraction = (float)ps->stats[ STAT_MISC ] /
+        (float)LEVEL4_TRAMPLE_CHARGE_MAX;
 
       if( fraction > 1.0f )
         fraction = 1.0f;
@@ -593,17 +594,17 @@ static void CG_OffsetFirstPersonView( void )
   }
 
   // this *feels* more realisitic for humans
-  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS )
+  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+      ( cg.predictedPlayerState.pm_type == PM_NORMAL ||
+        cg.predictedPlayerState.pm_type == PM_JETPACK ) )
   {
     angles[PITCH] += cg.bobfracsin * bob2 * 0.5;
 
     // heavy breathing effects //FIXME: sound
-    if( cg.predictedPlayerState.stats[ STAT_STAMINA ] < 0 )
+    if( cg.predictedPlayerState.stats[ STAT_STAMINA ] < STAMINA_BREATHING_LEVEL )
     {
-      float deltaBreath = (float)(
-        cg.predictedPlayerState.stats[ STAT_STAMINA ] < 0 ?
-        -cg.predictedPlayerState.stats[ STAT_STAMINA ] :
-        cg.predictedPlayerState.stats[ STAT_STAMINA ] ) / 200.0;
+      float deltaBreath = ( cg.predictedPlayerState.stats[ STAT_STAMINA ] -
+                            STAMINA_BREATHING_LEVEL ) / -250.0;
       float deltaAngle = cos( (float)cg.time/150.0 ) * deltaBreath;
 
       deltaAngle += ( deltaAngle < 0 ? -deltaAngle : deltaAngle ) * 0.5;
@@ -1066,6 +1067,10 @@ static int CG_CalcViewValues( void )
   cg.bobfracsin = fabs( sin( ( ps->bobCycle & 127 ) / 127.0 * M_PI ) );
   cg.xyspeed = sqrt( ps->velocity[ 0 ] * ps->velocity[ 0 ] +
     ps->velocity[ 1 ] * ps->velocity[ 1 ] );
+
+  // the bob velocity should't get too fast to avoid jerking
+  if( cg.xyspeed > 300.f )
+    cg.xyspeed = 300.f;
 
   VectorCopy( ps->origin, cg.refdef.vieworg );
 

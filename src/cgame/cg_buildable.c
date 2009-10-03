@@ -904,6 +904,7 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
   qboolean        visible = qfalse;
   vec3_t          mins, maxs;
   entityState_t   *hit;
+  int             anim;
 
   if( BG_FindTeamForBuildable( es->modelindex ) == BIT_ALIENS )
     bs = &cgs.alienBuildStat;
@@ -921,6 +922,12 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
 
   // trace for center point
   BG_FindBBoxForBuildable( es->modelindex, mins, maxs );
+
+  // hack for shrunken barricades
+  anim = es->torsoAnim & ~( ANIM_FORCEBIT | ANIM_TOGGLEBIT );
+  if( es->modelindex == BA_A_BARRICADE &&
+      ( anim == BANIM_DESTROYED || !( es->generic1 & B_SPAWNED_TOGGLEBIT ) ) )
+    maxs[ 2 ] = (int)( maxs[ 2 ] * BARRICADE_SHRINKPROP );
 
   VectorCopy( cent->lerpOrigin, origin );
 

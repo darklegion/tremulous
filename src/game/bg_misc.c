@@ -500,7 +500,7 @@ buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  invertNormal;
     qfalse,                //qboolean  creepTest;
     0,                     //int       creepSize;
-    qtrue,                 //qboolean  dccTest;
+    qfalse,                //qboolean  dccTest;
     qtrue,                 //qboolean  transparentTest;
     qfalse                 //qboolean  reactorTest;
   },
@@ -607,7 +607,7 @@ buildableAttributes_t bg_buildableList[ ] =
     BIT_HUMANS,            //int       team;
     ( 1 << WP_HBUILD )|( 1 << WP_HBUILD2 ),    //weapon_t  buildWeapon;
     BANIM_IDLE1,           //int       idleAnim;
-    REACTOR_ATTACK_REPEAT, //int       nextthink;
+    REACTOR_ATTACK_DCC_REPEAT, //int       nextthink;
     REACTOR_BT,            //int       buildTime;
     qtrue,                 //qboolean  usable;
     0,                     //int       turretRange;
@@ -1752,7 +1752,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     300.0f,                                         //float   stopSpeed;
-    270.0f,                                         //float   jumpMagnitude;
+    310.0f,                                         //float   jumpMagnitude;
     1.2f,                                           //float   knockbackScale;
     { PCL_ALIEN_LEVEL2, PCL_ALIEN_LEVEL1_UPG, PCL_NONE },   //int     children[ 3 ];
     LEVEL1_COST,                                     //int     cost;
@@ -1794,7 +1794,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     300.0f,                                         //float   stopSpeed;
-    270.0f,                                         //float   jumpMagnitude;
+    310.0f,                                         //float   jumpMagnitude;
     1.1f,                                           //float   knockbackScale;
     { PCL_ALIEN_LEVEL2, PCL_NONE, PCL_NONE },       //int     children[ 3 ];
     LEVEL1_UPG_COST,                                //int     cost;
@@ -1936,7 +1936,7 @@ classAttributes_t bg_classList[ ] =
     "default",                                      //char    *skinname;
     1.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
-    ( 1 << S3 ),                                    //int  stages
+    ( 1 << S2 )|( 1 << S3 ),                        //int  stages
     { -32, -32, -21 },                              //vec3_t  mins;
     { 32, 32, 21 },                                 //vec3_t  maxs;
     { 32, 32, 21 },                                 //vec3_t  crouchmaxs;
@@ -2024,7 +2024,7 @@ classAttributes_t bg_classList[ ] =
     { 15, 15, 16 },                                 //vec3_t  crouchmaxs;
     { -15, -15, -4 },                               //vec3_t  deadmins;
     { 15, 15, 4 },                                  //vec3_t  deadmaxs;
-    0.0f,                                           //float   zOffset
+    -2.0f,                                          //float   zOffset
     26, 12,                                         //int     viewheight, crouchviewheight;
     100,                                            //int     health;
     1.0f,                                           //float   fallDamage;
@@ -2082,7 +2082,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
-    270.0f,                                         //float   jumpMagnitude;
+    220.0f,                                         //float   jumpMagnitude;
     1.0f,                                           //float   knockbackScale;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
     0,                                              //int     cost;
@@ -3514,10 +3514,10 @@ weaponAttributes_t bg_weapons[ ] =
     qtrue,                //int       infiniteAmmo;
     qfalse,               //int       usesEnergy;
     ABUILDER_BUILD_REPEAT,//int       repeatRate1;
-    ABUILDER_BUILD_REPEAT,//int       repeatRate2;
+    ABUILDER_CLAW_REPEAT, //int       repeatRate2;
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
-    0.0f,                 //float     knockbackScale;
+    ABUILDER_CLAW_K_SCALE,//float     knockbackScale;
     qtrue,                //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
@@ -4837,8 +4837,8 @@ char *eventnames[ ] =
   "EV_BULLET",        // otherEntity is the shooter
 
   "EV_LEV1_GRAB",
-  "EV_LEV4_CHARGE_PREPARE",
-  "EV_LEV4_CHARGE_START",
+  "EV_LEV4_TRAMPLE_PREPARE",
+  "EV_LEV4_TRAMPLE_START",
 
   "EV_PAIN",
   "EV_DEATH1",
@@ -5855,5 +5855,4 @@ void BG_ClientListParse( clientList_t *list, const char *s )
     return;
   sscanf( s, "%x%x", &list->hi, &list->lo );
 }
-
 

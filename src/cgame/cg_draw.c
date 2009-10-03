@@ -593,14 +593,15 @@ CG_DrawPlayerBoosterBolt
 static void CG_DrawPlayerBoosterBolt( rectDef_t *rect, vec4_t color, qhandle_t shader )
 {
   vec4_t        localColor;
+  playerState_t *ps = &cg.snap->ps;
 
   Vector4Copy( color, localColor );
 
-  if( cg.boostedTime >= 0 )
+  if( ps->stats[ STAT_STATE ] & SS_BOOSTED )
   {
-    if( ( cg.time - cg.boostedTime ) > BOOST_TIME - 3000 )
+    if( ps->stats[ STAT_MISC2 ] < 3000 )
     {
-      qboolean flash = ( cg.time / 500 ) % 2;
+      qboolean flash = ( ps->stats[ STAT_MISC2 ] / 500 ) % 2;
 
       if( flash )
         localColor[ 3 ] = 1.0f;
@@ -1986,7 +1987,7 @@ static void CG_DrawCrosshair( void )
 
   wi = &cg_weapons[ cg.snap->ps.weapon ];
 
-  w = h = wi->crossHairSize;
+  w = h = wi->crossHairSize * cg_crosshairSize.value;
 
   w *= cgDC.aspectScale;
 
@@ -3016,6 +3017,4 @@ void CG_DrawActive( stereoFrame_t stereoView )
   // draw status bar and other floating elements
   CG_Draw2D( );
 }
-
-
 

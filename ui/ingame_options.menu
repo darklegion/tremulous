@@ -360,6 +360,27 @@
       }
     }
 
+    itemDef
+    {
+      name game
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Crosshair Size:"
+      cvar "cg_crosshairSize"
+      cvarFloatList { "Normal" 1 "Small" 0.75 "Tiny" 0.5 "Huge" 1.25 }
+      rect CONTENT_X (CONTENT_Y+(11*ELEM_H)) CONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
 //////// CONTROLS
 
     //Controls menu

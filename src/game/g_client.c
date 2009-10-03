@@ -86,51 +86,31 @@ G_AddCreditToClient
 */
 void G_AddCreditToClient( gclient_t *client, short credit, qboolean cap )
 {
+  int capAmount;
+
   if( !client )
     return;
 
-  //if we're already at the max and trying to add credit then stop
-  if( cap )
-  {
-    if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-    {
-      if( client->ps.persistant[ PERS_CREDIT ] >= ALIEN_MAX_KILLS &&
-          credit > 0 )
-        return;
-    }
-    else if( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-    {
-      if( client->ps.persistant[ PERS_CREDIT ] >= HUMAN_MAX_CREDITS &&
-          credit > 0 )
-        return;
-    }
-  }
+  client->pers.credit += credit;
+  capAmount = client->pers.teamSelection == PTE_ALIENS ?
+               ALIEN_MAX_KILLS : HUMAN_MAX_CREDITS;
 
-  client->ps.persistant[ PERS_CREDIT ] += credit;
+  if( client->pers.credit > capAmount )
+    client->pers.credit = capAmount;
 
-  if( cap )
-  {
-    if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-    {
-      if( client->ps.persistant[ PERS_CREDIT ] > ALIEN_MAX_KILLS )
-        client->ps.persistant[ PERS_CREDIT ] = ALIEN_MAX_KILLS;
-    }
-    else if( client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-    {
-      if( client->ps.persistant[ PERS_CREDIT ] > HUMAN_MAX_CREDITS )
-        client->ps.persistant[ PERS_CREDIT ] = HUMAN_MAX_CREDITS;
-    }
-  }
+  if( client->pers.credit < 0 )
+    client->pers.credit = 0;
 
-  if( client->ps.persistant[ PERS_CREDIT ] < 0 )
-    client->ps.persistant[ PERS_CREDIT ] = 0;
+  // keep PERS_CREDIT in sync if not following 
+  if( client->sess.spectatorState != SPECTATOR_FOLLOW )
+    client->ps.persistant[ PERS_CREDIT ] = client->pers.credit;
 }
 
 
 /*
 =======================================================================
 
-  SelectSpawnPoint
+  G_SelectSpawnPoint
 
 =======================================================================
 */
@@ -165,13 +145,13 @@ qboolean SpotWouldTelefrag( gentity_t *spot )
 
 /*
 ================
-SelectNearestDeathmatchSpawnPoint
+G_SelectNearestDeathmatchSpawnPoint
 
 Find the spot that we DON'T want to use
 ================
 */
 #define MAX_SPAWN_POINTS  128
-gentity_t *SelectNearestDeathmatchSpawnPoint( vec3_t from )
+gentity_t *G_SelectNearestDeathmatchSpawnPoint( vec3_t from )
 {
   gentity_t *spot;
   vec3_t    delta;
@@ -200,13 +180,13 @@ gentity_t *SelectNearestDeathmatchSpawnPoint( vec3_t from )
 
 /*
 ================
-SelectRandomDeathmatchSpawnPoint
+G_SelectRandomDeathmatchSpawnPoint
 
 go to a random point that doesn't telefrag
 ================
 */
 #define MAX_SPAWN_POINTS  128
-gentity_t *SelectRandomDeathmatchSpawnPoint( void )
+gentity_t *G_SelectRandomDeathmatchSpawnPoint( void )
 {
   gentity_t *spot;
   int       count;
@@ -235,12 +215,12 @@ gentity_t *SelectRandomDeathmatchSpawnPoint( void )
 
 /*
 ===========
-SelectRandomFurthestSpawnPoint
+G_SelectRandomFurthestSpawnPoint
 
 Chooses a player start, deathmatch start, etc
 ============
 */
-gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles )
+gentity_t *G_SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles )
 {
   gentity_t *spot;
   vec3_t    delta;
@@ -318,12 +298,12 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 
 /*
 ================
-SelectAlienSpawnPoint
+G_SelectAlienSpawnPoint
 
 go to a random point that doesn't telefrag
 ================
 */
-gentity_t *SelectAlienSpawnPoint( vec3_t preference )
+gentity_t *G_SelectAlienSpawnPoint( vec3_t preference )
 {
   gentity_t *spot;
   int       count;
@@ -367,12 +347,12 @@ gentity_t *SelectAlienSpawnPoint( vec3_t preference )
 
 /*
 ================
-SelectHumanSpawnPoint
+G_SelectHumanSpawnPoint
 
 go to a random point that doesn't telefrag
 ================
 */
-gentity_t *SelectHumanSpawnPoint( vec3_t preference )
+gentity_t *G_SelectHumanSpawnPoint( vec3_t preference )
 {
   gentity_t *spot;
   int       count;
@@ -416,32 +396,32 @@ gentity_t *SelectHumanSpawnPoint( vec3_t preference )
 
 /*
 ===========
-SelectSpawnPoint
+G_SelectSpawnPoint
 
 Chooses a player start, deathmatch start, etc
 ============
 */
-gentity_t *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles )
+gentity_t *G_SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles )
 {
-  return SelectRandomFurthestSpawnPoint( avoidPoint, origin, angles );
+  return G_SelectRandomFurthestSpawnPoint( avoidPoint, origin, angles );
 }
 
 
 /*
 ===========
-SelectTremulousSpawnPoint
+G_SelectTremulousSpawnPoint
 
 Chooses a player start, deathmatch start, etc
 ============
 */
-gentity_t *SelectTremulousSpawnPoint( pTeam_t team, vec3_t preference, vec3_t origin, vec3_t angles )
+gentity_t *G_SelectTremulousSpawnPoint( pTeam_t team, vec3_t preference, vec3_t origin, vec3_t angles )
 {
   gentity_t *spot = NULL;
 
   if( team == PTE_ALIENS )
-    spot = SelectAlienSpawnPoint( preference );
+    spot = G_SelectAlienSpawnPoint( preference );
   else if( team == PTE_HUMANS )
-    spot = SelectHumanSpawnPoint( preference );
+    spot = G_SelectHumanSpawnPoint( preference );
 
   //no available spots
   if( !spot )
@@ -462,13 +442,13 @@ gentity_t *SelectTremulousSpawnPoint( pTeam_t team, vec3_t preference, vec3_t or
 
 /*
 ===========
-SelectInitialSpawnPoint
+G_SelectInitialSpawnPoint
 
 Try to find a spawn point marked 'initial', otherwise
 use normal spawn selection.
 ============
 */
-gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles )
+gentity_t *G_SelectInitialSpawnPoint( vec3_t origin, vec3_t angles )
 {
   gentity_t *spot;
 
@@ -481,7 +461,7 @@ gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles )
 
   if( !spot || SpotWouldTelefrag( spot ) )
   {
-    return SelectSpawnPoint( vec3_origin, origin, angles );
+    return G_SelectSpawnPoint( vec3_origin, origin, angles );
   }
 
   VectorCopy( spot->s.origin, origin );
@@ -493,11 +473,11 @@ gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles )
 
 /*
 ===========
-SelectSpectatorSpawnPoint
+G_SelectSpectatorSpawnPoint
 
 ============
 */
-gentity_t *SelectSpectatorSpawnPoint( vec3_t origin, vec3_t angles )
+gentity_t *G_SelectSpectatorSpawnPoint( vec3_t origin, vec3_t angles )
 {
   FindIntermissionPoint( );
 
@@ -510,13 +490,13 @@ gentity_t *SelectSpectatorSpawnPoint( vec3_t origin, vec3_t angles )
 
 /*
 ===========
-SelectAlienLockSpawnPoint
+G_SelectAlienLockSpawnPoint
 
 Try to find a spawn point for alien intermission otherwise
 use normal intermission spawn.
 ============
 */
-gentity_t *SelectAlienLockSpawnPoint( vec3_t origin, vec3_t angles )
+gentity_t *G_SelectAlienLockSpawnPoint( vec3_t origin, vec3_t angles )
 {
   gentity_t *spot;
 
@@ -524,7 +504,7 @@ gentity_t *SelectAlienLockSpawnPoint( vec3_t origin, vec3_t angles )
   spot = G_Find( spot, FOFS( classname ), "info_alien_intermission" );
 
   if( !spot )
-    return SelectSpectatorSpawnPoint( origin, angles );
+    return G_SelectSpectatorSpawnPoint( origin, angles );
 
   VectorCopy( spot->s.origin, origin );
   VectorCopy( spot->s.angles, angles );
@@ -535,13 +515,13 @@ gentity_t *SelectAlienLockSpawnPoint( vec3_t origin, vec3_t angles )
 
 /*
 ===========
-SelectHumanLockSpawnPoint
+G_SelectHumanLockSpawnPoint
 
 Try to find a spawn point for human intermission otherwise
 use normal intermission spawn.
 ============
 */
-gentity_t *SelectHumanLockSpawnPoint( vec3_t origin, vec3_t angles )
+gentity_t *G_SelectHumanLockSpawnPoint( vec3_t origin, vec3_t angles )
 {
   gentity_t *spot;
 
@@ -549,7 +529,7 @@ gentity_t *SelectHumanLockSpawnPoint( vec3_t origin, vec3_t angles )
   spot = G_Find( spot, FOFS( classname ), "info_human_intermission" );
 
   if( !spot )
-    return SelectSpectatorSpawnPoint( origin, angles );
+    return G_SelectSpectatorSpawnPoint( origin, angles );
 
   VectorCopy( spot->s.origin, origin );
   VectorCopy( spot->s.angles, angles );
@@ -731,11 +711,11 @@ void SpawnCorpse( gentity_t *ent )
 
 /*
 ==================
-SetClientViewAngle
+G_SetClientViewAngle
 
 ==================
 */
-void SetClientViewAngle( gentity_t *ent, vec3_t angle )
+void G_SetClientViewAngle( gentity_t *ent, vec3_t angle )
 {
   int     i;
 
@@ -1119,10 +1099,7 @@ void ClientUserinfoChanged( int clientNum )
   strcpy( c1, Info_ValueForKey( userinfo, "color1" ) );
   strcpy( c2, Info_ValueForKey( userinfo, "color2" ) );
 
-  if( client->ps.pm_flags & PMF_FOLLOW )
-    team = PTE_NONE;
-  else
-    team = client->ps.stats[ STAT_PTEAM ];
+  team = client->pers.teamSelection;
 
   // send over a subset of the userinfo keys so other clients can
   // print scoreboards, display models, and play custom sounds
@@ -1280,6 +1257,7 @@ void ClientBegin( int clientNum )
   client->pers.connected = CON_CONNECTED;
   client->pers.enterTime = level.time;
   client->pers.teamState.state = TEAM_BEGIN;
+  client->pers.classSelection = PCL_NONE;
 
   // save eflags around this, because changing teams will
   // cause this to happen with a valid entity, and we
@@ -1292,7 +1270,6 @@ void ClientBegin( int clientNum )
   client->ps.eFlags = flags;
 
   // locate ent at a spawn point
-
   ClientSpawn( ent, NULL, NULL, NULL );
 
   trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
@@ -1337,7 +1314,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   int                 maxAmmo, maxClips;
   weapon_t            weapon;
 
-
   index = ent - g_entities;
   client = ent->client;
 
@@ -1367,11 +1343,11 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   if( client->sess.sessionTeam == TEAM_SPECTATOR )
   {
     if( teamLocal == PTE_NONE )
-      spawnPoint = SelectSpectatorSpawnPoint( spawn_origin, spawn_angles );
+      spawnPoint = G_SelectSpectatorSpawnPoint( spawn_origin, spawn_angles );
     else if( teamLocal == PTE_ALIENS )
-      spawnPoint = SelectAlienLockSpawnPoint( spawn_origin, spawn_angles );
+      spawnPoint = G_SelectAlienLockSpawnPoint( spawn_origin, spawn_angles );
     else if( teamLocal == PTE_HUMANS )
-      spawnPoint = SelectHumanLockSpawnPoint( spawn_origin, spawn_angles );
+      spawnPoint = G_SelectHumanLockSpawnPoint( spawn_origin, spawn_angles );
   }
   else
   {
@@ -1426,6 +1402,10 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   // increment the spawncount so the client will detect the respawn
   client->ps.persistant[ PERS_SPAWN_COUNT ]++;
   client->ps.persistant[ PERS_TEAM ] = client->sess.sessionTeam;
+
+  // restore really persistant things
+  client->ps.persistant[ PERS_SCORE ] = client->pers.score;
+  client->ps.persistant[ PERS_CREDIT ] = client->pers.credit;
 
   client->airOutTime = level.time + 12000;
 
@@ -1550,7 +1530,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   client->ps.pm_flags |= PMF_RESPAWNED;
 
   trap_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
-  SetClientViewAngle( ent, spawn_angles );
+  G_SetClientViewAngle( ent, spawn_angles );
 
   if( !( client->sess.sessionTeam == TEAM_SPECTATOR ) )
   {

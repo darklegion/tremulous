@@ -36,6 +36,7 @@ static bind_t bindings[ ] =
   { "+button2",       "Activate Upgrade",       { -1, -1 } },
   { "+speed",         "Run/Walk",               { -1, -1 } },
   { "boost",          "Sprint",                 { -1, -1 } },
+  { "+button6",       "Dodge",                  { -1, -1 } },
   { "+moveup",        "Jump",                   { -1, -1 } },
   { "+movedown",      "Crouch",                 { -1, -1 } },
   { "+attack",        "Primary Attack",         { -1, -1 } },
@@ -340,7 +341,7 @@ static void CG_AlienLevel4Text( char *text, playerState_t *ps )
         CG_KeyNameForCommand( "+attack" ) ) );
 
   Q_strcat( text, MAX_TUTORIAL_TEXT,
-      va( "Hold down and release %s to charge\n",
+      va( "Hold down and release %s to trample\n",
         CG_KeyNameForCommand( "+button5" ) ) );
 }
 
@@ -552,14 +553,25 @@ CG_SpectatorText
 */
 static void CG_SpectatorText( char *text, playerState_t *ps )
 {
+  if( cgs.clientinfo[ cg.clientNum ].team != PTE_NONE )
+  {
+    Q_strcat( text, MAX_TUTORIAL_TEXT,
+        va( "Press %s to spawn\n",
+          CG_KeyNameForCommand( "+attack" ) ) );
+  }
+  else 
+  {
+    Q_strcat( text, MAX_TUTORIAL_TEXT,
+        va( "Press %s to join a team\n",
+          CG_KeyNameForCommand( "+attack" ) ) );
+  }
+
   if( ps->pm_flags & PMF_FOLLOW )
   {
     Q_strcat( text, MAX_TUTORIAL_TEXT,
-        va( "Press %s to return to free spectator mode\n",
+        va( "Press %s to stop following\n",
           CG_KeyNameForCommand( "+button2" ) ) );
 
-    if( CG_PlayerCount( ) > 1 )
-    {
       Q_strcat( text, MAX_TUTORIAL_TEXT,
           va( "Press %s or ",
             CG_KeyNameForCommand( "weapprev" ) ) );
@@ -567,27 +579,13 @@ static void CG_SpectatorText( char *text, playerState_t *ps )
           va( "%s to change player\n",
             CG_KeyNameForCommand( "weapnext" ) ) );
     }
-  }
-  else if( ps->pm_type == PM_SPECTATOR )
-  {
-    Q_strcat( text, MAX_TUTORIAL_TEXT,
-        va( "Press %s to join a team\n",
-          CG_KeyNameForCommand( "+attack" ) ) );
-
-    if( CG_PlayerCount( ) > 0 )
-    {
-      Q_strcat( text, MAX_TUTORIAL_TEXT,
-          va( "Press %s to enter spectator follow mode\n",
-            CG_KeyNameForCommand( "+button2" ) ) );
-    }
-  }
   else
   {
     Q_strcat( text, MAX_TUTORIAL_TEXT,
-        va( "Press %s to spawn\n",
-          CG_KeyNameForCommand( "+attack" ) ) );
+        va( "Press %s to follow a player\n",
+            CG_KeyNameForCommand( "+button2" ) ) );
+    }
   }
-}
 
 /*
 ===============

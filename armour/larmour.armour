@@ -1,0 +1,87 @@
+//chest, standing
+{
+  minHeight 0.5
+  maxHeight 0.8
+  minAngle  130
+  maxAngle  230
+  modifier  0.35
+}
+//back, standing
+{
+  minHeight 0.5
+  maxHeight 0.8
+  minAngle  310
+  maxAngle  50
+  modifier  0.4
+}
+
+//left arm, standing
+{
+  minHeight 0.5
+  maxHeight 0.8
+  minAngle  50
+  maxAngle  130
+  modifier  0.3
+}
+//right arm, standing
+{
+  minHeight 0.5
+  maxHeight 0.8
+  minAngle  230
+  maxAngle  310
+  modifier  0.3
+}
+//legs, standing
+{
+  minHeight 0.0
+  maxHeight 0.5
+  minAngle  0
+  maxAngle  360
+  modifier  0.3
+}
+
+//chest, crouching
+{
+  minHeight 0.2
+  maxHeight 0.8
+  minAngle  130
+  maxAngle  230
+  modifier  0.3
+  crouch
+}
+//back, crouching
+{
+  minHeight 0.2
+  maxHeight 0.8
+  minAngle  310
+  maxAngle  50
+  modifier  0.4
+  crouch
+}
+//left arm, crouching
+{
+  minHeight 0.2
+  maxHeight 0.8
+  minAngle  50
+  maxAngle  130
+  modifier  0.25
+  crouch
+}
+//right arm, crouching
+{
+  minHeight 0.2
+  maxHeight 0.8
+  minAngle  230
+  maxAngle  310
+  modifier  0.25
+  crouch
+}
+//legs, crouching
+{
+  minHeight 0.0
+  maxHeight 0.3
+  minAngle  0
+  maxAngle  360
+  modifier  0.25
+  crouch
+}

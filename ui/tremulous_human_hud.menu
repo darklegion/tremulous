@@ -242,6 +242,7 @@
       decoration
       textScale .5
       ownerdraw CG_PLAYER_SELECTTEXT
+      textstyle ITEM_TEXTSTYLE_SHADOWED
     }
 
     //AMMO

@@ -4638,6 +4638,7 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
     int         paintLines, totalLines, lineNum = 0;
     float       paintY;
     int         i;
+    char        lastCode = 0, newCode = 0;
 
     UI_CreateCacheEntry( textPtr, &item->window.rect, item->textscale );
 
@@ -4688,6 +4689,10 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
     {
       int lineLength = &textPtr[ i ] - p;
 
+      // track any color escape sequences
+      if( i && Q_IsColorString( textPtr + i - 1 ) )
+        newCode = textPtr[ i ];
+
       if( lineLength >= sizeof( buff ) - 1 )
         break;
 
@@ -4696,8 +4701,24 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
         itemDef_t   lineItem;
         int         width, height;
 
-        strncpy( buff, p, lineLength );
-        buff[ lineLength ] = '\0';
+        // if there was a color escape before we need to insert it on the
+        // start of every line again, otherwise don't insert a color escape
+        // in order to preserve the item's assigned color
+        if( lastCode )
+        {
+          buff[ 0 ] = Q_COLOR_ESCAPE;
+          buff[ 1 ] = lastCode;
+          strncpy( buff + 2, p, lineLength );
+          buff[ lineLength + 2 ] = '\0';
+        }
+        else
+        {
+          strncpy( buff, p, lineLength );
+          buff[ lineLength ] = '\0';
+        }
+
+        lastCode = newCode;
+
         p = &textPtr[ i + 1 ];
 
         lineItem.type               = ITEM_TYPE_TEXT;
@@ -5665,7 +5686,7 @@ void Item_ListBox_Paint( itemDef_t *item )
               DC->drawHandlePic( x + columnPos, y + ( ( listPtr->elementHeight - height ) / 2.0f ),
                   width, height, optionalImage );
             }
-            else if( text )
+            else if( text[ 0 ] )
             {
               int alignOffset = 0.0f, tw;
 
@@ -5717,7 +5738,7 @@ void Item_ListBox_Paint( itemDef_t *item )
 
           if( optionalImage >= 0 )
             DC->drawHandlePic( x + offset, y, listPtr->elementHeight, listPtr->elementHeight, optionalImage );
-          else if( text )
+          else if( text[ 0 ] )
           {
             UI_Text_Paint( x + offset, y + m + ( ( listPtr->elementHeight - m ) / 2.0f ),
                 item->textscale, item->window.foreColor, text, 0,

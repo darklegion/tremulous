@@ -168,6 +168,24 @@ static void CG_Obituary( entityState_t *ent )
           message = "blew himself up";
         break;
 
+      case MOD_LEVEL3_BOUNCEBALL:
+        if( gender == GENDER_FEMALE )
+          message = "sniped herself";
+        else if( gender == GENDER_NEUTER )
+          message = "sniped itself";
+        else
+          message = "sniped himself";
+        break;
+
+      case MOD_PRIFLE:
+        if( gender == GENDER_FEMALE )
+          message = "pulse rifled herself";
+        else if( gender == GENDER_NEUTER )
+          message = "pulse rifled itself";
+        else
+          message = "pulse rifled himself";
+        break;
+
       default:
         if( gender == GENDER_FEMALE )
           message = "killed herself";
@@ -181,7 +199,7 @@ static void CG_Obituary( entityState_t *ent )
 
   if( message )
   {
-    CG_Printf( "%s" S_COLOR_WHITE " %s.\n", targetName, message );
+    CG_Printf( "%s" S_COLOR_WHITE " %s\n", targetName, message );
     return;
   }
 
@@ -297,11 +315,15 @@ static void CG_Obituary( entityState_t *ent )
             BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL4 ) );
         message2 = className;
         break;
-      case MOD_LEVEL4_CHARGE:
+      case MOD_LEVEL4_TRAMPLE:
         message = "should have gotten out of the way of";
         Com_sprintf( className, 64, "'s %s",
             BG_FindHumanNameForClassNum( PCL_ALIEN_LEVEL4 ) );
         message2 = className;
+        break;
+      case MOD_LEVEL4_CRUSH:
+        message = "was crushed under";
+        message2 = "'s weight";
         break;
 
       case MOD_POISON:
@@ -342,7 +364,7 @@ static void CG_Obituary( entityState_t *ent )
   }
 
   // we don't know what it was
-  CG_Printf( "%s died.\n", targetName );
+  CG_Printf( "%s died\n", targetName );
 }
 
 //==========================================================================
@@ -377,6 +399,60 @@ void CG_PainEvent( centity_t *cent, int health )
   // save pain time for programitic twitch animation
   cent->pe.painTime = cg.time;
   cent->pe.painDirection ^= 1;
+}
+
+/*
+=========================
+CG_Level2Zap
+=========================
+*/
+static void CG_Level2Zap( entityState_t *es )
+{
+  int           i;
+  centity_t     *source = NULL, *target = NULL;
+
+  if( es->misc < 0 || es->misc >= MAX_CLIENTS )
+    return;
+
+  source = &cg_entities[ es->misc ];
+  for( i = 0; i <= 2; i++ )
+  {
+    switch( i )
+    {
+      case 0:
+        if( es->time <= 0 )
+          continue;
+
+        target = &cg_entities[ es->time ];
+        break;
+
+      case 1:
+        if( es->time2 <= 0 )
+          continue;
+
+        target = &cg_entities[ es->time2 ];
+        break;
+
+      case 2:
+        if( es->constantLight <= 0 )
+          continue;
+
+        target = &cg_entities[ es->constantLight ];
+        break;
+    }
+
+    if( !CG_IsTrailSystemValid( &source->level2ZapTS[ i ] ) )
+      source->level2ZapTS[ i ] = CG_SpawnNewTrailSystem( cgs.media.level2ZapTS );
+
+    if( CG_IsTrailSystemValid( &source->level2ZapTS[ i ] ) )
+    {
+      CG_SetAttachmentCent( &source->level2ZapTS[ i ]->frontAttachment, source );
+      CG_SetAttachmentCent( &source->level2ZapTS[ i ]->backAttachment, target );
+      CG_AttachToCent( &source->level2ZapTS[ i ]->frontAttachment );
+      CG_AttachToCent( &source->level2ZapTS[ i ]->backAttachment );
+    }
+  }
+  source->level2ZapTime = cg.time;
 }
 
 /*
@@ -619,13 +695,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       trap_S_StartSound( NULL, es->number, CHAN_VOICE, cgs.media.alienL1Grab );
       break;
 
-    case EV_LEV4_CHARGE_PREPARE:
-      DEBUGNAME( "EV_LEV4_CHARGE_PREPARE" );
+    case EV_LEV4_TRAMPLE_PREPARE:
+      DEBUGNAME( "EV_LEV4_TRAMPLE_PREPARE" );
       trap_S_StartSound( NULL, es->number, CHAN_VOICE, cgs.media.alienL4ChargePrepare );
       break;
 
-    case EV_LEV4_CHARGE_START:
-      DEBUGNAME( "EV_LEV4_CHARGE_START" );
+    case EV_LEV4_TRAMPLE_START:
+      DEBUGNAME( "EV_LEV4_TRAMPLE_START" );
       //FIXME: stop cgs.media.alienL4ChargePrepare playing here
       trap_S_StartSound( NULL, es->number, CHAN_VOICE, cgs.media.alienL4ChargeStart );
       break;
@@ -903,6 +979,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       }
       break;
 
+    case EV_MGTURRET_SPINUP:
+      DEBUGNAME( "EV_MGTURRET_SPINUP" );
+      trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.turretSpinupSound );
+      break;
+
     case EV_OVERMIND_SPAWNS:
       DEBUGNAME( "EV_OVERMIND_SPAWNS" );
       if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS )
@@ -966,6 +1047,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       DEBUGNAME( "EV_PLAYER_RESPAWN" );
       if( es->number == cg.clientNum )
         cg.spawnTime = cg.time;
+      break;
+
+    case EV_LEV2_ZAP:
+      DEBUGNAME( "EV_LEV2_ZAP" );
+      CG_Level2Zap( es );
       break;
 
     default:

@@ -160,11 +160,11 @@ qboolean UI_ConsoleCommand( int realTime )
     return qtrue;
   }
 
-  if( Q_strncmp( cmd, "messagemode", 11 ) == 0 )
+  if( Q_strncmp( cmd, "ui_messagemode", 14 ) == 0 )
   {
     trap_Cvar_Set( "ui_sayBuffer", "" );
 
-    switch( cmd[ 11 ] )
+    switch( cmd[ strlen(cmd) ] )
     {
       default:
       case '\0':

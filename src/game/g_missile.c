@@ -408,8 +408,8 @@ gentity_t *fire_pulseRifle( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
   bolt->damage = PRIFLE_DMG;
-  bolt->splashDamage = 0;
-  bolt->splashRadius = 0;
+  bolt->splashDamage = PRIFLE_DMG;
+  bolt->splashRadius = PRIFLE_SPLASH_RADIUS;
   bolt->methodOfDeath = MOD_PRIFLE;
   bolt->splashMethodOfDeath = MOD_PRIFLE;
   bolt->clipmask = MASK_SHOT;
@@ -434,7 +434,8 @@ fire_luciferCannon
 
 =================
 */
-gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int damage, int radius )
+gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir,
+  int damage, int radius, int speed )
 {
   gentity_t *bolt;
   int localDamage = (int)( ceil( ( (float)damage /
@@ -468,7 +469,7 @@ gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir, int da
   bolt->s.pos.trType = TR_LINEAR;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame
   VectorCopy( start, bolt->s.pos.trBase );
-  VectorScale( dir, LCANNON_SPEED, bolt->s.pos.trDelta );
+  VectorScale( dir, speed, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
 
   VectorCopy( start, bolt->r.currentOrigin );
@@ -589,7 +590,7 @@ void AHive_SearchAndDestroy( gentity_t *self )
 
   //if there is no LOS or the parent hive is too far away or the target is dead, return
   if( tr.entityNum == ENTITYNUM_WORLD ||
-      Distance( self->r.currentOrigin, self->parent->r.currentOrigin ) > ( HIVE_RANGE * 5 ) ||
+      Distance( self->r.currentOrigin, self->parent->r.currentOrigin ) > HIVE_RANGE ||
       self->target_ent->health <= 0 )
   {
     self->r.ownerNum = ENTITYNUM_WORLD;
@@ -789,8 +790,8 @@ gentity_t *fire_bounceBall( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
   bolt->damage = LEVEL3_BOUNCEBALL_DMG;
-  bolt->splashDamage = 0;
-  bolt->splashRadius = 0;
+  bolt->splashDamage = LEVEL3_BOUNCEBALL_DMG;
+  bolt->splashRadius = LEVEL3_BOUNCEBALL_RADIUS;
   bolt->methodOfDeath = MOD_LEVEL3_BOUNCEBALL;
   bolt->splashMethodOfDeath = MOD_LEVEL3_BOUNCEBALL;
   bolt->clipmask = MASK_SHOT;
@@ -802,7 +803,6 @@ gentity_t *fire_bounceBall( gentity_t *self, vec3_t start, vec3_t dir )
   VectorScale( dir, LEVEL3_BOUNCEBALL_SPEED, bolt->s.pos.trDelta );
   SnapVector( bolt->s.pos.trDelta );      // save net bandwidth
   VectorCopy( start, bolt->r.currentOrigin );
-  /*bolt->s.eFlags |= EF_BOUNCE;*/
 
   return bolt;
 }

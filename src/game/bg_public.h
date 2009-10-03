@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MINS_Z                  -24
 #define DEFAULT_VIEWHEIGHT      26
 #define CROUCH_VIEWHEIGHT       12
-#define DEAD_VIEWHEIGHT         -14 // watch for mins[ 2 ] less than this causing
+#define DEAD_VIEWHEIGHT         4 // height from ground
 
 //
 // config strings are a general means of communicating variable length strings
@@ -135,6 +135,7 @@ typedef enum
 #define PMF_BACKWARDS_RUN   16      // coast down to backwards run
 #define PMF_TIME_LAND       32      // pm_time is time before rejump
 #define PMF_TIME_KNOCKBACK  64      // pm_time is an air-accelerate only time
+#define PMF_FORCE_CROUCH    128     // force the player to crouch
 #define PMF_TIME_WATERJUMP  256     // pm_time is waterjump
 #define PMF_RESPAWNED       512     // clear after attack and jump buttons come up
 #define PMF_USE_ITEM_HELD   1024
@@ -151,10 +152,11 @@ typedef enum
 typedef struct
 {
   int pouncePayload;
+  float fallVelocity;
 } pmoveExt_t;
 
 #define MAXTOUCH  32
-typedef struct
+typedef struct pmove_s
 {
   // state (in / out)
   playerState_t *ps;
@@ -214,7 +216,8 @@ typedef enum
   STAT_PTEAM,     // player team
   STAT_STAMINA,   // stamina (human only)
   STAT_STATE,     // client states e.g. wall climbing
-  STAT_MISC,      // for uh...misc stuff
+  STAT_MISC,      // for uh...misc stuff (pounce, trample, lcannon)
+  STAT_MISC2,     // more uh...misc stuff (booster, lcannon repeat)
   STAT_BUILDABLE, // which ghost model to display for building
   STAT_FALLDIST,  // the distance the player fell
   STAT_VIEWLOCK   // direction to lock the view in
@@ -521,8 +524,8 @@ typedef enum
   EV_BULLET,        // otherEntity is the shooter
 
   EV_LEV1_GRAB,
-  EV_LEV4_CHARGE_PREPARE,
-  EV_LEV4_CHARGE_START,
+  EV_LEV4_TRAMPLE_PREPARE,
+  EV_LEV4_TRAMPLE_START,
 
   EV_PAIN,
   EV_DEATH1,
@@ -556,7 +559,10 @@ typedef enum
 
   EV_DCC_ATTACK,      // dcc under attack
 
-  EV_RPTUSE_SOUND     // trigger a sound
+  EV_MGTURRET_SPINUP, // turret spinup sound should play
+
+  EV_RPTUSE_SOUND,    // trigger a sound
+  EV_LEV2_ZAP
 } entity_event_t;
 
 typedef enum
@@ -564,8 +570,6 @@ typedef enum
   MN_TEAM,
   MN_A_TEAMFULL,
   MN_H_TEAMFULL,
-  MN_A_TEAMCHANGEBUILDTIMER,
-  MN_H_TEAMCHANGEBUILDTIMER,
 
   //alien stuff
   MN_A_CLASS,
@@ -576,7 +580,6 @@ typedef enum
   MN_A_NOEROOM,
   MN_A_TOOCLOSE,
   MN_A_NOOVMND_EVOLVE,
-  MN_A_EVOLVEBUILDTIMER,
 
   //alien build
   MN_A_SPWNWARN,
@@ -588,6 +591,8 @@ typedef enum
   MN_A_NORMAL,
   MN_A_HOVEL,
   MN_A_HOVEL_EXIT,
+  MN_A_TEAMCHANGEBUILDTIMER,
+  MN_A_EVOLVEBUILDTIMER,
 
   //human stuff
   MN_H_SPAWN,
@@ -600,7 +605,6 @@ typedef enum
   MN_H_NOARMOURYHERE,
   MN_H_NOROOMBSUITON,
   MN_H_NOROOMBSUITOFF,
-  MN_H_ARMOURYBUILDTIMER,
 
   //human build
   MN_H_REPEATER,
@@ -612,7 +616,9 @@ typedef enum
   MN_H_NORMAL,
   MN_H_TNODEWARN,
   MN_H_RPTWARN,
-  MN_H_RPTWARN2
+  MN_H_RPTWARN2,
+  MN_H_TEAMCHANGEBUILDTIMER,
+  MN_H_ARMOURYBUILDTIMER
 } dynMenu_t;
 
 // animations
@@ -853,7 +859,8 @@ typedef enum
   MOD_LEVEL2_CLAW,
   MOD_LEVEL2_ZAP,
   MOD_LEVEL4_CLAW,
-  MOD_LEVEL4_CHARGE,
+  MOD_LEVEL4_TRAMPLE,
+  MOD_LEVEL4_CRUSH,
 
   MOD_SLOWBLOB,
   MOD_POISON,
@@ -1010,6 +1017,7 @@ typedef struct
   qboolean  dccTest;
   qboolean  transparentTest;
   qboolean  reactorTest;
+  qboolean  replaceable;
 } buildableAttributes_t;
 
 typedef struct
@@ -1251,7 +1259,6 @@ typedef enum
   ET_ANIMMAPOBJ,
   ET_MODELDOOR,
   ET_LIGHTFLARE,
-  ET_LEV2_ZAP_CHAIN,
 
   ET_EVENTS       // any of the EV_* events can be added freestanding
               // by setting eType to ET_EVENTS + eventNum

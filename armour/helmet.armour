@@ -1,0 +1,16 @@
+//head
+{
+  minHeight 0.8
+  maxHeight 1.0
+  minAngle  0
+  maxAngle  360
+  modifier  0.4
+}
+{
+  minHeight 0.8
+  maxHeight 1.0
+  minAngle  0
+  maxAngle  360
+  modifer   0.4
+  crouch
+}

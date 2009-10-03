@@ -655,6 +655,7 @@ typedef struct centity_s
   qboolean              entityPSMissing;
 
   trailSystem_t         *level2ZapTS[ 3 ];
+  int                   level2ZapTime;
 
   trailSystem_t         *muzzleTS; //used for the tesla and reactor
   int                   muzzleTSDeathTime;
@@ -1177,6 +1178,7 @@ typedef struct
   sfxHandle_t humanTalkSound;
   sfxHandle_t landSound;
   sfxHandle_t fallSound;
+  sfxHandle_t turretSpinupSound;
 
   sfxHandle_t hardBounceSound1;
   sfxHandle_t hardBounceSound2;
@@ -1408,6 +1410,7 @@ extern  vmCvar_t    cg_drawTeamOverlay;
 extern  vmCvar_t    cg_teamOverlayUserinfo;
 extern  vmCvar_t    cg_crosshairX;
 extern  vmCvar_t    cg_crosshairY;
+extern  vmCvar_t    cg_crosshairSize;
 extern  vmCvar_t    cg_drawStatus;
 extern  vmCvar_t    cg_draw2D;
 extern  vmCvar_t    cg_animSpeed;

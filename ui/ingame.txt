@@ -5,4 +5,5 @@
   loadMenu { "ui/ingame_game.menu" }
   loadMenu { "ui/ingame_options.menu" }
   loadMenu { "ui/ingame_leave.menu" }
+  loadMenu { "ui/fonttest.menu" }
 }

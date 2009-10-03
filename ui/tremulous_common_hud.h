@@ -17,11 +17,11 @@ itemDef
   style WINDOW_STYLE_EMPTY
   visible MENU_TRUE
   decoration
-  forecolor 1 1 1 1
+  forecolor 0.93 0.93 0.92 1
   textalign ALIGN_LEFT
   textvalign VALIGN_TOP
-  textscale 0.4
-  textstyle ITEM_TEXTSTYLE_NORMAL
+  textscale 0.35
+  textstyle ITEM_TEXTSTYLE_SHADOWED
   ownerdraw CG_CONSOLE
 }
 
@@ -37,7 +37,7 @@ itemDef
   forecolor 1 1 1 0.35
   textalign ALIGN_LEFT
   textvalign VALIGN_TOP
-  textscale 0.3
+  textscale 0.4
   textstyle ITEM_TEXTSTYLE_NORMAL
   ownerdraw CG_TUTORIAL
 }
@@ -158,4 +158,5 @@ itemDef
   decoration
   textScale .5
   ownerdraw CG_PLAYER_CROSSHAIRNAMES
+  textstyle ITEM_TEXTSTYLE_SHADOWED
 }

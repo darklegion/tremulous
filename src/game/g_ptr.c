@@ -63,7 +63,7 @@ void G_UpdatePTRConnection( gclient_t *client )
   {
     client->pers.connection->clientTeam = client->pers.teamSelection;
     if( client->pers.teamSelection == PTE_NONE )
-      client->pers.connection->clientCredit = client->pers.savedCredit;
+      client->pers.connection->clientCredit = client->pers.credit;
     else
       client->pers.connection->clientCredit = client->ps.persistant[ PERS_CREDIT ];
   }

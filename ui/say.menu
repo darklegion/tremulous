@@ -6,7 +6,7 @@
 
 #define X         BORDER
 #define Y         200
-#define W         (640-(2*BORDER))
+#define W         (600-(2*BORDER))
 #define H         40
 
   menuDef
@@ -34,8 +34,9 @@
       rect 0 0 W H
       textalign ALIGN_LEFT
       textvalign VALIGN_CENTER
-      textscale .5
-      forecolor 1 1 1 1
+      textstyle ITEM_TEXTSTYLE_SHADOWED
+      textscale .4
+      forecolor 0.93 0.93 0.92 1
       visible MENU_TRUE
       onTextEntry
       {
