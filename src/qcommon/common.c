@@ -41,8 +41,6 @@ int demo_protocols[] =
 #define MIN_COMHUNKMEGS		128
 #define DEF_COMHUNKMEGS		128
 #define DEF_COMZONEMEGS		24
-#define XSTRING(x)				STRING(x)
-#define STRING(x)					#x
 #define DEF_COMHUNKMEGS_S	XSTRING(DEF_COMHUNKMEGS)
 #define DEF_COMZONEMEGS_S	XSTRING(DEF_COMZONEMEGS)
 
@@ -1398,9 +1396,11 @@ void Com_InitSmallZoneMemory( void ) {
 void Com_InitZoneMemory( void ) {
 	cvar_t	*cv;
 
-	//FIXME: 05/01/06 com_zoneMegs is useless right now as neither q3config.cfg nor
-	// Com_StartupVariable have been executed by this point. The net result is that
-	// s_zoneTotal will always be set to the default value.
+	// Please note: com_zoneMegs can only be set on the command line, and
+	// not in q3config.cfg or Com_StartupVariable, as they haven't been
+	// executed by this point. It's a chicken and egg problem. We need the
+	// memory manager configured to handle those places where you would
+	// configure the memory manager.
 
 	// allocate the random block zone
 	cv = Cvar_Get( "com_zoneMegs", DEF_COMZONEMEGS_S, CVAR_LATCH | CVAR_ARCHIVE );
@@ -2378,6 +2378,21 @@ static void Com_DetectAltivec(void)
 	}
 }
 
+/*
+=================
+Com_InitRand
+Seed the random number generator, if possible with an OS supplied random seed.
+=================
+*/
+static void Com_InitRand(void)
+{
+	unsigned int seed;
+
+	if(Sys_RandomBytes((byte *) &seed, sizeof(seed)))
+		srand(seed);
+	else
+		srand(time(NULL));
+}
 
 /*
 =================
@@ -2386,6 +2401,7 @@ Com_Init
 */
 void Com_Init( char *commandLine ) {
 	char	*s;
+	int	qport;
 
 	Com_Printf( "%s %s %s\n", Q3_VERSION, PLATFORM_STRING, __DATE__ );
 
@@ -2397,8 +2413,11 @@ void Com_Init( char *commandLine ) {
 	Com_Memset( &eventQueue[ 0 ], 0, MAX_QUEUED_EVENTS * sizeof( sysEvent_t ) );
 	Com_Memset( &sys_packetReceived[ 0 ], 0, MAX_MSGLEN * sizeof( byte ) );
 
-  // do this before anything else decides to push events
-  Com_InitPushEvent();
+	// initialize the weak pseudo-random number generator for use later.
+	Com_InitRand();
+
+	// do this before anything else decides to push events
+	Com_InitPushEvent();
 
 	Com_InitSmallZoneMemory();
 	Cvar_Init ();
@@ -2410,11 +2429,11 @@ void Com_Init( char *commandLine ) {
 //	Swap_Init ();
 	Cbuf_Init ();
 
-	Com_InitZoneMemory();
-	Cmd_Init ();
-
 	// override anything from the config files with command line args
 	Com_StartupVariable( NULL );
+
+	Com_InitZoneMemory();
+	Cmd_Init ();
 
 	// get the developer cvar set as early as possible
 	Com_StartupVariable( "developer" );
@@ -2501,7 +2520,11 @@ void Com_Init( char *commandLine ) {
 	com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );
 
 	Sys_Init();
-	Netchan_Init( Com_Milliseconds() & 0xffff );	// pick a port value that should be nice and random
+
+	// Pick a random port value
+	Com_RandomBytes( (byte*)&qport, sizeof(int) );
+	Netchan_Init( qport & 0xffff );
+
 	VM_Init();
 	SV_Init();
 
@@ -3171,7 +3194,6 @@ void Com_RandomBytes( byte *string, int len )
 		return;
 
 	Com_Printf( "Com_RandomBytes: using weak randomization\n" );
-	srand( time( 0 ) );
 	for( i = 0; i < len; i++ )
 		string[i] = (unsigned char)( rand() % 255 );
 }

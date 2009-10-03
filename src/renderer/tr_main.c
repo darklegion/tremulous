@@ -457,7 +457,7 @@ void R_SetupFrustum (viewParms_t *dest, float xmin, float xmax, float ymax, floa
 	float oppleg, adjleg, length;
 	int i;
 	
-	if(stereoSep == 0 && xmin != -xmax)
+	if(stereoSep == 0 && xmin == -xmax)
 	{
 		// symmetric case can be simplified
 		VectorCopy(dest->or.origin, ofsorigin);
@@ -524,9 +524,9 @@ void R_SetupProjection(viewParms_t *dest, float zProj, qboolean computeFrustum)
 	if(stereoSep != 0)
 	{
 		if(dest->stereoFrame == STEREO_LEFT)
-			stereoSep = zProj / r_stereoSeparation->value;
+			stereoSep = zProj / stereoSep;
 		else if(dest->stereoFrame == STEREO_RIGHT)
-			stereoSep = zProj / -r_stereoSeparation->value;
+			stereoSep = zProj / -stereoSep;
 		else
 			stereoSep = 0;
 	}

@@ -517,8 +517,6 @@ int main( int argc, char **argv )
 	// Run time
 	const SDL_version *ver = SDL_Linked_Version( );
 
-#define STRING(s) #s
-#define XSTRING(s) STRING(s)
 #define MINSDL_VERSION \
 	XSTRING(MINSDL_MAJOR) "." \
 	XSTRING(MINSDL_MINOR) "." \
@@ -534,6 +532,9 @@ int main( int argc, char **argv )
 
 	Sys_PlatformInit( );
 
+	// Set the initial time base
+	Sys_Milliseconds( );
+
 	Sys_ParseArgs( argc, argv );
 	Sys_SetBinaryPath( Sys_Dirname( argv[ 0 ] ) );
 	Sys_SetDefaultInstallPath( DEFAULT_BASEDIR );
@@ -541,7 +542,15 @@ int main( int argc, char **argv )
 	// Concatenate the command line for passing to Com_Init
 	for( i = 1; i < argc; i++ )
 	{
+		const qboolean containsSpaces = strchr(argv[i], ' ') != NULL;
+		if (containsSpaces)
+			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
+
 		Q_strcat( commandLine, sizeof( commandLine ), argv[ i ] );
+
+		if (containsSpaces)
+			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
+
 		Q_strcat( commandLine, sizeof( commandLine ), " " );
 	}
 

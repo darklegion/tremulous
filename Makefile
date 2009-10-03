@@ -85,6 +85,10 @@ ifndef COPYDIR
 COPYDIR="/usr/local/games/tremulous"
 endif
 
+ifndef COPYBINDIR
+COPYBINDIR=$(COPYDIR)
+endif
+
 ifndef MOUNT_DIR
 MOUNT_DIR=src
 endif
@@ -183,6 +187,13 @@ ifeq ($(shell which pkg-config > /dev/null; echo $$?),0)
   SDL_CFLAGS=$(shell pkg-config --cflags sdl|sed 's/-Dmain=SDL_main//')
   SDL_LIBS=$(shell pkg-config --libs sdl)
 endif
+# Use sdl-config if all else fails
+ifeq ($(SDL_CFLAGS),)
+  ifeq ($(shell which sdl-config > /dev/null; echo $$?),0)
+    SDL_CFLAGS=$(shell sdl-config --cflags)
+    SDL_LIBS=$(shell sdl-config --libs)
+  endif
+endif
 
 # version info
 VERSION=1.1.0
@@ -226,7 +237,7 @@ ifeq ($(PLATFORM),linux)
   endif
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
-    -pipe -DUSE_ICON $(shell sdl-config --cflags)
+    -pipe -DUSE_ICON $(SDL_CFLAGS)
 
   ifeq ($(USE_OPENAL),1)
     BASE_CFLAGS += -DUSE_OPENAL
@@ -269,6 +280,10 @@ ifeq ($(PLATFORM),linux)
     BASE_CFLAGS += -maltivec
     HAVE_VM_COMPILED=true
   endif
+  ifeq ($(ARCH),sparc)
+    OPTIMIZE += -mtune=ultrasparc3 -mv8plus
+    HAVE_VM_COMPILED=true
+  endif
   endif
   endif
 
@@ -277,13 +292,13 @@ ifeq ($(PLATFORM),linux)
   endif
 
   SHLIBEXT=so
-  SHLIBCFLAGS=-fPIC
+  SHLIBCFLAGS=-fPIC -fvisibility=hidden
   SHLIBLDFLAGS=-shared $(LDFLAGS)
 
   THREAD_LIBS=-lpthread
   LIBS=-ldl -lm
 
-  CLIENT_LIBS=$(shell sdl-config --libs) -lGL
+  CLIENT_LIBS=$(SDL_LIBS) -lGL
 
   ifeq ($(USE_OPENAL),1)
     ifneq ($(USE_OPENAL_DLOPEN),1)
@@ -513,7 +528,7 @@ ifeq ($(PLATFORM),freebsd)
 
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
-    -DUSE_ICON $(shell sdl-config --cflags)
+    -DUSE_ICON $(SDL_CFLAGS)
 
   ifeq ($(USE_OPENAL),1)
     BASE_CFLAGS += -DUSE_OPENAL
@@ -554,7 +569,7 @@ ifeq ($(PLATFORM),freebsd)
 
   CLIENT_LIBS =
 
-  CLIENT_LIBS += $(shell sdl-config --libs) -lGL
+  CLIENT_LIBS += $(SDL_LIBS) -lGL
 
   ifeq ($(USE_OPENAL),1)
     ifneq ($(USE_OPENAL_DLOPEN),1)
@@ -579,7 +594,7 @@ ifeq ($(PLATFORM),openbsd)
 
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
-    -DUSE_ICON $(shell sdl-config --cflags)
+    -DUSE_ICON $(SDL_CFLAGS)
 
   ifeq ($(USE_OPENAL),1)
     BASE_CFLAGS += -DUSE_OPENAL
@@ -592,25 +607,28 @@ ifeq ($(PLATFORM),openbsd)
     BASE_CFLAGS += -DUSE_CODEC_VORBIS
   endif
 
-  BASE_CFLAGS += -DNO_VM_COMPILED -I/usr/X11R6/include -I/usr/local/include
-  RELEASE_CFLAGS=$(BASE_CFLAGS) -DNDEBUG -O3 \
-    -march=pentium -fomit-frame-pointer -pipe -ffast-math \
-    -falign-loops=2 -falign-jumps=2 -falign-functions=2 \
-    -funroll-loops -fstrength-reduce
+  ifeq ($(USE_CURL),1)
+    BASE_CFLAGS += -DUSE_CURL $(CURL_CFLAGS)
+    USE_CURL_DLOPEN=0
+  endif
+
+  BASE_CFLAGS += -DNO_VM_COMPILED
+  RELEASE_CFLAGS=$(BASE_CFLAGS) -DNDEBUG
   HAVE_VM_COMPILED=false
 
   DEBUG_CFLAGS=$(BASE_CFLAGS) -g
 
   SHLIBEXT=so
+  SHLIBNAME=.$(SHLIBEXT)
   SHLIBCFLAGS=-fPIC
   SHLIBLDFLAGS=-shared $(LDFLAGS)
 
-  THREAD_LIBS=-lpthread
+  THREAD_LIBS=-pthread
   LIBS=-lm
 
   CLIENT_LIBS =
 
-  CLIENT_LIBS += $(shell sdl-config --libs) -lGL
+  CLIENT_LIBS += $(SDL_LIBS) -lGL
 
   ifeq ($(USE_OPENAL),1)
     ifneq ($(USE_OPENAL_DLOPEN),1)
@@ -620,6 +638,12 @@ ifeq ($(PLATFORM),openbsd)
 
   ifeq ($(USE_CODEC_VORBIS),1)
     CLIENT_LIBS += -lvorbisfile -lvorbis -logg
+  endif
+
+  ifeq ($(USE_CURL),1) 
+    ifneq ($(USE_CURL_DLOPEN),1)
+      CLIENT_LIBS += -lcurl
+    endif
   endif
 
 else # ifeq openbsd
@@ -665,7 +689,7 @@ ifeq ($(PLATFORM),irix64)
   MKDIR = mkdir -p
 
   BASE_CFLAGS=-Dstricmp=strcasecmp -Xcpluscomm -woff 1185 \
-    -I. $(shell sdl-config --cflags) -I$(ROOT)/usr/include -DNO_VM_COMPILED
+    -I. $(SDL_CFLAGS) -I$(ROOT)/usr/include -DNO_VM_COMPILED
   RELEASE_CFLAGS=$(BASE_CFLAGS) -O3
   DEBUG_CFLAGS=$(BASE_CFLAGS) -g
 
@@ -675,7 +699,7 @@ ifeq ($(PLATFORM),irix64)
 
   LIBS=-ldl -lm -lgen
   # FIXME: The X libraries probably aren't necessary?
-  CLIENT_LIBS=-L/usr/X11/$(LIB) $(shell sdl-config --libs) -lGL \
+  CLIENT_LIBS=-L/usr/X11/$(LIB) $(SDL_LIBS) -lGL \
     -lX11 -lXext -lm
 
 else # ifeq IRIX
@@ -703,9 +727,8 @@ ifeq ($(PLATFORM),sunos)
     endif
   endif
 
-
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
-    -pipe -DUSE_ICON $(shell sdl-config --cflags)
+    -pipe -DUSE_ICON $(SDL_CFLAGS)
 
   OPTIMIZE = -O3 -ffast-math -funroll-loops
 
@@ -714,6 +737,7 @@ ifeq ($(PLATFORM),sunos)
       -fstrength-reduce -falign-functions=2 \
       -mtune=ultrasparc3 -mv8plus -mno-faster-structs \
       -funroll-loops #-mv8plus
+    HAVE_VM_COMPILED=true
   else
   ifeq ($(ARCH),x86)
     OPTIMIZE = -O3 -march=i586 -fomit-frame-pointer -ffast-math \
@@ -743,7 +767,7 @@ ifeq ($(PLATFORM),sunos)
 
   BOTCFLAGS=-O0
 
-  CLIENT_LIBS +=$(shell sdl-config --libs) -lGL
+  CLIENT_LIBS +=$(SDL_LIBS) -lGL -lX11 -lXext -liconv -lm
 
 else # ifeq sunos
 
@@ -769,22 +793,30 @@ endif #SunOS
 
 TARGETS =
 
+ifndef FULLBINEXT
+  FULLBINEXT=.$(ARCH)$(BINEXT)
+endif
+
+ifndef SHLIBNAME
+  SHLIBNAME=$(ARCH).$(SHLIBEXT)
+endif
+
 ifneq ($(BUILD_SERVER),0)
-  TARGETS += $(B)/tremded.$(ARCH)$(BINEXT)
+  TARGETS += $(B)/tremded$(FULLBINEXT)
 endif
 
 ifneq ($(BUILD_CLIENT),0)
-  TARGETS += $(B)/tremulous.$(ARCH)$(BINEXT)
+  TARGETS += $(B)/tremulous$(FULLBINEXT)
   ifneq ($(BUILD_CLIENT_SMP),0)
-    TARGETS += $(B)/tremulous-smp.$(ARCH)$(BINEXT)
+    TARGETS += $(B)/tremulous-smp$(FULLBINEXT)
   endif
 endif
 
 ifneq ($(BUILD_GAME_SO),0)
   TARGETS += \
-    $(B)/base/cgame$(ARCH).$(SHLIBEXT) \
-    $(B)/base/game$(ARCH).$(SHLIBEXT) \
-    $(B)/base/ui$(ARCH).$(SHLIBEXT)
+    $(B)/base/cgame$(SHLIBNAME) \
+    $(B)/base/game$(SHLIBNAME) \
+    $(B)/base/ui$(SHLIBNAME)
 endif
 
 ifneq ($(BUILD_GAME_QVM),0)
@@ -805,7 +837,7 @@ ifeq ($(USE_VOIP),1)
   ifeq ($(USE_INTERNAL_SPEEX),1)
     BASE_CFLAGS += -DFLOATING_POINT -DUSE_ALLOCA -I$(SPEEXDIR)/include
   else
-    CLIENT_LIBS += -lspeex
+    CLIENT_LIBS += -lspeex -lspeexdsp
   endif
 endif
 
@@ -825,6 +857,12 @@ ifeq ($(GENERATE_DEPENDENCIES),1)
   DEPEND_CFLAGS = -MMD
 else
   DEPEND_CFLAGS =
+endif
+
+ifeq ($(NO_STRIP),1)
+  STRIP_FLAG =
+else
+  STRIP_FLAG = -s
 endif
 
 BASE_CFLAGS += -DPRODUCT_VERSION=\\\"$(VERSION)\\\"
@@ -942,6 +980,12 @@ targets: makedirs
 		echo "    $$i"; \
 	done
 	@echo ""
+	@echo "  CLIENT_LIBS:"
+	-@for i in $(CLIENT_LIBS); \
+	do \
+		echo "    $$i"; \
+	done
+	@echo ""
 	@echo "  Output:"
 	-@for i in $(TARGETS); \
 	do \
@@ -976,10 +1020,10 @@ makedirs:
 #############################################################################
 
 TOOLS_OPTIMIZE = -g -O2 -Wall -fno-strict-aliasing
-TOOLS_CFLAGS = $(TOOLS_OPTIMIZE) \
-               -DTEMPDIR=\"$(TEMPDIR)\" -DSYSTEM=\"\" \
-               -I$(Q3LCCSRCDIR) \
-               -I$(LBURGDIR)
+TOOLS_CFLAGS += $(TOOLS_OPTIMIZE) \
+                -DTEMPDIR=\"$(TEMPDIR)\" -DSYSTEM=\"\" \
+                -I$(Q3LCCSRCDIR) \
+                -I$(LBURGDIR)
 TOOLS_LIBS =
 TOOLS_LDFLAGS =
 
@@ -1332,6 +1376,9 @@ ifeq ($(HAVE_VM_COMPILED),true)
   ifeq ($(ARCH),ppc64)
     Q3OBJ += $(B)/client/vm_powerpc.o $(B)/client/vm_powerpc_asm.o
   endif
+  ifeq ($(ARCH),sparc)
+    Q3OBJ += $(B)/client/vm_sparc.o
+  endif
 endif
 
 ifeq ($(PLATFORM),mingw32)
@@ -1341,6 +1388,11 @@ ifeq ($(PLATFORM),mingw32)
 else
   Q3OBJ += \
     $(B)/client/sys_unix.o
+endif
+
+ifeq ($(PLATFORM),darwin)
+  Q3OBJ += \
+    $(B)/client/sys_cocoa.o
 endif
 
 ifeq ($(USE_MUMBLE),1)
@@ -1354,13 +1406,13 @@ Q3POBJ += \
 Q3POBJ_SMP += \
   $(B)/clientsmp/sdl_glimp.o
 
-$(B)/tremulous.$(ARCH)$(BINEXT): $(Q3OBJ) $(Q3POBJ) $(LIBSDLMAIN)
+$(B)/tremulous$(FULLBINEXT): $(Q3OBJ) $(Q3POBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
 		-o $@ $(Q3OBJ) $(Q3POBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS)
 
-$(B)/tremulous-smp.$(ARCH)$(BINEXT): $(Q3OBJ) $(Q3POBJ_SMP) $(LIBSDLMAIN)
+$(B)/tremulous-smp$(FULLBINEXT): $(Q3OBJ) $(Q3POBJ_SMP) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(THREAD_LDFLAGS) \
 		-o $@ $(Q3OBJ) $(Q3POBJ_SMP) \
@@ -1440,6 +1492,9 @@ ifeq ($(HAVE_VM_COMPILED),true)
   ifeq ($(ARCH),ppc64)
     Q3DOBJ += $(B)/ded/vm_powerpc.o $(B)/ded/vm_powerpc_asm.o
   endif
+  ifeq ($(ARCH),sparc)
+    Q3DOBJ += $(B)/ded/vm_sparc.o
+  endif
 endif
 
 ifeq ($(PLATFORM),mingw32)
@@ -1453,7 +1508,7 @@ else
     $(B)/ded/con_tty.o
 endif
 
-$(B)/tremded.$(ARCH)$(BINEXT): $(Q3DOBJ)
+$(B)/tremded$(FULLBINEXT): $(Q3DOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(Q3DOBJ) $(LIBS)
 
@@ -1501,7 +1556,7 @@ CGOBJ_ = \
 CGOBJ = $(CGOBJ_) $(B)/base/cgame/cg_syscalls.o
 CGVMOBJ = $(CGOBJ_:%.o=%.asm)
 
-$(B)/base/cgame$(ARCH).$(SHLIBEXT): $(CGOBJ)
+$(B)/base/cgame$(SHLIBNAME): $(CGOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(CGOBJ)
 
@@ -1550,7 +1605,7 @@ GOBJ_ = \
 GOBJ = $(GOBJ_) $(B)/base/game/g_syscalls.o
 GVMOBJ = $(GOBJ_:%.o=%.asm)
 
-$(B)/base/game$(ARCH).$(SHLIBEXT): $(GOBJ)
+$(B)/base/game$(SHLIBNAME): $(GOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GOBJ)
 
@@ -1578,7 +1633,7 @@ UIOBJ_ = \
 UIOBJ = $(UIOBJ_) $(B)/base/ui/ui_syscalls.o
 UIVMOBJ = $(UIOBJ_:%.o=%.asm)
 
-$(B)/base/ui$(ARCH).$(SHLIBEXT): $(UIOBJ)
+$(B)/base/ui$(SHLIBNAME): $(UIOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(UIOBJ)
 
@@ -1622,6 +1677,9 @@ $(B)/clientsmp/%.o: $(SDLDIR)/%.c
 $(B)/client/%.o: $(SYSDIR)/%.c
 	$(DO_CC)
 
+$(B)/client/%.o: $(SYSDIR)/%.m
+	$(DO_CC)
+
 $(B)/client/%.o: $(SYSDIR)/%.rc
 	$(DO_WINDRES)
 
@@ -1636,6 +1694,9 @@ $(B)/ded/%.o: $(CMDIR)/%.c
 	$(DO_DED_CC)
 
 $(B)/ded/%.o: $(SYSDIR)/%.c
+	$(DO_DED_CC)
+
+$(B)/ded/%.o: $(SYSDIR)/%.m
 	$(DO_DED_CC)
 
 $(B)/ded/%.o: $(SYSDIR)/%.rc

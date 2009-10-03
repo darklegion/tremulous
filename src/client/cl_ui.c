@@ -295,7 +295,7 @@ static void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 		Info_SetValueForKey( info, "game", server->game);
 		Info_SetValueForKey( info, "gametype", va("%i",server->gameType));
 		Info_SetValueForKey( info, "nettype", va("%i",server->netType));
-		Info_SetValueForKey( info, "addr", NET_AdrToString(server->adr));
+		Info_SetValueForKey( info, "addr", NET_AdrToStringwPort(server->adr));
 		Q_strncpyz(buf, info, buflen);
 	} else {
 		if (buf) {

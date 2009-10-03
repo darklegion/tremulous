@@ -177,9 +177,14 @@ _asm {
 #else //!_MSC_VER
 
 #if defined(__MINGW32__) || defined(MACOS_X) // _ is prepended to compiled symbols
-#	define CMANG(sym) "_"#sym
+#define CMANGVAR(sym) "_"#sym
+#define CMANGFUNC(sym) "_"#sym
+#elif defined(__ICC) && (__ICC >= 1000)
+#define CMANGVAR(sym) #sym".0"
+#define CMANGFUNC(sym) #sym
 #else
-#	define CMANG(sym) #sym
+#define CMANGVAR(sym) #sym
+#define CMANGFUNC(sym) #sym
 #endif
 
 static void __attribute__((cdecl, used)) CallAsmCall(int const syscallNum,
@@ -200,32 +205,37 @@ __asm__(
 	".text\n\t"
 	".p2align 4,,15\n\t"
 #if defined __ELF__
-	".type " CMANG(AsmCall) ", @function\n"
+	".type " CMANGFUNC(AsmCall) ", @function\n"
 #endif
-	CMANG(AsmCall) ":\n\t"
+	CMANGFUNC(AsmCall) ":\n\t"
 	"movl  (%edi), %eax\n\t"
 	"subl  $4, %edi\n\t"
 	"testl %eax, %eax\n\t"
 	"jl    0f\n\t"
 	"shll  $2, %eax\n\t"
-	"addl  " CMANG(instructionPointers) ", %eax\n\t"
+	"addl  " CMANGVAR(instructionPointers) ", %eax\n\t"
 	"call  *(%eax)\n\t"
 	"movl  (%edi), %eax\n\t"
-	"andl  " CMANG(callMask) ", %eax\n\t"
+	"andl  " CMANGVAR(callMask) ", %eax\n\t"
 	"ret\n"
 	"0:\n\t" // system call
 	"notl  %eax\n\t"
+	"pushl %ebp\n\t"
+	"movl  %esp, %ebp\n\t"
+	"andl $-16, %esp\n\t" // align the stack so engine can use sse
 	"pushl %ecx\n\t"
 	"pushl %edi\n\t" // opStack
 	"pushl %esi\n\t" // programStack
 	"pushl %eax\n\t" // syscallNum
-	"call  " CMANG(CallAsmCall) "\n\t"
+	"call  " CMANGFUNC(CallAsmCall) "\n\t"
 	"addl  $12, %esp\n\t"
 	"popl  %ecx\n\t"
+	"movl  %ebp, %esp\n\t"
+	"popl  %ebp\n\t"
 	"addl  $4, %edi\n\t"
 	"ret\n\t"
 #if defined __ELF__
-	".size " CMANG(AsmCall)", .-" CMANG(AsmCall)
+	".size " CMANGFUNC(AsmCall)", .-" CMANGFUNC(AsmCall)
 #endif
 );
 

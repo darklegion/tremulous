@@ -70,6 +70,8 @@ static cvar_t *in_joystickDebug     = NULL;
 static cvar_t *in_joystickThreshold = NULL;
 static cvar_t *in_joystickNo        = NULL;
 
+static int vidRestartTime = 0;
+
 #define CTRL(a) ((a)-'a'+1)
 
 /*
@@ -949,6 +951,20 @@ static void IN_ProcessEvents( void )
 				Sys_Quit( );
 				break;
 
+			case SDL_VIDEORESIZE:
+			{
+				char width[32], height[32];
+				Com_sprintf( width, sizeof(width), "%d", e.resize.w );
+				Com_sprintf( height, sizeof(height), "%d", e.resize.h );
+				ri.Cvar_Set( "r_width", width );
+				ri.Cvar_Set( "r_height", height );
+				/* wait until user stops dragging for 1 second, so
+				   we aren't constantly recreating the GL context while
+				   he tries to drag...*/
+				vidRestartTime = Sys_Milliseconds() + 1000;
+			}
+			break;
+
 			default:
 				break;
 		}
@@ -1000,6 +1016,13 @@ void IN_Frame( void )
 	{
 		SDL_GetMouseState( &x, &y );
 		IN_SetUIMousePosition( x, y );
+	}
+
+	// In case we had to delay actual restart of video system
+	if( ( vidRestartTime != 0 ) && ( vidRestartTime < Sys_Milliseconds( ) ) )
+	{
+		vidRestartTime = 0;
+		Cbuf_AddText( "vid_restart" );
 	}
 }
 

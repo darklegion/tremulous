@@ -120,6 +120,14 @@ NET
 ==============================================================
 */
 
+#define NET_ENABLEV4            0x01
+#define NET_ENABLEV6            0x02
+// if this flag is set, always attempt ipv6 connections instead of ipv4 if a v6 address is found.
+#define NET_PRIOV6              0x04
+// disables ipv6 multicast support if set.
+#define NET_DISABLEMCAST        0x08
+
+
 #define	PACKET_BACKUP	32	// number of old messages that must be kept on client and
 							// server for delta comrpession and ping estimation
 #define	PACKET_MASK		(PACKET_BACKUP-1)
@@ -131,7 +139,7 @@ NET
 #define	MAX_RELIABLE_COMMANDS	128			// max string commands buffered for restransmit
 
 typedef enum {
-	NA_BAD,					// an address lookup failed
+	NA_BAD = 0,					// an address lookup failed
 	NA_LOOPBACK,
 	NA_BROADCAST,
 	NA_IP,
@@ -158,7 +166,7 @@ typedef struct {
 
 void		NET_Init( void );
 void		NET_Shutdown( void );
-void		NET_Restart( void );
+void		NET_Restart_f( void );
 void		NET_Config( qboolean enableNetworking );
 void		NET_FlushPacketQueue(void);
 void		NET_SendPacket (netsrc_t sock, int length, const void *data, netadr_t to);
@@ -166,6 +174,7 @@ void		QDECL NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *f
 void		QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len );
 
 qboolean	NET_CompareAdr (netadr_t a, netadr_t b);
+qboolean	NET_CompareBaseAdrMask(netadr_t a, netadr_t b, int netmask);
 qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b);
 qboolean	NET_IsLocalAddress (netadr_t adr);
 const char	*NET_AdrToString (netadr_t a);
@@ -584,6 +593,7 @@ void	FS_FreeFileList( char **list );
 
 qboolean FS_FileExists( const char *file );
 
+qboolean FS_CreatePath (char *OSPath);
 char   *FS_BuildOSPath( const char *base, const char *game, const char *qpath );
 
 int		FS_LoadStack( void );

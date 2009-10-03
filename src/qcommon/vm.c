@@ -357,6 +357,9 @@ intptr_t QDECL VM_DllSyscall( intptr_t arg, ... ) {
 #endif
 }
 
+
+#define	STACK_SIZE	0x20000
+
 /*
 =================
 VM_LoadQVM
@@ -424,7 +427,8 @@ vmHeader_t *VM_LoadQVM( vm_t *vm, qboolean alloc ) {
 
 	// round up to next power of 2 so all data operations can
 	// be mask protected
-	dataLength = header.h->dataLength + header.h->litLength + header.h->bssLength;
+	dataLength = header.h->dataLength + header.h->litLength +
+		header.h->bssLength + STACK_SIZE;
 	for ( i = 0 ; dataLength > ( 1 << i ) ; i++ ) {
 	}
 	dataLength = 1 << i;
@@ -516,9 +520,6 @@ If image ends in .qvm it will be interpreted, otherwise
 it will attempt to load as a system dll
 ================
 */
-
-#define	STACK_SIZE	0x20000
-
 vm_t *VM_Create( const char *module, intptr_t (*systemCalls)(intptr_t *), 
 				vmInterpret_t interpret ) {
 	vm_t		*vm;
@@ -766,7 +767,7 @@ intptr_t	QDECL VM_Call( vm_t *vm, int callnum, ... ) {
                             args[4],  args[5],  args[6], args[7],
                             args[8],  args[9]);
 	} else {
-#if id386 // i386 calling convention doesn't need conversion
+#if id386 || idsparc // i386/sparc calling convention doesn't need conversion
 #ifndef NO_VM_COMPILED
 		if ( vm->compiled )
 			r = VM_CallCompiled( vm, (int*)&callnum );

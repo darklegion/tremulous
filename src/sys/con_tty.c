@@ -41,6 +41,7 @@ called before and after a stdout or stderr output
 =============================================================
 */
 
+static qboolean stdin_active;
 // general flag to tell about tty console mode
 static qboolean ttycon_on = qfalse;
 static int ttycon_hide = 0;
@@ -255,6 +256,7 @@ Initialize the console input (tty mode if possible)
 void CON_Init( void )
 {
 	struct termios tc;
+	const char* term = getenv("TERM");
 
 	// If the process is backgrounded (running non interactively)
 	// then SIGTTIN or SIGTOU is emitted, if not caught, turns into a SIGSTP
@@ -264,10 +266,12 @@ void CON_Init( void )
 	// Make stdin reads non-blocking
 	fcntl( 0, F_SETFL, fcntl( 0, F_GETFL, 0 ) | O_NONBLOCK );
 
-	if (isatty(STDIN_FILENO)!=1)
+	if (isatty(STDIN_FILENO) != 1
+	|| (term && (!strcmp(term, "raw") || !strcmp(term, "dumb"))))
 	{
-		Com_Printf( "stdin is not a tty, tty console mode disabled\n");
+		Com_Printf("tty console mode disabled\n");
 		ttycon_on = qfalse;
+		stdin_active = qtrue;
 		return;
 	}
 
@@ -409,18 +413,11 @@ char *CON_Input( void )
 
 		return NULL;
 	}
-	else
+	else if (stdin_active)
 	{
 		int     len;
 		fd_set  fdset;
 		struct timeval timeout;
-		static qboolean stdin_active;
-
-		if (!com_dedicated || !com_dedicated->value)
-			return NULL;
-
-		if (!stdin_active)
-			return NULL;
 
 		FD_ZERO(&fdset);
 		FD_SET(0, &fdset); // stdin
@@ -444,6 +441,7 @@ char *CON_Input( void )
 
 		return text;
 	}
+	return NULL;
 }
 
 /*

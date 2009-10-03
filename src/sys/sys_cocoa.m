@@ -15,40 +15,26 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Foobar; if not, write to the Free Software
+along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
-// math.s
-// x86 assembly-language math routines.
 
-#include "qasm.h"
+#ifndef MACOS_X
+#error This file is for Mac OS X only. You probably should not compile it.
+#endif
 
+// Please note that this file is just some Mac-specific bits. Most of the
+//  Mac OS X code is shared with other Unix platforms in sys_unix.c ...
 
-#if	id386
+#import <Cocoa/Cocoa.h>
 
-	.text
+void Cocoa_MsgBox( const char *text )
+{
+	NSRunInformationalAlertPanel(@"ioquake3", 
+	                             [NSString stringWithUTF8String:text],
+	                             @"OK", nil, nil);
+}
 
-// TODO: rounding needed?
-// stack parameter offset
-#define	val	4
+// end of sys_cocoa.m ...
 
-.globl C(Invert24To16)
-C(Invert24To16):
-
-	movl	val(%esp),%ecx
-	movl	$0x100,%edx		// 0x10000000000 as dividend
-	cmpl	%edx,%ecx
-	jle		LOutOfRange
-
-	subl	%eax,%eax
-	divl	%ecx
-
-	ret
-
-LOutOfRange:
-	movl	$0xFFFFFFFF,%eax
-	ret
-
-#endif	// id386
