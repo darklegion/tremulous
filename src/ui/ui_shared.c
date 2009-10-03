@@ -1543,7 +1543,8 @@ static void Menus_Close( menuDef_t *menu )
     Menu_RunCloseScript( menu );
     menu->window.flags &= ~( WINDOW_VISIBLE | WINDOW_HASFOCUS );
 
-    openMenuCount--;
+    if( openMenuCount > 0 )
+      openMenuCount--;
 
     if( openMenuCount > 0 )
       Menus_Activate( menuStack[ openMenuCount - 1 ] );
@@ -1555,23 +1556,22 @@ void Menus_CloseByName( const char *p )
   Menus_Close( Menus_FindByName( p ) );
 }
 
-void Menus_CloseAll( qboolean force )
+void Menus_CloseAll( void )
 {
   int i;
 
-  for( i = 0; i < menuCount; i++ )
+  // Close any menus on the stack first
+  if( openMenuCount > 0 )
   {
-    if( !( Menus[i].window.flags & WINDOW_DONTCLOSEALL ) || force )
-      Menus_Close( &Menus[i] );
+    for( i = openMenuCount; i > 0; i-- )
+      Menus_Close( menuStack[ i ] );
+
+    openMenuCount = 0;
   }
 
-  if( force )
-  {
-    openMenuCount = 0;
-    g_editingField = qfalse;
-    g_waitingForKey = qfalse;
-    g_editItem = NULL;
-  }
+  // Close all other menus
+  for( i = 0; i < menuCount; i++ )
+    Menus_Close( &Menus[ i ] );
 }
 
 
@@ -7675,20 +7675,6 @@ qboolean MenuParse_visible( itemDef_t *item, int handle )
   return qtrue;
 }
 
-qboolean MenuParse_dontCloseAll( itemDef_t *item, int handle )
-{
-  int i;
-  menuDef_t *menu = ( menuDef_t* )item;
-
-  if( !PC_Int_Parse( handle, &i ) )
-    return qfalse;
-
-  if( i )
-    menu->window.flags |= WINDOW_DONTCLOSEALL;
-
-  return qtrue;
-}
-
 qboolean MenuParse_onOpen( itemDef_t *item, int handle )
 {
   menuDef_t *menu = ( menuDef_t* )item;
@@ -7969,7 +7955,6 @@ keywordHash_t menuParseKeywords[] = {
   {"aspectBias", MenuParse_aspectBias, NULL},
   {"style", MenuParse_style, NULL},
   {"visible", MenuParse_visible, NULL},
-  {"dontCloseAll", MenuParse_dontCloseAll, NULL},
   {"onOpen", MenuParse_onOpen, NULL},
   {"onClose", MenuParse_onClose, NULL},
   {"onESC", MenuParse_onESC, NULL},
@@ -8281,4 +8266,3 @@ static qboolean Menu_OverActiveItem( menuDef_t *menu, float x, float y )
 
   return qfalse;
 }
-

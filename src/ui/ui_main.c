@@ -169,7 +169,7 @@ intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3,
       return 0;
 
     case UI_IS_FULLSCREEN:
-      return UI_IsFullscreen();
+      return UI_IsFullscreen( );
 
     case UI_SET_ACTIVE_MENU:
       UI_SetActiveMenu( arg0 );
@@ -1479,7 +1479,7 @@ void UI_Load( void )
   UI_LoadMenus( "ui/ingame.txt", qfalse );
   UI_LoadMenus( "ui/tremulous.txt", qfalse );
   UI_LoadHelp( "ui/help.txt" );
-  Menus_CloseAll( qtrue );
+  Menus_CloseAll( );
   Menus_ActivateByName( lastName );
 
 }
@@ -2906,7 +2906,7 @@ static void UI_RunMenuScript( char **args )
       //disallow the menu if it would be empty
 
       if( uiInfo.alienUpgradeCount <= 0 )
-        Menus_CloseAll( qfalse );
+        Menus_CloseAll( );
     }
     else if( Q_stricmp( name, "UpgradeToNewClass" ) == 0 )
     {
@@ -3062,7 +3062,7 @@ static void UI_RunMenuScript( char **args )
     {
       trap_Cmd_ExecuteText( EXEC_APPEND, "disconnect\n" );
       trap_Key_SetCatcher( KEYCATCH_UI );
-      Menus_CloseAll( qtrue );
+      Menus_CloseAll( );
       Menus_ActivateByName( "main" );
     }
     else if( Q_stricmp( name, "ServerSort" ) == 0 )
@@ -3087,7 +3087,7 @@ static void UI_RunMenuScript( char **args )
       trap_Key_SetCatcher( trap_Key_GetCatcher() & ~KEYCATCH_UI );
       trap_Key_ClearStates();
       trap_Cvar_Set( "cl_paused", "0" );
-      Menus_CloseAll( qfalse );
+      Menus_CloseAll( );
     }
     else if( Q_stricmp( name, "voteMap" ) == 0 )
     {
@@ -3928,7 +3928,7 @@ void UI_Init( qboolean inGameLoad )
   UI_LoadMenus( "ui/tremulous.txt", qfalse );
   UI_LoadHelp( "ui/help.txt" );
 
-  Menus_CloseAll( qtrue );
+  Menus_CloseAll( );
 
   trap_LAN_LoadCachedServers();
 
@@ -3958,7 +3958,7 @@ void UI_KeyEvent( int key, qboolean down )
     if( menu )
     {
       if( key == K_ESCAPE && down && !Menus_AnyFullScreenVisible() )
-        Menus_CloseAll( qtrue );
+        Menus_CloseAll( );
       else
         Menu_HandleKey( menu, key, down );
     }
@@ -4015,14 +4015,14 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
         trap_Key_SetCatcher( trap_Key_GetCatcher() & ~KEYCATCH_UI );
         trap_Key_ClearStates();
         trap_Cvar_Set( "cl_paused", "0" );
-        Menus_CloseAll( qtrue );
+        Menus_CloseAll( );
 
         return;
 
       case UIMENU_MAIN:
         trap_Cvar_Set( "sv_killserver", "1" );
         trap_Key_SetCatcher( KEYCATCH_UI );
-        Menus_CloseAll( qtrue );
+        Menus_CloseAll( );
         Menus_ActivateByName( "main" );
         trap_Cvar_VariableStringBuffer( "com_errorMessage", buf, sizeof( buf ) );
 
@@ -4040,7 +4040,7 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
         trap_Cvar_Set( "cl_paused", "1" );
         trap_Key_SetCatcher( KEYCATCH_UI );
         UI_BuildPlayerList();
-        Menus_CloseAll( qtrue );
+        Menus_CloseAll( );
         Menus_ActivateByName( "ingame" );
         return;
     }
@@ -4049,7 +4049,7 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
 
 qboolean UI_IsFullscreen( void )
 {
-  return Menus_AnyFullScreenVisible();
+  return Menus_AnyFullScreenVisible( );
 }
 
 
@@ -4309,7 +4309,7 @@ void UI_DrawConnectScreen( qboolean overlay )
 
   // print any server info (server full, bad version, etc)
   if( cstate.connState < CA_CONNECTED )
-    Text_PaintCenter_AutoWrapped( centerPoint, yStart + 176, 630, 20, scale, colorWhite, cstate.messageString, 0 );
+    Text_PaintCenter( centerPoint, yStart + 176, scale, colorWhite, cstate.messageString, 0 );
 
   if( lastConnState > cstate.connState )
     lastLoadingText[0] = '\0';

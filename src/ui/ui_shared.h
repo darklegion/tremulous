@@ -64,7 +64,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define WINDOW_POPUP          0x00200000  // popup
 #define WINDOW_BACKCOLORSET    0x00400000  // backcolor was explicitly set
 #define WINDOW_TIMEDVISIBLE    0x00800000  // visibility timing ( NOT implemented )
-#define WINDOW_DONTCLOSEALL    0x01000000  // don't close during Menus_CloseAll()
 
 
 // CGAME cursor type bits
@@ -464,7 +463,7 @@ menuDef_t *Menus_FindByName( const char *p );
 void Menus_CloseByName( const char *p );
 void Display_HandleKey( int key, qboolean down, int x, int y );
 void LerpColor( vec4_t a, vec4_t b, vec4_t c, float t );
-void Menus_CloseAll( qboolean force );
+void Menus_CloseAll( void );
 void Menu_Paint( menuDef_t *menu, qboolean forcePaint );
 void Menu_SetFeederSelection( menuDef_t *menu, int feeder, int index, const char *name );
 void Display_CacheAll( void );

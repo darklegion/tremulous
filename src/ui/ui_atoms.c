@@ -201,7 +201,7 @@ qboolean UI_ConsoleCommand( int realTime )
   {
     if( Menu_Count( ) > 0 )
     {
-      Menus_CloseAll( qfalse );
+      Menus_CloseAll( );
       if( Menu_Count( ) == 0 )
       {
         trap_Key_SetCatcher( trap_Key_GetCatcher( ) & ~KEYCATCH_UI );

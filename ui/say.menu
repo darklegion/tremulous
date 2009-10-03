@@ -15,7 +15,6 @@
     name say
     fullScreen MENU_FALSE
     visible MENU_FALSE
-    dontCloseAll MENU_TRUE
     rect X Y W H
     aspectBias ALIGN_LEFT
     focusColor 1 1 1 1
@@ -54,7 +53,6 @@
     name say_team
     fullScreen MENU_FALSE
     visible MENU_FALSE
-    dontCloseAll MENU_TRUE
     rect X Y W H
     aspectBias ALIGN_LEFT
     focusColor 1 1 1 1
