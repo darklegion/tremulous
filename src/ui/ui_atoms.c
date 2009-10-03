@@ -160,28 +160,24 @@ qboolean UI_ConsoleCommand( int realTime )
     return qtrue;
   }
 
-  if( Q_strncmp( cmd, "ui_messagemode", 14 ) == 0 )
+  if( Q_stricmp( cmd, "ui_messagemode" ) == 0 )
   {
     trap_Cvar_Set( "ui_sayBuffer", "" );
-
-    switch( cmd[ 14 ] )
-    {
-      default:
-      case '\0':
-        // Global
-        uiInfo.chatTeam             = qfalse;
-    uiInfo.chatTargetClientNum = -1;
-        break;
-
-      case '2':
-        // Team
-        uiInfo.chatTeam             = qtrue;
-        uiInfo.chatTargetClientNum  = -1;
-        break;
-    }
+    uiInfo.chatTeam = qfalse;
 
     trap_Key_SetCatcher( KEYCATCH_UI );
     Menus_ActivateByName( "say" );
+    return qtrue;
+  }
+
+  if( Q_stricmp( cmd, "ui_messagemode2" ) == 0 )
+  {
+    trap_Cvar_Set( "ui_sayBuffer", "" );
+    uiInfo.chatTargetClientNum = -1;
+    uiInfo.chatTeam = qtrue;
+
+    trap_Key_SetCatcher( KEYCATCH_UI );
+    Menus_ActivateByName( "say_team" );
     return qtrue;
   }
 
