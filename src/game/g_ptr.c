@@ -110,29 +110,6 @@ connectionRecord_t *G_GenerateNewConnection( gclient_t *client )
 
 /*
 ===============
-G_VerifyPTRC
-
-Check a PTR code for validity
-===============
-*/
-qboolean G_VerifyPTRC( int code )
-{
-  int i;
-
-  if( code == 0 )
-    return qfalse;
-
-  for( i = 0; i < MAX_CLIENTS; i++ )
-  {
-    if( connections[ i ].ptrCode == code )
-      return qtrue;
-  }
-
-  return qfalse;
-}
-
-/*
-===============
 G_FindConnectionForCode
 
 Finds a connection for a given code
@@ -152,19 +129,6 @@ connectionRecord_t *G_FindConnectionForCode( int code )
   }
 
   return NULL;
-}
-
-/*
-===============
-G_DeletePTRConnection
-
-Finds a connection and deletes it
-===============
-*/
-void G_DeletePTRConnection( connectionRecord_t *connection )
-{
-  if( connection )
-    memset( connection, 0, sizeof( connectionRecord_t ) );
 }
 
 /*

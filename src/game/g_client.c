@@ -890,9 +890,10 @@ static qboolean G_NonSegModel( const char *filename )
   if( len < 0 )
     return qfalse;
 
-  if( len >= sizeof( text ) - 1 )
+  if( len == 0 || len >= sizeof( text ) - 1 )
   {
-    G_Printf( "File %s too long\n", filename );
+    trap_FS_FCloseFile( f );
+    G_Printf( "File %s is %s\n", filename, len == 0 ? "empty" : "too long" );
     return qfalse;
   }
 
@@ -1675,6 +1676,9 @@ void ClientDisconnect( int clientNum )
     tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_OUT );
     tent->s.clientNum = ent->s.clientNum;
   }
+
+  if( ent->client->pers.connection )
+    ent->client->pers.connection->clientNum = -1;
 
   G_LogPrintf( "ClientDisconnect: %i [%s] (%s) \"%s\"\n", clientNum,
    ent->client->pers.ip, ent->client->pers.guid, ent->client->pers.netname );

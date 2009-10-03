@@ -313,9 +313,11 @@ static qboolean G_ParseMapRotationFile( const char *fileName )
   if( len < 0 )
     return qfalse;
 
-  if( len >= sizeof( text ) - 1 )
+  if( len == 0 || len >= sizeof( text ) - 1 )
   {
-    G_Printf( S_COLOR_RED "ERROR: map rotation file %s too long\n", fileName );
+    trap_FS_FCloseFile( f );
+    G_Printf( S_COLOR_RED "ERROR: map rotation file %s is %s\n", fileName,
+      len == 0 ? "empty" : "too long" );
     return qfalse;
   }
 
