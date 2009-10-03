@@ -628,6 +628,15 @@ void Cmd_Team_f( gentity_t *ent )
   if( oldteam == team )
     return;
 
+  if( team != TEAM_NONE && g_maxGameClients.integer &&
+    level.numPlayingClients >= g_maxGameClients.integer )
+  {
+    trap_SendServerCommand( ent-g_entities, va( "print \"The maximum number of "
+      "playing clients has been reached (g_maxGameClients = %d)\n\"",
+      g_maxGameClients.integer ) );
+    return;
+  }
+
   // guard against build timer exploit
   if( oldteam != TEAM_NONE && ent->client->sess.spectatorState == SPECTATOR_NOT &&
      ( ent->client->ps.stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0 ||
