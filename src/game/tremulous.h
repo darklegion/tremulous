@@ -656,8 +656,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define AVG_FALL_DISTANCE           ((MIN_FALL_DISTANCE+MAX_FALL_DISTANCE)/2.0f)
 
 #define FREEKILL_PERIOD             120000 //msec
-#define FREEKILL_ALIEN              ALIEN_CREDITS_PER_KILL
-#define FREEKILL_HUMAN              LEVEL0_VALUE
+#define FREEKILL_ALIEN              0
+#define FREEKILL_HUMAN              0
 
 #define DEFAULT_ALIEN_BUILDPOINTS   "150"
 #define DEFAULT_ALIEN_QUEUE_TIME    "12000"
