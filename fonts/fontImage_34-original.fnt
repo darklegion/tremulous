@@ -1,0 +1,4361 @@
+// glyphs
+{
+	char 0
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.003906
+		t 0.025391
+		s2 0.058594
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 1
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.062500
+		t 0.025391
+		s2 0.117188
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 2
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.121094
+		t 0.025391
+		s2 0.175781
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 3
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.179688
+		t 0.025391
+		s2 0.234375
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 4
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.238281
+		t 0.025391
+		s2 0.292969
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 5
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.296875
+		t 0.025391
+		s2 0.351563
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 6
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.355469
+		t 0.025391
+		s2 0.410156
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 7
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.414063
+		t 0.025391
+		s2 0.468750
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 8
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.472656
+		t 0.025391
+		s2 0.527344
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 9
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.531250
+		t 0.025391
+		s2 0.585938
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 10
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.589844
+		t 0.025391
+		s2 0.644531
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 11
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.648438
+		t 0.025391
+		s2 0.703125
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 12
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.707031
+		t 0.025391
+		s2 0.761719
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 13
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.765625
+		t 0.025391
+		s2 0.820313
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 14
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.824219
+		t 0.025391
+		s2 0.878906
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 15
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.882813
+		t 0.025391
+		s2 0.937500
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 16
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.003906
+		t 0.160156
+		s2 0.058594
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 17
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.062500
+		t 0.160156
+		s2 0.117188
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 18
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.121094
+		t 0.160156
+		s2 0.175781
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 19
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.179688
+		t 0.160156
+		s2 0.234375
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 20
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.238281
+		t 0.160156
+		s2 0.292969
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 21
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.296875
+		t 0.160156
+		s2 0.351563
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 22
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.355469
+		t 0.160156
+		s2 0.410156
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 23
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.414063
+		t 0.160156
+		s2 0.468750
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 24
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.472656
+		t 0.160156
+		s2 0.527344
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 25
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.531250
+		t 0.160156
+		s2 0.585938
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 26
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.589844
+		t 0.160156
+		s2 0.644531
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 27
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.648438
+		t 0.160156
+		s2 0.703125
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 28
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.707031
+		t 0.160156
+		s2 0.761719
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 29
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.765625
+		t 0.160156
+		s2 0.820313
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 30
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.824219
+		t 0.160156
+		s2 0.878906
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 31
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.882813
+		t 0.160156
+		s2 0.937500
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 32
+	{
+		height 0
+		top 1
+		bottom 0
+		pitch 1
+		xSkip 14
+		imageWidth 0
+		imageHeight 0
+		s 0.941406
+		t 0.265625
+		s2 0.941406
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 33
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 14
+		imageWidth 8
+		imageHeight 51
+		s 0.945313
+		t 0.166016
+		s2 0.960938
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 34
+	{
+		height 16
+		top 52
+		bottom 2240
+		pitch 5
+		xSkip 22
+		imageWidth 16
+		imageHeight 16
+		s 0.003906
+		t 0.369141
+		s2 0.035156
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 35
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 3
+		xSkip 36
+		imageWidth 32
+		imageHeight 51
+		s 0.039063
+		t 0.300781
+		s2 0.101563
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 36
+	{
+		height 60
+		top 56
+		bottom -320
+		pitch 5
+		xSkip 29
+		imageWidth 20
+		imageHeight 60
+		s 0.105469
+		t 0.283203
+		s2 0.144531
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 37
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 3
+		xSkip 46
+		imageWidth 40
+		imageHeight 51
+		s 0.148438
+		t 0.300781
+		s2 0.226563
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 38
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 51
+		s 0.230469
+		t 0.300781
+		s2 0.277344
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 39
+	{
+		height 16
+		top 52
+		bottom 2240
+		pitch 5
+		xSkip 13
+		imageWidth 8
+		imageHeight 16
+		s 0.281250
+		t 0.369141
+		s2 0.296875
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 40
+	{
+		height 58
+		top 52
+		bottom -448
+		pitch 4
+		xSkip 18
+		imageWidth 12
+		imageHeight 58
+		s 0.300781
+		t 0.287109
+		s2 0.324219
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 41
+	{
+		height 58
+		top 52
+		bottom -448
+		pitch 3
+		xSkip 18
+		imageWidth 12
+		imageHeight 58
+		s 0.328125
+		t 0.287109
+		s2 0.351563
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 42
+	{
+		height 21
+		top 52
+		bottom 1920
+		pitch 3
+		xSkip 27
+		imageWidth 24
+		imageHeight 21
+		s 0.355469
+		t 0.359375
+		s2 0.402344
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 43
+	{
+		height 22
+		top 34
+		bottom 704
+		pitch 3
+		xSkip 28
+		imageWidth 24
+		imageHeight 22
+		s 0.406250
+		t 0.357422
+		s2 0.453125
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 44
+	{
+		height 9
+		top 6
+		bottom -256
+		pitch 3
+		xSkip 13
+		imageWidth 8
+		imageHeight 9
+		s 0.457031
+		t 0.382813
+		s2 0.472656
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 45
+	{
+		height 4
+		top 23
+		bottom 1152
+		pitch 4
+		xSkip 20
+		imageWidth 16
+		imageHeight 4
+		s 0.476563
+		t 0.392578
+		s2 0.507813
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 46
+	{
+		height 6
+		top 7
+		bottom 0
+		pitch 4
+		xSkip 11
+		imageWidth 8
+		imageHeight 6
+		s 0.511719
+		t 0.388672
+		s2 0.527344
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 47
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 2
+		xSkip 29
+		imageWidth 28
+		imageHeight 51
+		s 0.531250
+		t 0.300781
+		s2 0.585938
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 48
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 51
+		s 0.589844
+		t 0.300781
+		s2 0.636719
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 49
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 4
+		xSkip 15
+		imageWidth 8
+		imageHeight 51
+		s 0.640625
+		t 0.300781
+		s2 0.656250
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 50
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 4
+		xSkip 27
+		imageWidth 20
+		imageHeight 51
+		s 0.660156
+		t 0.300781
+		s2 0.699219
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 51
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 29
+		imageWidth 24
+		imageHeight 51
+		s 0.703125
+		t 0.300781
+		s2 0.750000
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 52
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 2
+		xSkip 27
+		imageWidth 24
+		imageHeight 51
+		s 0.753906
+		t 0.300781
+		s2 0.800781
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 53
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 28
+		imageWidth 20
+		imageHeight 51
+		s 0.804688
+		t 0.300781
+		s2 0.843750
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 54
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 29
+		imageWidth 20
+		imageHeight 51
+		s 0.847656
+		t 0.300781
+		s2 0.886719
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 55
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 3
+		xSkip 25
+		imageWidth 20
+		imageHeight 51
+		s 0.890625
+		t 0.300781
+		s2 0.929688
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 56
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 29
+		imageWidth 24
+		imageHeight 51
+		s 0.933594
+		t 0.300781
+		s2 0.980469
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 57
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 29
+		imageWidth 20
+		imageHeight 51
+		s 0.003906
+		t 0.435547
+		s2 0.042969
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 58
+	{
+		height 28
+		top 29
+		bottom 0
+		pitch 4
+		xSkip 11
+		imageWidth 8
+		imageHeight 28
+		s 0.046875
+		t 0.480469
+		s2 0.062500
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 59
+	{
+		height 32
+		top 29
+		bottom -256
+		pitch 3
+		xSkip 11
+		imageWidth 8
+		imageHeight 32
+		s 0.066406
+		t 0.472656
+		s2 0.082031
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 60
+	{
+		height 28
+		top 37
+		bottom 512
+		pitch 3
+		xSkip 24
+		imageWidth 20
+		imageHeight 28
+		s 0.085938
+		t 0.480469
+		s2 0.125000
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 61
+	{
+		height 16
+		top 30
+		bottom 832
+		pitch 4
+		xSkip 30
+		imageWidth 24
+		imageHeight 16
+		s 0.128906
+		t 0.503906
+		s2 0.175781
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 62
+	{
+		height 28
+		top 36
+		bottom 448
+		pitch 5
+		xSkip 24
+		imageWidth 20
+		imageHeight 28
+		s 0.179688
+		t 0.480469
+		s2 0.218750
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 63
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 4
+		xSkip 26
+		imageWidth 20
+		imageHeight 51
+		s 0.222656
+		t 0.435547
+		s2 0.261719
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 64
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 38
+		imageWidth 32
+		imageHeight 51
+		s 0.265625
+		t 0.435547
+		s2 0.328125
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 65
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 3
+		xSkip 28
+		imageWidth 24
+		imageHeight 51
+		s 0.332031
+		t 0.435547
+		s2 0.378906
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 66
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 29
+		imageWidth 24
+		imageHeight 51
+		s 0.382813
+		t 0.435547
+		s2 0.429688
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 67
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 29
+		imageWidth 24
+		imageHeight 51
+		s 0.433594
+		t 0.435547
+		s2 0.480469
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 68
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 51
+		s 0.484375
+		t 0.435547
+		s2 0.531250
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 69
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 25
+		imageWidth 20
+		imageHeight 51
+		s 0.535156
+		t 0.435547
+		s2 0.574219
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 70
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 23
+		imageWidth 20
+		imageHeight 51
+		s 0.578125
+		t 0.435547
+		s2 0.617188
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 71
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 29
+		imageWidth 24
+		imageHeight 51
+		s 0.621094
+		t 0.435547
+		s2 0.667969
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 72
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 51
+		s 0.671875
+		t 0.435547
+		s2 0.718750
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 73
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 14
+		imageWidth 8
+		imageHeight 51
+		s 0.722656
+		t 0.435547
+		s2 0.738281
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 74
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 4
+		xSkip 27
+		imageWidth 20
+		imageHeight 51
+		s 0.742188
+		t 0.435547
+		s2 0.781250
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 75
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 26
+		imageWidth 24
+		imageHeight 51
+		s 0.785156
+		t 0.435547
+		s2 0.832031
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 76
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 23
+		imageWidth 20
+		imageHeight 51
+		s 0.835938
+		t 0.435547
+		s2 0.875000
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 77
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 51
+		s 0.878906
+		t 0.435547
+		s2 0.933594
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 78
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 51
+		s 0.937500
+		t 0.435547
+		s2 0.984375
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 79
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 51
+		s 0.003906
+		t 0.570313
+		s2 0.050781
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 80
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 28
+		imageWidth 20
+		imageHeight 51
+		s 0.054688
+		t 0.570313
+		s2 0.093750
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 81
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 31
+		imageWidth 28
+		imageHeight 51
+		s 0.097656
+		t 0.570313
+		s2 0.152344
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 82
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 29
+		imageWidth 24
+		imageHeight 51
+		s 0.156250
+		t 0.570313
+		s2 0.203125
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 83
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 29
+		imageWidth 20
+		imageHeight 51
+		s 0.207031
+		t 0.570313
+		s2 0.246094
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 84
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 2
+		xSkip 23
+		imageWidth 20
+		imageHeight 51
+		s 0.250000
+		t 0.570313
+		s2 0.289063
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 85
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 51
+		s 0.292969
+		t 0.570313
+		s2 0.339844
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 86
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 3
+		xSkip 27
+		imageWidth 24
+		imageHeight 51
+		s 0.343750
+		t 0.570313
+		s2 0.390625
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 87
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 3
+		xSkip 38
+		imageWidth 36
+		imageHeight 51
+		s 0.394531
+		t 0.570313
+		s2 0.464844
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 88
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 2
+		xSkip 26
+		imageWidth 24
+		imageHeight 51
+		s 0.468750
+		t 0.570313
+		s2 0.515625
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 89
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 2
+		xSkip 26
+		imageWidth 24
+		imageHeight 51
+		s 0.519531
+		t 0.570313
+		s2 0.566406
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 90
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 3
+		xSkip 24
+		imageWidth 20
+		imageHeight 51
+		s 0.570313
+		t 0.570313
+		s2 0.609375
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 91
+	{
+		height 59
+		top 52
+		bottom -512
+		pitch 5
+		xSkip 20
+		imageWidth 16
+		imageHeight 59
+		s 0.613281
+		t 0.554688
+		s2 0.644531
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 92
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 2
+		xSkip 30
+		imageWidth 28
+		imageHeight 51
+		s 0.648438
+		t 0.570313
+		s2 0.703125
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 93
+	{
+		height 59
+		top 52
+		bottom -512
+		pitch 4
+		xSkip 20
+		imageWidth 16
+		imageHeight 59
+		s 0.707031
+		t 0.554688
+		s2 0.738281
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 94
+	{
+		height 18
+		top 52
+		bottom 2112
+		pitch 4
+		xSkip 28
+		imageWidth 24
+		imageHeight 18
+		s 0.742188
+		t 0.634766
+		s2 0.789063
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 95
+	{
+		height 4
+		top -8
+		bottom -832
+		pitch 1
+		xSkip 25
+		imageWidth 24
+		imageHeight 4
+		s 0.792969
+		t 0.662109
+		s2 0.839844
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 96
+	{
+		height 8
+		top 44
+		bottom 2240
+		pitch 10
+		xSkip 27
+		imageWidth 12
+		imageHeight 8
+		s 0.843750
+		t 0.654297
+		s2 0.867188
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 97
+	{
+		height 32
+		top 33
+		bottom 0
+		pitch 4
+		xSkip 26
+		imageWidth 20
+		imageHeight 32
+		s 0.871094
+		t 0.607422
+		s2 0.910156
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 98
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 51
+		s 0.914063
+		t 0.570313
+		s2 0.953125
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 99
+	{
+		height 32
+		top 33
+		bottom 0
+		pitch 5
+		xSkip 26
+		imageWidth 20
+		imageHeight 32
+		s 0.003906
+		t 0.742188
+		s2 0.042969
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 100
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 4
+		xSkip 26
+		imageWidth 20
+		imageHeight 51
+		s 0.046875
+		t 0.705078
+		s2 0.085938
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 101
+	{
+		height 32
+		top 33
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 32
+		s 0.089844
+		t 0.742188
+		s2 0.128906
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 102
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 2
+		xSkip 16
+		imageWidth 16
+		imageHeight 51
+		s 0.132813
+		t 0.705078
+		s2 0.164063
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 103
+	{
+		height 44
+		top 33
+		bottom -768
+		pitch 4
+		xSkip 26
+		imageWidth 20
+		imageHeight 44
+		s 0.167969
+		t 0.718750
+		s2 0.207031
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 104
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 51
+		s 0.210938
+		t 0.705078
+		s2 0.250000
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 105
+	{
+		height 45
+		top 46
+		bottom 0
+		pitch 5
+		xSkip 13
+		imageWidth 8
+		imageHeight 45
+		s 0.253906
+		t 0.716797
+		s2 0.269531
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 106
+	{
+		height 57
+		top 46
+		bottom -768
+		pitch 0
+		xSkip 13
+		imageWidth 12
+		imageHeight 57
+		s 0.273438
+		t 0.693359
+		s2 0.296875
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 107
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 24
+		imageWidth 20
+		imageHeight 51
+		s 0.300781
+		t 0.705078
+		s2 0.339844
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 108
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 13
+		imageWidth 8
+		imageHeight 51
+		s 0.343750
+		t 0.705078
+		s2 0.359375
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 109
+	{
+		height 32
+		top 33
+		bottom 0
+		pitch 5
+		xSkip 40
+		imageWidth 32
+		imageHeight 32
+		s 0.363281
+		t 0.742188
+		s2 0.425781
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 110
+	{
+		height 32
+		top 33
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 32
+		s 0.429688
+		t 0.742188
+		s2 0.468750
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 111
+	{
+		height 32
+		top 33
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 32
+		s 0.472656
+		t 0.742188
+		s2 0.511719
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 112
+	{
+		height 44
+		top 33
+		bottom -768
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 44
+		s 0.515625
+		t 0.718750
+		s2 0.554688
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 113
+	{
+		height 44
+		top 33
+		bottom -768
+		pitch 4
+		xSkip 26
+		imageWidth 20
+		imageHeight 44
+		s 0.558594
+		t 0.718750
+		s2 0.597656
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 114
+	{
+		height 32
+		top 33
+		bottom 0
+		pitch 5
+		xSkip 23
+		imageWidth 20
+		imageHeight 32
+		s 0.601563
+		t 0.742188
+		s2 0.640625
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 115
+	{
+		height 32
+		top 33
+		bottom 0
+		pitch 4
+		xSkip 25
+		imageWidth 20
+		imageHeight 32
+		s 0.644531
+		t 0.742188
+		s2 0.683594
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 116
+	{
+		height 42
+		top 43
+		bottom 0
+		pitch 2
+		xSkip 18
+		imageWidth 16
+		imageHeight 42
+		s 0.687500
+		t 0.722656
+		s2 0.718750
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 117
+	{
+		height 32
+		top 33
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 32
+		s 0.722656
+		t 0.742188
+		s2 0.761719
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 118
+	{
+		height 32
+		top 33
+		bottom 0
+		pitch 2
+		xSkip 25
+		imageWidth 24
+		imageHeight 32
+		s 0.765625
+		t 0.742188
+		s2 0.812500
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 119
+	{
+		height 32
+		top 33
+		bottom 0
+		pitch 2
+		xSkip 35
+		imageWidth 32
+		imageHeight 32
+		s 0.816406
+		t 0.742188
+		s2 0.878906
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 120
+	{
+		height 32
+		top 33
+		bottom 0
+		pitch 2
+		xSkip 23
+		imageWidth 20
+		imageHeight 32
+		s 0.882813
+		t 0.742188
+		s2 0.921875
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 121
+	{
+		height 44
+		top 33
+		bottom -768
+		pitch 2
+		xSkip 25
+		imageWidth 24
+		imageHeight 44
+		s 0.925781
+		t 0.718750
+		s2 0.972656
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 122
+	{
+		height 32
+		top 33
+		bottom 0
+		pitch 3
+		xSkip 22
+		imageWidth 16
+		imageHeight 32
+		s 0.003906
+		t 0.876953
+		s2 0.035156
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 123
+	{
+		height 60
+		top 52
+		bottom -576
+		pitch 3
+		xSkip 23
+		imageWidth 20
+		imageHeight 60
+		s 0.039063
+		t 0.822266
+		s2 0.078125
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 124
+	{
+		height 63
+		top 52
+		bottom -768
+		pitch 6
+		xSkip 15
+		imageWidth 8
+		imageHeight 63
+		s 0.082031
+		t 0.816406
+		s2 0.097656
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 125
+	{
+		height 60
+		top 52
+		bottom -576
+		pitch 4
+		xSkip 24
+		imageWidth 20
+		imageHeight 60
+		s 0.101563
+		t 0.822266
+		s2 0.140625
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 126
+	{
+		height 10
+		top 26
+		bottom 960
+		pitch 7
+		xSkip 35
+		imageWidth 24
+		imageHeight 10
+		s 0.144531
+		t 0.919922
+		s2 0.191406
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 127
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.195313
+		t 0.833984
+		s2 0.250000
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 128
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.253906
+		t 0.833984
+		s2 0.308594
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 129
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.312500
+		t 0.833984
+		s2 0.367188
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 130
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.371094
+		t 0.833984
+		s2 0.425781
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 131
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.429688
+		t 0.833984
+		s2 0.484375
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 132
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.488281
+		t 0.833984
+		s2 0.542969
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 133
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.546875
+		t 0.833984
+		s2 0.601563
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 134
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.605469
+		t 0.833984
+		s2 0.660156
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 135
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.664063
+		t 0.833984
+		s2 0.718750
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 136
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.722656
+		t 0.833984
+		s2 0.777344
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 137
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.781250
+		t 0.833984
+		s2 0.835938
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 138
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.839844
+		t 0.833984
+		s2 0.894531
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 139
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.898438
+		t 0.833984
+		s2 0.953125
+		t2 0.939453
+		glyph 0
+		shaderName "fonts/fontImage_0_34.tga"
+	}
+
+	char 140
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.003906
+		t 0.025391
+		s2 0.058594
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 141
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.062500
+		t 0.025391
+		s2 0.117188
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 142
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.121094
+		t 0.025391
+		s2 0.175781
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 143
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.179688
+		t 0.025391
+		s2 0.234375
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 144
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.238281
+		t 0.025391
+		s2 0.292969
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 145
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.296875
+		t 0.025391
+		s2 0.351563
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 146
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.355469
+		t 0.025391
+		s2 0.410156
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 147
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.414063
+		t 0.025391
+		s2 0.468750
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 148
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.472656
+		t 0.025391
+		s2 0.527344
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 149
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.531250
+		t 0.025391
+		s2 0.585938
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 150
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.589844
+		t 0.025391
+		s2 0.644531
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 151
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.648438
+		t 0.025391
+		s2 0.703125
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 152
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.707031
+		t 0.025391
+		s2 0.761719
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 153
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.765625
+		t 0.025391
+		s2 0.820313
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 154
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.824219
+		t 0.025391
+		s2 0.878906
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 155
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.882813
+		t 0.025391
+		s2 0.937500
+		t2 0.130859
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 156
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.003906
+		t 0.160156
+		s2 0.058594
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 157
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.062500
+		t 0.160156
+		s2 0.117188
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 158
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.121094
+		t 0.160156
+		s2 0.175781
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 159
+	{
+		height 54
+		top 55
+		bottom 0
+		pitch 5
+		xSkip 34
+		imageWidth 28
+		imageHeight 54
+		s 0.179688
+		t 0.160156
+		s2 0.234375
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 160
+	{
+		height 0
+		top 1
+		bottom 0
+		pitch 1
+		xSkip 8
+		imageWidth 0
+		imageHeight 0
+		s 0.238281
+		t 0.265625
+		s2 0.238281
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 161
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 14
+		imageWidth 8
+		imageHeight 51
+		s 0.242188
+		t 0.166016
+		s2 0.257813
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 162
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 26
+		imageWidth 20
+		imageHeight 51
+		s 0.261719
+		t 0.166016
+		s2 0.300781
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 163
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 3
+		xSkip 29
+		imageWidth 24
+		imageHeight 51
+		s 0.304688
+		t 0.166016
+		s2 0.351563
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 164
+	{
+		height 34
+		top 42
+		bottom 448
+		pitch 5
+		xSkip 40
+		imageWidth 32
+		imageHeight 34
+		s 0.355469
+		t 0.199219
+		s2 0.417969
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 165
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 2
+		xSkip 27
+		imageWidth 24
+		imageHeight 51
+		s 0.421875
+		t 0.166016
+		s2 0.468750
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 166
+	{
+		height 67
+		top 55
+		bottom -832
+		pitch 5
+		xSkip 14
+		imageWidth 8
+		imageHeight 67
+		s 0.472656
+		t 0.134766
+		s2 0.488281
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 167
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 29
+		imageWidth 20
+		imageHeight 51
+		s 0.492188
+		t 0.166016
+		s2 0.531250
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 168
+	{
+		height 5
+		top 41
+		bottom 2240
+		pitch 8
+		xSkip 28
+		imageWidth 16
+		imageHeight 5
+		s 0.535156
+		t 0.255859
+		s2 0.566406
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 169
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 38
+		imageWidth 32
+		imageHeight 51
+		s 0.570313
+		t 0.166016
+		s2 0.632813
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 170
+	{
+		height 33
+		top 52
+		bottom 1152
+		pitch 5
+		xSkip 24
+		imageWidth 16
+		imageHeight 33
+		s 0.636719
+		t 0.201172
+		s2 0.667969
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 171
+	{
+		height 26
+		top 32
+		bottom 320
+		pitch 4
+		xSkip 31
+		imageWidth 24
+		imageHeight 26
+		s 0.671875
+		t 0.214844
+		s2 0.718750
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 172
+	{
+		height 14
+		top 26
+		bottom 704
+		pitch 5
+		xSkip 32
+		imageWidth 24
+		imageHeight 14
+		s 0.722656
+		t 0.238281
+		s2 0.769531
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 173
+	{
+		height 4
+		top 26
+		bottom 1344
+		pitch 5
+		xSkip 32
+		imageWidth 24
+		imageHeight 4
+		s 0.773438
+		t 0.257813
+		s2 0.820313
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 174
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 38
+		imageWidth 32
+		imageHeight 51
+		s 0.824219
+		t 0.166016
+		s2 0.886719
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 175
+	{
+		height 4
+		top 41
+		bottom 2304
+		pitch 7
+		xSkip 27
+		imageWidth 16
+		imageHeight 4
+		s 0.890625
+		t 0.257813
+		s2 0.921875
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 176
+	{
+		height 26
+		top 52
+		bottom 1600
+		pitch 4
+		xSkip 23
+		imageWidth 16
+		imageHeight 26
+		s 0.925781
+		t 0.214844
+		s2 0.957031
+		t2 0.265625
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 177
+	{
+		height 28
+		top 35
+		bottom 384
+		pitch 3
+		xSkip 28
+		imageWidth 24
+		imageHeight 28
+		s 0.003906
+		t 0.345703
+		s2 0.050781
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 178
+	{
+		height 26
+		top 52
+		bottom 1600
+		pitch 3
+		xSkip 22
+		imageWidth 20
+		imageHeight 26
+		s 0.054688
+		t 0.349609
+		s2 0.093750
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 179
+	{
+		height 27
+		top 52
+		bottom 1536
+		pitch 3
+		xSkip 22
+		imageWidth 20
+		imageHeight 27
+		s 0.097656
+		t 0.347656
+		s2 0.136719
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 180
+	{
+		height 8
+		top 44
+		bottom 2240
+		pitch 7
+		xSkip 28
+		imageWidth 12
+		imageHeight 8
+		s 0.140625
+		t 0.384766
+		s2 0.164063
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 181
+	{
+		height 44
+		top 33
+		bottom -768
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 44
+		s 0.167969
+		t 0.314453
+		s2 0.207031
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 182
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 4
+		xSkip 31
+		imageWidth 24
+		imageHeight 51
+		s 0.210938
+		t 0.300781
+		s2 0.257813
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 183
+	{
+		height 6
+		top 24
+		bottom 1088
+		pitch 4
+		xSkip 11
+		imageWidth 8
+		imageHeight 6
+		s 0.261719
+		t 0.388672
+		s2 0.277344
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 184
+	{
+		height 13
+		top 2
+		bottom -768
+		pitch 8
+		xSkip 27
+		imageWidth 12
+		imageHeight 13
+		s 0.281250
+		t 0.375000
+		s2 0.304688
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 185
+	{
+		height 26
+		top 52
+		bottom 1600
+		pitch 3
+		xSkip 14
+		imageWidth 8
+		imageHeight 26
+		s 0.308594
+		t 0.349609
+		s2 0.324219
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 186
+	{
+		height 34
+		top 52
+		bottom 1088
+		pitch 5
+		xSkip 24
+		imageWidth 16
+		imageHeight 34
+		s 0.328125
+		t 0.333984
+		s2 0.359375
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 187
+	{
+		height 26
+		top 32
+		bottom 320
+		pitch 4
+		xSkip 31
+		imageWidth 24
+		imageHeight 26
+		s 0.363281
+		t 0.349609
+		s2 0.410156
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 188
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 1
+		xSkip 36
+		imageWidth 36
+		imageHeight 51
+		s 0.414063
+		t 0.300781
+		s2 0.484375
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 189
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 0
+		xSkip 37
+		imageWidth 40
+		imageHeight 51
+		s 0.488281
+		t 0.300781
+		s2 0.566406
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 190
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 2
+		xSkip 43
+		imageWidth 40
+		imageHeight 51
+		s 0.570313
+		t 0.300781
+		s2 0.648438
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 191
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 4
+		xSkip 27
+		imageWidth 20
+		imageHeight 51
+		s 0.652344
+		t 0.300781
+		s2 0.691406
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 192
+	{
+		height 62
+		top 63
+		bottom 0
+		pitch 3
+		xSkip 28
+		imageWidth 24
+		imageHeight 62
+		s 0.695313
+		t 0.279297
+		s2 0.742188
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 193
+	{
+		height 62
+		top 63
+		bottom 0
+		pitch 3
+		xSkip 28
+		imageWidth 24
+		imageHeight 62
+		s 0.746094
+		t 0.279297
+		s2 0.792969
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 194
+	{
+		height 62
+		top 63
+		bottom 0
+		pitch 3
+		xSkip 28
+		imageWidth 24
+		imageHeight 62
+		s 0.796875
+		t 0.279297
+		s2 0.843750
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 195
+	{
+		height 61
+		top 62
+		bottom 0
+		pitch 3
+		xSkip 27
+		imageWidth 24
+		imageHeight 61
+		s 0.847656
+		t 0.281250
+		s2 0.894531
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 196
+	{
+		height 59
+		top 60
+		bottom 0
+		pitch 3
+		xSkip 28
+		imageWidth 24
+		imageHeight 59
+		s 0.898438
+		t 0.285156
+		s2 0.945313
+		t2 0.400391
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 197
+	{
+		height 61
+		top 62
+		bottom 0
+		pitch 3
+		xSkip 27
+		imageWidth 24
+		imageHeight 61
+		s 0.003906
+		t 0.416016
+		s2 0.050781
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 198
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 3
+		xSkip 38
+		imageWidth 36
+		imageHeight 51
+		s 0.054688
+		t 0.435547
+		s2 0.125000
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 199
+	{
+		height 64
+		top 52
+		bottom -832
+		pitch 5
+		xSkip 29
+		imageWidth 24
+		imageHeight 64
+		s 0.128906
+		t 0.410156
+		s2 0.175781
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 200
+	{
+		height 62
+		top 63
+		bottom 0
+		pitch 5
+		xSkip 25
+		imageWidth 20
+		imageHeight 62
+		s 0.179688
+		t 0.414063
+		s2 0.218750
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 201
+	{
+		height 62
+		top 63
+		bottom 0
+		pitch 5
+		xSkip 25
+		imageWidth 20
+		imageHeight 62
+		s 0.222656
+		t 0.414063
+		s2 0.261719
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 202
+	{
+		height 62
+		top 63
+		bottom 0
+		pitch 5
+		xSkip 25
+		imageWidth 20
+		imageHeight 62
+		s 0.265625
+		t 0.414063
+		s2 0.304688
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 203
+	{
+		height 59
+		top 60
+		bottom 0
+		pitch 5
+		xSkip 25
+		imageWidth 20
+		imageHeight 59
+		s 0.308594
+		t 0.419922
+		s2 0.347656
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 204
+	{
+		height 62
+		top 63
+		bottom 0
+		pitch 0
+		xSkip 14
+		imageWidth 12
+		imageHeight 62
+		s 0.351563
+		t 0.414063
+		s2 0.375000
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 205
+	{
+		height 62
+		top 63
+		bottom 0
+		pitch 4
+		xSkip 14
+		imageWidth 12
+		imageHeight 62
+		s 0.378906
+		t 0.414063
+		s2 0.402344
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 206
+	{
+		height 62
+		top 63
+		bottom 0
+		pitch 0
+		xSkip 14
+		imageWidth 16
+		imageHeight 62
+		s 0.406250
+		t 0.414063
+		s2 0.437500
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 207
+	{
+		height 59
+		top 60
+		bottom 0
+		pitch 1
+		xSkip 14
+		imageWidth 16
+		imageHeight 59
+		s 0.441406
+		t 0.419922
+		s2 0.472656
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 208
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 2
+		xSkip 30
+		imageWidth 24
+		imageHeight 51
+		s 0.476563
+		t 0.435547
+		s2 0.523438
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 209
+	{
+		height 61
+		top 62
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 61
+		s 0.527344
+		t 0.416016
+		s2 0.574219
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 210
+	{
+		height 62
+		top 63
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 62
+		s 0.578125
+		t 0.414063
+		s2 0.625000
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 211
+	{
+		height 62
+		top 63
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 62
+		s 0.628906
+		t 0.414063
+		s2 0.675781
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 212
+	{
+		height 62
+		top 63
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 62
+		s 0.679688
+		t 0.414063
+		s2 0.726563
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 213
+	{
+		height 61
+		top 62
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 61
+		s 0.730469
+		t 0.416016
+		s2 0.777344
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 214
+	{
+		height 59
+		top 60
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 59
+		s 0.781250
+		t 0.419922
+		s2 0.828125
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 215
+	{
+		height 21
+		top 34
+		bottom 768
+		pitch 6
+		xSkip 32
+		imageWidth 20
+		imageHeight 21
+		s 0.832031
+		t 0.494141
+		s2 0.871094
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 216
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 1
+		xSkip 30
+		imageWidth 32
+		imageHeight 51
+		s 0.875000
+		t 0.435547
+		s2 0.937500
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 217
+	{
+		height 62
+		top 63
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 62
+		s 0.941406
+		t 0.414063
+		s2 0.988281
+		t2 0.535156
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 218
+	{
+		height 62
+		top 63
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 62
+		s 0.003906
+		t 0.548828
+		s2 0.050781
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 219
+	{
+		height 62
+		top 63
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 62
+		s 0.054688
+		t 0.548828
+		s2 0.101563
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 220
+	{
+		height 59
+		top 60
+		bottom 0
+		pitch 5
+		xSkip 30
+		imageWidth 24
+		imageHeight 59
+		s 0.105469
+		t 0.554688
+		s2 0.152344
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 221
+	{
+		height 62
+		top 63
+		bottom 0
+		pitch 2
+		xSkip 26
+		imageWidth 24
+		imageHeight 62
+		s 0.156250
+		t 0.548828
+		s2 0.203125
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 222
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 28
+		imageWidth 20
+		imageHeight 51
+		s 0.207031
+		t 0.570313
+		s2 0.246094
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 223
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 51
+		s 0.250000
+		t 0.570313
+		s2 0.289063
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 224
+	{
+		height 43
+		top 44
+		bottom 0
+		pitch 4
+		xSkip 26
+		imageWidth 20
+		imageHeight 43
+		s 0.292969
+		t 0.585938
+		s2 0.332031
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 225
+	{
+		height 43
+		top 44
+		bottom 0
+		pitch 4
+		xSkip 26
+		imageWidth 20
+		imageHeight 43
+		s 0.335938
+		t 0.585938
+		s2 0.375000
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 226
+	{
+		height 43
+		top 44
+		bottom 0
+		pitch 4
+		xSkip 26
+		imageWidth 20
+		imageHeight 43
+		s 0.378906
+		t 0.585938
+		s2 0.417969
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 227
+	{
+		height 41
+		top 42
+		bottom 0
+		pitch 4
+		xSkip 26
+		imageWidth 20
+		imageHeight 41
+		s 0.421875
+		t 0.589844
+		s2 0.460938
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 228
+	{
+		height 40
+		top 41
+		bottom 0
+		pitch 4
+		xSkip 26
+		imageWidth 20
+		imageHeight 40
+		s 0.464844
+		t 0.591797
+		s2 0.503906
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 229
+	{
+		height 47
+		top 48
+		bottom 0
+		pitch 4
+		xSkip 26
+		imageWidth 20
+		imageHeight 47
+		s 0.507813
+		t 0.578125
+		s2 0.546875
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 230
+	{
+		height 32
+		top 33
+		bottom 0
+		pitch 4
+		xSkip 39
+		imageWidth 32
+		imageHeight 32
+		s 0.550781
+		t 0.607422
+		s2 0.613281
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 231
+	{
+		height 45
+		top 33
+		bottom -832
+		pitch 5
+		xSkip 26
+		imageWidth 20
+		imageHeight 45
+		s 0.617188
+		t 0.582031
+		s2 0.656250
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 232
+	{
+		height 43
+		top 44
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 43
+		s 0.660156
+		t 0.585938
+		s2 0.699219
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 233
+	{
+		height 43
+		top 44
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 43
+		s 0.703125
+		t 0.585938
+		s2 0.742188
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 234
+	{
+		height 43
+		top 44
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 43
+		s 0.746094
+		t 0.585938
+		s2 0.785156
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 235
+	{
+		height 40
+		top 41
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 40
+		s 0.789063
+		t 0.591797
+		s2 0.828125
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 236
+	{
+		height 43
+		top 44
+		bottom 0
+		pitch -1
+		xSkip 12
+		imageWidth 12
+		imageHeight 43
+		s 0.832031
+		t 0.585938
+		s2 0.855469
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 237
+	{
+		height 43
+		top 44
+		bottom 0
+		pitch 3
+		xSkip 13
+		imageWidth 12
+		imageHeight 43
+		s 0.859375
+		t 0.585938
+		s2 0.882813
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 238
+	{
+		height 43
+		top 44
+		bottom 0
+		pitch -1
+		xSkip 12
+		imageWidth 16
+		imageHeight 43
+		s 0.886719
+		t 0.585938
+		s2 0.917969
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 239
+	{
+		height 40
+		top 41
+		bottom 0
+		pitch 0
+		xSkip 12
+		imageWidth 16
+		imageHeight 40
+		s 0.921875
+		t 0.591797
+		s2 0.953125
+		t2 0.669922
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 240
+	{
+		height 51
+		top 52
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 24
+		imageHeight 51
+		s 0.003906
+		t 0.705078
+		s2 0.050781
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 241
+	{
+		height 41
+		top 42
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 41
+		s 0.054688
+		t 0.724609
+		s2 0.093750
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 242
+	{
+		height 43
+		top 44
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 43
+		s 0.097656
+		t 0.720703
+		s2 0.136719
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 243
+	{
+		height 43
+		top 44
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 43
+		s 0.140625
+		t 0.720703
+		s2 0.179688
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 244
+	{
+		height 43
+		top 44
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 43
+		s 0.183594
+		t 0.720703
+		s2 0.222656
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 245
+	{
+		height 41
+		top 42
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 41
+		s 0.226563
+		t 0.724609
+		s2 0.265625
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 246
+	{
+		height 40
+		top 41
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 40
+		s 0.269531
+		t 0.726563
+		s2 0.308594
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 247
+	{
+		height 24
+		top 36
+		bottom 704
+		pitch 3
+		xSkip 28
+		imageWidth 24
+		imageHeight 24
+		s 0.312500
+		t 0.757813
+		s2 0.359375
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 248
+	{
+		height 33
+		top 34
+		bottom 0
+		pitch 1
+		xSkip 26
+		imageWidth 28
+		imageHeight 33
+		s 0.363281
+		t 0.740234
+		s2 0.417969
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 249
+	{
+		height 43
+		top 44
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 43
+		s 0.421875
+		t 0.720703
+		s2 0.460938
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 250
+	{
+		height 43
+		top 44
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 43
+		s 0.464844
+		t 0.720703
+		s2 0.503906
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 251
+	{
+		height 43
+		top 44
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 43
+		s 0.507813
+		t 0.720703
+		s2 0.546875
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 252
+	{
+		height 40
+		top 41
+		bottom 0
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 40
+		s 0.550781
+		t 0.726563
+		s2 0.589844
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 253
+	{
+		height 55
+		top 44
+		bottom -768
+		pitch 2
+		xSkip 24
+		imageWidth 24
+		imageHeight 55
+		s 0.593750
+		t 0.697266
+		s2 0.640625
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 254
+	{
+		height 63
+		top 52
+		bottom -768
+		pitch 5
+		xSkip 27
+		imageWidth 20
+		imageHeight 63
+		s 0.644531
+		t 0.681641
+		s2 0.683594
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+	char 255
+	{
+		height 52
+		top 41
+		bottom -768
+		pitch 2
+		xSkip 24
+		imageWidth 24
+		imageHeight 52
+		s 0.687500
+		t 0.703125
+		s2 0.734375
+		t2 0.804688
+		glyph 0
+		shaderName "fonts/fontImage_1_34.tga"
+	}
+
+}
+
+// fontinfo
+{
+	glyphScale 0.705882
+	name "fontImage_34"
+}
