@@ -371,6 +371,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define BLASTER_SPREAD              200
 #define BLASTER_SPEED               1400
 #define BLASTER_DMG                 HDM(10)
+#define BLASTER_SIZE                4
 
 #define RIFLE_CLIPSIZE              30
 #define RIFLE_MAXCLIPS              6
