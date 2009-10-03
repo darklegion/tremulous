@@ -2798,6 +2798,10 @@ void Cmd_Follow_f( gentity_t *ent )
   int   pids[ MAX_CLIENTS ];
   char  arg[ MAX_NAME_LENGTH ];
 
+  // won't work unless spectating
+  if( ent->client->sess.spectatorState == SPECTATOR_NOT )
+    return;
+
   if( trap_Argc( ) != 2 )
   {
     G_ToggleFollow( ent );
@@ -2830,7 +2834,7 @@ void Cmd_Follow_f( gentity_t *ent )
         level.clients[ i ].sess.spectatorState != SPECTATOR_NOT )
       return;
 
-    // can only follow teammates when dead and on a team
+    // if not on team spectator, you can only follow teammates
     if( ent->client->pers.teamSelection != TEAM_NONE && 
         ( level.clients[ i ].pers.teamSelection != 
           ent->client->pers.teamSelection ) )
