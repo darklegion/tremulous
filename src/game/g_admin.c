@@ -1636,7 +1636,8 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
     minargc = 2 + skiparg;
   }
   else if( G_admin_permission( ent, ADMF_CAN_PERM_BAN ) ||
-            G_admin_permission( ent, ADMF_UNACCOUNTABLE ) )
+           G_admin_permission( ent, ADMF_UNACCOUNTABLE ) ||
+           g_adminMaxBan.integer )
   {
     minargc = 3 + skiparg;
   }
@@ -1656,7 +1657,13 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
   seconds = G_admin_parse_time( secs );
   if( seconds <= 0 )
   {
-    if( G_admin_permission( ent, ADMF_CAN_PERM_BAN ) )
+    if( g_adminMaxBan.integer && !G_admin_permission( ent, ADMF_CAN_PERM_BAN) )
+    {
+       ADMP( va( "^3!ban: ^7using your admin level's maximum ban length of %s\n",
+                 g_adminMaxBan.string ) );
+       seconds = G_admin_parse_time( secs );
+    }
+    else if( G_admin_permission( ent, ADMF_CAN_PERM_BAN ) )
     {
       seconds = 0;
     }
@@ -1669,6 +1676,14 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
   }
   else
   {
+    if( g_adminMaxBan.integer &&
+        !G_admin_permission( ent, ADMF_CAN_PERM_BAN ) &&
+        seconds > G_admin_parse_time( g_adminMaxBan.string ) )
+    {
+      ADMP( va( "^3!ban: ^7ban length limited to %s for your admin level\n",
+                g_adminMaxBan.string ) );
+      seconds = G_admin_parse_time( g_adminMaxBan.string );
+    }
     reason = G_SayConcatArgs( 3 + skiparg );
   }
 
@@ -1814,6 +1829,7 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
 qboolean G_admin_unban( gentity_t *ent, int skiparg )
 {
   int bnum;
+  int time = trap_RealTime( NULL );
   char bs[ 5 ];
 
   if( G_SayArgc() < 2 + skiparg )
@@ -1834,7 +1850,15 @@ qboolean G_admin_unban( gentity_t *ent, int skiparg )
     ADMP( "^3!unban: ^7you cannot remove permanent bans\n" );
     return qfalse;
   }
-  g_admin_bans[ bnum - 1 ]->expires = trap_RealTime( NULL );
+  if( g_adminMaxBan.integer &&
+      !G_admin_permission( ent, ADMF_CAN_PERM_BAN ) &&
+      g_admin_bans[ bnum - 1 ]->expires - time > G_admin_parse_time( g_adminMaxBan.string ) )
+  {
+    ADMP( va( "^3!unban: ^7your admin level cannot remove bans longer than %s\n",
+              g_adminMaxBan.string ) );
+    return qfalse;
+  }
+  g_admin_bans[ bnum - 1 ]->expires = time;
   AP( va( "print \"^3!unban: ^7ban #%d for %s^7 has been removed by %s\n\"",
           bnum,
           g_admin_bans[ bnum - 1 ]->name,
@@ -1875,6 +1899,14 @@ qboolean G_admin_adjustban( gentity_t *ent, int skiparg )
     ADMP( "^3!adjustban: ^7you cannot modify permanent bans\n" );
     return qfalse;
   }
+  if( g_adminMaxBan.integer &&
+      !G_admin_permission( ent, ADMF_CAN_PERM_BAN ) &&
+      ban->expires - time > G_admin_parse_time( g_adminMaxBan.string ) )
+  {
+    ADMP( va( "^3!adjustban: ^7your admin level cannot modify bans longer than %s\n",
+              g_adminMaxBan.string ) );
+    return qfalse;
+  }
   G_SayArgv( 2 + skiparg, secs, sizeof( secs ) );
   if( secs[ 0 ] == '+' || secs[ 0 ] == '-' )
     mode = secs[ 0 ];
@@ -1900,6 +1932,15 @@ qboolean G_admin_adjustban( gentity_t *ent, int skiparg )
       {
         ADMP( "^3!adjustban: ^7ban duration must be positive\n" );
         return qfalse;
+      }
+      if( g_adminMaxBan.integer &&
+          !G_admin_permission( ent, ADMF_CAN_PERM_BAN ) &&
+          expires - time > G_admin_parse_time( g_adminMaxBan.string ) )
+      {
+        ADMP( va( "^3!adjustban: ^7ban length is limited to %s for your admin level\n",
+                  g_adminMaxBan.string ) );
+        length = G_admin_parse_time( g_adminMaxBan.string );
+        expires = time + length;
       }
     }
     else if( G_admin_permission( ent, ADMF_CAN_PERM_BAN ) )
