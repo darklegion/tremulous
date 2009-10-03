@@ -3,6 +3,8 @@
 
 enum
 {
+  ITEM_TYPE_ANY = -1,     // invalid type
+  ITEM_TYPE_NONE,         // no specified type
   ITEM_TYPE_TEXT,         // simple text
   ITEM_TYPE_BUTTON,       // button, basically text with a border
   ITEM_TYPE_RADIOBUTTON,  // toggle button, may be grouped

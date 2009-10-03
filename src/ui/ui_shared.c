@@ -6504,55 +6504,6 @@ void Menu_Paint( menuDef_t *menu, qboolean forcePaint )
 
 /*
 ===============
-Item_ValidateTypeData
-
-If the typeData pointer is null, allocate it a memory block appropriate to the
-item type and memset it to 0
-===============
-*/
-void Item_ValidateTypeData( itemDef_t *item )
-{
-  if( item->typeData.data )
-    return;
-
-  switch( item->type )
-  {
-    case ITEM_TYPE_LISTBOX:
-      item->typeData.list = UI_Alloc( sizeof( listBoxDef_t ) );
-      memset( item->typeData.list, 0, sizeof( listBoxDef_t ) );
-      break;
-
-    case ITEM_TYPE_COMBO:
-      item->typeData.combo = UI_Alloc( sizeof( comboBoxDef_t ) );
-      memset( item->typeData.combo, 0, sizeof( comboBoxDef_t ) );
-      break;
-
-    case ITEM_TYPE_EDITFIELD:
-    case ITEM_TYPE_NUMERICFIELD:
-    case ITEM_TYPE_YESNO:
-    case ITEM_TYPE_BIND:
-    case ITEM_TYPE_SLIDER:
-    case ITEM_TYPE_TEXT:
-      item->typeData.edit = UI_Alloc( sizeof( editFieldDef_t ) );
-      memset( item->typeData.edit, 0, sizeof( editFieldDef_t ) );
-
-      if( item->type == ITEM_TYPE_EDITFIELD )
-        item->typeData.edit->maxPaintChars = MAX_EDITFIELD;
-      break;
-
-    case ITEM_TYPE_MULTI:
-      item->typeData.multi = UI_Alloc( sizeof( multiDef_t ) );
-      memset( item->typeData.multi, 0, sizeof( multiDef_t ) );
-      break;
-
-    case ITEM_TYPE_MODEL:
-      item->typeData.model = UI_Alloc( sizeof( modelDef_t ) );
-      memset( item->typeData.model, 0, sizeof( modelDef_t ) );
-  }
-}
-
-/*
-===============
 Keyword Hash
 ===============
 */
@@ -6563,6 +6514,8 @@ typedef struct keywordHash_s
 {
   char *keyword;
   qboolean ( *func )( itemDef_t *item, int handle );
+
+  int param;
 
   struct keywordHash_s *next;
 }
@@ -6617,6 +6570,43 @@ keywordHash_t *KeywordHash_Find( keywordHash_t *table[], char *keyword )
 
 /*
 ===============
+Item_DataType
+
+Give a numeric representation of which typeData union element this item uses
+===============
+*/
+itemDataType_t Item_DataType( itemDef_t *item )
+{
+  switch( item->type )
+  {
+    default:
+    case ITEM_TYPE_NONE:
+      return TYPE_NONE;
+
+    case ITEM_TYPE_LISTBOX:
+      return TYPE_LIST;
+
+    case ITEM_TYPE_COMBO:
+      return TYPE_COMBO;
+
+    case ITEM_TYPE_EDITFIELD:
+    case ITEM_TYPE_NUMERICFIELD:
+    case ITEM_TYPE_YESNO:
+    case ITEM_TYPE_BIND:
+    case ITEM_TYPE_SLIDER:
+    case ITEM_TYPE_TEXT:
+      return TYPE_EDIT;
+
+    case ITEM_TYPE_MULTI:
+      return TYPE_MULTI;
+
+    case ITEM_TYPE_MODEL:
+      return TYPE_MODEL;
+  }
+}
+
+/*
+===============
 Item Keyword Parse functions
 ===============
 */
@@ -6665,7 +6655,6 @@ qboolean ItemParse_group( itemDef_t *item, int handle )
 qboolean ItemParse_asset_model( itemDef_t *item, int handle )
 {
   const char *temp;
-  Item_ValidateTypeData( item );
 
   if( !PC_String_Parse( handle, &temp ) )
     return qfalse;
@@ -6690,8 +6679,6 @@ qboolean ItemParse_asset_shader( itemDef_t *item, int handle )
 // model_origin <number> <number> <number>
 qboolean ItemParse_model_origin( itemDef_t *item, int handle )
 {
-  Item_ValidateTypeData( item );
-
   return ( PC_Float_Parse( handle, &item->typeData.model->origin[0] ) &&
            PC_Float_Parse( handle, &item->typeData.model->origin[1] ) &&
            PC_Float_Parse( handle, &item->typeData.model->origin[2] ) );
@@ -6700,32 +6687,24 @@ qboolean ItemParse_model_origin( itemDef_t *item, int handle )
 // model_fovx <number>
 qboolean ItemParse_model_fovx( itemDef_t *item, int handle )
 {
-  Item_ValidateTypeData( item );
-
   return PC_Float_Parse( handle, &item->typeData.model->fov_x );
 }
 
 // model_fovy <number>
 qboolean ItemParse_model_fovy( itemDef_t *item, int handle )
 {
-  Item_ValidateTypeData( item );
-
   return PC_Float_Parse( handle, &item->typeData.model->fov_y );
 }
 
 // model_rotation <integer>
 qboolean ItemParse_model_rotation( itemDef_t *item, int handle )
 {
-  Item_ValidateTypeData( item );
-
   return PC_Int_Parse( handle, &item->typeData.model->rotationSpeed );
 }
 
 // model_angle <integer>
 qboolean ItemParse_model_angle( itemDef_t *item, int handle )
 {
-  Item_ValidateTypeData( item );
-
   return PC_Int_Parse( handle, &item->typeData.model->angle );
 }
 
@@ -6766,26 +6745,14 @@ qboolean ItemParse_decoration( itemDef_t *item, int handle )
 // notselectable
 qboolean ItemParse_notselectable( itemDef_t *item, int handle )
 {
-  listBoxDef_t *listPtr;
-  Item_ValidateTypeData( item );
-  listPtr = item->typeData.list;
-
-  if( item->type == ITEM_TYPE_LISTBOX && listPtr )
-    listPtr->notselectable = qtrue;
-
+  item->typeData.list->notselectable = qtrue;
   return qtrue;
 }
 
 // noscrollbar
 qboolean ItemParse_noscrollbar( itemDef_t *item, int handle )
 {
-  listBoxDef_t *listPtr;
-  Item_ValidateTypeData( item );
-  listPtr = item->typeData.list;
-
-  if( item->type == ITEM_TYPE_LISTBOX && listPtr )
-    listPtr->noscrollbar = qtrue;
-
+  item->typeData.list->noscrollbar = qtrue;
   return qtrue;
 }
 
@@ -6807,10 +6774,61 @@ qboolean ItemParse_horizontalscroll( itemDef_t *item, int handle )
 // type <integer>
 qboolean ItemParse_type( itemDef_t *item, int handle )
 {
+  if( item->type != ITEM_TYPE_NONE )
+  {
+    PC_SourceError( handle, "item already has a type" );
+    return qfalse;
+  }
+
   if( !PC_Int_Parse( handle, &item->type ) )
     return qfalse;
 
-  Item_ValidateTypeData( item );
+  if( item->type == ITEM_TYPE_NONE )
+  {
+    PC_SourceError( handle, "type must not be none" );
+    return qfalse;
+  }
+
+  // allocate the relevant type data
+  switch( item->type )
+  {
+    case ITEM_TYPE_LISTBOX:
+      item->typeData.list = UI_Alloc( sizeof( listBoxDef_t ) );
+      memset( item->typeData.list, 0, sizeof( listBoxDef_t ) );
+      break;
+
+    case ITEM_TYPE_COMBO:
+      item->typeData.combo = UI_Alloc( sizeof( comboBoxDef_t ) );
+      memset( item->typeData.combo, 0, sizeof( comboBoxDef_t ) );
+      break;
+
+    case ITEM_TYPE_EDITFIELD:
+    case ITEM_TYPE_NUMERICFIELD:
+    case ITEM_TYPE_YESNO:
+    case ITEM_TYPE_BIND:
+    case ITEM_TYPE_SLIDER:
+    case ITEM_TYPE_TEXT:
+      item->typeData.edit = UI_Alloc( sizeof( editFieldDef_t ) );
+      memset( item->typeData.edit, 0, sizeof( editFieldDef_t ) );
+
+      if( item->type == ITEM_TYPE_EDITFIELD )
+        item->typeData.edit->maxPaintChars = MAX_EDITFIELD;
+      break;
+
+    case ITEM_TYPE_MULTI:
+      item->typeData.multi = UI_Alloc( sizeof( multiDef_t ) );
+      memset( item->typeData.multi, 0, sizeof( multiDef_t ) );
+      break;
+
+    case ITEM_TYPE_MODEL:
+      item->typeData.model = UI_Alloc( sizeof( modelDef_t ) );
+      memset( item->typeData.model, 0, sizeof( modelDef_t ) );
+      break;
+
+    default:
+      break;
+  }
+
   return qtrue;
 }
 
@@ -6818,8 +6836,6 @@ qboolean ItemParse_type( itemDef_t *item, int handle )
 // uses textalignx for storage
 qboolean ItemParse_elementwidth( itemDef_t *item, int handle )
 {
-  Item_ValidateTypeData( item );
-
   return PC_Float_Parse( handle, &item->typeData.list->elementWidth );
 }
 
@@ -6827,8 +6843,6 @@ qboolean ItemParse_elementwidth( itemDef_t *item, int handle )
 // uses textaligny for storage
 qboolean ItemParse_elementheight( itemDef_t *item, int handle )
 {
-  Item_ValidateTypeData( item );
-
   return PC_Float_Parse( handle, &item->typeData.list->elementHeight );
 }
 
@@ -6845,10 +6859,7 @@ qboolean ItemParse_feeder( itemDef_t *item, int handle )
 // uses textstyle for storage
 qboolean ItemParse_elementtype( itemDef_t *item, int handle )
 {
-  Item_ValidateTypeData( item );
-
-  return ( item->typeData.list &&
-           PC_Int_Parse( handle, &item->typeData.list->elementStyle ) );
+  return PC_Int_Parse( handle, &item->typeData.list->elementStyle );
 }
 
 // columns sets a number of columns and an x pos and width per..
@@ -6856,10 +6867,7 @@ qboolean ItemParse_columns( itemDef_t *item, int handle )
 {
   int i;
 
-  Item_ValidateTypeData( item );
-
-  if( !item->typeData.list ||
-      !PC_Int_Parse( handle, &item->typeData.list->numColumns ) )
+  if( !PC_Int_Parse( handle, &item->typeData.list->numColumns ) )
     return qfalse;
 
   if( item->typeData.list->numColumns > MAX_LB_COLUMNS )
@@ -6902,6 +6910,7 @@ qboolean ItemParse_bordersize( itemDef_t *item, int handle )
   return qtrue;
 }
 
+// FIXME: why does this require a parameter? visible MENU_FALSE does nothing
 qboolean ItemParse_visible( itemDef_t *item, int handle )
 {
   int i;
@@ -6915,12 +6924,20 @@ qboolean ItemParse_visible( itemDef_t *item, int handle )
   return qtrue;
 }
 
+// ownerdraw <number>, implies ITEM_TYPE_OWNERDRAW
 qboolean ItemParse_ownerdraw( itemDef_t *item, int handle )
 {
   if( !PC_Int_Parse( handle, &item->window.ownerDraw ) )
     return qfalse;
 
+  if( item->type != ITEM_TYPE_NONE && item->type != ITEM_TYPE_OWNERDRAW )
+  {
+    PC_SourceError( handle, "ownerdraws cannot have an item type" );
+    return qfalse;
+  }
+
   item->type = ITEM_TYPE_OWNERDRAW;
+
   return qtrue;
 }
 
@@ -7058,8 +7075,6 @@ qboolean ItemParse_cinematic( itemDef_t *item, int handle )
 
 qboolean ItemParse_doubleClick( itemDef_t *item, int handle )
 {
-  Item_ValidateTypeData( item );
-
   return ( item->typeData.list &&
            PC_Script_Parse( handle, &item->typeData.list->doubleClick ) );
 }
@@ -7138,12 +7153,10 @@ qboolean ItemParse_cvarTest( itemDef_t *item, int handle )
 
 qboolean ItemParse_cvar( itemDef_t *item, int handle )
 {
-  Item_ValidateTypeData( item );
-
   if( !PC_String_Parse( handle, &item->cvar ) )
     return qfalse;
 
-  if( item->typeData.edit )
+  if( Item_DataType( item ) == TYPE_EDIT )
   {
     item->typeData.edit->minVal = -1;
     item->typeData.edit->maxVal = -1;
@@ -7155,26 +7168,17 @@ qboolean ItemParse_cvar( itemDef_t *item, int handle )
 
 qboolean ItemParse_maxChars( itemDef_t *item, int handle )
 {
-  Item_ValidateTypeData( item );
-
-  return ( item->typeData.edit &&
-           PC_Int_Parse( handle, &item->typeData.edit->maxChars ) );
+  return PC_Int_Parse( handle, &item->typeData.edit->maxChars );
 }
 
 qboolean ItemParse_maxPaintChars( itemDef_t *item, int handle )
 {
-  Item_ValidateTypeData( item );
-
-  return ( item->typeData.edit &&
-           PC_Int_Parse( handle, &item->typeData.edit->maxPaintChars ) );
+  return PC_Int_Parse( handle, &item->typeData.edit->maxPaintChars );
 }
 
 qboolean ItemParse_maxFieldWidth( itemDef_t *item, int handle )
 {
-  Item_ValidateTypeData( item );
-
-  if( !item->typeData.edit ||
-      !PC_Int_Parse( handle, &item->typeData.edit->maxFieldWidth ) )
+  if( !PC_Int_Parse( handle, &item->typeData.edit->maxFieldWidth ) )
     return qfalse;
 
   if( item->typeData.edit->maxFieldWidth < MIN_FIELD_WIDTH )
@@ -7191,10 +7195,7 @@ qboolean ItemParse_maxFieldWidth( itemDef_t *item, int handle )
 
 qboolean ItemParse_cvarFloat( itemDef_t *item, int handle )
 {
-  Item_ValidateTypeData( item );
-
-  return ( item->typeData.edit &&
-           PC_String_Parse( handle, &item->cvar ) &&
+  return ( PC_String_Parse( handle, &item->cvar ) &&
            PC_Float_Parse( handle, &item->typeData.edit->defVal ) &&
            PC_Float_Parse( handle, &item->typeData.edit->minVal ) &&
            PC_Float_Parse( handle, &item->typeData.edit->maxVal ) );
@@ -7205,11 +7206,6 @@ qboolean ItemParse_cvarStrList( itemDef_t *item, int handle )
   pc_token_t token;
   multiDef_t *multiPtr;
   int pass;
-
-  Item_ValidateTypeData( item );
-
-  if( !item->typeData.multi )
-    return qfalse;
 
   multiPtr = item->typeData.multi;
   multiPtr->count = 0;
@@ -7265,11 +7261,6 @@ qboolean ItemParse_cvarFloatList( itemDef_t *item, int handle )
 {
   pc_token_t token;
   multiDef_t *multiPtr;
-
-  Item_ValidateTypeData( item );
-
-  if( !item->typeData.multi )
-    return qfalse;
 
   multiPtr = item->typeData.multi;
   multiPtr->count = 0;
@@ -7398,72 +7389,72 @@ qboolean ItemParse_hideCvar( itemDef_t *item, int handle )
 
 
 keywordHash_t itemParseKeywords[] = {
-  {"name", ItemParse_name, NULL},
-  {"text", ItemParse_text, NULL},
-  {"group", ItemParse_group, NULL},
-  {"asset_model", ItemParse_asset_model, NULL},
-  {"asset_shader", ItemParse_asset_shader, NULL},
-  {"model_origin", ItemParse_model_origin, NULL},
-  {"model_fovx", ItemParse_model_fovx, NULL},
-  {"model_fovy", ItemParse_model_fovy, NULL},
-  {"model_rotation", ItemParse_model_rotation, NULL},
-  {"model_angle", ItemParse_model_angle, NULL},
-  {"rect", ItemParse_rect, NULL},
-  {"aspectBias", ItemParse_aspectBias, NULL},
-  {"style", ItemParse_style, NULL},
-  {"decoration", ItemParse_decoration, NULL},
-  {"notselectable", ItemParse_notselectable, NULL},
-  {"noscrollbar", ItemParse_noscrollbar, NULL},
-  {"wrapped", ItemParse_wrapped, NULL},
-  {"horizontalscroll", ItemParse_horizontalscroll, NULL},
-  {"type", ItemParse_type, NULL},
-  {"elementwidth", ItemParse_elementwidth, NULL},
-  {"elementheight", ItemParse_elementheight, NULL},
-  {"feeder", ItemParse_feeder, NULL},
-  {"elementtype", ItemParse_elementtype, NULL},
-  {"columns", ItemParse_columns, NULL},
-  {"border", ItemParse_border, NULL},
-  {"bordersize", ItemParse_bordersize, NULL},
-  {"visible", ItemParse_visible, NULL},
-  {"ownerdraw", ItemParse_ownerdraw, NULL},
-  {"align", ItemParse_align, NULL},
-  {"textalign", ItemParse_textalign, NULL},
-  {"textvalign", ItemParse_textvalign, NULL},
-  {"textalignx", ItemParse_textalignx, NULL},
-  {"textaligny", ItemParse_textaligny, NULL},
-  {"textscale", ItemParse_textscale, NULL},
-  {"textstyle", ItemParse_textstyle, NULL},
-  {"backcolor", ItemParse_backcolor, NULL},
-  {"forecolor", ItemParse_forecolor, NULL},
-  {"bordercolor", ItemParse_bordercolor, NULL},
-  {"outlinecolor", ItemParse_outlinecolor, NULL},
-  {"background", ItemParse_background, NULL},
-  {"onFocus", ItemParse_onFocus, NULL},
-  {"leaveFocus", ItemParse_leaveFocus, NULL},
-  {"mouseEnter", ItemParse_mouseEnter, NULL},
-  {"mouseExit", ItemParse_mouseExit, NULL},
-  {"mouseEnterText", ItemParse_mouseEnterText, NULL},
-  {"mouseExitText", ItemParse_mouseExitText, NULL},
-  {"onTextEntry", ItemParse_onTextEntry, NULL},
-  {"action", ItemParse_action, NULL},
-  {"cvar", ItemParse_cvar, NULL},
-  {"maxChars", ItemParse_maxChars, NULL},
-  {"maxPaintChars", ItemParse_maxPaintChars, NULL},
-  {"maxFieldWidth", ItemParse_maxFieldWidth, NULL},
-  {"focusSound", ItemParse_focusSound, NULL},
-  {"cvarFloat", ItemParse_cvarFloat, NULL},
-  {"cvarStrList", ItemParse_cvarStrList, NULL},
-  {"cvarFloatList", ItemParse_cvarFloatList, NULL},
-  {"addColorRange", ItemParse_addColorRange, NULL},
-  {"ownerdrawFlag", ItemParse_ownerdrawFlag, NULL},
-  {"enableCvar", ItemParse_enableCvar, NULL},
-  {"cvarTest", ItemParse_cvarTest, NULL},
-  {"disableCvar", ItemParse_disableCvar, NULL},
-  {"showCvar", ItemParse_showCvar, NULL},
-  {"hideCvar", ItemParse_hideCvar, NULL},
-  {"cinematic", ItemParse_cinematic, NULL},
-  {"doubleclick", ItemParse_doubleClick, NULL},
-  {NULL, voidFunction2, NULL}
+  {"name", ItemParse_name, TYPE_ANY},
+  {"type", ItemParse_type, TYPE_ANY},
+  {"text", ItemParse_text, TYPE_ANY},
+  {"group", ItemParse_group, TYPE_ANY},
+  {"asset_model", ItemParse_asset_model, TYPE_MODEL},
+  {"asset_shader", ItemParse_asset_shader, TYPE_ANY}, // ?
+  {"model_origin", ItemParse_model_origin, TYPE_MODEL},
+  {"model_fovx", ItemParse_model_fovx, TYPE_MODEL},
+  {"model_fovy", ItemParse_model_fovy, TYPE_MODEL},
+  {"model_rotation", ItemParse_model_rotation, TYPE_MODEL},
+  {"model_angle", ItemParse_model_angle, TYPE_MODEL},
+  {"rect", ItemParse_rect, TYPE_ANY},
+  {"aspectBias", ItemParse_aspectBias, TYPE_ANY},
+  {"style", ItemParse_style, TYPE_ANY},
+  {"decoration", ItemParse_decoration, TYPE_ANY},
+  {"notselectable", ItemParse_notselectable, TYPE_LIST},
+  {"noscrollbar", ItemParse_noscrollbar, TYPE_LIST},
+  {"wrapped", ItemParse_wrapped, TYPE_ANY},
+  {"horizontalscroll", ItemParse_horizontalscroll, TYPE_ANY},
+  {"elementwidth", ItemParse_elementwidth, TYPE_LIST},
+  {"elementheight", ItemParse_elementheight, TYPE_LIST},
+  {"feeder", ItemParse_feeder, TYPE_ANY},
+  {"elementtype", ItemParse_elementtype, TYPE_LIST},
+  {"columns", ItemParse_columns, TYPE_LIST},
+  {"border", ItemParse_border, TYPE_ANY},
+  {"bordersize", ItemParse_bordersize, TYPE_ANY},
+  {"visible", ItemParse_visible, TYPE_ANY},
+  {"ownerdraw", ItemParse_ownerdraw, TYPE_ANY},
+  {"align", ItemParse_align, TYPE_ANY},
+  {"textalign", ItemParse_textalign, TYPE_ANY},
+  {"textvalign", ItemParse_textvalign, TYPE_ANY},
+  {"textalignx", ItemParse_textalignx, TYPE_ANY},
+  {"textaligny", ItemParse_textaligny, TYPE_ANY},
+  {"textscale", ItemParse_textscale, TYPE_ANY},
+  {"textstyle", ItemParse_textstyle, TYPE_ANY},
+  {"backcolor", ItemParse_backcolor, TYPE_ANY},
+  {"forecolor", ItemParse_forecolor, TYPE_ANY},
+  {"bordercolor", ItemParse_bordercolor, TYPE_ANY},
+  {"outlinecolor", ItemParse_outlinecolor, TYPE_ANY},
+  {"background", ItemParse_background, TYPE_ANY},
+  {"onFocus", ItemParse_onFocus, TYPE_ANY},
+  {"leaveFocus", ItemParse_leaveFocus, TYPE_ANY},
+  {"mouseEnter", ItemParse_mouseEnter, TYPE_ANY},
+  {"mouseExit", ItemParse_mouseExit, TYPE_ANY},
+  {"mouseEnterText", ItemParse_mouseEnterText, TYPE_ANY},
+  {"mouseExitText", ItemParse_mouseExitText, TYPE_ANY},
+  {"onTextEntry", ItemParse_onTextEntry, TYPE_ANY},
+  {"action", ItemParse_action, TYPE_ANY},
+  {"cvar", ItemParse_cvar, TYPE_ANY},
+  {"maxChars", ItemParse_maxChars, TYPE_EDIT},
+  {"maxPaintChars", ItemParse_maxPaintChars, TYPE_EDIT},
+  {"maxFieldWidth", ItemParse_maxFieldWidth, TYPE_EDIT},
+  {"focusSound", ItemParse_focusSound, TYPE_ANY},
+  {"cvarFloat", ItemParse_cvarFloat, TYPE_EDIT},
+  {"cvarStrList", ItemParse_cvarStrList, TYPE_MULTI},
+  {"cvarFloatList", ItemParse_cvarFloatList, TYPE_MULTI},
+  {"addColorRange", ItemParse_addColorRange, TYPE_ANY},
+  {"ownerdrawFlag", ItemParse_ownerdrawFlag, TYPE_ANY}, // hm.
+  {"enableCvar", ItemParse_enableCvar, TYPE_ANY},
+  {"cvarTest", ItemParse_cvarTest, TYPE_ANY},
+  {"disableCvar", ItemParse_disableCvar, TYPE_ANY},
+  {"showCvar", ItemParse_showCvar, TYPE_ANY},
+  {"hideCvar", ItemParse_hideCvar, TYPE_ANY},
+  {"cinematic", ItemParse_cinematic, TYPE_ANY},
+  {"doubleclick", ItemParse_doubleClick, TYPE_LIST},
+  {NULL, voidFunction2}
 };
 
 keywordHash_t *itemParseKeywordHash[KEYWORDHASH_SIZE];
@@ -7517,6 +7508,23 @@ qboolean Item_Parse( int handle, itemDef_t *item )
     {
       PC_SourceError( handle, "unknown menu item keyword %s", token.string );
       continue;
+    }
+
+    // do type-checks
+    if( key->param != TYPE_ANY )
+    {
+      itemDataType_t test = Item_DataType( item );
+
+      if( test != key->param )
+      {
+        if( test == ITEM_TYPE_NONE )
+          PC_SourceError( handle, "menu item keyword %s requires "
+                          "type specification", token.string );
+        else
+          PC_SourceError( handle, "menu item keyword %s is incompatible with "
+                          "specified item type", token.string );
+        continue;
+      }
     }
 
     if( !key->func( item, handle ) )
@@ -7916,36 +7924,36 @@ qboolean MenuParse_itemDef( itemDef_t *item, int handle )
 }
 
 keywordHash_t menuParseKeywords[] = {
-  {"font", MenuParse_font, NULL},
-  {"name", MenuParse_name, NULL},
-  {"fullscreen", MenuParse_fullscreen, NULL},
-  {"rect", MenuParse_rect, NULL},
-  {"aspectBias", MenuParse_aspectBias, NULL},
-  {"style", MenuParse_style, NULL},
-  {"visible", MenuParse_visible, NULL},
-  {"onOpen", MenuParse_onOpen, NULL},
-  {"onClose", MenuParse_onClose, NULL},
-  {"onESC", MenuParse_onESC, NULL},
-  {"border", MenuParse_border, NULL},
-  {"borderSize", MenuParse_borderSize, NULL},
-  {"backcolor", MenuParse_backcolor, NULL},
-  {"forecolor", MenuParse_forecolor, NULL},
-  {"bordercolor", MenuParse_bordercolor, NULL},
-  {"focuscolor", MenuParse_focuscolor, NULL},
-  {"disablecolor", MenuParse_disablecolor, NULL},
-  {"outlinecolor", MenuParse_outlinecolor, NULL},
-  {"background", MenuParse_background, NULL},
-  {"ownerdraw", MenuParse_ownerdraw, NULL},
-  {"ownerdrawFlag", MenuParse_ownerdrawFlag, NULL},
-  {"outOfBoundsClick", MenuParse_outOfBounds, NULL},
-  {"soundLoop", MenuParse_soundLoop, NULL},
-  {"itemDef", MenuParse_itemDef, NULL},
-  {"cinematic", MenuParse_cinematic, NULL},
-  {"popup", MenuParse_popup, NULL},
-  {"fadeClamp", MenuParse_fadeClamp, NULL},
-  {"fadeCycle", MenuParse_fadeCycle, NULL},
-  {"fadeAmount", MenuParse_fadeAmount, NULL},
-  {NULL, voidFunction2, NULL}
+  {"font", MenuParse_font},
+  {"name", MenuParse_name},
+  {"fullscreen", MenuParse_fullscreen},
+  {"rect", MenuParse_rect},
+  {"aspectBias", MenuParse_aspectBias},
+  {"style", MenuParse_style},
+  {"visible", MenuParse_visible},
+  {"onOpen", MenuParse_onOpen},
+  {"onClose", MenuParse_onClose},
+  {"onESC", MenuParse_onESC},
+  {"border", MenuParse_border},
+  {"borderSize", MenuParse_borderSize},
+  {"backcolor", MenuParse_backcolor},
+  {"forecolor", MenuParse_forecolor},
+  {"bordercolor", MenuParse_bordercolor},
+  {"focuscolor", MenuParse_focuscolor},
+  {"disablecolor", MenuParse_disablecolor},
+  {"outlinecolor", MenuParse_outlinecolor},
+  {"background", MenuParse_background},
+  {"ownerdraw", MenuParse_ownerdraw},
+  {"ownerdrawFlag", MenuParse_ownerdrawFlag},
+  {"outOfBoundsClick", MenuParse_outOfBounds},
+  {"soundLoop", MenuParse_soundLoop},
+  {"itemDef", MenuParse_itemDef},
+  {"cinematic", MenuParse_cinematic},
+  {"popup", MenuParse_popup},
+  {"fadeClamp", MenuParse_fadeClamp},
+  {"fadeCycle", MenuParse_fadeCycle},
+  {"fadeAmount", MenuParse_fadeAmount},
+  {NULL, voidFunction2}
 };
 
 keywordHash_t *menuParseKeywordHash[KEYWORDHASH_SIZE];

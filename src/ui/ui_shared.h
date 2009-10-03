@@ -250,6 +250,17 @@ modelDef_t;
 #define CVAR_SHOW      0x00000004
 #define CVAR_HIDE      0x00000008
 
+typedef enum
+{
+  TYPE_ANY = -1,
+  TYPE_NONE,
+  TYPE_LIST,
+  TYPE_EDIT,
+  TYPE_MULTI,
+  TYPE_COMBO,
+  TYPE_MODEL
+} itemDataType_t;
+
 typedef struct itemDef_s
 {
   Window window;                 // common positional, border, style, layout info
