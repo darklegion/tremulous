@@ -161,3 +161,13 @@ itemDef
   textstyle ITEM_TEXTSTYLE_SHADOWED
 }
 
+//CROSSHAIR
+
+itemDef
+{
+  name "crosshair"
+  visible MENU_TRUE
+  decoration
+  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B .35
+  ownerdraw CG_PLAYER_CROSSHAIR
+}
