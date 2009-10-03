@@ -2860,7 +2860,19 @@ static void PM_Weapon( void )
       {
         pm->ps->stats[ STAT_STATE ] &= ~SS_CHARGING;
         if( pm->cmd.forwardmove > 0 )
-          pm->ps->stats[ STAT_MISC ] += pml.msec;
+        {
+          int charge = pml.msec;
+          vec3_t dir,vel;
+
+          AngleVectors( pm->ps->viewangles, dir, NULL, NULL );
+          VectorCopy( pm->ps->velocity, vel );
+          VectorNormalize( vel );
+          vel[2] = 0;
+          dir[2] = 0;
+          charge *= DotProduct( dir, vel );
+
+          pm->ps->stats[ STAT_MISC ] += charge;
+        }
         else
           pm->ps->stats[ STAT_MISC ] = 0;
       }
