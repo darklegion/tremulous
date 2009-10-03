@@ -2577,13 +2577,10 @@ void HSpawn_Think( gentity_t *self )
 {
   gentity_t *ent;
 
-  // spawns work without power
-  self->powered = qtrue;
-
   G_SuicideIfNoPower( self );
 
   // set parentNode
-  G_FindPower( self );
+  self->powered = G_FindPower( self );
 
   if( self->spawned )
   {
