@@ -765,13 +765,6 @@ static qboolean PM_CheckJump( void )
       pm->ps->stats[ STAT_MISC ] > 0 )
     return qfalse;
 
-  //don't allow walljump for a short while after jumping from the ground
-  if( BG_ClassHasAbility( pm->ps->stats[ STAT_CLASS ], SCA_WALLJUMPER ) )
-  {
-    pm->ps->pm_flags |= PMF_TIME_WALLJUMP;
-    pm->ps->pm_time = 200;
-  }
-
   //can't jump and charge at the same time
   if( ( pm->ps->weapon == WP_ALEVEL4 ) &&
       pm->ps->stats[ STAT_MISC ] > 0 )
@@ -802,6 +795,13 @@ static qboolean PM_CheckJump( void )
     // clear upmove so cmdscale doesn't lower running speed
     pm->cmd.upmove = 0;
     return qfalse;
+  }
+
+  //don't allow walljump for a short while after jumping from the ground
+  if( BG_ClassHasAbility( pm->ps->stats[ STAT_CLASS ], SCA_WALLJUMPER ) )
+  {
+    pm->ps->pm_flags |= PMF_TIME_WALLJUMP;
+    pm->ps->pm_time = 200;
   }
 
   pml.groundPlane = qfalse;   // jumping away
