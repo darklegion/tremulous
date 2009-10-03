@@ -736,9 +736,10 @@ static float GetDamageRegionModifier( gentity_t *targ, damageRegion_t *regions,
   {
     // Angle must be within range
     if( ( regions[ i ].minAngle <= regions[ i ].maxAngle &&
-          ( angle < regions[ i ].minAngle || angle > regions[ i ].maxAngle ) ||
+          ( angle < regions[ i ].minAngle ||
+            angle > regions[ i ].maxAngle ) ) ||
         ( regions[ i ].minAngle > regions[ i ].maxAngle &&
-          angle > regions[ i ].maxAngle && angle < regions[ i ].minAngle ) ) )
+          angle > regions[ i ].maxAngle && angle < regions[ i ].minAngle ) )
       continue;
     
     // Height must be within range
@@ -753,7 +754,8 @@ static float GetDamageRegionModifier( gentity_t *targ, damageRegion_t *regions,
   }
 
   if( g_debugDamage.integer )
-    G_Printf( "GetDamageRegionModifier(): %f\n", modifier );
+    G_Printf( "GetDamageRegionModifier(angle = %f, height = %f): %f\n",
+              angle, height, modifier );
 
   return modifier;
 }
@@ -797,11 +799,11 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
   if( hitRotation < 0.f )
     hitRotation += 360.f;
 
-  // Get modifiers from the target's armour and damage regions
+  // Get modifiers from the target's damage regions
   if( dflags & DAMAGE_NO_LOCDAMAGE )
   {
-    modifier = GetNonLocDamageModifier( targ, g_damageRegions[ class ],
-                                         g_numDamageRegions[ class ] );
+    // Non-locational damage only uses armour regions
+    modifier = 1.0f;
     for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
     {
       if( BG_InventoryContainsUpgrade( i, targ->client->ps.stats ) )
@@ -814,8 +816,8 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
   else
   {
     modifier = GetDamageRegionModifier( targ, g_damageRegions[ class ],
-                                         g_numDamageRegions[ class ],
-                                         hitRotation, hitRatio );
+                                        g_numDamageRegions[ class ],
+                                        hitRotation, hitRatio );
     for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
     {
       if( BG_InventoryContainsUpgrade( i, targ->client->ps.stats ) )

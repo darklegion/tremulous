@@ -1,26 +1,37 @@
-// torso
+// chest
 {
   minHeight 0.5
   maxHeight 0.8
-  minAngle  0
-  maxAngle  360
+  minAngle  310
+  maxAngle  50
   modifier  0.35
 }
 
-// arm bonus
+// left arm
 {
   minHeight 0.5
   maxHeight 0.8
-  minAngle  55
-  maxAngle  125
-  modifier  0.75
+  minAngle  50
+  maxAngle  130
+  modifier  0.3
 }
+
+// back
 {
   minHeight 0.5
   maxHeight 0.8
-  minAngle  225
-  maxAngle  315
-  modifier  0.75
+  minAngle  130
+  maxAngle  230
+  modifier  0.4
+}
+
+// right arm
+{
+  minHeight 0.5
+  maxHeight 0.8
+  minAngle  230
+  maxAngle  310
+  modifier  0.3
 }
 
 // legs
@@ -32,31 +43,43 @@
   modifier  0.3
 }
 
-// torso, crouching
+// chest, crouching
 {
   minHeight 0.3
   maxHeight 0.72
-  minAngle  0
-  maxAngle  360
+  minAngle  310
+  maxAngle  50
   modifier  0.35
   crouch
 }
 
-// arm bonus, crouching
+// left arm, crouching
 {
   minHeight 0.3
   maxHeight 0.72
-  minAngle  55
-  maxAngle  125
-  modifier  0.75
+  minAngle  50
+  maxAngle  130
+  modifier  0.3
   crouch
 }
+
+// back, crouching
 {
   minHeight 0.3
   maxHeight 0.72
-  minAngle  225
-  maxAngle  315
-  modifier  0.75
+  minAngle  130
+  maxAngle  230
+  modifier  0.4
+  crouch
+}
+
+// right arm, crouching
+{
+  minHeight 0.3
+  maxHeight 0.72
+  minAngle  230
+  maxAngle  310
+  modifier  0.3
   crouch
 }
 
