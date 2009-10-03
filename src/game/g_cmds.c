@@ -2454,13 +2454,15 @@ void G_StopFollowing( gentity_t *ent )
 
   if( ent->client->pers.teamSelection == TEAM_NONE )
   {
-    ent->client->sess.spectatorState = SPECTATOR_FREE;
+    ent->client->sess.spectatorState = 
+      ent->client->ps.persistant[ PERS_SPECSTATE ] = SPECTATOR_FREE;
   }
   else
   {
     vec3_t spawn_origin, spawn_angles;
 
-    ent->client->sess.spectatorState = SPECTATOR_LOCKED;
+    ent->client->sess.spectatorState =
+      ent->client->ps.persistant[ PERS_SPECSTATE ] = SPECTATOR_LOCKED;
 
     if( ent->client->pers.teamSelection == TEAM_ALIENS )
       G_SelectAlienLockSpawnPoint( spawn_origin, spawn_angles );

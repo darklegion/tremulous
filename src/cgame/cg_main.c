@@ -1440,9 +1440,9 @@ static qboolean CG_ClientIsReady( int clientNum )
 
   if( isdigit( *s ) )
     val = *s - '0';
-  else if( isxlower( *s ) )
+  else if( *s >= 'a' && *s <= 'f' )
     val = 10 + *s - 'a';
-  else if( isxupper( *s ) )
+  else if( *s >= 'A' && *s <= 'F' )
     val = 10 + *s - 'A';
   else
     return qfalse;
