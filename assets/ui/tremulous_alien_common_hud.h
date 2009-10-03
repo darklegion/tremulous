@@ -189,6 +189,19 @@ itemDef
   ownerdraw CG_PLAYER_CREDITS_VALUE_NOPAD
 }
 
+//CREDITS FRACTION
+itemDef
+{
+  name "credits-background"
+  rect 567 410 25 25
+  aspectBias ALIGN_RIGHT
+  visible MENU_TRUE
+  decoration
+  forecolor 0.375 0 0 0.375
+  background "ui/assets/neutral/circle.tga"
+  ownerdraw CG_PLAYER_CREDITS_FRACTION
+}
+
 //ALIENSENSE
 itemDef
 {

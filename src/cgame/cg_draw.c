@@ -340,6 +340,26 @@ static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color, qboolean p
   }
 }
 
+static void CG_DrawPlayerCreditsFraction( rectDef_t *rect, vec4_t color, qhandle_t shader )
+{
+  float fraction;
+  float height;
+
+  if( cg.predictedPlayerState.stats[ STAT_TEAM ] != TEAM_ALIENS )
+    return;
+
+  fraction = ((float)(cg.predictedPlayerState.persistant[ PERS_CREDIT ] %
+    ALIEN_CREDITS_PER_KILL)) / ALIEN_CREDITS_PER_KILL;
+
+  CG_AdjustFrom640( &rect->x, &rect->y, &rect->w, &rect->h );
+  height = rect->h * fraction;
+
+  trap_R_SetColor( color );
+  trap_R_DrawStretchPic( rect->x, rect->y - height + rect->h, rect->w,
+    height, 0.0f, 1.0f - fraction, 1.0f, 1.0f, shader );
+  trap_R_SetColor( NULL );
+}
+
 
 /*
 ==============
@@ -2281,6 +2301,9 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
   {
     case CG_PLAYER_CREDITS_VALUE:
       CG_DrawPlayerCreditsValue( &rect, foreColor, qtrue );
+      break;
+    case CG_PLAYER_CREDITS_FRACTION:
+      CG_DrawPlayerCreditsFraction( &rect, foreColor, shader );
       break;
     case CG_PLAYER_CREDITS_VALUE_NOPAD:
       CG_DrawPlayerCreditsValue( &rect, foreColor, qfalse );
