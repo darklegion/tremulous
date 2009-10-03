@@ -210,9 +210,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
       //punish team kills and suicides
       if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-        G_AddCreditToClient( attacker->client, -1, qtrue );
+        G_AddCreditToClient( attacker->client, -ALIEN_TK_SUICIDE_PENALTY, qtrue );
       else if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-        G_AddCreditToClient( attacker->client, -ASPAWN_VALUE, qtrue );
+        G_AddCreditToClient( attacker->client, -HUMAN_TK_SUICIDE_PENALTY, qtrue );
     }
     else
     {
@@ -237,109 +237,27 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       trap_Cvar_Set( "g_humanKills", va( "%d", g_humanKills.integer + 1 ) );
   }
 
+  // distribute rewards for the kill by fraction of damage dealt
   if( totalDamage > 0.0f )
   {
-    if( self->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    float value = BG_GetValueOfPlayer( &self->client->ps );
+
+    for( i = 0; i < MAX_CLIENTS; i++ )
     {
-      //nice simple happy bouncy human land
-      float classValue = BG_FindValueOfClass( self->client->ps.stats[ STAT_PCLASS ] );
+      player = g_entities + i;
 
-      for( i = 0; i < MAX_CLIENTS; i++ )
-      {
-        player = g_entities + i;
+      if( !player->client )
+        continue;
 
-        if( !player->client )
-          continue;
+      if( player->client->ps.stats[ STAT_PTEAM ] ==
+          self->client->ps.stats[ STAT_PTEAM ] )
+        continue;
 
-        if( player->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
-          continue;
+      if( !self->credits[ i ] )
+        continue;
 
-        if( !self->credits[ i ] )
-          continue;
-
-        //add credit
-        G_AddCreditToClient( player->client,
-            (int)( classValue * ( (float)self->credits[ i ] / totalDamage ) ), qtrue );
-      }
-    }
-    else if( self->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-    {
-      //horribly complex nasty alien land
-      float humanValue = BG_GetValueOfHuman( &self->client->ps );
-      int   frags;
-      int   unclaimedFrags = (int)humanValue;
-
-      for( i = 0; i < MAX_CLIENTS; i++ )
-      {
-        player = g_entities + i;
-
-        if( !player->client )
-          continue;
-
-        if( player->client->ps.stats[ STAT_PTEAM ] != PTE_ALIENS )
-          continue;
-
-        //this client did no damage
-        if( !self->credits[ i ] )
-          continue;
-
-        //nothing left to claim
-        if( !unclaimedFrags )
-          break;
-
-        frags = (int)floor( humanValue * ( (float)self->credits[ i ] / totalDamage ) );
-
-        if( frags > 0 )
-        {
-          //add kills
-          G_AddCreditToClient( player->client, frags, qtrue );
-
-          //can't revist this account later
-          self->credits[ i ] = 0;
-
-          //reduce frags left to be claimed
-          unclaimedFrags -= frags;
-        }
-      }
-
-      //there are frags still to be claimed
-      if( unclaimedFrags )
-      {
-        //the clients remaining at this point do not
-        //have enough credit to claim even one frag
-        //so simply give the top <unclaimedFrags> clients
-        //a frag each
-
-        for( i = 0; i < unclaimedFrags; i++ )
-        {
-          int maximum = 0;
-          int topClient = 0;
-
-          for( j = 0; j < MAX_CLIENTS; j++ )
-          {
-            //this client did no damage
-            if( !self->credits[ j ] )
-              continue;
-
-            if( self->credits[ j ] > maximum )
-            {
-              maximum = self->credits[ j ];
-              topClient = j;
-            }
-          }
-
-          if( maximum > 0 )
-          {
-            player = g_entities + topClient;
-
-            //add kills
-            G_AddCreditToClient( player->client, 1, qtrue );
-
-            //can't revist this account again
-            self->credits[ topClient ] = 0;
-          }
-        }
-      }
+      G_AddCreditToClient( player->client,
+                           value * self->credits[ i ] / totalDamage, qtrue );
     }
   }
 

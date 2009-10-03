@@ -634,8 +634,8 @@
       name move
       group optionsGrp
       type ITEM_TYPE_BIND
-      text "Sprint:"
-      cvar "boost"
+      text "Sprint / Dodge:"
+      cvar "+button6"
       rect SCONTENT_X (SCONTENT_Y+(2*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER

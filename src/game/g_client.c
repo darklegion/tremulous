@@ -93,7 +93,7 @@ void G_AddCreditToClient( gclient_t *client, short credit, qboolean cap )
 
   client->pers.credit += credit;
   capAmount = client->pers.teamSelection == PTE_ALIENS ?
-               ALIEN_MAX_KILLS : HUMAN_MAX_CREDITS;
+               ALIEN_MAX_FRAGS * ALIEN_CREDITS_PER_FRAG : HUMAN_MAX_CREDITS;
 
   if( client->pers.credit > capAmount )
     client->pers.credit = capAmount;
@@ -1590,14 +1590,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
     VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
     trap_LinkEntity( ent );
-    
-    // if this is devmap, give them some credits
-    if( g_cheats.integer && ent != spawn )
-    {
-      int credits = ent->client->pers.teamSelection == PTE_HUMANS ? 1000 : 5;
-      
-      G_AddCreditToClient( ent->client, credits, qtrue );
-    }
   }
 
   // must do this here so the number of active clients is calculated

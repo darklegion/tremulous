@@ -1569,11 +1569,11 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   shadowScale;
     "",                                             //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
-    { -15, -15, -15 },                              //vec3_t  mins;
-    { 15, 15, 15 },                                 //vec3_t  maxs;
-    { 15, 15, 15 },                                 //vec3_t  crouchmaxs;
-    { -15, -15, -15 },                              //vec3_t  deadmins;
-    { 15, 15, 15 },                                 //vec3_t  deadmaxs;
+    { -12, -12, -12 },                              //vec3_t  mins;
+    { 12, 12, 12 },                                 //vec3_t  maxs;
+    { 12, 12, 12 },                                 //vec3_t  crouchmaxs;
+    { -12, -12, -12 },                              //vec3_t  deadmins;
+    { 12, 12, 12 },                                 //vec3_t  deadmaxs;
     0.0f,                                           //float   zOffset
     0, 0,                                           //int     viewheight, crouchviewheight;
     0,                                              //int     health;
@@ -2046,7 +2046,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   knockbackScale;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
     0,                                              //int     cost;
-    0                                               //int     value;
+    ALIEN_CREDITS_PER_FRAG                          //int     value;
   },
   {
     PCL_HUMAN_BSUIT,                                //int     classnum;
@@ -2086,7 +2086,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   knockbackScale;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
     0,                                              //int     cost;
-    0                                               //int     value;
+    ALIEN_CREDITS_PER_FRAG                          //int     value;
   },
 };
 
@@ -2814,44 +2814,78 @@ float BG_FindBuildDistForClass( int pclass )
 BG_ClassCanEvolveFromTo
 ==============
 */
-int BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int num )
+int BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int stage,
+                             int cost )
 {
-  int i, j, cost;
+  int i, j, best, value;
 
-  cost = BG_FindCostOfClass( tclass );
-
-  //base case
-  if( credits < cost )
-    return -1;
-
-  if( fclass == PCL_NONE || tclass == PCL_NONE )
+  if( credits < cost || fclass == PCL_NONE || tclass == PCL_NONE ||
+      fclass == tclass )
     return -1;
 
   for( i = 0; i < bg_numPclasses; i++ )
   {
-    if( bg_classList[ i ].classNum == fclass )
+    if( bg_classList[ i ].classNum != fclass )
+      continue;
+
+    best = credits + 1;
+    for( j = 0; j < 3; j++ )
     {
-      for( j = 0; j < 3; j++ )
-        if( bg_classList[ i ].children[ j ] == tclass )
-          return num + cost;
+      int thruClass, evolveCost;
+      
+      thruClass = bg_classList[ i ].children[ j ];
+      if( thruClass == PCL_NONE || !BG_FindStagesForClass( thruClass, stage ) ||
+          !BG_ClassIsAllowed( thruClass ) )
+        continue;
 
-      for( j = 0; j < 3; j++ )
-      {
-        int sub;
+      evolveCost = BG_FindCostOfClass( thruClass ) * ALIEN_CREDITS_PER_FRAG;
+      if( thruClass == tclass )
+        value = cost + evolveCost;
+      else
+        value = BG_ClassCanEvolveFromTo( thruClass, tclass, credits, stage,
+                                         cost + evolveCost );
 
-        cost = BG_FindCostOfClass( bg_classList[ i ].children[ j ] );
-        sub = BG_ClassCanEvolveFromTo( bg_classList[ i ].children[ j ],
-                                       tclass, credits - cost, num + cost );
-        if( sub >= 0 )
-          return sub;
-      }
-
-      return -1; //may as well return by this point
+      if( value >= 0 && value < best )
+        best = value;
     }
+
+    return best <= credits ? best : -1;
   }
 
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_ClassCanEvolveFromTo\n" );
   return -1;
 }
+
+/*
+==============
+BG_AlienCanEvolve
+==============
+*/
+qboolean BG_AlienCanEvolve( int pclass, int credits, int stage )
+{
+  int i, j, tclass;
+
+  for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
+  {
+    if( bg_classList[ i ].classNum != pclass )
+      continue;
+
+    for( j = 0; j < 3; j++ )
+    {
+      tclass = bg_classList[ i ].children[ j ];
+      if( tclass != PCL_NONE && BG_FindStagesForClass( tclass, stage ) &&
+          BG_ClassIsAllowed( tclass ) &&
+          credits >= BG_FindCostOfClass( tclass ) * ALIEN_CREDITS_PER_FRAG )
+        return qtrue;
+    }
+
+    return qfalse;
+  }
+
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_AlienCanEvolve\n" );
+  return qfalse;
+}
+
 
 /*
 ==============
@@ -5399,36 +5433,29 @@ void BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
 
 /*
 ===============
-BG_GetValueOfHuman
+BG_GetValueOfPlayer
 
-Returns the kills value of some human player
+Returns the credit value of a player
 ===============
 */
-int BG_GetValueOfHuman( playerState_t *ps )
+int BG_GetValueOfPlayer( playerState_t *ps )
 {
-  int     i, worth = 0;
-  float   portion;
+  int i, worth = 0;
+  
+  worth = BG_FindValueOfClass( ps->stats[ STAT_PCLASS] );
 
-  for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
+  // Humans have worth from their equipment as well
+  if( ps->stats[ STAT_PTEAM ] == PTE_HUMANS )
   {
-    if( BG_InventoryContainsUpgrade( i, ps->stats ) )
-      worth += BG_FindPriceForUpgrade( i );
+    for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
+      if( BG_InventoryContainsUpgrade( i, ps->stats ) )
+        worth += BG_FindPriceForUpgrade( i );
+    for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+      if( BG_InventoryContainsWeapon( i, ps->stats ) )
+        worth += BG_FindPriceForWeapon( i );
   }
-
-  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
-  {
-    if( BG_InventoryContainsWeapon( i, ps->stats ) )
-      worth += BG_FindPriceForWeapon( i );
-  }
-
-  portion = worth / (float)HUMAN_MAXED;
-
-  if( portion < 0.01f )
-    portion = 0.01f;
-  else if( portion > 1.0f )
-    portion = 1.0f;
-
-  return ceil( ALIEN_MAX_SINGLE_KILLS * portion );
+      
+  return worth;
 }
 
 /*
@@ -5632,34 +5659,6 @@ void BG_ParseCSVBuildableList( const char *string, buildable_t *buildables, int 
   }
 
   buildables[ i ] = BA_NONE;
-}
-
-/*
-============
-BG_UpgradeClassAvailable
-============
-*/
-qboolean BG_UpgradeClassAvailable( playerState_t *ps )
-{
-  int     i;
-  char    buffer[ MAX_STRING_CHARS ];
-  stage_t currentStage;
-
-  trap_Cvar_VariableStringBuffer( "g_alienStage", buffer, MAX_STRING_CHARS );
-  currentStage = atoi( buffer );
-
-  for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
-  {
-    if( BG_ClassCanEvolveFromTo( ps->stats[ STAT_PCLASS ], i,
-            ps->persistant[ PERS_CREDIT ], 0 ) >= 0 &&
-        BG_FindStagesForClass( i, currentStage ) &&
-        BG_ClassIsAllowed( i ) )
-    {
-      return qtrue;
-    }
-  }
-
-  return qfalse;
 }
 
 typedef struct gameElements_s

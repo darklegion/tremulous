@@ -1619,7 +1619,6 @@ void        CG_PrecacheClientInfo( pClass_t class, char *model, char *skin );
 sfxHandle_t CG_CustomSound( int clientNum, const char *soundName );
 void        CG_PlayerDisconnect( vec3_t org );
 void        CG_Bleed( vec3_t origin, vec3_t normal, int entityNum );
-qboolean    CG_AtHighestClass( void );
 
 //
 // cg_buildable.c

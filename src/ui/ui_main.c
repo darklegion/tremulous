@@ -1426,6 +1426,38 @@ void UI_Load( void )
 
 /*
 ===============
+UI_GetCurrentAlienStage
+===============
+*/
+static stage_t UI_GetCurrentAlienStage( void )
+{
+  char    buffer[ MAX_TOKEN_CHARS ];
+  stage_t stage, dummy;
+
+  trap_Cvar_VariableStringBuffer( "ui_stages", buffer, sizeof( buffer ) );
+  sscanf( buffer, "%d %d", ( int * ) & stage , ( int * ) & dummy );
+
+  return stage;
+}
+
+/*
+===============
+UI_GetCurrentHumanStage
+===============
+*/
+static stage_t UI_GetCurrentHumanStage( void )
+{
+  char    buffer[ MAX_TOKEN_CHARS ];
+  stage_t stage, dummy;
+
+  trap_Cvar_VariableStringBuffer( "ui_stages", buffer, sizeof( buffer ) );
+  sscanf( buffer, "%d %d", ( int * ) & dummy, ( int * ) & stage );
+
+  return stage;
+}
+
+/*
+===============
 UI_DrawInfoPane
 ===============
 */
@@ -1450,7 +1482,9 @@ static void UI_DrawInfoPane( menuItem_t *item, rectDef_t *rect, float text_x, fl
       break;
 
     case INFOTYPE_CLASS:
-      value = BG_ClassCanEvolveFromTo( class, item->v.pclass, credits, 0 );
+      value = ( BG_ClassCanEvolveFromTo( class, item->v.pclass, credits,
+                                         UI_GetCurrentAlienStage(), 0 ) +
+                ALIEN_CREDITS_PER_FRAG - 1 ) / ALIEN_CREDITS_PER_FRAG;
 
       if( value < 1 )
       {
@@ -1460,7 +1494,7 @@ static void UI_DrawInfoPane( menuItem_t *item, rectDef_t *rect, float text_x, fl
       }
       else
       {
-        s = va( "%s\n\n%s\n\nKills: %d",
+        s = va( "%s\n\n%s\n\nFrags: %d",
                 BG_FindHumanNameForClassNum( item->v.pclass ),
                 BG_FindInfoForClassNum( item->v.pclass ),
                 value );
@@ -2016,39 +2050,6 @@ void UI_ServersSort( int column, qboolean force )
           sizeof( int ), UI_ServersQsortCompare );
 }
 
-
-/*
-===============
-UI_GetCurrentAlienStage
-===============
-*/
-static stage_t UI_GetCurrentAlienStage( void )
-{
-  char    buffer[ MAX_TOKEN_CHARS ];
-  stage_t stage, dummy;
-
-  trap_Cvar_VariableStringBuffer( "ui_stages", buffer, sizeof( buffer ) );
-  sscanf( buffer, "%d %d", ( int * ) & stage , ( int * ) & dummy );
-
-  return stage;
-}
-
-/*
-===============
-UI_GetCurrentHumanStage
-===============
-*/
-static stage_t UI_GetCurrentHumanStage( void )
-{
-  char    buffer[ MAX_TOKEN_CHARS ];
-  stage_t stage, dummy;
-
-  trap_Cvar_VariableStringBuffer( "ui_stages", buffer, sizeof( buffer ) );
-  sscanf( buffer, "%d %d", ( int * ) & dummy, ( int * ) & stage );
-
-  return stage;
-}
-
 /*
 ===============
 UI_LoadTeams
@@ -2380,9 +2381,7 @@ static void UI_LoadAlienUpgrades( void )
 
   for( i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++ )
   {
-    if( BG_ClassCanEvolveFromTo( class, i, credits, 0 ) >= 0 &&
-        BG_FindStagesForClass( i, stage ) &&
-        BG_ClassIsAllowed( i ) )
+    if( BG_ClassCanEvolveFromTo( class, i, credits, stage, 0 ) >= 0 )
     {
       uiInfo.alienUpgradeList[ j ].text = String_Alloc( BG_FindHumanNameForClassNum( i ) );
       uiInfo.alienUpgradeList[ j ].cmd =

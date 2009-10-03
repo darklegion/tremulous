@@ -2635,8 +2635,6 @@ void G_BuildableThink( gentity_t *ent, int msec )
   int bRegen = BG_FindRegenRateForBuildable( ent->s.modelindex );
   int bTime = BG_FindBuildTimeForBuildable( ent->s.modelindex );
 
-  //pack health, power and dcc
-
   //toggle spawned flag for buildables
   if( !ent->spawned && ent->health > 0 )
   {
@@ -2644,9 +2642,10 @@ void G_BuildableThink( gentity_t *ent, int msec )
       ent->spawned = qtrue;
   }
 
+  // pack health, power and dcc
   ent->dcc = ( ent->biteam != BIT_HUMANS ) ? 0 : G_FindDCC( ent );
-
-  ent->s.generic1 = (int)( ( (float)ent->health / (float)bHealth ) * B_HEALTH_MASK );
+  ent->s.generic1 = (int)( ( ent->health + bHealth / B_HEALTH_MASK - 1 ) *
+                           B_HEALTH_MASK / bHealth );
 
   if( ent->s.generic1 < 0 )
     ent->s.generic1 = 0;
@@ -2676,7 +2675,7 @@ void G_BuildableThink( gentity_t *ent, int msec )
       if( ent->biteam == BIT_ALIENS && bRegen &&
         ( ent->lastDamageTime + ALIEN_REGEN_DAMAGE_TIME ) < level.time )
       {
-      ent->health += bRegen;
+        ent->health += bRegen;
       }
       else if( ent->biteam == BIT_HUMANS && ent->dcc &&
         ( ent->lastDamageTime + HUMAN_REGEN_DAMAGE_TIME ) < level.time )

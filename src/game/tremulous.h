@@ -353,6 +353,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ALIEN_REGEN_DAMAGE_TIME     2000 //msec since damage that regen starts again
 #define ALIEN_REGEN_NOCREEP_TIME    3000 //msec between regen off creep
 
+#define ALIEN_MAX_FRAGS             9
+#define ALIEN_CREDITS_PER_FRAG      400
+#define ALIEN_TK_SUICIDE_PENALTY    350
+
 /*
  * HUMAN weapons
  *
@@ -636,6 +640,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define HUMAN_SPAWN_REPEAT_TIME     10000
 #define HUMAN_REGEN_DAMAGE_TIME     2000 //msec since damage before dcc repairs
 
+#define HUMAN_MAX_CREDITS           2000
+#define HUMAN_TK_SUICIDE_PENALTY    150
+
 /*
  * Misc
  */
@@ -644,13 +651,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_FALL_DISTANCE           120.0f //the fall distance at which maximum damage is dealt
 #define AVG_FALL_DISTANCE           ((MIN_FALL_DISTANCE+MAX_FALL_DISTANCE)/2.0f)
 
-#define HUMAN_MAXED                 900   //a human with a strong selection of weapons/upgrades
-#define HUMAN_MAX_CREDITS           2000
-#define ALIEN_MAX_KILLS             9
-#define ALIEN_MAX_SINGLE_KILLS      3
-
 #define FREEKILL_PERIOD             120000 //msec
-#define FREEKILL_ALIEN              1
+#define FREEKILL_ALIEN              ALIEN_CREDITS_PER_FRAG
 #define FREEKILL_HUMAN              LEVEL0_VALUE
 
 #define DEFAULT_ALIEN_BUILDPOINTS   "100"

@@ -671,7 +671,9 @@ const char *CG_TutorialText( void )
               va( "Press %s to enter the hovel\n",
                 CG_KeyNameForCommand( "+button7" ) ) );
         }
-        else if( BG_UpgradeClassAvailable( ps ) )
+        else if( BG_AlienCanEvolve( ps->stats[ STAT_PCLASS ],
+                                    ps->persistant[ PERS_CREDIT ],
+                                    cgs.alienStage ) )
         {
           Q_strcat( text, MAX_TUTORIAL_TEXT,
               va( "Press %s to evolve\n",

@@ -1528,7 +1528,6 @@ void Cmd_Class_f( gentity_t *ent )
   vec3_t    infestOrigin;
   pClass_t  currentClass = ent->client->pers.classSelection;
   pClass_t  newClass;
-  int       numLevels;
   int       entityList[ MAX_GENTITIES ];
   vec3_t    range = { AS_OVER_RT3, AS_OVER_RT3, AS_OVER_RT3 };
   vec3_t    mins, maxs;
@@ -1627,6 +1626,8 @@ void Cmd_Class_f( gentity_t *ent )
     //if we are not currently spectating, we are attempting evolution
     if( ent->client->pers.classSelection != PCL_NONE )
     {
+      int cost;
+    
       if( ( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING ) ||
           ( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )
       {
@@ -1668,16 +1669,13 @@ void Cmd_Class_f( gentity_t *ent )
         return;
       }
 
-      numLevels = BG_ClassCanEvolveFromTo( currentClass,
-                                           newClass,
-                                           (short)ent->client->ps.persistant[ PERS_CREDIT ], 0 );
+      cost = BG_ClassCanEvolveFromTo( currentClass, newClass,
+                                      ent->client->ps.persistant[ PERS_CREDIT ],
+                                      g_alienStage.integer, 0 );
 
       if( G_RoomForClassChange( ent, newClass, infestOrigin ) )
       {
-        //...check we can evolve to that class
-        if( numLevels >= 0 &&
-            BG_FindStagesForClass( newClass, g_alienStage.integer ) &&
-            BG_ClassIsAllowed( newClass ) )
+        if( cost >= 0 )
         {
           ent->client->pers.evolveHealthFraction = (float)ent->client->ps.stats[ STAT_HEALTH ] /
             (float)BG_FindHealthForClass( currentClass );
@@ -1688,7 +1686,7 @@ void Cmd_Class_f( gentity_t *ent )
             ent->client->pers.evolveHealthFraction = 1.0f;
 
           //remove credit
-          G_AddCreditToClient( ent->client, -(short)numLevels, qtrue );
+          G_AddCreditToClient( ent->client, -cost, qtrue );
           ent->client->pers.classSelection = newClass;
           ClientUserinfoChanged( clientNum );
           VectorCopy( infestOrigin, ent->s.pos.trBase );
@@ -1714,7 +1712,7 @@ void Cmd_Class_f( gentity_t *ent )
     //humans cannot use this command whilst alive
     trap_SendServerCommand( ent-g_entities,
       "print \"You must be dead to use the class command\n\"" );
-      return;
+    return;
   }
 }
 
@@ -1854,13 +1852,26 @@ void Cmd_ActivateItem_f( gentity_t *ent )
   int   upgrade, weapon;
 
   trap_Argv( 1, s, sizeof( s ) );
+  
+  // "weapon" aliased to whatever weapon you have
+  if( !Q_stricmp( "weapon", s ) )
+  {
+    if( ent->client->ps.weapon == WP_BLASTER )
+      G_ForceWeaponChange( ent, WP_NONE );  
+    return;
+  }
+  
   upgrade = BG_FindUpgradeNumForName( s );
   weapon = BG_FindWeaponNumForName( s );
 
   if( upgrade != UP_NONE && BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
     BG_ActivateUpgrade( upgrade, ent->client->ps.stats );
-  else if( weapon != WP_NONE && BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
-    G_ForceWeaponChange( ent, weapon );
+  else if( weapon != WP_NONE &&
+           BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
+  {
+    if( ent->client->ps.weapon != weapon )
+      G_ForceWeaponChange( ent, weapon );
+  }
   else
     trap_SendServerCommand( ent-g_entities, va( "print \"You don't have the %s\n\"", s ) );
 }

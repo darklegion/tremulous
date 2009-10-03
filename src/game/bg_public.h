@@ -1110,7 +1110,7 @@ void      BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
                                                 void (*trace)( trace_t *, const vec3_t, const vec3_t,
                                                                const vec3_t, const vec3_t, int, int ),
                                                 vec3_t outOrigin, vec3_t outAngles, trace_t *tr );
-int       BG_GetValueOfHuman( playerState_t *ps );
+int       BG_GetValueOfPlayer( playerState_t *ps );
 
 int       BG_FindBuildNumForName( char *name );
 int       BG_FindBuildNumForEntityName( char *name );
@@ -1179,7 +1179,8 @@ int       BG_FindSteptimeForClass( int pclass );
 qboolean  BG_ClassHasAbility( int pclass, int ability );
 weapon_t  BG_FindStartWeaponForClass( int pclass );
 float     BG_FindBuildDistForClass( int pclass );
-int       BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int num );
+int       BG_ClassCanEvolveFromTo( int fclass, int tclass, int credits, int alienStage, int num );
+qboolean  BG_AlienCanEvolve( int pclass, int credits, int alienStage );
 int       BG_FindCostOfClass( int pclass );
 int       BG_FindValueOfClass( int pclass );
 void      BG_InitClassOverrides( void );

@@ -316,14 +316,17 @@ static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color, qboolean p
   value = ps->persistant[ PERS_CREDIT ];
   if( value > -1 )
   {
-    if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS &&
-        !CG_AtHighestClass( ) )
+    if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS )
     {
-      if( cg.time - cg.lastEvolveAttempt <= NO_CREDITS_TIME )
+      if( !BG_AlienCanEvolve( cg.predictedPlayerState.stats[ STAT_PCLASS ],
+                              value, cgs.alienStage ) &&
+          cg.time - cg.lastEvolveAttempt <= NO_CREDITS_TIME &&
+          ( ( cg.time - cg.lastEvolveAttempt ) / 300 ) & 1 )
       {
-        if( ( ( cg.time - cg.lastEvolveAttempt ) / 300 ) % 2 )
-          color[ 3 ] = 0.0f;
+        color[ 3 ] = 0.0f;
       }
+
+      value /= ALIEN_CREDITS_PER_FRAG;
     }
 
     trap_R_SetColor( color );
@@ -1931,7 +1934,9 @@ void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
     }
   }
 
-  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS && CG_AtHighestClass( ) )
+  if( cg.predictedPlayerState.stats[ STAT_PTEAM ] == PTE_ALIENS &&
+      !BG_AlienCanEvolve( cg.predictedPlayerState.stats[ STAT_PCLASS ],
+                          ps->persistant[ PERS_CREDIT ], cgs.alienStage ) )
   {
     if( cg.time - cg.lastEvolveAttempt <= NO_CREDITS_TIME )
     {

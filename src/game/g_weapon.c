@@ -43,7 +43,7 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
     ent->client->ps.pm_flags |= PMF_WEAPON_SWITCH;
 
     if( weapon == WP_NONE ||
-        !BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ))
+        !BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
     {
       //switch to the first non blaster weapon
       for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
