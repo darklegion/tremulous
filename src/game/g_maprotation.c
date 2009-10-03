@@ -684,6 +684,7 @@ void G_AdvanceMapRotation( void )
           break;
 
         case MCT_ROTATION:
+          G_SetCurrentMap( nextMap, currentRotation );
           G_StartMapRotation( mrc->dest, qtrue );
           return;
 
