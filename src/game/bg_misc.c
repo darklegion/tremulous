@@ -1214,7 +1214,7 @@ static const classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   knockbackScale;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
     0,                                              //int     cost;
-    ALIEN_CREDITS_PER_FRAG                          //int     value;
+    ALIEN_CREDITS_PER_KILL                          //int     value;
   },
   {
     PCL_HUMAN_BSUIT,                                //int     classnum;
@@ -1241,7 +1241,7 @@ static const classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   knockbackScale;
     { PCL_NONE, PCL_NONE, PCL_NONE },               //int     children[ 3 ];
     0,                                              //int     cost;
-    ALIEN_CREDITS_PER_FRAG                          //int     value;
+    ALIEN_CREDITS_PER_KILL                          //int     value;
   }
 };
 
@@ -1373,7 +1373,7 @@ int BG_ClassCanEvolveFromTo( class_t fclass,
           !BG_ClassIsAllowed( thruClass ) )
         continue;
 
-      evolveCost = BG_Class( thruClass )->cost * ALIEN_CREDITS_PER_FRAG;
+      evolveCost = BG_Class( thruClass )->cost * ALIEN_CREDITS_PER_KILL;
       if( thruClass == tclass )
         value = cost + evolveCost;
       else
@@ -1410,7 +1410,7 @@ qboolean BG_AlienCanEvolve( class_t class, int credits, int stage )
       tclass = bg_classList[ i ].children[ j ];
       if( tclass != PCL_NONE && BG_ClassAllowedInStage( tclass, stage ) &&
           BG_ClassIsAllowed( tclass ) &&
-          credits >= BG_Class( tclass )->cost * ALIEN_CREDITS_PER_FRAG )
+          credits >= BG_Class( tclass )->cost * ALIEN_CREDITS_PER_KILL )
         return qtrue;
     }
 

@@ -326,7 +326,7 @@ static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color, qboolean p
         color[ 3 ] = 0.0f;
       }
 
-      value /= ALIEN_CREDITS_PER_FRAG;
+      value /= ALIEN_CREDITS_PER_KILL;
     }
 
     trap_R_SetColor( color );
@@ -1420,7 +1420,7 @@ static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
 
   if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
   {
-    int kills = ceil( (float)(cgs.alienNextStageThreshold - cgs.alienCredits) / ALIEN_CREDITS_PER_FRAG );
+    int kills = ceil( (float)(cgs.alienNextStageThreshold - cgs.alienCredits) / ALIEN_CREDITS_PER_KILL );
     if( kills < 0 )
       kills = 0;
 

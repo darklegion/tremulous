@@ -791,7 +791,7 @@ const char  *BuildShaderStateConfig( void );
 qboolean    G_ClientIsLagging( gclient_t *client );
 
 void        G_TriggerMenu( int clientNum, dynMenu_t menu );
-void        G_TriggerMenu2( int clientNum, dynMenu_t menu, int arg );
+void        G_TriggerMenuArgs( int clientNum, dynMenu_t menu, int arg );
 void        G_CloseMenus( int clientNum );
 
 qboolean    G_Visible( gentity_t *ent1, gentity_t *ent2, int contents );

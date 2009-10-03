@@ -1575,7 +1575,7 @@ static void UI_DrawInfoPane( menuItem_t *item, rectDef_t *rect, float text_x, fl
     case INFOTYPE_CLASS:
       value = ( BG_ClassCanEvolveFromTo( class, item->v.pclass, credits,
                                          UI_GetCurrentAlienStage(), 0 ) +
-                ALIEN_CREDITS_PER_FRAG - 1 ) / ALIEN_CREDITS_PER_FRAG;
+                ALIEN_CREDITS_PER_KILL - 1 ) / ALIEN_CREDITS_PER_KILL;
 
       if( value < 1 )
       {

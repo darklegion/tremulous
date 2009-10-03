@@ -367,7 +367,7 @@ void Cmd_Give_f( gentity_t *ent )
     int credits = atoi( name + 6 );
 
     if( ent->client->pers.teamSelection == TEAM_ALIENS )
-      credits *= ALIEN_CREDITS_PER_FRAG;
+      credits *= ALIEN_CREDITS_PER_KILL;
 
     if( give_all )
       credits = ALIEN_MAX_CREDITS;
@@ -1733,19 +1733,19 @@ void Cmd_Class_f( gentity_t *ent )
           newClass != PCL_ALIEN_BUILDER0_UPG &&
           newClass != PCL_ALIEN_LEVEL0 )
       {
-        G_TriggerMenu2( ent->client->ps.clientNum, MN_A_CLASSNOTSPAWN, newClass );
+        G_TriggerMenuArgs( ent->client->ps.clientNum, MN_A_CLASSNOTSPAWN, newClass );
         return;
       }
 
       if( !BG_ClassIsAllowed( newClass ) )
       {
-        G_TriggerMenu2( ent->client->ps.clientNum, MN_A_CLASSNOTALLOWED, newClass );
+        G_TriggerMenuArgs( ent->client->ps.clientNum, MN_A_CLASSNOTALLOWED, newClass );
         return;
       }
 
       if( !BG_ClassAllowedInStage( newClass, g_alienStage.integer ) )
       {
-        G_TriggerMenu2( ent->client->ps.clientNum, MN_A_CLASSNOTATSTAGE, newClass );
+        G_TriggerMenuArgs( ent->client->ps.clientNum, MN_A_CLASSNOTATSTAGE, newClass );
         return;
       }
 
@@ -1878,7 +1878,7 @@ void Cmd_Class_f( gentity_t *ent )
           }
         }
         else
-          G_TriggerMenu2( clientNum, MN_A_CANTEVOLVE, newClass );
+          G_TriggerMenuArgs( clientNum, MN_A_CANTEVOLVE, newClass );
       }
       else
         G_TriggerMenu( clientNum, MN_A_NOEROOM );

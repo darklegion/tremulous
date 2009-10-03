@@ -830,12 +830,12 @@ void G_TriggerMenu( int clientNum, dynMenu_t menu )
 
 /*
 ===============
-G_TriggerMenu2
+G_TriggerMenuArgs
 
 Trigger a menu on some client and passes an argument
 ===============
 */
-void G_TriggerMenu2( int clientNum, dynMenu_t menu, int arg )
+void G_TriggerMenuArgs( int clientNum, dynMenu_t menu, int arg )
 {
   char buffer[ 64 ];
 

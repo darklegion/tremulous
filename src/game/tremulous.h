@@ -350,8 +350,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ALIEN_REGEN_NOCREEP_MOD     (1.0f/3.0f) //regen off creep
 
 #define ALIEN_MAX_FRAGS             9
-#define ALIEN_MAX_CREDITS           (ALIEN_MAX_FRAGS*ALIEN_CREDITS_PER_FRAG)
-#define ALIEN_CREDITS_PER_FRAG      400
+#define ALIEN_MAX_CREDITS           (ALIEN_MAX_FRAGS*ALIEN_CREDITS_PER_KILL)
+#define ALIEN_CREDITS_PER_KILL      400
 #define ALIEN_TK_SUICIDE_PENALTY    350
 
 /*
@@ -531,7 +531,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define HUMAN_BHLTH_MODIFIER        1.0f
 #define HBHM(h)                     ((int)((float)h*HUMAN_BHLTH_MODIFIER))
 #define HUMAN_BVALUE_MODIFIER       240.0f
-#define HBVM(h)                     ((int)((float)h*(float)HUMAN_BVALUE_MODIFIER)) // remember these are measured in credits not frags (c.f. ALIEN_CREDITS_PER_FRAG)
+#define HBVM(h)                     ((int)((float)h*(float)HUMAN_BVALUE_MODIFIER)) // remember these are measured in credits not frags (c.f. ALIEN_CREDITS_PER_KILL)
 
 #define REACTOR_BASESIZE            1000
 #define REPEATER_BASESIZE           500
@@ -656,7 +656,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define AVG_FALL_DISTANCE           ((MIN_FALL_DISTANCE+MAX_FALL_DISTANCE)/2.0f)
 
 #define FREEKILL_PERIOD             120000 //msec
-#define FREEKILL_ALIEN              ALIEN_CREDITS_PER_FRAG
+#define FREEKILL_ALIEN              ALIEN_CREDITS_PER_KILL
 #define FREEKILL_HUMAN              LEVEL0_VALUE
 
 #define DEFAULT_ALIEN_BUILDPOINTS   "100"
