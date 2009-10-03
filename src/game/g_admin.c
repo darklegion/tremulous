@@ -1301,7 +1301,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
     }
     else if( !Q_stricmp( t, "[command]" ) )
     {
-      if( bc >= MAX_ADMIN_COMMANDS )
+      if( cc >= MAX_ADMIN_COMMANDS )
         return qfalse;
       c = G_Alloc( sizeof( g_admin_command_t ) );
       *c->command = '\0';

@@ -198,7 +198,7 @@ static qboolean G_FindPower( gentity_t *self )
       distance = VectorLength( temp_v );
 
       // Always prefer a reactor if there is one in range
-      if( ent->s.modelindex == BA_H_REACTOR &&
+      if( ent->s.modelindex == BA_H_REACTOR && ent->powered &&
           distance <= REACTOR_BASESIZE )
       {
         self->parentNode = ent;
@@ -792,6 +792,8 @@ void AOvermind_Think( gentity_t *self )
         G_SelectiveRadiusDamage( self->s.pos.trBase, self, self->splashDamage,
           self->splashRadius, self, MOD_OVERMIND, PTE_ALIENS );
         G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
+
+        break;
       }
     }
     
