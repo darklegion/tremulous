@@ -118,7 +118,6 @@ vmCvar_t  cg_drawCrosshair;
 vmCvar_t  cg_drawCrosshairNames;
 vmCvar_t  cg_crosshairSize;
 vmCvar_t  cg_draw2D;
-vmCvar_t  cg_drawStatus;
 vmCvar_t  cg_animSpeed;
 vmCvar_t  cg_debugAnim;
 vmCvar_t  cg_debugPosition;
@@ -233,7 +232,6 @@ static cvarTable_t cvarTable[ ] =
   { &cg_stereoSeparation, "cg_stereoSeparation", "0.4", CVAR_ARCHIVE  },
   { &cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE  },
   { &cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE  },
-  { &cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE  },
   { &cg_drawTimer, "cg_drawTimer", "1", CVAR_ARCHIVE  },
   { &cg_drawClock, "cg_drawClock", "0", CVAR_ARCHIVE  },
   { &cg_drawFPS, "cg_drawFPS", "1", CVAR_ARCHIVE  },

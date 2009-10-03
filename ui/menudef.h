@@ -100,9 +100,7 @@
 #define CG_PLAYER_CLIPS_VALUE             3
 #define CG_PLAYER_BUILD_TIMER             4
 #define CG_PLAYER_CREDITS_VALUE           7
-#define CG_PLAYER_BANK_VALUE              8
 #define CG_PLAYER_CREDITS_VALUE_NOPAD     9
-#define CG_PLAYER_BANK_VALUE_NOPAD        10
 #define CG_PLAYER_STAMINA                 11
 #define CG_PLAYER_STAMINA_1               12
 #define CG_PLAYER_STAMINA_2               13

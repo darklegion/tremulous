@@ -340,27 +340,6 @@ static void CG_DrawPlayerCreditsValue( rectDef_t *rect, vec4_t color, qboolean p
   }
 }
 
-static void CG_DrawPlayerBankValue( rectDef_t *rect, vec4_t color, qboolean padding )
-{
-  int           value;
-  playerState_t *ps;
-
-  ps = &cg.snap->ps;
-
-  value = ps->persistant[ PERS_BANK ];
-  if( value > -1 )
-  {
-    trap_R_SetColor( color );
-
-    if( padding )
-      CG_DrawFieldPadded( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
-    else
-      CG_DrawField( rect->x, rect->y, 1, rect->w, rect->h, value );
-
-    trap_R_SetColor( NULL );
-  }
-}
-
 #define HH_MIN_ALPHA  0.2f
 #define HH_MAX_ALPHA  0.8f
 #define HH_ALPHA_DIFF (HH_MAX_ALPHA-HH_MIN_ALPHA)
@@ -2323,9 +2302,6 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
 {
   rectDef_t rect;
 
-  if( cg_drawStatus.integer == 0 )
-    return;
-
   rect.x = x;
   rect.y = y;
   rect.w = w;
@@ -2336,14 +2312,8 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
     case CG_PLAYER_CREDITS_VALUE:
       CG_DrawPlayerCreditsValue( &rect, color, qtrue );
       break;
-    case CG_PLAYER_BANK_VALUE:
-      CG_DrawPlayerBankValue( &rect, color, qtrue );
-      break;
     case CG_PLAYER_CREDITS_VALUE_NOPAD:
       CG_DrawPlayerCreditsValue( &rect, color, qfalse );
-      break;
-    case CG_PLAYER_BANK_VALUE_NOPAD:
-      CG_DrawPlayerBankValue( &rect, color, qfalse );
       break;
     case CG_PLAYER_STAMINA_1:
       CG_DrawPlayerStamina1( &rect, color, shader );
@@ -2908,8 +2878,7 @@ CG_DrawIntermission
 */
 static void CG_DrawIntermission( void )
 {
-  if( cg_drawStatus.integer )
-    Menu_Paint( Menus_FindByName( "default_hud" ), qtrue );
+  Menu_Paint( Menus_FindByName( "default_hud" ), qtrue );
 
   cg.scoreFadeTime = cg.time;
   cg.scoreBoardShowing = CG_DrawScoreboard( );
@@ -3045,12 +3014,9 @@ static void CG_Draw2D( void )
       ( cg.snap->ps.stats[ STAT_HEALTH ] > 0 ) )
   {
     CG_DrawBuildableStatus( );
-    if( cg_drawStatus.integer )
-      Menu_Paint( menu, qtrue );
-
   }
-  else if( cg_drawStatus.integer )
-    Menu_Paint( defaultMenu, qtrue );
+
+  Menu_Paint( menu, qtrue );
 
   CG_DrawVote( );
   CG_DrawTeamVote( );
