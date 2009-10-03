@@ -1403,7 +1403,8 @@ void ClientThink_real( gentity_t *ent )
   {
     int regenRate = BG_Class( ent->client->ps.stats[ STAT_CLASS ] )->regenRate;
 
-    if( ent->nextRegenTime < 0 || regenRate == 0 )
+    if( !ent->client || ent->health <= 0 || ent->nextRegenTime < 0 ||
+        regenRate == 0 )
     {
       ent->nextRegenTime = -1;
       break; // no regen
