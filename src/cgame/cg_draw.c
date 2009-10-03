@@ -1906,6 +1906,7 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
   vec4_t  adjustedColor;
   float   vscale;
   vec4_t  white = { 1.0f, 1.0f, 1.0f, 1.0f };
+  char    *ping;
 
   if( cg.snap->ps.pm_type == PM_INTERMISSION )
     return;
@@ -2028,19 +2029,18 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
   trap_R_SetColor( NULL );
 
   if( cg_nopredict.integer || cg_synchronousClients.integer )
-    UI_Text_Paint( ax, ay, 0.5, white, "snc", 0, 0, ITEM_TEXTSTYLE_NORMAL );
+    ping = "snc";
   else
-  {
-    char        *s;
+    ping = va( "%d", cg.ping );
+  ax = rect->x + ( rect->w / 2.0f ) -
+       ( UI_Text_Width( ping, scale, 0 ) / 2.0f ) + text_x;
+  ay = rect->y + ( rect->h / 2.0f ) +
+       ( UI_Text_Height( ping, scale, 0 ) / 2.0f ) + text_y;
 
-    s = va( "%d", cg.ping );
-    ax = rect->x + ( rect->w / 2.0f ) - ( UI_Text_Width( s, scale, 0 ) / 2.0f ) + text_x;
-    ay = rect->y + ( rect->h / 2.0f ) + ( UI_Text_Height( s, scale, 0 ) / 2.0f ) + text_y;
-
-    Vector4Copy( textColor, adjustedColor );
-    adjustedColor[ 3 ] = 0.5f;
-    UI_Text_Paint( ax, ay, scale, adjustedColor, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
-  }
+  Vector4Copy( textColor, adjustedColor );
+  adjustedColor[ 3 ] = 0.5f;
+  UI_Text_Paint( ax, ay, scale, adjustedColor, ping, 0, 0,
+                 ITEM_TEXTSTYLE_NORMAL );
 
   CG_DrawDisconnect( );
 }
