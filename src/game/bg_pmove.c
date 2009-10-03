@@ -2866,9 +2866,11 @@ static void PM_Weapon( void )
 
           AngleVectors( pm->ps->viewangles, dir, NULL, NULL );
           VectorCopy( pm->ps->velocity, vel );
-          VectorNormalize( vel );
           vel[2] = 0;
           dir[2] = 0;
+          VectorNormalize( vel );
+          VectorNormalize( dir );
+
           charge *= DotProduct( dir, vel );
 
           pm->ps->stats[ STAT_MISC ] += charge;
