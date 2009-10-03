@@ -400,7 +400,11 @@ Get the number of build points from a position
 */
 int G_GetBuildPoints( const vec3_t pos, team_t team, int extraDistance )
 {
-  if( team == TEAM_ALIENS )
+  if( level.suddenDeath )
+  {
+    return 0;
+  }
+  else if( team == TEAM_ALIENS )
   {
     return level.alienBuildPoints;
   }
@@ -429,7 +433,11 @@ int G_GetBuildPoints( const vec3_t pos, team_t team, int extraDistance )
   vec3_t      temp_v;
   int         buildPoints = 0;
 
-  if( team == TEAM_HUMANS )
+  if( level.suddenDeath )
+  {
+    buildPoints = 0;
+  }
+  else if( team == TEAM_HUMANS )
   {
     // Iterate through entities
     for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
