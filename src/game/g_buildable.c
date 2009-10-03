@@ -1891,6 +1891,10 @@ void HMedistat_Think( gentity_t *self )
     for( i = 0; i < num; i++ )
     {
       player = &g_entities[ entityList[ i ] ];
+      
+      //remove poison from everyone, not just the healed player
+      if( player->client && player->client->ps.stats[ STAT_STATE ] & SS_POISONED )
+        player->client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
 
       if( self->enemy == player && player->client &&
           player->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS &&
@@ -1943,9 +1947,6 @@ void HMedistat_Think( gentity_t *self )
     }
     else if( self->enemy && self->enemy->client ) //heal!
     {
-      if( self->enemy->client->ps.stats[ STAT_STATE ] & SS_POISONED )
-        self->enemy->client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
-
       if( self->enemy->client->ps.stats[ STAT_STAMINA ] <  MAX_STAMINA )
         self->enemy->client->ps.stats[ STAT_STAMINA ] += STAMINA_MEDISTAT_RESTORE;
 
