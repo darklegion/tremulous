@@ -2783,12 +2783,6 @@ static void PM_Weapon( void )
   qboolean      attack2 = qfalse;
   qboolean      attack3 = qfalse;
 
-  // Set overcharging flag so other players can hear warning
-  pm->ps->eFlags &= ~EF_WARN_CHARGE;
-  if( pm->ps->weapon == WP_LUCIFER_CANNON &&
-      pm->ps->stats[ STAT_MISC ] > LCANNON_TOTAL_CHARGE * 2 / 3 )
-    pm->ps->eFlags |= EF_WARN_CHARGE;
-
   // don't allow attack until all buttons are up
   if( pm->ps->pm_flags & PMF_RESPAWNED )
     return;

@@ -869,12 +869,6 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
       trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound );
   }
 
-  // Lucifer cannon charge warning beep
-  if( weaponNum == WP_LUCIFER_CANNON && 
-      ( cent->currentState.eFlags & EF_WARN_CHARGE ) )
-    trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
-                            vec3_origin, cgs.media.lCannonWarningSound );
-
   if( !noGunModel )
   {
     CG_PositionEntityOnTag( &gun, parent, parent->hModel, "tag_weapon" );
@@ -1021,6 +1015,12 @@ void CG_AddViewWeapon( playerState_t *ps )
   if( ( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
     CG_GhostBuildable( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT );
 
+  // Lucifer cannon charge warning beep
+  if( weapon == WP_LUCIFER_CANNON && 
+      ps->stats[ STAT_MISC ] > LCANNON_TOTAL_CHARGE * 2 / 3 )
+    trap_S_AddLoopingSound( ps->clientNum, ps->origin, vec3_origin,
+                            cgs.media.lCannonWarningSound );
+
   // no gun if in third person view
   if( cg.renderingThirdPerson )
     return;
@@ -1084,7 +1084,7 @@ void CG_AddViewWeapon( playerState_t *ps )
         hand.origin );
       VectorMA( hand.origin, random( ) * fraction, cg.refdef.viewaxis[ 1 ],
         hand.origin );
-  }
+    }
     else if( ps->stats[ STAT_MISC2 ] > 0 )
     {
       // reloading effect
