@@ -1807,9 +1807,12 @@ void Cmd_Destroy_f( gentity_t *ent )
             BG_FindNameForBuildable( traceEnt->s.modelindex ) );
 
           if( !deconstruct )
-            G_Damage( traceEnt, ent, ent, forward, tr.endpos, 10000, 0, MOD_SUICIDE );
+            G_Damage( traceEnt, ent, ent, forward, tr.endpos, ent->health, 0, MOD_SUICIDE );
           else
+          {
+            G_Damage( traceEnt, ent, ent, forward, tr.endpos, ent->health, 0, MOD_SUICIDE );
             G_FreeEntity( traceEnt );
+          }
 
           if( !g_cheats.integer )
             ent->client->ps.stats[ STAT_MISC ] +=

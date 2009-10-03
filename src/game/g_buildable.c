@@ -608,13 +608,12 @@ void AGeneric_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, i
 
   if( attacker && attacker->client )
   {
-    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-    {
+    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
+        !self->deconstruct )
       G_TeamCommand( PTE_ALIENS,
         va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
           BG_FindHumanNameForBuildable( self->s.modelindex ),
           attacker->client->pers.netname ) );
-    }
     G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
       attacker->client->ps.clientNum, self->s.modelindex, mod,
       attacker->client->pers.netname,
@@ -637,11 +636,11 @@ void AGeneric_CreepCheck( gentity_t *self )
   spawn = self->parentNode;
   if( !G_FindCreep( self ) )
   {
-    if( spawn->inuse && spawn->enemy )
-      G_Damage( self, NULL, spawn->enemy, NULL, NULL, self->health, 0,
-                MOD_SUICIDE );
+    if( spawn && self->killedBy != ENTITYNUM_NONE )
+      G_Damage( self, NULL, g_entities + self->killedBy, NULL, NULL,
+                self->health, 0, MOD_SUICIDE );
     else
-      G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+      G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
     return;
   }
   G_CreepSlow( self );
@@ -693,6 +692,8 @@ Called when an alien spawn dies
 */
 void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
 {
+  int i;
+
   G_RewardAttackers( self );
   G_SetBuildableAnim( self, BANIM_DESTROY1, qtrue );
   G_SetIdleBuildableAnim( self, BANIM_DESTROYED );
@@ -706,10 +707,23 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     self->nextthink = level.time; //blast immediately
 
   self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
+  
+  // All supported structures that no longer have creep will have been killed
+  // by whoever killed this structure
+  for( i = MAX_CLIENTS; i < level.num_entities; i++ )
+  {
+    gentity_t *ent = g_entities + i;
+    
+    if( !ent->inuse || ent->health <= 0 || ent->s.eType != ET_BUILDABLE ||
+        ent->parentNode != self )
+      continue;
+    ent->killedBy = attacker - g_entities;
+  }
 
   if( attacker && attacker->client )
   {
-    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
+        !self->deconstruct )
     {
       G_TeamCommand( PTE_ALIENS,
         va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
@@ -1417,7 +1431,7 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   }
   
   AGeneric_Die( self, inflictor, attacker, damage, mod );
-  self->nextthink = level.time;
+  self->nextthink = level.time + 100;
 }
 
 
@@ -1659,7 +1673,7 @@ void HRepeater_Think( gentity_t *self )
     if( self->count < 0 )
       self->count = level.time;
     else if( self->count > 0 && ( ( level.time - self->count ) > REPEATER_INACTIVE_TIME ) )
-      G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+      G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
   }
   else
     self->count = -1;
@@ -2375,14 +2389,12 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
   if( attacker && attacker->client )
   {
-    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-    {
+    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
+        !self->deconstruct )
       G_TeamCommand( PTE_HUMANS,
         va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
           BG_FindHumanNameForBuildable( self->s.modelindex ),
           attacker->client->pers.netname ) );
-    }
-
     G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
       attacker->client->ps.clientNum, self->s.modelindex, mod,
       attacker->client->pers.netname,
@@ -2416,7 +2428,7 @@ void HSpawn_Think( gentity_t *self )
         if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD ||
             ent->s.eType == ET_MOVER )
         {
-          G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+          G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
           return;
         }
 
@@ -2759,7 +2771,7 @@ G_FreeMarkedBuildables
 Free up build points for a team by deconstructing marked buildables
 ===============
 */
-void G_FreeMarkedBuildables( void )
+void G_FreeMarkedBuildables( gentity_t *deconner )
 {
   int       i;
   gentity_t *ent;
@@ -2771,6 +2783,7 @@ void G_FreeMarkedBuildables( void )
   {
     ent = level.markedBuildables[ i ];
 
+    G_Damage( ent, NULL, deconner, NULL, NULL, ent->health, 0, MOD_SUICIDE );      
     G_FreeEntity( ent );
   }
 }
@@ -3178,18 +3191,15 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   vec3_t    normal;
 
   // Free existing buildables
-  G_FreeMarkedBuildables( );
+  G_FreeMarkedBuildables( builder );
 
-  //spawn the buildable
+  // Spawn the buildable
   built = G_Spawn();
-
   built->s.eType = ET_BUILDABLE;
-
+  built->killedBy = ENTITYNUM_NONE;
   built->classname = BG_FindEntityNameForBuildable( buildable );
-
-  built->s.modelindex = buildable; //so we can tell what this is on the client side
+  built->s.modelindex = buildable;
   built->biteam = built->s.modelindex2 = BG_FindTeamForBuildable( buildable );
-
   BG_FindBBoxForBuildable( buildable, built->r.mins, built->r.maxs );
 
   // detect the buildable's normal vector
