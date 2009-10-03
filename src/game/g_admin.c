@@ -162,7 +162,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
 
     {"showbans", G_admin_showbans, "B",
       "display a (partial) list of active bans",
-      "(^5start at ban#^7)"
+      "(^5start at ban#^7) (^5name|IP^7)"
     },
 
     {"spec999", G_admin_spec999, "P",
@@ -2384,12 +2384,16 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
   int len;
   int secs;
   int start = 0;
-  char skip[ 11 ];
+  char filter[ MAX_NAME_LENGTH ] = {""};
   char date[ 11 ];
   char *made;
   int j, k;
   char n1[ MAX_NAME_LENGTH * 2 ] = {""};
   char n2[ MAX_NAME_LENGTH * 2 ] = {""};
+  qboolean numeric = qtrue;
+  char *ip_match = NULL;
+  int ip_match_len = 0;
+  char name_match[ MAX_NAME_LENGTH ] = {""};
 
   t = trap_RealTime( NULL );
 
@@ -2410,10 +2414,37 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
     return qfalse;
   }
 
-  if( G_SayArgc() == 2 + skiparg )
+  if( G_SayArgc() >= 2 + skiparg )
   {
-    G_SayArgv( 1 + skiparg, skip, sizeof( skip ) );
-    start = atoi( skip );
+    G_SayArgv( 1 + skiparg, filter, sizeof( filter ) );
+    if( G_SayArgc() >= 3 + skiparg )
+    {
+      start = atoi( filter );
+      G_SayArgv( 2 + skiparg, filter, sizeof( filter ) );
+    }
+    for( i = 0; i < sizeof( filter ) && filter[ i ] ; i++ )
+    {
+      if( !isdigit( filter[ i ] ) &&
+          filter[ i ] != '.' && filter[ i ] != '-' )
+      {
+        numeric = qfalse;
+        break;
+      }
+    }
+    if( !numeric )
+    {
+      G_SanitiseString( filter, name_match, sizeof( name_match ) );
+    }
+    else if( strchr( filter, '.' ) )
+    {
+      ip_match = filter;
+      ip_match_len = strlen(ip_match);
+    }
+    else
+    {
+      start = atoi( filter );
+      filter[ 0 ] = '\0';
+    }
     // showbans 1 means start with ban 0
     if( start > 0 )
       start--;
@@ -2445,6 +2476,16 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
       ( g_admin_bans[ i ]->expires - t ) < 1 )
       continue;
 
+    if( name_match[ 0 ] )
+    {
+      G_SanitiseString( g_admin_bans[ i ]->name, n1, sizeof( n1 ) );
+      if( !strstr( n1, name_match) )
+        continue;
+    }
+    if( ip_match &&
+      Q_strncmp( ip_match, g_admin_bans[ i ]->ip, ip_match_len ) )
+        continue;
+
     count++;
 
     len = Q_PrintStrlen( g_admin_bans[ i ]->name );
@@ -2462,6 +2503,16 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
     if( g_admin_bans[ i ]->expires != 0 &&
       ( g_admin_bans[ i ]->expires - t ) < 1 )
       continue;
+
+    if( name_match[ 0 ] )
+    {
+      G_SanitiseString( g_admin_bans[ i ]->name, n1, sizeof( n1 ) );
+      if( !strstr( n1, name_match) )
+        continue;
+    }
+    if( ip_match &&
+      Q_strncmp( ip_match, g_admin_bans[ i ]->ip, ip_match_len ) )
+        continue;
 
     count++;
 
@@ -2510,13 +2561,26 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
              g_admin_bans[ i ]->reason ) );
   }
 
-  ADMBP( va( "^3!showbans:^7 showing bans %d - %d of %d (%d total).",
-           ( found ) ? ( start + 1 ) : 0,
-           i,
-           max + 1,
-           found ) );
+  if( name_match[ 0 ] || ip_match )
+  {
+    ADMBP( va( "^3!showbans:^7 found %d matching bans by %s.  ",
+             count,
+             ( ip_match ) ? "IP" : "name" ) );
+  }
+  else
+  {
+    ADMBP( va( "^3!showbans:^7 showing bans %d - %d of %d (%d total).",
+             ( found ) ? ( start + 1 ) : 0,
+             i,
+             max + 1,
+             found ) );
+  }
+
   if( i <= max )
-    ADMBP( va( "  run !showbans %d to see more", i + 1 ) );
+    ADMBP( va( "  run !showbans %d%s%s to see more",
+             i + 1,
+             ( filter[ 0 ] ) ? " " : "",
+             ( filter[ 0 ] ) ? filter : "" ) );
   ADMBP( "\n" );
   ADMBP_end();
   return qtrue;
