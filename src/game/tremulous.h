@@ -64,7 +64,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL1_GRAB_TIME            300
 #define LEVEL1_GRAB_U_TIME          300
 #define LEVEL1_PCLOUD_DMG           ADM(4)
-#define LEVEL1_PCLOUD_RANGE         150.0f
+#define LEVEL1_PCLOUD_RANGE         120.0f
 #define LEVEL1_PCLOUD_REPEAT        2500
 #define LEVEL1_PCLOUD_TIME          10000
 #define LEVEL1_REGEN_MOD            2.0f
@@ -105,7 +105,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL3_BOUNCEBALL_DMG       ADM(110)
 #define LEVEL3_BOUNCEBALL_REPEAT    1000
 #define LEVEL3_BOUNCEBALL_SPEED     1000.0f
-#define LEVEL3_BOUNCEBALL_RADIUS    30
+#define LEVEL3_BOUNCEBALL_RADIUS    100
 #define LEVEL3_BOUNCEBALL_REGEN     10000    // msec until new barb
 
 #define LEVEL4_CLAW_DMG             ADM(100)
@@ -221,7 +221,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define ALIEN_BHLTH_MODIFIER        1.0f
 #define ABHM(h)                     ((int)((float)h*ALIEN_BHLTH_MODIFIER))
-#define ALIEN_BVALUE_MODIFIER        10.0f
+#define ALIEN_BVALUE_MODIFIER        15.0f
 #define ABVM(h)                      ((int)((float)h*ALIEN_BVALUE_MODIFIER))
 
 #define CREEP_BASESIZE              700
@@ -449,7 +449,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define FLAMER_DMG                  HDM(20)
 #define FLAMER_RADIUS               50       // splash radius
 #define FLAMER_SIZE                 8        // missile bounding box
-#define FLAMER_LIFETIME             600.0f
+#define FLAMER_LIFETIME             700.0f
 #define FLAMER_SPEED                300.0f
 #define FLAMER_LAG                  0.65f    // the amount of player velocity that is added to the fireball
 
