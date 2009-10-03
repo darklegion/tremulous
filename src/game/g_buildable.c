@@ -373,63 +373,6 @@ int G_GetBuildPoints( const vec3_t pos, team_t team, int extraDistance )
   }
 
   return 0;
-
-// TODO: handle combined power zones in G_FindPower.  Until then, use the closest zone and prefer the reactor
-#if 0
-  int         i;
-  gentity_t   *ent;
-  int         distance = 0;
-  vec3_t      temp_v;
-  int         buildPoints = 0;
-  qboolean    zoneFound = qfalse;
-
-  if( level.suddenDeath )
-  {
-    buildPoints = 0;
-  }
-  else if( team == TEAM_HUMANS )
-  {
-    // Iterate through entities
-    for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
-    {
-      ent = &g_entities[ i ];
-
-      VectorSubtract( pos, ent->s.origin, temp_v );
-      distance = VectorLength( temp_v );
-
-      if( ent->s.modelindex == BA_H_REACTOR && distance <= REACTOR_BASESIZE + extraDistance )
-      {
-        // Reactor is in range
-        zoneFound = qtrue;
-
-        buildPoints += level.humanBuildPoints;
-      }
-      else if( ent->s.modelindex == BA_H_REPEATER && distance <= REPEATER_BASESIZE + extraDistance )
-      {
-        if( ent->usesBuildPointZone && level.buildPointZones[ent->buildPointZone].active )
-        {
-          buildPointZone_t *zone = &level.buildPointZones[ent->buildPointZone];
-
-          zoneFound = qtrue;
-
-          buildPoints += zone->totalBuildPoints - zone->queuedBuildPoints;
-        }
-      }
-    }
-  }
-  else if( team == TEAM_ALIENS )
-  {
-    buildPoints = level.alienBuildPoints;
-  }
-
-  if( buildPoints < 0 )
-    buildPoints = 0;
-
-  if( !zoneFound )
-    buildPoints = level.humanBuildPoints;  // if the player isn't in a zone, show the number of BP of the main zone
-
-  return buildPoints;
-#endif
 }
 
 /*
