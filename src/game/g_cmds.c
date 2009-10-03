@@ -179,7 +179,10 @@ int G_ClientNumbersFromString( char *s, int *plist, int max )
   char n2[ MAX_NAME_LENGTH ] = {""};
   char s2[ MAX_NAME_LENGTH ] = {""};
 
-  // if a number is provided, it might be a slot #
+  if( max == 0 )
+    return 0;
+
+  // if a number is provided, it is a clientnum
   for( i = 0; s[ i ] && isdigit( s[ i ] ); i++ );
   if( !s[ i ] )
   {
@@ -201,7 +204,7 @@ int G_ClientNumbersFromString( char *s, int *plist, int max )
   G_SanitiseString( s, s2, sizeof( s2 ) );
   if( strlen( s2 ) < 1 )
     return 0;
-  for( i = 0; i < level.maxclients && found <= max; i++ )
+  for( i = 0; i < level.maxclients && found < max; i++ )
   {
     p = &level.clients[ i ];
     if( p->pers.connected == CON_DISCONNECTED )
