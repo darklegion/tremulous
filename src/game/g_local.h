@@ -677,6 +677,7 @@ void      G_FollowLockView( gentity_t *ent );
 qboolean  G_FollowNewClient( gentity_t *ent, int dir );
 void      G_ToggleFollow( gentity_t *ent );
 void      G_MatchOnePlayer( int *plist, int num, char *err, int len );
+int       G_ClientNumberFromString( char *s );
 int       G_ClientNumbersFromString( char *s, int *plist, int max );
 int       G_SayArgc( void );
 qboolean  G_SayArgv( int n, char *buffer, int bufferLength );
@@ -1057,7 +1058,7 @@ typedef struct mapRotations_s
 } mapRotations_t;
 
 void      G_PrintRotations( void );
-qboolean  G_AdvanceMapRotation( void );
+void      G_AdvanceMapRotation( void );
 qboolean  G_StartMapRotation( char *name, qboolean changeMap );
 void      G_StopMapRotation( void );
 qboolean  G_MapRotationActive( void );

@@ -32,118 +32,6 @@ These commands can only be entered from stdin or by a remote operator datagram
 ===============================================================================
 */
 
-
-/*
-==================
-SV_GetPlayerByHandle
-
-Returns the player with player id or name from Cmd_Argv(1)
-==================
-*/
-static client_t *SV_GetPlayerByHandle( void ) {
-	client_t	*cl;
-	int			i;
-	char		*s;
-	char		cleanName[64];
-
-	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		return NULL;
-	}
-
-	if ( Cmd_Argc() < 2 ) {
-		Com_Printf( "No player specified.\n" );
-		return NULL;
-	}
-
-	s = Cmd_Argv(1);
-
-	// Check whether this is a numeric player handle
-	for(i = 0; s[i] >= '0' && s[i] <= '9'; i++);
-	
-	if(!s[i])
-	{
-		int plid = atoi(s);
-
-		// Check for numeric playerid match
-		if(plid >= 0 && plid < sv_maxclients->integer)
-		{
-			cl = &svs.clients[plid];
-			
-			if(cl->state)
-				return cl;
-		}
-	}
-
-	// check for a name match
-	for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
-		if ( !cl->state ) {
-			continue;
-		}
-		if ( !Q_stricmp( cl->name, s ) ) {
-			return cl;
-		}
-
-		Q_strncpyz( cleanName, cl->name, sizeof(cleanName) );
-		Q_CleanStr( cleanName );
-		if ( !Q_stricmp( cleanName, s ) ) {
-			return cl;
-		}
-	}
-
-	Com_Printf( "Player %s is not on the server\n", s );
-
-	return NULL;
-}
-
-/*
-==================
-SV_GetPlayerByNum
-
-Returns the player with idnum from Cmd_Argv(1)
-==================
-*/
-static client_t *SV_GetPlayerByNum( void ) {
-	client_t	*cl;
-	int			i;
-	int			idnum;
-	char		*s;
-
-	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		return NULL;
-	}
-
-	if ( Cmd_Argc() < 2 ) {
-		Com_Printf( "No player specified.\n" );
-		return NULL;
-	}
-
-	s = Cmd_Argv(1);
-
-	for (i = 0; s[i]; i++) {
-		if (s[i] < '0' || s[i] > '9') {
-			Com_Printf( "Bad slot number: %s\n", s);
-			return NULL;
-		}
-	}
-	idnum = atoi( s );
-	if ( idnum < 0 || idnum >= sv_maxclients->integer ) {
-		Com_Printf( "Bad client slot: %i\n", idnum );
-		return NULL;
-	}
-
-	cl = &svs.clients[idnum];
-	if ( !cl->state ) {
-		Com_Printf( "Client %i is not active\n", idnum );
-		return NULL;
-	}
-	return cl;
-}
-
-//=========================================================
-
-
 /*
 ==================
 SV_Map_f
@@ -319,202 +207,6 @@ static void SV_MapRestart_f( void ) {
 	svs.time += 100;
 }
 
-//===============================================================
-
-/*
-==================
-SV_KickAll_f
-
-Kick all users off of the server  FIXME: move to game
-==================
-*/
-static void SV_KickAll_f( void ) {
-	client_t	*cl;
-	int			i;
-
-	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
-
-	for ( i=0, cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
-		if ( !cl->state ) {
-			continue;
-		}
-		if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
-			continue;
-		}
-		SV_DropClient( cl, "was kicked" );
-		cl->lastPacketTime = svs.time;	// in case there is a funny zombie
-	}
-}
-
-/*
-==================
-SV_Kick_f
-
-Kick a user off of the server  FIXME: move to game
-==================
-*/
-static void SV_Kick_f( void ) {
-	client_t	*cl;
-
-	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
-
-	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: kick <player name>\n");
-		return;
-	}
-
-	cl = SV_GetPlayerByHandle();
-	if ( !cl ) {
-		return;
-	}
-	if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
-		SV_SendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
-		return;
-	}
-
-	SV_DropClient( cl, "was kicked" );
-	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
-}
-
-/*
-==================
-SV_KickNum_f
-
-Kick a user off of the server  FIXME: move to game
-==================
-*/
-static void SV_KickNum_f( void ) {
-	client_t	*cl;
-
-	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
-
-	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: kicknum <client number>\n");
-		return;
-	}
-
-	cl = SV_GetPlayerByNum();
-	if ( !cl ) {
-		return;
-	}
-	if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
-		SV_SendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
-		return;
-	}
-
-	SV_DropClient( cl, "was kicked" );
-	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
-}
-
-/*
-================
-SV_Status_f
-================
-*/
-static void SV_Status_f( void ) {
-	int			i, j, l;
-	client_t	*cl;
-	playerState_t	*ps;
-	const char		*s;
-	int			ping;
-
-	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
-
-	Com_Printf ("map: %s\n", sv_mapname->string );
-
-	Com_Printf ("num score ping name            lastmsg address               qport rate\n");
-	Com_Printf ("--- ----- ---- --------------- ------- --------------------- ----- -----\n");
-	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++)
-	{
-		if (!cl->state)
-			continue;
-		Com_Printf ("%3i ", i);
-		ps = SV_GameClientNum( i );
-		Com_Printf ("%5i ", ps->persistant[PERS_SCORE]);
-
-		if (cl->state == CS_CONNECTED)
-			Com_Printf ("CNCT ");
-		else if (cl->state == CS_ZOMBIE)
-			Com_Printf ("ZMBI ");
-		else
-		{
-			ping = cl->ping < 9999 ? cl->ping : 9999;
-			Com_Printf ("%4i ", ping);
-		}
-
-		Com_Printf ("%s", cl->name);
-    // TTimo adding a ^7 to reset the color
-    // NOTE: colored names in status breaks the padding (WONTFIX)
-    Com_Printf ("^7");
-		l = 16 - strlen(cl->name);
-		for (j=0 ; j<l ; j++)
-			Com_Printf (" ");
-
-		Com_Printf ("%7i ", svs.time - cl->lastPacketTime );
-
-		s = NET_AdrToString( cl->netchan.remoteAddress );
-		Com_Printf ("%s", s);
-		l = 22 - strlen(s);
-		for (j=0 ; j<l ; j++)
-			Com_Printf (" ");
-		
-		Com_Printf ("%5i", cl->netchan.qport);
-
-		Com_Printf (" %5i", cl->rate);
-
-		Com_Printf ("\n");
-	}
-	Com_Printf ("\n");
-}
-
-/*
-==================
-SV_ConSay_f
-==================
-*/
-static void SV_ConSay_f(void) {
-	char	*p;
-	char	text[1024];
-
-	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
-
-	if ( Cmd_Argc () < 2 ) {
-		return;
-	}
-
-	strcpy (text, "console: ^2");
-	p = Cmd_Args();
-
-	if ( *p == '"' ) {
-		p++;
-		p[strlen(p)-1] = 0;
-	}
-
-	strcat(text, p);
-
-	SV_SendServerCommand(NULL, "chat \"%s^7\"", text);
-}
-
 
 /*
 ==================
@@ -555,38 +247,6 @@ static void SV_Systeminfo_f( void ) {
 
 
 /*
-===========
-SV_DumpUser_f
-
-Examine all a users info strings FIXME: move to game
-===========
-*/
-static void SV_DumpUser_f( void ) {
-	client_t	*cl;
-
-	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
-
-	if ( Cmd_Argc() != 2 ) {
-		Com_Printf ("Usage: info <userid>\n");
-		return;
-	}
-
-	cl = SV_GetPlayerByHandle();
-	if ( !cl ) {
-		return;
-	}
-
-	Com_Printf( "userinfo\n" );
-	Com_Printf( "--------\n" );
-	Info_Print( cl->userinfo );
-}
-
-
-/*
 =================
 SV_KillServer
 =================
@@ -611,21 +271,13 @@ void SV_AddOperatorCommands( void ) {
 	initialized = qtrue;
 
 	Cmd_AddCommand ("heartbeat", SV_Heartbeat_f);
-	Cmd_AddCommand ("kick", SV_Kick_f);
-	Cmd_AddCommand ("kickAll", SV_KickAll_f);
-	Cmd_AddCommand ("clientkick", SV_KickNum_f);
-	Cmd_AddCommand ("status", SV_Status_f);
 	Cmd_AddCommand ("serverinfo", SV_Serverinfo_f);
 	Cmd_AddCommand ("systeminfo", SV_Systeminfo_f);
-	Cmd_AddCommand ("dumpuser", SV_DumpUser_f);
 	Cmd_AddCommand ("map_restart", SV_MapRestart_f);
 	Cmd_AddCommand ("sectorlist", SV_SectorList_f);
 	Cmd_AddCommand ("map", SV_Map_f);
 	Cmd_AddCommand ("devmap", SV_Map_f);
 	Cmd_AddCommand ("killserver", SV_KillServer_f);
-	if( com_dedicated->integer ) {
-		Cmd_AddCommand ("say", SV_ConSay_f);
-	}
 }
 
 /*
@@ -637,16 +289,10 @@ void SV_RemoveOperatorCommands( void ) {
 #if 0
 	// removing these won't let the server start again
 	Cmd_RemoveCommand ("heartbeat");
-	Cmd_RemoveCommand ("kick");
-	Cmd_RemoveCommand ("banUser");
-	Cmd_RemoveCommand ("banClient");
-	Cmd_RemoveCommand ("status");
 	Cmd_RemoveCommand ("serverinfo");
 	Cmd_RemoveCommand ("systeminfo");
-	Cmd_RemoveCommand ("dumpuser");
 	Cmd_RemoveCommand ("map_restart");
 	Cmd_RemoveCommand ("sectorlist");
-	Cmd_RemoveCommand ("say");
 #endif
 }
 
