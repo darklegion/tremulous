@@ -290,10 +290,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define HIVE_SPLASHRADIUS           200
 #define HIVE_CREEPSIZE              120
 #define HIVE_SENSE_RANGE            500.0f
-#define HIVE_LIFETIME               6000
+#define HIVE_LIFETIME               3000
 #define HIVE_REPEAT                 3000
 #define HIVE_K_SCALE                1.0f
-#define HIVE_DMG                    100
+#define HIVE_DMG                    80
 #define HIVE_SPEED                  320.0f
 #define HIVE_DIR_CHANGE_PERIOD      500
 #define HIVE_VALUE                  ABVM(HIVE_BP)
