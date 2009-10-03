@@ -2831,6 +2831,7 @@ Cmd_Test_f
 */
 void Cmd_Test_f( gentity_t *ent )
 {
+  G_CloseMenus( ent - g_entities );
 }
 
 /*

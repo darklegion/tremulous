@@ -13,7 +13,8 @@
   {
     name say
     fullScreen MENU_FALSE
-    visible MENU_TRUE
+    visible MENU_FALSE
+    dontCloseAll MENU_TRUE
     rect X Y W H
     aspectBias ALIGN_LEFT
     focusColor 1 1 1 1

@@ -1419,7 +1419,7 @@ void UI_Load( void )
   UI_LoadMenus( "ui/menus.txt", qtrue );
   UI_LoadMenus( "ui/ingame.txt", qfalse );
   UI_LoadMenus( "ui/tremulous.txt", qfalse );
-  Menus_CloseAll();
+  Menus_CloseAll( qtrue );
   Menus_ActivateByName( lastName );
 
 }
@@ -2845,7 +2845,7 @@ static void UI_RunMenuScript( char **args )
       //disallow the menu if it would be empty
 
       if( uiInfo.alienUpgradeCount <= 0 )
-        Menus_CloseAll( );
+        Menus_CloseAll( qfalse );
     }
     else if( Q_stricmp( name, "UpgradeToNewClass" ) == 0 )
     {
@@ -3000,7 +3000,7 @@ static void UI_RunMenuScript( char **args )
     {
       trap_Cmd_ExecuteText( EXEC_APPEND, "disconnect\n" );
       trap_Key_SetCatcher( KEYCATCH_UI );
-      Menus_CloseAll();
+      Menus_CloseAll( qtrue );
       Menus_ActivateByName( "main" );
     }
     else if( Q_stricmp( name, "ServerSort" ) == 0 )
@@ -3025,7 +3025,7 @@ static void UI_RunMenuScript( char **args )
       trap_Key_SetCatcher( trap_Key_GetCatcher() & ~KEYCATCH_UI );
       trap_Key_ClearStates();
       trap_Cvar_Set( "cl_paused", "0" );
-      Menus_CloseAll();
+      Menus_CloseAll( qfalse );
     }
     else if( Q_stricmp( name, "voteMap" ) == 0 )
     {
@@ -3777,7 +3777,7 @@ void UI_Init( qboolean inGameLoad )
   UI_LoadMenus( "ui/ingame.txt", qfalse );
   UI_LoadMenus( "ui/tremulous.txt", qfalse );
 
-  Menus_CloseAll();
+  Menus_CloseAll( qtrue );
 
   trap_LAN_LoadCachedServers();
 
@@ -3805,7 +3805,7 @@ void UI_KeyEvent( int key, qboolean down )
     if( menu )
     {
       if( key == K_ESCAPE && down && !Menus_AnyFullScreenVisible() )
-        Menus_CloseAll();
+        Menus_CloseAll( qtrue );
       else
         Menu_HandleKey( menu, key, down );
     }
@@ -3862,14 +3862,14 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
         trap_Key_SetCatcher( trap_Key_GetCatcher() & ~KEYCATCH_UI );
         trap_Key_ClearStates();
         trap_Cvar_Set( "cl_paused", "0" );
-        Menus_CloseAll();
+        Menus_CloseAll( qtrue );
 
         return;
 
       case UIMENU_MAIN:
         trap_Cvar_Set( "sv_killserver", "1" );
         trap_Key_SetCatcher( KEYCATCH_UI );
-        Menus_CloseAll();
+        Menus_CloseAll( qtrue );
         Menus_ActivateByName( "main" );
         trap_Cvar_VariableStringBuffer( "com_errorMessage", buf, sizeof( buf ) );
 
@@ -3887,7 +3887,7 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
         trap_Cvar_Set( "cl_paused", "1" );
         trap_Key_SetCatcher( KEYCATCH_UI );
         UI_BuildPlayerList();
-        Menus_CloseAll();
+        Menus_CloseAll( qtrue );
         Menus_ActivateByName( "ingame" );
         return;
     }

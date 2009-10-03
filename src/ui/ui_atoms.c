@@ -170,7 +170,7 @@ qboolean UI_ConsoleCommand( int realTime )
       case '\0':
         // Global
         uiInfo.chatTeam             = qfalse;
-        uiInfo.chatTargetClientNum  = -1;
+    uiInfo.chatTargetClientNum = -1;
         break;
 
       case '2':
@@ -201,12 +201,15 @@ qboolean UI_ConsoleCommand( int realTime )
   {
     if( Menu_Count( ) > 0 )
     {
-      trap_Key_SetCatcher( trap_Key_GetCatcher( ) & ~KEYCATCH_UI );
-      trap_Key_ClearStates( );
-      trap_Cvar_Set( "cl_paused", "0" );
-      Menus_CloseAll( );
-      return qtrue;
+      Menus_CloseAll( qfalse );
+      if( Menu_Count( ) == 0 )
+      {
+        trap_Key_SetCatcher( trap_Key_GetCatcher( ) & ~KEYCATCH_UI );
+        trap_Key_ClearStates( );
+        trap_Cvar_Set( "cl_paused", "0" );
+      }
     }
+    return qtrue;    
   }
 
   return qfalse;
