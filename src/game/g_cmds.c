@@ -366,7 +366,14 @@ void Cmd_Give_f( gentity_t *ent )
 
   if( give_all || Q_stricmpn( name, "funds", 5 ) == 0 )
   {
-    int credits = give_all ? ALIEN_MAX_CREDITS : atoi( name + 6 );
+    int credits = atoi( name + 6 );
+
+    if( ent->client->pers.teamSelection == TEAM_ALIENS )
+      credits *= ALIEN_CREDITS_PER_FRAG;
+
+    if( give_all )
+      credits = ALIEN_MAX_CREDITS;
+
     G_AddCreditToClient( ent->client, credits, qtrue );
   }
 
