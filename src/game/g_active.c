@@ -613,84 +613,6 @@ void ClientTimerActions( gentity_t *ent, int msec )
     else if( client->ps.stats[ STAT_STAMINA ] < -MAX_STAMINA )
       client->ps.stats[ STAT_STAMINA ] = -MAX_STAMINA;
 
-    //client is charging up for a... charge
-    if( client->ps.weapon == WP_ALEVEL4 )
-    {
-      if( client->ps.stats[ STAT_MISC ] < LEVEL4_TRAMPLE_CHARGE_TRIGGER &&
-        ( ucmd->buttons & BUTTON_ATTACK2 ) && !client->charging )
-      {
-        client->charging = qfalse; //should already be off, just making sure
-        client->ps.stats[ STAT_STATE ] &= ~SS_CHARGING;
-
-        if( ucmd->forwardmove > 0 )
-        {
-          //trigger charge sound...is quite annoying
-          //if( client->ps.stats[ STAT_MISC ] <= 0 )
-          //  G_AddEvent( ent, EV_LEV4_TRAMPLE_PREPARE, 0 );
-
-          client->ps.stats[ STAT_MISC ] += 100 * LEVEL4_TRAMPLE_CHARGE_RATE;
-
-        }
-        else
-          client->ps.stats[ STAT_MISC ] = 0;
-
-      }
-
-      if( !( ucmd->buttons & BUTTON_ATTACK2 ) || client->charging ||
-          client->ps.stats[ STAT_MISC ] >= LEVEL4_TRAMPLE_CHARGE_TRIGGER )
-      {
-        if( client->ps.stats[ STAT_MISC ] > LEVEL4_TRAMPLE_CHARGE_MIN )
-        {
-          client->ps.stats[ STAT_MISC ] -= 100 * LEVEL4_TRAMPLE_DISCHARGE_RATE;
-
-          if( client->charging == qfalse )
-            G_AddEvent( ent, EV_LEV4_TRAMPLE_START, 0 );
-
-          client->charging = qtrue;
-          client->ps.stats[ STAT_STATE ] |= SS_CHARGING;
-
-          //if the charger has stopped moving take a chunk of charge away
-          if( VectorLength( client->ps.velocity ) < 64.0f || strafing )
-            client->ps.stats[ STAT_MISC ] = client->ps.stats[ STAT_MISC ] / 2;
-
-          //can't charge backwards
-          if( ucmd->forwardmove < 0 )
-            client->ps.stats[ STAT_MISC ] = 0;
-          if( client->ps.stats[ STAT_MISC ] > LEVEL4_TRAMPLE_CHARGE_MAX )
-            client->ps.stats[ STAT_MISC ] = LEVEL4_TRAMPLE_CHARGE_MAX;
-        }
-        else
-          client->ps.stats[ STAT_MISC ] = 0;
-
-
-        if( client->ps.stats[ STAT_MISC ] <= 0 )
-        {
-          client->ps.stats[ STAT_MISC ] = 0;
-          client->charging = qfalse;
-          client->ps.stats[ STAT_STATE ] &= ~SS_CHARGING;
-        }
-      }
-    }
-
-    //client is charging up an lcannon
-    if( client->ps.weapon == WP_LUCIFER_CANNON &&
-        ( ucmd->buttons & BUTTON_ATTACK ) &&
-        client->ps.stats[ STAT_MISC2 ] <= 0 &&
-        client->ps.weaponstate != WEAPON_NEEDS_RESET )
-    {
-      if( client->ps.stats[ STAT_MISC ] <= 0 )
-        client->lcannonStartTime = level.time;
-
-      if( client->ps.stats[ STAT_MISC ] < LCANNON_TOTAL_CHARGE )
-        client->ps.stats[ STAT_MISC ] += ( 100.0f / LCANNON_CHARGE_TIME ) * LCANNON_TOTAL_CHARGE;
-
-      if( client->ps.stats[ STAT_MISC ] > LCANNON_TOTAL_CHARGE )
-        client->ps.stats[ STAT_MISC ] = LCANNON_TOTAL_CHARGE;
-
-      if( client->ps.stats[ STAT_MISC ] > ( client->ps.ammo * LCANNON_TOTAL_CHARGE ) / 10 )
-        client->ps.stats[ STAT_MISC ] = client->ps.ammo * LCANNON_TOTAL_CHARGE / 10;
-    }
-
     if( client->ps.weapon == WP_ABUILD || client->ps.weapon == WP_ABUILD2 ||
         BG_InventoryContainsWeapon( WP_HBUILD, client->ps.stats ) )
     {
@@ -1477,20 +1399,20 @@ void ClientThink_real( gentity_t *ent )
   else
     client->ps.pm_type = PM_NORMAL;
 
-  if( client->ps.stats[ STAT_STATE ] & SS_GRABBED &&
+  if( ( client->ps.stats[ STAT_STATE ] & SS_GRABBED ) &&
       client->grabExpiryTime < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_GRABBED;
 
-  if( client->ps.stats[ STAT_STATE ] & SS_BLOBLOCKED &&
+  if( ( client->ps.stats[ STAT_STATE ] & SS_BLOBLOCKED ) &&
       client->lastLockTime + LOCKBLOB_LOCKTIME < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_BLOBLOCKED;
 
-  if( client->ps.stats[ STAT_STATE ] & SS_SLOWLOCKED &&
+  if( ( client->ps.stats[ STAT_STATE ] & SS_SLOWLOCKED ) &&
       client->lastSlowTime + ABUILDER_BLOB_TIME < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_SLOWLOCKED;
 
-  if( client->ps.stats[ STAT_STATE ] & SS_BOOSTED &&
-      client->ps.stats[ STAT_MISC2 ] <= 0 )
+  if( ( client->ps.stats[ STAT_STATE ] & SS_BOOSTED ) &&
+      level.time - client->boostedTime >= BOOST_TIME )
     client->ps.stats[ STAT_STATE ] &= ~SS_BOOSTED;
 
   if( client->ps.stats[ STAT_STATE ] & SS_POISONCLOUDED )
@@ -1891,11 +1813,10 @@ void SpectatorClientEndFrame( gentity_t *ent )
                   ( ent->client->ps.eFlags & ( EF_VOTED | EF_TEAMVOTED ) );
           ent->client->ps = cl->ps;
           ent->client->ps.eFlags = flags;
-          ent->client->ps.pm_flags |= PMF_FOLLOW;
         }
-        else
-          ent->client->ps.pm_flags &= ~PMF_FOLLOW;
+
         ent->client->ps.clientNum = clientNum;
+        ent->client->ps.pm_flags |= PMF_FOLLOW;
         ent->client->ps.pm_flags &= ~PMF_QUEUED;
       }
     }

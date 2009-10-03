@@ -404,8 +404,9 @@ static float PM_CmdScale( usercmd_t *cmd )
   }
 
   if( pm->ps->weapon == WP_ALEVEL4 && pm->ps->pm_flags & PMF_CHARGE )
-    modifier *= ( 1.0f + ( pm->ps->stats[ STAT_MISC ] /
-      (float)LEVEL4_TRAMPLE_CHARGE_MAX ) * ( LEVEL4_TRAMPLE_SPEED - 1.0f ) );
+    modifier *= 1.0f + ( pm->ps->stats[ STAT_MISC ] *
+                         ( LEVEL4_TRAMPLE_SPEED - 1.0f ) /
+                         LEVEL4_TRAMPLE_CHARGE_MAX );
 
   //slow player if charging up for a pounce
   if( ( pm->ps->weapon == WP_ALEVEL3 || pm->ps->weapon == WP_ALEVEL3_UPG ) &&
@@ -847,7 +848,7 @@ static qboolean PM_CheckDodge( void )
   }
 
   // Reasons to stop a sprint
-  if( pm->cmd.forwardmove <= 64 ||
+  if( pm->cmd.forwardmove <= 0 ||
       pm->cmd.upmove < 0 ||
       pm->ps->pm_type != PM_NORMAL )
     pm->ps->stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
@@ -2791,6 +2792,18 @@ static void PM_Weapon( void )
   qboolean      attack2 = qfalse;
   qboolean      attack3 = qfalse;
 
+  // Ignore weapons in some cases
+  if( pm->ps->persistant[ PERS_TEAM ] == TEAM_SPECTATOR || 
+      ( pm->ps->stats[ STAT_STATE ] & ( SS_INFESTING | SS_HOVELING ) ) )
+    return;
+
+  // Check for dead player
+  if( pm->ps->stats[ STAT_HEALTH ] <= 0 )
+  {
+    pm->ps->weapon = WP_NONE;
+    return;
+  }
+
   // Charging for a pounce or canceling a pounce
   if( pm->ps->weapon == WP_ALEVEL3 || pm->ps->weapon == WP_ALEVEL3_UPG )
   {
@@ -2809,43 +2822,96 @@ static void PM_Weapon( void )
       pm->ps->stats[ STAT_MISC ] = 0;
   }
 
-  // Set overcharging flag so other players can hear warning  	 	 
+  // Trample charge mechanics
+  if( pm->ps->weapon == WP_ALEVEL4 )
+  {
+    // Charging up
+    if( !( pm->ps->stats[ STAT_STATE ] & SS_CHARGING ) )
+    {
+      // Charge button held
+      if( pm->ps->stats[ STAT_MISC ] < LEVEL4_TRAMPLE_CHARGE_MAX &&
+          ( pm->cmd.buttons & BUTTON_ATTACK2 ) )
+      {
+        pm->ps->stats[ STAT_STATE ] &= ~SS_CHARGING;
+        if( pm->cmd.forwardmove > 0 )
+          pm->ps->stats[ STAT_MISC ] += pml.msec * LEVEL4_TRAMPLE_CHARGE_MAX /
+                                        LEVEL4_TRAMPLE_CHARGE_TIME_MAX;
+        else
+          pm->ps->stats[ STAT_MISC ] = 0;
+        if( pm->ps->stats[ STAT_MISC ] > LEVEL4_TRAMPLE_CHARGE_MAX )
+        {
+          pm->ps->stats[ STAT_MISC ] = LEVEL4_TRAMPLE_CHARGE_MAX;
+          pm->ps->stats[ STAT_STATE ] |= SS_CHARGING;
+          PM_AddEvent( EV_LEV4_TRAMPLE_START );
+        }
+      }
+      
+      // Charge button released
+      else if( !( pm->ps->stats[ STAT_STATE ] & SS_CHARGING ) )
+      {
+        if( pm->ps->stats[ STAT_MISC ] > LEVEL4_TRAMPLE_CHARGE_MIN )
+        {
+          pm->ps->stats[ STAT_STATE ] |= SS_CHARGING;
+          PM_AddEvent( EV_LEV4_TRAMPLE_START );
+        }
+        else
+          pm->ps->stats[ STAT_MISC ] -= pml.msec;
+      }
+    }
+    
+    // Discharging
+    else
+    {
+      pm->ps->stats[ STAT_MISC ] -= pml.msec;
+      
+      // If the charger has stopped moving take a chunk of charge away
+      if( VectorLength( pm->ps->velocity ) < 64.0f || pm->cmd.rightmove )
+        pm->ps->stats[ STAT_MISC ] -= LEVEL4_TRAMPLE_STOP_PENALTY * pml.msec;
+    }
+    
+    // Charge is over
+    if( pm->ps->stats[ STAT_MISC ] <= 0 || pm->cmd.forwardmove <= 0 )
+    {
+      pm->ps->stats[ STAT_MISC ] = 0;
+      pm->ps->stats[ STAT_STATE ] &= ~SS_CHARGING;
+    }
+  }
+
+  // Charging up a Lucifer Cannon
   pm->ps->eFlags &= ~EF_WARN_CHARGE;
-  if( pm->ps->weapon == WP_LUCIFER_CANNON &&
-      pm->ps->stats[ STAT_MISC ] > LCANNON_TOTAL_CHARGE * 2 / 3 )
-    pm->ps->eFlags |= EF_WARN_CHARGE;
+  if( pm->ps->weapon == WP_LUCIFER_CANNON )
+  {
+    // Charging up
+    if( !pm->ps->weaponTime && pm->ps->weaponstate != WEAPON_NEEDS_RESET &&
+        ( pm->cmd.buttons & BUTTON_ATTACK ) )
+    {
+      pm->ps->stats[ STAT_MISC ] += pml.msec;
+      if( pm->ps->stats[ STAT_MISC ] >= LCANNON_CHARGE_TIME_MAX )
+        pm->ps->stats[ STAT_MISC ] = LCANNON_CHARGE_TIME_MAX;
+      if( pm->ps->stats[ STAT_MISC ] > pm->ps->ammo * LCANNON_CHARGE_TIME_MAX /
+                                              LCANNON_CHARGE_AMMO )
+        pm->ps->stats[ STAT_MISC ] = pm->ps->ammo * LCANNON_CHARGE_TIME_MAX /
+                                            LCANNON_CHARGE_AMMO;
+    }
+
+    // Set overcharging flag so other players can hear the warning beep
+    if( pm->ps->stats[ STAT_MISC ] > LCANNON_CHARGE_TIME_WARN )
+      pm->ps->eFlags |= EF_WARN_CHARGE;
+  }
 
   // don't allow attack until all buttons are up
   if( pm->ps->pm_flags & PMF_RESPAWNED )
     return;
 
-  // ignore if spectator
-  if( pm->ps->persistant[ PERS_TEAM ] == TEAM_SPECTATOR )
-    return;
-
-  if( pm->ps->stats[ STAT_STATE ] & SS_INFESTING )
-    return;
-
-  if( pm->ps->stats[ STAT_STATE ] & SS_HOVELING )
-    return;
-
+  // no slash during charge
   if( pm->ps->stats[ STAT_STATE ] & SS_CHARGING )
     return;
 
-  // check for dead player
-  if( pm->ps->stats[ STAT_HEALTH ] <= 0 )
-  {
-    pm->ps->weapon = WP_NONE;
-    return;
-  }
-
   // no bite during pounce
   if( ( pm->ps->weapon == WP_ALEVEL3 || pm->ps->weapon == WP_ALEVEL3_UPG )
-    && ( pm->cmd.buttons & BUTTON_ATTACK )
-    && ( pm->ps->pm_flags & PMF_CHARGE ) )
-  {
+      && ( pm->cmd.buttons & BUTTON_ATTACK )
+      && ( pm->ps->pm_flags & PMF_CHARGE ) )
     return;
-  }
 
   // make weapon function
   if( pm->ps->weaponTime > 0 )
@@ -2853,15 +2919,10 @@ static void PM_Weapon( void )
   if( pm->ps->weaponTime < 0 )
     pm->ps->weaponTime = 0;
 
-  if( pm->ps->stats[ STAT_MISC2 ] > 0 )
-    pm->ps->stats[ STAT_MISC2 ] -= pml.msec;
-  if( pm->ps->stats[ STAT_MISC2 ] < 0 )
-    pm->ps->stats[ STAT_MISC2 ] = 0;
-
   // check for weapon change
   // can't change if weapon is firing, but can change
   // again if lowering or raising
-  if( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING )
+  if( BG_PlayerCanChangeWeapon( pm->ps ) )
   {
     // must press use to switch weapons
     if( pm->cmd.buttons & BUTTON_USE_HOLDABLE )
@@ -2902,10 +2963,6 @@ static void PM_Weapon( void )
   if( pm->ps->weaponTime > 0 )
     return;
 
-  // luci uses STAT_MISC2 as an alternate weaponTime
-  if( pm->ps->weapon == WP_LUCIFER_CANNON && pm->ps->stats[ STAT_MISC2 ] > 0 )
-    return;
-
   // change weapon if time
   if( pm->ps->weaponstate == WEAPON_DROPPING )
   {
@@ -2913,10 +2970,10 @@ static void PM_Weapon( void )
     return;
   }
 
+  // Set proper animation
   if( pm->ps->weaponstate == WEAPON_RAISING )
   {
     pm->ps->weaponstate = WEAPON_READY;
-
     if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
     {
       if( pm->ps->weapon == WP_BLASTER )
@@ -2928,15 +2985,22 @@ static void PM_Weapon( void )
     return;
   }
 
-  // start the animation even if out of ammo
-
   BG_FindAmmoForWeapon( pm->ps->weapon, NULL, &maxClips );
 
   // check for out of ammo
   if( !pm->ps->ammo && !pm->ps->clips && !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
   {
-    PM_AddEvent( EV_NOAMMO );
-    pm->ps->weaponTime += 200;
+    if( ( pm->cmd.buttons & BUTTON_ATTACK ) ||
+        ( BG_WeaponHasAltMode( pm->ps->weapon ) &&
+          ( pm->cmd.buttons & BUTTON_ATTACK2 ) ) ||
+        ( BG_WeaponHasThirdMode( pm->ps->weapon ) &&
+          ( pm->cmd.buttons & BUTTON_USE_HOLDABLE ) ) )
+    {
+      PM_AddEvent( EV_NOAMMO );
+      pm->ps->weaponTime += 500;
+    }
+    else
+      pm->ps->weaponTime += 50;
 
     if( pm->ps->weaponstate == WEAPON_FIRING )
       pm->ps->weaponstate = WEAPON_READY;
@@ -3002,7 +3066,6 @@ static void PM_Weapon( void )
     case WP_LUCIFER_CANNON:
       attack1 = pm->cmd.buttons & BUTTON_ATTACK;
       attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
-      attack3 = qfalse;
       
       // Prevent firing of the Lucifer Cannon after an overcharge
       if( pm->ps->weaponstate == WEAPON_NEEDS_RESET )
@@ -3012,28 +3075,26 @@ static void PM_Weapon( void )
         pm->ps->weaponstate = WEAPON_READY;
       }
 
+      // Can't fire secondary while primary is charging
       if( attack1 || pm->ps->stats[ STAT_MISC ] > 0 )
         attack2 = qfalse;
-      if( ( attack1 || pm->ps->stats[ STAT_MISC ] == 0 ) && !attack2 && !attack3 )
+        
+      if( ( attack1 || pm->ps->stats[ STAT_MISC ] == 0 ) && !attack2 )
       {
-        attack2 = qfalse;
+        pm->ps->weaponTime = 0;
 
-        if( pm->ps->stats[ STAT_MISC ] < LCANNON_TOTAL_CHARGE )
+        // Charging
+        if( pm->ps->stats[ STAT_MISC ] < LCANNON_CHARGE_TIME_MAX )
         {
-          // Charging
-          pm->ps->weaponTime = 0;
           pm->ps->weaponstate = WEAPON_READY;
           return;
         }
-        else
-        {
-          // Overcharge
-          pm->ps->weaponTime = 0;
-          pm->ps->weaponstate = WEAPON_NEEDS_RESET;
-        }
+
+        // Overcharge
+        pm->ps->weaponstate = WEAPON_NEEDS_RESET;
       }
 
-      if( pm->ps->stats[ STAT_MISC ] > LCANNON_MIN_CHARGE )
+      if( pm->ps->stats[ STAT_MISC ] > LCANNON_CHARGE_TIME_MIN )
       {
         // Fire primary attack
         attack1 = qtrue;
@@ -3091,7 +3152,6 @@ static void PM_Weapon( void )
       //hacky special case for slowblob
       if( pm->ps->weapon == WP_ALEVEL3_UPG && !pm->ps->ammo )
       {
-        PM_AddEvent( EV_NOAMMO );
         pm->ps->weaponTime += 200;
         return;
       }
@@ -3180,8 +3240,7 @@ static void PM_Weapon( void )
     if( pm->ps->weapon == WP_ALEVEL4 )
     {
       //hack to get random attack animations
-      //FIXME: does pm->ps->weaponTime cycle enough?
-      int num = abs( pm->ps->weaponTime ) % 3;
+      int num = abs( pm->ps->commandTime ) % 3;
 
       if( num == 0 )
         PM_ForceLegsAnim( NSPA_ATTACK1 );
@@ -3209,17 +3268,16 @@ static void PM_Weapon( void )
   // take an ammo away if not infinite
   if( !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
   {
-    //special case for lcannon
+    // Special case for lcannon
     if( pm->ps->weapon == WP_LUCIFER_CANNON && attack1 && !attack2 )
-    {
-      pm->ps->ammo -= (int)( ceil( ( (float)pm->ps->stats[ STAT_MISC ] / (float)LCANNON_TOTAL_CHARGE ) * 10.0f ) );
-
-      //stay on the safe side
-      if( pm->ps->ammo < 0 )
-        pm->ps->ammo = 0;
-    }
+      pm->ps->ammo -= ( pm->ps->stats[ STAT_MISC ] * LCANNON_CHARGE_AMMO +
+                LCANNON_CHARGE_TIME_MAX - 1 ) / LCANNON_CHARGE_TIME_MAX;
     else
       pm->ps->ammo--;
+
+    // Stay on the safe side
+    if( pm->ps->ammo < 0 )
+      pm->ps->ammo = 0;
   }
   else if( pm->ps->weapon == WP_ALEVEL3_UPG && attack3 )
   {

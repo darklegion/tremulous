@@ -471,7 +471,7 @@ static void CG_OffsetFirstPersonView( void )
     if( ps->stats[ STAT_MISC ] > 0 )
     {
       float fraction = (float)ps->stats[ STAT_MISC ] /
-        (float)LEVEL4_TRAMPLE_CHARGE_MAX;
+                       LEVEL4_TRAMPLE_CHARGE_MAX;
 
       if( fraction > 1.0f )
         fraction = 1.0f;

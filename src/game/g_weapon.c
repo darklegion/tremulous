@@ -772,18 +772,13 @@ void LCChargeFire( gentity_t *ent, qboolean secondary )
   gentity_t *m;
 
   if( secondary && ent->client->ps.stats[ STAT_MISC ] <= 0 )
-  {
     m = fire_luciferCannon( ent, muzzle, forward, LCANNON_SECONDARY_DAMAGE,
-      LCANNON_SECONDARY_RADIUS, LCANNON_SECONDARY_SPEED );
-    ent->client->ps.stats[ STAT_MISC2 ] = LCANNON_REPEAT;
-  }
+                            LCANNON_SECONDARY_RADIUS, LCANNON_SECONDARY_SPEED );
   else
-  {
     m = fire_luciferCannon( ent, muzzle, forward,
-      ent->client->ps.stats[ STAT_MISC ], LCANNON_RADIUS, LCANNON_SPEED );
-    ent->client->ps.stats[ STAT_MISC2 ] = LCANNON_CHARGEREPEAT -
-      ( level.time - ent->client->lcannonStartTime );
-  }
+                            ent->client->ps.stats[ STAT_MISC ] *
+                            LCANNON_DAMAGE / LCANNON_CHARGE_TIME_MAX,
+                            LCANNON_RADIUS, LCANNON_SPEED );
 
   ent->client->ps.stats[ STAT_MISC ] = 0;
 }
@@ -1360,7 +1355,8 @@ void G_ChargeAttack( gentity_t *ent, gentity_t *victim )
   int       damage;
   vec3_t    forward, normal;
 
-  if( ent->client->ps.stats[ STAT_MISC ] <= 0 || !ent->client->charging )
+  if( ent->client->ps.stats[ STAT_MISC ] <= 0 ||
+      !( ent->client->ps.stats[ STAT_STATE ] & SS_CHARGING ) )
     return;
 
   VectorSubtract( victim->s.origin, ent->s.origin, forward );
@@ -1372,11 +1368,11 @@ void G_ChargeAttack( gentity_t *ent, gentity_t *victim )
 
   WideBloodSpurt( ent, victim, NULL );
 
-  damage = (int)( ( (float)ent->client->ps.stats[ STAT_MISC ] /
-    (float)LEVEL4_TRAMPLE_CHARGE_MAX ) * LEVEL4_TRAMPLE_DMG );
+  damage = LEVEL4_TRAMPLE_DMG * ent->client->ps.stats[ STAT_MISC ] /
+           LEVEL4_TRAMPLE_CHARGE_MAX;
 
   G_Damage( victim, ent, ent, forward, victim->s.origin, damage,
-    0, MOD_LEVEL4_TRAMPLE );
+            0, MOD_LEVEL4_TRAMPLE );
 
   if( !victim->client )
     ent->client->ps.stats[ STAT_MISC ] = 0;

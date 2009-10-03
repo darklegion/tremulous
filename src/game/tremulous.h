@@ -115,24 +115,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL4_CLAW_K_SCALE         1.0f
 #define LEVEL4_REGEN_RANGE          200.0f
 
-#define LEVEL4_TRAMPLE_SPEED           2.0f
-#define LEVEL4_TRAMPLE_TRIGGER_TIME    3000
-#define LEVEL4_TRAMPLE_CHARGE_MIN_TIME 375
-#define LEVEL4_TRAMPLE_CHARGE_MAX_TIME 1000
-#define LEVEL4_TRAMPLE_DURATION        3000
 #define LEVEL4_TRAMPLE_DMG             ADM(110)
+#define LEVEL4_TRAMPLE_SPEED           2.0f
+#define LEVEL4_TRAMPLE_CHARGE_TIME_MIN 375
+#define LEVEL4_TRAMPLE_CHARGE_TIME_MAX 1000
+#define LEVEL4_TRAMPLE_DURATION        3000
+#define LEVEL4_TRAMPLE_STOP_PENALTY    1     // msec of charge lost when stopped
 
-#define LEVEL4_TRAMPLE_CHARGE_RATE     2.0f
-#define LEVEL4_TRAMPLE_CHARGE_TRIGGER  ( LEVEL4_TRAMPLE_TRIGGER_TIME * \
-                                         LEVEL4_TRAMPLE_CHARGE_RATE )
-#define LEVEL4_TRAMPLE_CHARGE_MIN      ( LEVEL4_TRAMPLE_CHARGE_MIN_TIME * \
-                                         LEVEL4_TRAMPLE_CHARGE_RATE )
-#define LEVEL4_TRAMPLE_CHARGE_MAX      ( LEVEL4_TRAMPLE_CHARGE_MAX_TIME * \
-                                         LEVEL4_TRAMPLE_CHARGE_RATE )
-#define LEVEL4_TRAMPLE_DISCHARGE_RATE  ( (float)LEVEL4_TRAMPLE_CHARGE_MAX / \
-                                         (float)LEVEL4_TRAMPLE_DURATION )
+#define LEVEL4_TRAMPLE_CHARGE_MIN      ( LEVEL4_TRAMPLE_CHARGE_TIME_MIN * \
+                                         LEVEL4_TRAMPLE_DURATION / \
+                                         LEVEL4_TRAMPLE_CHARGE_TIME_MAX )
+#define LEVEL4_TRAMPLE_CHARGE_MAX        LEVEL4_TRAMPLE_DURATION
 
-#define LEVEL4_CRUSH_DAMAGE_PER_V      0.5f
+#define LEVEL4_CRUSH_DAMAGE_PER_V      0.5f  // damage per falling velocity
 #define LEVEL4_CRUSH_DAMAGE            120   // to players only
 #define LEVEL4_CRUSH_REPEAT            500   // player damage repeat
 
@@ -471,9 +466,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LCANNON_SECONDARY_SPEED     1400
 #define LCANNON_SECONDARY_RELOAD    2000
 #define LCANNON_SPEED               700
-#define LCANNON_CHARGE_TIME         3000
-#define LCANNON_TOTAL_CHARGE        255
-#define LCANNON_MIN_CHARGE          1
+#define LCANNON_CHARGE_TIME_MAX     3000
+#define LCANNON_CHARGE_TIME_MIN     100
+#define LCANNON_CHARGE_TIME_WARN    2000
+#define LCANNON_CHARGE_AMMO         10       // ammo cost of a full charge shot
 
 #define HBUILD_PRICE                0
 #define HBUILD_REPEAT               1000

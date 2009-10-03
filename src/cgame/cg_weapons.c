@@ -872,8 +872,9 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   // Lucifer cannon charge warning beep  	 	 
   if( weaponNum == WP_LUCIFER_CANNON && 		 
       ( cent->currentState.eFlags & EF_WARN_CHARGE ) ) 		 
-    trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, 		 
-                            vec3_origin, cgs.media.lCannonWarningSound );
+    trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin,
+                            vec3_origin, ps ? cgs.media.lCannonWarningSound :
+                                              cgs.media.lCannonWarningSound2 );
 
   if( !noGunModel )
   {
@@ -987,6 +988,9 @@ CG_AddViewWeapon
 Add the weapon, and flash for the player's view
 ==============
 */
+
+#define WEAPON_CLICK_REPEAT 500
+
 void CG_AddViewWeapon( playerState_t *ps )
 {
   refEntity_t   hand;
@@ -1072,27 +1076,16 @@ void CG_AddViewWeapon( playerState_t *ps )
   VectorMA( hand.origin, cg_gun_y.value, cg.refdef.viewaxis[ 1 ], hand.origin );
   VectorMA( hand.origin, ( cg_gun_z.value + fovOffset ), cg.refdef.viewaxis[ 2 ], hand.origin );
 
-  if( weapon == WP_LUCIFER_CANNON )
+  // Lucifer Cannon vibration effect
+  if( weapon == WP_LUCIFER_CANNON && ps->stats[ STAT_MISC ] > 0 )
   {
     float fraction;
 
-    if( ps->stats[ STAT_MISC ] > 0 )
-    {
-      // vibration effect
-      fraction = (float)ps->stats[ STAT_MISC ] / (float)LCANNON_TOTAL_CHARGE;
-      VectorMA( hand.origin, random( ) * fraction, cg.refdef.viewaxis[ 0 ],
-        hand.origin );
-      VectorMA( hand.origin, random( ) * fraction, cg.refdef.viewaxis[ 1 ],
-        hand.origin );
-    }
-    else if( ps->stats[ STAT_MISC2 ] > 0 )
-    {
-      // reloading effect
-      fraction = (float)ps->stats[ STAT_MISC2 ] / 250.0f;
-      fraction = ( fraction > 1.0f ) ? 1.0f : fraction;
-      VectorMA( hand.origin, fraction * -3.0f, cg.refdef.viewaxis[ 2 ],
-        hand.origin );
-    }
+    fraction = (float)ps->stats[ STAT_MISC ] / LCANNON_CHARGE_TIME_MAX;
+    VectorMA( hand.origin, random( ) * fraction, cg.refdef.viewaxis[ 0 ],
+              hand.origin );
+    VectorMA( hand.origin, random( ) * fraction, cg.refdef.viewaxis[ 1 ],
+              hand.origin );
   }
 
   AnglesToAxis( angles, hand.axis );

@@ -217,7 +217,7 @@ typedef enum
   STAT_STAMINA,   // stamina (human only)
   STAT_STATE,     // client states e.g. wall climbing
   STAT_MISC,      // for uh...misc stuff (pounce, trample, lcannon)
-  STAT_MISC2,     // more uh...misc stuff (booster, lcannon repeat)
+  STAT_UNUSED,    // *** UNUSED ***
   STAT_BUILDABLE, // which ghost model to display for building
   STAT_FALLDIST,  // the distance the player fell
   STAT_VIEWLOCK   // direction to lock the view in
@@ -1130,6 +1130,7 @@ void      BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
                                                                const vec3_t, const vec3_t, int, int ),
                                                 vec3_t outOrigin, vec3_t outAngles, trace_t *tr );
 int       BG_GetValueOfPlayer( playerState_t *ps );
+qboolean  BG_PlayerCanChangeWeapon( playerState_t *ps );
 
 int       BG_FindValueOfBuildable( int bclass );
 int       BG_FindBuildNumForName( char *name );
@@ -1316,7 +1317,6 @@ qboolean BG_WeaponIsAllowed( weapon_t weapon );
 qboolean BG_UpgradeIsAllowed( upgrade_t upgrade );
 qboolean BG_ClassIsAllowed( pClass_t class );
 qboolean BG_BuildableIsAllowed( buildable_t buildable );
-qboolean BG_UpgradeClassAvailable( playerState_t *ps );
 
 typedef struct 
 {

@@ -125,6 +125,7 @@ vmCvar_t  cg_drawSnapshot;
 vmCvar_t  cg_draw3dIcons;
 vmCvar_t  cg_drawIcons;
 vmCvar_t  cg_drawAmmoWarning;
+vmCvar_t  cg_drawChargeBar;
 vmCvar_t  cg_drawCrosshair;
 vmCvar_t  cg_drawCrosshairNames;
 vmCvar_t  cg_drawRewards;
@@ -268,6 +269,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_draw3dIcons, "cg_draw3dIcons", "1", CVAR_ARCHIVE  },
   { &cg_drawIcons, "cg_drawIcons", "1", CVAR_ARCHIVE  },
   { &cg_drawAmmoWarning, "cg_drawAmmoWarning", "1", CVAR_ARCHIVE  },
+  { &cg_drawChargeBar, "cg_drawChargeBar", "1", CVAR_ARCHIVE  },
   { &cg_drawAttacker, "cg_drawAttacker", "1", CVAR_ARCHIVE  },
   { &cg_drawCrosshair, "cg_drawCrosshair", "1", CVAR_ARCHIVE },
   { &cg_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
@@ -692,6 +694,7 @@ static void CG_RegisterSounds( void )
   cgs.media.tracerSound           = trap_S_RegisterSound( "sound/weapons/tracer.wav", qfalse );
   cgs.media.selectSound           = trap_S_RegisterSound( "sound/weapons/change.wav", qfalse );
   cgs.media.turretSpinupSound     = trap_S_RegisterSound( "sound/buildables/mgturret/spinup.wav", qfalse );
+  cgs.media.weaponEmptyClick      = trap_S_RegisterSound( "sound/weapons/click.wav", qfalse );
 
   cgs.media.talkSound             = trap_S_RegisterSound( "sound/misc/talk.wav", qfalse );
   cgs.media.alienTalkSound        = trap_S_RegisterSound( "sound/misc/alien_talk.wav", qfalse );
@@ -760,6 +763,7 @@ static void CG_RegisterSounds( void )
   cgs.media.buildableRepairedSound  = trap_S_RegisterSound( "sound/buildables/human/repaired.wav", qfalse );
 
   cgs.media.lCannonWarningSound     = trap_S_RegisterSound( "models/weapons/lcannon/warning.wav", qfalse );
+  cgs.media.lCannonWarningSound2    = trap_S_RegisterSound( "models/weapons/lcannon/warning2.wav", qfalse );
 }
 
 
@@ -835,7 +839,7 @@ static void CG_RegisterGraphics( void )
     cgs.media.buildWeaponTimerPie[ i ] = trap_R_RegisterShader( buildWeaponTimerPieShaders[ i ] );
 
   cgs.media.upgradeClassIconShader    = trap_R_RegisterShader( "icons/icona_upgrade.tga" );
-
+  
   cgs.media.balloonShader             = trap_R_RegisterShader( "gfx/sprites/chatballoon" );
 
   cgs.media.disconnectPS              = CG_RegisterParticleSystem( "disconnectPS" );

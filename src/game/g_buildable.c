@@ -1467,7 +1467,7 @@ void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
     return;
 
   client->ps.stats[ STAT_STATE ] |= SS_BOOSTED;
-  client->ps.stats[ STAT_MISC2 ] = BOOST_TIME;
+  client->boostedTime = level.time;
 }
 
 

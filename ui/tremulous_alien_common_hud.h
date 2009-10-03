@@ -224,3 +224,30 @@ itemDef
   decoration
   ownerdraw CG_PLAYER_ALIEN_SENSE
 }
+
+//CHARGE BAR
+itemDef
+{
+  name "charge"
+  rect 292 426 56 8
+  aspectBias ALIGN_CENTER
+  visible MENU_TRUE
+  decoration
+  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
+  ownerdraw CG_PLAYER_CHARGE_BAR
+  background "ui/assets/neutral/charge_cap.tga"
+}
+
+//CHARGE BAR BG
+itemDef
+{
+  name "chargebg"
+  rect 288 422 64 16
+  aspectBias ALIGN_CENTER
+  visible MENU_TRUE
+  decoration
+  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.25
+  ownerdraw CG_PLAYER_CHARGE_BAR_BG
+  background "ui/assets/neutral/charge_bg.tga"
+}
+

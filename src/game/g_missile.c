@@ -438,15 +438,13 @@ gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir,
   int damage, int radius, int speed )
 {
   gentity_t *bolt;
-  int localDamage = (int)( ceil( ( (float)damage /
-                                   (float)LCANNON_TOTAL_CHARGE ) * (float)LCANNON_DAMAGE ) );
 
   VectorNormalize( dir );
 
   bolt = G_Spawn( );
   bolt->classname = "lcannon";
 
-  if( damage == LCANNON_TOTAL_CHARGE )
+  if( damage == LCANNON_DAMAGE )
     bolt->nextthink = level.time;
   else
     bolt->nextthink = level.time + 10000;
@@ -458,8 +456,8 @@ gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir,
   bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
-  bolt->damage = localDamage;
-  bolt->splashDamage = localDamage / 2;
+  bolt->damage = damage;
+  bolt->splashDamage = damage / 2;
   bolt->splashRadius = radius;
   bolt->methodOfDeath = MOD_LCANNON;
   bolt->splashMethodOfDeath = MOD_LCANNON_SPLASH;
@@ -467,7 +465,10 @@ gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir,
   bolt->target_ent = NULL;
   
   // Pass the missile charge through
-  bolt->s.torsoAnim = damage;
+  bolt->s.torsoAnim = ( damage - LCANNON_SECONDARY_DAMAGE ) *
+                      255 / LCANNON_DAMAGE;
+  if( bolt->s.torsoAnim < 0 )
+    bolt->s.torsoAnim = 0;
 
   bolt->s.pos.trType = TR_LINEAR;
   bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;   // move a bit on the very first frame

@@ -1133,6 +1133,11 @@ typedef struct
   playerState_t savedPmoveStates[ NUM_SAVED_STATES ];
   int           stateHead, stateTail;
   int           ping;
+  
+  float         chargeMeterAlpha;
+  float         chargeMeterValue;
+  
+  int           nextWeaponClickTime;
 } cg_t;
 
 
@@ -1179,6 +1184,7 @@ typedef struct
 
   // sounds
   sfxHandle_t tracerSound;
+  sfxHandle_t weaponEmptyClick;
   sfxHandle_t selectSound;
   sfxHandle_t footsteps[ FOOTSTEP_TOTAL ][ 4 ];
   sfxHandle_t talkSound;
@@ -1263,6 +1269,7 @@ typedef struct
   qhandle_t   massDriverTS;
 
   sfxHandle_t lCannonWarningSound;
+  sfxHandle_t lCannonWarningSound2;
 
   qhandle_t   buildWeaponTimerPie[ 8 ];
   qhandle_t   upgradeClassIconShader;
@@ -1409,6 +1416,7 @@ extern  vmCvar_t    cg_drawSnapshot;
 extern  vmCvar_t    cg_draw3dIcons;
 extern  vmCvar_t    cg_drawIcons;
 extern  vmCvar_t    cg_drawAmmoWarning;
+extern  vmCvar_t    cg_drawChargeBar;
 extern  vmCvar_t    cg_drawCrosshair;
 extern  vmCvar_t    cg_drawCrosshairNames;
 extern  vmCvar_t    cg_drawRewards;

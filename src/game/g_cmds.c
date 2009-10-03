@@ -367,7 +367,7 @@ void Cmd_Give_f( gentity_t *ent )
   if( Q_stricmp( name, "poison" ) == 0 )
   {
     ent->client->ps.stats[ STAT_STATE ] |= SS_BOOSTED;
-    ent->client->ps.stats[ STAT_MISC2 ] = BOOST_TIME;
+    ent->client->boostedTime = level.time;
   }
 
   if( give_all || Q_stricmp( name, "ammo" ) == 0 )
@@ -1830,13 +1830,14 @@ void Cmd_ActivateItem_f( gentity_t *ent )
 {
   char  s[ MAX_TOKEN_CHARS ];
   int   upgrade, weapon;
-
+  
   trap_Argv( 1, s, sizeof( s ) );
   
   // "weapon" aliased to whatever weapon you have
   if( !Q_stricmp( "weapon", s ) )
   {
-    if( ent->client->ps.weapon == WP_BLASTER )
+    if( ent->client->ps.weapon == WP_BLASTER &&
+        BG_PlayerCanChangeWeapon( &ent->client->ps ) )
       G_ForceWeaponChange( ent, WP_NONE );  
     return;
   }
@@ -1849,7 +1850,8 @@ void Cmd_ActivateItem_f( gentity_t *ent )
   else if( weapon != WP_NONE &&
            BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
   {
-    if( ent->client->ps.weapon != weapon )
+    if( ent->client->ps.weapon != weapon &&
+        BG_PlayerCanChangeWeapon( &ent->client->ps ) )
       G_ForceWeaponChange( ent, weapon );
   }
   else
@@ -1895,9 +1897,11 @@ void Cmd_ToggleItem_f( gentity_t *ent )
 
   if( weapon != WP_NONE )
   {
+    if( !BG_PlayerCanChangeWeapon( &ent->client->ps ) )
+      return;
+
     //special case to allow switching between
     //the blaster and the primary weapon
-
     if( ent->client->ps.weapon != WP_BLASTER )
       weapon = WP_BLASTER;
     else
@@ -2037,6 +2041,9 @@ void Cmd_Buy_f( gentity_t *ent )
       trap_SendServerCommand( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
       return;
     }
+    
+    if( !BG_PlayerCanChangeWeapon( &ent->client->ps ) )
+      return;
 
     //add to inventory
     BG_AddWeaponToInventory( weapon, ent->client->ps.stats );
@@ -2164,6 +2171,9 @@ void Cmd_Sell_f( gentity_t *ent )
 
   if( weapon != WP_NONE )
   {
+    if( !BG_PlayerCanChangeWeapon( &ent->client->ps ) )
+      return;
+  
     //are we /allowed/ to sell this?
     if( !BG_FindPurchasableForWeapon( weapon ) )
     {
@@ -2229,6 +2239,9 @@ void Cmd_Sell_f( gentity_t *ent )
   }
   else if( !Q_stricmp( s, "weapons" ) )
   {
+    if( !BG_PlayerCanChangeWeapon( &ent->client->ps ) )
+      return;
+
     for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
     {
       //guard against selling the HBUILD weapons exploit
@@ -2502,8 +2515,10 @@ void G_FollowLockView( gentity_t *ent )
   vec3_t spawn_origin, spawn_angles;
   int clientNum;
   
+  clientNum = ent->client->sess.spectatorClient;
   ent->client->sess.sessionTeam = TEAM_SPECTATOR;
   ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+  ent->client->ps.clientNum = clientNum;
   ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
   ent->client->ps.pm_flags &= ~PMF_FOLLOW;
   ent->client->ps.stats[ STAT_PTEAM ] = ent->client->pers.teamSelection;
@@ -2512,7 +2527,6 @@ void G_FollowLockView( gentity_t *ent )
   ent->client->ps.stats[ STAT_VIEWLOCK ] = 0;
   ent->client->ps.eFlags &= ~EF_WALLCLIMB;
   ent->client->ps.viewangles[ PITCH ] = 0.0f;
-  clientNum = ent->client->ps.clientNum = ent->client->sess.spectatorClient;
 
   // Put the view at the team spectator lock position
   if( level.clients[ clientNum ].pers.teamSelection == PTE_ALIENS )
@@ -2595,6 +2609,11 @@ qboolean G_FollowNewClient( gentity_t *ent, int dir )
     // this is good, we can use it
     ent->client->sess.spectatorClient = clientnum;
     ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+    
+    // if this client is in the spawn queue, we need to do something special
+    if( level.clients[ clientnum ].sess.sessionTeam == TEAM_SPECTATOR )
+      G_FollowLockView( ent );
+    
     return qtrue;
 
   } while( clientnum != original );

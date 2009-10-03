@@ -13,7 +13,7 @@
 #define TOPBUTT_H     30
 
 #define CONTENT_X     BORDER
-#define CONTENT_Y     ((2*BORDER)+TOPBUTT_H)
+#define CONTENT_Y     ((1.5*BORDER)+TOPBUTT_H)
 #define CONTENT_W     (W-(2*BORDER))
 #define CONTENT_OFF   (0-(CONTENT_W/2))
 
@@ -390,6 +390,26 @@
       text "Sticky Spectate:"
       cvar "cg_stickySpec"
       rect CONTENT_X (CONTENT_Y+(12*ELEM_H)) CONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name game
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Show Charge Bar:"
+      cvar "cg_drawChargeBar"
+      rect CONTENT_X (CONTENT_Y+(13*ELEM_H)) CONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx CONTENT_OFF

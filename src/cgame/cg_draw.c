@@ -588,21 +588,15 @@ CG_DrawPlayerBoosterBolt
 */
 static void CG_DrawPlayerBoosterBolt( rectDef_t *rect, vec4_t color, qhandle_t shader )
 {
-  vec4_t        localColor;
-  playerState_t *ps = &cg.snap->ps;
+  vec4_t localColor;
 
   Vector4Copy( color, localColor );
 
-  if( ps->stats[ STAT_STATE ] & SS_BOOSTED )
-  {
-    if( ps->stats[ STAT_MISC2 ] < 3000 )
-    {
-      qboolean flash = ( ps->stats[ STAT_MISC2 ] / 500 ) % 2;
-
-      if( flash )
-        localColor[ 3 ] = 1.0f;
-    }
-  }
+  // Flash bolts when the boost is almost out
+  if( ( cg.snap->ps.stats[ STAT_STATE ] & SS_BOOSTED ) &&
+      cg.boostedTime > 0 && cg.time - cg.boostedTime > BOOST_TIME - 5000 &&
+      cg.time & 256 )
+    localColor[ 3 ] = 1.0f;
 
   trap_R_SetColor( localColor );
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
@@ -901,6 +895,123 @@ static void CG_DrawPlayerHealthCross3( rectDef_t *rect, vec4_t color, qhandle_t 
   
   trap_R_SetColor( color );
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
+}
+
+static float CG_ChargeProgress( void )
+{
+  float progress;
+  int min = 0, max = 0;
+
+  if( cg.snap->ps.weapon == WP_ALEVEL3 )
+  {
+    min = LEVEL3_POUNCE_TIME_MIN;
+    max = LEVEL3_POUNCE_TIME;
+  }
+  else if( cg.snap->ps.weapon == WP_ALEVEL3_UPG )
+  {
+    min = LEVEL3_POUNCE_TIME_MIN;
+    max = LEVEL3_POUNCE_TIME_UPG;
+  }
+  else if( cg.snap->ps.weapon == WP_ALEVEL4 )
+  {
+    min = LEVEL4_TRAMPLE_CHARGE_MIN;
+    max = LEVEL4_TRAMPLE_CHARGE_MAX;
+  }
+  else if( cg.snap->ps.weapon == WP_LUCIFER_CANNON )
+  {
+    min = LCANNON_CHARGE_TIME_MIN;
+    max = LCANNON_CHARGE_TIME_MAX;
+  }
+  if( max - min < 0.0f )
+    return 0.0f;
+  progress = ( (float)cg.predictedPlayerState.stats[ STAT_MISC ] - min ) /
+             ( max - min );
+  if( progress > 1.0f )
+    return 1.0f;
+  if( progress < 0.0f )
+    return 0.0f;
+  return progress;
+}
+
+#define CHARGE_BAR_FADE_RATE 0.002f
+
+static void CG_DrawPlayerChargeBarBG( rectDef_t *rect, vec4_t ref_color,
+                                      qhandle_t shader )
+{
+  vec4_t color;
+  
+  if( !cg_drawChargeBar.integer || cg.chargeMeterAlpha <= 0.0f )
+    return;
+
+  color[ 0 ] = ref_color[ 0 ];
+  color[ 1 ] = ref_color[ 1 ];
+  color[ 2 ] = ref_color[ 2 ];
+  color[ 3 ] = ref_color[ 3 ] * cg.chargeMeterAlpha;
+
+  // Draw meter background
+  trap_R_SetColor( color );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+  trap_R_SetColor( NULL );
+}
+
+static void CG_DrawPlayerChargeBar( rectDef_t *rect, vec4_t ref_color,
+                                    qhandle_t shader )
+{
+  vec4_t color;
+  float x, y, width, height, cap_width, progress;
+  
+  if( !cg_drawChargeBar.integer )
+    return;
+  
+  // Get progress proportion and pump fade
+  progress = CG_ChargeProgress();
+  if( progress <= 0.0f )
+  {
+    cg.chargeMeterAlpha -= CHARGE_BAR_FADE_RATE * cg.frametime;
+    if( cg.chargeMeterAlpha <= 0.0f )
+    {
+      cg.chargeMeterAlpha = 0.0f;
+      return;
+    }
+  }
+  else
+  {
+    cg.chargeMeterValue = progress;
+    cg.chargeMeterAlpha += CHARGE_BAR_FADE_RATE * cg.frametime;
+    if( cg.chargeMeterAlpha > 1.0f )
+      cg.chargeMeterAlpha = 1.0f;
+  }
+
+  color[ 0 ] = ref_color[ 0 ];
+  color[ 1 ] = ref_color[ 1 ];
+  color[ 2 ] = ref_color[ 2 ];
+  color[ 3 ] = ref_color[ 3 ] * cg.chargeMeterAlpha;
+  
+  // Flash red for Lucifer Cannon warning
+  if( cg.snap->ps.weapon == WP_LUCIFER_CANNON &&
+      cg.snap->ps.stats[ STAT_MISC ] >= LCANNON_CHARGE_TIME_WARN &&
+      ( cg.time & 128 ) )
+  {
+    color[ 0 ] = 1.0f;
+    color[ 1 ] = 0.0f;
+    color[ 2 ] = 0.0f;
+  }
+
+  // Calculate bar coords  
+  x = rect->x;
+  y = rect->y;
+  width = ( rect->w - 6 ) * cg.chargeMeterValue;
+  height = rect->h;
+  CG_AdjustFrom640( &x, &y, &width, &height );
+  cap_width = 3 * cgs.screenXScale;
+  
+  // Draw the meter
+  trap_R_SetColor( color );
+  trap_R_DrawStretchPic( x, y, cap_width, height, 0, 0, 1, 1, shader );
+  trap_R_DrawStretchPic( x + width + cap_width, y, cap_width, height,
+                         1, 0, 0, 1, shader );
+  trap_R_DrawStretchPic( x + cap_width, y, width, height, 1, 0, 1, 1, shader );
   trap_R_SetColor( NULL );
 }
 
@@ -2150,6 +2261,12 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       break;
     case CG_PLAYER_HEALTH_CROSS3:
       CG_DrawPlayerHealthCross3( &rect, color, shader );
+      break;
+    case CG_PLAYER_CHARGE_BAR_BG:
+      CG_DrawPlayerChargeBarBG( &rect, color, shader );
+      break;
+    case CG_PLAYER_CHARGE_BAR:
+      CG_DrawPlayerChargeBar( &rect, color, shader );
       break;
     case CG_PLAYER_CLIPS_RING:
       CG_DrawPlayerClipsRing( &rect, color, shader );
