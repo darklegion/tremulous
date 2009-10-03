@@ -2916,7 +2916,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
 
   // Make sure we're not removing the last spawn
   if( !g_cheats.integer && remainingSpawns > 0 && ( remainingSpawns - spawnCount ) < 1 )
-    return bpError;
+    return IBE_LASTSPAWN;
 
   // Not enough points yielded
   if( pointsYielded < buildPoints )
@@ -3422,6 +3422,10 @@ qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
 
     case IBE_RPTPOWERHERE:
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPTPOWERHERE );
+      return qfalse;
+
+    case IBE_LASTSPAWN:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_B_LASTSPAWN );
       return qfalse;
 
     default:

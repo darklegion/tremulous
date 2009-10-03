@@ -1715,8 +1715,7 @@ void Cmd_Destroy_f( gentity_t *ent )
 
   if( ent->client->pers.denyBuild )
   {
-    trap_SendServerCommand( ent-g_entities,
-      "print \"Your building rights have been revoked\n\"" );
+    G_TriggerMenu( ent->client->ps.clientNum, MN_B_REVOKED );
     return;
   }
 
@@ -1762,13 +1761,19 @@ void Cmd_Destroy_f( gentity_t *ent )
             traceEnt->s.modelindex == BA_A_SPAWN )
         {
           if( level.numAlienSpawns <= 1 )
+          {
+            G_TriggerMenu( ent->client->ps.clientNum, MN_B_LASTSPAWN );
             return;
+          }
         }
         else if( ent->client->pers.teamSelection == PTE_HUMANS &&
                  traceEnt->s.modelindex == BA_H_SPAWN )
         {
           if( level.numHumanSpawns <= 1 )
+          {
+            G_TriggerMenu( ent->client->ps.clientNum, MN_B_LASTSPAWN );
             return;
+          }
         }
       }
 

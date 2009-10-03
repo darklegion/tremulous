@@ -725,7 +725,7 @@ typedef enum
 
   IBE_ONEREACTOR,
   IBE_NOPOWERHERE,
-  IBE_TNODEWARN, // not currently sued
+  IBE_TNODEWARN, // not currently used
   IBE_RPTNOREAC,
   IBE_RPTPOWERHERE,
   IBE_NOHUMANBP,
@@ -734,6 +734,7 @@ typedef enum
   IBE_NORMAL, // too steep
   IBE_NOROOM,
   IBE_PERMISSION,
+  IBE_LASTSPAWN,
 
   IBE_MAXERRORS
 } itemBuildError_t;

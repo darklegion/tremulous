@@ -605,6 +605,14 @@ void CG_Menu( int menu, int arg )
       type      = DT_BUILD;
       break;
 
+    // FIXME: MN_H_ and MN_A_?
+    case MN_B_LASTSPAWN:
+      longMsg   = "This action would remove your team's last spawn point, "
+                  "which often quickly results in a loss. Try building more "
+                  "spawns.";
+      shortMsg  = "You may not deconstruct the last spawn";
+      break;
+
     case MN_B_SUDDENDEATH:
       longMsg   = "Neither team has prevailed after a certain time and the "
                   "game has entered Sudden Death. During Sudden Death "
