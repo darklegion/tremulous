@@ -191,54 +191,65 @@ void G_SetClientSound( gentity_t *ent )
 
 //==============================================================
 
-static void G_ClientShove( gentity_t *ent, gentity_t *victim )
+/*
+==============
+ClientShove
+==============
+*/
+static int GetClientMass( gentity_t *ent )
 {
-  vec3_t  dir, push;
-  int entMass = 200, vicMass = 200;
+  int entMass = 100;
 
-  // shoving enemies changes gameplay too much
-  if( !OnSameTeam( ent, victim ) )
-    return;
-
-  // alien mass is directly related to their health points
-  // human mass is 200, double for bsuit  
   if( ent->client->pers.teamSelection == PTE_ALIENS )
-  {
     entMass = BG_FindHealthForClass( ent->client->pers.classSelection );
-  }
   else if( ent->client->pers.teamSelection == PTE_HUMANS )
   {
     if( BG_InventoryContainsUpgrade( UP_BATTLESUIT, ent->client->ps.stats ) )
       entMass *= 2;
   }
   else
+    return 0;
+  return entMass;
+}
+
+static void ClientShove( gentity_t *ent, gentity_t *victim )
+{
+  vec3_t dir, push;
+  float force;
+  int entMass, vicMass;
+  
+  // Don't push if the entity is not trying to move
+  if( !ent->client->pers.cmd.rightmove && !ent->client->pers.cmd.forwardmove &&
+      !ent->client->pers.cmd.upmove )
     return;
 
-  if( victim->client->pers.teamSelection == PTE_ALIENS )
-  {
-    vicMass = BG_FindHealthForClass( victim->client->pers.classSelection );
-  }
-  else if( BG_InventoryContainsUpgrade( UP_BATTLESUIT,
-    victim->client->ps.stats ) )
-  {
-    vicMass *= 2;
-  }
-
+  // Shove is scaled by relative mass
+  entMass = GetClientMass( ent );
+  vicMass = GetClientMass( victim );
   if( vicMass <= 0 || entMass <= 0 )
     return;
 
+  // Give the victim some shove velocity
   VectorSubtract( victim->r.currentOrigin, ent->r.currentOrigin, dir );
   VectorNormalizeFast( dir );
+  force = g_shove.value * entMass / vicMass;
+  VectorScale( dir, force, push );
+  VectorAdd( victim->client->ps.velocity, push, victim->client->ps.velocity );
 
-  // don't break the dretch elevator
-  if( abs( dir[ 2 ] ) > abs( dir[ 0 ] ) && abs( dir[ 2 ] ) > abs( dir[ 1 ] ) )
-    return;
+  // Set the pmove timer so that the other client can't cancel
+  // out the movement immediately
+  if( !victim->client->ps.pm_time )
+  {
+    int time;
 
-  VectorScale( dir,
-    ( g_shove.value * ( ( float )entMass / ( float )vicMass ) ), push );
-  VectorAdd( victim->client->ps.velocity, push,
-                victim->client->ps.velocity );
-
+    time = force * 2 + 0.5f;
+    if( time < 50 )
+      time = 50;
+    if( time > 200 )
+      time = 200;
+    victim->client->ps.pm_time = time;
+    victim->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
+  }
 }
 
 /*
@@ -252,19 +263,11 @@ void ClientImpacts( gentity_t *ent, pmove_t *pm )
   trace_t   trace;
   gentity_t *other;
 
+  // clear a fake trace struct for touch function
   memset( &trace, 0, sizeof( trace ) );
 
   for( i = 0; i < pm->numtouch; i++ )
   {
-    for( j = 0; j < i; j++ )
-    {
-      if( pm->touchents[ j ] == pm->touchents[ i ] )
-        break;
-    }
-
-    if( j != i )
-      continue; // duplicated
-
     other = &g_entities[ pm->touchents[ i ] ];
 
     // see G_UnlaggedDetectCollisions(), this is the inverse of that.
@@ -278,17 +281,16 @@ void ClientImpacts( gentity_t *ent, pmove_t *pm )
     if( ent->client->ps.weapon == WP_ALEVEL4 )
     {
       G_ChargeAttack( ent, other );
-      G_CrushAttack( ent, other,
-                     ( pm->cmd.serverTime - pm->ps->commandTime ) * 0.001f );
+      G_CrushAttack( ent, other );
     }
 
+    // shove players
     if( ent->client && other->client )
-      G_ClientShove( ent, other );
+      ClientShove( ent, other );
 
-    if( !other->touch )
-      continue;
-
-    other->touch( other, ent, &trace );
+    // touch triggers
+    if( other->touch )
+      other->touch( other, ent, &trace );
   }
 }
 

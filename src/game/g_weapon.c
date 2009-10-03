@@ -1398,7 +1398,7 @@ G_CrushAttack
 Should only be called if there was an impact between a tyrant and another player
 ===============
 */
-void G_CrushAttack( gentity_t *ent, gentity_t *victim, float sec )
+void G_CrushAttack( gentity_t *ent, gentity_t *victim )
 {
   vec3_t dir;
   float jump;

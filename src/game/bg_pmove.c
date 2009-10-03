@@ -1833,7 +1833,7 @@ static void PM_GroundClimbTrace( void )
   //used for delta correction
   vec3_t    traceCROSSsurf, traceCROSSref, surfCROSSref;
   float     traceDOTsurf, traceDOTref, surfDOTref, rTtDOTrTsTt;
-  float     traceANGsurf, traceANGref, surfANGref;
+  float     traceANGref, surfANGref;
   vec3_t    horizontal = { 1.0f, 0.0f, 0.0f }; //arbituary vector perpendicular to refNormal
   vec3_t    refTOtrace, refTOsurfTOtrace, tempVec;
   int       rTtANGrTsTt;
@@ -1910,10 +1910,9 @@ static void PM_GroundClimbTrace( void )
         pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
         break;
     }
-
+    
     //if we hit something
-    if( trace.fraction < 1.0f && !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) &&
-        !( trace.entityNum != ENTITYNUM_WORLD && i != 4 ) )
+    if( trace.fraction < 1.0f && !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) )
     {
       if( i == 2 || i == 3 )
       {
@@ -1935,10 +1934,6 @@ static void PM_GroundClimbTrace( void )
 
       //calculate angle between surf and trace
       traceDOTsurf = DotProduct( trace.plane.normal, surfNormal );
-      traceANGsurf = RAD2DEG( acos( traceDOTsurf ) );
-
-      if( traceANGsurf > 180.0f )
-        traceANGsurf -= 180.0f;
 
       //calculate angle between trace and ref
       traceDOTref = DotProduct( trace.plane.normal, refNormal );
@@ -1970,7 +1965,6 @@ static void PM_GroundClimbTrace( void )
 
           //calculate reference rotated through to surf plane then to trace plane
           RotatePointAroundVector( tempVec, surfCROSSref, horizontal, -surfANGref );
-          RotatePointAroundVector( refTOsurfTOtrace, traceCROSSsurf, tempVec, -traceANGsurf );
 
           //calculate angle between refTOtrace and refTOsurfTOtrace
           rTtDOTrTsTt = DotProduct( refTOtrace, refTOsurfTOtrace );
@@ -1996,24 +1990,11 @@ static void PM_GroundClimbTrace( void )
         //construct a point representing where the player is looking
         VectorAdd( pm->ps->origin, lookdir, point );
 
-        //check whether point is on one side of the plane, if so invert the correction angle
-        if( ( abc[ 0 ] * point[ 0 ] + abc[ 1 ] * point[ 1 ] + abc[ 2 ] * point[ 2 ] - d ) > 0 )
-          traceANGsurf = -traceANGsurf;
-
         //find the . product of the lookdir and traceCROSSsurf
         if( ( ldDOTtCs = DotProduct( lookdir, traceCROSSsurf ) ) < 0.0f )
         {
           VectorInverse( traceCROSSsurf );
           ldDOTtCs = DotProduct( lookdir, traceCROSSsurf );
-        }
-
-        //set the correction angle
-        traceANGsurf *= 1.0f - ldDOTtCs;
-
-        if( !( pm->ps->persistant[ PERS_STATE ] & PS_WALLCLIMBINGFOLLOW ) )
-        {
-          //correct the angle
-          pm->ps->delta_angles[ PITCH ] -= ANGLE2SHORT( traceANGsurf );
         }
 
         //transition from wall to ceiling
@@ -2048,7 +2029,7 @@ static void PM_GroundClimbTrace( void )
         VectorCopy( trace.plane.normal, pm->ps->grapplePoint );
         pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
       }
-
+      
       //IMPORTANT: break out of the for loop if we've hit something
       break;
     }
@@ -2144,7 +2125,7 @@ static void PM_GroundTrace( void )
         pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
     }
 
-    if( pm->ps->pm_type == PM_DEAD )
+    if( pm->ps->pm_type == PM_DEAD || pm->ps->pm_time )
       pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
 
     if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
@@ -2318,7 +2299,7 @@ static void PM_GroundTrace( void )
 
     if( BG_ClassHasAbility( pm->ps->stats[ STAT_PCLASS ], SCA_TAKESFALLDAMAGE ) )
       PM_CrashLand( );
-    }
+  }
 
   pm->ps->groundEntityNum = trace.entityNum;
 
