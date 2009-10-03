@@ -638,9 +638,9 @@ void AGeneric_CreepCheck( gentity_t *self )
   {
     if( spawn && self->killedBy != ENTITYNUM_NONE )
       G_Damage( self, NULL, g_entities + self->killedBy, NULL, NULL,
-                self->health, 0, MOD_SUICIDE );
+                self->health, 0, MOD_NOCREEP );
     else
-      G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
+      G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_NOCREEP );
     return;
   }
   G_CreepSlow( self );
@@ -2782,7 +2782,7 @@ void G_FreeMarkedBuildables( gentity_t *deconner )
   {
     ent = level.markedBuildables[ i ];
 
-    G_Damage( ent, NULL, deconner, NULL, NULL, ent->health, 0, MOD_SUICIDE );      
+    G_Damage( ent, NULL, deconner, NULL, NULL, ent->health, 0, MOD_DECONSTRUCT );      
     G_FreeEntity( ent );
   }
 }
