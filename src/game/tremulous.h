@@ -97,7 +97,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL3_CLAW_U_K_SCALE       1.0f
 #define LEVEL3_POUNCE_DMG           ADM(100)
 #define LEVEL3_POUNCE_RANGE         72.0f
-#define LEVEL3_POUNCE_WIDTH         16.0f
+#define LEVEL3_POUNCE_WIDTH         14.0f
 #define LEVEL3_POUNCE_SPEED         700
 #define LEVEL3_POUNCE_UPG_SPEED     800
 #define LEVEL3_POUNCE_SPEED_MOD     0.75f
@@ -278,7 +278,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ACIDTUBE_SPLASHDAMAGE       50
 #define ACIDTUBE_SPLASHRADIUS       50
 #define ACIDTUBE_CREEPSIZE          120
-#define ACIDTUBE_DAMAGE             10
+#define ACIDTUBE_DAMAGE             8
 #define ACIDTUBE_RANGE              300.0f
 #define ACIDTUBE_REPEAT             300
 #define ACIDTUBE_REPEAT_ANIM        2000
