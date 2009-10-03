@@ -1342,7 +1342,7 @@ pain function for Alien Hive
 */
 void AHive_Pain( gentity_t *self, gentity_t *attacker, int damage )
 {
-  if( self->powered && !self->active )
+  if( self->spawned && self->powered && !self->active )
     AHive_CheckTarget( self, attacker );
 
   G_SetBuildableAnim( self, BANIM_PAIN1, qfalse );
