@@ -1659,6 +1659,8 @@ void Cmd_Class_f( gentity_t *ent )
       {
         if( cost >= 0 )
         {
+          int oldBoostTime = -1;
+
           ent->client->pers.evolveHealthFraction = (float)ent->client->ps.stats[ STAT_HEALTH ] /
             (float)BG_FindHealthForClass( currentClass );
 
@@ -1672,7 +1674,17 @@ void Cmd_Class_f( gentity_t *ent )
           ent->client->pers.classSelection = newClass;
           ClientUserinfoChanged( clientNum );
           VectorCopy( infestOrigin, ent->s.pos.trBase );
+
+          if( ent->client->ps.stats[ STAT_STATE ] & SS_BOOSTED )
+            oldBoostTime = ent->client->boostedTime;
+
           ClientSpawn( ent, ent, ent->s.pos.trBase, ent->s.apos.trBase );
+
+          if( oldBoostedTime > 0 )
+          {
+            ent->client->boostedTime = oldBoostTime;
+            ent->client->ps.stats[ STAT_STATE ] |= SS_BOOSTED;
+          }
         }
         else
           G_TriggerMenu2( clientNum, MN_A_CANTEVOLVE, newClass );
