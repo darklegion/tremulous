@@ -198,7 +198,7 @@ ClientShove
 */
 static int GetClientMass( gentity_t *ent )
 {
-  int entMass = 100;
+  int entMass = 75;
 
   if( ent->client->pers.teamSelection == PTE_ALIENS )
     entMass = BG_FindHealthForClass( ent->client->pers.classSelection );
@@ -223,19 +223,28 @@ static void ClientShove( gentity_t *ent, gentity_t *victim )
       !ent->client->pers.cmd.upmove )
     return;
 
-  // Shove is scaled by relative mass
+  // Cannot push enemy players unless they are walking on the player
+  if( !OnSameTeam( ent, victim ) &&
+      victim->client->ps.groundEntityNum != ent - g_entities )
+    return;      
+
+  // Shove force is scaled by relative mass
   entMass = GetClientMass( ent );
   vicMass = GetClientMass( victim );
   if( vicMass <= 0 || entMass <= 0 )
     return;
+  force = g_shove.value * entMass / vicMass;
+  if( force < 0 )
+    force = 0;
+  if( force > 150 )
+    force = 150;
 
   // Give the victim some shove velocity
   VectorSubtract( victim->r.currentOrigin, ent->r.currentOrigin, dir );
   VectorNormalizeFast( dir );
-  force = g_shove.value * entMass / vicMass;
   VectorScale( dir, force, push );
   VectorAdd( victim->client->ps.velocity, push, victim->client->ps.velocity );
-
+  
   // Set the pmove timer so that the other client can't cancel
   // out the movement immediately
   if( !victim->client->ps.pm_time )
@@ -249,6 +258,11 @@ static void ClientShove( gentity_t *ent, gentity_t *victim )
       time = 200;
     victim->client->ps.pm_time = time;
     victim->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
+
+    // Knock victim off if they are wallwalking on us
+    if( ( victim->client->ps.groundEntityNum == ent - g_entities ) &&
+        ( victim->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING ) )
+      victim->client->ps.pm_flags |= PMF_TIME_KNOCKOFF;
   }
 }
 

@@ -400,7 +400,7 @@ static float PM_CmdScale( usercmd_t *cmd )
         modifier *= PCLOUD_ARMOUR_MODIFIER;
       else
         modifier *= PCLOUD_MODIFIER;
-  }
+    }
   }
 
   if( pm->ps->weapon == WP_ALEVEL4 && pm->ps->pm_flags & PMF_CHARGE )
@@ -2141,7 +2141,8 @@ static void PM_GroundTrace( void )
         pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
     }
 
-    if( pm->ps->pm_type == PM_DEAD || pm->ps->pm_time )
+    if( pm->ps->pm_type == PM_DEAD ||
+        ( pm->ps->pm_time && ( pm->ps->pm_flags & PMF_TIME_KNOCKOFF ) ) )
       pm->ps->stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
 
     if( pm->ps->stats[ STAT_STATE ] & SS_WALLCLIMBING )
@@ -3285,6 +3286,12 @@ static void PM_DropTimers( void )
   {
     if( pml.msec >= pm->ps->pm_time )
     {
+      // If this is a toggle wallwalker that got knocked off,
+      // turn their wallwalk back on
+      if( ( pm->ps->pm_flags & PMF_TIME_KNOCKOFF ) &&
+          ( pm->ps->persistant[ PERS_STATE ] & PS_WALLCLIMBINGTOGGLE ) )
+        pm->ps->stats[ STAT_STATE ] |= SS_WALLCLIMBING;
+
       pm->ps->pm_flags &= ~PMF_ALL_TIMES;
       pm->ps->pm_time = 0;
     }
