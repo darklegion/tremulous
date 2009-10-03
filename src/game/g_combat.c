@@ -710,13 +710,13 @@ static float GetNonLocDamageModifier( gentity_t *targ, int class )
 
 /*
 ============
-GetDamageRegionModifier
+GetPointDamageModifier
 
 Returns the damage region given an angle and a height proportion
 ============
 */
-static float GetDamageRegionModifier( gentity_t *targ, damageRegion_t *regions,
-                                      int len, float angle, float height )
+static float GetPointDamageModifier( gentity_t *targ, damageRegion_t *regions,
+                                     int len, float angle, float height )
 {
   float modifier = 1.f;
   int i;
@@ -771,37 +771,48 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
     VectorCopy( targ->client->unlaggedCalc.origin, targOrigin );
   else
     VectorCopy( targ->r.currentOrigin, targOrigin );
+
   BG_GetClientNormal( &targ->client->ps, normal );
   VectorMA( targOrigin, targ->r.mins[ 2 ], normal, floor );
   VectorSubtract( point, floor, pMINUSfloor );
 
   // Get the proportion of the target height where the hit landed
   clientHeight = targ->r.maxs[ 2 ] - targ->r.mins[ 2 ];
+
+  if( !clientHeight )
+    clientHeight = 1.0f;
+
   hitRelative = DotProduct( normal, pMINUSfloor ) / VectorLength( normal );
+
   if( hitRelative < 0.0f )
     hitRelative = 0.0f;
+
   if( hitRelative > clientHeight )
     hitRelative = clientHeight;
+
   hitRatio = hitRelative / clientHeight;
 
   // Get the yaw of the attack relative to the target's view yaw
   VectorSubtract( targOrigin, point, bulletPath );
   vectoangles( bulletPath, bulletAngle );
-  hitRotation = targ->client->ps.viewangles[ YAW ] - bulletAngle[ YAW ];
+
   if( hitRotation < 0.0f )
     hitRotation += 360.0f;
 
+  hitRotation = AngleNormalize360( targ->client->ps.viewangles[ YAW ] -
+                                   bulletAngle[ YAW ] );
+
   // Get modifiers from the target's damage regions
-  modifier = GetDamageRegionModifier( targ, g_damageRegions[ class ],
-                                      g_numDamageRegions[ class ],
-                                      hitRotation, hitRatio );
+  modifier = GetPointDamageModifier( targ, g_damageRegions[ class ],
+                                     g_numDamageRegions[ class ],
+                                     hitRotation, hitRatio );
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
     if( BG_InventoryContainsUpgrade( i, targ->client->ps.stats ) )
     {
-      modifier *= GetDamageRegionModifier( targ, g_armourRegions[ i ],
-                                           g_numArmourRegions[ i ],
-                                           hitRotation, hitRatio );
+      modifier *= GetPointDamageModifier( targ, g_armourRegions[ i ],
+                                          g_numArmourRegions[ i ],
+                                          hitRotation, hitRatio );
     }
   }
 
