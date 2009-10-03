@@ -1590,7 +1590,9 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     trap_LinkEntity( ent );
 
     // force the base weapon up
-    client->ps.weapon = WP_NONE;
+    if( client->pers.teamSelection == TEAM_HUMANS )
+      G_ForceWeaponChange( ent, weapon );
+
     client->ps.weaponstate = WEAPON_READY;
   }
 
