@@ -309,10 +309,15 @@ void CG_OffsetThirdPersonView( void )
     vec3_t killerPos;
 
     killerEntNum = cg.predictedPlayerState.stats[ STAT_VIEWLOCK ];
-    VectorCopy( cg_entities[ killerEntNum ].lerpOrigin, killerPos );
+    
+    // already looking at ourself
+    if( killerEntNum != cg.snap->ps.clientNum )
+    {
+      VectorCopy( cg_entities[ killerEntNum ].lerpOrigin, killerPos );
 
-    VectorSubtract( killerPos, cg.refdef.vieworg, killerPos );
-    vectoangles( killerPos, cg.refdefViewAngles );
+      VectorSubtract( killerPos, cg.refdef.vieworg, killerPos );
+      vectoangles( killerPos, cg.refdefViewAngles );
+    }
   }
 
   // get and rangecheck cg_thirdPersonRange
