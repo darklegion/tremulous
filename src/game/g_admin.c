@@ -38,7 +38,7 @@ static char g_bfb[ 32000 ];
 // note: list ordered alphabetically
 g_admin_cmd_t g_admin_cmds[ ] =
   {
-    {"adjustban", G_admin_adjustban, "b",
+    {"adjustban", G_admin_adjustban, "ban",
       "change the duration or reason of a ban.  duration is specified as "
       "numbers followed by units 'w' (weeks), 'd' (days), 'h' (hours) or "
       "'m' (minutes), or seconds if no units are specified.  if the duration is"
@@ -47,22 +47,22 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3ban#^7] (^5duration^7) (^5reason^7)"
     },
 
-    {"admintest", G_admin_admintest, "a",
+    {"admintest", G_admin_admintest, "admintest",
       "display your current admin level",
       ""
     },
 
-    {"allowbuild", G_admin_denybuild, "d",
+    {"allowbuild", G_admin_denybuild, "denybuild",
       "restore a player's ability to build",
       "[^3name|slot#^7]"
     },
 
-    {"allready", G_admin_allready, "y",
+    {"allready", G_admin_allready, "allready",
       "makes everyone ready in intermission",
       ""
     },
 
-    {"ban", G_admin_ban, "b",
+    {"ban", G_admin_ban, "ban",
       "ban a player by IP and GUID with an optional expiration time and reason."
       " duration is specified as numbers followed by units 'w' (weeks), 'd' "
       "(days), 'h' (hours) or 'm' (minutes), or seconds if no units are "
@@ -70,120 +70,120 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3name|slot#|IP^7] (^5duration^7) (^5reason^7)"
     },
 
-    {"cancelvote", G_admin_endvote, "c",
+    {"cancelvote", G_admin_endvote, "cancelvote",
       "cancel a vote taking place",
       "(^5a|h^7)"
     },
 
-    {"denybuild", G_admin_denybuild, "d",
+    {"denybuild", G_admin_denybuild, "denybuild",
       "take away a player's ability to build",
       "[^3name|slot#^7]"
     },
 
-    {"help", G_admin_help, "h",
+    {"help", G_admin_help, "help",
       "display commands available to you or help on a specific command",
       "(^5command^7)"
     },
 
-    {"kick", G_admin_kick, "k",
+    {"kick", G_admin_kick, "kick",
       "kick a player with an optional reason",
       "[^3name|slot#^7] (^5reason^7)"
     },
 
-    {"listadmins", G_admin_listadmins, "D",
+    {"listadmins", G_admin_listadmins, "listadmins",
       "display a list of all server admins and their levels",
       "(^5name|start admin#^7)"
     },
 
-    {"listlayouts", G_admin_listlayouts, "L",
+    {"listlayouts", G_admin_listlayouts, "listlayouts",
       "display a list of all available layouts for a map",
       "(^5mapname^7)"
     },
 
-    {"listplayers", G_admin_listplayers, "i",
+    {"listplayers", G_admin_listplayers, "listplayers",
       "display a list of players, their client numbers and their levels",
       ""
     },
 
-    {"lock", G_admin_lock, "K",
+    {"lock", G_admin_lock, "lock",
       "lock a team to prevent anyone from joining it",
       "[^3a|h^7]"
     },
 
-    {"map", G_admin_map, "M",
+    {"map", G_admin_map, "map",
       "load a map (and optionally force layout)",
       "[^3mapname^7] (^5layout^7)"
     },
 
-    {"mute", G_admin_mute, "m",
+    {"mute", G_admin_mute, "mute",
       "mute a player",
       "[^3name|slot#^7]"
     },
 
-    {"namelog", G_admin_namelog, "e",
+    {"namelog", G_admin_namelog, "namelog",
       "display a list of names used by recently connected players",
       "(^5name^7)"
     },
 
-    {"nextmap", G_admin_nextmap, "n",
+    {"nextmap", G_admin_nextmap, "nextmap",
       "go to the next map in the cycle",
       ""
     },
 
-    {"passvote", G_admin_endvote, "V",
+    {"passvote", G_admin_endvote, "passvote",
       "pass a vote currently taking place",
       "(^5a|h^7)"
     },
 
-    {"putteam", G_admin_putteam, "p",
+    {"putteam", G_admin_putteam, "putteam",
       "move a player to a specified team",
       "[^3name|slot#^7] [^3h|a|s^7]"
     },
 
-    {"readconfig", G_admin_readconfig, "G",
+    {"readconfig", G_admin_readconfig, "readconfig",
       "reloads the admin config file and refreshes permission flags",
       ""
     },
 
-    {"rename", G_admin_rename, "N",
+    {"rename", G_admin_rename, "rename",
       "rename a player",
       "[^3name|slot#^7] [^3new name^7]"
     },
 
-    {"restart", G_admin_restart, "r",
+    {"restart", G_admin_restart, "restart",
       "restart the current map (optionally using named layout)",
       "(^5layout^7)"
     },
 
-    {"setlevel", G_admin_setlevel, "s",
+    {"setlevel", G_admin_setlevel, "setlevel",
       "sets the admin level of a player",
       "[^3name|slot#|admin#^7] [^3level^7]"
     },
 
-    {"showbans", G_admin_showbans, "B",
+    {"showbans", G_admin_showbans, "showbans",
       "display a (partial) list of active bans",
       "(^5start at ban#^7) (^5name|IP^7)"
     },
 
-    {"spec999", G_admin_spec999, "P",
+    {"spec999", G_admin_spec999, "spec999",
       "move 999 pingers to the spectator team",
       ""},
 
-    {"time", G_admin_time, "C",
+    {"time", G_admin_time, "time",
       "show the current local server time",
       ""},
 
-    {"unban", G_admin_unban, "b",
+    {"unban", G_admin_unban, "ban",
       "unbans a player specified by the slot as seen in showbans",
       "[^3ban#^7]"
     },
 
-    {"unlock", G_admin_lock, "K",
+    {"unlock", G_admin_lock, "lock",
       "unlock a locked team",
       "[^3a|h^7]"
     },
 
-    {"unmute", G_admin_mute, "m",
+    {"unmute", G_admin_mute, "mute",
       "unmute a muted player",
       "[^3name|slot#^7]"
     }
@@ -198,11 +198,41 @@ g_admin_ban_t *g_admin_bans[ MAX_ADMIN_BANS ];
 g_admin_command_t *g_admin_commands[ MAX_ADMIN_COMMANDS ];
 g_admin_namelog_t *g_admin_namelog[ MAX_ADMIN_NAMELOGS ];
 
-qboolean G_admin_permission( gentity_t *ent, char flag )
+// match a certain flag within these flags
+static qboolean admin_permission( char *flags, const char *flag, qboolean *perm )
+{
+  char *token, *token_p = flags;
+  while( *( token = COM_Parse( &token_p ) ) )
+  {
+    *perm = qtrue;
+    if( *token == '-' || *token == '+' )
+      *perm = *token++ == '+';
+    if( !strcmp( token, flag ) )
+      return qtrue;
+    if( !strcmp( token, ADMF_ALLFLAGS ) )
+    {
+      while( *( token = COM_Parse( &token_p ) ) )
+      {
+        // -ALLFLAGS +flag or ALLFLAGS -flag
+        if( *token != ( *perm ? '-' : '+' ) )
+          continue;
+        if( !strcmp( token + 1, flag ) )
+        {
+          *perm = !*perm;
+          break;
+        }
+      }
+      return qtrue;
+    }
+  }
+  return qfalse;
+}
+
+qboolean G_admin_permission( gentity_t *ent, const char *flag )
 {
   int i;
   int l = 0;
-  char *flags;
+  qboolean perm = qfalse;
 
   // console always wins
   if( !ent )
@@ -212,62 +242,17 @@ qboolean G_admin_permission( gentity_t *ent, char flag )
   {
     if( !Q_stricmp( ent->client->pers.guid, g_admin_admins[ i ]->guid ) )
     {
-      flags = g_admin_admins[ i ]->flags;
-      while( *flags )
-      {
-        if( *flags == flag )
-          return qtrue;
-        else if( *flags == '-' )
-        {
-          while( *flags++ )
-          {
-            if( *flags == flag )
-              return qfalse;
-            if( *flags == '+' )
-              break;
-          }
-        }
-        else if( *flags == '*' )
-        {
-          while( *flags++ )
-          {
-            if( *flags == flag )
-              return qfalse;
-          }
-          // flags with significance only for individuals (
-          // like ADMF_INCOGNITO and ADMF_IMMUTABLE are NOT covered
-          // by the '*' wildcard.  They must be specified manually.
-          return ( flag != ADMF_INCOGNITO && flag != ADMF_IMMUTABLE );
-        }
-        flags++;
-      }
+      if( admin_permission( g_admin_admins[ i ]->flags, flag, &perm ) )
+        return perm;
       l = g_admin_admins[ i ]->level;
+      break;
     }
   }
   for( i = 0; i < MAX_ADMIN_LEVELS && g_admin_levels[ i ]; i++ )
   {
     if( g_admin_levels[ i ]->level == l )
-    {
-      flags = g_admin_levels[ i ]->flags;
-      while( *flags )
-      {
-        if( *flags == flag )
-          return qtrue;
-        if( *flags == '*' )
-        {
-          while( *flags++ )
-          {
-            if( *flags == flag )
-              return qfalse;
-          }
-          // flags with significance only for individuals (
-          // like ADMF_INCOGNITO and ADMF_IMMUTABLE are NOT covered
-          // by the '*' wildcard.  They must be specified manually.
-          return ( flag != ADMF_INCOGNITO && flag != ADMF_IMMUTABLE );
-        }
-        flags++;
-      }
-    }
+      return admin_permission( g_admin_levels[ i ]->flags, flag, &perm ) &&
+        perm;
   }
   return qfalse;
 }
@@ -325,6 +310,7 @@ static qboolean admin_higher_guid( char *admin_guid, char *victim_guid )
 {
   int i;
   int alevel = 0;
+  qboolean perm = qfalse;
 
   for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
   {
@@ -340,7 +326,8 @@ static qboolean admin_higher_guid( char *admin_guid, char *victim_guid )
     {
       if( alevel < g_admin_admins[ i ]->level )
         return qfalse;
-      return !strstr( g_admin_admins[ i ]->flags, va( "%c", ADMF_IMMUTABLE ) );
+      return !admin_permission( g_admin_admins[ i ]->flags, ADMF_IMMUNITY,
+         &perm ) || !perm;
     }
   }
   return qtrue;
@@ -457,13 +444,8 @@ static void admin_writeconfig( void )
     admin_writeconfig_string( g_admin_commands[ i ]->exec, f );
     trap_FS_Write( "desc    = ", 10, f );
     admin_writeconfig_string( g_admin_commands[ i ]->desc, f );
-    trap_FS_Write( "levels  = ", 10, f );
-    for( j = 0; g_admin_commands[ i ]->levels[ j ] != -1; j++ )
-    {
-      Q_strcat( levels, sizeof( levels ),
-                va( "%i ", g_admin_commands[ i ]->levels[ j ] ) );
-    }
-    admin_writeconfig_string( levels, f );
+    trap_FS_Write( "flag    = ", 10, f );
+    admin_writeconfig_string( g_admin_commands[ i ]->flag, f );
     trap_FS_Write( "\n", 1, f );
   }
   trap_FS_FCloseFile( f );
@@ -531,27 +513,40 @@ static void admin_default_levels( void )
   }
   Q_strncpyz( g_admin_levels[ 0 ]->name, "^4Unknown Player",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 0 ]->flags, "iahC", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 0 ]->flags,
+    "listplayers admintest help time",
+    sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 1 ]->name, "^5Server Regular",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 1 ]->flags, "iahC", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 1 ]->flags,
+    "listplayers admintest help time",
+    sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 2 ]->name, "^6Team Manager",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 2 ]->flags, "iahCpP", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 2 ]->flags,
+    "listplayers admintest help time putteam spec999",
+    sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 3 ]->name, "^2Junior Admin",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 3 ]->flags, "iahCpPkm?", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 3 ]->flags,
+    "listplayers admintest help time putteam spec999 kick mute ADMINCHAT",
+    sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 4 ]->name, "^3Senior Admin",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 4 ]->flags, "iahCpPkmBbe?", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 4 ]->flags,
+    "listplayers admintest help time putteam spec99 kick mute showbans ban "
+    "namelog ADMINCHAT",
+    sizeof( l->flags ) );
 
   Q_strncpyz( g_admin_levels[ 5 ]->name, "^1Server Operator",
     sizeof( l->name ) );
-  Q_strncpyz( g_admin_levels[ 5 ]->flags, "*", sizeof( l->flags ) );
+  Q_strncpyz( g_admin_levels[ 5 ]->flags,
+    "ALLFLAGS -IMMUTABLE -INCOGNITO",
+    sizeof( l->flags ) );
   admin_level_maxname = 15;
 }
 
@@ -572,30 +567,6 @@ int G_admin_level( gentity_t *ent )
   }
 
   return 0;
-}
-
-static qboolean admin_command_permission( gentity_t *ent, char *command )
-{
-  int i, j;
-  int level;
-
-  if( !ent )
-    return qtrue;
-  level = ent->client->pers.adminLevel;
-  for( i = 0; i < MAX_ADMIN_COMMANDS && g_admin_commands[ i ]; i++ )
-  {
-    if( !Q_stricmp( command, g_admin_commands[ i ]->command ) )
-    {
-      for( j = 0; g_admin_commands[ i ]->levels[ j ] != -1; j++ )
-      {
-        if( g_admin_commands[ i ]->levels[ j ] == level )
-        {
-          return qtrue;
-        }
-      }
-    }
-  }
-  return qfalse;
 }
 
 static void admin_log( gentity_t *admin, char *cmd, int skiparg )
@@ -900,7 +871,7 @@ qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
     if( Q_stricmp( cmd, g_admin_commands[ i ]->command ) )
       continue;
 
-    if( admin_command_permission( ent, cmd ) )
+    if( G_admin_permission( ent, g_admin_commands[ i ]->flag ) )
     {
       // flooding say will have already been accounted for in ClientCommand
       if( !say && G_FloodLimited( ent ) )
@@ -921,7 +892,7 @@ qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
     if( Q_stricmp( cmd, g_admin_cmds[ i ].keyword ) )
       continue;
 
-    if( G_admin_permission( ent, g_admin_cmds[ i ].flag[ 0 ] ) )
+    if( G_admin_permission( ent, g_admin_cmds[ i ].flag ) )
     {
       // flooding say will have already been accounted for in ClientCommand
       if( !say && G_FloodLimited( ent ) )
@@ -1091,7 +1062,6 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
         return qfalse;
       c = BG_Alloc( sizeof( g_admin_command_t ) );
       g_admin_commands[ cc++ ] = c;
-      c->levels[ 0 ] = -1;
       command_open = qtrue;
       level_open = admin_open = ban_open = qfalse;
     }
@@ -1191,23 +1161,9 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
       {
         admin_readconfig_string( &cnf, c->desc, sizeof( c->desc ) );
       }
-      else if( !Q_stricmp( t, "levels" ) )
+      else if( !Q_stricmp( t, "flag" ) )
       {
-        char levels[ MAX_STRING_CHARS ] = {""};
-        char *level = levels;
-        char *lp;
-        int cmdlevel = 0;
-
-        admin_readconfig_string( &cnf, levels, sizeof( levels ) );
-        while( cmdlevel < MAX_ADMIN_LEVELS )
-        {
-          lp = COM_Parse( &level );
-          if( !*lp )
-            break;
-          c->levels[ cmdlevel++ ] = atoi( lp );
-        }
-        // ensure the list is -1 terminated
-        c->levels[ cmdlevel ] = -1;
+        admin_readconfig_string( &cnf, c->flag, sizeof( c->flag ) );
       }
       else
       {
@@ -2480,7 +2436,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
     ADMBP_begin();
     for( i = 0; i < adminNumCmds; i++ )
     {
-      if( G_admin_permission( ent, g_admin_cmds[ i ].flag[ 0 ] ) )
+      if( G_admin_permission( ent, g_admin_cmds[ i ].flag ) )
       {
         ADMBP( va( "^3!%-12s", g_admin_cmds[ i ].keyword ) );
         count++;
@@ -2491,7 +2447,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
     }
     for( i = 0; i < MAX_ADMIN_COMMANDS && g_admin_commands[ i ]; i++ )
     {
-      if( ! admin_command_permission( ent, g_admin_commands[ i ]->command ) )
+      if( !G_admin_permission( ent, g_admin_commands[ i ]->flag ) )
         continue;
       ADMBP( va( "^3!%-12s", g_admin_commands[ i ]->command ) );
       count++;
@@ -2520,7 +2476,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
     {
       if( !Q_stricmp( cmd, g_admin_cmds[ i ].keyword ) )
       {
-        if( !G_admin_permission( ent, g_admin_cmds[ i ].flag[ 0 ] ) )
+        if( !G_admin_permission( ent, g_admin_cmds[ i ].flag ) )
         {
           ADMBP( va( "^3!help: ^7you do not have permission to use '%s'\n",
                    g_admin_cmds[ i ].keyword ) );
@@ -2532,7 +2488,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
         ADMBP( va( " ^3Function: ^7%s\n", g_admin_cmds[ i ].function ) );
         ADMBP( va( " ^3Syntax: ^7!%s %s\n", g_admin_cmds[ i ].keyword,
                  g_admin_cmds[ i ].syntax ) );
-        ADMBP( va( " ^3Flag: ^7'%c'\n", g_admin_cmds[ i ].flag[ 0 ] ) );
+        ADMBP( va( " ^3Flag: ^7'%s'\n", g_admin_cmds[ i ].flag ) );
         ADMBP_end();
         return qtrue;
       }
@@ -2541,7 +2497,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
     {
       if( !Q_stricmp( cmd, g_admin_commands[ i ]->command ) )
       {
-        if( !admin_command_permission( ent, g_admin_commands[ i ]->command ) )
+        if( !G_admin_permission( ent, g_admin_commands[ i ]->flag ) )
         {
           ADMBP( va( "^3!help: ^7you do not have permission to use '%s'\n",
                    g_admin_commands[ i ]->command ) );

@@ -36,40 +36,44 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_ADMIN_BANS 1024
 #define MAX_ADMIN_NAMELOGS 128
 #define MAX_ADMIN_NAMELOG_NAMES 5
-#define MAX_ADMIN_FLAGS 64
+#define MAX_ADMIN_FLAG_LEN 20
+#define MAX_ADMIN_FLAGS 1024
 #define MAX_ADMIN_COMMANDS 64
 #define MAX_ADMIN_CMD_LEN 20
 #define MAX_ADMIN_BAN_REASON 50
 
 /*
- * 1 - cannot be vote kicked, vote muted
- * 2 - cannot be censored or flood protected TODO
- * 4 - can see team chat as a spectator
- * 5 - can switch teams any time, regardless of balance
- * 6 - does not need to specify a reason for a kick/ban
- * 7 - can call a vote at any time (regardless of a vote being disabled or 
- * voting limitations)
- * 8 - does not need to specify a duration for a ban
- * 9 - can run commands from team chat
- * 0 - inactivity rules do not apply to them
- * ! - admin commands cannot be used on them
- * @ - does not show up as an admin in !listplayers
- * $ - sees all information in !listplayers 
+ * IMMUNITY - cannot be vote kicked, vote muted
+ * NOCENSORFLOOD - cannot be censored or flood protected
+ * TEAMCHANGEFREE - never loses credits for changing teams
+ * SPECALLCHAT - can see team chat as a spectator
+ * FORCETEAMCHANGE - can switch teams any time, regardless of balance
+ * UNACCOUNTABLE - does not need to specify a reason for a kick/ban
+ * NOVOTELIMIT - can call a vote at any time (regardless of a vote being
+ * disabled or voting limitations)
+ * CANPERMBAN - does not need to specify a duration for a ban
+ * TEAMCHATCMD - can run commands from team chat
+ * ACTIVITY - inactivity rules do not apply to them
+ * IMMUTABLE - admin commands cannot be used on them
+ * INCOGNITO - does not show up as an admin in !listplayers
+ * ALLFLAGS - all flags (including command flags) apply to this player
  * ? - receieves and can send /a admin messages
  */
-#define ADMF_IMMUNITY '1'
-#define ADMF_NOCENSORFLOOD '2' /* TODO */
-#define ADMF_SPEC_ALLCHAT '4'
-#define ADMF_FORCETEAMCHANGE '5'
-#define ADMF_UNACCOUNTABLE '6'
-#define ADMF_NO_VOTE_LIMIT '7'
-#define ADMF_CAN_PERM_BAN '8'
-#define ADMF_TEAMCHAT_CMD '9'
-#define ADMF_ACTIVITY '0'
+#define ADMF_IMMUNITY        "IMMUNITY"
+#define ADMF_NOCENSORFLOOD   "NOCENSORFLOOD"
+#define ADMF_TEAMCHANGEFREE  "TEAMCHANGEFREE"
+#define ADMF_SPEC_ALLCHAT    "SPECALLCHAT"
+#define ADMF_FORCETEAMCHANGE "FORCETEAMCHANGE"
+#define ADMF_UNACCOUNTABLE   "UNACCOUNTABLE"
+#define ADMF_NO_VOTE_LIMIT   "NOVOTELIMIT"
+#define ADMF_CAN_PERM_BAN    "CANPERMBAN"
+#define ADMF_TEAMCHAT_CMD    "TEAMCHATCMD"
+#define ADMF_ACTIVITY        "ACTIVITY"
 
-#define ADMF_IMMUTABLE '!'
-#define ADMF_INCOGNITO '@'
-#define ADMF_ADMINCHAT '?'
+#define ADMF_IMMUTABLE       "IMMUTABLE"
+#define ADMF_INCOGNITO       "INCOGNITO"
+#define ADMF_ALLFLAGS        "ALLFLAGS"
+#define ADMF_ADMINCHAT       "ADMINCHAT"
 
 #define MAX_ADMIN_LISTITEMS 20
 #define MAX_ADMIN_SHOWBANS 10
@@ -120,7 +124,7 @@ typedef struct g_admin_command
   char command[ MAX_ADMIN_CMD_LEN ];
   char exec[ MAX_QPATH ];
   char desc[ 50 ];
-  int levels[ MAX_ADMIN_LEVELS + 1 ];
+  char flag[ MAX_ADMIN_FLAG_LEN ];
 }
 g_admin_command_t;
 
@@ -137,7 +141,7 @@ g_admin_namelog_t;
 qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen );
 qboolean G_admin_cmd_check( gentity_t *ent, qboolean say );
 qboolean G_admin_readconfig( gentity_t *ent, int skiparg );
-qboolean G_admin_permission( gentity_t *ent, char flag );
+qboolean G_admin_permission( gentity_t *ent, const char *flag );
 qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len );
 void G_admin_namelog_update( gclient_t *ent, qboolean disconnect );
 int G_admin_level( gentity_t *ent );
