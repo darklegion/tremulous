@@ -641,15 +641,25 @@ void Cmd_Team_f( gentity_t *ent )
   qboolean force = G_admin_permission(ent, ADMF_FORCETEAMCHANGE);
   int     aliens = level.numAlienClients;
   int     humans = level.numHumanClients;
+  char    *teamname, *oldteamname;
+  gentity_t *tempent;
 
   // stop team join spam
   if( level.time - ent->client->pers.teamChangeTime < 1000 )
     return;
 
   if( oldteam == TEAM_ALIENS )
+  {
     aliens--;
+    oldteamname = "aliens";
+  }
   else if( oldteam == TEAM_HUMANS )
+  {
     humans--;
+    oldteamname = "humans";
+  }
+  else
+    oldteamname = "spectators";
 
   trap_Argv( 1, s, sizeof( s ) );
 
@@ -660,7 +670,7 @@ void Cmd_Team_f( gentity_t *ent )
     return;
   }
 
-  if( !Q_stricmp( s, "spectate" ) )
+  if( !Q_stricmpn( s, "spec", 4 ) )
     team = TEAM_NONE;
   else if( !force && oldteam == TEAM_NONE && g_maxGameClients.integer &&
            level.numPlayingClients >= g_maxGameClients.integer )
@@ -670,7 +680,7 @@ void Cmd_Team_f( gentity_t *ent )
       g_maxGameClients.integer ) );
     return;
   }
-  else if( !Q_stricmp( s, "aliens" ) )
+  else if( !Q_stricmpn( s, "alien", 5 ) )
   {
     if( level.alienTeamLocked )
     {
@@ -693,7 +703,7 @@ void Cmd_Team_f( gentity_t *ent )
 
     team = TEAM_ALIENS;
   }
-  else if( !Q_stricmp( s, "humans" ) )
+  else if( !Q_stricmpn( s, "human", 5 ) )
   {
     if( level.humanTeamLocked )
     {
@@ -742,7 +752,7 @@ void Cmd_Team_f( gentity_t *ent )
   if( oldteam == team )
     return;
 
-  //guard against build timer exploit
+  // guard against build timer exploit
   if( oldteam != TEAM_NONE && ent->client->sess.spectatorState == SPECTATOR_NOT &&
      ( ent->client->ps.stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0 ||
        ent->client->ps.stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0_UPG ||
@@ -756,13 +766,29 @@ void Cmd_Team_f( gentity_t *ent )
     return;
   }
 
-
+  // Apply the change
   G_ChangeTeam( ent, team );
 
+  // Send the team join message event to everyone
+  tempent = G_TempEntity( ent->r.currentOrigin, EV_TEAMJOIN );
+  tempent->s.eventParm = ent->s.number;
+  tempent->s.otherEntityNum = team;
+  tempent->s.otherEntityNum2 = oldteam;
+  tempent->r.svFlags = SVF_BROADCAST; 
+
   if( team == TEAM_ALIENS )
-    trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " joined the aliens\n\"", ent->client->pers.netname ) );
+    teamname = "aliens";
   else if( team == TEAM_HUMANS )
-    trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " joined the humans\n\"", ent->client->pers.netname ) );
+    teamname = "humans";
+  else 
+    teamname = "spectators";
+
+  if( oldteam != TEAM_NONE && team != TEAM_NONE )
+    G_LogPrintf( "team: %i %i %i: %s" S_COLOR_WHITE " left the %s and joined the %s\n", ent->s.number, team, oldteam, ent->client->pers.netname, oldteamname, teamname );
+  else if( team == TEAM_NONE )
+    G_LogPrintf( "team: %i %i %i: %s" S_COLOR_WHITE " left the %s\n", ent->s.number, team, oldteam, ent->client->pers.netname, oldteamname );
+  else
+    G_LogPrintf( "team: %i %i %i: %s" S_COLOR_WHITE " joined the %s\n", ent->s.number, team, oldteam, ent->client->pers.netname, teamname );
 }
 
 

@@ -2784,6 +2784,8 @@ char *eventnames[ ] =
   "EV_DEATH3",
   "EV_OBITUARY",
 
+  "EV_TEAMJOIN",    // teamjoin message
+
   "EV_GIB_PLAYER",      // gib a previously living player
 
   "EV_BUILD_CONSTRUCT",
