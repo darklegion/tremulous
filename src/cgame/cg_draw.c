@@ -2261,10 +2261,17 @@ CG_DrawLocation
 static void CG_DrawLocation( rectDef_t *rect, float scale, int textalign, vec4_t color )
 {
   const char    *location;
+  centity_t     *locent;
   float         maxX;
   float         tx = rect->x, ty = rect->y;
   maxX = rect->x + rect->w;
-  location = CG_ConfigString( CS_LOCATIONS + cgs.clientinfo[ cg.clientNum ].location );
+
+  locent = CG_GetLocation( &cg_entities[ cg.clientNum ] );
+  if( locent )
+    location = CG_ConfigString( CS_LOCATIONS + locent->currentState.generic1 );
+  else
+    location = CG_ConfigString( CS_LOCATIONS );
+
   if( UI_Text_Width( location, scale, 0 ) < rect->w ) 
     CG_AlignText( rect, location, scale, 0.0f, 0.0f, textalign, VALIGN_CENTER, &tx, &ty );
 

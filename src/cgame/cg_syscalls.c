@@ -345,6 +345,11 @@ void trap_R_AddPolyToScene( qhandle_t hShader , int numVerts, const polyVert_t *
   syscall( CG_R_ADDPOLYTOSCENE, hShader, numVerts, verts );
 }
 
+qboolean trap_R_inPVS( const vec3_t p1, const vec3_t p2 )
+{
+  syscall( CG_R_INPVS, p1, p2 );
+}
+
 void trap_R_AddPolysToScene( qhandle_t hShader , int numVerts, const polyVert_t *verts, int num )
 {
   syscall( CG_R_ADDPOLYSTOSCENE, hShader, numVerts, verts, num );

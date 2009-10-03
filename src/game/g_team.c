@@ -77,7 +77,7 @@ gentity_t *Team_GetLocation( gentity_t *ent )
   best = NULL;
   bestlen = 3.0f * 8192.0f * 8192.0f;
 
-  VectorCopy( ent->client->ps.origin, origin );
+  VectorCopy( ent->r.currentOrigin, origin );
 
   for( eloc = level.locationHead; eloc; eloc = eloc->nextTrain )
   {
@@ -160,26 +160,7 @@ void TeamplayInfoMessage( gentity_t *ent )
   int       h, a = 0;
   int       clients[ TEAM_MAXOVERLAY ];
 
-  //hack: always send each client's teaminfo to it for CG_PLAYER_LOCATION
-  h = ent->client->ps.stats[ STAT_HEALTH ];
-  if( h < 0 )
-    h = 0;
-
-  trap_SendServerCommand( ent - g_entities, 
-                          va("tinfo %i %i %i %i %i %i",
-                             1,
-                             ent - g_entities,
-                             ent->client->pers.location,
-                             h,
-                             a,
-                             ent->client->ps.weapon ) );
-
   if( ! ent->client->pers.teamInfo )
-    return;
-
-  if( !ent->inuse ||
-      ( !( ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ) && 
-        !( ent->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS ) ) )
     return;
 
   // figure out what client should be on the display
@@ -247,12 +228,17 @@ void CheckTeamStatus( void )
       if( ent->client->pers.connected != CON_CONNECTED )
         continue;
 
-      loc = Team_GetLocation( ent );
-      if( loc )
-        ent->client->pers.location = loc->health;
-      else
-        ent->client->pers.location = 0;
-      
+      if( ent->inuse && ( ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ||
+                          ent->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS ) )
+      {
+
+        loc = Team_GetLocation( ent );
+
+        if( loc )
+          ent->client->pers.location = loc->s.generic1;
+        else
+          ent->client->pers.location = 0;
+      }
     }
 
     for( i = 0; i < g_maxclients.integer; i++ )
@@ -261,7 +247,9 @@ void CheckTeamStatus( void )
       if( ent->client->pers.connected != CON_CONNECTED )
         continue;
 
-      TeamplayInfoMessage( ent );
+      if( ent->inuse && ( ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ||
+                          ent->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS ) )
+        TeamplayInfoMessage( ent );
     }
   }
 }

@@ -2369,3 +2369,31 @@ void CG_PlayerDisconnect( vec3_t org )
   }
 }
 
+centity_t *CG_GetLocation( centity_t *cent )
+{
+  centity_t   *eloc, *best;
+  float       bestlen, len;
+  vec3_t      origin;
+  trace_t     tr;
+
+  best = NULL;
+  bestlen = 3.0f * 8192.0f * 8192.0f;
+
+  VectorCopy( cent->lerpOrigin, origin );
+
+  for( eloc = cg.locationHead; eloc; eloc = eloc->nextLocation )
+  {
+    len = DistanceSquared(origin, eloc->lerpOrigin);
+
+    if( len > bestlen )
+      continue;
+    
+    if( !trap_R_inPVS( origin, eloc->lerpOrigin ) )
+      continue;
+
+    bestlen = len;
+    best = eloc;
+  }
+
+  return best;
+}

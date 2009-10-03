@@ -682,6 +682,7 @@ typedef struct centity_s
 
   qboolean              valid;
   qboolean              oldValid;  
+  struct centity_s      *nextLocation;
 } centity_t;
 
 
@@ -1161,6 +1162,8 @@ typedef struct
   float         healthCrossFade;
   
   int           nextWeaponClickTime;
+
+  centity_t     *locationHead;
 } cg_t;
 
 
@@ -1646,6 +1649,7 @@ void        CG_PrecacheClientInfo( class_t class, char *model, char *skin );
 sfxHandle_t CG_CustomSound( int clientNum, const char *soundName );
 void        CG_PlayerDisconnect( vec3_t org );
 void        CG_Bleed( vec3_t origin, vec3_t normal, int entityNum );
+centity_t   *CG_GetLocation( centity_t *cent );
 
 //
 // cg_buildable.c
@@ -1707,7 +1711,7 @@ void        CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *pare
                                     qhandle_t parentModel, char *tagName );
 void        CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
                                            qhandle_t parentModel, char *tagName );
-
+void        CG_LinkLocation( centity_t* cent );
 
 
 
@@ -1984,6 +1988,7 @@ void          trap_R_AddRefEntityToScene( const refEntity_t *re );
 // significant construction
 void          trap_R_AddPolyToScene( qhandle_t hShader , int numVerts, const polyVert_t *verts );
 void          trap_R_AddPolysToScene( qhandle_t hShader , int numVerts, const polyVert_t *verts, int numPolys );
+qboolean      trap_R_inPVS( const vec3_t p1, const vec3_t p2 );
 void          trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b );
 void          trap_R_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, float g, float b );
 int           trap_R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );

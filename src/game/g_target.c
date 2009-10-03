@@ -298,10 +298,10 @@ static void target_location_linkup( gentity_t *ent )
 
   for( i = 0, ent = g_entities, n = 1; i < level.num_entities; i++, ent++)
   {
-    if( ent->classname && !Q_stricmp( ent->classname, "target_location" ) )
+    if( ent->s.eType == ET_LOCATION )
     {
       // lets overload some variables!
-      ent->health = n; // use for location marking
+      ent->s.generic1 = n; // use for location marking
       trap_SetConfigstring( CS_LOCATIONS + n, ent->message );
       n++;
       ent->nextTrain = level.locationHead;
@@ -323,7 +323,8 @@ void SP_target_location( gentity_t *self )
 {
   self->think = target_location_linkup;
   self->nextthink = level.time + 200;  // Let them all spawn first
-
+  self->s.eType = ET_LOCATION;
+  trap_LinkEntity( self ); // make the server send them to the clients
   G_SetOrigin( self, self->s.origin );
 }
 
