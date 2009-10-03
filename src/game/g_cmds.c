@@ -728,9 +728,9 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
       ( ent ) && ( ent->client->pers.teamSelection == TEAM_NONE ) && 
       ( !G_admin_permission( ent, ADMF_NOCENSORFLOOD ) ) ) 
   {
-    trap_SendServerCommand( ent-g_entities, va( "print \"Global chatting for "
-      "spectators has been disabled. You may only use team chat.\n\"") );
-    return;
+    trap_SendServerCommand( ent-g_entities, "print \"say: Global chatting for "
+      "spectators has been disabled. You may only use team chat.\n\"" );
+    mode = SAY_TEAM;
   }
 
   switch( mode )

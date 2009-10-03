@@ -365,7 +365,7 @@ static void admin_writeconfig_int( int v, fileHandle_t f )
 static void admin_writeconfig( void )
 {
   fileHandle_t f;
-  int i, j;
+  int i;
   int t;
   char levels[ MAX_STRING_CHARS ] = {""};
 

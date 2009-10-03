@@ -83,7 +83,6 @@ vmCvar_t  g_smoothClients;
 vmCvar_t  pmove_fixed;
 vmCvar_t  pmove_msec;
 vmCvar_t  g_rankings;
-vmCvar_t  g_listEntity;
 vmCvar_t  g_minCommandPeriod;
 vmCvar_t  g_minNameChangePeriod;
 vmCvar_t  g_maxNameChanges;
@@ -214,7 +213,6 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_voteLimit, "g_voteLimit", "5", CVAR_ARCHIVE, 0, qfalse },
   { &g_suddenDeathVotePercent, "g_suddenDeathVotePercent", "74", CVAR_ARCHIVE, 0, qfalse },
   { &g_suddenDeathVoteDelay, "g_suddenDeathVoteDelay", "180", CVAR_ARCHIVE, 0, qfalse },
-  { &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
   { &g_minCommandPeriod, "g_minCommandPeriod", "500", 0, 0, qfalse},
   { &g_minNameChangePeriod, "g_minNameChangePeriod", "5", 0, 0, qfalse},
   { &g_maxNameChanges, "g_maxNameChanges", "5", 0, 0, qfalse},
@@ -294,7 +292,6 @@ void G_RunFrame( int levelTime );
 void G_ShutdownGame( int restart );
 void CheckExitRules( void );
 
-void G_CountSpawns( void );
 void G_CalculateBuildPoints( void );
 
 /*
@@ -658,9 +655,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
 
   G_Printf( "-----------------------------------\n" );
-
-  // so the server counts the spawns without a client attached
-  G_CountSpawns( );
 
   G_ResetPTRConnections( );
 }
@@ -1038,33 +1032,6 @@ void G_SpawnClients( team_t team )
   }
 }
 
-/*
-============
-G_CountSpawns
-
-Counts the number of spawns for each team
-============
-*/
-void G_CountSpawns( void )
-{
-  int i;
-  gentity_t *ent;
-
-  level.numAlienSpawns = 0;
-  level.numHumanSpawns = 0;
-
-  for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
-  {
-    if( !ent->inuse || ent->s.eType != ET_BUILDABLE || ent->health <= 0 )
-      continue;
-
-    if( ent->s.modelindex == BA_A_SPAWN )
-      level.numAlienSpawns++;
-
-    if( ent->s.modelindex == BA_H_SPAWN )
-      level.numHumanSpawns++;
-  }
-}
 
 /*
 ============
@@ -1166,11 +1133,6 @@ void G_CalculateBuildPoints( void )
       }
     }
   }
-  else // it is SD already
-  {
-    localHTP = 0;
-    localATP = 0;
-  }
 
   level.humanBuildPoints = localHTP - level.humanBuildPointQueue;
   level.alienBuildPoints = localATP - level.alienBuildPointQueue;
@@ -1178,7 +1140,10 @@ void G_CalculateBuildPoints( void )
   level.reactorPresent = qfalse;
   level.overmindPresent = qfalse;
 
-  for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
+  level.numAlienSpawns = 0;
+  level.numHumanSpawns = 0;
+
+  for( i = MAX_CLIENTS, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
   {
     if( !ent->inuse )
       continue;
@@ -1193,11 +1158,17 @@ void G_CalculateBuildPoints( void )
 
     if( buildable != BA_NONE )
     {
-      if( buildable == BA_H_REACTOR && ent->spawned && ent->health > 0 )
-        level.reactorPresent = qtrue;
-
-      if( buildable == BA_A_OVERMIND && ent->spawned && ent->health > 0 )
-        level.overmindPresent = qtrue;
+      if( ent->spawned && ent->health > 0 )
+      {
+        if( buildable == BA_H_REACTOR )
+          level.reactorPresent = qtrue;
+        else if( buildable == BA_A_OVERMIND )
+          level.overmindPresent = qtrue;
+        else if( buildable == BA_H_SPAWN )
+          level.numHumanSpawns++;
+        else if( buildable == BA_A_SPAWN )
+          level.numAlienSpawns++;
+      }
 
       if( BG_Buildable( buildable )->team == TEAM_HUMANS )
       {
@@ -1225,45 +1196,6 @@ void G_CalculateBuildPoints( void )
   trap_SetConfigstring( CS_BUILDPOINTS, va( "%d %d %d %d",
         level.alienBuildPoints, localATP,
         level.humanBuildPoints, localHTP ) );
-
-  //may as well pump the stages here too
-  {
-    float alienPlayerCountMod = level.averageNumAlienClients / PLAYER_COUNT_MOD;
-    float humanPlayerCountMod = level.averageNumHumanClients / PLAYER_COUNT_MOD;
-    int   alienNextStageThreshold, humanNextStageThreshold;
-
-    if( alienPlayerCountMod < 0.1f )
-      alienPlayerCountMod = 0.1f;
-
-    if( humanPlayerCountMod < 0.1f )
-      humanPlayerCountMod = 0.1f;
-
-    if( g_alienStage.integer == S1 && g_alienMaxStage.integer > S1 )
-      alienNextStageThreshold = (int)( ceil( (float)g_alienStage2Threshold.integer * alienPlayerCountMod ) );
-    else if( g_alienStage.integer == S2 && g_alienMaxStage.integer > S2 )
-      alienNextStageThreshold = (int)( ceil( (float)g_alienStage3Threshold.integer * alienPlayerCountMod ) );
-    else
-      alienNextStageThreshold = -1;
-
-    if( g_humanStage.integer == S1 && g_humanMaxStage.integer > S1 )
-      humanNextStageThreshold = (int)( ceil( (float)g_humanStage2Threshold.integer * humanPlayerCountMod ) );
-    else if( g_humanStage.integer == S2 && g_humanMaxStage.integer > S2 )
-      humanNextStageThreshold = (int)( ceil( (float)g_humanStage3Threshold.integer * humanPlayerCountMod ) );
-    else
-      humanNextStageThreshold = -1;
-
-    // save a lot of bandwidth by rounding thresholds up to the nearest 100
-    if( alienNextStageThreshold > 0 )
-      alienNextStageThreshold = ceil( (float)alienNextStageThreshold / 100 ) * 100;
-
-    if( humanNextStageThreshold > 0 )
-      humanNextStageThreshold = ceil( (float)humanNextStageThreshold / 100 ) * 100;
-
-    trap_SetConfigstring( CS_STAGES, va( "%d %d %d %d %d %d",
-          g_alienStage.integer, g_humanStage.integer,
-          g_alienCredits.integer, g_humanCredits.integer,
-          alienNextStageThreshold, humanNextStageThreshold ) );
-  }
 }
 
 /*
@@ -1275,6 +1207,7 @@ void G_CalculateStages( void )
 {
   float         alienPlayerCountMod     = level.averageNumAlienClients / PLAYER_COUNT_MOD;
   float         humanPlayerCountMod     = level.averageNumHumanClients / PLAYER_COUNT_MOD;
+  int           alienNextStageThreshold, humanNextStageThreshold;
   static int    lastAlienStageModCount  = 1;
   static int    lastHumanStageModCount  = 1;
 
@@ -1347,6 +1280,32 @@ void G_CalculateStages( void )
 
     lastHumanStageModCount = g_humanStage.modificationCount;
   }
+
+  if( g_alienStage.integer == S1 && g_alienMaxStage.integer > S1 )
+    alienNextStageThreshold = (int)( ceil( (float)g_alienStage2Threshold.integer * alienPlayerCountMod ) );
+  else if( g_alienStage.integer == S2 && g_alienMaxStage.integer > S2 )
+    alienNextStageThreshold = (int)( ceil( (float)g_alienStage3Threshold.integer * alienPlayerCountMod ) );
+  else
+    alienNextStageThreshold = -1;
+
+  if( g_humanStage.integer == S1 && g_humanMaxStage.integer > S1 )
+    humanNextStageThreshold = (int)( ceil( (float)g_humanStage2Threshold.integer * humanPlayerCountMod ) );
+  else if( g_humanStage.integer == S2 && g_humanMaxStage.integer > S2 )
+    humanNextStageThreshold = (int)( ceil( (float)g_humanStage3Threshold.integer * humanPlayerCountMod ) );
+  else
+    humanNextStageThreshold = -1;
+
+  // save a lot of bandwidth by rounding thresholds up to the nearest 100
+  if( alienNextStageThreshold > 0 )
+    alienNextStageThreshold = ceil( (float)alienNextStageThreshold / 100 ) * 100;
+
+  if( humanNextStageThreshold > 0 )
+    humanNextStageThreshold = ceil( (float)humanNextStageThreshold / 100 ) * 100;
+
+  trap_SetConfigstring( CS_STAGES, va( "%d %d %d %d %d %d",
+        g_alienStage.integer, g_humanStage.integer,
+        g_alienCredits.integer, g_humanCredits.integer,
+        alienNextStageThreshold, humanNextStageThreshold ) );
 }
 
 /*
@@ -2429,7 +2388,6 @@ void G_RunFrame( int levelTime )
   int       i;
   gentity_t *ent;
   int       msec;
-  int       start, end;
 
   // if we are waiting for the level to restart, do nothing
   if( level.restarted )
@@ -2440,16 +2398,12 @@ void G_RunFrame( int levelTime )
   level.time = levelTime;
   msec = level.time - level.previousTime;
 
-  // seed the rng
-  srand( level.framenum );
-
   // get any cvar changes
   G_UpdateCvars( );
 
   //
   // go through all allocated objects
   //
-  start = trap_Milliseconds( );
   ent = &g_entities[ 0 ];
 
   for( i = 0; i < level.num_entities; i++, ent++ )
@@ -2528,9 +2482,6 @@ void G_RunFrame( int levelTime )
 
     G_RunThink( ent );
   }
-  end = trap_Milliseconds();
-
-  start = trap_Milliseconds();
 
   // perform final fixups on the players
   ent = &g_entities[ 0 ];
@@ -2544,9 +2495,6 @@ void G_RunFrame( int levelTime )
   // save position information for all active clients
   G_UnlaggedStore( );
 
-  end = trap_Milliseconds();
-
-  G_CountSpawns( );
   G_CalculateBuildPoints( );
   G_CalculateStages( );
   G_SpawnClients( TEAM_ALIENS );
@@ -2569,14 +2517,6 @@ void G_RunFrame( int levelTime )
 
   // for tracking changes
   CheckCvars( );
-
-  if( g_listEntity.integer )
-  {
-    for( i = 0; i < MAX_GENTITIES; i++ )
-      G_Printf( "%4i: %s\n", i, g_entities[ i ].classname );
-
-    trap_Cvar_Set( "g_listEntity", "0" );
-  }
 
   level.frameMsec = trap_Milliseconds();
 }
