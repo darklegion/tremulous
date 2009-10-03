@@ -356,12 +356,24 @@ Get the number of build points from a position
 */
 int G_GetBuildPoints( const vec3_t pos, team_t team, int extraDistance )
 {
-  gentity_t *powerPoint = G_PowerEntityForPoint( pos );
+  if( team == TEAM_ALIENS )
+  {
+    return level.alienBuildPoints;
+  }
+  else if( team == TEAM_HUMANS )
+  {
+    gentity_t *powerPoint = G_PowerEntityForPoint( pos );
 
-  if( powerPoint && powerPoint->s.modelindex == BA_H_REACTOR )
-    return level.humanBuildPoints;
-  if( powerPoint && powerPoint->s.modelindex == BA_H_REPEATER && powerPoint->usesZone && level.powerZones[ powerPoint->zone ].active )
-    return level.powerZones[ powerPoint->zone ].totalBuildPoints - level.powerZones[ powerPoint->zone ].queuedBuildPoints;
+    if( powerPoint && powerPoint->s.modelindex == BA_H_REACTOR )
+      return level.humanBuildPoints;
+
+    if( powerPoint && powerPoint->s.modelindex == BA_H_REPEATER &&
+        powerPoint->usesZone && level.powerZones[ powerPoint->zone ].active )
+    {
+      return level.powerZones[ powerPoint->zone ].totalBuildPoints -
+             level.powerZones[ powerPoint->zone ].queuedBuildPoints;
+    }
+  }
 
   return 0;
 
@@ -3155,9 +3167,11 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
 
     // Don't allow marked buildables to be replaced in another zone,
     // unless the marked buildable isn't in a zone (and thus unpowered)
-    if( buildable != BA_H_REACTOR && buildable != BA_H_REPEATER &&
-        G_PowerEntityForPoint( ent->s.origin ) != G_PowerEntityForPoint( origin ) &&
-        G_PowerEntityForPoint( ent->s.origin ) )
+    if( team == TEAM_HUMANS &&
+        buildable != BA_H_REACTOR &&
+        buildable != BA_H_REPEATER &&
+        G_PowerEntityForPoint( ent->s.origin ) &&
+        G_PowerEntityForPoint( ent->s.origin ) != G_PowerEntityForPoint( origin ) )
       continue;
 
     if( !ent->inuse )
@@ -3179,7 +3193,9 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
       continue;
 
     // Don't allow a power source to be replaced by a non-power source
-    if( buildable != BA_H_REACTOR && buildable != BA_H_REPEATER &&
+    if( team == TEAM_HUMANS &&
+        buildable != BA_H_REACTOR &&
+        buildable != BA_H_REPEATER &&
         !( ent->s.modelindex == BA_H_REACTOR || ent->s.modelindex == BA_H_REPEATER ) )
       continue;
 
