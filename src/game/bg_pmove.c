@@ -3261,7 +3261,7 @@ static void PM_Weapon( void )
   }
   else
   {
-    int num = abs( pm->ps->weaponTime );
+    int num = rand( );
 
     //FIXME: it would be nice to have these hard coded policies in
     //       weapon.cfg
