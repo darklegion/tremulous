@@ -234,6 +234,8 @@ typedef struct directive_s
 #define DEFINEHASHSIZE    1024
 
 static int Parse_ReadToken(source_t *source, token_t *token);
+static qboolean Parse_AddDefineToSourceFromString( source_t *source,
+                                                   char *string );
 
 int numtokens;
 
@@ -3201,6 +3203,141 @@ static void Parse_UnreadToken(source_t *source, token_t *token)
 
 /*
 ===============
+Parse_ReadEnumeration
+
+It is assumed that the 'enum' token has already been consumed
+This is fairly basic: it doesn't catch some fairly obvious errors like nested
+enums, and enumerated names conflict with #define parameters
+===============
+*/
+static qboolean Parse_ReadEnumeration( source_t *source )
+{
+  token_t newtoken;
+  int value;
+
+  if( !Parse_ReadToken( source, &newtoken ) )
+    return qfalse;
+
+  if( newtoken.type != TT_PUNCTUATION || newtoken.subtype != P_BRACEOPEN )
+  {
+    Parse_SourceError( source, "Found %s when expecting {\n",
+                       newtoken.string );
+    return qfalse;
+  }
+
+  for( value = 0;; value++ )
+  {
+    token_t name;
+
+    // read the name
+    if( !Parse_ReadToken( source, &name ) )
+      break;
+
+    // it's ok for the enum to end immediately
+    if( name.type == TT_PUNCTUATION && name.subtype == P_BRACECLOSE )
+    {
+      if( !Parse_ReadToken( source, &name ) )
+        break;
+
+      // ignore trailing semicolon
+      if( name.type != TT_PUNCTUATION || name.subtype != P_SEMICOLON )
+        Parse_UnreadToken( source, &name );
+
+      return qtrue;
+    }
+
+    // ... but not for it to do anything else
+    if( name.type != TT_NAME )
+    {
+      Parse_SourceError( source, "Found %s when expecting identifier\n",
+                         name.string );
+      return qfalse;
+    }
+
+    if( !Parse_ReadToken( source, &newtoken ) )
+      break;
+
+    if( newtoken.type != TT_PUNCTUATION )
+    {
+      Parse_SourceError( source, "Found %s when expecting , or = or }\n",
+                         newtoken.string );
+      return qfalse;
+    }
+
+    if( newtoken.subtype == P_ASSIGN )
+    {
+      int neg = 1;
+
+      if( !Parse_ReadToken( source, &newtoken ) )
+        break;
+
+      // Parse_ReadToken doesn't seem to read negative numbers, so we do it
+      // ourselves
+      if( newtoken.type == TT_PUNCTUATION && newtoken.subtype == P_SUB )
+      {
+        neg = -1;
+
+        // the next token should be the number
+        if( !Parse_ReadToken( source, &newtoken ) )
+          break;
+      }
+
+      if( newtoken.type != TT_NUMBER || !( newtoken.subtype & TT_INTEGER ) )
+      {
+        Parse_SourceError( source, "Found %s when expecting integer\n",
+                           newtoken.string );
+        return qfalse;
+      }
+
+      // this is somewhat silly, but cheap to check
+      if( neg == -1 && ( newtoken.subtype & TT_UNSIGNED ) )
+      {
+        Parse_SourceWarning( source, "Value in enumeration is negative and "
+                                     "unsigned\n" );
+      }
+
+      // set the new define value
+      value = newtoken.intvalue * neg;
+
+      if( !Parse_ReadToken( source, &newtoken ) )
+        break;
+    }
+
+    if( newtoken.type != TT_PUNCTUATION || ( newtoken.subtype != P_COMMA &&
+        newtoken.subtype != P_BRACECLOSE ) )
+    {
+      Parse_SourceError( source, "Found %s when expecting , or }\n",
+                         newtoken.string );
+      return qfalse;
+    }
+
+    if( !Parse_AddDefineToSourceFromString( source, va( "%s %d\n", name.string,
+                                                        value ) ) )
+    {
+      Parse_SourceWarning( source, "Couldn't add define to source: %s = %d\n",
+                           name.string, value );
+      return qfalse;
+    }
+
+    if( newtoken.subtype == P_BRACECLOSE )
+    {
+      if( !Parse_ReadToken( source, &name ) )
+        break;
+
+      // ignore trailing semicolon
+      if( name.type != TT_PUNCTUATION || name.subtype != P_SEMICOLON )
+        Parse_UnreadToken( source, &name );
+
+      return qtrue;
+    }
+  }
+
+  // got here if a ReadToken returned false
+  return qfalse;
+}
+
+/*
+===============
 Parse_ReadToken
 ===============
 */
@@ -3227,6 +3364,12 @@ static int Parse_ReadToken(source_t *source, token_t *token)
         if (!Parse_ReadDollarDirective(source)) return qfalse;
         continue;
       }
+    }
+    if( token->type == TT_NAME && !Q_stricmp( token->string, "enum" ) )
+    {
+      if( !Parse_ReadEnumeration( source ) )
+        return qfalse;
+      continue;
     }
     // recursively concatenate strings that are behind each other still resolving defines
     if (token->type == TT_STRING)
@@ -3319,6 +3462,19 @@ static define_t *Parse_DefineFromString(char *string)
   if (src.defines) Parse_FreeDefine(def);
   //
   return NULL;
+}
+
+/*
+===============
+Parse_AddDefineToSourceFromString
+===============
+*/
+static qboolean Parse_AddDefineToSourceFromString( source_t *source,
+                                                   char *string )
+{
+  Parse_PushScript( source, Parse_LoadScriptMemory( string, strlen( string ),
+                                                    "*extern" ) );
+  return Parse_Directive_define( source );
 }
 
 /*
