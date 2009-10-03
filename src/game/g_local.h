@@ -654,8 +654,6 @@ char      *G_NewString( const char *string );
 //
 // g_cmds.c
 //
-void      Cmd_Score_f( gentity_t *ent );
-void      G_StopFromFollowing( gentity_t *ent );
 void      G_StopFollowing( gentity_t *ent );
 void      G_FollowLockView( gentity_t *ent );
 qboolean  G_FollowNewClient( gentity_t *ent, int dir );
@@ -665,10 +663,10 @@ int       G_ClientNumbersFromString( char *s, int *plist, int max );
 int       G_SayArgc( void );
 qboolean  G_SayArgv( int n, char *buffer, int bufferLength );
 char      *G_SayConcatArgs( int start );
-void      G_DecolorString( char *in, char *out );
+void      G_DecolorString( char *in, char *out, int len );
 void      G_LeaveTeam( gentity_t *self );
 void      G_ChangeTeam( gentity_t *ent, team_t newTeam );
-void      G_SanitiseName( char *in, char *out );
+void      G_SanitiseString( char *in, char *out, int len );
 void      G_PrivateMessage( gentity_t *ent );
 void      Cmd_Test_f( gentity_t *ent );
 
@@ -1157,7 +1155,7 @@ extern  vmCvar_t  g_dretchPunt;
 
 extern  vmCvar_t  g_privateMessages;
 
-void      trap_Printf( const char *fmt );
+void      trap_Print( const char *fmt );
 void      trap_Error( const char *fmt );
 int       trap_Milliseconds( void );
 int       trap_RealTime( qtime_t *qtime );

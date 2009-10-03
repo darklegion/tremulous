@@ -41,7 +41,7 @@ int PASSFLOAT( float x )
   return *(int *)&floatTemp;
 }
 
-void  trap_Printf( const char *fmt )
+void  trap_Print( const char *fmt )
 {
   syscall( G_PRINT, fmt );
 }

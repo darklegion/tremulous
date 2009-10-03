@@ -25,17 +25,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 /*
 ==================
-G_SanitiseName
+G_SanitiseString
 
-Remove case and control characters from a player name
+Remove case and control characters from a string
 ==================
 */
-void G_SanitiseName( char *in, char *out )
+void G_SanitiseString( char *in, char *out, int len )
 {
   qboolean skip = qtrue;
   int spaces = 0;
 
-  while( *in )
+  len--;
+
+  while( *in && len > 0 )
   {
     // strip leading white space
     if( *in == ' ' )
@@ -66,6 +68,7 @@ void G_SanitiseName( char *in, char *out )
     }
 
     *out++ = tolower( *in++ );
+    len--;
   }
   out -= spaces;
   *out = 0;
@@ -83,8 +86,8 @@ int G_ClientNumberFromString( char *s )
 {
   gclient_t *cl;
   int       i;
-  char      s2[ MAX_STRING_CHARS ];
-  char      n2[ MAX_STRING_CHARS ];
+  char      s2[ MAX_NAME_LENGTH ];
+  char      n2[ MAX_NAME_LENGTH ];
 
   // numeric values are just slot numbers
   for( i = 0; s[ i ] && isdigit( s[ i ] ); i++ );
@@ -104,14 +107,14 @@ int G_ClientNumberFromString( char *s )
   }
 
   // check for a name match
-  G_SanitiseName( s, s2 );
+  G_SanitiseString( s, s2, sizeof( s2 ) );
 
   for( i = 0, cl = level.clients; i < level.maxclients; i++, cl++ )
   {
     if( cl->pers.connected == CON_DISCONNECTED )
       continue;
 
-    G_SanitiseName( cl->pers.netname, n2 );
+    G_SanitiseString( cl->pers.netname, n2, sizeof( n2 ) );
 
     if( !strcmp( n2, s2 ) )
       return i;
@@ -195,7 +198,7 @@ int G_ClientNumbersFromString( char *s, int *plist, int max )
   }
 
   // now look for name matches
-  G_SanitiseName( s, s2 );
+  G_SanitiseString( s, s2, sizeof( s2 ) );
   if( strlen( s2 ) < 1 )
     return 0;
   for( i = 0; i < level.maxclients && found <= max; i++ )
@@ -205,7 +208,7 @@ int G_ClientNumbersFromString( char *s, int *plist, int max )
     {
       continue;
     }
-    G_SanitiseName( p->pers.netname, n2 );
+    G_SanitiseString( p->pers.netname, n2, sizeof( n2 ) );
     if( strstr( n2, s2 ) )
     {
       *plist++ = i;
@@ -1076,7 +1079,7 @@ void Cmd_CallVote_f( gentity_t *ent )
 {
   int   i;
   char  arg1[ MAX_STRING_TOKENS ];
-  char  arg2[ MAX_STRING_TOKENS ];
+  char  arg2[ MAX_NAME_LENGTH ];
   int   clientNum = -1;
   char  name[ MAX_NETNAME ];
 
@@ -1310,7 +1313,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 {
   int   i, team, cs_offset = 0;
   char  arg1[ MAX_STRING_TOKENS ];
-  char  arg2[ MAX_STRING_TOKENS ];
+  char  arg2[ MAX_NAME_LENGTH ];
   int   clientNum = -1;
   char  name[ MAX_NETNAME ];
 
@@ -2722,7 +2725,7 @@ void Cmd_Follow_f( gentity_t *ent )
 {
   int   i;
   int   pids[ MAX_CLIENTS ];
-  char  arg[ MAX_TOKEN_CHARS ];
+  char  arg[ MAX_NAME_LENGTH ];
 
   if( trap_Argc( ) != 2 )
   {
@@ -3216,9 +3219,11 @@ char *G_SayConcatArgs( int start )
   return s;
 }
 
-void G_DecolorString( char *in, char *out )
+void G_DecolorString( char *in, char *out, int len )
 {
-  while( *in ) {
+  len--;
+
+  while( *in && len > 0 ) {
     if( *in == 27 || Q_IsColorString( in ) ) {
       in++;
       if( *in )
@@ -3226,6 +3231,7 @@ void G_DecolorString( char *in, char *out )
       continue;
     }
     *out++ = *in++;
+    len--;
   }
   *out = '\0';
 }
