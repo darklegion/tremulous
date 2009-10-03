@@ -14,7 +14,7 @@ BIN_OBJ="
 	build/release-darwin-x86/tremulous.x86
 "
 BIN_DEDOBJ="
-	build/release-darwin-ppc/tremded.ppc
+	build/release-darwin-ub/tremded.ppc
 	build/release-darwin-x86/tremded.x86
 "
 BASE_OBJ="
