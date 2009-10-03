@@ -1905,7 +1905,6 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
   int     color;
   vec4_t  adjustedColor;
   float   vscale;
-  vec4_t  white = { 1.0f, 1.0f, 1.0f, 1.0f };
   char    *ping;
 
   if( cg.snap->ps.pm_type == PM_INTERMISSION )

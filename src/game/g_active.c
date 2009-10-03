@@ -1917,8 +1917,6 @@ void ClientEndFrame( gentity_t *ent )
 
   G_SetClientSound( ent );
 
-  G_UpdateZaps( ent );
-
   // set the latest infor
   if( g_smoothClients.integer )
     BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue );
