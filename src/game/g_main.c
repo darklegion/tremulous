@@ -1296,7 +1296,7 @@ void G_CalculateStages( void )
       (int) ceil( g_humanStageThreshold.integer * humanPlayerCountMod ) )
   {
     G_LogPrintf( "stagedownlog: aliens staging down\n"
-                 "stagedownlog: before: %d %d %d %d %d %d",
+                 "stagedownlog: before: %d %d %d %d %d %d\n",
                  g_humanStage.integer,
                  g_humanCredits.integer,
                  level.humanStagedownCredits,
@@ -1312,13 +1312,16 @@ void G_CalculateStages( void )
     trap_Cvar_Set( "g_alienStage", va( "%d", g_alienStage.integer - 1 ) );
     trap_Cvar_Set( "g_alienCredits", va( "%d", (int)ceil(g_alienCredits.integer - g_alienStageThreshold.integer * alienPlayerCountMod) ) );
     trap_Cvar_Set( "g_humanCredits", va( "%d", (int)ceil(g_humanCredits.integer - g_humanStageThreshold.integer * humanPlayerCountMod) ) );
-    G_LogPrintf( "stagedownlog: after: %d %d %d %d %d %d",
+    G_LogPrintf( "stagedownlog: after: %d %d %d %d %d %d\n",
                  trap_Cvar_VariableIntegerValue( "g_humanStage" ),
                  trap_Cvar_VariableIntegerValue( "g_humanCredits" ),
                  level.humanStagedownCredits,
                  trap_Cvar_VariableIntegerValue( "g_alienStage" ),
                  trap_Cvar_VariableIntegerValue( "g_alienCredits" ),
                  level.alienStagedownCredits);
+    trap_Cvar_Update( &g_humanCredits );
+    trap_Cvar_Update( &g_alienCredits );
+    trap_Cvar_Update( &g_humanStage );
 
   }
   if( g_humanStage.integer > S1 &&
@@ -1327,7 +1330,7 @@ void G_CalculateStages( void )
       (int) ceil( g_alienStageThreshold.integer * alienPlayerCountMod ) )
   {
     G_LogPrintf( "stagedownlog: humans staging down\n"
-                 "stagedownlog: before: %d %d %d %d %d %d",
+                 "stagedownlog: before: %d %d %d %d %d %d\n",
                  g_humanStage.integer,
                  g_humanCredits.integer,
                  level.humanStagedownCredits,
@@ -1343,13 +1346,16 @@ void G_CalculateStages( void )
     trap_Cvar_Set( "g_humanStage", va( "%d", g_humanStage.integer - 1 ) );    
     trap_Cvar_Set( "g_humanCredits", va( "%d", (int)ceil(g_humanCredits.integer - g_humanStageThreshold.integer * humanPlayerCountMod) ) );
     trap_Cvar_Set( "g_alienCredits", va( "%d", (int)ceil(g_alienCredits.integer - g_alienStageThreshold.integer * alienPlayerCountMod) ) );
-    G_LogPrintf( "stagedownlog: after: %d %d %d %d %d %d",
+    G_LogPrintf( "stagedownlog: after: %d %d %d %d %d %d\n",
                  trap_Cvar_VariableIntegerValue( "g_humanStage" ),
                  trap_Cvar_VariableIntegerValue( "g_humanCredits" ),
                  level.humanStagedownCredits,
                  trap_Cvar_VariableIntegerValue( "g_alienStage" ),
                  trap_Cvar_VariableIntegerValue( "g_alienCredits" ),
                  level.alienStagedownCredits);
+    trap_Cvar_Update( &g_humanCredits );
+    trap_Cvar_Update( &g_alienCredits );
+    trap_Cvar_Update( &g_humanStage );
   }
   
   if( g_alienMaxReachedStage.modificationCount > lastAlienStageModCount )
