@@ -3054,6 +3054,7 @@ static void CG_PainBlend( void )
     return;
 
   damage = cg.lastHealth - cg.snap->ps.stats[ STAT_HEALTH ];
+
   if( damage < 0 )
     damage = 0;
 

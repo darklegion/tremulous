@@ -422,7 +422,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MDRIVER_REPEAT              1000
 #define MDRIVER_K_SCALE             1.0f
 #define MDRIVER_RELOAD              2000
-#define MDRIVER_MAX_HITS            16
 
 #define CHAINGUN_PRICE              400
 #define CHAINGUN_BULLETS            300
@@ -530,8 +529,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define HUMAN_BHLTH_MODIFIER        1.0f
 #define HBHM(h)                     ((int)((float)h*HUMAN_BHLTH_MODIFIER))
-#define HUMAN_BVALUE_MODIFIER        0.1f
-#define HBVM(h)                     ((int)((float)h*(float)ALIEN_CREDITS_PER_FRAG*HUMAN_BVALUE_MODIFIER))
+#define HUMAN_BVALUE_MODIFIER       40.0f
+#define HBVM(h)                     ((int)((float)h*(float)HUMAN_BVALUE_MODIFIER)) // remember these are measured in credits not frags (c.f. ALIEN_CREDITS_PER_FRAG)
 
 #define REACTOR_BASESIZE            1000
 #define REPEATER_BASESIZE           500

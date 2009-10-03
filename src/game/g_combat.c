@@ -424,7 +424,7 @@ int G_ParseDmgScript( damageRegion_t *regions, char *buf )
     regions[ count ].crouch = qfalse;
 
     while( 1 )
-    {    
+    {
       token = COM_ParseExt( &buf, qtrue );
 
       if( !token[ 0 ] )
