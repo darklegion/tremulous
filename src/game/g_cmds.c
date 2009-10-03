@@ -1760,12 +1760,12 @@ void Cmd_Destroy_f( gentity_t *ent )
       ( ( ent->client->ps.weapon >= WP_ABUILD ) &&
         ( ent->client->ps.weapon <= WP_HBUILD ) ) )
   {
-      // Always let the builder prevent the explosion 
-      if( traceEnt->health <= 0 )
-      {
-        G_FreeEntity( traceEnt );
-        return;
-      }
+    // Always let the builder prevent the explosion 
+    if( traceEnt->health <= 0 )
+    {
+      G_FreeEntity( traceEnt );
+      return;
+    }
 
     // Cancel deconstruction
     if( g_markDeconstruct.integer && traceEnt->deconstruct )
@@ -1781,19 +1781,19 @@ void Cmd_Destroy_f( gentity_t *ent )
           traceEnt->s.modelindex == BA_A_SPAWN )
       {
         if( level.numAlienSpawns <= 1 )
-          {
-            G_TriggerMenu( ent->client->ps.clientNum, MN_B_LASTSPAWN );
+        {
+          G_TriggerMenu( ent->client->ps.clientNum, MN_B_LASTSPAWN );
           return;
-          }
+        }
       }
       else if( ent->client->pers.teamSelection == TEAM_HUMANS &&
                traceEnt->s.modelindex == BA_H_SPAWN )
       {
         if( level.numHumanSpawns <= 1 )
-          {
-            G_TriggerMenu( ent->client->ps.clientNum, MN_B_LASTSPAWN );
+        {
+          G_TriggerMenu( ent->client->ps.clientNum, MN_B_LASTSPAWN );
           return;
-          }
+        }
       }
     }
 
@@ -1811,10 +1811,13 @@ void Cmd_Destroy_f( gentity_t *ent )
       return;
     }
 
-    if( g_markDeconstruct.integer )
+    if( traceEnt->health > 0 )
     {
       if( !deconstruct )
-          G_Damage( traceEnt, ent, ent, forward, tr.endpos, ent->health, 0, MOD_SUICIDE );
+      {
+        G_Damage( traceEnt, ent, ent, forward, tr.endpos,
+                  traceEnt->health, 0, MOD_SUICIDE );
+      }
       else if( g_markDeconstruct.integer )
       {
         traceEnt->deconstruct     = qtrue; // Mark buildable for deconstruction
@@ -3058,6 +3061,13 @@ void ClientCommand( int clientNum )
       ent->client->pers.teamSelection == TEAM_NONE )
   {
     G_TriggerMenu( clientNum, MN_CMD_TEAM );
+    return;
+  }
+
+  if( cmds[ i ].cmdFlags & CMD_CHEAT_TEAM && !g_cheats.integer &&
+      ent->client->pers.teamSelection != TEAM_NONE )
+  {
+    G_TriggerMenu( clientNum, MN_CMD_CHEAT_TEAM );
     return;
   }
 

@@ -548,6 +548,11 @@ void CG_Menu( int menu, int arg )
       type      = DT_COMMAND;
       break;
 
+    case MN_CMD_CHEAT_TEAM:
+      shortMsg  = "You may not use this command while on a team";
+      type      = DT_COMMAND;
+      break;
+
     case MN_CMD_TEAM:
       //longMsg   = "You must be on a team to perform this action. Join the alien"
       //            "or human team and try again.";

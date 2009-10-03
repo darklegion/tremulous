@@ -642,7 +642,7 @@ typedef struct
 #define CMD_CHEAT_TEAM    0x0002 // is a cheat when used on a team
 #define CMD_MESSAGE       0x0004 // sends message to others (skip when muted)
 #define CMD_TEAM          0x0008 // must be on a team
-#define CMD_SPEC          0x0010 // must be in spectator mode
+#define CMD_SPEC          0x0010 // must be a spectator
 #define CMD_ALIEN         0x0020
 #define CMD_HUMAN         0x0040
 #define CMD_LIVING        0x0080

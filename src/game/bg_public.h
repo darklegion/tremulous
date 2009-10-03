@@ -113,7 +113,7 @@ typedef enum
   PM_GRABBED,       // like dead, but for when the player is still live
   PM_DEAD,          // no acceleration or turning, but free falling
   PM_FREEZE,        // stuck in place with no control
-  PM_INTERMISSION,  // no movement or status bar
+  PM_INTERMISSION   // no movement or status bar
 } pmtype_t;
 
 // pmtype_t categories
@@ -554,6 +554,7 @@ typedef enum
 
   // cmd stuff
   MN_CMD_CHEAT,
+  MN_CMD_CHEAT_TEAM,
   MN_CMD_TEAM,
   MN_CMD_SPEC,
   MN_CMD_ALIEN,

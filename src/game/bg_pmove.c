@@ -2835,9 +2835,9 @@ static void PM_Weapon( void )
 {
   int           addTime = 200; //default addTime - should never be used
   int           maxClips;
-  qboolean      attack1 = qfalse;
-  qboolean      attack2 = qfalse;
-  qboolean      attack3 = qfalse;
+  qboolean      attack1 = pm->cmd.buttons & BUTTON_ATTACK;
+  qboolean      attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
+  qboolean      attack3 = pm->cmd.buttons & BUTTON_USE_HOLDABLE;
 
   // Ignore weapons in some cases
   if( pm->ps->persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT ||
@@ -3054,11 +3054,9 @@ static void PM_Weapon( void )
   // check for out of ammo
   if( !pm->ps->ammo && !pm->ps->clips && !BG_Weapon( pm->ps->weapon )->infiniteAmmo )
   {
-    if( ( pm->cmd.buttons & BUTTON_ATTACK ) ||
-        ( BG_Weapon( pm->ps->weapon )->hasAltMode &&
-          ( pm->cmd.buttons & BUTTON_ATTACK2 ) ) ||
-        ( BG_Weapon( pm->ps->weapon )->hasThirdMode &&
-          ( pm->cmd.buttons & BUTTON_USE_HOLDABLE ) ) )
+    if( attack1 ||
+        ( BG_Weapon( pm->ps->weapon )->hasAltMode && attack2 ) ||
+        ( BG_Weapon( pm->ps->weapon )->hasThirdMode && attack3 ) )
     {
       PM_AddEvent( EV_NOAMMO );
       pm->ps->weaponTime += 500;
@@ -3115,18 +3113,13 @@ static void PM_Weapon( void )
     case WP_ALEVEL3:
     case WP_ALEVEL3_UPG:
       //pouncing has primary secondary AND autohit procedures
-      attack1 = pm->cmd.buttons & BUTTON_ATTACK;
-      attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
-      attack3 = pm->cmd.buttons & BUTTON_USE_HOLDABLE;
-
       // pounce is autohit
       if( !attack1 && !attack2 && !attack3 )
         return;
       break;
 
     case WP_LUCIFER_CANNON:
-      attack1 = pm->cmd.buttons & BUTTON_ATTACK;
-      attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
+      attack3 = qfalse;
       
       // Prevent firing of the Lucifer Cannon after an overcharge
       if( pm->ps->weaponstate == WEAPON_NEEDS_RESET )
@@ -3179,7 +3172,7 @@ static void PM_Weapon( void )
       break;
 
     case WP_MASS_DRIVER:
-      attack1 = pm->cmd.buttons & BUTTON_ATTACK;
+      attack2 = attack3 = qfalse;
       // attack2 is handled on the client for zooming (cg_view.c)
 
       if( !attack1 )
@@ -3191,11 +3184,6 @@ static void PM_Weapon( void )
       break;
 
     default:
-      //by default primary and secondary attacks are allowed
-      attack1 = pm->cmd.buttons & BUTTON_ATTACK;
-      attack2 = pm->cmd.buttons & BUTTON_ATTACK2;
-      attack3 = pm->cmd.buttons & BUTTON_USE_HOLDABLE;
-
       if( !attack1 && !attack2 && !attack3 )
       {
         pm->ps->weaponTime = 0;
