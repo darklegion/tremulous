@@ -100,13 +100,22 @@ qboolean CL_cURL_Init()
 		return qfalse;
 #else
 		char fn[1024];
+
 		Q_strncpyz( fn, Sys_Cwd( ), sizeof( fn ) );
 		strncat(fn, "/", sizeof(fn)-strlen(fn)-1);
 		strncat(fn, cl_cURLLib->string, sizeof(fn)-strlen(fn)-1);
 
-		if( (cURLLib = Sys_LoadLibrary(fn)) == 0 )
+		if((cURLLib = Sys_LoadLibrary(fn)) == 0)
 		{
+#ifdef ALTERNATE_CURL_LIB
+			// On some linux distributions there is no libcurl.so.3, but only libcurl.so.4. That one works too.
+			if( (cURLLib = Sys_LoadLibrary(ALTERNATE_CURL_LIB)) == 0 )
+			{
+				return qfalse;
+			}
+#else
 			return qfalse;
+#endif
 		}
 #endif /* _WIN32 */
 	}

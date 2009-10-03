@@ -790,6 +790,24 @@ $(Q)$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
 $(Q)$(DO_QVM_DEP)
 endef
 
+define DO_GAME_CC
+$(echo_cmd) "GAME_CC $<"
+$(Q)$(CC) -DGAME $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+$(Q)$(DO_QVM_DEP)
+endef
+
+define DO_CGAME_CC
+$(echo_cmd) "CGAME_CC $<"
+$(Q)$(CC) -DCGAME $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+$(Q)$(DO_QVM_DEP)
+endef
+
+define DO_UI_CC
+$(echo_cmd) "UI_CC $<"
+$(Q)$(CC) -DUI $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
+$(Q)$(DO_QVM_DEP)
+endef
+
 define DO_AS
 $(echo_cmd) "AS $<"
 $(Q)$(CC) $(CFLAGS) -x assembler-with-cpp -o $@ -c $<
@@ -1000,6 +1018,21 @@ $(echo_cmd) "Q3LCC $<"
 $(Q)$(Q3LCC) -o $@ $<
 endef
 
+define DO_CGAME_Q3LCC
+$(echo_cmd) "CGAME_Q3LCC $<"
+$(Q)$(Q3LCC) -DCGAME -o $@ $<
+endef
+
+define DO_GAME_Q3LCC
+$(echo_cmd) "GAME_Q3LCC $<"
+$(Q)$(Q3LCC) -DGAME -o $@ $<
+endef
+
+define DO_UI_Q3LCC
+$(echo_cmd) "UI_Q3LCC $<"
+$(Q)$(Q3LCC) -DUI -o $@ $<
+endef
+
 
 Q3ASMOBJ = \
   $(B)/tools/asm/q3asm.o \
@@ -1082,6 +1115,7 @@ Q3OBJ = \
   $(B)/client/vm_interpreted.o \
   \
   $(B)/client/jcapimin.o \
+  $(B)/client/jcapistd.o \
   $(B)/client/jchuff.o   \
   $(B)/client/jcinit.o \
   $(B)/client/jccoefct.o  \
@@ -1124,6 +1158,11 @@ Q3OBJ = \
   $(B)/client/tr_flares.o \
   $(B)/client/tr_font.o \
   $(B)/client/tr_image.o \
+  $(B)/client/tr_image_png.o \
+  $(B)/client/tr_image_jpg.o \
+  $(B)/client/tr_image_bmp.o \
+  $(B)/client/tr_image_tga.o \
+  $(B)/client/tr_image_pcx.o \
   $(B)/client/tr_init.o \
   $(B)/client/tr_light.o \
   $(B)/client/tr_main.o \
@@ -1289,10 +1328,10 @@ $(B)/tremded.$(ARCH)$(BINEXT): $(Q3DOBJ)
 
 CGOBJ_ = \
   $(B)/base/cgame/cg_main.o \
-  $(B)/base/game/bg_misc.o \
-  $(B)/base/game/bg_pmove.o \
-  $(B)/base/game/bg_slidemove.o \
-  $(B)/base/game/bg_lib.o \
+  $(B)/base/cgame/bg_misc.o \
+  $(B)/base/cgame/bg_pmove.o \
+  $(B)/base/cgame/bg_slidemove.o \
+  $(B)/base/cgame/bg_lib.o \
   $(B)/base/cgame/cg_consolecmds.o \
   $(B)/base/cgame/cg_buildable.o \
   $(B)/base/cgame/cg_animation.o \
@@ -1392,8 +1431,8 @@ UIOBJ_ = \
   $(B)/base/ui/ui_shared.o \
   $(B)/base/ui/ui_gameinfo.o \
   \
-  $(B)/base/game/bg_misc.o \
-  $(B)/base/game/bg_lib.o \
+  $(B)/base/ui/bg_misc.o \
+  $(B)/base/ui/bg_lib.o \
   $(B)/base/qcommon/q_math.o \
   $(B)/base/qcommon/q_shared.o
 
@@ -1481,25 +1520,37 @@ endif
 ## GAME MODULE RULES
 #############################################################################
 
+$(B)/base/cgame/bg_%.o: $(GDIR)/bg_%.c
+	$(DO_CGAME_CC)
+
 $(B)/base/cgame/%.o: $(CGDIR)/%.c
-	$(DO_SHLIB_CC)
+	$(DO_CGAME_CC)
+
+$(B)/base/cgame/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
+	$(DO_CGAME_Q3LCC)
 
 $(B)/base/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
-	$(DO_Q3LCC)
+	$(DO_CGAME_Q3LCC)
 
 
 $(B)/base/game/%.o: $(GDIR)/%.c
-	$(DO_SHLIB_CC)
+	$(DO_GAME_CC)
 
 $(B)/base/game/%.asm: $(GDIR)/%.c $(Q3LCC)
-	$(DO_Q3LCC)
+	$(DO_GAME_Q3LCC)
 
+
+$(B)/base/ui/bg_%.o: $(GDIR)/bg_%.c
+	$(DO_UI_CC)
 
 $(B)/base/ui/%.o: $(UIDIR)/%.c
-	$(DO_SHLIB_CC)
+	$(DO_UI_CC)
+
+$(B)/base/ui/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
+	$(DO_UI_Q3LCC)
 
 $(B)/base/ui/%.asm: $(UIDIR)/%.c $(Q3LCC)
-	$(DO_Q3LCC)
+	$(DO_UI_Q3LCC)
 
 
 $(B)/base/qcommon/%.o: $(CMDIR)/%.c

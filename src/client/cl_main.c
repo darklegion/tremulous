@@ -453,7 +453,7 @@ void CL_DemoCompleted( void )
 					time / (float)clc.timeDemoFrames,
 					clc.timeDemoMaxDuration,
 					CL_DemoFrameDurationSDev( ) );
-			Com_Printf( buffer );
+			Com_Printf( "%s", buffer );
 
 			// Write a log of all the frame durations
 			if( cl_timedemoLog && strlen( cl_timedemoLog->string ) > 0 )
@@ -3236,7 +3236,7 @@ void CL_GlobalServers_f( void ) {
 	for (i=3; i<count; i++)
 		buffptr += sprintf( buffptr, " %s", Cmd_Argv(i) );
 
-	NET_OutOfBandPrint( NS_SERVER, to, command );
+	NET_OutOfBandPrint( NS_SERVER, to, "%s", command );
 }
 
 

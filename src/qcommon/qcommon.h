@@ -530,6 +530,12 @@ issues.
 
 #define BASEGAME "base"
 
+#ifdef DEDICATED
+#	define Q3CONFIG_CFG "autogen_server.cfg"
+#else
+#	define Q3CONFIG_CFG "autogen.cfg"
+#endif
+
 qboolean FS_Initialized( void );
 
 void	FS_InitFilesystem ( void );

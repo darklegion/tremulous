@@ -4888,7 +4888,7 @@ void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerSta
 
     if( atof( buf ) != 0 )
     {
-#ifdef QAGAME
+#ifdef GAME
       Com_Printf( " game event svt %5d -> %5d: num = %20s parm %d\n",
                   ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, eventnames[ newEvent ], eventParm);
 #else
