@@ -1875,7 +1875,7 @@ classAttributes_t bg_classList[ ] =
     2.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
-    400.0f,                                         //float   jumpMagnitude;
+    380.0f,                                         //float   jumpMagnitude;
     0.8f,                                           //float   knockbackScale;
     { PCL_ALIEN_LEVEL3, PCL_ALIEN_LEVEL2_UPG, PCL_NONE },   //int     children[ 3 ];
     LEVEL2_COST,                                    //int     cost;
@@ -1916,7 +1916,7 @@ classAttributes_t bg_classList[ ] =
     2.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
-    400.0f,                                         //float   jumpMagnitude;
+    380.0f,                                         //float   jumpMagnitude;
     0.7f,                                           //float   knockbackScale;
     { PCL_ALIEN_LEVEL3, PCL_NONE, PCL_NONE },       //int     children[ 3 ];
     LEVEL2_UPG_COST,                                //int     cost;

@@ -103,7 +103,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL3_POUNCE_JUMP_MAG      700      // Dragoon pounce jump power
 #define LEVEL3_POUNCE_JUMP_MAG_UPG  800      // Adv. Dragoon pounce jump power
 #define LEVEL3_BOUNCEBALL_DMG       ADM(110)
-#define LEVEL3_BOUNCEBALL_REPEAT    1000
+#define LEVEL3_BOUNCEBALL_REPEAT    1500
 #define LEVEL3_BOUNCEBALL_SPEED     1000.0f
 #define LEVEL3_BOUNCEBALL_RADIUS    100
 #define LEVEL3_BOUNCEBALL_REGEN     15000    // msec until new barb
