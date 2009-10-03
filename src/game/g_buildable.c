@@ -3481,21 +3481,6 @@ qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_NODCC );
       return qfalse;
 
-    case IBE_SPWNWARN:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_A_SPWNWARN );
-      G_Build( ent, buildable, origin, ent->s.apos.trBase );
-      return qtrue;
-
-    case IBE_TNODEWARN:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_TNODEWARN );
-      G_Build( ent, buildable, origin, ent->s.apos.trBase );
-      return qtrue;
-
-    case IBE_RPTNOREAC:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPTNOREAC );
-      G_Build( ent, buildable, origin, ent->s.apos.trBase );
-      return qtrue;
-
     case IBE_RPTPOWERHERE:
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPTPOWERHERE );
       return qfalse;

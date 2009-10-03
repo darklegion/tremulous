@@ -1534,23 +1534,19 @@ void Cmd_Class_f( gentity_t *ent )
           newClass != PCL_ALIEN_BUILDER0_UPG &&
           newClass != PCL_ALIEN_LEVEL0 )
       {
-        trap_SendServerCommand( ent-g_entities,
-          va( "print \"You cannot spawn with class %s\n\"", s ) );
+        G_TriggerMenu2( ent->client->ps.clientNum, MN_A_CLASSNOTSPAWN, newClass );
         return;
       }
 
       if( !BG_ClassIsAllowed( newClass ) )
       {
-        trap_SendServerCommand( ent-g_entities,
-          va( "print \"Class %s is not allowed\n\"", s ) );
+        G_TriggerMenu2( ent->client->ps.clientNum, MN_A_CLASSNOTALLOWED, newClass );
         return;
       }
 
       if( !BG_FindStagesForClass( newClass, g_alienStage.integer ) )
       {
-        trap_SendServerCommand( ent-g_entities,
-          va( "print \"Class %s not allowed at stage %d\n\"",
-              s, g_alienStage.integer + 1 ) );
+        G_TriggerMenu2( ent->client->ps.clientNum, MN_A_CLASSNOTATSTAGE, newClass );
         return;
       }
 
@@ -1582,8 +1578,7 @@ void Cmd_Class_f( gentity_t *ent )
       }
       else
       {
-        trap_SendServerCommand( ent-g_entities,
-          "print \"Unknown starting item\n\"" );
+        G_TriggerMenu( ent->client->ps.clientNum, MN_H_UNKNOWNSPAWNITEM );
         return;
       }
       // spawn from a telenode
@@ -1605,7 +1600,7 @@ void Cmd_Class_f( gentity_t *ent )
   {
     if( newClass == PCL_NONE )
     {
-      trap_SendServerCommand( ent-g_entities, "print \"Unknown class\n\"" );
+      G_TriggerMenu( ent->client->ps.clientNum, MN_A_UNKNOWNCLASS );
       return;
     }
 
@@ -1617,8 +1612,7 @@ void Cmd_Class_f( gentity_t *ent )
       if( ( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING ) ||
           ( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING ) )
       {
-        trap_SendServerCommand( ent-g_entities, 
-          "print \"You cannot evolve while wallwalking\n\"" );
+        G_TriggerMenu( clientNum, MN_A_EVOLVEWALLWALK );
         return;
       }
 
@@ -1681,8 +1675,7 @@ void Cmd_Class_f( gentity_t *ent )
         }
         else
         {
-          trap_SendServerCommand( ent-g_entities,
-               "print \"You cannot evolve from your current class\n\"" );
+          G_TriggerMenu2( clientNum, MN_A_CANTEVOLVE, newClass );
           return;
         }
       }
@@ -1695,9 +1688,7 @@ void Cmd_Class_f( gentity_t *ent )
   }
   else if( ent->client->pers.teamSelection == PTE_HUMANS )
   {
-    //humans cannot use this command whilst alive
-    trap_SendServerCommand( ent-g_entities,
-      "print \"You must be dead to use the class command\n\"" );
+    G_TriggerMenu( clientNum, MN_H_DEADTOCLASS );
     return;
   }
 }
@@ -2333,15 +2324,13 @@ void Cmd_Build_f( gentity_t *ent )
 
   if( ent->client->pers.denyBuild )
   {
-    trap_SendServerCommand( ent-g_entities,
-      "print \"Your building rights have been revoked\n\"" );
+    G_TriggerMenu( ent->client->ps.clientNum, MN_B_REVOKED );
     return;
   }
 
   if( ent->client->pers.teamSelection == level.surrenderTeam )
   {
-    trap_SendServerCommand( ent-g_entities,
-      "print \"Building has been denied to traitorous cowards\n\"" );
+    G_TriggerMenu( ent->client->ps.clientNum, MN_B_SURRENDER );
     return;
   }
 
@@ -2351,8 +2340,7 @@ void Cmd_Build_f( gentity_t *ent )
 
   if( G_TimeTilSuddenDeath( ) <= 0 )
   {
-    trap_SendServerCommand( ent-g_entities,
-      "print \"Building is not allowed during Sudden Death\n\"" );
+    G_TriggerMenu( ent->client->ps.clientNum, MN_B_SUDDENDEATH );
     return;
   }
 
@@ -2399,6 +2387,10 @@ void Cmd_Build_f( gentity_t *ent )
         G_TriggerMenu( ent->client->ps.clientNum, MN_A_ONEOVERMIND );
         break;
 
+      case IBE_ONEHOVEL:
+        G_TriggerMenu( ent->client->ps.clientNum, MN_A_ONEHOVEL );
+        break;
+
       case IBE_ONEREACTOR:
         G_TriggerMenu( ent->client->ps.clientNum, MN_H_ONEREACTOR );
         break;
@@ -2416,7 +2408,7 @@ void Cmd_Build_f( gentity_t *ent )
     }
   }
   else
-    trap_SendServerCommand( ent-g_entities, va( "print \"Cannot build this item\n\"" ) );
+    G_TriggerMenu( ent->client->ps.clientNum, MN_B_CANNOT );
 }
 
 /*

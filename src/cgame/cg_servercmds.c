@@ -454,13 +454,13 @@ static void CG_RemoveChatEscapeChar( char *text )
 CG_Menu
 ==============
 */
-void CG_Menu( int menu )
+void CG_Menu( int menu, int arg )
 {
-  const char *cmd       = NULL; // command to send
-  const char *longMsg   = NULL; // command parameter
-  const char *shortMsg  = NULL; // non-modal version of message
-
+  const char *cmd;              // command to send
+  const char *longMsg  = NULL; // command parameter
+  const char *shortMsg = NULL; // non-modal version of message
   const char *dialog;
+  
   switch( cg.snap->ps.stats[ STAT_PTEAM ] )
   {
     case PTE_ALIENS:
@@ -472,6 +472,7 @@ void CG_Menu( int menu )
     default:
       dialog = "menu tremulous_default_dialog\n";
   }
+  cmd = dialog;
 
   switch( menu )
   {
@@ -503,28 +504,24 @@ void CG_Menu( int menu )
       longMsg   = "The alien team has too many players. Please wait until slots "
                   "become available or join the human team.";
       shortMsg  = "The alien team has too many players";
-      cmd       = dialog;
       break;
 
     case MN_H_TEAMFULL:
       longMsg   = "The human team has too many players. Please wait until slots "
                   "become available or join the alien team.";
       shortMsg  = "The human team has too many players";
-      cmd       = dialog;
       break;
 
     case MN_A_TEAMCHANGEBUILDTIMER:
       longMsg   = "You cannot leave the Alien team until your build timer "
                   "has expired.";
       shortMsg  = "You cannot change teams until your build timer expires.";
-      cmd       = dialog;
       break;
 
     case MN_H_TEAMCHANGEBUILDTIMER:
       longMsg   = "You cannot leave the Human team until your build timer "
                   "has expired.";
       shortMsg  = "You cannot change teams until your build timer expires.";
-      cmd       = dialog;
       break;
 
     //===============================
@@ -533,42 +530,36 @@ void CG_Menu( int menu )
     // via console. In light of this, perhaps opening a menu is 
     // counterintuitive
     case MN_CMD_CHEAT:
-      longMsg   = "This action is considered cheating. It can only be used "
-                  "in cheat mode, which is not enabled on this server.";
+      //longMsg   = "This action is considered cheating. It can only be used "
+      //            "in cheat mode, which is not enabled on this server.";
       shortMsg  = "Cheats are not enabled on this server";
-      cmd       = dialog;
       break;
 
     case MN_CMD_TEAM:
-      longMsg   = "You must be on a team to perform this action. Join the alien"
-                  "or human team and try again.";
+      //longMsg   = "You must be on a team to perform this action. Join the alien"
+      //            "or human team and try again.";
       shortMsg  = "Join a team first";
-      cmd       = dialog;
       break;
 
     case MN_CMD_SPEC:
-      longMsg   = "You may not perform this action while on a team. Become a "
-                  "spectator before trying again.";
+      //longMsg   = "You may not perform this action while on a team. Become a "
+      //            "spectator before trying again.";
       shortMsg  = "You can only use this command when spectating";
-      cmd       = dialog;
       break;
 
     case MN_CMD_ALIEN:
-      longMsg   = "You must be on the alien team to perform this action.";
+      //longMsg   = "You must be on the alien team to perform this action.";
       shortMsg  = "Must be alien to use this command";
-      cmd       = dialog;
       break;
 
     case MN_CMD_HUMAN:
-      longMsg   = "You must be on the human team to perform this action.";
+      //longMsg   = "You must be on the human team to perform this action.";
       shortMsg  = "Must be human to use this command";
-      cmd       = dialog;
       break;
 
     case MN_CMD_LIVING:
-      longMsg   = "You must be living to perform this action.";
+      //longMsg   = "You must be living to perform this action.";
       shortMsg  = "Must be living to use this command";
-      cmd       = dialog;
       break;
 
 
@@ -578,7 +569,6 @@ void CG_Menu( int menu )
       longMsg   = "There is no room to build here. Move until the structure turns "
                   "translucent green indicating a valid build location.";
       shortMsg  = "There is no room to build here";
-      cmd       = dialog;
       break;
 
     case MN_B_NORMAL:
@@ -586,114 +576,105 @@ void CG_Menu( int menu )
                   "unsuitable to build on. Please choose another site for this "
                   "structure.";
       shortMsg  = "Cannot build on this surface";
-      cmd       = dialog;
+      break;
+
+    case MN_B_CANNOT:
+      longMsg   = NULL;
+      shortMsg  = "You cannot build that structure";
+      break;
+
+    case MN_B_SUDDENDEATH:
+      longMsg   = "Neither team has prevailed after a certain time and the "
+                  "game has entered Sudden Death. During Sudden Death "
+                  "building is not allowed.";
+      shortMsg  = "Cannot build during Sudden Death";
+      break;
+
+    case MN_B_REVOKED:
+      longMsg   = "Your teammates have lost faith in your ability to build "
+                  "for the team. You will not be allowed to build until your "
+                  "team votes to reinstate your building rights.";
+      shortMsg  = "Your building rights have been revoked";
       break;
 
 
     //===============================
 
     case MN_H_NOBP:
-      longMsg   = "There is no power remaining. Free up power by destroying "
+      longMsg   = "There is no power remaining. Free up power by deconstructing "
                   "existing buildable objects.";
       shortMsg  = "There is no power remaining";
-      cmd       = dialog;
       break;
 
     case MN_H_NOTPOWERED:
       longMsg   = "This buildable is not powered. Build a Reactor and/or Repeater "
                   "in order to power it.";
       shortMsg  = "This buildable is not powered";
-      cmd       = dialog;
       break;
 
     case MN_H_ONEREACTOR:
-      longMsg   = "There can only be one Reactor. Destroy the existing one if you "
+      longMsg   = "There can only be one Reactor. Deconstruct the existing one if you "
                   "wish to move it.";
       shortMsg  = "There can only be one Reactor";
-      cmd       = dialog;
       break;
 
     case MN_H_NOPOWERHERE:
       longMsg   = "There is no power here. If available, a Repeater may be used to "
                   "transmit power to this location.";
       shortMsg  = "There is no power here";
-      cmd       = dialog;
       break;
 
     case MN_H_NODCC:
       longMsg   = "There is no Defense Computer. A Defense Computer is needed to "
                   "build this.";
       shortMsg  = "There is no Defense Computer";
-      cmd       = dialog;
-      break;
-
-    case MN_H_TNODEWARN:
-      longMsg   = "WARNING: This Telenode will not be powered. Build near a power "
-                  "structure to prevent seeing this message again.";
-      shortMsg  = "This Telenode will not be powered";
-      cmd       = dialog;
-      break;
-
-    case MN_H_RPTNOREAC:
-      longMsg   = "WARNING: This Repeater will not be powered as there is no parent "
-                  "Reactor providing power. Build a Reactor.";
-      shortMsg  = "This Repeater will not be powered";
-      cmd       = dialog;
       break;
 
     case MN_H_RPTPOWERHERE:
       longMsg   = "This area already has power. A Repeater is not required here.";
       shortMsg  = "This area already has power";
-      cmd       = dialog;
       break;
 
     case MN_H_NOSLOTS:
       longMsg   = "You have no room to carry this. Please sell any conflicting "
                   "upgrades before purchasing this item.";
       shortMsg  = "You have no room to carry this";
-      cmd       = dialog;
       break;
 
     case MN_H_NOFUNDS:
       longMsg   = "Insufficient funds. You do not have enough credits to perform "
                   "this action.";
       shortMsg  = "Insufficient funds";
-      cmd       = dialog;
       break;
 
     case MN_H_ITEMHELD:
       longMsg   = "You already hold this item. It is not possible to carry multiple "
                   "items of the same type.";
       shortMsg  = "You already hold this item";
-      cmd       = dialog;
       break;
 
     case MN_H_NOARMOURYHERE:
       longMsg   = "You must be near a powered Armoury in order to purchase "
                   "weapons, upgrades or non-energy ammunition.";
       shortMsg  = "You must be near a powered Armoury";
-      cmd       = dialog;
       break;
 
     case MN_H_NOENERGYAMMOHERE:
       longMsg   = "You must be near an Armoury, Reactor or Repeater in order "
                   "to purchase energy ammunition.";
       shortMsg  = "You must be near an Armoury, Reactor or Repeater";
-      cmd       = dialog;
       break;
 
     case MN_H_NOROOMBSUITON:
       longMsg   = "There is not enough room here to put on a Battle Suit. "
                   "Make sure you have enough head room to climb in.";
       shortMsg  = "Not enough room here to put on a Battle Suit";
-      cmd       = dialog;
       break;
 
     case MN_H_NOROOMBSUITOFF:
       longMsg   = "There is not enough room here to take off your Battle Suit. "
                   "Make sure you have enough head room to climb out.";
       shortMsg  = "Not enough room here to take off your Battle Suit";
-      cmd       = dialog;
       break;
 
     case MN_H_ARMOURYBUILDTIMER:
@@ -701,9 +682,15 @@ void CG_Menu( int menu )
                   "build timer has expired.";
       shortMsg  = "You can not buy or sell weapos until your build timer "
                   "expires";
-      cmd       = dialog;
       break;
 
+    case MN_H_DEADTOCLASS:
+      shortMsg  = "You must be dead to use the class command";
+      break;
+
+    case MN_H_UNKNOWNSPAWNITEM:
+      shortMsg  = "Unknown starting item";
+      break;
 
     //===============================
 
@@ -711,48 +698,35 @@ void CG_Menu( int menu )
       longMsg   = "There is no creep here. You must build near existing Eggs or "
                   "the Overmind. Alien structures will not support themselves.";
       shortMsg  = "There is no creep here";
-      cmd       = dialog;
       break;
 
     case MN_A_NOOVMND:
       longMsg   = "There is no Overmind. An Overmind must be built to control "
                   "the structure you tried to place";
       shortMsg  = "There is no Overmind";
-      cmd       = dialog;
       break;
 
     case MN_A_ONEOVERMIND:
-      longMsg   = "There can only be one Overmind. Destroy the existing one if you "
+      longMsg   = "There can only be one Overmind. Deconstruct the existing one if you "
                   "wish to move it.";
       shortMsg  = "There can only be one Overmind";
-      cmd       = dialog;
       break;
 
     case MN_A_ONEHOVEL:
-      longMsg   = "There can only be one Hovel. Destroy the existing one if you "
+      longMsg   = "There can only be one Hovel. Deconstruct the existing one if you "
                   "wish to move it.";
       shortMsg  = "There can only be one Hovel";
-      cmd       = dialog;
       break;
 
     case MN_A_NOBP:
-      longMsg   = "The Overmind cannot control any more structures. Destroy existing "
+      longMsg   = "The Overmind cannot control any more structures. Deconstruct existing "
                   "structures to build more.";
       shortMsg  = "The Overmind cannot control any more structures";
-      cmd       = dialog;
-      break;
-
-    case MN_A_SPWNWARN:
-      longMsg   = "WARNING: This spawn will not be controlled by an Overmind. "
-                  "Build an Overmind to prevent seeing this message again.";
-      shortMsg  = "This spawn will not be controlled by an Overmind";
-      cmd       = dialog;
       break;
 
     case MN_A_NOEROOM:
       longMsg   = "There is no room to evolve here. Move away from walls or other "
                    "nearby objects and try again.";
-      cmd       = dialog;
       shortMsg  = "There is no room to evolve here";
       break;
 
@@ -761,40 +735,34 @@ void CG_Menu( int menu )
                   "until you are no longer aware of the enemy's presence and try "
                   "again.";
       shortMsg  = "This location is too close to the enemy to evolve";
-      cmd       = dialog;
       break;
 
     case MN_A_NOOVMND_EVOLVE:
       longMsg   = "There is no Overmind. An Overmind must be built to allow "
                   "you to upgrade.";
       shortMsg  = "There is no Overmind";
-      cmd       = dialog;
       break;
 
     case MN_A_EVOLVEBUILDTIMER:
       longMsg   = "You cannot Evolve until your build timer has expired.";
       shortMsg  = "You cannot Evolve until your build timer expires";
-      cmd       = dialog;
       break;
 
     case MN_A_HOVEL_OCCUPIED:
       longMsg   = "This Hovel is already occupied by another builder.";
       shortMsg  = "This Hovel is already occupied by another builder";
-      cmd       = dialog;
       break;
 
     case MN_A_HOVEL_BLOCKED:
       longMsg   = "The exit to this Hovel is currently blocked. Please wait until it "
                   "becomes clear then try again.";
       shortMsg  = "The exit to this Hovel is currently blocked";
-      cmd       = dialog;
       break;
 
     case MN_A_HOVEL_EXIT:
       longMsg   = "The exit to this Hovel would always be blocked. Please choose "
                   "a more suitable location.";
       shortMsg  = "The exit to this Hovel would always be blocked";
-      cmd       = dialog;
       break;
 
     case MN_A_INFEST:
@@ -803,25 +771,50 @@ void CG_Menu( int menu )
       cmd       = "menu tremulous_alienupgrade\n";
       break;
 
+    case MN_A_CANTEVOLVE:
+      shortMsg  = va( "You cannot evolve to %s", 
+                      BG_FindHumanNameForClassNum( arg ) );
+      break;
+
+    case MN_A_EVOLVEWALLWALK:
+      shortMsg  = "You cannot evolve while wallwalking";
+      break;
+
+    case MN_A_UNKNOWNCLASS:
+      shortMsg  = "Unknown class";
+      break;
+      
+    case MN_A_CLASSNOTSPAWN:
+      shortMsg  = va( "You cannot spawn as %s", 
+                      BG_FindHumanNameForClassNum( arg ) );
+      break;
+    
+    case MN_A_CLASSNOTALLOWED:
+      shortMsg  = va( "%s is not allowed",
+                      BG_FindHumanNameForClassNum( arg ) );
+      break;
+
+    case MN_A_CLASSNOTATSTAGE:
+      shortMsg  = va( "%s is not allowed at Stage %d",
+                      BG_FindHumanNameForClassNum( arg ),
+                      cgs.alienStage + 1 );
+      break;
+
     default:
       Com_Printf( "cgame: debug: no such menu %d\n", menu );
   }
-
-  if( cg_disableWarningDialogs.integer == 0 ||
-      !shortMsg )
+  
+  if( cmd != dialog )
   {
-    // Player either wants dialog window or there's no short message
-    if( cmd )
-    {
-      if( longMsg )
-        trap_Cvar_Set( "ui_dialog", longMsg );
-
-      trap_SendConsoleCommand( cmd );
-    }
+    trap_SendConsoleCommand( cmd );
   }
-  else if( cg_disableWarningDialogs.integer == 1 )
+  else if( longMsg && cg_disableWarningDialogs.integer == 0 )
   {
-    // There is short message and player wants it
+    trap_Cvar_Set( "ui_dialog", longMsg );
+    trap_SendConsoleCommand( cmd );
+  }
+  else if( shortMsg && cg_disableWarningDialogs.integer < 2 )
+  {
     CG_Printf( "%s\n", shortMsg );
   }
 }
@@ -932,8 +925,9 @@ static void CG_ServerCommand( void )
   if( !strcmp( cmd, "servermenu" ) )
   {
     if( trap_Argc( ) == 2 && !cg.demoPlayback )
-      CG_Menu( atoi( CG_Argv( 1 ) ) );
-
+      CG_Menu( atoi( CG_Argv( 1 ) ), 0 );
+    if( trap_Argc( ) == 3 && !cg.demoPlayback )
+      CG_Menu( atoi( CG_Argv( 1 ) ), atoi( CG_Argv( 2 ) ) );
     return;
   }
 

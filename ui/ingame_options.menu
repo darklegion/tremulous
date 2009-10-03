@@ -282,9 +282,10 @@
     {
       name game
       group optionsGrp
-      type ITEM_TYPE_YESNO
+      type ITEM_TYPE_MULTI
       text "Disable Warning Dialogs:"
       cvar "cg_disableWarningDialogs"
+      cvarFloatList { "No" 0 "Print to Console" 1 "Yes" 2 }
       rect CONTENT_X (CONTENT_Y+(7*ELEM_H)) CONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
