@@ -1,4 +1,4 @@
-//entire body ;)
+// body
 {
   minHeight 0.0
   maxHeight 0.8
@@ -6,6 +6,8 @@
   maxAngle  360
   modifier  0.2
 }
+
+// head
 {
   minHeight 0.8
   maxHeight 1.0
@@ -14,19 +16,3 @@
   modifier  0.27
 }
 
-{
-  crouch
-  minHeight 0.0
-  maxHeight 0.8
-  minAngle  0
-  maxAngle  360
-  modifier  0.2
-}
-{
-  crouch
-  minHeight 0.8
-  maxHeight 1.0
-  minAngle  0
-  maxAngle  360
-  modifier  0.27
-}

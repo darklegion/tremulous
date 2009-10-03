@@ -1,4 +1,4 @@
-//head
+// head
 {
   minHeight 0.8
   maxHeight 1.0
@@ -6,8 +6,10 @@
   maxAngle  360
   modifier  0.4
 }
+
+// head, crouched
 {
-  minHeight 0.8
+  minHeight 0.72
   maxHeight 1.0
   minAngle  0
   maxAngle  360
