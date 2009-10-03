@@ -1536,6 +1536,10 @@ void FireWeapon( gentity_t *ent )
   {
     AngleVectors( ent->turretAim, forward, right, up );
     VectorCopy( ent->s.pos.trBase, muzzle );
+    
+    // Hive muzzle point is on the tip
+    if( ent->s.eType == ET_BUILDABLE && ent->s.modelindex == BA_A_HIVE )
+      VectorMA( muzzle, ent->r.maxs[ 2 ], ent->s.origin2, muzzle );
   }
 
   // fire the specific weapon

@@ -565,8 +565,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MGTURRET_SPREAD             200
 #define MGTURRET_DMG                HDM(8)
 #define MGTURRET_SPINUP_TIME        750 // time between target sighted and fire
-#define MGTURRET_SPIN_DURATION      50  // time that the turret stays spun-up
-#define MGTURRET_SPINDOWN_TIME      50  // time to return to idle state after a spinup
 #define MGTURRET_VALUE              HBVM(MGTURRET_BP)
 
 #define TESLAGEN_BP                 10

@@ -810,7 +810,7 @@ void        G_TriggerMenu( int clientNum, dynMenu_t menu );
 void        G_TriggerMenu2( int clientNum, dynMenu_t menu, int arg );
 void        G_CloseMenus( int clientNum );
 
-qboolean    G_Visible( gentity_t *ent1, gentity_t *ent2 );
+qboolean    G_Visible( gentity_t *ent1, gentity_t *ent2, int contents );
 gentity_t   *G_ClosestEnt( vec3_t origin, gentity_t **entities, int numEntities );
 
 //

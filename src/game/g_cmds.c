@@ -2291,21 +2291,7 @@ void Cmd_Sell_f( gentity_t *ent )
         BG_RemoveUpgradeFromInventory( i, ent->client->ps.stats );
 
         if( i == UP_BATTPACK )
-        {
-          int j;
-
-          //remove energy
-          for( j = WP_NONE; j < WP_NUM_WEAPONS; j++ )
-          {
-            if( BG_InventoryContainsWeapon( j, ent->client->ps.stats ) &&
-                BG_FindUsesEnergyForWeapon( j ) &&
-                !BG_FindInfinteAmmoForWeapon( j ) )
-            {
-              ent->client->ps.ammo = 0;
-              ent->client->ps.clips = 0;
-            }
-          }
-        }
+          G_GiveClientMaxAmmo( ent, qtrue );
 
         //add to funds
         G_AddCreditToClient( ent->client, (short)BG_FindPriceForUpgrade( i ), qfalse );
@@ -2526,6 +2512,7 @@ void G_FollowLockView( gentity_t *ent )
   ent->client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
   ent->client->ps.stats[ STAT_VIEWLOCK ] = 0;
   ent->client->ps.eFlags &= ~EF_WALLCLIMB;
+  ent->client->ps.eFlags ^= EF_TELEPORT_BIT;
   ent->client->ps.viewangles[ PITCH ] = 0.0f;
 
   // Put the view at the team spectator lock position

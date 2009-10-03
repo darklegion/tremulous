@@ -488,8 +488,7 @@ static void G_CreepSlow( gentity_t *self )
     enemy = &g_entities[ entityList[ i ] ];
 
     if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
-        enemy->client->ps.groundEntityNum != ENTITYNUM_NONE &&
-        G_Visible( self, enemy ) )
+        enemy->client->ps.groundEntityNum != ENTITYNUM_NONE )
     {
       enemy->client->ps.stats[ STAT_STATE ] |= SS_CREEPSLOWED;
       enemy->client->lastCreepSlowTime = level.time;
@@ -1082,7 +1081,7 @@ void AAcidTube_Think( gentity_t *self )
     {
       enemy = &g_entities[ entityList[ i ] ];
 
-      if( !G_Visible( self, enemy ) )
+      if( !G_Visible( self, enemy, CONTENTS_SOLID ) )
         continue;
 
       if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
@@ -1109,8 +1108,44 @@ void AAcidTube_Think( gentity_t *self )
 
 //==================================================================================
 
+/*
+================
+AHive_CheckTarget
 
+Returns true and fires the hive missile if the target is valid
+================
+*/
+static qboolean AHive_CheckTarget( gentity_t *self, gentity_t *enemy )
+{
+  trace_t trace;
+  vec3_t tip_origin, dirToTarget;
 
+  // Check if this is a valid target
+  if( enemy->health <= 0 || !enemy->client ||
+      enemy->client->ps.stats[ STAT_PTEAM ] != PTE_HUMANS )
+    return qfalse;
+
+  // Check if the tip of the hive can see the target
+  VectorMA( self->s.pos.trBase, self->r.maxs[ 2 ], self->s.origin2,
+            tip_origin );
+  trap_Trace( &trace, tip_origin, NULL, NULL, enemy->s.pos.trBase,
+              self->s.number, MASK_SHOT );
+  if( trace.fraction < 1.0f && trace.entityNum != enemy->s.number )
+    return qfalse;
+
+  self->active = qtrue;
+  self->target_ent = enemy;
+  self->timestamp = level.time + HIVE_REPEAT;
+
+  VectorSubtract( enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
+  VectorNormalize( dirToTarget );
+  vectoangles( dirToTarget, self->turretAim );
+
+  // Fire at target
+  FireWeapon( self );
+  G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
+  return qtrue;
+}
 
 /*
 ================
@@ -1121,53 +1156,30 @@ Think function for Alien Hive
 */
 void AHive_Think( gentity_t *self )
 {
-  int       entityList[ MAX_GENTITIES ];
-  vec3_t    range = { HIVE_SENSE_RANGE, HIVE_SENSE_RANGE, HIVE_SENSE_RANGE };
-  vec3_t    mins, maxs;
-  int       i, num;
-  gentity_t *enemy;
-  vec3_t    dirToTarget;
-
   self->powered = G_IsOvermindBuilt( );
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
 
-  VectorAdd( self->s.origin, range, maxs );
-  VectorSubtract( self->s.origin, range, mins );
-
   AGeneric_CreepCheck( self );
 
+  // Hive missile hasn't returned in HIVE_REPEAT seconds, forget about it
   if( self->timestamp < level.time )
-    self->active = qfalse; //nothing has returned in HIVE_REPEAT seconds, forget about it
+    self->active = qfalse;
 
+  // Find a target to attack
   if( self->spawned && !self->active && G_FindOvermind( self ) )
   {
-    //do some damage
+    int i, num, entityList[ MAX_GENTITIES ];
+    vec3_t mins, maxs,
+           range = { HIVE_SENSE_RANGE, HIVE_SENSE_RANGE, HIVE_SENSE_RANGE };
+
+    VectorAdd( self->s.origin, range, maxs );
+    VectorSubtract( self->s.origin, range, mins );
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+    
     for( i = 0; i < num; i++ )
     {
-      enemy = &g_entities[ entityList[ i ] ];
-
-      if( enemy->health <= 0 )
-        continue;
-
-      if( !G_Visible( self, enemy ) )
-        continue;
-
-      if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-      {
-        self->active = qtrue;
-        self->target_ent = enemy;
-        self->timestamp = level.time + HIVE_REPEAT;
-
-        VectorSubtract( enemy->s.pos.trBase, self->s.pos.trBase, dirToTarget );
-        VectorNormalize( dirToTarget );
-        vectoangles( dirToTarget, self->turretAim );
-
-        //fire at target
-        FireWeapon( self );
-        G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
+      if( AHive_CheckTarget( self, g_entities + entityList[ i ] ) )
         return;
-      }
     }
   }
 }
@@ -1181,22 +1193,9 @@ pain function for Alien Hive
 */
 void AHive_Pain( gentity_t *self, gentity_t *attacker, int damage )
 {
-  if( attacker && attacker->client && attacker->biteam == BIT_HUMANS &&
-      self->spawned && !self->active && G_FindOvermind( self ) )
-  {
-    vec3_t dirToTarget;
+  if( !self->active )
+    AHive_CheckTarget( self, attacker );
 
-    self->active = qtrue;
-    self->target_ent = attacker;
-    self->timestamp = level.time + HIVE_REPEAT;
-
-    VectorSubtract( attacker->s.pos.trBase, self->s.pos.trBase, dirToTarget );
-    VectorNormalize( dirToTarget );
-    vectoangles( dirToTarget, self->turretAim );
-
-    //fire at target
-    FireWeapon( self );
-  }
   G_SetBuildableAnim( self, BANIM_PAIN1, qfalse );
 }
 
@@ -2164,6 +2163,7 @@ void HMGTurret_Think( gentity_t *self )
   if( !HMGTurret_CheckTarget( self, self->enemy, qtrue ) )
   {
     self->active = qfalse;
+    self->turretSpinupTime = -1;
     HMGTurret_FindEnemy( self );
   }
   if( !self->enemy )
@@ -2173,33 +2173,17 @@ void HMGTurret_Think( gentity_t *self )
   if( !HMGTurret_TrackEnemy( self ) )
   {
     self->active = qfalse;
+    self->turretSpinupTime = -1;
     return;
   }
 
   // Update spin state
   if( !self->active && self->count < level.time )
   {
-    int spinTime;
-    
     self->active = qtrue;
-    spinTime = level.time - self->turretSpinupTime - MGTURRET_SPIN_DURATION;
 
-    if( spinTime <= 0 )
-    {
-        // Still has residual spin
-        self->turretSpinupTime = level.time;
-    }
-    else if( spinTime < MGTURRET_SPINDOWN_TIME )
-    {
-        // Hasn't completely spun-down
-        self->turretSpinupTime = level.time + spinTime;
-    }
-    else
-    {
-      // Needs a full spin-up
-      self->turretSpinupTime = level.time + MGTURRET_SPINUP_TIME;
-              G_AddEvent( self, EV_MGTURRET_SPINUP, 0 );
-    }
+    self->turretSpinupTime = level.time + MGTURRET_SPINUP_TIME;
+    G_AddEvent( self, EV_MGTURRET_SPINUP, 0 );
   }
 
   // Not firing or haven't spun up yet

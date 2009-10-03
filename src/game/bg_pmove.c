@@ -835,7 +835,7 @@ static qboolean PM_CheckDodge( void )
   vec3_t right, forward, velocity = { 0.0f, 0.0f, 0.0f };
   float jump;
   int i;
-
+  
   if( pm->ps->stats[ STAT_PTEAM ] != PTE_HUMANS )
     return qfalse;
 
@@ -848,8 +848,7 @@ static qboolean PM_CheckDodge( void )
   }
 
   // Reasons to stop a sprint
-  if( pm->cmd.forwardmove <= 0 ||
-      pm->cmd.upmove < 0 ||
+  if( pm->cmd.forwardmove <= 0 || pm->cmd.upmove < 0 ||
       pm->ps->pm_type != PM_NORMAL )
     pm->ps->stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
 

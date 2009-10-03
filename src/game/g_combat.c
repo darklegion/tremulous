@@ -1018,7 +1018,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
       // base is under attack warning if DCC'd
       if( targ->biteam == BIT_HUMANS && G_FindDCC( targ ) &&
-          level.time > level.humanBaseAttackTimer )
+          level.time > level.humanBaseAttackTimer &&
+          mod != MOD_DECONSTRUCT && mod != MOD_SUICIDE )
       {
         level.humanBaseAttackTimer = level.time + DC_ATTACK_PERIOD;
         G_BroadcastEvent( EV_DCC_ATTACK, 0 );

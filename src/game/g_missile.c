@@ -633,7 +633,7 @@ gentity_t *fire_hive( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->nextthink = level.time + HIVE_DIR_CHANGE_PERIOD;
   bolt->think = AHive_SearchAndDestroy;
   bolt->s.eType = ET_MISSILE;
-  bolt->s.eFlags |= EF_BOUNCE|EF_NO_BOUNCE_SOUND;
+  bolt->s.eFlags |= EF_BOUNCE | EF_NO_BOUNCE_SOUND;
   bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_HIVE;
   bolt->s.generic1 = WPM_PRIMARY; //weaponMode

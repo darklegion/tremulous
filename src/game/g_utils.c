@@ -775,16 +775,14 @@ G_Visible
 Test for a LOS between two entities
 ===============
 */
-qboolean G_Visible( gentity_t *ent1, gentity_t *ent2 )
+qboolean G_Visible( gentity_t *ent1, gentity_t *ent2, int contents )
 {
   trace_t trace;
 
-  trap_Trace( &trace, ent1->s.pos.trBase, NULL, NULL, ent2->s.pos.trBase, ent1->s.number, MASK_SHOT );
+  trap_Trace( &trace, ent1->s.pos.trBase, NULL, NULL, ent2->s.pos.trBase,
+              ent1->s.number, contents );
 
-  if( trace.contents & CONTENTS_SOLID )
-    return qfalse;
-
-  return qtrue;
+  return trace.fraction >= 1.0f || trace.entityNum == ent2 - g_entities;
 }
 
 /*
