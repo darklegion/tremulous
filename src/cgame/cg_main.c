@@ -116,8 +116,6 @@ vmCvar_t  cg_drawSnapshot;
 vmCvar_t  cg_drawChargeBar;
 vmCvar_t  cg_drawCrosshair;
 vmCvar_t  cg_drawCrosshairNames;
-vmCvar_t  cg_crosshairX;
-vmCvar_t  cg_crosshairY;
 vmCvar_t  cg_crosshairSize;
 vmCvar_t  cg_draw2D;
 vmCvar_t  cg_drawStatus;
@@ -241,8 +239,6 @@ static cvarTable_t cvarTable[ ] =
   { &cg_drawChargeBar, "cg_drawChargeBar", "1", CVAR_ARCHIVE  },
   { &cg_drawCrosshair, "cg_drawCrosshair", "1", CVAR_ARCHIVE },
   { &cg_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
-  { &cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE },
-  { &cg_crosshairY, "cg_crosshairY", "0", CVAR_ARCHIVE },
   { &cg_crosshairSize, "cg_crosshairSize", "1", CVAR_ARCHIVE },
   { &cg_brassTime, "cg_brassTime", "2500", CVAR_ARCHIVE },
   { &cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE },

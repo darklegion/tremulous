@@ -1444,8 +1444,6 @@ extern  vmCvar_t    cg_drawSnapshot;
 extern  vmCvar_t    cg_drawChargeBar;
 extern  vmCvar_t    cg_drawCrosshair;
 extern  vmCvar_t    cg_drawCrosshairNames;
-extern  vmCvar_t    cg_crosshairX;
-extern  vmCvar_t    cg_crosshairY;
 extern  vmCvar_t    cg_crosshairSize;
 extern  vmCvar_t    cg_draw2D;
 extern  vmCvar_t    cg_drawStatus;

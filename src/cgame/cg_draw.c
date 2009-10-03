@@ -2176,10 +2176,10 @@ static void CG_DrawCrosshair( rectDef_t *rect, vec4_t color )
   w = h = wi->crossHairSize * cg_crosshairSize.value;
   w *= cgDC.aspectScale;
   
-  //FIXME: find a way to use rect from the hud instead of cg_crosshair[XY]
-  //the different sizes of the crosshairs make this a pain
-  x = 320 + cg_crosshairX.integer - ( w / 2 );
-  y = 240 + cg_crosshairY.integer - ( h / 2 );
+  //FIXME: this still ignores the width/height of the rect, but at least it's
+  //neater than cg_crosshairX/cg_crosshairY
+  x = rect->x + ( rect->w / 2 ) - ( w / 2 );
+  y = rect->y + ( rect->h / 2 ) - ( h / 2 );
 
   hShader = wi->crossHair;
   
