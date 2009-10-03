@@ -55,12 +55,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define LEVEL1_CLAW_DMG             ADM(32)
 #define LEVEL1_CLAW_RANGE           64.0f
+#define LEVEL1_CLAW_U_RANGE         LEVEL1_CLAW_RANGE + 3.0f
 #define LEVEL1_CLAW_WIDTH           10.0f
 #define LEVEL1_CLAW_REPEAT          600
 #define LEVEL1_CLAW_U_REPEAT        500
 #define LEVEL1_CLAW_K_SCALE         1.0f
 #define LEVEL1_CLAW_U_K_SCALE       1.0f
 #define LEVEL1_GRAB_RANGE           96.0f
+#define LEVEL1_GRAB_U_RANGE         LEVEL1_GRAB_RANGE + 3.0f
 #define LEVEL1_GRAB_TIME            300
 #define LEVEL1_GRAB_U_TIME          300
 #define LEVEL1_PCLOUD_DMG           ADM(4)
@@ -72,6 +74,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define LEVEL2_CLAW_DMG             ADM(40)
 #define LEVEL2_CLAW_RANGE           80.0f
+#define LEVEL2_CLAW_U_RANGE         LEVEL2_CLAW_RANGE + 2.0f
 #define LEVEL2_CLAW_WIDTH           14.0f
 #define LEVEL2_CLAW_REPEAT          500
 #define LEVEL2_CLAW_K_SCALE         1.0f
@@ -87,7 +90,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define LEVEL3_CLAW_DMG             ADM(80)
 #define LEVEL3_CLAW_RANGE           72.0f
-#define LEVEL3_CLAW_UPG_RANGE       LEVEL3_CLAW_RANGE + 6.0f          
+#define LEVEL3_CLAW_UPG_RANGE       LEVEL3_CLAW_RANGE + 3.0f          
 #define LEVEL3_CLAW_WIDTH           12.0f
 #define LEVEL3_CLAW_REPEAT          700
 #define LEVEL3_CLAW_K_SCALE         1.0f
@@ -95,7 +98,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL3_CLAW_U_K_SCALE       1.0f
 #define LEVEL3_POUNCE_DMG           ADM(100)
 #define LEVEL3_POUNCE_RANGE         54.0f
-#define LEVEL3_POUNCE_UPG_RANGE     LEVEL3_POUNCE_RANGE + 6.0f
+#define LEVEL3_POUNCE_UPG_RANGE     LEVEL3_POUNCE_RANGE + 3.0f
 #define LEVEL3_POUNCE_WIDTH         14.0f
 #define LEVEL3_POUNCE_TIME          700      // msec for full Dragoon pounce
 #define LEVEL3_POUNCE_TIME_UPG      700      // msec for full Adv. Dragoon pounce

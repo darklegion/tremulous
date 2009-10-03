@@ -973,7 +973,10 @@ void CheckGrabAttack( gentity_t *ent )
 
   CalcMuzzlePoint( ent, forward, right, up, muzzle );
 
-  VectorMA( muzzle, LEVEL1_GRAB_RANGE, forward, end );
+  if( ent->client->ps.weapon == WP_ALEVEL1 )
+    VectorMA( muzzle, LEVEL1_GRAB_RANGE, forward, end );
+  else if( ent->client->ps.weapon == WP_ALEVEL1_UPG )
+    VectorMA( muzzle, LEVEL1_GRAB_U_RANGE, forward, end );
 
   trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
   if( tr.surfaceFlags & SURF_NOIMPACT )
@@ -1568,8 +1571,10 @@ void FireWeapon( gentity_t *ent )
   switch( ent->s.weapon )
   {
     case WP_ALEVEL1:
-    case WP_ALEVEL1_UPG:
       meleeAttack( ent, LEVEL1_CLAW_RANGE, LEVEL1_CLAW_WIDTH, LEVEL1_CLAW_WIDTH,
+                   LEVEL1_CLAW_DMG, MOD_LEVEL1_CLAW );
+    case WP_ALEVEL1_UPG:
+      meleeAttack( ent, LEVEL1_CLAW_U_RANGE, LEVEL1_CLAW_WIDTH, LEVEL1_CLAW_WIDTH,
                    LEVEL1_CLAW_DMG, MOD_LEVEL1_CLAW );
       break;
     case WP_ALEVEL3:
@@ -1581,7 +1586,7 @@ void FireWeapon( gentity_t *ent )
                    LEVEL3_CLAW_WIDTH, LEVEL3_CLAW_DMG, MOD_LEVEL3_CLAW );
       break;
     case WP_ALEVEL2:
-      meleeAttack( ent, LEVEL2_CLAW_RANGE, LEVEL2_CLAW_WIDTH, LEVEL2_CLAW_WIDTH,
+      meleeAttack( ent, LEVEL2_CLAW_U_RANGE, LEVEL2_CLAW_WIDTH, LEVEL2_CLAW_WIDTH,
                    LEVEL2_CLAW_DMG, MOD_LEVEL2_CLAW );
       break;
     case WP_ALEVEL2_UPG:
