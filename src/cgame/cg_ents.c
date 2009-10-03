@@ -810,19 +810,19 @@ static void CG_Lev2ZapChain( centity_t *cent )
   int           i;
   entityState_t *es;
   centity_t     *source = NULL, *target = NULL, *attacker = NULL;
-  int           targets[ LEVEL2_AREAZAP_MAX_TARGETS + 1 ];
+  int           targets[ LEVEL2_AREAZAP_MAX_TARGETS ], creator;
 
   es = &cent->currentState;
 
-  BG_UnpackZapTargets( es, targets, LEVEL2_AREAZAP_MAX_TARGETS + 1 );
-  attacker = &cg_entities[ targets[ 0 ] ];
+  BG_UnpackZapTargets( es, &creator, targets, LEVEL2_AREAZAP_MAX_TARGETS + 1 );
+  attacker = &cg_entities[ creator ];
 
-  for( i = 1; i < LEVEL2_AREAZAP_MAX_TARGETS + 1; i++ )
+  for( i = 0; i < LEVEL2_AREAZAP_MAX_TARGETS; i++ )
   {
-    if( i == 1 )
+    if( i == 0 )
       source = attacker;
     else
-      source = &cg_entities[ targets[ 1 ] ];
+      source = &cg_entities[ targets[ 0 ] ];
 
     if( targets[ i ] == ENTITYNUM_NONE )
       continue;

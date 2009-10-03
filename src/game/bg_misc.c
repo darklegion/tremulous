@@ -3466,10 +3466,11 @@ int atoi_neg( char *token, qboolean allowNegative )
 ===============
 BG_PackZapTargets
 
-pack up to 12 entityNums into an entityState_t
+pack up to 12 targets into an entityState_t
 ===============
 */
-void BG_PackZapTargets( entityState_t *es, int *entityNums, int count )
+//FIXME: magic - 1 and count makes no sense
+void BG_PackZapTargets( entityState_t *es, int creator, const int *targets, int count )
 {
   int i;
   es->misc = es->time = es->time2 = es->constantLight = 0;
@@ -3477,13 +3478,20 @@ void BG_PackZapTargets( entityState_t *es, int *entityNums, int count )
   {
     int entityNum = ENTITYNUM_NONE;
     if( i < count )
-      entityNum = entityNums[i];
+    {
+      if( i == 0 )
+        entityNum = creator;
+      else
+        entityNum = targets[ i - 1 ];
+    }
+
     if( entityNum & ~(GENTITYNUM_MASK) )
     {
-      Com_Printf("Warning: BG_PackZapTargets: entityNums[%d] (%d) doesn't fit in %d bits, using ENTITYNUM_NONE",
-                 i, entityNums[i], GENTITYNUM_BITS);
+      Com_Printf("Warning: BG_PackZapTargets: targets[%d] (%d) doesn't fit in %d bits, using ENTITYNUM_NONE\n",
+                 i, targets[i], GENTITYNUM_BITS);
       entityNum = ENTITYNUM_NONE;
     }
+
     switch( i )
     {
       case 0:
@@ -3523,10 +3531,10 @@ void BG_PackZapTargets( entityState_t *es, int *entityNums, int count )
 ===============
 BG_UnpackZapTargets
 
-unpacks the 12 entityNums in an entityState_t
+unpacks the 12 targets in an entityState_t
 ===============
 */
-void BG_UnpackZapTargets( entityState_t *es, int *entityNums, int count )
+void BG_UnpackZapTargets( entityState_t *es, int *creator, int *targets, int count )
 {
   int i;
   for( i = 0; i < count; i++ )
@@ -3534,34 +3542,35 @@ void BG_UnpackZapTargets( entityState_t *es, int *entityNums, int count )
     switch( i )
     {
       case 0:
-        entityNums[i] = es->misc & GENTITYNUM_MASK;
+        if(creator)
+          *creator = es->misc & GENTITYNUM_MASK;
         break;
       case 1:
-        entityNums[i] = es->time & GENTITYNUM_MASK;
+        targets[ i - 1 ] = es->time & GENTITYNUM_MASK;
         break;
       case 2:
-        entityNums[i] = (es->time >> GENTITYNUM_BITS) & GENTITYNUM_MASK;
+        targets[ i - 1 ] = (es->time >> GENTITYNUM_BITS) & GENTITYNUM_MASK;
         break;
       case 3:
-        entityNums[i] = (es->time >> (GENTITYNUM_BITS * 2)) & GENTITYNUM_MASK;
+        targets[ i - 1 ] = (es->time >> (GENTITYNUM_BITS * 2)) & GENTITYNUM_MASK;
         break;
       case 4:
-        entityNums[i] = es->time2 & GENTITYNUM_MASK;
+        targets[ i - 1 ] = es->time2 & GENTITYNUM_MASK;
         break;
       case 5:
-        entityNums[i] = (es->time2 >> GENTITYNUM_BITS) & GENTITYNUM_MASK;
+        targets[ i - 1 ] = (es->time2 >> GENTITYNUM_BITS) & GENTITYNUM_MASK;
         break;
       case 6:
-        entityNums[i] = (es->time2 >> (GENTITYNUM_BITS * 2)) & GENTITYNUM_MASK;
+        targets[ i - 1 ] = (es->time2 >> (GENTITYNUM_BITS * 2)) & GENTITYNUM_MASK;
         break;
       case 7:
-        entityNums[i] = es->constantLight & GENTITYNUM_MASK;
+        targets[ i - 1 ] = es->constantLight & GENTITYNUM_MASK;
         break;
       case 8:
-        entityNums[i] = (es->constantLight >> GENTITYNUM_BITS) & GENTITYNUM_MASK;
+        targets[ i - 1 ] = (es->constantLight >> GENTITYNUM_BITS) & GENTITYNUM_MASK;
         break;
       case 9:
-        entityNums[i] = (es->constantLight >> (GENTITYNUM_BITS * 2)) & GENTITYNUM_MASK;
+        targets[ i - 1 ] = (es->constantLight >> (GENTITYNUM_BITS * 2)) & GENTITYNUM_MASK;
         break;
     }
   }
