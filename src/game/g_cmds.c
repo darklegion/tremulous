@@ -1110,7 +1110,7 @@ void Cmd_CallVote_f( gentity_t *ent )
   char  arg1[ MAX_STRING_TOKENS ];
   char  arg2[ MAX_NAME_LENGTH ];
   int   clientNum = -1;
-  char  name[ MAX_NETNAME ];
+  char  name[ MAX_NAME_LENGTH ];
 
   if( !g_allowVote.integer )
   {
@@ -1207,8 +1207,8 @@ void Cmd_CallVote_f( gentity_t *ent )
 
     // use ip in case this player disconnects before the vote ends
     Com_sprintf( level.voteString, sizeof( level.voteString ),
-      "!ban %s %d vote kick", level.clients[ clientNum ].pers.ip,
-      g_adminTempBan.integer + 1 );
+      "!ban %s \"1s%s\" vote kick", level.clients[ clientNum ].pers.ip,
+      g_adminTempBan.string );
     Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ),
       "Kick player \'%s\'", name );
   }
@@ -1344,7 +1344,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   char  arg1[ MAX_STRING_TOKENS ];
   char  arg2[ MAX_NAME_LENGTH ];
   int   clientNum = -1;
-  char  name[ MAX_NETNAME ];
+  char  name[ MAX_NAME_LENGTH ];
 
   team = ent->client->pers.teamSelection;
 
@@ -1447,8 +1447,8 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     // use ip in case this player disconnects before the vote ends
     Com_sprintf( level.teamVoteString[ cs_offset ],
       sizeof( level.teamVoteString[ cs_offset ] ),
-      "!ban %s %d team vote kick", level.clients[ clientNum ].pers.ip,
-      g_adminTempBan.integer + 1 );
+      "!ban %s \"1s%s\" team vote kick", level.clients[ clientNum ].pers.ip,
+      g_adminTempBan.string );
     Com_sprintf( level.teamVoteDisplayString[ cs_offset ],
         sizeof( level.teamVoteDisplayString[ cs_offset ] ),
         "Kick player '%s'", name );
@@ -3224,8 +3224,6 @@ int G_SayArgc( void )
 
 qboolean G_SayArgv( int n, char *buffer, int bufferLength )
 {
-  int bc = 0;
-  int c = 0;
   char *s;
 
   if( bufferLength < 1 )
@@ -3233,47 +3231,40 @@ qboolean G_SayArgv( int n, char *buffer, int bufferLength )
   if( n < 0 )
     return qfalse;
   s = ConcatArgs( 0 );
-  while( c < n )
+  while( 1 )
   {
     while( *s == ' ' )
       s++;
-    if( !*s )
+    if( !*s || n == 0 )
       break;
-    c++;
+    n--;
     while( *s && *s != ' ' )
       s++;
   }
-  if( c < n )
-    return qfalse;
-  while( *s == ' ' )
-    s++;
-  if( !*s )
+  if( n > 0 )
     return qfalse;
   //memccpy( buffer, s, ' ', bufferLength );
-  while( bc < bufferLength - 1 && *s && *s != ' ' )
-    buffer[ bc++ ] = *s++;
-  buffer[ bc ] = 0;
+  while( bufferLength > 1 && *s && *s != ' ' )
+    *buffer++ = *s++;
+  *buffer = 0;
   return qtrue;
 }
 
 char *G_SayConcatArgs( int start )
 {
   char *s;
-  int c = 0;
 
   s = ConcatArgs( 0 );
-  while( c < start )
+  while( 1 )
   {
     while( *s == ' ' )
       s++;
-    if( !*s )
+    if( !*s || start == 0 )
       break;
-    c++;
+    start--;
     while( *s && *s != ' ' )
       s++;
   }
-  while( *s == ' ' )
-    s++;
   return s;
 }
 

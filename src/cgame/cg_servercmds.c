@@ -1105,6 +1105,160 @@ static void CG_ParseVoice( void )
 
 /*
 =================
+CG_CenterPrint_f
+=================
+*/
+static void CG_CenterPrint_f( void )
+{
+  CG_CenterPrint( CG_Argv( 1 ), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+}
+
+/*
+=================
+CG_Print_f
+=================
+*/
+static void CG_Print_f( void )
+{
+  CG_Printf( "%s", CG_Argv( 1 ) );
+}
+
+/*
+=================
+CG_Chat_f
+=================
+*/
+static void CG_Chat_f( void )
+{
+  char     cmd[ 6 ], text[ MAX_SAY_TEXT ];
+  qboolean team;
+
+  trap_Argv( 0, cmd, sizeof( cmd ) );
+  team = Q_stricmp( cmd, "chat" );
+
+  if( team && cg_teamChatsOnly.integer )
+    return;
+
+  Q_strncpyz( text, CG_Argv( 1 ), sizeof( text ) );
+
+  if( Q_stricmpn( text, "[skipnotify]", 12 ) )
+  {
+    if( team && cg.snap->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
+      trap_S_StartLocalSound( cgs.media.alienTalkSound, CHAN_LOCAL_SOUND );
+    else if( team && cg.snap->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
+      trap_S_StartLocalSound( cgs.media.humanTalkSound, CHAN_LOCAL_SOUND );
+    else
+      trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
+  }
+
+  CG_RemoveChatEscapeChar( text );
+  CG_Printf( "%s\n", text );
+}
+
+/*
+=================
+CG_ClientLevelShot_f
+=================
+*/
+static void CG_ClientLevelShot_f( void )
+{
+  cg.levelShot = qtrue;
+}
+
+/*
+=================
+CG_ServerMenu_f
+=================
+*/
+static void CG_ServerMenu_f( void )
+{
+  if( trap_Argc( ) == 2 && !cg.demoPlayback )
+    CG_Menu( atoi( CG_Argv( 1 ) ), 0 );
+
+  if( trap_Argc( ) == 3 && !cg.demoPlayback )
+    CG_Menu( atoi( CG_Argv( 1 ) ), atoi( CG_Argv( 2 ) ) );
+}
+
+/*
+=================
+CG_ServerCloseMenus_f
+=================
+*/
+static void CG_ServerCloseMenus_f( void )
+{
+  trap_SendConsoleCommand( "closemenus\n" );
+}
+
+/*
+=================
+CG_PoisonCloud_f
+=================
+*/
+static void CG_PoisonCloud_f( void )
+{
+  cg.poisonedTime = cg.time;
+
+  if( CG_IsParticleSystemValid( &cg.poisonCloudPS ) )
+  {
+    cg.poisonCloudPS = CG_SpawnNewParticleSystem( cgs.media.poisonCloudPS );
+    CG_SetAttachmentCent( &cg.poisonCloudPS->attachment, &cg.predictedPlayerEntity );
+    CG_AttachToCent( &cg.poisonCloudPS->attachment );
+  }
+}
+
+/*
+=================
+CG_PTRRequest_f
+=================
+*/
+static void CG_PTRRequest_f( void )
+{
+  trap_SendClientCommand( va( "ptrcverify %d", CG_ReadPTRCode( ) ) );
+}
+
+/*
+=================
+CG_PTRIssue_f
+=================
+*/
+static void CG_PTRIssue_f( void )
+{
+  if( trap_Argc( ) == 2 )
+    CG_WritePTRCode( atoi( CG_Argv( 1 ) ) );
+}
+
+/*
+=================
+CG_PTRConfirm_f
+=================
+*/
+static void CG_PTRConfirm_f( void )
+{
+  trap_SendConsoleCommand( "menu ptrc_popmenu\n" );
+}
+
+static consoleCommand_t svcommands[ ] =
+{
+  { "cp", CG_CenterPrint_f },
+  { "cs", CG_ConfigStringModified },
+  { "print", CG_Print_f },
+  { "chat", CG_Chat_f },
+  { "tchat", CG_Chat_f },
+  { "scores", CG_ParseScores },
+  { "tinfo", CG_ParseTeamInfo },
+  { "map_restart", CG_MapRestart },
+  { "clientLevelShot", CG_ClientLevelShot_f },
+  { "servermenu", CG_ServerMenu_f },
+  { "serverclosemenus", CG_ServerCloseMenus_f },
+  { "poisoncloud", CG_PoisonCloud_f },
+  { "voice", CG_ParseVoice },
+  { "ptrcrequest", CG_PTRRequest_f },
+  { "ptrcissue", CG_PTRIssue_f },
+  { "ptrcconfirm", CG_PTRConfirm_f }
+};
+
+/*
+=================
 CG_ServerCommand
 
 The string has been tokenized and can be retrieved with
@@ -1114,163 +1268,17 @@ Cmd_Argc() / Cmd_Argv()
 static void CG_ServerCommand( void )
 {
   const char  *cmd;
-  char        text[ MAX_SAY_TEXT ];
+  int         i;
 
   cmd = CG_Argv( 0 );
 
-  if( !cmd[ 0 ] )
+  for( i = 0; i < sizeof( svcommands ) / sizeof( svcommands[ 0 ] ); i++ )
   {
-    // server claimed the command
-    return;
-  }
-
-  if( !strcmp( cmd, "cp" ) )
-  {
-    CG_CenterPrint( CG_Argv( 1 ), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
-    return;
-  }
-
-  if( !strcmp( cmd, "cs" ) )
-  {
-    CG_ConfigStringModified( );
-    return;
-  }
-
-  if( !strcmp( cmd, "print" ) )
-  {
-    CG_Printf( "%s", CG_Argv( 1 ) );
-    return;
-  }
-
-  if( !strcmp( cmd, "chat" ) )
-  {
-    if( !cg_teamChatsOnly.integer )
+    if( !Q_stricmp( cmd, svcommands[ i ].cmd ) )
     {
-      Q_strncpyz( text, CG_Argv( 1 ), MAX_SAY_TEXT );
-      if( Q_stricmpn( text, "[skipnotify]", 12 ) )
-        trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
-      CG_RemoveChatEscapeChar( text );
-      CG_Printf( "%s\n", text );
+      svcommands[ i ].function( );
+      return;
     }
-
-    return;
-  }
-
-  if( !strcmp( cmd, "tchat" ) )
-  {
-    Q_strncpyz( text, CG_Argv( 1 ), MAX_SAY_TEXT );
-    if( Q_stricmpn( text, "[skipnotify]", 12 ) )
-    {
-      if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
-        trap_S_StartLocalSound( cgs.media.alienTalkSound, CHAN_LOCAL_SOUND );
-      else if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
-        trap_S_StartLocalSound( cgs.media.humanTalkSound, CHAN_LOCAL_SOUND );
-      else
-        trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
-    }
-    CG_RemoveChatEscapeChar( text );
-    CG_Printf( "%s\n", text );
-    return;
-  }
-  
-  if( !strcmp( cmd, "voice" ) )
-  {
-    CG_ParseVoice( );
-    return; 
-  }
-
-  if( !strcmp( cmd, "scores" ) )
-  {
-    CG_ParseScores( );
-    return;
-  }
-
-  if( !strcmp( cmd, "tinfo" ) )
-  {
-    CG_ParseTeamInfo( );
-    return;
-  }
-
-  if( !strcmp( cmd, "map_restart" ) )
-  {
-    CG_MapRestart( );
-    return;
-  }
-
-  if( Q_stricmp( cmd, "remapShader" ) == 0 )
-  {
-    if( trap_Argc( ) == 4 )
-      trap_R_RemapShader( CG_Argv( 1 ), CG_Argv( 2 ), CG_Argv( 3 ) );
-  }
-
-  // clientLevelShot is sent before taking a special screenshot for
-  // the menu system during development
-  if( !strcmp( cmd, "clientLevelShot" ) )
-  {
-    cg.levelShot = qtrue;
-    return;
-  }
-
-  //the server has triggered a menu
-  if( !strcmp( cmd, "servermenu" ) )
-  {
-    if( trap_Argc( ) == 2 && !cg.demoPlayback )
-      CG_Menu( atoi( CG_Argv( 1 ) ), 0 );
-    if( trap_Argc( ) == 3 && !cg.demoPlayback )
-      CG_Menu( atoi( CG_Argv( 1 ) ), atoi( CG_Argv( 2 ) ) );
-    return;
-  }
-
-  //the server thinks this client should close all menus
-  if( !strcmp( cmd, "serverclosemenus" ) )
-  {
-    trap_SendConsoleCommand( "closemenus\n" );
-    return;
-  }
-
-  //poison cloud effect needs to be reliable
-  if( !strcmp( cmd, "poisoncloud" ) )
-  {
-    cg.poisonedTime = cg.time;
-
-    if( CG_IsParticleSystemValid( &cg.poisonCloudPS ) )
-    {
-      cg.poisonCloudPS = CG_SpawnNewParticleSystem( cgs.media.poisonCloudPS );
-      CG_SetAttachmentCent( &cg.poisonCloudPS->attachment, &cg.predictedPlayerEntity );
-      CG_AttachToCent( &cg.poisonCloudPS->attachment );
-    }
-
-    return;
-  }
-
-  // server requests a ptrc
-  if( !strcmp( cmd, "ptrcrequest" ) )
-  {
-    int   code = CG_ReadPTRCode( );
-
-    trap_SendClientCommand( va( "ptrcverify %d", code ) );
-    return;
-  }
-
-  // server issues a ptrc
-  if( !strcmp( cmd, "ptrcissue" ) )
-  {
-    if( trap_Argc( ) == 2 )
-    {
-      int code = atoi( CG_Argv( 1 ) );
-
-      CG_WritePTRCode( code );
-    }
-
-    return;
-  }
-
-  // reply to ptrcverify
-  if( !strcmp( cmd, "ptrcconfirm" ) )
-  {
-    trap_SendConsoleCommand( "menu ptrc_popmenu\n" );
-
-    return;
   }
 
   CG_Printf( "Unknown client game command: %s\n", cmd );

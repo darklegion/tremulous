@@ -7323,11 +7323,11 @@ g_adminTempBan
 
 \layout Standard
 
-Set this to the number of seconds a player should be automatically banned
+Set this to the time a player should be automatically banned
  for when he/she is vote kicked or kicked with the !kick command.
 \layout Standard
 
-Default is 120 (two minutes)
+Default is 2m (two minutes)
 \end_inset 
 </cell>
 </row>
@@ -7400,8 +7400,8 @@ This grants the user bill all the rights of a level 3 user, plus the 'B'
  !unmute (m) commands.
 \layout Standard
 
-The [ban] block is created with the !ban command, and removed with the !unban
- command (or when it expires).
+The [ban] block is created with the !ban command, removed with the !unban
+ command (or when it expires), and modified with the !adjustban command.
  Both the guid and the ip parameters are used for ban enforement.
  The ip parameter can also be used to crudely widen the scope of the IP
  ban.
@@ -7552,7 +7552,7 @@ b
 
 \layout Standard
 
-!ban/!unban
+!ban/!unban/!adjustban
 \end_inset 
 </cell>
 </row>

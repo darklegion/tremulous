@@ -103,111 +103,92 @@ static void  UI_Cache_f( void )
   Display_CacheAll();
 }
 
+static void UI_Menu_f( void )
+{
+    if( Menu_Count( ) > 0 )
+    {
+      trap_Key_SetCatcher( KEYCATCH_UI );
+      Menus_ActivateByName( UI_Argv( 1 ) );
+    }
+}
+
+static void UI_CloseMenus_f( void )
+{
+    if( Menu_Count( ) > 0 )
+    {
+      trap_Key_SetCatcher( trap_Key_GetCatcher( ) & ~KEYCATCH_UI );
+      trap_Key_ClearStates( );
+      trap_Cvar_Set( "cl_paused", "0" );
+      Menus_CloseAll( );
+    }
+}
+
+static void UI_MessageMode_f( void )
+{
+  char *arg = UI_Argv( 0 );
+
+  trap_Cvar_Set( "ui_sayBuffer", "" );
+    uiInfo.chatTeam = qfalse;
+
+  switch( arg[ 11 ] )
+  {
+    default:
+    case '\0':
+      // Global
+      uiInfo.chatTeam             = qfalse;
+      uiInfo.chatTargetClientNum  = -1;
+      break;
+
+    case '2':
+      // Team
+      uiInfo.chatTeam             = qtrue;
+      uiInfo.chatTargetClientNum  = -1;
+      break;
+  }
+
+  trap_Key_SetCatcher( KEYCATCH_UI );
+  Menus_CloseByName( "say" );
+  Menus_CloseByName( "say_team" );
+
+  if( uiInfo.chatTeam )
+    Menus_ActivateByName( "say_team" );
+  else
+    Menus_ActivateByName( "say" );
+}
+
+struct
+{
+  char *cmd;
+  void ( *function )( void );
+} commands[ ] = {
+  { "ui_load", UI_Load },
+  { "ui_report", UI_Report },
+  { "ui_cache", UI_Cache_f },
+  { "messagemode", UI_MessageMode_f },
+  { "messagemode2", UI_MessageMode_f },
+  { "menu", UI_Menu_f },
+  { "closemenus", UI_CloseMenus_f }
+};
+
 /*
 =================
 UI_ConsoleCommand
- 
-FIXME: lookup table
 =================
 */
 qboolean UI_ConsoleCommand( int realTime )
 {
-  char  * cmd;
-  char  *arg1;
+  char  *cmd;
+  int   i;
 
   uiInfo.uiDC.frameTime = realTime - uiInfo.uiDC.realTime;
   uiInfo.uiDC.realTime = realTime;
 
   cmd = UI_Argv( 0 );
-
-  // ensure minimum menu data is available
-  //Menu_Cache();
-
-  if( Q_stricmp ( cmd, "ui_report" ) == 0 )
+  for( i = 0; i < sizeof( commands ) / sizeof( commands[ 0 ] ); i++ )
   {
-    UI_Report();
-    return qtrue;
-  }
-
-  if( Q_stricmp ( cmd, "ui_load" ) == 0 )
-  {
-    UI_Load();
-    return qtrue;
-  }
-
-  if( Q_stricmp ( cmd, "remapShader" ) == 0 )
-  {
-    if( trap_Argc() == 4 )
+    if( Q_stricmp( commands[ i ].cmd, cmd ) == 0 )
     {
-      char shader1[MAX_QPATH];
-      char shader2[MAX_QPATH];
-      Q_strncpyz( shader1, UI_Argv( 1 ), sizeof( shader1 ) );
-      Q_strncpyz( shader2, UI_Argv( 2 ), sizeof( shader2 ) );
-      trap_R_RemapShader( shader1, shader2, UI_Argv( 3 ) );
-      return qtrue;
-    }
-  }
-
-  if( Q_stricmp ( cmd, "ui_cache" ) == 0 )
-  {
-    UI_Cache_f();
-    return qtrue;
-  }
-
-  if( Q_stricmp ( cmd, "ui_teamOrders" ) == 0 )
-  {
-    //UI_TeamOrdersMenu_f();
-    return qtrue;
-  }
-
-  if( Q_stricmp( cmd, "ui_messagemode" ) == 0 )
-  {
-    trap_Cvar_Set( "ui_sayBuffer", "" );
-    uiInfo.chatTeam = qfalse;
-
-    trap_Key_SetCatcher( KEYCATCH_UI );
-    Menus_CloseByName( "say" );
-    Menus_CloseByName( "say_team" );
-    Menus_ActivateByName( "say" );
-    return qtrue;
-  }
-
-  if( Q_stricmp( cmd, "ui_messagemode2" ) == 0 )
-  {
-    trap_Cvar_Set( "ui_sayBuffer", "" );
-    uiInfo.chatTargetClientNum = -1;
-    uiInfo.chatTeam = qtrue;
-
-    trap_Key_SetCatcher( KEYCATCH_UI );
-    Menus_CloseByName( "say" );
-    Menus_CloseByName( "say_team" );
-    Menus_ActivateByName( "say_team" );
-    return qtrue;
-  }
-
-  if( Q_stricmp ( cmd, "menu" ) == 0 )
-  {
-    arg1 = UI_Argv( 1 );
-
-    if( Menu_Count( ) > 0 )
-    {
-      trap_Key_SetCatcher( KEYCATCH_UI );
-      Menus_ActivateByName( arg1 );
-      return qtrue;
-    }
-  }
-
-  if( Q_stricmp ( cmd, "closemenus" ) == 0 )
-  {
-    if( Menu_Count( ) > 0 )
-    {
-      Menus_CloseAll( );
-      if( Menu_Count( ) == 0 )
-      {
-        trap_Key_SetCatcher( trap_Key_GetCatcher( ) & ~KEYCATCH_UI );
-        trap_Key_ClearStates( );
-        trap_Cvar_Set( "cl_paused", "0" );
-      }
+      commands[ i ].function( );
     }
     return qtrue;    
   }
