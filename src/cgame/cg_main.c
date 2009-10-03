@@ -846,6 +846,13 @@ static void CG_RegisterGraphics( void )
   for( i = 0; i < 8; i++ )
     cgs.media.buildWeaponTimerPie[ i ] = trap_R_RegisterShader( buildWeaponTimerPieShaders[ i ] );
 
+  // player health cross shaders
+  cgs.media.healthCross               = trap_R_RegisterShader( "ui/assets/neutral/cross.tga" );
+  cgs.media.healthCross2X             = trap_R_RegisterShader( "ui/assets/neutral/cross2.tga" );
+  cgs.media.healthCross3X             = trap_R_RegisterShader( "ui/assets/neutral/cross3.tga" );
+  cgs.media.healthCrossMedkit         = trap_R_RegisterShader( "ui/assets/neutral/cross_medkit.tga" );
+  cgs.media.healthCrossPoisoned       = trap_R_RegisterShader( "ui/assets/neutral/cross_poison.tga" );
+
   cgs.media.upgradeClassIconShader    = trap_R_RegisterShader( "icons/icona_upgrade.tga" );
   
   cgs.media.balloonShader             = trap_R_RegisterShader( "gfx/sprites/chatballoon" );
@@ -1812,7 +1819,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   CG_LoadHudMenu( );
 
   cg.weaponSelect = WP_NONE;
-  cg.boostedTime = -1;
 
   // old servers
 

@@ -175,9 +175,7 @@
 #define UI_HBUILDINFOPANE                 74
 #define UI_HELPINFOPANE                   75
 
-#define CG_PLAYER_HEALTH_CROSS2           76
-#define CG_PLAYER_HEALTH_CROSS3           77
-#define CG_PLAYER_CHARGE_BAR_BG           78
-#define CG_PLAYER_CHARGE_BAR              79
+#define CG_PLAYER_CHARGE_BAR_BG           76
+#define CG_PLAYER_CHARGE_BAR              77
 
 #endif

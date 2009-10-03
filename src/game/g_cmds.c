@@ -366,8 +366,17 @@ void Cmd_Give_f( gentity_t *ent )
 
   if( Q_stricmp( name, "poison" ) == 0 )
   {
-    ent->client->ps.stats[ STAT_STATE ] |= SS_BOOSTED;
-    ent->client->boostedTime = level.time;
+    if( ent->client->pers.teamSelection == PTE_HUMANS )
+    {
+      ent->client->ps.stats[ STAT_STATE ] |= SS_POISONED;
+      ent->client->lastPoisonTime = level.time;
+      ent->client->lastPoisonClient = ent;
+    }
+    else
+    {
+      ent->client->ps.stats[ STAT_STATE ] |= SS_BOOSTED;
+      ent->client->boostedTime = level.time;
+    }
   }
 
   if( give_all || Q_stricmp( name, "ammo" ) == 0 )

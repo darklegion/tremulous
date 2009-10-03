@@ -1234,12 +1234,6 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
   // decide on third person view
   cg.renderingThirdPerson = cg_thirdPerson.integer || ( cg.snap->ps.stats[ STAT_HEALTH ] <= 0 );
 
-  // Infer when we first became boosted
-  if( ( cg.snap->ps.stats[ STAT_STATE ] & SS_BOOSTED ) && cg.boostedTime < 0 )
-    cg.boostedTime = cg.time;
-  else if( !( cg.snap->ps.stats[ STAT_STATE ] & SS_BOOSTED ) && cg.boostedTime >= 0 )
-    cg.boostedTime = -1;
-
   // build cg.refdef
   inwater = CG_CalcViewValues( );
 

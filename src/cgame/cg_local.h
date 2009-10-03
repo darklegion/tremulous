@@ -1101,7 +1101,6 @@ typedef struct
   qboolean      weapon2Firing;
   qboolean      weapon3Firing;
 
-  int           boostedTime;
   int           poisonedTime;
 
   vec3_t        lastNormal;                         // view smoothage
@@ -1139,6 +1138,8 @@ typedef struct
   
   float         chargeMeterAlpha;
   float         chargeMeterValue;
+  qhandle_t     lastHealthCross;
+  float         healthCrossFade;
   
   int           nextWeaponClickTime;
 } cg_t;
@@ -1277,6 +1278,11 @@ typedef struct
 
   qhandle_t   buildWeaponTimerPie[ 8 ];
   qhandle_t   upgradeClassIconShader;
+  qhandle_t   healthCross;
+  qhandle_t   healthCross2X;
+  qhandle_t   healthCross3X;
+  qhandle_t   healthCrossMedkit;
+  qhandle_t   healthCrossPoisoned;
 } cgMedia_t;
 
 typedef struct

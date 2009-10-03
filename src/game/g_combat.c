@@ -871,12 +871,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   int     asave = 0;
   int     knockback;
 
-  if( !targ->takedamage )
-    return;
-
-  // the intermission has allready been qualified for, so don't
-  // allow any extra scoring
-  if( level.intermissionQueued )
+  // Can't deal damage sometimes
+  if( !targ->takedamage || targ->health <= 0 || level.intermissionQueued )
     return;
 
   if( !inflictor )
@@ -896,12 +892,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   }
 
   client = targ->client;
-
-  if( client )
-  {
-    if( client->noclip )
-      return;
-  }
+  if( client && client->noclip )
+    return;
 
   if( !dir )
     dflags |= DAMAGE_NO_KNOCKBACK;

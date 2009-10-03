@@ -117,15 +117,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define LEVEL4_TRAMPLE_DMG             ADM(110)
 #define LEVEL4_TRAMPLE_SPEED           2.0f
-#define LEVEL4_TRAMPLE_CHARGE_TIME_MIN 375
-#define LEVEL4_TRAMPLE_CHARGE_TIME_MAX 1000
-#define LEVEL4_TRAMPLE_DURATION        3000
-#define LEVEL4_TRAMPLE_STOP_PENALTY    1     // msec of charge lost when stopped
-
-#define LEVEL4_TRAMPLE_CHARGE_MIN      ( LEVEL4_TRAMPLE_CHARGE_TIME_MIN * \
-                                         LEVEL4_TRAMPLE_DURATION / \
-                                         LEVEL4_TRAMPLE_CHARGE_TIME_MAX )
-#define LEVEL4_TRAMPLE_CHARGE_MAX        LEVEL4_TRAMPLE_DURATION
+#define LEVEL4_TRAMPLE_CHARGE_MIN      375   // minimum msec to start a charge
+#define LEVEL4_TRAMPLE_CHARGE_MAX      1000  // msec to maximum charge stored
+#define LEVEL4_TRAMPLE_CHARGE_TRIGGER  3000  // msec charge starts on its own
+#define LEVEL4_TRAMPLE_DURATION        3000  // msec trample lasts on full charge
+#define LEVEL4_TRAMPLE_STOP_PENALTY    1     // charge lost per msec when stopped
+#define LEVEL4_TRAMPLE_REPEAT          50    // msec before a trample will rehit a player
 
 #define LEVEL4_CRUSH_DAMAGE_PER_V      0.5f  // damage per falling velocity
 #define LEVEL4_CRUSH_DAMAGE            120   // to players only
@@ -265,6 +262,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define BOOSTER_REGEN_MOD           3.0f
 #define BOOSTER_VALUE               ABVM(BOOSTER_BP)
 #define BOOST_TIME                  20000
+#define BOOST_WARN_TIME             15000
 
 #define ACIDTUBE_BP                 8
 #define ACIDTUBE_BT                 15000
@@ -455,9 +453,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define LCANNON_PRICE               600
 #define LCANNON_AMMO                80
-#define LCANNON_REPEAT              1000
 #define LCANNON_K_SCALE             1.0f
-#define LCANNON_CHARGEREPEAT        500
+#define LCANNON_REPEAT              500
 #define LCANNON_RELOAD              0
 #define LCANNON_DAMAGE              HDM(265)
 #define LCANNON_RADIUS              150
@@ -465,6 +462,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LCANNON_SECONDARY_RADIUS    75
 #define LCANNON_SECONDARY_SPEED     1400
 #define LCANNON_SECONDARY_RELOAD    2000
+#define LCANNON_SECONDARY_REPEAT    1000
 #define LCANNON_SPEED               700
 #define LCANNON_CHARGE_TIME_MAX     3000
 #define LCANNON_CHARGE_TIME_MIN     100

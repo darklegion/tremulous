@@ -3421,7 +3421,7 @@ weaponAttributes_t bg_weapons[ ] =
     qfalse,               //int       infiniteAmmo;
     qtrue,                //int       usesEnergy;
     LCANNON_REPEAT,       //int       repeatRate1;
-    LCANNON_CHARGEREPEAT, //int       repeatRate2;
+    LCANNON_SECONDARY_REPEAT, //int       repeatRate2;
     0,                    //int       repeatRate3;
     LCANNON_RELOAD,       //int       reloadTime;
     LCANNON_K_SCALE,      //float     knockbackScale;

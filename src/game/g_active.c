@@ -663,7 +663,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
     }
 
     if( ent->client->pers.teamSelection == PTE_HUMANS && 
-        ( client->ps.stats[ STAT_STATE ] & SS_HEALING_ACTIVE ) )
+        ( client->ps.stats[ STAT_STATE ] & SS_HEALING_2X ) )
     {
       int remainingStartupTime = MEDKIT_STARTUP_TIME - ( level.time - client->lastMedKitTime );
 
@@ -677,7 +677,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
           ent->health++;
         }
         else
-          ent->client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_ACTIVE;
+          ent->client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_2X;
       }
       else
       {
@@ -696,7 +696,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
           }
         }
         else
-          ent->client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_ACTIVE;
+          ent->client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_2X;
       }
     }
   }
@@ -1409,9 +1409,15 @@ void ClientThink_real( gentity_t *ent )
       client->lastSlowTime + ABUILDER_BLOB_TIME < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_SLOWLOCKED;
 
-  if( ( client->ps.stats[ STAT_STATE ] & SS_BOOSTED ) &&
-      level.time - client->boostedTime >= BOOST_TIME )
-    client->ps.stats[ STAT_STATE ] &= ~SS_BOOSTED;
+  // Update boosted state flags
+  client->ps.stats[ STAT_STATE ] &= ~SS_BOOSTEDWARNING;
+  if( client->ps.stats[ STAT_STATE ] & SS_BOOSTED )
+  {
+    if( level.time - client->boostedTime >= BOOST_TIME )
+      client->ps.stats[ STAT_STATE ] &= ~SS_BOOSTED;
+    else if( level.time - client->boostedTime >= BOOST_WARN_TIME )
+      client->ps.stats[ STAT_STATE ] |= SS_BOOSTEDWARNING;
+  }
 
   // Check if poison cloud has worn off
   if( ( client->ps.eFlags & EF_POISONCLOUDED ) &&
@@ -1429,7 +1435,7 @@ void ClientThink_real( gentity_t *ent )
       BG_UpgradeIsActive( UP_MEDKIT, client->ps.stats ) )
   {
     //if currently using a medkit or have no need for a medkit now
-    if( client->ps.stats[ STAT_STATE ] & SS_HEALING_ACTIVE ||
+    if( client->ps.stats[ STAT_STATE ] & SS_HEALING_2X ||
         ( client->ps.stats[ STAT_HEALTH ] == client->ps.stats[ STAT_MAX_HEALTH ] &&
           !( client->ps.stats[ STAT_STATE ] & SS_POISONED ) ) )
     {
@@ -1444,7 +1450,7 @@ void ClientThink_real( gentity_t *ent )
       client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
       client->poisonImmunityTime = level.time + MEDKIT_POISON_IMMUNITY_TIME;
 
-      client->ps.stats[ STAT_STATE ] |= SS_HEALING_ACTIVE;
+      client->ps.stats[ STAT_STATE ] |= SS_HEALING_2X;
       client->lastMedKitTime = level.time;
       client->medKitHealthToRestore =
         client->ps.stats[ STAT_MAX_HEALTH ] - client->ps.stats[ STAT_HEALTH ];

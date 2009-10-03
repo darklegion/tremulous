@@ -668,10 +668,11 @@ A generic pain function for Alien buildables
 */
 void AGeneric_Pain( gentity_t *self, gentity_t *attacker, int damage )
 {
-  if( rand( ) % 1 )
-    G_SetBuildableAnim( self, BANIM_PAIN1, qfalse );
-  else
-    G_SetBuildableAnim( self, BANIM_PAIN2, qfalse );
+  if( self->health <= 0 )
+    return;
+    
+  // Alien buildables only have the first pain animation defined
+  G_SetBuildableAnim( self, BANIM_PAIN1, qfalse );
 }
 
 
@@ -693,19 +694,7 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 {
   int i;
 
-  G_RewardAttackers( self );
-  G_SetBuildableAnim( self, BANIM_DESTROY1, qtrue );
-  G_SetIdleBuildableAnim( self, BANIM_DESTROYED );
-
-  self->die = nullDieFunction;
-  self->think = AGeneric_Blast;
-
-  if( self->spawned )
-    self->nextthink = level.time + 5000;
-  else
-    self->nextthink = level.time; //blast immediately
-
-  self->s.eFlags &= ~EF_FIRING; //prevent any firing effects
+  AGeneric_Die( self, inflictor, attacker, damage, mod );
   
   // All supported structures that no longer have creep will have been killed
   // by whoever killed this structure
@@ -717,24 +706,6 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         ent->parentNode != self )
       continue;
     ent->killedBy = attacker - g_entities;
-  }
-
-  if( attacker && attacker->client )
-  {
-    if( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
-        !self->deconstruct )
-    {
-      G_TeamCommand( PTE_ALIENS,
-        va( "print \"%s ^3DESTROYED^7 by teammate %s^7\n\"",
-          BG_FindHumanNameForBuildable( self->s.modelindex ),
-          attacker->client->pers.netname ) );
-    }
-
-    G_LogPrintf( "Decon: %i %i %i: %s destroyed %s by %s\n",
-      attacker->client->ps.clientNum, self->s.modelindex, mod,
-      attacker->client->pers.netname,
-      BG_FindNameForBuildable( self->s.modelindex ),
-      modNames[ mod ] );
   }
 }
 
@@ -773,18 +744,6 @@ void ASpawn_Think( gentity_t *self )
   G_CreepSlow( self );
 
   self->nextthink = level.time + BG_FindNextThinkForBuildable( self->s.modelindex );
-}
-
-/*
-================
-ASpawn_Pain
-
-pain function for Alien Spawn
-================
-*/
-void ASpawn_Pain( gentity_t *self, gentity_t *attacker, int damage )
-{
-  G_SetBuildableAnim( self, BANIM_PAIN1, qfalse );
 }
 
 
@@ -913,6 +872,9 @@ Barricade pain animation depends on shrunk state
 */
 void ABarricade_Pain( gentity_t *self, gentity_t *attacker, int damage )
 {
+  if( self->health <= 0 )
+    return;
+
   if( !self->shrunkTime )
     G_SetBuildableAnim( self, BANIM_PAIN1, qfalse );
   else
@@ -1193,6 +1155,9 @@ pain function for Alien Hive
 */
 void AHive_Pain( gentity_t *self, gentity_t *attacker, int damage )
 {
+  if( self->health <= 0 || !G_IsOvermindBuilt( ) )
+    return;
+
   if( !self->active )
     AHive_CheckTarget( self, attacker );
 
@@ -1861,7 +1826,7 @@ void HMedistat_Die( gentity_t *self, gentity_t *inflictor,
 {
   //clear target's healing flag
   if( self->enemy && self->enemy->client )
-    self->enemy->client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_3X;
+    self->enemy->client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_ACTIVE;
 
   HSpawn_Die( self, inflictor, attacker, damage, mod );
 }
@@ -1885,7 +1850,7 @@ void HMedistat_Think( gentity_t *self )
 
   //clear target's healing flag
   if( self->enemy && self->enemy->client )
-    self->enemy->client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_3X;
+    self->enemy->client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_ACTIVE;
 
   //make sure we have power
   if( !( self->powered = G_FindPower( self ) ) )
@@ -1926,7 +1891,7 @@ void HMedistat_Think( gentity_t *self )
           player->client->ps.pm_type != PM_DEAD )
       {
         occupied = qtrue;
-        player->client->ps.stats[ STAT_STATE ] |= SS_HEALING_3X;
+        player->client->ps.stats[ STAT_STATE ] |= SS_HEALING_ACTIVE;
       }
     }
 
@@ -1952,7 +1917,7 @@ void HMedistat_Think( gentity_t *self )
             {
               G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
               self->active = qtrue;
-              player->client->ps.stats[ STAT_STATE ] |= SS_HEALING_3X;
+              player->client->ps.stats[ STAT_STATE ] |= SS_HEALING_ACTIVE;
             }
           }
           else if( !BG_InventoryContainsUpgrade( UP_MEDKIT, player->client->ps.stats ) )
@@ -3238,7 +3203,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
     case BA_A_SPAWN:
       built->die = ASpawn_Die;
       built->think = ASpawn_Think;
-      built->pain = ASpawn_Pain;
+      built->pain = AGeneric_Pain;
       break;
 
     case BA_A_BARRICADE:
@@ -3260,7 +3225,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
     case BA_A_ACIDTUBE:
       built->die = AGeneric_Die;
       built->think = AAcidTube_Think;
-      built->pain = ASpawn_Pain;
+      built->pain = AGeneric_Pain;
       break;
 
     case BA_A_HIVE:
@@ -3272,20 +3237,20 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
     case BA_A_TRAPPER:
       built->die = AGeneric_Die;
       built->think = ATrapper_Think;
-      built->pain = ASpawn_Pain;
+      built->pain = AGeneric_Pain;
       break;
 
     case BA_A_OVERMIND:
       built->die = ASpawn_Die;
       built->think = AOvermind_Think;
-      built->pain = ASpawn_Pain;
+      built->pain = AGeneric_Pain;
       break;
 
     case BA_A_HOVEL:
       built->die = AHovel_Die;
       built->use = AHovel_Use;
       built->think = AHovel_Think;
-      built->pain = ASpawn_Pain;
+      built->pain = AGeneric_Pain;
       break;
 
     case BA_H_SPAWN:

@@ -77,8 +77,6 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
 
   // force this here to prevent flamer effect from continuing
   ps->generic1 = WPM_NOTFIRING;
-
-  ps->weapon = ent->client->ps.persistant[ PERS_NEWWEAPON ];
 }
 
 /*
@@ -1355,23 +1353,26 @@ void G_ChargeAttack( gentity_t *ent, gentity_t *victim )
   vec3_t    forward, normal;
 
   if( ent->client->ps.stats[ STAT_MISC ] <= 0 ||
-      !( ent->client->ps.stats[ STAT_STATE ] & SS_CHARGING ) )
+      !( ent->client->ps.stats[ STAT_STATE ] & SS_CHARGING ) ||
+      ent->client->ps.weaponTime )
     return;
 
   VectorSubtract( victim->s.origin, ent->s.origin, forward );
   VectorNormalize( forward );
   VectorNegate( forward, normal );
-
+  
   if( !victim->takedamage )
     return;
 
   WideBloodSpurt( ent, victim, NULL );
 
   damage = LEVEL4_TRAMPLE_DMG * ent->client->ps.stats[ STAT_MISC ] /
-           LEVEL4_TRAMPLE_CHARGE_MAX;
+           LEVEL4_TRAMPLE_DURATION;
 
   G_Damage( victim, ent, ent, forward, victim->s.origin, damage,
-            0, MOD_LEVEL4_TRAMPLE );
+            DAMAGE_NO_LOCDAMAGE, MOD_LEVEL4_TRAMPLE );
+
+  ent->client->ps.weaponTime += LEVEL4_TRAMPLE_REPEAT;
 
   if( !victim->client )
     ent->client->ps.stats[ STAT_MISC ] = 0;
@@ -1539,6 +1540,10 @@ void FireWeapon( gentity_t *ent )
     // Hive muzzle point is on the tip
     if( ent->s.eType == ET_BUILDABLE && ent->s.modelindex == BA_A_HIVE )
       VectorMA( muzzle, ent->r.maxs[ 2 ], ent->s.origin2, muzzle );
+
+    // Tesla generator muzzle point is offset too
+    if( ent->s.eType == ET_BUILDABLE && ent->s.modelindex == BA_H_TESLAGEN )
+      VectorMA( muzzle, 28.0f, ent->s.origin2, muzzle );
   }
 
   // fire the specific weapon

@@ -488,7 +488,8 @@ static void CG_DrawPlayerStaminaBolt( rectDef_t *rect, vec4_t color, qhandle_t s
   if( stamina < 0 )
     color[ 3 ] = HH_MIN_ALPHA;
   else if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_SPEEDBOOST )
-    color[ 3 ] = 1.0f;
+    color[ 3 ] = HH_MIN_ALPHA + HH_MAX_ALPHA *
+                 ( 0.5f + sin( cg.time / 200.0f ) / 2 );
   else
     color[ 3 ] = HH_MAX_ALPHA;
 
@@ -573,7 +574,7 @@ CG_DrawPlayerBoosted
 */
 static void CG_DrawPlayerBoosted( rectDef_t *rect, vec4_t color, qhandle_t shader )
 {
-  if( cg.boostedTime >= 0 )
+  if( cg.snap->ps.stats[ STAT_STATE ] & SS_BOOSTED )
     color[ 3 ] = AH_MAX_ALPHA;
   else
     color[ 3 ] = AH_MIN_ALPHA;
@@ -596,9 +597,9 @@ static void CG_DrawPlayerBoosterBolt( rectDef_t *rect, vec4_t color, qhandle_t s
 
   // Flash bolts when the boost is almost out
   if( ( cg.snap->ps.stats[ STAT_STATE ] & SS_BOOSTED ) &&
-      cg.boostedTime > 0 && cg.time - cg.boostedTime > BOOST_TIME - 5000 &&
-      cg.time & 256 )
-    localColor[ 3 ] = 1.0f;
+      ( cg.snap->ps.stats[ STAT_STATE ] & SS_BOOSTEDWARNING ) )
+    localColor[ 3 ] += ( 1.0f - localColor[ 3 ] ) *
+                       ( 0.5f + sin( cg.time / 100.0f ) / 2 );
 
   trap_R_SetColor( localColor );
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
@@ -857,44 +858,67 @@ static void CG_DrawPlayerHealthValue( rectDef_t *rect, vec4_t color )
 CG_DrawPlayerHealthCross
 ==============
 */
-static void CG_DrawPlayerHealthCross( rectDef_t *rect, vec4_t color, qhandle_t shader )
+static void CG_DrawPlayerHealthCross( rectDef_t *rect, vec4_t ref_color )
 {
-  if( ( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_2X ) ||
-      ( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_3X ) )
-    return;
+  qhandle_t shader;
+  vec4_t color;
+  float ref_alpha;
+  
+  // Pick the current icon
+  shader = cgs.media.healthCross;
+  if( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_3X )
+    shader = cgs.media.healthCross3X;
+  else if( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_2X )
+  {
+    if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+      shader = cgs.media.healthCross2X;
+    else
+      shader = cgs.media.healthCrossMedkit;
+  }
+  else if( cg.snap->ps.stats[ STAT_STATE ] & SS_POISONED )
+    shader = cgs.media.healthCrossPoisoned;
+
+  // Pick the alpha value
+  Vector4Copy( ref_color, color );
   if( cg.snap->ps.stats[ STAT_PTEAM ] == PTE_HUMANS &&
       cg.snap->ps.stats[ STAT_HEALTH ] < 10 )
   {
     color[ 0 ] = 1.0f;
     color[ 1 ] = color[ 2 ] = 0.0f;
   }
+  ref_alpha = ref_color[ 3 ];
   if( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_ACTIVE )
-    color[ 3 ] = 1.0f;
+    ref_alpha = 1.0f;
+    
+  // Don't fade from nothing
+  if( !cg.lastHealthCross )
+    cg.lastHealthCross = shader;
   
-  trap_R_SetColor( color );
-  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
-  trap_R_SetColor( NULL );
-}
+  // Fade the icon during transition
+  if( cg.lastHealthCross != shader )
+  {
+    cg.healthCrossFade += cg.frametime / 500.f;
+    if( cg.healthCrossFade > 1.f )
+    {
+      cg.healthCrossFade = 0.f;
+      cg.lastHealthCross = shader;
+    }
+    else
+    {
+      // Fading between two icons
+      color[ 3 ] = ref_alpha * cg.healthCrossFade;
+      trap_R_SetColor( color );
+      CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
+      color[ 3 ] = ref_alpha * ( 1.f - cg.healthCrossFade );
+      trap_R_SetColor( color );
+      CG_DrawPic( rect->x, rect->y, rect->w, rect->h, cg.lastHealthCross );
+      trap_R_SetColor( NULL );
+      return;
+    }
+  }
 
-static void CG_DrawPlayerHealthCross2( rectDef_t *rect, vec4_t color, qhandle_t shader )
-{
-  if( !( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_2X ) )
-    return;
-  if( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_ACTIVE )
-    color[ 3 ] = 1.0f;
-  
-  trap_R_SetColor( color );
-  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
-  trap_R_SetColor( NULL );
-}
-
-static void CG_DrawPlayerHealthCross3( rectDef_t *rect, vec4_t color, qhandle_t shader )
-{
-  if( !( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_3X ) )
-    return;
-  if( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_ACTIVE )
-    color[ 3 ] = 1.0f;
-  
+  // Not fading, draw a single icon
+  color[ 3 ] = ref_alpha;
   trap_R_SetColor( color );
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
   trap_R_SetColor( NULL );
@@ -917,8 +941,16 @@ static float CG_ChargeProgress( void )
   }
   else if( cg.snap->ps.weapon == WP_ALEVEL4 )
   {
-    min = LEVEL4_TRAMPLE_CHARGE_MIN;
-    max = LEVEL4_TRAMPLE_CHARGE_MAX;
+    if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_CHARGING )
+    {
+      min = 0;
+      max = LEVEL4_TRAMPLE_DURATION;
+    }
+    else
+    {
+      min = LEVEL4_TRAMPLE_CHARGE_MIN;
+      max = LEVEL4_TRAMPLE_CHARGE_MAX;
+    }
   }
   else if( cg.snap->ps.weapon == WP_LUCIFER_CANNON )
   {
@@ -962,11 +994,14 @@ static void CG_DrawPlayerChargeBarBG( rectDef_t *rect, vec4_t ref_color,
   trap_R_SetColor( NULL );
 }
 
+// FIXME: This should come from the element info
+#define CHARGE_BAR_CAP_SIZE 3
+
 static void CG_DrawPlayerChargeBar( rectDef_t *rect, vec4_t ref_color,
                                     qhandle_t shader )
 {
   vec4_t color;
-  float x, y, width, height, cap_width, progress;
+  float x, y, width, height, cap_size, progress;
   
   if( !cg_drawChargeBar.integer )
     return;
@@ -1005,21 +1040,45 @@ static void CG_DrawPlayerChargeBar( rectDef_t *rect, vec4_t ref_color,
     color[ 2 ] = 0.0f;
   }
 
-  // Calculate bar coords  
   x = rect->x;
   y = rect->y;
-  width = ( rect->w - 6 ) * cg.chargeMeterValue;
-  height = rect->h;
-  CG_AdjustFrom640( &x, &y, &width, &height );
-  cap_width = 3 * cgs.screenXScale;
   
-  // Draw the meter
-  trap_R_SetColor( color );
-  trap_R_DrawStretchPic( x, y, cap_width, height, 0, 0, 1, 1, shader );
-  trap_R_DrawStretchPic( x + width + cap_width, y, cap_width, height,
-                         1, 0, 0, 1, shader );
-  trap_R_DrawStretchPic( x + cap_width, y, width, height, 1, 0, 1, 1, shader );
-  trap_R_SetColor( NULL );
+  // Horizontal charge bar
+  if( rect->w >= rect->h )
+  {
+    width = ( rect->w - CHARGE_BAR_CAP_SIZE * 2 ) * cg.chargeMeterValue;
+    height = rect->h;
+    CG_AdjustFrom640( &x, &y, &width, &height );
+    cap_size = CHARGE_BAR_CAP_SIZE * cgs.screenXScale;
+  
+    // Draw the meter
+    trap_R_SetColor( color );
+    trap_R_DrawStretchPic( x, y, cap_size, height, 0, 0, 1, 1, shader );
+    trap_R_DrawStretchPic( x + width + cap_size, y, cap_size, height,
+                           1, 0, 0, 1, shader );
+    trap_R_DrawStretchPic( x + cap_size, y, width, height, 1, 0, 1, 1, shader );
+    trap_R_SetColor( NULL );
+  }
+  
+  // Vertical charge bar
+  else
+  {
+    y += rect->h;
+    width = rect->w;
+    height = ( rect->h - CHARGE_BAR_CAP_SIZE * 2 ) * cg.chargeMeterValue;
+    CG_AdjustFrom640( &x, &y, &width, &height );
+    cap_size = CHARGE_BAR_CAP_SIZE * cgs.screenYScale;
+  
+    // Draw the meter
+    trap_R_SetColor( color );
+    trap_R_DrawStretchPic( x, y - cap_size, width, cap_size,
+                           0, 1, 1, 0, shader );
+    trap_R_DrawStretchPic( x, y - height - cap_size * 2, width,
+                           cap_size, 0, 0, 1, 1, shader );
+    trap_R_DrawStretchPic( x, y - height - cap_size, width, height,
+                           0, 1, 1, 1, shader );
+    trap_R_SetColor( NULL );
+  }
 }
 
 static void CG_DrawProgressLabel( rectDef_t *rect, float text_x, float text_y, vec4_t color,
@@ -2261,13 +2320,7 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawPlayerHealthValue( &rect, color );
       break;
     case CG_PLAYER_HEALTH_CROSS:
-      CG_DrawPlayerHealthCross( &rect, color, shader );
-      break;
-    case CG_PLAYER_HEALTH_CROSS2:
-      CG_DrawPlayerHealthCross2( &rect, color, shader );
-      break;
-    case CG_PLAYER_HEALTH_CROSS3:
-      CG_DrawPlayerHealthCross3( &rect, color, shader );
+      CG_DrawPlayerHealthCross( &rect, color );
       break;
     case CG_PLAYER_CHARGE_BAR_BG:
       CG_DrawPlayerChargeBarBG( &rect, color, shader );
@@ -2870,7 +2923,9 @@ static qboolean CG_DrawQueue( void )
   w = UI_Text_Width( buffer, 0.7f, 0 );
   UI_Text_Paint( 320 - w / 2, 360, 0.7f, color, buffer, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 
-  if( cg.snap->ps.persistant[ PERS_SPAWNS ] == 1 )
+  if( cg.snap->ps.persistant[ PERS_SPAWNS ] == 0 )
+    Com_sprintf( buffer, MAX_STRING_CHARS, "There are no spawns remaining" );
+  else if( cg.snap->ps.persistant[ PERS_SPAWNS ] == 1 )
     Com_sprintf( buffer, MAX_STRING_CHARS, "There is 1 spawn remaining" );
   else
     Com_sprintf( buffer, MAX_STRING_CHARS, "There are %d spawns remaining",

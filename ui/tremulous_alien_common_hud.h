@@ -92,39 +92,12 @@ itemDef
 itemDef
 {
   name "cross"
-  rect 152.5 420.5 20 20
+  rect 150 417.5 25 25
   aspectBias ALIGN_LEFT
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
-  background "ui/assets/neutral/cross.tga"
   ownerdraw CG_PLAYER_HEALTH_CROSS
-}
-
-//CROSS 2X
-itemDef
-{
-  name "cross"
-  rect 152.5 420.5 20 20
-  aspectBias ALIGN_LEFT
-  visible MENU_TRUE
-  decoration
-  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
-  background "ui/assets/neutral/cross2.tga"
-  ownerdraw CG_PLAYER_HEALTH_CROSS2
-}
-
-//CROSS 3X
-itemDef
-{
-  name "cross"
-  rect 152.5 420.5 20 20
-  aspectBias ALIGN_LEFT
-  visible MENU_TRUE
-  decoration
-  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
-  background "ui/assets/neutral/cross3.tga"
-  ownerdraw CG_PLAYER_HEALTH_CROSS3
 }
 
 //LEFT RING
@@ -207,7 +180,7 @@ itemDef
 itemDef
 {
   name "organs"
-  rect 570.5 415.95 15 15
+  rect 570 416 15 15
   aspectBias ALIGN_RIGHT
   visible MENU_TRUE
   decoration
@@ -235,7 +208,7 @@ itemDef
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
   ownerdraw CG_PLAYER_CHARGE_BAR
-  background "ui/assets/neutral/charge_cap.tga"
+  background "ui/assets/neutral/charge_cap_h.tga"
 }
 
 //CHARGE BAR BG
@@ -248,6 +221,6 @@ itemDef
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.25
   ownerdraw CG_PLAYER_CHARGE_BAR_BG
-  background "ui/assets/neutral/charge_bg.tga"
+  background "ui/assets/neutral/charge_bg_h.tga"
 }
 

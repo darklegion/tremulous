@@ -406,7 +406,7 @@ static float PM_CmdScale( usercmd_t *cmd )
   if( pm->ps->weapon == WP_ALEVEL4 && pm->ps->pm_flags & PMF_CHARGE )
     modifier *= 1.0f + ( pm->ps->stats[ STAT_MISC ] *
                          ( LEVEL4_TRAMPLE_SPEED - 1.0f ) /
-                         LEVEL4_TRAMPLE_CHARGE_MAX );
+                         LEVEL4_TRAMPLE_DURATION );
 
   //slow player if charging up for a pounce
   if( ( pm->ps->weapon == WP_ALEVEL3 || pm->ps->weapon == WP_ALEVEL3_UPG ) &&
@@ -2829,21 +2829,14 @@ static void PM_Weapon( void )
     if( !( pm->ps->stats[ STAT_STATE ] & SS_CHARGING ) )
     {
       // Charge button held
-      if( pm->ps->stats[ STAT_MISC ] < LEVEL4_TRAMPLE_CHARGE_MAX &&
+      if( pm->ps->stats[ STAT_MISC ] < LEVEL4_TRAMPLE_CHARGE_TRIGGER &&
           ( pm->cmd.buttons & BUTTON_ATTACK2 ) )
       {
         pm->ps->stats[ STAT_STATE ] &= ~SS_CHARGING;
         if( pm->cmd.forwardmove > 0 )
-          pm->ps->stats[ STAT_MISC ] += pml.msec * LEVEL4_TRAMPLE_CHARGE_MAX /
-                                        LEVEL4_TRAMPLE_CHARGE_TIME_MAX;
+          pm->ps->stats[ STAT_MISC ] += pml.msec;
         else
           pm->ps->stats[ STAT_MISC ] = 0;
-        if( pm->ps->stats[ STAT_MISC ] > LEVEL4_TRAMPLE_CHARGE_MAX )
-        {
-          pm->ps->stats[ STAT_MISC ] = LEVEL4_TRAMPLE_CHARGE_MAX;
-          pm->ps->stats[ STAT_STATE ] |= SS_CHARGING;
-          PM_AddEvent( EV_LEV4_TRAMPLE_START );
-        }
       }
       
       // Charge button released
@@ -2851,6 +2844,11 @@ static void PM_Weapon( void )
       {
         if( pm->ps->stats[ STAT_MISC ] > LEVEL4_TRAMPLE_CHARGE_MIN )
         {
+          if( pm->ps->stats[ STAT_MISC ] > LEVEL4_TRAMPLE_CHARGE_MAX )
+            pm->ps->stats[ STAT_MISC ] = LEVEL4_TRAMPLE_CHARGE_MAX;
+          pm->ps->stats[ STAT_MISC ] = pm->ps->stats[ STAT_MISC ] *
+                                       LEVEL4_TRAMPLE_DURATION /
+                                       LEVEL4_TRAMPLE_CHARGE_MAX;
           pm->ps->stats[ STAT_STATE ] |= SS_CHARGING;
           PM_AddEvent( EV_LEV4_TRAMPLE_START );
         }
@@ -2903,21 +2901,21 @@ static void PM_Weapon( void )
   if( pm->ps->pm_flags & PMF_RESPAWNED )
     return;
 
-  // no slash during charge
-  if( pm->ps->stats[ STAT_STATE ] & SS_CHARGING )
-    return;
-
   // no bite during pounce
   if( ( pm->ps->weapon == WP_ALEVEL3 || pm->ps->weapon == WP_ALEVEL3_UPG )
       && ( pm->cmd.buttons & BUTTON_ATTACK )
       && ( pm->ps->pm_flags & PMF_CHARGE ) )
     return;
 
-  // make weapon function
+  // pump weapon delays (repeat times etc)
   if( pm->ps->weaponTime > 0 )
     pm->ps->weaponTime -= pml.msec;
   if( pm->ps->weaponTime < 0 )
     pm->ps->weaponTime = 0;
+
+  // no slash during charge
+  if( pm->ps->stats[ STAT_STATE ] & SS_CHARGING )
+    return;
 
   // check for weapon change
   // can't change if weapon is firing, but can change
