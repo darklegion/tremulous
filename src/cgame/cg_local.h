@@ -1374,12 +1374,6 @@ typedef struct
 
   qboolean      newHud;
 
-  int           alienBuildPoints;
-  int           alienBuildPointsTotal;
-  int           humanBuildPoints;
-  int           humanBuildPointsTotal;
-  int           humanBuildPointsPowered;
-
   int           alienStage;
   int           humanStage;
   int           alienCredits;

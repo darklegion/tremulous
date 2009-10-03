@@ -69,7 +69,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CS_BOTINFO          25
 #define CS_CLIENTS_READY    26
 
-#define CS_BUILDPOINTS      28
 #define CS_STAGES           29
 
 #define CS_MODELS           33
@@ -269,8 +268,9 @@ typedef enum
   PERS_STATE,
   PERS_CREDIT,    // human credit
   PERS_QUEUEPOS,  // position in the spawn queue
-  PERS_NEWWEAPON  // weapon to switch to
-  // netcode has space for 5 more
+  PERS_NEWWEAPON,  // weapon to switch to
+  PERS_BP
+  // netcode has space for 4 more
 } persEnum_t;
 
 #define PS_WALLCLIMBINGFOLLOW   0x00000001

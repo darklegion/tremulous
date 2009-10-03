@@ -1742,6 +1742,12 @@ void ClientThink_real( gentity_t *ent )
     }
   }
 
+  client->ps.persistant[ PERS_BP ] = G_GetBuildPoints( client->ps.origin,
+    client->ps.stats[ STAT_TEAM ], BG_Class( client->ps.stats[ STAT_CLASS ] )->buildDist );
+
+  if( client->ps.persistant[ PERS_BP ] < 0 )
+    client->ps.persistant[ PERS_BP ] = 0;
+
   // Give clients some credit periodically
   if( ent->client->lastKillTime + FREEKILL_PERIOD < level.time )
   {

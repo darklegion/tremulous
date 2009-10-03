@@ -87,10 +87,13 @@ vmCvar_t  g_minCommandPeriod;
 vmCvar_t  g_minNameChangePeriod;
 vmCvar_t  g_maxNameChanges;
 
-vmCvar_t  g_humanBuildPoints;
 vmCvar_t  g_alienBuildPoints;
-vmCvar_t  g_humanBuildQueueTime;
 vmCvar_t  g_alienBuildQueueTime;
+vmCvar_t  g_humanBuildPoints;
+vmCvar_t  g_humanBuildQueueTime;
+vmCvar_t  g_humanRepeaterBuildPoints;
+vmCvar_t  g_humanRepeaterBuildQueueTime;
+vmCvar_t  g_humanRepeaterMaxZones;
 vmCvar_t  g_humanStage;
 vmCvar_t  g_humanCredits;
 vmCvar_t  g_humanMaxStage;
@@ -222,10 +225,13 @@ static cvarTable_t   gameCvarTable[ ] =
   { &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
   { &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
 
-  { &g_humanBuildPoints, "g_humanBuildPoints", DEFAULT_HUMAN_BUILDPOINTS, 0, 0, qfalse  },
   { &g_alienBuildPoints, "g_alienBuildPoints", DEFAULT_ALIEN_BUILDPOINTS, 0, 0, qfalse  },
-  { &g_humanBuildQueueTime, "g_humanBuildQueueTime", DEFAULT_HUMAN_QUEUE_TIME, 0, 0, qfalse  },
   { &g_alienBuildQueueTime, "g_alienBuildQueueTime", DEFAULT_ALIEN_QUEUE_TIME, 0, 0, qfalse  },
+  { &g_humanBuildPoints, "g_humanBuildPoints", DEFAULT_HUMAN_BUILDPOINTS, 0, 0, qfalse  },
+  { &g_humanBuildQueueTime, "g_humanBuildQueueTime", DEFAULT_HUMAN_QUEUE_TIME, 0, 0, qfalse  },
+  { &g_humanRepeaterBuildPoints, "g_humanRepeaterBuildPoints", DEFAULT_HUMAN_REPEATER_BUILDPOINTS, 0, 0, qfalse  },
+  { &g_humanRepeaterMaxZones, "g_humanRepeaterMaxZones", DEFAULT_HUMAN_REPEATER_MAX_ZONES, 0, 0, qfalse  },
+  { &g_humanRepeaterBuildQueueTime, "g_humanRepeaterBuildQueueTime", DEFAULT_HUMAN_REPEATER_QUEUE_TIME, 0, 0, qfalse  },
   { &g_humanStage, "g_humanStage", "0", 0, 0, qfalse  },
   { &g_humanCredits, "g_humanCredits", "0", 0, 0, qfalse  },
   { &g_humanMaxStage, "g_humanMaxStage", DEFAULT_HUMAN_MAX_STAGE, 0, 0, qfalse  },
@@ -1063,11 +1069,10 @@ Recalculate the quantity of building points available to the teams
 */
 void G_CalculateBuildPoints( void )
 {
-  int         i;
+  int         i, j;
   buildable_t buildable;
   gentity_t   *ent;
-  int         localHTP = level.humanBuildPoints = g_humanBuildPoints.integer,
-              localATP = level.alienBuildPoints = g_alienBuildPoints.integer;
+  zone_t      *zone;
 
   // BP queue updates
   while( level.alienBuildPointQueue > 0 &&
@@ -1112,9 +1117,6 @@ void G_CalculateBuildPoints( void )
         ( g_suddenDeath.integer || G_TimeTilSuddenDeath( ) <= 0 ) )
     {
       // begin sudden death
-      localHTP = 0;
-      localATP = 0;
-
       if( level.suddenDeathWarning < TW_PASSED )
       {
         G_LogPrintf( "Beginning Sudden Death\n" );
@@ -1140,8 +1142,8 @@ void G_CalculateBuildPoints( void )
     }
   }
 
-  level.humanBuildPoints = localHTP - level.humanBuildPointQueue;
-  level.alienBuildPoints = localATP - level.alienBuildPointQueue;
+  level.humanBuildPoints = g_humanBuildPoints.integer;
+  level.alienBuildPoints = g_alienBuildPoints.integer;
 
   level.reactorPresent = qfalse;
   level.overmindPresent = qfalse;
@@ -1149,7 +1151,56 @@ void G_CalculateBuildPoints( void )
   level.numAlienSpawns = 0;
   level.numHumanSpawns = 0;
 
-  for( i = MAX_CLIENTS, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
+  // Deactivate any unowned zones
+  for( i = 0; i < MIN( g_humanRepeaterMaxZones.integer, MAX_ZONES ); i++ )
+  {
+    qboolean inUse = qfalse;
+    zone_t *zone = &zones[ i ];
+
+    if( zone->active )
+	{
+      for( j = MAX_CLIENTS, ent = g_entities + j ; j < level.num_entities ; j++, ent++ )
+      {
+        if( ent->s.eType != ET_BUILDABLE )
+          continue;
+
+        if( ent->s.eType != ET_BUILDABLE )
+          continue;
+
+        if( ent->s.eFlags & EF_DEAD )
+          continue;
+
+        if( ent->usesZone && ent->zone == i )
+          inUse = qtrue;
+      }
+
+      if( !inUse )
+        zone->active = qfalse;
+    }
+  }
+
+  // First reset repeater zone BP
+  for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
+  {
+    if( ent->s.eType != ET_BUILDABLE )
+      continue;
+
+    if( ent->s.eFlags & EF_DEAD )
+      continue;
+
+    if( ent->s.modelindex != BA_H_REPEATER )
+      continue;
+
+    if( ent->usesZone && zones[ ent->zone ].active )
+    {
+      zone_t *zone = &zones[ ent->zone ];
+
+      zone->totalBuildPoints = g_humanRepeaterBuildPoints.integer;
+    }
+  }
+
+  // Iterate through entities
+  for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
   {
     if( !ent->inuse )
       continue;
@@ -1178,7 +1229,58 @@ void G_CalculateBuildPoints( void )
 
       if( BG_Buildable( buildable )->team == TEAM_HUMANS )
       {
-        level.humanBuildPoints -= BG_Buildable( buildable )->buildPoints;
+        gentity_t *powerEntity = G_PowerEntityForPoint( ent->s.origin );
+
+        if( powerEntity )
+        {
+          switch( powerEntity->s.modelindex )
+          {
+            case BA_H_REACTOR:
+              level.humanBuildPoints -= BG_Buildable( buildable )->buildPoints;
+              break;
+
+            case BA_H_REPEATER:
+              if( powerEntity->usesZone && zones[powerEntity->zone].active )
+              {
+                zone_t *zone = &zones[powerEntity->zone];
+
+                zone->totalBuildPoints -= BG_Buildable( buildable )->buildPoints;
+                powerEntity->s.misc = zone->totalBuildPoints - zone->queuedBuildPoints;
+              }
+              break;
+
+            default:
+              break;
+          }
+        }
+        else
+        {
+          // Unpowered buildables count as BP for the main reactor zone
+          level.humanBuildPoints -= BG_Buildable( buildable )->buildPoints;
+        }
+
+        if( buildable == BA_H_REPEATER )
+        {
+          if( ent->usesZone && zones[ ent->zone ].active )
+          {
+            zone = &zones[ ent->zone ];
+
+            if( !level.suddenDeath )
+            {
+              // BP queue updates
+              while( zone->queuedBuildPoints > 0 &&
+                     zone->nextQueueTime < level.time )
+              {
+                zone->queuedBuildPoints--;
+                zone->nextQueueTime += (int)g_humanRepeaterBuildQueueTime.integer * (float)( 1 -  ( (float)zone->queuedBuildPoints ) / zone->totalBuildPoints );
+              }
+            }
+            else
+            {
+                zone->totalBuildPoints = zone->queuedBuildPoints = 0;
+            }
+          }
+        }
       }
       else if( BG_Buildable( buildable )->team == TEAM_ALIENS )
       {
@@ -1188,20 +1290,10 @@ void G_CalculateBuildPoints( void )
   }
 
   if( level.humanBuildPoints < 0 )
-  {
-    localHTP -= level.humanBuildPoints;
     level.humanBuildPoints = 0;
-  }
 
   if( level.alienBuildPoints < 0 )
-  {
-    localATP -= level.alienBuildPoints;
     level.alienBuildPoints = 0;
-  }
-
-  trap_SetConfigstring( CS_BUILDPOINTS, va( "%d %d %d %d",
-        level.alienBuildPoints, localATP,
-        level.humanBuildPoints, localHTP ) );
 }
 
 /*

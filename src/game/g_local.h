@@ -252,6 +252,9 @@ struct gentity_s
   qboolean          ownerClear;                     // used for missle tracking
 
   qboolean          pointAgainstWorld;              // don't use the bbox for map collisions
+
+  int               zone;                           // index for zone
+  int               usesZone;                       // does it use a zone?
 };
 
 typedef enum
@@ -698,6 +701,8 @@ void G_Physics( gentity_t *ent, int msec );
 
 #define MAX_ALIEN_BBOX  25
 
+#define MAX_ZONES       1024
+
 typedef enum
 {
   IBE_NONE,
@@ -726,6 +731,17 @@ typedef enum
   IBE_MAXERRORS
 } itemBuildError_t;
 
+typedef struct
+{
+  int active;
+
+  int totalBuildPoints;
+  int queuedBuildPoints;
+  int nextQueueTime;
+} zone_t;
+
+extern zone_t zones[MAX_ZONES];
+
 qboolean          AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideExit );
 gentity_t         *G_CheckSpawnPoint( int spawnNum, vec3_t origin, vec3_t normal,
                     buildable_t spawn, vec3_t spawnOrigin );
@@ -750,6 +766,8 @@ void              G_LayoutSelect( void );
 void              G_LayoutLoad( void );
 void              G_BaseSelfDestruct( team_t team );
 void              G_QueueBuildPoints( gentity_t *self );
+int               G_GetBuildPoints( const vec3_t pos, team_t team, int dist );
+gentity_t         *G_PowerEntityForPoint( vec3_t origin );
 
 //
 // g_utils.c
@@ -1059,10 +1077,13 @@ extern  vmCvar_t  g_enableDust;
 extern  vmCvar_t  g_enableBreath;
 extern  vmCvar_t  g_singlePlayer;
 
-extern  vmCvar_t  g_humanBuildPoints;
 extern  vmCvar_t  g_alienBuildPoints;
-extern  vmCvar_t  g_humanBuildQueueTime;
 extern  vmCvar_t  g_alienBuildQueueTime;
+extern  vmCvar_t  g_humanBuildPoints;
+extern  vmCvar_t  g_humanBuildQueueTime;
+extern  vmCvar_t  g_humanRepeaterBuildPoints;
+extern  vmCvar_t  g_humanRepeaterBuildQueueTime;
+extern  vmCvar_t  g_humanRepeaterMaxZones;
 extern  vmCvar_t  g_humanStage;
 extern  vmCvar_t  g_humanCredits;
 extern  vmCvar_t  g_humanMaxStage;

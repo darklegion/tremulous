@@ -630,11 +630,8 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
 
     case WP_ABUILD:
     case WP_ABUILD2:
-      value = cgs.alienBuildPoints;
-      break;
-
     case WP_HBUILD:
-      value = cgs.humanBuildPoints;
+      value = cg.snap->ps.persistant[ PERS_BP ];
       break;
 
     default:
