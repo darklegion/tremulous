@@ -303,10 +303,17 @@ void CG_OffsetThirdPersonView( void )
 
   // If player is dead, we want the player to be between us and the killer
   // so pretend that the player was looking at the killer, then place cam behind them.
-  // FIXME: This still fails to see killer when killer is above/below or killer moves 
-  // out of view (relative to the dead player).
   if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
-    cg.refdefViewAngles[ YAW ] = cg.predictedPlayerState.stats[ STAT_VIEWLOCK ];
+  {
+    int killerEntNum;
+    vec3_t killerPos;
+
+    killerEntNum = cg.predictedPlayerState.stats[ STAT_VIEWLOCK ];
+    VectorCopy( cg_entities[ killerEntNum ].lerpOrigin, killerPos );
+
+    VectorSubtract( killerPos, cg.refdef.vieworg, killerPos );
+    vectoangles( killerPos, cg.refdefViewAngles );
+  }
 
   // get and rangecheck cg_thirdPersonRange
   range = cg_thirdPersonRange.value;
