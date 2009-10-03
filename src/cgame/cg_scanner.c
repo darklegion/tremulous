@@ -58,7 +58,8 @@ void CG_UpdateEntityPositions( void )
   {
     cent = &cg_entities[ cg.snap->entities[ i ].number ];
 
-    if( cent->currentState.eType == ET_BUILDABLE )
+    if( cent->currentState.eType == ET_BUILDABLE &&
+     !( cent->currentState.eFlags & EF_DEAD ) )
     {
       // add to list of item positions (for creep)
       if( cent->currentState.modelindex2 == TEAM_ALIENS )
