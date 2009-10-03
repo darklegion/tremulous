@@ -717,7 +717,7 @@ void CG_Menu( int menu, int arg )
     case MN_H_ARMOURYBUILDTIMER:
       longMsg   = "You are not allowed to buy or sell weapons until your "
                   "build timer has expired.";
-      shortMsg  = "You can not buy or sell weapos until your build timer "
+      shortMsg  = "You can not buy or sell weapons until your build timer "
                   "expires";
       type      = DT_ARMOURYEVOLVE;
       break;
