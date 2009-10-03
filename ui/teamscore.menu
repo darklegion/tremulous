@@ -145,7 +145,7 @@
 
     itemDef
     {
-      text "Kills"
+      text "Score"
       textscale .33
       style WINDOW_STYLE_EMPTY
       rect (LLIST_R-95) (BAR_H+BORDER) 1 BAR_H
@@ -215,7 +215,7 @@
 
     itemDef
     {
-      text "Kills"
+      text "Score"
       textscale .33
       style WINDOW_STYLE_EMPTY
       rect (RLIST_R-95) (BAR_H+BORDER) 1 BAR_H

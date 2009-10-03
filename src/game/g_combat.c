@@ -33,7 +33,7 @@ int             g_numArmourRegions[ UP_NUM_UPGRADES ];
 ============
 AddScore
 
-Adds score to both the client and his team
+Adds score to the client
 ============
 */
 void AddScore( gentity_t *ent, int score )
@@ -44,6 +44,15 @@ void AddScore( gentity_t *ent, int score )
   // no scoring during pre-match warmup
   if( level.warmupTime )
     return;
+
+  // make alien and human scores equivalent 
+  if ( ent->client->pers.teamSelection == TEAM_ALIENS )
+  {
+    score = rint( (double)score / 2.0 );
+  }
+
+  // scale values down to fit the scoreboard better
+  score = rint( (double)score / 10.0 );
 
   ent->client->ps.persistant[ PERS_SCORE ] += score;
   CalculateRanks( );
@@ -177,13 +186,20 @@ float G_RewardAttackers( gentity_t *self )
     if( !player->client || !self->credits[ i ] ||
         player->client->ps.stats[ STAT_TEAM ] == team )
       continue;
-    G_AddCreditToClient( player->client, num, qtrue );
 
-    // add to stage counters
-    if( player->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
-      trap_Cvar_Set( "g_alienCredits", va( "%d", g_alienCredits.integer + stageValue ) );
-    else if( player->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
-      trap_Cvar_Set( "g_humanCredits", va( "%d", g_humanCredits.integer + stageValue ) );
+    AddScore( player, num );
+
+    // killing buildables earns score, but not credits
+    if( self->s.eType != ET_BUILDABLE )
+    {
+      G_AddCreditToClient( player->client, num, qtrue );
+
+      // add to stage counters
+      if( player->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
+        trap_Cvar_Set( "g_alienCredits", va( "%d", g_alienCredits.integer + stageValue ) );
+      else if( player->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
+        trap_Cvar_Set( "g_humanCredits", va( "%d", g_humanCredits.integer + stageValue ) );
+    }
 
     self->credits[ i ] = 0;
   }
@@ -267,23 +283,30 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
     if( attacker == self || OnSameTeam( self, attacker ) )
     {
-      AddScore( attacker, -1 );
-
       //punish team kills and suicides
       if( attacker->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
+      {
         G_AddCreditToClient( attacker->client, -ALIEN_TK_SUICIDE_PENALTY, qtrue );
+        AddScore( attacker, -ALIEN_TK_SUICIDE_PENALTY );
+      }
       else if( attacker->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
+      {
         G_AddCreditToClient( attacker->client, -HUMAN_TK_SUICIDE_PENALTY, qtrue );
+        AddScore( attacker, -HUMAN_TK_SUICIDE_PENALTY );
+      }
     }
     else
     {
-      AddScore( attacker, 1 );
-
       attacker->client->lastKillTime = level.time;
     }
   }
   else if( attacker->s.eType != ET_BUILDABLE )
-    AddScore( self, -1 );
+  {
+    if( self->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
+      AddScore( self, -ALIEN_TK_SUICIDE_PENALTY );
+    else if( self->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
+      AddScore( self, -HUMAN_TK_SUICIDE_PENALTY );
+  }
 
   // give credits for killing this player
   totalDamage = G_RewardAttackers( self );
