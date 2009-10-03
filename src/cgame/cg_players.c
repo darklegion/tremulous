@@ -723,6 +723,51 @@ void CG_PrecacheClientInfo( class_t class, char *model, char *skin )
 
 
 /*
+=============
+CG_TeamJoinMessage
+
+Prints messages when players change teams
+=============
+*/
+void CG_TeamJoinMessage( clientInfo_t *newInfo, clientInfo_t *ci )
+{
+  int  team;
+  int  oldteam;
+  char *playerName;
+
+  if( !ci->infoValid )
+    return;
+
+  // Collect info
+  team = newInfo->team;
+  oldteam = ci->team;
+
+  // If no change occurred, print nothing
+  if( team == oldteam )
+    return;
+
+  playerName = newInfo->name;
+
+  // Print the appropriate message
+  if( team == TEAM_NONE )
+  {
+    CG_Printf( "%s" S_COLOR_WHITE " left the %ss\n",
+      playerName, BG_TeamName( oldteam ) );
+  }
+  else if( oldteam == TEAM_NONE )
+  {
+    CG_Printf( "%s" S_COLOR_WHITE " joined the %ss\n",
+      playerName, BG_TeamName( team ) );
+  }
+  else
+  {
+    CG_Printf( "%s" S_COLOR_WHITE " left the %ss and joined the %ss\n",
+      playerName, BG_TeamName( oldteam ), BG_TeamName( team ) );
+  }
+}
+
+
+/*
 ======================
 CG_NewClientInfo
 ======================
@@ -773,6 +818,22 @@ void CG_NewClientInfo( int clientNum )
   v = Info_ValueForKey( configstring, "t" );
   newInfo.team = atoi( v );
   CG_TeamJoinMessage( &newInfo, ci );
+
+  // if this is us, execute team-specific config files
+  // unfortunately, these get re-executed after a vid_restart, because the
+  // cgame can't tell the difference between that and joining a new server
+  if( clientNum == cg.clientNum &&
+    ( !ci->infoValid || ci->team != newInfo.team ) )
+  {
+    char config[ MAX_STRING_CHARS ];
+
+    trap_Cvar_VariableStringBuffer(
+      va( "cg_%sConfig", BG_TeamName( newInfo.team ) ),
+      config, sizeof( config ) );
+
+    if( config[ 0 ] )
+      trap_SendConsoleCommand( va( "exec %s\n", config ) );
+  }
 
   // model
   v = Info_ValueForKey( configstring, "model" );
