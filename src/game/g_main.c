@@ -46,6 +46,7 @@ vmCvar_t  g_friendlyFire;
 vmCvar_t  g_friendlyFireAliens;
 vmCvar_t  g_friendlyFireHumans;
 vmCvar_t  g_friendlyBuildableFire;
+vmCvar_t  g_dretchPunt;
 vmCvar_t  g_password;
 vmCvar_t  g_needpass;
 vmCvar_t  g_maxclients;
@@ -170,6 +171,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_friendlyFireAliens, "g_friendlyFireAliens", "0", CVAR_ARCHIVE, 0, qtrue  },
   { &g_friendlyFireHumans, "g_friendlyFireHumans", "0", CVAR_ARCHIVE, 0, qtrue  },
   { &g_friendlyBuildableFire, "g_friendlyBuildableFire", "0", CVAR_ARCHIVE, 0, qtrue  },
+  { &g_dretchPunt, "g_dretchPunt", "0", CVAR_ARCHIVE, 0, qtrue  },
 
   { &g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE  },
   { &g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE  },
