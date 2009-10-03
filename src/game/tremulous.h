@@ -71,7 +71,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL1_UPG_REGEN_MOD        3.0f
 
 #define LEVEL2_CLAW_DMG             ADM(40)
-#define LEVEL2_CLAW_RANGE           96.0f
+#define LEVEL2_CLAW_RANGE           72.0f
 #define LEVEL2_CLAW_WIDTH           14.0f
 #define LEVEL2_CLAW_REPEAT          500
 #define LEVEL2_CLAW_K_SCALE         1.0f
