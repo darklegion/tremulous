@@ -996,7 +996,12 @@ void ClientUserinfoChanged( int clientNum )
 
   // check for malformed or illegal info strings
   if( !Info_Validate(userinfo) )
-    strcpy( userinfo, "\\name\\badinfo" );
+  {
+    trap_SendServerCommand( ent - g_entities,
+        "disconnect \"illegal or malformed userinfo\n\"" );
+    trap_DropClient( ent - g_entities, 
+        "dropped: illegal or malformed userinfo");
+  }
 
   // stickyspec toggle
   s = Info_ValueForKey( userinfo, "cg_stickySpec" );  
