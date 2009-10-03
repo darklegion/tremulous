@@ -730,6 +730,7 @@ typedef enum
   IBE_TNODEWARN, // not currently used
   IBE_RPTNOREAC,
   IBE_RPTPOWERHERE,
+  IBE_RPWCAUSEOVRL,
   IBE_NOHUMANBP,
   IBE_NODCC,
 
@@ -767,6 +768,9 @@ void              G_BaseSelfDestruct( team_t team );
 void              G_QueueBuildPoints( gentity_t *self );
 int               G_GetBuildPoints( const vec3_t pos, team_t team, int dist );
 gentity_t         *G_PowerEntityForPoint( vec3_t origin );
+gentity_t         *G_PowerEntityForEntity( gentity_t *ent );
+gentity_t         *G_RepeaterEntityForPoint( vec3_t origin );
+qboolean          G_InPowerZone( gentity_t *self );
 
 //
 // g_utils.c
@@ -1083,6 +1087,7 @@ extern  vmCvar_t  g_humanBuildQueueTime;
 extern  vmCvar_t  g_humanRepeaterBuildPoints;
 extern  vmCvar_t  g_humanRepeaterBuildQueueTime;
 extern  vmCvar_t  g_humanRepeaterMaxZones;
+extern  vmCvar_t  g_humanRepeaterAllowOverlap;
 extern  vmCvar_t  g_humanStage;
 extern  vmCvar_t  g_humanCredits;
 extern  vmCvar_t  g_humanMaxStage;

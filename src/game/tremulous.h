@@ -586,7 +586,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DC_SPLASHRADIUS             100
 #define DC_ATTACK_PERIOD            10000 // how often to spam "under attack"
 #define DC_HEALRATE                 3
-#define DC_RANGE                    10000
+#define DC_RANGE                    1000
 #define DC_VALUE                    HBVM(DC_BP)
 
 #define ARMOURY_BP                  10
@@ -669,6 +669,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DEFAULT_HUMAN_REPEATER_BUILDPOINTS "20"
 #define DEFAULT_HUMAN_REPEATER_QUEUE_TIME "7000"
 #define DEFAULT_HUMAN_REPEATER_MAX_ZONES "3"
+#define DEFAULT_HUMAN_REPEATER_ALLOW_OVERLAP "1"
 #define DEFAULT_HUMAN_STAGE2_THRESH "4000"
 #define DEFAULT_HUMAN_STAGE3_THRESH "8000"
 #define DEFAULT_HUMAN_MAX_STAGE     "2"

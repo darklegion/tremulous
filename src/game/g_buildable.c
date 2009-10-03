@@ -144,10 +144,10 @@ G_FindPower
 attempt to find power for self, return qtrue if successful
 ================
 */
-static qboolean G_FindPower( gentity_t *self )
+static qboolean G_FindPower( gentity_t *self, qboolean building )
 {
-  int       i;
-  gentity_t *ent;
+  int       i, j;
+  gentity_t *ent, *ent2;
   gentity_t *closestPower = NULL;
   int       distance = 0;
   int       minDistance = REPEATER_BASESIZE + 1;
@@ -156,24 +156,24 @@ static qboolean G_FindPower( gentity_t *self )
   if( self->buildableTeam != TEAM_HUMANS )
     return qfalse;
 
-  //reactor is always powered
+  // Reactor is always powered
   if( self->s.modelindex == BA_H_REACTOR )
     return qtrue;
 
-  //if this already has power then stop now
+  // If this already has power then stop now
   if( self->parentNode && self->parentNode->powered )
     return qtrue;
 
-  //reset parent
+  // Reset parent
   self->parentNode = NULL;
 
-  //iterate through entities
+  // Iterate through entities
   for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
   {
     if( ent->s.eType != ET_BUILDABLE )
       continue;
 
-    //if entity is a power item calculate the distance to it
+    // If entity is a power item calculate the distance to it
     if( ( ent->s.modelindex == BA_H_REACTOR || ent->s.modelindex == BA_H_REPEATER ) &&
         ent->spawned && ent->powered && ent->health > 0 )
     {
@@ -188,13 +188,49 @@ static qboolean G_FindPower( gentity_t *self )
       }
       else if( distance < minDistance )
       {
-        closestPower = ent;
-        minDistance = distance;
+        // If it's a repeater, check that enough BP will be available to power
+        // another buildable
+        // but only if self is a real buildable
+
+        if( self->parentNode )
+        {
+          int buildPoints = g_humanRepeaterBuildPoints.integer;
+
+          // Scan the buildables in the repeater zone
+          for( j = MAX_CLIENTS, ent2 = g_entities + j; j < level.num_entities; j++, ent2++ )
+          {
+            gentity_t *powerEntity;
+
+            if( ent->s.eType != ET_BUILDABLE )
+              continue;
+
+            powerEntity = ent2->parentNode;  // FIXME: this assumes that parentNode is always the power source, if it exists
+
+            if( powerEntity && powerEntity->s.modelindex == BA_H_REPEATER && powerEntity == self->parentNode )
+            {
+              buildPoints -= BG_Buildable( ent2->s.modelindex )->buildPoints;
+            }
+          }
+
+          if( building )
+            buildPoints -= BG_Buildable( self->s.modelindex )->buildPoints;
+
+          if( buildPoints >= 0 )
+          {
+            closestPower = ent;
+            minDistance = distance;
+          }
+        }
+        else
+        {
+          closestPower = ent;
+          minDistance = distance;
+        }
       }
     }
   }
 
-  //if there were no power items nearby give up
+  // If there were no power items nearby give up
   if( closestPower )
   {
     self->parentNode = closestPower;
@@ -221,10 +257,25 @@ gentity_t *G_PowerEntityForPoint( vec3_t origin )
   dummy.s.modelindex = BA_NONE;
   VectorCopy( origin, dummy.s.origin );
 
-  if( G_FindPower( &dummy ) )
+  if( G_FindPower( &dummy, qfalse ) )
     return dummy.parentNode;
   else
     return NULL;
+}
+
+/*
+================
+G_PowerEntityForEntity
+
+Simple wrapper to G_FindPower to find the entity providing
+power for the specified entity
+================
+*/
+gentity_t *G_PowerEntityForEntity( gentity_t *ent )
+{
+  if( G_FindPower( ent, qfalse ) )
+    return ent->parentNode;
+  return NULL;
 }
 
 /*
@@ -252,7 +303,7 @@ G_RepeaterWouldOverlap
 Check if a repeater would create an overlapping power zone
 ================
 */
-static qboolean G_RepeaterWouldOverlap( vec3_t origin )
+static gentity_t *G_RepeaterWouldOverlap( vec3_t origin )
 {
   int       i;
   gentity_t *ent;
@@ -275,17 +326,17 @@ static qboolean G_RepeaterWouldOverlap( vec3_t origin )
       if( ent->s.modelindex == BA_H_REACTOR )
       {
         if( distance <= REACTOR_BASESIZE + REPEATER_BASESIZE )
-          return qtrue;
+          return ent;
       }
       else if( ent->s.modelindex == BA_H_REPEATER )
       {
         if( distance <= REPEATER_BASESIZE + REPEATER_BASESIZE )
-          return qtrue;
+          return ent;
       }
     }
   }
 
-  return qfalse;
+  return NULL;
 }
 
 /*
@@ -334,7 +385,56 @@ int G_GetBuildPoints( const vec3_t pos, team_t team, int dist )
     buildPoints = level.alienBuildPoints;
   }
 
+  if( buildPoints < 0 )
+    buildPoints = 0;
+
   return buildPoints;
+}
+
+/*
+==================
+G_InPowerZone
+
+See if a buildable is inside of another power zone
+(This doesn't check if power zones overlap)
+==================
+*/
+qboolean G_InPowerZone( gentity_t *self )
+{
+  int         i;
+  gentity_t   *ent;
+  int         distance;
+  vec3_t      temp_v;
+
+  for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  {
+    if( ent->s.eType != ET_BUILDABLE )
+      continue;
+
+    if( ent == self )
+      continue;
+
+    if( !ent->spawned )
+      continue;
+
+    if( ent->health <= 0 )
+      continue;
+
+    // if entity is a power item calculate the distance to it
+    if( ( ent->s.modelindex == BA_H_REACTOR || ent->s.modelindex == BA_H_REPEATER ) &&
+        ent->spawned && ent->powered )
+    {
+      VectorSubtract( self->s.origin, ent->s.origin, temp_v );
+      distance = VectorLength( temp_v );
+
+      if( ent->s.modelindex == BA_H_REACTOR && distance <= REACTOR_BASESIZE )
+        return qtrue;
+      else if( ent->s.modelindex == BA_H_REPEATER && distance <= REPEATER_BASESIZE )
+        return qtrue;
+    }
+  }
+
+  return qfalse;
 }
 
 /*
@@ -380,18 +480,32 @@ int G_FindDCC( gentity_t *self )
 ================
 G_IsDCCBuilt
 
-simple wrapper to G_FindDCC to check for a dcc
+See if any powered DCC exists
 ================
 */
 qboolean G_IsDCCBuilt( void )
 {
-  gentity_t dummy;
+  int       i;
+  gentity_t *ent;
 
-  memset( &dummy, 0, sizeof( gentity_t ) );
+  for( i = MAX_CLIENTS, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  {
+    if( ent->s.eType != ET_BUILDABLE )
+      continue;
 
-  dummy.buildableTeam = TEAM_HUMANS;
+    if( ent->s.modelindex != BA_H_DCC )
+      continue;
 
-  return G_FindDCC( &dummy );
+    if( !ent->spawned )
+      continue;
+
+    if( ent->health <= 0 )
+      continue;
+
+    return qtrue;
+  }
+
+  return qfalse;
 }
 
 /*
@@ -500,7 +614,7 @@ G_IsCreepHere
 simple wrapper to G_FindCreep to check if a location has creep
 ================
 */
-static qboolean G_IsCreepHere( vec3_t origin )
+qboolean G_IsCreepHere( vec3_t origin )
 {
   gentity_t dummy;
 
@@ -1725,7 +1839,15 @@ void HRepeater_Think( gentity_t *self )
       G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
   }
   else
+  {
     self->count = -1;
+  }
+
+  if( G_InPowerZone( self ) )
+  {
+    // if the repeater is inside of another power zone then disappear
+    G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
+  }
 
   self->powered = reactor;
 
@@ -1884,7 +2006,7 @@ void HArmoury_Think( gentity_t *self )
   //make sure we have power
   self->nextthink = level.time + POWER_REFRESH_TIME;
 
-  self->powered = G_FindPower( self );
+  self->powered = G_FindPower( self, qfalse );
 }
 
 
@@ -1908,7 +2030,7 @@ void HDCC_Think( gentity_t *self )
   //make sure we have power
   self->nextthink = level.time + POWER_REFRESH_TIME;
 
-  self->powered = G_FindPower( self );
+  self->powered = G_FindPower( self, qfalse );
 }
 
 
@@ -1958,7 +2080,7 @@ void HMedistat_Think( gentity_t *self )
     self->enemy->client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_ACTIVE;
 
   //make sure we have power
-  if( !( self->powered = G_FindPower( self ) ) )
+  if( !( self->powered = G_FindPower( self, qfalse ) ) )
   {
     if( self->active )
     {
@@ -2222,7 +2344,7 @@ void HMGTurret_Think( gentity_t *self )
   self->s.eFlags &= ~EF_FIRING;
 
   // If not powered or spawned don't do anything
-  if( !( self->powered = G_FindPower( self ) ) )
+  if( !( self->powered = G_FindPower( self, qfalse ) ) )
   {
     self->nextthink = level.time + POWER_REFRESH_TIME;
     return;
@@ -2292,7 +2414,7 @@ void HTeslaGen_Think( gentity_t *self )
   self->nextthink = level.time + BG_Buildable( self->s.modelindex )->nextthink;
 
   //if not powered don't do anything and check again for power next think
-  if( !( self->powered = G_FindPower( self ) ) )
+  if( !( self->powered = G_FindPower( self, qfalse ) ) )
   {
     self->s.eFlags &= ~EF_FIRING;
     self->nextthink = level.time + POWER_REFRESH_TIME;
@@ -2514,12 +2636,12 @@ void G_QueueBuildPoints( gentity_t *self )
       break;
 
     case TEAM_HUMANS:
-      powerEntity = G_PowerEntityForPoint( self->s.origin );
+      powerEntity = G_PowerEntityForEntity( self );
 
       if( powerEntity )
-	  {
+      {
         switch( powerEntity->s.modelindex )
-	    {
+        {
           case BA_H_REACTOR:
             if( !level.humanBuildPointQueue )
               level.humanNextQueueTime = level.time + g_humanBuildQueueTime.integer;
@@ -3011,7 +3133,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
       repeaterInRange = qfalse;
 
     // Don't allow marked buildables to be replaced in another zone,
-    // unless the marked buildable is unpowered
+    // unless the marked buildable isn't in a zone (and thus unpowered)
     if( buildable != BA_H_REACTOR && buildable != BA_H_REPEATER &&
         G_PowerEntityForPoint( ent->s.origin ) != G_PowerEntityForPoint( origin ) &&
         G_PowerEntityForPoint( ent->s.origin ) )
@@ -3080,7 +3202,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     return IBE_NOROOM;
 
   // There are one or more repeaters we can't remove
-  if( repeaterInRangeCount > 0 )
+  if( repeaterInRangeCount > 0 && buildable != BA_H_REPEATER )
     return IBE_RPTPOWERHERE;
 
   // Sort the list
@@ -3257,11 +3379,24 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
       tempent = G_FindBuildable( BA_H_REACTOR );
 
       if( tempent == NULL ) // No reactor
-        reason = IBE_RPTNOREAC;
-      else if( G_RepeaterWouldOverlap( entity_origin ) )
-      {
-        // The repeater would cause power zones to overlap
+        reason = IBE_RPTNOREAC;   
+      else if( g_markDeconstruct.integer && G_IsPowered( entity_origin ) == BA_H_REACTOR )
         reason = IBE_RPTPOWERHERE;
+      else if( !g_markDeconstruct.integer && G_IsPowered( entity_origin ) )
+        reason = IBE_RPTPOWERHERE;
+      else if( !g_humanRepeaterAllowOverlap.integer )
+      {
+        tempent = G_RepeaterWouldOverlap( entity_origin );
+
+        if( tempent )
+        {
+          // If mark deconstruct is enabled, allow the marked repeater to be moved and replaced
+          if( !( g_markDeconstruct.integer > 1 &&
+                 tempent->s.modelindex == BA_H_REPEATER && tempent->deconstruct ) )
+          {
+            reason = IBE_RPWCAUSEOVRL;
+          }
+        }
       }
     }
 
@@ -3539,7 +3674,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
     built->powered = qtrue;
     built->s.eFlags |= EF_B_POWERED;
   }
-  else if( ( built->powered = G_FindPower( built ) ) )
+  else if( ( built->powered = G_FindPower( built, qtrue ) ) )
     built->s.eFlags |= EF_B_POWERED;
 
   built->s.eFlags &= ~EF_B_SPAWNED;
@@ -3630,6 +3765,10 @@ qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
 
     case IBE_RPTPOWERHERE:
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPTPOWERHERE );
+      return qfalse;
+
+    case IBE_RPWCAUSEOVRL:
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_RPWCAUSEOVRL );
       return qfalse;
 
     case IBE_LASTSPAWN:

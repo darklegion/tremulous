@@ -624,6 +624,7 @@ typedef enum
   MN_H_NODCC,
   MN_H_ONEREACTOR,
   MN_H_RPTPOWERHERE,
+  MN_H_RPWCAUSEOVRL,
 } dynMenu_t;
 
 // animations

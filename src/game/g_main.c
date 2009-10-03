@@ -93,6 +93,7 @@ vmCvar_t  g_humanBuildPoints;
 vmCvar_t  g_humanBuildQueueTime;
 vmCvar_t  g_humanRepeaterBuildPoints;
 vmCvar_t  g_humanRepeaterBuildQueueTime;
+vmCvar_t  g_humanRepeaterAllowOverlap;
 vmCvar_t  g_humanRepeaterMaxZones;
 vmCvar_t  g_humanStage;
 vmCvar_t  g_humanCredits;
@@ -232,6 +233,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_humanRepeaterBuildPoints, "g_humanRepeaterBuildPoints", DEFAULT_HUMAN_REPEATER_BUILDPOINTS, 0, 0, qfalse  },
   { &g_humanRepeaterMaxZones, "g_humanRepeaterMaxZones", DEFAULT_HUMAN_REPEATER_MAX_ZONES, 0, 0, qfalse  },
   { &g_humanRepeaterBuildQueueTime, "g_humanRepeaterBuildQueueTime", DEFAULT_HUMAN_REPEATER_QUEUE_TIME, 0, 0, qfalse  },
+  { &g_humanRepeaterAllowOverlap, "g_humanRepeaterAllowOverlap", DEFAULT_HUMAN_REPEATER_ALLOW_OVERLAP, 0, 0, qfalse  },
   { &g_humanStage, "g_humanStage", "0", 0, 0, qfalse  },
   { &g_humanCredits, "g_humanCredits", "0", 0, 0, qfalse  },
   { &g_humanMaxStage, "g_humanMaxStage", DEFAULT_HUMAN_MAX_STAGE, 0, 0, qfalse  },
@@ -1229,55 +1231,39 @@ void G_CalculateBuildPoints( void )
 
       if( BG_Buildable( buildable )->team == TEAM_HUMANS )
       {
-        gentity_t *powerEntity = G_PowerEntityForPoint( ent->s.origin );
-
-        if( powerEntity )
+        if( buildable != BA_H_REACTOR && buildable != BA_H_REPEATER )
         {
-          switch( powerEntity->s.modelindex )
+          gentity_t *powerEntity = G_PowerEntityForEntity( ent );
+
+          if( powerEntity )
           {
-            case BA_H_REACTOR:
-              level.humanBuildPoints -= BG_Buildable( buildable )->buildPoints;
-              break;
-
-            case BA_H_REPEATER:
-              if( powerEntity->usesZone && level.powerZones[powerEntity->zone].active )
-              {
-                zone_t *zone = &level.powerZones[powerEntity->zone];
-
-                zone->totalBuildPoints -= BG_Buildable( buildable )->buildPoints;
-                powerEntity->s.misc = zone->totalBuildPoints - zone->queuedBuildPoints;
-              }
-              break;
-
-            default:
-              break;
-          }
-        }
-        else
-        {
-          // Unpowered buildables count as BP for the main reactor zone
-          level.humanBuildPoints -= BG_Buildable( buildable )->buildPoints;
-        }
-
-        if( buildable == BA_H_REPEATER )
-        {
-          if( ent->usesZone && level.powerZones[ ent->zone ].active )
-          {
-            zone = &level.powerZones[ ent->zone ];
-
-            if( !level.suddenDeath )
+            switch( powerEntity->s.modelindex )
             {
-              // BP queue updates
-              while( zone->queuedBuildPoints > 0 &&
-                     zone->nextQueueTime < level.time )
-              {
-                zone->queuedBuildPoints--;
-                zone->nextQueueTime += (int)g_humanRepeaterBuildQueueTime.integer * (float)( 1 -  ( (float)zone->queuedBuildPoints ) / zone->totalBuildPoints );
-              }
-            }
-            else
-            {
-                zone->totalBuildPoints = zone->queuedBuildPoints = 0;
+              case BA_H_REACTOR:
+                level.humanBuildPoints -= BG_Buildable( buildable )->buildPoints;
+                break;
+
+              case BA_H_REPEATER:
+                if( powerEntity->usesZone && level.powerZones[ powerEntity->zone ].active )
+                {
+                  zone_t *zone = &level.powerZones[ powerEntity->zone ];
+                  // Only power as much as a repeater can power
+                  if( zone->totalBuildPoints < 0 || zone->queuedBuildPoints > zone->totalBuildPoints )
+                  {
+                    // Don't unpower spawns
+                    if( buildable != BA_H_SPAWN )
+                      ent->powered = qfalse;
+                  }
+                  else
+                  {
+                    zone->totalBuildPoints -= BG_Buildable( buildable )->buildPoints;
+                  }
+                }
+
+                break;
+
+              default:
+                break;
             }
           }
         }
@@ -1285,6 +1271,48 @@ void G_CalculateBuildPoints( void )
       else if( BG_Buildable( buildable )->team == TEAM_ALIENS )
       {
         level.alienBuildPoints -= BG_Buildable( buildable )->buildPoints;
+      }
+    }
+  }
+
+  // Finally, update repeater zones and their queues
+  // note that this has to be done after the used BP is calculated
+  for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
+  {
+    if( !ent->inuse )
+      continue;
+
+    if( ent->s.eType != ET_BUILDABLE )
+      continue;
+
+    if( ent->s.eFlags & EF_DEAD )
+      continue;
+
+    buildable = ent->s.modelindex;
+
+    if( BG_Buildable( buildable )->team == TEAM_HUMANS )
+    {
+      if( buildable == BA_H_REPEATER )
+      {
+        if( ent->usesZone && level.powerZones[ ent->zone ].active )
+        {
+          zone = &level.powerZones[ ent->zone ];
+
+          if( !level.suddenDeath )
+          {
+            // BP queue updates
+            while( zone->queuedBuildPoints > 0 &&
+                   zone->nextQueueTime < level.time )
+            {
+              zone->queuedBuildPoints--;
+              zone->nextQueueTime += abs( (int)g_humanRepeaterBuildQueueTime.integer * (float)( 1 -  ( (float)zone->queuedBuildPoints ) / zone->totalBuildPoints ) );  // it is possible for queued BP to be great than total BP, in which case, treat it as if the leftover BP is positive
+            }
+          }
+          else
+          {
+              zone->totalBuildPoints = zone->queuedBuildPoints = 0;
+          }
+        }
       }
     }
   }
