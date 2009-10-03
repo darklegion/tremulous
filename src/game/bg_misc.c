@@ -3864,3 +3864,24 @@ void BG_ClientListParse( clientList_t *list, const char *s )
   sscanf( s, "%x%x", &list->hi, &list->lo );
 }
 
+/*
+============
+BG_PrimaryWeapon
+============
+*/
+weapon_t BG_PrimaryWeapon( int stats[ ] )
+{
+  int i;
+
+  for( i = WP_NONE; i < WP_NUM_WEAPONS; i++ )
+  {
+    if( BG_Weapon( i )->slots != SLOT_WEAPON )
+      continue;
+    if( BG_InventoryContainsWeapon( i, stats ) )
+      return i;
+  }
+  if( BG_InventoryContainsWeapon( WP_BLASTER, stats ) )
+    return WP_BLASTER;
+  return WP_NONE;
+}
+
