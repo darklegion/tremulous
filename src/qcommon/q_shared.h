@@ -1156,6 +1156,7 @@ typedef struct playerState_s {
 #define BUTTON_ATTACK2	32
 #define BUTTON_DODGE        64          // start a dodge or sprint motion
 #define BUTTON_USE_EVOLVE   128         // use target or open evolve menu
+#define BUTTON_SPRINT	256
 
 #define	BUTTON_ANY			2048			// any key whatsoever
 

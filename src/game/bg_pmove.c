@@ -383,7 +383,7 @@ static float PM_CmdScale( usercmd_t *cmd )
 
   if( pm->ps->stats[ STAT_TEAM ] == TEAM_HUMANS && pm->ps->pm_type == PM_NORMAL )
   {
-    if( pm->ps->stats[ STAT_STATE ] & SS_SPEEDBOOST )
+    if( cmd->buttons & BUTTON_SPRINT )
       modifier *= HUMAN_SPRINT_MODIFIER;
     else
       modifier *= HUMAN_JOG_MODIFIER;
@@ -892,6 +892,7 @@ static qboolean PM_CheckWaterJump( void )
   return qtrue;
 }
 
+
 /*
 ==================
 PM_CheckDodge
@@ -916,26 +917,14 @@ static qboolean PM_CheckDodge( void )
     pm->ps->pm_time = HUMAN_DODGE_TIMEOUT;
   }
 
-  // Reasons to stop a sprint
-  if( pm->cmd.forwardmove <= 0 || pm->cmd.upmove < 0 ||
-      pm->ps->pm_type != PM_NORMAL || pm->cmd.buttons & BUTTON_WALKING )
-    pm->ps->stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
-
   // Reasons why we can't start a dodge or sprint
   if( pm->ps->pm_type != PM_NORMAL || pm->ps->stats[ STAT_STAMINA ] < 0 ||
       ( pm->ps->pm_flags & PMF_CROUCH_HELD ) )
     return qfalse;
 
-  // Start a sprint instead of forward leaps
-  if( pm->cmd.forwardmove > 0 &&
-      ( ( pm->cmd.buttons & BUTTON_DODGE ) ||
-        ( pm->ps->persistant[ PERS_STATE ] & PS_ALWAYSSPRINT ) ) )
-  {
-    if( pm->cmd.buttons & BUTTON_WALKING )
-      return qfalse;
-    pm->ps->stats[ STAT_STATE ] |= SS_SPEEDBOOST;
+  // Can't dodge forward
+  if( pm->cmd.forwardmove > 0 )
     return qfalse;
-  }
 
   // Reasons why we can't start a dodge only
   if( pm->ps->pm_flags & ( PMF_TIME_LAND | PMF_CHARGE ) ||
@@ -946,6 +935,7 @@ static qboolean PM_CheckDodge( void )
   // Dodge direction specified with movement keys
   if( ( !pm->cmd.rightmove && !pm->cmd.forwardmove ) || pm->cmd.upmove )
     return qfalse;
+
   AngleVectors( pm->ps->viewangles, NULL, right, NULL );
   forward[ 0 ] = -right[ 1 ];
   forward[ 1 ] = right[ 0 ];
