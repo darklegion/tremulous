@@ -350,6 +350,21 @@ sfxHandle_t	S_Base_RegisterSound( const char *name, qboolean compressed ) {
 }
 
 /*
+==================
+S_Base_SoundDuration
+==================
+*/
+static int S_Base_SoundDuration( sfxHandle_t handle ) {
+	if ( handle < 0 || handle >= s_numSfx ) {
+		Com_Printf( S_COLOR_YELLOW "S_Base_SoundDuration: handle %i out of range\n", handle );
+		return 0;
+	}
+	return s_knownSfx[ handle ].duration;
+}
+
+
+
+/*
 =====================
 S_BeginRegistration
 
@@ -1489,6 +1504,7 @@ qboolean S_Base_Init( soundInterface_t *si ) {
 	si->DisableSounds = S_Base_DisableSounds;
 	si->BeginRegistration = S_Base_BeginRegistration;
 	si->RegisterSound = S_Base_RegisterSound;
+	si->SoundDuration = S_Base_SoundDuration;
 	si->ClearSoundBuffer = S_Base_ClearSoundBuffer;
 	si->SoundInfo = S_Base_SoundInfo;
 	si->SoundList = S_Base_SoundList;

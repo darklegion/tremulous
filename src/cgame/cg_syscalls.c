@@ -290,6 +290,11 @@ sfxHandle_t trap_S_RegisterSound( const char *sample, qboolean compressed )
   return syscall( CG_S_REGISTERSOUND, sample, compressed );
 }
 
+int trap_S_SoundDuration( sfxHandle_t handle )
+{
+  return syscall( CG_S_SOUNDDURATION, handle );
+}
+
 void  trap_S_StartBackgroundTrack( const char *intro, const char *loop )
 {
   syscall( CG_S_STARTBACKGROUNDTRACK, intro, loop );

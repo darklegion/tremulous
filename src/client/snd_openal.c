@@ -111,6 +111,7 @@ typedef struct alSfx_s
 	qboolean	inMemory;				// Sound is stored in memory
 	qboolean	isLocked;				// Sound is locked (can not be unloaded)
 	int				lastUsedTime;		// Time last used
+	int             duration;				// Milliseconds
 } alSfx_t;
 
 static qboolean alBuffersInitialised = qfalse;
@@ -273,6 +274,7 @@ static void S_AL_BufferLoad(sfxHandle_t sfx)
 	void *data;
 	snd_info_t info;
 	ALuint format;
+	int size_per_sec;
 
 	// Nothing?
 	if(knownSfx[sfx].filename[0] == '\0')
@@ -293,6 +295,10 @@ static void S_AL_BufferLoad(sfxHandle_t sfx)
 		S_AL_BufferUseDefault(sfx);
 		return;
 	}
+
+	size_per_sec = info.rate * info.channels * info.width;
+	if( size_per_sec > 0 )
+		knownSfx[sfx].duration = (int)(1000.0f * ((double)info.size / size_per_sec)); 
 
 	format = S_AL_Format(info.width, info.channels);
 
@@ -437,6 +443,22 @@ sfxHandle_t S_AL_RegisterSound( const char *sample, qboolean compressed )
 
 	return sfx;
 }
+
+/*
+=================
+S_AL_SoundDuration
+=================
+*/
+static
+int S_AL_SoundDuration( sfxHandle_t sfx )
+{
+	if (sfx < 0 || sfx >= numSfx)
+	{
+		Com_Printf(S_COLOR_RED "ERROR: S_AL_SoundDuration: handle %i out of range\n", sfx);
+                return 0;
+        }
+	return knownSfx[sfx].duration;
+} 
 
 /*
 =================
@@ -1983,6 +2005,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 	si->DisableSounds = S_AL_DisableSounds;
 	si->BeginRegistration = S_AL_BeginRegistration;
 	si->RegisterSound = S_AL_RegisterSound;
+	si->SoundDuration = S_AL_SoundDuration;
 	si->ClearSoundBuffer = S_AL_ClearSoundBuffer;
 	si->SoundInfo = S_AL_SoundInfo;
 	si->SoundList = S_AL_SoundList;

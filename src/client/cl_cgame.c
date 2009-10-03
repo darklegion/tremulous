@@ -542,6 +542,8 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return 0;
 	case CG_S_REGISTERSOUND:
 		return S_RegisterSound( VMA(1), args[2] );
+	case CG_S_SOUNDDURATION:
+		return S_SoundDuration( args[1] );
 	case CG_S_STARTBACKGROUNDTRACK:
 		S_StartBackgroundTrack( VMA(1), VMA(2) );
 		return 0;
