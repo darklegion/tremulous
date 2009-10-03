@@ -1573,11 +1573,12 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
   if( !search[ i ] )
   {
     i = atoi( search );
-    if( level.clients[ i ].pers.connected != CON_DISCONNECTED )
+    if( i < MAX_CLIENTS &&
+      level.clients[ i ].pers.connected != CON_DISCONNECTED )
     {
       logmatches = 1;
       exactmatch = qtrue;
-      for( logmatch = 0; g_admin_namelog[ i ]->slot != i; logmatch++ );
+      for( logmatch = 0; g_admin_namelog[ logmatch ]->slot != i; logmatch++ );
     }
   }
 
