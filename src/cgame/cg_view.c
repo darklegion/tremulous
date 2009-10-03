@@ -541,10 +541,12 @@ void CG_OffsetShoulderView( void )
 
   // Handle pitch.
   rotationAngles[ PITCH ] = mousePitch;
+
   // Ignore following pitch; it's too jerky otherwise.
   if( cg_thirdPersonPitchFollow.integer ) 
     mousePitch += cg.refdefViewAngles[ PITCH ];
-  AngleNormalize180( rotationAngles[ PITCH ] );
+
+  rotationAngles[ PITCH ] = AngleNormalize180( rotationAngles[ PITCH ] );
   if( rotationAngles [ PITCH ] < -90.0f ) rotationAngles [ PITCH ] = -90.0f;
   if( rotationAngles [ PITCH ] > 90.0f ) rotationAngles [ PITCH ] = 90.0f;
 
@@ -558,10 +560,8 @@ void CG_OffsetShoulderView( void )
       !BG_RotateAxis( cg.snap->ps.grapplePoint, axis, rotaxis, qfalse,
                       cg.snap->ps.eFlags & EF_WALLCLIMBCEILING ) )
     AxisCopy( axis, rotaxis );
-  AxisToAngles( rotaxis, rotationAngles );
 
-  for( i = 0; i < 3; i++ )
-    AngleNormalize180( rotationAngles[ i ] );
+  AxisToAngles( rotaxis, rotationAngles );
 
   // Actually set the viewangles.
   for( i = 0; i < 3; i++ )
