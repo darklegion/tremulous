@@ -332,7 +332,6 @@ void CG_OffsetThirdPersonView( void )
     if( fabs(deltaPitch) < 200.0f )
     {
       pitch += deltaPitch;
-      AngleNormalize180( pitch );
     }
 
     mouseInputAngles[ PITCH ] = pitch;
@@ -340,7 +339,7 @@ void CG_OffsetThirdPersonView( void )
     mouseInputAngles[ ROLL ] = 0.0f;
 
     for( i = 0; i < 3; i++ )
-      AngleNormalize180( mouseInputAngles[ i ] );
+      mouseInputAngles[ i ] = AngleNormalize180( mouseInputAngles[ i ] );
 
     // Set the rotation angles to be the view angles offset by the mouse input
     // Ignore the original pitch though; it's too jerky otherwise
@@ -349,7 +348,7 @@ void CG_OffsetThirdPersonView( void )
 
     for( i = 0; i < 3; i++ )
     {
-      rotationAngles[ i ] = cg.refdefViewAngles[ i ] + mouseInputAngles[ i ];
+      rotationAngles[ i ] = AngleNormalize180(cg.refdefViewAngles[ i ]) + mouseInputAngles[ i ];
       AngleNormalize180( rotationAngles[ i ] );
     }
 
@@ -374,16 +373,21 @@ void CG_OffsetThirdPersonView( void )
 
     // Convert the new axis back to angles.
     AxisToAngles( rotaxis, rotationAngles );
-
-    for( i = 0; i < 3; i++ )
-      AngleNormalize180( rotationAngles[ i ] );
   }
   else 
   {
-    // If we're playing the game in third person, the viewangles already
-    // take care of our mouselook, so just use them.
-    for( i = 0; i < 3; i++ )
-      rotationAngles[ i ] = cg.refdefViewAngles[ i ];
+    if( cg.predictedPlayerState.stats[ STAT_HEALTH ] > 0 )
+    {
+      // If we're playing the game in third person, the viewangles already
+      // take care of our mouselook, so just use them.
+      for( i = 0; i < 3; i++ )
+        rotationAngles[ i ] = cg.refdefViewAngles[ i ];
+    }
+    else // dead
+    {
+      rotationAngles[ PITCH ] = 20.0f;
+      rotationAngles[ YAW ] = cg.refdefViewAngles[ YAW ];
+    }
   }
 
   // Move the camera range distance back.
@@ -416,8 +420,12 @@ void CG_OffsetThirdPersonView( void )
 
   // The above checks may have moved the camera such that the existing viewangles
   // may not still face the player. Recalculate them to do so.
-  VectorSubtract( focusPoint, cg.refdef.vieworg, focusPoint );
-  vectoangles( focusPoint, cg.refdefViewAngles );
+  // but if we're dead, don't bother because we'd rather see what killed us
+  if( cg.predictedPlayerState.stats[ STAT_HEALTH ] > 0 )
+  {
+    VectorSubtract( focusPoint, cg.refdef.vieworg, focusPoint );
+    vectoangles( focusPoint, cg.refdefViewAngles );
+  }
 }
 
 
