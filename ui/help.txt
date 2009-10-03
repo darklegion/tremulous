@@ -1,5 +1,5 @@
 {
-  "Welcome to MGDev!"
+  "^3Welcome to MGDev!^7"
   {
     "This mod is under ongoing development. It is probably buggy and new "
     "features will come and go, please be patient and report any bugs you "
@@ -9,22 +9,37 @@
     "We can also be reached on Freenode IRC:\n"
     "#mercenariesguild"
   }
-  "Release Notes r137"
+  "^3Release Notes r144^7"
   {
-    "* Charge bar for pounce/trample/Luci\n"
-    "* Squad member marking (Options -> Misc)\n"
-    "* Gassed humans have a cloud around head\n"
-    "* Hive attacks humans that hurt it\n"
-    "* Build timer slices are 5 seconds each\n"
+    "* New view-directed Marauder walljump\n"
+    "* Dodge key is mini-jump for Aliens\n"
+    "\nSee svn.mercenariesguild.net for details."
   }
   "Alien Healing"
   {
     "The most important change for Alien players to know is that their healing "
     "rate is slower away from creep. To counter this, healing near Boosters "
-    "and Basilisks is greatly accelerated. Watch the health cross icon on your "
+    "and Basilisks is greatly accelerated.\n\n"
+    "Watch the health cross icon on your "
     "HUD to see what your healing rate is. If the icon glows, you are on "
     "creep. If you are near a booster or basilisk, you will see two "
-    "(2X healing) or four (3X healing) barbs around the cross."
+    "(2X healing) or four (3X healing) barbs around the health cross."
+  }
+  "Alien Mini-Jump"
+  {
+    "The sprint / dodge key can be used by Aliens as a jump key that "
+    "produces a weaker, half-height jump. This is especially useful for "
+    "Alien classes that have high jumps, such as the Marauder. The mini-jump "
+    "is also useful for cornering and building speed in tight hallways."
+  }
+  "Anti-Camping"
+  {
+    "Aliens will no longer be as frustrated by camping Human players because "
+    "the Adv. Dragoon is now available at Stage 2. The Adv. "
+    "Dragoon snipe attack has splash damage.\n\n"
+    "Also, because Human turrets "
+    "have a slight spinup delay, skillful Dretches can run inside the Human "
+    "base and get a few kills before being shot by turrets."
   }
   "Barricades"
   {
@@ -35,23 +50,51 @@
     "keep in mind that low ceilings will prevent Tyrants from returning inside "
     "the base."
   }
-  "Anti-Camping"
+  "Human Buildables"
   {
-    "Aliens will no longer be as frustrated by camping Human players because "
-    "the Adv. Dragoon is now available at Stage 2. The Adv. "
-    "Dragoon snipe attack has slight splash damage. Also, because Human turrets "
-    "have a slight spinup delay, skillful Dretches can run inside the Human "
-    "base and get a few kills before being shot by turrets."
+    "While turrets now have a small spin up delay before firing, they have "
+    "increased damage output.\n\n"
+    "To protect against small Aliens getting inside "
+    "the base, build Tesla Generators at Stage 3. Tesla Generators no longer "
+    "require the Defense Computer to function. Instead, the Defense Computer "
+    "will automatically repair Human buildables. Tesla Generators can fire "
+    "over turrets."
   }
-  "Tyrant"
+  "Human Weapons"
   {
-    "The Tyrant is now a weaker class as its health has been lowered and "
-    "turret damage is greater. To counter this, Tyrants can charge for longer "
-    "periods of time, hit targets multiple times in a single charge, "
-    "and crush any Humans they land on top of. Remember that because trample "
-    "takes longer to charge, you need to let go early for a quick charge. "
-    "The Tyrant's healing aura has been removed, find a booster or a basilisk "
-    "to heal faster."
+    "The Lucifer Cannon projectile can be fired faster but now takes longer "
+    "to charge. You will be able to hear other players overcharge "
+    "their Lucifer Cannon.\n\n"
+    "The Mass Driver can now fire through players and buildables. The same "
+    "amount of damage is dealt to all targets along the path. Keep in mind "
+    "that you cannot shoot through friendly targets if friendly fire is off."
+  }
+  "Lag Correction"
+  {
+    "While the Tremulous implementation of Neil Toronto's unlagged is "
+    "becoming widely accepted, MGDev also implements client-side improvements "
+    "not possible in 1.1 servers. Because attacking is more "
+    "accurate on account of lag correction, Humans no longer need to lead "
+    "their weapons and Alien ranges and attack widths have generally been "
+    "decreased."
+  }
+  "Marauder"
+  {
+    "The Adv. Marauder now has a simpler, area-effect electric shock attack "
+    "that does not need to be aimed. Use this to attack large groups of Humans "
+    "or Human bases.\n\n"
+    "The Marauder's walljump mechanics have changed subtly. To walljump, "
+    "jump at a wall, look in the direction you wish to push and press jump "
+    "again. You can use the new walljump to gain speed in hallways, climb, "
+    "and swoop down on Humans."
+  }
+  "Mark Deconstruction"
+  {
+    "The deconstruction method has changed. Buildables are no longer instantly "
+    "deconstructed. Instead, a deconstruct mark appears on the health bar. "
+    "Go ahead and build a new buildable somewhere else and the old one will "
+    "be removed automatically. Buildables that are about to be removed by "
+    "constructing the selected buildable glow red."
   }
   "Sprint / Dodge"
   {
@@ -63,49 +106,25 @@
     "press the dodge key to start a sprint. The sprint will last until you let "
     "go of the forward key."
   }
-  "Human Weapons"
-  {
-    "The Lucifer Cannon projectile can be fired faster but now takes longer "
-    "to charge. You will be able to hear other players overcharge "
-    "their Lucifer Cannon.\n\n"
-    "The Mass Driver can now fire through players and buildables. The same "
-    "amount of damage is dealt to all targets along the path. Keep in mind "
-    "that you cannot shoot through friendly targets if friendly fire is off."
-  }
-  "Human Buildables"
-  {
-    "While turrets now have a small spin up delay before firing, they have "
-    "increased damage output. To protect against small Aliens getting inside "
-    "the base, build Tesla Generators at Stage 3. Tesla Generators no longer "
-    "require the Defense Computer to function. Instead, the Defense Computer "
-    "will automatically repair Human buildables. Tesla Generators can fire "
-    "over turrets."
-  }
-  "Mark Deconstruction"
-  {
-    "The deconstruction method has changed. Buildables are no longer instantly "
-    "deconstructed. Instead, a deconstruct mark appears on the health bar. "
-    "Go ahead and build a new buildable somewhere else and the old one will "
-    "be removed automatically. Buildables that are about to be removed by "
-    "constructing the selected buildable glow red."
-  }
   "Squad Marking"
   {
     "Want to keep track of certain teammates? Mark them as members of your "
     "squad. Bind a key to 'Toggle Squad Mark' (Options -> Misc), walk up to "
     "the target player and press that key. A triangle will appear above them "
-    "marking them as a squad member."
+    "marking them as a squad member. The triangle will stay on screen as long "
+    "as the player is around you."
   }
-  "Lag Correction"
+  "Tyrant"
   {
-    "While the Tremulous implementation of Neil Toronto's unlagged is "
-    "becoming widely accepted, MGDev also implements client-side improvements "
-    "not possible in 1.1 servers. Because attacking is more "
-    "accurate on account of lag correction, Humans no longer need to lead "
-    "their weapons and Alien ranges and attack widths have generally been "
-    "decreased."
+    "The Tyrant is now a weaker class as its health has been lowered and "
+    "turret damage is greater. To counter this, Tyrants can charge for longer "
+    "periods of time, hit targets multiple times in a single charge, "
+    "and crush any Humans they land on top of. Trample charge does not "
+    "instantly release when full but can be held for two seconds. "
+    "The Tyrant's healing aura has been removed, find a booster or a basilisk "
+    "to heal faster."
   }
-  "Credits"
+  "^3Credits^7"
   {
     "MGDev is developed and hosted by the Mercenaries Guild. "
     "Contributing developers:\n\n"

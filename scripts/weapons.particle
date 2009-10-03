@@ -900,7 +900,7 @@ models/weapons/level3upg/impactPS
       lifeTime 175
     }
 
-    count 6
+    count 12
     delay 0
     period 0 - ~0%
   }
