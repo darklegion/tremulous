@@ -193,12 +193,11 @@ static void CG_SquadMark_f( void )
   centity_t *cent;
   vec3_t start, end;
   trace_t trace;
-
+  
   // Find the player we are looking at
-  VectorCopy( cg.refdef.vieworg, start );
-  VectorMA( start, 131072, cg.refdef.viewaxis[ 0 ], end );
-  CG_Trace( &trace, start, vec3_origin, vec3_origin, end,
-            cg.snap->ps.clientNum, CONTENTS_SOLID|CONTENTS_BODY );
+  VectorMA( cg.refdef.vieworg, 4096, cg.refdef.viewaxis[ 0 ], end );
+  CG_Trace( &trace, cg.refdef.vieworg, NULL, NULL, end,
+            cg.snap->ps.clientNum, CONTENTS_SOLID | CONTENTS_BODY );
   if( trace.entityNum >= MAX_CLIENTS )
     return;
 
@@ -208,7 +207,7 @@ static void CG_SquadMark_f( void )
       cgs.clientinfo[ trace.entityNum ].team !=
       cg.snap->ps.stats[ STAT_PTEAM ] )
     return;
-    
+
   cent->pe.squadMarked = !cent->pe.squadMarked;
 }
 

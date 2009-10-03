@@ -2288,7 +2288,8 @@ static void CG_DrawSquadMarkers( vec4_t color )
   {
     cent = cg_entities + cg.snap->entities[ i ].number;
     if( cent->currentState.eType != ET_PLAYER ||
-        cgs.clientinfo[ i ].team != cg.snap->ps.stats[ STAT_PTEAM ] ||
+        cgs.clientinfo[ cg.snap->entities[ i ].number ].team !=
+        cg.snap->ps.stats[ STAT_PTEAM ] ||
         !cent->pe.squadMarked )
       continue;
     
