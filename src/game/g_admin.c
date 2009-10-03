@@ -328,7 +328,7 @@ static qboolean admin_higher_guid( char *admin_guid, char *victim_guid )
       if( alevel < g_admin_admins[ i ]->level )
         return qfalse;
 
-      return !admin_permission( g_admin_admins[ i ]->flags, ADMF_IMMUNITY,
+      return !admin_permission( g_admin_admins[ i ]->flags, ADMF_IMMUTABLE,
          &perm ) || !perm;
     }
   }
