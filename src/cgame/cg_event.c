@@ -375,23 +375,18 @@ CG_TeamJoinMessage
 Prints messages when players change teams
 =============
 */
-static void CG_TeamJoinMessage( entityState_t *ent )
+void CG_TeamJoinMessage( clientInfo_t *newInfo, clientInfo_t *ci )
 {
-  int           player;
   int           team;
   int           oldteam;
   char          *playerName;
 
 
   // Collect info
-  player = ent->eventParm;
-  team = ent->otherEntityNum;
-  oldteam = ent->otherEntityNum2;
+  team = newInfo->team;
+  oldteam = ci->team;
 
-  if( player < 0 || player >= MAX_CLIENTS )
-    CG_Error( "CG_TeamJoinMessage: target out of range" );
-
-  playerName = cgs.clientinfo[player].name;
+  playerName = newInfo->name;
 
   // If no change occurred, print nothing
   if( team == oldteam )
@@ -400,24 +395,18 @@ static void CG_TeamJoinMessage( entityState_t *ent )
   // Print the appropriate message
   if( team == TEAM_NONE )
   {
-    if( oldteam == TEAM_HUMANS ) 
-      CG_Printf( "%s" S_COLOR_WHITE " left the humans\n", playerName );
-    else if( oldteam == TEAM_ALIENS )
-      CG_Printf( "%s" S_COLOR_WHITE " left the aliens\n", playerName );
+    CG_Printf( "%s" S_COLOR_WHITE " left the %ss\n",
+      playerName, BG_TeamName( oldteam ) );
   }
   else if( oldteam == TEAM_NONE )
   {
-    if( team == TEAM_ALIENS )
-      CG_Printf( "%s" S_COLOR_WHITE " joined the aliens\n", playerName );
-    else if( team == TEAM_HUMANS )
-      CG_Printf( "%s" S_COLOR_WHITE " joined the humans\n", playerName );
+    CG_Printf( "%s" S_COLOR_WHITE " joined the %ss\n",
+      playerName, BG_TeamName( team ) );
   }
   else
   {
-    if( oldteam == TEAM_HUMANS && team == TEAM_ALIENS )
-      CG_Printf( "%s" S_COLOR_WHITE " abandoned the humans and joined the aliens\n", playerName );
-    else if( oldteam == TEAM_ALIENS && team == TEAM_HUMANS )
-      CG_Printf( "%s" S_COLOR_WHITE " abandoned the aliens and joined the humans\n", playerName );
+    CG_Printf( "%s" S_COLOR_WHITE " left the %ss and joined the %ss\n",
+      playerName, BG_TeamName( oldteam ), BG_TeamName( team ) );
   }
 }
 
@@ -971,11 +960,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     case EV_OBITUARY:
       DEBUGNAME( "EV_OBITUARY" );
       CG_Obituary( es );
-      break;
-
-    case EV_TEAMJOIN:
-      DEBUGNAME( "EV_TEAMJOIN" );
-      CG_TeamJoinMessage( es );
       break;
 
     case EV_GIB_PLAYER:

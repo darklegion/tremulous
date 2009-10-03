@@ -2784,8 +2784,6 @@ char *eventnames[ ] =
   "EV_DEATH3",
   "EV_OBITUARY",
 
-  "EV_TEAMJOIN",    // teamjoin message
-
   "EV_GIB_PLAYER",      // gib a previously living player
 
   "EV_BUILD_CONSTRUCT",
@@ -3912,5 +3910,21 @@ int BG_LoadEmoticons( char names[ ][ MAX_EMOTICON_NAME_LEN ], int widths[ ] )
   Com_Printf( "Loaded %d of %d emoticons (MAX_EMOTICONS is %d)\n",
     loaded, count, MAX_EMOTICONS );
   return loaded;
+}
+
+/*
+============
+BG_TeamName
+============
+*/
+char *BG_TeamName( team_t team )
+{
+  if( team == TEAM_NONE )
+    return "spectator";
+  if( team == TEAM_ALIENS )
+    return "alien";
+  if( team == TEAM_HUMANS )
+    return "human";
+  return "<team>";
 }
 

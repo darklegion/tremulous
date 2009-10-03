@@ -484,12 +484,13 @@ static void admin_readconfig_string( char **cnf, char *s, int size )
   char *t;
 
   //COM_MatchToken(cnf, "=");
+  s[ 0 ] = '\0';
   t = COM_ParseExt( cnf, qfalse );
   if( strcmp( t, "=" ) )
   {
     COM_ParseWarning( "expected '=' before \"%s\"", t );
+    Q_strncpyz( s, t, size );
   }
-  s[ 0 ] = '\0';
   while( 1 )
   {
     t = COM_ParseExt( cnf, qfalse );
@@ -497,12 +498,10 @@ static void admin_readconfig_string( char **cnf, char *s, int size )
       break;
     if( strlen( t ) + strlen( s ) >= size )
       break;
+    if( *s )
+      Q_strcat( s, size, " " );
     Q_strcat( s, size, t );
-    Q_strcat( s, size, " " );
   }
-  // trim the trailing space
-  if( strlen( s ) > 0 && s[ strlen( s ) - 1 ] == ' ' )
-    s[ strlen( s ) - 1 ] = '\0';
 }
 
 static void admin_readconfig_int( char **cnf, int *v )
@@ -1958,7 +1957,7 @@ qboolean G_admin_putteam( gentity_t *ent, int skiparg )
 
   AP( va( "print \"^3!putteam: ^7%s^7 put %s^7 on to the %s team\n\"",
           ( ent ) ? ent->client->pers.netname : "console",
-          vic->client->pers.netname, G_TeamName( teamnum ) ) );
+          vic->client->pers.netname, BG_TeamName( teamnum ) ) );
   return qtrue;
 }
 
@@ -2932,7 +2931,7 @@ qboolean G_admin_lock( gentity_t *ent, int skiparg )
   }
 
   AP( va( "print \"^3!lock: ^7the %s team has been locked by %s\n\"",
-    G_TeamName( team ),
+    BG_TeamName( team ),
     ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
 }
@@ -2976,7 +2975,7 @@ qboolean G_admin_unlock( gentity_t *ent, int skiparg )
   }
 
   AP( va( "print \"^3!unlock: ^7the %s team has been unlocked by %s\n\"",
-    G_TeamName( team ),
+    BG_TeamName( team ),
     ( ent ) ? ent->client->pers.netname : "console" ) );
   return qtrue;
 }

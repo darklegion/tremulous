@@ -543,7 +543,6 @@ void Cmd_Team_f( gentity_t *ent )
   qboolean  force = G_admin_permission(ent, ADMF_FORCETEAMCHANGE);
   int       aliens = level.numAlienClients;
   int       humans = level.numHumanClients;
-  gentity_t *tempent;
 
   // stop team join spam
   if( level.time - ent->client->pers.teamChangeTime < 1000 )
@@ -645,13 +644,6 @@ void Cmd_Team_f( gentity_t *ent )
 
   // Apply the change
   G_ChangeTeam( ent, team );
-
-  // Send the team join message event to everyone
-  tempent = G_TempEntity( ent->r.currentOrigin, EV_TEAMJOIN );
-  tempent->s.eventParm = ent->s.number;
-  tempent->s.otherEntityNum = team;
-  tempent->s.otherEntityNum2 = oldteam;
-  tempent->r.svFlags = SVF_BROADCAST;
 }
 
 
@@ -711,7 +703,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
 
   if( g_chatTeamPrefix.integer )
   {
-    prefix = G_TeamName( ent->client->pers.teamSelection );
+    prefix = BG_TeamName( ent->client->pers.teamSelection );
     prefix = va( "[%c] ", toupper( *prefix ) );
   }
   else

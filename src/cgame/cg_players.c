@@ -772,6 +772,7 @@ void CG_NewClientInfo( int clientNum )
   // team
   v = Info_ValueForKey( configstring, "t" );
   newInfo.team = atoi( v );
+  CG_TeamJoinMessage( &newInfo, ci );
 
   // model
   v = Info_ValueForKey( configstring, "model" );
