@@ -438,6 +438,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PRIFLE_RELOAD               2000
 #define PRIFLE_DMG                  HDM(9)
 #define PRIFLE_SPEED                1200
+#define PRIFLE_SIZE                 4
 
 #define FLAMER_PRICE                450
 #define FLAMER_GAS                  150

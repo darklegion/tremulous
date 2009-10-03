@@ -2229,8 +2229,8 @@ static void PM_GroundTrace( void )
         VectorMA( pm->ps->origin, 0.25f, movedir, point );
         pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
 
-        if( trace.fraction < 1.0f && !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) &&
-            ( trace.entityNum == ENTITYNUM_WORLD ) )
+		if( trace.fraction < 1.0f &&
+				!( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) )
         {
           if( !VectorCompare( trace.plane.normal, pm->ps->grapplePoint ) )
           {
