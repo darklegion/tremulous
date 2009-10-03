@@ -1661,7 +1661,7 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
     {
        ADMP( va( "^3!ban: ^7using your admin level's maximum ban length of %s\n",
                  g_adminMaxBan.string ) );
-       seconds = G_admin_parse_time( secs );
+       seconds = G_admin_parse_time( g_adminMaxBan.string );
     }
     else if( G_admin_permission( ent, ADMF_CAN_PERM_BAN ) )
     {
