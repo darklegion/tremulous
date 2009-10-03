@@ -250,8 +250,8 @@ struct gentity_s
 
   qboolean          pointAgainstWorld;              // don't use the bbox for map collisions
 
-  int               zone;                           // index for zone
-  int               usesZone;                       // does it use a zone?
+  int               buildPointZone;                 // index for zone
+  int               usesBuildPointZone;             // does it use a zone?
 };
 
 typedef enum
@@ -469,7 +469,7 @@ void      G_PrintSpawnQueue( spawnQueue_t *sq );
 #define MAX_DAMAGE_REGION_TEXT    8192
 #define MAX_DAMAGE_REGIONS 16
 
-// power zone
+// build point zone
 typedef struct
 {
   int active;
@@ -477,7 +477,7 @@ typedef struct
   int totalBuildPoints;
   int queuedBuildPoints;
   int nextQueueTime;
-} zone_t;
+} buildPointZone_t;
 
 // store locational damage regions
 typedef struct damageRegion_s
@@ -603,7 +603,7 @@ typedef struct
   int               humanBuildPointQueue;
   int               humanNextQueueTime;
 
-  zone_t            *powerZones;
+  buildPointZone_t  *buildPointZones;
 
   gentity_t         *markedBuildables[ MAX_GENTITIES ];
   int               numBuildablesForRemoval;

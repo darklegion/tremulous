@@ -243,8 +243,8 @@ qboolean G_FindPower( gentity_t *self )
             }
           }
 
-          if( self->usesZone && level.powerZones[ ent->zone ].active )
-            buildPoints -= level.powerZones[ ent->zone ].queuedBuildPoints;
+          if( self->usesBuildPointZone && level.buildPointZones[ ent->buildPointZone ].active )
+            buildPoints -= level.buildPointZones[ ent->buildPointZone ].queuedBuildPoints;
 
           buildPoints -= BG_Buildable( self->s.modelindex )->buildPoints;
 
@@ -362,10 +362,10 @@ int G_GetBuildPoints( const vec3_t pos, team_t team, int extraDistance )
       return level.humanBuildPoints;
 
     if( powerPoint && powerPoint->s.modelindex == BA_H_REPEATER &&
-        powerPoint->usesZone && level.powerZones[ powerPoint->zone ].active )
+        powerPoint->usesBuildPointZone && level.buildPointZones[ powerPoint->buildPointZone ].active )
     {
-      return level.powerZones[ powerPoint->zone ].totalBuildPoints -
-             level.powerZones[ powerPoint->zone ].queuedBuildPoints;
+      return level.buildPointZones[ powerPoint->buildPointZone ].totalBuildPoints -
+             level.buildPointZones[ powerPoint->buildPointZone ].queuedBuildPoints;
     }
 
     // Return the BP of the main zone by default
@@ -406,9 +406,9 @@ int G_GetBuildPoints( const vec3_t pos, team_t team, int extraDistance )
       }
       else if( ent->s.modelindex == BA_H_REPEATER && distance <= REPEATER_BASESIZE + extraDistance )
       {
-        if( ent->usesZone && level.powerZones[ent->zone].active )
+        if( ent->usesBuildPointZone && level.buildPointZones[ent->buildPointZone].active )
         {
-          zone_t *zone = &level.powerZones[ent->zone];
+          buildPointZone_t *zone = &level.buildPointZones[ent->buildPointZone];
 
           zoneFound = qtrue;
 
@@ -1820,12 +1820,12 @@ static void HRepeater_Die( gentity_t *self, gentity_t *inflictor, gentity_t *att
 
   G_LogDestruction( self, attacker, mod );
 
-  if( self->usesZone )
+  if( self->usesBuildPointZone )
   {
-    zone_t *zone = &level.powerZones[self->zone];
+    buildPointZone_t *zone = &level.buildPointZones[self->buildPointZone];
 
     zone->active = qfalse;
-    self->usesZone = qfalse;
+    self->usesBuildPointZone = qfalse;
   }
 }
 
@@ -1838,10 +1838,10 @@ Think for human power repeater
 */
 void HRepeater_Think( gentity_t *self )
 {
-  int       i;
-  qboolean  reactor = qfalse;
-  gentity_t *ent;
-  zone_t    *zone;
+  int               i;
+  qboolean          reactor = qfalse;
+  gentity_t         *ent;
+  buildPointZone_t  *zone;
 
   if( self->spawned )
   {
@@ -1865,12 +1865,12 @@ void HRepeater_Think( gentity_t *self )
   self->powered = reactor;
 
   // Initialise the zone once the repeater has spawned
-  if( self->spawned && ( !self->usesZone || !level.powerZones[ self->zone ].active ) )
+  if( self->spawned && ( !self->usesBuildPointZone || !level.buildPointZones[ self->buildPointZone ].active ) )
   {
     // See if a free zone exists
     for( i = 0; i < g_humanRepeaterMaxZones.integer; i++ )
     {
-      zone = &level.powerZones[ i ];
+      zone = &level.buildPointZones[ i ];
 
       if( !zone->active )
       {
@@ -1879,8 +1879,8 @@ void HRepeater_Think( gentity_t *self )
         zone->nextQueueTime = level.time;
         zone->active = qtrue;
 
-        self->zone = zone - level.powerZones;
-        self->usesZone = qtrue;
+        self->buildPointZone = zone - level.buildPointZones;
+        self->usesBuildPointZone = qtrue;
 
         break;
       }
@@ -2673,10 +2673,10 @@ void G_QueueBuildPoints( gentity_t *self )
             break;
 
           case BA_H_REPEATER:
-            if( powerEntity->usesZone &&
-                level.powerZones[ powerEntity->zone ].active )
+            if( powerEntity->usesBuildPointZone &&
+                level.buildPointZones[ powerEntity->buildPointZone ].active )
             {
-              zone_t *zone = &level.powerZones[ powerEntity->zone ];
+              buildPointZone_t *zone = &level.buildPointZones[ powerEntity->buildPointZone ];
 
               nqt = G_NextQueueTime( zone->queuedBuildPoints,
                                      zone->totalBuildPoints,

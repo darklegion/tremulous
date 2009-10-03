@@ -1071,9 +1071,9 @@ Recalculate the quantity of building points available to the teams
 */
 void G_CalculateBuildPoints( void )
 {
-  int         i;
-  buildable_t buildable;
-  zone_t      *zone;
+  int               i;
+  buildable_t       buildable;
+  buildPointZone_t  *zone;
 
   // BP queue updates
   while( level.alienBuildPointQueue > 0 &&
@@ -1148,10 +1148,10 @@ void G_CalculateBuildPoints( void )
   level.humanBuildPoints = g_humanBuildPoints.integer - level.humanBuildPointQueue;
   level.alienBuildPoints = g_alienBuildPoints.integer - level.alienBuildPointQueue;
 
-  // Reset powerZones
+  // Reset buildPointZones
   for( i = 0; i < g_humanRepeaterMaxZones.integer; i++ )
   {
-    zone_t *zone = &level.powerZones[ i ];
+    buildPointZone_t *zone = &level.buildPointZones[ i ];
 
     zone->active = qfalse;
     zone->totalBuildPoints = g_humanRepeaterBuildPoints.integer;
@@ -1160,20 +1160,20 @@ void G_CalculateBuildPoints( void )
   // Iterate through entities
   for( i = MAX_CLIENTS; i < level.num_entities; i++ )
   {
-    gentity_t   *ent = &g_entities[ i ];
-    zone_t      *zone;
-    buildable_t buildable;
-    int         cost;
+    gentity_t         *ent = &g_entities[ i ];
+    buildPointZone_t  *zone;
+    buildable_t       buildable;
+    int               cost;
 
     if( ent->s.eType != ET_BUILDABLE || ent->s.eFlags & EF_DEAD )
       continue;
 
     // mark a zone as active
-    if( ent->usesZone )
+    if( ent->usesBuildPointZone )
     {
-      assert( ent->zone >= 0 && ent->zone < g_humanRepeaterMaxZones.integer );
+      assert( ent->buildPointZone >= 0 && ent->buildPointZone < g_humanRepeaterMaxZones.integer );
 
-      zone = &level.powerZones[ ent->zone ];
+      zone = &level.buildPointZones[ ent->buildPointZone ];
       zone->active = qtrue;
     }
 
@@ -1193,8 +1193,8 @@ void G_CalculateBuildPoints( void )
       {
         if( power->s.modelindex == BA_H_REACTOR )
           level.humanBuildPoints -= cost;
-        else if( power->s.modelindex == BA_H_REPEATER && power->usesZone )
-          level.powerZones[ power->zone ].totalBuildPoints -= cost;
+        else if( power->s.modelindex == BA_H_REPEATER && power->usesBuildPointZone )
+          level.buildPointZones[ power->buildPointZone ].totalBuildPoints -= cost;
       }
     }
   }
@@ -1214,9 +1214,9 @@ void G_CalculateBuildPoints( void )
     if( buildable != BA_H_REPEATER )
       continue;
 
-    if( ent->usesZone && level.powerZones[ ent->zone ].active )
+    if( ent->usesBuildPointZone && level.buildPointZones[ ent->buildPointZone ].active )
     {
-      zone = &level.powerZones[ ent->zone ];
+      zone = &level.buildPointZones[ ent->buildPointZone ];
 
       if( !level.suddenDeath )
       {
@@ -2368,16 +2368,18 @@ void CheckCvars( void )
   // If the number of zones changes, we need a new array
   if( g_humanRepeaterMaxZones.integer != lastNumZones )
   {
-    zone_t *newZones;
-    size_t newsize = g_humanRepeaterMaxZones.integer * sizeof( zone_t );
-    size_t oldsize = lastNumZones * sizeof( zone_t );
+    buildPointZone_t  *newZones;
+    size_t            newsize = g_humanRepeaterMaxZones.integer * sizeof( buildPointZone_t );
+    size_t            oldsize = lastNumZones * sizeof( buildPointZone_t );
+
     newZones = BG_Alloc( newsize );
-    if( level.powerZones )
+    if( level.buildPointZones )
     {
-      Com_Memcpy( newZones, level.powerZones, MIN( oldsize, newsize ) );
-      BG_Free( level.powerZones );
+      Com_Memcpy( newZones, level.buildPointZones, MIN( oldsize, newsize ) );
+      BG_Free( level.buildPointZones );
     }
-    level.powerZones = newZones;
+
+    level.buildPointZones = newZones;
     lastNumZones = g_humanRepeaterMaxZones.integer;
   }
 
