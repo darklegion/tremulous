@@ -92,7 +92,7 @@ void PM_AddTouchEnt( int entityNum )
 PM_StartTorsoAnim
 ===================
 */
-static void PM_StartTorsoAnim( int anim )
+void PM_StartTorsoAnim( int anim )
 {
   if( pm->ps->pm_type >= PM_DEAD )
     return;

@@ -1,16 +1,22 @@
 #!/bin/sh
 APPBUNDLE=Tremulous.app
 BINARY=Tremulous.ub
+DEDBIN=tremded.ub
 PKGINFO=APPLTREM
 ICNS=misc/Tremulous.icns
 DESTDIR=build/release-darwin-ub
 BASEDIR=base
+SDKDIR=""
 Q3_VERSION=`grep "\#define Q3_VERSION" src/qcommon/q_shared.h | \
 	sed -e 's/.*".* \([^ ]*\)"/\1/'`;
 
 BIN_OBJ="
 	build/release-darwin-ppc/tremulous.ppc
 	build/release-darwin-x86/tremulous.x86
+"
+BIN_DEDOBJ="
+	build/release-darwin-ppc/ioq3ded.ppc
+	build/release-darwin-i386/ioq3ded.i386
 "
 BASE_OBJ="
 	build/release-darwin-ppc/$BASEDIR/cgameppc.dylib
@@ -24,18 +30,23 @@ if [ ! -f Makefile ]; then
 	echo "This script must be run from the Tremulous build directory";
 fi
 
-if [ ! -d /Developer/SDKs/MacOSX10.2.8.sdk ]; then
-	echo "
-/Developer/SDKs/MacOSX10.2.8.sdk/ is missing, this doesn't install by default
-with newer XCode releases, but the installers is included"
-	exit 1;
-fi
+# this is kind of a hack to find out the latest SDK to use. I assume that newer SDKs apear later in this for loop,
+# thus the last valid one is the one we want.
 
-if [ ! -d /Developer/SDKs/MacOSX10.4u.sdk ]; then
-	echo "
-/Developer/SDKs/MacOSX10.4u.sdk/ is missing.  You must install XCode 2.2 or 
-newer in order to build Universal Binaries"
+for availsdks in /Developer/SDKs/*
+do
+	if [ -d $availsdks ]
+	then
+		SDKDIR="$availsdks"
+	fi
+done
+
+if [ -z $SDKDIR ]
+then
+	echo "MacOSX SDK is missing. Please install a recent version of the MacOSX SDK."
 	exit 1;
+else
+	echo "Using $SDKDIR for compilation"
 fi
 
 (BUILD_MACOSX_UB=ppc make && BUILD_MACOSX_UB=x86 make) || exit 1;
@@ -90,6 +101,7 @@ echo "
 	" > $DESTDIR/$APPBUNDLE/Contents/Info.plist
 
 lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY $BIN_OBJ
+lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN $BIN_DEDOBJ
 cp $BASE_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR/
 cp src/libs/macosx/*.dylib $DESTDIR/$APPBUNDLE/Contents/MacOS/
 
