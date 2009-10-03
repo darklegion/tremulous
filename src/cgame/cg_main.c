@@ -317,13 +317,14 @@ static cvarTable_t cvarTable[ ] =
   
   { &cg_debugVoices, "cg_debugVoices", "0", 0 },
 
-  { &ui_currentClass, "ui_currentClass", "0", 0 },
-  { &ui_carriage, "ui_carriage", "", 0 },
-  { &ui_stages, "ui_stages", "0 0", 0 },
-  { &ui_dialog, "ui_dialog", "Text not set", 0 },
-  { &ui_voteActive, "ui_voteActive", "0", 0 },
-  { &ui_humanTeamVoteActive, "ui_humanTeamVoteActive", "0", 0 },
-  { &ui_alienTeamVoteActive, "ui_alienTeamVoteActive", "0", 0 },
+  // communication cvars set by the cgame to be read by ui
+  { &ui_currentClass, "ui_currentClass", "0", CVAR_ROM },
+  { &ui_carriage, "ui_carriage", "", CVAR_ROM },
+  { &ui_stages, "ui_stages", "0 0", CVAR_ROM },
+  { &ui_dialog, "ui_dialog", "Text not set", CVAR_ROM },
+  { &ui_voteActive, "ui_voteActive", "0", CVAR_ROM },
+  { &ui_humanTeamVoteActive, "ui_humanTeamVoteActive", "0", CVAR_ROM },
+  { &ui_alienTeamVoteActive, "ui_alienTeamVoteActive", "0", CVAR_ROM },
 
   { &cg_debugRandom, "cg_debugRandom", "0", 0 },
   

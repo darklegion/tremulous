@@ -4466,15 +4466,15 @@ void Item_SetTextExtents( itemDef_t *item, int *width, int *height, const char *
   *width = item->textRect.w;
   *height = item->textRect.h;
 
+  // as long as the item isn't dynamic content (ownerdraw or cvar), this
   // keeps us from computing the widths and heights more than once
-
-  if( *width == 0 || ( item->type == ITEM_TYPE_OWNERDRAW && item->textalignment == ALIGN_CENTER ) )
+  if( *width == 0 || item->cvar || ( item->type == ITEM_TYPE_OWNERDRAW &&
+      item->textalignment != ALIGN_LEFT ) )
   {
     int originalWidth;
 
-    if( item->type == ITEM_TYPE_EDITFIELD && item->textalignment == ALIGN_CENTER && item->cvar )
+    if( item->cvar && item->textalignment != ALIGN_LEFT )
     {
-      //FIXME: this will only be called once?
       char buff[256];
       DC->getCVarString( item->cvar, buff, 256 );
       originalWidth = UI_Text_Width( item->text, item->textscale, 0 ) +
