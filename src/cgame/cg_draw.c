@@ -510,10 +510,12 @@ static void CG_DrawPlayerClipsRing( rectDef_t *rect, vec4_t color, qhandle_t sha
   float         buildTime = ps->stats[ STAT_MISC ];
   float         progress;
   float         maxDelay;
+  weapon_t      weapon;
 
   cent = &cg_entities[ cg.snap->ps.clientNum ];
+  weapon = BG_GetPlayerWeapon( ps );
 
-  switch( cent->currentState.weapon )
+  switch( weapon )
   {
     case WP_ABUILD:
     case WP_ABUILD2:
@@ -675,22 +677,22 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
   int           value;
   centity_t     *cent;
   playerState_t *ps;
+  weapon_t      weapon;
 
   cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
+  weapon = BG_GetPlayerWeapon( ps );
 
-  if( cent->currentState.weapon )
+  if( weapon )
   {
-    switch( cent->currentState.weapon )
+    switch( weapon )
     {
       case WP_ABUILD:
       case WP_ABUILD2:
-        //percentage of BP remaining
         value = cgs.alienBuildPoints;
         break;
 
       case WP_HBUILD:
-        //percentage of BP remaining
         value = cgs.humanBuildPoints;
         break;
 
@@ -777,13 +779,13 @@ static void CG_DrawPlayerBuildTimer( rectDef_t *rect, vec4_t color )
   int           index;
   centity_t     *cent;
   playerState_t *ps;
+  weapon_t      weapon;
 
   cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
+  weapon = BG_GetPlayerWeapon( ps );
 
-  if( ( cent->currentState.weapon != WP_ABUILD &&
-        cent->currentState.weapon != WP_ABUILD2 &&
-        cent->currentState.weapon != WP_HBUILD ) ||
+  if( ( weapon != WP_ABUILD && weapon != WP_ABUILD2 && weapon != WP_HBUILD ) ||
       ps->stats[ STAT_MISC ] <= 0 )
     return;
 
@@ -812,30 +814,30 @@ static void CG_DrawPlayerClipsValue( rectDef_t *rect, vec4_t color )
   int           value;
   centity_t     *cent;
   playerState_t *ps;
+  weapon_t      weapon;
 
   cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
+  weapon = BG_GetPlayerWeapon( ps );
 
-  if( cent->currentState.weapon )
+  switch( weapon )
   {
-    switch( cent->currentState.weapon )
-    {
-      case WP_ABUILD:
-      case WP_ABUILD2:
-      case WP_HBUILD:
-        break;
+    case WP_ABUILD:
+    case WP_ABUILD2:
+    case WP_HBUILD:
+    case 0:
+      break;
 
-      default:
-        value = ps->clips;
+    default:
+      value = ps->clips;
 
-        if( value > -1 )
-        {
-          trap_R_SetColor( color );
-          CG_DrawField( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
-          trap_R_SetColor( NULL );
-        }
-        break;
-    }
+      if( value > -1 )
+      {
+        trap_R_SetColor( color );
+        CG_DrawField( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
+        trap_R_SetColor( NULL );
+      }
+      break;
   }
 }
 
@@ -1270,18 +1272,20 @@ float CG_GetValue( int ownerDraw )
 {
   centity_t *cent;
   playerState_t *ps;
+  weapon_t weapon;
 
   cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
+  weapon = BG_GetPlayerWeapon( ps );
 
   switch( ownerDraw )
   {
     case CG_PLAYER_AMMO_VALUE:
-      if( cent->currentState.weapon )
+      if( weapon )
         return ps->ammo;
       break;
     case CG_PLAYER_CLIPS_VALUE:
-      if( cent->currentState.weapon )
+      if( weapon )
         return ps->clips;
       break;
     case CG_PLAYER_HEALTH:
@@ -2076,22 +2080,24 @@ void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
   int           maxAmmo;
   centity_t     *cent;
   playerState_t *ps;
+  weapon_t      weapon;
 
   cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
+  weapon = BG_GetPlayerWeapon( ps );
 
-  BG_FindAmmoForWeapon( cent->currentState.weapon, &maxAmmo, NULL );
+  BG_FindAmmoForWeapon( weapon, &maxAmmo, NULL );
 
   // don't display if dead
   if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
     return;
 
-  if( cent->currentState.weapon == 0 )
+  if( weapon == 0 )
     return;
 
-  CG_RegisterWeapon( cent->currentState.weapon );
+  CG_RegisterWeapon( weapon );
 
-  if( ps->clips == 0 && !BG_FindInfinteAmmoForWeapon( cent->currentState.weapon ) )
+  if( ps->clips == 0 && !BG_FindInfinteAmmoForWeapon( weapon ) )
   {
     float ammoPercent = (float)ps->ammo / (float)maxAmmo;
 
@@ -2114,7 +2120,8 @@ void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
   }
 
   trap_R_SetColor( color );
-  CG_DrawPic( rect->x, rect->y, rect->w, rect->h, cg_weapons[ cent->currentState.weapon ].weaponIcon );
+  CG_DrawPic( rect->x, rect->y, rect->w, rect->h,
+              cg_weapons[ weapon ].weaponIcon );
   trap_R_SetColor( NULL );
 }
 
@@ -2140,12 +2147,15 @@ static void CG_DrawCrosshair( void )
   qhandle_t     hShader;
   float         x, y;
   weaponInfo_t  *wi;
+  weapon_t      weapon;
+  
+  weapon = BG_GetPlayerWeapon( &cg.snap->ps );
 
   if( cg_drawCrosshair.integer == CROSSHAIR_ALWAYSOFF )
     return;
 
   if( cg_drawCrosshair.integer == CROSSHAIR_RANGEDONLY &&
-      !BG_FindLongRangedForWeapon( cg.snap->ps.weapon ) )
+      !BG_FindLongRangedForWeapon( weapon ) )
     return;
 
   if( ( cg.snap->ps.persistant[ PERS_TEAM ] == TEAM_SPECTATOR ) ||
@@ -2156,10 +2166,9 @@ static void CG_DrawCrosshair( void )
   if( cg.renderingThirdPerson )
     return;
 
-  wi = &cg_weapons[ cg.snap->ps.weapon ];
+  wi = &cg_weapons[ weapon ];
 
   w = h = wi->crossHairSize * cg_crosshairSize.value;
-
   w *= cgDC.aspectScale;
 
   x = cg_crosshairX.integer;

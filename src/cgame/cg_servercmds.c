@@ -688,15 +688,8 @@ void CG_Menu( int menu, int arg )
 
     case MN_H_NOARMOURYHERE:
       longMsg   = "You must be near a powered Armoury in order to purchase "
-                  "weapons, upgrades or non-energy ammunition.";
+                  "weapons, upgrades or ammunition.";
       shortMsg  = "You must be near a powered Armoury";
-      type      = DT_ARMOURYEVOLVE;
-      break;
-
-    case MN_H_NOENERGYAMMOHERE:
-      longMsg   = "You must be near an Armoury, Reactor or Repeater in order "
-                  "to purchase energy ammunition.";
-      shortMsg  = "You must be near an Armoury, Reactor or Repeater";
       type      = DT_ARMOURYEVOLVE;
       break;
 

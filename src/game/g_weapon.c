@@ -50,8 +50,6 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
     ps->weaponstate = WEAPON_READY;
   }
   
-  ps->pm_flags |= PMF_WEAPON_SWITCH;
-
   if( weapon == WP_NONE ||
       !BG_InventoryContainsWeapon( weapon, ps->stats ) )
   {
@@ -77,6 +75,9 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
 
   // force this here to prevent flamer effect from continuing
   ps->generic1 = WPM_NOTFIRING;
+
+  // The PMove will do an animated drop, raise, and set the new weapon
+  ps->pm_flags |= PMF_WEAPON_SWITCH;
 }
 
 /*
@@ -86,41 +87,42 @@ G_GiveClientMaxAmmo
 */
 void G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo )
 {
-  int       i;
-  int       maxAmmo, maxClips;
-  qboolean  weaponType, restoredAmmo = qfalse;
+  int i, maxAmmo, maxClips;
+  qboolean restoredAmmo = qfalse, restoredEnergy = qfalse;
 
   for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
   {
-    if( buyingEnergyAmmo )
-      weaponType = BG_FindUsesEnergyForWeapon( i );
-    else
-      weaponType = !BG_FindUsesEnergyForWeapon( i );
-
-    if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
-        weaponType && !BG_FindInfinteAmmoForWeapon( i ) &&
-        !BG_WeaponIsFull( i, ent->client->ps.stats,
-          ent->client->ps.ammo, ent->client->ps.clips ) )
+    qboolean energyWeapon;
+  
+    energyWeapon = BG_FindUsesEnergyForWeapon( i );
+    if( !BG_InventoryContainsWeapon( i, ent->client->ps.stats ) ||
+        BG_FindInfinteAmmoForWeapon( i ) ||
+        BG_WeaponIsFull( i, ent->client->ps.stats,
+                         ent->client->ps.ammo, ent->client->ps.clips ) ||
+        ( buyingEnergyAmmo && !energyWeapon ) )
+      continue;
+      
+    BG_FindAmmoForWeapon( i, &maxAmmo, &maxClips );
+    
+    // Apply battery pack modifier
+    if( energyWeapon &&
+        BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
     {
-      BG_FindAmmoForWeapon( i, &maxAmmo, &maxClips );
-
-      if( buyingEnergyAmmo )
-      {
-        G_AddEvent( ent, EV_RPTUSE_SOUND, 0 );
-
-        if( BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
-          maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
-      }
-
-      ent->client->ps.ammo = maxAmmo;
-      ent->client->ps.clips = maxClips;
-
-      restoredAmmo = qtrue;
+      maxAmmo *= BATTPACK_MODIFIER;
+      restoredEnergy = qtrue;
     }
+
+    ent->client->ps.ammo = maxAmmo;
+    ent->client->ps.clips = maxClips;
+
+    restoredAmmo = qtrue;
   }
 
   if( restoredAmmo )
     G_ForceWeaponChange( ent, ent->client->ps.weapon );
+
+  if( restoredEnergy )
+    G_AddEvent( ent, EV_RPTUSE_SOUND, 0 );
 }
 
 /*
@@ -736,20 +738,20 @@ void painSawFire( gentity_t *ent )
   tr.endpos[ 2 ] -= 5.0f;
 
   // send blood impact
-    if( traceEnt->client )
-    {
+  if( traceEnt->client )
+  {
       BloodSpurt( ent, traceEnt, &tr );
-    }
-    else
+  }
+  else
   {
     VectorCopy( tr.endpos, temp );
-      tent = G_TempEntity( temp, EV_MISSILE_MISS );
+    tent = G_TempEntity( temp, EV_MISSILE_MISS );
     tent->s.eventParm = DirToByte( tr.plane.normal );
     tent->s.weapon = ent->s.weapon;
     tent->s.generic1 = ent->s.generic1; //weaponMode
   }
 
-    G_Damage( traceEnt, ent, ent, forward, tr.endpos, PAINSAW_DAMAGE, DAMAGE_NO_KNOCKBACK, MOD_PAINSAW );
+  G_Damage( traceEnt, ent, ent, forward, tr.endpos, PAINSAW_DAMAGE, DAMAGE_NO_KNOCKBACK, MOD_PAINSAW );
 }
 
 /*

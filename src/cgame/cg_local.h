@@ -278,6 +278,7 @@ typedef struct baseParticle_s
   float           bounceSoundCountRandFrac;
 
   pLerpValues_t   radius;
+  int             physicsRadius;
   pLerpValues_t   alpha;
   pLerpValues_t   rotation;
 

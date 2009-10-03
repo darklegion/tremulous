@@ -435,12 +435,8 @@ struct gclient_s
 
   int                 switchTeamTime;   // time the player switched teams
 
-  // timeResidual is used to handle events that happen every second
-  // like health / armor countdowns and regeneration
-  // two timers, one every 100 msecs, another every sec
-  int                 time100;
-  int                 time1000;
-  int                 time10000;
+  int                 time100;          // timer for 100ms interval events
+  int                 time1000;         // timer for one second interval events
 
   char                *areabits;
 

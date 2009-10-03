@@ -593,10 +593,11 @@ void ClientTimerActions( gentity_t *ent, int msec )
   client = ent->client;
   client->time100 += msec;
   client->time1000 += msec;
-  client->time10000 += msec;
 
   while ( client->time100 >= 100 )
   {
+    weapon_t weapon = BG_GetPlayerWeapon( &client->ps );
+  
     client->time100 -= 100;
 
     // Restore or subtract stamina
@@ -613,10 +614,10 @@ void ClientTimerActions( gentity_t *ent, int msec )
     else if( client->ps.stats[ STAT_STAMINA ] < -MAX_STAMINA )
       client->ps.stats[ STAT_STAMINA ] = -MAX_STAMINA;
 
-    if( client->ps.weapon == WP_ABUILD || client->ps.weapon == WP_ABUILD2 ||
+    if( weapon == WP_ABUILD || weapon == WP_ABUILD2 ||
         BG_InventoryContainsWeapon( WP_HBUILD, client->ps.stats ) )
     {
-        //update build timer
+        // Update build timer
         if( client->ps.stats[ STAT_MISC ] > 0 )
           client->ps.stats[ STAT_MISC ] -= 100;
 
@@ -624,12 +625,13 @@ void ClientTimerActions( gentity_t *ent, int msec )
           client->ps.stats[ STAT_MISC ] = 0;
     }
 
-    switch( client->ps.weapon )
+    switch( weapon )
     {
       case WP_ABUILD:
       case WP_ABUILD2:
       case WP_HBUILD:
-        //set validity bit on buildable
+      
+        // Set validity bit on buildable
         if( ( client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
         {
           int     dist = BG_FindBuildDistForClass( ent->client->ps.stats[ STAT_PCLASS ] );
@@ -655,7 +657,6 @@ void ClientTimerActions( gentity_t *ent, int msec )
           for( i = 0; i < MAX_MISC; i++ )
             client->ps.misc[ i ] = 0;
         }
-
         break;
 
       default:
@@ -813,20 +814,24 @@ void ClientTimerActions( gentity_t *ent, int msec )
     }
   }
 
-  while( client->time10000 >= 10000 )
+  // Regenerate Adv. Dragoon barbs
+  if( client->ps.weapon == WP_ALEVEL3_UPG )
   {
-    client->time10000 -= 10000;
+    int maxAmmo;
 
-    if( client->ps.weapon == WP_ALEVEL3_UPG )
+    BG_FindAmmoForWeapon( WP_ALEVEL3_UPG, &maxAmmo, NULL );
+ 
+    if( client->ps.ammo < maxAmmo )
     {
-      int maxAmmo;
-
-      BG_FindAmmoForWeapon( WP_ALEVEL3_UPG, &maxAmmo, NULL );
-
-      if( client->ps.ammo < maxAmmo )
+      if( ent->timestamp + LEVEL3_BOUNCEBALL_REGEN < level.time )
+      {
         client->ps.ammo++;
+        ent->timestamp = level.time;
+      }
     }
-  }
+    else
+      ent->timestamp = level.time;
+   }
 }
 
 /*

@@ -5143,7 +5143,7 @@ qboolean BG_WeaponIsFull( weapon_t weapon, int stats[ ], int ammo, int clips )
   BG_FindAmmoForWeapon( weapon, &maxAmmo, &maxClips );
 
   if( BG_InventoryContainsUpgrade( UP_BATTPACK, stats ) )
-    maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
+    maxAmmo *= BATTPACK_MODIFIER;
 
   return ( maxAmmo == ammo ) && ( maxClips == clips );
 }
@@ -5157,14 +5157,10 @@ Give a player a weapon
 */
 void BG_AddWeaponToInventory( int weapon, int stats[ ] )
 {
-  int  weaponList;
-
-  weaponList = ( stats[ STAT_WEAPONS ] & 0x0000FFFF ) | ( ( stats[ STAT_WEAPONS2 ] << 16 ) & 0xFFFF0000 );
-
-  weaponList |= ( 1 << weapon );
-
-  stats[ STAT_WEAPONS ] = weaponList & 0x0000FFFF;
-  stats[ STAT_WEAPONS2 ] = ( weaponList & 0xFFFF0000 ) >> 16;
+  if( weapon <= 15 )
+    stats[ STAT_WEAPONS ] |= 1 << weapon;
+  else
+    stats[ STAT_WEAPONS2 ] |= 1 << ( weapon - 16 );
 
   if( stats[ STAT_SLOTS ] & BG_FindSlotsForWeapon( weapon ) )
     Com_Printf( S_COLOR_YELLOW "WARNING: Held items conflict with weapon %d\n", weapon );
@@ -5181,15 +5177,11 @@ Take a weapon from a player
 */
 void BG_RemoveWeaponFromInventory( int weapon, int stats[ ] )
 {
-  int  weaponList;
-
-  weaponList = ( stats[ STAT_WEAPONS ] & 0x0000FFFF ) | ( ( stats[ STAT_WEAPONS2 ] << 16 ) & 0xFFFF0000 );
-
-  weaponList &= ~( 1 << weapon );
-
-  stats[ STAT_WEAPONS ] = weaponList & 0x0000FFFF;
-  stats[ STAT_WEAPONS2 ] = ( weaponList & 0xFFFF0000 ) >> 16;
-
+  if( weapon <= 15 )
+    stats[ STAT_WEAPONS ] &= ~( 1 << weapon );
+  else
+    stats[ STAT_WEAPONS2 ] &= ~( 1 << ( weapon - 16 ) );
+    
   stats[ STAT_SLOTS ] &= ~BG_FindSlotsForWeapon( weapon );
 }
 
@@ -5461,6 +5453,22 @@ int BG_PlayerPoisonCloudTime( playerState_t *ps )
     time -= LIGHTARMOUR_PCLOUD_PROTECTION;
     
   return time;
+}
+
+/*
+=================
+BG_GetPlayerWeapon
+
+Returns the players current weapon or the weapon they are switching to.
+Only needs to be used for human weapons.
+=================
+*/
+weapon_t BG_GetPlayerWeapon( playerState_t *ps )
+{
+  if( ps->persistant[ PERS_NEWWEAPON ] &&
+      ps->persistant[ PERS_NEWWEAPON ] != ps->weapon )
+    return ps->persistant[ PERS_NEWWEAPON ];
+  return ps->weapon;
 }
 
 /*

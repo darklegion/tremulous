@@ -1949,61 +1949,28 @@ Cmd_Buy_f
 */
 void Cmd_Buy_f( gentity_t *ent )
 {
-  char      s[ MAX_TOKEN_CHARS ];
-  int       i;
-  int       weapon, upgrade, numItems = 0;
-  int       maxAmmo, maxClips;
-  qboolean  buyingEnergyAmmo = qfalse;
-  qboolean  hasEnergyWeapon = qfalse;
-
-  for( i = UP_NONE; i < UP_NUM_UPGRADES; i++ )
-  {
-    if( BG_InventoryContainsUpgrade( i, ent->client->ps.stats ) )
-      numItems++;
-  }
-
-  for( i = WP_NONE; i < WP_NUM_WEAPONS; i++ )
-  {
-    if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) )
-    {
-      if( BG_FindUsesEnergyForWeapon( i ) )
-        hasEnergyWeapon = qtrue;
-      numItems++;
-    }
-  }
+  char s[ MAX_TOKEN_CHARS ];
+  int i, weapon, upgrade, maxAmmo, maxClips;
+  qboolean energyOnly;
 
   trap_Argv( 1, s, sizeof( s ) );
 
   weapon = BG_FindWeaponNumForName( s );
   upgrade = BG_FindUpgradeNumForName( s );
 
-  //special case to keep norf happy
-  if( weapon == WP_NONE && upgrade == UP_AMMO )
-  {
-    buyingEnergyAmmo = hasEnergyWeapon;
-  }
-
-  if( buyingEnergyAmmo )
-  {
-    //no armoury nearby
-    if( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_REACTOR ) &&
-        !G_BuildableRange( ent->client->ps.origin, 100, BA_H_REPEATER ) &&
-        !G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
-    {
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOENERGYAMMOHERE );
-      return;
-    }
-  }
+  // Seems odd to let people 'buy ammo' from a Reactor but allow this
+  // and make sure we only give energy ammo in this case
+  if( G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
+    energyOnly = qfalse;
+  else if( G_BuildableRange( ent->client->ps.origin, 100, BA_H_REACTOR ) ||
+           G_BuildableRange( ent->client->ps.origin, 100, BA_H_REPEATER ) )
+    energyOnly = qtrue;
   else
   {
-    //no armoury nearby
-    if( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
-    {
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOARMOURYHERE );
-      return;
-    }
+    G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOARMOURYHERE );
+    return;
   }
-
+  
   if( weapon != WP_NONE )
   {
     //already got this?
@@ -2027,9 +1994,9 @@ void Cmd_Buy_f( gentity_t *ent )
       return;
     }
 
+    // Only humans can buy stuff
     if( BG_FindTeamForWeapon( weapon ) != WUT_HUMANS )
     {
-      //shouldn't need a fancy dialog
       trap_SendServerCommand( ent-g_entities, va( "print \"You can't buy alien items\n\"" ) );
       return;
     }
@@ -2048,6 +2015,7 @@ void Cmd_Buy_f( gentity_t *ent )
       return;
     }
     
+    // In some instances, weapons can't be changed
     if( !BG_PlayerCanChangeWeapon( &ent->client->ps ) )
       return;
 
@@ -2057,8 +2025,8 @@ void Cmd_Buy_f( gentity_t *ent )
 
     if( BG_FindUsesEnergyForWeapon( weapon ) &&
         BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
-      maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
-
+      maxAmmo *= BATTPACK_MODIFIER;
+      
     ent->client->ps.ammo = maxAmmo;
     ent->client->ps.clips = maxClips;
 
@@ -2093,9 +2061,9 @@ void Cmd_Buy_f( gentity_t *ent )
       return;
     }
 
+    // Only humans can buy stuff
     if( BG_FindTeamForUpgrade( upgrade ) != WUT_HUMANS )
     {
-      //shouldn't need a fancy dialog
       trap_SendServerCommand( ent-g_entities, va( "print \"You can't buy alien items\n\"" ) );
       return;
     }
@@ -2115,7 +2083,7 @@ void Cmd_Buy_f( gentity_t *ent )
     }
 
     if( upgrade == UP_AMMO )
-      G_GiveClientMaxAmmo( ent, buyingEnergyAmmo );
+      G_GiveClientMaxAmmo( ent, qfalse );
     else
     {
       if( upgrade == UP_BATTLESUIT )
@@ -2143,9 +2111,7 @@ void Cmd_Buy_f( gentity_t *ent )
     G_AddCreditToClient( ent->client, -(short)BG_FindPriceForUpgrade( upgrade ), qfalse );
   }
   else
-  {
     G_TriggerMenu( ent->client->ps.clientNum, MN_H_UNKNOWNITEM );
-  }
 
   //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum );
@@ -2177,6 +2143,8 @@ void Cmd_Sell_f( gentity_t *ent )
 
   if( weapon != WP_NONE )
   {
+    weapon_t selected = BG_GetPlayerWeapon( &ent->client->ps );
+  
     if( !BG_PlayerCanChangeWeapon( &ent->client->ps ) )
       return;
   
@@ -2204,7 +2172,7 @@ void Cmd_Sell_f( gentity_t *ent )
     }
 
     //if we have this weapon selected, force a new selection
-    if( weapon == ent->client->ps.weapon )
+    if( weapon == selected )
       G_ForceWeaponChange( ent, WP_NONE );
   }
   else if( upgrade != UP_NONE )
@@ -2245,6 +2213,8 @@ void Cmd_Sell_f( gentity_t *ent )
   }
   else if( !Q_stricmp( s, "weapons" ) )
   {
+    weapon_t selected = BG_GetPlayerWeapon( &ent->client->ps );
+
     if( !BG_PlayerCanChangeWeapon( &ent->client->ps ) )
       return;
 
@@ -2267,7 +2237,7 @@ void Cmd_Sell_f( gentity_t *ent )
       }
 
       //if we have this weapon selected, force a new selection
-      if( i == ent->client->ps.weapon )
+      if( i == selected )
         G_ForceWeaponChange( ent, WP_NONE );
     }
   }
@@ -2305,7 +2275,7 @@ void Cmd_Sell_f( gentity_t *ent )
     }
   }
   else
-    trap_SendServerCommand( ent-g_entities, va( "print \"Unknown item\n\"" ) );
+    G_TriggerMenu( ent->client->ps.clientNum, MN_H_UNKNOWNITEM );
 
   //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum );

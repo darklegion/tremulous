@@ -1167,6 +1167,14 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
 
       continue;
     }
+    else if( !Q_stricmp( token, "physicsRadius" ) )
+    {
+      token = COM_Parse( text_p );
+      if( !token )
+        break;
+      
+      bp->physicsRadius = atoi( token );      
+    }
     else if( !Q_stricmp( token, "alpha" ) )
     {
       token = COM_Parse( text_p );
@@ -2098,11 +2106,13 @@ static void CG_EvaluateParticlePhysics( particle_t *p )
                  acceleration );
   }
 
-  radius = CG_LerpValues( p->radius.initial,
-                 p->radius.final,
-                 CG_CalculateTimeFrac( p->birthTime,
-                                       p->lifeTime,
-                                       p->radius.delay ) );
+  // Some particles have a visual radius that differs from their collision radius
+  if( bp->physicsRadius )
+    radius = bp->physicsRadius;
+  else
+    radius = CG_LerpValues( p->radius.initial, p->radius.final,
+                            CG_CalculateTimeFrac( p->birthTime, p->lifeTime,
+                                                  p->radius.delay ) );
 
   VectorSet( mins, -radius, -radius, -radius );
   VectorSet( maxs, radius, radius, radius );

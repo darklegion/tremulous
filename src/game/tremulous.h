@@ -106,6 +106,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL3_BOUNCEBALL_REPEAT    1000
 #define LEVEL3_BOUNCEBALL_SPEED     1000.0f
 #define LEVEL3_BOUNCEBALL_RADIUS    30
+#define LEVEL3_BOUNCEBALL_REGEN     10000    // msec until new barb
 
 #define LEVEL4_CLAW_DMG             ADM(100)
 #define LEVEL4_CLAW_RANGE           116.0f
@@ -446,10 +447,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define FLAMER_REPEAT               200
 #define FLAMER_K_SCALE              1.0f
 #define FLAMER_DMG                  HDM(20)
-#define FLAMER_RADIUS               50
-#define FLAMER_LIFETIME             800.0f
+#define FLAMER_RADIUS               50       // splash radius
+#define FLAMER_SIZE                 8        // missile bounding box
+#define FLAMER_LIFETIME             600.0f
 #define FLAMER_SPEED                300.0f
-#define FLAMER_LAG                  0.65f  //the amount of player velocity that is added to the fireball
+#define FLAMER_LAG                  0.65f    // the amount of player velocity that is added to the fireball
 
 #define LCANNON_PRICE               600
 #define LCANNON_AMMO                80
@@ -458,10 +460,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LCANNON_RELOAD              0
 #define LCANNON_DAMAGE              HDM(265)
 #define LCANNON_RADIUS              150      // primary splash damage radius
-#define LCANNON_SIZE                10       // bounding box radius for full charge
+#define LCANNON_SIZE                8        // bounding box radius for full charge
 #define LCANNON_SECONDARY_DAMAGE    HDM(30)
 #define LCANNON_SECONDARY_RADIUS    75       // secondary splash damage radius
-#define LCANNON_SECONDARY_SIZE      3        // bounding box radius
+#define LCANNON_SECONDARY_SIZE      4        // bounding box radius
 #define LCANNON_SECONDARY_SPEED     1400
 #define LCANNON_SECONDARY_RELOAD    2000
 #define LCANNON_SECONDARY_REPEAT    1000

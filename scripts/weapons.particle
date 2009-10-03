@@ -317,6 +317,8 @@ models/weapons/flamer/muzzlePS
       accelerationDir       linear
       accelerationMagnitude 50
       acceleration          0 0 1 ~0
+      
+      physicsRadius 8
 
       radius 0 4.0 40.0
       alpha  0 1.0 1.0
@@ -551,7 +553,7 @@ models/weapons/lcannon/impactPS
       alpha  0 1.0 0.0
       rotation 0 ~360 -
       
-      scaleWithCharge 0.13
+      scaleWithCharge 0.10
 
       lifeTime 250
     }
@@ -619,7 +621,7 @@ models/weapons/lcannon/impactPS
       rotation 0 ~360 -
       bounce 1.0
       
-      scaleWithCharge 0.13
+      scaleWithCharge 0.10
 
       lifeTime 1000~1000
     }

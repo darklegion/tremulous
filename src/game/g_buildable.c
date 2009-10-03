@@ -1656,13 +1656,10 @@ Use for human power repeater
 */
 void HRepeater_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-  if( self->health <= 0 )
+  if( self->health <= 0 || !self->spawned )
     return;
 
-  if( !self->spawned )
-    return;
-
-  if( other )
+  if( other && other->client )
     G_GiveClientMaxAmmo( other, qtrue );
 }
 

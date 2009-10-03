@@ -3017,7 +3017,7 @@ static void PM_Weapon( void )
 
     if( BG_FindUsesEnergyForWeapon( pm->ps->weapon ) &&
         BG_InventoryContainsUpgrade( UP_BATTPACK, pm->ps->stats ) )
-      pm->ps->ammo = (int)( (float)pm->ps->ammo * BATTPACK_MODIFIER );
+      pm->ps->ammo *= BATTPACK_MODIFIER;
 
     //allow some time for the weapon to be raised
     pm->ps->weaponstate = WEAPON_RAISING;
@@ -3027,18 +3027,15 @@ static void PM_Weapon( void )
   }
 
   // check for end of clip
-  if( ( !pm->ps->ammo || pm->ps->pm_flags & PMF_WEAPON_RELOAD ) && pm->ps->clips )
+  if( ( !pm->ps->ammo || ( pm->ps->pm_flags & PMF_WEAPON_RELOAD ) ) && pm->ps->clips )
   {
     pm->ps->pm_flags &= ~PMF_WEAPON_RELOAD;
-
     pm->ps->weaponstate = WEAPON_RELOADING;
 
     //drop the weapon
     PM_StartTorsoAnim( TORSO_DROP );
 
-    addTime = BG_FindReloadTimeForWeapon( pm->ps->weapon );
-
-    pm->ps->weaponTime += addTime;
+    pm->ps->weaponTime += BG_FindReloadTimeForWeapon( pm->ps->weapon );
     return;
   }
 
@@ -3264,7 +3261,8 @@ static void PM_Weapon( void )
     pm->ps->weaponstate = WEAPON_FIRING;
 
   // take an ammo away if not infinite
-  if( !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) )
+  if( !BG_FindInfinteAmmoForWeapon( pm->ps->weapon ) ||
+      ( pm->ps->weapon == WP_ALEVEL3_UPG && attack3 ) )
   {
     // Special case for lcannon
     if( pm->ps->weapon == WP_LUCIFER_CANNON && attack1 && !attack2 )
@@ -3276,11 +3274,6 @@ static void PM_Weapon( void )
     // Stay on the safe side
     if( pm->ps->ammo < 0 )
       pm->ps->ammo = 0;
-  }
-  else if( pm->ps->weapon == WP_ALEVEL3_UPG && attack3 )
-  {
-    //special case for slowblob
-    pm->ps->ammo--;
   }
 
   //FIXME: predicted angles miss a problem??
