@@ -1129,9 +1129,9 @@ void ClientUserinfoChanged( int clientNum )
   
   s = Info_ValueForKey( userinfo, "cg_unlagged" );
   if( !s[0] || atoi( s ) != 0 )
-    client->useUnlagged = qtrue;
+    client->pers.useUnlagged = qtrue;
   else
-    client->useUnlagged = qfalse;
+    client->pers.useUnlagged = qfalse;
 
   // colors
   strcpy( c1, Info_ValueForKey( userinfo, "color1" ) );

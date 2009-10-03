@@ -339,6 +339,7 @@ typedef struct
   qboolean            denyBuild;
   int                 adminLevel;
   char                voice[ MAX_VOICE_NAME_LEN ];
+  qboolean            useUnlagged;  
 } clientPersistant_t;
 
 #define MAX_UNLAGGED_MARKERS 10
@@ -435,7 +436,6 @@ struct gclient_s
   unlagged_t          unlaggedBackup;
   unlagged_t          unlaggedCalc;
   int                 unlaggedTime;
-  qboolean            useUnlagged;  
  
   float               voiceEnthusiasm;
   char                lastVoiceCmd[ MAX_VOICE_CMD_LEN ];

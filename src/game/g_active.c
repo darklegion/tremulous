@@ -1171,7 +1171,7 @@ void G_UnlaggedOn( gentity_t *attacker, vec3_t muzzle, float range )
   if( !g_unlagged.integer )
     return;
 
-  if( !attacker->client->useUnlagged )
+  if( !attacker->client->pers.useUnlagged )
     return;
 
   for( i = 0; i < level.maxclients; i++ )
@@ -1242,7 +1242,7 @@ static void G_UnlaggedDetectCollisions( gentity_t *ent )
   if( !g_unlagged.integer )
     return;
 
-  if( !ent->client->useUnlagged )
+  if( !ent->client->pers.useUnlagged )
     return;
 
   calc = &ent->client->unlaggedCalc;
