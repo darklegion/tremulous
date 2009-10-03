@@ -2194,7 +2194,7 @@ void HMedistat_Think( gentity_t *self )
       if( self->enemy == player && player->client &&
           player->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS &&
           player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] &&
-          player->client->ps.pm_type != PM_DEAD )
+          PM_Live( player->client->ps.pm_type ) )
       {
         occupied = qtrue;
         player->client->ps.stats[ STAT_STATE ] |= SS_HEALING_ACTIVE;
@@ -2214,7 +2214,7 @@ void HMedistat_Think( gentity_t *self )
         {
           if( ( player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] ||
                 player->client->ps.stats[ STAT_STAMINA ] < MAX_STAMINA ) &&
-              player->client->ps.pm_type != PM_DEAD )
+              PM_Live( player->client->ps.pm_type ) )
           {
             self->enemy = player;
 
