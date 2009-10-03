@@ -36,15 +36,7 @@ Check if a map exists
 */
 static qboolean G_MapExists( char *name )
 {
-  fileHandle_t  f;
-
-  if( trap_FS_FOpenFile( va( "maps/%s.bsp", name ), &f, FS_READ ) > 0 )
-  {
-    trap_FS_FCloseFile( f );
-    return qtrue;
-  }
-  else
-    return qfalse;
+  return trap_FS_FOpenFile( va( "maps/%s.bsp", name ), NULL, FS_READ );
 }
 
 /*
