@@ -803,6 +803,7 @@ int G_PopSpawnQueue( spawnQueue_t *sq )
   {
     sq->clients[ sq->front ] = -1;
     sq->front = QUEUE_PLUS1( sq->front );
+    G_StopFollowing( g_entities + clientNum );
     g_entities[ clientNum ].client->ps.pm_flags &= ~PMF_QUEUED;
 
     return clientNum;
