@@ -906,7 +906,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles )
   }
 
   // drop the weapon when landing
-  if( weapon->noDrift )
+  if( !weapon->noDrift )
   {
     delta = cg.time - cg.landTime;
     if( delta < LAND_DEFLECT_TIME )
