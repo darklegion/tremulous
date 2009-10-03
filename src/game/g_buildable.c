@@ -2444,7 +2444,7 @@ void HTeslaGen_Think( gentity_t *self )
     return;
   }
 
-  if( self->spawned && self->count < level.time )
+  if( self->spawned && self->timestamp < level.time )
   {
     vec3_t range, mins, maxs;
     int entityList[ MAX_GENTITIES ], i, num;
@@ -2476,7 +2476,7 @@ void HTeslaGen_Think( gentity_t *self )
       //doesn't really need an anim
       //G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
 
-      self->count = level.time + TESLAGEN_REPEAT;
+      self->timestamp = level.time + TESLAGEN_REPEAT;
     }
   }
 }
